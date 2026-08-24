@@ -5,7 +5,7 @@ inherited frmFichaFinanceiraFornecedor: TfrmFichaFinanceiraFornecedor
   ActiveControl = mmoReferencia
   BorderIcons = [biSystemMenu, biMinimize]
   Caption = 'Ficha Financeira do Fornecedor'
-  ClientHeight = 477
+  ClientHeight = 482
   ClientWidth = 1119
   Font.Name = 'Arial'
   FormStyle = fsMDIChild
@@ -76,7 +76,7 @@ inherited frmFichaFinanceiraFornecedor: TfrmFichaFinanceiraFornecedor
     Left = 0
     Top = 45
     Width = 1119
-    Height = 432
+    Height = 437
     Align = alClient
     BevelOuter = bvNone
     BorderWidth = 3

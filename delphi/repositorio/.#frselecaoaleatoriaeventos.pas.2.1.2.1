@@ -1,0 +1,225 @@
+unit frselecaoaleatoriaeventos;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, classes, Graphics, Controls, Forms, 
+  Dialogs, frselecaoaleatoria, db, frConsulta, frConsultaCodigo, frConsultaContabil, frConsultaCodigoContabil,
+  cpdbfindcontrols, ctconstantes, biblio;
+
+type
+  TfraSelecaoaleatoriaeventos = class(TFrame)
+    fraSelecaoAleatoriaeventos: TfraSelecaoAleatoria;
+    procedure fraSelecaoAleatoriaeventosdbgSelecaoAleatoriaDblClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaeventosdbgSelecaoAleatoriaKeyDown(
+      Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure fraSelecaoaleatoriaeventosbnProcuraClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaeventosqrySelecaoAleatoriaAfterOpen(
+      DataSet: TDataSet);
+    procedure fraSelecaoAleatoriaeventosqrySelecaoAleatoriaNewRecord(
+      DataSet: TDataSet);
+  private
+    { Private declarations }
+    procedure AcionarPesquisaGrade;
+    procedure AtribuirDadoseventos;
+    function GetListaCondicional: String;
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    property ListaCondicional: String read GetListaCondicional;
+
+
+  end;
+
+implementation
+
+{uses frconsultacontabil;}
+
+{$R *.dfm}
+
+{ TfraSelecaoaleatoriaeventos }
+
+procedure TfraSelecaoaleatoriaeventos.AcionarPesquisaGrade;
+begin
+  with fraSelecaoAleatoriaeventos do
+  begin
+    dbgSelecaoAleatoria.SetFocus;
+    ConsultaSelecaoAleatoriaContabil.CtrlOn := True;
+    ConsultaSelecaoAleatoriaContabil.InternoPesquisar('Evento');
+    dbgSelecaoAleatoria.SetFocus;
+    dbgSelecaoAleatoria.SelectedIndex :=  0;
+  end;
+end;
+
+constructor TfraSelecaoaleatoriaeventos.Create(AOwner: TComponent);
+begin
+  inherited;
+
+  fraSelecaoAleatoriaeventos.qrySelecaoAleatoria.Sql.Text :=
+//     'SELECT  Codigo, descricao FROM produtos WHERE false';
+     'SELECT  cast(null as char(18)) as Codigo, '+
+            ' cast(null as char(1)) as tipo, '+
+            ' cast(null as varchar(50)) as descricao, '+
+            ' cast(null as varchar(11)) as campo, '+
+            ' cast(null as varchar(20)) as opcomparacao, '+
+            ' cast(null as varchar(2)) as oplogico ';
+
+
+
+
+  fraSelecaoAleatoriaeventos.CampoParaLista := 'codigo';
+
+
+  with fraSelecaoAleatoriaeventos do
+  begin
+
+    ConsultaSelecaoAleatoriaContabil := TfraConsultaCodigoContabil.Create(self);
+    ConsultaSelecaoAleatoriaContabil.Name := 'fraConsultaSelecaoAleatoria';
+    ConsultaSelecaoAleatoriaContabil.edfCodigo.MaxLength := 4;
+    ConsultaSelecaoAleatoriaContabil.edfCodigo.DataSource := dsrSelecaoAleatoria;
+    ConsultaSelecaoAleatoriaContabil.edfCodigo.DataField := 'codigo';
+    ConsultaSelecaoAleatoriaContabil.edfCodigo.DataaFieldInterno := 'codigo';
+    ConsultaSelecaoAleatoriaContabil.edfCodigo.DataaFieldVisual := 'codigo';
+
+    ConsultaSelecaoAleatoriaContabil.edfCodigo.Operacao := opATRIBUICAO;
+    ConsultaSelecaoAleatoriaContabil.edfCodigo.LookupSource := ConsultaSelecaoAleatoriaContabil.dsrProcuraeventos;
+    ConsultaSelecaoAleatoriaContabil.edfCodigo.LookupQueryParameter := 'codigo';
+    ConsultaSelecaoAleatoriaContabil.edfCodigo.LookupField := 'codigo';
+    ConsultaSelecaoAleatoriaContabil.edfCodigo.LookupaFieldinterno := 'codigo';
+    ConsultaSelecaoAleatoriaContabil.edfCodigo.LookupaFieldVisual := 'codigo';
+    ConsultaSelecaoAleatoriaContabil.edfCodigo.NaoExecutarLookupFound := true;
+
+    ConsultaSelecaoAleatoriaContabil.AbrirTabelaProcura := false;
+//    ConsultaSelecaoAleatoriaContabil.CondicoesdaConsulta := CondicoesFluxoGramasOperacoes;
+    ConsultaSelecaoAleatoriaContabil.TipoPesquisa := pesEVENTO;
+    ConsultaSelecaoAleatoriaContabil.OnFound := AtribuirDadoseventos;
+    fraSelecaoAleatoriaeventos.ConsultaSelecaoAleatoriaContabil.edfCodigo.ExibirMensagem := false;
+
+  end;
+  fraSelecaoAleatoriaeventos.UtilizarCamparacaoeLogica := true;
+end;
+
+procedure TfraSelecaoaleatoriaeventos.fraSelecaoAleatoriaeventosdbgSelecaoAleatoriaDblClick(
+  Sender: TObject);
+begin
+  if (fraSelecaoAleatoriaeventos.dbgSelecaoAleatoria.SelectedField = fraSelecaoAleatoriaeventos.qrySelecaoAleatoria.FieldByName('codigo')) then
+    acionarPesquisaGrade;
+end;
+
+procedure TfraSelecaoaleatoriaeventos.fraSelecaoAleatoriaeventosdbgSelecaoAleatoriaKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      VK_F9     : begin
+                     if (fraSelecaoAleatoriaeventos.dbgSelecaoAleatoria.SelectedField = fraSelecaoAleatoriaeventos.qrySelecaoAleatoria.FieldByName('codigo')) then
+                     begin
+                       fraSelecaoAleatoriaeventos.ConsultaSelecaoAleatoriaContabil.CtrlOn := Shift = [ssCtrl];
+                       if (Shift = []) or fraSelecaoAleatoriaeventos.ConsultaSelecaoAleatoriaContabil.CtrlOn then
+                         AcionarPesquisaGrade
+                     end;
+                   end;
+    end;
+  end
+  else
+  case Key of
+    VK_Return: if (fraSelecaoAleatoriaeventos.dbgSelecaoAleatoria.SelectedField = fraSelecaoAleatoriaeventos.qrySelecaoAleatoria.FieldByName('codigo')) then
+                begin
+                  fraSelecaoAleatoriaeventos.ConsultaSelecaoAleatoriaContabil.edfCodigo.text := fraSelecaoAleatoriaeventos.qrySelecaoAleatoria.FieldByName('codigo').asString;
+                  fraSelecaoAleatoriaeventos.ConsultaSelecaoAleatoriaContabil.edfCodigo.modified := true;
+                  fraSelecaoAleatoriaeventos.ConsultaSelecaoAleatoriaContabil.qryProcuraeventos.close;
+                  fraSelecaoAleatoriaeventos.ConsultaSelecaoAleatoriaContabil.qryProcuraeventos.parambyname('codigo').asString := fraSelecaoAleatoriaeventos.qrySelecaoAleatoria.FieldByName('codigo').asString;
+                  fraSelecaoAleatoriaeventos.ConsultaSelecaoAleatoriaContabil.qryProcuraeventos.open;
+                  fraSelecaoAleatoriaeventos.ConsultaSelecaoAleatoriaContabil.edfCodigo.exist;
+
+                  if not fraSelecaoAleatoriaeventos.ConsultaSelecaoAleatoriaContabil.qryProcuraeventos.IsEmpty then
+                    AtribuirDadoseventos
+                  else
+                  begin
+                    key := 0;
+                    fraSelecaoAleatoriaeventos.dbgSelecaoAleatoria.SelectedIndex := 0;
+                    fraSelecaoAleatoriaeventos.dbgSelecaoAleatoria.SetFocus;
+                  end;
+                end;
+  end;
+
+end;
+
+procedure TfraSelecaoaleatoriaeventos.fraSelecaoaleatoriaeventosbnProcuraClick(
+  Sender: TObject);
+begin
+  AcionarPesquisaGrade;
+
+end;
+
+procedure TfraSelecaoaleatoriaeventos.fraSelecaoAleatoriaeventosqrySelecaoAleatoriaAfterOpen(
+  DataSet: TDataSet);
+begin
+  with fraSelecaoAleatoriaeventos do
+  begin
+    qrySelecaoAleatoria.FieldByName('codigo').DisplayLabel := 'Evento';
+//    qrySelecaoAleatoria.FieldByName('codigo').SetFieldType(ftLargeInt);
+    qrySelecaoAleatoria.FieldByName('codigo').ReadOnly := False;
+
+    qrySelecaoAleatoria.FieldByName('descricao').DisplayLabel := 'Descrição';
+    qrySelecaoAleatoria.FieldByName('descricao').ReadOnly := false;
+
+    qrySelecaoAleatoria.FieldByName('opcomparacao').DisplayLabel := 'Comparação';
+    qrySelecaoAleatoria.FieldByName('opcomparacao').ReadOnly := false;
+
+    qrySelecaoAleatoria.FieldByName('oplogico').DisplayLabel := 'Lógica';
+    qrySelecaoAleatoria.FieldByName('oplogico').ReadOnly := false;
+
+    qrySelecaoAleatoria.Append;
+    qrySelecaoAleatoria.Post;
+  end;
+
+end;
+
+procedure TfraSelecaoaleatoriaeventos.fraSelecaoAleatoriaeventosqrySelecaoAleatoriaNewRecord(
+  DataSet: TDataSet);
+begin
+  with fraSelecaoAleatoriaeventos do
+  begin
+    qrySelecaoAleatoria.FieldByName('campo').asString := 'codigo';
+    qrySelecaoAleatoria.FieldByName('opcomparacao').asString := '= Igual a';
+    qrySelecaoAleatoria.FieldByName('oplogico').asString := 'ou';
+  end;
+end;
+
+procedure TfraSelecaoaleatoriaeventos.AtribuirDadoseventos;
+begin
+  with fraSelecaoAleatoriaeventos do
+  begin
+    qrySelecaoAleatoria.Edit;
+    qrySelecaoAleatoria.FieldByName('codigo').AsString :=
+        ConsultaSelecaoAleatoriaContabil.qryProcuraEventos.fieldbyname('codigo').AsString;
+
+    qrySelecaoAleatoria.FieldByName('descricao').AsString :=
+        ConsultaSelecaoAleatoriaContabil.qryProcuraeventos.fieldbyname('descricao').AsString;
+
+    if qrySelecaoAleatoria.FieldByName('campo').asString = '' then
+      qrySelecaoAleatoria.FieldByName('campo').asString := 'codigo';
+
+    if qrySelecaoAleatoria.FieldByName('opcomparacao').asString = '' then
+      qrySelecaoAleatoria.FieldByName('opcomparacao').asString := '= Igual a';
+
+    if qrySelecaoAleatoria.FieldByName('oplogico').asString = '' then
+      qrySelecaoAleatoria.FieldByName('oplogico').asString := 'ou';
+
+    qrySelecaoAleatoria.Post;
+
+  end;
+end;
+
+function TfraSelecaoaleatoriaeventos.GetListaCondicional: String;
+begin
+  result := trocar(fraSelecaoAleatoriaeventos.ListaCondicional, 'codigo', 'e.codigo');
+  result := trocar(result, 'descricao','e.nome');
+end;
+
+end.

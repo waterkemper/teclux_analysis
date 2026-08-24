@@ -6,7 +6,7 @@ inherited frmPlanoContas: TfrmPlanoContas
   ClientHeight = 501
   ClientWidth = 1035
   FormStyle = fsMDIChild
-  Position = poDesktopCenter
+  Position = poScreenCenter
   Visible = True
   PixelsPerInch = 96
   TextHeight = 16

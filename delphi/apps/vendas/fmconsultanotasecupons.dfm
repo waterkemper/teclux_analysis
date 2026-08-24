@@ -1,7 +1,7 @@
 inherited frmConsultaNotaseCupons: TfrmConsultaNotaseCupons
   Left = 330
   Top = 169
-  ActiveControl = edtEmissaoInicial
+  ActiveControl = pgcNotasCuponsDestinatario
   BorderIcons = [biSystemMenu, biMinimize, biMaximize]
   Caption = 'Consulta Notas e Cupons Fiscais'
   ClientHeight = 645
@@ -594,7 +594,7 @@ inherited frmConsultaNotaseCupons: TfrmConsultaNotaseCupons
       Top = 0
       Width = 1010
       Height = 600
-      ActivePage = tstParametros
+      ActivePage = tstRegistrosSelecionados
       Align = alClient
       TabOrder = 0
       TabStop = False
@@ -1405,29 +1405,13 @@ inherited frmConsultaNotaseCupons: TfrmConsultaNotaseCupons
                   inherited tstItemdeProduto: TTabSheet
                     Font.Pitch = fpVariable
                     inherited fraSelecaoAleatoriaItemdeProdutos: TfraSelecaoAleatoriaItemdeProdutos
-                      Width = 961
-                      Height = 116
                       inherited fraSelecaoAleatoriaItemdeProduto: TfraSelecaoAleatoria
-                        Width = 961
-                        Height = 96
-                        inherited Splitter1: TSplitter
-                          Left = 926
-                          Height = 82
-                        end
                         inherited dbgSelecaoAleatoria: TtecDBGrid
-                          Width = 926
-                          Height = 82
                           Font.Height = -12
                           Font.Name = 'HELVETICA'
                           DefaultRowHeight = 19
                         end
-                        inherited pnlLabels: TPanel
-                          Left = 929
-                          Height = 82
-                        end
                         inherited pnlAbaixo: TPanel
-                          Top = 82
-                          Width = 961
                           Font.Pitch = fpVariable
                           inherited lblOrientacao: TLabel
                             Font.Pitch = fpVariable
@@ -1439,8 +1423,6 @@ inherited frmConsultaNotaseCupons: TfrmConsultaNotaseCupons
                         end
                       end
                       inherited pnlParametros: TPanel
-                        Top = 96
-                        Width = 961
                         Font.Pitch = fpVariable
                         inherited ckbProdutosComAgendamento: TCheckBox
                           Font.Pitch = fpVariable
@@ -1453,11 +1435,27 @@ inherited frmConsultaNotaseCupons: TfrmConsultaNotaseCupons
                   end
                   inherited tstProduto: TTabSheet
                     inherited fraSelecaoAleatoriaprodutos: TfraSelecaoAleatoriaprodutos
+                      Width = 961
+                      Height = 116
                       inherited fraSelecaoAleatoriaProduto: TfraSelecaoAleatoria
+                        Width = 961
+                        Height = 116
+                        inherited Splitter1: TSplitter
+                          Left = 926
+                          Height = 101
+                        end
                         inherited dbgSelecaoAleatoria: TtecDBGrid
+                          Width = 926
+                          Height = 101
                           Font.Height = -12
                         end
+                        inherited pnlLabels: TPanel
+                          Left = 929
+                          Height = 101
+                        end
                         inherited pnlAbaixo: TPanel
+                          Top = 101
+                          Width = 961
                           Font.Pitch = fpVariable
                           inherited lblOrientacao: TLabel
                             Font.Pitch = fpVariable
@@ -1972,7 +1970,7 @@ inherited frmConsultaNotaseCupons: TfrmConsultaNotaseCupons
             Top = 1
             Width = 587
             Height = 355
-            ActivePage = tstNFPSe
+            ActivePage = tstNFe
             Align = alLeft
             TabOrder = 0
             object tstDestinatario: TTabSheet

@@ -1,0 +1,26 @@
+unit cptransact;
+
+interface
+
+uses
+  SysUtils, Classes, ZTransact, ZPgSqlTr;
+
+type
+  TtecTransact = class(TZPgSqlTransact)
+  public
+    procedure Connect; override;
+  end;                            
+
+implementation
+
+{ TtecTransact }
+
+procedure TtecTransact.Connect;
+begin
+  inherited;
+  ExecSql('SET DateStyle TO ''ISO, European''',Self);
+//  ExecSql('SET CLIENT_ENCODING TO ''sql_ascii''',Self);
+  self.PID
+end;
+
+end.

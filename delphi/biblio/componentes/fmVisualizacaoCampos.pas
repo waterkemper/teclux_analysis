@@ -54,7 +54,7 @@ begin
   qryCampos.database := Database;
   qryCampos.close;
   qryCampos.open;
-  qryCampos.delete;
+//  qryCampos.delete;
 end;
 
 destructor TfrmVisualizacaoCampos.Destroy;

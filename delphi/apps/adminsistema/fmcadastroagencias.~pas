@@ -1,0 +1,180 @@
+unit fmcadastroagencias;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, ComCtrls, Buttons, ExtCtrls, DBCtrls, Mask, DB, {Qete,}
+  //Terceiros
+  ZQuery,
+  //Biblio
+  ctconstantes, biblio,
+  // Componentes
+  cpdbfindcontrols, cptexto, cpdocumento, cpdbtext, cpdbgrid, cpdbdata,
+  cpcnpj, cpnumero, Windows,
+  //Repositorio
+  fmconsultabasica, fmconsultaporcampo,
+  frendereco, frenderecoeditor, frtelefone, fmcadastropadrao,
+  // Projeto
+  dmcadastrobancos, cpcpfcnpj, ToolWin;
+
+type
+  TfrmCadastroAgencias = class(TfrmCadastroPadrao)
+    pnlFundoJanela: TPanel;
+    edtNome: TDBEditTexto;
+    edtEmail: TDBEditTexto;
+    gbxAgencias: TGroupBox;
+    fraTelefone1: TfraTelefone;
+    fraTelefone2: TfraTelefone;
+    fraEnderecoEditor1: TfraEnderecoEditor;
+    edtCNPJ: TDBEditCPFCNPJ;
+    edtCodigo: TDBEditNumero;
+    edtGerente: TDBEditTexto;
+    Panel1: TPanel;
+    SpeedButton5: TSpeedButton;
+    sbnCadastrarContas: TSpeedButton;
+    edtBancoAgencia: TDBEditNumero;
+    gbxAgencia: TGroupBox;
+    gbxBancoAgencia: TGroupBox;
+    gbxCodigoAgencia: TGroupBox;
+    gbxNomeAgencia: TGroupBox;
+    gbxCNPJ: TGroupBox;
+    gbxGerente: TGroupBox;
+    gbxEmail: TGroupBox;
+    gbxDigito: TGroupBox;
+    DBEditTexto1: TDBEditTexto;
+    procedure edtCodigoExit(Sender: TObject);
+    procedure sbnCadastrarContasClick(Sender: TObject);
+    procedure sbnSalvarClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+  protected
+    dtmCadastroBancos: TdtmCadastroBancos;
+    procedure  KeyDown(var Key: Word; Shift: TShiftState); override;
+    function   InternoIncluir: Boolean; override;
+    function   InternoGravar: Boolean; override;
+    function   InternoExcluir: Boolean; override;
+    function   AcionaCadastroContas(Editar: Boolean):boolean;
+  public
+    procedure  SetDataModulo(Dtm: TdtmCadastroBancos);
+    constructor Create(AOwner: TComponent); Override;
+    destructor Destroy; override;
+    Function   ValidaControles: Boolean;
+  end;
+
+var
+  frmCadastroAgencias: TfrmCadastroAgencias;
+  TipoPesquisa: TtecProcuraBancos;
+
+implementation
+
+uses fmnavcontroles, fmcadastrobancos, fmcadastrocontas;
+
+{$R *.dfm}
+
+destructor TfrmCadastroAgencias.Destroy;
+begin
+  inherited;
+  frmCadastroAgencias := nil;
+end;
+
+function TfrmCadastroAgencias.InternoExcluir: Boolean;
+begin
+  Result:= False;
+  if not CtrlOn then
+    with dtmCadastroBancos do
+      Result:= ExcluirAgencia;
+end;
+
+function TfrmCadastroAgencias.InternoGravar: Boolean;
+begin
+//  if not ValidaControles then
+//     Exit;
+
+  Result:= False;
+  if not CtrlOn then
+    if EmailValido(edtEmail.Text) and edtCNPJ.Criticar(ActiveControl = edtCNPJ) then
+       Result:= dtmCadastroBancos.GravarAgencia;
+end;
+
+function TfrmCadastroAgencias.InternoIncluir: Boolean;
+begin
+  Result:= False;
+  if not CtrlOn then
+    Result:= dtmCadastroBancos.IncluirAgencias(False);
+end;
+
+procedure TfrmCadastroAgencias.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  if Key = VK_F9 then
+     //
+  else inherited;
+end;
+
+procedure TfrmCadastroAgencias.SetDataModulo(Dtm: TdtmCadastroBancos);
+begin
+  dtmCadastroBancos := Dtm;
+end;
+
+procedure TfrmCadastroAgencias.edtCodigoExit(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroBancos.VerificarAgencia(edtCodigo.ValorSemFormatacao);
+end;
+
+procedure TfrmCadastroAgencias.sbnCadastrarContasClick(Sender: TObject);
+begin
+  inherited;
+  if not ValidaControles then
+     Exit;
+
+//  if dtmCadastroBancos.qryAgencias.State = dsInsert then begin
+//     MensagemAviso('É necessário gravar a agência');
+//     Exit;
+//  end;
+
+  AcionaCadastroContas(False);
+end;
+
+procedure TfrmCadastroAgencias.sbnSalvarClick(Sender: TObject);
+begin
+  inherited;
+//  if not ValidaControles then
+//     Exit;
+end;
+
+
+function TfrmCadastroAgencias.AcionaCadastroContas(Editar: Boolean): boolean;
+begin
+  frmCadastroContas := TfrmCadastroContas.Create(frmCadastroContas);
+  frmCadastroContas.SetDataModulo(dtmCadastroBancos);
+  frmCadastroContas.DataSet:= dtmCadastroBancos.TabelaContas;
+  Result := dtmCadastroBancos.IncluirContas(Editar);
+//  frmCadastroContas.edtConta.SetFocus;
+  frmCadastroContas.ShowModal;
+  frmCadastroContas.free;
+
+end;
+
+
+Function Tfrmcadastroagencias.ValidaControles: Boolean;
+begin
+  Result:=False;
+  Result := dtmCadastroBancos.qryAgencias.CheckRequiredFields;
+end;
+
+
+
+constructor TfrmCadastroAgencias.Create(AOwner: TComponent);
+begin
+  inherited;
+
+end;
+
+procedure TfrmCadastroAgencias.FormShow(Sender: TObject);
+begin
+  inherited;
+  edtCodigo.SetFocus;
+//  edtCodigo.Selectall;
+end;
+
+end.

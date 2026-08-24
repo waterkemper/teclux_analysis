@@ -1,0 +1,3713 @@
+unit fmcadastronotasfiscais;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls,
+  ExtCtrls, Buttons, Mask, DBCtrls, Grids, DBGrids, ComCtrls, ActnList,
+  //Biblio    tec
+  ctconstantes, clparametrossistema, 
+  //Componentes
+  cpdbfindcontrols, cptexto, cpdata, cpnumero, cpdbgrid,cpdbdata, cpquery,
+  cppagecontrol, cpdbradiogroup, cpdbtext, cpdbmemo, clusuario,
+  //Terceiros
+  ZQuery,
+  //Repositorio
+  fmcadastropadrao, fmconsultabasica, fmcalcularduplicatas,
+  //Projetos
+  fmcadastronotasfiscaisgrade, DB, ZPgSqlQuery,
+  dmlancamentocontabilidade,
+  {dmgerarnotafiscal,} cpcpfcnpj, frlancamentocontabilidade, fmcadastronfsaidafrete,
+  frconsulta, frconsultacodigo, cpmascara, cpdocumento, ToolWin, dbcgrids,
+  fmConferenciaProdutos, dmtecsoft, frconsultacontabil,
+  frconsultacodigocontabil, fmFormacaoPrecoVenda,
+  frProdutosNotasFiscaisAnteriores, dmbasico, fmtecsoft, fmmanutencaopreco;
+
+type
+  TfrmCadastroNotasFiscais = class(TfrmCadastroPadrao)
+    pnlFundoJanela: TPanel;
+    pgcNotasPag: TtecPageControl;
+    tstDadosNota: TTabSheet;
+    tstImpostos: TTabSheet;
+    gbxDadosNota: TGroupBox;
+    gbxImpostos: TGroupBox;
+    pgcValoresNota: TtecPageControl;
+    tstValoresNota: TTabSheet;
+    tstFrete: TTabSheet;
+    tstImpostosRetidos: TTabSheet;
+    gbxNaturezaOperacao: TGroupBox;
+    sbnNaturezaOperacao: TSpeedButton;
+    flkNaturezaOperacao: TtecDBFindLookup;
+    dtxNaturezaOperacao: TtecDBText;
+    dtxNatureza: TtecDBText;
+    gbxEmitente: TGroupBox;
+    sbnFornecedor: TSpeedButton;
+    sbnSerie: TSpeedButton;
+    flkFornecedor: TtecDBFindLookup;
+    dtxFornecedor: TtecDBText;
+    flkSerieNota: TtecDBFindLookup;
+    tstProdutos: TTabSheet;
+    tstDuplicatas: TTabSheet;
+    tstTransportador: TTabSheet;
+    gbxObsDuplicatas: TGroupBox;
+    mmoObsDuplicatas: TtecDBMemo;
+    dtxCancelada: TtecDBText;
+    tstContabilidade: TTabSheet;
+    dbgDuplicatas: TtecDBGrid;
+    pnlOpcoesDuplicatas: TPanel;
+    sbnGerarDuplicatas: TSpeedButton;
+    sbnExcluirDuplicatas: TSpeedButton;
+    sbnIncluirDuplicatas: TSpeedButton;
+    gbxObservacoes: TGroupBox;
+    mmoObservacoes: TtecDBMemo;
+    gbxObservacoesLivroEntrada: TGroupBox;
+    mmoObservacoesLivroEntrada: TtecDBMemo;
+    dtxEstadoFornecedor: TtecDBText;
+    AclHabilitar: TActionList;
+    Action1: TAction;
+    gbxNatureza: TGroupBox;
+    gbxFornecedor: TGroupBox;
+    gbxUF: TGroupBox;
+    gbxSerie0: TGroupBox;
+    gbxNrNota: TGroupBox;
+    gbxDesconto: TGroupBox;
+    edtDesconto: TDBEditNumero;
+    gbxBaseICMS: TGroupBox;
+    gbxValorICMS: TGroupBox;
+    gbxBaseSubst: TGroupBox;
+    gbxValorSubst: TGroupBox;
+    gbxProdutos_6: TGroupBox;
+    gbxAcrescimo: TGroupBox;
+    edtAcrescimo: TDBEditNumero;
+    gbxFrete_6: TGroupBox;
+    edtFreteInterno: TDBEditNumero;
+    gbxSeguro: TGroupBox;
+    edtSeguro: TDBEditNumero;
+    gbxDespAcessorias: TGroupBox;
+    edtDespesasAcessorias: TDBEditNumero;
+    gbxIPI: TGroupBox;
+    gbxTotalNota: TGroupBox;
+    edtValor: TDBEditNumero;
+    gbxValorServicos: TGroupBox;
+    rgpPagamentoFrete: TtecDBRadioGroup;
+    rbnEmitente: TtecRadioButton;
+    rbnDestinatario: TtecRadioButton;
+    rgpViaTransporte: TtecDBRadioGroup;
+    rbnRodoviario: TtecRadioButton;
+    rbnAereo: TtecRadioButton;
+    rbnMaritimo: TtecRadioButton;
+    gbxTransportadora: TGroupBox;
+    sbnProcurarFornecedorTransporte: TSpeedButton;
+    flkFornecedorTransporte: TtecDBFindLookup;
+    dtxNomeFornecedorTransporte: TtecDBText;
+    gbxPlaca: TGroupBox;
+    sbnConsultaEstado: TSpeedButton;
+    flkEstadoPlaca: TtecDBFindLookup;
+    edtPlaca: TDBEditTexto;
+    pnlDadosNota: TPanel;
+    gbxLancamento: TGroupBox;
+    edtDataLancamento: TDBEditData;
+    gbxCNPJ: TGroupBox;
+    edtCNPJCPF: TDBEditCPFCNPJ;
+    gbxEmissao: TGroupBox;
+    edtDataEmissao: TDBEditData;
+    Bevel2: TBevel;
+    gbxEvento: TGroupBox;
+    sbnEvento: TSpeedButton;
+    dtxEvento: TtecDBText;
+    flkEvento: TtecDBFindLookup;
+    gbxReferencia: TGroupBox;
+    edtReferencia: TDBEditTexto;
+    edtValorServicos: TDBEditNumero;
+    gbxImpostosRetidos: TGroupBox;
+    gbxIRRF: TGroupBox;
+    edtIRRetido: TDBEditNumero;
+    gbxPISRetido: TGroupBox;
+    edtPISRetido: TDBEditNumero;
+    gbxINSS: TGroupBox;
+    edtINSSRetido: TDBEditNumero;
+    gbxCOFINSRetida: TGroupBox;
+    edtCofinsRetido: TDBEditNumero;
+    gbxCSLLRetida: TGroupBox;
+    edtCSLLRetido: TDBEditNumero;
+    gbxISSQN: TGroupBox;
+    edtISSRetido: TDBEditNumero;
+    edtValorIPI: TDBEditNumero;
+    edtTotalProdutosNota: TtecDBText;
+    edtBaseICMSSubstituicao: TDBEditNumero;
+    edtValorICMSSubstituicao: TDBEditNumero;
+    edtBaseICMSNota: TDBEditNumero;
+    edtValorICMSNota: TDBEditNumero;
+    pnlOpcoesProdutos: TPanel;
+    sbnIncluirProduto: TSpeedButton;
+    sbnExcluirProduto: TSpeedButton;
+    sbnVisualizarGrade: TSpeedButton;
+    dbgProdutosNotaFiscal: TtecDBGrid;
+    pnlTotalProdutos: TPanel;
+    gbxNrProdutos: TGroupBox;
+    gbxTotalProdutos: TGroupBox;
+    dtxTotalProdutos: TtecDBText;
+    gbxTotalIPI: TGroupBox;
+    sbnGerarTotalIPI: TSpeedButton;
+    edtTotalIPI: TDBEditNumero;
+    gbxAcrescimo2: TGroupBox;
+    edtAcrescimoProdutos: TDBEditNumero;
+    gbxDesconto2: TGroupBox;
+    edtDescontoProdutos: TDBEditNumero;
+    gbxTotalBruto: TGroupBox;
+    dtxValorProdutos: TtecDBText;
+    lbMais1: TLabel;
+    lblMenos: TLabel;
+    lblIgual: TLabel;
+    sbnCustoePrecoVenda: TSpeedButton;
+    gbxServicos: TGroupBox;
+    edtServicos: TDBEditNumero;
+    lblAlterados: TLabel;
+    shCopiar: TShape;
+    dtxQtdadeProdutos: TtecDBText;
+    fraLancamentoContabilidade: TfraLancamentoContabilidade;
+    flkNotaFiscal: TtecDbEditFind;
+    gbxNfSaida: TGroupBox;
+    dbgNfSaida: TtecDBGrid;
+    Panel1: TPanel;
+    sbnIncluirNFSaida: TSpeedButton;
+    SpeedButton2: TSpeedButton;
+    tstImportacao: TTabSheet;
+    pnlImportacao: TPanel;
+    gbxDeclaracaoImportacao: TGroupBox;
+    edtDataDeclaracaoImportacao: TDBEditData;
+    gbxDesembaracoImportacao: TGroupBox;
+    edtDataDesembaracaoImportacao: TDBEditData;
+    fraConsultaUFDesembaracaoImportacao: TfraConsultaCodigo;
+    gbxExportador: TGroupBox;
+    fraConsultaCodigoExportador: TfraConsultaCodigo;
+    edtLocalDesembaracoImportacao: TDBEditTexto;
+    pgcImportacao: TtecPageControl;
+    tstAdicoes: TTabSheet;
+    dbgAdicoes: TtecDBGrid;
+    tstProdutosImportacao: TTabSheet;
+    dbgProdutosImportados: TtecDBGrid;
+    pnlAdicoesDireito: TPanel;
+    sbnIncluirAdicoes: TSpeedButton;
+    sbnExcluirAdicoes: TSpeedButton;
+    pnlProdutosImportadosDireita: TPanel;
+    sbnExcluirProdutosImportados: TSpeedButton;
+    sbnInlcuirProdutosImportados: TSpeedButton;
+    sbnGerarImportacao: TSpeedButton;
+    gbxConhecimentoFrete: TGroupBox;
+    gbxNrFrete: TGroupBox;
+    flkNroConhecFrete: TtecDbEditFind;
+    gbxValorTotalFrete: TGroupBox;
+    edtConhecimentoFretevalornota: TtecDBText;
+    gbxSerieFrete: TGroupBox;
+    flkSerieConhecFrete: TtecDBFindLookup;
+    gbxFornecedorFrete: TGroupBox;
+    sbnCodConhecFrete: TSpeedButton;
+    dtxNomeFornecedor: TtecDBText;
+    flkCodConhecFrete: TtecDBFindLookup;
+    gbxValorFreteUsado: TGroupBox;
+    edtValorConhecimento: TDBEditNumero;
+    gbxICMSFrete: TGroupBox;
+    edtICMSConhecimento: TtecDBText;
+    gbxTaxaCambio: TGroupBox;
+    edtTaxaCambio: TDBEditNumero;
+    gbxDataDeclaracao: TGroupBox;
+    gbxDadosGerais: TGroupBox;
+    gbxLocalDesembaraco: TGroupBox;
+    gbxUFLocalDesembaraco: TGroupBox;
+    gbxDataDesembaraco: TGroupBox;
+    pgcVolumes: TPageControl;
+    tstVolume: TTabSheet;
+    tstVolumes: TTabSheet;
+    gbxVolumes: TGroupBox;
+    dbgVolumesDadosFiscais: TtecDBGrid;
+    dbgLacresVolumesDadosFiscais: TtecDBGrid;
+    gbxQuantidade: TGroupBox;
+    edtVolume: TDBEditNumero;
+    gbxEspecie: TGroupBox;
+    edtEspecieTransporte: TDBEditTexto;
+    gbxMarca: TGroupBox;
+    edtMarca: TDBEditTexto;
+    gbxNumeracao: TGroupBox;
+    edtNumeracao: TDBEditTexto;
+    gbxPesoBruto: TGroupBox;
+    edtPesoBruto: TDBEditNumero;
+    gbxPesoLiquido: TGroupBox;
+    edtPesoLiquido: TDBEditNumero;
+    sbnPesquisarFornecedorParaISS: TSpeedButton;
+    Panel2: TPanel;
+    GroupBox2: TGroupBox;
+    Label1: TLabel;
+    GroupBox3: TGroupBox;
+    lblMercadoria: TLabel;
+    GroupBox4: TGroupBox;
+    lblFrete: TLabel;
+    GroupBox5: TGroupBox;
+    lblEmbalagem: TLabel;
+    GroupBox6: TGroupBox;
+    lblTHC: TLabel;
+    GroupBox7: TGroupBox;
+    lblII: TLabel;
+    GroupBox8: TGroupBox;
+    lblIPI: TLabel;
+    GroupBox9: TGroupBox;
+    lblPIS: TLabel;
+    GroupBox10: TGroupBox;
+    lblCOFINS: TLabel;
+    GroupBox11: TGroupBox;
+    lblSISCOMEX: TLabel;
+    GroupBox12: TGroupBox;
+    lblBaseICMS: TLabel;
+    GroupBox1: TGroupBox;
+    lblValorICMS: TLabel;
+    gbxPISCOFINSCSLL: TGroupBox;
+    edtPIS_COFINS_CSLL: TDBEditNumero;
+    gbxServicos_nt: TGroupBox;
+    edtServicos_nt: TDBEditNumero;
+    edfDeclaracao: TtecDBFindLookup;
+    dbgImpostosProdutos: TtecDBGrid;
+    sbnEspelhoNota: TSpeedButton;
+    sbnImprimirAutorizacao: TSpeedButton;
+    gbx_chaveNFE: TGroupBox;
+    edtChaveNFe: TDBEditTexto;
+    odlLerXMLNfe: TOpenDialog;
+    pgcProdutos: TPageControl;
+    tstProdutosNota: TTabSheet;
+    sbnConferir: TSpeedButton;
+    tstProdutosNFE: TTabSheet;
+    dbgProdutosNFE: TtecDBGrid;
+    dbgProdutosNotasPagNFEItems: TtecDBGrid;
+    dbgSituacaoProdutoNFE: TtecDBGrid;
+    stbMensagemGridNFE: TStatusBar;
+    sbnLerXMLNfe: TSpeedButton;
+    pnlPedidosNFE: TPanel;
+    gbxPediosNFE: TGroupBox;
+    dbgPedidosNFE: TtecDBGrid;
+    sbnConciliarProdutosPedidos_x_ProdutosNFE: TSpeedButton;
+    gbxSelecionar: TGroupBox;
+    ckbFiltrarProdutosPorFornecedor: TCheckBox;
+    sbnIncluirnalistadepedidos: TSpeedButton;
+    sbnExcluirdaListadePedidos: TSpeedButton;
+    dtxCodigoNatureza: TtecDBText;
+    pgcDetalhes: TPageControl;
+    tstDetalhesNotaFiscal: TTabSheet;
+    tstDetalhesNFE: TTabSheet;
+    gbxLoteNFe: TGroupBox;
+    dtxLoteNFe: TtecDBText;
+    gbxReciboNFe: TGroupBox;
+    dtxReciboNFe: TtecDBText;
+    gbxProtocoloNFe: TGroupBox;
+    dtxProtocoloNFe: TtecDBText;
+    gbxInutilizacao: TGroupBox;
+    dtxInutilizacao: TtecDBText;
+    gbxCancelamentoNFe: TGroupBox;
+    dtxCancelamentoNFe: TtecDBText;
+    gbxChaveNFECalculada: TGroupBox;
+    edtChaveNFeCalculada: TDBEditTexto;
+    fraConsultaModeloDocto: TfraConsultaCodigoContabil;
+    gbxModeloDocto: TGroupBox;
+    tstReferenciada: TTabSheet;
+    rgpFinalidadeNFE: TtecDBRadioGroup;
+    rbnNormal: TtecRadioButton;
+    rbnComplementar: TtecRadioButton;
+    rbnAjuste: TtecRadioButton;
+    GroupBox13: TGroupBox;
+    gbxSerieSaida: TGroupBox;
+    fraConsultaSerieSaida: TfraConsultaCodigo;
+    gbxNotaSaida: TGroupBox;
+    fraConsultanotasaida: TfraConsultaCodigo;
+    DBCheckBox1: TDBCheckBox;
+    gbxBASESTRETIDOANT: TGroupBox;
+    edtBASESTRETIDOANT: TDBEditNumero;
+    gbxICMSSTRETANT: TGroupBox;
+    edtICMSSTRETANT: TDBEditNumero;
+    rbnDevolucaoRetorno: TtecRadioButton;
+    rgpViadeTranporteInternacional: TtecDBRadioGroup;
+    rbn_1_Maritima: TtecRadioButton;
+    rbn_2_Fluvial: TtecRadioButton;
+    rbn_3_Lacustre: TtecRadioButton;
+    rbn_4_Aerea: TtecRadioButton;
+    rbn_5_Postal: TtecRadioButton;
+    rbn_6_Ferroviaria: TtecRadioButton;
+    rbn_7_Rodoviaria: TtecRadioButton;
+    rbn_8_Conduto_Rede: TtecRadioButton;
+    rbn_9_Meios_Proprios: TtecRadioButton;
+    rbn_10_Entrada_Saida: TtecRadioButton;
+    gbxVALOR_DA_AFRMM: TGroupBox;
+    edtVALOR_DA_AFRMM: TDBEditNumero;
+    rgpINtermediacao: TtecDBRadioGroup;
+    tecRadioButton1: TtecRadioButton;
+    tecRadioButton2: TtecRadioButton;
+    tecRadioButton3: TtecRadioButton;
+    GroupBox14: TGroupBox;
+    DBEditCPFCNPJ1: TDBEditCPFCNPJ;
+    GroupBox15: TGroupBox;
+    fraConsultaUFAdquirente: TfraConsultaCodigo;
+    sbnVisualizarDetalhesProdutosNota: TSpeedButton;
+    Splitter1: TSplitter;
+    pnlLegenda: TPanel;
+    pnlProdutosdaNotaFiscal: TPanel;
+    gbxvcredicmssn: TGroupBox;
+    edtvcredicmssn: TDBEditNumero;
+    sbnAcionarTelaFormacaoPrecoVenda: TSpeedButton;
+    fraProdutosNotasFiscaisAnteriores1: TfraProdutosNotasFiscaisAnteriores;
+    GroupBox16: TGroupBox;
+    DBEditNumero1: TDBEditNumero;
+    GroupBox17: TGroupBox;
+    DBEditNumero2: TDBEditNumero;
+    Label2: TLabel;
+    GroupBox18: TGroupBox;
+    mmoinfadprod: TtecDBMemo;
+    stxReferenciaLinha: TStaticText;
+    stxReferenciaColuna: TStaticText;
+    edtReferenciaLinha: TDBEditTexto;
+    edtReferenciaColuna: TDBEditTexto;
+    sbnGerarLInhaeColuna: TSpeedButton;
+    gbxCapturaLinhaColuna: TGroupBox;
+    Panel3: TPanel;
+    sbnVisualizarGradenfe: TSpeedButton;
+    sbnManutencaoPrecos: TSpeedButton;
+    procedure edtBaseICMSKeyPress(Sender: TObject; var Key: Char);
+    procedure edtICMSKeyPress(Sender: TObject; var Key: Char);
+    procedure dbgDuplicatasDblClick(Sender: TObject);
+    procedure dbgDuplicatasKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+//    procedure dbgImpostosDblClick(Sender: TObject);
+//    procedure dbgImpostosKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure dbgProdutosNotaFiscalDblClick(Sender: TObject);
+    procedure dbgProdutosNotaFiscalKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure flkNaturezaOperacaoExit(Sender: TObject);
+    procedure flkNotaFiscalEnter(Sender: TObject);
+    procedure flkNotaFiscalExit(Sender: TObject);
+    procedure flkNotaFiscalFound(Found: Boolean);
+    procedure flkSerieNotaEnter(Sender: TObject);
+    procedure sbnCodConhecFreteClick(Sender: TObject);
+    procedure sbnExcluirDuplicatasClick(Sender: TObject);
+{    procedure sbnExcluirImpostoClick(Sender: TObject);}
+    procedure sbnExcluirProdutoClick(Sender: TObject);
+    procedure sbnFornecedorClick(Sender: TObject);
+    procedure sbnGerarDuplicatasClick(Sender: TObject);
+    procedure sbnEventoClick(Sender: TObject);
+//    procedure sbnIncluirAliquotasImpostosClick(Sender: TObject);
+    procedure sbnIncluirDuplicatasClick(Sender: TObject);
+//    procedure sbnIncluirImpostoClick(Sender: TObject);
+    procedure sbnIncluirProdutoClick(Sender: TObject);
+    procedure sbnNaturezaOperacaoClick(Sender: TObject);
+    procedure sbnSerieClick(Sender: TObject);
+//    procedure SetarICMSFreteSeguro;
+    procedure sbnProcurarFornecedorTransporteClick(Sender: TObject);
+    procedure sbnConsultaEstadoClick(Sender: TObject);
+    procedure sbnVisualizarGradeClick(Sender: TObject);
+    procedure edtDataEmissaoExit(Sender: TObject);
+    procedure edtDataLancamentoExit(Sender: TObject);
+    procedure pgcNotasPagChange(Sender: TObject);
+    procedure Action1Update(Sender: TObject);
+    procedure edtTotalIPIChange(Sender: TObject);
+    procedure sbnGerarTotalIPIClick(Sender: TObject);
+    procedure edtValorIPIChange(Sender: TObject);
+    procedure sbnCustoePrecoVendaClick(Sender: TObject);
+    procedure dbgProdutosNotaFiscalDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure dbgProdutosNotaFiscalDrawDataCell(Sender: TObject;
+      const Rect: TRect; Field: TField; State: TGridDrawState);
+    procedure edtCNPJCPFExit(Sender: TObject);
+    procedure sbnIncluirNFSaidaClick(Sender: TObject);
+    procedure dbgAdicoesDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure sbnIncluirAdicoesClick(Sender: TObject);
+    procedure sbnExcluirAdicoesClick(Sender: TObject);
+    procedure sbnInlcuirProdutosImportadosClick(Sender: TObject);
+    procedure sbnExcluirProdutosImportadosClick(Sender: TObject);
+    procedure dbgAdicoesDblClick(Sender: TObject);
+    procedure dbgAdicoesKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbgProdutosImportadosDblClick(Sender: TObject);
+    procedure dbgProdutosImportadosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnGerarImportacaoClick(Sender: TObject);
+    procedure edtValorConhecimentoEnter(Sender: TObject);
+    procedure edtValorConhecimentoExit(Sender: TObject);
+    procedure flkFornecedorFound(Found: Boolean);
+    procedure fraLancamentoContabilidadesbnGerarLancamentoClick(
+      Sender: TObject);
+    procedure sbnPesquisarFornecedorParaISSClick(Sender: TObject);
+    procedure edtISSRetidoEnter(Sender: TObject);
+    procedure edtISSRetidoExit(Sender: TObject);
+    procedure edtISSRetidoKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edtPISRetidoExit(Sender: TObject);
+    procedure edtCofinsRetidoExit(Sender: TObject);
+    procedure edtCSLLRetidoExit(Sender: TObject);
+    procedure edtPIS_COFINS_CSLLExit(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure edfDeclaracaoFound(Found: Boolean);
+    procedure dbgProdutosImportadosDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure dbgImpostosProdutosDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure sbnEspelhoNotaClick(Sender: TObject);
+    procedure sbnImprimirAutorizacaoClick(Sender: TObject);
+    procedure edtPlacaKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure FormShow(Sender: TObject);
+    procedure edtChaveNFeKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure pgcProdutosChange(Sender: TObject);
+    procedure dbgctrlImportacaoNFeKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure mmoSituacaoProdutoNFEEnter(Sender: TObject);
+    procedure mmoSituacaoProdutoNFEExit(Sender: TObject);
+    procedure sbnConferirClick(Sender: TObject);
+    procedure sbnProdutonaEmpresaClick(Sender: TObject);
+    procedure sbnProcuracfopClick(Sender: TObject);
+    procedure flkNaturezaProdutoExit(Sender: TObject);
+    procedure sbnProcurarPedidoClick(Sender: TObject);
+    procedure flkNaturezaProdutoEnter(Sender: TObject);
+    procedure dbgProdutosNotasPagNFEItemsKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbgProdutosNFEKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnLerXMLNfeClick(Sender: TObject);
+    procedure dbgProdutosNFEDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure dbgProdutosNotasPagNFEItemsDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure sbnProcurarClick(Sender: TObject);
+    procedure dbgProdutosNotasPagNFEItemsDblClick(Sender: TObject);
+    procedure dbgProdutosNFEDblClick(Sender: TObject);
+    procedure dbgPedidosNFEKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbgPedidosNFEDblClick(Sender: TObject);
+    procedure sbnConciliarProdutosPedidos_x_ProdutosNFEClick(
+      Sender: TObject);
+    procedure sbnIncluirnalistadepedidosClick(Sender: TObject);
+    procedure sbnExcluirdaListadePedidosClick(Sender: TObject);
+//    procedure rgpFinalidadeNFEClick(Sender: TObject);
+    procedure flkFornecedorKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure fraConsultanotasaidaedfCodigoFound(Found: Boolean);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure sbnVisualizarDetalhesProdutosNotaClick(Sender: TObject);
+    procedure sbnAcionarTelaFormacaoPrecoVendaClick(Sender: TObject);
+    procedure fraProdutosNotasFiscaisAnteriores1sbnAcionarTelaFormacaoPrecoVenda2Click(
+      Sender: TObject);
+    procedure sbnManutencaoPrecosClick(Sender: TObject);
+//    procedure fraConsultaSerieSaidaedfCodigoExit(Sender: TObject);
+//    procedure dbgImpostosDrawColumnCell(Sender: TObject; const Rect: TRect;
+// DataCol: Integer; Column: TColumn; State: TGridDrawState);
+  private
+    visulizandoCustoePrecoVenda: Boolean;
+    procedure AfterScrollLinhaColunaGrade(Sender: TObject);
+    procedure OnChangeTipoFornecedor(Sender: TObject);
+    procedure OnChangeCodigoFiscal(Sender: TObject);
+    procedure VisualizarPaineisCusto;
+    procedure AfterOpenNotaFiscal(Sender: TObject);
+    procedure EntrarChavesNota(Sender: TObject);
+    procedure ProdutosNFEBeforeScroll(Sender: TObject);
+    procedure TotalizarAdicoes(Sender: TObject);
+    procedure ControlarEdicaoPISCOFINSCSLL;
+
+
+
+  protected
+
+    ValorISSQN: String;
+    gbxCNPJCaption: String;
+    JanProc: TfrmConsultaBasica;
+    ConsultaFornecedor: TfraConsultaCodigo;
+
+    function ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function IncluirDuplicataNotaFiscal(Editar: Boolean): Boolean;
+//    function IncluirImpostosNotaFiscal(Editar: Boolean): Boolean;
+    function IncluirProdutosNotaFiscal(Editar: Boolean): Boolean;
+    function IncluirNotaFiscalSaida(Editar: Boolean): Boolean;
+    function IncluirAdicao(Editar: Boolean): Boolean;
+    function IncluirProdutoImportado(Editar: Boolean): Boolean;
+
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoIncluir: Boolean; override;
+    function InternoPesquisar(Titulo: String): Integer; override;
+    function JanelaPesquisa: TfrmConsultaBasica; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure PosicionarTabelaNoParametro(Ind: Integer; var continuar: Boolean); override;
+    procedure ProximoControle(Ind: Integer); override;
+    function TabelaDePesquisa: TZDataSet; override;
+    function TabelaDoParametro(Parametro: Integer): TZDataSet; override;
+    function AcionaCadastroProdutosNotasFiscaisGrade: Boolean;
+    procedure VenctosImpostosRetidosEntradasAfterOpen(Sender: TObject);
+    procedure BloquearValores(Bloquear: Boolean);
+    procedure AtribuirFabricanteAdicao;
+    procedure AcionaPesquisaFabricante;
+    procedure AtribuirProdutoImportado;
+    procedure AcionaPesquisaProdutoImportado;
+    procedure ExibirMensagemPadronizadaDataEmissao;
+    procedure ExibirMensagemPadronizadaDataLancto;
+    procedure CondicoesConsultaFornecedorISS;
+    procedure AtribuirCodigoFornecedorParaISS;
+    procedure PesquisarFornecedorParaISS;
+
+    procedure CondicoesdaConsultaSerieSaida;
+    procedure CondicoesdaConsultaNotaSaida;
+    procedure AtribuirDadosConsultanotasaida;
+//    procedure AtribuirDadosConsultaSeriesaida;
+
+
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure OperacaoPadrao(Value: Array of Variant); override;
+  end;
+
+
+var
+  frmCadastroNotasFiscais: TfrmCadastroNotasFiscais;
+  TipoProcura: TtecProcuraCadastroNotasFiscais;
+  TipoCadastro: TtecCadastroNotasFiscais;
+
+implementation
+
+uses
+  //CLX
+  Windows, DateUtils,
+  //Biblio
+  biblio,
+  //Repositorio
+  fmconsultaporcampo,
+  //Projeto
+  fmcadastroduplicatas, fmcadastroprodutosnotafiscal,
+  fmprincipalbasico, fmcadastroadicoes,
+  fmnavcontroles, fmcadastroprodutosimportados,
+  dmcadastronotasfiscais;
+  
+{$R *.dfm}
+
+procedure TfrmCadastroNotasFiscais.AfterScrollLinhaColunaGrade(Sender: TObject);
+begin
+  dbgProdutosNotaFiscal.ColumnbyName('valorgrade1').Title.Caption := dtmCadastroNotasFiscais.LinhadaGrade;
+  dbgProdutosNotaFiscal.ColumnbyName('valorgrade2').Title.Caption := dtmCadastroNotasFiscais.ColunadaGrade;
+
+  if  dtmCadastroNotasFiscais.VisualizarDetalhesProdutosNota then
+    fraProdutosNotasFiscaisAnteriores1.AbrirqryProdutosNotaFiscalAnteriores;
+
+  dbgProdutosNotaFiscal.Refresh;  
+
+end;
+
+constructor TfrmCadastroNotasFiscais.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmCadastroNotasFiscais := TdtmCadastroNotasFiscais.Create(Self);
+//  dtmCadastroNotasFiscaisAuxiliar := TdtmCadastroNotasFiscaisAuxiliar.Create(Self);
+
+
+  try
+    if ParSistema.PermitirProdutoAlfanumerico then
+       dbgProdutosNotaFiscal.Columns[2].Width:= 215
+    else
+       dbgProdutosNotaFiscal.Columns[2].Width:= 140;
+
+    dtmCadastroNotasFiscais.Abre(ctTabelaCadastroNotaFiscal);
+    DataSet := dtmCadastroNotasFiscais.TabelaNotaFiscais;
+    TipoCadastro := cnfProduto;
+    pgcNotasPag.ActivePage   := tstDadosNota;
+    pgcValoresNota.ActivePage := tstValoresNota;
+    tstProdutos.TabVisible   := False;
+    tstFrete.TabVisible      := False;
+    tstDuplicatas.TabVisible := False;
+    tstImpostosRetidos.TabVisible := False;
+    tstTransportador.TabVisible := false;
+    tstImportacao.TabVisible := False;
+  //  pnlICMSFreteSeguro.BringToFront;
+    gbxCNPJCaption := gbxCNPJ.Caption;
+
+    dbgProdutosNotaFiscal.ColumnbyName('valorgrade1').Visible := ParSistema.UsarGradesProdutos;
+    dbgProdutosNotaFiscal.ColumnbyName('valorgrade2').Visible := ParSistema.UsarGradesProdutos;
+
+    sbnVisualizarGrade.Visible := ParSistema.UsarGradesProdutos;
+    dtmCadastroNotasFiscais.OnScrollLinhaColunaGrade := AfterScrollLinhaColunaGrade;
+    dtmCadastroNotasFiscais.OnChangeTipoFornecedor := OnChangeTipoFornecedor;
+    dtmCadastroNotasFiscais.OnChangeCodigoFiscal := OnChangeCodigoFiscal;
+    dtmCadastroNotasfiscais.OnTotalizarAdicoes := TotalizarAdicoes;
+  //  ParSistema.DataContabil;
+    tstContabilidade.TabVisible := ParSistema.GerarContabilidade;
+//    if dbgProdutosNotaFiscal.Columnbyname('quantidade').Width < ParSistema.tamanhoMascaraQuantidade then
+//      dbgProdutosNotaFiscal.Columnbyname('quantidade').Width := ParSistema.tamanhoMascaraQuantidade;
+
+    if dbgProdutosImportados.Columnbyname('quantidade').Width < ParSistema.tamanhoMascaraQuantidade then
+      dbgProdutosImportados.Columnbyname('quantidade').Width := ParSistema.tamanhoMascaraQuantidade;
+
+    dtmCadastroNotasFiscais.VenctosImpostosRetidosEntradasAfterOpen :=
+       VenctosImpostosRetidosEntradasAfterOpen;
+    BloquearValores(ParSistema.GeracaoAutomaticadoImpostoRetido);
+    visulizandoCustoePrecoVenda := false;
+  {  sbnCustoePrecoVenda.visible := false;}
+    pnlLegenda.visible := false;
+    edtDataEmissao.MensagemPadronizada := ExibirMensagemPadronizadaDataEmissao;
+    edtDataLancamento.MensagemPadronizada := ExibirMensagemPadronizadaDataLancto;
+    dtmCadastroNotasFiscais.AfterOpenNotaFiscal := AfterOpenNotaFiscal;
+    dtmCadastroNotasFiscais.EntrarChavesNota := EntrarChavesNota;
+  
+
+    with fraLancamentoContabilidade do
+    begin
+      VaLorICMS                := dtmCadastroNotasFiscais.getvaloricms;
+      ValorIPI                 := dtmCadastroNotasFiscais.getValorIPI;
+      ValorPIS                 := dtmCadastroNotasFiscais.getValorPIS;
+      ValordaNota              := dtmCadastroNotasFiscais.GetValordaNota;
+      ValordosProdutos         := dtmCadastroNotasFiscais.GetValorProdutos;
+  //    ValorServicos            := dtmCadastroNotasFiscais.GetValorServicos;
+      ValorAcrescimo           := dtmCadastroNotasFiscais.GetValorAcrescimo;
+      ValorCofinsaRecolher     := dtmCadastroNotasFiscais.GetValorCofinsaRecolher;
+      ValorFrete               := dtmCadastroNotasFiscais.GetValorFrete;
+      ValorSeguro              := dtmCadastroNotasFiscais.GetValorSeguro;
+      ValorDespesasAcessorias  := dtmCadastroNotasFiscais.GetValorDespesasAcessorias;
+      ValorDespesasCOFINS      := dtmCadastroNotasFiscais.GetValorDespesasCOFINS;
+      ValorCustodaMercadoria   := dtmCadastroNotasFiscais.GetValorCustodaMercadoria;
+      ValorEstoquedaMercadoria := dtmCadastroNotasFiscais.GetValorEstoquedaMercadoria;
+      ValorICMSSubstituicao    := dtmCadastroNotasFiscais.GetValorICMSSubstituicao;
+      ValorcofinsRetido        := dtmCadastroNotasFiscais.GetCofinsRetido;
+      ValorcsllRetido          := dtmCadastroNotasFiscais.GetCSLLRetido;
+      ValorinssRetido          := dtmCadastroNotasFiscais.GetINSSRetido;
+      ValorirRetido            := dtmCadastroNotasFiscais.GetIRRetido;
+  //    Valoriss                 := dtmEmissaoNotaAvulsas.GetValorISS;
+      ValorissRetido           := dtmCadastroNotasFiscais.GetISSRetido;
+      ValorpisRetido           := dtmCadastroNotasFiscais.GetPISRetido;
+      ValorPISCOFINSCSLLRetido := dtmCadastroNotasFiscais.GetPISCOFINSCSLLRetido;
+      ValorDescontos           := dtmCadastroNotasFiscais.GetValordesconto;
+      ValorReceitasDespesasFinanceiras := dtmCadastroNotasFiscais.RetornaZero;
+      DataDocumento            := dtmCadastroNotasFiscais.GetDataDocumento;
+      CodigoNatureza           := dtmCadastroNotasFiscais.GetCodigoNatureza;
+      DebitoFornecedor         := dtmCadastroNotasFiscais.getDebitoFornecedor;
+      CreditoFornecedor        := dtmCadastroNotasFiscais.getCreditoFornecedor;
+      FornecedorParaISS        := dtmCadastroNotasFiscais.getFornecedorParaISS;
+      SomenteLeituraContabilidade := dtmCadastroNotasFiscais.getSomenteLeituraContabilidade;
+      GerarDuplicatas          := dtmCadastroNotasFiscais.GetGerarDocumentoPag;
+      DescricaoHistorico       := dtmCadastroNotasFiscais.getdescricaohistorico;
+      FilialDocumento          := dtmCadastroNotasFiscais.GetFilialDocumento;
+      CodigoDocumento          := dtmCadastroNotasFiscais.GetCodigoDocumento;
+      NumeroNotaFiscal         := dtmCadastroNotasFiscais.getnumeronotafiscal;
+      ContaDebitarouCreditar   := dtmCadastroNotasFiscais.GetContaCreditar;
+      HistoricoDebitarouCreditar := dtmCadastroNotasFiscais.GetHistoricoDebitar;
+      CReDBigualValorNota        := dtmCadastroNotasFiscais.GetCReDBigualValorNota;
+      GravarSemLanctos           := dtmCadastroNotasFiscais.GetGravarSemLanctos;
+
+      Origem                   := 'E';
+      OrigemFormulario         := 'E';;
+      NomeOrigemFormulario     := self.name;
+
+      AtribuirContaDocumento   := dtmCadastroNotasFiscais.AtribuirContaCreditoDocumentoPag;
+      EditarDocumento          := dtmCadastroNotasFiscais.EditarNotaFiscal;
+    end;
+
+    with dtmCadastroNotasFiscais do
+    begin
+      AcertarLarguraGradeCasasDecimais(dbgProdutosNotaFiscal,8);
+      AcertarCasasDecimais(qryProdutosNotaFiscalprecounitario);
+      AcertarCasasDecimais(qryProdutosNotasPagNFEprecounitario);
+      AcertarCasasDecimais(qryProdutosNotasPagNFEItemsprecounitario);
+    end;
+
+    dbgProdutosNotaFiscal.OnDelete := sbnExcluirProduto.Click;
+
+    pgcImportacao.ActivePage := tstAdicoes;
+    fraConsultaCodigoExportador.TipoCliente := 'F';
+    fraConsultaCodigoExportador.Tipovfornecedor := 'F';
+    fraConsultaCodigoExportador.TipoPesquisa := pesFORNECEDORES;
+
+    fraConsultaUFDesembaracaoImportacao.TipoPesquisa := pesESTADOS;
+    fraConsultaUFAdquirente.TipoPesquisa := pesESTADOS;
+
+
+    ConsultaFornecedor := TfraConsultaCodigo.Create(self);
+    ConsultaFornecedor.Name := 'ConsultaFornecedor';
+    ConsultaFornecedor.TipoCliente := 'F';
+    ConsultaFornecedor.Tipovfornecedor := 'F';
+    ConsultaFornecedor.edfCodigo.Operacao := opATRIBUICAO;
+    ConsultaFornecedor.AbrirTabelaProcura := false;
+    ConsultaFornecedor.ConsultarTodos := true;
+    ConsultaFornecedor.TipoPesquisa := pesFORNECEDORES;
+    ConsultaFornecedor.CondicoesdaConsulta := CondicoesConsultaFornecedorISS;
+    ConsultaFornecedor.OnFound := AtribuirCodigoFornecedorParaISS;
+
+    fraConsultaModeloDocto.TipoPesquisa := pesMODELODOCTOSFISCAIS;
+
+    sbnPesquisarFornecedorParaISS.Visible := false;
+
+    dbgPedidosNFE.OnDelete := dtmCadastroNotasFiscais.ExcluirdaListadePedidos;
+
+
+    fraConsultaSerieSaida.TipoPesquisa := pesSERIES;
+    fraConsultaSerieSaida.CondicoesdaConsulta := CondicoesdaConsultaSerieSaida;
+//    fraConsultaSerieSaida.onFound := AtribuirDadosConsultaSerieSaida;
+    fraConsultanotasaida.TipoPesquisa := pesNOTASNUMERO;
+    fraConsultanotasaida.CondicoesdaConsulta := CondicoesdaConsultaNotaSaida;
+    fraConsultanotasaida.OnFound := AtribuirDadosConsultanotasaida;
+
+    rgpFinalidadeNFE.tabstop := true;
+
+    pgcDetalhes.ActivePage := tstDetalhesNotaFiscal;
+
+    fraProdutosNotasFiscaisAnteriores1.visible := false;
+    VisualizarPaineisCusto;
+
+    fraProdutosNotasFiscaisAnteriores1.CodigoNota := dtmCadastroNotasFiscais.GetCodigoDocumento;
+    fraProdutosNotasFiscaisAnteriores1.Produto := dtmCadastroNotasFiscais.GetProduto;
+
+    sbnManutencaoPrecos.Visible :=  assigned(tfrmTecsoft(Application.MainForm).mitManutencaoPreco) and
+                                    tfrmTecsoft(Application.MainForm).mitManutencaoPreco.Enabled;
+
+
+  except
+    on E: Exception do ShowMessage(E.Message);
+  end;
+
+
+end;
+
+procedure TfrmCadastroNotasFiscais.dbgDuplicatasDblClick(Sender: TObject);
+begin
+  inherited;
+  IncluirDuplicataNotaFiscal(True)
+end;
+
+procedure TfrmCadastroNotasFiscais.dbgDuplicatasKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then begin
+    case Key of
+      TeclaEditarRegistro : IncluirDuplicataNotaFiscal(True);
+      TeclaInserirRegistro: IncluirDuplicataNotaFiscal(False);
+    end;
+  end;
+end;
+
+{
+procedure TfrmCadastroNotasFiscais.dbgImpostosDblClick(Sender: TObject);
+begin
+  inherited;
+  IncluirImpostosNotaFiscal(True)
+end;
+}
+
+{
+procedure TfrmCadastroNotasFiscais.dbgImpostosKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then begin
+    case Key of
+      TeclaEditarRegistro : IncluirImpostosNotaFiscal(True);
+      TeclaInserirRegistro: IncluirImpostosNotaFiscal(False);
+    end;
+  end;
+end;
+}
+
+procedure TfrmCadastroNotasFiscais.dbgProdutosNotaFiscalDblClick(Sender: TObject);
+begin
+  inherited;
+//  if dbgProdutosNotaFiscal.SelectedIndex = 31 then
+  if dbgProdutosNotaFiscal.SelectedField = dtmCadastroNotasFiscais.qryProdutosNotaFiscalpermitiratualizardigitado then
+    dtmCadastroNotasFiscais.PermitirAtualizarDigitado := not dtmCadastroNotasFiscais.PermitirAtualizarDigitado
+  else
+  begin
+    if dtmCadastroNotasFiscais.qryProdutosNotaFiscal.IsEmpty then
+    begin
+      if sbnIncluirProduto.Enabled then
+        IncluirProdutosNotaFiscal(False);
+    end
+    else
+       IncluirProdutosNotaFiscal(True);
+  end;
+end;
+
+procedure TfrmCadastroNotasFiscais.dbgProdutosNotaFiscalKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      TeclaEditarRegistro :
+      begin
+        if dtmCadastroNotasFiscais.qryProdutosNotaFiscal.IsEmpty then
+        begin
+          if sbnIncluirProduto.Enabled then
+            IncluirProdutosNotaFiscal(False);
+        end
+        else
+          IncluirProdutosNotaFiscal(True);
+      end;
+      TeclaInserirRegistro:
+      begin
+        if sbnIncluirProduto.Enabled then
+          IncluirProdutosNotaFiscal(False);
+      end;
+
+      VK_SPACE: //if dbgProdutosNotaFiscal.SelectedIndex = 17 then
+                if dbgProdutosNotaFiscal.SelectedField = dtmCadastroNotasFiscais.qryProdutosNotaFiscalpermitiratualizardigitado then
+                   dtmCadastroNotasFiscais.PermitirAtualizarDigitado := not dtmCadastroNotasFiscais.PermitirAtualizarDigitado;
+    end;
+  end
+  else
+  if key = VK_F11 then
+    sbnAcionarTelaFormacaoPrecoVendaClick(nil);
+end;
+
+destructor TfrmCadastroNotasFiscais.Destroy;
+begin
+  AclHabilitar.Actions[0].OnExecute := nil;
+  Action1.OnExecute := nil;
+
+  dtmCadastroNotasFiscais.Fecha(ctTabelaCadastroNotaFiscal);
+
+  if assigned(frmManutencaoPreco) then
+    freeandnil(frmManutencaoPreco);
+  
+  inherited;
+//  dtmCadastroNotasFiscais := nil;
+  frmCadastroNotasFiscais := nil;
+end;
+
+procedure TfrmCadastroNotasFiscais.edtBaseICMSKeyPress(Sender: TObject; var Key: Char);
+begin
+  inherited;
+  Key:= Converte(Key);
+end;
+
+procedure TfrmCadastroNotasFiscais.edtICMSKeyPress(Sender: TObject; var Key: Char);
+begin
+  inherited;
+  Key:= Converte(Key);
+end;
+
+function TfrmCadastroNotasFiscais.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  Result := false;
+  with dtmCadastroNotasFiscais do
+  begin
+    case TipoProcura of
+      pnfFORNECEDOR:        Result := ExisteFornecedor          (NomeCampo, Value);
+      pnfEVENTO:            Result := ExisteEvento              (NomeCampo, Value);
+      pnfSERIE:             Result := ExisteSerieFornecedor     (NomeCampo, Value);
+      pnfNATUREZA:          Result := ExisteNatureza            (NomeCampo, Value);
+      pnfCONHECIMENTOFRETE: Result := ExisteConhecimentoFrete   (NomeCampo, Value);
+      pnfTRANSPORTADOR:     Result := ExisteFornecedorTransporte(NomeCampo, Value);
+      pnfESTADOPLACA:       Result := ExisteEstado              (NomeCampo, Value);
+      pnfPRODUTONFE:        Result := ExisteProdutoNotaFiscal(NomeCampo, Value);
+      pnfPEDIDOPRODUTONFE:  Result := ExistePedidoProdutoNFE(NomeCampo, Value);
+      pnfPEDIDONOTASPAG:    Result := ExistePedidoNotaFiscal(NomeCampo, Value);
+      pnfNATUREZAPRODUTONFE: Result := ExisteNatureza(NomeCampo, Value);
+      pnfNOTAFISCAL :
+      begin
+        case Parametro of
+         -1: Result := ExisteNotaFiscal(NomeCampo, Value);
+          0: Result := ExisteFornecedor(NomeCampo, Value);
+          1: Result := ExisteSerieFornecedor(NomeCampo, Value);
+        end;
+      end;
+    end;
+  end;
+  
+end;
+
+procedure TfrmCadastroNotasFiscais.flkNaturezaOperacaoExit(Sender: TObject);
+var
+ vResult : integer;
+begin
+  inherited;
+  vResult := mrOK;
+  if dtmCadastroNotasFiscais.QuantidadeNaturezas then
+    vresult := InternoPesquisar(flkNaturezaOperacao,ctCODIGOFISCAL);
+
+  if vResult = mrOk then
+  begin
+    tstProdutos.TabVisible        := dtmCadastroNotasFiscais.TipoMovimentoNatureza <> '';
+    tstFrete.TabVisible           := tstProdutos.TabVisible;
+    tstImpostosRetidos.TabVisible := ((dtmCadastroNotasFiscais.CodigoFiscal mod 1000) = cfSERVICOTRANSPORTE);
+    tstTransportador.TabVisible   := dtmCadastroNotasFiscais.TipoMovimentoNatureza <> '';
+    if not tstImpostosRetidos.TabVisible then
+      dtmCadastroNotasFiscais.LimparRetencoes
+    else
+      if ParSistema.GeracaoAutomaticadoImpostoRetido then
+        VenctosImpostosRetidosEntradasAfterOpen(nil);
+    tstDuplicatas.TabVisible      := dtmCadastroNotasFiscais.GerarDocumentoPag;
+    tstContabilidade.TabVisible := ParSistema.GerarContabilidade;
+    pgcNotasPag.ActivePage := tstDadosNota;
+  {  sbnCustoePrecoVenda.visible := dtmCadastroNotasFiscais.VerificarPrecoVenda;}
+    gbxNfSaida.Visible := dtmCadastroNotasFiscais.VisualizarGrade;
+
+    tstImportacao.TabVisible := dtmCadastroNotasFiscais.Importacao;
+
+    if dtmCadastroNotasFiscais.NotaReferenciada and
+       dtmCadastroNotasFiscais.qryNotaFiscaldadofiscalreferenciado.IsNull then
+    begin
+      pgcNotasPag.ActivePage := tstDadosNota;
+      tstReferenciada.tabVisible := true;
+      pgcDetalhes.ActivePage := tstReferenciada;
+      fraConsultaSerieSaida.edfcodigo.setfocus;
+    end;
+  end;
+end;
+
+var
+  FornecAnt: String;
+
+procedure TfrmCadastroNotasFiscais.flkNotaFiscalEnter(Sender: TObject);
+begin
+  inherited;
+//  FornecAnt := Trim(flkFornecedor.Text);
+end;
+
+procedure TfrmCadastroNotasFiscais.flkNotaFiscalExit(Sender: TObject);
+begin
+  inherited;
+//  dtmCadastroNotasFiscais.SomenteLeitura := false; // Not dtmCadastroNotasFiscais.IncluindoNota;
+end;
+
+procedure TfrmCadastroNotasFiscais.flkNotaFiscalFound(Found: Boolean);
+begin
+  inherited;
+  dtmCadastroNotasFiscais.SomenteLeitura := false;
+  dtmCadastroNotasFiscais.SetarFornecedorPedido;
+
+  if Found then
+  begin
+
+    edtDataLancamento.Minimo := dtmCadastroNotasFiscais.NDiasLimiteLancto;
+    if dtmCadastroNotasFiscais.IncluindoNota then
+      edtDataEmissao.Minimo    := ParSistema.DiasNotaRetroativa
+    else
+    begin
+      dtmCadastroNotasFiscais.ReFazConsultaDetalhesNotaFiscal;
+      edtDataEmissao.Minimo := DaysBetween(dtmCadastroNotasFiscais.DataServidor,
+         (dtmCadastroNotasFiscais.qryNotaFiscalemissao.AsDateTime -
+          ParSistema.DiasNotaRetroativa));
+      flkNaturezaOperacaoExit(nil);
+    end;
+
+    pgcNotasPag.ActivePage := tstDadosNota;
+
+    flkSerieNota.Group := 'NotaFiscal';
+    flkNotaFiscal.Group := 'NotaFiscal';
+
+    ControlarEdicaoPISCOFINSCSLL;
+  end
+
+  else
+  if (flkFornecedor.Text = '') and (flkSerieNota.Text = '') and (flkNotaFiscal.Text = '') then
+  begin
+    edtCNPJCPF.clear;
+    dtmCadastroNotasFiscais.LimparDetalhesNotaFiscal(False);
+  end;
+
+  if dtmCadastroNotasFiscais.TipoPessoa = tsFISICA then 
+    gbxCNPJ.Caption  := 'CPF MF'
+  else
+  if dtmCadastroNotasFiscais.TipoPessoa = tsJURIDICA then
+    gbxCNPJ.Caption  := gbxCNPJCaption;
+end;
+
+procedure TfrmCadastroNotasFiscais.flkSerieNotaEnter(Sender: TObject);
+begin
+  inherited;
+  if (FornecAnt <> Trim(flkFornecedor.Text)) and (FornecAnt<>'') and  (Trim(flkFornecedor.Text)<>'') then
+    if Not flkSerieNota.Exist then
+      flkSerieNota.Text := '';
+end;
+
+function TfrmCadastroNotasFiscais.IncluirDuplicataNotaFiscal(Editar:Boolean): Boolean;
+begin
+  if sbnIncluirDuplicatas.Enabled then
+  begin
+    if dtmCadastroNotasFiscais.TabelaNotaFiscalVazia then
+      Result := False
+    else
+    begin
+      frmCadastroDuplicatas := TfrmCadastroDuplicatas.Create(frmCadastroDuplicatas);
+      //comentado por JR, fazer uma rotina depois, tanto para essa geraçao como para a automatica
+      //sempre que a data for menor do que a do lancto alertar o usuario, mas deixar passar.
+      if edtDataEmissao.DataValida then
+        frmCadastroDuplicatas.DataMinima := StrToDate(edtDataEmissao.Text);
+      Result := dtmCadastroNotasFiscais.IncluirDuplicataNotaFiscal(Editar);
+      frmCadastroDuplicatas.ShowModal;
+      frmCadastroDuplicatas.Free;
+      dtmCadastroNotasFiscais.CancelarDuplicatas;
+    end;
+    dbgDuplicatas.SetFocus
+  end else
+    Result := False
+end;
+
+{
+function TfrmCadastroNotasFiscais.IncluirImpostosNotaFiscal(Editar:Boolean): Boolean;
+begin
+  if not dtmCadastroNotasFiscais.SomenteLeituraImpostos then
+  begin
+    if dtmCadastroNotasFiscais.TabelaNotaFiscalVazia then
+      Result := False
+    else
+    begin
+      frmCadastroImpostosNotaFiscal := TfrmCadastroImpostosNotaFiscal.Create(Self);
+      Result := dtmCadastroNotasFiscais.IncluirImpostosNotaFiscal(Editar);
+      frmCadastroImpostosNotaFiscal.ShowModal;
+      frmCadastroImpostosNotaFiscal.Free;
+      dtmCadastroNotasFiscais.CancelarImpostos
+    end;
+    dbgImpostos.SetFocus
+  end
+  else
+    Result := False
+end;
+}
+
+function TfrmCadastroNotasFiscais.IncluirProdutosNotaFiscal(Editar:Boolean): Boolean;
+//var
+//  frmCadastroProdutosNotaFiscal: TfrmCadastroProdutosNotaFiscal;
+begin
+  if not dtmCadastroNotasFiscais.SomenteLeituraProdutos then
+  begin
+    if not assigned(frmCadastroProdutosNotaFiscal) then
+    if visulizandoCustoePrecoVenda then
+      sbnCustoePrecoVendaClick(nil);
+
+    if dtmCadastroNotasFiscais.TabelaNotaFiscalVazia then
+      Result := False
+    else
+    begin
+      if dtmCadastroNotasFiscais.NotaReferenciada and
+         (dtmCadastroNotasFiscais.qryNotaFiscaldadofiscalreferenciado.asinteger = 0) then
+      begin
+//        rgpFinalidadeNFEClick(nil);
+
+        pgcNotasPag.ActivePage := tstDadosNota;
+        tstReferenciada.tabVisible := true;
+        pgcDetalhes.ActivePage := tstReferenciada;
+        fraConsultaSerieSaida.edfcodigo.setfocus;
+
+        MensagemAviso('Informe a nota fiscal referenciada');
+        result := false;
+      end
+      else
+        result := true;
+
+      if result then
+      begin
+        frmCadastroProdutosNotaFiscal := TfrmCadastroProdutosNotaFiscal.Create(frmCadastroProdutosNotaFiscal);
+        frmCadastroProdutosNotaFiscal.DataSet := dtmCadastroNotasFiscais.qryProdutosNotaFiscal;
+        Result := dtmCadastroNotasFiscais.IncluirProdutosNotaFiscal(Editar);
+
+        dtmCadastroNotasFiscais.ExecutarScrollTabelaProdutos := True;
+
+        if dtmCadastroNotasFiscais.EntradaporPedido and
+           not (dtmCadastroNotasFiscais.qryNotaFiscalfinalidadenf.asinteger in [3,4]) then
+          frmCadastroProdutosNotaFiscal.pgcEntrada.ActivePage := frmCadastroProdutosNotaFiscal.tstEntradaPedido
+        else
+        begin
+          dtmCadastroNotasFiscais.FechaTabelas_PesquisarNota;
+          frmCadastroProdutosNotaFiscal.pgcEntrada.ActivePage := frmCadastroProdutosNotaFiscal.tstEntradaNotas;
+
+          if (dtmCadastroNotasFiscais.qryNotaFiscalfinalidadenf.asinteger in [3,4]) or
+             (dtmCadastroNotasFiscais.qryNotaFiscalrequernfsaida.AsBoolean) then
+          begin
+            frmCadastroProdutosNotaFiscal.gbxFilial.Enabled := true;
+            frmCadastroProdutosNotaFiscal.gbxSerieNF.Enabled := true;
+            frmCadastroProdutosNotaFiscal.gbxNumeroNF.Enabled := true;
+            frmCadastroProdutosNotaFiscal.gbxDataInicial.Enabled := true;
+            frmCadastroProdutosNotaFiscal.gbxDataFinal.Enabled := true;
+          end
+          else
+          begin
+            frmCadastroProdutosNotaFiscal.gbxFilial.Enabled := false;
+            frmCadastroProdutosNotaFiscal.gbxSerieNF.Enabled := false;
+            frmCadastroProdutosNotaFiscal.gbxNumeroNF.Enabled := false;
+            frmCadastroProdutosNotaFiscal.gbxDataInicial.Enabled := false;
+            frmCadastroProdutosNotaFiscal.gbxDataFinal.Enabled := false;
+            frmCadastroProdutosNotaFiscal.ActiveControl := frmCadastroProdutosNotaFiscal.flkCodigoProduto;
+            frmCadastroProdutosNotaFiscal.flkCodigoProduto.SelectAll;
+          end;
+
+          dtmCadastroNotasFiscais.AbreTabelas_pesquisarNota;
+        end;
+
+  //      frmCadastroProdutosNotaFiscal.flkProduto.Exist;
+  //      dtmCadastroNotasFiscais.ReFazConsulta(dtmCadastroNotasFiscais.qryProcuraNaturezasProduto,[],[]);
+
+  //      frmCadastroProdutosNotaFiscal.flkNaturezaProduto.Exist;
+        frmCadastroProdutosNotaFiscal.ShowModal;
+
+        frmCadastroProdutosNotaFiscal.Free;
+        dtmCadastroNotasFiscais.AtualizaSQLProdutosExistenteNotas;
+        dtmCadastroNotasFiscais.ExecutarScrollTabelaProdutos := False;
+      end;
+    end;
+    if result then
+      dbgProdutosNotaFiscal.SetFocus;
+  end
+  else
+    Result := False
+end;
+
+function TfrmCadastroNotasFiscais.InternoExcluir: Boolean;
+begin
+  if CtrlOn then
+  begin
+    if dtmCadastroNotasFiscais.SomenteLeitura then
+      Result:= False
+    else
+    begin
+      Result:= False;
+      case TipoCadastro of
+        cnfDuplicata:
+          if (ActiveControl = dbgDuplicatas) then
+          begin
+            result := not dtmCadastroNotasFiscais.SomenteLeituraDuplicata;
+            if result then  Result := dtmCadastroNotasFiscais.ExcluirDuplicataNotaFiscal;
+          end;
+        cnfProduto:
+          if (ActiveControl = dbgProdutosNotaFiscal) then
+          begin
+            result := not dtmCadastroNotasFiscais.SomenteLeituraProdutos;
+            if result then Result := dtmCadastroNotasFiscais.ExcluirProdutosNotaFiscal;
+          end;
+{        cnfImpostos:
+          if (ActiveControl = dbgImpostos) then
+          begin
+            result := not dtmCadastroNotasFiscais.SomenteLeituraImpostos;
+            if result then Result := dtmCadastroNotasFiscais.ExcluirImpostoNotaFiscal;
+          end;}
+      end
+    end
+  end
+  else
+  begin
+
+
+    inherited InternoExcluir;
+    result := dtmCadastroNotasFiscais.VerificarBloqueiodaTabela;
+
+    if result then
+    begin
+      Result:= dtmCadastroNotasFiscais.ExcluirNotaFiscal;
+      if result then
+      begin
+        if ParSistema.GerarContabilidade then
+        begin
+          fraLancamentoContabilidade.ApagarLancamentos;
+          fraLancamentoContabilidade.GerarLancamentosP_Dupla(false);
+        end;
+
+        dtmCadastroNotasFiscais.PerpetrarExclusao;
+
+        dtmCadastroNotasFiscais.CancelarNFe;
+      end;
+    end;
+  end
+end;
+
+function TfrmCadastroNotasFiscais.InternoGravar: Boolean;
+var
+  Erro: Integer;
+//  BaseICMS,
+//  ICMS: Real;
+//  Frm: TForm;
+
+
+  function VerificarCHV_NFE: boolean;
+  begin
+    result := true;
+    if trim(edtChaveNFe.Text) <> '' then
+    begin
+      if (length(trim(SomenteNumero(edtChaveNFe.Text))) <> 44) and
+         (length(trim(SomenteNumero(edtChaveNFe.Text))) <> 0)  then
+      begin
+        result := false;
+        MensagemErro('O tamanho campo CHAVE DA NFE deve ter 44 caracteres.');
+        edtChaveNFe.SetFocus;
+      end
+      else
+      if not (PossuiSomenteNumero(copy(edtChaveNFe.Text, 3, 4)) and
+              (copy(edtChaveNFe.Text, 3, 4) = FormatDateTime('YYMM',dtmCadastroNotasFiscais.qryNotaFiscalemissao.AsDateTime))) then
+      begin
+        result := false;
+        MensagemErro('O ano e mês do campo CHAVE DA NFE difere da nota fiscal.');
+        edtChaveNFe.SetFocus;
+      end
+      (*
+      else
+      if not (PossuiSomenteNumero(copy(edtChaveNFe.Text, 7, 14)) and
+              PossuiSomenteNumero(edtCNPJCPF.Text) and
+             (copy(edtChaveNFe.Text, 7, 14) = somentenumero(edtCNPJCPF.Text))) and
+{
+             (dtmCadastroNotasFiscais.qryNotaFiscalcodigofiscal.AsInteger -
+             (dtmCadastroNotasFiscais.qryNotaFiscalcodigofiscal.AsInteger mod 1000) <> 3000)
+}
+              not dtmCadastroNotasFiscais.qryNotaFiscalPermitirImprimir.asboolean  then //não seja nota emitida na própria empresa
+      begin
+        result := false;
+        MensagemErro('O cnpj do campo CHAVE DA NFE difere do cnpj da nota fiscal.');
+        edtChaveNFe.SetFocus;
+      end
+      *)
+      else
+      if not (PossuiSomenteNumero(copy(edtChaveNFe.Text, 23, 3)) and
+              PossuiSomenteNumero(flkSerieNota.Text) and
+              (strtoint(SomenteNumero(copy(edtChaveNFe.Text, 23, 3))) = strtoint(flkSerieNota.Text))) then
+      begin
+        result := false;
+        MensagemErro('A série do campo CHAVE DA NFE difere da série da nota fiscal.');
+        edtChaveNFe.SetFocus;
+      end
+      else
+      if not (PossuiSomenteNumero(copy(edtChaveNFe.Text, 26, 9)) and
+              PossuiSomenteNumero(flkNotaFiscal.Text) and
+              (strtoint(SomenteNumero(copy(edtChaveNFe.Text, 26, 9))) = strtoint(flkNotaFiscal.Text))) then
+      begin
+        result := false;
+        MensagemErro('O número da NF do campo CHAVE DA NFE difere do número da nota fiscal.');
+        edtChaveNFe.SetFocus;
+      end
+      else
+      if not (PossuiSomenteNumero(copy(edtChaveNFe.Text, 1, 43)) and
+              (modulo11(SomenteNumero(copy(edtChaveNFe.Text, 1, 43))) = copy(edtChaveNFe.Text, 44,1))) then
+      begin
+        result := false;
+        MensagemErro('O dígito verificador do campo CHAVE DA NFE está incorreto.');
+        edtChaveNFe.SetFocus;
+      end;
+    end
+    else
+    if dtmCadastroNotasFiscais.EhNfeouCTE then
+    begin
+      if dtmCadastroNotasFiscais.IncluindoNota and
+         dtmCadastroNotasFiscais.qryNotaFiscalpermitirimprimir.AsBoolean then
+       result := true
+      else
+      begin
+        result := false;
+        MensagemErro('O campo CHAVE DA NFE é obrigatoriO.');
+        edtChaveNFe.SetFocus;
+      end;
+    end;
+
+  end;
+
+begin
+  Erro:= -1;
+  Result := dtmCadastroNotasFiscais.VerificarBloqueiodaTabela;
+
+  if result then
+  begin
+    if dtmCadastroNotasFiscais.ValidarCNPJ(edtCNPJCPF.Text) then
+    begin
+     if (ActiveControl is TtecFindCustom) and
+        (TtecFindCustom(ActiveControl).Text <> '') and
+        (dtmCadastroNotasFiscais.IncluindoNota) then
+     begin
+        if ActiveControl = flkFornecedor then
+          Result:= flkFornecedor.Exist and flkSerieNota.Exist
+        else if ActiveControl = flkSerieNota then
+                Result:= flkSerieNota.Exist
+             else
+             if ActiveControl = flkNotaFiscal then
+                Result:= flkNotaFiscal.Exist;
+     end;
+
+     if result then
+     begin
+       result := fraLancamentoContabilidade.VerificarLancamentosContabeis;
+       if not result then
+         erro := 4;
+     end;
+
+     if result then
+       Result := VerificarCHV_NFE;
+
+     if Result then begin
+        Result:= inherited InternoGravar;
+        if Result then begin
+    //           BaseICMS := edtBaseICMS.ValorSemFormatacao;
+    //           ICMS     := edtICMS.ValorSemFormatacao;
+           result := dtmCadastroNotasFiscais.GravarNotaFiscal(Erro);
+        end
+     end;
+
+     if (Erro > -1)  then begin
+        case Erro of
+        0: begin
+              pgcNotasPag.ActivePage:= tstProdutos;
+              ActiveControl:= dbgProdutosNotaFiscal;
+           end;
+        1: begin
+              pgcNotasPag.ActivePage:= tstDuplicatas;
+              ActiveControl:= dbgDuplicatas;
+           end;
+    {        2: begin
+              pgcNotasPag.ActivePage:= tstImpostos;
+              ActiveControl:= dbgImpostos;
+           end;                           }
+        3: begin
+             pgcNotasPag.ActivePage := tstProdutos;
+             if not visulizandoCustoePrecoVenda then
+                VisualizarPaineisCusto;
+           end;
+        4: begin
+              pgcNotasPag.ActivePage:= tstContabilidade;
+              ActiveControl:= fraLancamentoContabilidade.dbgContabilidade;
+           end;
+        5: begin
+              pgcValoresNota.ActivePage:= tstImpostosRetidos;
+              ActiveControl := edtISSRetido;
+           end;
+           (*
+        6:  //evento não informado qdo existe duplicatas e integrado com bancos
+             pgcNotasPag.ActivePage := tstDadosNota;
+             *)
+        end;
+     end
+     else
+     begin
+       pgcNotasPag.ActivePage:= tstDadosNota;
+       if tstContabilidade.TabVisible then
+         fraLancamentoContabilidade.atualizarDescricaoHistorico;
+       flkSerieNota.Group := 'NotaFiscal';
+       flkNotaFiscal.Group := 'NotaFiscal';
+     end;
+    end
+    else begin
+      MensagemAviso('CNPJ/CPF da Nota não informado.');
+      if edtCNPJCPF.CanFocus
+      then edtCNPJCPF.SetFocus;
+    end;
+    dbgProdutosNotaFiscal.Refresh;
+  end;
+end;
+
+function TfrmCadastroNotasFiscais.InternoIncluir: Boolean;
+begin
+  if CtrlOn then
+    Result := False
+  else if MensagemConfirmacao('Será cadastrada uma nota de entrada emitida pela própria empresa.') = smbOK then begin
+    flkSerieNota.Group := '';
+    flkNotaFiscal.Group := '';
+    Result := dtmCadastroNotasFiscais.IncluirNotaEntrada;
+    flkFornecedor.Exist;
+    flkSerieNota.Enabled      := False;
+    flkNotaFiscal.Enabled     := False;
+    flkFornecedor.SetControl(True);
+    flkFornecedor.SetFocus;
+    flkFornecedor.SelectAll;
+  end else
+    Result := False;
+
+  if visulizandoCustoePrecoVenda then
+    sbnCustoePrecoVendaClick(nil);
+end;
+
+function TfrmCadastroNotasFiscais.InternoPesquisar(Titulo: String): Integer;
+var
+  Procurar: Boolean;
+  FecharTab: Integer;
+  CtrlF9: Boolean;
+
+  procedure TipoDeProcura;
+  begin
+    if CtrlOn then
+      if flkFornecedor.Focused then
+        TipoProcura := pnfFORNECEDOR
+      else if flkSerieNota.Focused then
+        TipoProcura := pnfSERIE
+      else if flkNaturezaOperacao.Focused then
+        TipoProcura := pnfNATUREZA
+      else if flkEvento.Focused then
+        TipoProcura := pnfEVENTO
+      else if flkCodConhecFrete.Focused or
+              flkSerieConhecFrete.Focused or
+              flkNroConhecFrete.Focused   then
+        TipoProcura := pnfCONHECIMENTOFRETE
+      else if flkFornecedorTransporte.Focused then
+        TipoProcura := pnfTRANSPORTADOR
+      else if flkEstadoPlaca.Focused then
+        TipoProcura := pnfESTADOPLACA
+      else
+        TipoProcura := pnfNENHUMA;
+  end;
+
+begin
+  Result := mrNone;
+  if CtrlOn then
+  begin
+    if ActiveControl is TtecFindCustom then
+      if TipoProcura = pnfNENHUMA then
+        TipoDeProcura;
+  end;
+
+  if (TipoProcura <> pnfNENHUMA) then
+  begin
+    with dtmCadastroNotasFiscais do
+    begin
+      if Not SomenteLeitura or (TipoProcura = pnfNOTAFISCAL) then
+      begin
+        Procurar := True;
+        CtrlF9 := CtrlOn;
+        FecharTab := -1;
+        case TipoProcura of
+          pnfNATUREZA: begin
+                         Abre(ctTabelaNaturezaOperacoes);
+                         Titulo := ctCODIGOFISCAL;
+                         FecharTab := ctTabelaNaturezaOperacoes
+                       end;
+          pnfFornecedor: if IncluindoNota then begin
+                           Abre(ctTabelasConsultaFornecedores);
+                           Titulo := ctFORNECEDORES;
+                           FecharTab := ctTabelasConsultaFornecedores
+                         end else
+                           Procurar := False;
+          pnfEVENTO:  begin
+                          Abre(ctTabelaConsultaEvento);
+                          Titulo := ctEVENTO;
+                          FecharTab := ctTabelaConsultaEvento
+                        end;
+          pnfSerie: if IncluindoNota then begin
+                      Abre(ctTabelaConsultaSerieFornecedor);
+                      Titulo := ctSERIEFORNECEDORES;
+                      FecharTab := ctTabelaConsultaSerieFornecedor
+                    end else
+                      Procurar := False;
+          pnfCONHECIMENTOFRETE: begin
+                                  Abre(ctTabelaConsultaConhecimentoFrete);
+                                  Titulo := 'Conhecimento de Frete';
+                                  FecharTab := ctTabelaConsultaConhecimentoFrete
+                                end;
+          pnfNOTAFISCAL: begin
+                           AbreTabelaProcuraNotaFiscal;
+                           Titulo := ctNOTASFISCAIS;
+                         end;
+          pnfTRANSPORTADOR: begin
+                              Abre(ctTabelaConsultaFornecedoresTransp);
+                              Titulo := ctTRANSPORTE;
+                              FecharTab := ctTabelaConsultaFornecedoresTransp
+                            end;
+          pnfESTADOPLACA: begin
+                            Abre(ctTabelaConsultaEstado);
+                            Titulo := ctESTADO;
+                            FecharTab := ctTabelaConsultaEstado
+                          end;
+
+          pnfPRODUTONFE: begin
+                           Titulo := ctPRODUTO;
+                           dtmCadastroNotasFiscais.AbreTabelaConsultaProdutosNotaFiscal(ckbFiltrarProdutosPorFornecedor.Checked,
+                                                                                        (dtmCadastroNotasFiscais.ListadePedidosMarcados<>'0') or
+                                                                                        (dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemspedido.AsInteger <> 0)
+                                                                                        , false, true);
+                         end;
+
+          pnfPEDIDOPRODUTONFE: begin
+                                 Titulo := Format(ctPEDIDOSFORNECEDORES, ['(' + dtmCadastroNotasFiscais.NomeFornecedor + ')']);
+                                 dtmCadastroNotasFiscais.AbrirConsultaPedidosProdutosNotasPagNFE;
+                               end;
+
+          pnfPEDIDONOTASPAG : begin
+                                Titulo := Format(ctPEDIDOSFORNECEDORES, ['(' + dtmCadastroNotasFiscais.NomeFornecedor + ')']);
+                                dtmCadastroNotasFiscais.SetarFornecedorPedido;
+                                dtmCadastroNotasFiscais.qryConsultaPedidosNotaFiscal.Open;
+                              end;
+
+          pnfNATUREZAPRODUTONFE: begin
+                                   Titulo := ctNATUREZAS;
+                                   dtmCadastroNotasFiscais.abreConsultaNaturezaProduto;
+                                 end;
+
+
+          pnfNENHUMA: Procurar := False;
+        end;
+
+        if Procurar then begin
+          Result := inherited InternoPesquisar(Titulo);
+          if Result = mrOK then begin
+            if CtrlF9 then
+              case TipoProcura of
+                pnfFornecedor:   begin
+                                   SetarTipoFornecedor;
+                                   flkFornecedor.Text := CodigoFornecedorConsultado;
+                                   flkFornecedor.Exist;
+                                   SetarFornecedorPedido;
+                                 end;
+                pnfEVENTO:       SelecionarEvento;
+                pnfSerie:        begin
+                                   flkSerieNota.Text := SerieFornecedorConsultado;
+                                   flkSerieNota.exist;
+                                 end;
+
+                pnfNATUREZA:     SelecionarNatureza;
+                pnfCONHECIMENTOFRETE: begin
+                                        dtmCadastroNotasFiscais.qryConhecimentoFrete.AfterOpen := nil;
+                                        flkCodConhecFrete.text := dtmCadastroNotasFiscais.qryConsultaConhecimentoFretefornecedor.AsString;
+                                        flkCodConhecFrete.exist;
+                                        flkSerieConhecFrete.text := dtmCadastroNotasFiscais.qryConsultaConhecimentoFreteserie.AsString;
+                                        flkSerieConhecFrete.exist;
+                                        flkNroConhecFrete.text := dtmCadastroNotasFiscais.qryConsultaConhecimentoFretenumero.AsString;
+                                        flkNroConhecFrete.Exist;
+
+                                        //AbrirConhecimentoFrete;
+                                        SelecionarConhecimentoFrete;
+                                        dtmCadastroNotasFiscais.qryConhecimentoFrete.AfterOpen := dtmCadastroNotasFiscais.qryConhecimentoFreteAfterOpen;
+
+                                      end;
+                pnfTRANSPORTADOR: SelecionarFornecedorTransporte;
+                pnfESTADOPLACA: SelecionarEstadoPlaca;
+                pnfPRODUTONFE : begin
+                                  dtmCadastroNotasFiscais.SelecionarProdutoNFE;
+                                  dbgProdutosNotasPagNFEItems.editandocelula := true;
+                                end;
+                pnfNATUREZAPRODUTONFE: begin
+                                          with dtmCadastroNotasFiscais do
+                                          begin
+                                            SelecionarNaturezaProdutoNFE(dtmCadastroNotasFiscais.qryConsultaNaturezascodigo.asinteger,
+                                                                                             dtmCadastroNotasFiscais.qryConsultaNaturezascodigofiscal.asinteger, true);
+
+                                            dbgProdutosNotasPagNFEItems.editandocelula := true;
+                                          end;
+                                       end;
+
+                pnfPEDIDOPRODUTONFE : begin
+                                        dtmCadastroNotasFiscais.SelecionarPedidoNFE;
+                                        dbgProdutosNotasPagNFEItems.editandocelula := true;
+                                      end;
+
+                pnfPEDIDONOTASPAG : dtmCadastroNotasFiscais.SelecionarPedidoNotasPag;
+
+              end
+            else
+            begin
+              Selecionar;
+              FecharTab := -1;
+            end
+          end;
+          if FecharTab = -1 then
+          begin
+            if TipoProcura = pnfPRODUTONFE then
+               dtmCadastroNotasFiscais.qryConsultaProdutosNotaFiscal.close
+            else
+            if (TipoProcura = pnfPEDIDOPRODUTONFE) then
+              dtmCadastroNotasFiscais.qryConsultaPedidosProdutoNFE.close
+            else
+            if(TipoProcura = pnfPEDIDONOTASPAG) then
+              dtmCadastroNotasFiscais.FecharConsultaPedidosNFE
+            else
+            if TipoProcura = pnfNATUREZAPRODUTONFE then
+               dtmCadastroNotasFiscais.fechaConsultaNaturezaProduto
+            else
+               FechaTabelaProcuraNotaFiscal;
+          end
+          else
+            Fecha(FecharTab);
+
+          TipoProcura := pnfNENHUMA;
+        end else
+          Result := mrNone
+      end
+      else
+        Result := mrNone
+    end;
+  end;
+end;
+
+function TfrmCadastroNotasFiscais.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  JanProc := TfrmConsultaPorCampo.Create(nil);
+  Result := JanProc;
+  TfrmConsultaPorCampo(Result).ConsultaInterativa := TipoProcura <> pnfPRODUTONFE;
+
+  if TipoProcura = pnfSERIE then
+    TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := False
+  else if TipoProcura in [pnfFORNECEDOR, pnfNOTAFISCAL] then
+    TfrmConsultaPorCampo(Result).ConsultaInterativa := False
+  else if TipoProcura in [pnfNATUREZA, pnfPRODUTONFE,
+                          pnfPEDIDOPRODUTONFE,
+                          pnfPEDIDONOTASPAG,
+                          pnfNATUREZAPRODUTONFE] then
+    TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := False;
+
+end;
+
+procedure TfrmCadastroNotasFiscais.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+
+  if (key = VK_F9) and not ctrlon and sbnProcurar.enabled then
+    TipoProcura := pnfNOTAFISCAL;
+
+  inherited;
+  if key = VK_G then
+  begin
+    if Shift = [ssCtrl] then
+    begin
+      if pgcNotasPag.ActivePage = tstProdutos then
+      begin
+        if sbnVisualizarGrade.Visible then
+          sbnVisualizarGradeClick(sbnVisualizarGrade);
+      end
+      else
+      if pgcNotasPag.ActivePage = tstDuplicatas then
+        sbnGerarDuplicatasClick(nil)
+        {
+      else
+      if pgcNotasPag.ActivePage = tstImpostos then
+        sbnIncluirAliquotasImpostosClick(nil)};
+    end;
+  end
+  else
+  if key = VK_V then
+  begin
+    if Shift = [ssCtrl] then
+    begin
+      if sbnCustoePrecoVenda.Visible and
+         sbnCustoePrecoVenda.Enabled then
+      begin
+        pgcNotasPag.ActivePage := tstProdutos;
+        sbnCustoePrecoVendaClick(sbnCustoePrecoVenda);
+      end;
+    end;
+  end
+  else
+  if key = VK_H then
+  begin
+    if Shift = [ssCtrl] then
+    begin
+      if sbnVisualizarDetalhesProdutosNota.Visible and
+         sbnVisualizarDetalhesProdutosNota.Enabled then
+      begin
+        pgcNotasPag.ActivePage := tstProdutos;
+        sbnVisualizarDetalhesProdutosNotaClick(sbnVisualizarDetalhesProdutosNota);
+      end;
+    end;
+  end
+  else
+  if key = VK_I then
+  begin
+    if Shift = [ssCtrl] then
+    begin
+      if pgcNotasPag.ActivePage = tstProdutos then
+        sbnGerarTotalIPIClick(sbnGerarTotalIPI);
+    end;
+  end
+  else
+  if (key = VK_F6) and (Shift = [ssCtrl]) then
+  begin
+    if edfDeclaracao.CanFocus then
+      sbnGerarImportacao.Click;
+  end
+  else
+  if (key = VK_Escape) then
+  begin
+    flkSerieNota.Group := 'NotaFiscal';
+    flkNotaFiscal.Group := 'NotaFiscal';
+    flkSerieNota.Enabled      := true;
+    flkNotaFiscal.Enabled     := true;
+    flkFornecedor.SetControl(True);
+  end
+  else
+  if (key = VK_F12) then
+  begin
+    IF sbnLerXMLNfe.Enabled THEN
+      sbnLerXMLNfe.Click;
+  end;
+
+end;
+
+procedure TfrmCadastroNotasFiscais.PosicionarTabelaNoParametro(Ind: Integer; var continuar: Boolean);
+begin
+  inherited;
+  continuar := False;
+  if not (CtrlOn {and (ActiveControl is TtecFindCustom)}) then
+    case Ind of
+      0: continuar := False;
+      1: continuar := dtmCadastroNotasFiscais.PosicionarSerieFornecedor;
+    end
+end;
+
+procedure TfrmCadastroNotasFiscais.ProximoControle(Ind: Integer);
+begin
+  if not (CtrlOn {and (ActiveControl is TtecFindCustom)}) then
+    case Ind of
+      0: begin
+           JanProc.ConsultaInterativa := True;
+           dtmCadastroNotasFiscais.PosicionarSerieFornecedor;
+         end;
+      1: begin
+           JanProc.ConsultaInterativa := False;
+           dtmCadastroNotasFiscais.PosicionarNotaFiscal;
+         end
+    end
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnCodConhecFreteClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkCodConhecFrete, '');
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnConsultaEstadoClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkEstadoPlaca, ctESTADO)
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnExcluirDuplicatasClick(Sender: TObject);
+begin
+  inherited;
+  dbgDuplicatas.SetFocus;
+  CtrlOn:= True;
+  TipoCadastro := cnfDuplicata;
+  InternoExcluir;
+end;
+
+{
+procedure TfrmCadastroNotasFiscais.sbnExcluirImpostoClick(Sender: TObject);
+begin
+  inherited;
+  dbgImpostos.SetFocus;
+  CtrlOn:= True;
+  TipoCadastro := cnfIMPOSTOS;
+  InternoExcluir;
+end;
+
+}
+
+procedure TfrmCadastroNotasFiscais.sbnExcluirProdutoClick(Sender: TObject);
+begin
+  inherited;
+  if sbnExcluirProduto.Enabled then
+  begin
+    dbgProdutosNotaFiscal.SetFocus;
+    CtrlOn:= True;
+    dtmCadastroNotasFiscais.ExcluirProdutosNotaFiscal;
+  end;  
+
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnFornecedorClick(Sender: TObject);
+begin
+  InternoPesquisar(flkFornecedor,'')
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnGerarDuplicatasClick(Sender: TObject);
+var
+  Pedido: integer;
+begin
+  inherited;
+  if not dtmCadastroNotasFiscais.SomenteLeituraDuplicata then
+  begin
+    if  dtmCadastroNotasFiscais.ProdutosNotaMesmoPedido(Pedido) > 0 then
+      dtmCadastroNotasFiscais.PreencherDuplicatas(Pedido)
+    else
+    begin
+      frmCalcularDuplicatas :=  Tfrmcalcularduplicatas.Create(Self);
+
+      frmCalcularDuplicatas.edtVencimento.Minimo := DaysBetween(Date,
+                  dtmCadastroNotasFiscais.qryNotaFiscalemissao.AsDateTime);
+      frmCalcularDuplicatas.DataEmissao := strtodate(edtDataemissao.text);
+
+      frmCalcularDuplicatas.edtVencimento.MensagemPadronizada := frmCalcularDuplicatas.ExibirMensagemPadronizada;
+      frmCalcularDuplicatas.ShowModal;
+      if frmCalcularDuplicatas.ModalResult = mrOK then
+        dtmCadastroNotasFiscais.GerarDuplicatas(frmCalcularDuplicatas.NrParcelas,
+                                                frmCalcularDuplicatas.Intervalo,
+                                                frmCalcularDuplicatas.Vencimento,
+                                                frmCalcularDuplicatas.TipoJuros,
+                                                frmCalcularDuplicatas.TipoMulta,
+                                                frmCalcularDuplicatas.Juros,
+                                                frmCalcularDuplicatas.Multa);
+      frmCalcularDuplicatas.free;
+    end;
+  end;
+  pgcNotasPag.ActivePage := tstDuplicatas;
+  dbgDuplicatas.SetFocus;
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnEventoClick(Sender: TObject);
+begin
+  InternoPesquisar(flkEvento, '');
+end;
+
+{
+procedure TfrmCadastroNotasFiscais.sbnIncluirAliquotasImpostosClick(Sender: TObject);
+begin
+  inherited;
+  if not dtmCadastroNotasFiscais.SomenteLeituraImpostos then
+    dtmCadastroNotasFiscais.CalcularDadosFiscais
+end;
+}
+
+procedure TfrmCadastroNotasFiscais.sbnIncluirDuplicatasClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  TipoCadastro:= cnfDUPLICATA;
+  IncluirDuplicataNotaFiscal(False);
+end;
+
+{
+procedure TfrmCadastroNotasFiscais.sbnIncluirImpostoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  TipoCadastro:= cnfIMPOSTOS;
+  IncluirImpostosNotaFiscal(False);
+end;
+}
+
+procedure TfrmCadastroNotasFiscais.sbnIncluirProdutoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  TipoCadastro:= cnfProduto;
+  IncluirProdutosNotaFiscal(False);
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnNaturezaOperacaoClick(Sender: TObject);
+begin
+  InternoPesquisar(flkNaturezaOperacao, 'Natureza de operações')
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnProcurarFornecedorTransporteClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkFornecedorTransporte, ctTRANSPORTE)
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnSerieClick(Sender: TObject);
+begin
+  inherited;
+  if flkSerieNota.Enabled then
+    InternoPesquisar(flkSerieNota, '');
+end;
+
+{
+procedure TfrmCadastroNotasFiscais.SetarICMSFreteSeguro;
+begin
+  if dtmCadastroNotasFiscais.IncluindoNota then begin
+    pnlICMSFreteSeguro.SendToBack;
+    edtICMSFrete.Enabled  := True;
+    edtICMSSeguro.Enabled := True;
+  end else begin
+    pnlICMSFreteSeguro.BringToFront;
+    edtICMSFrete.Enabled  := False;
+    edtICMSSeguro.Enabled := False;
+  end
+end;
+}
+
+function TfrmCadastroNotasFiscais.TabelaDePesquisa: TZDataSet;
+begin
+  case TipoProcura of
+    pnfFornecedor:        Result := dtmCadastroNotasFiscais.TabelaConsultaFornecedores;
+    pnfEVENTO:            Result := dtmCadastroNotasFiscais.TabelaConsultaEvento;
+    pnfSerie:             Result := dtmCadastroNotasFiscais.TabelaConsultaSerieFornecedor;
+    pnfNATUREZA:          Result := dtmCadastroNotasFiscais.TabelaConsultaNaturezaOperacao;
+    pnfCONHECIMENTOFRETE: Result := dtmCadastroNotasFiscais.TabelaConsultaConhecimento;
+    pnfTRANSPORTADOR:     Result := dtmCadastroNotasFiscais.TabelaConsultaFornecedorTransporte;
+    pnfESTADOPLACA:       Result := dtmCadastroNotasFiscais.TabelaConsultaEstados;
+    pnfPRODUTONFE: Result := dtmCadastroNotasFiscais.qryConsultaProdutosNotaFiscal;
+    pnfPEDIDOPRODUTONFE : Result := dtmCadastroNotasFiscais.qryConsultaPedidosProdutoNFE;
+    pnfPEDIDONOTASPAG:  Result := dtmCadastroNotasFiscais.qryConsultaPedidosNotaFiscal;
+    pnfNATUREZAPRODUTONFE: Result := dtmCadastroNotasFiscais.TabelaConsultaNaturezaOperacao;
+    pnfNOTAFISCAL: Result := dtmCadastroNotasFiscais.TabelaConsultaNotaFiscais;
+  else
+    Result := nil;
+  end;
+end;
+
+function TfrmCadastroNotasFiscais.TabelaDoParametro(Parametro: Integer): TZDataSet;
+begin
+  case Parametro of
+    0: Result := dtmCadastroNotasFiscais.TabelaConsultaFornecedores;
+    1: Result := dtmCadastroNotasFiscais.TabelaConsultaSerieFornecedor;
+  else
+    Result := nil;
+  end
+end;
+
+
+procedure TfrmCadastroNotasFiscais.sbnVisualizarGradeClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionaCadastroProdutosNotasFiscaisGrade;
+end;
+
+function TfrmCadastroNotasFiscais.AcionaCadastroProdutosNotasFiscaisGrade: Boolean;
+begin
+  Result := true;
+
+  try
+
+//    if dtmCadastroNotasFiscais.qryNotaFiscal.State = dsinsert then
+      dtmCadastroNotasFiscais.GravarNotaParcial(true);
+
+    RefazConsultaPorNome(dtmCadastroNotasFiscais.qryCaracteristicasNotaFiscal, ['codigonota'], [dtmCadastroNotasFiscais.qryNotaFiscalcodigo.asinteger]);
+    if dtmCadastroNotasFiscais.qryCaracteristicasNotaFiscal.IsEmpty then
+      dtmCadastroNotasFiscais.qryCaracteristicasNotaFiscalcodigovisual.readonly := false;
+
+    dtmCadastroNotasFiscais.VisualizandoGrade := True;
+
+    if visulizandoCustoePrecoVenda then
+     sbnCustoePrecoVendaClick(nil);
+
+    if result then
+    begin
+      frmCadastroNotasFiscaisGrade := TfrmCadastroNotasFiscaisGrade.Create(frmCadastroNotasFiscaisGrade);
+
+      dtmCadastroNotasFiscais.GerarTabelaGrade;
+
+      if dtmCadastroNotasFiscais.qryCaracteristicasNotaFiscal.recordcount = 0 then
+        frmCadastroNotasFiscaisGrade.ActiveControl := frmCadastroNotasFiscaisGrade.dbgCaracteristicasNotasFiscais
+      else
+        frmCadastroNotasFiscaisGrade.ActiveControl := frmCadastroNotasFiscaisGrade.dbgGrades;
+
+
+
+      frmCadastroNotasFiscaisGrade.ShowModal;
+      frmCadastroNotasFiscaisGrade.free;
+
+
+
+      pgcNotasPag.ActivePage := tstProdutos;
+      pgcProdutos.ActivePage := tstProdutosNota;
+
+      tstProdutos.SetFocus;
+      dbgProdutosNotaFiscal.SetFocus;
+    end;
+
+  finally
+    dtmCadastroNotasFiscais.VisualizandoGrade := false;
+
+  end;
+
+end;
+
+procedure TfrmCadastroNotasFiscais.edtDataEmissaoExit(Sender: TObject);
+var
+ NDias : Integer;
+begin
+  inherited;
+  edtDataLancamento.Minimo := dtmCadastroNotasFiscais.NDiasLimiteData(
+                          edtDataEmissao.Text);
+end;
+
+procedure TfrmCadastroNotasFiscais.edtDataLancamentoExit(Sender: TObject);
+{
+   Function AnoMesDia(Data: String): String;
+   Begin
+      AnoMesDia:= Copy(Data,7,4) + Copy(Data,4,2) + Copy(Data,1,2);
+   End;
+}
+begin
+  inherited;
+  {
+  If AnoMesDia(EdtDataEmissao.   Text) >
+     AnoMesDia(EdtDataLancamento.Text) Then Begin
+     EdtDataEmissao.Text:= EdtDataLancamento.Text;
+  End;
+  }
+end;
+
+procedure TfrmCadastroNotasFiscais.pgcNotasPagChange(Sender: TObject);
+begin
+  inherited;
+  if pgcNotasPag.ActivePage = tstContabilidade then
+  begin
+    with fraLancamentoContabilidade do
+    begin
+    {
+      sbnIncluirLancamento.Enabled :=
+        dtmCadastroNotasFiscais.qryNotaFiscalsituacao.AsString <> 'C';
+      sbnExcluirLancamento.Enabled :=
+        dtmCadastroNotasFiscais.qryNotaFiscalsituacao.AsString <> 'C';
+      sbnGerarLancamento.Enabled :=
+        dtmCadastroNotasFiscais.qryNotaFiscalsituacao.AsString <> 'C';
+     }
+//      if sbnIncluirLancamento.Enabled then
+        if not ExisteLancamentosContabeis then
+          GerarLancamentosContabeis;
+    end;
+  end
+  else
+  if pgcNotasPag.ActivePage = tstImportacao then
+  begin
+    edfDeclaracao.SetFocus;
+    edfDeclaracao.SelectAll;
+  end
+  else
+  if pgcNotasPag.ActivePage = tstProdutos then
+  begin
+
+    if (dtmCadastroNotasFiscais.qryProdutosNotaFiscal.active) and
+       (dtmCadastroNotasFiscais.qryProdutosNotasPagNFE.active) and
+       (dtmCadastroNotasFiscais.qryProdutosNotaFiscal.RecordCount = 0) and
+       (dtmCadastroNotasFiscais.qryProdutosNotasPagNFE.RecordCount <> 0) then
+    begin
+      pgcprodutos.ActivePage := tstProdutosNFE;
+      pgcProdutosChange(self);
+
+    end
+    else
+      pgcProdutos.ActivePage := tstProdutosNota;
+  end;
+
+end;
+
+
+procedure TfrmCadastroNotasFiscais.BloquearValores(Bloquear: Boolean);
+begin
+  gbxCofinsRetida.Enabled := not bloquear;
+  edtCofinsRetido.Enabled := gbxCofinsRetida.Enabled;
+
+  gbxCSLLRetida.Enabled := not bloquear;
+  edtCSLLRetido.Enabled := gbxCSLLRetida.Enabled;
+
+  gbxINSS      .Enabled := not bloquear;
+  edtINSSRetido.Enabled := gbxINSS.Enabled;
+
+  gbxIRRF      .Enabled := not bloquear;
+  edtIRRetido  .Enabled := gbxIRRF.Enabled;
+
+  gbxISSQN     .Enabled := not bloquear;
+  edtISSRetido .Enabled := gbxISSQN.Enabled;
+
+  gbxPISRetido .Enabled := not bloquear;
+  edtPISRetido .Enabled := gbxPISRetido.enabled;
+
+  gbxPISCOFINSCSLL .Enabled := not bloquear;
+  edtPIS_COFINS_CSLL .Enabled := gbxPISCOFINSCSLL.enabled;
+
+
+end;
+
+procedure TfrmCadastroNotasFiscais.VenctosImpostosRetidosEntradasAfterOpen(
+  Sender: TObject);
+var
+  vLancamentosFiliais: TtecLancamentosContasEntradas;
+begin
+  BloquearValores(true);
+  with dtmCadastroNotasFiscais do
+
+  if ((dtmCadastroNotasFiscais.CodigoFiscal mod 1000) = cfSERVICOTRANSPORTE) then
+  begin
+    for vLancamentosFiliais := lceCOFINSretida to lcePIS_COFINS_CSLL do
+    begin
+      if qryVenctosImpostosRetidosEntradas.Locate('Descricao', FilialContasEntradas[vLancamentosFiliais],[]) then
+      begin
+        case vLancamentosFiliais of
+          lceCOFINSretida : begin
+                              gbxCofinsRetida.Enabled := true;
+                              edtCofinsRetido.Enabled := gbxCofinsRetida.Enabled;
+                            end;
+          lceCSLLretida   : begin
+                              gbxCSLLRetida  .Enabled := true;
+                              edtCSLLRetido  .Enabled := gbxCSLLRetida.Enabled;
+                            end;
+          lceINSSRetido   : begin
+                              gbxINSS  .Enabled := true;
+                              edtINSSRetido  .Enabled := gbxINSS.Enabled;
+                            end;
+          lceIRRetido     : begin
+                              gbxIRRF    .Enabled := true;
+                              edtIRRetido.Enabled := gbxIRRF.Enabled;
+                            end;
+          lceISSRetido    : begin
+                              gbxISSQN    .Enabled := true;
+                              edtISSRetido.Enabled := gbxISSQN.Enabled;
+                              if (dtmCadastroNotasFiscais.qryVenctosImpostosRetidosEntradasfornecedor.AsInteger = 0) and
+                                 edtISSRetido.Enabled and not dtmCadastroNotasFiscais.qryNotaFiscalissretido.ReadOnly then
+                                sbnPesquisarFornecedorParaISS.Visible := true
+                              else
+                                sbnPesquisarFornecedorParaISS.Visible := false;
+                            end;
+
+          lcePISRetido    : begin
+                              gbxPISRetido.Enabled := true;
+                              edtPISRetido.Enabled := gbxPISRetido.enabled;
+                            end;
+
+      lcePIS_COFINS_CSLL : begin
+                              gbxPISCOFINSCSLL.Enabled := true;
+                              edtPIS_COFINS_CSLL.Enabled := gbxPISCOFINSCSLL.enabled;
+                          end;
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmCadastroNotasFiscais.Action1Update(Sender: TObject);
+begin
+  inherited;
+  with dtmCadastroNotasFiscais do
+  begin
+    sbnImprimirAutorizacao.enabled := ExisteDuplicatasemAberto and not (qryNotaFiscal.State in [dsinsert, dsedit]);
+    sbnEspelhoNota.Enabled := not qryNotaFiscal.IsEmpty;
+    
+    if sbnManutencaoPrecos.visible then
+      sbnManutencaoPrecos.enabled := not qryProdutosNotaFiscal.IsEmpty;
+{
+    sbnExcluir.Enabled := ((CodigoFiscal mod 1000) <> ctDEVOLUCAO) and
+                          not (NotaCancelada) and
+                          not (ExisteQuitacaoImpostosRetidosDuplicatas or
+                               ExisteQuitacaoImpostosRetidosNotas);}
+
+    sbnExcluir.Enabled  := (UsuarioLogin.AlterarDadosContabeis or  UsuarioLogin.Pagamento);
+
+
+    sbnGerarDuplicatas.Enabled:= ((CodigoFiscal mod 1000) <> ctDEVOLUCAO) and
+                              not (NotaCancelada) and
+                              not (ExisteQuitacaoImpostosRetidosDuplicatas or
+                                   ExisteQuitacaoImpostosRetidosNotas) and
+                              not (SomenteLeituraDuplicata);
+
+    sbnExcluirDuplicatas.Enabled  := sbnGerarDuplicatas.Enabled;
+    sbnIncluirDuplicatas.Enabled  := sbnGerarDuplicatas.Enabled;
+
+
+
+
+{    sbnIncluirImposto.Enabled := not notacancelada and
+                                 not SomenteLeituraImpostos;
+    sbnExcluirImposto.Enabled := sbnIncluirImposto.Enabled; }
+{    sbnIncluirAliquotasImpostos.Enabled := sbnIncluirImposto.Enabled;}
+
+
+    sbnIncluirProduto.enabled := not notacancelada and
+                                 not SomenteLeituraProdutos and
+                                 not IncluindoViaXml and
+                                 not IncluidoViaXml;
+
+    sbnExcluirProduto.Enabled := sbnIncluirProduto.enabled;
+
+    {
+    fraLancamentoContabilidade.sbnIncluirLancamento.Enabled := not notacancelada and
+                                not SomenteLeituraContabilidade;
+
+    fraLancamentoContabilidade.sbnExcluirLancamento.Enabled :=
+        fraLancamentoContabilidade.sbnIncluirLancamento.Enabled;
+
+    fraLancamentoContabilidade.sbnGerarLancamento.Enabled :=
+        fraLancamentoContabilidade.sbnIncluirLancamento.Enabled;
+}        
+
+    tstAdicoes.Enabled            := qryDadosImportacoesnumero.AsString <> '';
+    tstProdutosImportacao.Enabled := tstAdicoes.Enabled and not qryAdicoesImportacao.IsEmpty;
+
+    sbnGerarImportacao.Enabled := tstAdicoes.Enabled and not qryAdicoesImportacao.IsEmpty and not qryProdutosImportados.IsEmpty and
+                                  not qryProdutosNotaFiscal.ReadOnly;
+
+    sbnIncluirAdicoes.Enabled := not qryAdicoesImportacao.ReadOnly;
+    sbnExcluirAdicoes.Enabled := not qryAdicoesImportacao.ReadOnly;
+    sbnInlcuirProdutosImportados.Enabled := not qryProdutosImportados.ReadOnly;
+    sbnExcluirProdutosImportados.Enabled := not qryProdutosImportados.ReadOnly;
+
+    edtChaveNFe.TabStop := not dtmCadastroNotasFiscais.qryNotaFiscalchv_nfe.ReadOnly;
+    edtChaveNFe.Enabled := edtChaveNFe.TabStop;
+
+//    flkPedido.ReadOnly := dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsproduto.AsInteger = 0;
+//    sbnProcurarPedido.enabled := not flkPedido.ReadOnly;
+
+    tstProdutosNFE.TabVisible := dtmCadastroNotasFiscais.IncluidoViaXml or
+                                 dtmCadastroNotasFiscais.IncluindoViaXml;
+
+    //sbnLerXMLNfe.Enabled := qryNotaFiscal.IsEmpty;
+
+    if {(dbgProdutosNotasPagNFEItems.SelectedField = dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsproduto) or
+       (dbgProdutosNotasPagNFEItems.SelectedField = dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsprodutovisual)  or}
+       
+       (dbgProdutosNotasPagNFEItems.SelectedField = dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsprodutodigitado) or
+       (dbgProdutosNotasPagNFEItems.SelectedField = dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsdescricaoproduto) or
+       (dbgProdutosNotasPagNFEItems.SelectedField = dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsncmempresa) or
+       (dbgProdutosNotasPagNFEItems.SelectedField = dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemspedido) or
+       (dbgProdutosNotasPagNFEItems.SelectedField = dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemscodigofiscal) or
+       (dbgProdutosNotasPagNFEItems.SelectedField = dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsdescricaocodigofiscal) or
+       (dbgProdutosNotasPagNFEItems.SelectedField = dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsnatureza) or
+       (dbgProdutosNotasPagNFEItems.SelectedField = dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsdescricaonatureza) or
+       (dbgPedidosNFE.SelectedField = dtmCadastroNotasFiscais.qryPedidosNotasPagpedido)  then
+      stbMensagemGridNFE.Panels[0].Text := 'Pressione CTRL+F9 para pesquisar'
+    else
+      stbMensagemGridNFE.Panels[0].Text := '';
+
+    sbnLerXMLNfe.Enabled := sbnIncluir.Enabled;
+
+
+    if pgcProdutos.ActivePage = tstProdutosNFE then
+    begin
+      dbgProdutosNFE.ColumnByName('csticms').Visible := qryProdutosNotasPagNFEcsticms.visible;
+      dbgProdutosNFE.ColumnByName('csosn').Visible := qryProdutosNotasPagNFEcsosn.visible;
+      dbgProdutosNFE.ColumnByName('pCredSN').Visible := qryProdutosNotasPagNFEpCredSN.visible;
+      dbgProdutosNFE.ColumnByName('vCredICMSSN').Visible := qryProdutosNotasPagNFEvCredICMSSN.visible;
+    end;
+
+    pnlPedidosNFE.Visible := (pgcProdutos.ActivePage = tstProdutosNFE) and (pgcNotasPag.ActivePage = tstprodutos);
+
+    sbnConciliarProdutosPedidos_x_ProdutosNFE.Enabled := qryPedidosNotasPag.RecordCount <> 0;
+    sbnIncluirnalistadepedidos.Enabled := not (qryPedidosNotasPag.state = dsinsert);
+    sbnExcluirdaListadePedidos.Enabled := qryPedidosNotasPag.RecordCount <> 0;
+
+    tstDetalhesNFE.TabVisible := dtmCadastroNotasFiscais.CondicaoEmissorNFE;
+
+    if (dtmCadastroNotasFiscais.qrynotafiscal.state = dsinsert) and
+       (dtmCadastroNotasFiscais.qryProdutosNotaFiscal.isempty) then
+    begin
+      rgpFinalidadeNFE.enabled := true;
+      rbnNormal.tabstop := true;
+    end
+    else
+    begin
+      rgpFinalidadeNFE.enabled := false;
+      rbnNormal.tabstop := false;
+    end;
+
+    tstReferenciada.tabvisible := qryNotaFiscalexigenotareferenciada.asboolean or (qryNotaFiscalfinalidadenf.asinteger = 3);
+
+    sbnConferir.Enabled := sbnSalvar.enabled and (dtmCadastroNotasFiscais.qryProdutosNotaFiscal.recordcount <> 0);
+
+  end;
+end;
+
+procedure TfrmCadastroNotasFiscais.OnChangeTipoFornecedor(Sender: TObject);
+begin
+// if edtCNPJCPF.Tipo <> dtmCadastroNotasFiscais.qryProcuraFornecedorespessoatipo.AsString then
+   edtCNPJCPF.Tipo := dtmCadastroNotasFiscais.qryProcuraFornecedorespessoatipo.AsString;
+end;
+
+procedure TfrmCadastroNotasFiscais.edtTotalIPIChange(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroNotasFiscais.TotalValorIPIAlterado := True;
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnGerarTotalIPIClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroNotasFiscais.TotalValorIPIAlterado := False;
+  dtmCadastroNotasFiscais.CalcularImpostos(false);
+end;
+
+procedure TfrmCadastroNotasFiscais.edtValorIPIChange(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroNotasFiscais.TotalValorIPIAlterado := True;
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnCustoePrecoVendaClick(
+  Sender: TObject);
+var
+  vAux_VisualizarDetalhesProdutosNota : Boolean;
+begin
+  inherited;
+  vAux_VisualizarDetalhesProdutosNota := dtmCadastroNotasFiscais.VisualizarDetalhesProdutosNota;
+  visulizandoCustoePrecoVenda := not visulizandoCustoePrecoVenda;
+  if visulizandoCustoePrecoVenda then
+  begin
+    if vAux_VisualizarDetalhesProdutosNota then
+      dtmCadastroNotasFiscais.VisualizarDetalhesProdutosNota := false;
+
+    if dtmCadastroNotasFiscais.CalcularCusto then
+      dtmCadastroNotasFiscais.CalcularPrecoVenda;
+
+    if vAux_VisualizarDetalhesProdutosNota then
+      dtmCadastroNotasFiscais.VisualizarDetalhesProdutosNota := true;
+  end;
+  VisualizarPaineisCusto;
+end;
+
+procedure TfrmCadastroNotasFiscais.dbgProdutosNotaFiscalDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  TDBGrid(Sender).Canvas.Font.Color:= clBlack;
+
+  with dtmCadastroNotasFiscais do
+  begin
+     if (column.FieldName =
+         dtmCadastroNotasFiscais.qryProdutosNotaFiscalprecodigitado.FieldName) then
+       if qryProdutosNotaFiscalprecodigitadoalterado.AsBoolean then TDBGrid(Sender).Canvas.Font.Color:= clRed;
+  end;
+
+  if visulizandoCustoePrecoVenda then
+  begin
+     if (Column.FieldName =
+         dtmCadastroNotasFiscais.qryProdutosNotaFiscalpercUnitario_x_Pedido.FieldName) then
+       if truncar(dtmCadastroNotasFiscais.qryProdutosNotaFiscalpercUnitario_x_Pedido.AsFloat,2) <> 0 then
+         TDBGrid(Sender).Canvas.Font.Color:= clRed;
+
+     if (Column.FieldName =
+         dtmCadastroNotasFiscais.qryProdutosNotaFiscalpercAtual_x_Venda.FieldName) then
+       if truncar(dtmCadastroNotasFiscais.qryProdutosNotaFiscalpercAtual_x_Venda.AsFloat,2) <> 0 then
+         TDBGrid(Sender).Canvas.Font.Color:= clRed;
+
+     if (Column.FieldName =
+         dtmCadastroNotasFiscais.qryProdutosNotaFiscalpercVenda_x_Digitado.FieldName) then
+       if truncar(dtmCadastroNotasFiscais.qryProdutosNotaFiscalpercVenda_x_Digitado.AsFloat,2) <> 0 then
+         TDBGrid(Sender).Canvas.Font.Color:= clRed;
+  end;
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+procedure TfrmCadastroNotasFiscais.VisualizarPaineisCusto;
+begin
+  pnlLegenda.Visible := not pnlLegenda.Visible;
+  dbgProdutosNotaFiscal.Columnbyname('pedido').Visible :=
+    not dbgProdutosNotaFiscal.Columnbyname('pedido').Visible;
+
+  dbgProdutosNotaFiscal.Columnbyname('percUnitario_x_Pedido').Visible :=
+    not dbgProdutosNotaFiscal.Columnbyname('percUnitario_x_Pedido').Visible;
+
+  dbgProdutosNotaFiscal.Columnbyname('percUnitario_x_Pedido').width := 50;
+
+  dbgProdutosNotaFiscal.Columnbyname('precounitariopedido').Visible :=
+    not dbgProdutosNotaFiscal.Columnbyname('precounitariopedido').Visible;
+
+//  dbgProdutosNotaFiscal.Columnbyname('quantidade').Visible :=
+//    not dbgProdutosNotaFiscal.Columnbyname('quantidade').Visible;
+
+// ? se retirar a especificação do tamanho abaixo o tamanho da coluna fica estranhamente expandido
+  dbgProdutosNotaFiscal.Columnbyname('unidadenf').width := 30;
+
+  dbgProdutosNotaFiscal.Columnbyname('produtototal').Visible :=
+    not dbgProdutosNotaFiscal.Columnbyname('produtototal').Visible;
+
+  dbgProdutosNotaFiscal.Columnbyname('aliquotaicms').Visible :=
+    not dbgProdutosNotaFiscal.Columnbyname('aliquotaicms').Visible;
+
+  dbgProdutosNotaFiscal.Columnbyname('aliquotaipi').Visible :=
+    not dbgProdutosNotaFiscal.Columnbyname('aliquotaipi').Visible;
+
+  dbgProdutosNotaFiscal.Columnbyname('valoripi').Visible :=
+    not dbgProdutosNotaFiscal.Columnbyname('valoripi').Visible;
+
+  dbgProdutosNotaFiscal.Columnbyname('custoparavenda').Visible :=
+    not dbgProdutosNotaFiscal.Columnbyname('custoparavenda').Visible;
+
+  dbgProdutosNotaFiscal.Columnbyname('precoatual').Visible :=
+    not dbgProdutosNotaFiscal.Columnbyname('precoatual').Visible;
+
+  dbgProdutosNotaFiscal.Columnbyname('percAtual_x_Venda').Visible :=
+    not dbgProdutosNotaFiscal.Columnbyname('percAtual_x_Venda').Visible;
+
+  dbgProdutosNotaFiscal.Columnbyname('percAtual_x_Venda').width := 50;
+
+  dbgProdutosNotaFiscal.Columnbyname('precovenda').Visible :=
+    not dbgProdutosNotaFiscal.Columnbyname('precovenda').Visible;
+
+  dbgProdutosNotaFiscal.Columnbyname('percVenda_x_Digitado').Visible :=
+    not dbgProdutosNotaFiscal.Columnbyname('percVenda_x_Digitado').Visible;
+
+  dbgProdutosNotaFiscal.Columnbyname('percVenda_x_Digitado').width := 50;
+
+  dbgProdutosNotaFiscal.Columnbyname('precodigitado').Visible :=
+    not dbgProdutosNotaFiscal.Columnbyname('precodigitado').Visible;
+
+  dbgProdutosNotaFiscal.Columnbyname('permitiratualizardigitado').Visible :=
+    not dbgProdutosNotaFiscal.Columnbyname('permitiratualizardigitado').Visible;
+
+  dbgProdutosNotaFiscal.Columnbyname('codigofiscal').Visible :=
+    not dbgProdutosNotaFiscal.Columnbyname('codigofiscal').Visible;
+
+  dbgProdutosNotaFiscal.Columnbyname('valoricms').Visible :=
+    not dbgProdutosNotaFiscal.Columnbyname('valoricms').Visible;
+
+  dbgProdutosNotaFiscal.Columnbyname('icmsoutras').Visible :=
+    not dbgProdutosNotaFiscal.Columnbyname('icmsoutras').Visible;
+
+  dbgProdutosNotaFiscal.Columnbyname('icmsisentas').Visible :=
+    not dbgProdutosNotaFiscal.Columnbyname('icmsisentas').Visible;
+
+  dbgProdutosNotaFiscal.Columnbyname('preco').Visible :=
+    not dbgProdutosNotaFiscal.Columnbyname('preco').Visible;
+
+  dbgProdutosNotaFiscal.Columnbyname('descricaoprecoproduto').Visible :=
+    not dbgProdutosNotaFiscal.Columnbyname('descricaoprecoproduto').Visible;
+end;
+
+procedure TfrmCadastroNotasFiscais.dbgProdutosNotaFiscalDrawDataCell(
+  Sender: TObject; const Rect: TRect; Field: TField;
+  State: TGridDrawState);
+begin
+  inherited;
+  with dbgProdutosNotaFiscal.Canvas do
+  begin
+    if DataSet.FieldByName('precodigitadoalterado').AsBoolean then
+      Font.Color:= clRed
+    else
+      Font.Color:= clblack;
+    dbgProdutosNotaFiscal.DefaultDrawDataCell(Rect,
+    dbgProdutosNotaFiscal.Columnbyname('precodigitado').Field, State);
+
+  end;
+end;
+
+procedure TfrmCadastroNotasFiscais.edtCNPJCPFExit(Sender: TObject);
+begin
+  inherited;
+
+  if (edtCNPJCPF.Text <> '') then
+    if not dtmCadastroNotasFiscais.ValidarCNPJ(edtCNPJCPF.Text) then begin
+      if edtCNPJCPF.CanFocus then
+        edtCNPJCPF.SetFocus;
+    end;
+end;
+
+procedure TfrmCadastroNotasFiscais.AfterOpenNotaFiscal(Sender: TObject);
+begin
+  if tstContabilidade.tabvisible then
+    with fraLancamentoContabilidade do
+    begin
+      AbrirLancamentos('E', CodigoDocumento, dtmCadastroNotasFiscais.IncluindoNota);
+{
+      sbnIncluirLancamento.Enabled := not SomenteLeituraContabilidade;
+      sbnExcluirLancamento.Enabled := not SomenteLeituraContabilidade;
+      sbnGerarLancamento.Enabled := not SomenteLeituraContabilidade;
+}      
+    end;
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnIncluirNFSaidaClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  IncluirNotaFiscalSaida(False);;
+end;
+
+function TfrmCadastroNotasFiscais.IncluirNotaFiscalSaida(Editar: Boolean): Boolean;
+begin
+  frmcadastronfsaidafrete:= Tfrmcadastronfsaidafrete.Create(frmcadastronfsaidafrete);
+  try
+    Result:= dtmCadastroNotasFiscais.IncluirNotaSaida;
+    frmcadastronfsaidafrete.ShowModal;
+  finally
+    frmcadastronfsaidafrete.Free;
+  end;
+end;
+
+procedure TfrmCadastroNotasFiscais.dbgAdicoesDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+
+   TDBGrid(Sender).Canvas.Font.Color:= clBlack;
+    with dtmCadastroNotasFiscais do begin
+     case column.Index of
+        10: if abs((qryAdicoesImportacaobaseicms.AsCurrency -
+                qryAdicoesImportacaobaseicmscalculada.AsCurrency))>=0.01
+           then TDBGrid(Sender).Canvas.Font.Color:= clRed
+           else TDBGrid(Sender).Canvas.Font.Color:= clBlack;
+
+        12: if abs((qryAdicoesImportacaovaloricms.AsCurrency -
+                qryAdicoesImportacaovaloricmscalculado.AsCurrency)) >= 0.01
+           then TDBGrid(Sender).Canvas.Font.Color:= clRed
+           else TDBGrid(Sender).Canvas.Font.Color:= clBlack;
+     end;
+     TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end;
+
+  {
+  if not (gdFocused in State) then
+  begin
+    if not dbgAdicoes.DataSource.DataSet.FieldByName('totais').AsBoolean then
+      TDBGrid(Sender).Canvas.Font.Style := [];
+  end;
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+}
+end;
+
+procedure TfrmCadastroNotasFiscais.AtribuirFabricanteAdicao;
+begin
+end;
+
+procedure TfrmCadastroNotasFiscais.AcionaPesquisaFabricante;
+begin
+end;
+
+procedure TfrmCadastroNotasFiscais.AcionaPesquisaProdutoImportado;
+begin
+end;
+
+procedure TfrmCadastroNotasFiscais.AtribuirProdutoImportado;
+begin
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnIncluirAdicoesClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  TipoCadastro:= cnfADICAO;
+  IncluirAdicao(False);
+end;
+
+function TfrmCadastroNotasFiscais.IncluirAdicao(
+  Editar: Boolean): Boolean;
+begin
+  if not dtmCadastroNotasFiscais.SomenteLeituraProdutos then begin
+    if dtmCadastroNotasFiscais.TabelaNotaFiscalVazia then
+      Result := False
+    else begin
+      frmCadastroAdicoes := TfrmCadastroAdicoes.Create(frmCadastroAdicoes);
+      frmCadastroAdicoes.DataSet := dtmCadastroNotasFiscais.qryAdicoesImportacao;
+      Result := dtmCadastroNotasFiscais.IncluirAdicao(Editar);
+      frmCadastroAdicoes.ShowModal;
+      frmCadastroAdicoes.Free;
+    end;
+    dbgAdicoes.SetFocus;
+  end else
+    Result := False
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnExcluirAdicoesClick(Sender: TObject);
+begin
+  inherited;
+  dbgAdicoes.SetFocus;
+  CtrlOn := True;
+  dtmCadastroNotasFiscais.ExcluirAdicao;
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnInlcuirProdutosImportadosClick(
+  Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  TipoCadastro:= cnfADICAO;
+  IncluirProdutoImportado(False);
+end;
+
+function TfrmCadastroNotasFiscais.IncluirProdutoImportado(
+  Editar: Boolean): Boolean;
+begin
+  if dtmCadastroNotasFiscais.TabelaNotaFiscalVazia then
+    Result := False
+  else
+  begin
+    frmCadastroProdutosImportados := TfrmCadastroProdutosImportados.Create(frmCadastroProdutosImportados);
+    frmCadastroProdutosImportados.DataSet := dtmCadastroNotasFiscais.qryProdutosImportados;
+    Result := dtmCadastroNotasFiscais.IncluirProdutoImportado(Editar);
+    frmCadastroProdutosImportados.ShowModal;
+    frmCadastroProdutosImportados.Free;
+  end;
+  dbgProdutosImportados.SetFocus;
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnExcluirProdutosImportadosClick(
+  Sender: TObject);
+begin
+  inherited;
+  dbgProdutosImportados.SetFocus;
+  CtrlOn := True;
+  dtmCadastroNotasFiscais.ExcluirProdutoImportado;
+end;
+
+procedure TfrmCadastroNotasFiscais.dbgAdicoesDblClick(Sender: TObject);
+begin
+  inherited;
+  IncluirAdicao(true);
+end;
+
+procedure TfrmCadastroNotasFiscais.dbgAdicoesKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      TeclaEditarRegistro : IncluirAdicao(True);
+      TeclaInserirRegistro: IncluirAdicao(False);
+    end;
+  end;
+end;
+
+procedure TfrmCadastroNotasFiscais.dbgProdutosImportadosDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  IncluirProdutoImportado(True);
+end;
+
+procedure TfrmCadastroNotasFiscais.dbgProdutosImportadosKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      TeclaEditarRegistro : IncluirProdutoImportado(True);
+      TeclaInserirRegistro: IncluirProdutoImportado(False);
+    end;
+  end;
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnGerarImportacaoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroNotasFiscais.GerarProdutosImportacao;
+  pgcNotasPag.ActivePage := tstProdutos;
+  dbgProdutosNotaFiscal.SetFocus;
+{
+  if not dtmCadastroNotasFiscais.SomenteLeituraImpostos then
+    dtmCadastroNotasFiscais.CalcularDadosFiscais
+}
+end;
+
+procedure TfrmCadastroNotasFiscais.edtValorConhecimentoEnter(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroNotasFiscais.ValorConhecimentoFrete := edtValorConhecimento.ValorSemFormatacao;
+end;
+
+procedure TfrmCadastroNotasFiscais.edtValorConhecimentoExit(
+  Sender: TObject);
+begin
+  inherited;
+  if dtmCadastroNotasFiscais.ErroValorConhecimentoFrete then
+  begin
+    edtValorConhecimento.text := trim(format('%8.2f',[dtmCadastroNotasFiscais.ValorConhecimentoFrete]));
+    dtmCadastroNotasFiscais.ErroValorConhecimentoFrete := false;
+    edtValorConhecimento.SetFocus;
+    edtValorConhecimento.SelectAll;
+  end;
+end;
+
+procedure TfrmCadastroNotasFiscais.flkFornecedorFound(Found: Boolean);
+begin
+  inherited;
+  if found then
+  begin
+    flkSerieNota.Group := 'NotaFiscal';
+    flkNotaFiscal.Group := 'NotaFiscal';
+  end;
+end;
+
+procedure TfrmCadastroNotasFiscais.ExibirMensagemPadronizadaDataEmissao;
+begin
+  if dtmCadastroNotasFiscais.IncluindoNota then
+    if strtodate(edtDataEmissao.Text) < DataLocal - edtDataEmissao.Minimo then
+      MensagemAviso(format(ctDATACONTABILMAIOROUIGUALDATALANCTO, ['de emissão',
+                       edtDataEmissao.Text, 'retroativa',
+                       datetostr(DataLocal - edtDataEmissao.Minimo)]))
+  else
+    if strtodate(edtDataEmissao.Text) < DataLocal - DaysBetween(dtmCadastroNotasFiscais.DataServidor,
+                                           (dtmCadastroNotasFiscais.qryNotaFiscalemissao.AsDateTime -
+                                             ParSistema.DiasNotaRetroativa)) then
+      MensagemAviso(format(ctDATACONTABILMAIOROUIGUALDATALANCTO, ['de emissão',
+                       edtDataEmissao.Text, 'retroativa',
+                       DataLocal - DaysBetween(dtmCadastroNotasFiscais.DataServidor,
+                                             (dtmCadastroNotasFiscais.qryNotaFiscalemissao.AsDateTime -
+                                             ParSistema.DiasNotaRetroativa) )]));
+end;
+
+procedure TfrmCadastroNotasFiscais.ExibirMensagemPadronizadaDataLancto;
+begin
+  if strtodate(edtDataLancamento.Text) <= ParSistema.DataContabil then
+    MensagemAviso(format(ctDATACONTABILMAIORDATALANCTO, ['de lançamento',
+                     edtDataLancamento.Text, 'contábil', ParSistema.DataContabilstring]))
+  else
+  if strtodate(edtDataLancamento.Text) < strtodate(edtDataEmissao.Text) then
+    MensagemAviso(format(ctDATACONTABILMAIOROUIGUALDATALANCTO, ['de lançamento',
+                     edtDataLancamento.Text, 'emissão', edtDataEmissao.Text]))
+end;
+
+procedure TfrmCadastroNotasFiscais.fraLancamentoContabilidadesbnGerarLancamentoClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraLancamentoContabilidade.sbnGerarLancamentoClick(Sender);
+end;
+
+procedure TfrmCadastroNotasFiscais.AtribuirCodigoFornecedorParaISS;
+begin
+  dtmCadastroNotasFiscais.FornecedorParaISS := ConsultaFornecedor.qryProcuraClientecodigo.AsInteger;
+end;
+
+procedure TfrmCadastroNotasFiscais.CondicoesConsultaFornecedorISS;
+begin
+  ConsultaFornecedor.qryConsultaClientes.MacroByName('CondicaodaConsulta').AsString :=
+   'and (select f.fornecedorparaiss from fornecedores f where f.codigo = v.codigo and v.tipo=''F'')';
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnPesquisarFornecedorParaISSClick(
+  Sender: TObject);
+begin
+  inherited;
+  edtISSRetido.SetFocus;
+  PesquisarFornecedorParaISS;
+end;
+
+procedure TfrmCadastroNotasFiscais.PesquisarFornecedorParaISS;
+begin
+  ConsultaFornecedor.CtrlOn := true;
+  ConsultaFornecedor.InternoPesquisar(ctFORNECEDORES);
+  ConsultaFornecedor.CtrlOn := false;
+  edtISSRetido.SetFocus;
+  edtISSRetido.SelectAll;
+end;
+
+procedure TfrmCadastroNotasFiscais.edtISSRetidoEnter(Sender: TObject);
+begin
+  inherited;
+  ValorISSQN := edtISSRetido.Text;
+end;
+
+procedure TfrmCadastroNotasFiscais.edtISSRetidoExit(Sender: TObject);
+begin
+  inherited;
+  if sbnPesquisarFornecedorParaISS.Visible then
+    if dtmCadastroNotasFiscais.qryNotaFiscal.State in [dsEdit, dsInsert] then
+      if ((ValorISSQN <> edtISSRetido.Text) or
+          (dtmCadastroNotasFiscais.qryNotaFiscalfornecedorparaiss.IsNull)) and
+         (dtmCadastroNotasFiscais.qryNotaFiscalissretido.AsCurrency<>0)  then
+        PesquisarFornecedorParaISS;
+end;
+
+procedure TfrmCadastroNotasFiscais.edtISSRetidoKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if CtrlOn then
+    if key = VK_F9 then
+      if sbnPesquisarFornecedorParaISS.Visible then
+        PesquisarFornecedorParaISS;
+end;
+
+procedure TfrmCadastroNotasFiscais.TotalizarAdicoes(Sender: TObject);
+begin
+  with dtmCadastroNotasFiscais do
+  begin
+    lblMercadoria.Caption := FormatarValor(MercadoriasAdicoes,2);
+    lblFrete.Caption      := FormatarValor(FreteAdicoes,2);
+    lblEmbalagem.Caption  := FormatarValor(EmbalagemAdicoes,2);
+    lblTHC.Caption        := FormatarValor(THCAdicoes,2);
+    lblII.Caption         := FormatarValor(IIAdicoes,2);
+    lblIPI.Caption        := FormatarValor(IPIAdicoes,2);
+    lblPIS.Caption        := FormatarValor(PISAdicoes,2);
+    lblCOFINS.Caption     := FormatarValor(COFINSAdicoes,2);
+    lblSISCOMEX.Caption   := FormatarValor(SISCOMEXAdicoes,2);
+    lblBaseICMS.Caption   := FormatarValor(BaseICMSAdicoes,2);
+    lblValorICMS.Caption  := FormatarValor(ValorICMSAdicoes,2);
+  end;
+end;
+
+procedure TfrmCadastroNotasFiscais.ControlarEdicaoPISCOFINSCSLL;
+begin
+  if ParSistema.GeracaoAutomaticadoImpostoRetido then
+  begin
+    edtPISRetido.Enabled       := gbxPISRetido.Enabled;
+    edtCofinsRetido.Enabled    := gbxCOFINSRetida.Enabled;
+    edtCSLLRetido.Enabled      := gbxCSLLRetida.Enabled;
+    edtPIS_COFINS_CSLL.Enabled := gbxPISCOFINSCSLL.Enabled;
+
+    with dtmCadastroNotasFiscais do
+    begin
+      if ((qryNotaFiscalpisretido.AsCurrency<>0) or
+          (qryNotaFiscalcofinsretido.AsCurrency<>0) or
+          (qryNotaFiscalcsllretido.AsCurrency<>0)) then
+        edtPIS_COFINS_CSLL.Enabled := FALSE
+      else
+      begin
+        if (qryNotaFiscalpiscofinscsllretido.AsCurrency<>0) then
+        begin
+          edtPISRetido.Enabled    := false;
+          edtCofinsRetido.Enabled := false;
+          edtCSLLRetido.Enabled   := false;
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmCadastroNotasFiscais.edtPISRetidoExit(Sender: TObject);
+begin
+  inherited;
+  ControlarEdicaoPISCOFINSCSLL;
+end;
+
+procedure TfrmCadastroNotasFiscais.edtCofinsRetidoExit(Sender: TObject);
+begin
+  inherited;
+  ControlarEdicaoPISCOFINSCSLL;
+
+end;
+
+procedure TfrmCadastroNotasFiscais.edtCSLLRetidoExit(Sender: TObject);
+begin
+  inherited;
+  ControlarEdicaoPISCOFINSCSLL;
+
+end;
+
+procedure TfrmCadastroNotasFiscais.edtPIS_COFINS_CSLLExit(Sender: TObject);
+begin
+  inherited;
+  ControlarEdicaoPISCOFINSCSLL;
+end;
+
+procedure TfrmCadastroNotasFiscais.OnChangeCodigoFiscal(Sender: TObject);
+begin
+  if (dtmCadastroNotasFiscais.qryProcuraSeriesFornecedormodelodoctofiscal.AsString =
+      ctNotaFiscalFornecEnergia) or
+     (dtmCadastroNotasFiscais.qryProcuraSeriesFornecedormodelodoctofiscal.AsString =
+      ctNotaFiscalFornecGas) then
+  begin
+    gbxServicos_nt.Visible := true;
+
+    gbxServicos.Caption := 'VALOR CONSUMIDO';
+
+    gbxProdutos_6.Caption := 'TOTAL CONSUMO';
+
+    gbxFrete_6.Caption := 'VALOR PIS';
+    edtFreteInterno.DataField := 'valorpis';
+
+    gbxSeguro.Caption := 'VALOR COFINS';
+    edtSeguro.DataField := 'valorcofins';
+
+    gbxIPI.Caption := 'VALOR TERCEIROS';
+    edtValorIPI.DataField := 'valorterceiros';
+  end
+  else
+  begin
+    gbxServicos_nt.Visible := false;
+
+    gbxServicos.Caption := 'VALOR SERVIÇOS';
+
+    gbxProdutos_6.Caption := 'TOTAL PRODUTOS';
+
+    gbxFrete_6.Caption := 'FRETE INTERNO';
+    edtFreteInterno.DataField := 'freteinterno';
+
+    gbxSeguro.Caption := 'SEGURO';
+    edtSeguro.DataField := 'seguro';
+
+    gbxIPI.Caption := 'VALOR DO IPI';
+    edtValorIPI.DataField := 'valoripi';
+
+  end;
+end;
+
+procedure TfrmCadastroNotasFiscais.Button1Click(Sender: TObject);
+begin
+  inherited;
+{  dtmCadastroNotasFiscais.incluirprodutosadicao;}
+end;
+
+procedure TfrmCadastroNotasFiscais.edfDeclaracaoFound(Found: Boolean);
+begin
+  inherited;
+  if found then
+    if not dtmCadastroNotasFiscais.validarDeclaracao then
+    begin
+      if edfDeclaracao.CanFocus then
+        edfDeclaracao.SetFocus;
+    end;
+end;
+
+procedure TfrmCadastroNotasFiscais.dbgProdutosImportadosDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  with dtmCadastroNotasFiscais do begin
+     case column.Index of
+        7: if not qryProdutosImportadosadicaofechada.AsBoolean
+           then TDBGrid(Sender).Canvas.Font.Color:= clRed
+           else TDBGrid(Sender).Canvas.Font.Color:= clBlack;
+     end;
+     TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end;
+
+end;
+
+{
+procedure TfrmCadastroNotasFiscais.dbgImpostosDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  case column.Index of
+    8: begin
+         if ((abs((dtmCadastroNotasFiscais.CalculosNotasPagtotaltipo -
+             dtmCadastroNotasFiscais.qryNotaFiscalvalornota.AsCurrency))>=0.01))
+         then TDBGrid(Sender).Canvas.Font.Color:= clRed
+         else TDBGrid(Sender).Canvas.Font.Color:= clBlack;
+       end;
+   end;
+   TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+}
+
+procedure TfrmCadastroNotasFiscais.dbgImpostosProdutosDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  with dtmCadastroNotasFiscais do begin
+      if (qryCalculosProdutostipo.asstring = 'TOTAL ICMS') or
+         (qryCalculosProdutostipo.asstring = 'TOTAL IPI') or
+         (qryCalculosProdutostipo.asstring = 'TOTAL ISS') then
+      begin
+         if ((abs((dtmCadastroNotasFiscais.qryCalculosProdutostotal.ascurrency -
+             dtmCadastroNotasFiscais.qryNotaFiscalvalornota.AsCurrency))>=0.01))
+         then TDBGrid(Sender).Canvas.Font.Color:= clRed
+         else TDBGrid(Sender).Canvas.Font.Color:= clBlack;
+        TDBGrid(Sender).Canvas.Font.Style := [fsBold];
+        if not (gdSelected in State) then
+          TDBGrid(Sender).Canvas.Brush.Color := TColor(strtoint(parsistema.CorZebradoRelatorio));
+      end
+      else TDBGrid(Sender).Canvas.Font.Style := []
+  end;
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnEspelhoNotaClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroNotasFiscais.ImprimirEspelhoNota;
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnImprimirAutorizacaoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroNotasFiscais.ImprimirAutorizacoes;
+end;
+
+procedure TfrmCadastroNotasFiscais.edtPlacaKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = VK_DELETE then
+  begin
+    dtmCadastroNotasFiscais.qryNotaFiscalplaca.Clear;
+    edtplaca.Clear;
+    edtplaca.SelectAll;
+  end;
+
+end;
+
+procedure TfrmCadastroNotasFiscais.FormShow(Sender: TObject);
+begin
+  inherited;
+  flkFornecedor.SetFocus;
+end;
+
+procedure TfrmCadastroNotasFiscais.edtChaveNFeKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (key = VK_M) and ctrlon then
+    edtChaveNFe.Text := edtChaveNFe.Text + modulo11(somentenumero(edtChaveNFe.text));
+end;
+
+
+procedure TfrmCadastroNotasFiscais.EntrarChavesNota(Sender: TObject);
+{var vSerie: String;}
+begin
+{
+  with dtmCadastroNotasFiscais do
+    LimparDetalhesNotaFiscal(true);
+
+    ver bu ao recelecionar nota
+    }
+
+    {
+  flkFornecedor.clear;
+  flkSerieNota.clear;
+  flkNotaFiscal.clear;
+  flkNotaFiscal.Exist;
+  }
+
+
+
+  flkFornecedor.Text := inttostr(dtmCadastroNotasFiscais.vcodigo) {dtmCadastroNotasFiscais.qryFornecedor.fieldbyname('codigo').AsString};
+  flkfornecedor.setfocus;
+  flkfornecedor.selectall;
+//  keybd_event(VK_RETURN,0,0,0);
+  flkfornecedor.modified := true;
+  flkfornecedor.DoExit;
+//  flkfornecedor.exist;
+
+
+
+  flkSerieNota.Text := dtmCadastroNotasFiscais.vSerie;
+  flkSerieNota.setfocus;
+  flkSerieNota.selectall;
+//  keybd_event(VK_RETURN,0,0,0);
+  flkSerieNota.modified := true;
+//  flkSerieNota.doexit;
+//  flkSerieNota.exist;
+
+
+  flkNotaFiscal.Text := inttostr(dtmCadastroNotasFiscais.ValorPropriedade('nNF', 'Ide')); // ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.nNF);
+  flkNotaFiscal.setfocus;
+  flkNotaFiscal.SelectAll;
+//  keybd_event(VK_RETURN,0,0,0);
+  flkNotaFiscal.modified := true;
+  flkNotaFiscal.doexit;
+  flkNotaFiscal.exist;
+
+
+
+  pgcNotasPag.ActivePage := tstDadosNota;
+  pgcDetalhes.ActivePage := tstDetalhesNotaFiscal;
+  flkNotaFiscal.SetControl(true);
+
+  flkNaturezaOperacao.SetFocus;
+
+end;
+
+procedure TfrmCadastroNotasFiscais.ProdutosNFEBeforeScroll(
+  Sender: TObject);
+begin
+// flkprodutonaEmpresa.text :=  dtmcadastronotasfiscais.qryProdutosNFEproduto.asstring;
+end;
+
+procedure TfrmCadastroNotasFiscais.pgcProdutosChange(Sender: TObject);
+begin
+  inherited;
+  if pgcProdutos.ActivePage = tstProdutosNFE then
+  begin
+    dtmCadastroNotasFiscais.PosicionarProdutosNotasPagNFEComerro;
+    dbgProdutosNotasPagNFEItems.SelectedIndex := 3;
+    dbgProdutosNotasPagNFEItems.SetFocus;
+    dtmCadastroNotasFiscais.VisualizandoProdutosdaNFE := true;
+  end
+  else
+    dtmCadastroNotasFiscais.VisualizandoProdutosdaNFE := false;
+
+end;
+
+procedure TfrmCadastroNotasFiscais.dbgctrlImportacaoNFeKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+var
+  vKey : Word;
+begin
+  inherited;
+  vKey := key;
+//  KeyDown(vKey, Shift);
+
+  if key = vk_return then
+  begin
+
+  end;
+
+end;
+
+
+procedure TfrmCadastroNotasFiscais.mmoSituacaoProdutoNFEEnter(
+  Sender: TObject);
+begin
+  inherited;
+//  mmoSituacaoProdutoNFE.Color := clBtnFace;
+end;
+
+procedure TfrmCadastroNotasFiscais.mmoSituacaoProdutoNFEExit(
+  Sender: TObject);
+begin
+  inherited;
+//  mmoSituacaoProdutoNFE.Color := clBtnFace;
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnConferirClick(Sender: TObject);
+begin
+  inherited;
+  with dtmCadastroNotasFiscais do
+    ConferirProdutos(qryProdutosNotaFiscal, qryProdutosNotaFiscalproduto.fieldname,
+     qryProdutosNotaFiscalprodutovisual.FieldName, qryProdutosNotaFiscaldescricaoproduto.FieldName,
+     qryProdutosNotaFiscalquantidade.FieldName,'NFE',qryProdutosNotaFiscalCodigoNota.AsString,
+     qryProdutosNotaFiscalvalorgrade1.FieldName,
+     qryProdutosNotaFiscalvalorgrade2.FieldName,
+     qryProdutosNotaFiscallinha.FieldName,
+     qryProdutosNotaFiscalcoluna.FieldName);
+
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnProdutonaEmpresaClick(
+  Sender: TObject);
+begin
+  inherited;
+  CtrlOn := true;
+//  flkProdutonaEmpresa.setfocus;
+  InternoPesquisar(ctPRODUTO);
+end;
+
+
+
+
+procedure TfrmCadastroNotasFiscais.sbnProcuracfopClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := true;
+//  flkNaturezaProduto.setfocus;
+  InternoPesquisar(ctCODIGOFISCAL);
+
+end;
+
+
+
+procedure TfrmCadastroNotasFiscais.flkNaturezaProdutoExit(Sender: TObject);
+begin
+  inherited;
+  {
+  if dtmCadastroNotasFiscais.QuantidadeNaturezasProduto then
+    InternoPesquisar(flkNaturezaProduto,ctCODIGOFISCAL)
+  else
+    dtmCadastroNotasFiscais.SalvarProdutosNotasPagNFEItems;
+    }
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnProcurarPedidoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := true;
+//  flkPedido.setfocus;
+end;
+
+procedure TfrmCadastroNotasFiscais.flkNaturezaProdutoEnter(
+  Sender: TObject);
+begin
+  inherited;
+  TipoProcura := pnfNATUREZAPRODUTONFE;
+end;
+
+procedure TfrmCadastroNotasFiscais.dbgProdutosNotasPagNFEItemsKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if dtmCadastroNotasFiscais.qryprodutosnotaspagnfe.active then
+  begin
+
+    if ShiftOn then
+    begin
+      if (key = vk_tab) {or (key = vk_return))} then
+        dtmCadastroNotasFiscais.PosicionarProdutosNotasPagNFEComerro
+    end
+    else
+    if {(dbgProdutosNotasPagNFEItems.SelectedField = dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsproduto) or
+        (dbgProdutosNotasPagNFEItems.SelectedField = dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsprodutovisual) or}
+
+       (dbgProdutosNotasPagNFEItems.SelectedField = dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsprodutodigitado) or
+       (dbgProdutosNotasPagNFEItems.SelectedField = dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsdescricaoproduto) or
+       (dbgProdutosNotasPagNFEItems.SelectedField = dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsncmempresa)   then
+    begin
+      if (key = VK_F9) and
+         CtrlOn then
+      begin
+        TipoProcura := pnfPRODUTONFE;
+        CtrlOn := true;
+        InternoPesquisar(ctPRODUTO);
+        dbgProdutosNotasPagNFEItems.SetFocus;
+      end
+      else
+      if key = VK_return then
+      begin
+  //      flkProdutonaEmpresa.Exist;
+        dtmCadastroNotasFiscais.GuardarPosicaoProdutosNotasPagNFE;
+
+        dtmCadastroNotasFiscais.dsrProdutosNotasPagNFEItemsDataChange(nil, dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsprodutodigitado);
+        dtmCadastroNotasFiscais.VoltarPosicaoProdutosNotasPagNFE;
+
+        dtmCadastroNotasFiscais.CampoProdutosNotasPagNFEItemsAlterado := nil;
+        dtmCadastroNotasFiscais.VerificarValoresProdutosNotasPagNFEItems;
+
+      end;
+    end
+    else
+    if (dbgProdutosNotasPagNFEItems.SelectedField = dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemspedido) then
+    begin
+      if (key = VK_F9) and
+         CtrlOn then
+      begin
+        TipoProcura := pnfPEDIDOPRODUTONFE;
+        CtrlOn := true;
+
+        InternoPesquisar(ctPEDIDOS);
+        dbgProdutosNotasPagNFEItems.SetFocus;
+      end
+      else
+      if key = VK_return then
+      begin
+  //      flkPedido.Exist;
+        dtmCadastroNotasFiscais.dsrProdutosNotasPagNFEItemsDataChange(nil, dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemspedido);
+      end;
+    end
+    else
+    if (dbgProdutosNotasPagNFEItems.SelectedField = dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemscodigofiscal) or
+       (dbgProdutosNotasPagNFEItems.SelectedField = dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsdescricaocodigofiscal) or
+       (dbgProdutosNotasPagNFEItems.SelectedField = dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsnatureza) or
+       (dbgProdutosNotasPagNFEItems.SelectedField = dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsdescricaonatureza) then
+    begin
+      if (key = VK_F9) and
+         CtrlOn then
+      begin
+        TipoProcura := pnfNATUREZAPRODUTONFE;
+        dtmCadastroNotasFiscais.qryConsultaNaturezas.MacroByName('CodigoFiscal').AsString := '';
+        CtrlOn := true;
+        InternoPesquisar(ctCODIGOFISCAL);
+        dbgProdutosNotasPagNFEItems.SetFocus;
+      end
+      else
+      if key = VK_return then
+      begin
+        dtmCadastroNotasFiscais.dsrProdutosNotasPagNFEItemsDataChange(nil, dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemscodigofiscal);
+        if dtmCadastroNotasFiscais.QuantidadeNaturezasProdutoNFE then
+        begin
+          TipoProcura := pnfNATUREZAPRODUTONFE;
+          CtrlOn := true;
+          InternoPesquisar(ctCODIGOFISCAL);
+          dbgProdutosNotasPagNFEItems.SetFocus;
+        end;
+      end;
+
+    end
+    else
+    if (dbgProdutosNotasPagNFEItems.SelectedField = dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsdescricaounidadenfe) then
+    begin
+      if key = VK_return then
+      begin
+        dtmCadastroNotasFiscais.CampoProdutosNotasPagNFEItemsAlterado := dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsdescricaounidadenfe;
+        dtmCadastroNotasFiscais.dsrProdutosNotasPagNFEItemsDataChange(nil, dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsdescricaounidadenfe);
+      end;
+    end
+    else
+    if (dbgProdutosNotasPagNFEItems.SelectedField = dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsfatorconversao) then
+    begin
+      if key = VK_return then
+      begin
+        dtmCadastroNotasFiscais.CampoProdutosNotasPagNFEItemsAlterado := dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsfatorconversao;
+        dtmCadastroNotasFiscais.dsrProdutosNotasPagNFEItemsDataChange(nil, dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsfatorconversao);
+      end;
+    end
+    else
+    if (dbgProdutosNotasPagNFEItems.SelectedField = dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsquantidade) then
+    begin
+      if key = VK_return then
+      begin
+        dtmCadastroNotasFiscais.CampoProdutosNotasPagNFEItemsAlterado := dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsquantidade;
+
+        if dbgProdutosNotasPagNFEItems.EditandoCelula then
+          dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItems.Post;
+        
+  //      dtmCadastroNotasFiscais.dsrProdutosNotasPagNFEItemsDataChange(nil, dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsquantidade);
+      end;
+    end
+    else
+    if (dbgProdutosNotasPagNFEItems.SelectedField = dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsqtdeestoque) then
+    begin
+      if key = VK_return then
+      begin
+        dtmCadastroNotasFiscais.CampoProdutosNotasPagNFEItemsAlterado := dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsqtdeestoque;
+        dtmCadastroNotasFiscais.dsrProdutosNotasPagNFEItemsDataChange(nil, dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsqtdeestoque);
+      end;
+    end;
+  end;  
+
+end;
+
+procedure TfrmCadastroNotasFiscais.dbgProdutosNFEKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = VK_RETURN then
+  begin
+    dbgProdutosNotasPagNFEItems.setfocus;
+    dbgProdutosNotasPagNFEItems.SelectedField := dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsprodutodigitado
+  end
+  else
+    dbgProdutosNotasPagNFEItemsKeyDown(Sender, key, Shift);
+  
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnLerXMLNfeClick(Sender: TObject);
+begin
+  inherited;
+  flkFornecedor.SetFocus;
+  flkFornecedor.SelectAll;
+  odlLerXMLNfe.FileName  :=  '';
+  odlLerXMLNfe.Title := 'Selecione a NFE';
+  odlLerXMLNfe.DefaultExt := '*.XML';
+  odlLerXMLNfe.Filter := 'Arquivos XML (*.XML)|*.XML|Arquivos NFE (*-nfe.XML)|*-nfe.XML|Arquivos TXT (*.TXT)|*.TXT|Todos os Arquivos (*.*)|*.*';
+  if odlLerXMLNfe.Execute then
+  begin
+//    dtmCadastroNotasFiscais.OnChangeTipoFornecedor := nil;
+    dtmCadastroNotasFiscais.EntradaViaXML := True;
+    dtmCadastroNotasFiscais.ArquivoXMLNFe := odlLerXMLNfe.FileName;
+    dtmCadastroNotasFiscais.EntradaViaXML := False;
+//    dtmCadastroNotasFiscais.OnChangeTipoFornecedor := OnChangeTipoFornecedor;
+  end;
+    
+end;
+
+procedure TfrmCadastroNotasFiscais.dbgProdutosNFEDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if gdSelected in State then
+  begin
+    TDBGrid(Sender).Canvas.Font.Color := clRed;
+    TDBGrid(Sender).Canvas.Font.Style := [fsBold];
+  end
+  else
+  begin
+    TDBGrid(Sender).Canvas.Font.Color := clBlack;
+    TDBGrid(Sender).Canvas.Font.Style := [];
+  end;
+  dbgProdutosNFE.DefaultDrawColumnCell(Rect,DataCol,Column,State);
+
+end;
+
+procedure TfrmCadastroNotasFiscais.dbgProdutosNotasPagNFEItemsDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if gdSelected in State then
+  begin
+
+    TDBGrid(Sender).Canvas.Brush.Color := clRed;
+//    TDBGrid(Sender).Canvas.Font.Color := clRed;
+//    TDBGrid(Sender).Canvas.Font.Style := [fsBold];
+
+  end
+  else
+  begin
+
+     if (Column.FieldName =
+         dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemspercUnitario_x_Pedido.FieldName) then
+       if truncar(dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemspercUnitario_x_Pedido.AsFloat, 2) <> 0 then
+         TDBGrid(Sender).Canvas.Font.Color:= clRed;
+
+
+
+//    TDBGrid(Sender).Canvas.Font.Color := clBlack;
+//    TDBGrid(Sender).Canvas.Font.Style := [];
+  end;
+  dbgProdutosNotasPagNFEItems.DefaultDrawColumnCell(Rect,DataCol,Column,State);
+
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnProcurarClick(Sender: TObject);
+begin
+  TipoProcura := pnfNOTAFISCAL;
+  inherited;
+end;
+
+procedure TfrmCadastroNotasFiscais.dbgProdutosNotasPagNFEItemsDblClick(
+  Sender: TObject);
+var vKey: Word;
+begin
+  inherited;
+  ShiftOn := False;
+  CtrlOn := true;
+  vKey := VK_F9;
+  dbgProdutosNotasPagNFEItemsKeyDown(dbgProdutosNotasPagNFEItems, vKey, [ssctrl]);
+end;
+
+procedure TfrmCadastroNotasFiscais.dbgProdutosNFEDblClick(Sender: TObject);
+var vKey: Word;
+begin
+  inherited;
+  ShiftOn := False;
+  CtrlOn := true;
+  vKey := VK_F9;
+  dbgProdutosNotasPagNFEItemsKeyDown(dbgProdutosNotasPagNFEItems, vKey, [ssctrl]);
+end;
+
+procedure TfrmCadastroNotasFiscais.dbgPedidosNFEKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (dbgPedidosNFE.SelectedField = dtmCadastroNotasFiscais.qryPedidosNotasPagpedido) then
+  begin
+    if (key = VK_F9) and
+       CtrlOn then
+    begin
+      TipoProcura := pnfPEDIDONOTASPAG;
+      CtrlOn := true;
+      InternoPesquisar(ctPEDIDOS);
+      dbgPedidosNFE.SetFocus;
+    end
+    else
+    if key = VK_return then
+      dtmCadastroNotasFiscais.dsrPedidosNotasPagDataChange(nil, dtmCadastroNotasFiscais.qryPedidosNotasPagpedido);
+  end;
+end;
+
+procedure TfrmCadastroNotasFiscais.dbgPedidosNFEDblClick(Sender: TObject);
+var vKey: Word;
+begin
+  inherited;
+  ShiftOn := False;
+  CtrlOn := true;
+  vKey := VK_F9;
+  dbgPedidosNFEKeyDown(dbgPedidosNFE, vKey, [ssctrl]);
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnConciliarProdutosPedidos_x_ProdutosNFEClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroNotasFiscais.IncluirProdutosDoPedidodaNFE(True, false);
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnIncluirnalistadepedidosClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroNotasFiscais.IncluirNaListadePedidos;
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnExcluirdaListadePedidosClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroNotasFiscais.ExcluirdaListadePedidos;
+end;
+
+procedure TfrmCadastroNotasFiscais.AtribuirDadosConsultanotasaida;
+begin
+
+  if fraConsultaSerieSaida.qryProcuraSerie.ParamByName('serie').asstring <> fraConsultanotasaida.qryProcuraNFSaidaserie.AsString then
+  begin
+    fraConsultaSerieSaida.qryProcuraSerie.ParamByName('serie').asstring := fraConsultanotasaida.qryProcuraNFSaidaserie.AsString;
+    fraConsultaSerieSaida.edfcodigo.exist;
+  end;
+
+  dtmCadastroNotasFiscais.qryDadosFiscaisRef.ParamByName('filial').AsInteger := fraConsultanotasaida.qryProcuraNFSaidafilial.AsInteger;
+  dtmCadastroNotasFiscais.qryDadosFiscaisRef.ParamByName('serie').AsString := fraConsultanotasaida.qryProcuraNFSaidaserie.AsString;
+//  dtmCadastroNotasFiscais.qryDadosFiscaisRef.fieldByName('serie').AsString := fraConsultanotasaida.qryProcuraNFSaidaserie.AsString;
+  dtmCadastroNotasFiscais.qryDadosFiscaisRef.ParamByName('numero').AsInteger := fraConsultanotasaida.qryProcuraNFSaidanumero.AsInteger;
+
+  if (fraConsultaSerieSaida.edfCodigo.Text <> fraConsultanotasaida.qryProcuraNFSaidaserie.AsString) or
+     (fraConsultanotasaida.edfCodigo.Text <> fraConsultanotasaida.qryProcuraNFSaidanumero.AsString) then
+  begin
+    fraConsultaSerieSaida.edfCodigo.Text := fraConsultanotasaida.qryProcuraNFSaidaserie.AsString;
+    fraConsultanotasaida.edfCodigo.Text := fraConsultanotasaida.qryProcuraNFSaidanumero.AsString;;
+    fraConsultanotasaida.edfCodigo.exist;
+  end;
+end;
+
+procedure TfrmCadastroNotasFiscais.CondicoesdaConsultaNotaSaida;
+begin
+  fraConsultanotasaida.qryConsultaNFSaida.ParamByName('filial').asinteger :=
+    dtmCadastroNotasFiscais.qryNotaFiscalfilial.AsInteger;
+
+  fraConsultanotasaida.qryConsultaNFSaida.ParamByName('serie').asString :=
+//    fraConsultaSerieSaida.qryProcuraSerieserie.AsString;
+    dtmCadastroNotasFiscais.qryNotaFiscalserie.asString;
+
+  fraConsultanotasaida.qryProcuraNFSaida.ParamByName('filial').asinteger :=
+    dtmCadastroNotasFiscais.qryNotaFiscalfilial.AsInteger;
+
+  fraConsultanotasaida.qryProcuraNFSaida.ParamByName('serie').asString :=
+//    fraConsultaSerieSaida.qryProcuraSerieserie.AsString;
+    dtmCadastroNotasFiscais.qryNotaFiscalserie.asString;
+
+  fraConsultanotasaida.qryProcuraNFSaida.macrobyname('SQL').asstring := ' and df.cliente = ' + inttostr(dtmCadastroNotasFiscais.qryNotaFiscalfornecedor.Asinteger) +
+                                                                        ' and df.tipocliente = ' + quotedstr(dtmCadastroNotasFiscais.qryNotaFiscaltipofornecedor.AsString) +
+                                                                        ' and df.dadofiscalreferenciado is null ';
+
+  fraConsultanotasaida.qryConsultaNFSaida.macrobyname('SQL').asstring := ' and df.cliente = ' + inttostr(dtmCadastroNotasFiscais.qryNotaFiscalfornecedor.Asinteger) +
+                                                                        ' and df.tipocliente = ' + quotedstr(dtmCadastroNotasFiscais.qryNotaFiscaltipofornecedor.AsString) +
+                                                                        ' and df.dadofiscalreferenciado is null ';
+                                                                        
+end;
+
+procedure TfrmCadastroNotasFiscais.CondicoesdaConsultaSerieSaida;
+begin
+  fraConsultaSerieSaida.qryProcuraSerie.ParamByName('filial').AsInteger := dtmCadastroNotasFiscais.qryNotaFiscalfilial.AsInteger;
+  fraConsultaSerieSaida.qryConsultaSerie.ParamByName('filial').AsInteger := dtmCadastroNotasFiscais.qryNotaFiscalfilial.AsInteger;
+
+  fraConsultaSerieSaida.qryProcuraSerie.MacroByName('SQLCondicao').AsString := ' and (sf.filial,sf.valor) in ( '+
+                                                                               ' select n.filial,n.serie '+
+                                                                               ' from notas n join dadosfiscais df on n.dadofiscal = df.numero '+
+                                                                               ' where n.dadofiscal = df.numero '+
+                                                                               ' and df.cliente = ' + inttostr(dtmCadastroNotasFiscais.qryNotaFiscalfornecedor.AsInteger) +
+                                                                               ' and df.tipocliente = ' + quotedstr(dtmCadastroNotasFiscais.qryNotaFiscaltipofornecedor.AsString)+
+                                                                               ' and df.dadofiscalcomplementar is null )';
+
+  fraConsultaSerieSaida.qryConsultaSerie.MacroByName('SQLCondicao').AsString := fraConsultaSerieSaida.qryProcuraSerie.MacroByName('SQLCondicao').AsString;
+end;
+
+(*
+procedure TfrmCadastroNotasFiscais.rgpFinalidadeNFEClick(Sender: TObject);
+begin
+  inherited;
+
+  if dtmCadastroNotasFiscais.qrynotafiscal.state = dsinsert then
+    if rbnnormal.checked or rbnComplementar.checked then
+    begin
+      dtmCadastroNotasFiscais.LimparDadosNotaReferenciada;
+      fraConsultaSerieSaida.edfCodigo.Clear;
+      fraConsultanotasaida.edfCodigo.Clear;
+    {end
+    else
+    if rbnajuste.checked or rbnDevolucaoRetorno.Checked then
+    begin
+      pgcNotasPag.ActivePage := tstDadosNota;
+      pgcDetalhes.ActivePage := tstReferenciada;
+      fraConsultaSerieSaida.edfcodigo.setfocus;}
+    end;
+
+end;
+*)
+
+procedure TfrmCadastroNotasFiscais.flkFornecedorKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+  begin
+    if dtmCadastroNotasFiscais.IncluindoNota and
+       dtmCadastroNotasFiscais.qryNotaFiscalpermitirimprimir.asboolean then
+      rbnNormal.setfocus;
+
+  end;
+end;
+
+procedure TfrmCadastroNotasFiscais.fraConsultanotasaidaedfCodigoFound(
+  Found: Boolean);
+begin
+  inherited;
+  if not dtmCadastroNotasFiscais.SelecionandoNF then
+    if found then
+      AtribuirDadosConsultanotasaida;
+end;
+
+procedure TfrmCadastroNotasFiscais.FormCloseQuery(Sender: TObject;
+  var CanClose: Boolean);
+begin
+  AclHabilitar.Actions[0].OnExecute := nil;
+  Action1.OnExecute := nil;
+  inherited;
+
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnVisualizarDetalhesProdutosNotaClick(
+  Sender: TObject);
+begin
+  inherited;
+  with dtmCadastroNotasFiscais do
+  begin
+    VisualizarDetalhesProdutosNota := not VisualizarDetalhesProdutosNota;
+    if VisualizarDetalhesProdutosNota then
+    begin
+      fraProdutosNotasFiscaisAnteriores1.visible := true;
+      Splitter1.top := fraProdutosNotasFiscaisAnteriores1.top;
+      fraProdutosNotasFiscaisAnteriores1.AbrirqryProdutosNotaFiscalAnteriores;
+
+    end
+    else
+      fraProdutosNotasFiscaisAnteriores1.visible := false;
+  end;
+end;
+
+
+procedure TfrmCadastroNotasFiscais.sbnAcionarTelaFormacaoPrecoVendaClick(
+  Sender: TObject);
+begin
+  inherited;
+  if (dtmCadastroNotasFiscais.qryNotaFiscal.state in [dsedit, dsinsert]) then
+   begin
+
+     dtmCadastroNotasFiscais.GravarNotaParcial
+   end;
+
+   AcionarTelaFormacaoPrecoVenda(dtmCadastroNotasFiscais.qryProdutosNotaFiscalCodigoNota.asInteger,
+                                 dtmCadastroNotasFiscais.qryProdutosNotaFiscalnumero.asInteger);
+
+end;
+
+
+{
+procedure TfrmCadastroNotasFiscais.fraConsultaSerieSaidaedfCodigoExit(
+  Sender: TObject);
+begin
+  inherited;
+  fraConsultaSerieSaida.edfCodigoExit(Sender);
+  if (fraConsultanotasaida.qryProcuraNFSaida.parambyname('serie').asString = '') and
+     ( fraConsultaSerieSaida.edfCodigo.text <> '') then
+    fraConsultanotasaida.qryProcuraNFSaida.parambyname('serie').asString := fraConsultaSerieSaida.edfCodigo.text;
+
+end;
+}
+
+{
+procedure TfrmCadastroNotasFiscais.AtribuirDadosConsultaSeriesaida;
+begin
+  dtmCadastroNotasFiscais.qryDadosFiscaisRefserie.AsString := fraConsultanotasaida.qryProcuraNFSaidaserie.AsString;
+end;
+}
+
+procedure TfrmCadastroNotasFiscais.fraProdutosNotasFiscaisAnteriores1sbnAcionarTelaFormacaoPrecoVenda2Click(
+  Sender: TObject);
+begin
+  inherited;
+  fraProdutosNotasFiscaisAnteriores1.sbnAcionarTelaFormacaoPrecoVenda2Click(
+  Sender);
+
+end;
+
+procedure TfrmCadastroNotasFiscais.OperacaoPadrao(Value: array of Variant);
+var
+  vProsseguir : Boolean;
+begin
+  inherited;
+  if Length(Value) > 0 then
+  begin
+
+    if Value[0] = 'IncluiRNFeviaXML' then
+    begin
+      vProsseguir := true;
+
+      if dtmCadastroNotasFiscais.qryNotaFiscal.state in [dsedit, dsinsert] then
+        vProsseguir := MensagemSelecionaOpcao('Já existe uma nota fiscal de entrada em edição. ' + chr(13)+
+                                               'Ao Prosseguir as informações serão descartadas.') = smbYes;
+
+      if vProsseguir then
+      begin
+        pgcNotasPag.activePage := tstDadosNota;
+
+        flkFornecedor.SetFocus;
+        flkFornecedor.SelectAll;
+        odlLerXMLNfe.FileName  := Value[1];
+        odlLerXMLNfe.Title := 'Selecione a NFE';
+        odlLerXMLNfe.DefaultExt := '*.XML';
+        odlLerXMLNfe.Filter := 'Arquivos XML (*.XML)|*.XML|Arquivos NFE (*-nfe.XML)|*-nfe.XML|Arquivos TXT (*.TXT)|*.TXT|Todos os Arquivos (*.*)|*.*';
+
+        dtmCadastroNotasFiscais.EntradaViaXML := True;
+        dtmCadastroNotasFiscais.ArquivoXMLNFe := Value[1];
+        dtmCadastroNotasFiscais.EntradaViaXML := False;
+      end;
+
+    end;
+
+  end;
+
+end;
+
+procedure TfrmCadastroNotasFiscais.sbnManutencaoPrecosClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarTelaManutencaoPreco_NFEntrada(self,
+                                       dtmCadastroNotasFiscais.qryNotaFiscalfornecedor.AsString,
+                                       dtmCadastroNotasFiscais.qryNotaFiscaltipofornecedor.AsString,
+                                       dtmCadastroNotasFiscais.qryNotaFiscalserie.AsString,
+                                       dtmCadastroNotasFiscais.qryNotaFiscalnrdocumento.AsString);
+end;
+
+end.
+

@@ -10,15 +10,15 @@ e cite arquivos e linhas concretos.
 
 Leia antes:
 
-- modules/administracao/acessos-menus-usuarios/README.md
-- modules/administracao/acessos-menus-usuarios/pesquisa-padroes-laravel.md
+- /mnt/c/teclux_analysis/modules/administracao/acessos-menus-usuarios/README.md
+- /mnt/c/teclux_analysis/modules/administracao/acessos-menus-usuarios/pesquisa-padroes-laravel.md
 - resultado e catalogo canonico produzido pelo prompt
-  01-organizacao-menus-rotas.md
-- laravel/backend/app/Services/Menu/MenuService.php
-- laravel/backend/app/Services/Authorization/UsersModuleAccessService.php
-- laravel/backend/app/Http/Middleware/EnsureUsersModuleAccess.php
-- laravel/backend/app/Services/Authorization/UsersActionAuthorizationService.php
-- laravel/backend/app/Policies/UsuarioPolicy.php
+  /mnt/c/teclux_analysis/01-organizacao-menus-rotas.md
+- /mnt/c/teclux_analysis/laravel/backend/app/Services/Menu/MenuService.php
+- /mnt/c/teclux_analysis/laravel/backend/app/Services/Authorization/UsersModuleAccessService.php
+- /mnt/c/teclux_analysis/laravel/backend/app/Http/Middleware/EnsureUsersModuleAccess.php
+- /mnt/c/teclux_analysis/laravel/backend/app/Services/Authorization/UsersActionAuthorizationService.php
+- /mnt/c/teclux_analysis/laravel/backend/app/Policies/UsuarioPolicy.php
 - migrations de acessosmodulos e usuariosacessosmodulos
 - padroes de Inertia, React, requests, auditoria e testes do Users module
 

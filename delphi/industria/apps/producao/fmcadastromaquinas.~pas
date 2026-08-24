@@ -1,0 +1,370 @@
+{$A8,B-,C+,D+,E-,F-,G+,H+,I+,J-,K-,L+,M-,N+,O+,P+,Q-,R-,S-,T-,U-,V+,W-,X+,Y+,Z1}
+{$MINSTACKSIZE $00004000}
+{$MAXSTACKSIZE $00100000}
+{$IMAGEBASE $00400000}
+{$APPTYPE GUI}
+{$WARN SYMBOL_DEPRECATED ON}
+{$WARN SYMBOL_LIBRARY ON}
+{$WARN SYMBOL_PLATFORM ON}
+{$WARN UNIT_LIBRARY ON}
+{$WARN UNIT_PLATFORM ON}
+{$WARN UNIT_DEPRECATED ON}
+{$WARN HRESULT_COMPAT ON}
+{$WARN HIDING_MEMBER ON}
+{$WARN HIDDEN_VIRTUAL ON}
+{$WARN GARBAGE ON}
+{$WARN BOUNDS_ERROR ON}
+{$WARN ZERO_NIL_COMPAT ON}
+{$WARN STRING_CONST_TRUNCED ON}
+{$WARN FOR_LOOP_VAR_VARPAR ON}
+{$WARN TYPED_CONST_VARPAR ON}
+{$WARN ASG_TO_TYPED_CONST ON}
+{$WARN CASE_LABEL_RANGE ON}
+{$WARN FOR_VARIABLE ON}
+{$WARN CONSTRUCTING_ABSTRACT ON}
+{$WARN COMPARISON_FALSE ON}
+{$WARN COMPARISON_TRUE ON}
+{$WARN COMPARING_SIGNED_UNSIGNED ON}
+{$WARN COMBINING_SIGNED_UNSIGNED ON}
+{$WARN UNSUPPORTED_CONSTRUCT ON}
+{$WARN FILE_OPEN ON}
+{$WARN FILE_OPEN_UNITSRC ON}
+{$WARN BAD_GLOBAL_SYMBOL ON}
+{$WARN DUPLICATE_CTOR_DTOR ON}
+{$WARN INVALID_DIRECTIVE ON}
+{$WARN PACKAGE_NO_LINK ON}
+{$WARN PACKAGED_THREADVAR ON}
+{$WARN IMPLICIT_IMPORT ON}
+{$WARN HPPEMIT_IGNORED ON}
+{$WARN NO_RETVAL ON}
+{$WARN USE_BEFORE_DEF ON}
+{$WARN FOR_LOOP_VAR_UNDEF ON}
+{$WARN UNIT_NAME_MISMATCH ON}
+{$WARN NO_CFG_FILE_FOUND ON}
+{$WARN MESSAGE_DIRECTIVE ON}
+{$WARN IMPLICIT_VARIANTS ON}
+{$WARN UNICODE_TO_LOCALE ON}
+{$WARN LOCALE_TO_UNICODE ON}
+{$WARN IMAGEBASE_MULTIPLE ON}
+{$WARN SUSPICIOUS_TYPECAST ON}
+{$WARN PRIVATE_PROPACCESSOR ON}
+{$WARN UNSAFE_TYPE ON}
+{$WARN UNSAFE_CODE ON}
+{$WARN UNSAFE_CAST ON}
+unit fmcadastromaquinas;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmcadastropadrao, ComCtrls, Buttons, ExtCtrls,
+  dmcadastromaquinas, Grids, DBGrids, cpdbgrid, DBCtrls, cptexto,
+  Mask, cpdbfindcontrols, frconsultacodigo, ctconstantes, db, Windows,
+  cpdbspinedit, cpnumero, ToolWin, frRegistroOperacoes, fmImprimirMaquinas,
+  frconsulta;
+
+type
+  TfrmCadastroMaquinas = class(TfrmCadastroPadrao)
+    gbxCodigoMaquina: TGroupBox;
+    gbxDescricao: TGroupBox;
+    edtDescricao: TDBEditTexto;
+    gbxQuantidade: TGroupBox;
+    edtQuantidade: TDBEditNumero;
+    gbxpCapacidade: TGroupBox;
+    edtPCapacidade: TDBSpinEdit;
+    edfCodigo: TtecDbEditFind;
+    gbxOperacoes: TGroupBox;
+    Bevel1: TBevel;
+    dbgOperacoes: TtecDBGrid;
+    pnlOperacoes: TPanel;
+    sbnIncluirOperacao: TSpeedButton;
+    sbnExcluirOperacao: TSpeedButton;
+    fraRegistroOperacoes1: TfraRegistroOperacoes;
+    sbnImprimir: TSpeedButton;
+    gbxSetorProducao: TGroupBox;
+    fraConsultaSetorProducao: TfraConsultaCodigo;
+    ckbUsoComum: TDBCheckBox;
+    procedure sbnProcurarClick(Sender: TObject);
+    procedure edfCodigoDblClick(Sender: TObject);
+    procedure dbgOperacoesKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnIncluirOperacaoClick(Sender: TObject);
+    procedure sbnExcluirOperacaoClick(Sender: TObject);
+    procedure sbnImprimirClick(Sender: TObject);
+  private
+    function VerificarOperacoes: boolean;
+    { Private declarations }
+
+  protected
+    ConsultaMaquinas,
+    ConsultaOperacoes : TfraConsultaCodigo;
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoIncluir: Boolean; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure AbrirMaquinas(Found: Boolean);
+    procedure AcionarPesquisaGradeOperacao;
+    procedure CondicoesOperacoesMaquinas;
+    procedure AtribuirDadosOperacoesMaquinas(Found: Boolean);
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+  end;
+
+var
+  frmCadastroMaquinas: TfrmCadastroMaquinas;
+
+implementation
+
+uses biblio;
+
+{$R *.dfm}
+
+{ TfrmCadastroMaquinas }
+
+procedure TfrmCadastroMaquinas.AbrirMaquinas(Found: Boolean);
+begin
+  edfCodigo.Text := ConsultaMaquinas.ValorSelecionado;
+  dtmCadastroMaquinas.
+        refazconsulta(dtmCadastroMaquinas.qryMaquinas,[0],
+             [ConsultaMaquinas.ValorSelecionado]);
+end;
+
+constructor TfrmCadastroMaquinas.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmCadastroMaquinas := TdtmCadastroMaquinas.Create(Self);
+  DataSet := dtmCadastroMaquinas.qryMaquinas;
+
+  ConsultaMaquinas := TfraConsultaCodigo.Create(self);
+  ConsultaMaquinas.edfCodigo.DataSource := dtmCadastroMaquinas.dsrMaquinas;
+  ConsultaMaquinas.edfCodigo.DataField := 'codigo';
+  ConsultaMaquinas.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaMaquinas.AbrirTabelaProcura := false;
+  ConsultaMaquinas.TipoPesquisa := pesMAQUINAS;
+  ConsultaMaquinas.OnFound := AbrirMaquinas;
+  ConsultaMaquinas.Name := 'fraConsultaMaquinas';
+
+
+  ConsultaOperacoes := TfraConsultaCodigo.Create(self);
+  ConsultaOperacoes.Name := 'fraConsultaOperacoes';
+  ConsultaOperacoes.edfCodigo.MaxLength := 3;
+  ConsultaOperacoes.edfCodigo.DataSource := dtmCadastroMaquinas.dsrOperacoesMaquinas;
+  ConsultaOperacoes.edfCodigo.DataField := 'operacao';
+  ConsultaOperacoes.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaOperacoes.edfCodigo.LookupSource := ConsultaOperacoes.dsrProcuraOperacaoes;
+  ConsultaOperacoes.edfCodigo.LookupQueryParameter := 'Codigo';
+  ConsultaOperacoes.edfCodigo.LookupField := 'Codigo';
+  ConsultaOperacoes.AbrirTabelaProcura := false;
+  ConsultaOperacoes.CondicoesdaConsulta := CondicoesOperacoesMaquinas;
+  ConsultaOperacoes.TipoPesquisa := pesOPERACOES;
+  ConsultaOperacoes.OnFound := AtribuirDadosOperacoesMaquinas;
+
+  fraConsultaSetorProducao.TipoPesquisa := pesSETORESPRODUCAO;
+  dbgOperacoes.OnDelete := dtmCadastroMaquinas.ExcluirOperacoesMaquinas;
+
+end;
+
+destructor TfrmCadastroMaquinas.Destroy;
+begin
+  dtmCadastroMaquinas.qryMaquinas.close;
+  dtmCadastroMaquinas := nil;
+  inherited;
+  frmCadastroMaquinas := nil;
+end;
+
+function TfrmCadastroMaquinas.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then begin
+    if not CtrlOn then
+      dtmCadastroMaquinas.ExcluirMaquinas;
+  end;
+end;
+
+function TfrmCadastroMaquinas.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if Result then
+    dtmCadastroMaquinas.GravarMaquinas;
+end;
+
+function TfrmCadastroMaquinas.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then begin
+    if not CtrlOn then
+      dtmCadastroMaquinas.IncluirMaquinas;
+      edtDescricao.SetFocus;
+  end;
+end;
+
+procedure TfrmCadastroMaquinas.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if not CtrlOn then
+  begin
+    if (key =VK_F9) then
+    begin
+      if sbnProcurar.Enabled then
+	  begin
+        ConsultaMaquinas.InternoPesquisar(ctMAQUINAS);
+        self.SetFocus;
+	  end
+    end;
+    if (key =VK_F7) then
+      sbnImprimirClick(frmImprimirMaquinas);
+  end;
+
+end;
+
+procedure TfrmCadastroMaquinas.sbnProcurarClick(Sender: TObject);
+begin
+  inherited;
+  ConsultaMaquinas.InternoPesquisar(ctMAQUINAS);
+  self.SetFocus;
+end;
+
+
+procedure TfrmCadastroMaquinas.AtribuirDadosOperacoesMaquinas(Found: Boolean);
+begin
+  with dtmCadastroMaquinas do begin
+    EditarOperacoesMaquinas;
+    qryOperacoesMaquinasOperacao. AsString := ConsultaOperacoes.qryProcuraOperacoesCodigo.   AsString;
+    qryOperacoesMaquinasNome.     AsString := ConsultaOperacoes.qryProcuraOperacoesNome.     AsString;
+    qryOperacoesMaquinasC01.      AsString := ConsultaOperacoes.qryProcuraOperacoesC01.      AsString;
+    qryOperacoesMaquinasC02.      AsString := ConsultaOperacoes.qryProcuraOperacoesC02.      AsString;
+    qryOperacoesMaquinasC03.      AsString := ConsultaOperacoes.qryProcuraOperacoesC03.      AsString;
+    qryOperacoesMaquinasDescricao.AsString := ConsultaOperacoes.qryProcuraOperacoesDescricao.AsString;
+    qryOperacoesMaquinas.Post;
+  end;
+end;
+
+procedure TfrmCadastroMaquinas.CondicoesOperacoesMaquinas;
+const
+  SQL = 'and (codigo not in (%s) or codigo = %s)';
+var
+  CodigoMaquina: String;
+begin
+  CodigoMaquina:= IntToStr(dtmCadastroMaquinas.qryOperacoesMaquinasOperacao.AsInteger);
+  if dtmCadastroMaquinas.qryOperacoesMaquinas.State = dsInsert then
+      CodigoMaquina:= '0';
+
+  ConsultaOperacoes.qryProcuraOperacoes.MacroByName('SQLOperacoesJaSelecionadas').AsString :=
+    format(SQL,[dtmCadastroMaquinas.ListaOperacoesSelecionadas, CodigoMaquina]);
+
+  ConsultaOperacoes.qryConsultaOperacoes.MacroByName('SQLOperacoesJaSelecionadas').AsString :=
+    format(SQL,[dtmCadastroMaquinas.ListaOperacoesSelecionadas, CodigoMaquina]);
+end;
+
+procedure TfrmCadastroMaquinas.edfCodigoDblClick(Sender: TObject);
+begin
+  inherited;
+  if dbgOperacoes.SelectedIndex in [0..3] then
+    AcionarPesquisaGradeOperacao;
+end;
+
+procedure TfrmCadastroMaquinas.dbgOperacoesKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+     VK_F9     : begin
+                     if dbgOperacoes.SelectedIndex in [0..3] then
+                     begin
+                       ConsultaOperacoes.CtrlOn := Shift = [ssCtrl];
+                       if (Shift = []) or ConsultaOperacoes.CtrlOn then
+                         AcionarPesquisaGradeOperacao
+                     end;
+                   end;
+    end;
+  end
+  else if Shift = [] then
+  case Key of
+   VK_Return: begin
+                  if dbgOperacoes.SelectedIndex = 3 then
+                  begin
+                    if VerificarOperacoes then
+                     dbgOperacoes.SelectedIndex := dbgOperacoes.SelectedIndex + 1
+                    else
+                      key := 0;
+                  end
+                  else
+                  if dbgOperacoes.SelectedIndex = 4 then
+                       dtmCadastroMaquinas.GravarOperacoesMaquinas
+                  else
+                  if (dbgOperacoes.SelectedIndex <> 3) then
+                     dbgOperacoes.SelectedIndex := dbgOperacoes.SelectedIndex + 1;
+                end;
+  end;
+  inherited;
+
+end;
+
+function TfrmCadastroMaquinas.VerificarOperacoes: boolean;
+begin
+  result := true;
+//  ConsultaOperacoes.edfCodigo.DoExit;
+  ConsultaOperacoes.qryProcuraOperacoes.ParamByName('codigo').asinteger := 0;
+  ConsultaOperacoes.qryProcuraOperacoes.ParamByName('nome').AsString :=
+    dtmCadastroMaquinas.qryOperacoesMaquinasNome.AsString;
+  ConsultaOperacoes.qryProcuraOperacoes.ParamByName('c01').AsString :=
+    dtmCadastroMaquinas.qryOperacoesMaquinasC01.AsString;
+  ConsultaOperacoes.qryProcuraOperacoes.ParamByName('c02').AsString :=
+    dtmCadastroMaquinas.qryOperacoesMaquinasC02.AsString;
+  ConsultaOperacoes.qryProcuraOperacoes.ParamByName('c03').AsString :=
+    dtmCadastroMaquinas.qryOperacoesMaquinasC03.AsString;
+
+  ConsultaOperacoes.qryProcuraOperacoes.Close;
+  ConsultaOperacoes.qryProcuraOperacoes.open;
+
+  if not ConsultaOperacoes.qryProcuraOperacoes.IsEmpty then
+    AtribuirDadosOperacoesMaquinas
+  else
+  begin
+    ShowMessage(Format(ctCODIGOINEXISTENTE, ['['+
+    dtmCadastroMaquinas.qryOperacoesMaquinasNome.AsString  + ', ' +
+    dtmCadastroMaquinas.qryOperacoesMaquinasC01. AsString  + ', ' +
+    dtmCadastroMaquinas.qryOperacoesMaquinasC02. AsString  + ', ' +
+    dtmCadastroMaquinas.qryOperacoesMaquinasC03. AsString  + ']']));
+    result := false;
+    dbgOperacoes.SetFocus;
+  end;
+
+
+end;
+
+procedure TfrmCadastroMaquinas.AcionarPesquisaGradeOperacao;
+begin
+  dbgOperacoes.SetFocus;
+  ConsultaOperacoes.CtrlOn := True;
+  ConsultaOperacoes.InternoPesquisar(ctOPERACOES);
+  dbgOperacoes.SetFocus;
+  dbgOperacoes.SelectedIndex :=  1;
+end;
+
+procedure TfrmCadastroMaquinas.sbnIncluirOperacaoClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroMaquinas.IncluirOperacao;
+end;
+
+procedure TfrmCadastroMaquinas.sbnExcluirOperacaoClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroMaquinas.ExcluirOperacoesMaquinas;
+end;
+
+procedure TfrmCadastroMaquinas.sbnImprimirClick(Sender: TObject);
+begin
+  inherited;
+  frmImprimirMaquinas := TfrmImprimirMaquinas.Create(frmImprimirMaquinas);
+  frmImprimirMaquinas.ShowModal;
+  frmImprimirMaquinas.Free;
+end;
+
+end.

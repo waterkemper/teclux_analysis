@@ -1,0 +1,4039 @@
+inherited dtmrelatoriofluxodecaixa: Tdtmrelatoriofluxodecaixa
+  OldCreateOrder = False
+  Left = 159
+  Top = 103
+  Height = 498
+  Width = 695
+  object qryFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo, nome'
+      'from filiais'
+      'where codigo=:codigo')
+    RequestLive = True
+    Left = 435
+    Top = 79
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryFiliaiscodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryFiliaisnome: TStringField
+      FieldName = 'nome'
+      Size = 40
+    end
+  end
+  object dsrFiliais: TtecDataSource
+    DataSet = qryFiliais
+    Left = 435
+    Top = 136
+  end
+  object qryGrupoFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo, '
+      '         descricao'
+      'from gruposfiliais'
+      'where codigo=:codigo')
+    RequestLive = True
+    Left = 587
+    Top = 79
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryGrupoFiliaiscodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryGrupoFiliaisdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 30
+    end
+  end
+  object dsrGrupoFiliais: TtecDataSource
+    DataSet = qryGrupoFiliais
+    Left = 587
+    Top = 136
+  end
+  object qryConsultaFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo,nome'
+      'from filiais'
+      'order by UPPER(TO_ASCII(nome,''LATIN1''))')
+    RequestLive = False
+    Left = 436
+    Top = 193
+    object qryConsultaFiliaisnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryConsultaFiliaiscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+  end
+  object qryConsultaGrupoFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo,descricao'
+      'from gruposfiliais'
+      'order by UPPER(TO_ASCII(descricao,''LATIN1''))')
+    RequestLive = False
+    Left = 587
+    Top = 193
+    object qryConsultaGrupoFiliaisdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 30
+    end
+    object qryConsultaGrupoFiliaiscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+  end
+  object qryTotalizacao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select '
+      '    cast(0 as integer) as GrupoFilial,'
+      '    cast(0 as integer) as filial,'
+      '    cast(null as Date) as data,'
+      '    cast(0 as integer) as TRegistros,'
+      '    cast(0 as Numeric) as TVlrRec,'
+      '    cast(0 as Numeric) as TJurosRec,'
+      '    cast(0 as Numeric) as TTotalRec,'
+      '    cast(0 as Numeric) as TVlraRec,'
+      '    cast(0 as Numeric) as TJurosaRec,'
+      '    cast(0 as Numeric) as TTotalaRec,'
+      '    cast(0 as Numeric) as TVlrPag,'
+      '    cast(0 as Numeric) as TJurosPag,'
+      '    cast(0 as Numeric) as TTotalPag,'
+      '    cast(0 as Numeric) as TVlraPag,'
+      '    cast(0 as Numeric) as TJurosaPag,'
+      '    cast(0 as Numeric) as TTotalaPag,'
+      '    cast(0 as Numeric) as TTSaldo,'
+      '    cast(0 as Numeric) as TVlraRec_Ant,'
+      '    cast(0 as Numeric) as TVlraPag_Ant,   '
+      '    cast(0 as Numeric) as TTVlraRec_Ant,'
+      '    cast(0 as Numeric) as TTVlraPag_Ant,'
+      '    cast(0 as Numeric) as TTSaldo_Ant,'
+      '    cast('#39'N'#39' as varchar) as JaTotalizado')
+    RequestLive = True
+    Left = 80
+    Top = 264
+    object qryTotalizacaogrupofilial: TIntegerField
+      FieldName = 'grupofilial'
+      DisplayFormat = '0'
+    end
+    object qryTotalizacaofilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryTotalizacaotregistros: TIntegerField
+      FieldName = 'tregistros'
+      DisplayFormat = '0'
+    end
+    object qryTotalizacaotvlrrec: TFloatField
+      FieldName = 'tvlrrec'
+      DisplayFormat = '0.00'
+    end
+    object qryTotalizacaotjurosrec: TFloatField
+      FieldName = 'tjurosrec'
+      DisplayFormat = '0.00'
+    end
+    object qryTotalizacaottotalrec: TFloatField
+      FieldName = 'ttotalrec'
+      DisplayFormat = '0.00'
+    end
+    object qryTotalizacaotvlrarec: TFloatField
+      FieldName = 'tvlrarec'
+      DisplayFormat = '0.00'
+    end
+    object qryTotalizacaotjurosarec: TFloatField
+      FieldName = 'tjurosarec'
+      DisplayFormat = '0.00'
+    end
+    object qryTotalizacaottotalarec: TFloatField
+      FieldName = 'ttotalarec'
+      DisplayFormat = '0.00'
+    end
+    object qryTotalizacaotvlrpag: TFloatField
+      FieldName = 'tvlrpag'
+      DisplayFormat = '0.00'
+    end
+    object qryTotalizacaotjurospag: TFloatField
+      FieldName = 'tjurospag'
+      DisplayFormat = '0.00'
+    end
+    object qryTotalizacaottotalpag: TFloatField
+      FieldName = 'ttotalpag'
+      DisplayFormat = '0.00'
+    end
+    object qryTotalizacaotvlrapag: TFloatField
+      FieldName = 'tvlrapag'
+      DisplayFormat = '0.00'
+    end
+    object qryTotalizacaotjurosapag: TFloatField
+      FieldName = 'tjurosapag'
+      DisplayFormat = '0.00'
+    end
+    object qryTotalizacaottotalapag: TFloatField
+      FieldName = 'ttotalapag'
+      DisplayFormat = '0.00'
+    end
+    object qryTotalizacaojatotalizado: TStringField
+      FieldName = 'jatotalizado'
+      Size = 1
+    end
+    object qryTotalizacaottsaldo: TFloatField
+      FieldName = 'ttsaldo'
+      DisplayFormat = '0.00'
+    end
+    object qryTotalizacaodata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryTotalizacaottvlrarec_ant: TFloatField
+      FieldName = 'ttvlrarec_ant'
+      DisplayFormat = '0.00'
+    end
+    object qryTotalizacaottvlrapag_ant: TFloatField
+      FieldName = 'ttvlrapag_ant'
+      DisplayFormat = '0.00'
+    end
+    object qryTotalizacaottsaldo_ant: TFloatField
+      FieldName = 'ttsaldo_ant'
+      DisplayFormat = '0.00'
+    end
+    object qryTotalizacaotvlrarec_ant: TFloatField
+      FieldName = 'tvlrarec_ant'
+      DisplayFormat = '0.00'
+    end
+    object qryTotalizacaotvlrapag_ant: TFloatField
+      FieldName = 'tvlrapag_ant'
+      DisplayFormat = '0.00'
+    end
+  end
+  object qryFluxoporEvento: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryFluxoporEventoAfterOpen
+    AfterScroll = qryFluxoporEventoAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'WhereFilialVenda'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'WhereFilial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'WhereFilialEmissao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Ordenacao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      '/*INICIO SALDO ANTERIOR*/'
+      '('
+      'select DATAS.*,'
+      '        ACUMULADO.vlrarec,'
+      '        ACUMULADO.descricaoevento_c,'
+      '        ACUMULADO.vlrapag,'
+      '        ACUMULADO.descricaoevento_d,'
+      '        cast('#39'1 - SALDO ANTERIOR'#39' as varchar) as operacao,'
+      #9'False as Totalizado'
+      '  from'
+      '('
+      '('
+      
+        ' select   grupofilial,  nomegrupofilial,  filial, nomefilial, ca' +
+        'st('#39'01/01/1900'#39' as date) as data'
+      ' from'
+      ' ('
+      '  ('
+      '   ('
+      
+        '    select  case when   :AgruparGrupoFilial    then fgf.grupo el' +
+        'se cast(0 as integer) end as grupofilial,'
+      
+        '            case when :AgruparGrupoFilial    then gf.descricao e' +
+        'lse null end as nomegrupofilial,'
+      
+        '            case when :AgruparFilial   then ct.filialvenda else ' +
+        'cast(0 as integer) end as filial,'
+      
+        '            case when :AgruparFilial   then f.nome else null end' +
+        ' as nomefilial'
+      '    from ((contratos ct join parcelas p on ct.numero=p.contrato)'
+      '                      join (filiais f'
+      
+        '  '#9#9'     left join (filiaisgruposfiliais fgf join gruposfiliais ' +
+        'gf on fgf.grupo=gf.codigo)'
+      '                       on f.codigo=fgf.filial)'
+      '                      on ct.filialvenda=f.codigo)'
+      '    where p.datapagto is null and (p.tipopagto is null) and'
+      
+        '        p.datavencto between (:DataInicialAcumulado) and (:DataF' +
+        'inalAcumulado) and'
+      
+        '        ct.situacao in ('#39'F'#39','#39'N'#39','#39'P'#39') and not (contratos_renegoci' +
+        'ado(ct.numero))'
+      '              %WhereFilialVenda'
+      
+        '    order by UPPER(TO_ASCII(gf.descricao,''LATIN1'')), fgf.grupo, f.nome, ct.fili' +
+        'alvenda, p.datavencto'
+      '   )'
+      '   union'
+      '   ('
+      
+        '    select  case when :AgruparGrupoFilial then fgf.grupo else ca' +
+        'st(0 as integer) end as grupofilial,'
+      
+        '            case when :AgruparGrupoFilial then gf.descricao else' +
+        ' null end as nomegrupofilial,'
+      
+        '            case when :AgruparFilial      then r.filial else cas' +
+        't(0 as integer) end as filial,'
+      
+        '            case when :AgruparFilial      then f.nome else null ' +
+        'end as nomefilial'
+      '    from (recebimentos r join (filiais f '
+      
+        '                                   left join (filiaisgruposfilia' +
+        'is fgf join gruposfiliais gf on fgf.grupo=gf.codigo)'
+      '                                    on f.codigo = fgf.filial)'
+      '                                  on r.filial = f.codigo)'
+      
+        '    where r.datavencto between (:DataInicialAcumulado) and (:Dat' +
+        'aFinalAcumulado)'
+      '      and not coalesce(r.confirmado,false)'
+      '      and r.cheque is null'
+      '      and r.situacao = '#39'N'#39
+      '    %WhereFilial'
+      
+        '    order by  UPPER(TO_ASCII(gf.descricao,''LATIN1'')), fgf.grupo, f.nome, r.fili' +
+        'al, r.datavencto'
+      '   )'
+      '  ) '
+      '  ) AS RECEBIMENTOS'
+      
+        '  group by nomegrupofilial, grupofilial, nomefilial, filial, dat' +
+        'a'
+      ')'
+      'union'
+      '('
+      
+        ' select   grupofilial,  nomegrupofilial,  filial, nomefilial, ca' +
+        'st('#39'01/01/1900'#39' as date) as data'
+      ' from'
+      ' ('
+      
+        '   select    case when  :AgruparGrupoFilial    then fgf.grupo el' +
+        'se cast(0 as integer) end as grupofilial,'
+      
+        '             case when  :AgruparGrupoFilial    then gf.descricao' +
+        ' else null end as nomegrupofilial,'
+      
+        '             case when  :AgruparFilial   then dp.filialemissao e' +
+        'lse cast(0 as integer) end as filial,'
+      
+        '             case when  :AgruparFilial   then f.nome else null e' +
+        'nd as nomefilial'
+      
+        '  from ((documentospag dp join duplicatas d on dp.numero=d.docum' +
+        'entopag)'
+      '                         join (filiais f'
+      
+        #9#9#9'  left join (filiaisgruposfiliais fgf join gruposfiliais gf o' +
+        'n fgf.grupo=gf.codigo)'
+      '                          on f.codigo=fgf.filial)'
+      '                         on dp.filialemissao=f.codigo)'
+      '  where d.datapagto is null and'
+      
+        '      d.datavencto between (:DataInicialAcumulado) and (:DataFin' +
+        'alAcumulado)'
+      '             %WhereFilialEmissao'
+      
+        ' order by UPPER(TO_ASCII(gf.descricao,''LATIN1'')), fgf.grupo, f.nome, dp.filiale' +
+        'missao, d.datavencto'
+      ' ) AS PAGAMENTOS'
+      ' group by nomegrupofilial, grupofilial, nomefilial, filial, data'
+      ')'
+      ') as DATAS'
+      ' left join'
+      '  ('
+      '   ('
+      
+        '    select   grupofilial,  filial, cast('#39'01/01/1900'#39' as date) as' +
+        ' data,'
+      '             descricaoevento_c,'
+      #9'     cast(null as varchar) as descricaoevento_d,'
+      #9'     sum(valorvencto) as vlrarec,'
+      #9'     0.00 as vlrapag'
+      '    from'
+      '    ('
+      '     ('
+      
+        '      select  case when  :agrupargrupofilial then fgf.grupo else' +
+        ' cast(0 as integer) end as grupofilial,'
+      
+        '              case when :agruparfilial   then ct.filialvenda els' +
+        'e cast(0 as integer) end as filial,'
+      '              p.valorvencto,'
+      
+        '              cast('#39'PRESTACOES EM ABERTO'#39' as varchar) as descric' +
+        'aoevento_c'
+      
+        '      from ((contratos ct join parcelas p on ct.numero=p.contrat' +
+        'o)'
+      
+        '                          left join filiaisgruposfiliais fgf on ' +
+        'ct.filialvenda=fgf.filial)'
+      '      where p.datapagto is null and (p.tipopagto is null) and'
+      
+        '            p.datavencto between (:datainicialacumulado) and (:d' +
+        'atafinalacumulado) and'
+      
+        '            ct.situacao in ('#39'f'#39','#39'n'#39','#39'p'#39') and not (contratos_rene' +
+        'gociado(ct.numero))'
+      '              %wherefilialvenda'
+      '      order by fgf.grupo, ct.filialvenda, p.datavencto'
+      '     )'
+      '     union all'
+      '     ('
+      
+        '      select  case when :AgruparGrupoFilial then fgf.grupo else ' +
+        'cast(0 as integer) end as grupofilial,'
+      
+        '              case when :AgruparFilial      then r.filial else c' +
+        'ast(0 as integer) end as filial,'
+      '              r.valorvencto,'
+      '              tr.descricao as descricaoevento_c'
+      
+        '      from ((recebimentos r join tiposrecebimentos tr on r.tipor' +
+        'ecebimento = tr.codigo)'
+      
+        '                           left join filiaisgruposfiliais fgf on' +
+        ' r.filial = fgf.filial)'
+      
+        '      where r.datavencto between (:DataInicialAcumulado) and (:D' +
+        'ataFinalAcumulado)'
+      '        and not coalesce(r.confirmado,false)'
+      '        and r.cheque is null'
+      '        and r.situacao = '#39'N'#39
+      '      %WhereFilial'
+      '      order by fgf.grupo, r.filial, r.datavencto      '
+      '     )'
+      '    ) AS RECEBIMENTOS'
+      '    group by grupofilial, filial, data, descricaoevento_c'
+      '   )'
+      '   union all'
+      '   ('
+      
+        '    select  grupofilial, filial, cast('#39'01/01/1900'#39' as date) as d' +
+        'ata,'
+      #9'    cast(null as varchar) as descricaoevento_c,'
+      
+        '            cast(descricaoevento_d as varchar) as descricaoevent' +
+        'o_d,'
+      #9'    0.00 as vlrarec, sum(valorvencto) as vlrapag'
+      '    from'
+      '    ('
+      
+        '     select  case when :AgruparGrupoFilial   then fgf.grupo else' +
+        ' cast(0 as integer) end as grupofilial,'
+      
+        '             case when :AgruparFilial   then dp.filialemissao el' +
+        'se cast(0 as integer) end as filial,'
+      '             d.valorvencto,'
+      
+        '             coalesce(e.descricao, '#39'PAGAMENTOS EM ABERTO'#39') as de' +
+        'scricaoevento_d'
+      
+        '     from (((documentospag dp join duplicatas d on dp.numero=d.d' +
+        'ocumentopag)'
+      
+        '                          left join eventos e on dp.evento=e.cod' +
+        'igo)'
+      
+        '                             left join filiaisgruposfiliais fgf ' +
+        'on dp.filialemissao = fgf.filial)'
+      '     where d.datapagto is null and'
+      
+        '           d.datavencto between (:DataInicialAcumulado) and (:Da' +
+        'taFinalAcumulado)'
+      '             %WhereFilialEmissao'
+      '     order by fgf.grupo, dp.filialemissao, d.datavencto'
+      '    ) AS PAGAMENTOS'
+      '   group by grupofilial, filial, data, descricaoevento_d'
+      '   )'
+      '  ) as ACUMULADO ON'
+      '    DATAS.grupofilial = ACUMULADO.grupofilial and'
+      '    DATAS.filial = ACUMULADO.filial and'
+      '    DATAS.data = ACUMULADO.data'
+      ')'
+      'union all'
+      '/*FINAL SALDO ANTERIOR*/'
+      ''
+      ''
+      '/* DEFINI'#199#195'O DO SALDO INICIAL INFORMADO */'
+      '('
+      ' select   grupofilial,  nomegrupofilial,  filial, nomefilial,'
+      '          cast('#39'01/01/1900'#39' as date) as data,'
+      '          vlrarec,'
+      '          cast('#39'SALDO INICIAL'#39' as varchar) as descricaoevento_c,'
+      '          cast(0 as numeric) as vlraPag,'
+      '          cast(null as varchar) as descricaoevento_d,'
+      
+        '          cast('#39'2 - SALDO INICIAL'#39' as varchar) as operacao, Fals' +
+        'e as Totalizado'
+      ' from'
+      ' ('
+      '   select    cast(0 as integer) as grupofilial,'
+      '             cast(null as varchar) as nomegrupofilial,'
+      '             cast(0 as integer) as filial,'
+      '             cast(null as varchar) as nomefilial,'
+      '             cast(:SaldoInicial as numeric) as vlraRec'
+      ' ) as TOTALSALDOINICIAL'
+      ')'
+      '/* FIM DA DEFINI'#199#195'O DO SALDO INICIAL INFORMADO */'
+      ''
+      '/* INICIO DA DEFINI'#199#195'O DAS LINHAS DE DETALHE DO FLUXO */'
+      'union all'
+      '('
+      'select DATAS.*,'
+      '        DETALHE.vlrarec,'
+      '        DETALHE.descricaoevento_c,'
+      '        DETALHE.vlrapag,'
+      '        DETALHE.descricaoevento_d,'
+      
+        '        cast('#39'3 - RELATORIO'#39' as varchar) as operacao, False as T' +
+        'otalizado'
+      '  from'
+      '('
+      '('
+      
+        ' select   grupofilial,  nomegrupofilial,  filial, nomefilial, da' +
+        'ta'
+      ' from'
+      ' ('
+      '    select grupofilial,nomegrupofilial,filial,nomefilial,'
+      '             primeirodiautil(filial,data,'#39'R'#39') as data'
+      '    from'
+      '    ('
+      '      ('
+      
+        '        select    case when  :AgruparGrupoFilial    then fgf.gru' +
+        'po else cast(0 as integer) end as grupofilial,'
+      
+        '                  case when  :AgruparGrupoFilial    then gf.desc' +
+        'ricao else null end as nomegrupofilial,'
+      
+        '                  case when  :AgruparFilial   then ct.filialvend' +
+        'a else cast(0 as integer) end as filial,'
+      
+        '                  case when  :AgruparFilial   then f.nome else n' +
+        'ull end as nomefilial,'
+      '                  p.datavencto as data'
+      
+        '        from ((contratos ct join parcelas p on ct.numero=p.contr' +
+        'ato)'
+      '                         join (filiais f'
+      
+        '  '#9'   '#9'     left join (filiaisgruposfiliais fgf join gruposfilia' +
+        'is gf on fgf.grupo=gf.codigo)'
+      '                       on f.codigo=fgf.filial)'
+      '                      on ct.filialvenda=f.codigo)'
+      '        where p.datapagto is null'
+      '          and p.tipopagto is null'
+      
+        '          and p.datavencto between (:DataInicial) and (:DataFina' +
+        'l)'
+      
+        '          and ct.situacao in ('#39'F'#39','#39'N'#39','#39'P'#39') and not (contratos_re' +
+        'negociado(ct.numero))'
+      '          %WhereFilialVenda'
+      
+        '        order by UPPER(TO_ASCII(gf.descricao,''LATIN1'')), fgf.grupo, ' +
+        'UPPER(TO_ASCII(f.nome,''LATIN1'')), ct.filialvenda, p.datavencto'
+      '      )'
+      '       union all'
+      '     ('
+      
+        '        select  case when :AgruparGrupoFilial then fgf.grupo    ' +
+        'else cast(0 as integer) end as grupofilial,'
+      
+        '                case when :AgruparGrupoFilial then gf.descricao ' +
+        'else null               end as nomegrupofilial,'
+      
+        '                case when :AgruparFilial      then r.filial     ' +
+        'else cast(0 as integer) end as filial,'
+      
+        '                case when :AgruparFilial      then f.nome       ' +
+        'else null               end as nomefilial,'
+      '                r.datavencto as data'
+      '        from (recebimentos r join (filiais f '
+      
+        '                                   left join (filiaisgruposfilia' +
+        'is fgf join gruposfiliais gf on fgf.grupo=gf.codigo)'
+      '                                    on f.codigo = fgf.filial)'
+      '                                  on r.filial = f.codigo)'
+      
+        '        where r.datavencto between (:DataInicial) and (:DataFina' +
+        'l)'
+      '          and not coalesce(r.confirmado,false)'
+      '          and r.cheque is null'
+      '          and r.situacao = '#39'N'#39
+      '        %WhereFilial'
+      '        order by fgf.grupo, r.filial, r.datavencto       '
+      '      ) '
+      '       union all'
+      '     ('
+      
+        '        select  case when :AgruparGrupoFilial then fgf.grupo    ' +
+        'else cast(0 as integer) end as grupofilial,'
+      
+        '                case when :AgruparGrupoFilial then gf.descricao ' +
+        'else null               end as nomegrupofilial,'
+      
+        '                case when :AgruparFilial      then ch.filial    ' +
+        ' else cast(0 as integer) end as filial,'
+      
+        '                case when :AgruparFilial      then f.nome       ' +
+        'else null               end as nomefilial,'
+      '                ch.vencto as data'
+      '        from (cheques ch join (filiais f '
+      
+        '                               left join (filiaisgruposfiliais f' +
+        'gf join gruposfiliais gf on fgf.grupo=gf.codigo)'
+      '                                    on f.codigo = fgf.filial)'
+      '                                  on ch.filial = f.codigo)'
+      '        where ch.vencto between (:DataInicial) and (:DataFinal)'
+      '          and ch.situacao = '#39'N'#39
+      '        %WhereFilial'
+      '        order by fgf.grupo, ch.filial, ch.vencto'
+      '      ) '
+      '   ) AS RECEBIMENTOS'
+      ' ) AS RECEBIMENTOS'
+      
+        '  group by nomegrupofilial, grupofilial, nomefilial, filial, dat' +
+        'a'
+      ')'
+      'union'
+      '('
+      
+        ' select   grupofilial,  nomegrupofilial,  filial, nomefilial, da' +
+        'ta'
+      ' from'
+      ' ('
+      '    select grupofilial,nomegrupofilial,filial,nomefilial,'
+      '             primeirodiautil(filial,data,'#39'P'#39') as data'
+      '    from'
+      '    ('
+      
+        '     select    case when :AgruparGrupoFilial    then fgf.grupo e' +
+        'lse cast(0 as integer) end as grupofilial,'
+      
+        '               case when :AgruparGrupoFilial    then gf.descrica' +
+        'o else null end as nomegrupofilial,'
+      
+        '               case when :AgruparFilial   then dp.filialemissao ' +
+        'else cast(0 as integer) end as filial,'
+      
+        '               case when :AgruparFilial   then f.nome else null ' +
+        'end as nomefilial,'
+      '               d.datavencto as data'
+      
+        '     from ((documentospag dp join duplicatas d on dp.numero=d.do' +
+        'cumentopag)'
+      '                         join (filiais f'
+      
+        #9#9#9'  left join (filiaisgruposfiliais fgf join gruposfiliais gf o' +
+        'n fgf.grupo=gf.codigo)'
+      '                          on f.codigo=fgf.filial)'
+      '                         on dp.filialemissao=f.codigo)'
+      '     where d.datapagto is null'
+      '       and d.datavencto between (:DataInicial) and (:DataFinal)'
+      '           %WhereFilialEmissao'
+      
+        '     order by UPPER(TO_ASCII(gf.descricao,''LATIN1'')), fgf.grupo, ' +
+        'UPPER(TO_ASCII(f.nome,''LATIN1'')), dp.filialemissao, d.datavencto'
+      '   ) AS PAGAMENTOS'
+      ' ) AS PAGAMENTOS'
+      ' group by nomegrupofilial, grupofilial, nomefilial, filial, data'
+      ')'
+      ') as DATAS'
+      ''
+      ' left join'
+      ' ('
+      '  ('
+      '   select   grupofilial,  filial, data,'
+      '            descricaoevento_c,'
+      #9'    cast(null as varchar) as descricaoevento_d,'
+      #9'    sum(valorvencto) as vlrarec,'
+      #9'    0.00 as vlrapag'
+      '   from'
+      '   ('
+      
+        '     select grupofilial, filial, primeirodiautil(filial,data,'#39'R'#39 +
+        ') as data, valorvencto, descricaoevento_c'
+      '     from'
+      '     ('
+      '      ('
+      
+        '        select   case when :AgruparGrupoFilial    then fgf.grupo' +
+        ' else cast(0 as integer) end as grupofilial,'
+      
+        '                 case when :AgruparFilial   then ct.filialvenda ' +
+        'else cast(0 as integer) end as filial,'
+      '                 p.datavencto as data,'
+      '                 P.valorvencto,'
+      
+        '                 cast('#39'PRESTACOES DE CONTRATOS'#39' as varchar) as d' +
+        'escricaoevento_c'
+      
+        '        from ((contratos ct join parcelas p on ct.numero=p.contr' +
+        'ato)'
+      
+        '                          left join filiaisgruposfiliais fgf on ' +
+        'ct.filialvenda=fgf.filial)'
+      '        where p.datapagto is null and (p.tipopagto is null) and'
+      
+        '              p.datavencto between (:DataInicial) and (:DataFina' +
+        'l) and'
+      
+        '              ct.situacao in ('#39'F'#39','#39'N'#39','#39'P'#39') and not (contratos_re' +
+        'negociado(ct.numero))'
+      '                 %WhereFilialVenda'
+      '        order by fgf.grupo, ct.filialvenda, p.datavencto'
+      '      )'
+      '       union all'
+      '      ('
+      
+        '        select  case when :AgruparGrupoFilial then fgf.grupo    ' +
+        'else cast(0 as integer) end as grupofilial,'
+      
+        '                case when :AgruparFilial      then r.filial     ' +
+        'else cast(0 as integer) end as filial,'
+      '                r.datavencto as data,'
+      '                r.valorvencto,'
+      '                tr.descricao as descricaoevento_c'
+      
+        '          from ((recebimentos r join tiposrecebimentos tr on r.t' +
+        'iporecebimento = tr.codigo) '
+      '                                join (filiais f left join '
+      
+        '                                              (filiaisgruposfili' +
+        'ais fgf join gruposfiliais gf on fgf.grupo=gf.codigo)'
+      '                                    on f.codigo = fgf.filial)'
+      '                                  on r.filial = f.codigo)'
+      
+        '          where r.datavencto between (:DataInicial) and (:DataFi' +
+        'nal)'
+      '            and not coalesce(r.confirmado,false)'
+      '            and r.cheque is null'
+      '            and r.situacao = '#39'N'#39
+      '          %WhereFilial'
+      '          order by fgf.grupo, r.filial, r.datavencto       '
+      '      ) '
+      '       union all'
+      '      ('
+      
+        '          select  case when :AgruparGrupoFilial then fgf.grupo  ' +
+        '  else cast(0 as integer) end as grupofilial,'
+      
+        '                  case when :AgruparFilial      then ch.filial  ' +
+        '   else cast(0 as integer) end as filial,'
+      '                  ch.vencto as data,'
+      '                  ch.valor as valorvencto,'
+      
+        '                  cast('#39'CHEQUES'#39' as varchar) as descricaoevento_' +
+        'c'
+      '        from (cheques ch join (filiais f '
+      
+        '                               left join (filiaisgruposfiliais f' +
+        'gf join gruposfiliais gf on fgf.grupo=gf.codigo)'
+      '                                    on f.codigo = fgf.filial)'
+      '                                  on ch.filial = f.codigo)'
+      
+        '          where ch.vencto between (:DataInicial) and (:DataFinal' +
+        ')'
+      '            and ch.situacao = '#39'N'#39
+      '          %WhereFilial'
+      '          order by fgf.grupo, ch.filial, ch.vencto'
+      '      ) '
+      '     ) AS RECEBIMENTOS'
+      '   ) AS RECEBIMENTOS'
+      '    group by grupofilial, filial, data, descricaoevento_c'
+      '   )'
+      '   union all'
+      '   ('
+      '     select   grupofilial, filial, data,'
+      #9'      cast(null as varchar) as descricaoevento_c,'
+      
+        '              cast(descricaoevento_d as varchar) as descricaoeve' +
+        'nto_d,'
+      '  '#9'      0.00 as vlrarec,'
+      #9'      sum(valorvencto) as vlrapag'
+      '     from'
+      '     ('
+      
+        '      select grupofilial, filial, primeirodiautil(filial, data, ' +
+        #39'P'#39') as data, valorvencto, descricaoevento_d'
+      '      from'
+      '      ('
+      
+        '      select  case when :AgruparGrupoFilial    then fgf.grupo el' +
+        'se cast(0 as integer) end as grupofilial,'
+      
+        '              case when :AgruparFilial   then dp.filialemissao e' +
+        'lse cast(0 as integer) end as filial,'
+      '              d.datavencto as data,'
+      '              d.valorvencto,'
+      
+        '              coalesce(e.descricao, '#39'OUTROS PAGAMENTOS'#39') as desc' +
+        'ricaoevento_d'
+      
+        '      from (((documentospag dp join duplicatas d on dp.numero=d.' +
+        'documentopag)'
+      
+        '                           left join eventos e on dp.evento = e.' +
+        'codigo)'
+      
+        '                              left join filiaisgruposfiliais fgf' +
+        ' on dp.filialemissao = fgf.filial)'
+      '      where d.datapagto is null and'
+      '            d.datavencto between (:DataInicial) and (:DataFinal)'
+      '              %WhereFilialEmissao'
+      '      order by fgf.grupo, dp.filialemissao, d.datavencto'
+      '     ) AS PAGAMENTOS'
+      '     ) AS PAGAMENTOS'
+      '     group by grupofilial, filial, data, descricaoevento_d'
+      '   )'
+      '  ) as DETALHE ON'
+      '    DATAS.grupofilial = DETALHE.grupofilial and'
+      '    DATAS.filial = DETALHE.filial and'
+      '    DATAS.data = DETALHE.data'
+      ')'
+      '%Ordenacao'
+      '')
+    RequestLive = True
+    Left = 80
+    Top = 344
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'AgruparGrupoFilial'
+        ParamType = ptUnknown
+        Value = 'False'
+      end
+      item
+        DataType = ftString
+        Name = 'AgruparFilial'
+        ParamType = ptUnknown
+        Value = 'False'
+      end
+      item
+        DataType = ftDate
+        Name = 'DataInicialAcumulado'
+        ParamType = ptUnknown
+        Value = #39'01/01/1900'#39
+      end
+      item
+        DataType = ftDate
+        Name = 'DataFinalAcumulado'
+        ParamType = ptUnknown
+        Value = #39'05/09/2005'#39
+      end
+      item
+        DataType = ftString
+        Name = 'SaldoInicial'
+        ParamType = ptUnknown
+        Value = '0'
+      end
+      item
+        DataType = ftDate
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+        Value = #39'06/09/2005'#39
+      end
+      item
+        DataType = ftDate
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+        Value = #39'26/09/2005'#39
+      end>
+    object qryFluxoporEventogrupofilial: TIntegerField
+      FieldName = 'grupofilial'
+      DisplayFormat = '0'
+    end
+    object qryFluxoporEventonomegrupofilial: TStringField
+      FieldName = 'nomegrupofilial'
+      Size = 50
+    end
+    object qryFluxoporEventofilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryFluxoporEventonomefilial: TStringField
+      FieldName = 'nomefilial'
+      Size = 50
+    end
+    object qryFluxoporEventodata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryFluxoporEventovlrarec: TFloatField
+      FieldName = 'vlrarec'
+      DisplayFormat = '0.00'
+    end
+    object qryFluxoporEventovlrapag: TFloatField
+      FieldName = 'vlrapag'
+      DisplayFormat = '0.00'
+    end
+    object qryFluxoporEventooperacao: TStringField
+      FieldName = 'operacao'
+      Size = 18
+    end
+    object qryFluxoporEventototalizado: TBooleanField
+      FieldName = 'totalizado'
+    end
+    object qryFluxoporEventodescricaoevento_c: TStringField
+      FieldName = 'descricaoevento_c'
+      Size = 50
+    end
+    object qryFluxoporEventodescricaoevento_d: TStringField
+      FieldName = 'descricaoevento_d'
+      Size = 50
+    end
+    object qryFluxoporEventoExibirSaldo: TBooleanField
+      FieldKind = fkCalculated
+      FieldName = 'ExibirSaldo'
+      Calculated = True
+    end
+  end
+  object frpFluxoporEvento: TfrReport
+    Dataset = fdsFluxoporEvento
+    InitialZoom = pzDefault
+    PreviewButtons = [pbZoom, pbLoad, pbSave, pbPrint, pbFind, pbHelp, pbExit]
+    StoreInDFM = True
+    OnBeginDoc = frprelatoriofluxodecaixaBeginDoc
+    OnEndDoc = frprelatoriofluxodecaixaEndDoc
+    OnBeginBand = frprelatoriofluxodecaixaBeginBand
+    OnGetValue = frpFluxoporEventoGetValue
+    OnBeforePrint = frpFluxoporEventoBeforePrint
+    Left = 224
+    Top = 336
+    ReportForm = {
+      18000000003F000018FFFF00001D005C5C4A522D434F4D505C47656E65726963
+      202F2054657874204F6E6C7900FFFFFFFFFF00000000340800009A0B00000000
+      00002C000000000000002900000000000400000000FFFF000000000000000000
+      000000030400466F726D00FEFFFFFFDC000000780000007C0100002C01000004
+      1A000500626567696E0D00000D1C006966205B41677275706172477275706F46
+      696C69616C5D207468656E0D0500626567696E0D2400204361626563616C686F
+      477275706F46696C69616C2E76697369626C653A3D747275653B0D210020526F
+      64617065477275706F46696C69616C2E76697369626C653A3D747275653B0D03
+      00656E640D0400656C73650D0500626567696E0D2500204361626563616C686F
+      477275706F46696C69616C2E76697369626C653A3D66616C73653B0D22002052
+      6F64617065477275706F46696C69616C2E76697369626C653A3D66616C73653B
+      0D0400656E643B0D00000D17006966205B4167727570617246696C69616C5D20
+      7468656E0D0500626567696E0D1F00204361626563616C686F46696C69616C2E
+      76697369626C653A3D747275653B0D1C0020526F6461706546696C69616C2E76
+      697369626C653A3D747275653B0D0300656E640D0400656C73650D0500626567
+      696E0D2000204361626563616C686F46696C69616C2E76697369626C653A3D66
+      616C73653B0D1D0020526F6461706546696C69616C2E76697369626C653A3D66
+      616C73653B0D0400656E643B0D00000D0100200D0300656E640002009D020000
+      0B005061676548656164657231000201000000002E000000F502000054000000
+      3000020001000000000000000000FFFFFF1F00000000000000000000000000FF
+      FF000000000002000000010000000000000001000000C8000000140000000100
+      00000000000200200300000F004D617374657244617461466C75786F00020100
+      0000002E010000F50200000B0000003500050001000000000000000000FFFFFF
+      1F000000001400666473466C75786F706F72486973746F7269636F0000000000
+      00000100000000000002000000010000000000000001000000C8000000140000
+      000100000000000002008C0300000C0053756D6172696F546F74616C00020100
+      00000000020000F50200001A0000003900010001000000000000000000FFFFFF
+      1F00000000000000000000000000FFFF00000000000200000001000000000000
+      0001000000C80000001400000001000000000000020045040000140043616265
+      63616C686F477275706F46696C69616C00020100000000B0000000F50200001C
+      0000003900100001000000000000000000FFFFFF1F0000000045005B4946285B
+      41677275706172477275706F46696C69616C5D3D547275652C205B717279666C
+      75786F706F726576656E746F2E22677275706F66696C69616C225D2C2727295D
+      00000000000000FFFF000000000002000000010000000000000001000000C800
+      000014000000010000000000000200EF0400000F004361626563616C686F4669
+      6C69616C00020100000000DC000000F50200001C000000390010000100000000
+      0000000000FFFFFF1F000000003B005B4946285B4167727570617246696C6961
+      6C5D3D547275652C205B717279666C75786F706F726576656E746F2E2266696C
+      69616C225D2C2727295D00000000000000FFFF00000000000200000001000000
+      0000000001000000C8000000140000000100000000000002005B0500000C0052
+      6F6461706546696C69616C00020100000000A4010000F5020000190000003900
+      110001000000000000000000FFFFFF1F00000000000000000000000000FFFF00
+      0000000002000000010000000000000001000000C80000001400000001000000
+      0000000200CC0500001100526F64617065477275706F46696C69616C00020100
+      000000D0010000F5020000190000003900110001000000000000000000FFFFFF
+      1F00000000000000000000000000FFFF00000000000200000001000000000000
+      0001000000C8000000140000000100000000000002005B060000110043616265
+      63616C686F4F7065726163616F000201000000000E010000F502000000000000
+      3900100001000000000000000000FFFFFF1F000000001E005B717279666C7578
+      6F706F726576656E746F2E226F7065726163616F225D00000000000000FFFF00
+      0000000002000000010000000000000001000000C80000001400000001000000
+      00000002003C0700001300526F6461706553616C646F416E746572696F720002
+      010000000078010000F5020000120000003900110001000000000000000000FF
+      FFFF1F0000000000000000000005000500626567696E0D2B0020206966205B6F
+      7065726163616F5D203D202731202D2053414C444F20414E544552494F522720
+      7468656E0D13002020202076697369626C65203A3D20547275650D1A00202065
+      6C73652076697369626C65203A3D2046616C73653B20200D0300656E64000100
+      000000000002000000010000000000000001000000C800000014000000010000
+      000000000200A50700000900666276526F64617065000201000000007C020000
+      F50200000D0000003000030001000000000000000000FFFFFF1F000000000000
+      00000000000000FFFF000000000002000000010000000000000001000000C800
+      0000140000000100000000000000002A0800000A006D6D6F5A65627261646F00
+      02002F0000002E0100009A0200000B0000000300000001000000000000000000
+      FFFFFF1F2C020000000000000000000000010000000000000200000001000000
+      00090068656C7665746963610007000000000000000000100000000100020000
+      000000FFFFFF0000000002000000000000000000AA08000005004D656D6F3800
+      02002E00000073000000990200000C00000043000F0001000000000000000000
+      FFFFFF1F2C020000000000000000000000FFFF00000000000200000001000000
+      00090068656C7665746963610007000000000000000000120000000100020000
+      000000FFFFFF00000000020000000000000000003009000005004D656D6F3100
+      02002E000000730000003B0000000C00000043000F0001000000000000000000
+      FFFFFF1F2C020000000000010004004441544100000000FFFF00000000000200
+      00000100000000090068656C76657469636100070000000000000000000A0000
+      000100020000000000FFFFFF0000000002000000000000000000BB0900000500
+      4D656D6F370002002F01000073000000450000000C00000043000F0001000000
+      000000000000FFFFFF1F2C020000000000010009004120524543454245520000
+      0000FFFF0000000000020000000100000000090068656C766574696361000700
+      00000000000000000A0000000100020000000000FFFFFF000000000200000000
+      0000000000450A000006004D656D6F3130000200300200007300000049000000
+      0C00000043000F0001000000000000000000FFFFFF1F2C020000000000010007
+      004120504147415200000000FFFF000000000002000000010000000009006865
+      6C76657469636100070000000000000000000A0000000100020000000000FFFF
+      FF0000000002000000000000000000CD0A000006004D656D6F32300002007902
+      0000730000004E0000000C00000043000F00F4010000000000000000FFFFFF1F
+      2C0200000000000100050053414C444F00000000FFFF00000000000200000001
+      00000000090068656C76657469636100070000000000000000000A0000000100
+      020000000000FFFFFF0000000002000000000000000000B50B000008004D656D
+      6F446174610002002F0000002E0100003A0000000B0000006300000001000000
+      000000000000FFFFFF1F2C020000000000010063005B494628646174616D6F76
+      696D656E746F3D2730312F30312F31393030272C2027416E746572696F72272C
+      20464F524D41544441544554494D45282764642F6D6D2F7979272C2053545254
+      4F4441544528646174616D6F76696D656E746F292920295D0000000001000000
+      000000020000000100000006090068656C766574696361000700000000000000
+      0000100000000100020000000000FFFFFF000000000200000000000000000048
+      0C00000D004D656D6F56616C6F7261526563000200270100002E0100004D0000
+      000B0000004300000001000000000000000000FFFFFF1F2C0200000000000100
+      09005B566C72615265635D000000000100000000000002000000010000000609
+      0068656C76657469636100070000000000000000001100000001000200000000
+      00FFFFFF0000000002000000000000000000DB0C00000D004D656D6F56616C6F
+      7261506167000200300200002E010000490000000B0000004300000001000000
+      000000000000FFFFFF1F2C020000000000010009005B566C72615061675D0000
+      000001000000000000020000000100000006090068656C766574696361000700
+      0000000000000000110000000100020000000000FFFFFF000000000200000000
+      0000000000690D000006004D656D6F3834000200BA000000060200005F000000
+      110000004300000001000000000000000000FFFFFF1F2C02000000000001000B
+      00544F54414C20474552414C00000000FFFF0000000000020000000100000000
+      090068656C766574696361000700000000000000000001000000010002000000
+      0000FFFFFF0000000002000000000000000000F60D000006004D656D6F383600
+      0200230100000602000051000000110000004300000001000000000000000000
+      FFFFFF1F2C02000000000001000A005B54566C72615265635D00000000FFFF00
+      00000000020000000100000000090068656C7665746963610007000000020000
+      000000010000000100020000000000FFFFFF0000000002000000000000000000
+      830E000006004D656D6F39320002002802000006020000510000001100000043
+      00000001000000000000000000FFFFFF1F2C02000000000001000A005B54566C
+      72615061675D00000000FFFF0000000000020000000100000000090068656C76
+      65746963610007000000020000000000010000000100020000000000FFFFFF00
+      000000020000000000000000005D0F000006004D656D6F32310002007B020000
+      2E0100004C0000000B0000004300000001000000000000000000FFFFFF1F2C02
+      0000000000010057005B6966285B45786962697253616C646F5D3D547275652C
+      205B4946286F7065726163616F3C3E2731202D2053414C444F20414E54455249
+      4F52272C20545473616C646F2C20545453616C646F5F416E74295D2C2727295D
+      00000000FFFF0000000000020000000100000006090068656C76657469636100
+      07000000000000000000110000000100020000000000FFFFFF00000000020000
+      00000000000000E90F000006004D656D6F32320002007A020000060200004D00
+      0000110000004300000001000000000000000000FFFFFF1F2C02000000000001
+      0009005B545473616C646F5D00000000FFFF0000000000020000000100000000
+      090068656C766574696361000700000002000000000001000000010002000000
+      0000FFFFFF00000000020000000000000000007B10000006004D656D6F363700
+      02002E000000B3000000600000001400000043000F00F4010000000000000000
+      FFFFFF1F2C02000000000001000F00475255504F2044452046494C49414C0000
+      0000FFFF0000000000020000000100000000090068656C766574696361000700
+      0000000000000000090000000100020000000000FFFFFF000000000200000000
+      00000000000B11000006004D656D6F363800020093000000B30000001E000000
+      1400000043000F00F4010000000000000000FFFFFF1F2C02000000000001000D
+      005B477275706F46696C69616C5D00000000FFFF000000000002000000010000
+      0000090068656C76657469636100070000000000000000000900000001000200
+      00000000FFFFFF00000000020000000000000000009F11000006004D656D6F36
+      39000200B6000000B30000004D0100001400000041000F00F401000000000000
+      0000FFFFFF1F2C020000000000010011005B4E6F6D65477275706F46696C6961
+      6C5D00000000FFFF0000000000020000000100000000090068656C7665746963
+      610007000000020000000000080000000100020000000000FFFFFF0000000002
+      0000000000000000002812000006004D656D6F323300020062000000E0000000
+      2C0000001400000043000F00F4010000000000000000FFFFFF1F2C0200000000
+      000100060046494C49414C00000000FFFF000000000002000000010000000009
+      0068656C76657469636100070000000000000000000900000001000200000000
+      00FFFFFF0000000002000000000000000000B312000006004D656D6F36340002
+      0093000000E00000001E0000001400000043000F00F4010000000000000000FF
+      FFFF1F2C020000000000010008005B46696C69616C5D00000000FFFF00000000
+      00020000000100000000090068656C7665746963610007000000000000000000
+      090000000100020000000000FFFFFF0000000002000000000000000000421300
+      0006004D656D6F3635000200B6000000E00000004D0100001400000041000F00
+      F4010000000000000000FFFFFF1F2C02000000000001000C005B4E6F6D654669
+      6C69616C5D00000000FFFF0000000000020000000100000000090068656C7665
+      746963610007000000020000000000080000000100020000000000FFFFFF0000
+      000002000000000000000000D113000006004D656D6F3631000200BA000000A8
+      0100005F000000110000004300000001000000000000000000FFFFFF1F2C0200
+      0000000001000C00544F54414C2046494C49414C00000000FFFF000000000002
+      0000000100000000090068656C76657469636100070000000000000000000100
+      00000100020000000000FFFFFF00000000020000000000000000005E14000006
+      004D656D6F323500020023010000A80100005100000011000000430000000100
+      0000000000000000FFFFFF1F2C02000000000001000A005B54566C7261526563
+      5D00000000FFFF0000000000020000000100000000090068656C766574696361
+      0007000000020000000000010000000100020000000000FFFFFF000000000200
+      0000000000000000EB14000006004D656D6F333100020028020000A801000051
+      000000110000004300000001000000000000000000FFFFFF1F2C020000000000
+      01000A005B54566C72615061675D00000000FFFF000000000002000000010000
+      0000090068656C76657469636100070000000200000000000100000001000200
+      00000000FFFFFF00000000020000000000000000007715000006004D656D6F33
+      360002007A020000A80100004D00000011000000430000000100000000000000
+      0000FFFFFF1F2C020000000000010009005B545473616C646F5D00000000FFFF
+      0000000000020000000100000000090068656C76657469636100070000000200
+      00000000010000000100020000000000FFFFFF00000000020000000000000000
+      000516000006004D656D6F3337000200BA000000D40100005F00000011000000
+      4300000001000000000000000000FFFFFF1F2C02000000000001000B00544F54
+      414C20475255504F00000000FFFF000000000002000000010000000009006865
+      6C7665746963610007000000000000000000010000000100020000000000FFFF
+      FF00000000020000000000000000009216000006004D656D6F33390002002301
+      0000D401000051000000110000004300000001000000000000000000FFFFFF1F
+      2C02000000000001000A005B54566C72615265635D00000000FFFF0000000000
+      020000000100000000090068656C766574696361000700000002000000000001
+      0000000100020000000000FFFFFF00000000020000000000000000001F170000
+      06004D656D6F343500020028020000D401000051000000110000004300000001
+      000000000000000000FFFFFF1F2C02000000000001000A005B54566C72615061
+      675D00000000FFFF0000000000020000000100000000090068656C7665746963
+      610007000000020000000000010000000100020000000000FFFFFF0000000002
+      000000000000000000AB17000006004D656D6F35310002007A020000D4010000
+      4D000000110000004300000001000000000000000000FFFFFF1F2C0200000000
+      00010009005B545473616C646F5D00000000FFFF000000000002000000010000
+      0000090068656C76657469636100070000000200000000000100000001000200
+      00000000FFFFFF0000000002000000000000000000471800000C006D6D6F6869
+      73746F7269636F0002006C0000002E010000B80000000B000000430000000100
+      0000000000000000FFFFFF1F2C020000000000010013005B6465736372696361
+      6F6576656E746F5F635D00000000FFFF00000000000200000001000000060900
+      68656C7665746963610007000000000000000000100000000100020000000000
+      FFFFFF0000000002000000000000000000DC18000005004D656D6F3200020078
+      0100002E010000B40000000B0000004300000001000000000000000000FFFFFF
+      1F2C020000000000010013005B64657363726963616F6576656E746F5F645D00
+      000000FFFF0000000000020000000100000006090068656C7665746963610007
+      000000000000000000100000000100020000000000FFFFFF0000000002000000
+      000000000000C719000005004D656D6F330002009A000000780100007F000000
+      110000004300000001000000000000000000FFFFFF1F2C020000000000010069
+      005B494628646174616D6F76696D656E746F3D2730312F30312F31393030272C
+      2027544F54414C20414E544552494F52272C20464F524D41544441544554494D
+      45282764642F6D6D2F7979272C20535452544F4441544528646174616D6F7669
+      6D656E746F292920295D00000000FFFF00000000000200000001000000000900
+      68656C7665746963610007000000000000000000010000000100020000000000
+      FFFFFF0000000002000000000000000000571A000005004D656D6F3400020023
+      0100007801000051000000110000004300000001000000000000000000FFFFFF
+      1F2C02000000000001000E005B54566C72615265635F416E745D00000000FFFF
+      0000000000020000000100000000090068656C76657469636100070000000200
+      00000000010000000100020000000000FFFFFF00000000020000000000000000
+      00E71A000005004D656D6F350002002402000078010000550000001100000043
+      00000001000000000000000000FFFFFF1F2C02000000000001000E005B54566C
+      72615061675F416E745D00000000FFFF00000000000200000001000000000900
+      68656C7665746963610007000000020000000000010000000100020000000000
+      FFFFFF0000000002000000000000000000A31B000005004D656D6F360002007A
+      020000780100004D000000110000004300000001000000000000000000FFFFFF
+      1F2C02000000000001003A005B4946286F7065726163616F3C3E2731202D2053
+      414C444F20414E544552494F52272C20545473616C646F2C20545453616C646F
+      5F416E74295D00000000FFFF0000000000020000000100000000090068656C76
+      65746963610007000000020000000000010000000100020000000000FFFFFF00
+      00000002000000000000000400F21B000005004C696E65310002002E00000078
+      0100009A0200000000000001000800F4010000000000000000FFFFFF1F2C0200
+      00000000000000000000FFFF00000000000200000001000000000400411C0000
+      05004C696E65320002002E0000008A0100009A0200000000000001000800F401
+      0000000000000000FFFFFF1F2C020000000000000000000000FFFF0000000000
+      0200000001000000000000CF1C00000900666D764F7574726173000200540100
+      0047000000320100002800000043000000F4010000000000000000FFFFFF1F2C
+      020000000000010008005B4F75747261735D00000000FFFF0000000000020000
+      000100000000090068656C766574696361000700000000000000000002000000
+      0100020000000000FFFFFF0000000002000000000000000100F4340000070066
+      70764C6F676F000200300000002E000000780000002A00000007000000F40100
+      00000000000000FFFFFF1F2C020000000000000000000000FFFF000000000002
+      00000001000000000100F4340000424DCE170000000000003604000028000000
+      8300000026000000010008000000000098130000120B0000120B000000010000
+      0001000000000000E8E5A800AA9E000099990000ADADAD003A3C4100A3970000
+      BFB73700D8D48600FBFAF000A5A5A5001E1D1C00D8D9DA0054575A00D6D6D500
+      E7E8F20012161B00B6AD1900CBC55B008C8D9200BEC0C500E1E2E40085878A00
+      5E606300494C4F00090D12002C2E3300DEDB98007D7F8100EFEDCB00B9BABB00
+      AEA400007C7B7B00C5BE440066666600D1CC6F00CDC9810048484600F7F6E600
+      AFA5080004080D00F9F8ED00B8AF2700DBD68C00999999001B1A1900C6BF5100
+      131312003B3A3A00FFFFFF00EAE8BE00CCCCCC0023262A00E2DEA400F1EFD600
+      B0B1B300D3CD7500B1A81000CCCC660072727200535252004342420001060A00
+      ECE9C3008C8C8B00F5F4DF004A4A4A0057575600B6AC1F00282B3000C7C05C00
+      61615F00F7F7F70088888700DDD89300E3E0A600FDFCF70021242900070A1000
+      BDB53100C5BE4A00E3E3E200A69C000099999900BABAB900DEDEDE0052545800
+      2A292800D9D58A005F5E5D00C7C595001B1E2300E8E5B60000000700B5AB1300
+      D5D07B00C6C6C500B2A80B0021202000B9B12400504F4E00666666006B6D7000
+      B5B5BD0084848400E0DC9E00BCB42C00F7EFD6005B5B5A00EFEFEF0087898B00
+      DEDEE6003E3D3C0014181E00C8C25300CCC55F00A8A9AC00BDBDBC00E5E1AC00
+      75767900181B2000E6E6E6000E1117000810190033333300929191002D2C2B00
+      B5B5B40000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000031313131313131313131313131313131313131313131313131313131
+      313131313131313131313131313131543D42470E313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      31313131313131523131313131486D3131316D6D4C3131316D6D313131313131
+      313131316D4831313131313131316D6D3131316D040A6C6C313131313131486D
+      6D4C3131313131316D6D4C313131313131313131313131486D6D6D3131313131
+      31486D6D48313131316D483131316D6D3131313131313131313131316D6D6D31
+      31486D6D6D31313131313152313131317F7E6631554225256031603D42647931
+      420C313B7D316D6C3D70403131662C316D593D7068313133646C702531484255
+      312C70643059313131310C2525420E31477431420E4825793131315442433D47
+      4C4C640E3120423C300A3131207E2C317F70254748484251512531603C316D59
+      253C620A312C25433068313131313152313131316C2031315959313131317C7D
+      4C4C31487C0E3159683177424C51347531434031203D487957543130494C7F3D
+      31487C0C310B37317F70313131313C6631313131642C317C33487E5131313131
+      3179602F55317C3331316D793B7031487E14314857043131316D7C55557E311E
+      3031542D4C314340313148790A0B4C313131315231313131477D313125306C64
+      334C5779313131487C0E31224931422C31314340316C7D313C7D313159493157
+      0C31543D31487C0C3168705930253131313170706C3C0E313C0A313033317C51
+      3131310C702570474C4C3033312C7C64300A3148300E31796243432248483051
+      517C31603D316D6464590B2C31547C42301C3131313131523131313147493131
+      66420C5548313D2C484831487C0E48302C311C4248516275316C7D31493D4879
+      627F31256848373031487C0E3131550E207031313131473C0C554831642C4C7E
+      330C62793131316830796D3131487C3331577D6D6D313148303331487C495551
+      31487C0C0C7E4C2C703131480C0E7C2C313C476D6D3131313131315231313104
+      0B7E20316D473C6C33310E3D3C6C7931254264646D31486C42706831316C7D31
+      484742702031310E3D433D6C31484355314043473D0A31313131796C3C6C0E31
+      6670597E3C3D20313131310E256C6C7731316C0E312C3D47430431772F3D0A31
+      33424366484825643C7E6C7C74316D225943425531543D59437D313131313152
+      3131316D643B6D3131316D514831313179514C316D51793131313131796D3131
+      313C40313131796D313131313179794831317F6D316D15154831313131313131
+      795148314879516D796D3131313131313151517931317F6D31316D51516D3151
+      577F6D313131797931316D51516D5148313131515151313131314851516D3131
+      3131315231313131400431313131313131313131313131313131313131313131
+      31313131316804313131313131313131313131313148660F3131313131313131
+      3131313131313131313131313131313131313131313131313131220E31313131
+      3131313166553131313131313131313131313131313131313131313131313131
+      3131313131313152313131313131313131313131313131313131313131313131
+      31313131313131313131313131313131313131313131313131315C4612121246
+      3F31313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131523131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131315F06
+      020202061B313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313131313131313131523131313131310E40173C18183D6E3131
+      313131310C2C666C3C181818181805683131313131316D3768220D0516313131
+      313108021F1F1F5235313131313172070707070707070707070707070750732B
+      3631313131313131313131362B73212112081D31313131313131313123505050
+      504B3131313131313131313F08122E505050085231313131312C103E19191919
+      5D17313131317966713E4E191919191919195D0D31313131312C342828191900
+      17313131313108021F1F1F523531313131311152020202020202020202020202
+      020202022776313131313131313F501F02020202020202075C31313131313131
+      6A060202065F313131313131314C120202020202020221523131313175287A78
+      787878784E223131310E1A3E10787871717171717171281731313131773E7A71
+      7171712822313131313108021F1F1F5235313131313144021F1F1F1F1F1F1F1F
+      1F1F1F1F1F1F1F1F1F1F1D31313131310802021F1F1F1F1F1F1F1F0202233131
+      3131313107021F1F0208313131313131313A521F1F1F1F1F1F1F505231313131
+      0D4E7878787A7A71282231316D7C4E7878784E4E7A717171717128173131312C
+      3E7171717119195D22313131313108021F1F1F5269314C4C4C4C631F1F1F1F1F
+      1F1F1F1F1F1F1F1F1F1F1F1F1F52503131313138521F1F1F0202020202021F1F
+      1F5212313131313107021F1F0208313131313131361F1F1F1F1F020202022152
+      3131316D457A78787A3D370E0E5131313B3E7878787A2274140E0E0E0E0E0E15
+      313115787A787871190D0A145A2A6A6A6A2A5F36363636365044111111113226
+      262626262626262626262626264A1F1F1F1F612631311B521F1F1F02443A0808
+      2363021F1F1F525F3131313107021F1F02083131313131311B021F1F1F1F6A2B
+      353532523131310E71717171710C313131313115781078784E68313131313131
+      3131313131311C287878787A2C3131310106020202025F313131313150520202
+      02023631313131313131313131313131313144021F1F1F32312639021F1F1F58
+      4C31313131311B27021F1F1F3631313107021F1F020831313131313123021F1F
+      1F11093131313152313131337A717171454831313131312C28787810344C3131
+      31313131313131313131057A78784E663131313135021F1F1F025F3131313131
+      50021F1F1F1F3631313131313131313131313131314C5E021F1F0276315F521F
+      1F1F4B313131313131313132271F1F527331313107021F1F0208313131313131
+      12021F1F0272313131313152313131601978787A7C4C31313131316628787810
+      45166E6E6E6E6E6E6E6E1C0431555B1078717A603131313135021F1F1F025F31
+      3131313150021F1F1F1F36313131313131314C0909090909363A021F1F1F1F3F
+      314F021F02723131313131313131313123021F1F1109313107021F1F02083131
+      313131312E021F1F0273313131313152313131601978787A054C313131313156
+      1978787871282828282828282828005631337A717171346D3131313135520202
+      02025F31313131312106020202023631313131762E635E61616161611F1F1F1F
+      1F1F114C26611F1F0276313131313131313131311D1F1F1F1F1D313107021F1F
+      02083131313131312E021F1F023A313131313152313131601978787A054C3131
+      3131311819787878787878787878787878784E1731141978787A454831313131
+      764444444444241551515151464F4F4F4F4F413131313A0202021F1F1F1F1F1F
+      1F1F1F1F1F521B311D1F1F1F1F363131313131313131313126391F1F1F5C3131
+      07021F1F02083131313131312E021F1F023A313131313152313131601978787A
+      054C31313131315619787878787878787878787878784E1731337A717171346D
+      313131313109090909097D713434347A37313131313131313158521F1F1F1F1F
+      0202020202020202275831311D1F1F1F1F1D3131313131313131313126391F1F
+      1F5C313107021F1F02083131313131312E021F1F023A31313131315231313160
+      1978787A054C3131313131224E787878784E28282828282828280056310C7871
+      71715B0C31313131313131313131133E1010105D74313131313131312939021F
+      1F1F1F3911636363636A50083631313126611F1F024B31313131313131313131
+      3F021F1F1F36313107021F1F02083131313131312E021F1F023A313131313152
+      313131601978787A054C313131313116287878101A2C2C2C2C2C2C2C2C2C7D1E
+      316D1A7A7878197F31313131313131313131134E787878287431313131313131
+      76021F1F1F1F23263131313131313131313131313107021F0221313131313131
+      3131313173021F1F444C313107021F1F02083131313131312E021F1F023A3131
+      31313152313131601978787A054C31313131317F197171713448313131313131
+      313131313131561978784E6631313131313131313131134E7878782874313131
+      313131312B521F1F1F6129313131313131313131313131313158521F1F024A31
+      313131313131317602021F522331313107021F1F02083131313131312E021F1F
+      023A313131313152313131331978787A053131313131316D347A78784E133131
+      313131313131313131317D287878717104313131313131313131130019191900
+      04313131313131312B521F1F1F27413131313131313131313131313131091102
+      1F1F1F232631313131295F1F1F1F1F612931313107021F1F022B313131313131
+      2E021F1F52233131313131520E14602C7A78787A7C141414140C3131203E7878
+      7171660A1E6014141414140E3131155B107878107A567D371E1E1E1E1E1E1356
+      6C6C6C182C75757575756D315C021F1F1F1F211B1B1B1B1B1B4A4A4A4A4A3631
+      313176021F1F1F0261502323725E021F1F1F0258762B2B4A44021F1F1F504A4A
+      4A2B1D312E021F1F1F074A4A4A4A5C520D7A7A7A78787878787A7A7A5D173131
+      7945197878784E4E7A7A7A7A7A7A5D6C313131165D7171717119191919191919
+      195D6E313131313166007A7A7A4E1431295E021F1F1F02020202020202020202
+      02062B313131315802021F1F1F020202021F1F1F1F52384C395252521F1F1F1F
+      1F020202020608312E021F1F1F1F020202022152177171787878787878717171
+      4E22313131335B28717878787871717171714E1731313131173E7A7178787878
+      78787878784E6E313131313166287171717A6031314A521F1F1F1F1F1F1F1F1F
+      1F1F1F1F1F524A31313131316939521F1F1F1F1F1F1F1F020258310911021F1F
+      1F1F1F1F1F1F1F1F1F022B312E021F1F1F1F1F1F1F1F50520D19191978787878
+      781919190017313131310C0D10284E4E191919191919000D31313131317D1A4E
+      4E4E19191919191919001C3131313131662878787810603131315F0202020202
+      020202020202020202062B31313131313136733902020202020261721D313129
+      615252521F1F1F1F1F020202020608312E021F1F1F1F0202020221527D17173C
+      107878714D1717170D2C3131313131310E0A1C3B2217171717170D7D31313131
+      313148757D77661717171717170D043131313131662878787810603131313136
+      4A3A7272727272727272727272505C3131313131313131264B5F737338354131
+      313131093A7272725E1F1F1F1F4F1212122E5C312E021F1F1F63121212125852
+      3131310E1978787A053131313131313131313131313131313131313131313131
+      31313131313131313131313131313131313131313131313117003E3E3E5D7531
+      3131313131313131313131313131313131313131313131313131313131313131
+      31313131313131313131313107021F1F52583131313131312E021F1F02233131
+      31313152313131601978787A054C313131313131313131313131313131313131
+      313131313131313131313131313131313131313131313131313131317F686E6E
+      6E6E153131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313121021F1F02073131313131312E021F1F
+      023A313131313152313131601978787A054C3131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313131313131313131313131313173021F1F1F1F4F3A233A3231
+      2E021F1F023A313131313152313131601978787A054C31313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      31313131313131313131313131313131313131313131313169521F1F1F1F0202
+      020608312E021F1F023A313131313152313131601978787A054C313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313131313131313131313131313131313131313131310963521F
+      1F1F1F1F1F024A312E021F1F023A313131313152313131601971717A054C3131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      314150611F1F1F1F1F024A3150021F1F023A3131313131523131310C0D17176C
+      774C313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131315C3872727272725C31082E2E2E2E1B31313131315200009A35
+      000013006D6D6F464F4E4546494C49414C424153455F52000200AC0000005B00
+      0000AA0000000A00000004000000F4010000000000000000FFFFFF1F2C020000
+      00000001001600464F4E453A205B464F4E4546494C49414C424153455D000000
+      00FFFF0000000000020000000100000000090068656C76657469636100060000
+      00000000000000100000000100020000000000FFFFFF00000000020000000000
+      000000004F36000014006D6D6F454E44455245434F5F42414952524F5F520002
+      00AC00000045000000AB0000000A00000000000000F4010000000000000000FF
+      FFFF1F2C020000000000010024005B52554146494C49414C424153455D202D20
+      5B42414952524F46494C49414C424153455D00000000FFFF0000000000020000
+      000100000000090068656C766574696361000600000000000000000010000000
+      0100020000000000FFFFFF00000000020000000000000000001C37000012006D
+      6D6F4345505F4349444144455F55465F52000200AC00000050000000AB000000
+      0A00000000000000F4010000000000000000FFFFFF1F2C02000000000001003E
+      004345503A205B43455046494C49414C424153455D202D205B43494441444546
+      494C49414C424153455D202D205B45535441444F46494C49414C424153455D00
+      000000FFFF0000000000020000000100000000090068656C7665746963610006
+      000000000000000000100000000100020000000000FFFFFF0000000002000000
+      000000000000B237000008006D6D6F52415A414F000200AC0000002E000000AB
+      0000001400000003000000F4010000000000000000FFFFFF1F2C020000000000
+      010011005B52415A414F46494C49414C424153455D00000000FFFF0000000000
+      020000000100000006090068656C766574696361000600000000000000000010
+      0000000100020000000000FFFFFF000000000200000000000000000040380000
+      09006D6D6F544954554C4F000200540100002E00000032010000170000000200
+      0000F4010000000000000000FFFFFF1F2C020000000000010008005B74697475
+      6C6F5D00000000FFFF0000000000020000000100000006090068656C76657469
+      6361000B000000020000000000020000000100020000000000FFFFFF00000000
+      02000000000000000000D13800000F006D6D6F524F54554C4F444154415F5200
+      02007C0200002E0000001C0000000C00000043000000F4010000000000000000
+      FFFFFF1F2C02000000000001000500446174613A00000000FFFF000000000002
+      0000000100000000090068656C76657469636100060000000000000000000000
+      00000100020000000000FFFFFF00000000020000000000000000006839000009
+      006D6D6F444154415F52000200990200002E0000002C0000000C000000430000
+      00F4010000000000000000FFFFFF1F2C020000000000010011005B4441544520
+      234464642F6D6D2F79795D00000000FFFF000000000002000000010000000009
+      0068656C76657469636100060000000000000000000100000001000200000000
+      00FFFFFF0000000002000000000000000000FD39000011006D6D6F524F54554C
+      4F504147494E415F520002007C02000039000000280000000C00000043000000
+      F4010000000000000000FFFFFF1F2C0200000000000100070050E167696E613A
+      00000000FFFF0000000000020000000100000000090068656C76657469636100
+      06000000000000000000000000000100020000000000FFFFFF00000000020000
+      000000000000008C3A00000B006D6D6F504147494E415F52000200A502000039
+      000000200000000C00000043000000F4010000000000000000FFFFFF1F2C0200
+      00000000010007005B50414745235D00000000FFFF0000000000020000000100
+      000000090068656C766574696361000600000000000000000001000000010002
+      0000000000FFFFFF0000000002000000000000000000293B00000F006D6D6F52
+      4F44415045484F52415F520002002F0000007C020000580000000A0000004300
+      0000F4010000000000000000FFFFFF1F2C020000000000010011005B54494D45
+      20235468683A6D6D3A73735D00000000FFFF0000000000020000000100000000
+      090068656C766574696361000700000000000000000010000000010002000000
+      0000FFFFFF0000000002000000000000000000D23B00000C006D6D6F54454353
+      4F46545F52000200E80100007C020000DC0000000A00000043000000F4010000
+      000000000000FFFFFF1F2C02000000000001002000746563534F4654202D2054
+      65636E6F6C6F67696120656D2053697374656D617300000000FFFF0000000000
+      020000000100000000090068656C766574696361000700000000000000000011
+      0000000100020000000000FFFFFF000000000200000000000000FEFEFF330000
+      00070020546F7461697300000000030052756100000000060043696461646500
+      0000000400466F6E65000000000600546974756C6F0000000006004F75747261
+      7300000000060042616972726F000000000600204461646F73000000000B0047
+      7275706F46696C69616C000000000F004E6F6D65477275706F46696C69616C00
+      000000060046696C69616C000000000A004E6F6D6546696C69616C0000000006
+      00566C72526563000100300008004A75726F7352656300010030000800546F74
+      616C52656300010030000700566C7261526563000100300009004A75726F7361
+      52656300010030000900546F74616C6152656300010030000600566C72506167
+      000100300008004A75726F7350616700010030000800546F74616C5061670001
+      0030000700566C7261506167000100300009004A75726F736150616700010030
+      000900546F74616C6150616700010030000C0053616C646F496E696369616C00
+      01003000090064657363726963616F000000000D00646174616D6F76696D656E
+      746F000000000D005453616C646F496E696369616C00010030000B0068697374
+      6F7269636F5F63000000000B00686973746F7269636F5F64000000000C002054
+      6F74616C697A6163616F00000000070054566C72526563000000000900544A75
+      726F7352656300000000090054546F74616C52656300000000080054566C7261
+      526563000000000A00544A75726F7361526563000000000A0054546F74616C61
+      52656300000000070054566C72506167000000000900544A75726F7350616700
+      000000090054546F74616C50616700000000080054566C726150616700000000
+      0A00544A75726F7361506167000000000A0054546F74616C6150616700000000
+      0700545453616C646F00010030000C0054566C72615265635F416E7400000000
+      0C0054566C72615061675F416E74000000000B00545453616C646F5F416E7400
+      0000000C00204167727570616D656E746F000000001200416772757061724772
+      75706F46696C69616C00050046616C7365000D004167727570617246696C6961
+      6C00050046616C7365000F005469706F646552656C61746F72696F0001003000
+      0000000000000000}
+  end
+  object fdsFluxoporEvento: TfrDBDataSet
+    DataSet = qryFluxoporEvento
+    OpenDataSource = False
+    Left = 352
+    Top = 352
+  end
+  object qryFluxoDetalhado: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryFluxoDetalhadoAfterOpen
+    AfterScroll = qryFluxoDetalhadoAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'WhereFilialVenda'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'WhereFilialEmissao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Ordenacao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      '/*INICIO SALDO ANTERIOR*/'
+      ''
+      '('
+      'select DATAS.*,'
+      '        ACUMULADO.vlrarec,'
+      '        ACUMULADO.descricaoevento_c,'
+      '        ACUMULADO.vlrapag,'
+      '        ACUMULADO.descricaoevento_d,'
+      '        cast('#39'1 - SALDO ANTERIOR'#39' as varchar) as operacao,'
+      #9'False as Totalizado'
+      '  from'
+      '('
+      '('
+      
+        ' select   grupofilial,  nomegrupofilial,  filial, nomefilial, ca' +
+        'st('#39'01/01/1900'#39' as date) as data'
+      ' from'
+      ' ('
+      
+        '   select  case when   :AgruparGrupoFilial    then fgf.grupo els' +
+        'e cast(0 as integer) end as grupofilial,'
+      
+        '             case when :AgruparGrupoFilial    then gf.descricao ' +
+        'else null end as nomegrupofilial,'
+      
+        '             case when :AgruparFilial   then ct.filialvenda else' +
+        ' cast(0 as integer) end as filial,'
+      
+        '             case when :AgruparFilial   then f.nome else null en' +
+        'd as nomefilial'
+      '  from ((contratos ct join parcelas p on ct.numero=p.contrato)'
+      '                    join (filiais f'
+      #9#9'     left join (filiaisgruposfiliais fgf'
+      #9#9'      left join gruposfiliais gf on fgf.grupo=gf.codigo)'
+      '                     on f.codigo=fgf.filial)'
+      '                    on ct.filialvenda=f.codigo)'
+      '  where p.datapagto is null and (p.tipopagto is null) and'
+      
+        '      p.datavencto between (:DataInicialAcumulado) and (:DataFin' +
+        'alAcumulado) and'
+      
+        '      ct.situacao in ('#39'F'#39','#39'N'#39','#39'P'#39') and not (contratos_renegociad' +
+        'o(ct.numero))'
+      '             %WhereFilialVenda'
+      
+        '  order by UPPER(TO_ASCII(gf.descricao,''LATIN1'')), fgf.grupo, UPPER(TO_ASCII(f.nome,''LATIN1''))' +
+        ', ct.filialvenda, p.datavencto'
+      ' ) AS RECEBIMENTOS'
+      
+        '  group by nomegrupofilial, grupofilial, nomefilial, filial, dat' +
+        'a'
+      ')'
+      'union'
+      '('
+      
+        ' select   grupofilial,  nomegrupofilial,  filial, nomefilial, ca' +
+        'st('#39'01/01/1900'#39' as date) as data'
+      ' from'
+      ' ('
+      
+        '   select    case when  :AgruparGrupoFilial    then fgf.grupo el' +
+        'se cast(0 as integer) end as grupofilial,'
+      
+        '             case when  :AgruparGrupoFilial    then gf.descricao' +
+        ' else null end as nomegrupofilial,'
+      
+        '             case when  :AgruparFilial   then dp.filialemissao e' +
+        'lse cast(0 as integer) end as filial,'
+      
+        '             case when  :AgruparFilial   then f.nome else null e' +
+        'nd as nomefilial'
+      
+        '  from ((documentospag dp join duplicatas d on dp.numero=d.docum' +
+        'entopag)'
+      '                         join (filiais f'
+      #9#9#9'  left join (filiaisgruposfiliais fgf'
+      #9#9#9'   left join gruposfiliais gf on fgf.grupo=gf.codigo)'
+      '                          on f.codigo=fgf.filial)'
+      '                         on dp.filialemissao=f.codigo)'
+      '  where d.datapagto is null and'
+      
+        '      d.datavencto between (:DataInicialAcumulado) and (:DataFin' +
+        'alAcumulado)'
+      '             %WhereFilialEmissao'
+      
+        ' order by UPPER(TO_ASCII(gf.descricao,''LATIN1'')), fgf.grupo, UPPER(TO_ASCII(f.nome,''LATIN1'')),' +
+        ' dp.filialemissao, d.datavencto'
+      ' ) AS PAGAMENTOS'
+      ' group by nomegrupofilial, grupofilial, nomefilial, filial, data'
+      ')'
+      ') as DATAS'
+      ' left join'
+      '  ('
+      '   ('
+      
+        '    select   grupofilial,  filial, cast('#39'01/01/1900'#39' as date) as' +
+        ' data,'
+      
+        '             cast('#39'PRESTACOES EM ABERTO'#39' as varchar(250)) as des' +
+        'cricaoevento_c,'
+      #9'     cast(null as varchar) as descricaoevento_d,'
+      #9'     sum(valorvencto) as vlrarec,'
+      #9'     0.00 as vlrapag'
+      '    from'
+      '     ('
+      
+        '      select  case when  :AgruparGrupoFilial then fgf.grupo else' +
+        ' cast(0 as integer) end as grupofilial,'
+      
+        '              case when :AgruparFilial   then ct.filialvenda els' +
+        'e cast(0 as integer) end as filial,'
+      '              P.valorvencto'
+      
+        '      from ((contratos ct join parcelas p on ct.numero=p.contrat' +
+        'o)'
+      
+        '                          left join filiaisgruposfiliais fgf on ' +
+        'ct.filialvenda=fgf.filial)'
+      '      where p.datapagto is null and (p.tipopagto is null) and'
+      
+        '            p.datavencto between (:DataInicialAcumulado) and (:D' +
+        'ataFinalAcumulado) and'
+      
+        '            ct.situacao in ('#39'F'#39','#39'N'#39','#39'P'#39') and not (contratos_rene' +
+        'gociado(ct.numero))'
+      '              %WhereFilialVenda'
+      '      order by fgf.grupo, ct.filialvenda, p.datavencto'
+      '     ) AS RECEBIMENTOS'
+      '     group by grupofilial, filial, data'
+      '   )'
+      '   union all'
+      '   ('
+      
+        '    select  grupofilial, filial, cast('#39'01/01/1900'#39' as date) as d' +
+        'ata,'
+      #9'    cast(null as varchar(250)) as descricaoevento_c,'
+      
+        '            cast(descricaoevento_d as varchar) as descricaoevent' +
+        'o_d,'
+      #9'    0.00 as vlrarec, sum(valorvencto) as vlrapag'
+      '    from'
+      '    ('
+      
+        '     select  case when :AgruparGrupoFilial   then fgf.grupo else' +
+        ' cast(0 as integer) end as grupofilial,'
+      
+        '             case when :AgruparFilial   then dp.filialemissao el' +
+        'se cast(0 as integer) end as filial,'
+      '             d.valorvencto,'
+      
+        '             coalesce(e.descricao, '#39'PAGAMENTOS EM ABERTO'#39') as de' +
+        'scricaoevento_d'
+      
+        '     from (((documentospag dp join duplicatas d on dp.numero=d.d' +
+        'ocumentopag)'
+      
+        '                          left join eventos e on dp.evento=e.cod' +
+        'igo)'
+      
+        '                             left join filiaisgruposfiliais fgf ' +
+        'on dp.filialemissao = fgf.filial)'
+      '     where d.datapagto is null and'
+      
+        '           d.datavencto between (:DataInicialAcumulado) and (:Da' +
+        'taFinalAcumulado)'
+      '             %WhereFilialEmissao'
+      '     order by fgf.grupo, dp.filialemissao, d.datavencto'
+      '    ) AS PAGAMENTOS'
+      '   group by grupofilial, filial, data, descricaoevento_d'
+      '   )'
+      '  ) as ACUMULADO ON'
+      '    DATAS.grupofilial = ACUMULADO.grupofilial and'
+      '    DATAS.filial = ACUMULADO.filial and'
+      '    DATAS.data = ACUMULADO.data'
+      ')'
+      'union all'
+      ''
+      '/*FINAL SALDO ANTERIOR*/'
+      ''
+      '/* DEFINI'#199#195'O DO SALDO INICIAL INFORMADO */'
+      '('
+      ' select   grupofilial,  nomegrupofilial,  filial, nomefilial,'
+      '          cast('#39'01/01/1900'#39' as date) as data,'
+      '          vlrarec,'
+      
+        '          cast('#39'SALDO INICIAL'#39' as varchar(250)) as descricaoeven' +
+        'to_c,'
+      '          cast(0 as numeric) as vlraPag,'
+      '          cast(null as varchar) as descricaoevento_d,'
+      
+        '          cast('#39'2 - SALDO INICIAL'#39' as varchar) as operacao, Fals' +
+        'e as Totalizado'
+      ' from'
+      ' ('
+      '   select    cast(0 as integer) as grupofilial,'
+      '             cast(null as varchar) as nomegrupofilial,'
+      '             cast(0 as integer) as filial,'
+      '             cast(null as varchar) as nomefilial,'
+      '             cast(:SaldoInicial as numeric) as vlraRec'
+      ' ) as TOTALSALDOINICIAL'
+      ')'
+      ''
+      '/* FIM DA DEFINI'#199#195'O DO SALDO INICIAL INFORMADO */'
+      ''
+      '/* INICIO DA DEFINI'#199#195'O DAS LINHAS DE DETALHE DO FLUXO */'
+      'union all'
+      '('
+      'select DATAS.*,'
+      '        DETALHE.vlrarec,'
+      '        DETALHE.descricaoevento_c,'
+      '        DETALHE.vlrapag,'
+      '        DETALHE.descricaoevento_d,'
+      
+        '        cast('#39'3 - RELATORIO'#39' as varchar) as operacao, False as T' +
+        'otalizado'
+      '  from'
+      '('
+      '('
+      
+        ' select   grupofilial,  nomegrupofilial,  filial, nomefilial, da' +
+        'ta'
+      ' from'
+      ' ('
+      '    select grupofilial,nomegrupofilial,filial,nomefilial,'
+      '             primeirodiautil(filial,data,'#39'R'#39') as data'
+      '    from'
+      '    ('
+      
+        '      select    case when  :AgruparGrupoFilial    then fgf.grupo' +
+        ' else cast(0 as integer) end as grupofilial,'
+      
+        '                case when  :AgruparGrupoFilial    then gf.descri' +
+        'cao else null end as nomegrupofilial,'
+      
+        '                case when  :AgruparFilial   then ct.filialvenda ' +
+        'else cast(0 as integer) end as filial,'
+      
+        '                case when  :AgruparFilial   then f.nome else nul' +
+        'l end as nomefilial,'
+      '                p.datavencto as data'
+      
+        '      from ((contratos ct join parcelas p on ct.numero=p.contrat' +
+        'o)'
+      '                       join (filiais f'
+      #9'   '#9'     left join (filiaisgruposfiliais fgf'
+      #9#9'      left join gruposfiliais gf on fgf.grupo=gf.codigo)'
+      '                     on f.codigo=fgf.filial)'
+      '                    on ct.filialvenda=f.codigo)'
+      '      where p.datapagto is null'
+      '        and p.tipopagto is null'
+      '        and p.datavencto between (:DataInicial) and (:DataFinal)'
+      
+        '        and ct.situacao in ('#39'F'#39','#39'N'#39','#39'P'#39') and not (contratos_rene' +
+        'gociado(ct.numero))'
+      '        %WhereFilialVenda'
+      
+        '      order by UPPER(TO_ASCII(gf.descricao,''LATIN1'')), fgf.grupo, ' +
+        'UPPER(TO_ASCII(f.nome,''LATIN1'')), ct.filialvenda, p.datavencto'
+      '   ) AS RECEBIMENTOS'
+      '   /* where data between (:DataInicial) and (:DataFinal)*/'
+      ' ) AS RECEBIMENTOS'
+      
+        '  group by nomegrupofilial, grupofilial, nomefilial, filial, dat' +
+        'a'
+      ')'
+      'union'
+      '('
+      
+        ' select   grupofilial,  nomegrupofilial,  filial, nomefilial, da' +
+        'ta'
+      ' from'
+      ' ('
+      '    select grupofilial,nomegrupofilial,filial,nomefilial,'
+      '             primeirodiautil(filial,data,'#39'P'#39') as data'
+      '    from'
+      '    ('
+      
+        '     select    case when :AgruparGrupoFilial    then fgf.grupo e' +
+        'lse cast(0 as integer) end as grupofilial,'
+      
+        '               case when :AgruparGrupoFilial    then gf.descrica' +
+        'o else null end as nomegrupofilial,'
+      
+        '               case when :AgruparFilial   then dp.filialemissao ' +
+        'else cast(0 as integer) end as filial,'
+      
+        '               case when :AgruparFilial   then f.nome else null ' +
+        'end as nomefilial,'
+      '               d.datavencto as data'
+      
+        '     from ((documentospag dp join duplicatas d on dp.numero=d.do' +
+        'cumentopag)'
+      '                         join (filiais f'
+      #9#9#9'  left join (filiaisgruposfiliais fgf'
+      #9#9#9'   left join gruposfiliais gf on fgf.grupo=gf.codigo)'
+      '                          on f.codigo=fgf.filial)'
+      '                         on dp.filialemissao=f.codigo)'
+      '     where d.datapagto is null'
+      '       and d.datavencto between (:DataInicial) and (:DataFinal)'
+      '           %WhereFilialEmissao'
+      
+        '     order by UPPER(TO_ASCII(gf.descricao,''LATIN1'')), fgf.grupo, ' +
+        'UPPER(TO_ASCII(f.nome,''LATIN1'')), dp.filialemissao, d.datavencto'
+      '   ) AS PAGAMENTOS'
+      '   /*where data between (:DataInicial) and (:DataFinal)*/'
+      ' ) AS PAGAMENTOS'
+      ' group by nomegrupofilial, grupofilial, nomefilial, filial, data'
+      ')'
+      ') as DATAS'
+      ''
+      ' left join'
+      ' ('
+      '  ('
+      
+        '     select grupofilial, filial, primeirodiautil(filial,data,'#39'R'#39 +
+        ') as data,'
+      '            descricaoevento_c,'
+      #9'    cast(null as varchar) as descricaoevento_d,'
+      '            valorvencto as vlrarec,'
+      #9'    0.00 as vlrapag'
+      '     from'
+      '     ('
+      
+        '      select case when :AgruparGrupoFilial    then fgf.grupo els' +
+        'e cast(0 as integer) end as grupofilial,'
+      
+        '               case when :AgruparFilial   then ct.filialvenda el' +
+        'se cast(0 as integer) end as filial,'
+      '               p.datavencto as data,'
+      '               P.valorvencto,'
+      
+        '               '#39'CT '#39'||lpad(cast(ct.numero as varchar(6)),6,'#39'0'#39')|' +
+        '|'#39'-'#39'||p.numero||'#39' '#39'||ct.nome as descricaoevento_c'
+      
+        '      from (((contratos ct join parcelas p on ct.numero=p.contra' +
+        'to)'
+      
+        '                        left join filiaisgruposfiliais fgf on ct' +
+        '.filialvenda=fgf.filial)'
+      
+        '                        left join planos pl  on ct.plano=pl.codi' +
+        'go)'
+      ''
+      '      where p.datapagto is null and (p.tipopagto is null) and'
+      
+        '            p.datavencto between (:DataInicial) and (:DataFinal)' +
+        ' and'
+      
+        '            ct.situacao in ('#39'F'#39','#39'N'#39','#39'P'#39') and not (contratos_rene' +
+        'gociado(ct.numero))'
+      '               %WhereFilialVenda'
+      '      order by fgf.grupo, ct.filialvenda, p.datavencto'
+      '     ) AS RECEBIMENTOS'
+      '     /* where data between (:DataInicial) and (:DataFinal)*/'
+      '   )'
+      '   union all'
+      '   ('
+      
+        '      select grupofilial, filial, primeirodiautil(filial, data, ' +
+        #39'P'#39') as data,'
+      ' '#9'     cast(null as varchar(250)) as descricaoevento_c,'
+      #9'     descricaoevento_d,'
+      #9'     0.00 as vlrarec,'
+      '             valorvencto as vlrapag'
+      '      from'
+      '      ('
+      
+        '      select  case when :AgruparGrupoFilial    then fgf.grupo el' +
+        'se cast(0 as integer) end as grupofilial,'
+      
+        '              case when :AgruparFilial   then dp.filialemissao e' +
+        'lse cast(0 as integer) end as filial,'
+      '              d.datavencto as data,'
+      '              d.valorvencto,'
+      '             case when np.numero is not null then'
+      
+        '              '#39'NF '#39'||lpad(cast(np.numero as varchar(6)),6,'#39'0'#39')||' +
+        #39'-'#39'||d.numero||'#39' '#39'||fo.nome'
+      
+        '              else '#39'DC '#39'||lpad(cast(dp.numero as varchar(6)),6,'#39 +
+        '0'#39')||'#39'-'#39'||d.numero||'#39' '#39'||fo.nome end as descricaoevento_d'
+      ''
+      
+        '      from (((((documentospag dp join duplicatas d on dp.numero=' +
+        'd.documentopag)'
+      
+        '                           left join notaspag np on dp.numero=np' +
+        '.documentopag)'
+      
+        '                           left join vfornecedores fo on dp.forn' +
+        'ecedor=fo.codigo and dp.tipofornecedor=fo.tipo)'
+      
+        '                           left join eventos e on dp.evento = e.' +
+        'codigo)'
+      
+        '                              left join filiaisgruposfiliais fgf' +
+        ' on dp.filialemissao = fgf.filial)'
+      '      where d.datapagto is null and'
+      '            d.datavencto between (:DataInicial) and (:DataFinal)'
+      '              %WhereFilialEmissao'
+      '      order by fgf.grupo, dp.filialemissao, d.datavencto'
+      '     ) AS PAGAMENTOS'
+      '     /* where data between (:DataInicial) and (:DataFinal)*/'
+      '   )'
+      '  ) as DETALHE ON'
+      '    DATAS.grupofilial = DETALHE.grupofilial and'
+      '    DATAS.filial = DETALHE.filial and'
+      '    DATAS.data = DETALHE.data'
+      ')'
+      '%Ordenacao')
+    RequestLive = True
+    Left = 80
+    Top = 416
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'AgruparGrupoFilial'
+        ParamType = ptUnknown
+        Value = 'False'
+      end
+      item
+        DataType = ftString
+        Name = 'AgruparFilial'
+        ParamType = ptUnknown
+        Value = 'False'
+      end
+      item
+        DataType = ftDate
+        Name = 'DataInicialAcumulado'
+        ParamType = ptUnknown
+        Value = #39'01/01/1900'#39
+      end
+      item
+        DataType = ftDate
+        Name = 'DataFinalAcumulado'
+        ParamType = ptUnknown
+        Value = #39'05/09/2005'#39
+      end
+      item
+        DataType = ftString
+        Name = 'SaldoInicial'
+        ParamType = ptUnknown
+        Value = '0'
+      end
+      item
+        DataType = ftDate
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+        Value = #39'06/09/2005'#39
+      end
+      item
+        DataType = ftDate
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+        Value = #39'26/09/2005'#39
+      end>
+    object qryFluxoDetalhadogrupofilial: TIntegerField
+      FieldName = 'grupofilial'
+      DisplayFormat = '0'
+    end
+    object qryFluxoDetalhadonomegrupofilial: TStringField
+      FieldName = 'nomegrupofilial'
+      Size = 50
+    end
+    object qryFluxoDetalhadofilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryFluxoDetalhadonomefilial: TStringField
+      FieldName = 'nomefilial'
+      Size = 50
+    end
+    object qryFluxoDetalhadodata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryFluxoDetalhadovlrarec: TFloatField
+      FieldName = 'vlrarec'
+      DisplayFormat = '0.00'
+    end
+    object qryFluxoDetalhadodescricaoevento_c: TStringField
+      FieldName = 'descricaoevento_c'
+      Size = 250
+    end
+    object qryFluxoDetalhadovlrapag: TFloatField
+      FieldName = 'vlrapag'
+      DisplayFormat = '0.00'
+    end
+    object qryFluxoDetalhadodescricaoevento_d: TStringField
+      FieldName = 'descricaoevento_d'
+      Size = 250
+    end
+    object qryFluxoDetalhadooperacao: TStringField
+      FieldName = 'operacao'
+      Size = 18
+    end
+    object qryFluxoDetalhadototalizado: TBooleanField
+      FieldName = 'totalizado'
+    end
+    object qryFluxoDetalhadoExibirSaldo: TBooleanField
+      FieldKind = fkCalculated
+      FieldName = 'ExibirSaldo'
+      Calculated = True
+    end
+  end
+  object frpFluxoDetalhado: TfrReport
+    Dataset = fdsFluxoDetalhado
+    InitialZoom = pzDefault
+    PreviewButtons = [pbZoom, pbLoad, pbSave, pbPrint, pbFind, pbHelp, pbExit]
+    StoreInDFM = True
+    OnBeginDoc = frprelatoriofluxodecaixaBeginDoc
+    OnEndDoc = frprelatoriofluxodecaixaEndDoc
+    OnBeginBand = frpFluxoDetalhadoBeginBand
+    OnGetValue = frpFluxoDetalhadoGetValue
+    OnBeforePrint = frpFluxoDetalhadoBeforePrint
+    Left = 224
+    Top = 408
+    ReportForm = {
+      18000000FC3E000018FFFF00001D005C5C4A522D434F4D505C47656E65726963
+      202F2054657874204F6E6C7900FFFFFFFFFF00000000340800009A0B00000000
+      00002C000000000000002900000000000400000000FFFF000000000000000000
+      000000030400466F726D00FEFFFFFFDC000000780000007C0100002C01000004
+      1A000500626567696E0D00000D1C006966205B41677275706172477275706F46
+      696C69616C5D207468656E0D0500626567696E0D2400204361626563616C686F
+      477275706F46696C69616C2E76697369626C653A3D747275653B0D210020526F
+      64617065477275706F46696C69616C2E76697369626C653A3D747275653B0D03
+      00656E640D0400656C73650D0500626567696E0D2500204361626563616C686F
+      477275706F46696C69616C2E76697369626C653A3D66616C73653B0D22002052
+      6F64617065477275706F46696C69616C2E76697369626C653A3D66616C73653B
+      0D0400656E643B0D00000D17006966205B4167727570617246696C69616C5D20
+      7468656E0D0500626567696E0D1F00204361626563616C686F46696C69616C2E
+      76697369626C653A3D747275653B0D1C0020526F6461706546696C69616C2E76
+      697369626C653A3D747275653B0D0300656E640D0400656C73650D0500626567
+      696E0D2000204361626563616C686F46696C69616C2E76697369626C653A3D66
+      616C73653B0D1D0020526F6461706546696C69616C2E76697369626C653A3D66
+      616C73653B0D0400656E643B0D00000D0100200D0300656E640002009D020000
+      0B005061676548656164657231000201000000002E000000F502000054000000
+      3000020001000000000000000000FFFFFF1F00000000000000000000000000FF
+      FF000000000002000000010000000000000001000000C8000000140000000100
+      000000000002001D0300000F004D617374657244617461466C75786F00020100
+      0000002E010000F50200000B0000003500050001000000000000000000FFFFFF
+      1F000000001100666473466C75786F446574616C6861646F0000000000000001
+      00000000000002000000010000000000000001000000C8000000140000000100
+      00000000000200890300000C0053756D6172696F546F74616C00020100000000
+      00020000F50200001A0000003900010001000000000000000000FFFFFF1F0000
+      0000000000000000000000FFFF00000000000200000001000000000000000100
+      0000C8000000140000000100000000000002004204000014004361626563616C
+      686F477275706F46696C69616C00020100000000B0000000F50200001C000000
+      3900100001000000000000000000FFFFFF1F0000000045005B4946285B416772
+      75706172477275706F46696C69616C5D3D547275652C205B717279666C75786F
+      646574616C6861646F2E22677275706F66696C69616C225D2C2727295D000000
+      00000000FFFF000000000002000000010000000000000001000000C800000014
+      000000010000000000000200EC0400000F004361626563616C686F46696C6961
+      6C00020100000000DC000000F50200001C000000390010000100000000000000
+      0000FFFFFF1F000000003B005B4946285B4167727570617246696C69616C5D3D
+      547275652C205B717279666C75786F646574616C6861646F2E2266696C69616C
+      225D2C2727295D00000000000000FFFF00000000000200000001000000000000
+      0001000000C800000014000000010000000000000200580500000C00526F6461
+      706546696C69616C00020100000000A4010000F5020000190000003900110001
+      000000000000000000FFFFFF1F00000000000000000000000000FFFF00000000
+      0002000000010000000000000001000000C80000001400000001000000000000
+      0200C90500001100526F64617065477275706F46696C69616C00020100000000
+      D0010000F5020000190000003900110001000000000000000000FFFFFF1F0000
+      0000000000000000000000FFFF00000000000200000001000000000000000100
+      0000C8000000140000000100000000000002005806000011004361626563616C
+      686F4F7065726163616F000201000000000E010000F502000000000000390010
+      0001000000000000000000FFFFFF1F000000001E005B717279666C75786F6465
+      74616C6861646F2E226F7065726163616F225D00000000000000FFFF00000000
+      0002000000010000000000000001000000C80000001400000001000000000000
+      0200390700001300526F6461706553616C646F416E746572696F720002010000
+      000078010000F5020000120000003900110001000000000000000000FFFFFF1F
+      0000000000000000000005000500626567696E0D2B0020206966205B6F706572
+      6163616F5D203D202731202D2053414C444F20414E544552494F522720746865
+      6E0D13002020202076697369626C65203A3D20547275650D1A002020656C7365
+      2076697369626C65203A3D2046616C73653B20200D0300656E64000100000000
+      000002000000010000000000000001000000C800000014000000010000000000
+      000200A20700000900666276526F64617065000201000000007C020000F50200
+      000D0000003000030001000000000000000000FFFFFF1F000000000000000000
+      00000000FFFF000000000002000000010000000000000001000000C800000014
+      000000010000000000000000270800000A006D6D6F5A65627261646F0002002F
+      0000002E0100009A0200000B0000000300000001000000000000000000FFFFFF
+      1F2C020000000000000000000000010000000000000200000001000000000900
+      68656C7665746963610007000000000000000000100000000100020000000000
+      FFFFFF0000000002000000000000000000A708000005004D656D6F380002002E
+      00000073000000990200000C00000043000F0001000000000000000000FFFFFF
+      1F2C020000000000000000000000FFFF00000000000200000001000000000900
+      68656C7665746963610007000000000000000000120000000100020000000000
+      FFFFFF00000000020000000000000000002D09000005004D656D6F310002002E
+      000000730000003B0000000C00000043000F0001000000000000000000FFFFFF
+      1F2C020000000000010004004441544100000000FFFF00000000000200000001
+      00000000090068656C76657469636100070000000000000000000A0000000100
+      020000000000FFFFFF0000000002000000000000000000B809000005004D656D
+      6F370002002F01000073000000450000000C00000043000F0001000000000000
+      000000FFFFFF1F2C0200000000000100090041205245434542455200000000FF
+      FF0000000000020000000100000000090068656C766574696361000700000000
+      00000000000A0000000100020000000000FFFFFF000000000200000000000000
+      0000420A000006004D656D6F31300002003002000073000000490000000C0000
+      0043000F0001000000000000000000FFFFFF1F2C020000000000010007004120
+      504147415200000000FFFF0000000000020000000100000000090068656C7665
+      7469636100070000000000000000000A0000000100020000000000FFFFFF0000
+      000002000000000000000000CA0A000006004D656D6F32300002007902000073
+      0000004E0000000C00000043000F00F4010000000000000000FFFFFF1F2C0200
+      000000000100050053414C444F00000000FFFF00000000000200000001000000
+      00090068656C76657469636100070000000000000000000A0000000100020000
+      000000FFFFFF0000000002000000000000000000B20B000008004D656D6F4461
+      74610002002F0000002E0100003A0000000B0000006300000001000000000000
+      000000FFFFFF1F2C020000000000010063005B494628646174616D6F76696D65
+      6E746F3D2730312F30312F31393030272C2027416E746572696F72272C20464F
+      524D41544441544554494D45282764642F6D6D2F7979272C20535452544F4441
+      544528646174616D6F76696D656E746F292920295D0000000001000000000000
+      020000000100000006090068656C766574696361000700000000000000000000
+      0000000100020000000000FFFFFF0000000002000000000000000000450C0000
+      0D004D656D6F56616C6F7261526563000200270100002E0100004D0000000B00
+      00004300000001000000000000000000FFFFFF1F2C020000000000010009005B
+      566C72615265635D000000000100000000000002000000010000000609006865
+      6C7665746963610007000000000000000000110000000100020000000000FFFF
+      FF0000000002000000000000000000D80C00000D004D656D6F56616C6F726150
+      6167000200300200002E010000490000000B0000004300000001000000000000
+      000000FFFFFF1F2C020000000000010009005B566C72615061675D0000000001
+      000000000000020000000100000006090068656C766574696361000700000000
+      0000000000110000000100020000000000FFFFFF000000000200000000000000
+      0000660D000006004D656D6F3834000200BA000000060200005F000000110000
+      004300000001000000000000000000FFFFFF1F2C02000000000001000B00544F
+      54414C20474552414C00000000FFFF0000000000020000000100000000090068
+      656C7665746963610007000000000000000000010000000100020000000000FF
+      FFFF0000000002000000000000000000F30D000006004D656D6F383600020023
+      0100000602000051000000110000004300000001000000000000000000FFFFFF
+      1F2C02000000000001000A005B54566C72615265635D00000000FFFF00000000
+      00020000000100000000090068656C7665746963610007000000020000000000
+      010000000100020000000000FFFFFF0000000002000000000000000000800E00
+      0006004D656D6F39320002002802000006020000510000001100000043000000
+      01000000000000000000FFFFFF1F2C02000000000001000A005B54566C726150
+      61675D00000000FFFF0000000000020000000100000000090068656C76657469
+      63610007000000020000000000010000000100020000000000FFFFFF00000000
+      02000000000000000000590F000006004D656D6F32310002007B0200002E0100
+      004C0000000B0000004300000001000000000000000000FFFFFF1F2C02000000
+      0000010056005B6966285B45786962697253616C646F5D3D547275652C5B4946
+      286F7065726163616F3C3E2731202D2053414C444F20414E544552494F52272C
+      20545473616C646F2C20545453616C646F5F416E74295D2C2727295D00000000
+      FFFF0000000000020000000100000006090068656C7665746963610007000000
+      000000000000110000000100020000000000FFFFFF0000000002000000000000
+      000000E50F000006004D656D6F32320002007A020000060200004D0000001100
+      00004300000001000000000000000000FFFFFF1F2C020000000000010009005B
+      545473616C646F5D00000000FFFF000000000002000000010000000009006865
+      6C7665746963610007000000020000000000010000000100020000000000FFFF
+      FF00000000020000000000000000007710000006004D656D6F36370002002E00
+      0000B3000000600000001400000043000F00F4010000000000000000FFFFFF1F
+      2C02000000000001000F00475255504F2044452046494C49414C00000000FFFF
+      0000000000020000000100000000090068656C76657469636100070000000000
+      00000000090000000100020000000000FFFFFF00000000020000000000000000
+      000711000006004D656D6F363800020093000000B30000001E00000014000000
+      43000F00F4010000000000000000FFFFFF1F2C02000000000001000D005B4772
+      75706F46696C69616C5D00000000FFFF00000000000200000001000000000900
+      68656C7665746963610007000000000000000000090000000100020000000000
+      FFFFFF00000000020000000000000000009B11000006004D656D6F3639000200
+      B6000000B30000004D0100001400000041000F00F4010000000000000000FFFF
+      FF1F2C020000000000010011005B4E6F6D65477275706F46696C69616C5D0000
+      0000FFFF0000000000020000000100000000090068656C766574696361000700
+      0000020000000000080000000100020000000000FFFFFF000000000200000000
+      00000000002412000006004D656D6F323300020062000000E00000002C000000
+      1400000043000F00F4010000000000000000FFFFFF1F2C020000000000010006
+      0046494C49414C00000000FFFF0000000000020000000100000000090068656C
+      7665746963610007000000000000000000090000000100020000000000FFFFFF
+      0000000002000000000000000000AF12000006004D656D6F3634000200930000
+      00E00000001E0000001400000043000F00F4010000000000000000FFFFFF1F2C
+      020000000000010008005B46696C69616C5D00000000FFFF0000000000020000
+      000100000000090068656C766574696361000700000000000000000009000000
+      0100020000000000FFFFFF00000000020000000000000000003E13000006004D
+      656D6F3635000200B6000000E00000004D0100001400000041000F00F4010000
+      000000000000FFFFFF1F2C02000000000001000C005B4E6F6D6546696C69616C
+      5D00000000FFFF0000000000020000000100000000090068656C766574696361
+      0007000000020000000000080000000100020000000000FFFFFF000000000200
+      0000000000000000CD13000006004D656D6F3631000200BA000000A80100005F
+      000000110000004300000001000000000000000000FFFFFF1F2C020000000000
+      01000C00544F54414C2046494C49414C00000000FFFF00000000000200000001
+      00000000090068656C7665746963610007000000000000000000010000000100
+      020000000000FFFFFF00000000020000000000000000005A14000006004D656D
+      6F323500020023010000A8010000510000001100000043000000010000000000
+      00000000FFFFFF1F2C02000000000001000A005B54566C72615265635D000000
+      00FFFF0000000000020000000100000000090068656C76657469636100070000
+      00020000000000010000000100020000000000FFFFFF00000000020000000000
+      00000000E714000006004D656D6F333100020028020000A80100005100000011
+      0000004300000001000000000000000000FFFFFF1F2C02000000000001000A00
+      5B54566C72615061675D00000000FFFF00000000000200000001000000000900
+      68656C7665746963610007000000020000000000010000000100020000000000
+      FFFFFF00000000020000000000000000007315000006004D656D6F3336000200
+      7A020000A80100004D000000110000004300000001000000000000000000FFFF
+      FF1F2C020000000000010009005B545473616C646F5D00000000FFFF00000000
+      00020000000100000000090068656C7665746963610007000000020000000000
+      010000000100020000000000FFFFFF0000000002000000000000000000011600
+      0006004D656D6F3337000200BA000000D40100005F0000001100000043000000
+      01000000000000000000FFFFFF1F2C02000000000001000B00544F54414C2047
+      5255504F00000000FFFF0000000000020000000100000000090068656C766574
+      6963610007000000000000000000010000000100020000000000FFFFFF000000
+      00020000000000000000008E16000006004D656D6F333900020023010000D401
+      000051000000110000004300000001000000000000000000FFFFFF1F2C020000
+      00000001000A005B54566C72615265635D00000000FFFF000000000002000000
+      0100000000090068656C76657469636100070000000200000000000100000001
+      00020000000000FFFFFF00000000020000000000000000001B17000006004D65
+      6D6F343500020028020000D40100005100000011000000430000000100000000
+      0000000000FFFFFF1F2C02000000000001000A005B54566C72615061675D0000
+      0000FFFF0000000000020000000100000000090068656C766574696361000700
+      0000020000000000010000000100020000000000FFFFFF000000000200000000
+      0000000000A717000006004D656D6F35310002007A020000D40100004D000000
+      110000004300000001000000000000000000FFFFFF1F2C020000000000010009
+      005B545473616C646F5D00000000FFFF00000000000200000001000000000900
+      68656C7665746963610007000000020000000000010000000100020000000000
+      FFFFFF0000000002000000000000000000431800000C006D6D6F686973746F72
+      69636F0002006C0000002E010000B80000000B00000043000000010000000000
+      00000000FFFFFF1F2C020000000000010013005B64657363726963616F657665
+      6E746F5F635D00000000FFFF0000000000020000000100000006090068656C76
+      65746963610007000000000000000000100000000100020000000000FFFFFF00
+      00000002000000000000000000D818000005004D656D6F32000200780100002E
+      010000B40000000B0000004300000001000000000000000000FFFFFF1F2C0200
+      00000000010013005B64657363726963616F6576656E746F5F645D00000000FF
+      FF0000000000020000000100000006090068656C766574696361000700000000
+      0000000000100000000100020000000000FFFFFF000000000200000000000000
+      0000C319000005004D656D6F330002009A000000780100007F00000011000000
+      4300000001000000000000000000FFFFFF1F2C020000000000010069005B4946
+      28646174616D6F76696D656E746F3D2730312F30312F31393030272C2027544F
+      54414C20414E544552494F52272C20464F524D41544441544554494D45282764
+      642F6D6D2F7979272C20535452544F4441544528646174616D6F76696D656E74
+      6F292920295D00000000FFFF0000000000020000000100000000090068656C76
+      65746963610007000000000000000000010000000100020000000000FFFFFF00
+      00000002000000000000000000531A000005004D656D6F340002002301000078
+      01000051000000110000004300000001000000000000000000FFFFFF1F2C0200
+      0000000001000E005B54566C72615265635F416E745D00000000FFFF00000000
+      00020000000100000000090068656C7665746963610007000000020000000000
+      010000000100020000000000FFFFFF0000000002000000000000000000E31A00
+      0005004D656D6F35000200240200007801000055000000110000004300000001
+      000000000000000000FFFFFF1F2C02000000000001000E005B54566C72615061
+      675F416E745D00000000FFFF0000000000020000000100000000090068656C76
+      65746963610007000000020000000000010000000100020000000000FFFFFF00
+      000000020000000000000000009F1B000005004D656D6F360002007A02000078
+      0100004D000000110000004300000001000000000000000000FFFFFF1F2C0200
+      0000000001003A005B4946286F7065726163616F3C3E2731202D2053414C444F
+      20414E544552494F52272C20545473616C646F2C20545453616C646F5F416E74
+      295D00000000FFFF0000000000020000000100000000090068656C7665746963
+      610007000000020000000000010000000100020000000000FFFFFF0000000002
+      000000000000000400EE1B000005004C696E65310002002E000000780100009A
+      0200000000000001000800F4010000000000000000FFFFFF1F2C020000000000
+      000000000000FFFF000000000002000000010000000004003D1C000005004C69
+      6E65320002002E0000008A0100009A0200000000000001000800F40100000000
+      00000000FFFFFF1F2C020000000000000000000000FFFF000000000002000000
+      01000000000000CB1C00000900666D764F757472617300020054010000470000
+      00320100002800000043000000F4010000000000000000FFFFFF1F2C02000000
+      0000010008005B4F75747261735D00000000FFFF000000000002000000010000
+      0000090068656C76657469636100070000000000000000000200000001000200
+      00000000FFFFFF0000000002000000000000000100F034000007006670764C6F
+      676F000200300000002E000000780000002A00000007000000F4010000000000
+      000000FFFFFF1F2C020000000000000000000000FFFF00000000000200000001
+      000000000100F0340000424DCE17000000000000360400002800000083000000
+      26000000010008000000000098130000120B0000120B00000001000000010000
+      00000000E8E5A800AA9E000099990000ADADAD003A3C4100A3970000BFB73700
+      D8D48600FBFAF000A5A5A5001E1D1C00D8D9DA0054575A00D6D6D500E7E8F200
+      12161B00B6AD1900CBC55B008C8D9200BEC0C500E1E2E40085878A005E606300
+      494C4F00090D12002C2E3300DEDB98007D7F8100EFEDCB00B9BABB00AEA40000
+      7C7B7B00C5BE440066666600D1CC6F00CDC9810048484600F7F6E600AFA50800
+      04080D00F9F8ED00B8AF2700DBD68C00999999001B1A1900C6BF510013131200
+      3B3A3A00FFFFFF00EAE8BE00CCCCCC0023262A00E2DEA400F1EFD600B0B1B300
+      D3CD7500B1A81000CCCC660072727200535252004342420001060A00ECE9C300
+      8C8C8B00F5F4DF004A4A4A0057575600B6AC1F00282B3000C7C05C0061615F00
+      F7F7F70088888700DDD89300E3E0A600FDFCF70021242900070A1000BDB53100
+      C5BE4A00E3E3E200A69C000099999900BABAB900DEDEDE00525458002A292800
+      D9D58A005F5E5D00C7C595001B1E2300E8E5B60000000700B5AB1300D5D07B00
+      C6C6C500B2A80B0021202000B9B12400504F4E00666666006B6D7000B5B5BD00
+      84848400E0DC9E00BCB42C00F7EFD6005B5B5A00EFEFEF0087898B00DEDEE600
+      3E3D3C0014181E00C8C25300CCC55F00A8A9AC00BDBDBC00E5E1AC0075767900
+      181B2000E6E6E6000E1117000810190033333300929191002D2C2B00B5B5B400
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131543D42470E31313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131523131313131486D3131316D6D4C3131316D6D31313131313131313131
+      6D4831313131313131316D6D3131316D040A6C6C313131313131486D6D4C3131
+      313131316D6D4C313131313131313131313131486D6D6D313131313131486D6D
+      48313131316D483131316D6D3131313131313131313131316D6D6D3131486D6D
+      6D31313131313152313131317F7E6631554225256031603D42647931420C313B
+      7D316D6C3D70403131662C316D593D7068313133646C702531484255312C7064
+      3059313131310C2525420E31477431420E4825793131315442433D474C4C640E
+      3120423C300A3131207E2C317F70254748484251512531603C316D59253C620A
+      312C25433068313131313152313131316C2031315959313131317C7D4C4C3148
+      7C0E3159683177424C51347531434031203D487957543130494C7F3D31487C0C
+      310B37317F70313131313C6631313131642C317C33487E51313131313179602F
+      55317C3331316D793B7031487E14314857043131316D7C55557E311E3031542D
+      4C314340313148790A0B4C313131315231313131477D313125306C64334C5779
+      313131487C0E31224931422C31314340316C7D313C7D3131594931570C31543D
+      31487C0C3168705930253131313170706C3C0E313C0A313033317C513131310C
+      702570474C4C3033312C7C64300A3148300E31796243432248483051517C3160
+      3D316D6464590B2C31547C42301C313131313152313131314749313166420C55
+      48313D2C484831487C0E48302C311C4248516275316C7D31493D4879627F3125
+      6848373031487C0E3131550E207031313131473C0C554831642C4C7E330C6279
+      3131316830796D3131487C3331577D6D6D313148303331487C49555131487C0C
+      0C7E4C2C703131480C0E7C2C313C476D6D31313131313152313131040B7E2031
+      6D473C6C33310E3D3C6C7931254264646D31486C42706831316C7D3148474270
+      2031310E3D433D6C31484355314043473D0A31313131796C3C6C0E316670597E
+      3C3D20313131310E256C6C7731316C0E312C3D47430431772F3D0A3133424366
+      484825643C7E6C7C74316D225943425531543D59437D3131313131523131316D
+      643B6D3131316D514831313179514C316D51793131313131796D3131313C4031
+      3131796D313131313179794831317F6D316D1515483131313131313179514831
+      4879516D796D3131313131313151517931317F6D31316D51516D3151577F6D31
+      3131797931316D51516D5148313131515151313131314851516D313131313152
+      3131313140043131313131313131313131313131313131313131313131313131
+      316804313131313131313131313131313148660F313131313131313131313131
+      31313131313131313131313131313131313131313131220E3131313131313131
+      6655313131313131313131313131313131313131313131313131313131313131
+      3131315231313131313131313131313131313131313131313131313131313131
+      313131313131313131313131313131313131313131315C46121212463F313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313152313131313131313131313131313131313131313131313131
+      31313131313131313131313131313131313131313131313131315F0602020206
+      1B31313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131523131313131310E40173C18183D6E313131313131
+      0C2C666C3C181818181805683131313131316D3768220D051631313131310802
+      1F1F1F5235313131313172070707070707070707070707070750732B36313131
+      31313131313131362B73212112081D31313131313131313123505050504B3131
+      313131313131313F08122E505050085231313131312C103E191919195D173131
+      31317966713E4E191919191919195D0D31313131312C34282819190017313131
+      313108021F1F1F52353131313131115202020202020202020202020202020202
+      2776313131313131313F501F02020202020202075C313131313131316A060202
+      065F313131313131314C120202020202020221523131313175287A7878787878
+      4E223131310E1A3E10787871717171717171281731313131773E7A7171717128
+      22313131313108021F1F1F5235313131313144021F1F1F1F1F1F1F1F1F1F1F1F
+      1F1F1F1F1F1F1D31313131310802021F1F1F1F1F1F1F1F020223313131313131
+      07021F1F0208313131313131313A521F1F1F1F1F1F1F5052313131310D4E7878
+      787A7A71282231316D7C4E7878784E4E7A717171717128173131312C3E717171
+      7119195D22313131313108021F1F1F5269314C4C4C4C631F1F1F1F1F1F1F1F1F
+      1F1F1F1F1F1F1F1F1F52503131313138521F1F1F0202020202021F1F1F521231
+      3131313107021F1F0208313131313131361F1F1F1F1F0202020221523131316D
+      457A78787A3D370E0E5131313B3E7878787A2274140E0E0E0E0E0E1531311578
+      7A787871190D0A145A2A6A6A6A2A5F3636363636504411111111322626262626
+      2626262626262626264A1F1F1F1F612631311B521F1F1F02443A08082363021F
+      1F1F525F3131313107021F1F02083131313131311B021F1F1F1F6A2B35353252
+      3131310E71717171710C313131313115781078784E6831313131313131313131
+      31311C287878787A2C3131310106020202025F31313131315052020202023631
+      313131313131313131313131313144021F1F1F32312639021F1F1F584C313131
+      31311B27021F1F1F3631313107021F1F020831313131313123021F1F1F110931
+      31313152313131337A717171454831313131312C28787810344C313131313131
+      313131313131057A78784E663131313135021F1F1F025F313131313150021F1F
+      1F1F3631313131313131313131313131314C5E021F1F0276315F521F1F1F4B31
+      3131313131313132271F1F527331313107021F1F020831313131313112021F1F
+      0272313131313152313131601978787A7C4C3131313131662878781045166E6E
+      6E6E6E6E6E6E1C0431555B1078717A603131313135021F1F1F025F3131313131
+      50021F1F1F1F36313131313131314C0909090909363A021F1F1F1F3F314F021F
+      02723131313131313131313123021F1F1109313107021F1F0208313131313131
+      2E021F1F0273313131313152313131601978787A054C31313131315619787878
+      71282828282828282828005631337A717171346D313131313552020202025F31
+      313131312106020202023631313131762E635E61616161611F1F1F1F1F1F114C
+      26611F1F0276313131313131313131311D1F1F1F1F1D313107021F1F02083131
+      313131312E021F1F023A313131313152313131601978787A054C313131313118
+      19787878787878787878787878784E1731141978787A45483131313176444444
+      4444241551515151464F4F4F4F4F413131313A0202021F1F1F1F1F1F1F1F1F1F
+      1F521B311D1F1F1F1F363131313131313131313126391F1F1F5C313107021F1F
+      02083131313131312E021F1F023A313131313152313131601978787A054C3131
+      3131315619787878787878787878787878784E1731337A717171346D31313131
+      3109090909097D713434347A37313131313131313158521F1F1F1F1F02020202
+      02020202275831311D1F1F1F1F1D3131313131313131313126391F1F1F5C3131
+      07021F1F02083131313131312E021F1F023A313131313152313131601978787A
+      054C3131313131224E787878784E28282828282828280056310C787171715B0C
+      31313131313131313131133E1010105D74313131313131312939021F1F1F1F39
+      11636363636A50083631313126611F1F024B313131313131313131313F021F1F
+      1F36313107021F1F02083131313131312E021F1F023A31313131315231313160
+      1978787A054C313131313116287878101A2C2C2C2C2C2C2C2C2C7D1E316D1A7A
+      7878197F31313131313131313131134E78787828743131313131313176021F1F
+      1F1F23263131313131313131313131313107021F022131313131313131313131
+      73021F1F444C313107021F1F02083131313131312E021F1F023A313131313152
+      313131601978787A054C31313131317F19717171344831313131313131313131
+      3131561978784E6631313131313131313131134E787878287431313131313131
+      2B521F1F1F6129313131313131313131313131313158521F1F024A3131313131
+      3131317602021F522331313107021F1F02083131313131312E021F1F023A3131
+      31313152313131331978787A053131313131316D347A78784E13313131313131
+      3131313131317D28787871710431313131313131313113001919190004313131
+      313131312B521F1F1F274131313131313131313131313131310911021F1F1F23
+      2631313131295F1F1F1F1F612931313107021F1F022B3131313131312E021F1F
+      52233131313131520E14602C7A78787A7C141414140C3131203E78787171660A
+      1E6014141414140E3131155B107878107A567D371E1E1E1E1E1E13566C6C6C18
+      2C75757575756D315C021F1F1F1F211B1B1B1B1B1B4A4A4A4A4A363131317602
+      1F1F1F0261502323725E021F1F1F0258762B2B4A44021F1F1F504A4A4A2B1D31
+      2E021F1F1F074A4A4A4A5C520D7A7A7A78787878787A7A7A5D17313179451978
+      78784E4E7A7A7A7A7A7A5D6C313131165D7171717119191919191919195D6E31
+      3131313166007A7A7A4E1431295E021F1F1F0202020202020202020202062B31
+      3131315802021F1F1F020202021F1F1F1F52384C395252521F1F1F1F1F020202
+      020608312E021F1F1F1F0202020221521771717878787878787171714E223131
+      31335B28717878787871717171714E1731313131173E7A717878787878787878
+      784E6E313131313166287171717A6031314A521F1F1F1F1F1F1F1F1F1F1F1F1F
+      1F524A31313131316939521F1F1F1F1F1F1F1F020258310911021F1F1F1F1F1F
+      1F1F1F1F1F022B312E021F1F1F1F1F1F1F1F50520D1919197878787878191919
+      0017313131310C0D10284E4E191919191919000D31313131317D1A4E4E4E1919
+      1919191919001C3131313131662878787810603131315F020202020202020202
+      0202020202062B31313131313136733902020202020261721D31312961525252
+      1F1F1F1F1F020202020608312E021F1F1F1F0202020221527D17173C10787871
+      4D1717170D2C3131313131310E0A1C3B2217171717170D7D3131313131314875
+      7D77661717171717170D0431313131316628787878106031313131364A3A7272
+      727272727272727272505C3131313131313131264B5F73733835413131313109
+      3A7272725E1F1F1F1F4F1212122E5C312E021F1F1F631212121258523131310E
+      1978787A05313131313131313131313131313131313131313131313131313131
+      313131313131313131313131313131313131313117003E3E3E5D753131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313107021F1F52583131313131312E021F1F0223313131313152
+      313131601978787A054C31313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131317F686E6E6E6E1531
+      3131313131313131313131313131313131313131313131313131313131313131
+      31313131313131313131313121021F1F02073131313131312E021F1F023A3131
+      31313152313131601978787A054C313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313173021F1F1F1F4F3A233A32312E021F1F
+      023A313131313152313131601978787A054C3131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313131313131313131313131313169521F1F1F1F020202060831
+      2E021F1F023A313131313152313131601978787A054C31313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131310963521F1F1F1F1F
+      1F024A312E021F1F023A313131313152313131601971717A054C313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131415061
+      1F1F1F1F1F024A3150021F1F023A3131313131523131310C0D17176C774C3131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131315C3872727272725C31082E2E2E2E1B3131313131520000963500001300
+      6D6D6F464F4E4546494C49414C424153455F52000200AC0000005B000000AA00
+      00000A00000004000000F4010000000000000000FFFFFF1F2C02000000000001
+      001600464F4E453A205B464F4E4546494C49414C424153455D00000000FFFF00
+      00000000020000000100000000090068656C7665746963610006000000000000
+      000000100000000100020000000000FFFFFF0000000002000000000000000000
+      4B36000014006D6D6F454E44455245434F5F42414952524F5F52000200AC0000
+      0045000000AB0000000A00000000000000F4010000000000000000FFFFFF1F2C
+      020000000000010024005B52554146494C49414C424153455D202D205B424149
+      52524F46494C49414C424153455D00000000FFFF000000000002000000010000
+      0000090068656C76657469636100060000000000000000001000000001000200
+      00000000FFFFFF00000000020000000000000000001837000012006D6D6F4345
+      505F4349444144455F55465F52000200AC00000050000000AB0000000A000000
+      00000000F4010000000000000000FFFFFF1F2C02000000000001003E00434550
+      3A205B43455046494C49414C424153455D202D205B43494441444546494C4941
+      4C424153455D202D205B45535441444F46494C49414C424153455D00000000FF
+      FF0000000000020000000100000000090068656C766574696361000600000000
+      0000000000100000000100020000000000FFFFFF000000000200000000000000
+      0000AE37000008006D6D6F52415A414F000200AC0000002E000000AB00000014
+      00000003000000F4010000000000000000FFFFFF1F2C02000000000001001100
+      5B52415A414F46494C49414C424153455D00000000FFFF000000000002000000
+      0100000006090068656C76657469636100060000000000000000001000000001
+      00020000000000FFFFFF00000000020000000000000000003C38000009006D6D
+      6F544954554C4F000200540100002E000000320100001700000002000000F401
+      0000000000000000FFFFFF1F2C020000000000010008005B746974756C6F5D00
+      000000FFFF0000000000020000000100000006090068656C766574696361000B
+      000000020000000000020000000100020000000000FFFFFF0000000002000000
+      000000000000CD3800000F006D6D6F524F54554C4F444154415F520002007C02
+      00002E0000001C0000000C00000043000000F4010000000000000000FFFFFF1F
+      2C02000000000001000500446174613A00000000FFFF00000000000200000001
+      00000000090068656C7665746963610006000000000000000000000000000100
+      020000000000FFFFFF00000000020000000000000000006439000009006D6D6F
+      444154415F52000200990200002E0000002C0000000C00000043000000F40100
+      00000000000000FFFFFF1F2C020000000000010011005B444154452023446464
+      2F6D6D2F79795D00000000FFFF0000000000020000000100000000090068656C
+      7665746963610006000000000000000000010000000100020000000000FFFFFF
+      0000000002000000000000000000F939000011006D6D6F524F54554C4F504147
+      494E415F520002007C02000039000000280000000C00000043000000F4010000
+      000000000000FFFFFF1F2C0200000000000100070050E167696E613A00000000
+      FFFF0000000000020000000100000000090068656C7665746963610006000000
+      000000000000000000000100020000000000FFFFFF0000000002000000000000
+      000000883A00000B006D6D6F504147494E415F52000200A50200003900000020
+      0000000C00000043000000F4010000000000000000FFFFFF1F2C020000000000
+      010007005B50414745235D00000000FFFF000000000002000000010000000009
+      0068656C76657469636100060000000000000000000100000001000200000000
+      00FFFFFF0000000002000000000000000000253B00000F006D6D6F524F444150
+      45484F52415F520002002F0000007C020000580000000A00000043000000F401
+      0000000000000000FFFFFF1F2C020000000000010011005B54494D4520235468
+      683A6D6D3A73735D00000000FFFF000000000002000000010000000009006865
+      6C7665746963610007000000000000000000100000000100020000000000FFFF
+      FF0000000002000000000000000000CE3B00000C006D6D6F544543534F46545F
+      52000200E80100007C020000DC0000000A00000043000000F401000000000000
+      0000FFFFFF1F2C02000000000001002000746563534F4654202D205465636E6F
+      6C6F67696120656D2053697374656D617300000000FFFF000000000002000000
+      0100000000090068656C76657469636100070000000000000000001100000001
+      00020000000000FFFFFF000000000200000000000000FEFEFF33000000070020
+      546F746169730000000003005275610000000006004369646164650000000004
+      00466F6E65000000000600546974756C6F0000000006004F7574726173000000
+      00060042616972726F000000000600204461646F73000000000B00477275706F
+      46696C69616C000000000F004E6F6D65477275706F46696C69616C0000000006
+      0046696C69616C000000000A004E6F6D6546696C69616C000000000600566C72
+      526563000100300008004A75726F7352656300010030000800546F74616C5265
+      6300010030000700566C7261526563000100300009004A75726F736152656300
+      010030000900546F74616C6152656300010030000600566C7250616700010030
+      0008004A75726F7350616700010030000800546F74616C506167000100300007
+      00566C7261506167000100300009004A75726F73615061670001003000090054
+      6F74616C6150616700010030000C0053616C646F496E696369616C0001003000
+      090064657363726963616F000000000D00646174616D6F76696D656E746F0000
+      00000D005453616C646F496E696369616C00010030000B00686973746F726963
+      6F5F63000000000B00686973746F7269636F5F64000000000C0020546F74616C
+      697A6163616F00000000070054566C72526563000000000900544A75726F7352
+      656300000000090054546F74616C52656300000000080054566C726152656300
+      0000000A00544A75726F7361526563000000000A0054546F74616C6152656300
+      000000070054566C72506167000000000900544A75726F735061670000000009
+      0054546F74616C50616700000000080054566C7261506167000000000A00544A
+      75726F7361506167000000000A0054546F74616C615061670000000007005454
+      53616C646F00010030000C0054566C72615265635F416E74000000000C005456
+      6C72615061675F416E74000000000B00545453616C646F5F416E74000000000C
+      00204167727570616D656E746F00000000120041677275706172477275706F46
+      696C69616C00050046616C7365000D004167727570617246696C69616C000500
+      46616C7365000F005469706F646552656C61746F72696F000100300000000000
+      00000000}
+  end
+  object fdsFluxoDetalhado: TfrDBDataSet
+    DataSet = qryFluxoDetalhado
+    OpenDataSource = False
+    Left = 352
+    Top = 424
+  end
+  object qrysaldoFluxoCaixa: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select saldofluxoCaixa(current_date) as saldo')
+    RequestLive = False
+    Left = 216
+    Top = 256
+    object qrysaldoFluxoCaixasaldo: TFloatField
+      FieldName = 'saldo'
+      DisplayFormat = '0.00'
+    end
+  end
+  object qryFluxoporEvento_aux: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryFluxoporEventoAfterOpen
+    AfterScroll = qryFluxoporEventoAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'WhereFilialVenda'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'WhereFilialRecebimento'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'WhereFilialEmissao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'WhereFilialCheque'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Ordenacao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      '/*INICIO SALDO ANTERIOR*/'
+      '('
+      'select DATAS.*,'
+      '        ACUMULADO.vlrarec,'
+      '        ACUMULADO.descricaoevento_c,'
+      '        ACUMULADO.vlrapag,'
+      '        ACUMULADO.descricaoevento_d,'
+      '        cast('#39'1 - SALDO ANTERIOR'#39' as varchar) as operacao,'
+      #9'False as Totalizado'
+      '  from'
+      '('
+      '('
+      
+        ' select   grupofilial,  nomegrupofilial,  filial, nomefilial, ca' +
+        'st('#39'01/01/1900'#39' as date) as data'
+      ' from'
+      ' ('
+      '  ('
+      '   ('
+      
+        '    select  case when   :AgruparGrupoFilial    then fgf.grupo el' +
+        'se cast(0 as integer) end as grupofilial,'
+      
+        '            case when :AgruparGrupoFilial    then gf.descricao e' +
+        'lse null end as nomegrupofilial,'
+      
+        '            case when :AgruparFilial   then ct.filialvenda else ' +
+        'cast(0 as integer) end as filial,'
+      
+        '            case when :AgruparFilial   then f.nome else null end' +
+        ' as nomefilial'
+      '    from ((contratos ct join parcelas p on ct.numero=p.contrato)'
+      '                      join (filiais f'
+      
+        '  '#9#9'     left join (filiaisgruposfiliais fgf join gruposfiliais ' +
+        'gf on fgf.grupo=gf.codigo)'
+      '                       on f.codigo=fgf.filial)'
+      '                      on ct.filialvenda=f.codigo)'
+      '    where p.datapagto is null and (p.tipopagto is null) and'
+      
+        '        p.datavencto between (:DataInicialAcumulado) and (:DataF' +
+        'inalAcumulado) and'
+      
+        '        ct.situacao in ('#39'F'#39','#39'N'#39','#39'P'#39') and not (contratos_renegoci' +
+        'ado(ct.numero))'
+      '              %WhereFilialVenda'
+      
+        '    order by UPPER(TO_ASCII(gf.descricao,''LATIN1'')), fgf.grupo, f.nome, ct.fili' +
+        'alvenda, p.datavencto'
+      '   )'
+      '   union'
+      '   ('
+      
+        '    select  case when :AgruparGrupoFilial then fgf.grupo else ca' +
+        'st(0 as integer) end as grupofilial,'
+      
+        '            case when :AgruparGrupoFilial then gf.descricao else' +
+        ' null end as nomegrupofilial,'
+      
+        '            case when :AgruparFilial      then r.filial else cas' +
+        't(0 as integer) end as filial,'
+      
+        '            case when :AgruparFilial      then f.nome else null ' +
+        'end as nomefilial'
+      '    from (recebimentos r join (filiais f '
+      
+        '                                   left join (filiaisgruposfilia' +
+        'is fgf join gruposfiliais gf on fgf.grupo=gf.codigo)'
+      '                                    on f.codigo = fgf.filial)'
+      '                                  on r.filial = f.codigo)'
+      
+        '    where r.datavencto between (:DataInicialAcumulado) and (:Dat' +
+        'aFinalAcumulado)'
+      '      and not coalesce(r.confirmado,false)'
+      '      and r.cheque is null'
+      '      and r.situacao = '#39'N'#39
+      '    %WhereFilialRecebimento'
+      
+        '    order by  UPPER(TO_ASCII(gf.descricao,''LATIN1'')), fgf.grupo, f.nome, r.fili' +
+        'al, r.datavencto'
+      '   )'
+      '  ) '
+      '  ) AS RECEBIMENTOS'
+      
+        '  group by nomegrupofilial, grupofilial, nomefilial, filial, dat' +
+        'a'
+      ')'
+      'union'
+      '('
+      
+        ' select   grupofilial,  nomegrupofilial,  filial, nomefilial, ca' +
+        'st('#39'01/01/1900'#39' as date) as data'
+      ' from'
+      ' ('
+      
+        '   select    case when  :AgruparGrupoFilial    then fgf.grupo el' +
+        'se cast(0 as integer) end as grupofilial,'
+      
+        '             case when  :AgruparGrupoFilial    then gf.descricao' +
+        ' else null end as nomegrupofilial,'
+      
+        '             case when  :AgruparFilial   then dp.filialemissao e' +
+        'lse cast(0 as integer) end as filial,'
+      
+        '             case when  :AgruparFilial   then f.nome else null e' +
+        'nd as nomefilial'
+      
+        '  from ((documentospag dp join duplicatas d on dp.numero=d.docum' +
+        'entopag)'
+      '                         join (filiais f'
+      
+        #9#9#9'  left join (filiaisgruposfiliais fgf join gruposfiliais gf o' +
+        'n fgf.grupo=gf.codigo)'
+      '                          on f.codigo=fgf.filial)'
+      '                         on dp.filialemissao=f.codigo)'
+      '  where d.datapagto is null and'
+      
+        '      d.datavencto between (:DataInicialAcumulado) and (:DataFin' +
+        'alAcumulado)'
+      '             %WhereFilialEmissao'
+      
+        ' order by UPPER(TO_ASCII(gf.descricao,''LATIN1'')), fgf.grupo, f.nome, dp.filiale' +
+        'missao, d.datavencto'
+      ' ) AS PAGAMENTOS'
+      ' group by nomegrupofilial, grupofilial, nomefilial, filial, data'
+      ')'
+      ') as DATAS'
+      ' left join'
+      '  ('
+      '   ('
+      
+        '    select   grupofilial,  filial, cast('#39'01/01/1900'#39' as date) as' +
+        ' data,'
+      '             descricaoevento_c,'
+      #9'     cast(null as varchar) as descricaoevento_d,'
+      #9'     sum(valorvencto) as vlrarec,'
+      #9'     0.00 as vlrapag'
+      '    from'
+      '    ('
+      '     ('
+      
+        '      select  case when  :agrupargrupofilial then fgf.grupo else' +
+        ' cast(0 as integer) end as grupofilial,'
+      
+        '              case when :agruparfilial   then ct.filialvenda els' +
+        'e cast(0 as integer) end as filial,'
+      '              p.valorvencto,'
+      
+        '              cast('#39'PARCELAS EM ABERTO'#39' as varchar) as descricao' +
+        'evento_c'
+      
+        '      from ((contratos ct join parcelas p on ct.numero=p.contrat' +
+        'o)'
+      
+        '                          left join filiaisgruposfiliais fgf on ' +
+        'ct.filialvenda=fgf.filial)'
+      '      where p.datapagto is null and (p.tipopagto is null) and'
+      
+        '            p.datavencto between (:datainicialacumulado) and (:d' +
+        'atafinalacumulado) and'
+      
+        '            ct.situacao in ('#39'f'#39','#39'n'#39','#39'p'#39') and not (contratos_rene' +
+        'gociado(ct.numero))'
+      '              %wherefilialvenda'
+      '      order by fgf.grupo, ct.filialvenda, p.datavencto'
+      '     )'
+      '     union all'
+      '     ('
+      
+        '      select  case when :AgruparGrupoFilial then fgf.grupo else ' +
+        'cast(0 as integer) end as grupofilial,'
+      
+        '              case when :AgruparFilial      then r.filial else c' +
+        'ast(0 as integer) end as filial,'
+      '              r.valorvencto,'
+      '              tr.descricao as descricaoevento_c'
+      
+        '      from ((recebimentos r join tiposrecebimentos tr on r.tipor' +
+        'ecebimento = tr.codigo)'
+      
+        '                           left join filiaisgruposfiliais fgf on' +
+        ' r.filial = fgf.filial)'
+      
+        '      where r.datavencto between (:DataInicialAcumulado) and (:D' +
+        'ataFinalAcumulado)'
+      '        and not coalesce(r.confirmado,false)'
+      '        and r.cheque is null'
+      '        and r.situacao = '#39'N'#39
+      '      %WhereFilialRecebimento'
+      '      order by fgf.grupo, r.filial, r.datavencto      '
+      '     )'
+      '    ) AS RECEBIMENTOS'
+      '    group by grupofilial, filial, data, descricaoevento_c'
+      '   )'
+      '   union all'
+      '   ('
+      
+        '    select  grupofilial, filial, cast('#39'01/01/1900'#39' as date) as d' +
+        'ata,'
+      #9'    cast(null as varchar) as descricaoevento_c,'
+      
+        '            cast(descricaoevento_d as varchar) as descricaoevent' +
+        'o_d,'
+      #9'    0.00 as vlrarec, sum(valorvencto) as vlrapag'
+      '    from'
+      '    ('
+      
+        '     select  case when :AgruparGrupoFilial   then fgf.grupo else' +
+        ' cast(0 as integer) end as grupofilial,'
+      
+        '             case when :AgruparFilial   then dp.filialemissao el' +
+        'se cast(0 as integer) end as filial,'
+      '             d.valorvencto,'
+      
+        '             coalesce(e.descricao, '#39'PAGAMENTOS EM ABERTO'#39') as de' +
+        'scricaoevento_d'
+      
+        '     from (((documentospag dp join duplicatas d on dp.numero=d.d' +
+        'ocumentopag)'
+      
+        '                          left join eventos e on dp.evento=e.cod' +
+        'igo)'
+      
+        '                             left join filiaisgruposfiliais fgf ' +
+        'on dp.filialemissao = fgf.filial)'
+      '     where d.datapagto is null and'
+      
+        '           d.datavencto between (:DataInicialAcumulado) and (:Da' +
+        'taFinalAcumulado)'
+      '             %WhereFilialEmissao'
+      '     order by fgf.grupo, dp.filialemissao, d.datavencto'
+      '    ) AS PAGAMENTOS'
+      '   group by grupofilial, filial, data, descricaoevento_d'
+      '   )'
+      '  ) as ACUMULADO ON'
+      '    DATAS.grupofilial = ACUMULADO.grupofilial and'
+      '    DATAS.filial = ACUMULADO.filial and'
+      '    DATAS.data = ACUMULADO.data'
+      ')'
+      'union all'
+      '/*FINAL SALDO ANTERIOR*/'
+      ''
+      '/*DEFINI'#199#195'O DO SALDO INICIAL INFORMADO*/'
+      '('
+      ' select   grupofilial,  nomegrupofilial,  filial, nomefilial,'
+      '          cast('#39'01/01/1900'#39' as date) as data,'
+      '          vlrarec,'
+      '          cast('#39'SALDO INICIAL'#39' as varchar) as descricaoevento_c,'
+      '          cast(0 as numeric) as vlraPag,'
+      '          cast(null as varchar) as descricaoevento_d,'
+      
+        '          cast('#39'2 - SALDO INICIAL'#39' as varchar) as operacao, Fals' +
+        'e as Totalizado'
+      ' from'
+      ' ('
+      '   select    cast(0 as integer) as grupofilial,'
+      '             cast(null as varchar) as nomegrupofilial,'
+      '             cast(0 as integer) as filial,'
+      '             cast(null as varchar) as nomefilial,'
+      '             cast(:SaldoInicial as numeric) as vlraRec'
+      ' ) as TOTALSALDOINICIAL'
+      ')'
+      'union all'
+      '/*FIM DA DEFINI'#199#195'O DO SALDO INICIAL INFORMADO*/'
+      ''
+      '/* INICIO DA DEFINI'#199#195'O DAS LINHAS DE DETALHE DO FLUXO */'
+      '('
+      'select DATAS.*,'
+      '        DETALHE.vlrarec,'
+      '        DETALHE.descricaoevento_c,'
+      '        DETALHE.vlrapag,'
+      '        DETALHE.descricaoevento_d,'
+      
+        '        cast('#39'3 - RELAT'#211'RIO'#39' as varchar) as operacao, False as T' +
+        'otalizado'
+      '  from'
+      '('
+      '('
+      
+        ' select   grupofilial,  nomegrupofilial,  filial, nomefilial, da' +
+        'ta'
+      ' from'
+      ' ('
+      '    select grupofilial,nomegrupofilial,filial,nomefilial,'
+      '             primeirodiautil(filial,data,'#39'R'#39') as data'
+      '    from'
+      '    ('
+      '      ('
+      
+        '        select    case when  :AgruparGrupoFilial    then fgf.gru' +
+        'po else cast(0 as integer) end as grupofilial,'
+      
+        '                  case when  :AgruparGrupoFilial    then gf.desc' +
+        'ricao else null end as nomegrupofilial,'
+      
+        '                  case when  :AgruparFilial   then ct.filialvend' +
+        'a else cast(0 as integer) end as filial,'
+      
+        '                  case when  :AgruparFilial   then f.nome else n' +
+        'ull end as nomefilial,'
+      '                  p.datavencto as data'
+      
+        '        from ((contratos ct join parcelas p on ct.numero=p.contr' +
+        'ato)'
+      '                         join (filiais f'
+      
+        '  '#9'   '#9'     left join (filiaisgruposfiliais fgf join gruposfilia' +
+        'is gf on fgf.grupo=gf.codigo)'
+      '                       on f.codigo=fgf.filial)'
+      '                      on ct.filialvenda=f.codigo)'
+      '        where p.datapagto is null'
+      '          and p.tipopagto is null'
+      
+        '          and p.datavencto between (:DataInicial) and (:DataFina' +
+        'l)'
+      
+        '          and ct.situacao in ('#39'F'#39','#39'N'#39','#39'P'#39') and not (contratos_re' +
+        'negociado(ct.numero))'
+      '          %WhereFilialVenda'
+      
+        '        order by UPPER(TO_ASCII(gf.descricao,''LATIN1'')), fgf.grupo, ' +
+        'UPPER(TO_ASCII(f.nome,''LATIN1'')), ct.filialvenda, p.datavencto'
+      '      )'
+      '       union all'
+      '     ('
+      
+        '        select  case when :AgruparGrupoFilial then fgf.grupo    ' +
+        'else cast(0 as integer) end as grupofilial,'
+      
+        '                case when :AgruparGrupoFilial then gf.descricao ' +
+        'else null               end as nomegrupofilial,'
+      
+        '                case when :AgruparFilial      then r.filial     ' +
+        'else cast(0 as integer) end as filial,'
+      
+        '                case when :AgruparFilial      then f.nome       ' +
+        'else null               end as nomefilial,'
+      '                r.datavencto as data'
+      '        from (recebimentos r join (filiais f '
+      
+        '                                   left join (filiaisgruposfilia' +
+        'is fgf join gruposfiliais gf on fgf.grupo=gf.codigo)'
+      '                                    on f.codigo = fgf.filial)'
+      '                                  on r.filial = f.codigo)'
+      
+        '        where r.datavencto between (:DataInicial) and (:DataFina' +
+        'l)'
+      '          and not coalesce(r.confirmado,false)'
+      '          and r.cheque is null'
+      '          and r.situacao = '#39'N'#39
+      '        %WhereFilialRecebimento'
+      
+        '        order by UPPER(TO_ASCII(gf.descricao,''LATIN1'')), fgf.grupo, ' +
+        'UPPER(TO_ASCII(f.nome,''LATIN1'')), r.filial, r.datavencto'
+      '      ) '
+      '       union all'
+      '     ('
+      
+        '        select  case when :AgruparGrupoFilial then fgf.grupo    ' +
+        'else cast(0 as integer) end as grupofilial,'
+      
+        '                case when :AgruparGrupoFilial then gf.descricao ' +
+        'else null               end as nomegrupofilial,'
+      
+        '                case when :AgruparFilial      then ch.filial    ' +
+        ' else cast(0 as integer) end as filial,'
+      
+        '                case when :AgruparFilial      then f.nome       ' +
+        'else null               end as nomefilial,'
+      '                ch.vencto as data'
+      '        from (cheques ch join (filiais f '
+      
+        '                               left join (filiaisgruposfiliais f' +
+        'gf join gruposfiliais gf on fgf.grupo=gf.codigo)'
+      '                                    on f.codigo = fgf.filial)'
+      '                                  on ch.filial = f.codigo)'
+      '        where ch.vencto between (:DataInicial) and (:DataFinal)'
+      '          and ch.situacao = '#39'N'#39
+      '        %WhereFilialCheque'
+      
+        '        order by UPPER(TO_ASCII(gf.descricao,''LATIN1'')), fgf.grupo, ' +
+        'UPPER(TO_ASCII(f.nome,''LATIN1'')), ch.filial, ch.vencto'
+      '      ) '
+      '   ) AS RECEBIMENTOS'
+      ' ) AS RECEBIMENTOS'
+      
+        '  group by nomegrupofilial, grupofilial, nomefilial, filial, dat' +
+        'a'
+      ')'
+      'union'
+      '('
+      
+        ' select   grupofilial,  nomegrupofilial,  filial, nomefilial, da' +
+        'ta'
+      ' from'
+      ' ('
+      '    select grupofilial,nomegrupofilial,filial,nomefilial,'
+      '             primeirodiautil(filial,data,'#39'P'#39') as data'
+      '    from'
+      '    ('
+      
+        '     select    case when :AgruparGrupoFilial    then fgf.grupo e' +
+        'lse cast(0 as integer) end as grupofilial,'
+      
+        '               case when :AgruparGrupoFilial    then gf.descrica' +
+        'o else null end as nomegrupofilial,'
+      
+        '               case when :AgruparFilial   then dp.filialemissao ' +
+        'else cast(0 as integer) end as filial,'
+      
+        '               case when :AgruparFilial   then f.nome else null ' +
+        'end as nomefilial,'
+      '               d.datavencto as data'
+      
+        '     from ((documentospag dp join duplicatas d on dp.numero=d.do' +
+        'cumentopag)'
+      '                         join (filiais f'
+      
+        #9#9#9'  left join (filiaisgruposfiliais fgf join gruposfiliais gf o' +
+        'n fgf.grupo=gf.codigo)'
+      '                          on f.codigo=fgf.filial)'
+      '                         on dp.filialemissao=f.codigo)'
+      '     where d.datapagto is null'
+      '       and d.datavencto between (:DataInicial) and (:DataFinal)'
+      '           %WhereFilialEmissao'
+      
+        '     order by UPPER(TO_ASCII(gf.descricao,''LATIN1'')), fgf.grupo, ' +
+        'UPPER(TO_ASCII(f.nome,''LATIN1'')), dp.filialemissao, d.datavencto'
+      '   ) AS PAGAMENTOS'
+      ' ) AS PAGAMENTOS'
+      ' group by nomegrupofilial, grupofilial, nomefilial, filial, data'
+      ')'
+      ') as DATAS'
+      ''
+      ' left join'
+      ' ('
+      '  ('
+      '   select   grupofilial,  filial, data,'
+      '            descricaoevento_c,'
+      #9'    cast(null as varchar) as descricaoevento_d,'
+      #9'    sum(valorvencto) as vlrarec,'
+      #9'    0.00 as vlrapag'
+      '   from'
+      '   ('
+      
+        '     select grupofilial, filial, primeirodiautil(filial,data,'#39'R'#39 +
+        ') as data, valorvencto, descricaoevento_c'
+      '     from'
+      '     ('
+      '      ('
+      
+        '        select   case when :AgruparGrupoFilial    then fgf.grupo' +
+        ' else cast(0 as integer) end as grupofilial,'
+      
+        '                 case when :AgruparFilial   then ct.filialvenda ' +
+        'else cast(0 as integer) end as filial,'
+      '                 p.datavencto as data,'
+      '                 P.valorvencto,'
+      
+        '                 cast('#39'PARCELAS DE CONTRATOS'#39' as varchar) as des' +
+        'cricaoevento_c'
+      
+        '        from ((contratos ct join parcelas p on ct.numero=p.contr' +
+        'ato)'
+      
+        '                          left join filiaisgruposfiliais fgf on ' +
+        'ct.filialvenda=fgf.filial)'
+      '        where p.datapagto is null and (p.tipopagto is null) and'
+      
+        '              p.datavencto between (:DataInicial) and (:DataFina' +
+        'l) and'
+      
+        '              ct.situacao in ('#39'F'#39','#39'N'#39','#39'P'#39') and not (contratos_re' +
+        'negociado(ct.numero))'
+      '                 %WhereFilialVenda'
+      '        order by fgf.grupo, ct.filialvenda, p.datavencto'
+      '      )'
+      '       union all'
+      '      ('
+      
+        '        select  case when :AgruparGrupoFilial then fgf.grupo    ' +
+        'else cast(0 as integer) end as grupofilial,'
+      
+        '                case when :AgruparFilial      then r.filial     ' +
+        'else cast(0 as integer) end as filial,'
+      '                r.datavencto as data,'
+      '                r.valorvencto,'
+      '                tr.descricao as descricaoevento_c'
+      
+        '          from ((recebimentos r join tiposrecebimentos tr on r.t' +
+        'iporecebimento = tr.codigo) '
+      '                                join (filiais f left join '
+      
+        '                                              (filiaisgruposfili' +
+        'ais fgf join gruposfiliais gf on fgf.grupo=gf.codigo)'
+      '                                    on f.codigo = fgf.filial)'
+      '                                  on r.filial = f.codigo)'
+      
+        '          where r.datavencto between (:DataInicial) and (:DataFi' +
+        'nal)'
+      '            and not coalesce(r.confirmado,false)'
+      '            and r.cheque is null'
+      '            and r.situacao = '#39'N'#39
+      '          %WhereFilialRecebimento'
+      '          order by fgf.grupo, r.filial, r.datavencto       '
+      '      ) '
+      '       union all'
+      '      ('
+      
+        '          select  case when :AgruparGrupoFilial then fgf.grupo  ' +
+        '  else cast(0 as integer) end as grupofilial,'
+      
+        '                  case when :AgruparFilial      then ch.filial  ' +
+        '   else cast(0 as integer) end as filial,'
+      '                  ch.vencto as data,'
+      '                  ch.valor as valorvencto,'
+      
+        '                  cast('#39'CHEQUES'#39' as varchar) as descricaoevento_' +
+        'c'
+      '        from (cheques ch join (filiais f '
+      
+        '                               left join (filiaisgruposfiliais f' +
+        'gf join gruposfiliais gf on fgf.grupo=gf.codigo)'
+      '                                    on f.codigo = fgf.filial)'
+      '                                  on ch.filial = f.codigo)'
+      
+        '          where ch.vencto between (:DataInicial) and (:DataFinal' +
+        ')'
+      '            and ch.situacao = '#39'N'#39
+      '          %WhereFilialCheque'
+      '          order by fgf.grupo, ch.filial, ch.vencto'
+      '      ) '
+      '     ) AS RECEBIMENTOS'
+      '   ) AS RECEBIMENTOS'
+      '    group by grupofilial, filial, data, descricaoevento_c'
+      '   )'
+      '   union all'
+      '   ('
+      '     select   grupofilial, filial, data,'
+      #9'      cast(null as varchar) as descricaoevento_c,'
+      
+        '              cast(descricaoevento_d as varchar) as descricaoeve' +
+        'nto_d,'
+      '  '#9'      0.00 as vlrarec,'
+      #9'      sum(valorvencto) as vlrapag'
+      '     from'
+      '     ('
+      
+        '      select grupofilial, filial, primeirodiautil(filial, data, ' +
+        #39'P'#39') as data, valorvencto, descricaoevento_d'
+      '      from'
+      '      ('
+      
+        '      select  case when :AgruparGrupoFilial    then fgf.grupo el' +
+        'se cast(0 as integer) end as grupofilial,'
+      
+        '              case when :AgruparFilial   then dp.filialemissao e' +
+        'lse cast(0 as integer) end as filial,'
+      '              d.datavencto as data,'
+      '              d.valorvencto,'
+      
+        '              coalesce(e.descricao, '#39'OUTROS PAGAMENTOS'#39') as desc' +
+        'ricaoevento_d'
+      
+        '      from (((documentospag dp join duplicatas d on dp.numero=d.' +
+        'documentopag)'
+      
+        '                           left join eventos e on dp.evento = e.' +
+        'codigo)'
+      
+        '                              left join filiaisgruposfiliais fgf' +
+        ' on dp.filialemissao = fgf.filial)'
+      '      where d.datapagto is null and'
+      '            d.datavencto between (:DataInicial) and (:DataFinal)'
+      '              %WhereFilialEmissao'
+      '      order by fgf.grupo, dp.filialemissao, d.datavencto'
+      '     ) AS PAGAMENTOS'
+      '     ) AS PAGAMENTOS'
+      '     group by grupofilial, filial, data, descricaoevento_d'
+      '   )'
+      '  ) as DETALHE ON'
+      '    DATAS.grupofilial = DETALHE.grupofilial and'
+      '    DATAS.filial = DETALHE.filial and'
+      '    DATAS.data = DETALHE.data'
+      ')'
+      '%Ordenacao')
+    RequestLive = True
+    Left = 552
+    Top = 352
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'AgruparGrupoFilial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'AgruparFilial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataInicialAcumulado'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataFinalAcumulado'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SaldoInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+      end>
+    object IntegerField1: TIntegerField
+      FieldName = 'grupofilial'
+      DisplayFormat = '0'
+    end
+    object StringField1: TStringField
+      FieldName = 'nomegrupofilial'
+      Size = 50
+    end
+    object IntegerField2: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object StringField2: TStringField
+      FieldName = 'nomefilial'
+      Size = 50
+    end
+    object DateField1: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      EditMask = '99/99/9999;1; '
+    end
+    object FloatField1: TFloatField
+      FieldName = 'vlrarec'
+      DisplayFormat = '0.00'
+    end
+    object FloatField2: TFloatField
+      FieldName = 'vlrapag'
+      DisplayFormat = '0.00'
+    end
+    object StringField3: TStringField
+      FieldName = 'operacao'
+      Size = 18
+    end
+    object BooleanField1: TBooleanField
+      FieldName = 'totalizado'
+    end
+    object StringField4: TStringField
+      FieldName = 'descricaoevento_c'
+      Size = 23
+    end
+    object StringField5: TStringField
+      FieldName = 'descricaoevento_d'
+      Size = 17
+    end
+    object BooleanField2: TBooleanField
+      FieldKind = fkCalculated
+      FieldName = 'ExibirSaldo'
+      Calculated = True
+    end
+  end
+  object qryFluxoDetalhado_aux: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryFluxoDetalhadoAfterOpen
+    AfterScroll = qryFluxoDetalhadoAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'WhereFilialVenda'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'WhereFilialRecebimento'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'WhereFilialEmissao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'WhereFilialCheque'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Ordenacao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      '/*INICIO SALDO ANTERIOR*/'
+      '('
+      'select DATAS.*,'
+      '        ACUMULADO.vlrarec,'
+      '        ACUMULADO.descricaoevento_c,'
+      '        ACUMULADO.vlrapag,'
+      '        ACUMULADO.descricaoevento_d,'
+      '        cast('#39'1 - SALDO ANTERIOR'#39' as varchar) as operacao,'
+      #9'False as Totalizado'
+      '  from'
+      '('
+      '('
+      
+        ' select   grupofilial,  nomegrupofilial,  filial, nomefilial, ca' +
+        'st('#39'01/01/1900'#39' as date) as data'
+      ' from'
+      ' ('
+      '  ('
+      '   ('
+      
+        '    select  case when   :AgruparGrupoFilial    then fgf.grupo el' +
+        'se cast(0 as integer) end as grupofilial,'
+      
+        '             case when :AgruparGrupoFilial    then gf.descricao ' +
+        'else null end as nomegrupofilial,'
+      
+        '             case when :AgruparFilial   then ct.filialvenda else' +
+        ' cast(0 as integer) end as filial,'
+      
+        '             case when :AgruparFilial   then f.nome else null en' +
+        'd as nomefilial'
+      '    from ((contratos ct join parcelas p on ct.numero=p.contrato)'
+      '                    join (filiais f'
+      #9#9'     left join (filiaisgruposfiliais fgf'
+      #9#9'      left join gruposfiliais gf on fgf.grupo=gf.codigo)'
+      '                     on f.codigo=fgf.filial)'
+      '                    on ct.filialvenda=f.codigo)'
+      '    where p.datapagto is null and (p.tipopagto is null) and'
+      
+        '      p.datavencto between (:DataInicialAcumulado) and (:DataFin' +
+        'alAcumulado) and'
+      
+        '      ct.situacao in ('#39'F'#39','#39'N'#39','#39'P'#39') and not (contratos_renegociad' +
+        'o(ct.numero))'
+      '             %WhereFilialVenda'
+      
+        '    order by UPPER(TO_ASCII(gf.descricao,''LATIN1'')), fgf.grupo, ' +
+        'UPPER(TO_ASCII(f.nome,''LATIN1'')), ct.filialvenda, p.datavencto'
+      '   )'
+      '   union'
+      '   ('
+      
+        '    select  case when :AgruparGrupoFilial then fgf.grupo else ca' +
+        'st(0 as integer) end as grupofilial,'
+      
+        '            case when :AgruparGrupoFilial then gf.descricao else' +
+        ' null end as nomegrupofilial,'
+      
+        '            case when :AgruparFilial      then r.filial else cas' +
+        't(0 as integer) end as filial,'
+      
+        '            case when :AgruparFilial      then f.nome else null ' +
+        'end as nomefilial'
+      '    from (recebimentos r join (filiais f '
+      
+        '                                   left join (filiaisgruposfilia' +
+        'is fgf join gruposfiliais gf on fgf.grupo=gf.codigo)'
+      '                                    on f.codigo = fgf.filial)'
+      '                                  on r.filial = f.codigo)'
+      
+        '    where r.datavencto between (:DataInicialAcumulado) and (:Dat' +
+        'aFinalAcumulado)'
+      '      and not coalesce(r.confirmado,false)'
+      '      and r.cheque is null'
+      '      and r.situacao = '#39'N'#39
+      '    %WhereFilialRecebimento'
+      
+        '    order by  UPPER(TO_ASCII(gf.descricao,''LATIN1'')), fgf.grupo, f.nome, r.fili' +
+        'al, r.datavencto'
+      '   )'
+      '  )'
+      ' ) AS RECEBIMENTOS'
+      
+        '  group by nomegrupofilial, grupofilial, nomefilial, filial, dat' +
+        'a'
+      ')'
+      'union'
+      '('
+      
+        ' select   grupofilial,  nomegrupofilial,  filial, nomefilial, ca' +
+        'st('#39'01/01/1900'#39' as date) as data'
+      ' from'
+      ' ('
+      
+        '   select    case when  :AgruparGrupoFilial    then fgf.grupo el' +
+        'se cast(0 as integer) end as grupofilial,'
+      
+        '             case when  :AgruparGrupoFilial    then gf.descricao' +
+        ' else null end as nomegrupofilial,'
+      
+        '             case when  :AgruparFilial   then dp.filialemissao e' +
+        'lse cast(0 as integer) end as filial,'
+      
+        '             case when  :AgruparFilial   then f.nome else null e' +
+        'nd as nomefilial'
+      
+        '  from ((documentospag dp join duplicatas d on dp.numero=d.docum' +
+        'entopag)'
+      '                         join (filiais f'
+      #9#9#9'  left join (filiaisgruposfiliais fgf'
+      #9#9#9'   left join gruposfiliais gf on fgf.grupo=gf.codigo)'
+      '                          on f.codigo=fgf.filial)'
+      '                         on dp.filialemissao=f.codigo)'
+      '  where d.datapagto is null and'
+      
+        '      d.datavencto between (:DataInicialAcumulado) and (:DataFin' +
+        'alAcumulado)'
+      '             %WhereFilialEmissao'
+      
+        ' order by UPPER(TO_ASCII(gf.descricao,''LATIN1'')), fgf.grupo, UPPER(TO_ASCII(f.nome,''LATIN1'')),' +
+        ' dp.filialemissao, d.datavencto'
+      ' ) AS PAGAMENTOS'
+      ' group by nomegrupofilial, grupofilial, nomefilial, filial, data'
+      ')'
+      ') as DATAS'
+      ' left join'
+      '  ('
+      '   ('
+      
+        '    select   grupofilial,  filial, cast('#39'01/01/1900'#39' as date) as' +
+        ' data,'
+      '             descricaoevento_c,'
+      #9'     cast(null as varchar) as descricaoevento_d,'
+      #9'     sum(valorvencto) as vlrarec,'
+      #9'     0.00 as vlrapag'
+      '    from'
+      '     ('
+      '      ('
+      '       ('
+      
+        '        select  case when  :AgruparGrupoFilial then fgf.grupo el' +
+        'se cast(0 as integer) end as grupofilial,'
+      
+        '              case when :AgruparFilial   then ct.filialvenda els' +
+        'e cast(0 as integer) end as filial,'
+      '              P.valorvencto,'
+      
+        '              cast('#39'PRESTACOES EM ABERTO'#39' as varchar) as descric' +
+        'aoevento_c'
+      
+        '        from ((contratos ct join parcelas p on ct.numero=p.contr' +
+        'ato)'
+      
+        '                          left join filiaisgruposfiliais fgf on ' +
+        'ct.filialvenda=fgf.filial)'
+      '        where p.datapagto is null and (p.tipopagto is null) and'
+      
+        '            p.datavencto between (:DataInicialAcumulado) and (:D' +
+        'ataFinalAcumulado) and'
+      
+        '            ct.situacao in ('#39'F'#39','#39'N'#39','#39'P'#39') and not (contratos_rene' +
+        'gociado(ct.numero))'
+      '              %WhereFilialVenda'
+      '        order by fgf.grupo, ct.filialvenda, p.datavencto'
+      '       )'
+      '       union all '
+      '       ('
+      
+        '        select  case when :AgruparGrupoFilial then fgf.grupo els' +
+        'e cast(0 as integer) end as grupofilial,'
+      
+        '                case when :AgruparFilial      then r.filial else' +
+        ' cast(0 as integer) end as filial,'
+      '                r.valorvencto,'
+      '                tr.descricao as descricaoevento_c'
+      
+        '        from ((recebimentos r join tiposrecebimentos tr on r.tip' +
+        'orecebimento = tr.codigo)'
+      
+        '                             left join filiaisgruposfiliais fgf ' +
+        'on r.filial = fgf.filial)'
+      
+        '        where r.datavencto between (:DataInicialAcumulado) and (' +
+        ':DataFinalAcumulado)'
+      '          and not coalesce(r.confirmado,false)'
+      '          and r.cheque is null'
+      '          and r.situacao = '#39'N'#39
+      '        %WhereFilialRecebimento'
+      '        order by fgf.grupo, r.filial, r.datavencto      '
+      '       )'
+      '      ) '
+      '     ) AS RECEBIMENTOS'
+      '     group by grupofilial, filial, data, descricaoevento_c'
+      '   )'
+      '   union all'
+      '   ('
+      
+        '    select  grupofilial, filial, cast('#39'01/01/1900'#39' as date) as d' +
+        'ata,'
+      #9'    cast(null as varchar(250)) as descricaoevento_c,'
+      
+        '            cast(descricaoevento_d as varchar) as descricaoevent' +
+        'o_d,'
+      #9'    0.00 as vlrarec, sum(valorvencto) as vlrapag'
+      '    from'
+      '    ('
+      
+        '     select  case when :AgruparGrupoFilial   then fgf.grupo else' +
+        ' cast(0 as integer) end as grupofilial,'
+      
+        '             case when :AgruparFilial   then dp.filialemissao el' +
+        'se cast(0 as integer) end as filial,'
+      '             d.valorvencto,'
+      
+        '             coalesce(e.descricao, '#39'PAGAMENTOS EM ABERTO'#39') as de' +
+        'scricaoevento_d'
+      
+        '     from (((documentospag dp join duplicatas d on dp.numero=d.d' +
+        'ocumentopag)'
+      
+        '                          left join eventos e on dp.evento=e.cod' +
+        'igo)'
+      
+        '                             left join filiaisgruposfiliais fgf ' +
+        'on dp.filialemissao = fgf.filial)'
+      '     where d.datapagto is null and'
+      
+        '           d.datavencto between (:DataInicialAcumulado) and (:Da' +
+        'taFinalAcumulado)'
+      '             %WhereFilialEmissao'
+      '     order by fgf.grupo, dp.filialemissao, d.datavencto'
+      '    ) AS PAGAMENTOS'
+      '   group by grupofilial, filial, data, descricaoevento_d'
+      '   )'
+      '  ) as ACUMULADO ON'
+      '    DATAS.grupofilial = ACUMULADO.grupofilial and'
+      '    DATAS.filial = ACUMULADO.filial and'
+      '    DATAS.data = ACUMULADO.data'
+      ')'
+      'union all'
+      '/*FINAL SALDO ANTERIOR*/'
+      ''
+      '/*DEFINI'#199#195'O DO SALDO INICIAL INFORMADO*/'
+      '('
+      ' select   grupofilial,  nomegrupofilial,  filial, nomefilial,'
+      '          cast('#39'01/01/1900'#39' as date) as data,'
+      '          vlrarec,'
+      
+        '          cast('#39'SALDO INICIAL'#39' as varchar(250)) as descricaoeven' +
+        'to_c,'
+      '          cast(0 as numeric) as vlraPag,'
+      '          cast(null as varchar) as descricaoevento_d,'
+      
+        '          cast('#39'2 - SALDO INICIAL'#39' as varchar) as operacao, Fals' +
+        'e as Totalizado'
+      ' from'
+      ' ('
+      '   select    cast(0 as integer) as grupofilial,'
+      '             cast(null as varchar) as nomegrupofilial,'
+      '             cast(0 as integer) as filial,'
+      '             cast(null as varchar) as nomefilial,'
+      '             cast(:SaldoInicial as numeric) as vlraRec'
+      ' ) as TOTALSALDOINICIAL'
+      ')'
+      'union all'
+      '/*FIM DA DEFINI'#199#195'O DO SALDO INICIAL INFORMADO*/'
+      ''
+      '/* INICIO DA DEFINI'#199#195'O DAS LINHAS DE DETALHE DO FLUXO */'
+      ''
+      '('
+      'select DATAS.*,'
+      '        DETALHE.vlrarec,'
+      '        DETALHE.descricaoevento_c,'
+      '        DETALHE.vlrapag,'
+      '        DETALHE.descricaoevento_d,'
+      
+        '        cast('#39'3 - RELATORIO'#39' as varchar) as operacao, False as T' +
+        'otalizado'
+      '  from'
+      '('
+      '('
+      
+        ' select   grupofilial,  nomegrupofilial,  filial, nomefilial, da' +
+        'ta'
+      ' from'
+      ' ('
+      '    select grupofilial,nomegrupofilial,filial,nomefilial,'
+      '             primeirodiautil(filial,data,'#39'R'#39') as data'
+      '    from'
+      '    ('
+      '     ('
+      '      ('
+      
+        '       select    case when  :AgruparGrupoFilial    then fgf.grup' +
+        'o else cast(0 as integer) end as grupofilial,'
+      
+        '                  case when  :AgruparGrupoFilial    then gf.desc' +
+        'ricao else null end as nomegrupofilial,'
+      
+        '                  case when  :AgruparFilial   then ct.filialvend' +
+        'a else cast(0 as integer) end as filial,'
+      
+        '                  case when  :AgruparFilial   then f.nome else n' +
+        'ull end as nomefilial,'
+      '                  p.datavencto as data'
+      
+        '       from ((contratos ct join parcelas p on ct.numero=p.contra' +
+        'to)'
+      '                         join (filiais f'
+      '  '#9'   '#9'     left join (filiaisgruposfiliais fgf'
+      '  '#9#9'      left join gruposfiliais gf on fgf.grupo=gf.codigo)'
+      '                       on f.codigo=fgf.filial)'
+      '                      on ct.filialvenda=f.codigo)'
+      '       where p.datapagto is null'
+      '          and p.tipopagto is null'
+      
+        '          and p.datavencto between (:DataInicial) and (:DataFina' +
+        'l)'
+      
+        '          and ct.situacao in ('#39'F'#39','#39'N'#39','#39'P'#39') and not (contratos_re' +
+        'negociado(ct.numero))'
+      '          %WhereFilialVenda'
+      
+        '       order by UPPER(TO_ASCII(gf.descricao,''LATIN1'')), fgf.grupo, ' +
+        'UPPER(TO_ASCII(f.nome,''LATIN1'')), ct.filialvenda, p.datavencto'
+      '     )'
+      '     union all'
+      '     ('
+      
+        '      select  case when :AgruparGrupoFilial then fgf.grupo    el' +
+        'se cast(0 as integer) end as grupofilial,'
+      
+        '              case when :AgruparGrupoFilial then gf.descricao el' +
+        'se null               end as nomegrupofilial,'
+      
+        '              case when :AgruparFilial      then r.filial     el' +
+        'se cast(0 as integer) end as filial,'
+      
+        '              case when :AgruparFilial      then f.nome       el' +
+        'se null               end as nomefilial,'
+      '              r.datavencto as data'
+      '      from (recebimentos r join (filiais f '
+      
+        '                                   left join (filiaisgruposfilia' +
+        'is fgf join gruposfiliais gf on fgf.grupo=gf.codigo)'
+      '                                    on f.codigo = fgf.filial)'
+      '                                  on r.filial = f.codigo)'
+      '      where r.datavencto between (:DataInicial) and (:DataFinal)'
+      '        and not coalesce(r.confirmado,false)'
+      '        and r.cheque is null'
+      '        and r.situacao = '#39'N'#39
+      '      %WhereFilialRecebimento'
+      
+        '      order by UPPER(TO_ASCII(gf.descricao,''LATIN1'')), fgf.grupo, ' +
+        'UPPER(TO_ASCII(f.nome,''LATIN1'')), r.filial, r.datavencto'
+      '     ) '
+      '     union all'
+      '     ('
+      
+        '      select  case when :AgruparGrupoFilial then fgf.grupo    el' +
+        'se cast(0 as integer) end as grupofilial,'
+      
+        '              case when :AgruparGrupoFilial then gf.descricao el' +
+        'se null               end as nomegrupofilial,'
+      
+        '              case when :AgruparFilial      then ch.filial     e' +
+        'lse cast(0 as integer) end as filial,'
+      
+        '              case when :AgruparFilial      then f.nome       el' +
+        'se null               end as nomefilial,'
+      '              ch.vencto as data'
+      '      from (cheques ch join (filiais f '
+      
+        '                               left join (filiaisgruposfiliais f' +
+        'gf join gruposfiliais gf on fgf.grupo=gf.codigo)'
+      '                                    on f.codigo = fgf.filial)'
+      '                                  on ch.filial = f.codigo)'
+      '      where ch.vencto between (:DataInicial) and (:DataFinal)'
+      '        and ch.situacao = '#39'N'#39
+      '      %WhereFilialCheque'
+      
+        '      order by UPPER(TO_ASCII(gf.descricao,''LATIN1'')), fgf.grupo, ' +
+        'UPPER(TO_ASCII(f.nome,''LATIN1'')), ch.filial, ch.vencto'
+      '     )'
+      '    )'
+      '   ) AS RECEBIMENTOS'
+      ' ) AS RECEBIMENTOS'
+      
+        '  group by nomegrupofilial, grupofilial, nomefilial, filial, dat' +
+        'a'
+      ')'
+      'union'
+      '('
+      
+        ' select   grupofilial,  nomegrupofilial,  filial, nomefilial, da' +
+        'ta'
+      ' from'
+      ' ('
+      '    select grupofilial,nomegrupofilial,filial,nomefilial,'
+      '             primeirodiautil(filial,data,'#39'P'#39') as data'
+      '    from'
+      '    ('
+      
+        '     select    case when :AgruparGrupoFilial    then fgf.grupo e' +
+        'lse cast(0 as integer) end as grupofilial,'
+      
+        '               case when :AgruparGrupoFilial    then gf.descrica' +
+        'o else null end as nomegrupofilial,'
+      
+        '               case when :AgruparFilial   then dp.filialemissao ' +
+        'else cast(0 as integer) end as filial,'
+      
+        '               case when :AgruparFilial   then f.nome else null ' +
+        'end as nomefilial,'
+      '               d.datavencto as data'
+      
+        '     from ((documentospag dp join duplicatas d on dp.numero=d.do' +
+        'cumentopag)'
+      '                         join (filiais f'
+      #9#9#9'  left join (filiaisgruposfiliais fgf'
+      #9#9#9'   left join gruposfiliais gf on fgf.grupo=gf.codigo)'
+      '                          on f.codigo=fgf.filial)'
+      '                         on dp.filialemissao=f.codigo)'
+      '     where d.datapagto is null'
+      '       and d.datavencto between (:DataInicial) and (:DataFinal)'
+      '           %WhereFilialEmissao'
+      
+        '     order by UPPER(TO_ASCII(gf.descricao,''LATIN1'')), fgf.grupo, ' +
+        'UPPER(TO_ASCII(f.nome,''LATIN1'')), dp.filialemissao, d.datavencto'
+      '   ) AS PAGAMENTOS'
+      ' ) AS PAGAMENTOS'
+      ' group by nomegrupofilial, grupofilial, nomefilial, filial, data'
+      ')'
+      ') as DATAS'
+      ''
+      ' left join'
+      ' ('
+      '  ('
+      
+        '     select grupofilial, filial, primeirodiautil(filial,data,'#39'R'#39 +
+        ') as data,'
+      '            descricaoevento_c,'
+      #9'    cast(null as varchar) as descricaoevento_d,'
+      '            valorvencto as vlrarec,'
+      #9'    0.00 as vlrapag'
+      '     from'
+      '     ('
+      '      ('
+      '       ('
+      
+        '        select case when :AgruparGrupoFilial    then fgf.grupo e' +
+        'lse cast(0 as integer) end as grupofilial,'
+      
+        '              case when :AgruparFilial   then ct.filialvenda els' +
+        'e cast(0 as integer) end as filial,'
+      '              p.datavencto as data,'
+      '              P.valorvencto,'
+      
+        '              '#39'CT '#39'||lpad(cast(ct.numero as varchar(6)),6,'#39'0'#39')||' +
+        #39'-'#39'||p.numero||'#39' '#39'||ct.nome as descricaoevento_c'
+      
+        '        from (((contratos ct join parcelas p on ct.numero=p.cont' +
+        'rato)'
+      
+        '                        left join filiaisgruposfiliais fgf on ct' +
+        '.filialvenda=fgf.filial)'
+      
+        '                        left join planos pl  on ct.plano=pl.codi' +
+        'go)'
+      ''
+      '        where p.datapagto is null and (p.tipopagto is null) and'
+      
+        '             p.datavencto between (:DataInicial) and (:DataFinal' +
+        ') and'
+      
+        '             ct.situacao in ('#39'F'#39','#39'N'#39','#39'P'#39') and not (contratos_ren' +
+        'egociado(ct.numero))'
+      '               %WhereFilialVenda'
+      '        order by fgf.grupo, ct.filialvenda, p.datavencto'
+      '       )'
+      '       union all'
+      '       ('
+      '        select grupofilial,filial,recebimentos.data,valorvencto,'
+      
+        '               descricao||'#39' CT '#39'||lpad(cast(contrato as varchar(' +
+        '6)),6,'#39'0'#39')||'#39' '#39'||ct.nome as descricaoevento_c'
+      '        from '
+      '        (      '
+      
+        '         select case when :AgruparGrupoFilial then fgf.grupo    ' +
+        'else cast(0 as integer) end as grupofilial,'
+      
+        '                case when :AgruparFilial      then r.filial     ' +
+        'else cast(0 as integer) end as filial,'
+      '                r.datavencto as data,'
+      '                r.valorvencto,               '
+      '                (select p.contrato'
+      '                 from parcelas p'
+      
+        '                 where p.transacao = r.transacao limit 1) as con' +
+        'trato,'
+      '                tr.descricao'
+      
+        '         from ((recebimentos r join tiposrecebimentos tr on r.ti' +
+        'porecebimento = tr.codigo)'
+      '                              join (filiais f left join '
+      
+        '                                            (filiaisgruposfiliai' +
+        's fgf join gruposfiliais gf on fgf.grupo=gf.codigo)'
+      '                                    on f.codigo = fgf.filial)'
+      '                              on r.filial = f.codigo)'
+      
+        '         where r.datavencto between (:DataInicial) and (:DataFin' +
+        'al)'
+      '           and not coalesce(r.confirmado,false)'
+      '           and r.cheque is null'
+      '           and r.situacao = '#39'N'#39
+      '         %WhereFilialRecebimento'
+      '         order by fgf.grupo, r.filial, r.datavencto       '
+      
+        '        ) as recebimentos join contratos ct on ct.numero = receb' +
+        'imentos.contrato'
+      '       )       '
+      '       union all'
+      '       ('
+      
+        '        select  case when :AgruparGrupoFilial then fgf.grupo    ' +
+        'else cast(0 as integer) end as grupofilial,'
+      
+        '                case when :AgruparFilial      then ch.filial    ' +
+        ' else cast(0 as integer) end as filial,'
+      '                ch.vencto as data,'
+      '                ch.valor as valorvencto,'
+      
+        '                '#39'CH '#39'||ch.numero||'#39' '#39'||vf.nome as descricaoevent' +
+        'o_c'
+      '        from ((cheques ch join (filiais f '
+      
+        '                               left join (filiaisgruposfiliais f' +
+        'gf join gruposfiliais gf on fgf.grupo=gf.codigo)'
+      '                                    on f.codigo = fgf.filial)'
+      '                                  on ch.filial = f.codigo)'
+      
+        '                          join vfornecedores vf on vf.codigo = c' +
+        'h.cliente and vf.tipo = ch.tipocliente)'
+      '                                            '
+      '        where ch.vencto between (:DataInicial) and (:DataFinal)'
+      '          and ch.situacao = '#39'N'#39
+      '        %WhereFilialCheque'
+      '        order by fgf.grupo, ch.filial, ch.vencto'
+      '       )  '
+      '      )'
+      '     ) AS RECEBIMENTOS'
+      '   )'
+      '   union all'
+      '   ('
+      
+        '      select grupofilial, filial, primeirodiautil(filial, data, ' +
+        #39'P'#39') as data,'
+      ' '#9'     cast(null as varchar(250)) as descricaoevento_c,'
+      #9'     descricaoevento_d,'
+      #9'     0.00 as vlrarec,'
+      '             valorvencto as vlrapag'
+      '      from'
+      '      ('
+      
+        '      select  case when :AgruparGrupoFilial    then fgf.grupo el' +
+        'se cast(0 as integer) end as grupofilial,'
+      
+        '              case when :AgruparFilial   then dp.filialemissao e' +
+        'lse cast(0 as integer) end as filial,'
+      '              d.datavencto as data,'
+      '              d.valorvencto,'
+      '              case when np.numero is not null then'
+      
+        '              '#39'NF '#39'||lpad(cast(np.numero as varchar(6)),6,'#39'0'#39')||' +
+        #39'-'#39'||d.numero||'#39' '#39'|| fo.nome'
+      '              else '
+      
+        '              '#39'DC '#39'||lpad(cast(dp.numero as varchar(6)),6,'#39'0'#39')||' +
+        #39'-'#39'||d.numero||'#39' '#39'|| fo.nome end as descricaoevento_d'
+      ''
+      
+        '      from (((((documentospag dp join duplicatas d on dp.numero=' +
+        'd.documentopag)'
+      
+        '                           left join notaspag np on dp.numero=np' +
+        '.documentopag)'
+      
+        '                           left join vfornecedores fo on dp.forn' +
+        'ecedor=fo.codigo and dp.tipofornecedor=fo.tipo)'
+      
+        '                           left join eventos e on dp.evento = e.' +
+        'codigo)'
+      
+        '                              left join filiaisgruposfiliais fgf' +
+        ' on dp.filialemissao = fgf.filial)'
+      '      where d.datapagto is null and'
+      '            d.datavencto between (:DataInicial) and (:DataFinal)'
+      '              %WhereFilialEmissao'
+      '      order by fgf.grupo, dp.filialemissao, d.datavencto'
+      '     ) AS PAGAMENTOS'
+      '   )'
+      '  ) as DETALHE ON'
+      '    DATAS.grupofilial = DETALHE.grupofilial and'
+      '    DATAS.filial = DETALHE.filial and'
+      '    DATAS.data = DETALHE.data'
+      ')'
+      '%Ordenacao')
+    RequestLive = True
+    Left = 552
+    Top = 424
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'AgruparGrupoFilial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'AgruparFilial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataInicialAcumulado'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataFinalAcumulado'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SaldoInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+      end>
+    object IntegerField3: TIntegerField
+      FieldName = 'grupofilial'
+    end
+    object StringField6: TStringField
+      FieldName = 'nomegrupofilial'
+      Size = 50
+    end
+    object IntegerField4: TIntegerField
+      FieldName = 'filial'
+    end
+    object StringField7: TStringField
+      FieldName = 'nomefilial'
+      Size = 50
+    end
+    object DateField2: TDateField
+      FieldName = 'data'
+    end
+    object FloatField3: TFloatField
+      FieldName = 'vlrarec'
+    end
+    object StringField8: TStringField
+      FieldName = 'descricaoevento_c'
+      Size = 250
+    end
+    object FloatField4: TFloatField
+      FieldName = 'vlrapag'
+    end
+    object StringField9: TStringField
+      FieldName = 'descricaoevento_d'
+      Size = 250
+    end
+    object StringField10: TStringField
+      FieldName = 'operacao'
+      Size = 18
+    end
+    object BooleanField3: TBooleanField
+      FieldName = 'totalizado'
+    end
+  end
+  object ZMonitor1: TZMonitor
+    Left = 224
+    Top = 88
+  end
+end

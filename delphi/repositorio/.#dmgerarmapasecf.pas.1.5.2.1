@@ -1,0 +1,321 @@
+unit dmgerarmapasecf;
+
+interface
+
+uses
+  SysUtils, Classes, DB, ZQuery, ZPgSqlQuery, cpquery, dmbasico, clecf,
+  ZTransact,ACBrEAD,biblio,Dialogs;
+
+type
+  TdtmGerarMapasECF = class(TdtmBasico)
+    qryCuponsExistentes_MesmaData: TtecQuery;
+    qryApagarMapasECF: TtecQuery;
+    qryCuponsExistentes_MesmaDatadata: TDateField;
+    qryCuponsExistentes_MesmaDatacupom: TIntegerField;
+    qryIncluirMapasECF: TtecQuery;
+    qryIncluirMapasECFTributados: TtecQuery;
+    qryCuponsExistentes_InferiorData: TtecQuery;
+    qryCuponsExistentes_InferiorDatacupom: TIntegerField;
+    qryCuponsExistentes_SuperiorData: TtecQuery;
+    qryCuponsExistentes_SuperiorDatacupom: TIntegerField;
+    ZMonitor1: TZMonitor;
+    qryReducoesZ: TtecQuery;
+    qryReducoesZDetalhes: TtecQuery;
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    function GravarMapa(MapaECF: TtecMapaECF): Boolean;
+    function GravarReducaoZ(ReducoesZ: TTecReducoesZ): Boolean; overload;
+    function GravarReducaoZ(Gravar: boolean): Boolean; overload;
+
+  end;
+
+var
+  dtmGerarMapasECF: TdtmGerarMapasECF;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmGerarMapasECF }
+
+function TdtmGerarMapasECF.GravarMapa(MapaECF: TtecMapaECF): Boolean;
+const
+  SQLDelete = 'delete from mapasecf where (filial,maquina,intervensao,data) in (%s)';
+var
+ i,j: integer;
+ NumeroCupom, maquina, intervensao: integer;
+ ListadeDatas, ListadeChaves, DataAnterior: String;
+begin
+  maquina := 0;
+  intervensao := 0;
+  NumeroCupom := 0;
+  ListadeDatas  := '';
+  ListadeChaves := '';
+  for i:=0 to high(MapaECF) do
+  begin
+    if maquina = 0 then
+      maquina := MapaECF[i].maquina;
+    if intervensao = 0 then
+      intervensao := MapaECF[i].intervensao;
+
+    ListadeDatas := ListadeDatas +
+      quotedstr(
+      FormatDateTime('yyyy-mm-dd',strtodate(MapaECF[i].data)))+',';
+    ListadeChaves := ListadeChaves +
+                     '(' + inttostr(FilialBase) + ',' +
+                           inttostr(MapaECF[i].maquina) + ',' +
+                           inttostr(MapaECF[i].intervensao) + ',' +
+                           quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(MapaECF[i].data))) +'),';
+  end;
+
+  if ListadeChaves<>'' then
+  begin
+    Delete(ListadeChaves,length(ListadeChaves),1);
+    qryApagarMapasECF.Sql[0] := format(SQLDelete,[ListadeChaves]);
+    qryApagarMapasECF.ExecSql;
+  end;
+
+  if ListadeDatas<>'' then
+  begin
+    Delete(ListadeDatas,length(ListadeDatas),1);
+    qryCuponsExistentes_MesmaData.MacroByName('ListadeDatas').AsString :=
+        'and df.data in ('+ListadeDatas+')';
+    ReFazConsulta(qryCuponsExistentes_MesmaData,[0,1,2],
+       [filialbase,
+        maquina,
+        intervensao]);
+  end;
+
+  DataAnterior:='';
+  for i:=0 to high(MapaECF) do
+  begin
+    if (DataAnterior='') or
+       (DataAnterior<>MapaECF[i].data) then
+    begin
+      DataAnterior := MapaECF[i].data;
+      if qryCuponsExistentes_MesmaData.Locate('data',strtodate(MapaECF[i].data),[]) then
+        NumeroCupom := qryCuponsExistentes_MesmaDatacupom.AsInteger
+      else
+      begin
+        ReFazConsulta(qryCuponsExistentes_InferiorData,[0,1,2,3],
+           [filialbase,
+            maquina,
+            intervensao,
+            MapaECF[i].Data]);
+        if not qryCuponsExistentes_InferiorData.IsEmpty then
+          NumeroCupom := qryCuponsExistentes_InferiorDatacupom.AsInteger + 1
+        else
+        begin
+          ReFazConsulta(qryCuponsExistentes_SuperiorData,[0,1,2,3],
+             [filialbase,
+              maquina,
+              intervensao,
+              MapaECF[i].Data]);
+          if not qryCuponsExistentes_SuperiorData.IsEmpty then
+            NumeroCupom := qryCuponsExistentes_InferiorDatacupom.AsInteger - 1
+        end;
+      end;
+
+      qryIncluirMapasECF.ParamByName('filial').AsInteger := filialbase;
+      qryIncluirMapasECF.ParamByName('maquina').AsInteger := MapaECF[i].maquina;
+      qryIncluirMapasECF.ParamByName('intervensao').AsInteger := MapaECF[i].intervensao;
+      qryIncluirMapasECF.ParamByName('data').AsDateTime := StrToDateTime(MapaECF[i].data);
+      qryIncluirMapasECF.ParamByName('cupomfinal').AsInteger := MapaECF[i].cpfinal;
+      qryIncluirMapasECF.ParamByName('reducoes').AsInteger := MapaECF[i].reducoes;
+      qryIncluirMapasECF.ParamByName('grandetotal').AsCurrency := MapaECF[i].gt;
+      qryIncluirMapasECF.ParamByName('cancelamentos').AsCurrency := MapaECF[i].tcanc;
+      qryIncluirMapasECF.ParamByName('descontos').AsCurrency := MapaECF[i].tdesc;
+      qryIncluirMapasECF.ParamByName('substituicao').AsCurrency := MapaECF[i].tsubs;
+      qryIncluirMapasECF.ParamByName('isento').AsCurrency := MapaECF[i].tisen;
+      qryIncluirMapasECF.ParamByName('naotributado').AsCurrency := MapaECF[i].tntrb;
+      qryIncluirMapasECF.ExecSql;
+
+      for j:=0 to high(MapaECF[i].ttrib) do
+      begin
+        qryIncluirMapasECFTributados.ParamByName('filial').AsInteger := filialbase;
+        qryIncluirMapasECFTributados.ParamByName('maquina').AsInteger := MapaECF[i].maquina;
+        qryIncluirMapasECFTributados.ParamByName('intervensao').AsInteger := MapaECF[i].intervensao;
+        qryIncluirMapasECFTributados.ParamByName('data').AsDateTime := StrToDateTime(MapaECF[i].data);
+        qryIncluirMapasECFTributados.ParamByName('aliquota').AsCurrency :=  MapaECF[i].ttrib[j].aliquota;
+        qryIncluirMapasECFTributados.ParamByName('base').AsCurrency := MapaECF[i].ttrib[j].base;
+        qryIncluirMapasECFTributados.ParamByName('valor').AsCurrency := MapaECF[i].ttrib[j].valor;
+        qryIncluirMapasECFTributados.ExecSql;
+      end;
+    end;
+  end;
+  result := Perpetrar([qryApagarMapasECF,qryIncluirMapasECF,qryIncluirMapasECFTributados]);
+end;
+
+function TdtmGerarMapasECF.GravarReducaoZ(
+  ReducoesZ: TTecReducoesZ): Boolean;
+var
+  I: integer;
+  ACBrEAD : TACBrEAD;
+  DataString: string;
+begin
+  result := true;
+  ACBrEAD := TACBrEAD.Create(nil);
+  try
+    with ReducoesZ do
+    begin
+      if Datamovimento<>0 then
+      begin
+        qryReducoesZ.ParamByName('NumeroFabricacao').AsString  := Numerofabricacao;
+        qryReducoesZ.ParamByName('Filial'          ).AsInteger := FilialBase;
+        qryReducoesZ.ParamByName('MFadicional'     ).AsString  := MFadicional;
+        qryReducoesZ.ParamByName('ModelodoECF'     ).AsString  := ModeloECF;
+        qryReducoesZ.ParamByName('Numerousuario'   ).AsInteger := Numerousuario;
+        qryReducoesZ.ParamByName('CRZ'             ).AsInteger := CRZ;
+        qryReducoesZ.ParamByName('COO'             ).AsInteger := COO;
+        qryReducoesZ.ParamByName('COO_Inicial'     ).AsInteger := COO_Inicial;
+        qryReducoesZ.ParamByName('COO_Final'       ).AsInteger := COO_Final;
+        qryReducoesZ.ParamByName('CRO'             ).AsInteger := CRO;
+        qryReducoesZ.ParamByName('DataMovimento'   ).AsDateTime := Datamovimento;
+        qryReducoesZ.ParamByName('DataEmissao'     ).AsDateTime := Dataemissao;
+        qryReducoesZ.ParamByName('HoraEmissao'     ).AsDateTime := Dataemissao;
+        qryReducoesZ.ParamByName('VendaBrutaDiaria').AsCurrency := VendaBrutaDiaria;
+        qryReducoesZ.ParamByName('totalizadorgeral').AsCurrency := TotalizadorGeral;
+        qryReducoesZ.ParamByName('ParametroIncidenciaISSQN').AsString := ParametroincidenciaISSQN;
+        qryReducoesZ.ParamByName('hash_paf_registro_r02').AsString :=  ACBrEAD.MD5FromString(Numerofabricacao +
+                                                                                             inttostr(CRZ) +
+                                                                                             inttostr(COO)+
+                                                                                             inttostr(CRO)+
+                                                                                             DateToStr(Datamovimento)+
+                                                                                             DateTimeToStr(Dataemissao)+
+                                                                                             DateTimeToStr(Horaemissao)+
+                                                                                             Trim(Trocar(Trocar(formatarvalor(VendaBrutaDiaria,2),'.',''),',','.')));
+{  md5(numerofabricacao ||cast(crz as varchar)||cast(coo as varchar)||cast(cro as varchar)||cast(datamovimento as varchar)||cast(dataemissao as varchar)
+      ||cast(horaemissao as varchar)||cast(vendabrutadiaria as varchar))}
+
+        qryReducoesZ.ExecSql;
+
+        for I:=0 to high(DetalhesReducaoZ) do
+        begin
+          qryReducoesZDetalhes.ParamByName('Filial').AsInteger := FilialBase;
+          qryReducoesZDetalhes.ParamByName('Numerousuario').AsInteger := Numerousuario;
+          qryReducoesZDetalhes.ParamByName('CRO').AsInteger := CRO;
+          qryReducoesZDetalhes.ParamByName('NumeroFabricacao').AsString  := Numerofabricacao;
+          qryReducoesZDetalhes.ParamByName('DataMovimento').AsDateTime := Datamovimento;
+
+          qryReducoesZDetalhes.ParamByName('TipoTotalizadorParcial').AsString := DetalhesReducaoZ[i].TipoTotalizadorParcial;
+          qryReducoesZDetalhes.ParamByName('aliquota').AsCurrency := DetalhesReducaoZ[i].aliquota;
+          qryReducoesZDetalhes.ParamByName('ValorAcumulado').AsCurrency := DetalhesReducaoZ[i].ValorAcumulado;
+          qryReducoesZDetalhes.ParamByName('hash_paf_registro_R03').AsString :=  ACBrEAD.MD5FromString(Numerofabricacao +
+                                                                                             inttostr(Numerousuario) +
+                                                                                             datetostr(Datamovimento)+
+                                                                                             DetalhesReducaoZ[i].TipoTotalizadorParcial+
+                                                                                             Trim(Trocar(Trocar(formatarvalor(DetalhesReducaoZ[i].aliquota,2),'.',''),',','.'))+
+                                                                                             Trim(Trocar(Trocar(formatarvalor(DetalhesReducaoZ[i].ValorAcumulado,2),'.',''),',','.'))+
+                                                                                             IntToStr(CRZ));
+          qryReducoesZDetalhes.ExecSql;
+
+          {NEW.hash_paf_registro_r03=md5(vReducaoZ.NumeroFabricacao||cast(NEW.numerousuario as varchar)||cast(NEW.datamovimento as varchar)
+                                        ||cast(NEW.tipototalizadorparcial as varchar)||cast(NEW.aliquota as varchar)||cast(NEW.valoracumulado as varchar)
+                                        ||cast(vReducaoZ.crz as varchar));}
+        end;
+      end;
+    end;
+  except
+   on E: Exception do
+    begin
+      ShowMessage(E.Message);
+      Result := false;
+    end;
+  end;
+end;
+
+function TdtmGerarMapasECF.GravarReducaoZ(Gravar: boolean): Boolean;
+var
+ qryRegistroU1: ttecquery;
+const
+
+Sql_Atualiza_U1 = '  UPDATE filiais set hash_paf_registro_u1='+
+                  'md5((	select cast(sum(total) as varchar)'+
+                  '										from'+
+                  '										('+
+                  '											select count(*) as total from registro_a2'+
+                  '											union all'+
+                  '											select count(*) as total from registro_p2'+
+                  '											union all'+
+                  '											select count(*) as total from registro_e2'+
+                  '											union all'+
+                  '											select count(*) as total from ecfs'+
+                  '											union all'+
+                  '											select count(*) as total from paf_cabecalho'+
+                  '											union all'+
+                  '											('+
+                  '												select count(*) as total'+
+                  '												from reducoesz rz'+
+                  '												where datamovimento<current_date'+
+                  '											)'+
+                  '											union all'+
+                  '											('+
+                  '												select count(*) as total'+
+                  '												from reducoesz rz'+
+                  '													 join reducoeszdetalhes rzd'+
+                  '													 on   rz.filial = rzd.filial'+
+                  '													 and  rz.numerousuario = rzd.numerousuario'+
+                  '													 and  rz.cro = rzd.cro'+
+                  '													 and  rz.datamovimento = rzd.datamovimento'+
+                  '												where rz.datamovimento < current_date'+
+                  '											)'+
+                  '											union all'+
+                  '											('+
+                  '												select count(*) from dadoscupom'+
+                  '											)'+
+                  '											union all'+
+                  '											select count(*) from detalhecupom'+
+                  '											union all'+
+                  '											('+
+                  '												select count(*) from dadositemcupom'+
+                  '											)'+
+                  '											union all'+
+                  '											select count(*) as total from detalhedemaisdoctos'+
+                  '											union all'+
+                  '											select count(*) as total from detalhecupom'+
+                  '											union all'+
+                  '											('+
+                  '												select count(*) from formaspagamentoecf'+
+                  '											)'+
+                  '										) as sel'+
+                  '									));';
+
+
+
+begin
+  if gravar then
+  begin
+    if Perpetrar([qryreducoesz, qryreducoeszdetalhes]) then
+    begin
+      qryRegistroU1 := TtecQuery.Create(nil);
+      qryRegistroU1.CachedUpdates:=true;
+      qryRegistroU1.RequestLive:=true;
+      qryRegistroU1.Database:=dtmTecSoft.Database;
+      qryRegistroU1.Sql.Text:=Sql_Atualiza_U1;
+      qryRegistroU1.ExecSql;
+      Perpetrar([qryRegistroU1]);
+    end;
+  end
+  else
+    rollback([qryreducoesz, qryreducoeszdetalhes]);
+end;
+
+procedure TdtmGerarMapasECF.ZMonitor1MonitorEvent(Sql, Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:\logecf2.txt') then
+    Listar.loadfromfile('c:\logecf2.txt');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\logecf2.txt');
+  listar.free;
+end;
+
+end.

@@ -1,0 +1,1118 @@
+Unit fmcadastrousuarios;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls,
+  Mask, ExtCtrls, Windows, Buttons, DBCtrls, Grids, DBGrids, ComCtrls, {Qete,} DB,
+  //Terceiros
+  ZQuery, ZPgSqlQuery,
+  //Componentes
+  cpnumero, cptexto, cpdata, cpdbfindcontrols, cpdbdata, cppagecontrol, cpquery,
+  cpdbtext, cpdbgrid, cpdbradiogroup,
+  //Repositorio
+  fmConsultaBasica, fmcadastropadrao, fmconsultaporcampo,
+  // Projeto
+  dmcadastrosinternos,
+  //Biblio
+  biblio, ctconstantes, cpeditioncontrolvalidation, ActnList, cpdbmemo,
+  frconsulta, frconsultacodigo, ToolWin, frendereco, frenderecoeditor,
+  frcgcoucpf;
+
+
+type
+  tecBotao  = (btnPROCURAR,btnFILIAL,btnUSERID, btnFILTRO);
+
+  TfrmCadastroUsuarios = class(TfrmCadastroPadrao)
+    edtNome: TDBEditTexto;
+    edtCodigoFolha: TDBEditNumero;
+    edtInativo: TDBEditData;
+    edfCodigoUsuario: TtecDbEditFind;
+    pgcDetalhes: TtecPageControl;
+    tstMetas: TTabSheet;
+    dbgMetasUsuarios: TtecDBGrid;
+    sbnExcluirMetas: TSpeedButton;
+    sbnIncluirMetas: TSpeedButton;
+    tstComissaoVenda: TTabSheet;
+    dbgComissoesVendas: TtecDBGrid;
+    sbnIncluirComissoes: TSpeedButton;
+    sbnExcluirComissoes: TSpeedButton;
+    pnlFundoJanela: TPanel;
+    gbxUsuario: TGroupBox;
+    tstComissaoCobranca: TTabSheet;
+    dbgComissoesCobranca: TtecDBGrid;
+    tstPerfisGrupos: TTabSheet;
+    tstSAC: TTabSheet;
+    flkGrupoUsuarios: TtecDBFindLookup;
+    sbnProcuraGruposUsuarios: TSpeedButton;
+    dtxNomeGrupoUsuarios: TtecDBText;
+    gbxPerfil: TGroupBox;
+    ckbAnalistaCredito: TDBCheckBox;
+    ckbReservaProdutos: TDBCheckBox;
+    ckbExcluiReservaProdutos: TDBCheckBox;
+    ckbVendedor: TDBCheckBox;
+    chkAtendimento: TDBCheckBox;
+    chkCaixa: TDBCheckBox;
+    chkPagamentos: TDBCheckBox;
+    chkDescontoExtra: TDBCheckBox;
+    chkAlterarPrecoContrato: TDBCheckBox;
+    chkDevolucaoProduto: TDBCheckBox;
+    edtOperador: TDBEditTexto;
+    flkFiltroSAC: TtecDBFindLookup;
+    sbnFiltroSAC: TSpeedButton;
+    dtxFiltro: TtecDBText;
+    edtLigacao: TDBEditNumero;
+    rgbTipoComissao: TtecDBRadioGroup;
+    rbnPrazo: TtecRadioButton;
+    rbnVista: TtecRadioButton;
+    chkDevolucaoNumerario: TDBCheckBox;
+    chkITecLux: TDBCheckBox;
+    chkAlterarFilial: TDBCheckBox;
+    chkAlterarDadosContabeis: TDBCheckBox;
+    chkGerenteEstoque: TDBCheckBox;
+    edtSenha1: TEdit;
+    edtLogin: TDBEditTexto;
+    edtSenha2: TEdit;
+    ecvValidacaoSenha: TtecEditionControlValidation;
+    ecvValidacaoUsuario: TtecEditionControlValidation;
+    chkMontador: TDBCheckBox;
+    tstUsuariosSetores: TTabSheet;
+    dbgUsuariosSetores: TtecDBGrid;
+    sbnIncluirSetor: TSpeedButton;
+    sbnExcluirSetor: TSpeedButton;
+    chkConfirmaTransferenciaItem: TDBCheckBox;
+    ckbRestringirFichaCliente: TDBCheckBox;
+    ckbEmissorNotaFiscal: TDBCheckBox;
+    ckbGerenteCaixa: TDBCheckBox;
+    ckbAdministrador: TDBCheckBox;
+    tstComissoesUsuariosGrupos: TTabSheet;
+    tstComissoesUsuariosClasses: TTabSheet;
+    dbgComissoesUsuariosGrupos: TtecDBGrid;
+    sbnIncluirComissoesUsuariosGrupos: TSpeedButton;
+    sbnExcluirComissoesUsuariosGrupos: TSpeedButton;
+    dbgComissoesUsuariosClasses: TtecDBGrid;
+    sbnIncluirComissoesUsuariosClasses: TSpeedButton;
+    sbnExcluirComissoesUsuariosClasses: TSpeedButton;
+    chktrocadeprodutos: TDBCheckBox;
+    tstInternet: TTabSheet;
+    aclHabilitar: TActionList;
+    actHabilitarAbas: TAction;
+    ecvValidacaoSenhaIteclux: TtecEditionControlValidation;
+    gbxSeguranca: TGroupBox;
+    edtDiasValidadeSenha: TDBEditNumero;
+    edtDiasAvisoSenha: TDBEditNumero;
+    dtxDataExpiracao: TtecDBText;
+    tstFiliais: TTabSheet;
+    dbgFiliais: TtecDBGrid;
+    sbnIncluirFilial: TSpeedButton;
+    sbnExcluirFilial: TSpeedButton;
+    pgcInternet: TtecPageControl;
+    tstConexao: TTabSheet;
+    gbxEmail: TGroupBox;
+    edtEmail: TDBEditTexto;
+    edtUsuarioEmail: TDBEditTexto;
+    edtSenhaEmail: TEdit;
+    gbxIteclux: TGroupBox;
+    edtUsuarioitecLUX: TDBEditTexto;
+    edtSenhaitecLUX: TEdit;
+    edtConfirmaSenhaitecLUX: TEdit;
+    gbxPOP3: TGroupBox;
+    edtPortaPop: TDBEditTexto;
+    edtHostPop: TDBEditTexto;
+    gbxSMTP: TGroupBox;
+    edtPortaSmtp: TDBEditTexto;
+    edtHostSmtp: TDBEditTexto;
+    ckbClientesCartaoCredito: TDBCheckBox;
+    tstConfiguracao: TTabSheet;
+    gbxAssunto: TGroupBox;
+    gbxIntroducao: TGroupBox;
+    gbxConclusao: TGroupBox;
+    mmoIntroducao: TtecDBMemo;
+    mmoConclusao: TtecDBMemo;
+    DBEditTexto1: TDBEditTexto;
+    tstProducao: TTabSheet;
+    gbxSalarioHora: TGroupBox;
+    gbxAnuenio: TGroupBox;
+    edtSalarioHora: TDBEditNumero;
+    edtAnuenio: TDBEditNumero;
+    ckbGerenteProducao: TDBCheckBox;
+    gbxOperacoesProducao: TGroupBox;
+    dbgOperacoesdeProducao: TtecDBGrid;
+    fraConsultaTurno: TfraConsultaCodigo;
+    gbxTurno: TGroupBox;
+    chkGerenteTecnico: TDBCheckBox;
+    gbxGrupoUsuarios: TGroupBox;
+    gbxCodigo: TGroupBox;
+    gbxNomeCompleto: TGroupBox;
+    gbxLoginName: TGroupBox;
+    gbxSenha_1: TGroupBox;
+    gbxSenha_2: TGroupBox;
+    gbxInativo: TGroupBox;
+    gbxCodigoFolha: TGroupBox;
+    gbxExpiracao: TGroupBox;
+    gbxDiasAviso: TGroupBox;
+    gbxValidade: TGroupBox;
+    lblDiasAviso: TLabel;
+    lblDiasValidade: TLabel;
+    gbxDiasUteis: TGroupBox;
+    gbx_email: TGroupBox;
+    gbx_Usuario: TGroupBox;
+    gbx_Senha: TGroupBox;
+    gbxUusuarioi_tecLUX: TGroupBox;
+    gbxSenhaItecLUX_1: TGroupBox;
+    gbxSenhaItecLUX_2: TGroupBox;
+    gbxPortaPOP3: TGroupBox;
+    gbxHostPOP3: TGroupBox;
+    gbxPortaSMTP: TGroupBox;
+    gbxHostSMTP: TGroupBox;
+    gbxOperador: TGroupBox;
+    gbxFiltro: TGroupBox;
+    gbxLigacao: TGroupBox;
+    chkCobranca: TDBCheckBox;
+    chkAnalistaSite: TDBCheckBox;
+    gbxSetoresdeVenda: TGroupBox;
+    fraConsultaSetorVenda: TfraConsultaCodigo;
+    fraEnderecoResidencia: TfraEnderecoEditor;
+    fracgcoucpf1: Tfracgcoucpf;
+    procedure chkCobrancaClick(Sender: TObject);
+    procedure edtSenhaExit(Sender: TObject);
+    procedure dbgComissoesCobrancaDblClick(Sender: TObject);
+    procedure dbgComissoesCobrancaKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure dbgComissoesVendasDblClick(Sender: TObject);
+    procedure dbgComissoesVendasKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure dbgMetasUsuariosDblClick(Sender: TObject);
+    procedure dbgMetasUsuariosKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure sbnExcluirComissoesClick(Sender: TObject);
+    procedure sbnExcluirMetasClick(Sender: TObject);
+    procedure sbnFiltroSACClick(Sender: TObject);
+    procedure sbnIncluirComissoesClick(Sender: TObject);
+    procedure sbnIncluirMetasClick(Sender: TObject);
+    procedure sbnProcuraGruposUsuariosClick(Sender: TObject);
+    procedure edtInativoExit(Sender: TObject);
+    procedure sbnIncluirSetorClick(Sender: TObject);
+    procedure sbnExcluirSetorClick(Sender: TObject);
+    procedure dbgUsuariosSetoresDblClick(Sender: TObject);
+    procedure dbgUsuariosSetoresKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edfCodigoUsuarioMessage(var Msg: String);
+    procedure sbnIncluirComissoesUsuariosGruposClick(Sender: TObject);
+    procedure dbgComissoesUsuariosGruposDblClick(Sender: TObject);
+    procedure dbgComissoesUsuariosGruposKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure sbnExcluirComissoesUsuariosGruposClick(Sender: TObject);
+    procedure sbnIncluirComissoesUsuariosClassesClick(Sender: TObject);
+    procedure sbnExcluirComissoesUsuariosClassesClick(Sender: TObject);
+    procedure dbgComissoesUsuariosClassesDblClick(Sender: TObject);
+    procedure dbgComissoesUsuariosClassesKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure edtSenhaItecluxExit(Sender: TObject);
+    procedure edfCodigoUsuarioFound(Found: Boolean);
+    procedure actHabilitarAbasUpdate(Sender: TObject);
+    procedure edtSenhaEmailChange(Sender: TObject);
+    procedure edtDiasValidadeSenhaExit(Sender: TObject);
+    procedure sbnIncluirFilialClick(Sender: TObject);
+    procedure sbnExcluirFilialClick(Sender: TObject);
+    procedure dbgFiliaisKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbgFiliaisDblClick(Sender: TObject);
+    procedure dbgOperacoesdeProducaoDblClick(Sender: TObject);
+    procedure dbgOperacoesdeProducaoKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure FormShow(Sender: TObject);
+  private
+    procedure CriticarDataInativa(datainativa: TDBEditData);
+    procedure AcionarPesquisaGrade;
+    procedure CondicoesOperacaoProducao;
+    function VerificarOperacoes: boolean;
+
+
+
+//    procedure AfterScrollInternet(Sender: TObject);
+  protected
+    FUsuarioJaCadastrado: Boolean;
+    ConsultaOperacoes : TfraConsultaCodigo;
+    ConsultaNiveisConhecimento : TfraConsultaCodigo;
+
+    procedure AcionaCadastroComissoesCobranca;
+    procedure AcionaCadastroComissoesVendas(Editar: Boolean);
+    procedure AcionaCadastroComissoesGrupos(Editar: Boolean);
+    procedure AcionaCadastroComissoesClasses(Editar: Boolean);
+    procedure AcionaCadastroMetas(Editar: Boolean);
+    procedure AcionaCadastroSetores(Editar: Boolean);
+    procedure AcionaCadastroUsuariosFiliais(Editar: Boolean);
+    procedure AlterarEstadoBotoes; override;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    procedure Habilitar(Valor: Boolean);
+    function  InternoExcluir   : Boolean;    override;
+    function  InternoIncluir   : Boolean;    override;
+    function  InternoGravar    : Boolean;    override;
+    function  InternoPesquisar(Titulo:String): Integer;    override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure LimparControlesSenha;
+    function  TabelaDePesquisa: TZDataSet; override;
+    function GravarUsuarioItecLUX: Boolean;
+    procedure AtribuirDadosOperacaoProducao;
+    procedure AtribuirDadosNiveisConhecimento;
+
+  public
+    constructor Create(AOwner : TComponent); override;
+    destructor  Destroy; override;
+  end;
+
+var
+  frmCadastroUsuarios: TfrmCadastroUsuarios;
+  TipoPesquisa       : TtecProcuraUsuarios;
+  JaTestouEmail: Boolean;
+
+implementation
+
+uses
+  //Biblio
+  clusuario,
+  //Repositorio
+  fmnavcontroles, fmcadastrocomissoesvendasusuarios, fmcadastrometasusuarios, fmcadastrocomissoescobrancausuarios,
+  fmcadastrosetoresusuarios, fmcadastrocomissoesusuariosgrupos,
+  fmcadastrocomissoesusuariosclasses, fmcadastrousuariosfiliais;
+
+{$R *.dfm}
+
+procedure TfrmCadastroUsuarios.AcionaCadastroComissoesCobranca;
+begin
+  if UsuarioLogin.Administrador or UsuarioLogin.Suporte then begin
+    if (dtmCadastrosInternos.NrRegistrosCobranca > 0) then begin
+      if not Assigned (frmCadastroComissoesCobrancaUsuarios) then
+        frmCadastroComissoesCobrancaUsuarios:= TfrmCadastroComissoesCobrancaUsuarios.Create(frmCadastroComissoesCobrancaUsuarios);
+      frmCadastroComissoesCobrancaUsuarios.SetDataModulo(dtmCadastrosInternos);
+      frmCadastroComissoesCobrancaUsuarios.DataSet:= dtmCadastrosInternos.TabelaComissoesCobranca;
+      dtmCadastrosInternos.IncluirComissoesCobranca(True);
+      frmCadastroComissoesCobrancaUsuarios.ShowModal;
+      frmCadastroComissoesCobrancaUsuarios.Free;
+    end else
+      MensagemAviso('Nenhum evento definido para a cobrança.')
+  end
+end;
+
+procedure TfrmCadastroUsuarios.AcionaCadastroComissoesVendas(Editar: Boolean);
+begin
+  if UsuarioLogin.Administrador or UsuarioLogin.Suporte then begin
+    if not Assigned (frmCadastroComissoesVendasUsuarios) then
+      frmCadastroComissoesVendasUsuarios:= TfrmCadastroComissoesVendasUsuarios.Create(frmCadastroComissoesVendasUsuarios);
+    frmCadastroComissoesVendasUsuarios.SetDataModulo(dtmCadastrosInternos);
+    frmCadastroComissoesVendasUsuarios.DataSet:= dtmCadastrosInternos.TabelaComissoesVendas;
+    dtmCadastrosInternos.IncluirComissoesUsuarios(Editar);
+    frmCadastroComissoesVendasUsuarios.ShowModal;
+    frmCadastroComissoesVendasUsuarios.Free;
+  end
+end;
+
+procedure TfrmCadastroUsuarios.AcionaCadastroMetas(Editar: Boolean);
+begin
+  if UsuarioLogin.Administrador or UsuarioLogin.Suporte then begin
+    if not Assigned (frmCadastroMetasUsuarios) then
+      frmCadastroMetasUsuarios:= TfrmCadastroMetasUsuarios.Create(frmCadastroMetasUsuarios);
+    frmCadastroMetasUsuarios.SetDataModulo(dtmCadastrosInternos);
+    frmCadastroMetasUsuarios.DataSet:= dtmCadastrosInternos.TabelaMetasUsuarios;
+    frmCadastroMetasUsuarios.Editando:= Editar;
+    frmCadastroMetasUsuarios.ShowModal;
+    frmCadastroMetasUsuarios.Free;
+  end
+end;
+
+procedure TfrmCadastroUsuarios.AcionaCadastroSetores(Editar: Boolean);
+begin
+  if UsuarioLogin.Administrador or UsuarioLogin.Suporte then begin
+    frmCadastroSetoresUsuarios:= TfrmCadastroSetoresUsuarios.Create(frmCadastroSetoresUsuarios);
+    frmCadastroSetoresUsuarios.SetDataModulo(dtmCadastrosInternos);
+    frmCadastroSetoresUsuarios.DataSet:= dtmCadastrosInternos.TabelaSetoresUsuarios;
+    dtmCadastrosInternos.IncluirSetoresUsuarios(Editar);
+    frmCadastroSetoresUsuarios.ShowModal;
+    frmCadastroSetoresUsuarios.Free;
+  end
+end;
+
+procedure TfrmCadastroUsuarios.chkCobrancaClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastrosInternos.qryUsuarioscobranca.AsBoolean := chkCobranca.checked;
+  dtmCadastrosInternos.dsrUsuariosDataChange(self, dtmCadastrosInternos.qryUsuarioscobranca);
+end;
+
+constructor TfrmCadastroUsuarios.Create(AOwner: TComponent);
+begin
+  if Not Assigned(dtmCadastrosInternos) then
+    dtmCadastrosInternos := TdtmCadastrosInternos.Create(Application);
+
+  inherited Create(AOwner);
+  dtmCadastrosInternos.Abre(ctCadastroUsuarios);
+
+//  dtmCadastrosInternos.OnScrollInternet := AfterScrollInternet;
+  dtmCadastrosInternos.LimitarAcessoConsultaUsuario;
+  DataSet:= dtmCadastrosInternos.TabelaUsuarios;
+  Habilitar(UsuarioLogin.Administrador or UsuarioLogin.Suporte);
+  FUsuarioJaCadastrado := False;
+  JatestouEmail:= False;
+  pgcDetalhes.ActivePageIndex:=0;
+
+
+  ConsultaOperacoes := TfraConsultaCodigo.Create(self);
+  ConsultaOperacoes.Name := 'fraConsultaOperacoes';
+  ConsultaOperacoes.edfCodigo.MaxLength := 3;
+  ConsultaOperacoes.edfCodigo.DataSource := dtmCadastrosInternos.dsrUsuariosOperacoesProducao;
+  ConsultaOperacoes.edfCodigo.DataField := 'operacao';
+  ConsultaOperacoes.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaOperacoes.edfCodigo.LookupSource := ConsultaOperacoes.dsrProcuraOperacaoes;
+  ConsultaOperacoes.edfCodigo.LookupQueryParameter := 'Codigo';
+  ConsultaOperacoes.edfCodigo.LookupField := 'Codigo';
+  ConsultaOperacoes.AbrirTabelaProcura := false;
+  ConsultaOperacoes.CondicoesdaConsulta := CondicoesOperacaoProducao;
+  ConsultaOperacoes.TipoPesquisa := pesOPERACOES;
+  ConsultaOperacoes.OnFound := AtribuirDadosOperacaoProducao;
+
+  ConsultaNiveisConhecimento := TfraConsultaCodigo.Create(self);
+  ConsultaNiveisConhecimento.Name := 'fraConsultaNiveisConhecimento';
+  ConsultaNiveisConhecimento.edfCodigo.MaxLength := 3;
+  ConsultaNiveisConhecimento.edfCodigo.DataSource := dtmCadastrosInternos.dsrUsuariosOperacoesProducao;
+  ConsultaNiveisConhecimento.edfCodigo.DataField := 'nivelconhecimento';
+  ConsultaNiveisConhecimento.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaNiveisConhecimento.edfCodigo.LookupSource := ConsultaNiveisConhecimento.dsrProcuraNiveisConhecimento;
+  ConsultaNiveisConhecimento.edfCodigo.LookupQueryParameter := 'Codigo';
+  ConsultaNiveisConhecimento.edfCodigo.LookupField := 'Codigo';
+  ConsultaNiveisConhecimento.AbrirTabelaProcura := false;
+  ConsultaNiveisConhecimento.TipoPesquisa := pesNIVEISCONHECIMENTO;
+  ConsultaNiveisConhecimento.OnFound := AtribuirDadosNiveisConhecimento;
+
+  fraConsultaTurno.tipopesquisa := pesTURNO;
+
+  fraConsultaSetorVenda.TipoPesquisa := pesSETORESVENDA;
+
+
+end;
+
+procedure TfrmCadastroUsuarios.dbgComissoesCobrancaDblClick(Sender: TObject);
+begin
+  inherited;
+  AcionaCadastroComissoesCobranca;
+end;
+
+procedure TfrmCadastroUsuarios.dbgComissoesVendasDblClick(Sender: TObject);
+begin
+  inherited;
+  AcionaCadastroComissoesVendas(True);
+end;
+
+procedure TfrmCadastroUsuarios.dbgComissoesCobrancaKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case Key of
+    TeclaEditarRegistro : AcionaCadastroComissoesCobranca;
+  end;
+end;
+
+procedure TfrmCadastroUsuarios.dbgComissoesVendasKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case Key of
+    TeclaEditarRegistro : AcionaCadastroComissoesVendas(True);
+    TeclaInserirRegistro: AcionaCadastroComissoesVendas(False);
+  end;
+end;
+
+procedure TfrmCadastroUsuarios.dbgMetasUsuariosDblClick(Sender: TObject);
+begin
+  inherited;
+  AcionaCadastroMetas(True);
+end;
+
+procedure TfrmCadastroUsuarios.dbgMetasUsuariosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case Key of
+    TeclaEditarRegistro : AcionaCadastroMetas(True);
+    TeclaInserirRegistro: AcionaCadastroMetas(False);
+  end;
+end;
+
+destructor TfrmCadastroUsuarios.Destroy;
+begin
+  dtmCadastrosInternos.Fecha(ctCadastroUsuarios);
+  inherited;
+  frmCadastroUsuarios:= nil;
+end;
+
+procedure TfrmCadastroUsuarios.edtSenhaExit(Sender: TObject);
+begin
+  inherited;
+  if edtSenha1.Modified or edtSenha2.Modified then
+    dtmCadastrosInternos.EditarUsuarios;
+end;
+
+function TfrmCadastroUsuarios.ExisteInformacao(Parametro: Integer;
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+  case TipoPesquisa of
+    tpUSUARIO: Result:= dtmCadastrosInternos.ExisteUsuario(Parametro, NomeCampo, Value);
+    tpFILIAL : Result:= dtmCadastrosInternos.ExisteFilial(NomeCampo, Value);
+    tpFILTRO : Result:= dtmCadastrosInternos.ExisteFiltroSAC(Parametro, NomeCampo, Value);
+    tpGRUPOSUSUARIOS:Result:= dtmCadastrosInternos.ExisteGrupoUsuarios(NomeCampo, Value);
+  else
+    Result:= False;
+  end;
+end;
+
+function TfrmCadastroUsuarios.InternoExcluir: Boolean;
+begin
+  Result:= False;
+  if not CtrlOn then begin
+    Result:= inherited InternoExcluir;
+    if Result then begin
+      dtmCadastrosInternos.ExcluirUsuario(Trim(edtLogin.Text));
+      LimparControlesSenha;
+    end
+  end
+end;
+
+function TfrmCadastroUsuarios.InternoGravar: Boolean;
+var
+  Controle: TWinControl;
+begin
+  Result:= True;
+  if (ActiveControl is TtecFindCustom) and (Trim(TtecFindCustom(ActiveControl).Text) <> '') then
+    Result:= TtecFindCustom(ActiveControl).Exist;
+  if dtmCadastrosInternos.EditandoUsuario or ecvValidacaoUsuario.Verify(gbxUsuario, Controle) then
+  begin
+    if (edtSenha1.Modified or edtSenha2.Modified) then
+      if (Trim(edtSenha1.Text) <> Trim(edtSenha2.Text)) then
+      begin
+        MensagemAviso(ctSENHASDIFERENTES);
+        Result := False
+      end else
+        Result := ecvValidacaoSenha.Verify(gbxUsuario, Controle);
+    if JaTestouEmail or EmailValido(edtEmail.Text) then
+    begin
+      if FUsuarioJaCadastrado and (edtUsuarioitecLUX.Text <> '') then
+        Result := GravarUsuarioItecLUX;
+      if Result then
+        Result := inherited InternoGravar;
+      if Result then
+      begin
+//        dtmCadastrosInternos.Email:=edtEmail.Text;
+       // dtmCadastrosInternos.UsuarioEmail:=edtUsuarioEmail.Text;
+        if edtSenhaEmail.Modified then
+          dtmCadastrosInternos.SenhaEmail := edtSenhaEmail.Text;
+       // dtmCadastrosInternos.HostPop:=edtHostPop.Text;
+       // dtmCadastrosInternos.PortaPop:=edtPortaPop.Text;
+       // dtmCadastrosInternos.HostSmtp:=edtHostSmtp.Text;
+       // dtmCadastrosInternos.PortaSmtp:=edtPortaSmtp.Text;
+          Result:= dtmCadastrosInternos.GravarUsuario(Trim(edtLogin.Text), Trim(edtSenha1.Text));
+          LimparControlesSenha;
+          FUsuarioJaCadastrado := Result;
+      end
+    end
+  end
+end;
+
+function TfrmCadastroUsuarios.InternoIncluir: Boolean;
+begin
+  Result:= False;
+  if not CtrlOn then
+  begin
+    FUsuarioJaCadastrado := False;
+    Result := inherited InternoIncluir;
+    if Result then
+    begin
+      LimparControlesSenha;
+      dtmCadastrosInternos.IncluirUsuario;
+    end;
+    edtNome.SetFocus;
+  end
+end;
+
+function TfrmCadastroUsuarios.InternoPesquisar(Titulo:String): Integer;
+begin
+  Result:= mrNone;
+  if CtrlOn then
+  begin
+    if UsuarioLogin.Administrador or UsuarioLogin.Suporte then
+    begin
+      if flkFiltroSAC.Focused then
+      begin
+        TipoPesquisa:= tpFILTRO;
+        Titulo := 'Filtros SAC';
+      end else if flkGrupoUsuarios.Focused then
+      begin
+        TipoPesquisa:= tpGRUPOSUSUARIOS;
+        Titulo := 'Grupos de Usuários';
+      end;
+
+      if ActiveControl is TtecFindCustom then
+      begin
+        dtmCadastrosInternos.AbreTabelasUsuarios(TipoPesquisa);
+        Result := inherited InternoPesquisar(Titulo);
+        if Result  = mrok then
+          dtmCadastrosInternos.SelecionarUsuario(TipoPesquisa);
+        dtmCadastrosInternos.FechaTabelasUsuarios(TipoPesquisa);
+      end
+    end
+  end else
+  begin
+    TipoPesquisa:= tpUSUARIO;
+    dtmCadastrosInternos.AbreTabelasUsuarios(TipoPesquisa);
+    Result := inherited InternoPesquisar('Usuários');
+    if Result  = mrok then 
+      dtmCadastrosInternos.SelecionarUsuario(TipoPesquisa);
+    dtmCadastrosInternos.FechaTabelasUsuarios(TipoPesquisa);
+  end;
+end;
+
+function TfrmCadastroUsuarios.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa := True;
+end;
+
+procedure TfrmCadastroUsuarios.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Key = VK_ESCAPE then
+    LimparControlesSenha
+end;
+
+procedure TfrmCadastroUsuarios.LimparControlesSenha;
+begin
+  edtSenha1.Clear;
+  edtSenha1.Modified := False;
+  edtSenha2.Clear;
+  edtSenha2.Modified := False;
+
+  edtSenhaEmail.OnChange := nil;
+  edtSenhaEmail.Clear;
+  edtSenhaEmail.Modified := False;
+  edtSenhaEmail.OnChange := edtSenhaEmailChange;
+
+  edtSenhaitecLUX.Clear;
+  edtSenhaitecLUX.Modified := False;
+  edtConfirmaSenhaitecLUX.Clear;
+  edtConfirmaSenhaitecLUX.Modified := False;
+end;
+
+procedure TfrmCadastroUsuarios.sbnExcluirComissoesClick(Sender: TObject);
+begin
+  inherited;
+  if UsuarioLogin.Administrador or UsuarioLogin.Suporte then
+    dtmCadastrosInternos.ExcluirComissoesUsuarios;
+end;
+
+procedure TfrmCadastroUsuarios.sbnExcluirMetasClick(Sender: TObject);
+begin
+  inherited;
+  if UsuarioLogin.Administrador or UsuarioLogin.Suporte then
+    dtmCadastrosInternos.ExcluirMetasUsuarios;
+end;
+
+procedure TfrmCadastroUsuarios.sbnFiltroSACClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkFiltroSAC, '');
+end;
+
+procedure TfrmCadastroUsuarios.sbnIncluirComissoesClick(Sender: TObject);
+begin
+  inherited;
+  AcionaCadastroComissoesVendas(False);
+end;
+
+procedure TfrmCadastroUsuarios.sbnIncluirMetasClick(Sender: TObject);
+begin
+  inherited;
+  AcionaCadastroMetas(False);
+end;
+
+procedure TfrmCadastroUsuarios.sbnProcuraGruposUsuariosClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkGrupoUsuarios, '')
+end;
+
+function TfrmCadastroUsuarios.TabelaDePesquisa: TZDataSet;
+begin
+  case TipoPesquisa of
+    tpFILIAL  : Result:= dtmCadastrosInternos.TabelaConsultaFilial;
+    tpFILTRO  : Result:= dtmCadastrosInternos.TabelaConsultaFiltroSAC;
+    tpUSUARIO : Result:= dtmCadastrosInternos.TabelaConsultaUsuario;
+    tpGRUPOSUSUARIOS : Result:= dtmCadastrosInternos.TabelaConsultaGrupoUsuarios;
+   else
+     Result:= nil;
+  end;
+end;
+
+procedure TfrmCadastroUsuarios.AlterarEstadoBotoes;
+begin
+  inherited AlterarEstadoBotoes;
+  if Not (UsuarioLogin.Administrador or UsuarioLogin.Suporte) then
+  begin
+    sbnIncluir.Enabled := False;
+    sbnExcluir.Enabled := False
+  end
+end;
+
+procedure TfrmCadastroUsuarios.edtInativoExit(Sender: TObject);
+begin
+  inherited;
+  CriticarDataInativa(edtInativo);
+end;
+
+procedure TfrmCadastroUsuarios.CriticarDataInativa(datainativa: TDBEditData);
+begin
+  if not dataembranco(datainativa.Text) and datainativa.Criticar(false) then
+   if strtodate(datainativa.Text)>dtmCadastrosInternos.DataServidor then
+    if MensagemConfirmacao(ctDATASUPERIORAATUAL)=smbCancel then
+      datainativa.SetFocus;
+end;
+
+procedure TfrmCadastroUsuarios.sbnIncluirSetorClick(Sender: TObject);
+begin
+  inherited;
+  AcionaCadastroSetores(False);
+end;
+
+procedure TfrmCadastroUsuarios.sbnExcluirSetorClick(Sender: TObject);
+begin
+  inherited;
+  if UsuarioLogin.Administrador or UsuarioLogin.Suporte then
+    dtmCadastrosInternos.ExcluirSetoresUsuarios;
+end;
+
+procedure TfrmCadastroUsuarios.dbgUsuariosSetoresDblClick(Sender: TObject);
+begin
+  inherited;
+  AcionaCadastroSetores(True);
+end;
+
+procedure TfrmCadastroUsuarios.dbgUsuariosSetoresKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case Key of
+    TeclaEditarRegistro : AcionaCadastroSetores(True);
+    TeclaInserirRegistro: AcionaCadastroSetores(False);
+  end;
+end;
+
+procedure TfrmCadastroUsuarios.Habilitar(Valor: Boolean);
+var
+  a: Integer;
+begin
+  Valor := Not Valor;
+  for a := 0 to gbxPerfil.ControlCount - 1 do
+    if gbxPerfil.Controls[a] is  TDBCheckBox then
+      TDBCheckBox(gbxPerfil.Controls[a]).ReadOnly := Valor;
+  flkGrupoUsuarios.ReadOnly        := Valor;
+  fraConsultaSetorVenda.edfcodigo.readonly := Valor;
+  dbgComissoesVendas.ReadOnly      := Valor;
+  dbgComissoesCobranca.ReadOnly    := Valor;
+  dbgMetasUsuarios.ReadOnly        := Valor;
+  dbgUsuariosSetores.ReadOnly      := Valor;
+  edtCodigoFolha.ReadOnly          := Valor;
+  edtInativo.ReadOnly              := Valor;
+  rbnPrazo.Enabled                 := Valor;
+  rbnVista.Enabled                 := Valor;
+  edtOperador.ReadOnly             := Valor;
+  flkFiltroSAC.ReadOnly            := Valor;
+  edtLigacao.ReadOnly              := Valor;
+  sbnIncluirComissoes.Enabled      := Valor;
+  sbnExcluirComissoes.Enabled      := Valor;
+  sbnIncluirMetas.Enabled          := Valor;
+  sbnExcluirMetas.Enabled          := Valor;
+  sbnIncluirSetor.Enabled          := Valor;
+  sbnExcluirSetor.Enabled          := Valor;
+  sbnProcuraGruposUsuarios.Enabled := Valor;
+end;
+
+procedure TfrmCadastroUsuarios.edfCodigoUsuarioMessage(var Msg: String);
+begin
+  inherited;
+  Msg := ctUSUARIONAODISPONIVEL;
+end;
+
+procedure TfrmCadastroUsuarios.sbnIncluirComissoesUsuariosGruposClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionaCadastroComissoesGrupos(False);
+end;
+
+procedure TfrmCadastroUsuarios.AcionaCadastroComissoesGrupos(
+  Editar: Boolean);
+begin
+  if UsuarioLogin.Administrador or UsuarioLogin.Suporte then
+  begin
+    if not Assigned (frmCadastroComissoesUsuariosGrupos) then
+      frmCadastroComissoesUsuariosGrupos:= TfrmCadastroComissoesUsuariosGrupos.Create(frmCadastroComissoesUsuariosGrupos);
+    frmCadastroComissoesUsuariosGrupos.SetDataModulo(dtmCadastrosInternos);
+    frmCadastroComissoesUsuariosGrupos.DataSet:= dtmCadastrosInternos.TabelaComissoesUsuariosGrupos;
+    dtmCadastrosInternos.IncluirComissoesUsuariosGrupos(Editar);
+    frmCadastroComissoesUsuariosGrupos.ShowModal;
+    frmCadastroComissoesUsuariosGrupos.Free;
+  end
+
+end;
+
+procedure TfrmCadastroUsuarios.dbgComissoesUsuariosGruposDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionaCadastroComissoesGrupos(True);
+end;
+
+procedure TfrmCadastroUsuarios.dbgComissoesUsuariosGruposKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case Key of
+    TeclaEditarRegistro : AcionaCadastroComissoesGrupos(True);
+    TeclaInserirRegistro: AcionaCadastroComissoesGrupos(False);
+  end;
+end;
+
+procedure TfrmCadastroUsuarios.sbnExcluirComissoesUsuariosGruposClick(
+  Sender: TObject);
+begin
+  inherited;
+  if UsuarioLogin.Administrador or UsuarioLogin.Suporte then
+    dtmCadastrosInternos.ExcluirComissoesUsuariosGrupos;
+end;
+
+procedure TfrmCadastroUsuarios.sbnIncluirComissoesUsuariosClassesClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionaCadastroComissoesClasses(False);
+end;
+
+procedure TfrmCadastroUsuarios.AcionaCadastroComissoesClasses(
+  Editar: Boolean);
+begin
+  if UsuarioLogin.Administrador or UsuarioLogin.Suporte then begin
+    if not Assigned (frmCadastroComissoesUsuariosClasses) then
+      frmCadastroComissoesUsuariosClasses:= TfrmCadastroComissoesUsuariosClasses.Create(frmCadastroComissoesUsuariosClasses);
+    frmCadastroComissoesUsuariosClasses.SetDataModulo(dtmCadastrosInternos);
+    frmCadastroComissoesUsuariosClasses.DataSet:= dtmCadastrosInternos.TabelaComissoesUsuariosClasses;
+    dtmCadastrosInternos.IncluirComissoesUsuariosClasses(Editar);
+    frmCadastroComissoesUsuariosclasses.ShowModal;
+    frmCadastroComissoesUsuariosclasses.Free;
+  end
+end;
+
+procedure TfrmCadastroUsuarios.sbnExcluirComissoesUsuariosClassesClick(
+  Sender: TObject);
+begin
+  inherited;
+  if UsuarioLogin.Administrador or UsuarioLogin.Suporte then
+    dtmCadastrosInternos.ExcluirComissoesUsuariosClasses;
+end;
+
+procedure TfrmCadastroUsuarios.dbgComissoesUsuariosClassesDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionaCadastroComissoesClasses(True);
+end;
+
+procedure TfrmCadastroUsuarios.dbgComissoesUsuariosClassesKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case Key of
+    TeclaEditarRegistro : AcionaCadastroComissoesClasses(True);
+    TeclaInserirRegistro: AcionaCadastroComissoesClasses(False);
+  end;
+end;
+
+{procedure TfrmCadastroUsuarios.AfterScrollInternet(Sender: TObject);
+begin
+ edtEmail.Text:=dtmCadastrosInternos.Email;
+ edtUsuarioEmail.Text:=dtmCadastrosInternos.UsuarioEmail;
+ edtSenhaEmail.Text:=dtmCadastrosInternos.SenhaEmail;
+ edtHostPop.Text:=dtmCadastrosInternos.HostPop;
+ edtPortaPop.Text:=dtmCadastrosInternos.PortaPop;
+ edtHostSmtp.Text:=dtmCadastrosInternos.HostSmtp;
+ edtPortaSmtp.Text:=dtmCadastrosInternos.PortaSmtp;
+ //usuario i-tecLUX
+// edtUsuarioitecLUX.Text := dtmCadastrosInternos.UsuarioItecLux;
+end;
+ }
+
+procedure TfrmCadastroUsuarios.edtSenhaItecluxExit(Sender: TObject);
+begin
+  inherited;
+  if edtUsuarioitecLUX.Modified or edtSenhaitecLUX.Modified or edtConfirmaSenhaitecLUX.Modified then
+    dtmCadastrosInternos.EditarUsuarios;
+end;
+
+procedure TfrmCadastroUsuarios.edfCodigoUsuarioFound(Found: Boolean);
+begin
+  inherited;
+  if Found then
+    FUsuarioJaCadastrado := True
+  else
+    FUsuarioJaCadastrado := False;
+end;
+
+function TfrmCadastroUsuarios.GravarUsuarioItecLUX: Boolean;
+var Controle: TWinControl;
+begin
+  if (edtSenhaitecLUX.Modified or edtConfirmaSenhaitecLUX.Modified) then
+  begin
+    Result := ecvValidacaoSenhaIteclux.Verify(gbxIteclux, Controle);
+    if Result then
+    begin
+      if (Trim(edtSenhaitecLUX.Text) <> Trim(edtConfirmaSenhaitecLUX.Text)) then
+      begin
+        Result := False;
+        MensagemAviso(ctSENHASDIFERENTES);
+        edtSenhaitecLUX.SetFocus;
+      end;
+      if Result then
+      begin
+        dtmCadastrosInternos.GravarUsuarioItecLux(edtUsuarioitecLUX.Text, edtSenhaitecLUX.Text);
+        Result := True;
+      end;
+    end;
+  end
+  else
+    Result := true;
+end;
+
+procedure TfrmCadastroUsuarios.actHabilitarAbasUpdate(Sender: TObject);
+begin
+  inherited;
+  gbxIteclux.Visible := FUsuarioJaCadastrado;
+end;
+
+procedure TfrmCadastroUsuarios.edtSenhaEmailChange(Sender: TObject);
+begin
+  inherited;
+  dtmCadastrosInternos.EditarUsuarios;
+end;
+
+procedure TfrmCadastroUsuarios.edtDiasValidadeSenhaExit(Sender: TObject);
+begin
+  inherited;
+  if (Trim(edtDiasValidadeSenha.Text) <> '') and (Trim(edtDiasAvisoSenha.Text) <> '') and
+     (StrToInt(edtDiasValidadeSenha.Text) <= StrToInt(edtDiasAvisoSenha.Text))         then
+  begin
+    MensagemAviso('O período de validade da senha é menor que o período de aviso.');
+    edtDiasValidadeSenha.SetFocus;
+  end;
+end;
+
+procedure TfrmCadastroUsuarios.sbnIncluirFilialClick(Sender: TObject);
+begin
+  inherited;
+  AcionaCadastroUsuariosFiliais(False);
+end;
+
+procedure TfrmCadastroUsuarios.AcionaCadastroUsuariosFiliais(
+  Editar: Boolean);
+begin
+  if UsuarioLogin.Administrador or UsuarioLogin.Suporte then begin
+    if not Assigned (frmCadastroUsuariosFiliais) then
+      frmCadastroUsuariosFiliais:= TfrmCadastroUsuariosFiliais.Create(frmCadastroUsuariosFiliais);
+    frmCadastroUsuariosFiliais.SetDataModulo(dtmCadastrosInternos);
+    frmCadastroUsuariosFiliais.DataSet:= dtmCadastrosInternos.TabelaUsuariosFiliais;
+    dtmCadastrosInternos.IncluirUsuariosFiliais(Editar);
+    frmCadastroUsuariosFiliais.ShowModal;
+    frmCadastroUsuariosFiliais.Free;
+  end;
+  dbgFiliais.SetFocus;
+end;
+
+procedure TfrmCadastroUsuarios.sbnExcluirFilialClick(Sender: TObject);
+begin
+  inherited;
+  if UsuarioLogin.Administrador or UsuarioLogin.Suporte then
+    dtmCadastrosInternos.ExcluirUsuariosFiliais;
+end;
+
+procedure TfrmCadastroUsuarios.dbgFiliaisKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case Key of
+    TeclaEditarRegistro : AcionaCadastroUsuariosFiliais(True);
+    TeclaInserirRegistro: AcionaCadastroUsuariosFiliais(False);
+  end;
+end;
+
+procedure TfrmCadastroUsuarios.dbgFiliaisDblClick(Sender: TObject);
+begin
+  inherited;
+  AcionaCadastroUsuariosFiliais(True);
+end;
+
+procedure TfrmCadastroUsuarios.dbgOperacoesdeProducaoDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  acionarPesquisaGrade;
+end;
+
+procedure TfrmCadastroUsuarios.AcionarPesquisaGrade;
+begin
+  if dbgOperacoesdeProducao.SelectedIndex in [0..4] then
+  begin
+    dbgOperacoesdeProducao.SetFocus;
+    ConsultaOperacoes.CtrlOn := True;
+    ConsultaOperacoes.InternoPesquisar(ctOPERACOES);
+    dbgOperacoesdeProducao.SetFocus;
+    dbgOperacoesdeProducao.SelectedIndex :=  0;
+  end
+  else
+  if dbgOperacoesdeProducao.SelectedIndex in [5..6] then
+  begin
+    dbgOperacoesdeProducao.SetFocus;
+    ConsultaNiveisConhecimento.CtrlOn := True;
+    ConsultaNiveisConhecimento.InternoPesquisar('Níveis de Conhecimento');
+    dbgOperacoesdeProducao.SetFocus;
+    dbgOperacoesdeProducao.SelectedIndex :=  5;
+  end;
+end;
+
+procedure TfrmCadastroUsuarios.CondicoesOperacaoProducao;
+const
+  SQL = 'and (codigo not in (%s) or codigo = %s)';
+var
+  codigooperacao : String;
+begin
+   codigooperacao := inttostr(dtmCadastrosInternos.qryUsuariosOperacoesProducaooperacao.Asinteger);
+   if (dtmCadastrosInternos.qryUsuariosOperacoesProducao.State = dsInsert) or
+      (dtmCadastrosInternos.qryUsuariosOperacoesProducaodescricaonivelconhecimento.AsString='') then
+     codigooperacao := '0';
+
+   ConsultaOperacoes.qryProcuraOperacoes.MacroByName('SQLOperacoesJaSelecionadas').AsString :=
+     format(SQL,[dtmCadastrosInternos.ListaOperacoesSelecionadas, codigooperacao]);
+
+   ConsultaOperacoes.qryConsultaOperacoes.MacroByName('SQLOperacoesJaSelecionadas').AsString :=
+     format(SQL,[dtmCadastrosInternos.ListaOperacoesSelecionadas, codigooperacao]);
+end;
+
+procedure TfrmCadastroUsuarios.AtribuirDadosOperacaoProducao;
+begin
+  with dtmCadastrosInternos do
+  begin
+    EditarUsuariosOperacaoProducao;
+    qryUsuariosOperacoesProducaooperacao.AsString := ConsultaOperacoes.qryProcuraOperacoescodigo.AsString;
+    qryUsuariosOperacoesProducaonome.AsString := ConsultaOperacoes.qryProcuraOperacoesnome.AsString;
+    qryUsuariosOperacoesProducaoc01.AsString := ConsultaOperacoes.qryProcuraOperacoesc01.AsString;
+    qryUsuariosOperacoesProducaoc02.AsString := ConsultaOperacoes.qryProcuraOperacoesc02.AsString;
+    qryUsuariosOperacoesProducaoc03.AsString := ConsultaOperacoes.qryProcuraOperacoesc03.AsString;
+    qryUsuariosOperacoesProducaodescricaooperacao.AsString := ConsultaOperacoes.qryProcuraOperacoesdescricao.AsString;
+//    qryUsuariosOperacoesProducao.Post;
+  end;
+end;
+
+procedure TfrmCadastroUsuarios.dbgOperacoesdeProducaoKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+//  if Shift = [ssCtrl] then
+  if CtrlOn then
+  begin
+    case Key of
+      VK_F9     : begin
+                     ConsultaOperacoes.CtrlOn := true;
+                     AcionarPesquisaGrade
+                   end;
+    end;
+  end
+  else if Shift = [] then
+  case Key of
+    VK_Return: if dbgOperacoesdeProducao.SelectedIndex in [0..2] then
+                   dbgOperacoesdeProducao.SelectedIndex := dbgOperacoesdeProducao.SelectedIndex + 1
+                else
+                if dbgOperacoesdeProducao.SelectedIndex = 3 then
+                begin
+                  if not VerificarOperacoes then
+                  begin
+                    key := 0;
+                  end
+                  else
+                    dbgOperacoesdeProducao.SelectedField := dtmCadastrosInternos.qryUsuariosOperacoesProducaonivelconhecimento;
+                end
+                else
+                if dbgOperacoesdeProducao.SelectedIndex = 5 then
+                begin
+                  if ConsultaNiveisConhecimento.edfCodigo.Exist then
+                  begin
+                     AtribuirDadosNiveisConhecimento;
+                     dtmCadastrosInternos.GravarUsuariosOperacaoProducao;
+                  end
+                  else
+                  begin
+                    dbgOperacoesdeProducao.SetFocus;
+                    dbgOperacoesdeProducao.SelectedField := dtmCadastrosInternos.qryUsuariosOperacoesProducaonivelconhecimento;
+                    key := 0;
+                  end
+               end
+
+  end;
+
+
+  inherited;
+
+end;
+
+procedure TfrmCadastroUsuarios.AtribuirDadosNiveisConhecimento;
+begin
+  with dtmCadastrosInternos do
+  begin
+    EditarUsuariosOperacaoProducao;
+    qryUsuariosOperacoesProducaonivelconhecimento.AsInteger := ConsultaNiveisConhecimento.qryProcuraNiveislConhecimentocodigo.AsInteger;
+    qryUsuariosOperacoesProducaodescricaonivelconhecimento.AsString := ConsultaNiveisConhecimento.qryProcuraNiveislConhecimentodescricao.AsString;
+//    qryUsuariosOperacoesProducao.Post;
+  end;
+
+end;
+
+function TfrmCadastroUsuarios.VerificarOperacoes: boolean;
+begin
+  result := true;
+//  ConsultaOperacoes.edfCodigo.DoExit;
+  ConsultaOperacoes.qryProcuraOperacoes.ParamByName('codigo').asinteger := 0;
+  ConsultaOperacoes.qryProcuraOperacoes.ParamByName('nome').AsString :=
+    dtmCadastrosInternos.qryUsuariosOperacoesProducaonome.AsString;
+
+  ConsultaOperacoes.qryProcuraOperacoes.ParamByName('c01').AsString :=
+    dtmCadastrosInternos.qryUsuariosOperacoesProducaoc01.AsString;
+
+  ConsultaOperacoes.qryProcuraOperacoes.ParamByName('c02').AsString :=
+    dtmCadastrosInternos.qryUsuariosOperacoesProducaoc02.AsString;
+
+  ConsultaOperacoes.qryProcuraOperacoes.ParamByName('c03').AsString :=
+    dtmCadastrosInternos.qryUsuariosOperacoesProducaoc03.AsString;
+
+  ConsultaOperacoes.qryProcuraOperacoes.Close;
+  ConsultaOperacoes.qryProcuraOperacoes.open;
+
+  if not ConsultaOperacoes.qryProcuraOperacoes.IsEmpty then
+    AtribuirDadosOperacaoProducao
+  else
+  begin
+    ShowMessage(Format(ctCODIGOINEXISTENTE, ['['+
+    dtmCadastrosInternos.qryUsuariosOperacoesProducaonome.AsString +', '+
+    dtmCadastrosInternos.qryUsuariosOperacoesProducaoc01.AsString  +', '+
+    dtmCadastrosInternos.qryUsuariosOperacoesProducaoc02.AsString  +', '+
+    dtmCadastrosInternos.qryUsuariosOperacoesProducaoc03.AsString  +']']));
+    result := false;
+    dbgOperacoesdeProducao.SetFocus;
+  end;
+end;
+
+procedure TfrmCadastroUsuarios.FormShow(Sender: TObject);
+begin
+  inherited;
+//  chkCobranca.OnClick := chkCobrancaClick;
+end;
+
+end.

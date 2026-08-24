@@ -1,0 +1,1177 @@
+unit dmquitacaolote;
+
+interface
+
+uses
+  SysUtils, Classes, DB, dateutils, Controls, Variants,
+  // Biblio
+  ctconstantes, biblio, clusuario, clparametrossistema, clfinanceira,
+  // Terceiros
+  ZQuery, ZPgSqlQuery,
+  // Componentes
+  cpdatasource, cpquery, cltextprinter,
+  // Repositorio
+  fmselecionarimpressoras, dmtecsoft, dmbasico, ZTransact, Math, ACBrBase,
+  ACBrDFe, ACBrNFSe;
+
+type
+  TdtmQuitacaoLote = class(TdtmBasico)
+    qryFilial: TtecQuery;
+    dsrFilial: TtecDataSource;
+    qryConsultaFiliais: TtecQuery;
+    qryConsultaFiliaisnome: TStringField;
+    qryConsultaFiliaiscodigo: TIntegerField;
+    qryGrupoFiliais: TtecQuery;
+    dsrGrupoFiliais: TtecDataSource;
+    qryConsultaGrupoFiliais: TtecQuery;
+    qryConsultaGrupoFiliaisdescricao: TStringField;
+    qryConsultaGrupoFiliaiscodigo: TIntegerField;
+    qryClientes: TtecQuery;
+    dsrClientes: TtecDataSource;
+    qryConsultaClientes: TtecQuery;
+    qryConsultaClientesnome: TStringField;
+    qryConsultaClientescodigo: TIntegerField;
+    qryConsultaClientestipo: TStringField;
+    qryParcelas: TtecQuery;
+    dsrParcelas: TtecDataSource;
+    qryFilialPagto: TtecQuery;
+    dsrFilialPagto: TtecDataSource;
+    qryQuitarParcelas: TtecQuery;
+    qryConsultaClientespessoanumero: TStringField;
+    qryConsultaClientestipocliente: TStringField;
+    qryConsultaClientesestado: TStringField;
+    qryConsultaClientesnomecidade: TStringField;
+    qryFilialcodigo: TIntegerField;
+    qryFilialnome: TStringField;
+    qryGrupoFiliaiscodigo: TIntegerField;
+    qryGrupoFiliaisdescricao: TStringField;
+    qryClientescodigo: TIntegerField;
+    qryClientesnome: TStringField;
+    qryClientestipo: TStringField;
+    qryFilialPagtocodigo: TIntegerField;
+    qryFilialPagtonome: TStringField;
+    qryContas: TtecQuery;
+    qryContasBanco: TIntegerField;
+    qryContasAgencia: TIntegerField;
+    qryContasConta: TIntegerField;
+    qryContasDigito: TStringField;
+    qryContasTitular: TStringField;
+    qryContasSigla: TStringField;
+    qryContasNome: TStringField;
+    qryContasModeloCheque: TIntegerField;
+    dsrContas: TtecDataSource;
+    qryConsultaContas: TtecQuery;
+    qryConsultaContasSigla: TStringField;
+    qryConsultaContasNome: TStringField;
+    qryConsultaContasConta: TIntegerField;
+    qryConsultaContasDigito: TStringField;
+    qryConsultaContasTitular: TStringField;
+    qryConsultaContasAgencia: TIntegerField;
+    qryConsultaContasBanco: TIntegerField;
+    qryParcelasContrato: TStringField;
+    qryParcelasNumero: TIntegerField;
+    qryParcelasDataVencto: TDateField;
+    qryParcelasValorVencto: TFloatField;
+    qryParcelasDataPagto: TDateField;
+    qryParcelasValorPagto: TFloatField;
+    qryParcelasFilialPagto: TIntegerField;
+    qryParcelasTipoPagto: TStringField;
+    qryParcelasFormaPagamento: TStringField;
+    qryParcelasContaBoleto: TIntegerField;
+    qryParcelasParcelaOrigem: TStringField;
+    qryParcelasNome: TStringField;
+    qryParcelasFaturamento: TDateField;
+    qryParcelasFilialVenda: TIntegerField;
+    qryParcelasSelecionar: TBooleanField;
+    qryParcelasParcelaAdicional: TBooleanField;
+    qryParcelaspagamentoextracaixa: TBooleanField;
+    qryParcelasUsuarioExtraCaixa: TStringField;
+    qryQuitarParcelasContrato: TStringField;
+    qryQuitarParcelasNumero: TIntegerField;
+    qryQuitarParcelasDataVencto: TDateField;
+    qryQuitarParcelasValorVencto: TFloatField;
+    qryQuitarParcelasDataPagto: TDateField;
+    qryQuitarParcelasValorPagto: TFloatField;
+    qryQuitarParcelasFilialPagto: TIntegerField;
+    qryQuitarParcelasContaBoleto: TIntegerField;
+    qryQuitarParcelasFormaPagamento: TStringField;
+    qryQuitarParcelasParcelaOrigem: TStringField;
+    qryQuitarParcelasParcelaAdicional: TBooleanField;
+    qryQuitarParcelasPagamentoExtraCaixa: TBooleanField;
+    qryQuitarParcelasUsuarioExtraCaixa: TStringField;
+    qryEventos: TtecQuery;
+    qryEventosCodigo: TIntegerField;
+    qryEventosDescricao: TStringField;
+    dsrEvento: TtecDataSource;
+    qryConsultaEventos: TtecQuery;
+    qryConsultaEventosDescricao: TStringField;
+    qryConsultaEventosCodigo: TIntegerField;
+    qryQuitarParcelasEvento: TIntegerField;
+    qryParcelasdescontosugerido: TFloatField;
+    qryNotas: TtecQuery;
+    dsrNotas: TtecDataSource;
+    qryNotasfilial: TIntegerField;
+    qryNotasserie: TStringField;
+    qryNotasnumero: TIntegerField;
+    qryParcelasobservacaoboleto: TStringField;
+    qryParcelasplano: TStringField;
+    qryQuitarParcelasobservacaoboleto: TStringField;
+    qryQuitarParcelasdescontosugerido: TFloatField;
+    qryQuitarParcelasdebitar: TIntegerField;
+    qryContascontacontabil: TIntegerField;
+    qryParcelas_CLIENTE_USA_CONTRATO: TtecQuery;
+    qryParcelas_CLIENTE_NAO_USA_CONTRATO: TtecQuery;
+    qryTiposRecebimentos: TtecQuery;
+    qryTiposRecebimentoscodigo: TIntegerField;
+    qryTiposRecebimentosdescricao: TStringField;
+    qryTiposRecebimentostiporecebimento: TStringField;
+    qryParcelastiporecebimento: TIntegerField;
+    qryParcelasdescricao: TStringField;
+    qryParcelastiporec: TStringField;
+    spcTransacaoProximo: TtecQuery;
+    spcTransacaoProximotransacao: TIntegerField;
+    qryQuitarParcelastiporecebimento: TIntegerField;
+    qryTipoRecebimento: TtecQuery;
+    qryRecebimentos: TtecQuery;
+    qryRecebimentoscodigo: TIntegerField;
+    qryRecebimentostiporecebimento: TIntegerField;
+    qryRecebimentostransacao: TIntegerField;
+    qryRecebimentosvalorlancto: TFloatField;
+    qryRecebimentoscheque: TStringField;
+    qryRecebimentossituacao: TStringField;
+    qryRecebimentosfilial: TIntegerField;
+    qryRecebimentoscontrole: TIntegerField;
+    qryRecebimentostipo: TStringField;
+    spcRecebimentosProximo: TtecQuery;
+    spcRecebimentosProximocodigo: TIntegerField;
+    qryQuitarParcelastransacao: TIntegerField;
+    qryTipoRecebimentocodigo: TIntegerField;
+    qryTipoRecebimentodescricao: TStringField;
+    qryTipoRecebimentoinativo: TDateField;
+    qryTipoRecebimentodevolucaocaixa: TBooleanField;
+    qryTipoRecebimentotiporecebimento: TStringField;
+    qryTipoRecebimentodesagio: TFloatField;
+    qryTipoRecebimentodiasuteis: TIntegerField;
+    qryTipoRecebimentonumerorecebimentos: TIntegerField;
+    qryTipoRecebimentointervalorecebimentos: TIntegerField;
+    qryRecebimentostef: TStringField;
+    qryRecebimentoscontrolerecebimento: TIntegerField;
+    qryParcelasdescontosugerido_original: TFloatField;
+    qryParcelasobservacaoboleto_original: TStringField;
+    qryParcelasvalorpagto_original: TFloatField;
+    qryRecebimentosdatalancto: TDateTimeField;
+    qryParcelasnotafiscal: TStringField;
+    qryQuitarParcelasviacaixa: TBooleanField;
+    qryInserirParcelaParcial: TtecQuery;
+    qryParcelasparcelaoriginal: TIntegerField;
+    qryParcelasjuros: TFloatField;
+    qryParcelastotal: TCurrencyField;
+    qryParcelasprevisaoalterada: TBooleanField;
+    qryParcelasjuros_original: TFloatField;
+    procedure qryClientesBeforeOpen(DataSet: TDataSet);
+    procedure qryParcelasAfterInsert(DataSet: TDataSet);
+    procedure DataModuleDestroy(Sender: TObject);
+    procedure dsrParcelasDataChange(Sender: TObject; Field: TField);
+    procedure qryParcelasAfterScroll(DataSet: TDataSet);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure qryParcelasCalcFields(DataSet: TDataSet);
+    procedure qryParcelasBeforePost(DataSet: TDataSet);
+
+  private
+    FVenctoInicial: String;
+    FVenctoFinal: String;
+    FQtdeMarcados: Integer;
+    FTotalMarcados: Real;
+    FOnParcelasEdit: TNotifyEvent;
+    FDataQuitacao: String;
+    FCidade: String;
+    FContaCredito: String;
+    FOrdenacao: Integer;
+    FEmissaoInicial: String;
+    FEmissaoFinal: String;
+    fHouveAlteracao: Boolean;
+    fTotalDuplicatas: Real;
+    FHoraQuitacao: String;
+    fExibirMensagemDesconto: Boolean;
+    procedure MontaDataVencimento;
+    procedure MontaDataEmissao;
+    function  GetConsultaContas: TtecQuery;
+    function  GetConsultaFiliais: TtecQuery;
+    function  GetConsultaClientes: TtecQuery;
+    function  GetConsultaGrupoFiliais: TtecQuery;
+    function  GetTipoPessoa: String;
+
+
+    procedure SetFilial(const Value: String);
+    procedure SetCliente(const Value: String);
+    procedure SetGrupo(const Value: String);
+    procedure SetVenctoFinal(const Value: String);
+    procedure SetVenctoInicial(const Value: String);
+    function GetDataContabil: TDateTime;
+    function GetQtdeDuplicatas: Integer;
+    function GetTotalDuplicatas: Real;
+    function GetQtdeMarcados: Integer;
+    function GetTotalMarcados: Real;
+    procedure SetCidade(const Value: String);
+    procedure SetContaCredito(const Value: String);
+    procedure SetDataQuitacao(const Value: String);
+    procedure SetOrdenacao(const Value: Integer);
+    procedure LerParametros;
+    procedure LimparContadores;
+    procedure SetEmissaoFinal(const Value: String);
+    procedure SetEmissaoInicial(const Value: String);
+    function GetHouveAlteracao: Boolean;
+{    function HouveAlteracao: Boolean;}
+    procedure CalcularTotais;
+  public
+    procedure MarcarSelecionados(Marcando, Todos: Boolean);
+    function  EfetuarQuitacao: Boolean;
+    function  SelecionarDuplicatas: Boolean;
+    procedure SelecionarDuplicatasPorFornecedor;
+    procedure ZerarConsultaDuplicatas;
+    procedure AbreTabelaPesquisa(TipoPesquisa: TtecQuitacaoEmLote);
+    procedure FechaTabelaPesquisa(TipoPesquisa: TtecQuitacaoEmLote);
+    procedure Selecionar(TipoPesquisa: TtecQuitacaoEmLote);
+    constructor Create(AOwner: TComponent); Override;
+    function ExisteEventos(Campo, Codigo: string): Boolean;
+    function ExisteFiliais(Campo, Codigo: string): Boolean;
+    function ExisteGrupoFiliais(Campo, Codigo: String): Boolean;
+    function ExisteClientes(Campo, Codigo: String): Boolean;
+    function ExisteConta(Campo, Codigo: String): Boolean;
+    property HouveAlteracao: Boolean read GetHouveAlteracao write fHouveAlteracao;
+    property ConsultaFiliais: TtecQuery read GetConsultaFiliais;
+    property ConsultaGrupoFiliais: TtecQuery read GetConsultaGrupoFiliais;
+    property ConsultaClientes: TtecQuery read GetConsultaClientes;
+    property ConsultaContas: TtecQuery read GetConsultaContas;
+    property TipoPessoa: String read GetTipoPessoa;
+    property VenctoInicial: String read FVenctoInicial write SetVenctoInicial;
+    property VenctoFinal: String read FVenctoFinal write SetVenctoFinal;
+    property EmissaoInicial: String read FEmissaoInicial write SetEmissaoInicial;
+    property EmissaoFinal: String read FEmissaoFinal write SetEmissaoFinal;
+    property Filial: String write SetFilial;
+    property Grupo: String write SetGrupo;
+    property Cliente: String write SetCliente;
+//    property Banco: String write SetBanco;
+//    property Agencia: String write SetAgencia;
+//    property Tipo: String write SetTipo;
+    property Ordenacao: Integer read FOrdenacao write SetOrdenacao;
+    property DataQuitacao: String read FDataQuitacao write SetDataQuitacao;
+    property HoraQuitacao: String read FHoraQuitacao write FHoraQuitacao;
+    property ContaCredito: String read FContaCredito write SetContaCredito;
+    property Cidade: String read FCidade write SetCidade;
+    property DataContabil: TDateTime read GetDataContabil;
+    property QtdeDuplicatas: Integer read GetQtdeDuplicatas;
+    property TotalDuplicatas: Real read GetTotalDuplicatas write fTotalDuplicatas;
+    property QtdeMarcados: Integer read GetQtdeMarcados write FQtdeMarcados;
+    property TotalMarcados : Real read GetTotalMarcados write FTotalMarcados;
+    property OnParcelasEdit: TNotifyEvent read FOnParcelasEdit write FOnParcelasEdit;
+    property ExibirMensagemDesconto: Boolean read fExibirMensagemDesconto write fExibirMensagemDesconto default true;
+  end;
+
+implementation
+{$R *.dfm}
+
+{ TdtmQuitacaoLote }
+
+procedure TdtmQuitacaoLote.AbreTabelaPesquisa(TipoPesquisa: TtecQuitacaoEmLote);
+begin
+  case TipoPesquisa of
+     qlFILIAIS,
+     qlFILIAISPAGTO : Abre(ctConsultaFiliais);
+     qlGRUPOFILIAIS : Abre(ctConsultaGruposFiliais);
+     qlCLIENTE      : begin
+                        qryConsultaClientes.Sql[08]:= 'Where (v.codigo = 0)';
+                        Abre(ctConsultaClientes);
+                      end;
+     qlCONTA:        Abre(ctConsultaContas);
+     qlEVENTO: Abre(ctConsultaEventos);
+  end;
+end;
+
+
+
+constructor TdtmQuitacaoLote.Create(AOwner: TComponent);
+begin
+   inherited;
+   qryFilial.Tag        := ctTabelas;
+   qryFilialPagto.Params[0].AsInteger := FilialBase;
+   qryFilialPagto.Tag   := ctTabelas;
+   qryGrupoFiliais.Tag  := ctTabelas;
+   qryClientes.Tag      := ctTabelas;
+   qryContas.Tag        := ctTabelas;
+   qryEventos.Tag       := ctTabelas;
+
+   qryConsultaFiliais.     Tag:= ctConsultaFiliais;
+   qryConsultaGrupoFiliais.Tag:= ctConsultaGruposFiliais;
+   qryConsultaClientes.    Tag:= ctConsultaClientes;
+   qryConsultaContas.      Tag:= ctConsultaContas;
+   qryConsultaEventos.     Tag:= ctConsultaEventos;
+
+   ExibirMensagemDesconto := true;
+end;
+
+
+function TdtmQuitacaoLote.ExisteConta(Campo, Codigo: String): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaContas, Campo, Codigo);
+end;
+
+function TdtmQuitacaoLote.ExisteEventos(Campo, Codigo: string): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaEventos, Campo, Codigo);
+end;
+
+function TdtmQuitacaoLote.ExisteFiliais(Campo, Codigo: string): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaFiliais, Campo, Codigo);
+end;
+
+function TdtmQuitacaoLote.ExisteClientes(Campo, Codigo: String): Boolean;
+const
+  SQL = 'Where (to_ascii(%s,''latin1'') ilike to_ascii(''%s%s'',''latin1''))';
+begin
+  if Campo = 'nomecidade' then
+    Campo:= 'c.nome'
+  else if Campo = 'tipocliente' then
+    Campo:= 'v.tipo'
+  else
+    Campo:= 'v.' + Campo;
+  qryConsultaClientes.Sql[08] := Format(SQL, [Campo, Codigo, '%']);
+  qryConsultaClientes.Open;
+  Result := qryConsultaClientes.RecordCount > 0
+end;
+
+function TdtmQuitacaoLote.ExisteGrupoFiliais(Campo, Codigo: String): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaGrupoFiliais, Campo, Codigo);
+end;
+
+procedure TdtmQuitacaoLote.FechaTabelaPesquisa(TipoPesquisa: TtecQuitacaoEmLote);
+begin
+   case TipoPesquisa of
+      qlFILIAIS,
+      qlFILIAISPAGTO: Fecha(ctConsultaFiliais);
+      qlGRUPOFILIAIS: Fecha(ctConsultaGruposFiliais);
+      qlCLIENTE:      Fecha(ctConsultaClientes);
+      qlCONTA:        Fecha(ctConsultaContas);
+      qlEVENTO:       Fecha(ctConsultaEventos);
+  end;
+end;
+
+{function TdtmQuitacaoLote.GetConsultarEventos: TtecQuery;
+begin
+  Result:= qryConsultaEventos;
+end;}
+
+function TdtmQuitacaoLote.SelecionarDuplicatas: Boolean;
+
+              {
+  procedure SetValorPagto;
+  var
+    Pos : TBookmark;
+  begin
+    qryparcelas.AfterScroll := nil;
+    Pos := qryParcelas.GetBookmark;
+    qryParcelas.DisableControls;
+    qryParcelas.First;
+    while not qryParcelas.Eof do
+    begin
+      qryParcelas.Edit;
+      qryParcelasvalorpagto.AsCurrency := qryParcelasvalorvencto.AsCurrency -
+                                          qryParcelasdescontosugerido.AsCurrency +
+                                          tecFinanceira.CalcularJuros(qryParcelasvalorvencto.AsCurrency,
+                                                                      qryParcelasdatavencto.AsDateTime,
+                                                                      DataServidor,
+                                                                      qryParcelasFilialVenda.asinteger
+                                                                      );
+      qryParcelasvalorpagto_original.AsCurrency := qryParcelasvalorpagto.AsCurrency;
+      qryParcelas.Next;
+    end;
+    qryParcelas.GotoBookmark(Pos);
+    qryParcelas.FreeBookmark(Pos);
+    qryParcelas.EnableControls;
+    qryparcelas.AfterScroll := qryparcelasAfterScroll;
+  end;
+  }
+
+begin
+  fTotalDuplicatas := 0;
+  
+  qryParcelas.Close;
+  qryParcelas.Open;
+
+  Result:= qryParcelas.IsEmpty;
+
+  if not Result then begin
+    LerParametros;
+//    SetValorPagto;
+  end;
+end;
+
+procedure TdtmQuitacaoLote.SelecionarDuplicatasPorFornecedor;
+begin
+  qryParcelas.MacroByName('cliente').asString := 'and (c.cliente = 0) and ' +
+                                         '(c.tipocliente = ' + QuotedStr('X') + ')';
+  qryParcelas.Open;
+end;
+
+
+function TdtmQuitacaoLote.GetConsultaContas: TtecQuery;
+begin
+  Result:= qryConsultaContas;
+end;
+
+function TdtmQuitacaoLote.GetConsultaFiliais: TtecQuery;
+begin
+  Result:= qryConsultaFiliais;
+end;
+
+function TdtmQuitacaoLote.GetConsultaGrupoFiliais: TtecQuery;
+begin
+  Result:= qryConsultaGrupoFiliais;
+end;
+
+function TdtmQuitacaoLote.GetDataContabil: TDateTime;
+begin
+  Result:= ParSistema.DataContabil;
+end;
+
+function TdtmQuitacaoLote.GetQtdeDuplicatas: Integer;
+begin
+  Result:= qryParcelas.RecordCount;
+end;
+
+function TdtmQuitacaoLote.GetQtdeMarcados: Integer;
+begin
+  Result := FQtdeMarcados;
+end;
+
+function TdtmQuitacaoLote.GetTipoPessoa: String;
+begin
+  if qryClientestipo.AsString = '' then
+       Result:= 'C'
+  else Result:= qryClientestipo.AsString;
+end;
+
+function TdtmQuitacaoLote.GetTotalDuplicatas: Real;
+var
+  Pos  : TBookmark;
+  Query: TtecQuery;
+  Previsao: TFloatField;
+begin
+  if fTotalDuplicatas = 0 then
+  begin
+    qryparcelas.AfterScroll := nil;
+    Query   := qryParcelas;
+    Previsao:= qryParcelasvalorpagto;
+
+    fTotalDuplicatas:= 0;
+    if Query.Active and not Query.IsEmpty then
+    begin
+      Pos:= Query.GetBookmark;
+      try
+        Query.DisableControls;
+        Query.First;
+        while not Query.Eof do begin
+          fTotalDuplicatas := fTotalDuplicatas + Previsao.AsCurrency;
+          Query.Next;
+        end;
+      finally
+        Query.GotoBookmark(Pos);
+        Query.FreeBookmark(Pos);
+        Query.EnableControls;
+        qryparcelas.AfterScroll := qryparcelasAfterScroll;
+      end;
+    end;
+  end;
+
+  Result := fTotalDuplicatas;
+end;
+
+function TdtmQuitacaoLote.GetTotalMarcados: Real;
+begin
+  Result := FTotalMarcados;
+end;
+
+procedure TdtmQuitacaoLote.MarcarSelecionados(Marcando, Todos: Boolean);
+var
+  Pos     : TBookmark;
+  I       : Integer;
+  Query   : TtecQuery;
+  Previsao: TFloatField;
+  Quitar  : TBooleanField;
+
+  procedure AtualizarValores;
+  begin
+    if Quitar.AsBoolean then begin
+      FQtdeMarcados  := FQtdeMarcados + 1;
+      FTotalMarcados := FTotalMarcados + Previsao.AsCurrency;
+    end
+    else begin
+      FQtdeMarcados  := FQtdeMarcados - 1;
+      FTotalMarcados := FTotalMarcados - Previsao.AsCurrency;
+    end;
+  end;
+
+begin
+  Query   := qryParcelas;
+  Previsao:= qryParcelasvalorpagto;
+  Quitar  := qryParcelasselecionar;
+
+
+  if not query.IsEmpty then
+  begin
+   if not Todos then begin
+    Query.Edit;
+    Quitar.AsBoolean:= not Quitar.AsBoolean;
+    Query.Post;
+    AtualizarValores;
+   end
+   else begin
+    Pos:= Query.GetBookmark;
+    try
+      Query.DisableControls;
+      Query.First;
+      for I:= 1 to Query.RecordCount do begin
+        Query.Edit;
+        if Marcando then begin
+          if not Quitar.AsBoolean then begin
+            Quitar.AsBoolean := True;
+            AtualizarValores;
+          end
+        end
+        else begin
+          if Quitar.AsBoolean then begin
+            Quitar.AsBoolean:= False;
+            AtualizarValores;
+          end;
+        end;
+        Query.Post;
+        Query.Next;
+      end;
+      finally
+        Query.GotoBookmark(Pos);
+        Query.FreeBookmark(Pos);
+        Query.EnableControls;
+      end;
+   end;
+  end;
+end;
+
+procedure TdtmQuitacaoLote.MontaDataVencimento;
+const
+  Data_1: String = 'and (p.datavencto = ';
+  Data_2: String = 'and (p.datavencto between (';
+begin
+  if not DataEmBranco(FVenctoInicial) then begin
+    if DataEmBranco(FVenctoFinal) then begin
+      qryParcelas.MacroByName('vencimento').AsString := Data_1 + '''' + FVenctoInicial + ''')';
+    end
+    else begin
+      qryParcelas.MacroByName('vencimento').AsString:= Data_2 + '''' + FVenctoInicial + ''') and (''' + FVenctoFinal + '''))';
+    end;
+  end
+  else begin
+    if not DataEmBranco(FVenctoFinal) then begin
+      qryParcelas.MacroByName('vencimento').AsString := Data_1 + '''' + FVenctoFinal + ''')';
+    end
+    else begin
+      qryParcelas.MacroByName('vencimento').AsString := '';
+    end;
+  end;
+end;
+
+
+procedure TdtmQuitacaoLote.qryParcelasAfterInsert(DataSet: TDataSet);
+begin
+  inherited;
+  qryParcelas.Cancel;
+end;
+
+procedure TdtmQuitacaoLote.qryClientesBeforeOpen(DataSet: TDataSet);
+begin
+  inherited;
+  if qryClientes.Params[0].AsString = '' then
+    qryClientes.Params[0].AsString:= 'C';
+end;
+
+
+function TdtmQuitacaoLote.EfetuarQuitacao:Boolean;
+var Usuario: TtecUsuarios;
+    Recebimento, vControleRecebimento, Transacao,i,j: Integer;
+//    vValorVencto,
+    vValorPagto : currency;
+    valorParcial: real;
+
+
+  procedure GerarNovaParcela;
+  begin
+    valorParcial := calcularValorParcial(qryParcelasvalorvencto.asFloat,
+                                           qryParcelasvalorpagto.asFloat,
+                                           qryParcelastotal.asFloat);
+
+    if qryParcelasvalorvencto.asFloat > valorParcial then
+    begin
+      qryInserirParcelaParcial.ParamByName('contrato').Value      := qryparcelascontrato.value;
+//      qryInserirParcelaParcial.ParamByName('numero').Value        := proximoNumeroParcela(contrato);
+      qryInserirParcelaParcial.ParamByName('datavencto').Value    := qryparcelasdatavencto.Value;
+      qryInserirParcelaParcial.ParamByName('valorvencto').Value   := qryParcelasvalorvencto.asFloat - valorParcial;
+      {
+      if Quitar then begin
+        qryInserirParcelaParcial.ParamByName('datapagto').Value   := DataServidor;
+        qryInserirParcelaParcial.ParamByName('valorpagto').Value  := vlvencto;
+      end;
+      }
+      qryInserirParcelaParcial.ParamByName('viaCaixa').Value  := false;
+      qryInserirParcelaParcial.ParamByName('parcelaorigem').Value := qryParcelasParcelaOrigem.value;
+      qryInserirParcelaParcial.ParamByName('parcelaoriginal').Value:= qryParcelasNumero.Value;
+
+
+      qryInserirParcelaParcial.ExecSql;
+      perpetrar([]);
+    end;
+
+  end;
+
+begin
+  Result := true;
+  Usuario:= TtecUsuarios.Create(dtmTecSoft.Database);
+  try
+    if UsuarioLogin.Caixa then
+      Usuario:= ObterAutorizacao(taSENHA)
+    else Usuario:= ObterAutorizacao(taLOGIN, ctAUTORIZACAORECEBIMENTO, ctAUTORIZADO);
+
+    if Assigned(Usuario) and Usuario.Caixa then
+      begin
+{      try}
+
+        qryParcelas.AfterScroll := nil;
+        qryParcelas.DisableControls;
+
+        qryParcelas.First;
+        while not qryParcelas.Eof do
+        begin
+          if qryParcelasSelecionar.AsBoolean then
+          begin
+            valorParcial := qryParcelasValorVencto.AsFloat;
+
+            if qryParcelasdescontosugerido.AsCurrency >
+               (qryParcelasValorVencto.AsCurrency + qryparcelasjuros.asCurrency) then
+              MensagemAviso('O valor de desconto não pode ser maior que' + #10#13 +
+                            'o de vencimento + juros.')
+            else
+            if qryParcelasValorPagto.AsCurrency >
+               (qryParcelastotal.AsCurrency) then
+              MensagemAviso('O valor do pagamento não pode ser maior que o Total, distribua a diferença em juros ou descontos.')
+            else
+            begin
+              if (qryParcelasValorPagto.AsCurrency > 0) and
+                 (qryParcelasValorPagto.AsCurrency < qryparcelastotal.AsCurrency) then
+                 GerarNovaParcela;
+
+               (*
+              begin
+                if ExibirMensagemDesconto then
+                  case MensagemSimNaoOpcaoCancelar(format('Parcela: %s  Valor a ser pago: %f Valor de vencimento: %f' + #10#13 +
+                                                          'O valor a ser pago é menor do que o valor de vencimento.' + #10#13 +
+                                                          'A operação a ser realizada, refere-se a um recebimento PARCIAL. Confirma?',
+                                                          [qryParcelasContrato.AsString+'/'+qryParcelasNumero.asstring,
+                                                           qryParcelasValorPagto.ascurrency,
+                                                           qryParcelasValorVencto.ascurrency]),'&Desconto concedido',true,
+                                                   '&Gerar outra parcela [Com Juros]',
+                                                   'Gerar outra parcela [Sem Juros]') of
+                    mrYes: GerarNovaParcela(false);
+                    mrNo:  GerarNovaParcela(true);
+                    mrOK:; {Conceder desconto}
+                    mrCancel: exit;
+                  end;
+              end;
+              *)
+
+
+              RefazConsulta(qryQuitarParcelas,[0,1,2],
+                            [qryParcelasContrato.AsVariant,
+                             qryParcelasDataVencto.AsVariant,
+                             qryParcelasNumero.AsVariant]);
+
+
+              if not qryQuitarParcelas.IsEmpty then
+              begin
+                qryQuitarParcelas.Edit;
+  //              qryQuitarParcelasContrato.AsString          := qryParcelasContrato.AsString;
+  //              qryQuitarParcelasNumero.AsInteger           := qryParcelasNumero.AsInteger;
+  //              qryQuitarParcelasDataVencto.AsDateTime      := qryParcelasDataVencto.AsDateTime;
+                qryQuitarParcelasValorVencto.AsFloat        := valorParcial;
+                qryQuitarParcelasdescontosugerido.AsFloat   := qryParcelasdescontosugerido.AsFloat;
+                qryQuitarParcelasobservacaoboleto.AsString  := qryParcelasobservacaoboleto.AsString;
+                qryQuitarParcelasdebitar.AsVariant          := qryContascontacontabil.AsVariant;
+                qryQuitarParcelasValorPagto.AsFloat       := qryParcelasValorPagto. AsFloat;
+                qryQuitarParcelasFilialPagto.AsInteger    := qryFilialPagtoCodigo.  AsInteger;
+                qryQuitarParcelasDataPagto.AsDateTime     := StrToDate(DataQuitacao);
+                qryQuitarParcelasviacaixa.asboolean := false;
+                qryQuitarParcelasUsuarioExtracaixa.AsString := Usuario.NomeUsuario;
+
+
+                {Gera Recebimentos}
+                if(not qryParcelastiporecebimento.IsNull) then
+                begin
+                   //pega o proximo numero de transacao
+                   spcTransacaoProximo.Open;
+                   Transacao := spcTransacaoProximotransacao.AsInteger;
+                   spcTransacaoProximo.Close;
+
+                   //pega dados dos Tipos de Recebimento
+                   RefazConsulta(qryTipoRecebimento,[0],[qryParcelastiporecebimento.AsInteger]);
+                   qryQuitarParcelastiporecebimento.AsInteger := qryParcelastiporecebimento.AsInteger;
+                   qryQuitarParcelasformapagamento.asString:=qryTipoRecebimentotiporecebimento.AsString;
+                   qryQuitarParcelastransacao.AsInteger:=Transacao;
+
+//                   vValorVencto := qryParcelasValorVencto.Ascurrency;
+                   vValorPagto  := qryParcelasValorPagto.AsCurrency;
+
+                   qryRecebimentos.open;
+                   for i:=1 to qryTipoRecebimentonumerorecebimentos.AsInteger do
+                   begin
+                          spcRecebimentosproximo.open;
+                          Recebimento:=SpcRecebimentosProximocodigo.AsInteger;
+                          spcRecebimentosproximo.close;
+
+                          if i=0 then
+                            vControleRecebimento := Recebimento;
+
+                          qryRecebimentos.append;
+
+                          qryRecebimentoscodigo.AsInteger:=Recebimento;
+
+                          qryRecebimentosfilial.AsInteger:=qryFilialPagtoCodigo.AsInteger;
+                          qryRecebimentossituacao.AsString:='N';
+                          qryRecebimentostransacao.AsInteger:=Transacao;
+                          qryRecebimentosdatalancto.AsDateTime:=StrToDatetime(DataQuitacao+ ' ' +HoraQuitacao);
+
+                          { Verificar com JR a questao do valor do vencimento e datavencto }
+  //                        qryRecebimentosdatavencto.asDateTime := qryParcelasDataVencto.asdateTime;
+
+                          if i = qryTipoRecebimentonumerorecebimentos.AsInteger then
+                          begin
+                            qryRecebimentosvalorlancto.AsFloat := vValorPagto;  {o que restou, caso contratio pode dar diferenças de centavos}
+  //                          qryRecebimentosvalorvencto.asCurrency := vValorVencto;
+                          end
+                          else
+                          begin
+                            qryRecebimentosvalorlancto.AsFloat:= Roundto(qryParcelasValorPagto.AsFloat/qryTipoRecebimentonumerorecebimentos.asInteger, -2);
+  //                          qryRecebimentosvalorvencto.asCurrency := Roundto(qryParcelasValorVencto.AsFloat/qryTipoRecebimentonumerorecebimentos.asInteger, -2);
+                          end;
+
+                          vValorPagto := vValorPagto - qryRecebimentosvalorlancto.AsFloat;
+  //                        vValorVencto := vValorVencto - qryRecebimentosvalorvencto.asCurrency;
+
+                          qryRecebimentostiporecebimento.asInteger := qryParcelastiporecebimento.asInteger;
+                          qryRecebimentoscontrole.AsInteger := i;
+                          qryRecebimentoscontrolerecebimento.AsInteger := vControleRecebimento;
+
+                          qryRecebimentos.Post;
+                   end;
+                end;
+
+                if not qryContasConta.IsNull then
+                  qryQuitarParcelasContaBoleto.AsInteger  := qryContasConta.AsInteger;
+                if not qryEventosCodigo.IsNull then
+                  qryQuitarParcelasEvento.AsInteger:= qryEventosCodigo.AsInteger;
+                qryQuitarParcelasParcelaAdicional.AsBoolean    := False;
+                qryQuitarParcelasPagamentoExtracaixa.AsBoolean := True;
+
+                qryQuitarParcelas.Post;
+                Perpetrar([qryQuitarParcelas,qryRecebimentos]);
+
+              end;
+
+            end;
+
+          end
+          else
+          begin
+            fHouveAlteracao := false;
+            if HouveAlteracao then  {Verifica individualmente}
+            begin
+
+              qryParcelas.edit;
+              qryParcelasdescontosugerido_original.asCurrency := qryParcelasdescontosugerido.AsCurrency;
+              qryParcelasobservacaoboleto_original.asString := qryParcelasobservacaoboleto.AsString;
+//              qryParcelasvalorpagto_original.AsCurrency := qryParcelasvalorpagto.AsCurrency;
+              qryParcelas.post;
+
+
+              RefazConsulta(qryQuitarParcelas,[0,1,2],
+                            [qryParcelasContrato.AsVariant,
+                             qryParcelasDataVencto.AsVariant,
+                             qryParcelasNumero.AsVariant]);
+
+              if not qryQuitarParcelas.IsEmpty then
+              begin
+                qryQuitarParcelas.Edit;
+                qryQuitarParcelasdescontosugerido.AsFloat   := qryParcelasdescontosugerido.AsFloat;
+                qryQuitarParcelasobservacaoboleto.AsString  := qryParcelasobservacaoboleto.AsString;
+                qryQuitarParcelas.post;
+                Perpetrar([qryQuitarParcelas]);
+
+              end;
+            end;
+          end;
+
+          qryParcelas.Next;
+        end;
+{      except
+        on E:Exception do Result := False;}
+      end
+    else
+      MensagemAviso(format(ctUSUARIONAOAUTORIZADO,[ctAUTORIZARRECEBIMENTOPARCELA]));
+  finally
+    qryParcelas.EnableControls;
+    qryParcelas.AfterScroll := qryParcelasAfterScroll;
+    Usuario.Free;
+  end;
+  LimparContadores;
+  SelecionarDuplicatas;
+end;
+
+procedure TdtmQuitacaoLote.Selecionar(TipoPesquisa: TtecQuitacaoEmLote);
+begin
+   case TipoPesquisa of
+      qlFILIAIS:      ReFazConsulta(qryFilial,      [0],    [qryConsultaFiliaisCodigo.     AsInteger]);
+      qlFILIAISPAGTO: ReFazConsulta(qryFilialPagto, [0],    [qryConsultaFiliaisCodigo.     AsInteger]);
+      qlGRUPOFILIAIS: ReFazConsulta(qryGrupoFiliais,[0],    [qryConsultaGrupoFiliaisCodigo.AsInteger]);
+      qlCLIENTE:      ReFazConsulta(qryClientes,    [0, 1], [qryConsultaClientesTipo.      AsString,
+                                                             qryConsultaClientescodigo.    AsInteger]);
+      qlCONTA:        ReFazConsulta(qryContas,      [0],    [qryConsultaContasConta.       AsInteger]);
+      qlEVENTO:       refazConsulta(qryEventos,     [0],    [qryConsultaEventosCodigo.     AsInteger]);
+   end;
+end;
+
+procedure TdtmQuitacaoLote.SetFilial(const Value: String);
+begin
+  if (Value <> '') then begin
+    qryParcelas.MacroByName('filial').AsString := 'and (c.filialvenda = ' + Value + ')';
+  end
+  else begin
+    qryParcelas.MacroByName('filial').AsString := '';
+  end;
+end;
+
+procedure TdtmQuitacaoLote.SetCliente(const Value: String);
+begin
+  if (Value <> '') then begin
+    qryParcelas.MacroByName('cliente').asString := 'and (c.cliente = ' + Value + ') and ' +
+                                         '(c.tipocliente = ' + '''' + qryClientestipo.AsString + '''' + ')';
+  end
+  else begin
+    qryParcelas.MacroByName('cliente').asString := '';
+  end;
+end;
+
+procedure TdtmQuitacaoLote.SetGrupo(const Value: String);
+begin
+  if (Value <> '') then begin
+    qryParcelas.MacroByName('filial').AsString := 'and (c.filialvenda in (Select filial From filiaisgruposfiliais Where grupo = ' + Value + '))';
+  end;
+end;
+
+procedure TdtmQuitacaoLote.SetVenctoFinal(const Value: String);
+begin
+  if not DataEmBranco(Value) then
+       FVenctoFinal := Value
+  else FVenctoFinal := '';
+  MontaDataVencimento;
+end;
+
+procedure TdtmQuitacaoLote.SetVenctoInicial(const Value: String);
+begin
+  if not DataEmBranco(Value) then
+       FVenctoInicial := Value
+  else FVenctoInicial := '';
+  MontaDataVencimento;
+end;
+
+procedure TdtmQuitacaoLote.ZerarConsultaDuplicatas;
+begin
+   qryParcelas.Close;
+   qryNotas.Close;
+   qryContas.Close;
+//   ReFazConsulta(qryContas,     [0],[0]);
+end;
+
+procedure TdtmQuitacaoLote.SetCidade(const Value: String);
+begin
+  if FCidade <> Value then
+    FCidade:= Value;
+end;
+
+procedure TdtmQuitacaoLote.SetContaCredito(const Value: String);
+begin
+  if FContaCredito <> Value then
+    FContaCredito:= Value;
+end;
+
+procedure TdtmQuitacaoLote.SetDataQuitacao(const Value: String);
+begin
+  if FDataQuitacao <> Value then
+    FDataQuitacao:= Value;
+
+  HoraQuitacao := timetostr(HoraServidor);
+end;
+
+procedure TdtmQuitacaoLote.DataModuleDestroy(Sender: TObject);
+begin
+  inherited;
+  qryContas.Close;
+end;
+
+procedure TdtmQuitacaoLote.SetOrdenacao(const Value: Integer);
+begin
+  FOrdenacao := Value;
+  if FOrdenacao=0 then
+    qryParcelas.MacroByName('ordenacao').AsString:='Order By p.datavencto, p.contrato, UPPER(TO_ASCII(c.nome,''LATIN1'')), c.tipocliente'
+  else if FOrdenacao=1 then
+    qryParcelas.MacroByName('ordenacao').AsString:='Order By UPPER(TO_ASCII(c.nome,''LATIN1'')), c.cliente,c.tipocliente, p.contrato, p.datavencto'
+  else
+    qryParcelas.MacroByName('ordenacao').AsString:='Order By p.valorvencto, p.contrato, p.datavencto, UPPER(TO_ASCII(c.nome,''LATIN1'')), c.tipocliente';
+end;
+
+function TdtmQuitacaoLote.GetConsultaClientes: TtecQuery;
+begin
+  Result := qryConsultaClientes;
+end;
+
+
+
+procedure TdtmQuitacaoLote.LerParametros;
+begin
+  with tecFinanceira do begin
+    DiasAtraso1       := ParSistema.DiasAtraso1;
+    DiasAtraso2       := ParSistema.DiasAtraso2;
+    PercentualMultas1 := ParSistema.PercentualAtrasoMultas1;
+    PercentualMultas2 := ParSistema.PercentualAtrasoMultas2;
+    TaxaJuros1        := ParSistema.PercentualAtrasoJuros1;
+    TaxaJuros2        := ParSistema.PercentualAtrasoJuros2;
+    Juros             := ParSistema.TaxaJuros;
+    JurosSimples      := ParSistema.UtilizarJurosSimples;
+    Descontos         := ParSistema.DescontoPagAntecipado;
+  end;
+end;
+
+procedure TdtmQuitacaoLote.LimparContadores;
+begin
+  FQtdeMarcados := 0;
+  FTotalMarcados:= 0;
+
+  fTotalDuplicatas := 0;
+end;
+
+procedure TdtmQuitacaoLote.dsrParcelasDataChange(Sender: TObject;
+  Field: TField);
+begin
+  inherited;
+  if {(field = qryParcelasdescontosugerido) or}
+     {(field = qryParcelasobservacaoboleto) or}
+     (Field = qryParcelasValorPagto)       then
+  begin
+    //if Assign();
+    {
+    if field = qryParcelasdescontosugerido then
+      qryParcelasValorPagto.AsFloat := qryParcelasValorVencto.AsFloat - qryParcelasdescontosugerido.AsFloat
+    else
+    }
+
+    if (Field.value = 0) and (qryParcelastotal.asCurrency <> 0)  then
+    begin
+      MensagemAviso('Para quitação com 100% de desconto altere a coluna desconto.');
+      Field.value := qryParcelastotal.asCurrency;
+    end;
+
+    qryParcelasprevisaoalterada.asBoolean := True;
+
+    CalcularTotais;
+
+  end
+  else
+  if (field = qryParcelasobservacaoboleto) then
+  begin
+    dsrParcelas.onDataChange := nil;
+    if qryParcelas.state = dsedit then
+      qryParcelas.Post;
+    dsrParcelas.onDataChange := dsrParcelasDataChange;
+  end
+  else
+  if (Field = qryParcelasdescontosugerido) then
+  begin
+    if Field.value > (qryParcelasvalorvencto.asCurrency +
+                      qryParcelasjuros.ascurrency) then
+    begin
+      MensagemAviso('O valor do desconto não pode ser maior que o valor do vencimento acrescido de juros.');
+      Field.value := 0;
+    end;
+
+    dsrParcelas.onDataChange := nil;
+    if not qryParcelasprevisaoalterada.asBoolean then
+      qryParcelasValorPagto.asCurrency := qryparcelastotal.AsCurrency;
+    CalcularTotais;
+    dsrParcelas.onDataChange := dsrParcelasDataChange;
+
+
+  end
+  else
+  if (Field = qryParcelasjuros) then
+  begin
+    if Field.value > qryParcelasjuros_original.asCurrency then
+    begin
+      MensagemAviso(format('O valor do juro não pode ser maior do que o valor de %s calculado pelo sistema.', [formatfloat('###,##0.00', qryParcelasjuros_original.asCurrency)]));
+      Field.value := qryParcelasjuros_original.value;
+    end;
+
+    dsrParcelas.onDataChange := nil;
+    if not qryParcelasprevisaoalterada.asBoolean then
+      qryParcelasValorPagto.asCurrency := qryparcelastotal.AsCurrency;
+    CalcularTotais;
+    dsrParcelas.onDataChange := dsrParcelasDataChange;
+
+  end;
+
+
+end;
+
+procedure TdtmQuitacaoLote.qryParcelasAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+    RefazConsulta(qryNotas,[0],[qryParcelascontrato.AsString]);
+end;
+
+(*
+function TdtmQuitacaoLote.HouveAlteracao: Boolean;
+begin
+  Result := False;
+
+//  GuardarRegistroAtual(qryParcelas,true);
+//  qryParcelas.First;
+//  while not qryParcelas.Eof do
+//  begin
+    {
+    if ((qryParcelasdescontosugerido.OldValue <> Null) and
+        (qryParcelasdescontosugerido.OldValue <> qryParcelasdescontosugerido.AsFloat))  or
+       ((qryParcelasobservacaoboleto.OldValue <> Null) and
+        (qryParcelasobservacaoboleto.OldValue <> qryParcelasobservacaoboleto.AsString)) or
+       (qryParcelasValorPagto.AsFloat <> qryParcelasdescontosugerido.AsFloat -
+                                         qryParcelasValorVencto.AsFloat) then
+    }
+
+    if (qryParcelasdescontosugerido_original.asCurrency <> qryParcelasdescontosugerido.AsCurrency)  or
+       (qryParcelasobservacaoboleto_original.asString <> qryParcelasobservacaoboleto.AsString) or
+       (qryParcelasValorPagto.AsFloat <> (qryParcelasdescontosugerido.AsFloat -
+                                          qryParcelasValorVencto.AsFloat)) then
+    begin
+       Result := True;
+      Break;
+    end;
+//    qryParcelas.Next;
+//  end;
+//  VoltarRegistroAtual(qryParcelas);
+end;
+*)
+
+procedure TdtmQuitacaoLote.SetEmissaoFinal(const Value: String);
+begin
+  if not DataEmBranco(Value) then
+       FEmissaoFinal := Value
+  else FEmissaoFinal := '';
+  MontaDataEmissao;
+
+end;
+
+procedure TdtmQuitacaoLote.SetEmissaoInicial(const Value: String);
+begin
+  if not DataEmBranco(Value) then
+       FEmissaoInicial := Value
+  else FEmissaoInicial := '';
+  MontaDataEmissao;
+end;
+
+procedure TdtmQuitacaoLote.MontaDataEmissao;
+const
+  Data_1: String = 'and (c.faturamento = ';
+  Data_2: String = 'and (c.faturamento between (';
+begin
+  if not DataEmBranco(FEmissaoInicial) then begin
+    if DataEmBranco(FEmissaoFinal) then begin
+      qryParcelas.MacroByName('emissao').AsString := Data_1 + '''' + FEmissaoInicial + ''')';
+    end
+    else begin
+      qryParcelas.MacroByName('emissao').AsString:= Data_2 + '''' + FEmissaoInicial + ''') and (''' + FEmissaoFinal + '''))';
+    end;
+  end
+  else begin
+    if not DataEmBranco(FEmissaoFinal) then begin
+      qryParcelas.MacroByName('emissao').AsString := Data_1 + '''' + FEmissaoFinal + ''')';
+    end
+    else begin
+      qryParcelas.MacroByName('emissao').AsString := '';
+    end;
+  end;
+end;
+
+
+procedure TdtmQuitacaoLote.ZMonitor1MonitorEvent(Sql, Result: String);
+var
+ Listar : TStringList;
+ arquivo : String;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  arquivo := 'c:\teclux\monitor.sql';
+  if fileexists(arquivo) then
+    Listar.loadfromfile(arquivo);
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile(arquivo);
+  listar.free;
+end;
+
+function TdtmQuitacaoLote.GetHouveAlteracao: Boolean;
+begin
+  if fHouveAlteracao or
+     (qryParcelasdescontosugerido_original.asCurrency <> qryParcelasdescontosugerido.AsCurrency)  or
+     (qryParcelasobservacaoboleto_original.asString <> qryParcelasobservacaoboleto.AsString) {or
+     (qryParcelasValorPagto.AsCurrency <> (qryParcelasValorVencto.AsCurrency - qryParcelasdescontosugerido.AsCurrency))} then
+    fHouveAlteracao := True
+  else
+    fHouveAlteracao := false;
+
+  result := fHouveAlteracao;
+end;
+
+procedure TdtmQuitacaoLote.qryParcelasCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  qryParcelastotal.asCurrency := qryParcelasValorVencto.asCurrency +
+                                 qryParcelasjuros.AsCurrency -
+                                 qryParcelasdescontosugerido.AsCurrency;
+end;
+
+procedure TdtmQuitacaoLote.CalcularTotais;
+begin
+  if qryParcelasselecionar.AsBoolean {and (Field = qryParcelasValorPagto)} then
+    FTotalMarcados:= ((FTotalMarcados - qryParcelasvalorpagto_original.asCurrency) +
+                                      qryParcelasvalorpagto.AsCurrency);
+
+  fTotalDuplicatas:= ((fTotalDuplicatas - qryParcelasvalorpagto_original.asCurrency) +
+                                          qryParcelasvalorpagto.AsCurrency);
+
+  if Assigned(FOnParcelasEdit) then
+    FOnParcelasEdit(qryParcelas);
+end;
+
+procedure TdtmQuitacaoLote.qryParcelasBeforePost(DataSet: TDataSet);
+begin
+  inherited;
+  qryParcelasvalorpagto_original.asCurrency := qryParcelasvalorpagto.asCurrency
+end;
+
+end.

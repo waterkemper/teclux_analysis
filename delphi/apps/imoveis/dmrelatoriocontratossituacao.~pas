@@ -1,0 +1,317 @@
+
+unit dmrelatoriocontratossituacao;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, ctconstantes, dmtecsoft, FR_DSet,
+  FR_DBSet, FR_Class, biblio, clparametrossistema, fmpreviewpadrao,
+  FR_Desgn, StdCtrls, Variants, Graphics, DB, cpdatasource, ZQuery,
+  ZPgSqlQuery, cpquery, ZTransact, dateutils, frxClass, frxDBSet,
+  frxExportXML, frxExportImage, frxExportCSV, frxExportText, frxExportRTF,
+  frxExportHTML, frxExportPDF, frxExportODF, frxExportTXT, frxExportMail,
+  frxExportXLS;
+
+type
+  TdtmrelatorioContratosSituacao = class(TdtmBasico)
+    qryRelatorioContratosSituacao: TtecQuery;
+    dsrRelatorioContratosSituacao: TtecDataSource;
+    qryRelatorioContratosSituacaoContrato: TIntegerField;
+    qryRelatorioContratosSituacaoData: TDateField;
+    qryRelatorioContratosSituacaoCliente: TIntegerField;
+    qryRelatorioContratosSituacaoRecebimentosCurtoPrazo: TFloatField;
+    qryRelatorioContratosSituacaoRecebimentosLongoPrazo: TFloatField;
+    qryRelatorioContratosSituacaoAVPCurtoPrazo: TFloatField;
+    qryRelatorioContratosSituacaoAVPLongoPrazo: TFloatField;
+    qryRelatorioContratosSituacaoNomeSituacao: TStringField;
+    qryRelatorioContratosSituacaoNomeCliente: TStringField;
+    qryRelatorioContratosSituacaoEmpreendimento: TIntegerField;
+    qryRelatorioContratosSituacaoSigla: TStringField;
+    frxRelatorioContratosSituacao: TfrxReport;
+    frxDBRelatorioContratosSituacao_: TfrxDBDataset;
+    frxDBRelatorioContratosSituacao: TfrxDBDataset;
+    qryRelatorioContratosSituacaoNomeEmpreendimento: TStringField;
+    qryRelatorioContratosSituacaoPrecoVenda: TFloatField;
+    qryImoveisVendidos: TtecQuery;
+    qryImoveisVendidosContrato: TIntegerField;
+    qryImoveisVendidosBloco: TIntegerField;
+    qryImoveisVendidosNumero: TStringField;
+    qryImoveisVendidosObservacoes: TStringField;
+    qryImoveisVendidosPrecoVenda: TFloatField;
+    qryImoveisVendidosUnidade: TIntegerField;
+    qryImoveisVendidosOrdem: TIntegerField;
+    qryRelatorioContratosSituacaoDescricaoBloco: TStringField;
+    qryRelatorioContratosSituacaoNomeUnidade: TStringField;
+    qryRelatorioContratosSituacaoNumero: TStringField;
+    qryRelatorioContratosSituacaoAreaTotal: TFloatField;
+    qryImoveisVendidosDescricaoBloco: TStringField;
+    qryImoveisVendidosNomeUnidade: TStringField;
+    qryImoveisVendidosAreaTotal: TFloatField;
+    frxDBDImoveisVendidos: TfrxDBDataset;
+    qryImoveisVendidosNRegistros: TLargeintField;
+    qryRelatorioContratosSituacaoSiglaEmpreendimento: TStringField;
+    frxXLSExport1: TfrxXLSExport;
+    frxMailExport1: TfrxMailExport;
+    frxTXTExport1: TfrxTXTExport;
+    frxODSExport1: TfrxODSExport;
+    frxODTExport1: TfrxODTExport;
+    frxPDFExport1: TfrxPDFExport;
+    frxHTMLExport1: TfrxHTMLExport;
+    frxRTFExport1: TfrxRTFExport;
+    frxBMPExport1: TfrxBMPExport;
+    frxTIFFExport1: TfrxTIFFExport;
+    frxGIFExport1: TfrxGIFExport;
+    frxSimpleTextExport1: TfrxSimpleTextExport;
+    frxCSVExport1: TfrxCSVExport;
+    frxJPEGExport1: TfrxJPEGExport;
+    frxXMLExport1: TfrxXMLExport;
+    qryRelatorioContratosSituacaoSiglaUnidade: TStringField;
+    qryRelatorioContratosSituacaoSituacao: TStringField;
+    qryRelatorioContratosNoJuridico: TBooleanField;
+    qryRelatorioContratosSituacaoOrdemSituacao: TIntegerField;
+    qryRelatorioContratosSituacaoDataAlteracao: TDateField;
+    qryRelatorioContratosSituacaoDeContrato: TIntegerField;
+    qryRelatorioContratosSituacaoParaContrato: TIntegerField;
+    qryImoveisVendidossituacao: TStringField;
+    procedure qryRelatorioContratosSituacaoBeforeOpen(DataSet: TDataSet);
+    procedure frxRelatorioContratosSituacaoGetValue(const VarName: String;
+      var Value: Variant);
+    procedure qryImoveisVendidosBeforeOpen(DataSet: TDataSet);
+
+  private
+    FCliente: Integer;
+    FEmpreendimento: Integer;
+    FDataInicial: TDateTime;
+    FDataFinal: TDateTime;
+
+    fVendidos:         boolean;
+    fTransferidosDe:   boolean;
+    fRescindidos:      boolean;
+    fRenegociadosDe:   boolean;
+    fNoJuridico:       boolean;
+    fQuitados:         boolean;
+    fReservados:       boolean;
+    fCancelados:       boolean;
+    fRenegociadosPara: boolean;
+    fTransferidosPara: boolean;
+
+    fOrdenacao: String;
+    fOrdenacaoI : Integer;
+    fListaOpcao: integer;
+    procedure setOrdenacao(const Value: Integer);
+    procedure SetListaOpcao(const Value: integer);
+    { Private declarations }
+  public
+    { Public declarations }
+    fParametroCabecalho: String;
+    property DataInicial : TDateTime read FDataInicial write FDataInicial;
+    property DataFinal : TDateTime read FDataFinal write FDataFinal;
+
+    property Empreendimento : Integer read FEmpreendimento write FEmpreendimento;
+    property Cliente : Integer read FCliente write FCliente;
+
+    property Vendidos:         boolean read fVendidos         write fVendidos;
+    property Rescindidos:      boolean read fRescindidos      write fRescindidos;
+    property TransferidosDe:   boolean read fTransferidosDe   write fTransferidosDe;
+    property RenegociadosDe:   boolean read fRenegociadosDe   write fRenegociadosDe;
+    property NoJuridico:       boolean read fNoJuridico       write fNoJuridico;
+    property Quitados:         boolean read fQuitados         write fQuitados;
+    property Reservados:       boolean read fReservados       write fReservados;
+    property Cancelados:       boolean read fCancelados       write fCancelados;
+    property RenegociadosPara: boolean read fRenegociadosPara write fRenegociadosPara;
+    property TransferidosPara: boolean read fTransferidosPara write fTransferidosPara;
+
+
+    property Ordenacao    : Integer write setOrdenacao;
+    property ListaOpcao   : integer read fListaOpcao write SetListaOpcao;
+
+    procedure ImprimirRelatorio;
+  end;
+
+var
+  dtmrelatorioContratosSituacao: TdtmrelatorioContratosSituacao;
+
+implementation
+
+{$R *.dfm}
+
+procedure TdtmrelatorioContratosSituacao.ImprimirRelatorio;
+var
+  PV: TfrxComponent;
+begin
+
+  qryRelatorioContratosSituacao.Close;
+  qryRelatorioContratosSituacao.Open;
+
+  qryImoveisVendidos.close;
+  qryImoveisVendidos.open;
+
+  AtribuirParametrosBaseRelatorio;
+
+  if FileExists(LogotipoFilialBase) then
+  begin
+    PV := frxRelatorioContratosSituacao.FindObject('fpvLogo');
+    if (PV is TfrxPictureView) then
+      TfrxPictureView(PV).picture.LoadFromFile(LogotipoFilialBase);
+  end;
+
+//  frxRelatorioContratosSituacao.DesignReport(true,true);
+
+  frxRelatorioContratosSituacao.ShowReport(true);
+
+
+end;
+
+
+procedure TdtmrelatorioContratosSituacao.qryRelatorioContratosSituacaoBeforeOpen(DataSet: TDataSet);
+var vListaSituacao: String;
+
+begin
+   inherited;
+   qryRelatorioContratosSituacao.ParamByName('DataInicial').AsDateTime:= FDataInicial;
+   qryRelatorioContratosSituacao.ParamByName('DataFinal').  AsDateTime:= FDataFinal;
+
+   if FEmpreendimento > 0
+   then qryRelatorioContratosSituacao.MacroByName('WhereEmpreendimentos').AsString:= 'AND vi.Empreendimento = ' + IntToStr(FEmpreendimento)
+   else qryRelatorioContratosSituacao.MacroByName('WhereEmpreendimentos').AsString:= '';
+
+   if FCliente > 0
+   then qryRelatorioContratosSituacao.MacroByName('WhereClientes').AsString:= 'AND co.Cliente = ' + inttostr(FCliente)
+   else qryRelatorioContratosSituacao.MacroByName('WhereClientes').AsString:= '';
+
+   vListaSituacao := '';
+
+   if Vendidos         then vListaSituacao := vListaSituacao + '''V'', ';
+   if TransferidosDe   then vListaSituacao := vListaSituacao + '''F'', ';
+   if RenegociadosDe   then vListaSituacao := vListaSituacao + '''D'', ';
+   if Rescindidos      then vListaSituacao := vListaSituacao + '''S'', ';
+   if TransferidosPara then vListaSituacao := vListaSituacao + '''T'', ';
+   if RenegociadosPara then vListaSituacao := vListaSituacao + '''G'', ';
+   if Cancelados       then vListaSituacao := vListaSituacao + '''C'', ';
+   if Reservados       then vListaSituacao := vListaSituacao + '''R'', ';
+   if Quitados         then vListaSituacao := vListaSituacao + '''Q'', ';
+   if NoJuridico       then vListaSituacao := vListaSituacao + '''J'', ';
+
+   if NoJuridico
+   then qryRelatorioContratosSituacao.ParamByName('ComJuridico').AsBoolean:= TRUE
+   else qryRelatorioContratosSituacao.ParamByName('ComJuridico').AsBoolean:= FALSE;
+
+   if vListaSituacao <> ''
+   then delete(vListaSituacao, length(vListaSituacao)-1, 2);
+
+   if vListaSituacao <> '' then begin
+      qryRelatorioContratosSituacao.MacroByName('ListaSituacao').AsString:= ' and s.situacao in (' + vListaSituacao + ')';
+      fParametroCabecalho := fParametroCabecalho + ' Situações: ';
+      if Vendidos         then fParametroCabecalho:= fParametroCabecalho + ' VENDIDOS,';
+      if TransferidosDe   then fParametroCabecalho:= fParametroCabecalho + ' TRANSFERIDOS DE,';
+      if RenegociadosDe   then fParametroCabecalho:= fParametroCabecalho + ' RENEGOCIADOS DE,';
+      if Rescindidos      then fParametroCabecalho:= fParametroCabecalho + ' RESCINDIDOS,';
+      if NoJuridico       then fParametroCabecalho:= fParametroCabecalho + ' NO JURÍDICO,';
+      if Quitados         then fParametroCabecalho:= fParametroCabecalho + ' QUITADOS,';
+      if Reservados       then fParametroCabecalho:= fParametroCabecalho + ' RESERVADOS,';
+      if Cancelados       then fParametroCabecalho:= fParametroCabecalho + ' CANCELADOS,';
+      if RenegociadosPara then fParametroCabecalho:= fParametroCabecalho + ' RENEGOCIADOS PARA,';
+      if TransferidosPara then fParametroCabecalho:= fParametroCabecalho + ' TRANSFERIDOS PARA,';
+      Delete(fParametroCabecalho,Length(fParametroCabecalho),1);
+   end
+   else qryRelatorioContratosSituacao.MacroByName('ListaSituacao').AsString:= 'and s.situacao in ('+'''V'',''S'',''F'',''D'''+')';
+
+   qryRelatorioContratosSituacao.MacroByName('Ordenacao').AsString:= fordenacao;
+
+   qryImoveisVendidos.Params := qryRelatorioContratosSituacao.Params;
+   qryImoveisVendidos.Macros := qryRelatorioContratosSituacao.Macros;
+end;
+
+procedure TdtmrelatorioContratosSituacao.SetListaOpcao(
+  const Value: integer);
+begin
+  fListaOpcao := Value;
+
+  case listaopcao of
+  0: qryImoveisVendidos.macrobyname('CondicaoOpcaoListar').asString  := '';
+  1: qryImoveisVendidos.macrobyname('CondicaoOpcaoListar').asString  :=
+    ' and (iv.contrato, iv.bloco, iv.numero, iv.unidade) in '+
+    '   (select iv2.contrato, iv2.bloco, iv2.numero, iv2.unidade '+
+    '    from imoveisvendidos iv2 '+
+    '    where iv2.contrato = iv.contrato '+
+    '    order by iv2.precovenda desc, iv2.ordem limit 1) ';
+
+  end;
+
+end;
+
+procedure TdtmrelatorioContratosSituacao.setOrdenacao(
+  const Value: Integer);
+begin
+
+  fOrdenacaoI := value;
+  case value of
+  0: fordenacao := 'ORDER BY OrdemSituacao, NomeEmpreendimento, Contrato ';
+  1: fordenacao := 'ORDER BY OrdemSituacao, Contrato';
+  2: fordenacao := 'ORDER BY OrdemSituacao, NomeCliente, Cliente, Contrato';
+  end;
+end;
+
+procedure TdtmrelatorioContratosSituacao.frxRelatorioContratosSituacaoGetValue(
+  const VarName: String; var Value: Variant);
+begin
+  inherited;
+  if VarName = 'TITULO' then
+  begin
+    Value := 'SITUAÇÃO DOS CONTRATOS ENTRE ' +
+             FormatDateTime('DD/MM/YYYY',FDataInicial) + ' E ' +
+             FormatDateTime('DD/MM/YYYY',FDataFinal);
+  end
+  else
+  if VarName = 'SUBTITULO' then
+  begin
+    Value := fparametrocabecalho
+  end
+  else
+  if VarName = 'Ordenacao' then
+    Value :=  fOrdenacaoI
+  else if VarName = 'CordoZebrado' then
+    Value :=  strtoint(parsistema.CorZebradoRelatorio)
+  else if VarName = 'RAZAOFILIALBASE' then
+    Value := RazaoFilialBase
+  else if VarName = 'ENDERECO_BAIRRO' then
+    Value :=  RuaFilialBase+ ' - '+BairroFilialBase
+  else if VarName = 'CEP_CIDADE_UF' then
+    Value :=  FormatarCEP(CEPFilialBase)+'  '+CidadeFilialBase+ '  '+ EstadoFilialBase
+  else if VarName = 'ListaOpcao' then
+    Value :=  ListaOpcao
+  else
+  if VarName = 'Saldo_ou_Total' then
+  begin
+    case qryRelatorioContratosSituacaosituacao.asstring[1] of
+
+      'D','G' : Value := 'VALOR RENEGOCIADO';
+      'J','S' : Value := 'SALDO DEVEDOR'
+
+      else
+      Value := 'PREÇO CONTRATO';
+    end;
+
+    {
+    if (qryRelatorioContratosSituacaosituacao.asstring = 'D') OR
+       (qryRelatorioContratosSituacaosituacao.asstring = 'G') THEN
+      Value := 'VALOR RENEGOCIADO'
+    else
+    if (qryRelatorioContratosSituacaosituacao.asstring = 'J') OR
+       (qryRelatorioContratosSituacaosituacao.asstring = 'S') then
+      Value := 'SALDO DEVEDOR'
+    else
+      Value := 'PREÇO CONTRATO'
+    }  
+  end;
+
+end;
+
+procedure TdtmrelatorioContratosSituacao.qryImoveisVendidosBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryImoveisVendidos.ParamByName('ListaOpcao').asinteger := ListaOpcao;
+end;
+
+end.

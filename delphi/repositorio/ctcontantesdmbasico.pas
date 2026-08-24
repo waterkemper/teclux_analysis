@@ -1622,6 +1622,10 @@ SQLEstados =  'select e.* from estados e where e.codigo = :estado ';
                                    '(Select c.nome From cidades c  ' +
                                    '               Where (c.estado = f.estado) and  ' +
                                    '                     (c.codigo = f.cidade)) as NomeCidade,  ' +
+
+                                   '(Select cast(NULL as varchar(3)) /* c.serienfse */ From cidades c  ' +
+                                   '               Where (c.estado = f.estado) and  ' +
+                                   '                     (c.codigo = f.cidade)) as serienfse,  ' +
                                    'f.bairro,  '+
                                    '(Select b.nome From bairros b  ' +
                                    '               Where (b.estado = f.estado) and  ' +

@@ -104,7 +104,7 @@ inherited frmConsultaRomaneios: TfrmConsultaRomaneios
     Top = 45
     Width = 1088
     Height = 585
-    ActivePage = tstParametrosSelecao
+    ActivePage = tstDados
     Align = alClient
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText

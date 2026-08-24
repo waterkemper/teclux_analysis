@@ -1,0 +1,641 @@
+unit dmrelatorioresumodevendaserecebimentos;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery, FR_Class,
+  FR_DSet, FR_DBSet, ctconstantes, cpdatasource, CheckLst,
+  clparametrossistema, biblio, Graphics,
+  fmpreviewpadrao, ZTransact, variants;
+
+type
+  TdtmrelatorioresumodeVendaseRecebimentos = class(TdtmBasico)
+    frpResumoCaixaAnalitico: TfrReport;
+    qryImprimirCaixa: TtecQuery;
+    frpResumoCaixaSintetico: TfrReport;
+    frpResumoCaixaPorFilial: TfrReport;
+    frpResumoCaixaGeral: TfrReport;
+    fdsRlResCaixa: TfrDBDataSet;
+    fdsRlResCaixaRes: TfrDBDataSet;
+    fdsResCaixaFilial: TfrDBDataSet;
+    fdsResCaixaGeral: TfrDBDataSet;
+    qryAgentes: TtecQuery;
+    qryConceitos: TtecQuery;
+    qryAgentescodigo: TIntegerField;
+    qryAgentesdescricao: TStringField;
+    qryConceitoscodigo: TIntegerField;
+    qryConceitosdescricao: TStringField;
+    qryImprimirCaixaAcumulado: TtecQuery;
+    qryImprimirCaixaAcumuladoperiodo: TStringField;
+    qryImprimirCaixaAcumuladofilial: TIntegerField;
+    qryImprimirCaixaAcumuladogrupofilial: TIntegerField;
+    qryImprimirCaixaAcumuladonomefilial: TStringField;
+    qryImprimirCaixaAcumuladonomegrupofilial: TStringField;
+    qryImprimirCaixaAcumuladovenda_a_vista: TFloatField;
+    qryImprimirCaixaAcumuladovenda_a_prazo: TFloatField;
+    qryImprimirCaixaAcumuladovenda_entrada: TFloatField;
+    qryImprimirCaixaAcumuladoestorno_venda_a_vista: TFloatField;
+    qryImprimirCaixaAcumuladoestorno_venda_a_prazo: TFloatField;
+    qryImprimirCaixaAcumuladoestorno_venda_entrada: TFloatField;
+    qryImprimirCaixaAcumuladoacum_venda_a_vista: TFloatField;
+    qryImprimirCaixaAcumuladoacum_venda_a_prazo: TFloatField;
+    qryImprimirCaixaAcumuladoacum_venda_entrada: TFloatField;
+    qryImprimirCaixaAcumuladoacum_estorno_venda_a_vista: TFloatField;
+    qryImprimirCaixaAcumuladoacum_estorno_venda_a_prazo: TFloatField;
+    qryImprimirCaixaAcumuladoacum_estorno_venda_entrada: TFloatField;
+    qryImprimirCaixaAcumuladoestorno_receb_a_vista: TFloatField;
+    qryImprimirCaixaAcumuladoestorno_receb_a_prazo: TFloatField;
+    qryImprimirCaixaAcumuladoestorno_receb_entrada: TFloatField;
+    qryImprimirCaixaAcumuladoacum_estorno_receb_a_vista: TFloatField;
+    qryImprimirCaixaAcumuladoacum_estorno_receb_a_prazo: TFloatField;
+    qryImprimirCaixaAcumuladoacum_estorno_receb_entrada: TFloatField;
+    qryImprimirCaixaAcumuladoacum_fora_receb_a_vista: TFloatField;
+    qryImprimirCaixaAcumuladoacum_fora_receb_a_prazo: TFloatField;
+    qryImprimirCaixaAcumuladoacum_fora_receb_entrada: TFloatField;
+    qryImprimirCaixaAcumuladoacum_estorno_fora_saldo: TFloatField;
+    qryImprimirCaixaAcumuladoreceb_a_vista: TFloatField;
+    qryImprimirCaixaAcumuladoreceb_a_prazo: TFloatField;
+    qryImprimirCaixaAcumuladoreceb_entrada: TFloatField;
+    qryImprimirCaixaAcumuladoreceb_juros: TFloatField;
+    qryImprimirCaixaAcumuladoreceb_desconto: TFloatField;
+    qryImprimirCaixaAcumuladoacum_receb_a_vista: TFloatField;
+    qryImprimirCaixaAcumuladoacum_receb_a_prazo: TFloatField;
+    qryImprimirCaixaAcumuladoacum_receb_entrada: TFloatField;
+    qryImprimirCaixaAcumuladoacum_receb_juros: TFloatField;
+    qryImprimirCaixaAcumuladoacum_receb_desconto: TFloatField;
+    qryImprimirCaixaAcumuladoestorno_receb_juros: TFloatField;
+    qryImprimirCaixaAcumuladoestorno_receb_desconto: TFloatField;
+    qryImprimirCaixaperiodo: TStringField;
+    qryImprimirCaixafilial: TIntegerField;
+    qryImprimirCaixagrupofilial: TIntegerField;
+    qryImprimirCaixanomefilial: TStringField;
+    qryImprimirCaixanomegrupofilial: TStringField;
+    qryImprimirCaixacliente: TIntegerField;
+    qryImprimirCaixatipocliente: TStringField;
+    qryImprimirCaixanomecliente: TStringField;
+    qryImprimirCaixadata: TDateField;
+    qryImprimirCaixacontrato: TStringField;
+    qryImprimirCaixaparcela: TStringField;
+    qryImprimirCaixatipopagto: TStringField;
+    qryImprimirCaixavenda_a_vista: TFloatField;
+    qryImprimirCaixavenda_a_prazo: TFloatField;
+    qryImprimirCaixavenda_entrada: TFloatField;
+    qryImprimirCaixamercadorias: TFloatField;
+    qryImprimirCaixadescontomercadorias: TFloatField;
+    qryImprimirCaixaacrescimomercadorias: TFloatField;
+    qryImprimirCaixaestorno_receb_a_vista: TFloatField;
+    qryImprimirCaixaestorno_receb_a_prazo: TFloatField;
+    qryImprimirCaixaestorno_receb_entrada: TFloatField;
+    qryImprimirCaixasaldo: TFloatField;
+    qryImprimirCaixaestorno_fora_receb_a_vista: TFloatField;
+    qryImprimirCaixaestorno_fora_receb_a_prazo: TFloatField;
+    qryImprimirCaixaestorno_fora_receb_entrada: TFloatField;
+    qryImprimirCaixaforasaldo: TFloatField;
+    qryImprimirCaixaprestacao: TFloatField;
+    qryImprimirCaixajuro: TFloatField;
+    qryImprimirCaixadesconto: TFloatField;
+    qryProcuraCliente: TtecQuery;
+    qryProcuraClientenome: TStringField;
+    qryProcuraClientecodigo: TIntegerField;
+    qryProcuraClientetipo: TStringField;
+    dsrProcuraCliente: TtecDataSource;
+    qryConsultaClientes: TtecQuery;
+    qryConsultaClientesnome: TStringField;
+    qryConsultaClientespessoanumero: TStringField;
+    qryConsultaClientesnomecidade: TStringField;
+    qryConsultaClientesestado: TStringField;
+    qryConsultaClientescodigo: TIntegerField;
+    qryConsultaClientestipo: TStringField;
+    qryConsultaClientestipoorig: TStringField;
+    qryConsultaClientescivil: TStringField;
+    ZMonitor1: TZMonitor;
+    qryImprimirCaixaAcumuladoacum_estorno_receb_juros: TFloatField;
+    qryImprimirCaixaAcumuladoacum_estorno_receb_desconto: TFloatField;
+    procedure frpResumoCaixaAnaliticoBeforePrint(Memo: TStringList; View: TfrView);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+  private
+    FListaFiliais: TStringList;
+    FListaGruposFiliais: TStringList;
+    FListaAgentes: TStringList;
+    FListaConceitos: TStringList;
+    FDataInicial: String;
+    FDataFinal: String;
+    FResumo: Integer;
+    FVendasporContrato: Boolean;
+    FEstornosdoMes: Boolean;
+    FEstornosForadoMes: Boolean;
+    FRecebimentosporContrato: Boolean;
+    FVendasEstornosMesmodia: Boolean;
+    FImprimir: Integer;
+    FParametroCabecalho: String;
+    FFiliais: String;
+    FVendasFrentedeCaixa: Boolean;
+    FRecebimentosporFrentedeCaixa: Boolean;
+    FGrupoFiliais: String;
+    procedure SetDataFinal(const Value: String);
+    procedure SetDataInicial(const Value: String);
+
+    procedure SetFiliais(const Value: String);
+    procedure SetGrupoFiliais(const Value: String);
+
+    procedure SetVendasporContrato(const Value: Boolean);
+    procedure SetVendasFrentedeCaixa(const Value: Boolean);
+    procedure SetEstornosdoMes(const Value: Boolean);
+    procedure SetEstornosForadoMes(const Value: Boolean);
+    procedure SetRecebimentosporContrato(const Value: Boolean);
+    procedure SetRecebimentosporFrentedeCaixa(const Value: Boolean);
+
+    procedure SetVendasEstornosMesmodia(const Value: Boolean);
+
+    function GetListaAgentes: TStrings;
+    function GetListaConceitos: TStrings;
+    function GetTabelaConsultaClientes: TZDataset;
+    procedure SetCliente(const Value: String);
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure ImprimirRelatorio(tipo: String);
+    procedure MontarFiltroAgentes(Usar: TCheckListBox);
+    procedure AtribuirFiltroAgentes(Filtro: String);
+    procedure MontarFiltroConceitos(Usar: TCheckListBox);
+    procedure AtribuirFiltroConceitos(Filtro: String);
+    procedure GerarRelatorio;
+
+    property Filiais: String read FFiliais write SetFiliais;
+    property GrupoFiliais: String read FGrupoFiliais write SetGrupoFiliais;
+    property DataInicial: String read FDataInicial write SetDataInicial;
+    property DataFinal: String read FDataFinal write SetDataFinal;
+    property Resumo: Integer read FResumo write FResumo;
+    property Imprimir: Integer read FImprimir write FImprimir;
+    property VendasporContrato: Boolean read FVendasporContrato Write SetVendasporContrato;
+    property VendasFrentedeCaixa: Boolean read FVendasFrentedeCaixa Write SetVendasFrentedeCaixa;
+    property RecebimentosporContrato: Boolean read FRecebimentosporContrato Write SetRecebimentosporContrato;
+    property RecebimentosporFrentedeCaixa: Boolean read FRecebimentosporFrentedeCaixa Write SetRecebimentosporFrentedeCaixa;
+    property EstornosdoMes: Boolean read FEstornosdoMes Write SetEstornosdoMes;
+    property EstornosForadoMes: Boolean read FEstornosForadoMes Write SetEstornosForadoMes;
+    property VendasEstornosMesmodia: Boolean read FVendasEstornosMesmodia Write SetVendasEstornosMesmodia;
+    property ListaAgentes: TStrings read GetListaAgentes;
+    property ListaConceitos: TStrings read GetListaConceitos;
+    property  ParametroCabecalho: String read FParametroCabecalho write FParametroCabecalho;
+    procedure AbreTabelaConsulta(TipoPesquisa: TtecRelatorioVendas);
+    procedure FechaTabelaConsulta(TipoPesquisa: TtecRelatorioVendas);
+    procedure Selecionar(TipoPesquisa: TtecRelatorioVendas);
+    function  ExisteCliente(NomeCampo: String; Value: Variant): Boolean;
+    property  TabelaConsultaClientes: TZDataset read GetTabelaConsultaClientes;
+    property Cliente: String write SetCliente;
+
+  end;
+
+
+var
+  dtmrelatorioresumodeVendaseRecebimentos: TdtmrelatorioresumodeVendaseRecebimentos;
+
+implementation
+ const 
+
+ // Filtros
+  FiltroFilial_Pagto      = ' and ( filialpagto in (%s)) ' + #13#10;
+  FiltroGrupoFilial_Pagto = ' and ( filialpagto in (Select filial ' + #13#10     +
+                                         'From filiaisgruposfiliais fgf ' + #13#10 +
+                                         'Where fgf.grupo in (%s))) ';
+  FiltroFilial_Dev      = ' and ( coalesce(devfilial,filialpagto) in (%s)) ' + #13#10;
+  FiltroGrupoFilial_Dev = ' and ( coalesce(devfilial,filialpagto) in (Select filial ' + #13#10     +
+                                         'From filiaisgruposfiliais fgf ' + #13#10 +
+                                         'Where fgf.grupo in (%s))) ';
+
+  FiltroFilial_Venda      = ' and ( filialvenda in (%s)) ' + #13#10;
+  FiltroGrupoFilial_Venda = ' and ( filialvenda in (Select filial ' + #13#10   +
+                                         'From filiaisgruposfiliais fgf '+ #13#10 +
+                                         'Where fgf.grupo in (%s))) ';
+  FiltroConceito          = ' and ( conceito in (%s)) ' + #13#10;
+  FiltroAgente            = ' and ( agente in (%s)) ' + #13#10;
+  FiltroCliente          = ' and ( cliente = %s and tipocliente = %s) ' + #13#10;
+
+
+{$R *.dfm}
+
+constructor TdtmrelatorioresumodeVendaseRecebimentos.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryAgentes.Tag                :=ctTabelas;
+  qryConceitos.Tag              :=ctTabelas;
+  qryProcuraCliente.Tag   := ctTabelas;
+  qryConsultaClientes.Tag := ctConsultaClientes;
+  qryProcuraCliente.Params[1].AsString    := 'C';
+end;
+
+procedure TdtmrelatorioresumodeVendaseRecebimentos.ImprimirRelatorio(tipo: String);
+begin
+  frVariables['Outras']:= FParametroCabecalho;
+  frVariables['Titulo']:= tipo;
+  case FResumo of
+    0: begin
+         case FImprimir of
+           0: ImprimirRelatoriofast(null, null, MSimples, 0, [frpResumoCaixaAnalitico, frpResumoCaixaSintetico, frpResumoCaixaGeral]);
+           1: ImprimirRelatoriofast(null, null, MSimples, 0, [frpResumoCaixaAnalitico, frpResumoCaixaSintetico, frpResumoCaixaPorFilial]);
+           2: ImprimirRelatoriofast(null, null, MSimples, 0, [frpResumoCaixaAnalitico, frpResumoCaixaSintetico, frpResumoCaixaPorFilial, frpResumoCaixaGeral]);
+         end;
+       end;
+    1: ImprimirRelatoriofast(null, null, MSimples, 0, [frpResumoCaixaAnalitico, frpResumoCaixaSintetico]);
+    2: begin
+         case FImprimir of
+           0: ImprimirRelatoriofast(null, null, MSimples, 0, [frpResumoCaixaGeral]);
+           1: ImprimirRelatoriofast(null, null, MSimples, 0, [frpResumoCaixaPorFilial]);
+           2: ImprimirRelatoriofast(null, null, MSimples, 0, [frpResumoCaixaPorFilial,frpResumoCaixaGeral]);
+         end;
+       end;
+  end;
+end;
+
+procedure TdtmrelatorioresumodeVendaseRecebimentos.SetDataFinal(const Value: String);
+begin
+  if Value <> '' then begin
+    FDataFinal := Value;
+    if FDataInicial = '' then
+      FDataInicial:=FDataFinal;
+  end
+  else FDataFinal:= FDataInicial;
+
+  qryImprimirCaixa.ParamByName('datainicial').AsString    := FDataInicial;
+  qryImprimirCaixa.ParamByName('datafinal').AsString      := FDataFinal;
+  qryImprimirCaixa.ParamByName('datainicialmes').AsString := '01' + Copy(FDataInicial,3,8);
+  FParametroCabecalho:= FParametroCabecalho + ' Entre: ' + FDataInicial + ' e ' + FDataFinal;
+
+  if FResumo <> 1 then begin
+    qryImprimirCaixaAcumulado.ParamByName('datainicial').AsString    := FDataInicial;
+    qryImprimirCaixaAcumulado.ParamByName('datafinal').AsString      := FDataFinal;
+    qryImprimirCaixaAcumulado.ParamByName('datainicialmes').AsString := '01' + Copy(FDataInicial,3,8);
+  end;
+end;
+
+procedure TdtmrelatorioresumodeVendaseRecebimentos.SetDataInicial(const Value: String);
+begin
+  FDataInicial := Value;
+end;
+
+procedure TdtmrelatorioresumodeVendaseRecebimentos.SetVendasporContrato(const Value: Boolean);
+begin
+  FVendasporContrato := Value;
+  if value then begin
+    qryImprimirCaixa.MacroByName('Inicio_das_Vendas_por_Contrato').AsString := '/* inicio das vendas */';
+    qryImprimirCaixa.MacroByName('Final_das_Vendas_por_Contrato').AsString := '/* Final das Vendas */';
+  end
+  else begin
+    qryImprimirCaixa.MacroByName('Inicio_das_Vendas_por_Contrato').AsString := '/*';
+    qryImprimirCaixa.MacroByName('Final_das_Vendas_por_Contrato').AsString := '*/';
+  end;
+end;
+
+procedure TdtmrelatorioresumodeVendaseRecebimentos.SetEstornosdoMes(const Value: Boolean);
+begin
+  FEstornosdoMes := Value;
+  if value then begin
+    if FVendasporContrato or FVendasFrentedeCaixa then
+      qryImprimirCaixa.MacroByName('union_all_Estornos_do_Mes').AsString := 'union all'
+    else qryImprimirCaixa.MacroByName('union_all_Estornos_do_Mes').AsString := '';
+    qryImprimirCaixa.macroByName('Inicio_Estornos_do_Mes').AsString := '/*   Inicio Estornos do Mes   */';
+    qryImprimirCaixa.MacroByName('Final_Estornos_no_Mes').AsString := '/*   Final Estornos no Mes    */';
+  end
+  else begin
+    qryImprimirCaixa.MacroByName('union_all_Estornos_do_Mes').AsString := '';
+    qryImprimirCaixa.MacroByName('Inicio_Estornos_do_Mes').AsString := '/*   Inicio Estornos do Mes';
+    qryImprimirCaixa.MacroByName('Final_Estornos_no_Mes').AsString := 'Final Estornos no Mes    */';
+  end;
+end;
+
+procedure TdtmrelatorioresumodeVendaseRecebimentos.SetEstornosForadoMes(const Value: Boolean);
+begin
+  FEstornosForadoMes := Value;
+  if value then begin
+    if FVendasporContrato or FVendasFrentedeCaixa or FEstornosdoMes then
+      qryImprimirCaixa.MacroByName('union_all_Estornos_Fora_do_Mes').AsString := 'union all'
+    else qryImprimirCaixa.MacroByName('union_all_Estornos_Fora_do_Mes').AsString := '';
+    qryImprimirCaixa.MacroByName('Inicio_Estornos_Fora_do_Mes').AsString := '/* Inicio Estornos Fora do Mes  */';
+    qryImprimirCaixa.MacroByName('Final_Estornos_Fora_do_Mes').AsString := '/* Fim Estornos Fora do Mes     */';
+  end
+  else begin
+    qryImprimirCaixa.MacroByName('union_all_Estornos_Fora_do_Mes').AsString := '';
+    qryImprimirCaixa.MacroByName('Inicio_Estornos_Fora_do_Mes').AsString := '/* Inicio Estornos Fora do Mes';
+    qryImprimirCaixa.MacroByName('Final_Estornos_Fora_do_Mes').AsString := 'Fim Estornos Fora do Mes     */';
+  end
+end;
+
+procedure TdtmrelatorioresumodeVendaseRecebimentos.SetRecebimentosporContrato(const Value: Boolean);
+begin
+  FRecebimentosporContrato := Value;
+  if value then begin
+    if FVendasporContrato or FVendasFrentedeCaixa or FEstornosdoMes or FEstornosForadoMes then
+      qryImprimirCaixa.MacroByName('union_all_Recebimentos_por_Contrato').AsString := 'union all'
+    else qryImprimirCaixa.MacroByName('union_all_Recebimentos_por_Contrato').AsString := '';
+    qryImprimirCaixa.MacroByName('Inicio_Recebimentos_por_Contrato').AsString := '/* Inicio dos Recebimentos por Contrato */';
+    qryImprimirCaixa.MacroByName('Final_Recebimentos_por_Contrato').AsString := '/*  Fim dos Recebimentos por Contrato */';
+  end
+  else begin
+    qryImprimirCaixa.MacroByName('union_all_Recebimentos_por_Contrato').AsString := '';
+    qryImprimirCaixa.MacroByName('Inicio_Recebimentos_por_Contrato').AsString := '/* Inicio dos Recebimentos por Contrato';
+    qryImprimirCaixa.MacroByName('Final_Recebimentos_por_Contrato').AsString := 'Fim dos Recebimentos por Contrato */';
+  end;
+end;
+
+procedure TdtmrelatorioresumodeVendaseRecebimentos.SetFiliais(const Value: String);
+begin
+ FFiliais := Value;
+ if (Value <> '') then
+ begin
+   qryImprimirCaixa.MacroByName('Filial_Venda').AsString := Format(FiltroFilial_Venda,[Value]);
+   qryImprimirCaixa.MacroByName('Filial_Pagamento').AsString := Format(FiltroFilial_Pagto,[Value]);
+   qryImprimirCaixa.MacroByName('Filial_Devolucao').AsString := Format(FiltroFilial_Dev,[Value]);
+ end
+ else begin
+   qryImprimirCaixa.MacroByName('Filial_Venda').AsString := '';
+   qryImprimirCaixa.MacroByName('Filial_Pagamento').AsString := '';
+   qryImprimirCaixa.MacroByName('Filial_Devolucao').AsString := '';
+ end;
+end;
+
+procedure TdtmrelatorioresumodeVendaseRecebimentos.SetGrupoFiliais(const Value: String);
+begin
+  FGrupoFiliais := Value;
+  if (Value <> '') then
+  begin
+    if ParSistema.RelatorioSomenteFiliaisAutorizadas then
+    begin
+      qryImprimirCaixa.MacroByName('Filial_Venda').AsString :=
+         qryImprimirCaixa.MacroByName('Filial_Venda').AsString +
+         Format(FiltroGrupoFilial_Venda,[Value]);
+
+      qryImprimirCaixa.MacroByName('Filial_Pagamento').AsString :=
+         qryImprimirCaixa.MacroByName('Filial_Pagamento').AsString +
+         Format(FiltroGrupoFilial_Pagto,[Value]);
+
+      qryImprimirCaixa.MacroByName('Filial_Devolucao').AsString :=
+         qryImprimirCaixa.MacroByName('Filial_Devolucao').AsString +
+         Format(FiltroGrupoFilial_Dev,[Value]);
+    end
+    else
+    begin
+      qryImprimirCaixa.MacroByName('Filial_Venda').AsString := Format(FiltroGrupoFilial_Venda,[Value]);
+      qryImprimirCaixa.MacroByName('Filial_Pagamento').AsString := Format(FiltroGrupoFilial_Pagto,[Value]);
+      qryImprimirCaixa.MacroByName('Filial_Devolucao').AsString := Format(FiltroGrupoFilial_Dev,[Value]);
+    end;
+  end;
+end;
+
+
+procedure TdtmrelatorioresumodeVendaseRecebimentos.SetVendasEstornosMesmodia(const Value: Boolean);
+const
+  SQL_1 = 'and (ct.situacao in (''F'',''N'',''P'',''C''))';
+  SQL_2 = 'and (ct.situacao in (''F'',''N'',''P'',''C''))';
+{
+  SQL_2 = 'and ((ct.situacao in (''F'',''N'',''P'')) or ' +
+          '(ct.situacao = (''C'') and ((Select sum(p.valorvencto) from parcelas p ' +
+          '                             Where  (p.contrato = ct.numero) ' +
+          '                                and (p.datapagto = ct.faturamento) '  +
+          '                                and (p.tipopagto is not null)) = ct.valorprazo)))';
+}
+begin
+  FVendasEstornosMesmodia := Value;
+  if value then begin
+    FParametroCabecalho:= FParametroCabecalho + ' Vendas/Estornos mesmo dia';
+    qryImprimirCaixa.MacroByName('Vendas_Mesmo_dia_Periodo').AsString := SQL_2;
+    qryImprimirCaixa.MacroByName('Estornos_do_Mes_Mesmo_dia_Periodo').AsString := SQL_2;
+  end
+  else begin
+    qryImprimirCaixa.MacroByName('Vendas_Mesmo_dia_Periodo').AsString := SQL_1;
+    qryImprimirCaixa.MacroByName('Estornos_do_Mes_Mesmo_dia_Periodo').AsString := SQL_1;
+  end;
+end;
+
+function TdtmrelatorioresumodeVendaseRecebimentos.GetListaAgentes: TStrings;
+begin
+  FListaAgentes:= TStringList.Create;
+  qryAgentes.Open;
+  while not qryAgentes.Eof do begin
+    FListaAgentes.AddObject(qryAgentesdescricao.AsString, Pointer(qryAgentescodigo.AsInteger));
+    qryAgentes.Next;
+  end;
+  qryAgentes.Close;
+  Result := FListaAgentes;
+end;
+
+function TdtmrelatorioresumodeVendaseRecebimentos.GetListaConceitos: TStrings;
+begin
+  FListaConceitos:= TStringList.Create;
+  qryConceitos.Open;
+  while not qryConceitos.Eof do begin
+    FListaConceitos.AddObject(qryConceitosdescricao.AsString, Pointer(qryConceitoscodigo.AsInteger));
+    qryConceitos.Next;
+  end;
+  qryConceitos.Close;
+  Result := FListaConceitos;
+end;
+
+destructor TdtmrelatorioresumodeVendaseRecebimentos.Destroy;
+begin
+  FListaAgentes.Free;
+  FListaConceitos.Free;
+  inherited;
+end;
+
+procedure TdtmrelatorioresumodeVendaseRecebimentos.MontarFiltroAgentes(Usar: TCheckListBox);
+var
+  STRAgentes: String;
+  TodosAgentes: Boolean;
+  cnt: Integer;
+begin
+  TodosAgentes:=true;
+  STRAgentes := '';
+  for cnt := 0 to FListaAgentes.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRAgentes := STRAgentes + '''' + IntToStr(Integer(FListaAgentes.Objects[cnt])) + ''','
+    else
+      TodosAgentes:=false;
+
+  STRAgentes := Copy(STRAgentes, 0, Length(STRAgentes) - 1);
+  AtribuirFiltroAgentes('');
+  if Trim(STRAgentes) <> '' then
+    if not TodosAgentes then
+      AtribuirFiltroAgentes(Format(FiltroAgente,[STRAgentes]));
+end;
+
+procedure TdtmrelatorioresumodeVendaseRecebimentos.MontarFiltroConceitos(Usar: TCheckListBox);
+var
+  STRConceitos: String;
+  TodosConceitos : Boolean;
+  cnt: Integer;
+begin
+  TodosConceitos := True;
+  STRConceitos := '';
+  for cnt := 0 to FListaConceitos.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRConceitos := STRConceitos + '''' + IntToStr(Integer(FListaConceitos.Objects[cnt])) + ''','
+    else
+      TodosConceitos:=false;
+  STRConceitos := Copy(STrConceitos, 0, Length(STrConceitos) - 1);
+  AtribuirFiltroConceitos('');
+  if Trim(STrConceitos) <> '' then
+    if not TodosConceitos then
+      AtribuirFiltroConceitos(Format(FiltroConceito,[STRConceitos]));
+end;
+
+procedure TdtmrelatorioresumodeVendaseRecebimentos.AtribuirFiltroAgentes(Filtro: String);
+begin
+   qryImprimirCaixa.MacroByName('Agentes').AsString  := Filtro;
+end;
+
+procedure TdtmrelatorioresumodeVendaseRecebimentos.AtribuirFiltroConceitos(Filtro: String);
+begin
+   qryImprimirCaixa.MacroByName('Conceito').AsString := Filtro;
+end;
+
+procedure TdtmrelatorioresumodeVendaseRecebimentos.frpResumoCaixaAnaliticoBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  if (View.Name = 'fpvLogo') then
+  begin
+   if FileExists(LogotipoFilialBase) then
+    try TfrPictureView(View).Picture.LoadFromFile(LogotipoFilialBase) except end;
+  end
+  else
+  if TColor(strtoint(parsistema.CorZebradoRelatorio))<>TColor(clnone) then
+   if (View.Name = 'mmoZebrado') then
+    if (frpResumoCaixaAnalitico.Dictionary.Variables.Variable['LINHA'] MOD 2)=0 then
+      frpResumoCaixaAnalitico.FindObject('mmoZebrado').FillColor := TColor(strtoint(parsistema.CorZebradoRelatorio))
+    else
+      frpResumoCaixaAnalitico.FindObject('mmoZebrado').FillColor := clnone;
+
+end;
+
+procedure TdtmrelatorioresumodeVendaseRecebimentos.GerarRelatorio;
+var
+ i:integer;
+begin
+  if FResumo <> 2 then
+    refazconsulta(qryImprimirCaixa,[],[]);
+
+  if FResumo <> 1 then
+  begin
+    for i:=0 to qryimprimircaixa.MacroCount-1 do
+      qryImprimirCaixaAcumulado.Macros[i].AsString := qryImprimirCaixa.Macros[i].AsString;
+    refazconsulta(qryImprimirCaixaAcumulado,[],[]);
+  end;
+
+  if (((FResumo <> 2) and not (qryImprimirCaixa.IsEmpty)) or
+      ((FResumo <> 1) and not (qryImprimirCaixaAcumulado.IsEmpty))) then
+    ImprimirRelatorio('VENDAS E RECEBIMENTOS')
+  else
+    MensagemAviso(Format(ctNENHUMREGISTROENCONTRADO,['Registro']));
+end;
+
+procedure TdtmrelatorioresumodeVendaseRecebimentos.SetVendasFrentedeCaixa(
+  const Value: Boolean);
+begin
+  FVendasFrentedeCaixa := Value;
+  if value then begin
+    if FVendasporContrato then
+      qryImprimirCaixa.MacroByName('union_all_Vendas_por_Frente_de_Caixa').AsString := 'union all'
+    else qryImprimirCaixa.MacroByName('union_all_Vendas_por_Frente_de_Caixa').AsString := '';
+    qryImprimirCaixa.macroByName('Inicio_das_Vendas_por_Frente_de_Caixa').AsString := '/*   Inicio Vendas Frente de Caixa   */';
+    qryImprimirCaixa.MacroByName('Final_das_Vendas_por_Frente_de_Caixa').AsString := '/*   Final Vendas Frente de Caixa    */';
+  end
+  else begin
+    qryImprimirCaixa.MacroByName('union_all_Vendas_por_Frente_de_Caixa').AsString := '';
+    qryImprimirCaixa.macroByName('Inicio_das_Vendas_por_Frente_de_Caixa').AsString := '/*   Inicio Vendas Frente de Caixa   ';
+    qryImprimirCaixa.MacroByName('Final_das_Vendas_por_Frente_de_Caixa').AsString := '  Final Vendas Frente de Caixa    */';
+  end;
+end;
+
+procedure TdtmrelatorioresumodeVendaseRecebimentos.SetRecebimentosporFrentedeCaixa(
+  const Value: Boolean);
+begin
+  FRecebimentosporFrentedeCaixa := Value;
+  if value then begin
+    if FVendasporContrato or FVendasFrentedeCaixa or FEstornosdoMes or FEstornosForadoMes or FRecebimentosporContrato then
+      qryImprimirCaixa.MacroByName('union_all_Recebimentos_por_Frente_de_Caixa').AsString := 'union all'
+    else qryImprimirCaixa.MacroByName('union_all_Recebimentos_por_Frente_de_Caixa').AsString := '';
+    qryImprimirCaixa.MacroByName('Inicio_Recebimentos_por_Frente_de_Caixa').AsString := '/*   Inicio Recebimentos Frente de Caixa */';
+    qryImprimirCaixa.MacroByName('Final_Recebimentos_por_Frente_de_Caixa').AsString := '/*   Final Recebimentos Frente de Caixa */';
+  end
+  else begin
+    qryImprimirCaixa.MacroByName('union_all_Recebimentos_por_Frente_de_Caixa').AsString := '';
+    qryImprimirCaixa.MacroByName('Inicio_Recebimentos_por_Frente_de_Caixa').AsString := '/*   Inicio Recebimentos Frente de Caixa ';
+    qryImprimirCaixa.MacroByName('Final_Recebimentos_por_Frente_de_Caixa').AsString := ' Final Recebimentos Frente de Caixa */';
+  end;
+end;
+procedure TdtmrelatorioresumodeVendaseRecebimentos.AbreTabelaConsulta(
+  TipoPesquisa: TtecRelatorioVendas);
+begin
+  case TipoPesquisa of
+    rvCLIENTES     : Abre(ctConsultaClientes);
+  end;
+end;
+
+function TdtmrelatorioresumodeVendaseRecebimentos.ExisteCliente(
+  NomeCampo: String; Value: Variant): Boolean;
+const
+  SQL = 'and (to_ascii(%s,''latin1'') ilike to_ascii(''%s%s'',''latin1''))';
+begin
+  if NomeCampo = 'nomecidade' then
+       NomeCampo:= 'c.nome'
+  else NomeCampo:= 'v.' + NomeCampo;
+  qryConsultaClientes.Sql[12]:= Format(SQL, [NomeCampo, ANSIUpperCase(Value), '%']);
+  qryConsultaClientes.Open;
+  Result := qryConsultaClientes.RecordCount > 0
+end;
+
+procedure TdtmrelatorioresumodeVendaseRecebimentos.FechaTabelaConsulta(
+  TipoPesquisa: TtecRelatorioVendas);
+begin
+  case TipoPesquisa of
+    rvCLIENTES     : Fecha(ctConsultaClientes);
+  end;
+end;
+
+function TdtmrelatorioresumodeVendaseRecebimentos.GetTabelaConsultaClientes: TZDataset;
+begin
+  Result := qryConsultaClientes
+end;
+
+procedure TdtmrelatorioresumodeVendaseRecebimentos.Selecionar(
+  TipoPesquisa: TtecRelatorioVendas);
+begin
+  case TipoPesquisa of
+    rvCLIENTES   : begin
+                     if qryConsultaClientes.RecordCount > 0 then
+                       RefazConsulta(qryProcuraCliente,[0,1],[qryConsultaClientescodigo.AsVariant,
+                                                       qryConsultaClientestipoorig.AsVariant]);
+                       qryProcuraCliente.Params[1].AsString:=qryConsultaClientestipoorig.AsString;
+                    end;
+  end;
+end;
+
+procedure TdtmrelatorioresumodeVendaseRecebimentos.SetCliente(
+  const Value: String);
+begin
+  if (Value <> '') then begin
+    qryImprimirCaixa.MacroByName('Cliente').AsString := format(FiltroCliente, [Value, quotedstr(qryProcuraClientetipo.asstring)]);
+    FParametroCabecalho := FParametroCabecalho+' Cliente: '+Value;
+  end
+  else
+    qryImprimirCaixa.MacroByName('Cliente').AsString := '';
+end;
+
+procedure TdtmrelatorioresumodeVendaseRecebimentos.ZMonitor1MonitorEvent(
+  Sql, Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:\rlvendasrecebimentos.txt') then
+    Listar.loadfromfile('c:\rlvendasrecebimentos.txt');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\rlvendasrecebimentos.txt');
+  listar.free;
+end;
+
+end.
+

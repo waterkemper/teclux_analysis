@@ -1,7 +1,7 @@
 inherited dtmManutencaoObservacoesVenda: TdtmManutencaoObservacoesVenda
   OldCreateOrder = False
-  Left = 376
-  Top = 226
+  Left = 529
+  Top = 211
   Height = 474
   Width = 893
   object qryProdutos: TtecQuery

@@ -1,0 +1,175 @@
+unit dmindicenaoqualidade;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, cpdatasource, ZQuery, ZPgSqlQuery,
+  cpquery, dmtecsoft, biblio, ctconstantes, ExcelExport, ZTransact;
+
+type
+
+
+  TpConsultaNaoQualidade = (tpCustoNaoQualidade, tpPPM, tpPN_PPM_Custos, tpTemposMotivosParadas);
+
+
+type
+  Tdtmindicenaoqualidade = class(TdtmBasico)
+    qryindicenaoqualidade: TtecQuery;
+    dsrindicenaoqualidade: TtecDataSource;
+    ExcelExport1: TExcelExport;
+    qryCustoNaoQualidade: TtecQuery;
+    qryPPM: TtecQuery;
+    qryPPMNome: TStringField;
+    qryPPMc01: TStringField;
+    qryPPMc02: TStringField;
+    qryPPMc03: TStringField;
+    qryPPMppm: TIntegerField;
+    qryPPMQuantidade: TLargeintField;
+    qryPPMppm_Periodo: TLargeintField;
+    qryCustoNaoQualidadefalha: TIntegerField;
+    qryCustoNaoQualidadedescricao: TStringField;
+    qryCustoNaoQualidadequantidade: TLargeintField;
+    qryCustoNaoQualidadetotalcusto: TFloatField;
+    qryCustoNaoQualidadesetorproducao: TStringField;
+    qryPPMQtdePerdaInerente: TLargeintField;
+    qryPPMQtdePerdaRetrabalho: TLargeintField;
+    qryPPMQtdePerdaTotal: TLargeintField;
+    qryPPMQtdeTotalPerda: TLargeintField;
+    qryCustoNaoQualidadetipofalha: TStringField;
+    qryPN_PPM_Custos: TtecQuery;
+    qryPN_PPM_Custospn: TStringField;
+    qryPN_PPM_Custosnome: TStringField;
+    qryPN_PPM_Custosc01: TStringField;
+    qryPN_PPM_Custosc02: TStringField;
+    qryPN_PPM_Custosc03: TStringField;
+    qryPN_PPM_Custosqtdeproduzida: TLargeintField;
+    qryPN_PPM_Custosqtdetotalperda: TLargeintField;
+    qryPN_PPM_Custoscustonaoqualidade: TFloatField;
+    qryPN_PPM_Custosppm: TIntegerField;
+    qryPN_PPM_Custosppm_periodo: TLargeintField;
+    qryTemposMotivosParadas: TtecQuery;
+    qryTemposMotivosParadassetor: TStringField;
+    qryTemposMotivosParadasmaquina: TIntegerField;
+    qryTemposMotivosParadasmaquinadescricao: TStringField;
+    qryTemposMotivosParadasoperador: TIntegerField;
+    qryTemposMotivosParadasoperadornome: TStringField;
+    qryTemposMotivosParadasparada: TIntegerField;
+    qryTemposMotivosParadasparadadescricao: TStringField;
+    qryTemposMotivosParadastempoparada: TIntegerField;
+    qryTemposMotivosParadaspn: TStringField;
+    procedure qryIndiceNaoQualidadeAfterOpen(DataSet: TDataSet);
+  private
+    fTipoConsultaNaoQualidade: TpConsultaNaoQualidade;
+    { Private declarations }
+  public
+    { Public declarations }
+    property TipoConsultaNaoQualidade: TpConsultaNaoQualidade read fTipoConsultaNaoQualidade write fTipoConsultaNaoQualidade;
+    function AbrirConsulta(DataInicial, DataFinal, ListaSetoresProducao, ListaFuncionarios: String): boolean;
+    procedure ExportarExcell;
+  end;
+
+var
+  dtmindicenaoqualidade: Tdtmindicenaoqualidade;
+
+implementation
+
+{$R *.dfm}
+
+{ Tdtmindicenaoqualidade }
+
+function Tdtmindicenaoqualidade.AbrirConsulta(DataInicial, DataFinal,
+  ListaSetoresProducao, ListaFuncionarios: String): boolean;
+var
+ vLider : string;
+ vMediaEficiencia : Currency;
+ vMaiorValorPremio : Currency;
+ vNumero: integer;
+ vFinalArquivo : Boolean;
+
+begin
+  case TipoConsultaNaoQualidade of
+    tpCustoNaoQualidade:    qryindicenaoqualidade.sql.Text := qryCustoNaoQualidade.sql.text;
+    tpPPM:                  qryindicenaoqualidade.sql.Text := qryPPM.sql.text;
+    tpPN_PPM_Custos:        qryindicenaoqualidade.sql.Text := qryPN_PPM_Custos.sql.text;
+    tpTemposMotivosParadas: qryindicenaoqualidade.sql.Text := qryTemposMotivosParadas.sql.text;
+  end;
+
+  if (DataInicial<>'') and (DataFinal<>'') then
+  begin
+    qryindicenaoqualidade.MacroByName('FiltroPeriodo').AsString := 'and oou.data between :datainicial and :datafinal';
+    qryindicenaoqualidade.ParamByName('datainicial').AsDateTime := StrToDateTime(datainicial);
+    qryindicenaoqualidade.ParamByName('datafinal').  AsDateTime := StrToDateTime(DataFinal);
+  end
+  else
+  if (DataInicial<>'') and (DataFinal='') then
+  begin
+    qryindicenaoqualidade.MacroByName('FiltroPeriodo').AsString := 'and oou.data >= :datainicial';
+    qryindicenaoqualidade.ParamByName('datainicial').asdatetime := StrToDateTime(datainicial);
+  end
+  else
+  if (DataInicial='') and (DataFinal<>'') then
+  begin
+    qryindicenaoqualidade.MacroByName('FiltroPeriodo').AsString := 'and oou.data <= :datafinal';
+    qryindicenaoqualidade.ParamByName('datafinal').asdatetime := StrToDateTime(DataFinal);
+  end
+  else
+  if (DataInicial='') and (DataFinal='') then
+    qryindicenaoqualidade.MacroByName('FiltroPeriodo').AsString := '';
+
+  if ListaSetoresProducao <> '' then
+    qryindicenaoqualidade.MacroByName('FiltroSetoresProducao').AsString := 'and m.setorproducao in ('+ListaSetoresProducao+')'
+  else
+    qryindicenaoqualidade.MacroByName('FiltroSetoresProducao').AsString := '';
+
+  if ListaFuncionarios <> '' then
+    qryindicenaoqualidade.MacroByName('FiltroFuncionarios').AsString := 'and oou.usuario in ('+ListaFuncionarios+')'
+  else
+    qryindicenaoqualidade.MacroByName('FiltroFuncionarios').AsString := '';
+
+  qryindicenaoqualidade.Close;
+  qryindicenaoqualidade.Open;
+
+  if qryindicenaoqualidade.IsEmpty then
+  begin
+    result := false;
+    MensagemAviso(Format(ctNENHUMREGISTROENCONTRADO,['Registro']));
+  end
+  else
+    result := true
+end;
+
+procedure Tdtmindicenaoqualidade.ExportarExcell;
+begin
+  GuardarRegistroAtual(qryindicenaoqualidade,true);
+  ExcelExport1.ExportDataset;
+  VoltarRegistroAtual(qryindicenaoqualidade);
+end;
+
+procedure Tdtmindicenaoqualidade.qryIndiceNaoQualidadeAfterOpen(
+  DataSet: TDataSet);
+var
+ i: integer;
+ vTabela : TtecQuery;
+begin
+  inherited;
+  case TipoConsultaNaoQualidade of
+       tpCustoNaoQualidade:    vTabela := qryCustoNaoQualidade;
+       tpPPM:                  vTabela := qryPPM;
+       tpPN_PPM_Custos:        vTabela := qryPN_PPM_Custos;
+       tpTemposMotivosParadas: vTabela:= qryTemposMotivosParadas;
+  end;
+
+  for i:=0 to vTabela.FieldCount - 1 do begin
+      qryindicenaoqualidade.Fields[i].DisplayWidth := vTabela.fields[i].DisplayWidth;
+      qryindicenaoqualidade.Fields[i].DisplayLabel := vTabela.fields[i].DisplayLabel;
+      qryindicenaoqualidade.Fields[i].Alignment    := vTabela.fields[i].Alignment;
+      case qryindicenaoqualidade.Fields[i].DataType of
+         ftInteger:  TIntegerField (qryindicenaoqualidade.Fields[i]).DisplayFormat:=  TIntegerField (vTabela.fields[i]).DisplayFormat;
+         ftLargeint: TLargeIntField(qryindicenaoqualidade.Fields[i]).DisplayFormat:=  TLargeIntField(vTabela.fields[i]).DisplayFormat;
+         ftFloat:    TFloatField   (qryindicenaoqualidade.Fields[i]).DisplayFormat:=  TFloatField   (vTabela.fields[i]).DisplayFormat;
+      end;
+  end;
+
+end;
+
+end.

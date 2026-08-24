@@ -310,7 +310,7 @@ const
         '       operador, ligacao, dataaberturacaixa, '+ #13#10 +
         '       datafechamentocaixa, current_date, devolucaonumerario, '   + #13#10 +
         '       alterarfilial, alterardadoscontabeis, gerenteestoque, '    + #13#10 +
-        '       administrador, suporte, pagamento, confirmartransfitem, '  + #13#10 +
+        '       admini10strador, suporte, pagamento, confirmartransfitem, '  + #13#10 +
         '       restringirfichacliente, emissornotafiscal, gerentecaixa, ' + #13#10 +
         '       (select pg_user.usename from pg_user where pg_user.usename = usuarios.usename) as login, excluireserva,trocaproduto, ' + #13#10 +
         '       email, usuarioemail, senhaemail, hostpop, portapop, hostsmtp, portasmtp, ' + #13#10 +

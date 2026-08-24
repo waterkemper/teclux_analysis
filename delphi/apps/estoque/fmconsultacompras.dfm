@@ -1400,7 +1400,6 @@ inherited frmConsultaCompras: TfrmConsultaCompras
             inherited pgcMultiplaSelecaoAleatoria: TtecPageControl
               Width = 808
               Height = 152
-              ActivePage = fraMultiplaSelecaoAleatoria.tstItemdeProduto
               Font.Pitch = fpVariable
               inherited tstItemdeProduto: TTabSheet
                 Font.Pitch = fpVariable
@@ -1409,15 +1408,15 @@ inherited frmConsultaCompras: TfrmConsultaCompras
                   Height = 122
                   inherited fraSelecaoAleatoriaItemdeProduto: TfraSelecaoAleatoria
                     Width = 800
-                    Height = 98
+                    Height = 102
                     AutoScroll = True
                     inherited Splitter1: TSplitter
                       Left = 765
-                      Height = 84
+                      Height = 88
                     end
                     inherited dbgSelecaoAleatoria: TtecDBGrid
                       Width = 765
-                      Height = 84
+                      Height = 88
                       Columns = <
                         item
                           Expanded = False
@@ -1511,10 +1510,10 @@ inherited frmConsultaCompras: TfrmConsultaCompras
                     end
                     inherited pnlLabels: TPanel
                       Left = 768
-                      Height = 84
+                      Height = 88
                     end
                     inherited pnlAbaixo: TPanel
-                      Top = 84
+                      Top = 88
                       Width = 800
                       Font.Pitch = fpVariable
                       inherited lblOrientacao: TLabel
@@ -1527,10 +1526,13 @@ inherited frmConsultaCompras: TfrmConsultaCompras
                     end
                   end
                   inherited pnlParametros: TPanel
-                    Top = 98
+                    Top = 102
                     Width = 800
                     Font.Pitch = fpVariable
                     inherited ckbProdutosComAgendamento: TCheckBox
+                      Font.Pitch = fpVariable
+                    end
+                    inherited ckbIncluirSimilaresnaLista: TCheckBox
                       Font.Pitch = fpVariable
                     end
                   end

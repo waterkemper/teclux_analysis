@@ -1,0 +1,254 @@
+unit dmindiceprodutividadeoee;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, cpdatasource, ZQuery, ZPgSqlQuery,
+  cpquery, dmtecsoft, biblio, ctconstantes, ExcelExport, ZTransact;
+
+type
+  TdtmIndiceProdutividadeOEE = class(TdtmBasico)
+    qryIndiceProdutividadeOEE: TtecQuery;
+    dsrIndiceProdutividadeOEE: TtecDataSource;
+    ExcelExport1: TExcelExport;
+    qryIndiceProdutividadeOEEmaquina: TIntegerField;
+    qryIndiceProdutividadeOEEdescricaomaquina: TStringField;
+    qryIndiceProdutividadeOEEito: TFloatField;
+    qryIndiceProdutividadeOEEipa: TFloatField;
+    qryIndiceProdutividadeOEEido: TFloatField;
+    qryIndiceProdutividadeOEEoee: TFloatField;
+    qryTurnos: TtecQuery;
+    qryTurnosturno: TStringField;
+    qryTurnosinicio: TTimeField;
+    qryTurnosfim: TTimeField;
+    dsrTurnos: TtecDataSource;
+    qryTurnosselecionar: TBooleanField;
+    qryIndiceProdutividadeOEEturno: TStringField;
+    procedure qryTurnosAfterScroll(DataSet: TDataSet);
+    procedure qryTurnosAfterInsert(DataSet: TDataSet);
+    procedure qryTurnosAfterPost(DataSet: TDataSet);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(Aowner:Tcomponent);override;
+
+    function AbrirConsulta(DataInicial, DataFinal, ListaMaquinas: String; PorTurnos: Boolean): boolean;
+    procedure ExportarExcell;
+  end;
+
+var
+  dtmIndiceProdutividadeOEE: TdtmIndiceProdutividadeOEE;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmIndiceProdutividadeOEE }
+
+function TdtmIndiceProdutividadeOEE.AbrirConsulta(DataInicial, DataFinal,
+  ListaMaquinas: String;  PorTurnos: Boolean): boolean;
+
+begin
+  result := true;
+
+  if PorTurnos then
+  begin
+    qryIndiceProdutividadeOEE.ParamByName('ValorTCLSemana').AsInteger := 450;
+    qryIndiceProdutividadeOEE.ParamByName('ValorTCLSabado').AsInteger := 375;
+    qryIndiceProdutividadeOEE.ParamByName('ValorTCLDomingo').AsInteger := 90;
+
+    qryTurnos.First;
+    while not qryturnos.Eof do
+    begin
+      if (qryTurnosturno.AsString = 'M') then
+      begin
+        if  qryTurnosselecionar.AsBoolean then
+          qryIndiceProdutividadeOEE.MacroByName('TurnoM').AsString :=  'select cast(''M'' as char(1)) as turno, cast(''05:00:00'' as time) as inicio, cast(''13:30:00'' as time) as fim where true'
+        else
+          qryIndiceProdutividadeOEE.MacroByName('TurnoM').AsString :=  'select cast(''M'' as char(1)) as turno, cast(''05:00:00'' as time) as inicio, cast(''13:30:00'' as time) as fim where false';
+      end
+      else
+      if (qryTurnosturno.AsString = 'V') then
+      begin
+        if qryTurnosselecionar.AsBoolean then
+          qryIndiceProdutividadeOEE.MacroByName('TurnoV').AsString :=  'select cast(''V'' as char(1)) as turno, cast(''13:30:01'' as time) as inicio, cast(''22:00:00'' as time) as fim where true'
+        else
+          qryIndiceProdutividadeOEE.MacroByName('TurnoV').AsString :=  'select cast(''V'' as char(1)) as turno, cast(''13:30:01'' as time) as inicio, cast(''22:00:00'' as time) as fim where false';
+      end
+      else
+      if (qryTurnosturno.AsString = 'N') then
+      begin
+        if qryTurnosselecionar.AsBoolean then
+        begin
+          qryIndiceProdutividadeOEE.MacroByName('TurnoN1').AsString :=  'select cast(''N'' as char(1)) as turno, cast(''22:00:01'' as time) as inicio, cast(''23:59:59'' as time) as fim where true';
+          qryIndiceProdutividadeOEE.MacroByName('TurnoN2').AsString :=  'select cast(''N'' as char(1)) as turno, cast(''00:00:00'' as time) as inicio, cast(''04:59:59'' as time) as fim where true'
+        end
+        else
+        begin
+          qryIndiceProdutividadeOEE.MacroByName('TurnoN1').AsString :=  'select cast(''N'' as char(1)) as turno, cast(''22:00:01'' as time) as inicio, cast(''23:59:59'' as time) as fim where false';
+          qryIndiceProdutividadeOEE.MacroByName('TurnoN2').AsString :=  'select cast(''N'' as char(1)) as turno, cast(''00:00:00'' as time) as inicio, cast(''04:59:59'' as time) as fim where false'
+        end
+      end
+      else
+      if (qryTurnosturno.AsString = 'X') then
+      begin
+        if qryTurnosselecionar.AsBoolean then
+        begin
+          if (qryTurnosinicio.AsString = '') then
+          begin
+            result := false;
+            qryTurnosinicio.FocusControl;
+            MensagemErro('Informe o início do turno.');
+            break;
+          end
+          else
+          if (qryTurnosfim.AsString = '') then
+          begin
+            result := false;
+            qryTurnosfim.FocusControl;
+            MensagemErro('Informe o final do turno.');
+            break;
+          end
+          else
+            qryIndiceProdutividadeOEE.MacroByName('TurnoX').AsString :=  'select cast(''X'' as char(1)) as turno, cast('''+qryTurnosinicio.AsString+''' as time) as inicio, cast('''+qryTurnosfim.AsString+''' as time) as fim where true'
+        end
+        else
+          qryIndiceProdutividadeOEE.MacroByName('TurnoX').AsString :=  'select cast(''X'' as char(1)) as turno, cast(''00:00:00'' as time) as inicio, cast(''00:00:00'' as time) as fim where false';
+      end;
+      qryTurnos.next;
+    end;
+  end
+  else
+  begin
+    qryIndiceProdutividadeOEE.ParamByName('ValorTCLSemana').AsInteger := 1350;
+    qryIndiceProdutividadeOEE.ParamByName('ValorTCLSabado').AsInteger := 750;
+    qryIndiceProdutividadeOEE.ParamByName('ValorTCLDomingo').AsInteger := 90;
+
+    qryIndiceProdutividadeOEE.MacroByName('TurnoM').AsString  :=  'select cast(''M'' as char(1)) as turno, cast(''05:00:00'' as time) as inicio, cast(''13:30:00'' as time) as fim where false';
+    qryIndiceProdutividadeOEE.MacroByName('TurnoV').AsString  :=  'select cast(''V'' as char(1)) as turno, cast(''13:30:01'' as time) as inicio, cast(''22:00:00'' as time) as fim where false';
+    qryIndiceProdutividadeOEE.MacroByName('TurnoN1').AsString :=  'select cast(''V'' as char(1)) as turno, cast(''22:00:01'' as time) as inicio, cast(''23:59:59'' as time) as fim where false';
+    qryIndiceProdutividadeOEE.MacroByName('TurnoN2').AsString :=  'select cast(''V'' as char(1)) as turno, cast(''00:00:00'' as time) as inicio, cast(''04:59:59'' as time) as fim where false';
+    qryIndiceProdutividadeOEE.MacroByName('TurnoX').AsString  :=  'select cast(''T'' as char(1)) as turno, cast(''00:00:00'' as time) as inicio, cast(''23:59:59'' as time) as fim where true';
+  end;
+
+  if result then
+  begin
+    if (DataInicial<>'') and (DataFinal<>'') then
+    begin
+      qryIndiceProdutividadeOEE.MacroByName('FiltroPeriodo').AsString := 'and oou.data between :datainicial and :datafinal';
+      qryIndiceProdutividadeOEE.parambyname('datainicial').asdatetime := StrToDateTime(datainicial);
+      qryIndiceProdutividadeOEE.parambyname('datafinal').asdatetime := StrToDateTime(DataFinal);
+    end
+    else
+    if (DataInicial<>'') and (DataFinal='') then
+    begin
+      qryIndiceProdutividadeOEE.MacroByName('FiltroPeriodo').AsString := 'and oou.data >= :datainicial';
+      qryIndiceProdutividadeOEE.parambyname('datainicial').asdatetime := StrToDateTime(datainicial);
+    end
+    else
+    if (DataInicial='') and (DataFinal<>'') then
+    begin
+      qryIndiceProdutividadeOEE.MacroByName('FiltroPeriodo').AsString := 'and oou.data <= :datafinal';
+      qryIndiceProdutividadeOEE.parambyname('datafinal').asdatetime := StrToDateTime(DataFinal);
+    end
+    else
+    if (DataInicial='') and (DataFinal='') then
+      qryIndiceProdutividadeOEE.MacroByName('FiltroPeriodo').AsString := '';
+
+    if ListaMaquinas <> '' then
+      qryIndiceProdutividadeOEE.MacroByName('FiltroMaquinas').AsString := 'and oou.maquina in ('+ListaMaquinas+')'
+    else
+      qryIndiceProdutividadeOEE.MacroByName('FiltroMaquinas').AsString := '';
+
+    qryIndiceProdutividadeOEE.Close;
+    qryIndiceProdutividadeOEE.Open;
+
+    if qryIndiceProdutividadeOEE.IsEmpty then
+    begin
+      result := false;
+      MensagemAviso(Format(ctNENHUMREGISTROENCONTRADO,['Registro']));
+    end
+    else
+      result := true
+  end;
+end;
+
+constructor TdtmIndiceProdutividadeOEE.Create(Aowner: Tcomponent);
+begin
+  inherited;
+  qryTurnos.close;
+  qryTurnos.Open;
+end;
+
+procedure TdtmIndiceProdutividadeOEE.ExportarExcell;
+begin
+  GuardarRegistroAtual(qryIndiceProdutividadeOEE,true);
+  ExcelExport1.ExportDataset;
+  VoltarRegistroAtual(qryIndiceProdutividadeOEE);
+end;
+
+procedure TdtmIndiceProdutividadeOEE.qryTurnosAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryTurnosturno.AsString = 'X' then
+  begin
+    qryTurnosinicio.ReadOnly := false;
+    qryTurnosfim.ReadOnly := false;
+  end
+  else
+  begin
+    qryTurnosinicio.ReadOnly := true;
+    qryTurnosfim.ReadOnly := true;
+  end;
+
+end;
+
+procedure TdtmIndiceProdutividadeOEE.qryTurnosAfterInsert(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryTurnos.Cancel;
+
+end;
+
+procedure TdtmIndiceProdutividadeOEE.qryTurnosAfterPost(DataSet: TDataSet);
+var
+  vTurno : String;
+begin
+  inherited;
+  qryturnos.DisableControls;
+  vTurno := qryTurnosturno.AsString;
+  qryTurnos.AfterPost := nil;
+
+  if (qryTurnosturno.AsString = 'X') then
+  begin
+    qryTurnos.First;
+    while not qryTurnos.Eof do
+    begin
+      if qryTurnosturno.AsString <> 'X' then
+      begin
+        qryturnos.Edit;
+        qryTurnosselecionar.AsBoolean := false;
+        qryturnos.post;
+      end;
+      qryTurnos.next;
+    end;
+  end
+  else
+  begin
+    if qryTurnosselecionar.AsBoolean then
+    begin
+      qryturnos.Locate('turno','X',[]);
+      qryturnos.Edit;
+      qryTurnosselecionar.AsBoolean := false;
+      qryturnos.post;
+    end;
+  end;
+  qryturnos.Locate('turno',vTurno,[]);
+  qryTurnos.EnableControls;
+  qryTurnos.AfterPost := qryTurnosAfterPost;
+end;
+
+end.

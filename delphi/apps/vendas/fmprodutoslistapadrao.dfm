@@ -67,9 +67,9 @@ inherited frmProdutosListaPadrao: TfrmProdutosListaPadrao
   end
   object pnlFundoJanela: TPanel
     Left = 0
-    Top = 40
-    Width = 807
-    Height = 189
+    Top = 45
+    Width = 785
+    Height = 184
     Align = alClient
     BevelOuter = bvNone
     BorderWidth = 3
@@ -77,8 +77,8 @@ inherited frmProdutosListaPadrao: TfrmProdutosListaPadrao
     object gbxProdutosListaCasamento: TGroupBox
       Left = 3
       Top = 3
-      Width = 801
-      Height = 183
+      Width = 779
+      Height = 178
       Align = alClient
       TabOrder = 0
       object gbxProdutos: TGroupBox

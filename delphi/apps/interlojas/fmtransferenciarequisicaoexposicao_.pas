@@ -1,0 +1,638 @@
+unit fmtransferenciarequisicaoexposicao;
+
+interface
+
+uses
+  SysUtils, Windows, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, ComCtrls, Buttons, ExtCtrls, {Qete,} DBCtrls, Grids, DBGrids,
+  Mask, ActnList, DateUtils,
+  // Componentes
+  cpdata, cpdbradiogroup, cpdbmemo, cpdbgrid, cpdbtext, cpdbfindcontrols,
+  cpeditioncontrolvalidation,
+  // Terceiros
+  cpQuery,
+  // Constantes
+  ctconstantes, biblio,
+  // Repositorio
+  fmcadastropadrao, fmajudabt, fmconsultabasica, fmconsultaporcampo, clparametrossistema,
+  // Projetos
+  dmtransferenciarequisicaoexposicao, DB, ZPgSqlQuery, cpquery, ToolWin,
+  cptexto, cpnumero, fmConferenciaProdutos, cpdbcombobox,
+  cpdblookupcombobox;
+
+type
+  TfrmTransferenciaRequisicaoExposicao = class(TfrmCadastroPadrao)
+    pnlFundoJanela: TPanel;
+    edtRequisitada: TEdit;
+    edtDescricaoRequisitada: TEdit;
+    rgbSituacao: TtecDBRadioGroup;
+    ckbFechado: TtecRadioButton;
+    ckbAberto: TtecRadioButton;
+    gbxPeriodoRequisicao: TGroupBox;
+    lblA: TLabel;
+    edtDataInicial: TEditData;
+    edtDataFinal: TEditData;
+    dbgTransferenciaRequisicao: TtecDBGrid;
+    edfRequisitante: TtecDbEditFind;
+    sbnProcuraFiliais: TSpeedButton;
+    dtxDescricaoRequisitante: TtecDBText;
+    ckbCancelado: TtecRadioButton;
+    sbnGerar: TSpeedButton;
+    ecvValida: TtecEditionControlValidation;
+    aclHabilitar: TActionList;
+    actHabilitarBotoes: TAction;
+    mmoObservacao: TtecDBMemo;
+    sbnConfirma: TSpeedButton;
+    ckbConfirmado: TtecRadioButton;
+    sbnImprimir: TSpeedButton;
+    gbxRequisitada: TGroupBox;
+    gbxRequisitante: TGroupBox;
+    GroupBox1: TGroupBox;
+    gbxQtRequisitante: TGroupBox;
+    gbxObservacoes: TGroupBox;
+    lblNumerodeDias: TLabel;
+    edtNumerodedias: TEditNumero;
+    edtqtdepedida: TDBEditNumero;
+    edtqtderecebida: TDBEditNumero;
+    gbxCurvaABC: TGroupBox;
+    ckbCurvaABC_A: TCheckBox;
+    ckbCurvaABC_C: TCheckBox;
+    ckbCurvaABC_B: TCheckBox;
+    ckbCurvaABC_NaoDefinido: TCheckBox;
+    Label1: TLabel;
+    Label2: TLabel;
+    pnlTotais: TPanel;
+    pnlParametros: TPanel;
+    pnlProdutos: TPanel;
+    sbnConferir: TSpeedButton;
+    gbxLoteTransferencia: TGroupBox;
+    dblLotesPedidosFiliais: TTecDBLookupComboBox;
+    procedure actHabilitarBotoesUpdate(Sender: TObject);
+    procedure dbgTransferenciaRequisicaoDrawColumnCell(Sender: TObject;
+              const Rect: TRect; DataCol: Integer; Column: TColumn;
+              State: TGridDrawState);
+    procedure dbgTransferenciaRequisicaoTitleClick(Column: TColumn);
+    procedure edfRequisitanteFound(Found: Boolean);
+    procedure edfRequisitanteMessage(var Msg: String);
+    procedure edtDataFinalEnter(Sender: TObject);
+    procedure sbnConfirmaClick(Sender: TObject);
+    procedure sbnGerarClick(Sender: TObject);
+    procedure sbnProcuraFiliaisClick(Sender: TObject);
+    procedure sbnImprimirClick(Sender: TObject);
+    procedure AfterScrollLinhaColunaGrade(Sender: TObject);
+    procedure edfRequisitanteChange(Sender: TObject);
+    procedure edtDataInicialExit(Sender: TObject);
+      var Key: Word; Shift: TShiftState);
+    procedure edtDataFinalExit(Sender: TObject);
+    procedure edtNumerodediasExit(Sender: TObject);
+    procedure sbnConferirClick(Sender: TObject);
+    procedure dblLotesPedidosFiliaisCloseUp(Sender: TObject);
+   // procedure edtCodigoBarrasTransferencia(Sender: TObject)
+  protected
+//    dtmTransferenciaRequisicaoExposicao: TdtmTransferenciaRequisicaoExposicao;
+    FDbgColumnsIndex: Integer;
+    procedure AfterScrollRequisicao(Sender: TObject);
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure AlteraTituloGrid;
+
+    procedure ExibirMensagemPadronizadaDataInicial;
+    procedure ExibirMensagemPadronizadaDataFinal;
+
+    procedure CalcularNDias;
+
+
+  public
+    constructor create(AOwner: TComponent); override;
+    destructor destroy; override;
+    function ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function InternoCancelar: Boolean; override;
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoPesquisar(Titulo: String): Integer; override;
+    function JanelaPesquisa: TfrmConsultaBasica; override;
+    function TabelaDePesquisa: TTecQuery; override;
+    function ValidarInformacao: Boolean;
+  end;
+
+var
+  frmTransferenciaRequisicaoExposicao: TfrmTransferenciaRequisicaoExposicao;
+  ControleAtivo: TWinControl;
+  Idx: Integer;
+
+implementation
+
+uses fmajuda;
+
+{$R *.dfm}
+
+{ TfrmTransferenciaRequisicaoExposicao }
+
+procedure TfrmTransferenciaRequisicaoExposicao.actHabilitarBotoesUpdate(Sender: TObject);
+var
+ vTabelaVazia : boolean;
+begin
+  inherited;
+  vTabelaVazia := dtmTransferenciaRequisicaoExposicao.qryPedidosFiliais.isempty;
+
+  sbnExcluir.Enabled  := not dtmTransferenciaRequisicaoExposicao.Fechado and
+                         (not vTabelaVazia);
+
+  sbnGerar.Enabled    := not sbnSalvar.Enabled;
+  sbnConfirma.Enabled := not sbnSalvar.Enabled and (rgbSituacao.ItemIndex = 0) and
+                         (not vTabelaVazia) ;
+
+  sbnImprimir.Enabled := (not vTabelaVazia);
+
+//  gbxCodigoBarras.Visible := (not vTabelaVazia);
+
+
+  sbnConferir.Enabled := dtmTransferenciaRequisicaoExposicao.qryPedidosFiliaismarcarlotetransferencia.AsBoolean and (edfRequisitante.Text<>'');
+end;
+
+procedure TfrmTransferenciaRequisicaoExposicao.AfterScrollLinhaColunaGrade(
+  Sender: TObject);
+begin
+  dbgTransferenciaRequisicao.ColumnByName('valorgrade1').Title.Caption := dtmTransferenciaRequisicaoExposicao.LinhadaGrade;
+  dbgTransferenciaRequisicao.ColumnByName('valorgrade2').Title.Caption := dtmTransferenciaRequisicaoExposicao.ColunadaGrade;
+end;
+
+procedure TfrmTransferenciaRequisicaoExposicao.AfterScrollRequisicao(Sender: TObject);
+begin
+  With dtmTransferenciaRequisicaoExposicao do begin
+    if Cancelado then begin
+      sbnExcluir.Caption:= 'Re-abrir F6';
+      sbnExcluir.Hint   := 'Re-abre a Requisição para Exposição';
+    end
+    else begin
+      sbnExcluir.Caption:= 'Cancelar F6';
+      sbnExcluir.Hint   := 'Cancela a Requisição para Exposição';
+     end;
+  end;
+end;
+
+constructor TfrmTransferenciaRequisicaoExposicao.create(AOwner: TComponent);
+begin
+  dtmTransferenciaRequisicaoExposicao := TdtmTransferenciaRequisicaoExposicao.Create(Self);
+  inherited;
+//  DataSet:= dtmTransferenciaRequisicaoExposicao.TabelaRequisicao;
+  DataSet:= dtmTransferenciaRequisicaoExposicao.qryPedidosFiliais;
+
+  SalvarPropriedadesFormulario := true;
+  CarregarConfiguracoesFormulario;
+
+  with dtmTransferenciaRequisicaoExposicao do
+  begin
+    RequisicaoAfterScroll := AfterScrollRequisicao;
+    edtRequisitada.Text   := IntToStr(FilialBase);
+    edtDescricaoRequisitada.Text := NomeFilialBase;
+    if edtNumerodedias.ValorSemFormatacao <> 0 then
+      edtDataInicial.Text   := DateToStr(DataServidor-edtNumerodedias.ValorSemFormatacao)
+    else
+      edtDataInicial.Text   := DateToStr(DataServidor-180);
+    edtDataFinal.Text     := DateToStr(DataServidor);
+  end;
+
+
+  Idx:= 1;
+  FDbgColumnsIndex:= 0;
+
+  edtDataInicial.Minimo := dtmTransferenciaRequisicaoExposicao.NDiasLimiteEmissao;
+  edtDataInicial.MensagemPadronizada := ExibirMensagemPadronizadaDataInicial;
+
+  edtDataFinal.Minimo := dtmTransferenciaRequisicaoExposicao.NDiasLimiteEmissao;
+  edtDataFinal.MensagemPadronizada := ExibirMensagemPadronizadaDataFinal;
+
+  dbgTransferenciaRequisicao.ColumnByName('valorgrade1').Visible := ParSistema.UsarGradesProdutos;
+  dbgTransferenciaRequisicao.ColumnByName('valorgrade2').Visible := ParSistema.UsarGradesProdutos;
+
+  dbgTransferenciaRequisicao.ColumnByName('estoquerequisitante').Visible := ParSistema.RequisicaoSubtraiEstoque;
+
+  dtmTransferenciaRequisicaoExposicao.OnScrollLinhaColunaGrade:= AfterScrollLinhaColunaGrade;
+
+  if dbgTransferenciaRequisicao.Columnbyname('estoquerequisitada').width < ParSistema.TamanhoMascaraQuantidade then
+    dbgTransferenciaRequisicao.Columnbyname('estoquerequisitada').width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgTransferenciaRequisicao.Columnbyname('reservapreviarequisitada').width < ParSistema.TamanhoMascaraQuantidade then
+    dbgTransferenciaRequisicao.Columnbyname('reservapreviarequisitada').Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgTransferenciaRequisicao.Columnbyname('estoquerequisitante').width < ParSistema.TamanhoMascaraQuantidade then
+    dbgTransferenciaRequisicao.Columnbyname('estoquerequisitante').Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgTransferenciaRequisicao.Columnbyname('qtdepedida').width < ParSistema.TamanhoMascaraQuantidade then
+    dbgTransferenciaRequisicao.Columnbyname('qtdepedida').Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgTransferenciaRequisicao.Columnbyname('qtderecebida').width < ParSistema.TamanhoMascaraQuantidade then
+    dbgTransferenciaRequisicao.Columnbyname('qtderecebida').Width := ParSistema.TamanhoMascaraQuantidade;
+
+
+  
+
+end;
+
+procedure TfrmTransferenciaRequisicaoExposicao.dbgTransferenciaRequisicaoDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+var 
+  Str : String;
+
+begin
+  inherited;
+  if not (gdFocused in State) then begin
+    if (dtmTransferenciaRequisicaoExposicao.QtdeRecebida > 0) then begin
+      TDBGrid(Sender).Canvas.Brush.Color := clInfoBk;
+      TDBGrid(Sender).Canvas.Font.Color := clBlack;
+      TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+    end;
+    if dtmTransferenciaRequisicaoExposicao.Cancelado then begin
+      TDBGrid(Sender).Canvas.Brush.Color := clRed;
+      TDBGrid(Sender).Canvas.Font.Color := clBlack;
+      TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+    end;
+    if dtmTransferenciaRequisicaoExposicao.Fechado then begin
+      TDBGrid(Sender).Canvas.Brush.Color := clYellow;
+      TDBGrid(Sender).Canvas.Font.Color := clBlack;
+      TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+    end;
+    if dtmTransferenciaRequisicaoExposicao.Confirmado then begin
+      TDBGrid(Sender).Canvas.Brush.Color := clTeal;
+      TDBGrid(Sender).Canvas.Font.Color := clBlack;
+      TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+    end;
+  end;
+
+  {
+  if (DataCol = 0) then
+  with TDBGrid(Sender) do
+  begin
+    Str := Inttostr(dtmTransferenciaRequisicaoExposicao.qryPedidosFiliais.RecNo);
+    Canvas.TextOut((Rect.Right - Canvas.TextWidth(Str)) - 30, Rect.Top, Str);
+  end;
+  }
+
+  {
+  if Column.Index = 0 then
+  begin
+    TDBGrid(Sender).Canvas.Font.Color := clBlack;
+    TDBGrid(sender).Canvas.FillRect(Rect);
+    TDBGrid(sender).Canvas.TextOut(Rect.Left - 30 + 2, Rect.Top, Inttostr(dtmTransferenciaRequisicaoExposicao.qryPedidosFiliais.RecNo));
+  end
+  else
+    TDBGrid(sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);}
+
+end;
+
+procedure TfrmTransferenciaRequisicaoExposicao.dbgTransferenciaRequisicaoTitleClick(Column: TColumn);
+var Coluna: Integer;
+    Campo: String;
+begin
+  inherited;
+  if AltOn then
+  begin
+    if Idx < 2 then Inc(Idx)
+    else            Idx:= 1;
+    case Idx of
+      1: begin
+           dbgTransferenciaRequisicao.Columnbyname('data').Title.Caption:= 'Data...';
+           dbgTransferenciaRequisicao.Columnbyname('data').FieldName:= 'data';
+           dbgTransferenciaRequisicao.Columnbyname('data').Alignment:= taCenter;
+
+         end;
+      2: begin
+           dbgTransferenciaRequisicao.Columnbyname('nota_serie').Title.Caption:= 'Nota/Serie...';
+           dbgTransferenciaRequisicao.Columnbyname('nota_serie').FieldName:= 'nota_serie';
+           dbgTransferenciaRequisicao.Columnbyname('nota_serie').Alignment:= taLeftJustify;
+         end;
+    end;
+  end;
+end;
+
+destructor TfrmTransferenciaRequisicaoExposicao.destroy;
+begin
+  dtmTransferenciaRequisicaoExposicao.qryTotaisPedidosFiliais.Close;
+  dtmTransferenciaRequisicaoExposicao:=nil;
+  inherited;
+  frmTransferenciaRequisicaoExposicao:= Nil;
+end;
+
+procedure TfrmTransferenciaRequisicaoExposicao.edfRequisitanteFound(Found: Boolean);
+begin
+  inherited;
+  if not Found then
+    edfRequisitante.Clear;
+end;
+
+procedure TfrmTransferenciaRequisicaoExposicao.edfRequisitanteMessage(var Msg: String);
+begin
+  inherited;
+  Msg:= Format(ctFILIALIGUALFILIALBASE,[edfRequisitante.Text]);
+end;
+
+procedure TfrmTransferenciaRequisicaoExposicao.edtDataFinalEnter(Sender: TObject);
+begin
+  inherited;
+  if not DataEmBranco(edtDataInicial.Text) and edtDataInicial.Criticar(false) then
+    edtDataFinal.Minimo:= DaysBetween(dtmTransferenciaRequisicaoExposicao.DataServidor,
+                                      StrToDate(edtDataInicial.Text));
+end;
+
+function TfrmTransferenciaRequisicaoExposicao.ExisteInformacao(Parametro: Integer;
+         NomeCampo: String; Value: Variant): Boolean;
+begin
+  Result:= dtmTransferenciaRequisicaoExposicao.ExisteFiliais(NomeCampo , Value);
+end;
+
+function TfrmTransferenciaRequisicaoExposicao.InternoCancelar: Boolean;
+begin
+  Result:= inherited InternoCancelar;
+  if Result then begin
+    dtmTransferenciaRequisicaoExposicao.FecharTabelaRequisicao;
+    dbgTransferenciaRequisicao.SetFocus;
+  end;
+end;
+
+function TfrmTransferenciaRequisicaoExposicao.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then begin
+    dtmTransferenciaRequisicaoExposicao.CancelarRequisicao;
+    dbgTransferenciaRequisicao.SetFocus;
+//    sbnGerarClick(nil);
+  end;
+end;
+
+function TfrmTransferenciaRequisicaoExposicao.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if Result then begin
+    dtmTransferenciaRequisicaoExposicao.GravarRequisicao;
+    dbgTransferenciaRequisicao.SetFocus;
+  end;
+end;
+
+function TfrmTransferenciaRequisicaoExposicao.InternoPesquisar(Titulo: String): Integer;
+begin
+  Result:= mrNone;
+  with dtmTransferenciaRequisicaoExposicao do begin
+    if CtrlOn and (ActiveControl = edfRequisitante) then begin
+      AbrirTabelas(ttrFILIAIS);
+      Result:= inherited InternoPesquisar(Titulo);
+      if Result = mrOK then
+        Selecionar(ttrFILIAIS);
+      FecharTabelas(ttrFILIAIS);
+    end;
+  end;
+end;
+
+function TfrmTransferenciaRequisicaoExposicao.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa    := True;
+  TfrmConsultaPorCampo(Result).UsarParametrosDaTabela:= False;
+end;
+
+procedure TfrmTransferenciaRequisicaoExposicao.KeyDown(var Key: Word; Shift: TShiftState);
+var linha, coluna: integer;
+begin
+  Linha:= 3;
+  Coluna:= 4;
+  case Key of
+    VK_F6: if not CtrlOn and sbnExcluir.Enabled then InternoExcluir;
+    VK_F7: if not CtrlOn and sbnGerar.Enabled then sbnGerar.Click;
+    VK_F8: if not CtrlOn and sbnConfirma.Enabled then sbnConfirma.Click;
+    VK_ESCAPE: if not sbnSalvar.Enabled and (rgbSituacao.ItemIndex = 1) then begin
+                  dtmTransferenciaRequisicaoExposicao.FecharTabelaRequisicao;
+                  edfRequisitante.SetFocus;
+                end;
+    VK_Delete: Key:= 0;
+    VK_Return: if (ActiveControl = edtDataFinal) and (Shift = []) then
+                begin
+                  if edtDataFinal.DataValida then
+                  begin
+                    sbnGerar.Click;
+                    if (dtmTransferenciaRequisicaoExposicao.NrRegistro > 0) then
+                      dbgTransferenciaRequisicao.SetFocus;
+                  end
+                  else
+                    edtDataFinal.SetFocus;
+                end else inherited;
+    VK_F11 : begin
+             end;
+
+     VK_F12 : begin
+                inherited;
+                if sbnImprimir.Enabled then
+                dtmTransferenciaRequisicaoExposicao.ImprimirRequisicoes;
+              end;
+
+{
+    VK_F11  : begin
+                 with dtmTransferenciaRequisicaoExposicao do
+                 begin
+                   if not (ParSistema.UsarGradesProdutos) and (FDbgColumnsIndex = 2) then
+                   begin
+                     if (dbgTransferenciaRequisicao.Columns.Items[FDbgColumnsIndex].Index = 2) then
+                        FDbgColumnsIndex:= FDbgColumnsIndex+2
+                     else if (dbgTransferenciaRequisicao.Columns.Items[FDbgColumnsIndex].Index = 3) then
+                        FDbgColumnsIndex:= FDbgColumnsIndex+1;
+                   end;
+                   if (Shift = [ssShift]) then
+                     Dec(FDbgColumnsIndex)
+                   else
+                     Inc(FDbgColumnsIndex);
+                   if (FDbgColumnsIndex > (dbgTransferenciaRequisicao.Columns.Count - 1)) then
+                     FDbgColumnsIndex:= 0
+                   else if (FDbgColumnsIndex < 0) then
+                     FDbgColumnsIndex:= (dbgTransferenciaRequisicao.Columns.Count - 1);
+                   dtmTransferenciaRequisicaoExposicao.IndiceColuna:= FDbgColumnsIndex;
+                   dtmTransferenciaRequisicaoExposicao.ColunaGrid:= dbgTransferenciaRequisicao.Columns.Items[FDbgColumnsIndex].Field.FieldName;
+                   qryPedidosFiliais.SortByField(dbgTransferenciaRequisicao.Columns.Items[FDbgColumnsIndex].Field.FieldName);
+                   AlteraTituloGrid;
+                 end;
+               end;
+}
+    else inherited;
+  end;
+end;
+
+procedure TfrmTransferenciaRequisicaoExposicao.sbnConfirmaClick(Sender: TObject);
+begin
+  inherited;
+  dbgTransferenciaRequisicao.Ordenacao := 'requisitante,produto';
+  dtmTransferenciaRequisicaoExposicao.ConfirmaRequisicao;
+
+end;
+
+procedure TfrmTransferenciaRequisicaoExposicao.sbnGerarClick(Sender: TObject);
+begin
+  inherited;
+
+  if ValidarInformacao then
+  begin
+    with dtmTransferenciaRequisicaoExposicao do begin
+      DataInicial:= edtDataInicial.Text;
+      DataFinal  := edtDataFinal.Text;
+      Situacao   := rgbSituacao.ItemIndex;
+      FilialRequisitante := edfRequisitante.Text;
+
+      CurvaABC_A := ckbCurvaABC_A.Checked;
+      CurvaABC_B := ckbCurvaABC_B.Checked;
+      CurvaABC_C := ckbCurvaABC_C.Checked;
+      CurvaABC_NaoDefinido := ckbCurvaABC_NaoDefinido.Checked;
+
+      if not GerarConsultaRequisicao then
+      begin
+        MensagemAviso(Format(ctNENHUMREGISTROSELECIONADO,['registro']));
+        edtDataInicial.SetFocus;
+      end
+      else
+        dbgTransferenciaRequisicao.SetFocus;
+    end;
+  end;
+
+end;
+
+procedure TfrmTransferenciaRequisicaoExposicao.sbnProcuraFiliaisClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfRequisitante.SetFocus;
+  InternoPesquisar('');
+end;
+
+function TfrmTransferenciaRequisicaoExposicao.TabelaDePesquisa: TTecQuery;
+begin
+  Result:= dtmTransferenciaRequisicaoExposicao.ConsultaFiliais;
+end;
+
+function TfrmTransferenciaRequisicaoExposicao.ValidarInformacao: Boolean;
+begin
+  Result:= ecvValida.Verify(gbxPeriodoRequisicao,ControleAtivo) and
+           OperadorTernario(edfRequisitante.Text <> '',edfRequisitante.Exist,True);
+end;
+
+
+procedure TfrmTransferenciaRequisicaoExposicao.sbnImprimirClick(Sender: TObject);
+begin
+  inherited;
+  dtmTransferenciaRequisicaoExposicao.ImprimirRequisicoes;
+end;
+
+procedure TfrmTransferenciaRequisicaoExposicao.edfRequisitanteChange(Sender: TObject);
+begin
+  inherited;
+  dtmTransferenciaRequisicaoExposicao.FecharTabelaRequisicao;
+end;
+
+procedure TfrmTransferenciaRequisicaoExposicao.AlteraTituloGrid;
+var a: Integer;
+begin
+  for a:= 0 to dbgTransferenciaRequisicao.Columns.Count -1 do
+    dbgTransferenciaRequisicao.Columns[a].Title.Font.Style:= [];
+  if (dbgTransferenciaRequisicao.Columns.Count > 0) then
+  begin
+    if FDbgColumnsIndex >= dbgTransferenciaRequisicao.Columns.Count then
+      FDbgColumnsIndex := dbgTransferenciaRequisicao.Columns.Count - 1;
+    dbgTransferenciaRequisicao.Columns[FDbgColumnsIndex].Title.Font.Style:= [fsBold];
+    dbgTransferenciaRequisicao.Columns[FDbgColumnsIndex].Title.Alignment := taCenter;
+{    if Assigned(Lbo) then
+      Lbo.Caption:= dbgTransferenciaRequisicao.Columns[FDbgColumnsIndex].Title.Caption;
+}  end;
+end;
+
+procedure TfrmTransferenciaRequisicaoExposicao.ExibirMensagemPadronizadaDataFinal;
+begin
+  if strtodate(edtDataFinal.Text) <= ParSistema.DataContabil then
+    MensagemAviso(format(ctDATACONTABILMAIORDATALANCTO, ['final',
+                     edtDatafinal.Text, 'contábil', ParSistema.DataContabilstring]))
+  else
+  if strtodate(edtDataFinal.Text) < strtodate(edtDataInicial.Text) then
+    MensagemAviso(format(ctDATACONTABILMAIOROUIGUALDATALANCTO, ['final',
+                     edtDatafinal.Text, 'emissão', edtDatainicial.Text]))
+end;
+
+procedure TfrmTransferenciaRequisicaoExposicao.ExibirMensagemPadronizadaDataInicial;
+begin
+  if strtodate(edtDataInicial.Text) <= ParSistema.DataContabil then
+    MensagemAviso(format(ctDATACONTABILMAIORDATALANCTO, ['inicial',
+                     edtDatainicial.Text, 'contábil', ParSistema.DataContabilstring]))
+  else
+    if strtodate(edtDataInicial.Text) < DataLocal - edtDataInicial.minimo then
+      MensagemAviso(format(ctDATACONTABILMAIOROUIGUALDATALANCTO, ['inicial',
+                       edtDataInicial.Text, 'retroativa',
+                       datetostr(DataLocal - edtDataInicial.Minimo)]))
+end;
+
+procedure TfrmTransferenciaRequisicaoExposicao.edtDataInicialExit(
+  Sender: TObject);
+var
+ NDias : Integer;
+begin
+  inherited;
+  edtDataFinal.Minimo := dtmTransferenciaRequisicaoExposicao.NDiasLimiteData(
+                          edtDataInicial.Text);
+
+  CalcularNDias;                          
+end;
+
+procedure TfrmTransferenciaRequisicaoExposicao.edtDataFinalExit(
+  Sender: TObject);
+begin
+  inherited;
+  CalcularNDias;
+end;
+
+procedure TfrmTransferenciaRequisicaoExposicao.edtNumerodediasExit(
+  Sender: TObject);
+begin
+  inherited;
+  if edtNumerodedias.ValorSemFormatacao <> 0 then
+  begin
+    if edtDataFinal.Text<>'' then
+      edtDataInicial.Text := strtodate(edtDataFinal.Text) - edtNumerodedias.ValorSemFormatacao
+    else
+    begin
+      edtDataInicial.Text := datetostr((Date() - edtNumerodedias.ValorSemFormatacao));
+      edtDataFinal.Text := datetostr(Date());
+    end;
+  end;
+
+end;
+
+procedure TfrmTransferenciaRequisicaoExposicao.CalcularNDias;
+begin
+  if (edtDataInicial.Text <> '') and
+     (edtDataFinal.Text <> '') then
+  edtNumerodedias.Text := inttostr(DaysBetween(strtodatetime(edtDataInicial.Text), strtodatetime(edtDataFinal.Text)));
+
+end;
+
+procedure TfrmTransferenciaRequisicaoExposicao.sbnConferirClick(
+  Sender: TObject);
+var
+  vordenacao : String;
+begin
+  inherited;
+  with dtmTransferenciaRequisicaoExposicao do
+  begin
+
+    VerificarLoteTransferencia;
+    ConferirProdutos(qryPedidosFiliais, qryPedidosFiliaisproduto.fieldname,
+     qryPedidosFiliaiscodigovisual.FieldName, qryPedidosFiliaisdescricao.FieldName,
+     qryPedidosFiliaisqtderecebida.FieldName, 'TRF', qryPedidosFiliaislotetransferencia.AsString);
+    AbrirLotesPedidosFiliais;
+
+    ZerarLotesSemVerificacao;
+
+  end;
+end;
+
+procedure TfrmTransferenciaRequisicaoExposicao.dblLotesPedidosFiliaisCloseUp(
+  Sender: TObject);
+begin
+  inherited;
+  dtmtransferenciarequisicaoexposicao.qrypedidosfiliais.filtered := false;
+  dtmtransferenciarequisicaoexposicao.qrypedidosfiliais.filtered := true;
+//  edtLotesPedidosFiliais.SetFocus;
+end;
+
+end.

@@ -4951,7 +4951,7 @@ begin
         begin
           qryContratos.Post;
 
-          Perpetrar([qryContratos  , qryParcelasContratos,
+          result := Perpetrar([qryContratos  , qryParcelasContratos,
                      qryProdutosContratos,
                      qryProdutosContratosLotes,
                      qryProdutoscontratosseries,
@@ -4960,6 +4960,11 @@ begin
                      qryNotasPag   , qryProdutosNotasPag , qryprodutosnotaspagSeries,
                      {dtmGerarNotaFiscal.qryCalculosNotasPag ,} qryNumeroNota,
                      qryContratosDevolvidos, {qryNotasPagDadosFiscais,} {qryProdutosListaCasamento,} qryMovimentos, qryprodutostrocados]);
+
+
+          if result then
+            result := CalcularImpostos(qrynotaspagcodigo.asinteger, 'E');
+
 
           if TemProdutoImprimirNotaDevolucao and not ClienteTrouxeNota then begin
 

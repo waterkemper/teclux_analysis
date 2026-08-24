@@ -7,6 +7,27 @@ Este diretório contém a especificação complementar para a emissão fiscal or
 - [Especificação autoritativa](especificacao.md)
 - [Prompt único para /speckit.specify](01-speckit-prompt-fiscal-transferencia.md)
 - [Prompt de complementação da implementação real](02-speckit-prompt-completar-integracao-real.md)
+- [Prompt incremental de consolidação da coreografia e DANFE](24-speckit-prompt-specify-consolidacao-coreografia-danfe.md)
+- [Prompt corretivo pós-implementação do prompt 24](25-speckit-prompt-specify-correcao-pos-implementacao-24.md)
+- [Prompt corretivo pós-implementação do prompt 25](26-speckit-prompt-specify-correcao-pos-implementacao-25.md)
+- [Prompt corretivo pós-implementação do prompt 26](27-speckit-prompt-specify-correcao-pos-implementacao-26.md)
+- [Prompt corretivo pós-implementação do prompt 27](28-speckit-prompt-specify-correcao-pos-implementacao-27.md)
+- [Prompt de simplificação operacional e paridade Delphi](29-speckit-prompt-specify-simplificacao-operacional-paridade-delphi.md)
+- [Prompt corretivo da primeira NF-e sem conteúdo fiscal](30-speckit-prompt-specify-correcao-primeira-nfe-conteudo-fiscal.md)
+
+## Prompts complementares
+
+- [Prompt 33 — PRÓXIMO: fechamento da NF-e, impostos legados, transmissão e DANFE](33-speckit-prompt-specify-fechamento-nfe-impostos-transmissao-danfe.md)
+- [Prompt 34 — PRÓXIMO: modal operacional e sincronização da tela](34-speckit-prompt-specify-sincronizacao-pos-confirmacao-e-emissao.md)
+- [Prompt 35 — homologação real da NF-e de transferência](35-speckit-prompt-specify-impostos-legados-e-transmissao-real.md)
+- [Prompt 31 — Paridade de impostos e natureza de produção própria](31-speckit-prompt-specify-paridade-impostos-natureza-producao-propria.md)
+- [Prompt 32 — Geração imediata da chave NF-e com paridade Delphi](32-speckit-prompt-specify-chave-nfe-imediata-paridade-delphi.md)
+- [Prompt 43 — Templates versionados para etiquetas de volumes e migração de `.fr3`](43-speckit-prompt-specify-template-etiqueta-volume-modelosetiquetas.md)
+
+Rascunhos posteriores, ainda não executar:
+
+- [Rascunho IBS/CBS](33-speckit-prompt-specify-ibs-cbs-paridade-delphi-atualizado.md)
+- [Rascunho transmissão ponta a ponta/DANFE](36-speckit-prompt-specify-fechamento-transmissao-ponta-a-ponta.md)
 
 ## Autoridade e fronteira
 

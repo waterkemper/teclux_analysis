@@ -1,0 +1,181 @@
+inherited dtmCadastroAtividadesEconomicas: TdtmCadastroAtividadesEconomicas
+  Left = 694
+  Top = 215
+  Height = 454
+  Width = 616
+  object qryAtividadesEconomicas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryAtividadesEconomicasAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select ae.*'
+      'from atividadeseconomicas ae'
+      'where ae.codigo = :codigo')
+    RequestLive = True
+    Left = 126
+    Top = 14
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryAtividadesEconomicascodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryAtividadesEconomicasdescricao: TStringField
+      FieldName = 'descricao'
+      Required = True
+      Size = 1000
+    end
+    object qryAtividadesEconomicasdenominacao: TStringField
+      DisplayLabel = 'Denomina'#231#227'o'
+      FieldName = 'denominacao'
+      Size = 200
+    end
+    object qryAtividadesEconomicascodigoatividade: TIntegerField
+      FieldName = 'codigoatividade'
+      DisplayFormat = '####-#/##'
+      EditFormat = '0000-0/00;0;_'
+    end
+    object qryAtividadesEconomicasitem: TIntegerField
+      FieldName = 'item'
+    end
+    object qryAtividadesEconomicassubitem: TIntegerField
+      FieldName = 'subitem'
+    end
+  end
+  object qryConsultaAtividadesEconomicas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select descricao, denominacao,'
+      '       codigoatividade,'
+      '       codigo'
+      'from atividadeseconomicas'
+      'order by UPPER(TO_ASCII(descricao,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 128
+    Top = 131
+    object qryConsultaAtividadesEconomicascodigoatividade: TIntegerField
+      DisplayLabel = 'C'#243'digo Atividade'
+      FieldName = 'codigoatividade'
+      DisplayFormat = '####-#/##'
+      EditFormat = '0000-0/00;0;_'
+    end
+    object qryConsultaAtividadesEconomicasdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      DisplayWidth = 80
+      FieldName = 'descricao'
+      Size = 1000
+    end
+    object qryConsultaAtividadesEconomicasdenominacao: TStringField
+      DisplayLabel = 'Denomina'#231#227'o'
+      FieldName = 'denominacao'
+      Size = 80
+    end
+    object qryConsultaAtividadesEconomicascodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+    end
+  end
+  object dsrAtividadesEconomicas: TtecDataSource
+    DataSet = qryAtividadesEconomicas
+    Left = 126
+    Top = 70
+  end
+  object dsrListaAtividadesEconomicasMunicipios: TtecDataSource
+    DataSet = qryListaAtividadesEconomicasMunicipios
+    Left = 328
+    Top = 136
+  end
+  object qryListaAtividadesEconomicasMunicipios: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ' select ae.codigo, '
+      '       ae_m.codigoatividademunicipio,'
+      '       ae_m.cidadeibge,'
+      '       c.nome,'
+      '       ae_m.aliquota,'
+      '       ae_m.descricao,'
+      '       (select true '
+      '        from atividadeseconomicasmunicipios aem '
+      '        where aem.atividade = ae.codigo '
+      
+        '          and aem.codigoatividademunicipio = ae_m.codigoatividad' +
+        'emunicipio) as ativo'
+      '        '
+      'from atividadeseconomicas_municipios  ae_m'
+      '     join atividadeseconomicas ae'
+      '     on ae_m.subclasse = ae.codigoatividade'
+      '     and ae_m.item = ae.item'
+      '     and ae_m.subitem = ae.subitem'
+      '     '
+      '     join cidades c on (c.estado, c.codigo) in '
+      '     (select c2.estado, c2.codigo '
+      '      from cidades c2 '
+      '      where c2.codigoibge = ae_m.cidadeibge '
+      '      order by c2.codigo desc limit 1)'
+      '     '
+      'where ae.codigo = :codigo     '
+      'order by c.nome, ativo, ae_m.descricao'
+      '')
+    RequestLive = True
+    Left = 320
+    Top = 64
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryListaAtividadesEconomicasMunicipioscodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryListaAtividadesEconomicasMunicipioscodigoatividademunicipio: TIntegerField
+      FieldName = 'codigoatividademunicipio'
+    end
+    object qryListaAtividadesEconomicasMunicipioscidadeibge: TIntegerField
+      FieldName = 'cidadeibge'
+    end
+    object qryListaAtividadesEconomicasMunicipiosnome: TStringField
+      FieldName = 'nome'
+      Size = 72
+    end
+    object qryListaAtividadesEconomicasMunicipiosaliquota: TFloatField
+      FieldName = 'aliquota'
+    end
+    object qryListaAtividadesEconomicasMunicipiosdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 512
+    end
+    object qryListaAtividadesEconomicasMunicipiosativo: TBooleanField
+      FieldName = 'ativo'
+    end
+  end
+end

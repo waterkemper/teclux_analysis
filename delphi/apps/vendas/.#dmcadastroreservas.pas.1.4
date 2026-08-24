@@ -1,0 +1,814 @@
+unit dmcadastroreservas;
+
+interface
+
+uses
+  // CLX
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  dmbasico, DB, DateUtils,
+  // Terceiros
+  ZQuery, ZPgSqlQuery,
+  // Componentes
+  cpquery, cpdatasource,
+  // Biblio
+   ctconstantes, biblio, clusuario;
+
+type
+    TdtmCadastroReservas = class(TdtmBasico)
+    qryReservas: TtecQuery;
+    dsrReservas: TtecDataSource;
+    spcReservasProximo: TtecQuery;
+    spcReservasProximonumero: TIntegerField;
+    qryConsultaReservas: TtecQuery;
+    qryProdutosReservas: TtecQuery;
+    dsrProdutosReservas: TtecDataSource;
+    qryInfoProdutosReservas: TtecQuery;
+    qryProcuraFiliais: TtecQuery;
+    qryProcuraFiliaiscodigo: TIntegerField;
+    qryProcuraFiliaisnome: TStringField;
+    spcMovimentosProximo: TtecQuery;
+    qryConsultaReservasnumero: TIntegerField;
+    qryConsultaReservasdata: TDateTimeField;
+    qryConsultaReservascliente: TStringField;
+    qryConsultaReservasusuario: TIntegerField;
+    qryEstoques: TtecQuery;
+    qryMovimentos: TtecQuery;
+    qryMovimentosdata: TDateField;
+    qryMovimentosproduto: TLargeintField;
+    qryMovimentosfilial: TIntegerField;
+    qryMovimentosquantidade: TFloatField;
+    qryMovimentosreferencia: TStringField;
+    qryMovimentostipomovimento: TStringField;
+    qryEstoquesprodutofilial: TIntegerField;
+    qryMovimentosnumero: TIntegerField;
+    spcMovimentosProximonumero: TIntegerField;
+    dsrProcuraFiliais: TtecDataSource;
+    dsrProcuraProdutos: TtecDataSource;
+    qryProdutosReservasnumero: TIntegerField;
+    qryProdutosReservasreserva: TIntegerField;
+    qryProdutosReservasfilial: TIntegerField;
+    qryProdutosReservasmovimento: TIntegerField;
+    qryProdutosReservasproduto: TLargeintField;
+    qryProdutosReservasquantidade: TFloatField;
+    qryProdutosReservasnomeproduto: TStringField;
+    qryConsultaFiliais: TtecQuery;
+    qryConsultaFiliaiscodigo: TIntegerField;
+    qryConsultaFiliaisnome: TStringField;
+    qryReservasnumero: TIntegerField;
+    qryReservasdata: TDateTimeField;
+    qryReservascliente: TStringField;
+    qryReservasendereco: TStringField;
+    qryReservasvalidade: TDateTimeField;
+    qryReservasusuario: TIntegerField;
+    qryReservascancelado: TDateTimeField;
+    qryReservasfilial: TIntegerField;
+    qryReservasvendedor: TStringField;
+    qryProdutosReservasbaixado: TFloatField;
+    qryBloquearEstoques: TtecQuery;
+    qryInfoProdutosReservasemestoque: TFloatField;
+    spcCancelarReserva: TtecQuery;
+    qryCancelarProdutosReserva: TtecQuery;
+    qryCancelarProdutosReservareserva: TIntegerField;
+    qryCancelarProdutosReservanumero: TIntegerField;
+    qryCancelarProdutosReservaproduto: TLargeintField;
+    qryCancelarProdutosReservafilial: TIntegerField;
+    qryCancelarProdutosReservaquantidade: TFloatField;
+    qryCancelarProdutosReservabaixado: TFloatField;
+    qryCancelarProdutosReservaetiqueta: TBooleanField;
+    qryCancelarProdutosReservamovimento: TIntegerField;
+    qryProcuraProdutos: TtecQuery;
+    qryProcuraProdutosdescricao: TStringField;
+    qryProcuraProdutoscodigo: TLargeintField;
+    qryProcuraProdutosfilial: TIntegerField;
+    qryConsultaProdutos: TtecQuery;
+    qryConsultaProdutosdescricao: TStringField;
+    qryConsultaProdutoscodigo: TLargeintField;
+    qryConsultaProdutosfilial: TIntegerField;
+    qryConsultaProdutosemestoque: TFloatField;
+    qryProcuraProdutosemestoque: TFloatField;
+    qryReservasqtdedevolvida: TFloatField;
+    qryReservasfoneddd: TIntegerField;
+    qryReservasfonenumero: TIntegerField;
+    qryConsultaProdutosvalorgrade1: TStringField;
+    qryConsultaProdutosvalorgrade2: TStringField;
+    qryProcuraProdutosdescricaolc: TStringField;
+    qryProcuraProdutosvalorgrade1: TStringField;
+    qryProcuraProdutosvalorgrade2: TStringField;
+    qryProdutosReservaslinha: TStringField;
+    qryProdutosReservascoluna: TStringField;
+    qryProdutosReservasvalorgrade1: TStringField;
+    qryProdutosReservasvalorgrade2: TStringField;
+    qryProcuraProdutoslinha: TStringField;
+    qryProcuraProdutoscoluna: TStringField;
+    qryProdutosReservascancelado: TBooleanField;
+    qryCancelarProdutosReservacomposto: TBooleanField;
+    qryProdutosReservascomposto: TBooleanField;
+    qryProcuraProdutoscomposto: TBooleanField;
+    procedure qryReservasAfterScroll(DataSet: TDataSet);
+    procedure qryReservasAfterInsert(DataSet: TDataSet);
+    procedure dsrProdutosReservasDataChange(Sender: TObject; Field: TField);
+    procedure qryProdutosReservasAfterDelete(DataSet: TDataSet);
+    procedure qryConsultaProdutosAfterOpen(DataSet: TDataSet);
+    procedure qryProdutosReservasAfterScroll(DataSet: TDataSet);
+    procedure qryProcuraProdutosCalcFields(DataSet: TDataSet);
+    procedure qryProcuraProdutosNewRecord(DataSet: TDataSet);
+  private
+    FOnScrollLinhaColunaGrade: TNotifyEvent;
+    function GetQuantidadeDevolvida: Currency;
+    function GetColunadaGrade: String;
+    function GetLinhadaGrade: String;
+    function GetProdutoCancelado: Boolean;
+  protected
+    FReserva : Integer;
+    FMovimento: Integer;
+    FProduto: Integer;
+    FFilial: Integer;
+    FQuantidade: Currency;
+    FQuantidadeInformada: Currency;
+    function GetTabelaReservas: TZDataSet;
+    function GetTabelaProdutosReservas: TZDataSet;
+    function GetConsultarProduto: TtecQuery;
+    function GetConsultarFilial: TtecQuery;
+    function GetConsultarReservas: TtecQuery;
+    function GetProduto: int64;
+    function GetFilial: Integer;
+    function GetBaixado: Currency;
+    function GetQuantidade: Currency;
+    function GetReservaCancelada: Boolean;
+    function GetCancelamentoPermitido: Boolean;
+  public
+    constructor Create(AOwner: TComponent); override;
+    function ValidarQuantidade(Qtde: Currency): Boolean;
+    function EfetuarCancelamento(Numero: Integer): Boolean;
+    function CancelarProdutoReserva: Boolean;
+    function CancelarReserva: Boolean;
+    function ExcluirProdutoReserva: Boolean;
+    function GravarReserva: Boolean;
+    function GravarProdutoReserva: Boolean;
+    function IncluirReserva: Boolean;
+    function IncluirProdutoReserva(Editar: Boolean): Boolean;
+    function ExisteReserva(Campo, Codigo: string): Boolean;
+    function ExisteProduto(Campo, Codigo: string): Boolean;
+    function ExisteFilial(Campo, Codigo: string): Boolean;
+    function ConfirmaCancelamento: Boolean;
+    function QuantidadeNoPedido(Produto: int64; Filial: Integer): Currency;
+    function CancelarProdutoMovimento: Boolean;
+    procedure GerarMovimento(pTipo: String; pMovimento, pProduto: Int64; pFilial, pReserva: Integer; pQuantidade, pBaixado: Currency);
+    procedure PosicionarReserva;
+    procedure AbrirTabelaPesquisa(Pesquisa: TtecPesquisa);
+    procedure FecharTabelaPesquisa(Pesquisa: TtecPesquisa);
+    procedure Selecionar(Pesquisa: TtecPesquisa);
+    property Baixado: Currency read GetBaixado;
+    property Reserva: Integer read FReserva write FReserva;
+    property Movimento: Integer read FMovimento write FMovimento;
+    property Produto: int64 read GetProduto;
+    property Filial: Integer read GetFilial;
+    property Quantidade: Currency read GetQuantidade;
+    property ReservaCancelada: Boolean read GetReservaCancelada;
+    property QuantidadeInformada: Currency read FQuantidadeInformada write FQuantidadeInformada;
+    property TabelaReservas: TZDataSet read GetTabelaReservas;
+    property TabelaProdutosReservas: TZDataSet read GetTabelaProdutosReservas;
+    property ConsultarProduto: TtecQuery read GetConsultarProduto;
+    property ConsultarFilial: TtecQuery read GetConsultarFilial;
+    property ConsultarReservas: TtecQuery read GetConsultarReservas;
+    property CancelamentoPermitido: Boolean read GetCancelamentoPermitido;
+    property QuantidadeDevolvida: Currency read GetQuantidadeDevolvida;
+    property  OnScrollLinhaColunaGrade    : TNotifyEvent read FOnScrollLinhaColunaGrade write FOnScrollLinhaColunaGrade;
+    property LinhadaGrade: String read GetLinhadaGrade;
+    property ColunadaGrade: String read GetColunadaGrade;
+    property ProdutoCancelado: Boolean read GetProdutoCancelado;
+
+  end;
+
+var
+  dtmCadastroReservas: TdtmCadastroReservas;
+  SQLFilial: String;
+
+implementation
+
+Uses
+  //Biblio
+  clparametrossistema,
+  // Repositorio
+  dmtecsoft;
+
+{$R *.dfm}
+
+constructor TdtmCadastroReservas.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryReservas.Tag             := ctTabelas;
+  qryProdutosReservas.Tag     := ctTabelas;
+  qryInfoProdutosreservas.Tag := ctTabelasAuxiliaresCadastroReservas;
+  qryEstoques.Tag             := ctTabelasAuxiliaresCadastroReservas;
+  qryMovimentos.Tag           := ctTabelasAuxiliaresCadastroReservas;
+  qryConsultaReservas.Tag     := ctPesquisaReservas;
+  qryConsultaProdutos.Tag     := ctPesquisaProdutos;
+  qryConsultaFiliais.Tag      := ctPesquisaFilial;
+  qryProdutosReservasquantidade.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosReservasbaixado.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProcuraProdutos.ParamByname('Filial').AsInteger := FilialBase;
+end;
+
+procedure TdtmCadastroReservas.qryReservasAfterInsert(DataSet: TDataSet);
+begin
+  qryReservasusuario.Value := CodigoUsuario;
+  qryReservasvendedor.Value := NomeUsuario;
+  qryReservasdata.Value := DataHoraLocal;
+  qryReservasfilial.AsInteger:= Filialbase;
+end;
+
+procedure TdtmCadastroReservas.qryReservasAfterScroll(DataSet: TDataSet);
+begin
+  RefazConsulta(qryProdutosReservas,[0],[qryReservasnumero.AsInteger]);
+end;
+
+function TdtmCadastroReservas.CancelarReserva: Boolean;
+begin
+  if qryReservas.State in [dsInsert] then
+    qryReservas.Delete
+  else begin
+    if ((qryReservasusuario.AsInteger = CodigoUsuario) or (UsuarioLogin.PermiteExcluirReserva)) then
+    begin
+      if EfetuarCancelamento(qryReservasnumero.AsInteger) then
+           RefazConsulta(qryReservas,[0],[qryReservasnumero.AsInteger])
+      else MensagemAviso('Erro ao cancelar reserva.');
+    end
+    else
+      MensagemAviso(Format(ctSEMPERMISSAOALTERAR, ['nesta reserva']));
+  end;
+  Result:= True;
+end;
+
+function TdtmCadastroReservas.ExcluirProdutoReserva: Boolean;
+begin
+  Result:= False;
+  if not qryProdutosReservas.IsEmpty then
+  begin
+    if qryReservas.State <> dsBrowse then
+    begin
+      if MensagemConfirmacao(Format(ctCONFIRMEEXCLUIR, ['o PRODUTO'])) = smbOk then
+           qryProdutosReservas.Delete
+      else qryProdutosReservas.Cancel;
+    end
+    else
+    begin
+      if MensagemConfirmacao(Format(ctCONFIRMECANCELAR, ['o PRODUTO'])) = smbOk then
+           CancelarProdutoMovimento
+      else qryProdutosReservas.Cancel;
+    end;
+    Result:= True;
+  end;
+end;
+
+function TdtmCadastroReservas.CancelarProdutoMovimento: Boolean;
+var
+  count: Integer;
+begin
+  Result := True;
+  count := 0;
+  try
+    qryReservas.ReadOnly := False;
+    qryCancelarProdutosReserva.MacroByName('produto').AsString := 'and pr.produto = ' +
+                                               qryProdutosReservasproduto.AsString;
+    qryCancelarProdutosReserva.Close;
+    qryCancelarProdutosReserva.Params[0].AsInteger := qryReservasnumero.AsInteger;
+    qryCancelarProdutosReserva.Open;
+
+    RefazConsulta(qryBloquearEstoques, [0,1], [qryCancelarProdutosReservaproduto.AsLargeInt,
+                                               qryCancelarProdutosReservafilial.AsInteger]);
+    RefazConsulta(spcMovimentosProximo, [0,1], [qryCancelarProdutosReservaproduto.AsLargeInt,
+                                                qryCancelarProdutosReservafilial.AsInteger]);
+    GerarMovimento('TPE',
+                   spcMovimentosProximonumero.Value,
+                   qryCancelarProdutosReservaproduto.AsLargeInt,
+                   qryCancelarProdutosReservafilial.AsInteger,
+                   qryReservasnumero.AsInteger,
+                   qryCancelarProdutosReservaquantidade.AsCurrency,
+                   qryCancelarProdutosReservabaixado.AsCurrency);
+
+    qryProdutosReservas.Edit;
+    qryProdutosReservasmovimento.AsInteger := spcMovimentosProximonumero.Value;
+    qryProdutosReservascancelado.AsBoolean := True;
+    Perpetrar([qryMovimentos, qryProdutosReservas]);
+
+    qryProdutosReservas.First;
+    while not qryProdutosReservas.Eof do
+    begin
+      if qryProdutosReservascancelado.AsBoolean then
+        count := count + 1;
+      qryProdutosReservas.Next;
+    end;
+
+    if qryProdutosReservas.RecordCount = count then
+    begin
+      spcCancelarReserva.ParamByName('cancelado').Value := DataHoraLocal;
+      spcCancelarReserva.ParamByName('numero').Value := qryReservasnumero.AsInteger;
+      spcCancelarReserva.ExecSql;
+      spcCancelarReserva.Close;
+    end;
+    Perpetrar([spcCancelarReserva]);
+    ReFazConsulta(qryReservas, [0], [qryReservasnumero.AsInteger]);
+  except
+    Result := False;
+  end;
+end;
+
+function TdtmCadastroReservas.GravarProdutoReserva: Boolean;
+begin
+  Result:= False;
+  if qryProdutosReservas.CheckRequiredFields then begin
+    qryProdutosReservas.Post;
+    qryReservas.Edit;
+    Result:= True;
+  end
+end;
+
+function TdtmCadastroReservas.IncluirReserva: Boolean;
+begin
+  qryReservas.Insert;
+  Result:= True;
+end;
+
+function TdtmCadastroReservas.IncluirProdutoReserva(Editar: Boolean): Boolean;
+
+  procedure ProdutosUtilizados;
+  var
+    Pos: TBookmark;
+    SQLF,SQLP: String;
+    Filial : Integer;
+    Produto: Int64;
+  begin
+    SQLP:= ''; SQLF:= '';
+    if not qryProdutosReservas.IsEmpty then begin
+      Filial := qryProdutosReservasfilial.AsInteger;
+      Produto:= qryProdutosReservasproduto.AsLargeInt;
+      Pos:= qryProdutosReservas.GetBookmark;
+      qryProdutosReservas.DisableControls;
+      try
+        qryProdutosReservas.First;
+        while not qryProdutosReservas.Eof do begin
+          if not Editar or (Editar and (Filial  <> qryProdutosReservasfilial.AsInteger) or
+                                       (Produto <> qryProdutosReservasproduto.AsLargeInt)) then
+            SQLP:= SQLP + 'and ((e.produto <> ' + IntToStr(qryProdutosReservasproduto.AsLargeInt) + ') or ' +
+                               '(e.filial  <> ' + IntToStr(qryProdutosReservasfilial.AsInteger)  + '))';
+          qryProdutosReservas.Next;
+        end;
+      finally
+        qryProdutosReservas.GotoBookmark(Pos);
+        qryProdutosReservas.FreeBookmark(Pos);
+        qryProdutosReservas.EnableControls;
+      end;
+    end;
+    qryProcuraProdutos.Sql[19] := SQLP;
+    qryConsultaProdutos.Sql[17]:= SQLP;
+
+    qryProcuraFiliais.Sql[7]   := SQLP;
+    qryConsultaFiliais.Sql[6]  := SQLP;
+    qryProcuraFiliais.Params[1].AsInteger  := qryProdutosReservasproduto.AsLargeInt;
+    qryConsultaFiliais.Params[0].AsInteger := qryProdutosReservasproduto.AsLargeInt;
+  end;
+
+begin
+  ProdutosUtilizados;
+  if qryProdutosReservas.State in [dsInsert, dsEdit] then
+    qryProdutosReservas.Cancel;
+  if Editar and not qryProdutosReservas.IsEmpty then begin
+    qryProcuraProdutos.Params[0].AsInteger:= qryProdutosReservasproduto.AsLargeInt;
+    qryProcuraProdutos.Params[1].AsInteger:= qryProdutosReservasfilial.AsInteger;
+
+    qryProcuraFiliais.Params [0].AsInteger:= qryProdutosReservasfilial.AsInteger;
+    qryProcuraFiliais.Params [1].AsInteger:= qryProdutosReservasproduto.AsLargeInt;
+    qryProdutosReservas.Edit;
+    qryProdutosReservas.Cancel;
+  end
+  else
+  begin
+    qryProcuraProdutos.Params[0].Clear;
+  //  qryProcuraProdutos.Params[1].Clear;
+
+  //  qryProcuraFiliais.Params [0].Clear;
+    qryProcuraFiliais.Params [1].Clear;
+
+    qryProcuraProdutos.Params[1].AsInteger := filialbase;
+    qryProcuraFiliais.Params [0].AsInteger := filialbase;
+
+    qryProdutosReservas.Append;
+    qryProdutosReservasquantidade.AsCurrency := ParSistema.ValordaQuantidade;
+    qryProdutosReservasbaixado.AsCurrency := 0;
+  end;
+  Result := True;
+end;
+
+function TdtmCadastroReservas.QuantidadeNoPedido(Produto: int64; Filial: Integer): Currency;
+begin
+  Result := 0;
+  qryProdutosReservas.DisableControls;
+  qryProdutosReservas.First;
+  while not qryProdutosReservas.EOF do begin
+    if (qryProdutosReservasproduto.AsLargeInt = Produto) and (qryProdutosReservasfilial.AsInteger = Filial) then
+      Result := Result + qryProdutosReservasquantidade.AsCurrency;
+    qryProdutosReservas.Next;
+  end;
+  qryProdutosReservas.EnableControls;
+  qryProdutosReservas.Edit;
+end;
+
+function TdtmCadastroReservas.GravarReserva: Boolean;
+var
+  SituacaoProduto : TtecComposicao;
+  cnt: Integer;
+  ProdutoComProblema, vp: String;
+  AbortarGravacao: Boolean;
+begin
+  Result := False;
+  AbortarGravacao := False;
+  if not(qryReservas.State in [dsInsert]) then
+    MensagemAviso(Format(ctSEMPERMISSAOALTERAR,['nesta reserva']))
+  else begin
+    if qryProdutosReservas.IsEmpty then
+      MensagemAviso(Format(ctDEPENDENCIA, ['a reserva', 'incluir um produto']))
+    else
+    if Trim(qryReservascliente.AsString) = '' then
+      MensagemAviso(Format(ctDEPENDENCIA, ['a reserva', 'incluir o cliente']))
+    else
+    begin
+      qryProdutosReservas.DisableControls;
+      qryProdutosReservas.First;
+      while not qryProdutosReservas.EOF do begin
+         vp := inttostr(produto);
+         RefazConsulta(qryBloquearEstoques,[0, 1],[Produto, Filial]);
+         qryProdutosReservas.Next;
+      end;
+      qryProdutosReservas.First;
+      while not qryProdutosReservas.EOF do begin
+        RefazConsulta(qryInfoProdutosReservas, [0, 1],[Produto, Filial]);
+        if qryInfoProdutosReservasemestoque.AsCurrency < QuantidadeNoPedido(Produto,Filial) then
+        begin
+          ProdutocomProblema := qryProdutosReservasproduto.AsString;
+          AbortarGravacao := True;
+          Break;
+        end;
+        qryProdutosReservas.Next;
+      end;
+
+      if not AbortarGravacao then
+      begin
+        spcReservasProximo.Open;
+        qryReservasnumero.AsInteger:= spcReservasProximonumero.AsInteger;
+        spcReservasProximo.Close;
+        qryReservasvalidade.Value := IncHour(qryReservasdata.Value, ParSistema.ValidadeReserva);
+
+        for SituacaoProduto := stNAOCOMPOSTO to stCOMPOSTO do
+        begin
+          qryProdutosReservas.First;
+          for cnt := 1 to qryProdutosReservas.RecordCount do begin
+            if FiltrarComposto(qryprodutosReservascomposto.asboolean, SituacaoProduto) then
+            begin
+              if qryProdutosReservasreserva.AsInteger = 0 then begin
+                RefazConsulta(spcMovimentosProximo,[0, 1],
+                             [qryProdutosReservasproduto.Value,
+                              qryProdutosReservasfilial.Value]);
+                Movimento := spcMovimentosProximonumero.Value;
+                Reserva   := qryReservasnumero.Value;
+                qryProdutosReservas.Edit;
+                qryProdutosReservasnumero.AsInteger := cnt;
+                qryProdutosReservasreserva.AsInteger:= Reserva;
+                qryProdutosReservasmovimento.Value  := Movimento;
+                GerarMovimento('TEP',
+                               Movimento,
+                               qryProdutosReservasproduto.AsLargeInt,
+                               qryProdutosReservasfilial.AsInteger,
+                               Reserva,
+                               qryProdutosReservasquantidade.AsCurrency,
+                               qryProdutosReservasbaixado.AsCurrency);
+                qryProdutosReservas.Post;
+              end;
+            end;
+            qryProdutosReservas.Next;
+          end;
+        end;
+
+        qryReservas.Post;
+        Perpetrar([qryReservas, qryMovimentos, qryProdutosReservas]);
+        RefazConsulta(qryReservas,[0],[qryReservasnumero.AsInteger]);
+//        RefazConsulta(qryProdutosReservas,[0],[qryReservasnumero.AsInteger]);
+        Result:=True;
+      end;
+      qryProdutosReservas.EnableControls;
+    end;
+  end;
+  if AbortarGravacao then begin
+    dtmTecsoft.TerminarTransacao;
+    MensagemAviso(Format(ctPROBLEMAESTOQUEPRODUTO,[ProdutoComProblema]));
+  end;
+end;
+
+procedure TdtmCadastroReservas.GerarMovimento(pTipo: String; pMovimento, pProduto: Int64;
+pFilial, pReserva: Integer; pQuantidade, pBaixado: Currency);
+begin
+  qryMovimentos.Open;
+  qryMovimentos.Insert;
+  qryMovimentosnumero.AsInteger := pMovimento;
+  qryMovimentosproduto.AsLargeInt:= pProduto;
+  qryMovimentosfilial.AsInteger := pFilial;
+  qryMovimentosdata.Value       := DataLocal;
+  if pTipo = 'TEP' then
+    qryMovimentosquantidade.AsCurrency:= pQuantidade
+  else
+    qryMovimentosquantidade.AsCurrency:= pQuantidade - pBaixado;
+  qryMovimentosreferencia.AsString:= 'RS ' + IntToStr(pReserva);
+  qryMovimentostipomovimento.AsString:= pTipo;
+  qryMovimentos.Post;
+end;
+
+function TdtmCadastroReservas.GetTabelaReservas: TZDataSet;
+begin
+  Result:= qryReservas;
+end;
+
+function TdtmCadastroReservas.GetTabelaProdutosReservas: TZDataSet;
+begin
+  Result:= qryProdutosReservas;
+end;
+
+function TdtmCadastroReservas.GetConsultarProduto: TtecQuery;
+begin
+  Result:= qryConsultaProdutos;
+end;
+
+function TdtmCadastroReservas.GetConsultarFilial: TtecQuery;
+begin
+  Result:= qryConsultaFiliais;
+end;
+
+function TdtmCadastroReservas.GetConsultarReservas: TtecQuery;
+begin
+  Result:= qryConsultaReservas;
+end;
+
+function TdtmCadastroReservas.GetProduto: int64;
+begin
+  Result:= qryProdutosReservasproduto.AsLargeInt;
+end;
+
+function TdtmCadastroReservas.GetFilial: Integer;
+begin
+  Result:= qryProdutosReservasfilial.AsInteger;
+end;
+
+function TdtmCadastroReservas.GetQuantidade: Currency;
+begin
+  Result:= qryProdutosReservasquantidade.AsCurrency;
+end;
+
+function TdtmCadastroReservas.GetBaixado: Currency;
+begin
+  Result:= qryProdutosReservasbaixado.AsCurrency;
+end;
+
+function TdtmCadastroReservas.GetReservaCancelada: Boolean;
+begin
+  Result:= not qryReservascancelado.IsNull;
+end;
+
+function TdtmCadastroReservas.ExisteReserva(Campo, Codigo: string): boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaReservas, Campo, Codigo);
+end;
+
+function TdtmCadastroReservas.ExisteProduto(Campo, Codigo: string): Boolean;
+const
+  SQL = 'and (upper(to_ascii(p.%s,''latin1'')) ilike upper(to_ascii(''%s%s'',''latin1'')))';
+begin
+  qryConsultaProdutos.Sql[16]:= Format(SQL, [Campo, Codigo, '%']);
+  qryConsultaProdutos.Open;
+  Result := (qryConsultaProdutos.RecordCount > 0);
+end;
+
+function TdtmCadastroReservas.ExisteFilial(Campo, Codigo: string): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaFiliais, Campo, Codigo);
+end;
+
+procedure TdtmCadastroReservas.PosicionarReserva;
+begin
+  RefazConsulta(qryReservas, [0], [qryConsultaReservasnumero.Value]);
+end;
+
+procedure TdtmCadastroReservas.AbrirTabelaPesquisa(Pesquisa: TtecPesquisa);
+begin
+  case Pesquisa of
+    pesPRODUTOS: begin
+                   qryConsultaProdutos.Sql[16]:= 'and (p.codigo = 0)';
+                   qryConsultaProdutos.Open;
+                 end;
+    pesFILIAIS : Abre(ctPesquisaFilial);
+  end;
+end;
+
+procedure TdtmCadastroReservas.FecharTabelaPesquisa(Pesquisa: TtecPesquisa);
+begin
+  case Pesquisa of
+    pesPRODUTOS: Fecha(ctPesquisaProdutos);
+    pesFILIAIS : Fecha(ctPesquisaFilial);
+  end;
+end;
+
+procedure TdtmCadastroReservas.Selecionar(Pesquisa: TtecPesquisa);
+begin
+  case Pesquisa of
+    pesPRODUTOS: begin
+                   RefazConsultaPorNome(qryProcuraProdutos,['codigo','filial'],
+                             [inttostr(qryConsultaProdutoscodigo.AsLargeInt), qryconsultaprodutosfilial.asinteger]);
+                   if not (qryProdutosReservas.State in [dsedit, dsinsert]) then
+                     qryProdutosReservas.Edit;
+                   qryProdutosReservasfilial.AsInteger    := qryConsultaProdutosfilial.AsInteger;
+                   qryProdutosReservasproduto.AsLargeInt  := qryConsultaProdutoscodigo.AsLargeInt;
+                 end;
+    pesFILIAIS : begin
+                   if not (qryProdutosReservas.State in [dsedit, dsinsert]) then
+                     qryProdutosReservas.Edit;
+                   qryProdutosReservasfilial.AsInteger:= qryConsultaFiliaiscodigo.AsInteger;
+                 end;
+  end;
+end;
+
+function TdtmCadastroReservas.ConfirmaCancelamento: Boolean;
+begin
+  if MensagemConfirmacao(Format(ctCONFIRMECANCELAR, ['a RESERVA'])) = smbCancel then
+    Result:= False
+  else
+  begin
+    if qryReservasusuario.AsInteger = CodigoUsuario then
+         qryReservas.ReadOnly:= False
+    else
+      qryReservas.ReadOnly:= True;
+    Result := True;
+  end
+end;
+
+function TdtmCadastroReservas.GetCancelamentoPermitido: Boolean;
+begin
+  Result := (qryReservas.State = dsInsert) or
+            (((CodigoUsuario = qryReservasusuario.AsInteger) or (UsuarioLogin.PermiteExcluirReserva))
+              and (QuantidadeDevolvida = 0));
+end;
+
+function TdtmCadastroReservas.EfetuarCancelamento(Numero: Integer): Boolean;
+var
+  SituacaoProduto : TtecComposicao;
+begin
+  Result := True;
+  try
+    qryCancelarProdutosReserva.MacroByName('produto').AsString := '';
+    qryCancelarProdutosReserva.Close;
+    qryCancelarProdutosReserva.Params[0].AsInteger := Numero;
+    qryCancelarProdutosReserva.Open;
+    for SituacaoProduto := stNAOCOMPOSTO to stCOMPOSTO do
+    begin
+      qryCancelarProdutosReserva.First;
+      while not qryCancelarProdutosReserva.Eof do
+      begin
+        if FiltrarComposto(qryCancelarProdutosReservacomposto.AsBoolean, SituacaoProduto) then
+        begin
+          RefazConsulta(qryBloquearEstoques, [0,1], [qryCancelarProdutosReservaproduto.AsLargeInt,
+                                                     qryCancelarProdutosReservafilial.AsInteger]);
+          RefazConsulta(spcMovimentosProximo, [0,1], [qryCancelarProdutosReservaproduto.AsLargeInt,
+                                                      qryCancelarProdutosReservafilial.AsInteger]);
+          GerarMovimento('TPE',
+                         spcMovimentosProximonumero.Value,
+                         qryCancelarProdutosReservaproduto.AsLargeInt,
+                         qryCancelarProdutosReservafilial.AsInteger,
+                         Numero,
+                         qryCancelarProdutosReservaquantidade.AsCurrency,
+                         qryCancelarProdutosReservabaixado.AsCurrency);
+        end;
+        qryCancelarProdutosReserva.Next;
+      end;
+    end;
+
+    spcCancelarReserva.ParamByName('cancelado').Value := DataHoraLocal;
+    spcCancelarReserva.ParamByName('numero').Value := Numero;
+    spcCancelarReserva.ExecSql;
+    spcCancelarReserva.Close;
+    Perpetrar([spcCancelarReserva, qryMovimentos]);
+
+  except
+    Result := False;
+  end;
+end;
+
+procedure TdtmCadastroReservas.dsrProdutosReservasDataChange(Sender: TObject; Field: TField);
+begin
+  inherited;
+  if Field = qryProdutosReservasproduto then
+  begin
+    if not qryProcuraProdutos.IsEmpty then
+    begin
+      dsrProdutosReservas.OnDataChange := nil;
+      qryProcuraFiliais.Params[0].AsInteger   := qryProcuraProdutosfilial.AsInteger;
+      qryProcuraFiliais.Params[1].AsString  := inttostr(qryProcuraProdutoscodigo.AsLargeInt);
+      qryConsultaFiliais.Params[0].AsString := inttostr(qryProcuraProdutoscodigo.AsLargeInt);
+
+      qryProdutosReservasfilial.AsInteger    := qryProcuraProdutosfilial.AsInteger;
+      qryProdutosReservasnomeproduto.AsString:= qryProcuraProdutosdescricao.AsString;
+      qryProdutosReservascomposto.AsBoolean  := qryProcuraProdutoscomposto.AsBoolean;
+      qryProdutosReservaslinha.AsString := qryProcuraProdutoslinha.AsString;
+      qryProdutosReservascoluna.AsString := qryProcuraProdutoscoluna.AsString;
+      qryProdutosReservasvalorgrade1.AsString := qryProcuraProdutosvalorgrade1.AsString;
+      qryProdutosReservasvalorgrade2.AsString := qryProcuraProdutosvalorgrade2.AsString;
+      dsrProdutosReservas.OnDataChange :=  dsrProdutosReservasDataChange;
+    end;
+  end
+  else
+  if Field = qryProdutosReservasfilial then
+  begin
+    if qryProdutosReservasfilial.asinteger<>0 then
+      RefazConsultaPorNome(qryProcuraProdutos,['filial'], [qryProdutosReservasfilial.asinteger]);
+  end;
+
+
+
+end;
+
+function TdtmCadastroReservas.ValidarQuantidade(Qtde: Currency): Boolean;
+begin
+  Result:= (Qtde > 0);
+  if not Result then
+    MensagemAviso('A quantidade deve ser maior que zero.')
+  else begin
+    Result:=  (Qtde <= qryProcuraProdutosemestoque.AsCurrency);
+    if not Result then
+      MensagemAviso(Format(ctQUANTIDADEINDISPONIVEL, [qryProcuraProdutosemestoque.AsString]));
+  end;
+end;
+
+procedure TdtmCadastroReservas.qryProdutosReservasAfterDelete(DataSet: TDataSet);
+begin
+  inherited;
+  if qryReservas.State = dsBrowse then
+    qryReservas.Edit;
+end;
+
+function TdtmCadastroReservas.GetQuantidadeDevolvida: Currency;
+begin
+  Result:= qryReservasqtdedevolvida.AsCurrency;
+end;
+
+function TdtmCadastroReservas.CancelarProdutoReserva: Boolean;
+begin
+  if qryProdutosReservas.State in [dsEdit,dsInsert] then
+    qryProdutosReservas.Cancel;
+  Result := True
+end;
+
+procedure TdtmCadastroReservas.qryConsultaProdutosAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryConsultaProdutosvalorgrade1.Visible := ParSistema.UsarGradesProdutos;
+  qryConsultaProdutosvalorgrade2.Visible := ParSistema.UsarGradesProdutos;
+end;
+
+function TdtmCadastroReservas.GetColunadaGrade: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryProdutosReservascoluna.AsString)
+end;
+
+function TdtmCadastroReservas.GetLinhadaGrade: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryProdutosReservaslinha.AsString)
+end;
+
+procedure TdtmCadastroReservas.qryProdutosReservasAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+    if Assigned(OnScrollLinhaColunaGrade) then
+    OnScrollLinhaColunaGrade(qryProdutosReservas);
+end;
+
+procedure TdtmCadastroReservas.qryProcuraProdutosCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryProcuraProdutosdescricaolc.AsString :=
+    qryProcuraProdutosdescricao.AsString+' '+
+    qryProcuraProdutosvalorgrade1.AsString+' '+
+    qryProcuraProdutosvalorgrade2.AsString;
+end;
+
+function TdtmCadastroReservas.GetProdutoCancelado: Boolean;
+begin
+  Result := qryProdutosReservascancelado.AsBoolean and (qryProdutosReservascancelado.AsVariant <> Null);
+end;
+
+procedure TdtmCadastroReservas.qryProcuraProdutosNewRecord(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryProcuraProdutos.ParamByname('Filial').AsInteger := FilialBase;
+end;
+
+end.

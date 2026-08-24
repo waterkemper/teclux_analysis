@@ -1,0 +1,936 @@
+inherited dtmcadastroeventos: Tdtmcadastroeventos
+  Left = 594
+  Top = 169
+  Height = 455
+  Width = 675
+  object qryEventos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryEventosAfterOpen
+    AfterClose = qryEventosAfterClose
+    BeforeInsert = qryEventosBeforeInsert
+    AfterCancel = qryEventosAfterCancel
+    AfterScroll = qryEventosAfterScroll
+    OnDeleteError = PostError
+    OnEditError = PostError
+    OnPostError = PostError
+    OnNewRecord = qryEventosNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'Ordenacao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'SELECT e.Codigo,'
+      '       e.Descricao,'
+      '       e.CentroCusto,'
+      '       e.Recibo,'
+      '       e.SaldoCliente,'
+      '       e.Conta,'
+      '       e.Inativo,'
+      '       e.Classificacao,'
+      '       e.Tipo,'
+      '       e.PlanilhaCustos,'
+      '       e.TipoMovimentacao,'
+      '       e.HistoricoContabil,'
+      '       e.IncluirNaDRE, e.incluirnobf, e.incluirnadregerencial'
+      ''
+      'FROM   eventos e'
+      ''
+      'WHERE  e.Codigo IS NOT NULL'
+      ''
+      '  AND  ((:Campo = 0) AND'
+      '        (:Operacao = 0) AND'
+      '        (Codigo    = :codigo))'
+      ''
+      '/* codigo */'
+      '   OR ((:Campo =1) AND'
+      '               /* PRIMEIRO */'
+      
+        '              (((:Operacao = 1)   AND ((codigo < :codigo) or (:c' +
+        'odigo=0)))'
+      '               /* ANTERIOR */'
+      '            OR ((:Operacao = 2) AND (codigo ='
+      
+        '                                       (case when :codigo<>0 the' +
+        'n'
+      
+        '                                               (SELECT MAX(codig' +
+        'o)'
+      '                                               FROM Eventos'
+      
+        '                                               WHERE codigo < :c' +
+        'odigo)'
+      '                                       else (select min(codigo)'
+      
+        '                                               from Eventos) end' +
+        ')))'
+      '               /* PR'#211'XIMO */'
+      '            OR ((:Operacao = 3) AND (codigo = (SELECT codigo'
+      '                                               FROM Eventos'
+      
+        '                                               WHERE  Codigo > :' +
+        'codigo'
+      '   '#9#9#9#9'               order by codigo limit 1)))'
+      '               /* '#218'LTIMO */'
+      '            OR ((:Operacao = 4) AND (codigo > :codigo))))'
+      ''
+      '/* classificacao */'
+      '   OR ((:Campo = 2) AND'
+      '               /* PRIMEIRO */'
+      '              (((:Operacao = 1) AND (codigo = (SELECT codigo'
+      '                                              FROM  Eventos'
+      
+        '                                              WHERE  ((classific' +
+        'acao < :classificacao)'
+      
+        '                                                       OR (class' +
+        'ificacao = :classificacao'
+      
+        '                                                           and U' +
+        'PPER(TO_ASCII(descricao,'#39'latin1'#39')) <= UPPER(TO_ASCII(:descricao,' +
+        #39'latin1'#39'))'
+      #9#9#9#9#9#9#9'   and codigo<:codigo)'
+      #9#9#9#9#9#9'       OR (:classificacao = '#39#39
+      #9#9#9#9#9#9'           and :descricao = '#39#39
+      #9#9#9#9#9#9#9'   and :codigo = 0)'
+      #9#9#9#9#9#9#9'   )'
+      
+        '                                               ORDER by classifi' +
+        'cacao, UPPER(TO_ASCII(descricao,'#39'LATIN1'#39')), codigo limit 1)))'
+      ''
+      '               /* ANTERIOR */'
+      '            OR ((:Operacao = 2) AND (codigo = (SELECT codigo'
+      '                                               FROM Eventos'
+      '                                               WHERE'
+      
+        '                                                    ( (classific' +
+        'acao < :classificacao)'
+      ' '#9#9#9#9#9#9'      OR'
+      #9#9#9#9#9#9'      (case when classificacao = :classificacao and'
+      
+        '                                                            UPPE' +
+        'R(TO_ASCII(descricao,'#39'latin1'#39')) = UPPER(TO_ASCII(:descricao,'#39'lat' +
+        'in1'#39'))'
+      ''
+      ' '#9#9#9#9#9#9' '#9'then classificacao = :classificacao'
+      
+        '                                                           and U' +
+        'PPER(TO_ASCII(descricao,'#39'latin1'#39')) <= UPPER(TO_ASCII(:descricao,' +
+        #39'latin1'#39'))'
+      ''
+      #9#9#9#9#9#9#9'     and codigo<:codigo'
+      #9#9#9#9#9#9#9'else classificacao = :classificacao and'
+      
+        '                                                             UPP' +
+        'ER(TO_ASCII(descricao,'#39'latin1'#39')) <= UPPER(TO_ASCII(:descricao,'#39'l' +
+        'atin1'#39')) end)'
+      #9#9#9#9#9#9'    )'
+      
+        '                                               ORDER by classifi' +
+        'cacao desc, UPPER(TO_ASCII(descricao,'#39'LATIN1'#39')) desc, codigo des' +
+        'c limit 1)))'
+      '               /* PR'#211'XIMO */'
+      '            OR ((:Operacao = 3) AND (codigo = (SELECT codigo'
+      '                                               FROM Eventos'
+      '                                               WHERE'
+      
+        '                                                    ( (classific' +
+        'acao > :classificacao)'
+      '                                                       OR'
+      #9#9#9#9#9#9'      (case when classificacao = :classificacao'
+      
+        '                                                           and U' +
+        'PPER(TO_ASCII(descricao,'#39'latin1'#39')) = UPPER(TO_ASCII(:descricao,'#39 +
+        'latin1'#39'))'
+      ' '#9#9#9#9#9#9' '#9'then classificacao = :classificacao'
+      
+        '                                                           and U' +
+        'PPER(TO_ASCII(descricao,'#39'latin1'#39')) >= UPPER(TO_ASCII(:descricao,' +
+        #39'latin1'#39'))'
+      #9#9#9#9#9#9#9'     and codigo>:codigo'
+      #9#9#9#9#9#9#9'else classificacao = :classificacao and'
+      
+        '                                                               U' +
+        'PPER(TO_ASCII(descricao,'#39'latin1'#39')) >= UPPER(TO_ASCII(:descricao,' +
+        #39'latin1'#39'))'
+      
+        '                                                             end' +
+        ')'
+      #9#9#9#9#9#9'    )'
+      
+        ' '#9#9#9#9#9'       order by classificacao, UPPER(TO_ASCII(descricao,'#39'L' +
+        'ATIN1'#39')), codigo limit 1)))'
+      '               /* '#218'LTIMO */'
+      '            OR ((:Operacao = 4) AND (codigo  = (SELECT codigo'
+      '                                                FROM Eventos'
+      '                                                WHERE'
+      
+        '                                                     ((classific' +
+        'acao > :classificacao)'
+      
+        '                                                       OR (class' +
+        'ificacao = :classificacao'
+      
+        '                                                           and U' +
+        'PPER(TO_ASCII(descricao,'#39'latin1'#39')) >= UPPER(TO_ASCII(:descricao,' +
+        #39'latin1'#39'))'
+      #9#9#9#9#9#9#9'   and codigo>:codigo))'
+      
+        ' '#9#9#9#9#9'       order by classificacao desc, UPPER(TO_ASCII(descric' +
+        'ao,'#39'LATIN1'#39')) desc, codigo desc limit 1)))))'
+      ''
+      '/* descricao */'
+      '   OR ((:Campo = 3) AND'
+      '               /* PRIMEIRO */'
+      '              (((:Operacao = 1) AND (codigo = (SELECT codigo'
+      '                                              FROM  Eventos'
+      '                                              WHERE (('
+      
+        '                                               UPPER(TO_ASCII(de' +
+        'scricao,'#39'latin1'#39')) < UPPER(TO_ASCII(:descricao,'#39'latin1'#39'))'
+      ''
+      '                                                      )'
+      '                                                       OR ('
+      
+        '                                                       UPPER(TO_' +
+        'ASCII(descricao,'#39'latin1'#39')) = UPPER(TO_ASCII(:descricao,'#39'latin1'#39')' +
+        ')'
+      
+        '                                                           and c' +
+        'lassificacao <= :classificacao'
+      #9#9#9#9#9#9#9'   and codigo<:codigo))'
+      
+        '                                               ORDER by UPPER(TO' +
+        '_ASCII(descricao,'#39'latin1'#39')), classificacao, codigo limit 1)))'
+      ''
+      '               /* ANTERIOR */'
+      '            OR ((:Operacao = 2) AND (codigo = (SELECT codigo'
+      '                                               FROM Eventos'
+      '                                               WHERE'
+      '                                                    ( ('
+      
+        '                                               UPPER(TO_ASCII(de' +
+        'scricao,'#39'latin1'#39')) < UPPER(TO_ASCII(:descricao,'#39'latin1'#39'))'
+      '                                                     )'
+      ' '#9#9#9#9#9#9'      OR'
+      #9#9#9#9#9#9'      (case when'
+      
+        '                                               UPPER(TO_ASCII(de' +
+        'scricao,'#39'latin1'#39')) = UPPER(TO_ASCII(:descricao,'#39'latin1'#39'))'
+      '                                                      and'
+      #9#9#9#9#9#9'                 classificacao = :classificacao'
+      ' '#9#9#9#9#9#9' '#9'then'
+      
+        '                                               UPPER(TO_ASCII(de' +
+        'scricao,'#39'latin1'#39')) = UPPER(TO_ASCII(:descricao,'#39'latin1'#39'))'
+      
+        '                                                             and' +
+        ' classificacao <= :classificacao'
+      #9#9#9#9#9#9#9'     and codigo<:codigo'
+      #9#9#9#9#9#9#9'else'
+      
+        '                                               UPPER(TO_ASCII(de' +
+        'scricao,'#39'latin1'#39')) = UPPER(TO_ASCII(:descricao,'#39'latin1'#39'))'
+      '                                                        and'
+      #9#9#9#9#9#9#9'     classificacao <= :classificacao end)'
+      #9#9#9#9#9#9'    )'
+      
+        '                                               ORDER by UPPER(TO' +
+        '_ASCII(descricao,'#39'latin1'#39')) desc, classificacao desc, codigo des' +
+        'c limit 1)))'
+      ''
+      '               /* PR'#211'XIMO */'
+      '            OR ((:Operacao = 3) AND (codigo = (SELECT codigo'
+      '                                               FROM Eventos'
+      '                                               WHERE'
+      '                                                    ( ('
+      
+        '                                        UPPER(TO_ASCII(descricao' +
+        ','#39'latin1'#39')) > UPPER(TO_ASCII(:descricao,'#39'latin1'#39'))'
+      '                                                    )'
+      '                                                       OR'
+      #9#9#9#9#9#9'      (case when'
+      
+        '                                        UPPER(TO_ASCII(descricao' +
+        ','#39'latin1'#39')) = UPPER(TO_ASCII(:descricao,'#39'latin1'#39'))'
+      '                                                      and'
+      #9#9#9#9#9#9'                 classificacao = :classificacao'
+      ' '#9#9#9#9#9#9' '#9'then'
+      
+        '                                        UPPER(TO_ASCII(descricao' +
+        ','#39'latin1'#39')) = UPPER(TO_ASCII(:descricao,'#39'latin1'#39'))'
+      
+        '                                                             and' +
+        ' classificacao >= :classificacao'
+      #9#9#9#9#9#9#9'     and codigo > :codigo'
+      #9#9#9#9#9#9#9'else'
+      
+        '                                        UPPER(TO_ASCII(descricao' +
+        ','#39'latin1'#39')) = UPPER(TO_ASCII(:descricao,'#39'latin1'#39'))'
+      '                                                        and'
+      #9#9#9#9#9#9#9'     classificacao >= :classificacao end)'
+      #9#9#9#9#9#9'    )'
+      
+        ' '#9#9#9#9#9'       order by UPPER(TO_ASCII(descricao,'#39'LATIN1'#39')), class' +
+        'ificacao, codigo limit 1)))'
+      ''
+      '               /* '#218'LTIMO */'
+      '            OR ((:Operacao = 4) AND (codigo  = (SELECT codigo'
+      '                                                FROM Eventos'
+      '                                                WHERE (('
+      
+        '                                        UPPER(TO_ASCII(descricao' +
+        ','#39'latin1'#39')) > UPPER(TO_ASCII(:descricao,'#39'latin1'#39'))'
+      '                                                )'
+      '                                                       OR ('
+      
+        '                                        UPPER(TO_ASCII(descricao' +
+        ','#39'latin1'#39')) = UPPER(TO_ASCII(:descricao,'#39'latin1'#39'))'
+      
+        '                                                           and c' +
+        'lassificacao >= :classificacao'
+      #9#9#9#9#9#9#9'   and codigo > :codigo))'
+      
+        ' '#9#9#9#9#9'       order by UPPER(TO_ASCII(descricao,'#39'LATIN1'#39')) desc, ' +
+        'classificacao desc, codigo desc limit 1)))))'
+      ''
+      '/* data inativo */'
+      '   OR ((:Campo = 4) AND'
+      '               /* PRIMEIRO */'
+      '              (((:Operacao = 1) AND (codigo = (SELECT codigo'
+      '                                              FROM  Eventos'
+      
+        '                                              WHERE (case when :' +
+        'inativo <> '#39'30/12/1899'#39' then'
+      #9#9#9#9#9'             ((inativo < :inativo)'
+      
+        '                                                       OR (inati' +
+        'vo = :inativo'
+      #9#9#9#9#9#9'           and classificacao <= :classificacao'
+      '                                                           and'
+      
+        '                                        UPPER(TO_ASCII(descricao' +
+        ','#39'latin1'#39')) <= UPPER(TO_ASCII(:descricao,'#39'latin1'#39'))'
+      ''
+      #9#9#9#9#9#9#9'   and codigo<:codigo))'
+      #9#9#9#9#9#9'     else true end)'
+      #9#9#9#9#9'        and inativo is not null'
+      
+        '                                               ORDER by inativo,' +
+        'classificacao, UPPER(TO_ASCII(descricao,'#39'LATIN1'#39')), codigo limit' +
+        ' 1)))'
+      ''
+      '               /* ANTERIOR */'
+      '            OR ((:Operacao = 2) AND (codigo = (SELECT codigo'
+      '                                               FROM Eventos'
+      
+        '                                               WHERE (case when ' +
+        ':inativo <> '#39'30/12/1899'#39' then'
+      
+        '                                                      ( (inativo' +
+        ' < :inativo)'
+      ' '#9#9#9#9#9#9'        OR'
+      #9#9#9#9#9#9'        (case when inativo = :inativo and'
+      #9#9#9#9#9#9'                   classificacao <= :classificacao and'
+      
+        '                                        UPPER(TO_ASCII(descricao' +
+        ','#39'latin1'#39')) <= UPPER(TO_ASCII(:descricao,'#39'latin1'#39'))'
+      ' '#9#9#9#9#9#9' '#9'  then inativo = :inativo and'
+      #9#9#9#9#9#9#9'       classificacao <= :classificacao'
+      
+        '                                                               a' +
+        'nd'
+      
+        '                                        UPPER(TO_ASCII(descricao' +
+        ','#39'latin1'#39')) <= UPPER(TO_ASCII(:descricao,'#39'latin1'#39'))'
+      #9#9#9#9#9#9#9'       and codigo<:codigo'
+      #9#9#9#9#9#9#9'  else inativo = :inativo and'
+      #9#9#9#9#9#9#9'       classificacao <= :classificacao and'
+      
+        '                                        UPPER(TO_ASCII(descricao' +
+        ','#39'latin1'#39')) <= UPPER(TO_ASCII(:descricao,'#39'latin1'#39'))'
+      
+        '                                                               e' +
+        'nd)'
+      #9#9#9#9#9#9'      )'
+      #9#9#9#9#9#9'      else true end)'
+      #9#9#9#9#9#9'      and inativo is not null'
+      
+        '                                               ORDER by inativo ' +
+        'desc, classificacao desc, UPPER(TO_ASCII(descricao,'#39'LATIN1'#39')) de' +
+        'sc, codigo desc limit 1)))'
+      '               /* PR'#211'XIMO */'
+      '            OR ((:Operacao = 3) AND (codigo = (SELECT codigo'
+      '                                               FROM Eventos'
+      
+        '                                               WHERE (case when ' +
+        ':inativo <> '#39'30/12/1899'#39' then'
+      
+        '                                                    ( (inativo >' +
+        ' :inativo)'
+      '                                                       OR'
+      #9#9#9#9#9#9'      (case when inativo = :inativo and'
+      #9#9#9#9#9#9'                 classificacao >= :classificacao and'
+      
+        '                                        UPPER(TO_ASCII(descricao' +
+        ','#39'latin1'#39')) >= UPPER(TO_ASCII(:descricao,'#39'latin1'#39'))'
+      ' '#9#9#9#9#9#9' '#9'then inativo = :inativo and'
+      #9#9#9#9#9#9#9'      classificacao >= :classificacao'
+      '                                                             and'
+      
+        '                                        UPPER(TO_ASCII(descricao' +
+        ','#39'latin1'#39')) >= UPPER(TO_ASCII(:descricao,'#39'latin1'#39'))'
+      #9#9#9#9#9#9#9'     and codigo>:codigo'
+      #9#9#9#9#9#9#9'else inativo = :inativo and'
+      #9#9#9#9#9#9#9'     classificacao >= :classificacao and'
+      
+        '                                        UPPER(TO_ASCII(descricao' +
+        ','#39'latin1'#39')) >= UPPER(TO_ASCII(:descricao,'#39'latin1'#39'))'
+      
+        '                                                             end' +
+        ')'
+      #9#9#9#9#9#9'    )'
+      #9#9#9#9#9#9'    else true end)'
+      #9#9#9#9#9#9'    and inativo is not null'
+      
+        ' '#9#9#9#9#9'       order by inativo, classificacao, UPPER(TO_ASCII(des' +
+        'cricao,'#39'LATIN1'#39')) , codigo limit 1)))'
+      '               /* '#218'LTIMO */'
+      '            OR ((:Operacao = 4) AND (codigo  = (SELECT codigo'
+      '                                                FROM Eventos'
+      '                                                WHERE'
+      
+        '                                                     ((inativo >' +
+        ' :inativo)'
+      
+        '                                                       OR (inati' +
+        'vo = :inativo and'
+      #9#9#9#9#9#9'           classificacao = :classificacao'
+      '                                                           and'
+      
+        '                                        UPPER(TO_ASCII(descricao' +
+        ','#39'latin1'#39')) >= UPPER(TO_ASCII(:descricao,'#39'latin1'#39'))'
+      #9#9#9#9#9#9#9'   and codigo>:codigo))'
+      
+        ' '#9#9#9#9#9'       order by inativo desc, classificacao desc, UPPER(TO' +
+        '_ASCII(descricao,'#39'latin1'#39')) desc, codigo desc limit 1)))))'
+      ''
+      ''
+      '%Ordenacao')
+    RequestLive = True
+    Left = 72
+    Top = 26
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'Campo'
+        ParamType = ptUnknown
+        Value = '0'
+      end
+      item
+        DataType = ftString
+        Name = 'Operacao'
+        ParamType = ptUnknown
+        Value = '0'
+      end
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'classificacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'descricao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'inativo'
+        ParamType = ptUnknown
+      end>
+    object qryEventosCodigo: TIntegerField
+      AutoGenerateValue = arAutoInc
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'Codigo'
+      DisplayFormat = '0'
+    end
+    object qryEventosDescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'Descricao'
+      Required = True
+      Size = 50
+    end
+    object qryEventosCentroCusto: TBooleanField
+      FieldName = 'CentroCusto'
+      Required = True
+    end
+    object qryEventosRecibo: TBooleanField
+      FieldName = 'Recibo'
+      Required = True
+    end
+    object qryEventosSaldoCliente: TBooleanField
+      FieldName = 'SaldoCliente'
+      Required = True
+    end
+    object qryEventosConta: TIntegerField
+      FieldName = 'Conta'
+      DisplayFormat = '0'
+    end
+    object qryEventosInativo: TDateField
+      Alignment = taCenter
+      FieldName = 'Inativo'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryEventosClassificacao: TStringField
+      DisplayLabel = 'Classifica'#231#227'o'
+      FieldName = 'Classificacao'
+      Required = True
+    end
+    object qryEventosTipo: TStringField
+      FieldName = 'Tipo'
+      Size = 1
+    end
+    object qryEventosPlanilhaCustos: TBooleanField
+      FieldName = 'PlanilhaCustos'
+    end
+    object qryEventosTipoMovimentacao: TStringField
+      FieldName = 'TipoMovimentacao'
+      Size = 1
+    end
+    object qryEventosHistoricoContabil: TIntegerField
+      FieldName = 'HistoricoContabil'
+      DisplayFormat = '0'
+    end
+    object qryEventosIncluirNaDRE: TBooleanField
+      FieldName = 'IncluirNaDRE'
+      Required = True
+    end
+    object qryEventosincluirnobf: TBooleanField
+      FieldName = 'incluirnobf'
+    end
+    object qryEventosincluirnadregerencial: TBooleanField
+      FieldName = 'incluirnadregerencial'
+    end
+  end
+  object dsrEventos: TtecDataSource
+    DataSet = qryEventos
+    Left = 239
+    Top = 26
+  end
+  object qryHistoricosEventos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryHistoricosEventosAfterPost
+    AfterDelete = qryHistoricosEventosAfterDelete
+    OnDeleteError = PostError
+    OnEditError = PostError
+    OnPostError = PostError
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select he.Historico,'
+      '           h.Descricao,'
+      '           he.Evento,'
+      '           he.Menu'
+      'From   historicoseventos he, historicos h'
+      'Where (he.Evento =:Evento) and'
+      '            (he.Historico = h.Codigo)')
+    RequestLive = True
+    Left = 72
+    Top = 86
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'evento'
+        ParamType = ptUnknown
+      end>
+    object qryHistoricosEventoshistorico: TIntegerField
+      DisplayLabel = 'Hist'#243'rico'
+      FieldName = 'historico'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryHistoricosEventosdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 50
+    end
+    object qryHistoricosEventosevento: TIntegerField
+      FieldName = 'evento'
+      DisplayFormat = '0'
+    end
+    object qryHistoricosEventosmenu: TStringField
+      FieldName = 'menu'
+    end
+  end
+  object dsrHistoricosEventos: TtecDataSource
+    DataSet = qryHistoricosEventos
+    OnDataChange = dsrHistoricosEventosDataChange
+    Left = 239
+    Top = 86
+  end
+  object qryHistoricos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select  h.Codigo,'
+      '        h.Descricao'
+      'From historicos h'
+      'Where  (h.Codigo = :codigo)'
+      '--Preenchido em runtime. N'#227'o Apague!')
+    RequestLive = True
+    Left = 72
+    Top = 141
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryHistoricoscodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryHistoricosdescricao: TStringField
+      FieldName = 'descricao'
+      Required = True
+      Size = 50
+    end
+  end
+  object dsrHistoricos: TtecDataSource
+    DataSet = qryHistoricos
+    Left = 239
+    Top = 141
+  end
+  object spcEventosProximo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select Eventos_proximocodigo() as codigo')
+    RequestLive = False
+    Left = 476
+    Top = 26
+    object spcEventosProximocodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+  end
+  object qryConsultaHistoricos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select H.Codigo,'
+      '       H.Descricao'
+      'From historicos H'
+      '--Preenchido em runtime. N'#227'o Apague!'
+      'order by UPPER(TO_ASCII(H.descricao,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 356
+    Top = 141
+    object qryConsultaHistoricosdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 50
+    end
+    object qryConsultaHistoricoscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+  end
+  object dsrEventosVinculado_Sinteticas: TtecDataSource
+    DataSet = qryEventosVinculado_Sinteticas
+    Left = 239
+    Top = 208
+  end
+  object qryEventosVinculado_Sinteticas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'WhereClassificacao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      
+        'SELECT   cast(repeat('#39' '#39', length(btrim(e.classificacao)))||e.Des' +
+        'cricao as varchar) as Descricao,'
+      '         e.classificacao,'
+      '         e.Codigo,'
+      '         e.tipo,'
+      '         (select count(*)'
+      '          from eventos'
+      '          where strpos(classificacao,:ultimaclassificacao)=1'
+      '             and tipo='#39'S'#39
+      '             and classificacao<>:ultimaclassificacao'
+      
+        '             and codigo <> :codigoselecionado) as nsinteticasult' +
+        'ima,'
+      ''
+      '         (select count(*)'
+      '          from planocontas'
+      '          where strpos(classificacao,:ultimaclassificacao)=1'
+      '             and tipo='#39'A'#39
+      
+        '             and codigo <> :codigoselecionado) as nanaliticasult' +
+        'ima'
+      ''
+      ''
+      'FROM     eventos e'
+      ''
+      'WHERE e.tipo = '#39'S'#39'   '
+      '     AND e.Inativo IS NULL'
+      '%WhereClassificacao'
+      ''
+      'ORDER BY e.classificacao')
+    RequestLive = False
+    Left = 64
+    Top = 208
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'ultimaclassificacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'codigoselecionado'
+        ParamType = ptUnknown
+      end>
+    object qryEventosVinculado_Sinteticasdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 50
+    end
+    object qryEventosVinculado_Sinteticasclassificacao: TStringField
+      DisplayLabel = 'Classifica'#231#227'o'
+      FieldName = 'classificacao'
+      Size = 50
+    end
+    object qryEventosVinculado_Sinteticascodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Visible = False
+      DisplayFormat = '0'
+    end
+    object qryEventosVinculado_Sinteticastipo: TStringField
+      DisplayLabel = 'Tipo'
+      FieldName = 'tipo'
+      Size = 1
+    end
+    object qryEventosVinculado_Sinteticasnsinteticasultima: TLargeintField
+      FieldName = 'nsinteticasultima'
+    end
+    object qryEventosVinculado_Sinteticasnanaliticasultima: TLargeintField
+      FieldName = 'nanaliticasultima'
+    end
+  end
+  object qryContaVinculada: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT count(*) as vinculadas'
+      'FROM    eventos e'
+      'WHERE  position(btrim(:conta,'#39'. '#39') in e.classificacao)=1')
+    RequestLive = False
+    Left = 72
+    Top = 272
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'conta'
+        ParamType = ptUnknown
+      end>
+    object qryContaVinculadavinculadas: TLargeintField
+      FieldName = 'vinculadas'
+    end
+  end
+  object qryExisteLancto: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select (((select count(*)'
+      '          from documentospag'
+      '          where evento = :evento'
+      '          limit 1)=1) or'
+      '        ((select count(*)'
+      '          from duplicatas'
+      '          where evento = :evento'
+      '          limit 1)=1) or'
+      '        ((select count(*)'
+      '          from parcelas'
+      '          where evento = :evento'
+      '          limit 1)=1) or'
+      '        ((select count(*)'
+      '          from autenticacoes'
+      '          where evento = :evento'
+      '          limit 1)=1) or'
+      '        ((select count(*)'
+      '          from produtostrocados'
+      '          where evento = :evento'
+      '          limit 1)=1) or'
+      '        ((select count(*)'
+      '          from movtosbancos'
+      '          where evento = :evento'
+      '          limit 1)=1)'
+      #9'  ) as existe')
+    RequestLive = False
+    Left = 72
+    Top = 336
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'evento'
+        ParamType = ptUnknown
+      end>
+    object qryExisteLanctoexiste: TBooleanField
+      FieldName = 'existe'
+    end
+  end
+  object qryEventosContasContabeis: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryEventosContasContabeisAfterOpen
+    AfterPost = qryEventosContasContabeisAfterPost
+    AfterDelete = qryEventosContasContabeisAfterDelete
+    OnDeleteError = PostError
+    OnEditError = PostError
+    OnPostError = PostError
+    OnNewRecord = qryEventosContasContabeisNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select ecc.*,'
+      '       pc.descricao as descricaoplanocontas,'
+      '       h.descricao as descricaohistorico'
+      '       '
+      'from eventoscontascontabeis ecc'
+      '     join planocontas pc'
+      '     on ecc.contacontabil = pc.codigo'
+      ''
+      '     left join historicos h'
+      '     on ecc.historicocontabil = h.codigo'
+      ''
+      'where ecc.evento = :evento'
+      'order by ecc.contacontabil')
+    RequestLive = True
+    Left = 240
+    Top = 274
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'evento'
+        ParamType = ptUnknown
+      end>
+    object qryEventosContasContabeisevento: TIntegerField
+      FieldName = 'evento'
+    end
+    object qryEventosContasContabeiscontacontabil: TIntegerField
+      DisplayLabel = 'CONTA CONT'#193'BIL'
+      FieldName = 'contacontabil'
+      Required = True
+    end
+    object qryEventosContasContabeisdescricaoplanocontas: TStringField
+      DisplayLabel = 'DESCRI'#199#195'O'
+      FieldName = 'descricaoplanocontas'
+      Required = True
+      Size = 50
+    end
+    object qryEventosContasContabeishistoricocontabil: TIntegerField
+      DisplayLabel = 'HIST'#211'RICO CONT'#193'BIL'
+      FieldName = 'historicocontabil'
+    end
+    object qryEventosContasContabeisdescricaohistorico: TStringField
+      DisplayLabel = 'DESCRI'#199#195'O'
+      FieldName = 'descricaohistorico'
+      Size = 50
+    end
+    object qryEventosContasContabeispercentual: TFloatField
+      DisplayLabel = 'PERCENTUAL'
+      FieldName = 'percentual'
+      Required = True
+      EditFormat = '##0.00'
+      Precision = 2
+    end
+  end
+  object dsrEventosContasContabeis: TtecDataSource
+    DataSet = qryEventosContasContabeis
+    OnDataChange = dsrEventosContasContabeisDataChange
+    Left = 232
+    Top = 336
+  end
+end

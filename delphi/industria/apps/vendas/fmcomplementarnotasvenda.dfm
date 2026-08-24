@@ -1,0 +1,1526 @@
+inherited frmComplementarNotasVenda: TfrmComplementarNotasVenda
+  Left = 459
+  Top = 69
+  ActiveControl = edtDataSaida
+  BorderIcons = [biSystemMenu, biMinimize]
+  Caption = 'Dados Complementar da Nota Fiscal'
+  ClientHeight = 510
+  ClientWidth = 726
+  Position = poScreenCenter
+  PixelsPerInch = 96
+  TextHeight = 16
+  object gbxInformacoesFiscais: TGroupBox
+    Left = 0
+    Top = 0
+    Width = 422
+    Height = 159
+    Caption = 'INFORMA'#199#213'ES FISCAIS'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -9
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 0
+    object gbxNumeroNota: TGroupBox
+      Left = 5
+      Top = 12
+      Width = 95
+      Height = 40
+      Caption = 'N'#186' NOTA'
+      TabOrder = 0
+      object dtxNumeroNota: TtecDBText
+        Left = 2
+        Top = 12
+        Width = 90
+        Height = 24
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'numero'
+        DataSource = dtmEmissaoNotasVenda.dsrNotas
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = [fsBold]
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 0
+        Alignment = taCenter
+      end
+    end
+    object gbxDataEmissao: TGroupBox
+      Left = 5
+      Top = 55
+      Width = 95
+      Height = 40
+      Caption = 'DATA EMISS'#195'O'
+      TabOrder = 1
+      object edtDataEmissao: TDBEditData
+        Left = 2
+        Top = 12
+        Width = 90
+        Height = 24
+        TabStop = False
+        Alignment = taLeftJustify
+        DataField = 'data'
+        DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        Maximo = 0
+        Minimo = 0
+        Adicional = 0
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 0
+        Opcional = False
+      end
+    end
+    object gbxDataSaida: TGroupBox
+      Left = 5
+      Top = 99
+      Width = 95
+      Height = 40
+      Caption = 'DATA SA'#205'DA'
+      TabOrder = 2
+      object edtDataSaida: TDBEditData
+        Left = 2
+        Top = 12
+        Width = 90
+        Height = 24
+        Alignment = taLeftJustify
+        DataField = 'datasaida'
+        DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        Maximo = 15
+        Minimo = 0
+        Adicional = 0
+        ParentFont = False
+        TabOrder = 0
+        Opcional = True
+      end
+    end
+    object gbxCFOP: TGroupBox
+      Left = 105
+      Top = 12
+      Width = 312
+      Height = 40
+      Caption = 'CFOP'
+      TabOrder = 3
+      object sbnNaturezaOperacao: TSpeedButton
+        Left = 64
+        Top = 13
+        Width = 23
+        Height = 22
+        Hint = 'Procurar C'#243'digo Fiscal'
+        Flat = True
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        Glyph.Data = {
+          36060000424D3606000000000000360000002800000020000000100000000100
+          18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDC800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7FFFFFFFDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DC800000800000800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000
+          00800000800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000008000
+          00800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000008000008000
+          00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFF
+          FFFFDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCFFA858800000800000800000FFA858DCDCDC0000FF800000800000DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDC
+          DCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          800000FFA858FFA858FFA858FFA858FFA8588000008000000000FFDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FFFFFFFDCDCDCDCDCDC7F
+          7F7F7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC800000
+          FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFA858FFA858
+          FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDC7F7F7FDCDCDCFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+          FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+          FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+          FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDC7F7F7FC3C3C3FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFA858FFA858
+          FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC800000
+          FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FC3C3C3FFFFFFFFFFFFDCDCDCDCDCDCDC
+          DCDCFFFFFF7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          800000FFA858FFA858FFA858FFA858FFA858800000DCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FC3C3C3FFFFFFFFFFFF7F
+          7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCFFA858800000800000800000FFA858DCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+        NumGlyphs = 2
+        ParentFont = False
+        OnClick = sbnNaturezaOperacaoClick
+      end
+      object dtxNaturezaOperacao: TtecDBText
+        Left = 85
+        Top = 12
+        Width = 223
+        Height = 24
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'descricao'
+        DataSource = dtmEmissaoNotasVenda.dsrProcuraNaturezasCFOP
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 0
+        Alignment = taLeftJustify
+      end
+      object flkNaturezaOperacao: TtecDBFindLookup
+        Left = 3
+        Top = 12
+        Width = 60
+        Height = 24
+        Alignment = taLeftJustify
+        DataField = 'codigofiscal'
+        DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        MaxLength = 6
+        Maximo = 0
+        Minimo = 37353
+        Adicional = 0
+        Opcional = True
+        OnChange = flkNaturezaOperacaoChange
+        OnExit = flkNaturezaOperacaoExit
+        ParentFont = False
+        TabOrder = 1
+        PermitirZero = False
+        PermitirNulo = False
+        Operacao = opATRIBUICAO
+        LookupField = 'codigofiscal'
+        LookupSource = dtmEmissaoNotasVenda.dsrProcuraNaturezasCFOP
+        LookupQueryParameter = 'codigofiscal'
+        Parameter = ' '
+        ActiveSetControls = False
+        DenyInsert = True
+        NoSetControls = <>
+        SetControls = <>
+        LookupParameter = 'codigofiscal'
+      end
+    end
+    object gbxDespesasAcessorias: TGroupBox
+      Left = 105
+      Top = 99
+      Width = 312
+      Height = 56
+      Caption = 'DESPESAS ACESS'#211'RIAS'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 5
+      object gbxFrete: TGroupBox
+        Left = 6
+        Top = 12
+        Width = 95
+        Height = 40
+        Caption = 'FRETE'
+        TabOrder = 0
+        object edtValorFrete: TDBEditNumero
+          Left = 2
+          Top = 12
+          Width = 90
+          Height = 24
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          MaxLength = -1
+          ParentFont = False
+          TabOrder = 0
+          Text = 'edtValorFrete'
+          Mascara = True
+          TipoMascara = tmGERAL
+          NrDecimal = 2
+          Decimais = True
+          Negativo = False
+          Tamanho = 9
+          DataField = 'valorfrete'
+          DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+        end
+      end
+      object gbxOutras: TGroupBox
+        Left = 207
+        Top = 12
+        Width = 95
+        Height = 40
+        Caption = 'OUTRAS'
+        TabOrder = 2
+        object edtValorOutrasDespesas: TDBEditNumero
+          Left = 2
+          Top = 12
+          Width = 90
+          Height = 24
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          MaxLength = -1
+          ParentFont = False
+          TabOrder = 0
+          Text = 'edtValorOutrasDespesas'
+          Mascara = True
+          TipoMascara = tmGERAL
+          NrDecimal = 2
+          Decimais = True
+          Negativo = False
+          Tamanho = 9
+          DataField = 'despesasacessorias'
+          DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+        end
+      end
+      object gbxSeguro: TGroupBox
+        Left = 106
+        Top = 12
+        Width = 95
+        Height = 40
+        Caption = 'SEGURO'
+        TabOrder = 1
+        object edtValorSeguro: TDBEditNumero
+          Left = 2
+          Top = 12
+          Width = 90
+          Height = 24
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          MaxLength = -1
+          ParentFont = False
+          TabOrder = 0
+          Text = 'edtValorSeguro'
+          Mascara = True
+          TipoMascara = tmGERAL
+          NrDecimal = 2
+          Decimais = True
+          Negativo = False
+          Tamanho = 9
+          DataField = 'seguro'
+          DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+        end
+      end
+    end
+    object gbxDescricaoNatureza: TGroupBox
+      Left = 104
+      Top = 55
+      Width = 313
+      Height = 40
+      Caption = 'NATUREZA'
+      TabOrder = 4
+      object dtxDescricaoNatureza: TtecDBText
+        Left = 2
+        Top = 12
+        Width = 307
+        Height = 24
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'natureza'
+        DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 0
+        Alignment = taLeftJustify
+      end
+    end
+  end
+  object gbxObservacoes: TGroupBox
+    Left = 0
+    Top = 352
+    Width = 305
+    Height = 128
+    Caption = 'OBSERVA'#199#213'ES'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -9
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 3
+    object mmoObservacoes: TtecDBMemo
+      Left = 2
+      Top = 12
+      Width = 297
+      Height = 110
+      DataField = 'observacoes'
+      DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      MaxLength = 350
+      ParentFont = False
+      TabOrder = 0
+      WordWrap = False
+    end
+  end
+  object gbxObservacoesNotaComplementar: TGroupBox
+    Left = 309
+    Top = 352
+    Width = 413
+    Height = 128
+    Caption = 'OBSERVA'#199#213'ES PARA NOTA FISCAL COMPLEMENTAR'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -9
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 4
+    object mmoObservacoesNotaComplementar: TtecDBMemo
+      Left = 2
+      Top = 12
+      Width = 405
+      Height = 110
+      DataField = 'observacoescomplementar'
+      DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      MaxLength = 500
+      ParentFont = False
+      TabOrder = 0
+      WordWrap = False
+    end
+  end
+  object gbxVencimentos: TGroupBox
+    Left = 422
+    Top = 0
+    Width = 299
+    Height = 159
+    Caption = 'VENCIMENTOS'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -9
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 1
+    object gbxPlano: TGroupBox
+      Left = 4
+      Top = 12
+      Width = 291
+      Height = 40
+      Caption = 'PLANO'
+      TabOrder = 0
+      inline fraConsultaCodigoPlano: TfraConsultaCodigo
+        Left = 2
+        Top = 12
+        Width = 287
+        Height = 24
+        HorzScrollBar.Range = 284
+        VertScrollBar.Range = 23
+        AutoScroll = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -11
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        inherited dtxDescricao: TtecDBText
+          Width = 196
+          DataField = 'descricao'
+          DataSource = fraConsultaCodigoPlano.dsrProcuraPlano
+        end
+        inherited edfCodigo: TtecDBFindLookup
+          DataField = 'plano'
+          DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+          MaxLength = 4
+          LookupField = 'codigo'
+          LookupSource = fraConsultaCodigoPlano.dsrProcuraPlano
+          LookupQueryParameter = 'codigo'
+          Parameter = ' '
+          ActiveSetControls = False
+          DenyInsert = False
+          NoSetControls = <>
+          SetControls = <>
+          LookupParameter = 'codigo'
+        end
+      end
+    end
+    object dbgVenctos: TtecDBGrid
+      Left = 6
+      Top = 55
+      Width = 187
+      Height = 98
+      DataSource = dtmEmissaoNotasVenda.dsrVenctosDadosFiscais
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      Options = [dgEditing, dgTitles, dgIndicator, dgColLines, dgRowLines, dgConfirmDelete, dgCancelOnExit]
+      ParentFont = False
+      TabOrder = 1
+      TitleFont.Charset = DEFAULT_CHARSET
+      TitleFont.Color = clBlack
+      TitleFont.Height = -9
+      TitleFont.Name = 'helvetica'
+      TitleFont.Pitch = fpVariable
+      TitleFont.Style = []
+      RowWrap = 60
+      Large = False
+      DoubleRowColor = False
+      TitleMinHeight = 100
+      CellHeights = 100
+      StrippedColor = 16054260
+      CanDelete = False
+      CanNotInsertFromGrid = False
+      PostOnEnter = False
+      PostOnSetUpDown = False
+      DenySort = False
+      DefaultRowHeight = 20
+      ExibirNumerodaLinha = False
+      NaoAtribuirDadosaTabelaaoDigitar = False
+      ShowWhenFieldInvisible = False
+      CanClickWhenEditing = False
+      Columns = <
+        item
+          Expanded = False
+          FieldName = 'datavencto'
+          Title.Caption = 'DATA VENCTO'
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'valorvencto'
+          Title.Caption = 'VALOR VENCTO'
+          Visible = True
+        end>
+    end
+    object gbxTotalNota: TGroupBox
+      Left = 197
+      Top = 111
+      Width = 96
+      Height = 40
+      Caption = 'TOTAL NOTA'
+      TabOrder = 2
+      object dtxValorTotal: TtecDBText
+        Left = 2
+        Top = 12
+        Width = 90
+        Height = 24
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'valortotal'
+        DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = [fsBold]
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 0
+        Alignment = taLeftJustify
+      end
+    end
+  end
+  object bbnCancelar: TBitBtn
+    Left = 367
+    Top = 481
+    Width = 88
+    Height = 25
+    Caption = 'Cancelar'
+    TabOrder = 6
+    OnClick = bbnCancelarClick
+    Kind = bkCancel
+  end
+  object bbnOK: TBitBtn
+    Left = 277
+    Top = 481
+    Width = 88
+    Height = 25
+    Caption = 'OK'
+    TabOrder = 5
+    OnClick = bbnOKClick
+    Glyph.Data = {
+      DE010000424DDE01000000000000760000002800000024000000120000000100
+      04000000000068010000120B0000120B00001000000010000000000000000000
+      80000080000000808000800000008000800080800000C0C0C000808080000000
+      FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+      3333333333333333333333330000333333333333333333333333F33333333333
+      00003333344333333333333333388F3333333333000033334224333333333333
+      338338F3333333330000333422224333333333333833338F3333333300003342
+      222224333333333383333338F3333333000034222A22224333333338F338F333
+      8F33333300003222A3A2224333333338F3838F338F33333300003A2A333A2224
+      33333338F83338F338F33333000033A33333A222433333338333338F338F3333
+      0000333333333A222433333333333338F338F33300003333333333A222433333
+      333333338F338F33000033333333333A222433333333333338F338F300003333
+      33333333A222433333333333338F338F00003333333333333A22433333333333
+      3338F38F000033333333333333A223333333333333338F830000333333333333
+      333A333333333333333338330000333333333333333333333333333333333333
+      0000}
+    NumGlyphs = 2
+  end
+  object pgcDadosAdicionais: TPageControl
+    Left = 1
+    Top = 158
+    Width = 720
+    Height = 194
+    ActivePage = tstTransporte
+    TabOrder = 2
+    TabWidth = 90
+    object tstTransporte: TTabSheet
+      Caption = '&Transporte'
+      object gbxTranportadora: TGroupBox
+        Left = 0
+        Top = 0
+        Width = 393
+        Height = 40
+        Caption = 'TRANSPORTADORA'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        inline fraConsultaCodigoTransportadora: TfraConsultaCodigo
+          Left = 2
+          Top = 12
+          Width = 389
+          Height = 24
+          HorzScrollBar.Range = 385
+          VertScrollBar.Range = 23
+          AutoScroll = False
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          inherited dtxDescricao: TtecDBText
+            Width = 297
+            DataField = 'nome'
+            DataSource = fraConsultaCodigoTransportadora.dsrProcuraTransportador
+          end
+          inherited edfCodigo: TtecDBFindLookup
+            DataField = 'fornecedortransporte'
+            DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+            MaxLength = 6
+            LookupField = 'codigo'
+            LookupSource = fraConsultaCodigoTransportadora.dsrProcuraTransportador
+            LookupQueryParameter = 'codigo'
+            Parameter = ' '
+            ActiveSetControls = False
+            DenyInsert = False
+            NoSetControls = <>
+            SetControls = <>
+            LookupParameter = 'codigo'
+          end
+        end
+      end
+      object gbxPlaca: TGroupBox
+        Left = 396
+        Top = 0
+        Width = 81
+        Height = 40
+        Caption = 'PLACA'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 1
+        object edtPlacaTransporte: TDBEditTexto
+          Left = 2
+          Top = 12
+          Width = 75
+          Height = 24
+          CharCase = ecUpperCase
+          DataField = 'placa'
+          DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          MaxLength = 18
+          ParentFont = False
+          TabOrder = 0
+          CharCasenoDefault = True
+          Alignment = taLeftJustify
+        end
+      end
+      object rgpPagamentoFrete: TtecDBRadioGroup
+        Left = 549
+        Top = 1
+        Width = 117
+        Height = 46
+        Caption = 'FRETE POR CONTA'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 3
+        TabStop = False
+        DataField = 'frete'
+        DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+        object rbnEmitente: TtecRadioButton
+          Left = 8
+          Top = 14
+          Width = 71
+          Height = 13
+          Caption = 'EMITENTE'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          Value = '1'
+        end
+        object rbnDestinatario: TtecRadioButton
+          Left = 8
+          Top = 28
+          Width = 91
+          Height = 16
+          Caption = 'DESTINAT'#193'RIO'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 1
+          Value = '2'
+        end
+      end
+      object gbxUFTransportadora: TGroupBox
+        Left = 480
+        Top = 1
+        Width = 66
+        Height = 39
+        Caption = 'UF'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 2
+        inline fraConsultaEstadoTransportadora: TfraConsultaCodigo
+          Left = 4
+          Top = 11
+          Width = 60
+          Height = 24
+          HorzScrollBar.Range = 55
+          VertScrollBar.Range = 23
+          AutoScroll = False
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          inherited sbnProcura: TSpeedButton
+            Left = 32
+          end
+          inherited dtxDescricao: TtecDBText
+            Left = 56
+            Width = 1
+            DataField = 'nome'
+            DataSource = fraConsultaUFEmbarque.dsrProcuraEstados
+            Visible = False
+          end
+          inherited edfCodigo: TtecDBFindLookup
+            Width = 33
+            Height = 24
+            DataField = 'estadoplaca'
+            DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+            Font.Height = -13
+            MaxLength = 2
+            LookupField = 'codigo'
+            LookupSource = fraConsultaEstadoTransportadora.dsrProcuraEstados
+            LookupQueryParameter = 'codigo'
+            Parameter = ' '
+            ActiveSetControls = False
+            DenyInsert = False
+            NoSetControls = <>
+            SetControls = <>
+            LookupParameter = 'codigo'
+          end
+        end
+      end
+      object pgcVolumes: TPageControl
+        Left = 0
+        Top = 47
+        Width = 712
+        Height = 116
+        ActivePage = tstVolume
+        Align = alBottom
+        TabOrder = 4
+        TabStop = False
+        object tstVolume: TTabSheet
+          Caption = 'tstVolume'
+          object gbxQuantidade: TGroupBox
+            Left = 1
+            Top = 0
+            Width = 77
+            Height = 36
+            Caption = 'QUANTIDADE'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -9
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 0
+            object edtVolume: TDBEditNumero
+              Left = 2
+              Top = 10
+              Width = 72
+              Height = 24
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -13
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              MaxLength = -1
+              ParentFont = False
+              TabOrder = 0
+              Text = 'edtVolume'
+              Mascara = False
+              TipoMascara = tmGERAL
+              NrDecimal = 2
+              Decimais = False
+              Negativo = False
+              Tamanho = 9
+              DataField = 'volumes'
+              DataSource = dtmEmissaoNotasVenda.dsrVolumesDadosFiscais
+            end
+          end
+          object gbxEspecie: TGroupBox
+            Left = 82
+            Top = 0
+            Width = 190
+            Height = 36
+            Caption = 'ESP'#201'CIE'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -9
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 1
+            object edtEspecieTransporte: TDBEditTexto
+              Left = 2
+              Top = 10
+              Width = 183
+              Height = 24
+              DataField = 'especietransporte'
+              DataSource = dtmEmissaoNotasVenda.dsrVolumesDadosFiscais
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -13
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              MaxLength = 20
+              ParentFont = False
+              TabOrder = 0
+              CharCasenoDefault = False
+              Alignment = taLeftJustify
+            end
+          end
+          object gbxMarca: TGroupBox
+            Left = 276
+            Top = 0
+            Width = 109
+            Height = 36
+            Caption = 'MARCA'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -9
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 2
+            object edtMarca: TDBEditTexto
+              Left = 2
+              Top = 10
+              Width = 103
+              Height = 24
+              DataField = 'marca'
+              DataSource = dtmEmissaoNotasVenda.dsrVolumesDadosFiscais
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -13
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              MaxLength = 8
+              ParentFont = False
+              TabOrder = 0
+              CharCasenoDefault = False
+              Alignment = taLeftJustify
+            end
+          end
+          object gbxNumeracao: TGroupBox
+            Left = 389
+            Top = 0
+            Width = 77
+            Height = 36
+            Caption = 'NUMERA'#199#195'O'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -9
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 3
+            object edtNumeracao: TDBEditTexto
+              Left = 2
+              Top = 10
+              Width = 72
+              Height = 24
+              DataField = 'numeracao'
+              DataSource = dtmEmissaoNotasVenda.dsrVolumesDadosFiscais
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -13
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              MaxLength = 12
+              ParentFont = False
+              TabOrder = 0
+              CharCasenoDefault = False
+              Alignment = taLeftJustify
+            end
+          end
+          object gbxPesoBruto: TGroupBox
+            Left = 471
+            Top = 0
+            Width = 70
+            Height = 36
+            Caption = 'PESO BRUTO'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -9
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 4
+            object edtPesoBruto: TDBEditNumero
+              Left = 2
+              Top = 10
+              Width = 64
+              Height = 24
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -13
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              MaxLength = -1
+              ParentFont = False
+              TabOrder = 0
+              Text = 'edtPesoBruto'
+              Mascara = False
+              TipoMascara = tmGERAL
+              NrDecimal = 2
+              Decimais = False
+              Negativo = False
+              Tamanho = 9
+              DataField = 'pesobruto'
+              DataSource = dtmEmissaoNotasVenda.dsrVolumesDadosFiscais
+            end
+          end
+          object gbxPesoLiquido: TGroupBox
+            Left = 545
+            Top = 0
+            Width = 70
+            Height = 36
+            Caption = 'L'#205'QUIDO'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -9
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 5
+            object edtPesoLiquido: TDBEditNumero
+              Left = 2
+              Top = 10
+              Width = 65
+              Height = 24
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -13
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              MaxLength = -1
+              ParentFont = False
+              TabOrder = 0
+              Text = 'edtPesoLiquido'
+              Mascara = False
+              TipoMascara = tmGERAL
+              NrDecimal = 2
+              Decimais = False
+              Negativo = False
+              Tamanho = 9
+              DataField = 'pesoliquido'
+              DataSource = dtmEmissaoNotasVenda.dsrVolumesDadosFiscais
+            end
+          end
+        end
+        object tstVolumes: TTabSheet
+          Caption = 'tstVolumes'
+          ImageIndex = 1
+          TabVisible = False
+          object gbxVolumes: TGroupBox
+            Left = -9
+            Top = 0
+            Width = 713
+            Height = 119
+            Caption = 'VOLUMES'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -9
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 0
+            object dbgVolumesDadosFiscais: TtecDBGrid
+              Left = 3
+              Top = 12
+              Width = 550
+              Height = 104
+              DataSource = dtmEmissaoNotasVenda.dsrVolumesDadosFiscais
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -12
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgCancelOnExit]
+              ParentFont = False
+              TabOrder = 0
+              TitleFont.Charset = DEFAULT_CHARSET
+              TitleFont.Color = clBlack
+              TitleFont.Height = -9
+              TitleFont.Name = 'helvetica'
+              TitleFont.Pitch = fpVariable
+              TitleFont.Style = []
+              FixedCols = 1
+              RowWrap = 60
+              Large = False
+              DoubleRowColor = False
+              MsgDelete = 'este volume'
+              TitleMinHeight = 100
+              CellHeights = 100
+              StrippedColor = 16054260
+              CanDelete = True
+              CanNotInsertFromGrid = False
+              PostOnEnter = False
+              PostOnSetUpDown = False
+              DenySort = False
+              DefaultRowHeight = 19
+              ExibirNumerodaLinha = False
+              NaoAtribuirDadosaTabelaaoDigitar = False
+              ShowWhenFieldInvisible = False
+              CanClickWhenEditing = False
+              Columns = <
+                item
+                  Expanded = False
+                  FieldName = 'codigo'
+                  ReadOnly = True
+                  Title.Alignment = taCenter
+                  Title.Caption = 'N.'
+                  Width = 20
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'volumes'
+                  Title.Alignment = taCenter
+                  Width = 65
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'especietransporte'
+                  Title.Alignment = taCenter
+                  Title.Caption = 'ESP'#201'CIE'
+                  Width = 130
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'marca'
+                  Title.Alignment = taCenter
+                  Width = 100
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'numeracao'
+                  Title.Alignment = taCenter
+                  Width = 65
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'pesobruto'
+                  Title.Alignment = taCenter
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'pesoliquido'
+                  Title.Alignment = taCenter
+                  Visible = True
+                end>
+            end
+            object dbgLacresVolumesDadosFiscais: TtecDBGrid
+              Left = 550
+              Top = 12
+              Width = 161
+              Height = 104
+              DataSource = dtmEmissaoNotasVenda.dsrLacresVolumesDadosFiscais
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -12
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgCancelOnExit]
+              ParentFont = False
+              TabOrder = 1
+              TitleFont.Charset = DEFAULT_CHARSET
+              TitleFont.Color = clBlack
+              TitleFont.Height = -9
+              TitleFont.Name = 'helvetica'
+              TitleFont.Pitch = fpVariable
+              TitleFont.Style = []
+              RowWrap = 60
+              Large = False
+              DoubleRowColor = False
+              TitleMinHeight = 100
+              CellHeights = 100
+              StrippedColor = 16054260
+              CanDelete = True
+              CanNotInsertFromGrid = False
+              PostOnEnter = False
+              PostOnSetUpDown = False
+              DenySort = False
+              DefaultRowHeight = 19
+              ExibirNumerodaLinha = False
+              NaoAtribuirDadosaTabelaaoDigitar = False
+              ShowWhenFieldInvisible = False
+              CanClickWhenEditing = False
+              Columns = <
+                item
+                  Expanded = False
+                  FieldName = 'lacre'
+                  Title.Alignment = taCenter
+                  Title.Caption = 'LACRES'
+                  Width = 125
+                  Visible = True
+                end>
+            end
+          end
+        end
+      end
+    end
+    object tstLocalRetirada: TTabSheet
+      Caption = '&Retirada'
+      ImageIndex = 1
+      inline fraEnderecoRetirada: TfraEnderecoEditor
+        Left = 0
+        Top = 0
+        Width = 454
+        Height = 146
+        HorzScrollBar.Visible = False
+        VertScrollBar.Visible = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        inherited gbxEndereco: TGroupBox
+          Width = 454
+          Height = 146
+          inherited pnlNumero: TPanel
+            Width = 450
+            inherited edtNumeroEndereco: TDBEditTexto
+              DataField = 'localretirada_numero'
+              DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+              MaxLength = 9
+            end
+            inherited edtComplemento: TDBEditTexto
+              DataField = 'localretirada_complemento'
+              DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+              MaxLength = 14
+            end
+          end
+          inherited pnlBairro: TPanel
+            Width = 450
+            inherited edtBairro: TtecDoubleDBEdit
+              LookupField = 'localretirada_nomebairro'
+              LookupSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+              DataField = 'localretirada_bairro'
+              DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+              MaxLength = 9
+            end
+          end
+          inherited pnlCidade: TPanel
+            Width = 450
+            inherited edtEstado: TDBEditTexto
+              DataField = 'localretirada_estado'
+              DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+              MaxLength = 9
+            end
+            inherited edtCidade: TtecDoubleDBEdit
+              LookupField = 'localretirada_nomecidade'
+              LookupSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+              DataField = 'localretirada_cidade'
+              DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+              MaxLength = 9
+            end
+            inherited edtCEP: TDBEditCep
+              DataField = 'localretirada_cep'
+              DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+              MaxLength = 6
+            end
+          end
+          inherited pnlRua: TPanel
+            Width = 450
+            inherited mmoRua: TtecDBMemo
+              DataField = 'localretirada_rua'
+              DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+              ShowHint = True
+            end
+          end
+          inherited pnllblCidade: TPanel
+            Width = 450
+          end
+          inherited pnllblBairro: TPanel
+            Width = 450
+          end
+        end
+      end
+      object gbxLocalRetiradaCNPJ: TGroupBox
+        Left = 458
+        Top = 1
+        Width = 139
+        Height = 40
+        Caption = 'CNPJ MF'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 1
+        object edtLocalRetiradaCNPJ: TDBEditCPFCNPJ
+          Left = 3
+          Top = 12
+          Width = 132
+          Height = 24
+          DataField = 'localretirada_cnpj'
+          DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          MaxLength = 20
+          ParentFont = False
+          TabOrder = 0
+          Tamanho = 0
+          Tipo = 'J'
+        end
+      end
+    end
+    object tstLocalEntrega: TTabSheet
+      Caption = '&Entrega'
+      ImageIndex = 2
+      inline fraEnderecoEntrega: TfraEnderecoEditor
+        Left = 0
+        Top = 0
+        Width = 454
+        Height = 146
+        HorzScrollBar.Visible = False
+        VertScrollBar.Visible = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        inherited gbxEndereco: TGroupBox
+          Width = 454
+          Height = 146
+          inherited pnlNumero: TPanel
+            Width = 450
+            inherited edtNumeroEndereco: TDBEditTexto
+              DataField = 'localentrega_numero'
+              DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+              MaxLength = 9
+            end
+            inherited edtComplemento: TDBEditTexto
+              DataField = 'localentrega_complemento'
+              DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+              MaxLength = 14
+            end
+          end
+          inherited pnlBairro: TPanel
+            Width = 450
+            inherited edtBairro: TtecDoubleDBEdit
+              LookupField = 'localentrega_nomebairro'
+              LookupSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+              DataField = 'localentrega_bairro'
+              DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+              MaxLength = 9
+            end
+          end
+          inherited pnlCidade: TPanel
+            Width = 450
+            inherited edtEstado: TDBEditTexto
+              DataField = 'localentrega_estado'
+              DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+              MaxLength = 9
+            end
+            inherited edtCidade: TtecDoubleDBEdit
+              LookupField = 'localentrega_nomecidade'
+              LookupSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+              DataField = 'localentrega_cidade'
+              DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+              MaxLength = 9
+            end
+            inherited edtCEP: TDBEditCep
+              DataField = 'localentrega_cep'
+              DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+              MaxLength = 6
+            end
+          end
+          inherited pnlRua: TPanel
+            Width = 450
+            inherited mmoRua: TtecDBMemo
+              DataField = 'localentrega_rua'
+              DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+            end
+          end
+          inherited pnllblCidade: TPanel
+            Width = 450
+          end
+          inherited pnllblBairro: TPanel
+            Width = 450
+          end
+        end
+      end
+      object gbxLocalEntregaCNPJ: TGroupBox
+        Left = 458
+        Top = 1
+        Width = 139
+        Height = 40
+        Caption = 'CNPJ MF'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 1
+        object edtLocalEntregaCNPJ: TDBEditCPFCNPJ
+          Left = 3
+          Top = 12
+          Width = 132
+          Height = 24
+          DataField = 'localentrega_cnpj'
+          DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -13
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          MaxLength = 19
+          ParentFont = False
+          TabOrder = 0
+          Tamanho = 0
+          Tipo = 'J'
+        end
+      end
+    end
+    object tstExportacao: TTabSheet
+      Caption = 'E&xporta'#231#227'o'
+      ImageIndex = 3
+      object gbxUFEmbarque: TGroupBox
+        Left = 0
+        Top = 0
+        Width = 369
+        Height = 41
+        Caption = 'UF Embarque'
+        TabOrder = 0
+        inline fraConsultaUFEmbarque: TfraConsultaCodigo
+          Left = 4
+          Top = 15
+          Width = 363
+          Height = 24
+          HorzScrollBar.Range = 361
+          VertScrollBar.Range = 23
+          AutoScroll = False
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          inherited sbnProcura: TSpeedButton
+            Left = 32
+          end
+          inherited dtxDescricao: TtecDBText
+            Left = 56
+            Width = 305
+            DataField = 'nome'
+            DataSource = fraConsultaUFEmbarque.dsrProcuraEstados
+          end
+          inherited edfCodigo: TtecDBFindLookup
+            Width = 33
+            DataField = 'exportacoes_ufembarque'
+            DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+            MaxLength = 2
+            LookupField = 'codigo'
+            LookupSource = fraConsultaUFEmbarque.dsrProcuraEstados
+            LookupQueryParameter = 'codigo'
+            Parameter = ' '
+            ActiveSetControls = False
+            DenyInsert = False
+            NoSetControls = <>
+            SetControls = <>
+            LookupParameter = 'codigo'
+          end
+        end
+      end
+      object gbxLocalEmbarque: TGroupBox
+        Left = 0
+        Top = 40
+        Width = 369
+        Height = 41
+        Caption = 'Local'
+        TabOrder = 1
+        object edtLocalEmbarque: TDBEditTexto
+          Left = 2
+          Top = 15
+          Width = 363
+          Height = 23
+          DataField = 'exportacoes_localembarque'
+          DataSource = dtmEmissaoNotasVenda.dsrDadosFiscais
+          MaxLength = 16
+          TabOrder = 0
+          CharCasenoDefault = False
+          Alignment = taLeftJustify
+        end
+      end
+    end
+  end
+end

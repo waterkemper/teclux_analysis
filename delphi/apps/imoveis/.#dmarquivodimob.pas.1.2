@@ -1,0 +1,220 @@
+unit dmarquivodimob;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery, Forms, biblio,
+  clparametrossistema, dmtecsoft, math, ZTransact;
+
+type
+  TdtmArquivoDimob = class(TdtmBasico)
+    qryRegistro_03: TtecQuery;
+    qryRegistro_03filialcnpj: TStringField;
+    qryRegistro_03cnpjoucpf: TStringField;
+    qryRegistro_03nomecomprador: TStringField;
+    qryRegistro_03contrato: TIntegerField;
+    qryRegistro_03data: TDateField;
+    qryRegistro_03valoroperacao: TFloatField;
+    qryRegistro_03valorpago: TFloatField;
+    qryRegistro_03endereco: TMemoField;
+    qryRegistro_03cep: TIntegerField;
+    qryRegistro_03codigodimob: TIntegerField;
+    qryRegistro_03uf: TStringField;
+    qryRegistro_03percentual: TFloatField;
+    qryRegistro_03ncompradores: TLargeintField;
+    qryRegistro_03tipoimovel: TStringField;
+    ZMonitor1: TZMonitor;
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    function GerarArquivo(NomeArquivo: String; AnoBase: integer;
+         Retificadora: Boolean; Recibo: string;
+         Especial: Boolean; DataEspecial: String;
+          Situacao: integer; ListadeFiliais: String ): Boolean;
+  end;
+
+var
+  dtmArquivoDimob: TdtmArquivoDimob;
+
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmArquivoDimob }
+
+function TdtmArquivoDimob.GerarArquivo(NomeArquivo: String; AnoBase: integer;
+         Retificadora: Boolean; Recibo: String;
+         Especial: Boolean; DataEspecial: String;
+          Situacao: integer; ListadeFiliais: String): Boolean;
+var
+
+  vValorOperacao, vValorPag, vValorOperacaoAplicada, vValorPagAplicada: Currency;
+  vRecibo, vSeqComprador : integer;
+  vDataEspecial : TDateTime;
+  vArquivo,Barra : String;
+  Arq: TextFile;
+
+  procedure GravarLinha_String(str : String);
+  begin
+  {$IFDEF LINUX}
+   Writeln(Arq, str+#13);
+  {$ELSE }
+   Writeln(Arq, str);
+  {$ENDIF}
+  end;
+
+begin
+  result := true;
+  vArquivo := ExportacaoDir;
+
+  {$IFDEF LINUX}
+    Barra := '/';
+  {$ELSE }
+    Barra := '\';
+  {$ENDIF }
+
+  vArquivo := vArquivo + Barra + NomeArquivo;
+
+  try
+    AssignFile(Arq, vArquivo);
+    //    if FileExists(NomeArquivo) then
+    Rewrite(Arq);
+    // Registro tipo 20 - Dados do Contabilista / Responsável
+
+    if Recibo <> '' then
+      vRecibo := strtoint(Recibo)
+    else
+      vRecibo := 0;
+
+    if DataEspecial <> '' then
+      vDataEspecial := StrToDateTime(DataEspecial)
+   else
+      vDataEspecial := now();
+
+    GravarLinha_String('DIMOB' +  format('%-369s',['']));
+
+    GravarLinha_String('R01' +
+                       format('%14.14d',[strtoint64(SomenteNumero(CNPJFilialBase))]) +
+                       format('%4.4d',[AnoBase]) +
+                       ifthen(Retificadora,'1','0') +
+                       ifthen(Retificadora, format('%10.10d',[vRecibo]), '0000000000') +
+                       ifthen(Especial,'1','0') +
+                       ifthen(Especial, FormatDateTime('ddmmyyyy',vDataEspecial),'00000000') +
+                       format('%2.2d',[Situacao]) +
+                       format('%-60s',[NomeFilialBase])+
+                       format('%11.11d',[strtoint64(SomenteNumero(ParSistema.CPFContador))])+
+                       format('%-120s',[RuaComNumeroFilialBase])+
+                       EstadoFilialBase +
+                       format('%4.4d',[DIMOB])+
+                       format('%-20s',[''])+
+                       format('%-10s',['']){+
+                       Chr(13) + Chr(10)});
+
+   if ListadeFiliais<>'' then
+     qryRegistro_03.MacroByName('SQLListadeFiliais').AsString := 'and vi.filial in ('+ListadeFiliais+')'
+   else
+     qryRegistro_03.MacroByName('SQLListadeFiliais').AsString := '';
+
+   RefazConsultaPorNome(qryRegistro_03,['anobase'],[anobase]);
+
+    qryRegistro_03.First;
+
+    vSeqComprador := 1;
+
+    while not qryRegistro_03.Eof do
+    begin
+      if qryRegistro_03ncompradores.AsInteger > 1 then
+      begin
+        if vSeqComprador = qryRegistro_03ncompradores.AsInteger then
+        begin
+          vSeqComprador := 1;
+          vValorOperacao := qryRegistro_03valoroperacao.AsCurrency - vValorOperacaoAplicada;
+          vValorPag := qryRegistro_03valorpago.AsCurrency -  vValorPagAplicada;
+          vValorOperacaoAplicada := 0;
+          vValorPagAplicada := 0;
+        end
+        else
+        begin
+          vValorOperacao := qryRegistro_03valoroperacao.AsCurrency * qryRegistro_03percentual.AsCurrency / 100;
+          vValorOperacaoAplicada := vValorOperacaoAplicada + vValorOperacao;
+
+          vValorPag := qryRegistro_03valorpago.AsCurrency * qryRegistro_03percentual.AsCurrency / 100;
+          vValorPagAplicada := vValorPagAplicada + vValorPag;
+          vSeqComprador := vSeqComprador + 1;
+        end;
+      end
+      else
+      begin
+        vValorOperacao := qryRegistro_03valoroperacao.AsCurrency;
+        vValorPag := qryRegistro_03valorpago.AsCurrency;
+        vSeqComprador := 1;
+        vValorOperacaoAplicada := 0;
+        vValorPagAplicada := 0;
+      end;
+
+      if qryRegistro_03cnpjoucpf.AsString = '' then
+      begin
+        MensagemErro('O CPF/CNPJ do comprador: '+qryRegistro_03nomecomprador.asstring+
+         ' do contrato: '+qryRegistro_03contrato.asstring+ ' é inválido.');
+        result := false;
+        break;
+      end;
+
+      GravarLinha_String('R03'+
+      format('%14.14d',[strtoint64(SomenteNumero(qryRegistro_03filialcnpj.AsString))]) +
+      format('%4.4d',[AnoBase]) +
+      format('%5.5d',[qryRegistro_03.recno]) +
+      format('%-14s',[SomenteNumero(qryRegistro_03cnpjoucpf.AsString)]) +
+      format('%-60s',[qryRegistro_03nomecomprador.asstring]) +
+      format('%-6s',[qryRegistro_03contrato.asstring]) +
+      FormatDateTime('ddmmyyyy',qryRegistro_03data.AsDateTime) +
+      formatfloat('00000000000000',round((vValorOperacao * 100)))+
+      formatfloat('00000000000000',round((vValorPag * 100)))+
+      qryRegistro_03tipoimovel.AsString +
+      format('%-60s',[qryRegistro_03endereco.asstring])+
+      format('%8.8d',[strtoint(SomenteNumero(qryRegistro_03cep.AsString))]) +
+      format('%4.4d',[strtoint(SomenteNumero(qryRegistro_03codigodimob.AsString))]) +
+      format('%-20s',['']) +
+      qryRegistro_03uf.AsString +
+      format('%-10s',['']){ +
+      Chr(13) + Chr(10)})  ;
+
+      qryRegistro_03.Next;
+    end;
+
+
+    GravarLinha_String('T9' + format('%-100s',['']));
+
+  except
+    on E:EFCreateError do
+    begin
+      MensagemErro(E.Message);
+      result := false;
+    end;
+  end;
+
+  closefile(arq);
+
+end;
+
+procedure TdtmArquivoDimob.ZMonitor1MonitorEvent(Sql, Result: String);
+var
+ Listar : TStringList;
+ arquivo: String;
+begin
+  inherited;
+  Listar := tStringlist.Create;
+  arquivo := 'C:\dimobmonitor.sql';
+  if fileexists(arquivo) then
+    Listar.loadfromfile(arquivo);
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile(arquivo);
+  listar.free;
+end;
+
+end.

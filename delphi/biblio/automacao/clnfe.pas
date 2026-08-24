@@ -1,7 +1,7 @@
 unit clnfe;
 
 interface
-
+                                       
 Uses
 
   Classes, cpquery, cpdatabase, {IdGlobal,} math, clparametrossistema, SysUtils,
@@ -14,7 +14,7 @@ Uses
   IdGlobalCore, IdGlobal, IdStream, ACBrDFe, ACBrDFeSSL, acbrutil,
   ActiveX, XMLintf, XMLDoc, IdMessage,
   IdIOHandler,
-  IdExplicitTLSClientServerBase,
+  IdExplicitTLSClientServerBase,                                                     
   IdSMTP,
   IdText,
   IdSSLOpenSSL,
@@ -223,7 +223,7 @@ Type
     codigoVerificacao_NFPSe,
     numeroSerie_NFPSe,
     Serie_NFPSe,
-    status_NFPSe,
+    statusNFPSe,
     link_nfse,
     DataHoraProcessamento_NFPSe,
     DataEmissao_NFPSe,
@@ -263,7 +263,7 @@ Type
                                    SomenteRetorno: Boolean = False): Boolean;
                                    }
 
-    function ConsultarSituacaoLoteNfse(qryDadosFiscais, qryNotas: tTecQuery; Capturar_Somente_status_NFPSe: Boolean = false): Boolean;
+    function ConsultarSituacaoLoteNfse(qryDadosFiscais, qryNotas: tTecQuery; Capturar_Somente_statusNFPSe: Boolean = false): Boolean;
 
 
     function ConsultarEventoCancelamentoACBrNFSex(IdNota_NFPSe, xTipoEvento, xNumSeqEvento: String; NumeroDadoFiscal: integer): Boolean;
@@ -347,8 +347,17 @@ Type
     function VendaInterEstadual: boolean;
 
     function ehnotafiscalentradadevolucao(codigofiscal: integer; DataBase: TtecDatabase): boolean;
+                                      
+    function Abrir_Totais_Trib_Imposto(codigo : integer; tipo: String): Boolean;
 
-    procedure Abrir_trib_item_imposto(codigo : integer; tipo: String);
+    function Abrir_Trib_Item_Imposto(codigo : integer; {dadofiscal/notaspag}
+                                      produto: string;
+                                      numero: integer;
+                                      tipo: String): Boolean;
+
+    function Abrir_Trib_serv_Imposto(codigo : integer; {dadofiscal/notaspag}
+                                     servico: int64;
+                                     tipo: String): Boolean;
 
     function GerarNFe(Notas, Referenciadas, Produtos, Compostos, Servicos,
                       Venctos, Volumes, Lacres, Importacoes, Adicoes: tTecQuery;
@@ -1192,6 +1201,8 @@ begin
     xml_sit := TXmlDocument.Create(ArqRetorno);
     xml_sit.Active := true;
 
+
+    {Verificando protocolo}
     if (xml_sit.DocumentElement<>nil) and
        (xml_sit.DocumentElement.NodeName = 'retConsSitNFe') then
     begin
@@ -1227,8 +1238,42 @@ begin
       end;
     end;
 
-//    Protocolo := ValorRetornoXML(ArqRetorno, 'nProt', ExibirMsgNfe);
+    {Verificando protocolo}
+    if (xml_sit.DocumentElement<>nil) and
+       (xml_sit.DocumentElement.NodeName = 'retConsSitNFe') then
+    begin
+      with xml_sit.DocumentElement do
+      begin
+        if ChildNodes.FindNode('cStat') <> nil then
+          StatusRetConsSitNFe := ChildNodes.FindNode('cStat').Text;
 
+        if ChildNodes.FindNode('procEventoNFe') <> nil then
+        begin
+          with ChildNodes.FindNode('procEventoNFe') do
+          begin
+            if ChildNodes.FindNode('retEvento') <> nil then
+            begin
+              with ChildNodes.FindNode('retEvento') do
+              begin
+                if ChildNodes.FindNode('infEvento') <> nil then
+                begin
+                  with ChildNodes.FindNode('infEvento') do
+                  begin
+                    if ChildNodes.FindNode('tpEvento') <> nil then
+                      if ChildNodes.FindNode('tpEvento').Text = '110111' then
+                        if ChildNodes.FindNode('nProt')<>nil then
+                          ProtocoloCancelamento := ChildNodes.FindNode('nProt').text;
+                  end;
+                end;
+              end;
+            end;
+          end;
+        end;
+      end;
+    end;
+
+//    Protocolo := ValorRetornoXML(ArqRetorno, 'nProt', ExibirMsgNfe);
+              {
     ProtocoloCancelamento := ValorRetornoXML_DentroTag(ArqRetorno,'infCanc','nProt');
 
     if (ProtocoloCancelamento = '') then
@@ -1236,6 +1281,7 @@ begin
         if ValorRetornoXML(ArqRetorno, 'evento', ExibirMsgNfe) <> '' then
            if ValorRetornoXML(ArqRetorno, 'retEvento', ExibirMsgNfe) <> '' then
               ProtocoloCancelamento := ValorRetornoProtocoloCancelamento(ArqRetorno);
+              }
 
   //  StatusRetConsSitNFe := ValorRetornoXML(ArqRetorno, 'cStat', ExibirMsgNfe);
   //  status := ValorRetornoXML_DentroTag(ArqRetorno,'protNFe','cStat');
@@ -2936,56 +2982,115 @@ var
   end;
 
 
-  procedure Infomrmacoes_Eletronica_AmbNacional;
+  procedure Infomrmacoes_Eletronica_AmbNacional(Provedor: TnfseProvedor = proPadraoNacional);
   var
-    vcidadeIBGEfilialemitente : integer;
+    vcidadeIBGEfilialemitente: Integer;
+
+    function RetornatpRetPisCofins(const vPis, vCofins, vCsll: Currency): TtpRetPisCofins;
+    var
+      RetPis, RetCofins, RetCsll: Boolean;
+    begin
+      RetPis    := vPis > 0;
+      RetCofins := vCofins > 0;
+      RetCsll   := vCsll > 0;
+
+      {
+
+                        Tipo de Retenção PIS/COFINS e CSLL
+                  0 - PIS/COFINS/CSLL Não Retidos;
+                  1 - PIS/COFINS Retido;
+
+                  2 - PIS/COFINS Não Retido;
+                  3 - PIS/COFINS/CSLL Retidos;
+                  4 - PIS/COFINS Retidos, CSLL Não Retido;
+                  5 - PIS Retido, COFINS/CSLL Não Retido;
+                  6 - COFINS Retido, PIS/CSLL Não Retido;
+                  7 - PIS Não Retido, COFINS/CSLL Retidos;
+                  8 - PIS/COFINS Não Retidos, CSLL Retido;
+                  9 - COFINS Não Retido, PIS/CSLL Retidos;
+
+
+                  TtpRetPisCofins = (trpiscofinscsllNaoRetido, trpcRetido,
+
+                                     trpcNaoRetido, trpiscofinscsllRetido,
+                                     trpiscofinsRetidocsllNaoRetido, trPisRetidoCofinsCsllNaoRetido,
+                                     trCofinsRetidoPisCsllNaoRetido, trCofinsCsllRetidoPisNaoRetido,
+                                     trCsllRetidoPisCofinsNaoRetido, trPisCsllRetidoCofinsNaoRetido);
+                                     }
+
+
+           if     RetPis and     RetCofins and     RetCsll then Result := trpiscofinscsllRetido
+      else if     RetPis and     RetCofins and not RetCsll then Result := trpiscofinsRetidocsllNaoRetido
+      else if     RetPis and not RetCofins and not RetCsll then Result := trPisRetidoCofinsCsllNaoRetido
+      else if not RetPis and     RetCofins and not RetCsll then Result := trCofinsRetidoPisCsllNaoRetido
+      else if not RetPis and     RetCofins and     RetCsll then Result := trCofinsCsllRetidoPisNaoRetido
+      else if not RetPis and not RetCofins and     RetCsll then Result := trCsllRetidoPisCofinsNaoRetido
+      else if     RetPis and not RetCofins and     RetCsll then Result := trPisCsllRetidoCofinsNaoRetido
+      else
+        Result := trpcNaoRetido;
+    end;
+
   begin
-
-
     Local := 'Nota Fiscal Serviço - Ambiente Nacional';
 
-    if not assigned(dtmEnviarNFSe) then
-      dtmEnviarNFSe := tdtmEnviarNFSe.create(nil);
+    if not Assigned(dtmEnviarNFSe) then
+      dtmEnviarNFSe := TdtmEnviarNFSe.Create(nil);
 
     with dtmEnviarNFSe do
     begin
-
       with ACBrNFSeX do
       begin
-        vcidadeIBGEfilialemitente := Notas.fieldbyname('cidadeIBGEfilialemitente').asinteger;
+        vcidadeIBGEfilialemitente := Notas.FieldByName('cidadeIBGEfilialemitente').AsInteger;
         Configuracoes.Geral.CodigoMunicipio := vcidadeIBGEfilialemitente;
+        Configuracoes.Geral.Emitente.WSUser := VarToStr(DadosdaFilial('usuario_nfse', notas.fieldbyname('filialemissao').asinteger));
+        Configuracoes.Geral.Emitente.WSSenha := vartostr(DadosdaFilial('senha_nfse', notas.fieldbyname('filialemissao').asinteger));
+
         with NotasFiscais do
         begin
           Clear;
-          NumeroLote:='1';
+          NumeroLote := '1';
           Transacao := True;
-          with NotasFiscais.new.NFSe do
-          begin
-            verAplic := 'ACBrNFSeX-1.00';
-//            IdentificacaoRps.Numero := FormatFloat('#########0', notas.fieldbyname('nrdocumento').asinteger);
-            IdentificacaoRps.Numero := FormatFloat('#########0', notas.fieldbyname('numero').asinteger);
 
-            IdentificacaoRps.Serie :=  ASerieSugestao;
+          with NotasFiscais.New.NFSe do
+          begin
+
+
+            verAplic := 'ACBrNFSeX-1.01';
+            // IdentificacaoRps.Numero := FormatFloat('#########0', Notas.FieldByName('nrdocumento').AsInteger);
+            IdentificacaoRps.Numero := FormatFloat('#########0', Notas.FieldByName('numero').AsInteger);
+
+            if Provedor = ProIPM then
+              IdentificacaoRps.Serie := fserienfse
+            else
+              IdentificacaoRps.Serie := ASerieSugestao;
+
             IdentificacaoRps.Tipo := trRPS;
+
+            DataEmissaoRps := Notas.FieldByName('data').AsDateTime;
 
             DataEmissao := Notas.FieldByName('data').AsDateTime;
             Competencia := Notas.FieldByName('data').AsDateTime;
             tpEmit := tePrestador;
             RegimeEspecialTributacao := retNenhum;
-            if (FEmit_CRT in [1]) then  { Regime Tributário 1: Simples 4=Simples Nacional - Microempreendedor Individual - MEI}
+
+            if (FEmit_CRT in [1]) then
             begin
               OptanteSN := osnOptanteMEEPP;
-              {TRegimeApuracaoSN = (raFederaisMunicipalpeloSN, raFederaisSN, raFederaisMunicipalforaSN);}
-              RegimeApuracaoSN  := raFederaisMunicipalpeloSN
+              { TRegimeApuracaoSN = (raFederaisMunicipalpeloSN, raFederaisSN, raFederaisMunicipalforaSN); }
+              RegimeApuracaoSN := raFederaisMunicipalpeloSN;
+            end
+            else if (FEmit_CRT in [4]) then
+            begin
+              OptanteSN := osnOptanteMEI;
             end
             else
-            if (FEmit_CRT in [4]) then  { Regime Tributário 1: Simples 4=Simples Nacional - Microempreendedor Individual - MEI}
-              OptanteSN := osnOptanteMEI
-            else
+            begin
               OptanteSN := osnNaoOptante;
+            end;
 
             IncentivadorCultural := snNao;
-            {1 - PRODUÇÃO 2 - HOMOLOGAÇÃO}
+
+            { 1 - PRODUÇÃO 2 - HOMOLOGAÇÃO }
             if Notas.FieldByName('ambientenfs').AsString = '1' then
               Producao := snSim
             else
@@ -2994,31 +3099,35 @@ var
             StatusRps := srNormal;
             OutrasInformacoes := Notas.FieldByName('infcomplementar').AsString;
 
-            Servico.Valores.ValorServicos := notas.fieldbyname('valorservicos').AsCurrency;
+            Servico.Valores.ValorServicos := Notas.FieldByName('valorservicos').AsCurrency;
 
             if Notas.FieldByName('issqnbasecalculo').AsCurrency <> 0 then
             begin
-              Servico.Valores.ValorDeducoes    := notas.fieldbyname('valorservicos').AsCurrency - Notas.FieldByName('issqnbasecalculo').AsCurrency;
+              Servico.Valores.ValorDeducoes :=
+                Notas.FieldByName('valorservicos').AsCurrency -
+                Notas.FieldByName('issqnbasecalculo').AsCurrency;
+
               if Servico.Valores.ValorDeducoes <> 0 then
               begin
                 Servico.Valores.AliquotaDeducoes :=
-                  roundto((Servico.Valores.ValorDeducoes*100)/Servico.Valores.ValorServicos, -2)
+                  RoundTo((Servico.Valores.ValorDeducoes * 100) / Servico.Valores.ValorServicos, -2);
               end;
             end
             else
             begin
-              Servico.Valores.ValorDeducoes    := 0.00;
+              Servico.Valores.ValorDeducoes := 0.00;
               Servico.Valores.AliquotaDeducoes := 0.00;
             end;
-            Servico.Valores.DescontoIncondicionado := 0.00;
-            Servico.Valores.DescontoCondicionado   := 0.00;
-            Servico.Valores.ValorRecebido          := 0.00;
 
-//            Servico.Valores.tribMun.cPaisResult := 1058;
+            Servico.Valores.DescontoIncondicionado := 0.00;
+            Servico.Valores.DescontoCondicionado := 0.00;
+            Servico.Valores.ValorRecebido := 0.00;
+
+            // Servico.Valores.tribMun.cPaisResult := 1058;
 
             {
-            TtpImunidade = (timNenhum, timImunidade, timPatrimonio, timTemplos,
-                            timPatrimonioPartidos, timLivros, timFonogramas);
+              TtpImunidade = (timNenhum, timImunidade, timPatrimonio, timTemplos,
+                              timPatrimonioPartidos, timLivros, timFonogramas);
             }
             Servico.Valores.tribMun.tpImunidade := timNenhum;
             // TtribISSQN = (tiOperacaoTributavel, tiImunidade, tiExportacao, tiNaoIncidencia);
@@ -3027,308 +3136,416 @@ var
 
             if OptanteSN = osnNaoOptante then
             begin
-              if Notas.FieldByName('valorISSQN').AsCurrency<>0 then
+              if Notas.FieldByName('valorISSQN').AsCurrency <> 0 then
               begin
                 Servico.Valores.tribMun.tribISSQN := tiOperacaoTributavel;
-//                Servico.Valores.tribMun.cPaisResult := 1058;
+                // Servico.Valores.tribMun.cPaisResult := 1058;
                 Servico.Valores.tribMun.tpRetISSQN := trNaoRetido;
               end;
 
-
               Servico.Valores.tribFed.CST :=
-                StrToCST(vok, servicos.fieldbyname('piscst').AsString);
+                StrToCST(vok, Servicos.FieldByName('piscst').AsString);
+
+              Servico.Valores.tribFed.vBCPisCofins :=
+                Servico.Valores.ValorServicos -
+                Servico.Valores.ValorDeducoes -
+                Servico.Valores.DescontoIncondicionado;
+
+              vValorTeste := Notas.FieldByName('pisretido').AsCurrency;
+              vValorTeste := Notas.FieldByName('cofinsretido').AsCurrency;
 
 
-              Servico.Valores.tribFed.vBCPisCofins := Servico.Valores.ValorServicos -
-                                                      Servico.Valores.ValorDeducoes -
-                                                      Servico.Valores.DescontoIncondicionado;
+              Servico.Valores.tribFed.pAliqPis := Servicos.FieldByName('aliquotapis').AsCurrency;
+              Servico.Valores.tribFed.pAliqCofins := Servicos.FieldByName('aliquotacofins').AsCurrency;
+              Servico.Valores.tribFed.vPis := Notas.FieldByName('pisretido').AsCurrency;
+              Servico.Valores.tribFed.vCofins := Notas.FieldByName('cofinsretido').AsCurrency;
 
-              vValorTeste := notas.FieldByName('pisretido').AsCurrency;
-              vValorTeste := notas.FieldByName('cofinsretido').AsCurrency;
+              if Notas.FieldByName('csllretido').AsCurrency <> 0 then
+                Servico.Valores.tribFed.vBCCSLL := Servico.Valores.tribFed.vBCPisCofins;
 
+              Servico.Valores.tribFed.vRetCSLL :=
+                Notas.FieldByName('csllretido').AsCurrency +
+                Servico.Valores.tribFed.vPis +
+                Servico.Valores.tribFed.vCofins;
+                                                          
+              Servico.Valores.tribFed.vRetCP :=
+                Notas.FieldByName('inssretido').AsCurrency +
+                Notas.FieldByName('CSRFretido').AsCurrency;
 
-              if (notas.FieldByName('pisretido').AsCurrency +
-                  notas.FieldByName('cofinsretido').AsCurrency)<>0 then
+              if Servico.Valores.tribFed.vRetCP <> 0 then
+                Servico.Valores.tribFed.vBCPCP := Servico.Valores.tribFed.vBCPisCofins;
+
+              Servico.Valores.tribFed.vRetIRRF := Notas.FieldByName('irretido').AsCurrency;
+
+              if Servico.Valores.tribFed.vRetIRRF <> 0 then
+                Servico.Valores.tribFed.vBCPIRRF := Servico.Valores.tribFed.vBCPisCofins;
+
+              Servico.Valores.tribFed.tpRetPisCofins :=
+                RetornatpRetPisCofins(Notas.FieldByName('pisretido').AsCurrency,
+                                      Notas.FieldByName('cofinsretido').AsCurrency,
+                                      Notas.FieldByName('csllretido').AsCurrency);
+
+              if (Notas.FieldByName('cofinsretido').AsCurrency = 0) then
+                Servico.Valores.tribFed.vCofins :=
+                  RoundFiscal((Servico.Valores.tribFed.pAliqCofins / 100) * Servico.Valores.tribFed.vBCPisCofins);
+
+              if (Notas.FieldByName('pisretido').AsCurrency = 0) then
+                Servico.Valores.tribFed.vPis :=
+                  RoundFiscal((Servico.Valores.tribFed.pAliqPis / 100) * Servico.Valores.tribFed.vBCPisCofins);
+
+              (*
+
+              if (Notas.FieldByName('pisretido').AsCurrency <> 0) or
+                 (Notas.FieldByName('cofinsretido').AsCurrency <> 0) or then
               begin
-                 Servico.Valores.tribFed.tpRetPisCofins := trpcRetido;
-                 Servico.Valores.tribFed.pAliqPis := servicos.fieldbyname('aliquotapis').asCurrency;
-                 Servico.Valores.tribFed.pAliqCofins := servicos.fieldbyname('aliquotacofins').asCurrency;
-                 Servico.Valores.tribFed.vPis := notas.FieldByName('pisretido').AsCurrency;
-                 Servico.Valores.tribFed.vCofins := notas.FieldByName('cofinsretido').AsCurrency;
+                {
+                  Tipo de Retenção PIS/COFINS e CSLL
+                  0 - PIS/COFINS/CSLL Não Retidos;
+                  1 - PIS/COFINS Retido;
+
+                  2 - PIS/COFINS Não Retido;
+                  3 - PIS/COFINS/CSLL Retidos;
+                  4 - PIS/COFINS Retidos, CSLL Não Retido;
+                  5 - PIS Retido, COFINS/CSLL Não Retido;
+                  6 - COFINS Retido, PIS/CSLL Não Retido;
+                  7 - PIS Não Retido, COFINS/CSLL Retidos;
+                  8 - PIS/COFINS Não Retidos, CSLL Retido;
+                  9 - COFINS Não Retido, PIS/CSLL Retidos;
+
+                  TtpRetPisCofins = (trpiscofinscsllNaoRetido, trpcRetido,
+                                     trpcNaoRetido, trpiscofinscsllRetido,
+                                     trpiscofinsRetidocsllNaoRetido, trPisRetidoCofinsCsllNaoRetido,
+                                     trCofinsRetidoPisCsllNaoRetido, trCofinsCsllRetidoPisNaoRetido,
+                                     trCsllRetidoPisCofinsNaoRetido, trPisCsllRetidoCofinsNaoRetido);
+
+                }
+                Servico.Valores.tribFed.tpRetPisCofins := trpcRetido;
+
+
+                Servico.Valores.tribFed.pAliqPis := Servicos.FieldByName('aliquotapis').AsCurrency;
+                Servico.Valores.tribFed.pAliqCofins := Servicos.FieldByName('aliquotacofins').AsCurrency;
+                Servico.Valores.tribFed.vPis := Notas.FieldByName('pisretido').AsCurrency;
+                Servico.Valores.tribFed.vCofins := Notas.FieldByName('cofinsretido').AsCurrency;
+
+                Servico.Valores.tribFed.vRetCSLL :=
+                  Notas.FieldByName('csllretido').AsCurrency +
+                  Servico.Valores.tribFed.vPis +
+                  Servico.Valores.tribFed.vCofins;
+
+                if (Notas.FieldByName('pisretido').AsCurrency <> 0) and
+                   (Notas.FieldByName('cofinsretido').AsCurrency = 0) then
+                begin
+                  Servico.Valores.tribFed.tpRetPisCofins := trpcRetido;
+                  Servico.Valores.tribFed.vCofins :=
+                    RoundFiscal((Servico.Valores.tribFed.pAliqCofins / 100) * Servico.Valores.tribFed.vBCPisCofins);
+
+                  Servico.Valores.tribFed.vRetCSLL :=
+                    Notas.FieldByName('csllretido').AsCurrency +
+                    Servico.Valores.tribFed.vPis;
+                end
+                else if (Notas.FieldByName('pisretido').AsCurrency = 0) and
+                        (Notas.FieldByName('cofinsretido').AsCurrency <> 0) then
+                begin
+                  Servico.Valores.tribFed.tpRetPisCofins := trpcRetido;
+                  Servico.Valores.tribFed.vPis :=
+                    RoundFiscal((Servico.Valores.tribFed.pAliqPis / 100) * Servico.Valores.tribFed.vBCPisCofins);
+
+                  Servico.Valores.tribFed.vRetCSLL :=
+                    Notas.FieldByName('csllretido').AsCurrency +
+                    Servico.Valores.tribFed.vCofins;
+                end;
               end
               else
               begin
-                 Servico.Valores.tribFed.tpRetPisCofins := trpcNaoRetido;
-                 Servico.Valores.tribFed.pAliqPis := servicos.fieldbyname('aliquotapis').asCurrency;
-                 Servico.Valores.tribFed.pAliqCofins := servicos.fieldbyname('aliquotacofins').asCurrency;
-                 Servico.Valores.tribFed.vPis    := RoundFiscal(((Servico.Valores.tribFed.pAliqPis/100)*Servico.Valores.tribFed.vBCPisCofins));
-                 Servico.Valores.tribFed.vCofins := RoundFiscal(((Servico.Valores.tribFed.pAliqCofins/100)*Servico.Valores.tribFed.vBCPisCofins));
+                Servico.Valores.tribFed.tpRetPisCofins := trpcNaoRetido;
+                Servico.Valores.tribFed.pAliqPis := Servicos.FieldByName('aliquotapis').AsCurrency;
+                Servico.Valores.tribFed.pAliqCofins := Servicos.FieldByName('aliquotacofins').AsCurrency;
+                Servico.Valores.tribFed.vPis :=
+                  RoundFiscal((Servico.Valores.tribFed.pAliqPis / 100) * Servico.Valores.tribFed.vBCPisCofins);
+                Servico.Valores.tribFed.vCofins :=
+                  RoundFiscal((Servico.Valores.tribFed.pAliqCofins / 100) * Servico.Valores.tribFed.vBCPisCofins);
+
+                Servico.Valores.tribFed.vRetCSLL := Notas.FieldByName('csllretido').AsCurrency;
               end;
-                                         {
-              MensagemAviso('valor base: ' + floattostr(Servico.Valores.tribFed.vBCPisCofins) +
-                            'Valor do pis aliq: ' + floattostr(Servico.Valores.tribFed.pAliqPis) +
-                            'Valor do pis: ' + floattostr(Servico.Valores.tribFed.vPis) +
-                            'Valor do cofins aliq: ' + floattostr(Servico.Valores.tribFed.pAliqCofins) +
-                            'Valor do cofins: ' + floattostr(Servico.Valores.tribFed.vCofins));
-                            }
 
+              {
+              MensagemAviso('valor base: ' + FloatToStr(Servico.Valores.tribFed.vBCPisCofins) +
+                            'Valor do pis aliq: ' + FloatToStr(Servico.Valores.tribFed.pAliqPis) +
+                            'Valor do pis: ' + FloatToStr(Servico.Valores.tribFed.vPis) +
+                            'Valor do cofins aliq: ' + FloatToStr(Servico.Valores.tribFed.pAliqCofins) +
+                            'Valor do cofins: ' + FloatToStr(Servico.Valores.tribFed.vCofins));
+              }
 
-//              Servico.Valores.tribFed.pAliqCofins := Servico.Valores.tribFed.vCofins*100/Servico.Valores.ValorServicos;
+              // Servico.Valores.tribFed.pAliqCofins := Servico.Valores.tribFed.vCofins*100/Servico.Valores.ValorServicos;
 
+              Servico.Valores.tribFed.vRetCP :=
+                Notas.FieldByName('inssretido').AsCurrency +
+                Notas.FieldByName('CSRFretido').AsCurrency;
 
-              Servico.Valores.tribFed.vRetCP := notas.FieldByName('inssretido').AsCurrency +
-                                                notas.FieldByName('CSRFretido').AsCurrency;
+              Servico.Valores.tribFed.vRetIRRF := Notas.FieldByName('irretido').AsCurrency;
 
-              Servico.Valores.tribFed.vRetIRRF := notas.FieldByName('irretido').AsCurrency;
-              Servico.Valores.tribFed.vRetCSLL := notas.FieldByName('csllretido').AsCurrency;
-
+              // Servico.Valores.tribFed.vRetCSLL := Notas.FieldByName('csllretido').AsCurrency;
+              *)
             end;
 
             Servico.Valores.totTrib.indTotTrib := indSim;
 
-            if (FEmit_CRT in [4]) then  { Regime Tributário 1: Simples 4=Simples Nacional - Microempreendedor Individual - MEI}
-               Servico.Valores.totTrib.indTotTrib := indNao;
+            if (FEmit_CRT in [4]) then
+              Servico.Valores.totTrib.indTotTrib := indNao;
 
-            if (OptanteSN = osnOptanteMEEPP) {and (Producao = snNao)} then
-              Servico.Valores.totTrib.pTotTribSN := 0.00
-            else
-            if OptanteSN = osnNaoOptante then
+            if (OptanteSN = osnOptanteMEEPP) { and (Producao = snNao) } then
+              Servico.Valores.totTrib.pTotTribSN := 8.00
+            else if OptanteSN = osnNaoOptante then
             begin
               Servico.Valores.totTrib.pTotTribFed := 11.33;
               Servico.Valores.totTrib.pTotTribEst := 0.00;
               Servico.Valores.totTrib.pTotTribMun := 0.02;
             end;
 
-            if length(somentenumero(servicos.fieldbyname('codigolcp116').assTring, true)) <= 4 then
-              Servico.ItemListaServico := preencheString(somentenumero(servicos.fieldbyname('codigolcp116').assTring, true), '0', 4, false )+'01'
+            if Length(SomenteNumero(Servicos.FieldByName('codigolcp116').AsString, True)) <= 4 then
+              Servico.ItemListaServico :=
+                PreencheString(SomenteNumero(Servicos.FieldByName('codigolcp116').AsString, True), '0', 4, False) + '01'
             else
-              Servico.ItemListaServico := somentenumero(servicos.fieldbyname('codigolcp116').assTring, true);
+              Servico.ItemListaServico := SomenteNumero(Servicos.FieldByName('codigolcp116').AsString, True);
 
-            if Producao = snNao then
-              Servico.CodigoNBS := '115013000';
+            Servico.CodigoNBS := somentenumero(servicos.fieldbyname('nbs').asString);
 
-            Servico.Discriminacao :=  copy(servicos.fieldbyname('descricao').asstring,1,2000);
+            Servico.Discriminacao := Copy(Servicos.FieldByName('descricao').AsString, 1, 2000);
             Servico.CodigoMunicipio := FEmit_CodMun;
             Servico.CodigoPais := 1058; // Brasil
 
-            //   AMBIENTE NACIONAL NÃO TEM SUPORTE PARA MAIS DE UM SERVIÇO
-
+            // AMBIENTE NACIONAL NÃO TEM SUPORTE PARA MAIS DE UM SERVIÇO
             Servicos.First;
-            while not Servicos.eof do
+            while not Servicos.Eof do
             begin
-              with Servico.ItemServico.new do
+              with Servico.ItemServico.New do
               begin
-                Descricao     := Servicos.FieldByName('descricao').AsString;
-                Quantidade    := Servicos.FieldByName('quantidade').Asinteger;
-                ValorUnitario := Servicos.FieldByName('valorservico').Asfloat;
+                Descricao := Servicos.FieldByName('descricao').AsString;
+                Quantidade := Servicos.FieldByName('quantidade').AsInteger;
+                ValorUnitario := Servicos.FieldByName('valorservico').AsFloat;
+                CodMunPrestacao := FEmit_CodMun;
+                ItemListaServico := Servico.ItemListaServico;
+                TribMunPrestador := snSim;
+//                TipoUnidade := tuQtde;
+                Aliquota :=  servicos.fieldbyname('aliquotaissqn').AsCurrency;
+                SituacaoTributaria := servicos.fieldbyname('cstissqn').asInteger;
+                ValorTributavel := servicos.fieldbyname('quantidade').asFloat * servicos.fieldbyname('valorservico').AsCurrency;
+
+                if Servicos.FieldByName('reterissqn').AsBoolean and (SituacaoTributaria<>0) then
+                  ValorISSRetido := Servicos.FieldByName('valorissqn').AsCurrency
+                else
+                  ValorISSRetido := 0;
+
+                           {
+            TagCompleta('tributa_municipio_prestador', 'S',  false, false, false);
+
+              TagCompleta('codigo_local_prestacao_servico',  FEmit_CodMun, false, false, false);
+            TagCompleta('unidade_codigo', '1', false, false, false);
+              TagCompleta('unidade_quantidade', servicos.fieldbyname('quantidade').asstring);
+              TagCompleta('unidade_valor_unitario', servicos.fieldbyname('valorservico').AsCurrency,2, False, true);
+              TagCompleta('codigo_item_lista_servico', somentenumero(servicos.fieldbyname('codigolcp116').asstring));
+              TagCompleta('descritivo', copy(servicos.fieldbyname('descricao').asstring,1,1000));
+
+          TagCompleta('aliquota_item_lista_servico', servicos.fieldbyname('aliquotaissqn').AsCurrency,2, False, true);
+          TagCompleta('situacao_tributaria', servicos.fieldbyname('cstissqn').asstring);
+          TagCompleta('valor_tributavel', (servicos.fieldbyname('quantidade').asFloat * servicos.fieldbyname('valorservico').AsCurrency), 2, False, true);
+
+             if Servicos.FieldByName('reterissqn').AsBoolean then
+               TagCompleta('valor_issrf', Servicos.FieldByName('valorissqn').AsCurrency,2)
+             else
+               TagCompleta('valor_issrf',0,2, False, true);
+                           }
+
+                  Servico.CodigoNBS := somentenumero(servicos.fieldbyname('nbs').asString);
+
               end;
-              Servicos.next;
+              Servicos.Next;
             end;
 
-            Prestador.IdentificacaoPrestador.Cnpj               := preencheString(SomenteNumero(FEmit_Documento),'0',14,False);
-            if Emit_IM <> '' then
-              Prestador.IdentificacaoPrestador.InscricaoMunicipal := somentenumero(Emit_IM);
+            Prestador.IdentificacaoPrestador.Cnpj :=
+              PreencheString(SomenteNumero(FEmit_Documento), '0', 14, False);
 
-            // Para o provedor ISSDigital deve-se informar também:
-            //Prestador.Senha        := 'senha';
-            //Prestador.FraseSecreta := 'frase secreta';
-            //Prestador.cUF          := 33;
+            if Emit_IM <> '' then
+              Prestador.IdentificacaoPrestador.InscricaoMunicipal := SomenteNumero(Emit_IM);
 
             Prestador.Endereco.CodigoMunicipio := FEmit_CodMun;
 
-//            Prestador.Endereco.CodigoMunicipio := FEmit_CodMun;
-//            Prestador.RazaoSocial := FEmit_Nome;
-
             if (FDest_TipoPessoa = 'F') then
             begin
-//               if HeUnidadeFederacao(FDest_UF) then
-             if not eHEstrangeiro then
-                Tomador.IdentificacaoTomador.CpfCnpj := preencheString(SomenteNumero(FDest_Documento),'0',11,False)
-             else
+              if not eHEstrangeiro then
+                Tomador.IdentificacaoTomador.CpfCnpj := PreencheString(SomenteNumero(FDest_Documento), '0', 11, False)
+              else
                 Tomador.IdentificacaoTomador.CpfCnpj := '';
             end
             else
             begin
-//                if HeUnidadeFederacao(FDest_UF) then
               if not eHEstrangeiro then
-                Tomador.IdentificacaoTomador.CpfCnpj := preencheString(SomenteNumero(FDest_Documento),'0',14,False)
+                Tomador.IdentificacaoTomador.CpfCnpj := PreencheString(SomenteNumero(FDest_Documento), '0', 14, False)
               else
                 Tomador.IdentificacaoTomador.CpfCnpj := '';
             end;
 
-            if notas.fieldbyname('inscricaomunicipal').asstring<> '' then
-              Tomador.IdentificacaoTomador.InscricaoMunicipal := notas.fieldbyname('inscricaomunicipal').asstring;
+            if Notas.FieldByName('inscricaomunicipal').AsString <> '' then
+              Tomador.IdentificacaoTomador.InscricaoMunicipal := Notas.FieldByName('inscricaomunicipal').AsString;
 
             Tomador.RazaoSocial := FDest_Nome;
 
-            Tomador.Endereco.Endereco        := FDest_Rua;
-            Tomador.Endereco.Numero          := RightStr('000000' + Trim(FDest_Nro), 6);
-            Tomador.Endereco.Complemento     := FDest_Compl;
-            Tomador.Endereco.Bairro          := FDest_Bairro;
-
+            Tomador.Endereco.Endereco := FDest_Rua;
+            Tomador.Endereco.Numero := RightStr('000000' + Trim(FDest_Nro), 6);
+            Tomador.Endereco.Complemento := FDest_Compl;
+            Tomador.Endereco.Bairro := FDest_Bairro;
             Tomador.Endereco.CodigoMunicipio := FDest_CodMun;
 
             if HeUnidadeFederacao(FDest_UF) then
-              Tomador.Endereco.UF :=   FDest_UF
+              Tomador.Endereco.UF := FDest_UF
             else
               Tomador.Endereco.UF := 'EX';
 
-            Tomador.Endereco.CEP             := preencheString(FDest_CEP,'0',8,False);
-            //Provedor Equiplano é obrigatório o pais e IE
-            Tomador.Endereco.xPais           := 'BRASIL';
+            Tomador.Endereco.CEP := PreencheString(FDest_CEP, '0', 8, False);
+
+            // Provedor Equiplano é obrigatório o pais e IE
+            Tomador.Endereco.xPais := 'BRASIL';
             Tomador.IdentificacaoTomador.InscricaoEstadual := FDest_IE;
 
-            if contatos <> nil then
+            if Contatos <> nil then
             begin
-              Tomador.Contato.Telefone := contatos.fieldbyname('email').AsString;
-              Tomador.Contato.Email    := contatos.fieldbyname('foneddd').AsString+contatos.fieldbyname('fonenumero').asstring;
+              Tomador.Contato.Telefone := Contatos.FieldByName('email').AsString;
+              Tomador.Contato.Email :=
+                Contatos.FieldByName('foneddd').AsString +
+                Contatos.FieldByName('fonenumero').AsString;
             end;
 
-            (*
-            if Producao = snNao then
+            if Abrir_Trib_serv_Imposto(servicos.FieldByName('dadofiscal').asinteger,
+                                       servicos.fieldByName('servico').asinteger, 'S') then
+
+               if (dtmDadosNFe.qrytrib_saida_serv_impostocodigo_cst_cbsibs.asString<>'') and
+                  (dtmDadosNFe.qrytrib_saida_serv_impostocclasstrib_cbsibs.asString<>'') then
             begin
+
+
+
               IBSCBS.finNFSe := fnfsRegular;
-              IBSCBS.indFinal := ifSim;
-              IBSCBS.cIndOp := '123456';
-              // togNenhum, togFornecimento, togRecebimentoPag
+              IBSCBS.indFinal := ifNao; // não esta presente no leiaute (xls) mas presente no xsd e no acbr para montagem do xml... (?)
+              IBSCBS.cIndOp := servicos.fieldbyname('cindop').asString;  // Falta uma definição concreta (tabela de ocorrencias nbs x indop x cclasstrib)
+              // IBSCBS.indZFMALC :=    // presente somente no leiaute (xls)
+
               IBSCBS.tpOper := ACBrNFSeXConversao.togNenhum;
 
-              // Grupo de NFS-e referenciadas.
-              {
-              with IBSCBS.gRefNFSe.New do
-              begin
-                // Chave da NFS-e referenciada
-                refNFSe := '12345678901234567890123456789012345678901234567890';
-              end;
-              }
+              (* não informar se for o mesmo que o tomador!
 
-              // tcgNenhum, tcgUniao, tcgEstados, tcgDistritoFederal, tcgMunicipios
-              IBSCBS.tpEnteGov := tcgNenhum;
-              // idTomadorAdquirenteDestinatarioIguais, idTomadorAdquirenteIguais,
-              IBSCBS.indDest := idTomadorAdquirenteDestinatarioIguais;
-
-              {
-              IBSCBS.dest.CNPJCPF :=  Tomador.IdentificacaoTomador.CpfCnpj;
+              IBSCBS.dest.CNPJCPF := Tomador.IdentificacaoTomador.CpfCnpj;
               IBSCBS.dest.Nif := '';
               IBSCBS.dest.cNaoNIF := tnnNaoInformado;
               IBSCBS.dest.xNome := Tomador.RazaoSocial;
-              IBSCBS.dest.fone := Tomador.Contato.Telefone;
-              IBSCBS.dest.email := Tomador.Contato.Email;
-              IBSCBS.dest.ender.endNac.cMun := STRTOINT(FDest_CodMun);
+
+              IBSCBS.dest.ender.endNac.cMun := StrToInt(Tomador.Endereco.CodigoMunicipio);
               IBSCBS.dest.ender.endNac.CEP := Tomador.Endereco.CEP;
+              { SE EXTERIOR
+                IBSCBS.dest.ender.endExt.
+              }
+
               IBSCBS.dest.ender.xLgr := Tomador.Endereco.Endereco;
               IBSCBS.dest.ender.nro := Tomador.Endereco.Numero;
-              IBSCBS.dest.ender.xCpl := '';
+              IBSCBS.dest.ender.xCpl := Tomador.Endereco.Complemento;
               IBSCBS.dest.ender.xBairro := Tomador.Endereco.Bairro;
-              }
-                     {
-              IBSCBS.imovel.inscImobFisc := '12345678901';
-              IBSCBS.imovel.cCIB := '12345678';
-              IBSCBS.imovel.ender.cep := '14800000';
-              IBSCBS.imovel.ender.endExt.cEndPost := 'cod. postal';
-              IBSCBS.imovel.ender.endExt.xCidade := 'cidade do exterior';
-              IBSCBS.imovel.ender.endExt.xEstProvReg := 'estado no exterior';
-              IBSCBS.imovel.ender.xLgr := 'RUA PRINCIPAL';
-              IBSCBS.imovel.ender.nro := '100';
-              IBSCBS.imovel.ender.xCpl := '';
-              IBSCBS.imovel.ender.xBairro := 'CENTRO';
-              }
+              IBSCBS.dest.fone := Tomador.Contato.Telefone;
+              IBSCBS.dest.email := Tomador.Contato.Email;
+              *)
 
-              with IBSCBS.valores.gReeRepRes.documentos.New do
-              begin
-                {
-                  Grupo de informações de documentos fiscais eletrônicos que se
-                  encontram no repositório nacional.
-                }
-                // tcNFSe, tcNFe, tcCTe, tcOutro
-                dFeNacional.tipoChaveDFe := tcOutro;
-                // Informar a descrição se o tipo for tcOutro
-                dFeNacional.xtipoChaveDFe := 'outro tipo de documento';
-                dFeNacional.ChaveDFe := ''; //'1234567890';
-
-                {
-                  Grupo de informações de documento fiscais, eletrônicos ou não,
-                  que não se encontram no repositório nacional.
-                }
-                docFiscalOutro.cMunDocFiscal := 0;
-                docFiscalOutro.nDocFiscal := '12345';
-                docFiscalOutro.xDocFiscal := 'Carta Remessa de Mercadoria';
-
-                {
-                  Grupo de informações de documento não fiscal.
-                }
-                docOutro.nDoc := '12345';
-                docOutro.xDoc := 'Descricao do documento';
-
-                // Os grupos: dFeNacional, docFiscalOutro e docOutro são mutuamente
-                // excludentes, portanto somente um deles pode estar presente no XML
-
-                {
-                  Grupo de informações do fornecedor do documento referenciado
-                }
-                {
-                fornec.CNPJCPF := '12345678000123';
-                fornec.NIF := '';
-                // tnnNaoInformado, tnnDispensado, tnnNaoExigencia
-                fornec.cNaoNIF := tnnNaoInformado;
-                fornec.xNome := 'fornecedor xyz';
-                }
-
-                dtEmiDoc := Date;
-                dtCompDoc := Date;
-                // trrr01, trrr02, trrr03, trrr04, trrr99
-                tpReeRepRes := trrr99;
-                // Informar a descrição se o tipo for trrr99.
-                xTpReeRepRes := '';
-                vlrReeRepRes := 0;
-              end;
+              (*
+                ... (mantido exatamente como no seu trecho)
+              *)
 
               // cst000, cst010, cst011, cst200, cst210, cst221, cst400, cst410
               // cst510, cst550, cst800, cst820
-              IBSCBS.valores.trib.gIBSCBS.CST := cst000;
-              IBSCBS.valores.trib.gIBSCBS.cClassTrib := '000001';
+
+
+              IBSCBS.valores.trib.gIBSCBS.CST :=
+                StrToCSTIBSCBS(dtmDadosNFe.qrytrib_saida_serv_impostocodigo_cst_cbsibs.asString);
+
+//              cst000;
+              IBSCBS.valores.trib.gIBSCBS.cClassTrib :=
+                dtmDadosNFe.qrytrib_saida_serv_impostocclasstrib_cbsibs.asString;
 
               // cpNenhum, cp01, cp02, cp03, cp04, cp05, cp06, cp07, cp08, cp09, cp10,
               // cp11, cp12, cp13
-              IBSCBS.valores.trib.gIBSCBS.cCredPres := cp01;
+//              IBSCBS.valores.trib.gIBSCBS.cCredPres := cp01;
 
-              IBSCBS.valores.trib.gIBSCBS.gTribRegular.CSTReg := cst000;
-              IBSCBS.valores.trib.gIBSCBS.gTribRegular.cClassTribReg := '000001';
-                              {
-              IBSCBS.valores.trib.gIBSCBS.gDif.pDifUF := 5;
-              IBSCBS.valores.trib.gIBSCBS.gDif.pDifMun := 5;
-              IBSCBS.valores.trib.gIBSCBS.gDif.pDifCBS := 5;
+//              IBSCBS.valores.trib.gIBSCBS.gTribRegular.CSTReg := cst000;
+//              IBSCBS.valores.trib.gIBSCBS.gTribRegular.cClassTribReg := '000001';
+
+              {
+                IBSCBS.valores.trib.gIBSCBS.gDif.pDifUF := 5;
+                IBSCBS.valores.trib.gIBSCBS.gDif.pDifMun := 5;
+                IBSCBS.valores.trib.gIBSCBS.gDif.pDifCBS := 5;
               }
-            end;
-            *)
 
+              infNFSe.IBSCBS.valores.vBC :=  dtmDadosNFe.qrytrib_saida_serv_impostovbc_cbsibs.AsCurrency;
+              infNFSe.IBSCBS.valores.uf.pIBSUF := dtmDadosNFe.qrytrib_saida_serv_impostopaliq_ibsuf.AsCurrency;
+//              infNFSe.IBSCBS.valores.uf.pRedAliqUF := 0;
+//              infNFSe.IBSCBS.valores.uf.pAliqEfetUF := 0;
+
+              infNFSe.IBSCBS.valores.mun.pIBSMun := dtmDadosNFe.qrytrib_saida_serv_impostopaliq_ibsmun.AsCurrency;
+              infNFSe.IBSCBS.valores.fed.pCBS := dtmDadosNFe.qrytrib_saida_serv_impostopaliq_cbs.AsCurrency;
+
+//              infNFSe.IBSCBS.totCIBS.vTotNF :=
+
+              if yearof(DataEmissao) = 2026 then
+                infNFSe.IBSCBS.totCIBS.vTotNF := Servico.Valores.ValorServicos
+              else
+                infNFSe.IBSCBS.totCIBS.vTotNF := Servico.Valores.ValorServicos +
+                                                 dtmDadosNFe.qrytrib_saida_serv_impostovimposto_ibsuf.AsCurrency +
+                                                 dtmDadosNFe.qrytrib_saida_serv_impostovimposto_ibsmun.AsCurrency +
+                                                 dtmDadosNFe.qrytrib_saida_serv_impostovimposto_cbs.AsCurrency;
+
+              infNFSe.IBSCBS.totCIBS.gIBS.vIBSTot := dtmDadosNFe.qrytrib_saida_serv_impostovimposto_ibsuf.AsCurrency +
+                                                     dtmDadosNFe.qrytrib_saida_serv_impostovimposto_ibsmun.AsCurrency;
+
+              infNFSe.IBSCBS.totCIBS.gIBS.gIBSUFTot.vIBSUF := dtmDadosNFe.qrytrib_saida_serv_impostovimposto_ibsuf.AsCurrency;
+              infNFSe.IBSCBS.totCIBS.gIBS.gIBSMunTot.vIBSMun := dtmDadosNFe.qrytrib_saida_serv_impostovimposto_ibsmun.AsCurrency;
+              infNFSe.IBSCBS.totCIBS.gCBS.vCBS := dtmDadosNFe.qrytrib_saida_serv_impostovimposto_cbs.AsCurrency;
+
+
+
+
+              IBSCBS.valores.IbsMunicipal := dtmDadosNFe.qrytrib_saida_serv_impostopaliq_ibsmun.AsCurrency;
+              IBSCBS.valores.ValorIbsMunicipal := dtmDadosNFe.qrytrib_saida_serv_impostovimposto_ibsmun.AsCurrency;
+
+              IBSCBS.valores.IbsEstadual := dtmDadosNFe.qrytrib_saida_serv_impostopaliq_ibsuf.AsCurrency;
+              IBSCBS.valores.ValorIbsEstadual := dtmDadosNFe.qrytrib_saida_serv_impostovimposto_ibsuf.AsCurrency;
+
+              IBSCBS.valores.Cbs := dtmDadosNFe.qrytrib_saida_serv_impostopaliq_cbs.AsCurrency;
+              IBSCBS.valores.ValorCbs := dtmDadosNFe.qrytrib_saida_serv_impostovimposto_cbs.AsCurrency;
+
+            end;
+          end; // with NotasFiscais.New.NFSe
+
+          if Notas.FieldByName('ambientenfs').AsString = '1' then
+          begin
+            Configuracoes.WebServices.Ambiente := taProducao;   // ou taHomologacao
+            // Configuracoes.Geral.LayoutNFSe := lnfsPadraoNacionalv1;
+            // SetProvedor(proPadraoNacional, ve100);
+
+            Configuracoes.Geral.LayoutNFSe := lnfsPadraoNacionalv101;
+
+//            SetProvedor(proPadraoNacional, ve101);
+            SetProvedor(provedor, ve101);
+          end
+          else
+          begin
+            Configuracoes.WebServices.Ambiente := taHomologacao;
+            Configuracoes.Geral.LayoutNFSe := lnfsPadraoNacionalv101;
+            SetProvedor(provedor, ve101);
+//            SetProvedor(proPadraoNacional, ve101);
+            // SetProvedor(proPadraoNacional, ve100);
           end;
 
-
-
-            end;
-
-            if Notas.FieldByName('ambientenfs').AsString = '1' then
-            begin
-              Configuracoes.WebServices.Ambiente := taProducao;   // ou taHomologacao
-              Configuracoes.Geral.LayoutNFSe := lnfsPadraoNacionalv1;
-              SetProvedor(proPadraoNacional, ve100);
-            end
-            else
-            begin
-              Configuracoes.WebServices.Ambiente := taHomologacao;
-              Configuracoes.Geral.LayoutNFSe := lnfsPadraoNacionalv101;
-              SetProvedor(proPadraoNacional, ve101);
-    //          SetProvedor(proPadraoNacional, ve100);
-            end;
-
-
-    //        Emitir('1', meUnitario);
-    //        ChecarRespostaNFSeX(tmGerar, qryDadosFiscais.fieldbyname('numero').asinteger)
-          end;
-        end;
-      end;
-
+          // Emitir('1', meUnitario);
+          // ChecarRespostaNFSeX(tmGerar, qryDadosFiscais.FieldByName('numero').AsInteger)
+        end; // with NotasFiscais
+      end; // with ACBrNFSeX
+    end; // with dtmEnviarNFSe
+  end;
 
   procedure InformacoesNotaFiscalEletronica;
 
@@ -4184,6 +4401,7 @@ fornecido pelo Fisco.
                   FechaTag('prod');
 
                   local := 'Detalhamento do ítem composto: '+trim(Copy(Compostos.FieldByName('pn').AsString,1,60))+ ' - ICMS';
+
                   if (Compostos.FieldByName('incidencia').AsString <> '')  or
                      (Compostos.FieldByName('ipicst').AsString <> '')      or
                      ((Compostos.FindField('IIValor')<>nil) and (importacoes <> nil))  or
@@ -5127,6 +5345,52 @@ fornecido pelo Fisco.
 
                   // COFINS ST
 
+                  (*   falta implementar as funções para o caso de compostos
+
+                  if Abrir_Trib_Item_Imposto(Produtos.FieldByName('dadofiscal').asinteger,
+                                             Produtos.fieldByName('produto').asString,
+                                             Produtos.fieldByName('numero').asinteger, 'S') and
+                       (dtmDadosNFe.qrytrib_saida_item_impostocodigo_cst_cbsibs.asString<>'') and
+                       (dtmDadosNFe.qrytrib_saida_item_impostocclasstrib_cbsibs.asString<>'') then
+                  begin
+                    AbreTag('IBSCBS');
+
+                      {As regras para cst, cclasstrib e base são as mesmas para a definição dos 3 imposstos}
+                      TagCompleta('CST',  dtmDadosNFe.qrytrib_saida_item_impostocodigo_cst_cbsibs.asString);
+                      TagCompleta('cClassTrib',  dtmDadosNFe.qrytrib_saida_item_impostocclasstrib_cbsibs.asString);
+
+                      AbreTag('gIBSCBS');
+
+                        TagCompleta('vBC', dtmDadosNFe.qrytrib_saida_item_impostovbc_cbsibs.AsCurrency , 2);
+
+                        AbreTag('gIBSUF');
+                          TagCompleta('pIBSUF', dtmDadosNFe.qrytrib_saida_item_impostopaliq_ibsuf.AsCurrency , 4);
+                          TagCompleta('vIBSUF', dtmDadosNFe.qrytrib_saida_item_impostovimposto_ibsuf.AsCurrency , 2);
+                        FechaTag('gIBSUF');
+
+                        AbreTag('gIBSMun');
+                          TagCompleta('pIBSMun', dtmDadosNFe.qrytrib_saida_item_impostopaliq_ibsmun.AsCurrency, 4);
+                          TagCompleta('vIBSMun', dtmDadosNFe.qrytrib_saida_item_impostovimposto_ibsmun.AsCurrency , 2);
+                        FechaTag('gIBSMun');
+
+                        TagCompleta('vIBS', (dtmDadosNFe.qrytrib_saida_item_impostovimposto_ibsuf.AsCurrency +
+                                             dtmDadosNFe.qrytrib_saida_item_impostovimposto_ibsmun.AsCurrency) , 2);
+
+                        AbreTag('gCBS');
+                          TagCompleta('pCBS', dtmDadosNFe.qrytrib_saida_item_impostopaliq_cbs.AsCurrency , 4);
+                          TagCompleta('vCBS', dtmDadosNFe.qrytrib_saida_item_impostovimposto_cbs.AsCurrency , 2);
+                        FechaTag('gCBS');
+
+                      FechaTag('gIBSCBS');
+                    FechaTag('IBSCBS');
+                  end;
+
+                  FechaTag('imposto');
+                  *)
+
+
+
+
                   FechaTag('imposto');
 
                   (*
@@ -5199,7 +5463,7 @@ fornecido pelo Fisco.
 
                 (*
                 else  // caso for utilizar a opção abaixo deverá cadastrar um produto e indicar em parametros pois a chave é dadofiscal,produto,numero
-                      // não podendo ter uma produto null 
+                      // não podendo ter uma produto null
                 if (notas.fieldByName('finalidadenf').asString = '2') then {è Complementar e não tem produto}
                 begin
                   eHComplementarSemProduto := True;
@@ -5218,7 +5482,7 @@ fornecido pelo Fisco.
                 TagCompleta('cEAN', 'SEM GTIN')
               else
                 TagCompleta('cEAN', somentenumero(Produtos.FieldByName('tribcodigoean').AsString));
-  
+
               if notas.FindField('TagAdPedNFE')<>nil then
               begin
                 if notas.Fieldbyname('TagAdPedNFE').AsBoolean then
@@ -5303,7 +5567,7 @@ fornecido pelo Fisco.
                    ((Produtos.FieldByName('quantidade').AsCurrency<>0) and
                     (Produtos.FieldByName('precovenda').Asfloat<>0)) then
                   TagCompleta('vProd',    roundto(Produtos.FieldByName('quantidade').AsCurrency * Produtos.FieldByName('precovenda').Asfloat,-2),2)
-                else                                                                        
+                else
                   TagCompleta('vProd',    roundto(Produtos.FieldByName('vprod').Asfloat,-2),2);
               end
               else
@@ -5843,7 +6107,7 @@ fornecido pelo Fisco.
                     TagCompleta('vBCFCPST', Produtos.FieldByName('vBCFCPST').AsCurrency,2);
                     TagCompleta('pFCPST', Produtos.FieldByName('pFCPST').AsCurrency,2);
                     TagCompleta('vFCPST', Produtos.FieldByName('vFCPST').AsCurrency,2);
-                  end;  
+                  end;
 
                   FechaTag('ICMS70')
                 end
@@ -6351,72 +6615,121 @@ fornecido pelo Fisco.
                 if (Produtos.FieldByName('COFINSCST').AsString = '') then
                   ValidarTag('CST','');
 
-                FechaTag('COFINS')
+                FechaTag('COFINS');
+
+                if (Produtos.Findfield('vICMSUFDest')<>nil) and
+                   (Produtos.Findfield('vFCPUFDest')<>nil) and
+                   (Produtos.Findfield('vICMSUFRemet')<>nil) then
+                begin
+                  if (not Produtos.FieldByName('vICMSUFDest').isnull) or
+                     (not Produtos.FieldByName('vFCPUFDest').isnull) or
+                     (not Produtos.FieldByName('vICMSUFRemet').isnull) then
+                  begin
+                    AbreTag('ICMSUFDest');
+                      TagCompleta('vBCUFDest',   Produtos.FieldByName('vBCUFDest').AsCurrency, 2);
+                      TagCompleta('vBCFCPUFDest', Produtos.FieldByName('vBCFCPUFDest').AsCurrency, 2);
+                      TagCompleta('pFCPUFDest', Produtos.FieldByName('pFCPUFDest').AsCurrency, 2);
+                      TagCompleta('pICMSUFDest', Produtos.FieldByName('pICMSUFDest').AsCurrency, 2);
+                      TagCompleta('pICMSInter', Produtos.FieldByName('pICMSInter').AsCurrency, 2);
+                      TagCompleta('pICMSInterPart', Produtos.FieldByName('pICMSInterPart').AsCurrency, 2);
+                      TagCompleta('vFCPUFDest', Produtos.FieldByName('vFCPUFDest').AsCurrency, 2);
+                      TagCompleta('vICMSUFDest',   Produtos.FieldByName('vICMSUFDest').AsCurrency, 2);
+                      TagCompleta('vICMSUFRemet',   Produtos.FieldByName('vICMSUFRemet').AsCurrency, 2);
+                    FechaTag('ICMSUFDest');
+                  end;
+                end;
+
+
+                if tipo = 'S' then
+                begin
+                  if Abrir_Trib_Item_Imposto(Produtos.FieldByName('dadofiscal').asinteger,
+                                             Produtos.fieldByName('produto').asString,
+                                             Produtos.fieldByName('numero').asinteger, 'S') then
+                    if (dtmDadosNFe.qrytrib_saida_item_impostocodigo_cst_cbsibs.asString<>'') and
+                       (dtmDadosNFe.qrytrib_saida_item_impostocclasstrib_cbsibs.asString<>'') then
+                  begin
+                    AbreTag('IBSCBS');
+
+                      {As regras para cst, cclasstrib e base são as mesmas para a definição dos 3 imposstos}
+                      TagCompleta('CST',  dtmDadosNFe.qrytrib_saida_item_impostocodigo_cst_cbsibs.asString);
+                      TagCompleta('cClassTrib',  dtmDadosNFe.qrytrib_saida_item_impostocclasstrib_cbsibs.asString);
+
+                      AbreTag('gIBSCBS');
+
+                        TagCompleta('vBC', dtmDadosNFe.qrytrib_saida_item_impostovbc_cbsibs.AsCurrency , 2);
+
+                        AbreTag('gIBSUF');
+                          TagCompleta('pIBSUF', dtmDadosNFe.qrytrib_saida_item_impostopaliq_ibsuf.AsCurrency , 4);
+                          TagCompleta('vIBSUF', dtmDadosNFe.qrytrib_saida_item_impostovimposto_ibsuf.AsCurrency , 2);
+                        FechaTag('gIBSUF');
+
+                        AbreTag('gIBSMun');
+                          TagCompleta('pIBSMun', dtmDadosNFe.qrytrib_saida_item_impostopaliq_ibsmun.AsCurrency, 4);
+                          TagCompleta('vIBSMun', dtmDadosNFe.qrytrib_saida_item_impostovimposto_ibsmun.AsCurrency , 2);
+                        FechaTag('gIBSMun');
+
+                        TagCompleta('vIBS', (dtmDadosNFe.qrytrib_saida_item_impostovimposto_ibsuf.AsCurrency +
+                                             dtmDadosNFe.qrytrib_saida_item_impostovimposto_ibsmun.AsCurrency) , 2);
+
+                        AbreTag('gCBS');
+                          TagCompleta('pCBS', dtmDadosNFe.qrytrib_saida_item_impostopaliq_cbs.AsCurrency , 4);
+                          TagCompleta('vCBS', dtmDadosNFe.qrytrib_saida_item_impostovimposto_cbs.AsCurrency , 2);
+                        FechaTag('gCBS');
+
+                      FechaTag('gIBSCBS');
+                    FechaTag('IBSCBS');
+                  end;
+                end
+                else
+                if tipo = 'E' then
+                begin
+                  if Abrir_Trib_Item_Imposto(Produtos.FieldByName('codigonota').asinteger,
+                                             Produtos.fieldByName('produto').asString,
+                                             Produtos.fieldByName('numero').asinteger, 'E') then
+                    if (dtmDadosNFe.qrytrib_entrada_item_impostocodigo_cst_cbsibs.asString<>'') and
+                       (dtmDadosNFe.qrytrib_entrada_item_impostocclasstrib_cbsibs.asString<>'') then
+                  begin
+                    AbreTag('IBSCBS');
+
+                      {As regras para cst, cclasstrib e base são as mesmas para a definição dos 3 imposstos}
+                      TagCompleta('CST',  dtmDadosNFe.qrytrib_entrada_item_impostocodigo_cst_cbsibs.asString);
+                      TagCompleta('cClassTrib',  dtmDadosNFe.qrytrib_entrada_item_impostocclasstrib_cbsibs.asString);
+
+                      AbreTag('gIBSCBS');
+
+                        TagCompleta('vBC', dtmDadosNFe.qrytrib_entrada_item_impostovbc_cbsibs.AsCurrency , 2);
+
+                        AbreTag('gIBSUF');
+                          TagCompleta('pIBSUF', dtmDadosNFe.qrytrib_entrada_item_impostopaliq_ibsuf.AsCurrency , 4);
+                          TagCompleta('vIBSUF', dtmDadosNFe.qrytrib_entrada_item_impostovimposto_ibsuf.AsCurrency , 2);
+                        FechaTag('gIBSUF');
+
+                        AbreTag('gIBSMun');
+                          TagCompleta('pIBSMun', dtmDadosNFe.qrytrib_entrada_item_impostopaliq_ibsmun.AsCurrency, 4);
+                          TagCompleta('vIBSMun', dtmDadosNFe.qrytrib_entrada_item_impostovimposto_ibsmun.AsCurrency , 2);
+                        FechaTag('gIBSMun');
+
+                        TagCompleta('vIBS', (dtmDadosNFe.qrytrib_entrada_item_impostovimposto_ibsuf.AsCurrency +
+                                             dtmDadosNFe.qrytrib_entrada_item_impostovimposto_ibsmun.AsCurrency) , 2);
+
+                        AbreTag('gCBS');
+                          TagCompleta('pCBS', dtmDadosNFe.qrytrib_entrada_item_impostopaliq_cbs.AsCurrency , 4);
+                          TagCompleta('vCBS', dtmDadosNFe.qrytrib_entrada_item_impostovimposto_cbs.AsCurrency , 2);
+                        FechaTag('gCBS');
+
+                      FechaTag('gIBSCBS');
+                    FechaTag('IBSCBS');
+                  end;
+                end;
+
+                FechaTag('imposto');
 
               end;
 
-              if (Produtos.Findfield('vICMSUFDest')<>nil) and
-                 (Produtos.Findfield('vFCPUFDest')<>nil) and
-                 (Produtos.Findfield('vICMSUFRemet')<>nil) then
-              begin
-                if (not Produtos.FieldByName('vICMSUFDest').isnull) or
-                   (not Produtos.FieldByName('vFCPUFDest').isnull) or
-                   (not Produtos.FieldByName('vICMSUFRemet').isnull) then
-                begin
-                  AbreTag('ICMSUFDest');
-                    TagCompleta('vBCUFDest',   Produtos.FieldByName('vBCUFDest').AsCurrency, 2);
-                    TagCompleta('vBCFCPUFDest', Produtos.FieldByName('vBCFCPUFDest').AsCurrency, 2);
-                    TagCompleta('pFCPUFDest', Produtos.FieldByName('pFCPUFDest').AsCurrency, 2);
-                    TagCompleta('pICMSUFDest', Produtos.FieldByName('pICMSUFDest').AsCurrency, 2);
-                    TagCompleta('pICMSInter', Produtos.FieldByName('pICMSInter').AsCurrency, 2);
-                    TagCompleta('pICMSInterPart', Produtos.FieldByName('pICMSInterPart').AsCurrency, 2);
-                    TagCompleta('vFCPUFDest', Produtos.FieldByName('vFCPUFDest').AsCurrency, 2);
-                    TagCompleta('vICMSUFDest',   Produtos.FieldByName('vICMSUFDest').AsCurrency, 2);
-                    TagCompleta('vICMSUFRemet',   Produtos.FieldByName('vICMSUFRemet').AsCurrency, 2);
-                  FechaTag('ICMSUFDest');
-                end;
-              end;
-
-              if assigned(dtmDadosNFe) then
-                if (dtmDadosNFe.qrytrib_saida_item_imposto.recordcount <> 0) and
-                   (dtmDadosNFe.qrytrib_saida_item_impostocodigo_cst_cbsibs.asString<>'') and
-                   (dtmDadosNFe.qrytrib_saida_item_impostocclasstrib_cbsibs.asString<>'') then
-                begin
-                  AbreTag('IBSCBS');
-
-                    {As regras para cst, cclasstrib e base são as mesmas para a definição dos 3 imposstos}
-                    TagCompleta('CST',  dtmDadosNFe.qrytrib_saida_item_impostocodigo_cst_cbsibs.asString);
-                    TagCompleta('cClassTrib',  dtmDadosNFe.qrytrib_saida_item_impostocclasstrib_cbsibs.asString);
-
-                    AbreTag('gIBSCBS');
-
-                      TagCompleta('vBC', dtmDadosNFe.qrytrib_saida_item_impostovbc_cbsibs.AsCurrency , 2);
-
-                      AbreTag('gIBSUF');
-                        TagCompleta('pIBSUF', dtmDadosNFe.qrytrib_saida_item_impostopaliq_ibsuf.AsCurrency , 4);
-                        TagCompleta('vIBSUF', dtmDadosNFe.qrytrib_saida_item_impostovimposto_ibsuf.AsCurrency , 2);
-                      FechaTag('gIBSUF');
-
-                      AbreTag('gIBSMun');
-                        TagCompleta('pIBSMun', dtmDadosNFe.qrytrib_saida_item_impostopaliq_ibsmun.AsCurrency, 4);
-                        TagCompleta('vIBSMun', dtmDadosNFe.qrytrib_saida_item_impostovimposto_ibsmun.AsCurrency , 2);
-                      FechaTag('gIBSMun');
-
-                      TagCompleta('vIBS', (dtmDadosNFe.qrytrib_saida_item_impostovimposto_ibsuf.AsCurrency +
-                                           dtmDadosNFe.qrytrib_saida_item_impostovimposto_ibsmun.AsCurrency) , 2);
-
-                      AbreTag('gCBS');
-                        TagCompleta('pCBS', dtmDadosNFe.qrytrib_saida_item_impostopaliq_cbs.AsCurrency , 4);
-                        TagCompleta('vCBS', dtmDadosNFe.qrytrib_saida_item_impostovimposto_cbs.AsCurrency , 2);
-                      FechaTag('gCBS');
-
-                    FechaTag('gIBSCBS');
-                  FechaTag('IBSCBS');
-                end;
-              FechaTag('imposto');
 
               if not ContribuinteIPI and
-                 (Notas.FieldByName('finalidadenf').AsString='4') and
+                 ((Notas.FieldByName('finalidadenf').AsString='4') or
+                  (Notas.FieldByName('finalidadenf').AsString='3')) and
                  ((Notas.FieldByName('valoripi').AsCurrency) <> 0) then  {qdo devolução e não contribuinte de ipi}
               begin
 {                TagCompleta('vIPI', Notas.FieldByName('valoripi').AsCurrency,2);}
@@ -6976,7 +7289,9 @@ I – ISENTA. (v.2.0)
       else
         TagCompleta('vIPI',  0,2);
 
-      if not ContribuinteIPI and (Notas.FieldByName('finalidadenf').AsString='4') then  {qdo devolução e não contribuinte de ipi}
+      if not ContribuinteIPI and
+        ((Notas.FieldByName('finalidadenf').AsString='4') or
+         (Notas.FieldByName('finalidadenf').AsString='3')) then  {qdo devolução e não contribuinte de ipi}
         TagCompleta('vIPIDevol',    Notas.FieldByName('valoripi').AsCurrency,2)
       else
         TagCompleta('vIPIDevol',  0,2);
@@ -7185,29 +7500,28 @@ I – ISENTA. (v.2.0)
         FechaTag('retTrib')
       end;
 
-
-
-      if assigned(dtmDadosNFe) then
-        if (dtmDadosNFe.qryTotais_trib_saida_item_imposto.recordcount <> 0) then
+      if tipo = 'S' then
+      begin
+        if Abrir_Totais_Trib_Imposto(Produtos.FieldByName('dadofiscal').asinteger, 'S') then
         begin
           AbreTag('IBSCBSTot');
-            TagCompleta('vBCIBSCBS', dtmDadosNFe.qryTotais_trib_saida_item_impostovbc_cbsibs.AsCurrency , 2);
+            TagCompleta('vBCIBSCBS', dtmDadosNFe.qryTotais_trib_saida_impostovbc_cbsibs.AsCurrency , 2);
             AbreTag('gIBS');
 
               AbreTag('gIBSUF');
                 TagCompleta('vDif', 0.00 , 2);
                 TagCompleta('vDevTrib', 0.00 , 2);
-                TagCompleta('vIBSUF', dtmDadosNFe.qryTotais_trib_saida_item_impostovimposto_ibsuf.AsCurrency , 2);
+                TagCompleta('vIBSUF', dtmDadosNFe.qryTotais_trib_saida_impostovimposto_ibsuf.AsCurrency , 2);
               FechaTag('gIBSUF');
 
               AbreTag('gIBSMun');
                 TagCompleta('vDif', 0.00 , 2);
                 TagCompleta('vDevTrib', 0.00 , 2);
-                TagCompleta('vIBSMun', dtmDadosNFe.qryTotais_trib_saida_item_impostovimposto_ibsmun.AsCurrency , 2);
+                TagCompleta('vIBSMun', dtmDadosNFe.qryTotais_trib_saida_impostovimposto_ibsmun.AsCurrency , 2);
               FechaTag('gIBSMun');
 
-              TagCompleta('vIBS', (dtmDadosNFe.qryTotais_trib_saida_item_impostovimposto_ibsuf.AsCurrency +
-                                   dtmDadosNFe.qryTotais_trib_saida_item_impostovimposto_ibsmun.AsCurrency) , 2);
+              TagCompleta('vIBS', (dtmDadosNFe.qryTotais_trib_saida_impostovimposto_ibsuf.AsCurrency +
+                                   dtmDadosNFe.qryTotais_trib_saida_impostovimposto_ibsmun.AsCurrency) , 2);
               TagCompleta('vCredPres', 0.00 , 2);
               TagCompleta('vCredPresCondSus', 0.00 , 2);
             FechaTag('gIBS');
@@ -7215,13 +7529,51 @@ I – ISENTA. (v.2.0)
             AbreTag('gCBS');
               TagCompleta('vDif', 0.00 , 2);
               TagCompleta('vDevTrib', 0.00 , 2);
-              TagCompleta('vCBS', dtmDadosNFe.qryTotais_trib_saida_item_impostovimposto_cbs.AsCurrency , 2);
+              TagCompleta('vCBS', dtmDadosNFe.qryTotais_trib_saida_impostovimposto_cbs.AsCurrency , 2);
               TagCompleta('vCredPres', 0.00 , 2);
               TagCompleta('vCredPresCondSus', 0.00 , 2);
             FechaTag('gCBS');
           FechaTag('IBSCBSTot');
-        end;
-        
+        End;
+      end
+      else
+      if tipo = 'E' then
+      begin
+        if Abrir_Totais_Trib_Imposto(Produtos.FieldByName('codigonota').asinteger, 'E') then
+        begin
+          AbreTag('IBSCBSTot');
+            TagCompleta('vBCIBSCBS', dtmDadosNFe.qryTotais_trib_entrada_impostovbc_cbsibs.AsCurrency , 2);
+            AbreTag('gIBS');
+
+              AbreTag('gIBSUF');
+                TagCompleta('vDif', 0.00 , 2);
+                TagCompleta('vDevTrib', 0.00 , 2);
+                TagCompleta('vIBSUF', dtmDadosNFe.qryTotais_trib_entrada_impostovimposto_ibsuf.AsCurrency , 2);
+              FechaTag('gIBSUF');
+
+              AbreTag('gIBSMun');
+                TagCompleta('vDif', 0.00 , 2);
+                TagCompleta('vDevTrib', 0.00 , 2);
+                TagCompleta('vIBSMun', dtmDadosNFe.qryTotais_trib_entrada_impostovimposto_ibsmun.AsCurrency , 2);
+              FechaTag('gIBSMun');
+
+              TagCompleta('vIBS', (dtmDadosNFe.qryTotais_trib_entrada_impostovimposto_ibsuf.AsCurrency +
+                                   dtmDadosNFe.qryTotais_trib_entrada_impostovimposto_ibsmun.AsCurrency) , 2);
+              TagCompleta('vCredPres', 0.00 , 2);
+              TagCompleta('vCredPresCondSus', 0.00 , 2);
+            FechaTag('gIBS');
+
+            AbreTag('gCBS');
+              TagCompleta('vDif', 0.00 , 2);
+              TagCompleta('vDevTrib', 0.00 , 2);
+              TagCompleta('vCBS', dtmDadosNFe.qryTotais_trib_entrada_impostovimposto_cbs.AsCurrency , 2);
+              TagCompleta('vCredPres', 0.00 , 2);
+              TagCompleta('vCredPresCondSus', 0.00 , 2);
+            FechaTag('gCBS');
+          FechaTag('IBSCBSTot');
+        End;
+      end;
+
       FechaTag('total')
     end;
 
@@ -7783,7 +8135,8 @@ I – ISENTA. (v.2.0)
         InformacoesNotaFiscalEletronica; //A01
       end;
 
-      Eletronica_AmbNacional : Infomrmacoes_Eletronica_AmbNacional;
+      Eletronica_AmbNacional: Infomrmacoes_Eletronica_AmbNacional;
+      Palhoca_IPM : Infomrmacoes_Eletronica_AmbNacional(proIPM);
 
       (*
       Outras:
@@ -8146,6 +8499,7 @@ I – ISENTA. (v.2.0)
         InfomrmacoesNFSEFlorianopolis;
       end;
 
+      {
       Palhoca_IPM:
       begin
 
@@ -8160,6 +8514,7 @@ I – ISENTA. (v.2.0)
 
 
       end;
+      }
 
     end;
   end;
@@ -8190,7 +8545,8 @@ I – ISENTA. (v.2.0)
         RenameFile(FDirEnvioNFSe+nfse_temp,fArqEnvioNFSe);
       end;
 
-      Eletronica_AmbNacional:
+      Eletronica_AmbNacional,
+      Palhoca_ipm:
       begin
        dtmEnviarNFSe.ACBrNFSeX.Configuracoes.Certificados.NumeroSerie := DadosdaFilial('numeroseriecertificadodigital', notas.fieldbyname('filialemissao').asinteger);
        dtmEnviarNFSe.ACBrNFSeX.Configuracoes.Certificados.senha := DadosdaFilial('senhacertificadodigital', notas.fieldbyname('filialemissao').asinteger);
@@ -8287,80 +8643,9 @@ I – ISENTA. (v.2.0)
 
       end;
 
-      Palhoca_IPM:
-
       (*
-      begin
-        try
 
-          try
-
-            CloseFile(xml);
-            RenameFile(FDirEnvioNFSe+nfse_temp,fArqEnvioNFSe);
-            InstanciarObjetosNFPS(notas.fieldbyname('filialemissao').asinteger);
-            {
-            if not assigned(ACBrDFe) then
-              ACBrDFe := TACBrDFe.create(nil);
-            ACBrDFe.SSL.ArquivoPFX := fCertificadoDigitalNFSe;
-            ACBrDFe.SSL.senha := DadosdaFilial('senhacertificadodigital', notas.fieldbyname('filialemissao').asinteger);
-            ACBrDFe.Configuracoes.Geral.SSLLib := libWinCrypt;
-            XMLStr := tstringlist.create;
-            XMLUTF8_ := LerConteudoArquivo(farqEnvioNFSe);
-            XMLUTF8 := ConverteXMLtoUTF8(XMLUTF8_);
-            XMLAss := ACBrDFe.SSL.Assinar(XMLUTF8, 'xmlProcessamentoNfpse', 'valorTotalServicos');
-
-            XMLStr.Clear;
-            XMLStr.Text := XMLAss;
-            XMLStr.SaveToFile(farqEnvioNFSe);
-            XMLStr.Free;
-            }
-
-            res := FOAuthClient.Post(DadosdaFilial('site_nfse', notas.fieldbyname('filialemissao').asinteger), farqEnvioNFSe);
-
-            if res.Code = HTTP_OK then
-            begin
-              GravarArquivoxml(ArqRetornoNFSe(notas, qryNotas), res.Body, false);
-  //            SalvarDadosToken(notas.fieldbyname('filialemissao').asinteger);
-              result := RetornoCamposNFPSe(notas.fieldbyname('numero').asString);
-
-              if result then
-                result := GravarArquivoxml(ArqRetornoNFSe(notas,qryNotas), res.Body, true);
-
-              if result then
-                NomedoArquivoCompartilhado := ArqRetornoNFSe(notas, qryNotas)
-              else
-                NomedoArquivoCompartilhado := '';
-
-            end
-            else
-            begin
-              GravarArquivoxml(ArqErroRetornoNFSe(notas, qrynotas), res.Body);
-              result := false;
-              erro :=  ConteudomsgNodeXmlNFSe(res.Body);
-              if erro = '' then
-                erro := res.Body;
-
-              MensagemErro(Format('Erro (%d): %s', [res.Code, erro]))
-
-            end;
-
-          except
-            on E: Exception do
-            begin
-              result := false;
-              MensagemErro(Format('Error: %s', [E.Message]));
-
-            end;
-          end;
-
-        finally
-          ReadStreams;
-        end;
-
-      end;
-      *)
-
-
+      Palhoca_IPM:
       begin
         try
 
@@ -8483,10 +8768,10 @@ I – ISENTA. (v.2.0)
         end;
 
       end;
+      *)
 
     end;
   end;
-
 
 begin
   self.pDataBase := TtecDatabase(Notas.DataBase);
@@ -8501,7 +8786,12 @@ begin
   else
     fFormaEmissao := Notas.FieldByName('formaemissao').asString;
 
-  Abrir_trib_item_imposto(Notas.FieldByName('numero').asinteger, tipo);
+    {
+  if Notas.findfield('NrDocumento')<>nil then
+    Abrir_Totais_Trib_Imposto(Notas.FieldByName('NrDocumento').asinteger, tipo)
+  else
+    Abrir_Totais_Trib_Imposto(Notas.FieldByName('numero').asinteger, tipo);
+    }
 
   Result := True;
   try
@@ -8518,7 +8808,7 @@ begin
         Eletronica_Conujugada: InformacoesNotaFiscalEletronica; //A01
 //        Eletronica_AmbNacional: Infomrmacoes_Eletronica_AmbNacional;
         Florianopolis_SoftPlan: InfomrmacoesNFSEFlorianopolis;
-        Palhoca_IPM: InfomrmacoesNFSEPalhoca(Notas, qryNotas, servicos);
+//        Palhoca_IPM: InfomrmacoesNFSEPalhoca(Notas, qryNotas, servicos);
       end;
 
       result := qryListaErros.IsEmpty;
@@ -8946,8 +9236,10 @@ begin
           result := CompartilharXML_Recuperado(fChaveNfe, Filial, Serie, numero, emissao, True, '');
       end;
 
+      {
       if not result then
-        MensagemAviso('Não foi possível atualizar o protocolo com o servidor da Sefaz!');
+        MensagemAviso('Não foi possível encontrar o xml original. O arquivo será gerado novamente!');
+        }
     end;
 
 
@@ -14641,12 +14933,13 @@ begin
         if (auxDocxml.DocumentElement.ChildNodes.FindNode('message')<>nil) then
           result := auxDocxml.DocumentElement.ChildNodes.FindNode('message').Text;
       end;
-
+      {
       Palhoca_IPM:
       begin
         if (auxDocxml.DocumentElement.ChildNodes.FindNode('mensagem').childnodes.findnode('codigo')<>nil) then
           result := auxDocxml.DocumentElement.ChildNodes.FindNode('mensagem').childnodes.findnode('codigo').Text;
       end;
+      }
     end;
   except
     result := false;
@@ -14658,7 +14951,7 @@ end;
 
 
 function TTecNotaFiscalEletronica.ConsultarSituacaoLoteNfse(qryDadosFiscais, qryNotas: tTecQuery;
-   Capturar_Somente_status_NFPSe: Boolean = false): Boolean;
+   Capturar_Somente_statusNFPSe: Boolean = false): Boolean;
 var
   json: TJson;
   val: TJsonValue;
@@ -14671,7 +14964,7 @@ begin
   NomedoArquivoCompartilhado := '';
   NomedoArquivoCancelamentoCompartilhado := '';
 
-  if Capturar_Somente_status_NFPSe then
+  if Capturar_Somente_statusNFPSe then
   begin
     if (qryDadosFiscais.FieldByName('numprotocolonfse').AsString <> '') or
 
@@ -14809,7 +15102,7 @@ begin
 
       case ftipoemissaonfeservico of
 
-        Eletronica_AmbNacional :
+        Eletronica_AmbNacional, palhoca_IPM :
         begin
            // o procedimento já foi feito no RetornoCamposNFPSe
         end;
@@ -14869,6 +15162,7 @@ begin
           end;
         end;
 
+        (*
         Palhoca_IPM :
         begin
 
@@ -14893,6 +15187,7 @@ begin
             result := ConsultarSituacaoLoteNfse(qryDadosFiscais, qryNotas, true);
 
         end;
+        *)
 
       end;
     end;
@@ -14905,81 +15200,8 @@ var
   msg_erro : string;
 begin
   case ftipoemissaonfeservico of
-
-     Palhoca_IPM :
      (*
-     begin
-
-        if not assigned(self.objHTTP) then
-        begin
-          self.objHTTP := TIdHTTP.Create;
-          self.objHTTP.Request.UserAgent := 'Mozilla/3.0 (compatible; POAuth2)';
-        end;
-
-        if not assigned(self.FClient) then
-          self.FClient := TIndyHttpClient.Create(self.objHTTP);
-
-        cfg.TokenEndPoint := DadosdaFilial('urlauth_nfse', filial);
-
-
-        if not assigned(self.FOAuthClient) then
-        begin
-          self.FOAuthClient := TOAuth2Client.Create(cfg, self.FClient);
-          FOAuthClient.GrantType := gtPassword;
-
-//          if DadosdaFilial('AccessToken', filial) <> null then
-          begin
-            if not assigned(FOAuthClient.AccessToken) then
-              FOAuthClient.AccessToken := TOAuth2Token.Create;
-                                              {
-            FOAuthClient.AccessToken.AccessToken := DadosdaFilial('AccessToken', filial);
-            FOAuthClient.AccessToken.RefreshToken := DadosdaFilial('RefreshToken', filial);
-            FOAuthClient.AccessToken.ExpiresIn := DadosdaFilial('ExpiresIn', filial);
-            FOAuthClient.AccessToken.TokenType := DadosdaFilial('TokenType', filial);
-
-            FOAuthClient.AccessToken.MacKey := DadosdaFilial('MacKey', filial);
-            FOAuthClient.AccessToken.MacAlgorithm := DadosdaFilial('MacAlgorithm', filial);
-            FOAuthClient.Scope := DadosdaFilial('scope', filial);
-            }
-
-          end;
-        end;
-
-
-        FOAuthClient.Site := DadosdaFilial('site_nfse', filial);
-
-        FOAuthClient.UserName := DadosdaFilial('usuario_nfse', filial);
-        FOAuthClient.PassWord := uppercase(md5_(DadosdaFilial('senha_nfse', filial)));
-//        FOAuthClient.ClientId := DadosdaFilial('client_id_nfse', filial);
-//        FOAuthClient.ClientSecret := DadosdaFilial('client_secret_nfse', filial);
-
-
-        if not assigned(self.FSendStream) then
-          self.FSendStream := TMemoryStream.Create;
-
-        if not assigned(self.FReceiveStream) then
-          self.FReceiveStream := TMemoryStream.Create;
-
-        if not assigned(self.FIdLog) then
-          self.FIdLog := TIdLogStream.Create(nil);
-
-        self.FIdLog.SendStream := FSendStream;
-        self.FIdLog.ReceiveStream := FReceiveStream;
-        self.FIdLog.FreeStreams := false;
-        self.objHTTP.Intercept := FIdLog;
-        self.FIdLog.Active := true;
-
-
-        // 1) solicitar token
-        FSendStream.Clear;
-        FReceiveStream.Clear;
-
-        FClient.Username := DadosdaFilial('usuario_nfse', filial);
-        FClient.Password := DadosdaFilial('senha_nfse', filial);
-
-     end;
-     *)
-
+     Palhoca_IPM :
      begin
 
         msg_erro := '';
@@ -15023,7 +15245,7 @@ begin
 //          objSSL.sslOPtions.CertFile := 'C:\Clientes\certificado_sha.cer';
 //          objSSL.sslOPtions.KeyFile := '123456';
 //          objSSL.sslOPtions.RootCertFile := 'certificado_sha.cer';
-          
+
 
 
 
@@ -15083,7 +15305,7 @@ begin
           MensagemErro(msg_erro);
 
      end;
-
+     *)
 
      Florianopolis_SoftPlan :
      begin
@@ -15168,7 +15390,7 @@ end;
 
 class function TTecNotaFiscalEletronica.ChaveNFPSe(qryDadosFiscais, qryNotas: tTecQuery): String;
 begin
-  if (ftipoemissaonfeservico in [Eletronica_AmbNacional]) then
+  if (ftipoemissaonfeservico in [Eletronica_AmbNacional, palhoca_IPM]) then
     result := qryDadosFiscais.fieldbyname('chv_nfe').asString
   else
   begin
@@ -15220,7 +15442,7 @@ end;
 
 function TTecNotaFiscalEletronica.ArqRetornoNFSe(qryDadosFiscais, qryNotas: tTecQuery): String;
 begin
-  if ftipoemissaonfeservico in [Eletronica_AmbNacional] then
+  if ftipoemissaonfeservico in [Eletronica_AmbNacional, palhoca_IPM] then
     result  := FDirREtornoNFSe +  ChaveNFPSe(qryDadosFiscais, qryNotas) + '-nfse.xml'
   else
     result  := FDirREtornoNFSe +  ChaveNFPSe(qryDadosFiscais, qryNotas) + '-nfse_assinado.xml';
@@ -15266,13 +15488,13 @@ begin
   result := dtmEnviarNFSe.ACBrNFSex.WebService.ConsultarEvento.Sucesso;
   if result then
     result := (dtmEnviarNFSe.ACBrNFSex.WebService.ConsultarEvento.idEvento <> '');
-    
+
   if result then
   begin
 //     codigoVerificacao_NFPSe := dtmImprimeFiscal.ACBrNFSex.WebService.ConsultarEvento.idEvento;
     //ver status abaixo se diferente de 100
     //dtmImprimeFiscal.ACBrNFSex.WebService.ConsultarEvento.Status
-    status_NFPSe := '1'; ///interno -> não existe mudança para status inttostr(dtmImprimeFiscal.ACBrNFSeX.WebService.EnviarEvento.Status); {ver no arquivo de retorno se houve mudança no status}
+    statusNFPSe := '1'; ///interno -> não existe mudança para status inttostr(dtmImprimeFiscal.ACBrNFSeX.WebService.EnviarEvento.Status); {ver no arquivo de retorno se houve mudança no status}
     DataHoraProcessamento_NFPSe := datetimetostr(dtmEnviarNFSe.ACBrNFSex.WebService.ConsultarEvento.Data);
 //      DataEmissao_NFPSe := datetimetostr(dtmImprimeFiscal.ACBrNFSeX.WebService.EnviarEvento.Data);;
     dataCancelamento_NFPSe := datetimetostr(dtmEnviarNFSe.ACBrNFSex.WebService.ConsultarEvento.Data);
@@ -15289,17 +15511,28 @@ function TTecNotaFiscalEletronica.RetornoCamposNFPSe(qryDadosFiscais, qryNotas: 
                                 EhDadoFiscal: Boolean = True): boolean;
 
 var
+  vArquivotemp, vNovoArquivotemp: String;
   vChildNode: IXMLNodeList;
   vValor: Boolean;
 
   xTitulo, {xChaveNFSe,} xTipoEvento, xNumSeqEvento: string;
   Ok: Boolean;
 
+  {
+  function pWUser: string;
+  begin
+    result := DadosdaFilial('usuario_nfse', qryDadosFiscais.fieldbyname('filialemissao').asinteger);
+    if result.isnull then
+      result := '';
+  end;
+  }
+
 begin
 
   result := false;
   case ftipoemissaonfeservico of
-    Eletronica_AmbNacional:
+    Eletronica_AmbNacional,
+    Palhoca_IPM:
     begin
       NomedoArquivoCompartilhado := '';
       NomedoArquivoCancelamentoCompartilhado := '';
@@ -15321,46 +15554,88 @@ begin
         else
           dtmEnviarNFSe.ACBrNFSeX.Configuracoes.WebServices.Ambiente := taHomologacao;
         dtmEnviarNFSe.ACBrNFSeX.Configuracoes.Geral.CodigoMunicipio := qryDadosFiscais.fieldbyname('cidadeIBGEfilialemitente').asinteger;
+        dtmEnviarNFSe.ACBrNFSeX.Configuracoes.Geral.Emitente.WSUser := vartostr(DadosdaFilial('usuario_nfse', qryDadosFiscais.fieldbyname('filialemissao').asinteger));
+        dtmEnviarNFSe.ACBrNFSeX.Configuracoes.Geral.Emitente.WSSenha := vartostr(DadosdaFilial('senha_nfse', qryDadosFiscais.fieldbyname('filialemissao').asinteger));
+
+
         dtmEnviarNFSe.ACBrNFSeX.Configuracoes.Certificados.NumeroSerie := DadosdaFilial('numeroseriecertificadodigital', qryDadosFiscais.fieldbyname('filialemissao').asinteger);
         dtmEnviarNFSe.ACBrNFSeX.Configuracoes.Certificados.senha := DadosdaFilial('senhacertificadodigital', qryDadosFiscais.fieldbyname('filialemissao').asinteger);
 
         if dtmEnviarNFSe.ACBrNFSeX.Configuracoes.WebServices.Ambiente = taHomologacao then
         begin
           dtmEnviarNFSe.ACBrNFSeX.Configuracoes.Geral.LayoutNFSe := lnfsPadraoNacionalv101;
-          dtmEnviarNFSe.acbrnfsex.SetProvedor(proPadraoNacional, ve101)
-//          dtmEnviarNFSe.acbrnfsex.SetProvedor(proPadraoNacional, ve100)
+          {
+          O ENVIO, EXCLUSÃO SE DÁ PELO PROVEDOR DA PREFEITURA MAS PARA CONSULTA TUDO CONVERGE PARA O SERVIDOR PADRÃO AMBIENTE NACIONAL
+          if ftipoemissaonfeservico = palhoca_ipm then
+            dtmEnviarNFSe.acbrnfsex.SetProvedor(proIPM, ve101)
+          else
+          }
+            dtmEnviarNFSe.acbrnfsex.SetProvedor(proPadraoNacional, ve101);
         end
         else
         begin
-          dtmEnviarNFSe.ACBrNFSeX.Configuracoes.Geral.LayoutNFSe := lnfsPadraoNacionalv1;
-          dtmEnviarNFSe.acbrnfsex.SetProvedor(proPadraoNacional, ve100);
+          dtmEnviarNFSe.ACBrNFSeX.Configuracoes.Geral.LayoutNFSe := lnfsPadraoNacionalv101;
+          {O ENVIO, EXCLUSÃO SE DÁ PELO PROVEDOR DA PREFEITURA MAS PARA CONSULTA TUDO CONVERGE PARA O SERVIDOR PADRÃO AMBIENTE NACIONAL
+          if ftipoemissaonfeservico = palhoca_ipm then
+            dtmEnviarNFSe.acbrnfsex.SetProvedor(proIPM, ve101)
+          else
+          }
+            dtmEnviarNFSe.acbrnfsex.SetProvedor(proPadraoNacional, ve101);
         end;
 
-
-        idDPS_NFPSe := qryDadosFiscais.fieldbyname('dps').asString;
-
-        if idDPS_NFPSe='' then
-          idDPS_NFPSe := 'DPS'+
-          preencheString(somentenumero(qryDadosFiscais.fieldbyname('cidadeIBGEfilialemitente').asString, true), '0', 7, false) +
-          '2' + {1 se cpf}
-          preencheString(somentenumero(qryDadosFiscais.fieldbyname('CNPJFilialemitente').asString, true), '0', 14, false) +
-          preencheString(somentenumero(qryNotas.fieldbyname('serie').asString, true), '0', 5, false) +
-          preencheString(somentenumero(qryDadosFiscais.fieldbyname('numero').asString, true), '0', 15, false);
-
-        dtmEnviarNFSe.ACBrNFSeX.ConsultarDPSPorChave(idDPS_NFPSe);
-        ChecarRespostaNFSeX(tmConsultarNFSePorRps, qryDadosFiscais.fieldbyname('numero').asinteger, false);
-
-        result := dtmEnviarNFSe.ACBrNFSeX.WebService.ConsultaNFSeporRps.Sucesso;
-
-        if result then
+        (*
+        if ftipoemissaonfeservico = palhoca_ipm then
         begin
-          idnota_NFPSe := dtmEnviarNFSe.ACBrNFSeX.WebService.ConsultaNFSeporRps.idnota;
-          dtmEnviarNFSe.ACBrNFSeX.ConsultarNFSePorChave(idnota_NFPSe);
-          ChecarRespostaNFSeX(tmConsultarNFSe, qryDadosFiscais.fieldbyname('numero').asinteger, false);
-          result := dtmEnviarNFSe.ACBrNFSeX.WebService.ConsultaNFSe.Sucesso;
+           dtmEnviarNFSe.ACBrNFSeX.WebService.ConsultaNFSe.InfConsultaNFSe.NumeroIniNFSe :=
+             qryNotas.fieldbyname('numero').asString;
+           dtmEnviarNFSe.ACBrNFSeX.WebService.ConsultaNFSe.InfConsultaNFSe.SerieNFSe :=
+             fserienfse;
+           dtmEnviarNFSe.ACBrNFSeX.WebService.ConsultaNFSe.InfConsultaNFSe.CadEconomico :=
+             aedffatura;
+           dtmEnviarNFSe.ACBrNFSeX.ConsultarNFSe;
+
+           ChecarRespostaNFSeX(tmConsultarNFSe, qryDadosFiscais.fieldbyname('numero').asinteger, false);
+           result := dtmEnviarNFSe.ACBrNFSeX.WebService.ConsultaNFSe.Sucesso;
+
           if result then
           begin
-            //cStat
+            idnota_NFPSe := dtmEnviarNFSe.ACBrNFSeX.WebService.ConsultaNFSe.idnota;
+
+//            dtmEnviarNFSe.ACBrNFSeX.NotasFiscais.Items[0].NFSe.CodigoVerificacao
+
+//            if dtmEnviarNFSe.ACBrNFSeX.WebService.ConsultaNFSe.situacao = '1' then
+//              status_NFPSe := '100'; //ficar compativel com o ambiente nacional
+            status_NFPSe := dtmEnviarNFSe.ACBrNFSeX.WebService.ConsultaNFSe.situacao;
+
+//          status_NFPSe := inttostr(dtmEnviarNFSe.ACBrNFSeX.NotasFiscais.Items[0].NFSe.Situacao);
+//          status_NFPSe := inttostr(dtmEnviarNFSe.ACBrNFSex.NotasFiscais.Items[0].NFSe.InfNFSe.cStat);
+
+            DataHoraProcessamento_NFPSe := datetimetostr(dtmEnviarNFSe.ACBrNFSeX.NotasFiscais.Items[0].NFSe.DataEmissaoRps);
+//          DataHoraProcessamento_NFPSe := datetimetostr(dtmEnviarNFSe.ACBrNFSex.NotasFiscais.Items[0].NFSe.InfNFSe.dhProc);
+
+            DataEmissao_NFPSe := datetimetostr(dtmEnviarNFSe.ACBrNFSex.NotasFiscais.Items[0].NFSe.DataEmissao);
+
+            codigoVerificacao_NFPSe := dtmEnviarNFSe.ACBrNFSeX.NotasFiscais.Items[0].NFSe.CodigoVerificacao;  {será guardado  o nDFSe do ambiente nacional}
+//          codigoVerificacao_NFPSe := dtmEnviarNFSe.ACBrNFSex.NotasFiscais.Items[0].NFSe.InfNFSe.nDFSe;
+
+            Serie_NFPSe := dtmEnviarNFSe.ACBrNFSex.NotasFiscais.Items[0].NFSe.SeriePrestacao;
+//          Serie_NFPSe := dtmEnviarNFSe.ACBrNFSex.NotasFiscais.Items[0].NFSe.IdentificacaoRps.Serie;
+
+            numeroSerie_NFPSe := dtmEnviarNFSe.ACBrNFSex.NotasFiscais.Items[0].NFSe.IdentificacaoRps.Serie;
+//          numeroSerie_NFPSe := dtmEnviarNFSe.ACBrNFSex.NotasFiscais.Items[0].NFSe.infNFSe.nNFSe;
+
+            link_nfse := dtmEnviarNFSe.ACBrNFSex.NotasFiscais.Items[0].NFSe.Link;
+            dataCancelamento_NFPSe := '';
+
+            vArquivotemp := FNFSeDirRetorno+'\'+dtmEnviarNFSe.ACBrNFSeX.WebService.ConsultaNFSe.InfConsultaNFSe.NumeroIniNFSe+
+                            Serie_NFPSe+'-nfse.xml';
+
+            {PARA CONSULTA NO AMBIENTE NACIONAL DEVE-SE MUDAR O PROVEDOR, NO CASO SOMENTE PARA BAIXAR O XML E VERIFICAR O CANCELAMENTO}
+            dtmEnviarNFSe.acbrnfsex.SetProvedor(proPadraoNacional, ve101);
+            dtmEnviarNFSe.ACBrNFSeX.ConsultarNFSePorChave(idnota_NFPSe);
+            ChecarRespostaNFSeX(tmConsultarNFSe, qryDadosFiscais.fieldbyname('numero').asinteger, false);
+            result := dtmEnviarNFSe.ACBrNFSeX.WebService.ConsultaNFSe.Sucesso;
+
 
             status_NFPSe := inttostr(dtmEnviarNFSe.ACBrNFSex.NotasFiscais.Items[0].NFSe.InfNFSe.cStat);
             //dhProc
@@ -15377,7 +15652,6 @@ begin
 
             NomedoArquivoCompartilhado := FNFSeDirRetorno+'\'+idnota_NFPSe+'-nfse.xml';
 
-
             if dtmEnviarNFSe.ACBrNFSex.NotasFiscais.Items[0].NFSe.NfseCancelamento.Sucesso then
             begin
               dataCancelamento_NFPSe := datetimetostr(dtmEnviarNFSe.ACBrNFSex.NotasFiscais.Items[0].NFSe.NfseCancelamento.DataHora);
@@ -15386,7 +15660,131 @@ begin
             end
             else
               ConsultarEventoCancelamentoACBrNFSex(idnota_NFPSe, 'e101101', '1', qryDadosFiscais.fieldbyname('numero').asinteger);
+
+
+
+
+
+
+            NomedoArquivoCompartilhado := FNFSeDirRetorno+'\'+idnota_NFPSe+'-nfse.xml';
+
+            vNovoArquivotemp := FNFSeDirRetorno+'\'+idnota_NFPSe+'-nfse.xml';
+
+
+            if FilesExists(vArquivotemp) then
+            begin
+
+                                 {
+              dtmEnviarNFSe.ACBrNFSeX.ConsultarNFSePorChave(idnota_NFPSe);
+              result := dtmEnviarNFSe.ACBrNFSeX.WebService.ConsultaNFSe.Sucesso;
+              ChecarRespostaNFSeX(tmConsultarNFSePorChave, qryDadosFiscais.fieldbyname('numero').asinteger, false);
+              }
+//              dtmEnviarNFSe.acbrnfsex.SetProvedor(proPadraoNacional, ve101);
+//              dtmEnviarNFSe.ACBrNFSex.ObterDANFSE(idnota_NFPSe);
+//              result := dtmEnviarNFSe.ACBrNFSeX.WebService.ObterDANFSE.Sucesso;
+//              ChecarRespostaNFSeX(tmObterDANFSE, qryDadosFiscais.fieldbyname('numero').asinteger, false);
+
+              RenameFile(vArquivotemp, vNovoArquivotemp);
+              NomedoArquivoCompartilhado := vNovoArquivotemp;
+            end
+            else
+              NomedoArquivoCompartilhado := {FNFSeDirRetorno+'\'+ }dtmEnviarNFSe.ACBrNFSeX.NotasFiscais.Items[0].NomeArq;
+
+//            NomedoArquivoCompartilhado := FNFSeDirRetorno+'\'+idnota_NFPSe+'-nfse.xml';
+
+
+            if status_NFPSe = '2' then ///esta cancelada
+//          if dtmEnviarNFSe.ACBrNFSex.NotasFiscais.Items[0].NFSe.NfseCancelamento.Sucesso then
+            begin
+              dataCancelamento_NFPSe :=  datetimetostr(vdatahoraservidor); //datetimetostr(dtmEnviarNFSe.ACBrNFSex.NotasFiscais.Items[0].NFSe.NfseCancelamento.DataHora);  ///verificar no xml não existe esta data
+//              status_NFPSe := '1';  //uso interno....provável que depois do cancelamento as propriedades acima não venham alteradas...testar (caos contrário sera
+              {feito uma consulta de evento de cancelamento}
+
+              NomedoArquivoCancelamentoCompartilhado := FNFSeDirRetorno+'\'+idnota_NFPSe+'-procEveNFSe.xml';
+              CopyFileTo(NomedoArquivoCompartilhado,NomedoArquivoCancelamentoCompartilhado)
+            end;
+
+            {
+            else
+              ConsultarEventoCancelamentoACBrNFSex(idnota_NFPSe, 'e101101', '1', qryDadosFiscais.fieldbyname('numero').asinteger);
+               não existe consulta de evento na ipm
+
+              }
+
+
           end;
+
+         end
+        else
+        *)
+        begin
+          if ftipoemissaonfeservico = Eletronica_AmbNacional then
+          begin
+            idDPS_NFPSe := qryDadosFiscais.fieldbyname('dps').asString;
+            if idDPS_NFPSe='' then
+              idDPS_NFPSe := 'DPS'+
+              preencheString(somentenumero(qryDadosFiscais.fieldbyname('cidadeIBGEfilialemitente').asString, true), '0', 7, false) +
+              '2' + {1 se cpf}
+              preencheString(somentenumero(qryDadosFiscais.fieldbyname('CNPJFilialemitente').asString, true), '0', 14, false) +
+              preencheString(somentenumero(qryNotas.fieldbyname('serie').asString, true), '0', 5, false) +
+              preencheString(somentenumero(qryDadosFiscais.fieldbyname('numero').asString, true), '0', 15, false);
+          end
+          else
+          begin
+              idDPS_NFPSe := 'DPS'+
+              preencheString(somentenumero(qryDadosFiscais.fieldbyname('cidadeIBGEfilialemitente').asString, true), '0', 7, false) +
+              '2' + {1 se cpf}
+              preencheString(somentenumero(qryDadosFiscais.fieldbyname('CNPJFilialemitente').asString, true), '0', 14, false) +
+              preencheString(somentenumero(qryNotas.fieldbyname('serienfse').asString, true), '0', 5, false) +
+              preencheString(somentenumero(qryNotas.fieldbyname('numero').asString, true), '0', 15, false);
+          end;
+
+          dtmEnviarNFSe.ACBrNFSeX.ConsultarDPSPorChave(idDPS_NFPSe);
+          ChecarRespostaNFSeX(tmConsultarNFSePorRps, qryDadosFiscais.fieldbyname('numero').asinteger, false);
+
+          result := dtmEnviarNFSe.ACBrNFSeX.WebService.ConsultaNFSeporRps.Sucesso;
+
+          if result then
+          begin
+            idnota_NFPSe := dtmEnviarNFSe.ACBrNFSeX.WebService.ConsultaNFSeporRps.idnota;
+
+            dtmEnviarNFSe.ACBrNFSeX.ConsultarNFSePorChave(idnota_NFPSe);
+            ChecarRespostaNFSeX(tmConsultarNFSe, qryDadosFiscais.fieldbyname('numero').asinteger, false);
+            result := dtmEnviarNFSe.ACBrNFSeX.WebService.ConsultaNFSe.Sucesso;
+            if result then
+            begin
+              //cStat
+
+              statusNFPSe := inttostr(dtmEnviarNFSe.ACBrNFSex.NotasFiscais.Items[0].NFSe.InfNFSe.cStat);
+              //dhProc
+              DataHoraProcessamento_NFPSe := datetimetostr(dtmEnviarNFSe.ACBrNFSex.NotasFiscais.Items[0].NFSe.InfNFSe.dhProc);
+              DataEmissao_NFPSe := datetimetostr(dtmEnviarNFSe.ACBrNFSex.NotasFiscais.Items[0].NFSe.DataEmissao);
+              //nDFSe
+              codigoVerificacao_NFPSe := dtmEnviarNFSe.ACBrNFSex.NotasFiscais.Items[0].NFSe.InfNFSe.nDFSe;
+
+              Serie_NFPSe := dtmEnviarNFSe.ACBrNFSex.NotasFiscais.Items[0].NFSe.IdentificacaoRps.Serie;
+              numeroSerie_NFPSe := dtmEnviarNFSe.ACBrNFSex.NotasFiscais.Items[0].NFSe.infNFSe.nNFSe;
+
+              link_nfse := dtmEnviarNFSe.ACBrNFSex.NotasFiscais.Items[0].NFSe.Link;
+              dataCancelamento_NFPSe := '';
+
+              NomedoArquivoCompartilhado := FNFSeDirRetorno+'\'+idnota_NFPSe+'-nfse.xml';
+
+              if dtmEnviarNFSe.ACBrNFSex.NotasFiscais.Items[0].NFSe.NfseCancelamento.Sucesso then
+              begin
+                dataCancelamento_NFPSe := datetimetostr(dtmEnviarNFSe.ACBrNFSex.NotasFiscais.Items[0].NFSe.NfseCancelamento.DataHora);
+                statusNFPSe := '1';  //uso interno....provável que depois do cancelamento as propriedades acima não venham alteradas...testar (caos contrário sera
+                {feito uma consulta de evento de cancelamento}
+              end
+              else
+                ConsultarEventoCancelamentoACBrNFSex(idnota_NFPSe, 'e101101', '1', qryDadosFiscais.fieldbyname('numero').asinteger);
+            end;
+          end;
+        end;
+
+        if result then
+        begin
+
         end;
 
       finally
@@ -15408,7 +15806,7 @@ begin
       begin
         codigoVerificacao_NFPSe := Docxml.DocumentElement.ChildNodes.FindNode('codigoVerificacao').Text;
         numeroSerie_NFPSe := Docxml.DocumentElement.ChildNodes.FindNode('numeroSerie').Text;
-        status_NFPSe := Docxml.DocumentElement.ChildNodes.FindNode('statusNFPSe').Text;
+        statusNFPSe := Docxml.DocumentElement.ChildNodes.FindNode('statusNFPSe').Text;
         DataHoraProcessamento_NFPSe := trocar(Docxml.DocumentElement.ChildNodes.FindNode('dataProcessamento').Text,'T',' ');
         DataEmissao_NFPSe := trocar(Docxml.DocumentElement.ChildNodes.FindNode('dataEmissao').Text,'T',' ');
         dataCancelamento_NFPSe := '';
@@ -15420,6 +15818,7 @@ begin
       end;
     end;
 
+    (*
     Palhoca_IPM :
     begin
       if assigned(Docxml) then
@@ -15554,6 +15953,8 @@ begin
 
         end
         *)
+
+(*
         else
 //        if validando or (fNFSeAmbiente = 2) then
         begin
@@ -15576,6 +15977,8 @@ begin
         end;
       end;
     end;
+    *)
+
   end;
 
 end;
@@ -15589,10 +15992,11 @@ var
   vRetornoHTTPPost : String;
 
   InfEvento: TInfEvento;
+  InfoCanc: TInfCancelamento;
 
 begin
   case ftipoemissaonfeservico of
-    Eletronica_AmbNacional:
+    Eletronica_AmbNacional, Palhoca_IPM:
     begin
       InfEvento := TInfEvento.Create;
 
@@ -15604,6 +16008,8 @@ begin
       else
         dtmEnviarNFSe.ACBrNFSeX.Configuracoes.WebServices.Ambiente := taHomologacao;
       dtmEnviarNFSe.ACBrNFSeX.Configuracoes.Geral.CodigoMunicipio := qryDadosFiscais.fieldbyname('cidadeIBGEfilialemitente').asinteger;
+      dtmEnviarNFSe.ACBrNFSeX.Configuracoes.Geral.Emitente.WSUser := vartostr(DadosdaFilial('usuario_nfse', qryDadosFiscais.fieldbyname('filialemissao').asinteger));
+      dtmEnviarNFSe.ACBrNFSeX.Configuracoes.Geral.Emitente.WSSenha := vartostr(DadosdaFilial('senha_nfse', qryDadosFiscais.fieldbyname('filialemissao').asinteger));
       dtmEnviarNFSe.ACBrNFSeX.Configuracoes.Certificados.NumeroSerie := DadosdaFilial('numeroseriecertificadodigital', qryDadosFiscais.fieldbyname('filialemissao').asinteger);
       dtmEnviarNFSe.ACBrNFSeX.Configuracoes.Certificados.senha := DadosdaFilial('senhacertificadodigital', qryDadosFiscais.fieldbyname('filialemissao').asinteger);
 
@@ -15612,58 +16018,90 @@ begin
       if dtmEnviarNFSe.ACBrNFSeX.Configuracoes.WebServices.Ambiente = taHomologacao then
       begin
         dtmEnviarNFSe.ACBrNFSeX.Configuracoes.Geral.LayoutNFSe := lnfsPadraoNacionalv101;
-        dtmEnviarNFSe.acbrnfsex.SetProvedor(proPadraoNacional, ve101)
-//        dtmEnviarNFSe.acbrnfsex.SetProvedor(proPadraoNacional, ve100)
+        if ftipoemissaonfeservico = palhoca_IPM then
+          dtmEnviarNFSe.acbrnfsex.SetProvedor(proIPM, ve101)
+        else
+          dtmEnviarNFSe.acbrnfsex.SetProvedor(proPadraoNacional, ve101);
       end
       else
       begin
-        dtmEnviarNFSe.ACBrNFSeX.Configuracoes.Geral.LayoutNFSe := lnfsPadraoNacionalv1;
-        dtmEnviarNFSe.acbrnfsex.SetProvedor(proPadraoNacional, ve100);
+        dtmEnviarNFSe.ACBrNFSeX.Configuracoes.Geral.LayoutNFSe := lnfsPadraoNacionalv101;
+        if ftipoemissaonfeservico = palhoca_IPM then
+          dtmEnviarNFSe.acbrnfsex.SetProvedor(proIPM, ve101)
+        else
+          dtmEnviarNFSe.acbrnfsex.SetProvedor(proPadraoNacional, ve101);
       end;
 
-
-      try
-        with InfEvento.pedRegEvento do
+      case ftipoemissaonfeservico of
+        Eletronica_AmbNacional:
         begin
+          try
+            with InfEvento.pedRegEvento do
+            begin
 
-          tpAmb := dtmEnviarNFSe.ACBrNFSeX.Configuracoes.WebServices.AmbienteCodigo;
-          verAplic := 'ACBrNFSeX-1.0';
-          dhEvento := Now;
-          chNFSe := qryDadosFiscais.FieldByName('chv_nfe').AsString;
-          nPedRegEvento := 1;
-          tpEvento := ACBrNFSeXConversao.teCancelamento;
-          cMotivo := 1;
-          xMotivo := Justificativa;
+              tpAmb := dtmEnviarNFSe.ACBrNFSeX.Configuracoes.WebServices.AmbienteCodigo;
+              verAplic := 'ACBrNFSeX-1.0';
+              dhEvento := Now;
+              chNFSe := qryDadosFiscais.FieldByName('chv_nfe').AsString;
+              nPedRegEvento := 1;
+              tpEvento := ACBrNFSeXConversao.teCancelamento;
+              cMotivo := 1;
+              xMotivo := Justificativa;
+            end;
+     //        dtmEnviarNFSe.ACBrNFSeX.WebService.EnviarEvento.PathNome := FNFSeDirErro;
+            dtmEnviarNFSe.ACBrNFSeX.EnviarEvento(InfEvento);
+     // testar evento:       dtmImprimeFiscal.ACBrNFSeX.WebService.EnviarEvento.Sucesso;
+            result := dtmEnviarNFSe.ACBrNFSeX.WebService.EnviarEvento.SucessoCanc;
+            ChecarRespostaNFSeX(tmEnviarEvento,  qryDadosFiscais.fieldbyname('numero').asinteger, true);
+
+            if result then
+            begin
+              result := RetornoCamposCancelamentoNFPSe(qryDadosFiscais.fieldbyname('numero').asString);
+
+              if result then
+                NomedoArquivoCompartilhado := FDirRetornoNFSe + somentenumero(dtmEnviarNFSe.ACBrNFSeX.WebService.EnviarEvento.idEvento)+'-procEveNFSe.xml'
+    //            chavenota '101101001'
+    //            ArquivoRetorno  {verificar o padrão do nome do arquivo retorno na pasta retorno}
+              else
+                NomedoArquivoCompartilhado := '';
+            end;
+
+            if not result then
+              result := ConsultarEventoCancelamentoACBrNFSex(qryDadosFiscais.FieldByName('chv_nfe').AsString, 'e101101', '1', qryDadosFiscais.fieldbyname('numero').asinteger);
+
+          finally
+            InfEvento.Free;
+            freeandnil(dtmEnviarNFSe);
+          end;
         end;
-//        dtmEnviarNFSe.ACBrNFSeX.WebService.EnviarEvento.PathNome := FNFSeDirErro;
-        dtmEnviarNFSe.ACBrNFSeX.EnviarEvento(InfEvento);
-// testar evento:       dtmImprimeFiscal.ACBrNFSeX.WebService.EnviarEvento.Sucesso;
-        result := dtmEnviarNFSe.ACBrNFSeX.WebService.EnviarEvento.SucessoCanc;
-        ChecarRespostaNFSeX(tmEnviarEvento,  qryDadosFiscais.fieldbyname('numero').asinteger, true);
 
-        if result then
+        Palhoca_IPM:
         begin
-          result := RetornoCamposCancelamentoNFPSe(qryDadosFiscais.fieldbyname('numero').asString);
-
+          InfoCanc := TInfCancelamento.Create;
+          InfoCanc.NumeroNFSe := qryNotas.fieldbyname('numero').asString;
+          InfoCanc.SerieNFSe := qryNotas.fieldbyname('serienfse').asString;
+          InfoCanc.CodCancelamento := '1';
+          InfoCanc.MotCancelamento := Justificativa;
+          dtmEnviarNFSe.ACBrNFSeX.CancelarNFSe(InfoCanc);
+          result := StrToBool(dtmEnviarNFSe.ACBrNFSeX.WebService.CancelaNFSe.RetCancelamento.Sucesso);
+          ChecarRespostaNFSeX(tmCancelarNFSe,  qryDadosFiscais.fieldbyname('numero').asinteger, true);
           if result then
-            NomedoArquivoCompartilhado := FDirRetornoNFSe + somentenumero(dtmEnviarNFSe.ACBrNFSeX.WebService.EnviarEvento.idEvento)+'-procEveNFSe.xml'
-//            chavenota '101101001'
-//            ArquivoRetorno  {verificar o padrão do nome do arquivo retorno na pasta retorno}
-          else
-            NomedoArquivoCompartilhado := '';
+          begin
+            result := RetornoCamposCancelamentoNFPSe(qryDadosFiscais.fieldbyname('numero').asString);
+
+            if result then
+            begin
+              NomedoArquivoCompartilhado := FDirRetornoNFSe + somentenumero(dtmEnviarNFSe.ACBrNFSeX.WebService.CancelaNFSe.idEvento)+'-procEveNFSe.xml';
+              CopyFileTo(dtmEnviarNFSe.ACBrNFSeX.WebService.CancelaNFSe.ArquivoRetorno, NomedoArquivoCompartilhado);
+            end
+            else
+              NomedoArquivoCompartilhado := '';
+          end;
         end;
-
-        if not result then
-          result := ConsultarEventoCancelamentoACBrNFSex(qryDadosFiscais.FieldByName('chv_nfe').AsString, 'e101101', '1', qryDadosFiscais.fieldbyname('numero').asinteger);
-
-      finally
-        InfEvento.Free;
-        freeandnil(dtmEnviarNFSe);
       end;
-
     end;
 
-    Florianopolis_SoftPlan, Palhoca_IPM:
+    Florianopolis_SoftPlan {, Palhoca_IPM}:
     begin
       farqEnvioCancelamentoNFSe := ArqEnvioCancelamentoNFSe(qryDadosFiscais,qryNotas);
 
@@ -15775,6 +16213,7 @@ begin
           end;
         end;
 
+        (*
         Palhoca_IPM:
         begin
           InfomrmacoesNFSEPalhoca(qryDadosFiscais, qryNotas, qryServicos, Justificativa);
@@ -15890,6 +16329,7 @@ begin
             ReadStreams;
           end;
         end;
+        *)
       end;
     end;
   end;
@@ -15922,63 +16362,76 @@ begin
     Eletronica_AmbNacional:
     begin
 
+        {
+        dtmImprimeFiscal.ACBrNFSeX.WebService.EnviarEvento.InfEvento.pedRegEvento
+
+        tpAmb := aInfEvento.pedRegEvento.tpAmb;
+        verAplic := aInfEvento.pedRegEvento.verAplic;
+        dhEvento := aInfEvento.pedRegEvento.dhEvento;
+        chNFSe := aInfEvento.pedRegEvento.chNFSe;
+        nPedRegEvento := aInfEvento.pedRegEvento.nPedRegEvento;
+        tpEvento := aInfEvento.pedRegEvento.tpEvento;
+        cMotivo := aInfEvento.pedRegEvento.cMotivo;
+        xMotivo := TiraAcentos(ChangeLineBreak(aInfEvento.pedRegEvento.xMotivo));
+        chSubstituta := aInfEvento.pedRegEvento.chSubstituta;
+         }
+
+    //      dtmImprimeFiscal.ACBrNFSeX.WebService.EnviarEvento.InfEvento.pedRegEvento.
+
+    //      codigoVerificacao_NFPSe := dtmImprimeFiscal.ACBrNFSeX.WebService.EnviarEvento.idEvento;
+          //INTTOSTR(dtmImprimeFiscal.ACBrNFSeX.WebService.EnviarEvento.InfEvento.pedRegEvento.nPedRegEvento);
+    //      numeroSerie_NFPSe := Docxml.DocumentElement.ChildNodes.FindNode('numeroSerie').Text;
+          statusNFPSe := '1'; ///interno -> não existe mudança para status inttostr(dtmImprimeFiscal.ACBrNFSeX.WebService.EnviarEvento.Status); {ver no arquivo de retorno se houve mudança no status}
+          DataHoraProcessamento_NFPSe := datetimetostr(dtmEnviarNFSe.ACBrNFSeX.WebService.EnviarEvento.InfEvento.pedRegEvento.dhEvento);
+    //      DataEmissao_NFPSe := datetimetostr(dtmImprimeFiscal.ACBrNFSeX.WebService.EnviarEvento.Data);;
+          dataCancelamento_NFPSe := datetimetostr(dtmEnviarNFSe.ACBrNFSeX.WebService.EnviarEvento.InfEvento.pedRegEvento.dhEvento);
+
+          result := true;
+
     {
-    dtmImprimeFiscal.ACBrNFSeX.WebService.EnviarEvento.InfEvento.pedRegEvento
+                          memoLog.Append('Método Executado: ' + MetodoToStr(tmEnviarEvento));
+                    memoLog.Append(' ');
+                    memoLog.Append('Parâmetros de Envio');
+                    with InfEvento.pedRegEvento do
+                    begin
+                      memoLog.Append('Chave NFSe : ' + chNFSe);
+                      memoLog.Append('Evento     : ' + tpEventoToDesc(tpEvento));
+                    end;
+                    memoLog.Append(' ');
+                    memoLog.Append('Parâmetros de Retorno');
+                    memoLog.Append('Chave NFSe      : ' + idNota);
+                    memoLog.Append('Data            : ' + DateToStr(Data));
+                    memoLog.Append('Tipo Evento     : ' + tpEventoToDesc(tpEvento));
+                    memoLog.Append('Num. Seq. Evento: ' + IntToStr(nSeqEvento));
+                    memoLog.Append('ID do Evento    : ' + idEvento);
+                    memoLog.Append('Sucesso         : ' + BoolToStr(Sucesso, True));
+                    memoLog.Append('Sucesso Canc.   : ' + BoolToStr(SucessoCanc, True));
+                    memoLog.Append('Desc. Situação  : ' + DescSituacao);
+                    memoLog.Append('Nome Arquivo    : ' + PathNome);
 
-    tpAmb := aInfEvento.pedRegEvento.tpAmb;
-    verAplic := aInfEvento.pedRegEvento.verAplic;
-    dhEvento := aInfEvento.pedRegEvento.dhEvento;
-    chNFSe := aInfEvento.pedRegEvento.chNFSe;
-    nPedRegEvento := aInfEvento.pedRegEvento.nPedRegEvento;
-    tpEvento := aInfEvento.pedRegEvento.tpEvento;
-    cMotivo := aInfEvento.pedRegEvento.cMotivo;
-    xMotivo := TiraAcentos(ChangeLineBreak(aInfEvento.pedRegEvento.xMotivo));
-    chSubstituta := aInfEvento.pedRegEvento.chSubstituta;
-     }
+                    memoLog.Append(' ');
+                    memoLog.Append(' ');
+                    memoLog.Append('XML DE ENVIO');
+                    memoLog.Append(XmlEnvio);
+                    memoLog.Append(' ');
+                    memoLog.Append(' ');
+                    memoLog.Append('XML DE RETORNO');
+                    memoLog.Append(XmlRetorno);
+    }
 
-//      dtmImprimeFiscal.ACBrNFSeX.WebService.EnviarEvento.InfEvento.pedRegEvento.
+    end;
 
-//      codigoVerificacao_NFPSe := dtmImprimeFiscal.ACBrNFSeX.WebService.EnviarEvento.idEvento;
-      //INTTOSTR(dtmImprimeFiscal.ACBrNFSeX.WebService.EnviarEvento.InfEvento.pedRegEvento.nPedRegEvento);
-//      numeroSerie_NFPSe := Docxml.DocumentElement.ChildNodes.FindNode('numeroSerie').Text;
-      status_NFPSe := '1'; ///interno -> não existe mudança para status inttostr(dtmImprimeFiscal.ACBrNFSeX.WebService.EnviarEvento.Status); {ver no arquivo de retorno se houve mudança no status}
-      DataHoraProcessamento_NFPSe := datetimetostr(dtmEnviarNFSe.ACBrNFSeX.WebService.EnviarEvento.InfEvento.pedRegEvento.dhEvento);
-//      DataEmissao_NFPSe := datetimetostr(dtmImprimeFiscal.ACBrNFSeX.WebService.EnviarEvento.Data);;
-      dataCancelamento_NFPSe := datetimetostr(dtmEnviarNFSe.ACBrNFSeX.WebService.EnviarEvento.InfEvento.pedRegEvento.dhEvento);
+    palhoca_IPM:
+    begin
+      if dtmEnviarNFSe.ACBrNFSeX.WebService.CancelaNFSe.Situacao = '2' then
+        statusNFPSe :=  '1'
+      else
+        statusNFPSe :=  '100';
 
+      DataHoraProcessamento_NFPSe := datetimetostr(vDataHoraServidor);  //datetimetostr(dtmEnviarNFSe.ACBrNFSeX.WebService.CancelaNFSe.RetCancelamento.DataHora);
+      //      DataEmissao_NFPSe := datetimetostr(dtmImprimeFiscal.ACBrNFSeX.WebService.EnviarEvento.Data);;
+      dataCancelamento_NFPSe := datetimetostr(vDataHoraServidor);
       result := true;
-
-{
-                      memoLog.Append('Método Executado: ' + MetodoToStr(tmEnviarEvento));
-                memoLog.Append(' ');
-                memoLog.Append('Parâmetros de Envio');
-                with InfEvento.pedRegEvento do
-                begin
-                  memoLog.Append('Chave NFSe : ' + chNFSe);
-                  memoLog.Append('Evento     : ' + tpEventoToDesc(tpEvento));
-                end;
-                memoLog.Append(' ');
-                memoLog.Append('Parâmetros de Retorno');
-                memoLog.Append('Chave NFSe      : ' + idNota);
-                memoLog.Append('Data            : ' + DateToStr(Data));
-                memoLog.Append('Tipo Evento     : ' + tpEventoToDesc(tpEvento));
-                memoLog.Append('Num. Seq. Evento: ' + IntToStr(nSeqEvento));
-                memoLog.Append('ID do Evento    : ' + idEvento);
-                memoLog.Append('Sucesso         : ' + BoolToStr(Sucesso, True));
-                memoLog.Append('Sucesso Canc.   : ' + BoolToStr(SucessoCanc, True));
-                memoLog.Append('Desc. Situação  : ' + DescSituacao);
-                memoLog.Append('Nome Arquivo    : ' + PathNome);
-
-                memoLog.Append(' ');
-                memoLog.Append(' ');
-                memoLog.Append('XML DE ENVIO');
-                memoLog.Append(XmlEnvio);
-                memoLog.Append(' ');
-                memoLog.Append(' ');
-                memoLog.Append('XML DE RETORNO');
-                memoLog.Append(XmlRetorno);
-}
-
     end;
 
   else
@@ -15988,7 +16441,7 @@ begin
     begin
       codigoVerificacao_NFPSe := Docxml.DocumentElement.ChildNodes.FindNode('codigoVerificacao').Text;
       numeroSerie_NFPSe := Docxml.DocumentElement.ChildNodes.FindNode('numeroSerie').Text;
-      status_NFPSe := Docxml.DocumentElement.ChildNodes.FindNode('statusNFPSe').Text;
+      statusNFPSe := Docxml.DocumentElement.ChildNodes.FindNode('statusNFPSe').Text;
       DataHoraProcessamento_NFPSe := trocar(Docxml.DocumentElement.ChildNodes.FindNode('dataProcessamento').Text,'T',' ');
       DataEmissao_NFPSe := trocar(Docxml.DocumentElement.ChildNodes.FindNode('dataEmissao').Text,'T',' ');
       dataCancelamento_NFPSe := trocar(Docxml.DocumentElement.ChildNodes.FindNode('dataCancelamento').Text,'T',' ');
@@ -16288,6 +16741,27 @@ begin
       with ACBrNFSeX.WebService do
       begin
         case aMetodo of
+
+        tmObterDANFSE:
+          begin
+            with ObterDANFSE do
+            begin
+              memoLog.Append('Método Executado: ' + MetodoToStr(tmObterDANFSE));
+              memoLog.Append(' ');
+              memoLog.Append('Parâmetros de Envio');
+              memoLog.Append('Chave NFSe     : ' + ChaveNFSe);
+              memoLog.Append(' ');
+              memoLog.Append('Parâmetros de Retorno');
+              memoLog.Append('Sucesso: ' + BoolToStr(Sucesso, True));
+
+              ListaDeResumos(Resumos, tmObterDANFSE);
+
+              ListaDeErros(Erros);
+              ListaDeAlertas(Alertas);
+            end;
+          end;
+
+
           tmRecepcionar,
           tmTeste:
             begin
@@ -17211,26 +17685,136 @@ begin
 end;
 
 
-procedure TTecNotaFiscalEletronica.Abrir_trib_item_imposto(codigo: integer;
-  tipo: String);
+function TTecNotaFiscalEletronica.Abrir_Totais_trib_imposto(
+  codigo: integer;
+  tipo: String
+): Boolean;
 begin
-  if not assigned(dtmDadosNFe) then
-    dtmDadosNFe := TdtmDadosNFe.create(nil);
+  Result := False;
 
-  if tipo = 'S' then
-  begin
-    dtmDadosNFe.qrytrib_saida_item_imposto.close;
-    dtmDadosNFe.qrytrib_saida_item_imposto.ParamByName('dadofiscal').asinteger := codigo;
-    dtmDadosNFe.qrytrib_saida_item_imposto.open;
+  try
+    if not Assigned(dtmDadosNFe) then
+    begin
+      dtmDadosNFe := TdtmDadosNFe.Create(nil);
+      dtmDadosNFe.Name := 'dtmDadosNFe_clnfe';
+    end;
 
-    dtmDadosNFe.qryTotais_trib_saida_item_imposto.close;
-    dtmDadosNFe.qryTotais_trib_saida_item_imposto.ParamByName('dadofiscal').asinteger := codigo;
-    dtmDadosNFe.qryTotais_trib_saida_item_imposto.open;
+    if tipo = 'S' then
+    begin
+      with dtmDadosNFe.qryTotais_trib_saida_imposto do
+      begin
+        Close;
+        ParamByName('dadofiscal').AsInteger := codigo;
+        Open;
 
+        Result := RecordCount = 1;
+      end;
+    end
+    else if tipo = 'E' then
+    begin
+      with dtmDadosNFe.qryTotais_trib_entrada_imposto do
+      begin
+        Close;
+        ParamByName('codigonota').AsInteger := codigo;
+        Open;
+
+        Result := RecordCount = 1;
+      end;
+    end;
+
+  except
+    on E: Exception do
+    begin
+      // opcional: log
+      // OutputDebugString(PChar(E.Message));
+      Result := False;
+    end;
   end;
-
 end;
+function TTecNotaFiscalEletronica.Abrir_Trib_Item_Imposto(
+  codigo: integer;
+  produto: string;
+  numero: integer;
+  tipo: String
+): Boolean;
+begin
+  Result := False;
 
+  try
+    if not Assigned(dtmDadosNFe) then
+      dtmDadosNFe := TdtmDadosNFe.Create(nil);
+
+    if tipo = 'S' then
+    begin
+      with dtmDadosNFe.qrytrib_saida_item_imposto do
+      begin
+        Close;
+        ParamByName('dadofiscal').AsInteger := codigo;
+        ParamByName('produto').AsString := produto;
+        ParamByName('numero').AsInteger := numero;
+        Open;
+
+        Result := RecordCount = 1;
+      end;
+    end
+    else if tipo = 'E' then
+    begin
+      with dtmDadosNFe.qrytrib_entrada_item_imposto do
+      begin
+        Close;
+        ParamByName('codigonota').AsInteger := codigo;
+        ParamByName('produto').AsString := produto;
+        ParamByName('numero').AsInteger := numero;
+        Open;
+
+        Result := RecordCount = 1;
+      end;
+    end;
+
+  except
+    on E: Exception do
+    begin
+      // opcional: registrar log
+      // OutputDebugString(PChar(E.Message));
+      Result := False;
+    end;
+  end;
+end;
+function TTecNotaFiscalEletronica.Abrir_Trib_serv_Imposto(
+  codigo: integer;
+  servico: int64;
+  tipo: String
+): Boolean;
+begin
+  Result := False; // garante retorno padrão
+
+  try
+    if not Assigned(dtmDadosNFe) then
+      dtmDadosNFe := TdtmDadosNFe.Create(nil);
+
+    if tipo = 'S' then
+    begin
+      with dtmDadosNFe.qrytrib_saida_serv_imposto do
+      begin
+        Close;
+        ParamByName('dadofiscal').AsInteger := codigo;
+        ParamByName('servico').AsInteger := servico;
+        Open;
+
+        Result := RecordCount = 1;
+      end;
+    end;
+
+  except
+    on E: Exception do
+    begin
+      // opcional: logar erro
+      // OutputDebugString(PChar(E.Message));
+
+      Result := False;
+    end;
+  end;
+end;
 { TinfIntermed }
 
 

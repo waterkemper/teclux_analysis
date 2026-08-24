@@ -1,0 +1,569 @@
+unit dmcadastrofalha;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery,
+  cpdatasource, ctconstantes, biblio, Variants, Forms, dmtecsoft, fr_dset,
+  fr_dbset, fr_class, fmpreviewpadrao, ZTransact;
+
+type
+  TdtmCadastroFalha = class(TdtmBasico)
+    dsrFalhas: TtecDataSource;
+    qryFalhas: TtecQuery;
+    spcFalhasProximo: TtecQuery;
+    spcFalhasProximocodigo: TIntegerField;
+    qryFalhasOperacoes: TtecQuery;
+    dsrFalhasOperacoes: TtecDataSource;
+    qryFalhasOperacoesfalha: TIntegerField;
+    qryFalhasOperacoesoperacao: TIntegerField;
+    qryFalhasOperacoesnome: TStringField;
+    qryFalhasOperacoesc01: TStringField;
+    qryFalhasOperacoesc02: TStringField;
+    qryFalhasOperacoesc03: TStringField;
+    qryFalhasOperacoesdescricao: TStringField;
+    qryFalhascodigo: TIntegerField;
+    qryFalhasdescricao: TStringField;
+    qryFalhascustofalha: TFloatField;
+    qryFalhastipofalha: TStringField;
+    qryRegistrodasOperacoes: TtecQuery;
+    qryRegistrodasOperacoesusuarioinclusao: TStringField;
+    qryRegistrodasOperacoesdatainclusao: TStringField;
+    qryRegistrodasOperacoesusuarioalteracao: TStringField;
+    qryRegistrodasOperacoesdataalteracao: TStringField;
+    qryRegistrodasOperacoesoperacao: TStringField;
+    qryRegistrodasOperacoestabela: TStringField;
+    qryRegistrodasOperacoesnomeusuarioinclusao: TStringField;
+    qryRegistrodasOperacoesnomeusuarioalteracao: TStringField;
+    frpImprimirFalhas: TfrReport;
+    fdsImprimirFalhas: TfrDBDataSet;
+    qryImprimirFalhas: TtecQuery;
+    frpImprimirFalhasOperacoes: TfrReport;
+    fdsImprimirFalhasOperacoes: TfrDBDataSet;
+    qryImprimirFalhasOperacoes: TtecQuery;
+    qryImprimirFalhascodigo: TIntegerField;
+    qryImprimirFalhasdescricao: TStringField;
+    qryImprimirFalhascustofalha: TFloatField;
+    qryImprimirFalhassetorproducao: TStringField;
+    qryImprimirFalhastipofalha: TStringField;
+    qryImprimirFalhasusuarioinclusao: TStringField;
+    qryImprimirFalhasdatahorainclusao: TDateTimeField;
+    qryImprimirFalhasusuarioalteracao: TStringField;
+    qryImprimirFalhasdatahoraalteracao: TStringField;
+    qryImprimirFalhasoperacao: TStringField;
+    qryImprimirFalhastabela: TStringField;
+    qryImprimirFalhasOperacoescodigo: TIntegerField;
+    qryImprimirFalhasOperacoesdescricao: TStringField;
+    qryImprimirFalhasOperacoescustofalha: TFloatField;
+    qryImprimirFalhasOperacoessetorproducao: TStringField;
+    qryImprimirFalhasOperacoestipofalha: TStringField;
+    qryImprimirFalhasOperacoesusuarioinclusao: TStringField;
+    qryImprimirFalhasOperacoesdatahorainclusao: TDateTimeField;
+    qryImprimirFalhasOperacoesusuarioalteracao: TStringField;
+    qryImprimirFalhasOperacoesdatahoraalteracao: TStringField;
+    qryImprimirFalhasOperacoesoperacao: TStringField;
+    qryImprimirFalhasOperacoestabela: TStringField;
+    qryImprimirFalhasOperacoesnome: TStringField;
+    qryImprimirFalhasOperacoescodigooperacao: TIntegerField;
+    qryImprimirFalhasOperacoesc01: TStringField;
+    qryImprimirFalhasOperacoesc02: TStringField;
+    qryImprimirFalhasOperacoesc03: TStringField;
+    qryImprimirFalhasOperacoesdescricaooperacao: TStringField;
+    qryImprimirFalhasOperacoessetup: TBooleanField;
+    qryImprimirFalhasOperacoesplanocontrole: TBooleanField;
+    qryFalhasoperacaoorigemfalha: TIntegerField;
+    qryFalhasnome: TStringField;
+    qryFalhasc01: TStringField;
+    qryFalhasc02: TStringField;
+    qryFalhasc03: TStringField;
+    qryFalhasdescricaooperacao: TStringField;
+    qryFalhasFalhaOperacaoOrigem: TIntegerField;
+    qryAtualizarTipoFalhaOriginal: TtecQuery;
+    qryFalhasNaoInfluiPremiacao: TBooleanField;
+    procedure qryFalhasAfterScroll(DataSet: TDataSet);
+    procedure qryFalhasNewRecord(DataSet: TDataSet);
+    procedure qryFalhasOperacoesAfterEdit(DataSet: TDataSet);
+    procedure qryFalhasOperacoesAfterPost(DataSet: TDataSet);
+    procedure qryFalhasOperacoesAfterOpen(DataSet: TDataSet);
+    procedure qryFalhasOperacoesAfterDelete(DataSet: TDataSet);
+    procedure qryFalhasOperacoesNewRecord(DataSet: TDataSet);
+    procedure frpImprimirFalhasBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frpImprimirFalhasOperacoesBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure dsrFalhasDataChange(Sender: TObject; Field: TField);
+    procedure qryFalhasNaoInfluiPremiacaoChange(Sender: TField);
+  private
+    FListaOperacoesSelecionadas: String;
+    function ProximoCodigo: Integer;
+    { Private declarations }
+  public
+    constructor Create(Aowner: TComponent); override;
+    function ExcluirFalha: Boolean;
+    function GravarFalha: Boolean;
+    function IncluirFalha: Boolean;
+    procedure AtualizaListaOperacoes;
+    property ListaOperacoesSelecionadas: String read FListaOperacoesSelecionadas write FListaOperacoesSelecionadas;
+    procedure EditarFalhas;
+    procedure EditarFalhasOperacoes;
+    procedure IncluirOperacao;
+
+    procedure ExcluirFalhasOperacoes;
+    procedure GravarFalhasOperacoes;
+    function SalvarFalhasOperacoes: boolean;
+    procedure imprimir(dataInicialInclusao, dataFinalInclusao, dataInicialAlteracao, dataFinalAlteracao: String;
+                       listarOperacoes: Boolean;
+                       ordenacao: integer);
+
+
+    { Public declarations }
+  end;
+
+var
+  dtmCadastroFalha: TdtmCadastroFalha;
+
+implementation
+
+{$R *.dfm}
+
+
+constructor TdtmCadastroFalha.Create(Aowner: TComponent);
+begin
+  inherited;
+  qryFalhas.Tag := ctTabelas;
+  FListaOperacoesSelecionadas := '0';
+end;
+
+function TdtmCadastroFalha.ExcluirFalha: Boolean;
+begin
+  Result := False;
+  if not qryFalhas.IsEmpty then
+    if (MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['a FALHA'])) = smbOk) then
+    begin
+       LimparTabela(qryFalhasOperacoes);
+       qryFalhas.Delete;
+       Result := Perpetrar([qryFalhasOperacoes,qryFalhas]);
+       RefazConsultaPorNome(qryRegistrodasOperacoes,['falha'],[qryFalhascodigo.AsVariant]);
+    end;
+end;
+
+function TdtmCadastroFalha.GravarFalha: Boolean;
+var
+  CodigoFalhaGerado : integer;
+
+  function AtribuirCodigo: boolean;
+  begin
+    result := true;
+    GuardarRegistroAtual(qryFalhasOperacoes,true);
+    qryFalhasOperacoes.First;
+    while not qryFalhasOperacoes.Eof do
+    begin
+      if qryFalhasOperacoesfalha.AsInteger = CodigoFalhaGerado then
+      begin
+        qryFalhasOperacoes.Edit;
+        if qryFalhasOperacoesfalha.AsInteger <> qryFalhascodigo.AsInteger then
+          qryFalhasOperacoesfalha.AsInteger := qryFalhascodigo.AsInteger;
+        qryFalhasOperacoes.Post;
+      end;
+      (* COMPARA O VALOR DO TEMPO PADRAO COM O ORIGINAL E GUARDA EM "LISTATEMPOPADRAO" P/ GERAR O UPDATE *)
+
+      result := qryFalhasOperacoes.CheckRequiredFields;
+      if not result then
+        break;
+        
+      qryFalhasOperacoes.Next;
+    end;
+    VoltarRegistroAtual(qryFalhasOperacoes);
+  end;
+
+
+begin
+  result := false;
+  qryFalhasnome.Required := qryFalhasFalhaOperacaoOrigem.AsInteger <> 0;
+  
+  if (qryFalhas.CheckRequiredFields) then
+  begin
+    if SalvarFalhasOperacoes then
+    begin
+      CodigoFalhaGerado := qryFalhascodigo.AsInteger;
+      if qryFalhas.State = dsinsert then
+         if CodigoFalhaGerado = 0 then
+            qryFalhascodigo.AsInteger := ProximoCodigo;
+
+      if AtribuirCodigo then
+      begin
+        qryFalhas.Post;
+        qryAtualizarTipoFalhaOriginal.ParamByName('codigo').AsInteger := qryFalhascodigo.AsInteger;
+        qryAtualizarTipoFalhaOriginal.ParamByName('tipofalha').AsString := qryFalhastipofalha.AsString;
+        qryAtualizarTipoFalhaOriginal.execsql;
+
+
+        result := Perpetrar([qryFalhas,
+                             qryFalhasOperacoes, qryAtualizarTipoFalhaOriginal]);
+        RefazConsultaPorNome(qryRegistrodasOperacoes,['falha'],[qryFalhascodigo.AsVariant]);
+      end;
+    end;
+  end;
+
+end;
+
+function TdtmCadastroFalha.IncluirFalha: Boolean;
+begin
+  Result := True;
+  try
+    qryFalhas.Insert;
+  except
+    Result := False;
+  end;
+end;
+
+function TdtmCadastroFalha.ProximoCodigo: Integer;
+begin
+ spcFalhasProximo.Open;
+ result := spcFalhasProximocodigo.AsInteger;
+ spcFalhasProximo.Close;
+end;
+
+
+procedure TdtmCadastroFalha.qryFalhasAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  ReFazConsulta(qryFalhasOperacoes,[0], [qryFalhascodigo.AsVariant]);
+  RefazConsultaPorNome(qryRegistrodasOperacoes,['falha'],[qryFalhascodigo.AsVariant]);
+  qryFalhastipofalha.readonly := qryFalhasFalhaOperacaoOrigem.AsInteger<>0;
+
+end;
+
+procedure TdtmCadastroFalha.qryFalhasNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+  qryFalhasTipoFalha.         AsString := 'I';
+  qryFalhasNaoInfluiPremiacao.AsBoolean:= FALSE;
+end;
+
+procedure TdtmCadastroFalha.AtualizaListaOperacoes;
+var
+  Pos: TBookmark;
+begin
+  Pos := qryFalhasOperacoes.GetBookmark;
+  qryFalhasOperacoes.DisableControls;
+
+  try
+    ListaOperacoesSelecionadas := '';
+
+    qryFalhasOperacoes.AfterEdit := nil;
+    qryFalhasOperacoes.AfterPost := nil;
+    qryFalhasOperacoes.First;
+    while Not qryFalhasOperacoes.Eof do
+    begin
+      if qryFalhasOperacoesoperacao.AsString<>'' then
+        if ListaOperacoesSelecionadas <> '' then
+          ListaOperacoesSelecionadas := ListaOperacoesSelecionadas + ', '+
+                                       qryFalhasOperacoesoperacao.AsString
+        else
+          ListaOperacoesSelecionadas := qryFalhasOperacoesoperacao.AsString;
+
+
+      qryFalhasOperacoes.Next;
+
+    end;
+
+
+  finally
+
+    if ListaOperacoesSelecionadas = '' then
+      ListaOperacoesSelecionadas := '0';
+
+    if ListaOperacoesSelecionadas <> '0' then
+    begin
+      if copy(ListaOperacoesSelecionadas,Length(ListaOperacoesSelecionadas),1)=',' then
+        ListaOperacoesSelecionadas := copy(ListaOperacoesSelecionadas,0, Length(ListaOperacoesSelecionadas)-1)
+    end
+    else
+      ListaOperacoesSelecionadas := '0';
+
+
+    qryFalhasOperacoes.AfterEdit := qryFalhasOperacoesAfterEdit;
+    qryFalhasOperacoes.AfterPost := qryFalhasOperacoesAfterPost;
+
+    qryFalhasOperacoes.GotoBookmark(Pos);
+    qryFalhasOperacoes.FreeBookmark(Pos);
+
+
+    qryFalhasOperacoes.EnableControls;
+  end;
+end;
+
+procedure TdtmCadastroFalha.EditarFalhas;
+begin
+  if not (qryFalhas.State in [dsedit, dsinsert]) then
+    qryFalhas.Edit;
+end;
+
+procedure TdtmCadastroFalha.qryFalhasOperacoesAfterEdit(DataSet: TDataSet);
+begin
+  inherited;
+  EditarFalhas;
+end;
+
+procedure TdtmCadastroFalha.qryFalhasOperacoesAfterPost(DataSet: TDataSet);
+begin
+  inherited;
+  EditarFalhas;
+  AtualizaListaOperacoes;
+end;
+
+procedure TdtmCadastroFalha.qryFalhasOperacoesAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  AtualizaListaOperacoes;
+
+end;
+
+procedure TdtmCadastroFalha.qryFalhasOperacoesAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  EditarFalhas;
+  AtualizaListaOperacoes;
+
+end;
+
+procedure TdtmCadastroFalha.qryFalhasOperacoesNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+  qryFalhasOperacoesfalha.AsInteger := qryFalhascodigo.AsInteger;
+end;
+
+procedure TdtmCadastroFalha.GravarFalhasOperacoes;
+begin
+  if (qryFalhasOperacoes.State in [dsedit, dsinsert]) then
+     qryFalhasOperacoes.Post;
+end;
+
+function TdtmCadastroFalha.SalvarFalhasOperacoes: boolean;
+begin
+  result := true;
+  if (qryFalhasOperacoes.State in [dsedit, dsinsert]) then
+  begin
+    if qryFalhasOperacoes.CheckRequiredFields then
+      qryFalhasOperacoes.Post
+    else
+      result := false;
+  end;
+end;
+
+procedure TdtmCadastroFalha.EditarFalhasOperacoes;
+begin
+  if not (qryFalhasOperacoes.State in [dsedit, dsinsert]) then
+    qryFalhasOperacoes.Edit;
+end;
+
+procedure TdtmCadastroFalha.IncluirOperacao;
+begin
+  qryFalhasOperacoes.Insert;
+end;
+
+procedure TdtmCadastroFalha.ExcluirFalhasOperacoes;
+begin
+  if not qryFalhasOperacoes.IsEmpty then
+    if not qryFalhasOperacoes.ReadOnly then
+      if (MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['a OPERAÇÃO desta FALHA'])) = smbOk) then
+         qryFalhasOperacoes.Delete;
+end;
+
+procedure TdtmCadastroFalha.imprimir(dataInicialInclusao,
+  dataFinalInclusao, dataInicialAlteracao, dataFinalAlteracao: String;
+  listarOperacoes: Boolean; ordenacao: integer);
+const
+  SQLDataInicial = 'and cast(trigger_changed as date) between :datainicialalteracao and :datafinalalteracao';
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+  if (dataInicialInclusao<>'') and (dataFinalInclusao<>'') then
+  begin
+    qryImprimirFalhas.MacroByName('datainclusao').asstring := 'and cast(trigger_changed as date) between :datainicialinclusao and :datafinalinclusao';
+    qryImprimirFalhas.MacroByName('InclusaoFalhas').asstring := 'and cast(datahorainclusao as date) between :datainicialinclusao and :datafinalinclusao';
+
+    qryImprimirFalhas.paramByName('datainicialinclusao').AsDateTime := strtodatetime(dataInicialinclusao);
+    qryImprimirFalhas.paramByName('datafinalinclusao').AsDateTime := strtodatetime(dataFinalinclusao);
+
+  end
+   else
+  if (dataInicialinclusao<>'') and (dataFinalinclusao='') then
+  begin
+    qryImprimirFalhas.MacroByName('datainclusao').asstring := 'and cast(trigger_changed as date) >= :datainicialinclusao';
+    qryImprimirFalhas.MacroByName('InclusaoFalhas').asstring := 'and cast(datahorainclusao as date) >= :datainicialinclusao';
+    qryImprimirFalhas.paramByName('datainicialinclusao').AsDateTime := strtodatetime(dataInicialinclusao);
+    qryImprimirFalhas.paramByName('datafinalinclusao').clear;
+  end
+  else
+  if (dataInicialinclusao='') and (dataFinalinclusao<>'') then
+  begin
+    qryImprimirFalhas.MacroByName('datainclusao').asstring := 'and cast(trigger_changed as date) <= :datafinalinclusao';
+    qryImprimirFalhas.MacroByName('InclusaoFalhas').asstring := 'and cast(datahorainclusao as date) <= :datafinalinclusao';
+    qryImprimirFalhas.paramByName('datainicialinclusao').clear;
+    qryImprimirFalhas.paramByName('datafinalinclusao').AsDateTime := strtodatetime(dataFinalinclusao);
+  end
+  else
+  if (dataInicialinclusao='') and (dataFinalinclusao='') then
+  begin
+    qryImprimirFalhas.MacroByName('datainclusao').asstring := '';
+    qryImprimirFalhas.MacroByName('InclusaoFalhas').asstring := '';
+    qryImprimirFalhas.paramByName('datainicialinclusao').clear;
+    qryImprimirFalhas.paramByName('datafinalinclusao').clear;
+  end;
+
+
+
+  if (dataInicialalteracao<>'') and (dataFinalalteracao<>'') then
+  begin
+    qryImprimirFalhas.MacroByName('dataalteracao').asstring := 'and cast(trigger_changed as date) between :datainicialalteracao and :datafinalalteracao';
+    qryImprimirFalhas.MacroByName('AlteracaoFalhas').asstring := 'and cast(datahoraalteracao as date) between :datainicialalteracao and :datafinalalteracao';
+    qryImprimirFalhas.paramByName('datainicialalteracao').AsDateTime := strtodatetime(dataInicialAlteracao);
+    qryImprimirFalhas.paramByName('datafinalalteracao').AsDateTime := strtodatetime(dataFinalAlteracao);
+  end
+  else
+  if (dataInicialalteracao<>'') and (dataFinalalteracao='') then
+  begin
+    qryImprimirFalhas.MacroByName('dataalteracao').asstring := 'and cast(trigger_changed as date) >= :datainicialalteracao';
+    qryImprimirFalhas.MacroByName('AlteracaoFalhas').asstring := 'and cast(datahoraalteracao as date) >= :datainicialalteracao';
+    qryImprimirFalhas.paramByName('datainicialalteracao').AsDateTime := strtodatetime(dataInicialAlteracao);
+    qryImprimirFalhas.paramByName('datafinalalteracao').clear;
+  end
+  else
+  if (dataInicialalteracao='') and (dataFinalalteracao<>'') then
+  begin
+    qryImprimirFalhas.MacroByName('dataalteracao').asstring := 'and cast(trigger_changed as date) <= :datafinalalteracao';
+    qryImprimirFalhas.MacroByName('AlteracaoFalhas').asstring := 'and cast(datahoraalteracao as date) <= :datafinalalteracao';
+    qryImprimirFalhas.paramByName('datainicialalteracao').clear;
+    qryImprimirFalhas.paramByName('datafinalalteracao').AsDateTime := strtodatetime(dataFinalAlteracao);
+  end
+  else
+  if (dataInicialalteracao='') and (dataFinalalteracao='') then
+  begin
+    qryImprimirFalhas.MacroByName('dataalteracao').asstring := '';
+    qryImprimirFalhas.MacroByName('AlteracaoFalhas').asstring := '';
+    qryImprimirFalhas.paramByName('datainicialalteracao').clear;
+    qryImprimirFalhas.paramByName('datafinalalteracao').clear;
+  end;
+
+  qryImprimirFalhasOperacoes.Macros := qryImprimirFalhas.Macros;
+  qryImprimirFalhasOperacoes.Params := qryImprimirFalhas.Params;
+
+
+  case ordenacao of
+  0: begin
+       qryImprimirFalhas.MacroByName('Ordenacao').asstring := 'order by f.codigo';
+       qryImprimirFalhasOperacoes.MacroByName('Ordenacao').asstring := 'order by f.codigo, f.codigooperacao';
+     end;
+  1: begin
+       qryImprimirFalhas.MacroByName('Ordenacao').asstring := 'order by f.descricao';
+       qryImprimirFalhasOperacoes.MacroByName('Ordenacao').asstring := 'order by f.descricao, f.codigooperacao';
+     end;
+  end;
+
+
+  frmPreview := TfrmPreviewPadrao.create(self);
+  frmPreview.cmbZoom.ItemIndex := 3; //125%
+  try
+   Relatorio := frmPreview.frCompositeReport;
+   with frmPreview do
+   begin
+     frCompositeReport.Reports.Clear;
+     frCompositeReport.DoublePass:= True;
+
+     if not listarOperacoes then
+     begin
+       frVariables['TITULO'] := 'CADASTRO DE FALHAS';
+       frVariables['SUBTITULO'] := '';
+       frCompositeReport.Reports.Add(frpImprimirFalhas)
+     end
+     else
+     begin
+       frVariables['TITULO'] := 'CADASTRO DE FALHAS';
+       frVariables['SUBTITULO'] := 'COM RELAÇÃO DE OPERAÇÕES';
+       frCompositeReport.Reports.Add(frpImprimirFalhasOperacoes);
+     end;
+
+     Relatorio.Preview := frmPreview.frPreviewPadrao;
+     Relatorio.ShowReport;
+     frmPreview.ShowModal;
+   end;
+  finally
+   frmPreview.Free
+  end;
+
+
+end;
+
+procedure TdtmCadastroFalha.frpImprimirFalhasBeforePrint(Memo: TStringList;
+  View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpImprimirFalhas,View);
+end;
+
+procedure TdtmCadastroFalha.frpImprimirFalhasOperacoesBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpImprimirFalhasOperacoes,View);
+
+end;
+
+procedure TdtmCadastroFalha.dsrFalhasDataChange(Sender: TObject;
+  Field: TField);
+begin
+  inherited;
+  if Field = qryFalhasoperacaoorigemfalha then
+  begin
+    if (qryFalhas.State in [dsedit, dsinsert]) then
+    begin
+      if Field.AsInteger = 0 then
+      begin
+//        qryFalhasoperacaoorigemfalha.clear;
+        qryFalhasnome.Clear;
+        qryFalhasc01.Clear;
+        qryFalhasc02.Clear;
+        qryFalhasc03.Clear;
+
+        qryFalhastipofalha.readonly := false;
+
+      end
+      else
+        qryFalhastipofalha.readonly := true;
+
+    end;
+  end
+  else
+  if field = qryFalhasFalhaOperacaoOrigem then
+  begin
+    if (qryFalhas.State in [dsedit, dsinsert]) then
+    begin
+      if Field.AsInteger = 0 then
+      begin
+        qryFalhasoperacaoorigemfalha.clear;
+        qryFalhasnome.Clear;
+        qryFalhasc01.Clear;
+        qryFalhasc02.Clear;
+        qryFalhasc03.Clear;
+      end;
+    end;
+  end;
+
+end;
+
+procedure TdtmCadastroFalha.qryFalhasNaoInfluiPremiacaoChange(Sender: TField);
+begin
+  inherited;
+  if not sender.asboolean then
+  begin
+    qryFalhasfalhaoperacaoorigem.clear;
+  end
+
+end;
+
+end.
+

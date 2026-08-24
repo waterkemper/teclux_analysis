@@ -228,41 +228,59 @@ begin
   inherited;
   sbnGerar.Enabled         := pgcLigarClientes.ActivePage = tstParametros;
 //  gbxCobrador.Enabled      := (rgpTipoSelecao.ItemIndex = 1);
+
   gbxLembrar.Enabled       := (rgpTipoSelecao.ItemIndex = 1);
+  gbxLembrar.visible       := gbxLembrar.Enabled;
+
+  gbxLembraraPartrdas.Enabled := (rgpTipoSelecao.ItemIndex = 1);
+  gbxLembraraPartrdas.visible := gbxLembraraPartrdas.Enabled;
+
   gbxVenda.Enabled         := (rgpTipoSelecao.ItemIndex = 0);
+  gbxVenda.visible := gbxVenda.Enabled;
+
   lblFaturamento.Enabled   := (rgpTipoSelecao.ItemIndex = 0);
+  lblFaturamento.visible   := lblFaturamento.Enabled;
+
 
   rgpComOcorrencia.Enabled := (rgpTipoSelecao.ItemIndex = 0) or
                               (rgpTipoSelecao.ItemIndex = 1);
+  rgpComOcorrencia.visible := rgpComOcorrencia.Enabled;
+
 
   rgpParcelas.Enabled      := (rgpTipoSelecao.ItemIndex = 0);
+  rgpParcelas.visible      := rgpParcelas.Enabled;
+
   rgpPosOcorrencias.Enabled   := (rgpTipoSelecao.ItemIndex = 1);
+  rgpPosOcorrencias.visible   := rgpPosOcorrencias.enabled;
+
   gbxPeriodoVencimento.Enabled := ((rgptiposelecao.ItemIndex = 0) and
                                    (rgpParcelas.ItemIndex <> 0)) or
                                    (rgptiposelecao.ItemIndex = 1);
-  if (rgpTipoSelecao.ItemIndex = 0) then
-       gbxPeriodoVencimento.Caption:= 'VENCIMENTOS DAS PARCELAS'
-  else if (rgpTipoSelecao.ItemIndex = 1) then
-       gbxPeriodoVencimento.Caption:= 'DATAS DOS ATENDIMENTOS';
-  if not ParSistema.ControleSPCCentralizado then
-   pgcFilialGrupoFilial.Enabled := (rgpTipoSelecao.ItemIndex <> 2);
+  gbxPeriodoVencimento.visible := gbxPeriodoVencimento.enabled;
 
+  if (rgpTipoSelecao.ItemIndex = 0) then
+    gbxPeriodoVencimento.Caption:= 'VENCIMENTOS DAS PARCELAS'
+  else if (rgpTipoSelecao.ItemIndex = 1) then
+    gbxPeriodoVencimento.Caption:= 'DATAS DOS ATENDIMENTOS';
+
+  if not ParSistema.ControleSPCCentralizado then
+  begin
+    pgcFilialGrupoFilial.Enabled := (rgpTipoSelecao.ItemIndex <> 2);
+    pgcFilialGrupoFilial.visible := pgcFilialGrupoFilial.Enabled;
+  end;
 
   sbnContrato.enabled := (dtmLigarClientes.dsrligarClientes.DataSet.recordcount <>0)
                         and (dtmLigarClientes.dsrligarClientes.DataSet.FindField('contrato')<>nil)
                         and not dtmLigarClientes.dsrligarClientes.DataSet.FieldByName('contrato').isnull;
+  sbnContrato.visible := sbnContrato.enabled;
 
   sbnOrcamento.enabled := (dtmLigarClientes.dsrligarClientes.DataSet.recordcount <>0)
                         and (dtmLigarClientes.dsrligarClientes.DataSet.FindField('orcamento')<>nil)
                         and not dtmLigarClientes.dsrligarClientes.DataSet.FieldByName('orcamento').isnull;
+  sbnOrcamento.visible := sbnOrcamento.enabled;
 
- fraListatiposatendimentos1.visible := (rgpTipoSelecao.itemindex = 1); 
+  fraListatiposatendimentos1.visible := (rgpTipoSelecao.itemindex = 1);
 
-
-
-
-
-   
 end;
 
 procedure TfrmLigarClientes.AtribuirDatas;

@@ -1,6 +1,6 @@
 inherited dtmConsultaEntradas: TdtmConsultaEntradas
-  Left = 21
-  Top = 153
+  Left = 479
+  Top = 181
   Height = 599
   Width = 1007
   object qryConsultaFornecedores: TtecQuery
@@ -1346,7 +1346,7 @@ inherited dtmConsultaEntradas: TdtmConsultaEntradas
       '       n.NumeroConhecimentoFrete,'
       '       EditarCPFouCNPJ(n.cnpj) AS CNPJ,'
       '       n.InscricaoEstadual,'
-      '       '
+      ''
       '      (SELECT np.ValorNota'
       '          FROM NotasPag np'
       
@@ -1356,8 +1356,14 @@ inherited dtmConsultaEntradas: TdtmConsultaEntradas
         '                np.Serie      = n.SerieConhecimentoFrete      AN' +
         'D'
       '                np.Numero     = n.NumeroConhecimentoFrete'
-      '      ) AS FreteExterno,'
+      '      ) AS ValorNotaFreteExterno,'
+      ''
+      '       n.valorconhecimentofrete,'
+      '       n.icmsconhecimentofrete,'
       '       '
+      ''
+      ''
+      ''
       '       dp.IRRetido,'
       '       dp.INSSRetido,'
       '       dp.ISSRetido,'
@@ -1606,10 +1612,6 @@ inherited dtmConsultaEntradas: TdtmConsultaEntradas
     object qryNotaFiscalinscricaoestadual: TStringField
       FieldName = 'inscricaoestadual'
     end
-    object qryNotaFiscalfreteexterno: TFloatField
-      FieldName = 'freteexterno'
-      DisplayFormat = '###,###,##0.00'
-    end
     object qryNotaFiscalirretido: TFloatField
       FieldName = 'irretido'
       DisplayFormat = '###,###,##0.00'
@@ -1845,6 +1847,18 @@ inherited dtmConsultaEntradas: TdtmConsultaEntradas
     end
     object qryNotaFiscalestornada: TBooleanField
       FieldName = 'estornada'
+    end
+    object qryNotaFiscalvalornotafreteexterno: TFloatField
+      FieldName = 'valornotafreteexterno'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryNotaFiscalvalorconhecimentofrete: TFloatField
+      FieldName = 'valorconhecimentofrete'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryNotaFiscalicmsconhecimentofrete: TFloatField
+      FieldName = 'icmsconhecimentofrete'
+      DisplayFormat = '###,###,##0.00'
     end
   end
   object dsrNotaFiscal: TtecDataSource

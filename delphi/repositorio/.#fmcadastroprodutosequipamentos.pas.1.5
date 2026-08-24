@@ -1,0 +1,151 @@
+unit fmcadastroprodutosequipamentos;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, biblio,
+  StdCtrls, fmcadastropadrao, cpnumero, DBCtrls, cpdbtext, Mask,
+  cpdbfindcontrols, ComCtrls, Buttons, ExtCtrls, dmcadastroequipamentos,
+  ctconstantes, fmconsultabasica, fmconsultaporcampo, ZQuery, ToolWin;
+
+type
+  TfrmCadastroProdutosEquipamentos = class(TfrmCadastroPadrao)
+    pnlFundoJanela: TPanel;
+    sbnPesquisarProduto: TSpeedButton;
+    lblProduto: TLabel;
+    flkProduto: TtecDBFindLookup;
+    lblQuantidade: TLabel;
+    dtxProduto: TtecDBText;
+    edtQuantidade: TDBEditNumero;
+    procedure edtQuantidadeExit(Sender: TObject);
+    procedure sbnPesquisarProdutoClick(Sender: TObject);
+  private
+    { Private declarations }
+  protected
+    dtmCadastroEquipamentos: TdtmCadastroEquipamentos;
+    function  InternoIncluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    function  InternoExcluir: Boolean; override;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    function  TabelaDePesquisa: TZDataSet; override;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    { Protected declarations }
+  public
+    destructor  Destroy; override;
+    procedure SetDataModulo(Dtm: TdtmCadastroEquipamentos);
+    { Public declarations }
+  end;
+
+var
+  frmCadastroProdutosEquipamentos: TfrmCadastroProdutosEquipamentos;
+  TipoPesquisa: TtecCadastroEquipamentos;
+implementation
+
+{$R *.dfm}
+
+{ TfrmCadastroProdutosEquipamentos }
+
+destructor TfrmCadastroProdutosEquipamentos.Destroy;
+begin
+  inherited;
+  frmCadastroProdutosEquipamentos:= nil;
+end;
+
+function TfrmCadastroProdutosEquipamentos.ExisteInformacao(
+  Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  case TipoPesquisa of
+    ceqPRODUTO: Result:= dtmCadastroEquipamentos.ExisteProduto(NomeCampo, Value);
+    else        Result:= False;
+  end;
+end;
+
+function TfrmCadastroProdutosEquipamentos.InternoExcluir: Boolean;
+begin
+  Result:= Inherited InternoExcluir;
+  if Result then
+    Result:= dtmCadastroEquipamentos.ExcluirProdutoEquipamento;
+end;
+
+function TfrmCadastroProdutosEquipamentos.InternoGravar: Boolean;
+begin
+  Result:= Inherited InternoGravar;
+  if Result then
+    result := sbnSalvar.Enabled;
+    
+  if result then
+    Result:= dtmCadastroEquipamentos.GravarProdutoEquipamento;
+end;
+
+function TfrmCadastroProdutosEquipamentos.InternoIncluir: Boolean;
+begin
+  Result:= Inherited InternoIncluir;
+  if Result then begin
+    Result:= dtmCadastroEquipamentos.IncluirProdutoEquipamento(False);
+    flkProduto.SetFocus;
+  end;  
+end;
+
+function TfrmCadastroProdutosEquipamentos.InternoPesquisar(
+  Titulo: String): Integer;
+begin
+  Result:= mrNone;
+  if CtrlOn then begin
+    if ActiveControl = flkProduto then begin
+      TipoPesquisa:= ceqPRODUTO;
+ //     Titulo:= 'Produtos';
+    end;
+
+    with dtmCadastroEquipamentos do begin
+      AbrirTabelas(TipoPesquisa);
+      Result:= inherited InternoPesquisar(Titulo);
+      if Result = mrOK then
+        Selecionar(TipoPesquisa);
+      FecharTabelas(TipoPesquisa);
+    end
+  end;
+end;
+
+function TfrmCadastroProdutosEquipamentos.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result:= TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa:= False;
+  TfrmConsultaPorCampo(Result).UsarParametrosDaTabela:= False;
+end;
+
+procedure TfrmCadastroProdutosEquipamentos.SetDataModulo(
+  Dtm: TdtmCadastroEquipamentos);
+begin
+  dtmCadastroEquipamentos := Dtm;
+  flkProduto.datasource := dtmCadastroEquipamentos.dsrProdutosEquipamentos;
+  flkProduto.lookupsource := dtmCadastroEquipamentos.dsrProcuraProduto;
+  dtxProduto.datasource := dtmCadastroEquipamentos.dsrProcuraProduto;
+  edtQuantidade.datasource := dtmCadastroEquipamentos.dsrProdutosEquipamentos;
+end;
+
+function TfrmCadastroProdutosEquipamentos.TabelaDePesquisa: TZDataSet;
+begin
+  case TipoPesquisa of
+    ceqPRODUTO: Result:= dtmCadastroEquipamentos.TabelaConsultaProdutos;
+    else        Result:= nil;
+  end;
+end;
+
+procedure TfrmCadastroProdutosEquipamentos.edtQuantidadeExit(
+  Sender: TObject);
+begin
+  inherited;
+  if (trim(flkProduto.Text) <> '') and
+     (trim(edtQuantidade.Text) <> '') then
+    InternoGravar;
+end;
+
+procedure TfrmCadastroProdutosEquipamentos.sbnPesquisarProdutoClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkProduto, ctPRODUTO);
+end;
+
+end.

@@ -12,9 +12,9 @@ inherited frmTransferirSaldosContabeis: TfrmTransferirSaldosContabeis
   TextHeight = 16
   inherited pnlBarra: TPanel
     Left = 0
-    Top = 40
+    Top = 45
     Width = 514
-    Height = 133
+    Height = 128
     Align = alClient
     Visible = True
     inherited bvlBotoesEd: TBevel

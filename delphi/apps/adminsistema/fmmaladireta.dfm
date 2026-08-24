@@ -6,7 +6,9 @@ inherited frmMalaDireta: TfrmMalaDireta
   ClientHeight = 440
   ClientWidth = 445
   FormStyle = fsMDIChild
-  PixelsPerInch = 75
+  Visible = True
+  PixelsPerInch = 96
+  TextHeight = 16
   inherited pnlBarra: TPanel
     Width = 445
     inherited bvlBotoesEd: TBevel
@@ -21,7 +23,7 @@ inherited frmMalaDireta: TfrmMalaDireta
       Caption = 'Gerar F6'
       Flat = True
       Glyph.Data = {
-        3A060000424D3606000000000000360000002800000020000000100000000100
+        36060000424D3606000000000000360000002800000020000000100000000100
         18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
         DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
         DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
@@ -83,14 +85,19 @@ inherited frmMalaDireta: TfrmMalaDireta
       Height = 34
     end
   end
-  inherited tblBarra: TToolBar
+  inherited pnlTopMenu: TPanel
     Width = 445
     TabOrder = 3
-    inherited sbnExcluir: TSpeedButton
-      Left = 79
+    inherited tblBarra: TToolBar
+      Width = 220
     end
-    inherited sbnSalvar: TSpeedButton
-      Left = 154
+    inherited tblBarraCadastro: TToolBar
+      inherited sbnExcluir: TSpeedButton [1]
+        Left = 75
+      end
+      inherited sbnSalvar: TSpeedButton [2]
+        Left = 150
+      end
     end
   end
   object gbxPesquisa: TGroupBox
@@ -102,21 +109,42 @@ inherited frmMalaDireta: TfrmMalaDireta
     TabOrder = 1
     object pgcMalaDireta: TtecPageControl
       Left = 2
-      Top = 2
+      Top = 18
       Width = 441
-      Height = 332
+      Height = 316
       ActivePage = tstFiltro
       Align = alClient
       TabOrder = 0
       TabWidth = 100
       object tstFiltro: TTabSheet
         Caption = '&Filtro'
+        object lblFiltro: TLabel
+          Left = 1
+          Top = 0
+          Width = 29
+          Height = 16
+          Caption = 'Filtro'
+        end
+        object lblOperador: TLabel
+          Left = 191
+          Top = 0
+          Width = 53
+          Height = 16
+          Caption = 'Operador'
+        end
+        object lblDado: TLabel
+          Left = 264
+          Top = 0
+          Width = 30
+          Height = 16
+          Caption = 'Dado'
+        end
         object lbxFiltro: TListBox
           Left = 0
           Top = 75
           Width = 257
           Height = 222
-          ItemHeight = 15
+          ItemHeight = 16
           Sorted = True
           TabOrder = 11
         end
@@ -142,9 +170,10 @@ inherited frmMalaDireta: TfrmMalaDireta
           Left = 191
           Top = 16
           Width = 52
-          Height = 23
+          Height = 24
           Style = csDropDownList
-          ItemHeight = 17
+          ItemHeight = 16
+          TabOrder = 1
           Items.Strings = (
             '='
             '<>'
@@ -152,39 +181,17 @@ inherited frmMalaDireta: TfrmMalaDireta
             '<='
             '>'
             '>=')
-          TabOrder = 1
         end
         object cmbFiltro: TComboBox
           Left = 0
           Top = 16
           Width = 185
-          Height = 23
+          Height = 24
           Style = csDropDownList
-          ItemHeight = 17
+          ItemHeight = 16
           Sorted = True
           TabOrder = 0
           OnChange = cmbFiltroChange
-        end
-        object lblFiltro: TLabel
-          Left = 1
-          Top = 0
-          Width = 28
-          Height = 15
-          Caption = 'Filtro'
-        end
-        object lblOperador: TLabel
-          Left = 191
-          Top = 0
-          Width = 53
-          Height = 15
-          Caption = 'Operador'
-        end
-        object lblDado: TLabel
-          Left = 264
-          Top = 0
-          Width = 30
-          Height = 15
-          Caption = 'Dado'
         end
         object btnFiltroLimpaLinha: TButton
           Left = 265
@@ -217,10 +224,11 @@ inherited frmMalaDireta: TfrmMalaDireta
           Left = 264
           Top = 16
           Width = 145
-          Height = 23
-          Alignment = taRightJustify
+          Height = 24
+          MaxLength = -1
           TabOrder = 4
           Mascara = True
+          TipoMascara = tmGERAL
           NrDecimal = 2
           Decimais = False
           Negativo = False
@@ -230,7 +238,7 @@ inherited frmMalaDireta: TfrmMalaDireta
           Left = 264
           Top = 44
           Width = 145
-          Height = 23
+          Height = 24
           MaxLength = 10
           TabOrder = 5
           Minimo = 37353
@@ -240,19 +248,19 @@ inherited frmMalaDireta: TfrmMalaDireta
           Left = 264
           Top = 72
           Width = 145
-          Height = 23
+          Height = 24
           Style = csDropDownList
-          ItemHeight = 17
+          ItemHeight = 16
+          TabOrder = 6
           Items.Strings = (
             'Verdadeiro'
             'Falso')
-          TabOrder = 6
         end
         object edtDadoTexto: TEdit
           Left = 264
           Top = 98
           Width = 145
-          Height = 23
+          Height = 24
           CharCase = ecUpperCase
           TabOrder = 7
         end
@@ -260,13 +268,20 @@ inherited frmMalaDireta: TfrmMalaDireta
       object tstMalaDireta: TTabSheet
         Caption = 'Mala &Direta'
         ImageIndex = 1
+        object lblCampos: TLabel
+          Left = 24
+          Top = 20
+          Width = 48
+          Height = 16
+          Caption = 'Campos'
+        end
         object cmbMalaDireta: TComboBox
           Left = 88
           Top = 16
           Width = 140
           Height = 23
           Style = csDropDownList
-          ItemHeight = 17
+          ItemHeight = 0
           Sorted = True
           TabOrder = 0
         end
@@ -295,13 +310,6 @@ inherited frmMalaDireta: TfrmMalaDireta
           Height = 222
           ItemHeight = 15
           TabOrder = 3
-        end
-        object lblCampos: TLabel
-          Left = 24
-          Top = 20
-          Width = 45
-          Height = 15
-          Caption = 'Campos'
         end
         object btnMalaDiretaLimpaLista: TButton
           Left = 321
@@ -339,7 +347,7 @@ inherited frmMalaDireta: TfrmMalaDireta
   end
   object gbxTipoMalaDireta: TGroupBox
     Left = 0
-    Top = 44
+    Top = 40
     Width = 445
     Height = 61
     Align = alTop
@@ -349,7 +357,7 @@ inherited frmMalaDireta: TfrmMalaDireta
       Left = 11
       Top = 23
       Width = 24
-      Height = 15
+      Height = 16
       Caption = 'Tipo'
       FocusControl = edfMalaDireta
     end
@@ -357,14 +365,21 @@ inherited frmMalaDireta: TfrmMalaDireta
       Left = 40
       Top = 21
       Width = 225
-      Height = 23
+      Height = 24
+      Alignment = taLeftJustify
       CharCase = ecUpperCase
       DataField = 'nome'
-      DataSource = dtmMalaDireta.dsrMalaDireta
       Group = 'maladireta'
-      MaxLength = 0
+      Maximo = 0
+      Minimo = 37353
+      Adicional = 0
+      Opcional = True
       OnFound = edfMalaDiretaFound
+      ReadOnly = True
       TabOrder = 0
+      PermitirZero = False
+      PermitirNulo = False
+      Operacao = opPESQUISA
       Parameter = 'nome'
       ActiveSetControls = True
       DenyInsert = False

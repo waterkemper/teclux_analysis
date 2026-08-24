@@ -1,0 +1,1859 @@
+unit dmgerardimeemarquivo;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Classes, DB, CheckLst,
+  //Repositorio
+  dmbasico, dmtecsoft,
+  //Componentes
+  cpdatasource, cpquery,
+  //Terceiros
+  ZQuery, ZPgSqlQuery, ZTransact;
+
+type
+  TdtmGerarDIMEEmArquivo = class(TdtmBasico)
+    qryFiliais: TtecQuery;
+    qryFiliaisnome: TStringField;
+    qryFiliaiscodigo: TIntegerField;
+    qryGrupoFiliais: TtecQuery;
+    qryGrupoFiliaisdescricao: TStringField;
+    qryGrupoFiliaiscodigo: TIntegerField;
+    qryq01_NotasEntradasCalculos: TtecQuery;
+    qryq01_NotasEntradasCalculosfilial: TIntegerField;
+    qryq01_NotasEntradasCalculosperiodo: TStringField;
+    qryq01_NotasEntradasCalculoscodigofiscal: TIntegerField;
+    qryq01_NotasEntradasCalculosdescricao: TStringField;
+    qryq01_NotasEntradasCalculosvalornota: TFloatField;
+    qryq01_NotasEntradasCalculosbase: TFloatField;
+    qryq01_NotasEntradasCalculosvalor: TFloatField;
+    qryq01_NotasEntradasCalculosisentas: TFloatField;
+    qryq01_NotasEntradasCalculosoutras: TFloatField;
+    qryq02_NotasSaidasCalculos: TtecQuery;
+    qryq02_NotasSaidasCalculosfilial: TIntegerField;
+    qryq02_NotasSaidasCalculosperiodo: TStringField;
+    qryq02_NotasSaidasCalculoscodigofiscal: TIntegerField;
+    qryq02_NotasSaidasCalculosdescricao: TStringField;
+    qryq02_NotasSaidasCalculosvalornota: TFloatField;
+    qryq02_NotasSaidasCalculosbase: TFloatField;
+    qryq02_NotasSaidasCalculosvalor: TFloatField;
+    qryq02_NotasSaidasCalculosisentas: TFloatField;
+    qryq02_NotasSaidasCalculosoutras: TFloatField;
+    qryQuadrosDIME: TtecQuery;
+    qryQuadrosDIMEfilial: TIntegerField;
+    qryQuadrosDIMEperiodo: TStringField;
+    qryQuadrosDIMEq00_040_tipodedeclaracao: TIntegerField;
+    qryQuadrosDIMEq00_050_regimedeapuracao: TIntegerField;
+    qryQuadrosDIMEq00_060_portedaempresa: TIntegerField;
+    qryQuadrosDIMEq00_070_apuracaoconsolidada: TIntegerField;
+    qryQuadrosDIMEq00_080_apuracaocentralizada: TIntegerField;
+    qryQuadrosDIMEq00_090_transfcreditosnoperiodo: TIntegerField;
+    qryQuadrosDIMEq00_100_temcreditospresumidos: TIntegerField;
+    qryQuadrosDIMEq00_110_temcreditosporincentfiscais: TIntegerField;
+    qryQuadrosDIMEq00_120_movimentos: TIntegerField;
+    qryQuadrosDIMEq00_130_substitutotributario: TIntegerField;
+    qryQuadrosDIMEq00_140_temescritacontabil: TIntegerField;
+    qryQuadrosDIMEq00_150_qttrabalhadoresnaativ: TIntegerField;
+    qryQuadrosDIMEq04_010_debitopelassaidas: TCurrencyField;
+    qryQuadrosDIMEq04_020_debdifaliqativperm: TFloatField;
+    qryQuadrosDIMEq04_030_debdifaliqmatusoons: TFloatField;
+    qryQuadrosDIMEq04_040_debmaqeqimpativperm: TFloatField;
+    qryQuadrosDIMEq04_050_estornocredito: TFloatField;
+    qryQuadrosDIMEq04_060_outrosestornos: TFloatField;
+    qryQuadrosDIMEq04_070_outrosdebitos: TFloatField;
+    qryQuadrosDIMEq04_990_subtotaldebitos: TFloatField;
+    qryQuadrosDIMEsaldocredormesant: TFloatField;
+    qryQuadrosDIMEq05_020_creditopelasentradas: TCurrencyField;
+    qryQuadrosDIMEq05_030_credativpermanente: TFloatField;
+    qryQuadrosDIMEq05_040_creddifaliqmatusocons: TFloatField;
+    qryQuadrosDIMEq05_050_credicmsretsubstrib: TFloatField;
+    qryQuadrosDIMEq05_060_estdebtransfcredacum: TFloatField;
+    qryQuadrosDIMEq05_070_outrosestdeb: TFloatField;
+    qryQuadrosDIMEq05_100_credrelopimport: TFloatField;
+    qryQuadrosDIMEq05_110_credrelaqatacouunfed: TFloatField;
+    qryQuadrosDIMEq05_120_credresptributaria: TFloatField;
+    qryQuadrosDIMEq05_130_outpagtosocasfatogerador: TFloatField;
+    qryQuadrosDIMEq05_140_credregimeespecial: TCurrencyField;
+    qryQuadrosDIMEq05_150_restituicaodeicms: TFloatField;
+    qryQuadrosDIMEq05_160_outroscreditos: TFloatField;
+    qryQuadrosDIMEq05_990_subtotalcreditos: TCurrencyField;
+    qryQuadrosDIMEq06_010_rectribestab: TFloatField;
+    qryQuadrosDIMEq06_020_rectribestabcent: TFloatField;
+    qryQuadrosDIMEq06_030_TotrectributApdeb: TCurrencyField;
+    qryQuadrosDIMEq06_040_impdevcalcsobtotrectribut: TFloatField;
+    qryQuadrosDIMEq06_050_credregpagamento: TFloatField;
+    qryQuadrosDIMEq06_070_credrelaquisatacoutrasuf: TFloatField;
+    qryQuadrosDIMEq06_990_subtotalcreditos: TCurrencyField;
+    qryQuadrosDIMEq07_010_debvalorentradas: TFloatField;
+    qryQuadrosDIMEq07_020_debsobdifentsaidas: TFloatField;
+    qryQuadrosDIMEq07_980_subtotaldebitos: TCurrencyField;
+    qryQuadrosDIMEq07_030_credrelaqatoutuf: TFloatField;
+    qryQuadrosDIMEq07_990_subtotalcreditos: TCurrencyField;
+    qryQuadrosDIMEq08_010_Debapnomes: TCurrencyField;
+    qryQuadrosDIMEq08_020_debacumateomesantnosemestre: TFloatField;
+    qryQuadrosDIMEq08_980_totdebacumsemestre: TCurrencyField;
+    qryQuadrosDIMEq08_030_credapnomes: TCurrencyField;
+    qryQuadrosDIMEq08_040_credacumateomesantnosemestre: TFloatField;
+    qryQuadrosDIMEq08_050_somaparcestateomesnosemestre: TFloatField;
+    qryQuadrosDIMEq08_990_totcredacumsemestre: TCurrencyField;
+    qryQuadrosDIMEq09_010_subtotaldebitos: TCurrencyField;
+    qryQuadrosDIMEq09_011_compldebmudancaregimeap: TFloatField;
+    qryQuadrosDIMEq09_020_saldodevrecestabcons: TCurrencyField;
+    qryQuadrosDIMEq09_030_credtransoutcontrib: TCurrencyField;
+    qryQuadrosDIMEq09_040_totaldebitos: TCurrencyField;
+    qryQuadrosDIMEq09_050_subtotalcreditos: TCurrencyField;
+    qryQuadrosDIMEq09_051_complcredmudancaregimeap: TFloatField;
+    qryQuadrosDIMEq09_052_crepagtoindevidoperanterior: TFloatField;
+    qryQuadrosDIMEq09_060_SaldoCredRecEstaCons: TCurrencyField;
+    qryQuadrosDIMEq09_070_CredRecebTransfOutContrib: TCurrencyField;
+    qryQuadrosDIMEq09_080_TotalCreditos: TCurrencyField;
+    qryQuadrosDIMEq09_090_imposto1decendio: TFloatField;
+    qryQuadrosDIMEq09_100_imposto2decendio: TFloatField;
+    qryQuadrosDIMEq09_110_TotalAjustesApDecendial: TCurrencyField;
+    qryQuadrosDIMEq09_120_SaldoDevedor: TCurrencyField;
+    qryQuadrosDIMEq09_999_ImpostoaRecolher: TCurrencyField;
+    qryQuadrosDIMEq09_130_SaldoDevTransfEstabConsolidador: TCurrencyField;
+    qryQuadrosDIMEq09_140_SaldoCredor: TCurrencyField;
+    qryQuadrosDIMEq09_150_SaldoCredTransfEstabConsolidador: TCurrencyField;
+    qryQuadrosDIMEq09_998_saldocredperseguinte: TFloatField;
+    qryQuadrosDIMEq09_998_SaldoCredPerSeguinte_calculado: TCurrencyField;
+    qryQuadrosDIMEq09_160_saldocredorcredrelexport: TFloatField;
+    qryQuadrosDIMEq09_170_saldocredorcredrelsaidisent: TFloatField;
+    qryQuadrosDIMEq09_180_saldocredorcredrelsaidif: TFloatField;
+    qryQuadrosDIMEq09_190_saldocredordeoutroscreditos: TFloatField;
+    qryQuadrosDIMEq10_010_debrelopimportacao: TFloatField;
+    qryQuadrosDIMEq10_020_debrelaqatacdeoutrasuf: TFloatField;
+    qryQuadrosDIMEq10_030_debporesptribut: TFloatField;
+    qryQuadrosDIMEq10_040_outrosdebocasfatgerador: TFloatField;
+    qryQuadrosDIMEq10_050_outrosdebeventuais: TFloatField;
+    qryQuadrosDIMEq10_990_TotalDebitos: TCurrencyField;
+    qryQuadrosDIMEq11_010_valordosprodutos: TFloatField;
+    qryQuadrosDIMEq11_020_valordoipi: TFloatField;
+    qryQuadrosDIMEq11_030_despesasacessorias: TFloatField;
+    qryQuadrosDIMEq11_040_basedecalculodoicmsproprio: TFloatField;
+    qryQuadrosDIMEq11_050_icmsproprio: TFloatField;
+    qryQuadrosDIMEq11_060_basecalcicmssubsttributaria: TFloatField;
+    qryQuadrosDIMEq11_070_impretporsubsttributaria: TFloatField;
+    qryQuadrosDIMEq11_080_totaldedebitos: TFloatField;
+    qryQuadrosDIMEq11_090_saldocredperantsubsttribut: TFloatField;
+    qryQuadrosDIMEq11_100_devmercedesfazimentodevenda: TFloatField;
+    qryQuadrosDIMEq11_110_ressarcimentoicmssubsttribut: TFloatField;
+    qryQuadrosDIMEq11_120_outroscreditos: TFloatField;
+    qryQuadrosDIMEq11_130_totalcrediajustesapdecendial: TFloatField;
+    qryQuadrosDIMEq11_140_imposto1decendio: TFloatField;
+    qryQuadrosDIMEq11_150_imposto2decendio: TFloatField;
+    qryQuadrosDIMEq11_160_totalajustesapdecendial: TFloatField;
+    qryQuadrosDIMEq11_998_saldocredorparaomesseguinte: TFloatField;
+    qryQuadrosDIMEq11_999_imparecolhersobresubsttribut: TFloatField;
+    qryQuadrosDIMEq41_010_perccredreltotaq3ultmeses: TFloatField;
+    qryQuadrosDIMEq41_020_prodexpmes: TFloatField;
+    qryQuadrosDIMEq41_030_prodsaidaisentaounaotrib: TFloatField;
+    qryQuadrosDIMEq41_040_prodcomsaidadiferidanomes: TFloatField;
+    qryQuadrosDIMEq41_120_credgerexpocormes: TFloatField;
+    qryQuadrosDIMEq41_130_credgersaidasisentasocormes: TFloatField;
+    qryQuadrosDIMEq41_140_credgersaidasdifocormes: TFloatField;
+    qryQuadrosDIMEq41_160_saldocredtransfmesantrelexpo: TFloatField;
+    qryQuadrosDIMEq41_170_salcredtranmesantrelsaiisent: TFloatField;
+    qryQuadrosDIMEq41_180_salcredtranmesantrelsaidifer: TFloatField;
+    qryQuadrosDIMEq41_190_salcredmesantreloutcredntran: TFloatField;
+    qryQuadrosDIMEq41_220_esdebtrcredrelexportacoes: TFloatField;
+    qryQuadrosDIMEq41_230_estdebtrcredrelsaidasisentas: TFloatField;
+    qryQuadrosDIMEq41_240_estdebportransfcredrelsaidif: TFloatField;
+    qryQuadrosDIMEq41_960_saldocredoracumuladorelexp: TFloatField;
+    qryQuadrosDIMEq41_970_saldocredacumrelsaidasisenta: TFloatField;
+    qryQuadrosDIMEq41_980_saldocredacumrelativoasaidas: TFloatField;
+    qryQuadrosDIMEq42_010_debtranscredacumrelexport: TFloatField;
+    qryQuadrosDIMEq42_020_debtranscredacumrelsaidasis: TFloatField;
+    qryQuadrosDIMEq42_030_debtranscredacumrelsaidasdif: TFloatField;
+    qryQuadrosDIMEq42_040_debtransbensatpermoutestabel: TFloatField;
+    qryQuadrosDIMEq42_070_outrosdebtranscreditos: TFloatField;
+    qryQuadrosDIMEq42_990_totdebtranscredacum: TCurrencyField;
+    qryQuadrosDIMEq43_010_credtransfcredacum: TFloatField;
+    qryQuadrosDIMEq43_020_credtransfativopermestabemp: TFloatField;
+    qryQuadrosDIMEq43_050_outroscredtransfcred: TFloatField;
+    qryQuadrosDIMEq43_990_totalcredtransfcred: TCurrencyField;
+    qryQuadrosDIMEq44_010_totalpagosmesempregados: TFloatField;
+    qryQuadrosDIMEq44_020_mediavalpagosempregadosexant: TFloatField;
+    qryQuadrosDIMEq44_030_incrementoverificado: TFloatField;
+    qryQuadrosDIMEq44_040_credpresumidoincgeremprego: TFloatField;
+    qryQuadrosDIMEq44_050_credpresestababatedoraves5: TFloatField;
+    qryQuadrosDIMEq44_060_credpresestababatedoraves4: TFloatField;
+    qryQuadrosDIMEq44_070_credpresestababatedoraves3: TFloatField;
+    qryQuadrosDIMEq44_080_credpresestababatsuinos6: TFloatField;
+    qryQuadrosDIMEq44_090_credpresestababatsuinos5: TFloatField;
+    qryQuadrosDIMEq44_100_credpresestababatsuinos4: TFloatField;
+    qryQuadrosDIMEq44_120_credpresaqecf: TFloatField;
+    qryQuadrosDIMEq44_130_contribaofundosocial: TFloatField;
+    qryQuadrosDIMEq44_131_credcontribfundosocial: TFloatField;
+    qryQuadrosDIMEq44_140_aplicfuncultural: TFloatField;
+    qryQuadrosDIMEq44_150_aplicfunturismo: TFloatField;
+    qryQuadrosDIMEq44_160_aplicfundesporte: TFloatField;
+    qryQuadrosDIMEq44_190_outroscredpresumidos: TFloatField;
+    qryQuadrosDIMEq44_990_totaldecreditospresumidos: TFloatField;
+    qryQuadrosDIMEq45_010_saldodevmesantesdedincent: TFloatField;
+    qryQuadrosDIMEq45_020_credporincentfisc: TFloatField;
+    qryQuadrosDIMEq45_030_valordorecibo: TFloatField;
+    qryQuadrosDIMEq45_040_credporincentfiscpercvlrrec: TFloatField;
+    qryQuadrosDIMEq45_050_outroscredincentfiscais: TFloatField;
+    qryQuadrosDIMEq45_990_totalcredincentfisc: TCurrencyField;
+    qryQuadrosDIMEq51_010_prestservsujaoiss: TFloatField;
+    qryQuadrosDIMEq51_020_25transfrecebprecovendavarej: TFloatField;
+    qryQuadrosDIMEq51_030_ipirelaqmatprimasmerc: TFloatField;
+    qryQuadrosDIMEq51_040_paricmsretsubsttributaria: TFloatField;
+    qryQuadrosDIMEq51_050_subsconcorgaosgovfedestoumun: TFloatField;
+    qryQuadrosDIMEq51_980_totalvalexcluidosentradas: TFloatField;
+    qryQuadrosDIMEq51_060_prestervicosvsujeitaaoiss: TFloatField;
+    qryQuadrosDIMEq51_070_25transfefetaprecovendavarej: TFloatField;
+    qryQuadrosDIMEq51_080_ipiincidentesaidademerc: TFloatField;
+    qryQuadrosDIMEq51_090_parceladoicmsretporsubsttrib: TFloatField;
+    qryQuadrosDIMEq51_990_totaldosvaloresexcdassaidas: TFloatField;
+    qryQuadrosDIMEq80_010_estoqueinicioexercicio: TFloatField;
+    qryQuadrosDIMEq80_020_estoquefimexercicio: TFloatField;
+    qryQuadrosDIMEq80_030_receitabrutavendasservicos: TFloatField;
+    qryQuadrosDIMEq81_023_circulante: TFloatField;
+    qryQuadrosDIMEq81_024_disponibilidades: TFloatField;
+    qryQuadrosDIMEq81_025_contasareceberdocirculante: TFloatField;
+    qryQuadrosDIMEq81_026_estoquedemercemateriaprima: TFloatField;
+    qryQuadrosDIMEq81_027_outrosestoques: TFloatField;
+    qryQuadrosDIMEq81_028_outrascontasdoativcirculante: TFloatField;
+    qryQuadrosDIMEq81_029_realizavelalongoprazo: TFloatField;
+    qryQuadrosDIMEq81_030_contasareceberdorealizavel: TFloatField;
+    qryQuadrosDIMEq81_031_outrascontasdorealizavel: TFloatField;
+    qryQuadrosDIMEq81_032_permanente: TFloatField;
+    qryQuadrosDIMEq81_033_investimentos: TFloatField;
+    qryQuadrosDIMEq81_034_imobilizado_liquido: TFloatField;
+    qryQuadrosDIMEq81_035_diferido: TFloatField;
+    qryQuadrosDIMEq81_990_totalgeraldoativo: TFloatField;
+    qryQuadrosDIMEq82_037_circulante: TFloatField;
+    qryQuadrosDIMEq82_038_fornecedores: TFloatField;
+    qryQuadrosDIMEq82_039_emprestimosefinanciamentos: TFloatField;
+    qryQuadrosDIMEq82_040_outrascontasdopassivocirc: TFloatField;
+    qryQuadrosDIMEq82_041_exigivelalongoprazo: TFloatField;
+    qryQuadrosDIMEq82_042_resultadosdeexfuturos: TFloatField;
+    qryQuadrosDIMEq82_043_patrimonioliquido: TFloatField;
+    qryQuadrosDIMEq82_044_capitalsocial: TFloatField;
+    qryQuadrosDIMEq82_045_outrascontasdopatrimonioliq: TFloatField;
+    qryQuadrosDIMEq82_990_totalgeraldopassivo: TFloatField;
+    qryQuadrosDIMEq83_047_receitabrutavendasservicos: TFloatField;
+    qryQuadrosDIMEq83_048_devabatimentoseimpostos: TFloatField;
+    qryQuadrosDIMEq83_049_receitaliquidavendasservicos: TFloatField;
+    qryQuadrosDIMEq83_050_custodamercadoriavendida: TFloatField;
+    qryQuadrosDIMEq83_051_lucrobruto: TFloatField;
+    qryQuadrosDIMEq83_052_despesasoperacionais: TFloatField;
+    qryQuadrosDIMEq83_053_lucroprejuizooperacional: TFloatField;
+    qryQuadrosDIMEq83_054_receitasnaooperacionais: TFloatField;
+    qryQuadrosDIMEq83_055_despesasnaooperacionais: TFloatField;
+    qryQuadrosDIMEq83_056_saldodacontacorrecaomonet: TFloatField;
+    qryQuadrosDIMEq83_057_resultadoantesdoir: TFloatField;
+    qryQuadrosDIMEq83_058_provisaoparaoir: TFloatField;
+    qryQuadrosDIMEq83_059_resultadoaposoir: TFloatField;
+    qryQuadrosDIMEq83_060_participacoesecontribuicoes: TFloatField;
+    qryQuadrosDIMEq83_061_lucroouprejuizo: TFloatField;
+    qryQuadrosDIMEq84_062_prolabore: TFloatField;
+    qryQuadrosDIMEq84_063_comissoessalariosordenados: TFloatField;
+    qryQuadrosDIMEq84_064_combustiveiselubrificantes: TFloatField;
+    qryQuadrosDIMEq84_065_encargossociais: TFloatField;
+    qryQuadrosDIMEq84_066_tributosfederais: TFloatField;
+    qryQuadrosDIMEq84_067_tributosestaduais: TFloatField;
+    qryQuadrosDIMEq84_068_tributosmunicipais: TFloatField;
+    qryQuadrosDIMEq84_069_aguaetelefone: TFloatField;
+    qryQuadrosDIMEq84_070_energiaeletrica: TFloatField;
+    qryQuadrosDIMEq84_071_alugueis: TFloatField;
+    qryQuadrosDIMEq84_072_servicosprofissionais: TFloatField;
+    qryQuadrosDIMEq84_073_seguros: TFloatField;
+    qryQuadrosDIMEq84_074_fretesecarretos: TFloatField;
+    qryQuadrosDIMEq84_075_despesasfinanceiras: TFloatField;
+    qryQuadrosDIMEq84_076_outrasdespesas: TFloatField;
+    qryQuadrosDIMEq84_990_total: TFloatField;
+    qryQuadrosDIMEq90_010_estoqueinicioexercicio: TFloatField;
+    qryQuadrosDIMEq90_020_estoquefimexercicio: TFloatField;
+    qryQuadrosDIMEq90_030_receitabrutavendasservicos: TFloatField;
+    qryQuadrosDIMEq91_023_circulante: TFloatField;
+    qryQuadrosDIMEq91_024_disponibilidades: TFloatField;
+    qryQuadrosDIMEq91_025_contasareceberdocirculante: TFloatField;
+    qryQuadrosDIMEq91_026_estoquedemercemateriaprima: TFloatField;
+    qryQuadrosDIMEq91_027_outrosestoques: TFloatField;
+    qryQuadrosDIMEq91_028_outrascontasdoativcirculante: TFloatField;
+    qryQuadrosDIMEq91_029_realizavelalongoprazo: TFloatField;
+    qryQuadrosDIMEq91_030_contasareceberdorealizavel: TFloatField;
+    qryQuadrosDIMEq91_031_outrascontasdorealizavel: TFloatField;
+    qryQuadrosDIMEq91_032_permanente: TFloatField;
+    qryQuadrosDIMEq91_033_investimentos: TFloatField;
+    qryQuadrosDIMEq91_034_imobilizado_liquido: TFloatField;
+    qryQuadrosDIMEq91_035_diferido: TFloatField;
+    qryQuadrosDIMEq91_990_totalgeraldoativo: TFloatField;
+    qryQuadrosDIMEq92_037_circulante: TFloatField;
+    qryQuadrosDIMEq92_038_fornecedores: TFloatField;
+    qryQuadrosDIMEq92_039_emprestimosefinanciamentos: TFloatField;
+    qryQuadrosDIMEq92_040_outrascontasdopassivocirc: TFloatField;
+    qryQuadrosDIMEq92_041_exigivelalongoprazo: TFloatField;
+    qryQuadrosDIMEq92_042_resultadosdeexfuturos: TFloatField;
+    qryQuadrosDIMEq92_043_patrimonioliquido: TFloatField;
+    qryQuadrosDIMEq92_044_capitalsocial: TFloatField;
+    qryQuadrosDIMEq92_045_outrascontasdopatrimonioliq: TFloatField;
+    qryQuadrosDIMEq92_990_totalgeraldopassivo: TFloatField;
+    qryQuadrosDIMEq93_047_receitabrutavendasservicos: TFloatField;
+    qryQuadrosDIMEq93_048_devabatimentoseimpostos: TFloatField;
+    qryQuadrosDIMEq93_049_receitaliquidavendasservicos: TFloatField;
+    qryQuadrosDIMEq93_050_custodamercadoriavendida: TFloatField;
+    qryQuadrosDIMEq93_051_lucrobruto: TFloatField;
+    qryQuadrosDIMEq93_052_despesasoperacionais: TFloatField;
+    qryQuadrosDIMEq93_053_lucroprejuizooperacional: TFloatField;
+    qryQuadrosDIMEq93_054_receitasnaooperacionais: TFloatField;
+    qryQuadrosDIMEq93_055_despesasnaooperacionais: TFloatField;
+    qryQuadrosDIMEq93_056_saldodacontacorrecaomonet: TFloatField;
+    qryQuadrosDIMEq93_057_resultadoantesdoir: TFloatField;
+    qryQuadrosDIMEq93_058_provisaoparaoir: TFloatField;
+    qryQuadrosDIMEq93_059_resultadoaposoir: TFloatField;
+    qryQuadrosDIMEq93_060_participacoesecontribuicoes: TFloatField;
+    qryQuadrosDIMEq93_061_lucroouprejuizo: TFloatField;
+    qryQuadrosDIMEq94_062_prolabore: TFloatField;
+    qryQuadrosDIMEq94_063_comissoessalariosordenados: TFloatField;
+    qryQuadrosDIMEq94_064_combustiveiselubrificantes: TFloatField;
+    qryQuadrosDIMEq94_065_encargossociais: TFloatField;
+    qryQuadrosDIMEq94_066_tributosfederais: TFloatField;
+    qryQuadrosDIMEq94_067_tributosestaduais: TFloatField;
+    qryQuadrosDIMEq94_068_tributosmunicipais: TFloatField;
+    qryQuadrosDIMEq94_069_aguaetelefone: TFloatField;
+    qryQuadrosDIMEq94_070_energiaeletrica: TFloatField;
+    qryQuadrosDIMEq94_071_alugueis: TFloatField;
+    qryQuadrosDIMEq94_072_servicosprofissionais: TFloatField;
+    qryQuadrosDIMEq94_073_seguros: TFloatField;
+    qryQuadrosDIMEq94_074_fretesecarretos: TFloatField;
+    qryQuadrosDIMEq94_075_despesasfinanceiras: TFloatField;
+    qryQuadrosDIMEq94_076_outrasdespesas: TFloatField;
+    qryQuadrosDIMEq94_990_total: TFloatField;
+    qryQuadrosDIMEinscricaoestadual: TStringField;
+    qryQuadrosDIMErazao: TStringField;
+    qryq46_RegimeEspecial: TtecQuery;
+    qryq46_RegimeEspecialvalor: TFloatField;
+    qryq46_RegimeEspecialfilial: TIntegerField;
+    qryq46_RegimeEspecialperiodo: TStringField;
+    qryq46_RegimeEspecialorigem: TIntegerField;
+    qryq12_discrpagtos: TtecQuery;
+    qryq12_discrpagtosfilial: TIntegerField;
+    qryq12_discrpagtosperiodo: TStringField;
+    qryq12_discrpagtosorigem: TIntegerField;
+    qryq12_discrpagtoscodigoreceita: TIntegerField;
+    qryq12_discrpagtosclassevencto: TIntegerField;
+    qryq12_discrpagtosdatavencto: TDateField;
+    qryq12_discrpagtosvalor: TFloatField;
+    qryq47_compraexproagrop: TtecQuery;
+    qryq47_compraexproagropcodmunicipio: TIntegerField;
+    qryq47_compraexproagropvalor: TFloatField;
+    qryq47_compraexproagropfilial: TIntegerField;
+    qryq47_compraexproagropperiodo: TStringField;
+    qryq48_recprestservfornenereletrica: TtecQuery;
+    qryq48_recprestservfornenereletricafilial: TIntegerField;
+    qryq48_recprestservfornenereletricaperiodo: TStringField;
+    qryq48_recprestservfornenereletricacodmunicipio: TIntegerField;
+    qryq48_recprestservfornenereletricavalor: TFloatField;
+    qryq50_saimercforneletrservicos: TtecQuery;
+    qryq50_saimercforneletrservicosestado: TStringField;
+    qryq50_saimercforneletrservicosvalorcontabil_naocontrib: TFloatField;
+    qryq50_saimercforneletrservicosvalorcontabil_contrib: TFloatField;
+    qryq50_saimercforneletrservicosbasedecalculo_naocontrib: TFloatField;
+    qryq50_saimercforneletrservicosbasedecalculo_contrib: TFloatField;
+    qryq50_saimercforneletrservicosoutras: TFloatField;
+    qryq50_saimercforneletrservicosicmsretidosubstrib: TFloatField;
+    qryq49_entmercbensaqservicos: TtecQuery;
+    qryq49_entmercbensaqservicosfilial: TIntegerField;
+    qryq49_entmercbensaqservicosperiodo: TStringField;
+    qryq49_entmercbensaqservicosestado: TStringField;
+    qryq49_entmercbensaqservicosvalorcontabil: TFloatField;
+    qryq49_entmercbensaqservicosbasedecalculo: TFloatField;
+    qryq49_entmercbensaqservicosoutras: TFloatField;
+    qryq49_entmercbensaqservicosicmsretidosubstrib1: TFloatField;
+    qryq49_entmercbensaqservicosicmsretidosubstrib2: TFloatField;
+    qryq50_saimercforneletrservicostotal: TtecQuery;
+    qryq50_saimercforneletrservicostotalestado: TStringField;
+    qryq50_saimercforneletrservicostotalvalorcontabil_naocontrib: TFloatField;
+    qryq50_saimercforneletrservicostotalvalorcontabil_contrib: TFloatField;
+    qryq50_saimercforneletrservicostotalbasedecalculo_naocontrib: TFloatField;
+    qryq50_saimercforneletrservicostotalbasedecalculo_contrib: TFloatField;
+    qryq50_saimercforneletrservicostotaloutras: TFloatField;
+    qryq50_saimercforneletrservicostotalicmsretidosubstrib: TFloatField;
+    qryq49_entmercbensaqservicostotal: TtecQuery;
+    qryq49_entmercbensaqservicostotalestado: TStringField;
+    qryq49_entmercbensaqservicostotalvalorcontabil: TFloatField;
+    qryq49_entmercbensaqservicostotalbasedecalculo: TFloatField;
+    qryq49_entmercbensaqservicostotaloutras: TFloatField;
+    qryq49_entmercbensaqservicostotalicmsretidosubstrib1: TFloatField;
+    qryq49_entmercbensaqservicostotalicmsretidosubstrib2: TFloatField;
+    qryq48_recprestservfornenereletricatotal: TtecQuery;
+    qryq48_recprestservfornenereletricatotalcodmunicipio: TIntegerField;
+    qryq48_recprestservfornenereletricatotalvalor: TFloatField;
+    qryq50_saimercforneletrservicosfilial: TIntegerField;
+    qryq50_saimercforneletrservicosperiodo: TStringField;
+    qryq47_compraexproagroptotal: TtecQuery;
+    qryq47_compraexproagroptotalcodmunicipio: TIntegerField;
+    qryq47_compraexproagroptotalvalor: TFloatField;
+    qryq46_RegimeEspecialtotal: TtecQuery;
+    qryq46_RegimeEspecialtotalregime: TIntegerField;
+    qryq46_RegimeEspecialtotalvalor: TFloatField;
+    qryq46_RegimeEspecialtotalorigem: TIntegerField;
+    qryQuadrosDIMEq82_279_outrascontasdopatrimonioliqvalneg: TFloatField;
+    qryQuadrosDIMEq83_331_prejuizobruto: TFloatField;
+    qryQuadrosDIMEq83_333_outrasrecoper: TFloatField;
+    qryQuadrosDIMEq83_341_prejuizooperacional: TFloatField;
+    qryQuadrosDIMEq83_351_resultadonegantesdoir: TFloatField;
+    qryQuadrosDIMEq83_398_prejuizodoexercicio: TFloatField;
+    qryQuadrosDIMEq82_269_passivoadescoberto: TFloatField;
+    qryQuadrosDIMEq92_269_passivoadescoberto: TFloatField;
+    qryQuadrosDIMEq92_279_outrascontasdopatrimonioliqvalneg: TFloatField;
+    qryQuadrosDIMEq93_331_prejuizobruto: TFloatField;
+    qryQuadrosDIMEq93_333_outrasrecoper: TFloatField;
+    qryQuadrosDIMEq93_341_prejuizooperacional: TFloatField;
+    qryQuadrosDIMEq93_351_resultadonegantesdoir: TFloatField;
+    qryQuadrosDIMEq93_398_prejuizodoexercicio: TFloatField;
+    qryQuadrosDIMEq09_105_antecipliqcombgasosos: TFloatField;
+    qryQuadrosDIMEq11_155_antecipliqcombgasosos: TFloatField;
+    qryQuadrosDIMEobservacao: TStringField;
+    qryRecolhimentoDime: TtecQuery;
+    qryRecolhimentoDimefilial: TIntegerField;
+    qryRecolhimentoDimeperiodo: TStringField;
+    qryRecolhimentoDimenumeroguia: TStringField;
+    qryRecolhimentoDimedataguia: TDateField;
+    qryRecolhimentoDimevalorguia: TFloatField;
+    qryRecolhimentoDimeorgaoguia: TStringField;
+    qryq12_discrpagtosnumeroacordo: TIntegerField;
+    qryQuadrosDIMEq09_075_creinformadonodcip: TFloatField;
+    qryq46_RegimeEspecialregime: TStringField;
+    qryQuadrosDIMEq11_065_debocafatger: TFloatField;
+    qryQuadrosDIMEq11_073_debocfatgerapuracaomensal: TFloatField;
+    qryQuadrosDIMEq11_075_slddevrecestcons: TFloatField;
+    qryQuadrosDIMEq11_125_sldcredrecestcons: TFloatField;
+    qryQuadrosDIMEq11_170_saldodevedor: TFloatField;
+    qryQuadrosDIMEq11_180_slddevtrestcons: TFloatField;
+    qryQuadrosDIMEq11_190_saldocredor: TFloatField;
+    qryQuadrosDIMEq11_200_sldcredtrestcons: TFloatField;
+    procedure qryQuadrosDIMECalcFields(DataSet: TDataSet);
+    procedure qryQuadrosDIMEAfterScroll(DataSet: TDataSet);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+  private
+    FListaFiliais: TStringList;
+    FListaGruposFiliais: TStringList;
+    FMesInicial: String;
+    FMesFinal: String;
+    fq_46_999_totalregimeespecial_4: currency;
+    fq_46_999_totalregimeespecial_1: currency;
+    fq_46_999_totalregimeespecial: currency;
+    fq_46_999_totalregimeespecial_90: currency;
+    fq_46_999_totalregimeespecial_3: currency;
+    fq_46_999_totalregimeespecial_13: currency;
+    fq_46_999_totalregimeespecial_12: currency;
+    fq_46_999_totalregimeespecial_2: currency;
+    fq_46_999_totalregimeespecial_11: currency;
+    fq_01_outras: currency;
+    fq_01_valor: currency;
+    fq_01_isentas: currency;
+    fq_01_base: currency;
+    fq_09_060_e_transf_cred: currency;
+    fq_09_020_e_transf_deb: currency;
+    fq_01_valornota: currency;
+    fq_02_valor: currency;
+    fq_02_isentas: currency;
+    fq_02_valornota: currency;
+    fq_02_base: currency;
+    fq_02_outras: currency;
+    fq_09_130_s_transf_deb: currency;
+    fq_09_150_s_transf_cred: currency;
+    function GetListaFiliais: TStrings;
+    function GetListaGruposFiliais: TStrings;
+    procedure SetFiliais(const Value: String);
+    procedure SetGrupoFiliais(const Value: String);
+    procedure SetMesFinal(const Value: String);
+    procedure SetMesInicial(const Value: String);
+    function getq_46_999_totalregimeespecial: currency;
+    function GetTabelaQuadrosDime: TtecQuery;
+  public
+    constructor Create(AOwner: TComponent); override;
+    function GerarArquivo(NomeArquivo: String): Boolean;
+    property ListaFiliais: TStrings read GetListaFiliais;
+    property ListaGruposFiliais: TStrings read GetListaGruposFiliais;
+    procedure MontarFiltroFiliais(Usar: TCheckListBox);
+    procedure MontarFiltroGrupoFiliais(Usar: TCheckListBox);
+    property Filiais: String write SetFiliais;
+    property GrupoFiliais: String write SetGrupoFiliais;
+    property MesInicial: String read FMesInicial write SetMesInicial;
+    property MesFinal: String read FMesFinal write SetMesFinal;
+
+    procedure LerTotaisq_01;
+    property q_01_valornota: currency read fq_01_valornota write fq_01_valornota;
+    property q_01_base: currency read fq_01_base write fq_01_base;
+    property q_01_valor: currency read fq_01_valor write fq_01_valor;
+    property q_01_isentas: currency read fq_01_isentas write fq_01_isentas;
+    property q_01_outras: currency read fq_01_outras write fq_01_outras;
+    property q_09_020_e_transf_deb: currency read fq_09_020_e_transf_deb write fq_09_020_e_transf_deb;
+    property q_09_060_e_transf_cred: currency read fq_09_060_e_transf_cred write fq_09_060_e_transf_cred;
+
+    procedure LerTotaisq_02;
+    property q_02_valornota: currency read fq_02_valornota write fq_02_valornota;
+    property q_02_base: currency read fq_02_base write fq_02_base;
+    property q_02_valor: currency read fq_02_valor write fq_02_valor;
+    property q_02_isentas: currency read fq_02_isentas write fq_02_isentas;
+    property q_02_outras: currency read fq_02_outras write fq_02_outras;
+    property q_09_130_s_transf_deb: currency read fq_09_130_s_transf_deb write fq_09_130_s_transf_deb;
+    property q_09_150_s_transf_cred: currency read fq_09_150_s_transf_cred write fq_09_150_s_transf_cred;
+
+    property q_46_999_totalregimeespecial: currency read getq_46_999_totalregimeespecial write fq_46_999_totalregimeespecial;
+    property q_46_999_totalregimeespecial_1: currency read fq_46_999_totalregimeespecial_1 write fq_46_999_totalregimeespecial_1;
+    property q_46_999_totalregimeespecial_2: currency read fq_46_999_totalregimeespecial_2 write fq_46_999_totalregimeespecial_2;
+    property q_46_999_totalregimeespecial_3: currency read fq_46_999_totalregimeespecial_3 write fq_46_999_totalregimeespecial_3;
+    property q_46_999_totalregimeespecial_4: currency read fq_46_999_totalregimeespecial_4 write fq_46_999_totalregimeespecial_4;
+    property q_46_999_totalregimeespecial_11: currency read fq_46_999_totalregimeespecial_11 write fq_46_999_totalregimeespecial_11;
+    property q_46_999_totalregimeespecial_12: currency read fq_46_999_totalregimeespecial_12 write fq_46_999_totalregimeespecial_12;
+    property q_46_999_totalregimeespecial_13: currency read fq_46_999_totalregimeespecial_13 write fq_46_999_totalregimeespecial_13;
+    property q_46_999_totalregimeespecial_90: currency read fq_46_999_totalregimeespecial_90 write fq_46_999_totalregimeespecial_90;
+    procedure AtualizaQuadrosDime;
+    function AbrirQuadrosDime: boolean;
+    property TabelaQuadrosDime: TtecQuery read GetTabelaQuadrosDime;
+
+  end;
+
+var
+  dtmGerarDIMEEmArquivo: TdtmGerarDIMEEmArquivo;
+
+const
+  Wherefiliais_dime = 324;
+  FiltroFilial      = ' filial IN (%s) and ';
+  FiltroGrupoFilial = ' filial IN (SELECT fgf.filial '+#13#10+
+                                         'FROM filiaisgruposfiliais fgf '+#13#10+
+                                         'WHERE fgf.grupo IN (%s)) and ';
+
+implementation
+
+Uses
+  //CLX
+  Forms,
+  //Biblio
+  ctconstantes, biblio, clparametrossistema;
+
+{$R *.dfm}
+
+{ TdtmGerarGIAEmArquivo }
+
+constructor TdtmGerarDIMEEmArquivo.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryFiliais.Tag := ctLIVTabelaConsultaFiliais;
+end;
+
+function TdtmGerarDIMEEmArquivo.GerarArquivo(NomeArquivo: String): Boolean;
+var
+  PosBarra,
+  Sequencia,
+  NRegistrosDeclaracao,
+  NRegistrosTotal : integer;
+  Arq: TextFile;
+  formato : String;
+
+  procedure GravarLinha_String(str : String);
+  begin
+  {$IFDEF LINUX}
+   Writeln(Arq, str+#13);
+  {$ELSE }
+   Writeln(Arq, str);
+  {$ENDIF}
+   NRegistrosDeclaracao := NRegistrosDeclaracao + 1;
+   NRegistrosTotal := NRegistrosTotal + 1;
+  end;
+
+  procedure GravarLinha_valor(identificacao: String;
+               valor:Currency;
+               NaoVerificarValor: Boolean;
+               tamanhovalor: integer);
+  var
+   i: integer;
+  begin
+   if (Length(formato)<>tamanhovalor) then
+     formato := '';
+
+   if (formato = '') then
+     for i:=1 to tamanhovalor do
+       formato := formato + '0';
+   if (valor<>0) or NaoVerificarValor then
+   begin
+    {$IFDEF LINUX}
+     Writeln(Arq, identificacao+formatfloat(formato,round((valor*100)))+#13);
+    {$ELSE }
+     Writeln(Arq, identificacao+formatfloat(formato,round((valor*100))));
+    {$ENDIF }
+     NRegistrosDeclaracao := NRegistrosDeclaracao +1;
+     NRegistrosTotal := NRegistrosTotal + 1;
+   end;
+  end;
+
+begin
+ result := true;
+
+    {$IFDEF LINUX}
+      PosBarra := Pos('/', NomeArquivo);
+    {$ELSE }
+      PosBarra := Pos('\', NomeArquivo);
+    {$ENDIF }
+      if PosBarra = 0 then
+        NomeArquivo := ExtractFilePath(Application.ExeName) + NomeArquivo;
+      try
+        AssignFile(Arq, NomeArquivo);
+    //    if FileExists(NomeArquivo) then
+          Rewrite(Arq);
+
+    // Registro tipo 20 - Dados do Contabilista / Responsável
+
+    GravarLinha_String('20'+'  '+format('%11.11d',[strtoint64(SomenteNumero(ParSistema.CPFContador))])+format('%-50s', [parsistema.nomeContador]) +FormatDateTime('YYYYMMDDHHMMSS',now()));
+
+//    qryQuadrosDIME.First;
+    while not qryQuadrosDIME.Eof do
+    begin
+      NRegistrosDeclaracao := 0;
+      //Registro tipo 21 - Dados iniciais
+      GravarLinha_String(
+             '21' +
+             '00' +
+             format('%9.9d',[strtoint(SomenteNumero(qryQuadrosDIMEinscricaoestadual.AsString))])+
+             format('%-50s',[qryQuadrosDIMErazao.AsString]) +
+             copy(qryQuadrosDIMEperiodo.AsString,1,2)+copy(qryQuadrosDIMEperiodo.AsString,4,4) +
+             qryQuadrosDIMEq00_040_tipodedeclaracao.asstring +
+             qryQuadrosDIMEq00_050_regimedeapuracao.asstring +
+             {
+             qryQuadrosDIMEq00_060_portedaempresa.asstring +}
+             '1'+
+             qryQuadrosDIMEq00_070_apuracaoconsolidada.asstring +
+             qryQuadrosDIMEq00_080_apuracaocentralizada.asstring +
+             qryQuadrosDIMEq00_090_transfcreditosnoperiodo.asstring +
+{             qryQuadrosDIMEq00_100_temcreditospresumidos.asstring +} '1' +
+{             qryQuadrosDIMEq00_110_temcreditosporincentfiscais.asstring +} '1' +
+             qryQuadrosDIMEq00_120_movimentos.asstring +
+             qryQuadrosDIMEq00_130_substitutotributario.asstring +
+             qryQuadrosDIMEq00_140_temescritacontabil.asstring +
+             format('%5.5d', [qryQuadrosDIMEq00_150_qttrabalhadoresnaativ.Asinteger])
+             );
+
+      //Registro tipo 22 - Valores Fiscais Entradas
+      qryq01_NotasEntradasCalculos.First;
+      while not qryq01_NotasEntradasCalculos.Eof do
+      begin
+        GravarLinha_String(
+               '22' +
+               '01' +
+               format('%5.5d', [qryq01_NotasEntradasCalculoscodigofiscal.Asinteger])+
+               formatfloat('00000000000000000',round((qryq01_NotasEntradasCalculosvalornota.Ascurrency*100)))+
+               formatfloat('00000000000000000',round((qryq01_NotasEntradasCalculosbase.Ascurrency*100)))+
+               formatfloat('00000000000000000',round((qryq01_NotasEntradasCalculosvalor.Ascurrency*100)))+
+               formatfloat('00000000000000000',round((qryq01_NotasEntradasCalculosisentas.Ascurrency*100)))+
+               formatfloat('00000000000000000',round((qryq01_NotasEntradasCalculosoutras.Ascurrency*100)))
+             );
+        qryq01_NotasEntradasCalculos.next;
+      end;
+
+      //Registro tipo 23 - Valores Fiscais Saídas
+      qryq02_NotasSaidasCalculos.First;
+      while not qryq02_NotasSaidasCalculos.Eof do
+      begin
+        GravarLinha_String(
+               '23' +
+               '02' +
+               format('%5.5d', [qryq02_NotasSaidasCalculoscodigofiscal.Asinteger])+
+               formatfloat('00000000000000000',round((qryq02_NotasSaidasCalculosvalornota.Ascurrency*100)))+
+               formatfloat('00000000000000000',round((qryq02_NotasSaidasCalculosbase.Ascurrency*100)))+
+               formatfloat('00000000000000000',round((qryq02_NotasSaidasCalculosvalor.Ascurrency*100)))+
+               formatfloat('00000000000000000',round((qryq02_NotasSaidasCalculosisentas.Ascurrency*100)))+
+               formatfloat('00000000000000000',round((qryq02_NotasSaidasCalculosoutras.Ascurrency*100)))
+              );
+        qryq02_NotasSaidasCalculos.next;
+      end;
+
+      //Registro tipo 24 - Resumo dos Valores Fiscais
+      GravarLinha_valor('24'+'03'+'010',q_01_valornota, false, 17);
+      GravarLinha_valor('24'+'03'+'020',q_01_base, false, 17);
+      GravarLinha_valor('24'+'03'+'030',q_01_valor, false, 17);
+      GravarLinha_valor('24'+'03'+'040',q_01_isentas, false, 17);
+      GravarLinha_valor('24'+'03'+'050',q_01_outras, false, 17);
+      GravarLinha_valor('24'+'03'+'060',q_02_valornota, false, 17);
+      GravarLinha_valor('24'+'03'+'070',q_02_base, false, 17);
+      GravarLinha_valor('24'+'03'+'080',q_02_valor, false, 17);
+      GravarLinha_valor('24'+'03'+'090',q_02_isentas, false, 17);
+      GravarLinha_valor('24'+'03'+'100',q_02_outras, false, 17);
+
+      case qryQuadrosDIMEq00_050_regimedeapuracao.AsInteger of
+      2,  // Regime Normal
+      9 : begin  // Regime Prod. Primario
+            //Registro tipo 25 - Resumo da Apuração dos Débitos
+            GravarLinha_valor('25'+'04'+'010',qryQuadrosDIMEq04_010_debitopelassaidas.AsCurrency, false, 17);
+            GravarLinha_valor('25'+'04'+'020',qryQuadrosDIMEq04_020_debdifaliqativperm.AsCurrency, false, 17);
+            GravarLinha_valor('25'+'04'+'030',qryQuadrosDIMEq04_030_debdifaliqmatusoons.AsCurrency, false, 17);
+            GravarLinha_valor('25'+'04'+'040',qryQuadrosDIMEq04_040_debmaqeqimpativperm.AsCurrency, false, 17);
+            GravarLinha_valor('25'+'04'+'050',qryQuadrosDIMEq04_050_estornocredito.AsCurrency, false, 17);
+            GravarLinha_valor('25'+'04'+'060',qryQuadrosDIMEq04_060_outrosestornos.AsCurrency, false, 17);
+            GravarLinha_valor('25'+'04'+'070',qryQuadrosDIMEq04_070_outrosdebitos.AsCurrency, false, 17);
+            GravarLinha_valor('25'+'04'+'990',qryQuadrosDIMEq04_990_subtotaldebitos.AsCurrency, false, 17);
+
+            //Registro tipo 26 - Resumo da Apuração dos Créditos
+            GravarLinha_valor('26'+'05'+'010',qryQuadrosDIMEsaldocredormesant.Ascurrency, false, 17);
+            GravarLinha_valor('26'+'05'+'020',qryQuadrosDIMEq05_020_creditopelasentradas.Ascurrency, false, 17);
+            GravarLinha_valor('26'+'05'+'030',qryQuadrosDIMEq05_030_credativpermanente.Ascurrency, false, 17);
+            GravarLinha_valor('26'+'05'+'040',qryQuadrosDIMEq05_040_creddifaliqmatusocons.Ascurrency, false, 17);
+            GravarLinha_valor('26'+'05'+'050',qryQuadrosDIMEq05_050_credicmsretsubstrib.Ascurrency, false, 17);
+            GravarLinha_valor('26'+'05'+'060',qryQuadrosDIMEq05_060_estdebtransfcredacum.Ascurrency, false, 17);
+            GravarLinha_valor('26'+'05'+'070',qryQuadrosDIMEq05_070_outrosestdeb.Ascurrency, false, 17);
+            GravarLinha_valor('26'+'05'+'080',qryQuadrosDIMEq44_990_totaldecreditospresumidos.AsCurrency, false, 17);
+            GravarLinha_valor('26'+'05'+'090',qryQuadrosDIMEq45_990_totalcredincentfisc.AsCurrency, false, 17);
+            GravarLinha_valor('26'+'05'+'100',qryQuadrosDIMEq05_100_credrelopimport.AsCurrency, false, 17);
+            GravarLinha_valor('26'+'05'+'110',qryQuadrosDIMEq05_110_credrelaqatacouunfed.AsCurrency, false, 17);
+            GravarLinha_valor('26'+'05'+'120',qryQuadrosDIMEq05_120_credresptributaria.AsCurrency, false, 17);
+            GravarLinha_valor('26'+'05'+'130',qryQuadrosDIMEq05_130_outpagtosocasfatogerador.AsCurrency, false, 17);
+            GravarLinha_valor('26'+'05'+'140',qryQuadrosDIMEq05_140_credregimeespecial.AsCurrency, false, 17);
+            GravarLinha_valor('26'+'05'+'150',qryQuadrosDIMEq05_150_restituicaodeicms.AsCurrency, false, 17);
+            GravarLinha_valor('26'+'05'+'160',qryQuadrosDIMEq05_160_outroscreditos.AsCurrency, false, 17);
+            GravarLinha_valor('26'+'05'+'990',qryQuadrosDIMEq05_990_subtotalcreditos.AsCurrency, false, 17);
+          end;
+
+{ EXTINGUIDO EM 09/2007
+      1: begin // Regime Simples
+            //Registro tipo 27 - Apuração para Empresas no Regime Simples
+            GravarLinha_valor('27'+'06'+'010',qryQuadrosDIMEq06_010_rectribestab.AsCurrency, false, 17);
+            GravarLinha_valor('27'+'06'+'020',qryQuadrosDIMEq06_020_rectribestabcent.AsCurrency, false, 17);
+            GravarLinha_valor('27'+'06'+'030',qryQuadrosDIMEq06_030_TotrectributApdeb.AsCurrency, false, 17);
+            GravarLinha_valor('27'+'06'+'040',qryQuadrosDIMEq06_040_impdevcalcsobtotrectribut.AsCurrency, false, 17);
+            GravarLinha_valor('27'+'06'+'050',qryQuadrosDIMEq06_050_credregpagamento.AsCurrency, false, 17);
+            GravarLinha_valor('27'+'06'+'060',qryQuadrosDIMEq44_990_totaldecreditospresumidos.AsCurrency, false, 17);
+            GravarLinha_valor('27'+'06'+'070',qryQuadrosDIMEq06_070_credrelaquisatacoutrasuf.AsCurrency, false, 17);
+            GravarLinha_valor('27'+'06'+'080',qryQuadrosDIMEsaldocredormesant.AsCurrency, false, 17);
+            GravarLinha_valor('27'+'06'+'990',qryQuadrosDIMEq06_990_subtotalcreditos.AsCurrency, false, 17);
+         end;
+}
+      7: begin //Regime Bares Rest. Similares
+            //Registro tipo 28 - Apuração Especial para Bares, Restaurantes e Similares
+            GravarLinha_valor('28'+'07'+'010',qryQuadrosDIMEq07_010_debvalorentradas.AsCurrency, false, 17);
+            GravarLinha_valor('28'+'07'+'020',qryQuadrosDIMEq07_020_debsobdifentsaidas.AsCurrency, false, 17);
+            GravarLinha_valor('28'+'07'+'030',qryQuadrosDIMEq07_030_credrelaqatoutuf.AsCurrency, false, 17);
+            GravarLinha_valor('28'+'07'+'980',qryQuadrosDIMEq07_980_subtotaldebitos.AsCurrency, false, 17);
+            GravarLinha_valor('28'+'07'+'990',qryQuadrosDIMEq07_990_subtotalcreditos.AsCurrency, false, 17);
+         end;
+      3: begin // REgime Estimativa
+            //Registro tipo 29 - Apuração para contribuintes com Regime Especial de Estimativa Fixa
+            GravarLinha_valor('29'+'08'+'010',qryQuadrosDIMEq08_010_Debapnomes.AsCurrency, false, 17);
+            GravarLinha_valor('29'+'08'+'020',qryQuadrosDIMEq08_020_debacumateomesantnosemestre.AsCurrency, false, 17);
+            GravarLinha_valor('29'+'08'+'030',qryQuadrosDIMEq08_030_credapnomes.AsCurrency, false, 17);
+            GravarLinha_valor('29'+'08'+'040',qryQuadrosDIMEq08_040_credacumateomesantnosemestre.AsCurrency, false, 17);
+            GravarLinha_valor('29'+'08'+'050',qryQuadrosDIMEq08_050_somaparcestateomesnosemestre.AsCurrency, false, 17);
+            GravarLinha_valor('29'+'08'+'980',qryQuadrosDIMEq08_980_totdebacumsemestre.AsCurrency, false, 17);
+            GravarLinha_valor('29'+'08'+'990',qryQuadrosDIMEq08_990_totcredacumsemestre.AsCurrency, false, 17);
+         end;
+      end;
+      //Registro tipo 30 - Cálculo do Imposto a Pagar ou Saldo Credor
+      GravarLinha_valor('30'+'09'+'010',qryQuadrosDIMEq09_010_subtotaldebitos.AsCurrency, false, 17);
+      GravarLinha_valor('30'+'09'+'011',qryQuadrosDIMEq09_011_compldebmudancaregimeap.AsCurrency, false, 17);
+      GravarLinha_valor('30'+'09'+'020',qryQuadrosDIMEq09_020_saldodevrecestabcons.AsCurrency, false, 17);
+      GravarLinha_valor('30'+'09'+'030',qryQuadrosDIMEq09_030_credtransoutcontrib.AsCurrency, false, 17);
+      GravarLinha_valor('30'+'09'+'040',qryQuadrosDIMEq09_040_totaldebitos.AsCurrency, false, 17);
+      GravarLinha_valor('30'+'09'+'050',qryQuadrosDIMEq09_050_subtotalcreditos.AsCurrency, false, 17);
+      GravarLinha_valor('30'+'09'+'051',qryQuadrosDIMEq09_051_complcredmudancaregimeap.AsCurrency, false, 17);
+      GravarLinha_valor('30'+'09'+'052',qryQuadrosDIMEq09_052_crepagtoindevidoperanterior.AsCurrency, false, 17);
+      GravarLinha_valor('30'+'09'+'060',qryQuadrosDIMEq09_060_SaldoCredRecEstaCons.AsCurrency, false, 17);
+      GravarLinha_valor('30'+'09'+'070',qryQuadrosDIMEq09_070_CredRecebTransfOutContrib.AsCurrency, false, 17);
+      GravarLinha_valor('30'+'09'+'075',qryQuadrosDIMEq09_075_creinformadonodcip.AsCurrency, false, 17);
+      GravarLinha_valor('30'+'09'+'080',qryQuadrosDIMEq09_080_TotalCreditos.AsCurrency, false, 17);
+      GravarLinha_valor('30'+'09'+'090',qryQuadrosDIMEq09_090_imposto1decendio.AsCurrency, false, 17);
+      GravarLinha_valor('30'+'09'+'100',qryQuadrosDIMEq09_100_imposto2decendio.AsCurrency, false, 17);
+      GravarLinha_valor('30'+'09'+'105',qryQuadrosDIMEq09_105_antecipliqcombgasosos.AsCurrency, false, 17);
+      GravarLinha_valor('30'+'09'+'110',qryQuadrosDIMEq09_110_TotalAjustesApDecendial.AsCurrency, false, 17);
+      GravarLinha_valor('30'+'09'+'120',qryQuadrosDIMEq09_120_SaldoDevedor.AsCurrency, false, 17);
+      GravarLinha_valor('30'+'09'+'130',qryQuadrosDIMEq09_130_SaldoDevTransfEstabConsolidador.AsCurrency, false, 17);
+      GravarLinha_valor('30'+'09'+'140',qryQuadrosDIMEq09_140_SaldoCredor.AsCurrency, false, 17);
+      GravarLinha_valor('30'+'09'+'150',qryQuadrosDIMEq09_150_SaldoCredTransfEstabConsolidador.AsCurrency, false, 17);
+      GravarLinha_valor('30'+'09'+'160',qryQuadrosDIMEq09_160_saldocredorcredrelexport.AsCurrency, false, 17);
+      GravarLinha_valor('30'+'09'+'170',qryQuadrosDIMEq09_170_saldocredorcredrelsaidisent.AsCurrency, false, 17);
+      GravarLinha_valor('30'+'09'+'180',qryQuadrosDIMEq09_180_saldocredorcredrelsaidif.AsCurrency, false, 17);
+      GravarLinha_valor('30'+'09'+'190',qryQuadrosDIMEq09_190_saldocredordeoutroscreditos.AsCurrency, false, 17);
+      GravarLinha_valor('30'+'09'+'998',qryQuadrosDIMEq09_998_SaldoCredPerSeguinte.AsCurrency, false, 17);
+      GravarLinha_valor('30'+'09'+'999',qryQuadrosDIMEq09_999_ImpostoaRecolher.AsCurrency, false, 17);
+
+      //Registro tipo 31 - Débitos Específicos (compensáveis ou não após o recolhimento)
+      GravarLinha_valor('31'+'10'+'010',qryQuadrosDIMEq10_010_debrelopimportacao.AsCurrency, false, 17);
+      GravarLinha_valor('31'+'10'+'020',qryQuadrosDIMEq10_020_debrelaqatacdeoutrasuf.AsCurrency, false, 17);
+      GravarLinha_valor('31'+'10'+'030',qryQuadrosDIMEq10_030_debporesptribut.AsCurrency, false, 17);
+      GravarLinha_valor('31'+'10'+'040',qryQuadrosDIMEq10_040_outrosdebocasfatgerador.AsCurrency, false, 17);
+      GravarLinha_valor('31'+'10'+'050',qryQuadrosDIMEq10_050_outrosdebeventuais.AsCurrency, false, 17);
+      GravarLinha_valor('31'+'10'+'990',qryQuadrosDIMEq10_990_TotalDebitos.AsCurrency, false, 17);
+
+      //Registro tipo 32 - Informações sobre Substituição Tributária
+      case qryQuadrosDIMEq00_130_substitutotributario.AsInteger of
+      1, // Substituto tributário
+      3: begin // Substituido solidario
+           GravarLinha_valor('32'+'11'+'010',qryQuadrosDIMEq11_010_valordosprodutos.AsCurrency, false, 17);
+           GravarLinha_valor('32'+'11'+'020',qryQuadrosDIMEq11_020_valordoipi.AsCurrency, false, 17);
+           GravarLinha_valor('32'+'11'+'030',qryQuadrosDIMEq11_030_despesasacessorias.AsCurrency, false, 17);
+           GravarLinha_valor('32'+'11'+'040',qryQuadrosDIMEq11_040_basedecalculodoicmsproprio.AsCurrency, false, 17);
+           GravarLinha_valor('32'+'11'+'050',qryQuadrosDIMEq11_050_icmsproprio.AsCurrency, false, 17);
+           GravarLinha_valor('32'+'11'+'060',qryQuadrosDIMEq11_060_basecalcicmssubsttributaria.AsCurrency, false, 17);
+           GravarLinha_valor('32'+'11'+'065',qryQuadrosDIMEq11_065_debocafatger.AsCurrency, false, 17);
+           GravarLinha_valor('32'+'11'+'070',qryQuadrosDIMEq11_070_impretporsubsttributaria.AsCurrency, false, 17);
+           GravarLinha_valor('32'+'11'+'073',qryQuadrosDIMEq11_073_debocfatgerapuracaomensal.AsCurrency, false, 17);
+           GravarLinha_valor('32'+'11'+'075',qryQuadrosDIMEq11_075_slddevrecestcons.AsCurrency, false, 17);
+           GravarLinha_valor('32'+'11'+'080',qryQuadrosDIMEq11_080_totaldedebitos.AsCurrency, false, 17);
+           GravarLinha_valor('32'+'11'+'090',qryQuadrosDIMEq11_090_saldocredperantsubsttribut.AsCurrency, false, 17);
+           GravarLinha_valor('32'+'11'+'100',qryQuadrosDIMEq11_100_devmercedesfazimentodevenda.AsCurrency, false, 17);
+           GravarLinha_valor('32'+'11'+'110',qryQuadrosDIMEq11_110_ressarcimentoicmssubsttribut.AsCurrency, false, 17);
+           GravarLinha_valor('32'+'11'+'120',qryQuadrosDIMEq11_120_outroscreditos.AsCurrency, false, 17);
+           GravarLinha_valor('32'+'11'+'125',qryQuadrosDIMEq11_125_sldcredrecestcons.AsCurrency, false, 17);
+           GravarLinha_valor('32'+'11'+'130',qryQuadrosDIMEq11_130_totalcrediajustesapdecendial.AsCurrency, false, 17);
+           GravarLinha_valor('32'+'11'+'140',qryQuadrosDIMEq11_140_imposto1decendio.AsCurrency, false, 17);
+           GravarLinha_valor('32'+'11'+'150',qryQuadrosDIMEq11_150_imposto2decendio.AsCurrency, false, 17);
+           GravarLinha_valor('32'+'11'+'155',qryQuadrosDIMEq11_155_antecipliqcombgasosos.AsCurrency, false, 17);
+           GravarLinha_valor('32'+'11'+'160',qryQuadrosDIMEq11_160_totalajustesapdecendial.AsCurrency, false, 17);
+           GravarLinha_valor('32'+'11'+'170',qryQuadrosDIMEq11_170_saldodevedor.AsCurrency, true, 17);
+           GravarLinha_valor('32'+'11'+'180',qryQuadrosDIMEq11_180_slddevtrestcons.AsCurrency, false, 17);
+           GravarLinha_valor('32'+'11'+'190',qryQuadrosDIMEq11_190_saldocredor.AsCurrency, false, 17);
+           GravarLinha_valor('32'+'11'+'200',qryQuadrosDIMEq11_200_sldcredtrestcons.AsCurrency, false, 17);
+           GravarLinha_valor('32'+'11'+'998',qryQuadrosDIMEq11_998_saldocredorparaomesseguinte.AsCurrency, false, 17);
+           GravarLinha_valor('32'+'11'+'999',qryQuadrosDIMEq11_999_imparecolhersobresubsttribut.AsCurrency, true, 17);
+         end;
+      end;
+
+      //Registro tipo 33 - Discriminação dos Pagamentos do Imposto e dos Débitos Específicos
+      qryq12_discrpagtos.First;
+      while not qryq12_discrpagtos.Eof do
+      begin
+        GravarLinha_String('33'+'12'+
+                qryq12_discrpagtosorigem.AsString+
+                format('%4.4d',[qryq12_discrpagtoscodigoreceita.asinteger])+
+                FormatDateTime('ddmmyyyy',qryq12_discrpagtosdatavencto.AsDateTime)+
+                formatfloat('00000000000000000',round((qryq12_discrpagtosvalor.AsCurrency*100)))+
+                format('%5.5d',[qryq12_discrpagtosclassevencto.asinteger])+
+                format('%15.15d',[qryq12_discrpagtosnumeroacordo.asinteger]));
+        qryq12_discrpagtos.Next;
+      end;
+
+      case qryQuadrosDIMEq00_050_regimedeapuracao.AsInteger of
+      2,  // normal
+      9: begin // prod. primario
+         //Registro tipo 41 - Demonstrativo de Créditos Acumulados
+          GravarLinha_valor('41'+'41'+'010',qryQuadrosDIMEq41_010_perccredreltotaq3ultmeses.AsCurrency, false, 17);
+          GravarLinha_valor('41'+'41'+'020',qryQuadrosDIMEq41_020_prodexpmes.AsCurrency, false, 17);
+          GravarLinha_valor('41'+'41'+'030',qryQuadrosDIMEq41_030_prodsaidaisentaounaotrib.AsCurrency, false, 17);
+          GravarLinha_valor('41'+'41'+'040',qryQuadrosDIMEq41_040_prodcomsaidadiferidanomes.AsCurrency, false, 17);
+          GravarLinha_valor('41'+'41'+'120',qryQuadrosDIMEq41_120_credgerexpocormes.AsCurrency, false, 17);
+          GravarLinha_valor('41'+'41'+'130',qryQuadrosDIMEq41_130_credgersaidasisentasocormes.AsCurrency, false, 17);
+          GravarLinha_valor('41'+'41'+'140',qryQuadrosDIMEq41_140_credgersaidasdifocormes.AsCurrency, false, 17);
+          GravarLinha_valor('41'+'41'+'160',qryQuadrosDIMEq41_160_saldocredtransfmesantrelexpo.AsCurrency, false, 17);
+          GravarLinha_valor('41'+'41'+'170',qryQuadrosDIMEq41_170_salcredtranmesantrelsaiisent.AsCurrency, false, 17);
+          GravarLinha_valor('41'+'41'+'180',qryQuadrosDIMEq41_180_salcredtranmesantrelsaidifer.AsCurrency, false, 17);
+          GravarLinha_valor('41'+'41'+'190',qryQuadrosDIMEq41_190_salcredmesantreloutcredntran.AsCurrency, false, 17);
+          GravarLinha_valor('41'+'41'+'220',qryQuadrosDIMEq41_220_esdebtrcredrelexportacoes.AsCurrency, false, 17);
+          GravarLinha_valor('41'+'41'+'230',qryQuadrosDIMEq41_230_estdebtrcredrelsaidasisentas.AsCurrency, false, 17);
+          GravarLinha_valor('41'+'41'+'240',qryQuadrosDIMEq41_240_estdebportransfcredrelsaidif.AsCurrency, false, 17);
+          GravarLinha_valor('41'+'41'+'960',qryQuadrosDIMEq41_960_saldocredoracumuladorelexp.AsCurrency, false, 17);
+          GravarLinha_valor('41'+'41'+'970',qryQuadrosDIMEq41_970_saldocredacumrelsaidasisenta.AsCurrency, false, 17);
+          GravarLinha_valor('41'+'41'+'980',qryQuadrosDIMEq41_980_saldocredacumrelativoasaidas.AsCurrency, false, 17);
+
+          //Registro tipo 42 - Débitos por Transferência de Crédito Acumulado
+          GravarLinha_valor('42'+'42'+'010',qryQuadrosDIMEq42_010_debtranscredacumrelexport.AsCurrency, false, 17);
+          GravarLinha_valor('42'+'42'+'020',qryQuadrosDIMEq42_020_debtranscredacumrelsaidasis.AsCurrency, false, 17);
+          GravarLinha_valor('42'+'42'+'030',qryQuadrosDIMEq42_030_debtranscredacumrelsaidasdif.AsCurrency, false, 17);
+          GravarLinha_valor('42'+'42'+'040',qryQuadrosDIMEq42_040_debtransbensatpermoutestabel.AsCurrency, false, 17);
+          GravarLinha_valor('42'+'42'+'070',qryQuadrosDIMEq42_070_outrosdebtranscreditos.AsCurrency, false, 17);
+          GravarLinha_valor('42'+'42'+'990',qryQuadrosDIMEq42_990_totdebtranscredacum.AsCurrency, false, 17);
+
+          //Registro tipo 43 - Créditos Recebidos por Transferência
+          GravarLinha_valor('43'+'43'+'010',qryQuadrosDIMEq43_010_credtransfcredacum.AsCurrency, false, 17);
+          GravarLinha_valor('43'+'43'+'020',qryQuadrosDIMEq43_020_credtransfativopermestabemp.AsCurrency, false, 17);
+          GravarLinha_valor('43'+'43'+'050',qryQuadrosDIMEq43_050_outroscredtransfcred.AsCurrency, false, 17);
+          GravarLinha_valor('43'+'43'+'990',qryQuadrosDIMEq43_990_totalcredtransfcred.AsCurrency, false, 17);
+         end;
+      end;
+
+      case qryQuadrosDIMEq00_050_regimedeapuracao.AsInteger of
+      1,  //simples
+      2,  // normal
+      7,  // Bares Rest. Simil.
+      9: begin // prod. primario
+           // Registro tipo 44 - Créditos Presumidos
+           GravarLinha_valor('44'+'44'+'010',qryQuadrosDIMEq44_010_totalpagosmesempregados.AsCurrency, False, 17);
+           GravarLinha_valor('44'+'44'+'020',qryQuadrosDIMEq44_020_mediavalpagosempregadosexant.AsCurrency, False, 17);
+           GravarLinha_valor('44'+'44'+'030',qryQuadrosDIMEq44_030_incrementoverificado.AsCurrency, False, 17);
+           GravarLinha_valor('44'+'44'+'040',qryQuadrosDIMEq44_040_credpresumidoincgeremprego.AsCurrency, False, 17);
+           GravarLinha_valor('44'+'44'+'050',qryQuadrosDIMEq44_050_credpresestababatedoraves5.AsCurrency, False, 17);
+           GravarLinha_valor('44'+'44'+'060',qryQuadrosDIMEq44_060_credpresestababatedoraves4.AsCurrency, False, 17);
+           GravarLinha_valor('44'+'44'+'070',qryQuadrosDIMEq44_070_credpresestababatedoraves3.AsCurrency, False, 17);
+           GravarLinha_valor('44'+'44'+'080',qryQuadrosDIMEq44_080_credpresestababatsuinos6.AsCurrency, False, 17);
+           GravarLinha_valor('44'+'44'+'090',qryQuadrosDIMEq44_090_credpresestababatsuinos5.AsCurrency, False, 17);
+           GravarLinha_valor('44'+'44'+'100',qryQuadrosDIMEq44_100_credpresestababatsuinos4.AsCurrency, False, 17);
+           GravarLinha_valor('44'+'44'+'120',qryQuadrosDIMEq44_120_credpresaqecf.AsCurrency, False, 17);
+           GravarLinha_valor('44'+'44'+'130',qryQuadrosDIMEq44_130_contribaofundosocial.AsCurrency, False, 17);
+           GravarLinha_valor('44'+'44'+'131',qryQuadrosDIMEq44_131_credcontribfundosocial.AsCurrency, False, 17);
+           GravarLinha_valor('44'+'44'+'140',qryQuadrosDIMEq44_140_aplicfuncultural.AsCurrency, False, 17);
+           GravarLinha_valor('44'+'44'+'150',qryQuadrosDIMEq44_150_aplicfunturismo.AsCurrency, False, 17);
+           GravarLinha_valor('44'+'44'+'160',qryQuadrosDIMEq44_160_aplicfundesporte.AsCurrency, False, 17);
+           GravarLinha_valor('44'+'44'+'190',qryQuadrosDIMEq44_190_outroscredpresumidos.AsCurrency, False, 17);
+           GravarLinha_valor('44'+'44'+'990',qryQuadrosDIMEq44_990_totaldecreditospresumidos.AsCurrency, False, 17);
+         end;
+      end;
+
+      case qryQuadrosDIMEq00_050_regimedeapuracao.AsInteger of
+      2,  // normal
+      9: begin // prod. primario
+           //Registro tipo 45 - Créditos por Incentivos Fiscais
+           GravarLinha_valor('45'+'45'+'010',qryQuadrosDIMEq45_010_saldodevmesantesdedincent.AsCurrency, false, 17);
+           GravarLinha_valor('45'+'45'+'020',qryQuadrosDIMEq45_020_credporincentfisc.AsCurrency, false, 17);
+           GravarLinha_valor('45'+'45'+'030',qryQuadrosDIMEq45_030_valordorecibo.AsCurrency, false, 17);
+           GravarLinha_valor('45'+'45'+'040',qryQuadrosDIMEq45_040_credporincentfiscpercvlrrec.AsCurrency, false, 17);
+           GravarLinha_valor('45'+'45'+'050',qryQuadrosDIMEq45_050_outroscredincentfiscais.AsCurrency, false, 17);
+           GravarLinha_valor('45'+'45'+'990',qryQuadrosDIMEq45_990_totalcredincentfisc.AsCurrency, false, 17);
+         end;
+      end;
+
+
+      //Registro tipo 46 - Créditos por Autorizações Especiais
+      qryq46_RegimeEspecial.First;
+      Sequencia :=1;
+      while not qryq46_RegimeEspecial.eof do
+      begin
+        GravarLinha_String('46'+'46'+
+                           format('%3.3d',[Sequencia])+
+                           FormatStringOut(qryq46_RegimeEspecialregime.Asstring,'R','0',15)+
+                           formatfloat('00000000000000000',round((qryq46_RegimeEspecialvalor.AsCurrency*100))) +
+                           format('%2.2d', [qryq46_RegimeEspecialorigem.Asinteger]));
+        qryq46_RegimeEspecial.next;
+        Sequencia := Sequencia + 1;
+      end;
+      //total
+      if (qryq46_RegimeEspecialtotalvalor.AsCurrency<>0) then
+        GravarLinha_String('46'+'46'+
+           format('%3.3d',[990])+
+
+           format('%15.15d', [qryq46_RegimeEspecialtotalregime.Asinteger])+
+           formatfloat('00000000000000000',round((qryq46_RegimeEspecialtotalvalor.AsCurrency*100))) +
+           format('%2.2d', [qryq46_RegimeEspecialtotalorigem.Asinteger]));
+
+      //Registro tipo 47 - Entradas de Extratores, Produtores Agropecuários e Pescadores
+      qryq47_compraexproagrop.First;
+      while not qryq47_compraexproagrop.Eof do
+      begin
+        GravarLinha_valor('47'+'47'+
+                           format('%5.5d',[qryq47_compraexproagropcodmunicipio.asinteger]),
+                           qryq47_compraexproagropvalor.AsCurrency,
+                           False, 17);
+        qryq47_compraexproagrop.next;
+      end;
+      // total
+      GravarLinha_valor('47'+'47'+
+       format('%5.5d',[qryq47_compraexproagroptotalcodmunicipio.asinteger]),
+       qryq47_compraexproagroptotalvalor.AsCurrency,
+       False, 17);
+
+      // Registro tipo 48 - Receita de Prestação de Serviços e Fornecimento e Energia Elétrica
+      case qryQuadrosDIMEq00_050_regimedeapuracao.AsInteger of
+      1,  //simples
+      2: begin // normal
+          qryq48_recprestservfornenereletrica.First;
+          while not qryq48_recprestservfornenereletrica.Eof do
+          begin
+           GravarLinha_valor('48'+'48'+
+                           format('%6.6d',[qryq48_recprestservfornenereletricacodmunicipio.asinteger]),
+                           qryq48_recprestservfornenereletricavalor.AsCurrency,
+                           False, 17);
+           qryq48_recprestservfornenereletrica.next;
+          end;
+         end;
+      end;
+      //total
+      GravarLinha_valor('48'+'48'+
+                 format('%6.6d',[qryq48_recprestservfornenereletricatotalcodmunicipio.asinteger]),
+                 qryq48_recprestservfornenereletricatotalvalor.AsCurrency,
+                 False, 17);
+
+      // Registro tipo 49 - Entradas por Unidade da Federação
+      qryq49_entmercbensaqservicos.First;
+      while not qryq49_entmercbensaqservicos.Eof do
+      begin
+        GravarLinha_String('49'+'49'+
+                           qryq49_entmercbensaqservicosestado.AsString +
+                           formatfloat('00000000000000000',round((qryq49_entmercbensaqservicosvalorcontabil.AsCurrency*100))) +
+                           formatfloat('00000000000000000',round((qryq49_entmercbensaqservicosbasedecalculo.AsCurrency*100))) +
+                           formatfloat('00000000000000000',round((qryq49_entmercbensaqservicosoutras.AsCurrency*100))) +
+                           formatfloat('00000000000000000',round((qryq49_entmercbensaqservicosicmsretidosubstrib1.AsCurrency*100))) +
+                           formatfloat('00000000000000000',round((qryq49_entmercbensaqservicosicmsretidosubstrib2.AsCurrency*100)))
+                          );
+        qryq49_entmercbensaqservicos.next;
+      end;
+      //total
+      if (qryq49_entmercbensaqservicostotalvalorcontabil.AsCurrency<>0) or
+         (qryq49_entmercbensaqservicostotalbasedecalculo.AsCurrency<>0) or
+         (qryq49_entmercbensaqservicostotaloutras.AsCurrency<>0) or
+         (qryq49_entmercbensaqservicostotalicmsretidosubstrib1.AsCurrency<>0) or
+         (qryq49_entmercbensaqservicostotalicmsretidosubstrib2.AsCurrency<>0) then
+      GravarLinha_String('49'+'49'+
+       qryq49_entmercbensaqservicostotalestado.AsString +
+       formatfloat('00000000000000000',round((qryq49_entmercbensaqservicostotalvalorcontabil.AsCurrency*100))) +
+       formatfloat('00000000000000000',round((qryq49_entmercbensaqservicostotalbasedecalculo.AsCurrency*100))) +
+       formatfloat('00000000000000000',round((qryq49_entmercbensaqservicostotaloutras.AsCurrency*100))) +
+       formatfloat('00000000000000000',round((qryq49_entmercbensaqservicostotalicmsretidosubstrib1.AsCurrency*100))) +
+       formatfloat('00000000000000000',round((qryq49_entmercbensaqservicostotalicmsretidosubstrib2.AsCurrency*100)))
+      );
+
+      // Registro tipo 50 - Saídas por Unidade da Federação
+      qryq50_saimercforneletrservicos.First;
+      while not qryq50_saimercforneletrservicos.Eof do
+      begin
+        GravarLinha_String('50'+'50'+
+                           qryq50_saimercforneletrservicosestado.AsString +
+                           formatfloat('00000000000000000',round((qryq50_saimercforneletrservicosvalorcontabil_naocontrib.AsCurrency*100))) +
+                           formatfloat('00000000000000000',round((qryq50_saimercforneletrservicosvalorcontabil_contrib.AsCurrency*100))) +
+                           formatfloat('00000000000000000',round((qryq50_saimercforneletrservicosbasedecalculo_naocontrib.AsCurrency*100))) +
+                           formatfloat('00000000000000000',round((qryq50_saimercforneletrservicosbasedecalculo_contrib.AsCurrency*100))) +
+                           formatfloat('00000000000000000',round((qryq50_saimercforneletrservicosoutras.AsCurrency*100))) +
+                           formatfloat('00000000000000000',round((qryq50_saimercforneletrservicosicmsretidosubstrib.AsCurrency*100)))
+                           );
+        qryq50_saimercforneletrservicos.next;
+      end;
+      // total
+      if (qryq50_saimercforneletrservicostotalvalorcontabil_naocontrib.AsCurrency<>0) or
+         (qryq50_saimercforneletrservicostotalvalorcontabil_contrib.AsCurrency<>0) or
+         (qryq50_saimercforneletrservicostotalbasedecalculo_naocontrib.AsCurrency<>0) or
+         (qryq50_saimercforneletrservicostotalbasedecalculo_contrib.AsCurrency<>0) or
+         (qryq50_saimercforneletrservicostotaloutras.AsCurrency<>0) or
+         (qryq50_saimercforneletrservicostotalicmsretidosubstrib.AsCurrency<>0) then
+
+      GravarLinha_String('50'+'50'+
+       qryq50_saimercforneletrservicostotalestado.AsString +
+       formatfloat('00000000000000000',round((qryq50_saimercforneletrservicostotalvalorcontabil_naocontrib.AsCurrency*100))) +
+       formatfloat('00000000000000000',round((qryq50_saimercforneletrservicostotalvalorcontabil_contrib.AsCurrency*100))) +
+       formatfloat('00000000000000000',round((qryq50_saimercforneletrservicostotalbasedecalculo_naocontrib.AsCurrency*100))) +
+       formatfloat('00000000000000000',round((qryq50_saimercforneletrservicostotalbasedecalculo_contrib.AsCurrency*100))) +
+       formatfloat('00000000000000000',round((qryq50_saimercforneletrservicostotaloutras.AsCurrency*100))) +
+       formatfloat('00000000000000000',round((qryq50_saimercforneletrservicostotalicmsretidosubstrib.AsCurrency*100)))
+       );
+
+      //Registro tipo 51 - Exclusões do Valor Adicionado no Mês
+      GravarLinha_valor('51'+'51'+'010',qryQuadrosDIMEq51_010_prestservsujaoiss.AsCurrency, false, 17);
+      GravarLinha_valor('51'+'51'+'020',qryQuadrosDIMEq51_020_25transfrecebprecovendavarej.AsCurrency, false, 17);
+      GravarLinha_valor('51'+'51'+'030',qryQuadrosDIMEq51_030_ipirelaqmatprimasmerc.AsCurrency, false, 17);
+      GravarLinha_valor('51'+'51'+'040',qryQuadrosDIMEq51_040_paricmsretsubsttributaria.AsCurrency, false, 17);
+      GravarLinha_valor('51'+'51'+'050',qryQuadrosDIMEq51_050_subsconcorgaosgovfedestoumun.AsCurrency, false, 17);
+      GravarLinha_valor('51'+'51'+'060',qryQuadrosDIMEq51_060_prestervicosvsujeitaaoiss.AsCurrency, false, 17);
+      GravarLinha_valor('51'+'51'+'070',qryQuadrosDIMEq51_070_25transfefetaprecovendavarej.AsCurrency, false, 17);
+      GravarLinha_valor('51'+'51'+'080',qryQuadrosDIMEq51_080_ipiincidentesaidademerc.AsCurrency, false, 17);
+      GravarLinha_valor('51'+'51'+'090',qryQuadrosDIMEq51_090_parceladoicmsretporsubsttrib.AsCurrency, false, 17);
+      GravarLinha_valor('51'+'51'+'990',qryQuadrosDIMEq51_990_totaldosvaloresexcdassaidas.AsCurrency, false, 17);
+
+
+      if (copy(qryQuadrosDIMEperiodo.AsString,1,2)='06') or
+         ((qryQuadrosDIMEq00_040_tipodedeclaracao.AsInteger = 2) and
+           (strtoint(copy(qryQuadrosDIMEperiodo.AsString,1,2)) in [1..6])) then
+      begin
+        //Registro tipo 80 - Resumo do Livro Registro de Inventário e Receita Bruta
+        GravarLinha_valor('80'+'80'+'010',qryQuadrosDIMEq80_010_estoqueinicioexercicio.AsCurrency, true, 17);
+        GravarLinha_valor('80'+'80'+'020',qryQuadrosDIMEq80_020_estoquefimexercicio.AsCurrency, true, 17);
+        GravarLinha_valor('80'+'80'+'030',qryQuadrosDIMEq80_030_receitabrutavendasservicos.AsCurrency, true, 17);
+
+        case qryQuadrosDIMEq00_140_temescritacontabil.AsInteger of
+        1: begin // tem escrita contabil
+            //Registro tipo 81 - Ativo
+            GravarLinha_valor('81'+'81'+'110',qryQuadrosDIMEq81_023_circulante.AsCurrency, false, 17);
+            GravarLinha_valor('81'+'81'+'111',qryQuadrosDIMEq81_024_disponibilidades.AsCurrency, false, 17);
+            GravarLinha_valor('81'+'81'+'113',qryQuadrosDIMEq81_025_contasareceberdocirculante.AsCurrency, false, 17);
+            GravarLinha_valor('81'+'81'+'121',qryQuadrosDIMEq81_026_estoquedemercemateriaprima.AsCurrency, false, 17);
+            GravarLinha_valor('81'+'81'+'123',qryQuadrosDIMEq81_027_outrosestoques.AsCurrency, false, 17);
+            GravarLinha_valor('81'+'81'+'128',qryQuadrosDIMEq81_028_outrascontasdoativcirculante.AsCurrency, false, 17);
+            GravarLinha_valor('81'+'81'+'130',qryQuadrosDIMEq81_029_realizavelalongoprazo.AsCurrency, false, 17);
+            GravarLinha_valor('81'+'81'+'131',qryQuadrosDIMEq81_030_contasareceberdorealizavel.AsCurrency, false, 17);
+            GravarLinha_valor('81'+'81'+'148',qryQuadrosDIMEq81_031_outrascontasdorealizavel.AsCurrency, false, 17);
+            GravarLinha_valor('81'+'81'+'150',qryQuadrosDIMEq81_032_permanente.AsCurrency, false, 17);
+            GravarLinha_valor('81'+'81'+'151',qryQuadrosDIMEq81_033_investimentos.AsCurrency, false, 17);
+            GravarLinha_valor('81'+'81'+'155',qryQuadrosDIMEq81_034_imobilizado_liquido.AsCurrency, false, 17);
+            GravarLinha_valor('81'+'81'+'157',qryQuadrosDIMEq81_035_diferido.AsCurrency, false, 17);
+            GravarLinha_valor('81'+'81'+'199',qryQuadrosDIMEq81_990_totalgeraldoativo.AsCurrency, true, 17);
+
+            //Registro tipo 82 - Passivo
+            GravarLinha_valor('82'+'82'+'210',qryQuadrosDIMEq82_037_circulante.AsCurrency, false, 17);
+            GravarLinha_valor('82'+'82'+'211',qryQuadrosDIMEq82_038_fornecedores.AsCurrency, false, 17);
+            GravarLinha_valor('82'+'82'+'213',qryQuadrosDIMEq82_039_emprestimosefinanciamentos.AsCurrency, false, 17);
+            GravarLinha_valor('82'+'82'+'215',qryQuadrosDIMEq82_040_outrascontasdopassivocirc.AsCurrency, false, 17);
+            GravarLinha_valor('82'+'82'+'230',qryQuadrosDIMEq82_041_exigivelalongoprazo.AsCurrency, false, 17);
+            GravarLinha_valor('82'+'82'+'240',qryQuadrosDIMEq82_042_resultadosdeexfuturos.AsCurrency, false, 17);
+            GravarLinha_valor('82'+'82'+'269',qryQuadrosDIMEq82_269_PassivoaDescoberto.AsCurrency, false, 17);
+            GravarLinha_valor('82'+'82'+'270',qryQuadrosDIMEq82_043_patrimonioliquido.AsCurrency, false, 17);
+            GravarLinha_valor('82'+'82'+'271',qryQuadrosDIMEq82_044_capitalsocial.AsCurrency, false, 17);
+            GravarLinha_valor('82'+'82'+'278',qryQuadrosDIMEq82_045_outrascontasdopatrimonioliq.AsCurrency, false, 17);
+            GravarLinha_valor('82'+'82'+'279',qryQuadrosDIMEq82_279_outrascontasdopatrimonioliqvalneg.AsCurrency, false, 17);
+            GravarLinha_valor('82'+'82'+'299',qryQuadrosDIMEq82_990_totalgeraldopassivo.AsCurrency, true, 17);
+
+            //Registro tipo 83 - Demonstração de Resultados
+            GravarLinha_valor('83'+'83'+'310',qryQuadrosDIMEq83_047_receitabrutavendasservicos.AsCurrency, false, 17);
+            GravarLinha_valor('83'+'83'+'311',qryQuadrosDIMEq83_048_devabatimentoseimpostos.AsCurrency, false, 17);
+            GravarLinha_valor('83'+'83'+'320',qryQuadrosDIMEq83_049_receitaliquidavendasservicos.AsCurrency, false, 17);
+            GravarLinha_valor('83'+'83'+'323',qryQuadrosDIMEq83_050_custodamercadoriavendida.AsCurrency, false, 17);
+            GravarLinha_valor('83'+'83'+'330',qryQuadrosDIMEq83_051_lucrobruto.AsCurrency, false, 17);
+            GravarLinha_valor('83'+'83'+'331',qryQuadrosDIMEq83_331_prejuizobruto.AsCurrency, false, 17);
+            GravarLinha_valor('83'+'83'+'333',qryQuadrosDIMEq83_333_OutrasRecOper.AsCurrency, false, 17);
+            GravarLinha_valor('83'+'83'+'335',qryQuadrosDIMEq83_052_despesasoperacionais.AsCurrency, false, 17);
+            GravarLinha_valor('83'+'83'+'340',qryQuadrosDIMEq83_053_lucroprejuizooperacional.AsCurrency, false, 17);
+            GravarLinha_valor('83'+'83'+'341',qryQuadrosDIMEq83_341_prejuizooperacional.AsCurrency, false, 17);
+            GravarLinha_valor('83'+'83'+'343',qryQuadrosDIMEq83_054_receitasnaooperacionais.AsCurrency, false, 17);
+            GravarLinha_valor('83'+'83'+'345',qryQuadrosDIMEq83_055_despesasnaooperacionais.AsCurrency, false, 17);
+            GravarLinha_valor('83'+'83'+'350',qryQuadrosDIMEq83_057_resultadoantesdoir.AsCurrency, false, 17);
+            GravarLinha_valor('83'+'83'+'351',qryQuadrosDIMEq83_351_resultadoNegantesdoir.AsCurrency, false, 17);
+            GravarLinha_valor('83'+'83'+'353',qryQuadrosDIMEq83_058_provisaoparaoir.AsCurrency, false, 17);
+            GravarLinha_valor('83'+'83'+'360',qryQuadrosDIMEq83_056_saldodacontacorrecaomonet.AsCurrency, false, 17);
+            GravarLinha_valor('83'+'83'+'361',qryQuadrosDIMEq83_059_resultadoaposoir.AsCurrency, false, 17);
+            GravarLinha_valor('83'+'83'+'363',qryQuadrosDIMEq83_060_participacoesecontribuicoes.AsCurrency, false, 17);
+            if qryQuadrosDIMEq83_398_prejuizodoexercicio.AsCurrency<>0 then
+              GravarLinha_valor('83'+'83'+'398',qryQuadrosDIMEq83_398_prejuizodoexercicio.AsCurrency, true, 17)
+            else
+              GravarLinha_valor('83'+'83'+'399',qryQuadrosDIMEq83_061_lucroouprejuizo.AsCurrency, true, 17);
+           end;
+        end;
+
+        //Registro tipo 84 - Detalhamento das Despesas
+        GravarLinha_valor('84'+'84'+'411',qryQuadrosDIMEq84_062_prolabore.AsCurrency, false, 17);
+        GravarLinha_valor('84'+'84'+'412',qryQuadrosDIMEq84_063_comissoessalariosordenados.AsCurrency, false, 17);
+        GravarLinha_valor('84'+'84'+'431',qryQuadrosDIMEq84_064_combustiveiselubrificantes.AsCurrency, false, 17);
+        GravarLinha_valor('84'+'84'+'421',qryQuadrosDIMEq84_065_encargossociais.AsCurrency, false, 17);
+        GravarLinha_valor('84'+'84'+'422',qryQuadrosDIMEq84_066_tributosfederais.AsCurrency, false, 17);
+        GravarLinha_valor('84'+'84'+'423',qryQuadrosDIMEq84_067_tributosestaduais.AsCurrency, false, 17);
+        GravarLinha_valor('84'+'84'+'424',qryQuadrosDIMEq84_068_tributosmunicipais.AsCurrency, false, 17);
+        GravarLinha_valor('84'+'84'+'432',qryQuadrosDIMEq84_069_aguaetelefone.AsCurrency, false, 17);
+        GravarLinha_valor('84'+'84'+'433',qryQuadrosDIMEq84_070_energiaeletrica.AsCurrency, false, 17);
+        GravarLinha_valor('84'+'84'+'441',qryQuadrosDIMEq84_071_alugueis.AsCurrency, false, 17);
+        GravarLinha_valor('84'+'84'+'451',qryQuadrosDIMEq84_072_servicosprofissionais.AsCurrency, false, 17);
+        GravarLinha_valor('84'+'84'+'442',qryQuadrosDIMEq84_073_seguros.AsCurrency, false, 17);
+        GravarLinha_valor('84'+'84'+'443',qryQuadrosDIMEq84_074_fretesecarretos.AsCurrency, false, 17);
+        GravarLinha_valor('84'+'84'+'461',qryQuadrosDIMEq84_075_despesasfinanceiras.AsCurrency, false, 17);
+        GravarLinha_valor('84'+'84'+'498',qryQuadrosDIMEq84_076_outrasdespesas.AsCurrency, false, 17);
+        GravarLinha_valor('84'+'84'+'499',qryQuadrosDIMEq84_990_total.AsCurrency, true, 17);
+      end;
+
+      // Se for encerramento de atividades
+      if qryQuadrosDIMEq00_040_tipodedeclaracao.AsInteger = 2 then
+      begin
+        //Registro tipo 90 - Resumo do Livro Registro de Inventário e Receita Bruta (Encerramento de Atividades)
+        GravarLinha_valor('90'+'90'+'010',qryQuadrosDIMEq90_010_estoqueinicioexercicio.AsCurrency, true, 17);
+        GravarLinha_valor('90'+'90'+'020',qryQuadrosDIMEq90_020_estoquefimexercicio.AsCurrency, true, 17);
+        GravarLinha_valor('90'+'90'+'030',qryQuadrosDIMEq90_030_receitabrutavendasservicos.AsCurrency, true, 17);
+
+        case qryQuadrosDIMEq00_140_temescritacontabil.AsInteger of
+        1: begin // tem escrita contabil
+            //Registro tipo 91 - Ativo (Encerramento de Atividades)
+            GravarLinha_valor('91'+'91'+'110',qryQuadrosDIMEq91_023_circulante.AsCurrency, false, 17);
+            GravarLinha_valor('91'+'91'+'111',qryQuadrosDIMEq91_024_disponibilidades.AsCurrency, false, 17);
+            GravarLinha_valor('91'+'91'+'113',qryQuadrosDIMEq91_025_contasareceberdocirculante.AsCurrency, false, 17);
+            GravarLinha_valor('91'+'91'+'121',qryQuadrosDIMEq91_026_estoquedemercemateriaprima.AsCurrency, false, 17);
+            GravarLinha_valor('91'+'91'+'123',qryQuadrosDIMEq91_027_outrosestoques.AsCurrency, false, 17);
+            GravarLinha_valor('91'+'91'+'128',qryQuadrosDIMEq91_028_outrascontasdoativcirculante.AsCurrency, false, 17);
+            GravarLinha_valor('91'+'91'+'130',qryQuadrosDIMEq91_029_realizavelalongoprazo.AsCurrency, false, 17);
+            GravarLinha_valor('91'+'91'+'131',qryQuadrosDIMEq91_030_contasareceberdorealizavel.AsCurrency, false, 17);
+            GravarLinha_valor('91'+'91'+'148',qryQuadrosDIMEq91_031_outrascontasdorealizavel.AsCurrency, false, 17);
+            GravarLinha_valor('91'+'91'+'150',qryQuadrosDIMEq91_032_permanente.AsCurrency, false, 17);
+            GravarLinha_valor('91'+'91'+'151',qryQuadrosDIMEq91_033_investimentos.AsCurrency, false, 17);
+            GravarLinha_valor('91'+'91'+'155',qryQuadrosDIMEq91_034_imobilizado_liquido.AsCurrency, false, 17);
+            GravarLinha_valor('91'+'91'+'157',qryQuadrosDIMEq91_035_diferido.AsCurrency, false, 17);
+            GravarLinha_valor('91'+'91'+'199',qryQuadrosDIMEq91_990_totalgeraldoativo.AsCurrency, true, 17);
+
+            //Registro tipo 92 - Passivo (Encerramento de Atividades)
+            GravarLinha_valor('92'+'92'+'210',qryQuadrosDIMEq92_037_circulante.AsCurrency, false, 17);
+            GravarLinha_valor('92'+'92'+'211',qryQuadrosDIMEq92_038_fornecedores.AsCurrency, false, 17);
+            GravarLinha_valor('92'+'92'+'213',qryQuadrosDIMEq92_039_emprestimosefinanciamentos.AsCurrency, false, 17);
+            GravarLinha_valor('92'+'92'+'215',qryQuadrosDIMEq92_040_outrascontasdopassivocirc.AsCurrency, false, 17);
+            GravarLinha_valor('92'+'92'+'230',qryQuadrosDIMEq92_041_exigivelalongoprazo.AsCurrency, false, 17);
+            GravarLinha_valor('92'+'92'+'240',qryQuadrosDIMEq92_042_resultadosdeexfuturos.AsCurrency, false, 17);
+            GravarLinha_valor('92'+'92'+'269',qryQuadrosDIMEq92_269_PassivoaDescoberto.AsCurrency, false, 17);
+            GravarLinha_valor('92'+'92'+'270',qryQuadrosDIMEq92_043_patrimonioliquido.AsCurrency, false, 17);
+            GravarLinha_valor('92'+'92'+'271',qryQuadrosDIMEq92_044_capitalsocial.AsCurrency, false, 17);
+            GravarLinha_valor('92'+'92'+'278',qryQuadrosDIMEq92_045_outrascontasdopatrimonioliq.AsCurrency, false, 17);
+            GravarLinha_valor('92'+'92'+'279',qryQuadrosDIMEq92_279_outrascontasdopatrimonioliqvalneg.AsCurrency, false, 17);
+            GravarLinha_valor('92'+'92'+'299',qryQuadrosDIMEq92_990_totalgeraldopassivo.AsCurrency, true, 17);
+
+            //Registro tipo 93 - Demonstração de Resultados (Encerramento de Atividades)
+            GravarLinha_valor('93'+'93'+'310',qryQuadrosDIMEq93_047_receitabrutavendasservicos.AsCurrency, false, 17);
+            GravarLinha_valor('93'+'93'+'311',qryQuadrosDIMEq93_048_devabatimentoseimpostos.AsCurrency, false, 17);
+            GravarLinha_valor('93'+'93'+'320',qryQuadrosDIMEq93_049_receitaliquidavendasservicos.AsCurrency, false, 17);
+            GravarLinha_valor('93'+'93'+'323',qryQuadrosDIMEq93_050_custodamercadoriavendida.AsCurrency, false, 17);
+            GravarLinha_valor('93'+'93'+'330',qryQuadrosDIMEq93_051_lucrobruto.AsCurrency, false, 17);
+            GravarLinha_valor('93'+'93'+'331',qryQuadrosDIMEq93_331_prejuizobruto.AsCurrency, false, 17);
+            GravarLinha_valor('93'+'93'+'333',qryQuadrosDIMEq93_333_OutrasRecOper.AsCurrency, false, 17);
+            GravarLinha_valor('93'+'93'+'335',qryQuadrosDIMEq93_052_despesasoperacionais.AsCurrency, false, 17);
+            GravarLinha_valor('93'+'93'+'340',qryQuadrosDIMEq93_053_lucroprejuizooperacional.AsCurrency, false, 17);
+            GravarLinha_valor('93'+'93'+'341',qryQuadrosDIMEq93_341_prejuizooperacional.AsCurrency, false, 17);
+            GravarLinha_valor('93'+'93'+'343',qryQuadrosDIMEq93_054_receitasnaooperacionais.AsCurrency, false, 17);
+            GravarLinha_valor('93'+'93'+'345',qryQuadrosDIMEq93_055_despesasnaooperacionais.AsCurrency, false, 17);
+            GravarLinha_valor('93'+'93'+'350',qryQuadrosDIMEq93_057_resultadoantesdoir.AsCurrency, false, 17);
+            GravarLinha_valor('93'+'93'+'351',qryQuadrosDIMEq93_351_resultadoNegantesdoir.AsCurrency, false, 17);
+            GravarLinha_valor('93'+'93'+'353',qryQuadrosDIMEq93_058_provisaoparaoir.AsCurrency, false, 17);
+            GravarLinha_valor('93'+'93'+'360',qryQuadrosDIMEq93_056_saldodacontacorrecaomonet.AsCurrency, false, 17);
+            GravarLinha_valor('93'+'93'+'361',qryQuadrosDIMEq93_059_resultadoaposoir.AsCurrency, false, 17);
+            GravarLinha_valor('93'+'93'+'363',qryQuadrosDIMEq93_060_participacoesecontribuicoes.AsCurrency, false, 17);
+            GravarLinha_valor('93'+'93'+'398',qryQuadrosDIMEq93_398_prejuizodoexercicio.AsCurrency, false, 17);
+            GravarLinha_valor('93'+'93'+'399',qryQuadrosDIMEq93_061_lucroouprejuizo.AsCurrency, false, 17);
+          end;
+        end;
+
+        //Registro tipo 94 - Detalhamento das Despesas (Encerramento de Atividades)
+        GravarLinha_valor('94'+'94'+'411',qryQuadrosDIMEq94_062_prolabore.AsCurrency, false, 17);
+        GravarLinha_valor('94'+'94'+'412',qryQuadrosDIMEq94_063_comissoessalariosordenados.AsCurrency, false, 17);
+        GravarLinha_valor('94'+'94'+'431',qryQuadrosDIMEq94_064_combustiveiselubrificantes.AsCurrency, false, 17);
+        GravarLinha_valor('94'+'94'+'421',qryQuadrosDIMEq94_065_encargossociais.AsCurrency, false, 17);
+        GravarLinha_valor('94'+'94'+'422',qryQuadrosDIMEq94_066_tributosfederais.AsCurrency, false, 17);
+        GravarLinha_valor('94'+'94'+'423',qryQuadrosDIMEq94_067_tributosestaduais.AsCurrency, false, 17);
+        GravarLinha_valor('94'+'94'+'424',qryQuadrosDIMEq94_068_tributosmunicipais.AsCurrency, false, 17);
+        GravarLinha_valor('94'+'94'+'432',qryQuadrosDIMEq94_069_aguaetelefone.AsCurrency, false, 17);
+        GravarLinha_valor('94'+'94'+'433',qryQuadrosDIMEq94_070_energiaeletrica.AsCurrency, false, 17);
+        GravarLinha_valor('94'+'94'+'441',qryQuadrosDIMEq94_071_alugueis.AsCurrency, false, 17);
+        GravarLinha_valor('94'+'94'+'451',qryQuadrosDIMEq94_072_servicosprofissionais.AsCurrency, false, 17);
+        GravarLinha_valor('94'+'94'+'442',qryQuadrosDIMEq94_073_seguros.AsCurrency, false, 17);
+        GravarLinha_valor('94'+'94'+'443',qryQuadrosDIMEq94_074_fretesecarretos.AsCurrency, false, 17);
+        GravarLinha_valor('94'+'94'+'461',qryQuadrosDIMEq94_075_despesasfinanceiras.AsCurrency, false, 17);
+        GravarLinha_valor('94'+'94'+'498',qryQuadrosDIMEq94_076_outrasdespesas.AsCurrency, false, 17);
+        GravarLinha_valor('94'+'94'+'499',qryQuadrosDIMEq94_990_total.AsCurrency, true, 17);
+      end;
+
+      //Registro tipo 98 - Encerramento da Declaração
+      GravarLinha_String('98'+'  '+format('%5.5d', [(NRegistrosDeclaracao+1)]));
+
+      qryQuadrosDIME.Next;
+    end;
+    //Registro tipo 99 - Fechamento do Arquivo
+    GravarLinha_String('99'+'  '+
+               format('%5.5d', [(NRegistrostotal+1)])+
+               format('%5.5d', [qryQuadrosDIME.RecordCount])
+               );
+    except
+      on E:EFCreateError do
+        MensagemErro(E.Message);
+    end;
+    closefile(arq);
+end;
+
+{ Responsavel }
+
+function TdtmGerarDIMEEmArquivo.GetListaFiliais: TStrings;
+begin
+  FListaFiliais:= TStringList.Create;
+  qryFiliais.Open;
+  while not qryFiliais.Eof do
+  begin
+    FListaFiliais.AddObject(format('%3s',[qryFiliaiscodigo.AsString])+'.'+qryFiliaisnome.AsString, Pointer(qryFiliaiscodigo.AsInteger));
+    qryFiliais.Next;
+  end;
+  qryFiliais.Close;
+  Result := FListaFiliais;
+end;
+
+function TdtmGerarDIMEEmArquivo.GetListaGruposFiliais: TStrings;
+begin
+  FListaGruposFiliais:= TStringList.Create;
+  qryGrupoFiliais.Open;
+  while not qryGrupoFiliais.Eof do
+  begin
+    FListaGruposFiliais.AddObject(format('%2s',[qryGrupoFiliaiscodigo.asstring])+'.'+qryGrupoFiliaisdescricao.AsString, Pointer(qryGrupoFiliaiscodigo.AsInteger));
+    qryGrupoFiliais.Next;
+  end;
+  qryGrupoFiliais.Close;
+  Result := FListaGruposFiliais;
+end;
+
+procedure TdtmGerarDIMEEmArquivo.MontarFiltroFiliais(Usar: TCheckListBox);
+var
+  STRFiliais: String;
+  TodasFiliais: Boolean;
+  cnt: Integer;
+begin
+  TodasFiliais := True;
+  STRFiliais := '';
+  for cnt := 0 to FListaFiliais.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRFiliais := STRFiliais + '''' + IntToStr(Integer(FListaFiliais.Objects[cnt])) + ''','
+    else
+      TodasFiliais := False;
+
+  STRFiliais := Copy(STRFiliais, 0, Length(STrFiliais) - 1);
+  Filiais := STRFiliais;
+  if Trim(STRFiliais) <> '' then
+    if TodasFiliais then
+      Filiais := '';
+end;
+
+procedure TdtmGerarDIMEEmArquivo.MontarFiltroGrupoFiliais(
+  Usar: TCheckListBox);
+var
+  STRGruposFiliais: String;
+  TodosGrupos: Boolean;
+  cnt: Integer;
+begin
+  STRGruposFiliais := '';
+  TodosGrupos := True;
+  for cnt := 0 to FListaGruposFiliais.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRGruposFiliais := STRGruposFiliais + '''' + IntToStr(Integer(FListaGruposFiliais.Objects[cnt])) + ''','
+    else
+      TodosGrupos := False;
+
+  STRGruposFiliais := Copy(STRGruposFiliais, 0, Length(STrGruposFiliais) - 1);
+  GrupoFiliais:=STRGruposFiliais;
+  if Trim(STRGruposFiliais) <> '' then
+   if TodosGrupos then
+    GrupoFiliais:='';
+end;
+
+
+procedure TdtmGerarDIMEEmArquivo.SetFiliais(const Value: String);
+begin
+  if (Value <> '') then
+   qryQuadrosDIME.Sql[WhereFiliais_Dime]:=Format(FiltroFilial,[Value])
+  else
+   qryQuadrosDIME.Sql[WhereFiliais_Dime]:='';
+end;
+
+procedure TdtmGerarDIMEEmArquivo.SetGrupoFiliais(const Value: String);
+begin
+  if (Value <> '') then
+   qryQuadrosDIME.Sql[WhereFiliais_Dime]:=Format(FiltroGrupoFilial,[Value])
+end;
+
+procedure TdtmGerarDIMEEmArquivo.SetMesFinal(const Value: String);
+begin
+  if not MesAnoEmBranco(Value) then
+  begin
+    FMesFinal := Value;
+    if DataEmBranco(FMesInicial) then
+      FMesInicial:=FMesFinal;
+  end
+  else
+   FMesFinal := FMesInicial;
+end;
+
+procedure TdtmGerarDIMEEmArquivo.SetMesInicial(const Value: String);
+begin
+  if not MesAnoEmBranco(Value) then
+    FMesInicial := Value;
+end;
+
+procedure TdtmGerarDIMEEmArquivo.qryQuadrosDIMECalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+
+  qryQuadrosDIMEq04_990_subtotaldebitos.AsCurrency :=
+    qryQuadrosDIMEq04_010_debitopelassaidas.AsCurrency +
+    qryQuadrosDIMEq04_020_debdifaliqativperm.AsCurrency +
+    qryQuadrosDIMEq04_030_debdifaliqmatusoons.AsCurrency +
+    qryQuadrosDIMEq04_040_debmaqeqimpativperm.AsCurrency +
+    qryQuadrosDIMEq04_050_estornocredito.AsCurrency +
+    qryQuadrosDIMEq04_060_outrosestornos.AsCurrency +
+    qryQuadrosDIMEq04_070_outrosdebitos.AsCurrency;
+
+  qryQuadrosDIMEq43_990_totalcredtransfcred.AsCurrency :=
+    qryQuadrosDIMEq43_010_credtransfcredacum.AsCurrency +
+    qryQuadrosDIMEq43_020_credtransfativopermestabemp.AsCurrency +
+    qryQuadrosDIMEq43_050_outroscredtransfcred.AsCurrency;
+
+  qryQuadrosDIMEq44_990_totaldecreditospresumidos.AsCurrency :=
+    qryQuadrosDIMEq44_010_totalpagosmesempregados.AsCurrency +
+    qryQuadrosDIMEq44_020_mediavalpagosempregadosexant.AsCurrency +
+    qryQuadrosDIMEq44_030_incrementoverificado.AsCurrency +
+    qryQuadrosDIMEq44_040_credpresumidoincgeremprego.AsCurrency +
+    qryQuadrosDIMEq44_050_credpresestababatedoraves5.AsCurrency +
+    qryQuadrosDIMEq44_060_credpresestababatedoraves4.AsCurrency +
+    qryQuadrosDIMEq44_070_credpresestababatedoraves3.AsCurrency +
+    qryQuadrosDIMEq44_080_credpresestababatsuinos6.AsCurrency +
+    qryQuadrosDIMEq44_090_credpresestababatsuinos5.AsCurrency +
+    qryQuadrosDIMEq44_100_credpresestababatsuinos4.AsCurrency +
+    qryQuadrosDIMEq44_120_Credpresaqecf.AsCurrency +
+    qryQuadrosDIMEq44_130_contribaoFUNDOSOCIAL.AsCurrency +
+
+    qryQuadrosDIMEq44_131_CredcontribFUNDOSOCIAL.AsCurrency +
+
+    qryQuadrosDIMEq44_140_AplicFUNCULTURAL.AsCurrency +
+
+    qryQuadrosDIMEq44_150_AplicFUNTURISMO.AsCurrency +
+
+    qryQuadrosDIMEq44_160_AplicFUNDESPORTE.AsCurrency +
+
+    qryQuadrosDIMEq44_190_outroscredpresumidos.AsCurrency;
+
+
+  if (qryQuadrosDIMEq45_020_credporincentfisc.AsCurrency<>0) then
+    qryQuadrosDIMEq45_990_totalcredincentfisc.AsCurrency :=
+      qryQuadrosDIMEq45_020_credporincentfisc.AsCurrency +
+      qryQuadrosDIMEq45_050_outroscredincentfiscais.AsCurrency
+  else
+    qryQuadrosDIMEq45_990_totalcredincentfisc.AsCurrency :=
+      qryQuadrosDIMEq45_040_credporincentfiscpercvlrrec.AsCurrency +
+      qryQuadrosDIMEq45_050_outroscredincentfiscais.AsCurrency;
+
+  qryQuadrosDIMEq05_990_subtotalcreditos.AsCurrency :=
+    qryQuadrosDIMEsaldocredormesant.AsCurrency +
+    qryQuadrosDIMEq05_020_creditopelasentradas.AsCurrency +
+    qryQuadrosDIMEq05_030_credativpermanente.AsCurrency +
+    qryQuadrosDIMEq05_040_creddifaliqmatusocons.AsCurrency +
+    qryQuadrosDIMEq05_050_credicmsretsubstrib.AsCurrency +
+    qryQuadrosDIMEq05_060_estdebtransfcredacum.AsCurrency +
+    qryQuadrosDIMEq05_070_outrosestdeb.AsCurrency +
+    qryQuadrosDIMEq44_990_totaldecreditospresumidos.AsCurrency +
+    qryQuadrosDIMEq45_990_totalcredincentfisc.AsCurrency +
+    qryQuadrosDIMEq05_100_credrelopimport.AsCurrency +
+    qryQuadrosDIMEq05_110_credrelaqatacouunfed.AsCurrency +
+    qryQuadrosDIMEq05_120_credresptributaria.AsCurrency +
+    qryQuadrosDIMEq05_130_outpagtosocasfatogerador.AsCurrency +
+    qryQuadrosDIMEq05_140_credregimeespecial.AsCurrency +
+    qryQuadrosDIMEq05_150_restituicaodeicms.AsCurrency +
+    qryQuadrosDIMEq05_160_outroscreditos.AsCurrency;
+
+  qryQuadrosDIMEq06_030_TotrectributApdeb.AsCurrency :=
+    qryQuadrosDIMEq06_010_rectribestab.AsCurrency +
+    qryQuadrosDIMEq06_020_rectribestabcent.AsCurrency;
+
+  qryQuadrosDIMEq06_990_subtotalcreditos.AsCurrency :=
+    qryQuadrosDIMEq06_050_credregpagamento.AsCurrency +
+    qryQuadrosDIMEq44_990_totaldecreditospresumidos.AsCurrency +
+    qryQuadrosDIMEq06_070_credrelaquisatacoutrasuf.AsCurrency +
+    qryQuadrosDIMEsaldocredormesant.AsCurrency;
+
+  qryQuadrosDIMEq07_980_subtotaldebitos.AsCurrency :=
+    qryQuadrosDIMEq07_010_debvalorentradas.AsCurrency +
+    qryQuadrosDIMEq07_020_debsobdifentsaidas.AsCurrency;
+
+  qryQuadrosDIMEq07_990_subtotalcreditos.AsCurrency :=
+    qryQuadrosDIMEq07_030_credrelaqatoutuf.AsCurrency +
+    qryQuadrosDIMEq44_990_totaldecreditospresumidos.AsCurrency +
+    qryQuadrosDIMEsaldocredormesant.AsCurrency;
+
+  qryQuadrosDIMEq08_980_totdebacumsemestre.AsCurrency :=
+    qryQuadrosDIMEq08_010_Debapnomes.AsCurrency +
+    qryQuadrosDIMEq08_020_debacumateomesantnosemestre.AsCurrency;
+
+  qryQuadrosDIMEq08_990_totcredacumsemestre.AsCurrency :=
+    qryQuadrosDIMEq08_030_credapnomes.AsCurrency +
+    qryQuadrosDIMEq08_040_credacumateomesantnosemestre.AsCurrency +
+    qryQuadrosDIMEq08_050_somaparcestateomesnosemestre.AsCurrency;
+
+  case qryQuadrosDIMEq00_050_regimedeapuracao.AsInteger of
+  1 : begin  //simples
+       qryQuadrosDIMEq09_010_subtotaldebitos.AsCurrency := qryQuadrosDIMEq06_040_impdevcalcsobtotrectribut.AsCurrency;
+       qryQuadrosDIMEq09_050_subtotalcreditos.AsCurrency := qryQuadrosDIMEq06_990_subtotalcreditos.AsCurrency;
+      end;
+  2,9 : begin  //Normal e  Prod. Primário no CPP
+       qryQuadrosDIMEq09_010_subtotaldebitos.AsCurrency := qryQuadrosDIMEq04_990_subtotaldebitos.AsCurrency;
+       qryQuadrosDIMEq09_050_subtotalcreditos.AsCurrency := qryQuadrosDIMEq05_990_subtotalcreditos.AsCurrency;
+      end;
+  3 : begin  //Est. Social
+       qryQuadrosDIMEq09_010_subtotaldebitos.AsCurrency := qryQuadrosDIMEq08_980_totdebacumsemestre.AsCurrency;
+       qryQuadrosDIMEq09_050_subtotalcreditos.AsCurrency := qryQuadrosDIMEq08_990_totcredacumsemestre.AsCurrency;
+      end;
+  7 : begin  //Bares e REst.
+       qryQuadrosDIMEq09_010_subtotaldebitos.AsCurrency := qryQuadrosDIMEq07_980_subtotaldebitos.AsCurrency;
+       qryQuadrosDIMEq09_050_subtotalcreditos.AsCurrency := qryQuadrosDIMEq07_990_subtotalcreditos.AsCurrency;
+      end;
+  end;
+
+  qryQuadrosDIMEq42_990_totdebtranscredacum.AsCurrency :=
+    qryQuadrosDIMEq42_010_debtranscredacumrelexport.AsCurrency +
+    qryQuadrosDIMEq42_020_debtranscredacumrelsaidasis.AsCurrency +
+    qryQuadrosDIMEq42_030_debtranscredacumrelsaidasdif.AsCurrency +
+    qryQuadrosDIMEq42_040_debtransbensatpermoutestabel.AsCurrency +
+    qryQuadrosDIMEq42_070_outrosdebtranscreditos.AsCurrency;
+
+  qryQuadrosDIMEq09_030_credtransoutcontrib.AsCurrency :=
+    qryQuadrosDIMEq42_990_totdebtranscredacum.AsCurrency;
+
+  qryQuadrosDIMEq09_040_totaldebitos.AsCurrency :=
+    qryQuadrosDIMEq09_010_subtotaldebitos.AsCurrency +
+    qryQuadrosDIMEq09_011_compldebmudancaregimeap.AsCurrency +
+    qryQuadrosDIMEq09_020_saldodevrecestabcons.AsCurrency +
+    qryQuadrosDIMEq09_030_credtransoutcontrib.AsCurrency;
+
+  qryQuadrosDIMEq09_070_CredRecebTransfOutContrib.AsCurrency :=
+    qryQuadrosDIMEq43_990_totalcredtransfcred.AsCurrency;
+
+  qryQuadrosDIMEq09_080_TotalCreditos.AsCurrency :=
+    qryQuadrosDIMEq09_050_subtotalcreditos.AsCurrency +
+    qryQuadrosDIMEq09_051_complcredmudancaregimeap.AsCurrency +
+    qryQuadrosDIMEq09_052_crepagtoindevidoperanterior.AsCurrency +
+    qryQuadrosDIMEq09_060_SaldoCredRecEstaCons.AsCurrency +
+    qryQuadrosDIMEq09_070_CredRecebTransfOutContrib.AsCurrency +
+    qryQuadrosDIMEq09_075_creinformadonodcip.ascurrency;
+
+  qryQuadrosDIMEq09_110_TotalAjustesApDecendial.AsCurrency :=
+    qryQuadrosDIMEq09_090_imposto1decendio.AsCurrency +
+    qryQuadrosDIMEq09_100_imposto2decendio.AsCurrency +
+    qryQuadrosDIMEq09_105_antecipliqcombgasosos.AsCurrency;
+
+
+  if qryQuadrosDIMEq09_040_totaldebitos.AsCurrency >=
+     (qryQuadrosDIMEq09_080_TotalCreditos.AsCurrency +
+      qryQuadrosDIMEq09_110_TotalAjustesApDecendial.AsCurrency) then
+    qryQuadrosDIMEq09_120_SaldoDevedor.AsCurrency :=
+    qryQuadrosDIMEq09_040_totaldebitos.AsCurrency -
+     (qryQuadrosDIMEq09_080_TotalCreditos.AsCurrency +
+      qryQuadrosDIMEq09_110_TotalAjustesApDecendial.AsCurrency)
+  else  qryQuadrosDIMEq09_120_SaldoDevedor.AsCurrency := 0;
+
+
+  case qryQuadrosDIMEq00_070_apuracaoconsolidada.AsInteger of
+    // nao consolidada ou é o consolidador
+    1,2: qryQuadrosDIMEq09_130_SaldoDevTransfEstabConsolidador.AsCurrency := 0;
+    3: qryQuadrosDIMEq09_130_SaldoDevTransfEstabConsolidador.AsCurrency := qryQuadrosDIMEq09_120_SaldoDevedor.AsCurrency;
+  end;
+
+
+  qryQuadrosDIMEq09_999_ImpostoaRecolher.AsCurrency :=
+    qryQuadrosDIMEq09_120_SaldoDevedor.AsCurrency -
+    qryQuadrosDIMEq09_130_SaldoDevTransfEstabConsolidador.AsCurrency;
+
+//  Verificar_q12_distrpagtos(1, qryQuadrosDIMEq09_999_ImpostoaRecolher.AsCurrency);
+
+  if (qryQuadrosDIMEq09_080_TotalCreditos.AsCurrency +
+      qryQuadrosDIMEq09_110_TotalAjustesApDecendial.AsCurrency) >=
+      qryQuadrosDIMEq09_040_totaldebitos.AsCurrency then
+    qryQuadrosDIMEq09_140_SaldoCredor.AsCurrency :=
+     (qryQuadrosDIMEq09_080_TotalCreditos.AsCurrency +
+      qryQuadrosDIMEq09_110_TotalAjustesApDecendial.AsCurrency) -
+      qryQuadrosDIMEq09_040_totaldebitos.AsCurrency
+  else  qryQuadrosDIMEq09_140_SaldoCredor.AsCurrency := 0;
+
+  case qryQuadrosDIMEq00_070_apuracaoconsolidada.AsInteger of
+    // nao consolidada ou é o consolidador
+    1,2: qryQuadrosDIMEq09_150_SaldoCredTransfEstabConsolidador.AsCurrency := 0;
+    // somatorio do codigo fiscal 5602 do livro de saida (saldo dev transf.)
+     3: qryQuadrosDIMEq09_150_SaldoCredTransfEstabConsolidador.AsCurrency := qryQuadrosDIMEq09_140_SaldoCredor.AsCurrency;
+  end;
+
+  qryQuadrosDIMEq09_998_SaldoCredPerSeguinte_calculado.AsCurrency :=
+    qryQuadrosDIMEq09_140_SaldoCredor.AsCurrency -
+    qryQuadrosDIMEq09_150_SaldoCredTransfEstabConsolidador.AsCurrency;
+
+  qryQuadrosDIMEq10_990_TotalDebitos.AsCurrency :=
+    qryQuadrosDIMEq10_010_debrelopimportacao.AsCurrency +
+    qryQuadrosDIMEq10_020_debrelaqatacdeoutrasuf.AsCurrency +
+    qryQuadrosDIMEq10_030_debporesptribut.AsCurrency +
+    qryQuadrosDIMEq10_040_outrosdebocasfatgerador.AsCurrency +
+    qryQuadrosDIMEq10_050_outrosdebeventuais.AsCurrency;
+
+//  Verificar_q12_distrpagtos(3, qryQuadrosDIMEq10_990_TotalDebitos.AsCurrency);
+
+  qryQuadrosDIMEq11_080_totaldedebitos.AsCurrency :=
+    qryQuadrosDIMEq11_070_impretporsubsttributaria.AsCurrency +
+    qryQuadrosDIMEq11_073_Debocfatgerapuracaomensal.AsCurrency +
+    qryQuadrosDIMEq11_075_Slddevrecestcons.AsCurrency;
+
+  qryQuadrosDIMEq11_130_totalcrediajustesapdecendial.AsCurrency :=
+    qryQuadrosDIMEq11_090_saldocredperantsubsttribut.AsCurrency +
+    qryQuadrosDIMEq11_100_devmercedesfazimentodevenda.AsCurrency +
+    qryQuadrosDIMEq11_110_ressarcimentoicmssubsttribut.AsCurrency +
+    qryQuadrosDIMEq11_120_outroscreditos.AsCurrency +
+    qryQuadrosDIMEq11_125_Sldcredrecestcons.AsCurrency;
+
+  qryQuadrosDIMEq11_160_totalajustesapdecendial.AsCurrency :=
+    qryQuadrosDIMEq11_140_imposto1decendio.AsCurrency +
+    qryQuadrosDIMEq11_150_imposto2decendio.AsCurrency +
+    qryQuadrosDIMEq11_155_antecipliqcombgasosos.AsCurrency;
+
+
+//  Verificar_q12_distrpagtos(2, qryQuadrosDIMEq11_999_imparecolhersobresubsttribut.AsCurrency);
+
+  qryQuadrosDIMEq41_120_credgerexpocormes.AsCurrency := qryQuadrosDIMEq41_010_perccredreltotaq3ultmeses.AsCurrency * qryQuadrosDIMEq41_020_prodexpmes.AsCurrency;
+  qryQuadrosDIMEq41_130_credgersaidasisentasocormes.AsCurrency := qryQuadrosDIMEq41_010_perccredreltotaq3ultmeses.AsCurrency * qryQuadrosDIMEq41_030_prodsaidaisentaounaotrib.AsCurrency;
+  qryQuadrosDIMEq41_140_credgersaidasdifocormes.AsCurrency := qryQuadrosDIMEq41_010_perccredreltotaq3ultmeses.AsCurrency * qryQuadrosDIMEq41_040_prodcomsaidadiferidanomes.AsCurrency;
+
+  qryQuadrosDIMEq41_960_saldocredoracumuladorelexp.AsCurrency := (qryQuadrosDIMEq41_120_credgerexpocormes.AsCurrency +
+                                                                  qryQuadrosDIMEq41_160_saldocredtransfmesantrelexpo.AsCurrency +
+                                                                  qryQuadrosDIMEq41_220_esdebtrcredrelexportacoes.AsCurrency) -
+                                                                  qryQuadrosDIMEq42_010_debtranscredacumrelexport.AsCurrency;
+
+  qryQuadrosDIMEq41_970_saldocredacumrelsaidasisenta.AsCurrency := (qryQuadrosDIMEq41_130_credgersaidasisentasocormes.AsCurrency +
+                                                                  qryQuadrosDIMEq41_170_salcredtranmesantrelsaiisent.AsCurrency +
+                                                                  qryQuadrosDIMEq41_230_estdebtrcredrelsaidasisentas.AsCurrency) -
+                                                                  qryQuadrosDIMEq42_020_debtranscredacumrelsaidasis.AsCurrency;
+
+  qryQuadrosDIMEq41_980_saldocredacumrelativoasaidas.AsCurrency := (qryQuadrosDIMEq41_140_credgersaidasdifocormes.AsCurrency +
+                                                                  qryQuadrosDIMEq41_180_salcredtranmesantrelsaidifer.AsCurrency +
+                                                                  qryQuadrosDIMEq41_240_estdebportransfcredrelsaidif.AsCurrency) -
+                                                                  qryQuadrosDIMEq42_030_debtranscredacumrelsaidasdif.AsCurrency;
+
+  qryQuadrosDIMEq44_030_incrementoverificado.AsCurrency :=
+    qryQuadrosDIMEq44_010_totalpagosmesempregados.AsCurrency -
+    qryQuadrosDIMEq44_020_mediavalpagosempregadosexant.AsCurrency;
+
+  qryQuadrosDIMEq51_980_totalvalexcluidosentradas.AsCurrency :=
+    qryQuadrosDIMEq51_010_prestservsujaoiss.AsCurrency +
+    qryQuadrosDIMEq51_020_25transfrecebprecovendavarej.AsCurrency +
+    qryQuadrosDIMEq51_030_ipirelaqmatprimasmerc.AsCurrency +
+    qryQuadrosDIMEq51_040_paricmsretsubsttributaria.AsCurrency +
+    qryQuadrosDIMEq51_050_subsconcorgaosgovfedestoumun.AsCurrency;
+
+  qryQuadrosDIMEq51_990_totaldosvaloresexcdassaidas.AsCurrency :=
+    qryQuadrosDIMEq51_060_prestervicosvsujeitaaoiss.AsCurrency +
+    qryQuadrosDIMEq51_070_25transfefetaprecovendavarej.AsCurrency +
+    qryQuadrosDIMEq51_080_ipiincidentesaidademerc.AsCurrency +
+    qryQuadrosDIMEq51_090_parceladoicmsretporsubsttrib.AsCurrency;
+
+  qryQuadrosDIMEq81_990_totalgeraldoativo.AsCurrency :=
+    qryQuadrosDIMEq81_023_circulante.AsCurrency +
+    qryQuadrosDIMEq81_029_realizavelalongoprazo.AsCurrency +
+    qryQuadrosDIMEq81_032_permanente.AsCurrency;
+
+  qryQuadrosDIMEq82_990_totalgeraldopassivo.AsCurrency :=
+    qryQuadrosDIMEq82_037_circulante.AsCurrency +
+    qryQuadrosDIMEq82_041_exigivelalongoprazo.AsCurrency +
+    qryQuadrosDIMEq82_042_resultadosdeexfuturos.AsCurrency +
+    qryQuadrosDIMEq82_043_patrimonioliquido.AsCurrency;
+
+  qryQuadrosDIMEq84_990_total.AsCurrency :=
+    qryQuadrosDIMEq84_062_prolabore.AsCurrency +
+    qryQuadrosDIMEq84_063_comissoessalariosordenados.AsCurrency +
+    qryQuadrosDIMEq84_064_combustiveiselubrificantes.AsCurrency +
+    qryQuadrosDIMEq84_065_encargossociais.AsCurrency +
+    qryQuadrosDIMEq84_066_tributosfederais.AsCurrency +
+    qryQuadrosDIMEq84_067_tributosestaduais.AsCurrency +
+    qryQuadrosDIMEq84_068_tributosmunicipais.AsCurrency +
+    qryQuadrosDIMEq84_069_aguaetelefone.AsCurrency +
+    qryQuadrosDIMEq84_070_energiaeletrica.AsCurrency +
+    qryQuadrosDIMEq84_071_alugueis.AsCurrency +
+    qryQuadrosDIMEq84_072_servicosprofissionais.AsCurrency +
+    qryQuadrosDIMEq84_073_seguros.AsCurrency +
+    qryQuadrosDIMEq84_074_fretesecarretos.AsCurrency +
+    qryQuadrosDIMEq84_075_despesasfinanceiras.AsCurrency +
+    qryQuadrosDIMEq84_076_outrasdespesas.AsCurrency;
+
+  qryQuadrosDIMEq91_990_totalgeraldoativo.AsCurrency :=
+    qryQuadrosDIMEq91_023_circulante.AsCurrency +
+    qryQuadrosDIMEq91_029_realizavelalongoprazo.AsCurrency +
+    qryQuadrosDIMEq91_032_permanente.AsCurrency;
+
+  qryQuadrosDIMEq92_990_totalgeraldopassivo.AsCurrency :=
+    qryQuadrosDIMEq92_037_circulante.AsCurrency +
+    qryQuadrosDIMEq92_041_exigivelalongoprazo.AsCurrency +
+    qryQuadrosDIMEq92_042_resultadosdeexfuturos.AsCurrency +
+    qryQuadrosDIMEq92_043_patrimonioliquido.AsCurrency;
+
+  qryQuadrosDIMEq94_990_total.AsCurrency :=
+    qryQuadrosDIMEq94_062_prolabore.AsCurrency +
+    qryQuadrosDIMEq94_063_comissoessalariosordenados.AsCurrency +
+    qryQuadrosDIMEq94_064_combustiveiselubrificantes.AsCurrency +
+    qryQuadrosDIMEq94_065_encargossociais.AsCurrency +
+    qryQuadrosDIMEq94_066_tributosfederais.AsCurrency +
+    qryQuadrosDIMEq94_067_tributosestaduais.AsCurrency +
+    qryQuadrosDIMEq94_068_tributosmunicipais.AsCurrency +
+    qryQuadrosDIMEq94_069_aguaetelefone.AsCurrency +
+    qryQuadrosDIMEq94_070_energiaeletrica.AsCurrency +
+    qryQuadrosDIMEq94_071_alugueis.AsCurrency +
+    qryQuadrosDIMEq94_072_servicosprofissionais.AsCurrency +
+    qryQuadrosDIMEq94_073_seguros.AsCurrency +
+    qryQuadrosDIMEq94_074_fretesecarretos.AsCurrency +
+    qryQuadrosDIMEq94_075_despesasfinanceiras.AsCurrency +
+    qryQuadrosDIMEq94_076_outrasdespesas.AsCurrency;
+  
+
+end;
+
+procedure TdtmGerarDIMEEmArquivo.qryQuadrosDIMEAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+    ReFazConsulta(qryRecolhimentoDime,[0,1],
+     [qryQuadroSDIMEfilial.AsVariant, qryQuadrosDIMEperiodo.AsVariant]);
+     
+    ReFazConsulta(qryq01_NotasEntradasCalculos, [0,1],
+          [qryQuadrosDIMEfilial.AsVariant, qryQuadrosDIMEperiodo.asvariant]);
+    ReFazConsulta(qryq02_NotasSaidasCalculos, [0,1],
+          [qryQuadrosDIMEfilial.AsVariant, qryQuadrosDIMEperiodo.asvariant]);
+    ReFazConsulta(qryq12_discrpagtos,[0,1],
+          [qryQuadroSDIMEfilial.AsVariant, qryQuadrosDIMEperiodo.AsVariant]);
+
+    ReFazConsulta(qryq46_RegimeEspecial, [0,1],
+          [qryQuadrosDIMEfilial.AsVariant, qryQuadrosDIMEperiodo.asvariant]);
+    ReFazConsulta(qryq46_RegimeEspecialtotal, [0,1],
+          [qryQuadrosDIMEfilial.AsVariant, qryQuadrosDIMEperiodo.asvariant]);
+
+    ReFazConsulta(qryq47_compraexproagrop,[0,1],
+     [qryQuadroSDIMEfilial.AsVariant, qryQuadrosDIMEperiodo.AsVariant]);
+    ReFazConsulta(qryq47_compraexproagroptotal,[0,1],
+     [qryQuadroSDIMEfilial.AsVariant, qryQuadrosDIMEperiodo.AsVariant]);
+
+    ReFazConsulta(qryq48_recprestservfornenereletrica,[0,1],
+     [qryQuadroSDIMEfilial.AsVariant, qryQuadrosDIMEperiodo.AsVariant]);
+    ReFazConsulta(qryq48_recprestservfornenereletricatotal,[0,1],
+     [qryQuadroSDIMEfilial.AsVariant, qryQuadrosDIMEperiodo.AsVariant]);
+
+    ReFazConsulta(qryq49_entmercbensaqservicos,[0,1],
+     [qryQuadroSDIMEfilial.AsVariant, qryQuadrosDIMEperiodo.AsVariant]);
+    ReFazConsulta(qryq49_entmercbensaqservicostotal,[0,1],
+     [qryQuadroSDIMEfilial.AsVariant, qryQuadrosDIMEperiodo.AsVariant]);
+
+    ReFazConsulta(qryq50_saimercforneletrservicos,[0,1],
+     [qryQuadroSDIMEfilial.AsVariant, qryQuadrosDIMEperiodo.AsVariant]);
+    ReFazConsulta(qryq50_saimercforneletrservicostotal,[0,1],
+     [qryQuadroSDIMEfilial.AsVariant, qryQuadrosDIMEperiodo.AsVariant]);
+
+    LerTotaisq_01;
+    LerTotaisq_02;
+    getq_46_999_totalregimeespecial;
+end;
+
+function TdtmGerarDIMEEmArquivo.getq_46_999_totalregimeespecial: currency;
+var
+ q_46_999_atual : Currency;
+begin
+  q_46_999_atual := 0;
+  fq_46_999_totalregimeespecial_1  := 0;
+  fq_46_999_totalregimeespecial_2  := 0;
+  fq_46_999_totalregimeespecial_3  := 0;
+  fq_46_999_totalregimeespecial_4  := 0;
+  fq_46_999_totalregimeespecial_11 := 0;
+  fq_46_999_totalregimeespecial_12 := 0;
+  fq_46_999_totalregimeespecial_13 := 0;
+  fq_46_999_totalregimeespecial_90 := 0;
+
+  qryq46_RegimeEspecial.First;
+  while not qryq46_regimeespecial.Eof do
+  begin
+    q_46_999_atual := q_46_999_atual + qryq46_RegimeEspecialvalor.AsCurrency;
+    case qryq46_RegimeEspecialorigem.AsInteger of
+      1 : fq_46_999_totalregimeespecial_1 := fq_46_999_totalregimeespecial_1 + qryq46_RegimeEspecialvalor.AsCurrency;
+      2 : fq_46_999_totalregimeespecial_2 := fq_46_999_totalregimeespecial_2 + qryq46_RegimeEspecialvalor.AsCurrency;
+      3 : fq_46_999_totalregimeespecial_3 := fq_46_999_totalregimeespecial_3 + qryq46_RegimeEspecialvalor.AsCurrency;
+      4 : fq_46_999_totalregimeespecial_4 := fq_46_999_totalregimeespecial_4 + qryq46_RegimeEspecialvalor.AsCurrency;
+      11: fq_46_999_totalregimeespecial_11:= fq_46_999_totalregimeespecial_11+ qryq46_RegimeEspecialvalor.AsCurrency;
+      12: fq_46_999_totalregimeespecial_12:= fq_46_999_totalregimeespecial_12+ qryq46_RegimeEspecialvalor.AsCurrency;
+      13: fq_46_999_totalregimeespecial_13:= fq_46_999_totalregimeespecial_13+ qryq46_RegimeEspecialvalor.AsCurrency;
+      90: fq_46_999_totalregimeespecial_90:= fq_46_999_totalregimeespecial_90+ qryq46_RegimeEspecialvalor.AsCurrency;
+    end;
+    qryq46_regimeespecial.Next;
+  end;
+
+  if (q_46_999_atual <> fq_46_999_totalregimeespecial) then
+  begin
+    fq_46_999_totalregimeespecial := q_46_999_atual;
+    AtualizaQuadrosDime;
+  end;
+
+  result := fq_46_999_totalregimeespecial;
+end;
+
+
+procedure TdtmGerarDIMEEmArquivo.AtualizaQuadrosDime;
+begin
+  case qryQuadrosDIMEq00_070_apuracaoconsolidada.AsInteger of
+  2: begin // consolidado
+      qryQuadrosDIMEq04_010_debitopelassaidas.AsCurrency := q_02_valor;
+      qryQuadrosDIMEq05_020_creditopelasentradas.AsCurrency := q_01_valor - q_09_060_e_transf_cred - q_09_020_e_transf_deb;
+     end;
+  3: begin // consolidado
+      qryQuadrosDIMEq04_010_debitopelassaidas.AsCurrency := q_02_valor - q_09_130_s_transf_deb - q_09_150_s_transf_cred;
+      qryQuadrosDIMEq05_020_creditopelasentradas.AsCurrency := q_01_valor - q_09_060_e_transf_cred - q_09_020_e_transf_deb;
+     end;
+  1: begin //não é apuração consolidada
+      qryQuadrosDIMEq04_010_debitopelassaidas.AsCurrency := q_02_valor;
+      qryQuadrosDIMEq05_020_creditopelasentradas.AsCurrency := q_01_valor;
+     end;
+  end;
+
+
+  qryQuadrosDIMEq43_010_credtransfcredacum.AsCurrency := q_46_999_totalregimeespecial_1;
+  qryQuadrosDIMEq44_140_aplicfuncultural.AsCurrency := q_46_999_totalregimeespecial_2;
+  qryQuadrosDIMEq44_150_aplicfunturismo.AsCurrency := q_46_999_totalregimeespecial_3;
+  qryQuadrosDIMEq44_160_aplicfundesporte.AsCurrency := q_46_999_totalregimeespecial_4;
+  qryQuadrosDIMEq41_220_esdebtrcredrelexportacoes.AsCurrency := q_46_999_totalregimeespecial_11;
+  qryQuadrosDIMEq41_230_estdebtrcredrelsaidasisentas.AsCurrency := q_46_999_totalregimeespecial_12;
+  qryQuadrosDIMEq41_240_estdebportransfcredrelsaidif.AsCurrency := q_46_999_totalregimeespecial_13;
+  qryQuadrosDIMEq05_140_credregimeespecial.AsCurrency := q_46_999_totalregimeespecial_90;
+
+  // estimativa social
+  qryQuadrosDIMEq08_010_Debapnomes.AsCurrency := q_02_valor;
+  qryQuadrosDIMEq08_030_credapnomes.AsCurrency := q_01_valor;
+
+  // consolidador
+  if (qryQuadrosDIMEq00_070_apuracaoconsolidada.AsInteger=2) then
+  begin
+    qryQuadrosDIMEq09_020_saldodevrecestabcons.AsCurrency := q_09_020_e_transf_deb;
+    qryQuadrosDIMEq09_060_SaldoCredRecEstaCons.AsCurrency := q_09_060_e_transf_cred;
+  end;
+
+  qryQuadrosDIMECalcFields(qryQuadrosDIME);
+
+end;
+
+procedure TdtmGerarDIMEEmArquivo.LerTotaisq_01;
+begin
+  fq_01_valor := 0;
+  fq_09_020_e_transf_deb := 0;
+  fq_09_060_e_transf_cred  := 0;
+  fq_01_isentas := 0;
+  fq_01_outras := 0;
+  fq_01_valornota := 0;
+  fq_01_base := 0;
+  qryq01_NotasEntradasCalculos.First;
+  while not qryq01_NotasEntradasCalculos.Eof do
+  begin
+    if qryq01_NotasEntradasCalculoscodigofiscal.AsString = '1605' then
+      fq_09_020_e_transf_deb := fq_09_020_e_transf_deb + qryq01_NotasEntradasCalculosvalor.AsCurrency;
+    if qryq01_NotasEntradasCalculoscodigofiscal.AsString = '1602' then
+      fq_09_060_e_transf_cred := fq_09_060_e_transf_cred + qryq01_NotasEntradasCalculosvalor.AsCurrency;
+    fq_01_valor := fq_01_valor + qryq01_NotasEntradasCalculosvalor.AsCurrency;
+    fq_01_isentas := fq_01_isentas + qryq01_NotasEntradasCalculosisentas.AsCurrency;
+    fq_01_outras := fq_01_outras + qryq01_NotasEntradasCalculosoutras.AsCurrency;
+    fq_01_valornota := fq_01_valornota + qryq01_NotasEntradasCalculosvalornota.AsCurrency;
+    fq_01_base := fq_01_base + qryq01_NotasEntradasCalculosbase.AsCurrency;
+    qryq01_NotasEntradasCalculos.Next;
+  end;
+  AtualizaQuadrosDime;
+end;
+
+procedure TdtmGerarDIMEEmArquivo.LerTotaisq_02;
+begin
+  fq_02_valor := 0;
+  fq_02_isentas := 0;
+  fq_02_outras := 0;
+  fq_02_valornota := 0;
+  fq_02_base := 0;
+  fq_09_130_s_transf_deb := 0;
+  fq_09_150_s_transf_cred := 0;
+
+  qryq02_NotasSaidasCalculos.First;
+  while not qryq02_NotasSaidasCalculos.Eof do
+  begin
+    fq_02_valor := fq_02_valor + qryq02_NotasSaidasCalculosvalor.AsCurrency;
+    fq_02_isentas := fq_02_isentas + qryq02_NotasSaidasCalculosisentas.AsCurrency;
+    fq_02_outras := fq_02_outras + qryq02_NotasSaidasCalculosoutras.AsCurrency;
+    fq_02_valornota := fq_02_valornota + qryq02_NotasSaidasCalculosvalornota.AsCurrency;
+    fq_02_base := fq_02_base + qryq02_NotasSaidasCalculosbase.AsCurrency;
+    if qryq02_NotasSaidasCalculoscodigofiscal.AsInteger=5605 then
+      fq_09_130_s_transf_deb := fq_09_130_s_transf_deb + qryq02_NotasSaidasCalculosvalor.AsCurrency
+    else
+    if qryq02_NotasSaidasCalculoscodigofiscal.asinteger=5602 then
+      fq_09_150_s_transf_cred := fq_09_150_s_transf_cred + qryq02_NotasSaidasCalculosvalor.AsCurrency;
+    qryq02_NotasSaidasCalculos.Next;
+  end;
+  AtualizaQuadrosDime;
+end;
+
+function TdtmGerarDIMEEmArquivo.AbrirQuadrosDime: boolean;
+begin
+  ReFazConsulta(qryQuadrosDIME, [0,1], [MesInicial,MesFinal]);
+  result := not qryQuadrosDIME.IsEmpty;
+end;
+
+function TdtmGerarDIMEEmArquivo.GetTabelaQuadrosDime: TtecQuery;
+begin
+  result := qryQuadrosDIME;
+end;
+
+procedure TdtmGerarDIMEEmArquivo.ZMonitor1MonitorEvent(Sql,
+  Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:\tempdime.sql') then
+    Listar.loadfromfile('c:\tempdime.sql');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\tempdime.sql');
+  listar.free;
+end;
+
+end.

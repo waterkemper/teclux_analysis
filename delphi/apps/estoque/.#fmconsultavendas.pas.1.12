@@ -1,0 +1,462 @@
+unit fmconsultavendas;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  fmajudabt, ComCtrls, Buttons, ExtCtrls, frconsulta, Windows,
+  frlistagruposfiliais, frlistafiliais, StdCtrls,
+  cpdata, frconsultacodigo, Grids, DBGrids, cpdbgrid, biblio, ctconstantes,
+  cpnumero, frconsultaippgcm, ToolWin, frmultiplaselecaoaleatoria, dmconsultavendas,
+  Mask, DBCtrls, cpdbtext, fmprincipalbasico, cpdbfindcontrols;
+
+type
+  TfrmConsultaVendas = class(TfrmAjudaBt)
+    pgcConsultaVendas: TPageControl;
+    tstParametros: TTabSheet;
+    tstDados: TTabSheet;
+    fraListaFiliais1: TfraListaFiliais;
+    fraListaGruposFiliais1: TfraListaGruposFiliais;
+    gbxProdutos: TGroupBox;
+    ckbProdutoEmLinha: TCheckBox;
+    ckbProdutoForadeLinha: TCheckBox;
+    ckbProdutoComMontagem: TCheckBox;
+    ckbProdutoSemMontagem: TCheckBox;
+    ckbProdutoNaoBrinde: TCheckBox;
+    ckbProdutoBrinde: TCheckBox;
+    ckbProdutoAtivo: TCheckBox;
+    ckbProdutoInativo: TCheckBox;
+    gbxPeriodo: TGroupBox;
+    edtDataInicial: TEditData;
+    edtDataFinal: TEditData;
+    gbxCliente: TGroupBox;
+    fraConsultaCliente: TfraConsultaCodigo;
+    sbnGerar: TSpeedButton;
+    sbnImprimir: TSpeedButton;
+    pgcGrade: TPageControl;
+    tstTotais: TTabSheet;
+    tstQuantidade: TTabSheet;
+    dbgVendasCliente_Dados: TtecDBGrid;
+    dbgVendasCliente_Totais: TtecDBGrid;
+    dbgVendasCliente_Meses: TtecDBGrid;
+    dbgVendas_Cliente: TtecDBGrid;
+    dbgVendas_Quantidades: TtecDBGrid;
+    dbgVendas_Meses: TtecDBGrid;
+    pnlTotalValores: TPanel;
+    dbgVendasTotais_Meses: TtecDBGrid;
+    Splitter2: TSplitter;
+    Label1: TLabel;
+    pnlTotal: TPanel;
+    edtNumero: TDBEditNumero;
+    pnlQuantidade: TPanel;
+    Splitter1: TSplitter;
+    dbgVendasQuantidades: TtecDBGrid;
+    Label2: TLabel;
+    Panel2: TPanel;
+    edtQuantidade: TDBEditNumero;
+    fraMultiplaSelecaoAleatoria1: TfraMultiplaSelecaoAleatoria;
+    sbnConsultaVendas: TSpeedButton;
+    dtxNomeCliente: TtecDBText;
+    dtxCodigoCliente: TtecDBText;
+    lblA: TLabel;
+    gbxVendedor: TGroupBox;
+    fraConsultaVendedor: TfraConsultaCodigo;
+    dtxCodigoVendedor: TtecDBText;
+    dtxNomeVendedor: TtecDBText;
+    gbxTituloVendedor: TGroupBox;
+    pnlTop: TPanel;
+    gbxTituloCliente: TGroupBox;
+    sbnAtendimento: TSpeedButton;
+    edfFornecedor: TtecDBFindLookup;
+    procedure sbnGerarClick(Sender: TObject);
+    procedure ckbProdutoEmLinhaClick(Sender: TObject);
+    procedure ckbProdutoForadeLinhaClick(Sender: TObject);
+    procedure ckbProdutoAtivoClick(Sender: TObject);
+    procedure ckbProdutoInativoClick(Sender: TObject);
+    procedure ckbProdutoComMontagemClick(Sender: TObject);
+    procedure ckbProdutoSemMontagemClick(Sender: TObject);
+    procedure ckbProdutoBrindeClick(Sender: TObject);
+    procedure ckbProdutoNaoBrindeClick(Sender: TObject);
+    procedure dbgVendasCliente_DadosDblClick(Sender: TObject);
+    procedure dbgVendas_ClienteDblClick(Sender: TObject);
+    procedure ExibirVendasClientes;
+    procedure ExibirVendasQuantidades;
+    procedure sbnConsultaVendasClick(Sender: TObject);
+    procedure pgcConsultaVendasChange(Sender: TObject);
+    procedure sbnAtendimentoClick(Sender: TObject);
+  protected
+//    dtmgeral: TdtmGeral;
+   dtmConsultaVendas: TdtmConsultaVendas;
+  private
+    { Private declarations }
+    vChamadodeOutrosForms: Boolean;
+    function VerificaCamposConsulta: Boolean;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+
+  end;
+
+var
+  frmConsultaVendas: TfrmConsultaVendas;
+  AcionarTelaConsultaVendas: procedure (CodigoCliente: integer; TipoCliente: String; DataInicial: String = ''; DataFinal: String = '');
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmConsultaVendas }
+
+constructor TfrmConsultaVendas.Create(AOwner: TComponent);
+begin
+  inherited;
+  SalvarPropriedadesFormulario := true;
+  CarregarConfiguracoesFormulario;
+
+  fraConsultaCliente.TipoCliente := 'C';
+  fraConsultaCliente.TipoPesquisa := pesCLIENTES;
+
+  dtmConsultaVendas := TdtmConsultaVendas.Create(Self);
+  
+  pgcConsultaVendas.ActivePage := tstParametros;
+
+//  if edtDataInicial.Text='' then
+    edtDataInicial.Text := datetostr((Date() - 90));
+
+//  if edtDataFinal.Text='' then      Solicitação DArlan - Sta Apolonia: data final = data atual - 08/02/2019
+    edtDataFinal.Text := datetostr(Date());
+
+  sbnImprimir.Enabled := false;
+
+//  sbnGerarClick(nil);
+  self.windowstate := wsMaximized;
+
+  {
+  with fraConsultaIPPGCM do
+  begin
+    MultiplosFiltros := true;
+    fraConsultaItemProduto.TipoPesquisa := pesITEMPRODUTOS;
+    fraConsultaProduto.TipoPesquisa     := pesPRODUTOS;
+    fraConsultaGrupo.TipoPesquisa       := pesGRUPOS;
+    fraConsultaClasse.TipoPesquisa      := pesCLASSES;
+    fraConsultaMarcas.TipoPesquisa      := pesMARCAS;
+  end;
+  }
+
+   fraListaFiliais1.       gbxFiliais.       Font.Height:= -11;
+   fraListaGruposFiliais1.gbxGrupodeFiliais.Font.Height:= -11;
+
+   fraConsultaVendedor.TipoPesquisa    := pesVENDEDORES;
+end;
+
+destructor TfrmConsultaVendas.Destroy;
+begin
+  inherited;
+  frmConsultaVendas := nil;
+  dtmConsultaVendas := nil;
+end;
+
+procedure TfrmConsultaVendas.sbnGerarClick(Sender: TObject);
+begin
+  inherited;
+  if VerificaCamposConsulta then
+    if dtmConsultaVendas.AbrirConsulta(
+            strtodate(edtDataInicial.Text),
+            strtodate(edtDataFinal.Text),
+            ckbProdutoEmLinha.Checked,
+            ckbProdutoForadeLinha.Checked,
+            ckbProdutoAtivo.Checked,
+            ckbProdutoInativo.Checked,
+            ckbProdutoComMontagem.Checked,
+            ckbProdutoSemMontagem.Checked,
+            ckbProdutoBrinde.Checked,
+            ckbProdutoNaoBrinde.Checked,
+            fraMultiplaSelecaoAleatoria1.fraSelecaoAleatoriaItemdeProdutos.ListaCondicional,
+            fraMultiplaSelecaoAleatoria1.fraSelecaoAleatoriaprodutos.ListaCondicional,
+            fraMultiplaSelecaoAleatoria1.fraSelecaoaleatoriagruposprodutos.ListaCondicional,
+            fraMultiplaSelecaoAleatoria1.fraSelecaoaleatoriaclassesprodutos.ListaCondicional,
+            fraMultiplaSelecaoAleatoria1.fraSelecaoAleatoriamarcasProdutos.ListaCondicional,
+
+{
+            fraConsultaIPPGCM.fraConsultaItemProduto.edfCodigo.Text,
+            fraConsultaIPPGCM.fraConsultaProduto.edfCodigo.Text,
+            fraConsultaIPPGCM.fraConsultaGrupo.edfCodigo.Text,
+            fraConsultaIPPGCM.fraConsultaClasse.edfCodigo.Text,
+            fraConsultaIPPGCM.fraConsultaMarcas.edfCodigo.Text,
+}
+
+            fraListaFiliais1.ListaSelecionada2,
+            fraListaGruposFiliais1.ListaSelecionada2,
+            fraConsultaCliente.edfCodigo.Text,
+            fraConsultaCliente.qryProcuraClientetipo.AsString,
+            fraconsultavendedor.qryProcuraVendedorescodigo.asstring
+
+            ) then
+    begin
+       pgcConsultaVendas.ActivePage := tstDados;
+       pgcConsultaVendasChange(nil);
+       if vChamadodeOutrosForms then
+         pgcGrade.ActivePage :=  tstQuantidade;
+
+       dbgVendasCliente_Meses.Columns[0].Visible := false;
+       dbgVendasCliente_Meses.Columns[dbgVendasCliente_Meses.Columns.Count-1].Visible := false;
+       dbgVendasTotais_Meses.Columns[0].Visible := false;
+       dbgVendasTotais_Meses.Columns[dbgVendasCliente_Meses.Columns.Count-1].Visible := false;
+
+       dbgVendas_Meses.Columns[0].Visible := false;
+       dbgVendas_Meses.Columns[1].Visible := false;
+       dbgVendas_Meses.Columns[2].Visible := false;
+       dbgVendas_Meses.Columns[3].Visible := false;
+       dbgVendas_Meses.Columns[4].Visible := false;
+
+       dbgVendas_Meses.Columns[dbgVendas_Meses.Columns.Count-1].Visible := false;
+
+       sbnImprimir.Enabled := true;
+    end
+    else
+    begin
+      MensagemAviso(format(ctNENHUMREGISTROENCONTRADO,['registro']));
+      sbnImprimir.Enabled := false;
+    end;
+end;
+
+function TfrmConsultaVendas.VerificaCamposConsulta: Boolean;
+begin
+  Result := (edtDataInicial.DataValida and edtDataFinal.DataValida);
+  if Result then
+  begin
+   if (not dataembranco(edtDataInicial.text) and not dataembranco(edtDataFinal.text)) then
+     Result:=StrToDate(edtDataInicial.Text) <= StrToDate(edtDataFinal.Text);
+   if result then
+   begin
+    Result:=(not dataembranco(edtDataInicial.text) or not dataembranco(edtDataFinal.text));
+    if not Result then
+    begin
+     MensagemAviso(ctPARAMETROSINEXISTENTES);
+     edtDataInicial.SetFocus;
+    end;
+   end
+   else
+   begin
+     MensagemAviso(ctDTINICIALMAIORDTFINAL);
+     edtDataInicial.SetFocus;
+   end;
+  end;
+end;
+
+procedure TfrmConsultaVendas.ckbProdutoEmLinhaClick(Sender: TObject);
+begin
+  inherited;
+  if not ckbProdutoForadeLinha.Checked and
+     not ckbProdutoEmLinha.Checked then
+     ckbProdutoforadelinha.Checked := True;
+
+end;
+
+procedure TfrmConsultaVendas.ckbProdutoForadeLinhaClick(Sender: TObject);
+begin
+  inherited;
+  if not ckbProdutoForadeLinha.Checked and
+     not ckbProdutoEmLinha.Checked then
+     ckbProdutoEmLinha.Checked := True;
+
+end;
+
+procedure TfrmConsultaVendas.ckbProdutoAtivoClick(Sender: TObject);
+begin
+  inherited;
+  if not ckbProdutoInativo.Checked and
+     not ckbProdutoAtivo.Checked then
+     ckbProdutoInAtivo.Checked := True;
+
+end;
+
+procedure TfrmConsultaVendas.ckbProdutoInativoClick(Sender: TObject);
+begin
+  inherited;
+  if not ckbProdutoInativo.Checked and
+     not ckbProdutoAtivo.Checked then
+     ckbProdutoAtivo.Checked := True;
+
+end;
+
+procedure TfrmConsultaVendas.ckbProdutoComMontagemClick(Sender: TObject);
+begin
+  inherited;
+  if not ckbProdutoComMontagem.Checked and
+     not ckbProdutoSemMontagem.Checked then
+     ckbProdutoSemMontagem.Checked := True;
+
+end;
+
+procedure TfrmConsultaVendas.ckbProdutoSemMontagemClick(Sender: TObject);
+begin
+  inherited;
+  if not ckbProdutoComMontagem.Checked and
+     not ckbProdutoSemMontagem.Checked then
+     ckbProdutoComMontagem.Checked := True;
+
+end;
+
+procedure TfrmConsultaVendas.ckbProdutoBrindeClick(Sender: TObject);
+begin
+  inherited;
+  if not ckbProdutoBrinde.Checked and
+     not ckbProdutoNaoBrinde.Checked then
+     ckbProdutoNaoBrinde.Checked := True;
+
+end;
+
+procedure TfrmConsultaVendas.ckbProdutoNaoBrindeClick(Sender: TObject);
+begin
+  inherited;
+  if not ckbProdutoBrinde.Checked and
+     not ckbProdutoNaoBrinde.Checked then
+     ckbProdutoBrinde.Checked := True;
+
+end;
+
+procedure TfrmConsultaVendas.dbgVendasCliente_DadosDblClick(Sender: TObject);
+begin
+  inherited;
+  ExibirVendasQuantidades
+end;
+
+procedure TfrmConsultaVendas.dbgVendas_ClienteDblClick(Sender: TObject);
+begin
+  inherited;
+  ExibirVendasClientes;
+end;
+
+procedure TfrmConsultaVendas.ExibirVendasClientes;
+begin
+{
+  with dtmConsultaVendas do
+  begin
+    VoltarRegistroAtual(qryVendasClientes);
+    qryVendas.DisableControls;
+  end;
+  }
+  pgcGrade.ActivePageIndex := 0;
+end;
+
+procedure TfrmConsultaVendas.ExibirVendasQuantidades;
+begin
+{
+  with dtmConsultaVendas do
+  begin
+    GuardarRegistroAtual(qryVendasClientes,true);
+    qryVendas.EnableControls;
+  end;
+  }
+  pgcGrade.ActivePageIndex := 1
+end;
+
+procedure TfrmConsultaVendas.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  case  Key of
+  VK_Escape :
+    if (pgcConsultaVendas.ActivePageIndex = 1) and
+       (pgcGrade.ActivePageIndex = 1) then
+         ExibirVendasClientes;
+  VK_F6 : if sbnGerar.Enabled then sbnGerar.Click;
+  VK_F8 : if sbnAtendimento.Enabled then sbnAtendimento.Click;
+
+  end;
+  inherited;
+end;
+
+procedure AcionarTelaConsultaVendas_(CodigoCliente: integer; TipoCliente: String; DataInicial: String = ''; DataFinal: String = '');
+begin
+ //  if not assigned(frmConsultaCompras) then
+  if (codigocliente<>0) and (tipocliente<>'') then
+  begin
+    frmConsultaVendas := TfrmConsultaVendas.create(nil);
+//    frmConsultaVendas.windowstate := wsNormal;
+
+    with frmconsultaVendas do
+    begin
+      fraConsultaCliente.TipoCliente := TipoCliente;
+      fraConsultaCliente.edfCodigo.text := inttostr(codigocliente);
+      fraConsultaCliente.edfCodigo.exist;
+
+      if DataInicial<>'' then
+        edtDatainicial.text := DataInicial;
+
+      if DataFinal<>'' then
+        edtDataFinal.Text := DataFinal; 
+
+  //    sbnGerarClick(frmconsultaVendas);
+      dbgVendasCliente_Dados.datasource := frmconsultaVendas.dtmConsultaVendas.dsrVendasCliente;
+      dbgVendasCliente_Meses.DataSource := frmConsultaVendas.dtmConsultaVendas.dsrVendasCliente;
+      dbgVendasCliente_Totais.DataSource := frmConsultaVendas.dtmConsultaVendas.dsrVendasCliente;
+      dbgVendasTotais_Meses.DataSource := frmConsultaVendas.dtmConsultaVendas.dsrVendasTotais;
+      edtNumero.DataSource := frmConsultaVendas.dtmConsultaVendas.dsrVendasTotais;
+
+      dbgVendas_Cliente.DataSource := frmConsultaVendas.dtmConsultaVendas.dsrVendas;
+
+      dbgVendas_Meses.DataSource := frmConsultaVendas.dtmConsultaVendas.dsrVendas;
+      dbgVendas_Quantidades.DataSource := frmConsultaVendas.dtmConsultaVendas.dsrVendas;
+      edtQuantidade.DAtaSource := frmConsultaVendas.dtmConsultaVendas.dsrVendasQuantidades;
+      dbgVendasQuantidades.DataSource := frmConsultaVendas.dtmConsultaVendas.dsrVendasQuantidades;
+      dtxCodigoCliente.DataSource := frmConsultaVendas.dtmConsultaVendas.dsrVendasCliente;
+      dtxNomeCliente.DataSource := frmConsultaVendas.dtmConsultaVendas.dsrVendasCliente;
+      fraConsultaCliente.edfcodigo.DataSource := frmConsultaVendas.fraConsultaCliente.dsrProcuraCliente;
+      fraConsultaCliente.dtxDescricao.DataSource := frmConsultaVendas.fraConsultaCliente.dsrProcuraCliente;
+      dtxCodigoVendedor.DataSource := frmConsultaVendas.fraConsultaVendedor.dsrProcuraVendedores;
+      dtxNomeVendedor.DataSource := frmConsultaVendas.fraConsultaVendedor.dsrProcuraVendedores;
+      fraConsultaVendedor.edfcodigo.DataSource := frmConsultaVendas.fraConsultaVendedor.dsrProcuraVendedores;
+      fraConsultaVendedor.dtxDescricao.DataSource := frmConsultaVendas.fraConsultaVendedor.dsrProcuraVendedores;
+
+
+      edfFornecedor.dataSource := frmConsultaVendas.dtmConsultaVendas.dsrProcuraFornecedores;
+      
+      BringToFront;
+      vchamadodeOutrosForms := true;
+    end;
+  end;
+
+end;
+
+procedure TfrmConsultaVendas.sbnConsultaVendasClick(Sender: TObject);
+begin
+  inherited;
+  AcionarTelaConsultaVendas(dtmconsultavendas.qryVendasClientesCliente.asinteger,
+                            dtmconsultavendas.qryVendasClientesTipoCliente.asString,
+                            edtDataInicial.text, edtDataFinal.text)
+
+end;
+
+procedure TfrmConsultaVendas.pgcConsultaVendasChange(Sender: TObject);
+begin
+  inherited;
+  gbxTituloCliente.visible := (pgcConsultaVendas.ActivePage = tstDados) and (dtmConsultaVendas.dsrVendasCliente.dataset.recordcount <> 0);
+  dtxCodigoCliente.visible := gbxTituloCliente.visible;
+  dtxNomeCliente.visible := gbxTituloCliente.visible;
+
+  gbxTituloVendedor.visible := (pgcConsultaVendas.ActivePage = tstDados) and (fraConsultaVendedor.qryProcuraVendedores.recordcount <> 0);
+  dtxCodigoVendedor.visible := gbxTituloVendedor.visible;
+  dtxNomeVendedor.visible := gbxTituloVendedor.visible;
+end;
+
+procedure TfrmConsultaVendas.sbnAtendimentoClick(Sender: TObject);
+begin
+  inherited;
+  if dtmConsultaVendas.qryVendasClientesCliente.asinteger <> 0 then
+    TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado(['IncluirAtendimento',
+                                                                       dtmConsultaVendas.qryVendasClientesCliente.asinteger,
+                                                                       dtmConsultaVendas.qryVendasClientesTipoCliente.asString,
+                                                                       'V'   //cobrança
+                                                                       ], 'TfrmCadastroAtendimento', True);
+end;
+
+initialization
+   AcionarTelaConsultaVendas :=  AcionarTelaConsultaVendas_;
+
+
+
+end.

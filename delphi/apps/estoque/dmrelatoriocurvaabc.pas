@@ -6,7 +6,7 @@ uses
   SysUtils, Classes, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery,
   cpdatasource, CheckLst, ZTransact, variants, clparametrossistema,
   FR_DSet, FR_DBSet, FR_Class, fmpreviewpadrao, ComObj, 
-  FR_Desgn, Forms, Graphics;
+  FR_Desgn, Forms, Graphics, frxClass, frx2xto30;
 
 
 
@@ -45,6 +45,7 @@ type
     frprlVendasLucrosMarcas: TfrReport;
     qryVendasclasse: TStringField;
     qryVendascodigo_barras: TStringField;
+    frxReport1: TfrxReport;
     procedure ZMonitor1MonitorEvent(Sql, Result: String);
     procedure frprlVendasLucrosBeforePrint(Memo: TStringList;
       View: TfrView);
@@ -416,6 +417,20 @@ begin
    with frmPreview do
    begin
     frCompositeReport.Reports.Clear;
+
+{
+    frprlVendasLucros.DesignReport;
+    frxReport1.DesignReport;
+
+    frprlVendasLucrosFornecedores.DesignReport;
+    frxReport1.DesignReport;
+
+    frprlVendasLucrosGrupos.DesignReport;
+    frxReport1.DesignReport;
+
+    frprlVendasLucrosMarcas.DesignReport;
+    frxReport1.DesignReport;
+}
 
     case ftipoCurvaABC of
      0,1,2: begin

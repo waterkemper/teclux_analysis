@@ -1,0 +1,448 @@
+unit fmMonitorNFeEntradaSefaz;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, fmajudabt, ComCtrls, Buttons, ToolWin, ExtCtrls, DB,
+  ZQuery, ZPgSqlQuery, cpquery, cpdatasource, dmtecsoft, AdvObj,
+  Mask, MaskEdEx, cpdbgrid, biblio,
+  ACBrBase, ACBrDFe, ACBrNFe, fmcadastropadrao, clnfe, AdvSmoothProgressBar,
+  UProcessamentoNFE, fmajuda, fmprincipalbasico, cpnumero,  AsgListb, frintervalodatas,
+  frlistafiliais, frselecaoaleatoriaclientes, cpmemo, Grids, DBGrids;
+
+type
+   TTecPassosDistribuicao = (opInicio, opDistribuicaoDFe, opDistribuicaoDFeCienciaOPeracao, opAguardandoUmaHora);
+
+type
+  TfrmMonitorNFeEntradaSefaz = class(TfrmAjuda)
+    pnlTop: TPanel;
+    dsrNSUS: TtecDataSource;
+    qryNSUS: TtecQuery;
+    qryNSUScnpj: TStringField;
+    qryNSUSnsu: TStringField;
+    qryNSUSchnfe: TStringField;
+    qryNSUSxnome: TStringField;
+    qryNSUSie: TStringField;
+    qryNSUStpnf: TStringField;
+    qryNSUSvnf: TFloatField;
+    qryNSUSdigval: TStringField;
+    qryNSUSnprot: TStringField;
+    qryNSUScsitnfe: TStringField;
+    qryNSUSpossuixml: TBooleanField;
+    qryNSU: TtecQuery;
+    qryNSUSdhemi: TStringField;
+    qryNSUSdhrecbto: TStringField;
+    qryNSUSxmlnfe: TMemoField;
+    AdvSmoothProgressBar1: TAdvSmoothProgressBar;
+    Timer1: TTimer;
+    qryNSUStipoxmlretorno: TStringField;
+    pnlBottom: TPanel;
+    lblMsg: TStaticText;
+    qryNSUSxmleveciencia: TMemoField;
+    qryNSUSfilial: TIntegerField;
+    qryNSUSmfilial: TStringField;
+    qryNSUScnpjemitente: TStringField;
+    qryNSUScodigoclifor: TIntegerField;
+    qryNSUStipocliforn: TStringField;
+    qryNSUSnrnfe: TIntegerField;
+    qryNSUSserie: TStringField;
+    qryNSUSnomecsifnfe: TStringField;
+    qryNSUSstatusnp: TStringField;
+    dsrFiliais: TtecDataSource;
+    qryFiliais: TtecQuery;
+    qryFiliaiscodigo: TIntegerField;
+    qryFiliaiscnpj: TStringField;
+    qryFiliaismnemonico: TStringField;
+    qryFiliaisrazao: TStringField;
+    qryFiliaismaxnsu_sefaz: TStringField;
+    qryFiliaisnsu_dhrecbto: TStringField;
+    qryFiliaisbuscarxmlnfeentrada: TBooleanField;
+    qryFiliaisnsu: TIntegerField;
+    sbnBuscarNFeServidorSefaz: TSpeedButton;
+    pnlLeft: TPanel;
+    pnlRight: TPanel;
+    gbxFiliaisSefaz: TGroupBox;
+    Panel2: TPanel;
+    sbnMarcarFiliais: TSpeedButton;
+    sbnDesmarcarFiliais: TSpeedButton;
+    dbgFiliaisSefaz: TtecDBGrid;
+    sbnMarcarTodasFiliais: TSpeedButton;
+    sbnDesmarcarTodasFiliais: TSpeedButton;
+    qryFiliaisestado: TStringField;
+    qryFiliaisnsu_inicial: TIntegerField;
+    qryNSUcnpj: TStringField;
+    qryNSUnsu: TStringField;
+    qryNSUchnfe: TStringField;
+    qryNSUcnpjemitente: TStringField;
+    qryNSUxnome: TStringField;
+    qryNSUie: TStringField;
+    qryNSUdhemi: TStringField;
+    qryNSUtpnf: TStringField;
+    qryNSUvnf: TFloatField;
+    qryNSUdigval: TStringField;
+    qryNSUdhrecbto: TStringField;
+    qryNSUnprot: TStringField;
+    qryNSUcsitnfe: TStringField;
+    qryNSUxmlnfe: TMemoField;
+    qryNSUtipoxmlretorno: TStringField;
+    qryNSUxmleveciencia: TMemoField;
+    qryNSUestado: TStringField;
+    qryNSUcodigo: TIntegerField;
+    qryFiliaisNSUS: TtecQuery;
+    qryFiliaisNSUScodigo: TIntegerField;
+    qryFiliaisNSUScnpj: TStringField;
+    qryFiliaisNSUSmnemonico: TStringField;
+    qryFiliaisNSUSrazao: TStringField;
+    qryFiliaisNSUSmaxnsu_sefaz: TStringField;
+    qryFiliaisNSUSnsu: TIntegerField;
+    qryFiliaisNSUSnsu_inicial: TIntegerField;
+    qryFiliaisNSUSnsu_dhrecbto: TStringField;
+    qryFiliaisNSUSestado: TStringField;
+    qryFiliaisNSUSbuscarxmlnfeentrada: TBooleanField;
+    PageControl1: TPageControl;
+    tstFiliais: TTabSheet;
+    tstLog: TTabSheet;
+    mmoLog: TtecMemo;
+    qryFiliaisNSUSnhora: TFloatField;
+    qryFiliaismaxnsucte_sefaz: TStringField;
+    qryFiliaisnsucte: TIntegerField;
+    qryFiliaisnsucte_inicial: TIntegerField;
+    qryFiliaisnsucte_dhrecbto: TStringField;
+    qryFiliaisNSUSmaxnsucte_sefaz: TStringField;
+    qryFiliaisNSUSnsucte: TIntegerField;
+    qryFiliaisNSUSnsucte_inicial: TIntegerField;
+    qryFiliaisNSUSnsucte_dhrecbto: TStringField;
+    qryNSUStipo: TStringField;
+    qryFiliaisNSUSnhoracte: TFloatField;
+    qryNSUtipo: TStringField;
+    qryNSU_Problemas_detalhes: TtecQuery;
+
+    procedure Timer1Timer(Sender: TObject);
+    procedure qryNSUSFilterRecord(DataSet: TDataSet; var Accept: Boolean);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure dbgNFESefazDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure dbgFiliaisLocalDblClick(Sender: TObject);
+    procedure sbnMarcarFiliaisClick(Sender: TObject);
+    procedure sbnDesmarcarFiliaisClick(Sender: TObject);
+    procedure sbnBuscarNFeServidorSefazClick(Sender: TObject);
+    procedure qryFiliaisAfterPost(DataSet: TDataSet);
+  private
+    { Private declarations }
+{    vNSU : String;}
+{    vMAXNSU : String;}
+    vMsg : String;
+    vPararProcessamento : boolean;
+    fPassosDistribuicao: TTecPassosDistribuicao;
+    vTempoInicialEsperaVerificacao : DWORD;
+//    _ThreadCancelamento: ThreadCancelamento;
+    procedure sbnPararClick(Sender: TObject);
+    procedure Processamento;
+    procedure MarcarFilial(Marcar: boolean);
+    procedure BuscarInformacoesSefaz;
+
+  public
+    { Public declarations }
+    _ProcessamentoNFE: TProcessamentoNFE;
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    property PassosDistribuicao: TTecPassosDistribuicao read fPassosDistribuicao write fPassosDistribuicao;
+
+  end;
+
+var
+  frmMonitorNFeEntradaSefaz: TfrmMonitorNFeEntradaSefaz;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmMonitorNFeEntradaSefaz }
+
+constructor TfrmMonitorNFeEntradaSefaz.Create(AOwner: TComponent);
+begin
+  inherited;
+
+  TTecNotaFiscalEletronica.SetExecutavel(fNFeExecNFe);
+
+//  self.windowstate := wsMinimized;
+  qryFiliais.Open;
+  dbgFiliaisSefaz.Refresh;
+
+//  sleep(2500);
+//  frmMonitorNFeEntradaSefaz.WindowState := wsMinimized;
+
+  BuscarInformacoesSefaz;
+end;
+
+destructor TfrmMonitorNFeEntradaSefaz.Destroy;
+begin
+  Timer1.enabled := false;
+  FreeAndNil(AdvSmoothProgressBar1);
+  qryNSUS.Close;
+  inherited;
+
+end;
+
+procedure TfrmMonitorNFeEntradaSefaz.Timer1Timer(Sender: TObject);
+var
+vPosition : Double;
+
+begin
+  inherited;
+
+    case PassosDistribuicao of
+
+      opDistribuicaoDFe:
+      begin
+        if (qryFiliaisNSUSnsu.asstring <> '') and
+           (qryFiliaisNSUSmaxnsu_sefaz.asString <> '') then
+        begin
+          if qryFiliaisNSUSmaxnsu_sefaz.asinteger <> qryFiliaisNSUSnsu_inicial.asinteger then
+          begin
+            try
+              vPosition :=  (qryFiliaisNSUSnsu.asinteger - qryFiliaisNSUSnsu_inicial.asinteger) * 100 / (qryFiliaisNSUSmaxnsu_sefaz.asinteger - qryFiliaisNSUSnsu_inicial.asinteger)
+            except
+              vPosition := 0;
+            end;
+          end
+          else
+            vPosition := 0;
+
+          AdvSmoothProgressBar1.Position := vPosition;
+        end
+        else
+        begin
+          vPosition := 0;
+          AdvSmoothProgressBar1.Position := vPosition;
+        end;
+
+        if vMsg <> '' then
+          lblMsg.Caption := vmsg;
+
+        if fileexists(vArquivoLogSefaz) then
+          mmoLog.Lines.LoadFromFile(vArquivoLogSefaz);
+
+      end;
+
+      opDistribuicaoDFeCienciaOPeracao:
+      begin
+
+        vPosition :=  (qryNSU.RecNo * 100) / qryNSU.recordcount;
+        AdvSmoothProgressBar1.Position := vPosition;
+        lblMsg.Caption := format('Efetuando a ciência da operação e gravação do xml. NSU %S - Registro %s de um total de %s',
+                   [inttostr(strtoint(qrynsu.fieldbyname('nsu').asString)), inttostr(qrynsu.RecNo), inttostr(qrynsu.RecordCount)]);
+
+        if fileexists(vArquivoLogSefaz) then
+          mmoLog.Lines.LoadFromFile(vArquivoLogSefaz);
+
+      end;
+
+      opInicio:
+      begin
+        vPosition := 0;
+        AdvSmoothProgressBar1.Position := vPosition;
+        lblMsg.Caption := '';
+      end;
+
+      opAguardandoUmaHora:
+      begin
+        if TempoEsgotado(vTempoInicialEsperaVerificacao, 1800000) then
+          BuscarInformacoesSefaz
+        else
+          lblMsg.Caption := 'A nova verificação vai iniciar em '+ formatfloat('##',(1800000 - (TempoAtual - vTempoInicialEsperaVerificacao))/1000/60) + ' segundos ';
+      end;
+
+    end;
+
+end;
+
+procedure TfrmMonitorNFeEntradaSefaz.qryNSUSFilterRecord(DataSet: TDataSet;
+  var Accept: Boolean);
+begin
+  inherited;
+  Accept := (qryNSUStipoxmlretorno.asString = 'resNFe');
+end;
+
+procedure TfrmMonitorNFeEntradaSefaz.sbnPararClick(Sender: TObject);
+begin
+  sbnBuscarNFeServidorSefaz.Caption := 'Iniciar busca no servidor da Sefaz';
+  PassosDistribuicao := opInicio;
+  vPararProcessamento := true;
+  if assigned(_ProcessamentoNFE) then
+    _ProcessamentoNFE.Terminate;
+
+  sbnBuscarNFeServidorSefaz.onClick := sbnBuscarNFeServidorSefazClick;
+end;
+
+procedure TfrmMonitorNFeEntradaSefaz.Processamento;
+begin
+  PassosDistribuicao := opDistribuicaoDFe;
+  try
+
+    if not vPararProcessamento then
+    begin
+
+      if not vPararProcessamento then
+      begin
+        vmsg := 'Início da captura de xmls';
+        qryNSU.close;
+        qryNSU.open;
+
+        if qryNSU.RecordCount <> 0 then
+        begin
+          PassosDistribuicao := opDistribuicaoDFeCienciaOPeracao;
+          DistribuicaoDFeCienciaOPeracao(self, qryNSU, vMsg, vPararProcessamento, qryNSUtipo.asString);
+        end;
+      end;
+
+      if not vPararProcessamento then
+      begin
+        vmsg := 'Início da captura dos NSUs do arquivo de distribuição';
+        qryFiliaisNSUS.close;
+        qryFiliaisNSUS.Open;
+        qryFiliaisNSUS.first;
+
+        while not qryFiliaisNSUS.eof do
+        begin
+
+          if qryFiliaisNSUSnsu_dhrecbto.isnull or
+            ((qryFiliaisNSUSnhora.asfloat > 1) or
+             (qryFiliaisNSUSmaxnsu_sefaz.asinteger > qryFiliaisNSUSnsu.asinteger)) then
+            DistribuicaoDFe(self, qryFiliaisNSUS, vMsg, vPararProcessamento, '', 'NFE');
+
+          if qryFiliaisNSUSnsucte_dhrecbto.isnull or
+            ((qryFiliaisNSUSnhoracte.asfloat > 1) or
+             (qryFiliaisNSUSmaxnsucte_sefaz.asinteger > qryFiliaisNSUSnsucte.asinteger)) then
+            DistribuicaoDFe(self, qryFiliaisNSUS, vMsg, vPararProcessamento, '', 'CTE');
+
+          if vPararProcessamento then
+            break;
+
+          qryFiliaisNSUS.next;
+
+        end;
+
+        vmsg := 'Fim da captura dos NSUs do arquivo de distribuição';
+
+      end;
+
+      if not vPararProcessamento then
+      begin
+        vmsg := 'Fim da captura dos NSUs do arquivo de distribuição';
+        qryNSU.close;
+        qryNSU.open;
+
+        if qryNSU.RecordCount <> 0 then
+        begin
+          PassosDistribuicao := opDistribuicaoDFeCienciaOPeracao;
+          DistribuicaoDFeCienciaOPeracao(self, qryNSU, vMsg, vPararProcessamento, qryNSUtipo.asString);
+        end;
+      end;
+
+    end;
+
+  finally
+
+    sbnPararClick(nil);
+    PassosDistribuicao := opAguardandoUmaHora;
+    IniciarTempo(vTempoInicialEsperaVerificacao);
+    qryFiliais.close;
+    qryFiliais.Open;
+
+  end;
+
+end;
+
+procedure TfrmMonitorNFeEntradaSefaz.FormCloseQuery(Sender: TObject;
+  var CanClose: Boolean);
+begin
+  inherited;
+  sbnPararClick(nil);
+end;
+
+procedure TfrmMonitorNFeEntradaSefaz.dbgNFESefazDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if TDBGrid(Sender).Fields[DataCol].FieldName = 'statusnp' then
+  begin
+    if TDBGrid(Sender).DataSource.DataSet.FieldByName('statusnp').AsString = 'NC' then
+    begin
+      TDBGrid(Sender).Canvas.Brush.Color := clred;
+      TDBGrid(Sender).Canvas.Font.Color := clWhite;
+    end
+    else
+    if TDBGrid(Sender).DataSource.DataSet.FieldByName('statusnp').AsString = 'N' then
+    begin
+      TDBGrid(Sender).Canvas.Brush.Color := clGreen;
+      TDBGrid(Sender).Canvas.Font.Color := clWhite;
+    end
+    else
+    if TDBGrid(Sender).DataSource.DataSet.FieldByName('statusnp').AsString = 'P' then
+    begin
+      TDBGrid(Sender).Canvas.Brush.Color := $000080FF;
+      TDBGrid(Sender).Canvas.Font.Color := clWhite;
+    end;
+
+    TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end;
+
+end;
+
+procedure TfrmMonitorNFeEntradaSefaz.dbgFiliaisLocalDblClick(Sender: TObject);
+begin
+  inherited;
+  MarcarFilial(not qryFiliaisbuscarxmlnfeentrada.asBoolean);
+end;
+
+procedure TfrmMonitorNFeEntradaSefaz.MarcarFilial(Marcar: boolean);
+begin
+  qryFiliais.edit;
+  qryFiliaisbuscarxmlnfeentrada.asBoolean := Marcar;
+  qryFiliais.Post;
+end;
+
+procedure TfrmMonitorNFeEntradaSefaz.sbnMarcarFiliaisClick(Sender: TObject);
+begin
+  inherited;
+  MarcarFilial(True);
+end;
+
+procedure TfrmMonitorNFeEntradaSefaz.sbnDesmarcarFiliaisClick(Sender: TObject);
+begin
+  inherited;
+  MarcarFilial(False);
+end;
+
+procedure TfrmMonitorNFeEntradaSefaz.sbnBuscarNFeServidorSefazClick(
+  Sender: TObject);
+begin
+  inherited;
+  BuscarInformacoesSefaz;
+end;
+
+procedure TfrmMonitorNFeEntradaSefaz.BuscarInformacoesSefaz;
+begin
+  vPararProcessamento := false;
+
+  sbnBuscarNFeServidorSefaz.Caption := 'Parar busca no servidor da Sefaz';
+  sbnBuscarNFeServidorSefaz.onClick := sbnPararClick;
+  sbnBuscarNFeServidorSefaz.Update;
+
+  _ProcessamentoNFE := TProcessamentoNFE.create(false);
+  _ProcessamentoNFE.Processamento := Processamento;
+  _ProcessamentoNFE.resume;
+end;
+
+
+procedure TfrmMonitorNFeEntradaSefaz.qryFiliaisAfterPost(DataSet: TDataSet);
+begin
+  inherited;
+  qryFiliais.Transaction.Commit;
+end;
+
+
+end.

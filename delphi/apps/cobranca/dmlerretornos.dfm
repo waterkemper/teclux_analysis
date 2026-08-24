@@ -1,6 +1,6 @@
 inherited dtmLerRetornos: TdtmLerRetornos
-  Left = 405
-  Top = 277
+  Left = 424
+  Top = 239
   Height = 465
   Width = 973
   object dsrParcelas: TtecDataSource

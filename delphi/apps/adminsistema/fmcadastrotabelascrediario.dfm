@@ -1,11 +1,11 @@
 inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
-  Left = 351
-  Top = 0
+  Left = 335
+  Top = 50
   ActiveControl = edfCodigoNatureza
   AutoSize = True
   Caption = 'Cadastro de Tabelas do Credi'#225'rio'
-  ClientHeight = 785
-  ClientWidth = 886
+  ClientHeight = 764
+  ClientWidth = 978
   FormStyle = fsMDIChild
   Position = poScreenCenter
   Visible = True
@@ -16,9 +16,9 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
     TabOrder = 2
   end
   inherited pnlTopMenu: TPanel
-    Width = 886
+    Width = 978
     inherited tblBarra: TToolBar
-      Width = 661
+      Width = 753
       inherited sbnAjuda: TSpeedButton
         Action = aclAtualizar
       end
@@ -27,16 +27,16 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
   object pnlFundoJanela: TPanel
     Left = 0
     Top = 45
-    Width = 886
-    Height = 740
+    Width = 978
+    Height = 719
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 0
     object pgcTabelas: TtecPageControl
       Left = 0
       Top = 0
-      Width = 886
-      Height = 740
+      Width = 978
+      Height = 719
       ActivePage = tstNaturezas
       Align = alClient
       MultiLine = True
@@ -521,8 +521,8 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
         end
         object gbxProdutosporCargos: TGroupBox
           Left = 0
-          Top = 225
-          Width = 878
+          Top = 204
+          Width = 970
           Height = 484
           Align = alBottom
           Caption = ' MARK-UP POR PRODUTO '
@@ -537,7 +537,7 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
           object dbgprodutoscargos: TtecDBGrid
             Left = 2
             Top = 75
-            Width = 847
+            Width = 939
             Height = 407
             Align = alClient
             DataSource = dtmCadastroTabelasCrediario.dsrprodutosporCargo
@@ -620,7 +620,7 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
               end>
           end
           object pnlbotoes: TPanel
-            Left = 849
+            Left = 941
             Top = 75
             Width = 27
             Height = 407
@@ -835,7 +835,7 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
           object pnltop: TPanel
             Left = 2
             Top = 16
-            Width = 874
+            Width = 966
             Height = 59
             Align = alTop
             BevelOuter = bvNone
@@ -3029,8 +3029,8 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
         ImageIndex = 7
         object gbxLancamentosNaturezas: TGroupBox
           Left = 0
-          Top = 571
-          Width = 878
+          Top = 520
+          Width = 970
           Height = 200
           Align = alTop
           Caption = 'CONTABILIZA'#199#195'O'
@@ -3062,7 +3062,7 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
           object dbgLancamentosNaturezas: TtecDBGrid
             Left = 2
             Top = 60
-            Width = 874
+            Width = 966
             Height = 138
             Align = alBottom
             DataSource = dtmCadastroTabelasCrediario.dsrLancamentosNaturezas
@@ -3211,13 +3211,13 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
         object pnlTopNatureza: TPanel
           Left = 0
           Top = 0
-          Width = 878
-          Height = 181
+          Width = 970
+          Height = 215
           Align = alTop
           BevelOuter = bvNone
           TabOrder = 1
           object gbxCodigoNatureza: TGroupBox
-            Left = 6
+            Left = 1
             Top = 6
             Width = 75
             Height = 36
@@ -3232,9 +3232,9 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
             TabOrder = 0
           end
           object gbxDescricaoNatureza: TGroupBox
-            Left = 90
+            Left = 85
             Top = 6
-            Width = 662
+            Width = 663
             Height = 36
             Caption = 'DESCRI'#199#195'O'
             Enabled = False
@@ -3249,7 +3249,7 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
             object edtDescricaoNatureza: TDBEditTexto
               Left = 2
               Top = 10
-              Width = 655
+              Width = 657
               Height = 23
               DataField = 'descricao'
               DataSource = dtmCadastroTabelasCrediario.dsrNaturezas
@@ -3268,7 +3268,7 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
             end
           end
           object gbxInativoNatureza: TGroupBox
-            Left = 6
+            Left = 1
             Top = 43
             Width = 75
             Height = 36
@@ -3308,7 +3308,7 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
             end
           end
           object rgpTipoNatureza: TtecDBRadioGroup
-            Left = 90
+            Left = 85
             Top = 43
             Width = 117
             Height = 61
@@ -3381,7 +3381,7 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
             end
           end
           object rgpEntrada: TtecDBRadioGroup
-            Left = 214
+            Left = 209
             Top = 43
             Width = 114
             Height = 61
@@ -3434,9 +3434,9 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
             end
           end
           object gbxOpcoes: TGroupBox
-            Left = 336
+            Left = 331
             Top = 43
-            Width = 416
+            Width = 418
             Height = 63
             Caption = ' OP'#199#213'ES '
             Enabled = False
@@ -3586,9 +3586,9 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
             end
           end
           object gbxCFOP: TGroupBox
-            Left = 6
+            Left = 1
             Top = 105
-            Width = 747
+            Width = 749
             Height = 36
             Caption = 'CFOP - C'#211'DIGO FISCAL DA OPERA'#199#195'O'
             Enabled = False
@@ -3726,7 +3726,7 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
             end
           end
           object gbxTipoMovto: TGroupBox
-            Left = 6
+            Left = 1
             Top = 141
             Width = 579
             Height = 37
@@ -3867,7 +3867,7 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
             end
           end
           object rgpMovFisica: TtecDBRadioGroup
-            Left = 592
+            Left = 587
             Top = 141
             Width = 107
             Height = 37
@@ -3879,7 +3879,7 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
             Font.Pitch = fpVariable
             Font.Style = []
             ParentFont = False
-            TabOrder = 8
+            TabOrder = 9
             TabStop = False
             DataField = 'ind_mov_fisica'
             DataSource = dtmCadastroTabelasCrediario.dsrNaturezas
@@ -3902,12 +3902,71 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
               Value = '2'
             end
           end
+          object gbxnfe_natureza_operacao: TGroupBox
+            Left = 1
+            Top = 178
+            Width = 751
+            Height = 36
+            Caption = 'NATUREZA DE OPERA'#199#195'O'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -9
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 8
+            inline fraConsultanfe_natureza_operacao: TfraConsultaCodigo
+              Left = 3
+              Top = 10
+              Width = 745
+              Height = 24
+              HorzScrollBar.Range = 436
+              HorzScrollBar.Visible = False
+              VertScrollBar.Range = 23
+              VertScrollBar.Visible = False
+              AutoScroll = False
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -11
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              ParentFont = False
+              TabOrder = 0
+              inherited sbnProcura: TSpeedButton
+                Left = 34
+                Font.Height = -13
+              end
+              inherited dtxDescricao: TtecDBText
+                Left = 58
+                Width = 687
+                DataField = 'descricao'
+                DataSource = fraConsultanfe_natureza_operacao.dsrProcuranfe_natureza_operacao
+              end
+              inherited edfCodigo: TtecDBFindLookup
+                Width = 33
+                DataField = 'id_natureza'
+                DataSource = dtmCadastroTabelasCrediario.dsrNaturezas
+                MaxLength = 2
+                LookupField = 'id_natureza'
+                LookupSource = fraConsultanfe_natureza_operacao.dsrProcuranfe_natureza_operacao
+                LookupQueryParameter = 'id_natureza'
+                Parameter = ' '
+                ActiveSetControls = False
+                DenyInsert = False
+                NoSetControls = <>
+                SetControls = <>
+                LookupParameter = 'id_natureza'
+              end
+            end
+          end
         end
         object pnlCentroNatureza: TPanel
           Left = 0
-          Top = 181
-          Width = 878
-          Height = 323
+          Top = 215
+          Width = 970
+          Height = 238
           Align = alTop
           BevelOuter = bvNone
           Caption = 'pnlCentroNatureza'
@@ -3915,8 +3974,8 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
           object gbxCodigosSituacoesTributaria: TGroupBox
             Left = 0
             Top = 0
-            Width = 661
-            Height = 323
+            Width = 753
+            Height = 238
             Align = alClient
             Caption = ' SITUA'#199#195'O TRIBUT'#193'RIA '
             Font.Charset = DEFAULT_CHARSET
@@ -3930,7 +3989,7 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
             object gbxPISCST: TGroupBox
               Left = 2
               Top = 196
-              Width = 657
+              Width = 749
               Height = 36
               Align = alTop
               Caption = ' CST PIS - C'#211'DIGO DE SITUA'#199#195'O TRIBUT'#193'RIA DO PIS '
@@ -3991,7 +4050,7 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
             object gbxICMSCST: TGroupBox
               Left = 2
               Top = 16
-              Width = 657
+              Width = 749
               Height = 36
               Align = alTop
               Caption = ' CST ICMS - C'#211'DIGO DE SITUA'#199#194'O TRIBUT'#193'RIA DE ICMS '
@@ -4090,7 +4149,7 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
             object gbxCSOSN: TGroupBox
               Left = 2
               Top = 52
-              Width = 657
+              Width = 749
               Height = 36
               Align = alTop
               Caption = ' CSOSN - C'#211'DIGO DE SITUA'#199#195'O DA OPERA'#199#194'O NO SIMPLES NACIONAL '
@@ -4149,7 +4208,7 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
             object gbxIPICST: TGroupBox
               Left = 2
               Top = 124
-              Width = 657
+              Width = 749
               Height = 36
               Align = alTop
               Caption = ' CST IPI - C'#211'DIGO DE SITUA'#199#194'O TRIBUT'#193'RIA DE IPI '
@@ -4210,7 +4269,7 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
             object gbxCOFINSSCT: TGroupBox
               Left = 2
               Top = 160
-              Width = 657
+              Width = 749
               Height = 36
               Align = alTop
               Caption = ' CST COFINS - C'#211'DIGO DE SITUA'#199#195'O TRIBUT'#193'RIA DA COFINS '
@@ -4270,7 +4329,7 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
             object gbxISSQNST: TGroupBox
               Left = 2
               Top = 88
-              Width = 657
+              Width = 749
               Height = 36
               Align = alTop
               Caption = ' ISSQN - C'#211'DIGO SITUA'#199#195'O TRIBUT'#193'RIA '
@@ -4329,169 +4388,12 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
                 end
               end
             end
-            object gbxIBSCBS: TGroupBox
-              Left = 2
-              Top = 232
-              Width = 657
-              Height = 87
-              Align = alTop
-              Caption = 'IBS/CBS'
-              Font.Charset = DEFAULT_CHARSET
-              Font.Color = clBlack
-              Font.Height = -9
-              Font.Name = 'helvetica'
-              Font.Pitch = fpVariable
-              Font.Style = []
-              ParentFont = False
-              TabOrder = 6
-              Visible = False
-              object gbxtributos_cst_ibscbs: TGroupBox
-                Left = 2
-                Top = 14
-                Width = 653
-                Height = 35
-                Align = alTop
-                Caption = 'Tributos CST IBS/CBS'
-                Font.Charset = DEFAULT_CHARSET
-                Font.Color = clBlack
-                Font.Height = -9
-                Font.Name = 'helvetica'
-                Font.Pitch = fpVariable
-                Font.Style = []
-                ParentFont = False
-                TabOrder = 0
-                inline fraConsultatributos_cst_ibscbs: TfraConsultaCodigo
-                  Left = 3
-                  Top = 11
-                  Width = 646
-                  Height = 21
-                  HorzScrollBar.Range = 354
-                  HorzScrollBar.Visible = False
-                  VertScrollBar.Range = 23
-                  VertScrollBar.Visible = False
-                  AutoScroll = False
-                  Constraints.MaxHeight = 21
-                  Font.Charset = DEFAULT_CHARSET
-                  Font.Color = clBlack
-                  Font.Height = -11
-                  Font.Name = 'helvetica'
-                  Font.Pitch = fpVariable
-                  Font.Style = []
-                  ParentFont = False
-                  TabOrder = 0
-                  inherited sbnProcura: TSpeedButton
-                    Left = 32
-                    Height = 21
-                    Constraints.MaxHeight = 21
-                  end
-                  inherited dtxDescricao: TtecDBText
-                    Left = 56
-                    Width = 593
-                    Height = 21
-                    Constraints.MaxHeight = 21
-                    DataField = 'descricao'
-                    DataSource = fraConsultatributos_cst_ibscbs.dsrProcuraTributos_cst_ibscbs
-                  end
-                  inherited edfCodigo: TtecDBFindLookup
-                    Width = 30
-                    Height = 21
-                    Constraints.MaxHeight = 21
-                    DataField = 'cst_ibscbs'
-                    DataSource = dtmCadastroTabelasCrediario.dsrNaturezas
-                    MaxLength = 3
-                    PermitirZero = True
-                    LookupField = 'cst_ibscbs'
-                    LookupSource = fraConsultatributos_cst_ibscbs.dsrProcuraTributos_cst_ibscbs
-                    LookupQueryParameter = 'cst_ibscbs'
-                    Parameter = ' '
-                    ActiveSetControls = False
-                    DenyInsert = True
-                    NoSetControls = <>
-                    SetControls = <>
-                    LookupParameter = 'cst_ibscbs'
-                  end
-                  inherited qryProcuratributospis: TtecQuery
-                    Options = [doAutoFillDefs]
-                  end
-                end
-              end
-              object gbxtributos_is: TGroupBox
-                Left = 2
-                Top = 49
-                Width = 653
-                Height = 35
-                Align = alTop
-                Caption = 'Tributos IS'
-                Font.Charset = DEFAULT_CHARSET
-                Font.Color = clBlack
-                Font.Height = -9
-                Font.Name = 'helvetica'
-                Font.Pitch = fpVariable
-                Font.Style = []
-                ParentFont = False
-                TabOrder = 1
-                inline fraConsultatributos_is: TfraConsultaCodigo
-                  Left = 3
-                  Top = 11
-                  Width = 646
-                  Height = 21
-                  HorzScrollBar.Range = 354
-                  HorzScrollBar.Visible = False
-                  VertScrollBar.Range = 23
-                  VertScrollBar.Visible = False
-                  AutoScroll = False
-                  Constraints.MaxHeight = 21
-                  Font.Charset = DEFAULT_CHARSET
-                  Font.Color = clBlack
-                  Font.Height = -11
-                  Font.Name = 'helvetica'
-                  Font.Pitch = fpVariable
-                  Font.Style = []
-                  ParentFont = False
-                  TabOrder = 0
-                  inherited sbnProcura: TSpeedButton
-                    Left = 32
-                    Height = 21
-                    Constraints.MaxHeight = 21
-                  end
-                  inherited dtxDescricao: TtecDBText
-                    Left = 56
-                    Width = 593
-                    Height = 21
-                    Constraints.MaxHeight = 21
-                    DataField = 'descricao'
-                    DataSource = fraConsultatributos_is.dsrProcuraTributos_is
-                  end
-                  inherited edfCodigo: TtecDBFindLookup
-                    Width = 30
-                    Height = 21
-                    Constraints.MaxHeight = 21
-                    DataField = 'is_cod'
-                    DataSource = dtmCadastroTabelasCrediario.dsrNaturezas
-                    MaxLength = 1
-                    PermitirZero = True
-                    LookupField = 'codigo'
-                    LookupSource = fraConsultatributos_is.dsrProcuraTributos_is
-                    LookupQueryParameter = 'codigo'
-                    Parameter = ' '
-                    ActiveSetControls = False
-                    DenyInsert = True
-                    NoSetControls = <>
-                    SetControls = <>
-                    LookupParameter = 'codigo'
-                  end
-                  inherited qryProcuratributospis: TtecQuery
-                    Options = [doAutoFillDefs]
-                  end
-                end
-              end
-            end
           end
           object pnlDetalhesSituacaoTributaria: TPanel
-            Left = 661
+            Left = 753
             Top = 0
             Width = 217
-            Height = 323
+            Height = 238
             Align = alRight
             TabOrder = 1
             object ckbNaoGerarCreditoIPI: TDBCheckBox
@@ -4608,170 +4510,10 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
               ValueChecked = 'True'
               ValueUnchecked = 'False'
             end
-            object gbxNaoGerarCreditoDebitocbsibs: TGroupBox
-              Left = 8
-              Top = 232
-              Width = 137
-              Height = 91
-              Caption = 'N'#227'o Gerar'
-              Font.Charset = DEFAULT_CHARSET
-              Font.Color = clBlack
-              Font.Height = -11
-              Font.Name = 'helvetica'
-              Font.Pitch = fpVariable
-              Font.Style = []
-              ParentFont = False
-              TabOrder = 6
-              Visible = False
-              object naoGearCredito: TGroupBox
-                Left = 8
-                Top = 14
-                Width = 57
-                Height = 73
-                Caption = 'Cr'#233'dito'
-                Font.Charset = DEFAULT_CHARSET
-                Font.Color = clBlack
-                Font.Height = -11
-                Font.Name = 'helvetica'
-                Font.Pitch = fpVariable
-                Font.Style = []
-                ParentFont = False
-                TabOrder = 0
-                object ckbnaogerarcreditoibs: TDBCheckBox
-                  Left = 5
-                  Top = 20
-                  Width = 45
-                  Height = 13
-                  Caption = 'IBS'
-                  DataField = 'naogerarcreditoibs'
-                  DataSource = dtmCadastroTabelasCrediario.dsrNaturezas
-                  Font.Charset = DEFAULT_CHARSET
-                  Font.Color = clBlack
-                  Font.Height = -12
-                  Font.Name = 'helvetica'
-                  Font.Pitch = fpVariable
-                  Font.Style = []
-                  ParentFont = False
-                  TabOrder = 0
-                  ValueChecked = 'True'
-                  ValueUnchecked = 'False'
-                end
-                object ckbnaogerarcreditocbs: TDBCheckBox
-                  Left = 5
-                  Top = 36
-                  Width = 50
-                  Height = 13
-                  Caption = 'CBS'
-                  DataField = 'naogerarcreditocbs'
-                  DataSource = dtmCadastroTabelasCrediario.dsrNaturezas
-                  Font.Charset = DEFAULT_CHARSET
-                  Font.Color = clBlack
-                  Font.Height = -12
-                  Font.Name = 'helvetica'
-                  Font.Pitch = fpVariable
-                  Font.Style = []
-                  ParentFont = False
-                  TabOrder = 1
-                  ValueChecked = 'True'
-                  ValueUnchecked = 'False'
-                end
-                object ckbnaogerarcreditois: TDBCheckBox
-                  Left = 5
-                  Top = 52
-                  Width = 50
-                  Height = 13
-                  Caption = 'IS'
-                  DataField = 'naogerarcreditois'
-                  DataSource = dtmCadastroTabelasCrediario.dsrNaturezas
-                  Font.Charset = DEFAULT_CHARSET
-                  Font.Color = clBlack
-                  Font.Height = -12
-                  Font.Name = 'helvetica'
-                  Font.Pitch = fpVariable
-                  Font.Style = []
-                  ParentFont = False
-                  TabOrder = 2
-                  ValueChecked = 'True'
-                  ValueUnchecked = 'False'
-                end
-              end
-              object gbxNaoGearDebito: TGroupBox
-                Left = 72
-                Top = 14
-                Width = 57
-                Height = 73
-                Caption = 'D'#233'bito'
-                Font.Charset = DEFAULT_CHARSET
-                Font.Color = clBlack
-                Font.Height = -11
-                Font.Name = 'helvetica'
-                Font.Pitch = fpVariable
-                Font.Style = []
-                ParentFont = False
-                TabOrder = 1
-                object ckbnaogerardebitoibs: TDBCheckBox
-                  Left = 5
-                  Top = 20
-                  Width = 45
-                  Height = 13
-                  Caption = 'IBS'
-                  DataField = 'naogerardebitoibs'
-                  DataSource = dtmCadastroTabelasCrediario.dsrNaturezas
-                  Font.Charset = DEFAULT_CHARSET
-                  Font.Color = clBlack
-                  Font.Height = -12
-                  Font.Name = 'helvetica'
-                  Font.Pitch = fpVariable
-                  Font.Style = []
-                  ParentFont = False
-                  TabOrder = 0
-                  ValueChecked = 'True'
-                  ValueUnchecked = 'False'
-                end
-                object ckbnaogerardebitocbs: TDBCheckBox
-                  Left = 5
-                  Top = 36
-                  Width = 45
-                  Height = 13
-                  Caption = 'CBS'
-                  DataField = 'naogerardebitocbs'
-                  DataSource = dtmCadastroTabelasCrediario.dsrNaturezas
-                  Font.Charset = DEFAULT_CHARSET
-                  Font.Color = clBlack
-                  Font.Height = -12
-                  Font.Name = 'helvetica'
-                  Font.Pitch = fpVariable
-                  Font.Style = []
-                  ParentFont = False
-                  TabOrder = 1
-                  ValueChecked = 'True'
-                  ValueUnchecked = 'False'
-                end
-                object ckbnaogerardebitois: TDBCheckBox
-                  Left = 5
-                  Top = 52
-                  Width = 45
-                  Height = 13
-                  Caption = 'IS'
-                  DataField = 'naogerardebitois'
-                  DataSource = dtmCadastroTabelasCrediario.dsrNaturezas
-                  Font.Charset = DEFAULT_CHARSET
-                  Font.Color = clBlack
-                  Font.Height = -12
-                  Font.Name = 'helvetica'
-                  Font.Pitch = fpVariable
-                  Font.Style = []
-                  ParentFont = False
-                  TabOrder = 2
-                  ValueChecked = 'True'
-                  ValueUnchecked = 'False'
-                end
-              end
-            end
           end
         end
         object edfCodigoNatureza: TtecDbEditFind
-          Left = 8
+          Left = 4
           Top = 16
           Width = 70
           Height = 23
@@ -4803,8 +4545,8 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
         end
         object gbxINfComplementares: TGroupBox
           Left = 0
-          Top = 504
-          Width = 878
+          Top = 453
+          Width = 970
           Height = 67
           Align = alTop
           Caption = 'INFORMA'#199#213'ES COMPLEMENTARES'
@@ -4819,7 +4561,7 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
           object mmoINfComplementares: TtecDBMemo
             Left = 2
             Top = 14
-            Width = 874
+            Width = 966
             Height = 51
             Align = alClient
             DataField = 'infcomplementar'
@@ -4941,7 +4683,7 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
             Left = 2
             Top = 10
             Width = 70
-            Height = 24
+            Height = 23
             Alignment = taLeftJustify
             DataField = 'inativo'
             DataSource = dtmCadastroTabelasCrediario.dsrTiposRecebimentos
@@ -5113,8 +4855,8 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
         end
         object gbxContas: TGroupBox
           Left = 0
-          Top = 320
-          Width = 878
+          Top = 299
+          Width = 970
           Height = 389
           Align = alBottom
           Caption = ' CONTAS POR FILIAL '
@@ -5129,7 +4871,7 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
           object bvlTopo: TBevel
             Left = 2
             Top = 16
-            Width = 874
+            Width = 966
             Height = 5
             Align = alTop
             Shape = bsSpacer
@@ -5137,7 +4879,7 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
           object dbgContasTiposRecebimentos: TtecDBGrid
             Left = 2
             Top = 21
-            Width = 847
+            Width = 939
             Height = 366
             Align = alClient
             DataSource = dtmCadastroTabelasCrediario.dsrContasTiposRecebimentos
@@ -5281,7 +5023,7 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
               end>
           end
           object pnlBotoesContas: TPanel
-            Left = 849
+            Left = 941
             Top = 21
             Width = 27
             Height = 366
@@ -6310,8 +6052,8 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
         end
         object AdvPageRedes_adquirentes_tipos_recebimentos: TAdvPageControl
           Left = 0
-          Top = 131
-          Width = 878
+          Top = 110
+          Width = 970
           Height = 578
           ActivePage = AdvTabSheetRedes_adquirentes_tipos_recebimentos
           ActiveFont.Charset = DEFAULT_CHARSET
@@ -6339,7 +6081,7 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
             object DBAdvGridRedes_Adquirentes_Tipos_Recebimentos: TDBAdvGrid
               Left = 0
               Top = 0
-              Width = 840
+              Width = 932
               Height = 547
               Cursor = crDefault
               Align = alClient
@@ -6695,7 +6437,7 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
                 65)
             end
             object PanelProdutos: TPanel
-              Left = 840
+              Left = 932
               Top = 0
               Width = 30
               Height = 547
@@ -6841,8 +6583,8 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
         object dbgQualidade_Vendas: TtecDBGrid
           Left = 0
           Top = 0
-          Width = 878
-          Height = 681
+          Width = 970
+          Height = 660
           Align = alClient
           DataSource = dtmCadastroTabelasCrediario.dsrQualidade_Vendas
           Font.Charset = DEFAULT_CHARSET
@@ -6927,8 +6669,8 @@ inherited frmCadastroTabelasCrediario: TfrmCadastroTabelasCrediario
         end
         object pnlBottomQualidade_Vendas: TPanel
           Left = 0
-          Top = 681
-          Width = 878
+          Top = 660
+          Width = 970
           Height = 28
           Align = alBottom
           Caption = 'CTRL+F9 - Selecionar Cores'

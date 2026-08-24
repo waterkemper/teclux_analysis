@@ -1,0 +1,351 @@
+unit fmConferenciaProdutos;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmajuda, frselecaoaleatoria, StdCtrls, ComCtrls, db, ctconstantes,
+  frconsultacodigo, cpdbfindcontrols, cpdatasource, ZQuery, ZPgSqlQuery,
+  cpquery, dmtecsoft, Grids, DBGrids, cpdbgrid, cptexto, dmbasico,
+  biblio, ExtCtrls, Buttons, clparametrossistema;
+
+type
+  TfrmConferenciaProdutos = class(TfrmAjuda)
+    qryProdutos: TtecQuery;
+    dsrProdutos: TtecDataSource;
+    qryProdutoscodigo: TLargeintField;
+    qryProdutoscodigovisual: TStringField;
+    qryProdutosdescricao: TStringField;
+    qryProdutosquantidade: TFloatField;
+    qryProdutosquantidadelida: TFloatField;
+    qryProdutosQuantidadeFaltante: TCurrencyField;
+    qryProdutosQuantidadeExcedente: TCurrencyField;
+    dbgProdutos: TtecDBGrid;
+    gbxCodigoBarras: TGroupBox;
+    edtCodigoBarras: TEditTexto;
+    qryProcuraProdutosCodigoBarras: TtecQuery;
+    qryProcuraProdutosCodigoBarrascodigo: TLargeintField;
+    qryProcuraProdutosCodigoBarrascodigovisual: TStringField;
+    qryProcuraProdutosCodigoBarrascodigobarras: TStringField;
+    qryProcuraProdutosCodigoBarrasdescricao: TStringField;
+    qryProcuraProdutos: TtecQuery;
+    qryProcuraProdutoscodigo: TLargeintField;
+    qryProcuraProdutoscodigovisual: TStringField;
+    qryProcuraProdutosdescricao: TStringField;
+    shAtendidos: TShape;
+    lblAtendidos: TLabel;
+    sbnReConferir: TSpeedButton;
+    pnlTopo: TPanel;
+    pnlRodape: TPanel;
+    procedure qryProdutosCalcFields(DataSet: TDataSet);
+    procedure edtCodigoBarrasKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure FormShow(Sender: TObject);
+    procedure sbnReConferirClick(Sender: TObject);
+    procedure dbgProdutosDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+  private
+    { Private declarations }
+  protected
+    dmbasico : TdtmBasico;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure LocalizarProduto(TextodePesquisa: String; TipoPesquisaProduto:TtecTipoPesquisaProduto);
+    procedure ConferirProdutos(RefazerProdutos: boolean = false);  overload;
+
+
+
+
+  public
+    { Public declarations }
+    qryTabelaProdutos: TtecQuery;
+    NomeCampoCodigo, NomeCampoCodigoVisual, NomeCampoDescricao, NomeCampoQuantidade: String;
+    constructor Create(Aowner:Tcomponent);override;
+    destructor  Destroy; override;
+
+  end;
+
+  procedure ConferirProdutos(qryTabelaProdutos: TtecQuery;
+                             NomeCampoCodigo, NomeCampoCodigoVisual,
+                             NomeCampoDescricao, NomeCampoQuantidade: String);  overload;
+
+
+
+var
+  frmConferenciaProdutos: TfrmConferenciaProdutos;
+
+implementation
+
+uses frconsulta;
+
+{$R *.dfm}
+
+
+constructor TfrmConferenciaProdutos.Create(Aowner: Tcomponent);
+begin
+//  dtmConferenciaProdutos := TdtmConferenciaProdutos.Create(Self);
+  inherited;
+  qryProdutosquantidade.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosquantidadelida.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosQuantidadeFaltante.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosQuantidadeExcedente.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+
+  if dbgProdutos.ColumnByName('quantidade').Width < ParSistema.TamanhoMascaraQuantidade then  dbgProdutos.ColumnByName('quantidade').Width := ParSistema.TamanhoMascaraQuantidade;
+  if dbgProdutos.ColumnByName('quantidadelida').Width < ParSistema.TamanhoMascaraQuantidade then  dbgProdutos.ColumnByName('quantidadelida').Width := ParSistema.TamanhoMascaraQuantidade;
+  if dbgProdutos.ColumnByName('QuantidadeFaltante').Width < ParSistema.TamanhoMascaraQuantidade then  dbgProdutos.ColumnByName('QuantidadeFaltante').Width := ParSistema.TamanhoMascaraQuantidade;
+  if dbgProdutos.ColumnByName('QuantidadeExcedente').Width < ParSistema.TamanhoMascaraQuantidade then  dbgProdutos.ColumnByName('QuantidadeExcedente').Width := ParSistema.TamanhoMascaraQuantidade;
+
+
+end;
+
+destructor TfrmConferenciaProdutos.Destroy;
+begin
+
+  inherited;
+end;
+
+procedure TfrmConferenciaProdutos.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  case Key of
+    VK_F11 : begin
+                if gbxCodigoBarras.caption = 'CÓDIGO DE BARRAS' then
+                   gbxCodigoBarras.caption := 'PRODUTO'
+                 else
+                   gbxCodigoBarras.caption := 'CÓDIGO DE BARRAS';
+             end;
+
+    else inherited;
+  end;
+
+end;
+
+procedure TfrmConferenciaProdutos.qryProdutosCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  if qryProdutosquantidade.AsCurrency > qryProdutosquantidadelida.AsCurrency then
+  begin
+    qryProdutosQuantidadeFaltante.AsCurrency := qryProdutosquantidade.AsCurrency - qryProdutosquantidadelida.AsCurrency;
+    qryProdutosQuantidadeExcedente.AsCurrency := 0;
+  end
+  else
+  if qryProdutosquantidade.AsCurrency < qryProdutosquantidadelida.AsCurrency then
+  begin
+    qryProdutosQuantidadeFaltante.AsCurrency := 0;
+    qryProdutosQuantidadeExcedente.AsCurrency := qryProdutosquantidadelida.AsCurrency - qryProdutosquantidade.AsCurrency;
+  end
+  else
+  begin
+    qryProdutosQuantidadeFaltante.AsCurrency := 0;
+    qryProdutosQuantidadeExcedente.AsCurrency := 0;
+  end;
+
+end;
+
+procedure TfrmConferenciaProdutos.edtCodigoBarrasKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Key = VK_RETURN then
+  begin
+    if edtCodigoBarras.Text<>''then
+    begin
+      if gbxCodigoBarras.Caption = 'CÓDIGO DE BARRAS' then
+        LocalizarProduto(edtCodigoBarras.Text,
+                                                             pesCodigoBarras)
+      else
+        LocalizarProduto(edtCodigoBarras.Text,
+                                                             pesproduto);
+    end;
+    edtCodigoBarras.SetFocus;
+    edtCodigoBarras.SelectAll;
+  end;
+end;
+
+procedure TfrmConferenciaProdutos.LocalizarProduto(TextodePesquisa: String;
+  TipoPesquisaProduto: TtecTipoPesquisaProduto);
+
+  Procedure IncluirProduto;
+  begin
+    case TipoPesquisaProduto of
+      pesCODIGOBARRAS:
+      begin
+        qryprodutos.append;
+        qryProdutoscodigo.AsString := qryProcuraProdutosCodigoBarrascodigo.AsString;
+        qryProdutoscodigovisual.AsString := qryProcuraProdutosCodigoBarrascodigovisual.AsString;
+        qryProdutosdescricao.AsString := qryProcuraProdutosCodigoBarrasdescricao.AsString;
+        qryProdutosquantidadelida.AsInteger := 1;
+        qryprodutos.post;
+      end;
+
+      pesPRODUTO:
+      begin
+        qryprodutos.append;
+        qryProdutoscodigo.AsString := qryProcuraProdutoscodigo.AsString;
+        qryProdutoscodigovisual.AsString := qryProcuraProdutoscodigovisual.AsString;
+        qryProdutosdescricao.AsString := qryProcuraProdutosdescricao.AsString;
+        qryProdutosquantidadelida.AsInteger := 1;
+        qryprodutos.post;
+      end;
+    end;
+  end;  
+
+begin
+  case TipoPesquisaProduto of
+    pesCODIGOBARRAS:
+    begin
+      dmbasico.RefazConsultaPorNome(qryProcuraProdutosCodigoBarras,['codigobarras'], [TextodePesquisa]);
+
+      if qryProcuraProdutosCodigoBarras.IsEmpty then
+        MensagemAviso(format('O produto com o Código de Barras ''%s'' não está cadastrado',[TextodePesquisa]))
+      else
+      if not qryProdutos.Locate('codigo', qryProcuraProdutosCodigoBarrascodigo.AsString,[]) then
+      begin
+        if MensagemSelecionaOpcao(format('O produto com o Código de Barras ''%s'' não está presente na lista'+#13+
+                                         'Desejas inclui-lo na lista abaixo?',[TextodePesquisa])) = smbYES then
+          IncluirProduto
+      end
+      else
+      begin
+        qryProdutos.Edit;
+        qryProdutosquantidadelida.AsCurrency := qryProdutosquantidadelida.AsCurrency + 1;
+        qryprodutos.post;
+      end;
+    end;
+
+    pesPRODUTO:
+    begin
+      if ParSistema.PermitirProdutoAlfanumerico then
+      begin
+        if not qryProdutos.Locate('codigovisual',TextodePesquisa,[]) then
+        begin
+          dmbasico.RefazConsultaPorNome(qryProcuraProdutos,['codigo','codigovisual'], ['',TextodePesquisa]);
+          if qryProcuraProdutos.IsEmpty then
+            MensagemAviso(format('O produto com o Código ''%s'' não está cadastrado',[TextodePesquisa]))
+          else
+            if MensagemSelecionaOpcao(format('O produto com o Código ''%s'' não está presente na lista'+#13+
+                                           'Desejas inclui-lo na lista abaixo?',[TextodePesquisa])) = smbYES then
+              IncluirProduto;
+        end
+        else
+        begin
+          qryProdutos.Edit;
+          qryProdutosquantidadelida.AsCurrency := qryProdutosquantidadelida.AsCurrency + 1;
+          qryprodutos.post;
+        end;
+      end
+      else
+      begin
+        if not qryProdutos.Locate('codigo',TextodePesquisa,[]) then
+        begin
+          dmbasico.RefazConsultaPorNome(qryProcuraProdutos,['codigo','codigovisual'], [TextodePesquisa,'']);
+          if qryProcuraProdutos.IsEmpty then
+            MensagemAviso(format('O produto com o Código ''%s'' não está cadastrado',[TextodePesquisa]))
+          else
+            if MensagemSelecionaOpcao(format('O produto com o Código ''%s'' não está presente na lista'+#13+
+                                           'Desejas inclui-lo na lista abaixo?',[TextodePesquisa])) = smbYES then
+              IncluirProduto;
+        end
+        else
+        begin
+          qryProdutos.Edit;
+          qryProdutosquantidadelida.AsCurrency := qryProdutosquantidadelida.AsCurrency + 1;
+          qryprodutos.post;
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmConferenciaProdutos.ConferirProdutos(RefazerProdutos: boolean = false);
+var
+  vRegistroAtual : TBookMark;
+begin
+
+  with frmConferenciaProdutos do
+  begin
+    qryProdutos.DisableControls;
+    vRegistroAtual := qryTabelaProdutos.getbookMark;
+
+    qryProdutos.Close;
+    qryProdutos.Open;
+    qryTabelaProdutos.First;
+    while not qryTabelaProdutos.eof do
+    begin
+      if not qryprodutos.Locate('codigo',qrytabelaprodutos.fieldbyname('produto').asstring, []) then
+      begin
+        qryprodutos.Append;
+        qryProdutoscodigo.AsString := qrytabelaprodutos.fieldbyname(NomeCampoCodigo).asstring;
+        qryProdutoscodigovisual.AsString := qrytabelaprodutos.fieldbyname(NomeCampoCodigoVisual).asstring;
+        qryProdutosdescricao.AsString := qrytabelaprodutos.fieldbyname(NomeCampoDescricao).asstring;
+        qryProdutosquantidade.AsCurrency := qrytabelaprodutos.fieldbyname(NomeCampoQuantidade).AsCurrency;
+        qryprodutos.post;
+      end
+      else
+      begin
+        qryprodutos.edit;
+        qryProdutosquantidade.AsCurrency := qryProdutosquantidade.AsCurrency + qrytabelaprodutos.fieldbyname(NomeCampoQuantidade).AsCurrency;
+        qryprodutos.post;
+      end;
+      qryTabelaProdutos.next;
+    end;
+
+    qryProdutos.EnableControls;
+    qryTabelaProdutos.GotoBookmark(vRegistroAtual);
+    qryTabelaProdutos.FreeBookmark(vRegistroAtual);
+
+    if not RefazerProdutos then
+     ShowModal;
+  end;
+
+end;
+
+procedure ConferirProdutos(qryTabelaProdutos: TtecQuery;
+                           NomeCampoCodigo, NomeCampoCodigoVisual,
+                           NomeCampoDescricao, NomeCampoQuantidade: String);
+begin
+  if not assigned(frmConferenciaProdutos) then
+    frmConferenciaProdutos := TfrmConferenciaProdutos.Create(frmConferenciaProdutos);
+
+
+  frmConferenciaProdutos.qryTabelaProdutos      := qryTabelaProdutos;
+  frmConferenciaProdutos.NomeCampoCodigo        := NomeCampoCodigo;
+  frmConferenciaProdutos.NomeCampoCodigoVisual  := NomeCampoCodigoVisual;
+  frmConferenciaProdutos.NomeCampoDescricao     := NomeCampoDescricao;
+  frmConferenciaProdutos.NomeCampoQuantidade    := NomeCampoQuantidade;
+
+  frmConferenciaProdutos.ConferirProdutos;
+end;
+
+procedure TfrmConferenciaProdutos.FormShow(Sender: TObject);
+begin
+  inherited;
+  edtCodigoBarras.SetFocus;
+  edtCodigoBarras.SelectAll;
+
+end;
+
+procedure TfrmConferenciaProdutos.sbnReConferirClick(Sender: TObject);
+begin
+  inherited;
+  ConferirProdutos(true);
+end;
+
+procedure TfrmConferenciaProdutos.dbgProdutosDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if (qryProdutosQuantidadeFaltante.AsCurrency = 0) and
+     (qryProdutosQuantidadeExcedente.ascurrency = 0) then
+  begin
+    TDBGrid(Sender).Canvas.Font.Color := clGreen;
+    TDBGrid(Sender).Canvas.Font.Style := [fsBold];
+  end
+  else
+   TDBGrid(Sender).Canvas.Font.Style := [];
+
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+
+end;
+
+end.

@@ -50,12 +50,17 @@ begin
              Application.terminate
           else
           begin
+            self.Reset;
+            vconexao_em_excessao := false;
+
+            {
             self.Database.Connect;
             if self.Database.Connected then
             begin
               FecharJanelaPercaConexao;
               vconexao_em_excessao := false;
             end;
+            }
           end;
 
         end
@@ -76,13 +81,12 @@ begin
   begin
 //    ExecSql('SET DateStyle TO ''ISO, European''',Self);
     self.PID;
-  end;
-
-
-  {
+  end
   else
   if  conexao_em_excessao then
   begin
+    self.reset;
+    {
     for i := 0 to 2 do
     begin
       self.Database.Connect;
@@ -92,8 +96,8 @@ begin
         break;
       end;
     end;
+    }
   end;
-  }
 
 end;
 

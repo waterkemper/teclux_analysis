@@ -1,0 +1,1309 @@
+unit fmordemservicos;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs, Windows,
+  fmcadastropadrao, ComCtrls, Buttons, ExtCtrls,
+  cpdbdata, StdCtrls, cpnumero, cpdbfindcontrols,
+  DBCtrls, cpdbtext, Mask, cpdbradiogroup, cptexto, Grids, DBGrids,
+  cpdbgrid, DB, cpfone, ctconstantes, clparametrossistema,
+  fmconsultaporcampo, fmconsultabasica, zquery, cpdbmemo,
+  //Projeto
+  fmcalculofinanciamento,fmoperacoescontratos, fmdevolucaomercadorias, fmcancelamentocontratos,
+  //Repositorio
+  fmcadastroequipamentos, dmcadastroequipamentos, ToolWin, fmcadastrocontratos;
+
+type
+  TfrmOrdemServico = class(TfrmCadastroPadrao)
+    edfNumero: TtecDbEditFind;
+    flkCodigoCliente: TtecDBFindLookup;
+    dtxClientesNome: TtecDBText;
+    sbnProcurarClientes: TSpeedButton;
+    dtxFilialVenda: TtecDBText;
+    gbxTotais: TGroupBox;
+    pgcOrdemServico: TPageControl;
+    tstProdutos: TTabSheet;
+    tstServicos: TTabSheet;
+    rgpTipoEquipamento: TtecDBRadioGroup;
+    rbnNovoCliente: TtecRadioButton;
+    rbnAtivoFixo: TtecRadioButton;
+    rbnUsadoCliente: TtecRadioButton;
+    rbnEstoque: TtecRadioButton;
+    lblTotalProduto: TLabel;
+    lblTotalServico: TLabel;
+    lblTotalGeral: TLabel;
+    edtTotalProduto: TDBEditNumero;
+    edtTotalServico: TDBEditNumero;
+    edtTotalGeral: TDBEditNumero;
+    dbgProdutos: TtecDBGrid;
+    dbgServicos: TtecDBGrid;
+    edtAutorizacao: TDBEditTexto;
+    gbxDatas: TGroupBox;
+    lblDataAbertura: TLabel;
+    dtxDataAbertura: TtecDBText;
+    lblOrcamento: TLabel;
+    edtSeguro: TDBEditNumero;
+    lblAtualizacao: TLabel;
+    dtxAtualizacao: TtecDBText;
+    lblPrevisao: TLabel;
+    edtPrevisao: TDBEditData;
+    edtDDD: TDBEditNumero;
+    edtNumero: TDBEditFone;
+    lblFechamento: TLabel;
+    dtxFechamento: TtecDBText;
+    gbxEquipamento: TGroupBox;
+    pgcProdutoEqpto: TPageControl;
+    tstEqptoCliente: TTabSheet;
+    sbnProcuraEquipamentosOS: TSpeedButton;
+    edtMaquina: TDBEditTexto;
+    edtMarca: TDBEditTexto;
+    edtModelo: TDBEditTexto;
+    edtAno: TDBEditTexto;
+    flkEquipamentoOS: TtecDBFindLookup;
+    edtSerie: TDBEditTexto;
+    tstProdutoEmpresa: TTabSheet;
+    sbnProcuraProduto: TSpeedButton;
+    flkProduto: TtecDBFindLookup;
+    dtxProduto: TtecDBText;
+    sbnExcluirServico: TSpeedButton;
+    sbnIncluirServico: TSpeedButton;
+    sbnExcluirProduto: TSpeedButton;
+    sbnIncluirProduto: TSpeedButton;
+    mmoComplementoEquipamento: TDBMemo;
+    tstPlanodePagamento: TTabSheet;
+    dtxPlanoPagamento: TtecDBText;
+    dtxNomePlanoPagamento: TtecDBText;
+    dbgParcelas: TtecDBGrid;
+    sbnParcelas: TSpeedButton;
+    sbnImprimirOrdemServico: TSpeedButton;
+    sbnAlterarSituacao: TSpeedButton;
+    dtxNomeSituacao: TtecDBText;
+    tstObservacoes: TTabSheet;
+    gbxObservacoesMontagem: TGroupBox;
+    mmoObservacoesMontagem: TtecDBMemo;
+    gbxConsideracoes: TGroupBox;
+    mmoConsideracoes: TtecDBMemo;
+    dtxFilial: TtecDBText;
+    flkCFPS: TtecDBFindLookup;
+    sbnCFPS: TSpeedButton;
+    dtxCFPS: TtecDBText;
+    sbnImprimirRequisicao: TSpeedButton;
+    sbnComponentesMontagem: TSpeedButton;
+    tstReceitaoculos: TTabSheet;
+    gbxOlhoDireito: TGroupBox;
+    lblEsferico_od: TLabel;
+    lblCilindro_od: TLabel;
+    lblEixo_od: TLabel;
+    edtEsferico_od: TDBEditNumero;
+    edtCilindro_od: TDBEditNumero;
+    edtEixo_od: TDBEditNumero;
+    gbxOlhoEsquerdo: TGroupBox;
+    lblEsferico_oe: TLabel;
+    lblCilindro_oe: TLabel;
+    lblEixo_oe: TLabel;
+    edtEsferico_oe: TDBEditNumero;
+    edtCilindro_oe: TDBEditNumero;
+    edtEixo_oe: TDBEditNumero;
+    gbxDistanciaNasoPupilarLonge: TGroupBox;
+    edtlonge_dnp_oe: TDBEditNumero;
+    edtlonge_dnp_od: TDBEditNumero;
+    gbxAdicao: TGroupBox;
+    DBEditNumero1: TDBEditNumero;
+    gbxDistanciaNasoPupilarPerto: TGroupBox;
+    edtperto_dnp_oe: TDBEditNumero;
+    edtperto_dnp_od: TDBEditNumero;
+    edtLente: TDBEditTexto;
+    edtCor: TDBEditTexto;
+    rbpTipoLente: TDBRadioGroup;
+    lblMedida: TLabel;
+    edtMedida: TDBEditTexto;
+    lblAjuste: TLabel;
+    edtAjuste: TDBEditTexto;
+    lblEntrega: TLabel;
+    edtEntrega: TDBEditTexto;
+    lblMedico: TLabel;
+    edtMedico: TDBEditTexto;
+    gbxAltura: TGroupBox;
+    DBEditNumero2: TDBEditNumero;
+    gbxNfLente: TGroupBox;
+    edtNfLente: TDBEditTexto;
+    DBEditTexto1: TDBEditTexto;
+    sbnIncluirEquipamentos: TSpeedButton;
+    gbxNumeroOS: TGroupBox;
+    gbxFilial: TGroupBox;
+    gbxSituacao: TGroupBox;
+    gbxAutorizador: TGroupBox;
+    gbxTelefone: TGroupBox;
+    gbxCliente: TGroupBox;
+    gbxTotalGeral: TGroupBox;
+    gbxTotalServicos: TGroupBox;
+    gbxTotalProdutos: TGroupBox;
+    gbxOrcamento: TGroupBox;
+    gbxDataEntrada: TGroupBox;
+    gbxFechamento: TGroupBox;
+    gbxAtualizacao: TGroupBox;
+    gbxPrevisao: TGroupBox;
+    gbxEquipto: TGroupBox;
+    gbxMarca: TGroupBox;
+    gbxAno: TGroupBox;
+    gbxSerie: TGroupBox;
+    gbxModelo: TGroupBox;
+    gbxProduto: TGroupBox;
+    gbxPlanoPagto: TGroupBox;
+    gbxEsfericoDireito: TGroupBox;
+    gbxCilindroOD: TGroupBox;
+    gbxEixoOD: TGroupBox;
+    gbxCilindroOE: TGroupBox;
+    gbxEsfericoOE: TGroupBox;
+    gbxEixoOE: TGroupBox;
+    gbxNumeroNF: TGroupBox;
+    gbxValorNF: TGroupBox;
+    gbxLente: TGroupBox;
+    gbxCor: TGroupBox;
+    gbxMedida: TGroupBox;
+    gbxAjuste: TGroupBox;
+    gbxEntrega: TGroupBox;
+    gbxMedico: TGroupBox;
+    gbxCFPS: TGroupBox;
+    gbxComplemento: TGroupBox;
+    Panel1: TPanel;
+    gbxTipoLente: TGroupBox;
+    procedure rgpTipoEquipamentoChange(Sender: TObject);
+    procedure sbnProcuraEquipamentosOSClick(Sender: TObject);
+    procedure sbnProcurarClientesClick(Sender: TObject);
+    procedure sbnIncluirProdutoClick(Sender: TObject);
+    procedure dbgProdutosDblClick(Sender: TObject);
+    procedure dbgProdutosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnProcuraProdutoClick(Sender: TObject);
+    procedure sbnIncluirServicoClick(Sender: TObject);
+    procedure sbnParcelasClick(Sender: TObject);
+    procedure dbgServicosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure FormActivate(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnExcluirProdutoClick(Sender: TObject);
+    procedure sbnExcluirServicoClick(Sender: TObject);
+    procedure dbgProdutosEnter(Sender: TObject);
+    procedure dbgServicosEnter(Sender: TObject);
+    procedure dbgProdutosExit(Sender: TObject);
+    procedure dbgServicosExit(Sender: TObject);
+    procedure edfNumeroFound(Found: Boolean);
+    procedure sbnImprimirOrdemServicoClick(Sender: TObject);
+    procedure sbnAlterarSituacaoClick(Sender: TObject);
+    procedure flkCodigoClienteEnter(Sender: TObject);
+    procedure flkCodigoClienteExit(Sender: TObject);
+    procedure flkProdutoMessage(var Msg: String);
+    procedure sbnCFPSClick(Sender: TObject);
+    procedure sbnImprimirRequisicaoClick(Sender: TObject);
+    procedure sbnComponentesMontagemClick(Sender: TObject);
+    procedure sbnincluirequipamentoClick(Sender: TObject);
+    procedure rbpTipoLenteClick(Sender: TObject);
+    procedure sbnIncluirEquipamentosClick(Sender: TObject);
+    function  GerarParcelasPlanoPadrao: Boolean;
+    function  GerarParcelasVendaaVista: Boolean;
+  protected
+    ValorAVistaAnt,
+    TotalProdutosAnt,
+    TotalServicosAnt: Currency;
+    CodClienteAnt: Integer;
+    TipoClienteAnt: String;
+    TipoConsulta: TtecOrdemServicoTipoConsulta;
+    ContornaChuncho: Boolean;
+    PrecisaReCalcularParcelas: Boolean;
+    Gravando: Boolean;
+    Jan: TfrmConsultaPorCampo;
+    procedure ClientesOnScroll(Sender: TObject);
+    procedure ClientesAfterPost(Sender: TObject);
+    procedure ClientesAfterClose(Sender: TObject);
+    procedure AtualizaEquipamentosCliente;
+    function  IncluirEditarProdutosOrdemServico(Editar: Boolean): Boolean;
+    function  IncluirEquipamentosOS: boolean;
+    function  IncluirEditarServicosOrdemServico(Editar: Boolean): Boolean;
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    function  InternoIncluir: Boolean; override;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    procedure PosicionarTabelaNoParametro(Ind: Integer; var continuar: Boolean); override;
+    procedure ProximoControle(Ind: Integer); override;
+    function  TabelaDePesquisa: TZDataSet; override;
+    function  TabelaDoParametro(Parametro: Integer): TZDataSet; override;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function  PermitirProcura: Boolean;
+    procedure CalcularFinanciamento;
+    procedure LerValoresCalculoFinanciamento;
+    procedure OnActivateCalculoFinanciamento(var Calcular: Boolean;
+                                             var Mercadoria, Frete, Seguro, DescontoContrato: Currency;
+                                             var Plano: Integer;
+                                             var Parcelas: TResumosParcelas;
+                                             var Grupos: vstring);
+    procedure OnCloseCalculoFinanciamento;
+    procedure ImprimirOrdemServico;
+    procedure DocumentosFiscaisOrdemServico;
+    procedure AlterarEstadoBotoes; override;
+    procedure AcionaCadastroEquipamentosClientes(Editar: Boolean);
+    //function  ComplementarNota: Boolean;
+
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+
+  end;
+
+var
+  frmOrdemServico: TfrmOrdemServico;
+
+implementation
+  uses
+  dmordemservico,fmprodutosordemservico,fmcadastroservicosordemservico,
+  fmconfirmarimpressaonocontrato,fmcomplementarnotafiscalsaida,
+  fmprodutosrequisicaoos, fmcomposicaomontagem,
+  //CLX
+  {Qete,}
+  //Biblio
+  biblio, clusuario, clecf,
+  //Repositorio
+  dmconsultaenderecos, fmprincipalbasico,
+  //Projeto
+  fmnavcontroles, fmmotivos;
+
+
+
+{$R *.dfm}
+
+{ TfrmOrdemServico }
+
+constructor TfrmOrdemServico.Create(AOwner: TComponent);
+begin
+  dtmOrdemServico := TdtmOrdemServico.Create(Self, False);
+//  if(ParSistema.ContratoComServico) then
+  dtmCadastroEquipamentos:= TdtmCadastroEquipamentos.Create(Self);
+  inherited;
+  //dtmOrdemServico.OnComplementarNota := ComplementarNota;
+  dtmOrdemServico.Abre(ctVendaOrdemServico);
+  DataSet := dtmOrdemServico.TabelaOrdemServico;
+  dtmordemservico.OnScrollClientes:= ClientesOnScroll;
+  dtmordemservico.AfterPostClientes:= ClientesAfterPost;
+  dtmordemservico.AfterCloseClientes:=ClientesAfterClose;
+  dtmOrdemServico.VendedorDefault:=UsuarioLogin.CodigoUsuario;
+  pgcOrdemServico.ActivePage:= tstProdutos;
+  if dtmOrdemServico.TipoEquipamento = 4 then
+    pgcProdutoEqpto.ActivePage:= tstProdutoEmpresa
+  else
+    pgcProdutoEqpto.ActivePage:= tstEqptoCliente;
+  dbgProdutos.Columns[2].Visible := Not ParSistema.FiliaisIndependentes;
+
+  if dbgProdutos.Columns[7].Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgProdutos.Columns[7].Width := ParSistema.TamanhoMascaraQuantidade;
+
+  sbnComponentesMontagem.Visible := ParSistema.UsaProdutoComposto;
+  tstReceitaOculos.TabVisible  := ParSistema.ANEXOCONTRATORECEITAOCULOS;
+end;
+
+destructor TfrmOrdemServico.Destroy;
+begin
+  dtmordemservico.DesbloquearOrdemServico;
+  dtmOrdemServico:=nil;
+  inherited;
+  frmOrdemServico := nil;
+end;
+
+function TfrmOrdemServico.ExisteInformacao(Parametro: Integer;
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmOrdemServico do
+  begin
+    if CtrlOn then
+    begin
+      case tipoconsulta of
+        ctosFILIAISOS : Result := ExisteFilial(NomeCampo, Value);
+        ctosCLIENTES  : Result := ExisteCliente(NomeCampo, Value);
+        ctosEQPTOSOS  : begin
+                          if dtmOrdemServico.CodigoCliente > 0 then
+                          begin
+                             Result := ExisteEquipamentoOS(NomeCampo, Value);
+                          end
+                          else
+                          begin
+                            MensagemAviso('Informe o cliente!');
+                            Result:=false;
+                          end;
+                        end;
+        ctosPRODUTOSOS: Result := ExisteProdutoOS(NomeCampo,Value);
+        ctosCFPS      : Result := ExisteCFPS(NomeCampo, Value);
+      else
+        Result := False
+      end
+    end
+    else if Parametro = 0 then
+      Result := ExisteCliente(NomeCampo, Value)
+    else
+      Result := ExisteOrdemServico(NomeCampo, Value);
+  end;
+end;
+
+function TfrmOrdemServico.InternoExcluir: Boolean;
+var
+  CancelarCtrOrcado: Boolean;
+begin
+  Result:=False;
+  if CtrlOn then
+  begin
+    if dbgProdutos.Focused then
+    begin
+      if (dtmOrdemServico.SituacaoOrdemServico < scFATURADO ) and (not dtmOrdemServico.ReadOnly) then
+      begin
+        Result := dtmOrdemServico.ExcluirProdutoOrdemServico;
+        if Result then
+        begin
+          dtmOrdemServico.CalcularValorTotalProdutos;
+          dtmOrdemServico.CalcularValorAVista;
+          PrecisaReCalcularParcelas := True
+        end
+      end
+    end
+    else if dbgServicos.Focused then
+    begin
+      if (dtmOrdemServico.SituacaoOrdemServico < scFATURADO) and (not dtmOrdemServico.ReadOnly) then
+      begin
+        Result := dtmOrdemServico.ExcluirServicoOrdemServico;
+        if Result then
+        begin
+          dtmOrdemServico.CalcularValorTotalServicos;
+          dtmOrdemServico.CalcularValorAVista;
+          PrecisaReCalcularParcelas := True
+        end
+      end
+    end
+  end
+  else if ((dtmOrdemServico.SituacaoOrdemServico < scFATURADO)
+           and (not dtmOrdemServico.ReadOnly)) or (dtmOrdemServico.SituacaoOrdemServico = scFATURADO) then
+  begin
+    frmMotivos := nil;
+    Result := True;
+    CancelarCtrOrcado := False;
+    if (dtmOrdemServico.SituacaoOrdemServico in [scRESERVADO, scFATURADO]) then
+    begin
+      dtmOrdemServico.AbreTabelasConsulta(ctosMotivos);
+      frmMotivos := TfrmMotivos.Create(frmMotivos, 'Cancelamentos de OS', dtmOrdemServico.TabelaConsultaMotivos);
+      Result := frmMotivos.ShowModal = mrOK;
+    end;
+    try
+      if Result then
+      begin
+        Result := dtmOrdemServico.ExcluirOrdemServico;
+        if Result then
+        begin
+          Result := inherited InternoExcluir;
+          PrecisaReCalcularParcelas := False
+        end;
+      end
+    finally
+      if (dtmOrdemServico.SituacaoOrdemServico in [scRESERVADO, scFATURADO]) or CancelarCtrOrcado then
+      begin
+        frmMotivos.Free;
+        SetFocus;
+        dtmOrdemServico.FechaTabelasConsulta(ctosMotivos)
+      end
+    end
+  end else
+    Result := False;
+  CtrlOn:= False;
+end;
+
+function TfrmOrdemServico.InternoGravar: Boolean;
+var
+  CupomEmitido,
+  ErroCupom: Boolean;
+  FormaPagamento: Integer;
+  ValorPagoDinheiro: Currency;
+  Frm: TForm;
+  Msg: String;
+begin
+  if inherited InternoGravar then
+  begin
+    Gravando := True;
+    try
+      if ActiveControl = dbgProdutos then
+        PrecisaReCalcularParcelas := (TotalProdutosAnt <> dtmOrdemServico.TotalProdutos) or
+                                      PrecisaReCalcularParcelas;
+      if ActiveControl = dbgServicos then
+        PrecisaReCalcularParcelas := (TotalServicosAnt <> dtmOrdemServico.TotalServicos) or
+                                      PrecisaReCalcularParcelas;
+
+      if ((PrecisaReCalcularParcelas) and (dtmordemservico.qryOrdemServicoplano.AsInteger > 0)) then
+      begin
+        ContornaChuncho := false;
+        Result := GerarParcelasPlanoPadrao;
+        PrecisaReCalcularParcelas := False;
+        ContornaChuncho:=true;
+      end;
+
+
+      if dtmordemservico.PlanoPadraoClienteSemParcelas then
+      begin
+        ContornaChuncho := false;
+        Result := GerarParcelasPlanoPadrao;
+        PrecisaReCalcularParcelas := False;
+        ContornaChuncho:=true;
+      end;
+
+      if ((PrecisaReCalcularParcelas) and not(dtmordemservico.PlanoPadraoClienteSemParcelas)) then
+      begin
+        MensagemAviso(ctRECALCULARPARCELAS);
+        Result := False
+      end
+      else if ((PrecisaReCalcularParcelas) and (dtmOrdemServico.SituacaoOrdemServico >= scFATURADO)) then
+      begin
+        MensagemAviso(ctRECALCULARPARCELAS);
+        Result := False
+      end
+      else
+      begin
+        Result := dtmOrdemServico.GravarOrdemServico(ErroCupom, CupomEmitido,
+                                                     FormaPagamento, Msg,
+                                                     ValorPagoDinheiro);
+      end;
+
+      Result:=false;
+      if Result  then
+      begin
+        Frm := TfrmDevolucaoMercadorias.Referencia;
+        if Assigned(Frm) then
+          TfrmDevolucaoMercadorias(Frm).ReFazConsultaCliente([dtmOrdemServico.NumeroOrdemServico]);
+          Frm := TfrmCancelamentoContratos.Referencia;
+          if Assigned(Frm) then
+            TfrmCancelamentoContratos(Frm).RefazConsulta;
+          Frm := TfrmOperacoesContratos.Referencia;
+          if Assigned(Frm)  then
+            TfrmOperacoesContratos(Frm).RefazConsulta;
+          PrecisaReCalcularParcelas := False;
+      end
+    finally
+      Gravando := False;
+    end
+  end
+  else
+    Result := False
+end;
+
+function TfrmOrdemServico.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if not CtrlOn then
+  begin
+    if Result then
+    begin
+      dtmOrdemServico.IncluirOrdemServico;
+      flkCodigoCliente.SetFocus;
+    end
+  end
+  else
+  begin
+    if pgcOrdemServico.ActivePageIndex=0 then //dbgProdutos.Focused) then
+    begin
+      if dtmOrdemServico.PodeAlterarCampos then
+        Result:= IncluirEditarProdutosOrdemServico(False)
+      else
+        Result:= False;
+    end
+    else if pgcOrdemServico.ActivePageIndex=1 then //dbgServicos.Focused then
+    begin
+      if dtmOrdemServico.PodeAlterarCampos then
+        Result:= IncluirEditarServicosOrdemServico(False)
+      else
+        Result:= False;
+    end
+  end
+end;
+
+function TfrmOrdemServico.PermitirProcura: Boolean;
+begin
+  Result := True;
+  if CtrlOn then
+  begin
+    if flkEquipamentoOS.focused then
+    begin
+      if dtmOrdemServico.CodigoCliente>0 then
+         TipoConsulta := ctosEQPTOSOS
+      else
+      begin
+        Result:=false;
+        MensagemAviso('Informe o cliente!');
+      end
+    end
+    else if flkCodigoCliente.Focused then
+      TipoConsulta := ctosCLIENTES
+    else if flkProduto.Focused then
+      TipoConsulta := ctosPRODUTOSOS
+    else if flkCFPS.Focused then
+      TipoConsulta := ctosCFPS;
+  end
+  else
+  begin
+    TipoConsulta := ctosORDEMSERVICO;
+    //dtmOrdemServico.AbreTabelasConsulta(ctosCLIENTES);
+    //Titulo := ctstrCONTRATOS;
+  end;
+end;
+
+function TfrmOrdemServico.InternoPesquisar(Titulo: String): Integer;
+begin
+  Result := mrNone;
+  if PermitirProcura then
+  begin
+    with dtmOrdemServico do
+    begin
+      if not CtrlOn then
+      begin
+        AbreTabelasConsulta(ctosCLIENTES);
+        Titulo := 'OS';
+      end
+      else
+        AbreTabelasConsulta(TipoConsulta);
+      Result:= Inherited InternoPesquisar(Titulo);
+      if Result = mrOK then
+      begin
+        SelecionaTabelasConsulta(tipoConsulta);
+        if TipoConsulta = ctosORDEMSERVICO then
+          flkProduto.Exist;
+      end;
+      FechaTabelasConsulta(tipoConsulta);
+    end;
+  end;
+end;
+
+function TfrmOrdemServico.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Jan := TfrmConsultaPorCampo.Create(nil);
+  Jan.ConsultaInterativa := Not (TipoConsulta in [ctosCLIENTES,ctosPRODUTOSOS]) and CtrlOn;
+  Jan.UsarParametrosDaTabela := not (TipoConsulta in [ctosPRODUTOSOS, ctosEQPTOSOS]);
+  Result := Jan
+end;
+
+procedure TfrmOrdemServico.PosicionarTabelaNoParametro(Ind: Integer;
+  var continuar: Boolean);
+begin
+  inherited;
+  {if CtrlOn then
+    Continuar:= dtmCadastroContratos.PosicionarEstado
+  else}
+    Continuar:= False;
+end;
+
+procedure TfrmOrdemServico.ProximoControle(Ind: Integer);
+begin
+  inherited;
+  if CtrlOn then
+  begin
+    if Ind = 0 then
+      //dtmCadastroContratos.PosicionarCidade
+  end
+  else
+  if Ind = 0 then
+  begin
+    Jan.ConsultaInterativa := True;
+    dtmOrdemServico.AbreTabelasConsulta(ctosORDEMSERVICO);
+  end
+  else
+    Jan.ConsultaInterativa := False;
+end;
+
+function TfrmOrdemServico.TabelaDePesquisa: TZDataSet;
+begin
+//  Result := inherited TabelaDePesquisa;
+    with dtmOrdemServico do
+      case TipoConsulta of
+        ctosORDEMSERVICO : Result := ConsultaOrdemServico;
+        ctosFILIAISOS    : Result := ConsultaFiliais;
+        ctosCLIENTES     : Result := ConsultaClientes;
+        ctosEQPTOSOS     : Result := ConsultaEqptoOS;
+        ctosPRODUTOSOS   : Result := ConsultaProdutosOS;
+        ctosCFPS         : Result := ConsultaCFPS;
+      else
+        Result:=nil;
+      end;
+end;
+
+function TfrmOrdemServico.TabelaDoParametro(Parametro: Integer): TZDataSet;
+begin
+  if not CtrlOn then
+    Result := dtmOrdemServico.ConsultaClientes
+  else
+    Result := nil;
+end;
+
+procedure TfrmOrdemServico.rgpTipoEquipamentoChange(Sender: TObject);
+begin
+  inherited;
+  case rgpTipoEquipamento.ItemIndex of
+  0,1,2 : begin
+           if dtmOrdemServico.ProdutoIndicado then
+             pgcProdutoEqpto.ActivePage := tstEqptoCliente
+           end;
+  3 :     begin
+            if dtmOrdemServico.EquipamentoIndicado then
+              pgcProdutoEqpto.ActivePage := tstProdutoEmpresa
+            end;
+  end;
+end;
+
+procedure TfrmOrdemServico.sbnProcuraEquipamentosOSClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkEquipamentoOS, ctEQUIPAMENTOS)
+end;
+
+procedure TfrmOrdemServico.sbnProcurarClientesClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkCodigoCliente, ctCLIENTES);
+end;
+
+function TfrmOrdemServico.IncluirEditarProdutosOrdemServico(Editar: Boolean): Boolean;
+begin
+
+  if Editar then Result := dtmOrdemServico.EditarProdutosOrdemServico
+  else           Result := dtmOrdemServico.IncluirProdutosOrdemServico;
+  
+  frmProdutosOrdemServico := TfrmProdutosOrdemServico.Create(frmProdutosOrdemServico);
+  if Result then
+    Result := frmProdutosOrdemServico.ShowModal = mrOK;
+  frmProdutosOrdemServico.Free;
+  dtmOrdemServico.CalcularTotais;
+  SetFocus;
+end;
+
+function TfrmOrdemServico.IncluirEditarServicosOrdemServico(Editar: Boolean): Boolean;
+begin
+  frmCadastroServicosOrdemServico := TfrmCadastroServicosOrdemServico.Create(frmCadastroServicosOrdemServico);
+  if Editar then
+    Result := dtmOrdemServico.EditarServicosOrdemServico
+  else
+    Result := dtmOrdemServico.IncluirServicosOrdemServico(False);
+  if Result then
+    Result := frmCadastroServicosOrdemServico.ShowModal = mrOK;
+  frmCadastroServicosOrdemServico.Free;
+  dtmOrdemServico.CalcularTotais;
+  SetFocus;
+end;
+
+procedure TfrmOrdemServico.sbnIncluirProdutoClick(Sender: TObject);
+begin
+  inherited;
+  if dtmOrdemServico.PodeAlterarCampos then
+  begin
+    CtrlOn := True;
+    dbgProdutos.SetFocus;
+    InternoIncluir;
+  end;
+end;
+
+procedure TfrmOrdemServico.dbgProdutosDblClick(Sender: TObject);
+begin
+  inherited;
+  if dtmOrdemServico.PodeAlterarCampos then
+    IncluirEditarProdutosOrdemServico(True);
+end;
+
+procedure TfrmOrdemServico.dbgProdutosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case Key of
+    TeclaEditarRegistro : if dtmOrdemServico.PodeAlterarCampos then
+                            IncluirEditarProdutosOrdemServico(True);
+    VK_F9 : if Shift = [ssCtrl] then
+               sbnComponentesMontagem.Click;
+  end;
+end;
+
+procedure TfrmOrdemServico.sbnProcuraProdutoClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkProduto, ctPRODUTO)
+end;
+
+procedure TfrmOrdemServico.sbnIncluirServicoClick(Sender: TObject);
+begin
+  inherited;
+   if dtmOrdemServico.PodeAlterarCampos then
+   begin
+     CtrlOn := True;
+     dbgServicos.SetFocus;
+     InternoIncluir;
+   end;
+end;
+
+procedure TfrmOrdemServico.sbnParcelasClick(Sender: TObject);
+begin
+  inherited;
+  if (dtmOrdemServico.TotalOrdemServico = 0) then
+    MensagemAviso('Faz-se necessário a inclusão de um produto ou serviço antes de calcular as parcelas.')
+  else if (dtmOrdemServico.SituacaoOrdemServico < scFATURADO) and (Not dtmOrdemServico.ReadOnly) then
+  begin
+    pgcOrdemServico.ActivePage := tstPlanodePagamento;
+    if dbgParcelas.CanFocus then
+      dbgParcelas.SetFocus;
+    ContornaChuncho := True;
+    try
+      CalcularFinanciamento;
+    finally
+      ContornaChuncho := False;
+    end
+  end
+end;
+
+procedure TfrmOrdemServico.dbgServicosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+    case Key of
+    TeclaEditarRegistro : if dtmOrdemServico.PodeAlterarCampos then
+                            IncluirEditarServicosOrdemServico(True);
+    end;
+end;
+
+procedure TfrmOrdemServico.CalcularFinanciamento;
+var
+  Parcelas: TResumosParcelas;
+  TotalCalcular: Currency;
+//  x: vString;
+begin
+  inherited;
+  Parcelas := nil;
+//  x:= nil;
+  if ((dtmOrdemServico.Situacao='O') or (dtmOrdemServico.Situacao='R')) and (not dtmOrdemServico.ReadOnly) then begin
+    frmCalculoFinanciamento := TfrmCalculoFinanciamento(TfrmCalculoFinanciamento.Referencia);
+    if Assigned(frmCalculoFinanciamento) then
+      frmCalculoFinanciamento.SetFocus
+    else
+    begin
+      dtmOrdemServico.EditarOrdemServico;
+      TotalCalcular:= dtmOrdemServico.TotalOrdemServico;
+      dtmOrdemServico.ResumoParcelas(Parcelas);
+      frmCalculoFinanciamento := TfrmCalculoFinanciamento.Create(Owner, True);
+      frmCalculoFinanciamento.OntecClose    := OnCloseCalculoFinanciamento;
+      frmCalculoFinanciamento.DefinirValoresCalculo(PrecisaReCalcularParcelas,
+                                                    TotalCalcular,
+                                                    0,
+                                                    0,
+                                                    0,
+                                                    0,
+						    0,
+                                                    dtmOrdemServico.PlanoUtilizado,
+                                                    dtmOrdemServico.DataAbertura,
+                                                    dtmordemservico.EstadoFilialBase,
+                                                    Parcelas,
+                                                    nil, //Grupos
+                                                    nil, //Classes
+                                                    true,
+                                                    0);
+      Parcelas := nil;
+    end;
+  end;
+end;
+
+procedure TfrmOrdemServico.LerValoresCalculoFinanciamento;
+var
+  Parcelas, ParcContr: TResumosParcelas;
+  ValorPrazo,
+  TaxaJuros,
+  Desconto: Real;
+  Plano: Integer;
+begin
+  inherited;
+  Plano := 0;
+  if Not ContornaChuncho then begin
+    frmCalculoFinanciamento := TfrmCalculoFinanciamento(TfrmCalculoFinanciamento.Referencia);
+    if Assigned(frmCalculoFinanciamento) and
+       frmCalculoFinanciamento.ResumosParcelas(Parcelas, ValorPrazo, TaxaJuros, Desconto, Plano)
+    then begin
+      dtmOrdemServico.ResumoParcelas(ParcContr);
+      if Not ParcelasIdenticas(Parcelas, ParcContr) then begin
+//      and (MensagemConfirmacao('Deseja alterar as parcelas do contrato?') = smbOK)
+//      then begin
+        dtmOrdemServico.DefinirParcelas(Parcelas, ValorPrazo, TaxaJuros, Desconto, Plano);
+        PrecisaReCalcularParcelas := Plano = 0;
+      end;
+      Parcelas  := nil;
+      ParcContr := nil;
+    end
+  end
+end;
+
+procedure TfrmOrdemServico.OnActivateCalculoFinanciamento(var Calcular: Boolean;
+  var Mercadoria, Frete, Seguro, DescontoContrato: Currency; var Plano: Integer;
+  var Parcelas: TResumosParcelas; var Grupos: vstring);
+begin
+  Calcular         := false;
+  Mercadoria       := dtmOrdemServico.TotalOrdemServico;
+  Frete            := 0;
+  Seguro           := 0;
+  DescontoContrato := 0;//dtmOrdemServico.DescontoContrato;
+  Plano            := dtmOrdemServico.PlanoUtilizado;
+  Grupos           := nil;
+  dtmOrdemServico.ResumoParcelas(Parcelas);
+end;
+
+procedure TfrmOrdemServico.OnCloseCalculoFinanciamento;
+begin
+  LerValoresCalculoFinanciamento;
+end;
+
+procedure TfrmOrdemServico.FormActivate(Sender: TObject);
+
+begin
+  inherited;
+  LerValoresCalculoFinanciamento
+end;
+
+procedure TfrmOrdemServico.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+  begin
+     if Key = VK_P then
+         sbnParcelasClick(nil);
+  end
+  else if Shift = [] then
+  begin
+    case Key of
+      VK_ESCAPE: AlterarEstadoBotoes;
+      VK_F7    : if sbnImprimirOrdemServico.Enabled then
+                    sbnImprimirOrdemServicoClick(nil);
+      VK_F8    : if sbnImprimirRequisicao.Enabled then
+                    sbnImprimirRequisicaoClick(nil);
+      VK_F11   : if sbnAlterarSituacao.Enabled then
+                    sbnAlterarSituacaoClick(nil);
+      end;
+  end;
+
+end;
+
+procedure TfrmOrdemServico.sbnExcluirProdutoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  dbgProdutos.SetFocus;
+  InternoExcluir;
+end;
+
+procedure TfrmOrdemServico.sbnExcluirServicoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  dbgServicos.SetFocus;
+  InternoExcluir;
+end;
+
+procedure TfrmOrdemServico.dbgProdutosEnter(Sender: TObject);
+begin
+  inherited;
+    TotalProdutosAnt := dtmOrdemServico.TotalProdutos
+end;
+
+procedure TfrmOrdemServico.dbgServicosEnter(Sender: TObject);
+begin
+  inherited;
+  TotalServicosAnt:= dtmOrdemServico.TotalServicos;
+end;
+
+procedure TfrmOrdemServico.dbgProdutosExit(Sender: TObject);
+begin
+  inherited;
+  PrecisaReCalcularParcelas := (TotalProdutosAnt <> dtmOrdemServico.TotalProdutos) or
+                               PrecisaReCalcularParcelas;
+end;
+
+procedure TfrmOrdemServico.dbgServicosExit(Sender: TObject);
+begin
+  inherited;
+  PrecisaReCalcularParcelas := (TotalServicosAnt <> dtmOrdemServico.TotalServicos) or
+                               PrecisaReCalcularParcelas;
+end;
+
+{
+function TfrmOrdemServico.ComplementarNota: Boolean;
+var
+  frmComplementarNotaFiscalSaida: TfrmComplementarNotaFiscalSaida;
+begin
+  frmComplementarNotaFiscalSaida := TfrmComplementarNotaFiscalSaida.Create(Self);
+  try
+    frmComplementarNotaFiscalSaida.dtmContratos := dtmOrdemServico;
+    Result := frmComplementarNotaFiscalSaida.ShowModal = mrOk;
+  finally
+    frmComplementarNotaFiscalSaida.Free
+  end
+end;
+ }
+
+
+procedure TfrmOrdemServico.edfNumeroFound(Found: Boolean);
+begin
+  inherited;
+  if Found then
+  begin
+    dtmOrdemServico.RefazConsultaProdutosEntregar;
+      if dtmOrdemServico.SituacaoOrdemServico = scNOTAPARCIAL then
+        AlterarEstadoBotoes;
+    flkCodigoCliente.Exist;
+    flkProduto.Exist;
+    if rgpTipoEquipamento.ItemIndex=3 then
+      pgcProdutoEqpto.ActivePage:=tstProdutoEmpresa
+    else
+      pgcProdutoEqpto.ActivePage:=tstEqptoCliente;
+  end;
+
+end;
+
+procedure TfrmOrdemServico.sbnImprimirOrdemServicoClick(Sender: TObject);
+begin
+  inherited;
+  ImprimirOrdemServico;
+end;
+
+
+procedure TfrmOrdemServico.ImprimirOrdemServico;
+begin
+ frmConfirmarImpressaoNoContrato := TfrmConfirmarImpressaoNoContrato.Create(frmConfirmarImpressaoNoContrato, True, True , True, False, False, 2);
+
+ frmConfirmarImpressaoNoContrato.IntervaloCarnes := dtmordemservico.IntervaloCarnes;
+ frmConfirmarImpressaoNoContrato.IntervaloCarnesAbertas:= dtmordemservico.IntervaloCarnesAbertas;
+ frmConfirmarImpressaoNoContrato.ckbImprimirCarneAbertas.Enabled := frmConfirmarImpressaoNoContrato.IntervaloCarnesAbertas<>nil;
+
+ try
+    if frmConfirmarImpressaoNoContrato.ShowModal = mrOK then
+    begin
+      if frmConfirmarImpressaoNoContrato.Contrato then
+        dtmOrdemServico.ImprimirOrdemServico;
+
+       if frmConfirmarImpressaoNoContrato.Carne then
+          dtmordemservico.ImprimirDuplicatas(frmConfirmarImpressaoNoContrato.Sequencia)
+       else
+       if frmConfirmarImpressaoNoContrato.CarneAbertas then
+          dtmordemservico.ImprimirDuplicatas(frmConfirmarImpressaoNoContrato.Sequencia);
+          
+    end
+  finally
+    frmConfirmarImpressaoNoContrato.Free;
+  end
+end;
+
+procedure TfrmOrdemServico.sbnAlterarSituacaoClick(Sender: TObject);
+var
+  Frm: TForm;
+
+begin
+  inherited;
+ case dtmOrdemServico.SituacaoOrdemServico of
+    scRESERVADO,
+    scNOTAPARCIAL:
+    begin
+      dtmordemservico.DocumentosFiscaisOrdemServico;
+
+         {
+      Frm := TfrmCadastroContratos.Referencia;
+      if Assigned(Frm) then
+        TfrmCadastroContratos(Frm).RefazConsulta;
+        }
+
+      Frm := TfrmOperacoesContratos.Referencia;
+      if Assigned(Frm)  then
+        TfrmOperacoesContratos(Frm).RefazConsulta;
+
+    end;
+ end;
+end;
+
+procedure TfrmOrdemServico.DocumentosFiscaisOrdemServico;
+var
+  UsuarioAut: TtecUsuarios;
+  PodeImprimirNota,
+  ErroCupom,
+  NotaFiscalVinculada: Boolean;
+  FormaPagamento: Integer;
+  ValorPagoDinheiro: Currency;
+  Frm: TForm;
+  Msg: String;
+  SituacaoAtual : TtecSituacaoContrato;
+begin
+  PodeImprimirNota:= False;
+  if UsuarioLogin.EmissorNotaFiscal then
+    PodeImprimirNota:= True
+  else
+  begin
+    UsuarioAut := dtmOrdemServico.ObterAutorizacao(taLOGIN, ctIMPRIMIRNOTAFISCAL, ctEMISSORNOTAFISCAL);
+    try
+      if Assigned(UsuarioAut) then
+      begin
+        if not UsuarioAut.EmissorNotaFiscal then
+        begin
+          PodeImprimirNota := False;
+          MensagemAviso(Format(ctUSUARIONAOAUTORIZADO, ['imprimir nota fiscal.']));
+        end
+        else
+          PodeImprimirNota:= True;
+      end;
+    finally
+      UsuarioAut.Free
+    end
+  end;
+  if PodeImprimirNota then
+  begin
+    if MensagemConfirmacao(ctCONFIRMEIMPRESSAODOCUMENTOSFISCAIS) = smbok then
+    begin
+      if Assigned(ECFPadrao) then
+        NotaFiscalVinculada := (ParSistema.NotaFiscalVinculada = tnfOBRIGATORIA) or
+                               ((ParSistema.NotaFiscalVinculada = tnfOPCIONAL) and
+                               (MensagemConfirmacao(ctCONFIRMAEMISSAONOTASCONTRATO) = smbOK))
+      else
+        NotaFiscalVinculada := False;
+      SituacaoAtual := dtmOrdemServico.SituacaoOrdemServico;
+      dtmOrdemServico.SituacaoOrdemServico := scNOTAFISCAL;
+      dtmOrdemServico.MarcarTodosOsProdutos;
+      try
+        if Not dtmOrdemServico.GravarOrdemServico(ErroCupom, NotaFiscalVinculada,
+                                                  FormaPagamento, Msg, ValorPagoDinheiro)
+        then
+        begin
+          dtmOrdemServico.VoltarSituacaoOrdemServico(SituacaoAtual);
+          dtmOrdemServico.CancelarAlteracoesOrdemServico;
+        end
+        else
+        begin
+         Frm := TfrmDevolucaoMercadorias.Referencia;
+          if Assigned(Frm) then
+            TfrmDevolucaoMercadorias(Frm).ReFazConsultaCliente([dtmOrdemServico.NumeroOrdemServico]);
+          Frm := TfrmOperacoesContratos.Referencia;
+          if Assigned(Frm)  then
+            TfrmOperacoesContratos(Frm).RefazConsulta;
+        end;
+        AlterarEstadoBotoes;
+      except
+        dtmOrdemServico.RefazConsultaOrdemServico;
+        AlterarEstadoBotoes;
+        raise
+      end
+    end
+  end;
+end;
+
+procedure TfrmOrdemServico.AlterarEstadoBotoes;
+begin
+  inherited;
+  sbnAlterarSituacao.Caption  := 'Imp. Nota F11';
+  dtmOrdemServico.RefazConsultaProdutosEntregar;
+  if dtmOrdemServico.Bloqueado then
+    sbnAlterarSituacao.Enabled := False
+  else if dtmOrdemServico.Alterado then
+    sbnAlterarSituacao.Enabled  := false
+  else if (dtmOrdemServico.SituacaoOrdemServico = scRESERVADO) and dtmOrdemServico.PermiteEmitirNota then
+    sbnAlterarSituacao.Enabled  := True
+  else if dtmOrdemServico.SituacaoOrdemServico = scNOTAPARCIAL then
+    sbnAlterarSituacao.Enabled  := True
+  else
+    sbnAlterarSituacao.Enabled  := False;
+  sbnAlterarSituacao.Hint     := 'Imprimir Nota Fiscal';
+  sbnExcluir.Enabled          := (dtmOrdemServico.SituacaoOrdemServico <= scFATURADO) and
+                                 Not (dtmOrdemServico.Bloqueado or dtmOrdemServico.Alterado);
+  sbnImprimirOrdemServico.Enabled := (dtmOrdemServico.SituacaoOrdemServico < scCANCELADO) and not sbnSalvar.Enabled;
+  sbnImprimirRequisicao.Enabled := (dtmOrdemServico.SituacaoOrdemServico <= scFATURADO) and (dtmordemservico.Equipamento > 0) and not sbnSalvar.Enabled;
+  {sbnEnviarOrcamento.Enabled  := (dtmCadastroContratos.SituacaoContrato <= scFATURADO) and not sbnSalvar.Enabled and
+                                 (dtmCadastroContratos.ContratosRecordCount > 0);}
+  end;
+
+{function TfrmOrdemServico.ComplementarNota: Boolean;
+var
+  frmComplementarNotaFiscalSaida: TfrmComplementarNotaFiscalSaida;
+begin
+  frmComplementarNotaFiscalSaida := TfrmComplementarNotaFiscalSaida.Create(Self);
+  try
+    frmComplementarNotaFiscalSaida.dtmContratos := dtmOrdemServico;
+    Result := frmComplementarNotaFiscalSaida.ShowModal = mrOk;
+  finally
+    frmComplementarNotaFiscalSaida.Free
+  end
+end;
+}
+
+procedure TfrmOrdemServico.flkCodigoClienteEnter(Sender: TObject);
+begin
+  inherited;
+  CodClienteAnt  := dtmOrdemServico.CodigoCliente;
+  TipoClienteAnt := dtmOrdemServico.TipoCliente;
+end;
+
+procedure TfrmOrdemServico.flkCodigoClienteExit(Sender: TObject);
+begin
+  inherited;
+  if Not Gravando and
+    ((CodClienteAnt <> dtmOrdemServico.CodigoCliente) or
+    (TipoClienteAnt <> dtmOrdemServico.TipoCliente)) and
+    not UsuarioLogin.RestringirFichaCliente          and
+    dtmOrdemServico.ClienteAtrasado
+  then
+    if MensagemConfirmacao(format(ctCLIENTEPOSSUIATRASO,[dtmOrdemServico.NomeCliente, 'parcelas em atraso'])) = smbOK then
+      TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado([dtmOrdemServico.CodigoCliente,
+                                                                       dtmOrdemServico.TipoCliente], 'TfrmFichaFinanceira', True);
+end;
+
+procedure TfrmOrdemServico.flkProdutoMessage(var Msg: String);
+begin
+  inherited;
+  Msg := 'Produto não foi encontrado. Verifique se:'        + #13#10 +
+         '- está cadastrado no estoque desta filial ou'     + #13#10 +
+         '- está com quantidade em estoque zerada.'
+end;
+
+procedure TfrmOrdemServico.sbnCFPSClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkCFPS, ctCFPS)
+end;
+
+procedure TfrmOrdemServico.sbnImprimirRequisicaoClick(Sender: TObject);
+begin
+  inherited;
+  frmProdutosRequisicaoOS := TfrmProdutosRequisicaoOS.Create(frmProdutosRequisicaoOS);
+  with frmProdutosRequisicaoOS do begin
+    SetDataModulo(dtmOrdemServico);
+   if dtmordemservico.RefazConsultaRequisicaoOS then
+    begin
+      if ShowModal = mrOK then
+        dtmordemservico.IncluirProdutosRequisicaoProdutosOS;
+    end
+    else
+      MensagemAviso(Format(ctNENHUMREGISTROENCONTRADO,['Registro']));
+    frmProdutosRequisicaoOS.Free;
+  end;
+  SetFocus;
+{
+  frmProdutosRequisicaoOS := TfrmProdutosRequisicaoOS.Create(Self);
+  dtmordemservico.RefazConsultaRequisicaoOS;
+  frmProdutosRequisicaoOS.ShowModal;
+  frmProdutosRequisicaoOS.Free;
+  SetFocus;}
+  {  TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado([dtmordemservico.Equipamento, ClassName],
+                                                                  'TfrmCadastroEquipamentos', True);
+}end;
+
+procedure TfrmOrdemServico.sbnComponentesMontagemClick(Sender: TObject);
+begin
+  inherited;
+  if dtmordemservico.ProdutoEhComposto then
+  begin
+    frmComposicaoMontagem := TfrmComposicaoMontagem.Create(frmComposicaoMontagem);
+    frmComposicaoMontagem.DataSet := dtmordemservico.TabelaComposicaoMontagem;
+    dtmordemservico.RefazConsultaComposicaoMontagem;
+    frmComposicaoMontagem.ShowModal;
+    frmComposicaoMontagem.free;
+
+    SetFocus;
+  end;
+end;
+
+procedure TfrmOrdemServico.sbnincluirequipamentoClick(Sender: TObject);
+begin
+  AcionaCadastroEquipamentosClientes(False)
+end;
+
+function TfrmOrdemServico.IncluirEquipamentosOS: boolean;
+begin
+
+end;
+
+procedure TfrmOrdemServico.AcionaCadastroEquipamentosClientes(
+  Editar: Boolean);
+begin
+  if (dtmordemservico.qryOrdemServicocliente.AsInteger <> 0) then
+  begin
+    frmCadastroEquipamentos:= TfrmCadastroEquipamentos.Create(frmCadastroEquipamentos);
+    with frmCadastroEquipamentos do
+    begin
+     FecharaoGravar := true;
+     DataSet:= dtmCadastroEquipamentos.qryEquipamentos;
+     SetDataModulo(dtmCadastroEquipamentos);
+     dtmCadastroEquipamentos.IncluirEquipamento(Editar);
+     ShowModal;
+     frmCadastroEquipamentos.free;
+     //edtDescricao.SetFocus;
+     Application.BringToFront;
+     if frmCadastroEquipamentos.ModalResult = mrOK then
+       dtmordemservico.AtribuirEquipamento;
+    end;
+  end
+  else
+    MensagemAviso('O cliente deve ser cadastrado antes!');
+end;
+
+procedure TfrmOrdemServico.rbpTipoLenteClick(Sender: TObject);
+begin
+  inherited;
+with dtmordemservico do
+  begin
+    if not ReadOnly then
+    begin
+      if not (qryReceitaOculos.State in [dsedit,dsinsert]) then
+         qryReceitaOculos.Edit;
+      if not (qryOrdemServico.State in [dsedit, dsinsert]) then
+          qryOrdemServico.Edit;
+    end;
+  end;
+end;
+
+procedure TfrmOrdemServico.AtualizaEquipamentosCliente;
+var
+  cliente: integer;
+begin
+  if ParSistema.ContratoComServico then
+  begin
+    if dtmordemservico.qryClientescodigo.AsInteger > 0 then
+      cliente:= dtmordemservico.qryClientescodigo.AsInteger
+    else
+      cliente:=0;
+    dtmCadastroEquipamentos.RefazConsultaEquipamentosClientes(cliente);
+    dtmCadastroEquipamentos.Cliente:= dtmordemservico.qryClientescodigo.AsInteger;
+    dtmCadastroEquipamentos.TabelaClientes:= dtmordemservico.qryClientes;
+  end;
+end;
+
+procedure TfrmOrdemServico.ClientesAfterClose(Sender: TObject);
+begin
+  if (ParSistema.ContratoComServico) then
+    dtmCadastroEquipamentos.FechaEquipamentosCliente;
+end;
+
+procedure TfrmOrdemServico.ClientesAfterPost(Sender: TObject);
+begin
+  if(ParSistema.ContratoComServico) then
+    AtualizaEquipamentosCliente;
+end;
+
+procedure TfrmOrdemServico.ClientesOnScroll(Sender: TObject);
+begin
+  if(ParSistema.ContratoComServico) then
+    AtualizaEquipamentosCliente;
+end;
+
+procedure TfrmOrdemServico.sbnIncluirEquipamentosClick(Sender: TObject);
+begin
+  inherited;
+    AcionaCadastroEquipamentosClientes(False)
+end;
+
+function TfrmOrdemServico.GerarParcelasPlanoPadrao: Boolean;
+begin
+  CalcularFinanciamento;
+  Result := frmCalculoFinanciamento.calcularPlanoPadrao(dtmordemservico.ClientePlanoPadrao);
+end;
+
+function TfrmOrdemServico.GerarParcelasVendaaVista: Boolean;
+begin
+  CalcularFinanciamento;
+end;
+end.

@@ -148,6 +148,16 @@ inherited frmControleRecebimentos: TfrmControleRecebimentos
         Spacing = 0
         OnClick = sbnGerarClick
       end
+      object sbnConsulaPIX: TSpeedButton
+        Left = 234
+        Top = 2
+        Width = 87
+        Height = 39
+        Hint = 'Consulta transa'#231#227'o PIX'
+        Caption = 'Consulta PIX'
+        Transparent = False
+        OnClick = sbnConsulaPIXClick
+      end
     end
     object stxOperacao: TStaticText
       Left = 460

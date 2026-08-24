@@ -1,0 +1,501 @@
+unit fmLerProdutosArquivo;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, Buttons, ExtCtrls, DB, ZQuery, ZPgSqlQuery, cpquery,
+  cpdatasource, Grids, DBGrids, cpdbgrid, dmtecsoft, fmcadastropadrao,
+  ComCtrls, ToolWin, fmajuda, frconsulta, frconsultacodigo, cpdbfindcontrols,
+  ctconstantes, ComObj, biblio ;
+
+type
+  tpImportacaoArquivo = (OrcamentosProdDescQtde, Outros);
+
+type
+  TfrrmLerProdutosArquivo = class(TfrmAjuda)
+    gbxNomedoArquivo: TGroupBox;
+    edtNomedoArquivo: TEdit;
+    OpenDialog1: TOpenDialog;
+    dbgListaProdutosdoCliente: TtecDBGrid;
+    dsrProdutos: TtecDataSource;
+    qryProdutos: TtecQuery;
+    pnlBottom: TPanel;
+    bbnOK: TBitBtn;
+    bbnCancelar: TBitBtn;
+    qryProdutosproduto: TLargeintField;
+    qryProdutosprodutocliente: TStringField;
+    qryProdutosdescricaoprodutocliente: TStringField;
+    qryProdutosquantidadeprodutocliente: TFloatField;
+    qryProdutosprodutovisual: TStringField;
+    sbnNomedoArquivo: TSpeedButton;
+    qryClientesProdutos: TtecQuery;
+    qryClientesProdutoscliente: TIntegerField;
+    qryClientesProdutostipocliente: TStringField;
+    qryClientesProdutosproduto: TLargeintField;
+    qryClientesProdutosproduto_cliente: TStringField;
+    qryClientesProdutosprodutovisual: TStringField;
+    procedure sbnNomedoArquivo_Click(Sender: TObject);
+    procedure sbnNomedoArquivoClick(Sender: TObject);
+    procedure dbgListaProdutosdoClienteDblClick(Sender: TObject);
+    procedure dbgListaProdutosdoClienteKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+  protected
+    ConsultaProduto : TfraConsultaCodigo;
+    procedure AtribuirDadosProdutos;
+    procedure AcionarPesquisaGrade;
+
+  private
+    { Private declarations }
+    vCliente: integer;
+    vTipoCliente : String;
+    qryProdutosIncluidos : TtecQuery;
+    fTipoImportacao: tpImportacaoArquivo;
+    function ImportarExcel(XLS: string) : Boolean;
+    procedure RelacionarClientesProdutos;
+    procedure FocarGrid(Sender: TObject);
+//    procedure CondicoesItemProduto;
+
+  public
+    { Public declarations }
+
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    property TipoImportacao: tpImportacaoArquivo read fTipoImportacao write fTipoImportacao;
+  end;
+
+var
+  frrmLerProdutosArquivo: TfrrmLerProdutosArquivo;
+  AcionarTelaLerArquivo: function (Owner: TComponent; Cliente: Integer; TipoCliente: String; qryProdutosIncluidos: TtecQuery; TipoImportacao: tpImportacaoArquivo): TtecQuery;
+
+implementation
+
+{$R *.dfm}
+
+
+function AcionarTelaLerArquivo_(Owner: TComponent; Cliente: Integer; TipoCliente: String; qryProdutosIncluidos: TtecQuery; TipoImportacao: tpImportacaoArquivo): TtecQuery;
+begin
+  if not assigned(frrmLerProdutosArquivo) or (frrmLerProdutosArquivo.Owner <> Owner) then
+  begin
+
+    if assigned(frrmLerProdutosArquivo) then
+      frrmLerProdutosArquivo.free;
+
+    frrmLerProdutosArquivo := TfrrmLerProdutosArquivo.create(Owner);
+    frrmLerProdutosArquivo.vCliente := Cliente;
+    frrmLerProdutosArquivo.vTipoCliente := TipoCliente;
+    frrmLerProdutosArquivo.Tipoimportacao := TipoImportacao;
+    frrmLerProdutosArquivo.qryProdutosIncluidos := qryProdutosIncluidos;
+
+    frrmLerProdutosArquivo.showmodal;
+    if frrmLerProdutosArquivo.modalresult = mrOk then
+      result := frrmLerProdutosArquivo.qryProdutos
+    else
+      result := nil;
+        
+  end;
+
+//  frrmLerProdutosArquivo.Free;
+
+end;
+
+
+procedure TfrrmLerProdutosArquivo.AtribuirDadosProdutos;
+begin
+  qryProdutosproduto.AsString := ConsultaProduto.qryProcuraItemProdutosproduto.AsString;
+  qryProdutosprodutovisual.AsString := ConsultaProduto.qryProcuraItemProdutosprodutovisual.AsString;
+end;
+
+constructor TfrrmLerProdutosArquivo.Create(AOwner: TComponent);
+begin
+  inherited;
+  ConsultaProduto := TfraConsultaCodigo.Create(self);
+{  ConsultaProduto.parent := dbgListaProdutosdoCliente;
+  ConsultaProduto.visible := false;
+  ConsultaProduto.edfcodigo.visible := false;
+  }
+  ConsultaProduto.edfcodigo.OnExit := FocarGrid;
+
+  ConsultaProduto.Name := 'fraConsultaProduto';
+  ConsultaProduto.edfCodigo.MaxLength := 30;
+  ConsultaProduto.edfCodigo.DataSource := dsrProdutos;
+  ConsultaProduto.edfCodigo.DataField := 'produtovisual';
+  ConsultaProduto.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaProduto.edfCodigo.LookupSource := ConsultaProduto.dsrProcuraItemProdutos;
+  ConsultaProduto.edfCodigo.LookupQueryParameter := 'ProdutoVisual';
+  ConsultaProduto.edfCodigo.LookupField := 'ProdutoVisual';
+//  ConsultaProduto.edfCodigo.LocateParameters := 'produtovisual';
+  ConsultaProduto.AbrirTabelaProcura := false;
+//  ConsultaProduto.CondicoesdaConsulta := CondicoesItemProduto;
+  ConsultaProduto.TipoPesquisa := pesITEMPRODUTOS;
+  ConsultaProduto.OnFound := AtribuirDadosProdutos;
+
+
+end;
+
+destructor TfrrmLerProdutosArquivo.Destroy;
+begin
+
+  qryProdutos.close;
+  inherited;
+  frrmLerProdutosArquivo := nil;
+
+end;
+
+function TfrrmLerProdutosArquivo.ImportarExcel(XLS: string): Boolean;
+const
+    xlCellTypeLastCell = $0000000B;
+
+var
+  XLApp, oWB, oSheet: Variant;
+  Linha, LinhaAtual, Previsoes, Coluna, ColunaAtual, p,
+  QtdeProdutos, Planilhas, produtos, NovaLinha: integer;
+  TotalProdutos: Currency;
+
+  RangeMatrix: Variant;
+
+  vProdutonoCliente, vDescricaoProdutonoCliente : String;
+  vQuantidadeProdutonoCliente : Currency;
+
+begin
+  result := true;
+
+  try
+
+    XLApp:= CreateOleObject('Excel.Application');
+    XLApp.visible := false;
+    XLApp.Workbooks.Open(XLS);
+
+    oSheet:= XLApp.Workbooks[ExtractFileName(XLS)].WorkSheets[1];
+    oSheet.Cells.SpecialCells(xlCellTypeLastCell, EmptyParam).Activate;
+
+    linha := XLApp.ActiveCell.Row;
+    Coluna := XLApp.ActiveCell.Column;
+
+    RangeMatrix := XLApp.Range['A1', XLApp.Cells.Item[Linha, Coluna]].Value;
+
+    qryProdutos.close;
+    qryProdutos.open;
+    qryProdutos.delete;
+
+    LinhaAtual := 1;
+
+    if (linha > 1) and (coluna >=3) then
+    begin
+
+      repeat
+
+        for ColunaAtual := 1 to coluna do
+        begin
+          if (LinhaAtual = 1) then
+          begin
+
+            try
+
+              if (colunaAtual = 1) and (RangeMatrix[LinhaAtual, ColunaAtual] <> 'Produto') then
+              begin
+                MensagemErro('Coluna ''Produto'' não identificada');
+                result := false;
+              end;
+
+              if (colunaAtual = 2) and (RangeMatrix[LinhaAtual, ColunaAtual] <> 'Descrição') then
+              begin
+                MensagemErro('Coluna ''Descrição'' não identificada');
+                result := false;
+              end;
+
+              if (colunaAtual = 3) and (RangeMatrix[LinhaAtual, ColunaAtual] <> 'Quantidade') then
+              begin
+                MensagemErro('Coluna ''Quantidade'' não identificada');
+                result := false;
+              end;
+            except
+              begin
+                MensagemErro('A tabela deve possuir possuir registros e titulos de colunas: Produtos, Descrição e Quantidade');
+                result := false;
+                break;
+              end;  
+            end;
+          end
+          else
+          begin
+            if (colunaAtual = 1) then
+              vProdutonoCliente :=  RangeMatrix[LinhaAtual, ColunaAtual];
+
+            if (colunaAtual = 2) then
+              vDescricaoProdutonoCliente :=  RangeMatrix[LinhaAtual, ColunaAtual];
+
+            if (colunaAtual = 3) then
+              vQuantidadeProdutonoCliente :=  RangeMatrix[LinhaAtual, ColunaAtual];
+
+          end;
+        end;
+
+        if  LinhaAtual <> 1 then
+        begin
+
+          if (vProdutonoCliente <> '') and
+             (vDescricaoProdutonoCliente <> '') and
+             (vQuantidadeProdutonoCliente <> 0) then
+          begin
+            qryProdutos.append;
+            qryProdutosprodutocliente.asString := vProdutonoCliente;
+            qryProdutosdescricaoprodutocliente.asString := vDescricaoProdutonoCliente;
+            try
+              qryProdutosquantidadeprodutocliente.asCurrency := vQuantidadeProdutonoCliente
+            except
+              qryProdutosquantidadeprodutocliente.clear;
+            end;
+            qryProdutos.post;
+          end;
+
+        end;
+
+        Inc(LinhaAtual);
+
+        if not result then
+          break;
+
+      until LinhaAtual > Linha
+    end
+    else
+      MensagemErro('A tabela deve possuir possuir registros e titulos de colunas: Produtos, Descrição e Quantidade');
+
+  finally
+
+    if not VarIsEmpty(XLApp) then
+    begin
+      XLApp.Quit;
+      XLApp  := Unassigned;
+      oSheet :=Unassigned;
+      Result := True;
+    end;
+
+  end;
+end;
+
+procedure TfrrmLerProdutosArquivo.sbnNomedoArquivo_Click(Sender: TObject);
+
+begin
+
+  if OpenDialog1.execute then
+  begin
+    edtNomedoArquivo.text := OpenDialog1.filename;
+    ImportarExcel(edtNomedoArquivo.text);
+  end;
+
+end;
+
+procedure TfrrmLerProdutosArquivo.sbnNomedoArquivoClick(Sender: TObject);
+begin
+  inherited;
+
+  if OpenDialog1.execute then
+  begin
+    edtNomedoArquivo.text := OpenDialog1.filename;
+    if ImportarExcel(edtNomedoArquivo.text) then
+      RelacionarClientesProdutos;
+
+  end;
+
+end;
+
+procedure TfrrmLerProdutosArquivo.dbgListaProdutosdoClienteDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  acionarPesquisaGrade;
+end;
+
+procedure TfrrmLerProdutosArquivo.dbgListaProdutosdoClienteKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+
+  Procedure VerificarProduto;
+  begin
+    if (qryProdutos.State in [dsedit,dsinsert]) or
+       not (qryProdutos.IsEmpty) then
+
+    case dbgListaProdutosdoCliente.SelectedIndex of
+    0: begin
+          if (qryProdutos.State in [dsedit,dsinsert]) then
+            qryProdutos.post;
+
+//          ConsultaProduto.edfCodigo.Parent :=
+          ConsultaProduto.edfCodigo.DoExit;
+          if ConsultaProduto.qryProcuraItemProdutos.IsEmpty then
+          begin
+            if not (qryProdutos.State in [dsedit, dsinsert]) then
+              qryProdutos.Edit;
+            qryProdutosproduto.Clear;
+            qryProdutosprodutovisual.Clear;
+            qryProdutos.post;
+
+            dbgListaProdutosdoCliente.SetFocus;
+            dbgListaProdutosdoCliente.SelectedIndex := 0;
+          end
+          else
+          begin
+            if not (qryProdutos.State in [dsedit, dsinsert]) then
+              qryProdutos.Edit;
+
+            AtribuirDadosProdutos;
+
+            qryProdutos.post;
+
+
+            dbgListaProdutosdoCliente.SetFocus;
+            dbgListaProdutosdoCliente.SelectedIndex := 0;
+          end;
+       end;
+    end;
+  end;
+
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      VK_F9     : begin
+                     ConsultaProduto.CtrlOn := Shift = [ssCtrl];
+                     if (Shift = []) or ConsultaProduto.CtrlOn then
+                       AcionarPesquisaGrade
+                   end;
+    end;
+  end
+  else
+  case Key of
+    VK_Return: VerificarProduto;
+
+    VK_UP,
+    VK_DOWN,
+    VK_PRIOR,
+    VK_NEXT: begin
+                if (qryProdutosproduto.isnull or qryProdutosprodutovisual.isnull) and (qryProdutos.state = dsedit) then
+                begin
+                  qryProdutos.edit;
+                  qryProdutos.CheckRequiredFields;
+                  key := 0;
+                end;
+              end;
+
+    VK_ESCAPE : begin
+                   qryProdutos.cancel;
+                   if dbgListaProdutosdoCliente.Focused then
+                   begin
+                     dbgListaProdutosdoCliente.SetFocus;
+                     dbgListaProdutosdoCliente.SelectedIndex := 0;
+                   end;
+                 end;
+
+  end;
+end;
+
+procedure TfrrmLerProdutosArquivo.AcionarPesquisaGrade;
+begin
+  if not qryProdutos.ReadOnly then
+  begin
+    ConsultaProduto.CtrlOn := True;
+    dbgListaProdutosdoCliente.SetFocus;
+    case dbgListaProdutosdoCliente.SelectedIndex of
+      0: begin
+           case ConsultaProduto.InternoPesquisar(ctPRODUTO) of
+           mrOk   : begin
+                      dbgListaProdutosdoCliente.SetFocus;
+                      dbgListaProdutosdoCliente.selectedIndex := 0;
+                    end;
+           mrCancel: begin
+                      dbgListaProdutosdoCliente.SetFocus;
+                      dbgListaProdutosdoCliente.SelectedIndex :=  2;
+                    end;
+           end
+         end;
+    end;
+  end;
+end;
+
+procedure TfrrmLerProdutosArquivo.RelacionarClientesProdutos;
+begin
+
+
+  qryClientesProdutos.macrobyname('ListadeProdutosdoCliente').asString := RetornarLista(qryProdutos, qryProdutosprodutocliente, nil, true);
+  RefazConsultaPorNome(qryClientesProdutos, ['cliente', 'tipocliente'], [vCliente, vTipoCliente]);
+
+  qryProdutos.first;
+  while not qryProdutos.eof do
+  begin
+    if qryProdutosIncluidos.locate('produto_cliente', qryProdutosprodutocliente.asString, []) then
+    begin
+      qryprodutos.edit;
+      qryprodutosproduto.asstring       := qryProdutosIncluidos.fieldbyname('produto').asString;
+      qryProdutosprodutovisual.asString := qryProdutosIncluidos.fieldbyname('produtovisual').asString;
+      qryprodutos.post;
+    end
+    else
+    if qryClientesProdutos.locate('produto_cliente', qryProdutosprodutocliente.asString, []) then
+    begin
+      qryprodutos.edit;
+      qryprodutosproduto.asstring       := qryClientesProdutosproduto.asString;
+      qryProdutosprodutovisual.asString := qryClientesProdutosprodutovisual.asString;
+      qryprodutos.post;
+    end;
+
+
+    qryProdutos.next;
+
+  end;
+
+end;
+
+procedure TfrrmLerProdutosArquivo.FocarGrid(Sender: TObject);
+begin
+  dbgListaProdutosdoCliente.setfocus;
+end;
+
+{
+procedure TfrrmLerProdutosArquivo.CondicoesItemProduto;
+const
+  SQLOrcamento = 'and p.inativo is null '+(chr(13)+
+        'and (case when :ConsiderarMarkupClientes then(estoques_preco(p.codigo, :FilialPreco, (coalesce(:markup,0))) > 0) ' + chr(13) +
+                 ' when :ConsiderarMarkupcargos then (estoques_preco(p.codigo, :FilialBase, (coalesce(:MarkupCargos,0))) >0) '+ chr(13) +
+                 ' else (estoques_preco(p.codigo, :FilialBase) > 0) end) ';
+
+begin
+
+  case TipoImportacao of
+    OrcamentosProdDescQtde :
+    begin
+      ConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroItemProdutos').AsString := SQLOrcamento;
+      ConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroItemProdutos').AsString := SQLOrcamento;
+
+      ConsultaProduto.qryProcuraItemProdutos.parambyName('considerarMarkupClientes').asboolean := ParSistema.ConsiderarMarkupClientes;
+      ConsultaProduto.qryConsultaItemProdutos.parambyName('considerarMarkupClientes').asboolean := ParSistema.ConsiderarMarkupClientes;
+
+      ConsultaProduto.qryProcuraItemProdutos.parambyName('FilialPreco').asboolean := ifthen(TipoFilial<>'V', FilialBase, FilialBasedaVirtual);
+      ConsultaProduto.qryConsultaItemProdutos.parambyName('FilialPreco').asboolean := ifthen(TipoFilial<>'V', FilialBase, FilialBasedaVirtual);
+
+      ConsultaProduto.qryProcuraItemProdutos.parambyName('markup').asboolean :=
+      ConsultaProduto.qryConsultaItemProdutos.parambyName('markup').asboolean :=
+
+      ConsultaProduto.qryProcuraItemProdutos.parambyName('ConsiderarMarkupcargos').asboolean := ParSistema.PrecosporCargo;
+      ConsultaProduto.qryConsultaItemProdutos.parambyName('ConsiderarMarkupcargos').asboolean := ParSistema.PrecosporCargo;
+
+      ConsultaProduto.qryProcuraItemProdutos.parambyName('FilialBase').asboolean :=
+      ConsultaProduto.qryConsultaItemProdutos.parambyName('FilialBase').asboolean :=
+
+      ConsultaProduto.qryProcuraItemProdutos.parambyName('MarkupCargos').asboolean :=
+      ConsultaProduto.qryConsultaItemProdutos.parambyName('MarkupCargos').asboolean :=
+
+
+
+
+    end;
+  end;
+
+end;
+}
+
+initialization
+   AcionarTelaLerArquivo :=  AcionarTelaLerArquivo_;
+
+
+end.

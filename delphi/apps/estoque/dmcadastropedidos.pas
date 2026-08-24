@@ -14,8 +14,9 @@ uses
   ctconstantes, biblio, clparametrossistema,
   //Repositorio
   dmtecsoft, dmbasico, FR_DSet, FR_DBSet, FR_Class,
-  fmpreviewpadrao, CheckLst, ZTransact, fr_e_txt, fr_e_csv,
-  dmCalcularCusto, Provider, DBClient;
+  fmpreviewpadrao, CheckLst, ZTransact, fr_e_txt, fr_e_csv, DBClient,
+  Provider, frx2xto30,
+  dmCalcularCusto, frxClass;
 
 const
   Codigo           = 1;
@@ -920,6 +921,7 @@ type
     qryCopiaProdutosPedidosdataentrega: TDateField;
     cdsProdutosPedidosdataentrega: TDateField;
     frReport1: TfrReport;
+    frxReport1: TfrxReport;
     procedure dsrPedidosDataChange(Sender: TObject; Field: TField);
     procedure dsrPrevisoesPedidosDataChange(Sender: TObject; Field: TField);
     procedure qryPedidosAfterScroll(DataSet: TDataSet);
@@ -1268,6 +1270,7 @@ begin
         frmPreview.ShowModal;
 
 //        frpRelatorioPedidos.DesignReport;
+//        frxReport1.DesignReport;
 
       finally
         frmPreview.Free;
@@ -4360,6 +4363,7 @@ begin
     frVariables['QuantidadeProdutos'] := 0;
 
 //  frpRelatorioPedidos.DesignReport;
+//          frxReport1.DesignReport;
   frmPreview := TfrmPreviewPadrao.create(self);
   frmPreview.cmbZoom.ItemIndex := 3;
   try

@@ -1,0 +1,1226 @@
+inherited dtmrelatoriocaixa: Tdtmrelatoriocaixa
+  OldCreateOrder = False
+  Left = 415
+  Top = 241
+  Height = 460
+  Width = 652
+  object qryFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo,'
+      '          nome'
+      'from filiais'
+      'order by UPPER(TO_ASCII(nome,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 40
+    Top = 16
+    object qryFiliaiscodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryFiliaisnome: TStringField
+      FieldName = 'nome'
+      Size = 40
+    end
+  end
+  object qryGruposFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo,'
+      '          descricao'
+      'from gruposfiliais'
+      'order by UPPER(TO_ASCII(descricao,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 40
+    Top = 72
+    object qryGruposFiliaiscodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryGruposFiliaisdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 30
+    end
+  end
+  object qryEventos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo,'
+      '          descricao'
+      'from eventos'
+      'order by UPPER(TO_ASCII(descricao,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 40
+    Top = 128
+    object qryEventoscodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryEventosdescricao: TStringField
+      FieldName = 'descricao'
+      Required = True
+      Size = 30
+    end
+  end
+  object qryImprimirRelatorio: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryImprimirRelatorioAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'WHEREFILIAIS'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'WHERECAIXAS'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'WHEREEVENTOS'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'WHEREAUTENTICACOES'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';SELECT * FROM ('
+      'SELECT distinct  a.numero,'
+      '       a.data,'
+      '       a.filial,'
+      
+        '       (select f.nome from filiais f where f.codigo = a.filial) ' +
+        'as nomefilial,'
+      '       a.caixa,'
+      
+        '       (select u.nome from usuarios u where a.caixa=u.codigo) as' +
+        ' nomecaixa,'
+      '       a.autenticacao,'
+      '       a.banco,'
+      '       b.nome as nomebanco,'
+      '       a.cheque,'
+      '       c.vencto as venctocheque,'
+      '       a.contrato,'
+      '       coalesce(ct.tipocliente, c.tipocliente) as tipocliente,'
+      '       coalesce(ct.cliente, c.cliente) as cliente,'
+      '       a.datadocumento,'
+      '       a.evento,'
+      '       e.descricao as descricaoevento,'
+      '       a.historico,'
+      '       cast(a.hora as varchar),'
+      '       a.motivo,'
+      '       m.descricao as descricaomotivo,'
+      '       a.nota,'
+      '       a.parametros,'
+      '       a.contratoparcela,'
+      '       a.parcela,'
+      '       dp.fornecedor,'
+      '       dp.tipofornecedor,'
+      '       a.saldo,'
+      '       a.situacao,'
+      '       case when a.tipo = '#39'P'#39' then '#39'PRESTACOES'#39
+      '               when a.tipo = '#39'D'#39' then '#39'DOCUMENTOS'#39
+      '               when a.tipo = '#39'N'#39' then '#39'DEVOLUCOES DE VENDA'#39
+      '               when a.tipo = '#39'A'#39' then '#39'DEVOLUCOES DE SALDO'#39
+      '               when a.tipo = '#39'B'#39' then '#39'DEPOSITOS'#39
+      '               when a.tipo = '#39'C'#39' then '#39'CANCELAMENTOS'#39
+      '               when a.tipo = '#39'H'#39' then '#39'CHEQUES'#39
+      '               when a.tipo = '#39'S'#39' then '#39'TRANSFERENCIAS DE SAIDA'#39
+      
+        '               when a.tipo = '#39'E'#39' then '#39'TRANSFERENCIAS DE ENTRADA' +
+        #39
+      '               when a.tipo = '#39'J'#39' then '#39'PERDAS'#39
+      '               when a.tipo = '#39'R'#39' then '#39'RESGATES DE CHEQUES'#39
+      '               when a.tipo = '#39'G'#39' then '#39'DUPLICATAS'#39
+      '               when a.tipo = '#39'T'#39' then'
+      
+        '                    case when tr.descricao ilike '#39'%PIX%'#39'  then '#39 +
+        'PIX'#39
+      '                         else '#39'CARTOES'#39
+      '                    end'
+      '                   /*case when coalesce((select true'
+      '                              from recebimentos r'
+      '                                   join tiposrecebimentos tr'
+      
+        '                                   on r.tiporecebimento = tr.cod' +
+        'igo'
+      '                              where a.transacao = r.transacao'
+      
+        '                                AND position('#39'PIX'#39' IN tr.descric' +
+        'ao)<>0 ),false) then '#39'PIX'#39
+      '                   else '#39'CARTOES'#39
+      '                   end*/'
+      '               when a.tipo = '#39'F'#39' then '#39'FRENTE DE CAIXA'#39
+      '       end as descricaotipo,'
+      '       a.transferencia,'
+      '       a.entradapendente,'
+      '       a.confirmacao,'
+      
+        '       /*case when a.tipo='#39'T'#39' then r.valorlancto ELSE*/ a.valor ' +
+        '/*end*/ AS valor,'
+      '       p.valorvencto as valorvenctoparcela,'
+      '       a.documentopag,'
+      '       a.numeroduplicata,'
+      '       a.venctoduplicata,'
+      '       a.cliente as clientedev,'
+      '       a.tipocliente as tipoclientedev,'
+      
+        '       (select coalesce(vf.razao,vf.nome) as nome from vforneced' +
+        'ores vf where vf.codigo = a.cliente and vf.tipo = a.tipocliente)' +
+        ' as nomeclientedev,'
+      
+        '         cast(case when a.tipo = '#39'P'#39' then CAST (ct.tipocliente a' +
+        's varchar)||cast (ct.cliente as varchar)||'#39' '#39'||cast (parcela as ' +
+        'varchar)||'#39' '#39'||cast(p.valorvencto as varchar)||'#39' '#39'||cast((a.valo' +
+        'r - p.valorvencto)as varchar)'
+      
+        '         when a.tipo = '#39'N'#39' then coalesce(cast (ct.tipocliente as' +
+        ' varchar), cast(c.tipocliente as varchar))||coalesce(cast(ct.cli' +
+        'ente as varchar),cast(c.cliente as varchar))||'#39' '#39'||cast (a.motiv' +
+        'o as varchar)||'#39' '#39'||m.descricao'
+      
+        '         when a.tipo = '#39'A'#39' then cast (a.tipocliente as varchar)|' +
+        '|cast (a.cliente as varchar)||'#39' '#39'||(select coalesce(vf.razao,vf.' +
+        'nome) as nome from vfornecedores vf where vf.codigo = a.cliente ' +
+        'and vf.tipo = a.tipocliente)'
+      '         when a.tipo = '#39'B'#39' then b.nome'
+      
+        '         when a.tipo = '#39'C'#39' then cast (a.autenticacao as varchar)' +
+        '||'#39' '#39'||cast (a.motivo as varchar)||'#39' '#39'||m.descricao'
+      
+        '         when a.tipo = '#39'H'#39' then cast(c.tipocliente as varchar)||' +
+        'cast (c.cliente as varchar)||'#39' '#39'||substr(a.cheque,12,6)||'#39' '#39'||su' +
+        'bstr(a.cheque,4,4)||'#39' '#39'||substr(a.cheque,1,3)||'#39' '#39'||cast (c.venc' +
+        'to as varchar)'
+      
+        '         when a.tipo = '#39'S'#39' then cast(a.transferencia as varchar)' +
+        '||'#39' '#39'||(select u.nome from usuarios u where u.codigo = a.transfe' +
+        'rencia)'
+      
+        '         when a.tipo = '#39'E'#39' then cast (a.caixa as varchar)||'#39' '#39'||' +
+        '(select u.nome from usuarios u where a.caixa=u.codigo)'
+      
+        '         when a.tipo = '#39'J'#39' then coalesce(ct.tipocliente, c.tipoc' +
+        'liente)||'#39' '#39'||coalesce(cast(ct.cliente as varchar), cast(c.clien' +
+        'te as varchar))||'#39' '#39'||cast(a.motivo as varchar)||'#39' '#39'||m.descrica' +
+        'o'
+      
+        '         when a.tipo = '#39'R'#39' then cast(c.tipocliente as varchar)||' +
+        'cast(c.cliente as varchar)||'#39' '#39'||substr(a.cheque,12,6)||'#39' '#39'||sub' +
+        'str(a.cheque,4,4)||'#39' '#39'||substr(a.cheque,1,3)||'#39' '#39'||cast (c.venct' +
+        'o as varchar)'
+      
+        '         when a.tipo = '#39'G'#39' then cast (dp.tipofornecedor as varch' +
+        'ar)||'#39' '#39'||cast(dp.fornecedor as varchar)||'#39' '#39'||cast(a.documentop' +
+        'ag as varchar)||'#39' '#39'||cast(a.numeroduplicata as  varchar)||'#39' '#39'||c' +
+        'ast (a.venctoduplicata as varchar)'
+      '       end as varchar) as referencia,'
+      '       case when a.tipo in ('#39'P'#39','#39'E'#39','#39'R'#39','#39'F'#39') or'
+      
+        '                       (a.tipo = '#39'D'#39' and a.saldo > (select a1.sa' +
+        'ldo'
+      
+        '                                                              fr' +
+        'om autenticacoes a1'
+      
+        '                                                              wh' +
+        'ere a1.numero<a.numero'
+      
+        '                                                              an' +
+        'd a1.caixa=a.caixa'
+      
+        '                                                              an' +
+        'd a1.filial=a.filial'
+      
+        '                                                              or' +
+        'der by a1.data desc, a1.hora desc limit 1)) then cast('#39'Entradas'#39 +
+        ' as varchar)'
+      '               when a.tipo in ('#39'N'#39','#39'A'#39','#39'B'#39','#39'H'#39','#39'S'#39','#39'G'#39','#39'T'#39') or'
+      
+        '                       (a.tipo =  '#39'D'#39' and a.saldo < (select a1.s' +
+        'aldo'
+      
+        '                                                               f' +
+        'rom autenticacoes a1'
+      
+        '                                                               w' +
+        'here a1.numero<a.numero'
+      
+        '                                                               a' +
+        'nd a1.caixa=a.caixa'
+      
+        '                                                               a' +
+        'nd a1.filial=a.filial'
+      
+        '                                                               o' +
+        'rder by a1.data desc, a1.hora desc limit 1)) then cast('#39'Saidas'#39' ' +
+        'as varchar)'
+      '               else cast('#39'X'#39' as varchar)'
+      '       end as entradasaida,'
+      '       a.tipo,'
+      '       case when a.tipo = '#39'P'#39' then '#39'PREST.'#39
+      '               when a.tipo = '#39'D'#39' then '#39'DOC.'#39
+      '               when a.tipo = '#39'N'#39' then '#39'DEV. V.'#39
+      '               when a.tipo = '#39'A'#39' then '#39'DEV. S.'#39
+      '               when a.tipo = '#39'B'#39' then '#39'DEPTO'#39
+      '               when a.tipo = '#39'C'#39' then '#39'CANC.'#39
+      '               when a.tipo = '#39'H'#39' then '#39'CHQ.'#39
+      '               when a.tipo = '#39'S'#39' then '#39'TRANS.'#39
+      '               when a.tipo = '#39'E'#39' then '#39'TRANS.'#39
+      '               when a.tipo = '#39'J'#39' then '#39'PERDAS'#39
+      '               when a.tipo = '#39'R'#39' then '#39'RES. CHQ.'#39
+      '               when a.tipo = '#39'G'#39' then '#39'DUPL.'#39
+      '               when a.tipo = '#39'T'#39' then '
+      ''
+      
+        '                   case when tr.descricao ilike '#39'%PIX%'#39' then '#39'PI' +
+        'X'#39
+      '                   else '#39'CART.'#39
+      '                   end'
+      ''
+      '               when a.tipo = '#39'F'#39' then '#39'FR. CX.'#39
+      '       end as tiporeduzido,'
+      '       (SELECT  a1.saldo'
+      '        FROM autenticacoes a1'
+      '        WHERE a1.numero = (SELECT a2.numero'
+      '                            FROM autenticacoes a2'
+      '                            WHERE a2.filial = a.filial'
+      '                            AND a2.caixa = a.caixa'
+      '                            AND a2.data < :datainicial'
+      '                            AND a2.situacao'
+      
+        '                            ORDER BY data_hora_tz(a2.data,a2.hor' +
+        'a) desc limit 1)) as saldoinicial,'
+      '       (select a1.saldo'
+      '        from autenticacoes a1'
+      '        where a1.numero = (select a2.numero'
+      '                                         from autenticacoes a2'
+      
+        '                                         where a2.filial = a.fil' +
+        'ial'
+      
+        '                                             and a2.caixa = a.ca' +
+        'ixa'
+      
+        '                                             and a2.data <= :dat' +
+        'afinal'
+      '                                             and a2.situacao'
+      
+        '                                             ORDER BY data_hora_' +
+        'tz(a2.data,a2.hora) DESC LIMIT 1)) as saldofinal'
+      
+        'FROM ((((((((autenticacoes a LEFT JOIN bancos b ON a.banco=b.cod' +
+        'igo)'
+      #9#9'LEFT JOIN motivos m ON a.motivo=m.codigo)'
+      
+        #9#9'LEFT JOIN contratos ct ON coalesce(a.contratoparcela,a.contrat' +
+        'o)=ct.numero)'
+      
+        #9#9'LEFT JOIN parcelas p on a.contratoparcela=p.contrato and a.par' +
+        'cela=p.numero)'
+      
+        #9#9'LEFT JOIN (cheques c LEFT JOIN vfornecedores vf on c.cliente=v' +
+        'f.codigo and tipocliente=vf.tipo) ON a.cheque=c.numero)'
+      
+        '                LEFT JOIN (recebimentos r join tiposrecebimentos' +
+        ' tr on r.tiporecebimento=tr.codigo) on'
+      
+        '                                                 (a.transacao=r.' +
+        'transacao and'
+      
+        '                                                 case when a.tip' +
+        'o='#39'A'#39' THEN tr.tiporecebimento='#39'T'#39
+      
+        '                                                      when a.tip' +
+        'o='#39'T'#39' then tr.tiporecebimento in ('#39'C'#39','#39'B'#39','#39'P'#39')'
+      
+        '                                                      ELSE true ' +
+        'end))'
+      #9#9'LEFT JOIN eventos e ON a.evento=e.codigo)'
+      #9#9'LEFT JOIN documentospag dp on a.documentopag=dp.numero)'
+      'WHERE a.data between  :datainicial and :datafinal'
+      '  and a.situacao'
+      '%WHEREFILIAIS'
+      '%WHERECAIXAS'
+      '%WHEREEVENTOS'
+      '%WHEREAUTENTICACOES'
+      ') AS Relatorio'
+      'ORDER BY UPPER(TO_ASCII(nomefilial,'#39'LATIN1'#39')), Filial,'
+      
+        '         UPPER(TO_ASCII(nomecaixa,'#39'LATIN1'#39')),  Caixa, EntradaSai' +
+        'da,tiporeduzido desc, Data, hora,'
+      '         UPPER(TO_ASCII(descricaotipo,'#39'LATIN1'#39')), Numero')
+    RequestLive = False
+    Left = 144
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end>
+    object qryImprimirRelatorionumero: TIntegerField
+      FieldName = 'numero'
+      DisplayFormat = '0'
+    end
+    object qryImprimirRelatoriodata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryImprimirRelatoriofilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryImprimirRelatorionomefilial: TStringField
+      FieldName = 'nomefilial'
+      Size = 50
+    end
+    object qryImprimirRelatoriocaixa: TIntegerField
+      FieldName = 'caixa'
+      DisplayFormat = '0'
+    end
+    object qryImprimirRelatorionomecaixa: TStringField
+      FieldName = 'nomecaixa'
+      Size = 50
+    end
+    object qryImprimirRelatorioautenticacao: TIntegerField
+      FieldName = 'autenticacao'
+      DisplayFormat = '0'
+    end
+    object qryImprimirRelatoriobanco: TIntegerField
+      FieldName = 'banco'
+      DisplayFormat = '0'
+    end
+    object qryImprimirRelatorionomebanco: TStringField
+      FieldName = 'nomebanco'
+      Size = 50
+    end
+    object qryImprimirRelatoriocheque: TStringField
+      FieldName = 'cheque'
+      Size = 30
+    end
+    object qryImprimirRelatoriovenctocheque: TDateField
+      Alignment = taCenter
+      FieldName = 'venctocheque'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryImprimirRelatoriocontrato: TStringField
+      FieldName = 'contrato'
+    end
+    object qryImprimirRelatoriotipocliente: TStringField
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+    object qryImprimirRelatoriocliente: TIntegerField
+      FieldName = 'cliente'
+      DisplayFormat = '0'
+    end
+    object qryImprimirRelatoriodatadocumento: TDateField
+      Alignment = taCenter
+      FieldName = 'datadocumento'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryImprimirRelatorioevento: TIntegerField
+      FieldName = 'evento'
+      DisplayFormat = '0'
+    end
+    object qryImprimirRelatoriodescricaoevento: TStringField
+      FieldName = 'descricaoevento'
+      Size = 30
+    end
+    object qryImprimirRelatoriohistorico: TIntegerField
+      FieldName = 'historico'
+      DisplayFormat = '0'
+    end
+    object qryImprimirRelatoriohora: TStringField
+      FieldName = 'hora'
+      Size = 50
+    end
+    object qryImprimirRelatoriomotivo: TIntegerField
+      FieldName = 'motivo'
+      DisplayFormat = '0'
+    end
+    object qryImprimirRelatoriodescricaomotivo: TStringField
+      FieldName = 'descricaomotivo'
+      Size = 30
+    end
+    object qryImprimirRelatorionota: TIntegerField
+      FieldName = 'nota'
+      DisplayFormat = '0'
+    end
+    object qryImprimirRelatorioparametros: TStringField
+      FieldName = 'parametros'
+      Size = 300
+    end
+    object qryImprimirRelatoriocontratoparcela: TStringField
+      FieldName = 'contratoparcela'
+    end
+    object qryImprimirRelatorioparcela: TIntegerField
+      FieldName = 'parcela'
+      DisplayFormat = '0'
+    end
+    object qryImprimirRelatoriofornecedor: TIntegerField
+      FieldName = 'fornecedor'
+      DisplayFormat = '0'
+    end
+    object qryImprimirRelatoriotipofornecedor: TStringField
+      FieldName = 'tipofornecedor'
+      Size = 1
+    end
+    object qryImprimirRelatoriosaldo: TFloatField
+      FieldName = 'saldo'
+      DisplayFormat = '0.00'
+    end
+    object qryImprimirRelatoriosituacao: TBooleanField
+      FieldName = 'situacao'
+    end
+    object qryImprimirRelatoriotransferencia: TIntegerField
+      FieldName = 'transferencia'
+      DisplayFormat = '0'
+    end
+    object qryImprimirRelatorioentradapendente: TBooleanField
+      FieldName = 'entradapendente'
+    end
+    object qryImprimirRelatorioconfirmacao: TBooleanField
+      FieldName = 'confirmacao'
+    end
+    object qryImprimirRelatoriovalor: TFloatField
+      FieldName = 'valor'
+      DisplayFormat = '0.00'
+    end
+    object qryImprimirRelatoriovalorvenctoparcela: TFloatField
+      FieldName = 'valorvenctoparcela'
+      DisplayFormat = '0.00'
+    end
+    object qryImprimirRelatoriodocumentopag: TIntegerField
+      FieldName = 'documentopag'
+      DisplayFormat = '0'
+    end
+    object qryImprimirRelatorionumeroduplicata: TIntegerField
+      FieldName = 'numeroduplicata'
+      DisplayFormat = '0'
+    end
+    object qryImprimirRelatoriovenctoduplicata: TDateField
+      Alignment = taCenter
+      FieldName = 'venctoduplicata'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryImprimirRelatorioclientedev: TIntegerField
+      FieldName = 'clientedev'
+      DisplayFormat = '0'
+    end
+    object qryImprimirRelatoriotipoclientedev: TStringField
+      FieldName = 'tipoclientedev'
+      Size = 1
+    end
+    object qryImprimirRelatorionomeclientedev: TStringField
+      FieldName = 'nomeclientedev'
+      Size = 50
+    end
+    object qryImprimirRelatorioreferencia: TStringField
+      FieldName = 'referencia'
+      Size = 50
+    end
+    object qryImprimirRelatorioentradasaida: TStringField
+      FieldName = 'entradasaida'
+      Size = 8
+    end
+    object qryImprimirRelatoriodescricaotipo: TMemoField
+      FieldName = 'descricaotipo'
+      BlobType = ftMemo
+    end
+    object qryImprimirRelatoriotipo: TStringField
+      FieldName = 'tipo'
+      Size = 1
+    end
+    object qryImprimirRelatoriotiporeduzido: TMemoField
+      FieldName = 'tiporeduzido'
+      BlobType = ftMemo
+    end
+    object qryImprimirRelatoriosaldoinicial: TFloatField
+      FieldName = 'saldoinicial'
+    end
+    object qryImprimirRelatoriosaldofinal: TFloatField
+      FieldName = 'saldofinal'
+    end
+  end
+  object frpRelatorioCaixa: TfrReport
+    InitialZoom = pzDefault
+    ModifyPrepared = False
+    PreviewButtons = [pbZoom, pbLoad, pbSave, pbPrint, pbFind, pbHelp, pbExit]
+    StoreInDFM = True
+    RebuildPrinter = False
+    OnBeforePrint = frpRelatorioCaixaBeforePrint
+    Left = 272
+    Top = 16
+    ReportForm = {
+      190000009C3D000019FFFF00000A0050444643726561746F7200FFFFFFFFFF00
+      000000340800009A0B0000020000001700000000000000120000000100040000
+      0000FFFF000000000000000000000000030400466F726D00FEFFFFFFDC000000
+      780000007C0100002C010000040C000500626567696E0D1F0020206966205B41
+      677275706172417574656E7469636163616F5D207468656E0D07002020626567
+      696E0D2800202020204361626563616C686F417574656E7469636163616F2E76
+      697369626C653A3D747275653B0D270020202020526F64617065417574656E74
+      69636163616F2E76697369626C653A3D747275653B20200D05002020656E640D
+      06002020656C73650D07002020626567696E0D2E00202020204361626563616C
+      686F417574656E7469636163616F2E76697369626C65203A3D2066616C73653B
+      2020200D280020202020526F64617065417574656E7469636163616F2E766973
+      69626C65203A3D2066616C73653B0D07002020656E643B200D0300656E640002
+      00E00100000900666276526F6461706500020100000000040200002F0400000E
+      0000003000030001000000000000000000FFFFFF1F0000000000000000000000
+      0000FFFF000000000002000000010000000000000001000000C8000000140000
+      000100000000000002004B0200000B0050616765486561646572310002010000
+      0000180000002F0400005C0000003000020001000000000000000000FFFFFF1F
+      00000000000000000000000000FFFF0000000000020000000100000000000000
+      01000000C800000014000000010000000000000200D70200000E004361626563
+      616C686F436169786100020100000000BC0000002F0400001C00000030001000
+      01000000000000000000FFFFFF1F000000001E005B717279496D7072696D6972
+      52656C61746F72696F2E226361697861225D00000000000000FFFF0000000000
+      02000000010000000000000001000000C8000000140000000100000000000002
+      007A0300000D00417574656E74696361636F657300020100000000400100002F
+      040000110000003000050001000000000000000000FFFFFF1F00000000140066
+      6473496D7072696D697252656C61746F72696F0000000003000500626567696E
+      0D120020204C494E4841203A3D205B4C494E45235D0D0300656E640001000000
+      00000002000000010000000000000001000000C8000000140000000100000000
+      00000200E50300000B00526F64617065436169786100020100000000D7010000
+      2F040000180000003000110001000000000000000000FFFFFF1F000000000000
+      000000000000000100000000000002000000010000000000000001000000C800
+      000014000000010000000000000200730400000F004361626563616C686F4669
+      6C69616C000201000000008C0000002F0400001C000000300010000100000000
+      0000000000FFFFFF1F000000001F005B717279496D7072696D697252656C6174
+      6F72696F2E2266696C69616C225D00000000000000FFFF000000000002000000
+      010000000000000001000000C800000014000000010000000000000200E50400
+      001200526F64617065417574656E7469636163616F0002010000000080010000
+      2F040000180000003000110001000000000000000000FFFFFF1F000000000000
+      00000000000000FFFF000000000002000000010000000000000001000000C800
+      0000140000000100000000000002008005000015004361626563616C686F4175
+      74656E7469636163616F00020100000000140100002F0400001C000000300010
+      0001000000000000000000FFFFFF1F0000000026005B717279496D7072696D69
+      7252656C61746F72696F2E2264657363726963616F7469706F225D0000000000
+      0000FFFF000000000002000000010000000000000001000000C8000000140000
+      00010000000000000200F20500001200526F646170E9456E7472616461536169
+      646100020100000000AC0100002F040000180000003000110001000000000000
+      000000FFFFFF1F00000000000000000000000000FFFF00000000000200000001
+      0000000000000001000000C8000000140000000100000000000002008C060000
+      150043616265E7616C686F456E7472616461536169646100020100000000E800
+      00002F0400001C0000003000100001000000000000000000FFFFFF1F00000000
+      25005B717279496D7072696D697252656C61746F72696F2E22656E7472616461
+      7361696461225D00000000000000FFFF00000000000200000001000000000000
+      0001000000C8000000140000000100000000000002008D0700000C004461646F
+      73446574616C686500020100000000600100002F0400000D0000003000080001
+      000000000000000000FFFFFF1F000000000E006664734672656E746543616978
+      610000000006000500626567696E0D260020206966205B7172794672656E7465
+      43616978612E2276616C6F72225D203E2030207468656E0D2000202020204461
+      646F73446574616C68652E76697369626C65203A3D20747275650D0600202065
+      6C73650D2200202020204461646F73446574616C68652E76697369626C65203A
+      3D2066616C73653B0D0300656E6400FFFF000000000002000000010000000000
+      000001000000C800000014000000010000000000000000220800000D006D6D6F
+      5A65627261646F5375620002008C02000060010000440100000C000000430000
+      0001000000FFFFFF1F0000FFFFFF1F2C02000000000000000002000500626567
+      696E0D0300656E6400FFFF0000000000020000000100000000090068656C7665
+      74696361000A000000000000000000000000000100020000000000FFFFFF1F00
+      000002000000000000000000B40800000A006D6D6F5A65627261646F00020019
+      00000040010000B80300000E0000004300000001000000FFFFFF1F0000FFFFFF
+      1F2C02000000000000000002000500626567696E0D0300656E6400FFFF000000
+      0000020000000100000000090068656C766574696361000A0000000000000000
+      00000000000100020000000000FFFFFF1F000000020000000000000000003509
+      000006004D656D6F31340002001C0000005A000000B40300001800000043000F
+      00F4010000000000000000FFFFFF1F2C020000000000000000000000FFFF0000
+      000000020000000100000000090068656C766574696361000900000000000000
+      0000080000000100020000000000FFFFFF00000000020000000000000001005A
+      21000007006670764C6F676F0002001A00000018000000730000002700000005
+      000000F4010000000000000000FFFFFF1F2C020000000000000000000000FFFF
+      000000000002000000010000000001005A210000424DCE170000000000003604
+      0000280000008300000026000000010008000000000098130000120B0000120B
+      0000000100000001000000000000E8E5A800AA9E000099990000ADADAD003A3C
+      4100A3970000BFB73700D8D48600FBFAF000A5A5A5001E1D1C00D8D9DA005457
+      5A00D6D6D500E7E8F20012161B00B6AD1900CBC55B008C8D9200BEC0C500E1E2
+      E40085878A005E606300494C4F00090D12002C2E3300DEDB98007D7F8100EFED
+      CB00B9BABB00AEA400007C7B7B00C5BE440066666600D1CC6F00CDC981004848
+      4600F7F6E600AFA5080004080D00F9F8ED00B8AF2700DBD68C00999999001B1A
+      1900C6BF5100131312003B3A3A00FFFFFF00EAE8BE00CCCCCC0023262A00E2DE
+      A400F1EFD600B0B1B300D3CD7500B1A81000CCCC660072727200535252004342
+      420001060A00ECE9C3008C8C8B00F5F4DF004A4A4A0057575600B6AC1F00282B
+      3000C7C05C0061615F00F7F7F70088888700DDD89300E3E0A600FDFCF7002124
+      2900070A1000BDB53100C5BE4A00E3E3E200A69C000099999900BABAB900DEDE
+      DE00525458002A292800D9D58A005F5E5D00C7C595001B1E2300E8E5B6000000
+      0700B5AB1300D5D07B00C6C6C500B2A80B0021202000B9B12400504F4E006666
+      66006B6D7000B5B5BD0084848400E0DC9E00BCB42C00F7EFD6005B5B5A00EFEF
+      EF0087898B00DEDEE6003E3D3C0014181E00C8C25300CCC55F00A8A9AC00BDBD
+      BC00E5E1AC0075767900181B2000E6E6E6000E11170008101900333333009291
+      91002D2C2B00B5B5B40000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000031313131313131313131313131313131313131313131
+      313131313131313131313131313131313131313131543D42470E313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      31313131313131313131313131523131313131486D3131316D6D4C3131316D6D
+      313131313131313131316D4831313131313131316D6D3131316D040A6C6C3131
+      31313131486D6D4C3131313131316D6D4C313131313131313131313131486D6D
+      6D313131313131486D6D48313131316D483131316D6D31313131313131313131
+      31316D6D6D3131486D6D6D31313131313152313131317F7E6631554225256031
+      603D42647931420C313B7D316D6C3D70403131662C316D593D7068313133646C
+      702531484255312C70643059313131310C2525420E31477431420E4825793131
+      315442433D474C4C640E3120423C300A3131207E2C317F702547484842515125
+      31603C316D59253C620A312C25433068313131313152313131316C2031315959
+      313131317C7D4C4C31487C0E3159683177424C51347531434031203D48795754
+      3130494C7F3D31487C0C310B37317F70313131313C6631313131642C317C3348
+      7E51313131313179602F55317C3331316D793B7031487E14314857043131316D
+      7C55557E311E3031542D4C314340313148790A0B4C313131315231313131477D
+      313125306C64334C5779313131487C0E31224931422C31314340316C7D313C7D
+      3131594931570C31543D31487C0C3168705930253131313170706C3C0E313C0A
+      313033317C513131310C702570474C4C3033312C7C64300A3148300E31796243
+      432248483051517C31603D316D6464590B2C31547C42301C3131313131523131
+      31314749313166420C5548313D2C484831487C0E48302C311C4248516275316C
+      7D31493D4879627F31256848373031487C0E3131550E207031313131473C0C55
+      4831642C4C7E330C62793131316830796D3131487C3331577D6D6D3131483033
+      31487C49555131487C0C0C7E4C2C703131480C0E7C2C313C476D6D3131313131
+      3152313131040B7E20316D473C6C33310E3D3C6C7931254264646D31486C4270
+      6831316C7D31484742702031310E3D433D6C31484355314043473D0A31313131
+      796C3C6C0E316670597E3C3D20313131310E256C6C7731316C0E312C3D474304
+      31772F3D0A3133424366484825643C7E6C7C74316D225943425531543D59437D
+      3131313131523131316D643B6D3131316D514831313179514C316D5179313131
+      3131796D3131313C40313131796D313131313179794831317F6D316D15154831
+      313131313131795148314879516D796D3131313131313151517931317F6D3131
+      6D51516D3151577F6D313131797931316D51516D514831313151515131313131
+      4851516D31313131315231313131400431313131313131313131313131313131
+      31313131313131313131316804313131313131313131313131313148660F3131
+      3131313131313131313131313131313131313131313131313131313131313131
+      220E313131313131313166553131313131313131313131313131313131313131
+      3131313131313131313131313152313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      5C46121212463F31313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131523131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131315F06020202061B313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313131313131313131313131313131523131313131310E40173C
+      18183D6E3131313131310C2C666C3C181818181805683131313131316D376822
+      0D0516313131313108021F1F1F52353131313131720707070707070707070707
+      07070750732B3631313131313131313131362B73212112081D31313131313131
+      313123505050504B3131313131313131313F08122E505050085231313131312C
+      103E191919195D17313131317966713E4E191919191919195D0D31313131312C
+      34282819190017313131313108021F1F1F523531313131311152020202020202
+      020202020202020202022776313131313131313F501F02020202020202075C31
+      3131313131316A060202065F313131313131314C120202020202020221523131
+      313175287A78787878784E223131310E1A3E1078787171717171717128173131
+      3131773E7A717171712822313131313108021F1F1F5235313131313144021F1F
+      1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1D31313131310802021F1F1F1F1F1F1F
+      1F02022331313131313107021F1F0208313131313131313A521F1F1F1F1F1F1F
+      5052313131310D4E7878787A7A71282231316D7C4E7878784E4E7A7171717171
+      28173131312C3E7171717119195D22313131313108021F1F1F5269314C4C4C4C
+      631F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F52503131313138521F1F1F0202
+      020202021F1F1F5212313131313107021F1F0208313131313131361F1F1F1F1F
+      0202020221523131316D457A78787A3D370E0E5131313B3E7878787A2274140E
+      0E0E0E0E0E15313115787A787871190D0A145A2A6A6A6A2A5F36363636365044
+      111111113226262626262626262626262626264A1F1F1F1F612631311B521F1F
+      1F02443A08082363021F1F1F525F3131313107021F1F02083131313131311B02
+      1F1F1F1F6A2B353532523131310E71717171710C313131313115781078784E68
+      3131313131313131313131311C287878787A2C3131310106020202025F313131
+      31315052020202023631313131313131313131313131313144021F1F1F323126
+      39021F1F1F584C31313131311B27021F1F1F3631313107021F1F020831313131
+      313123021F1F1F11093131313152313131337A717171454831313131312C2878
+      7810344C313131313131313131313131057A78784E663131313135021F1F1F02
+      5F313131313150021F1F1F1F3631313131313131313131313131314C5E021F1F
+      0276315F521F1F1F4B313131313131313132271F1F527331313107021F1F0208
+      31313131313112021F1F0272313131313152313131601978787A7C4C31313131
+      31662878781045166E6E6E6E6E6E6E6E1C0431555B1078717A60313131313502
+      1F1F1F025F313131313150021F1F1F1F36313131313131314C0909090909363A
+      021F1F1F1F3F314F021F02723131313131313131313123021F1F110931310702
+      1F1F02083131313131312E021F1F0273313131313152313131601978787A054C
+      3131313131561978787871282828282828282828005631337A717171346D3131
+      31313552020202025F31313131312106020202023631313131762E635E616161
+      61611F1F1F1F1F1F114C26611F1F0276313131313131313131311D1F1F1F1F1D
+      313107021F1F02083131313131312E021F1F023A313131313152313131601978
+      787A054C31313131311819787878787878787878787878784E1731141978787A
+      454831313131764444444444241551515151464F4F4F4F4F413131313A020202
+      1F1F1F1F1F1F1F1F1F1F1F521B311D1F1F1F1F36313131313131313131312639
+      1F1F1F5C313107021F1F02083131313131312E021F1F023A3131313131523131
+      31601978787A054C31313131315619787878787878787878787878784E173133
+      7A717171346D313131313109090909097D713434347A37313131313131313158
+      521F1F1F1F1F0202020202020202275831311D1F1F1F1F1D3131313131313131
+      313126391F1F1F5C313107021F1F02083131313131312E021F1F023A31313131
+      3152313131601978787A054C3131313131224E787878784E2828282828282828
+      0056310C787171715B0C31313131313131313131133E1010105D743131313131
+      31312939021F1F1F1F3911636363636A50083631313126611F1F024B31313131
+      3131313131313F021F1F1F36313107021F1F02083131313131312E021F1F023A
+      313131313152313131601978787A054C313131313116287878101A2C2C2C2C2C
+      2C2C2C2C7D1E316D1A7A7878197F31313131313131313131134E787878287431
+      31313131313176021F1F1F1F23263131313131313131313131313107021F0221
+      3131313131313131313173021F1F444C313107021F1F02083131313131312E02
+      1F1F023A313131313152313131601978787A054C31313131317F197171713448
+      313131313131313131313131561978784E6631313131313131313131134E7878
+      782874313131313131312B521F1F1F6129313131313131313131313131313158
+      521F1F024A31313131313131317602021F522331313107021F1F020831313131
+      31312E021F1F023A313131313152313131331978787A053131313131316D347A
+      78784E133131313131313131313131317D287878717104313131313131313131
+      13001919190004313131313131312B521F1F1F27413131313131313131313131
+      3131310911021F1F1F232631313131295F1F1F1F1F612931313107021F1F022B
+      3131313131312E021F1F52233131313131520E14602C7A78787A7C141414140C
+      3131203E78787171660A1E6014141414140E3131155B107878107A567D371E1E
+      1E1E1E1E13566C6C6C182C75757575756D315C021F1F1F1F211B1B1B1B1B1B4A
+      4A4A4A4A3631313176021F1F1F0261502323725E021F1F1F0258762B2B4A4402
+      1F1F1F504A4A4A2B1D312E021F1F1F074A4A4A4A5C520D7A7A7A78787878787A
+      7A7A5D1731317945197878784E4E7A7A7A7A7A7A5D6C313131165D7171717119
+      191919191919195D6E313131313166007A7A7A4E1431295E021F1F1F02020202
+      02020202020202062B313131315802021F1F1F020202021F1F1F1F52384C3952
+      52521F1F1F1F1F020202020608312E021F1F1F1F020202022152177171787878
+      7878787171714E22313131335B28717878787871717171714E1731313131173E
+      7A717878787878787878784E6E313131313166287171717A6031314A521F1F1F
+      1F1F1F1F1F1F1F1F1F1F1F524A31313131316939521F1F1F1F1F1F1F1F020258
+      310911021F1F1F1F1F1F1F1F1F1F1F022B312E021F1F1F1F1F1F1F1F50520D19
+      191978787878781919190017313131310C0D10284E4E191919191919000D3131
+      3131317D1A4E4E4E19191919191919001C313131313166287878781060313131
+      5F0202020202020202020202020202062B313131313131367339020202020202
+      61721D313129615252521F1F1F1F1F020202020608312E021F1F1F1F02020202
+      21527D17173C107878714D1717170D2C3131313131310E0A1C3B221717171717
+      0D7D31313131313148757D77661717171717170D043131313131662878787810
+      6031313131364A3A7272727272727272727272505C3131313131313131264B5F
+      737338354131313131093A7272725E1F1F1F1F4F1212122E5C312E021F1F1F63
+      1212121258523131310E1978787A053131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131311700
+      3E3E3E5D75313131313131313131313131313131313131313131313131313131
+      31313131313131313131313131313131313107021F1F52583131313131312E02
+      1F1F0223313131313152313131601978787A054C313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      31317F686E6E6E6E153131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313121021F1F020731313131
+      31312E021F1F023A313131313152313131601978787A054C3131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313131313131313131313131313131313131313173021F1F1F1F
+      4F3A233A32312E021F1F023A313131313152313131601978787A054C31313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131316952
+      1F1F1F1F0202020608312E021F1F023A313131313152313131601978787A054C
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      31310963521F1F1F1F1F1F024A312E021F1F023A313131313152313131601971
+      717A054C31313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131314150611F1F1F1F1F024A3150021F1F023A3131313131523131
+      310C0D17176C774C313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313131313131315C3872727272725C31082E2E2E2E1B31313131
+      31520000E92100000900666D76546974756C6F00020069010000190000000402
+      00001200000043000000F4010000000000000000FFFFFF1F2C02000000000001
+      0009005B546974756C6F5D2000000000FFFF0000000000020000000100000000
+      090068656C766574696361000B00000002000000000002000000000002000000
+      0000FFFFFF0000000002000000000000000000872200000700666D7644617461
+      000200730300001A0000005A0000000D00000043000000F40100000000000000
+      00FFFFFF1F2C02000000000001001A0044617461203A205B4441544520234464
+      642F6D6D2F797979795D00000000FFFF00000000000200000001000000000900
+      68656C7665746963610008000000000000000000010000000100020000000000
+      FFFFFF00000000020000000000000000001A2300000900666D76506167696E61
+      00020073030000280000004A0000000F00000043000000F40100000000000000
+      00FFFFFF1F2C02000000000001000D00506167203A205B50414745235D000000
+      00FFFF0000000000020000000100000000090068656C76657469636100080000
+      00000000000000000000000100020000000000FFFFFF00000000020000000000
+      00000000AF2300000700666D76486F72610002002C0000000402000058000000
+      0A00000043000000F4010000000000000000FFFFFF1F2C020000000000010011
+      005B54494D4520235468683A6D6D3A73735D00000000FFFF0000000000020000
+      000100000000090068656C766574696361000700000000000000000010000000
+      0100020000000000FFFFFF00000000020000000000000000005C240000100066
+      6D76446573656E766F6C7665646F72000200E402000004020000EC0000000A00
+      000043000000F4010000000000000000FFFFFF1F2C0200000000000100200074
+      6563534F4654202D205465636E6F6C6F67696120656D2053697374656D617300
+      000000FFFF0000000000020000000100000000090068656C7665746963610007
+      000000000000000000110000000100020000000000FFFFFF0000000002000000
+      000000000000EB2400000900666D764F75747261730002006A0100002D000000
+      030200001A00000043000000F4010000000000000000FFFFFF1F2C0200000000
+      00010009005B4F75747261735D2000000000FFFF000000000002000000010000
+      0000090068656C76657469636100070000000000000000000200000001000200
+      00000000FFFFFF00000000020000000000000000007C25000005004D656D6F31
+      00020057000000600000005A0000000E00000043000000F40100000000000000
+      00FFFFFF1F2C02000000000001000F004461746120202020202020486F726100
+      000000FFFF0000000000020000000100000000090068656C7665746963610009
+      000000000000000000100000000100020000000000FFFFFF0000000002000000
+      0000000000000426000005004D656D6F320002001D0000006000000038000000
+      0E00000043000000F4010000000000000000FFFFFF1F2C020000000000010006
+      004E756D65726F00000000FFFF0000000000020000000100000000090068656C
+      7665746963610009000000000000000000120000000100020000000000FFFFFF
+      00000000020000000000000000009026000005004D656D6F3700020085020000
+      60000000D20000000E00000043000000F4010000000000000000FFFFFF1F2C02
+      000000000001000A005265666572656E63696100000000FFFF00000000000200
+      00000100000000090068656C7665746963610009000000000000000000100000
+      000100020000000000FFFFFF0000000002000000000000000000172700000500
+      4D656D6F330002008403000060000000490000000E00000043000000F4010000
+      000000000000FFFFFF1F2C0200000000000100050056616C6F7200000000FFFF
+      0000000000020000000100000000090068656C76657469636100090000000000
+      00000000110000000100020000000000FFFFFF00000000020000000000000000
+      00A027000006004D656D6F31380002001D000000C00000005400000014000000
+      43000F00F4010000000000000000FFFFFF1F2C02000000000001000600436169
+      78613A00000000FFFF0000000000020000000100000000090068656C76657469
+      63610009000000000000000000090000000100020000000000FFFFFF00000000
+      020000000000000000004228000006004D656D6F3435000200FF000000400100
+      00570000000E00000043000000F4010000000000000000FFFFFF1F2C02000000
+      000001001F005B717279496D7072696D697252656C61746F72696F2E22636865
+      717565225D00000000FFFF0000000000020000000100000006090068656C7665
+      746963610008000000000000000000010000000100020000000000FFFFFF0000
+      000002000000000000000000CB28000006004D656D6F3436000200FF00000060
+      000000570000000E00000043000000F4010000000000000000FFFFFF1F2C0200
+      000000000100060043686571756500000000FFFF000000000002000000010000
+      0000090068656C76657469636100090000000000000000001000000001000200
+      00000000FFFFFF00000000020000000000000000006D29000006004D656D6F31
+      310002001D00000040010000380000000E00000003000000F401000000000000
+      0000FFFFFF1F2C02000000000001001F005B717279496D7072696D697252656C
+      61746F72696F2E226E756D65726F225D00000000FFFF00000000000200000001
+      00000006090068656C7665746963610008000000000000000000010000001700
+      020000000000FFFFFF0000000002000000000000000000462A000006004D656D
+      6F3434000200DE000000D9010000E50100001400000003000000F40100000000
+      00000000FFFFFF1F2C0000000000000100560053414C444F2046494E414C2043
+      41495841205B717279496D7072696D697252656C61746F72696F2E2263616978
+      61225D202D205B717279496D7072696D697252656C61746F72696F2E226E6F6D
+      656361697861225D3A00000000FFFF0000000000020000000100000000090068
+      656C7665746963610009000000020000000000090000001700020000000000FF
+      FFFF0000000002000000000000000000D42A000005004D656D6F39000200B200
+      0000600000004B0000000E00000043000000F4010000000000000000FFFFFF1F
+      2C02000000000001000C00417574656E7469636163616F00000000FFFF000000
+      0000020000000100000000090068656C76657469636100090000000000000000
+      00120000000100020000000000FFFFFF00000000020000000000000000005D2B
+      000006004D656D6F31300002005801000060000000F00000000E000000430000
+      00F4010000000000000000FFFFFF1F2C020000000000010006004576656E746F
+      00000000FFFF0000000000020000000100000000090068656C76657469636100
+      09000000000000000000100000000100020000000000FFFFFF00000000020000
+      00000000000000242C000006004D656D6F323700020076000000C00000004D01
+      00001400000043000F00F4010000000000000000FFFFFF1F2C02000000000001
+      0044005B717279496D7072696D697252656C61746F72696F2E22636169786122
+      5D202D205B717279496D7072696D697252656C61746F72696F2E226E6F6D6563
+      61697861225D2000000000FFFF0000000000020000000100000000090068656C
+      766574696361000A000000020000000000080000000100020000000000FFFFFF
+      0000000002000000000000000000E12C000006004D656D6F3137000200570000
+      00400100002D0000000E00000000000000F4010000000000000000FFFFFF1F2C
+      02000000000001003A005B464F524D41544441544554494D45282764642F6D6D
+      2F7979272C5B717279496D7072696D697252656C61746F72696F2E2264617461
+      225D295D00000000FFFF0000000000020000000100000006090068656C766574
+      6963610008000000000000000000020000000100020000000000FFFFFF000000
+      00020000000000000000006B2D000006004D656D6F32380002001D0000009000
+      0000300000001400000043000F00F4010000000000000000FFFFFF1F2C020000
+      0000000100070046696C69616C3A00000000FFFF000000000002000000010000
+      0000090068656C76657469636100090000000000000000000900000001000200
+      00000000FFFFFF0000000002000000000000000000342E000006004D656D6F33
+      3600020052000000900000004D0100001400000043000F00F401000000000000
+      0000FFFFFF1F2C020000000000010046005B717279496D7072696D697252656C
+      61746F72696F2E2266696C69616C225D202D205B717279496D7072696D697252
+      656C61746F72696F2E226E6F6D6566696C69616C225D2000000000FFFF000000
+      0000020000000100000000090068656C766574696361000A0000000200000000
+      00080000000100020000000000FFFFFF0000000002000000000000000000122F
+      000006004D656D6F3432000200B400000040010000490000000E000000430000
+      00F4010000000000000000FFFFFF1F2C02000000000001005B005B4946285B71
+      7279496D7072696D697252656C61746F72696F2E22617574656E746963616361
+      6F225D203C3E20302C205B717279496D7072696D697252656C61746F72696F2E
+      22617574656E7469636163616F225D2C202727295D00000000FFFF0000000000
+      020000000100000006090068656C766574696361000800000000000000000000
+      0000000100020000000000FFFFFF0000000002000000000000000000A62F0000
+      06004D656D6F31330002009000000026000000D70000000A00000043000000F4
+      010000000000000000FFFFFF1F2C020000000000010011005B454E4445524543
+      4F5F42414952524F5D00000000FFFF0000000000020000000100000000090068
+      656C7665746963610007000000000000000000100000000100020000000000FF
+      FFFF00000000020000000000000000003830000006004D656D6F313600020090
+      00000032000000D70000000A00000043000000F4010000000000000000FFFFFF
+      1F2C02000000000001000F005B4345505F4349444144455F55465D00000000FF
+      FF0000000000020000000100000000090068656C766574696361000700000000
+      0000000000100000000100020000000000FFFFFF000000000200000000000000
+      0000CD30000007004D656D6F313536000200900000001A000000D70000000A00
+      000043000000F4010000000000000000FFFFFF1F2C020000000000010011005B
+      52415A414F46494C49414C424153455D00000000FFFF00000000000200000001
+      00000000090068656C7665746963610007000000000000000000100000000100
+      020000000000FFFFFF00000000020000000000000000006C31000005004D656D
+      6F3400020085000000400100002D0000000E00000003000000F4010000000000
+      000000FFFFFF1F2C00020300000001001D005B717279496D7072696D69725265
+      6C61746F72696F2E22686F7261225D00000000FFFF0000000000020000000100
+      000006090068656C766574696361000800000000000000000000000000010002
+      0000000000FFFFFF00000000020000000000000000003D32000005004D656D6F
+      350002005801000040010000200000000E00000043000000F801000000000000
+      0000FFFFFF1F2C02000000000001004F005B4946285B717279496D7072696D69
+      7252656C61746F72696F2E226576656E746F225D203C3E20302C205B71727949
+      6D7072696D697252656C61746F72696F2E226576656E746F225D2C202727295D
+      00000000FFFF0000000000020000000100000006090068656C76657469636100
+      0A000000000000000000010000000100020000000000FFFFFF00000000020000
+      00000000000000E732000005004D656D6F360002007801000040010000D00000
+      000E00000041000000F8010000000000000000FFFFFF1F2C0200000000000100
+      28005B717279496D7072696D697252656C61746F72696F2E2264657363726963
+      616F6576656E746F225D00000000FFFF00000000000200000001000000060900
+      68656C766574696361000A000000000000000000000000000100020000000000
+      FFFFFF00000000020000000000000000009E33000006004D656D6F3132000200
+      D0010000C00000004D0100001400000003000F00F4010000000000000000FFFF
+      FF1F2C0203010000000100340053414C444F20494E494349414C3A205B717279
+      496D7072696D697252656C61746F72696F2E2273616C646F696E696369616C22
+      5D00000000FFFF0000000000020000000100000000090068656C766574696361
+      000A000000020000000000080000000100020000000000FFFFFF000000000200
+      00000000000000002634000006004D656D6F31390002001D0000001801000094
+      0000001400000043000F00F4010000000000000000FFFFFF1F2C020000000000
+      010005005469706F3A00000000FFFF0000000000020000000100000000090068
+      656C7665746963610009000000000000000000090000000100020000000000FF
+      FFFF0000000002000000000000000000CF34000006004D656D6F3230000200B6
+      000000180100004D0100001400000043000F00F4010000000000000000FFFFFF
+      1F2C020000000000010026005B717279496D7072696D697252656C61746F7269
+      6F2E2264657363726963616F7469706F225D00000000FFFF0000000000020000
+      000100000000090068656C766574696361000A00000002000000000008000000
+      0100020000000000FFFFFF0000000002000000000000000000BA35000006004D
+      656D6F3231000200B6000000820100004D0100001400000003000F00F4010000
+      000000000000FFFFFF1F2C02030100000001006800544F54414C204445205B71
+      7279496D7072696D697252656C61746F72696F2E2264657363726963616F7469
+      706F225D3A205B53554D285B717279496D7072696D697252656C61746F72696F
+      2E2276616C6F72225D2C20417574656E74696361636F65732C2031295D000000
+      00FFFF0000000000020000000100000000090068656C76657469636100090000
+      00020000000000080000001700020000000000FFFFFF00000000020000000000
+      00000000AC36000006004D656D6F31350002001D000000EC0000007400000014
+      00000043000000F8010000000000000000FFFFFF1F2C02000000000001006300
+      5B4946285B717279496D7072696D697252656C61746F72696F2E22656E747261
+      64617361696461225D203D202758272C20274F7574726173272C205B71727949
+      6D7072696D697252656C61746F72696F2E22656E74726164617361696461225D
+      295D3A0002000500626567696E0D0200202000FFFF0000000000020000000100
+      000000090068656C766574696361000900000006000000000008000000010002
+      0000000000FFFFFF00000000020000000000000000009B37000006004D656D6F
+      3233000200B0020000B0010000BC000000120000004300000001000000000000
+      000000FFFFFF1F2C02000000000001006C00546F74616C206465205B4946285B
+      717279496D7072696D697252656C61746F72696F2E22656E7472616461736169
+      6461225D203D202758272C20274F7574726173272C205B717279496D7072696D
+      697252656C61746F72696F2E22656E74726164617361696461225D295D3A0000
+      0000FFFF0000000000020000000100000000090068656C766574696361000900
+      0000020000000000090000000100020000000000FFFFFF000000000200000000
+      00000000005538000006004D656D6F323400020070030000B001000060000000
+      120000000300000001000000000000000000FFFFFF1F2C020301000000010037
+      005B53554D285B717279496D7072696D697252656C61746F72696F2E2276616C
+      6F72225D2C20417574656E74696361636F65732C2031295D00000000FFFF0000
+      000000020000000100000000090068656C766574696361000900000002000000
+      0000090000000100020000000000FFFFFF0000000002000000000000000000FB
+      38000006004D656D6F3235000200C4020000D901000054000000140000000300
+      0000F4010000000000000000FFFFFF1F2C020301000000010023005B71727949
+      6D7072696D697252656C61746F72696F2E2273616C646F66696E616C225D0000
+      0000FFFF0000000000020000000100000000090068656C766574696361000A00
+      0000020000000000080000000100020000000000FFFFFF000000000200000000
+      00000000008139000005004D656D6F3800020049020000600000003C0000000E
+      00000043000000F4010000000000000000FFFFFF1F2C02000000000001000400
+      5469706F00000000FFFF0000000000020000000100000000090068656C766574
+      6963610009000000000000000000100000000100020000000000FFFFFF000000
+      0002000000000000000000293A000006004D656D6F3232000200490200004001
+      00003C0000000E00000041000000F8010000000000000000FFFFFF1F2C020000
+      000000010025005B717279496D7072696D697252656C61746F72696F2E227469
+      706F726564757A69646F225D00000000FFFF0000000000020000000100000006
+      090068656C766574696361000A00000000000000000000000000010002000000
+      0000FFFFFF0000000002000000000000000000E33A000006004D656D6F333000
+      02008C02000060010000000100000D00000043000000F4010000000000000000
+      FFFFFF1F2C02000000000000000003000500626567696E0D2900206D656D6F20
+      3A3D205B7172794672656E746543616978612E2264657363726963616F746970
+      6F225D0D0300656E6400FFFF0000000000020000000100000000090068656C76
+      65746963610008000000000000000000000000000100020000000000FFFFFF00
+      00000002000000000000000000B83B000006004D656D6F33310002008C030000
+      60010000440000000D00000043000000F4010000000000000000FFFFFF1F2C02
+      000000000000000003000500626567696E0D4400202020206D656D6F203A3D20
+      5B464F524D4154464C4F415428272323232C2323232C2323302E3030272C5B71
+      72794672656E746543616978612E2276616C6F72225D295D0D0300656E6400FF
+      FF0000000000020000000100000000090068656C766574696361000800000000
+      0000000000010000000100020000000000FFFFFF000000000200000000000000
+      00005E3C000006004D656D6F32360002008802000040010000040100000E0000
+      0043000000F4010000000000000000FFFFFF1F2C020000000000010023005B71
+      7279496D7072696D697252656C61746F72696F2E227265666572656E63696122
+      5D00000000FFFF0000000000020000000100000000090068656C766574696361
+      000A000000000000000000000000000100020000000000FFFFFF000000000200
+      00000000000000001F3D000006004D656D6F32390002008C0300004001000044
+      0000000E00000043000000F4010000000000000000FFFFFF1F2C020000000000
+      01003E005B464F524D4154464C4F415428272323232C2323232C2323302E3030
+      272C5B717279496D7072696D697252656C61746F72696F2E2276616C6F72225D
+      295D00000000FFFF0000000000020000000100000000090068656C7665746963
+      61000A000000000000000000010000000100020000000000FFFFFF0000000002
+      00000000000000FEFEFF040000000A002043617465676F727931000000001300
+      41677275706172417574656E7469636163616F00050066616C7365000B002041
+      7578696C69617265730000000005004C696E6861000100300000000000000000
+      00FC0000000000000000000000000000000058009B3F442ED58AE340CDD41125
+      B7F5E540}
+  end
+  object qryCaixas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      
+        'select u.codigo, u.nome, u.turno, (select t.descricao from turno' +
+        's t where t.codigo = u.turno) as descricaoturno'
+      'from'
+      '('
+      'select distinct a.caixa as codigo'
+      'from autenticacoes a'
+      ') as autenticacoes'
+      '     join usuarios u'
+      '     on autenticacoes.codigo = u.codigo'
+      ''
+      'where u.codigo = :codigo'
+      ''
+      'order by UPPER(TO_ASCII(u.nome,'#39'LATIN1'#39'));')
+    RequestLive = False
+    Left = 40
+    Top = 192
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryFrenteCaixa: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnCalcFields = qryFrenteCaixaCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select *'
+      '/*'
+      #9'case when tipo = '#39'DN'#39' then '#39'DINHEIRO'#39
+      '                when tipo = '#39'CH'#39' then '#39'CHEQUE'#39
+      '                when tipo = '#39'MD'#39' then '#39'MASTERCARD D'#201'BITO'#39
+      '                when tipo = '#39'MC'#39' then '#39'MASTERCARD CR'#201'DITO'#39
+      '                when tipo = '#39'VD'#39' then '#39'VISA D'#201'BITO'#39
+      '                when tipo = '#39'VC'#39' then '#39'VISA CR'#201'DITO'#39
+      '                when tipo = '#39'TF'#39' then '#39'TEF'#39
+      '        end as descricaotipo'
+      '*/'
+      'from frentedecaixaautenticacoes'
+      'where autenticacao = :autenticacao'
+      'order by codigo')
+    RequestLive = True
+    Left = 144
+    Top = 128
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'autenticacao'
+        ParamType = ptUnknown
+      end>
+    object qryFrenteCaixacodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryFrenteCaixaautenticacao: TIntegerField
+      FieldName = 'autenticacao'
+    end
+    object qryFrenteCaixavalor: TFloatField
+      FieldName = 'valor'
+    end
+    object qryFrenteCaixatipo: TStringField
+      FieldName = 'tipo'
+      Size = 2
+    end
+    object qryFrenteCaixadescricaotipo: TStringField
+      FieldKind = fkCalculated
+      FieldName = 'descricaotipo'
+      Calculated = True
+    end
+  end
+  object fdsFrenteCaixa: TfrDBDataSet
+    DataSet = qryFrenteCaixa
+    Left = 272
+    Top = 128
+  end
+  object fdsImprimirRelatorio: TfrDBDataSet
+    DataSet = qryImprimirRelatorio
+    Left = 272
+    Top = 72
+  end
+  object qryConsultaCaixas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';select * from'
+      '('
+      'select distinct a.caixa as codigo,'
+      '                      (select u.nome'
+      '                       from usuarios u'
+      '                       where u.codigo = a.caixa) as nome,'
+      '                      (select u.inativo'
+      '                       from usuarios u'
+      '                       where u.codigo = a.caixa) as inativo'
+      ''
+      'from autenticacoes a'
+      ') as autenticacoes'
+      'order by UPPER(TO_ASCII(nome,'#39'LATIN1'#39'));')
+    RequestLive = False
+    Left = 112
+    Top = 192
+  end
+end

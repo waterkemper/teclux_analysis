@@ -1,0 +1,326 @@
+unit dmrelatoriosaldocredito;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, dmtecsoft, DB, cpdatasource, ZQuery,
+  ZPgSqlQuery, cpquery, fr_dset, fr_dbset, fr_class, BIBLIO, ZTransact,
+  fmpreviewpadrao, FR_Desgn;
+
+type
+  TdtmRelatorioSaldoCredito = class(TdtmBasico)
+    qrySaldosCredito: TtecQuery;
+    dsrSaldosCredito: TtecDataSource;
+    frpSaldoCredito: TfrReport;
+    fdsSaldoCredito: TfrDBDataSet;
+    qrySaldosCreditodescricao: TStringField;
+    qrySaldosCreditotipo: TStringField;
+    qrySaldosCreditodata: TDateTimeField;
+    qrySaldosCreditocliente: TIntegerField;
+    qrySaldosCreditonomecliente: TStringField;
+    qrySaldosCreditoproduto: TLargeintField;
+    qrySaldosCreditodescricaoproduto: TStringField;
+    qrySaldosCreditogrupo: TStringField;
+    qrySaldosCreditoclasse: TStringField;
+    qrySaldosCreditofilial: TIntegerField;
+    qrySaldosCreditocontrato: TStringField;
+    qrySaldosCreditovalor: TFloatField;
+    qrySaldosCreditosaldo: TFloatField;
+    qrySaldosCreditosaldofinal: TFloatField;
+    qrySaldosCreditoreferencia: TStringField;
+    qrySaldosCreditousuario: TIntegerField;
+    qrySaldosCreditousuarios: TStringField;
+    qrySaldosCreditoevento: TIntegerField;
+    qrySaldosCreditodescricaoevento: TStringField;
+    qrySaldosCreditosaldototal: TFloatField;
+    qrySaldosCreditosaldoatualcliente: TFloatField;
+    qrySaldosCreditousuarioautorizacao: TIntegerField;
+    qrySaldosCreditonomeusuariosautorizacao: TStringField;
+    qrySaldosCreditotipocliente: TStringField;
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure frpSaldoCreditoBeforePrint(Memo: TStringList; View: TfrView);
+    procedure qrySaldosCreditoCalcFields(DataSet: TDataSet);
+  private
+    FFiltroSQL: String;
+    FEvento: String;
+    FFiliais: String;
+    FSomenteLancamentosAvulsos: Boolean;
+    FParametroCabecalho: String;
+    FClasse: String;
+    FUsuario: String;
+    FItemProduto: String;
+    FGrupo: String;
+    FGrupoFiliais: String;
+    FAgrupamento: Boolean;
+    FTipo: Integer;
+    fCliente: String;
+    FSomenteClientescomSaldo: Boolean;
+    FDataInicial: String;
+    FDataFinal: String;
+    fTipoCliente: String;
+    procedure SetAgrupamento(const Value: Boolean);
+    procedure SetClasse(const Value: String);
+    procedure SetEvento(const Value: String);
+    procedure SetFiliais(const Value: String);
+    procedure SetGrupo(const Value: String);
+    procedure SetGrupoFiliais(const Value: String);
+    procedure SetItemProduto(const Value: String);
+    procedure SetSomenteLancamentosAvulsos(const Value: Boolean);
+    procedure SetTipo(const Value: Integer);
+    procedure SetUsuario(const Value: String);
+    procedure SetCliente(const Value: String);
+    procedure SetSomenteClientescomSaldo(const Value: Boolean);
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure ImprimirRelatorio;
+    procedure MontarSQL;
+    function AbrirRelatorio: Boolean;
+    property Filiais: String read FFiliais write SetFiliais;
+    property GrupoFiliais: String read FGrupoFiliais write SetGrupoFiliais;
+    property TipoCliente: String read fTipoCliente write fTipoCliente;
+    property Cliente: String read fCliente write SetCliente;
+    property ItemProduto: String read FItemProduto write SetItemProduto;
+    property Grupo: String read FGrupo write SetGrupo;
+    property Classe: String read FClasse write SetClasse;
+    property Evento: String read FEvento write SetEvento;
+    property Usuario: String read FUsuario write SetUsuario;
+    property SomenteLancamentosAvulsos: Boolean read FSomenteLancamentosAvulsos write SetSomenteLancamentosAvulsos;
+    property SomenteClientescomSaldo : Boolean read FSomenteClientescomSaldo write SetSomenteClientescomSaldo;
+    property Tipo: Integer read FTipo write SetTipo;
+    property DataInicial: String read FDataInicial write FDataInicial;
+    property DataFinal: String read FDataFinal write FDataFinal;
+    property Agrupamento: Boolean read FAgrupamento write SetAgrupamento;
+    property ParametroCabecalho: String read FParametroCabecalho write FParametroCabecalho;
+  end;
+
+var
+  dtmRelatorioSaldoCredito: TdtmRelatorioSaldoCredito;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmRelatorioSaldoCredito }
+
+function TdtmRelatorioSaldoCredito.AbrirRelatorio: Boolean;
+begin
+  qrySaldosCredito.Open;
+  Result:= not qrySaldosCredito.IsEmpty;
+end;
+
+constructor TdtmRelatorioSaldoCredito.Create(AOwner: TComponent);
+begin
+  inherited;
+end;
+
+destructor TdtmRelatorioSaldoCredito.Destroy;
+begin
+  inherited;
+end;
+
+procedure TdtmRelatorioSaldoCredito.ImprimirRelatorio;
+begin
+//  frpSaldoCredito.designreport;
+  ImprimirRelatoriofast('RELATÓRIO DE SALDOS DE CRÉDITO', FParametroCabecalho, MSimples, 0, [frpSaldoCredito], false, self);
+end;
+
+procedure TdtmRelatorioSaldoCredito.MontarSQL;
+begin
+  FFiltroSQL:= '';
+
+  if FGrupoFiliais <> '' then
+    FFiltroSQL:= FFiltroSQL + ' and pt.filial in (Select filial From filiaisgruposfiliais where grupo = '+FGrupoFiliais+')'+slinebreak+'';
+
+  if FFiliais <> '' then
+    FFiltroSQL:= FFiltroSQL + ' and ((pt.filial = '+FFiliais+') or (pt.filial is null))'+slinebreak;
+
+  if fCliente <> '' then
+    FFiltroSQL:= FFiltroSQL + ' and pt.cliente = '+fCliente + ' and pt.tipocliente = ' + quotedstr(tipocliente) +  slinebreak+'';
+
+  if FItemProduto <> '' then
+    FFiltroSQL:= FFiltroSQL + ' and  ((Select p.caracteristica from produtos p where p.codigo = pt.produto) = '+FItemProduto+')'+slinebreak+'';
+
+  if FGrupo <> '' then
+    FFiltroSQL:= FFiltroSQL + ' and  (Select grupo from'+
+                                        '(select * from '+
+                                           '(Select p.codigo, c.grupo '+
+                                               'from caracteristicas c, produtos p where c.codigo = p.caracteristica)as temp)as temp2 where codigo = pt.produto) = '+FGrupo+slinebreak+'';
+
+  if FClasse <> '' then
+    FFiltroSQL:= FFiltroSQL + ' and  (Select Classe from'+
+                                        '(select * from '+
+                                            '(Select p.codigo, c.classe from caracteristicas c, produtos p where c.codigo = p.caracteristica)as temp)as temp2 where codigo = pt.produto) = '+quotedstr(FClasse)+slinebreak+'';
+
+  if FEvento <> '' then
+    FFiltroSQL:= FFiltroSQL + ' and  pt.evento = '+FEvento+slinebreak+'';
+
+  if FUsuario <> '' then
+    FFiltroSQL:= FFiltroSQL + ' and  pt.usuarioautorizacao = '+FUsuario+slinebreak+'';
+
+  case FTipo of
+    0 : FFiltroSQL:= FFiltroSQL + '';
+    1 : FFiltroSQL:= FFiltroSQL + ' and  pt.tipo = ''E'''+slinebreak+'';
+    2 : FFiltroSQL:= FFiltroSQL + ' and  pt.tipo = ''S'''+slinebreak+'';
+    3 : FFiltroSQL:= FFiltroSQL + '';
+  end;
+
+  FFiltroSQL := FFiltroSQL + MontarIntervaloData('pt.data',FDataInicial,FDataFinal,true) + sLineBreak;
+
+  if FSomenteLancamentosAvulsos then
+    FFiltroSQL:= FFiltroSQL + 'and pt.produto is null and pt.contrato is null and pt.novocontrato is null and coalesce(pt.tipocliente,'''')<>''L'' '+slinebreak+'';
+
+    and pt.tipocliente <> 'L'
+
+  if FSomenteClientescomSaldo then
+    FFiltroSQL:= FFiltroSQL + 'and coalesce((select pt2.saldo '+
+                              'from produtostrocados pt2 '+
+                              'where pt2.cliente = pt.cliente '+
+                              'order by pt2.data desc limit 1),0)<>0 ';
+
+  //Delete(FFiltroSQL,1,4);
+//  FFiltroSQL:= FFiltroSQL;
+  If FFiltroSQL = 'Where ' then
+    FFiltroSQL := '';
+  qrySaldosCredito.Close;
+  qrySaldosCredito.MacroByName('Filtros').AsString:= FFiltroSQL;
+end;
+
+procedure TdtmRelatorioSaldoCredito.SetAgrupamento(const Value: Boolean);
+begin
+  FAgrupamento := Value;
+end;
+
+procedure TdtmRelatorioSaldoCredito.SetClasse(const Value: String);
+begin
+  FClasse := Value;
+  If FClasse <> '' then
+    FParametroCabecalho:= FParametroCabecalho + 'Classe '+Value+' ';
+end;
+
+procedure TdtmRelatorioSaldoCredito.SetCliente(const Value: String);
+begin
+  fCliente := Value;
+  If fCliente <> '' then
+    FParametroCabecalho:= FParametroCabecalho + 'Cliente '+Value+' '+tipocliente;
+end;
+
+procedure TdtmRelatorioSaldoCredito.SetEvento(const Value: String);
+begin
+  FEvento := Value;
+  If FEvento <> '' then
+    FParametroCabecalho:= FParametroCabecalho + 'Evento '+Value+' ';
+end;
+
+procedure TdtmRelatorioSaldoCredito.SetFiliais(const Value: String);
+begin
+  FFiliais := Value;
+  If FFiliais <> '' then
+    FParametroCabecalho:= FParametroCabecalho + 'Filial '+Value+' ';
+end;
+
+procedure TdtmRelatorioSaldoCredito.SetGrupo(const Value: String);
+begin
+  FGrupo := Value;
+  If FGrupo <> '' then
+    FParametroCabecalho:= FParametroCabecalho + 'Grupo '+Value+' ';
+end;
+
+procedure TdtmRelatorioSaldoCredito.SetGrupoFiliais(const Value: String);
+begin
+  FGrupoFiliais := Value;
+  If FGrupoFiliais <> '' then
+    FParametroCabecalho:= FParametroCabecalho + 'Grupo Filiais '+Value+' ';
+end;
+
+procedure TdtmRelatorioSaldoCredito.SetItemProduto(const Value: String);
+begin
+  FItemProduto := Value;
+  If FItemProduto <> '' then
+    FParametroCabecalho:= FParametroCabecalho + 'Produto '+Value+' ';
+end;
+
+procedure TdtmRelatorioSaldoCredito.SetSomenteLancamentosAvulsos(
+  const Value: Boolean);
+begin
+  FSomenteLancamentosAvulsos := Value;
+  If FSomenteLancamentosAvulsos then
+    FParametroCabecalho:= FParametroCabecalho + 'Somente Lançamentos Avulsos ';
+end;
+
+procedure TdtmRelatorioSaldoCredito.SetTipo(const Value: Integer);
+begin
+  FTipo := Value;
+  Case Value of
+    0: FParametroCabecalho:= FParametroCabecalho + 'Entrada e Saída ';
+    1: FParametroCabecalho:= FParametroCabecalho + 'Entradas ';
+    2: FParametroCabecalho:= FParametroCabecalho + 'Saída ';
+    3: FParametroCabecalho:= FParametroCabecalho + ' ';
+  end;
+end;
+
+procedure TdtmRelatorioSaldoCredito.SetUsuario(const Value: String);
+begin
+  FUsuario := Value;
+end;
+
+procedure TdtmRelatorioSaldoCredito.ZMonitor1MonitorEvent(Sql,
+  Result: String);
+var
+ Listar : TStringList;
+ arquivo: String;
+begin
+  inherited;
+  Listar := tStringlist.Create;
+  arquivo := 'c:\Lixo\Saldocredito.sql';
+  if fileexists(arquivo) then
+    Listar.loadfromfile(arquivo);
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile(arquivo);
+  listar.free;
+end;
+
+procedure TdtmRelatorioSaldoCredito.frpSaldoCreditoBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpSaldoCredito, View);
+end;
+
+procedure TdtmRelatorioSaldoCredito.qrySaldosCreditoCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  if qrySaldosCreditoreferencia.AsString<>'' then
+    qrySaldosCreditoDescricao.AsString := qrySaldosCreditoreferencia.AsString
+  else
+  if qrySaldosCreditotipo.AsString = 'E' then
+  begin
+   if qrySaldosCreditoproduto.AsString <> '' then
+     qrySaldosCreditoDescricao.AsString := qrySaldosCreditoDescricaoProduto.asstring
+   else
+     if qrySaldosCreditocontrato.asstring<>'' then
+       qrySaldosCreditoDescricao.AsString := 'ENTRADA CANCELAMENTO CONTRATO '+qrySaldosCreditocontrato.asstring;
+  end
+  else
+  begin
+   if qrySaldosCreditoproduto.AsString <> '' then
+     qrySaldosCreditoDescricao.AsString := qrySaldosCreditoDescricaoProduto.asstring
+   else
+     if qrySaldosCreditocontrato.asstring<>'' then
+       qrySaldosCreditoDescricao.AsString := 'SAIDA NO CONTRATO '+qrySaldosCreditocontrato.asstring;
+  end;
+end;
+
+procedure TdtmRelatorioSaldoCredito.SetSomenteClientescomSaldo(
+  const Value: Boolean);
+begin
+  FSomenteClientescomSaldo := Value;
+  if FSomenteClientescomSaldo then
+   ParametroCabecalho:= ParametroCabecalho + 'Somente Clientes com Saldo ';
+end;
+
+end.

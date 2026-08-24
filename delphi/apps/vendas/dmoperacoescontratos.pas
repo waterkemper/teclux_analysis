@@ -180,6 +180,7 @@ type
     fRetirarNaLoja: Boolean;
     fEntregaPropria: Boolean;
     faPartirde: String;
+    fdtmCadastroContratos: TdtmCadastroContratos;
 
     function GetContratoVazio: boolean;
     function GetCodigoCliente: String;
@@ -194,15 +195,17 @@ type
     function GetColunadaGrade: String;
     function GetLinhadaGrade: String;
     function getdtmCadastroContratos: TdtmCadastroContratos;
+
     procedure SetListaExtraContratos(const Value: TMemo);
     procedure SetEntregaExpressa(const Value: Boolean);
     procedure SetRetirarNaLoja(const Value: Boolean);
     procedure SetEntregaPropria(const Value: Boolean);
     procedure SetaPartirde(const Value: String);
+
+
   protected
     FPrimeiraVez: Boolean;
     ImpressaoContrato: TdtmImprimeContratos;
-    fdtmCadastroContratos: TdtmCadastroContratos;
     procedure EmitirNota;
     function Faturar: boolean;
     function AutorizacaoAnalistaCredito(TipoQualidadeVenda : tpQualidadeVenda = tpQVContrato): boolean; overload;
@@ -218,6 +221,7 @@ type
     procedure SetVendedor(const Value: String);
     procedure SetarFiltroContrato;
     function ExistelstckbCST_CSOSN: Boolean;
+
     property dtmCadastroContratos: TdtmCadastroContratos read getdtmCadastroContratos write fdtmCadastroContratos;
   public
     VisualizandoProdutos : Boolean;
@@ -528,6 +532,8 @@ begin
 
 //        qrycontratos.FreeBookmark(vRegistroAtual);
 
+        
+
       end;
 
     finally
@@ -756,6 +762,7 @@ var
   end;
 
 begin
+  try
   result := false;
 
 //  self.dtmCadastroContratos.qryContratos.parambyname('numero').asString :=  qryContratosnumero.AsString;
@@ -780,6 +787,13 @@ begin
       self.dtmCadastroContratos.BloquearContrato(qryContratosnumero.AsString, false, true, true);
 
     end;
+  end;
+
+  finally
+
+//   if assigned(fdtmCadastroContratos) then
+//    fdtmCadastroContratos.free;
+
   end;
 
 end;
@@ -1765,6 +1779,8 @@ begin
   begin
 //    vNaoAbrirdtmCadastroContratosAuxiliar := true;
     fdtmCadastroContratos := TdtmCadastroContratos.Create(self, True, true);
+    fdtmCadastroContratos.Name := 'dtmCadastroContratosOperacoes';
+
     fdtmCadastroContratos.OnComplementarNota := ComplementarNota;
 
 //    vNaoAbrirdtmCadastroContratosAuxiliar := false;

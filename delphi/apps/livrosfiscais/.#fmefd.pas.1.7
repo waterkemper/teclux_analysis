@@ -1,0 +1,635 @@
+unit fmefd;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Forms, Dialogs,
+  StdCtrls, fmrelatoriopadrao, ExtCtrls, Buttons, fmajudabt, Mask,
+  cpdata, ComCtrls, biblio, ctconstantes, Controls, ACBrSped,
+  cpdbradiogroup, frconsultacontabil, frconsultacodigocontabil, cpnumero,
+  DBCtrls, cpdbtext, cpdbmemo, cptexto, cpdbdata, cpdbmesano, Windows, DB,
+  fmcadastropadrao, cpdbfindcontrols, dateutils, Grids, DBGrids, cpdbgrid,
+  frconsulta,  frconsultacodigo, ActnList, ToolWin;
+
+type
+  TfrmEFD = class(TfrmCadastroPadrao)
+    sbnGerarArquivo: TSpeedButton;
+    mmoErro: TMemo;
+    pnlTop: TPanel;
+    pgcOpcoesEFD: TPageControl;
+    tstErros: TTabSheet;
+    tstApuracaoICMS: TTabSheet;
+    gbxSaldoCreditoMesAnterior: TGroupBox;
+    gbxProcesso: TGroupBox;
+    gbxNumeroProcesso: TGroupBox;
+    rgpOrigemProcesso: TtecDBRadioGroup;
+    rbnSefaz: TtecRadioButton;
+    rbnJusticaFederal: TtecRadioButton;
+    rbnJusticaEstadual: TtecRadioButton;
+    rbnOUTROS: TtecRadioButton;
+    gbxDescricaoProcesso: TGroupBox;
+    gbxOBRIGACAO: TGroupBox;
+    gbxDescricao: TGroupBox;
+    DBEditNumero1: TDBEditNumero;
+    gbxTotalDebitos: TGroupBox;
+    DBEditNumero2: TDBEditNumero;
+    gbxTotalCreditos: TGroupBox;
+    DBEditNumero6: TDBEditNumero;
+    gbxSaldoDevedor: TGroupBox;
+    DBEditNumero12: TDBEditNumero;
+    gbxCreditoSeguinte: TGroupBox;
+    DBEditNumero15: TDBEditNumero;
+    mmoDescricaoObrigacao: TtecDBMemo;
+    edtNrProcesso: TDBEditTexto;
+    mmoDescricaoProcesso: TtecDBMemo;
+    gbxPeriodo: TGroupBox;
+    gbxArquivo: TGroupBox;
+    dtxArquivo: TtecDBText;
+    edtMesInicial: TtecDbEditFind;
+    rgpTipoEnvio: TtecDBRadioGroup;
+    rbnOriginal: TtecRadioButton;
+    rbnSubstituto: TtecRadioButton;
+    dbgObrigacoes: TtecDBGrid;
+    gbxDebitoEspecial: TGroupBox;
+    DBEditNumero3: TDBEditNumero;
+    gbxFilial: TGroupBox;
+    fraConsultaFilial: TfraConsultaCodigo;
+    lblTotalObrigacoes: TLabel;
+    edtTotalObrigacoes: TDBEditNumero;
+    gbxAjusteICMS: TGroupBox;
+    dbgAJUSTEICMS: TtecDBGrid;
+    GroupBox1: TGroupBox;
+    DBEditNumero4: TDBEditNumero;
+    GroupBox2: TGroupBox;
+    DBEditNumero5: TDBEditNumero;
+    sbnReatualizarSaldos: TSpeedButton;
+    gbxEstornoCreditos: TGroupBox;
+    DBEditNumero7: TDBEditNumero;
+    gbxEstornoDebitos: TGroupBox;
+    DBEditNumero8: TDBEditNumero;
+    gbxDeducoes: TGroupBox;
+    edtDeducoes: TDBEditNumero;
+    tstApuracaoIPI: TTabSheet;
+    gbxTotalDebitosIPI: TGroupBox;
+    edtTotalDebitosIPI: TDBEditNumero;
+    gbxTotalCreditosIPI: TGroupBox;
+    edtTotalCreditosIPI: TDBEditNumero;
+    gbxTotalAjustesDebitosIPI: TGroupBox;
+    edtTotalAjustesDebitosIPI: TDBEditNumero;
+    gbxTotalAjustesCreditosIPI: TGroupBox;
+    edtTotalAjustesCreditosIPI: TDBEditNumero;
+    gbxTotalCreditosAnteriorIPI: TGroupBox;
+    edtTotalCreditosAnteriorIPI: TDBEditNumero;
+    gbxTotalSaldoDevedorIPI: TGroupBox;
+    edtTotalSaldoDevedorIPI: TDBEditNumero;
+    GroupBox9: TGroupBox;
+    DBEditNumero17: TDBEditNumero;
+    sbnReatualizarSaldosIPI: TSpeedButton;
+    gbxAjusteIPI: TGroupBox;
+    dbgAjusteIPI: TtecDBGrid;
+    gbxDescricaoAjusteIPI: TGroupBox;
+    mmoDescricaoAjusteIPI: TtecDBMemo;
+    ActionList1: TActionList;
+    Action1: TAction;
+    GroupBox3: TGroupBox;
+    DBEditNumero9: TDBEditNumero;
+    GroupBox4: TGroupBox;
+    DBEditNumero10: TDBEditNumero;
+    tstInventario: TTabSheet;
+    rgpMotivodoInventario: TtecDBRadioGroup;
+    rbn01NoFinaldoPeriodo: TtecRadioButton;
+    rbn02Namudancadeformadetributacodamercadoria: TtecRadioButton;
+    gbxDataEstoque: TGroupBox;
+    DBEditData1: TDBEditData;
+    rbn03Nasolicitacaodabaixacadastralparalisacaotempor: TtecRadioButton;
+    rbn04Naalteraderegimedepagamento: TtecRadioButton;
+    rbn05Pordeterminadosfiscos: TtecRadioButton;
+    procedure sbnGerarArquivoClick(Sender: TObject);
+    procedure sbnRecalcularCreditoICMSMesAnteriorClick(Sender: TObject);
+    procedure edtMesInicialEnter(Sender: TObject);
+    procedure edtMesInicialMessage(var Msg: String);
+    procedure dbgObrigacoesKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbgAJUSTEICMSKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure fraConsultaFilialedfCodigoFound(Found: Boolean);
+    procedure sbnReatualizarSaldosClick(Sender: TObject);
+    procedure sbnProcurarClick(Sender: TObject);
+    procedure Action1Update(Sender: TObject);
+    procedure sbnReatualizarSaldosIPIClick(Sender: TObject);
+    procedure dbgAjusteIPIKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+  protected
+    fraConsultaICMSObrigacoes : TfraConsultaCodigoContabil;
+    fraConsultaCodigodeReceitas : TfraConsultaCodigoContabil;
+
+    fraConsultaAjusteICMS : TfraConsultaCodigoContabil;
+    fraConsultaAjusteIPI : TfraConsultaCodigoContabil;
+
+
+    fraConsultaefd : TfraConsultaCodigoContabil;
+    procedure Abrirefd;
+
+
+    procedure AcionaPesquisaGradeObrigacoes;
+    procedure AcionaPesquisaCodigodeReceitas;
+
+    procedure AcionaPesquisaGradeAjusteICMS;
+    procedure AcionaPesquisaGradeAjusteIPI;
+
+
+    procedure AlterarEstadoBotoes; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+
+
+
+  private
+    { Private declarations }
+    function  ValidarCamposSelecao: Boolean;
+    procedure ACBrSPEDFiscalonError(Sender: TObject);
+    function  InternoIncluir: Boolean; override;
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    procedure AtribuirDadosICMSObrigacao;
+    procedure AtribuirDadosTabelaAjusteICMS;
+    procedure AtribuirDadosTabelaAjusteIPI;
+
+
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+
+    { Public declarations}
+  end;
+
+var
+  frmEFD: TfrmEFD;
+
+implementation
+
+uses dmefd;
+
+{$R *.dfm}
+
+procedure TfrmEFD.ACBrSPEDFiscalonError(Sender: TObject);
+begin
+  mmoErro.Lines.Add(dtmEFD.erro);
+end;
+
+constructor TfrmEFD.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmEFD := TdtmEFD.Create(self);
+  DataSet := dtmEFD.qryefd;
+  dtmEFD.ACBrSPEDFiscalonError := ACBrSPEDFiscalonError;
+
+  fraConsultaICMSObrigacoes := TfraConsultaCodigoContabil.Create(self);
+  fraConsultaICMSObrigacoes.Name := 'fraConsultaICMSObrigacoes';
+  fraConsultaICMSObrigacoes.edfCodigo.MaxLength := 3;
+  fraConsultaICMSObrigacoes.edfCodigo.DataSource := dtmEFD.dsrEFD_E116;
+  fraConsultaICMSObrigacoes.edfCodigo.DataField := 'icmsobrigacao';
+  fraConsultaICMSObrigacoes.edfCodigo.Operacao := opATRIBUICAO;
+  fraConsultaICMSObrigacoes.edfCodigo.LookupSource := fraConsultaICMSObrigacoes.dsrProcuraICMSObrigacoes;
+  fraConsultaICMSObrigacoes.edfCodigo.LookupField := 'codigo';
+  fraConsultaICMSObrigacoes.edfCodigo.LookupQueryParameter := 'codigo';
+  fraConsultaICMSObrigacoes.AbrirTabelaProcura := false;
+  fraConsultaICMSObrigacoes.TipoPesquisa := pesICMSOBRIGACOES;
+  fraConsultaICMSObrigacoes.OnFound := AtribuirDadosICMSObrigacao;
+
+  fraConsultaCodigodeReceitas := TfraConsultaCodigoContabil.Create(self);
+  fraConsultaCodigodeReceitas.Name := 'fraConsultaCodigodeReceitas';
+  fraConsultaCodigodeReceitas.edfCodigo.MaxLength := 30;
+  fraConsultaCodigodeReceitas.edfCodigo.DataSource := dtmEFD.dsrEFD_E116;
+  fraConsultaCodigodeReceitas.edfCodigo.DataField := 'cod_rec';
+  fraConsultaCodigodeReceitas.edfCodigo.Operacao := opATRIBUICAO;
+  fraConsultaCodigodeReceitas.edfCodigo.LookupSource := fraConsultaCodigodeReceitas.dsrProcuraEFD_CodigosdeReceita;
+  fraConsultaCodigodeReceitas.edfCodigo.LookupField := 'codigo';
+  fraConsultaCodigodeReceitas.edfCodigo.LookupQueryParameter := 'codigo';
+  fraConsultaCodigodeReceitas.AbrirTabelaProcura := false;
+  fraConsultaCodigodeReceitas.TipoPesquisa := pesCODIGODERECEITAS;
+
+
+  fraConsultaAjusteICMS := TfraConsultaCodigoContabil.Create(self);
+  fraConsultaAjusteICMS.Name := 'fraConsultaAjusteICMS';
+  fraConsultaAjusteICMS.edfCodigo.MaxLength := 8;
+  fraConsultaAjusteICMS.edfCodigo.DataSource := dtmEFD.dsrEFD_E111;
+  fraConsultaAjusteICMS.edfCodigo.DataField := 'cod_aj_apur';
+  fraConsultaAjusteICMS.edfCodigo.Operacao := opATRIBUICAO;
+  fraConsultaAjusteICMS.edfCodigo.LookupSource := fraConsultaAjusteICMS.dsrProcuraAjusteICMS;
+  fraConsultaAjusteICMS.edfCodigo.LookupField := 'codigo';
+  fraConsultaAjusteICMS.edfCodigo.LookupQueryParameter := 'codigo';
+  fraConsultaAjusteICMS.AbrirTabelaProcura := false;
+  fraConsultaAjusteICMS.TipoPesquisa := pesTABELAAJUSTEICMS;
+  fraConsultaAjusteICMS.OnFound := AtribuirDadosTabelaAjusteICMS;
+
+  fraConsultaAjusteIPI := TfraConsultaCodigoContabil.Create(self);
+  fraConsultaAjusteIPI.Name := 'fraConsultaAjusteIPI';
+  fraConsultaAjusteIPI.edfCodigo.MaxLength := 3;
+  fraConsultaAjusteIPI.edfCodigo.DataSource := dtmEFD.dsrEFD_E530;
+  fraConsultaAjusteIPI.edfCodigo.DataField := 'cod_aj_apur';
+  fraConsultaAjusteIPI.edfCodigo.Operacao := opATRIBUICAO;
+  fraConsultaAjusteIPI.edfCodigo.LookupSource := fraConsultaAjusteIPI.dsrProcuraAjusteIPI;
+  fraConsultaAjusteIPI.edfCodigo.LookupField := 'codigo';
+  fraConsultaAjusteIPI.edfCodigo.LookupQueryParameter := 'codigo';
+  fraConsultaAjusteIPI.AbrirTabelaProcura := false;
+  fraConsultaAjusteIPI.TipoPesquisa := pesTABELAAJUSTEIPI;
+  fraConsultaAjusteIPI.OnFound := AtribuirDadosTabelaAjusteIPI;
+
+  fraConsultaefd := TfraConsultaCodigoContabil.Create(self);
+  fraConsultaefd.edfCodigo.Operacao := opPESQUISA;
+  fraConsultaefd.AbrirTabelaProcura := false;
+  fraConsultaefd.TipoPesquisa := pesefd;
+  fraConsultaefd.OnFound := Abrirefd;
+
+  fraConsultaFilial.TipoPesquisa := pesFILIAIS;
+
+  dbgObrigacoes.OnDelete := dtmEFD.ExcluirEFD_E116;
+
+  dbgAJUSTEICMS.OnDelete := dtmefd.ExcluirEFD_E111;
+  sbnGerarArquivo.Enabled := false;
+  edtMesInicial.SetFocus;
+  edtMesInicial.SelectAll;
+  edtMesInicial.SelStart := 0;
+
+end;
+
+procedure TfrmEFD.sbnGerarArquivoClick(Sender: TObject);
+begin
+  inherited;
+  if ValidarCamposSelecao then
+  begin
+     with dtmefd do
+     begin
+       if GerarArquivo(qryefdnomearquivo.AsString) then
+         MensagemAviso(format(ctARQUIVOGERADOSUCESSO,[qryefdnomearquivo.AsString]));
+     end;    
+  end
+
+  {
+    if not result  then
+      MensagemErro('O valor das obrigações deve fechar com o ''Saldo devedor'' + ''Débito Especial''');
+       := false;
+    else
+    begin
+
+  }
+
+end;
+
+function TfrmEFD.ValidarCamposSelecao: Boolean;
+begin
+   result := not MesAnoEmBranco(edtMesInicial.text);
+   if not result then
+   begin
+     MensagemAviso(ctDATAINVALIDA);
+     edtMesInicial.SetFocus;
+   end
+   else
+   begin
+     result := dtmEFD.qryEFD_E116TotalObrigacoes.AsCurrency  = (dtmEFD.qryEFD_E110SALDODEVEDOR.AsCurrency + dtmEFD.qryEFD_E110deb_esp.AsCurrency);
+     if not result then
+       MensagemErro('O valor das obrigações deve fechar com o ''Saldo devedor'' + ''Débito Especial''');
+  end;
+end;
+
+procedure TfrmEFD.sbnRecalcularCreditoICMSMesAnteriorClick(Sender: TObject);
+begin
+  inherited;
+  dtmEFD.AtualizaSaldoCredorMesAnterior
+end;
+
+procedure TfrmEFD.edtMesInicialEnter(Sender: TObject);
+begin
+  inherited;
+  dtmEFD.AtualizaSaldoCredorMesAnterior
+end;
+
+function TfrmEFD.InternoExcluir: Boolean;
+begin
+  Result := inherited InternoExcluir;
+  if Result then
+    if MensagemConfirmacao(Format(ctCONFIRMEEXCLUIR, ['a escrita fiscal digital'])) = smbOK then
+      Result := dtmEFD.ExcluirEFD
+    else
+      Result := False
+end;
+
+function TfrmEFD.InternoGravar: Boolean;
+begin
+  inherited InternoGravar;
+  Result := dtmEFD.GravarEFD
+end;
+
+function TfrmEFD.InternoIncluir: Boolean;
+begin
+  result := inherited internoincluir;
+  if result then
+    Result := dtmEFD.IncluirEFD;
+
+  if result then
+  begin
+    edtMesInicial.SetFocus;
+    edtMesInicial.SelectAll;
+  end;
+end;
+
+procedure TfrmEFD.edtMesInicialMessage(var Msg: String);
+begin
+  inherited;
+  msg := 'O período '+edtMesInicial.Text + ' não esta cadastrado.'
+end;
+
+procedure TfrmEFD.dbgObrigacoesKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if CtrlOn then
+  begin
+    case Key of
+      VK_F9 :
+      begin
+        case dbgObrigacoes.SelectedIndex of
+          0,1 : AcionaPesquisaGradeObrigacoes;
+          2   : AcionaPesquisaCodigodeReceitas;
+        end;
+      end;
+    end;
+  end
+  else
+  begin
+    case key of
+      VK_Return :
+      begin
+        case dbgObrigacoes.SelectedIndex of
+        0 : begin
+              if not fraConsultaICMSObrigacoes.edfCodigo.Exist then
+              begin
+                dbgObrigacoes.DataSource.DataSet.FieldByName('icmsobrigacao').Clear;
+                dbgObrigacoes.DataSource.DataSet.FieldByName('descricaoicmsobrigacao').Clear;
+              end
+              else
+                AtribuirDadosICMSObrigacao;
+
+              dbgObrigacoes.SelectedIndex := 0;
+              dbgObrigacoes.SetFocus;
+            end;
+
+        2 : begin
+              if not fraConsultaCodigodeReceitas.edfCodigo.Exist then
+                dbgObrigacoes.DataSource.DataSet.FieldByName('cod_rec').Clear;
+
+              dbgObrigacoes.SelectedIndex := 2;
+              dbgObrigacoes.SetFocus;
+            end;
+
+
+        end;
+
+
+
+        if dtmEFD.qryEFD_E116.State in [dsedit, dsinsert] then
+           dtmEFD.qryEFD_E116.Post;
+
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmEFD.AcionaPesquisaGradeObrigacoes;
+begin
+  fraConsultaICMSObrigacoes.CtrlOn := True;
+  fraConsultaICMSObrigacoes.InternoPesquisar('ICMS Obrigações');
+  dbgObrigacoes.SetFocus;
+  dbgObrigacoes.SelectedIndex :=  0;
+end;
+
+procedure TfrmEFD.AtribuirDadosICMSObrigacao;
+begin
+  dtmEFD.qryEFD_E116cod_rec.AsString :=
+    fraConsultaICMSObrigacoes.qryProcuraICMSObrigacoescodigo.AsString;
+  dtmEFD.qryEFD_E116descricaoicmsobrigacao.AsString :=
+    fraConsultaICMSObrigacoes.qryProcuraICMSObrigacoesdescricao.AsString;
+end;
+
+procedure TfrmEFD.AlterarEstadoBotoes;
+begin
+  inherited;
+  sbnGerarArquivo.Enabled := sbnIncluir.Enabled and
+                             not sbnSalvar.Enabled and
+                             (dtmEFD.qryefd.RecordCount<>0);
+
+end;
+
+destructor TfrmEFD.Destroy;
+begin
+  inherited;
+  dtmEFD := nil;
+  frmEFD := nil;
+end;
+
+procedure TfrmEFD.dbgAJUSTEICMSKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if CtrlOn then
+  begin
+    case Key of
+      VK_F9 : if not dtmEFD.qryEFD_E111geradasistema.AsBoolean then
+                  AcionaPesquisaGradeAjusteICMS
+    end;
+  end
+  else
+  begin
+    case key of
+      VK_Return :
+      begin
+        case dbgAJUSTEICMS.SelectedIndex of
+        0 : begin
+              if not fraConsultaAjusteICMS.edfCodigo.Exist then
+              begin
+                dbgAJUSTEICMS.DataSource.DataSet.FieldByName('cod_aj_apur').Clear;
+                dbgAJUSTEICMS.DataSource.DataSet.FieldByName('descr_comp_aj').Clear;
+              end
+              else
+                AtribuirDadosTabelaAjusteICMS;
+
+              dbgAJUSTEICMS.SelectedIndex := 0;
+              dbgAJUSTEICMS.SetFocus;
+            end;
+        end;
+        if dtmEFD.qryEFD_E111.State in [dsedit, dsinsert] then
+           dtmEFD.qryEFD_E111.Post;
+      end;
+    end;
+  end;
+
+end;
+
+procedure TfrmEFD.AtribuirDadosTabelaAjusteICMS;
+begin
+  if not dtmEFD.qryEFD_E111cod_aj_apur.ReadOnly then
+  begin
+    dtmEFD.qryEFD_E111cod_aj_apur.AsString :=
+      fraConsultaAjusteICMS.qryProcuraAjusteICMScodigo.AsString;
+    dtmEFD.qryEFD_E111descr_comp_aj.AsString :=
+      fraConsultaAjusteICMS.qryProcuraAjusteICMSdescricao.AsString;
+  end;
+end;
+
+procedure TfrmEFD.fraConsultaFilialedfCodigoFound(Found: Boolean);
+begin
+  inherited;
+  if found then
+    if dtmEFD.qryefd.State = dsinsert then
+    begin
+      dtmEFD.AtualizarSaldosICMS;
+      dtmEFD.AtualizarSaldosIPI;
+    end;  
+end;
+
+procedure TfrmEFD.sbnReatualizarSaldosClick(Sender: TObject);
+begin
+  inherited;
+  dtmEFD.AtualizarSaldosICMS;
+end;
+
+procedure TfrmEFD.sbnProcurarClick(Sender: TObject);
+begin
+  inherited;
+  fraConsultaefd.InternoPesquisar('efd - Escrita Fiscal Digital');
+  self.SetFocus;
+
+end;
+
+procedure TfrmEFD.Abrirefd;
+begin
+  dtmefd.
+        refazconsulta(dtmefd.qryefd,[0,1],
+             [fraConsultaefd.qryProcuraefdperiodo.AsString,
+              fraConsultaefd.qryProcuraefdfilial.AsString]);
+
+  fraConsultaFilial.edfCodigo.Exist              
+end;
+
+procedure TfrmEFD.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if not CtrlOn then
+  begin
+    if (key = VK_F9) then
+    begin
+      if sbnProcurar.Enabled then
+      begin
+        fraConsultaefd.InternoPesquisar('efd - Escrita Fiscal Digital');
+        self.SetFocus;
+      end
+    end
+    else
+    if (key = VK_F8) then
+    begin
+      if sbnGerarArquivo.Enabled then
+        sbnGerarArquivoClick(nil);
+    end;
+  end;
+
+end;
+
+procedure TfrmEFD.AcionaPesquisaGradeAjusteICMS;
+begin
+  fraConsultaAjusteICMS.CtrlOn := True;
+  fraConsultaAjusteICMS.InternoPesquisar('Ajuste ICMS');
+  dbgAJUSTEICMS.SetFocus;
+  dbgAJUSTEICMS.SelectedIndex :=  0;
+end;
+
+procedure TfrmEFD.Action1Update(Sender: TObject);
+begin
+  inherited;
+  tstApuracaoIPI.TabVisible := dtmEFD.ContribIPI;
+end;
+
+procedure TfrmEFD.sbnReatualizarSaldosIPIClick(Sender: TObject);
+begin
+  inherited;
+  dtmEFD.AtualizarSaldosIPI;
+end;
+
+procedure TfrmEFD.dbgAjusteIPIKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if CtrlOn then
+  begin
+    case Key of
+      VK_F9 : AcionaPesquisaGradeAjusteIPI
+    end;
+  end
+  else
+  begin
+    case key of
+      VK_Return :
+      begin
+        case dbgAjusteIPI.SelectedIndex of
+        0 : begin
+              if not fraConsultaAjusteIPI.edfCodigo.Exist then
+              begin
+                dbgAjusteIPI.DataSource.DataSet.FieldByName('cod_aj_apur').Clear;
+                dbgAjusteIPI.DataSource.DataSet.FieldByName('descricao').Clear;
+                dbgAjusteIPI.DataSource.DataSet.FieldByName('ind_aj').Clear;
+              end
+              else
+                AtribuirDadosTabelaAjusteIPI;
+
+              dbgAjusteIPI.SelectedIndex := 0;
+              dbgAjusteIPI.SetFocus;
+            end;
+        end;
+        if dtmEFD.qryEFD_E530.State in [dsedit, dsinsert] then
+           dtmEFD.qryEFD_E530.Post;
+      end;
+    end;
+  end;
+
+end;
+
+procedure TfrmEFD.AcionaPesquisaGradeAjusteIPI;
+begin
+  fraConsultaAjusteIPI.CtrlOn := True;
+  fraConsultaAjusteIPI.InternoPesquisar('Ajuste IPI');
+  dbgAjusteIPI.SetFocus;
+  dbgAjusteIPI.SelectedIndex :=  0;
+end;
+
+procedure TfrmEFD.AtribuirDadosTabelaAjusteIPI;
+begin
+  if not dtmEFD.qryEFD_E530cod_aj_apur.ReadOnly then
+  begin
+    dtmEFD.qryEFD_E530cod_aj_apur.AsString :=
+      fraConsultaAjusteIPI.qryProcuraAjusteIPIcodigo.AsString;
+    dtmEFD.qryEFD_E530descricao.AsString :=
+      fraConsultaAjusteIPI.qryProcuraAjusteIPIdescricao.AsString;
+    if fraConsultaAjusteIPI.qryProcuraAjusteIPInatureza.AsString = 'D' then
+    begin
+      dtmEFD.qryEFD_E530ind_aj.AsInteger := 0;
+      dtmEFD.qryEFD_E530descr_ind_aj.AsString := '0 - Débito';
+    end
+    else
+    if fraConsultaAjusteIPI.qryProcuraAjusteIPInatureza.AsString = 'C' then
+    begin
+      dtmEFD.qryEFD_E530ind_aj.AsInteger := 1;
+      dtmEFD.qryEFD_E530descr_ind_aj.AsString := '1 - Crédito';
+    end;
+
+  end;
+
+end;
+
+procedure TfrmEFD.AcionaPesquisaCodigodeReceitas;
+begin
+  fraConsultaCodigodeReceitas.CtrlOn := True;
+  fraConsultaCodigodeReceitas.InternoPesquisar('Código de Receitas');
+  dbgObrigacoes.SetFocus;
+  dbgObrigacoes.SelectedIndex :=  2;
+end;
+
+end.

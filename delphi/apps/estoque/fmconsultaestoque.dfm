@@ -1,7 +1,7 @@
 inherited frmConsultaEstoque: TfrmConsultaEstoque
   Left = 199
   Top = 116
-  ActiveControl = pgcEstoques
+  ActiveControl = dbgGrades_
   Caption = 'Consulta de Estoque'
   ClientHeight = 640
   ClientWidth = 1172
@@ -297,21 +297,21 @@ inherited frmConsultaEstoque: TfrmConsultaEstoque
               Height = 143
               inherited fraSelecaoAleatoriaItemdeProduto: TfraSelecaoAleatoria
                 Width = 850
-                Height = 119
+                Height = 123
                 inherited Splitter1: TSplitter
                   Left = 815
-                  Height = 105
+                  Height = 109
                 end
                 inherited dbgSelecaoAleatoria: TtecDBGrid
                   Width = 815
-                  Height = 105
+                  Height = 109
                 end
                 inherited pnlLabels: TPanel
                   Left = 818
-                  Height = 105
+                  Height = 109
                 end
                 inherited pnlAbaixo: TPanel
-                  Top = 105
+                  Top = 109
                   Width = 850
                   Font.Pitch = fpVariable
                   inherited lblOrientacao: TLabel
@@ -324,10 +324,13 @@ inherited frmConsultaEstoque: TfrmConsultaEstoque
                 end
               end
               inherited pnlParametros: TPanel
-                Top = 119
+                Top = 123
                 Width = 850
                 Font.Pitch = fpVariable
                 inherited ckbProdutosComAgendamento: TCheckBox
+                  Font.Pitch = fpVariable
+                end
+                inherited ckbIncluirSimilaresnaLista: TCheckBox
                   Font.Pitch = fpVariable
                 end
               end
@@ -843,7 +846,7 @@ inherited frmConsultaEstoque: TfrmConsultaEstoque
       Top = 193
       Width = 1172
       Height = 402
-      ActivePage = tstItensProdutos
+      ActivePage = tstGradeProdutos
       Align = alClient
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBlack

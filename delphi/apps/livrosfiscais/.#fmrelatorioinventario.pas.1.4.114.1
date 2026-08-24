@@ -1,0 +1,585 @@
+unit fmrelatorioinventario;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  fmrelatoriopadrao, ExtCtrls, Buttons, cpnumero, StdCtrls, cpdata,
+  DBCtrls, cpdbtext, Mask, cpdbfindcontrols, ComCtrls, cppagecontrol,
+  fmconsultabasica, fmconsultaporcampo, ZQuery, biblio, ctconstantes,      
+  cpeditioncontrolvalidation, clparametrossistema, cpdbcombobox, cptexto,
+  CheckLst, ToolWin, frconsulta, frconsultacodigo;
+
+type
+  Tfrmrelatorioinventario = class(TfrmRelatorioPadrao)
+    gbxParametros: TGroupBox;
+    pgcFilialGrupoFilial: TtecPageControl;
+    tstFilial: TTabSheet;
+    sbnProcurarFilial: TSpeedButton;
+    edfFilial: TtecDbEditFind;
+    dtxFilial: TtecDBText;
+    tstGrupoFilial: TTabSheet;
+    sbnProcuraGrupoFilial: TSpeedButton;
+    edfGrupoFilial: TtecDbEditFind;
+    dtxGrupoFilial: TtecDBText;
+    pgcProdutos: TtecPageControl;
+    tstProdutos: TTabSheet;
+    tstGrupodeProdutos: TTabSheet;
+    sbnConsultaGrupoProdutos: TSpeedButton;
+    edfGrupoProduto: TtecDbEditFind;
+    dtxGrupoProdutos: TtecDBText;
+    ecvValida: TtecEditionControlValidation;
+    rgpRelatorio: TRadioGroup;
+    rgpCusto: TRadioGroup;
+    rgpOrdenacao: TRadioGroup;
+    rgpResumo: TRadioGroup;
+    gbxNumeracao: TGroupBox;
+    edtLivro: TEditNumero;
+    gbxData: TGroupBox;
+    edtData: TEditData;
+    gbxSubConta: TGroupBox;
+    edtSubContaInicial: TEditNumero;
+    edtPagina: TEditNumero;
+    edtMaximo: TEditNumero;
+    tstClasses: TTabSheet;
+    sbnConsultaClasse: TSpeedButton;
+    edfClasse: TtecDbEditFind;
+    dtxClasse: TtecDBText;
+    gbxAgrupamento: TGroupBox;
+    ckbAgruparGrupoFilial: TCheckBox;
+    ckbAgruparFilial: TCheckBox;
+    ckbAgruparClasseProduto: TCheckBox;
+    ckbAgruparGrupoProduto: TCheckBox;
+    ckbAgruparProduto: TCheckBox;
+    gbxGrupos: TGroupBox;
+    sbnMarcarColunas: TSpeedButton;
+    sbnDesmarcarColunas: TSpeedButton;
+    clbColunas: TCheckListBox;
+    edtSubContaFinal: TEditNumero;
+    gbxPeriodo: TGroupBox;
+    edtDataInicial: TEditData;
+    edtDataFinal: TEditData;
+    ckbComPrecodeVenda: TCheckBox;
+    ckbAgruparLocalizacao: TCheckBox;
+    tstlocalizacao: TTabSheet;
+    edtLocalizacao: TEditTexto;
+    gbxCSTIcms: TGroupBox;
+    edfIncidencia: TtecDbEditFind;
+    sbnCOnsultaIncidencia: TSpeedButton;
+    dtxIncidencia: TtecDBText;
+    svdExportarExcel: TSaveDialog;
+    gbxLivro: TGroupBox;
+    gbxPagina: TGroupBox;
+    gbxMaximo: TGroupBox;
+    gbxAbertura: TGroupBox;
+    gbxFechamento: TGroupBox;
+    lblA: TLabel;
+    gbxTiposProduto: TGroupBox;
+    sbnMarcarTipodeProdutos: TSpeedButton;
+    sbnDesmarcarTipodeProdutos: TSpeedButton;
+    clbTiposProdutos: TCheckListBox;
+    gbxCompostos: TGroupBox;
+    cbbCompostos: TComboBox;
+    fraConsultaProduto: TfraConsultaCodigo;
+    procedure edfFilialFound(Found: Boolean);
+    procedure sbnProcurarFilialClick(Sender: TObject);
+    procedure edfGrupoFilialFound(Found: Boolean);
+    procedure sbnProcuraGrupoFilialClick(Sender: TObject);
+//    procedure edfProdutoFound(Found: Boolean);
+//    procedure sbnConsultaProdutosClick(Sender: TObject);
+    procedure edfGrupoProdutoFound(Found: Boolean);
+    procedure sbnConsultaGrupoProdutosClick(Sender: TObject);
+    procedure edfClasseFound(Found: Boolean);
+    procedure sbnConsultaClasseClick(Sender: TObject);
+    procedure pgcFilialGrupoFilialChange(Sender: TObject);
+    procedure pgcProdutosChange(Sender: TObject);
+    procedure sbnMarcarColunasClick(Sender: TObject);
+    procedure sbnDesmarcarColunasClick(Sender: TObject);
+    procedure rgpRelatorioClick(Sender: TObject);
+    procedure sbnCOnsultaIncidenciaClick(Sender: TObject);
+    procedure edfIncidenciaFound(Found: Boolean);
+    procedure sbnMarcarTipodeProdutosClick(Sender: TObject);
+    procedure sbnDesmarcarTipodeProdutosClick(Sender: TObject);
+    procedure fraConsultaProdutoedfCodigoFound(Found: Boolean);
+  protected
+     function InternoPesquisar(Titulo: String): Integer; override;
+     function JanelaPesquisa: TfrmConsultaBasica; override;
+     function ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+     function TabelaDePesquisa: TZDataSet; override;
+     procedure InternoImpressao; Override;
+     function SomenteFisico():Boolean;
+  public
+     constructor Create(AOwner: TComponent); override;
+     destructor Destroy; override;
+     function PesquisaHabilitada: Boolean;
+     function TituloPesquisa: String;
+     function ValidarCamposSelecao: Boolean;
+     procedure MontaPesquisa;
+  end;
+
+var
+  frmrelatorioinventario: Tfrmrelatorioinventario;
+  TipoPesquisa: TTecPesquisa;
+  ControleValido: TWinControl;
+
+implementation
+
+uses dmrelatorioinventario, fmnavcontroles;
+
+{$R *.dfm}
+
+{ Tfrmrelatorioinventario }
+
+constructor Tfrmrelatorioinventario.Create(AOwner: TComponent);
+begin
+  dtmRelatorioInventario := TdtmRelatorioInventario.Create(Self);
+  inherited;
+  edtData.Text := DateToStr(UltimoDiaMesPassado(1));
+//  edtData.Text := DateToStr(date());
+  pgcFilialGrupoFilial.ActivePage := tstFilial;
+  pgcProdutos.ActivePage := tstProdutos;
+  edtpagina.Text:='2';
+  edtMaximo.Text:='499';
+  if ParSistema.LivrosFiscaisFolhaouPagina = 0 then
+    gbxPagina.Caption := UpperCase(ctFOLHA);
+  MarcarLista(clbColunas,True);
+  clbTiposProdutos.Checked[0] := true;
+  clbColunas.Checked[7]:=False;
+  gbxPeriodo.Visible := false;
+  dtmrelatorioinventario.qryLocalizacao.Open;
+  dtmrelatorioinventario.qryProcuraIncidencia.Open;
+  edtDataInicial.Text := edtData.Text;
+  edtDataFinal.Text := edtData.Text;
+  fraConsultaProduto.TipoPesquisa     := pesPRODUTOS;
+
+end;
+
+destructor Tfrmrelatorioinventario.Destroy;
+begin
+  dtmRelatorioInventario:=nil;
+  inherited;
+  frmRelatorioInventario := nil;
+end;
+
+function Tfrmrelatorioinventario.ExisteInformacao(Parametro: Integer;
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmRelatorioInventario do
+    case TipoPesquisa of
+      pesFILIAIS      : Result := ExisteFilial(NomeCampo, Value);
+      pesGRUPOSFILIAIS: Result := ExisteGrupoFilial(Nomecampo,Value);
+      pesPRODUTOS     : Result := ExisteProduto(NomeCampo, Value);
+      pesGRUPOS       : Result := ExisteGrupo(NomeCampo, Value);
+      pesCLASSES      : Result := ExisteClasse(NomeCampo, Value);
+      pesLOCALIZACAO  : Result := ExisteLocalizacao(NomeCampo, Value);
+      pesINCIDENCIA   : Result := ExisteIncidencia(NomeCampo, Value);
+    else  Result:= False;
+    end;
+end;
+
+function Tfrmrelatorioinventario.InternoPesquisar(Titulo: String): Integer;
+begin
+  if PesquisaHabilitada then
+    with dtmRelatorioInventario do
+    begin
+      AbreTabelaPesquisa(TipoPesquisa);
+      Result := inherited InternoPesquisar(TituloPesquisa);
+      if Result = mrOK then
+        Selecionar(TipoPesquisa);
+      FechaTabelaPesquisa(TipoPesquisa);
+    end
+  else
+    Result := 0;
+end;
+
+function Tfrmrelatorioinventario.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa:= True;
+end;
+
+function Tfrmrelatorioinventario.PesquisaHabilitada: Boolean;
+begin
+  Result:= False;
+  if (CtrlOn) and (ActiveControl is TtecDBEditFind) then
+  begin
+    if edfFilial.Focused then
+      TipoPesquisa := pesFILIAIS
+    else
+    if edfGrupoFilial.Focused then
+      TipoPesquisa := pesGRUPOSFILIAIS
+    else
+    if fraConsultaProduto.edfCodigo.Focused then
+      TipoPesquisa := pesPRODUTOS
+    else
+    if edfGrupoProduto.Focused then
+      TipoPesquisa := pesGRUPOS
+    else
+    if edfClasse.Focused then
+      TipoPesquisa := pesCLASSES
+    else
+    if edtLocalizacao.Focused then
+      TipoPesquisa := pesLOCALIZACAO
+    else
+    if edfIncidencia.Focused then
+      TipoPesquisa := pesINCIDENCIA;
+    Result:= True;
+  end;
+end;
+
+function Tfrmrelatorioinventario.TabelaDePesquisa: TZDataSet;
+begin
+  with dtmRelatorioInventario do
+    case TipoPesquisa of
+      pesFILIAIS      : Result := ConsultarFilial;
+      pesGRUPOSFILIAIS: Result := ConsultarGrupoFilial;
+      pesPRODUTOS     : Result := ConsultarProduto;
+      pesGRUPOS       : Result := ConsultarGrupo;
+      pesCLASSES      : Result := ConsultarClasse;
+      pesLOCALIZACAO  : Result := Localizacao;
+      pesINCIDENCIA   : Result := ConsultaIncidencia;
+    else  Result:= nil;
+    end;
+end;
+
+function Tfrmrelatorioinventario.TituloPesquisa: String;
+begin
+  case TipoPesquisa of
+    pesFILIAIS      : Result := ctFILIAIS;
+    pesGRUPOSFILIAIS: Result := ctGRUPOFILIAIS;
+    pesPRODUTOS     : Result := ctPRODUTO;
+    pesGRUPOS       : Result := ctGRUPOS;
+    pesCLASSES      : Result := ctCLASSES;
+    pesLOCALIZACAO  : Result := ctLOCALIZACAO;
+    pesINCIDENCIA   : Result := ctINCIDENCIA;
+  end;
+end;
+
+function Tfrmrelatorioinventario.ValidarCamposSelecao: Boolean;
+begin
+  Result:=ecvValida.Verify(gbxParametros, ControleValido);
+  if (edtpagina.text<>'') then
+   if (strtoint(edtpagina.text) < 2) then
+   begin
+     result := false;
+     mensagemaviso(ctPAGINAINICIAL);
+     edtpagina.setfocus;
+   end;
+  if result then
+  begin
+   Result := OperadorTernario((Trim(edfFilial.Text) <> ''), edfFilial.Exist, True) and
+             OperadorTernario((Trim(edfGrupoFilial.Text) <> ''), edfGrupoFilial.Exist, True) and
+             OperadorTernario((Trim(fraConsultaProduto.edfCodigo.Text) <> ''), fraConsultaProduto.edfCodigo.Exist, True) and
+             OperadorTernario((Trim(edfGrupoProduto.Text) <> ''), edfGrupoProduto.Exist, True) and
+             OperadorTernario((Trim(edfClasse.Text) <> ''), edfClasse.Exist, True);
+   if Result then
+   begin
+     if edtLivro.Text<>'' then
+     begin
+      if edfFilial.Text='' then
+      begin
+       Result:=False;
+       MensagemAviso(ctINFORMACAOLIVROFILIAL);
+      end
+      else
+       Result:=True;
+     end
+     else
+     begin
+        if (rgpRelatorio.ItemIndex=1) and
+         ((edtLivro.Text='') or
+          (edtDataInicial.Text='') or
+          (edtdatafinal.Text='')) then
+      begin
+       Result:=False;
+       MensagemAviso(ctPARAMETROSINEXISTENTES);
+       edtLivro.SetFocus;
+      end
+      else
+       Result:=True;
+     end;
+   end;
+  end;
+end;
+
+procedure Tfrmrelatorioinventario.edfFilialFound(Found: Boolean);
+begin
+  inherited;
+  if not found then
+    edfFilial.clear;
+end;
+
+procedure Tfrmrelatorioinventario.sbnProcurarFilialClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfFilial, ctFILIAIS);
+end;
+
+procedure Tfrmrelatorioinventario.edfGrupoFilialFound(Found: Boolean);
+begin
+  inherited;
+  if not found then
+    edfGrupoFilial.Clear;
+end;
+
+procedure Tfrmrelatorioinventario.sbnProcuraGrupoFilialClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfGrupoFilial, ctGRUPOFILIAIS);
+end;
+
+{
+procedure Tfrmrelatorioinventario.edfProdutoFound(Found: Boolean);
+begin
+  inherited;
+  if not found then
+    fraConsultaProdutoedfProduto.clear;
+end;
+}
+
+{
+procedure Tfrmrelatorioinventario.sbnConsultaProdutosClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfProduto, ctPRODUTO);
+end;
+}
+
+procedure Tfrmrelatorioinventario.edfGrupoProdutoFound(Found: Boolean);
+begin
+  inherited;
+  if not found then
+   edfGrupoProduto.Clear;
+end;
+
+procedure Tfrmrelatorioinventario.sbnConsultaGrupoProdutosClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfGrupoProduto, ctGRUPOS);
+end;
+
+procedure Tfrmrelatorioinventario.edfClasseFound(Found: Boolean);
+begin
+  inherited;
+  if not found then
+    edfClasse.clear;
+end;
+
+procedure Tfrmrelatorioinventario.sbnConsultaClasseClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfClasse, ctCLASSES);
+end;
+
+procedure Tfrmrelatorioinventario.InternoImpressao;
+begin
+  inherited;
+  MontaPesquisa;
+end;
+
+procedure Tfrmrelatorioinventario.MontaPesquisa;
+begin
+  if ValidarCamposSelecao then
+  begin
+    with dtmrelatorioinventario do
+    begin
+      SQLEstoque := '';
+      SQLEstoqueProduto := '';
+      SQLSubConta := '';
+      SomenteEstoqueFisico:=SomenteFisico();
+      ParametroData := edtData.Text;
+      ParametroFilial := edfFilial.Text;
+      ParametroGrupoFilial:= edfGrupoFilial.Text;
+      ParametroLocalTitulo:= edtLocalizacao.Text;
+      ParametroIncidencia:= edfIncidencia.text;
+
+      ParametroProduto:= fraConsultaProduto.edfcodigo.ValoraDataFieldInterno;
+      ParametroClasse := edfClasse.Text;
+      ParametroGrupo := edfGrupoProduto.Text;
+      PArametroLocalizacao:= edtLocalizacao.Text;
+
+      ParametroSubContaInicial := edtSubContaInicial.Text;
+      ParametroSubContaFinal := edtSubContaFinal.Text;
+      ParametroCusto:= rgpCusto.itemindex;
+      ParametroLivro:=edtlivro.ValorSemFormatacao;
+      ParametroPagina:=edtpagina.ValorSemFormatacao;
+      ParametroMaximo:=edtMaximo.ValorSemFormatacao;
+      ParametroResumo:=rgpResumo.ItemIndex;
+      ParametroRelatorio:=rgpRelatorio.ItemIndex;
+      AgruparGrupoFilial:=ckbAgruparGrupoFilial.Checked;
+      AgruparFilial:=ckbAgruparFilial.Checked;
+      AgruparClasseGrupo:=ckbAgruparClasseProduto.Checked;
+      AgruparGrupoProduto:=ckbAgruparGrupoProduto.Checked;
+      AgruparProduto:=ckbAgruparProduto.Checked;
+      AgruparLocalizacao:= ckbAgruparLocalizacao.Checked;
+      ParametroOrdenacao:=rgpOrdenacao.ItemIndex;
+      ComPrecodeVenda := ckbComPrecodeVenda.Checked;
+      Compostos := cbbCompostos.itemIndex;
+      MontarFiltroColunas(clbColunas);
+      MontarFiltroTipodeProdutos(clbTiposProdutos);
+      DefineOrdenacao;
+      case ParametroRelatorio of
+       0: begin
+          if AbrirConsultaInventario then
+          begin
+
+            {$IFDEF MSWINDOWS}
+            if MensagemSimNaoOpcaoCancelar('Deseja Exportar para o Excel','',False) = mryes then
+            begin
+              svdExportarExcel.FileName:= 'Relatório Inventário';
+              if svdExportarExcel.Execute then
+              begin
+                dtmrelatorioinventario.LocalGravacao:= svdExportarExcel.FileName;
+                dtmrelatorioinventario.GravarExcel;
+              end;
+            end
+            else
+              ImprimirRelatorio(edtdatainicial.text, edtdatafinal.Text);
+            {$ELSE }
+              ImprimirRelatorio(edtdatainicial.text, edtdatafinal.Text);
+            {$ENDIF}
+
+          end
+          else
+          begin
+            MensagemAviso(Format(ctNENHUMREGISTROENCONTRADO,['Registro']));
+            if pgcFilialGrupoFilial.ActivePage = tstFilial then
+               edfFilial.setFocus
+            else
+               edfGrupoFilial.setFocus;
+          end;
+         end;
+       1: ImprimirRelatorio(edtDataInicial.text,edtdatafinal.text);
+      end;
+    end;
+  end;
+end;
+
+
+procedure Tfrmrelatorioinventario.pgcFilialGrupoFilialChange(
+  Sender: TObject);
+begin
+  inherited;
+  if pgcFilialGrupoFilial.ActivePage = tstFilial then begin
+    edfGrupoFilial.Clear;
+    edfFilial.setFocus;
+  end
+  else begin
+    edfFilial.Clear;
+    edfGrupoFilial.setFocus;
+  end;
+end;
+
+
+procedure Tfrmrelatorioinventario.pgcProdutosChange(Sender: TObject);
+begin
+  inherited;
+    if pgcProdutos.ActivePage = tstProdutos then
+    begin
+     edfGrupoProduto.Clear;
+     edfClasse.Clear;
+     fraConsultaProduto.edfcodigo.SetFocus;
+    end
+    else
+      if pgcProdutos.ActivePage = tstGrupodeProdutos then
+      begin
+       fraConsultaProduto.edfcodigo.Clear;
+       edfClasse.Clear;
+       edfGrupoProduto.SetFocus;
+      end
+      else
+        if pgcProdutos.ActivePage = tstClasses then
+        begin
+         fraConsultaProduto.edfcodigo.Clear;
+         edfGrupoProduto.Clear;
+         edfClasse.SetFocus;
+        end
+      else
+        if pgcProdutos.ActivePage = tstlocalizacao then
+        begin
+        edtLocalizacao.Clear;
+        edtLocalizacao.SetFocus;
+        end;
+end;
+
+procedure Tfrmrelatorioinventario.sbnMarcarColunasClick(Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbColunas,True);
+end;
+
+procedure Tfrmrelatorioinventario.sbnDesmarcarColunasClick(
+  Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbColunas,False);
+end;
+
+function Tfrmrelatorioinventario.SomenteFisico: Boolean;
+var
+I: integer;
+ret: boolean;
+begin
+   ret:=clbColunas.Checked[7];
+   for i:=0 to clbColunas.Items.Count do
+   begin
+     if (i < 7) and (clbColunas.Checked[i]) then
+       ret:=false;
+   end;
+   result:=ret;
+end;
+
+procedure Tfrmrelatorioinventario.rgpRelatorioClick(Sender: TObject);
+begin
+  inherited;
+  case rgpRelatorio.ItemIndex of
+  0: gbxPeriodo.Visible := false;
+  1: begin
+       gbxPeriodo.visible := true;
+       edtDataInicial.Text := edtData.Text;
+       edtDataFinal.Text := edtData.Text;
+     end;
+  end;
+
+end;
+
+procedure Tfrmrelatorioinventario.sbnCOnsultaIncidenciaClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfIncidencia, ctINCIDENCIA);
+end;
+
+procedure Tfrmrelatorioinventario.edfIncidenciaFound(Found: Boolean);
+begin
+  inherited;
+  if not Found then
+    edfIncidencia.Clear;
+end;
+
+procedure Tfrmrelatorioinventario.sbnMarcarTipodeProdutosClick(Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbTiposProdutos,True);
+end;
+
+procedure Tfrmrelatorioinventario.sbnDesmarcarTipodeProdutosClick(
+  Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbTiposProdutos,False);
+end;
+
+procedure Tfrmrelatorioinventario.fraConsultaProdutoedfCodigoFound(
+  Found: Boolean);
+begin
+  inherited;
+  if not found then
+    fraConsultaProduto.edfcodigo.clear;
+
+end;
+
+end.

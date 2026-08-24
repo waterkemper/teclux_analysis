@@ -1,0 +1,271 @@
+inherited dtmRelatorioClienteProdutoFaturado: TdtmRelatorioClienteProdutoFaturado
+  OldCreateOrder = False
+  Left = 539
+  Top = 190
+  Height = 387
+  Width = 658
+  object dsrClienteProdutoFaturado: TtecDataSource
+    DataSet = qryClienteProdutoFaturado
+    Left = 104
+    Top = 128
+  end
+  object qryClienteProdutoFaturado: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnCalcFields = qryClienteProdutoFaturadoCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'FiltroPeriodo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroClientes'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroGrupoProdutos'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ''
+      '     select df.TipoCliente,'
+      '          df.cliente,'
+      '          vf.Nome,'
+      ''
+      '          case when vf.estado = '#39'.'#39' then'
+      '            (select c.nome'
+      '             from cidades c'
+      '             where (c.estado = vf.estado) and'
+      '                   (c.codigo = vf.cidade))'
+      '          else'
+      '            cast('#39'BRASIL'#39' as varchar(50))'
+      '          end as NomePais,'
+      ''
+      '          c.grupo,'
+      ''
+      '          p.codigovisual,'
+      '          (select cp.produto_cliente'
+      '           from clientesprodutos cp'
+      '           where cp.produto = pdf.produto'
+      '             and cp.cliente = df.cliente'
+      '             and cp.tipocliente = df.tipocliente'
+      
+        '           order by cp.dataultimavenda desc limit 1) as produto_' +
+        'cliente,'
+      ''
+      
+        '          (select case when cp.origem is not null then cast(cp.p' +
+        'n as varchar)||'#39'-'#39'||cast(cp.origem as varchar)'
+      
+        '                                                  else cast(cp.p' +
+        'n as varchar) end'
+      '           from clientesprodutos cp'
+      '           where cp.produto = pdf.produto'
+      '             and cp.cliente = df.cliente'
+      '             and cp.tipocliente = df.tipocliente'
+      '           order by cp.dataultimavenda desc limit 1) as pn,'
+      ''
+      '          CASE WHEN df.TipoCliente = '#39'C'#39
+      
+        '               THEN COALESCE((SELECT cl.EmpCargo FROM Clientes c' +
+        'l'
+      
+        '                                 WHERE cl.Codigo = df.Cliente), ' +
+        '0)'
+      '               ELSE 0'
+      '          END AS EmpCargo,'
+      ''
+      '          CASE WHEN df.TipoCliente = '#39'C'#39
+      '               THEN COALESCE((SELECT cr.Descricao FROM Cargos cr'
+      
+        '                                 WHERE cr.Codigo = (SELECT cl.Em' +
+        'pCargo FROM Clientes cl'
+      
+        '                                                      WHERE cl.C' +
+        'odigo = df.Cliente)), CAST('#39'OUTRAS ATIVIDADES'#39' AS VARCHAR(30)))'
+      '               ELSE '#39'OUTRAS ATIVIDADES'#39
+      '          END AS Descricaoatividade,'
+      ''
+      '          cast(to_char(df.data, '#39'YYYY'#39') as char(4)) as ano,'
+      '          cast(to_char(df.data, '#39'MM'#39') as char(2)) as mes,'
+      ''
+      ''
+      
+        '                    cast(sum(case when c.unidade = '#39'MIL'#39' then 10' +
+        '00*pdf.quantidade'
+      
+        '                        when c.unidade = '#39'CT'#39'  then 100*pdf.quan' +
+        'tidade'
+      
+        '                                                 else pdf.quanti' +
+        'dade'
+      '                   end'
+      '               ) as numeric(12,3)) as quantidade_mes,'
+      ''
+      
+        '         cast(sum(pdf.quantidade*pdf.precovenda) AS NUMERIC(11,2' +
+        ')) as Valor_Mes'
+      ''
+      ''
+      '          FROM DadosFiscais df'
+      '               join produtosdadosfiscais pdf'
+      '                    join produtos p'
+      '                         join caracteristicas c'
+      '                         on p.caracteristica = c.codigo'
+      '                    on pdf.produto = p.codigo'
+      '               on df.numero = pdf.dadofiscal'
+      ''
+      
+        '               JOIN vFornecedores vf on df.Cliente     = vf.Codi' +
+        'go AND'
+      '                                        df.TipoCliente = vf.Tipo'
+      ''
+      '     WHERE df.Situacao = '#39'N'#39
+      '       AND (MOD(df.CodigoFiscal,1000) BETWEEN 101 AND 125 OR'
+      
+        '                 MOD(df.codigofiscal,1000) BETWEEN 401 and 405 O' +
+        'R'
+      '                 MOD(df.CodigoFiscal,1000) BETWEEN 501 AND 503)'
+      '                 '
+      '       %FiltroPeriodo'
+      '       %FiltroClientes'
+      '       %FiltroGrupoProdutos'
+      ''
+      
+        '     GROUP BY  df.TipoCliente, df.Cliente, vf.Nome, vf.estado, v' +
+        'f.cidade, pdf.produto, c.grupo, p.codigovisual, EmpCargo, Descri' +
+        'caoatividade, Ano, Mes'
+      
+        '     order BY  EmpCargo, Descricaoatividade, Ano, Mes, vf.Nome, ' +
+        'df.TipoCliente, df.Cliente, vf.estado, vf.cidade, pdf.produto, c' +
+        '.grupo, p.codigovisual'
+      ''
+      '/*'
+      ''
+      ':DataInicial'
+      ':DataFinal'
+      ''
+      '*/')
+    RequestLive = False
+    Left = 56
+    Top = 104
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+      end>
+    object qryClienteProdutoFaturadotipocliente: TStringField
+      DisplayLabel = 'T'
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+    object qryClienteProdutoFaturadocliente: TIntegerField
+      DisplayLabel = 'CLIENTE'
+      FieldName = 'cliente'
+    end
+    object qryClienteProdutoFaturadonome: TStringField
+      DisplayLabel = 'NOME DO CLIENTE'
+      FieldName = 'nome'
+      Size = 50
+    end
+    object qryClienteProdutoFaturadonomepais: TStringField
+      DisplayLabel = 'PA'#205'S'
+      FieldName = 'nomepais'
+      Size = 23
+    end
+    object qryClienteProdutoFaturadogrupo: TStringField
+      DisplayLabel = 'GRUPO'
+      FieldName = 'grupo'
+      Required = True
+      Size = 4
+    end
+    object qryClienteProdutoFaturadocodigovisual: TStringField
+      DisplayLabel = 'PRODUTO'
+      FieldName = 'codigovisual'
+      Required = True
+      Size = 30
+    end
+    object qryClienteProdutoFaturadoproduto_cliente: TStringField
+      DisplayLabel = 'PRODUTO NO CLIENTE'
+      FieldName = 'produto_cliente'
+      Size = 15
+    end
+    object qryClienteProdutoFaturadopn: TStringField
+      DisplayLabel = 'PART NUMBER'
+      FieldName = 'pn'
+      Size = 10
+    end
+    object qryClienteProdutoFaturadoempcargo: TIntegerField
+      DisplayLabel = 'ATIVIDADE'
+      FieldName = 'empcargo'
+    end
+    object qryClienteProdutoFaturadodescricaoatividade: TStringField
+      DisplayLabel = 'RAMO ATIVIDADE'
+      FieldName = 'descricaoatividade'
+      Size = 15
+    end
+    object qryClienteProdutoFaturadoano: TStringField
+      DisplayLabel = 'ANO'
+      FieldName = 'ano'
+      Size = 4
+    end
+    object qryClienteProdutoFaturadomes: TStringField
+      DisplayLabel = 'M'#202'S'
+      FieldName = 'mes'
+      Size = 2
+    end
+    object qryClienteProdutoFaturadoquantidade_mes: TFloatField
+      DisplayLabel = 'QUANTIDADE'
+      DisplayWidth = 15
+      FieldName = 'quantidade_mes'
+      DisplayFormat = '###,###,##0.000'
+    end
+    object qryClienteProdutoFaturadoVLRUNITARIO: TCurrencyField
+      DisplayLabel = 'VALOR UNIT'#193'RIO'
+      FieldKind = fkCalculated
+      FieldName = 'VLRUNITARIO'
+      DisplayFormat = '###,###,##0.00'
+      Calculated = True
+    end
+    object qryClienteProdutoFaturadovalor_mes: TFloatField
+      DisplayLabel = 'VALOR TOTAL'
+      FieldName = 'valor_mes'
+      DisplayFormat = '###,###,##0.00'
+    end
+  end
+  object ExcelExport1: TExcelExport
+    FontTitles.Charset = DEFAULT_CHARSET
+    FontTitles.Color = clWindowText
+    FontTitles.Height = -11
+    FontTitles.Name = 'MS Sans Serif'
+    FontTitles.Style = [fsBold]
+    OrientationTitles = 0
+    FontData.Charset = DEFAULT_CHARSET
+    FontData.Color = clWindowText
+    FontData.Height = -11
+    FontData.Name = 'MS Sans Serif'
+    FontData.Style = []
+    StyleColumnWidth = cwAutoFit
+    ColumnWidth = 80
+    WorksheetName = 'Cliente_Produtos_Faturados'
+    Dataset = qryClienteProdutoFaturado
+    Left = 288
+    Top = 88
+  end
+end

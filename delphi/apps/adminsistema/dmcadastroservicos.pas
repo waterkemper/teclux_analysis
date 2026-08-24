@@ -148,6 +148,8 @@ type
     qryservicosAtividadesEconomicasMunicipiosservico: TIntegerField;
     qryListaAtividadesEconomicasMunicipiosdtcancelamento: TDateField;
     qryProcuraCNAEdenominacao: TStringField;
+    qryServicosnbs: TStringField;
+    qryServicoscindop: TStringField;
     procedure dsrServicosDataChange(Sender: TObject; Field: TField);
     procedure qryServicosNewRecord(DataSet: TDataSet);
     procedure qryServicosAfterScroll(DataSet: TDataSet);

@@ -1,0 +1,309 @@
+unit frDadosLoginSite;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
+  Dialogs, dmtecsoft, DB, cpdatasource, ZQuery, ZPgSqlQuery, cpquery,
+  StdCtrls, Mask, DBCtrls, cpdbtext, Grids, DBGrids, cpdbgrid,
+  frdbcgcoucpf, cptexto, Buttons, ExtCtrls, biblio, ctconstantes, clparametrossistema,
+  BiDiDBNavigator, ActnList;
+
+type
+  TfraDadosLoginSite = class(TFrame)
+    qryUsuarios_Site: TtecQuery;
+    dsrUsuarios_Site: TtecDataSource;
+    gbxCliente: TGroupBox;
+    dtxCodigoCliente: TtecDBText;
+    qryUsuarios_Siteusuario: TStringField;
+    qryUsuarios_Sitesenha: TStringField;
+    qryUsuarios_Sitenome: TStringField;
+    qryUsuarios_Sitecliente: TLargeintField;
+    qryUsuarios_Sitetipocliente: TStringField;
+    qryUsuarios_Sitedatacadastro: TDateTimeField;
+    qryUsuarios_Siteultimoacesso: TDateTimeField;
+    qryUsuarios_Siteinativo: TDateTimeField;
+    qryUsuarios_Siteinativol: TBooleanField;
+    qryUsuarios_Siteemail: TStringField;
+    qryUsuarios_Sitereset_code: TStringField;
+    qryUsuarios_Sitecookie_hash: TStringField;
+    qryUsuarios_Siteactivation_code: TStringField;
+    qryUsuarios_Sitepessoanumero: TStringField;
+    qryUsuarios_Siteofertasemail: TBooleanField;
+    qryUsuarios_Siteofertassms: TBooleanField;
+    qryUsuarios_Sitetipousuario: TStringField;
+    qryUsuarios_Sitecomo_conheceu_site: TStringField;
+    qryUsuarios_Sitecodigo_bonus: TStringField;
+    qryUsuarios_Siteusuario_indicou: TIntegerField;
+    qryUsuarios_Sitevendedor: TIntegerField;
+    qryUsuarios_Sitenomecliente: TStringField;
+    dtxTipoCliente: TtecDBText;
+    dtxNomeCliente: TtecDBText;
+    gbxUsuarios: TGroupBox;
+    dbgUsuasrios: TtecDBGrid;
+    gbxNome: TGroupBox;
+    edtNome: TDBEditTexto;
+    dbckbInativo: TDBCheckBox;
+    gbxEmail: TGroupBox;
+    edtEmail: TDBEditTexto;
+    fradbcgcoucpf1: Tfradbcgcoucpf;
+    gbxSenha: TGroupBox;
+    edtSenha: TDBEditTexto;
+    pnlBotoesProdutosContratos: TPanel;
+    sbnIncluirUsuario: TSpeedButton;
+    sbnExcluirUsuario: TSpeedButton;
+    sbnGrarSenha: TSpeedButton;
+    edtSenhaGerada: TDBEditTexto;
+    qryUsuarios_Sitesenhagerada: TStringField;
+    sbnSalvarUsuario: TSpeedButton;
+    qryUsuarios_Sitetipopessoa: TStringField;
+    actHabilitar: TActionList;
+    actAbilitar: TAction;
+    sbnAbilitar: TSpeedButton;
+    qryUsuarios_Sitesenhaauxiliar: TStringField;
+    qrymd5: TtecQuery;
+    qrymd5senha: TStringField;
+    procedure sbnGrarSenhaClick(Sender: TObject);
+    procedure sbnIncluirUsuarioClick(Sender: TObject);
+    procedure sbnExcluirUsuarioClick(Sender: TObject);
+    procedure FrameEnter(Sender: TObject);
+    procedure FrameConstrainedResize(Sender: TObject; var MinWidth,
+      MinHeight, MaxWidth, MaxHeight: Integer);
+    procedure qryUsuarios_SiteNewRecord(DataSet: TDataSet);
+    procedure dsrUsuarios_SiteDataChange(Sender: TObject; Field: TField);
+    procedure qryUsuarios_SiteBeforePost(DataSet: TDataSet);
+    procedure qryUsuarios_SiteApplyUpdateError(DataSet: TDataSet;
+      E: EDatabaseError; var Action: TDataAction);
+    procedure BiDiDBExcluirBeforeAction(Sender: TObject;
+      Button: TNavigateBtn);
+    procedure BiDiDBSalvarClick(Sender: TObject; Button: TNavigateBtn);
+    procedure BiDiDBExcluirClick(Sender: TObject; Button: TNavigateBtn);
+    procedure qryUsuarios_SiteAfterInsert(DataSet: TDataSet);
+    procedure qryUsuarios_SiteAfterDelete(DataSet: TDataSet);
+    procedure qryUsuarios_SiteAfterEdit(DataSet: TDataSet);
+    procedure qryUsuarios_SiteAfterPost(DataSet: TDataSet);
+    procedure sbnSalvarUsuarioClick(Sender: TObject);
+    procedure actAbilitarUpdate(Sender: TObject);
+  private
+    FClienteSite: TTecIntegerRetorno;
+    FTipoClienteSite: TTecStringRetorno;
+    FNomeClienteSite: TTecStringRetorno;
+    fEmailClienteSite: TTecStringRetorno;
+    fTipoPessoaClienteSite: TTecStringRetorno;
+    fPessoaNumeroClienteSite: TTecStringRetorno;
+    fTtecProcedure: TtecProcedure;
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    property ClienteSite: TTecIntegerRetorno read FClienteSite write FClienteSite;
+    property TipoClienteSite: TTecStringRetorno read FTipoClienteSite write FTipoClienteSite;
+    property NomeClienteSite: TTecStringRetorno read fNomeClienteSite write fNomeClienteSite;
+    property EmailClienteSite:        TTecStringRetorno read fEmailClienteSite        write fEmailClienteSite;
+    property TipoPessoaClienteSite:   TTecStringRetorno read fTipoPessoaClienteSite   write fTipoPessoaClienteSite;
+    property PessoaNumeroClienteSite: TTecStringRetorno read fPessoaNumeroClienteSite write fPessoaNumeroClienteSite;
+
+    function GetTabelaUsuarios_Site: TZDataSet;
+    property TabelaUsuarios_Site: TZDataSet read GetTabelaUsuarios_Site;
+    property EditarFormulario: TtecProcedure read fTtecProcedure write fTtecProcedure;
+    procedure AbrirTabelaCliente_Site(Reabrir : boolean = false);
+
+  end;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfraDadosLoginSite.sbnGrarSenhaClick(Sender: TObject);
+begin
+  qryUsuarios_Site.edit;
+  qryUsuarios_Sitesenhagerada.asString :=  GeraSenha(7,false,false);
+  qryUsuarios_Sitesenhaauxiliar.asString := qryUsuarios_Sitesenhagerada.asString;
+
+end;
+
+procedure TfraDadosLoginSite.sbnIncluirUsuarioClick(Sender: TObject);
+begin
+  edtNome.setfocus;
+  edtNome.selectall;
+  qryUsuarios_Site.append;
+end;
+
+procedure TfraDadosLoginSite.sbnExcluirUsuarioClick(Sender: TObject);
+begin
+  if qryUsuarios_Site.isempty then
+  begin
+    if (qryUsuarios_Site.state in [dsinsert, dsedit]) then
+      qryUsuarios_Site.cancel
+  end
+  else
+  if MensagemConfirmacao('Confirma a exclusão deste usuário?') = smbOk then
+    qryUsuarios_Site.delete;
+end;
+
+procedure TfraDadosLoginSite.FrameEnter(Sender: TObject);
+begin
+  AbrirTabelaCliente_Site;
+end;
+
+procedure TfraDadosLoginSite.FrameConstrainedResize(Sender: TObject;
+  var MinWidth, MinHeight, MaxWidth, MaxHeight: Integer);
+begin
+  AbrirTabelaCliente_Site;
+end;
+
+function TfraDadosLoginSite.GetTabelaUsuarios_Site: TZDataSet;
+begin
+  result := qryUsuarios_Site;
+end;
+
+procedure TfraDadosLoginSite.qryUsuarios_SiteNewRecord(DataSet: TDataSet);
+begin
+  qryUsuarios_Sitecliente.asinteger := ClienteSite;
+  qryUsuarios_Sitetipocliente.asString := TipoClienteSite;
+  if qryUsuarios_Site.recordcount = 0 then
+  begin
+    qryUsuarios_Sitenome.asString := NomeClienteSite;
+    qryUsuarios_Siteemail.asString := EmailClienteSite;
+    qryUsuarios_Sitetipopessoa.asString := TipoPessoaClienteSite;
+    qryUsuarios_Sitepessoanumero.asString := PessoaNumeroClienteSite;
+    sbnGrarSenhaClick(nil);
+  end  
+  else
+    qryUsuarios_Sitetipopessoa.asString := 'F';
+
+  qryUsuarios_Sitetipousuario.asString := 'C';
+  qryUsuarios_Siteinativol.asBoolean := false;
+  qryUsuarios_Sitedatacadastro.asDateTime := dataHoralocal;
+
+
+end;
+
+procedure TfraDadosLoginSite.dsrUsuarios_SiteDataChange(Sender: TObject;
+  Field: TField);
+begin
+  if Field = qryUsuarios_Siteinativol then
+  begin
+    if field.asboolean then
+      qryUsuarios_Siteinativo.asdatetime := DataHoraLocal
+    else
+      qryUsuarios_Siteinativo.clear;
+  end;
+end;
+
+procedure TfraDadosLoginSite.qryUsuarios_SiteBeforePost(DataSet: TDataSet);
+begin
+    case ttecTipoCampoLoginSite(parsistema.LoginSite) of
+    tcEMAIL   : qryUsuarios_Siteusuario.asString := qryUsuarios_Siteemail.asString;
+    TCCPFCNPJ : qryUsuarios_Siteusuario.asString := qryUsuarios_Sitepessoanumero.asString;
+    end;
+    
+    if qryUsuarios_Sitesenhaauxiliar.asstring <> '' then
+    begin
+      qrymd5.parambyname('pw').asString := qryUsuarios_Sitesenhaauxiliar.asstring;
+      qrymd5.close;
+      qrymd5.open;
+      qryUsuarios_Sitesenha.asString := qrymd5senha.asstring;
+    end;
+end;
+
+constructor TfraDadosLoginSite.Create(AOwner: TComponent);
+begin
+  inherited;
+  case ttecTipoCampoLoginSite(parsistema.LoginSite) of
+    tcEMAIL   : qryUsuarios_Sitepessoanumero.required := false;
+    TCCPFCNPJ : qryUsuarios_Sitepessoanumero.required := true;
+  end;
+  sbnSalvarUsuario.caption := '';
+end;
+
+procedure TfraDadosLoginSite.qryUsuarios_SiteApplyUpdateError(
+  DataSet: TDataSet; E: EDatabaseError; var Action: TDataAction);
+begin
+;
+end;
+
+procedure TfraDadosLoginSite.BiDiDBExcluirBeforeAction(Sender: TObject;
+  Button: TNavigateBtn);
+begin
+;
+end;
+
+procedure TfraDadosLoginSite.BiDiDBSalvarClick(Sender: TObject;
+  Button: TNavigateBtn);
+begin
+;
+end;
+
+procedure TfraDadosLoginSite.BiDiDBExcluirClick(Sender: TObject;
+  Button: TNavigateBtn);
+begin
+;
+end;
+
+procedure TfraDadosLoginSite.qryUsuarios_SiteAfterInsert(
+  DataSet: TDataSet);
+begin
+  dbgUsuasrios.enabled := false;
+//  sbnIncluirusuario.enabled := false;
+//  sbnSalvarUsuario.enabled := true;
+end;
+
+procedure TfraDadosLoginSite.qryUsuarios_SiteAfterDelete(
+  DataSet: TDataSet);
+begin
+  dbgUsuasrios.enabled := true;
+//  sbnIncluirusuario.enabled := true;
+//  sbnSalvarUsuario.enabled := false;
+  if assigned(EditarFormulario) then
+    EditarFormulario;
+  
+end;
+
+procedure TfraDadosLoginSite.qryUsuarios_SiteAfterEdit(DataSet: TDataSet);
+begin
+//  sbnSalvarUsuario.enabled := true;
+  dbgUsuasrios.enabled := false;
+//  sbnIncluirusuario.enabled := false;
+ 
+end;
+
+procedure TfraDadosLoginSite.qryUsuarios_SiteAfterPost(DataSet: TDataSet);
+begin
+  dbgUsuasrios.enabled := true;
+//  sbnIncluirusuario.enabled := true;
+//  sbnSalvarUsuario.enabled := false;
+  if assigned(EditarFormulario) then
+    EditarFormulario;
+end;
+
+procedure TfraDadosLoginSite.sbnSalvarUsuarioClick(Sender: TObject);
+begin
+  if qryUsuarios_Site.CheckRequiredFields then
+    if EmailValido(qryUsuarios_Siteemail.asString) then
+      qryUsuarios_Site.post;
+
+end;
+
+procedure TfraDadosLoginSite.AbrirTabelaCliente_Site(Reabrir : boolean = false);
+begin
+  if assigned(ClienteSite) and assigned(TipoClienteSite) then
+    if (qryUsuarios_Site.parambyname('cliente').asInteger <> ClienteSite) or
+       (qryUsuarios_Site.parambyname('tipocliente').asString <> TipoClienteSite) or
+       Reabrir then
+    begin
+      qryUsuarios_Site.parambyname('cliente').asInteger := ClienteSite;
+      qryUsuarios_Site.parambyname('tipocliente').asString := TipoClienteSite;
+      qryUsuarios_Site.close;
+      qryUsuarios_Site.open;
+    end;
+end;
+
+procedure TfraDadosLoginSite.actAbilitarUpdate(Sender: TObject);
+begin
+   sbnIncluirUsuario.enabled := not (qryUsuarios_Site.state in [dsedit, dsinsert]);
+   sbnExcluirUsuario.enabled := not qryUsuarios_Site.isempty;
+   sbnSalvarUsuario.enabled := (qryUsuarios_Site.state in [dsedit, dsinsert]);
+end;
+
+end.

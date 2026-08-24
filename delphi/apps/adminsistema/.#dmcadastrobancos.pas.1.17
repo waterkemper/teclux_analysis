@@ -1,0 +1,469 @@
+unit dmcadastrobancos;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms,  DB,
+  //Terceiros
+  ZQuery, ZPgSqlQuery,
+  //Repositorio
+  dmbasico, dmtecsoft, biblio,ctConstantes,
+  //Componentes
+  cpquery, cpdatasource, clparametrossistema, ZTransact;
+
+type
+  TdtmCadastroBancos = class(TdtmBasico)
+    qryBancos: TtecQuery;
+    dsrBancos: TtecDataSource;
+    qryBancoscodigo: TIntegerField;
+    qryBancosnome: TStringField;
+    qryBancosinativo: TDateField;
+    qryConsultaBancos: TtecQuery;
+    qryConsultaBancosCodigo: TIntegerField;
+    qryBancossigla: TStringField;
+    qryConsultaBancosSigla: TStringField;
+    qryConsultaBancosNome: TStringField;
+    dsrAgencias: TtecDataSource;
+    qryAgencias: TtecQuery;
+    qryAgenciascodigo: TIntegerField;
+    qryAgenciasbanco: TIntegerField;
+    qryAgenciasnome: TStringField;
+    qryAgenciasrua: TStringField;
+    qryAgenciasbairro: TIntegerField;
+    qryAgenciascidade: TIntegerField;
+    qryAgenciasestado: TStringField;
+    qryAgenciascep: TIntegerField;
+    qryAgenciascgc: TStringField;
+    qryAgenciasfaxddd: TIntegerField;
+    qryAgenciasfaxnumero: TIntegerField;
+    qryAgenciasfoneddd: TIntegerField;
+    qryAgenciasfonenumero: TIntegerField;
+    qryAgenciasemail: TStringField;
+    qryAgenciasnomecidade: TStringField;
+    qryAgenciasnomebairro: TStringField;
+    qryBancosmodelocheque: TIntegerField;
+    qryModelosCheque: TtecQuery;
+    qryConsultaModelos: TtecQuery;
+    dsrModelosCheque: TtecDataSource;
+    qryModelosChequecodigo: TIntegerField;
+    qryModelosChequedescricao: TStringField;
+    qryConsultaModelosdescricao: TStringField;
+    qryConsultaModeloscodigo: TIntegerField;
+    qryAgenciasgerente: TStringField;
+    qryBancosdiasuteisremessa: TIntegerField;
+    qryBancosvalorlimitecheque: TFloatField;
+    qryBancosqtdechequevista: TIntegerField;
+    qryBancosqtdechequeprazo: TIntegerField;
+    qryContas: TtecQuery;
+    qryContasbanco: TIntegerField;
+    qryContasagencia: TIntegerField;
+    qryContasConta: TIntegerField;
+    qryContasdigito: TStringField;
+    qryContastitular: TStringField;
+    qryContascontacontabil: TIntegerField;
+    dsrProcuraContas: TtecDataSource;
+    qryContaslocalpagamento: TStringField;
+    qryContasinstrucoesboleto: TStringField;
+    qryContasusodobanco: TStringField;
+    qryContasFluxoCaixa: TBooleanField;
+    dsrContas: TtecDataSource;
+    qryContasfilial: TIntegerField;
+    qryContascarteira: TStringField;
+    qryAgenciasrefnumero: TIntegerField;
+    qryAgenciasrefcomplemento: TStringField;
+    qryContasNrViasBoleto: TIntegerField;
+    qryContaslocalpagamento2: TStringField;
+    qryContastaxa_boleto: TFloatField;
+    qryContascontrato: TStringField;
+    qryContasvariacao_carteira: TStringField;
+    qryContasformatacao_convenio: TStringField;
+    qryContasformatacao_nosso_numero: TStringField;
+    qryContasvalor_isencao_taxa: TFloatField;
+    qryContasbancoreferencia: TStringField;
+    qryContasagenciareferencia: TIntegerField;
+    qryContascedente: TStringField;
+    qryContascnpj_agencia_referencia: TStringField;
+    qryContascedente_nome: TStringField;
+    qryContascodigo_singular: TLargeintField;
+    qryContastiporecebimento: TIntegerField;
+    qryContasIncluirInstrucoesArquivoBanco: TBooleanField;
+    qryContasPadraoCNAB: TStringField;
+    qryContaseEspecieDocto: TStringField;
+    qryContasCodigoProtesto: TStringField;
+    qryContasNrDiasProtesto: TIntegerField;
+    qryContasconvenio: TLargeintField;
+    qryContasEmailNoArquivoBanco: TBooleanField;
+    qryContasndiasbaixaautomatica: TIntegerField;
+    qryContascodigomora: TStringField;
+
+    procedure qryBancosAfterScroll(DataSet: TDataSet);
+    procedure qryAgenciasAfterDelete(DataSet: TDataSet);
+    procedure qryAgenciasGRIDAfterDelete(DataSet: TDataSet);
+    procedure qryContasGRIDAfterDelete(DataSet: TDataSet);
+    procedure qryAgenciasAfterScroll(DataSet: TDataSet);
+    procedure qryContasAfterDelete(DataSet: TDataSet);
+    procedure qryContasNewRecord(DataSet: TDataSet);
+  private
+    FCodigoAgencia: String;
+    FNumeroConta:   String;
+    FDigitoConta:   String;
+    procedure SetCodigoAgencia(const Value: String);
+    procedure SetNumeroConta(const Value: String);
+    procedure SetDigitoConta(const Value: String);
+  protected
+    function GetTabelaBancos: TZDataSet;
+    function GetTabelaAgencias: TZDataset;
+    function GetTabelaContas: TZDataSet;
+    function GetTabelaConsultarBanco: TTecQuery;
+    function GetTabelaConsultarModeloCheque: TtecQuery;
+
+  public
+    constructor Create(AOwner: TComponent); override;
+    function  ExcluirAgencia: Boolean;
+    function  ExcluirBancos: Boolean;
+    function  ExcluirContas: Boolean;
+    
+    function  ExisteBanco(campo, codigo: string): boolean;
+    function  ExisteModeloCheque(campo, codigo: string): boolean;
+    function  ExisteCodigoAgencia(campo, codigo: String): boolean;
+    function  ExisteConta(campo, codigo: String): boolean;
+
+    function  GravarAgencia: Boolean;
+    function  GravarBancos: Boolean;
+    function  GravarConta: Boolean;
+
+    function  IncluirAgencias(Editar:boolean):Boolean;
+    function  IncluirBancos: Boolean;
+    function  IncluirContas(Editar: boolean): Boolean;
+
+    procedure AbrirTabelas(TipoPesquisa: TtecCadastroBancos);
+    procedure FecharTabelas(TipoPesquisa: TtecCadastroBancos);
+    procedure Selecionar(TipoPesquisa: TtecCadastroBancos);
+
+    property TabelaConsultarBanco: TtecQuery read GetTabelaConsultarBanco;
+    property TabelaConsultarModeloCheque: TtecQuery read GetTabelaConsultarModeloCheque;
+    property TabelaBancos: TZDataset read GetTabelabancos;
+    property TabelaAgencias: TZDataset read GetTabelaAgencias;
+    property TabelaContas: TZDataset read GetTabelaContas;
+    property CodigoAgencia: String read FCodigoAgencia Write SetCodigoAgencia;
+    property NumeroConta: String read FNumeroConta Write SetNumeroConta;
+    property DigitoConta: String read FDigitoConta Write SetDigitoConta;
+    procedure VerificarAgencia(Agencia: String);
+
+  end;
+
+implementation
+
+
+{$R *.dfm}
+
+procedure TdtmCadastroBancos.AbrirTabelas(TipoPesquisa: TtecCadastroBancos);
+begin
+  case TipoPesquisa of
+    tcbBANCOS       : Abre(ctConsultaBancos);
+    tcbMODELOSCHEQUE: Abre(ctConsultaModelosCheques);
+  end;
+end;
+
+constructor TdtmCadastroBancos.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryBancos.        Tag:= ctTabelas;
+  qryAgencias.      Tag:= ctTabelas;
+  qryContas.        Tag:= ctTabelas;
+  qryModelosCheque. Tag:= ctTabelas;
+
+  qryConsultaBancos. Tag:= ctConsultaBancos;
+  qryConsultaModelos.Tag:= ctConsultaModelosCheques;
+end;
+
+function TdtmCadastroBancos.ExcluirContas: Boolean;
+begin
+  Result:= True;
+  if MensagemConfirmacao(Format(ctCONFIRMEEXCLUIR, ['a CONTA'])) = smbOk then begin
+    if not qryContas.IsEmpty then
+       qryContas.Delete
+    else
+       qryContas.Cancel;
+    Perpetrar([qryContas]);
+  end;
+  Result:= True;
+end;
+
+function TdtmCadastroBancos.ExcluirAgencia: Boolean;
+begin
+  Result:= True;
+  if MensagemConfirmacao(Format(ctCONFIRMEEXCLUIR, ['a AGÊNCIA'])) = smbOk then begin
+    if not qryAgencias.IsEmpty then
+       qryAgencias.Delete
+    else
+       qryAgencias.Cancel;
+    Perpetrar([qryAgencias, qryContas]);
+  end;
+  Result:= True;
+end;
+
+function TdtmCadastroBancos.ExcluirBancos: Boolean;
+begin
+  if MensagemConfirmacao(Format(ctCONFIRMEEXCLUIR, ['o BANCO'])) = smbOk then begin
+    if not (qryBancos.IsEmpty) then
+       qryBancos.Delete
+    else
+       qryBancos.Cancel;
+    Perpetrar([qryBancos]);
+  end;
+  Result:= True;
+end;
+
+function TdtmCadastroBancos.ExisteBanco(campo, codigo: string): boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaBancos, campo, codigo);
+end;
+
+function TdtmCadastroBancos.ExisteCodigoAgencia(campo, codigo: String): boolean;
+begin
+  Result:= ExisteCodigo(qryAgencias, campo, codigo);
+end;
+
+function TdtmCadastroBancos.ExisteConta(campo, codigo: String): boolean;
+begin
+  Result:= ExisteCodigo(qryContas, campo, codigo);
+end;
+
+function TdtmCadastroBancos.ExisteModeloCheque(campo, codigo: string): boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaModelos, campo, codigo);
+end;
+
+procedure TdtmCadastroBancos.FecharTabelas(TipoPesquisa: TtecCadastroBancos);
+begin
+  case TipoPesquisa of
+    tcbBANCOS       : Fecha(ctConsultaBancos);
+    tcbMODELOSCHEQUE: Fecha(ctConsultaModelosCheques);
+  end;
+end;
+
+function TdtmCadastroBancos.GetTabelaAgencias: TZDataset;
+begin
+  Result := qryAgencias;
+end;
+
+function TdtmCadastroBancos.GetTabelaContas: TZDataset;
+begin
+  Result := qryContas;
+end;
+
+function TdtmCadastroBancos.GetTabelaBancos: TZDataSet;
+begin
+  Result:= qryBancos;
+end;
+
+function TdtmCadastroBancos.GetTabelaConsultarBanco: TTecQuery;
+begin
+  Result := qryConsultaBancos;
+end;
+
+function TdtmCadastroBancos.GetTabelaConsultarModeloCheque: TtecQuery;
+begin
+  Result:= qryConsultaModelos;
+end;
+
+function TdtmCadastroBancos.GravarAgencia: Boolean;
+begin
+  qryAgenciasBanco.Value := qryBancosCodigo.Value;
+  Result:=False;
+  if qryAgencias.CheckRequiredFields then begin
+     qryAgencias.Post;
+     if not (qryBancos.State in [dsedit, dsinsert]) then
+        qryBancos.Edit;
+
+    Result := True;
+  end;  
+end;
+
+function TdtmCadastroBancos.GravarConta: Boolean;
+begin
+  qryContasBanco.AsInteger   := qryBancosCodigo.AsInteger;
+  qryContasAgencia.AsInteger := qryAgenciasCodigo.AsInteger;
+  if qryContasbancoreferencia.AsString = '' then
+    qryContasbancoreferencia.clear;
+
+  Result:=False;
+  if qryContasNrViasBoleto.AsInteger = 0 then
+    qryContasNrViasBoleto.AsInteger := 1;
+
+
+  if qryContas.CheckRequiredFields then
+     qryContas.Post;
+
+  if not (qryBancos.State in [dsedit, dsinsert]) then
+     qryBancos.Edit;
+end;
+
+function TdtmCadastroBancos.GravarBancos: Boolean;
+var
+ RegistroAtual: TBookMark;
+begin
+  Result:=False;
+  if qryBancos.CheckRequiredFields then
+  begin
+    try
+     qryContas.DisableControls;
+     RegistroAtual := qryContas.GetBookmark;
+     qryContas.First;
+     While not qryContas.Eof do
+     begin
+      qryContas.Edit;
+      qryContasBanco.Value   := qryBancosCodigo.Value;
+      qryContasAgencia.Value := qryAgenciasCodigo.Value;
+      qryContas.Post;
+      qryContas.Next;
+     end;
+    finally
+     qryContas.GotoBookmark(RegistroAtual);
+     qryContas.FreeBookmark(RegistroAtual);
+     qryContas.EnableControls;
+    end;
+
+    Try
+     qryAgencias.DisableControls;
+     RegistroAtual := qryAgencias.GetBookmark;
+     qryAgencias.First;
+     While not qryAgencias.Eof do
+     begin
+      qryAgencias.Edit;
+      qryAgenciasbanco.Value:=qryBancoscodigo.Value;
+      qryAgencias.Post;
+      qryAgencias.Next;
+     end;
+    finally
+     qryAgencias.GotoBookmark(RegistroAtual);
+     qryAgencias.FreeBookmark(RegistroAtual);
+     qryAgencias.EnableControls;
+    end;
+
+    qryBancos.Post;
+    Perpetrar([qryBancos, qryAgencias, qryContas]);
+    Result := True;
+  end;
+end;
+
+function TdtmCadastroBancos.IncluirAgencias(Editar: boolean): Boolean;
+begin
+  if not editar or qryAgencias.IsEmpty then
+    qryAgencias.Append;
+  Result:=True;
+end;
+
+function TdtmCadastroBancos.IncluirContas(Editar: boolean): Boolean;
+begin
+  if not editar or qryContas.IsEmpty then begin
+     qryContas.Append;
+     qryContasBanco.Value   := qryBancosCodigo.Value;
+     qryContasAgencia.Value := qryAgenciasCodigo.Value;
+     qryContas.Edit;
+  end;
+  Result:=True;
+end;
+
+function TdtmCadastroBancos.IncluirBancos: Boolean;
+begin
+  qryBancos.Insert;
+  Result := True;
+end;
+
+procedure TdtmCadastroBancos.qryAgenciasAfterDelete(DataSet: TDataSet);
+begin
+  inherited;
+  if not (qryBancos.State in [dsEdit, dsInsert]) then
+    qryBancos.Edit;
+end;
+
+procedure TdtmCadastroBancos.qryAgenciasGRIDAfterDelete(DataSet: TDataSet);
+begin
+  inherited;
+  if not (qryBancos.State in [dsEdit, dsInsert]) then
+     qryBancos.Edit;
+end;
+
+procedure TdtmCadastroBancos.qryContasGRIDAfterDelete(DataSet: TDataSet);
+begin
+  inherited;
+  if not (qryBancos.State in [dsEdit, dsInsert]) then
+     qryBancos.Edit;
+end;
+
+procedure TdtmCadastroBancos.qryBancosAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  ReFazConsulta(qryAgencias,[0],[qryBancosCodigo.AsInteger]);
+  ReFazConsulta(qryContas,[0,1],
+    [qryAgenciasBanco.AsInteger,
+     qryAgenciasCodigo.AsInteger]);
+end;
+
+procedure TdtmCadastroBancos.Selecionar(TipoPesquisa: TtecCadastroBancos);
+begin
+  case TipoPesquisa of
+    tcbBANCOS       : ReFazConsulta(qryBancos,[0],[qryConsultaBancoscodigo.AsInteger]);
+    tcbMODELOSCHEQUE: begin
+                        qryBancos.Edit;
+                        qryBancosmodelocheque.AsInteger:= qryConsultaModelosCodigo.AsInteger;
+                      end;
+  end;
+end;
+
+
+procedure TdtmCadastroBancos.SetCodigoAgencia(const Value: String);
+begin
+  FCodigoAgencia := Value;
+end;
+
+procedure TdtmCadastroBancos.SetNumeroConta(const Value: String);
+begin
+  FNumeroConta := Value;
+end;
+
+
+procedure TdtmCadastroBancos.SetDigitoConta(const Value: String);
+begin
+  FDigitoConta := Value;
+end;
+
+procedure TdtmCadastroBancos.qryAgenciasAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  CodigoAgencia := qryAgenciascodigo.AsString;
+end;
+
+procedure TdtmCadastroBancos.VerificarAgencia(Agencia: String);
+begin
+  if (Agencia <> CodigoAgencia) then
+  begin
+   qryAgencias.Cancel;
+   if not qryAgencias.Locate('codigo', Agencia,[]) then
+   begin
+    IncluirAgencias(false);
+    qryAgenciascodigo.AsString:=Agencia;
+   end;
+  end;
+end;
+
+procedure TdtmCadastroBancos.qryContasAfterDelete(DataSet: TDataSet);
+begin
+  inherited;
+  if not (qryBancos.State in [dsEdit, dsInsert]) then
+     qryBancos.Edit;
+end;
+
+
+procedure TdtmCadastroBancos.qryContasNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+  qryContasFluxoCaixa.  AsBoolean:= false;
+  qryContasNrViasBoleto.AsInteger:= 1;
+  qryContasPadraoCNAB.  AsString := '4'; 
+end;
+
+end.

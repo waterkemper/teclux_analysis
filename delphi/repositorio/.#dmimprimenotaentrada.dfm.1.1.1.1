@@ -1,0 +1,810 @@
+inherited dtmImprimeNotaEntrada: TdtmImprimeNotaEntrada
+  Left = 438
+  Top = 223
+  Height = 155
+  Width = 329
+  object qryProdutos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select pn.codigonota,'
+      '       pn.numero,'
+      '       p.codigovisual,'
+      '       null as sequenciaipi,'
+      '           pn.produto,'
+      
+        '           coalesce(cast(substring(pn.descricaoproduto,1,40) as ' +
+        'char(40)),p.descricao) as produtodescricao,'
+      '           p.referencia,'
+      '           pn.filial,'
+      '           pn.origem,'
+      '           pn.incidencia,'
+      '           '#39' '#39' as localizacao,'
+      '           c.unidade,'
+      '           pn.quantidade,'
+      '           pn.precounitario as precovenda,'
+      '           pn.precounitario * pn.quantidade as precototal,'
+      '           pn.aliquotaicms,'
+      '           pn.codigofiscal,'
+      '           '#39#39' as classificacaofiscal,'
+      '           '#39#39' as ipi,'
+      '           pn.valoripi,'
+      '           cast(pn.produto as varchar) as produtocliente,'
+      
+        '           (select ipi.aliquota from ipi where ipi.codigo = c.ip' +
+        'i) as aliquotaipi'
+      
+        'From   produtosnotaspag pn join produtos p on ( pn.produto = p.c' +
+        'odigo )'
+      
+        '           join caracteristicas c on ( p.caracteristica = c.codi' +
+        'go )'
+      '           join  marcas m on  (c.marca = m.codigo)'
+      'Where (pn.codigonota =:codigo)'
+      'Order By pn.numero')
+    RequestLive = False
+    Left = 50
+    Top = 73
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProdutoscodigonota: TIntegerField
+      FieldName = 'codigonota'
+      DisplayFormat = '0'
+    end
+    object qryProdutosproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryProdutosprodutodescricao: TStringField
+      FieldName = 'produtodescricao'
+      Size = 40
+    end
+    object qryProdutosfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryProdutosunidade: TStringField
+      FieldName = 'unidade'
+      Size = 8
+    end
+    object qryProdutosquantidade: TFloatField
+      FieldName = 'quantidade'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosprecovenda: TFloatField
+      FieldName = 'precovenda'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosprecototal: TFloatField
+      FieldName = 'precototal'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosaliquotaicms: TFloatField
+      FieldName = 'aliquotaicms'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosreferencia: TStringField
+      FieldName = 'referencia'
+    end
+    object qryProdutoslocalizacao: TStringField
+      FieldName = 'localizacao'
+      Size = 50
+    end
+    object qryProdutosclassificacaofiscal: TStringField
+      FieldName = 'classificacaofiscal'
+      Size = 50
+    end
+    object qryProdutosipi: TStringField
+      FieldName = 'ipi'
+      Size = 50
+    end
+    object qryProdutosvaloripi: TFloatField
+      FieldName = 'valoripi'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosprodutocliente: TStringField
+      FieldName = 'produtocliente'
+      Size = 50
+    end
+    object qryProdutoscodigofiscal: TIntegerField
+      FieldName = 'codigofiscal'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryProdutosnumero: TIntegerField
+      FieldName = 'numero'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryProdutoscodigovisual: TStringField
+      FieldName = 'codigovisual'
+      Required = True
+      Size = 30
+    end
+    object qryProdutossequenciaipi: TStringField
+      FieldName = 'sequenciaipi'
+      Size = 50
+    end
+    object qryProdutosaliquotaipi: TFloatField
+      FieldName = 'aliquotaipi'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosorigem: TStringField
+      FieldName = 'origem'
+      Size = 1
+    end
+    object qryProdutosincidencia: TStringField
+      FieldName = 'incidencia'
+      Size = 2
+    end
+  end
+  object qryNotasPag: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select n.codigo,'
+      '           n.tipofornecedor,'
+      '           n.serie,'
+      '           n.numero as numeronota,'
+      '           n.filial,'
+      '           f.rua as ruafilial,'
+      
+        '           (Select c1.nome  From cidades c1 Where f.estado = c1.' +
+        'estado and f.cidade = c1.codigo) as cidadefilial,'
+      
+        '           (Select b1.nome  From bairros b1 Where f.estado = b1.' +
+        'estado and f.cidade = b1.cidade and f.bairro = b1.codigo) as bai' +
+        'rrofilial,'
+      
+        '           cast(substr(f.cep,1,5) || '#39'-'#39' || substr(f.cep,6,3) as' +
+        ' varchar) as cepfilial,'
+      '           f.estado as estadofilial,'
+      
+        '           cast(case when (coalesce(f.foneddd,0) > 0) then '#39'('#39' |' +
+        '| f.foneddd || '#39')'#39' else '#39'(  )'#39' end as varchar) as dddfilial,'
+      
+        '           cast(case when length(f.fonenumero) = 7 then substr(f' +
+        '.fonenumero,1,3) || '#39'-'#39' || substr(f.fonenumero,4,4)'
+      
+        '                          when length(f.fonenumero) = 8 then sub' +
+        'str(f.fonenumero,1,4) || '#39'-'#39' || substr(f.fonenumero,5,4)'
+      '                          else   to_char(f.fonenumero,'#39#39')'
+      '                   end as varchar) as fonefilial,'
+      
+        '           cast(case when (coalesce(f.faxddd,0) > 0) then '#39'('#39' ||' +
+        ' f.faxddd || '#39')'#39' else '#39'(  )'#39' end as varchar) as dddfaxfilial,'
+      
+        '           cast(case when length(f.faxnumero) = 7 then substr(f.' +
+        'faxnumero,1,3) || '#39'-'#39' || substr(f.faxnumero,4,4)'
+      
+        '                          when length(f.faxnumero) = 8 then subs' +
+        'tr(f.faxnumero,1,4) || '#39'-'#39' || substr(f.faxnumero,5,4)'
+      '                          else   to_char(f.faxnumero,'#39#39')'
+      '                   end as varchar) as fonefaxfilial,'
+      '           formatar_cpf_cnpj(f.cnpj) as  cnpjfilial,'
+      '           n.natureza,'
+      '           n.codigofiscal,'
+      '           f.inscricaoestadual as inscricaoestadualfilial,'
+      '           coalesce(v.razao,v.nome) as nome,'
+      '           n.fornecedor as cliente,'
+      '           formatar_cpf_cnpj(v.pessoanumero) as pessoanumero,'
+      '           n.data,'
+      '           v.rua,'
+      '           b.nome as bairronome,'
+      
+        '           cast(substr(v.cep,1,5) || '#39'-'#39' || substr(v.cep,6,3) as' +
+        ' varchar) as cep,'
+      '           n.emissao as datasaida,'
+      '           c.nome as cidadenome,'
+      
+        '           cast(case when (coalesce(v.foneddd,0) > 0) then '#39'('#39' |' +
+        '| v.foneddd || '#39')'#39' else '#39'(  )'#39' end as varchar) as foneddd,'
+      
+        '           cast(case when length(v.fonenumero) = 7 then substr(v' +
+        '.fonenumero,1,3) || '#39'-'#39' || substr(v.fonenumero,4,4)'
+      
+        '                          when length(v.fonenumero) = 8 then sub' +
+        'str(v.fonenumero,1,4) || '#39'-'#39' || substr(v.fonenumero,5,4)'
+      '                          else   to_char(v.fonenumero,'#39#39')'
+      '                   end as varchar) as fonenumero,'
+      '           v.estado,'
+      '           v.inscricaoestadual as documento,'
+      '           (select sum(base)'
+      '            from calculosnotaspag cn'
+      
+        '            where (cn.codigonota = n.codigo) and tipo='#39'M'#39') as ba' +
+        'seicms,'
+      '           (select sum(valor)'
+      '            from calculosnotaspag cn'
+      
+        '            where (cn.codigonota = n.codigo) AND tipo='#39'M'#39') as va' +
+        'loricms,'
+      
+        '           ((select sum(pn.quantidade * pn.precounitario) from p' +
+        'rodutosnotaspag pn'
+      
+        '                   where (pn.codigonota = n.codigo)) - coalesce(' +
+        'n.desconto,0) + coalesce(n.acrescimo,0))'
+      '                          as valorvista,'
+      '           n.freteinterno as valorfrete,'
+      '           n.desconto,'
+      '           cast(0 as numeric(11,2)) as valoripi,'
+      '           cast(0 as numeric(11,2)) as despesasacessorias,'
+      '           n.seguro,'
+      '           n.acrescimo,'
+      '           n.valornota as valortotal,'
+      '           cast(0 as numeric(11,2)) as baseissqn,'
+      '           cast(0 as numeric(11,2)) as valorissqn,'
+      '           cast(0 as numeric(11,2)) as totalservico,'
+      '           '#39' '#39' as razaofornecedor,'
+      '           '#39' '#39' as frete,'
+      '           '#39' '#39' as placa,'
+      '           '#39' '#39' as estadoplaca,'
+      '           '#39' '#39' as numerofornecedor,'
+      '           '#39' '#39' as ruafornecedor,'
+      '           '#39' '#39' as cidadefornecedor,'
+      '           '#39' '#39' as estadofornecedor,'
+      '           '#39' '#39' as inscricaoestadualfornecedor,'
+      '           '#39' '#39' as volumes,'
+      '           '#39' '#39' as especietransporte,'
+      '           '#39' '#39' as marca,'
+      '           '#39' '#39' as numeracao,'
+      '           '#39' '#39' as pesobruto,'
+      '           '#39' '#39' as pesoliquido,'
+      '           '#39' '#39' as vendedor,'
+      '           '#39' '#39' as nomevendedor,'
+      '           n.contrato,'
+      
+        '           (select ct.avalista from contratos ct where ct.numero' +
+        ' = cast(n.contrato as char(20))) as avalista,'
+      '           observacoes,'
+      '           '#39' '#39' as cupomfiscal,'
+      '           '#39#39' as baseicmsproprio,'
+      '           '#39#39' as basesubstituicao,'
+      '           '#39#39' as valoricmsproprio,'
+      '           '#39#39' as valorsubstituicao,'
+      '           cast(f.rua||'#39' - '#39'||(select bairros.nome'
+      '                               from bairros'
+      '                               where bairros.estado = f.estado'
+      '                                 and bairros.cidade = f.cidade'
+      '                                 and bairros.codigo = f.bairro'
+      '                               )as varchar) as ruabairrofilial,'
+      '           cast((select cidades.nome'
+      '                 from cidades'
+      '                 where cidades.codigo = f.cidade'
+      
+        '                 )||'#39' - '#39'||f.estado as varchar) as cidadeestadof' +
+        'ilial,'
+      
+        '           '#39#39' as impostoretido1, '#39#39' as impostoretido2, '#39#39' as imp' +
+        'ostoretido3, '#39#39' as impostoretido4,'
+      '           '#39#39' as cfps, '#39#39' as anexotres, '#39#39' as filialvendanome,'
+      '           '#39#39' as totalbaseicmssubstituicao,'
+      '           '#39#39' as cfopnota,'
+      '           '#39#39' as totalvaloricmssubstituicao'
+      'From  notaspag n'
+      '          left join filiais f on (n.filial = f.codigo)'
+      
+        '          left join vfornecedores v on ( (n.fornecedor = v.codig' +
+        'o) and (n.tipofornecedor = v.tipo) )'
+      
+        '          left join cidades c on ( (v.estado = c.estado) and (v.' +
+        'cidade = c.codigo) )'
+      
+        '          left join bairros b  on ((v.estado = b.estado) and (v.' +
+        'cidade = b.cidade) and (v.bairro = b.codigo))'
+      'Where (n.codigo =:codigo)'
+      ''
+      
+        '/*          ((select sum(pn.quantidade * pn.precounitario) from ' +
+        'produtosnotaspag pn'
+      
+        '            where (pn.codigonota = n.codigo)) - coalesce(n.desco' +
+        'nto,0) + coalesce(n.seguro,0)) as valorvista,'
+      '*/')
+    RequestLive = True
+    Left = 50
+    Top = 17
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryNotasPagcodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+    end
+    object qryNotasPagtipofornecedor: TStringField
+      FieldName = 'tipofornecedor'
+      Size = 1
+    end
+    object qryNotasPagserie: TStringField
+      FieldName = 'serie'
+      Required = True
+      Size = 3
+    end
+    object qryNotasPagnumeronota: TIntegerField
+      FieldName = 'numeronota'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryNotasPagfilial: TIntegerField
+      FieldName = 'filial'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryNotasPagruafilial: TStringField
+      FieldName = 'ruafilial'
+      Required = True
+      Size = 100
+    end
+    object qryNotasPagcidadefilial: TStringField
+      FieldName = 'cidadefilial'
+      Size = 50
+    end
+    object qryNotasPagbairrofilial: TStringField
+      FieldName = 'bairrofilial'
+      Size = 50
+    end
+    object qryNotasPagcepfilial: TStringField
+      FieldName = 'cepfilial'
+    end
+    object qryNotasPagestadofilial: TStringField
+      FieldName = 'estadofilial'
+      Required = True
+      Size = 2
+    end
+    object qryNotasPagdddfilial: TStringField
+      FieldName = 'dddfilial'
+    end
+    object qryNotasPagfonefilial: TStringField
+      FieldName = 'fonefilial'
+    end
+    object qryNotasPagdddfaxfilial: TStringField
+      FieldName = 'dddfaxfilial'
+    end
+    object qryNotasPagfonefaxfilial: TStringField
+      FieldName = 'fonefaxfilial'
+    end
+    object qryNotasPagcnpjfilial: TStringField
+      FieldName = 'cnpjfilial'
+      Size = 18
+    end
+    object qryNotasPagnatureza: TStringField
+      FieldName = 'natureza'
+      Size = 50
+    end
+    object qryNotasPagcodigofiscal: TIntegerField
+      FieldName = 'codigofiscal'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryNotasPaginscricaoestadualfilial: TStringField
+      FieldName = 'inscricaoestadualfilial'
+    end
+    object qryNotasPagnome: TStringField
+      FieldName = 'nome'
+      Size = 50
+    end
+    object qryNotasPagcliente: TIntegerField
+      FieldName = 'cliente'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryNotasPagpessoanumero: TStringField
+      FieldName = 'pessoanumero'
+      Size = 18
+    end
+    object qryNotasPagdata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      Required = True
+      EditMask = '99/99/9999;1; '
+    end
+    object qryNotasPagrua: TStringField
+      FieldName = 'rua'
+      Size = 50
+    end
+    object qryNotasPagbairronome: TStringField
+      FieldName = 'bairronome'
+      Required = True
+      Size = 30
+    end
+    object qryNotasPagcep: TStringField
+      FieldName = 'cep'
+    end
+    object qryNotasPagdatasaida: TDateField
+      Alignment = taCenter
+      FieldName = 'datasaida'
+      Required = True
+      EditMask = '99/99/9999;1; '
+    end
+    object qryNotasPagcidadenome: TStringField
+      FieldName = 'cidadenome'
+      Required = True
+      Size = 30
+    end
+    object qryNotasPagfoneddd: TStringField
+      FieldName = 'foneddd'
+    end
+    object qryNotasPagfonenumero: TStringField
+      FieldName = 'fonenumero'
+    end
+    object qryNotasPagestado: TStringField
+      FieldName = 'estado'
+      Size = 50
+    end
+    object qryNotasPagdocumento: TStringField
+      FieldName = 'documento'
+      Size = 50
+    end
+    object qryNotasPagbaseicms: TFloatField
+      FieldName = 'baseicms'
+      DisplayFormat = '0.00'
+    end
+    object qryNotasPagvaloricms: TFloatField
+      FieldName = 'valoricms'
+      DisplayFormat = '0.00'
+    end
+    object qryNotasPagvalorfrete: TFloatField
+      FieldName = 'valorfrete'
+      DisplayFormat = '0.00'
+    end
+    object qryNotasPagacrescimo: TFloatField
+      FieldName = 'acrescimo'
+      DisplayFormat = '0.00'
+    end
+    object qryNotasPagdesconto: TFloatField
+      FieldName = 'desconto'
+      DisplayFormat = '0.00'
+    end
+    object qryNotasPagvalorvista: TFloatField
+      FieldName = 'valorvista'
+      DisplayFormat = '0.00'
+    end
+    object qryNotasPagseguro: TFloatField
+      FieldName = 'seguro'
+      DisplayFormat = '0.00'
+    end
+    object qryNotasPagvalortotal: TFloatField
+      FieldName = 'valortotal'
+      Required = True
+      DisplayFormat = '0.00'
+    end
+    object qryNotasPagrazaofornecedor: TStringField
+      FieldName = 'razaofornecedor'
+      Size = 50
+    end
+    object qryNotasPagfrete: TStringField
+      FieldName = 'frete'
+      Size = 50
+    end
+    object qryNotasPagplaca: TStringField
+      FieldName = 'placa'
+      Size = 50
+    end
+    object qryNotasPagestadoplaca: TStringField
+      FieldName = 'estadoplaca'
+      Size = 50
+    end
+    object qryNotasPagnumerofornecedor: TStringField
+      FieldName = 'numerofornecedor'
+      Size = 50
+    end
+    object qryNotasPagruafornecedor: TStringField
+      FieldName = 'ruafornecedor'
+      Size = 50
+    end
+    object qryNotasPagcidadefornecedor: TStringField
+      FieldName = 'cidadefornecedor'
+      Size = 50
+    end
+    object qryNotasPagestadofornecedor: TStringField
+      FieldName = 'estadofornecedor'
+      Size = 50
+    end
+    object qryNotasPaginscricaoestadualfornecedor: TStringField
+      FieldName = 'inscricaoestadualfornecedor'
+      Size = 50
+    end
+    object qryNotasPagespecietransporte: TStringField
+      FieldName = 'especietransporte'
+      Size = 50
+    end
+    object qryNotasPagvolumes: TStringField
+      FieldName = 'volumes'
+      Size = 50
+    end
+    object qryNotasPagnumeracao: TStringField
+      FieldName = 'numeracao'
+      Size = 50
+    end
+    object qryNotasPagmarca: TStringField
+      FieldName = 'marca'
+      Size = 50
+    end
+    object qryNotasPagpesobruto: TStringField
+      FieldName = 'pesobruto'
+      Size = 50
+    end
+    object qryNotasPagpesoliquido: TStringField
+      FieldName = 'pesoliquido'
+      Size = 50
+    end
+    object qryNotasPagvendedor: TStringField
+      FieldName = 'vendedor'
+      Size = 50
+    end
+    object qryNotasPagnomevendedor: TStringField
+      FieldName = 'nomevendedor'
+      Size = 50
+    end
+    object qryNotasPagcontrato: TStringField
+      FieldName = 'contrato'
+    end
+    object qryNotasPagcupomfiscal: TStringField
+      FieldName = 'cupomfiscal'
+      Size = 50
+    end
+    object qryNotasPagobservacoes: TStringField
+      FieldName = 'observacoes'
+      Size = 350
+    end
+    object qryNotasPagavalista: TIntegerField
+      FieldName = 'avalista'
+      DisplayFormat = '0'
+    end
+    object qryNotasPagbaseissqn: TFloatField
+      FieldName = 'baseissqn'
+      DisplayFormat = '0.00'
+    end
+    object qryNotasPagvalorissqn: TFloatField
+      FieldName = 'valorissqn'
+      DisplayFormat = '0.00'
+    end
+    object qryNotasPagtotalservico: TFloatField
+      FieldName = 'totalservico'
+      DisplayFormat = '0.00'
+    end
+    object qryNotasPagvaloripi: TFloatField
+      FieldName = 'valoripi'
+    end
+    object qryNotasPagdespesasacessorias: TFloatField
+      FieldName = 'despesasacessorias'
+    end
+    object qryNotasPagbaseicmsproprio: TStringField
+      FieldName = 'baseicmsproprio'
+      Size = 50
+    end
+    object qryNotasPagbasesubstituicao: TStringField
+      FieldName = 'basesubstituicao'
+      Size = 50
+    end
+    object qryNotasPagvalorsubstituicao: TStringField
+      FieldName = 'valorsubstituicao'
+      Size = 50
+    end
+    object qryNotasPagruabairrofilial: TStringField
+      FieldName = 'ruabairrofilial'
+      Size = 50
+    end
+    object qryNotasPagcidadeestadofilial: TStringField
+      FieldName = 'cidadeestadofilial'
+      Size = 50
+    end
+    object qryNotasPagimpostoretido1: TStringField
+      FieldName = 'impostoretido1'
+      Size = 50
+    end
+    object qryNotasPagimpostoretido2: TStringField
+      FieldName = 'impostoretido2'
+      Size = 50
+    end
+    object qryNotasPagimpostoretido3: TStringField
+      FieldName = 'impostoretido3'
+      Size = 50
+    end
+    object qryNotasPagimpostoretido4: TStringField
+      FieldName = 'impostoretido4'
+      Size = 50
+    end
+    object qryNotasPagvaloricmsproprio: TStringField
+      FieldName = 'valoricmsproprio'
+      Size = 50
+    end
+    object qryNotasPagcfps: TStringField
+      FieldName = 'cfps'
+      Size = 50
+    end
+    object qryNotasPaganexotres: TStringField
+      FieldName = 'anexotres'
+      Size = 50
+    end
+    object qryNotasPagfilialvendanome: TStringField
+      FieldName = 'filialvendanome'
+      Size = 50
+    end
+    object qryNotasPagtotalbaseicmssubstituicao: TStringField
+      FieldName = 'totalbaseicmssubstituicao'
+      Size = 50
+    end
+    object qryNotasPagtotalvaloricmssubstituicao: TStringField
+      FieldName = 'totalvaloricmssubstituicao'
+      Size = 50
+    end
+    object qryNotasPagcfopnota: TStringField
+      FieldName = 'cfopnota'
+      Size = 50
+    end
+  end
+  object qrySeriesFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT *'
+      'FROM seriesfiliais'
+      'WHERE (filial = :filial) and'
+      '             (valor = :serie)')
+    RequestLive = True
+    Left = 161
+    Top = 17
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'serie'
+        ParamType = ptUnknown
+      end>
+    object qrySeriesFiliaisfilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qrySeriesFiliaisvalor: TStringField
+      FieldName = 'valor'
+      Size = 3
+    end
+    object qrySeriesFiliaisnumeroinicial: TIntegerField
+      FieldName = 'numeroinicial'
+    end
+    object qrySeriesFiliaisnumerofinal: TIntegerField
+      FieldName = 'numerofinal'
+    end
+    object qrySeriesFiliaismodelonota: TIntegerField
+      FieldName = 'modelonota'
+    end
+  end
+  object qryModelosNotas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cabecalho,'
+      '         vencimento,'
+      '         produto,'
+      '         rodape,'
+      '         canhoto,'
+      '         configurar,'
+      '         rodapedesconto,'
+      '         rodapeacrescimo,'
+      '         rodapepagina'
+      'from modelosnotasfiscais'
+      'where codigo = :codigo')
+    RequestLive = False
+    Left = 161
+    Top = 73
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryModelosNotascabecalho: TStringField
+      DisplayWidth = 1200
+      FieldName = 'cabecalho'
+      Required = True
+      Size = 1200
+    end
+    object qryModelosNotasvencimento: TStringField
+      DisplayWidth = 800
+      FieldName = 'vencimento'
+      Size = 800
+    end
+    object qryModelosNotasproduto: TStringField
+      FieldName = 'produto'
+      Required = True
+      Size = 800
+    end
+    object qryModelosNotasrodape: TStringField
+      FieldName = 'rodape'
+      Required = True
+      Size = 1800
+    end
+    object qryModelosNotascanhoto: TStringField
+      FieldName = 'canhoto'
+      Size = 512
+    end
+    object qryModelosNotasconfigurar: TStringField
+      FieldName = 'configurar'
+      Size = 50
+    end
+    object qryModelosNotasrodapedesconto: TStringField
+      FieldName = 'rodapedesconto'
+      Size = 150
+    end
+    object qryModelosNotasrodapeacrescimo: TStringField
+      FieldName = 'rodapeacrescimo'
+      Size = 150
+    end
+    object qryModelosNotasrodapepagina: TStringField
+      FieldName = 'rodapepagina'
+      Size = 512
+    end
+  end
+  object qryCodigosFiscais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select distinct codigofiscal from produtosnotaspag'
+      'where'
+      'codigonota =:codigo')
+    RequestLive = False
+    Left = 256
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryCodigosFiscaiscodigofiscal: TIntegerField
+      FieldName = 'codigofiscal'
+      Required = True
+    end
+  end
+end

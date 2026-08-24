@@ -1029,7 +1029,7 @@ inherited dtmRelatorioMovimentacaoDiaria: TdtmRelatorioMovimentacaoDiaria
       41677275706172477275706F50726F6475746F00050046616C7365000B002041
       7578696C69617265730000000008006C6F676F7469706F0000000005004C494E
       484100010030000000000000000000FC00000000000000000000000000000000
-      580040AC24378DAFE3401F72E5C73859E540}
+      580040AC24378DAFE340919BE16E7572E640}
   end
   object fdsRelatorioMovimentacaoDiaria: TfrDBDataSet
     DataSet = qryMovimentos
@@ -1896,7 +1896,7 @@ inherited dtmRelatorioMovimentacaoDiaria: TdtmRelatorioMovimentacaoDiaria
       7570617250726F6475746F00050046616C7365000B0020417578696C69617265
       730000000008006C6F676F7469706F0000000005004C494E4841000100300000
       00000000000000FC000000000000000000000000000000005800AEB824378DAF
-      E3401F72E5C73859E540}
+      E340C8A1E16E7572E640}
   end
   object fdsRelatorioMovimentacaoDiariaResumo: TfrDBDataSet
     DataSet = qryMovimentosResumo
@@ -2203,5 +2203,26 @@ inherited dtmRelatorioMovimentacaoDiaria: TdtmRelatorioMovimentacaoDiaria
     RequestLive = False
     Left = 600
     Top = 152
+  end
+  object frxReport1: TfrxReport
+    Version = '4.0.11'
+    DotMatrixReport = False
+    IniFile = '\Software\Fast Reports'
+    PreviewOptions.Buttons = [pbPrint, pbLoad, pbSave, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbEdit, pbNavigator, pbExportQuick]
+    PreviewOptions.Zoom = 1.000000000000000000
+    PrintOptions.Printer = 'Default'
+    PrintOptions.PrintOnSheet = 0
+    ReportOptions.CreateDate = 45971.442018541670000000
+    ReportOptions.LastChange = 45971.442018541670000000
+    ScriptLanguage = 'PascalScript'
+    ScriptText.Strings = (
+      'begin'
+      ''
+      'end.')
+    Left = 440
+    Top = 88
+    Datasets = <>
+    Variables = <>
+    Style = <>
   end
 end

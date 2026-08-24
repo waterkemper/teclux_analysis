@@ -1,0 +1,165 @@
+unit fmRelatorioVendasporSetores;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmrelatoriopadrao, ExtCtrls, Buttons, ToolWin, ComCtrls,
+  frintervalodatas, biblio, ctconstantes, StdCtrls, CheckLst,
+  frlistamarcasprodutos, frlistafiliais, frselecaoaleatoria, db,
+  frConsultaCodigo, cpdbfindcontrols, frordenacao, Grids, ValEdit,
+  frordenacao_cr, frmultiplaselecaoaleatoria, frselecaoaleatoriaclientes,
+  frselecaoaleatoriagruposusuarios, frselecaoaleatoriausuarios,
+  cppagecontrol;
+
+type
+  TfrmRelatorioVendasporSetores = class(TfrmRelatorioPadrao)
+    fraIntervaloDatas: TfraIntervaloDatas;
+    gbxSetoresVenda: TGroupBox;
+    sbnMarcarGrupos: TSpeedButton;
+    sbnDesmarcarGrupos: TSpeedButton;
+    clbSetoresdeVenda: TCheckListBox;
+    fraListaFiliais1: TfraListaFiliais;
+    rgpListaCasamento: TRadioGroup;
+    fraOrdenacao_cr1: TfraOrdenacao_cr;
+    fraMultiplaSelecaoAleatoria1: TfraMultiplaSelecaoAleatoria;
+    PageControl1: TPageControl;
+    tstClientes: TTabSheet;
+    tstProdutos: TTabSheet;
+    fraSelecaoAleatoriaClientes1: TfraSelecaoAleatoriaClientes;
+    pgcPlanos_e_Vendedores: TtecPageControl;
+    tstVendedores: TTabSheet;
+    fraSelecaoAleatoriausuarios: TfraSelecaoAleatoriausuarios;
+    tstGruposdeVendedores: TTabSheet;
+    fraSelecaoAleatoriagruposusuarios1: TfraSelecaoAleatoriagruposusuarios;
+    ckbSomenteTotalizadores: TCheckBox;
+    rgpTotaisCom: TRadioGroup;
+    procedure fraMultiplaSelecaoAleatoria1Timer1Timer(Sender: TObject);
+  private
+    { Private declarations }
+    function  ValidarCamposSelecao: Boolean;
+    procedure InternoImpressao; override;
+
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+
+  end;
+
+var
+  frmRelatorioVendasporSetores: TfrmRelatorioVendasporSetores;
+
+implementation
+
+uses dmRelatorioVendasporSetores, fmajuda;
+
+{$R *.dfm}
+
+{ TfrmRelatorioVendasporSetores }
+
+constructor TfrmRelatorioVendasporSetores.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmRelatorioVendasporSetores := TdtmRelatorioVendasporSetores.Create(Self);
+  dtmRelatorioVendasporSetores.Abre(ctTabelas);
+  fraOrdenacao_cr1.qryLista.Open;
+  fraOrdenacao_cr1.VertScrollBar.Visible := false;
+
+  CarregarConfiguracoesFormulario;
+
+  fraIntervaloDatas.edtDataInicial.Text := datetostr(Date());
+  fraIntervaloDatas.edtDataFinal.Text := datetostr(Date());
+  ObterLista(dtmRelatorioVendasporSetores.ListaSetores, clbSetoresdeVenda);
+//  ObterLista(dtmRelatorioVendasporSetores.ListaGrupos, clbGrupos);
+//  ObterLista(dtmRelatorioVendasporSetores.ListaClasses, clbClasses);
+
+end;
+
+destructor TfrmRelatorioVendasporSetores.Destroy;
+begin
+  inherited;
+  frmRelatorioVendasporSetores := nil;
+end;
+
+procedure TfrmRelatorioVendasporSetores.InternoImpressao;
+begin
+  inherited;
+  if ValidarCamposSelecao then
+  begin
+    dtmRelatorioVendasporSetores.qryLista := fraOrdenacao_cr1.qrylista;
+    dtmRelatorioVendasporSetores.ImprimirRelatorio(fraIntervaloDatas.edtDataInicial.text,
+                                                    fraIntervaloDatas.edtDataFinal.text,
+                                                    fraListaFiliais1.ListaSelecionada,
+                                                    dtmRelatorioVendasporSetores.MontarListaSetores(clbSetoresdeVenda),
+                                                    fraSelecaoAleatoriausuarios.ListaCondicional,
+                                                    fraSelecaoAleatoriagruposusuarios1.ListaCondicional,
+
+                                                    fraMultiplaSelecaoAleatoria1.fraSelecaoAleatoriaItemdeProdutos.ListaCondicional,
+                                                    fraMultiplaSelecaoAleatoria1.fraSelecaoAleatoriaprodutos.ListaCondicional,
+
+                                                    fraMultiplaSelecaoAleatoria1.fraSelecaoaleatoriagruposprodutos.ListaCondicional,
+                                                    fraMultiplaSelecaoAleatoria1.fraSelecaoaleatoriaclassesprodutos.ListaCondicional,
+                                                    fraMultiplaSelecaoAleatoria1.fraSelecaoAleatoriamarcasProdutos.ListaCondicional,
+
+                                                    fraSelecaoAleatoriaClientes1.ListaCondicional,
+
+                                                    fraMultiplaSelecaoAleatoria1.fraSelecaoaleatoriapromocoes.ListaCondicional,
+
+                                                    {
+                                                    dtmRelatorioVendasporSetores.MontarListaGrupos(clbGrupos),
+                                                    dtmRelatorioVendasporSetores.MontarListaClasses(clbClasses),
+                                                    fraListamarcasProdutos1.ListaSelecionada,
+                                                    }
+
+                                                    rgpListaCasamento.ItemIndex,
+                                                    ckbSomenteTotalizadores.checked,
+
+                                                    rgpTotaisCom.ItemIndex
+                                                  );
+  end;
+end;
+
+function TfrmRelatorioVendasporSetores.ValidarCamposSelecao: Boolean;
+begin
+  Result := (fraIntervaloDatas.edtDataInicial.DataValida and fraIntervaloDatas.edtDataFinal.DataValida);
+  if Result then
+  begin
+    if (not dataembranco(fraIntervaloDatas.edtDataInicial.text) and not dataembranco(fraIntervaloDatas.edtDataFinal.text)) then
+      Result:=StrToDate(fraIntervaloDatas.edtDataInicial.Text) <= StrToDate(fraIntervaloDatas.edtDataFinal.Text);
+
+    if result then
+    begin
+      Result:=(not dataembranco(fraIntervaloDatas.edtDataInicial.text) or not dataembranco(fraIntervaloDatas.edtDataFinal.text));
+      if not Result then
+      begin
+        MensagemAviso(ctDATAINVALIDA);
+        fraIntervaloDatas.edtDataInicial.SetFocus;
+      end;
+    end
+    else
+    begin
+      MensagemAviso(ctDTINICIALMAIORDTFINAL);
+      fraIntervaloDatas.edtDataInicial.SetFocus;
+    end;
+  end;
+end;
+
+procedure TfrmRelatorioVendasporSetores.fraMultiplaSelecaoAleatoria1Timer1Timer(
+  Sender: TObject);
+begin
+  inherited;
+  fraMultiplaSelecaoAleatoria1.Timer1Timer(Sender);
+  tstProdutos.Highlighted := fraMultiplaSelecaoAleatoria1.tstItemdeProduto.Highlighted or
+                             fraMultiplaSelecaoAleatoria1.tstProduto.Highlighted or
+                             fraMultiplaSelecaoAleatoria1.tstSelecaoAleatoriaGrupoProduto.Highlighted or
+                             fraMultiplaSelecaoAleatoria1.tstSelecaoAleatoriaClasseProduto.Highlighted or
+                             fraMultiplaSelecaoAleatoria1.tstSelecaoAleatoriaMarcaProduto.Highlighted;
+
+  tstClientes.Highlighted := fraSelecaoAleatoriaClientes1.fraSelecaoAleatoriaCliente.qrySelecaoAleatoria.recordcount <> 0;
+
+
+end;
+
+end.

@@ -1,0 +1,894 @@
+unit fmcadastroduplicatascontaspagar;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmcadastropadrao, ComCtrls, Buttons, ExtCtrls,
+  dmcontaspagar, cpnumero, cpdbdata, frcomissao, DBCtrls, cpdbtext, Mask,
+  cpdbfindcontrols, fmconsultabasica, fmconsultaporcampo, zquery, DateUtils,
+  ctconstantes, cpdbradiogroup, biblio, clusuario, cpdbmemo, ActnList,
+  cpdblookupcombobox, cptexto, clparametrossistema, frconsulta,
+  frconsultacodigo, frconsultacontabil, frconsultacodigocontabil, Grids,
+  DBGrids, cpdbgrid, db, frlancamentocontabilidade, dmlancamentocontabilidade,
+  ToolWin;
+
+type
+  Tfrmcadastroduplicatascontaspagar = class(TfrmCadastroPadrao)
+    pnlFundoJanela: TPanel;
+    gbxDuplicatas: TGroupBox;
+    fraComissao1: TfraComissao;
+    fraComissao2: TfraComissao;
+    aclHabilitar: TActionList;
+    actHabilitarControles: TAction;
+    gbxDataPagto: TGroupBox;
+    edtDataPagto: TDBEditData;
+    gbxValorPagto: TGroupBox;
+    edtValorPagto: TDBEditNumero;
+    gbxFilialPagto: TGroupBox;
+    flkFilialPagto: TtecDBFindLookup;
+    sbnProcurarFilialPagto: TSpeedButton;
+    dtxFilialPagto: TtecDBText;
+    gbxConta: TGroupBox;
+    sbnProcurarConta: TSpeedButton;
+    dtxDigito: TtecDBText;
+    Label1: TLabel;
+    gbxSiglaBanco: TGroupBox;
+    dtxSigla: TtecDBText;
+    gbxNomeAgencia: TGroupBox;
+    dtxNomeAgencia: TtecDBText;
+    gbxCheque: TGroupBox;
+    edtCheque: TDBEditNumero;
+    gbxObservacoes: TGroupBox;
+    gbxTipoPagto: TGroupBox;
+    flkTipoPagto: TtecDBFindLookup;
+    sbnProcurarTipoPagto: TSpeedButton;
+    dtxTipoPagto: TtecDBText;
+    gbxVencimento: TGroupBox;
+    gbxDataVencto: TGroupBox;
+    gbxValorVencto: TGroupBox;
+    edtDataVencto: TDBEditData;
+    edtValorVencto: TDBEditNumero;
+    gbxDescontos: TGroupBox;
+    edtDescontos: TDBEditNumero;
+    gbxValorPagar: TGroupBox;
+    dtxValoraPagar: TtecDBText;
+    gbxBancoCobranca: TGroupBox;
+    flkBancoDuplicata: TtecDBFindLookup;
+    sbnBancoCobranca: TSpeedButton;
+    dtxSiglaDuplicata: TtecDBText;
+    mmoObservacaoDuplicata: TtecDBMemo;
+    flkConta: TtecDBFindLookup;
+    pgcLancamentos: TPageControl;
+    tstPagamentosDuplicatas: TTabSheet;
+    tstContabilidade: TTabSheet;
+    fraLancamentoContabilidade: TfraLancamentoContabilidade;
+    gbxPagamento: TGroupBox;
+    ckbRefazerPagamento: TCheckBox;
+    procedure sbnProcurarFilialPagtoClick(Sender: TObject);
+    procedure sbnProcurarTipoPagtoClick(Sender: TObject);
+    procedure actHabilitarControlesUpdate(Sender: TObject);
+    procedure edtDataVenctoExit(Sender: TObject);
+    procedure edtDataPagtoExit(Sender: TObject);
+    procedure sbnBancoCobrancaClick(Sender: TObject);
+    procedure sbnProcurarContaClick(Sender: TObject);
+    procedure sbnCreditarPagamentoClick(Sender: TObject);
+    procedure fraComissao1rgpTipoComissaoChange(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure FormResize(Sender: TObject);
+    procedure edtChequeExit(Sender: TObject);
+    procedure pgcLancamentosChange(Sender: TObject);
+    procedure edtDataPagtoEnter(Sender: TObject);
+    procedure flkContaEnter(Sender: TObject);
+    procedure edtChequeEnter(Sender: TObject);
+  private
+    CampoSelecionado: String;
+  protected
+    dtmContasPagar: TdtmContasPagar;
+    FOperacao: TtecTipoOperacaoDuplicatas;
+
+    function  InternoIncluir: Boolean; override;
+
+    function  InternoPesquisar(Titulo: string): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: string; Value: Variant): Boolean; Override;
+    function  TabelaDePesquisa: TZdataSet; override;
+    procedure ExibirMensagemPadronizadaDataVencto;
+    procedure ExibirMensagemPadronizadaDataPagto;
+
+    procedure DuplicatastipopagamentoChange(Sender: TObject);
+    procedure DuplicatasContaPagtoChange(Sender: TObject);
+    procedure DuplicatasPagtoError(Sender: TObject);
+
+
+
+
+{    function  ValidaData(ExibirMsg: Boolean; TipodeData: String; Data: TDBEditData): Boolean;}
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+
+    procedure  SetDataModulo(Dtm: TdtmContasPagar);
+    function  InternoGravar: Boolean; override;
+    function  InternoExcluir: Boolean; override;
+    property Operacao: TtecTipoOperacaoDuplicatas read FOperacao write FOperacao;
+    procedure AfterScrollDuplicatas(Sender: TObject);
+
+  end;
+
+var
+  frmcadastroduplicatascontaspagar: Tfrmcadastroduplicatascontaspagar;
+  TipoPesquisa: TtecQuitacaoDuplicatas;
+
+implementation
+
+{$R *.dfm}
+
+{ Tfrmcadastroduplicatascontaspagar }
+
+procedure Tfrmcadastroduplicatascontaspagar.actHabilitarControlesUpdate(Sender: TObject);
+begin
+  inherited;
+  edtDataVencto.    ReadOnly := (Operacao in [topPAGAMENTO, topCANCELAR]);
+  edtValorVencto.   ReadOnly := (Operacao in [topPAGAMENTO, topCANCELAR]);
+  edtDescontos.     ReadOnly := (Operacao in [topPAGAMENTO, topCANCELAR]);
+  flkBancoDuplicata.ReadOnly := (Operacao in [topPAGAMENTO, topCANCELAR]);
+
+  fraComissao1.rgpTipoComissao.ReadOnly := (Operacao in [topPAGAMENTO, topCANCELAR]);
+  fraComissao1.dtxComissao.    ReadOnly := (Operacao in [topPAGAMENTO, topCANCELAR]);
+  fraComissao2.rgpTipoComissao.ReadOnly := (Operacao in [topPAGAMENTO, topCANCELAR]);
+  fraComissao2.dtxComissao.    ReadOnly := (Operacao in [topPAGAMENTO, topCANCELAR]);
+
+  if Operacao <> topPAGAMENTO then begin
+     sbnProcurarFilialPagto.Enabled := False;
+     sbnProcurarTipoPagto.  Enabled := False;
+     sbnProcurarConta.      Enabled := False;
+  end
+  else
+  begin
+     sbnProcurarFilialPagto.Enabled:= True;
+     sbnProcurarTipoPagto.  Enabled:= True;
+     sbnProcurarConta.      Enabled:= True;
+  end;
+
+  edtDataPagto.   ReadOnly:= not (Operacao = topPAGAMENTO);
+  edtValorPagto.  ReadOnly:= not (Operacao = topPAGAMENTO);
+  flkFilialPagto. ReadOnly:= not (Operacao = topPAGAMENTO);
+
+  flkConta.       ReadOnly:= not (Operacao = topPAGAMENTO);
+  edtCheque.      ReadOnly:= not (Operacao = topPAGAMENTO);
+  flkTipoPagto.   ReadOnly:= not (Operacao = topPAGAMENTO);
+
+  ckbRefazerPagamento.Visible := UsuarioLogin.LoginUsuario = 'tecsoft';
+end;
+
+destructor Tfrmcadastroduplicatascontaspagar.Destroy;
+begin
+  inherited;
+  frmcadastroduplicatascontaspagar:= nil;
+end;
+
+function Tfrmcadastroduplicatascontaspagar.ExisteInformacao(Parametro: Integer; NomeCampo: string; Value: Variant): Boolean;
+begin
+  with dtmContasPagar do begin
+    case TipoPesquisa of
+      dupFILIAISPAGTO: Result:= ExisteFiliais(NomeCampo, Value);
+//----------------------------------------------------------------- Carlos 27/10/2006
+       dupBANCOVENCTO: Result:= ExisteBancosVencto(NomeCampo, Value);
+//----------------------------------------------------------------- Carlos 27/10/2006
+      dupCONTA:     Result:= ExisteConta(NomeCampo, Value);
+      dupTIPOPAGTO: Result:= ExisteTiposPagamento(NomeCampo, Value);
+      else             Result:= False
+    end;
+  end
+end;
+
+function Tfrmcadastroduplicatascontaspagar.InternoExcluir: Boolean;
+var
+ vedtDataPagto  : String;
+ vedtValorPagto : Currency;
+
+ vflkFilialPagto,
+ vflkTipoPagto,
+ vflkConta,
+ vedtCheque     : integer;
+
+begin
+  Result:= False;
+  if not CtrlOn then begin
+    Result := inherited InternoExcluir;
+    if Result then
+    begin
+      if (Operacao in [topPAGAMENTO, topCANCELAR]) then
+      begin
+        vedtDataPagto  := dtmContasPagar.qryDuplicatasdatapagto.AsString;
+        vedtValorPagto := dtmContasPagar.qryDuplicatasvalorpagto.AsCurrency;
+
+        vflkFilialPagto:= dtmContasPagar.qryDuplicatasfilialpagto.AsInteger;
+        vflkTipoPagto  := dtmContasPagar.qryDuplicatastipopagamento.AsInteger;
+        vflkConta      := dtmContasPagar.qryDuplicatascontapagto.AsInteger;
+        vedtCheque     := dtmContasPagar.qryDuplicataschequepagto.AsInteger;
+
+        if dtmContasPagar.CancelarQuitacao then
+        begin
+          if ckbRefazerPagamento.Checked then
+          begin
+
+            operacao := topPAGAMENTO;
+            dtmContasPagar.qryDuplicatas.Edit;
+            dtmContasPagar.qryDuplicatasdatapagto.AsString := vedtDataPagto;
+            dtmContasPagar.qryDuplicatasvalorpagto.AsCurrency := vedtValorPagto;
+
+            dtmContasPagar.qryDuplicatasfilialpagto.AsInteger := vflkFilialPagto;
+            dtmContasPagar.qryDuplicatastipopagamento.AsInteger := vflkTipoPagto;
+            dtmContasPagar.qryDuplicatascontapagto.AsInteger := vflkConta;
+            
+            if vedtCheque <> 0 then
+              dtmContasPagar.qryDuplicataschequepagto.AsInteger := vedtCheque;
+
+            dtmContasPagar.qryDuplicatas.Post;
+            InternoGravar;
+          end;
+
+          if not dtmContasPagar.fViaLote or not dtmContasPagar.fRefazerPagamento then
+            close;
+
+
+        end;
+      end
+      else
+      begin
+        if dtmContasPagar.ExcluirDuplicatas then
+          Close;
+      end;
+    end;
+  end;
+end;
+
+function Tfrmcadastroduplicatascontaspagar.InternoGravar: Boolean;
+var
+  Msg: String;
+  DataValida: Boolean;
+begin
+{
+  if CampoSelecionado =  'edtCheque' then
+    dtmContasPagar.dsrDuplicatasDataChange(self, dtmContasPagar.qryDuplicataschequepagto);
+ }
+
+
+  Result := inherited InternoGravar;
+  if Result then
+  begin
+
+    dtmContasPagar.AfterScrollDuplicatas := nil;
+
+    DataValida:= edtDataPagto.Criticar(False) and edtDataVencto.Criticar(False);
+
+    if DataValida then
+    begin
+      if (Operacao <> topPAGAMENTO) then
+      begin
+        Result:= (dtmContasPagar.qryDuplicatasDataVencto.AsDateTime <> 0) and
+                 (dtmcontaspagar.qryDuplicatasValorVencto.AsCurrency <> 0);
+        if self.Visible then
+        begin
+          edtDataVencto.SetFocus;
+          edtDataVencto.SelectAll;
+        end
+      end;
+
+      if (Operacao = topPAGAMENTO) then Msg:= 'Data pagamento e Valor pagamento'
+      else                              Msg:= 'Data vencimento e Valor vencimento';
+
+      if not Result then
+         MensagemAviso(format('O campo %s' + #10#13 + 'devem ser preenchidos com valores válidos.',[msg]))
+      else
+      begin
+        if Operacao  = topPAGAMENTO then
+        begin
+          //result := dtmContasPagar.VerificarChequeCadastrado;
+          if result then
+          begin
+            if dtmContasPagar.qryDuplicatastipopagamento.AsInteger=0 then
+            begin
+              MensagemErro('Não foi informado o tipo de pagamento');
+              flkTipoPagto.SetFocus;
+              flkTipoPagto.SelectAll;
+              result := false;
+            end;
+
+            if ParSistema.GerarContabilidade and result then
+            begin
+              if not dtmContasPagar.qryDocumentosPagcreditar.IsNull or
+                 (dtmLancamentoContabilidade.qryDocumentosPagLancamentos.RecordCount<>0) then
+              begin
+                if dtmContasPagar.qryDuplicatastipopagamento.AsInteger<>3 then
+                begin
+                  if dtmContasPagar.qryDuplicatascontapagto.IsNull then
+                  begin
+                    MensagemErro(ctCONTABRANCO);
+                    result := false;
+                  end
+                  else
+                  if dtmContasPagar.qryDuplicatascontacredito.IsNull then
+                  begin
+                    MensagemErro(format(ctBANCOSEMCONTACONTABIL,
+                       [dtmContasPagar.qryDuplicatascontapagto.AsString]));
+                    result := false;
+                  end;
+                end
+                else
+                begin
+                  if dtmContasPagar.qryDuplicatascontacredito.IsNull or
+                     dtmContasPagar.qryProcurarFornecedoresadiantamento.IsNull then
+                  begin
+                    MensagemErro(format(ctFORNECEDORSEMADIANTAMENTO,
+                       [dtmContasPagar.qryProcurarFornecedoresnome.AsString]));
+                    result := false;
+                  end;
+                end;
+              end
+              else
+              begin
+                MensagemAviso('Não foi definida a contrapartida do lançamento.');
+                result := false;
+              end;
+
+              (*
+              if result then
+              begin
+
+
+                if ckbRefazerPagamento.Checked then
+                begin
+
+                  dtmContasPagar.qryDuplicatasAfterScroll(nil);
+
+                  fraLancamentoContabilidade.qryLancamentos.ReadOnly := false;
+                  //dtmContasPagar.LimparTabela(fraLancamentoContabilidade.qryLancamentos);
+                end;
+
+                fraLancamentoContabilidade.GerarLancamentosContabeis;
+                result := fraLancamentoContabilidade.VerificarLancamentosContabeis;
+              end;
+              *)
+
+            end;
+
+            if (dtmContasPagar.qryDuplicatastipopagamento.AsInteger=3) and result then
+            begin
+              if dtmContasPagar.SaldoAdiantamento <
+                 dtmContasPagar.qryDuplicatasvalorpagto.AsCurrency then
+              begin
+                if dtmContasPagar.SaldoAdiantamento = 0 then
+                  MensagemErro('Não existe saldo de adiantamento para o pagamento.')
+                else
+                  MensagemErro(format('O Saldo do adiantamento é de %f.'+ #10#13 +
+                                      'Insuficiente para o pagamento.',[dtmContasPagar.SaldoAdiantamento]));
+                result := false;
+              end;
+            end;
+
+          end;
+        end;
+      end;
+
+      if result then
+      begin
+        result := dtmContasPagar.GravarDuplicatas(Operacao);
+
+
+        if not result then
+        begin
+          if pgcLancamentos.ActivePage = tstContabilidade then
+             ActiveControl:= fraLancamentoContabilidade.dbgContabilidade
+        end
+        else
+        begin
+          if operacao = topPAGAMENTO then
+          begin
+            if ParSistema.GerarContabilidade then
+            begin
+              if ckbRefazerPagamento.Checked then
+              begin
+
+                dtmContasPagar.qryDuplicatasAfterScroll(nil);
+
+                fraLancamentoContabilidade.qryLancamentos.ReadOnly := false;
+                //dtmContasPagar.LimparTabela(fraLancamentoContabilidade.qryLancamentos);
+              end;
+
+              fraLancamentoContabilidade.GerarLancamentosContabeis;
+              result := fraLancamentoContabilidade.VerificarLancamentosContabeis;
+            end;
+
+            pgcLancamentos.ActivePage:= tstPagamentosDuplicatas;
+            if tstContabilidade.TabVisible then
+              fraLancamentoContabilidade.atualizarDescricaoHistorico;
+
+
+            if result then
+//              if operacao = topPAGAMENTO then
+                result := dtmContasPagar.GravarContasPagar(Operacao);
+          end;
+        end;
+
+      end;
+    end;
+
+    if (Operacao = topPAGAMENTO) then
+    begin
+      if self.Visible then
+      begin
+        edtDataPagto.SetFocus;
+        edtDataPagto.SelectAll;
+        Operacao := topEDITAR;
+      end
+    end
+    else
+    begin
+      if self.Visible then
+      begin
+        edtDataVencto.SetFocus;
+        edtDataVencto.SelectAll;
+      end;
+    end;
+    dtmContasPagar.AfterScrollDuplicatas := AfterScrollDuplicatas;
+
+  end;
+
+end;
+
+function Tfrmcadastroduplicatascontaspagar.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if not CtrlOn and sbnIncluir.enabled then begin
+    if Result then begin
+      dtmContasPagar.IncluirDuplicatas(topINSERIR);
+      edtDataVencto.SetFocus;
+      edtDataVencto.SelectAll;
+    end;
+  end;
+end;
+
+function Tfrmcadastroduplicatascontaspagar.InternoPesquisar(Titulo: string): Integer;
+begin
+  TipoPesquisa := dupNENHUM;
+
+  Result := mrNone;
+  if ActiveControl is TtecFindCustom then begin
+    if CtrlOn then begin
+      if (ActiveControl = flkFilialPagto) and not flkFilialPagto.ReadOnly then begin
+        TipoPesquisa := dupFILIAISPAGTO;
+        Titulo       := 'Filiais';
+      end
+      else if (ActiveControl = flkTipoPagto) and not flkTipoPagto.ReadOnly then begin
+        TipoPesquisa := dupTIPOPAGTO;
+        Titulo       := 'Tipos pagamentos';
+      end
+      else if (ActiveControl = flkConta) and not flkConta.ReadOnly then begin
+        TipoPesquisa := dupCONTA;
+        Titulo       := 'Bancos';
+      end
+      else if (ActiveControl = flkBancoDuplicata) and not flkBancoDuplicata.ReadOnly then begin
+        TipoPesquisa := dupBANCOVENCTO;
+        Titulo       := 'Bancos';
+      end;
+
+      if TipoPesquisa <> dupNENHUM then
+      begin
+        with dtmContasPagar do begin
+          AbrirTabelasConsulta(TipoPesquisa);
+          Result:= inherited InternoPesquisar(Titulo);
+          if Result = mrOK then
+            Selecionar(TipoPesquisa);
+          FecharTabelasConsulta(TipoPesquisa);
+        end;
+      end;  
+    end;
+  end;
+end;
+
+function Tfrmcadastroduplicatascontaspagar.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result:= TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa := True;
+  TfrmConsultaPorCampo(Result).UsarParametrosDaTabela:= False;
+end;
+
+procedure Tfrmcadastroduplicatascontaspagar.sbnBancoCobrancaClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  flkBancoDuplicata.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure Tfrmcadastroduplicatascontaspagar.sbnProcurarFilialPagtoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  flkFilialPagto.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure Tfrmcadastroduplicatascontaspagar.sbnProcurarTipoPagtoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  flkTipoPagto.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure Tfrmcadastroduplicatascontaspagar.SetDataModulo(Dtm: TdtmContasPagar);
+begin
+  dtmContasPagar:= Dtm;
+  dtmContasPagar.DuplicatastipopagamentoChange := DuplicatastipopagamentoChange;
+  dtmContasPagar.DuplicatasContaPagtoChange := DuplicatasContaPagtoChange;
+  dtmContasPagar.DuplicatasDataPagtoError := DuplicatasPagtoError;
+
+  dtmContasPagar.AfterScrollDuplicatas := AfterScrollDuplicatas;
+
+
+  with fraLancamentoContabilidade do
+  begin
+    VaLorICMS                := dtmContasPagar.RetornaZero;
+    ValorIPI                 := dtmContasPagar.RetornaZero;
+    ValordaNota              := dtmContasPagar.RetornaZero;
+    ValorVencto              := dtmContasPagar.GetValorVencto;
+    ValorPagto               := dtmContasPagar.GetValorPagto;
+    ValordosProdutos         := dtmContasPagar.RetornaZero;
+    ValorAcrescimo           := dtmContasPagar.RetornaZero;
+    ValorFrete               := dtmContasPagar.RetornaZero;
+    ValorSeguro              := dtmContasPagar.RetornaZero;
+    ValorDespesasAcessorias  := dtmContasPagar.RetornaZero;
+    ValorCustodaMercadoria   := dtmContasPagar.RetornaZero;
+    ValorICMSSubstituicao    := dtmContasPagar.RetornaZero;
+    ValorcofinsRetido        := dtmContasPagar.ReTornaZero;
+    ValorcsllRetido          := dtmContasPagar.RetornaZero;
+    ValorinssRetido          := dtmContasPagar.RetornaZero;
+    ValorirRetido            := dtmContasPagar.RetornaZero;
+    ValorissRetido           := dtmContasPagar.RetornaZero;
+    ValorpisRetido           := dtmContasPagar.RetornaZero;
+    ValorPISCOFINSCSLLRetido := dtmContasPagar.RetornaZero;
+    ValorDescontos           := dtmContasPagar.GetValorDescontos;
+    ValorReceitasDespesasFinanceiras := dtmContasPagar.GetValorDespesasFinanceiras;
+    DataDocumento            := dtmContasPagar.GetDataPagamento;
+    CodigoNatureza           := dtmContasPagar.RetornaInteiro;
+    DebitoFornecedor         := dtmContasPagar.getDebitoFornecedor;
+    FornecedorParaISS        := dtmContasPagar.getFornecedorParaISS;
+    CreditoFornecedor        := dtmContasPagar.getCreditoFornecedor;
+    SomenteLeituraContabilidade := dtmContasPagar.RetornaVerdadeiro;
+    GerarDuplicatas          := dtmContasPagar.RetornaFalso;
+    DescricaoHistorico       := dtmContasPagar.getdescricaohistoricopagamento;
+    FilialDocumento          := dtmContasPagar.GetFilialDocumento;
+
+    CodigoDocumento          := dtmContasPagar.Getnrlotecontabil;  {}
+    CodigoDuplicata          := dtmContasPagar.GetnrlotecontabilDuplicata;  {}
+
+    nrDocumento              := dtmContasPagar.GetCodigoDocumento; {}
+    ContaCreditoPagamento    := dtmContasPagar.GetContaCreditoPagamento; {}
+
+    NumeroNotaFiscal         := dtmContasPagar.RetornaInteiro;
+    ContaDebitarouCreditar   := dtmContasPagar.GetContaCreditar;
+    HistoricoDebitarouCreditar := dtmContasPagar.GetHistoricoDebitar;
+    HistoricoPadrao          := dtmContasPagar.GetHistoricoPadrao;
+    Origem                   := 'P';
+    OrigemFormulario         := 'P';
+    AtribuirContaDocumento   := dtmContasPagar.AtribuirContaCreditoDocumentoPag;
+    //EditarDocumento          := dtmContasPagar.EditarDocumento;
+    NomeOrigemFormulario     := self.name;
+    DocumentoPossuiOrigem    := dtmContasPagar.GetDocumentoPossuiOrigem;
+    evento                   := dtmContasPagar.getEvento;
+
+    ehMultiploPagamento      := dtmContasPagar.GetehMultiploPagamento;
+
+  end;
+
+
+end;
+
+function Tfrmcadastroduplicatascontaspagar.TabelaDePesquisa: TZdataSet;
+begin
+  with dtmContasPagar do begin
+    case TipoPesquisa of
+      dupFILIAISPAGTO: Result:= ConsultarFiliais;
+//------------------------------------------------------ carlos 27/10/2006
+       dupBANCOVENCTO: Result:= ConsultarBancosVencto;
+//--------------------------------------------------------
+             dupCONTA: Result:= ConsultarContaPagto;
+         dupTIPOPAGTO: Result:= ConsultarTiposPagamento;
+      else               Result:= nil;
+    end;
+  end
+end;
+
+procedure Tfrmcadastroduplicatascontaspagar.edtDataVenctoExit(Sender: TObject);
+begin
+  inherited;
+{
+  if not DataEmBranco(edtDataVencto.Text) and
+     not ValidaData(True, 'vencimento', edtDataVencto) then
+    edtdatavencto.SetFocus;
+    }
+end;
+
+{
+function Tfrmcadastroduplicatascontaspagar.ValidaData(
+         ExibirMsg: Boolean; TipodeData: String; Data: TDBEditData): Boolean;
+var
+  Contabil, Emissao: Integer;
+begin
+  Result := True;
+  with dtmContasPagar do begin
+    Contabil:= DaysBetween(DataServidor,DataContabil);
+    Emissao := DaysBetween(DataServidor,StrToDatetime(DataEmissao));
+    if Data.Criticar(False) then begin
+     if Contabil < Emissao then begin
+       if StrToDate(Data.Text) > DataContabil then begin
+         if ExibirMsg then
+           MensagemAviso(Format(ctERRONOTAFISCALDATAMENORDATACONTABIL,[TipodeData]));
+         Result := False;
+       end;
+     end
+     else
+      if not DataEmBranco(Data.Text) and (StrToDate(Data.Text) < StrToDate(DataEmissao)) then begin
+        if ExibirMsg then
+          MensagemAviso(format(ctDATAMENOREMISSAO,[TipodeData]));
+        Result := False;
+      end;
+    end;
+  end;
+end;
+}
+
+procedure Tfrmcadastroduplicatascontaspagar.edtDataPagtoExit(Sender: TObject);
+begin
+  inherited;
+{
+  if not DataEmBranco(edtdatapagto.Text) and
+     not ValidaData(True, 'pagamento', edtDataPagto) then
+    edtDataPagto.SetFocus
+}
+{
+  else
+  if DataEmBranco(edtdatapagto.text) then
+  begin
+    with dtmContasPagar do
+    begin
+      if PagamentosVinculados<>'' then
+      begin
+        MensagemErro(format(ctEXISTEPAGTOIMPOSTOSVINCULADOS,
+           [qrydocumentospagnumero.asstring,fPagamentosVinculados]));
+        edtDataPagto.Text := qryDuplicatasdatapagto.OldValue;
+      end;
+    end;
+  end;
+}
+end;
+
+procedure Tfrmcadastroduplicatascontaspagar.sbnProcurarContaClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkConta, ctCONTAS);
+end;
+
+procedure Tfrmcadastroduplicatascontaspagar.sbnCreditarPagamentoClick(
+  Sender: TObject);
+begin
+  inherited;
+//  InternoPesquisar(flkCreditarPagamento, ctCONTACREDITO);
+end;
+
+constructor Tfrmcadastroduplicatascontaspagar.Create(AOwner: TComponent);
+begin
+  inherited;
+  if ParSistema.GerarContabilidade then
+    tstContabilidade.tabVisible := true
+  else
+    tstContabilidade.tabVisible := false;
+
+  edtDataVencto.MensagemPadronizada := ExibirMensagemPadronizadaDataVencto;
+  edtDataPagto.MensagemPadronizada := ExibirMensagemPadronizadaDataPagto;
+
+  //dtmContasPagar.AfterScrollDuplicatas := AfterScrollDuplicatas;
+
+//  fraConsultaCreditar.TipoContaContabilConsultaSelecionavel:= 'A';
+//  fraConsultaCreditar.TipoContaContabilDebitoSelecionavel:= 'A';
+//  fraConsultaCreditar.TipoPesquisa:= pesCONTACREDITO;
+
+
+
+end;
+
+procedure Tfrmcadastroduplicatascontaspagar.fraComissao1rgpTipoComissaoChange(
+  Sender: TObject);
+begin
+  inherited;
+  fraComissao1.rgpTipoComissaoChange(Sender);
+
+end;
+
+procedure Tfrmcadastroduplicatascontaspagar.ExibirMensagemPadronizadaDataVencto;
+begin
+  MensagemAviso(format(ctDATACONTABILMAIOROUIGUALDATALANCTO, ['de vencimento',
+               edtDataVencto.Text, 'emissão', dtmContasPagar.qryDocumentosPagemissao.asstring]))
+end;
+
+procedure Tfrmcadastroduplicatascontaspagar.ExibirMensagemPadronizadaDataPagto;
+begin
+  if ParSistema.DataContabil > dtmContasPagar.qryDocumentosPagemissao.AsDateTime then
+    MensagemAviso(format(ctDATACONTABILMAIORDATALANCTO, ['de pagamento',
+                 edtDataPagto.Text, 'contábil', parsistema.datacontabilstring]))
+  else
+    MensagemAviso(format(ctDATACONTABILMAIOROUIGUALDATALANCTO, ['de pagamento',
+                 edtDataPagto.Text, 'emissão', dtmContasPagar.qryDocumentosPagemissao.Asstring]));
+end;
+
+procedure Tfrmcadastroduplicatascontaspagar.DuplicatastipopagamentoChange(
+  Sender: TObject);
+begin
+  {Quando for adiantamento não permite digitar a conta}
+  if not dtmContasPagar.qryDuplicatastipopagamento.isnull then
+  begin
+    gbxConta.Enabled := dtmContasPagar.qryDuplicatastipopagamento.AsInteger<>3;
+    gbxCheque.Enabled := gbxConta.Enabled;
+
+    if dtmContasPagar.qryDuplicatastipopagamento.AsInteger=3 then
+    begin
+      if dtmContasPagar.qryDuplicatascontacredito.AsInteger<>0 then
+        mmoObservacaoDuplicata.SetFocus
+      else
+      begin
+        if self.visible then
+        begin
+          flkTipoPagto.SetFocus;
+          flkTipoPagto.SelectAll;
+        end;
+      end
+    end
+    else
+    begin
+      if self.Visible then
+      begin
+        flkConta.SetFocus;
+        flkConta.SelectAll;
+      end;  
+    end;
+  end;      
+end;
+
+procedure Tfrmcadastroduplicatascontaspagar.DuplicatasContaPagtoChange(
+  Sender: TObject);
+begin
+//  fraConsultaCreditar.edfCodigo.Exist;
+end;
+
+procedure Tfrmcadastroduplicatascontaspagar.FormShow(Sender: TObject);
+begin
+  inherited;
+  if (Operacao in [topPAGAMENTO, topCANCELAR]) then
+  begin
+    sbnIncluir.enabled:= False;
+    sbnExcluir.enabled := dtmContasPagar.PermiteCancelarDuplicata;
+    sbnExcluir.Caption:= 'Cancelar F6';
+    Caption:= 'Quitação de Duplicatas';
+
+    DuplicatastipopagamentoChange(nil);
+    dtmContasPagar.IncluirDuplicatas(Operacao);
+
+    ActiveControl := edtDataPagto;
+    ActiveControl.SetFocus;
+    edtDataPagto.SelectAll;
+
+  end
+  else
+  begin
+    sbnIncluir.enabled:= not dtmContasPagar.ExisteQuitacaoImpostosRetidosDuplicatas;
+    sbnExcluir.enabled := dtmContasPagar.PermiteExcluirDuplicata;
+    sbnExcluir.Caption:= 'Excluir F6';
+    Caption:= 'Cadastro de Duplicatas';
+    self.ActiveControl := edtDataVencto;
+    dtmContasPagar.IncluirDuplicatas(Operacao);
+    edtDataVencto.SetFocus;
+    edtDataVencto.SelectAll;
+  end;
+
+
+end;
+
+procedure Tfrmcadastroduplicatascontaspagar.FormResize(Sender: TObject);
+begin
+  inherited;
+  {
+  if (Operacao = topPAGAMENTO) then
+  begin
+    edtDataPagto.SetFocus;
+    edtDataPagto.SelectAll;
+  end
+  else begin
+    edtDataVencto.SetFocus;
+    edtDataVencto.SelectAll;
+  end;
+  }
+end;
+
+procedure Tfrmcadastroduplicatascontaspagar.edtChequeExit(Sender: TObject);
+begin
+  inherited;
+  dtmContasPagar.GravarDuplicatasPagamentos;
+end;
+
+procedure Tfrmcadastroduplicatascontaspagar.pgcLancamentosChange(
+  Sender: TObject);
+begin
+  inherited;
+  if pgcLancamentos.ActivePage = tstContabilidade then
+  with fraLancamentoContabilidade do
+  begin
+//    if not ExisteLancamentosContabeis then
+      GerarLancamentosContabeis;
+  end;
+end;
+
+procedure Tfrmcadastroduplicatascontaspagar.AfterScrollDuplicatas(
+  Sender: TObject);
+begin
+  if parsistema.GerarContabilidade then
+  begin
+    if Sender = nil then
+      fraLancamentoContabilidade.GerarLancamentosContabeis
+    else
+    if tstContabilidade.tabvisible then
+      fraLancamentoContabilidade.AbrirLancamentos('P', dtmContasPagar.Getnrlotecontabil, dtmContasPagar.IncluindoDocumentoPag);
+  end;      
+end;
+
+procedure Tfrmcadastroduplicatascontaspagar.DuplicatasPagtoError(
+  Sender: TObject);
+begin
+  if CampoSelecionado = 'edtDataPagto' then
+  begin
+    edtdatapagto.SetFocus;
+    edtdatapagto.SelectAll;
+  end
+  else
+  if CampoSelecionado = 'flkConta' then
+  begin
+    flkConta.Text := dtmContasPagar.qryDuplicatascontapagtoaux.AsString;
+    flkConta.SetFocus;
+    flkconta.SelectAll;
+  end
+  else
+  if CampoSelecionado = 'edtCheque' then
+  begin
+    edtCheque.Text := dtmContasPagar.qryDuplicataschequepagto.AsString;
+    edtCheque.SetFocus;
+    edtCheque.SelectAll;
+  end;
+
+end;
+
+
+procedure Tfrmcadastroduplicatascontaspagar.edtDataPagtoEnter(
+  Sender: TObject);
+begin
+  inherited;
+  CampoSelecionado := 'edtDataPagto';
+end;
+
+procedure Tfrmcadastroduplicatascontaspagar.flkContaEnter(Sender: TObject);
+begin
+  inherited;
+  CampoSelecionado := 'flkConta';
+end;
+
+procedure Tfrmcadastroduplicatascontaspagar.edtChequeEnter(
+  Sender: TObject);
+begin
+  inherited;
+  CampoSelecionado := 'edtCheque';
+end;
+
+end.

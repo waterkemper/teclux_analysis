@@ -1,0 +1,494 @@
+unit fmGerarRequisicoesConsultaCompras;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmajudabt, ComCtrls, Buttons, ToolWin, ExtCtrls, frconsulta,
+  frconsultacodigo, StdCtrls, Grids, DBGrids, cpdbgrid, ctconstantes,
+  ActnList, DBCtrls, cpdbmemo, cpdbfindcontrols, biblio, dmbasico, dmconsultacompras,
+  AdvObj, BaseGrid, AdvGrid, DBAdvGrid, db;
+
+type
+  TfrmGerarRequisicoesConsultaCompras = class(TfrmAjudaBt)
+    sbnGerar: TSpeedButton;
+    GroupBox1: TGroupBox;
+    fraConsultaFilialRequisitante: TfraConsultaCodigo;
+    Shape4: TShape;
+    Label2: TLabel;
+    AclHabilitar: TActionList;
+    actHabilitar: TAction;
+    Shape1: TShape;
+    Label1: TLabel;
+    dbgPedidosFiliais_: TDBAdvGrid;
+    gbxRequisicoes: TGroupBox;
+    procedure FormActivate(Sender: TObject);
+
+    {
+    procedure dbgPedidosFiliaisDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+      }
+
+//    procedure fraConsultaFilialRequisitadaedfCodigoFound(Found: Boolean);
+    procedure sbnGerarClick(Sender: TObject);
+    procedure actHabilitarUpdate(Sender: TObject);
+    procedure dbgPedidosFiliais_GetCellColor(Sender: TObject; ARow,
+      ACol: Integer; AState: TGridDrawState; ABrush: TBrush; AFont: TFont);
+    procedure dbgPedidosFiliais_DrawCell(Sender: TObject; ACol,
+      ARow: Integer; Rect: TRect; State: TGridDrawState);
+    procedure dbgPedidosFiliais_CanClickCell(Sender: TObject; ARow,
+      ACol: Integer; var Allow: Boolean);
+    procedure dbgPedidosFiliais_ClickCell(Sender: TObject; ARow,
+      ACol: Integer);
+//    procedure dbgPedidosFiliaisKeyDown(Sender: TObject; var Key: Word;
+//      Shift: TShiftState);
+  private
+    { Private declarations }
+
+//    fraConsultaEstoqueItemProduto: TfraConsultaCodigo;
+    procedure DrawGridPedidosFiliais(Sender: TObject);
+    procedure AfterPostPedidosFiliais(Sender: TObject);
+
+    procedure CondicaoConsultaFilialRequisitada;
+//    procedure CondicoesConsultaEstoqueItemProduto;
+//    procedure AtribuirDadosConsultaEstoqueItemProduto;
+
+  protected
+    procedure KeyDown(var Key: Word; Shift: TShiftState);override;
+    procedure AcionarPesquisaGrade;
+
+    procedure DrawGrid;
+
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent; dtm : TdtmBasico); reintroduce;
+    destructor Destroy; override;
+
+  end;
+
+var
+  frmGerarRequisicoesConsultaCompras: TfrmGerarRequisicoesConsultaCompras;
+
+implementation
+
+{uses dmconsultacompras;}
+
+{$R *.dfm}
+
+{ TfrmGerarRequisicoesConsultaCompras }
+
+constructor TfrmGerarRequisicoesConsultaCompras.Create(AOwner: TComponent; dtm:TdtmBasico);
+begin
+  inherited Create(AOwner);;
+  dtmConsultaCompras := tdtmConsultaCompras(dtm);
+  dtmConsultaCompras.drawGridPedidosFiliais := self.drawGridPedidosFiliais;
+//  dtmConsultaCompras.AfterPostPedidosFiliais := self.AfterPostPedidosFiliais;
+
+  dbgPedidosFiliais_.DataSource := dtmconsultacompras.dsrPedidosFiliais_;
+
+//  mmoObservacao.DataSource := dtmConsultaCompras.dsrPedidosFiliais_;
+  
+//  fraConsultaFilialRequisitada.TipoPesquisa := pesFILIAIS;
+//  fraConsultaFilialRequisitada.CondicoesdaConsulta := CondicaoConsultaFilialRequisitada;
+
+  fraConsultaFilialRequisitante.TipoPesquisa := pesFILIAIS;
+  fraConsultaFilialRequisitante.edfCodigo.Text := dtmConsultaCompras.FilialRequisitante;
+  fraConsultaFilialRequisitante.edfCodigo.Exist;
+
+  {
+  fraConsultaEstoqueItemProduto := TfraConsultaCodigo.Create(self);
+  fraConsultaEstoqueItemProduto.Name := 'frafraConsultaEstoqueItemProduto';
+  fraConsultaEstoqueItemProduto.edfCodigo.MaxLength := 3;
+  fraConsultaEstoqueItemProduto.edfCodigo.DataSource := dtmConsultaCompras.dsrPedidosFiliais;
+  fraConsultaEstoqueItemProduto.edfCodigo.DataField := 'requisitada';
+  fraConsultaEstoqueItemProduto.edfCodigo.Operacao := opATRIBUICAO;
+  fraConsultaEstoqueItemProduto.edfCodigo.LookupSource := fraConsultaEstoqueItemProduto.dsrProcuraEstoqueItemProdutos;
+  fraConsultaEstoqueItemProduto.edfCodigo.LookupQueryParameter := 'filial';
+  fraConsultaEstoqueItemProduto.edfCodigo.LookupField := 'filial';
+  fraConsultaEstoqueItemProduto.AbrirTabelaProcura := false;
+  fraConsultaEstoqueItemProduto.TipoPesquisa := pesEstoqueItemProdutos;
+  fraConsultaEstoqueItemProduto.CondicoesdaConsulta := CondicoesConsultaEstoqueItemProduto;
+  fraConsultaEstoqueItemProduto.OnFound := AtribuirDadosConsultaEstoqueItemProduto;
+  }
+
+
+//  dbgPedidosFiliais_.MergeColumnCells(4, false);
+
+  {
+  dbgPedidosFiliais_.MergeCells(1,1,1,4);
+  dbgPedidosFiliais_.MergeCells(2,1,1,4);
+  dbgPedidosFiliais_.MergeCells(3,1,1,4);
+  dbgPedidosFiliais_.MergeCells(4,1,1,4);
+  }
+
+
+  DrawGrid;
+
+//  dbgPedidosFiliais_.Group(1);
+
+//  dbgPedidosFiliais_.GroupColumn := dbgPedidosFiliais_.ColumnByFieldName['produtovisual'].Index;
+
+  dbgPedidosFiliais_.pagemode := false;
+  dbgPedidosFiliais_.MergeColumnCells(1, true);
+  dbgPedidosFiliais_.MergeColumnCells(2, false);
+  dbgPedidosFiliais_.MergeColumnCells(3, false);
+  dbgPedidosFiliais_.pagemode := true;
+
+  dtmConsultaCompras.vTotalAtendido := 0;
+
+
+
+
+
+end;
+
+destructor TfrmGerarRequisicoesConsultaCompras.Destroy;
+begin
+
+  inherited;
+  frmGerarRequisicoesConsultaCompras := nil;
+
+end;
+
+procedure TfrmGerarRequisicoesConsultaCompras.FormActivate(
+  Sender: TObject);
+begin
+  inherited;
+//  fraConsultaFilialRequisitada.edfCodigo.setfocus;
+
+//  dbgPedidosFiliais_.pagemode := false;
+
+//  dbgPedidosFiliais_.Columns[0].HeaderAlignment:= taCenter;
+  dbgPedidosFiliais_.refresh;
+
+
+end;
+
+{
+procedure TfrmGerarRequisicoesConsultaCompras.dbgPedidosFiliaisDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  with dtmConsultaCompras do
+  begin
+    if qryPedidosFiliaisqtdepedida.AsCurrency > qryPedidosFiliaisqtdeAtendida.AsCurrency THEN
+       TDBGrid(Sender).Canvas.Font.Color  := clRed
+    else
+       TDBGrid(Sender).Canvas.Font.Color  := clWindowText;
+
+    if qryPedidosFiliaisqtdeestoque.AsCurrency <> qryPedidosFiliaisqtdeestoqueanterior.AsCurrency THEN
+       TDBGrid(Sender).Canvas.Font.Style  := [fsBold]
+    else
+       TDBGrid(Sender).Canvas.Font.Style  := [];
+
+    TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end;
+
+end;
+}
+
+{
+procedure TfrmGerarRequisicoesConsultaCompras.fraConsultaFilialRequisitadaedfCodigoFound(
+  Found: Boolean);
+begin
+  inherited;
+  if found then
+    dtmConsultaCompras.VerificarEstoqueFilialRequisitada(fraConsultaFilialRequisitada.qryProcuraFiliais.FieldByName('codigo').asstring,
+    fraConsultaFilialRequisitada.qryProcuraFiliais.FieldByName('mnemonico').asString, true, false);
+end;
+}
+
+procedure TfrmGerarRequisicoesConsultaCompras.CondicaoConsultaFilialRequisitada;
+begin
+{
+  fraConsultaFilialRequisitada.qryprocurafiliais.macrobyname('SQL').asstring := format('and codigo <> %s and '+
+                                                                            ' codigo in (select f2.codigo '+
+                                                                                       ' from filiais f2 '+
+                                                                                       ' where f2.tipofilial = ''D'') ',
+                                                    [dtmConsultaCompras.FilialRequisitante]);
+                                                    }
+{
+  fraConsultaFilialRequisitada.qryprocurafiliais.macrobyname('SQL').asstring := format('and codigo <> %s ',
+                                                    [dtmConsultaCompras.FilialRequisitante]);
+
+  fraConsultaFilialRequisitada.qryconsultafiliais.macrobyname('SQL').asstring  :=
+    fraConsultaFilialRequisitada.qryprocurafiliais.macrobyname('SQL').asstring
+    }
+
+end;
+
+procedure TfrmGerarRequisicoesConsultaCompras.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  case Key of
+       VK_F6 : if sbnGerar.Enabled then sbnGerarClick(Self);
+  end;
+  inherited;
+end;
+
+procedure TfrmGerarRequisicoesConsultaCompras.sbnGerarClick(
+  Sender: TObject);
+begin
+  inherited;
+  if dtmConsultaCompras.VerificarEstoqueFilialRequisitada('', '', {false,} true) then
+    if dtmConsultaCompras.IncluirPedidosFiliais then
+      close;
+end;
+
+procedure TfrmGerarRequisicoesConsultaCompras.actHabilitarUpdate(
+  Sender: TObject);
+begin
+  inherited;
+{  sbnGerar.Enabled := dtmConsultaCompras.ExisteAlgumEstoquenaFilialRequisitada and
+                     (fraConsultaFilialRequisitada.qryProcuraFiliais.RecordCount = 1)} ;
+
+  sbnGerar.Enabled := (dtmConsultaCompras.vTotalAtendido <> 0);
+                                            {
+  lblPesquisar.enabled := (dbgPedidosFiliais.SelectedField = dtmConsultaCompras.qryPedidosFiliaisrequisitada) or
+                          (dbgPedidosFiliais.SelectedField = dtmConsultaCompras.qryPedidosFiliaismnemonico);
+                          }
+
+end;
+
+{
+procedure TfrmGerarRequisicoesConsultaCompras.dbgPedidosFiliaisKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      VK_F9     : begin
+                     fraConsultaEstoqueItemProduto.CtrlOn := Shift = [ssCtrl];
+                     if (Shift = []) or fraConsultaEstoqueItemProduto.CtrlOn then
+                       AcionarPesquisaGrade
+                   end;
+    end;
+  end
+end;
+}
+
+{
+procedure TfrmGerarRequisicoesConsultaCompras.AtribuirDadosConsultaEstoqueItemProduto;
+begin
+  with dtmConsultaCompras do
+  begin
+    if fraConsultaEstoqueItemProduto.qryProcuraEstoqueItemProdutos.FieldByName('filial').asinteger =
+       fraConsultaFilialRequisitante.qryProcuraFiliais.FieldByName('codigo').AsInteger then
+      MensagemAviso('A Filial requisitante deve ser diferente da requisitada')
+    else
+    begin
+      qrypedidosfiliais.Edit;
+      qryPedidosFiliaisfilial.Asinteger := fraConsultaEstoqueItemProduto.qryProcuraEstoqueItemProdutos.FieldByName('filial').asinteger;
+      qrypedidosfiliaismnemonico.asString := fraConsultaEstoqueItemProduto.qryProcuraEstoqueItemProdutos.FieldByName('mnemonico').asString;
+      qrypedidosfiliaisqtdeestoque.asCurrency := fraConsultaEstoqueItemProduto.qryProcuraEstoqueItemProdutos.FieldByName('emestoque').ascurrency;
+      qryPedidosFiliaisqtdeestoqueanterior.AsCurrency := qrypedidosfiliais.FieldByName('qtdeestoque').asCurrency;
+
+      qrypedidosfiliais.post;
+    end;
+
+    CalcularTotalAtendido;
+
+  end;
+end;
+}
+
+{
+procedure TfrmGerarRequisicoesConsultaCompras.CondicoesConsultaEstoqueItemProduto;
+const
+  SQL = 'where p.codigo = %s';
+begin
+
+  fraConsultaEstoqueItemProduto.qryProcuraEstoqueItemProdutos.parambyname('produtovisual').AsString :=
+    dtmConsultaCompras.qryPedidosFiliaisproduto.asString;
+
+  fraConsultaEstoqueItemProduto.qryConsultaEstoqueItemProdutos.macrobyname('SQLInterno').AsString :=
+    format(SQL,[dtmConsultaCompras.qryPedidosFiliaisproduto.asString]);
+
+end;
+}
+
+procedure TfrmGerarRequisicoesConsultaCompras.AcionarPesquisaGrade;
+begin
+  (*
+  if  ActiveControl = dbgPedidosFiliais then
+  begin
+
+    fraConsultaEstoqueItemProduto.CtrlOn := True;
+    dbgPedidosFiliais.SetFocus;
+    if (dbgPedidosFiliais.SelectedField = dtmConsultaCompras.qryPedidosFiliaisrequisitada) or
+       (dbgPedidosFiliais.SelectedField = dtmConsultaCompras.qryPedidosFiliaismnemonico) then
+    begin
+      fraConsultaEstoqueItemProduto.qryConsultaEstoqueItemProdutos.close;
+      case fraConsultaEstoqueItemProduto.InternoPesquisar(ctPRODUTO) of
+      mrOk   : begin
+                 dbgPedidosFiliais.SetFocus;
+//                 dbgPedidosFiliais.SelectedIndex :=  0;
+               end;
+      mrCancel: begin
+                  dbgPedidosFiliais.SetFocus;
+//                  dbgPedidosFiliais.SelectedIndex :=  0;
+                end;
+      end;
+    end;
+  end;
+  *)
+
+end;
+
+
+procedure TfrmGerarRequisicoesConsultaCompras.dbgPedidosFiliais_GetCellColor(
+  Sender: TObject; ARow, ACol: Integer; AState: TGridDrawState;
+  ABrush: TBrush; AFont: TFont);
+begin
+  inherited;
+                 {
+  if TDBAdvGrid(Sender).Columns[ACol].FieldName = 'produtovisual' then
+  begin
+    with dtmConsultaCompras do
+    begin
+      if qryPedidosFiliais_quantidade.AsCurrency > qryPedidosFiliais_qtdeAtendida.AsCurrency THEN
+        Afont.Color  := clRed
+      else
+        Afont.Color  := clWindowText;
+    end;
+  end
+  else
+                  }
+
+                  {
+  if Acol > dbgPedidosFiliais_.ColumnByFieldName['descricaoproduto'].Index then
+  begin
+    with dtmConsultaCompras do
+    begin
+      if (Arow = qryPedidosFiliais_.recno) then
+      begin
+        if (qryPedidosFiliais_emestoque.AsCurrency <> qryPedidosFiliais_emestoqueanterior.AsCurrency)THEN
+           AFont.Style  := [fsBold]
+        else
+           AFont.Style  := [];
+      end;
+    end;
+  end;
+                   }
+end;
+
+procedure TfrmGerarRequisicoesConsultaCompras.DrawGrid;
+var
+  i: integer;
+begin
+
+  with dtmConsultaCompras do
+  begin
+    try
+//      qryPedidosFiliais.guardarRegistroAtual(true);
+
+      qryPedidosFiliais.first;
+      while not qryPedidosFiliais.eof do
+      begin
+
+        if qryPedidosFiliaissugestao.AsCurrency > qryPedidosFiliaisqtdeAtendida.AsCurrency THEN
+        begin
+          dbgPedidosFiliais_.CellProperties[dbgPedidosFiliais_.ColumnByFieldName['produtovisual'].Index, qryPedidosFiliais.recno].FontColor := clRed;
+          dbgPedidosFiliais_.CellProperties[dbgPedidosFiliais_.ColumnByFieldName['descricaoproduto'].Index, qryPedidosFiliais.recno].FontColor := clRed;
+          dbgPedidosFiliais_.CellProperties[dbgPedidosFiliais_.ColumnByFieldName['quantidade'].Index, qryPedidosFiliais.recno].FontColor := clRed;
+        end;
+
+
+        if qryPedidosFiliaisrequisitante.Asinteger = qryPedidosFiliaisfilial.Asinteger THEN
+        begin
+          for i:= dbgPedidosFiliais_.ColumnByFieldName['descricaoproduto'].Index  to dbgPedidosFiliais_.colcount-1 do
+          begin
+            dbgPedidosFiliais_.CellProperties[i, qryPedidosFiliais.recno].BrushColor := $00DADADA;
+            dbgPedidosFiliais_.CellProperties[i, qryPedidosFiliais.recno].FontStyle := [fsBold];
+          end;
+
+          dbgPedidosFiliais_.MergeCells(dbgPedidosFiliais_.ColumnByFieldName['descricaoproduto'].Index,
+                                          qryPedidosFiliais.recno,
+                                          4, 1 );
+
+
+        end
+        else
+        begin
+          dbgPedidosFiliais_.CellProperties[dbgPedidosFiliais_.ColumnByFieldName['emestoque'].Index, qryPedidosFiliais.recno].BrushColor := $00D9FFD9;
+          dbgPedidosFiliais_.CellProperties[dbgPedidosFiliais_.ColumnByFieldName['qtdepedida'].Index, qryPedidosFiliais.recno].BrushColor := $00D9FFD9;
+        end;
+
+        if qryPedidosFiliaisemestoque.AsCurrency <> qryPedidosFiliaisemestoqueanterior.AsCurrency THEN
+        begin
+          dbgPedidosFiliais_.CellProperties[dbgPedidosFiliais_.ColumnByFieldName['emestoque'].Index, qryPedidosFiliais.recno].FontColor := $00FF8000;
+//          dbgPedidosFiliais_.CellProperties[dbgPedidosFiliais_.ColumnByFieldName['emestoque'].Index, qryPedidosFiliais.recno].BrushColor := clNavy;
+                    {
+          for i:= dbgPedidosFiliais_.ColumnByFieldName['descricaoproduto'].Index +1 to dbgPedidosFiliais_.colcount-1 do
+            dbgPedidosFiliais_.CellProperties[i, qryPedidosFiliais.recno].FontColor := clNavy;
+            }
+        end;
+
+
+        qryPedidosFiliais.next;
+      end;
+    finally
+//      qryPedidosFiliais.VoltarRegistro;
+      qryPedidosFiliais.first;
+    end;
+  end;
+
+
+
+  dbgPedidosFiliais_.SelectRows(1,0);
+  dbgPedidosFiliais_.SelectCols(dbgPedidosFiliais_.ColumnByFieldName['qtdepedida'].Index+1,0);
+
+
+
+end;
+
+
+procedure TfrmGerarRequisicoesConsultaCompras.dbgPedidosFiliais_DrawCell(
+  Sender: TObject; ACol, ARow: Integer; Rect: TRect;
+  State: TGridDrawState);
+begin
+  inherited;
+;
+end;
+
+procedure TfrmGerarRequisicoesConsultaCompras.DrawGridPedidosFiliais(
+  Sender: TObject);
+begin
+  DrawGrid;
+end;
+
+procedure TfrmGerarRequisicoesConsultaCompras.dbgPedidosFiliais_CanClickCell(
+  Sender: TObject; ARow, ACol: Integer; var Allow: Boolean);
+begin
+  inherited;
+  Allow := dbgPedidosFiliais_.datasource.dataset.state <> dsedit;
+end;
+
+procedure TfrmGerarRequisicoesConsultaCompras.dbgPedidosFiliais_ClickCell(
+  Sender: TObject; ARow, ACol: Integer);
+begin
+  inherited;
+;
+end;
+
+procedure TfrmGerarRequisicoesConsultaCompras.AfterPostPedidosFiliais(
+  Sender: TObject);
+begin
+
+  dbgPedidosFiliais_.row := dtmConsultaCompras.qryPedidosFiliais.recno;
+
+              (*
+  dbgPedidosFiliais_.pagemode := false;
+  dbgPedidosFiliais_.refresh;
+  dbgPedidosFiliais_.pagemode := true;
+  *)
+
+
+
+end;
+
+end.

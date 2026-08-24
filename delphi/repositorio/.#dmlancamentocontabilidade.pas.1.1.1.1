@@ -1,0 +1,229 @@
+unit dmlancamentocontabilidade;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, cpdatasource, ZQuery, ZPgSqlQuery,
+  cpquery, ctconstantes, clusuario, biblio, variants, clparametrossistema;
+
+type
+  TdtmLancamentoContabilidade = class(TdtmBasico)
+    qryLancamentosNotasEntradas: TtecQuery;
+    qryLancamentosDocumentos: TtecQuery;
+    qryLancamentosNotasEntradasexercicio: TIntegerField;
+    qryLancamentosNotasEntradasnrlancto: TIntegerField;
+    qryLancamentosNotasEntradasfilial: TIntegerField;
+    qryLancamentosNotasEntradasdata: TDateField;
+    qryLancamentosNotasEntradasorigem: TStringField;
+    qryLancamentosNotasEntradasdebitar: TIntegerField;
+    qryLancamentosNotasEntradascreditar: TIntegerField;
+    qryLancamentosNotasEntradasvalor: TFloatField;
+    qryLancamentosNotasEntradashistorico: TIntegerField;
+    qryLancamentosNotasEntradascomplemento: TStringField;
+    qryLancamentosNotasEntradasdescricaoorigem: TStringField;
+    qryLancamentosDocumentosexercicio: TIntegerField;
+    qryLancamentosDocumentosnrlancto: TIntegerField;
+    qryLancamentosDocumentosfilial: TIntegerField;
+    qryLancamentosDocumentosdata: TDateField;
+    qryLancamentosDocumentosorigem: TStringField;
+    qryLancamentosDocumentosdebitar: TIntegerField;
+    qryLancamentosDocumentoscreditar: TIntegerField;
+    qryLancamentosDocumentosvalor: TFloatField;
+    qryLancamentosDocumentoshistorico: TIntegerField;
+    qryLancamentosDocumentoscomplemento: TStringField;
+    qryLancamentosDocumentosdescricaoorigem: TStringField;
+    qryParametros: TtecQuery;
+    qryParametrosparametro: TIntegerField;
+    qryParametrosfilial: TIntegerField;
+    qryParametrosvalor: TStringField;
+    qryLancamentosNotasEntradasnumerocriado: TBooleanField;
+    qryLancamentosDocumentosnumerocriado: TBooleanField;
+    qryLancamentosNotasSaidas: TtecQuery;
+    qryLancamentosNotasSaidasexercicio: TIntegerField;
+    qryLancamentosNotasSaidasnrlancto: TIntegerField;
+    qryLancamentosNotasSaidasfilial: TIntegerField;
+    qryLancamentosNotasSaidasdata: TDateField;
+    qryLancamentosNotasSaidasorigem: TStringField;
+    qryLancamentosNotasSaidasdebitar: TIntegerField;
+    qryLancamentosNotasSaidascreditar: TIntegerField;
+    qryLancamentosNotasSaidasvalor: TFloatField;
+    qryLancamentosNotasSaidashistorico: TIntegerField;
+    qryLancamentosNotasSaidascomplemento: TStringField;
+    qryLancamentosNotasSaidasdescricaoorigem: TStringField;
+    qryLancamentosNotasSaidasnumerocriado: TBooleanField;
+    qryLancamentosNotasEntradasnrorigem: TLargeintField;
+    qryLancamentosNotasEntradasnrorigemlote: TLargeintField;
+    qryLancamentosDocumentosnrorigem: TLargeintField;
+    qryLancamentosDocumentosnrorigemlote: TLargeintField;
+    qryLancamentosNotasSaidasnrorigem: TLargeintField;
+    qryLancamentosNotasSaidasnrorigemlote: TLargeintField;
+    qryDocumentosPagLancamentos: TtecQuery;
+    qryDocumentosPagLancamentosnumerodocumentopag: TIntegerField;
+    qryDocumentosPagLancamentoscontacontabil: TIntegerField;
+    qryDocumentosPagLancamentosvalor: TFloatField;
+    qryDocumentosPagLancamentostipo: TStringField;
+    qryDocumentosPagLancamentoshistoricocontabil: TIntegerField;
+    qryDocumentosPagLancamentoscomplemento: TStringField;
+    qryDocumentosPagLancamentospercentual: TFloatField;
+    qryLancamentosPagamentosDuplicatas: TtecQuery;
+    qryLancamentosPagamentosDuplicatasexercicio: TIntegerField;
+    qryLancamentosPagamentosDuplicatasnrlancto: TIntegerField;
+    qryLancamentosPagamentosDuplicatasfilial: TIntegerField;
+    qryLancamentosPagamentosDuplicatasdata: TDateField;
+    qryLancamentosPagamentosDuplicatasorigem: TStringField;
+    qryLancamentosPagamentosDuplicatasnrorigem: TLargeintField;
+    qryLancamentosPagamentosDuplicatasdebitar: TIntegerField;
+    qryLancamentosPagamentosDuplicatascreditar: TIntegerField;
+    qryLancamentosPagamentosDuplicatasvalor: TFloatField;
+    qryLancamentosPagamentosDuplicatashistorico: TIntegerField;
+    qryLancamentosPagamentosDuplicatascomplemento: TStringField;
+    qryLancamentosPagamentosDuplicatasdescricaoorigem: TStringField;
+    qryLancamentosPagamentosDuplicatasnumerocriado: TBooleanField;
+    qryLancamentosPagamentosDuplicatasnrorigemlote: TLargeintField;
+    qryLancamentos: TtecQuery;
+    qryLancamentosexercicio: TIntegerField;
+    qryLancamentosnrlancto: TIntegerField;
+    qryLancamentosfilial: TIntegerField;
+    qryLancamentosdata: TDateField;
+    qryLancamentosorigem: TStringField;
+    qryLancamentosnrorigem: TLargeintField;
+    qryLancamentosdebitar: TIntegerField;
+    qryLancamentoscreditar: TIntegerField;
+    qryLancamentosvalor: TFloatField;
+    qryLancamentoshistorico: TIntegerField;
+    qryLancamentoscomplemento: TStringField;
+    qryLancamentosdescricaoorigem: TStringField;
+    qryLancamentosnumerocriado: TBooleanField;
+    qryLancamentosnrorigemlote: TLargeintField;
+    qryLancamentosjaverificado: TBooleanField;
+  private
+    FGravarLancamento: Boolean;
+    FRegravarLancamentos: TtecProcedure;
+    { Private declarations }
+  public
+    { Public declarations }
+    fproximonrLancto: integer;
+    property GravarLancamento: Boolean read FGravarLancamento write FGravarLancamento;
+    function  ObterAutorizacaodoUsuario: Boolean;
+    procedure AtualizarParametros(Filial, ResultadoSintetica, ResultadoAnalitica, historico: integer);
+    procedure AtualizarParametrosContaResultado(DemonstrativaResultados: integer);
+    property RegravarLancamentos: TtecProcedure read FRegravarLancamentos write FRegravarLancamentos;
+
+  end;
+
+var
+  dtmLancamentoContabilidade: TdtmLancamentoContabilidade;
+
+implementation
+
+uses dmtecsoft;
+
+{$R *.dfm}
+
+{ TdtmLancamentoContabilidade }
+
+procedure TdtmLancamentoContabilidade.AtualizarParametros(Filial,
+  ResultadoSintetica, ResultadoAnalitica, historico:integer);
+begin
+  qryParametros.Close;
+  qryParametros.Open;
+  if qryparametros.Locate('parametro;filial',varArrayof([221,Filial]),[]) then
+  begin
+    qryParametros.Edit;
+    qryParametrosvalor.AsString := inttostr(ResultadoSintetica);
+    qryparametros.Post;
+  end
+  else
+  begin
+    qryParametros.Append;
+    qryParametrosfilial.AsInteger := filial;
+    qryParametrosparametro.AsInteger := 221;
+    qryParametrosvalor.AsString := inttostr(ResultadoSintetica);
+    qryParametros.Post;
+  end;
+
+  if qryparametros.Locate('parametro;filial',varArrayof([222,Filial]),[]) then
+  begin
+    qryParametros.Edit;
+    qryParametrosvalor.AsString := inttostr(ResultadoAnalitica);
+    qryparametros.Post;
+  end
+  else
+  begin
+    qryParametros.Append;
+    qryParametrosfilial.AsInteger := filial;
+    qryParametrosparametro.AsInteger := 222;
+    qryParametrosvalor.AsString := inttostr(ResultadoAnalitica);
+    qryParametros.Post;
+  end;
+
+  if qryparametros.Locate('parametro;filial',varArrayof([223,Filial]),[]) then
+  begin
+
+    if historico<>0 then
+    begin
+      qryParametros.Edit;
+      qryParametrosvalor.AsString := inttostr(historico);
+      qryparametros.Post;
+    end
+    else
+      qryParametros.Delete;
+  end
+  else
+  begin
+    if historico<>0 then
+    begin
+      qryParametros.Append;
+      qryParametrosfilial.AsInteger := filial;
+      qryParametrosparametro.AsInteger := 223;
+      qryParametrosvalor.AsString := inttostr(historico);
+      qryParametros.Post;
+    end;
+  end;
+  perpetrar([qryparametros]);
+end;
+
+procedure TdtmLancamentoContabilidade.AtualizarParametrosContaResultado(
+  DemonstrativaResultados: integer);
+begin
+  qryParametros.Close;
+  qryParametros.Open;
+  if qryparametros.Locate('parametro',226,[]) then
+  begin
+    qryParametros.Edit;
+    qryParametrosvalor.AsString := inttostr(DemonstrativaResultados);
+    qryparametros.Post;
+  end
+  else
+  begin
+    qryParametros.Append;
+    qryParametrosfilial.asvariant := null;
+    qryParametrosparametro.AsInteger := 226;
+    qryParametrosvalor.AsString := inttostr(DemonstrativaResultados);
+    qryParametros.Post;
+  end;
+  perpetrar([qryparametros]);
+end;
+
+function TdtmLancamentoContabilidade.ObterAutorizacaodoUsuario: Boolean;
+var
+  Usuario           : TtecUsuarios;
+begin
+  Result:= False;
+  Usuario:= TtecUsuarios.Create(dtmTecSoft.Database);
+  try
+    if UsuarioLogin.AlterarDadosContabeis then
+         Usuario:= ObterAutorizacao(taSENHA)
+    else Usuario:= ObterAutorizacao(taLOGIN, ctALTERARDADOSCONTABEIS, ctAUTORIZADO);
+    if Assigned(Usuario) then begin
+      if Usuario.AlterarDadosContabeis then
+        Result:= True
+      else
+        MensagemAviso(ctUSUARIOSEMPERMISSAO);
+    end;
+  finally
+    Usuario.Free;
+  end;
+end;
+
+end.

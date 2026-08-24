@@ -191,6 +191,7 @@ inherited dtmCadastroPlanosPagamentos: TdtmCadastroPlanosPagamentos
     object qryPlanosTipoRecebimento: TIntegerField
       DisplayLabel = 'Tipo de Recebimento'
       FieldName = 'TipoRecebimento'
+      Required = True
     end
     object qryPlanosAlterarTipoRecebimento: TBooleanField
       DisplayLabel = 'Alterar Tipo Recebimento'

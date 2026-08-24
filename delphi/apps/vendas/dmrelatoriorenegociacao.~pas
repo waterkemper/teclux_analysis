@@ -1,0 +1,359 @@
+unit dmrelatoriorenegociacao;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, cpdatasource, ZQuery, ZPgSqlQuery,
+  cpquery, Graphics, clparametrossistema,
+
+  dmtecsoft,
+  ctconstantes,
+  CheckLst,
+  biblio, FR_Class, FR_DSet, FR_DBSet,
+  fmpreviewpadrao, ZTransact;
+
+type
+  TdtmRelatorioRenegociacao = class(TdtmBasico)
+    qryConsultaVendedores: TtecQuery;
+    qryConsultaVendedoresnome: TStringField;
+    qryConsultaVendedorescodigo: TIntegerField;
+    qryProcuraVendedores: TtecQuery;
+    dsrProcuraVendedores: TtecDataSource;
+    qryConceitos: TtecQuery;
+    qryConceitosdescricao: TStringField;
+    qryConceitoscodigo: TIntegerField;
+    qryAgentes: TtecQuery;
+    qryAgentesdescricao: TStringField;
+    qryAgentescodigo: TIntegerField;
+    qryRenegociacoes: TtecQuery;
+    qryRenegociacoescliente: TIntegerField;
+    qryRenegociacoestipocliente: TStringField;
+    qryRenegociacoesnome: TStringField;
+    qryRenegociacoesvendedor: TIntegerField;
+    qryRenegociacoesnomevendedor: TStringField;
+    qryRenegociacoesoriginal: TStringField;
+    qryRenegociacoesfaturamento_original: TDateField;
+    qryRenegociacoestotalvalorvencto_original: TFloatField;
+    qryRenegociacoesqtparcelas_original: TLargeintField;
+    qryRenegociacoesatual: TStringField;
+    qryRenegociacoesprimogenito: TStringField;
+    qryRenegociacoesrenegociacao: TDateField;
+    qryRenegociacoestotalvalorvencto_atual: TFloatField;
+    qryRenegociacoesqtparcelas_atual: TLargeintField;
+    frpImprimirRenegociacoes: TfrReport;
+    fdsImprimirRenegociacoes: TfrDBDataSet;
+    qryRenegociacoesgrupofilialvenda: TIntegerField;
+    qryRenegociacoesnomegrupofilialvenda: TStringField;
+    qryRenegociacoesfilialvenda: TIntegerField;
+    qryRenegociacoesnomefilialvenda: TStringField;
+    frpImprimirRenegociacoesResumo: TfrReport;
+    procedure frpImprimirRenegociacoesBeforePrint(Memo: TStringList;
+      View: TfrView);
+  private
+    FListaAgentes: TStringList;
+    FListaConceitos: TStringList;
+    FListaFiliais: TStringList;
+    FListaGruposFiliais: TStringList;
+    FParametrosCabecalho: String;
+    FFilial: String;
+    FGrupoFilial: String;
+    FAgentes: String;
+    FConceitos: String;
+    FResumo: Integer;
+    FDataInicial: String;
+    FDataFinal: String;
+    FOrdenacao: Integer;
+    FVendedor: String;
+    FAgruparFilial: Boolean;
+    FAgruparGrupoFilial: Boolean;
+
+    function GetListaAgentes: TStrings;
+    function GetListaConceitos: TStrings;
+    function GetConsultarVendedor: TZDataSet;
+    procedure SetDataFinal(const Value: String);
+    procedure SetVendedor(const Value: String);
+    { Private declarations }
+  public
+    { Public declarations }
+   constructor Create(AOwner: TComponent); override;
+   destructor Destroy; override;
+
+   property ListaAgentes: TStrings read GetListaAgentes;
+   property ListaConceitos: TStrings read GetListaConceitos;
+
+   function ExisteVendedor(campo, codigo: string): Boolean;
+   procedure AbreTabelaPesquisa(TipoPesquisa: TtecPesquisa);
+   procedure FechaTabelaPesquisa(TipoPesquisa: TtecPesquisa);
+   procedure Selecionar(Pesquisa: TtecPesquisa);
+   property ConsultarVendedor: TZDataSet read GetConsultarVendedor;
+   property ParametrosCabecalho: String read FParametrosCabecalho write FParametrosCabecalho;
+   function MontarFiltroAgentes(Usar: TCheckListBox): String;
+   function MontarFiltroConceitos(Usar: TCheckListBox): String;
+
+   property Filial: String read FFilial write  FFilial;
+   property GrupoFilial: String read FGrupoFilial write FGrupoFilial;
+   property Agentes: String read FAgentes write FAgentes;
+   property Conceitos: String read FConceitos write FConceitos;
+   property Resumo: Integer read FResumo write FResumo;
+   property Ordenacao: Integer read FOrdenacao write FOrdenacao;
+   property DataInicial: String read FDataInicial write FDataInicial;
+   property DataFinal: String read FDataFinal write SetDataFinal;
+   property Vendedor: String read FVendedor write SetVendedor;
+   property AgruparGrupoFilial: Boolean read FAgruparGrupoFilial write FAgruparGrupoFilial;
+   property AgruparFilial: Boolean read FAgruparFilial write FAgruparFilial;
+
+   function AbrirConsultas: Boolean;
+   procedure MontarOrdenacao;
+
+   procedure ImprimirRelatorio;
+
+  end;
+
+var
+  dtmRelatorioRenegociacao: TdtmRelatorioRenegociacao;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmRelatorioRenegociacao }
+
+procedure TdtmRelatorioRenegociacao.AbreTabelaPesquisa(
+  TipoPesquisa: TtecPesquisa);
+begin
+  case TipoPesquisa of
+      pesVENDEDORES: Abre(ctPesquisaVendedor);
+  end;
+end;
+
+function TdtmRelatorioRenegociacao.AbrirConsultas: Boolean;
+const
+ SQLFiliais = ' AND ( contratos.filialvenda in (%s)) ';
+ SQLGruposFiliais = ' AND (contratos.filialvenda in '+
+                      '(select filial '+
+                       'from filiaisgruposfiliais '+
+                        'where grupo in (%s))';
+ SQLConceito    = ' AND ( contratos.conceito IN (%s)) ';
+ SQLAgente      = ' AND ( contratos.agente IN (%s)) ';
+ SQLVendedor    = ' AND ( contratos.vendedor = (%s)) ';
+begin
+ qryRenegociacoes.Close;
+
+ if GrupoFilial<>'' then
+   if ParSistema.RelatorioSomenteFiliaisAutorizadas then
+     qryRenegociacoes.Sql[38] := format(SQLFiliais, [filial]) +' and '+
+                                 format(SQLGruposFiliais, [grupofilial])
+   else
+     qryRenegociacoes.Sql[38] := format(SQLGruposFiliais, [grupofilial])
+ else
+ begin
+   if Filial<>'' then
+     qryRenegociacoes.Sql[38] := format(SQLFiliais, [filial])
+   else qryRenegociacoes.Sql[38] := '';
+ end;
+
+ if Agentes<>'' then
+   qryRenegociacoes.Sql[39] := format(SQLAgente, [Agentes])
+ else qryRenegociacoes.Sql[39] := '';
+
+ if Conceitos<>'' then
+   qryRenegociacoes.Sql[40] := format(SQLConceito, [Conceitos])
+ else qryRenegociacoes.Sql[40] := '';
+
+ if Vendedor<>'' then
+   qryRenegociacoes.Sql[41] := format(SQLVendedor, [vendedor])
+ else qryRenegociacoes.Sql[41] := '';
+
+ qryRenegociacoes.ParamByName('DataInicial').AsString := FDataInicial;
+ qryRenegociacoes.ParamByName('DataFinal').AsString := FDataFinal;
+
+ qryRenegociacoes.Open;
+ result := not qryRenegociacoes.IsEmpty;
+end;
+
+constructor TdtmRelatorioRenegociacao.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryConsultaVendedores.Tag := ctPesquisaVendedor;
+  qryProcuraVendedores.Tag := ctTabelas;
+end;
+
+destructor TdtmRelatorioRenegociacao.Destroy;
+begin
+  inherited;
+
+end;
+
+function TdtmRelatorioRenegociacao.ExisteVendedor(campo,
+  codigo: string): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaVendedores, campo, codigo);
+end;
+
+procedure TdtmRelatorioRenegociacao.FechaTabelaPesquisa(
+  TipoPesquisa: TtecPesquisa);
+begin
+  case TipoPesquisa of
+      pesVENDEDORES: Fecha(ctPesquisaVendedor);
+  end;
+end;
+
+function TdtmRelatorioRenegociacao.GetConsultarVendedor: TZDataSet;
+begin
+ result := qryConsultaVendedores;
+end;
+
+function TdtmRelatorioRenegociacao.GetListaAgentes: TStrings;
+begin
+  FListaAgentes:= TStringList.Create;
+  qryAgentes.Open;
+  while not qryAgentes.Eof do
+  begin
+    FListaAgentes.AddObject(qryAgentesdescricao.AsString, Pointer(qryAgentescodigo.AsInteger));
+    qryAgentes.Next;
+  end;
+  qryAgentes.Close;
+  Result := FListaAgentes;
+end;
+
+function TdtmRelatorioRenegociacao.GetListaConceitos: TStrings;
+begin
+  FListaConceitos:= TStringList.Create;
+  qryConceitos.Open;
+  while not qryConceitos.Eof do
+  begin
+    FListaConceitos.AddObject(qryConceitosdescricao.AsString, Pointer(qryConceitoscodigo.AsInteger));
+    qryConceitos.Next;
+  end;
+  qryConceitos.Close;
+  Result := FListaConceitos;
+end;
+
+procedure TdtmRelatorioRenegociacao.ImprimirRelatorio;
+ var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+  frVariables['AgruparGrupoFilial']:=FAgruparGrupoFilial;
+  frVariables['AgruparFilial']:=FAgruparFilial;
+  frpImprimirRenegociacoes.Pages[0].PrintToPrevPage := False;
+  frpImprimirRenegociacoesResumo.Pages[0].PrintToPrevPage := False;
+
+  ImprimirRelatoriofast('RENEGOCIACOES DO PERIODO', FParametrosCabecalho, MPadrao, FResumo,
+                     [frpImprimirRenegociacoes, frpImprimirRenegociacoesResumo], false, self.owner);
+end;
+
+function TdtmRelatorioRenegociacao.MontarFiltroAgentes(
+  Usar: TCheckListBox): String;
+var
+  STRAgentes: String;
+  TodosAgentes: Boolean;
+  cnt: Integer;
+begin
+  TodosAgentes:=true;
+  STRAgentes := '';
+  for cnt := 0 to FListaAgentes.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRAgentes := STRAgentes + '''' + IntToStr(Integer(FListaAgentes.Objects[cnt])) + ''','
+    else
+      TodosAgentes:=false;
+
+  STRAgentes := Copy(STRAgentes, 0, Length(STRAgentes) - 1);
+  if Trim(STRAgentes) <> '' then
+  begin
+    if not TodosAgentes then
+      FParametrosCabecalho:=FParametrosCabecalho+' Agentes: '+STRAgentes;
+  end;
+  Agentes := STRAgentes ;
+end;
+
+function TdtmRelatorioRenegociacao.MontarFiltroConceitos(
+  Usar: TCheckListBox): String;
+var
+  STRConceitos: String;
+  TodosConceitos : Boolean;
+  cnt: Integer;
+begin
+  TodosConceitos := True;
+  STRConceitos := '';
+  for cnt := 0 to FListaConceitos.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRConceitos := STRConceitos + '''' + IntToStr(Integer(FListaConceitos.Objects[cnt])) + ''','
+    else
+      TodosConceitos:=false;
+  STRConceitos := Copy(STRConceitos, 0, Length(STRConceitos) - 1);
+  Conceitos := STRConceitos ;
+  if Trim(STRConceitos) <> '' then
+   if not TodosConceitos then
+    FParametrosCabecalho:=FParametrosCabecalho+' Conceitos: '+STRConceitos
+   else
+    Conceitos := '';
+end;
+
+procedure TdtmRelatorioRenegociacao.MontarOrdenacao;
+var
+Ordenacao: String;
+begin
+  Ordenacao:='';
+  if FAgruparGrupoFilial then
+   Ordenacao:=Ordenacao+', nomegrupofilialvenda, grupofilialvenda ';
+  if FAgruparFilial then
+    Ordenacao:=Ordenacao+', nomefilialvenda, filialvenda ';
+
+  case FOrdenacao of
+   0 : Ordenacao:=Ordenacao+', cliente, tipocliente, renegociacao';
+   1 : Ordenacao:=Ordenacao+', nome, cliente, tipocliente, renegociacao';
+   2 : Ordenacao:=Ordenacao+', renegociacao, nome, cliente, tipocliente';
+  end;
+  qryRenegociacoes.sql[46]:='Order by '+copy(Ordenacao,2,length(Ordenacao)-1);
+
+end;
+
+procedure TdtmRelatorioRenegociacao.Selecionar(Pesquisa: TtecPesquisa);
+begin
+  case Pesquisa of
+      pesVENDEDORES: RefazConsulta(qryProcuraVendedores,[0],[qryconsultavendedorescodigo.asvariant]);
+  end;
+end;
+
+procedure TdtmRelatorioRenegociacao.SetDataFinal(const Value: String);
+begin
+  FDataFinal := Value;
+  if not DataEmBranco(Value) then
+  begin
+    FDataFinal := Value;
+    if FDataInicial='' then
+      FDataInicial:=FDataFinal;
+  end
+  else FDataFinal := FDataInicial;
+  FParametrosCabecalho:=FParametrosCabecalho+' Entre: '+FDataInicial+' e '+FDataFinal;
+end;
+
+procedure TdtmRelatorioRenegociacao.SetVendedor(const Value: String);
+begin
+  FVendedor := Value;
+  if value<>'' then
+    FParametrosCabecalho:=FParametrosCabecalho+' Vendedor: '+Value;
+end;
+
+procedure TdtmRelatorioRenegociacao.frpImprimirRenegociacoesBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  if (View.Name = 'fpvLogo') then
+  begin
+   if FileExists(LogotipoFilialBase) then
+    try TfrPictureView(View).Picture.LoadFromFile(LogotipoFilialBase) except end;
+  end
+  else
+  if TColor(strtoint(parsistema.CorZebradoRelatorio))<>TColor(clnone) then
+   if (View.Name = 'mmoZebrado') then
+    if (frpImprimirRenegociacoes.Dictionary.Variables.Variable['LINHA'] MOD 2)=0 then
+      frpImprimirRenegociacoes.FindObject('mmoZebrado').FillColor := TColor(strtoint(parsistema.CorZebradoRelatorio))
+    else
+      frpImprimirRenegociacoes.FindObject('mmoZebrado').FillColor := clnone;
+
+
+end;
+
+end.

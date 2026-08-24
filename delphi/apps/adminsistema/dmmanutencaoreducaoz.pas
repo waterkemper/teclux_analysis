@@ -1,0 +1,23 @@
+unit dmmanutencaoreducaoz;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, ZTransact;
+
+type
+  TdtmManutencaoReducaoz = class(TdtmBasico)
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  dtmManutencaoReducaoz: TdtmManutencaoReducaoz;
+
+implementation
+
+{$R *.dfm}
+
+end.

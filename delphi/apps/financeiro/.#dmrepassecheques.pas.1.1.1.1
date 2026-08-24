@@ -1,0 +1,684 @@
+unit dmrepassecheques;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  DB,
+  //Repositorio
+  dmbasico, dmtecsoft,
+  //Componentes
+  cpdatasource, cpquery,
+  //Terceiros
+  ZQuery, ZPgSqlQuery,
+  //Biblio
+  ctconstantes, biblio, clparametrossistema, clusuario, fr_dset, fr_dbset,
+  fmpreviewpadrao, fr_class, ZTransact;
+
+type
+  TtecTipoCheque = (tpcVISTA, tpcPRAZO);
+
+type
+  Tdtmrepassecheques = class(TdtmBasico)
+    qryCheques: TtecQuery;
+    dsrCheques: TtecDataSource;
+    qryRepasseCheques: TtecQuery;
+    dsrRepasseCheques: TtecDataSource;
+    qryRepasseChequesnumero: TIntegerField;
+    qryRepasseChequesdata: TDateField;
+    qryRepasseChequesfornecedor: TIntegerField;
+    qryRepasseChequestipofornecedor: TStringField;
+    qryRepasseChequesobservacao: TStringField;
+    qryChequesRepassados: TtecQuery;
+    dsrChequesRepassados: TtecDataSource;
+    qryChequesRepassadosrepasse: TIntegerField;
+    qryChequesRepassadoscheque: TStringField;
+    qryChequesRepassadosdevolvido: TDateTimeField;
+    qryChequesnumero: TStringField;
+    qryChequesbanco: TStringField;
+    qryChequesagencia: TStringField;
+    qryChequesconta: TStringField;
+    qryChequescheque: TStringField;
+    qryChequesdata: TDateField;
+    qryChequesvalor: TFloatField;
+    qryChequesvencto: TDateField;
+    qryChequestitular: TStringField;
+    qryChequesusuario: TIntegerField;
+    qryChequessituacao: TStringField;
+    qryChequesfilial: TIntegerField;
+    qryChequesnomecliente: TStringField;
+    qryChequescliente: TIntegerField;
+    qryChequestipocliente: TStringField;
+    qryChequesmarcar: TBooleanField;
+    qryChequesRepassadosbanco: TStringField;
+    qryChequesRepassadosagencia: TStringField;
+    qryChequesRepassadosconta: TStringField;
+    qryChequesRepassadosnumerocheque: TStringField;
+    qryChequesRepassadosdata: TDateField;
+    qryChequesRepassadosvalor: TFloatField;
+    qryChequesRepassadosvencto: TDateField;
+    qryChequesRepassadostitular: TStringField;
+    qryChequesRepassadossituacao: TStringField;
+    qryChequesRepassadosfilial: TIntegerField;
+    qryChequesRepassadosnomecliente: TStringField;
+    qryChequesRepassadoscliente: TIntegerField;
+    qryChequesRepassadostipocliente: TStringField;
+    spcrepassecheques_proximo: TtecQuery;
+    spcrepassecheques_proximonumero: TIntegerField;
+    qryChequesRepassadosdevolvedor: TIntegerField;
+    qryChequesRepassadosnomedevolvedor: TStringField;
+    qryRepasseChequesquantidaderepasse: TLargeintField;
+    qryRepasseChequestotalrepasse: TFloatField;
+    fdsRepasseCheques: TfrDBDataSet;
+    ZMonitor1: TZMonitor;
+    qryRepasseChequesnomepessoanumero: TStringField;
+    qryRepasseChequespessoanumero: TStringField;
+    qryRepasseChequesquantidaderepassedevolvido: TLargeintField;
+    qryRepasseChequestotalrepassedevolvido: TFloatField;
+    qryRepasseChequesdatarepasse: TDateTimeField;
+    qryRepasseChequesrepassador: TIntegerField;
+    qryRepasseChequesexcluido: TDateTimeField;
+    qryRepasseChequesexcluidor: TIntegerField;
+    qryRepasseChequesnomerepassador: TStringField;
+    qryRepasseChequesnomeexcluidor: TStringField;
+    qryRepasseChequesSaldoTotalRepasse: TCurrencyField;
+    qryRepasseChequesSaldoQuantidadeRepasse: TCurrencyField;
+    qryRepasseChequessituacao: TStringField;
+    qryRepasseChequesnomefornecedor: TStringField;
+    frpRepasseCheques: TfrReport;
+    qryRepasseChequesfilial: TIntegerField;
+    procedure qryRepasseChequesAfterScroll(DataSet: TDataSet);
+    procedure qryRepasseChequesNewRecord(DataSet: TDataSet);
+    procedure qryChequesRepassadosAfterPost(DataSet: TDataSet);
+    procedure qryChequesRepassadosAfterDelete(DataSet: TDataSet);
+    procedure qryChequesBeforeOpen(DataSet: TDataSet);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure qryChequesRepassadosAfterClose(DataSet: TDataSet);
+    procedure qryChequesRepassadosAfterOpen(DataSet: TDataSet);
+    procedure qryChequesRepassadosFilterRecord(DataSet: TDataSet;
+      var Accept: Boolean);
+    procedure qryRepasseChequesCalcFields(DataSet: TDataSet);
+    procedure qryRepasseChequesAfterPost(DataSet: TDataSet);
+  private
+    FListadeChequesRepassados: String;
+    FTipoFornecedor: String;
+    function GetTipoFornecedor: String;
+  protected
+    FControlarSegundaDevolucao: Boolean;
+    FPath: String;
+    FTipoOperacao: Integer;
+    FMaxRemessa: Integer;
+    function  GetQtdeCheques: Integer;
+    function  GetTotalCheques: Real;
+    procedure SetarSomenteLeitura;
+  public
+    Usuario: TtecUsuarios;
+    constructor Create(AOwner: TComponent); override;
+    function  ExecutarConsultaCheque(ListadeFiliais, DataInicial, DataFinal, cliente, tipocliente, banco, valorinicial, valorfinal: String): Boolean;
+    procedure MarcarSelecionados(Marcando, Todos: Boolean);
+    property  QtdeCheques: Integer read GetQtdeCheques;
+    property  TotalCheques: Real read GetTotalCheques;
+    procedure IncluirRepasse;
+    function GravarRepasseCheques: Boolean;
+    Procedure IncluirChequesRepassados;
+    function GravarChequesRepassados(NumeroCheque: String): Boolean;
+    property ListadeChequesRepassados: String read FListadeChequesRepassados write FListadeChequesRepassados;
+    procedure AtualizarListadeChequesRepassados;
+    procedure AtribuirDadosChequesemChequesRepassados(SomenteMarcados: boolean = true);
+    function ExcluirRepasseCheques: boolean;
+
+    function ExcluirChequeRepassado: boolean;
+    function DevolverChequeRepassado: boolean;
+    function ObterAutorizacaoPagamento: Boolean;
+
+    procedure ImprimirRepasse;
+
+    property TipoFornecedor: String read GetTipoFornecedor write FTipoFornecedor;
+
+    function  ListadeCheques: vString;
+
+
+
+  end;
+
+var
+  dtmrepassecheques: Tdtmrepassecheques;
+  FArquivo  : Text;
+
+
+
+implementation
+
+
+{$R *.dfm}
+
+{ Tdtmrepassecheques }
+
+
+
+constructor Tdtmrepassecheques.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryRepasseCheques.Tag := ctTabelas;
+end;
+
+procedure Tdtmrepassecheques.MarcarSelecionados(Marcando, Todos: Boolean);
+begin
+  MarcarRegistros(qryCheques,
+                  qryChequesmarcar,
+                  qryChequesvalor,
+                  Marcando,
+                  Todos);
+end;
+
+function Tdtmrepassecheques.GetQtdeCheques: Integer;
+begin
+   Result:= qryCheques.RecordCount;
+end;
+
+function Tdtmrepassecheques.GetTotalCheques: Real;
+begin
+  Result:= TotalizarValores[qryCheques, qryChequesvalor];
+end;
+
+
+function Tdtmrepassecheques.ExecutarConsultaCheque(ListadeFiliais,
+  DataInicial, DataFinal, cliente, tipocliente, banco, valorinicial, valorfinal: String): Boolean;
+begin
+  if ListadeFiliais<>'' then
+    qryCheques.MacroByName('listadefiliais').AsString := 'and c.filial in ('+ ListadeFiliais +')'
+  else
+    qryCheques.MacroByName('listadefiliais').AsString := '';
+
+  if (DataInicial<>'') and (DataFinal<>'') then
+    qryCheques.MacroByName('periododevencimento').AsString := 'and c.vencto between '+
+      quotedstr(formatdatetime('yyyy-mm-dd',strtodate(DataInicial))) + ' and '+
+      quotedstr(formatdatetime('yyyy-mm-dd',strtodate(DataFinal)))
+  else
+  if (DataInicial<>'') and (DataFinal='') then
+    qryCheques.MacroByName('periododevencimento').AsString := 'and c.vencto >= '+
+      quotedstr(formatdatetime('yyyy-mm-dd',strtodate(DataInicial)))
+  else
+  if (DataInicial='') and (DataFinal<>'') then
+    qryCheques.MacroByName('periododevencimento').AsString := 'and c.vencto <= '+
+      quotedstr(formatdatetime('yyyy-mm-dd',strtodate(DataFinal)))
+  else
+    qryCheques.MacroByName('periododevencimento').AsString := '';
+
+  if cliente<>'' then
+    qryCheques.MacroByName('cliente').AsString := 'and c.cliente = ' + cliente +' and c.tipocliente = ' + QuotedStr(tipocliente)
+  else
+    qryCheques.MacroByName('cliente').AsString := '';
+
+  if banco<>'' then
+    qryCheques.MacroByName('banco').AsString := 'and substring(c.numero,1,3) = ' + quotedstr(banco)
+  else
+    qryCheques.MacroByName('banco').AsString := '';
+
+  if (valorinicial<>'0') and (valorfinal<>'0') then
+    qryCheques.MacroByName('faixadevalores').AsString := 'and c.valor between ' + trocar(valorinicial,',','.')+' and '+trocar(valorfinal,',','.')
+  else
+  if (valorinicial<>'0') and (valorfinal='0') then
+    qryCheques.MacroByName('faixadevalores').AsString := 'and c.valor >= ' + trocar(valorinicial,',','.')
+  else
+  if (valorinicial='0') and (valorfinal<>'0') then
+    qryCheques.MacroByName('faixadevalores').AsString := 'and c.valor <= ' + trocar(valorfinal,',','.')
+  else
+    qryCheques.MacroByName('faixadevalores').AsString := '';
+
+  qryCheques.MacroByName('NumerodoCheque').AsString := '';
+
+  qryCheques.close;
+  qryCheques.Open;
+
+  result := qryCheques.RecordCount<>0;
+
+end;
+
+procedure Tdtmrepassecheques.qryRepasseChequesAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  RefazConsultaPorNome(qryChequesRepassados,['repasse'],[qryRepasseChequesnumero.AsVariant]);
+  SetarSomenteLeitura;
+
+
+
+end;
+
+procedure Tdtmrepassecheques.IncluirRepasse;
+begin
+//  qryRepasseCheques.ReadOnly := false;
+  qryRepasseCheques.Append;
+end;
+
+procedure Tdtmrepassecheques.qryRepasseChequesNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+  qryRepasseChequesdata.AsDateTime := now();
+  qryRepasseChequessituacao.AsString := 'NORMAL';
+  qryRepasseChequesfilial.AsInteger := FilialBase;
+end;
+
+function Tdtmrepassecheques.GravarRepasseCheques: Boolean;
+var
+ vnow : TDateTime;
+begin
+  vnow := now;
+  if qryRepasseCheques.CheckRequiredFields then
+  begin
+    if qryChequesRepassados.RecordCount <> 0 then
+    begin
+      if obterautorizacaopagamento then
+      begin
+        if qryRepasseCheques.State = dsinsert then
+        begin
+          qryRepasseChequesrepassador.AsInteger := Usuario.CodigoUsuario;
+          qryRepasseChequesnomerepassador.AsString := usuario.NomeUsuario;
+          qryRepasseChequesdatarepasse.AsDateTime := now;
+
+          spcrepassecheques_proximo.Open;
+          qryRepasseChequesnumero.AsInteger := spcrepassecheques_proximonumero.AsInteger;
+          spcrepassecheques_proximo.close;
+
+
+          qryChequesRepassados.AfterPost := nil;
+
+
+          AtribuirChave(qryChequesRepassados,
+                        [qryChequesRepassadosrepasse],
+                        [qryRepasseChequesnumero],
+                        True);
+
+          qryChequesRepassados.AfterPost := qryChequesRepassadosAfterPost;
+
+          qryRepasseCheques.Post;
+          qryRepasseCheques.ReadOnly := false;
+          qryChequesRepassados.ReadOnly := false;
+
+          result := perpetrar([qryRepasseCheques, qryChequesRepassados]);
+          SetarSomenteLeitura;
+
+          ListadeChequesRepassados := '';
+        end;
+      end;
+    end
+    else
+      MensagemAviso('Não existem cheques cadastrados no repasse');
+  end;
+end;
+
+procedure Tdtmrepassecheques.IncluirChequesRepassados;
+begin
+  qryChequesRepassados.Append;
+end;
+
+function Tdtmrepassecheques.GravarChequesRepassados(
+  NumeroCheque: String): Boolean;
+begin
+
+  qryCheques.MacroByName('listadefiliais').AsString := '';
+  qryCheques.MacroByName('periododevencimento').AsString := '';
+  qryCheques.MacroByName('cliente').AsString := '';
+  qryCheques.MacroByName('banco').AsString := '';
+  qryCheques.MacroByName('faixadevalores').AsString := '';
+  qryCheques.MacroByName('NumerodoCheque').AsString := ' and c.numero = '+ quotedstr(NumeroCheque);
+
+  qrycheques.close;
+  qrycheques.open;
+
+  if (qrycheques.recordcount=0) then
+  begin
+    result := false;
+    if (pos(NumeroCheque, ListadeChequesRepassados)<>0) then
+      MensagemAviso('Cheque já cadastrado neste repasse.')
+    else
+      MensagemAviso('Cheque não encontrado no cadastro de cheques ou já incluido em outros repasses.')
+  end
+  else
+  begin
+    Result := true;
+    AtribuirDadosChequesemChequesRepassados(false);
+  end;
+
+end;
+
+procedure Tdtmrepassecheques.qryChequesRepassadosAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  AtualizarListadeChequesRepassados;
+end;
+
+procedure Tdtmrepassecheques.AtualizarListadeChequesRepassados;
+var
+  vQuantidadeRepasse, vQuantidadeRepasseCancelado : integer;
+  vTotalRepasse, vTotalRepasseCancelado : Currency;
+begin
+  vQuantidadeRepasse := 0;
+  vTotalRepasse := 0;
+
+  vQuantidadeRepasseCancelado := 0;
+  vTotalRepasseCancelado := 0;
+
+  ListadeChequesRepassados := '';
+
+  GuardarRegistroAtual(qryChequesRepassados,true);
+  qryChequesRepassados.First;
+  while not qryChequesRepassados.Eof do
+  begin
+    inc(vQuantidadeRepasse);
+    vTotalRepasse := vTotalRepasse + qryChequesRepassadosvalor.AsCurrency;
+
+    if not qryRepasseChequesexcluido.IsNull or not qryChequesRepassadosdevolvido.IsNull then
+    begin
+      inc(vQuantidadeRepasseCancelado);
+      vTotalRepasseCancelado := vTotalRepasseCancelado + qryChequesRepassadosvalor.AsCurrency;
+
+      if not qryRepasseChequesexcluido.IsNull then
+        qryRepasseChequessituacao.AsString := 'CANCELADO'
+      else
+        qryRepasseChequessituacao.AsString := 'DEVOLVIDO';
+    end
+    else
+      ListadeChequesRepassados := ListadeChequesRepassados + QuotedStr(qryChequesRepassadoscheque.AsString)+',';
+
+    qryChequesRepassados.Next;
+  end;
+  VoltarRegistroAtual(qryChequesRepassados);
+
+  if ListadeChequesRepassados<>'' then
+    delete(FListadeChequesRepassados,length(FListadeChequesRepassados),1);
+
+  qryRepasseChequesquantidaderepasse.AsInteger := vQuantidadeRepasse;
+  qryRepasseChequestotalrepasse.AsCurrency := vTotalRepasse;
+
+  qryRepasseChequesquantidaderepassedevolvido.AsInteger := vQuantidadeRepasseCancelado;
+  qryRepasseChequestotalrepassedevolvido.AsCurrency := vTotalRepasseCancelado;
+
+end;
+
+procedure Tdtmrepassecheques.qryChequesRepassadosAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  AtualizarListadeChequesRepassados;
+end;
+
+procedure Tdtmrepassecheques.qryChequesBeforeOpen(DataSet: TDataSet);
+begin
+  inherited;
+  if ListadeChequesRepassados<>'' then
+    qrycheques.MacroByName('ListadeChequesJaSelecionados').AsString := ' and c.Numero not in (' + ListadeChequesRepassados + ')'
+  else
+    qrycheques.MacroByName('ListadeChequesJaSelecionados').AsString := '';
+end;
+
+procedure Tdtmrepassecheques.AtribuirDadosChequesemChequesRepassados(SomenteMarcados: boolean = true);
+var
+  RegistroAtual : TBookMark;
+begin
+  RegistroAtual := qrycheques.GetBookmark;
+  qrycheques.DisableControls;
+  qryCheques.First;
+
+  while not qryCheques.Eof do
+  begin
+    if (SomenteMarcados and qryChequesmarcar.AsBoolean) or (not SomenteMarcados) then
+    begin
+      if not (qryRepasseCheques.State in [dsinsert]) then
+        qryRepasseCheques.append;
+
+      if not (qryChequesRepassados.State = dsinsert) then
+        qryChequesRepassados.Append;
+
+      qryChequesRepassadoscheque.AsString       := qryChequesnumero.AsString;
+      qryChequesRepassadosnumerocheque.AsString := qryChequescheque.AsString;
+      qryChequesRepassadosbanco.AsString        := qryChequesbanco.AsString;
+      qryChequesRepassadosagencia.AsString      := qryChequesagencia.AsString;
+      qryChequesRepassadosconta.asstring        := qryChequesconta.asstring;
+
+      qryChequesRepassadosdata.AsDateTime       := qryChequesdata.AsDateTime;
+      qryChequesRepassadosvalor.AsCurrency      := qryChequesvalor.AsCurrency;
+      qryChequesRepassadosvencto.AsDateTime     := qryChequesvencto.AsDateTime;
+      qryChequesRepassadosfilial.AsInteger      := qryChequesfilial.asinteger;
+      qryChequesRepassadosnomecliente.AsString  := qryChequesnomecliente.AsString;
+      qryChequesRepassadoscliente.AsInteger     := qryChequescliente.AsInteger;
+      qryChequesRepassadostipocliente.AsString  := qryChequestipocliente.AsString;
+
+      qryChequesRepassados.Post;
+    end;
+    qrycheques.Next;
+  end;
+
+  qrycheques.GotoBookmark(RegistroAtual);
+  qrycheques.EnableControls;
+
+end;
+
+function Tdtmrepassecheques.ExcluirRepasseCheques: boolean;
+begin
+  result := false;
+  if (MensagemConfirmacao(format(ctCONFIRMECANCELAR, ['os cheques repassados'])) = smbOk) then
+  begin
+    if obterAutorizacaopagamento then
+    begin
+      if not (qryRepasseCheques.State in [dsedit, dsinsert]) then
+        qryRepasseCheques.Edit;
+
+      qryRepasseChequesexcluidor.AsInteger := Usuario.CodigoUsuario;
+      qryRepasseChequesnomeexcluidor.AsString := Usuario.NomeUsuario;
+      qryRepasseChequesexcluido.AsDateTime := now;
+
+      qryRepasseChequessituacao.AsString := 'CANCELADO';
+
+      AtualizarListadeChequesRepassados;
+      qryRepasseCheques.post;
+      result := perpetrar([qryRepasseCheques]);
+
+    end
+  end;
+end;
+
+function Tdtmrepassecheques.DevolverChequeRepassado: boolean;
+begin
+  result := false;
+  if (MensagemConfirmacao(format(ctCONFIRMEDEVOLUCAO, ['o cheque repassado'])) = smbOk) then
+  begin
+    if ObterAutorizacaoPagamento then
+    begin
+      qryChequesRepassados.afterPost := nil;
+
+      qryChequesRepassados.ReadOnly := false;
+      qryChequesRepassados.Edit;
+      qryChequesRepassadosdevolvido.AsDateTime := now();
+      qryChequesRepassadosdevolvedor.AsInteger := usuario.CodigoUsuario;
+      qryChequesRepassadosnomedevolvedor.AsString := usuario.NomeUsuario;
+
+      qryRepasseChequessituacao.AsString := 'DEVOLVIDO';
+
+      qryChequesRepassados.post;
+      result := perpetrar([qrychequesrepassados]);
+      qryChequesRepassados.ReadOnly := true;
+
+      qryChequesRepassados.afterPost := qryChequesRepassadosAfterPost;
+
+      AtualizarListadeChequesRepassados;
+    end;
+  end;
+end;
+
+function Tdtmrepassecheques.ExcluirChequeRepassado: boolean;
+begin
+  result := false;
+  if (MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o cheque repassado'])) = smbOk) then
+  begin
+    try
+      qryChequesRepassados.Delete;
+    finally
+      result := true;
+    end;
+  end;
+end;
+
+function Tdtmrepassecheques.ObterAutorizacaoPagamento: Boolean;
+begin
+  result := false;
+  if assigned(usuario) then
+    Usuario.Free;
+
+  Usuario:= TtecUsuarios.Create(dtmTecSoft.Database);
+//  try
+    if UsuarioLogin.Pagamento then
+         Usuario:= ObterAutorizacao(taSENHA)
+    else Usuario:= ObterAutorizacao(taLOGIN, ctAUTORIZACAOPAGAMENTO, ctAUTORIZADO);
+
+    if Assigned(Usuario) and Usuario.Pagamento then
+      result := true
+    else
+      MensagemAviso(format(ctUSUARIONAOAUTORIZADO,['autorizar o cancelamento do repasse.']));
+
+//  finally
+//    Usuario.Free;
+//  end;
+end;
+
+procedure Tdtmrepassecheques.ImprimirRepasse;
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+//  qryChequesRepassados.Filtered := true;
+//  qryChequesRepassados.DisableControls;
+
+  frVariables['Titulo']:='REPASSE DE CHEQUES';
+  frVariables['DATAEXTENSO']:=ANSIUpperCase(FormatDateTime('dd',now)+' de '+NomeMeses[strtoint(FormatDateTime('mm',now))]+' de '+FormatDateTime('yyyy',now) );
+
+  frmPreview := TfrmPreviewPadrao.create(self);
+  frmPreview.cmbZoom.ItemIndex := 3;
+
+  try
+    with frmPreview do
+    begin
+      Relatorio := frmPreview.frCompositeReport;
+      frCompositeReport.Reports.Clear;
+      frCompositeReport.DoublePass := true;
+//      frpRepasseCheques.DesignReport;
+
+      frCompositeReport.Reports.Add(frpRepasseCheques);
+      Relatorio.Preview := frPreviewPadrao;
+      Relatorio.ShowReport;
+      ShowModal;
+    end;
+  finally
+    frmPreview.Free;
+//    qryChequesRepassados.Filtered := false;
+//    qryChequesRepassados.EnableControls;
+  end;
+
+end;
+
+procedure Tdtmrepassecheques.ZMonitor1MonitorEvent(Sql, Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:\logcr.sql') then
+    Listar.loadfromfile('c:\logcr.sql');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\logcr.sql');
+  listar.free;
+end;
+
+procedure Tdtmrepassecheques.qryChequesRepassadosAfterClose(
+  DataSet: TDataSet);
+begin
+  inherited;
+  ListadeChequesRepassados := '';
+end;
+
+procedure Tdtmrepassecheques.qryChequesRepassadosAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  AtualizarListadeChequesRepassados;
+
+end;
+
+procedure Tdtmrepassecheques.qryChequesRepassadosFilterRecord(
+  DataSet: TDataSet; var Accept: Boolean);
+begin
+  inherited;
+//  if qryChequesRepassados.Filtered then
+//   accept := qryRepasseChequesexcluido.IsNull and qryChequesRepassadosdevolvido.IsNull;
+end;
+
+function Tdtmrepassecheques.GetTipoFornecedor: String;
+begin
+  FTipoFornecedor := 'F';
+  if qryRepasseChequestipofornecedor.AsString<>'' then
+    FTipoFornecedor := qryRepasseChequestipofornecedor.AsString;
+  Result := FTipoFornecedor;
+end;
+
+procedure Tdtmrepassecheques.qryRepasseChequesCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryRepasseChequesSaldoTotalRepasse.AsCurrency := qryRepasseChequestotalrepasse.AsCurrency - qryRepasseChequestotalrepassedevolvido.AsCurrency;
+  qryRepasseChequesSaldoQuantidadeRepasse.AsCurrency := qryRepasseChequesquantidaderepasse.AsCurrency - qryRepasseChequesquantidaderepassedevolvido.AsCurrency;
+end;
+
+procedure Tdtmrepassecheques.SetarSomenteLeitura;
+var
+ i: integer;
+begin
+  if not (qryRepasseCheques.State = dsinsert) then
+  begin
+    qryChequesRepassados.ReadOnly := true;
+    for i:= 0 to qryRepasseCheques.FieldCount - 1 do
+      qryRepasseCheques.fields[i].ReadOnly := true;
+  end
+  else
+  begin
+    qryChequesRepassados.ReadOnly := false;
+    for i:= 0 to qryRepasseCheques.FieldCount - 1 do
+      qryRepasseCheques.fields[i].ReadOnly := false;
+  end;
+end;
+
+procedure Tdtmrepassecheques.qryRepasseChequesAfterPost(DataSet: TDataSet);
+begin
+  inherited;
+  SetarSomenteLeitura;
+end;
+
+function Tdtmrepassecheques.ListadeCheques: vString;
+var
+  a: Integer;
+  Pos: TBookmark;
+begin
+  Pos := qryChequesRepassados.GetBookmark;
+  qryChequesRepassados.DisableControls;
+  try
+    a := 1;
+    qryChequesRepassados.First;
+    while not qryChequesRepassados.Eof do
+    begin
+      SetLength(Result, a);
+      Result[a-1] := qryChequesRepassadoscheque.AsString;
+      Inc(a);
+      qryChequesRepassados.Next;
+    end;
+  finally
+    qryChequesRepassados.EnableControls;
+    qryChequesRepassados.GotoBookmark(Pos);
+    qryChequesRepassados.FreeBookmark(Pos);
+  end;
+end;
+
+end.

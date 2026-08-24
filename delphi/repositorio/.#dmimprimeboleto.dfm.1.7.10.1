@@ -1,0 +1,853 @@
+inherited dtmImprimeBoleto: TdtmImprimeBoleto
+  Left = 646
+  Top = 161
+  Height = 290
+  Width = 321
+  inherited ZMonitor: TZMonitor
+    Left = 192
+    Top = 24
+  end
+  object qryParcelas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'WhereContrato'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'WhereNumeroParcelas'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'Select p.contrato,'
+      '           p.numero,'
+      '           p.datavencto,'
+      '           p.valorvencto,'
+      '           p.datapagto,'
+      '           p.valorpagto,'
+      '           (((p.valorvencto * 2) / 30) / 100) as jurosbloquete,'
+      
+        '           (((p.valorvencto * :jurosatraso)/30)/100) as jurosdia' +
+        'sreais,'
+      '           (p.valorpagto - p.valorvencto) as jurodesconto,'
+      '           (p.datapagto - p.datavencto) as diasatraso,'
+      '           (case when (p.datapagto - p.datavencto) > 0 then'
+      
+        '                      ((p.valorpagto - p.valorvencto)  /  (p.dat' +
+        'apagto - p.datavencto))'
+      '                    else   (p.valorpagto - p.valorvencto)'
+      '            end)  as jurosdias,'
+      '           c.cliente,'
+      '           c.nome,'
+      ''
+      '           case when c.endnumero is not null then'
+      
+        '             cast(retirabrancoepipeeascii255(c.rua)||'#39', '#39'||cast(' +
+        'c.endnumero as varchar) as varchar(100))'
+      '           else'
+      '             retirabrancoepipeeascii255(c.rua)'
+      '           end as rua,'
+      '           '
+      '           c.pessoanumero,'
+      
+        '           formatar_cpf_cnpj(c.pessoanumero) as pessoanumeroform' +
+        'atado,'
+      
+        '           cast(c.nome||'#39' '#39'||formatar_cpf_cnpj(c.pessoanumero) a' +
+        's varchar) as nomepessoanumero,'
+      '           COALESCE(c.faturamento,c.data) as data,'
+      
+        '           (Select c1.nome From cidades c1 Where c.estado = c1.e' +
+        'stado and c.cidade = c1.codigo) as cidadecliente,'
+      
+        '           (Select b1.nome From bairros b1 Where c.estado = b1.e' +
+        'stado and c.cidade = b1.cidade and c.bairro = b1.codigo)'
+      
+        '                                                                ' +
+        '                                 as bairrocliente,'
+      
+        '           cast(substr(c.cep,1,5) || '#39'-'#39' || substr(c.cep,6,3) as' +
+        ' varchar)                        as cepcliente,'
+      '           c.estado as estadocliente,'
+      '           f.estado as estadofilial,'
+      '           f.codigo as filial,'
+      '           f.razaocarne,'
+      
+        '           cast(c.rua||'#39' '#39'||cast(substr(c.cep,1,5)||'#39'-'#39'||substr(' +
+        'c.cep,6,3) as varchar)||'
+      '                '#39' '#39'||(Select c1.nome'
+      '                      From cidades c1'
+      '                      Where c.estado = c1.estado'
+      
+        '                        and c.cidade = c1.codigo)||'#39'/'#39'||c.estado' +
+        ' as varchar) as ruacepcidadeestado,'
+      ''
+      '          case when p.parcelaorigem is not null then'
+      '             cast(cast(strtrocar(trim(to_char('
+      '             (select max(n.numero)'
+      '              from notas n, dadosfiscais d'
+      '              where n.dadofiscal = d.numero'
+      
+        '               and d.contrato = c.numero), '#39'000,000'#39')),'#39','#39','#39'.'#39') ' +
+        'as varchar(7))||'#39' '#39'||trim(p.parcelaorigem) as varchar(15))'
+      '          else'
+      '             cast(strtrocar(trim(to_char('
+      '             (select max(n.numero)'
+      '              from notas n, dadosfiscais d'
+      '              where n.dadofiscal = d.numero'
+      
+        '               and d.contrato = c.numero), '#39'000,000'#39')),'#39','#39','#39'.'#39') ' +
+        'as varchar(15))'
+      '          end as numeronota,'
+      ''
+      
+        '          (select parametros_valor('#39'DIAS ATRASO 1'#39')) AS diasatra' +
+        'so1,'
+      
+        '          (select parametros_valor('#39'DIAS ATRASO 2'#39')) AS diasatra' +
+        'so2,'
+      
+        '          (select parametros_valor('#39'PERCENTUAL ATRASO JUROS 1'#39'))' +
+        ' AS percentualatrasojuros1,'
+      
+        '          (select parametros_valor('#39'PERCENTUAL ATRASO JUROS 2'#39'))' +
+        ' AS percentualatrasojuros,'
+      
+        '          (select parametros_valor('#39'PERCENTUAL ATRASO MULTAS 1'#39')' +
+        ') AS percentualatrasomultas1,'
+      
+        '          (select parametros_valor('#39'PERCENTUAL ATRASO MULTAS 2'#39')' +
+        ') AS percentualatrasomultas2,'
+      
+        '          (select(((p.valorvencto * cast(parametros_valor('#39'PERCE' +
+        'NTUAL ATRASO JUROS 1'#39') as numeric(9,2)))) / 30) / 100) as jurosa' +
+        'traso1,'
+      
+        '          (select(((p.valorvencto * cast(parametros_valor('#39'PERCE' +
+        'NTUAL ATRASO JUROS 2'#39') as numeric(9,2)))) / 30) / 100) as jurosa' +
+        'traso2'
+      ' From  parcelas p, contratos c, filiais f'
+      'Where  (c.numero = p.contrato) and'
+      '            (c.filialvenda = f.codigo) and'
+      '            %WhereContrato'
+      '            %WhereNumeroParcelas'
+      'Order By p.datavencto, p.datapagto'
+      ''
+      '/*'
+      ''
+      '(p.contrato =:contrato)'
+      ''
+      '*/')
+    RequestLive = True
+    Left = 34
+    Top = 17
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'jurosatraso'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftString
+        Name = 'contrato'
+        ParamType = ptUnknown
+        Value = '300011086'
+      end>
+    object qryParcelascontrato: TStringField
+      FieldName = 'contrato'
+      Required = True
+    end
+    object qryParcelasnumero: TIntegerField
+      FieldName = 'numero'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryParcelasdatavencto: TDateField
+      FieldName = 'datavencto'
+      Required = True
+      EditMask = '99/99/9999;1; '
+    end
+    object qryParcelasvalorvencto: TFloatField
+      FieldName = 'valorvencto'
+      Required = True
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryParcelasdatapagto: TDateField
+      FieldName = 'datapagto'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryParcelasvalorpagto: TFloatField
+      FieldName = 'valorpagto'
+      DisplayFormat = '0.00'
+    end
+    object qryParcelasjurosbloquete: TFloatField
+      FieldName = 'jurosbloquete'
+      DisplayFormat = '0.00'
+    end
+    object qryParcelasjurodesconto: TFloatField
+      FieldName = 'jurodesconto'
+      DisplayFormat = '0.00'
+    end
+    object qryParcelasdiasatraso: TIntegerField
+      FieldName = 'diasatraso'
+      DisplayFormat = '0'
+    end
+    object qryParcelasjurosdias: TFloatField
+      FieldName = 'jurosdias'
+      DisplayFormat = '0.00'
+    end
+    object qryParcelascliente: TIntegerField
+      FieldName = 'cliente'
+      DisplayFormat = '0'
+    end
+    object qryParcelasnome: TStringField
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryParcelasrua: TStringField
+      FieldName = 'rua'
+      Size = 50
+    end
+    object qryParcelaspessoanumero: TStringField
+      FieldName = 'pessoanumero'
+      Size = 14
+    end
+    object qryParcelasdata: TDateField
+      FieldName = 'data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryParcelascidadecliente: TStringField
+      FieldName = 'cidadecliente'
+      Size = 50
+    end
+    object qryParcelasbairrocliente: TStringField
+      FieldName = 'bairrocliente'
+      Size = 50
+    end
+    object qryParcelascepcliente: TStringField
+      FieldName = 'cepcliente'
+      Size = 50
+    end
+    object qryParcelasestadocliente: TStringField
+      FieldName = 'estadocliente'
+      Size = 2
+    end
+    object qryParcelasestadofilial: TStringField
+      FieldName = 'estadofilial'
+      Size = 2
+    end
+    object qryParcelasfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryParcelasrazaocarne: TStringField
+      FieldName = 'razaocarne'
+      Size = 15
+    end
+    object qryParcelasnomepessoanumero: TStringField
+      FieldName = 'nomepessoanumero'
+      Size = 50
+    end
+    object qryParcelasruacepcidadeestado: TStringField
+      FieldName = 'ruacepcidadeestado'
+      Size = 50
+    end
+    object qryParcelasnumeronota: TStringField
+      FieldName = 'numeronota'
+      Size = 15
+    end
+    object qryParcelasdiasatraso1: TStringField
+      FieldName = 'diasatraso1'
+      Size = 50
+    end
+    object qryParcelasdiasatraso2: TStringField
+      FieldName = 'diasatraso2'
+      Size = 50
+    end
+    object qryParcelaspercentualatrasojuros1: TStringField
+      FieldName = 'percentualatrasojuros1'
+      Size = 50
+    end
+    object qryParcelaspercentualatrasojuros: TStringField
+      FieldName = 'percentualatrasojuros'
+      Size = 50
+    end
+    object qryParcelaspercentualatrasomultas1: TStringField
+      FieldName = 'percentualatrasomultas1'
+      Size = 50
+    end
+    object qryParcelaspercentualatrasomultas2: TStringField
+      FieldName = 'percentualatrasomultas2'
+      Size = 50
+    end
+    object qryParcelasjurosatraso1: TFloatField
+      FieldName = 'jurosatraso1'
+      DisplayFormat = '0.00'
+    end
+    object qryParcelasjurosatraso2: TFloatField
+      FieldName = 'jurosatraso2'
+      DisplayFormat = '0.00'
+    end
+    object qryParcelasjurosdiasreais: TFloatField
+      FieldName = 'jurosdiasreais'
+      DisplayFormat = '0.00'
+    end
+    object qryParcelaspessoanumeroformatado: TStringField
+      FieldName = 'pessoanumeroformatado'
+      Size = 50
+    end
+  end
+  object qryModelosBoletos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo,'
+      '          configurar,'
+      '          cabecalho,'
+      '          emaberto,'
+      '          comatraso,'
+      '          sematraso,'
+      '          rodape,'
+      '          imprimirlayout,'
+      '          matricial'
+      '         from modelosboletos'
+      'where (codigo = :codigo)'
+      '')
+    RequestLive = False
+    Left = 121
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryModelosBoletoscodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryModelosBoletosconfigurar: TStringField
+      FieldName = 'configurar'
+      Required = True
+      Size = 100
+    end
+    object qryModelosBoletoscabecalho: TStringField
+      FieldName = 'cabecalho'
+      Required = True
+      Size = 512
+    end
+    object qryModelosBoletosemaberto: TStringField
+      FieldName = 'emaberto'
+      Required = True
+      Size = 512
+    end
+    object qryModelosBoletoscomatraso: TStringField
+      FieldName = 'comatraso'
+      Required = True
+      Size = 512
+    end
+    object qryModelosBoletossematraso: TStringField
+      FieldName = 'sematraso'
+      Required = True
+      Size = 512
+    end
+    object qryModelosBoletosrodape: TStringField
+      FieldName = 'rodape'
+      Required = True
+      Size = 512
+    end
+    object qryModelosBoletosimprimirlayout: TBooleanField
+      FieldName = 'imprimirlayout'
+    end
+    object qryModelosBoletosmatricial: TBooleanField
+      FieldName = 'matricial'
+      Required = True
+    end
+  end
+  object qryContaCobranca: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select * '
+      'from contas'
+      'where conta = :conta')
+    RequestLive = False
+    Left = 152
+    Top = 104
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'conta'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryParcelasBanco: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnCalcFields = qryParcelasBancoCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'WhereContrato'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'WhereNumeroParcelas'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'select cc.carteira,'
+      '       cc.cedente                     as cedente_codigocedente,'
+      
+        '       cc.banco                       as cedente_contabancaria_b' +
+        'anco_codigo,'
+      
+        '       cc.agencia                     as Cedente_ContaBancaria_C' +
+        'odigoAgencia,'
+      
+        '       a.digito                       as Cedente_ContaBancaria_D' +
+        'igitoAgencia,'
+      
+        '       cc.digito                      as Cedente_ContaBancaria_D' +
+        'igitoConta,'
+      
+        '       cc.conta                       as Cedente_ContaBancaria_N' +
+        'umeroConta,'
+      '       cc.usodobanco,'
+      
+        '       cc.convenio                    as cedente_contabancaria_c' +
+        'onvenio,'
+      '       (Select b.nome'
+      '        From bairros b'
+      '        Where f.estado = b.estado'
+      '          and f.cidade = b.cidade'
+      
+        '          and f.bairro = b.codigo)    as Cedente_Endereco_bairro' +
+        ','
+      
+        '       cast(lpad(cast(f.cep as varchar),8,'#39'0'#39') as varchar(8))  a' +
+        's Cedente_Endereco_Cep,'
+      '      (Select cd.nome'
+      '       From cidades cd'
+      '       Where f.estado = cd.estado'
+      
+        '         and f.cidade = cd.codigo)    as Cedente_Endereco_Cidade' +
+        ','
+      
+        '       f.estado                       as Cedente_Endereco_Estado' +
+        ','
+      '       f.rua                          as Cedente_Endereco_Rua,'
+      '       coalesce(cedente_nome,f.razao) as Cedente_Nome,'
+      
+        '       coalesce(cnpj_agencia_referencia,f.cnpj) as Cedente_Numer' +
+        'oCPFCGC,'
+      '       c.faturamento                  as DataDocumento,'
+      '       f.razao || '#39' - '#39' || f.cnpj     as Sacador_Avalista,'
+      ''
+      
+        '      (select cast(replace(parametros_valor('#39'DESCONTO PAG ANTECI' +
+        'PADO'#39', case when :UsarDadosdaFilialBase then :FilialBoleto else ' +
+        'c.filialvenda end),'#39','#39','#39'.'#39') as numeric(9,2)))'
+      '                                      as PercentualDesconto,'
+      ''
+      '      (select parametros_valor('#39'DIAS ATRASO 1'#39'))'
+      '                                      as diasatraso1,'
+      
+        '      (select cast(replace(parametros_valor('#39'PERCENTUAL ATRASO J' +
+        'UROS 1'#39', case when :UsarDadosdaFilialBase then :FilialBoleto els' +
+        'e c.filialvenda end), '#39','#39', '#39'.'#39') as numeric(5,2)))'
+      '                                      as PercentualMoraJuros,'
+      '       p.datavencto,'
+      '       cc.instrucoesboleto            as instrucoes,'
+      '       cc.localpagamento,'
+      '       cc.localpagamento2,'
+      '       case when cc.codigo_singular is not null then'
+      
+        '        cast('#39'2'#39' || cc.agenciareferencia || lpad(cast(p.nossonum' +
+        'ero as varchar),6,'#39'0'#39') as bigint)'
+      '       else'
+      '         p.nossonumero'
+      '       end as NossoNumero,'
+      '       (select max(n.numero)'
+      '        from notas n, dadosfiscais df'
+      '        where n.dadofiscal = df.numero'
+      '          and df.contrato = c.numero'
+      '          and df.situacao='#39'N'#39') as NotaFiscal,'
+      ''
+      '       p.numero as numeroparcela,'
+      ''
+      '       (select count(*)'
+      '        from notas n, dadosfiscais df'
+      '        where n.dadofiscal = df.numero'
+      '          and df.contrato = c.numero'
+      '          and df.situacao = '#39'N'#39') as qtNotaFiscais,'
+      ''
+      '       p.contrato,'
+      '       (Select b.nome'
+      '        From bairros b'
+      '        Where c.estado = b.estado'
+      '          and c.cidade = b.cidade'
+      '          and c.bairro = b.codigo)    as Sacado_Endereco_Bairro,'
+      
+        '       cast(lpad(cast(c.cep as varchar),8,'#39'0'#39') as varchar(8))  a' +
+        's Sacado_Endereco_Cep,'
+      '       (Select cd.nome'
+      '          From cidades cd'
+      '         Where c.estado = cd.estado'
+      '           and c.cidade = cd.codigo)  as Sacado_Endereco_cidade,'
+      '       c.estado                       as Sacado_Endereco_estado,'
+      '       c.rua                          as Sacado_Endereco_rua,'
+      '       c.endnumero                    as Sacado_Endereco_numero,'
+      
+        '       c.endcomplemento               as Sacado_Endereco_complem' +
+        'ento,'
+      '       c.nome                         as Sacado_Nome,'
+      '       c.pessoaTipo,'
+      '       c.pessoanumero                 as Sacado_NumeroCPFCGC,'
+      '       c.email                        as Sacado_Email,'
+      '       c.fonenumero                   as Sacado_Fone_numero,'
+      '       c.foneddd                      as Sacado_Fone_ddd,'
+      '       p.contrato||'#39'-'#39'||p.numero      as SeuNumero,'
+      '       p.valorvencto                  as ValorDocumento,'
+      '       cc.nrviasboleto'
+      ''
+      '/*'
+      '           p.datapagto,'
+      '           p.valorpagto,'
+      '           (((p.valorvencto * 2) / 30) / 100) as jurosbloquete,'
+      '           (p.valorpagto - p.valorvencto) as jurodesconto,'
+      '           (p.datapagto - p.datavencto) as diasatraso,'
+      '           (case when (p.datapagto - p.datavencto) > 0 then'
+      
+        '                      ((p.valorpagto - p.valorvencto)  /  (p.dat' +
+        'apagto - p.datavencto))'
+      '                    else   (p.valorpagto - p.valorvencto)'
+      '            end)  as jurosdias,'
+      '           f.codigo as filial,'
+      
+        '          (select parametros_valor('#39'DIAS ATRASO 1'#39')) AS diasatra' +
+        'so1,'
+      
+        '          (select parametros_valor('#39'DIAS ATRASO 2'#39')) AS diasatra' +
+        'so2,'
+      
+        '          (select parametros_valor('#39'PERCENTUAL ATRASO JUROS 1'#39'))' +
+        ' AS percentualatrasojuros1,'
+      
+        '          (select parametros_valor('#39'PERCENTUAL ATRASO JUROS 2'#39'))' +
+        ' AS percentualatrasojuros,'
+      
+        '          (select parametros_valor('#39'PERCENTUAL ATRASO MULTAS 1'#39')' +
+        ') AS percentualatrasomultas1,'
+      
+        '          (select parametros_valor('#39'PERCENTUAL ATRASO MULTAS 2'#39')' +
+        ') AS percentualatrasomultas2,'
+      
+        '          (select(((p.valorvencto * cast(parametros_valor('#39'PERCE' +
+        'NTUAL ATRASO JUROS 1'#39') as numeric(9,2)))) / 30) / 100) as jurosa' +
+        'traso1,'
+      
+        '          (select(((p.valorvencto * cast(parametros_valor('#39'PERCE' +
+        'NTUAL ATRASO JUROS 2'#39') as numeric(9,2)))) / 30) / 100) as jurosa' +
+        'traso2'
+      '*/'
+      ''
+      
+        ' From  parcelas p, contratos c, filiais f, contas cc, agencias a' +
+        ', bancos b'
+      'Where p.datapagto is null and'
+      '      %WhereContrato'
+      '       %WhereNumeroParcelas'
+      '       (c.numero = p.contrato) and'
+      
+        '       (case when :UsarDadosdaFilialBase then :FilialBoleto else' +
+        ' c.filialvenda end = f.codigo) and'
+      
+        '      cast(cc.conta as varchar)=  parametros_valor('#39'Conta banc'#225'r' +
+        'ia para emiss'#227'o do boleto'#39',case when :UsarDadosdaFilialBase then' +
+        ' :FilialBoleto else c.filialvenda end) and'
+      '      cc.agencia = a.codigo and'
+      '      cc.banco = a.banco and'
+      '      a.banco = b.codigo'
+      'Order By p.datavencto, p.datapagto'
+      ''
+      ''
+      '/*'
+      '  (p.contrato = :contrato) and'
+      '*/')
+    RequestLive = False
+    Left = 32
+    Top = 104
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'UsarDadosdaFilialBase'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FilialBoleto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end>
+    object qryParcelasBancocarteira: TStringField
+      FieldName = 'carteira'
+    end
+    object qryParcelasBancocedente_codigocedente: TStringField
+      FieldName = 'cedente_codigocedente'
+    end
+    object qryParcelasBancocedente_contabancaria_banco_codigo: TIntegerField
+      FieldName = 'cedente_contabancaria_banco_codigo'
+      DisplayFormat = '0'
+    end
+    object qryParcelasBancocedente_contabancaria_codigoagencia: TIntegerField
+      FieldName = 'cedente_contabancaria_codigoagencia'
+      DisplayFormat = '0'
+    end
+    object qryParcelasBancocedente_contabancaria_digitoconta: TStringField
+      FieldName = 'cedente_contabancaria_digitoconta'
+      Size = 2
+    end
+    object qryParcelasBancocedente_contabancaria_numeroconta: TIntegerField
+      FieldName = 'cedente_contabancaria_numeroconta'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryParcelasBancousodobanco: TStringField
+      FieldName = 'usodobanco'
+      Size = 15
+    end
+    object qryParcelasBancocedente_endereco_bairro: TStringField
+      FieldName = 'cedente_endereco_bairro'
+      Size = 50
+    end
+    object qryParcelasBancocedente_endereco_cep: TStringField
+      FieldName = 'cedente_endereco_cep'
+      Size = 8
+    end
+    object qryParcelasBancocedente_endereco_cidade: TStringField
+      FieldName = 'cedente_endereco_cidade'
+      Size = 50
+    end
+    object qryParcelasBancocedente_endereco_estado: TStringField
+      FieldName = 'cedente_endereco_estado'
+      Required = True
+      Size = 2
+    end
+    object qryParcelasBancocedente_endereco_rua: TStringField
+      FieldName = 'cedente_endereco_rua'
+      Required = True
+      Size = 100
+    end
+    object qryParcelasBancocedente_nome: TStringField
+      FieldName = 'cedente_nome'
+      Required = True
+      Size = 50
+    end
+    object qryParcelasBancocedente_numerocpfcgc: TStringField
+      FieldName = 'cedente_numerocpfcgc'
+      Size = 14
+    end
+    object qryParcelasBancodatadocumento: TDateField
+      Alignment = taCenter
+      FieldName = 'datadocumento'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryParcelasBancopercentualdesconto: TFloatField
+      FieldName = 'percentualdesconto'
+      DisplayFormat = '0.00'
+    end
+    object qryParcelasBancodiasatraso1: TStringField
+      FieldName = 'diasatraso1'
+      Size = 50
+    end
+    object qryParcelasBancopercentualmorajuros: TFloatField
+      FieldName = 'percentualmorajuros'
+      DisplayFormat = '0.00'
+    end
+    object qryParcelasBancodatavencto: TDateField
+      Alignment = taCenter
+      FieldName = 'datavencto'
+      Required = True
+      EditMask = '99/99/9999;1; '
+    end
+    object qryParcelasBancoinstrucoes: TStringField
+      FieldName = 'instrucoes'
+      Size = 300
+    end
+    object qryParcelasBancolocalpagamento: TStringField
+      FieldName = 'localpagamento'
+      Size = 100
+    end
+    object qryParcelasBanconotafiscal: TIntegerField
+      FieldName = 'notafiscal'
+      DisplayFormat = '0'
+    end
+    object qryParcelasBancoqtnotafiscais: TLargeintField
+      FieldName = 'qtnotafiscais'
+    end
+    object qryParcelasBancocontrato: TStringField
+      FieldName = 'contrato'
+      Required = True
+    end
+    object qryParcelasBancosacado_endereco_bairro: TStringField
+      FieldName = 'sacado_endereco_bairro'
+      Size = 50
+    end
+    object qryParcelasBancosacado_endereco_cep: TStringField
+      FieldName = 'sacado_endereco_cep'
+      Size = 8
+    end
+    object qryParcelasBancosacado_endereco_cidade: TStringField
+      FieldName = 'sacado_endereco_cidade'
+      Size = 50
+    end
+    object qryParcelasBancosacado_endereco_estado: TStringField
+      FieldName = 'sacado_endereco_estado'
+      Size = 2
+    end
+    object qryParcelasBancosacado_endereco_rua: TStringField
+      FieldName = 'sacado_endereco_rua'
+      Size = 100
+    end
+    object qryParcelasBancosacado_nome: TStringField
+      FieldName = 'sacado_nome'
+      Size = 40
+    end
+    object qryParcelasBancopessoatipo: TStringField
+      FieldName = 'pessoatipo'
+      Size = 1
+    end
+    object qryParcelasBancosacado_numerocpfcgc: TStringField
+      FieldName = 'sacado_numerocpfcgc'
+      Size = 14
+    end
+    object qryParcelasBancoseunumero: TMemoField
+      FieldName = 'seunumero'
+      BlobType = ftMemo
+    end
+    object qryParcelasBancovalordocumento: TFloatField
+      FieldName = 'valordocumento'
+      Required = True
+      DisplayFormat = '0.00'
+    end
+    object qryParcelasBancoValorDesconto: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'ValorDesconto'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryParcelasBancoDataDesconto: TDateField
+      Alignment = taCenter
+      FieldKind = fkCalculated
+      FieldName = 'DataDesconto'
+      EditMask = '99/99/9999;1; '
+      Calculated = True
+    end
+    object qryParcelasBancoDataMoraJuros: TDateField
+      Alignment = taCenter
+      FieldKind = fkCalculated
+      FieldName = 'DataMoraJuros'
+      EditMask = '99/99/9999;1; '
+      Calculated = True
+    end
+    object qryParcelasBancoValorMoraJuros: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'ValorMoraJuros'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryParcelasBancoNumeroDocumento: TStringField
+      FieldKind = fkCalculated
+      FieldName = 'NumeroDocumento'
+      Calculated = True
+    end
+    object qryParcelasBancosacado_endereco_numero: TIntegerField
+      FieldName = 'sacado_endereco_numero'
+      DisplayFormat = '0'
+    end
+    object qryParcelasBancosacado_endereco_complemento: TStringField
+      FieldName = 'sacado_endereco_complemento'
+      Size = 100
+    end
+    object qryParcelasBancosacado_email: TStringField
+      FieldName = 'sacado_email'
+      Size = 50
+    end
+    object qryParcelasBancosacado_fone_numero: TIntegerField
+      FieldName = 'sacado_fone_numero'
+      DisplayFormat = '0'
+    end
+    object qryParcelasBancosacado_fone_ddd: TIntegerField
+      FieldName = 'sacado_fone_ddd'
+      DisplayFormat = '0'
+    end
+    object qryParcelasBancocedente_contabancaria_convenio: TIntegerField
+      FieldName = 'cedente_contabancaria_convenio'
+      DisplayFormat = '0'
+    end
+    object qryParcelasBanconrviasboleto: TIntegerField
+      FieldName = 'nrviasboleto'
+      DisplayFormat = '0'
+    end
+    object qryParcelasBancolocalpagamento2: TStringField
+      FieldName = 'localpagamento2'
+      Size = 100
+    end
+    object qryParcelasBanconumeroparcela: TIntegerField
+      FieldName = 'numeroparcela'
+      DisplayFormat = '0'
+    end
+    object qryParcelasBanconossonumero: TLargeintField
+      FieldName = 'nossonumero'
+      Required = True
+    end
+    object qryParcelasBancocedente_contabancaria_digitoagencia: TStringField
+      FieldName = 'cedente_contabancaria_digitoagencia'
+      Size = 2
+    end
+    object qryParcelasBancosacador_avalista: TMemoField
+      FieldName = 'sacador_avalista'
+      BlobType = ftMemo
+    end
+  end
+end

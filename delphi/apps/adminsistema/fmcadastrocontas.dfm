@@ -1,6 +1,6 @@
 inherited frmcadastrocontas: Tfrmcadastrocontas
-  Left = 419
-  Top = 148
+  Left = 388
+  Top = 71
   Width = 989
   Height = 779
   VertScrollBar.Range = 44
@@ -503,7 +503,7 @@ inherited frmcadastrocontas: Tfrmcadastrocontas
       Top = 180
       Width = 963
       Height = 509
-      ActivePage = tstCobrancaPIX
+      ActivePage = tstBoletos
       Align = alBottom
       TabOrder = 10
       object tstBoletos: TTabSheet

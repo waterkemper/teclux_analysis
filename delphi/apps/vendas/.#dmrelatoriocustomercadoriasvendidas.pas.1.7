@@ -1,0 +1,2236 @@
+unit dmrelatoriocustomercadoriasvendidas;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery, dmtecsoft,
+  FR_Class, FR_DSet, FR_DBSet, ctconstantes, cpdatasource, CheckLst,
+  clparametrossistema, fmpreviewpadrao, FR_Desgn, biblio, Graphics,
+  ZTransact;
+
+type
+  Tdtmrelatoriocustomercadoriasvendidas = class(TdtmBasico)
+    qryrelatoriocustomercvendidas: TtecQuery;
+    frprlcustomercvendidas: TfrReport;
+    fdsrlcustomercvendidas: TfrDBDataSet;
+    frprlcustomercvendidas_res: TfrReport;
+    qryItemProdutosInicial: TtecQuery;
+    dsrItemProdutosInicial: TtecDataSource;
+    qryConsultaItemProdutos: TtecQuery;
+    qryConsultaItemProdutoscodigo: TLargeintField;
+    qryConsultaItemProdutosdescricao: TStringField;
+    qryGrupoProdutosInicial: TtecQuery;
+    qryGrupoProdutosInicialcodigo: TStringField;
+    qryGrupoProdutosInicialdescricao: TStringField;
+    dsrGrupoProdutosInicial: TtecDataSource;
+    qryConsultaGrupoProdutos: TtecQuery;
+    qryConsultaGrupoProdutosdescricao: TStringField;
+    qryConsultaGrupoProdutoscodigo: TStringField;
+    qryProdutosInicial: TtecQuery;
+    qryProdutosInicialcodigo: TLargeintField;
+    qryProdutosInicialdescricao: TStringField;
+    dsrProdutosInicial: TtecDataSource;
+    qryConsultaProdutos: TtecQuery;
+    qryConsultaProdutoscodigo: TLargeintField;
+    qryConsultaProdutosdescricao: TStringField;
+    qryClassesInicial: TtecQuery;
+    qryClassesInicialcodigo: TStringField;
+    qryClassesInicialdescricao: TStringField;
+    dsrClassesInicial: TtecDataSource;
+    qryConsultaClasses: TtecQuery;
+    qryConsultaClassescodigo: TStringField;
+    qryConsultaClassesdescricao: TStringField;
+    qryItemProdutosFinal: TtecQuery;
+    dsrItemProdutosFinal: TtecDataSource;
+    qryItemProdutosInicialcodigo: TLargeintField;
+    qryItemProdutosInicialdescricao: TStringField;
+    qryItemProdutosFinalcodigo: TLargeintField;
+    qryItemProdutosFinaldescricao: TStringField;
+    qryProdutosFinal: TtecQuery;
+    dsrProdutosFinal: TtecDataSource;
+    qryGrupoProdutosFinal: TtecQuery;
+    dsrGrupoProdutosFinal: TtecDataSource;
+    qryClassesFinal: TtecQuery;
+    dsrClassesFinal: TtecDataSource;
+    qryProdutosFinalcodigo: TLargeintField;
+    qryProdutosFinaldescricao: TStringField;
+    qryGrupoProdutosFinalcodigo: TStringField;
+    qryGrupoProdutosFinaldescricao: TStringField;
+    qryClassesFinalcodigo: TStringField;
+    qryClassesFinaldescricao: TStringField;
+    qryClienteInicial: TtecQuery;
+    qryClienteInicialcodigo: TIntegerField;
+    qryClienteInicialnome: TStringField;
+    qryClienteInicialtipo: TStringField;
+    dsrClienteInicial: TtecDataSource;
+    qryConsultaClientes: TtecQuery;
+    qryConsultaClientesnome: TStringField;
+    qryConsultaClientescodigo: TIntegerField;
+    qryConsultaClientespessoanumero: TStringField;
+    qryConsultaClientestipo: TStringField;
+    qryConsultaClientesnomecidade: TStringField;
+    qryConsultaClientesestado: TStringField;
+    qryClienteFinal: TtecQuery;
+    qryClienteFinalcodigo: TIntegerField;
+    qryClienteFinalnome: TStringField;
+    qryClienteFinaltipo: TStringField;
+    dsrClienteFinal: TtecDataSource;
+    qryDadosFiscaisProdutosVendas: TtecQuery;
+    qryDadosFiscaisProdutosDevolucoes: TtecQuery;
+    qryConsultaClientestipocliente: TStringField;
+    qryConsultaItemProdutosvalorgrade1: TStringField;
+    qryConsultaItemProdutosvalorgrade2: TStringField;
+    qryrelatoriocustomercvendidasnome: TStringField;
+    qryrelatoriocustomercvendidascliente: TStringField;
+    qryrelatoriocustomercvendidasvendedor: TIntegerField;
+    qryrelatoriocustomercvendidasproduto: TLargeintField;
+    qryrelatoriocustomercvendidasfilial: TIntegerField;
+    qryrelatoriocustomercvendidasdadofiscal: TIntegerField;
+    qryrelatoriocustomercvendidasserie: TStringField;
+    qryrelatoriocustomercvendidasnotafiscal: TIntegerField;
+    qryrelatoriocustomercvendidasmaquina: TIntegerField;
+    qryrelatoriocustomercvendidasintervensao: TIntegerField;
+    qryrelatoriocustomercvendidascupomfiscal: TIntegerField;
+    qryrelatoriocustomercvendidasdata: TDateField;
+    qryrelatoriocustomercvendidasfilialvenda: TIntegerField;
+    qryrelatoriocustomercvendidasfilialemissao: TIntegerField;
+    qryrelatoriocustomercvendidasquantidade: TFloatField;
+    qryrelatoriocustomercvendidaspreco_pauta: TFloatField;
+    qryrelatoriocustomercvendidaspreco_vista: TFloatField;
+    qryrelatoriocustomercvendidasdesconto: TFloatField;
+    qryrelatoriocustomercvendidasjuros: TFloatField;
+    qryrelatoriocustomercvendidaspreco_prazo: TFloatField;
+    qryrelatoriocustomercvendidasplano: TStringField;
+    qryrelatoriocustomercvendidasmovimento: TIntegerField;
+    qryrelatoriocustomercvendidasnumeromovimento: TIntegerField;
+    qryrelatoriocustomercvendidaspreco_custo: TFloatField;
+    qryrelatoriocustomercvendidasqtemestoque: TFloatField;
+    qryrelatoriocustomercvendidasnomevendedor: TStringField;
+    qryrelatoriocustomercvendidasdescricao: TStringField;
+    qryrelatoriocustomercvendidasvalorgrade1: TStringField;
+    qryrelatoriocustomercvendidasvalorgrade2: TStringField;
+    qryrelatoriocustomercvendidasgrupo: TStringField;
+    qryrelatoriocustomercvendidasgrupodescricao: TStringField;
+    qryrelatoriocustomercvendidasclasse: TStringField;
+    qryrelatoriocustomercvendidasclassegrupo: TStringField;
+    qryrelatoriocustomercvendidasnomefilialvenda: TStringField;
+    qryrelatoriocustomercvendidasnomefilialemissao: TStringField;
+    qryrelatoriocustomercvendidasgrupofilialvenda: TIntegerField;
+    qryrelatoriocustomercvendidasnomegrupofilialvenda: TStringField;
+    qryrelatoriocustomercvendidasnomeplano: TStringField;
+    qryrelatoriocustomercvendidasmarkup: TFloatField;
+    qryrelatoriocustomercvendidasmargem: TFloatField;
+    qryrelatoriocustomercvendidastipo: TStringField;
+    qryrelatoriocustomercvendidaspmargem: TFloatField;
+    qryDadosFiscaisProdutosVendaFrenteCaixa: TtecQuery;
+    qryDadosFiscaisProdutosDevolucoesFrenteCaixa: TtecQuery;
+    qryrelatoriocustomercvendidasicmsvalor: TCurrencyField;
+    procedure frprlcustomercvendidasBeforePrint(
+      Memo: TStringList; View: TfrView);
+    procedure qryConsultaItemProdutosAfterOpen(DataSet: TDataSet);
+    procedure frprlcustomercvendidas_resBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+  private
+    FListaFiliais: TStringList;
+    FListaGruposFiliais: TStringList;
+    FDataFinal: String;
+    FDataInicial: String;
+    FprodutoEmLinha: Boolean;
+    FprodutoForadeLinha: Boolean;
+    FProdutoComMontagem: Boolean;
+    FProdutoSemMontagem: Boolean;
+    FProdutoBrinde: Boolean;
+    FProdutoNaoBrinde: Boolean;
+    FMostrarPlanos: Boolean;
+    FListarVendas: Boolean;
+    FListarDevolucoesdoPeriodo: Boolean;
+    FOrdenacao: Integer;
+    FTotalizacao: Integer;
+    FTipodeResumo: Integer;
+    FResumo: Integer;
+    FAgruparFilial: boolean;
+    FAgruparGrupoFilial: boolean;
+    FParametroCabecalho: String;
+    FParametroGrupoFinal: String;
+    FParametroCodigoFinal: String;
+    FParametroGrupoInicial: String;
+    FParametroClasseInicial: String;
+    FParametroClasseFinal: String;
+    FParametroCodigoInicial: String;
+    FParametroCodigoItemInicial: String;
+    FParametroCodigoItemFinal: String;
+    FParametroSelecaoProdutos: Integer;
+    FParametroSelecaoClientes: Integer;
+    FParametroClienteInicial: String;
+    FParametroClienteFinal: String;
+    FAgruparCliente: boolean;
+    FListarDevolucoesAnteriores: Boolean;
+    FFilial: String;
+    FGrupoFilial: String;
+    FListadeRegioes: String;
+    procedure SetDataFinal(const Value: String);
+    procedure SetProdutoForadeLinha(const Value: Boolean);
+    procedure SetProdutoSemMontagem(const Value: Boolean);
+    procedure SetProdutoNaoBrinde(const Value: Boolean);
+    function GetConsultaClasses: TtecQuery;
+    function GetConsultaGrupoProdutos: TtecQuery;
+    function GetConsultaItemProdutos: TtecQuery;
+    function GetConsultaProdutos: TtecQuery;
+    function GetConsultaClientes: TZDataSet;
+    procedure SetFilial(const Value: String);
+    procedure SetGrupoFilial(const Value: String);
+    procedure SetParametroCodigoItemFinal(const Value: String);
+    procedure SetParametroClasseFinal(const Value: String);
+    procedure SetParametroCodigoFinal(const Value: String);
+    procedure SetParametroGrupoFinal(const Value: String);
+    function GetDescricaoClasseFinal: String;
+    function GetDescricaoClasseInicial: String;
+    function GetDescricaoGrupoFinal: String;
+    function GetDescricaoGrupoInicial: String;
+    function GetDescricaoItemProdutoFinal: String;
+    function GetDescricaoItemProdutoInicial: String;
+    function GetDescricaoProdutoFinal: String;
+    function GetDescricaoProdutoInicial: String;
+    procedure SetParametroClienteFinal(const Value: String);
+    function GetNomeClienteFinal: String;
+    function GetNomeClienteInicial: String;
+    procedure SetListarDevolucoesAnteriores(const Value: Boolean);
+    procedure SetListadeRegioes(const Value: String);
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    procedure AbreTabelaPesquisa(TipoPesquisa: TtecRelatorioVendas);
+    procedure AbreConsultaCliente;
+    function ExisteCliente(NomeCampo: String; Value: Variant): Boolean;
+    procedure Selecionar(TipoPesquisa: TtecRelatorioVendas);
+    procedure FechaTabelaPesquisa(TipoPesquisa: TtecRElatorioVendas);
+    property ConsultaItemProdutos: TtecQuery read GetConsultaItemProdutos;
+    property ConsultaProdutos: TtecQuery read GetConsultaProdutos;
+    property ConsultaGrupoProdutos: TtecQuery read GetConsultaGrupoProdutos;
+    property ConsultaClasses: TtecQuery read GetConsultaClasses;
+    property ConsultaClientes: TZDataSet read GetConsultaClientes;
+    function ExisteItemProdutos(campo, codigo: string): boolean;
+    function ExisteProdutos(campo, codigo: string): boolean;
+    function ExisteGrupoProdutos(campo, codigo: string): boolean;
+    function ExisteClasses(campo, codigo: string): boolean;
+
+    procedure ImprimirRelatorio(tipo: String);
+    property DataInicial: String read FDataInicial write FDataInicial;
+    property DataFinal: String read FDataFinal write SetDataFinal;
+    property ProdutoEmLinha: Boolean read FprodutoEmLinha write FProdutoEmLinha;
+    Property ProdutoForadeLinha: Boolean read FprodutoForadeLinha write SetProdutoForadeLinha;
+    property ProdutoComMontagem: Boolean read FProdutoComMontagem write FProdutoComMontagem;
+    property ProdutoSemMontagem: Boolean read FProdutoSemMontagem write SetProdutoSemMontagem;
+    property ProdutoBrinde: Boolean read FProdutoBrinde write FProdutoBrinde;
+    property ProdutoNaoBrinde: Boolean read FProdutoNaoBrinde write SetProdutoNaoBrinde;
+    property MostrarPlanos: Boolean read FMostrarPlanos write FMostrarPlanos;
+    property ListarVendas: Boolean read FListarVendas write FListarVendas;
+    property ListarDevolucoesdoPeriodo: Boolean read FListarDevolucoesdoPeriodo write FListarDevolucoesdoPeriodo;
+    property ListarDevolucoesAnteriores: Boolean read FListarDevolucoesAnteriores write SetListarDevolucoesAnteriores;
+    property Resumo: Integer read FResumo write FResumo;
+    property TipodeResumo: Integer read FTipodeResumo write FTipodeResumo;
+    property AgruparGrupoFilial: boolean read FAgruparGrupoFilial write FAgruparGrupoFilial;
+    property AgruparFilial: boolean read FAgruparFilial write FAgruparFilial;
+    property AgruparCliente: boolean read FAgruparCliente write FAgruparCliente;
+    property Ordenacao: Integer read FOrdenacao write FOrdenacao;
+    property Totalizacao: Integer read FTotalizacao write FTotalizacao;
+    procedure MontarOrdenacao;
+    property ParametroCabecalho: String read FParametroCabecalho write FParametroCabecalho;
+    procedure MontarFiltroFiliais(Usar: TCheckListBox);
+    procedure MontarFiltroGrupoFiliais(Usar: TCheckListBox);
+    property Filial: String read FFilial write SetFilial;
+    property GrupoFilial: String read FGrupoFilial write SetGrupoFilial;
+    property ListadeRegioes: String read FListadeRegioes write SetListadeRegioes;
+    property ParametroCodigoItemInicial: String read FParametroCodigoItemInicial write FParametroCodigoItemInicial;
+    property ParametroCodigoItemFinal: String read FParametroCodigoItemFinal write SetParametroCodigoItemFinal;
+    property ParametroCodigoInicial: String read FParametroCodigoInicial write FParametroCodigoInicial;
+    property ParametroCodigoFinal: String read FParametroCodigoFinal write SetParametroCodigoFinal;
+    property ParametroGrupoInicial: String read FParametroGrupoInicial write FParametroGrupoInicial;
+    property ParametroGrupoFinal: String read FParametroGrupoFinal write SetParametroGrupoFinal;
+    property ParametroClasseInicial: String read FParametroClasseInicial write FParametroClasseInicial;
+    property ParametroClasseFinal: String read FParametroClasseFinal write SetParametroClasseFinal;
+    property DescricaoItemProdutoInicial : String read GetDescricaoItemProdutoInicial;
+    property DescricaoItemProdutoFinal : String read GetDescricaoItemProdutoFinal;
+    property DescricaoProdutoInicial : String read GetDescricaoProdutoInicial;
+    property DescricaoProdutoFinal : String read GetDescricaoProdutoFinal;
+    property DescricaoGrupoInicial : String read GetDescricaoGrupoInicial;
+    property DescricaoGrupoFinal : String read GetDescricaoGrupoFinal;
+    property DescricaoClasseInicial : String read GetDescricaoClasseInicial;
+    property DescricaoClasseFinal : String read GetDescricaoClasseFinal;
+    property ParametroSelecaoProdutos : Integer read FParametroSelecaoProdutos write FParametroSelecaoProdutos;
+    property ParametroSelecaoClientes : Integer read FParametroSelecaoClientes write FParametroSelecaoClientes;
+    property ParametroClienteInicial: String read FParametroClienteInicial write FParametroClienteInicial;
+    property ParametroClienteFinal: String read FParametroClienteFinal write SetParametroClienteFinal;
+    property NomeClienteInicial: String read GetNomeClienteInicial;
+    property NomeClienteFinal: String read GetNomeClienteFinal;
+    procedure MontaDatas;
+    procedure MontarSQL;
+
+  end;
+
+var
+  dtmrelatoriocustomercadoriasvendidas: Tdtmrelatoriocustomercadoriasvendidas;
+
+implementation
+
+{$R *.dfm}
+
+{ Tdtmrelatoriocustomercadoriasvendidas }
+const
+
+
+FiltroFilialVenda      = ' AND ( df.filialvenda IN (%s)) ';
+FiltroGrupoFilialVenda = ' AND ( df.filialvenda IN (SELECT filial '+
+                                         'FROM filiaisgruposfiliais fgf '+
+                                         'WHERE fgf.grupo IN (%s))) ';
+
+FiltroFilialDev      = ' AND ( np.filial IN (%s)) ';
+FiltroGrupoFilialDev = ' AND ( np.filial IN (SELECT filial '+
+                                         'FROM filiaisgruposfiliais fgf '+
+                                         'WHERE fgf.grupo IN (%s))) ';
+
+
+FiltroRegioes_df  =
+          'and (((SELECT regiao FROM bairros WHERE (estado,cidade,codigo)=(df.estado,df.cidade,df.bairro)) in (%s)) or '+
+               '((SELECT regiao FROM cidades WHERE (estado,codigo)=(df.estado,df.cidade)) in (%s)))';
+
+FiltroRegioes_ct  =
+          'and (((SELECT regiao FROM bairros WHERE (estado,cidade,codigo)=(ct.estado,ct.cidade,ct.bairro)) in (%s)) or '+
+               '((SELECT regiao FROM cidades WHERE (estado,codigo)=(ct.estado,ct.cidade)) in (%s)))';
+
+FiltroRegioes_np  =
+          'and (((SELECT regiao FROM bairros WHERE (estado,cidade,codigo)=(np.estado,np.cidade,np.bairro)) in (%s)) or '+
+               '((SELECT regiao FROM cidades WHERE (estado,codigo)=(np.estado,np.cidade)) in (%s)))';
+
+
+constructor Tdtmrelatoriocustomercadoriasvendidas.Create(
+  AOwner: TComponent);
+begin
+  inherited;
+  qryItemProdutosInicial.Tag    := ctTabelas;
+  qryItemProdutosFinal.Tag      := ctTabelas;
+  qryprodutosInicial.Tag        := ctTabelas;
+  qryprodutosFinal.Tag          := ctTabelas;
+  qryGrupoProdutosInicial.Tag   := ctTabelas;
+  qryGrupoProdutosFinal.Tag     := ctTabelas;
+  qryClassesInicial.Tag         := ctTabelas;
+  qryClassesFinal.Tag           := ctTabelas;
+  qryClienteInicial.Tag         := ctTabelas;
+  qryClienteFinal.Tag           := ctTabelas;
+  qryConsultaClientes.Tag       := ctPesquisaClientes;
+  qryConsultaItemProdutos.Tag   := ctVendaTabelaConsultaItemProdutos;
+  qryConsultaProdutos.Tag       := ctVendaTabelaConsultaProdutos;
+  qryconsultaGrupoProdutos.Tag  := ctVendaTabelaConsultaGrupoProdutos;
+  qryConsultaClasses.Tag        := ctVendaTabelaConsultaClasses;
+  qryClienteInicial.Params[1].AsString := 'C';
+  qryClienteFinal.Params[1].AsString := 'C';
+end;
+
+procedure Tdtmrelatoriocustomercadoriasvendidas.ImprimirRelatorio(
+  tipo: String);
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+  frVariables['RAZAOFILIALBASE']  := RazaoFilialBase;
+  frVariables['ENDERECO_BAIRRO']   := RuaFilialBase+ ' - '+BairroFilialBase;
+  frVariables['CEP_CIDADE_UF']:= FormatarCEP(CEPFilialBase)+'  '+CidadeFilialBase+ '  '+ EstadoFilialBase;
+  frVariables['Outras']:=FParametroCabecalho;
+  frVariables['Titulo']:= tipo;
+  frVariables['ImprimirPlano']:=FMostrarPlanos;
+  frVariables['TipodeResumo']:=FTipodeResumo;
+  frVariables['Ordenacao']:=FOrdenacao;
+  frVariables['Totalizacao']:=FTotalizacao;
+  frVariables['AgruparGrupoFilial']:=FAgruparGrupoFilial;
+  frVariables['AgruparFilial']:=FAgruparFilial;
+  frVariables['AgruparCliente']:=FAgruparCliente;
+  frVariables['EmLinha']:=FprodutoEmLinha;
+  frVariables['ForadeLinha']:=FprodutoForadeLinha;
+  frVariables['ComMontagem']:=FProdutoComMontagem;
+  frVariables['SemMontagem']:=FProdutoSemMontagem;
+  frVariables['Brinde']:=FProdutoBrinde;
+  frVariables['NaoBrinde']:=FProdutoNaoBrinde;
+  frVariables['Vendas']:=FListarVendas;
+  frVariables['Devolucoes']:= (FListarDevolucoesdoPeriodo or FListarDevolucoesAnteriores);
+//  frprlcustomercvendidas.DesignReport;
+  frmPreview := TfrmPreviewPadrao.create(self);
+  try
+   Relatorio := frmPreview.frCompositeReport;
+   with frmPreview do
+   begin
+    frCompositeReport.Reports.Clear;
+    Case FResumo of
+     0: begin
+         frCompositeReport.Reports.Add(frprlcustomercvendidas);
+         frCompositeReport.Reports.Add(frprlcustomercvendidas_res);
+        end;
+     1: frCompositeReport.Reports.Add(frprlcustomercvendidas);
+     2: frCompositeReport.Reports.Add(frprlcustomercvendidas_res);
+    end;
+   end;
+   Relatorio.Preview := frmPreview.frPreviewPadrao;
+//  frprlcustomercvendidas.DesignReport;
+
+   Relatorio.ShowReport;
+
+   frmPreview.ShowModal;
+
+  finally
+
+   frmPreview.Free
+
+  end;
+
+end;
+
+
+procedure Tdtmrelatoriocustomercadoriasvendidas.SetDataFinal(
+  const Value: String);
+begin
+  if value<>'' then
+  begin
+    FDataFinal := Value;
+    if FDataInicial='' then
+      FDataInicial:=FDataFinal;
+  end
+  else
+   FDataFinal:=FDataInicial;
+end;
+
+procedure Tdtmrelatoriocustomercadoriasvendidas.SetProdutoForadeLinha(
+  const Value: Boolean);
+begin
+  FprodutoForadeLinha := Value;
+  if FprodutoEmLinha and FprodutoForadeLinha then
+  begin
+    {com contrato}
+    qryDadosFiscaisProdutosVendas.Sql[
+    NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.Sql,'%WhereEmLinha_ou_ForadeLinha')+1]:='';
+
+    qryDadosFiscaisProdutosDevolucoes.Sql[
+    NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.Sql,'%WhereEmLinha_ou_ForadeLinha')+1]:='';
+
+    {por frente de caixa}
+    qryDadosFiscaisProdutosVendaFrenteCaixa.Sql[
+    NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.Sql,'%WhereEmLinha_ou_ForadeLinha')+1]:='';
+
+    qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql[
+    NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql,'%WhereEmLinha_ou_ForadeLinha')+1]:='';
+
+  end
+  else
+  if FProdutoEmLinha then
+  begin
+    {com contrato}
+    qryDadosFiscaisProdutosVendas.Sql[
+    NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.Sql,'%WhereEmLinha_ou_ForadeLinha')+1]:=
+      ' and p.foralinha is null';
+
+    qryDadosFiscaisProdutosDevolucoes.Sql[
+    NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.Sql,'%WhereEmLinha_ou_ForadeLinha')+1]:=
+      ' and p.foralinha is null';
+
+    {por frente de caixa}
+    qryDadosFiscaisProdutosVendaFrenteCaixa.Sql[
+    NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.Sql,'%WhereEmLinha_ou_ForadeLinha')+1]:=
+      ' and p.foralinha is null';
+
+    qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql[
+    NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql,'%WhereEmLinha_ou_ForadeLinha')+1]:=
+      ' and p.foralinha is null';
+  end
+  else
+  if FprodutoForadeLinha then
+  begin
+    {com contrato}
+    qryDadosFiscaisProdutosVendas.Sql[
+    NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.Sql,'%WhereEmLinha_ou_ForadeLinha')+1]:=
+      ' and p.foralinha is not null';
+
+    qryDadosFiscaisProdutosDevolucoes.Sql[
+    NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.Sql,'%WhereEmLinha_ou_ForadeLinha')+1]:=
+      ' and p.foralinha is not null';
+
+    {por frente de caixa}
+    qryDadosFiscaisProdutosVendaFrenteCaixa.Sql[
+    NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.Sql,'%WhereEmLinha_ou_ForadeLinha')+1]:=
+      ' and p.foralinha is not null';
+
+    qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql[
+    NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql,'%WhereEmLinha_ou_ForadeLinha')+1]:=
+      ' and p.foralinha is not null';
+  end;
+end;
+
+procedure Tdtmrelatoriocustomercadoriasvendidas.SetProdutoNaoBrinde(
+  const Value: Boolean);
+begin
+  FProdutoNaoBrinde := Value;
+  if FProdutoBrinde and FProdutoNaoBrinde then
+  begin
+    {com contrato}
+    qryDadosFiscaisProdutosVendas.Sql[
+    NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.Sql, '%WhereBrinde_ou_NaoBrinde')+1]:='';
+
+    qryDadosFiscaisProdutosDevolucoes.Sql[
+    NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.Sql,'%WhereBrinde_ou_NaoBrinde')+1]:='';
+
+    {por frente de caixa}
+    qryDadosFiscaisProdutosVendaFrenteCaixa.Sql[
+    NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.Sql, '%WhereBrinde_ou_NaoBrinde')+1]:='';
+
+    qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql[
+    NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql,'%WhereBrinde_ou_NaoBrinde')+1]:='';
+  end
+  else
+  if FProdutoBrinde then
+  begin
+    {com contrato}
+    qryDadosFiscaisProdutosVendas.Sql[
+    NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.Sql, '%WhereBrinde_ou_NaoBrinde')+1]:=
+    ' and pdf.brinde ';
+
+    qryDadosFiscaisProdutosDevolucoes.Sql[
+    NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.Sql,'%WhereBrinde_ou_NaoBrinde')+1]:=
+    ' and (select coalesce(pc.brinde,false) '+
+          'from ProdutosContratos pc '+
+          'where pc.contrato=ct.numero and '+
+                'pc.produto=pnm.produto and '+
+                'pc.filial=pnm.filial)';
+
+    {por frente de caixa}
+    qryDadosFiscaisProdutosVendaFrenteCaixa.Sql[
+    NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.Sql, '%WhereBrinde_ou_NaoBrinde')+1]:=
+    ' and pdf.brinde';
+
+    {?}
+    qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql[
+    NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql,'%WhereBrinde_ou_NaoBrinde')+1]:='';
+
+  end
+  else
+  if FProdutoNaoBrinde then
+  begin
+    {com contrato}
+    qryDadosFiscaisProdutosVendas.Sql[
+    NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.Sql, '%WhereBrinde_ou_NaoBrinde')+1]:=
+    ' and not pdf.brinde ';
+
+    qryDadosFiscaisProdutosDevolucoes.Sql[
+    NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.Sql,'%WhereBrinde_ou_NaoBrinde')+1]:=
+    ' and not (select coalesce(pc.brinde,false) '+
+          'from ProdutosContratos pc '+
+          'where pc.contrato=ct.numero and '+
+                'pc.produto=pnm.produto and '+
+                'pc.filial=pnm.filial)';
+
+    {por frente de caixa}
+    qryDadosFiscaisProdutosVendaFrenteCaixa.Sql[
+    NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.Sql, '%WhereBrinde_ou_NaoBrinde')+1]:=
+    ' and not pdf.brinde';
+
+    {?}
+    qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql[
+    NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql,'%WhereBrinde_ou_NaoBrinde')+1]:='';
+  end;
+end;
+
+procedure Tdtmrelatoriocustomercadoriasvendidas.SetProdutoSemMontagem(
+  const Value: Boolean);
+begin
+  FProdutoSemMontagem := Value;
+  if FProdutoComMontagem and FProdutoSemMontagem then
+  begin
+   {com contrato}
+   qryDadosFiscaisProdutosVendas.Sql[
+   NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.Sql,
+   '%WhereComMontagem_ou_SemMontagem')+1]:='';
+
+   qryDadosFiscaisProdutosDevolucoes.Sql[
+   NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.Sql,
+   '%WhereComMontagem_ou_SemMontagem')+1]:='';
+
+   {por frente de caixa}
+   qryDadosFiscaisProdutosVendaFrenteCaixa.Sql[
+   NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.Sql,
+   '%WhereComMontagem_ou_SemMontagem')+1]:='';
+
+   qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql[
+   NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql,
+   '%WhereComMontagem_ou_SemMontagem')+1]:='';
+  end
+  else
+  if FProdutoComMontagem then
+  begin
+   {com contrato}
+   qryDadosFiscaisProdutosVendas.Sql[
+   NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.Sql,
+   '%WhereComMontagem_ou_SemMontagem')+1]:=
+       ' and ((select pc.montagem '+
+          'from ProdutosContratos pc '+
+          'where pc.contrato=ct.numero and '+
+                'pc.produto=pdf.produto and '+
+                'pc.filial=pdf.filial)=''S'')';
+
+   qryDadosFiscaisProdutosDevolucoes.Sql[
+   NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.Sql,
+   '%WhereComMontagem_ou_SemMontagem')+1]:=
+    ' and ((select pc.montagem '+
+          'from ProdutosContratos pc '+
+          'where pc.contrato=ct.numero and '+
+                'pc.produto=pnm.produto and '+
+                'pc.filial=pnm.filial)=''S'')';
+
+   {por frente de caixa}
+   qryDadosFiscaisProdutosVendaFrenteCaixa.Sql[
+   NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.Sql,
+   '%WhereComMontagem_ou_SemMontagem')+1] := ' and c.montagem ';
+
+   qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql[
+   NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql,
+   '%WhereComMontagem_ou_SemMontagem')+1] := ' and c.montagem ';
+  end
+  else
+  if FProdutoSemMontagem then
+  begin
+   {com contrato}
+   qryDadosFiscaisProdutosVendas.Sql[
+   NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.Sql,
+   '%WhereComMontagem_ou_SemMontagem')+1]:=
+       ' and ((select pc.montagem '+
+          'from ProdutosContratos pc '+
+          'where pc.contrato=ct.numero and '+
+                'pc.produto=pdf.produto and '+
+                'pc.filial=pdf.filial)=''N'')';
+
+   qryDadosFiscaisProdutosDevolucoes.Sql[
+   NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.Sql,
+   '%WhereComMontagem_ou_SemMontagem')+1]:=
+    ' and ((select pc.montagem '+
+          'from ProdutosContratos pc '+
+          'where pc.contrato=ct.numero and '+
+                'pc.produto=pnm.produto and '+
+                'pc.filial=pnm.filial)=''N'')';
+
+   {por frente de caixa}
+   qryDadosFiscaisProdutosVendaFrenteCaixa.Sql[
+   NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.Sql,
+   '%WhereComMontagem_ou_SemMontagem')+1] := ' and not c.montagem ';
+
+   qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql[
+   NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql,
+   '%WhereComMontagem_ou_SemMontagem')+1] := ' and not c.montagem ';
+  end;
+end;
+
+procedure Tdtmrelatoriocustomercadoriasvendidas.AbreTabelaPesquisa(
+  TipoPesquisa: TtecRelatorioVendas);
+begin
+  case TipoPesquisa of
+    rvITEMPRODUTOSINICIAL,
+    rvITEMPRODUTOSFINAL  : begin
+                             qryConsultaItemProdutos.Sql[03]:= 'Where (p.codigo = 0)';
+                             qryConsultaItemProdutos.Open;
+                           end;
+    rvPRODUTOSINICIAL,
+    rvPRODUTOSFINAL      : begin
+                             qryConsultaProdutos.sql[03]:= 'Where (c.codigo = 0)';
+                             qryConsultaProdutos.Open;
+                           end;
+    rvGRUPOPRODUTOSINICIAL,
+    rvGRUPOPRODUTOSFINAL : abre(ctVendaTabelaConsultaGrupoProdutos);
+    rvCLASSESINICIAL,
+    rvCLASSESFINAL       : abre(ctVendaTabelaConsultaClasses);
+    rvCLIENTESINICIAL,
+    rvCLIENTESFINAL     : AbreConsultaCliente;
+  end;
+end;
+
+function Tdtmrelatoriocustomercadoriasvendidas.ExisteClasses(campo,
+  codigo: string): boolean;
+begin
+  result:=ExisteCodigo(qryConsultaClasses, campo, codigo)
+end;
+
+
+function Tdtmrelatoriocustomercadoriasvendidas.ExisteGrupoProdutos(campo,
+  codigo: string): boolean;
+begin
+  result:=ExisteCodigo(qryConsultaGrupoProdutos, campo, codigo)
+end;
+
+function Tdtmrelatoriocustomercadoriasvendidas.ExisteItemProdutos(campo, codigo: string): boolean;
+const
+  SQL = 'Where (to_ascii(p.%s,''latin1'') ilike to_ascii(''%s%s'',''latin1''))';
+begin
+  qryConsultaItemProdutos.Sql[03]:= Format(SQL, [Campo, Codigo, '%']);
+  qryConsultaItemProdutos.Open;
+  Result := (qryConsultaItemProdutos.RecordCount > 0);
+end;
+
+function Tdtmrelatoriocustomercadoriasvendidas.ExisteProdutos(campo, codigo: string): boolean;
+const
+  SQL = 'Where (Maiusculo(c.%s) ilike Maiusculo(''%s%s''))';
+begin
+  qryConsultaProdutos.Sql[03]:= Format(SQL, [Campo, Codigo, '%']);
+  qryConsultaProdutos.Open;
+  Result := (qryConsultaProdutos.RecordCount > 0);
+end;
+
+procedure Tdtmrelatoriocustomercadoriasvendidas.FechaTabelaPesquisa(
+  TipoPesquisa: TtecRElatorioVendas);
+begin
+  case TipoPesquisa of
+    rvITEMPRODUTOSINICIAL,
+    rvITEMPRODUTOSFINAL  : Fecha(ctVendaTabelaConsultaItemProdutos);
+    rvPRODUTOSINICIAL,
+    rvPRODUTOSFINAL      : Fecha(ctVendaTabelaConsultaProdutos);
+    rvGRUPOPRODUTOSINICIAL,
+    rvGRUPOPRODUTOSFINAL : Fecha(ctVendaTabelaConsultaGrupoProdutos);
+    rvCLASSESINICIAL,
+    rvCLASSESFINAL       : Fecha(ctVendaTabelaConsultaClasses);
+    rvCLIENTESINICIAL,
+    rvCLIENTESFINAL     : Fecha(ctPesquisaClientes);
+  end;
+end;
+
+function Tdtmrelatoriocustomercadoriasvendidas.GetConsultaClasses: TtecQuery;
+begin
+  result:=qryConsultaClasses;
+end;
+
+function Tdtmrelatoriocustomercadoriasvendidas.GetConsultaGrupoProdutos: TtecQuery;
+begin
+  result:=qryConsultaGrupoProdutos;
+end;
+
+function Tdtmrelatoriocustomercadoriasvendidas.GetConsultaItemProdutos: TtecQuery;
+begin
+  result:=qryConsultaItemProdutos;
+end;
+
+function Tdtmrelatoriocustomercadoriasvendidas.GetConsultaProdutos: TtecQuery;
+begin
+  result:=qryConsultaProdutos;
+end;
+
+procedure Tdtmrelatoriocustomercadoriasvendidas.Selecionar(
+  TipoPesquisa: TtecRelatorioVendas);
+begin
+  case TipoPesquisa of
+  rvITEMPRODUTOSINICIAL    : RefazConsulta(qryItemProdutosInicial, [0], [qryConsultaItemProdutoscodigo.AsVariant]);
+  rvITEMPRODUTOSFINAL      : RefazConsulta(qryItemProdutosFinal,   [0], [qryConsultaItemProdutoscodigo.AsVariant]);
+  rvPRODUTOSINICIAL        : RefazConsulta(qryProdutosInicial, [0], [qryConsultaProdutoscodigo.AsVariant]);
+  rvPRODUTOSFINAL          : RefazConsulta(qryProdutosFinal, [0], [qryConsultaProdutoscodigo.AsVariant]);
+  rvGRUPOPRODUTOSINICIAL   : RefazConsulta(qryGrupoProdutosInicial, [0], [qryConsultaGrupoProdutoscodigo.AsVariant]);
+  rvGRUPOPRODUTOSFINAL     : RefazConsulta(qryGrupoProdutosFinal, [0], [qryConsultaGrupoProdutoscodigo.AsVariant]);
+  rvCLASSESINICIAL         : RefazConsulta(qryClassesInicial, [0], [qryConsultaClassescodigo.AsVariant]);
+  rvCLASSESFINAL           : RefazConsulta(qryClassesFinal, [0], [qryConsultaClassescodigo.AsVariant]);
+  rvCLIENTESINICIAL        : RefazConsulta(qryClienteInicial,[0,1],[qryConsultaClientescodigo.AsVariant, qryConsultaClientestipo.AsVariant]);
+  rvCLIENTESFINAL          : RefazConsulta(qryClienteFinal,[0,1],[qryConsultaClientescodigo.AsVariant, qryConsultaClientestipo.AsVariant]);
+  end;
+end;
+
+procedure Tdtmrelatoriocustomercadoriasvendidas.MontarOrdenacao;
+var
+Ordenacao: String;
+begin
+  Ordenacao:='';
+  if FAgruparGrupoFilial then
+    Ordenacao:=Ordenacao+', nomegrupofilialvenda, grupofilialvenda ';
+  if FAgruparFilial then
+  begin
+    Ordenacao:=Ordenacao+', nomefilialvenda, filialvenda ';
+    if (FOrdenacao = 0) and (FTotalizacao = 3) then
+     Ordenacao := Ordenacao+', filialemissao, nomefilialemissao';
+  end;
+
+  if FAgruparCliente then
+    Ordenacao:=Ordenacao+', nome, cliente ';
+
+  case FOrdenacao of
+   0: Ordenacao:=Ordenacao+', data, serie, notafiscal, maquina, intervensao, cupomfiscal';
+   1: Ordenacao:=Ordenacao+', data, classe, grupo, descricao, valorgrade1, valorgrade2, serie, notafiscal, maquina, intervensao, cupomfiscal';
+   2: Ordenacao:=Ordenacao+', classe, grupo, descricao, valorgrade1, valorgrade2, data, serie, notafiscal, maquina, intervensao, cupomfiscal';
+   3: Ordenacao:=Ordenacao+', vendedor, data, serie, notafiscal, maquina, intervensao, cupomfiscal';
+  end;
+//  qryrelatoriocustomercvendidas.sql[WhereOrdenacao] := 'Order by '+copy(Ordenacao,2,length(Ordenacao)-1);
+ qryrelatoriocustomercvendidas.sql.Append('Order by '+copy(Ordenacao,2,length(Ordenacao)-1));
+end;
+
+procedure Tdtmrelatoriocustomercadoriasvendidas.frprlcustomercvendidasBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frprlcustomercvendidas, View);
+end;
+
+procedure Tdtmrelatoriocustomercadoriasvendidas.AbreConsultaCliente;
+begin
+  qryConsultaClientes.Sql[08] := 'Where (v.codigo = 0)';
+  qryConsultaClientes.Open;
+
+end;
+
+function Tdtmrelatoriocustomercadoriasvendidas.ExisteCliente(NomeCampo: String; Value: Variant): Boolean;
+const
+  SQL = 'Where (to_ascii(%s,''latin1'') ilike to_ascii(''%s%s'',''latin1''))';
+
+begin
+
+  if NomeCampo = 'nomecidade' then
+
+    NomeCampo:= 'c.nome'
+
+  else if NomeCampo = 'tipocliente' then
+
+    NomeCampo:= 'v.tipo'
+
+  else
+
+    NomeCampo:= 'v.' + NomeCampo;
+
+  qryConsultaClientes.Sql[08] := Format(SQL, [NomeCampo, ANSIUpperCase(Value), '%']);
+
+  qryConsultaClientes.Open;
+
+  Result := qryConsultaClientes.RecordCount > 0
+
+end;
+
+function Tdtmrelatoriocustomercadoriasvendidas.GetConsultaClientes: TZDataSet;
+begin
+ result := qryConsultaClientes;
+end;
+
+procedure Tdtmrelatoriocustomercadoriasvendidas.MontarFiltroFiliais(
+  Usar: TCheckListBox);
+var
+  STRFiliais: String;
+  TodasFiliais: Boolean;
+  cnt: Integer;
+begin
+  TodasFiliais := True;
+  STRFiliais := '';
+  for cnt := 0 to FListaFiliais.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRFiliais := STRFiliais + '''' + IntToStr(Integer(FListaFiliais.Objects[cnt])) + ''','
+    else
+      TodasFiliais := False;
+
+  STRFiliais := Copy(STRFiliais, 0, Length(STrFiliais) - 1);
+  Filial:=STRFiliais;
+  if Trim(STRFiliais) <> '' then
+    if not TodasFiliais then
+      FParametroCabecalho:=FParametroCabecalho+' Filiais: '+STRFiliais
+    else Filial:='';
+end;
+
+procedure Tdtmrelatoriocustomercadoriasvendidas.MontarFiltroGrupoFiliais(
+  Usar: TCheckListBox);
+var
+  STRGruposFiliais: String;
+  TodosGrupos: Boolean;
+  cnt: Integer;
+begin
+  STRGruposFiliais := '';
+  TodosGrupos := True;
+  for cnt := 0 to FListaGruposFiliais.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRGruposFiliais := STRGruposFiliais + '''' + IntToStr(Integer(FListaGruposFiliais.Objects[cnt])) + ''','
+    else
+      TodosGrupos := False;
+
+  STRGruposFiliais := Copy(STRGruposFiliais, 0, Length(STrGruposFiliais) - 1);
+  GrupoFilial:=STRGruposFiliais;
+  if Trim(STRGruposFiliais) <> '' then
+    if not TodosGrupos then
+     FParametroCabecalho:=FParametroCabecalho+' Grupo de Filiais: '+STRGruposFiliais
+    else
+     GrupoFilial:='';
+end;
+
+procedure Tdtmrelatoriocustomercadoriasvendidas.SetFilial(
+  const Value: String);
+begin
+  FFilial := Value;
+  if (Value <> '') then
+  begin
+   {com contrato}
+   qryDadosFiscaisProdutosVendas.SQL[
+     NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.SQL,
+                          '%WhereFiliais')+1] := Format(FiltroFilialVenda,[Value]);
+
+   qryDadosFiscaisProdutosDevolucoes.Sql[
+     NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.Sql,
+                          '%WhereFiliais')+1] := Format(FiltroFilialDev,[Value]);
+
+   {por frente de caixa - sem contrato}
+   qryDadosFiscaisProdutosVendaFrenteCaixa.SQL[
+     NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.SQL,
+                          '%WhereFiliais')+1] := Format(FiltroFilialVenda,[Value]);
+
+   qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql[
+     NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql,
+                          '%WhereFiliais')+1] := Format(FiltroFilialDev,[Value]);
+  end
+  else
+  begin
+
+   {com contrato}
+   qryDadosFiscaisProdutosVendas.SQL[
+     NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.SQL,
+                          '%WhereFiliais')+1] := '';
+
+   qryDadosFiscaisProdutosDevolucoes.Sql[
+     NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.Sql,
+                          '%WhereFiliais')+1] := '';
+
+   {por frente de caixa - sem contrato}
+   qryDadosFiscaisProdutosVendaFrenteCaixa.SQL[
+     NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.SQL,
+                          '%WhereFiliais')+1] := '';
+
+   qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql[
+     NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql,
+                          '%WhereFiliais')+1] := '';
+  end;
+end;
+
+procedure Tdtmrelatoriocustomercadoriasvendidas.SetGrupoFilial(
+  const Value: String);
+begin
+  FGrupoFilial := Value;
+  if (Value <> '') then
+  begin
+   if ParSistema.RelatorioSomenteFiliaisAutorizadas then
+   begin
+     qryDadosFiscaisProdutosVendas.Sql[NumerodalinhanoTexto(
+       qryDadosFiscaisProdutosVendas.Sql, '%WhereFiliais')+1] :=
+     qryDadosFiscaisProdutosVendas.Sql[NumerodalinhanoTexto(
+       qryDadosFiscaisProdutosVendas.Sql, '%WhereFiliais')+1] +
+       Format(FiltroGrupoFilialVenda,[Value]);
+
+     qryDadosFiscaisProdutosDevolucoes.Sql[NumerodalinhanoTexto(
+       qryDadosFiscaisProdutosDevolucoes.Sql,'%WhereFiliais')+1] :=
+     qryDadosFiscaisProdutosDevolucoes.Sql[NumerodalinhanoTexto(
+       qryDadosFiscaisProdutosDevolucoes.Sql,'%WhereFiliais')+1] +
+       Format(FiltroGrupoFilialDev,[Value]);
+
+     qryDadosFiscaisProdutosVendaFrenteCaixa.Sql[NumerodalinhanoTexto(
+       qryDadosFiscaisProdutosVendaFrenteCaixa.Sql, '%WhereFiliais')+1] :=
+     qryDadosFiscaisProdutosVendaFrenteCaixa.Sql[NumerodalinhanoTexto(
+       qryDadosFiscaisProdutosVendaFrenteCaixa.Sql, '%WhereFiliais')+1] +
+       Format(FiltroGrupoFilialVenda,[Value]);
+
+     qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql[NumerodalinhanoTexto(
+       qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql,'%WhereFiliais')+1] :=
+     qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql[NumerodalinhanoTexto(
+       qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql,'%WhereFiliais')+1] +
+       Format(FiltroGrupoFilialDev,[Value]);
+   end
+   else
+   begin
+     qryDadosFiscaisProdutosVendas.Sql[NumerodalinhanoTexto(
+       qryDadosFiscaisProdutosVendas.Sql, '%WhereFiliais')+1] :=
+       Format(FiltroGrupoFilialVenda,[Value]);
+
+     qryDadosFiscaisProdutosDevolucoes.Sql[NumerodalinhanoTexto(
+       qryDadosFiscaisProdutosDevolucoes.Sql,'%WhereFiliais')+1] :=
+       Format(FiltroGrupoFilialDev,[Value]);
+
+     qryDadosFiscaisProdutosVendaFrenteCaixa.Sql[NumerodalinhanoTexto(
+       qryDadosFiscaisProdutosVendaFrenteCaixa.Sql, '%WhereFiliais')+1] :=
+       Format(FiltroGrupoFilialVenda,[Value]);
+
+     qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql[NumerodalinhanoTexto(
+       qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql,'%WhereFiliais')+1] :=
+       Format(FiltroGrupoFilialDev,[Value]);
+   end;
+  end;
+end;
+
+procedure Tdtmrelatoriocustomercadoriasvendidas.SetParametroClasseFinal(
+  const Value: String);
+const
+ SQLProduto =
+  ' and (pdf.produto in (Select p.codigo '+
+               ' from (produtos p join (caracteristicas c'+
+               ' join classes cl '+
+               ' on c.classe = cl.codigo) '+
+               ' on p.caracteristica=c.codigo) '+
+               ' where (%s)))';
+
+ SQLProdutoDev =
+  ' and (pnm.produto in (Select p.codigo '+
+               ' from (produtos p join (caracteristicas c'+
+               ' join classes cl '+
+               ' on c.classe = cl.codigo) '+
+               ' on p.caracteristica=c.codigo) '+
+               ' where (%s)))';
+
+begin
+ FParametroClasseFinal := Value;
+ case FParametroSelecaoProdutos of
+  0: begin
+      if (FParametroClasseInicial<>'') and
+       (FParametroClasseFinal<>'') then
+      begin
+        {com contrato}
+        qryDadosFiscaisProdutosVendas.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql,'%WhereProdutos')+1]:=
+          format(SQLProduto,[
+               ' cl.codigo >= '+quotedstr(FParametroClasseInicial)+
+               ' and cl.codigo <= '+quotedstr(FParametroClasseFinal)]);
+
+        qryDadosFiscaisProdutosDevolucoes.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql,'%WhereProdutos')+1]:=
+          format(SQLProdutoDev,[
+               ' cl.codigo >= '+quotedstr(FParametroClasseInicial)+
+               ' and cl.codigo <= '+quotedstr(FParametroClasseFinal)]);
+
+        {por frente de caixa}
+        qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql,'%WhereProdutos')+1]:=
+          format(SQLProduto,[
+               ' cl.codigo >= '+quotedstr(FParametroClasseInicial)+
+               ' and cl.codigo <= '+quotedstr(FParametroClasseFinal)]);
+
+        qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql,'%WhereProdutos')+1]:=
+          format(SQLProdutoDev,[
+               ' cl.codigo >= '+quotedstr(FParametroClasseInicial)+
+               ' and cl.codigo <= '+quotedstr(FParametroClasseFinal)]);
+
+        FParametroCabecalho:=FParametroCabecalho+
+        ' Classe Inicial: '+FParametroClasseInicial+
+        ' Final: '+FParametroClasseFinal;
+      end
+      else
+       if (FParametroClasseInicial<>'') and
+         (FParametroClasseFinal='') then
+       begin
+          {com contrato}
+          qryDadosFiscaisProdutosVendas.sql[
+            NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql,'%WhereProdutos')+1]:=
+            format(SQLProduto,[' cl.codigo >= '+quotedstr(FParametroClasseInicial)]);
+
+          qryDadosFiscaisProdutosDevolucoes.sql[
+            NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql,'%WhereProdutos')+1]:=
+            format(SQLProduto,[' cl.codigo >= '+quotedstr(FParametroClasseInicial)]);
+
+          {por frente de caixa}
+          qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+            NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql,'%WhereProdutos')+1]:=
+            format(SQLProduto,[' cl.codigo >= '+quotedstr(FParametroClasseInicial)]);
+
+          qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+            NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql,'%WhereProdutos')+1]:=
+            format(SQLProduto,[' cl.codigo >= '+quotedstr(FParametroClasseInicial)]);
+
+          FParametroCabecalho:=FParametroCabecalho+
+          ' Classe Inicial: '+FParametroClasseInicial;
+       end
+       else
+        if (FParametroClasseInicial='') and
+           (FParametroClasseFinal<>'') then
+        begin
+           {com contrato}
+           qryDadosFiscaisProdutosVendas.sql[
+             NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql, '%WhereProdutos')+1]:=
+             format(SQLProduto,[' cl.codigo <= '+quotedstr(FParametroClasseFinal)]);
+
+           qryDadosFiscaisProdutosDevolucoes.sql[
+             NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql, '%WhereProdutos')+1]:=
+             format(SQLProdutoDev,[' cl.codigo <= '+quotedstr(FParametroClasseFinal)]);
+
+           {por frente de caixa}
+           qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+             NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql, '%WhereProdutos')+1]:=
+             format(SQLProduto,[' cl.codigo <= '+quotedstr(FParametroClasseFinal)]);
+
+           qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+             NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql, '%WhereProdutos')+1]:=
+             format(SQLProdutoDev,[' cl.codigo <= '+quotedstr(FParametroClasseFinal)]);
+
+           FParametroCabecalho:=FParametroCabecalho+
+           ' Classe Final: '+FParametroClasseFinal;
+        end;
+     end;
+  1: begin
+      if (DescricaoClasseInicial<>'') and
+         (DescricaoClasseFinal<>'') then
+      begin
+        {com contrato}
+        qryDadosFiscaisProdutosVendas.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql, '%WhereProdutos')+1]:=
+          format(SQLProduto,[' cl.descricao >= '+quotedstr(DescricaoClasseInicial)+
+                             ' and cl.descricao <= '+quotedstr(DescricaoClasseFinal)]);
+
+        qryDadosFiscaisProdutosDevolucoes.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql, '%WhereProdutos')+1]:=
+          format(SQLProdutoDev,[' cl.descricao >= '+quotedstr(DescricaoClasseInicial)+
+                                ' and cl.descricao <= '+quotedstr(DescricaoClasseFinal)]);
+        {por frente de caixa}
+        qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql, '%WhereProdutos')+1]:=
+          format(SQLProduto,[' cl.descricao >= '+quotedstr(DescricaoClasseInicial)+
+                             ' and cl.descricao <= '+quotedstr(DescricaoClasseFinal)]);
+
+        qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql, '%WhereProdutos')+1]:=
+          format(SQLProdutoDev,[' cl.descricao >= '+quotedstr(DescricaoClasseInicial)+
+                                ' and cl.descricao <= '+quotedstr(DescricaoClasseFinal)]);
+
+        FParametroCabecalho:=FParametroCabecalho+
+        ' Classe Inicial: '+DescricaoClasseInicial+
+        ' Final: '+DescricaoClasseFinal;
+      end
+      else
+       if (DescricaoClasseInicial<>'') and
+         (DescricaoClasseFinal='') then
+       begin
+          {com contrato}
+          qryDadosFiscaisProdutosVendas.sql[
+            NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql, '%WhereProdutos')+1]:=
+            format(SQLProduto,[' cl.descricao >= '+quotedstr(DescricaoClasseInicial)]);
+
+          qryDadosFiscaisProdutosDevolucoes.sql[
+            NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql, '%WhereProdutos')+1]:=
+            format(SQLProdutoDev,[' cl.descricao >= '+quotedstr(DescricaoClasseInicial)]);
+
+          {por frente de caixa}
+          qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+            NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql, '%WhereProdutos')+1]:=
+            format(SQLProduto,[' cl.descricao >= '+quotedstr(DescricaoClasseInicial)]);
+
+          qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+            NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql, '%WhereProdutos')+1]:=
+            format(SQLProdutoDev,[' cl.descricao >= '+quotedstr(DescricaoClasseInicial)]);
+
+          FParametroCabecalho:=FParametroCabecalho+
+          ' Classe Inicial: '+DescricaoClasseInicial;
+       end
+       else
+        if (DescricaoClasseInicial='') and
+           (DescricaoClasseFinal<>'') then
+        begin
+          {com contrato}
+          qryDadosFiscaisProdutosVendas.sql[
+             NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql, '%WhereProdutos')+1]:=
+             format(SQLProduto,[' cl.descricao <= '+quotedstr(DescricaoClasseFinal)]);
+
+          qryDadosFiscaisProdutosDevolucoes.sql[
+              NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql,'%WhereProdutos')+1]:=
+              format(SQLProdutoDev,[' cl.descricao <= '+quotedstr(DescricaoClasseFinal)]);
+
+          {por frente de caixa}
+          qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+             NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql, '%WhereProdutos')+1]:=
+             format(SQLProduto,[' cl.descricao <= '+quotedstr(DescricaoClasseFinal)]);
+
+          qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+              NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql,'%WhereProdutos')+1]:=
+              format(SQLProdutoDev,[' cl.descricao <= '+quotedstr(DescricaoClasseFinal)]);
+
+          FParametroCabecalho:=FParametroCabecalho+
+          ' Classe Final: '+DescricaoClasseFinal;
+        end;
+     end;
+ end;
+end;
+
+procedure Tdtmrelatoriocustomercadoriasvendidas.SetParametroCodigoFinal(
+  const Value: String);
+const
+ SQLProduto =
+  ' and (pdf.produto in (Select p.codigo '+
+               ' from produtos p join caracteristicas c'+
+               ' on p.caracteristica=c.codigo '+
+               ' Where (%s)))';
+
+ SQLProdutoDev =
+  ' and (pnm.produto in (Select p.codigo '+
+               ' from produtos p join caracteristicas c'+
+               ' on p.caracteristica=c.codigo '+
+               ' Where (%s)))';
+
+begin
+ FParametroCodigoFinal := Value;
+ case FParametroSelecaoProdutos of
+  0: begin
+      if (FParametroCodigoInicial<>'') and
+       (FParametroCodigoFinal<>'') then
+      begin
+        {com contrato}
+        qryDadosFiscaisProdutosVendas.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql, '%WhereProdutos')+1]:=
+          format(SQLProduto,[' c.codigo >= '+quotedstr(FParametroCodigoInicial)+
+                            ' and c.codigo <= '+quotedstr(FParametroCodigoFinal)]);
+
+        qryDadosFiscaisProdutosDevolucoes.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql, '%WhereProdutos')+1]:=
+          format(SQLProdutoDev,[' c.codigo >= '+quotedstr(FParametroCodigoInicial)+
+                               ' and c.codigo <= '+quotedstr(FParametroCodigoFinal)]);
+
+        {por frente de caixa - sem contrato}
+        qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql, '%WhereProdutos')+1]:=
+          format(SQLProduto,[' c.codigo >= '+quotedstr(FParametroCodigoInicial)+
+                            ' and c.codigo <= '+quotedstr(FParametroCodigoFinal)]);
+
+        qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql, '%WhereProdutos')+1]:=
+          format(SQLProdutoDev,[' c.codigo >= '+quotedstr(FParametroCodigoInicial)+
+                               ' and c.codigo <= '+quotedstr(FParametroCodigoFinal)]);
+
+        FParametroCabecalho:=FParametroCabecalho+
+        ' Produto Inicial: '+FParametroCodigoInicial+
+        ' Final: '+FParametroCodigoFinal;
+      end
+      else
+       if (FParametroCodigoInicial<>'') and
+          (FParametroCodigoFinal='') then
+       begin
+         {com contrato}
+         qryDadosFiscaisProdutosVendas.sql[
+         NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql,'%WhereProdutos')+1] :=
+           format(SQLProduto,[' c.codigo >= '+quotedstr(FParametroCodigoInicial)]);
+
+         qryDadosFiscaisProdutosDevolucoes.sql[
+         NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql,'%WhereProdutos')+1] :=
+           format(SQLProdutoDev,[' c.codigo >= '+quotedstr(FParametroCodigoInicial)]);
+
+         {por frente de caixa}
+         qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+         NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql,'%WhereProdutos')+1] :=
+           format(SQLProduto,[' c.codigo >= '+quotedstr(FParametroCodigoInicial)]);
+
+         qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+         NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql,'%WhereProdutos')+1] :=
+           format(SQLProdutoDev,[' c.codigo >= '+quotedstr(FParametroCodigoInicial)]);
+
+         FParametroCabecalho:=FParametroCabecalho+
+         ' Produto Inicial: '+FParametroCodigoInicial;
+       end
+       else
+        if (FParametroCodigoInicial='') and
+           (FParametroCodigoFinal<>'') then
+        begin
+          {com contrato}
+          qryDadosFiscaisProdutosVendas.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql, '%WhereProdutos')+1]:=
+          format(SQLProduto,[' c.codigo <= '+quotedstr(FParametroCodigoFinal)]);
+
+          qryDadosFiscaisProdutosDevolucoes.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql, '%WhereProdutos')+1]:=
+          format(SQLProdutoDev,[' c.codigo <= '+quotedstr(FParametroCodigoFinal)]);
+
+          {por frente de caixa}
+          qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql, '%WhereProdutos')+1]:=
+          format(SQLProduto,[' c.codigo <= '+quotedstr(FParametroCodigoFinal)]);
+
+          qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql, '%WhereProdutos')+1]:=
+          format(SQLProdutoDev,[' c.codigo <= '+quotedstr(FParametroCodigoFinal)]);
+
+          FParametroCabecalho:=FParametroCabecalho+
+          ' Produto Final: '+FParametroCodigoFinal;
+        end
+        else
+        begin
+          {com contrato}
+          qryDadosFiscaisProdutosVendas.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql, '%WhereProdutos')+1]:= '';
+
+          qryDadosFiscaisProdutosDevolucoes.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql, '%WhereProdutos')+1]:= '';
+
+          {por frente de caixa}
+          qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql, '%WhereProdutos')+1]:= '';
+
+          qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql, '%WhereProdutos')+1]:= '';
+        end;
+     end;
+  1: begin
+      if (DescricaoProdutoInicial<>'') and
+         (DescricaoProdutoFinal<>'') then
+      begin
+        {com contrato}
+        qryDadosFiscaisProdutosVendas.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql,'%WhereProdutos')+1]:=
+            format(SQLProduto,[' c.descricao >= '+quotedstr(DescricaoProdutoInicial)+
+                               ' and c.descricao <= '+quotedstr(DescricaoProdutoFinal)]);
+
+        qryDadosFiscaisProdutosDevolucoes.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql,'%WhereProdutos')+1]:=
+            format(SQLProdutoDev,[' c.descricao >= '+quotedstr(DescricaoProdutoInicial)+
+                                  ' and c.descricao <= '+quotedstr(DescricaoProdutoFinal)]);
+        {por frente de caixa}
+        qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql,'%WhereProdutos')+1]:=
+            format(SQLProduto,[' c.descricao >= '+quotedstr(DescricaoProdutoInicial)+
+                               ' and c.descricao <= '+quotedstr(DescricaoProdutoFinal)]);
+
+        qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql,'%WhereProdutos')+1]:=
+            format(SQLProdutoDev,[' c.descricao >= '+quotedstr(DescricaoProdutoInicial)+
+                                  ' and c.descricao <= '+quotedstr(DescricaoProdutoFinal)]);
+
+       FParametroCabecalho:=FParametroCabecalho+
+       ' Produto Inicial: '+DescricaoProdutoInicial+
+       ' Final: '+FParametroCodigoFinal;
+      end
+      else
+       if (DescricaoProdutoInicial<>'') and
+          (DescricaoProdutoFinal='') then
+         begin
+           {com contrato}
+           qryDadosFiscaisProdutosVendas.sql[
+              NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql,'%WhereProdutos')+1]:=
+              format(SQLProduto,[' c.descricao >= '+quotedstr(DescricaoProdutoInicial)]);
+
+           qryDadosFiscaisProdutosDevolucoes.sql[
+              NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql,'%WhereProdutos')+1]:=
+              format(SQLProdutoDev,[' c.descricao >= '+quotedstr(DescricaoProdutoInicial)]);
+
+           {por frente de caixa}
+           qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+              NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql,'%WhereProdutos')+1]:=
+              format(SQLProduto,[' c.descricao >= '+quotedstr(DescricaoProdutoInicial)]);
+
+           qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+              NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql,'%WhereProdutos')+1]:=
+              format(SQLProdutoDev,[' c.descricao >= '+quotedstr(DescricaoProdutoInicial)]);
+
+          FParametroCabecalho:=FParametroCabecalho+
+          ' Produto Inicial: '+DescricaoProdutoInicial;
+         end
+       else
+        if (DescricaoProdutoInicial='') and
+           (DescricaoProdutoFinal<>'') then
+        begin
+          {com contrato}
+          qryDadosFiscaisProdutosVendas.sql[
+             NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql, '%WhereProdutos')+1]:=
+             format(SQLProduto,[' c.descricao <= '+quotedstr(DescricaoProdutoFinal)]);
+
+          qryDadosFiscaisProdutosDevolucoes.sql[
+             NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql, '%WhereProdutos')+1]:=
+             format(SQLProduto,[' c.descricao <= '+quotedstr(DescricaoProdutoFinal)]);
+
+          {por frente de caixa}
+          qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+             NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql, '%WhereProdutos')+1]:=
+             format(SQLProduto,[' c.descricao <= '+quotedstr(DescricaoProdutoFinal)]);
+
+          qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+             NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql, '%WhereProdutos')+1]:=
+             format(SQLProduto,[' c.descricao <= '+quotedstr(DescricaoProdutoFinal)]);
+
+           FParametroCabecalho:=FParametroCabecalho+
+           ' Produto Final: '+DescricaoProdutoFinal;
+        end
+        else
+        begin
+          {com contrato}
+          qryDadosFiscaisProdutosVendas.sql[
+             NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql, '%WhereProdutos')+1]:= '';
+
+          qryDadosFiscaisProdutosDevolucoes.sql[
+             NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql, '%WhereProdutos')+1]:= '';
+
+          {por frente de caixa}
+          qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+             NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql, '%WhereProdutos')+1]:= '';
+
+          qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+             NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql, '%WhereProdutos')+1]:= '';
+        end;
+     end;
+ end;
+end;
+
+procedure Tdtmrelatoriocustomercadoriasvendidas.SetParametroGrupoFinal(
+  const Value: String);
+const
+ SQLProduto =
+  ' and (pdf.produto in (Select p.codigo '+
+               ' from (produtos p join (caracteristicas c'+
+               ' join grupos g on c.grupo=g.codigo) '+
+               ' on p.caracteristica=c.codigo) '+
+               ' where (%s)))';
+ SQLProdutoDev =
+  ' and (pnm.produto in (Select p.codigo '+
+               ' from (produtos p join (caracteristicas c'+
+               ' join grupos g on c.grupo=g.codigo) '+
+               ' on p.caracteristica=c.codigo) '+
+               ' where (%s)))';
+
+begin
+ FParametroGrupoFinal := Value;
+ case FParametroSelecaoProdutos of
+  0: begin
+      if (FParametroGrupoInicial<>'') and
+       (FParametroGrupoFinal<>'') then
+      begin
+        {com contrato}
+        qryDadosFiscaisProdutosVendas.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql, '%WhereProdutos')+1]:=
+          format(SQLProduto,[' g.codigo >= '+quotedstr(FParametroGrupoInicial)+
+                             ' and g.codigo <= '+quotedstr(FParametroGrupoFinal)]);
+
+        qryDadosFiscaisProdutosDevolucoes.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql, '%WhereProdutos')+1]:=
+          format(SQLProdutoDev,[' g.codigo >= '+quotedstr(FParametroGrupoInicial)+
+                             ' and g.codigo <= '+quotedstr(FParametroGrupoFinal)]);
+
+        {por frente de caixa}
+        qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql, '%WhereProdutos')+1]:=
+          format(SQLProduto,[' g.codigo >= '+quotedstr(FParametroGrupoInicial)+
+                             ' and g.codigo <= '+quotedstr(FParametroGrupoFinal)]);
+
+        qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql, '%WhereProdutos')+1]:=
+          format(SQLProdutoDev,[' g.codigo >= '+quotedstr(FParametroGrupoInicial)+
+                             ' and g.codigo <= '+quotedstr(FParametroGrupoFinal)]);
+
+        FParametroCabecalho:=FParametroCabecalho+
+        ' Grupo Inicial: '+FParametroGrupoInicial+
+        ' Final: '+FParametroGrupoFinal;
+      end
+      else
+       if (FParametroGrupoInicial<>'') and
+         (FParametroGrupoFinal='') then
+       begin
+          {com contrato}
+          qryDadosFiscaisProdutosVendas.sql[
+            NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql,'%WhereProdutos')+1]:=
+            format(SQLProduto,[' g.codigo >= '+quotedstr(FParametroGrupoInicial)]);
+
+          qryDadosFiscaisProdutosDevolucoes.sql[
+            NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql,'%WhereProdutos')+1]:=
+            format(SQLProdutoDev,[' g.codigo >= '+quotedstr(FParametroGrupoInicial)]);
+
+          {por frente de caixa}
+          qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+            NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql,'%WhereProdutos')+1]:=
+            format(SQLProduto,[' g.codigo >= '+quotedstr(FParametroGrupoInicial)]);
+
+          qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+            NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql,'%WhereProdutos')+1]:=
+            format(SQLProdutoDev,[' g.codigo >= '+quotedstr(FParametroGrupoInicial)]);
+
+          FParametroCabecalho:=FParametroCabecalho+
+          ' Grupo Inicial: '+FParametroGrupoInicial;
+       end
+       else
+        if (FParametroGrupoInicial='') and
+           (FParametroGrupoFinal<>'') then
+        begin
+          {com contrato}
+          qryDadosFiscaisProdutosVendas.sql[
+            NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql, '%WhereProdutos')+1]:=
+            format(SQLProduto,[' g.codigo <= '+quotedstr(FParametroGrupoFinal)]);
+
+          qryDadosFiscaisProdutosDevolucoes.sql[
+            NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql, '%WhereProdutos')+1]:=
+            format(SQLProdutoDev,[' g.codigo <= '+quotedstr(FParametroGrupoFinal)]);
+
+          {por frente de caixa}
+          qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+            NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql, '%WhereProdutos')+1]:=
+            format(SQLProduto,[' g.codigo <= '+quotedstr(FParametroGrupoFinal)]);
+
+          qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+            NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql, '%WhereProdutos')+1]:=
+            format(SQLProdutoDev,[' g.codigo <= '+quotedstr(FParametroGrupoFinal)]);
+
+          FParametroCabecalho:=FParametroCabecalho+
+          ' Grupo Final: '+FParametroGrupoFinal;
+        end;
+     end;
+  1: begin
+      if (DescricaoGrupoInicial<>'') and
+         (DescricaoGrupoFinal<>'') then
+      begin
+        {com contrato}
+        qryDadosFiscaisProdutosVendas.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql, '%WhereProdutos')+1]:=
+          format(SQLProduto,[' g.descricao >= '+quotedstr(DescricaoGrupoInicial)+
+                             ' and g.descricao <= '+quotedstr(DescricaoGrupoFinal)]);
+
+        qryDadosFiscaisProdutosDevolucoes.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql, '%WhereProdutos')+1]:=
+          format(SQLProdutoDev,[' g.descricao >= '+quotedstr(DescricaoGrupoInicial)+
+                             ' and g.descricao <= '+quotedstr(DescricaoGrupoFinal)]);
+
+        {por frente de caixa}
+        qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql, '%WhereProdutos')+1]:=
+          format(SQLProduto,[' g.descricao >= '+quotedstr(DescricaoGrupoInicial)+
+                             ' and g.descricao <= '+quotedstr(DescricaoGrupoFinal)]);
+
+        qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql, '%WhereProdutos')+1]:=
+          format(SQLProdutoDev,[' g.descricao >= '+quotedstr(DescricaoGrupoInicial)+
+                             ' and g.descricao <= '+quotedstr(DescricaoGrupoFinal)]);
+
+        FParametroCabecalho:=FParametroCabecalho+
+        ' Grupo Inicial: '+DescricaoGrupoInicial+
+        ' Final: '+DescricaoGrupoFinal;
+      end
+      else
+       if (DescricaoGrupoInicial<>'') and
+         (DescricaoGrupoFinal='') then
+       begin
+         {com contrato}
+         qryDadosFiscaisProdutosVendas.sql[
+           NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql,'%WhereProdutos')+1]:=
+           format(SQLProduto,[' g.descricao >= '+quotedstr(DescricaoGrupoInicial)]);
+
+         qryDadosFiscaisProdutosDevolucoes.sql[
+           NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql,'%WhereProdutos')+1]:=
+           format(SQLProdutoDev,[' g.descricao >= '+quotedstr(DescricaoGrupoInicial)]);
+
+         {por frente de caixa}
+         qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+           NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql,'%WhereProdutos')+1]:=
+           format(SQLProduto,[' g.descricao >= '+quotedstr(DescricaoGrupoInicial)]);
+
+         qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+           NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql,'%WhereProdutos')+1]:=
+           format(SQLProdutoDev,[' g.descricao >= '+quotedstr(DescricaoGrupoInicial)]);
+
+         FParametroCabecalho:=FParametroCabecalho+
+         ' Grupo Inicial: '+DescricaoGrupoInicial;
+       end
+       else
+        if (DescricaoGrupoInicial='') and
+           (DescricaoGrupoFinal<>'') then
+        begin
+          {com contrato}
+          qryDadosFiscaisProdutosVendas.sql[
+             NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql,'%WhereProdutos')+1]:=
+             format(SQLProduto,[' g.descricao <= '+quotedstr(DescricaoGrupoFinal)]);
+
+          qryDadosFiscaisProdutosDevolucoes.sql[
+             NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql,'%WhereProdutos')+1]:=
+             format(SQLProdutoDev,[' g.descricao <= '+quotedstr(DescricaoGrupoFinal)]);
+
+          {por frente de caixa}
+          qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+             NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql,'%WhereProdutos')+1]:=
+             format(SQLProduto,[' g.descricao <= '+quotedstr(DescricaoGrupoFinal)]);
+
+          qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+             NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql,'%WhereProdutos')+1]:=
+             format(SQLProdutoDev,[' g.descricao <= '+quotedstr(DescricaoGrupoFinal)]);
+
+           FParametroCabecalho:=FParametroCabecalho+
+           ' Grupo Final: '+DescricaoGrupoFinal;
+        end;
+     end;
+ end;
+end;
+
+procedure Tdtmrelatoriocustomercadoriasvendidas.SetParametroCodigoItemFinal(
+  const Value: String);
+const
+ SQLProduto =
+  ' and (pdf.produto in (Select p.codigo '+
+               ' from produtos p '+
+               ' Where (%s)))';
+
+ SQLProdutoDev =
+  ' and (pnm.produto in (Select p.codigo '+
+               ' from produtos p '+
+               ' Where (%s))))';
+
+begin
+ FParametroCodigoItemFinal := Value;
+ case FParametroSelecaoProdutos of
+  0: begin
+      if (FParametroCodigoItemInicial<>'') and
+       (FParametroCodigoItemFinal<>'') then
+      begin
+       {com contrato}
+       qryDadosFiscaisProdutosVendas.sql[
+         NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql,'%WhereProdutos')+1]:=
+         format(SQLProduto,[
+               ' p.codigo >= '+quotedstr(FParametroCodigoItemInicial)+
+               ' and p.codigo <= '+quotedstr(FParametroCodigoItemFinal)]);
+
+       qryDadosFiscaisProdutosDevolucoes.sql[
+         NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql,'%WhereProdutos')+1]:=
+         format(SQLProdutoDev,[
+               ' p.codigo >= '+quotedstr(FParametroCodigoItemInicial)+
+               ' and p.codigo <= '+quotedstr(FParametroCodigoItemFinal)]);
+
+       {por frente de caixa - sem contrato}
+       qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+         NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql,'%WhereProdutos')+1]:=
+         format(SQLProduto,[
+               ' p.codigo >= '+quotedstr(FParametroCodigoItemInicial)+
+               ' and p.codigo <= '+quotedstr(FParametroCodigoItemFinal)]);
+
+       qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+         NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql,'%WhereProdutos')+1]:=
+         format(SQLProdutoDev,[
+               ' p.codigo >= '+quotedstr(FParametroCodigoItemInicial)+
+               ' and p.codigo <= '+quotedstr(FParametroCodigoItemFinal)]);
+
+       FParametroCabecalho:=FParametroCabecalho+
+       ' Item Produto Inicial: '+FParametroCodigoItemInicial+
+       ' Final: '+FParametroCodigoItemFinal;
+      end
+      else
+       if (FParametroCodigoItemInicial<>'') and
+         (FParametroCodigoItemFinal='') then
+       begin
+         {com contrato}
+         qryDadosFiscaisProdutosVendas.sql[
+           NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql,'%WhereProdutos')+1]:=
+           format(SQLProduto,[' p.codigo >= '+quotedstr(FParametroCodigoItemInicial)]);
+
+         qryDadosFiscaisProdutosDevolucoes.sql[
+           NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql,'%WhereProdutos')+1]:=
+           format(SQLProdutoDev,[' p.codigo >= '+quotedstr(FParametroCodigoItemInicial)]);
+
+         {por frente de caixa - sem contrato}
+         qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+           NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql,'%WhereProdutos')+1]:=
+           format(SQLProduto,[' p.codigo >= '+quotedstr(FParametroCodigoItemInicial)]);
+
+         qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+           NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql,'%WhereProdutos')+1]:=
+           format(SQLProdutoDev,[' p.codigo >= '+quotedstr(FParametroCodigoItemInicial)]);
+
+         FParametroCabecalho:=FParametroCabecalho+
+         ' Item Produto Inicial: '+FParametroCodigoItemInicial;
+       end
+       else
+        if (FParametroCodigoItemInicial='') and
+           (FParametroCodigoItemFinal<>'') then
+        begin
+           {Com Contrato}
+           qryDadosFiscaisProdutosVendas.sql[
+           NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql,'%WhereProdutos')+1] :=
+           format(SQLProduto,[' p.codigo <= ' + quotedstr(FParametroCodigoItemFinal)]);
+
+           qryDadosFiscaisProdutosDevolucoes.sql[
+           NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql,'%WhereProdutos')+1] :=
+           format(SQLProdutoDev,[' p.codigo <= ' + quotedstr(FParametroCodigoItemFinal)]);
+
+           {por frente de caixa}
+           qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+           NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql,'%WhereProdutos')+1] :=
+           format(SQLProduto,[' p.codigo <= ' + quotedstr(FParametroCodigoItemFinal)]);
+
+           qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+           NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql,'%WhereProdutos')+1] :=
+           format(SQLProdutoDev,[' p.codigo <= ' + quotedstr(FParametroCodigoItemFinal)]);
+
+           FParametroCabecalho:=FParametroCabecalho+
+           ' Item Produto Final: '+FParametroCodigoItemFinal;
+        end
+        else
+        begin
+          qryDadosFiscaisProdutosVendas.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql,'%WhereProdutos')+1] := '';
+
+          qryDadosFiscaisProdutosDevolucoes.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql,'%WhereProdutos')+1] := '';
+
+          qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql,'%WhereProdutos')+1] := '';
+
+          qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql,'%WhereProdutos')+1] := '';
+
+        end;
+     end;
+  1: begin
+      if (DescricaoItemProdutoInicial<>'') and
+         (DescricaoItemProdutoFinal<>'') then
+      begin
+       {com contrato}
+       qryDadosFiscaisProdutosVendas.sql[
+         NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql,'%WhereProdutos')+1]:=
+         format(SQLProduto,[
+               ' p.descricao >= '+quotedstr(DescricaoItemProdutoInicial)+
+               ' and p.descricao <= '+quotedstr(DescricaoItemProdutoFinal)]);
+
+       qryDadosFiscaisProdutosDevolucoes.sql[
+         NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql,'%WhereProdutos')+1]:=
+         format(SQLProdutoDev,[
+               ' p.descricao >= '+quotedstr(DescricaoItemProdutoInicial)+
+               ' and p.descricao <= '+quotedstr(DescricaoItemProdutoFinal)]);
+
+       {por frente de caixa}
+       qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+         NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql,'%WhereProdutos')+1]:=
+         format(SQLProduto,[
+               ' p.descricao >= '+quotedstr(DescricaoItemProdutoInicial)+
+               ' and p.descricao <= '+quotedstr(DescricaoItemProdutoFinal)]);
+
+       qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+         NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql,'%WhereProdutos')+1]:=
+         format(SQLProdutoDev,[
+               ' p.descricao >= '+quotedstr(DescricaoItemProdutoInicial)+
+               ' and p.descricao <= '+quotedstr(DescricaoItemProdutoFinal)]);
+
+       FParametroCabecalho:=FParametroCabecalho+
+       ' Item Produto Inicial: '+DescricaoItemProdutoInicial+
+       ' Final: '+DescricaoItemProdutoFinal;
+      end
+      else
+       if (DescricaoItemProdutoInicial<>'') and
+         (DescricaoItemProdutoFinal='') then
+         begin
+           {com contrato}
+           qryDadosFiscaisProdutosVendas.sql[
+           NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql,'%WhereProdutos')+1]:=
+           format(SQLProduto,[' p.descricao >= '+quotedstr(DescricaoItemProdutoInicial)]);
+
+           qryDadosFiscaisProdutosDevolucoes.sql[
+           NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql,'%WhereProdutos')+1]:=
+           format(SQLProdutoDev,[' p.descricao >= '+quotedstr(DescricaoItemProdutoInicial)]);
+
+           {por frente de caixa}
+           qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+           NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql,'%WhereProdutos')+1]:=
+           format(SQLProduto,[' p.descricao >= '+quotedstr(DescricaoItemProdutoInicial)]);
+
+           qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+           NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql,'%WhereProdutos')+1]:=
+           format(SQLProdutoDev,[' p.descricao >= '+quotedstr(DescricaoItemProdutoInicial)]);
+
+          FParametroCabecalho:=FParametroCabecalho+
+          ' Produto Inicial: '+DescricaoItemProdutoInicial;
+         end
+       else
+        if (DescricaoItemProdutoInicial='') and
+           (DescricaoItemProdutoFinal<>'') then
+        begin
+           {por contrato}
+           qryDadosFiscaisProdutosVendas.sql[
+             NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql,'%WhereProdutos')+1]:=
+             format(SQLProduto,[' p.descricao <= '+quotedstr(DescricaoItemProdutoFinal)]);
+
+           qryDadosFiscaisProdutosDevolucoes.sql[
+             NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql,'%WhereProdutos')+1]:=
+             format(SQLProduto,[' p.descricao <= '+quotedstr(DescricaoItemProdutoFinal)]);
+
+           {por frente de caixa}
+           qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+             NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql,'%WhereProdutos')+1]:=
+             format(SQLProduto,[' p.descricao <= '+quotedstr(DescricaoItemProdutoFinal)]);
+
+           qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+             NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql,'%WhereProdutos')+1]:=
+             format(SQLProduto,[' p.descricao <= '+quotedstr(DescricaoItemProdutoFinal)]);
+
+           FParametroCabecalho:=FParametroCabecalho+
+           ' Produto Final: '+DescricaoItemProdutoFinal;
+        end
+        else
+        begin
+           {por contrato}
+           qryDadosFiscaisProdutosVendas.sql[
+             NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql,'%WhereProdutos')+1]:= '';
+
+           qryDadosFiscaisProdutosDevolucoes.sql[
+             NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql,'%WhereProdutos')+1] := '';
+
+           {por frente de caixa}
+           qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+             NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql,'%WhereProdutos')+1]:= '';
+
+           qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+             NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql,'%WhereProdutos')+1] := '';
+        end;
+     end;
+ end;
+end;
+
+procedure Tdtmrelatoriocustomercadoriasvendidas.MontaDatas;
+begin
+ qryrelatoriocustomercvendidas.ParamByName('DataInicial').AsString:=FDataInicial;
+ qryrelatoriocustomercvendidas.ParamByName('DataFinal').AsString:=FDataFinal;
+ FParametroCabecalho:=FParametroCabecalho+'Entre: '+FDataInicial+' e '+FDataFinal;
+end;
+
+function Tdtmrelatoriocustomercadoriasvendidas.GetDescricaoClasseFinal: String;
+begin
+  result := qryClassesFinaldescricao.AsString
+end;
+
+function Tdtmrelatoriocustomercadoriasvendidas.GetDescricaoClasseInicial: String;
+begin
+  result := qryClassesInicialdescricao.AsString
+end;
+
+function Tdtmrelatoriocustomercadoriasvendidas.GetDescricaoGrupoFinal: String;
+begin
+  result := qryGrupoProdutosFinaldescricao.AsString
+end;
+
+function Tdtmrelatoriocustomercadoriasvendidas.GetDescricaoGrupoInicial: String;
+begin
+  result := qryGrupoProdutosInicialdescricao.AsString
+end;
+
+function Tdtmrelatoriocustomercadoriasvendidas.GetDescricaoItemProdutoFinal: String;
+begin
+  result := qryItemProdutosFinaldescricao.AsString
+end;
+
+function Tdtmrelatoriocustomercadoriasvendidas.GetDescricaoItemProdutoInicial: String;
+begin
+  result := qryItemProdutosInicialdescricao.AsString
+end;
+
+function Tdtmrelatoriocustomercadoriasvendidas.GetDescricaoProdutoFinal: String;
+begin
+  result := qryProdutosFinaldescricao.AsString
+end;
+
+function Tdtmrelatoriocustomercadoriasvendidas.GetDescricaoProdutoInicial: String;
+begin
+  result := qryProdutosInicialdescricao.AsString
+end;
+
+procedure Tdtmrelatoriocustomercadoriasvendidas.SetParametroClienteFinal(
+  const Value: String);
+const
+ SQLCliente =
+  ' and (lpad(cast(df.cliente as varchar)||cast(df.tipocliente as varchar),11,''0'') '+
+        ' in (Select lpad(cast(vf.codigo as varchar)||cast(vf.tipo as varchar),11,''0'')'+
+            ' from vfornecedores vf '+
+            ' where (%s)))';
+ SQLClienteDev =
+  ' and (lpad(cast(pnm.fornecedor as varchar)||cast(pnm.tipofornecedor as varchar),11,''0'') '+
+        ' in (Select lpad(cast(vf.codigo as varchar)||cast(vf.tipo as varchar),11,''0'')'+
+            ' from vfornecedores vf '+
+            ' where (%s)))';
+begin
+ FParametroClienteFinal := Value;
+ case FParametroSelecaoClientes of
+  0: begin
+      if (FParametroClienteInicial<>'') and
+       (FParametroClienteFinal<>'') then
+      begin
+        {com contrato}
+        qryDadosFiscaisProdutosVendas.sql[
+         NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql, '%WhereCliente')+1]:=
+           format(SQLCliente,[
+           ' lpad(cast(vf.codigo as varchar)||cast(vf.tipo as varchar),11,''0'') between lpad(' +
+           quotedstr(FParametroClienteInicial+qryClienteInicialtipo.AsString)+
+           ' ,11, ''0'') and lpad('+quotedstr(FParametroClienteFinal+qryClienteFinaltipo.AsString)+',11,''0'')']);
+
+        qryDadosFiscaisProdutosDevolucoes.sql[
+         NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql,'%WhereCliente')+1]:=
+               format(SQLClienteDev,[
+               ' lpad(cast(vf.codigo as varchar)||cast(vf.tipo as varchar),11,''0'') between lpad(' +
+               quotedstr(FParametroClienteInicial+qryClienteInicialtipo.AsString)+
+               ' ,11, ''0'') and lpad('+quotedstr(FParametroClienteFinal+qryClienteFinaltipo.AsString)+',11,''0'')']);
+
+        {por frente de caixa}
+        qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+         NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql, '%WhereCliente')+1]:=
+           format(SQLCliente,[
+           ' lpad(cast(vf.codigo as varchar)||cast(vf.tipo as varchar),11,''0'') between lpad(' +
+           quotedstr(FParametroClienteInicial+qryClienteInicialtipo.AsString)+
+           ' ,11, ''0'') and lpad('+quotedstr(FParametroClienteFinal+qryClienteFinaltipo.AsString)+',11,''0'')']);
+
+        qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql,'%WhereCliente')+1]:=
+          format(SQLClienteDev,[
+          ' lpad(cast(vf.codigo as varchar)||cast(vf.tipo as varchar),11,''0'') between lpad(' +
+          quotedstr(FParametroClienteInicial+qryClienteInicialtipo.AsString)+
+          ' ,11, ''0'') and lpad('+quotedstr(FParametroClienteFinal+qryClienteFinaltipo.AsString)+',11,''0'')']);
+
+        FParametroCabecalho:=FParametroCabecalho+
+        ' Cliente Inicial: '+qryClienteInicialtipo.AsString+FParametroClienteInicial+
+        ' Final: '+qryClienteFinaltipo.AsString+FParametroClienteFinal;
+      end
+      else
+       if (FParametroClienteInicial<>'') and
+         (FParametroClienteFinal='') then
+       begin
+          {com contrato}
+          qryDadosFiscaisProdutosVendas.sql[
+            NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql,'%WhereCliente')+1]:=
+            format(SQLCliente,[' lpad(cast(vf.codigo as varchar)||cast(vf.tipo as varchar),11,''0'') >= lpad('+
+            quotedstr(FParametroClienteInicial+qryClienteInicialtipo.AsString)+',11,''0'')']);
+
+          qryDadosFiscaisProdutosDevolucoes.sql[
+            NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql,'%WhereCliente')+1]:=
+            format(SQLClienteDev,[
+            ' lpad(cast(vf.codigo as varchar)||cast(vf.tipo as varchar),11,''0'') >= lpad('+
+            quotedstr(FParametroClienteInicial+qryClienteInicialtipo.AsString)+',11,''0'')']);
+
+          {por frente de caixa}
+          qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+            NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql,'%WhereCliente')+1]:=
+            format(SQLCliente,[' lpad(cast(vf.codigo as varchar)||cast(vf.tipo as varchar),11,''0'') >= lpad('+
+            quotedstr(FParametroClienteInicial+qryClienteInicialtipo.AsString)+',11,''0'')']);
+
+          qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+            NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql,'%WhereCliente')+1]:=
+            format(SQLClienteDev,[
+            ' lpad(cast(vf.codigo as varchar)||cast(vf.tipo as varchar),11,''0'') >= lpad('+
+            quotedstr(FParametroClienteInicial+qryClienteInicialtipo.AsString)+',11,''0'')']);
+
+         FParametroCabecalho:=FParametroCabecalho+
+         ' Cliente Inicial: '+qryClienteInicialtipo.AsString+FParametroClienteInicial;
+       end
+       else
+        if (FParametroClienteInicial='') and
+           (FParametroClienteFinal<>'') then
+        begin
+           {por contrato}
+           qryDadosFiscaisProdutosVendas.sql[
+              NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql, '%WhereCliente')+1]:=
+               format(SQLCliente,[
+               ' lpad(cast(vf.codigo as varchar)||cast(vf.tipo as varchar),11,''0'') <= lpad('+
+               quotedstr(FParametroClienteFinal+qryClienteFinaltipo.AsString)+',11,''0'')']);
+
+           qryDadosFiscaisProdutosDevolucoes.sql[
+               NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql,'%WhereCliente')+1]:=
+               format(SQLClienteDev,[
+               ' lpad(cast(vf.codigo as varchar)||cast(vf.tipo as varchar),11,''0'') <= lpad('+
+               quotedstr(FParametroClienteFinal+qryClienteFinaltipo.AsString)+',11,''0'')']);
+
+           {por frente de caixa}
+           qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+              NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql, '%WhereCliente')+1]:=
+               format(SQLCliente,[
+               ' lpad(cast(vf.codigo as varchar)||cast(vf.tipo as varchar),11,''0'') <= lpad('+
+               quotedstr(FParametroClienteFinal+qryClienteFinaltipo.AsString)+',11,''0'')']);
+
+           qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+               NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql,'%WhereCliente')+1]:=
+               format(SQLClienteDev,[
+               ' lpad(cast(vf.codigo as varchar)||cast(vf.tipo as varchar),11,''0'') <= lpad('+
+               quotedstr(FParametroClienteFinal+qryClienteFinaltipo.AsString)+',11,''0'')']);
+
+           FParametroCabecalho:=FParametroCabecalho+
+           ' Cliente Final: '+qryClienteFinaltipo.AsString+FParametroClienteFinal;
+        end
+        else
+        begin
+           {por contrato}
+           qryDadosFiscaisProdutosVendas.sql[
+              NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql, '%WhereCliente')+1]:='';
+
+           qryDadosFiscaisProdutosDevolucoes.sql[
+               NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql,'%WhereCliente')+1]:= '';
+
+           {por frente de caixa}
+           qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+              NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql, '%WhereCliente')+1]:='';
+
+           qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+              NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql,'%WhereCliente')+1]:='';
+        end;
+     end;
+  1: begin
+      if (NomeClienteInicial<>'') and
+         (NomeclienteFinal<>'') then
+      begin
+        {com contrato}
+        qryDadosFiscaisProdutosVendas.sql[
+        NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql,'%WhereCliente')+1]:=
+        format(SQLCliente,[
+               ' cast(vf.nome as varchar)||cast(vf.tipo as varchar) between '+
+               quotedstr(NomeClienteInicial+qryClienteInicialtipo.AsString)+
+               ' and '+quotedstr(NomeClienteFinal+qryClienteFinaltipo.AsString)]);
+
+        qryDadosFiscaisProdutosDevolucoes.sql[
+        NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql,'%WhereCliente')+1]:=
+        format(SQLClienteDev,[
+               ' cast(vf.nome as varchar)||cast(vf.tipo as varchar) between '+
+               quotedstr(NomeClienteInicial+qryClienteInicialtipo.AsString)+
+               ' and '+quotedstr(NomeClienteFinal+qryClienteFinaltipo.AsString)]);
+
+        {por frente de caixa}
+        qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+        NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql,'%WhereCliente')+1]:=
+        format(SQLCliente,[
+               ' cast(vf.nome as varchar)||cast(vf.tipo as varchar) between '+
+               quotedstr(NomeClienteInicial+qryClienteInicialtipo.AsString)+
+               ' and '+quotedstr(NomeClienteFinal+qryClienteFinaltipo.AsString)]);
+
+        qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+        NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql,'%WhereCliente')+1]:=
+        format(SQLClienteDev,[
+               ' cast(vf.nome as varchar)||cast(vf.tipo as varchar) between '+
+               quotedstr(NomeClienteInicial+qryClienteInicialtipo.AsString)+
+               ' and '+quotedstr(NomeClienteFinal+qryClienteFinaltipo.AsString)]);
+
+       FParametroCabecalho:=FParametroCabecalho+
+       ' Cliente Inicial: '+qryClienteInicialtipo.AsString+FParametroClienteInicial+
+       ' Final: '+qryClienteFinaltipo.AsString+FParametroClienteFinal;
+      end
+      else
+       if (NomeClienteInicial<>'') and
+         (NomeClienteFinal='') then
+         begin
+          {com contrato}
+          qryDadosFiscaisProdutosVendas.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql,'%WhereCliente')+1]:=
+          format(SQLCliente,[
+               ' cast(vf.nome as varchar)||cast(vf.tipo as varchar) >= '+
+               quotedstr(NomeClienteInicial+qryClienteInicialtipo.AsString)]);
+
+          qryDadosFiscaisProdutosDevolucoes.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql,'%WhereCliente')+1]:=
+          format(SQLClienteDev,[
+               ' cast(vf.nome as varchar)||cast(vf.tipo as varchar) >= '+
+               quotedstr(NomeClienteInicial+qryClienteInicialtipo.AsString)]);
+
+          {por frente de caixa}
+
+          qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql,'%WhereCliente')+1]:=
+          format(SQLCliente,[
+               ' cast(vf.nome as varchar)||cast(vf.tipo as varchar) >= '+
+               quotedstr(NomeClienteInicial+qryClienteInicialtipo.AsString)]);
+
+          qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql,'%WhereCliente')+1]:=
+          format(SQLClienteDev,[
+               ' cast(vf.nome as varchar)||cast(vf.tipo as varchar) >= '+
+               quotedstr(NomeClienteInicial+qryClienteInicialtipo.AsString)]);
+
+          FParametroCabecalho:=FParametroCabecalho+
+          ' Cliente Inicial: '+qryClienteInicialtipo.AsString+FParametroClienteInicial;
+         end
+       else
+        if (NomeClienteInicial='') and
+           (NomeClienteFinal<>'') then
+        begin
+          { com contrato}
+           qryDadosFiscaisProdutosVendas.sql[
+           NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql, '%WhereCliente')+1]:=
+           format(SQLCliente,[' cast(vf.nome as varchar)||cast(vf.tipo as varchar) <= '+
+           quotedstr(NomeClienteFinal+qryClienteFinaltipo.AsString)]);
+
+           qryDadosFiscaisProdutosDevolucoes.sql[
+           NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql,'%WhereCliente')+1]:=
+           format(SQLClienteDev,[' cast(vf.nome as varchar)||cast(vf.tipo as varchar) <= ' +
+           quotedstr(NomeClienteFinal+qryClienteFinaltipo.AsString)]);
+
+          {por frente de caixa}
+           qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+           NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql, '%WhereCliente')+1]:=
+           format(SQLCliente,[' cast(vf.nome as varchar)||cast(vf.tipo as varchar) <= '+
+           quotedstr(NomeClienteFinal+qryClienteFinaltipo.AsString)]);
+
+           qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+           NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql,'%WhereCliente')+1]:=
+           format(SQLClienteDev,[' cast(vf.nome as varchar)||cast(vf.tipo as varchar) <= ' +
+           quotedstr(NomeClienteFinal+qryClienteFinaltipo.AsString)]);
+
+           FParametroCabecalho:=FParametroCabecalho+
+           ' Cliente Final: '+qryClienteFinaltipo.AsString+FParametroClienteFinal;
+        end
+        else
+        begin
+         { com contrato}
+          qryDadosFiscaisProdutosVendas.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.sql, '%WhereCliente')+1]:='';
+
+          qryDadosFiscaisProdutosDevolucoes.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.sql,'%WhereCliente')+1]:='';
+
+         {por frente de caixa}
+          qryDadosFiscaisProdutosVendaFrenteCaixa.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.sql, '%WhereCliente')+1]:='';
+
+          qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql[
+          NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql,'%WhereCliente')+1]:='';
+        end;
+     end;
+ end;
+end;
+
+function Tdtmrelatoriocustomercadoriasvendidas.GetNomeClienteFinal: String;
+begin
+ result := qryClienteFinalnome.AsString
+end;
+
+function Tdtmrelatoriocustomercadoriasvendidas.GetNomeClienteInicial: String;
+begin
+ result := qryClienteInicialnome.AsString
+end;
+
+procedure Tdtmrelatoriocustomercadoriasvendidas.MontarSQL;
+begin
+ qryrelatoriocustomercvendidas.Sql.Clear;
+ if FListarVendas and (FListarDevolucoesdoPeriodo or FListarDevolucoesAnteriores) then
+ begin
+  qryrelatoriocustomercvendidas.Sql.Text := qryDadosFiscaisProdutosVendas.Sql.Text;
+
+  qryrelatoriocustomercvendidas.Sql.Append('union all');
+
+  qryrelatoriocustomercvendidas.Sql.Text := qryrelatoriocustomercvendidas.Sql.Text +
+                                            qryDadosFiscaisProdutosVendaFrenteCaixa.Sql.Text;
+
+  qryrelatoriocustomercvendidas.Sql.Append('union all');
+
+  qryrelatoriocustomercvendidas.Sql.Text := qryrelatoriocustomercvendidas.Sql.Text+
+                                            qryDadosFiscaisProdutosDevolucoes.Sql.Text;
+
+  qryrelatoriocustomercvendidas.Sql.Append('union all');
+
+  qryrelatoriocustomercvendidas.Sql.Text := qryrelatoriocustomercvendidas.Sql.Text+
+                                            qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql.Text;
+
+ end
+ else
+ if FListarVendas then
+ begin
+  qryrelatoriocustomercvendidas.Sql.Text := qryDadosFiscaisProdutosVendas.Sql.Text;
+  qryrelatoriocustomercvendidas.Sql.Append('union all');
+  qryrelatoriocustomercvendidas.Sql.Text := qryrelatoriocustomercvendidas.Sql.Text +
+                                            qryDadosFiscaisProdutosVendaFrenteCaixa.Sql.Text;
+ end
+ else
+ if (FListarDevolucoesdoPeriodo or FListarDevolucoesAnteriores) then
+ begin
+  qryrelatoriocustomercvendidas.Sql.Text := qryDadosFiscaisProdutosDevolucoes.Sql.Text;
+  qryrelatoriocustomercvendidas.Sql.Append('union all');
+  qryrelatoriocustomercvendidas.Sql.Text := qryrelatoriocustomercvendidas.Sql.Text+
+                                            qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql.Text;
+ end
+end;
+
+procedure Tdtmrelatoriocustomercadoriasvendidas.SetListarDevolucoesAnteriores(
+  const Value: Boolean);
+const
+ SQLDevolucoesPeriodoAnterior = 'and ct.data < :DataInicial';
+ SQLDevolucoesPeriodoSelecionado = 'and ct.data between (:DataInicial) and (:DataFinal)';
+begin
+  FListarDevolucoesAnteriores := Value;
+  if FListarDevolucoesdoPeriodo and FListarDevolucoesAnteriores then
+  begin
+    qryDadosFiscaisProdutosDevolucoes.Sql[
+      NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.Sql,'%WhereDevolucoes')+1] := '';
+
+    qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql[
+      NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql,'%WhereDevolucoes')+1] := '';
+  end
+  else
+   if FListarDevolucoesdoPeriodo then
+   begin
+    qryDadosFiscaisProdutosDevolucoes.Sql[
+      NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.Sql,'%WhereDevolucoes')+1] :=
+      SQLDevolucoesPeriodoSelecionado;
+
+    qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql[
+      NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql,'%WhereDevolucoes')+1] := '';
+   end
+   else
+   if FListarDevolucoesAnteriores then
+   begin
+    qryDadosFiscaisProdutosDevolucoes.Sql[
+      NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.Sql,'%WhereDevolucoes')+1] :=
+      SQLDevolucoesPeriodoAnterior;
+
+    qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql[
+      NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.sql,'%WhereDevolucoes')+1] := '';
+
+   end;
+end;
+
+procedure Tdtmrelatoriocustomercadoriasvendidas.qryConsultaItemProdutosAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryConsultaItemProdutosvalorgrade1.Visible := ParSistema.UsarGradesProdutos;
+  qryConsultaItemProdutosvalorgrade2.Visible := ParSistema.UsarGradesProdutos;
+end;
+
+procedure Tdtmrelatoriocustomercadoriasvendidas.frprlcustomercvendidas_resBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frprlcustomercvendidas_res, View);
+end;
+
+procedure Tdtmrelatoriocustomercadoriasvendidas.ZMonitor1MonitorEvent(Sql,
+  Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:\log230909.sql') then
+    Listar.loadfromfile('c:\log230909.sql');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\log230909.sql');
+  listar.free;
+end;
+
+procedure Tdtmrelatoriocustomercadoriasvendidas.SetListadeRegioes(
+  const Value: String);
+begin
+  FListadeRegioes := Value;
+  if (Value <> '') then
+  begin
+   FParametroCabecalho:=FParametroCabecalho+' Regiôes: '+Value;
+
+   {com contrato}
+   qryDadosFiscaisProdutosVendas.SQL[
+     NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.SQL,
+                          '%WhereRegioes_df')+1] := Format(FiltroRegioes_df,[Value,Value]);
+
+   qryDadosFiscaisProdutosDevolucoes.Sql[
+     NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.Sql,
+                          '%WhereRegioes_ct')+1] := Format(FiltroRegioes_ct,[Value,Value]);
+
+   {por frente de caixa - sem contrato}
+   qryDadosFiscaisProdutosVendaFrenteCaixa.SQL[
+     NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.SQL,
+                          '%WhereRegioes_df')+1] := Format(FiltroRegioes_df,[Value,Value]);
+
+   qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql[
+     NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql,
+                          '%WhereRegioes_np')+1] := Format(FiltroRegioes_np,[Value,Value]);
+  end
+  else
+  begin
+
+   qryDadosFiscaisProdutosVendas.SQL[
+     NumerodalinhanoTexto(qryDadosFiscaisProdutosVendas.SQL,
+                          '%WhereRegioes_df')+1] := '';
+
+   qryDadosFiscaisProdutosDevolucoes.Sql[
+     NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoes.Sql,
+                          '%WhereRegioes_ct')+1] := '';
+
+   {por frente de caixa - sem contrato}
+   qryDadosFiscaisProdutosVendaFrenteCaixa.SQL[
+     NumerodalinhanoTexto(qryDadosFiscaisProdutosVendaFrenteCaixa.SQL,
+                          '%WhereRegioes_df')+1] := '';
+
+   qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql[
+     NumerodalinhanoTexto(qryDadosFiscaisProdutosDevolucoesFrenteCaixa.Sql,
+                          '%WhereRegioes_np')+1] := '';
+  end;
+
+
+end;
+
+end.

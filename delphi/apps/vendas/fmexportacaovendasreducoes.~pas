@@ -1,0 +1,150 @@
+unit fmexportacaovendasreducoes;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, FileCtrl, Windows,
+  StdCtrls, fmajudabt, cpdata, ComCtrls, Buttons, ExtCtrls, {Qete,}
+  dmexportacaovendasreducoes, biblio, IniFiles, ctconstantes, ToolWin;
+
+type
+  TfrmExportacaoVendasReducoes = class(TfrmAjudaBt)
+    sbnGerarArquivos: TSpeedButton;
+    gbxPeriodo: TGroupBox;
+    edtPeriodoInicial: TEditData;
+    edtPeriodoFinal: TEditData;
+    gbxArquivoVendas: TGroupBox;
+    edtArquivoVendas: TEdit;
+    lblPeriodoInicial: TLabel;
+    lblPeriodoFinal: TLabel;
+    gbxArquivoReducoes: TGroupBox;
+    edtArquivoReducoes: TEdit;
+    sbnDiretorioVendas: TSpeedButton;
+    sbnDiretorioReducoes: TSpeedButton;
+    procedure sbnDiretorioVendasClick(Sender: TObject);
+    procedure sbnDiretorioReducoesClick(Sender: TObject);
+    procedure sbnGerarArquivosClick(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+  private
+    fDirVendas: String;
+    fDirReducoes: String;
+    { Private declarations }
+  public
+    constructor Create(AOwner: TComponent); override;
+    { Public declarations }
+  end;
+
+const
+  barra = {$ifdef mswindows}'\'{$else}'/'{$endif};
+
+var
+  frmExportacaoVendasReducoes: TfrmExportacaoVendasReducoes;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmExportacaoVendasReducoes.sbnDiretorioVendasClick(
+  Sender: TObject);
+var
+  dir: String;
+begin
+  inherited;
+  if SelectDirectory('Selecionar diretório','',dir) then
+  begin
+    fDirVendas := dir;
+    edtArquivoVendas.Text := dir + IfThen(dir[length(dir)] <> barra,barra) + 'vendas' + preencheString(inttostr(dtmExportacaoVendasReducoes.FilialBase),'0',2,False) + '.txt'
+  end
+end;
+
+procedure TfrmExportacaoVendasReducoes.sbnDiretorioReducoesClick(
+  Sender: TObject);
+var
+  dir: String;
+begin
+  inherited;
+  if SelectDirectory('Selecionar diretório','',dir) then
+  begin
+    fDirReducoes := dir;
+    edtArquivoReducoes.Text := dir + IfThen(dir[length(dir)] <> barra,barra) + 'reduc' + preencheString(inttostr(dtmExportacaoVendasReducoes.FilialBase),'0',2,False) + '.txt'
+  end
+end;
+
+constructor TfrmExportacaoVendasReducoes.Create(AOwner: TComponent);
+var
+  ArqINI: TIniFile;
+begin
+  dtmExportacaoVendasReducoes := TdtmExportacaoVendasReducoes.Create(Self);
+  inherited;
+  edtPeriodoInicial.Text := DateToStr(DataLocal);
+  edtPeriodoFinal.Text   := DateToStr(DataLocal);
+  if FileExists(NomeArquivoCFG) then
+  begin
+    ArqINI := TIniFile.Create(NomeArquivoCFG);
+    try
+      fDirVendas := ArqINI.ReadString('Exportacao','DirVendas','');
+      if fdirVendas <> '' then
+        edtArquivoVendas.Text := fDirVendas + IfThen(fDirVendas[length(fDirVendas)] <> barra,barra) + 'vendas' + preencheString(inttostr(dtmExportacaoVendasReducoes.FilialBase),'0',2,False) + '.txt';
+      fDirReducoes := ArqINI.ReadString('Exportacao','DirReducoes','');
+      if fDirReducoes <> '' then
+        edtArquivoReducoes.Text := fDirReducoes + IfThen(fDirVendas[length(fDirVendas)] <> barra,barra) + 'reduc' + preencheString(inttostr(dtmExportacaoVendasReducoes.FilialBase),'0',2,False) + '.txt';
+    finally
+      ArqINI.Free
+    end
+  end
+end;
+
+procedure TfrmExportacaoVendasReducoes.sbnGerarArquivosClick(
+  Sender: TObject);
+var
+  ArqINI: TIniFile;
+begin
+  inherited;
+  ArqINI := TIniFile.Create(NomeArquivoCFG);
+  try
+    if ((trim(edtPeriodoInicial.Text)  <> '') or
+        (trim(edtPeriodoFinal.Text)    <> '')) then
+    begin
+      if trim(edtArquivoVendas.Text)   <> '' then
+      begin
+        if dtmExportacaoVendasReducoes.GerarArquivoVendas(edtPeriodoInicial.Text,
+             edtPeriodoFinal.Text, edtArquivoVendas.Text) then
+        begin
+          MensagemAviso('Arquivo "' + edtArquivoVendas.Text + '" gerado com sucesso!');
+          ArqINI.WriteString('Exportacao','DirVendas',fDirVendas);
+          ArqINI.UpdateFile;
+        end;
+      end;
+      if {trim(edtArquivoReducoes.Text) <> '' }false then
+      begin
+        if dtmExportacaoVendasReducoes.GerarArquivoReducoes(edtPeriodoInicial.Text,
+             edtPeriodoFinal.Text, edtArquivoReducoes.Text) then
+        begin
+          MensagemAviso('Arquivo "' + edtArquivoReducoes.Text + '" gerado com sucesso!');
+          ArqINI.WriteString('Exportacao','DirReducoes',fDirReducoes);
+          ArqINI.UpdateFile;
+        end;
+      end;
+      if (trim(edtArquivoVendas.Text)   = '') and
+         (trim(edtArquivoReducoes.Text) = '') then
+      begin
+        MensagemAviso('Informe os arquivos de saida!');
+        edtArquivoVendas.SetFocus;
+      end;
+    end;
+  finally
+    ArqINI.Free;
+  end;
+end;
+
+procedure TfrmExportacaoVendasReducoes.FormKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case Key of
+    VK_F6 : sbnGerarArquivos.Click;
+  end;
+end;
+
+end.

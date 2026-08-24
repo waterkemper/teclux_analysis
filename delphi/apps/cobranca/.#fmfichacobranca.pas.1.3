@@ -1,0 +1,530 @@
+unit fmfichacobranca;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmajudabt, ExtCtrls, Buttons, CheckLst, Mask, cpdata,
+  cpdbfindcontrols, DBCtrls, cpdbtext, ComCtrls, cppagecontrol,
+  biblio, ctconstantes, dmfichacobranca, Windows, //windows,
+  fmconsultabasica, fmconsultaporcampo,  ZQuery, Grids, DBGrids, cpdbgrid,
+  cpnumero, DB, ZPgSqlQuery, cpquery, ActnList, cpeditioncontrolvalidation,
+  fmrelatoriopadrao, fmPrincipalBasico;
+
+type
+  TfrmFichaCobranca = class(TfrmRelatorioPadrao)
+    sbnGerar: TSpeedButton;
+    gbxFichaCobranca: TGroupBox;
+    pgcFichaCobranca: TtecPageControl;
+    tstParametros: TTabSheet;
+    gbxParametros: TGroupBox;
+    pgcFilialGrupoFilial: TtecPageControl;
+    tstFilial: TTabSheet;
+    sbnProcuraFilial: TSpeedButton;
+    dtxFilial: TtecDBText;
+    edfFilial: TtecDbEditFind;
+    tstGrupoFilial: TTabSheet;
+    sbnProcuraGrupoFilial: TSpeedButton;
+    dtxGrupoFilial: TtecDBText;
+    edfGrupoFilial: TtecDbEditFind;
+    gbxPeriodoVenda: TGroupBox;
+    edtVenda: TEditData;
+    gbxPeriodoVencimento: TGroupBox;
+    gbxAgentes: TGroupBox;
+    sbnMarcarAgentes: TSpeedButton;
+    sbnDesmarcarAgentes: TSpeedButton;
+    clbAgentes: TCheckListBox;
+    gbxConceitos: TGroupBox;
+    sbnMarcarConceitos: TSpeedButton;
+    sbnDesmarcarConceitos: TSpeedButton;
+    clbConceitos: TCheckListBox;
+    gbxOpcoes: TGroupBox;
+    ckbVerificarOcorrencia: TCheckBox;
+    ckbClientesCompra: TCheckBox;
+    gbxCobrador: TGroupBox;
+    sbnProcurarCobrador: TSpeedButton;
+    edfCobrador: TtecDbEditFind;
+    dtxNomeCobrador: TtecDBText;
+    gbxRegiao: TGroupBox;
+    sbnProcurarRegiao: TSpeedButton;
+    edfRegiao: TtecDbEditFind;
+    dtxNomeRegiao: TtecDBText;
+    gbxSelecionarAtraso: TGroupBox;
+    rbnQualquerAtraso: TRadioButton;
+    rbnMaiorAtraso: TRadioButton;
+    tstSelecionados: TTabSheet;
+    dbgSelecionados: TtecDBGrid;
+    gbxMarcados: TGroupBox;
+    gbxCobradorDefinido: TGroupBox;
+    sbnCobradorContrato: TSpeedButton;
+    edfCobradorContrato: TtecDbEditFind;
+    dtxCobradorContrato: TtecDBText;
+    gbxQtdeMarcados: TGroupBox;
+    lblContratosTotal_1: TLabel;
+    lblContratosMarcados_1: TLabel;
+    gbxValorMarcados: TGroupBox;
+    lblValoresTotal_1: TLabel;
+    lblValoresMarcados_1: TLabel;
+    ckbSelecionarTodos: TCheckBox;
+    ecvValida: TtecEditionControlValidation;
+    aclHabilitar: TActionList;
+    actHabilitar: TAction;
+    rgpOrdenacao: TRadioGroup;
+    sbnFichaFinanceira: TSpeedButton;
+    ckbContratosSemCobrador: TCheckBox;
+    edtVencimentoInicial: TEditData;
+    edtVencimentoFinal: TEditData;
+    lblFaturamento: TLabel;
+    lblAVencto: TLabel;
+    lblOrdenacao: TLabel;
+    gbxSelecionados: TGroupBox;
+    gbxQtdeSelecionados: TGroupBox;
+    gbxValorSelecionado: TGroupBox;
+    pnlBottom: TPanel;
+    procedure pgcFilialGrupoFilialChange(Sender: TObject);
+    procedure sbnProcuraFilialClick(Sender: TObject);
+    procedure sbnProcuraGrupoFilialClick(Sender: TObject);
+    procedure sbnProcurarCobradorClick(Sender: TObject);
+    procedure sbnProcurarRegiaoClick(Sender: TObject);
+    procedure sbnMarcarAgentesClick(Sender: TObject);
+    procedure sbnDesmarcarAgentesClick(Sender: TObject);
+    procedure sbnMarcarConceitosClick(Sender: TObject);
+    procedure sbnDesmarcarConceitosClick(Sender: TObject);
+    procedure dbgSelecionadosTitleClick(Column: TColumn);
+    procedure pgcFichaCobrancaChange(Sender: TObject);
+    procedure dbgSelecionadosDrawColumnCell(Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure dbgSelecionadosDblClick(Sender: TObject);
+    procedure ckbSelecionarTodosClick(Sender: TObject);
+    procedure sbnCobradorContratoClick(Sender: TObject);
+    procedure sbnGerarClick(Sender: TObject);
+    procedure dbgSelecionadosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure actHabilitarUpdate(Sender: TObject);
+    procedure sbnFichaFinanceiraClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+  protected
+    dtmFichaCobranca: TdtmFichaCobranca;
+    procedure internoimpressao; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure GerarRelatorio;
+    procedure SelecionarContratos(Todos: Boolean);
+    function  PermitirPesquisa: Boolean;
+    function  TituloPesquisa: string;
+    function  ValidaControles: Boolean;
+    function  InternoPesquisar(Titulo: string): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: string; Value: Variant): Boolean; Override;
+    function  TabelaDePesquisa: TZdataSet; override;
+  private
+    procedure ObterLista(Origem: TStrings; Destino: TCheckListBox);
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure  AcionaFichaFinanceira;
+  end;
+
+var
+  Controlevalido  : TWinControl;
+  frmFichaCobranca: TfrmFichaCobranca;
+  TipoPesquisa    : TtecFichaCobranca;
+  Cont            : Integer;
+
+
+implementation
+
+uses fmnavcontroles;
+
+{$R *.dfm}
+
+procedure TfrmFichaCobranca.actHabilitarUpdate(Sender: TObject);
+begin
+  inherited;
+  sbnGerar.Enabled:= (pgcFichaCobranca.ActivePage = tstParametros);
+  sbnImprimir.Enabled := (pgcFichaCobranca.ActivePage = tstSelecionados) and
+                         (dtmFichaCobranca.TotalRegistro > 0);
+
+  sbnFichaFinanceira.Enabled := (pgcFichaCobranca.ActivePage = tstSelecionados) and
+                                (dtmFichaCobranca.TotalRegistro > 0);
+
+
+  gbxCobrador.Enabled:= not ckbContratosSemCobrador.Checked;
+  if ckbContratosSemCobrador.Checked then begin
+    edfCobrador.Clear;
+    dtxNomeCobrador.DataSource.DataSet.FieldByName('nome').Clear;
+  end;
+end;
+
+constructor TfrmFichaCobranca.Create(AOwner: TComponent);
+begin
+  dtmFichaCobranca:= TdtmFichaCobranca.Create(Self);
+  inherited;
+  dtmFichaCobranca.Abre(ctConsultaTabelas);
+  Cont:= 0;
+  ObterLista(dtmFichaCobranca.ListaAgentes, clbAgentes);
+  ObterLista(dtmFichaCobranca.ListaConceitos, clbConceitos);
+  edtVenda.Text            := DateToStr(Date - 90);
+  edtVencimentoInicial.Text:= DateToStr(Date - 30);
+  edtVencimentoFinal.Text  := DateToStr(Date - 30);
+  sbnImprimir.enabled:=False;
+  sbnFichaFinanceira.enabled:=False;
+  pgcFichaCobranca.ActivePageIndex:=0;
+end;
+
+destructor TfrmFichaCobranca.Destroy;
+begin
+  inherited;
+  frmFichaCobranca:= nil;
+end;
+
+function TfrmFichaCobranca.ExisteInformacao(Parametro: Integer; NomeCampo: string; Value: Variant): Boolean;
+begin
+  case TipoPesquisa of
+    fcFILIAIS             : Result := dtmFichaCobranca.ExisteFilial(NomeCampo,Value);
+    fcGRUPOSFILIAIS       : Result := dtmFichaCobranca.ExisteGrupoFiliais(NomeCampo,Value);
+    fcREGIOES             : Result := dtmFichaCobranca.ExisteRegiao(NomeCampo,Value);
+    fcCOBRADORES,
+    fcCOBRADORESCONTRATOS : Result := dtmFichaCobranca.ExisteCobrador(NomeCampo,Value)
+    else                    Result := False;
+  end;
+end;
+
+function TfrmFichaCobranca.InternoPesquisar(Titulo: string): Integer;
+begin
+  Result:= mrNone;
+  if PermitirPesquisa then begin
+    dtmFichaCobranca.AbreTabelaConsulta(TipoPesquisa);
+    Result := inherited InternoPesquisar(TituloPesquisa);
+    if Result = mrOK then
+      dtmFichaCobranca.Selecionar(TipoPesquisa);
+    dtmFichaCobranca.FechaTabelaConsulta(TipoPesquisa);
+  end;
+end;
+
+function TfrmFichaCobranca.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result:= TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(result).ConsultaInterativa := True;
+end;
+
+function TfrmFichaCobranca.PermitirPesquisa: Boolean;
+begin
+  Result := False;
+  if CtrlOn then begin
+    if ActiveControl is TtecFindCustom then begin
+      if edfFilial.Focused                then TipoPesquisa:= fcFILIAIS
+      else if edfGrupoFilial.Focused      then TipoPesquisa:= fcGRUPOSFILIAIS
+      else if edfRegiao.Focused           then TipoPesquisa:= fcREGIOES
+      else if edfCobrador.Focused         then TipoPesquisa:= fcCOBRADORES
+      else if edfCobradorContrato.Focused then TipoPesquisa:= fcCOBRADORESCONTRATOS;
+      Result:= True;
+    end;
+  end;
+end;
+
+procedure TfrmFichaCobranca.pgcFilialGrupoFilialChange(Sender: TObject);
+begin
+  inherited;
+  if pgcFilialGrupoFilial.ActivePage = tstFilial then begin
+    edfGrupoFilial.Clear;
+    edfFilial.setFocus;
+  end
+  else begin
+    edfFilial.Clear;
+    edfGrupoFilial.setFocus;
+  end;
+end;
+
+function TfrmFichaCobranca.TabelaDePesquisa: TZdataSet;
+begin
+  case TipoPesquisa of
+    fcFILIAIS             : Result := dtmFichaCobranca.ConsultarFilial;
+    fcGRUPOSFILIAIS       : Result := dtmFichaCobranca.ConsultarGrupoFilial;
+    fcREGIOES             : Result := dtmFichaCobranca.ConsultarRegiao;
+    fcCOBRADORES,
+    fcCOBRADORESCONTRATOS : Result := dtmFichaCobranca.ConsultarCobrador
+    else                    Result := nil;
+  end;
+end;
+
+function TfrmFichaCobranca.TituloPesquisa: string;
+begin
+  case TipoPesquisa of
+    fcFILIAIS             : Result := 'Filiais';
+    fcGRUPOSFILIAIS       : Result := 'Grupos de filiais';
+    fcREGIOES             : Result := 'Regiões';
+    fcCOBRADORES,
+    fcCOBRADORESCONTRATOS : Result := 'Cobradores';
+  end;
+end;
+
+function TfrmFichaCobranca.ValidaControles: Boolean;
+begin
+  Result := (edtVencimentoInicial.DataValida and edtVencimentoFinal.DataValida);
+  if Result then begin
+    if (not dataembranco(edtVencimentoInicial.text) and not dataembranco(edtVencimentoFinal.text)) then
+      Result:=StrToDate(edtVencimentoInicial.Text) <= StrToDate(edtVencimentoFinal.Text);
+    if Result then begin
+      Result:=(not dataembranco(edtVencimentoInicial.text) or not dataembranco(edtVencimentoFinal.text));
+      if Result then begin
+        Result := OperadorTernario((Trim(edffilial.Text) <> ''),edffilial.Exist, True) and
+                  OperadorTernario((Trim(edfgrupofilial.Text) <> ''), edfgrupofilial.Exist, True) and
+                  OperadorTernario((Trim(edfRegiao.Text) <> ''), edfRegiao.Exist, True) and
+                  OperadorTernario((Trim(edfCobrador.Text) <> ''), edfCobrador.Exist, True)
+      end
+      else begin
+       MensagemAviso(ctDATAINVALIDA);
+       edtVencimentoInicial.SetFocus;
+      end;
+    end
+    else begin
+      MensagemAviso(ctDTINICIALMAIORDTFINAL);
+      edtVencimentoInicial.SetFocus;
+    end;
+  end;
+end;
+
+procedure TfrmFichaCobranca.sbnProcuraFilialClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfFilial.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmFichaCobranca.sbnProcuraGrupoFilialClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfGrupoFilial.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmFichaCobranca.sbnProcurarCobradorClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfCobrador.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmFichaCobranca.sbnProcurarRegiaoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfRegiao.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmFichaCobranca.sbnMarcarAgentesClick(Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbAgentes,True);
+end;
+
+procedure TfrmFichaCobranca.sbnDesmarcarAgentesClick(Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbAgentes,False);
+end;
+
+procedure TfrmFichaCobranca.sbnMarcarConceitosClick(Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbConceitos,True);
+end;
+
+procedure TfrmFichaCobranca.sbnDesmarcarConceitosClick(Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbConceitos,False);
+end;
+
+procedure TfrmFichaCobranca.GerarRelatorio;
+begin
+  with dtmFichaCobranca do begin
+    Filial       := edfFilial.Text;
+    GrupoFilial  := edfGrupoFilial.Text;
+    Cobrador     := edfCobrador.Text;
+    Regiao       := edfRegiao.Text;
+    MontaDataVenda(edtVenda.Text);
+    DataVenctoInicial    := edtVencimentoInicial.Text;
+    DataVenctoFinal      := edtVencimentoFinal.Text;
+    ContratosSemCobrador := ckbContratosSemCobrador.Checked;
+    MontarFiltroAgentes(clbAgentes);
+    MontarFiltroConceitos(clbConceitos);
+    OcorrenciasCobranca   := ckbVerificarOcorrencia.Checked;
+    PrimeiraCompra        := ckbClientesCompra.Checked;
+    Atraso                := rbnMaiorAtraso.Checked;
+    Ordenacao := rgpOrdenacao.ItemIndex;
+    if AbrirTabelaContrato then begin
+      MensagemAviso(Format(ctNENHUMREGISTROSELECIONADO,['registro']));
+      pgcFichaCobranca.ActivePageIndex:= 0;
+      edtVenda.SetFocus;
+    end
+    else begin
+      pgcFichaCobranca.ActivePage    := tstSelecionados;
+      lblContratosTotal_1.Caption    := IntToStr(dtmFichaCobranca.TotalRegistro);
+      lblValoresTotal_1.Caption      := FormatarValor(dtmFichaCobranca.TotalValores,2);
+      lblValoresMarcados_1.Caption   := '';
+      lblContratosMarcados_1.Caption := '';
+    end;
+  end;
+end;
+
+procedure TfrmFichaCobranca.dbgSelecionadosTitleClick(Column: TColumn);
+begin
+  inherited;
+  if (column.FieldName = 'nome') or
+     (column.FieldName = 'bairroresidencia') or
+     (column.FieldName = 'cidaderesidencia') then
+    if alton then
+    begin
+      Inc(Cont);
+      if Cont > 2 then Cont:= 0;
+      case Cont of
+        0: begin
+             dbgSelecionados.Columns[2].FieldName    := 'nome';
+             dbgSelecionados.Columns[2].Title.Caption:= 'NOME DO CLIENTE...';
+           end;
+        1: begin
+             dbgSelecionados.Columns[2].FieldName    := 'bairroresidencia';
+             dbgSelecionados.Columns[2].Title.Caption:= 'BAIRRO...';
+           end;
+        2: begin
+             dbgSelecionados.Columns[2].FieldName    := 'cidaderesidencia';
+             dbgSelecionados.Columns[2].Title.Caption:= 'CIDADE...';
+           end;
+      end;
+    end;
+end;
+
+procedure TfrmFichaCobranca.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case Key of
+    VK_F6     : if not CtrlOn and sbnGerar.Enabled then sbnGerar.Click;
+    VK_ESCAPE : begin
+                   pgcFichaCobranca.ActivePage:= tstParametros;
+                   edfFilial.SetFocus;
+                 end;
+    VK_F8: acionaFichaFinanceira;
+  end;
+end;
+
+procedure TfrmFichaCobranca.pgcFichaCobrancaChange(Sender: TObject);
+begin
+  inherited;
+  if pgcFichaCobranca.ActivePage = tstParametros then begin
+    dtmFichaCobranca.FecharTabelaContrato;
+    ckbSelecionarTodos.Checked:= False;
+    edfCobradorContrato.Clear;
+    dtmFichaCobranca.NumeroRegistroMarcado:= 0;
+    dtmFichaCobranca.TotalValoresMarcados := 0;
+  end;
+end;
+
+procedure TfrmFichaCobranca.dbgSelecionadosDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if not (gdFocused in State) then begin
+    if dbgSelecionados.DataSource.DataSet.FieldByName('selecionar').AsBoolean then  begin
+      TDBGrid(Sender).Canvas.Brush.Color := clInfoBk;
+      TDBGrid(Sender).Canvas.Font.Color := clBlack;
+      TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+    end;
+  end;
+end;
+
+procedure TfrmFichaCobranca.dbgSelecionadosDblClick(Sender: TObject);
+begin
+  inherited;
+  SelecionarContratos(False);
+end;
+
+procedure TfrmFichaCobranca.ckbSelecionarTodosClick(Sender: TObject);
+begin
+  inherited;
+  SelecionarContratos(True);
+end;
+
+procedure TfrmFichaCobranca.sbnCobradorContratoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfCobradorContrato.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmFichaCobranca.SelecionarContratos(Todos: Boolean);
+begin
+  dtmFichaCobranca.SelecionarContratoParaImpressao(Todos);
+  lblContratosMarcados_1.Caption:= IntToStr(dtmFichaCobranca.NumeroRegistroMarcado);
+  lblValoresMarcados_1.Caption  := FormatarValor(dtmFichaCobranca.TotalValoresMarcados,2);;
+end;
+
+procedure TfrmFichaCobranca.sbnGerarClick(Sender: TObject);
+begin
+  inherited;
+  if ValidaControles then
+    GerarRelatorio;
+end;
+
+procedure TfrmFichaCobranca.dbgSelecionadosKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Key = VK_SPACE then
+    if Shift = [ssCtrl] then
+      SelecionarContratos(False);
+end;
+
+procedure TfrmFichaCobranca.InternoImpressao;
+begin
+  inherited;
+  if ecvValida.Verify(gbxCobradorDefinido, controleValido) then
+    if (dtmFichaCobranca.NumeroRegistroMarcado > 0) and
+       (edfCobradorContrato.Exist) then
+       dtmFichaCobranca.ImprimirFichasCobranca
+    else
+      MensagemAviso(Format(ctNENHUMREGISTROENCONTRADO,['Registro']));
+end;
+
+
+procedure TfrmFichaCobranca.AcionaFichaFinanceira;
+var
+  Cliente    : Integer;
+  TipoCliente: String;
+begin
+  if pgcFichaCobranca.ActivePage = tstSelecionados then begin
+    Cliente     := dtmfichacobranca.qryContratosFichaCobrancaCliente.AsInteger;
+    TipoCliente := dtmfichacobranca.qryContratosFichaCobrancaTipoCliente.AsString;
+  end
+  else
+    Cliente := 0;
+
+  if Cliente > 0 then
+     TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado([Cliente,TipoCliente,ClassName],
+                                                                       'TfrmFichaFinanceira', True);
+end;
+
+procedure TfrmFichaCobranca.sbnFichaFinanceiraClick(Sender: TObject);
+begin
+  inherited;
+  acionaFichaFinanceira;
+end;
+
+procedure TfrmFichaCobranca.FormShow(Sender: TObject);
+begin
+  inherited;
+  edtVenda.SetFocus;
+end;
+
+procedure TfrmFichaCobranca.ObterLista(Origem: TStrings;
+  Destino: TCheckListBox);
+begin
+  Destino.Items.AddStrings(Origem);
+end;
+
+end.
+

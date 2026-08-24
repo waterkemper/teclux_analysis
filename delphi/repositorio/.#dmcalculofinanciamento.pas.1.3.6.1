@@ -1,0 +1,2363 @@
+unit dmcalculofinanciamento;
+
+
+interface
+
+uses
+  SysUtils, Classes, DB, Dialogs, DateUtils, Math,
+  // Terceiros
+  ZQuery,ZPgSqlQuery,
+  // Constantes
+  ctconstantes, biblio, clfinanceira,
+  // Componentes
+  cpdatasource, cpquery,
+  // Repositorio
+  dmbasico, ZTransact;
+
+type
+  TtecTipoCalculo = (tcNENHUM,tcCOMENTRADA, tcSEMENTRADA);
+
+  TdtmCalculoFinanciamento = class(TdtmBasico)
+    qryPlanosPagamento: TtecQuery;
+    dsrPlanosPagamento: TtecDataSource;
+    qryConsultaPlanosPagamento: TtecQuery;
+    qryConsultaPlanosPagamentocodigo: TIntegerField;
+    qryConsultaPlanosPagamentodescricao: TStringField;
+    dsrCalculoFinanciamento: TtecDataSource;
+    qryCalculoFinanciamento: TtecQuery;
+    qryCalculoFinanciamentodatavencto: TDateField;
+    qryCalculoFinanciamentovalorvencto: TFloatField;
+    qryCalculoFinanciamentoparcela: TIntegerField;
+    qryCalculoFinanciamentoprestacao: TIntegerField;
+    qryPlanosPagamentocodigo: TIntegerField;
+    qryPlanosPagamentodescricao: TStringField;
+    qryPlanosPagamentovalidadeinicial: TDateField;
+    qryPlanosPagamentovalidadefinal: TDateField;
+    qryPlanosPagamentoquantidadeparcelas: TIntegerField;
+    qryPlanosPagamentoalterarvencimento: TBooleanField;
+    qryPlanosPagamentoalterarvalor: TBooleanField;
+    qryPlanosPagamentoagente: TIntegerField;
+    qryPlanosPagamentotipoplano: TIntegerField;
+    qryPlanosPagamentotipocomissao: TStringField;
+    qryPlanosPagamentocomissao: TFloatField;
+    qryPlanosPagamentotaxamensaljuros: TFloatField;
+    qryPlanosPagamentointervaloparcelas: TIntegerField;
+    qryPlanosPagamentodiavenctoentrada: TDateField;
+    qryPlanosPagamentoprazovenctoentrada: TIntegerField;
+    qryPlanosPagamentotoleranciaentrada: TIntegerField;
+    qryPlanosPagamentocompraminima: TFloatField;
+    qryPlanosPagamentocompramaxima: TFloatField;
+    qryPlanosPagamentovalorminimoparcela: TFloatField;
+    qryPlanosPagamentodescontomaximo: TFloatField;
+    qryPlanosPagamentodiabase: TIntegerField;
+    qryPlanosPagamentoaposdia: TIntegerField;
+    qryPlanosPagamentoimprparcelacarne: TBooleanField;
+    qryPlanosPagamentoenderecocompleto: TBooleanField;
+    qryPlanosComEntrada: TtecQuery;
+    dsrPlanosComEntrada: TtecDataSource;
+    qryPlanosSemEntrada: TtecQuery;
+    dsrPlanosSemEntrada: TtecDataSource;
+    qryPlanosSemEntradacodigo: TIntegerField;
+    qryPlanosSemEntradadescricao: TStringField;
+    qryPlanosComEntradacodigo: TIntegerField;
+    qryPlanosComEntradadescricao: TStringField;
+    qryPlanosComEntradavalidadeinicial: TDateField;
+    qryPlanosComEntradavalidadefinal: TDateField;
+    qryPlanosComEntradaquantidadeparcelas: TIntegerField;
+    qryPlanosComEntradaalterarvencimento: TBooleanField;
+    qryPlanosComEntradaalterarvalor: TBooleanField;
+    qryPlanosComEntradaagente: TIntegerField;
+    qryPlanosComEntradatipoplano: TIntegerField;
+    qryPlanosComEntradatipocomissao: TStringField;
+    qryPlanosComEntradacomissao: TFloatField;
+    qryPlanosComEntradataxamensaljuros: TFloatField;
+    qryPlanosComEntradaintervaloparcelas: TIntegerField;
+    qryPlanosComEntradadiavenctoentrada: TDateField;
+    qryPlanosComEntradaprazovenctoentrada: TIntegerField;
+    qryPlanosComEntradatoleranciaentrada: TIntegerField;
+    qryPlanosComEntradaporcentagementrada: TFloatField;
+    qryPlanosComEntradacompraminima: TFloatField;
+    qryPlanosComEntradacompramaxima: TFloatField;
+    qryPlanosComEntradavalorminimoparcela: TFloatField;
+    qryPlanosComEntradadescontomaximo: TFloatField;
+    qryPlanosComEntradadiabase: TIntegerField;
+    qryPlanosComEntradaaposdia: TIntegerField;
+    qryPlanosComEntradaimprparcelacarne: TBooleanField;
+    qryPlanosComEntradaenderecocompleto: TBooleanField;
+    qryPlanosSemEntradavalidadeinicial: TDateField;
+    qryPlanosSemEntradavalidadefinal: TDateField;
+    qryPlanosSemEntradaquantidadeparcelas: TIntegerField;
+    qryPlanosSemEntradaalterarvencimento: TBooleanField;
+    qryPlanosSemEntradaalterarvalor: TBooleanField;
+    qryPlanosSemEntradaagente: TIntegerField;
+    qryPlanosSemEntradatipoplano: TIntegerField;
+    qryPlanosSemEntradatipocomissao: TStringField;
+    qryPlanosSemEntradacomissao: TFloatField;
+    qryPlanosSemEntradataxamensaljuros: TFloatField;
+    qryPlanosSemEntradaintervaloparcelas: TIntegerField;
+    qryPlanosSemEntradadiavenctoentrada: TDateField;
+    qryPlanosSemEntradaprazovenctoentrada: TIntegerField;
+    qryPlanosSemEntradatoleranciaentrada: TIntegerField;
+    qryPlanosSemEntradaporcentagementrada: TFloatField;
+    qryPlanosSemEntradacompraminima: TFloatField;
+    qryPlanosSemEntradacompramaxima: TFloatField;
+    qryPlanosSemEntradavalorminimoparcela: TFloatField;
+    qryPlanosSemEntradadescontomaximo: TFloatField;
+    qryPlanosSemEntradadiabase: TIntegerField;
+    qryPlanosSemEntradaaposdia: TIntegerField;
+    qryPlanosSemEntradaimprparcelacarne: TBooleanField;
+    qryPlanosSemEntradaenderecocompleto: TBooleanField;
+    qryPlanosSemEntradavalorparcela: TFloatField;
+    qryPlanosComEntradavalorparcela: TFloatField;
+    qryPlanosComEntradavencimento: TDateField;
+    qryPlanosSemEntradavencimento: TDateField;
+    qryPlanosPagamentoporcentagementrada: TFloatField;
+    qryGruposPlanos: TtecQuery;
+    qryGruposPlanosplano: TIntegerField;
+    qryGruposPlanosgrupo: TStringField;
+    qryPlanosPagamentomestrintadias: TBooleanField;
+    qryPlanosPagamentomultiplo: TFloatField;
+    qryPlanosComEntradamultiplo: TFloatField;
+    qryPlanosSemEntradamultiplo: TFloatField;
+    qryPlanosPagamentotoleranciaentreparcelas: TIntegerField;
+    qryPlanosPagamentotaxaanualjuros: TFloatField;
+    qryPlanosComEntradataxaanualjuros: TFloatField;
+    qryPlanosSemEntradataxaanualjuros: TFloatField;
+    qryClassesPlanos: TtecQuery;
+    qryClassesPlanosplano: TIntegerField;
+    qryClassesPlanosclasse: TStringField;
+    qryCalculoFinanciamentotiporecebimento: TIntegerField;
+    qryPlanosPagamentotiporecebimento: TIntegerField;
+    qryPlanosPagamentoalterartiporecebimento: TBooleanField;
+    qryTiposRecebimentos: TtecQuery;
+    qryTiposRecebimentoscodigo: TIntegerField;
+    qryTiposRecebimentosdescricao: TStringField;
+    qryCalculoFinanciamentotiporeceb: TStringField;
+    qryPlanosComEntradatiporecebimento: TIntegerField;
+    qryPlanosSemEntradatiporecebimento: TIntegerField;
+    qryTiposRecebimentostiporecebimento: TStringField;
+    qryCalculoFinanciamentoformapagamento: TStringField;
+    qryDiaCobrancaSubstituicao: TtecQuery;
+    qryDiaCobrancaSubstituicaodia: TDateField;
+    qryCalculoFinanciamentost: TBooleanField;
+    qryPlanosPagamentoDescricaoTipoRecebimento: TStringField;
+    qryCalculoFinanciamentovalorvenctocomst: TCurrencyField;
+    qryCalculoFinanciamentovalorsubstituicao: TFloatField;
+    procedure dsrCalculoFinanciamentoDataChange(Sender: TObject; Field: TField);
+    procedure qryCalculoFinanciamentoAfterInsert(DataSet: TDataSet);
+    procedure qryCalculoFinanciamentoBeforeInsert(DataSet: TDataSet);
+    procedure qryPlanosComEntradaAfterInsert(DataSet: TDataSet);
+    procedure qryPlanosComEntradaAfterScroll(DataSet: TDataSet);
+    procedure qryPlanosSemEntradaAfterInsert(DataSet: TDataSet);
+    procedure qryPlanosSemEntradaAfterScroll(DataSet: TDataSet);
+    procedure qryCalculoFinanciamentoBeforeEdit(DataSet: TDataSet);
+    procedure qryCalculoFinanciamentoCalcFields(DataSet: TDataSet);
+  private
+    FValorSubstituicaoTributaria: Currency;
+    FEstadoCliente: String;
+    FDescontoItem: Real;
+    procedure SetValorSubstituicaoTributaria(const Value: Currency);
+    function GetPodeAlterarTipoRecebimento: Boolean;
+    procedure SetDescontoItem(const Value: Real);
+  protected
+    FDataAnterior: TDateTime;
+    FNrParcelaAnterior: Integer;
+    FValorParcelaAnterior: Currency;
+    FPodeReCalcular: Boolean;
+    FAfterScrollCalculoFinanciamento: TNotifyEvent;
+    FTipoCalculo: TtecTipoCalculo;
+    FValorSeguro: Currency;
+    FValorMercadoria: Currency;
+    FValorFrete: Currency;
+    FDataCalculo: String;
+    FDesconto: Currency; //
+    FCreditoTroca: Currency;
+    FPodeInserir: Boolean;
+    FPermiteDesconto: Boolean;
+
+    FTaxaAcumulada: Real;
+    FValorPrestacoes: Currency;
+    FPrestacao: Integer;
+    FDataVencto: TDateTime;
+    FParcelas: Integer;
+    procedure ArredondarValorParcela;
+    procedure CalcularNovosValoresParcela(ReCalculandoValor,ReCalculandoData: Boolean);
+    procedure CalcularDesconto;
+    function  GetAcrescimo: Real;
+    function  GetFinanciado: Currency;
+    function  GetFuturo: Currency;
+    function  GetVista: Currency;
+    function  GetPlanoUsando: Integer;
+    function  GetPodeAlterarCalculos: Boolean;
+    function  GetPodeAlterarValorParcelas: Boolean;
+    function  GetPodeAlterarVenctosParcelas: Boolean;
+    function  GetPorcentagem: Real;
+    function  GetTabelaConsultaPlano: TZDataset;
+
+//    procedure ValidarTotalParcelasComTotalFinanciado;
+    procedure SetPodeReCalcular(const Value: Boolean);
+    procedure SetDataCalculo(const Value: String);
+    procedure SetDesconto(const Value: Currency);
+    procedure SetCreditoTroca(const Value: Currency);
+    procedure SetValorFrete(const Value: Currency);
+    procedure SetValorMercadoria(const Value: Currency);
+    procedure SetValorSeguro(const Value: Currency);
+    procedure VerificarParcelas;
+    procedure AgruparParcelas(ReCalculandoValor, ReCalculandoData: Boolean; DifST: Double = 0);
+    procedure AcertaValorParcelasSemJuros;
+  public
+    procedure ValidarValoresRedefinidos(Campo: TField; Validar_Valores: Boolean);
+    procedure AbreTabelaConsulta;
+    procedure CalcularValores;
+    procedure CalcularDescontoZero;
+    function  CalcularDescontoZeroDosPLanos: Boolean;
+    procedure CalcularDescontoZeroPlanosComEntrada;
+    procedure CalcularDescontoZeroPlanosSemEntrada;
+    function  ValidarData: TDateTime;
+    function  FiltrarGruposClasses(Grupos, Classes: vstring): Boolean;
+    procedure FechaTabelaConsulta;
+    function  GetTaxaJurosMensal: Real;
+    function GetTaxaJurosAnual: Real;
+    procedure LimparTabelas;
+    function  PreencherValores(Calcular: Boolean; Plano: Integer;
+                               Parcelas: TResumosParcelas;
+                               Grupos, Classes: vstring): TtecTipoCalculo;
+    procedure ReCalcular;
+    procedure ReFazConsultaPlanoPagamento;
+    procedure ResumosParcelas(var Parcelas: TResumosParcelas; var ValorPrazo, TaxaJurosMensal, Desconto: Real; var Plano: Integer);
+    procedure Selecionar;
+    function  ValidaValores: Boolean;
+    function  ValidarDesconto: Boolean;
+    procedure ZerarVariaveis;
+
+    function  DataBase(Data: TDateTime): TDateTime;
+    function  DescontoMaximo: Real;
+    function  DiaFixo: Boolean;
+    function  ExistePlanoPagamento(Campo, Codigo: string): Boolean;
+    function  ValorMercadoriaEhValido: Boolean;
+    procedure GravarCalculo;
+    function  LocalizaPlanoPadrao(PlanoPadrao: Integer): Boolean;
+
+    property  AfterScrollCalculoFinanciamento: TNotifyEvent read FAfterScrollCalculoFinanciamento write FAfterScrollCalculoFinanciamento;
+    property  TipoCalculo: TtecTipoCalculo read FTipoCalculo write FTipoCalculo;
+    property  TabelaConsultaPlano: TZDataset read GetTabelaConsultaPlano;
+    property  ValorMercadoria: Currency read FValorMercadoria write SetValorMercadoria;
+    property  ValorFrete: Currency read FValorFrete write SetValorFrete;
+    property  ValorSeguro: Currency read FValorSeguro write SetValorSeguro;
+    property  DataCalculo: String read FDataCalculo write SetDataCalculo;
+    property  Desconto: Currency read FDesconto write SetDesconto; //
+    property  CreditoTroca: Currency read FCreditoTroca write SetCreditoTroca; //
+    property  Financiado: Currency read GetFinanciado;
+    property  Acrescimo: Real read GetAcrescimo;
+    property  DescontoItem: Real read FDescontoItem write SetDescontoItem;
+    property  Futuro: Currency read GetFuturo;
+    property  Vista: Currency read GetVista;
+    property  Porcentagem: Real read GetPorcentagem;
+    property  PodeAlterarVenctosParcelas: Boolean read GetPodeAlterarVenctosParcelas;
+    property  PodeAlterarValorParcelas: Boolean read GetPodeAlterarValorParcelas;
+    property  PodeAlterarTipoRecebimento: Boolean read GetPodeAlterarTipoRecebimento;
+    property  PodeReCalcular: Boolean read FPodeReCalcular write SetPodeReCalcular;
+    property  TaxaJurosMensal: Real read GetTaxaJurosMensal;
+    property  TaxaJurosAnual: Real read GetTaxaJurosAnual;
+    property  PodeAlterarCalculos: Boolean read GetPodeAlterarCalculos;
+    property  PermiteDesconto: Boolean read FPermiteDesconto write FPermiteDesconto;
+    property  ValorSubstituicaoTributaria: Currency read FValorSubstituicaoTributaria write SetValorSubstituicaoTributaria;
+    property  EstadoCliente: String read FEstadoCliente write FEstadoCliente;
+    constructor Create(AOwner :TComponent); override;
+  end;
+
+var
+  dtmCalculoFinanciamento: TdtmCalculoFinanciamento;
+  PrimeiraVez: Boolean;
+  JaFoiCalculadoTodosPlanos: Boolean;
+  BookMarkParcela: Integer; // Usado quando intervalo parcelas <> 30;
+  PosParcela : TBookmark;
+
+  implementation
+
+Uses
+  //CLX
+  Variants,
+  //Biblio
+  clusuario, clparametrossistema, fmcalculofinanciamento;
+
+{$R *.dfm}
+
+{ TdtmCalculoFinanciamento }
+
+procedure TdtmCalculoFinanciamento.AbreTabelaConsulta;
+begin
+  Abre(ctVendaTabelaConsultaPlanos);
+end;
+
+function TdtmCalculoFinanciamento.ValidarData: TDateTime;
+var
+  DiaBase: Integer;
+  Dia, Mes, Ano: Word;
+  NewData : TDateTime;
+begin
+  DiaBase:= 0;
+  DecodeDate(DataServidor,Ano,Mes,Dia);
+  if qryPlanosPagamentoaposdia.AsInteger > 0 then
+    DiaBase:= qryPlanosPagamentoaposdia.AsInteger
+  else if qryPlanosPagamentodiabase.AsInteger > 0 then
+    DiaBase:= qryPlanosPagamentodiabase.AsInteger;
+
+  if Dia <= DiaBase then
+    NewData:= EncodeDate(Ano,Mes,DiaBase)
+  else begin
+    Mes:= Mes + 1;
+    if Mes > 12 then begin
+      Mes:= Mes - 1;
+      Ano:= Ano + 1;
+    end;
+    NewData:= EncodeDate(Ano,Mes,DiaBase);
+  end;
+  Result:= NewData;
+end;
+
+procedure TdtmCalculoFinanciamento.CalcularDescontoZero;
+var
+  DataA : TDateTime;
+//  i: Integer;
+begin
+  FPodeReCalcular:= False;
+  if qryPlanosPagamento.RecordCount > 0 then begin
+    if PrimeiraVez then begin
+      if Financiado > 0 then
+      begin
+        FPodeInserir:= True;
+        if DiaFixo then
+          DataA:= ValidarData
+        else begin
+          if qryPlanosPagamentodiavenctoentrada.AsDateTime = 0 then begin
+            if (qryPlanosPagamentoprazovenctoentrada.AsInteger = 30) and qryPlanosPagamentomestrintadias.AsBoolean then
+                 DataA:= SomarDia(StrToDate(FDataCalculo),30,'S')
+            else DataA:= SomarDia(StrToDate(FDataCalculo),qryPlanosPagamentoprazovenctoentrada.AsInteger,'N');
+          end
+          else   DataA:= qryPlanosPagamentodiavenctoentrada.AsDateTime;
+        end;
+
+        qryCalculoFinanciamento.Append;
+        if ParSistema.GerarParcelaSubstituicaoTributaria and (ValorSubstituicaoTributaria > 0) then
+          qryCalculoFinanciamentoprestacao.AsInteger   := 2
+        else
+          qryCalculoFinanciamentoprestacao.AsInteger   := 1;
+        qryCalculoFinanciamentoparcela.AsInteger     := qryPlanosPagamentoquantidadeparcelas.AsInteger;
+        qryCalculoFinanciamentodatavencto.AsDateTime := DataA;
+        qryCalculoFinanciamentotiporecebimento.AsInteger := qryPlanosPagamentotiporecebimento.AsInteger;
+        qryCalculoFinanciamentotiporeceb.AsString := qryPlanosPagamentoDescricaoTipoRecebimento.AsString;
+
+        qryCalculoFinanciamento.Post;
+      end;
+
+      CalcularNovosValoresParcela(False,False);
+
+//      ValidarTotalParcelasComTotalFinanciado;
+
+      PrimeiraVez:= False;
+      FPodeInserir:= False;
+    end;
+  end;
+end;
+
+function TdtmCalculoFinanciamento.CalcularDescontoZeroDosPLanos: Boolean;
+begin
+  if ParSistema.CalculoComTodosPlanos then begin
+    JaFoiCalculadoTodosPlanos:=False;
+    LimparTabela(qryCalculoFinanciamento);//ReFazConsulta(qryCalculoFinanciamento, [0], ['']);
+    CalcularDescontoZeroPlanosComEntrada;
+    CalcularDescontoZeroPlanosSemEntrada;
+    if qryPlanosComEntradaCodigo.AsInteger > 0 then begin
+      ReFazConsulta(qryPlanosPagamento,[0],[qryPlanosComEntradaCodigo.AsInteger]);
+      Result := True
+    end else if qryPlanosSemEntradaCodigo.AsInteger > 0 then begin
+      ReFazConsulta(qryPlanosPagamento,[0],[qryPlanosSemEntradaCodigo.AsInteger]);
+      Result := True
+    end else begin
+      LimparTabela(qryPlanosPagamento);//ReFazConsulta(qryPlanosPagamento,[0],[0]);
+      Result := False
+    end;
+    JaFoiCalculadoTodosPlanos:= True;
+  end else
+    Result := False;
+end;
+
+procedure TdtmCalculoFinanciamento.CalcularDescontoZeroPlanosComEntrada;
+var
+  J,T           : Integer;
+  DataAux       : TDateTime;
+  Desc: Real;
+begin
+  qryPlanosComEntrada.Close;
+  qryPlanosComEntrada.Open;
+  qryPlanosComEntrada.DisableControls;
+  try
+    T:=qryPlanosComEntrada.RecordCount;
+    qryPlanosComEntrada.First;
+    for J:= 1 to T do begin
+      ReFazConsulta(qryPlanosPagamento,[0],[qryPlanosComEntradacodigo.AsInteger]);
+      qryPlanosComEntrada.Edit;
+      if DiaFixo then
+        DataAux:= ValidarData
+      else begin
+        if qryPlanosComEntradadiavenctoentrada.AsDateTime = 0 then begin
+          if (qryPlanosComEntradaprazovenctoentrada.AsInteger = 30) and qryPlanosPagamentomestrintadias.AsBoolean then
+               DataAux:= SomarDia(StrToDate(FDataCalculo),30,'S')
+          else DataAux:= SomarDia(StrToDate(FDataCalculo),qryPlanosComEntradaprazovenctoentrada.AsInteger,'N');
+        end
+        else   DataAux:= qryPlanosComEntradadiavenctoentrada.AsDateTime;
+      end;
+      qryPlanosComEntradavencimento.AsDateTime:= DataAux;
+      qryPlanosComEntrada.Post;
+
+      FTaxaAcumulada:= tecFinanceira.TaxaAcumulada(qryPlanosComEntradavencimento.AsDateTime,
+                                                   StrToDate(FDataCalculo),
+                                                   qryPlanosComEntradaquantidadeparcelas.AsInteger,
+                                                   qryPlanosComEntradaintervaloparcelas.AsInteger,
+                                                   qryPlanosComEntradataxamensaljuros.AsFloat);
+      qryPlanosComEntrada.Edit;
+      if FTaxaAcumulada = 0 then
+        qryPlanosComEntradavalorparcela.AsCurrency := 0
+      else
+        qryPlanosComEntradavalorparcela.AsCurrency:= RoundTo((Financiado / FTaxaAcumulada),-2);
+      qryPlanosComEntrada.Post;
+
+      repeat
+        Desc:= Financiado - tecFinanceira.ValorPresente(StrToDate(FDataCalculo),
+                                                             qryPlanosComEntradaquantidadeparcelas.AsInteger,
+                                                             qryPlanosComEntradavencimento.AsDateTime,
+                                                             qryPlanosComEntradavalorparcela.AsCurrency,
+                                                             qryPlanosComEntradaintervaloparcelas.AsInteger,
+                                                             qryPlanosComEntradataxamensaljuros.AsFloat);
+        if ((Abs(Desc)*100) > qryPlanosComEntradaquantidadeparcelas.AsInteger) then begin
+          qryPlanosComEntrada.Edit;
+          qryPlanosComEntradavalorparcela.AsCurrency:= RoundTo(qryPlanosComEntradavalorparcela.AsCurrency +
+                                                              (Desc / qryPlanosComEntradaquantidadeparcelas.AsInteger),-2);
+          qryPlanosComEntrada.Post;
+        end;
+      until ((Abs(Desc)*100) <= qryPlanosComEntradaquantidadeparcelas.AsInteger);
+
+      if (qryPlanosComEntradataxamensaljuros.AsFloat > 0) then
+        tecFinanceira.ArredondaValores(qryPlanosComEntrada,
+                                       qryPlanosComEntradaquantidadeparcelas,
+                                       qryPlanosComEntradavalorparcela,
+                                       qryPlanosComEntradamultiplo.AsFloat,
+                                       False);
+      qryPlanosComEntrada.Next;
+    end;
+  finally
+    qryPlanosComEntrada.First;
+    qryPlanosComEntrada.EnableControls;
+  end;
+end;
+
+procedure TdtmCalculoFinanciamento.CalcularDescontoZeroPlanosSemEntrada;
+var
+  J,T     : Integer;
+  DataAux : TDateTime;
+  Desc: Real;
+begin
+  qryPlanosSemEntrada.Close;
+  qryPlanosSemEntrada.Open;
+  qryPlanosSemEntrada.DisableControls;
+  try
+    T:=qryPlanosSemEntrada.RecordCount;
+    qryPlanosSemEntrada.First;
+    for J:= 1 to T do begin
+      ReFazConsulta(qryPlanosPagamento,[0],[qryPlanosSemEntradacodigo.AsInteger]);
+      qryPlanosSemEntrada.Edit;
+      if DiaFixo then
+        DataAux:= ValidarData
+      else begin
+        if qryPlanosSemEntradadiavenctoentrada.AsDateTime = 0 then begin
+          if (qryPlanosSemEntradaprazovenctoentrada.AsInteger = 30) and qryPlanosPagamentomestrintadias.AsBoolean then
+               DataAux:= SomarDia(StrToDate(FDataCalculo),30,'S')
+          else DataAux:= SomarDia(StrToDate(FDataCalculo),qryPlanosSemEntradaprazovenctoentrada.AsInteger,'N');
+        end
+        else   DataAux:= qryPlanosSemEntradadiavenctoentrada.AsDateTime;
+      end;
+      qryPlanosSemEntradavencimento.AsDateTime:= DataAux;
+      qryPlanosSemEntrada.Post;
+
+      FTaxaAcumulada:= tecFinanceira.TaxaAcumulada(qryPlanosSemEntradavencimento.AsDateTime,
+                                                   StrToDate(FDataCalculo),
+                                                   qryPlanosSemEntradaquantidadeparcelas.AsInteger,
+                                                   qryPlanosSemEntradaintervaloparcelas.AsInteger,
+                                                   qryPlanosSemEntradataxamensaljuros.AsFloat);
+      qryPlanosSemEntrada.Edit;
+      qryPlanosSemEntradavalorparcela.AsCurrency:= RoundTo((Financiado / FTaxaAcumulada),-2);
+      qryPlanosSemEntrada.Post;
+
+      repeat
+        Desc:= Financiado - tecFinanceira.ValorPresente(StrToDate(FDataCalculo),
+                                                             qryPlanosSemEntradaquantidadeparcelas.AsInteger,
+                                                             qryPlanosSemEntradavencimento.AsDateTime,
+                                                             qryPlanosSemEntradavalorparcela.AsCurrency,
+                                                             qryPlanosSemEntradaintervaloparcelas.AsInteger,
+                                                             qryPlanosSemEntradataxamensaljuros.AsFloat);
+        if ((Abs(Desc)*100) > qryPlanosSemEntradaquantidadeparcelas.AsInteger) then begin
+          qryPlanosSemEntrada.Edit;
+          qryPlanosSemEntradavalorparcela.AsCurrency:= RoundTo(qryPlanosSemEntradavalorparcela.AsCurrency +
+                                                              (Desc / qryPlanosSemEntradaquantidadeparcelas.AsInteger),-2);
+          qryPlanosSemEntrada.Post;
+        end;
+      until ((Abs(Desc)*100) <= qryPlanosSemEntradaquantidadeparcelas.AsInteger);
+
+      if (qryPlanosSemEntradataxamensaljuros.AsFloat > 0) then
+        tecFinanceira.ArredondaValores(qryPlanosSemEntrada,
+                                       qryPlanosSemEntradaquantidadeparcelas,
+                                       qryPlanosSemEntradavalorparcela,
+                                       qryPlanosSemEntradamultiplo.AsFloat,
+                                       False);
+      qryPlanosSemEntrada.Next;
+    end;
+  finally
+    qryPlanosSemEntrada.First;
+    qryPlanosSemEntrada.EnableControls;
+  end;
+end;
+
+procedure TdtmCalculoFinanciamento.CalcularValores;
+begin
+  if Financiado + ValorSubstituicaoTributaria > 0 then begin
+    LimparTabela(qryCalculoFinanciamento);//ReFazConsulta(qryCalculoFinanciamento,[0],['']);
+    Desconto := 0;
+    PrimeiraVez:= True;
+    CalcularDescontoZero;
+  end
+  else if not ParSistema.CalculoComTodosPlanos then
+    MensagemAviso(ctVALORFINANCIADO);
+end;
+
+constructor TdtmCalculoFinanciamento.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryPlanosPagamento.Tag         := ctTabelas;
+  qryCalculoFinanciamento.Tag    := ctTabelas;
+  qryConsultaPlanosPagamento.Tag := ctVendaTabelaConsultaPlanos;
+
+  FPermiteDesconto:= True;
+  FPodeInserir:= False;
+  FPodeReCalcular:= False;
+  TipoCalculo:= tcNENHUM;
+  BookMarkParcela:= 0;
+  ZerarVariaveis;
+
+
+//  ValorSubstituicaoTributaria := 8.47; // SOMENTE PARA TESTE
+end;
+
+function TdtmCalculoFinanciamento.DataBase(Data: TDateTime): TDateTime;
+var
+   Dia,Mes,Ano: Word;
+begin
+  DecodeDate(Data,Ano,Mes,Dia);
+  Data:= SomarDia(Data,30,'S');
+  if Dia > qryPlanosPagamentoaposdia.AsInteger then begin
+    if (qryPlanosPagamentodiabase.AsInteger < Dia) and (qryPlanosPagamentoaposdia.AsInteger <> 0) then
+      Data:= SomarDia(Data,30,'S');
+    DecodeDate(Data,Ano,Mes,Dia);
+    Dia := qryPlanosPagamentodiabase.AsInteger;
+    Data:= EncodeDate(Ano,Mes,Dia);
+  end;
+  Result:= Data;
+end;
+
+function TdtmCalculoFinanciamento.FiltrarGruposClasses(Grupos, Classes: vstring): Boolean;
+const
+  SQL = ' and ((planos.codigo in ( %s )) or '+
+        '      ((0 = (select count(*) from planosgrupos where planosgrupos.plano = planos.codigo)) and '+
+        '       (0 = (select count(*) from planosclasses where planosclasses.plano = planos.codigo))) '+
+        '     )';
+var
+  Planos,
+  grupo,
+  classe:  String;
+  PlanoAnt: Integer;
+
+  function RegistroNoArray(Registro: String; Lista: vString): Boolean;
+  var
+    a: Integer;
+  begin
+    Result := False;
+    for a := 0 to High(Lista) do
+      if Registro = Lista[a] then begin
+        Result := True;
+        break
+      end
+  end;
+
+  procedure FiltrarGrupos(Grupos: vString);
+  var
+    a : integer;
+  begin
+    if High(Grupos) > -1 then
+    begin
+      if (Grupos[0] <> '') then
+      begin
+        Grupo := '''' + Grupos[0] + '''';
+        for a := 1 to High(Grupos) do
+          Grupo := grupo + ',''' + grupos[a] + '''';
+        qryGruposPlanos.Sql[03] := Grupo;
+        //qryGruposPlanos.Sql[12] := Grupo;
+        qryGruposPlanos.Open;
+        try
+          PlanoAnt  := qryGruposPlanosplano.AsInteger;
+          a := 0;
+          while Not qryGruposPlanos.Eof do
+          begin
+            if PlanoAnt = qryGruposPlanosplano.AsInteger then
+            begin
+              if RegistroNoArray(qryGruposPlanosgrupo.AsString, Grupos) then
+                Inc(a);
+              qryGruposPlanos.Next
+            end else
+            begin
+              if a = High(Grupos) + 1 then
+                Planos := Planos + IntToStr(PlanoAnt) + ',';
+              PlanoAnt := qryGruposPlanosplano.AsInteger;
+              a := 0;
+            end
+          end;
+          if a = High(Grupos) + 1 then
+            Planos := Planos + IntToStr(PlanoAnt) + ',';
+        finally
+          qryGruposPlanos.Close
+        end;
+      end;
+    end;
+  end;
+
+  procedure FiltrarClasses(Classes: vString);
+  var
+    a : integer;
+  begin
+    if High(Classes) > -1 then
+    begin
+      if (Classes[0] <> '') then
+      begin
+        Classe := '''' + Classes[0] + '''';
+        for a := 1 to High(Classes) do
+          Classe := Classe + ',''' + Classes[a] + '''';
+        qryClassesPlanos.Sql[03] := Classe;
+        //qryGruposPlanos.Sql[12] := Grupo;
+        qryClassesPlanos.Open;
+        try
+          PlanoAnt  := qryClassesPlanosplano.AsInteger;
+          a := 0;
+          while Not qryClassesPlanos.Eof do
+          begin
+            if PlanoAnt = qryClassesPlanosplano.AsInteger then
+            begin
+              if RegistroNoArray(qryClassesPlanosclasse.AsString, Classes) then
+                Inc(a);
+              qryClassesPlanos.Next
+            end else
+            begin
+              if a = High(Classes) + 1 then
+                Planos := Planos + IntToStr(PlanoAnt) + ',';
+              PlanoAnt := qryClassesPlanosplano.AsInteger;
+              a := 0;
+            end
+          end;
+          if a = High(Classes) + 1 then
+            Planos := Planos + IntToStr(PlanoAnt) + ',';
+        finally
+          qryClassesPlanos.Close
+        end;
+      end;
+    end;
+  end;
+
+begin
+  if (High(Grupos) > -1) or (High(Classes) > -1) then
+  begin
+    FiltrarGrupos(Grupos);
+    FiltrarClasses(Classes);
+    if Planos = '' then
+      Planos := '0'
+    else
+      Delete(Planos, Length(Planos), 1);
+
+    if ParSistema.CalculoComTodosPlanos then begin
+      qryPlanosComEntrada.Sql[34] := Format(SQL, [Planos]);
+      qryPlanosSemEntrada.Sql[33] := Format(SQL, [Planos]);
+      Result := True;
+    end else begin
+      qryPlanosPagamento.Sql[7] := Format(SQL, [Planos]);
+      qryConsultaPlanosPagamento.Sql[7] := Format(SQL, [Planos]);
+      qryPlanosPagamento.Open;
+      Result := qryPlanosPagamento.RecordCount = 0
+    end
+  end else
+    Result := True;
+end;
+
+function TdtmCalculoFinanciamento.DescontoMaximo: Real;
+begin
+  Result := qryPlanosPagamentodescontomaximo.AsFloat;
+end;
+
+function TdtmCalculoFinanciamento.DiaFixo: Boolean;
+begin
+  Result:= ((qryPlanosPagamentodiabase.AsInteger <> 0) or (qryPlanosPagamentoaposdia.AsInteger <> 0));
+end;
+
+procedure TdtmCalculoFinanciamento.CalcularDesconto;
+Var
+  Desc: Real;
+  A,T: Integer;
+  Pos: TBookmark;
+begin
+  Desc := 0;
+  Pos:= qryCalculoFinanciamento.GetBookmark;
+  qryCalculoFinanciamento.DisableControls;
+  try
+    T := qryCalculoFinanciamento.RecordCount;
+    qryCalculoFinanciamento.First;
+    for a := 1 to T do
+    begin
+      if not qryCalculoFinanciamentost.AsBoolean then
+        if qryCalculoFinanciamento.CompareBookmarks(Pos,qryCalculoFinanciamento.GetBookmark) <> 0 then
+          Desc := tecFinanceira.ValorPresente(StrToDate(FDataCalculo),
+                                              qryCalculoFinanciamentoParcela.AsInteger,
+                                              qryCalculoFinanciamentoDataVencto.AsDateTime,
+                                              qryCalculoFinanciamentoValorVencto.AsCurrency,
+                                              qryPlanosPagamentointervaloparcelas.AsInteger,
+                                              qryPlanosPagamentotaxamensaljuros.AsFloat,
+                                              Desc);
+      qryCalculoFinanciamento.Next
+    end;
+  finally
+    qryCalculoFinanciamento.GotoBookmark(Pos);
+    qryCalculoFinanciamento.FreeBookmark(Pos);
+    qryCalculoFinanciamento.EnableControls;
+  end;
+    Desconto:= Financiado - tecFinanceira.ValorPresente(StrToDate(FDataCalculo),
+                                                        qryCalculoFinanciamentoParcela.AsInteger,
+                                                        qryCalculoFinanciamentoDataVencto.AsDateTime,
+                                                        qryCalculoFinanciamentoValorVencto.AsCurrency,
+                                                        qryPlanosPagamentointervaloparcelas.AsInteger,
+                                                        qryPlanosPagamentotaxamensaljuros.AsFloat,
+                                                        Desc);
+end;
+
+procedure TdtmCalculoFinanciamento.CalcularNovosValoresParcela(ReCalculandoValor,ReCalculandoData: Boolean);
+
+  function montarDataParcelaSubstituicaoTributaria: TDateTime;
+  var
+    Dia, Mes, Ano: Integer;
+  begin
+    ano := 0;
+    if EstadoFilialBase = EstadoCliente then
+    begin
+      Dia := ParSistema.DiaParcelaSubstituicaoDentroEstado;
+      Mes := ParSistema.MesParcelaSubstituicaoDentroEstado;
+    end
+    else
+    begin
+      Dia := ParSistema.DiaParcelaSubstituicaoForaEstado;
+      Mes := ParSistema.MesParcelaSubstituicaoForaEstado;
+    end;
+
+    if Dia = 0 then
+      Dia := DayOf(DataServidor);
+
+    case Mes of
+      0: begin
+           Mes := MonthOf(DataServidor);
+           Ano := YearOf(DataServidor);
+         end;
+      1: begin
+           Mes := MonthOf(SomarDia(DataServidor,30,'S'));
+           Ano := YearOf(SomarDia(DataServidor,30,'S'));
+         end;
+    end;
+    if EstadoCliente <> EstadoFilialBase then
+      Result := EncodeDate(ano,mes,dia)
+    else
+    begin
+      RefazConsulta(qryDiaCobrancaSubstituicao,[0,1],[FilialBase,EncodeDate(ano,mes,dia)]);
+      Result := qryDiaCobrancaSubstituicaodia.AsDateTime;
+    end;
+  end;
+
+var
+  I,T: Integer;
+  Pos,P: TBookmark;
+  vTotalDasParcelas, vTotalSTRateado, vdiferenca : Currency;
+
+  (*
+  TotalReal,
+  Diferenca: Currency;
+  ParcelasTemp: TResumosParcelas; *)
+begin
+(*  TotalDasParcelas := 0;
+  TotalReal := 0;
+  Diferenca := 0;
+  ParcelasTemp := nil; *)
+  if Financiado > 0 then
+  begin
+    FTaxaAcumulada:= 0;
+    Pos:= qryCalculoFinanciamento.GetBookmark;
+    qryCalculoFinanciamento.DisableControls;
+    try
+      qryCalculoFinanciamento.First;
+      while Not qryCalculoFinanciamento.Eof do begin
+        if not qryCalculoFinanciamentost.AsBoolean then
+          FTaxaAcumulada:= tecFinanceira.TaxaAcumulada(qryCalculoFinanciamentodatavencto.AsDateTime,
+                                                       StrToDate(FDataCalculo),
+                                                       qryCalculoFinanciamentoparcela.AsInteger,
+                                                       qryPlanosPagamentointervaloparcelas.AsInteger,
+                                                       qryPlanosPagamentoTaxaMensalJuros.AsFloat,
+                                                       FTaxaAcumulada);
+        qryCalculoFinanciamento.Next
+      end;
+
+      if PrimeiraVez or ReCalculandoData then begin
+        T := qryCalculoFinanciamento.RecordCount;
+        qryCalculoFinanciamento.First;
+        for I:= 1 to T do begin
+          qryCalculoFinanciamento.Edit;
+          qryCalculoFinanciamentovalorvencto.AsCurrency:= Truncar((Financiado / FTaxaAcumulada),2);
+          qryCalculoFinanciamento.Post;
+          qryCalculoFinanciamento.Next;
+        end;
+      end;
+    finally
+      qryCalculoFinanciamento.GotoBookmark(Pos);
+      qryCalculoFinanciamento.FreeBookmark(Pos);
+      qryCalculoFinanciamento.EnableControls;
+    end;
+
+    if (ReCalculandoValor or (qryCalculoFinanciamento.RecNo < qryCalculoFinanciamento.RecordCount)) and
+      not ReCalculandoData then begin          //SE ALTEROU O VALOR E NÃO EH A ULTIMA, JOGA O DESCONTO NA PROXIMA
+      qryCalculoFinanciamento.Next;
+      repeat
+        CalcularDesconto;
+        P:= qryCalculoFinanciamento.GetBookMark;
+        qryCalculoFinanciamento.DisableControls;
+        try
+          while not qryCalculoFinanciamento.Eof do
+          begin
+            if ((Abs(Desconto)*100) > qryPlanosPagamentoquantidadeparcelas.AsInteger) then begin
+
+              qryCalculoFinanciamento.Edit;
+              qryCalculoFinanciamentovalorvencto.AsCurrency:= (*RoundTo*)Truncar(qryCalculoFinanciamentovalorvencto.AsCurrency +
+                                                                     (Desconto / qryPlanosPagamentoquantidadeparcelas.AsInteger),2);
+              qryCalculoFinanciamento.Post;
+            end;
+            qryCalculoFinanciamento.Next;
+          end;
+        finally
+          qryCalculoFinanciamento.GotoBookmark(P);
+          qryCalculoFinanciamento.FreeBookmark(P);
+          qryCalculoFinanciamento.EnableControls;
+        end;
+      until ((Abs(Desconto)*100) <= qryPlanosPagamentoquantidadeparcelas.AsInteger);
+      if ((Desconto < 0) or (((Abs(Desconto)*100) <= qryPlanosPagamentoquantidadeparcelas.AsInteger) and
+                              not RecalculandoValor)) then
+        Desconto:= 0;
+    end
+    else Desconto:= 0;
+    if (qryPlanosPagamentotaxamensaljuros.AsFloat > 0) then
+      ArredondarValorParcela;
+  end;
+
+  {AQUI VAI O CODIGO P/ AGRUPAR AS PARCELAS POR VALOR}
+ (* if qryCalculoFinanciamento.RecordCount > 1 then
+    try
+      i := 0; // Posicao do array
+      a := 1; // Numero de parcelas agrupadas
+      SetLength(ParcelasTemp,a);
+      qryCalculoFinanciamento.DisableControls;
+      qryCalculoFinanciamento.First;
+      while not qryCalculoFinanciamento.Eof do
+      begin
+        if (qryCalculoFinanciamentovalorvencto.AsCurrency <> ParcelasTemp[i-1].Valor) or
+           ((ReCalculandoData) and
+            (qryPlanosPagamentomestrintadias.AsBoolean and
+            (qryCalculoFinanciamentodatavencto.AsCurrency <> SomarDia(ParcelasTemp[i-1].Vencimento,Trunc(qryPlanosPagamentointervaloparcelas.AsInteger*(ParcelasTemp[i-1].Parcelas)),'S'))) or
+            (not qryPlanosPagamentomestrintadias.AsBoolean and
+            (qryCalculoFinanciamentodatavencto.AsCurrency <> SomarDia(ParcelasTemp[i-1].Vencimento,Trunc(qryPlanosPagamentointervaloparcelas.AsInteger*(ParcelasTemp[i-1].Parcelas)),'N')))) then
+        begin
+          SetLength(ParcelasTemp,i+1);
+          ParcelasTemp[i].Parcelas        := qryCalculoFinanciamentoparcela.AsInteger;
+          ParcelasTemp[i].Vencimento      := qryCalculoFinanciamentodatavencto.AsDateTime;
+          ParcelasTemp[i].Valor           := qryCalculoFinanciamentovalorvencto.AsFloat;
+          ParcelasTemp[i].FormaPagamento  := qryCalculoFinanciamentoformapagamento.AsString;
+          ParcelasTemp[i].TipoRecebimento := qryCalculoFinanciamentotiporecebimento.AsInteger;
+          Inc(i);
+          a := 1;
+        end
+        else
+        begin
+          ParcelasTemp[i-1].Parcelas := a;
+        end;
+        Inc(a);
+        qryCalculoFinanciamento.Next;
+      end;
+    finally
+      LimparTabela(qryCalculoFinanciamento);
+      FPodeInserir := True;
+      for i:=0 to high(ParcelasTemp) do
+      begin
+        VerificarParcelas;
+        qryCalculoFinanciamento.Append;
+        if i = 0 then
+          qryCalculoFinanciamentoprestacao.AsInteger   := i + 1
+        else
+          qryCalculoFinanciamentoprestacao.AsInteger     := FParcelas + 1;
+        qryCalculoFinanciamentoparcela.AsInteger         := ParcelasTemp[i].Parcelas;
+        qryCalculoFinanciamentodatavencto.AsDateTime     := ParcelasTemp[i].Vencimento;
+        qryCalculoFinanciamentovalorvencto.AsFloat       := ParcelasTemp[i].Valor;
+        qryCalculoFinanciamentoformapagamento.AsString   := ParcelasTemp[i].FormaPagamento;
+        qryCalculoFinanciamentotiporecebimento.AsInteger := ParcelasTemp[i].TipoRecebimento;
+        qryCalculoFinanciamento.Post;
+      end;
+      qryCalculoFinanciamento.EnableControls;
+    end;
+*)
+
+
+  if qryPlanosPagamentotaxamensaljuros.AsFloat = 0 then
+  begin
+    if PrimeiraVez then
+      AgruparParcelas(ReCalculandoValor, ReCalculandoData)
+    else
+      AcertaValorParcelasSemJuros; //AgruparParcelas(ReCalculandoValor, ReCalculandoData);
+  end;
+
+  if PrimeiraVez and ParSistema.CalcularSubstituicaoTributarianoContrato and (ValorSubstituicaoTributaria > 0) then
+  begin
+    if ParSistema.GerarParcelaSubstituicaoTributaria then
+    begin
+      qryCalculoFinanciamento.First;
+      FPodeInserir := True;
+      qryCalculoFinanciamento.Insert;
+      qryCalculoFinanciamentoprestacao.AsInteger   := 1;
+      qryCalculoFinanciamentoparcela.AsInteger     := 1;
+      qryCalculoFinanciamentodatavencto.AsDateTime := montarDataParcelaSubstituicaoTributaria;
+      qryCalculoFinanciamentovalorvencto.AsFloat   := ValorSubstituicaoTributaria;
+      qryCalculoFinanciamentotiporecebimento.AsInteger := qryPlanosPagamentotiporecebimento.AsInteger;
+      qryCalculoFinanciamentotiporeceb.AsString := qryPlanosPagamentoDescricaoTipoRecebimento.AsString;
+      qryCalculoFinanciamentost.AsBoolean := True;
+      qryCalculoFinanciamento.Post;
+    end
+    else
+    begin
+      vTotalDasParcelas := TotalizarValores[qryCalculoFinanciamento, qryCalculoFinanciamentovalorvencto, qryCalculoFinanciamentoparcela];
+      vTotalSTRateado := 0;
+      qryCalculoFinanciamento.First;
+      while not qryCalculoFinanciamento.eof do
+      begin
+        qryCalculoFinanciamento.edit;
+        qryCalculoFinanciamentovalorsubstituicao.AsFloat :=  Roundtod(RatearValores(ValorSubstituicaoTributaria, vTotalDasParcelas, qryCalculoFinanciamentovalorvencto.AsFloat),2);
+        qryCalculoFinanciamento.post;
+        vTotalSTRateado := vTotalSTRateado + (qryCalculoFinanciamentovalorsubstituicao.AsFloat * qryCalculoFinanciamentoparcela.asfloat);
+
+        qryCalculoFinanciamento.next;
+      end;
+      vdiferenca := vTotalSTRateado - ValorSubstituicaoTributaria;
+      if vdiferenca <> 0 then
+        AgruparParcelas(ReCalculandoValor, ReCalculandoData, vdiferenca)
+    end;
+
+  end;
+
+
+
+  FPodeInserir := False;
+//  ValidarTotalParcelasComTotalFinanciado;
+end;
+
+(*procedure TdtmCalculoFinanciamento.ValidarTotalParcelasComTotalFinanciado;
+type
+  TCopiaParcelas = Array of Record
+    Prestacao: Integer;
+    Parcela  : Integer;
+    Data     : TDateTime;
+    Valor    : Currency;
+  end;
+
+var
+  Total, Dif : Currency;
+  CopiaParcelas: TCopiaParcelas;
+  I, NP: Integer;
+
+begin
+  if (qryPlanosPagamentotaxamensaljuros.AsFloat = 0) then begin
+    dsrCalculoFinanciamento.OnDataChange:= nil;
+    qryCalculoFinanciamento.AfterInsert := nil;
+    FillChar(CopiaParcelas,SizeOf(CopiaParcelas),0);
+    SetLength(CopiaParcelas,qryCalculoFinanciamento.RecordCount);
+    Total:= 0;
+    qryCalculoFinanciamento.DisableControls;
+    try
+      qryCalculoFinanciamento.First;
+      for I:= 0 to qryCalculoFinanciamento.RecordCount-1 do begin
+        CopiaParcelas[I].Prestacao:= qryCalculoFinanciamentoprestacao.AsInteger;
+        CopiaParcelas[I].Parcela  := qryCalculoFinanciamentoparcela.AsInteger;
+        CopiaParcelas[I].Data     := qryCalculoFinanciamentodatavencto.AsDateTime;
+        CopiaParcelas[I].Valor    := qryCalculoFinanciamentovalorvencto.AsCurrency;
+        Total:= Total +
+                (qryCalculoFinanciamentovalorvencto.AsCurrency * qryCalculoFinanciamentoparcela.AsInteger);
+        qryCalculoFinanciamento.Next;
+      end;
+    finally
+      qryCalculoFinanciamento.EnableControls;
+    end;
+    Dif:= (Total - Financiado);
+    if (((Dif < 0) and PrimeiraVez) or (Dif > 0)) then begin
+//    if (Dif > 0) then begin
+      qryCalculoFinanciamento.First;
+      while not qryCalculoFinanciamento.Eof do
+        qryCalculoFinanciamento.Delete;
+
+      for I:= 0 to (Length(CopiaParcelas)-1) do begin
+        if (CopiaParcelas[I].Prestacao = 1) then begin
+          if (CopiaParcelas[I].Parcela = 1)then begin
+            qryCalculoFinanciamento.Append;
+            qryCalculoFinanciamentoprestacao.AsInteger    := CopiaParcelas[I].Prestacao;
+            qryCalculoFinanciamentoparcela.AsInteger      := CopiaParcelas[I].Parcela;
+            qryCalculoFinanciamentodatavencto.AsDateTime  := CopiaParcelas[I].Data;
+            qryCalculoFinanciamentovalorvencto.AsCurrency := CopiaParcelas[I].Valor - Dif;
+            qryCalculoFinanciamento.Post;
+          end
+          else begin
+            NP:= 0;
+            repeat
+              NP:= NP + 1;
+              qryCalculoFinanciamento.Append;
+              qryCalculoFinanciamentoprestacao.AsInteger    := NP;
+              if NP = 1 then begin
+                qryCalculoFinanciamentoparcela.AsInteger := 1;
+                qryCalculoFinanciamentodatavencto.AsDateTime  := CopiaParcelas[I].Data;
+                qryCalculoFinanciamentovalorvencto.AsCurrency := CopiaParcelas[I].Valor - Dif;
+              end
+              else begin
+                qryCalculoFinanciamentoparcela.AsInteger := CopiaParcelas[I].Parcela - 1;
+                if qryPlanosPagamentomestrintadias.AsBoolean then
+                  qryCalculoFinanciamentodatavencto.AsDateTime :=
+                     SomarDia(CopiaParcelas[I].Data,(qryPlanosPagamentointervaloparcelas.AsInteger *
+                              (NP-1)),'S')
+                else
+                  qryCalculoFinanciamentodatavencto.AsDateTime :=
+                     SomarDia(CopiaParcelas[I].Data,(qryPlanosPagamentointervaloparcelas.AsInteger *
+                              (NP-1)),'N');
+                qryCalculoFinanciamentovalorvencto.AsCurrency := CopiaParcelas[I].Valor;
+              end;
+              qryCalculoFinanciamento.Post;
+            until (NP = 2);
+          end;
+        end
+        else begin
+          qryCalculoFinanciamento.Append;;
+          qryCalculoFinanciamentoprestacao.AsInteger    := CopiaParcelas[I].Prestacao;
+          qryCalculoFinanciamentoparcela.AsInteger      := CopiaParcelas[I].Parcela;
+          qryCalculoFinanciamentodatavencto.AsDateTime  := CopiaParcelas[I].Data;
+          qryCalculoFinanciamentovalorvencto.AsCurrency := CopiaParcelas[I].Valor;
+          qryCalculoFinanciamento.Post;
+        end;
+      end;
+    end;
+    dsrCalculoFinanciamento.OnDataChange:= dsrCalculoFinanciamentoDataChange;
+    qryCalculoFinanciamento.AfterInsert := qryCalculoFinanciamentoAfterInsert;
+  end;
+
+  //if (Total < (Financiado - Desconto)) then begin
+    //MensagemAviso(ctFINANCIADODIFERETOTALPARCELA);
+    //Result:= False;
+//  end;
+end; *)
+
+procedure TdtmCalculoFinanciamento.ArredondarValorParcela;
+begin
+  tecFinanceira.ArredondaValores(qryCalculoFinanciamento,
+                                 qryCalculoFinanciamentoparcela,
+                                 qryCalculoFinanciamentovalorvencto,
+                                 qryPlanosPagamentomultiplo.AsFloat,
+                                 True);
+end;
+
+procedure TdtmCalculoFinanciamento.VerificarParcelas;
+var
+  A, T: Integer;
+  Pos: TBookmark;
+begin
+  ZerarVariaveis;
+  Pos:= qryCalculoFinanciamento.GetBookmark;
+  qryCalculoFinanciamento.DisableControls;
+  try
+    T:=qryCalculoFinanciamento.RecordCount;
+    qryCalculoFinanciamento.First;
+    for A:= 1 to T do begin
+      FParcelas       := FParcelas + qryCalculoFinanciamentoparcela.AsInteger;
+      FDataVencto     := qryCalculoFinanciamentodatavencto.AsDateTime;
+      FPrestacao      := qryCalculoFinanciamentoprestacao.AsInteger;
+      qryCalculoFinanciamento.Next;
+    end;
+  finally
+    qryCalculoFinanciamento.GotoBookmark(Pos);
+    qryCalculoFinanciamento.FreeBookmark(Pos);
+    qryCalculoFinanciamento.EnableControls;
+  end;
+end;
+
+procedure TdtmCalculoFinanciamento.ValidarValoresRedefinidos(Campo: TField; Validar_Valores: Boolean);
+
+  procedure DefinirNovosValoresCalculos;
+  var
+    Pos: TBookmark;
+  begin
+    Pos:= qryCalculoFinanciamento.GetBookmark;
+    qryCalculoFinanciamento.DisableControls;
+    try
+      qryCalculoFinanciamento.First;
+      while not qryCalculoFinanciamento.Eof do begin
+        if (qryCalculoFinanciamento.RecNo > 2) or
+           ((qryCalculoFinanciamento.RecNo > 1) and
+            not (ParSistema.GerarParcelaSubstituicaoTributaria and (ValorSubstituicaoTributaria > 0))) then
+        begin
+          qryCalculoFinanciamento.Edit;
+          qryCalculoFinanciamentoprestacao.AsInteger := FPrestacao + FParcelas;
+          if qryPlanosPagamentomestrintadias.AsBoolean then
+            qryCalculoFinanciamentodatavencto.AsDateTime := SomarDia(FDataVencto,(qryPlanosPagamentointervaloparcelas.AsInteger *
+                                                                                  FParcelas),'S')
+          else
+            qryCalculoFinanciamentodatavencto.AsDateTime := SomarDia(FDataVencto,(qryPlanosPagamentointervaloparcelas.AsInteger *
+                                                                                  FParcelas),'N');
+          qryCalculoFinanciamento.Post;
+        end;
+        FDataVencto:= qryCalculoFinanciamentodatavencto.AsDateTime;
+        FParcelas  := qryCalculoFinanciamentoparcela.AsInteger;
+        FPrestacao := qryCalculoFinanciamentoprestacao.AsInteger;
+        qryCalculoFinanciamento.Next;
+      end;
+    finally
+      qryCalculoFinanciamento.GotoBookmark(Pos);
+      qryCalculoFinanciamento.FreeBookmark(Pos);
+      qryCalculoFinanciamento.EnableControls;
+    end;
+  end;
+
+  procedure CalcularNovasParcelas;
+  Var
+    Dif: Integer;
+    Pos: TBookmark;
+    NrParcEhMaior: Boolean;
+  begin
+    Dif:= 0;
+    NrParcEhMaior:= False;
+    Pos:= qryCalculoFinanciamento.GetBookmark;
+    qryCalculoFinanciamento.DisableControls;
+    try
+      Dif:= qryCalculoFinanciamentoparcela.AsInteger - FNrParcelaAnterior;
+      while (Dif <> 0) and Not NrParcEhMaior do begin
+        if not qryCalculoFinanciamento.Eof then begin
+          qryCalculoFinanciamento.Next;
+          if qryCalculoFinanciamentoparcela.AsInteger > Dif then begin
+            qryCalculoFinanciamento.Edit;
+            if ParSistema.GerarParcelaSubstituicaoTributaria and (ValorSubstituicaoTributaria > 0) then
+              qryCalculoFinanciamentoparcela.AsInteger   := qryCalculoFinanciamentoparcela.AsInteger -
+                                                          (FParcelas - 1 - qryPlanosPagamentoquantidadeparcelas.AsInteger)
+            else
+              qryCalculoFinanciamentoparcela.AsInteger   := qryCalculoFinanciamentoparcela.AsInteger -
+                                                          (FParcelas - qryPlanosPagamentoquantidadeparcelas.AsInteger);
+            qryCalculoFinanciamento.Post;
+            if Dif > 0 then Dif:= Dif - (FNrParcelaAnterior - qryCalculoFinanciamentoparcela.AsInteger)
+            else            Dif:= Dif + (qryCalculoFinanciamentoparcela.AsInteger - FNrParcelaAnterior)
+          end;
+        end
+        else begin
+          MensagemAviso(ctEXCEDEUPARCELA);
+          NrParcEhMaior:= True;
+        end;
+      end;
+    finally
+      qryCalculoFinanciamento.GotoBookmark(Pos);
+      qryCalculoFinanciamento.FreeBookmark(Pos);
+      if NrParcEhMaior then begin
+        qryCalculoFinanciamento.Edit;
+        qryCalculoFinanciamentoparcela.AsInteger := (qryCalculoFinanciamentoparcela.AsInteger - Dif);
+        qryCalculoFinanciamento.Post;
+      end;
+      qryCalculoFinanciamento.EnableControls;
+      FPodeRecalcular := False;
+    end;
+  end;
+
+  function DataOK(Data: TDateTime; Tolerancia: Integer): TDateTime;
+  begin
+    if qryPlanosPagamentomestrintadias.AsBoolean then
+          Result:= SomarDia(Data,Tolerancia,'S')
+     else Result:= SomarDia(Data,Tolerancia,'N');
+  end;
+
+  procedure RetornaVenctoAnterior;
+  begin
+
+  end;
+
+Var
+  Dia,Mes,Ano: Word;
+  DataValida,
+  DataAux, OldDataVencto: TDateTime;
+  NrDias, OldNrParc: Integer;
+  AutentUsuario: TtecUsuarios;
+//  Dif:Currency;
+
+begin
+  if Assigned(Campo) then begin
+    dsrCalculoFinanciamento.OnDataChange:= nil;
+    if (Campo = qryCalculoFinanciamentoparcela) then begin
+      if FPodeReCalcular and not PrimeiraVez then begin
+        if (qryCalculoFinanciamentoparcela.AsInteger < 1) then begin
+          qryCalculoFinanciamento.Edit;
+          qryCalculoFinanciamentoparcela.AsInteger := 1;
+          qryCalculoFinanciamentotiporecebimento.AsInteger := qryPlanosPagamentotiporecebimento.AsInteger;
+          qryCalculoFinanciamentotiporeceb.AsString := qryPlanosPagamentodescricaotiporecebimento.AsString;
+
+          qryCalculoFinanciamento.Post;
+        end;
+        VerificarParcelas;
+        (*-----------------*)
+        if qryPlanosPagamentotaxamensaljuros.AsCurrency = 0 then
+          PosParcela := qryCalculoFinanciamento.GetBookmark;
+        (*-----------------*)
+        if (((FParcelas < qryPlanosPagamentoquantidadeparcelas.AsInteger)  and
+            not (ParSistema.GerarParcelaSubstituicaoTributaria and (ValorSubstituicaoTributaria > 0))) or
+            ((FParcelas <= qryPlanosPagamentoquantidadeparcelas.AsInteger)  and
+            (ParSistema.GerarParcelaSubstituicaoTributaria and (ValorSubstituicaoTributaria > 0)))) and
+           (qryCalculoFinanciamento.RecNo = qryCalculoFinanciamento.RecordCount) then begin
+            FPodeInserir:= True;
+            qryCalculoFinanciamento.Append;
+            qryCalculoFinanciamentoprestacao.AsInteger := FParcelas + 1;
+            if ParSistema.GerarParcelaSubstituicaoTributaria and (ValorSubstituicaoTributaria > 0) then
+              qryCalculoFinanciamentoparcela.AsInteger   := qryPlanosPagamentoquantidadeparcelas.AsInteger - FParcelas + 1
+            else
+              qryCalculoFinanciamentoparcela.AsInteger   := qryPlanosPagamentoquantidadeparcelas.AsInteger - FParcelas;
+            if qryPlanosPagamentomestrintadias.AsBoolean then
+              qryCalculoFinanciamentodatavencto.AsDateTime := SomarDia(FDataVencto, (qryPlanosPagamentointervaloparcelas.AsInteger *
+                                                                                     (FParcelas - FPrestacao + 1)),'S')
+            else
+              qryCalculoFinanciamentodatavencto.AsDateTime := SomarDia(FDataVencto, (qryPlanosPagamentointervaloparcelas.AsInteger *
+                                                                                     (FParcelas - FPrestacao + 1)),'N');
+
+            qryCalculoFinanciamentovalorvencto.AsCurrency:= (*RoundTo*)Truncar((Financiado / FTaxaAcumulada),2);
+            qryCalculoFinanciamentotiporecebimento.AsInteger := qryPlanosPagamentotiporecebimento.AsInteger;
+            qryCalculoFinanciamentotiporeceb.AsString := qryPlanosPagamentodescricaotiporecebimento.Asstring;
+
+            qryCalculoFinanciamento.Post;
+
+            Desconto:= 0;
+            if (qryPlanosPagamentotaxamensaljuros.AsFloat > 0) then
+              ArredondarValorParcela;
+
+            FPodeInserir:= False;
+        end
+        else if (((qryCalculoFinanciamento.RecNo = 2) or
+                 ((qryCalculoFinanciamento.RecNo = 1) and
+                  not (ParSistema.GerarParcelaSubstituicaoTributaria and (ValorSubstituicaoTributaria > 0)))) or
+                 ((qryCalculoFinanciamento.RecNo < qryCalculoFinanciamento.RecordCount) and
+                  not qryCalculoFinanciamentost.AsBoolean)) then begin
+//          if (FParcelas < qryPlanosPagamentoquantidadeparcelas.AsInteger) then
+          CalcularNovasParcelas;
+          DefinirNovosValoresCalculos;
+      //    CalcularNovosValoresParcela(True,False);
+        end
+        else begin
+          MensagemAviso(ctEXCEDEUPARCELA);
+          OldNrParc:= FNrParcelaAnterior;
+          qryCalculoFinanciamento.Edit;
+          qryCalculoFinanciamentoparcela.AsInteger := OldNrParc;
+          qryCalculoFinanciamentotiporecebimento.AsInteger := qryPlanosPagamentotiporecebimento.AsInteger;
+          qryCalculoFinanciamentotiporeceb.AsString := qryPlanosPagamentodescricaotiporecebimento.AsString;
+
+          qryCalculoFinanciamento.Post;
+        end;
+        (*-----------------*)
+        if qryPlanosPagamentotaxamensaljuros.AsCurrency = 0 then
+          AcertaValorParcelasSemJuros;
+          //AgruparParcelas(True, False);
+        (*-----------------*)
+        if Assigned(FAfterScrollCalculoFinanciamento) then
+          FAfterScrollCalculoFinanciamento(qryCalculoFinanciamento);
+      end;
+    end
+    else if ((Campo = qryCalculoFinanciamentovalorvencto) or
+             (Campo = qryCalculoFinanciamentodatavencto)) then begin
+      if FPodeReCalcular then begin
+        if (Campo = qryCalculoFinanciamentodatavencto) then begin
+          if not qryCalculoFinanciamentost.AsBoolean then
+          begin
+            qryCalculoFinanciamento.DisableControls;
+            try
+              DataValida := 0;
+              FDataVencto:= 0;
+              while not qryCalculoFinanciamento.Eof do begin
+                if FDataVencto <> 0 then begin
+                  qryCalculoFinanciamento.Edit;
+                  if qryPlanosPagamentomestrintadias.AsBoolean then
+                    qryCalculoFinanciamentodatavencto.AsDateTime := SomarDia(FDataVencto,(qryPlanosPagamentointervaloparcelas.AsInteger *
+                                                                                          FParcelas),'S')
+                  else
+                    qryCalculoFinanciamentodatavencto.AsDateTime := SomarDia(FDataVencto,(qryPlanosPagamentointervaloparcelas.AsInteger *
+                                                                                          FParcelas),'N');
+                  qryCalculoFinanciamentotiporecebimento.AsInteger := qryPlanosPagamentotiporecebimento.AsInteger;
+                  qryCalculoFinanciamentotiporeceb.AsString := qryPlanosPagamentodescricaotiporecebimento.Asstring;
+
+                  qryCalculoFinanciamento.Post;
+                end;
+
+                if (FDataVencto = 0) then begin
+                  if (qryCalculoFinanciamento.RecNo > 2) or
+                     ((qryCalculoFinanciamento.RecNo > 1) and
+                       not (ParSistema.GerarParcelaSubstituicaoTributaria and (ValorSubstituicaoTributaria > 0))) then begin
+                    qryCalculoFinanciamento.Prior;
+                    OldDataVencto:= qryCalculoFinanciamentodatavencto.AsDateTime;
+                    OldNrParc    := qryCalculoFinanciamentoparcela.AsInteger;
+                    qryCalculoFinanciamento.Next;
+
+                    if (qryCalculoFinanciamento.RecNo > 1) then
+                         DataValida:= DataOk(OldDataVencto, ((OldNrParc-1) * qryPlanosPagamentointervaloparcelas.AsInteger))
+                    else DataValida:= DataServidor;
+                  end
+                  else begin
+                    if DiaFixo then DataValida:= ValidarData
+                    else            DataValida:= DataServidor;
+                  end;
+                end;
+
+                DecodeDate(qryCalculoFinanciamentodatavencto.AsDateTime,Ano,Mes,Dia);
+                if ((DiaFixo and (Dia < qryPlanosPagamentoaposdia.AsInteger)) or
+                    (qryCalculoFinanciamentodatavencto.AsDateTime < DataValida)) then begin
+                  MensagemAviso(ctDATADEFINIDAINVALIDA);
+                  OldDataVencto:= FDataAnterior;
+                  qryCalculoFinanciamento.Edit;
+                  qryCalculoFinanciamentodatavencto.AsDateTime:= OldDataVencto;
+                  qryCalculoFinanciamentotiporecebimento.AsInteger := qryPlanosPagamentotiporecebimento.AsInteger;
+                  qryCalculoFinanciamentotiporeceb.AsString := qryPlanosPagamentodescricaotiporecebimento.AsString;
+
+                  qryCalculoFinanciamento.Post;
+                end
+                else begin
+                  OldDataVencto:= FDataAnterior;
+                  if ((qryCalculoFinanciamentoprestacao.AsInteger = 1)
+                      or
+                      ((qryCalculoFinanciamentoprestacao.AsInteger = 2) and
+                       (Parsistema.GerarParcelaSubstituicaoTributaria and (ValorSubstituicaoTributaria > 0)))) then
+                  begin
+                    if (qryCalculoFinanciamentodatavencto.AsDateTime > DataOK(DataServidor,qryPlanosPagamentoprazovenctoentrada.AsInteger +
+                                                                                          qryPlanosPagamentotoleranciaentrada.AsInteger)) then begin
+                      AutentUsuario:= ObterAutorizacao(taLOGIN, ctDATALIMITEPARCELA, ctANALISTACREDITO);
+                      if not Assigned(AutentUsuario) then
+                      begin
+                        qryCalculoFinanciamento.Edit;
+                        qryCalculoFinanciamentodatavencto.AsDateTime:= OldDataVencto;
+                        qryCalculoFinanciamentotiporecebimento.AsInteger := qryPlanosPagamentotiporecebimento.AsInteger;
+                        qryCalculoFinanciamentotiporeceb.AsString := qryPlanosPagamentodescricaotiporecebimento.AsString;
+
+                        qryCalculoFinanciamento.Post;
+                        MensagemAviso(Format(ctDATAMAXIMAPRIMEIRAPARCELA,[DateToStr(DataOK(DataServidor,(qryPlanosPagamentoprazovenctoentrada.AsInteger+qryPlanosPagamentotoleranciaentrada.AsInteger)))]));
+                      end
+                      else if not (AutentUsuario.AnalistaCredito) then
+                      begin
+                        qryCalculoFinanciamento.Edit;
+                        qryCalculoFinanciamentodatavencto.AsDateTime:= OldDataVencto;
+                        qryCalculoFinanciamentotiporecebimento.AsInteger := qryPlanosPagamentotiporecebimento.AsInteger;
+                        qryCalculoFinanciamentotiporeceb.AsString := qryPlanosPagamentoDescricaoTipoRecebimento.AsString;
+
+                        qryCalculoFinanciamento.Post;
+                        MensagemAviso(Format(ctDATAMAXIMAPRIMEIRAPARCELA,[DateToStr(DataOK(DataServidor,(qryPlanosPagamentoprazovenctoentrada.AsInteger+qryPlanosPagamentotoleranciaentrada.AsInteger)))]));
+                      end;
+                    end;
+                  end
+                  else begin
+                    qryCalculoFinanciamento.Prior;
+                    DataAux:= DataOk(qryCalculoFinanciamentodatavencto.AsDateTime,
+                                     ((qryCalculoFinanciamentoparcela.AsInteger -1) * qryPlanosPagamentointervaloparcelas.AsInteger));
+                    qryCalculoFinanciamento.Next;
+  //                    if (qryCalculoFinanciamentodatavencto.AsDateTime < DataOK(DataAux,qryPlanosPagamentointervaloparcelas.AsInteger)) then begin
+  //                    MensagemAviso('Data definida para a ' + IntToStr(qryCalculoFinanciamentoprestacao.AsInteger) + ' parcela inválida.' +#10#13 +
+  //                                  'Mínimo de dias entre as parcelas: ' + IntToStr(qryPlanosPagamentointervaloparcelas.AsInteger) + ' dias.');
+  //                    qryCalculoFinanciamento.Edit;
+  //                    qryCalculoFinanciamentodatavencto.AsDateTime:= OldDataVencto;
+  //                    qryCalculoFinanciamento.Post;
+  //                  end
+  //                  else begin
+                      NrDias:= qryPlanosPagamentointervaloparcelas.AsInteger + qryPlanosPagamentotoleranciaentreparcelas.AsInteger;
+                      if (qryCalculoFinanciamentodatavencto.AsDateTime > DataOK(DataAux,NrDias)) then begin
+                        MensagemAviso(Format(ctDATAMAXIMAPARCELA,[IntToStr(qryCalculoFinanciamentoprestacao.AsInteger),DateToStr(DataOK(DataAux,NrDias))]));
+                        qryCalculoFinanciamento.Edit;
+                        qryCalculoFinanciamentodatavencto.AsDateTime:= OldDataVencto;
+                        qryCalculoFinanciamentotiporecebimento.AsInteger := qryPlanosPagamentotiporecebimento.AsInteger;
+                        qryCalculoFinanciamentotiporeceb.AsString := qryPlanosPagamentoDescricaoTipoRecebimento.AsString;
+
+                        qryCalculoFinanciamento.Post;
+                      end;
+  //                  end;
+                  end;
+                end;
+                FDataVencto:= qryCalculoFinanciamentodatavencto.AsDateTime;
+                FParcelas  := qryCalculoFinanciamentoparcela.AsInteger;
+                qryCalculoFinanciamento.Next;
+              end;
+            finally
+  //            qryCalculoFinanciamento.GotoBookmark(Pos);
+  //            qryCalculoFinanciamento.FreeBookmark(Pos);
+              qryCalculoFinanciamento.EnableControls
+            end;
+            if qryPlanosPagamentotaxamensaljuros.AsCurrency > 0 then
+              CalcularNovosValoresParcela(False,True);
+          end;
+        end
+        else if (Campo = qryCalculoFinanciamentovalorvencto) then begin
+          if not qryCalculoFinanciamentost.AsBoolean then
+          begin
+            //try
+              //qryCalculoFinanciamento.DisableControls;
+              PosParcela := qryCalculoFinanciamento.GetBookmark;
+              {if qryPlanosPAgamentotaxamensaljuros.AsCurrency = 0 then
+                if qryCalculoFinanciamento.RecNo < qryCalculoFinanciamento.RecordCount then
+                  if qryCalculoFinanciamentovalorvencto.AsCurrency < FValorParcelaAnterior then
+                  begin
+                    Dif := (FValorParcelaAnterior * qryCalculoFinanciamentoparcela.AsInteger) - (qryCalculoFinanciamentovalorvencto.AsCurrency * qryCalculoFinanciamentoparcela.AsInteger);
+                    qryCalculoFinanciamento.Next;
+                    qryCalculoFinanciamento.Edit;
+                    qryCalculoFinanciamentovalorvencto.AsCurrency := Truncar(qryCalculoFinanciamentovalorvencto.AsCurrency + (Dif / qryCalculoFinanciamentoparcela.AsInteger),2);
+                    qryCalculoFinanciamento.Post;
+                    qryCalculoFinanciamento.Prior;
+                  end
+                  else if qryCalculoFinanciamentovalorvencto.AsCurrency > FValorParcelaAnterior then
+                  begin
+                    Dif := (qryCalculoFinanciamentovalorvencto.AsCurrency * qryCalculoFinanciamentoparcela.AsInteger) - (FValorParcelaAnterior * qryCalculoFinanciamentoparcela.AsInteger);
+                    qryCalculoFinanciamento.Next;
+                    qryCalculoFinanciamento.Edit;
+                    qryCalculoFinanciamentovalorvencto.AsCurrency := Truncar(qryCalculoFinanciamentovalorvencto.AsCurrency - (Dif / qryCalculoFinanciamentoparcela.AsInteger),2);
+                    qryCalculoFinanciamento.Post;
+                    qryCalculoFinanciamento.Prior;
+                  end;
+                  }
+            //finally
+            //  qrycalculoFinanciamento.EnableControls;
+            //end;
+{            if (qryPlanosPagamentotaxamensaljuros.AsCurrency = 0) and
+               (qryCalculoFinanciamento.RecNo < qryCalculoFinanciamento.RecordCount) then
+              AgruparParcelas(true,false) //CalcularNovosValoresParcela(True,False)
+            else
+              AgruparParcelas(false,false); //CalcularNovosValoresParcela(False,False);}
+            if qryPlanosPagamentotaxamensaljuros.AsCurrency = 0 then
+              AcertaValorParcelasSemJuros
+            else
+              CalcularNovosValoresParcela(False,False);
+            CalcularDesconto;
+            if Desconto < 0 then Desconto := 0;
+          end
+          else
+            MensagemAviso('Não é permitido alterar a parcela gerada para cobrança da substituição tributária!');
+        end;
+        if Validar_Valores then begin
+          if ValidaValores then
+            ValidarDesconto;
+        end;
+        FPodeReCalcular:= False;
+        if Assigned(FAfterScrollCalculoFinanciamento) then
+          FAfterScrollCalculoFinanciamento(qryCalculoFinanciamento);
+      end;
+    end
+    else if (Campo = qryCalculoFinanciamentotiporecebimento) then
+    begin
+      if FPodeRecalcular then
+        if (not qryPlanosPagamentoalterartiporecebimento.AsBoolean) and
+           (qryCalculoFinanciamentotiporecebimento.AsInteger <> 0)  and
+           (qryCalculoFinanciamentotiporecebimento.AsInteger <> qryPlanosPagamentotiporecebimento.AsInteger) then
+          MensagemAviso(ctSEMPERMISSAOTIPORECEBIMENTO);
+//      qryCalculoFinanciamentoformapagamento.AsString := qryTiposRecebimentostiporecebimento.AsString;
+    end
+{    else if (Campo = qryCalculoFinanciamentotiporeceb) then
+    begin
+      qryCalculoFinanciamentoformapagamento.AsString := qryTiposRecebimentostiporecebimento.AsString;
+    end};
+    dsrCalculoFinanciamento.OnDataChange:= dsrCalculoFinanciamentoDataChange;
+//    if (Field = qryCalculoFinanciamentoparcela) and not PrimeiraVez then
+//      ValidarTotalParcelasComTotalFinanciado;
+  end;
+end;
+
+procedure TdtmCalculoFinanciamento.dsrCalculoFinanciamentoDataChange(Sender: TObject; Field: TField);
+begin
+  inherited;
+  ValidarValoresRedefinidos(Field, True);
+end;
+
+function TdtmCalculoFinanciamento.ExistePlanoPagamento(Campo, Codigo: string): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaPlanosPagamento,Campo,Codigo);
+end;
+
+procedure TdtmCalculoFinanciamento.FechaTabelaConsulta;
+begin
+  Fecha(ctVendaTabelaConsultaPlanos);
+end;
+
+function TdtmCalculoFinanciamento.GetAcrescimo: Real;
+begin
+  if qryCalculoFinanciamento.RecordCount = 0 then
+    Result:= 0
+  else
+    Result:= Futuro - Financiado + Desconto;
+end;
+
+function TdtmCalculoFinanciamento.GetFinanciado: Currency;
+begin
+  Result:= FValorMercadoria + FValorFrete + FValorSeguro - FCreditoTroca;
+  if not ParSistema.CalcularSubstituicaoTributarianoContrato then
+    Result:= Result + FValorSubstituicaoTributaria;
+
+//  Result:= FValorMercadoria + FValorFrete + FValorSeguro;
+end;
+
+function TdtmCalculoFinanciamento.GetFuturo: Currency;
+var
+  I,T : Integer;
+  Pos : TBookmark;
+  Fut : Currency;
+begin
+  Fut := 0;
+  Pos := qryCalculoFinanciamento.GetBookmark;
+  qryCalculoFinanciamento.DisableControls;
+  try
+    T:=qryCalculoFinanciamento.RecordCount;
+    qryCalculoFinanciamento.First;
+    for I:= 1 to T do begin
+      if not qryCalculoFinanciamentost.AsBoolean then
+        Fut := Fut + (qryCalculoFinanciamentovalorvencto.AsCurrency * qryCalculoFinanciamentoparcela.AsInteger);
+      qryCalculoFinanciamento.Next;
+    end;
+  finally
+    qryCalculoFinanciamento.GotoBookmark(Pos);
+    qryCalculoFinanciamento.FreeBookmark(Pos);
+    qryCalculoFinanciamento.EnableControls;
+  end;
+  Result := Fut;
+end;
+
+function TdtmCalculoFinanciamento.GetPlanoUsando: Integer;
+begin
+  if ParSistema.CalculoComTodosPlanos then
+  begin
+    if TipoCalculo = tcCOMENTRADA then
+      Result := qryPlanosComEntradacodigo.AsInteger
+    else
+      Result := qryPlanosSemEntradacodigo.AsInteger;
+  end
+  else
+    Result := qryPlanosPagamentocodigo.AsInteger
+end;
+
+function TdtmCalculoFinanciamento.GetPodeAlterarValorParcelas: Boolean;
+begin
+  Result:= qryPlanosPagamentoalterarvalor.AsBoolean;
+end;
+
+function TdtmCalculoFinanciamento.GetPodeAlterarVenctosParcelas: Boolean;
+begin
+  Result:= qryPlanosPagamentoalterarvencimento.AsBoolean;
+end;
+
+function TdtmCalculoFinanciamento.GetPorcentagem: Real;
+begin
+  if Financiado > 0 then
+    Result:= RoundTo(((Desconto+DescontoItem) / Financiado) * 100,-2)
+  else
+    Result:= 0;
+end;
+
+function TdtmCalculoFinanciamento.GetTabelaConsultaPlano: TZDataset;
+begin
+  Result:= qryConsultaPlanosPagamento;
+end;
+
+function TdtmCalculoFinanciamento.GetTaxaJurosMensal: Real;
+begin
+  if ParSistema.CalculoComTodosPlanos then
+    if TipoCalculo = tcCOMENTRADA then
+      Result := qryPlanosComEntradataxamensaljuros.AsFloat
+    else
+      Result := qryPlanosSemEntradataxamensaljuros.AsFloat
+  else
+    Result := qryPlanosPagamentotaxamensaljuros.AsFloat
+end;
+
+function TdtmCalculoFinanciamento.GetVista: Currency;
+begin
+  Result:= Financiado - Desconto;
+end;
+
+procedure TdtmCalculoFinanciamento.LimparTabelas;
+begin
+  LimparTabela(qryCalculoFinanciamento);//ReFazConsulta(qryCalculoFinanciamento,[0],['']);
+  LimparTabela(qryPlanosPagamento);     //ReFazConsulta(qryPlanosPagamento,[0],[0]);
+  if ParSistema.CalculoComTodosPlanos then begin
+    qryPlanosSemEntrada.Close;
+    qryPlanosComEntrada.Close;
+  end;
+end;
+
+function TdtmCalculoFinanciamento.PreencherValores(Calcular: Boolean;
+  Plano: Integer; Parcelas: TResumosParcelas;
+  Grupos, Classes: vstring): TtecTipoCalculo;
+var
+  a: Integer;
+  ComEntrada,
+  SemEntrada: Boolean;
+  ParcAnt, PrestAnt: Integer;
+begin
+  if ParSistema.CalculoComTodosPlanos then begin
+    CalcularDescontoZeroDosPLanos;
+    JaFoiCalculadoTodosPlanos:=False;
+    ComEntrada := qryPlanosComEntrada.Locate('codigo', Plano, []);
+    SemEntrada := qryPlanosSemEntrada.Locate('codigo', Plano, []);
+    JaFoiCalculadoTodosPlanos:=True;
+    if ComEntrada then begin
+      Result := tcCOMENTRADA;
+      TipoCalculo := tcCOMENTRADA;
+      ReFazConsulta(qryPlanosPagamento, [0], [Plano]);
+    end else if SemEntrada then begin
+      Result := tcSEMENTRADA;
+      TipoCalculo := tcSEMENTRADA;
+      ReFazConsulta(qryPlanosPagamento, [0], [Plano]);
+    end else begin
+      Result := tcNENHUM;
+      TipoCalculo := tcNENHUM
+    end
+  end else begin
+    ComEntrada := False;
+    SemEntrada := False;
+    Result := tcNENHUM;
+    qryPlanosPagamento.Params[1].AsCurrency         := ValorMercadoria;
+    qryConsultaPlanosPagamento.Params[0].AsCurrency := ValorMercadoria;
+    ReFazConsulta(qryPlanosPagamento, [0], [Plano]);
+    LimparTabela(qryCalculoFinanciamento)//ReFazConsulta(qryCalculoFinanciamento, [0], [0])
+  end;
+  if ComEntrada or SemEntrada or (Not ParSistema.CalculoComTodosPlanos and (qryPlanosPagamento.RecordCount > 0)) then begin
+    PrimeiraVez := True;
+    LimparTabela(qryCalculoFinanciamento);
+    ParcAnt  := 1;
+    PrestAnt := 0;
+    FPodeInserir:= True;
+    for a := 0 to High(Parcelas) do begin
+      qryCalculoFinanciamento.Append;
+      qryCalculoFinanciamentodatavencto.AsDateTime := Parcelas[a].Vencimento;
+      qryCalculoFinanciamentovalorvencto.AsCurrency:= Parcelas[a].Valor;
+      qryCalculoFinanciamentoparcela.AsInteger     := Parcelas[a].Parcelas;
+      qryCalculoFinanciamentoformapagamento.AsString := Parcelas[a].FormaPagamento;
+      qryCalculoFinanciamentotiporecebimento.AsInteger := Parcelas[a].TipoRecebimento;
+      qryCalculoFinanciamentotiporeceb.AsString := Parcelas[a].DescricaoTipoRecebimento;
+
+      qryCalculoFinanciamentost.AsBoolean := Parcelas[a].Substituicao;
+      qryCalculoFinanciamentoprestacao.AsInteger   := ParcAnt + PrestAnt;
+      qryCalculoFinanciamento.Post;
+      PrestAnt := qryCalculoFinanciamentoprestacao.AsInteger;
+      ParcAnt  := Parcelas[a].Parcelas;
+    end;
+    FPodeInserir:= False;
+    PrimeiraVez := False;
+    if Calcular then
+    begin
+      if ComEntrada then
+        qryPlanosComEntradaAfterScroll(qryPlanosComEntrada)
+      else if SemEntrada then
+        qryPlanosSemEntradaAfterScroll(qryPlanosSemEntrada);
+    end;
+    qryCalculoFinanciamento.EnableControls;
+  end;
+end;
+
+procedure TdtmCalculoFinanciamento.qryCalculoFinanciamentoAfterInsert(DataSet: TDataSet);
+begin
+  inherited;
+  if not FPodeInserir then
+    qryCalculoFinanciamento.Cancel;
+end;
+
+procedure TdtmCalculoFinanciamento.qryCalculoFinanciamentoBeforeInsert(DataSet: TDataSet);
+begin
+  inherited;
+  FPodeReCalcular:= False;
+end;
+
+procedure TdtmCalculoFinanciamento.qryPlanosComEntradaAfterInsert(DataSet: TDataSet);
+begin
+  inherited;
+  qryPlanosComEntrada.Cancel;
+end;
+
+procedure TdtmCalculoFinanciamento.qryPlanosComEntradaAfterScroll(DataSet: TDataSet);
+begin
+  if JaFoiCalculadoTodosPlanos then begin
+    dsrCalculoFinanciamento.OnDataChange := nil;
+    if qryPlanosComEntradaCodigo.AsInteger > 0 then
+      ReFazConsulta(qryPlanosPagamento,[0],[qryPlanosComEntradaCodigo.AsInteger]);
+    CalcularValores;
+
+    if Assigned(FAfterScrollCalculoFinanciamento) then
+      FAfterScrollCalculoFinanciamento(qryCalculoFinanciamento);
+    dsrCalculoFinanciamento.OnDataChange := dsrCalculoFinanciamentoDataChange;
+  end;
+end;
+
+procedure TdtmCalculoFinanciamento.qryPlanosSemEntradaAfterInsert(DataSet: TDataSet);
+begin
+  inherited;
+  qryPlanosSemEntrada.Cancel;
+end;
+
+procedure TdtmCalculoFinanciamento.qryPlanosSemEntradaAfterScroll(DataSet: TDataSet);
+begin
+  if JaFoiCalculadoTodosPlanos then begin
+    if qryPlanosSemEntradaCodigo.AsInteger > 0 then
+      ReFazConsulta(qryPlanosPagamento,[0],[qryPlanosSemEntradaCodigo.AsInteger]);
+    CalcularValores;
+
+    if Assigned(FAfterScrollCalculoFinanciamento) then
+      FAfterScrollCalculoFinanciamento(qryCalculoFinanciamento);
+  end;                                                              
+end;
+
+procedure TdtmCalculoFinanciamento.ReCalcular;
+var
+  A       : Integer;
+  Pos     : TBookmark;
+  Achou   : Boolean;
+  DataAux : TDateTime;
+begin
+  FPodeReCalcular:= False;
+  ZerarVariaveis;
+  Achou   := False;
+  Pos:= qryCalculoFinanciamento.GetBookmark;
+  qryCalculoFinanciamento.DisableControls;
+  try
+    if DiaFixo then
+      DataAux:= ValidarData
+    else begin
+      if qryPlanosPagamentodiavenctoentrada.AsDateTime = 0 then begin
+        if (qryPlanosPagamentoprazovenctoentrada.AsInteger = 30) and qryPlanosPagamentomestrintadias.AsBoolean then
+             DataAux:= SomarDia(StrToDate(FDataCalculo),30,'S')
+        else DataAux:= SomarDia(StrToDate(FDataCalculo),qryPlanosPagamentoprazovenctoentrada.AsInteger,'N');
+      end
+      else   DataAux:= qryPlanosPagamentodiavenctoentrada.AsDateTime;
+    end;
+
+    FPrestacao:= 1; FDataVencto:= DataAux;
+
+    qryCalculoFinanciamento.First;
+    for A:= 1 to qryCalculoFinanciamento.RecordCount do begin
+      if not Achou then  begin
+        qryCalculoFinanciamento.Edit;
+        if (qryCalculoFinanciamento.CompareBookmarks(Pos,qryCalculoFinanciamento.GetBookmark) = 0) or
+          Achou then begin
+          if not Achou then BookMarkParcela:= qryCalculoFinanciamentoprestacao.AsInteger;
+            qryCalculoFinanciamentoprestacao.AsInteger   := FPrestacao + FParcelas;
+            qryCalculoFinanciamentoparcela.AsInteger     := (qryPlanosPagamentoquantidadeparcelas.AsInteger -
+                                                            (FPrestacao + FParcelas-1));
+            if qryPlanosPagamentomestrintadias.AsBoolean then
+              qryCalculoFinanciamentodatavencto.AsDateTime := SomarDia(FDataVencto, (qryPlanosPagamentointervaloparcelas.AsInteger *
+                                                                                     (FParcelas)),'S')
+            else
+              qryCalculoFinanciamentodatavencto.AsDateTime := SomarDia(FDataVencto, (qryPlanosPagamentointervaloparcelas.AsInteger *
+                                                                                     (FParcelas)),'N');
+
+            qryCalculoFinanciamentovalorvencto.AsCurrency:= (*RoundTo*)Truncar((Financiado / FTaxaAcumulada),2);
+            Achou:= True;
+        end;
+        qryCalculoFinanciamento.Post;
+      end
+      else qryCalculoFinanciamento.Delete;
+
+      FPrestacao  := qryCalculoFinanciamentoprestacao.AsInteger;
+      FParcelas   := qryCalculoFinanciamentoparcela.AsInteger;
+      FDataVencto := qryCalculoFinanciamentodatavencto.AsDateTime;
+      qryCalculoFinanciamento.Next;
+    end;
+//    CalcularNovosValoresParcela(True,False);
+  finally
+    qryCalculoFinanciamento.GotoBookmark(Pos);
+    qryCalculoFinanciamento.FreeBookmark(Pos);
+    qryCalculoFinanciamento.EnableControls;
+  end;
+  CalcularNovosValoresParcela(True,False);
+end;
+
+procedure TdtmCalculoFinanciamento.ReFazConsultaPlanoPagamento;
+begin
+  if TipoCalculo = tcSEMENTRADA then
+    ReFazConsulta(qryPlanosPagamento,[0],[qryPlanosSemEntradacodigo.AsInteger])
+  else if TipoCalculo = tcCOMENTRADA then
+    ReFazConsulta(qryPlanosPagamento,[0],[qryPlanosComEntradacodigo.AsInteger])
+  else
+    ReFazConsulta(qryPlanosPagamento, [], []);
+end;
+
+procedure TdtmCalculoFinanciamento.ResumosParcelas(var Parcelas: TResumosParcelas;
+  var ValorPrazo, TaxaJurosMensal, Desconto: Real; var Plano: Integer);
+var
+  Pos: TBookmark;
+  a: Integer;
+begin
+  SetLength(parcelas, qryCalculoFinanciamento.RecordCount);
+  qryCalculoFinanciamento.DisableControls;
+  POs := qryCalculoFinanciamento.GetBookmark;
+  ValorPrazo := Futuro;
+  TaxaJurosMensal  := GetTaxaJurosMensal;
+  Desconto   := Self.Desconto;
+  if Plano = 0 then
+    Plano      := GetPlanoUsando;
+  try
+    a := 0;
+    qryCalculoFinanciamento.First;
+    while not qryCalculoFinanciamento.Eof do begin
+      Parcelas[a].Parcelas   := qryCalculoFinanciamentoparcela.AsInteger;
+      Parcelas[a].Vencimento := qryCalculoFinanciamentodatavencto.AsDateTime;
+      Parcelas[a].Valor      := qryCalculoFinanciamentovalorvenctocomst.AsCurrency;
+      Parcelas[a].FormaPagamento := qryCalculoFinanciamentoformapagamento.AsString;
+      Parcelas[a].TipoRecebimento:= qryCalculoFinanciamentotiporecebimento.AsInteger;
+      Parcelas[a].DescricaoTipoRecebimento:= qryCalculoFinanciamentotiporeceb.AsString;
+      Parcelas[a].Substituicao   := qryCalculoFinanciamentost.AsBoolean;
+      qryCalculoFinanciamento.Next;
+      Inc(a)
+    end
+  finally
+    qryCalculoFinanciamento.GotoBookmark(Pos);
+    qryCalculoFinanciamento.FreeBookmark(Pos);
+    qryCalculoFinanciamento.EnableControls;
+  end
+end;
+
+procedure TdtmCalculoFinanciamento.Selecionar;
+begin
+  ReFazConsulta(qryPlanosPagamento,[0],[qryConsultaPlanosPagamentocodigo.AsInteger]);
+end;
+
+procedure TdtmCalculoFinanciamento.SetDataCalculo(const Value: String);
+begin
+  if FDataCalculo <> Value then
+    FDataCalculo:= Value;
+  if DataEmBranco(FDataCalculo) then FDataCalculo:= '';
+end;
+
+procedure TdtmCalculoFinanciamento.SetDesconto(const Value: Currency); //
+begin
+  if FDesconto <> Value then
+    FDesconto := Value;
+end;
+
+procedure TdtmCalculoFinanciamento.SetPodeReCalcular(const Value: Boolean);
+begin
+  if qryCalculoFinanciamento.State = dsEdit then
+    FPodeReCalcular := Value;
+end;
+
+procedure TdtmCalculoFinanciamento.SetValorFrete(const Value: Currency);
+begin
+  if FValorFrete <> Value then
+    FValorFrete:= Value;
+end;
+
+procedure TdtmCalculoFinanciamento.SetValorMercadoria(const Value: Currency);
+begin
+  if FValorMercadoria <> Value then begin
+    FValorMercadoria:= Value;
+    if ParSistema.CalculoComTodosPlanos then begin
+      qryPlanosComEntrada.Params[0].AsCurrency := FValorMercadoria;
+      qryPlanosSemEntrada.Params[0].AsCurrency := FValorMercadoria;
+    end else
+      qryConsultaPlanosPagamento.Params[0].AsCurrency := FValorMercadoria;
+    qryPlanosPagamento.Params[1].AsCurrency := FValorMercadoria;
+  end
+end;
+
+procedure TdtmCalculoFinanciamento.SetValorSeguro(const Value: Currency);
+begin
+  if FValorSeguro <> Value then
+    FValorSeguro:= Value;
+end;
+
+function TdtmCalculoFinanciamento.ValidaValores: Boolean;
+var
+  Pos  : TBookmark;
+  I,T  : Integer;
+  aux,
+  TaxaDia: Real;
+  ValorParcMin,
+  ValorPrimParc: Currency;
+  Total: Currency;
+
+begin
+  Result := True;
+  Pos:= qryCalculoFinanciamento.GetBookmark;
+  qryCalculoFinanciamento.DisableControls;
+  try
+    Total := 0;
+    T:=qryCalculoFinanciamento.RecordCount;
+    qryCalculoFinanciamento.First;
+    for I:= 1 to T do begin
+      Total:= Total +
+              (qryCalculoFinanciamentovalorvencto.AsCurrency * qryCalculoFinanciamentoparcela.AsInteger);
+      if I = 1 then begin
+        ValorParcMin  := (*RoundTo*)Truncar((qryPlanosPagamentoporcentagementrada.AsCurrency * Financiado / 100),2);
+        TaxaDia       := tecFinanceira.TaxaDiaria(qryPlanosPagamentotaxamensaljuros.AsFloat);
+        Aux           := Power(TaxaDia, DaysBetween(qryCalculoFinanciamentodatavencto.AsDateTime, StrToDate(DataCalculo)));
+        ValorPrimParc := (*RoundTo*)Truncar((qryCalculoFinanciamentovalorvencto.AsCurrency / Aux),2);
+        if (ValorPrimParc < ValorParcMin) then begin
+          MensagemAviso(Format(ctVALORPRIMEIRAPARCELA,[Format('%5.2f', [qryPlanosPagamentoporcentagementrada.AsFloat]) + '%']));
+          Result := False;
+          Break;
+        end
+      end;
+      if (qryCalculoFinanciamentovalorvencto.AsCurrency < qryPlanosPagamentovalorminimoparcela.AsCurrency) then begin
+         MensagemAviso(Format(ctPARCELAMINIMA,[Format('%8.2m', [qryPlanosPagamentovalorminimoparcela.AsCurrency])]));
+         Result := False;
+         Break;
+      end;
+
+      if ParSistema.Obrigartipoderecebimentonocalculodefinanciamento then
+      begin
+        if qryCalculoFinanciamentotiporecebimento.AsInteger=0 then
+        begin
+          MensagemAviso(ctPARCELASEMTIPODERECEBIMENTO);
+          Result := False;
+          Break;
+        end;
+      end;
+
+      qryCalculoFinanciamento.Next;
+    end;
+  finally
+    qryCalculoFinanciamento.GotoBookmark(Pos);
+    qryCalculoFinanciamento.FreeBookmark(Pos);
+    qryCalculoFinanciamento.EnableControls;
+  end;
+//  if Result then
+//    Result:= ValidarDesconto;
+end;
+
+
+function TdtmCalculoFinanciamento.ValidarDesconto: Boolean;
+begin
+  Result:= True;
+  if (Porcentagem > 0) and not PermiteDesconto then
+  begin
+    MensagemAviso(ctSEMPREMISSAODESCONTO);
+    //Desconto:= 0;
+    Result  := False;
+  end
+  else begin
+    if (Porcentagem > DescontoMaximo) then begin
+      MensagemAviso(ctDESCONTOMAXIMOEXCEDIDO);
+      Result := False;
+    end;
+  end;
+end;
+
+function TdtmCalculoFinanciamento.ValorMercadoriaEhValido: Boolean;
+begin
+  Result:= False;
+  if (FValorMercadoria < qryPlanosPagamentocompraminima.AsCurrency)   or
+     ((qryPlanosPagamentocompramaxima.AsCurrency > 0)                 and
+      (FValorMercadoria > qryPlanosPagamentocompramaxima.AsCurrency)) then
+      MensagemAviso(Format(ctVALORCOMPRAMINIMAMAXIMA,[Format('%8.2m', [qryPlanosPagamentocompraminima.AsCurrency]),
+                                                      Format('%8.2m', [qryPlanosPagamentocompramaxima.AsCurrency])]))
+  else
+    Result:= True;
+end;
+
+procedure TdtmCalculoFinanciamento.ZerarVariaveis;
+begin
+  FParcelas       := 0;
+  FDataVencto     := 0;
+  FPrestacao      := 0;
+  FValorPrestacoes:= 0;
+end;
+
+procedure TdtmCalculoFinanciamento.qryCalculoFinanciamentoBeforeEdit(DataSet: TDataSet);
+begin
+  inherited;
+  FNrParcelaAnterior := qryCalculoFinanciamentoparcela.AsInteger;
+  FDataAnterior      := qryCalculoFinanciamentodatavencto.AsDateTime;
+  FValorParcelaAnterior:= qryCalculoFinanciamentovalorvencto.AsCurrency;
+end;
+
+function TdtmCalculoFinanciamento.GetPodeAlterarCalculos: Boolean;
+begin
+  Result:= qryCalculoFinanciamento.RecordCount > 0;
+end;
+
+procedure TdtmCalculoFinanciamento.GravarCalculo;
+begin
+  dsrCalculoFinanciamento.OnDataChange:= nil;
+  PodeReCalcular:= True;
+  if qryCalculoFinanciamento.State = dsEdit then
+    qryCalculoFinanciamento.Post;
+  dsrCalculoFinanciamento.OnDataChange:= dsrCalculoFinanciamentoDataChange;
+end;
+
+procedure TdtmCalculoFinanciamento.SetCreditoTroca(const Value: Currency);
+begin
+  if FCreditoTroca <> Value then
+    FCreditoTroca := Value;
+end;
+
+function TdtmCalculoFinanciamento.GetTaxaJurosAnual: Real;
+begin
+  if ParSistema.CalculoComTodosPlanos then
+    if TipoCalculo = tcCOMENTRADA then
+      Result := qryPlanosComEntradataxaanualjuros.AsFloat
+    else
+      Result := qryPlanosSemEntradataxaanualjuros.AsFloat
+  else
+    Result := qryPlanosPagamentotaxaanualjuros.AsFloat
+end;
+
+function TdtmCalculoFinanciamento.LocalizaPlanoPadrao(
+  PlanoPadrao: Integer): Boolean;
+begin
+  result := qryPlanosComEntrada.Locate('codigo',PlanoPadrao,[]) or
+            qryPlanosSemEntrada.Locate('codigo',PlanoPadrao,[]);
+end;
+
+procedure TdtmCalculoFinanciamento.SetValorSubstituicaoTributaria(
+  const Value: Currency);
+begin
+  if FValorSubstituicaoTributaria <> Value then
+    FValorSubstituicaoTributaria := Value;
+
+  if Value > 0 then
+  begin
+    if ParSistema.CalculoComTodosPlanos then begin
+      qryPlanosComEntrada.Params[0].AsCurrency := FValorMercadoria + FValorSubstituicaoTributaria;
+      qryPlanosSemEntrada.Params[0].AsCurrency := FValorMercadoria + FValorSubstituicaoTributaria;
+    end else
+      qryConsultaPlanosPagamento.Params[0].AsCurrency := FValorMercadoria + FValorSubstituicaoTributaria;
+    qryPlanosPagamento.Params[1].AsCurrency := FValorMercadoria + FValorSubstituicaoTributaria;
+  end;
+end;
+
+function TdtmCalculoFinanciamento.GetPodeAlterarTipoRecebimento: Boolean;
+begin
+  Result := qryPlanosPagamentoalterartiporecebimento.AsBoolean;
+end;
+
+procedure TdtmCalculoFinanciamento.AcertaValorParcelasSemJuros;
+type
+//    PParcelas = ^TParcelas;
+  TParcelas = Record
+     Prestacao   : Integer;
+     Parcela     : Integer;
+     Data        : TDateTime;
+     Valor       : Currency;
+     Pagamento   : String;
+     Recebimento : String;
+     DescricaotipoRecebimento : String;
+     Substituicao: Boolean;
+  end;
+
+var
+  NPsAcumulado, X, i: Integer;
+  VlrAcumulado,
+  SomaParcelasArray,
+  Dif: Currency;
+  A: Array of TParcelas;
+
+begin
+  try
+    NPsAcumulado := 0;
+    VlrAcumulado := 0.00;
+    qryCalculoFinanciamento.DisableControls;
+    qryCalculoFinanciamento.First;
+    while not qryCalculoFinanciamento.Eof do
+    begin
+      if not qryCalculoFinanciamentost.AsBoolean then
+      begin
+        NPsAcumulado := NPsAcumulado + qryCalculoFinanciamentoparcela.AsInteger;
+        VlrAcumulado := VlrAcumulado + (qryCalculoFinanciamentovalorvencto.AsCurrency * qryCalculoFinanciamentoparcela.AsInteger);
+
+        if qryCalculoFinanciamento.CompareBookmarks(qryCalculoFinanciamento.GetBookmark,PosParcela) = 0 then
+        begin
+          qryCalculoFinanciamento.Next;
+          Break;
+        end;
+      end;
+      qryCalculoFinanciamento.Next;
+    end;
+
+    // CRIA ARRAY DE TAMANHO IGUAL AO NUMERO DE PARCELAS RESTANTES E RATEAR O VALOR RESTANTE
+    X := qryPlanosPagamentoquantidadeparcelas.AsInteger - NPsAcumulado;
+    if X > 0 then
+    begin
+      SomaParcelasArray := 0;
+      SetLength(A,X);
+      for i:=0 to X-1 do
+      begin
+        A[i].Prestacao   := qryCalculoFinanciamentoprestacao.AsInteger;
+        A[i].Parcela     := qryCalculoFinanciamentoparcela.AsInteger;
+        A[i].Data        := qryCalculoFinanciamentodatavencto.AsDateTime;
+        A[i].Valor       := Truncar((Financiado-VlrAcumulado)/X,2);
+        SomaParcelasArray:= SomaParcelasArray + A[i].Valor;
+        A[i].Pagamento   := qryCalculoFinanciamentoformapagamento.AsString;
+        A[i].Recebimento := qryCalculoFinanciamentotiporecebimento.AsString;
+        A[i].DescricaotipoRecebimento := qryCalculoFinanciamentotiporeceb.AsString;
+        A[i].Substituicao:= qryCalculoFinanciamentost.AsBoolean;
+      end;
+
+      Dif := (Financiado-VlrAcumulado) - SomaParcelasArray;
+      i := 0;
+      while Dif > 0 do
+      begin
+        A[i].Valor := A[i].Valor + 0.01;
+        Dif := Dif - 0.01;
+        if i = X-1 then
+          i := 0
+        else
+          Inc(i);
+      end;
+
+      //APAGA OS REGISTROS ATE ENCONTRAR O ALTERADO
+      qryCalculoFinanciamento.Last;
+      while qryCalculoFinanciamento.CompareBookmarks(qryCalculoFinanciamento.GetBookmark,PosParcela) > 0 do
+        qryCalculoFinanciamento.Delete;
+      //COMPARA OS VALORES E GERA AS PARCELAS DE ACORDO
+      FPodeInserir := True;
+      for i:=0 to X-1 do
+      begin
+        if (a[i].Valor = qryCalculoFinanciamentovalorvencto.AsCurrency) and
+           (i > 0) then
+        begin
+          qryCalculoFinanciamento.Edit;
+          qryCalculoFinanciamentoparcela.AsInteger := A[i-1].Parcela + 1;
+          A[i].Parcela := qryCalculoFinanciamentoparcela.AsInteger;
+          A[i].Prestacao := qryCalculoFinanciamentoprestacao.AsInteger;
+          if qryPlanosPagamentomestrintadias.AsBoolean then
+            A[i].Data := SomarDia(A[i-1].Data,(qryPlanosPagamentointervaloparcelas.AsInteger),'S')
+          else
+            A[i].Data := SomarDia(A[i-1].Data,(qryPlanosPagamentointervaloparcelas.AsInteger),'N');
+          qryCalculoFinanciamento.Post;
+        end
+        else
+        begin
+          qryCalculoFinanciamento.Append;
+          qryCalculoFinanciamentoparcela.AsInteger   := 1;
+          A[i].Parcela := 1;
+          if i = 0 then
+          begin
+            qryCalculoFinanciamentoprestacao.AsInteger := a[i].Prestacao;
+            qryCalculoFinanciamentodatavencto.AsDateTime := A[i].Data;
+          end
+          else
+          begin
+            qryCalculoFinanciamentoprestacao.AsInteger := a[i-1].Prestacao + a[i-1].Parcela;
+            if qryPlanosPagamentomestrintadias.AsBoolean then
+              qryCalculoFinanciamentodatavencto.AsDateTime := SomarDia(A[i-1].Data,(qryPlanosPagamentointervaloparcelas.AsInteger),'S')
+            else
+              qryCalculoFinanciamentodatavencto.AsDateTime := SomarDia(A[i-1].Data,(qryPlanosPagamentointervaloparcelas.AsInteger),'N');
+          end;
+          a[i].Prestacao := qryCalculoFinanciamentoprestacao.AsInteger;
+          A[i].Data := qryCalculoFinanciamentodatavencto.AsDateTime;
+          qryCalculoFinanciamentovalorvencto.AsCurrency := a[i].Valor;
+          qryCalculoFinanciamentoformapagamento.AsString := a[i].Pagamento;
+          qryCalculoFinanciamentotiporecebimento.AsString:=a[i].recebimento;
+          qryCalculoFinanciamentotiporeceb.AsString := a[i].DescricaotipoRecebimento;
+          qryCalculoFinanciamentost.AsBoolean := a[i].Substituicao;
+          qryCalculoFinanciamento.Post;
+        end;
+      end;
+    end;
+  finally
+    qryCalculoFinanciamento.GotoBookmark(PosParcela);
+    qryCalculoFinanciamento.FreeBookmark(PosParcela);
+    qryCalculoFinanciamento.EnableControls;
+    FPodeInserir := False;
+  end;
+end;
+
+procedure TdtmCalculoFinanciamento.AgruparParcelas(ReCalculandoValor, ReCalculandoData:Boolean; DifST: Double = 0);
+type
+  PParcelas = ^TParcelas;
+  TParcelas = Record
+     Prestacao   : Integer;
+     Parcela     : Integer;
+     Data        : TDateTime;
+     Valor       : Currency;
+     ValorST     : Currency;
+     Pagamento   : String;
+     Recebimento : String;
+     DescricaoTipoRecebimento : String;
+     Substituicao: Boolean;
+  end;
+
+var
+  i, X : Integer;
+  Dif, vDifST: Currency;
+  LP: Array[1..99] of PParcelas;
+begin
+(*  if PrimeiraVez or ReCalculandoData or ReCalculandoValor then
+  begin *)
+    try
+      vDifST := DifST;
+//      qryCalculoFinanciamento.DisableControls;
+      if not ReCalculandoValor then
+      begin
+        dif := Acrescimo;
+        X := qryPlanosPagamentoquantidadeparcelas.AsInteger;
+        qryCalculoFinanciamento.First;
+        if qryCalculoFinanciamentost.AsBoolean then
+          qryCalculoFinanciamento.Next;
+      end
+      else
+      begin
+        dif := -Desconto;
+        X := FNrParcelaAnterior;
+      end;
+
+      if (Dif <> 0) or (vDifST <> 0) then
+      begin
+        for i:= low(LP) to X do
+          new(LP[i]);
+
+        for i := Low(LP) to X do
+        begin
+          if not ReCalculandoValor then
+            if ParSistema.GerarParcelaSubstituicaoTributaria and (ValorSubstituicaoTributaria > 0) then
+              LP[i]^.Prestacao := i+1
+            else
+              LP[i]^.Prestacao := i
+          else
+            LP[i]^.Prestacao := qryCalculoFinanciamentoprestacao.AsInteger;
+          LP[i]^.Parcela   := 1;
+          LP[i]^.Data      := qryCalculoFinanciamentodatavencto.AsDateTime;
+
+          if dif > 0 then
+          begin
+            LP[i]^.Valor := qryCalculoFinanciamentovalorvencto.AsCurrency - 0.01;
+            dif := dif - 0.01;
+          end
+          else if dif < 0 then
+          begin
+            LP[i]^.Valor := qryCalculoFinanciamentovalorvencto.AsCurrency + 0.01;
+            dif := dif + 0.01;
+          end else
+            LP[i]^.Valor     := qryCalculoFinanciamentovalorvencto.AsCurrency;
+
+          if vDifST > 0 then
+          begin
+            LP[i]^.ValorST := qryCalculoFinanciamentovalorsubstituicao.AsCurrency - 0.01;
+            vDifST := vDifST - 0.01;
+          end
+          else if vDifST < 0 then
+          begin
+            LP[i]^.Valor := qryCalculoFinanciamentovalorsubstituicao.AsCurrency + 0.01;
+            vDifST := vDifST + 0.01;
+          end else
+            LP[i]^.ValorST     := qryCalculoFinanciamentovalorsubstituicao.AsCurrency;
+
+          LP[i]^.Pagamento   := qryCalculoFinanciamentoformapagamento.AsString;
+          LP[i]^.Recebimento := qryCalculoFinanciamentotiporecebimento.AsString;
+          LP[i]^.DescricaoTipoRecebimento := qryCalculoFinanciamentotiporeceb.AsString;
+          LP[i]^.Substituicao:= qryCalculoFinanciamentost.AsBoolean;
+        end;
+
+        if ParSistema.GerarParcelaSubstituicaoTributaria and (ValorSubstituicaoTributaria > 0) then
+        begin
+          qryCalculoFinanciamento.Last;
+          while qryCalculoFinanciamento.RecordCount > 1 do
+            qryCalculoFinanciamento.Delete;
+        end
+        else
+        if not ReCalculandoValor then
+          LimparTabela(qryCalculoFinanciamento);
+        FPodeInserir := True;
+
+        for i := Low(LP) to X do
+        begin
+          if (i = 1) and ReCalculandoValor then
+          begin
+            qryCalculoFinanciamento.Edit;
+            qryCalculoFinanciamentoparcela.AsInteger := 1;
+            qryCalculoFinanciamentovalorvencto.AsCurrency := LP[i]^.Valor;
+            qryCalculoFinanciamentovalorsubstituicao.AsCurrency := LP[i]^.ValorST;
+            qryCalculoFinanciamento.Post;
+          end
+          else
+          if (i = 1) or ((lp[i]^.valor <> lp[i-1]^.Valor) or (lp[i]^.ValorST <> lp[i-1]^.ValorST)) then
+          begin
+            qryCalculoFinanciamento.Append;
+            if not ReCalculandoValor then
+              qryCalculoFinanciamentoprestacao.AsInteger := LP[i]^.Prestacao
+            else
+              qryCalculoFinanciamentoprestacao.AsInteger := LP[i]^.Prestacao + i-1;
+            qryCalculoFinanciamentoparcela.AsInteger   := LP[i]^.Parcela;
+            if i = 1 then
+              qryCalculoFinanciamentodatavencto.AsDateTime := LP[i]^.Data
+            else
+            begin
+             { if not ReCalculandoValor then
+              begin }
+                if qryPlanosPagamentomestrintadias.AsBoolean then
+                  qryCalculoFinanciamentodatavencto.AsDateTime := SomarDia(LP[i-1]^.Data,(qryPlanosPagamentointervaloparcelas.AsInteger * (LP[i-1]^.Parcela)),'S')
+                else
+                  qryCalculoFinanciamentodatavencto.AsDateTime := SomarDia(LP[i-1]^.Data,(qryPlanosPagamentointervaloparcelas.AsInteger * (LP[i-1]^.Parcela)),'N');
+             { end
+              else
+              begin
+                if qryPlanosPagamentomestrintadias.AsBoolean then
+                  qryCalculoFinanciamentodatavencto.AsDateTime := SomarDia(LP[i]^.Data,(qryPlanosPagamentointervaloparcelas.AsInteger * (i-1)),'S')
+                else
+                  qryCalculoFinanciamentodatavencto.AsDateTime := SomarDia(LP[i]^.Data,(qryPlanosPagamentointervaloparcelas.AsInteger * (i-1)),'N');
+              end; }
+            end;
+            LP[i]^.Data := qryCalculoFinanciamentodatavencto.AsDateTime;
+            qryCalculoFinanciamentovalorvencto.AsCurrency := LP[i]^.Valor;
+            qryCalculoFinanciamentovalorsubstituicao.AsCurrency := LP[i]^.ValorST;
+
+            qryCalculoFinanciamentoformapagamento.AsString := LP[i]^.Pagamento;
+            qryCalculoFinanciamentotiporecebimento.AsString := LP[i]^.Recebimento;
+            qryCalculoFinanciamentotiporeceb.AsString := LP[i]^.DescricaoTipoRecebimento;
+            qryCalculoFinanciamentost.AsBoolean := LP[i]^.Substituicao;
+            qryCalculoFinanciamento.Post;
+          end
+          else
+          begin
+            qryCalculoFinanciamento.Edit;
+            qryCalculoFinanciamentoparcela.AsInteger := qryCalculoFinanciamentoparcela.AsInteger +1;
+            LP[i]^.Parcela := qryCalculoFinanciamentoparcela.AsInteger;
+            qryCalculoFinanciamento.Post;
+          end;
+        end;
+        for i:= low(LP) to X do
+          dispose(LP[i])
+      end;
+    finally
+//      qryCalculoFinanciamento.EnableControls;
+      FPodeInserir := False;
+    end;
+(*  end; *)
+end;
+
+procedure TdtmCalculoFinanciamento.SetDescontoItem(const Value: Real);
+begin
+  if FDescontoItem <> Value then begin
+    FDescontoItem:= Value;
+  end;
+end;
+
+procedure TdtmCalculoFinanciamento.qryCalculoFinanciamentoCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryCalculoFinanciamentovalorvenctocomst.ascurrency := qryCalculoFinanciamentovalorvencto.ascurrency +
+                                                        qryCalculoFinanciamentovalorsubstituicao.ascurrency;
+end;
+
+end.

@@ -1,0 +1,518 @@
+unit fmajuda;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Classes, Graphics, Controls, Forms, Dialogs, Windows,
+  //Repositorio
+  fmhelpviewer, dmbasico, biblio, cpdbfindcontrols, ctconstantes,
+  StdCtrls, cpdata, cpnumero, ExtCtrls, CheckLst, clusuario, inifiles, fmpreviewpadrao ;
+
+type
+  TfrmAjudaClass = class of TfrmAjuda;
+  TfrmAjuda = class(TForm)
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    function FormHelp(HelpType: THelpType; HelpContext: THelpContext;
+      const HelpKeyword, HelpFile: String; var Handled: Boolean): Boolean;
+    procedure FormShow(Sender: TObject);
+    procedure FormMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+  private
+    FFormOrigemBloqueio: String;
+    fSalvarPropriedadesFormulario: boolean;
+    function  ExisteRelatorioAberto: boolean;
+  protected
+    procedure CriarDataModulo; virtual;
+    procedure DestruirDataModulo; virtual;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState;
+      X, Y: Integer); override;
+
+    function VerificarComponentesdePesquisa: boolean;
+
+
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+//    function  FormRegistrado(NomeForm: String): TfrmAjudaClass; virtual;
+    procedure OperacaoPadrao(Value: Array of Variant); virtual;
+    class function Referencia: TForm; virtual;
+    procedure MostraContextoAjuda;
+    procedure BloquearFormularios(FormNaoBloquear: String);
+    procedure DesbloquearFormularios;
+    property FormOrigemBloqueio: String read FFormOrigemBloqueio write FFormOrigemBloqueio;
+    property SalvarPropriedadesFormulario: boolean read fSalvarPropriedadesFormulario write fSalvarPropriedadesFormulario;
+    procedure SalvarConfiguracoesFormulario__;
+    procedure SalvarConfiguracoesFormulario;
+    procedure CarregarConfiguracoesFormulario__;
+    procedure CarregarConfiguracoesFormulario;
+
+
+
+  end;
+
+implementation
+
+{$R *.dfm}
+
+type
+  TtecApplication = class(TApplication);
+
+{ TfrmAjuda }
+
+constructor TfrmAjuda.Create(AOwner: TComponent);
+begin
+//try
+  CriarDataModulo;
+  inherited;
+  if (WindowState = wsNormal) and (Not (csDesigning in ComponentState)) and (Self.Tag = 0) then
+    Dimensionar(Self, poMainFormCenter);
+
+    {except
+     on E: Exception do ShowMessage(E.Message);
+end; }
+   CarregarConfiguracoesFormulario;
+end;
+
+procedure TfrmAjuda.CriarDataModulo;
+begin
+end;
+
+destructor TfrmAjuda.Destroy;
+var
+  Par: TForm;
+begin
+
+  if self.FormStyle <>  fsNormal then
+    IF SELF.TAG = 1000 THEN
+       DestruirFormulario(self);   {estava travando no momento da alteração do valor de um calculo de financiamento via contrato}
+
+
+  if Screen.FormCount > 1 then
+    Par := Screen.Forms[1];
+    {
+  else
+    Par := nil;}
+
+
+  DestruirDataModulo;
+
+  inherited destroy;
+
+  if Assigned(Par) and (Par.FormStyle = fsMDIChild) and Par.CanFocus then
+//    Par.SetFocus
+  else
+  if Assigned(Application.MainForm) then
+    Application.MainForm.SetFocus;
+end;
+
+procedure TfrmAjuda.DestruirDataModulo;
+begin
+  SalvarConfiguracoesFormulario;
+end;
+
+procedure TfrmAjuda.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  inherited;
+  if Not (fsModal in FormState) then
+    Action := caFree
+end;
+
+function TfrmAjuda.FormHelp(HelpType: THelpType; HelpContext: THelpContext;
+  const HelpKeyword, HelpFile: String; var Handled: Boolean): Boolean;
+begin
+  Result := True;
+  Handled := True;
+  if Assigned(ActiveControl) then
+    if Trim(ActiveControl.HelpKeyword) <> '' then
+      Exit
+    else
+      ActiveControl.HelpKeyword := GetArquivoAjuda
+{
+  else
+    Application.KeywordHelp(GetArquivoAjuda);
+    }
+end;
+{
+function TfrmAjuda.FormRegistrado(NomeForm: String): TfrmAjudaClass;
+var
+  Pers: TPersistentClass;
+begin
+  Pers := ActivateClassGroup(TControl);
+  Result := TfrmAjudaClass(GetClass(NomeForm));
+  ActivateClassGroup(Pers);
+end;
+ }
+procedure TfrmAjuda.MostraContextoAjuda;
+begin
+{
+  RegisterHelpViewer;
+  if HelpKeyword <> '' then
+       Application.KeywordHelp(HelpKeyword)
+  else Application.HelpFile:= ExtractFilePath(Application.ExeName) + 'teclux.html';
+  }
+end;
+
+procedure TfrmAjuda.OperacaoPadrao(Value: Array of Variant);
+begin
+end;
+
+class function TfrmAjuda.Referencia: TForm;
+var
+  cnt: Integer;
+begin
+  Result := nil;
+  for cnt := 0 to Screen.FormCount - 1 do
+    if Screen.Forms[cnt].ClassName = ClassName then begin
+      Result := Screen.Forms[cnt];
+      Break;
+    end;
+end;
+
+procedure TfrmAjuda.FormShow(Sender: TObject);
+begin
+   // // // // // QWidget_setActiveWindow(Handle);
+end;
+
+procedure TfrmAjuda.BloquearFormularios(FormNaoBloquear: String);
+var
+  cnt: Integer;
+  form : Tform;
+begin
+  for cnt := 0 to Screen.FormCount - 1 do
+  begin
+    form := Screen.Forms[cnt];
+    if (form.Name <> 'frmAjuda') and
+       (form.Name <> 'frmCadastroPadrao') and
+       (form.Name <> 'frmAjudaBt') and
+       (form.Name <> 'frmNavControles') and
+       (form.Name <> 'frmTecsoft') and
+       (form.Name <> FormNaoBloquear) then
+      form.Enabled := false
+  end;
+end;
+
+procedure TfrmAjuda.DesbloquearFormularios;
+var
+  cnt: Integer;
+begin
+  for cnt := 0 to Screen.FormCount - 1 do
+  begin
+    Screen.Forms[cnt].Enabled := true;
+    if Screen.Forms[cnt].name = FormOrigemBloqueio then
+      Screen.Forms[cnt].SetFocus;
+  end;
+end;
+
+procedure TfrmAjuda.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  Case Key of
+    VK_INSERT :
+    begin
+      if InsertLigado then
+        InsertLigado := false
+      else
+        InsertLigado := true;
+    end;
+  end;
+
+end;
+
+procedure TfrmAjuda.MouseDown(Button: TMouseButton; Shift: TShiftState; X,
+  Y: Integer);
+begin
+  inherited;
+
+end;
+
+function TfrmAjuda.VerificarComponentesdePesquisa: boolean;
+var
+  a: integer;
+begin
+  result := true;
+  for a:= ComponentCount - 1 downto 0 do
+    if (Components[a] is TtecFindCustom)  then
+    begin
+      if (TtecFindCustom(Components[a]).text<>'') {and
+         not TtecFindCustom(Components[a]).ActiveSetControls} then
+      begin
+        result := TtecFindCustom(Components[a]).Exist;
+        if not result then
+          break;
+        self.refresh;
+      end;
+    end
+end;
+
+procedure TfrmAjuda.FormMouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+;
+end;
+
+procedure TfrmAjuda.SalvarConfiguracoesFormulario__;
+var
+ i, j: integer;
+ v_strFile : TFileStream;
+ v_NomeArquivo, v_NomeArquivoAux : String;
+ v_lista : TStringList;
+
+begin
+  if SalvarPropriedadesFormulario then
+  begin
+    v_NomeArquivo := ExtractFilePath(Application.ExeName) + 'PARAMETROS';
+
+    if not DirectoryExists(v_NomeArquivo) then
+      if not CreateDir(v_NomeArquivo) then
+        raise Exception.Create('Impossível criar o diretório '+v_NomeArquivo);
+
+    for i := 0 to self.ComponentCount -1 do
+    begin
+      if (Components[i] is TCheckBox) or
+         (Components[i] is TEditData) or
+         (Components[i] is TEditNumero) or
+         (Components[i] is TRadioGroup) or
+         (Components[i] is TCheckListBox) or
+         (Components[i] is TTecDbeditFind)
+          then
+      begin
+        v_strFile := TFileStream.Create(v_NomeArquivo+'\'+self.Name+'_'+self.Components[i].Name+'.DAT', fmCreate);
+        v_strFile.WriteComponent(self.Components[i]);
+        v_strFile.Free;
+
+        if (Components[i] is TCheckListBox) then
+        begin
+          v_strFile := TFileStream.Create(v_NomeArquivo+'\'+self.Name+'_'+self.Components[i].Name+'ItemsChecked.DAT', fmCreate);
+          v_lista := TStringList.Create;
+
+          for j := 0 to TCheckListBox(Components[i]).Count -1 do
+          begin
+            if TCheckListBox(Components[i]).Checked[j] then
+              v_Lista.Append(TCheckListBox(Components[i]).Items[j]);
+          end;
+          v_lista.SaveToStream(v_strFile);
+          v_lista.Free;
+          v_strFile.Free;
+        end;
+
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmAjuda.CarregarConfiguracoesFormulario__;
+var
+ i, j, k: integer;
+ v_strFile : TFileStream;
+ v_NomeArquivo, v_NomeArquivoComponente : String;
+ v_Lista: TStringList;
+
+begin
+  if SalvarPropriedadesFormulario then
+  begin
+    v_NomeArquivo := ExtractFilePath(Application.ExeName) + 'PARAMETROS';
+
+    if not DirectoryExists(v_NomeArquivo) then
+      if not CreateDir(v_NomeArquivo) then
+        raise Exception.Create('Impossível criar o diretório '+v_NomeArquivo);
+
+    for i := 0 to self.ComponentCount -1 do
+    begin
+      if (Components[i] is TCheckBox) or   //ok
+         (Components[i] is TEditData) or   //ok
+         (Components[i] is TEditNumero) or  //ok
+         (Components[i] is TRadioGroup) or   //ok
+         (Components[i] is TCheckListBox) {  //ok
+         (Components[i] is TTecDbeditFind)}
+          then
+      begin
+        v_NomeArquivoComponente := v_NomeArquivo+'\'+self.Name+'_'+self.Components[i].Name+'.DAT';
+
+        if FileExists(v_NomeArquivoComponente) then
+        begin
+          if (Components[i] is TCheckBox) then
+            TCheckBox(Components[i]).Checked := false;
+
+          v_strFile := TFileStream.Create(v_NomeArquivoComponente, fmOpenRead);
+          v_strFile.ReadComponent(Components[i]);
+          v_strFile.Free;
+
+          if (Components[i] is TCheckListBox) then
+          begin
+            v_Lista := tStringList.create;
+            v_NomeArquivoComponente := v_NomeArquivo+'\'+self.Name+'_'+self.Components[i].Name+'ItemsChecked.DAT';
+            v_strFile := TFileStream.Create(v_NomeArquivoComponente, fmOpenRead);
+            v_Lista.LoadFromStream(v_strFile);
+
+            for j:= 0 to v_lista.Count - 1 do
+            begin
+              for k:=0 to TCheckListBox(Components[i]).Items.Count-1 do
+                if v_lista[j] = TCheckListBox(Components[i]).Items[k] then
+
+                  TCheckListBox(Components[i]).Checked[k] := true;
+            end;
+            v_Lista.free;
+            v_strFile.free;
+
+          end;
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmAjuda.SalvarConfiguracoesFormulario;
+var
+ v_NomeArquivoIni: TIniFile;
+ i, j: integer;
+ v_NomeArquivo : String;
+
+begin
+  if SalvarPropriedadesFormulario then
+  begin
+    v_NomeArquivo := ExtractFilePath(Application.ExeName) + 'PARAMETROS';
+
+    if not DirectoryExists(v_NomeArquivo) then
+      if not CreateDir(v_NomeArquivo) then
+        raise Exception.Create('Impossível criar o diretório '+v_NomeArquivo);
+
+    v_NomeArquivo := v_NomeArquivo + '\' + UsuarioLogin.LoginUsuario;
+
+    if not DirectoryExists(v_NomeArquivo) then
+      if not CreateDir(v_NomeArquivo) then
+        raise Exception.Create('Impossível criar o diretório '+v_NomeArquivo);
+
+    v_NomeArquivo := v_NomeArquivo + '\' + self.Name + '.ini';
+
+    v_NomeArquivoIni := TIniFile.Create(v_NomeArquivo);
+
+
+    for i := 0 to self.ComponentCount -1 do
+    begin
+      if (Components[i] is TCheckBox) then
+      begin
+        v_NomeArquivoIni.EraseSection(self.Components[i].Name);
+        v_NomeArquivoIni.WriteBool(self.Components[i].Name, 'Checked', TCheckBox(self.Components[i]).Checked);
+      end
+      else
+      if (Components[i] is TEditData) then
+      begin
+        v_NomeArquivoIni.EraseSection(self.Components[i].Name);
+        v_NomeArquivoIni.WriteString(self.Components[i].Name, 'Text', TEditData(self.Components[i]).text);
+      end
+      else
+      if (Components[i] is TEditNumero) and not TEditNumero(Components[i]).ReadOnly  then
+      begin
+        v_NomeArquivoIni.EraseSection(self.Components[i].Name);
+        v_NomeArquivoIni.WriteString(self.Components[i].Name, 'Text', TEditNumero(self.Components[i]).Text);
+      end
+      else
+      if (Components[i] is TRadioGroup) then
+      begin
+        v_NomeArquivoIni.EraseSection(self.Components[i].Name);
+        v_NomeArquivoIni.WriteInteger(self.Components[i].Name, 'ItemIndex',TRadioGroup(self.Components[i]).ItemIndex);
+      end
+      else
+      if (Components[i] is TCheckListBox) then
+      begin
+        for j := 0 to TCheckListBox(Components[i]).items.Count -1 do
+        begin
+          v_NomeArquivoIni.EraseSection(self.Components[i].Name+'_'+inttostr(j));
+          v_NomeArquivoIni.WriteBool(self.Components[i].Name+'_'+inttostr(j), 'Checked', TCheckListBox(self.Components[i]).Checked[j]);
+        end;
+      end
+      {
+      else
+      if (Components[i] is TTecDbeditFind) then
+      begin
+        v_NomeArquivoIni.EraseSection(self.Components[i].Name);
+        v_NomeArquivoIni.WriteString(self.Components[i].Name, 'Text', TTecDbeditFind(self.Components[i]).Text);
+      end};
+    end;
+    v_NomeArquivoIni.UpdateFile;
+    v_NomeArquivoIni.Free;
+  end;
+end;
+
+procedure TfrmAjuda.CarregarConfiguracoesFormulario;
+var
+ i, j: integer;
+ v_NomeArquivoIni: TIniFile;
+ v_NomeArquivo : String;
+
+begin
+  if SalvarPropriedadesFormulario then
+  begin
+    v_NomeArquivo := ExtractFilePath(Application.ExeName) + 'PARAMETROS';
+    v_NomeArquivo := v_NomeArquivo + '\' + UsuarioLogin.LoginUsuario;
+    v_NomeArquivo := v_NomeArquivo + '\' + self.Name + '.ini';
+
+    v_NomeArquivoIni := TIniFile.Create(v_NomeArquivo);
+
+    if FileExists(v_NomeArquivo) then
+    begin
+      for i := 0 to self.ComponentCount -1 do
+      begin
+        if (Components[i] is TCheckBox) then
+          TCheckBox(self.Components[i]).Checked := v_NomeArquivoIni.ReadBool(self.Components[i].Name, 'Checked', false)
+        else
+        if (Components[i] is TEditData) then
+          TEditData(self.Components[i]).text := v_NomeArquivoIni.ReadString(self.Components[i].Name, 'Text', '')
+        else
+        if (Components[i] is TEditNumero) then
+          TEditNumero(self.Components[i]).Text := v_NomeArquivoIni.ReadString(self.Components[i].Name, 'Text', '')
+        else
+        if (Components[i] is TRadioGroup) then
+          TRadioGroup(self.Components[i]).ItemIndex := v_NomeArquivoIni.ReadInteger(self.Components[i].Name, 'ItemIndex',0)
+        else
+        if (Components[i] is TCheckListBox) then
+        begin
+          for j := 0 to TCheckListBox(Components[i]).Items.Count -1 do
+            TCheckListBox(self.Components[i]).Checked[j] := v_NomeArquivoIni.ReadBool(self.Components[i].Name+'_'+inttostr(j), 'Checked', false);
+        end;
+        {
+        else
+        if (Components[i] is TTecDbeditFind) then
+        begin
+          TTecDbeditFind(self.Components[i]).Text := v_NomeArquivoIni.ReadString(self.Components[i].Name, 'Text', '');
+          TTecDbeditFind(self.Components[i]).ExibirMensagem := false;
+          TTecDbeditFind(self.Components[i]).Exist;
+          TTecDbeditFind(self.Components[i]).ExibirMensagem := true;
+        end}
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmAjuda.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+begin
+  Canclose := not ExisteRelatorioAberto;
+end;
+
+function TfrmAjuda.ExisteRelatorioAberto: boolean;
+var
+  i,j: integer;
+begin
+  result := false;
+
+  for i := self.ComponentCount-1 downto 0  do
+  begin
+    if Components[i] is TdtmBasico then
+    begin
+      for j := Components[i].ComponentCount-1 downto 0  do
+      begin
+        if Components[i].Components[j] is TfrmPreviewPadrao then
+        begin
+          result := true;
+          break;
+        end;
+      end;
+    end;
+  end;
+  
+end;
+
+end.

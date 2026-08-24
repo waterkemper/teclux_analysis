@@ -385,7 +385,11 @@ begin
 
       vNovaSituacaodoContrato := '';
       if qryDadosFiscaiscontratofrentecaixa.AsString <> '' then    {Venda pelo frente de caixa}
-        vNovaSituacaodoContrato := 'C'
+      begin
+        vNovaSituacaodoContrato := 'C';
+        if qryDadosFiscaisdata.asdatetime <> dataservidor then
+          vNovaSituacaodoContrato := 'F';
+      end
       else if {(NumeroDadosFiscaisContrato(ECF,Intervencao,vCooVenda, num_fab) = 1) and} TemParcelaPaga then
         vNovaSituacaodoContrato := 'F'
       else if {(NumeroDadosFiscaisContrato(ECF,Intervencao,vCooVenda, num_fab) = 1) and} not TemParcelaPaga then

@@ -1,0 +1,341 @@
+unit dmFCI;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, ZTransact, dmtecsoft, DB, cpdatasource, ctconstantes,
+  ZQuery, ZPgSqlQuery, cpquery, fr_dset, fr_dbset, fr_class, fmpreviewpadrao, biblio;
+
+type
+  TdtmFCI = class(TdtmBasico)
+    qryDadosFCI: TtecQuery;
+    dsrDadosFCI: TtecDataSource;
+    qryDadosFCIpn: TStringField;
+    qryDadosFCIcodigo: TLargeintField;
+    qryDadosFCIcodigovisual: TStringField;
+    qryDadosFCIdescricao: TStringField;
+    qryDadosFCIvalorimportacao: TFloatField;
+    qryDadosFCIprecovenda: TFloatField;
+    qryDadosFCIpercimportacao: TFloatField;
+    qryDadosFCIncm: TStringField;
+    qryDadosFCIgtin: TIntegerField;
+    qryDadosFCIunidade: TStringField;
+    qryDadosFCIDescricaoErro: TStringField;
+    qryDadosFCImarcar: TBooleanField;
+    qryDadosFCIDesconsiderar: TBooleanField;
+    qryfci: TtecQuery;
+    qryfcinumero: TIntegerField;
+    qryfcidata: TDateField;
+    qryfcinumerofci: TStringField;
+    qryfcidt_recepcao_arquivo: TStringField;
+    qryfcicod_recepcao_arquivo: TStringField;
+    qryfcidt_validacao_arquivo: TStringField;
+    qryfciin_validacao_arquivo: TStringField;
+    qryFCIProximo: TtecQuery;
+    qryFCIProximonumero: TIntegerField;
+    qryfcihora: TTimeField;
+    qryfciprotocolorecepcao: TStringField;
+    qryFCIProdutos: TtecQuery;
+    qryFCIProdutosfci: TIntegerField;
+    qryFCIProdutosproduto: TLargeintField;
+    qryFCIProdutosncm: TStringField;
+    qryFCIProdutosunidade: TStringField;
+    qryFCIProdutosvalorimportacao: TFloatField;
+    qryFCIProdutosvalorsaida: TFloatField;
+    qryFCIProdutospercimportacao: TFloatField;
+    qryFCIProdutosgtin: TIntegerField;
+    procedure qryDadosFCICalcFields(DataSet: TDataSet);
+    procedure qryDadosFCIAfterScroll(DataSet: TDataSet);
+    procedure qryDadosFCImarcarChange(Sender: TField);
+  private
+    fListadePNsSelecionadasAleatoriamente: String;
+    FParametroCabecalho: String;
+    fNumeroFCI: integer;
+    procedure SetListadePNsSelecionadasAleatoriamente(const Value: String);
+    function GetNumeroFCI: integer;
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+
+    property ListadePNsSelecionadasAleatoriamente: String read fListadePNsSelecionadasAleatoriamente write SetListadePNsSelecionadasAleatoriamente;
+    property ParametroCabecalho: String read FParametroCabecalho write FParametroCabecalho;
+    function AbrirConsultas: Boolean;
+    function GerarArquivo(NomeArquivo: String; ExtTXT: boolean = true): boolean;
+    procedure MarcarRegistrosFCI(marcar, Todos: boolean);
+    property NumeroFCI: integer read GetNumeroFCI write fNumeroFCI;
+
+
+
+
+
+  end;
+
+var
+  dtmFCI: TdtmFCI;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmFCI }
+
+function TdtmFCI.AbrirConsultas: Boolean;
+begin
+
+   ReFazConsultaporNome(qryDadosFCI,['filialbase'],[filialbase]);
+   result := not qryDadosFCI.IsEmpty;
+
+end;
+
+constructor TdtmFCI.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryfci.tag := cttabelas;
+end;
+
+function TdtmFCI.GerarArquivo(NomeArquivo: String; ExtTXT: boolean): boolean;
+var
+
+  vSequencia    : integer;
+  vArquivo,Barra : String;
+  vLinhaString : String;
+  Arq: TextFile;
+  i : integer;
+  vTipo, vRegistros5020Marcados : integer;
+
+  procedure GravarLinha_String(str : String);
+  begin
+   Writeln(Arq, UTF8Encode(str));
+  end;
+
+begin
+  result := true;
+  vArquivo := ExportacaoDir;
+
+  Barra := '\';
+
+  vArquivo := vArquivo + Barra + NomeArquivo;
+
+  try
+    AssignFile(Arq, vArquivo);
+    //    if FileExists(NomeArquivo) then
+    Rewrite(Arq);
+    Write(Arq, #239+#187+#191);
+
+    // BLOCO 0
+    // Registro 0000 - Identificação do contribuinte
+    GravarLinha_String('0000'          + '|' +
+                       CNPJFilialBase  + '|' +
+                       RazaoFilialBase + '|' +
+                       '1.0' );
+
+    //Registro 0001 – Identificação do inicio do Bloco
+
+    GravarLinha_String('0001'          + '|' +
+//                       'Texto em caracteres UTF-8: (dígrafo BR)''ção'',(dígrafo espanhol-enhe)''ñ'',(trema)''Ü'',(ordinais)''ªº'',(ligamento s+z alemão)''ß''.');
+                       NomeArquivo);
+
+
+
+    //Registro 0010 – Informações do estabelecimento/Contribuinte informante
+
+    GravarLinha_String('0010'          + '|' +
+                       CNPJFilialBase  + '|' +
+                       RazaoFilialBase + '|' +
+                       somentenumero(InscricaoEstadualFilialBase) + '|' +
+                       RuaComNumeroFilialBase  + '|' +
+                       CEPFilialBase + '|' +
+                       CidadeFilialBase + '|' +
+                       EstadoFilialBase);
+
+    //Registro 0990 – Finalização do Bloco 0
+    GravarLinha_String('0990|4');
+
+    //Bloco 5
+    //Registro 5001 – Inicio do bloco de produtos e mercadorias
+    GravarLinha_String('5001');
+
+    //Registro Tipo 5020 Informações dos Produtos/Mercadorias
+    vRegistros5020Marcados := 0;
+    GuardarRegistroAtual(qryDadosFCI,true);
+    qryDadosFCI.First;
+    while not qryDadosFCI.Eof do
+    begin
+      if qryDadosFCImarcar.AsBoolean then
+      begin
+        GravarLinha_String('5020' + '|' +
+                           qryDadosFCIdescricao.AsString + '|' +
+                           SomenteNumero(qryDadosFCIncm.AsString)  + '|' +
+                           qryDadosFCIcodigovisual.AsString  + '|' +
+                           qryDadosFCIgtin.AsString  + '|' +
+                           qryDadosFCIunidade.AsString  + '|' +
+
+                           formatfloat('0.00',qryDadosFCIprecovenda.AsCurrency) + '|' +
+                           formatfloat('0.00',qryDadosFCIvalorimportacao.AsCurrency) + '|' +
+                           formatfloat('0.00',qryDadosFCIpercimportacao.AsCurrency)
+                          );
+        inc(vRegistros5020Marcados);
+      end;
+      qryDadosFCI.Next;
+    end;
+    VoltarRegistroAtual(qryDadosFCI);
+
+    //Registro Tipo 5990 – FINALIZAÇÃO DO BLOCO 5
+    GravarLinha_String('5990' + '|' + inttostr(2+vRegistros5020Marcados));
+
+    //Bloco 9 – Totalização de Registros
+    GravarLinha_String('9001');
+    GravarLinha_String('9900' + '|' + '0000' + '|' + '1');
+    GravarLinha_String('9900' + '|' + '0010' + '|' + '1');
+    GravarLinha_String('9900' + '|' + '5020' + '|' + inttostr(vRegistros5020Marcados));
+
+    //REGISTRO 9990: ENCERRAMENTO DO BLOCO 9
+    GravarLinha_String('9990'+ '|' + '5');
+
+    //REGISTRO 9999: ENCERRAMENTO DO ARQUIVO DIGITAL
+    GravarLinha_String('9999'+ '|' + inttostr(12+vRegistros5020Marcados));
+
+  except
+    on E:EFCreateError do
+    begin
+      MensagemErro(E.Message);
+      result := false;
+    end;
+  end;
+
+
+  closefile(arq);
+
+  if result then
+  begin
+    qryFCIProximo.Open;
+
+    qryfci.Append;
+    qryfcinumero.AsInteger := qryFCIProximonumero.AsInteger;
+    qryfcidata.AsDateTime := DataServidor;
+    qryfcihora.AsDateTime := HoraServidor;
+    qryfcinumerofci.AsInteger := fNumeroFCI;
+    qryfci.post;
+
+    qryFCIProximo.close;
+
+    RefazConsultaPorNome(qryfciprodutos, ['fci'], [qryfcinumero.Asinteger]);
+    GuardarRegistroAtual(qryDadosFCI,true);
+    qryDadosFCI.First;
+    while not qryDadosFCI.Eof do
+    begin
+      if qryDadosFCImarcar.AsBoolean then
+      begin
+        qryFCIProdutos.Append;
+        qryFCIProdutosfci.AsInteger := qryfcinumero.AsInteger;
+        qryFCIProdutosproduto.AsLargeInt := qryDadosFCIcodigo.AsLargeInt;
+        qryFCIProdutosncm.AsString := qryDadosFCIncm.AsString;
+        qryFCIProdutosgtin.AsVariant := qryDadosFCIgtin.AsVariant;
+        qryFCIProdutosunidade.AsString := qryDadosFCIunidade.AsString;
+        qryFCIProdutosvalorimportacao.AsCurrency := qryDadosFCIvalorimportacao.AsCurrency;
+        qryFCIProdutosvalorsaida.AsCurrency := qryDadosFCIprecovenda.AsCurrency;
+        qryFCIProdutospercimportacao.AsCurrency := qryDadosFCIpercimportacao.AsFloat;
+        qryFCIProdutos.post;
+      end;
+      qryDadosFCI.Next;
+    end;
+
+    VoltarRegistroAtual(qryDadosFCI);
+    result := Perpetrar([qryfci,qryfciprodutos]);
+    
+  end;
+
+end;
+
+
+procedure TdtmFCI.SetListadePNsSelecionadasAleatoriamente(
+  const Value: String);
+
+const
+SQLFCIListaPNs = 'and p.codigo in (select cp.produto from clientesprodutos cp where cp.pn in (%s))';
+begin
+  fListadePNsSelecionadasAleatoriamente := Value;
+  if Value<>'' then
+  begin
+   qryDadosFCI.Macrobyname('ListadePNs').AsString := format(SQLFCIListaPNs, [Value]);
+   FParametroCabecalho:=FParametroCabecalho+' Lista de PNs: '+Value;
+  end
+  else
+   qryDadosFCI.Macrobyname('ListadePNs').AsString := '';
+end;
+
+procedure TdtmFCI.qryDadosFCICalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  qryDadosFCIDescricaoErro.clear;
+  if ((qryDadosFCI.FieldByName('precovenda').isnull) or
+      (qryDadosFCI.FieldByName('precovenda').value = 0)) and
+     ((qryDadosFCI.FieldByName('valorimportacao').isnull) or
+      (qryDadosFCI.FieldByName('valorimportacao').value = 0)) then
+    qryDadosFCIDescricaoErro.AsString := 'Valores de Venda/importação não podem conter valores nulos ou zerodos'
+  else
+  if ((qryDadosFCI.FieldByName('precovenda').isnull) or
+      (qryDadosFCI.FieldByName('precovenda').value = 0)) then
+    qryDadosFCIDescricaoErro.AsString := 'Preço de venda não pode conter valor nulo ou zero'
+  else
+  if (qryDadosFCI.FieldByName('valorimportacao').isnull) or
+     (qryDadosFCI.FieldByName('valorimportacao').value = 0) then
+    qryDadosFCIDescricaoErro.AsString := 'Valor de importação não pode conter valor nulo ou zero'
+  else
+  if ((qryDadosFCI.FieldByName('precovenda').value <> 0) and
+      (qryDadosFCI.FieldByName('valorimportacao').value <> 0) and
+      (qryDadosFCI.FieldByName('precovenda').ascurrency <
+       qryDadosFCI.FieldByName('valorimportacao').ascurrency)) then
+    qryDadosFCIDescricaoErro.AsString := 'Preço de venda não pode ser inferior ao valor de importação'
+  else
+  if ((qryDadosFCI.FieldByName('percimportacao').isnull) or
+      (qryDadosFCI.FieldByName('percimportacao').value = 0)) then
+    qryDadosFCIDescricaoErro.AsString := 'Perecentual de importação não pode conter valor nulo ou zero'
+  else
+  if (qryDadosFCI.FieldByName('ncm').isnull) or (length(trim(qryDadosFCI.FieldByName('ncm').asstring))<>8) then
+    qryDadosFCIDescricaoErro.AsString := 'NCM não pode ser nulo ou inferior a oito dígitos';
+
+  qryDadosFCIDesconsiderar.AsBoolean := not qryDadosFCIDescricaoErro.isnull;  
+end;
+
+procedure TdtmFCI.qryDadosFCIAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  qryDadosFCI.ReadOnly := not qryDadosFCIDescricaoErro.IsNull;
+end;
+
+procedure TdtmFCI.MarcarRegistrosFCI(marcar, Todos: boolean);
+begin
+  if todos then
+  begin
+    qryDadosFCImarcar.OnChange := nil;
+    MarcarRegistros(qryDadosFCI, qryDadosFCImarcar, qryDadosFCIDesconsiderar, marcar, Todos);
+    qryDadosFCImarcar.OnChange := qryDadosFCImarcarChange;
+  end
+  else
+  begin
+    if qryDadosFCImarcar.asboolean then
+      inc(fQtdeMarcados)
+    else
+      dec(fQtdeMarcados);
+  end;
+end;
+
+procedure TdtmFCI.qryDadosFCImarcarChange(Sender: TField);
+begin
+  inherited;
+  MarcarRegistrosFCI(qryDadosFCImarcar.AsBoolean, False);
+end;
+
+function TdtmFCI.GetNumeroFCI: integer;
+begin
+  qryfci.Last;
+  if qryfci.recordcount = 0 then
+    fNumeroFCI := 1
+  else
+    fNumeroFCI := qryfcinumerofci.AsInteger + 1;
+  Result := fNumeroFCI;
+end;
+
+end.

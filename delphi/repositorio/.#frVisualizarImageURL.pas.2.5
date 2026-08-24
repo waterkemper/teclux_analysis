@@ -1,0 +1,144 @@
+unit frVisualizarImageURL;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, ImgList, ToolWin, ComCtrls, ExtCtrls, dmtecsoft, DB,
+  ZQuery, ZPgSqlQuery, cpquery, ctconstantes, dmbasico, clparametrossistema, biblio,
+  pngextra;
+
+type
+  TfraVisualizarImageURL = class(TFrame)
+    imgVisualFormURL: TImage;
+    pnlInformacoesProduto: TPanel;
+    ImageList1: TImageList;
+    lblProduto: TLabel;
+    qryFotosProdutos: TtecQuery;
+    qryFotosProdutosproduto: TLargeintField;
+    qryFotosProdutosnomefoto: TStringField;
+    qryFotosProdutoslabel: TStringField;
+    qryFotosProdutosposicao: TStringField;
+    qryFotosProdutosnomethumb: TStringField;
+    qryFotosProdutosnomemedia: TStringField;
+    qryFotosProdutosreferencia: TIntegerField;
+    qryFotosProdutosdescricaoprodudo: TStringField;
+    qryFotosProdutosprodutovisual: TStringField;
+    ToolBar1: TToolBar;
+    ScrollBox1: TScrollBox;
+  protected
+
+    dmbasico : TdtmBasico;
+    
+  private
+    FProduto: TTecStringRetorno;
+    function GetURLThumb: String;
+    function GetURLNomeFoto: String;
+    { Private declarations }
+  public
+    { Public declarations }
+    property Produto: TTecStringRetorno read FProduto write FProduto;
+    procedure AbrirqryFotosProdutos;
+    procedure ExibirQuadroImagem(Sender: TObject);
+    property URLThumb: String read GetURLThumb;
+    property URLNomeFoto: String read GetURLNomeFoto;
+  end;
+
+implementation
+
+{$R *.dfm}
+
+{ TfraVisualizarImageURL }
+
+procedure TfraVisualizarImageURL.AbrirqryFotosProdutos;
+var
+//  mask : TBitmap;
+  newbtn: TToolButton;
+  I: integer;
+  vBotoesCriados: Boolean;
+
+begin
+  if (produto <> '') and  (qryFotosProdutosprodutovisual.asstring<>produto) then
+  begin
+    dmbasico.refazConsultaporNome(qryFotosProdutos, ['produto'], [Produto]);
+
+  //  mask := TBitmap.Create;
+
+    for I := ToolBar1.ButtonCount - 1 downto 0 do
+    begin
+      newbtn := ToolBar1.Buttons[I];
+      if newbtn.Action = Action then
+      begin
+        { Remove "Btn" from "ToolBar" }
+        ToolBar1.Perform(CM_CONTROLCHANGE, WPARAM(newbtn), 0);
+        newbtn.Free;
+      end;
+    end;
+
+    ImageList1.Clear;
+//    imgVisualFormURL.Picture := nil;
+
+    lblProduto.caption := qryFotosProdutosprodutovisual.asString + ' - ' + qryFotosProdutosdescricaoprodudo.asString;
+
+    qryFotosProdutos.first;
+    while not qryFotosProdutos.eof do
+    begin
+      newbtn := TToolButton.Create(ToolBar1);
+      newbtn.Parent := ToolBar1 as TWinControl;
+      newbtn .ImageIndex := qryFotosProdutos.currec; // Index of the image in the TImageList
+      newbtn.name := 'btn'+inttostr(qryFotosProdutos.currec);
+  //    newbtn .Left := ToolBar1.Buttons[ToolBar1.ButtonCount - 1].Left + ToolBar1.ButtonWidth;
+      newbtn .onclick := ExibirQuadroImagem;
+
+      DownloadImagem(URLThumb, imgVisualFormURL, true);
+    {
+  //    mask.Assign(imgVisualFormURL.Picture.Bitmap);
+  //    ImageList1.Add(imgVisualFormURL.Picture.Bitmap, mask);
+  //    ImageList1.GetBitmap(qryFotosProdutos.recno, imgVisualFormURL.Picture.Bitmap );
+          }
+
+      if ImageList1.Count = 0 then
+      begin
+        ImageList1.width := imgVisualFormURL.Picture.Bitmap.width;
+        ImageList1.Height := imgVisualFormURL.Picture.Height;
+      end;
+
+  //    mask.Assign(imgVisualFormURL.Picture.Bitmap);
+  //    mask.Canvas.Brush.Color := BkColor;
+  //    mask.Monochrome := true;
+
+      ImageList1.Add(imgVisualFormURL.Picture.Bitmap, nil);
+
+
+  //    ImageList1.Add(Downloadbmp(vURL), mask);
+      qryFotosProdutos.next;
+
+//      break;
+    end;
+  //  ToolBar1.Images := ImageList1;
+
+                   
+    if not qryFotosProdutos.isEmpty then
+      DownloadImagem(URLNomeFoto, imgVisualFormURL, false);
+  end;
+
+end;
+
+procedure TfraVisualizarImageURL.ExibirQuadroImagem(Sender: TObject);
+begin
+  qryFotosProdutos.RecNo := TToolButton(sender).ImageIndex + 1;
+  DownloadImagem(URLNomeFoto, imgVisualFormURL, false);
+
+end;
+
+function TfraVisualizarImageURL.GetURLNomeFoto: String;
+begin
+  result := 'http://'+ parsistema.SiteEmpresa+'/fotos/'+qryFotosProdutos.fieldByName('nomefoto').asString;
+end;
+
+function TfraVisualizarImageURL.GetURLThumb: String;
+begin
+  result := 'http://' + parsistema.SiteEmpresa+'/fotos/'+qryFotosProdutos.fieldByName('nomethumb').asString;
+end;
+
+end.

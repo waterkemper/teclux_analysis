@@ -1,0 +1,25 @@
+unit rginterlojas;
+
+interface
+
+implementation
+
+Uses
+  //CLX
+  classes,
+  //Projeto
+  fmrequisicaoexposicao, fmconsultarequisicaoexposicao, fmconsultaprodutosadquiridos,
+  fmtransferenciarequisicaoexposicao, fmconfirmarnotastransferencia,
+  fmconfirmarromaneiostransferencia,
+  fmconfirmarnotastransferenciaporitem, fmexportacaonotastransferencia,
+  fmimportacaonotastransferencia, fmconsultatransferencias;
+
+initialization
+
+  RegisterClasses([TfrmRequisicaoExposicao, TfrmConsultaRequisicaoExposicao,
+                   TfrmConsultaProdutosAdquiridos, TfrmTransferenciaRequisicaoExposicao,
+                   TfrmConfirmarNotasTransferencia, TfrmConfirmarNotasTransferenciaPorItem,
+                   TfrmExportacaoNotasTransferencia, TfrmImportacaoNotasTransferencia,
+                   TfrmConsultaTransferencias, TfrmConfirmarRomaneiosTransferencia]);
+
+end.

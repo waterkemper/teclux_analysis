@@ -7,7 +7,7 @@ inherited frmComandosECF: TfrmComandosECF
   ClientHeight = 222
   ClientWidth = 255
   ParentFont = True
-  Position = poDesktopCenter
+  Position = poScreenCenter
   Scaled = True
   PixelsPerInch = 96
   TextHeight = 16

@@ -786,12 +786,33 @@ inherited dtmrelatorioentrega: Tdtmrelatorioentrega
       FEFEFF040000000A002043617465676F727931000000000600546974756C6F00
       00000006004F7574726173000000000800656D41626572746F00040054727565
       000000000000000000FC000000000000000000000000000000005800FA5FE9BE
-      363EE4400428BDB85418E640}
+      363EE44025540D99CB68E640}
   end
   object fdsRelatorioEntrega: TfrDBDataSet
     DataSet = qryRelatorioEntrega
     OpenDataSource = False
     Left = 256
     Top = 80
+  end
+  object frxReport1: TfrxReport
+    Version = '4.0.11'
+    DotMatrixReport = False
+    IniFile = '\Software\Fast Reports'
+    PreviewOptions.Buttons = [pbPrint, pbLoad, pbSave, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbEdit, pbNavigator, pbExportQuick]
+    PreviewOptions.Zoom = 1.000000000000000000
+    PrintOptions.Printer = 'Default'
+    PrintOptions.PrintOnSheet = 0
+    ReportOptions.CreateDate = 45747.399519050920000000
+    ReportOptions.LastChange = 45747.399519050920000000
+    ScriptLanguage = 'PascalScript'
+    ScriptText.Strings = (
+      'begin'
+      ''
+      'end.')
+    Left = 384
+    Top = 184
+    Datasets = <>
+    Variables = <>
+    Style = <>
   end
 end

@@ -1003,9 +1003,10 @@ begin
 
   qryClientes.SaveToFile(NomeArquivoEtiqueta, false, false,
     '"codigo";"nome";"rua";"numero";"complemento";"bairro";"cep";"cidade";"estado"');
+//   '"codigo";"nome";"rua";"numero";"complemento";"nomebairrocliente";"cep";"nomecidadecliente";"estado"');
 
   qryDependentes.SaveToFile(NomeArquivoEtiqueta, true, false,
-    '"codigo";"nome";"rua";"numero";"complemento";"nomebairrocliente";"cep";"nomecidadecliente";"estado"');
+   '"codigo";"nome";"rua";"numero";"complemento";"nomebairrocliente";"cep";"nomecidadecliente";"estado"');
 
 end;
 

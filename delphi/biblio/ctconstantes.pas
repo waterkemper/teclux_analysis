@@ -128,8 +128,10 @@ Const
   MascaraPessoaFisica   = '999.999.999-99;0;_';
   MascaraPessoaFisica_  = '000\.000\.000\-00;0;_';
 
-  MascaraPessoaJuridica = '99.999.999/9999-99;0;_';
-  MascaraPessoaJuridica_ = '00\.000\.000\/0000-00;0;_';
+  MascaraPessoaJuridica = 'AA.AAA.AAA/AAAA-99;0;_';
+ //MascaraPessoaJuridica_ = '00\.000\.000\/0000-00;0;_';
+  MascaraPessoaJuridica_ = '>AA\.AAA\.AAA\/AAAA-00;0;_';
+
 
   CorFundoControle = $00D0EBFF;
 
@@ -2402,7 +2404,7 @@ type
                   pesSHADOW, pesFILTROSAC, pesCONCEITOS, pesPARCELASIMOVEIS,
                   pesNOTASFORNECEDOR, pesNotasPag, pesNOTASSERIE, pesNOTASNUMERO, pesNOTASFILIAIS,
                   pesCOLUNAS, pesSERIES, pesNOTAS, pesTRANSPORTADORES, pesESTADOS, pesESTADOCIDADES, pesCBENEF,
-                  pesNATUREZAS, pesGRUPOSFORNECEDORES, pesHISTORICOS, pesBANCOS, pesAGENCIAS,
+                  pesNATUREZAS, pesnfe_natureza_operacao, pesGRUPOSFORNECEDORES, pesHISTORICOS, pesBANCOS, pesAGENCIAS,
                   pesDOCUMENTOSPAG, pesFORNECEDORESNOTAS, pesFORNECEDORESPRODUTOS, pesFORNECEDORESPEDIDOS,
                   pesTIPOCARTAS, pesMODELOETIQUETA, pesTIPOMOVIMENTOS, pesPLANO,
                   pesCODIGOFISCALENTRADAINICIAL, pesCODIGOFISCALENTRADAFINAL,
@@ -2425,7 +2427,8 @@ type
                   pesTRIBUTOSCOFINS,pesINCIDENCIA, pesCUPOMFISCAL,
                   pesTRIBUTOSIPI, pesTRIBUTOSICMS, pesEVENTO, pesTIPOPRODUTO, pesFALHAS,
                   pesQuestionarios,
-                  pesSERVICOSLCP116, pesSERVICOS, pesMODELODOCTOSFISCAIS, pesICMSOBRIGACOES, pesICMS, pesIPI,
+                  pesSERVICOSLCP116, pesNBS, pesIndOperNFSe,
+                  pesSERVICOS, pesMODELODOCTOSFISCAIS, pesICMSOBRIGACOES, pesICMS, pesIPI,
                   pesCODIGODERECEITAS,
                   pesTABELAAJUSTEICMS, pesTABELAAJUSTEIPI,
                   pesINSTRESPADMCADASTRO, pesQUALIFICACAO, pesECD, pesECF, pesFCONT,

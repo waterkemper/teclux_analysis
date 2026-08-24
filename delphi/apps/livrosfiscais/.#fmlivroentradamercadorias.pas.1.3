@@ -1,0 +1,340 @@
+unit fmlivroentradamercadorias;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  fmrelatoriopadrao, StdCtrls, ExtCtrls, Buttons, cpdata, cpnumero,
+  DBCtrls, cpdbtext, Mask, cpdbfindcontrols, ComCtrls, cppagecontrol,
+  fmconsultabasica, fmconsultaporcampo, ZQuery, biblio, ctconstantes, DB,
+  ZPgSqlQuery, cpquery, cpeditioncontrolvalidation, Math, 
+  clparametrossistema, cpdbspinedit, Spin, CheckLst, ToolWin;
+
+type
+  TfrmLivroEntradaMercadorias = class(TfrmRelatorioPadrao)
+    gbxLivroEntradaMercadorias: TGroupBox;
+    rgpRelatorio: TRadioGroup;
+    gbxNumeracao: TGroupBox;
+    edtLivro: TEditNumero;
+    edtPagina: TEditNumero;
+    edtMaximo: TEditNumero;
+    gbxImprimir: TGroupBox;
+    ckbLivroEntradas: TCheckBox;
+    ckbCodigosEmitentes: TCheckBox;
+    ckbResumoSintetico: TCheckBox;
+    ckbResumoDiario: TCheckBox;
+    ecvValida: TtecEditionControlValidation;
+    gbxGrupos: TGroupBox;
+    sbnMarcarNaturezas: TSpeedButton;
+    sbnDesmarcarNaturezas: TSpeedButton;
+    clbNaturezas: TCheckListBox;
+    gbxFilial: TGroupBox;
+    edfFilial: TtecDbEditFind;
+    sbnProcurarFilial: TSpeedButton;
+    dtxFilial: TtecDBText;
+    gbxPeriodo: TGroupBox;
+    gbxDataDe: TGroupBox;
+    edtDataDe: TEditData;
+    gbxDataAte: TGroupBox;
+    edtDataAte: TEditData;
+    gbxArquivoDCIP: TGroupBox;
+    sbnArquivo: TSpeedButton;
+    lblArquivo: TLabel;
+    dlgArquivoaExportar: TSaveDialog;
+    Label1: TLabel;
+    gbxLivro: TGroupBox;
+    gbxPagina: TGroupBox;
+    gbxMaximo: TGroupBox;
+    gbxCodigoFiscal: TGroupBox;
+    gbxCodigoDe: TGroupBox;
+    gbxCodigoFiscalDe: TGroupBox;
+    edtCodigode: TSpinEdit;
+    edtCodigoate: TSpinEdit;
+    procedure sbnProcurarFilialClick(Sender: TObject);
+    procedure sbnMarcarNaturezasClick(Sender: TObject);
+    procedure sbnDesmarcarNaturezasClick(Sender: TObject);
+    procedure rgpRelatorioClick(Sender: TObject);
+    procedure sbnArquivoClick(Sender: TObject);
+  private
+    procedure ObterLista(Origem: TLista; Destino: TCheckListBox);
+  protected
+     function InternoPesquisar(Titulo: String): Integer; override;
+     function JanelaPesquisa: TfrmConsultaBasica; override;
+     function ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+     function TabelaDePesquisa: TZDataSet; override;
+     procedure internoImpressao; Override;
+  public
+     constructor Create(AOwner: TComponent); override;
+     destructor Destroy; override;
+     function PesquisaHabilitada: Boolean;
+     function TituloPesquisa: String;
+     function ValidarCamposSelecao: Boolean;
+  end;
+
+var
+  frmLivroEntradaMercadorias: TfrmLivroEntradaMercadorias;
+  TipoPesquisa: TTecPesquisa;
+  ControleValido: TWinControl;
+
+implementation
+uses dmlivroentradamercadorias, dmbasico;
+
+
+{$R *.dfm}
+
+{ TfrmLivroEntradaMercadorias }
+
+constructor TfrmLivroEntradaMercadorias.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmLivroEntradaMercadorias := TdtmLivroEntradaMercadorias.Create(Self);
+  with dtmLivroEntradaMercadorias do
+  begin
+//   Abre(ctTabelas);
+    edtCodigoDe.MaxValue := qryCodigosFiscaismaiorcodigo.AsInteger;
+    edtCodigoDe.MinValue := qryCodigosFiscaismenorcodigo.AsInteger;
+    edtCodigoDe.Value := qryCodigosFiscaismenorcodigo.AsInteger;
+
+    edtCodigoate.MaxValue := qryCodigosFiscaismaiorcodigo.AsInteger;
+    edtCodigoate.MinValue := qryCodigosFiscaismenorcodigo.AsInteger;
+    edtCodigoate.Value := qryCodigosFiscaismaiorcodigo.AsInteger;
+  end;
+  edtpagina.Text:='2';
+  edtMaximo.Text:='499';
+  edtDataDe. Text := DateToStr(UltimoDiaMesPassado(1)+1);
+  edtDataAte.Text   := DateToStr(DataLocal);
+  if ParSistema.LivrosFiscaisFolhaouPagina = 0
+  then gbxPagina.Caption := 'FOLHA'
+  else gbxPagina.Caption := 'PÁGINA';
+  ObterLista(dtmlivroentradamercadorias.ListaNaturezas, clbNaturezas);
+  lblArquivo.Caption := 'DCIP' + FormatDateTime('YYYMM', dtmLivroEntradaMercadorias.DataServidor) + '.TXT';
+end;
+
+destructor TfrmLivroEntradaMercadorias.Destroy;
+begin
+  dtmLivroEntradaMercadorias:=nil;
+  inherited;
+  frmLivroEntradaMercadorias := nil;
+end;
+
+function TfrmLivroEntradaMercadorias.ExisteInformacao(Parametro: Integer;
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmLivroEntradaMercadorias do
+    case TipoPesquisa of
+      pesFILIAIS      : Result := ExisteFilial(NomeCampo, Value);
+    else  Result:= False;
+    end;
+end;
+
+procedure TfrmLivroEntradaMercadorias.internoImpressao;
+begin
+  inherited;
+  dtmLivroEntradaMercadorias.ParametroCabecalho:='';
+  dtmLivroEntradaMercadorias.ParametroArquivoDCIP:=lblArquivo.Caption;
+  dtmLivroEntradaMercadorias.MontarFiltroNaturezas(clbNaturezas);
+  if ValidarCamposSelecao then
+    dtmLivroEntradaMercadorias.ImprimirRelatorio(
+       edtDataDe.Text, edtDataAte.Text,
+       edfFilial.Text,
+       edtCodigoDe.Text, edtCodigoAte.Text,
+       edtlivro.ValorSemFormatacao, edtpagina.ValorSemFormatacao, edtMaximo.ValorSemFormatacao,
+       ckbLivroEntradas.Checked, ckbCodigosEmitentes.Checked,
+       ckbResumoSintetico.Checked, ckbResumoDiario.Checked, ckbLivroEntradas.Checked,
+       rgpRelatorio.ItemIndex
+       );
+end;
+
+function TfrmLivroEntradaMercadorias.InternoPesquisar(
+  Titulo: String): Integer;
+begin
+  if PesquisaHabilitada then
+    with dtmLivroEntradaMercadorias do
+    begin
+      AbreTabelaPesquisa(TipoPesquisa);
+      Result := inherited InternoPesquisar(TituloPesquisa);
+      if Result = mrOK then
+        Selecionar(TipoPesquisa);
+      FechaTabelaPesquisa(TipoPesquisa);
+    end
+  else
+    Result := 0;
+end;
+
+function TfrmLivroEntradaMercadorias.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa:= True;
+end;
+
+function TfrmLivroEntradaMercadorias.PesquisaHabilitada: Boolean;
+begin
+  Result:= False;
+  if (CtrlOn) and (ActiveControl is TtecDBEditFind) then
+  begin
+    if edfFilial.Focused then
+      TipoPesquisa := pesFILIAIS;
+    Result:= True;
+  end;
+end;
+
+function TfrmLivroEntradaMercadorias.TabelaDePesquisa: TZDataSet;
+begin
+  with dtmLivroEntradaMercadorias do
+    case TipoPesquisa of
+      pesFILIAIS      : Result := ConsultarFilial;
+    else  Result:= nil;
+    end;
+end;
+
+function TfrmLivroEntradaMercadorias.TituloPesquisa: String;
+begin
+  case TipoPesquisa of
+    pesFILIAIS      : Result := ctFILIAIS;
+    pesGRUPOSFILIAIS: Result := ctGRUPOFILIAIS;
+  end;
+end;
+
+function TfrmLivroEntradaMercadorias.ValidarCamposSelecao: Boolean;
+begin
+  result:=ecvValida.Verify(gbxLivroEntradaMercadorias, ControleValido);
+  if Result then
+    Result := (rgpRelatorio.ItemIndex <> 2) or
+              ((rgpRelatorio.ItemIndex = 2) and (trim(lblArquivo.Caption) <> ''));
+  if Result then
+  begin
+   Result:=(ckbLivroEntradas.Checked or ckbCodigosEmitentes.Checked or
+            ckbResumoSintetico.Checked or ckbResumoDiario.Checked);
+   if Result then
+   begin
+    Result := (edtDataDe.DataValida and edtDataAte.DataValida);
+    if Result then
+    begin
+     if (not dataembranco(edtDataDe.text) and not dataembranco(edtDataAte.text)) then
+       Result:=StrToDate(edtDataDe.Text) <= StrToDate(edtDataAte.Text);
+     if result then
+     begin
+       Result:=(not dataembranco(edtDataDe.text) or not dataembranco(edtDataAte.text));
+       if Result then
+       begin
+        Result:=(edtCodigoDe.Text<>'') or (edtCodigoAte.Text<>'');
+        if Result then
+        begin
+          Result := OperadorTernario((Trim(edffilial.Text) <> ''),edffilial.Exist, True);
+          if Result then
+          begin
+           {
+           if edtLivro.Text<>'' then
+           begin
+             if ((edfFilial.Text='')) or not EPrimeiroeUltimodiadoMes(edtDataInicial.Text, edtDataFinal.Text) then
+             begin
+               Result:=False;
+               MensagemAviso(ctINFORMACAOLIVROFILIAL);
+               edtDataInicial.SetFocus;
+             end
+             else
+              Result:=True;
+           end
+           else
+           }
+           begin
+            if (rgpRelatorio.ItemIndex=1) and (edtLivro.Text='') then
+            begin
+               Result:=False;
+               MensagemAviso(ctPARAMETROSINEXISTENTES);
+               edtLivro.SetFocus;
+            end
+            else
+             Result:=True;
+           end;
+          end;
+        end
+        else
+        begin
+         MensagemAviso(ctPARAMETROSINEXISTENTES);
+         edtCodigoDe.SetFocus;
+        end;
+       end
+       else
+       begin
+        MensagemAviso(ctDATAINVALIDA);
+        edtDataDe.SetFocus;
+       end;
+     end
+     else
+     begin
+       MensagemAviso(ctDTINICIALMAIORDTFINAL);
+       edtDataDe.SetFocus;
+     end;
+    end;
+   end
+   else
+   begin
+    MensagemAviso(ctPARAMETROSINEXISTENTES);
+    ckbLivroEntradas.SetFocus;
+   end;
+  end
+  else
+    MensagemAviso('Informar o arquivo a ser exportado');
+  
+end;
+
+procedure TfrmLivroEntradaMercadorias.sbnProcurarFilialClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfFilial, ctFILIAIS);
+end;
+
+procedure TfrmLivroEntradaMercadorias.sbnMarcarNaturezasClick(
+  Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbNaturezas,True);
+end;
+
+procedure TfrmLivroEntradaMercadorias.sbnDesmarcarNaturezasClick(
+  Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbNaturezas,False);
+end;
+
+procedure TfrmLivroEntradaMercadorias.ObterLista(Origem: TLista;
+  Destino: TCheckListBox);
+var
+  Ind: Integer;
+begin
+  for Ind:= 0 to (Length(Origem) - 1) do
+    Destino.Items.Add(Origem[Ind].codigo+' - ' +Origem[Ind].descricao);
+end;
+
+procedure TfrmLivroEntradaMercadorias.rgpRelatorioClick(Sender: TObject);
+begin
+   inherited;
+   case rgpRelatorio.ItemIndex of
+   0, 2: begin
+            gbxPeriodo.Caption   := 'PERÍODO';
+            gbxDataDe. Caption   := 'DE';
+            gbxDataAte.Caption   := 'ATÉ';
+//            gbxDataAte.Alignment := taLeftJustify;
+         end;
+
+   1:    begin
+            gbxPeriodo.Caption   := 'DATAS PARA OS TERMOS';
+            gbxDataDe. Caption   := 'ABERTURA';
+            gbxDataAte.Caption   := 'FECHAMENTO';
+//            gbxDataAte.Alignment := taCenter;
+    end;
+  end;
+end;
+
+
+procedure TfrmLivroEntradaMercadorias.sbnArquivoClick(Sender: TObject);
+begin
+  inherited;
+  if dlgArquivoaExportar.Execute then
+    lblArquivo.Caption := trim(dlgArquivoaExportar.FileName);
+end;
+
+end.

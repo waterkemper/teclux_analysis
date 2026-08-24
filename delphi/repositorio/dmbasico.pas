@@ -332,7 +332,7 @@ type
     procedure BeforeDestruction; override;
 
     class function CancelarAtualizacoes(ds: array of TZDataSet): Boolean;
-    class function CalcularImpostosSaidas(DadoFiscal: integer): Boolean;
+    class function CalcularImpostos(ChaveDocto: integer; tipo: String = 'S'): Boolean; overload;
 
     function ObterAutorizacao(TipoAutorizacao: TtecTipoAutorizacao): TtecUsuarios; overload;
 
@@ -623,7 +623,7 @@ type
              VerificarAcertoCentavos: boolean = true;
              qrynfe: TtecQuery = nil;
              cdsProdutos: TClientDataSet = nil
-             ): boolean;
+             ): boolean; overload;
 
     function CalcularImpostos_(Var ProdutosItens, Notas: TtecQuery;
              CalcularIPI, CalcularTodos: boolean; Saida : Boolean = True;
@@ -1164,23 +1164,30 @@ begin
   end;
 end;
 
-class function TdtmBasico.CalcularImpostosSaidas(DadoFiscal: integer): Boolean;
+class function TdtmBasico.CalcularImpostos(ChaveDocto: integer; tipo: String = 'S'): Boolean;
 var
   SQL: String;
-  qryCalcularImpostosSaidas: TtecQuery;
+  qryCalcularImpostos: TtecQuery;
 begin
   {Calcula no banco com base nas informações das tabelas os valores
    dos impostos, inicialmente CBS/IBS}
 
   try
+
     result := True;
-    qryCalcularImpostosSaidas := TtecQuery.Create(nil);
-    qryCalcularImpostosSaidas.Database := dtmTecSoft.Database;
-    SQL := Format('select fn_recalcula_saida(%s)', [inttostr(DadoFiscal)]);
-    qryCalcularImpostosSaidas.Sql.Text := SQL;
-    qryCalcularImpostosSaidas.open;
+    qryCalcularImpostos := TtecQuery.Create(nil);
+    qryCalcularImpostos.Database := dtmTecSoft.Database;
+    if tipo = 'S' then
+      SQL := Format('select fn_recalcula_saida(%s)', [inttostr(ChaveDocto)])
+    else
+    if tipo = 'E' then
+      SQL := Format('select fn_recalcula_entrada(%s)', [inttostr(ChaveDocto)]);
+
+
+    qryCalcularImpostos.Sql.Text := SQL;
+    qryCalcularImpostos.open;
     dtmTecSoft.tstTecSoft.Commit;
-//    result := dmbasico.Perpetrar([])
+
   except
     on E: Exception do
     begin
@@ -2492,6 +2499,7 @@ begin
       FContribISS                   := qryVerificarFilialBase.fieldbyname('contribiss').AsBoolean;
       FCNAEFiscalFilialBase         := qryVerificarFilialBase.fieldbyname('CNAEFiscal').AsString;
       FCodigoCidadeIBGEFilialBase   := qryVerificarFilialBase.fieldbyname('cidadeIBGE').AsString;
+      fserienfse                     := qryVerificarFilialBase.fieldbyname('serienfse').AsString;
       FDDDFaxFilialBase             := qryVerificarFilialBase.fieldbyname('faxddd').AsString;
       FFaxFilialBase                := qryVerificarFilialBase.fieldbyname('faxnumero').AsString;
       FREgimeTributario             := qryVerificarFilialBase.fieldbyname('regimetributario').AsInteger;
@@ -18293,7 +18301,7 @@ var
     MontarInfComplementar(qryDadosFiscais);
 
 
-    if (ftipoemissaonfeservico in [Florianopolis_SoftPlan, Eletronica_AmbNacional, Palhoca_IPM]) and CondicaoNFeServico then
+    if (ftipoemissaonfeservico in [Eletronica_Betha_Sistemas, Florianopolis_SoftPlan, Eletronica_AmbNacional, Palhoca_IPM]) and CondicaoNFeServico then
     begin
       qryDadosFiscais.fieldbyname('versaolayout').AsCurrency := 2.0;
 //      qryDadosFiscais.fieldbyname('ambiente').AsInteger      := NFSeAmbiente;
@@ -18531,7 +18539,7 @@ begin
 
       nfe.codigoVerificacao_NFPSe := '';
       nfe.numeroSerie_NFPSe := '';
-      nfe.status_NFPSe := '';
+      nfe.statusNFPSe := '';
       nfe.DataHoraProcessamento_NFPSe := '';
       nfe.link_nfse := '';
       nfe.DataEmissao_NFPSe := '';
@@ -18604,7 +18612,7 @@ begin
           if Result and not Validando then
           begin
 
-            if (ftipoemissaonfeservico in [Florianopolis_SoftPlan, Eletronica_AmbNacional, Palhoca_IPM]) and CondicaoNFeServico then
+            if (ftipoemissaonfeservico in [Eletronica_Betha_Sistemas, Florianopolis_SoftPlan, Eletronica_AmbNacional, Palhoca_IPM]) and CondicaoNFeServico then
             begin
 
               if vValor then
@@ -19430,12 +19438,16 @@ begin
     if NFe.codigoVerificacao_NFPSe <> '' then
       qryDadosFiscais.FieldByName('numprotocolonfse').AsString := NFe.codigoVerificacao_NFPSe;
 
-    if NFe.status_NFPSe <> '' then
-      qryDadosFiscais.FieldByName('statusnfse').AsString := NFe.status_NFPSe;
+    if NFe.statusNFPSe <> '' then
+      qryDadosFiscais.FieldByName('statusnfse').AsString := NFe.statusNFPSe;
 
      {verificar o cancelamento no ambiente nacional}
+     (*
     if ((NFe.status_NFPSe = '1') and (ftipoemissaonfeservico in [Florianopolis_SoftPlan, Eletronica_AmbNacional])) or
        ((NFe.status_NFPSe = '2') and (ftipoemissaonfeservico = Palhoca_IPM)) then //cancelado
+       *)
+
+    if (NFe.statusNFPSe = '1') then
     begin
       qryDadosFiscais.FieldByName('situacao').asString := 'C';
 
@@ -19465,13 +19477,14 @@ begin
     else
     if (ftipoemissaonfeservico = Palhoca_IPM) then
     begin
+      qryDadosFiscais.FieldByName('chv_nfe').AsString := NFe.idNota_NFPSe;
       if NFe.DataHoraProcessamento_NFPSe<>'' then
-        //qryDadosFiscais.FieldByName('dhprocnfe').Asdatetime := strtodatetime(NFe.DataHoraProcessamento_NFPSe);
-        qryDadosFiscais.FieldByName('dhprocnfe').Asdatetime := FormatarTimeStamp(NFe.DataHoraProcessamento_NFPSe);
+        qryDadosFiscais.FieldByName('dhprocnfe').Asdatetime := strtodatetime(NFe.DataHoraProcessamento_NFPSe);
+        //qryDadosFiscais.FieldByName('dhprocnfe').Asdatetime := FormatarTimeStamp(NFe.DataHoraProcessamento_NFPSe);
 
       if NFe.DataEmissao_NFPSe <> '' then
-//        qryDadosFiscais.FieldByName('data').Asdatetime := strtodatetime(NFe.DataEmissao_NFPSe);
-        qryDadosFiscais.FieldByName('data').Asdatetime := FormatarTimeStamp(NFe.DataEmissao_NFPSe);
+        qryDadosFiscais.FieldByName('data').Asdatetime := strtodatetime(NFe.DataEmissao_NFPSe);
+//        qryDadosFiscais.FieldByName('data').Asdatetime := FormatarTimeStamp(NFe.DataEmissao_NFPSe);
     end;
 
     if qrydadosfiscais.FindField('obsimpostosretidos') <> nil then
@@ -19496,7 +19509,7 @@ begin
     qryDadosFiscais.Post;
 
     qryNotas.edit;
-    qryNotas.fieldbyname('serie').AsString := trocar(qryNotas.fieldbyname('serie').AsString, '*', '');
+//    qryNotas.fieldbyname('serie').AsString := trocar(qryNotas.fieldbyname('serie').AsString, '*', '');
 
     if qryNotas.findfield('serienfse') <> nil then
       qryNotas.fieldbyname('serienfse').AsString := NFe.Serie_NFPSe
@@ -19558,13 +19571,13 @@ begin
 
   if result then
     if (ftipoemissaonfeservico = Palhoca_IPM) then
-       if NFe.status_NFPSe = '' then   {o status não é retornado na inclusão no webservice, somente pela numero de autenticidade ou numero e serie + login e senha}
+       if NFe.statusNFPSe = '' then   {o status não é retornado na inclusão no webservice, somente pela numero de autenticidade ou numero e serie + login e senha}
        begin
           Result := NFe.ConsultarSituacaoLoteNfse(qryDadosFiscais,qryNotas, true);
           if result then
           begin
             qryDadosFiscais.Edit;
-            qryDadosFiscais.FieldByName('statusnfse').AsString := NFe.status_NFPSe;
+            qryDadosFiscais.FieldByName('statusnfse').AsString := NFe.statusNFPSe;
             qryDadosFiscais.Post;
             Result := perpetrar([qryDadosFiscais]);
           end;
@@ -26855,7 +26868,7 @@ begin
    fqrycalcular_valor_pagar   := TTecQuery.Create(nil);
    fqrycalcular_valor_pagar.Database    := dtmTecSoft.Database;
 
-   fqrycalcular_valor_pagar.sql.text :=
+   fqrycalcular_valor_pagar.sqlna verdade.text :=
 
    ' select calcular_valor_pagar( '+
    ' cast(:p_valorvencto as NUMERIC(11,2)), '+

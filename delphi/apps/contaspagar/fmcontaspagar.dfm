@@ -1,6 +1,6 @@
 inherited frmContasPagar: TfrmContasPagar
-  Left = 389
-  Top = 71
+  Left = 342
+  Top = 36
   ActiveControl = pgcControle
   Caption = 'Documentos a Pagar'
   ClientHeight = 620
@@ -160,9 +160,9 @@ inherited frmContasPagar: TfrmContasPagar
           object tstContaPagar: TTabSheet
             Caption = 'tstContaPagar'
             object sbnAlterarDuplicatas: TSpeedButton
-              Left = 861
+              Left = 864
               Top = 58
-              Width = 23
+              Width = 20
               Height = 23
               Hint = 'CTRL+P - Pagar duplicata'
               Flat = True
@@ -950,7 +950,7 @@ inherited frmContasPagar: TfrmContasPagar
                   CheckTrue = 'Y'
                   Color = 14408667
                   Editor = edNumeric
-                  FieldName = 'ValorAPagar'
+                  FieldName = 'ValoraPagarCalc'
                   FloatFormat = '%.2n'
                   Font.Charset = DEFAULT_CHARSET
                   Font.Color = clBlack
@@ -2417,7 +2417,7 @@ inherited frmContasPagar: TfrmContasPagar
               inherited gbxComplemento: TGroupBox
                 Width = 636
                 inherited mmoComplemento: TtecDBMemo
-                  Width = 588
+                  Width = 632
                 end
               end
             end

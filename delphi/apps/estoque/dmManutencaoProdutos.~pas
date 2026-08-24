@@ -1,0 +1,1521 @@
+unit dmManutencaoProdutos;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery,
+  cpdatasource, frmultiplaselecaoaleatoria, dmtecsoft, biblio,
+  DBAdvGrid, clparametrossistema, AdvSmoothProgressBar, forms,
+  frselecaoaleatorialistaspadronizadas, ComCtrls, ctconstantes,
+  StdCtrls;
+
+type
+  TdtmManutencaoProdutos = class(TdtmBasico)
+    dsrProdutos: TtecDataSource;
+    qryProdutos: TtecQuery;
+    dsrProdutosLinha: TtecDataSource;
+    qryProdutosLinha: TtecQuery;
+    qryProdutoscodigo_produto: TLargeintField;
+    qryProdutoscodigovisual_produto: TStringField;
+    qryProdutosdescricao_produto: TStringField;
+    qryProdutosdescricaoplanilhacusto_produto: TStringField;
+    qryProdutosnome_site_produto: TStringField;
+    qryProdutosreferencia_produto: TStringField;
+    qryProdutosinativo_produto: TDateField;
+    qryProdutosforalinha_produto: TDateField;
+    qryProdutosnlote_produto: TStringField;
+    qryProdutosdval_produto: TDateField;
+    qryProdutospeso_entrega_produto: TFloatField;
+    qryProdutoscomprimento_produto: TFloatField;
+    qryProdutosaltura_produto: TFloatField;
+    qryProdutoslargura_produto: TFloatField;
+    qryProdutosdiametro_produto: TFloatField;
+    qryProdutoscodigo_caracteristica: TLargeintField;
+    qryProdutoscodigovisual_caracteristica: TStringField;
+    qryProdutoscomplemento_caracteristica: TStringField;
+    qryProdutostipoproduto_caracteristica: TStringField;
+    qryProdutosdescricaotipoproduto_caracteristica: TStringField;
+    qryProdutospeso_caracteristica: TFloatField;
+    qryProdutosvolumes_caracteristica: TIntegerField;
+    qryProdutosforalinha_caracteristica: TDateField;
+    qryProdutosinativo_caracteristica: TDateField;
+    qryProdutosgtin_caracteristica: TStringField;
+    qryProdutosdescricaonanf_caracteristica: TStringField;
+    qryProdutosmontagem_caracteristica: TBooleanField;
+    qryProdutosemiteetiqueta_caracteristica: TBooleanField;
+    qryProdutosbrinde_caracteristica: TBooleanField;
+    qryProdutosemitecomplemento_caracteristica: TBooleanField;
+    qryProdutosexigenumeroserie_caracteristica: TBooleanField;
+    qryProdutosgerenciarloteevalidade_caracteristica: TBooleanField;
+    qryProdutosdisponivel_sistema_caracteristica: TBooleanField;
+    qryProdutosdisponivel_site_caracteristica: TBooleanField;
+    qryProdutosdisponivel_marketplace_caracteristica: TBooleanField;
+    qryProdutoscomposto_caracteristica: TBooleanField;
+    qryProdutosdiscriminarpreco_caracteristica: TBooleanField;
+    qryProdutosconferircomposto_caracteristica: TBooleanField;
+    qryProdutoscomposto2_caracteristica: TBooleanField;
+    qryProdutosdesmembrarcomponente_caracteristica: TBooleanField;
+    qryProdutosdiscriminarcomposto_caracteristica: TStringField;
+    qryProdutosvendanegativa_caracteristica: TStringField;
+    qryProdutosvendanegativanosite_caracteristica: TStringField;
+    qryProdutosmarkup_caracteristica: TFloatField;
+    qryProdutoscustoadicionalproduto_caracteristica: TFloatField;
+    qryProdutosmultiplo_caracteristica: TFloatField;
+    qryProdutosbonus_caracteristica: TIntegerField;
+    qryProdutostipocomissao_caracteristica: TStringField;
+    qryProdutoscomissao_caracteristica: TFloatField;
+    qryProdutostipocomissaoindicador_caracteristica: TStringField;
+    qryProdutoscomissaoindicador_caracteristica: TFloatField;
+    qryProdutosgrupo_caracteristica: TStringField;
+    qryProdutosdescricaogrupo_caracteristica: TStringField;
+    qryProdutosclasse_caracteristica: TStringField;
+    qryProdutosdescricaoclasse_caracteristica: TStringField;
+    qryProdutosmarca_caracteristica: TIntegerField;
+    qryProdutosdescricaomarca_caracteristica: TStringField;
+    qryProdutosunidade_caracteristica: TStringField;
+    qryProdutosfatorpreco_caracteristica: TStringField;
+    qryProdutosdescricaofatorpreco_caracteristica: TStringField;
+    qryProdutossetorproducao_caracteristica: TStringField;
+    qryProdutosdescricacaosetorproducao_caracteristica: TStringField;
+    qryProdutosincidencia_caracteristica: TIntegerField;
+    qryProdutoscst_caracteristica: TStringField;
+    qryProdutosdescricaocst_caracteristica: TStringField;
+    qryProdutoscsosn_caracteristica: TStringField;
+    qryProdutosdescricaocsosn_caracteristica: TStringField;
+    qryProdutospercreducaobase_caracteristica: TFloatField;
+    qryProdutosicmsmodalidade_caracteristica: TIntegerField;
+    qryProdutosdescricaoicmsmodalidade_caracteristica: TStringField;
+    qryProdutosbaseicms_caracteristica: TFloatField;
+    qryProdutosicms_caracteristica: TIntegerField;
+    qryProdutosdescricaoicms_caracteristica: TStringField;
+    qryProdutosaliquotaicms_estadosicms: TFloatField;
+    qryProdutosicmsmodsubst_caracteristica: TIntegerField;
+    qryProdutosdescricaoicmsmodsubst_caracteristica: TStringField;
+    qryProdutospredbcst_caracteristica: TFloatField;
+    qryProdutosorigem_caracteristica: TIntegerField;
+    qryProdutosdescricaoorigem_caracteristica: TStringField;
+    qryProdutosanvisa_caracteristica: TStringField;
+    qryProdutosobslegal_caracteristica: TIntegerField;
+    qryProdutosdescricaoobslegal_caracteristica: TStringField;
+    qryProdutosipi_caracteristica: TIntegerField;
+    qryProdutosdescricaoipi_caracteristica: TStringField;
+    qryProdutosclassificacaofiscalipi_caracteristica: TStringField;
+    qryProdutosaliquotaipi_caracteristica: TFloatField;
+    qryProdutosipicst_caracteristica: TStringField;
+    qryProdutosdescricaoipicst_caracteristica: TStringField;
+    qryProdutoscofinscst_caracteristica: TStringField;
+    qryProdutosdescricaocofins_caracteristica: TStringField;
+    qryProdutosaliquotacofins_caracteristica: TFloatField;
+    qryProdutospiscst_caracteristica: TStringField;
+    qryProdutosdescricaopis_caracteristica: TStringField;
+    qryProdutosaliquotapis_caracteristica: TFloatField;
+    qryProdutoscodigo_efd_t53_caracteristica: TStringField;
+    qryProdutosdescricaoefd_t53_caracteristica: TStringField;
+    qryProdutosproducaopropria_caracteristica: TBooleanField;
+    qryProdutossubstituicaoipi_caracteristica: TBooleanField;
+    qryProdutosLinhacodigo_produto: TLargeintField;
+    qryProdutosLinhacodigovisual_produto: TStringField;
+    qryProdutosLinhadescricao_produto: TStringField;
+    qryProdutosLinhadescricaoplanilhacusto_produto: TStringField;
+    qryProdutosLinhanome_site_produto: TStringField;
+    qryProdutosLinhareferencia_produto: TStringField;
+    qryProdutosLinhainativo_produto: TDateField;
+    qryProdutosLinhaforalinha_produto: TDateField;
+    qryProdutosLinhanlote_produto: TStringField;
+    qryProdutosLinhadval_produto: TDateField;
+    qryProdutosLinhapeso_entrega_produto: TFloatField;
+    qryProdutosLinhacomprimento_produto: TFloatField;
+    qryProdutosLinhaaltura_produto: TFloatField;
+    qryProdutosLinhalargura_produto: TFloatField;
+    qryProdutosLinhadiametro_produto: TFloatField;
+    qryProdutosLinhacodigo_caracteristica: TLargeintField;
+    qryProdutosLinhacodigovisual_caracteristica: TStringField;
+    qryProdutosLinhacomplemento_caracteristica: TStringField;
+    qryProdutosLinhatipoproduto_caracteristica: TStringField;
+    qryProdutosLinhadescricaotipoproduto_caracteristica: TStringField;
+    qryProdutosLinhapeso_caracteristica: TFloatField;
+    qryProdutosLinhavolumes_caracteristica: TIntegerField;
+    qryProdutosLinhaforalinha_caracteristica: TDateField;
+    qryProdutosLinhainativo_caracteristica: TDateField;
+    qryProdutosLinhagtin_caracteristica: TStringField;
+    qryProdutosLinhadescricaonanf_caracteristica: TStringField;
+    qryProdutosLinhamontagem_caracteristica: TBooleanField;
+    qryProdutosLinhaemiteetiqueta_caracteristica: TBooleanField;
+    qryProdutosLinhabrinde_caracteristica: TBooleanField;
+    qryProdutosLinhaemitecomplemento_caracteristica: TBooleanField;
+    qryProdutosLinhaexigenumeroserie_caracteristica: TBooleanField;
+    qryProdutosLinhagerenciarloteevalidade_caracteristica: TBooleanField;
+    qryProdutosLinhadisponivel_sistema_caracteristica: TBooleanField;
+    qryProdutosLinhadisponivel_site_caracteristica: TBooleanField;
+    qryProdutosLinhadisponivel_marketplace_caracteristica: TBooleanField;
+    qryProdutosLinhacomposto_caracteristica: TBooleanField;
+    qryProdutosLinhadiscriminarpreco_caracteristica: TBooleanField;
+    qryProdutosLinhaconferircomposto_caracteristica: TBooleanField;
+    qryProdutosLinhacomposto2_caracteristica: TBooleanField;
+    qryProdutosLinhadesmembrarcomponente_caracteristica: TBooleanField;
+    qryProdutosLinhadiscriminarcomposto_caracteristica: TStringField;
+    qryProdutosLinhavendanegativa_caracteristica: TStringField;
+    qryProdutosLinhavendanegativanosite_caracteristica: TStringField;
+    qryProdutosLinhamarkup_caracteristica: TFloatField;
+    qryProdutosLinhacustoadicionalproduto_caracteristica: TFloatField;
+    qryProdutosLinhamultiplo_caracteristica: TFloatField;
+    qryProdutosLinhabonus_caracteristica: TIntegerField;
+    qryProdutosLinhatipocomissao_caracteristica: TStringField;
+    qryProdutosLinhacomissao_caracteristica: TFloatField;
+    qryProdutosLinhatipocomissaoindicador_caracteristica: TStringField;
+    qryProdutosLinhacomissaoindicador_caracteristica: TFloatField;
+    qryProdutosLinhagrupo_caracteristica: TStringField;
+    qryProdutosLinhadescricaogrupo_caracteristica: TStringField;
+    qryProdutosLinhaclasse_caracteristica: TStringField;
+    qryProdutosLinhadescricaoclasse_caracteristica: TStringField;
+    qryProdutosLinhamarca_caracteristica: TIntegerField;
+    qryProdutosLinhadescricaomarca_caracteristica: TStringField;
+    qryProdutosLinhaunidade_caracteristica: TStringField;
+    qryProdutosLinhafatorpreco_caracteristica: TStringField;
+    qryProdutosLinhadescricaofatorpreco_caracteristica: TStringField;
+    qryProdutosLinhasetorproducao_caracteristica: TStringField;
+    qryProdutosLinhadescricacaosetorproducao_caracteristica: TStringField;
+    qryProdutosLinhaincidencia_caracteristica: TIntegerField;
+    qryProdutosLinhacst_caracteristica: TStringField;
+    qryProdutosLinhadescricaocst_caracteristica: TStringField;
+    qryProdutosLinhacsosn_caracteristica: TStringField;
+    qryProdutosLinhadescricaocsosn_caracteristica: TStringField;
+    qryProdutosLinhapercreducaobase_caracteristica: TFloatField;
+    qryProdutosLinhaicmsmodalidade_caracteristica: TIntegerField;
+    qryProdutosLinhadescricaoicmsmodalidade_caracteristica: TStringField;
+    qryProdutosLinhabaseicms_caracteristica: TFloatField;
+    qryProdutosLinhaicms_caracteristica: TIntegerField;
+    qryProdutosLinhadescricaoicms_caracteristica: TStringField;
+    qryProdutosLinhaaliquotaicms_estadosicms: TFloatField;
+    qryProdutosLinhaicmsmodsubst_caracteristica: TIntegerField;
+    qryProdutosLinhadescricaoicmsmodsubst_caracteristica: TStringField;
+    qryProdutosLinhapredbcst_caracteristica: TFloatField;
+    qryProdutosLinhaorigem_caracteristica: TIntegerField;
+    qryProdutosLinhadescricaoorigem_caracteristica: TStringField;
+    qryProdutosLinhaanvisa_caracteristica: TStringField;
+    qryProdutosLinhaobslegal_caracteristica: TIntegerField;
+    qryProdutosLinhadescricaoobslegal_caracteristica: TStringField;
+    qryProdutosLinhaipi_caracteristica: TIntegerField;
+    qryProdutosLinhadescricaoipi_caracteristica: TStringField;
+    qryProdutosLinhaclassificacaofiscalipi_caracteristica: TStringField;
+    qryProdutosLinhaaliquotaipi_caracteristica: TFloatField;
+    qryProdutosLinhaipicst_caracteristica: TStringField;
+    qryProdutosLinhadescricaoipicst_caracteristica: TStringField;
+    qryProdutosLinhacofinscst_caracteristica: TStringField;
+    qryProdutosLinhadescricaocofins_caracteristica: TStringField;
+    qryProdutosLinhaaliquotacofins_caracteristica: TFloatField;
+    qryProdutosLinhapiscst_caracteristica: TStringField;
+    qryProdutosLinhadescricaopis_caracteristica: TStringField;
+    qryProdutosLinhaaliquotapis_caracteristica: TFloatField;
+    qryProdutosLinhacodigo_efd_t53_caracteristica: TStringField;
+    qryProdutosLinhadescricaoefd_t53_caracteristica: TStringField;
+    qryProdutosLinhaproducaopropria_caracteristica: TBooleanField;
+    qryProdutosLinhasubstituicaoipi_caracteristica: TBooleanField;
+    qryProdutosdescricao_caracteristica: TStringField;
+    qryProdutosLinhadescricao_caracteristica: TStringField;
+    qryProdutosLinhadescricaounidade_caracteristica: TStringField;
+    qryProdutosdescricaounidade_caracteristica: TStringField;
+    qryProdutosmarcar: TBooleanField;
+    qryProdutosLinhamarcar: TBooleanField;
+    qryProdutosLinhanulo_inativo_produto: TBooleanField;
+    qryProdutosLinhanulo_foralinha_produto: TBooleanField;
+    qryProdutosLinhanulo_dval_produto: TBooleanField;
+    qryProdutosLinhanulo_foralinha_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_inativo_caracteristica: TBooleanField;
+    qryAtualizarProdutos: TtecQuery;
+    qryAtualizarCaracteristicas: TtecQuery;
+    qryAtualizarProdutoscodigo: TLargeintField;
+    qryAtualizarProdutoscodigovisual: TStringField;
+    qryAtualizarProdutosdescricao: TStringField;
+    qryAtualizarProdutosdescricaoplanilhacusto: TStringField;
+    qryAtualizarProdutosnome_site: TStringField;
+    qryAtualizarProdutosreferencia: TStringField;
+    qryAtualizarProdutosinativo: TDateField;
+    qryAtualizarProdutosforalinha: TDateField;
+    qryAtualizarProdutosnlote: TStringField;
+    qryAtualizarProdutosdval: TDateField;
+    qryAtualizarProdutospeso_entrega: TFloatField;
+    qryAtualizarProdutoscomprimento: TFloatField;
+    qryAtualizarProdutosaltura: TFloatField;
+    qryAtualizarProdutoslargura: TFloatField;
+    qryAtualizarProdutosdiametro: TFloatField;
+    qryProdutosLinhanulo_descricao_produto: TBooleanField;
+    qryProdutosLinhanulo_descricaoplanilhacusto_produto: TBooleanField;
+    qryProdutosLinhanulo_nome_site_produto: TBooleanField;
+    qryProdutosLinhanulo_referencia_produto: TBooleanField;
+    qryProdutosLinhanulo_nlote_produto: TBooleanField;
+    qryProdutosLinhanulo_peso_entrega_produto: TBooleanField;
+    qryProdutosLinhanulo_comprimento_produto: TBooleanField;
+    qryProdutosLinhanulo_altura_produto: TBooleanField;
+    qryProdutosLinhanulo_largura_produto: TBooleanField;
+    qryProdutosLinhanulo_diametro_produto: TBooleanField;
+    qryProdutosLinhanulo_descricao_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_complemento_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_tipoproduto_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_peso_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_volumes_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_gtin_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_descricaonanf_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_discriminarcomposto_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_vendanegativa_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_vendanegativanosite_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_markup_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_custoadicionalproduto_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_multiplo_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_bonus_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_tipocomissao_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_comissao_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_tipocomissaoindicador_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_comissaoindicador_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_grupo_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_classe_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_marca_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_unidade_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_fatorpreco_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_setorproducao_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_cst_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_csosn_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_icmsmodalidade_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_icms_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_icmsmodsubst_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_predbcst_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_origem_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_anvisa_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_obslegal_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_ipi_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_ipicst_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_cofinscst_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_aliquotacofins_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_piscst_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_aliquotapis_caracteristica: TBooleanField;
+    qryProdutosLinhanulo_codigo_efd_t53_caracteristica: TBooleanField;
+    qryProdutosLinhaaparecernosite_produto: TBooleanField;
+    qryProdutosaparecernosite_produto: TBooleanField;
+    qryAtualizarProdutosaparecernosite: TBooleanField;
+    qryManutencaoAtributos: TtecQuery;
+    dsrManutencaoAtributos: TtecDataSource;
+    qryListaAtributos: TtecQuery;
+    qryListaAtributosnome: TStringField;
+    qryListaAtributosdescricao: TStringField;
+    qryListaAtributostipo: TStringField;
+    dsrListaAtributos: TtecDataSource;
+    qryManutencaoAtributos_Linha: TtecQuery;
+    dsrManutencaoAtributos_Linha: TtecDataSource;
+    dsrProdutosJSON: TtecDataSource;
+    qryAtualizarProdutosJSON: TtecQuery;
+    qryAtualizarProdutosJSONcodigo: TLargeintField;
+    qryAtualizarProdutosJSONatributos: TLargeintField;
+    qryAtualizarProdutosJSONatributos_valores: TStringField;
+    qryAtualizarProdutosJSONcodigovisual: TStringField;
+    procedure qryProdutosFilterRecord(DataSet: TDataSet;
+      var Accept: Boolean);
+
+    procedure qryProdutosLinhaGetText(Sender: TField;
+      var Text: String; DisplayText: Boolean);
+    procedure qryProdutosLinhaNewRecord(DataSet: TDataSet);
+    procedure qryManutencaoAtributosBeforeOpen(DataSet: TDataSet);
+    procedure dsrManutencaoAtributosDataChange(Sender: TObject;
+      Field: TField);
+    procedure qryManutencaoAtributos_LinhaAfterOpen(DataSet: TDataSet);
+    procedure qryManutencaoAtributos_LinhaNewRecord(DataSet: TDataSet);
+    procedure qryManutencaoAtributos_LinhaGetText(Sender: TField;
+      var Text: String; DisplayText: Boolean);
+    procedure qryManutencaoAtributos_LinhaAfterPost(DataSet: TDataSet);
+
+  private
+    { Private declarations }
+    vListaCaracteristicas : tStringList;
+    FprodutoInativo: Boolean;
+    FprodutoEmLinha: Boolean;
+    FProdutoNaoBrinde: Boolean;
+    FProdutoBrinde: Boolean;
+    fNaoDisponivelnoSite: Boolean;
+    FprodutoForadeLinha: Boolean;
+    FProdutoSemMontagem: Boolean;
+    fDisponivelnoSite: Boolean;
+    FprodutoAtivo: Boolean;
+    FProdutoComMontagem: Boolean;
+    fParametroListasPadrao: String;
+    fLastPageOpened: tTabSheet;
+    procedure SetLastPageOpened(const Value: tTabSheet);
+    function Lista_de_Campos_1: String;
+    function Lista_de_Campos_1_Linha: String;
+
+    function Lista_de_Campos_2: String;
+
+
+
+  public
+    { Public declarations }
+
+    vPosition : dOUBLE;
+    vMarcadosProdutos: integer;
+    vAplicadosProdutos : integer;
+
+    vMarcadosAtributos: integer;
+    vAplicadosAtributos : integer;
+
+    qryProcuraFornecedores : tTecquery;
+    qryProcuraAtributos : tTecquery;
+    constructor Create(AOwner: TComponent); override;
+    function AbrirConsulta: Boolean;
+    procedure AplicarAlteracoes;
+
+    procedure AplicarAlteracoesAtributos;
+
+    procedure AplicarAlteracoesCaracteristicas;  //Verificar visualmente os campos da tabela caracteristica não marcados, visto que se trata de 1 para muitos (produtos x caracteristicas)
+    function GravarAlteracoes: Boolean;
+    function GravarAlteracoesAtributos: Boolean;
+
+
+    property ProdutoEmLinha: Boolean read FprodutoEmLinha write FProdutoEmLinha;
+    property ProdutoForadeLinha: Boolean read FprodutoForadeLinha write FProdutoForadeLinha;
+    property ProdutoAtivo: Boolean read FprodutoAtivo write FProdutoAtivo;
+    property ProdutoInativo: Boolean read FprodutoInativo write FProdutoInativo;
+    property ProdutoComMontagem: Boolean read FProdutoComMontagem write FProdutoComMontagem;
+    property ProdutoSemMontagem: Boolean read FProdutoSemMontagem write FProdutoSemMontagem;
+    property ProdutoBrinde: Boolean read FProdutoBrinde write FProdutoBrinde;
+    property ProdutoNaoBrinde: Boolean read FProdutoNaoBrinde write FProdutoNaoBrinde;
+    property DisponivelnoSite: Boolean read fDisponivelnoSite write fDisponivelnoSite;
+    property NaoDisponivelnoSite: Boolean read fNaoDisponivelnoSite write fNaoDisponivelnoSite;
+    property ParametroListasPadrao: String read fParametroListasPadrao write fParametroListasPadrao;
+    property LastPageOpened: tTabSheet read fLastPageOpened write SetLastPageOpened;
+    function PosicionarListaAtributos(Campo, Valor: String): Boolean;
+
+  end;
+
+var
+  dtmManutencaoProdutos: TdtmManutencaoProdutos;
+
+implementation
+
+uses fmManutencaoProdutos;
+
+{$R *.dfm}
+
+{ TdtmManutencaoProdutos }
+
+function TdtmManutencaoProdutos.AbrirConsulta: Boolean;
+var
+
+{  ListaCST,
+  ListaCSOSN,}
+  Where, CondicoesSQL : String;
+
+begin
+  qryProdutosLinha.close;
+  qryProdutosLinha.open;
+  qryProdutosLinha.append;
+  {
+  qryProdutosLinhanulo_inativo_produto.asBoolean := false;
+  qryProdutosLinhanulo_foralinha_produto.asBoolean := false;
+  qryProdutosLinhanulo_dval_produto.asBoolean := false;
+  qryProdutosLinhanulo_foralinha_caracteristica.asBoolean := false;
+  qryProdutosLinhanulo_inativo_caracteristica.asBoolean := false;
+  }
+  qryProdutosLinhaexigenumeroserie_caracteristica.clear;
+
+
+
+  qryProdutos.parambyname('estado').asString := estadofilialbase;
+
+
+  CondicoesSQL := tfraMultiplaSelecaoAleatoria(self.owner.FindComponent('fraMultiplaSelecaoAleatoria1')).CondicoesSQL;
+
+  if CondicoesSQL <> '' then
+    qryProdutos.Macrobyname('Condicao').asString := ' and ' + CondicoesSQL
+  else
+    qryProdutos.Macrobyname('Condicao').asString := ' and true ';
+
+{
+  ListaCST := TfraSelecaoAleatoriacst(self.owner.FindComponent('fraSelecaoAleatoriacst')).ListaCondicional;
+  ListaCSOSN := TfraSelecaoAleatoriacsosn(self.owner.FindComponent('fraSelecaoAleatoriacsosn')).ListaCondicional;
+}
+{
+  if ListaCST <> '' then
+    qryProdutos.Macrobyname('CondicaoListaCST').asString := ' and ' + ListaCST
+  else
+    qryProdutos.Macrobyname('CondicaoListaCST').asString := '';
+
+  if ListaCSOSN <> '' then
+    qryProdutos.Macrobyname('CondicaoListaCSOSN').asString := ' and ' + ListaCSOSN
+  else
+    qryProdutos.Macrobyname('CondicaoListaCSOSN').asString := '';
+}
+
+  if ParametroListasPadrao <> '' then
+    qryProdutos.Macrobyname('CondicaoParametroListasPadrao').asString :=
+      ' and (p.codigo in (select plp.produto '+
+                                                ' from produtoslistaspadrao plp '+
+                                                '      join listaspadrao lp '+
+                                                '      on plp.listapadrao = lp.codigo '+
+                                                ' where ' + ParametroListasPadrao + '))'
+
+
+  else
+    qryProdutos.Macrobyname('CondicaoParametroListasPadrao').asString := '';
+
+
+  if not qryProcuraFornecedores.fieldbyname('codigo').IsNull then
+    qryProdutos.Macrobyname('CondicaoFornecedor').asString :=
+
+      ' and ((SELECT COUNT(*) ' +
+                            ' FROM fornecedoresprodutos fp ' +
+                            ' WHERE (fp.caracteristica = c.codigo) and ' +
+                                  '(fp.fornecedor = ' + qryProcuraFornecedores.fieldbyname('codigo').AsString + ')) > 0)'
+
+  else
+    qryProdutos.Macrobyname('CondicaoFornecedor').asString := '';
+
+  Where := '';
+
+  if FProdutoEmLinha and not FprodutoForadeLinha then
+     Where := Where + ' and  not p.foralinhal and not c.foralinhal'
+  else
+  if FprodutoForadeLinha and not Fprodutoemlinha then
+     Where := Where + ' and  (p.foralinhal or c.foralinhal)';
+
+  if FProdutoAtivo and not FprodutoInativo then
+     Where := Where + ' and  (not (p.inativo is not null))'
+  else
+  if FprodutoInativo and not FprodutoAtivo then
+     Where := Where + ' and  (p.inativo is not null)';
+
+  if FProdutoComMontagem and not FProdutoSemMontagem then
+     Where := Where + ' and (c.montagem)'
+  else
+  if FProdutoSemMontagem and not FProdutoComMontagem then
+     Where := Where + ' and not (c.montagem)';
+
+  if FProdutoBrinde and not FProdutoNaoBrinde then
+     Where := Where + ' and (c.brinde)'
+  else
+  if FProdutoNaoBrinde and not FProdutoBrinde then
+     Where := Where + ' and not (c.brinde)';
+
+  if FDisponivelnoSite and not FNaoDisponivelnoSite then
+     Where := Where + ' and (p.aparecernosite)'
+  else
+  if FNaoDisponivelnoSite and not FDisponivelnoSite then
+     Where := Where + ' and not (p.aparecernosite)';
+
+  qryProdutos.Macrobyname('CondicaoExtra').asString := Where;
+
+//  qryManutencaoAtributos.params := qryProdutos.params;
+  qryManutencaoAtributos.macros := qryProdutos.macros;
+
+  if LastPageOpened.Name = 'tstDadosProdutos'  then
+  begin
+
+    if (vmarcadosProdutos <> 0) and
+       (vAplicadosProdutos <> 0) then
+
+      result := MensagemConfirmacao('Existe uma gravação pendente. Ao gerar os dados a mesma será perdida.') = smbOK;
+
+    if result then
+    begin
+      TCheckBox(self.owner.FindComponent('ckbSelecionarTodos')).checked := False;
+
+      vMarcadosprodutos := 0;
+      vAplicadosprodutos := 0;
+
+      qryProdutos.close;
+      qryProdutos.open;
+      result := qryProdutos.recordcount <> 0;
+      if not result then
+        MensagemAviso(format(ctNENHUMREGISTROENCONTRADO,['registro']));
+    end;
+  end
+  else
+  if (LastPageOpened.Name = 'tstDadosAtributos') and (qryProcuraAtributos.RecordCount > 0) then
+  begin
+    qryManutencaoAtributos.ParamByName('atributo').asinteger := qryProcuraAtributos.fieldbyName('codigo').AsInteger;
+
+    qryManutencaoAtributos.Close;
+    qryManutencaoAtributos.Open;
+
+    TDBAdvGrid(self.owner.FindComponent('DBAdvManutencaoAtributos')).AutoSize := false;
+    TDBAdvGrid(self.owner.FindComponent('DBAdvManutencaoAtributos')).AutoSize := true;
+    TDBAdvGrid(self.owner.FindComponent('DBAdvManutencaoAtributos')).AutoSize := false;
+
+
+    qryManutencaoAtributos_Linha.Params := qryManutencaoAtributos.Params;
+    qryManutencaoAtributos_Linha.Macros := qryManutencaoAtributos.Macros;
+
+    qryManutencaoAtributos_Linha.MacroByName('Lista_de_Campos_1').asString :=
+    Lista_de_Campos_1_Linha;
+
+    
+
+    qryManutencaoAtributos_Linha.Close;
+    qryManutencaoAtributos_Linha.Open;
+
+    qryManutencaoAtributos_Linha.DELETE;
+
+    qryManutencaoAtributos_Linha.append;
+
+    TDBAdvGrid(self.owner.FindComponent('DBAdvManutencaoAtributos_Linha')).AutoSize := false;
+    TDBAdvGrid(self.owner.FindComponent('DBAdvManutencaoAtributos_Linha')).AutoSize := true;
+    TDBAdvGrid(self.owner.FindComponent('DBAdvManutencaoAtributos_Linha')).AutoSize := false;
+
+    TfrmManutencaoProdutos(self.owner).SincronizarTodasLarguraColuna(
+      TDBAdvGrid(self.owner.FindComponent('DBAdvManutencaoAtributos')),
+      TDBAdvGrid(self.owner.FindComponent('DBAdvManutencaoAtributos_Linha')));
+
+    result := qryManutencaoAtributos.recordcount <> 0;
+
+    if not result then
+      MensagemAviso(format(ctNENHUMREGISTROENCONTRADO,['registro']));
+
+//    qryManutencaoAtributos_Linha.edit;
+
+  end;
+
+end;
+
+procedure TdtmManutencaoProdutos.AplicarAlteracoes;
+var
+ i: integer;
+ vFoiAplicado : Boolean;
+ vRecno : Integer;
+
+
+ procedure AdicionarListaCaracteristica(NomedoCampo: String);
+ begin
+   if pos('_caracteristica', NomedoCampo)<>0 then
+   begin
+     if vListaCaracteristicas.IndexOf(qryProdutoscodigo_caracteristica.asString)=-1 then
+       vListaCaracteristicas.append(qryProdutoscodigo_caracteristica.asString);
+   end
+ end;
+
+begin
+  try
+    vListaCaracteristicas.Clear;
+
+    qryProdutos.GuardarRegistroAtual(true);
+    qryProdutos.first;
+    while not qryProdutos.eof do
+    begin
+
+      if qryProdutosmarcar.asBoolean then
+      begin
+
+        vFoiAplicado := false;
+
+
+        qryProdutos.edit;
+        for i:=0 to qryProdutosLinha.fieldcount-1 do
+        begin
+          if (qryProdutosLinha.fields[i].fieldname <> 'marcar') and
+             (copy(qryProdutosLinha.fields[i].fieldname,1,5) <> 'nulo_') and
+             not qryProdutosLinha.fields[i].ReadOnly then
+          begin
+            if (qryprodutoslinha.FindField('nulo_'+qryProdutosLinha.fields[i].fieldname) <> nil) and
+                not qryProdutosLinha.fieldbyname('nulo_'+qryProdutosLinha.fields[i].fieldname).asBoolean then
+            begin
+              if not qryProdutos.fieldbyname(qryProdutosLinha.fields[i].fieldname).isnull then
+                qryProdutos.fieldbyname(qryProdutosLinha.fields[i].fieldname).clear;
+              vFoiAplicado := true;
+              AdicionarListaCaracteristica(qryProdutosLinha.fields[i].fieldname);
+            end
+            else
+            if not qryProdutosLinha.fields[i].isnull and (trim(qryProdutosLinha.fields[i].asString)<>'') THEN
+            begin
+
+              case qryProdutosLinha.fields[i].DataType of
+                ftBoolean   :
+                begin
+                  if qryProdutos.fieldbyname(qryProdutosLinha.fields[i].fieldname).AsBoolean <> qryProdutosLinha.fields[i].asBoolean then
+                  begin
+                    qryProdutos.fieldbyname(qryProdutosLinha.fields[i].fieldname).AsBoolean := qryProdutosLinha.fields[i].asBoolean;
+                    vFoiAplicado := true;
+                    AdicionarListaCaracteristica(qryProdutosLinha.fields[i].fieldname);
+                  end;
+                end;
+
+                ftinteger,
+                ftlargeint,
+                ftstring,
+                ftMemo    :
+                begin
+                  if qryProdutos.fieldbyname(qryProdutosLinha.fields[i].fieldname).AsString <> qryProdutosLinha.fields[i].asstring then
+                  begin
+                    qryProdutos.fieldbyname(qryProdutosLinha.fields[i].fieldname).AsString := qryProdutosLinha.fields[i].asstring;
+                    vFoiAplicado := true;
+                    AdicionarListaCaracteristica(qryProdutosLinha.fields[i].fieldname);
+                  end;
+                end;
+                ftCurrency  :
+                begin
+                  if qryProdutos.fieldbyname(qryProdutosLinha.fields[i].fieldname).AsCurrency <> qryProdutosLinha.fields[i].asCurrency then
+                  begin
+                    qryProdutos.fieldbyname(qryProdutosLinha.fields[i].fieldname).AsCurrency := qryProdutosLinha.fields[i].asCurrency;
+                    vFoiAplicado := true;
+                    AdicionarListaCaracteristica(qryProdutosLinha.fields[i].fieldname);
+                  end;
+                end;
+
+                ftDate, ftDateTime  :
+                begin
+                  if qryProdutosLinha.fields[i].asDateTime <>
+                     qryProdutos.fieldbyname(qryProdutosLinha.fields[i].fieldname).asDateTime then
+                  begin
+                    qryProdutos.fieldbyname(qryProdutosLinha.fields[i].fieldname).AsDateTime := qryProdutosLinha.fields[i].asDateTime;
+                    vFoiAplicado := true;
+                    AdicionarListaCaracteristica(qryProdutosLinha.fields[i].fieldname);
+                  end;
+                end;
+
+
+                else
+                begin
+                  if qryProdutos.fieldbyname(qryProdutosLinha.fields[i].fieldname).value <> qryProdutosLinha.fields[i].value then
+                  begin
+                    qryProdutos.fieldbyname(qryProdutosLinha.fields[i].fieldname).value := qryProdutosLinha.fields[i].value;
+                    vFoiAplicado := true;
+                    AdicionarListaCaracteristica(qryProdutosLinha.fields[i].fieldname);
+                  end;
+                end
+              end;
+
+            end;
+
+          end;
+        end;
+
+        qryProdutos.post;
+
+        if vFoiAplicado then
+          inc(vAplicadosprodutos);
+
+      end;
+
+      qryProdutos.next;
+
+      vPosition :=  (qryProdutos.RecNo * 100) / qryProdutos.recordcount;
+
+      TAdvSmoothProgressBar(self.owner.FindComponent('AdvSmoothProgressBar1')).visible := true;
+      TAdvSmoothProgressBar(self.owner.FindComponent('AdvSmoothProgressBar1')).Appearance.ValueFormat := 'Aplicando alterações nos produtos selecionados %.0f%%';
+      TAdvSmoothProgressBar(self.owner.FindComponent('AdvSmoothProgressBar1')).Position := vPosition;
+
+      Application.ProcessMessages;
+
+    end;
+
+    TAdvSmoothProgressBar(self.owner.FindComponent('AdvSmoothProgressBar1')).visible := false;
+
+  finally
+    qryProdutos.VoltarRegistro;
+    AplicarAlteracoesCaracteristicas;
+  end;
+
+end;
+
+procedure TdtmManutencaoProdutos.AplicarAlteracoesCaracteristicas;
+var
+ i: integer;
+begin
+  if vListaCaracteristicas.Count <> 0 then
+  begin
+
+    try
+      qryProdutos.GuardarRegistroAtual(true);
+//      qryProdutos.filtered := true;
+
+      qryProdutos.first;
+      while not qryProdutos.eof do
+      begin
+        if not qryProdutosmarcar.asBoolean and
+           (pos(qryProdutoscodigo_caracteristica.asString+',', vListaCaracteristicas.DelimitedText+',')<>0) then
+        begin
+
+          qryProdutos.edit;
+          for i:=0 to qryProdutosLinha.fieldcount-1 do
+          begin
+            if (pos('_caracteristica', qryProdutosLinha.fields[i].FieldName)<>0) and
+               (qryProdutosLinha.fields[i].fieldname <> 'marcar') and
+               (copy(qryProdutosLinha.fields[i].fieldname,1,5) <> 'nulo_') then
+            begin
+
+              if (qryprodutoslinha.FindField('nulo_'+qryProdutosLinha.fields[i].fieldname) <> nil) and
+                  not qryProdutosLinha.fieldbyname('nulo_'+qryProdutosLinha.fields[i].fieldname).asBoolean then
+              begin
+                if not qryProdutos.fieldbyname(qryProdutosLinha.fields[i].fieldname).isnull then
+                  qryProdutos.fieldbyname(qryProdutosLinha.fields[i].fieldname).clear;
+              end
+              else
+              if not qryProdutosLinha.fields[i].isnull and (trim(qryProdutosLinha.fields[i].asString)<>'') THEN
+              begin
+
+                case qryProdutosLinha.fields[i].DataType of
+                  ftBoolean   :
+                    begin
+                      if qryProdutos.fieldbyname(qryProdutosLinha.fields[i].fieldname).AsBoolean <> qryProdutosLinha.fields[i].asBoolean then
+                        qryProdutos.fieldbyname(qryProdutosLinha.fields[i].fieldname).AsBoolean := qryProdutosLinha.fields[i].asBoolean;
+                    end;
+
+                  ftinteger,
+                  ftlargeint,
+                  ftstring,
+                  ftMemo    :
+                    begin
+                      if qryProdutos.fieldbyname(qryProdutosLinha.fields[i].fieldname).AsString <> qryProdutosLinha.fields[i].asstring then
+                        qryProdutos.fieldbyname(qryProdutosLinha.fields[i].fieldname).AsString := qryProdutosLinha.fields[i].asstring;
+                    end;
+
+                  ftCurrency  :
+                    begin
+                      if qryProdutos.fieldbyname(qryProdutosLinha.fields[i].fieldname).AsCurrency <> qryProdutosLinha.fields[i].asCurrency then
+                        qryProdutos.fieldbyname(qryProdutosLinha.fields[i].fieldname).AsCurrency := qryProdutosLinha.fields[i].asCurrency;
+                    end;
+
+                  ftDate, ftDateTime  :
+                  begin
+                    if qryProdutosLinha.fields[i].asDateTime <>
+                       qryProdutos.fieldbyname(qryProdutosLinha.fields[i].fieldname).asDateTime then
+                      qryProdutos.fieldbyname(qryProdutosLinha.fields[i].fieldname).AsDateTime := qryProdutosLinha.fields[i].asDateTime;
+                  end;
+
+                  else
+                  begin
+                    if qryProdutos.fieldbyname(qryProdutosLinha.fields[i].fieldname).value <> qryProdutosLinha.fields[i].value then
+                      qryProdutos.fieldbyname(qryProdutosLinha.fields[i].fieldname).value := qryProdutosLinha.fields[i].value;
+                  end;
+
+                end;
+              end;
+            end;
+          end;
+
+          qryProdutos.post;
+        end;
+
+        qryProdutos.next;
+        vPosition :=  (qryProdutos.RecNo * 100) / qryProdutos.recordcount;
+
+        TAdvSmoothProgressBar(self.owner.FindComponent('AdvSmoothProgressBar1')).visible := true;
+        TAdvSmoothProgressBar(self.owner.FindComponent('AdvSmoothProgressBar1')).Appearance.ValueFormat := 'Aplicando alterações nos produtos não selecionados %.0f%%';
+        TAdvSmoothProgressBar(self.owner.FindComponent('AdvSmoothProgressBar1')).Position := vPosition;
+
+        Application.ProcessMessages;
+
+      end;
+
+      TAdvSmoothProgressBar(self.owner.FindComponent('AdvSmoothProgressBar1')).visible := false;
+
+    finally
+      qryProdutos.VoltarRegistro;
+//      qryProdutos.filtered := false;
+      vListaCaracteristicas.clear;
+    end;
+
+  end;
+end;
+
+constructor TdtmManutencaoProdutos.Create(AOwner: TComponent);
+begin
+  inherited;
+
+  vListaCaracteristicas := tStringList.create;
+  vListaCaracteristicas.Duplicates := dupIgnore;
+  vListaCaracteristicas.Delimiter := ',';
+
+end;
+
+function TdtmManutencaoProdutos.GravarAlteracoes: Boolean;
+var
+  vListaItem, vListaProduto,
+  vNomedoCampoProduto,
+  vNomedoCampoCaracteristica : String;
+  i: integer;
+begin
+  try
+
+    qryProdutos.GuardarRegistroAtual(true);
+
+    qryAtualizarProdutos.close;
+    vListaItem := RetornarLista(qryProdutos, qryProdutoscodigo_produto, qryProdutosmarcar, false);
+    qryAtualizarProdutos.macrobyname('ListaProdutos').asString := vListaItem;
+    qryAtualizarProdutos.open;
+
+    qryAtualizarCaracteristicas.close;
+    vListaProduto := RetornarLista(qryProdutos, qryProdutoscodigo_caracteristica, qryProdutosmarcar, false);
+    qryAtualizarCaracteristicas.macrobyname('ListaCaracteristicas').asString := vListaProduto;
+    qryAtualizarCaracteristicas.open;
+
+    qryProdutos.first;
+
+    while not qryProdutos.eof do
+    begin
+      if qryProdutosmarcar.asBoolean then
+      begin
+
+        result := qryProdutos.CheckRequiredFields(false, false, true);
+
+        if result then
+        begin
+
+          if qryAtualizarProdutos.locate('codigo', qryProdutoscodigo_produto.asString, []) and
+             qryAtualizarCaracteristicas.locate('codigo', qryProdutoscodigo_caracteristica.asString, []) then
+          begin
+
+            for i:=0 to qryprodutos.fieldcount -1 do
+            begin
+              vNomedoCampoProduto := trocar(qryProdutos.fields[i].fieldname, '_produto', '');
+
+              if (pos('_produto', qryProdutos.fields[i].fieldname)<>0) and
+                 (qryAtualizarProdutos.findfield(vNomedoCampoProduto)<>nil) and
+                 (qryAtualizarProdutos.fieldbyname(vNomedoCampoProduto).value <>
+                  qryProdutos.fields[i].value) then
+              begin
+                qryAtualizarProdutos.edit;
+                qryAtualizarProdutos.fieldbyname(vNomedoCampoProduto).value := qryProdutos.fields[i].value;
+              end;
+
+              vNomedoCampoCaracteristica := trocar(qryProdutos.fields[i].fieldname, '_caracteristica', '');
+
+              if (pos('_caracteristica', qryProdutos.fields[i].fieldname)<>0) and
+                 (qryAtualizarCaracteristicas.findfield(vNomedoCampoCaracteristica)<>nil) and
+                 (qryAtualizarCaracteristicas.fieldbyname(vNomedoCampoCaracteristica).value <>
+                  qryProdutos.fields[i].value) then
+              begin
+                qryAtualizarCaracteristicas.edit;
+                qryAtualizarCaracteristicas.fieldbyname(vNomedoCampoCaracteristica).value := qryProdutos.fields[i].value;
+              end;
+            end;
+
+          end
+          else
+          begin
+            MensagemErro(format('O produto %s não foi encontrado',[qryProdutoscodigo_produto.asString]));
+            exit;
+          end;
+
+        end
+        else
+        begin
+          qryprodutos.EnableControls;
+//          TDBAdvGrid(self.owner.FindComponent('DBAdvProdutos')).row := qryProdutos.recno;
+          exit;
+        end;
+
+      end;
+
+      qryProdutos.next;
+
+      vPosition :=  (qryProdutos.RecNo * 100) / qryProdutos.recordcount;
+
+      TAdvSmoothProgressBar(self.owner.FindComponent('AdvSmoothProgressBar1')).visible := true;
+      TAdvSmoothProgressBar(self.owner.FindComponent('AdvSmoothProgressBar1')).Appearance.ValueFormat := 'Gravando alterações nos produtos %.0f%%';
+      TAdvSmoothProgressBar(self.owner.FindComponent('AdvSmoothProgressBar1')).Position := vPosition;
+
+      Application.ProcessMessages;
+
+    end;
+
+    TAdvSmoothProgressBar(self.owner.FindComponent('AdvSmoothProgressBar1')).visible := false;
+
+  finally
+    if result then
+    begin
+      if qryAtualizarProdutos.state = dsedit then
+        qryAtualizarProdutos.post;
+
+      if qryAtualizarCaracteristicas.state = dsedit then
+        qryAtualizarCaracteristicas.post;
+
+      result := perpetrar([qryAtualizarCaracteristicas, qryAtualizarProdutos]);
+
+      if result then
+      begin
+        vAplicadosprodutos := 0;
+        MensagemAviso('As alterações foram gravadas com sucesso!');
+      end;
+      qryprodutos.VoltarRegistro;
+    end;
+  end;
+
+end;
+
+procedure TdtmManutencaoProdutos.qryProdutosFilterRecord(DataSet: TDataSet;
+  var Accept: Boolean);
+begin
+  inherited;
+
+  if qryProdutos.filtered then
+    Accept := not qryProdutosmarcar.asBoolean and
+              (pos(qryProdutoscodigo_caracteristica.asString+',', vListaCaracteristicas.DelimitedText+',')<>0);
+
+
+
+end;
+
+procedure TdtmManutencaoProdutos.qryProdutosLinhaGetText(Sender: TField;
+  var Text: String; DisplayText: Boolean);
+begin
+  if qryProdutosLinha.findfield('nulo_'+TField(Sender).fieldname)<>nil then
+  begin
+    if not qryProdutosLinha.fieldbyname('nulo_'+TField(Sender).fieldname).isnull and not qryProdutosLinha.fieldbyname('nulo_'+TField(Sender).fieldname).asBoolean then
+      Text := 'Nulo'
+    else
+    if TField(Sender).isnull then
+      DisplayText := false
+    else
+    begin
+      if TField(Sender).DataType = ftDate then
+        Text := FormatDateTime('dd/mm/yyyy', TField(Sender).asDateTime)
+      else
+        Text := TField(Sender).asString;
+    end;
+  end
+  else
+  if TField(Sender).DataType = ftBoolean then
+  begin
+    if TField(Sender).isnull then
+      DisplayText := false
+    else
+      Text := TField(Sender).asString;
+  end;
+end;
+
+
+procedure TdtmManutencaoProdutos.qryProdutosLinhaNewRecord(
+  DataSet: TDataSet);
+var
+  i: integer;
+
+begin
+  inherited;
+  for i:=0 to Dataset.fieldcount -1 do
+  begin
+    if dataset.fields[i].DataType = ftBoolean then
+      if lowercase(copy(dataset.fields[i].fieldname,1,5))='nulo_' then
+        TBooleanField(dataset.fields[i]).asBoolean := true;
+  end;
+end;
+
+procedure TdtmManutencaoProdutos.SetLastPageOpened(const Value: tTabSheet);
+var
+ vGerar : Boolean;
+begin
+
+  if value.name <> 'tstParametros' then
+  begin
+    if value <> fLastPageOpened then
+    begin
+      vGerar := fLastPageOpened <> nil;
+
+      fLastPageOpened := Value;
+      
+      if vGerar then
+        TfrmManutencaoProdutos(self.owner).sbnGerarClick(nil);
+    end;
+  end
+end;
+
+procedure TdtmManutencaoProdutos.qryManutencaoAtributosBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryListaAtributos.ParamByName('atributo').asInteger :=
+    qryProcuraAtributos.fieldbyName('codigo').AsInteger;
+  qryListaAtributos.close;
+  qryListaAtributos.open;
+
+  qryManutencaoAtributos.MacroByName('Lista_de_Campos_1').asString :=
+    Lista_de_Campos_1;
+
+  qryManutencaoAtributos.MacroByName('Lista_de_Campos_2').asString :=
+    Lista_de_Campos_2;
+
+
+
+end;
+
+function TdtmManutencaoProdutos.Lista_de_Campos_1: String;
+begin
+
+  result := '';
+
+  qryListaAtributos.First;
+  while not qryListaAtributos.Eof do
+  begin
+    if qryListaAtributostipo.asString = 'Sim/Não' then
+      result := result +
+          'cast(max(case when x."'+qryListaAtributosnome.asString+'" is null then ''false'' when x."'+qryListaAtributosnome.asString+'" then ''true'' else ''false'' end) as boolean) as "'+qryListaAtributosnome.AsString+'",'
+    else
+      result :=  result + 'min(x."'+qryListaAtributosnome.asString+'") as "'+qryListaAtributosnome.AsString+'",';
+
+    qryListaAtributos.Next;
+  end;
+
+  if result <> '' then
+    delete(result, length(result), 1);
+
+end;
+
+function TdtmManutencaoProdutos.Lista_de_Campos_2: String;
+begin
+
+  result := '';
+
+  qryListaAtributos.First;
+  while not qryListaAtributos.Eof do
+  begin
+    if qryListaAtributostipo.asString =  'Texto' then
+      result :=  result + '"'+qryListaAtributosnome.asString+'" VARCHAR(200),'
+    else
+    if qryListaAtributostipo.asString =  'Numérico' then
+      result :=  result + '"'+qryListaAtributosnome.asString+'" numeric(15,2),'
+    else
+    if qryListaAtributostipo.asString =  'Inteiro' then
+      result :=  result + '"'+qryListaAtributosnome.asString+'" integer,'
+    else
+    if qryListaAtributostipo.asString =  'Sim/Não' then
+//      result :=  result + '"'+qryListaAtributosnome.asString+'" char(3),'
+      result :=  result + '"'+qryListaAtributosnome.asString+'" Boolean,'
+    else
+    if qryListaAtributostipo.asString =  'Data' then
+      result :=  result + '"'+qryListaAtributosnome.asString+'" Date,';
+
+    qryListaAtributos.Next;
+  end;
+
+  if result <> '' then
+    delete(result, length(result), 1);
+
+end;
+
+function TdtmManutencaoProdutos.PosicionarListaAtributos(Campo,
+  Valor: String): Boolean;
+begin
+  result := false;
+  if (valor<>'') and (campo<>'') then
+  begin
+    result := qryListaAtributos.locate(campo, valor, []);
+
+       {
+    if not result then
+    begin
+      MensagemAviso(campo + ' - ' + valor);
+    end
+    else
+      TfrmManutencaoProdutos(self.owner).dtxDescricao.text := qryListaAtributosdescricao.asString;
+      }
+  end;
+end;
+
+procedure TdtmManutencaoProdutos.dsrManutencaoAtributosDataChange(
+  Sender: TObject; Field: TField);
+begin
+  inherited;
+  if field <> nil then
+  begin
+    if Field.fieldname = 'selecionar' then
+    begin
+      if field.asBoolean then
+        inc(dtmManutencaoProdutos.vmarcadosAtributos)
+      else
+        dec(dtmManutencaoProdutos.vmarcadosAtributos);
+    end;
+  end;
+end;
+
+procedure TdtmManutencaoProdutos.AplicarAlteracoesAtributos;
+var
+ i: integer;
+ vFoiAplicado : Boolean;
+ vRecno : Integer;
+
+
+ procedure AdicionarListaCaracteristica(NomedoCampo: String);
+ begin
+   if pos('_caracteristica', NomedoCampo)<>0 then
+   begin
+     if vListaCaracteristicas.IndexOf(qryProdutoscodigo_caracteristica.asString)=-1 then
+       vListaCaracteristicas.append(qryProdutoscodigo_caracteristica.asString);
+   end
+ end;
+
+begin
+  try
+    qryManutencaoAtributos.GuardarRegistroAtual(true);
+    qryManutencaoAtributos.first;
+    while not qryManutencaoAtributos.eof do
+    begin
+
+      if qryManutencaoAtributos.fieldbyname('selecionar').asBoolean then
+      begin
+
+        vFoiAplicado := false;
+
+
+        qryManutencaoAtributos.edit;
+        for i:= qryManutencaoAtributos_Linha.fieldbyname('selecionar').index+1 to
+                qryManutencaoAtributos_Linha.fieldcount-1 do
+        begin
+          if (qryManutencaoAtributos_Linha.fields[i].fieldname <> 'selecionar') and
+             (lowercase(copy(qryManutencaoAtributos_Linha.fields[i].fieldname,1,5)) <> 'nulo_') and
+             not qryManutencaoAtributos_Linha.fields[i].ReadOnly then
+          begin
+            if (qryManutencaoAtributos_Linha.FindField('nulo_'+qryManutencaoAtributos_Linha.fields[i].fieldname) <> nil) and
+                not qryManutencaoAtributos_Linha.fieldbyname('nulo_'+qryManutencaoAtributos_Linha.fields[i].fieldname).asBoolean then
+            begin
+              if not qryManutencaoAtributos.fieldbyname(qryManutencaoAtributos_Linha.fields[i].fieldname).isnull then
+                qryManutencaoAtributos.fieldbyname(qryManutencaoAtributos_Linha.fields[i].fieldname).clear;
+              vFoiAplicado := true;
+//              AdicionarListaCaracteristica(qryManutencaoAtributos_Linha.fields[i].fieldname);
+            end
+            else
+            if not qryManutencaoAtributos_Linha.fields[i].isnull and (trim(qryManutencaoAtributos_Linha.fields[i].asString)<>'') THEN
+            begin
+
+              case qryManutencaoAtributos_Linha.fields[i].DataType of
+                ftBoolean   :
+                begin
+                  if qryManutencaoAtributos.fieldbyname(qryManutencaoAtributos_Linha.fields[i].fieldname).AsBoolean <> qryManutencaoAtributos_Linha.fields[i].asBoolean then
+                  begin
+                    qryManutencaoAtributos.fieldbyname(qryManutencaoAtributos_Linha.fields[i].fieldname).AsBoolean := qryManutencaoAtributos_Linha.fields[i].asBoolean;
+                    vFoiAplicado := true;
+//                    AdicionarListaCaracteristica(qryManutencaoAtributos_Linha.fields[i].fieldname);
+                  end;
+                end;
+
+                ftinteger,
+                ftlargeint,
+                ftstring,
+                ftMemo    :
+                begin
+                  if qryManutencaoAtributos.fieldbyname(qryManutencaoAtributos_Linha.fields[i].fieldname).AsString <> qryManutencaoAtributos_Linha.fields[i].asstring then
+                  begin
+                    qryManutencaoAtributos.fieldbyname(qryManutencaoAtributos_Linha.fields[i].fieldname).AsString := qryManutencaoAtributos_Linha.fields[i].asstring;
+                    vFoiAplicado := true;
+//                    AdicionarListaCaracteristica(qryManutencaoAtributos_Linha.fields[i].fieldname);
+                  end;
+                end;
+                ftCurrency, ftfloat  :
+                begin
+                  if qryManutencaoAtributos.fieldbyname(qryManutencaoAtributos_Linha.fields[i].fieldname).AsCurrency <> qryManutencaoAtributos_Linha.fields[i].asCurrency then
+                  begin
+                    qryManutencaoAtributos.fieldbyname(qryManutencaoAtributos_Linha.fields[i].fieldname).AsCurrency := qryManutencaoAtributos_Linha.fields[i].asCurrency;
+                    vFoiAplicado := true;
+//                    AdicionarListaCaracteristica(qryManutencaoAtributos_Linha.fields[i].fieldname);
+                  end;
+                end;
+
+                ftDate, ftDateTime  :
+                begin
+                  if qryManutencaoAtributos_Linha.fields[i].asDateTime <>
+                     qryManutencaoAtributos.fieldbyname(qryManutencaoAtributos_Linha.fields[i].fieldname).asDateTime then
+                  begin
+                    qryManutencaoAtributos.fieldbyname(qryManutencaoAtributos_Linha.fields[i].fieldname).AsDateTime := qryManutencaoAtributos_Linha.fields[i].asDateTime;
+                    vFoiAplicado := true;
+//                    AdicionarListaCaracteristica(qryManutencaoAtributos_Linha.fields[i].fieldname);
+                  end;
+                end;
+
+
+                else
+                begin
+                  if qryManutencaoAtributos.fieldbyname(qryManutencaoAtributos_Linha.fields[i].fieldname).value <> qryManutencaoAtributos_Linha.fields[i].value then
+                  begin
+                    qryManutencaoAtributos.fieldbyname(qryManutencaoAtributos_Linha.fields[i].fieldname).value := qryManutencaoAtributos_Linha.fields[i].value;
+                    vFoiAplicado := true;
+//                    AdicionarListaCaracteristica(qryManutencaoAtributos_Linha.fields[i].fieldname);
+                  end;
+                end
+              end;
+
+            end;
+
+          end;
+        end;
+
+        qryManutencaoAtributos.post;
+
+        if vFoiAplicado then
+          inc(vAplicadosprodutos);
+
+      end;
+
+      qryManutencaoAtributos.next;
+
+      vPosition :=  (qryManutencaoAtributos.RecNo * 100) / qryManutencaoAtributos.recordcount;
+
+      TAdvSmoothProgressBar(self.owner.FindComponent('AdvSmoothProgressBar1')).visible := true;
+      TAdvSmoothProgressBar(self.owner.FindComponent('AdvSmoothProgressBar1')).Appearance.ValueFormat := 'Aplicando alterações nos produtos selecionados %.0f%%';
+      TAdvSmoothProgressBar(self.owner.FindComponent('AdvSmoothProgressBar1')).Position := vPosition;
+
+      Application.ProcessMessages;
+
+    end;
+
+    TAdvSmoothProgressBar(self.owner.FindComponent('AdvSmoothProgressBar1')).visible := false;
+
+  finally
+    qryManutencaoAtributos.VoltarRegistro;
+//    AplicarAlteracoesCaracteristicas;
+  end;
+
+end;
+
+function TdtmManutencaoProdutos.Lista_de_Campos_1_Linha: String;
+begin
+
+
+  result := '';
+
+  qryListaAtributos.First;
+  while not qryListaAtributos.Eof do
+  begin
+    if qryListaAtributostipo.asString = 'Sim/Não' then
+      result :=  result + 'True as "Nulo_'+qryListaAtributosnome.AsString+
+          '",cast(max(case when x."'+qryListaAtributosnome.asString+'" is null then ''false'' when x."'+qryListaAtributosnome.asString+'" then ''true'' else ''false'' end) as boolean) as "'+qryListaAtributosnome.AsString+'",'
+    else
+    if qryListaAtributostipo.asString = 'Texto' then
+      result :=  result + 'True as "Nulo_'+qryListaAtributosnome.AsString+'", cast(min(x."'+qryListaAtributosnome.asString+'") as varchar(200)) as "'+qryListaAtributosnome.AsString+'",'
+    else
+      result :=  result + 'True as "Nulo_'+qryListaAtributosnome.AsString+'",min(x."'+qryListaAtributosnome.asString+'") as "'+qryListaAtributosnome.AsString+'",';
+
+    qryListaAtributos.Next;
+  end;
+
+  if result <> '' then
+    delete(result, length(result), 1);
+
+
+end;
+
+procedure TdtmManutencaoProdutos.qryManutencaoAtributos_LinhaAfterOpen(
+  DataSet: TDataSet);
+
+  var i: integer;
+
+begin
+  inherited;
+
+//  qryManutencaoAtributos_Linha.edit;
+//  qryManutencaoAtributos_Linha.post;
+//  qryManutencaoAtributos_Linha.append;
+
+  
+  for i := qryManutencaoAtributos_Linha.fieldbyname('selecionar').index+1 to qryManutencaoAtributos_Linha.fieldcount-1 do
+  begin
+    if (copy(qryManutencaoAtributos_Linha.fields[i].fieldname,1,5) = 'Nulo_') then
+      qryManutencaoAtributos_Linha.fields[i].visible := False;
+
+    qryManutencaoAtributos_Linha.fields[i].onGetText := qryManutencaoAtributos_LinhaGetText;
+  end;
+
+end;
+
+procedure TdtmManutencaoProdutos.qryManutencaoAtributos_LinhaNewRecord(
+  DataSet: TDataSet);
+var i: integer;  
+begin
+  inherited;
+  for i:=0 to Dataset.fieldcount -1 do
+  begin
+    if dataset.fields[i].DataType = ftBoolean then
+      if lowercase(copy(dataset.fields[i].fieldname,1,5))='nulo_' then
+        TBooleanField(dataset.fields[i]).asBoolean := true
+      else
+        TBooleanField(dataset.fields[i]).clear;
+
+  end;
+
+end;
+
+procedure TdtmManutencaoProdutos.qryManutencaoAtributos_LinhaGetText(
+  Sender: TField; var Text: String; DisplayText: Boolean);
+begin
+  inherited;
+
+  if qryManutencaoAtributos_Linha.findfield('nulo_'+TField(Sender).fieldname)<>nil then
+  begin
+    if not qryManutencaoAtributos_Linha.fieldbyname('nulo_'+TField(Sender).fieldname).isnull and not qryManutencaoAtributos_Linha.fieldbyname('nulo_'+TField(Sender).fieldname).asBoolean then
+      Text := 'Nulo'
+    else
+    if TField(Sender).isnull then
+      DisplayText := false
+    else
+    begin
+      if TField(Sender).DataType = ftDate then
+        Text := FormatDateTime('dd/mm/yyyy', TField(Sender).asDateTime)
+      else
+        Text := TField(Sender).asString;
+    end;
+  end
+  else
+  if TField(Sender).DataType = ftBoolean then
+  begin
+    if TField(Sender).isnull then
+      DisplayText := false
+    else
+      Text := TField(Sender).asString;
+  end;
+
+end;
+
+procedure TdtmManutencaoProdutos.qryManutencaoAtributos_LinhaAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+;
+end;
+
+function TdtmManutencaoProdutos.GravarAlteracoesAtributos: Boolean;
+var
+  vListaItem, vListaProduto,
+  vNomedoCampoProduto,
+  vNomedoCampoCaracteristica : String;
+  i: integer;
+  vAtributos_valores : String;
+begin
+
+// {"Material":"PLÁSTICO DURO","Tamanho da Tela":"32","Capacidade de armazenamento":"128","teste BOOLEAN":"true","TESTE DATA":"02/12/2021"}
+// {"Material":"PLÁSTICO DURO","Tamanho da Tela":"42","Capacidade de armazenamento":"256","teste BOOLEAN":null,"TESTE DATA":"23/12/2021"}
+
+  try
+
+    qryManutencaoAtributos.GuardarRegistroAtual(true);
+
+    qryAtualizarProdutosJSON.close;
+    vListaItem := RetornarLista(qryManutencaoAtributos, qryManutencaoAtributos.FieldByName('Produto'), qryManutencaoAtributos.FieldByName('selecionar'), false);
+    qryAtualizarProdutosJSON.macrobyname('ListaProdutos').asString := vListaItem;
+    qryAtualizarProdutosJSON.open;
+
+    qryManutencaoAtributos.first;
+
+    while not qryManutencaoAtributos.eof do
+    begin
+
+      if qryManutencaoAtributos.FieldByName('selecionar').asBoolean then
+      begin
+
+        result := qryManutencaoAtributos.CheckRequiredFields(false, false, true);
+
+        if result then
+        begin
+
+          vAtributos_valores := qryManutencaoAtributos.ToJsonObject(qryManutencaoAtributos.fieldbyname('selecionar').index+1, false);
+          if qryAtualizarProdutosJSON.locate('codigovisual', qryManutencaoAtributos.fieldbyname('Produto').asString, []) then
+          begin
+            qryAtualizarProdutosJSON.edit;
+            qryAtualizarProdutosJSONatributos.asinteger := qryListaAtributos.parambyname('atributo').asinteger;
+            qryAtualizarProdutosJSONatributos_valores.asString := vAtributos_valores;
+            qryAtualizarProdutosJSON.post;
+
+            {
+            vAtributos_valores := '';
+            for i := qryManutencaoAtributos.fieldbyname('selecionar').index+1 to qryManutencaoAtributos.fieldcount -1 do
+            begin
+              if PosicionarListaAtributos('nome',  qryManutencaoAtributos.fields[i].Fieldname) then
+              begin
+                if qryManutencaoAtributos.fields[i].isNull then
+                  vAtributos_valores := vAtributos_valores + '{"' + qryManutencaoAtributos.fields[i].Fieldname + '":"null'
+                else
+                if qryListaAtributostipo.asString =  'Texto' then
+                  vAtributos_valores := vAtributos_valores + '{"' + qryManutencaoAtributos.fields[i].Fieldname + '":"' + qryManutencaoAtributos.fields[i].asString + '"'
+                else
+                if qryListaAtributostipo.asString =  'Numérico' then
+                  vAtributos_valores := vAtributos_valores + '{"' + qryManutencaoAtributos.fields[i].Fieldname + '":"' + qryManutencaoAtributos.fields[i].asString + '"'
+                  result :=  result + '"'+qryListaAtributosnome.asString+'" numeric(15,2),'
+                else
+                if qryListaAtributostipo.asString =  'Inteiro' then
+                  result :=  result + '"'+qryListaAtributosnome.asString+'" integer,'
+                else
+                if qryListaAtributostipo.asString =  'Sim/Não' then
+                  result :=  result + '"'+qryListaAtributosnome.asString+'" Boolean,'
+                else
+                if qryListaAtributostipo.asString =  'Data' then
+                  result :=  result + '"'+qryListaAtributosnome.asString+'" Date,';
+
+
+
+              end
+              else
+                MensagemAviso(format('Erro inesperado! O campo "%s" não foi encontrado na lista de atributos.', [qryManutencaoAtributos.fields[i].Fieldname]));
+
+
+
+              vNomedoCampoProduto := trocar(qryManutencaoAtributos.fields[i].fieldname, '_produto', '');
+
+              if (pos('_produto', qryManutencaoAtributos.fields[i].fieldname)<>0) and
+                 (qryAtualizarProdutos.findfield(vNomedoCampoProduto)<>nil) and
+                 (qryAtualizarProdutos.fieldbyname(vNomedoCampoProduto).value <>
+                  qryManutencaoAtributos.fields[i].value) then
+              begin
+                qryAtualizarProdutos.edit;
+                qryAtualizarProdutos.fieldbyname(vNomedoCampoProduto).value := qryManutencaoAtributos.fields[i].value;
+              end;
+
+              vNomedoCampoCaracteristica := trocar(qryManutencaoAtributos.fields[i].fieldname, '_caracteristica', '');
+
+              if (pos('_caracteristica', qryManutencaoAtributos.fields[i].fieldname)<>0) and
+                 (qryAtualizarCaracteristicas.findfield(vNomedoCampoCaracteristica)<>nil) and
+                 (qryAtualizarCaracteristicas.fieldbyname(vNomedoCampoCaracteristica).value <>
+                  qryManutencaoAtributos.fields[i].value) then
+              begin
+                qryAtualizarCaracteristicas.edit;
+                qryAtualizarCaracteristicas.fieldbyname(vNomedoCampoCaracteristica).value := qryManutencaoAtributos.fields[i].value;
+              end;
+            end;
+            }
+
+          end
+          else
+          begin
+            MensagemErro(format('O produto %s na manutenção de produtos não foi encontrado',
+                        [qryManutencaoAtributos.fieldbyname('Produto').asString]));
+            exit;
+          end;
+
+
+        end
+        else
+        begin
+          qryManutencaoAtributos.EnableControls;
+          exit;
+        end;
+
+      end;
+
+
+      qryManutencaoAtributos.next;
+
+      vPosition :=  (qryManutencaoAtributos.RecNo * 100) / qryManutencaoAtributos.recordcount;
+
+      TAdvSmoothProgressBar(self.owner.FindComponent('AdvSmoothProgressBar1')).visible := true;
+      TAdvSmoothProgressBar(self.owner.FindComponent('AdvSmoothProgressBar1')).Appearance.ValueFormat := 'Gravando alterações nos atributos dos produtos %.0f%%';
+      TAdvSmoothProgressBar(self.owner.FindComponent('AdvSmoothProgressBar1')).Position := vPosition;
+
+      Application.ProcessMessages;
+
+    end;
+
+    TAdvSmoothProgressBar(self.owner.FindComponent('AdvSmoothProgressBar1')).visible := false;
+
+  finally
+    if result then
+    begin
+      if qryAtualizarProdutosJSON.state = dsedit then
+        qryAtualizarProdutosJSON.post;
+
+      result := perpetrar([qryAtualizarProdutosJSON]);
+
+      if result then
+      begin
+        vAplicadosAtributos := 0;
+        MensagemAviso('As alterações foram gravadas com sucesso!');
+      end;
+      qryManutencaoAtributos.VoltarRegistro;
+    end;
+  end;
+
+end;
+
+end.
+
+

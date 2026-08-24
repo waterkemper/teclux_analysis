@@ -1,0 +1,287 @@
+inherited dtmUnificarClientes: TdtmUnificarClientes
+  OldCreateOrder = False
+  Left = 192
+  Top = 124
+  Height = 450
+  Width = 735
+  inherited ZMonitor: TZMonitor
+    Left = 280
+    Top = 40
+  end
+  object qryClientesDuplicados: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterInsert = qryClientesDuplicadosAfterInsert
+    AfterScroll = qryClientesDuplicadosAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select formatar_cpf_cnpj(c.pessoanumero) as pessoanumero,'
+      '       c.codigo,'
+      '       c.nome,'
+      '       c.apelido,'
+      '       cast(null as integer) as codigoselecionado,'
+      '       c.rua,'
+      '       c.numero,'
+      '       c.complemento,'
+      '       (Select ba.nome'
+      '        From bairros ba'
+      '        Where (ba.estado = c.estado)'
+      '          and (ba.cidade = c.cidade)'
+      '          and (ba.codigo = c.bairro)) as nomebairrocliente,'
+      ''
+      '       (Select cd.nome'
+      '        From cidades cd'
+      '        Where (cd.estado = c.estado)'
+      '          and (cd.codigo = c.cidade)) as nomecidadecliente,'
+      ''
+      '       c.cep,'
+      '       c.estado,'
+      ''
+      '       false as selecionar,'
+      '       c.ultimaalteracao,'
+      '       c.datacadastro,'
+      ''
+      '       us.nome as nomeusariosite,'
+      '       us.datacadastro as datacadastrousuariosite'
+      ''
+      'from clientes c'
+      '     left join usuarios_site us'
+      '     on c.codigo = us.cliente'
+      '     and us.tipocliente = '#39'C'#39
+      'where c.pessoanumero in (select c2.pessoanumero'
+      '                         from clientes c2'
+      
+        '                         where trim(coalesce(c2.pessoanumero,'#39#39')' +
+        ')<>'#39#39
+      '                         group by c2.pessoanumero'
+      '                         having count(*)>1)'
+      'order by c.pessoanumero')
+    RequestLive = True
+    Left = 56
+    Top = 32
+    object qryClientesDuplicadospessoanumero: TStringField
+      FieldName = 'pessoanumero'
+      Size = 50
+    end
+    object qryClientesDuplicadoscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryClientesDuplicadosnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Required = True
+      Size = 60
+    end
+    object qryClientesDuplicadosapelido: TStringField
+      DisplayLabel = 'Apelido'
+      FieldName = 'apelido'
+      Size = 100
+    end
+    object qryClientesDuplicadosselecionar: TBooleanField
+      DisplayLabel = 'Selecionar'
+      FieldName = 'selecionar'
+    end
+    object qryClientesDuplicadoscodigoselecionado: TIntegerField
+      FieldName = 'codigoselecionado'
+      DisplayFormat = '0'
+    end
+    object qryClientesDuplicadosrua: TStringField
+      FieldName = 'rua'
+      Required = True
+      Size = 100
+    end
+    object qryClientesDuplicadosnumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryClientesDuplicadoscomplemento: TStringField
+      FieldName = 'complemento'
+      Size = 100
+    end
+    object qryClientesDuplicadosnomebairrocliente: TStringField
+      FieldName = 'nomebairrocliente'
+      Size = 50
+    end
+    object qryClientesDuplicadosnomecidadecliente: TStringField
+      FieldName = 'nomecidadecliente'
+      Size = 50
+    end
+    object qryClientesDuplicadoscep: TIntegerField
+      FieldName = 'cep'
+      Required = True
+    end
+    object qryClientesDuplicadosestado: TStringField
+      FieldName = 'estado'
+      Size = 2
+    end
+    object qryClientesDuplicadosultimaalteracao: TDateField
+      FieldName = 'ultimaalteracao'
+      DisplayFormat = 'dd/mm/yy'
+    end
+    object qryClientesDuplicadosdatacadastro: TDateField
+      FieldName = 'datacadastro'
+      DisplayFormat = 'dd/mm/yy'
+    end
+    object qryClientesDuplicadosnomeusariosite: TStringField
+      FieldName = 'nomeusariosite'
+      Required = True
+      Size = 200
+    end
+    object qryClientesDuplicadosdatacadastrousuariosite: TDateTimeField
+      FieldName = 'datacadastrousuariosite'
+      DisplayFormat = 'dd/mm/yy'
+    end
+  end
+  object dsrClientesDuplicados: TtecDataSource
+    DataSet = qryClientesDuplicados
+    Left = 96
+    Top = 48
+  end
+  object qryAtualizarClientesDuplicados: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      
+        'update contratos     set cliente    = :clientenovo where cliente' +
+        '    = :clienteantigo and tipocliente = '#39'C'#39';'
+      
+        'update dadosfiscais  set cliente    = :clientenovo where cliente' +
+        '    = :clienteantigo and tipocliente = '#39'C'#39';'
+      
+        'update notaspag      set fornecedor = :clientenovo where fornece' +
+        'dor = :clienteantigo and tipofornecedor = '#39'C'#39';'
+      
+        'update documentospag set fornecedor = :clientenovo where fornece' +
+        'dor = :clienteantigo and tipofornecedor = '#39'C'#39';'
+      
+        'update cheques       set cliente    = :clientenovo where cliente' +
+        '    = :clienteantigo and tipocliente = '#39'C'#39';'
+      ''
+      'update atendimentos  set cliente    = :clientenovo '
+      'FROM'
+      '('
+      
+        #9#9'SELECT * FROM atendimentos WHERE cliente= :clienteantigo and t' +
+        'ipocliente = '#39'C'#39
+      #9#9'ORDER BY origem DESC'
+      ')      AS SEL'
+      'where atendimentos.codigo=sel.codigo;'
+      ''
+      
+        'update requisicoes   set cliente    = :clientenovo where cliente' +
+        '    = :clienteantigo and tipocliente = '#39'C'#39';'
+      
+        'update usuarios_site set cliente    = :clientenovo where cliente' +
+        '    = :clienteantigo and tipocliente = '#39'C'#39';'
+      
+        'update alugueis      set cliente    = :clientenovo where cliente' +
+        '    = :clienteantigo;'
+      
+        'update dependentes   set cliente    = :clientenovo where cliente' +
+        '    = :clienteantigo;'
+      
+        'update listascasamento set cliente  = :clientenovo where noiva  ' +
+        '    = :clienteantigo;'
+      
+        'update listascasamento set cliente  = :clientenovo where noivo  ' +
+        '    = :clienteantigo;'
+      
+        'update clientesprodutos set cliente = :clientenovo where cliente' +
+        '    = :clienteantigo and tipocliente = '#39'C'#39';'
+      
+        'update osp set cliente = :clientenovo where cliente     = :clien' +
+        'teantigo and tipocliente = '#39'C'#39';'
+      
+        'update clientes set observacoes = cast(coalesce(observacoes,'#39#39') ' +
+        '|| cast('#39' CNPJ: '#39' as varchar) || cast(formatar_cpf_cnpj(pessoanu' +
+        'mero) as varchar) as varchar(1000)), pessoanumero = null where c' +
+        'odigo = :clienteantigo;'
+      
+        '/*VERIFICAR AUTENTICACOES PARA NAO DUPLICAR LAN'#199'AMENTOS EM BANCO' +
+        'S'
+      
+        'update autenticacoes set cliente=:clientenovo where cliente=:cli' +
+        'enteantigo and tipocliente = '#39'C'#39';*/'
+      
+        'update bonus set cliente    = :clientenovo where cliente= :clien' +
+        'teantigo;'
+      
+        'update cartas set cliente   = :clientenovo where cliente= :clien' +
+        'teantigo and tipocliente = '#39'C'#39';'
+      
+        'update compradores set cliente    = :clientenovo where cliente  ' +
+        '  = :clienteantigo and tipocliente = '#39'C'#39';'
+      
+        'update contatos set cliente    = :clientenovo where cliente    =' +
+        ' :clienteantigo;'
+      
+        'update equipamentosclientes set cliente    = :clientenovo where ' +
+        'cliente    = :clienteantigo;'
+      
+        'update iesubsttributario set cliente    = :clientenovo where cli' +
+        'ente    = :clienteantigo and tipocliente = '#39'C'#39';'
+      
+        'update ligacoes set cliente = :clientenovo where cliente    = :c' +
+        'lienteantigo;'
+      
+        'update listascasamento set cliente    = :clientenovo where clien' +
+        'te    = :clienteantigo and tipocliente = '#39'C'#39';'
+      
+        'update movimentos set naoprocessartriggers=true,cliente = :clien' +
+        'tenovo where cliente = :clienteantigo and tipocliente = '#39'C'#39';'
+      
+        'update orcamentos set cliente    = :clientenovo,nome=(select nom' +
+        'e from clientes where codigo=:clientenovo) where cliente    = :c' +
+        'lienteantigo and tipocliente = '#39'C'#39';'
+      
+        'update osp set cliente    = :clientenovo where cliente    = :cli' +
+        'enteantigo and tipocliente = '#39'C'#39';'
+      
+        'update pedidos_site set cliente    = :clientenovo where cliente ' +
+        '   = :clienteantigo;'
+      
+        'update produtostrocados set cliente    = :clientenovo where clie' +
+        'nte    = :clienteantigo and tipocliente = '#39'C'#39';'
+      
+        'update seriesclientes set cliente    = :clientenovo where client' +
+        'e    = :clienteantigo;'
+      
+        'update clientes set clientetransito  = :clientenovo where client' +
+        'etransito    = :clienteantigo;'
+      
+        'update clientes set conjuge    = :clientenovo where conjuge    =' +
+        ' :clienteantigo;'
+      '')
+    RequestLive = True
+    Left = 48
+    Top = 128
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'clientenovo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'clienteantigo'
+        ParamType = ptUnknown
+      end>
+  end
+end

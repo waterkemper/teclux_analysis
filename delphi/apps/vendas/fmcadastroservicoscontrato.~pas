@@ -1,0 +1,314 @@
+unit fmcadastroservicoscontrato;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, ExtCtrls, Buttons, DBCtrls, Mask, ComCtrls, {Qete,}
+  //Biblio
+  ctconstantes,
+  //Componentes
+  cpdbtext, cpnumero, cpdbfindcontrols, cpdbradiogroup,
+  //Terceiros
+  ZQuery,
+  //Repositorio
+  fmcadastropadrao, fmconsultabasica, cptexto, ActnList, cpdbmemo,
+  frconsulta, frconsultacodigo, ToolWin,
+  //Projeto
+  dmcadastrocontratos;
+
+type
+  TfrmCadastroServicosContrato = class(TfrmCadastroPadrao)
+    pnlFundoJanela: TPanel;
+    gbxItem: TGroupBox;
+    flkServico: TtecDBFindLookup;
+    sbnProcuraServicos: TSpeedButton;
+    dtxDescricaoServico: TtecDBText;
+    gbxQtdeItem: TGroupBox;
+    edtQtdade: TDBEditNumero;
+    gbxPrecoUnitario: TGroupBox;
+    edtValorServico: TDBEditNumero;
+    gbxQTxPRECO: TGroupBox;
+    dtxValorTotalServico: TtecDBText;
+    gbxEquipamento: TGroupBox;
+    gbxReferencia: TGroupBox;
+    flkEquipamento: TtecDBFindLookup;
+    sbnProcurarEquipamento: TSpeedButton;
+    dtxDescricaoEquipamento: TtecDBText;
+    gbxAno: TGroupBox;
+    gbxMarca: TGroupBox;
+    gbxModelo: TGroupBox;
+    dtxReferencia: TtecDBText;
+    dtxAno: TtecDBText;
+    dtxMarca: TtecDBText;
+    dtxDescricaoMarca: TtecDBText;
+    dtxModelo: TtecDBText;
+    gbxOpcionais: TGroupBox;
+    dtxOpcionais: TtecDBText;
+    gbxComplemento: TGroupBox;
+    mmoComplemento: TtecDBMemo;
+    gbxPercICMS: TGroupBox;
+    edtISSQN: TDBEditNumero;
+    gbxValorISSQN: TGroupBox;
+    edtValorISSQN: TDBEditNumero;
+    sbnGerarTotalISSQN: TSpeedButton;
+    gbxUFCidade: TGroupBox;
+    gbxCidade: TGroupBox;
+    fraConsultaEstado: TfraConsultaCodigo;
+    fraConsultaCidades: TfraConsultaCodigo;
+    ckbReter: TDBCheckBox;
+    GroupBox2: TGroupBox;
+    fraConsultaCIndOp: TfraConsultaCodigo;
+    procedure flkServicoMessage(var Msg: String);
+    procedure sbnProcuraServicosClick(Sender: TObject);
+    procedure sbnProcurarEquipamentoClick(Sender: TObject);
+    procedure sbnGerarTotalISSQNClick(Sender: TObject);
+  protected
+    TipoConsulta: TtecConsultaServicosContratos;
+    dtmCadastroContratos : tdtmCadastroContratos;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    function  InternoIncluir: Boolean; override;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    function  TabelaDePesquisa: TZDataSet; override;
+    procedure AtribuirParametroCidade(Found: Boolean);
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+ private
+   procedure  SetDataModulo (Dtm: TdtmCadastroContratos);   
+
+  public
+    constructor Create(AOwner: TComponent; dtm: TdtmCadastroContratos); reintroduce;
+    destructor  Destroy; override;
+  end;
+
+var
+  frmCadastroServicosContrato: TfrmCadastroServicosContrato;
+
+implementation
+
+uses
+  //Biblio
+  biblio, clusuario, clparametrossistema,
+  //Repositorio
+  fmconsultaporcampo;
+
+{$R *.dfm}
+
+{ TfrmCadastroProdutosContrato }
+
+constructor TfrmCadastroServicosContrato.Create(AOwner: TComponent; dtm: TdtmCadastroContratos);
+begin
+  inherited Create(AOwner);
+  SetDataModulo(dtm);
+{  fraConsultaEstado.qryProcuraEstados.ParamByName('codigo').AsString :=
+    dtmCadastroContratos.qryServicosContratosestado.AsString;
+
+  fraConsultaCidades.qryProcuraCidades.ParamByName('estado').AsString :=
+    dtmCadastroContratos.qryServicosContratosestado.AsString;
+
+  fraConsultaCidades.qryProcuraCidades.ParamByName('codigo').AsString :=
+    dtmCadastroContratos.qryServicosContratoscidade.AsString;
+ }
+
+  fraConsultaEstado.TipoPesquisa := pesESTADOS;
+  fraConsultaEstado.OnFound := AtribuirParametroCidade;
+  fraConsultaEstado.edfCodigo.Exist;
+  AtribuirParametroCidade(true);
+
+  fraConsultaCidades.TipoPesquisa := pesCIDADES;
+  fraConsultaCidades.edfCodigo.Exist;
+
+  fraConsultaCIndOp.TipoPesquisa := pesIndOperNFSe;
+
+  DataSet := dtmCadastroContratos.TabelaServicoContratos;
+  TipoConsulta := cscNENHUM;
+end;
+
+destructor TfrmCadastroServicosContrato.Destroy;
+begin
+  inherited;
+  frmCadastroServicosContrato := nil;
+end;
+
+function TfrmCadastroServicosContrato.ExisteInformacao(Parametro: Integer;
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+  if TipoConsulta = cscSERVICOS then
+    Result := dtmCadastroContratos.ExisteServico(NomeCampo, Value)
+  else if TipoConsulta = cscEQUIPAMENTOS then
+    Result := dtmCadastroContratos.ExisteEquipamento(NomeCampo, Value)
+  else
+    Result := False
+end;
+
+procedure TfrmCadastroServicosContrato.flkServicoMessage(var Msg: String);
+begin
+  inherited;
+  Msg:= Format(ctREGISTROINCLUIDO, [flkServico.Text,'no Serviços Contratos']);
+end;
+
+function TfrmCadastroServicosContrato.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then begin
+    Result := dtmCadastroContratos.ExcluirServicoContrato;
+    flkServico.SetFocus;
+  end;
+end;
+
+function TfrmCadastroServicosContrato.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if Result then begin
+    dtmCadastroContratos.GravandoItensContratos := true;
+    Result := dtmCadastroContratos.GravarServicoContrato;
+    if Result then begin
+      dtmCadastroContratos.CalcularValorTotalServicos;
+      dtmCadastroContratos.CalcularValorAVista;
+    end;
+    dtmCadastroContratos.GravandoItensContratos := false;
+    flkServico.SetFocus;
+  end;
+end;
+
+function TfrmCadastroServicosContrato.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if Result then begin
+    Result := dtmCadastroContratos.IncluirServicosContrato(False);
+    flkServico.SetFocus
+  end;
+end;
+
+function TfrmCadastroServicosContrato.InternoPesquisar(Titulo: String): Integer;
+begin
+  Result := mrNONE;
+  if CtrlOn then begin
+    if ActiveControl = flkServico then begin
+      Titulo := 'Serviços';
+      TipoConsulta:= cscSERVICOS;
+    end else if ActiveControl = flkEquipamento then begin
+      Titulo := 'Equipamentos';
+      TipoConsulta := cscEQUIPAMENTOS;
+    end else
+      TipoConsulta:= cscNENHUM;
+
+    if TipoConsulta <> cscNENHUM then begin
+      dtmCadastroContratos.AbreConsultaServicos(TipoConsulta);
+      Result := inherited InternoPesquisar(Titulo);
+      if Result = mrOK then
+        dtmCadastroContratos.SelecionarConsultaServicos(TipoConsulta);
+      dtmCadastroContratos.FecharConsultaServicos(TipoConsulta);
+    end;
+  end;
+end;
+
+function TfrmCadastroServicosContrato.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa     := True;
+  TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := False;
+end;
+
+function TfrmCadastroServicosContrato.TabelaDePesquisa: TZDataSet;
+begin
+  if TipoConsulta = cscSERVICOS then
+    Result := dtmCadastroContratos.TabelaConsultaServicos
+  else if TipoConsulta = cscEQUIPAMENTOS then
+    Result := dtmCadastroContratos.TabelaConsultaEquipamentos
+  else
+    Result := nil
+end;
+
+procedure TfrmCadastroServicosContrato.sbnProcuraServicosClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  flkServico.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmCadastroServicosContrato.sbnProcurarEquipamentoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  flkEquipamento.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmCadastroServicosContrato.AtribuirParametroCidade(Found: Boolean);
+begin
+  if fraconsultaEstado.edfcodigo.text<>''then
+  begin
+    if (fraconsultaEstado.edfcodigo.text <>
+       fraConsultaCidades.qryConsultaCidades.parambyname('estado').asstring) and
+       (fraConsultaCidades.qryConsultaCidades.parambyname('estado').asstring<>'') then
+    begin
+      fraConsultaCidades.edfCodigo.Clear;
+      fraConsultaCidades.edfCodigo.Exist;
+    end;
+    fraConsultaCidades.qryConsultaCidades.parambyname('estado').asstring :=
+          fraconsultaEstado.edfcodigo.text;
+    fraConsultaCidades.qryProcuraCidades.parambyname('estado').asstring :=
+          fraconsultaEstado.edfcodigo.text;
+  end
+  else
+  begin
+    fraConsultaCidades.qryConsultaCidades.parambyname('estado').clear;
+    fraConsultaCidades.qryProcuraCidades.parambyname('estado').clear;
+    fraConsultaCidades.edfCodigo.Clear;
+    fraConsultaCidades.edfCodigo.Exist;
+  end;
+end;
+
+procedure TfrmCadastroServicosContrato.sbnGerarTotalISSQNClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastrocontratos.CalcularValorTotalItemISSQN;
+end;
+
+procedure TfrmCadastroServicosContrato.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if (Shift = [ssCtrl]) and (Key = 49) then
+  begin
+    sbnGerarTotalISSQNClick(nil);
+    edtValorISSQN.SetFocus;
+    edtValorISSQN.SelectAll;
+  end;
+end;
+
+procedure TfrmCadastroServicosContrato.SetDataModulo(
+  Dtm: TdtmCadastroContratos);
+begin
+  dtmCadastroContratos := Dtm;
+  flkServico.DataSource := dtmCadastroContratos.dsrServicosContratos;
+  flkServico.LookupSource := dtmCadastroContratos.dsrProcuraServico;
+  dtxDescricaoServico.DataSource := dtmCadastroContratos.dsrProcuraServico;
+  edtQtdade.DataSource := dtmCadastroContratos.dsrServicosContratos;
+  edtValorServico.DataSource := dtmCadastroContratos.dsrServicosContratos;
+  flkEquipamento.DataSource := dtmCadastroContratos.dsrServicosContratos;
+  flkEquipamento.LookupSource := dtmCadastroContratos.dsrProcuraEquipamentos;
+  dtxDescricaoEquipamento.DataSource := dtmCadastroContratos.dsrProcuraEquipamentos;
+  dtxReferencia.DataSource := dtmCadastroContratos.dsrProcuraEquipamentos;
+  dtxAno.DataSource := dtmCadastroContratos.dsrProcuraEquipamentos;
+  dtxMarca.DataSource := dtmCadastroContratos.dsrProcuraEquipamentos;
+  dtxDescricaoMarca.DataSource := dtmCadastroContratos.dsrProcuraEquipamentos;
+  dtxModelo.DataSource := dtmCadastroContratos.dsrProcuraEquipamentos;
+  dtxOpcionais.DataSource := dtmCadastroContratos.dsrProcuraEquipamentos;
+  mmoComplemento.DataSource := dtmCadastroContratos.dsrServicosContratos;
+  edtISSQN.DataSource := dtmCadastroContratos.dsrServicosContratos;
+  edtValorISSQN.DataSource := dtmCadastroContratos.dsrServicosContratos;
+  fraConsultaEstado.edfCodigo.DataSource := dtmCadastroContratos.dsrServicosContratos;
+  fraConsultaEstado.edfCodigo.LookupSource := dtmCadastroContratos.dsrProcuraEstados;
+  fraConsultaCidades.edfCodigo.DataSource := dtmCadastroContratos.dsrServicosContratos;
+  dtxValorTotalServico.DataSource := dtmCadastroContratos.dsrServicosContratos;
+  ckbReter.DataSource := dtmCadastroContratos.dsrServicosContratos;
+end;
+
+end.

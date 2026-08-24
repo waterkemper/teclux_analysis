@@ -1,0 +1,382 @@
+inherited frmImportarAlugueis: TfrmImportarAlugueis
+  Left = 681
+  Top = 253
+  Caption = 'Importar alugu'#233'is'
+  ClientHeight = 140
+  ClientWidth = 560
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  FormStyle = fsMDIChild
+  OldCreateOrder = False
+  Visible = True
+  PixelsPerInch = 96
+  TextHeight = 13
+  object sbnProcuraAlugueis: TSpeedButton [0]
+    Left = 536
+    Top = 107
+    Width = 23
+    Height = 23
+    Flat = True
+    Glyph.Data = {
+      36060000424D3606000000000000360000002800000020000000100000000100
+      18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+      DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+      DCDCDCDC800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+      DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7FFFFFFFDCDCDCDCDCDC
+      DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+      DC800000800000800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+      DCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDC
+      DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000
+      00800000800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+      DCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+      DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000008000
+      00800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+      DCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDC
+      DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000008000008000
+      00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFF
+      FFFFDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+      DCDCDCFFA858800000800000800000FFA858DCDCDC0000FF800000800000DCDC
+      DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDC
+      DCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+      800000FFA858FFA858FFA858FFA858FFA8588000008000000000FFDCDCDCDCDC
+      DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FFFFFFFDCDCDCDCDCDC7F
+      7F7F7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC800000
+      FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDCDCDCDC
+      DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDC
+      DCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFA858FFA858
+      FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858DCDCDCDCDC
+      DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+      DCDCDCDCDC7F7F7FDCDCDCFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+      FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000DCDCDCDCDC
+      DCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+      DCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+      FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDC
+      DCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+      DCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+      FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000DCDCDCDCDC
+      DCDCDCDCDCDCDCDCDCDC7F7F7FC3C3C3FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+      DCDCDCDCDCDCDCDC7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFA858FFA858
+      FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858DCDCDCDCDC
+      DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+      DCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC800000
+      FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDCDCDCDC
+      DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FC3C3C3FFFFFFFFFFFFDCDCDCDCDCDCDC
+      DCDCFFFFFF7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+      800000FFA858FFA858FFA858FFA858FFA858800000DCDCDCDCDCDCDCDCDCDCDC
+      DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FC3C3C3FFFFFFFFFFFF7F
+      7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+      DCDCDCFFA858800000800000800000FFA858DCDCDCDCDCDCDCDCDCDCDCDCDCDC
+      DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDC
+      DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+    NumGlyphs = 2
+    OnClick = sbnProcuraAlugueisClick
+  end
+  inherited pnlBarra: TPanel
+    TabOrder = 2
+  end
+  inherited pnlTopMenu: TPanel
+    Width = 560
+    TabOrder = 3
+    inherited tblBarra: TToolBar
+      Width = 559
+      inherited sbnProcurar: TSpeedButton
+        Visible = False
+      end
+      inherited sbnAjuda: TSpeedButton
+        Action = aclLiberar
+      end
+    end
+  end
+  object gbxMesAnoReferencia: TGroupBox
+    Left = 8
+    Top = 48
+    Width = 65
+    Height = 36
+    Hint = 'M'#202'S/ANO DE REFER'#202'NCIA'
+    Caption = 'M'#202'S/ANO'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -9
+    Font.Name = 'Helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 0
+    object edtMesAno: TEditMesAno
+      Left = 2
+      Top = 10
+      Width = 60
+      Height = 23
+      EditMask = '99/9999;1; '
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      MaxLength = 7
+      ParentFont = False
+      TabOrder = 0
+      Text = '  /    '
+    end
+  end
+  object gbxArquivoAluguel: TGroupBox
+    Left = 8
+    Top = 96
+    Width = 525
+    Height = 36
+    Caption = 'ARQUIVO TEXTO COM OS VALORES DE ALUGU'#201'IS RECEBIDOS'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -9
+    Font.Name = 'Helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 1
+    object lblArquivoAluguel: TLabel
+      Left = 2
+      Top = 14
+      Width = 520
+      Height = 18
+      AutoSize = False
+      Color = 15066597
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentColor = False
+      ParentFont = False
+    end
+  end
+  object ckbApagarDadosMes: TCheckBox
+    Left = 94
+    Top = 61
+    Width = 265
+    Height = 17
+    Caption = 'Apagar os dados do m'#234's antes de importar'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -12
+    Font.Name = 'Helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 4
+  end
+  object dlgImportarlugueis: TOpenDialog
+    Left = 400
+    Top = 65528
+  end
+  object actLiberar: TActionList
+    Left = 240
+    object aclLiberar: TAction
+      Caption = 'aclLiberar'
+      OnUpdate = aclLiberarUpdate
+    end
+  end
+  object qryClientes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'ListaCNPJs'
+        ParamType = ptUnknown
+        Value = '0'
+      end>
+    Sql.Strings = (
+      'select c.codigo,'
+      '       c.nome,'
+      '       c.pessoatipo,'
+      '       c.pessoanumero,'
+      '       c.rua,'
+      '       c.numero,'
+      '       c.estado,'
+      '       c.cidade,'
+      '       c.bairro,'
+      '       c.cep'
+      ''
+      'from clientes c'
+      'where c.pessoanumero in (%ListaCNPJs)')
+    RequestLive = True
+    Left = 288
+    object qryClientescodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+    end
+    object qryClientesnome: TStringField
+      FieldName = 'nome'
+      Required = True
+      Size = 60
+    end
+    object qryClientespessoatipo: TStringField
+      FieldName = 'pessoatipo'
+      Required = True
+      Size = 1
+    end
+    object qryClientespessoanumero: TStringField
+      FieldName = 'pessoanumero'
+      Size = 14
+    end
+    object qryClientesrua: TStringField
+      FieldName = 'rua'
+      Size = 100
+    end
+    object qryClientesnumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryClientesestado: TStringField
+      FieldName = 'estado'
+      Size = 2
+    end
+    object qryClientescidade: TIntegerField
+      FieldName = 'cidade'
+    end
+    object qryClientesbairro: TIntegerField
+      FieldName = 'bairro'
+    end
+    object qryClientescep: TIntegerField
+      FieldName = 'cep'
+    end
+  end
+  object qryAlugueis: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'ListaAlugueis'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'select a.*'
+      'from alugueis a'
+      'where (a.cliente, a.data) in (%ListaAlugueis)')
+    RequestLive = True
+    Left = 416
+    Top = 40
+    object qryAlugueiscliente: TIntegerField
+      FieldName = 'cliente'
+    end
+    object qryAlugueisdata: TDateField
+      FieldName = 'data'
+    end
+    object qryAlugueisvalor: TFloatField
+      FieldName = 'valor'
+    end
+    object qryAlugueispiscst: TStringField
+      FieldName = 'piscst'
+      Size = 2
+    end
+    object qryAlugueispisaliquota: TFloatField
+      FieldName = 'pisaliquota'
+    end
+    object qryAlugueiscofinscst: TStringField
+      FieldName = 'cofinscst'
+      Size = 2
+    end
+    object qryAlugueiscofinsaliquota: TFloatField
+      FieldName = 'cofinsaliquota'
+    end
+    object qryAlugueisnumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryAlugueisfilialemissao: TIntegerField
+      FieldName = 'filialemissao'
+    end
+    object qryAlugueisnat_bc_cred: TStringField
+      FieldName = 'nat_bc_cred'
+      Size = 2
+    end
+  end
+  object spccontatosclienteproximocodigo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select clientes_proximocodigo() as codigo')
+    RequestLive = False
+    Left = 352
+    object spccontatosclienteproximocodigocodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+  end
+  object spcalugueisproximonumero: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select nextval('#39'public.alugueis_numero_seq'#39') as numero')
+    RequestLive = False
+    Left = 392
+    Top = 48
+    object spcalugueisproximonumeronumero: TLargeintField
+      FieldName = 'numero'
+    end
+  end
+  object qryApagarAlugueisMes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'delete from alugueis'
+      'where'
+      
+        'extract(month from data) = :mes and extract(year from data) = :a' +
+        'no')
+    RequestLive = True
+    Left = 488
+    Top = 32
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'mes'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ano'
+        ParamType = ptUnknown
+      end>
+  end
+end

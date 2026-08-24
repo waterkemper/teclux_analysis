@@ -18,7 +18,7 @@ object frmLoginBasico: TfrmLoginBasico
   Font.Style = []
   FormStyle = fsStayOnTop
   OldCreateOrder = True
-  Position = poDesktopCenter
+  Position = poScreenCenter
   Scaled = False
   Visible = True
   OnShow = FormShow

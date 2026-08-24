@@ -1,0 +1,674 @@
+unit fmcadastroosp;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmcadastropadrao, ComCtrls, Buttons, ExtCtrls, cpdbdata,
+  Mask, cpdbfindcontrols, frconsulta, frconsultacodigo, cpdbspinedit,
+  Grids, DBGrids, cpdbgrid, dmcadastroosp, DBCtrls, cptexto, ctconstantes,
+  cpdbtext, cpnumero, Windows, biblio, db, fmcadastroprodutosclientespedidossaidas,
+  cpdbmemo, dateutils, ActnList, cpdocumento, cpcep, cpmascara, cpdbdiames,
+  ToolWin;
+
+type
+  TfrmCadastroOSP = class(TfrmCadastroPadrao)
+    gbxNumero: TGroupBox;
+    edfOSP: TtecDBFindLookup;
+    gbxData: TGroupBox;
+    edtDataPedido: TDBEditData;
+    gbxNrNoCliente: TGroupBox;
+    gbxNrClientes: TGroupBox;
+    fraConsultaCliente: TfraConsultaCodigo;
+    gbxPrazodeEntrega: TGroupBox;
+    gbxDataEntrega: TGroupBox;
+    gbxSemanaEntrega: TGroupBox;
+    gbxPrioridade: TGroupBox;
+    pnlTop: TPanel;
+    edtDataEntrega: TDBEditData;
+    edtNrNoCliente: TDBEditTexto;
+    edtSemanadoAno: TDBSpinEdit;
+    edtAnoEntrega: TDBSpinEdit;
+    edtPrioridade: TDBSpinEdit;
+    gbxObservacoes: TGroupBox;
+    mmoObservacoes: TtecDBMemo;
+    gbxProduto: TGroupBox;
+    fraProduto: TfraConsultaCodigo;
+    gbxPedida: TGroupBox;
+    edtQuantidade: TDBEditNumero;
+    gbxPreco: TGroupBox;
+    edtPreco: TDBEditNumero;
+    gbxQuantidadeProduto: TGroupBox;
+    gbxEntregue: TGroupBox;
+    gbxSaldo: TGroupBox;
+    gbxTotal: TGroupBox;
+    dtxEntregue: TDBEditNumero;
+    dtxSaldo: TDBEditNumero;
+    dtxTotal: TDBEditNumero;
+    dtxUnidade: TtecDBText;
+    edtComplemento: TDBEditTexto;
+    gbxComplemento: TGroupBox;
+    ckbSomenteProdutosdoCliente: TCheckBox;
+    gbxProdutoCliente: TGroupBox;
+    edtProdutoCliente: TDBEditTexto;
+    gbxFinalidade: TGroupBox;
+    edtFinalidade: TDBEditTexto;
+    gbxOrigem: TGroupBox;
+    edtOrigem: TDBEditTexto;
+    gbxPN: TGroupBox;
+    edtPN: TDBEditTexto;
+    gbxDataPreco: TGroupBox;
+    dtxDataPreco: TtecDBText;
+    sbnGerarDataPreco: TSpeedButton;
+    dtxOrigem: TtecDBText;
+    gbxFormasdePesquisa: TGroupBox;
+    ckbPesquisaporFamilia: TCheckBox;
+    gbxFamilia: TGroupBox;
+    fraFamilia: TfraConsultaCodigo;
+    gbxProdutonoCliente: TGroupBox;
+    gbxPrecos: TGroupBox;
+    sbnImprimir: TSpeedButton;
+    gbxLotesdeProducao: TGroupBox;
+    dbgLotesdeProducao: TtecDBGrid;
+    sbnGerarLotesdeProducao: TSpeedButton;
+    edtQuantidadeLote: TDBEditNumero;
+    edtExcedenteLote: TDBEditNumero;
+    edtProduzidaLote: TDBEditNumero;
+    Label1: TLabel;
+    ckbMarcarTodasImpressoes: TCheckBox;
+    GroupBox1: TGroupBox;
+    GroupBox4: TGroupBox;
+    actLiberar: TActionList;
+    aclLiberar: TAction;
+    lblSituacao: TLabel;
+    gbxRevisao: TGroupBox;
+    edtRevisao: TDBEditTexto;
+    gbxTamLoteProducao: TGroupBox;
+    edtLoteProducao: TDBEditNumero;
+    sbnIncluirSemiAcabado: TSpeedButton;
+    gbxNrNoSetorProducao: TGroupBox;
+    edtNrNoSetor: TDBEditTexto;
+    edtDescricaoSetorproducao: TDBEditTexto;
+    sbnVisualizarProducao: TSpeedButton;
+    procedure sbnProcurarClick(Sender: TObject);
+    procedure ckbSomenteProdutosdoClienteClick(Sender: TObject);
+    procedure sbnGerarDataPrecoClick(Sender: TObject);
+    procedure ckbPesquisaporFamiliaClick(Sender: TObject);
+    procedure fraConsultaProdutoedfCodigoFound(Found: Boolean);
+    procedure fraConsultaFamiliaedfCodigoFound(Found: Boolean);
+    procedure fraConsultaFamiliaedfCodigoExit(Sender: TObject);
+    procedure edtSemanadoAnoEnter(Sender: TObject);
+    procedure edfOSPKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure fraProdutosbnProcuraClick(Sender: TObject);
+    procedure sbnImprimirClick(Sender: TObject);
+    procedure dbgLotesdeProducaoDblClick(Sender: TObject);
+    procedure ckbMarcarTodasImpressoesClick(Sender: TObject);
+    procedure dbgLotesdeProducaoKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure aclLiberarUpdate(Sender: TObject);
+    procedure fraConsultaClientesbnProcuraClick(Sender: TObject);
+    procedure sbnIncluirSemiAcabadoClick(Sender: TObject);
+    procedure sbnVisualizarProducaoClick(Sender: TObject);
+  private
+    { Private declarations }
+{    procedure CondicoesItemProduto;}
+//    tecla :  Word;
+  protected
+    ConsultaOSP : TfraConsultaCodigo;
+    CadastrarProdutosCliente : TfrmCadastroProdutosClientesPedidosSaidas;
+    procedure AbrirOSP;
+    procedure AtribuirDadosProdutos;
+    procedure AtribuirDadosCaracteristicas;
+
+    procedure AtribuirParametrosItemProdutos;
+    procedure AtribuirParametrosCaracteristicas;
+
+    procedure AtribuirDadosclientes;
+    procedure AtribuirTipoCliente;
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoIncluir: Boolean; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure ProdutoJaCadastrado(Sender: TObject);
+    procedure OSPAfterScroll(Sender: TObject);
+    procedure AlteracaoData(Sender: TObject);
+    procedure Percorrer(Campo: Byte; var Key: Word; Shift: TShiftState);
+    procedure ImprimirOSP;
+    procedure AlterarEstadoBotoes; override;
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+  end;
+
+var
+  frmCadastroOSP: TfrmCadastroOSP;
+
+implementation
+
+uses dmbasico, clparametrossistema;
+
+{$R *.dfm}
+
+{ TfrmCadastoOSP }
+
+procedure TfrmCadastroOSP.AbrirOSP;
+begin
+  edfOSP.Text := ConsultaOSP.ValorSelecionado;
+  dtmCadastroOSP.
+        refazconsulta(dtmCadastroOSP.qryOSP,[0,1,2],
+             [0,0,ConsultaOSP.ValorSelecionado]);
+//  AlterarEstadoBotoes;
+end;
+
+constructor TfrmCadastroOSP.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmCadastroOSP := TdtmCadastroOSP.Create(Self);
+  DataSet := dtmCadastroOSP.qryOSP;
+
+  dtmCadastroOSP.ProdutoJaCadastrado := ProdutoJaCadastrado;
+  dtmCadastroOSP.OSPAfterScroll := OSPAfterScroll;
+  dtmCadastroOSP.AlteracaoData := AlteracaoData;
+
+  CadastrarProdutosCliente := nil;
+  ConsultaOSP := TfraConsultaCodigo.Create(self);
+  ConsultaOSP.edfCodigo.DataSource := dtmCadastroOSP.dsrOSP;
+  ConsultaOSP.edfCodigo.DataField := 'numero';
+  ConsultaOSP.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaOSP.AbrirTabelaProcura := false;
+//  ConsultaOSP.TipoCliente := 'C';
+//  ConsultaOSP.Tipovfornecedor := '';
+  ConsultaOSP.TipoPesquisa := pesOSP;
+  ConsultaOSP.OnFound := AbrirOSP;
+  ConsultaOSP.Name := 'fraConsultaOSP';
+
+  fraProduto.SomenteProdutosdoCliente := true;
+  fraProduto.AbrirTabelaProcura := true;
+  fraProduto.CondicoesdaConsulta := AtribuirParametrosItemProdutos;
+  fraproduto.TipoPesquisa := pesITEMPRODUTOS;
+  fraProduto.OnFound := AtribuirDadosProdutos;
+
+  fraFamilia.SomenteProdutosdoCliente := true;
+  fraFamilia.AbrirTabelaProcura := true;
+  fraFamilia.CondicoesdaConsulta := AtribuirParametrosCaracteristicas;
+  fraFamilia.TipoPesquisa := pesPRODUTOS;
+  fraFamilia.OnFound := AtribuirDadosCaracteristicas;
+
+  fraConsultaCliente.TipoCliente := 'C';
+  fraConsultaCliente.Tipovfornecedor := 'C';
+  fraConsultaCliente.CondicoesdaConsulta := AtribuirTipoCliente;
+  fraConsultaCliente.OnFound := AtribuirDadosClientes;
+  fraConsultaCliente.TipoPesquisa := pesCLIENTES;
+
+  edtPreco.NrDecimal := ParSistema.PrecoUnitarioCasasDecimais;
+
+  if dtmCadastroOSP.UltimaOSP<>0 then
+  begin
+    edfOSP.Text := inttostr(dtmCadastroOSP.UltimaOSP);
+    edfosp.Exist;
+  end;
+{
+  dtmCadastroInventario.OnScrollLinhaColunaGrade := AfterScrollLinhaColunaGrade;
+  dtmCadastroInventario.OnScrollInventario := AfterScrollInventario;
+  dbgProdutosInventario.Columns[3].Visible := ParSistema.UsarGradesProdutos;
+  dbgProdutosInventario.Columns[4].Visible := ParSistema.UsarGradesProdutos;
+
+  if dbgProdutosInventario.Columns[5].Width < ParSistema.tamanhoMascaraQuantidade then
+    dbgProdutosInventario.Columns[5].Width := ParSistema.tamanhoMascaraQuantidade;
+
+  if dbgProdutosInventario.Columns[6].Width < ParSistema.tamanhoMascaraQuantidade then
+    dbgProdutosInventario.Columns[6].Width := ParSistema.tamanhoMascaraQuantidade;
+
+  if dbgProdutosInventario.Columns[7].Width < ParSistema.tamanhoMascaraQuantidade then
+    dbgProdutosInventario.Columns[7].Width := ParSistema.tamanhoMascaraQuantidade;
+
+  if dbgProdutosInventario.Columns[8].Width < ParSistema.tamanhoMascaraQuantidade then
+    dbgProdutosInventario.Columns[8].Width := ParSistema.tamanhoMascaraQuantidade;
+
+  if dbgProdutosInventario.Columns[9].Width < ParSistema.tamanhoMascaraQuantidade then
+    dbgProdutosInventario.Columns[9].Width := ParSistema.tamanhoMascaraQuantidade;
+
+  if dbgProdutosInventario.Columns[10].Width < ParSistema.tamanhoMascaraQuantidade then
+    dbgProdutosInventario.Columns[10].Width := ParSistema.tamanhoMascaraQuantidade;
+
+  if dbgProdutosInventario.Columns[11].Width < ParSistema.tamanhoMascaraQuantidade then
+    dbgProdutosInventario.Columns[11].Width := ParSistema.tamanhoMascaraQuantidade;
+
+  if dbgProdutosInventario.Columns[12].Width < ParSistema.tamanhoMascaraQuantidade then
+    dbgProdutosInventario.Columns[12].Width := ParSistema.tamanhoMascaraQuantidade;
+
+  if dbgProdutosInventario.Columns[13].Width < ParSistema.tamanhoMascaraQuantidade then
+    dbgProdutosInventario.Columns[13].Width := ParSistema.tamanhoMascaraQuantidade;
+
+  dbgProdutosInventario.OnDelete := ExcluirProduto;
+
+  fraConsultaFornecedor.TipoCliente := 'F';
+  fraConsultatFornecedor.Tipovfornecedor := 'F';
+  fraConsultaFornecedor.TipoPesquisa := pesFORNECEDORES;
+  }
+
+  sbnIncluirSemiAcabado.Left := 75;
+
+  edfOSP.SelectAll;
+
+end;
+
+destructor TfrmCadastroOSP.Destroy;
+begin
+//  dtmCadastroOSP.qryOSP.close;
+  dtmCadastroOSP := nil;
+  inherited;
+  frmCadastroOSP := nil;
+end;
+
+function TfrmCadastroOSP.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then begin
+    if not CtrlOn then
+      dtmCadastroOSP.ExcluirOSP;
+  end;
+end;
+
+function TfrmCadastroOSP.InternoGravar: Boolean;
+begin
+  dtmCadastroOSP.qryOSPcomplementoproduto.Required := ckbPesquisaporFamilia.Checked;
+  if ckbPesquisaporFamilia.Checked then
+    dtmCadastroOSP.IncluirProduto;
+
+  Result:= inherited InternoGravar;
+  if Result then
+    if dtmCadastroOSP.GravarOSP then
+      if ckbPesquisaporFamilia.Checked then
+        ckbPesquisaporFamilia.Checked := false;
+
+end;
+
+function TfrmCadastroOSP.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then begin
+    if not CtrlOn then
+    begin
+      dtmCadastroOSP.IncluirOSP;
+      gbxPrecos.visible := true;
+      edtDataPedido.SetFocus;
+    end;
+  end;
+end;
+
+procedure TfrmCadastroOSP.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+//  tecla_escape :=VK_escape;
+  if key =VK_escape then
+  begin
+    if ActiveControl = edfOSP then
+      dtmCadastroOSP.Fecha(cttabelas);
+    inherited;
+  end
+  else
+   inherited;
+
+  if not CtrlOn then
+  begin
+    if (key =VK_F9) then
+    begin
+      if sbnProcurar.Enabled then
+      begin
+        ConsultaOSP.InternoPesquisar('OSP');
+        self.SetFocus;
+      end
+    end;
+  end;
+
+
+  if not CtrlOn then
+  begin
+    if (key =VK_F8) then
+    begin
+      if sbnVisualizarProducao.Enabled then
+        dtmCadastroOSP.VisualizarProducao
+    end;
+  end;
+
+
+  if not CtrlOn then
+  begin
+    if (key =VK_F7) then
+    begin
+      if sbnImprimir.Enabled then
+        sbnImprimirClick(Self);
+    end;
+  end;
+end;
+
+procedure TfrmCadastroOSP.AtribuirDadosProdutos;
+begin
+  with dtmCadastroOSP do
+  begin
+    qryOSPproduto.AsString := fraProduto.qryProcuraItemProdutoscodigo.AsString;
+    qryOSPcaracteristicavisual.AsString := fraProduto.qryProcuraItemProdutoscaracteristicavisual.AsString;
+    qryOSPcaracteristica.AsString :=  fraProduto.qryProcuraItemProdutoscaracteristica.AsString;
+    qryOSPunidade.AsString := fraProduto.qryProcuraItemProdutosunidade.AsString;
+    qryOSPcomplementoproduto.Clear;
+    qryOSPsetorproducao.asstring := fraproduto.qryProcuraItemProdutossetorproducao.AsString;
+
+    if not dtmCadastroOSP.ExisteProdutonoCliente then
+    begin
+      MensagemAviso(ctITEMNAOVINCULADOCLIENTE);
+      dtmCadastroOSP.AtribuirPNProdutoCliente;
+    end;
+
+    ReFazConsulta(qryOSPUltimoPreco,[0,1,2],[qryOSPcliente.AsVariant,
+                                             qryOSPProduto.asVariant,
+                                             filialbase]);
+    qryOSPpreco.AsCurrency := qryOSPUltimoPrecopreco.AsCurrency;
+
+    dtmCadastroOSP.CalcularNrPedidoSetor;
+  end;
+
+end;
+
+
+procedure TfrmCadastroOSP.sbnProcurarClick(Sender: TObject);
+begin
+  inherited;
+  ConsultaOSP.InternoPesquisar(ctOSP);
+  self.SetFocus;
+end;
+
+procedure TfrmCadastroOSP.AtribuirParametrosItemProdutos;
+begin
+  if not dtmCadastroOSP.qryOSPsemiacabado.AsBoolean then
+  begin
+    fraProduto.qryConsultaItemProdutos.MacroByName('SQLProdutosJaSelecionados').AsString :=
+      'and ((c.producaopropria and (p.inativo is null or p.inativo > current_date)) or p.codigo = '+inttostr(dtmCadastroOSP.qryOSPproduto.Aslargeint)+')';
+    fraProduto.qryProcuraItemProdutos.MacroByName('SQLProdutosJaSelecionados').AsString :=
+      'and ((c.producaopropria and (p.inativo is null or p.inativo > current_date)) or p.codigo = '+inttostr(dtmCadastroOSP.qryOSPproduto.AsLargeInt)+')';
+  end
+  else
+  begin
+    fraproduto.SomenteProdutosdoCliente := false;
+    fraProduto.qryConsultaItemProdutos.MacroByName('SQLProdutosJaSelecionados').AsString :=
+      'and ((c.tipoproduto = ''05'' and (p.inativo is null or p.inativo > current_date))  or p.codigo = '+inttostr(dtmCadastroOSP.qryOSPproduto.Aslargeint)+')';
+    fraProduto.qryProcuraItemProdutos.MacroByName('SQLProdutosJaSelecionados').AsString :=
+      'and ((c.tipoproduto = ''05'' and (p.inativo is null or p.inativo > current_date)) or p.codigo = '+inttostr(dtmCadastroOSP.qryOSPproduto.AsLargeInt)+')';
+  end;
+
+  fraProduto.qryConsultaItemProdutos.ParamByName('cliente').AsInteger :=
+    dtmCadastroOSP.qryOSPcliente.AsInteger;
+  fraProduto.qryConsultaItemProdutos.ParamByName('tipocliente').AsString :=
+    dtmCadastroOSP.qryOSPtipocliente.AsString;
+
+  fraProduto.qryProcuraItemProdutos.ParamByName('cliente').AsInteger :=
+    dtmCadastroOSP.qryOSPcliente.AsInteger;
+  fraProduto.qryProcuraItemProdutos.ParamByName('tipocliente').AsString :=
+    dtmCadastroOSP.qryOSPtipocliente.AsString;
+
+end;
+
+procedure TfrmCadastroOSP.ckbSomenteProdutosdoClienteClick(
+  Sender: TObject);
+begin
+  inherited;
+  if ckbSomenteProdutosdoCliente.Checked then
+    if fraConsultaCliente.edfCodigo.Text='' then
+      ckbSomenteProdutosdoCliente.Checked := false;
+  fraProduto.SomenteProdutosdoCliente := ckbSomenteProdutosdoCliente.Checked;
+  fraFamilia.SomenteProdutosdoCliente := ckbSomenteProdutosdoCliente.Checked;
+end;
+
+procedure TfrmCadastroOSP.sbnGerarDataPrecoClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroOSP.GerarLotesdeProducao;
+end;
+
+procedure TfrmCadastroOSP.ckbPesquisaporFamiliaClick(Sender: TObject);
+begin
+  inherited;
+  if ckbPesquisaporFamilia.Checked then
+  begin
+    gbxFamilia.Visible := true;
+    gbxProduto.Visible := false;
+    gbxFamilia.BringToFront;
+    gbxProduto.SendToBack;
+    gbxComplemento.Visible := true;
+    AtribuirDadosCaracteristicas;
+  end
+  else
+  begin
+    gbxFamilia.Visible := false;
+    gbxProduto.Visible := true;
+    gbxFamilia.SendToBack;
+    gbxProduto.BringToFront;
+    gbxComplemento.Visible := false;
+  end;
+end;
+
+procedure TfrmCadastroOSP.AtribuirParametrosCaracteristicas;
+begin
+  fraFamilia.qryConsultaProdutos.MacroByName('SQLProdutosJaSelecionados').AsString :=
+    'and ((c.producaopropria and (c.inativo is null or c.inativo > current_date)) or c.codigo = '+inttostr(dtmCadastroOSP.qryOSPcaracteristica.Aslargeint)+')';
+  fraFamilia.qryProcuraProdutos.MacroByName('SQLProdutosJaSelecionados').AsString :=
+    'and ((c.producaopropria and (c.inativo is null or c.inativo > current_date)) or c.codigo = '+inttostr(dtmCadastroOSP.qryOSPcaracteristica.Aslargeint)+')';
+    
+  fraFamilia.qryConsultaProdutos.ParamByName('cliente').AsInteger :=
+    dtmCadastroOSP.qryOSPcliente.AsInteger;
+  fraFamilia.qryConsultaProdutos.ParamByName('tipocliente').AsString :=
+    dtmCadastroOSP.qryOSPtipocliente.AsString;
+
+  fraFamilia.qryProcuraProdutos.ParamByName('cliente').AsInteger :=
+    dtmCadastroOSP.qryOSPcliente.AsInteger;
+  fraFamilia.qryProcuraProdutos.ParamByName('tipocliente').AsString :=
+    dtmCadastroOSP.qryOSPtipocliente.AsString;
+end;
+
+procedure TfrmCadastroOSP.AtribuirDadosCaracteristicas;
+begin
+  with dtmCadastroOSP do
+  begin
+    dtmCadastroOSP.LimparProdutosPedidosSaida;
+    qryOSPcaracteristica.AsString := fraFamilia.qryProcuraProdutos.FieldByName('codigo').AsString;
+    qryOSPunidade.AsString := fraFamilia.qryProcuraProdutos.FieldByName('unidade').AsString;
+    AtribuirPNFamiliaCliente;
+    ReFazConsulta(qryOSPUltimoPreco,[0,1,2],[0,0,0]);
+  end;
+end;
+
+procedure TfrmCadastroOSP.ProdutoJaCadastrado(Sender: TObject);
+begin
+  ckbPesquisaporFamilia.Checked := false;
+  edtComplemento.Text := '';
+  fraProduto.edfCodigo.SetFocus;
+  fraProduto.edfCodigo.Exist;
+  AtribuirDadosProdutos;
+end;
+
+procedure TfrmCadastroOSP.fraConsultaProdutoedfCodigoFound(Found: Boolean);
+begin
+  inherited;
+  AtribuirDadosProdutos;
+end;
+
+procedure TfrmCadastroOSP.fraConsultaFamiliaedfCodigoFound(Found: Boolean);
+begin
+  inherited;
+  AtribuirDadosCaracteristicas;
+end;
+
+procedure TfrmCadastroOSP.fraConsultaFamiliaedfCodigoExit(Sender: TObject);
+begin
+  inherited;
+  fraFamilia.edfCodigoExit(Sender);
+  edtComplemento.MaxLength := 29 - length(trim(fraFamilia.edfCodigo.Text));
+
+end;
+
+procedure TfrmCadastroOSP.AtribuirDadosclientes;
+begin
+  dtmCadastroOSP.qryOSPapelido.AsString := fraConsultaCliente.qryProcuraClienteapelido.AsString;
+end;
+
+
+procedure TfrmCadastroOSP.OSPAfterScroll(Sender: TObject);
+begin
+  ckbPesquisaporFamilia.Checked := false;
+end;
+
+procedure TfrmCadastroOSP.AlteracaoData(Sender: TObject);
+begin
+  edtDataEntrega.Minimo := DaysBetween(dtmCadastroOSP.qryOSPdata.AsDateTime,DataLocal);
+  if (DayOf(dtmCadastroOSP.qryOSPdata.AsDateTime)<=6) and (MonthOf(dtmCadastroOSP.qryOSPdata.AsDateTime) = 1) then
+    edtAnoEntrega.MinValue := yearof(dtmCadastroOSP.qryOSPdata.AsDateTime)-1
+  else
+    edtAnoEntrega.MinValue := yearof(dtmCadastroOSP.qryOSPdata.AsDateTime);
+
+  edtAnoEntrega.MaxValue := edtAnoEntrega.MinValue+1;
+end;
+
+procedure TfrmCadastroOSP.edtSemanadoAnoEnter(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroOSP.FSemana := edtSemanadoAno.Value;
+end;
+
+procedure TfrmCadastroOSP.edfOSPKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  Percorrer(cmpcodigo, Key, Shift);
+end;
+
+procedure TfrmCadastroOSP.Percorrer(Campo: Byte; var Key: Word;
+  Shift: TShiftState);
+begin
+   if (Key =VK_next) or
+      (Key =VK_PRIOR)   or
+     ((ssCtrl in Shift) and ((Key =VK_Home) or (Key =VK_End))) then
+   begin
+     dtmCadastroOSP.Percorrendo := true;
+     dtmCadastroOSP.Percorrer(Campo, Key, Shift);
+
+     case campo of
+      cmpcodigo        : edfOSP.SelectAll;
+     end;
+   end;
+end;
+
+procedure TfrmCadastroOSP.fraProdutosbnProcuraClick(Sender: TObject);
+begin
+  inherited;
+  fraProduto.sbnProcuraClick(Sender);
+
+end;
+
+procedure TfrmCadastroOSP.sbnImprimirClick(Sender: TObject);
+begin
+  inherited;
+  ImprimirOSP;
+end;
+
+procedure TfrmCadastroOSP.ImprimirOSP;
+begin
+  if dtmCadastroOSP.ExistemLotesMarcados then
+    dtmCadastroOSP.ImprimirOSP
+  else
+    MensagemErro('Não existem lotes marcados para a impressão');
+end;
+
+procedure TfrmCadastroOSP.dbgLotesdeProducaoDblClick(Sender: TObject);
+begin
+  inherited;
+  if dbgLotesdeProducao.SelectedIndex = 5 then
+    dtmCadastroOSP.MarcarLotesImpressao(false, not dtmCadastroOSP.qryOSPLotesimprimir.AsBoolean);
+end;
+
+procedure TfrmCadastroOSP.ckbMarcarTodasImpressoesClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroOSP.MarcarLotesImpressao(True, ckbMarcarTodasImpressoes.Checked);
+end;
+
+procedure TfrmCadastroOSP.dbgLotesdeProducaoKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (key =VK_space) and ctrlon then
+    if dbgLotesdeProducao.SelectedIndex = 5 then
+      dtmCadastroOSP.MarcarLotesImpressao(false, not dtmCadastroOSP.qryOSPLotesimprimir.AsBoolean);
+end;
+
+procedure TfrmCadastroOSP.AlterarEstadoBotoes;
+begin
+  inherited;
+  sbnImprimir.enabled := not sbnsalvar.enabled;
+  sbnVisualizarProducao.enabled := sbnImprimir.enabled;
+
+end;
+
+procedure TfrmCadastroOSP.aclLiberarUpdate(Sender: TObject);
+begin
+  inherited;
+  if dtmCadastroOSP.qryOSP.recordcount > 0 then
+  begin
+    lblSituacao.Visible := dtmCadastroOSP.qryOSPcancelado.AsBoolean;
+    case dtmCadastroOSP.qryOSPStatusCancelamento.AsInteger of
+    0: begin
+         sbnExcluir.Caption := 'Excluir F6';
+         sbnExcluir.Enabled := true;
+       end;
+    1: begin
+         sbnExcluir.Caption := 'Cancelar F6';
+         sbnExcluir.Enabled := true;
+       end;
+    2: sbnExcluir.Enabled := false;
+    end;
+  end;
+
+  gbxFormasdePesquisa.Visible := not dtmCadastroOSP.qryOSPsemiacabado.AsBoolean;
+  ckbSomenteProdutosdoCliente.visible := not dtmCadastroOSP.qryOSPsemiacabado.AsBoolean;
+  ckbPesquisaporFamilia.Visible := not dtmCadastroOSP.qryOSPsemiacabado.AsBoolean;
+  edtNrNoCliente.ReadOnly := dtmCadastroOSP.qryOSPsemiacabado.AsBoolean;
+
+  gbxNrNoSetorProducao.visible := dtmCadastroOSP.qryOSPsemiacabado.AsBoolean;
+  gbxNrNoCliente.visible := not dtmCadastroOSP.qryOSPsemiacabado.AsBoolean;
+
+  sbnIncluirSemiAcabado.enabled := not sbnSalvar.enabled;
+
+
+end;
+
+procedure TfrmCadastroOSP.fraConsultaClientesbnProcuraClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraConsultaCliente.sbnProcuraClick(Sender);
+
+end;
+
+procedure TfrmCadastroOSP.AtribuirTipoCliente;
+begin
+  fraConsultaCliente.qryProcuraCliente.ParamByName('tipocliente').AsString := dtmCadastroOSP.qryOSPtipocliente.AsString;
+end;
+
+procedure TfrmCadastroOSP.sbnIncluirSemiAcabadoClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroOSP.IncluirOSPSemiAcabado;
+  gbxPrecos.visible := false;
+  fraProduto.edfCodigo.SetFocus;
+
+
+end;
+
+procedure TfrmCadastroOSP.sbnVisualizarProducaoClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroOSP.VisualizarProducao;
+end;
+
+end.

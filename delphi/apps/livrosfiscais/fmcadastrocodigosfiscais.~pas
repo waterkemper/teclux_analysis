@@ -1,0 +1,234 @@
+unit fmcadastrocodigosfiscais;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs, ExtCtrls, Buttons,
+  DBCtrls, StdCtrls, Mask, ComCtrls,
+  //Terceiros
+  ZQuery,
+  //Biblio
+  ctconstantes, biblio, clparametrossistema, fmcadastropadrao, cpdbfindcontrols,
+  cpdbtext, cpdbradiogroup, cpdbmemo, cpdbdata, cptexto,
+  //Componentes
+  cpnumero,
+  //Repositorio
+  fmconsultabasica, fmconsultaporcampo,
+  //Projeto
+  dmcadastrocodigosfiscais, ToolWin, clusuario;
+
+type
+  TfrmCadastroCodigosFiscais = class(TfrmCadastroPadrao)
+    pnlFundoJanela: TPanel;
+    gbxFundoJanela: TGroupBox;
+    edfCodigoFiscal: TtecDbEditFind;
+    edtDescricao: TDBEditTexto;
+    gbxBases: TGroupBox;
+    ckbBaseFaturamento: TDBCheckBox;
+    ckbBasePIS: TDBCheckBox;
+    ckbBaseCOFINS: TDBCheckBox;
+    ckbBaseCSSL: TDBCheckBox;
+    gbxValidades: TGroupBox;
+    edtValidoAte: TDBEditData;
+    edtValidoApos: TDBEditData;
+    mmoDetalhes: TtecDBMemo;
+    rgpTipo: TtecDBRadioGroup;
+    rbnSintetico: TtecRadioButton;
+    rbnAnalitico: TtecRadioButton;
+    gbxContabilidade: TGroupBox;
+    gbxDebitar: TGroupBox;
+    sbnConsultaDebitar: TSpeedButton;
+    dtxDebitarDescricao: TtecDBText;
+    flkDebitar: TtecDBFindLookup;
+    dtxDebitarClassificacao: TtecDBText;
+    gbxCreditar: TGroupBox;
+    sbnConsultaCreditar: TSpeedButton;
+    dtxCreditarDescricao: TtecDBText;
+    flkCreditar: TtecDBFindLookup;
+    dtxCreditarClassificacao: TtecDBText;
+    gbxHistorico: TGroupBox;
+    sbnConsultaHistorico: TSpeedButton;
+    dtxHistorico: TtecDBText;
+    flkHistorico: TtecDBFindLookup;
+    ckbDestacarIPI: TDBCheckBox;
+    gbxCodigo: TGroupBox;
+    gbxDescricao: TGroupBox;
+    gbxDetalhes: TGroupBox;
+    gbxValidoAte: TGroupBox;
+    gbxValidoApos: TGroupBox;
+    ckbDevolucaoRetrono: TDBCheckBox;
+    ckbExigeNotaReferenciada: TDBCheckBox;
+    ckbvendasoucompras: TDBCheckBox;
+    ckbOutrasSaidas: TDBCheckBox;
+    ckbUsoouConsumo: TDBCheckBox;
+    ckbSubstituicaoTributaria: TDBCheckBox;
+    procedure sbnConsultaDebitarClick(Sender: TObject);
+    procedure sbnConsultaCreditarClick(Sender: TObject);
+    procedure sbnConsultaHistoricoClick(Sender: TObject);
+    procedure ckbDevolucaoRetronoClick(Sender: TObject);
+  protected
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    function  InternoIncluir: Boolean; override;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function  TabelaDePesquisa: TZDataSet; override;
+  public
+    Constructor Create(AOwner: TComponent); override;
+    Destructor  Destroy; override;
+  end;
+
+var
+  frmCadastroCodigosFiscais: TfrmCadastroCodigosFiscais;
+  TipoPesquisa : TtecCadastroCodigosFiscais;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmCadastroCodigosFiscais }
+
+constructor TfrmCadastroCodigosFiscais.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmCadastroCodigosFiscais := TdtmCadastroCodigosFiscais.Create(Self);
+  dtmCadastroCodigosFiscais.Abre(ctCadastroCodigoFiscal);
+  DataSet := dtmCadastroCodigosFiscais.TabelaCodigosFiscais;
+  TipoPesquisa := cfNENHUMA;
+  if ParSistema.GerarContabilidade then
+  begin
+    gbxContabilidade.Visible := true;
+    self.Constraints.MaxHeight := 465;
+    self.Constraints.MinHeight := 465;
+  end
+  else
+  begin
+    gbxContabilidade.Visible := false;
+    self.Constraints.MaxHeight := 465 - gbxContabilidade.Height;
+    self.Constraints.MinHeight := 465 - gbxContabilidade.Height;
+
+    ckbvendasoucompras.visible := usuariologin.administrador;
+    ckbOutrasSaidas.visible := usuariologin.administrador;
+    ckbSubstituicaoTributaria.visible := usuariologin.administrador;
+    ckbUsoouConsumo.visible := usuariologin.administrador;
+
+  end;
+end;
+
+destructor TfrmCadastroCodigosFiscais.Destroy;
+begin
+  dtmCadastroCodigosFiscais := nil;
+  inherited;
+  frmCadastroCodigosFiscais := nil;
+end;
+
+function TfrmCadastroCodigosFiscais.ExisteInformacao(Parametro: Integer;
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmCadastroCodigosFiscais do begin
+    case TipoPesquisa of
+      cfNENHUMA    : Result:= ExisteCodigosFiscais(NomeCampo, Value);
+      cfDEBITO,
+      cfCREDITO    : Result:= ExisteContaContabil(NomeCampo, Value);
+      cfHISTORICO  : Result := ExisteHistorico(NomeCampo, Value)
+      else           Result:= False;
+    end;
+  end;
+end;
+
+function TfrmCadastroCodigosFiscais.InternoExcluir: Boolean;
+begin
+  if MensagemConfirmacao(Format(ctCONFIRMEEXCLUIR, [ctOCODIGOFISCAL])) = smbOK then begin
+    Result := inherited InternoExcluir;
+    if Result then
+      Result := dtmCadastroCodigosFiscais.ExcluirCodigoFiscal
+  end else
+    Result := False
+end;
+
+function TfrmCadastroCodigosFiscais.InternoGravar: Boolean;
+begin
+   Result := dtmCadastroCodigosFiscais.GravarCodigoFiscal
+end;
+
+function TfrmCadastroCodigosFiscais.InternoIncluir: Boolean;
+begin
+   Result := dtmCadastroCodigosFiscais.IncluirCodigoFiscal
+end;
+
+function TfrmCadastroCodigosFiscais.InternoPesquisar(Titulo: String): Integer;
+var
+  Arq: Integer;
+begin
+  if CtrlOn then begin
+    if ActiveControl = flkDebitar then
+      TipoPesquisa:= cfDEBITO
+    else if ActiveControl = flkCreditar then
+      TipoPesquisa:= cfCREDITO
+    else if ActiveControl = flkHistorico then
+      TipoPesquisa:= cfHISTORICO;
+  end else begin
+    TipoPesquisa := cfNENHUMA;
+    Titulo       := ctCODIGOFISCAL;
+  end;
+  dtmCadastroCodigosFiscais.AbrirTabelasConsulta(TipoPesquisa);
+  Result := inherited InternoPesquisar(Titulo);
+  if Result = mrOK then
+    dtmCadastroCodigosFiscais.Selecionar(TipoPesquisa);
+  dtmCadastroCodigosFiscais.FecharTabelasConsulta(TipoPesquisa);
+end;
+
+function TfrmCadastroCodigosFiscais.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa := True;
+  TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := False;
+end;
+
+function TfrmCadastroCodigosFiscais.TabelaDePesquisa: TZDataSet;
+begin
+  with dtmCadastroCodigosFiscais do begin
+    case TipoPesquisa of
+      cfDEBITO,
+      cfCREDITO: result:= qryconsultacontacontabil;
+      cfHISTORICO: result := TabelaConsultaHistorico;
+      cfNENHUMA: result := TabelaConsultaCodigoFiscal
+      else           Result:= Nil;
+    end;
+  end;
+end;
+
+procedure TfrmCadastroCodigosFiscais.sbnConsultaDebitarClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkDebitar, ctCONTADEBITO);
+end;
+
+procedure TfrmCadastroCodigosFiscais.sbnConsultaCreditarClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkCreditar, ctCONTACREDITO);
+end;
+
+procedure TfrmCadastroCodigosFiscais.sbnConsultaHistoricoClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkHistorico, ctHISTORICO);
+
+end;
+
+procedure TfrmCadastroCodigosFiscais.ckbDevolucaoRetronoClick(
+  Sender: TObject);
+begin
+  inherited;
+  ckbExigeNotaReferenciada.Enabled := ckbDevolucaoRetrono.Checked;
+  if not ckbDevolucaoRetrono.Checked then
+    ckbExigeNotaReferenciada.Checked := false;
+
+end;
+
+end.

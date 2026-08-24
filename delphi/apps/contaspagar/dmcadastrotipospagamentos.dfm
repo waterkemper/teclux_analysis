@@ -1,7 +1,7 @@
 inherited dtmCadastroTiposPagamentos: TdtmCadastroTiposPagamentos
   OldCreateOrder = False
-  Left = 206
-  Top = 128
+  Left = 272
+  Top = 221
   Height = 323
   Width = 585
   object qryConsultaTipoPagamento: TtecQuery

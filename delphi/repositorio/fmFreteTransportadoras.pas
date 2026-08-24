@@ -267,6 +267,7 @@ begin
         dsrcotacao.dataset := cdsCotacao;
 
       end;
+      dsrcotacao.dataset.First;
       showmodal;
       result := frmFreteTransportadoras.ModalResult;
     end;

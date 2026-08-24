@@ -6,7 +6,7 @@ uses
   SysUtils, Classes, dmbasico, Biblio, FR_Class, FR_DSet, FR_DBSet, DB,
   FR_Desgn, fmpreviewpadrao, clparametrossistema, ctconstantes,
   cpdatasource, ZQuery, ZPgSqlQuery, cpquery, ZTransact, dmtecsoft,
-  variants;
+  variants, frx2xto30, frxClass;
 
 type
   TdtmBalanceteFinanceiro = class(TdtmBasico)
@@ -29,7 +29,6 @@ type
     qryContasBancariasAgencia: TStringField;
     qryGerarSaldosFinanceiros: TtecQuery;
     qryGerarSaldosFinanceirosAcumularSaldosFinanceiros: TBooleanField;
-    dsrGerarSaldosFinanceiros: TtecDataSource;
     qrySaldosFinanceirosExercicio: TIntegerField;
     qrySaldosFinanceirosEvento: TIntegerField;
     qrySaldosFinanceirosTotalMes: TArrayField;
@@ -180,7 +179,10 @@ begin
         end;
 
 //        frpBalancoBancario_6.DesignReport;
+//        frxReport1.designreport;
+
 //        frpBalancoBancario_12.DesignReport;
+//        frxReport1.designreport;
 
         if NrMesesIntervalo <= 6 then
           ImprimirRelatoriofast(null, null, MSimples, 0, [frpBalancoBancario_6], false, self)
@@ -257,13 +259,6 @@ begin
    {------------------------------------------------------------------ Eliminacao das contas atuais}
    qryListaContasTemporaria.Open;
    LimparTabela(qryListaContasTemporaria);
-   {
-   qryListaContasTemporaria.First;
-   while not qryListaContasTemporaria.IsEmpty do begin
-      qryListaContasTemporaria.Delete;
-      qryListaContasTemporaria.Next;
-   end;
-   }
    Perpetrar([qryListaContasTemporaria]);
 
    {--------------------------------------------------------------------- Inserção das novas contas}

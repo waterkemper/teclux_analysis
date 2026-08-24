@@ -1,0 +1,153 @@
+unit fmUnificarClientes;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, dmUnificarClientes, Grids, DBGrids, cpdbgrid, fmcadastropadrao,
+  ComCtrls, Buttons, ToolWin, ExtCtrls, StdCtrls, frendereco, clparametrossistema,
+  fmprincipalbasico;
+
+type
+  TfrmUnificarClientes = class(TFrmCadastroPadrao)
+    dbgClientesDuplicados: TtecDBGrid;
+    pnlBottom: TPanel;
+    lblLegenda: TLabel;
+    pnlLegenda: TPanel;
+    fraEndereco1: TfraEndereco;
+    sbnAbrirCadastroClientes: TSpeedButton;
+    sbnAbrirFichaFinanceira: TSpeedButton;
+    procedure dbgClientesDuplicadosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbgClientesDuplicadosDblClick(Sender: TObject);
+    procedure dbgClientesDuplicadosDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure sbnAbrirCadastroClientesClick(Sender: TObject);
+    procedure sbnAbrirFichaFinanceiraClick(Sender: TObject);
+  private
+    { Private declarations }
+    procedure AlterarEstadoBotoes; override;
+  protected
+    function  InternoGravar: Boolean; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+
+  end;
+
+var
+  frmUnificarClientes: TfrmUnificarClientes;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmUnificarClientes }
+
+constructor TfrmUnificarClientes.Create(AOwner: TComponent);
+begin
+  dtmUnificarClientes := TdtmUnificarClientes.Create(Self);
+  inherited;
+  dataset := dtmUnificarClientes.qryClientesDuplicados;
+
+end;
+
+destructor TfrmUnificarClientes.Destroy;
+begin
+  dtmUnificarClientes := nil;
+  inherited;
+  frmUnificarClientes := nil;
+end;
+
+procedure TfrmUnificarClientes.dbgClientesDuplicadosKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (Shift = [ssCtrl]) and (Key = VK_Space) then
+     dtmUnificarClientes.MarcarRegistro;
+  AlterarEstadoBotoes;   
+end;
+
+procedure TfrmUnificarClientes.dbgClientesDuplicadosDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmUnificarClientes.MarcarRegistro;
+  AlterarEstadoBotoes;
+end;
+
+procedure TfrmUnificarClientes.dbgClientesDuplicadosDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if dtmUnificarClientes.qryClientesDuplicadoscodigo.AsInteger = dtmUnificarClientes.qryClientesDuplicadoscodigoselecionado.AsInteger then
+    TDBGrid(Sender).Canvas.Font.Style := [fsBold]
+  else
+    TDBGrid(Sender).Canvas.Font.Style := [];
+
+  if dtmUnificarClientes.qryClientesDuplicadospessoanumero.AsString = dtmUnificarClientes.vcnpj_cpfSelecionado then
+  begin
+//    if dtmUnificarClientes.qryClientesDuplicadoscodigo.AsInteger <> dtmUnificarClientes.CodigoAtual then
+    begin
+      TDBGrid(Sender).Canvas.Brush.Color := TColorRef(strtoint(parsistema.CorZebradoRelatorio));
+      TDBGrid(Sender).Canvas.Font.Color := clBlack;
+    end;  
+  end;
+
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+
+end;
+
+procedure TfrmUnificarClientes.AlterarEstadoBotoes;
+begin
+  inherited;
+  sbnSalvar.Enabled := dtmUnificarClientes.ExisteMarcados;
+end;
+
+function TfrmUnificarClientes.InternoGravar: Boolean;
+begin
+  dtmUnificarClientes.GravarAlteracoes;
+end;
+
+procedure TfrmUnificarClientes.sbnAbrirCadastroClientesClick(Sender: TObject);
+begin
+  inherited;
+  if dtmUnificarClientes.qryClientesDuplicadoscodigo.asinteger<>0 then
+  begin
+    TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado([dtmUnificarClientes.qryClientesDuplicadoscodigo.asinteger], 'TfrmCadastroClientes', True);
+    application.processmessages;
+  end;
+end;
+
+procedure TfrmUnificarClientes.sbnAbrirFichaFinanceiraClick(Sender: TObject);
+begin
+  inherited;
+  if dtmUnificarClientes.qryClientesDuplicadoscodigo.asinteger<>0 then
+  begin
+    TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado([dtmUnificarClientes.qryClientesDuplicadoscodigo.asinteger,
+                                                                   'C',
+                                                                   ClassName, True, false], 'TfrmFichaFinanceira', True);
+    application.processmessages;
+  end;  
+end;
+
+procedure TfrmUnificarClientes.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = VK_F6 then
+    sbnAbrirCadastroClientesClick(self)
+  else
+  if key = VK_F7 then
+    sbnAbrirFichaFinanceiraClick(self);
+
+
+end;
+
+end.

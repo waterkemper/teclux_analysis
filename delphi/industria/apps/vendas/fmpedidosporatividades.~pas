@@ -1,0 +1,235 @@
+unit fmpedidosporatividades;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmrelatoriopadrao, Grids, DBGrids, cpdbgrid, frconsulta,
+  frconsultacodigo, Mask, cpdata, ExtCtrls, Buttons, dmPedidosporatividades,
+  ctconstantes, Windows, cpeditioncontrolvalidation, biblio, ComCtrls, cpnumero,
+  frlistacargosouatividades, dmtecsoft, ToolWin;
+
+type
+  TMostraProp = class (TtecDBGrid);
+  TfrmPedidosporAtividades = class(TFrmRelatorioPadrao)
+    sbnGerar: TSpeedButton;
+    gbxPeriodoEntrada: TGroupBox;
+    lblA: TLabel;
+    gbxMoeda: TGroupBox;
+    fraConsultaMoeda: TfraConsultaCodigo;
+    dbgPedidosporAtividades: TtecDBGrid;
+    edtDataInicial: TEditData;
+    edtDataFinal: TEditData;
+    pgcPedidosporAtividades: TPageControl;
+    tstParametros: TTabSheet;
+    tstDados: TTabSheet;
+    rgpConsulta: TRadioGroup;
+    edtPercentualCompleto: TEditNumero;
+    lblPercentualnaoCompleto: TLabel;
+    lblPercentual: TLabel;
+    fraListaCargosouAtividades1: TfraListaCargosouAtividades;
+    gbxSituacao: TGroupBox;
+    ckbVisualizarClientes: TCheckBox;
+    gbxPercentual: TGroupBox;
+    ecvValida: TtecEditionControlValidation;
+    pnlConsulta: TPanel;
+    procedure sbnGerarClick(Sender: TObject);
+    procedure fraConsultaMoedaedfCodigoKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure dbgPedidosporAtividadesDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure dbgPedidosporAtividadesDblClick(Sender: TObject);
+    procedure dbgPedidosporAtividadesKeyPress(Sender: TObject;
+      var Key: Char);
+    procedure ckbVisualizarClientesClick(Sender: TObject);
+    procedure dbgPedidosporAtividadesMouseUp(Sender: TObject;
+      Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure rgpConsultaClick(Sender: TObject);
+  private
+    { Private declarations }
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure InternoImpressao; Override;
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); Override;
+    destructor  Destroy; override;
+  end;
+
+var
+  frmPedidosporAtividades: TfrmPedidosporAtividades;
+  ControleValido: TWinControl;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmPedidosporAtividades }
+
+constructor TfrmPedidosporAtividades.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmPedidosporAtividades := TdtmPedidosporAtividades.Create(Self);
+  fraConsultaMoeda.AbrirMoedaPadrao := false;
+  fraConsultaMoeda.TipoPesquisa := pesMOEDAS;
+  edtDataInicial.Text := DateToStr(PrimeiroDiaMesPassado(0));
+  edtDataFinal.Text := DateToStr(Date);
+//  sbnGerarClick(nil);
+end;
+
+destructor TfrmPedidosporAtividades.Destroy;
+begin
+  dtmPedidosporAtividades.qryPedidosporAtividades.close;
+  dtmPedidosporAtividades.qryPedidosClientesporAtividades.close;
+  inherited;
+  frmPedidosporAtividades := nil;
+end;
+
+procedure TfrmPedidosporAtividades.InternoImpressao;
+begin
+  inherited;
+{$IFDEF LINUX}
+  mensagemaviso(ctNAOIMPLEMENTADOLINUX);
+{$ELSE }
+  dtmPedidosporAtividades.GerarPlanilha(
+     edtDataInicial.text, edtDataFinal.Text,
+     fraConsultaMoeda.qryProcuraMoedasdescricao.AsString,
+     fraListaCargosouAtividades1.ListaSelecionada,
+     not fraListaCargosouAtividades1.ckbExceto.Checked,
+     rgpConsulta.ItemIndex,
+     edtPercentualCompleto.ValorSemFormatacao
+     );
+{$ENDIF}
+
+end;
+
+procedure TfrmPedidosporAtividades.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  begin
+    if (key =VK_F6) then
+      sbnGerarClick(self);
+  end;
+end;
+
+procedure TfrmPedidosporAtividades.sbnGerarClick(Sender: TObject);
+var
+ i: integer;
+begin
+  inherited;
+
+  if ecvValida.Verify(tstParametros, ControleValido) then
+  begin
+    ckbVisualizarClientes.Checked := true;
+    dtmPedidosporAtividades.GerarConsulta(edtDataInicial.text,
+                                          edtDataFinal.Text,
+                                          fraConsultaMoeda.edfCodigo.text,
+                                          fraListaCargosouAtividades1.ListaSelecionada,
+                                          fraListaCargosouAtividades1.ListaSelecionada2,
+                                          not fraListaCargosouAtividades1.ckbExceto.Checked,
+                                          rgpConsulta.ItemIndex,
+                                          trocar(edtPercentualCompleto.ValorSemFormatacao,',','.')
+                                          );
+    dbgPedidosporAtividades.Columns[0].Font.Size := 8;
+    dbgPedidosporAtividades.Columns[1].Font.Size := 8;
+    pgcPedidosporAtividades.ActivePage := tstDados;
+  end;
+end;
+
+procedure TfrmPedidosporAtividades.fraConsultaMoedaedfCodigoKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  fraConsultaMoeda.edfCodigoKeyDown(Sender, Key, Shift);
+  if (key =VK_Return)then
+    sbnGerarClick(nil);
+end;
+
+procedure TfrmPedidosporAtividades.dbgPedidosporAtividadesDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if (column.Index = dtmPedidosporAtividades.qryPedidosClientesporAtividades.FieldCount -5) then
+  begin
+    if dtmPedidosporAtividades.qryPedidosClientesporAtividadesexpandir.AsString<>'' then
+    begin
+      TDBGrid(Sender).Canvas.Font.Style := [fsBold];
+      TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+    end
+    else
+    begin
+      TDBGrid(Sender).Canvas.Font.Style := [];
+      TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+    end;
+  end
+  else
+    begin
+      if not ckbVisualizarClientes.Checked then
+      begin
+        if dtmPedidosporAtividades.qryPedidosClientesporAtividadesempcargo.IsNull then
+         TDBGrid(Sender).Canvas.Font.Style := [fsBold]
+        else
+          TDBGrid(Sender).Canvas.Font.Style := [];
+      end
+      else
+      if dtmPedidosporAtividades.qryPedidosClientesporAtividadesexpandir.asstring='' then
+        TDBGrid(Sender).Canvas.Font.Style := []
+      else
+        TDBGrid(Sender).Canvas.Font.Style := [fsBold];
+
+      TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+    end;
+end;
+
+procedure TfrmPedidosporAtividades.dbgPedidosporAtividadesDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  if TMostraProp(dbgPedidosporAtividades).Col = 0 then
+    dtmPedidosporAtividades.FiltrarPedidos('')
+
+end;
+
+procedure TfrmPedidosporAtividades.dbgPedidosporAtividadesKeyPress(
+  Sender: TObject; var Key: Char);
+begin
+  inherited;
+  if key = '+' then
+    dtmPedidosporAtividades.FiltrarPedidos('+')
+  else
+  if key = '-' then
+     dtmPedidosporAtividades.FiltrarPedidos('-');
+end;
+
+procedure TfrmPedidosporAtividades.ckbVisualizarClientesClick(Sender: TObject);
+begin
+  inherited;
+  dtmPedidosporAtividades.VisualizarClientes := ckbVisualizarClientes.Checked;
+  dtmPedidosporAtividades.SetarVisualizacao;
+end;
+
+procedure TfrmPedidosporAtividades.dbgPedidosporAtividadesMouseUp(
+  Sender: TObject; Button: TMouseButton; Shift: TShiftState; X,
+  Y: Integer);
+var
+  Retangulo: TRect;
+begin
+  // Cria um retângulo
+  Retangulo := Rect(10, 18, 25, 600);
+  if PtInRect(Retangulo, Point(X, Y)) then
+    dtmPedidosporAtividades.FiltrarPedidos('')
+end;
+
+procedure TfrmPedidosporAtividades.rgpConsultaClick(Sender: TObject);
+begin
+  inherited;
+  case rgpConsulta.ItemIndex of
+  0 : gbxPercentual.Visible := false;
+  1 : gbxPercentual.Visible := true;
+  end;
+end;
+
+end.

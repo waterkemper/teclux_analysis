@@ -1,0 +1,2249 @@
+unit dmmenufiscal;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery,
+  ACBrTXTClass, ACBrPAF, clparametrossistema, iniFiles, ZTransact,
+  cpdatasource, Forms, Dialogs, ACBrEAD, dmtecsoft, ACBrUtil, ACBrBase;
+
+type
+  TdtmMenuFiscal = class(TdtmBasico)
+    qryProdutos: TtecQuery;
+    qryEstoques_anterior: TtecQuery;
+    qryEstoques_anteriorcodigovisual: TStringField;
+    qryEstoques_anteriordescricao: TStringField;
+    qryEstoques_anteriorunidade: TStringField;
+    qryEstoques_anteriorestoque: TFloatField;
+    ACBrPAF1: TACBrPAF;
+    qryReducaoZMes: TtecQuery;
+    qryReducaoZMesnaoexiste: TBooleanField;
+    qryReducoesZ: TtecQuery;
+    qryReducoesZDetalhes: TtecQuery;
+    qryUltimaReducaoZ: TtecQuery;
+    qryUltimaReducaoZcrz: TIntegerField;
+    qryMeiosPagto: TtecQuery;
+    dsrReducoesZ: TtecDataSource;
+    qryDadosCupom: TtecQuery;
+    dsrDadosCupom: TtecDataSource;
+    qryDadosCupomnum_fab: TStringField;
+    qryDadosCupomfilial: TIntegerField;
+    qryDadosCupomnum_usu: TIntegerField;
+    qryDadosCupomcro: TIntegerField;
+    qryDadosCupomcoo: TIntegerField;
+    qryDadosCupomccf: TIntegerField;
+    qryDadosCupomdt_ini: TDateField;
+    qryDadosCupomsub_docto: TFloatField;
+    qryDadosCupomsub_descto: TFloatField;
+    qryDadosCupomtp_descto: TStringField;
+    qryDadosCupomsub_acres: TFloatField;
+    qryDadosCupomtp_acres: TStringField;
+    qryDadosCupomvl_tot: TFloatField;
+    qryDadosCupomcanc: TStringField;
+    qryDadosCupomvl_ca: TFloatField;
+    qryDadosCupomordem_da: TStringField;
+    qryDadosCupomnome_cli: TStringField;
+    qryDadosCupomcnpj_cpf: TStringField;
+    qryDadosItemCupom: TtecQuery;
+    qryDadosItemCupomfilial: TIntegerField;
+    qryDadosItemCupomnum_usu: TIntegerField;
+    qryDadosItemCupomcro: TIntegerField;
+    qryDadosItemCupomcoo: TIntegerField;
+    qryDadosItemCupomnum_item: TIntegerField;
+    qryDadosItemCupomcod_item: TStringField;
+    qryDadosItemCupomdesc_item: TStringField;
+    qryDadosItemCupomqtde_item: TFloatField;
+    qryDadosItemCupomun_med: TStringField;
+    qryDadosItemCupomvl_unit: TFloatField;
+    qryDadosItemCupomdescto_item: TFloatField;
+    qryDadosItemCupomacres_item: TFloatField;
+    qryDadosItemCupomvl_tot_item: TFloatField;
+    qryDadosItemCupomcod_tot_parc: TStringField;
+    qryDadosItemCupomind_canc: TStringField;
+    qryDadosItemCupomqtde_canc: TFloatField;
+    qryDadosItemCupomvl_canc: TFloatField;
+    qryDadosItemCupomvl_canc_acres: TFloatField;
+    qryDadosItemCupomiat: TStringField;
+    qryDadosItemCupomippt: TStringField;
+    qryDadosItemCupomqtde_decimal: TIntegerField;
+    qryDadosItemCupomvl_decimal: TIntegerField;
+    qryReducoesZnumerofabricacao: TStringField;
+    qryReducoesZfilial: TIntegerField;
+    qryReducoesZmfadicional: TStringField;
+    qryReducoesZnumerousuario: TIntegerField;
+    qryReducoesZcrz: TIntegerField;
+    qryReducoesZcoo: TIntegerField;
+    qryReducoesZcro: TIntegerField;
+    qryReducoesZdatamovimento: TDateField;
+    qryReducoesZdataemissao: TDateTimeField;
+    qryReducoesZhoraemissao: TDateTimeField;
+    qryReducoesZvendabrutadiaria: TFloatField;
+    qryReducoesZparametroincidenciaissqn: TStringField;
+    qryReducoesZDetalhesfilial: TIntegerField;
+    qryReducoesZDetalhesnumerousuario: TIntegerField;
+    qryReducoesZDetalhescro: TIntegerField;
+    qryReducoesZDetalhesdatamovimento: TDateField;
+    qryReducoesZDetalhestipototalizadorparcial: TStringField;
+    qryReducoesZDetalhesaliquota: TFloatField;
+    qryReducoesZDetalhesvaloracumulado: TFloatField;
+    qryFormasPagamentoCupom: TtecQuery;
+    qryFormasPagamentoCupomfilial: TIntegerField;
+    qryFormasPagamentoCupomnum_usu: TIntegerField;
+    qryFormasPagamentoCupomcro: TIntegerField;
+    qryFormasPagamentoCupomcoo: TIntegerField;
+    qryFormasPagamentoCupomnum_item: TIntegerField;
+    qryFormasPagamentoCupommp: TStringField;
+    qryFormasPagamentoCupomvl_pagto: TFloatField;
+    qryFormasPagamentoCupomind_est: TStringField;
+    qryFormasPagamentoCupomvl_est: TFloatField;
+    qryFormasPagamentoCupomccf: TIntegerField;
+    qryDemaisDoctos: TtecQuery;
+    dsrDemaisDoctos: TtecDataSource;
+    qryFormasPagtoDemais: TtecQuery;
+    qryDemaisDoctosfilial: TIntegerField;
+    qryDemaisDoctosnum_usu: TIntegerField;
+    qryDemaisDoctoscro: TIntegerField;
+    qryDemaisDoctoscoo: TIntegerField;
+    qryDemaisDoctoscooref: TIntegerField;
+    qryDemaisDoctosgnf: TIntegerField;
+    qryDemaisDoctosgrg: TIntegerField;
+    qryDemaisDoctoscdc: TIntegerField;
+    qryDemaisDoctosdenom: TStringField;
+    qryDemaisDoctosdt_fin: TDateTimeField;
+    qryDemaisDoctoshr_fin: TDateTimeField;
+    qryFormasPagtoDemaisfilial: TIntegerField;
+    qryFormasPagtoDemaisnum_usu: TIntegerField;
+    qryFormasPagtoDemaiscro: TIntegerField;
+    qryFormasPagtoDemaiscoo: TIntegerField;
+    qryFormasPagtoDemaisnum_item: TIntegerField;
+    qryFormasPagtoDemaismp: TStringField;
+    qryFormasPagtoDemaisvl_pagto: TFloatField;
+    qryFormasPagtoDemaisind_est: TStringField;
+    qryFormasPagtoDemaisvl_est: TFloatField;
+    qryFormasPagtoDemaisgnf: TIntegerField;
+    ZMonitor1: TZMonitor;
+    qryDataMovimentoUltimaZ: TtecQuery;
+    qryDataMovimentoUltimaZdatamovimento: TDateField;
+    qryDadosECF: TtecQuery;
+    qryDadosECFcodigo: TIntegerField;
+    qryDadosECFfilial: TIntegerField;
+    qryDadosECFmaquina: TStringField;
+    qryDadosECFintervencao: TStringField;
+    qryDadosECFserie: TStringField;
+    qryDadosECFcniee: TStringField;
+    qryDadosECFmodelo: TIntegerField;
+    qryDadosECFmodelodescricao: TStringField;
+    qryDadosECFgrandetotal: TFloatField;
+    qryDadosECFvendabruta: TFloatField;
+    qryDadosECFmfadicional: TStringField;
+    qryDadosECFtipo: TStringField;
+    qryDadosECFmarca: TStringField;
+    qryDadosECFdata_sb: TDateTimeField;
+    qryDadosECFcnpj: TStringField;
+    qryDadosECFie: TStringField;
+    qryDadosECFversao_sb: TStringField;
+    ACBrEAD1: TACBrEAD;
+    qryEstoquesData: TtecQuery;
+    qryEstoquesDatacnpj: TStringField;
+    qryEstoquesDatainscricao_estadual: TStringField;
+    qryEstoquesDatainscricao_municipal: TStringField;
+    qryEstoquesDatarazao_social: TStringField;
+    qryEstoquesDatanumero_fabricacao: TStringField;
+    qryEstoquesDatamf_adicional: TStringField;
+    qryEstoquesDatatipo_ecf: TStringField;
+    qryEstoquesDatamarca_do_ecf: TStringField;
+    qryEstoquesDatamodelo_do_ecf: TStringField;
+    qryEstoquesDatadata_do_estoque: TDateField;
+    qryReducoesZregistrovalido: TBooleanField;
+    qryEstoques: TtecQuery;
+    qryEstoquescnpj: TStringField;
+    qryEstoquesdescricao: TStringField;
+    qryEstoquesunidade: TStringField;
+    qryEstoquesemestoque: TFloatField;
+    qryEstoquesmensuracao: TStringField;
+    qryEstoqueshash_paf_registro_e2: TStringField;
+    qryEstoqueshash_paf_registro_e2_calculado: TMemoField;
+    qryEstoquesregistrovalido: TBooleanField;
+    qryEstoquesDatahora_do_estoque: TStringField;
+    qryEstoquesDataregistrovalido: TBooleanField;
+    qryDadosECFregistrovalido: TBooleanField;
+    qryEstoquesproduto: TStringField;
+    qryprodutos_anterior: TtecQuery;
+    StringField1: TStringField;
+    StringField2: TStringField;
+    StringField3: TStringField;
+    StringField4: TStringField;
+    StringField5: TStringField;
+    FloatField1: TFloatField;
+    FloatField2: TFloatField;
+    qryProdutoscnpj: TStringField;
+    qryProdutosproduto: TStringField;
+    qryProdutosdescricao: TStringField;
+    qryProdutosunidade: TStringField;
+    qryProdutosiat: TStringField;
+    qryProdutosippt: TStringField;
+    qryProdutossituacaotributaria: TStringField;
+    qryProdutosaliquota: TFloatField;
+    qryProdutosvalorunitario: TFloatField;
+    qryProdutoshash_paf_registro_p2: TStringField;
+    qryProdutoshash_paf_registro_p2_calculado: TMemoField;
+    qryProdutosregistrovalido: TBooleanField;
+    qryReducoesZDetalhesregistrovalido: TBooleanField;
+    qryDadosCupomregistrovalido: TBooleanField;
+    qryDadosItemCupomregistrovalido: TBooleanField;
+    qryDemaisDoctosregistrovalido: TBooleanField;
+    qryFormasPagamentoCupomregistrovalido: TBooleanField;
+    qryFormasPagtoDemaisregistrovalido: TBooleanField;
+    qryEstoquesDatainclusao_exclusao: TBooleanField;
+    qryInclusaoExclusao: TtecQuery;
+    qryDadosECFinclusao_exclusao: TBooleanField;
+    qryMeiosPagtoecf: TIntegerField;
+    qryMeiosPagtofilial: TIntegerField;
+    qryMeiosPagtodata: TDateField;
+    qryMeiosPagtotipodocto: TStringField;
+    qryMeiosPagtomeiopagto: TStringField;
+    qryMeiosPagtovaloracumulado: TFloatField;
+    qryMeiosPagtohash_paf_registro_a2: TStringField;
+    qryMeiosPagtohash_paf_registro_a2_calculado: TMemoField;
+    qryMeiosPagtoregistrovalido: TBooleanField;
+    qryInclusaoExclusaoregistrovalido: TBooleanField;
+    qryTroco: TtecQuery;
+    qryTrocofilial: TIntegerField;
+    qryTrococnpj_credenciadora: TStringField;
+    qryTroconumero_fabricacao: TStringField;
+    qryTrococoo: TIntegerField;
+    qryTrococcf: TIntegerField;
+    qryTrocovalor_troco: TFloatField;
+    qryTrocodata_troco: TDateTimeField;
+    qryTrococpf: TStringField;
+    qryTrocotitulo: TStringField;
+    qryTrocohash_registro_h2: TStringField;
+    qryTrocohash_registro_h2_calculado: TMemoField;
+    qryTrocoregistrovalido: TBooleanField;
+    qryTrocomfadicional: TStringField;
+    qryTrocotipo: TStringField;
+    qryTrocomarca: TStringField;
+    qryTrocomodelo: TIntegerField;
+    qryNotas: TtecQuery;
+    qryNotasItens: TtecQuery;
+    dsrNotas: TtecDataSource;
+    qryNotasdadofiscal: TIntegerField;
+    qryNotascnpj: TStringField;
+    qryNotasemissao: TDateField;
+    qryNotassubtotal: TFloatField;
+    qryNotasdescsubtotal: TFloatField;
+    qryNotastipodescsubtotal: TStringField;
+    qryNotasacrescsubtotal: TFloatField;
+    qryNotastipoacrescsubtotal: TStringField;
+    qryNotastotalliquido: TFloatField;
+    qryNotasindcanc: TStringField;
+    qryNotascancacrescsubtotal: TFloatField;
+    qryNotasordemaplicdesc_e_acresc: TStringField;
+    qryNotasnomedocliente: TStringField;
+    qryNotascpf_ou_cnpj_cliente: TStringField;
+    qryNotasnumeronota: TIntegerField;
+    qryNotasserienota: TStringField;
+    qryNotaschv_nfe: TStringField;
+    qryNotastipodedocumento: TIntegerField;
+    qryNotasItensdadofiscal: TIntegerField;
+    qryNotasItenscnpj: TStringField;
+    qryNotasItensemissao: TDateField;
+    qryNotasItensnumero: TIntegerField;
+    qryNotasItenscodigovisual: TStringField;
+    qryNotasItensdescricao: TStringField;
+    qryNotasItensquantidade: TFloatField;
+    qryNotasItensunidade: TStringField;
+    qryNotasItensprecovenda: TFloatField;
+    qryNotasItensdesconto: TFloatField;
+    qryNotasItensacrescimo: TFloatField;
+    qryNotasItensvalortotalliquido: TFloatField;
+    qryNotasItensnumeronota: TIntegerField;
+    qryNotasItensserienota: TStringField;
+    qryNotasItenschv_nfe: TStringField;
+    qryNotasItenstipototalizadorparcial: TStringField;
+    qryNotasItenscasasdecimaisquantidade: TIntegerField;
+    qryNotasItenscasasdecimaisvalorunitario: TIntegerField;
+    qryNotasItenstipodedocumento: TIntegerField;
+    qryNReducoes: TtecQuery;
+    qryNReducoesquantidade: TLargeintField;
+    qryVendasIdentificadas: TtecQuery;
+    qryVendasIdentificadaspessoanumero: TStringField;
+    qryVendasIdentificadasanomesprimdia: TDateField;
+    qryVendasIdentificadasvalortotal: TFloatField;
+
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure ACBrEAD1GetChavePrivada(var Chave: String);
+  private
+    { Private declarations }
+    TempArq: TextFile;
+    fNomedoArquivoconformePAF0204: String;
+    procedure AbrirArquivo(Arquivo: String);
+    procedure FecharArquivo;
+    procedure Registro_R01(PeriodoInicial, PeriodoFinal: TDateTime);
+    procedure Registro_R02(PeriodoInicial, PeriodoFinal: TDateTime; Codigo: String);
+      procedure Registro_R03;
+    procedure Registro_R04(PeriodoInicial, PeriodoFinal: TDateTime; CodigoECF: String);
+      procedure Registro_R05;
+      procedure Registro_R07_Cupom;
+    procedure Registro_R06(PeriodoInicial, PeriodoFinal: TDateTime;CODIGOECF: String);
+      procedure Registro_R07_Demais;
+
+    procedure Registro_J(PeriodoInicial, PeriodoFinal: TDateTime);
+
+    function GetUltimaReducaoZEmitida: integer;
+    procedure ApagarUltimaLinhaArquivo(Arquivo: String);
+    procedure AssinarArquivo(Arquivo: String);
+    procedure AssinarArquivo_Fake(Arquivo: String);
+    function GetNomedoArquivoconformePAF0204(Ext: String): String;
+  public
+    constructor Create(AOwner: TComponent); override;
+    procedure LX;
+    procedure ReducaoZ;
+    procedure BlocoXReducaoZ(OpcaoFonteDados: Byte; DataInicial, DataFinal: TDateTime; CrzInicial, crzFinal: Integer);
+    procedure BlocoXEstoqueMesAnterior(DataInicial, DataFinal: TDAteTime);
+    procedure ReducaoZAnterior;
+    procedure VerificarLeituraMemoriaFiscal;
+    function LMFData(DataInicial, DataFinal: String; Simplificada: Boolean): Boolean; overload;
+    function LMFData(DataInicial, DataFinal, Arquivo: String; Simplificada: Boolean): Boolean; overload;
+    function LMFCotepeData1704(DataInicial, DataFinal, Arquivo: String):Boolean;overload;
+    function LMFReducao(ReducaoInicial, ReducaoFinal: String; Simplificada: Boolean): Boolean; overload;
+    function LMFReducao(ReducaoInicial, ReducaoFinal, Arquivo: String; Simplificada: Boolean): Boolean; overload;
+    function LMFReducaoCotepe1704(ReducaoInicial, ReducaoFinal, Arquivo: String): Boolean; overload;
+    function EspelhoMFD(PeriodoInicial, PeriodoFinal: TDateTime; Arquivo: String): Boolean; overload;
+    function EspelhoMFD(COOInicial, COOFinal: Integer; Arquivo: String): Boolean; overload;
+    function ArquivoMFD(PeriodoInicial, PeriodoFinal: TDateTime; Arquivo: String): Boolean; overload;
+    function ArquivoMFD(COOInicial, COOFinal: Integer; Arquivo: String): Boolean; overload;
+    function ArquivoMF(Arquivo: String): Boolean; overload;
+    function ArquivoMFDBinario(Arquivo: String): Boolean; overload;
+    function TabelaProdutos(Arquivo: String): Boolean;
+    function TabelaEstoques(Arquivo: String; TipoEstoque: byte; ListaProdutosEstoqueParcial: String): Boolean;
+    function MovimentosECF(PeriodoInicial, PeriodoFinal: TDateTime; CodigoECF, Arquivo: String): Boolean;
+    function VendasdoPeriodo_Sintegra(PeriodoInicial, PeriodoFinal: TDateTime; Arquivo: String): Boolean;
+    function VendasdoPeriodo_EFD(PeriodoInicial, PeriodoFinal: TDateTime; Arquivo: String): Boolean;
+    function RegistrosPafEcf(Arquivo: String; TipoEstoque: byte; ListaProdutosEstoqueParcial: String;PeriodoInicial,PeriodoFinal:TDateTime; AposReducaoZ: boolean = false): Boolean;
+
+    function ParametrosConfiguracao: Boolean;
+
+
+    function MeiosPagto(DataInicial, DataFinal: TDateTime): Boolean;
+    procedure IdentificacaoPAFECF;
+    property UltimaReducaoZEmitida: integer read GetUltimaReducaoZEmitida;
+    property NomedoArquivoconformePAF0204[Ext: String]: String read GetNomedoArquivoconformePAF0204 ;
+    function VendasIdentificadas(Arquivo, MesInicial, MesFinal, CPF_ou_CNPJ: String): boolean;
+
+    { Public declarations }
+  end;
+
+var
+  dtmMenuFiscal: TdtmMenuFiscal;
+
+implementation
+
+uses
+  clecf, biblio, ctconstantes, ACBrPAF_R, ACBrECF, dmgerarmapasecf, dmgerarsintegraemarquivo,
+  dmefd, ACBrPAFRegistros, ACBrPAF_E, ACBrPAF_A, DateUtils,
+  ACBrPAF_Z_Class, ACBrPAF_Z;
+
+{$R *.dfm}
+
+{ TdtmMenuFiscal }
+
+function TdtmMenuFiscal.LMFData(DataInicial, DataFinal: String;
+  Simplificada: Boolean): Boolean;
+begin
+  Result := True;
+  try
+    ECFPadrao.LeituraMemoriaFiscalData(DataInicial, DataFinal, Simplificada);
+  except
+    Result := False;
+  end;
+end;
+
+function TdtmMenuFiscal.LMFData(DataInicial, DataFinal, Arquivo: String;
+  Simplificada: Boolean): Boolean;
+begin
+  Result := True;
+  try
+    ECFPadrao.LeituraMemoriaFiscalDataArquivo(DataInicial, DataFinal, Arquivo,
+                                              Simplificada);
+    AssinarArquivo(Arquivo);
+  except
+    Result := False; //false
+    //false
+  end;
+end;
+
+function TdtmMenuFiscal.LMFCotepeData1704(DataInicial, DataFinal, Arquivo: String): Boolean;
+begin
+  Result := True;
+//  try
+    ECFPadrao.PafMF_LMFC_Cotepe1704(strtodate(DataInicial),strtodate(DataFinal),arquivo);
+//    AssinarArquivo(Arquivo);
+//  except
+//    Result := False;
+//  end;
+end;
+
+function TdtmMenuFiscal.LMFReducao(ReducaoInicial, ReducaoFinal: String;
+  Simplificada: Boolean): Boolean;
+begin
+  Result := True;
+  try
+    ECFPadrao.LeituraMemoriaFiscalReducao(ReducaoInicial, ReducaoFinal, Simplificada);
+  except
+    Result := False;
+  end;
+end;
+
+function TdtmMenuFiscal.LMFReducao(ReducaoInicial, ReducaoFinal,
+  Arquivo: String; Simplificada: Boolean): Boolean;
+begin
+  Result := True;
+  try
+    ECFPadrao.LeituraMemoriaFiscalReducaoArquivo(ReducaoInicial, ReducaoFinal,
+         Arquivo, Simplificada);
+    AssinarArquivo(Arquivo);
+  except
+    Result := False;
+  end;
+end;
+
+procedure TdtmMenuFiscal.LX;
+begin
+  ECFPadrao.LeituraX;
+end;
+
+function TdtmMenuFiscal.EspelhoMFD(PeriodoInicial, PeriodoFinal: TDateTime;
+  Arquivo: String): Boolean;
+begin
+  Result := True;
+  try
+    ECFPadrao.EspelhoMFD(PeriodoInicial, PeriodoFinal, Arquivo);
+//    ApagarUltimaLinhaArquivo(Arquivo); // A dll ja faz a assinatura
+    AssinarArquivo(Arquivo);
+  except
+    Result := False;
+    if ecfpadrao.Mensagem<>'' then
+      MensagemErro(ecfpadrao.Mensagem)
+  end;
+end;
+
+function TdtmMenuFiscal.EspelhoMFD(COOInicial, COOFinal: Integer;
+  Arquivo: String): Boolean;
+begin
+  Result := True;
+  try
+    ECFPadrao.EspelhoMFD(COOInicial, COOFinal, Arquivo);
+    ApagarUltimaLinhaArquivo(Arquivo); // A dll ja faz a assinatura
+    AssinarArquivo(Arquivo);
+  except
+    Result := False;
+  end;
+end;
+
+function TdtmMenuFiscal.ArquivoMFD(PeriodoInicial,
+  PeriodoFinal: TDateTime; Arquivo: String): Boolean;
+begin
+  Result := True;
+  try
+    ECFPadrao.ArquivoMFD(PeriodoInicial,PeriodoFinal,Arquivo);
+    ApagarUltimaLinhaArquivo(Arquivo); // A dll ja faz a assinatura
+    AssinarArquivo(Arquivo);
+  except
+    Result := False;
+  end;
+end;
+
+function TdtmMenuFiscal.ArquivoMFD(COOInicial, COOFinal: Integer;
+  Arquivo: String): Boolean;
+begin
+  Result := True;
+  try
+    ECFPadrao.ArquivoMFD(COOInicial,COOFinal,Arquivo);
+    ApagarUltimaLinhaArquivo(Arquivo); // A dll ja faz a assinatura
+    AssinarArquivo(arquivo);
+  except
+    Result := False;
+  end;
+end;
+
+function TdtmMenuFiscal.TabelaProdutos(Arquivo: String): Boolean;
+var
+//  Temp: TextFile;
+  vIAT: Char;
+begin
+  Result := True;
+
+  ACBrPAF1.Path := ExtractFilePath(Arquivo);
+//  ACBrPAF1.Delimitador := '';
+//  ACBrPAF1.CurMascara  := '';
+
+//  try
+  //  AssignFile(Temp, Arquivo);
+  //  Rewrite(Temp);
+{         REGISTRO P1 - IDENTIFICACAO DO ESTABELECIMENTO USUÁRIO DO PAF-ECF
+   -----------------------------------------------------------------------------------
+  | Nº | Denominação do Campo |         Conteúdo        | Tamanho | Posição | Formato |
+  |-----------------------------------------------------------------------------------|
+  | 01 |  Tipo de registro    |           “P1”          |   02    |  1 | 2  |    X    |
+  | 02 |        CNPJ          |CNPJ  do  estabelecimento|   14    |  3 | 16 |    N    |
+  | 03 | Inscrição Estadual   |I.E.  do  estabelecimento|   14    | 17 | 30 |    X    |
+  | 04 | Inscrição Municipal  |I.M.  do  estabelecimento|   14    | 31 | 44 |    X    |
+  | 05 | Razão Social         |R.S.  do  estabelecimento|   50    | 45 | 94 |    X    |
+   -----------------------------------------------------------------------------------
+}
+
+//  RefazConsulta(qryProdutosIncExc,[0],[FilialBase]);
+    with ACBrPAF1.PAF_P.RegistroP1 do
+    begin
+//    InclusaoExclusao:= qryProdutosIncExcinclusao_exclusao.AsBoolean; /// Validação dos registros colocando ??? nos espaços em branco da razao social
+      CNPJ       := preenchestring(CNPJFilialBase              ,'0',14,False);  // CNPJ do estabelecimento usuário do PAF-ECF
+      IE         := preenchestring(InscricaoEstadualFilialBase ,' ',14,True );  // Inscrição Estadual do estabelecimento
+      IM         := preenchestring(InscricaoMunicipalFilialBase,' ',14,True );  // Inscrição Municipal do estabelecimento
+      RAZAOSOCIAL:= preenchestring(RazaoFilialBase             ,' ',50,True );  // Razão Social do estabelecimento
+
+    end;
+
+    {
+    Writeln(Temp, 'P1' +
+                  preenchestring(CNPJFilialBase              ,'0',14,False)+
+                  preenchestring(InscricaoEstadualFilialBase ,' ',14,True )+
+                  preenchestring(InscricaoMunicipalFilialBase,' ',14,True )+
+                  preenchestring(RazaoFilialBase             ,' ',50,True ));
+                  }
+
+{                 REGISTRO P2 - RELAÇÃO DAS MERCADORIAS E SERVIÇOS
+   -----------------------------------------------------------------------------------
+  | Nº | Denominação do Campo |         Conteúdo        | Tamanho | Posição | Formato |
+  |-----------------------------------------------------------------------------------|
+  | 01 |   Tipo de registro   |           “P2”          |    02   |  1 |  2 |    X    |
+  | 02 |         CNPJ         |CNPJ  do  estabelecimento|    14   |  3 | 16 |    N    |
+  | 03 |        Código        | Código  da  mercadoria  |    14   | 17 | 30 |    X    |     --------------------------------
+  | 04 |      Descrição       |Descrição  da  mercadoria|    50   | 31 | 80 |    X    |    | Código | Situação Tributária   |
+  | 05 |       Unidade        |    Unidade de medida    |    06   | 81 | 86 |    X    |    |--------------------------------|
+  | 06 |         IAT          |  Ind. Arredond./Trunc.  |    01   | 87 | 87 |    X    |    |    I   |       Isento          |
+  | 07 |        IPPT          |Produção Própria/Terceiro|    01   | 88 | 88 |    X    |    |    N   |    Não Tributado      |
+  | 08 | Situação Tributária  |Código da Sit. Tributaria|    01   | 89 | 89 |    X    |--->|    F   |Substituição Tributária|
+  | 09 |      Alíquota        |Alíquota cfe item 7.2.1.6|    04   | 90 | 93 |    N    |    |    T   |  Tributado pelo ICMS  |
+  | 10 |   Valor unitário     |V.U. duas casas decimais |    12   | 94 |105 |    N    |    |    S   | Tributado pelo ISSQN  |
+   -----------------------------------------------------------------------------------      --------------------------------
+}
+
+{    if ECFPadrao.Arredonda then
+      vIAT := 'A'
+    else}
+      vIAT := 'T';
+
+    RefazConsulta(qryProdutos,[0],[cnpjfilialbase]);
+    {
+    while not qryProdutos.Eof do
+    begin
+      Writeln(Temp, 'P2' +
+                    preenchestring(CNPJFilialBase                  ,'0',14,False)+
+                    preenchestring(qryProdutoscodigovisual.AsString,' ',14,True )+
+                    preenchestring(qryProdutosdescricao.AsString,   ' ',50,True )+
+                    preenchestring(qryProdutosunidade.AsString,     ' ',06,True )+
+                    IAT                                                          +
+                    qryProdutosproducaopropria.AsString                          +
+                    qryProdutossituacaotributaria.AsString                       +
+                    preenchestring(Trocar(Trocar(qryProdutosaliquota.AsString,'.',''),',',''),'0',04,False)+
+                    preenchestring(Trocar(Trocar(formatarValor(qryProdutosprecounitario.AsFloat,2),'.',''),',',''),'0',12,False));
+      qryProdutos.Next;
+    end;
+    }
+    while not qryprodutos.Eof do
+    begin
+      with ACBrPAF1.PAF_P.RegistroP2.New do
+      begin
+        RegistroValido := qryProdutosregistrovalido.AsBoolean;
+        COD_MERC_SERV  := qryProdutosproduto.AsString;     /// Código da mercadoria ou serviço
+        DESC_MERC_SERV := qryProdutosdescricao.asstring;    /// Descrição da mercadoria ou serviço
+        UN_MED         := qryProdutosunidade.asstring;            /// Unidade de medida
+        IAT            := vIAT;               /// Indicador de Arredondamento ou Truncamento, conforme item 7.2.1.3
+        IPPT           := qryProdutosippt.asstring;              /// Indicador de Produção Própria ou de Terceiro, conforme item 7.2.1.4
+        ST             := qryProdutossituacaotributaria.asstring;/// Código da Situação Tributaria conforme tabela constante no item 7.2.1.5
+        if((ST='N') or (ST='I')) then
+          ALIQ           := 0.00            /// Alíquota, conforme item 7.2.1.6
+        else
+            ALIQ           := qryProdutosaliquota.ascurrency;            /// Alíquota, conforme item 7.2.1.6
+        VL_UNIT        := qryProdutosvalorunitario.ascurrency;         /// Valor unitário com duas casas decimais
+      end;
+      qryprodutos.next;
+    end;
+
+
+{                       REGISTRO P9 - TOTALIZAÇÃO DE REGISTROS
+   -----------------------------------------------------------------------------------
+  | Nº | Denominação do Campo |         Conteúdo        | Tamanho | Posição | Formato |
+  |-----------------------------------------------------------------------------------|
+  | 01 |       Tipo           |          “P9”           |    02   | 01 | 02 |    N    |
+  | 02 |     CNPJ/MF          |CNPJ  do  estabelecimento|    14   | 03 | 16 |    N    |
+  | 03 | Inscrição Estadual   |I.E.  do  estabelecimento|    14   | 17 | 30 |    X    |
+  | 04 | Total  de  registros |  Registros do tipo  P2  |    06   | 31 | 36 |    N    |
+   -----------------------------------------------------------------------------------
+}
+{
+    Writeln(Temp, 'P9' +
+                  preenchestring(CNPJFilialBase                   ,'0',14,False)+
+                  preenchestring(InscricaoEstadualFilialBase      ,' ',14,True )+
+                  preenchestring(IntToStr(qryProdutos.RecordCount),'0',06,False));
+                  }
+
+{                              EAD - ASSINATURA DIGITAL
+   -----------------------------------------------------------------------------------
+  | Nº | Denominação do Campo |         Conteúdo        | Tamanho | Posição | Formato |
+  |-----------------------------------------------------------------------------------|
+  | 01 |   Tipo do registro   |           "EAD"         |    03   | 01 | 03 |    X    |
+  | 02 |  Assinatura Digital  |    Assinatura do Hash   |   256   | 04 |259 |    X    |
+   -----------------------------------------------------------------------------------
+}
+    qryProdutos.Close;
+
+    //CloseFile(Temp);
+
+    ACBrPAF1.AssinarArquivo := false;
+//    ACBrPAF1.SaveFileTXT_P(ExtractFileName(Arquivo));
+
+    AssinarArquivo(Arquivo);
+  //except
+  //  Result := False;
+  //end;
+end;
+
+function TdtmMenuFiscal.TabelaEstoques(Arquivo: String; TipoEstoque: byte; ListaProdutosEstoqueParcial: String): Boolean;
+{
+var
+  Temp: TextFile;
+  IAT: Char;
+  }
+begin
+
+  ACBrPAF1.Path := ExtractFilePath(Arquivo);
+//  ACBrPAF1.Delimitador := '';
+//  ACBrPAF1.CurMascara  := '';
+
+  Result := True;
+  try
+
+   // AssignFile(Temp, Arquivo);
+   // Rewrite(Temp);
+{         REGISTRO E1 - IDENTIFICACAO DO ESTABELECIMENTO USUÁRIO DO PAF-ECF
+   -----------------------------------------------------------------------------------
+  | Nº | Denominação do Campo |         Conteúdo        | Tamanho | Posição | Formato |
+  |-----------------------------------------------------------------------------------|
+  | 01 |  Tipo de registro    |           “E1”          |   02    |  1 | 2  |    X    |
+  | 02 |        CNPJ          |CNPJ  do  estabelecimento|   14    |  3 | 16 |    N    |
+  | 03 | Inscrição Estadual   |I.E.  do  estabelecimento|   14    | 17 | 30 |    X    |
+  | 04 | Inscrição Municipal  |I.M.  do  estabelecimento|   14    | 31 | 44 |    X    |
+  | 05 | Razão Social         |R.S.  do  estabelecimento|   50    | 45 | 94 |    X    |
+...
+   -----------------------------------------------------------------------------------
+}
+
+    RefazConsulta(qryEstoquesData,[0],[FilialBase]);
+
+    with ACBrPAF1.PAF_E.RegistroE1 do
+    begin
+      RegistroValido := qryEstoquesDataregistrovalido.asboolean;
+      InclusaoExclusao:=qryEstoquesDatainclusao_exclusao.AsBoolean; /// Validação dos registros colocando ??? nos espaços em branco da razao social
+      NUM_FAB        := preenchestring(qryEstoquesDatanumero_fabricacao.AsString   , ' ', 20, True );
+      MF_ADICIONAL   := qryEstoquesDatamf_adicional.AsString;
+      TIPO_ECF       := preenchestring(qryEstoquesDatatipo_ecf.AsString            , ' ',  7, True );
+      MARCA_ECF      := preenchestring(qryEstoquesDatamarca_do_ecf.AsString        , ' ', 20, True );
+      MODELO_ECF     := preenchestring(qryEstoquesDatamodelo_do_ecf.AsString       , ' ', 20, True );
+      DT_EST         := StrToDateTime(qryEstoquesDatadata_do_estoque.AsString+' '+qryEstoquesDatahora_do_estoque.AsString);
+      UF             := qryEstoquesDatacnpj.AsString;
+      CNPJ           := qryEstoquesDatacnpj.AsString;         /// CNPJ do estabelecimento usuário do PAF-ECF
+      IE             := qryEstoquesDatainscricao_estadual.AsString;           /// Inscrição Estadual do estabelecimento
+      IM             := qryEstoquesDatainscricao_municipal.AsString;           /// Inscrição Municipal do estabelecimento
+      RAZAOSOCIAL    := qryEstoquesDatarazao_social.AsString;  /// Razão Social do estabelecimento
+
+    end;
+
+    {
+    Writeln(Temp, 'E1' +
+                  preenchestring(qryEstoquesDatacnpj.asString                , '0', 14, False) +
+                  preenchestring(qryEstoquesDatainscricao_estadual.AsString  , ' ', 14, True ) +
+                  preenchestring(qryEstoquesDatainscricao_municipal.AsString , ' ', 14, True ) +
+                  preenchestring(qryEstoquesDatarazao_social.AsString        , ' ', 50, True ) +
+
+                  preenchestring(qryEstoquesDatanumero_fabricacao.AsString   , ' ', 20, True ) +
+                  qryEstoquesDatamf_adicional.AsString                                         +
+                  preenchestring(qryEstoquesDatatipo_ecf.AsString            , ' ',  7, True ) +
+                  preenchestring(qryEstoquesDatamarca_do_ecf.AsString        , ' ', 20, True ) +
+                  preenchestring(qryEstoquesDatamodelo_do_ecf.AsString       , ' ', 20, True ) +
+                  FormatDateTime('yyyymmdd',qryEstoquesDatadata_do_estoque.AsDateTime)     +
+                  copy(somentenumero(qryEstoquesDatahora_do_estoque.AsString),1,6));
+    }
+
+
+  {  RefazConsulta(qryEstoquesData,[],[]);
+
+    Writeln(Temp, 'E1' +
+                  preenchestring(CNPJFilialBase               , '0', 14, False) +
+                  preenchestring(InscricaoEstadualFilialBase  , ' ', 14, True ) +
+                  preenchestring(InscricaoMunicipalFilialBase , ' ', 14, True ) +
+                  preenchestring(RazaoFilialBase              , ' ', 50, True ) +
+                  preenchestring(ECFPadrao.SerieMaquina       , ' ', 20, True ) +
+                  ECFPadrao.MFAdicional                                         +
+                  preenchestring(ECFPadrao.tipo               , ' ',  7, True ) +
+                  preenchestring(ECFPadrao.marca              , ' ', 20, True ) +
+                  preenchestring(ECFPadrao.SubModeloECF       , ' ', 20, True ) +
+                  FormatDateTime('yyyymmdd',qryEstoquesDatadata.AsDateTime)     +
+                  copy(somentenumero(qryEstoquesDatahora.AsString),1,6));        }
+
+{                 REGISTRO E2 - RELAÇÃO DAS MERCADORIAS EM ESTOQUE
+   -----------------------------------------------------------------------------------
+  | Nº | Denominação do Campo |         Conteúdo        | Tamanho | Posição | Formato |
+  |-----------------------------------------------------------------------------------|
+  | 01 |   Tipo de registro   |           “E2”          |    02   |  1 |  2 |    X    |
+  | 02 |         CNPJ         |CNPJ  do  estabelecimento|    14   |  3 | 16 |    N    |
+  | 03 |        Código        | Código  da  mercadoria  |    14   | 17 | 30 |    X    |
+  | 04 |      Descrição       |Descrição  da  mercadoria|    50   | 31 | 80 |    X    |
+  | 05 |       Unidade        |    Unidade de medida    |    06   | 81 | 86 |    X    |
+  | 06 |Quantidade em estoque |  Qtde. cte no estoque   |    09   | 87 | 95 |    N    |
+  | 07 |   Data do estoque    |Data referente ao estoque|    08   | 96 |103 |    D    |
+   -----------------------------------------------------------------------------------
+}
+
+    case TipoEstoque of
+    0: qryEstoques.MacroByName('SQLListaParcialdeProdutos').AsString := '';
+    1: qryEstoques.MacroByName('SQLListaParcialdeProdutos').AsString := format('and cast(produto as bigint) in (%s)',[ListaProdutosEstoqueParcial]);
+    end;
+
+    RefazConsulta(qryEstoques,[0],[cnpjfilialbase]);
+
+    while not qryEstoques.Eof do
+    begin
+      with ACBrPAF1.PAF_E.RegistroE2.New do
+      begin
+        RegistroValido := qryEstoquesregistrovalido.asboolean;
+        COD_MERC       := qryEstoquesproduto.asstring;      // Código da mercadoria ou produto cadastrado na tabela a que se refere o requisito XI
+        DESC_MERC      := qryEstoquesdescricao.asstring;    // Descrição da mercadoria ou produto cadastrada na tabela a que se refere o requisito XI
+        UN_MED         := qryEstoquesunidade.asstring;      // Unidade de medida cadastrada na tabela a que se refere o requisito XI
+        QTDE_EST       := qryEstoquesemestoque.ascurrency;  // Quantidade da mercadoria ou produto constante no estoque, com duas casas decimais.
+        RegistroValido := qryEstoquesregistrovalido.AsBoolean;
+      end;
+      qryEstoques.next;
+    end;
+
+{                       REGISTRO E9 - TOTALIZAÇÃO DO ARQUIVO
+   -----------------------------------------------------------------------------------
+  | Nº | Denominação do Campo |         Conteúdo        | Tamanho | Posição | Formato |
+  |-----------------------------------------------------------------------------------|
+  | 01 |       Tipo           |          “E9”           |    02   | 01 | 02 |    N    |
+  | 02 |     CNPJ/MF          |CNPJ  do  estabelecimento|    14   | 03 | 16 |    N    |
+  | 03 | Inscrição Estadual   |I.E.  do  estabelecimento|    14   | 17 | 30 |    X    |
+  | 04 |  Total de registros  |  Registros do tipo  E2  |    06   | 31 | 36 |    N    |
+   -----------------------------------------------------------------------------------
+}
+{
+    Writeln(Temp, 'E9' +
+                  preenchestring(CNPJFilialBase                   ,'0',14,False)+
+                  preenchestring(InscricaoEstadualFilialBase      ,' ',14,True )+
+                  preenchestring(IntToStr(qryEstoques.RecordCount),'0',06,False));
+}
+
+{                              EAD - ASSINATURA DIGITAL
+   -----------------------------------------------------------------------------------
+  | Nº | Denominação do Campo |         Conteúdo        | Tamanho | Posição | Formato |
+  |-----------------------------------------------------------------------------------|
+  | 01 |   Tipo do registro   |           "EAD"         |    03   | 01 | 03 |    X    |
+  | 02 |  Assinatura Digital  |    Assinatura do Hash   |   256   | 04 |259 |    X    |
+   -----------------------------------------------------------------------------------
+}
+    qryEstoques.Close;
+ //   CloseFile(Temp);
+
+    ACBrPAF1.AssinarArquivo := false;
+//    ACBrPAF1.SaveFileTXT_E(ExtractFileName(Arquivo));
+
+    AssinarArquivo(Arquivo);
+  except
+    on E: Exception do
+    begin
+      ShowMessage(E.Message);
+      Result := false;
+    end;
+  end;
+end;
+
+procedure TdtmMenuFiscal.IdentificacaoPAFECF;
+begin
+  ECFPadrao.IdentificacaoPAF(NomeArquivoECFs);
+end;
+
+function TdtmMenuFiscal.MovimentosECF(
+       PeriodoInicial, PeriodoFinal: TDateTime;
+       CodigoECF, Arquivo: String): Boolean;
+{var
+  arqtemp: TStringList;}
+begin
+  Result := True;
+  try
+    ACBrPAF1.Path := ExtractFilePath(Arquivo);
+//    ACBrPAF1.Delimitador := '';
+//    ACBrPAF1.CurMascara  := '';
+    Registro_R01(PeriodoInicial, PeriodoFinal);
+    // Desabilita a assinatura pelo ACBrPAF
+
+    ACBrPAF1.AssinarArquivo := false;
+    ACBrPAF1.OnPAFCalcEAD := AssinarArquivo_Fake;
+//    ACBrPAF1.SaveFileTXT_R(ExtractFileName(Arquivo));
+    ACBRPAF1.SaveToFile_RegistrosPAF(Arquivo);
+    ACBrPAF1.OnPAFCalcEAD := nil;
+    // Ordena o arquivo pelo tipo de registro
+//    arqtemp := TStringList.Create;
+//    arqtemp.LoadFromFile(Arquivo);
+//    arqtemp.Sort;
+//    arqtemp.SaveToFile(Arquivo);
+//    arqtemp.Free;
+    // Assinatura digital
+    AssinarArquivo(Arquivo);
+  except
+    Result := False;
+  end;
+
+{  REGISTRO R04 - CUPOM FISCAL, NOTA FISCAL DE VENDA A CONSUMIDOR E BILHETE DE PASSAGEM
+   -------------------------------------------------------------------------------------
+  | Nº | Denominação do Campo |         Conteúdo          | Tamanho | Posição | Formato |
+  |-------------------------------------------------------------------------------------|
+  | 01 |        Tipo          |           "R04"           |    03   | 01 | 03 |    X    |
+  | 02 | Número de fabricação | Número de fabricação ECF  |    20   | 04 | 23 |    X    |
+  | 03 |     MF adicional     | Indicação da MF adicional |    01   | 24 | 24 |    X    |
+  | 04 |    Modelo do ECF     |       Modelo do ECF       |    20   | 25 | 44 |    X    |
+  | 05 |  Número do usuário   |Nº de ordem usuário do ECF |    02   | 45 | 46 |    N    |
+  | 06 |   CCF, CVC ou CBP    |Nº do respectivo documento |    06   | 47 | 52 |    N    |
+  | 07 |        COO           |COO do respectivo documento|    06   | 53 | 58 |    N    |
+  | 08 |   Data de emissão    | Data de emissão do docto  |    08   | 59 | 66 |    D    |
+  | 09 |Subtotal do Documento | Valor total do documento  |    14   | 67 | 80 |    N    |
+  | 10 | Desconto s/ subtotal |Valor descto ou Percentual |         |    |    |         |
+  |    |                      | sobre o valor do subtotal |    13   | 81 | 93 |    N    |
+  | 11 |   Tipo de Desconto   |“V” => valor monetário     |         |    |    |         |
+  |    |                      |“P” => percentual          |    01   | 94 | 94 |    X    |
+  | 12 |Acréscimo s/ subtotal |Valor acréscimo/Percentual |         |    |    |         |
+  |    |                      | sobre o valor do subtotal |    13   | 95 |107 |    N    |
+  | 13 |  Tipo  de Acréscimo  |“V” => valor  monetário    |         |    |    |         |
+  |    |                      |“P” => percentual          |    01   |108 |108 |    X    |
+  | 14 | Valor Total Líquido  |Valor total do Cupom Fiscal|    14   |109 |122 |    N    |
+  | 15 |     Cancelamento     |Informar  "S"  ou  "N"     |    01   |123 |123 |    X    |
+  | 16 |Cancelamento Acréscimo|Valor cancelamento acréscimo|   13   |124 |136 |    N    |
+  | 17 |Aplicação de Desconto |Indicador de ordem de aplicação|     |    |    |         |
+  |    |  e Acréscimo         |desconto/acréscimo. "D"/"A"|    01   |137 |137 |    X    |
+  | 18 |  Nome do adquirente  |     Nome do Cliente       |    40   |138 |177 |    X    |
+  | 19 |CPF/CNPJ do adquirente|   CPF ou CNPJ do Cliente  |    14   |178 |191 |    N    |
+   -------------------------------------------------------------------------------------
+}
+
+{ REGISTRO R05 - DETALHE DO CUPOM FISCAL, DA NOTA FISCAL DE VENDA A CONSUMIDOR OU DO BILHETE DE PASSAGEM
+   -------------------------------------------------------------------------------------
+  | Nº | Denominação do Campo |         Conteúdo          | Tamanho | Posição | Formato |
+  |-------------------------------------------------------------------------------------|
+  | 01 |        Tipo          |           "R05"           |    03   | 01 | 03 |    X    |
+  | 02 | Número de fabricação |Número de fabricação do ECF|    20   | 04 | 23 |    X    |
+  | 03 |    MF adicional      | Indicação da MF adicional |    01   | 24 | 24 |    X    |
+  | 04 |    Modelo do ECF     |      Modelo do ECF        |    20   | 25 | 44 |    X    |
+  | 05 |  Número do usuário   |Número de ordem usuário ECF|    02   | 45 | 46 |    N    |
+  | 06 |        COO           |COO do respectivo documento|    06   | 47 | 52 |    N    |
+  | 07 | CCF,  CVC  ou  CBP   |Nº do respectivo documento |    06   | 53 | 58 |    N    |
+  | 08 |   Número do item     |Número do item registrado  |    03   | 59 | 61 |    N    |
+  | 09 |Código Produto/Serviço|Produto/serviço  registrado|    14   | 62 | 75 |    X    |
+  | 10 |     Descrição        | Descrição produto/serviço |   100   | 76 |175 |    X    |
+  | 11 |     Quantidade       | Quantidade comercializada |    07   |176 |182 |    N    |
+  | 12 |       Unidade        |      Unidade de medida    |    03   |183 |185 |    X    |
+  | 13 |    Valor unitário    | Valor do produto/serviço  |    08   |186 |193 |    N    |
+  | 14 | Desconto sobre item  | Valor do desconto do item |    08   |194 |201 |    N    |
+  | 15 | Acréscimo sobre item |Valor do acréscimo do item |    08   |202 |209 |    N    |
+  | 16 | Valor total líquido  |Valor total líquido do item|    14   |210 |223 |    N    |
+  | 17 | Totalizador parcial  |   Código do totalizador   |    07   |224 |230 |    X    |
+  | 18 |    Cancelamento      |"S" => SIM, "N" => NÃO     |         |    |    |         |
+  |    |                      |"P" => PARCIAL             |    01   |231 |231 |    X    |
+  | 19 | Quantidade cancelada |   Quantidade cancelada    |    07   |232 |238 |    N    |
+  | 20 |   Valor cancelado    |Valor cancelamento parcial |    13   |239 |251 |    N    |
+  | 21 |Cancelamento acréscimo|Valor cancelamento acréscimo|   13   |252 |264 |    N    |
+  | 22 |        IAT           |Arredondamento/Truncamento |    01   |265 |265 |    X    |
+  | 23 |       IPPT           | Produção Própria/Terceiro |    01   |266 |266 |    X    |
+  | 24 | Casas decimais qtde  | Nº casas decimais da qtde |    01   |267 |267 |    N    |
+  | 25 | Casas decimais valor |Nº casas decimais valor unit|   01   |268 |268 |    N    |
+   -------------------------------------------------------------------------------------
+}
+
+{  REGISTRO R06 - DEMAIS DOCUMENTOS EMITIDOS PELO ECF
+   -------------------------------------------------------------------------------------
+  | Nº | Denominação do Campo |         Conteúdo          | Tamanho | Posição | Formato |
+  |-------------------------------------------------------------------------------------|
+  | 01 |         Tipo         |           “R06”           |    03   | 01 | 03 |    X    |
+  | 02 | Número de fabricação |Número de fabricação do ECF|    20   | 04 | 23 |    X    |
+  | 03 |     MF Adicional     | Indicação da MF adicional |    01   | 24 | 24 |    X    |
+  | 04 |    Modelo do ECF     |       Modelo do ECF       |    20   | 25 | 44 |    X    |     ----------------------------------------------
+  | 05 |   Número do usuário  |Número de ordem usuário ECF|    02   | 45 | 46 |    N    |    | Documento                          | Símbolo |
+  | 06 |         COO          |COO do respectivo documento|    06   | 47 | 52 |    N    |    |----------------------------------------------|
+  | 07 |         GNF          |GNF do respectivo documento|    06   | 53 | 58 |    N    |    | Conferência de Mesa                |   CM    |
+  | 08 |         GRG          |GRG do respectivo documento|    06   | 59 | 64 |    N    |    | Registro de Venda                  |   RV    |
+  | 09 |         CDC          |CDC do respectivo documento|    04   | 65 | 68 |    N    |    | Comprovante de Crédito ou Débito   |   CC    |
+  | 10 |      Denominação     |Símbolo denominação  docto |    02   | 69 | 70 |    X    |--> | Comprovante Não-Fiscal             |   CN    |
+  | 11 |Data final de emissão |   Data final de emissão   |    08   | 71 | 78 |    D    |    | Comprovante Não-Fiscal Cancelamento|   NC    |
+  | 12 |Hora final de emissão | Hora  final  de  emissão  |    06   | 79 | 84 |    H    |    | Relatório Gerencial                |   RG    |
+   -------------------------------------------------------------------------------------      ----------------------------------------------
+ }
+
+{  REGISTRO R07 - DETALHE DO CUPOM FISCAL E DO DOCUMENTO NÃO FISCAL - MEIO DE PAGAMENTO
+   -------------------------------------------------------------------------------------
+  | Nº | Denominação do Campo |         Conteúdo          | Tamanho | Posição | Formato |
+  |-------------------------------------------------------------------------------------|
+  | 01 |         Tipo         |           "R07"           |    03   | 01 | 03 |    X    |
+  | 02 | Número de fabricação |Número de fabricação do ECF|    20   | 04 | 23 |    X    |
+  | 03 |     MF adicional     | Indicação de MF adicional |    01   | 24 | 24 |    X    |
+  | 04 |     Modelo do ECF    |      Modelo do ECF        |    20   | 25 | 44 |    X    |
+  | 05 |   Número do usuário  |Número de ordem usuário ECF|    02   | 45 | 46 |    N    |
+  | 06 |         COO          |COO do respectivo Cupom    |    06   | 47 | 52 |    N    |
+  | 07 |         CCF          | Contador de Cupom Fiscal  |    06   | 53 | 58 |    N    |
+  | 08 |         GNF          | Contador Geral Não Fiscal |    06   | 59 | 64 |    N    |
+  | 09 |   Meio de pagamento  |Descrição meio de pagamento|    15   | 65 | 79 |    X    |
+  | 10 |      Valor pago      | Valor pagamento efetuado  |    13   | 80 | 92 |    N    |
+  | 11 | Indicador de estorno |"S" => SIM, "N" => NÃO     |         |    |    |         |
+  |    |                      |“P” => PARCIAL             |    01   | 93 | 93 |    X    |
+  | 12 |   Valor estornado    | Valor do estorno efetuado |    13   | 94 |106 |    N    |
+   -------------------------------------------------------------------------------------
+}
+
+{
+   -------------------------------------------------------------------------------------
+  | Nº | Denominação do Campo |         Conteúdo          | Tamanho | Posição | Formato |
+  |-------------------------------------------------------------------------------------|
+  | 01 |    Tipo do registro  |           "EAD"           |    03   | 01 | 03 |    X    |
+  | 02 |   Assinatura Digital |     Assinatura do Hash    |   256   | 04 |259 |    X    |
+   -------------------------------------------------------------------------------------
+}
+
+
+end;
+
+
+function TdtmMenuFiscal.MeiosPagto(DataInicial, DataFinal: TDateTime): Boolean;
+var
+  MeiosPagto,
+  Totalizadores,
+  Relatorio: TStringList;
+  Categoria, Colunas, i: Integer;
+  MeioPagto: String;
+
+  procedure AchaETotalizaMeioPagto(pMeioPagto: String; var pCategoria: Integer;
+        Valor: Currency);
+  begin
+    pCategoria := MeiosPagto.IndexOf(pMeioPagto);
+    if pCategoria = -1 then
+    begin
+      MeiosPagto.Append(pMeioPagto);
+      Totalizadores.Append(CurrToStr(Valor));
+      pCategoria := MeiosPagto.Count;
+    end
+    else
+    begin
+      Totalizadores.Strings[pCategoria] := CurrToStr(StrToCurr(Totalizadores.Strings[pCategoria]) + Valor);
+      Inc(pCategoria);
+    end;
+  end;
+
+begin
+
+ { Result := False;
+  qryMeiosPagto.ParamByName('filialbase').AsInteger := FilialBase;
+  qryMeiosPagto.ParamByName('datainicial').AsDate   := DataInicial;
+  qryMeiosPagto.ParamByName('datafinal').AsDate     := DataFinal;
+  qryMeiosPagto.ParamByName('ecf').AsString         := ECFPadrao.Codigo;
+  qryMeiosPagto.Open;
+
+  if not qryMeiosPagto.IsEmpty then
+  begin
+    MeiosPagto := TStringList.Create;
+    Totalizadores := TStringList.Create;
+    Categoria := 0;
+    MeioPagto := '';
+    while not qryMeiosPagto.Eof do
+    begin
+      AchaETotalizaMeioPagto(qryMeiosPagtomeiopagto.AsString, Categoria,
+                             qryMeiosPagtoValoracumulado.AsCurrency);
+
+      qryMeiosPagto.Edit;
+      qryMeiosPagtocategoria.AsString := IntToStr(Categoria);
+      qryMeiosPagto.Post;
+
+      qryMeiosPagto.Next;
+    end;
+
+    Relatorio := TStringList.Create;
+    Colunas := ECFPadrao.Colunas;
+
+    try
+      Relatorio.Append(Centralizar('-----------MEIOS DE PAGAMENTO-----------',Colunas));
+      Relatorio.Append(Centralizar('PERIODO : ' + DateToStr(DataInicial) + ' a ' + DateToStr(DataFinal),Colunas));
+      Relatorio.Append(Centralizar(' MP    Data     Tipo Docto     Vlr Acum.',Colunas));
+      qryMeiosPagto.First;
+      while not qryMeiosPagto.Eof do
+      begin
+        Relatorio.Append(Centralizar(Centralizar(qryMeiosPagtocategoria.AsString,4) +
+                                     qryMeiosPagtodata.AsString              +
+                                     Centralizar(qryMeiosPagtotipodocto.AsString,13) +
+                                     preencheString(FormatFloat('0.,00',qryMeiosPagtovaloracumulado.AsCurrency),' ',13,False),
+                                     Colunas));
+
+        qryMeiosPagto.Next;
+      end;
+      qryMeiosPagto.Close;
+
+      Relatorio.Append('');
+      Relatorio.Append('SOMA INDIVIDUAL :');
+
+      for i := 0 to MeiosPagto.Count -1 do
+      begin
+        Relatorio.Append(preencheString(IntToStr(i+1)+' -> '+MeiosPagto.Strings[i],' ',30) +
+                         Format('%10.2f',[StrToFloat(Totalizadores.Strings[i])]));
+      end;
+
+  try
+        ECFPadrao.RelatorioGerencial(Relatorio);
+      except
+        Result := False;
+      end;
+    finally
+      Relatorio.Free;
+      MeiosPagto.Free;
+      Totalizadores.Free;
+    end;
+  end;
+  qryMeiosPagto.Close;}
+end;
+
+procedure TdtmMenuFiscal.AbrirArquivo(Arquivo: String);
+begin
+  AssignFile(TempArq, Arquivo);
+  Rewrite(TempArq);
+end;
+
+procedure TdtmMenuFiscal.FecharArquivo;
+begin
+  CloseFile(TempArq);
+end;
+
+procedure TdtmMenuFiscal.Registro_R01(PeriodoInicial, PeriodoFinal: TDateTime);
+begin
+
+   { REGISTRO R01 - IDENTIFICAÇÃO DO ECF, DO USUÁRIO, DO PAF-ECF E DA EMPRESA DESENVOLVEDORA E DADOS DO ARQUIVO
+     -------------------------------------------------------------------------------------
+    | Nº | Denominação do Campo |         Conteúdo          | Tamanho | Posição | Formato |
+    |-------------------------------------------------------------------------------------|
+    | 01 |        Tipo          |           "R01"           |    03   | 01 | 03 |    X    |
+?   | 02 | Número de fabricação | Número de fabricação ECF  |    20   | 04 | 23 |    X    |
+    | 03 |     MF adicional     | Indicação da MF adicional |    01   | 24 | 24 |    X    |
+    | 05 |     Tipo de ECF      |        Tipo de ECF        |    07   | 25 | 31 |    X    |
+    | 06 |     Marca do ECF     |       Marca do ECF        |    20   | 32 | 51 |    X    |
+    | 07 |    Modelo do ECF     |      Modelo do ECF        |    20   | 52 | 71 |    X    |
+    | 08 |     Versão do SB     |   Versão do S.B. do ECF   |    10   | 72 | 81 |    X    |
+    | 09 |Data instalação do SB | Data instalação da versão |         |    |    |         |
+    |    |                      | atual do Software Básico  |    08   | 82 | 89 |    D    |
+    | 10 |Horário instalação SB | Horário instalação versão |         |    |    |         |
+    |    |                      | atual do Software  Básico |    06   | 90 | 95 |    H    |
+?   | 11 |Número Seqüencial ECF |  Nº ordem seqüencial ECF  |    03   | 96 | 98 |    N    |
+    | 12 |   CNPJ do usuário    |  CNPJ do estabelecimento  |    14   | 99 |112 |    N    |
+    | 13 |   I.E. do usuário    |  I.E. do estabelecimento  |    14   |113 |126 |    X    |
+    | 14 |CNPJ da desenvolvedora|       CNPJ PAF-ECF        |    14   |127 |140 |    N    |
+    | 15 |I.E. da desenvolvedora|       I.E. PAF-ECF        |    14   |141 |154 |    N    |
+    | 16 |I.M  da desenvolvedora|       I.M. PAF-ECF        |    14   |155 |168 |    N    |
+    | 17 |Denominação desenvolv.| Denom. desenvolv. PAF-ECF |    40   |169 |208 |    X    |
+    | 18 |   Nome do PAF-ECF    | Nome Comercial do PAF-ECF |    40   |209 |248 |    X    |
+    | 19 |  Versão do PAF-ECF   |  Versão atual do PAF-ECF  |    10   |249 |258 |    X    |
+    | 20 |Código MD-5 do PAF-ECF| MD-5 do exec. do PAF-ECF  |    32   |259 |290 |    X    |
+    | 21 |     Data Inicial     |Início do período informado|    08   |291 |298 |    D    |
+    | 22 |      Data final      |Fim  do  período  informado|    08   |299 |306 |    D    |
+    | 23 | Versão da ER-PAF-ECF | Versão Requisitos PAF-ECF |    04   |307 |310 |    X    |
+     -------------------------------------------------------------------------------------
+   }
+
+  qryDadosECF.close;
+  qryDadosECF.open;
+
+ { if qryDadosECF.IsEmpty then
+  begin
+    with ACBrPAF1.PAF_R.RegistroR01.new do
+    begin
+      NUM_FAB     := ECFPadrao.SerieMaquina;  //string;
+      MF_ADICIONAL := ECFPadrao.MFAdicional            ;  //string;
+      TIPO_ECF    := ECFPadrao.tipo              ;  //string;
+      MARCA_ECF   := ECFPadrao.marca        ;  //string;
+      MODELO_ECF  := ECFPadrao.SubModeloECF        ;
+      VERSAO_SB   := ECFPadrao.NumVersao;        //string;
+      DT_INST_SB  := ECFPadrao.DataHoraSB;  //TDateTime;
+      HR_INST_SB  := ECFPadrao.DataHoraSB;  //TDateTime;
+      NUM_SEQ_ECF := strtoint(ECFPadrao.NumeroMaquina); //integer;
+      CNPJ        := Trocar(Trocar(Trocar(ECFPadrao.CNPJ,'.',''),'-',''),'/','');
+      IE          := preenchestring(ECFPadrao.IE,'0',14,True );   //string;
+      CNPJ_SH     := ParSistema.CNPJDesenvolvedora; //string;
+      IE_SH       := '25604464300000';//ParSistema.IEDesenvolvedora; //string;
+      IM_SH       := ParSistema.IMDesenvolvedora; //string;
+      NOME_SH     := ParSistema.NomeEmpresaDesenvolvedora; //string;
+      NOME_PAF    := parsistema.NomeComercialSistema; //string;
+      VER_PAF     := parsistema.VersaoPAFECF; //string;
+      COD_MD5     := parsistema.CodigoMD5; //string;
+      DT_INI      := PeriodoInicial; //TDateTime;
+      DT_FIN      := PeriodoFinal; //TDateTime;
+      ER_PAF_ECF  := '0110';//ParSistema.VersaodaEspecdeRequisitosdoPAFECF;
+
+      Registro_R02(PeriodoInicial, PeriodoFinal,CodigoECF);
+      Registro_R04(PeriodoInicial, PeriodoFinal,CodigoECF);
+      Registro_R06(PeriodoInicial, PeriodoFinal,CodigoECF);
+
+
+    end;
+  end
+  else
+  begin}
+  while not qryDadosECF.Eof do
+  begin
+    with ACBrPAF1.PAF_R.RegistroR01.New do
+    begin
+   //   InclusaoExclusao:=qryDadosECFinclusao_exclusao.AsBoolean;
+      RegistroValido := qryDadosECFregistrovalido.AsBoolean;
+      NUM_FAB     := qryDadosECFserie.AsString;  //string;
+      MF_ADICIONAL := qryDadosECFmfadicional.AsString            ;  //string;
+      TIPO_ECF    := qryDadosECFtipo.AsString              ;  //string;
+      MARCA_ECF   := qryDadosECFmarca.AsString        ;  //string;
+      MODELO_ECF  := qryDadosECFmodelodescricao.AsString;   //string;//qryDadosECFie.AsString;   //string;qryDadosECFmodelodescricao.AsString        ;
+      VERSAO_SB   := qryDadosECFversao_sb.AsString;        //string;
+      DT_INST_SB  := qryDadosECFdata_sb.AsDateTime;  //TDateTime;
+      HR_INST_SB  := qryDadosECFdata_sb.AsDateTime;  //TDateTime;
+      NUM_SEQ_ECF := strtoint(qryDadosECFmaquina.AsString); //integer;
+      CNPJ        :=  Trocar(Trocar(Trocar(qryDadosECFcnpj.AsString,'.',''),'-',''),'/','');//qryDadosECFcnpj.AsString; //string;
+      IE          :=  preenchestring(qryDadosECFie.AsString,'0',14,True );   //string;//qryDadosECFie.AsString;   //string;
+      CNPJ_SH     := ParSistema.CNPJDesenvolvedora; //string;
+      IE_SH       := '25604464300000';//ParSistema.IEDesenvolvedora; //string;
+      IM_SH       := ParSistema.IMDesenvolvedora; //string;
+      NOME_SH     := ParSistema.NomeEmpresaDesenvolvedora; //string;
+      NOME_PAF    := parsistema.NomeComercialSistema; //string;
+      VER_PAF     := parsistema.versaopafecf;;
+      COD_MD5     := parsistema.CodigoMD5; //string;
+      DT_INI      := PeriodoInicial; //TDateTime;
+      DT_FIN      := PeriodoFinal; //TDateTime;
+      ER_PAF_ECF  := '0204';
+      Registro_R02(PeriodoInicial, PeriodoFinal,qryDadosECFserie.AsString);
+      Registro_R04(PeriodoInicial, PeriodoFinal,qryDadosECFserie.AsString);
+      Registro_R06(PeriodoInicial, PeriodoFinal,qryDadosECFserie.AsString);
+      qryDadosECF.Next;
+    end;
+  end;
+  if qryDadosECF.Active then
+    qrydadosecf.Close;
+end;
+
+procedure TdtmMenuFiscal.Registro_R02(PeriodoInicial,
+  PeriodoFinal: TDateTime; Codigo: String);
+begin
+{  REGISTRO R02 - RELAÇÃO DE REDUÇÕES Z
+   -------------------------------------------------------------------------------------
+  | Nº | Denominação do Campo |         Conteúdo          | Tamanho | Posição | Formato |
+  |-------------------------------------------------------------------------------------|
+  | 01 |        Tipo          |           "R02"           |    03   | 01 | 03 |    X    |
+  | 02 | Número de fabricação | Número de fabricação ECF  |    20   | 04 | 23 |    X    |
+  | 03 |     MF adicional     | Indicação da MF adicional |    01   | 24 | 24 |    X    |
+  | 04 |    Modelo do ECF     |       Modelo do ECF       |    20   | 25 | 44 |    X    |
+  | 05 |  Número do usuário   |Nº de ordem usuário do ECF |    02   | 45 | 46 |    N    |
+  | 06 |         CRZ          |Nº do Contador de Redução Z|    06   | 47 | 52 |    N    |
+  | 07 |         COO          |Nº Contador Ordem de Oper. |    06   | 53 | 58 |    N    |
+  | 08 |         CRO          |Nº Contador Reinício de Op.|    06   | 59 | 64 |    N    |
+  | 09 |  Data do movimento   |  Data operações Redução Z |    08   | 65 | 72 |    D    |
+  | 10 |   Data de emissão    | Data emissão da Redução Z |    08   | 73 | 80 |    D    |
+  | 11 |   Hora de emissão    | Hora emissão da Redução Z |    06   | 81 | 86 |    H    |
+  | 12 |  Venda Bruta Diária  |Valor totalizador Redução Z|    14   | 87 |100 |    N    |
+  | 13 |Parâmetro descto ISSQN|Parâmetro do ECF incidência|         |    |    |         |
+  |    |                       descto itens sujeitos ISSQN|    01   |101 |101 |    X    |
+   -------------------------------------------------------------------------------------
+ }
+
+  RefazConsultaPorNome(qryReducoesZ,['datainicial','datafinal','numerofabricacao'],
+                  [PeriodoInicial, PeriodoFinal,Codigo{ ACBrPAF1.PAF_R.RegistroR01.NUM_FAB}]);
+
+    RefazConsultaPorNome(qryReducoesZDetalhes,['datainicial','datafinal','numerofabricacao'],
+                    [PeriodoInicial, PeriodoFinal, Codigo{ACBrPAF1.PAF_R.RegistroR01.NUM_FAB}]);
+
+  qryReducoesZ.First;
+  while not qryReducoesZ.Eof do
+  begin
+    with ACBrPAF1.PAF_R.RegistroR01.Items[qryDadosECF.RecNo-1].RegistroR02.New do
+    begin
+      REGISTROVALIDO := qryReducoesZ.fieldbyname('registrovalido').AsBoolean;
+      NUM_USU      := qryReducoesZ.fieldbyname('numerousuario').AsInteger;
+      CRZ          := qryReducoesZ.fieldbyname('crz').AsInteger;
+      COO          := qryReducoesZ.fieldbyname('coo').AsInteger;
+      CRO          := qryReducoesZ.fieldbyname('cro').AsInteger;
+      DT_MOV       := qryReducoesZ.fieldbyname('datamovimento').AsDateTime;
+      DT_EMI       := qryReducoesZ.fieldbyname('dataemissao').AsDateTime;
+      HR_EMI       := qryReducoesZ.fieldbyname('horaemissao').AsDateTime;;
+      VL_VBD       := qryReducoesZ.fieldbyname('vendabrutadiaria').AsCurrency;
+      PAR_ECF      := qryReducoesZ.fieldbyname('parametroincidenciaissqn').AsString;
+      Registro_R03;
+    end;
+    qryReducoesZ.Next;
+  end;
+end;
+
+procedure TdtmMenuFiscal.ReducaoZ;
+var
+  ArqMov: String;
+  vData: TDateTime;
+begin
+
+  if not ECFPadrao.ImpressoraBloqueada then
+  begin
+    dtmGerarMapasECF := tdtmGerarMapasECF.Create(self);
+
+    if dtmGerarMapasECF.GravarReducaoz(ECFPadrao.GerarDadosReducaoZ) then
+    begin
+      VerificarLeituraMemoriaFiscal;
+      ECFPadrao.ReducaoZ;
+      if ECFPadrao.Erro then
+      begin
+        dtmGerarMapasECF.GravarReducaoz(false);
+        MensagemErro(ECFPadrao.Mensagem);
+      end
+      else
+      begin
+        dtmGerarMapasECF.GravarReducaoz(true);
+
+        //Geração automatica do arquivo de movimentos por ecf apos a reducao z
+        ReFazConsulta(qryDataMovimentoUltimaZ,[0,1,2,3],[ecfpadrao.seriemaquina,
+                                                         ecfpadrao.intervencao,
+                                                         filialbase,
+                                                         UltimaReducaoZEmitida]);
+        if not qryDataMovimentoUltimaZ.IsEmpty then
+        begin
+
+          ArqMov := ExtractFilePath(Application.ExeName) + 'PAF-ECF\MOVECF';
+          if not DirectoryExists(ArqMov) then
+            if not CreateDir(ArqMov) then
+            raise Exception.Create('Impossível criar o diretório '+ArqMov);
+
+          ArqMov := ArqMov+'\'+
+                    ECFPadrao.CNIEE +
+                    cortaPreencheString(ECFPadrao.SerieMaquina,'0',14,False) +
+                    FormatDateTime('ddmmyyyy',qryDataMovimentoUltimaZdatamovimento.AsDateTime)+
+                    '.txt';
+
+          RegistrosPafEcf(ArqMov, 0, '', qryDataMovimentoUltimaZdatamovimento.AsDateTime, qryDataMovimentoUltimaZdatamovimento.AsDateTime);
+
+              (*
+          REsolver fazer de todos os registros e não somente R01 a R07
+
+          MovimentosECF(qryDataMovimentoUltimaZdatamovimento.AsDateTime,
+                        qryDataMovimentoUltimaZdatamovimento.AsDateTime,
+                        {ECFPadrao.SerieMaquina}ECFPadrao.codigo, ArqMov);
+               *)
+
+          //dtmGerarMapasECF.BlocoXReducaoZ(0, qryDataMovimentoUltimaZdatamovimento.AsDateTime, qryDataMovimentoUltimaZdatamovimento.AsDateTime, 0, 0, true) ;
+          //dtmGerarMapasECF.BlocoXEstoqueMesAnterior(qryDataMovimentoUltimaZdatamovimento.AsDateTime, qryDataMovimentoUltimaZdatamovimento.AsDateTime, true) ;
+
+        end;
+
+        dtmGerarMapasECF.qryreducoesz.Close;
+        dtmGerarMapasECF.qryreducoeszdetalhes.Close;
+
+      end;
+    end;
+    dtmGerarMapasECF := nil;
+  end
+  else
+    MensagemErro(ctECFBLOQUEADA);
+
+end;
+
+procedure TdtmMenuFiscal.Registro_R03;
+begin
+{  REGISTRO R03 - DETALHE DA REDUÇÃO Z
+   -------------------------------------------------------------------------------------
+  | Nº | Denominação do Campo |         Conteúdo          | Tamanho | Posição | Formato |
+  |-------------------------------------------------------------------------------------|
+  | 01 |        Tipo          |           "R03"           |    03   | 01 | 03 |    X    |
+  | 02 | Número de fabricação | Número de fabricação ECF  |    20   | 04 | 23 |    X    |
+  | 03 |     MF adicional     | Indicação da MF adicional |    01   | 24 | 24 |    X    |
+  | 04 |    Modelo do ECF     |       Modelo do ECF       |    20   | 25 | 44 |    X    |
+  | 05 |  Número do usuário   |Nº de ordem usuário do ECF |    02   | 45 | 46 |    N    |
+  | 06 |         CRZ          |Nº do Contador de Redução Z|    06   | 47 | 52 |    N    |
+  | 07 | Totalizador Parcial  |   Código do totalizador   |    07   | 53 | 59 |    X    |
+  | 08 |   Valor acumulado    |Valor acumulado no totalizador| 13   | 60 | 72 |    N    |
+   -------------------------------------------------------------------------------------
+}
+
+  qryReducoesZDetalhes.First;
+  while not qryReducoesZDetalhes.Eof do
+  begin
+    with ACBrPAF1.PAF_R.RegistroR01.items[qryDadosECF.RecNo-1].RegistroR02.Items[qryReducoesZ.RecNo-1].RegistroR03.new do
+    begin
+     RegistroValido := qryReducoesZDetalhes.fieldbyname('RegistroValido').AsBoolean;
+     TOT_PARCIAL  := qryReducoesZDetalhes.fieldbyname('TipoTotalizadorParcial').AsString;
+     VL_ACUM      := qryReducoesZDetalhes.fieldbyname('ValorAcumulado').AsCurrency;
+    end;
+    qryReducoesZDetalhes.Next;
+  end;
+end;
+
+function TdtmMenuFiscal.GetUltimaReducaoZEmitida: integer;
+begin
+  RefazConsultaPorNome(qryUltimaReducaoZ,['numerofabricacao', 'cro', 'filialbase'],
+      [ECFPadrao.SerieMaquina, ECFPadrao.intervencao, FilialBase]);
+  result := qryUltimaReducaoZcrz.AsInteger;
+end;
+
+procedure TdtmMenuFiscal.ReducaoZAnterior;
+begin
+  dtmGerarMapasECF := tdtmGerarMapasECF.Create(self);
+  try
+
+  if dtmGerarMapasECF.GravarReducaoz(ECFPadrao.GerarDadosReducaoZAnterior) then
+  begin
+    VerificarLeituraMemoriaFiscal;
+    dtmGerarMapasECF.GravarReducaoz(true);
+  end;
+  except
+     //
+  end;
+  dtmGerarMapasECF := nil;
+end;
+
+procedure TdtmMenuFiscal.VerificarLeituraMemoriaFiscal;
+var vNomeArquivo : String;
+begin
+  qryReducaoZMes.ParamByName('serie').AsString := ECFPadrao.SerieMaquina;
+  qryReducaoZMes.Open;
+  if qryReducaoZMesnaoexiste.AsBoolean then
+  begin
+    if not LMFData(DateToStr(PrimeiroDiaMesPassado(1,ECFPadrao.DataHora)),DateToStr(UltimoDiaMesPassado(1,ECFPadrao.DataHora)),False) then
+       ShowMessage('LeituraMemoriaFiscalData não suportada');
+
+       {comentario JR 01/02/2017 .. EPSON NÃO SAINDO .. REVER ESTA FUNÇÃO}
+  {  vNomeArquivo := NomedoArquivoconformePAF0204['MF'];
+    if ArquivoMF(vNomeArquivo) then
+      ShowMessage('Arquivo ' + vNomeArquivo + ' gerado com sucesso!')
+    else
+      ShowMessage(ctFUNCAONAOSUPORTADAECF);
+
+    vNomeArquivo := NomedoArquivoconformePAF0204['MFD'];
+    if ArquivoMFDBinario(vNomeArquivo) then
+      ShowMessage('Arquivo ' + vNomeArquivo + ' gerado com sucesso!')
+    else
+      ShowMessage(ctFUNCAONAOSUPORTADAECF);}
+
+  end;
+  qryReducaoZMes.Close;
+end;
+
+procedure TdtmMenuFiscal.Registro_R04(PeriodoInicial,
+  PeriodoFinal: TDateTime;CodigoECF: String);
+begin
+  RefazConsultaPorNome(qryDadosCupom,['datainicial','datafinal','num_fab'],
+                  [PeriodoInicial, PeriodoFinal, CodigoECF {ACBrPAF1.PAF_R.RegistroR01.NUM_FAB}]);
+
+    RefazConsultaPorNome(qryDadosItemCupom,['datainicial','datafinal','num_fab'],
+                    [PeriodoInicial, PeriodoFinal, CodigoECF {ACBrPAF1.PAF_R.RegistroR01.NUM_FAB}]);
+
+    RefazConsultaPorNome(qryFormasPagamentoCupom,['datainicial','datafinal','num_fab'],
+                    [PeriodoInicial, PeriodoFinal, CodigoECF{ACBrPAF1.PAF_R.RegistroR01.NUM_FAB}]);
+
+
+  qryDadosCupom.First;
+  while not qryDadosCupom.Eof do
+  begin
+    with ACBrPAF1.PAF_R.RegistroR01.Items[qryDadosECF.RecNo-1].RegistroR04.New do
+    begin
+      RegistroValido := qryDadosCupom.fieldbyname('registrovalido').AsBoolean;
+      // Nº de ordem do usuário do ECF
+      NUM_USU    := qryDadosCupom.fieldbyname('num_usu').AsInteger;
+
+      // Nº do contador do respectivo documento emitido
+      NUM_CONT   := qryDadosCupom.fieldbyname('ccf').AsInteger;
+
+      // Nº do COO relativo ao respectivo documento
+      COO        := qryDadosCupom.fieldbyname('coo').AsInteger;
+
+      // Data de início da emissão do documento impressa no cabeçalho do documento
+      DT_INI     := qryDadosCupom.fieldbyname('dt_ini').AsDateTime;
+
+      // Valor total do documento, com  duas casas decimais.
+      SUB_DOCTO  := qryDadosCupom.FieldByName('SUB_DOCTO').AsCurrency;
+
+      // Valor do desconto ou Percentual aplicado sobre o valor do subtotal do documento, com duas casas decimais.
+      SUB_DESCTO := qryDadosCupom.FieldByName('SUB_DESCTO').AsCurrency;
+
+      // Informar “V” para valor monetário ou “P” para percentual
+      TP_DESCTO  := qryDadosCupom.FieldByName('TP_DESCTO').AsString;
+
+      // Valor do acréscimo ou Percentual aplicado sobre o valor do subtotal do documento, com duas casas decimais
+      SUB_ACRES  := qryDadosCupom.FieldByName('SUB_ACRES').AsCurrency;
+
+      // Informar “V”  para valor monetário ou “P” para percentual
+      TP_ACRES   := qryDadosCupom.FieldByName('TP_ACRES').AsString;
+
+      // Valor total do Cupom Fiscal após desconto/acréscimo, com duas casas decimais.
+      VL_TOT     := qryDadosCupom.FieldByName('VL_TOT').AsCurrency;
+
+      // Informar "S" ou "N", conforme tenha ocorrido ou não, o cancelamento do documento.
+      CANC       := qryDadosCupom.FieldByName('CANC').AsString;
+
+      // Valor do cancelamento de acréscimo no subtotal
+      VL_CA      := qryDadosCupom.FieldByName('VL_CA').AsCurrency;
+
+      // Indicador de ordem de aplicação de desconto/acréscimo em Subtotal. ‘D’ ou ‘A’ caso tenha ocorrido primeiro desconto ou acréscimo, respectivamente
+      ORDEM_DA   := qryDadosCupom.FieldByName('ORDEM_DA').AsString;
+
+      // Nome do Cliente
+      NOME_CLI   := qryDadosCupom.FieldByName('NOME_CLI').AsString;
+
+      // CPF ou CNPJ do adquirente
+      CNPJ_CPF   := qryDadosCupom.FieldByName('CNPJ_CPF').AsString;
+
+      Registro_R05;
+      Registro_R07_Cupom;
+    end;
+    qryDadosCupom.Next;
+  end;
+  qryDadosCupom.Close;
+  qryDadosItemCupom.Close;
+  qryFormasPagamentoCupom.Close;
+end;
+
+procedure TdtmMenuFiscal.Registro_R05;
+begin
+  qryDadosItemCupom.First;
+  while not qryDadosItemCupom.Eof do
+  begin
+    with ACBrPAF1.PAF_R.RegistroR01.Items[qryDadosECF.RecNo-1].RegistroR04.Items[qryDadosCupom.RecNo-1].RegistroR05.new do
+    begin
+      RegistroValido := qryDadosItemCupom.FieldByName('registrovalido').AsBoolean;
+      // Número do item registrado no documento
+      NUM_ITEM     := qryDadosItemCupom.FieldByName('NUM_ITEM').asinteger;
+
+      // Código do produto ou serviço registrado no documento
+      COD_ITEM     := qryDadosItemCupom.FieldByName('COD_ITEM').AsString;
+
+
+      // Descrição do produto ou serviço constante no Cupom Fiscal
+      DESC_ITEM    := qryDadosItemCupom.FieldByName('DESC_ITEM').AsString;
+
+      // Quantidade comercializada, sem a separação das casas decimais
+      QTDE_ITEM    := qryDadosItemCupom.FieldByName('QTDE_ITEM').AsCurrency;
+
+      // Unidade de medida
+      UN_MED       := qryDadosItemCupom.FieldByName('UN_MED').AsString;
+
+      // Valor unitário do produto ou serviço, sem a separação das casas decimais.
+      VL_UNIT      := qryDadosItemCupom.FieldByName('VL_UNIT').AsCurrency;
+
+      // Valor  do desconto  incidente sobre o valor do item, com duas casas decimais.
+      DESCTO_ITEM  := qryDadosItemCupom.FieldByName('DESCTO_ITEM').AsCurrency;
+
+      // Valor do acréscimo incidente sobre o valor do item, com duas casas decimais.
+      ACRES_ITEM   := qryDadosItemCupom.FieldByName('ACRES_ITEM').AsCurrency;
+
+      // Valor total líquido do item, com duas casas decimais.
+      VL_TOT_ITEM  := qryDadosItemCupom.FieldByName('VL_TOT_ITEM').AsCurrency;
+
+      // Código do totalizador relativo ao produto ou serviço conforme tabela abaixo.
+      COD_TOT_PARC := qryDadosItemCupom.FieldByName('COD_TOT_PARC').AsString;
+
+      // Informar "S" ou "N", conforme tenha ocorrido ou não, o cancelamento total do item  no documento. Informar "P" quando ocorrer o cancelamento parcial do item.
+      IND_CANC     := qryDadosItemCupom.FieldByName('IND_CANC').AsString;
+
+      // Quantidade cancelada, no caso de cancelamento parcial de item, sem a separação das casas decimais.
+      QTDE_CANC    := qryDadosItemCupom.FieldByName('QTDE_CANC').AsCurrency;
+
+      // Valor cancelado, no caso de cancelamento parcial de item
+      VL_CANC      := qryDadosItemCupom.FieldByName('VL_CANC').AsCurrency;
+
+      // Valor do cancelamento de acréscimo no item
+      VL_CANC_ACRES:= qryDadosItemCupom.FieldByName('VL_CANC_ACRES').AsCurrency;
+
+      // Indicador de Arredondamento ou Truncamento relativo à regra de cálculo do valor total líquido do item, sendo “T”  para truncamento ou “A” para arredondamento
+      IAT          := qryDadosItemCupom.FieldByName('IAT').AsString;
+
+      // Indicador de Produção Própria ou de Terceiro relativo à mercadoria, sendo “P” para mercadoria de produção própria ou “T” para mercadoria produzida por terceiros
+      IPPT         := qryDadosItemCupom.FieldByName('IPPT').AsString;
+
+      // Parâmetro de número de casas decimais da quantidade
+      QTDE_DECIMAL := qryDadosItemCupom.FieldByName('QTDE_DECIMAL').asinteger;
+
+      // Parâmetro de número de casas decimais de valor unitário
+      VL_DECIMAL   := qryDadosItemCupom.FieldByName('VL_DECIMAL').asinteger;
+    end;
+    qryDadosItemCupom.Next;
+  end;
+end;
+
+procedure TdtmMenuFiscal.Registro_R07_Cupom;
+begin
+  qryFormasPagamentoCupom.First;
+  while not qryFormasPagamentoCupom.Eof do
+  begin
+    with ACBrPAF1.PAF_R.RegistroR01.Items[qryDadosECF.RecNo-1].RegistroR04.Items[qryDadosCupom.RecNo-1].RegistroR07.new do
+    begin
+
+      RegistroValido:=qryFormasPagamentoCupomregistrovalido.AsBoolean;
+      /// Número do Contador de Cupom Fiscal relativo ao respectivo Cupom Fiscal emitido
+      CCF := qryFormasPagamentoCupomccf.asinteger;
+      /// Descrição do totalizador parcial de meio de pagamento
+      MP  := qryFormasPagamentoCupommp.AsString;
+      /// Valor do pagamento efetuado, com duas casas decimais
+      VL_PAGTO := qryFormasPagamentoCupomvl_pagto.ascurrency;
+      /// Informar "S" ou "N", conforme tenha ocorrido ou não, o estorno do pagamento, ou “P” para estorno parcial do pagamento
+      IND_EST := qryFormasPagamentoCupomind_est.asstring;
+      /// Valor do estorno efetuado, com duas casas decimais
+      VL_EST  := qryFormasPagamentoCupomvl_est.ascurrency;
+    end;
+    qryFormasPagamentoCupom.Next;
+  end;
+
+end;
+
+procedure TdtmMenuFiscal.ApagarUltimaLinhaArquivo(Arquivo: String);
+var
+  ArqTemp: TStringList;
+begin
+  ArqTemp := TStringList.Create;
+  try
+    ArqTemp.LoadFromFile(Arquivo);
+    ArqTemp.Delete(ArqTemp.Count-1);
+    ArqTemp.SaveToFile(Arquivo);
+  finally
+    ArqTemp.Free;
+  end;
+end;
+
+function TdtmMenuFiscal.VendasdoPeriodo_EFD(PeriodoInicial,
+  PeriodoFinal: TDateTime; Arquivo: String): Boolean;
+begin
+  result := true;
+  dtmEFD := TdtmEFD.create(self, PeriodoInicial, PeriodoFinal);
+  with dtmEFD do
+  begin
+    GerarArquivo(arquivo, True);
+    AssinarArquivo(Arquivo);
+    dtmEFD.Free;
+  end;
+
+end;
+
+function TdtmMenuFiscal.VendasdoPeriodo_Sintegra(PeriodoInicial,
+  PeriodoFinal: TDateTime; Arquivo: String): Boolean;
+begin
+  result := true;
+  dtmGerarSintegraemArquivo := TdtmGerarSintegraemArquivo.create(self);
+  with dtmGerarSintegraemArquivo do
+  begin
+    Filiais := inttostr(FilialBase);
+    DataInicial := datetostr(PeriodoInicial);
+    DataFinal := datetostr(PeriodoFinal);
+//    maquina := ecfpadrao.NumeroMaquina;
+//    intervensao := ecfpadrao.Intervencao;
+//    numeroserie := ecfpadrao.SerieMaquina;
+    GerarArquivo(arquivo, true);
+    AssinarArquivo(Arquivo);
+    dtmGerarSintegraemArquivo.Free;
+  end;
+end;
+
+procedure TdtmMenuFiscal.Registro_R06(PeriodoInicial, PeriodoFinal: TDateTime;CodigoECF: String);
+begin
+  RefazConsultaPorNome(qryDemaisDoctos,['datainicial','datafinal','num_fab'],
+                 [PeriodoInicial, PeriodoFinal,CodigoECF{ACBrPAF1.PAF_R.RegistroR01.NUM_FAB}]);
+  RefazConsultaPorNome(qryFormasPagtoDemais,['datainicial','datafinal','num_fab'],
+                 [PeriodoInicial, PeriodoFinal,CodigoECF{ACBrPAF1.PAF_R.RegistroR01.NUM_FAB}]);
+
+  qryDemaisDoctos.First;
+  while not qryDemaisDoctos.Eof do
+  begin
+    with ACBrPAF1.PAF_R.RegistroR01.Items[qryDadosECF.RecNo-1].RegistroR06.New do
+    begin
+     RegistroValido :=qryDemaisDoctosregistrovalido.AsBoolean;
+      /// Nº de ordem do usuário do ECF
+      NUM_USU := qryDemaisDoctosnum_usu.asinteger;
+{      /// Nº do contador do respectivo documento emitido
+      NUM_CONT := qryDemaisDoctoscooref.asinteger;}
+      /// Nº do COO relativo ao respectivo documento
+      COO := qryDemaisDoctoscoo.AsInteger;
+      /// Número do GNF relativo ao respectivo documento, quando houver
+      GNF := qryDemaisDoctosgnf.asinteger;
+      /// Número do GRG relativo ao respectivo documento (vide item 7.6.1.2)
+      GRG := qryDemaisDoctosgrg.asinteger;
+      /// Número do CDC relativo ao respectivo documento (vide item 7.6.1.3)
+      CDC := qryDemaisDoctoscdc.asinteger;
+      /// Símbolo  referente à denominação do documento fiscal, conforme tabela abaixo
+      DENOM := qryDemaisDoctosdenom.asstring;
+      /// Data final de emissão (impressa no rodapé do documento)
+      DT_FIN := qryDemaisDoctosdt_fin.AsDateTime;
+      /// Hora final de emissão (impressa no rodapé do documento)
+      HR_FIN := qryDemaisDoctoshr_fin.asDateTime;
+
+      Registro_R07_Demais;  /// Registro FILHO
+
+    end;
+    qryDemaisDoctos.Next;
+  end;
+  qryDemaisDoctos.Close;
+  qryFormasPagtoDemais.Close;
+end;
+
+procedure TdtmMenuFiscal.Registro_R07_Demais;
+begin
+  qryFormasPagtoDemais.First;
+  while not qryFormasPagtoDemais.Eof do
+  begin
+    with ACBrPAF1.PAF_R.RegistroR01.Items[qryDadosECF.RecNo-1].RegistroR06.Items[qryDemaisDoctos.RecNo-1].RegistroR07.New do
+    begin
+      RegistroValido := qryFormasPagtoDemaisregistrovalido.AsBoolean;
+      /// Número do GNF relativo ao respectivo documento, quando houver
+      GNF := qryFormasPagtoDemaisgnf.AsInteger;
+      /// Descrição do totalizador parcial de meio de pagamento
+      MP  := qryFormasPagtoDemaismp.AsString;
+      /// Valor do pagamento efetuado, com duas casas decimais
+      VL_PAGTO := qryFormasPagtoDemaisvl_pagto.ascurrency;
+      /// Informar "S" ou "N", conforme tenha ocorrido ou não, o estorno do pagamento, ou “P” para estorno parcial do pagamento
+      IND_EST := qryFormasPagtoDemaisind_est.asstring;
+      /// Valor do estorno efetuado, com duas casas decimais
+      VL_EST  := qryFormasPagtoDemaisvl_est.ascurrency;
+    end;
+    qryFormasPagtoDemais.Next;
+  end;
+end;
+
+procedure TdtmMenuFiscal.AssinarArquivo(Arquivo: String);
+var
+ v: TACBrEADGetChave;
+begin
+//  biblio.AssinarArquivo('EAD', 'c:\teclux\retorno.txt');
+//  biblio.AssinarArquivo('EAD', Arquivo);
+
+//  ACBrEAD1.AssinarArquivoComEAD('c:\teclux\retorno.txt');
+ // ACBrEAD1.OnGetChavePrivada := ChavePrivada(v);
+  ACBrEAD1.AssinarArquivoComEAD(Arquivo);
+
+
+end;
+
+procedure TdtmMenuFiscal.AssinarArquivo_Fake(Arquivo: String);
+begin
+//nao faz nada
+end;
+
+
+
+function TdtmMenuFiscal.ParametrosConfiguracao: Boolean;
+var
+Relatorio: TStringList;
+Colunas: Integer;
+begin
+    Relatorio := TStringList.Create;
+    Colunas := ECFPadrao.Colunas;
+
+    try
+        Relatorio.Append(Centralizar('-----------PARAMETROS CONFIG-----------',Colunas));
+        Relatorio.Append('');
+
+        Relatorio.Append('Todas as parametrizacoes relacionadas neste relatorio sao de configuracao inacessivel ao usuario do PAF-ECF.A ativacao ou nao destes parametros');
+        Relatorio.Append('e determinada pela unidade federada e somente pode ser feita pela intervencao da empresa desenvolvedora do PAF-ECF');
+
+        Relatorio.Append('');
+        Relatorio.Append('-Perfil de requisito habilitado neste PAF-ECF: V'); {estava W trocado por V pois este é o perfil indicado para SC no momente}
+        Relatorio.Append('-Identificacao do Requisito: IV');
+        Relatorio.Append('-Identificacao do Item: 2');
+        Relatorio.Append('-Identificacao da alinea:');
+        Relatorio.Append('-Descricao: Realizar registro de pre-venda');
+        Relatorio.Append('-Parametro de configuracao: N');
+
+        Relatorio.Append('');
+
+        Relatorio.Append('-Identificacao do Requisito: IV');
+        Relatorio.Append('-Identificacao do Item: 3');
+        Relatorio.Append('-Identificacao da alinea');
+        Relatorio.Append('-Descricao: DAV impresso em equipamento nao fiscal');
+        Relatorio.Append('-Parametro de configuracao: N');
+
+        Relatorio.Append('');
+
+        Relatorio.Append('-Identificacao do Requisito: IV');
+        Relatorio.Append('-Identificacao do Item: 4');
+        Relatorio.Append('-Identificacao da alinea:');
+        Relatorio.Append('-Descricao: DAV impresso em ECF');
+        Relatorio.Append('-Parametro de configuracao: N');
+
+        Relatorio.Append('');
+
+        Relatorio.Append('-Identificacao do Requisito: IV');
+        Relatorio.Append('-Identificacao do Item: 6');
+        Relatorio.Append('-Identificacao da alinea:');
+        Relatorio.Append('-Descricao: Lancamento de mesa/conta de cliente');
+        Relatorio.Append('-Parametro de configuracao: N');
+
+        Relatorio.Append('');
+
+        Relatorio.Append('-Identificacao do Requisito: VI');
+        Relatorio.Append('-Identificacao do Item: 2');
+        Relatorio.Append('-Identificacao da alinea:');
+        Relatorio.Append('-Descricao: Possibilidade de impressao de DAV');
+        Relatorio.Append('-Parametro de configuracao: N');
+
+        Relatorio.Append('');
+
+                          {
+        Relatorio.Append('-Identificacao do Requisito: VIII-A');
+        Relatorio.Append('-Identificacao do Item: 2');
+        Relatorio.Append('-Identificacao da alinea:');
+        Relatorio.Append('-Descricao: PAF-ECF com MINAS LEGAL (p/ Estado de Minas Gerais)');
+        if (EcfPadrao.InfoRodapeCupom.MinasLegal) then
+          Relatorio.Append('-Parametro de configuracao: S')
+        else
+          Relatorio.Append('-Parametro de configuracao: N');
+        Relatorio.Append('');
+
+
+        Relatorio.Append('-Identificacao do Requisito: VIII-A');
+        Relatorio.Append('-Identificacao do Item: 3');
+        Relatorio.Append('-Identificacao da alinea:') ;
+        Relatorio.Append('-Descricao: PAF-ECF com CUPOM MANIA (p/ Estado de Rio de Janeiro)');
+        If (Ecfpadrao.InfoRodapeCupom.CupomMania) then
+          Relatorio.Append('-Parametro de configuracao: S')
+        else
+          Relatorio.Append('-Parametro de configuracao: N');
+
+        Relatorio.Append('');
+                          }
+
+        Relatorio.Append('-Identificacao do Requisito: IX');
+        Relatorio.Append('-Identificacao do Item: 2c');
+        Relatorio.Append('-Identificacao da alinea:') ;
+        Relatorio.Append('-Descricao: PAF-ECF PARAÍBA LEGAL - RECEITA CIDADÃ (p/ Estado Estado da Paraíba)');
+        If (Ecfpadrao.InfoRodapeCupom.ParaibaLegal) then
+          Relatorio.Append('-Parametro de configuracao: S')
+        else
+          Relatorio.Append('-Parametro de configuracao: N');
+
+        Relatorio.Append('');
+
+
+        Relatorio.Append('-Identificacao do Requisito: XVIII');
+        Relatorio.Append('-Identificacao do Item: 1');
+        Relatorio.Append('-Identificacao da alinea: a)');
+        Relatorio.Append('-Descricao: Tela para consulta de preco contendo totalizacao dos valores da lista de itens');
+        Relatorio.Append('-Parametro de configuracao: N');
+
+        Relatorio.Append('');
+
+        Relatorio.Append('-Identificacao do Requisito: XVIII');
+        Relatorio.Append('-Identificacao do Item: 1');
+        Relatorio.Append('-Identificacao da alinea: b)');
+        Relatorio.Append('-Descricao: Tela para consulta de preco com possibilidade de transformar as informacoes digitadas em registro de pre-venda');
+        Relatorio.Append('-Parametro de configuracao: N');
+
+        Relatorio.Append('');
+
+        Relatorio.Append('-Identificacao do Requisito: XVIII');
+        Relatorio.Append('-Identificacao do Item: 1');
+        Relatorio.Append('-Identificacao da alinea: c)');
+        Relatorio.Append('-Descricao: Tela para consulta de preco com possibilidade de utilizar as informacoes digitadas para impressao de DAV');
+        Relatorio.Append('-Parametro de configuracao: N');
+
+        Relatorio.Append('');
+
+        Relatorio.Append('-Identificacao do Requisito: XXII');
+        Relatorio.Append('-Identificacao do Item: 7');
+        Relatorio.Append('-Identificacao da alinea: b)');
+        Relatorio.Append('-Descricao: Recomposicao do GT caso tenha ocorrido incremento do CRO');
+        Relatorio.Append('-Parametro de configuracao: N');
+
+        Relatorio.Append('');
+
+        Relatorio.Append('Requisito especifico para postos de combustiveis:');
+        Relatorio.Append('-Identificacao do Requisito: XXXVI-A');
+        Relatorio.Append('-Identificacao do Item: 1');
+        Relatorio.Append('-Identificacao da alinea:');
+        Relatorio.Append('-Descricao: Impede registro de operacao de venda quando detectar estoque zero ou negativo do respectivo produto');
+        Relatorio.Append('-Parametro de configuracao: N;');
+
+        Relatorio.Append('');
+
+        Relatorio.Append('Requisito para bares e restaurantes:');
+        Relatorio.Append('-Identificacao do Requisito: XXXIX');
+        Relatorio.Append('-Identificacao do Item: 1');
+        Relatorio.Append('-Identificacao da alinea:');
+        Relatorio.Append('-Descricao: Impressao dos pedidos em impressora nao fiscal instalada em ambiente de producao');
+        Relatorio.Append('-Parametro de configuracao: N');
+
+
+      {Relatorio.Append(Centralizar(Centralizar(qryMeiosPagtocategoria.AsString,4) +
+                                     qryMeiosPagtodata.AsString              +
+                                     Centralizar(qryMeiosPagtotipodocto.AsString,13) +
+                                     preencheString(FormatFloat('0.,00',qryMeiosPagtovaloracumulado.AsCurrency),' ',13,False),
+                                     Colunas));}
+      try
+        ECFPadrao.RelatorioGerencial(Relatorio);
+      except
+        Result := False;
+      end;
+    finally
+      Relatorio.Free;
+    end;
+end;
+
+
+
+
+
+constructor TdtmMenuFiscal.Create(AOwner: TComponent);
+begin
+  inherited;
+  if assigned(ecfpadrao) then
+    ECFPadrao.OnPAFGetKeyRSA := ACBrEAD1.OnGetChavePrivada;
+
+//  ACBrEAD1.GerarXMLeECFc('Tecsoft Tecnologia SS', ExtractFilePath(Application.ExeName));
+// Segundo o Joãozinho este é uma vez só na vida: 27/01/2012 às 21:09 preparando homologação com a vcl
+end;
+
+
+procedure TdtmMenuFiscal.ZMonitor1MonitorEvent(Sql, Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:\logmenufiscal.sql') then
+    Listar.loadfromfile('c:\logmenufiscal.sql');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\logmenufiscal.sql');
+  listar.free;
+end;
+
+function TdtmMenuFiscal.LMFReducaoCotepe1704(ReducaoInicial, ReducaoFinal,
+  Arquivo: String): Boolean;
+begin
+      Result := True;
+  try
+    ECFPadrao.PafMF_LMFC_Cotepe1704(strtoint(ReducaoInicial),strtoint(ReducaoFinal),Arquivo);
+    AssinarArquivo(Arquivo);
+  except
+    Result := False;
+  end;
+
+end;
+
+function TdtmMenuFiscal.ArquivoMF(Arquivo: String): Boolean;
+var
+ aMD5 : String;
+ EADStr: String;
+begin
+  Result := True;
+  try
+    ECFPadrao.PafMF_ArqMF_Binario(arquivo, false);
+    if FileExists(arquivo) then
+    begin
+      aMD5 := ACBrEAD1.MD5FromFile(arquivo);
+      // assinar o arquivo baixado da impressora
+      // EADStr := 'EAD' + ACBrEAD1.CalcularEADArquivo(Arquivo);
+      // gravar o arquivo texto com a assinatura EAD
+     WriteToTXT(ChangeFileExt(Arquivo, '.TXT'), aMD5, False, True);
+     AssinarArquivo(ChangeFileExt(Arquivo, '.TXT'));
+    end
+  except
+    Result := False;
+    if ECFPadrao.Mensagem <> '' then
+      MensagemErro(ECFPadrao.Mensagem)
+  end;
+
+end;
+
+procedure TdtmMenuFiscal.ACBrEAD1GetChavePrivada(var Chave: String);
+begin
+  inherited;
+  chave := Private_VK_TecSOFTKey;
+end;
+
+function TdtmMenuFiscal.ArquivoMFDBinario(Arquivo: String): Boolean;
+var
+ aMD5 : String;
+ EADStr: String;
+begin
+  Result := True;
+  try
+    ECFPadrao.PafMF_ArqMFD_Binario(arquivo,0,0, false);
+
+    if FileExists(arquivo) then
+    begin
+      aMD5 := ACBrEAD1.MD5FromFile(arquivo);
+      // assinar o arquivo baixado da impressora
+      //EADStr := 'EAD' + ACBrEAD1.CalcularEADArquivo(Arquivo);
+      // gravar o arquivo texto com a assinatura EAD
+      WriteToTXT(ChangeFileExt(Arquivo, '.TXT'), aMD5, False, True);
+      AssinarArquivo(ChangeFileExt(Arquivo, '.TXT'));
+    end
+  except
+    Result := False;
+    if ECFPadrao.Mensagem <> '' then
+      MensagemErro(ECFPadrao.Mensagem);
+  end;
+
+end;
+
+
+function TdtmMenuFiscal.RegistrosPafEcf(Arquivo: String; TipoEstoque: byte;
+  ListaProdutosEstoqueParcial: String; PeriodoInicial,
+  PeriodoFinal: TDateTime; AposReducaoZ: boolean): Boolean;
+
+  Function CondicaoAposReducaoZ: boolean;
+  begin
+    result := true;
+
+    if AposReducaoZ then
+    begin
+      RefazConsultaporNome(qryNReducoes, ['datamovimento'], [PeriodoInicial]);
+      result := qryNReducoesquantidade.asinteger <= 1; {deve ser a primeira do dia}
+    end;
+
+  end;
+begin
+
+  ACBrPAF1.Path := ExtractFilePath(Arquivo);
+//  ACBrPAF1.Delimitador := '';
+//  ACBrPAF1.CurMascara  := '';
+
+  try
+   //inclusao exclusao reabrir a tabela
+  RefazConsulta(qryInclusaoExclusao,[0],[FilialBase]);
+  with ACBrPAF1.PAF_U.RegistroU1 do
+  begin
+    CNPJ       := preenchestring(CNPJFilialBase              ,'0',14,False);  // CNPJ do estabelecimento usuário do PAF-ECF
+    IE         := preenchestring(InscricaoEstadualFilialBase ,' ',14,True );  // Inscrição Estadual do estabelecimento
+    IM         := preenchestring(InscricaoMunicipalFilialBase,' ',14,True );  // Inscrição Municipal do estabelecimento
+    RAZAOSOCIAL:= preenchestring(RazaoFilialBase             ,' ',50,True );  // Razão Social do estabelecimento
+    InclusaoExclusao:= not qryInclusaoExclusaoregistrovalido.AsBoolean;// Validação dos registros colocando ??? nos espaços em branco da razao social
+  end;
+
+  Result := False;
+  qryMeiosPagto.ParamByName('filial').AsInteger := FilialBase;
+  qryMeiosPagto.ParamByName('datainicial').AsDate   := PeriodoInicial;
+  qryMeiosPagto.ParamByName('datafinal').AsDate     := PeriodoFinal;
+// qryMeiosPagto.ParamByName('ecf').AsString         := ECFPadrao.Codigo;
+  qryMeiosPagto.Open;
+
+  ACBrPAF1.PAF_A.RegistroA2.Clear;
+  While Not qryMeiosPagto.Eof do
+    begin
+      with ACBrPAF1.PAF_A.RegistroA2.New do
+        begin
+          DT := qryMeiosPagtodata.AsDateTime;
+          MEIO_PGTO := qryMeiosPagtomeiopagto.AsString;
+          TIPO_DOC := qryMeiosPagtotipodocto.AsString; //1-CupomFiscal, 2-CNF, 3-Nota Fiscal
+          VL := qryMeiosPagtovaloracumulado.AsCurrency;
+          RegistroValido:= qryMeiosPagtoregistrovalido.AsBoolean;
+        end;
+        qryMeiosPagto.Next;
+    end;
+        qryMeiosPagto.Close;
+
+
+    if CondicaoAposReducaoZ then
+    begin
+      RefazConsulta(qryProdutos,[0],[cnpjfilialbase]);
+      while not qryprodutos.Eof do
+      begin
+        with ACBrPAF1.PAF_P.RegistroP2.New do
+        begin
+          RegistroValido := qryProdutosregistrovalido.AsBoolean;
+          COD_MERC_SERV  := qryProdutosproduto.AsString;     /// Código da mercadoria ou serviço
+          DESC_MERC_SERV := qryProdutosdescricao.asstring;    /// Descrição da mercadoria ou serviço
+          UN_MED         := qryProdutosunidade.asstring;            /// Unidade de medida
+          IAT            := 'T';               /// Indicador de Arredondamento ou Truncamento, conforme item 7.2.1.3
+          IPPT           := qryProdutosippt.asstring;              /// Indicador de Produção Própria ou de Terceiro, conforme item 7.2.1.4
+          ST             := qryProdutossituacaotributaria.asstring;/// Código da Situação Tributaria conforme tabela constante no item 7.2.1.5
+          if((ST='N') or (ST='I')) then
+            ALIQ           := 0.00            /// Alíquota, conforme item 7.2.1.6
+          else
+              ALIQ           := qryProdutosaliquota.ascurrency;            /// Alíquota, conforme item 7.2.1.6
+          VL_UNIT        := qryProdutosvalorunitario.ascurrency;         /// Valor unitário com duas casas decimais
+        end;
+        qryprodutos.next;
+      end;
+      qryProdutos.close;
+    end;
+
+            {
+
+    RefazConsulta(qryEstoquesData,[0],[FilialBase]);
+
+    with ACBrPAF1.PAF_E.RegistroE1 do
+    begin
+      RegistroValido := qryEstoquesDataregistrovalido.asboolean;
+      InclusaoExclusao:=qryEstoquesDatainclusao_exclusao.AsBoolean; /// Validação dos registros colocando ??? nos espaços em branco da razao social
+      NUM_FAB        := preenchestring(qryEstoquesDatanumero_fabricacao.AsString   , ' ', 20, True );
+      MF_ADICIONAL   := qryEstoquesDatamf_adicional.AsString;
+      TIPO_ECF       := preenchestring(qryEstoquesDatatipo_ecf.AsString            , ' ',  7, True );
+      MARCA_ECF      := preenchestring(qryEstoquesDatamarca_do_ecf.AsString        , ' ', 20, True );
+      MODELO_ECF     := preenchestring(qryEstoquesDatamodelo_do_ecf.AsString       , ' ', 20, True );
+      DT_EST         := StrToDateTime(qryEstoquesDatadata_do_estoque.AsString+' '+qryEstoquesDatahora_do_estoque.AsString);
+      UF             := qryEstoquesDatacnpj.AsString;
+      CNPJ           := qryEstoquesDatacnpj.AsString;         /// CNPJ do estabelecimento usuário do PAF-ECF
+      IE             := qryEstoquesDatainscricao_estadual.AsString;           /// Inscrição Estadual do estabelecimento
+      IM             := qryEstoquesDatainscricao_municipal.AsString;           /// Inscrição Municipal do estabelecimento
+      RAZAOSOCIAL    := qryEstoquesDatarazao_social.AsString;  /// Razão Social do estabelecimento
+    end;
+    }
+
+    case TipoEstoque of
+    0: qryEstoques.MacroByName('SQLListaParcialdeProdutos').AsString := '';
+    1: qryEstoques.MacroByName('SQLListaParcialdeProdutos').AsString := format('and cast(produto as bigint) in (%s)',[ListaProdutosEstoqueParcial]);
+    end;
+
+    if CondicaoAposReducaoZ then
+    begin
+      RefazConsulta(qryEstoques,[0],[cnpjfilialbase]);
+      while not qryEstoques.Eof do
+      begin
+        with ACBrPAF1.PAF_E.RegistroE2.New do
+        begin
+          COD_MERC       := qryEstoquesproduto.asstring;      // Código da mercadoria ou produto cadastrado na tabela a que se refere o requisito XI
+          DESC_MERC      := qryEstoquesdescricao.asstring;    // Descrição da mercadoria ou produto cadastrada na tabela a que se refere o requisito XI
+          UN_MED         := qryEstoquesunidade.asstring;      // Unidade de medida cadastrada na tabela a que se refere o requisito XI
+          QTDE_EST       := qryEstoquesemestoque.ascurrency;  // Quantidade da mercadoria ou produto constante no estoque, com duas casas decimais.
+          RegistroValido := qryEstoquesregistrovalido.AsBoolean;
+        end;
+        qryEstoques.next;
+      end;
+    end;
+
+  //E3
+  RefazConsulta(qryEstoquesData,[0],[FilialBase]);
+  with ACBrPAF1.PAF_E.RegistroE3 do
+    begin
+      NUM_FAB      := preenchestring(qryEstoquesDatanumero_fabricacao.AsString   , ' ', 20, True );
+      MF_ADICIONAL := qryEstoquesDatamf_adicional.AsString;
+      TIPO_ECF     := preenchestring(qryEstoquesDatatipo_ecf.AsString            , ' ',  7, True );
+      MARCA_ECF    := preenchestring(qryEstoquesDatamarca_do_ecf.AsString        , ' ', 20, True );
+      MODELO_ECF   := preenchestring(qryEstoquesDatamodelo_do_ecf.AsString       , ' ', 20, True );
+      DT_EST       := StrToDateTime(qryEstoquesDatadata_do_estoque.AsString+' '+qryEstoquesDatahora_do_estoque.AsString);
+      RegistroValido := qryEstoquesDataregistrovalido.asboolean;
+    end;
+
+
+  ReFazConsulta(qryTroco,[0,1,2],[filialbase,PeriodoInicial,PeriodoFinal]);
+  ACBrPAF1.PAF_H.RegistroH2.Clear;
+  while not qryTroco.Eof do
+  begin
+    with ACBrPAF1.PAF_H.RegistroH2.New do
+    begin
+      CNPJ_CRED_CARTAO := qryTrococnpj_credenciadora.AsString;
+      NUM_FAB          := qryTroconumero_fabricacao.AsString;
+      MF_ADICIONAL     := qryTrocomfadicional.asstring;
+      TIPO_ECF         := qryTrocotipo.asstring;
+      MARCA_ECF        := qryTrocomarca.asstring;
+      MODELO_ECF       := qryTrocomodelo.asstring;
+      COO              := qryTrococoo.AsInteger;
+      CCF              := qryTrococcf.asInteger;
+      VLR_TROCO        := qryTrocovalor_troco.AsCurrency;
+      DT_TROCO         := qryTrocodata_troco.AsDateTime;
+      CPF              := qryTrococpf.AsString;
+//      TITULO           := qryTrocotitulo.AsString;  Atenção ACBR mudou de string para integer Gedovar 24/02/17 verificar e corrigir
+      RegistroValido := qryTrocoregistrovalido.AsBoolean;
+    end;
+    qryTroco.Next;
+  end;
+  qryTroco.Close;
+
+  Registro_R01(PeriodoInicial, PeriodoFinal);
+
+  ACBrPAF1.PAF_J.RegistroJ1.Clear;
+
+  Registro_J(PeriodoInicial, PeriodoFinal);
+
+    ACBrPAF1.AssinarArquivo := false;
+//    ACBrPAF1.SaveFileTXT_RegistrosPAF(ExtractFileName(Arquivo));
+    ACBrPAF1.SaveToFile_RegistrosPAF(ExtractFileName(Arquivo));
+    AssinarArquivo(Arquivo);
+    Result:=true;
+  except
+    on E: Exception do
+    begin
+      ShowMessage(E.Message);
+      Result := false;
+    end;
+
+
+end;
+
+end;
+
+procedure TdtmMenuFiscal.Registro_J(PeriodoInicial,
+  PeriodoFinal: TDateTime);
+begin
+  refazconsultaporNome(qryNotas,['datainicial','datafinal'],[PeriodoInicial, PeriodoFinal]);
+  refazconsultaporNome(qryNotasItens,['datainicial','datafinal'],[PeriodoInicial, PeriodoFinal]);
+  qryNotas.first;
+  while not qryNotas.eof do
+  begin
+    with ACBrPAF1.PAF_J.RegistroJ1.New do
+    begin
+      CNPJ           := qryNotascnpj.asString;    //CNPJ do emissor do doc. fiscal
+      DATA_EMISSAO   := qryNotasemissao.asDateTime; //Data de emissão do documento fiscal
+      SUBTOTAL       := qryNotassubtotal.asCurrency;  //Valor total do documento
+      DESC_SUBTOTAL  := qryNotasdescsubtotal.asCurrency;  //Valor desconto (Valor/Percentual) sobre o subtotal
+      INDICADOR_DESC := 'V';      //Indicador de tipo de desconto no subtotal (V - Valor, P - Percentual)
+      ACRES_SUBTOTAL := qryNotasacrescsubtotal.asCurrency;
+      INDICADOR_ACRES:= 'V';
+      VALOR_LIQUIDO  := qryNotastotalliquido.asCurrency;
+      INDICADOR_CANC := qryNotasindcanc.asString;
+      VAL_CANC_ACRES := qryNotascancacrescsubtotal.asCurrency;
+      ORDEM_APLIC_DES_ACRES := qryNotasordemaplicdesc_e_acresc.asString;
+      NOME_CLIENTE   := qryNotasnomedocliente.asString;
+      CPFCNPJ_CLIENTE:= qryNotascpf_ou_cnpj_cliente.asString;
+      NUMERO_NOTA    := qryNotasnumeronota.asString;
+      SERIE_NOTA     := qryNotasserienota.asString;
+      CHAVE_NF       := qryNotaschv_nfe.asString;
+      TIPO_DOC       := qryNotastipodedocumento.asString;
+
+      qryNotasItens.first;
+      while not qryNotasItens.eof do
+      begin
+        with ACBrPAF1.PAF_J.RegistroJ1.Items[qryNotas.RecNo-1].RegistroJ2.New do
+        begin
+          CNPJ          := qryNotasItenscnpj.asString;
+          DATA_EMISSAO  := qryNotasItensemissao.asDateTime;
+          NUMERO_ITEM   := qryNotasItensnumero.asString;
+          CODIGO_PRODUTO:= qryNotasItenscodigovisual.asString;
+          DESCRICAO     := qryNotasItensdescricao.asString;
+          QUANTIDADE    := qryNotasItensquantidade.asCurrency;
+          UNIDADE       := qryNotasItensunidade.asString;
+          VALOR_UNITARIO:= qryNotasItensprecovenda.asCurrency;
+          DESCONTO_ITEM := qryNotasItensdesconto.asCurrency;
+          ACRESCIMO_ITEM:= qryNotasItensacrescimo.asCurrency;
+          VALOR_LIQUIDO := qryNotasItensvalortotalliquido.asCurrency;
+          TOTALIZADOR_PARCIAL := qryNotasItenstipototalizadorparcial.asString;
+          CASAS_DECIMAIS_QTDE := qryNotasItenscasasdecimaisquantidade.asString;
+          CASAS_DECIMAIS_VAL_UNIT := qryNotasItenscasasdecimaisvalorunitario.asString;
+          NUMERO_NOTA   := qryNotasItensnumeronota.asString;
+          SERIE_NOTA    := qryNotasItensserienota.asString;
+          CHAVE_NF      := qryNotasItenschv_nfe.asString;
+          TIPO_DOC      := qryNotasItenstipodedocumento.asString;
+        end;
+        qryNotasItens.next;
+      end;
+    end;
+    qryNotas.next;
+  end;
+end;
+
+
+
+procedure TdtmMenuFiscal.BlocoXEstoqueMesAnterior(DataInicial, DataFinal: TDAteTime);
+begin
+  dtmGerarMapasECF := tdtmGerarMapasECF.Create(self);
+  dtmGerarMapasECF.BlocoXEstoqueMesAnterior(DataInicial, DataFinal, false);
+end;
+
+
+function TdtmMenuFiscal.GetNomedoArquivoconformePAF0204(
+  Ext: String): String;
+begin
+  fNomedoArquivoconformePAF0204 := ecfpadrao.SerieMaquina+'_'+formatdatetime('YYYYMMDD_HHNMMSS',dtmMenuFiscal.DataHoraServidor)+'_'+Ext+'.MF';
+  Result := fNomedoArquivoconformePAF0204;
+
+end;
+
+procedure TdtmMenuFiscal.BlocoXReducaoZ(OpcaoFonteDados: Byte; DataInicial,
+  DataFinal: TDateTime; CrzInicial, crzFinal: Integer);
+begin
+  dtmGerarMapasECF := tdtmGerarMapasECF.Create(self);
+  dtmGerarMapasECF.BlocoXReducaoZ(OpcaoFonteDados, DataInicial, DataFinal, CrzInicial, crzFinal, false);
+end;
+
+function TdtmMenuFiscal.VendasIdentificadas(Arquivo, MesInicial, MesFinal,
+  CPF_ou_CNPJ: String): boolean;
+begin
+  result := true;
+
+  if possuinumero(mesInicial) and possuinumero(mesFinal) then
+  begin
+    qryVendasIdentificadas.macrobyname('CondicaoIntervalo').asString := 'and df.data between :datainicial and :datafinal';
+    qryVendasIdentificadas.Parambyname('datainicial').asDateTime := strtodatetime('01/'+mesinicial);
+    qryVendasIdentificadas.Parambyname('datafinal').asDateTime := UltimoDiaMes(strtodatetime('01/'+mesfinal));
+  end
+  else
+  if possuinumero(mesInicial) and not possuinumero(mesFinal) then
+  begin
+    qryVendasIdentificadas.macrobyname('CondicaoIntervalo').asString := 'and df.data >= :datainicial';
+    qryVendasIdentificadas.Parambyname('datainicial').asDateTime := strtodatetime('01/'+mesinicial);
+  end
+  else
+  if not possuinumero(mesInicial) and possuinumero(mesFinal) then
+  begin
+    qryVendasIdentificadas.macrobyname('CondicaoIntervalo').asString := 'and df.data <= :datafinal';
+    qryVendasIdentificadas.Parambyname('datafinal').asDateTime := UltimoDiaMes(strtodatetime('01/'+mesfinal));
+  end;
+
+
+  if CPF_ou_CNPj<>'' then
+  begin
+    qryVendasIdentificadas.macrobyname('CondicaoCPFouCNPJ').asString := 'and df.pessoanumero = :CPFouCNPJ';
+    qryVendasIdentificadas.parambyname('CPFouCNPJ').asString := somentenumero(CPF_ou_CNPJ);
+  end;
+  qryVendasIdentificadas.parambyname('filialbase').asinteger := filialbase;
+
+  qryVendasIdentificadas.close;
+  qryVendasIdentificadas.open;
+
+  with ACBrPAF1 do
+  begin
+    with PAF_Z do
+    begin
+      LimpaRegistros;
+      with RegistroZ1 do
+      begin
+        UF   := EstadoFilialBase;
+        CNPJ := CNPJFilialBase;
+        IE   := InscricaoEstadualFilialBase;
+        IM   := InscricaoMunicipalFilialBase;
+        RAZAOSOCIAL:= RazaoFilialBase;
+      end;
+
+      with RegistroZ2 do
+      begin
+        UF   := 'SC';
+        CNPJ := ParSistema.CNPJDesenvolvedora;
+        IE   := ParSistema.IEDesenvolvedora;
+        IM   := ParSistema.IMDesenvolvedora;
+        RAZAOSOCIAL:= ParSistema.NomeEmpresaDesenvolvedora;
+      end;
+
+      with RegistroZ3 do
+      begin
+        LAUDO  :=  ParSistema.LaudoPAFECF;
+        NOME   :=  ParSistema.NomeComercialSistema;
+        VERSAO :=  parsistema.versaopafecf;
+      end;
+
+      qryVendasIdentificadas.first;
+      while not qryVendasIdentificadas.eof do
+      begin
+        with RegistroZ4.New do
+        begin
+          CPF_CNPJ     := qryVendasIdentificadaspessoanumero.asString;
+          Vl_Total := qryVendasIdentificadasvalortotal.asCurrency;
+          Data_INI := qryVendasIdentificadasanomesprimdia.asDateTime;
+          DATA_FIM := UltimoDiaMes(qryVendasIdentificadasanomesprimdia.asDateTime);
+
+        end;
+        qryVendasIdentificadas.next;
+      end;
+    end;
+    AssinarArquivo := true;
+    SaveToFile_Z(Arquivo);
+  end;
+
+
+end;
+
+end.

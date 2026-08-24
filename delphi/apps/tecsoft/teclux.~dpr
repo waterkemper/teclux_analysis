@@ -1,0 +1,77 @@
+program teclux;
+
+ {$M+}
+
+uses
+  {$IFDEF EurekaLog}
+  EMemLeaks,
+  EResLeaks,
+  EDebugJCL,
+  EDebugExports,
+  EFixSafeCallException,
+  EMapWin32,
+  EAppVCL,
+  EDialogWinAPIMSClassic,
+  EDialogWinAPIEurekaLogDetailed,
+  EDialogWinAPIStepsToReproduce,
+  ExceptionLog7,
+  {$ENDIF EurekaLog}
+  shellapi, ctconstantes,
+  SysUtils,
+  Forms,
+//  Style,
+  fmsplash,
+  dmbasico,
+  fmhelpviewer,
+  fmtecsoft in 'fmtecsoft.pas' {frmTecsoft},
+  versao in 'versao.pas',
+  fmdescricaoteclux in 'fmdescricaoteclux.pas' {frmDescricaoTecLUX};
+
+//Procedimento para tentar resolver external exception terminal server e rede
+
+{$SetPEOptFlags IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE}
+{$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED
+  or IMAGE_FILE_REMOVABLE_RUN_FROM_SWAP
+  or IMAGE_FILE_NET_RUN_FROM_SWAP}
+  
+
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  try
+    Application.Title := 'tecLUX - Automação comercial';
+    frmSplash := TfrmSplash.Create(Application);
+    frmSplash.setVersao(GetVersao);
+    frmSplash.Show;
+    if LerConfiguracaoSistema(frmSplash.Notificacao) then
+    begin
+      VersaoBanco := TdtmBasico.VersaoBanco;
+      TdtmBasico.SetVersaoTecLUX(GetVersao);
+      Application.CreateForm(TfrmTecsoft, frmTecsoft);
+      frmTecsoft.visible := false;
+
+      RegisterHelpViewer;
+      VerificarECF(frmSplash.Notificacao);
+
+      PendenciasTEF(frmSplash.Notificacao);
+      PendenciaNFe(frmSplash.Notificacao);
+    end
+  finally
+    frmSplash.Free;
+    if Assigned(frmTecsoft) then
+    begin
+      frmTecsoft.VerificarMenu;
+
+      while not frmTecsoft.OpcaoMenuLiberada do
+        frmTecsoft.visible := false;
+
+      frmTecsoft.visible := true;
+
+
+    end;
+    Application.Run;
+  end;
+end.
+

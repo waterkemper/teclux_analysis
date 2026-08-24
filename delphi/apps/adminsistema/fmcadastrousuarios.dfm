@@ -42,7 +42,7 @@ inherited frmCadastroUsuarios: TfrmCadastroUsuarios
         Top = 177
         Width = 961
         Height = 296
-        ActivePage = tstPerfisGrupos
+        ActivePage = tstComissaoVenda
         Align = alBottom
         TabOrder = 11
         OnChange = pgcDetalhesChange
@@ -996,6 +996,7 @@ inherited frmCadastroUsuarios: TfrmCadastroUsuarios
                 Title.Font.Name = 'helvetica'
                 Title.Font.Pitch = fpVariable
                 Title.Font.Style = []
+                Width = 64
                 Visible = True
               end>
           end
@@ -1654,6 +1655,7 @@ inherited frmCadastroUsuarios: TfrmCadastroUsuarios
                   Expanded = False
                   FieldName = 'nome'
                   Title.Caption = 'NOME'
+                  Width = 64
                   Visible = True
                 end>
             end

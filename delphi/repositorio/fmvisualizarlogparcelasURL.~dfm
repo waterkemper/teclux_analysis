@@ -1,0 +1,91 @@
+inherited frmVisualizarLogParcelas: TfrmVisualizarLogParcelas
+  Left = 301
+  Top = 206
+  Caption = 'Log das Parcelas'
+  ClientHeight = 521
+  ClientWidth = 1068
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  OldCreateOrder = False
+  PixelsPerInch = 96
+  TextHeight = 13
+  object dbgVisualizarLogParcelas: TtecDBGrid
+    Left = 0
+    Top = 0
+    Width = 1068
+    Height = 521
+    Align = alClient
+    DataSource = dsrVisualizarLogParcelas
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -9
+    Font.Name = 'MS Sans Serif'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 0
+    TitleFont.Charset = DEFAULT_CHARSET
+    TitleFont.Color = clWindowText
+    TitleFont.Height = -9
+    TitleFont.Name = 'MS Sans Serif'
+    TitleFont.Pitch = fpVariable
+    TitleFont.Style = []
+    RowWrap = 60
+    Large = False
+    DoubleRowColor = False
+    TitleMinHeight = 100
+    CellHeights = 100
+    StrippedColor = 16054260
+    CanDelete = False
+    CanNotInsertFromGrid = False
+    PostOnEnter = False
+    PostOnSetUpDown = False
+    DenySort = False
+    DefaultRowHeight = 17
+    ExibirNumerodaLinha = False
+    NaoAtribuirDadosaTabelaaoDigitar = False
+  end
+  object dsrVisualizarLogParcelas: TtecDataSource
+    DataSet = qryVisualizarLogParcelas
+    Left = 456
+    Top = 176
+  end
+  object qryVisualizarLogParcelas: TtecQuery
+    Tag = -1
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select *'
+      'from parcelas_log'
+      'where contrato in (select ct.numero'
+      '                   from contratos ct'
+      
+        '                   where coalesce(ct.primogenito, ct.numero) = (' +
+        'select coalesce(ct2.primogenito, ct2.numero)'
+      
+        '                                                                ' +
+        'from contratos ct2'
+      
+        '                                                                ' +
+        'where ct2.numero = :contrato)'
+      ''
+      '                   order by ct.numero)'
+      ''
+      'order by contrato,trigger_changed,numero,trigger_id;')
+    RequestLive = False
+    Left = 480
+    Top = 136
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end>
+  end
+end

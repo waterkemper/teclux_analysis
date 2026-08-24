@@ -1,0 +1,101 @@
+unit dmMapaResumoECF;
+
+interface
+
+uses
+  SysUtils, Classes, DB, cpdatasource, ZQuery, ZPgSqlQuery, cpquery, dmtecsoft,
+  fr_dset, fr_dbset, fr_class, dmbasico, ZTransact, fmpreviewpadrao;
+
+type
+  TdtmMapaResumoECF = class(TDtmBasico)
+    qryMapaResumoECF: TtecQuery;
+    dsrMapaResumoECF: TtecDataSource;
+    qryMapaResumoDetalhes: TtecQuery;
+    dsrMapaResumoDetalhes: TtecDataSource;
+    qryMapaResumoECFfilial: TIntegerField;
+    qryMapaResumoECFnumerousuario: TIntegerField;
+    qryMapaResumoECFcro: TIntegerField;
+    qryMapaResumoECFdatamovimento: TDateField;
+    qryMapaResumoECFnumeracao: TIntegerField;
+    qryMapaResumoECFrua: TStringField;
+    qryMapaResumoECFnumerorua: TIntegerField;
+    qryMapaResumoECFnomecidade: TStringField;
+    qryMapaResumoECFestado: TStringField;
+    qryMapaResumoECFcnpj: TStringField;
+    qryMapaResumoECFinscricaomunicipal: TStringField;
+    qryMapaResumoECFinscricaoestadual: TStringField;
+    qryMapaResumoECFnumerofabricacao: TStringField;
+    qryMapaResumoECFcrz: TIntegerField;
+    qryMapaResumoECFvalorcontabil: TFloatField;
+    qryMapaResumoDetalhesfilial: TIntegerField;
+    qryMapaResumoDetalhesnumerousuario: TIntegerField;
+    qryMapaResumoDetalhescro: TIntegerField;
+    qryMapaResumoDetalhesnumerofabricacao: TStringField;
+    qryMapaResumoDetalhesdatamovimento: TDateField;
+    qryMapaResumoDetalhesaliquota: TFloatField;
+    qryMapaResumoDetalhesvalortributado: TFloatField;
+    qryMapaResumoDetalhesisentas: TFloatField;
+    qryMapaResumoDetalhesnaotributadas: TFloatField;
+    qryMapaResumoDetalhesoutras: TFloatField;
+    frpMapaResumoECF: TfrReport;
+    fdsMapaResumoECF: TfrDBDataSet;
+    fdsMapaResumoECFDetalhes: TfrDBDataSet;
+    qryMapaResumoECFnomefilial: TStringField;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    procedure ImprimirRelatorio(DataInicial, DataFinal: String);
+  end;
+
+var
+  dtmMapaResumoECF: TdtmMapaResumoECF;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmMapaResumoECF }
+
+procedure TdtmMapaResumoECF.ImprimirRelatorio(DataInicial,
+  DataFinal: String);
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+   RefazConsultaPorNome(qryMapaResumoECF, ['datainicial', 'datafinal'],
+                        [strtodate(datainicial), strtodate(datafinal)]);
+
+   RefazConsultaPorNome(qryMapaResumoDetalhes, ['datainicial', 'datafinal'],
+                        [strtodate(datainicial), strtodate(datafinal)]);
+
+  AtribuirParametrosBaseRelatorio;
+  frVariables['DataInicial']:= DataInicial;
+  frVariables['DataFinal']:= DataFinal;
+  frVariables['Titulo']  := 'MAPA RESUMO ECF';
+  frVariables['Outras']:= 'Entre: ' + datainicial + ' e ' + datafinal;
+  frmPreview := TfrmPreviewPadrao.create(self);
+  frmPreview.cmbZoom.ItemIndex := 3;
+
+  try
+   Relatorio := frmPreview.frCompositeReport;
+   frmPreview.frCompositeReport.Reports.Clear;
+   with frmPreview do
+     frCompositeReport.Reports.Add(frpMapaResumoECF);
+
+   Relatorio.Preview := frmPreview.frPreviewPadrao;
+   Relatorio.ShowReport;
+   frmPreview.ShowModal;
+
+  finally
+
+   frmPreview.Free;
+   AtribuirParametrosBaseRelatorio;
+
+  end;
+
+
+
+end;
+
+end.

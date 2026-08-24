@@ -1,0 +1,782 @@
+unit dmconfirmarnotastransferenciaporitem;
+
+interface
+
+uses
+  SysUtils, Classes, Forms, Math, Variants, dmbasico, dmtecsoft, DB, ZQuery,
+  ZPgSqlQuery, cpquery, cpdatasource, ctconstantes, biblio,
+  clparametrossistema, ZTransact;
+
+type
+  TdtmConfirmarNotasTransferenciaPorItem = class(TdtmBasico)
+    qryProcurarUsuarios: TtecQuery;
+    qryProcurarUsuarioscodigo: TIntegerField;
+    qryProcurarUsuariosnome: TStringField;
+    dsrProcurarUsuarios: TtecDataSource;
+    qryConsultaUsuarios: TtecQuery;
+    qryConsultaUsuariosnome: TStringField;
+    qryConsultaUsuarioscodigo: TIntegerField;
+    qryPedidosFiliais: TtecQuery;
+    qryPedidosFiliaiscodigo: TIntegerField;
+    qryPedidosFiliaisrequisitada: TIntegerField;
+    qryPedidosFiliaisproduto: TLargeintField;
+    qryPedidosFiliaisqtdepedida: TFloatField;
+    qryPedidosFiliaisqtderecebida: TFloatField;
+    qryPedidosFiliaisnome: TStringField;
+    qryPedidosFiliaisdescricao: TStringField;
+    dsrPedidosFiliais: TtecDataSource;
+    qryPedidosFiliaisselecionar: TBooleanField;
+    qryPedidosFiliaissemvalor: TFloatField;
+    qryAtualizarPedidosFiliais: TtecQuery;
+    qryPedidosFiliaisdata: TStringField;
+    qryPedidosFiliaisnota_serie: TStringField;
+    qryAtualizarPedidosFiliaiscodigo: TIntegerField;
+    qryPedidosFiliaisdadofiscal: TIntegerField;
+    qryAtualizarPedidosFiliaissituacao: TStringField;
+    qryAtualizarPedidosFiliaisdadofiscal: TIntegerField;
+    qryNotaEntregue: TtecQuery;
+    qryNotaEntreguequantidade: TFloatField;
+    qryDadosFiscais: TtecQuery;
+    qryDadosFiscaisnumero: TIntegerField;
+    qryDadosFiscaisdata: TDateField;
+    qryDadosFiscaisvalortotal: TFloatField;
+    qryDadosFiscaiscodigofiscal: TIntegerField;
+    qryDadosFiscaisestadocfo: TStringField;
+    qryDadosFiscaisnatureza: TStringField;
+    qryDadosFiscaiscliente: TIntegerField;
+    qryDadosFiscaistipocliente: TStringField;
+    qryDadosFiscaispessoanumero: TStringField;
+    qryDadosFiscaisdocumento: TStringField;
+    qryDadosFiscaisfilial: TIntegerField;
+    qryDadosFiscaisserie: TStringField;
+    qryDadosFiscaisnumeronota: TIntegerField;
+    qryProdutosDadosFiscais: TtecQuery;
+    qryProdutosDadosFiscaisdadofiscal: TIntegerField;
+    qryProdutosDadosFiscaisnumero: TIntegerField;
+    qryProdutosDadosFiscaisproduto: TLargeintField;
+    qryProdutosDadosFiscaisfilial: TIntegerField;
+    qryProdutosDadosFiscaisquantidade: TFloatField;
+    qryProdutosDadosFiscaisprecovenda: TFloatField;
+    qryProdutosDadosFiscaisaliquotaicms: TFloatField;
+    qryProdutosDadosFiscaisicms: TIntegerField;
+    qryProdutosDadosFiscaisincidencia: TStringField;
+    qryProdutosDadosFiscaisorigem: TIntegerField;
+    qryNotasPag: TtecQuery;
+    qryNotasPagcodigo: TIntegerField;
+    qryNotasPagfornecedor: TIntegerField;
+    qryNotasPagserie: TStringField;
+    qryNotasPagnumero: TIntegerField;
+    qryNotasPagtipofornecedor: TStringField;
+    qryNotasPagfilial: TIntegerField;
+    qryNotasPagcodigofiscal: TIntegerField;
+    qryNotasPagnatureza: TStringField;
+    qryNotasPagdata: TDateField;
+    qryNotasPagemissao: TDateField;
+    qryNotasPagestado: TStringField;
+    qryNotasPagvalornota: TFloatField;
+    qryNotasPagcnpj: TStringField;
+    qryNotasPaginscricaoestadual: TStringField;
+    qryProdutosNotasPag: TtecQuery;
+    qryProdutosNotasPagcodigonota: TIntegerField;
+    qryProdutosNotasPagnumero: TIntegerField;
+    qryProdutosNotasPagfilial: TIntegerField;
+    qryProdutosNotasPagproduto: TLargeintField;
+    qryProdutosNotasPagaliquotaicms: TFloatField;
+    qryProdutosNotasPagbaseicms: TFloatField;
+    qryProdutosNotasPagvaloricms: TFloatField;
+    qryProdutosNotasPagaliquotaipi: TFloatField;
+    qryProdutosNotasPagvaloripi: TFloatField;
+    qryProdutosNotasPagdesconto: TFloatField;
+    qryProdutosNotasPagprecounitario: TFloatField;
+    qryProdutosNotasPagquantidade: TFloatField;
+    qryProdutosNotasPagincidencia: TStringField;
+    qryProdutosNotasPagorigem: TIntegerField;
+    spcNotasPagProximo: TtecQuery;
+    spcNotasPagProximocodigo: TIntegerField;
+    qryEstoqueBloqueio: TtecQuery;
+    qryEstoqueBloqueioproduto: TLargeintField;
+    qryEstoqueBloqueiofilial: TIntegerField;
+    qryEstoqueBloqueioemestoque: TFloatField;
+    qryMovimentos: TtecQuery;
+    qryMovimentosnumero: TIntegerField;
+    qryMovimentosproduto: TLargeintField;
+    qryMovimentosfilial: TIntegerField;
+    qryMovimentostipomovimento: TStringField;
+    qryMovimentosquantidade: TFloatField;
+    qryMovimentosreferencia: TStringField;
+    qryMovimentosoperacao: TStringField;
+    qryMovimentosemestoque: TFloatField;
+    qryMovimentosreservado: TFloatField;
+    qryMovimentostransito: TFloatField;
+    qryMovimentosdemonstracao: TFloatField;
+    qryMovimentosconserto: TFloatField;
+    qryMovimentosfuturo: TFloatField;
+    qryMovimentosdanificada: TFloatField;
+    qryMovimentosfinanceiro: TFloatField;
+    qryMovimentosvalor: TFloatField;
+    qryMovimentosdata: TDateField;
+    qryMovimentostrfproduto: TLargeintField;
+    qryMovimentostrffilial: TIntegerField;
+    spcMovimentosProximo: TtecQuery;
+    spcMovimentosProximonumero: TIntegerField;
+    qryEstoqueBloqueiofuturo: TFloatField;
+    qryMovimentoscodigonota: TIntegerField;
+    qryFilialOrigem: TtecQuery;
+    qryFilialOrigemcnpj: TStringField;
+    qryFilialOrigeminscricaoestadual: TStringField;
+    qryMovimentoscliente: TIntegerField;
+    qryMovimentostipocliente: TStringField;
+    qryPedidosFiliaislinha: TStringField;
+    qryPedidosFiliaiscoluna: TStringField;
+    qryPedidosFiliaisvalorgrade1: TStringField;
+    qryPedidosFiliaisvalorgrade2: TStringField;
+    qryNotasPagsituacao: TStringField;
+    qryProdutosDadosFiscaiscomposto: TBooleanField;
+    qryProdutosNotasPagcomposto: TBooleanField;
+    qryProdutosNotasPagcodigofiscal: TIntegerField;
+    qryProdutosNotasPagnatureza: TIntegerField;
+    qryNotasPagcodigonatureza: TIntegerField;
+    qryDadosFiscaiscodigonatureza: TIntegerField;
+    qryProdutosDadosFiscaiscodigofiscal: TIntegerField;
+    qryProdutosDadosFiscaisnatureza: TIntegerField;
+    qryProdutosDadosFiscaisicmsbasecalculo: TFloatField;
+    qryProdutosDadosFiscaisicmsvalor: TFloatField;
+    qryProdutosDadosFiscaisipicst: TStringField;
+    qryProdutosDadosFiscaisipibasecalculo: TFloatField;
+    qryProdutosDadosFiscaisaliquotaipi: TFloatField;
+    qryProdutosDadosFiscaisvaloripi: TFloatField;
+    qryProdutosDadosFiscaiscofinscst: TStringField;
+    qryProdutosDadosFiscaiscofinsbasecalculo: TFloatField;
+    qryProdutosDadosFiscaiscofinsaliquota: TFloatField;
+    qryProdutosDadosFiscaiscofinsvalor: TFloatField;
+    qryProdutosDadosFiscaispiscst: TStringField;
+    qryProdutosDadosFiscaispisbasecalculo: TFloatField;
+    qryProdutosDadosFiscaispisaliquota: TFloatField;
+    qryProdutosDadosFiscaispisvalor: TFloatField;
+    qryProdutosDadosFiscaisvalordescontoitem: TFloatField;
+    qryProdutosDadosFiscaisdesconto: TFloatField;
+    qryProdutosNotasPagicmsbasecalculo: TFloatField;
+    qryProdutosNotasPagicmsvalor: TFloatField;
+    qryProdutosNotasPagipicst: TStringField;
+    qryProdutosNotasPagipibasecalculo: TFloatField;
+    qryProdutosNotasPagcofinscst: TStringField;
+    qryProdutosNotasPagcofinsbasecalculo: TFloatField;
+    qryProdutosNotasPagcofinsaliquota: TFloatField;
+    qryProdutosNotasPagcofinsvalor: TFloatField;
+    qryProdutosNotasPagpiscst: TStringField;
+    qryProdutosNotasPagpisbasecalculo: TFloatField;
+    qryProdutosNotasPagpisaliquota: TFloatField;
+    qryProdutosNotasPagpisvalor: TFloatField;
+    qryProdutosNotasPagvalordescontoitem: TFloatField;
+    qryNaturezasPadrao: TtecQuery;
+    qryNaturezasPadraodescricao: TStringField;
+    qryNaturezasPadraonatureza: TIntegerField;
+    qryNaturezasPadraocodigofiscal: TIntegerField;
+    qryNaturezasPadraodescricaonatureza: TStringField;
+    qryNaturezasPadraopiscst: TStringField;
+    qryNaturezasPadraocofinscst: TStringField;
+    qryNaturezasPadraoipicst: TStringField;
+    qryNaturezasPadraoicmscst: TStringField;
+    ZMonitor1: TZMonitor;
+    qryNotasPagmodelodocto: TStringField;
+    qryProdutosDadosFiscaiscsosn: TStringField;
+    qryProdutosNotasPagcsosn: TStringField;
+    qryProdutosNotasPagvalorreducaobase: TFloatField;
+    qryProdutosNotasPagpercentualreducaobase: TFloatField;
+    qryProdutosNotasPagacrescimo: TFloatField;
+    qryProdutosNotasPagfrete: TFloatField;
+    qryProdutosNotasPagseguro: TFloatField;
+    qryProdutosNotasPagdespesasacessorias: TFloatField;
+    qryProdutosNotasPagaliquotaicmsst: TFloatField;
+    qryProdutosNotasPagicmsbasecalculost: TFloatField;
+    qryProdutosNotasPagicmsvalorst: TFloatField;
+    qryProdutosNotasPagpcredsn: TFloatField;
+    qryProdutosNotasPagvcredicmssn: TFloatField;
+    qryProdutosNotasPagfatorsubstituicao: TFloatField;
+    qryProdutosNotasPagpredbcst: TFloatField;
+    qryProdutosNotasPagreducaobasest: TFloatField;
+    qryProdutosNotasPagvbcstret: TFloatField;
+    qryProdutosNotasPagvicmsstret: TFloatField;
+    qryProdutosNotasPagicmsisentas: TFloatField;
+    qryProdutosNotasPagicmsoutras: TFloatField;
+    qryProdutosNotasPagipioutras: TFloatField;
+    qryProdutosNotasPagipiisentas: TFloatField;
+    qryProdutosDadosFiscaisreducaobase: TFloatField;
+    qryProdutosDadosFiscaispercentualreducaobase: TFloatField;
+    qryProdutosDadosFiscaisfatorsubstituicao: TFloatField;
+    qryProdutosDadosFiscaisacrescimo: TFloatField;
+    qryProdutosDadosFiscaisfrete: TFloatField;
+    qryProdutosDadosFiscaisseguro: TFloatField;
+    qryProdutosDadosFiscaisdespesasacessorias: TFloatField;
+    qryProdutosDadosFiscaisaliquotaicmsst: TFloatField;
+    qryProdutosDadosFiscaisicmsbasecalculost: TFloatField;
+    qryProdutosDadosFiscaisicmsvalorst: TFloatField;
+    qryProdutosDadosFiscaisicmsoutras: TFloatField;
+    qryProdutosDadosFiscaisicmsisentas: TFloatField;
+    qryProdutosDadosFiscaispcredsn: TFloatField;
+    qryProdutosDadosFiscaisvcredicmssn: TFloatField;
+    qryProdutosDadosFiscaispredbcst: TFloatField;
+    qryProdutosDadosFiscaisreducaobasest: TFloatField;
+    qryProdutosDadosFiscaisvbcstret: TFloatField;
+    qryProdutosDadosFiscaisvicmsstret: TFloatField;
+    qryProdutosDadosFiscaisipioutras: TFloatField;
+    qryProdutosDadosFiscaisipiisentas: TFloatField;
+    qryProdutosNotasPagunidade: TStringField;
+    qryProdutosDadosFiscaisunidade: TStringField;
+    procedure qryPedidosFiliaisAfterScroll(DataSet: TDataSet);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure qryNotasPagNewRecord(DataSet: TDataSet);
+  private
+    FOnScrollLinhaColunaGrade: TNotifyEvent;
+    function GetColunadaGrade: String;
+    function GetLinhadaGrade: String;
+  protected
+    FNota: Integer;
+    FSerie: String;
+    FDataFinal: String;
+    FDataInicial: String;
+    procedure BloquearEstoque;
+    function  GetConsultaUsuarios: TtecQuery;
+    function  GetPedidoSelecionado: Boolean;
+    procedure IncluirMovimentos;
+    procedure IncluirNota;
+    procedure IncluirProdutos;
+    procedure InicializarTabelas;
+    procedure MontaIntervaloData;
+    procedure NovoMovimento(Produto: int64; Filial: Integer);
+    procedure SetDataFinal(const Value: String);
+    procedure SetDataInicial(const Value: String);
+    procedure SetUsuario(const Value: String);
+  public
+    procedure AbrirTabelas;
+    procedure CadastrarNotaEntrada(DF: Integer);
+    procedure ConfirmarTransferencia;
+    constructor create(AOwner: TComponent); override;
+    function  ExisteUsuarios(Campo, Codigo: String): Boolean;
+    procedure FecharTabelas;
+    function  GerarConsultaPedidosFiliais: Boolean;
+    procedure Selecionar;
+    procedure SelecionarRegistros;
+    property  ConsultaUsuarios: TtecQuery read GetConsultaUsuarios;
+    property  DataFinal: String read FDataFinal write SetDataFinal;
+    property  DataInicial: String read FDataInicial write SetDataInicial;
+    property  PedidoSelecionado: Boolean read GetPedidoSelecionado;
+    property  Usuario: String write SetUsuario;
+    property  OnScrollLinhaColunaGrade    : TNotifyEvent read FOnScrollLinhaColunaGrade write FOnScrollLinhaColunaGrade;
+    property LinhadaGrade: String read GetLinhadaGrade;
+    property ColunadaGrade: String read GetColunadaGrade;
+
+  end;
+
+//var
+//  dtmConfirmarNotasTransferenciaPorItem: TdtmConfirmarNotasTransferenciaPorItem;
+
+const
+   WhereBase = 17;
+   WherePeriodo  = WhereBase + 01;
+   WhereUsuario  = WhereBase + 06;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmConfirmarNotasTransferenciaPorItem }
+
+procedure TdtmConfirmarNotasTransferenciaPorItem.AbrirTabelas;
+begin
+  Abre(ctLOJTabelaConsultaUsuarios);
+end;
+
+procedure TdtmConfirmarNotasTransferenciaPorItem.BloquearEstoque;
+var
+  Pos: TBookmark;
+  WhereSQL: String;
+begin
+  Pos := qryProdutosNotasPag.GetBookmark;
+  qryProdutosNotasPag.DisableControls;
+  try
+    if qryProdutosNotasPag.RecordCount = 0 then
+      WhereSQL := 'false'
+    else begin
+      WhereSQL := '';
+      qryProdutosNotasPag.First;
+      while Not qryProdutosNotasPag.Eof do begin
+        WhereSQL := WhereSQL +
+        '((e.produto = ' + qryProdutosNotasPagproduto.AsString + ')and' +
+        '(e.filial = '   + qryProdutosNotasPagfilial.AsString  + '))or';
+        qryProdutosNotasPag.Next
+      end;
+      Delete(WhereSQL, Length(WhereSQL) - 1, 2);
+    end
+  finally
+    qryProdutosNotasPag.GotoBookmark(Pos);
+    qryProdutosNotasPag.FreeBookmark(Pos);
+    qryProdutosNotasPag.EnableControls;
+  end;
+  qryEstoqueBloqueio.Sql[06] := WhereSQL;
+  qryEstoqueBloqueio.Open;
+end;
+
+procedure TdtmConfirmarNotasTransferenciaPorItem.CadastrarNotaEntrada(DF: Integer);
+begin
+  ReFazConsulta(qryNotaEntregue,[0],[DF],false);
+  if (qryNotaEntreguequantidade.AsCurrency = 0) then begin
+
+    ReFazConsulta(qryNaturezasPadrao,[],[]);
+
+    ReFazConsulta(qryDadosFiscais,[0],[DF]);
+    ReFazConsulta(qryProdutosDadosFiscais,[0],[DF]);
+//    ReFazConsulta(qryCalculosDadosFiscais,[0],[DF]);
+
+    InicializarTabelas;
+    IncluirNota;
+    IncluirProdutos;
+    BloquearEstoque;
+    IncluirMovimentos;
+    Perpetrar([qryNotasPag, qryMovimentos, qryProdutosNotasPag]);
+  end
+end;
+
+procedure TdtmConfirmarNotasTransferenciaPorItem.ConfirmarTransferencia;
+var
+  Pos: TBookmark;
+  DF : Integer;
+  Lista: String;
+begin
+  if MensagemConfirmacao(ctCONFIRMARPRODUTOSTRANSFERENCIA) = smbOk then begin
+    Pos:= qryPedidosFiliais.GetBookmark;
+    qryPedidosFiliais.DisableControls;
+    try
+      Lista:= '';
+      qryPedidosFiliais.First;
+      while not qryPedidosFiliais.Eof do begin
+        if qryPedidosFiliaisselecionar.AsBoolean then
+          Lista:= Lista + qryPedidosFiliaiscodigo.AsString + ',';
+        qryPedidosFiliais.Next;
+      end;
+    finally
+      qryPedidosFiliais.GotoBookmark(Pos);
+      qryPedidosFiliais.FreeBookmark(Pos);
+      qryPedidosFiliais.EnableControls;
+    end;
+    if (Lista <> '') then begin
+      Delete(Lista,Length(Lista),1);
+      qryAtualizarPedidosFiliais.Sql[06]:= '(pf.codigo in (' + Lista + '))';
+      qryAtualizarPedidosFiliais.Open;
+      if (qryAtualizarPedidosFiliais.RecordCount > 0) then begin
+        qryAtualizarPedidosFiliais.First;
+        while not qryAtualizarPedidosFiliais.Eof do begin
+          qryAtualizarPedidosFiliais.Edit;
+          qryAtualizarPedidosFiliaissituacao.AsString:= 'D';
+          qryAtualizarPedidosFiliais.Post;
+          qryAtualizarPedidosFiliais.Next;
+        end;
+      end;
+      Perpetrar([qryAtualizarPedidosFiliais]);
+    end;
+
+    qryAtualizarPedidosFiliais.First;
+    DF := qryAtualizarPedidosFiliaisdadofiscal.AsInteger;
+    while not qryAtualizarPedidosFiliais.Eof do begin
+      if (DF <> qryAtualizarPedidosFiliaisdadofiscal.AsInteger) then
+        CadastrarNotaEntrada(DF);
+      DF := qryAtualizarPedidosFiliaisdadofiscal.AsInteger;
+      qryAtualizarPedidosFiliais.Next;
+    end;
+    CadastrarNotaEntrada(DF);
+
+    GerarConsultaPedidosFiliais;
+  end;
+end;
+
+constructor TdtmConfirmarNotasTransferenciaPorItem.create(AOwner: TComponent);
+begin
+  inherited;
+  qryProcurarUsuarios.Tag := ctTabelas;
+  qryConsultaUsuarios.Tag := ctLOJTabelaConsultaUsuarios;
+  qryProcurarUsuarios.Params[0].AsInteger := CodigoUsuario;
+  qryPedidosFiliaisqtderecebida.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+end;
+
+function TdtmConfirmarNotasTransferenciaPorItem.ExisteUsuarios(Campo, Codigo: String): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaUsuarios, campo, codigo);
+end;
+
+procedure TdtmConfirmarNotasTransferenciaPorItem.FecharTabelas;
+begin
+  Fecha(ctLOJTabelaConsultaUsuarios);
+end;
+
+function TdtmConfirmarNotasTransferenciaPorItem.GerarConsultaPedidosFiliais: Boolean;
+begin
+  if qryPedidosFiliais.Active then
+    qryPedidosFiliais.Close;
+  qryPedidosFiliais.Params[0].AsInteger:= FilialBase;
+  qryPedidosFiliais.Open;
+  Result:= qryPedidosFiliais.IsEmpty;
+  if Result then
+    qryPedidosFiliais.Close;
+  QtdeMarcados:= 0;
+end;
+
+function TdtmConfirmarNotasTransferenciaPorItem.GetColunadaGrade: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryPedidosFiliaislinha.AsString)
+end;
+
+function TdtmConfirmarNotasTransferenciaPorItem.GetConsultaUsuarios: TtecQuery;
+begin
+  Result:= qryConsultaUsuarios;
+end;
+
+function TdtmConfirmarNotasTransferenciaPorItem.GetLinhadaGrade: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryPedidosFiliaiscoluna.AsString)
+end;
+
+function TdtmConfirmarNotasTransferenciaPorItem.GetPedidoSelecionado: Boolean;
+begin
+  Result:= qryPedidosFiliaisselecionar.AsBoolean;
+end;
+
+{
+procedure TdtmConfirmarNotasTransferenciaPorItem.IncluirImpostos;
+begin
+  qryCalculosDadosFiscais.First;
+  while not qryCalculosDadosFiscais.Eof do begin
+    qryCalculosNotasPag.Insert;
+    qryCalculosNotasPagcodigonota.AsInteger:= qryNotasPagcodigo.AsInteger;
+    qryCalculosNotasPagnumero.AsInteger    := qryCalculosDadosFiscaisnumero.AsInteger;
+    qryCalculosNotasPagtipo.AsString       := qryCalculosDadosFiscaistipo.AsString;
+    qryCalculosNotasPagaliquota.AsFloat    := qryCalculosDadosFiscaisaliquota.AsFloat;
+    qryCalculosNotasPagbase.AsCurrency     := qryCalculosDadosFiscaisbase.AsCurrency;
+    qryCalculosNotasPagisentas.AsCurrency  := qryCalculosDadosFiscaisisentas.AsCurrency;
+    qryCalculosNotasPagoutras.AsCurrency   := qryCalculosDadosFiscaisoutras.AsCurrency;
+    qryCalculosNotasPagvalor.AsCurrency    := qryCalculosDadosFiscaisvalor.AsCurrency;
+    qryCalculosNotasPagcodigofiscal.AsInteger := qryCalculosNotasPagcodigofiscal.AsInteger;
+    qryCalculosNotasPagcodigonatureza.AsInteger := qryCalculosNotasPagcodigonatureza.AsInteger;
+    qryCalculosNotasPag.Post;
+    qryCalculosDadosFiscais.Next;
+  end;
+end;
+}
+
+procedure TdtmConfirmarNotasTransferenciaPorItem.IncluirMovimentos;
+var
+  SituacaoProduto : TtecComposicao;
+  Pos: TBookMark;
+  QtdeMovto: Currency;
+  MovExtra : Boolean;
+begin
+  Pos := qryProdutosNotasPag.GetBookmark;
+  qryProdutosNotasPag.DisableControls;
+  try
+    for SituacaoProduto := stNAOCOMPOSTO to stCOMPOSTO do
+    begin
+      qryProdutosNotasPag.First;
+      while not qryProdutosNotasPag.Eof do begin
+        if FiltrarComposto(qryProdutosNotasPagcomposto.AsBoolean ,SituacaoProduto) then
+        begin
+          QtdeMovto:= 0;
+          MovExtra:= False;
+          if qryEstoqueBloqueio.Locate('produto;filial', VarArrayOf([qryProdutosNotasPagproduto.AsString,
+                                                                     qryProdutosNotasPagfilial.AsInteger]) ,[]) then begin
+            while (QtdeMovto < qryProdutosNotasPagquantidade.AsCurrency) do begin
+              NovoMovimento(qryProdutosNotasPagproduto.AsLargeInt, qryProdutosNotasPagfilial.AsInteger);
+              qryMovimentosreferencia.AsString  := 'NF-' + IntToStr(qryNotasPagnumero.AsInteger) +
+                                                   ' S-' + qryNotasPagserie.AsString + ' TRANSFERENCIA';
+              qryMovimentoscodigonota.AsInteger := qryProdutosNotasPagcodigonota.AsInteger;
+              if (qryEstoqueBloqueiofuturo.AsCurrency > 0) then begin
+                if MovExtra then begin
+                  qryMovimentosquantidade.AsCurrency   := qryEstoqueBloqueiofuturo.AsCurrency;
+                  qryMovimentostipomovimento.AsString := 'FTR';
+                  qryMovimentosvalor.AsCurrency:= RoundTo((qryMovimentosquantidade.AsCurrency *
+                                                           qryProdutosNotasPagprecounitario.AsCurrency),-2);
+                end
+                else begin
+                  qryMovimentosquantidade.AsCurrency   := (qryProdutosNotasPagquantidade.AsCurrency -
+                                                          qryEstoqueBloqueiofuturo.AsCurrency);
+                  qryMovimentostipomovimento.AsString := 'STC';
+                  qryMovimentosvalor.AsCurrency:= RoundTo((qryMovimentosquantidade.AsCurrency *
+                                                           qryProdutosNotasPagprecounitario.AsCurrency),-2);
+                end;
+                QtdeMovto:= QtdeMovto + qryMovimentosquantidade.AsCurrency;
+              end
+              else begin
+                qryMovimentosquantidade.AsCurrency   := qryProdutosNotasPagquantidade.AsCurrency;
+                qryMovimentostipomovimento.AsString := 'STC';
+                qryMovimentosvalor.AsCurrency:= RoundTo((qryMovimentosquantidade.AsCurrency *
+                                                         qryProdutosNotasPagprecounitario.AsCurrency),-2);
+                QtdeMovto:= QtdeMovto + qryMovimentosquantidade.AsCurrency;
+              end;
+              qryMovimentos.Post;
+              MovExtra:= (QtdeMovto < qryProdutosNotasPagquantidade.AsCurrency);
+            end;
+          end;
+        end;
+        qryProdutosNotasPag.Next;
+      end;
+    end;
+    qryProdutosNotasPag.Filtered := false;
+  finally
+    qryProdutosNotasPag.GotoBookmark(Pos);
+    qryProdutosNotasPag.FreeBookmark(Pos);
+    qryProdutosNotasPag.EnableControls
+  end
+end;
+
+procedure TdtmConfirmarNotasTransferenciaPorItem.IncluirNota;
+  procedure SelecionarCodigoNaturezaNotasPag(descricao: String);
+  begin
+    if qryNaturezasPadrao.Locate('descricao',descricao,[]) then
+    begin
+      qryNotasPagcodigonatureza.asinteger := qryNaturezasPadraonatureza.AsInteger;
+      qryNotasPagnatureza.AsString       := qryNaturezasPadraodescricao.AsString;
+      qryNotasPagcodigofiscal.AsInteger   := qryNaturezasPadraocodigofiscal.AsInteger;
+
+      if HeUnidadeFederacao(qryNotasPagestado.AsString) then
+      begin
+        if qryNotasPagestado.AsString = EstadoFilialBase then
+           qryNotasPagcodigofiscal.AsInteger := 1000 + qryNotasPagcodigofiscal.AsInteger mod 1000
+        else
+           qryNotasPagcodigofiscal.AsInteger := 2000 + qryNotasPagcodigofiscal.AsInteger mod 1000;
+      end
+      else
+        qryNotasPagcodigofiscal.AsInteger := 3000 + qryNotasPagcodigofiscal.AsInteger mod 1000;
+    end
+    else
+      MensagemAviso(ctNATUREZAPADRAONAOVINCULADA);
+  end;
+begin
+  ReFazConsulta(qryFilialOrigem,[0],[qryDadosFiscaisfilial.AsInteger]);
+  qryNotasPag.Insert;
+  spcNotasPagProximo.Open;
+  qryNotasPagcodigo.AsInteger:= spcNotasPagProximocodigo.AsInteger;
+  spcNotasPagProximo.Close;
+
+  qryNotasPagfornecedor.AsInteger       := qryDadosFiscaisfilial.AsInteger;
+  qryNotasPagtipofornecedor.AsString    := 'L';
+  qryNotasPagserie.AsString             := qryDadosFiscaisserie.AsString;
+  qryNotasPagnumero.AsInteger           := qryDadosFiscaisnumeronota.AsInteger;
+  qryNotasPagfilial.AsInteger           := qryDadosFiscaiscliente.AsInteger;
+  qryNotasPagestado.AsString            := qryDadosFiscaisestadocfo.AsString;
+
+  SelecionarCodigoNaturezaNotasPag(noTRANSFERENCIAMERCADORIASENTRADAS);
+
+  {
+  if qryNotasPagestado.AsString = EstadoFilialBase then
+     qryNotasPagcodigofiscal.AsInteger := (1000 + ctCFOTRANSFERENCIA)
+  else if HeUnidadeFederacao(qryNotasPagestado.AsString) then
+     qryNotasPagcodigofiscal.AsInteger := (2000 + ctCFOTRANSFERENCIA)
+  else
+     qryNotasPagcodigofiscal.AsInteger := (3000 + ctCFOTRANSFERENCIA);
+  qryNotasPagnatureza.AsString          := qryDadosFiscaisnatureza.AsString;
+  qryNotasPagcodigonatureza.AsInteger   := qryDadosFiscaiscodigonatureza.AsInteger;
+  }
+
+  qryNotasPagemissao.AsDateTime         := qryDadosFiscaisdata.AsDateTime;
+  qryNotasPagdata.AsDateTime            := DataServidor;
+  qryNotasPagcnpj.AsString              := qryFilialOrigemcnpj.AsString;
+  qryNotasPaginscricaoestadual.AsString := qryFilialOrigeminscricaoestadual.AsString;
+  qryNotasPagvalornota.AsCurrency       := qryDadosFiscaisvalortotal.AsCurrency;
+  qryNotasPagsituacao.AsString := 'N';
+  qryNotasPag.Post;
+  qryFilialOrigem.Close;
+end;
+
+procedure TdtmConfirmarNotasTransferenciaPorItem.IncluirProdutos;
+begin
+  qryProdutosDadosFiscais.First;
+  while not qryProdutosDadosFiscais.Eof do begin
+    qryProdutosNotasPag.Insert;
+    qryProdutosNotasPagcodigonota.AsInteger     := qryNotasPagcodigo.AsInteger;
+    qryProdutosNotasPagnumero.AsInteger         := qryProdutosDadosFiscaisnumero.AsInteger;
+    qryProdutosNotasPagfilial.AsInteger         := FilialBase;
+    qryProdutosNotasPagproduto.AsLargeInt       := qryProdutosDadosFiscaisproduto.AsLargeInt;
+    qryProdutosNotasPagprecounitario.AsCurrency := qryProdutosDadosFiscaisprecovenda.AsCurrency;
+    qryProdutosNotasPagquantidade.ascurrency    := qryProdutosDadosFiscaisquantidade.Ascurrency;
+
+    qryProdutosNotasPagincidencia.AsString      := qryProdutosDadosFiscaisincidencia.AsString;
+    qryProdutosNotasPagcsosn.AsString      := qryProdutosDadosFiscaiscsosn.AsString;
+
+    qryProdutosNotasPagipicst.AsString          := qryProdutosDadosFiscaisipicst.AsString;
+    qryProdutosNotasPagcofinscst.AsString       := qryProdutosDadosFiscaiscofinscst.AsString;
+    qryProdutosNotasPagpiscst.AsString          := qryProdutosDadosFiscaispiscst.AsString;
+
+    qryProdutosNotasPagorigem.AsString          := qryProdutosDadosFiscaisorigem.AsString;
+
+    qryProdutosNotasPagaliquotaicms.AsFloat     := qryProdutosDadosFiscaisaliquotaicms.AsFloat;
+    qryProdutosNotasPagbaseicms.AsCurrency      := qryProdutosDadosFiscaisquantidade.Ascurrency * qryProdutosDadosFiscaisprecovenda.AsFloat;
+    qryProdutosNotasPagvaloricms.AsCurrency     := (qryProdutosNotasPagbaseicms.AsCurrency*qryProdutosNotasPagaliquotaicms.AsFloat)/100;
+    qryProdutosNotasPagicmsbasecalculo.AsCurrency := qryProdutosDadosFiscaisicmsbasecalculo.AsCurrency;
+    qryProdutosNotasPagicmsvalor.AsCurrency := qryProdutosDadosFiscaisicmsvalor.AsCurrency;
+
+{    qryProdutosNotasPagaliquotaipi.AsFloat      := 0;
+    qryProdutosNotasPagvaloripi.AsCurrency      := 0;
+    qryProdutosNotasPagdesconto.AsCurrency      := 0;}
+
+    qryProdutosNotasPagipibasecalculo.AsCurrency := qryProdutosDadosFiscaisipibasecalculo.AsCurrency;
+    qryProdutosNotasPagaliquotaipi.AsFloat      := qryProdutosDadosFiscaisaliquotaipi.AsCurrency;
+    qryProdutosNotasPagvaloripi.AsCurrency      := qryProdutosDadosFiscaisvaloripi.AsCurrency;
+
+    qryProdutosNotasPagcofinsbasecalculo.AsCurrency := qryProdutosDadosFiscaiscofinsbasecalculo.AsCurrency;
+    qryProdutosNotasPagcofinsaliquota.AsCurrency    := qryProdutosDadosFiscaiscofinsaliquota.AsCurrency;
+    qryProdutosNotasPagcofinsvalor.AsCurrency       := qryProdutosDadosFiscaiscofinsvalor.AsCurrency;
+
+    qryProdutosNotasPagPisbasecalculo.AsCurrency := qryProdutosDadosFiscaisPisbasecalculo.AsCurrency;
+    qryProdutosNotasPagPisaliquota.AsCurrency    := qryProdutosDadosFiscaisPisaliquota.AsCurrency;
+    qryProdutosNotasPagPisvalor.AsCurrency       := qryProdutosDadosFiscaisPisvalor.AsCurrency;
+
+    qryProdutosNotasPagdesconto.AsCurrency      := qryProdutosDadosFiscaisdesconto.AsCurrency;
+    qryProdutosNotasPagvalordescontoitem.AsCurrency  := qryProdutosDadosFiscaisvalordescontoitem.AsCurrency;
+
+    qryProdutosNotasPagcomposto.AsBoolean       := qryProdutosDadosFiscaiscomposto.AsBoolean;
+
+    qryProdutosNotasPagcodigofiscal.AsInteger   := qryNotasPagcodigofiscal.AsInteger;
+    qryProdutosNotasPagnatureza.AsInteger       := qryNotasPagcodigonatureza.AsInteger;
+
+    qryProdutosNotasPagvalorreducaobase.AsCurrency := qryProdutosDadosFiscaisreducaobase.AsCurrency;
+    qryProdutosNotasPagpercentualreducaobase.AsCurrency := qryProdutosDadosFiscaispercentualreducaobase.AsCurrency;
+    qryProdutosNotasPagacrescimo.AsCurrency :=  qryProdutosDadosFiscaisacrescimo.AsCurrency  ;
+    qryProdutosNotasPagfrete.AsCurrency :=  qryProdutosDadosFiscaisfrete.AsCurrency  ;
+    qryProdutosNotasPagseguro.AsCurrency := qryProdutosDadosFiscaisseguro.AsCurrency  ;
+    qryProdutosNotasPagdespesasacessorias.AsCurrency := qryProdutosDadosFiscaisdespesasacessorias.AsCurrency  ;
+    qryProdutosNotasPagaliquotaicmsst.AsCurrency := qryProdutosDadosFiscaisaliquotaicmsst.AsCurrency  ;
+    qryProdutosNotasPagicmsbasecalculost.AsCurrency := qryProdutosDadosFiscaisicmsbasecalculost.AsCurrency  ;
+    qryProdutosNotasPagicmsvalorst.AsCurrency := qryProdutosDadosFiscaisicmsvalorst.AsCurrency  ;
+    qryProdutosNotasPagpcredsn.AsCurrency := qryProdutosDadosFiscaispcredsn.AsCurrency  ;
+    qryProdutosNotasPagvcredicmssn.AsCurrency := qryProdutosDadosFiscaisvcredicmssn.AsCurrency  ;
+    qryProdutosNotasPagfatorsubstituicao.AsCurrency :=  qryProdutosDadosFiscaisfatorsubstituicao.AsCurrency ;
+    qryProdutosNotasPagpredbcst.AsCurrency := qryProdutosDadosFiscaispredbcst.AsCurrency  ;
+    qryProdutosNotasPagreducaobasest.AsCurrency := qryProdutosDadosFiscaisreducaobasest.AsCurrency  ;
+    qryProdutosNotasPagvbcstret.AsCurrency :=  qryProdutosDadosFiscaisvbcstret.AsCurrency ;
+    qryProdutosNotasPagvicmsstret.AsCurrency := qryProdutosDadosFiscaisvicmsstret.AsCurrency  ;
+    qryProdutosNotasPagicmsisentas.AsCurrency := qryProdutosDadosFiscaisicmsisentas.AsCurrency  ;
+    qryProdutosNotasPagicmsoutras.AsCurrency := qryProdutosDadosFiscaisicmsoutras.AsCurrency  ;
+    qryProdutosNotasPagipioutras.AsCurrency :=  qryProdutosDadosFiscaisipioutras.AsCurrency  ;
+    qryProdutosNotasPagipiisentas.AsCurrency :=  qryProdutosDadosFiscaisipiisentas.AsCurrency  ;
+    qryProdutosNotasPagunidade.AsString := qryProdutosDadosFiscaisunidade.AsString;
+
+    qryProdutosNotasPag.post;
+    qryProdutosDadosFiscais.Next;
+  end;
+end;
+
+
+
+
+procedure TdtmConfirmarNotasTransferenciaPorItem.InicializarTabelas;
+begin
+  if qryNotasPag.Active then
+    qryNotasPag.Close;
+  qryNotasPag.Open;
+
+  if qryProdutosNotasPag.Active then
+    qryProdutosNotasPag.Close;
+  qryProdutosNotasPag.Open;
+
+{
+  if qryCalculosNotasPag.Active then
+    qryCalculosNotasPag.Close;
+  qryCalculosNotasPag.Open;
+  }
+
+  if qryMovimentos.Active then
+    qryMovimentos.Close;
+  qryMovimentos.Open;
+end;
+
+procedure TdtmConfirmarNotasTransferenciaPorItem.MontaIntervaloData;
+const
+  Data_1: String = '(cast(pf.data as date) = ';
+  Data_2: String = '(cast(pf.data as date) between (';
+begin
+  if not DataEmBranco(FDataInicial) then begin
+    if DataEmBranco(FDataFinal) then
+         qryPedidosFiliais.Sql[WherePeriodo]:= Data_1 + '''' + FDataInicial + ''')'
+    else qryPedidosFiliais.Sql[WherePeriodo]:= Data_2 + '''' + FDataInicial + ''') and (''' + FDataFinal + '''))';
+  end
+  else begin
+    if not DataEmBranco(FDataFinal) then
+         qryPedidosFiliais.Sql[WherePeriodo]:= Data_1 + '''' + FDataFinal + ''')'
+    else qryPedidosFiliais.Sql[WherePeriodo]:= '';
+  end;
+end;
+
+procedure TdtmConfirmarNotasTransferenciaPorItem.NovoMovimento(Produto: int64; Filial: Integer);
+begin
+  qryMovimentos.Append;
+  spcMovimentosProximo.Open;
+  qryMovimentosnumero.AsInteger := spcMovimentosProximonumero.AsInteger;
+  spcMovimentosProximo.Close;
+  qryMovimentosproduto.AsLargeInt   := Produto;
+  qryMovimentosfilial.AsInteger     := Filial;
+  qryMovimentoscliente.AsInteger    := Filial;
+  qryMovimentostipocliente.AsString := 'L';
+end;
+
+procedure TdtmConfirmarNotasTransferenciaPorItem.Selecionar;
+begin
+  ReFazConsulta(qryProcurarUsuarios,[0],[qryConsultaUsuarioscodigo.AsInteger]);
+end;
+
+procedure TdtmConfirmarNotasTransferenciaPorItem.SelecionarRegistros;
+begin
+  MarcarRegistros(qryPedidosFiliais,
+                  qryPedidosFiliaisselecionar,
+                  qryPedidosFiliaissemvalor, False,False);
+end;
+
+procedure TdtmConfirmarNotasTransferenciaPorItem.SetDataFinal(const Value: String);
+begin
+  if FDataFinal <> Value then
+    FDataFinal:= Value;
+  MontaIntervaloData;
+end;
+
+procedure TdtmConfirmarNotasTransferenciaPorItem.SetDataInicial(const Value: String);
+begin
+  if  FDataInicial <> Value then
+    FDataInicial:= Value;
+  MontaIntervaloData;
+end;
+
+procedure TdtmConfirmarNotasTransferenciaPorItem.SetUsuario(const Value: String);
+begin
+  qryPedidosFiliais.Sql[WhereUsuario]:=
+  'and (c.grupo in (Select us.grupo From usuariossetores us Where (us.usuario = ' + Value + ')))';
+end;
+
+procedure TdtmConfirmarNotasTransferenciaPorItem.qryPedidosFiliaisAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if Assigned(FOnScrollLinhaColunaGrade) then
+  FOnScrollLinhaColunaGrade(DataSet)
+end;
+
+procedure TdtmConfirmarNotasTransferenciaPorItem.ZMonitor1MonitorEvent(Sql,
+  Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:\log100709.sql') then
+    Listar.loadfromfile('c:\log100709.sql');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\log100709.sql');
+  listar.free;
+end;
+
+procedure TdtmConfirmarNotasTransferenciaPorItem.qryNotasPagNewRecord(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryNotasPagmodelodocto.AsString := ModeloDoctoFiscal;
+end;
+
+end.

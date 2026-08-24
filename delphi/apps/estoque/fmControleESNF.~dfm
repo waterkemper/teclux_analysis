@@ -1,0 +1,378 @@
+inherited frmControleESNF: TfrmControleESNF
+  Left = 694
+  Top = 166
+  Caption = 'Mercadorias em Conserto e Demonstra'#231#227'o'
+  ClientHeight = 377
+  ClientWidth = 822
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  FormStyle = fsMDIChild
+  OldCreateOrder = False
+  Visible = True
+  PixelsPerInch = 96
+  TextHeight = 13
+  inherited pnlBarra: TToolBar
+    Width = 822
+  end
+  inherited pnlFundoJanela: TPanel
+    Top = 141
+    Width = 822
+    Height = 0
+  end
+  object gbxNaturezas: TGroupBox
+    Left = 0
+    Top = 141
+    Width = 822
+    Height = 236
+    Align = alBottom
+    Caption = ' NATUREZAS DE OPERA'#199#195'O '
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -11
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 7
+    inline fraSelecaoAleatoriaNaturezas: TfraSelecaoAleatoria
+      Left = 2
+      Top = 16
+      Width = 818
+      Height = 218
+      HorzScrollBar.Range = 26
+      Align = alClient
+      AutoScroll = False
+      TabOrder = 0
+      inherited Splitter1: TSplitter
+        Left = 817
+        Height = 203
+      end
+      inherited dbgSelecaoAleatoria: TtecDBGrid
+        Width = 817
+        Height = 203
+        Font.Height = -12
+        Font.Name = 'Helvetica'
+        Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgCancelOnExit]
+        ReadOnly = True
+        DefaultRowHeight = 19
+      end
+      inherited pnlLabels: TPanel
+        Left = 820
+        Width = 1
+        Height = 203
+        Visible = False
+        inherited sbnProcura: TSpeedButton
+          Hint = 'CTRL + F9 - Procurar setor'
+        end
+        inherited sbnExcluir: TSpeedButton
+          Hint = 'Excluir setor'
+        end
+        inherited sbnExcluirTodos: TSpeedButton
+          Hint = 'Excluir todos os setores'
+        end
+        inherited sbnIncluirItem: TSpeedButton
+          Hint = 'Incluir setor'
+          OnClick = nil
+        end
+      end
+      inherited pnlAbaixo: TPanel
+        Top = 203
+        Width = 818
+        Font.Pitch = fpVariable
+        inherited lblOrientacao: TLabel
+          Font.Pitch = fpVariable
+        end
+        inherited pnlAbaixoDireita: TPanel
+          Left = 787
+          Font.Pitch = fpVariable
+        end
+      end
+      inherited qrySelecaoAleatoria: TtecQuery
+        Options = [doAutoFillDefs]
+        AfterOpen = fraSelecaoAleatoriaClientesqrySelecaoAleatoriaAfterOpen
+        Macros = <
+          item
+            DataType = ftUnknown
+            Name = 'SQLListas'
+            ParamType = ptUnknown
+          end>
+        Sql.Strings = (
+          'select n.codigo as codigonatureza,'
+          '       n.descricao as descricaonatureza,'
+          '       n.codigofiscal,'
+          '/*       cf.descricao as descricaocodigofiscal,*/'
+          '       n.tipo'
+          '       '
+          'from naturezas n'
+          '     join codigosfiscais cf'
+          '     on n.codigofiscal = cf.codigo'
+          'where true'
+          '%SQLListas'
+          'order by n.tipo, n.codigofiscal')
+      end
+    end
+  end
+  inline fraIntervaloDatas1: TfraIntervaloDatas
+    Left = 6
+    Top = 50
+    Width = 162
+    Height = 36
+    Constraints.MaxHeight = 36
+    Constraints.MaxWidth = 162
+    Constraints.MinHeight = 36
+    Constraints.MinWidth = 162
+    TabOrder = 2
+  end
+  object rgpRelatorios: TtecDBRadioGroup
+    Left = 182
+    Top = 42
+    Width = 115
+    Height = 95
+    Caption = ' RELAT'#211'RIO '
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -9
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 3
+    TabStop = False
+    object rbnMercadoriaparaconserto: TtecRadioButton
+      Left = 6
+      Top = 14
+      Width = 105
+      Height = 17
+      Caption = 'Conserto'
+      Checked = True
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      TabStop = True
+      OnClick = rbnMercadoriaparaconsertoClick
+    end
+    object rbnMercadoriaemDemonstracao: TtecRadioButton
+      Left = 6
+      Top = 33
+      Width = 105
+      Height = 18
+      Caption = 'Demonstra'#231#227'o'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+      OnClick = rbnMercadoriaemDemonstracaoClick
+    end
+    object rbnMercadoriaTroca: TtecRadioButton
+      Left = 6
+      Top = 52
+      Width = 105
+      Height = 18
+      Caption = 'Troca'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 2
+      OnClick = rbnMercadoriaTrocaClick
+    end
+    object rbnConsignacao: TtecRadioButton
+      Left = 6
+      Top = 72
+      Width = 105
+      Height = 18
+      Caption = 'Consigna'#231#227'o'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 3
+      OnClick = rbnConsignacaoClick
+    end
+  end
+  object rgpOrigem: TtecDBRadioGroup
+    Left = 314
+    Top = 50
+    Width = 100
+    Height = 57
+    Caption = ' ORIGEM '
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -9
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 4
+    TabStop = False
+    object rbnClienteouFornecedor: TtecRadioButton
+      Left = 6
+      Top = 11
+      Width = 85
+      Height = 21
+      Caption = 'Cliente'
+      Checked = True
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      TabStop = True
+      OnClick = rbnClienteouFornecedorClick
+    end
+    object rbnEmpresa: TtecRadioButton
+      Left = 6
+      Top = 32
+      Width = 85
+      Height = 17
+      Caption = 'Empresa'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+      OnClick = rbnEmpresaClick
+    end
+  end
+  object rgpAgrupamento: TtecDBRadioGroup
+    Left = 415
+    Top = 50
+    Width = 105
+    Height = 57
+    Caption = ' AGRUPAMENTO '
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -9
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 5
+    TabStop = False
+    object rbnAGrupamentoCliente: TtecRadioButton
+      Left = 6
+      Top = 14
+      Width = 95
+      Height = 17
+      Caption = 'Cliente'
+      Checked = True
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      TabStop = True
+      OnClick = rbnAGrupamentoClienteClick
+    end
+    object rbnAGrupamentoFornecedor: TtecRadioButton
+      Left = 6
+      Top = 32
+      Width = 95
+      Height = 17
+      Caption = 'Fornecedor'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+      OnClick = rbnAGrupamentoFornecedorClick
+    end
+  end
+  object gbxSituacaoSaldo: TGroupBox
+    Left = 532
+    Top = 50
+    Width = 188
+    Height = 57
+    Caption = ' SITUA'#199#195'O DO SALDO '
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -9
+    Font.Name = 'Arial'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 6
+    object ckbSALDO_A_DEVOLVER_PARA_O_CLIENTE: TCheckBox
+      Left = 6
+      Top = 11
+      Width = 175
+      Height = 17
+      Caption = 'A devolver para o cliente'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Arial'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+    end
+    object ckbSALDO_RETORNADO_DO_CONSERTO: TCheckBox
+      Left = 6
+      Top = 25
+      Width = 175
+      Height = 17
+      Caption = 'Retornado do conserto'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Arial'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+    end
+    object ckbSALDO_DISPONIVEL_NA_EMPRESA: TCheckBox
+      Left = 6
+      Top = 38
+      Width = 175
+      Height = 17
+      Caption = 'Dispon'#237'vel na empresa'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Arial'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 2
+    end
+  end
+  object ecvValida: TtecEditionControlValidation
+    EditionControl = <
+      item
+        Control = fraIntervaloDatas1.edtDataInicial
+      end
+      item
+      end>
+    Left = 528
+  end
+end

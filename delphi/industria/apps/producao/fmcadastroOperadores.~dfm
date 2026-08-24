@@ -1,0 +1,557 @@
+inherited frmCadastrooperadores: TfrmCadastrooperadores
+  Left = 696
+  Top = 233
+  ActiveControl = dbgOperacoesdeProducao
+  Caption = 'Cadastro de Operadores'
+  ClientHeight = 363
+  ClientWidth = 947
+  FormStyle = fsMDIChild
+  Visible = True
+  PixelsPerInch = 96
+  TextHeight = 16
+  inherited pnlBarra: TPanel
+    Width = 553
+    Height = 42
+  end
+  inherited pnlTopMenu: TPanel
+    Width = 947
+    TabOrder = 2
+    inherited tblBarra: TToolBar
+      Width = 722
+      inherited sbnAjuda: TSpeedButton
+        Action = actHabilitarAbas
+      end
+    end
+    inherited tblBarraCadastro: TToolBar
+      inherited sbnIncluir: TSpeedButton
+        Visible = False
+      end
+    end
+  end
+  object pnlFundoJanela: TPanel
+    Left = 0
+    Top = 45
+    Width = 947
+    Height = 318
+    Align = alClient
+    BevelOuter = bvNone
+    TabOrder = 1
+    object gbxUsuario: TGroupBox
+      Left = 0
+      Top = 0
+      Width = 947
+      Height = 318
+      Align = alClient
+      TabOrder = 0
+      object sbnIncluirInstrucaoTrabalho: TSpeedButton
+        Left = 921
+        Top = 127
+        Width = 21
+        Height = 21
+        Hint = 'Incluir Nova Instru'#231#227'o de trabalho'
+        Flat = True
+        Glyph.Data = {
+          36060000424D3606000000000000360000002800000020000000100000000100
+          18000000000000060000120B0000120B00000000000000000000C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+          C3C3C3C3C3C37F7F7F7F7F7F7F7F7F8080808080807F7F7F7F7F7F7F7F7F7F7F
+          7F808080C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3FFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3
+          C3C3C30000000000000000000000000000000000000000000000000000000000
+          00808080C3C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7F7F7F7F7F7F7F7F7F7F7F
+          7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3
+          C3C3C3000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          007F7F7FC3C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3
+          C3C3C3000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          007F7F7FC3C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3
+          C3C3C3000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          007F7F7FC3C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3
+          C3C3C3000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          007F7F7FC3C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3
+          C3C3C3000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          00808080C3C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3
+          C3C3C3000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          00C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3
+          C3C3C3C3C3FFFFFFFFFFFFFFFFFF7F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3
+          C3C3C3000000FFFFFFFFFFFFFFFFFFFFFFFF0000000000000000000000000000
+          00C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3
+          C3C37F7F7F7F7F7F7F7F7F7F7F7F7F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3
+          C3C3C3000000FFFFFFFFFFFFFFFFFFFFFFFF000000FFFFFFFFFFFF000000C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3
+          C3C37F7F7FFFFFFFC3C3C37F7F7FC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+          C3C3C3000000FFFFFFFFFFFFFFFFFFFFFFFF000000FFFFFF000000C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3
+          C3C37F7F7FFFFFFF7F7F7FC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+          C3C3C3000000FFFFFFFFFFFFFFFFFFFFFFFF000000000000C3C3C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFFFFFFFFFFFFFFFF
+          FFFF7F7F7F7F7F7FC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+          C3C3C3000000000000000000000000000000000000C3C3C3C3C3C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7F7F7F7F7F7F7F7F7F7F7F
+          7F7F7F7F7FC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3}
+        NumGlyphs = 2
+        OnClick = sbnIncluirInstrucaoTrabalhoClick
+      end
+      object sbnExcluirInstrucaoTrabalho: TSpeedButton
+        Left = 921
+        Top = 149
+        Width = 21
+        Height = 21
+        Hint = 'Excluir Instru'#231#227'o de trabalho'
+        Flat = True
+        Glyph.Data = {
+          36060000424D3606000000000000360000002800000020000000100000000100
+          18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          A0A0A00000FF0000FF000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDC0000FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FFFFFFFFF
+          FFFFDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFF808080DCDCDCDCDCDCDCDCDC
+          0000FF0000FF0000FF000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DC0000000000FFDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7FFF
+          FFFFDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF808080DCDCDCDCDCDCDCDCDCDCDCDC
+          0000FF0000FF0000FF0000FF000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC0000
+          000000FF808080DCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7FFF
+          FFFFFFFFFFDCDCDCDCDCDCFFFFFF808080808080DCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC0000FF0000FF0000FF0000FF000000DCDCDCDCDCDCDCDCDC0000000000
+          FF808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F
+          7F7FFFFFFFDCDCDCFFFFFF808080808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDC0000FF0000FF0000FF000000DCDCDCDCDCDC0000000000FF0000
+          FF808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F
+          7F7FFFFFFFFFFFFF808080808080808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDC0000FF0000FF0000FF0000000000000000FF0000FF8080
+          80DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F
+          7F7F7F7F7F808080808080808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDC0000FF0000FF0000FF0000FF0000FF808080DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F80
+          80807F7F7F808080808080808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDC0000000000FF0000FF0000FF0000FFDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F
+          7F7F7F7F7F7F7F7F808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDC0000000000000000FF0000FF0000FF000000DCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFF8080808080807F
+          7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC0000000000FF0000FF0000FF0000FF0000FF0000FF000000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFF80808080808080808080
+          80807F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC0000FF
+          0000FF0000FF0000FF0000FF0000FF808080DCDCDC7F7F7F0000FF000000DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF808080808080808080808080808080DC
+          DCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDC0000FF
+          0000FF0000FF0000FF0000FF808080DCDCDCDCDCDCDCDCDC8080800000FF0000
+          00DCDCDCDCDCDCDCDCDCDCDCDC808080808080808080808080808080DCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCA0A0A0
+          0000FF0000FF808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC0000
+          FF0000FF000000DCDCDCDCDCDC808080808080808080808080DCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+        NumGlyphs = 2
+        OnClick = sbnExcluirInstrucaoTrabalhoClick
+      end
+      object gbxCodigo: TGroupBox
+        Left = 10
+        Top = 14
+        Width = 70
+        Height = 36
+        Caption = ' C'#211'DIGO '
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+      end
+      object gbxNomeCompleto: TGroupBox
+        Left = 88
+        Top = 14
+        Width = 410
+        Height = 36
+        Caption = ' NOME COMPLETO '
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 1
+        object edtNome: TtecDBText
+          Left = 2
+          Top = 10
+          Width = 405
+          Height = 23
+          TabStop = False
+          Color = clBtnFace
+          DataField = 'nome'
+          DataSource = dtmCadastroOperadores.dsrUsuarios
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          MaxLength = 7
+          ParentFont = False
+          ReadOnly = True
+          TabOrder = 0
+          Alignment = taLeftJustify
+        end
+      end
+      object gbxSalarioHora: TGroupBox
+        Left = 89
+        Top = 55
+        Width = 90
+        Height = 36
+        Caption = ' SAL'#193'RIO-HORA '
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 2
+        object edtSalarioHora: TDBEditNumero
+          Left = 2
+          Top = 10
+          Width = 85
+          Height = 23
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          MaxLength = -1
+          ParentFont = False
+          TabOrder = 0
+          Mascara = True
+          Alignment = taLeftJustify
+          TipoMascara = tmGERAL
+          NrDecimal = 4
+          Decimais = True
+          Negativo = False
+          Tamanho = 9
+          DataField = 'salariohora'
+          DataSource = dtmCadastroOperadores.dsrUsuarios
+        end
+      end
+      object gbxAnuenio: TGroupBox
+        Left = 189
+        Top = 55
+        Width = 90
+        Height = 36
+        Caption = ' ANU'#202'NIO '
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 3
+        object edtAnuenio: TDBEditNumero
+          Left = 2
+          Top = 10
+          Width = 85
+          Height = 23
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          MaxLength = -1
+          ParentFont = False
+          TabOrder = 0
+          Mascara = True
+          Alignment = taLeftJustify
+          TipoMascara = tmGERAL
+          NrDecimal = 4
+          Decimais = True
+          Negativo = False
+          Tamanho = 9
+          DataField = 'anuenio'
+          DataSource = dtmCadastroOperadores.dsrUsuarios
+        end
+      end
+      object gbxTurno: TGroupBox
+        Left = 288
+        Top = 55
+        Width = 211
+        Height = 36
+        Caption = ' TURNO '
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 4
+        inline fraConsultaTurno: TfraConsultaCodigo
+          Left = 2
+          Top = 10
+          Width = 206
+          Height = 23
+          HorzScrollBar.Range = 206
+          VertScrollBar.Range = 23
+          AutoScroll = False
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          inherited sbnProcura: TSpeedButton
+            Left = 24
+          end
+          inherited dtxDescricao: TtecDBText
+            Left = 48
+            Width = 158
+            DataField = 'descricao'
+            DataSource = fraConsultaTurno.dsrProcuraTurnos
+          end
+          inherited edfCodigo: TtecDBFindLookup
+            Width = 25
+            DataField = 'turno'
+            DataSource = dtmCadastroOperadores.dsrUsuarios
+            MaxLength = 3
+            LookupField = 'codigo'
+            LookupSource = fraConsultaTurno.dsrProcuraTurnos
+            LookupQueryParameter = 'codigo'
+            Parameter = ' '
+            ActiveSetControls = False
+            DenyInsert = True
+            NoSetControls = <>
+            SetControls = <>
+            LookupParameter = 'codigo'
+          end
+          inherited qryProcuraTurnos: TtecQuery
+            inherited qryProcuraTurnoscodigo: TIntegerField
+              DisplayFormat = '0'
+            end
+          end
+        end
+      end
+      object gbxOperacoesProducao: TGroupBox
+        Left = 2
+        Top = 98
+        Width = 914
+        Height = 227
+        Caption = ' INSTRU'#199#213'ES DE TRABALHO EM QUE EST'#193' HABILITADO '
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -11
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 5
+        object dbgOperacoesdeProducao: TtecDBGrid
+          Left = 2
+          Top = 16
+          Width = 910
+          Height = 209
+          Align = alClient
+          DataSource = dtmCadastroOperadores.dsrUsuariosInstrucoesTrabalho
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          TitleFont.Charset = DEFAULT_CHARSET
+          TitleFont.Color = clBlack
+          TitleFont.Height = -9
+          TitleFont.Name = 'helvetica'
+          TitleFont.Pitch = fpVariable
+          TitleFont.Style = []
+          OnDblClick = dbgOperacoesdeProducaoDblClick
+          OnKeyDown = dbgOperacoesdeProducaoKeyDown
+          RowWrap = 60
+          Large = False
+          DoubleRowColor = False
+          TitleMinHeight = 100
+          CellHeights = 100
+          StrippedColor = 16054260
+          CanDelete = True
+          CanNotInsertFromGrid = False
+          PostOnEnter = False
+          PostOnSetUpDown = False
+          DenySort = False
+          DefaultRowHeight = 19
+          ExibirNumerodaLinha = False
+          NaoAtribuirDadosaTabelaaoDigitar = False
+          ShowWhenFieldInvisible = False
+          CanClickWhenEditing = False
+          Columns = <
+            item
+              Expanded = False
+              FieldName = 'instrucao'
+              Title.Alignment = taCenter
+              Title.Caption = 'INSTRU'#199#195'O'
+              Width = 80
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'descricaoinstrucao'
+              ReadOnly = True
+              Title.Alignment = taCenter
+              Title.Caption = 'DESCRI'#199#195'O'
+              Width = 285
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'inativo'
+              ReadOnly = True
+              Title.Alignment = taCenter
+              Title.Caption = 'INATIVO'
+              Width = 60
+              Visible = True
+            end
+            item
+              Alignment = taCenter
+              Expanded = False
+              FieldName = 'nivelconhecimento'
+              Title.Alignment = taCenter
+              Title.Caption = 'N'#205'VEL'
+              Width = 34
+              Visible = True
+            end
+            item
+              Alignment = taCenter
+              Expanded = False
+              FieldName = 'descricaonivelconhecimento'
+              Title.Alignment = taCenter
+              Title.Caption = 'DESCRI'#199#195'O'
+              Width = 154
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'habilitadosetup'
+              Title.Alignment = taCenter
+              Title.Caption = 'SET-UP'
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'datainicialtreinamento'
+              Title.Alignment = taCenter
+              Title.Caption = 'IN'#205'CIO'
+              Width = 60
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'datafinaltreinamento'
+              Title.Alignment = taCenter
+              Title.Caption = 'T'#201'RMINO'
+              Width = 60
+              Visible = True
+            end
+            item
+              Alignment = taCenter
+              Expanded = False
+              FieldName = 'ultimaatividade'
+              ReadOnly = True
+              Title.Alignment = taCenter
+              Title.Caption = #218'LTIMA ATIVIDADE'
+              Width = 90
+              Visible = True
+            end>
+        end
+      end
+      object edfCodigoUsuario: TtecDbEditFind
+        Left = 12
+        Top = 24
+        Width = 65
+        Height = 23
+        Alignment = taLeftJustify
+        DataField = 'codigo'
+        DataSource = dtmCadastroOperadores.dsrUsuarios
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        Group = 'CadastroUsuario'
+        MaxLength = 6
+        Maximo = 0
+        Minimo = 37353
+        Adicional = 0
+        Opcional = True
+        OnMessage = edfCodigoUsuarioMessage
+        ParentFont = False
+        TabOrder = 6
+        PermitirZero = False
+        PermitirNulo = False
+        Operacao = opATRIBUICAO
+        Parameter = 'codigo'
+        ActiveSetControls = True
+        DenyInsert = True
+        NoSetControls = <
+          item
+            Control = pnlBarra
+          end>
+        SetControls = <>
+      end
+      object dtxInativo: TtecDBText
+        Left = 503
+        Top = 22
+        Width = 121
+        Height = 24
+        TabStop = False
+        BevelInner = bvNone
+        BevelOuter = bvNone
+        BorderStyle = bsNone
+        Color = clBtnFace
+        DataField = 'inativo'
+        DataSource = dtmCadastroOperadores.dsrUsuarios
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clRed
+        Font.Height = -18
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = [fsBold]
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 7
+        Alignment = taCenter
+      end
+    end
+  end
+  object aclHabilitar: TActionList
+    Left = 528
+    Top = 8
+    object actHabilitarAbas: TAction
+    end
+  end
+end

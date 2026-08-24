@@ -1,0 +1,765 @@
+unit fmcadastroenderecos;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls,
+  DBCtrls, Mask, ComCtrls, ExtCtrls, Buttons, {Qete,} DB,
+  //Biblio
+  ctconstantes,
+  //Terceiros
+  ZQuery,
+  //componentes
+  cpdbfindcontrols, cpcep, cpnumero, cpquery, cptexto, cpdbtext, cppagecontrol,
+  cpdbradiogroup,
+  //repositorio
+  dmconsultaenderecos, fmcadastropadrao, fmconsultaporcampo, fmconsultabasica,
+  //Projeto
+  dmcadastroenderecos, fmconversaoruas, fmconversaocidades, frtelefone,
+  ZPgSqlQuery, ToolWin, cpdbdata, Grids, AdvObj, BaseGrid, AdvGrid,
+  DBAdvGrid, frmctrllink, AdvDBLookupComboBox, windows;
+
+type
+  TfrmCadastroEnderecos = class(TfrmCadastroPadrao)
+    pgcEnderecos: TtecPageControl;
+    tstEstados: TTabSheet;
+    edtEstadosNome: TDBEditTexto;
+    edtEstadosPontos: TDBEditNumero;
+    tstCidades: TTabSheet;
+    edtCidadesNome: TDBEditTexto;
+    edtCidadePontos: TDBEditNumero;
+    edtCidadesCEP: TDBEditCep;
+    tstBairros: TTabSheet;
+    edtNomeBairro: TDBEditTexto;
+    edtPontosBairro: TDBEditNumero;
+    edtCEPBairro: TDBEditCep;
+    tstRuas: TTabSheet;
+    edtNomeRua: TDBEditTexto;
+    edtNumeroRuaDeOnde: TDBEditTexto;
+    edtCEPRua: TDBEditCep;
+    tstRegioes: TTabSheet;
+    edtNomeRegiao: TDBEditTexto;
+    edtPontosRegiao: TDBEditNumero;
+    edtNumeroRuaAteOnde: TDBEditTexto;
+    edtTipoRua: TDBEditTexto;
+    dtxRegiaoNomeBairros: TtecDBText;
+    sbnProcurarRegioesBairros: TSpeedButton;
+    edtCidadeNomeRuas: TtecDBText;
+    edtBairroNomeRuas: TtecDBText;
+    edfEstadosCodigo: TtecDbEditFind;
+    flkCidadesEstado: TtecDBFindLookup;
+    edfCidadesCodigo: TtecDbEditFind;
+    edfBairrosCodigo: TtecDbEditFind;
+    flkBairrosEstado: TtecDBFindLookup;
+    flkBairrosCidade: TtecDBFindLookup;
+    flkBairrosRegiao: TtecDBFindLookup;
+    edfRuasCodigo: TtecDbEditFind;
+    flkRuasBairro: TtecDBFindLookup;
+    flkRuasCidade: TtecDBFindLookup;
+    flkRuasEstado: TtecDBFindLookup;
+    edfRegioesCodigo: TtecDbEditFind;
+    dtxCidadeNomeBairros: TtecDBText;
+    sbnProcurarEstadosBairros: TSpeedButton;
+    sbnProcurarCidadesBairros: TSpeedButton;
+    sbnProcurarEstadosRuas: TSpeedButton;
+    sbnProcurarCidadesRuas: TSpeedButton;
+    sbnProcurarBairrosRuas: TSpeedButton;
+    sbnProcurarEstadosCidades: TSpeedButton;
+    rgpLadoRua: TtecDBRadioGroup;
+    rbnPar: TtecRadioButton;
+    rbnImpar: TtecRadioButton;
+    rbnNenhum: TtecRadioButton;
+    fraFonePrestadora: TfraTelefone;
+    flkBairrosFrete: TtecDBFindLookup;
+    sbnProcurarBairrosFretes: TSpeedButton;
+    dtxDescricaoFreteBairros: TtecDBText;
+    flkRegioesFrete: TtecDBFindLookup;
+    sbnProcurarRegioesFrete: TSpeedButton;
+    dtxDescricaoFreteRegioes: TtecDBText;
+    gbxCodigoRegiao: TGroupBox;
+    gbxFreteRegiao: TGroupBox;
+    gbxPontosRegiao: TGroupBox;
+    gbxNomeRegiao: TGroupBox;
+    gbxSiglaUF: TGroupBox;
+    gbxUFCidade: TGroupBox;
+    gbxCidadeBairro: TGroupBox;
+    gbxCodigoRua: TGroupBox;
+    gbxNomeEstado: TGroupBox;
+    gbxPontosEstado: TGroupBox;
+    gbxNomeCidade: TGroupBox;
+    gbxPontosCidade: TGroupBox;
+    gbxCEPCidade: TGroupBox;
+    gbxCodCidade: TGroupBox;
+    gbxCodBairro: TGroupBox;
+    gbxNomeBairro: TGroupBox;
+    gbxRegiaoBairro: TGroupBox;
+    gbxCEPBairro: TGroupBox;
+    gbxPontosBairro: TGroupBox;
+    gbxFreteBairro: TGroupBox;
+    gbxUFBairro: TGroupBox;
+    gbxEstadoRua: TGroupBox;
+    gbxBairroRua: TGroupBox;
+    gbxDoNumero: TGroupBox;
+    gbxCEPRua: TGroupBox;
+    gbxAoNumero: TGroupBox;
+    gbxTipo: TGroupBox;
+    gbxCidadeRua: TGroupBox;
+    gbxNomeRua: TGroupBox;
+    gbxCodigoIBGE: TGroupBox;
+    edtCodigoIBGE: TDBEditNumero;
+    gbxIBGECidade: TGroupBox;
+    edtNumeroIBGE: TDBEditNumeroIBGE;
+    gbxDIMOB: TGroupBox;
+    edtNumeroDIMOB: TDBEditNumero;
+    gbxRegiaoCidade: TGroupBox;
+    sbnProcurarRegioesCidade: TSpeedButton;
+    flkCidadesRegiao: TtecDBFindLookup;
+    dtxRegiaoNomeCidades: TtecDBText;
+    gbxFundoPobreza: TGroupBox;
+    edtPercFCP: TDBEditNumero;
+    ckbresponsaveldifal: TDBCheckBox;
+    ckbBaseDupla: TDBCheckBox;
+    gbxDIFAL: TGroupBox;
+    stxFundoDe: TStaticText;
+    stxCombate: TStaticText;
+    edtdatainiciodifal: TDBEditData;
+    gbxcdatainiciodifal: TGroupBox;
+    gbxLimites_Periodo_Entrega: TGroupBox;
+    DBAdvLimites_Periodo_Entrega: TDBAdvGrid;
+    FormControlEditLink1: TFormControlEditLink;
+    FormControlEditLink2: TFormControlEditLink;
+    AdvDBLookupComboBox1: TAdvDBLookupComboBox;
+    AdvDBLookupComboBox2: TAdvDBLookupComboBox;
+    sbnIncluirLimites_Periodo_Entrega: TSpeedButton;
+    sbnExcluirLimites_Periodo_Entrega: TSpeedButton;
+    procedure FormActivate(Sender: TObject);
+    procedure pgcEnderecosChange(Sender: TObject);
+    procedure sbnProcurarBairrosRuasClick(Sender: TObject);
+    procedure sbnProcurarCidadesBairrosClick(Sender: TObject);
+    procedure sbnProcurarCidadesRuasClick(Sender: TObject);
+    procedure sbnProcurarEstadosBairrosClick(Sender: TObject);
+    procedure sbnProcurarEstadosCidadesClick(Sender: TObject);
+    procedure sbnProcurarEstadosRuasClick(Sender: TObject);
+    procedure sbnProcurarRegioesBairrosClick(Sender: TObject);
+    procedure sbnProcurarBairrosFretesClick(Sender: TObject);
+    procedure sbnProcurarRegioesFreteClick(Sender: TObject);
+    procedure sbnProcurarRegioesCidadeClick(Sender: TObject);
+    procedure AdvDBLookupComboBox1Closed(Sender: TObject);
+    procedure AdvDBLookupComboBox1LookupSuccess(Sender: TObject;
+      LookupValue, LookupResult: String);
+    procedure AdvDBLookupComboBox2Closed(Sender: TObject);
+    procedure AdvDBLookupComboBox2LookupSuccess(Sender: TObject;
+      LookupValue, LookupResult: String);
+    procedure DBAdvLimites_Periodo_EntregaKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure sbnIncluirLimites_Periodo_EntregaClick(Sender: TObject);
+    procedure sbnExcluirLimites_Periodo_EntregaClick(Sender: TObject);
+  private
+
+
+  protected
+    Jan: TfrmConsultaPorCampo;
+    dtmCadastroEnderecos: TdtmCadastroEnderecos;
+    dtmConsultaEnderecos: TdtmConsultaEnderecos;
+    procedure CriarDataModulo; override;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function  GetTitulo: string;
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    function  InternoIncluir: Boolean; override;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    function  PermitirProcura: Boolean;
+    procedure PosicionarTabelaNoParametro(Ind: Integer; var Continuar: Boolean); override;
+    procedure ProximoControle(Ind: Integer); override;
+    procedure Selecionar(value: tipoProcuraCEP);
+    function  TabelaDePesquisa: TZDataSet; override;
+    function  TabelaDoParametro(Parametro: Integer): TZDataSet; override;
+    procedure ControleAtual(Parametro: Integer);
+  public
+    tipoProcura: tipoProcuraCEP;
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+  end;
+
+var
+  frmCadastroEnderecos: TfrmCadastroEnderecos;
+
+implementation
+
+uses
+  //Biblio
+  biblio,
+  //Repositorio
+  fmnavcontroles;
+
+{$R *.dfm}
+
+{ TfrmCadastroEnderecos }
+
+constructor TfrmCadastroEnderecos.Create(AOwner: TComponent);
+begin
+  inherited;
+  DataSet := dtmCadastroEnderecos.TabelaEstados;
+  pgcEnderecos.ActivePage := tstEstados;
+
+  stxFundoDe.Height:= 10;
+  stxCombate.Height:= 10;
+end;
+
+procedure TfrmCadastroEnderecos.CriarDataModulo;
+begin
+  dtmCadastroEnderecos := TdtmCadastroEnderecos.Create(Self);
+  dtmCadastroEnderecos.Abre(ctTabelasCadastroEnderecos);
+  DataSet := dtmCadastroEnderecos.TabelaEstados;
+  dtmConsultaEnderecos := TdtmConsultaEnderecos.Create(Self);
+end;
+
+destructor TfrmCadastroEnderecos.Destroy;
+begin
+  inherited;
+  frmCadastroEnderecos := nil;
+end;
+
+function TfrmCadastroEnderecos.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  case tipoProcura of
+    tpEstados,
+    tpEstadosCidades,
+    tpEstadosBairros,
+    tpEstadosRuas    : result := dtmConsultaEnderecos.ExisteEstado(NomeCampo, Value);
+
+    tpCidades,
+    tpCidadesBairros,
+    tpCidadesRuas    : case parametro of
+                        -1: result := dtmConsultaEnderecos.ExisteCidade(NomeCampo, Value);
+                         0: result := dtmConsultaEnderecos.ExisteEstado(NomeCampo, Value);
+                       else
+                         result := false;
+                       end;
+
+    tpBairros,
+    tpBairrosRuas    : case parametro of
+                        -1: result := dtmConsultaEnderecos.ExisteBairro(NomeCampo, Value);
+                         0: result := dtmConsultaEnderecos.ExisteEstado(NomeCampo, Value);
+                         1: result := dtmConsultaEnderecos.ExisteCidade(NomeCampo, Value);
+                       else
+                         result := false;
+                       end;
+
+    tpRuas           : case parametro of
+                        -1: result := dtmConsultaEnderecos.ExisteRua(NomeCampo, Value);
+                         0: result := dtmConsultaEnderecos.ExisteEstado(NomeCampo, Value);
+                         1: result := dtmConsultaEnderecos.ExisteCidade(NomeCampo, Value);
+                       else
+                         result := false;
+                       end;
+
+    tpRegioes,
+    tpRegioesBairros,
+    tpregioesCidades : result := dtmConsultaEnderecos.ExisteRegiao(NomeCampo, Value);
+
+    tpBairrosFretes,
+    tpRegioesFretes  : result := dtmConsultaEnderecos.ExisteFrete(NomeCampo, Value);
+
+  else
+    result := false;
+  end;//end case
+end;
+
+procedure TfrmCadastroEnderecos.FormActivate(Sender: TObject);
+begin
+  inherited;
+  pgcEnderecosChange(pgcEnderecos);
+end;
+
+function TfrmCadastroEnderecos.GetTitulo: string;
+begin
+  case tipoProcura of
+    tpEstados,
+    tpEstadosCidades,
+    tpEstadosBairros,
+    tpEstadosRuas    : result := 'Estados';
+
+    tpCidades,
+    tpCidadesBairros,
+    tpCidadesRuas    : result := 'Cidades';
+
+    tpBairros,
+    tpBairrosRuas    : result := 'Bairros';
+
+    tpRuas           : result := 'Ruas';
+
+    tpRegioes,
+    tpRegioesBairros,
+    tpREGIOESCIDADES : result := 'Regiões';
+
+    tpBairrosFretes,
+    tpRegioesFretes  : result := 'Fretes';
+  else
+    result := '';
+  end;//end case
+end;
+
+
+function TfrmCadastroEnderecos.InternoExcluir: Boolean;
+begin
+  inherited InternoExcluir;
+  case pgcEnderecos.ActivePageIndex of
+    0: result := dtmCadastroEnderecos.ExcluirEstado;
+    1: result := dtmCadastroEnderecos.ExcluirCidade;
+    2: result := dtmCadastroEnderecos.ExcluirBairro;
+    3: result := dtmCadastroEnderecos.ExcluirRua;
+    4: result := dtmCadastroEnderecos.ExcluirRegiao;
+  else
+    result := false;
+  end;
+end;
+
+function TfrmCadastroEnderecos.InternoGravar: Boolean;
+begin
+  case pgcEnderecos.ActivePageIndex of
+    0: result := dtmCadastroEnderecos.GravarEstado;
+    1: begin
+         result :=  edtNumeroIBGE.ValidarDigitoIBGE;
+         if result then
+           dtmCadastroEnderecos.GravarCidade;
+       end;
+    2: result := dtmCadastroEnderecos.GravarBairro;
+    3: result := dtmCadastroEnderecos.GravarRua;
+    4: result := dtmCadastroEnderecos.GravarRegiao;
+  else
+    result := false;
+  end;
+  if Result then
+    inherited InternoGravar;
+end;
+
+function TfrmCadastroEnderecos.InternoIncluir: Boolean;
+begin
+  inherited InternoIncluir;
+  case pgcEnderecos.ActivePageIndex of
+    0: result := dtmCadastroEnderecos.IncluirEstado;
+    1: result := dtmCadastroEnderecos.IncluirCidade;
+    2: result := dtmCadastroEnderecos.IncluirBairro;
+    3: result := dtmCadastroEnderecos.IncluirRua;
+    4: result := dtmCadastroEnderecos.IncluirRegiao;
+  else
+    result := false;
+  end;//end case
+end;
+
+function TfrmCadastroEnderecos.InternoPesquisar(Titulo:String): Integer;
+begin
+  if PermitirProcura then
+  begin
+    dtmConsultaEnderecos.Abre(ctTabelasConsultaEnderecos);
+
+    Result := inherited InternoPesquisar(GetTitulo);
+    if Result = mrOK then
+      Selecionar(tipoProcura);
+
+    dtmConsultaEnderecos.Fecha(ctTabelasConsultaEnderecos)
+  end else
+    Result := mrNone
+end;
+
+function TfrmCadastroEnderecos.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Jan:= TfrmConsultaPorCampo.Create(nil);
+  Jan.ConsultaInterativa := True;
+  Result := Jan;
+  case tipoProcura of
+    tpCidadesBairros: begin
+                        TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := False;
+                        dtmConsultaEnderecos.PosicionarEstado(flkBairrosEstado.Text);
+                      end;
+    tpCidadesRuas:    begin
+                        TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := False;
+                        dtmConsultaEnderecos.PosicionarEstado(flkRuasEstado.Text);
+                      end;
+    tpBairrosRuas:    begin
+                        TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := False;
+                        dtmConsultaEnderecos.PosicionarEstado(flkRuasEstado.Text);
+                        dtmConsultaEnderecos.PosicionarCidade(flkRuasCidade.Text);
+                      end;
+  end
+end;
+
+function TfrmCadastroEnderecos.PermitirProcura: Boolean;
+begin
+  Result := False;;
+  if CtrlOn then begin
+    if flkCidadesEstado.Focused then begin
+      Result := True;
+      tipoProcura := tpEstadosCidades
+    end else if flkBairrosEstado.Focused then begin
+      Result := True;
+      tipoProcura := tpEstadosBairros
+    end else if flkBairrosCidade.Focused then begin
+      Result := True;
+      tipoProcura := tpCidadesBairros
+    end else if flkBairrosRegiao.Focused then begin
+      Result := True;
+      tipoProcura := tpRegioesBairros
+    end else if flkCidadesRegiao.Focused then begin
+      Result := True;
+      tipoProcura := tpRegioesCidades
+    end else if flkRuasEstado.Focused then begin
+      Result := True;
+      tipoProcura := tpEstadosRuas
+    end else if flkRuasCidade.Focused then begin
+      Result := True;
+      tipoProcura := tpCidadesRuas
+    end else if flkRuasBairro.Focused then begin
+      Result := True;
+      tipoProcura := tpBairrosRuas
+    end else if flkBairrosFrete.Focused then begin
+      Result := True;
+      tipoProcura := tpBairrosFretes
+    end else if flkRegioesFrete.Focused then begin
+      Result := True;
+      tipoProcura := tpRegioesFretes
+    end
+  end else begin
+    Result := True;
+    case pgcEnderecos.ActivePageIndex of
+      0: tipoProcura := tpEstados;
+      1: tipoProcura := tpCidades;
+      2: tipoProcura := tpBairros;
+      3: tipoProcura := tpRuas;
+      4: tipoProcura := tpRegioes;
+    end;//end case
+  end
+end;
+
+procedure TfrmCadastroEnderecos.pgcEnderecosChange(Sender: TObject);
+begin
+  inherited;
+  case pgcEnderecos.ActivePageIndex of
+    0: dataSet := dtmCadastroEnderecos.TabelaEstados;
+    1: dataSet := dtmCadastroEnderecos.TabelaCidades;
+    2: dataSet := dtmCadastroEnderecos.TabelaBairros;
+    3: dataSet := dtmCadastroEnderecos.TabelaRuas;
+    4: dataSet := dtmCadastroEnderecos.TabelaRegioes;
+  end;
+end;
+
+procedure TfrmCadastroEnderecos.PosicionarTabelaNoParametro(Ind: Integer; var Continuar: Boolean);
+begin
+  case tipoProcura of
+    tpCidades: if Ind = 0 then
+                 Continuar := dtmConsultaEnderecos.PosicionarEstado(dtmCadastroEnderecos.EstadoCidade)
+               else
+                 Continuar := false;
+    tpBairros: case Ind of
+                 0: Continuar := dtmConsultaEnderecos.PosicionarEstado(dtmCadastroEnderecos.EstadoBairro);
+                 1: Continuar := dtmConsultaEnderecos.PosicionarCidade(IntToStr(dtmCadastroEnderecos.CidadeBairro));
+               else
+                 Continuar := false;
+               end;
+    tpRuas: case Ind of
+              0: Continuar := dtmConsultaEnderecos.PosicionarEstado(dtmCadastroEnderecos.EstadoRua);
+              1: Continuar := dtmConsultaEnderecos.PosicionarCidade(IntToStr(dtmCadastroEnderecos.CidadeRua));
+            else
+              Continuar := false;
+            end;
+  else
+    Continuar := false;
+  end;//end case
+end;
+
+procedure TfrmCadastroEnderecos.ProximoControle(Ind: Integer);
+begin
+  inherited;
+  case tipoProcura of
+    tpCidades: case Ind of
+                 0: dtmConsultaEnderecos.RefazConsultaCidades;
+                end;
+    tpBairros: case Ind of
+                 0: dtmConsultaEnderecos.RefazConsultaCidades;
+                 1: dtmConsultaEnderecos.RefazConsultaBairros;
+               end;
+    tpRuas: case Ind of
+//             -1: Jan.ConsultaInterativa := True;   //AQUI //
+              0: begin
+//                   Jan.ConsultaInterativa := True;
+                   dtmConsultaEnderecos.RefazConsultaCidades;
+                 end;
+              1: begin
+//                   Jan.ConsultaInterativa := True;
+                   dtmConsultaEnderecos.RefazConsultaRuas;
+                 end;
+            end;
+  end;
+end;
+
+procedure TfrmCadastroEnderecos.sbnProcurarBairrosRuasClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  flkRuasBairro.SetFocus;
+  tipoProcura := tpBairrosRuas;
+  internoPesquisar(GetTitulo);
+end;
+
+procedure TfrmCadastroEnderecos.sbnProcurarCidadesBairrosClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  flkBairrosCidade.SetFocus;
+  tipoProcura := tpCidadesBairros;
+  internoPesquisar(GetTitulo);
+end;
+
+procedure TfrmCadastroEnderecos.sbnProcurarCidadesRuasClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  flkRuasCidade.SetFocus;
+  tipoProcura := tpCidadesRuas;
+  internoPesquisar(GetTitulo);
+end;
+
+procedure TfrmCadastroEnderecos.sbnProcurarEstadosBairrosClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  flkBairrosEstado.SetFocus;
+  tipoProcura := tpEstadosBairros;
+  internoPesquisar(GetTitulo);
+end;
+
+procedure TfrmCadastroEnderecos.sbnProcurarEstadosCidadesClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  flkCidadesEstado.SetFocus;
+  tipoProcura := tpEstadosCidades;
+  internoPesquisar(GetTitulo);
+end;
+
+procedure TfrmCadastroEnderecos.sbnProcurarEstadosRuasClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  flkRuasEstado.SetFocus;
+  tipoProcura := tpEstadosRuas;
+  internoPesquisar(GetTitulo);
+end;
+
+procedure TfrmCadastroEnderecos.sbnProcurarRegioesBairrosClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  flkBairrosRegiao.SetFocus;
+  tipoProcura := tpRegioesBairros;
+  internoPesquisar(GetTitulo);
+end;
+
+procedure TfrmCadastroEnderecos.Selecionar(value: tipoProcuraCEP);
+begin
+  case value of
+    tpEstados: dtmCadastroEnderecos.PosicionarEstado(dtmConsultaEnderecos.qryEstadoscodigo.AsString);
+    tpEstadosCidades: dtmCadastroEnderecos.EstadoCidade := dtmConsultaEnderecos.qryEstadoscodigo.AsString;
+    tpEstadosBairros: dtmCadastroEnderecos.EstadoBairro :=dtmConsultaEnderecos.qryEstadoscodigo.AsString;
+    tpEstadosRuas   : dtmCadastroEnderecos.EstadoRua := dtmConsultaEnderecos.qryEstadoscodigo.AsString;
+    tpCidades       : dtmCadastroEnderecos.PosicionarCidade(dtmConsultaEnderecos.qryCidadesestado.AsString, dtmConsultaEnderecos.qryCidadescodigo.asinteger);
+    tpCidadesBairros: dtmCadastroEnderecos.CidadeBairro := dtmConsultaEnderecos.qryCidadescodigo.asinteger;
+    tpCidadesRuas   : dtmCadastroEnderecos.CidadeRua := dtmConsultaEnderecos.qryCidadescodigo.asinteger;
+
+
+    tpBairros       : {tmCadastroEnderecos.PosicionarBairro(dtmConsultaEnderecos.qryBairrosEstado.AsString,
+                            dtmConsultaEnderecos.qryBairroscidade.asinteger,
+                            dtmConsultaEnderecos.qryBairroscodigo.AsInteger);}
+
+
+
+
+                       dtmCadastroEnderecos.PosicionarBairro(dtmConsultaEnderecos.qryEstadoscodigo.AsString,
+                                        dtmConsultaEnderecos.qryCidadescodigo.asinteger,
+                                        dtmConsultaEnderecos.qryBairroscodigo.AsInteger);
+
+    tpBairrosFretes : dtmCadastroEnderecos.BairroFretes := dtmConsultaEnderecos.codigofrete;
+    tpRegioesFretes : dtmCadastroEnderecos.RegioesFretes := dtmConsultaEnderecos.codigofrete;
+    tpBairrosRuas   : dtmCadastroEnderecos.BairroRua := dtmConsultaEnderecos.qryBairroscodigo.AsInteger;
+    tpRuas       : with dtmCadastroEnderecos, dtmConsultaEnderecos do
+                       PosicionarRua(qryRuascodigo.AsInteger);
+
+//    tpRuas          : dtmCadastroEnderecos.PosicionarRua(dtmConsultaEnderecos.CodigoRua);
+
+    tpRegioes       : dtmCadastroEnderecos.PosicionarRegiao(dtmConsultaEnderecos.qryRegioescodigo.AsString);
+    tpRegioesBairros: dtmCadastroEnderecos.RegiaoBairro := dtmConsultaEnderecos.qryRegioescodigo.AsString;
+    tpRegioesCidades: dtmCadastroEnderecos.RegiaoCidade := dtmConsultaEnderecos.qryRegioescodigo.AsString;
+
+  end;//end case
+end;
+
+function TfrmCadastroEnderecos.TabelaDePesquisa: TZDataSet;
+begin
+  case tipoProcura of
+    tpEstados,
+    tpEstadosCidades,
+    tpEstadosBairros,
+    tpEstadosRuas    : Result := dtmConsultaEnderecos.ConsultarEstado;
+
+    tpCidades,
+    tpCidadesBairros,
+    tpCidadesRuas    : Result := dtmConsultaEnderecos.ConsultarCidade;
+
+    tpBairros,
+    tpBairrosRuas    : Result := dtmConsultaEnderecos.ConsultarBairro;
+
+    tpRuas           : begin
+                         Result := dtmConsultaEnderecos.ConsultarRua;
+
+                          Jan.OnControleEnter := ControleAtual; {aqui}
+                       end;
+    tpRegioes,
+    tpRegioesBairros,
+    tpRegioesCidades : Result := dtmConsultaEnderecos.ConsultarRegiao;
+
+    tpBairrosFretes,
+    tpRegioesFretes  : Result := dtmConsultaEnderecos.ConsultarFretes;
+                  else Result := nil;
+  end;
+end;
+
+function TfrmCadastroEnderecos.TabelaDoParametro(Parametro: Integer): TZDataSet;
+begin
+  case pgcEnderecos.ActivePageIndex of
+    0: result := dtmConsultaEnderecos.TabelaEstados;
+    1: case parametro of
+          -1: Result := dtmConsultaEnderecos.TabelaCidades;
+           0: Result := dtmConsultaEnderecos.TabelaEstados;
+         else Result := nil;
+       end;
+    2: case parametro of
+          -1: Result := dtmConsultaEnderecos.TabelaBairros;
+           0: Result := dtmConsultaEnderecos.TabelaEstados;
+           1: Result := dtmConsultaEnderecos.TabelaCidades;
+         else Result := nil;
+       end;
+    3: case Parametro of
+
+          -1: begin
+                Jan.ConsultaInterativa:= True;
+                result := dtmConsultaEnderecos.TabelaRuas;
+              end;
+           0: begin
+                Jan.ConsultaInterativa:= True;
+                Result := dtmConsultaEnderecos.TabelaEstados;
+              end;
+           1: begin
+                Jan.ConsultaInterativa:= True;
+                Result := dtmConsultaEnderecos.TabelaCidades
+              end
+         else Result := nil
+       end;
+    4: Result := dtmConsultaEnderecos.TabelaRegioes;
+  else Result := nil;
+  end;
+end;
+
+procedure TfrmCadastroEnderecos.sbnProcurarBairrosFretesClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  flkBairrosFrete.setfocus;
+  tipoProcura := tpBairrosFretes;
+  internoPesquisar(GetTitulo);
+end;
+
+procedure TfrmCadastroEnderecos.sbnProcurarRegioesFreteClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  flkRegioesFrete.setfocus;
+  tipoProcura := tpRegioesFretes;
+  internoPesquisar(GetTitulo);
+
+end;
+
+procedure TfrmCadastroEnderecos.ControleAtual(Parametro: Integer);
+begin
+  if Assigned(Jan) then
+  begin
+    Jan.ConsultaInterativa := Parametro <> -1;
+  end;
+end;
+
+procedure TfrmCadastroEnderecos.sbnProcurarRegioesCidadeClick(
+  Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  flkCidadesRegiao.SetFocus;
+  tipoProcura := tpRegioesCidades;
+  internoPesquisar(GetTitulo);
+end;
+
+procedure TfrmCadastroEnderecos.AdvDBLookupComboBox1Closed(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroEnderecos.qryLimitesEntregaRegioesdescricaosemana.asString :=
+    dtmCadastroEnderecos.qrySemanadescricao.asString;
+end;
+
+procedure TfrmCadastroEnderecos.AdvDBLookupComboBox1LookupSuccess(
+  Sender: TObject; LookupValue, LookupResult: String);
+begin
+  inherited;
+  dtmCadastroEnderecos.qryLimitesEntregaRegioesdescricaosemana.asString :=
+    dtmCadastroEnderecos.qrySemanadescricao.asString;
+end;
+
+procedure TfrmCadastroEnderecos.AdvDBLookupComboBox2Closed(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroEnderecos.qryLimitesEntregaRegioesdescricaoperiodo.asString :=
+    dtmCadastroEnderecos.qryperiodosentregadescricao.asString;
+end;
+
+procedure TfrmCadastroEnderecos.AdvDBLookupComboBox2LookupSuccess(
+  Sender: TObject; LookupValue, LookupResult: String);
+begin
+  inherited;
+  dtmCadastroEnderecos.qryLimitesEntregaRegioesdescricaoperiodo.asString :=
+    dtmCadastroEnderecos.qryperiodosentregadescricao.asString;
+end;
+
+procedure TfrmCadastroEnderecos.DBAdvLimites_Periodo_EntregaKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (key = vk_delete) then
+  begin
+    if DBAdvLimites_Periodo_Entrega.Col = DBAdvLimites_Periodo_Entrega.ColumnByFieldName['descricaoperiodo'].Index then
+    begin
+      dtmCadastroEnderecos.qryLimitesEntregaRegioesdescricaoperiodo.clear;
+      dtmCadastroEnderecos.qryLimitesEntregaRegioesperiodo.clear;
+    end;
+  end;
+
+end;
+
+procedure TfrmCadastroEnderecos.sbnIncluirLimites_Periodo_EntregaClick(
+  Sender: TObject);
+begin
+  inherited;
+  DBAdvLimites_Periodo_Entrega.DataSource.DataSet.Append;
+end;
+
+procedure TfrmCadastroEnderecos.sbnExcluirLimites_Periodo_EntregaClick(
+  Sender: TObject);
+begin
+  inherited;
+  if DBAdvLimites_Periodo_Entrega.DataSource.DataSet.recordcount <> 0 then
+    DBAdvLimites_Periodo_Entrega.DataSource.DataSet.delete
+
+end;
+
+end.

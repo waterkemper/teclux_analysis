@@ -1741,6 +1741,10 @@ type
     qryDadosFiscaisdps: TStringField;
     qryDadosFiscaiscidadeibgefilialemitente: TIntegerField;
     qryDadosFiscaiscnpjfilialemitente: TStringField;
+    qryServicosContratosnbs: TStringField;
+    qryProcuraServiconbs: TStringField;
+    qryServicosContratoscindop: TStringField;
+    qryProcuraServicocindop: TStringField;
     procedure dsrContratosDataChange(Sender: TObject; Field: TField);
     procedure dsrProdutosContratosDataChange(Sender: TObject; Field: TField);
     procedure qryContratosAfterClose(DataSet: TDataSet);
@@ -1870,6 +1874,8 @@ type
     fListaPrecisaRecalcularParcelas: TStringList;
     fqryNotaseCuponsdoContrato: TtecQuery;
     fContratoAtual: Boolean;
+//    fdtmGravarContratos: TdtmCadastroContratos;
+//    fdtmGravarContratosViaSite: TdtmCadastroContratos;
     procedure AdicionarListaPrecisaRecalcularParcelas(Descricao: string);
     function Getdesconto_cashback: Currency;
     procedure Setdesconto_cashback(const Value: Currency);
@@ -1883,6 +1889,8 @@ type
     function FormCadastro: TComponent;
     procedure SetPrecisaRecalcularParcelas(const Value: Boolean);
     function GetContratoAtual: Boolean;
+//    function getdtmGravarContratos: TdtmCadastroContratos;
+//    function getdtmGravarContratosViaSite: TdtmCadastroContratos;
 
 
   private
@@ -2029,8 +2037,10 @@ type
     function GetdtmCadastroContratosAuxiliar: TdtmCadastroContratosAuxiliar;
 
     property dtmImprimeFiscal: TdtmImprimeFiscal read GetdtmImprimeFiscal write fdtmImprimeFiscal;
+    property dtmCadContratosAux: TdtmCadastroContratos read getdtmCadContratosAux write fdtmdtmCadContratosAux;
 
-
+//    property dtmGravarContratos: TdtmCadastroContratos read getdtmGravarContratos write fdtmGravarContratos;
+//    property dtmGravarContratosViaSite: TdtmCadastroContratos read getdtmGravarContratosViaSite write fdtmGravarContratosViaSite;
 
 
   protected
@@ -2164,6 +2174,7 @@ type
     function DatadaReserva_Faturamento: TDateTime;
 
     function ValidarTotaisdoContrato(Exibirmsg: Boolean = false): Boolean;
+
 
   public
 
@@ -2580,8 +2591,6 @@ type
     procedure ReverterContrato_Troca_Devolucao;
 
     function Assigned_ECFPadrao: Boolean;
-    property dtmCadastroContratosAuxiliar: TdtmCadastroContratosAuxiliar read GetdtmCadastroContratosAuxiliar write fdtmCadastroContratosAuxiliar;
-    property dtmCadContratosAux: TdtmCadastroContratos read getdtmCadContratosAux write fdtmdtmCadContratosAux;
     property PermiteDescontoProduto: Boolean read GetPermiteDescontoProduto write fPermiteDescontoProduto;
 
     function  ExcluirContatosClientes: Boolean;
@@ -2599,6 +2608,10 @@ type
     property ContratoAtual: Boolean read GetContratoAtual write fContratoAtual;
     procedure EqualizarDescontoGeralcomIPI;
 
+    property dtmCadastroContratosAuxiliar: TdtmCadastroContratosAuxiliar read GetdtmCadastroContratosAuxiliar write fdtmCadastroContratosAuxiliar;
+
+
+
   end;
 
 const
@@ -2608,10 +2621,10 @@ const
                                            ' Where (tipofilial = ''D''))) ';
 
 
-var
+//var
 {  dtmCadastroContratos: TdtmCadastroContratos;}
-  dtmGravarContratos: TdtmCadastroContratos;
-  dtmGravarContratosViaSite: TdtmCadastroContratos;
+{  dtmGravarContratos: TdtmCadastroContratos;
+  dtmGravarContratosViaSite: TdtmCadastroContratos;}
 
 implementation
 
@@ -4969,6 +4982,35 @@ begin
 
 //  self.dtmCadastroContratosAuxiliar := TdtmCadastroContratosAusiliar.Create(Self);
 //  dmCadastroContratosAuxiliar.dtmCadastroContratosAuxiliar := self.dtmCadastroContratosAuxiliar;
+  with dtmCadastroContratosAuxiliar do
+  begin
+   qryConsultaVendedores.Tag           := ctVendaTabelaConsultaVendedores;
+   qryConsultaVendedores.Tag           := ctVendaTabelaConsultaVendedores;
+   qryConsultaAnalista.Tag             := ctVendaTabelaConsultaAnalistaCredito;
+   qryConsultaCargosCliente.Tag        := ctVendaTabelaConsultaCargos;
+   qryConsultaConjuges.Tag             := ctVendaTabelaConsultaConjuge;
+   qryConsultaCidades.Tag              := ctVendaTabelaConsultaCidades;
+   qryConsultaReservasProduto.Tag      := ctVendaTabelaConsultaReservas;
+   qryConsultaCidades.Params[0].AsString   := EstadoFilialBase;
+   qryConsultaClientes.Tag             := ctVendaTabelaConsultaClientes;
+   qryConsultaAgentes.Tag              := ctvendatabelaconsultaAgentes;
+   qryConsultaFornecedorTransporte.Tag := ctVendaTabelaConsultaFornecedor;
+   qryConsultaEstados.Tag              := ctVendaTabelaConsultaEstados;
+   qryClientes.Tag                     := ctVendaTabelaCadastroClientes;
+
+   if UsuarioLogin.Vendedor then
+     qryConsultaReservasProduto.Params[0].AsInteger := CodigoUsuario;
+
+   qryConsultaFiliais.Tag              := ctVendaTabelaConsultaFiliais;
+   qryConsultaFilialProduto.Tag        := ctVendaTabelaConsultaFilialProduto;
+  end;
+
+  dsrProdutosSimilares.dataset := dtmCadastroContratosAuxiliar.qryProdutosSimilares;
+  dsrModelosCaracteristicas.DataSet := dtmCadastroContratosAuxiliar.qryModelosCaracteristicas;
+  dsrPrecosCargos.DataSet := dtmCadastroContratosAuxiliar.qryPrecosCargos;
+  dsrConsultaProdutosPedidos.DataSet := dtmCadastroContratosAuxiliar.qryConsultaProdutosPedidos;
+  dsrConsultaEstoques.DataSet := dtmCadastroContratosAuxiliar.qryConsultaEstoques;
+
 
 
 
@@ -6567,8 +6609,8 @@ end;
 
 procedure FecharDmGravarContrato;
 begin
-  if assigned(dtmGravarContratos) then
-    freeandnil(dtmGravarContratos);
+//  if assigned(dtmGravarContratos) then
+//    freeandnil(fdtmGravarContratos);
 end;
 
 function GravarContrato(AOwner: TComponent;{ar dtmCadCtr: TDataModule;} var CupomEmitido: Boolean;
@@ -6582,11 +6624,14 @@ var
   NotaFiscalVinculada: Boolean;
   DadosFornec: String;
   Frm: TForm;
+  dtmGravarContratos : TdtmCadastroContratos;
 begin
   Result := False;
 
-  if not Assigned(dtmGravarContratos) then
-    dtmGravarContratos := TdtmCadastroContratos.Create(AOwner, True, true);
+//  if not Assigned(dtmGravarContratos) then
+  dtmGravarContratos := TdtmCadastroContratos.Create(AOwner, True, true);
+  dtmGravarContratos.Name := 'dtmGravarContratos';
+
 
   {Acrescentado linha abaixo....anteriormente não estava fazendo nada pois não abria o contrato!}
   dtmGravarContratos.SelecionarContrato(NumeroContrato);
@@ -6648,7 +6693,7 @@ begin
       end;
 
     finally
-
+      freeandnil(dtmGravarContratos);
     end;
 
   end
@@ -6658,8 +6703,8 @@ end;
 
 procedure FecharDmGravarContratoViaSite;
 begin
-  if assigned(dtmGravarContratosViaSite) then
-    freeandnil(dtmGravarContratosViaSite);
+//  if assigned(dtmGravarContratosViaSite) then
+//    freeandnil(dtmGravarContratosViaSite);
 end;
 
 function GravarContratoViaSite(AOwner: TComponent;{var dtmCadCtr: TDataModule;} NumeroContrato: String; OperacaoGravarContrato: TTecOperacaoGravarContrato;
@@ -6677,6 +6722,7 @@ var
   ValorPagoDinheiro: Currency;
 
   vSaldoParcela : Currency;
+  dtmGravarContratosViaSite : TdtmCadastroContratos;
 
   function proximoNumeroParcela(contrato: string): integer;
   begin
@@ -6696,8 +6742,10 @@ begin
     dtmCadContratos := TdtmCadastroContratos.Create(nil, True);
     }
 
-  if not Assigned(dtmGravarContratosViaSite) then
+//  if not Assigned(dtmGravarContratosViaSite) then
+  try
     dtmGravarContratosViaSite := TdtmCadastroContratos.Create(AOwner, True, true);
+    dtmGravarContratosViaSite.name := 'dtmGravarContratosViaSite';
 
 
 //  dtmCadContratos.SelecionarContrato(NumeroContrato);
@@ -6863,6 +6911,10 @@ begin
     dtmGravarContratosViaSite.Free;
   end;
   }
+
+  finally
+   freeandnil(dtmGravarContratosViaSite);
+  end;
 
 end;
 
@@ -8263,7 +8315,7 @@ begin
                                              qryVolumesDadosFiscais]);
 
                                 if result then
-                                  result := CalcularImpostosSaidas(qryDadosFiscaisnumero.asinteger);
+                                  result := CalcularImpostos(qryDadosFiscaisnumero.asinteger, 'S');
 
                                 if not Result and Assigned_ECFPadrao then
                                   ECFPadrao.CancelarCupom;
@@ -8299,8 +8351,7 @@ begin
                                               qryServicosDadosFiscais, qryNotas, qryCupons, qryTransferencias, qryVolumesDadosFiscais, qryImpostosRetidosDadosFiscais]);
 
                                 if result then
-                                  result := CalcularImpostosSaidas(qryDadosFiscaisnumero.asinteger);
-
+                                  result := CalcularImpostos(qryDadosFiscaisnumero.asinteger,'S');
 
                                 if not Result and Assigned_ECFPadrao then
                                   ECFPadrao.CancelarCupom;
@@ -9740,6 +9791,11 @@ begin
           qryServicosDadosFiscais.fieldbyname('cofinscst').AsString       := qryservicoscontratoscofinscst.AsString;
           qryServicosDadosFiscais.fieldbyname('aliquotacofins').AsCurrency := qryServicosContratoscofinsaliquota.AsCurrency;
           qryServicosDadosFiscais.fieldbyname('codigolcp116').AsString := qryServicosContratoscodigolcp116.AsString;
+
+          qryServicosDadosFiscais.fieldbyname('nbs').AsString := qryServicosContratosnbs.AsString;
+          qryServicosDadosFiscais.fieldbyname('cindop').AsString := qryServicosContratoscindop.AsString;
+
+
           qryServicosDadosFiscais.fieldbyname('cstissqn').AsInteger := qryServicosContratoscstissqn.AsInteger;
 
           if SelecionarDadosNaturezaPadrao('PRESTAÇÃO DE SERVIÇOS',nil, qryServicosDadosFiscais, qryContratos, Contrato) then
@@ -12515,6 +12571,9 @@ begin
     qryServicosContratoscofinscst.asString                 := qryProcuraServicocofinscst.AsString;
     qryServicosContratoscofinsaliquota.ascurrency          := qryProcuraServicocofinsaliquota.AsCurrency;
     qryServicosContratoscodigolcp116.AsString              := qryProcuraServicocodigolcp116.AsString;
+    qryServicosContratosnbs.AsString              := qryProcuraServiconbs.AsString;
+    qryServicosContratoscindop.AsString              := qryProcuraServicocindop.AsString;
+
     qryServicosContratoscodigoatividade.AsString           := qryProcuraServicocodigoatividade.AsString;
 
   end;
@@ -17251,7 +17310,7 @@ begin
                             (parsistema.EmissorNfPSe and
                              (qryDadosFiscaismodelodocto.AsString = '99') and
                              (qryServicosDadosFiscais.recordcount <> 0) and
-                             (ftipoemissaonfeservico in [Florianopolis_SoftPlan, Eletronica_AmbNacional, Palhoca_IPM]));
+                             (ftipoemissaonfeservico in [Eletronica_Betha_Sistemas, Florianopolis_SoftPlan, Eletronica_AmbNacional, Palhoca_IPM]));
 
   result := fCondicaoEmissorNfe;
 
@@ -19507,7 +19566,11 @@ end;
 function TdtmCadastroContratos.getdtmCadContratosAux: TdtmCadastroContratos;
 begin
   if not assigned(fdtmdtmCadContratosAux) then
+  begin
     fdtmdtmCadContratosAux := TdtmCadastroContratos.create(self, true, true);
+    fdtmdtmCadContratosAux.name := 'fdtmdtmCadContratosAux';
+
+  end;
 
   Result := fdtmdtmCadContratosAux;
 end;
@@ -20810,6 +20873,23 @@ begin
     end;
   end;
 end;
+                       {
+function TdtmCadastroContratos.getdtmGravarContratos: TdtmCadastroContratos;
+begin
+  if not Assigned(fdtmGravarContratos) then
+    fdtmGravarContratos := TdtmCadastroContratos.Create(AOwner, True, true);
+
+  Result := fdtmGravarContratos;
+end;
+
+function TdtmCadastroContratos.getdtmGravarContratosViaSite: TdtmCadastroContratos;
+begin
+  if not Assigned(fdtmGravarContratosViaSite) then
+    fdtmGravarContratosViaSite := TdtmCadastroContratos.Create(AOwner, True, true);
+
+  Result := fdtmGravarContratosViaSite;
+end;
+}
 
 initialization
   dmBasico.GravarContrato := GravarContrato;

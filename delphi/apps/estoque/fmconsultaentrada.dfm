@@ -1,7 +1,7 @@
 inherited frmConsultaEntradas: TfrmConsultaEntradas
-  Left = 0
-  Top = 33
-  ActiveControl = edfCfopPesquisa
+  Left = 269
+  Top = 53
+  ActiveControl = pgcDadosNotas
   BorderIcons = [biSystemMenu, biMinimize, biMaximize]
   Caption = 'Consulta de Notas Fiscais de Entrada'
   ClientHeight = 621
@@ -503,7 +503,7 @@ inherited frmConsultaEntradas: TfrmConsultaEntradas
       Top = 3
       Width = 998
       Height = 570
-      ActivePage = tstParametros
+      ActivePage = tstRegistrosSelecionados
       Align = alClient
       TabOrder = 0
       TabWidth = 160
@@ -1917,7 +1917,7 @@ inherited frmConsultaEntradas: TfrmConsultaEntradas
             Top = 0
             Width = 543
             Height = 361
-            ActivePage = tstNFe
+            ActivePage = tstConhecimentoFrete
             Align = alClient
             TabOrder = 0
             object tstDadosNota: TTabSheet
@@ -3438,6 +3438,25 @@ inherited frmConsultaEntradas: TfrmConsultaEntradas
                 Font.Style = []
                 ParentFont = False
                 TabOrder = 3
+                object Valorfreteexterno: TtecDBText
+                  Left = 2
+                  Top = 10
+                  Width = 104
+                  Height = 23
+                  TabStop = False
+                  Color = clBtnFace
+                  DataField = 'valornotafreteexterno'
+                  DataSource = dtmConsultaEntradas.dsrNotaFiscal
+                  Font.Charset = DEFAULT_CHARSET
+                  Font.Color = clBlack
+                  Font.Height = -12
+                  Font.Name = 'helvetica'
+                  Font.Pitch = fpVariable
+                  Font.Style = []
+                  ParentFont = False
+                  ReadOnly = True
+                  TabOrder = 0
+                end
               end
               object gbxSerie2: TGroupBox
                 Left = 6
@@ -3530,7 +3549,7 @@ inherited frmConsultaEntradas: TfrmConsultaEntradas
                   Height = 23
                   TabStop = False
                   Color = clBtnFace
-                  DataField = 'freteexterno'
+                  DataField = 'valorconhecimentofrete'
                   DataSource = dtmConsultaEntradas.dsrNotaFiscal
                   Font.Charset = DEFAULT_CHARSET
                   Font.Color = clBlack
@@ -3541,7 +3560,6 @@ inherited frmConsultaEntradas: TfrmConsultaEntradas
                   ParentFont = False
                   ReadOnly = True
                   TabOrder = 0
-                  Alignment = taLeftJustify
                 end
               end
               object gbxICMSFrete: TGroupBox
@@ -3558,6 +3576,25 @@ inherited frmConsultaEntradas: TfrmConsultaEntradas
                 Font.Style = []
                 ParentFont = False
                 TabOrder = 5
+                object edticmsconhecimentofrete: TtecDBText
+                  Left = 2
+                  Top = 10
+                  Width = 104
+                  Height = 23
+                  TabStop = False
+                  Color = clBtnFace
+                  DataField = 'icmsconhecimentofrete'
+                  DataSource = dtmConsultaEntradas.dsrNotaFiscal
+                  Font.Charset = DEFAULT_CHARSET
+                  Font.Color = clBlack
+                  Font.Height = -12
+                  Font.Name = 'helvetica'
+                  Font.Pitch = fpVariable
+                  Font.Style = []
+                  ParentFont = False
+                  ReadOnly = True
+                  TabOrder = 0
+                end
               end
             end
             object tstImpostosRetidos: TTabSheet
@@ -3846,7 +3883,7 @@ inherited frmConsultaEntradas: TfrmConsultaEntradas
                   Left = 2
                   Top = 10
                   Width = 440
-                  Height = 24
+                  Height = 23
                   DataField = 'chv_nfe'
                   DataSource = dtmConsultaEntradas.dsrNotaFiscal
                   Font.Charset = DEFAULT_CHARSET
@@ -4113,7 +4150,7 @@ inherited frmConsultaEntradas: TfrmConsultaEntradas
                     Caption = ' TEXTO PARA CORRE'#199#195'O DA NF-e '
                     Font.Pitch = fpVariable
                     inherited mmoXCorrecao: TtecDBMemo
-                      Width = 299
+                      Width = 268
                       Height = 145
                       Font.Pitch = fpVariable
                     end

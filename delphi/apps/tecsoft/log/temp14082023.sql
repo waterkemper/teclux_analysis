@@ -1,0 +1,2164 @@
+;
+(
+   SELECT
+      Vendas.*
+    , (
+         select
+            nome
+         from
+            filiais
+         where
+            codigo=filial
+      )
+      as nomefilial
+    , CASE
+         WHEN (
+               COALESCE(TotalLiquidoProdutos,0)<>0
+            )
+            THEN (((valorliquidoproduto+ValorAcrescProduto) * 100) / TotalLiquidoProdutos)
+            ELSE CAST('0.00' AS numeric)
+      END as Percentual
+    , CASE
+         WHEN (
+               COALESCE(lucroporproduto,0)<>0
+            )
+            THEN (lucroporproduto)*100/lucro
+            ELSE cast('0.00' as numeric)
+      END as percentuallucro
+    , CASE
+         WHEN (
+               COALESCE(custo,0)<>0
+            )
+            THEN (valorliquidoproduto+ValorAcrescProduto)/custo
+            ELSE cast('0.00' as numeric)
+      END as percentualmargem
+   FROM
+      (
+         SELECT
+            VendaseDevolucoes.*
+          , CASE
+               WHEN VendasEDevolucoes.ValorBrutodoProduto<> 0
+                  THEN ((SUM(VendaseDevolucoes.ValorDescontodoProduto)*100)/SUM(VendasEDevolucoes.ValorBrutodoProduto))
+                  ELSE cast('0.00' as numeric)
+            END                                                                                                                                             as PercDescontodoProduto
+          , SUM(TotalClasses.ValorBrutodoProduto - TotalClasses.ValorDescontodoProduto + TotalClasses.ValorAcrescProduto)                                   as totalliquidoprodutos
+          , SUM(TotalClasses.ValorBrutodoProduto - TotalClasses.ValorDescontodoProduto + TotalClasses.ValorAcrescProduto) - SUM(TotalClasses.custodaclasse) as lucro
+          , ((VendasEDevolucoes.valorliquidoproduto+VendasEDevolucoes.ValorAcrescProduto) - VendaseDevolucoes.custo)                                        as lucroporproduto
+         FROM
+            (
+               SELECT
+                  filial
+                , codigoclasse
+                , nomeclasse
+                , SUM(quantidade)   as quantidade
+                , SUM(custo)        as custo
+                , SUM(creditotroca) as creditotroca
+                , codigogrupo
+                , nomegrupo
+                , SUM(ValorBrutodoProduto)                        as ValorBrutodoProduto
+                , SUM(ValorDescontodoProduto)                     as ValorDescontodoProduto
+                , SUM(ValorBrutodoProduto-ValorDescontodoProduto) as valorliquidoProduto
+                , SUM(ValorAcrescProduto)                         as ValorAcrescProduto
+                , SUM(ValoraVistadoProduto)                       as ValoraVistadoProduto
+                , SUM(ValoraPrazodoProduto)                       as ValoraPrazodoProduto
+               FROM
+                  (
+                  (
+                     SELECT
+                        CASE
+                           WHEN 't'
+                              THEN filial
+                              ELSE cast(null as integer)
+                        END as filial
+                      , codigoclasse
+                      , nomeclasse
+                      , SUM(quantidade)   as quantidade
+                      , SUM(custo)        as custo
+                      , SUM(creditotroca) as creditotroca
+                      , codigogrupo
+                      , nomegrupo
+                      , SUM(ValorBrutodoProduto)    as ValorBrutodoProduto
+                      , SUM(ValorDescontodoProduto) as ValorDescontodoProduto
+                      , SUM(ValorAcrescProduto)     as ValorAcrescProduto
+                      , SUM(ValoraVistadoProduto)   as ValoraVistadoProduto
+                      , SUM(ValoraPrazodoProduto)   as ValoraPrazodoProduto
+                     FROM
+                        (
+                        /*INICIO VENDAS NOTAS FISCAIS*/
+                        (
+                           select
+                              produtos.*
+                            , CASE
+                                 WHEN NOT ContratoeAPrazo
+                                    THEN (ValorBrutodoProduto-ValorDescontodoProduto)+ValorAcrescProduto
+                                    ELSE 0
+                              END AS ValoraVistadoProduto
+                            , CASE
+                                 WHEN ContratoeAPrazo
+                                    THEN (ValorBrutodoProduto-ValorDescontodoProduto)+ValorAcrescProduto
+                                    ELSE 0
+                              END AS ValoraPrazodoProduto
+                           from
+                              (
+                                 SELECT
+                                    produtos.filial
+                                  , produtos.codigoclasse
+                                  , produtos.nomeclasse
+                                  , produtos.quantidade
+                                  , produtos.custo
+                                  , produtos.creditotroca
+                                  , produtos.codigogrupo
+                                  , produtos.nomegrupo
+                                  , (produtos.quantidade*produtos.precovenda) + coalesce(produtos.frete,0) + coalesce(produtos.seguro,0) AS ValorBrutodoProduto
+                                  , coalesce(produtos.desconto,0)                                                                        as ValorDescontodoProduto
+                                  , coalesce(produtos.acrescimo,0)                                                                       as ValorAcrescProduto
+                                  ,
+                                    /*   ((produtos.quantidade*precovenda) +  (((coalesce(frete,0)+coalesce(seguro,0))*(produtos.quantidade*precovenda)) /  ((vvalorvista+coalesce(desconto,0)-coalesce(frete,0)-coalesce(seguro,0)) -  totalservico))) AS ValorBrutodoProduto,   ((coalesce(desconto,0)*(produtos.quantidade*precovenda)) /  ((vvalorvista+coalesce(desconto,0)-coalesce(frete,0)-coalesce(seguro,0)) -  totalservico)) as ValorDescontodoProduto,   (((vValorPrazo-vValorVista)*(produtos.quantidade*precovenda)) /  ((vvalorvista+coalesce(desconto,0)-coalesce(frete,0)-coalesce(seguro,0)) -  TotalServico)) as ValorAcrescProduto,   */
+                                    (
+                                       SELECT
+                                          EXISTS
+                                          (
+                                             SELECT
+                                                p.contrato
+                                             FROM
+                                                parcelas p
+                                             WHERE
+                                                p.contrato       = vcontrato
+                                                and p.datavencto > vfaturamento
+                                          )
+                                    )
+                                    as ContratoeaPrazo
+                                 from
+                                    (
+                                       select
+                                          produtos.*
+                                          /*, coalesce(totalservico,0) as totalservico*/
+                                       from
+                                          (
+                                             select
+                                                df.numero
+                                              , df.data
+                                              ,
+                                                /*  df.valortotal as vvalorprazo,  df.valorvista as vvalorvista,  */
+                                                pdf.acrescimo
+                                              , ct.faturamento as vfaturamento
+                                              , pdf.desconto
+                                              , pdf.frete
+                                              , pdf.seguro
+                                              , ratearcreditotroca_dadosfiscais(pdf.dadofiscal, pdf.produto) as creditotroca
+                                              ,
+                                                /*  df.desconto,  df.valorfrete as frete,  df.seguro,  */
+                                                pdf.quantidade
+                                              , pdf.precovenda
+                                              , df.filialvenda as filial
+                                              , c.classe       as codigoclasse
+                                              , cl.descricao   as nomeclasse
+                                              , abs(m.valor)   as custo
+                                              , g.codigo       as codigogrupo
+                                              , g.descricao    as nomegrupo
+                                              , df.contrato    as vcontrato
+                                             from
+                                                ((dadosfiscais df
+                                                join
+                                                   contratos ct
+                                                   on
+                                                      ct.numero = df.contrato)
+                                                join
+                                                   ((produtosdadosfiscais pdf
+                                                   left join
+                                                      movimentos m
+                                                      on
+                                                         pdf.movimento = m.numero)
+                                                   join
+                                                      (produtos p
+                                                      join
+                                                         ((caracteristicas c
+                                                         join
+                                                            classes cl
+                                                            on
+                                                               c.classe=cl.codigo)
+                                                         join
+                                                            grupos g
+                                                            on
+                                                               g.codigo=c.grupo)
+                                                         on
+                                                            p.caracteristica=c.codigo)
+                                                      on
+                                                         pdf.produto=p.codigo)
+                                                   on
+                                                      df.numero = pdf.dadofiscal)
+                                             WHERE
+                                                ct.faturamento BETWEEN('14/08/2023') and
+                                                (
+                                                   '14/08/2023'
+                                                )
+                                                and not coalesce(pdf.brinde,false)
+                                                /*  and NOT (select pc.brinde  from produtoscontratos pc  where pc.contrato = df.contrato  and pc.produto = pdf.produto  and pc.filial = pdf.filial)  */
+                                                AND
+                                                (
+                                                   coalesce(ct.valorvista,0)<>0
+                                                )
+                                                and not coalesce(df.notavinculada,false)
+                                                and ct.origem IS NULL
+                                                and
+                                                case
+                                                   when ct.os
+                                                      then ct.tipoequipamento in (1, 2)
+                                                      and not (
+                                                         coalesce(ct.os_garantia,false)
+                                                         and ct.os_garantia_status='A'
+                                                      )
+                                                      and not coalesce(ct.os_cortesia,false)
+                                                      else true
+                                                end
+                                                and
+                                                case
+                                                   when ct.situacao    = 'N'
+                                                      then ct.situacao = df.situacao
+                                                      else true
+                                                end
+                                          )
+                                          as produtos
+                                          /*   left join (SELECT sc.contrato,  coalesce(SUM(sc.quantidade*sc.valorservico),0) as totalservico  FROM contratos ct, servicoscontratos sc  WHERE sc.contrato = ct.numero  AND ct.faturamento BETWEEN('14/08/2023') and ('14/08/2023')  AND (coalesce(ct.valorvista,0)<>0)  and ct.origem IS NULL  and case when ct.os then ct.tipoequipamento in (1,2) and not (coalesce(ct.os_garantia,false) and ct.os_garantia_status='A') and not coalesce(ct.os_cortesia,false) else true end      group by sc.contrato) as sc on sc.contrato = produtos.vcontrato   */
+                                    )
+                                    as produtos
+                              )
+                              as produtos
+                        )
+                     /*FINAL VENDAS NOTAS FISCAIS*/
+                     union all
+                        /* INICIO VENDAS FRENTE DE CAIXA */
+                        (
+                           select
+                              produtos.*
+                            , CASE
+                                 WHEN NOT ContratoeAPrazo
+                                    THEN (ValorBrutodoProduto-ValorDescontodoProduto)+ValorAcrescProduto
+                                    ELSE 0
+                              END AS ValoraVistadoProduto
+                            , CASE
+                                 WHEN ContratoeAPrazo
+                                    THEN (ValorBrutodoProduto-ValorDescontodoProduto)+ValorAcrescProduto
+                                    ELSE 0
+                              END AS ValoraPrazodoProduto
+                           from
+                              (
+                                 SELECT
+                                    produtos.filial
+                                  , produtos.codigoclasse
+                                  , produtos.nomeclasse
+                                  , produtos.quantidade
+                                  , produtos.custo
+                                  , produtos.creditotroca
+                                  , produtos.codigogrupo
+                                  , produtos.nomegrupo
+                                  , (produtos.quantidade*produtos.precovenda) + coalesce(produtos.frete,0) + coalesce(produtos.seguro,0) AS ValorBrutodoProduto
+                                  , coalesce(produtos.desconto,0)                                                                        as ValorDescontodoProduto
+                                  , coalesce(produtos.acrescimo,0)                                                                       as ValorAcrescProduto
+                                  ,
+                                    /*  ((produtos.quantidade*precovenda) +  (((coalesce(frete,0)+coalesce(seguro,0))*(produtos.quantidade*precovenda)) /  (vvalorvista+coalesce(desconto,0)-coalesce(frete,0)-coalesce(seguro,0)) )) AS ValorBrutodoProduto,   ((coalesce(desconto,0)*(produtos.quantidade*precovenda)) /  (vvalorvista+coalesce(desconto,0)-coalesce(frete,0)-coalesce(seguro,0))) as ValorDescontodoProduto,   (((vValorPrazo-vValorVista)*(produtos.quantidade*precovenda)) /  (vvalorvista+coalesce(desconto,0)-coalesce(frete,0)-coalesce(seguro,0))) as ValorAcrescProduto,  */
+                                    false as ContratoeaPrazo
+                                 from
+                                    (
+                                       select
+                                          df.numero
+                                        , df.data
+                                        ,
+                                          /*  df.valortotal as vvalorprazo,  df.valorvista as vvalorvista,  */
+                                          pdf.acrescimo
+                                        , df.data as vfaturamento
+                                        , pdf.desconto
+                                        , pdf.frete
+                                        , pdf.seguro
+                                        , ratearcreditotroca_dadosfiscais(pdf.dadofiscal, pdf.produto) as creditotroca
+                                        ,
+                                          /*  df.desconto,  df.valorfrete as frete,  df.seguro,   */
+                                          pdf.quantidade
+                                        , pdf.precovenda
+                                        , df.filialvenda as filial
+                                        , c.classe       as codigoclasse
+                                        , cl.descricao   as nomeclasse
+                                        , abs(m.valor)   as custo
+                                        , g.codigo       as codigogrupo
+                                        , g.descricao    as nomegrupo
+                                        , df.contrato    as vcontrato
+                                       from
+                                          (dadosfiscais df
+                                          join
+                                             ((produtosdadosfiscais pdf
+                                             left join
+                                                movimentos m
+                                                on
+                                                   pdf.movimento = m.numero)
+                                             join
+                                                (produtos p
+                                                join
+                                                   ((caracteristicas c
+                                                   join
+                                                      classes cl
+                                                      on
+                                                         c.classe=cl.codigo)
+                                                   join
+                                                      grupos g
+                                                      on
+                                                         g.codigo=c.grupo)
+                                                   on
+                                                      p.caracteristica=c.codigo)
+                                                on
+                                                   pdf.produto=p.codigo)
+                                             on
+                                                df.numero = pdf.dadofiscal)
+                                       WHERE
+                                          df.data BETWEEN('14/08/2023') and
+                                          (
+                                             '14/08/2023'
+                                          )
+                                          and ehnotafiscalsaidavenda(pdf.codigofiscal)
+                                          and df.contrato is null
+                                          AND df.situacao not in ('C'
+                                                                ,'D')
+                                          and not coalesce(pdf.brinde,false)
+                                          AND
+                                          (
+                                             coalesce(df.valorvista,0)<>0
+                                          )
+                                          and not coalesce(df.notavinculada,false)
+                                    )
+                                    as produtos
+                              )
+                              as produtos
+                        )
+                     /*FINAL VENDAS FRENTE DE CAIXA */
+                     union all
+                        /*INICIO VENDAS FATURADAS*/
+                        (
+                           select
+                              produtos.*
+                            , CASE
+                                 WHEN NOT ContratoeAPrazo
+                                    THEN (ValorBrutodoProduto-ValorDescontodoProduto)+ValorAcrescProduto
+                                    ELSE 0
+                              END AS ValoraVistadoProduto
+                            , CASE
+                                 WHEN ContratoeAPrazo
+                                    THEN (ValorBrutodoProduto-ValorDescontodoProduto)+ValorAcrescProduto
+                                    ELSE 0
+                              END AS ValoraPrazodoProduto
+                           from
+                              (
+                                 SELECT
+                                    produtos.filial
+                                  , produtos.codigoclasse
+                                  , produtos.nomeclasse
+                                  , produtos.qtfaturada as quantidade
+                                  , abs
+                                       (
+                                             (
+                                                CASE
+                                                   WHEN coalesce((EmEstoque + Reservado + Transito + Demonstracao + Conserto + Danificada + ReservaPrevia),0)=0
+                                                      THEN 0
+                                                      ELSE (financeiro/(EmEstoque + Reservado + Transito + Demonstracao + Conserto + Danificada + ReservaPrevia))*qtfaturada
+                                                END
+                                             )
+                                       )
+                                    as custo
+                                  , produtos.creditotroca
+                                  , produtos.codigogrupo
+                                  , produtos.nomegrupo
+                                  , (qtfaturada*precovenda) + coalesce(frete,0) + coalesce(seguro,0) AS ValorBrutodoProduto
+                                  , coalesce(produtos.desconto,0)                                    as ValorDescontodoProduto
+                                  , coalesce(produtos.acrescimo,0)                                   as ValorAcrescProduto
+                                  ,
+                                    /*  ((qtfaturada*precovenda) +  (((coalesce(frete,0)+coalesce(seguro,0))*(qtfaturada*precovenda)) /  ((vvalorvista+coalesce(desconto,0)-coalesce(frete,0)-coalesce(seguro,0)) -  totalservico))) AS ValorBrutodoProduto,   ((coalesce(desconto,0)*(qtfaturada*precovenda)) /  ((vvalorvista+coalesce(desconto,0)-coalesce(frete,0)-coalesce(seguro,0)) -  totalservico)) as ValorDescontodoProduto,   (((vValorPrazo-vValorVista)*(qtfaturada*precovenda)) /  ((vvalorvista+coalesce(desconto,0)-coalesce(frete,0)-coalesce(seguro,0)) -  TotalServico)) as ValorAcrescProduto,  */
+                                    (
+                                       SELECT
+                                          EXISTS
+                                          (
+                                             SELECT
+                                                p.contrato
+                                             FROM
+                                                parcelas p
+                                             WHERE
+                                                p.contrato       = vcontrato
+                                                and p.datavencto > vfaturamento
+                                          )
+                                    )
+                                    as ContratoeaPrazo
+                                 from
+                                    (
+                                       select
+                                          produtos.*
+                                          /*, coalesce(totalservico,0) as totalservico*/
+                                       from
+                                          (
+                                             select
+                                                produtos.*
+                                              , (produtos.quantidade - coalesce(pd.quantidade,0)) as qtfaturada
+                                             from
+                                                (
+                                                   select
+                                                      pc.contrato as vcontrato
+                                                    , pc.produto  as vproduto
+                                                    , pc.filial   as vfilial
+                                                    ,
+                                                      /*  ct.valorprazo as vvalorprazo,  ct.valorvista as vvalorvista,  */
+                                                      pc.acrescimo
+                                                    , ct.faturamento as vfaturamento
+                                                    , ct.filialvenda as filial
+                                                    , c.classe       as codigoclasse
+                                                    , cl.descricao   as nomeclasse
+                                                    , pc.quantidade
+                                                    , g.codigo    as codigogrupo
+                                                    , g.descricao as nomegrupo
+                                                    , pc.precovenda
+                                                    ,
+                                                      /*  ct.frete,  ct.seguro,  ct.desconto,  */
+                                                      pc.frete
+                                                    , pc.seguro
+                                                    , ratearcreditotroca_contratos(pc.contrato, pc.produto) as creditotroca
+                                                    , pc.desconto
+                                                    , ct.situacao
+                                                   from
+                                                      (contratos ct
+                                                      join
+                                                         (produtoscontratos pc
+                                                         join
+                                                            (produtos p
+                                                            join
+                                                               ((caracteristicas c
+                                                               join
+                                                                  classes cl
+                                                                  on
+                                                                     c.classe=cl.codigo)
+                                                               join
+                                                                  grupos g
+                                                                  on
+                                                                     g.codigo=c.grupo)
+                                                               on
+                                                                  p.caracteristica=c.codigo)
+                                                            on
+                                                               pc.produto=p.codigo)
+                                                         on
+                                                            ct.numero = pc.contrato)
+                                                   WHERE
+                                                      ct.faturamento BETWEEN('14/08/2023') and
+                                                      (
+                                                         '14/08/2023'
+                                                      )
+                                                      and NOT pc.brinde
+                                                      AND
+                                                      (
+                                                         coalesce(ct.valorvista,0)<>0
+                                                      )
+                                                      and ct.origem IS NULL
+                                                      and
+                                                      case
+                                                         when ct.os
+                                                            then ct.tipoequipamento in (1, 2)
+                                                            and not (
+                                                               coalesce(ct.os_garantia,false)
+                                                               and ct.os_garantia_status='A'
+                                                            )
+                                                            and not coalesce(ct.os_cortesia,false)
+                                                            else true
+                                                      end
+                                                      /*  and ((ct.situacao <> 'N') or  (ct.situacao = 'N' and exists (select cd.contrato  from contratosdevolvidos cd  where cd.contrato = ct.numero  and cd.produto = pc.produto  and cd.filial = pc.filial  and cd.tipo='D'  and cd.situacao = 'F'))) */
+                                                      and
+                                                      (
+                                                         (
+                                                            ct.situacao = 'F'
+                                                         )
+                                                         or
+                                                         (
+                                                            ct.situacao = 'C'
+                                                            and not exists
+                                                            (
+                                                               select
+                                                                  df.numero
+                                                               from
+                                                                  dadosfiscais df
+                                                               where
+                                                                  df.contrato     = ct.numero
+                                                                  and df.situacao = 'C'
+                                                            )
+                                                         )
+                                                         or
+                                                         (
+                                                            ct.situacao = 'N'
+                                                            and exists
+                                                            (
+                                                               select
+                                                                  cd.contrato
+                                                               from
+                                                                  contratosdevolvidos cd
+                                                               where
+                                                                  cd.contrato     = ct.numero
+                                                                  and cd.produto  = pc.produto
+                                                                  and cd.filial   = pc.filial
+                                                                  and cd.tipo     ='D'
+                                                                  and cd.situacao = 'F'
+                                                            )
+                                                         )
+                                                      )
+                                                   order by
+                                                      pc.contrato
+                                                    , pc.produto
+                                                    , pc.filial
+                                                )
+                                                as produtos
+                                                left join
+                                                   (
+                                                      select
+                                                         df.contrato
+                                                       , pdf.produto
+                                                       , pdf.filial
+                                                       , coalesce(sum(pdf.quantidade),0) as quantidade
+                                                      from
+                                                         ((dadosfiscais df
+                                                         join
+                                                            contratos ct
+                                                            on
+                                                               ct.numero = df.contrato)
+                                                         join
+                                                            ((produtosdadosfiscais pdf
+                                                            join
+                                                               movimentos m
+                                                               on
+                                                                  pdf.movimento = m.numero)
+                                                            join
+                                                               (produtos p
+                                                               join
+                                                                  ((caracteristicas c
+                                                                  join
+                                                                     classes cl
+                                                                     on
+                                                                        c.classe=cl.codigo)
+                                                                  join
+                                                                     grupos g
+                                                                     on
+                                                                        g.codigo=c.grupo)
+                                                                  on
+                                                                     p.caracteristica=c.codigo)
+                                                               on
+                                                                  pdf.produto=p.codigo)
+                                                            on
+                                                               df.numero = pdf.dadofiscal)
+                                                       , produtoscontratos pc
+                                                      WHERE
+                                                         pc.contrato    = ct.numero
+                                                         and pc.produto = pdf.produto
+                                                         and pc.filial  = pdf.filial
+                                                         and ct.faturamento BETWEEN('14/08/2023') and
+                                                         (
+                                                            '14/08/2023'
+                                                         )
+                                                         and not coalesce(df.notavinculada,false)
+                                                         and NOT pc.brinde
+                                                         AND
+                                                         (
+                                                            coalesce(ct.valorvista,0)<>0
+                                                         )
+                                                         and ct.origem IS NULL
+                                                         and
+                                                         case
+                                                            when ct.os
+                                                               then ct.tipoequipamento in (1, 2)
+                                                               and not (
+                                                                  coalesce(ct.os_garantia,false)
+                                                                  and ct.os_garantia_status='A'
+                                                               )
+                                                               and not coalesce(ct.os_cortesia,false)
+                                                               else true
+                                                         end
+                                                      group by
+                                                         df.contrato
+                                                       , pdf.produto
+                                                       , pdf.filial
+                                                   )
+                                                   pd
+                                                   on
+                                                      produtos.vcontrato    = pd.contrato
+                                                      and produtos.vproduto = pd.produto
+                                                      and produtos.vfilial  = pd.filial
+                                          )
+                                          as produtos
+                                          /*left join (SELECT sc.contrato,  coalesce(SUM(sc.quantidade*sc.valorservico),0) as totalservico  FROM contratos ct, servicoscontratos sc  WHERE sc.contrato = ct.numero  AND ct.faturamento BETWEEN('14/08/2023') and ('14/08/2023')  AND (coalesce(ct.valorvista,0)<>0)  and ct.origem IS NULL  and case when ct.os then ct.tipoequipamento in (1,2) and not (coalesce(ct.os_garantia,false) and ct.os_garantia_status='A') and not coalesce(ct.os_cortesia,false) else true end      group by sc.contrato) as sc on sc.contrato = produtos.vcontrato  */
+                                       where
+                                          qtfaturada<>0
+                                    )
+                                    as produtos
+                                  , movimentos
+                                 WHERE
+                                    numero=
+                                    (
+                                       SELECT
+                                          max(numero)
+                                       FROM
+                                          movimentos
+                                       WHERE
+                                          produto               =vProduto
+                                          AND filial            =vFilial
+                                          AND cast(data as date)=vfaturamento
+                                    )
+                              )
+                              as produtos
+                        )
+                     /*FINAL VENDAS FATURADAS*/
+                     union all
+                        /* INICIO VENDAS SERVICOS*/
+                        (
+                           select
+                              servicos.*
+                            , case
+                                 when not ContratoeAPrazo
+                                    then ValorBrutodoProduto
+                                    else 0
+                              end as ValoraVistadoProduto
+                            , case
+                                 when ContratoeAPrazo
+                                    then ValorBrutodoProduto
+                                    else 0
+                              end as ValoraPrazodoProduto
+                           from
+                              (
+                                 select
+                                    ct.filialvenda                                          as filial
+                                  , cast('SE' as       varchar)                             as codigoclasse
+                                  , cast('SERVICOS' as varchar)                             as nomeclasse
+                                  , (coalesce(sc.quantidade,0))                             as quantidade
+                                  , cast(0 as          numeric)                             as custo
+                                  , cast(0 as          numeric)                             as creditotroca
+                                  , cast('SERV' as     varchar)                             as codigogrupo
+                                  , cast('SERVICOS' AS VARCHAR)                             AS nomegrupo
+                                  , (coalesce(sc.quantidade,0)*coalesce(sc.valorservico,0)) as valorBrutodoProduto
+                                  , cast(0 as numeric)                                      as valordescontodoProduto
+                                  , cast(0 as numeric)                                      as ValorAcrescProduto
+                                  , (
+                                       select
+                                          exists
+                                          (
+                                             select
+                                                p.contrato
+                                             from
+                                                parcelas p
+                                             where
+                                                p.contrato       = ct.numero
+                                                and p.datavencto > ct.faturamento
+                                          )
+                                    )
+                                    as ContratoeAPrazo
+                                 from
+                                    (contratos ct
+                                    join
+                                       servicoscontratos sc
+                                       on
+                                          ct.numero = sc.contrato)
+                                 where
+                                    ct.faturamento between('14/08/2023') and
+                                    (
+                                       '14/08/2023'
+                                    )
+                                    and
+                                    case
+                                       when ct.os
+                                          then ct.tipoequipamento in (1, 2)
+                                          and not (
+                                             coalesce(ct.os_garantia,false)
+                                             and ct.os_garantia_status='A'
+                                          )
+                                          and not coalesce(ct.os_cortesia,false)
+                                          else true
+                                    end
+                              )
+                              as servicos
+                        )
+                        /*FINAL VENDAS SERVICOS*/
+                        ) as contratos
+                     group by
+                        filial
+                      , codigoclasse
+                      , nomeclasse
+                      , codigogrupo
+                      , nomegrupo
+                  )
+               /*Inicio Devolucoes*/
+               UNION ALL
+                  (
+                     SELECT
+                        CASE
+                           WHEN 't'
+                              THEN filial
+                              ELSE cast(null as integer)
+                        END as filial
+                      , codigoclasse
+                      , nomeclasse
+                      , -sum(quantidade)  as quantidade
+                      , SUM(custo)        as custo
+                      , sum(creditotroca) as creditotroca
+                      , codigogrupo
+                      , nomegrupo
+                      , -sum(ValorBrutodoProduto)    as ValorBrutodoProduto
+                      , -sum(ValorDescontodoProduto) as ValorDescontodoProduto
+                      , -sum(ValorAcrescProduto)     as ValorAcrescProduto
+                      , -sum(ValoraVistadoProduto)   as ValoraVistadoProduto
+                      , -sum(ValoraPrazodoProduto)   as ValoraPrazodoProduto
+                     from
+                        (
+						
+                        (
+						
+                           select
+                              devolucoes.filial
+                            , codigoclasse
+                            , nomeclasse
+                            , devolucoes.quantidade
+                            , - abs(m.valor)                 as custo
+                            , - abs(devolucoes.creditotroca) as creditotroca
+                            , codigogrupo
+                            , nomegrupo
+                            , valorbrutodoproduto
+                            , Valordescontodoproduto
+                            , valoracrescproduto
+                            , contratoeaprazo
+                            , case
+                                 when not ContratoeAPrazo
+                                    then (ValorBrutodoProduto-ValorDescontodoProduto)+ValorAcrescProduto
+                                    else 0
+                              end as ValoraVistadoProduto
+                            , case
+                                 when ContratoeAPrazo
+                                    then (ValorBrutodoProduto-ValorDescontodoProduto)+ValorAcrescProduto
+                                    else 0
+                              end as ValoraPrazodoProduto
+                           from
+                              (
+                                 select
+                                    ct.filialvenda as filial
+                                  , c.classe       as codigoclasse
+                                  , cl.descricao   as nomeclasse
+                                  , cd.quantidade
+                                  , cd.creditotroca
+                                  , c.grupo                       as codigogrupo
+                                  , g.descricao                   as nomegrupo
+                                  , (cd.valorvista + cd.desconto) as ValorBrutodoproduto
+                                  , cd.desconto                   as ValorDescontodoProduto
+                                  , (cd.ValorPrazo-cd.ValorVista) as ValorAcrescProduto
+                                  , (
+                                       select
+                                          exists
+                                          (
+                                             select
+                                                p.contrato
+                                             from
+                                                parcelas p
+                                             where
+                                                p.contrato       = ct.numero
+                                                and p.datavencto > ct.faturamento
+                                          )
+                                    )
+                                               as ContratoeAPrazo
+                                  , np.codigo  as vcodigonota
+                                  , cd.produto as vproduto
+                                  , cd.filial  as vfilial
+                                 from
+                                    (((contratosdevolvidos cd
+                                    join
+                                       (contratos ct
+                                       join
+                                          notaspag np
+                                          on
+                                             ct.numero = np.contrato)
+                                       on
+                                          cd.contrato=ct.numero)
+                                    join
+                                       produtoscontratos pc
+                                       on
+                                          cd.contrato    = pc.contrato
+                                          and cd.produto = pc.produto
+                                          and cd.filial  = pc.filial)
+                                    join
+                                       (produtos p
+                                       join
+                                          ((caracteristicas c
+                                          join
+                                             classes cl
+                                             on
+                                                c.classe=cl.codigo)
+                                          join
+                                             grupos g
+                                             on
+                                                g.codigo=c.grupo)
+                                          on
+                                             p.caracteristica=c.codigo)
+                                       on
+                                          cd.produto=p.codigo)
+                                 where
+                                    cd.devolucao between('14/08/2023') and
+                                    (
+                                       '14/08/2023'
+                                    )
+                                    and cd.situacao = 'N'
+                                    and cd.tipo     ='D'
+                                    and
+                                    case
+                                       when ct.os
+                                          then ct.tipoequipamento in (1, 2)
+                                          and not (
+                                             coalesce(ct.os_garantia,false)
+                                             and ct.os_garantia_status='A'
+                                          )
+                                          and not coalesce(ct.os_cortesia,false)
+                                          else true
+                                    end
+                              )
+                              as devolucoes
+                              join
+                                 movimentos m
+                                 on
+                                    devolucoes.vcodigonota  = m.codigonota
+                                    and devolucoes.vproduto = m.produto
+                                    and devolucoes.vfilial  = m.filial
+									
+									
+                        )
+                     union all
+                        (
+                           select
+                              devolucoes.filial
+                            , codigoclasse
+                            , nomeclasse
+                            , devolucoes.quantidade
+                            , - abs(m.valor) as custo
+                            , 0.00           as creditotroca
+                            , codigogrupo
+                            , nomegrupo
+                            , valorbrutodoproduto
+                            , Valordescontodoproduto
+                            , valoracrescproduto
+                            , contratoeaprazo
+                            , case
+                                 when not ContratoeAPrazo
+                                    then (ValorBrutodoProduto-ValorDescontodoProduto)+ValorAcrescProduto
+                                    else 0
+                              end as ValoraVistadoProduto
+                            , case
+                                 when ContratoeAPrazo
+                                    then (ValorBrutodoProduto-ValorDescontodoProduto)+ValorAcrescProduto
+                                    else 0
+                              end as ValoraPrazodoProduto
+                           from
+                              (
+                                 select
+                                    np.filial
+                                  , c.classe     as codigoclasse
+                                  , cl.descricao as nomeclasse
+                                  , pnp.quantidade
+                                  , c.grupo                                                                               as codigogrupo
+                                  , g.descricao                                                                           as nomegrupo
+                                  , (pnp.quantidade * pnp.precounitario) + coalesce(pnp.frete,0) + coalesce(pnp.seguro,0) as ValorBrutodoproduto
+                                  , coalesce(pnp.desconto,0) + coalesce(pnp.valordescontoitem,0)                          as ValorDescontodoProduto
+                                  , coalesce(pnp.acrescimo,0)                                                             as ValorAcrescProduto
+                                  , np.codigo                                                                             as vcodigonota
+                                  , pnp.produto                                                                           as vproduto
+                                  , np.filial                                                                             as vfilial
+                                  , false                                                                                 as ContratoeAPrazo
+                                 FROM
+                                    (notaspag np
+                                    join
+                                       (produtosnotaspag pnp
+                                       join
+                                          (produtos p
+                                          join
+                                             ((caracteristicas c
+                                             join
+                                                classes cl
+                                                on
+                                                   c.classe=cl.codigo)
+                                             join
+                                                grupos g
+                                                on
+                                                   g.codigo=c.grupo)
+                                             on
+                                                p.caracteristica=c.codigo)
+                                          on
+                                             pnp.produto = p.codigo)
+                                       on
+                                          np.codigo = pnp.codigonota)
+                                 WHERE
+                                    np.data BETWEEN ('14/08/2023') AND
+                                    (
+                                       '14/08/2023'
+                                    )
+                                    and ehnotafiscalentradadevolucao(np.codigofiscal)
+                                    and np.contrato is null
+                                    and 't'
+                              )
+                              as devolucoes
+                              join
+                                 movimentos m
+                                 on
+                                    devolucoes.vcodigonota  = m.codigonota
+                                    and devolucoes.vproduto = m.produto
+                                    and devolucoes.vfilial  = m.filial
+                        )
+                     union all
+                        (
+                           select
+                              devolucoes.filial
+                            , codigoclasse
+                            , nomeclasse
+                            , devolucoes.quantidade
+                            , - abs
+                                 (
+                                       (
+                                          CASE
+                                             WHEN coalesce((EmEstoque + Reservado + Transito + Demonstracao + Conserto + Danificada + ReservaPrevia),0)=0
+                                                THEN 0
+                                                ELSE (financeiro/(EmEstoque + Reservado + Transito + Demonstracao + Conserto + Danificada + ReservaPrevia))*devolucoes.quantidade
+                                          END
+                                       )
+                                 )
+                              as custo
+                            , devolucoes.creditotroca
+                            , codigogrupo
+                            , nomegrupo
+                            , valorbrutodoproduto
+                            , Valordescontodoproduto
+                            , valoracrescproduto
+                            , contratoeaprazo
+                            , case
+                                 when not ContratoeAPrazo
+                                    then (ValorBrutodoProduto-ValorDescontodoProduto)+ValorAcrescProduto
+                                    else 0
+                              end as ValoraVistadoProduto
+                            , case
+                                 when ContratoeAPrazo
+                                    then (ValorBrutodoProduto-ValorDescontodoProduto)+ValorAcrescProduto
+                                    else 0
+                              end as ValoraPrazodoProduto
+                           from
+                              (
+                                 select
+                                    ct.filialvenda as filial
+                                  , c.classe       as codigoclasse
+                                  , cl.descricao   as nomeclasse
+                                  , cd.quantidade
+                                  , cd.creditotroca
+                                  , c.grupo                       as codigogrupo
+                                  , g.descricao                   as nomegrupo
+                                  , (cd.valorvista + cd.desconto) as ValorBrutodoproduto
+                                  , cd.desconto                   as ValorDescontodoProduto
+                                  , (cd.ValorPrazo-cd.ValorVista) as ValorAcrescProduto
+                                  , (
+                                       select
+                                          exists
+                                          (
+                                             select
+                                                p.contrato
+                                             from
+                                                parcelas p
+                                             where
+                                                p.contrato       = ct.numero
+                                                and p.datavencto > ct.faturamento
+                                          )
+                                    )
+                                                 as ContratoeAPrazo
+                                  , cd.devolucao as vfaturamento
+                                  , cd.produto   as vproduto
+                                  , cd.filial    as vfilial
+                                 from
+                                    (((contratosdevolvidos cd
+                                    join
+                                       contratos ct
+                                       on
+                                          cd.contrato=ct.numero)
+                                    join
+                                       produtoscontratos pc
+                                       on
+                                          cd.contrato    = pc.contrato
+                                          and cd.produto = pc.produto
+                                          and cd.filial  = pc.filial)
+                                    join
+                                       (produtos p
+                                       join
+                                          ((caracteristicas c
+                                          join
+                                             classes cl
+                                             on
+                                                c.classe=cl.codigo)
+                                          join
+                                             grupos g
+                                             on
+                                                g.codigo=c.grupo)
+                                          on
+                                             p.caracteristica=c.codigo)
+                                       on
+                                          cd.produto=p.codigo)
+                                 where
+                                    cd.devolucao between('14/08/2023') and
+                                    (
+                                       '14/08/2023'
+                                    )
+                                    and cd.situacao = 'F'
+                                    and cd.tipo     ='D'
+                                    and
+                                    case
+                                       when ct.os
+                                          then ct.tipoequipamento in (1, 2)
+                                          and not (
+                                             coalesce(ct.os_garantia,false)
+                                             and ct.os_garantia_status='A'
+                                          )
+                                          and not coalesce(ct.os_cortesia,false)
+                                          else true
+                                    end
+                              )
+                              as devolucoes
+                            , movimentos
+                           WHERE
+                              numero=
+                              (
+                                 SELECT
+                                    max(numero)
+                                 FROM
+                                    movimentos
+                                 WHERE
+                                    produto               =vProduto
+                                    AND filial            =vFilial
+                                    AND cast(data as date)=vfaturamento
+                              )
+                        )
+                     union all
+                        (
+                           select
+                              produtos.*
+                            , CASE
+                                 WHEN NOT ContratoeAPrazo
+                                    THEN (ValorBrutodoProduto-ValorDescontodoProduto)+ValorAcrescProduto
+                                    ELSE 0
+                              END AS ValoraVistadoProduto
+                            , CASE
+                                 WHEN ContratoeAPrazo
+                                    THEN (ValorBrutodoProduto-ValorDescontodoProduto)+ValorAcrescProduto
+                                    ELSE 0
+                              END AS ValoraPrazodoProduto
+                           from
+                              (
+                                 SELECT
+                                    produtos.filial
+                                  , produtos.codigoclasse
+                                  , produtos.nomeclasse
+                                  , produtos.quantidade
+                                  , - abs
+                                       (
+                                             (
+                                                CASE
+                                                   WHEN coalesce((EmEstoque + Reservado + Transito + Demonstracao + Conserto + Danificada + ReservaPrevia),0)=0
+                                                      THEN 0
+                                                      ELSE (financeiro/(EmEstoque + Reservado + Transito + Demonstracao + Conserto + Danificada + ReservaPrevia))*produtos.quantidade
+                                                END
+                                             )
+                                       )
+                                    as custo
+                                  , produtos.creditotroca
+                                  , produtos.codigogrupo
+                                  , produtos.nomegrupo
+                                  , ((produtos.quantidade *precovenda) + (((coalesce(frete,0)+coalesce(seguro,0))*(produtos.quantidade*precovenda)) / ((vvalorvista+coalesce(desconto,0)-coalesce(frete,0)-coalesce(seguro,0)) - totalservico))) AS ValorBrutodoProduto
+                                  , ((coalesce(desconto,0)*(produtos.quantidade*precovenda)) / ((vvalorvista+coalesce(desconto,0)-coalesce(frete,0)-coalesce(seguro,0)) - totalservico))                                                         as ValorDescontodoProduto
+                                  , (((vValorPrazo-vValorVista)*(produtos.quantidade*precovenda)) / ((vvalorvista+coalesce(desconto,0)-coalesce(frete,0)-coalesce(seguro,0)) - TotalServico))                                                    as ValorAcrescProduto
+                                  , (
+                                       SELECT
+                                          EXISTS
+                                          (
+                                             SELECT
+                                                p.contrato
+                                             FROM
+                                                parcelas p
+                                             WHERE
+                                                p.contrato       = vcontrato
+                                                and p.datavencto > vfaturamento
+                                          )
+                                    )
+                                    as ContratoeaPrazo
+                                 from
+                                    (
+                                       select
+                                          produtos.*
+                                        , coalesce(totalservico,0) as totalservico
+                                       from
+                                          (
+                                             select
+                                                pc.contrato    as vcontrato
+                                              , pc.produto     as vproduto
+                                              , pc.filial      as vfilial
+                                              , ct.valorprazo  as vvalorprazo
+                                              , ct.valorvista  as vvalorvista
+                                              , ct.faturamento as vfaturamento
+                                              , ct.filialvenda as filial
+                                              , c.classe       as codigoclasse
+                                              , cl.descricao   as nomeclasse
+                                              , pc.quantidade
+                                              , g.codigo    as codigogrupo
+                                              , g.descricao as nomegrupo
+                                              , pc.precovenda
+                                              , ct.frete
+                                              , ct.seguro
+                                              , ratearcreditotroca_contratos(pc.contrato, pc.produto) as creditotroca
+                                              , ct.desconto
+                                              , ct.situacao
+                                             from
+                                                (
+                                                   select distinct
+                                                      p.*
+                                                   from
+                                                      (
+                                                         select
+                                                            p.contrato
+                                                          , p.datapagto
+                                                         from
+                                                            parcelas p
+                                                         where
+                                                            p.datapagto between '14/08/2023' and '14/08/2023'
+                                                            and p.tipopagto='E'
+                                                      )
+                                                      as p
+                                                      join
+                                                         contratos ct
+                                                         on
+                                                            p.contrato = ct.numero
+                                                   where
+                                                      ct.situacao='C'
+                                                      AND
+                                                      (
+                                                         coalesce(ct.valorvista,0)<>0
+                                                      )
+                                                      and ct.origem is NULL
+                                                      and
+                                                      case
+                                                         when ct.os
+                                                            then ct.tipoequipamento in (1, 2)
+                                                            and not (
+                                                               coalesce(ct.os_garantia,false)
+                                                               and ct.os_garantia_status='A'
+                                                            )
+                                                            and not coalesce(ct.os_cortesia,false)
+                                                            else true
+                                                      end
+                                                      and not exists
+                                                      (
+                                                         select
+                                                            cd.contrato
+                                                         from
+                                                            contratosdevolvidos cd
+                                                         where
+                                                            cd.contrato = ct.numero
+                                                            and cd.tipo ='D'
+                                                      )
+                                                )
+                                                as cancelados
+                                              , (contratos ct
+                                                join
+                                                   (produtoscontratos pc
+                                                   join
+                                                      (produtos p
+                                                      join
+                                                         ((caracteristicas c
+                                                         join
+                                                            classes cl
+                                                            on
+                                                               c.classe = cl.codigo)
+                                                         join
+                                                            grupos g
+                                                            on
+                                                               g.codigo=c.grupo)
+                                                         on
+                                                            p.caracteristica = c.codigo)
+                                                      on
+                                                         pc.produto=p.codigo)
+                                                   on
+                                                      pc.contrato = ct.numero)
+                                             where
+                                                cancelados.contrato = ct.numero
+                                                and
+                                                case
+                                                   when ct.os
+                                                      then ct.tipoequipamento in (1, 2)
+                                                      and not (
+                                                         coalesce(ct.os_garantia,false)
+                                                         and ct.os_garantia_status='A'
+                                                      )
+                                                      and not coalesce(ct.os_cortesia,false)
+                                                      else true
+                                                end
+                                             order by
+                                                pc.contrato
+                                              , pc.produto
+                                              , pc.filial
+                                          )
+                                          as produtos
+                                          left join
+                                             (
+                                                SELECT
+                                                   sc.contrato
+                                                 , coalesce(SUM(sc.quantidade*sc.valorservico),0) as totalservico
+                                                FROM
+                                                   contratos         ct
+                                                 , servicoscontratos sc
+                                                WHERE
+                                                   sc.contrato = ct.numero
+                                                   AND ct.faturamento BETWEEN('14/08/2023') and
+                                                   (
+                                                      '14/08/2023'
+                                                   )
+                                                   AND
+                                                   (
+                                                      coalesce(ct.valorvista,0)<>0
+                                                   )
+                                                   and ct.origem IS NULL
+                                                   and
+                                                   case
+                                                      when ct.os
+                                                         then ct.tipoequipamento in (1, 2)
+                                                         and not (
+                                                            coalesce(ct.os_garantia,false)
+                                                            and ct.os_garantia_status='A'
+                                                         )
+                                                         and not coalesce(ct.os_cortesia,false)
+                                                         else true
+                                                   end
+                                                group by
+                                                   sc.contrato
+                                             )
+                                             as sc
+                                             on
+                                                sc.contrato = produtos.vcontrato
+                                    )
+                                    as produtos
+                                    left join
+                                       movimentos
+                                       on
+                                          produtos.vproduto         = movimentos.produto
+                                          and produtos.vfilial      = movimentos.filial
+                                          and produtos.vfaturamento = movimentos.data
+                                          and movimentos.numero     =
+                                          (
+                                             SELECT
+                                                max(numero)
+                                             FROM
+                                                movimentos
+                                             WHERE
+                                                produto               =vProduto
+                                                AND filial            =vFilial
+                                                AND cast(data as date)=vfaturamento
+                                          )
+                              )
+                              as produtos
+                        )
+                        ) as devolucoes
+                     group by
+                        filial
+                      , codigoclasse
+                      , nomeclasse
+                      , codigogrupo
+                      , nomegrupo
+                  )
+                  /*Final Devolucoes*/
+                  ) as vendasclasses
+               group by
+                  filial
+                , codigoclasse
+                , nomeclasse
+                , codigogrupo
+                , nomegrupo
+            )
+            as VendaseDevolucoes
+          , (
+            /*INICIO TOTAL VENDAS NOTAS FISCAIS*/
+            (
+               SELECT
+                  (produtos.quantidade*produtos.precovenda) + coalesce(produtos.frete,0) + coalesce(produtos.seguro,0) AS ValorBrutodoProduto
+                , coalesce(produtos.desconto,0)                                                                        as ValorDescontodoProduto
+                , coalesce(produtos.acrescimo,0)                                                                       as ValorAcrescProduto
+                ,
+                  /*  ((produtos.quantidade*precovenda) +  (((coalesce(frete,0)+coalesce(seguro,0))*(produtos.quantidade*precovenda)) /  ((vvalorvista+coalesce(desconto,0)-coalesce(frete,0)-coalesce(seguro,0)) -  totalservico))) AS ValorBrutodoProduto,   ((coalesce(desconto,0)*(produtos.quantidade*precovenda)) /  ((vvalorvista+coalesce(desconto,0)-coalesce(frete,0)-coalesce(seguro,0)) -  totalservico)) as ValorDescontodoProduto,   (((vValorPrazo-vValorVista)*(produtos.quantidade*precovenda)) /  ((vvalorvista+coalesce(desconto,0)-coalesce(frete,0)-coalesce(seguro,0)) -  TotalServico)) as ValorAcrescProduto,  */
+                  produtos.custo as custodaclasse
+               from
+                  (
+                     select
+                        produtos.*
+                        /*, coalesce(totalservico,0) as totalservico*/
+                     from
+                        (
+                           select
+                              df.numero
+                            , df.data
+                            ,
+                              /*  df.valortotal as vvalorprazo,  df.valorvista as vvalorvista,  */
+                              pdf.acrescimo
+                            , ct.faturamento as vfaturamento
+                            ,
+                              /*  df.desconto,  df.valorfrete as frete,  df.seguro,  */
+                              pdf.desconto
+                            , pdf.frete
+                            , pdf.seguro
+                            ,
+                              /*ratearcreditotroca_dadosfiscais(pdf.dadofiscal, pdf.produto) as creditotroca,*/
+                              pdf.quantidade
+                            , pdf.precovenda
+                            , df.filialvenda as filial
+                            , c.classe       as codigoclasse
+                            , cl.descricao   as nomeclasse
+                            , abs(m.valor)   as custo
+                            , g.codigo       as codigogrupo
+                            , g.descricao    as nomegrupo
+                            , df.contrato    as vcontrato
+                           from
+                              ((dadosfiscais df
+                              join
+                                 contratos ct
+                                 on
+                                    ct.numero = df.contrato)
+                              join
+                                 ((produtosdadosfiscais pdf
+                                 left join
+                                    movimentos m
+                                    on
+                                       pdf.movimento = m.numero)
+                                 join
+                                    (produtos p
+                                    join
+                                       ((caracteristicas c
+                                       join
+                                          classes cl
+                                          on
+                                             c.classe=cl.codigo)
+                                       join
+                                          grupos g
+                                          on
+                                             g.codigo=c.grupo)
+                                       on
+                                          p.caracteristica=c.codigo)
+                                    on
+                                       pdf.produto=p.codigo)
+                                 on
+                                    df.numero = pdf.dadofiscal)
+                            , produtoscontratos pc
+                           WHERE
+                              ct.numero      = pc.contrato
+                              and pc.produto = pdf.produto
+                              and pc.filial  = pdf.filial
+                              and ct.faturamento BETWEEN('14/08/2023') and
+                              (
+                                 '14/08/2023'
+                              )
+                              and
+                              case
+                                 when ct.os
+                                    then ct.tipoequipamento in (1, 2)
+                                    and not (
+                                       coalesce(ct.os_garantia,false)
+                                       and ct.os_garantia_status='A'
+                                    )
+                                    and not coalesce(ct.os_cortesia,false)
+                                    else true
+                              end
+                              and not coalesce(df.notavinculada,false)
+                              and NOT pc.brinde
+                              AND
+                              (
+                                 coalesce(ct.valorvista,0)<>0
+                              )
+                              and ct.origem IS NULL
+                              and
+                              case
+                                 when ct.os
+                                    then ct.tipoequipamento in (1, 2)
+                                    and not (
+                                       coalesce(ct.os_garantia,false)
+                                       and ct.os_garantia_status='A'
+                                    )
+                                    and not coalesce(ct.os_cortesia,false)
+                                    else true
+                              end
+                        )
+                        as produtos
+                        /* left join (SELECT sc.contrato,  coalesce(SUM(sc.quantidade*sc.valorservico),0) as totalservico  FROM contratos ct, servicoscontratos sc  WHERE sc.contrato = ct.numero  AND ct.faturamento BETWEEN('14/08/2023') and ('14/08/2023')  AND (coalesce(ct.valorvista,0)<>0)  and ct.origem IS NULL  and case when ct.os then ct.tipoequipamento in (1,2) else true end   group by sc.contrato) as sc on sc.contrato = produtos.vcontrato */
+                  )
+                  as produtos
+            )
+               /*FINAL TOTAL VENDAS NOTAS FISCAIS*/
+               union all
+                  /* INICIO TOTAL VENDAS FRENTE DE CAIXA */
+                  (
+                     SELECT
+                        (produtos.quantidade*produtos.precovenda) + coalesce(produtos.frete,0) + coalesce(produtos.seguro,0) AS ValorBrutodoProduto
+                      , coalesce(produtos.desconto,0)                                                                        as ValorDescontodoProduto
+                      , coalesce(produtos.acrescimo,0)                                                                       as ValorAcrescProduto
+                      ,
+                        /*  ((produtos.quantidade*precovenda) +  (((coalesce(frete,0)+coalesce(seguro,0))*(produtos.quantidade*precovenda)) /  (vvalorvista+coalesce(desconto,0)-coalesce(frete,0)-coalesce(seguro,0)) )) AS ValorBrutodoProduto,   ((coalesce(desconto,0)*(produtos.quantidade*precovenda)) /  (vvalorvista+coalesce(desconto,0)-coalesce(frete,0)-coalesce(seguro,0))) as ValorDescontodoProduto,   (((vValorPrazo-vValorVista)*(produtos.quantidade*precovenda)) /  (vvalorvista+coalesce(desconto,0)-coalesce(frete,0)-coalesce(seguro,0))) as ValorAcrescProduto,   */
+                        produtos.custo as custodaclasse
+                     from
+                        (
+                           select
+                              df.numero
+                            , df.data
+                            ,
+                              /*  df.valortotal as vvalorprazo,  df.valorvista as vvalorvista,  */
+                              pdf.acrescimo
+                            , df.data as vfaturamento
+                            ,
+                              /*  df.desconto,   df.valorfrete as frete,  df.seguro,  */
+                              pdf.desconto
+                            , pdf.frete
+                            , pdf.seguro
+                            ,
+                              /*ratearcreditotroca_dadosfiscais(pdf.dadofiscal, pdf.produto) as creditotroca,*/
+                              pdf.quantidade
+                            , pdf.precovenda
+                            , df.filialvenda as filial
+                            , c.classe       as codigoclasse
+                            , cl.descricao   as nomeclasse
+                            , abs(m.valor)   as custo
+                            , g.codigo       as codigogrupo
+                            , g.descricao    as nomegrupo
+                            , df.contrato    as vcontrato
+                           from
+                              (dadosfiscais df
+                              join
+                                 ((produtosdadosfiscais pdf
+                                 left join
+                                    movimentos m
+                                    on
+                                       pdf.movimento = m.numero)
+                                 join
+                                    (produtos p
+                                    join
+                                       ((caracteristicas c
+                                       join
+                                          classes cl
+                                          on
+                                             c.classe=cl.codigo)
+                                       join
+                                          grupos g
+                                          on
+                                             g.codigo=c.grupo)
+                                       on
+                                          p.caracteristica=c.codigo)
+                                    on
+                                       pdf.produto=p.codigo)
+                                 on
+                                    df.numero = pdf.dadofiscal)
+                           WHERE
+                              df.data BETWEEN('14/08/2023') and
+                              (
+                                 '14/08/2023'
+                              )
+                              and ehnotafiscalsaidavenda(pdf.codigofiscal)
+                              and df.contrato is null
+                              AND df.situacao not in ('C'
+                                                    ,'D')
+                              and not coalesce(pdf.brinde,false)
+                              AND
+                              (
+                                 coalesce(df.valorvista,0)<>0
+                              )
+                              and not coalesce(df.notavinculada,false)
+                        )
+                        as produtos
+                  )
+               /*FINAL TOTAL VENDAS FRENTE DE CAIXA */
+               union all
+                  /*INICIO TOTAL VENDAS FATURADAS*/
+                  (
+                     select
+                        (qtfaturada*precovenda) + coalesce(frete,0) + coalesce(seguro,0) AS ValorBrutodoProduto
+                      , coalesce(produtos.desconto,0)                                    as ValorDescontodoProduto
+                      , coalesce(produtos.acrescimo,0)                                   as ValorAcrescProduto
+                      ,
+                        /*  ((qtfaturada*precovenda) +  (((coalesce(frete,0)+coalesce(seguro,0))*(qtfaturada*precovenda)) /  ((vvalorvista+coalesce(desconto,0)-coalesce(frete,0)-coalesce(seguro,0)) -  totalservico))) AS ValorBrutodoProduto,   ((coalesce(desconto,0)*(qtfaturada*precovenda)) /  ((vvalorvista+coalesce(desconto,0)-coalesce(frete,0)-coalesce(seguro,0)) -  totalservico)) as ValorDescontodoProduto,   (((vValorPrazo-vValorVista)*(qtfaturada*precovenda)) /  ((vvalorvista+coalesce(desconto,0)-coalesce(frete,0)-coalesce(seguro,0)) -  TotalServico)) as ValorAcrescProduto,  */
+                        ABS
+                           (
+                                 (
+                                    CASE
+                                       WHEN coalesce((EmEstoque + Reservado + Transito + Demonstracao + Conserto + Danificada + ReservaPrevia),0)=0
+                                          THEN 0
+                                          ELSE (financeiro/(EmEstoque + Reservado + Transito + Demonstracao + Conserto + Danificada + ReservaPrevia))*qtfaturada
+                                    END
+                                 )
+                           )
+                        as custodaclasse
+                     from
+                        (
+                           select
+                              produtos.*
+                              /*, coalesce(totalservico,0) as totalservico*/
+                           from
+                              (
+                                 select
+                                    produtos.*
+                                  , (produtos.quantidade - coalesce(pd.quantidade,0)) as qtfaturada
+                                 from
+                                    (
+                                       select
+                                          pc.contrato as vcontrato
+                                        , pc.produto  as vproduto
+                                        , pc.filial   as vfilial
+                                        ,
+                                          /*  ct.valorprazo as vvalorprazo,  ct.valorvista as vvalorvista,  */
+                                          pc.acrescimo
+                                        , ct.faturamento as vfaturamento
+                                        , ct.filialvenda as filial
+                                        , c.classe       as codigoclasse
+                                        , cl.descricao   as nomeclasse
+                                        , pc.quantidade
+                                        , g.codigo    as codigogrupo
+                                        , g.descricao as nomegrupo
+                                        , pc.precovenda
+                                        , pc.frete
+                                        , pc.seguro
+                                        ,
+                                          /*ratearcreditotroca_contratos(pc.contrato, pc.produto) as creditotroca,*/
+                                          pc.desconto
+                                        ,
+                                          /*   ct.frete,  ct.seguro,  ct.desconto,  */
+                                          ct.situacao
+                                       from
+                                          (contratos ct
+                                          join
+                                             (produtoscontratos pc
+                                             join
+                                                (produtos p
+                                                join
+                                                   ((caracteristicas c
+                                                   join
+                                                      classes cl
+                                                      on
+                                                         c.classe=cl.codigo)
+                                                   join
+                                                      grupos g
+                                                      on
+                                                         g.codigo=c.grupo)
+                                                   on
+                                                      p.caracteristica=c.codigo)
+                                                on
+                                                   pc.produto=p.codigo)
+                                             on
+                                                ct.numero = pc.contrato)
+                                       WHERE
+                                          ct.faturamento BETWEEN('14/08/2023') and
+                                          (
+                                             '14/08/2023'
+                                          )
+                                          and NOT pc.brinde
+                                          AND
+                                          (
+                                             coalesce(ct.valorvista,0)<>0
+                                          )
+                                          and ct.origem IS NULL
+                                          and
+                                          case
+                                             when ct.os
+                                                then ct.tipoequipamento in (1, 2)
+                                                and not (
+                                                   coalesce(ct.os_garantia,false)
+                                                   and ct.os_garantia_status='A'
+                                                )
+                                                and not coalesce(ct.os_cortesia,false)
+                                                else true
+                                          end
+                                          and
+                                          (
+                                             (
+                                                ct.situacao <> 'N'
+                                             )
+                                             or
+                                             (
+                                                ct.situacao = 'N'
+                                                and exists
+                                                (
+                                                   select
+                                                      cd.contrato
+                                                   from
+                                                      contratosdevolvidos cd
+                                                   where
+                                                      cd.contrato     = ct.numero
+                                                      and cd.produto  = pc.produto
+                                                      and cd.filial   = pc.filial
+                                                      and cd.tipo     ='D'
+                                                      and cd.situacao = 'F'
+                                                )
+                                             )
+                                          )
+                                       order by
+                                          pc.contrato
+                                        , pc.produto
+                                        , pc.filial
+                                    )
+                                    as produtos
+                                    left join
+                                       (
+                                          select
+                                             df.contrato
+                                           , pdf.produto
+                                           , pdf.filial
+                                           , coalesce(sum(pdf.quantidade),0) as quantidade
+                                          from
+                                             ((dadosfiscais df
+                                             join
+                                                contratos ct
+                                                on
+                                                   ct.numero = df.contrato)
+                                             join
+                                                ((produtosdadosfiscais pdf
+                                                join
+                                                   movimentos m
+                                                   on
+                                                      pdf.movimento = m.numero)
+                                                join
+                                                   (produtos p
+                                                   join
+                                                      ((caracteristicas c
+                                                      join
+                                                         classes cl
+                                                         on
+                                                            c.classe=cl.codigo)
+                                                      join
+                                                         grupos g
+                                                         on
+                                                            g.codigo=c.grupo)
+                                                      on
+                                                         p.caracteristica=c.codigo)
+                                                   on
+                                                      pdf.produto=p.codigo)
+                                                on
+                                                   df.numero = pdf.dadofiscal)
+                                           , produtoscontratos pc
+                                          WHERE
+                                             ct.numero      = pc.contrato
+                                             and pc.produto = pdf.produto
+                                             and pc.filial  = pdf.filial
+                                             and ct.faturamento BETWEEN('14/08/2023') and
+                                             (
+                                                '14/08/2023'
+                                             )
+                                             and not coalesce(df.notavinculada,false)
+                                             and NOT pc.brinde
+                                             AND
+                                             (
+                                                coalesce(ct.valorvista,0)<>0
+                                             )
+                                             and ct.origem IS NULL
+                                             and
+                                             case
+                                                when ct.os
+                                                   then ct.tipoequipamento in (1, 2)
+                                                   and not (
+                                                      coalesce(ct.os_garantia,false)
+                                                      and ct.os_garantia_status='A'
+                                                   )
+                                                   and not coalesce(ct.os_cortesia,false)
+                                                   else true
+                                             end
+                                          group by
+                                             df.contrato
+                                           , pdf.produto
+                                           , pdf.filial
+                                       )
+                                       pd
+                                       on
+                                          produtos.vcontrato    = pd.contrato
+                                          and produtos.vproduto = pd.produto
+                                          and produtos.vfilial  = pd.filial
+                              )
+                              as produtos
+                              /*left join (SELECT sc.contrato,  coalesce(SUM(sc.quantidade*sc.valorservico),0) as totalservico  FROM contratos ct, servicoscontratos sc  WHERE sc.contrato = ct.numero  AND ct.faturamento BETWEEN('14/08/2023') and ('14/08/2023')  AND (coalesce(ct.valorvista,0)<>0)  and ct.origem IS NULL  and case when ct.os then ct.tipoequipamento in (1,2) and not (coalesce(ct.os_garantia,false) and ct.os_garantia_status='A') and not coalesce(ct.os_cortesia,false) else true end   group by sc.contrato) as sc on sc.contrato = produtos.vcontrato*/
+                           where
+                              qtfaturada<>0
+                        )
+                        as produtos
+                      , movimentos
+                     WHERE
+                        numero=
+                        (
+                           SELECT
+                              max(numero)
+                           FROM
+                              movimentos
+                           WHERE
+                              produto               =vProduto
+                              AND filial            =vFilial
+                              AND cast(data as date)=vfaturamento
+                        )
+                  )
+               /*FINAL TOTAL VENDAS FATURADAS*/
+               union all
+                  /*INICIO TOTAL VENDAS SERVICOS*/
+                  (
+                     select
+                        (coalesce(sc.quantidade,0)*coalesce(sc.valorservico,0)) as valorBrutodoProduto
+                      , cast(0 as numeric)                                      as valordescontodoProduto
+                      , cast(0 as numeric)                                      as ValorAcrescProduto
+                      , cast(0 as numeric)                                      as custodaclasse
+                     from
+                        (contratos ct
+                        join
+                           servicoscontratos sc
+                           on
+                              ct.numero = sc.contrato)
+                     where
+                        ct.faturamento between('14/08/2023') and
+                        (
+                           '14/08/2023'
+                        )
+                        and
+                        case
+                           when ct.os
+                              then ct.tipoequipamento in (1, 2)
+                              and not (
+                                 coalesce(ct.os_garantia,false)
+                                 and ct.os_garantia_status='A'
+                              )
+                              and not coalesce(ct.os_cortesia,false)
+                              else true
+                        end
+                  )
+               /*FINAL TOTAL VENDAS SERVICOS*/
+               /*Inicio Total Devolucoes*/
+               UNION ALL
+                  (
+                     select
+                        -                 valorbrutodoproduto
+                      , -                 Valordescontodoproduto
+                      , -                 valoracrescproduto
+                      , - ABS(m.valor) as custodaclasse
+                     from
+                        (
+                           select
+                              ct.filialvenda as filial
+                            , c.classe       as codigoclasse
+                            , cl.descricao   as nomeclasse
+                            , cd.quantidade
+                            , c.grupo                       as codigogrupo
+                            , g.descricao                   as nomegrupo
+                            , (cd.valorvista + cd.desconto) as ValorBrutodoproduto
+                            , cd.desconto                   as ValorDescontodoProduto
+                            , (cd.ValorPrazo-cd.ValorVista) as ValorAcrescProduto
+                            , (
+                                 select
+                                    exists
+                                    (
+                                       select
+                                          p.contrato
+                                       from
+                                          parcelas p
+                                       where
+                                          p.contrato       = ct.numero
+                                          and p.datavencto > ct.faturamento
+                                    )
+                              )
+                                         as ContratoeAPrazo
+                            , np.codigo  as vcodigonota
+                            , cd.produto as vproduto
+                            , cd.filial  as vfilial
+                           from
+                              (((contratosdevolvidos cd
+                              join
+                                 (contratos ct
+                                 join
+                                    notaspag np
+                                    on
+                                       ct.numero = np.contrato)
+                                 on
+                                    cd.contrato=ct.numero)
+                              join
+                                 produtoscontratos pc
+                                 on
+                                    cd.contrato    = pc.contrato
+                                    and cd.produto = pc.produto
+                                    and cd.filial  = pc.filial)
+                              join
+                                 (produtos p
+                                 join
+                                    ((caracteristicas c
+                                    join
+                                       classes cl
+                                       on
+                                          c.classe=cl.codigo)
+                                    join
+                                       grupos g
+                                       on
+                                          g.codigo=c.grupo)
+                                    on
+                                       p.caracteristica=c.codigo)
+                                 on
+                                    cd.produto=p.codigo)
+                           where
+                              cd.devolucao between('14/08/2023') and
+                              (
+                                 '14/08/2023'
+                              )
+                              and cd.situacao = 'N'
+                              and cd.tipo     ='D'
+                              and
+                              case
+                                 when ct.os
+                                    then ct.tipoequipamento in (1, 2)
+                                    and not (
+                                       coalesce(ct.os_garantia,false)
+                                       and ct.os_garantia_status='A'
+                                    )
+                                    and not coalesce(ct.os_cortesia,false)
+                                    else true
+                              end
+                        )
+                        as devolucoes
+                        join
+                           movimentos m
+                           on
+                              devolucoes.vcodigonota  = m.codigonota
+                              and devolucoes.vproduto = m.produto
+                              and devolucoes.vfilial  = m.filial
+                  )
+               union all
+                  (
+                     select
+                        -                 valorbrutodoproduto
+                      , -                 Valordescontodoproduto
+                      , -                 valoracrescproduto
+                      , - ABS(m.valor) as custodaclasse
+                     from
+                        (
+                           select
+                              np.filial
+                            , c.classe     as codigoclasse
+                            , cl.descricao as nomeclasse
+                            , pnp.quantidade
+                            , c.grupo                                                                               as codigogrupo
+                            , g.descricao                                                                           as nomegrupo
+                            , (pnp.quantidade * pnp.precounitario) + coalesce(pnp.frete,0) + coalesce(pnp.seguro,0) as ValorBrutodoproduto
+                            , coalesce(pnp.desconto,0) + coalesce(pnp.valordescontoitem,0)                          as ValorDescontodoProduto
+                            , coalesce(pnp.acrescimo,0)                                                             as ValorAcrescProduto
+                            , false                                                                                 as ContratoeAPrazo
+                            , np.codigo                                                                             as vcodigonota
+                            , pnp.produto                                                                           as vproduto
+                            , np.filial                                                                             as vfilial
+                           FROM
+                              (notaspag np
+                              join
+                                 (produtosnotaspag pnp
+                                 join
+                                    (produtos p
+                                    join
+                                       ((caracteristicas c
+                                       join
+                                          classes cl
+                                          on
+                                             c.classe=cl.codigo)
+                                       join
+                                          grupos g
+                                          on
+                                             g.codigo=c.grupo)
+                                       on
+                                          p.caracteristica=c.codigo)
+                                    on
+                                       pnp.produto = p.codigo)
+                                 on
+                                    np.codigo = pnp.codigonota)
+                           WHERE
+                              np.data BETWEEN ('14/08/2023') AND
+                              (
+                                 '14/08/2023'
+                              )
+                              and ehnotafiscalentradadevolucao(np.codigofiscal)
+                              and np.contrato is null
+                              and 't'
+                        )
+                        as devolucoes
+                        join
+                           movimentos m
+                           on
+                              devolucoes.vcodigonota  = m.codigonota
+                              and devolucoes.vproduto = m.produto
+                              and devolucoes.vfilial  = m.filial
+                  )
+               union all
+                  (
+                     select
+                        - valorbrutodoproduto
+                      , - Valordescontodoproduto
+                      , - valoracrescproduto
+                      , - ABS
+                           (
+                                 (
+                                    CASE
+                                       WHEN coalesce((EmEstoque + Reservado + Transito + Demonstracao + Conserto + Danificada + ReservaPrevia),0)=0
+                                          THEN 0
+                                          ELSE (financeiro/(EmEstoque + Reservado + Transito + Demonstracao + Conserto + Danificada + ReservaPrevia))*devolucoes.quantidade
+                                    END
+                                 )
+                           )
+                        as custodaclasse
+                     from
+                        (
+                           select
+                              ct.filialvenda as filial
+                            , c.classe       as codigoclasse
+                            , cl.descricao   as nomeclasse
+                            , cd.quantidade
+                            , c.grupo                       as codigogrupo
+                            , g.descricao                   as nomegrupo
+                            , (cd.valorvista + cd.desconto) as ValorBrutodoproduto
+                            , cd.desconto                   as ValorDescontodoProduto
+                            , (cd.ValorPrazo-cd.ValorVista) as ValorAcrescProduto
+                            , (
+                                 select
+                                    exists
+                                    (
+                                       select
+                                          p.contrato
+                                       from
+                                          parcelas p
+                                       where
+                                          p.contrato       = ct.numero
+                                          and p.datavencto > ct.faturamento
+                                    )
+                              )
+                                           as ContratoeAPrazo
+                            , cd.devolucao as vfaturamento
+                            , cd.produto   as vproduto
+                            , cd.filial    as vfilial
+                           from
+                              (((contratosdevolvidos cd
+                              join
+                                 contratos ct
+                                 on
+                                    cd.contrato=ct.numero)
+                              join
+                                 produtoscontratos pc
+                                 on
+                                    cd.contrato    = pc.contrato
+                                    and cd.produto = pc.produto
+                                    and cd.filial  = pc.filial)
+                              join
+                                 (produtos p
+                                 join
+                                    ((caracteristicas c
+                                    join
+                                       classes cl
+                                       on
+                                          c.classe=cl.codigo)
+                                    join
+                                       grupos g
+                                       on
+                                          g.codigo=c.grupo)
+                                    on
+                                       p.caracteristica=c.codigo)
+                                 on
+                                    cd.produto=p.codigo)
+                           where
+                              cd.devolucao between('14/08/2023') and
+                              (
+                                 '14/08/2023'
+                              )
+                              and cd.situacao = 'F'
+                              and cd.tipo     ='D'
+                              and
+                              case
+                                 when ct.os
+                                    then ct.tipoequipamento in (1, 2)
+                                    and not (
+                                       coalesce(ct.os_garantia,false)
+                                       and ct.os_garantia_status='A'
+                                    )
+                                    and not coalesce(ct.os_cortesia,false)
+                                    else true
+                              end
+                        )
+                        as devolucoes
+                      , movimentos
+                     WHERE
+                        numero=
+                        (
+                           SELECT
+                              max(numero)
+                           FROM
+                              movimentos
+                           WHERE
+                              produto               =vProduto
+                              AND filial            =vFilial
+                              AND cast(data as date)=vfaturamento
+                        )
+                  )
+               union all
+                  (
+                     SELECT
+                        - (produtos.quantidade*produtos.precovenda) + coalesce(produtos.frete,0) + coalesce(produtos.seguro,0) AS ValorBrutodoProduto
+                      , - coalesce(produtos.desconto,0)                                                                        as ValorDescontodoProduto
+                      , - coalesce(produtos.acrescimo,0)                                                                       as ValorAcrescProduto
+                      ,
+                        /*   - ((produtos.quantidade*precovenda) +  (((coalesce(frete,0)+coalesce(seguro,0))*(produtos.quantidade*precovenda)) /  ((vvalorvista+coalesce(desconto,0)-coalesce(frete,0)-coalesce(seguro,0)) -  totalservico))) AS ValorBrutodoProduto,   - ((coalesce(desconto,0)*(produtos.quantidade*precovenda)) /  ((vvalorvista+coalesce(desconto,0)-coalesce(frete,0)-coalesce(seguro,0)) -  totalservico)) as ValorDescontodoProduto,   - ((vValorPrazo-vValorVista)*(produtos.quantidade*precovenda)) /  ((vvalorvista+coalesce(desconto,0)-coalesce(frete,0)-coalesce(seguro,0)) -  TotalServico) as ValorAcrescProduto,   */
+                        - ABS
+                           (
+                                 (
+                                    CASE
+                                       WHEN coalesce((EmEstoque + Reservado + Transito + Demonstracao + Conserto + Danificada + ReservaPrevia),0)=0
+                                          THEN 0
+                                          ELSE (financeiro/(EmEstoque + Reservado + Transito + Demonstracao + Conserto + Danificada + ReservaPrevia))*produtos.quantidade
+                                    END
+                                 )
+                           )
+                        as custodaclasse
+                     from
+                        (
+                           select
+                              produtos.*
+                              /*, coalesce(totalservico,0) as totalservico */
+                           from
+                              (
+                                 select
+                                    pc.contrato as vcontrato
+                                  , pc.produto  as vproduto
+                                  , pc.filial   as vfilial
+                                  ,
+                                    /*  ct.valorprazo as vvalorprazo,  ct.valorvista as vvalorvista,  */
+                                    pc.acrescimo
+                                  , ct.faturamento as vfaturamento
+                                  , ct.filialvenda as filial
+                                  , c.classe       as codigoclasse
+                                  , cl.descricao   as nomeclasse
+                                  , pc.quantidade
+                                  , g.codigo    as codigogrupo
+                                  , g.descricao as nomegrupo
+                                  , pc.precovenda
+                                  , pc.frete
+                                  , pc.seguro
+                                  ,
+                                    /*ratearcreditotroca_contratos(pc.contrato, pc.produto) as creditotroca,*/
+                                    pc.desconto
+                                  ,
+                                    /*   ct.frete,  ct.seguro,  ct.desconto, */
+                                    ct.situacao
+                                 from
+                                    (
+                                       select distinct
+                                          p.*
+                                       from
+                                          (
+                                             select
+                                                p.contrato
+                                              , p.datapagto
+                                             from
+                                                parcelas p
+                                             where
+                                                p.datapagto between '14/08/2023' and '14/08/2023'
+                                                and p.tipopagto='E'
+                                          )
+                                          as p
+                                          join
+                                             contratos ct
+                                             on
+                                                p.contrato = ct.numero
+                                       where
+                                          ct.situacao='C'
+                                          AND
+                                          (
+                                             coalesce(ct.valorvista,0)<>0
+                                          )
+                                          and ct.origem is NULL
+                                          and
+                                          case
+                                             when ct.os
+                                                then ct.tipoequipamento in (1, 2)
+                                                and not (
+                                                   coalesce(ct.os_garantia,false)
+                                                   and ct.os_garantia_status='A'
+                                                )
+                                                and not coalesce(ct.os_cortesia,false)
+                                                else true
+                                          end
+                                          and not exists
+                                          (
+                                             select
+                                                cd.contrato
+                                             from
+                                                contratosdevolvidos cd
+                                             where
+                                                cd.contrato = ct.numero
+                                                and cd.tipo ='D'
+                                          )
+                                    )
+                                    as cancelados
+                                  , (contratos ct
+                                    join
+                                       (produtoscontratos pc
+                                       join
+                                          (produtos p
+                                          join
+                                             ((caracteristicas c
+                                             join
+                                                classes cl
+                                                on
+                                                   c.classe = cl.codigo)
+                                             join
+                                                grupos g
+                                                on
+                                                   g.codigo=c.grupo)
+                                             on
+                                                p.caracteristica = c.codigo)
+                                          on
+                                             pc.produto=p.codigo)
+                                       on
+                                          pc.contrato = ct.numero)
+                                 where
+                                    cancelados.contrato = ct.numero
+                                 order by
+                                    pc.contrato
+                                  , pc.produto
+                                  , pc.filial
+                              )
+                              as produtos
+                              /* left join (SELECT sc.contrato,  coalesce(SUM(sc.quantidade*sc.valorservico),0) as totalservico  FROM contratos ct, servicoscontratos sc  WHERE sc.contrato = ct.numero  AND ct.faturamento BETWEEN('14/08/2023') and ('14/08/2023')  AND (coalesce(ct.valorvista,0)<>0)  and ct.origem IS NULL  and case when ct.os then ct.tipoequipamento in (1,2) and not (coalesce(ct.os_garantia,false) and ct.os_garantia_status='A') and not coalesce(ct.os_cortesia,false) else true end   group by sc.contrato) as sc on sc.contrato = produtos.vcontrato */
+                        )
+                        as produtos
+                      , movimentos
+                     WHERE
+                        numero=
+                        (
+                           SELECT
+                              max(numero)
+                           FROM
+                              movimentos
+                           WHERE
+                              produto               =vProduto
+                              AND filial            =vFilial
+                              AND cast(data as date)=vfaturamento
+                        )
+                  )
+                  /*Final Total Devolucoes*/
+            ) as totalclasses
+         group by
+            filial
+          , codigoclasse
+          , nomeclasse
+          , codigogrupo
+          , nomegrupo
+          , quantidade
+          , VendasEDevolucoes.valorbrutodoproduto
+          , VendasEDevolucoes.valordescontodoproduto
+          , VendasEDevolucoes.valorliquidoProduto
+          , VendasEDevolucoes.ValorAcrescProduto
+          , VendasEDevolucoes.valoravistadoproduto
+          , VendasEDevolucoes.valoraprazodoproduto
+          , VendasEDevolucoes.custo
+          , VendasEDevolucoes.creditotroca
+      )
+      as Vendas
+   Order by
+      filial
+    , nomefilial
+    , codigoclasse
+    , percentuallucro DESC
+    , percentualmargem DESC
+    , codigogrupo
+)
+;

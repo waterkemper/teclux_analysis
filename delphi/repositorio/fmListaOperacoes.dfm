@@ -5,7 +5,7 @@ inherited frmListaOperacoes: TfrmListaOperacoes
   Caption = 'Lista de Opera'#231#245'es'
   ClientHeight = 310
   ClientWidth = 435
-  Position = poDesktopCenter
+  Position = poScreenCenter
   PixelsPerInch = 96
   TextHeight = 16
   object dbgListaOperacoes: TtecDBGrid

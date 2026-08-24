@@ -1,8 +1,8 @@
 inherited dtmMovtosBancos: TdtmMovtosBancos
   OldCreateOrder = False
   Left = 470
-  Top = 292
-  Height = 325
+  Top = 124
+  Height = 493
   Width = 639
   object qryMovtosBancos: TtecQuery
     Tag = -1

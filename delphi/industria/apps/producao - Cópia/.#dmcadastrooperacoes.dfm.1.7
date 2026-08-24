@@ -1,0 +1,714 @@
+inherited dtmCadastroOperacoes: TdtmCadastroOperacoes
+  OldCreateOrder = False
+  Left = 566
+  Top = 220
+  Height = 513
+  Width = 755
+  object qryOperacoes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterClose = qryOperacoesAfterClose
+    AfterScroll = qryOperacoesAfterScroll
+    OnCalcFields = qryOperacoesCalcFields
+    OnNewRecord = qryOperacoesNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select *'
+      'from operacoes'
+      'where nome = :nome and'
+      '      (coalesce(c01,'#39#39') = :c01) and'
+      '      (coalesce(c02,'#39#39') = :c02) and'
+      '      (coalesce(c03,'#39#39') = :c03)')
+    RequestLive = True
+    Left = 72
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'nome'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'c01'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'c02'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'c03'
+        ParamType = ptUnknown
+      end>
+    object qryOperacoescodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesnome: TStringField
+      FieldName = 'nome'
+      Required = True
+      Size = 10
+    end
+    object qryOperacoesc01: TStringField
+      FieldName = 'c01'
+      Size = 2
+    end
+    object qryOperacoesc02: TStringField
+      FieldName = 'c02'
+      Size = 2
+    end
+    object qryOperacoesc03: TStringField
+      FieldName = 'c03'
+      Size = 2
+    end
+    object qryOperacoessetup2: TBooleanField
+      FieldName = 'setup'
+    end
+    object qryOperacoesplanocontrole: TBooleanField
+      FieldName = 'planocontrole'
+    end
+    object qryOperacoesdescricao: TStringField
+      DisplayLabel = 'descri'#231#227'o'
+      FieldName = 'descricao'
+      Required = True
+      Size = 60
+    end
+    object qryOperacoesdescr_c01: TStringField
+      FieldName = 'descr_c01'
+    end
+    object qryOperacoesdescr_c02: TStringField
+      FieldName = 'descr_c02'
+    end
+    object qryOperacoesdescr_c03: TStringField
+      FieldName = 'descr_c03'
+    end
+    object qryOperacoesppm: TIntegerField
+      FieldName = 'ppm'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesdescricaosetup: TStringField
+      FieldName = 'descricaosetup'
+      Size = 2000
+    end
+    object qryOperacoestempopadrao: TFloatField
+      FieldName = 'tempopadrao'
+      DisplayFormat = '0.00'
+    end
+    object qryOperacoesnroperadores: TIntegerField
+      FieldName = 'nroperadores'
+      DisplayFormat = '0'
+    end
+    object qryOperacoespecashora: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'pecashora'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryOperacoesnaobloqueiausuario: TBooleanField
+      FieldName = 'naobloqueiausuario'
+    end
+  end
+  object qryOperacoesSetup: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryOperacoesSetupAfterPost
+    AfterDelete = qryOperacoesSetupAfterDelete
+    OnNewRecord = qryOperacoesSetupNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select *'
+      'from operacoessetup'
+      'where operacao = :operacao')
+    RequestLive = True
+    Left = 72
+    Top = 80
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'operacao'
+        ParamType = ptUnknown
+      end>
+    object qryOperacoesSetupoperacao: TIntegerField
+      FieldName = 'operacao'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesSetupsequencia: TIntegerField
+      FieldName = 'sequencia'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesSetuppergunta: TStringField
+      FieldName = 'pergunta'
+      Size = 110
+    end
+    object qryOperacoesSetupresposta: TStringField
+      FieldName = 'resposta'
+      Size = 30
+    end
+  end
+  object qryOperacoesNiveisSalariais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryOperacoesNiveisSalariaisAfterOpen
+    BeforePost = qryOperacoesNiveisSalariaisBeforePost
+    AfterPost = qryOperacoesNiveisSalariaisAfterPost
+    AfterDelete = qryOperacoesNiveisSalariaisAfterDelete
+    OnNewRecord = qryOperacoesNiveisSalariaisNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select ons.*,'
+      '       ns.descricao,'
+      '       nivelsalarial as auxnivelsalarial'
+      
+        'from operacoesniveissalariais ons join niveissalariais ns on ons' +
+        '.nivelsalarial = ns.codigo'
+      'where ons.operacao = :operacao')
+    RequestLive = True
+    Left = 72
+    Top = 144
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'operacao'
+        ParamType = ptUnknown
+      end>
+    object qryOperacoesNiveisSalariaisoperacao: TIntegerField
+      FieldName = 'operacao'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesNiveisSalariaisnivelsalarial: TIntegerField
+      DisplayLabel = 'N'#237'vel salarial'
+      FieldName = 'nivelsalarial'
+      Required = True
+      DisplayFormat = '0'
+      EditFormat = '###'
+      MaxValue = 999
+      MinValue = 1
+    end
+    object qryOperacoesNiveisSalariaisdescricao: TStringField
+      DisplayLabel = 'descri'#231#227'o'
+      FieldName = 'descricao'
+      Required = True
+    end
+    object qryOperacoesNiveisSalariaisauxnivelsalarial: TIntegerField
+      FieldName = 'auxnivelsalarial'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesNiveisSalariaisnroperadores: TIntegerField
+      FieldName = 'nroperadores'
+      DisplayFormat = '0'
+    end
+  end
+  object dsrOperacoes: TtecDataSource
+    DataSet = qryOperacoes
+    Left = 104
+    Top = 32
+  end
+  object dsrOperacoesSetup: TtecDataSource
+    DataSet = qryOperacoesSetup
+    Left = 104
+    Top = 96
+  end
+  object dsrOperacoesNiveisSalariais: TtecDataSource
+    DataSet = qryOperacoesNiveisSalariais
+    Left = 104
+    Top = 160
+  end
+  object qryOperacoesProximo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select coalesce(max(codigo),0)+1 as codigo'
+      'from operacoes')
+    RequestLive = True
+    Left = 224
+    Top = 16
+    object qryOperacoesProximocodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+  end
+  object ZMonitor1: TZMonitor
+    Left = 328
+    Top = 24
+  end
+  object qryControleProcessos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterEdit = qryControleProcessosAfterEdit
+    OnNewRecord = qryControleProcessosNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cp.*'
+      'from controleprocessos cp'
+      'where cp.operacao = :operacao')
+    RequestLive = True
+    Left = 224
+    Top = 120
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'operacao'
+        ParamType = ptUnknown
+      end>
+    object qryControleProcessosoperacao: TIntegerField
+      FieldName = 'operacao'
+      DisplayFormat = '0'
+    end
+    object qryControleProcessosrevisao: TDateField
+      Alignment = taCenter
+      FieldName = 'revisao'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryControleProcessosresponsavel: TStringField
+      FieldName = 'responsavel'
+      Size = 30
+    end
+    object qryControleProcessosequipe: TStringField
+      FieldName = 'equipe'
+      Size = 60
+    end
+  end
+  object dsrControleProcessos: TtecDataSource
+    DataSet = qryControleProcessos
+    Left = 280
+    Top = 136
+  end
+  object qryProcessosControle: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryProcessosControleAfterPost
+    AfterDelete = qryProcessosControleAfterDelete
+    OnCalcFields = qryProcessosControleCalcFields
+    OnNewRecord = qryProcessosControleNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select pc.*'
+      'from processoscontrole pc'
+      'where pc.operacao = :operacao'
+      'order by pc.sequencia')
+    RequestLive = True
+    Left = 248
+    Top = 208
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'operacao'
+        ParamType = ptUnknown
+      end>
+    object qryProcessosControleoperacao: TIntegerField
+      FieldName = 'operacao'
+      DisplayFormat = '0'
+    end
+    object qryProcessosControlesequencia: TIntegerField
+      FieldName = 'sequencia'
+      DisplayFormat = '0'
+    end
+    object qryProcessosControlemaquinadispositivopadrao: TStringField
+      FieldName = 'maquinadispositivopadrao'
+      Size = 100
+    end
+    object qryProcessosControlecaracteristicaproduto: TStringField
+      FieldName = 'caracteristicaproduto'
+      Size = 100
+    end
+    object qryProcessosControlecaracteristicaprocesso: TStringField
+      FieldName = 'caracteristicaprocesso'
+      Size = 100
+    end
+    object qryProcessosControlecsr: TStringField
+      FieldName = 'csr'
+      Size = 4
+    end
+    object qryProcessosControlemd: TStringField
+      FieldName = 'md'
+    end
+    object qryProcessosControletiporegistrometodocontrole: TStringField
+      FieldName = 'tiporegistrometodocontrole'
+      Size = 100
+    end
+    object qryProcessosControletoleranciaespecproduto: TStringField
+      FieldName = 'toleranciaespecproduto'
+      Size = 100
+    end
+    object qryProcessosControletecnicaavaliacaomedicao: TStringField
+      FieldName = 'tecnicaavaliacaomedicao'
+      Size = 100
+    end
+    object qryProcessosControletamanho: TIntegerField
+      FieldName = 'tamanho'
+      DisplayFormat = '0'
+    end
+    object qryProcessosControlefrequencia: TStringField
+      FieldName = 'frequencia'
+      Size = 15
+    end
+    object qryProcessosControleplanoreacao: TStringField
+      FieldName = 'planoreacao'
+      Size = 100
+    end
+    object qryProcessosControlemodofalhapotencial: TStringField
+      FieldName = 'modofalhapotencial'
+      Size = 100
+    end
+    object qryProcessosControleefeitospotenciaisfalha: TStringField
+      FieldName = 'efeitospotenciaisfalha'
+      Size = 100
+    end
+    object qryProcessosControlesev: TIntegerField
+      FieldName = 'sev'
+      DisplayFormat = '0'
+    end
+    object qryProcessosControlecla: TIntegerField
+      FieldName = 'cla'
+      DisplayFormat = '0'
+    end
+    object qryProcessosControlecausaspotenciaisfalha: TStringField
+      FieldName = 'causaspotenciaisfalha'
+      Size = 100
+    end
+    object qryProcessosControleoco: TIntegerField
+      FieldName = 'oco'
+      DisplayFormat = '0'
+    end
+    object qryProcessosControlecontrolesatuaisprocesso: TStringField
+      FieldName = 'controlesatuaisprocesso'
+      Size = 100
+    end
+    object qryProcessosControledet: TIntegerField
+      FieldName = 'det'
+      DisplayFormat = '0'
+    end
+    object qryProcessosControleacoesrecomendadas: TStringField
+      FieldName = 'acoesrecomendadas'
+      Size = 100
+    end
+    object qryProcessosControleresponsavel: TStringField
+      FieldName = 'responsavel'
+      Size = 30
+    end
+    object qryProcessosControleprazo: TDateField
+      Alignment = taCenter
+      FieldName = 'prazo'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryProcessosControleacoestomadas: TStringField
+      FieldName = 'acoestomadas'
+      Size = 100
+    end
+    object qryProcessosControlecontrolesprevencao: TStringField
+      FieldName = 'controlesprevencao'
+      Size = 100
+    end
+    object qryProcessosControlerevisar: TBooleanField
+      FieldName = 'revisar'
+    end
+    object qryProcessosControlenpr: TIntegerField
+      FieldKind = fkCalculated
+      FieldName = 'npr'
+      ReadOnly = True
+      DisplayFormat = '0'
+      Calculated = True
+    end
+  end
+  object dsrProcessosControle: TtecDataSource
+    DataSet = qryProcessosControle
+    OnDataChange = dsrProcessosControleDataChange
+    Left = 280
+    Top = 224
+  end
+  object qryProcessosControleCopia: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select pc.*'
+      'from processoscontrole pc'
+      'where pc.operacao = :operacao'
+      'order by pc.sequencia')
+    RequestLive = True
+    Left = 344
+    Top = 80
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'operacao'
+        ParamType = ptUnknown
+      end>
+    object qryProcessosControleCopiaoperacao: TIntegerField
+      FieldName = 'operacao'
+      DisplayFormat = '0'
+    end
+    object qryProcessosControleCopiasequencia: TIntegerField
+      FieldName = 'sequencia'
+      DisplayFormat = '0'
+    end
+    object qryProcessosControleCopiamaquinadispositivopadrao: TStringField
+      FieldName = 'maquinadispositivopadrao'
+      Size = 100
+    end
+    object qryProcessosControleCopiacaracteristicaproduto: TStringField
+      FieldName = 'caracteristicaproduto'
+      Size = 100
+    end
+    object qryProcessosControleCopiacaracteristicaprocesso: TStringField
+      FieldName = 'caracteristicaprocesso'
+      Size = 100
+    end
+    object qryProcessosControleCopiacsr: TStringField
+      FieldName = 'csr'
+      Size = 4
+    end
+    object qryProcessosControleCopiamd: TStringField
+      FieldName = 'md'
+    end
+    object qryProcessosControleCopiatiporegistrometodocontrole: TStringField
+      FieldName = 'tiporegistrometodocontrole'
+      Size = 100
+    end
+    object qryProcessosControleCopiatoleranciaespecproduto: TStringField
+      FieldName = 'toleranciaespecproduto'
+      Size = 100
+    end
+    object qryProcessosControleCopiatecnicaavaliacaomedicao: TStringField
+      FieldName = 'tecnicaavaliacaomedicao'
+      Size = 100
+    end
+    object qryProcessosControleCopiatamanho: TIntegerField
+      FieldName = 'tamanho'
+      DisplayFormat = '0'
+    end
+    object qryProcessosControleCopiafrequencia: TStringField
+      FieldName = 'frequencia'
+      Size = 15
+    end
+    object qryProcessosControleCopiaplanoreacao: TStringField
+      FieldName = 'planoreacao'
+      Size = 100
+    end
+    object qryProcessosControleCopiamodofalhapotencial: TStringField
+      FieldName = 'modofalhapotencial'
+      Size = 100
+    end
+    object qryProcessosControleCopiaefeitospotenciaisfalha: TStringField
+      FieldName = 'efeitospotenciaisfalha'
+      Size = 100
+    end
+    object qryProcessosControleCopiasev: TIntegerField
+      FieldName = 'sev'
+      DisplayFormat = '0'
+    end
+    object qryProcessosControleCopiacla: TIntegerField
+      FieldName = 'cla'
+      DisplayFormat = '0'
+    end
+    object qryProcessosControleCopiacausaspotenciaisfalha: TStringField
+      FieldName = 'causaspotenciaisfalha'
+      Size = 100
+    end
+    object qryProcessosControleCopiaoco: TIntegerField
+      FieldName = 'oco'
+      DisplayFormat = '0'
+    end
+    object qryProcessosControleCopiacontrolesatuaisprocesso: TStringField
+      FieldName = 'controlesatuaisprocesso'
+      Size = 100
+    end
+    object qryProcessosControleCopiadet: TIntegerField
+      FieldName = 'det'
+      DisplayFormat = '0'
+    end
+    object qryProcessosControleCopiaacoesrecomendadas: TStringField
+      FieldName = 'acoesrecomendadas'
+      Size = 100
+    end
+    object qryProcessosControleCopiaresponsavel: TStringField
+      FieldName = 'responsavel'
+      Size = 30
+    end
+    object qryProcessosControleCopiaprazo: TDateField
+      Alignment = taCenter
+      FieldName = 'prazo'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryProcessosControleCopiaacoestomadas: TStringField
+      FieldName = 'acoestomadas'
+      Size = 100
+    end
+    object qryProcessosControleCopiacontrolesprevencao: TStringField
+      FieldName = 'controlesprevencao'
+      Size = 100
+    end
+    object qryProcessosControleCopiarevisar: TBooleanField
+      FieldName = 'revisar'
+    end
+  end
+  object qryFalhasOperacoes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryFalhasOperacoesAfterOpen
+    AfterEdit = qryFalhasOperacoesAfterEdit
+    AfterPost = qryFalhasOperacoesAfterPost
+    AfterDelete = qryFalhasOperacoesAfterDelete
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT fo.Falha,'
+      '       fo.Operacao,      '
+      '       f.Descricao'
+      ''
+      'FROM falhasoperacoes fo'
+      '     JOIN falhas f ON fo.Falha = f.Codigo'
+      ''
+      'WHERE fo.Operacao = :Operacao'
+      ''
+      'ORDER BY f.Descricao'
+      '')
+    RequestLive = True
+    Left = 72
+    Top = 240
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Operacao'
+        ParamType = ptUnknown
+      end>
+    object qryFalhasOperacoesfalha: TIntegerField
+      FieldName = 'falha'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryFalhasOperacoesdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 300
+    end
+    object qryFalhasOperacoesoperacao: TIntegerField
+      FieldName = 'operacao'
+      DisplayFormat = '0'
+    end
+  end
+  object dsrFalhasOperacoes: TtecDataSource
+    DataSet = qryFalhasOperacoes
+    Left = 96
+    Top = 272
+  end
+  object qryOperacoesMaquinas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryOperacoesMaquinasAfterOpen
+    AfterEdit = qryOperacoesMaquinasAfterEdit
+    AfterPost = qryOperacoesMaquinasAfterPost
+    AfterDelete = qryOperacoesMaquinasAfterDelete
+    OnNewRecord = qryOperacoesMaquinasNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select om.operacao,'
+      '       om.maquina,'
+      '       m.descricao'
+      ''
+      'from operacoesmaquinas om'
+      '     join maquinas m'
+      '     on om.maquina = m.codigo'
+      ''
+      'where om.operacao = :operacao     '
+      ''
+      'order by om.maquina'
+      '')
+    RequestLive = True
+    Left = 96
+    Top = 360
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'operacao'
+        ParamType = ptUnknown
+      end>
+    object qryOperacoesMaquinasoperacao: TIntegerField
+      DisplayLabel = 'Opera'#231#227'o'
+      FieldName = 'operacao'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesMaquinasmaquina: TIntegerField
+      DisplayLabel = 'M'#225'quina'
+      FieldName = 'maquina'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryOperacoesMaquinasdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Required = True
+      Size = 30
+    end
+  end
+  object dsrOperacoesMaquinas: TtecDataSource
+    DataSet = qryOperacoesMaquinas
+    Left = 144
+    Top = 376
+  end
+end

@@ -1,0 +1,635 @@
+unit dmdefinicaomontador;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, cpdatasource, ZQuery, ZPgSqlQuery,
+  cpquery, clparametrossistema,
+  ctconstantes, dmtecsoft, biblio;
+
+type
+  TdtmDefinicaoMontador = class(TdtmBasico)
+    qryFilialMontagem: TtecQuery;
+    qryFilialMontagemcodigo: TIntegerField;
+    qryFilialMontagemnome: TStringField;
+    dsrFilialMontagem: TtecDataSource;
+    qryConsultaFiliais: TtecQuery;
+    qryConsultaFiliaisnome: TStringField;
+    qryConsultaFiliaiscodigo: TIntegerField;
+    qryFilialVenda: TtecQuery;
+    qryFilialVendacodigo: TIntegerField;
+    qryFilialVendanome: TStringField;
+    dsrFilialVenda: TtecDataSource;
+    qryGrupoFiliaisMontagem: TtecQuery;
+    qryGrupoFiliaisMontagemcodigo: TIntegerField;
+    qryGrupoFiliaisMontagemdescricao: TStringField;
+    dstGrupoFiliaisMontagem: TtecDataSource;
+    qryConsultaGrupoFiliais: TtecQuery;
+    qryConsultaGrupoFiliaisdescricao: TStringField;
+    qryConsultaGrupoFiliaiscodigo: TIntegerField;
+    qryGrupoFiliaisVenda: TtecQuery;
+    qryGrupoFiliaisVendacodigo: TIntegerField;
+    qryGrupoFiliaisVendadescricao: TStringField;
+    dsrGrupoFiliaisVenda: TtecDataSource;
+    qryCliente: TtecQuery;
+    qryClientecodigo: TIntegerField;
+    qryClientenome: TStringField;
+    qryClientetipo: TStringField;
+    dsrCliente: TtecDataSource;
+    qryConsultaClientes: TtecQuery;
+    qryConsultaClientesnome: TStringField;
+    qryConsultaClientespessoanumero: TStringField;
+    qryConsultaClientescodigo: TIntegerField;
+    qryConsultaClientestipo: TStringField;
+    qryConsultaClientestipoorig: TStringField;
+    qryProdutosContratos: TtecQuery;
+    qryProdutosContratosfilial: TIntegerField;
+    qryProdutosContratosproduto: TLargeintField;
+    qryProdutosContratosdescricao: TStringField;
+    qryProdutosContratosquantidade: TFloatField;
+    qryProdutosContratoscancelado: TFloatField;
+    qryProdutosContratosprecovenda: TFloatField;
+    qryProdutosContratosreserva: TIntegerField;
+    qryProdutosContratosmontagem: TStringField;
+    qryProdutosContratosentrega: TStringField;
+    qryProdutosContratosbrinde: TBooleanField;
+    dsrProdutosContratos: TtecDataSource;
+    qryProdutosDadosFiscais: TtecQuery;
+    qryProdutosDadosFiscaisquantidade: TFloatField;
+    qryProdutosDadosFiscaisaliquotaicms: TFloatField;
+    qryProdutosDadosFiscaisproduto: TLargeintField;
+    qryProdutosDadosFiscaispreco: TIntegerField;
+    qryProdutosDadosFiscaisprecovenda: TFloatField;
+    qryProdutosDadosFiscaisprodutodescricao: TStringField;
+    qryProdutosDadosFiscaismarcadescricao: TStringField;
+    qryProdutosDadosFiscaisprecototal: TFloatField;
+    dsrProdutosDadosFiscais: TtecDataSource;
+    qryClientesRequisicoes: TtecQuery;
+    qryClientesRequisicoescodigo: TIntegerField;
+    qryClientesRequisicoestipo: TStringField;
+    qryClientesRequisicoesnome: TStringField;
+    qryClientesRequisicoespessoanumero: TStringField;
+    qryClientesRequisicoescnpj: TStringField;
+    qryClientesRequisicoesinscricaoestadual: TStringField;
+    qryClientesRequisicoesrua: TStringField;
+    qryClientesRequisicoescidade: TIntegerField;
+    qryClientesRequisicoesbairro: TIntegerField;
+    qryClientesRequisicoesestado: TStringField;
+    qryClientesRequisicoescep: TIntegerField;
+    qryClientesRequisicoesfonenumero: TIntegerField;
+    qryClientesRequisicoesfoneddd: TIntegerField;
+    qryClientesRequisicoesfoneramal: TStringField;
+    qryClientesRequisicoesfonenumeroempresa: TIntegerField;
+    qryClientesRequisicoesfonedddempresa: TIntegerField;
+    qryClientesRequisicoesfoneramalempresa: TStringField;
+    qryClientesRequisicoesnomecidade: TStringField;
+    qryClientesRequisicoesnomebairro: TStringField;
+    dsrClientesRequisicoes: TtecDataSource;
+    qryMontador: TtecQuery;
+    qryMontadorcodigo: TIntegerField;
+    qryMontadornome: TStringField;
+    qryMontadortipo: TStringField;
+    dsrMontador: TtecDataSource;
+    qryConsultaMontador: TtecQuery;
+    qryConsultaMontadorcodigo: TIntegerField;
+    qryConsultaMontadortipo: TStringField;
+    qryConsultaMontadortipoorig: TStringField;
+    qryRequisicoes: TtecQuery;
+    qryMontadorSelecao: TtecQuery;
+    dsrMontadorSelecao: TtecDataSource;
+    qryMontadorSelecaocodigo: TIntegerField;
+    qryMontadorSelecaonome: TStringField;
+    qryMontadorSelecaotipo: TStringField;
+    dsrRequisicoes: TtecDataSource;
+    qryRequisicoesabertura: TDateField;
+    qryRequisicoesdatahora: TDateTimeField;
+    qryRequisicoesrequisicao: TIntegerField;
+    qryRequisicoesdadofiscal: TIntegerField;
+    qryRequisicoescontrato: TStringField;
+    qryRequisicoesfilialmontagem: TIntegerField;
+    qryRequisicoesnomefilialmontagem: TStringField;
+    qryRequisicoesmontador: TIntegerField;
+    qryRequisicoesnomemontador: TStringField;
+    qryRequisicoesvendedor: TIntegerField;
+    qryRequisicoesnomevendedor: TStringField;
+    qryRequisicoesemissaocontrato: TDateField;
+    qryRequisicoesnomefilialvenda: TStringField;
+    qryRequisicoesnomefilialemissao: TStringField;
+    qryRequisicoesemissaodadofiscal: TDateField;
+    qryRequisicoesserie: TStringField;
+    qryRequisicoesnotafiscal: TIntegerField;
+    qryRequisicoesmaquina: TIntegerField;
+    qryRequisicoesintervensao: TIntegerField;
+    qryRequisicoescupomfiscal: TIntegerField;
+    qryRequisicoesentrua: TStringField;
+    qryRequisicoesentcidade: TIntegerField;
+    qryRequisicoescidade: TStringField;
+    qryRequisicoesentestado: TStringField;
+    qryRequisicoesentbairro: TIntegerField;
+    qryRequisicoesbairro: TStringField;
+    qryRequisicoesentcep: TIntegerField;
+    qryRequisicoesentfoneddd: TIntegerField;
+    qryRequisicoesentfonenumero: TIntegerField;
+    qryRequisicoesentfoneramal: TStringField;
+    qryRequisicoescliente: TIntegerField;
+    qryRequisicoestipocliente: TStringField;
+    qryRequisicoesmarcar: TBooleanField;
+    qryRequisicoesItens: TtecQuery;
+    dsrRequisicoesItens: TtecDataSource;
+    qryRequisicoesItensproduto: TLargeintField;
+    qryRequisicoesItensfilial: TIntegerField;
+    qryRequisicoesItensquantidade: TFloatField;
+    qryRequisicoesItensobservacoes: TStringField;
+    qryRequisicoesItensdescricaoproduto: TStringField;
+    qryRequisicoesnomecliente: TStringField;
+    qryRequisicoestipomontador: TStringField;
+    qryConsultaMontadornome: TStringField;
+    qryRequisicoesvalor: TFloatField;
+    qryRequisicoesItenslinha: TStringField;
+    qryRequisicoesItenscoluna: TStringField;
+    qryRequisicoesItensvalorgrade1: TStringField;
+    qryRequisicoesItensvalorgrade2: TStringField;
+    qryProdutosContratoslinha: TStringField;
+    qryProdutosContratoscoluna: TStringField;
+    qryProdutosContratosvalorgrade1: TStringField;
+    qryProdutosContratosvalorgrade2: TStringField;
+    qryProdutosDadosFiscaislinha: TStringField;
+    qryProdutosDadosFiscaiscoluna: TStringField;
+    qryProdutosDadosFiscaisvalorgrade1: TStringField;
+    qryProdutosDadosFiscaisvalorgrade2: TStringField;
+    qryRequisicoesendnumero: TIntegerField;
+    qryRequisicoesendcomplemento: TStringField;
+    qryClientesRequisicoesnumero: TIntegerField;
+    qryClientesRequisicoescomplemento: TStringField;
+    procedure qryRequisicoesAfterScroll(DataSet: TDataSet);
+    procedure qryRequisicoesItensAfterScroll(DataSet: TDataSet);
+    procedure qryProdutosContratosAfterScroll(DataSet: TDataSet);
+    procedure qryProdutosDadosFiscaisAfterScroll(DataSet: TDataSet);
+  private
+    FDataFinal: string;
+    FDataInicial: string;
+    FGrupoFilialdeMontagem: String;
+    FCliente: String;
+    FFilialdeVenda: String;
+    FgrupoFilialdeVenda: String;
+    FFilialdeMontagem: String;
+    FMontador: String;
+    FTipoMontador: string;
+    FCodigoMontador: string;
+    FRequisicaoSemMontador: Boolean;
+    FOnScrollLinhaColunaGradeRequisicoesItens: TNotifyEvent;
+    FOnScrollLinhaColunaGradeProdutosContratos: TNotifyEvent;
+    FOnScrollLinhaColunaGradeProdutosDadosFiscais: TNotifyEvent;
+    function GetConsultaClientes: TZDataSet;
+    function GetConsultaFiliais: TZDataSet;
+    function GetConsultaGrupoFiliais: TZDataSet;
+    function GetConsultaMontadores: TZDataSet;
+    function GetTotalRegistros: Integer;
+    procedure SetCliente(const Value: String);
+    procedure SetDataFinal(const Value: string);
+    procedure SetDataInicial(const Value: string);
+    procedure SetFilialdeMontagem(const Value: String);
+    procedure SetFilialdeVenda(const Value: String);
+    procedure SetGrupoFilialdeMontagem(const Value: String);
+    procedure SetGrupoFilialdeVenda(const Value: String);
+    procedure SetMontador(const Value: String);
+    procedure SetCodigoMontador(const Value: string);
+    function GetColunadaGradeRequisicoesItens: String;
+    function GetLinhadaGradeRequisicoesItens: String;
+    function GetColunadaGradeProdutosContratos: String;
+    function GetLinhadaGradeProdutosContratos: String;
+    function GetColunadaGradeProdutosDadosFiscais: String;
+    function GetLinhadaGradeProdutosDadosFiscais: String;
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    procedure AbreTabelaPesquisa(TipoPesquisa: TipoProcuraRequisicoes);
+    procedure FechaTabelaPesquisa(TipoPesquisa: TipoProcuraRequisicoes);
+    procedure Selecionar(TipoPesquisa: TipoProcuraRequisicoes);
+    procedure AbreConsultaCliente;
+    property ConsultaFiliais: TZDataSet read GetConsultaFiliais;
+    property ConsultaGrupoFiliais: TZDataSet read GetConsultaGrupoFiliais;
+    property ConsultaClientes: TZDataSet read GetConsultaClientes;
+    property ConsultaMontadores: TZDataSet read GetConsultaMontadores;
+    property TotalRegistros: Integer read GetTotalRegistros;
+    function ExisteFilial(NomeCampo: String; Value: Variant): Boolean;
+    function ExisteGrupoFilial(NomeCampo: String; Value: Variant): Boolean;
+    function ExisteMontador(NomeCampo: String; Value: Variant): Boolean;
+    function ExisteCliente(NomeCampo: String; Value: Variant): Boolean;
+    property DataInicial: string read FDataInicial write SetDataInicial;
+    property DataFinal: string read FDataFinal write SetDataFinal;
+    property FilialdeMontagem: String read FFilialdeMontagem write SetFilialdeMontagem;
+    property GrupoFilialdeMontagem: String read FGrupoFilialdeMontagem write SetGrupoFilialdeMontagem;
+    property FilialdeVenda: String read FFilialdeVenda write SetFilialdeVenda;
+    property GrupoFilialdeVenda: String read FgrupoFilialdeVenda write SetGrupoFilialdeVenda;
+    property cliente: String read FCliente write SetCliente;
+    property Montador: String read FMontador write SetMontador;
+    property RequisicaoSemMontador: Boolean read FRequisicaoSemMontador write FRequisicaoSemMontador;
+    property CodigoMontador: string read FCodigoMontador write SetCodigoMontador;
+    property TipoMontador: string read FTipoMontador write FTipoMontador;
+    procedure MarcarSelecionados(Marcando, Todos: Boolean);
+    procedure GerarDefinicaoMontadorRequisicoes;
+
+    property OnScrollLinhaColunaGradeRequisicoesItens    : TNotifyEvent read FOnScrollLinhaColunaGradeRequisicoesItens write FOnScrollLinhaColunaGradeRequisicoesItens;
+    property LinhadaGradeRequisicoesItens: String read GetLinhadaGradeRequisicoesItens;
+    property ColunadaGradeRequisicoesItens: String read GetColunadaGradeRequisicoesItens;
+
+    property OnScrollLinhaColunaGradeProdutosContratos    : TNotifyEvent read FOnScrollLinhaColunaGradeProdutosContratos write FOnScrollLinhaColunaGradeProdutosContratos;
+    property LinhadaGradeProdutosContratos: String read GetLinhadaGradeProdutosContratos;
+    property ColunadaGradeProdutosContratos: String read GetColunadaGradeProdutosContratos;
+
+    property OnScrollLinhaColunaGradeProdutosDadosFiscais    : TNotifyEvent read FOnScrollLinhaColunaGradeProdutosDadosFiscais write FOnScrollLinhaColunaGradeProdutosDadosFiscais;
+    property LinhadaGradeProdutosDadosFiscais: String read GetLinhadaGradeProdutosDadosFiscais;
+    property ColunadaGradeProdutosDadosFiscais: String read GetColunadaGradeProdutosDadosFiscais;
+
+end;
+
+var
+  dtmDefinicaoMontador: TdtmDefinicaoMontador;
+
+implementation
+
+{$R *.dfm}
+const
+ WhereFiliaisMontagem = 41;
+ WhereFiliaisVenda    = 42;
+ WhereCliente         = 43;
+ WhereMontador        = 44;
+
+{ TdtmDefinicaoMontador }
+
+procedure TdtmDefinicaoMontador.AbreConsultaCliente;
+begin
+ ExisteCliente('nome', '0')
+end;
+
+procedure TdtmDefinicaoMontador.AbreTabelaPesquisa(
+  TipoPesquisa: TipoProcuraRequisicoes);
+begin
+  case TipoPesquisa of
+   tpRequisicoesFiliaisdeMontagem,
+   tpRequisicoesFiliaisdeVenda           :abre(ctConsultaFiliaisdeMontagem);
+   tpRequisicoesGrupoFiliaisdeMontagem,
+   tpRequisicoesGrupoFiliaisdeVenda      :abre(ctConsultaGrupoFiliaisMontagem);
+   tpRequisicoesClientes                 :AbreConsultaCliente;
+
+   tpRequisicoesMontadores,
+
+   tpRequisicoesLerDadosMontadores       :Abre(ctConsultaMontadoresMontagem);
+
+  end
+
+end;
+
+constructor TdtmDefinicaoMontador.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryFilialMontagem.Tag        := ctTabelas;
+  qryGrupoFiliaisMontagem.Tag  := ctTabelas;
+  qryFilialVenda.Tag           := ctTabelas;
+  qryGrupoFiliaisVenda.Tag     := ctTabelas;
+  qryCliente.Tag               := ctTabelas;
+  qryMontador.tag              := ctTabelas;
+  qryMontadorSelecao.tag       := ctTabelas;
+  qryConsultaFiliais.Tag       := ctConsultaFiliaisdeMontagem;
+  qryConsultaGrupoFiliais.Tag  := ctConsultaGrupoFiliaisMontagem;
+  qryConsultaClientes.tag      := ctConsultaClientesMontagem;
+  qryConsultaMontador.Tag      := ctConsultaMontadoresMontagem;
+  qryMontador.Params[1].AsString := 'U';
+  qryMontadorSelecao.Params[1].AsString := 'U';
+  qryCliente.Params[1].AsString  := 'C';
+  qryRequisicoesItensquantidade.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosContratosquantidade.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosContratoscancelado.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosDadosFiscaisquantidade.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+end;
+
+function TdtmDefinicaoMontador.ExisteCliente(NomeCampo: String;
+  Value: Variant): Boolean;
+const
+  SQL = 'AND (to_ascii(%s,''latin1'') ilike to_ascii(''%s%s'',''latin1''))';
+
+begin
+
+  qryConsultaClientes.Sql[9] := Format(SQL, [NomeCampo, ANSIUpperCase(Value), '%']);
+
+  qryConsultaClientes.Open;
+
+  Result := qryConsultaClientes.RecordCount > 0
+
+end;
+
+function TdtmDefinicaoMontador.ExisteFilial(NomeCampo: String;
+  Value: Variant): Boolean;
+begin
+  Result:=ExisteCodigo(qryConsultaFiliais, Nomecampo, Value);
+end;
+
+function TdtmDefinicaoMontador.ExisteGrupoFilial(NomeCampo: String;
+  Value: Variant): Boolean;
+begin
+  Result:=ExisteCodigo(qryConsultaGrupoFiliais, Nomecampo, Value);
+end;
+
+function TdtmDefinicaoMontador.ExisteMontador(NomeCampo: String;
+  Value: Variant): Boolean;
+begin
+  Result:=ExisteCodigo(qryConsultaMontador, Nomecampo, Value);
+end;
+
+procedure TdtmDefinicaoMontador.FechaTabelaPesquisa(
+  TipoPesquisa: TipoProcuraRequisicoes);
+begin
+  case TipoPesquisa of
+   tpRequisicoesFiliaisdeMontagem,
+   tpRequisicoesFiliaisdeVenda           :fecha(ctConsultaFiliaisdeMontagem);
+   tpRequisicoesGrupoFiliaisdeMontagem,
+   tpRequisicoesGrupoFiliaisdeVenda      :fecha(ctConsultaGrupoFiliaisMontagem);
+   tpRequisicoesClientes                 :Fecha(ctConsultaClientesMontagem);
+
+   tpRequisicoesMontadores,
+
+   tpRequisicoesLerDadosMontadores       :fecha(ctConsultaMontadoresMontagem);
+
+  end
+
+end;
+
+function TdtmDefinicaoMontador.GetConsultaClientes: TZDataSet;
+begin
+result:=qryConsultaClientes;
+end;
+
+function TdtmDefinicaoMontador.GetConsultaFiliais: TZDataSet;
+begin
+result:=qryConsultaFiliais;
+end;
+
+function TdtmDefinicaoMontador.GetConsultaGrupoFiliais: TZDataSet;
+begin
+result:=qryConsultaGrupoFiliais;
+end;
+
+function TdtmDefinicaoMontador.GetConsultaMontadores: TZDataSet;
+begin
+result := qryConsultaMontador;
+end;
+
+function TdtmDefinicaoMontador.GetTotalRegistros: Integer;
+begin
+  result := qryRequisicoes.RecordCount;
+end;
+
+procedure TdtmDefinicaoMontador.Selecionar(
+  TipoPesquisa: TipoProcuraRequisicoes);
+begin
+case TipoPesquisa of
+ tpRequisicoesFiliaisdeMontagem      : RefazConsulta(qryFilialMontagem,
+                                       [0],[qryConsultaFiliaiscodigo.AsVariant]);
+ tpRequisicoesGrupoFiliaisdeMontagem : RefazConsulta(qryGrupoFiliaisMontagem,
+                                       [0],[qryConsultaGrupoFiliaiscodigo.AsVariant]);
+ tpRequisicoesFiliaisdeVenda         : RefazConsulta(qryFilialVenda,
+
+                                       [0],[qryConsultaFiliaiscodigo.AsVariant]);
+
+ tpRequisicoesGrupoFiliaisdeVenda    : RefazConsulta(qryGrupoFiliaisVenda,
+
+                                       [0],[qryConsultaGrupoFiliaiscodigo.AsVariant]);
+ tpRequisicoesClientes               :
+
+ begin
+
+  RefazConsulta(qryCliente,[0,1],[qryConsultaClientescodigo.AsVariant,
+
+                                  qryConsultaClientestipo.AsVariant]);
+
+  qryCliente.Params[1].AsString:=qryConsultaClientestipo.AsString;
+
+ end;
+
+ tpRequisicoesLerDadosMontadores :
+
+ begin
+
+  RefazConsulta(qryMontadorSelecao,[0,1], [qryConsultaMontadorcodigo.AsVariant,
+
+                                           qryConsultaMontadortipo.AsVariant]);
+
+  qryMontadorSelecao.Params[1].AsString:=qryConsultaMontadortipo.AsString;
+
+ end;
+
+ tpRequisicoesMontadores :
+
+ begin
+
+  RefazConsulta(qryMontador,[0,1], [qryConsultaMontadorcodigo.AsVariant,
+
+                                    qryConsultaMontadortipo.AsVariant]);
+
+  qryMontador.Params[1].AsString:=qryConsultaMontadortipo.AsString;
+
+ end;
+
+end;
+
+end;
+
+procedure TdtmDefinicaoMontador.SetCliente(const Value: String);
+begin
+ FCliente := Value;
+ if Value <> '' then
+   qryRequisicoes.Sql[WhereCliente]:=
+   ' and (r.cliente = ' + Value +
+   ') and (r.tipocliente = ' + quotedstr(qryClientetipo.AsString) +')'
+ else
+   qryRequisicoes.Sql[WhereCliente]:='';
+end;
+
+procedure TdtmDefinicaoMontador.SetDataFinal(const Value: string);
+begin
+  FDataFinal := Value;
+
+  if value='' then
+    FDataFinal:=FDataInicial;
+
+  if FDataInicial='' then
+    FDataInicial:=FDataFinal;
+
+  qryRequisicoes.parambyname('DataInicial').asstring:=FDataInicial;
+  qryRequisicoes.parambyname('DataFinal').asstring:=FDataFinal;
+
+end;
+
+procedure TdtmDefinicaoMontador.SetDataInicial(const Value: string);
+begin
+  FDataInicial := Value;
+end;
+
+procedure TdtmDefinicaoMontador.SetFilialdeMontagem(const Value: String);
+begin
+  FFilialdeMontagem := Value;
+  if Value <> '' then
+    qryRequisicoes.Sql[WhereFiliaisMontagem]:=' and (r.filialMontagem = ' + Value + ')'
+  else
+    qryRequisicoes.Sql[WhereFiliaisMontagem]:='';
+end;
+
+procedure TdtmDefinicaoMontador.SetFilialdeVenda(const Value: String);
+begin
+  FFilialdeVenda := Value;
+  if Value <> '' then
+    qryRequisicoes.Sql[WhereFiliaisVenda]:=
+    ' and ((select c.filialvenda from contratos c where c.numero='+
+    '(select df.contrato from dadosfiscais df where df.numero=r.dadofiscal)'+
+    ')= ' + Value + ')'
+  else
+    qryRequisicoes.Sql[WhereFiliaisVenda]:='';
+end;
+
+procedure TdtmDefinicaoMontador.SetGrupoFilialdeMontagem(
+  const Value: String);
+begin
+  FGrupoFilialdeMontagem := Value;
+   if (Value <> '') then
+   qryRequisicoes.Sql[WhereFiliaisMontagem] :=
+    'and (r.filialMontagem in (Select filial From filiaisgruposfiliais '+
+    'Where grupo = ' + Value + '))';
+end;
+
+procedure TdtmDefinicaoMontador.SetGrupoFilialdeVenda(const Value: String);
+begin
+  FgrupoFilialdeVenda := Value;
+  if (Value <> '') then
+   qryRequisicoes.Sql[WhereFiliaisVenda] :=
+    ' and ((select c.filialvenda from contratos c where c.numero='+
+    '(select df.contrato from dadosfiscais df where df.numero=r.dadofiscal)'+
+    ') in (select filial from filiaisgruposfiliais where grupo = ' + Value + '))';
+end;
+
+procedure TdtmDefinicaoMontador.SetMontador(const Value: String);
+begin
+  FMontador := Value;
+  if FRequisicaoSemMontador then
+    qryRequisicoes.Sql[WhereMontador]:=' and (r.montador is null)'
+  else
+   if Value <> '' then
+    qryRequisicoes.Sql[WhereMontador]:=
+    ' and (r.montador = ' + Value +
+    ') and (r.tipomontador = ' + quotedstr(qryMontadortipo.AsString) +')'
+   else
+    qryRequisicoes.Sql[WhereMontador]:='';
+end;
+
+procedure TdtmDefinicaoMontador.SetCodigoMontador(const Value: string);
+begin
+  FCodigoMontador := Value;
+  if value<>'' then
+   FTipoMontador:=qryMontadorSelecaotipo.AsString
+  else
+   FTipoMontador:='';
+end;
+
+procedure TdtmDefinicaoMontador.qryRequisicoesAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if not qryRequisicoes.ControlsDisabled then
+  begin
+   ReFazConsulta(qryRequisicoesItens, [0], [qryRequisicoesrequisicao.AsVariant]);
+   RefazConsulta(qryProdutosContratos, [0], [qryRequisicoescontrato.AsVariant]);
+   RefazConsulta(qryProdutosDadosFiscais, [0], [qryRequisicoesdadofiscal.AsVariant]);
+   RefazConsulta(qryClientesRequisicoes, [0,1], [qryRequisicoescliente.AsVariant,
+                                     qryRequisicoestipocliente.AsVariant]);
+  end;
+end;
+
+procedure TdtmDefinicaoMontador.GerarDefinicaoMontadorRequisicoes;
+begin
+  try
+   qryRequisicoes.DisableControls;
+   qryRequisicoes.First;
+   while not qryRequisicoes.Eof do
+   begin
+    if qryRequisicoesmarcar.AsBoolean then
+    begin
+     qryRequisicoes.Edit;
+     qryRequisicoesmontador.asstring:=CodigoMontador;
+     qryRequisicoestipomontador.asstring:=TipoMontador;
+     qryRequisicoes.Post;
+    end;
+    qryRequisicoes.Next;
+   end;
+   Perpetrar([qryRequisicoes]);
+  finally
+   qryRequisicoes.EnableControls;
+  end;
+end;
+
+procedure TdtmDefinicaoMontador.MarcarSelecionados(Marcando,
+  Todos: Boolean);
+begin
+  MarcarRegistros(qryRequisicoes,
+                  qryRequisicoesmarcar,
+                  qryRequisicoesvalor,
+                  Marcando,
+                  Todos);
+end;
+
+function TdtmDefinicaoMontador.GetColunadaGradeRequisicoesItens: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryRequisicoesItenscoluna.AsString)
+end;
+
+function TdtmDefinicaoMontador.GetLinhadaGradeRequisicoesItens: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryRequisicoesItenslinha.AsString)
+end;
+
+procedure TdtmDefinicaoMontador.qryRequisicoesItensAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if Assigned(FOnScrollLinhaColunaGradeRequisicoesItens) then
+   FOnScrollLinhaColunaGradeRequisicoesItens(DataSet);
+
+end;
+
+function TdtmDefinicaoMontador.GetColunadaGradeProdutosContratos: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryProdutosContratoscoluna.AsString)
+end;
+
+function TdtmDefinicaoMontador.GetLinhadaGradeProdutosContratos: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryProdutosContratoslinha.AsString)
+end;
+
+procedure TdtmDefinicaoMontador.qryProdutosContratosAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if Assigned(FOnScrollLinhaColunaGradeprodutoscontratos) then
+   FOnScrollLinhaColunaGradeProdutosContratos(DataSet);
+end;
+
+function TdtmDefinicaoMontador.GetColunadaGradeProdutosDadosFiscais: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryProdutosDadosFiscaiscoluna.AsString)
+end;
+
+function TdtmDefinicaoMontador.GetLinhadaGradeProdutosDadosFiscais: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryProdutosDadosFiscaislinha.AsString)
+end;
+
+procedure TdtmDefinicaoMontador.qryProdutosDadosFiscaisAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if Assigned(FOnScrollLinhaColunaGradeprodutosdadosfiscais) then
+   FOnScrollLinhaColunaGradeProdutosDadosFiscais(DataSet);
+end;
+
+end.

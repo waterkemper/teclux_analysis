@@ -1,0 +1,67 @@
+unit fmVisualizarImageURL;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ExtCtrls, ImgList, ToolWin, ComCtrls, fmnavcontroles, ctconstantes,
+  frVisualizarImageURL;
+
+type
+  TfrmVisualizarImageURL = class(TfrmNavControles)
+    fraVisualizarImageURL1: TfraVisualizarImageURL;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    destructor Destroy; override;
+
+  end;
+
+var
+  frmVisualizarImageURL: TfrmVisualizarImageURL;
+  AcionarTelaVisualizarImageURL: procedure (Owner: TComponent; Produto: TTecStringRetorno);
+
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmVisualizarImageURL }
+
+procedure AcionarTelaVisualizarImageURL_(Owner: TComponent; Produto: TTecStringRetorno);
+begin
+  if not assigned(frmVisualizarImageURL) or (frmVisualizarImageURL.Owner <> Owner) then
+  begin
+    if assigned(frmVisualizarImageURL) then
+      frmVisualizarImageURL.free;
+      
+    frmVisualizarImageURL := TfrmVisualizarImageURL.create(Owner);
+    
+    frmVisualizarImageURL.fraVisualizarImageURL1.Produto := Produto;
+
+    frmVisualizarImageURL.fraVisualizarImageURL1.AbrirqryFotosProdutos;
+
+    frmVisualizarImageURL.showmodal;
+
+  end;
+  
+  frmVisualizarImageURL.free;
+
+
+//  frmVisualizarImageURL.BringToFront;
+
+end;
+
+
+destructor TfrmVisualizarImageURL.Destroy;
+begin
+  frmVisualizarImageURL := nil;
+  inherited;
+end;
+
+initialization
+   AcionarTelaVisualizarImageURL :=  AcionarTelaVisualizarImageURL_;
+
+
+end.

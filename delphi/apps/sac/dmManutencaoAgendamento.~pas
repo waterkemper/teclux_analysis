@@ -1,0 +1,1149 @@
+unit dmManutencaoAgendamento;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, cpdatasource, ZQuery, ZPgSqlQuery,
+  cpquery, dmtecsoft, biblio, ctconstantes, ZSqlTypes, Math, StrUtils;
+
+type
+  TdtmManutencaoAgendamento = class(TdtmBasico)
+    qryProdutosAgendamentos: TtecQuery;
+    dsrProdutosAgendamentos: TtecDataSource;
+    qryProdutosAgendamentosproduto: TLargeintField;
+    qryProdutosAgendamentoscodigovisual: TStringField;
+    qryProdutosAgendamentosdescricao: TStringField;
+    qryProdutosAgendamentoscodigoagendamento: TIntegerField;
+    qryProdutosAgendamentosdias: TIntegerField;
+    qryProdutosAgendamentosobservacoes: TStringField;
+    qryProdutosAgendamentosorigem: TStringField;
+    qryGruposAgendamentos: TtecQuery;
+    dsrGruposAgendamentos: TtecDataSource;
+    qryGruposAgendamentosgrupo: TStringField;
+    qryGruposAgendamentosdescricao: TStringField;
+    qryGruposAgendamentoscodigo: TIntegerField;
+    qryGruposAgendamentosdias: TIntegerField;
+    qryGruposAgendamentosobservacoes: TStringField;
+    qryProdutosAgendamentosgrupo: TStringField;
+    spcProximoGruposAgendamentos: TtecQuery;
+    qryProdutosAgendamentosAux: TtecQuery;
+    qryProdutosAgendamentosAuxproduto: TLargeintField;
+    qryProdutosAgendamentosAuxcodigovisual: TStringField;
+    qryProdutosAgendamentosAuxdescricao: TStringField;
+    qryProdutosAgendamentosAuxcodigoagendamento: TIntegerField;
+    qryProdutosAgendamentosAuxdias: TIntegerField;
+    qryProdutosAgendamentosAuxobservacoes: TStringField;
+    qryProdutosAgendamentosAuxgrupo: TStringField;
+    qryProdutosAgendamentosAuxorigem: TStringField;
+    spcProximoGruposAgendamentoscodigo: TIntegerField;
+    qryProdutosAgendamentosincluido: TBooleanField;
+    qryProdutosAgendamentosalterado: TBooleanField;
+    qryProdutosAgendamentosAuxincluido: TBooleanField;
+    qryProdutosAgendamentosAuxalterado: TBooleanField;
+    qryGravarProdutosAgendamentos: TtecQuery;
+    qryProdutosAgendamentosclasse: TStringField;
+    qryProdutosAgendamentosmarca: TIntegerField;
+    qryClassesAgendamentos: TtecQuery;
+    dsrClassesAgendamentos: TtecDataSource;
+    spcProximoClassesAgendamentos: TtecQuery;
+    qryClassesAgendamentosclasse: TStringField;
+    qryClassesAgendamentosdescricao: TStringField;
+    qryClassesAgendamentoscodigo: TIntegerField;
+    qryClassesAgendamentosdias: TIntegerField;
+    qryClassesAgendamentosobservacoes: TStringField;
+    qryMarcasAgendamentos: TtecQuery;
+    dsrMarcasAgendamentos: TtecDataSource;
+    spcProximoMarcasAgendamentos: TtecQuery;
+    qryMarcasAgendamentosmarca: TIntegerField;
+    qryMarcasAgendamentosdescricao: TStringField;
+    qryMarcasAgendamentoscodigo: TIntegerField;
+    qryMarcasAgendamentosdias: TIntegerField;
+    qryMarcasAgendamentosobservacoes: TStringField;
+    spcProximoClassesAgendamentoscodigo: TIntegerField;
+    spcProximoMarcasAgendamentoscodigo: TIntegerField;
+    qryProdutosAgendamentosAuxclasse: TStringField;
+    qryProdutosAgendamentosAuxmarca: TIntegerField;
+    qryMarcasAgendamentoscodigoagendamento: TIntegerField;
+    qryClassesAgendamentoscodigoagendamento: TIntegerField;
+    qryGruposAgendamentoscodigoagendamento: TIntegerField;
+    procedure qryProdutosAgendamentosAfterScroll(DataSet: TDataSet);
+    procedure qryProdutosAgendamentosAfterPost(DataSet: TDataSet);
+    
+    procedure qryGruposAgendamentosAfterPost(DataSet: TDataSet);
+    procedure qryGruposAgendamentosAfterDelete(DataSet: TDataSet);
+    procedure qryGruposAgendamentosAfterScroll(DataSet: TDataSet);
+    procedure qryGruposAgendamentosAfterInsert(DataSet: TDataSet);
+    procedure qryGruposAgendamentosBeforeInsert(DataSet: TDataSet);
+    procedure qryGruposAgendamentosBeforeEdit(DataSet: TDataSet);
+
+
+    procedure qryClassesAgendamentosAfterPost(DataSet: TDataSet);
+    procedure qryClassesAgendamentosAfterDelete(DataSet: TDataSet);
+    procedure qryClassesAgendamentosAfterScroll(DataSet: TDataSet);
+    procedure qryClassesAgendamentosAfterInsert(DataSet: TDataSet);
+
+
+    procedure qryProdutosAgendamentosAfterDelete(DataSet: TDataSet);
+    procedure dsrGruposAgendamentosDataChange(Sender: TObject;
+
+      Field: TField);
+    procedure qryProdutosAgendamentosBeforePost(DataSet: TDataSet);
+    procedure qryMarcasAgendamentosAfterDelete(DataSet: TDataSet);
+    procedure qryMarcasAgendamentosAfterInsert(DataSet: TDataSet);
+    procedure qryMarcasAgendamentosAfterPost(DataSet: TDataSet);
+    procedure qryMarcasAgendamentosAfterScroll(DataSet: TDataSet);
+  private
+    fNotificarAlteracao: TNotifyEvent;
+    fNotificarScroll: TNotifyEvent;
+    fNotificarInsertGrupo: TNotifyEvent;
+    fNotificarInsertClasses: TNotifyEvent;
+    fNotificarInsertMarcas: TNotifyEvent;
+
+    procedure GravarProdutosAgendamentos;
+    procedure GravarGruposAgendamentos;
+    procedure GravarClassesAgendamentos;
+    procedure GravarMarcasAgendamentos;
+
+    { Private declarations }
+  public
+    { Public declarations }
+    OrdenacaoProdutos, OrdenacaoGrupos : String;
+
+    property NotificarAlteracao: TNotifyEvent read fNotificarAlteracao write fNotificarAlteracao;
+    property NotificarScroll: TNotifyEvent read fNotificarScroll write fNotificarScroll;
+    property NotificarInsertGrupo: TNotifyEvent read fNotificarInsertGrupo write fNotificarInsertGrupo;
+    property NotificarInsertClasses: TNotifyEvent read fNotificarInsertClasses write fNotificarInsertClasses;
+    property NotificarInsertMarcas: TNotifyEvent read fNotificarInsertMarcas write fNotificarInsertMarcas;
+
+
+    Function AbrirConsultaAgendamento(
+          SelecionarSomenteProdutosComAgendamento,
+          SelecionarSomenteGruposComAgendamento,
+          SelecionarSomenteClassesComAgendamento,
+          SelecionarSomenteMarcasComAgendamento : Boolean;
+          ListaCondicaoItemdeproduto,
+          ListaCondicaoProduto,
+          ListaCondicaoGrupo,
+          ListaCondicaoClasse,
+          ListaCondicaoMarca,
+          ListaCondicaoPromocoes: String): Boolean;
+
+    function ExcluirProdutoAgendamento: Boolean;
+    function ExcluirGrupoAgendamento: Boolean;
+    function ExcluirClassesAgendamento: Boolean;
+    function ExcluirMarcasAgendamento: Boolean;
+
+    function SalvarAgendamentoManutencao: Boolean;
+
+
+
+
+  end;
+
+var
+  dtmManutencaoAgendamento: TdtmManutencaoAgendamento;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmManutencaoAgendamento }
+
+function TdtmManutencaoAgendamento.AbrirConsultaAgendamento(
+  SelecionarSomenteProdutosComAgendamento: Boolean;
+  SelecionarSomenteGruposComAgendamento: Boolean;
+  SelecionarSomenteClassesComAgendamento: Boolean;
+  SelecionarSomenteMarcasComAgendamento: Boolean;
+  ListaCondicaoItemdeproduto, ListaCondicaoProduto, ListaCondicaoGrupo,
+  ListaCondicaoClasse, ListaCondicaoMarca,
+  ListaCondicaoPromocoes: String): Boolean;
+var
+ i: integer;
+begin
+  qryProdutosAgendamentos.close;
+  qryGruposAgendamentos.close;
+
+  for i:=0 to  qryProdutosAgendamentos.Macros.count-1 do
+    qryProdutosAgendamentos.Macros[i].Clear;
+
+  for i:=0 to  qryGruposAgendamentos.Macros.count-1 do
+    qryGruposAgendamentos.Macros[i].Clear;
+
+  for i:=0 to  qryClassesAgendamentos.Macros.count-1 do
+    qryClassesAgendamentos.Macros[i].Clear;
+
+  for i:=0 to  qryMarcasAgendamentos.Macros.count-1 do
+    qryMarcasAgendamentos.Macros[i].Clear;
+
+  result := true;
+          {
+  if not SelecionarSomenteProdutosComAgendamento and
+     (ListaCondicaoItemdeproduto='') and
+     (ListaCondicaoProduto='') and
+     (ListaCondicaoGrupo='') and
+     (ListaCondicaoClasse='') and
+     (ListaCondicaoMarca='') and
+     (ListaCondicaoPromocoes='') then
+  begin
+    result := false;
+    MensagemAviso('Informe algum parâmetro para a consulta dos produtos.'+chr(13)+'Somente a consulta de grupos será realizada.');
+  end;
+
+
+  if result then
+  begin
+  }
+
+    if SelecionarSomenteProdutosComAgendamento then
+      qryProdutosAgendamentos.macrobyname('SelecionarSomenteProdutosComAgendamento').asString := 'inner'
+    else
+      qryProdutosAgendamentos.macrobyname('SelecionarSomenteProdutosComAgendamento').asString := 'left';
+
+    if ListaCondicaoItemdeproduto<>'' then
+      qryProdutosAgendamentos.macrobyname('ListaCondicaoItemdeproduto').asString := ' and ('+ ListaCondicaoItemdeproduto + ')';
+
+    if ListaCondicaoProduto<>'' then
+      qryProdutosAgendamentos.macrobyname('ListaCondicaoProduto').asString := ' and (' +ListaCondicaoProduto + ')';
+
+    if ListaCondicaoGrupo<>'' then
+      qryProdutosAgendamentos.macrobyname('ListaCondicaoGrupo').asString := ' and ('+ ListaCondicaoGrupo + ')';
+
+    if ListaCondicaoClasse<>'' then
+      qryProdutosAgendamentos.macrobyname('ListaCondicaoClasse').asString := ' and ('+ ListaCondicaoClasse + ')';
+
+    if ListaCondicaoMarca<>'' then
+      qryProdutosAgendamentos.macrobyname('ListaCondicaoMarca').asString := ' and ('+ ListaCondicaoMarca + ')';
+
+    if ListaCondicaoPromocoes<>'' then
+      qryProdutosAgendamentos.macrobyname('ListaCondicaoPromocoes').asString := ' and ('+ ListaCondicaoPromocoes + ')';
+
+    qryProdutosAgendamentos.open;
+
+  //end;
+
+  if SelecionarSomenteGruposComAgendamento then
+    qryGruposAgendamentos.macrobyname('SelecionarSomenteGruposComAgendamento').asString := 'inner'
+  else
+    qryGruposAgendamentos.macrobyname('SelecionarSomenteGruposComAgendamento').asString := 'left';
+  if ListaCondicaoGrupo<>'' then
+    qryGruposAgendamentos.macrobyname('ListaCondicaoGrupo').asString := ' and ('+ ListaCondicaoGrupo + ')';
+  qryGruposAgendamentos.open;
+
+
+  if SelecionarSomenteClassesComAgendamento then
+    qryClassesAgendamentos.macrobyname('SelecionarSomenteClassesComAgendamento').asString := 'inner'
+  else
+    qryClassesAgendamentos.macrobyname('SelecionarSomenteClassesComAgendamento').asString := 'left';
+  if ListaCondicaoClasse<>'' then
+    qryClassesAgendamentos.macrobyname('ListaCondicaoClasse').asString := ' and ('+ ListaCondicaoClasse + ')';
+  qryClassesAgendamentos.open;
+
+
+  if SelecionarSomenteMarcasComAgendamento then
+    qryMarcasAgendamentos.macrobyname('SelecionarSomenteMarcasComAgendamento').asString := 'inner'
+  else
+    qryMarcasAgendamentos.macrobyname('SelecionarSomenteMarcasComAgendamento').asString := 'left';
+  if ListaCondicaoMarca<>'' then
+    qryMarcasAgendamentos.macrobyname('ListaCondicaoMarca').asString := ' and ('+ ListaCondicaoMarca + ')';
+  qryMarcasAgendamentos.open;
+
+  if (qryProdutosAgendamentos.recordcount <> 0) or
+     (qryGruposAgendamentos.recordcount <> 0) or
+     (qryClassesAgendamentos.recordcount <> 0) or
+     (qryMarcasAgendamentos.recordcount <> 0) then
+    result := true
+  else
+  begin
+    result := false;
+    MensagemAviso(format(ctNENHUMREGISTROENCONTRADO,['registro']));
+  end;
+
+end;
+
+procedure TdtmManutencaoAgendamento.qryProdutosAgendamentosAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  {
+  if qryProdutosAgendamentosorigem.AsString = 'GRUPO' then
+    qryProdutosAgendamentos.ReadOnly := true
+  else
+    qryProdutosAgendamentosorigem.ReadOnly := false;
+    }
+  NotificarScroll(DataSet);
+    
+end;
+
+procedure TdtmManutencaoAgendamento.qryProdutosAgendamentosAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  NotificarAlteracao(DataSet);
+  GravarProdutosAgendamentos;
+end;
+
+procedure TdtmManutencaoAgendamento.qryGruposAgendamentosAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  NotificarAlteracao(DataSet);
+//  qryGruposAgendamentosgrupo.readonly := true;
+  GravarGruposAgendamentos;
+end;
+
+procedure TdtmManutencaoAgendamento.qryProdutosAgendamentosAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  NotificarAlteracao(DataSet);
+end;
+
+procedure TdtmManutencaoAgendamento.qryGruposAgendamentosAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  NotificarAlteracao(DataSet);
+end;
+
+procedure TdtmManutencaoAgendamento.GravarProdutosAgendamentos;
+var
+ vDias, vObservacoes : String;
+begin
+
+  try
+
+    qryProdutosAgendamentos.AfterPost := nil;
+    qryGruposAgendamentos.AfterPost := nil;
+    qryClassesAgendamentos.AfterPost := nil;
+    qryMarcasAgendamentos.AfterPost := nil;
+
+    qryProdutosAgendamentos.DesativarOrdenacao;
+    GuardarRegistroAtual(qryProdutosAgendamentos, true);
+
+    vDias := qryProdutosAgendamentosdias.asString;
+    vObservacoes := qryProdutosAgendamentosobservacoes.asString;
+
+    if qryProdutosAgendamentosorigem.asString = 'GRUPO' then
+    begin
+
+      if qryGruposAgendamentos.locate('codigoagendamento', qryProdutosAgendamentoscodigoagendamento.asInteger, []) then
+      begin
+
+
+        if (vDias <> qryGruposAgendamentosdias.asString) or
+           (vObservacoes <> qryGruposAgendamentosobservacoes.asString) then
+        begin
+          qryGruposAgendamentos.edit;
+
+          qryGruposAgendamentosdias.asString := vDias;
+          qryGruposAgendamentosobservacoes.asString :=  vObservacoes;
+
+          qryGruposAgendamentos.post;
+        end;
+
+        {
+        qryProdutosAgendamentos.first;
+        while not qryProdutosAgendamentos.eof do
+        begin
+          if (qryGruposAgendamentoscodigoagendamento.asinteger =
+              qryProdutosAgendamentoscodigoagendamento.asinteger) and
+             (qryProdutosAgendamentosorigem.asString = 'GRUPO') then
+
+          begin
+            if (vDias <> qryProdutosAgendamentosdias.asString) or
+               (vObservacoes <> qryProdutosAgendamentosobservacoes.asString) then
+            begin
+              qryProdutosAgendamentos.edit;
+              qryProdutosAgendamentosdias.asString := vDias;
+              qryProdutosAgendamentosobservacoes.asString := vObservacoes;
+              qryProdutosAgendamentos.post;
+            end;
+          end;
+          qryProdutosAgendamentos.Next;
+        end;
+
+        ou usar a função abaixo:
+
+        }
+
+        AtribuirDados(qryProdutosAgendamentos,
+
+                      [qryProdutosAgendamentosdias,
+                       qryProdutosAgendamentosobservacoes],
+
+                      [vDias, vObservacoes],
+
+                      [qryProdutosAgendamentoscodigoagendamento,
+                       qryProdutosAgendamentosorigem,
+                       qryProdutosAgendamentosdias,
+                       qryProdutosAgendamentosobservacoes],
+
+                      [qryGruposAgendamentoscodigo.asinteger,
+                       'GRUPO', vDias, vObservacoes],
+
+                      ['=','=','<>','<>']);
+
+      end;
+    end
+    else
+    if qryProdutosAgendamentosorigem.asString = 'CLASSE' then
+    begin
+      if qryClassesAgendamentos.locate('codigoagendamento', qryProdutosAgendamentoscodigoagendamento.asInteger, []) then
+      begin
+
+        if (vDias <> qryclassesAgendamentosdias.asString) or
+           (vObservacoes <> qryclassesAgendamentosobservacoes.asString) then
+        begin
+          qryclassesAgendamentos.edit;
+
+          qryclassesAgendamentosdias.asString := vDias;
+          qryclassesAgendamentosobservacoes.asString :=  vObservacoes;
+
+          qryclassesAgendamentos.post;
+        end;
+
+        AtribuirDados(qryProdutosAgendamentos,
+
+                      [qryProdutosAgendamentosdias,
+                       qryProdutosAgendamentosobservacoes],
+
+                      [vDias, vObservacoes],
+
+                      [qryProdutosAgendamentoscodigoagendamento,
+                       qryProdutosAgendamentosorigem,
+                       qryProdutosAgendamentosdias,
+                       qryProdutosAgendamentosobservacoes],
+
+                      [qryclassesAgendamentoscodigo.asinteger,
+                       'CLASSE', vDias, vObservacoes],
+
+                      ['=','=','<>','<>']);
+
+      end;
+    end
+    else
+    if qryProdutosAgendamentosorigem.asString = 'MARCA' then
+    begin
+      if qryMarcasAgendamentos.locate('codigoagendamento', qryProdutosAgendamentoscodigoagendamento.asInteger, []) then
+      begin
+
+        if (vDias <> qryMarcasAgendamentosdias.asString) or
+           (vObservacoes <> qryMarcasAgendamentosobservacoes.asString) then
+        begin
+          qryMarcasAgendamentos.edit;
+          qryMarcasAgendamentosdias.asString := vDias;
+          qryMarcasAgendamentosobservacoes.asString :=  vObservacoes;
+          qryMarcasAgendamentos.post;
+        end;
+
+        AtribuirDados(qryProdutosAgendamentos,
+
+                      [qryProdutosAgendamentosdias,
+                       qryProdutosAgendamentosobservacoes],
+
+                      [vDias, vObservacoes],
+
+                      [qryProdutosAgendamentoscodigoagendamento,
+                       qryProdutosAgendamentosorigem,
+                       qryProdutosAgendamentosdias,
+                       qryProdutosAgendamentosobservacoes],
+
+                      [qryMarcasAgendamentoscodigo.asinteger,
+                       'CLASSE', vDias, vObservacoes],
+
+                      ['=','=','<>','<>']);
+
+      end;
+    end;
+
+  finally
+    qryProdutosAgendamentos.AfterPost := qryProdutosAgendamentosAfterPost;
+    qryGruposAgendamentos.AfterPost := qryGruposAgendamentosAfterPost;
+    qryClassesAgendamentos.AfterPost := qryClassesAgendamentosAfterPost;
+    qryMarcasAgendamentos.AfterPost := qryMarcasAgendamentosAfterPost;
+
+    VoltarRegistroAtual(qryProdutosAgendamentos);
+    qryProdutosAgendamentos.ativarOrdenacao;
+  end;
+
+end;
+
+procedure TdtmManutencaoAgendamento.GravarGruposAgendamentos;
+var
+ vDias, vObservacoes : String;
+ i: integer;
+begin
+
+  try
+
+    qryProdutosAgendamentos.AfterPost := nil;
+    qryProdutosAgendamentos.AfterScroll := nil;
+
+    qryGruposAgendamentos.AfterPost := nil;
+    GuardarRegistroAtual(qryProdutosAgendamentos, true);
+
+    if qryGruposAgendamentoscodigo.isnull then
+    begin
+      try
+        qryProdutosAgendamentos.DesativarOrdenacao;
+
+        qryProdutosAgendamentosAux.close;
+        qryProdutosAgendamentosAux.Open;
+
+        spcProximoGruposAgendamentos.Close;
+        spcProximoGruposAgendamentos.open;
+        qryGruposAgendamentos.Edit;
+        qryGruposAgendamentoscodigo.asinteger := spcProximoGruposAgendamentoscodigo.asinteger;
+        qryGruposAgendamentos.Post;
+
+        qryProdutosAgendamentos.First;
+        for i:=1 to qryProdutosAgendamentos.recordcount do
+//        while not qryProdutosAgendamentos.eof do
+        begin
+
+          if (qryProdutosAgendamentosorigem.asString = 'GRUPO') and
+             (qryProdutosAgendamentosgrupo.asstring = qryGruposAgendamentosgrupo.AsString) and
+             (qryProdutosAgendamentoscodigoagendamento.isNull) then
+          begin
+            if not qryProdutosAgendamentosAux.locate('produto', qryProdutosAgendamentosproduto.asstring, []) then
+            begin
+              CopiarRegistros(qryProdutosAgendamentos, qryProdutosAgendamentosAux, false);
+              qryProdutosAgendamentos.Insert;
+              CopiarRegistros(qryProdutosAgendamentosaux, qryProdutosAgendamentos, false, true, true, true, true);
+
+              qryProdutosAgendamentos.edit;
+              qryProdutosAgendamentoscodigoagendamento.AsInteger := qryGruposAgendamentoscodigo.asinteger;
+              qryProdutosAgendamentosdias.asString := qryGruposAgendamentosdias.AsString;
+              qryProdutosAgendamentosobservacoes.asString := qryGruposAgendamentosobservacoes.AsString;
+              qryProdutosAgendamentos.Post;
+
+//              qryProdutosAgendamentos.next;
+              qryProdutosAgendamentos.RecNo := i+1;
+            end;
+          end;
+
+//          qryProdutosAgendamentos.next;
+          qryProdutosAgendamentos.RecNo := i+1;
+        end;
+
+      finally
+        qryProdutosAgendamentos.AtivarOrdenacao;
+      end;
+    end
+    else
+    begin
+
+      vDias := qryGruposAgendamentosdias.asString;
+      vObservacoes := qryGruposAgendamentosobservacoes.asString;
+
+      try
+
+        qryProdutosAgendamentos.DesativarOrdenacao;
+
+        qryProdutosAgendamentos.first;
+//        while not qryProdutosAgendamentos.eof do
+
+        for i:=1 to qryProdutosAgendamentos.recordcount do
+        begin
+          if (qryGruposAgendamentoscodigo.asinteger = qryProdutosAgendamentoscodigoagendamento.asinteger) and
+             (qryProdutosAgendamentosorigem.asString = 'GRUPO') then
+          begin
+            if (vDias <> qryProdutosAgendamentosdias.asString) or
+               (vObservacoes <> qryProdutosAgendamentosobservacoes.asString) then
+            begin
+              qryProdutosAgendamentos.edit;
+              qryProdutosAgendamentosdias.asString := vDias;
+              qryProdutosAgendamentosobservacoes.asString := vObservacoes;
+              qryProdutosAgendamentos.post;
+            end;
+          end;
+
+          qryProdutosAgendamentos.RecNo := i+1;
+
+        end;
+
+      finally
+        qryProdutosAgendamentos.AtivarOrdenacao;
+      end;
+
+    end;
+
+  finally
+    qryProdutosAgendamentos.AfterPost := qryProdutosAgendamentosAfterPost;
+    qryProdutosAgendamentos.AfterScroll := qryProdutosAgendamentosAfterScroll;
+
+    qryGruposAgendamentos.AfterPost := qryGruposAgendamentosAfterPost;
+
+    VoltarRegistroAtual(qryProdutosAgendamentos);
+
+  end;
+
+end;
+
+function TdtmManutencaoAgendamento.ExcluirProdutoAgendamento: Boolean;
+begin
+  result := false;
+
+  try
+
+    qryProdutosAgendamentos.disablecontrols;
+    qryGruposAgendamentos.disablecontrols;
+
+    if qryProdutosAgendamentosorigem.asString = 'GRUPO' then
+    begin
+      result := MensagemConfirmacao('Este agendamento esta vinculado a um grupo.'+ chr(13) +
+                                    'Confirma a exclusão do agendamento deste grupo?') = smbOK;
+      if result then
+      begin
+        if qryGruposAgendamentos.locate('codigoagendamento', qryProdutosAgendamentoscodigoagendamento.asInteger, []) then
+        begin
+
+          qryProdutosAgendamentos.First;
+          while not qryProdutosAgendamentos.eof do
+          begin
+            if (qryProdutosAgendamentoscodigoagendamento.asinteger =
+                qryGruposAgendamentoscodigo.asInteger) and
+               (qryProdutosAgendamentosorigem.asString = 'GRUPO') then
+              qryProdutosAgendamentos.delete
+            else
+              qryProdutosAgendamentos.Next;
+          end;
+
+          qryGruposAgendamentos.delete;
+        end;
+
+      end;
+    end
+    else
+    begin
+      result := MensagemConfirmacao('Confirma a exclusão do agendamento deste produto?')  = smbOK;
+      if result then
+        qryProdutosAgendamentos.delete;
+    end;
+
+  finally
+    qryProdutosAgendamentos.enablecontrols;
+    qryGruposAgendamentos.enablecontrols;
+  end;
+
+end;
+
+function TdtmManutencaoAgendamento.ExcluirGrupoAgendamento: Boolean;
+begin
+
+  result := MensagemConfirmacao('Confirma a exclusão do agendamento deste grupo?') = smbOK;
+  if result then
+  begin
+
+    try
+
+      qryProdutosAgendamentos.disablecontrols;
+      qryGruposAgendamentos.disablecontrols;
+
+      qryProdutosAgendamentos.First;
+      while not qryProdutosAgendamentos.eof do
+      begin
+        if (qryProdutosAgendamentoscodigoagendamento.asinteger =
+            qryGruposAgendamentoscodigo.asInteger) and
+           (qryProdutosAgendamentosorigem.asString = 'GRUPO') then
+          qryProdutosAgendamentos.delete
+        else
+          qryProdutosAgendamentos.Next;
+      end;
+
+      qryGruposAgendamentos.delete;
+
+    finally
+      qryProdutosAgendamentos.enablecontrols;
+      qryGruposAgendamentos.enablecontrols;
+    end;
+
+  end;
+
+end;
+
+procedure TdtmManutencaoAgendamento.qryGruposAgendamentosAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  NotificarScroll(DataSet);
+  qryGruposAgendamentosgrupo.readonly := (qryGruposAgendamentos.state <> dsinsert)
+end;
+
+procedure TdtmManutencaoAgendamento.qryGruposAgendamentosAfterInsert(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryGruposAgendamentosgrupo.readonly := false;
+  NotificarInsertGrupo(DataSet);
+end;
+
+procedure TdtmManutencaoAgendamento.qryGruposAgendamentosBeforeInsert(
+  DataSet: TDataSet);
+begin
+  inherited;
+//  qryGruposAgendamentosgrupo.readonly := false;
+end;
+
+procedure TdtmManutencaoAgendamento.qryGruposAgendamentosBeforeEdit(
+  DataSet: TDataSet);
+begin
+  inherited;
+;
+end;
+
+procedure TdtmManutencaoAgendamento.dsrGruposAgendamentosDataChange(
+  Sender: TObject; Field: TField);
+begin
+  inherited;
+  if field = qryGruposAgendamentosobservacoes then
+  begin
+    if field.AsString = '' then
+     ;
+  end;
+end;
+
+procedure TdtmManutencaoAgendamento.qryProdutosAgendamentosBeforePost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryProdutosAgendamentos.state = dsinsert then
+    qryProdutosAgendamentosincluido.asBoolean := true;
+
+  if qryProdutosAgendamentos.state = dsedit then
+    qryProdutosAgendamentosalterado.asBoolean := true;
+end;
+
+function TdtmManutencaoAgendamento.SalvarAgendamentoManutencao: Boolean;
+begin
+
+  try
+    qryGravarProdutosAgendamentos.Sql.clear;
+
+    qryProdutosAgendamentos.DisableControls;
+
+    qryProdutosAgendamentos.first;
+    while not qryProdutosAgendamentos.eof do
+    begin
+
+      if qryProdutosAgendamentosorigem.asString = 'PRODUTOS' then
+      begin
+        if qryProdutosAgendamentosincluido.asBoolean then
+        begin
+          if qryProdutosAgendamentoscodigoagendamento.isnull then
+
+            qryGravarProdutosAgendamentos.Sql.Append('insert into produtosagendamentos (produto, dias, observacoes) '+
+             ' values (' + qryProdutosAgendamentosproduto.asString + ', '
+                         + qryProdutosAgendamentosdias.AsString + ', '
+                         + quotedstr(qryProdutosAgendamentosobservacoes.asString) +');' )
+
+          else
+
+            qryGravarProdutosAgendamentos.Sql.Append('insert into produtosagendamentos (codigo, produto, dias, observacoes) '+
+             ' values (' + qryProdutosAgendamentoscodigoagendamento.asString + ', '
+                         + qryProdutosAgendamentosproduto.asString + ', '
+                         + qryProdutosAgendamentosdias.AsString + ', '
+                         + quotedstr(qryProdutosAgendamentosobservacoes.asString) +');' );
+
+        end
+        else
+        if qryProdutosAgendamentosalterado.asBoolean then
+        begin
+          if qryProdutosAgendamentoscodigoagendamento.isnull then
+
+            qryGravarProdutosAgendamentos.Sql.Append('insert into produtosagendamentos (produto, dias, observacoes) '+
+             ' values (' + qryProdutosAgendamentosproduto.asString + ', '
+                         + qryProdutosAgendamentosdias.AsString + ', '
+                         + quotedstr(qryProdutosAgendamentosobservacoes.asString) +');' )
+
+          else
+            qryGravarProdutosAgendamentos.Sql.Append('update produtosagendamentos set dias = '+qryProdutosAgendamentosdias.AsString +
+                                                     ', observacoes = ' + quotedstr(qryProdutosAgendamentosobservacoes.asString) +
+                                                     ', produto = ' + qryProdutosAgendamentosproduto.asString +
+                                                     ' where codigo = ' +qryProdutosAgendamentoscodigoagendamento.asString + ';');
+        end;
+      end;
+
+      qryProdutosAgendamentos.next;
+    end;
+
+    qryProdutosAgendamentos.ShowRecordTypes := [ztDeleted];
+
+    qryProdutosAgendamentos.first;
+    while not qryProdutosAgendamentos.eof do
+    begin
+      if qryProdutosAgendamentosorigem.asString = 'PRODUTOS' then
+        qryGravarProdutosAgendamentos.Sql.Append('delete from produtosagendamentos where codigo = '+ qryProdutosAgendamentoscodigoagendamento.asString + ';');
+
+      qryProdutosAgendamentos.next;
+    end;
+
+  finally
+
+    qryProdutosAgendamentos.ShowRecordTypes := [ztModified,ztInserted,ztUnmodified];
+    qryProdutosAgendamentos.enablecontrols;
+  end;
+
+  if qryGravarProdutosAgendamentos.Sql.Count <> 0 then
+    qryGravarProdutosAgendamentos.ExecSql;
+
+  result := perpetrar([qryMarcasAgendamentos, qryClassesAgendamentos, qryGruposAgendamentos, qryGravarProdutosAgendamentos]);
+
+end;
+
+procedure TdtmManutencaoAgendamento.qryClassesAgendamentosAfterDelete(
+  DataSet: TDataSet);
+begin
+  NotificarAlteracao(DataSet);
+end;
+
+procedure TdtmManutencaoAgendamento.qryClassesAgendamentosAfterInsert(
+  DataSet: TDataSet);
+begin
+  qryClassesAgendamentosclasse.readonly := false;
+  NotificarInsertClasses(DataSet);
+end;
+
+procedure TdtmManutencaoAgendamento.qryClassesAgendamentosAfterPost(
+  DataSet: TDataSet);
+begin
+  NotificarAlteracao(DataSet);
+  GravarClassesAgendamentos;
+
+end;
+
+procedure TdtmManutencaoAgendamento.qryClassesAgendamentosAfterScroll(
+  DataSet: TDataSet);
+begin
+  NotificarScroll(DataSet);
+  qryClassesAgendamentosclasse.readonly := (qryClassesAgendamentos.state <> dsinsert)
+end;
+
+procedure TdtmManutencaoAgendamento.qryMarcasAgendamentosAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  NotificarAlteracao(DataSet);
+end;
+
+procedure TdtmManutencaoAgendamento.qryMarcasAgendamentosAfterInsert(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryMarcasAgendamentosmarca.readonly := false;
+  NotificarInsertMarcas(DataSet);
+end;
+
+procedure TdtmManutencaoAgendamento.qryMarcasAgendamentosAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  NotificarAlteracao(DataSet);
+  GravarMarcasAgendamentos;
+end;
+
+procedure TdtmManutencaoAgendamento.qryMarcasAgendamentosAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  NotificarScroll(DataSet);
+  qryMarcasAgendamentosmarca.readonly := (qryMarcasAgendamentos.state <> dsinsert)
+end;
+
+function TdtmManutencaoAgendamento.ExcluirClassesAgendamento: Boolean;
+begin
+
+
+  result := MensagemConfirmacao('Confirma a exclusão do agendamento desta classe?') = smbOK;
+  if result then
+  begin
+
+    try
+
+      qryProdutosAgendamentos.disablecontrols;
+      qryClassesAgendamentos.disablecontrols;
+
+      qryProdutosAgendamentos.First;
+      while not qryProdutosAgendamentos.eof do
+      begin
+        if (qryProdutosAgendamentoscodigoagendamento.asinteger =
+            qryClassesAgendamentoscodigo.asInteger) and
+           (qryProdutosAgendamentosorigem.asString = 'CLASSE') then
+          qryProdutosAgendamentos.delete
+        else
+          qryProdutosAgendamentos.Next;
+
+      end;
+
+      qryClassesAgendamentos.delete;
+
+    finally
+      qryProdutosAgendamentos.enablecontrols;
+      qryClassesAgendamentos.enablecontrols;
+    end;
+
+  end;
+
+end;
+
+function TdtmManutencaoAgendamento.ExcluirMarcasAgendamento: Boolean;
+begin
+  result := MensagemConfirmacao('Confirma a exclusão do agendamento desta marca?') = smbOK;
+  if result then
+  begin
+
+    try
+
+      qryProdutosAgendamentos.disablecontrols;
+      qryMarcasAgendamentos.disablecontrols;
+
+      qryProdutosAgendamentos.First;
+      while not qryProdutosAgendamentos.eof do
+      begin
+        if (qryProdutosAgendamentoscodigoagendamento.asinteger =
+            qryMarcasAgendamentoscodigo.asInteger) and
+           (qryProdutosAgendamentosorigem.asString = 'MARCA') then
+          qryProdutosAgendamentos.delete
+        else
+          qryProdutosAgendamentos.Next;
+
+      end;
+
+      qryMarcasAgendamentos.delete;
+
+    finally
+      qryProdutosAgendamentos.enablecontrols;
+      qryMarcasAgendamentos.enablecontrols;
+    end;
+
+  end;
+
+end;
+
+procedure TdtmManutencaoAgendamento.GravarClassesAgendamentos;
+var
+ vDias, vObservacoes : String;
+ i: integer;
+begin
+
+  try
+
+    qryProdutosAgendamentos.AfterPost := nil;
+    qryProdutosAgendamentos.AfterScroll := nil;
+
+    qryClassesAgendamentos.AfterPost := nil;
+    GuardarRegistroAtual(qryProdutosAgendamentos, true);
+
+    if qryClassesAgendamentoscodigo.isnull then
+    begin
+      try
+        qryProdutosAgendamentos.DesativarOrdenacao;
+
+        qryProdutosAgendamentosAux.close;
+        qryProdutosAgendamentosAux.Open;
+
+        spcProximoClassesAgendamentos.Close;
+        spcProximoClassesAgendamentos.open;
+        qryClassesAgendamentos.Edit;
+        qryClassesAgendamentoscodigo.asinteger := spcProximoClassesAgendamentoscodigo.asinteger;
+        qryClassesAgendamentos.Post;
+
+        qryProdutosAgendamentos.First;
+        for i:=1 to qryProdutosAgendamentos.recordcount do
+//        while not qryProdutosAgendamentos.eof do
+        begin
+
+          if (qryProdutosAgendamentosorigem.asString = 'CLASSE') and
+             (qryProdutosAgendamentosclasse.asstring = qryClassesAgendamentosclasse.AsString) and
+             (qryProdutosAgendamentoscodigoagendamento.isnull) then
+          begin
+            if not qryProdutosAgendamentosAux.locate('produto', qryProdutosAgendamentosproduto.asstring, []) then
+            begin
+              CopiarRegistros(qryProdutosAgendamentos, qryProdutosAgendamentosAux, false);
+              qryProdutosAgendamentos.Insert;
+              CopiarRegistros(qryProdutosAgendamentosaux, qryProdutosAgendamentos, false, true, true, true, true);
+
+              qryProdutosAgendamentos.edit;
+              qryProdutosAgendamentoscodigoagendamento.AsInteger := qryClassesAgendamentoscodigo.asinteger;
+              qryProdutosAgendamentosdias.asString := qryClassesAgendamentosdias.AsString;
+              qryProdutosAgendamentosobservacoes.asString := qryClassesAgendamentosobservacoes.AsString;
+              qryProdutosAgendamentos.Post;
+
+//              qryProdutosAgendamentos.next;
+              qryProdutosAgendamentos.RecNo := i+1;
+            end;
+          end;
+
+//          qryProdutosAgendamentos.next;
+          qryProdutosAgendamentos.RecNo := i+1;
+        end;
+
+      finally
+        qryProdutosAgendamentos.AtivarOrdenacao;
+      end;
+    end
+    else
+    begin
+
+      vDias := qryClassesAgendamentosdias.asString;
+      vObservacoes := qryClassesAgendamentosobservacoes.asString;
+
+      try
+
+        qryProdutosAgendamentos.DesativarOrdenacao;
+
+        qryProdutosAgendamentos.first;
+//        while not qryProdutosAgendamentos.eof do
+
+        for i:=1 to qryProdutosAgendamentos.recordcount do
+        begin
+
+          if (qryClassesAgendamentoscodigo.asinteger = qryProdutosAgendamentoscodigoagendamento.asinteger) and
+             (qryProdutosAgendamentosorigem.asString = 'CLASSE') then
+          begin
+            if (vDias <> qryProdutosAgendamentosdias.asString) or
+               (vObservacoes <> qryProdutosAgendamentosobservacoes.asString) then
+            begin
+              qryProdutosAgendamentos.edit;
+              qryProdutosAgendamentosdias.asString := vDias;
+              qryProdutosAgendamentosobservacoes.asString := vObservacoes;
+              qryProdutosAgendamentos.post;
+            end;
+          end;
+
+          qryProdutosAgendamentos.RecNo := i+1;
+
+        end;
+
+      finally
+        qryProdutosAgendamentos.AtivarOrdenacao;
+      end;
+
+    end;
+
+  finally
+    qryProdutosAgendamentos.AfterPost := qryProdutosAgendamentosAfterPost;
+    qryProdutosAgendamentos.AfterScroll := qryProdutosAgendamentosAfterScroll;
+
+    qryClassesAgendamentos.AfterPost := qryClassesAgendamentosAfterPost;
+
+    VoltarRegistroAtual(qryProdutosAgendamentos);
+
+  end;
+
+end;
+
+procedure TdtmManutencaoAgendamento.GravarMarcasAgendamentos;
+var
+ vDias, vObservacoes : String;
+ i: integer;
+begin
+
+  try
+
+    qryProdutosAgendamentos.AfterPost := nil;
+    qryProdutosAgendamentos.AfterScroll := nil;
+
+    qryMarcasAgendamentos.AfterPost := nil;
+    GuardarRegistroAtual(qryProdutosAgendamentos, true);
+
+    if qryMarcasAgendamentoscodigo.isnull then
+    begin
+      try
+        qryProdutosAgendamentos.DesativarOrdenacao;
+
+        qryProdutosAgendamentosAux.close;
+        qryProdutosAgendamentosAux.Open;
+
+        spcProximoMarcasAgendamentos.Close;
+        spcProximoMarcasAgendamentos.open;
+        qryMarcasAgendamentos.Edit;
+        qryMarcasAgendamentoscodigo.asinteger := spcProximoMarcasAgendamentoscodigo.asinteger;
+        qryMarcasAgendamentos.Post;
+
+        qryProdutosAgendamentos.First;
+        for i:=1 to qryProdutosAgendamentos.recordcount do
+//        while not qryProdutosAgendamentos.eof do
+        begin
+
+          if (qryProdutosAgendamentosorigem.asString = 'MARCA') and
+             (qryProdutosAgendamentosclasse.asstring = qryMarcasAgendamentosmarca.AsString) and
+             (qryProdutosAgendamentoscodigoagendamento.isnull) then
+          begin
+            if not qryProdutosAgendamentosAux.locate('produto', qryProdutosAgendamentosproduto.asstring, []) then
+            begin
+              CopiarRegistros(qryProdutosAgendamentos, qryProdutosAgendamentosAux, false);
+              qryProdutosAgendamentos.Insert;
+              CopiarRegistros(qryProdutosAgendamentosaux, qryProdutosAgendamentos, false, true, true, true, true);
+
+              qryProdutosAgendamentos.edit;
+              qryProdutosAgendamentoscodigoagendamento.AsInteger := qryMarcasAgendamentoscodigo.asinteger;
+              qryProdutosAgendamentosdias.asString := qryMarcasAgendamentosdias.AsString;
+              qryProdutosAgendamentosobservacoes.asString := qryMarcasAgendamentosobservacoes.AsString;
+              qryProdutosAgendamentos.Post;
+
+//              qryProdutosAgendamentos.next;
+              qryProdutosAgendamentos.RecNo := i+1;
+            end;
+          end;
+
+//          qryProdutosAgendamentos.next;
+          qryProdutosAgendamentos.RecNo := i+1;
+        end;
+
+      finally
+        qryProdutosAgendamentos.AtivarOrdenacao;
+      end;
+    end
+    else
+    begin
+
+      vDias := qryMarcasAgendamentosdias.asString;
+      vObservacoes := qryMarcasAgendamentosobservacoes.asString;
+
+      try
+
+        qryProdutosAgendamentos.DesativarOrdenacao;
+
+        qryProdutosAgendamentos.first;
+//        while not qryProdutosAgendamentos.eof do
+
+        for i:=1 to qryProdutosAgendamentos.recordcount do
+        begin
+
+          if (qryMarcasAgendamentoscodigo.asinteger = qryProdutosAgendamentoscodigoagendamento.asinteger) and
+             (qryProdutosAgendamentosorigem.asString = 'MARCA') then
+          begin
+            if (vDias <> qryProdutosAgendamentosdias.asString) or
+               (vObservacoes <> qryProdutosAgendamentosobservacoes.asString) then
+            begin
+              qryProdutosAgendamentos.edit;
+              qryProdutosAgendamentosdias.asString := vDias;
+              qryProdutosAgendamentosobservacoes.asString := vObservacoes;
+              qryProdutosAgendamentos.post;
+            end;
+          end;
+
+          qryProdutosAgendamentos.RecNo := i+1;
+
+        end;
+
+      finally
+        qryProdutosAgendamentos.AtivarOrdenacao;
+      end;
+
+    end;
+
+  finally
+    qryProdutosAgendamentos.AfterPost := qryProdutosAgendamentosAfterPost;
+    qryProdutosAgendamentos.AfterScroll := qryProdutosAgendamentosAfterScroll;
+
+    qryMarcasAgendamentos.AfterPost := qryMarcasAgendamentosAfterPost;
+
+    VoltarRegistroAtual(qryProdutosAgendamentos);
+
+  end;
+
+end;
+
+end.

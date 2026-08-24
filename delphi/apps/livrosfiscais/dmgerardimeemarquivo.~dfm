@@ -1,0 +1,2939 @@
+inherited dtmGerarDIMEEmArquivo: TdtmGerarDIMEEmArquivo
+  Left = 609
+  Top = 225
+  Height = 431
+  Width = 701
+  object qryFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo,nome'
+      'from filiais'
+      'order by codigo')
+    RequestLive = False
+    Left = 56
+    Top = 81
+    object qryFiliaisnome: TStringField
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryFiliaiscodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+  end
+  object qryGrupoFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo,descricao'
+      'from gruposfiliais'
+      'order by codigo')
+    RequestLive = False
+    Left = 51
+    Top = 145
+    object qryGrupoFiliaisdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 30
+    end
+    object qryGrupoFiliaiscodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+  end
+  object qryq01_NotasEntradasCalculos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select filial,'
+      '          periodo,          '
+      '          codigofiscal,'
+      
+        '          (select descricao from codigosfiscais where codigo = c' +
+        'odigofiscal) as descricao,'
+      '          valornota,'
+      '          base,'
+      '          valor,'
+      '          isentas,'
+      '          outras,'
+      #9#9#9#9'  icmsbasecalculost,'
+      #9#9#9#9'  icmsvalorst,'
+      #9#9#9#9'  vcredicmssn'#9#9#9
+      ''
+      'from q01_notasentradascalculos'
+      'where filial = :filial'
+      '  and periodo = :periodo'
+      'order by codigofiscal')
+    RequestLive = True
+    Left = 224
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'periodo'
+        ParamType = ptUnknown
+      end>
+    object qryq01_NotasEntradasCalculosfilial: TIntegerField
+      FieldName = 'filial'
+      Required = True
+    end
+    object qryq01_NotasEntradasCalculosperiodo: TStringField
+      FieldName = 'periodo'
+      Required = True
+      Size = 7
+    end
+    object qryq01_NotasEntradasCalculoscodigofiscal: TIntegerField
+      DisplayLabel = 'Quadro 01 - C'#243'digo Fiscal'
+      FieldName = 'codigofiscal'
+      Required = True
+    end
+    object qryq01_NotasEntradasCalculosdescricao: TStringField
+      DisplayLabel = 'Quadro 01 - Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 50
+    end
+    object qryq01_NotasEntradasCalculosvalornota: TFloatField
+      DisplayLabel = 'Quadro 01 - Valor Nota'
+      FieldName = 'valornota'
+      Required = True
+    end
+    object qryq01_NotasEntradasCalculosbase: TFloatField
+      DisplayLabel = 'Quadro 01 - Base'
+      FieldName = 'base'
+      Required = True
+    end
+    object qryq01_NotasEntradasCalculosvalor: TFloatField
+      DisplayLabel = 'Quadro 01 - Valor'
+      FieldName = 'valor'
+      Required = True
+    end
+    object qryq01_NotasEntradasCalculosisentas: TFloatField
+      DisplayLabel = 'Quadro 01 - Isentas'
+      FieldName = 'isentas'
+      Required = True
+    end
+    object qryq01_NotasEntradasCalculosoutras: TFloatField
+      DisplayLabel = 'Quadro 01 - Outras'
+      FieldName = 'outras'
+      Required = True
+    end
+    object qryq01_NotasEntradasCalculosicmsbasecalculost: TFloatField
+      FieldName = 'icmsbasecalculost'
+    end
+    object qryq01_NotasEntradasCalculosicmsvalorst: TFloatField
+      FieldName = 'icmsvalorst'
+    end
+    object qryq01_NotasEntradasCalculosvcredicmssn: TFloatField
+      FieldName = 'vcredicmssn'
+    end
+  end
+  object qryq02_NotasSaidasCalculos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select filial,'
+      '          periodo,          '
+      '          codigofiscal,'
+      
+        '          (select descricao from codigosfiscais where codigo = c' +
+        'odigofiscal) as descricao,'
+      '          valornota,'
+      '          base,'
+      '          valor,'
+      '          isentas,'
+      '          outras,'
+      '          icmsbasecalculost,'
+      '          icmsvalorst'
+      'from q02_notassaidascalculos'
+      'where filial = :filial and'
+      '           periodo = :periodo'
+      'order by codigofiscal')
+    RequestLive = True
+    Left = 224
+    Top = 72
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'periodo'
+        ParamType = ptUnknown
+      end>
+    object qryq02_NotasSaidasCalculosfilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryq02_NotasSaidasCalculosperiodo: TStringField
+      FieldName = 'periodo'
+      Size = 7
+    end
+    object qryq02_NotasSaidasCalculoscodigofiscal: TIntegerField
+      DisplayLabel = 'Quadro 02 - C'#243'digo Fiscal'
+      FieldName = 'codigofiscal'
+      Required = True
+    end
+    object qryq02_NotasSaidasCalculosdescricao: TStringField
+      DisplayLabel = 'Quadro 02 - Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 50
+    end
+    object qryq02_NotasSaidasCalculosvalornota: TFloatField
+      DisplayLabel = 'Quadro 02 - Valor Nota'
+      FieldName = 'valornota'
+      Required = True
+    end
+    object qryq02_NotasSaidasCalculosbase: TFloatField
+      DisplayLabel = 'Quadro 02 - Base'
+      FieldName = 'base'
+      Required = True
+    end
+    object qryq02_NotasSaidasCalculosvalor: TFloatField
+      FieldName = 'valor'
+      Required = True
+    end
+    object qryq02_NotasSaidasCalculosisentas: TFloatField
+      FieldName = 'isentas'
+      Required = True
+    end
+    object qryq02_NotasSaidasCalculosoutras: TFloatField
+      DisplayLabel = 'Quadro 02 - Outras'
+      FieldName = 'outras'
+      Required = True
+    end
+    object qryq02_NotasSaidasCalculosicmsbasecalculost: TFloatField
+      FieldName = 'icmsbasecalculost'
+    end
+    object qryq02_NotasSaidasCalculosicmsvalorst: TFloatField
+      FieldName = 'icmsvalorst'
+    end
+  end
+  object qryQuadrosDIME: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryQuadrosDIMEAfterScroll
+    OnCalcFields = qryQuadrosDIMECalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'ListadeFiliais'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'select filial,'
+      
+        '       (select inscricaoestadual from filiais where codigo = fil' +
+        'ial) as inscricaoestadual,'
+      
+        '       (select razao from filiais where codigo = filial) as raza' +
+        'o, '
+      '       periodo,'
+      '       q00_040_tipodedeclaracao,'
+      '       q00_050_regimedeapuracao,'
+      '       q00_060_portedaempresa,'
+      '       q00_070_apuracaoconsolidada,'
+      '       q00_080_apuracaocentralizada,'
+      '       q00_090_transfcreditosnoperiodo,'
+      '       q00_100_temcreditospresumidos,'
+      '       q00_110_temcreditosporincentfiscais,'
+      '       q00_120_movimentos,'
+      '       q00_130_substitutotributario,'
+      '       q00_140_temescritacontabil,'
+      '       q00_150_qttrabalhadoresnaativ,'
+      ''
+      '    /*q04_010_debitopelassaidas,  CALCULADO */'
+      '       q04_020_debdifaliqativperm,'
+      '       q04_030_debdifaliqmatusoons,'
+      '       q04_040_debmaqeqimpativperm,'
+      '       q04_050_estornocredito,'
+      '       q04_060_outrosestornos,'
+      '       q04_070_Outrosdebitos,'
+      ''
+      
+        '      saldocredormesant,          /* q05_010 ou q06_080 ou q07_0' +
+        '50  conforme o regime */'
+      ''
+      '   /*q05_010_saldocredormesant, CALCULADO */'
+      '   /*q05_020_credpelasentradas, CALCULADO */'
+      '      q05_030_credativpermanente,'
+      '      q05_040_creddifaliqmatusocons,'
+      '      q05_050_credICMSretsubstrib,'
+      '      q05_060_estdebtransfcredacum,'
+      '      q05_070_outrosestdeb,'
+      '   /* q05_080_totcredpresumidos, = 44_990 */'
+      '   /* q05_090_totcredincentfiscais, CALCULADO */'
+      '      q05_100_credrelopimport,'
+      '      q05_110_credrelaqatacouunfed,'
+      '      q05_120_credresptributaria,'
+      '      q05_130_outpagtosocasfatogerador,'
+      '   /*q05_140_credregimeespecial, 44_999 origem = 90 */ '
+      '      q05_150_restituicaodeicms,'
+      '      q05_160_outroscreditos,'
+      ''
+      '      q06_010_Rectribestab,'
+      '      q06_020_Rectribestabcent,'
+      '   /*q06_030_TotrectributApdeb CALCULADO */'
+      '      q06_040_ImpdevcalcsobTotrectribut,'
+      '      q06_050_Credregpagamento,'
+      '   /*q06_060_Credpresumidopermitido, = 44_990 */'
+      '      q06_070_CredrelaquisatacoutrasUF,'
+      '   /*q06_080_Saldocredormesant, CALCULADO */'
+      ''
+      '      q07_010_Debvalorentradas,'
+      '      q07_020_Debsobdifentsaidas,'
+      '      q07_030_CredrelaqatoutUF,'
+      '    /*q07_040_CredpresECFaut, = 44_990 */'
+      '   /*q07_050_Saldocredormesant,  CALCULADO */'
+      ''
+      '   /*q08_010_Debapnomes, CALCULADO */'
+      '      q08_020_Debacumateomesantnosemestre,'
+      '   /*q08_030_Credapnomes, CALCULADO */'
+      '      q08_040_Credacumateomesantnosemestre,'
+      '      q08_050_Somaparcestateomesnosemestre, '
+      ''
+      '      q09_011_Compldebmudancaregimeap,'
+      '      q09_051_Complcredmudancaregimeap,'
+      '      q09_052_Crepagtoindevidoperanterior,'
+      '      q09_075_CreInformadonoDCIP,'
+      '      q09_090_Imposto1decendio,'
+      '      q09_100_Imposto2decendio,'
+      '      q09_105_antecipliqcombgasosos,'
+      '      q09_160_Saldocredorcredrelexport,'
+      '      q09_170_Saldocredorcredrelsaidisent,'
+      '      q09_180_Saldocredorcredrelsaidif,'
+      '      q09_190_Saldocredordeoutroscreditos,'
+      
+        '      q09_998_SaldoCredPerSeguinte,                   /* GRAVACA' +
+        'O */'
+      '     /* q09_998_SaldoCredPerSeguinte_calculado, CALCULADO */'
+      ''
+      '      q10_010_Debrelopimportacao,'
+      '      q10_020_DebrelaqatacdeoutrasUF,'
+      '      q10_030_Debporesptribut,'
+      '      q10_040_Outrosdebocasfatgerador,'
+      '      q10_050_Outrosdebeventuais,'
+      ''
+      '      q11_010_Valordosprodutos,'
+      '      q11_020_ValordoIPI,'
+      '      q11_030_Despesasacessorias,'
+      '      q11_040_BasedecalculodoICMSproprio,'
+      '      q11_050_ICMSproprio,'
+      '      q11_060_BasecalcICMSsubsttributaria,'
+      '      q11_065_Debocafatger,'
+      ''
+      '      q11_070_Impretporsubsttributaria,'
+      '      q11_073_Debocfatgerapuracaomensal,'
+      '      q11_075_Slddevrecestcons,'
+      ''
+      '    /*q11_080_Totaldedebitos, CALCULADO */ '
+      '      q11_090_Saldocredperantsubsttribut,'
+      '      q11_100_Devmercedesfazimentodevenda,'
+      '      q11_105_creditosdeclaradosnadcip,'
+      '      q11_110_RessarcimentoICMSsubsttribut,'
+      '      q11_120_Outroscreditos,'
+      '      q11_125_Sldcredrecestcons,'
+      '   /*q11_130_TotalcrediAjustesapdecendial, CALCULADO */'
+      '      q11_140_Imposto1decendio,'
+      '      q11_150_Imposto2decendio,'
+      '      q11_155_antecipliqcombgasosos,'
+      '      q11_160_Totalajustesapdecendial,'
+      ''
+      '      q11_170_Saldodevedor,'
+      '      q11_180_Slddevtrestcons,'
+      '      q11_999_Imparecolhersobresubsttribut,'
+      ''
+      '      q11_190_SaldoCredor,'
+      '      q11_200_Sldcredtrestcons,'
+      '      q11_998_Saldocredorparaomesseguinte,'
+      ''
+      '      q41_010_PercCredreltotaq3ultmeses,'
+      '      q41_020_prodexpmes,'
+      '      q41_030_prodsaidaisentaounaotrib,'
+      '      q41_040_prodcomsaidadiferidanomes,'
+      '      /* q41_120_Credgerexpocormes, q41_010 * q41_020 */'
+      
+        '      /* q41_130_Credgersaidasisentasocormes, q41_010 * q41_030 ' +
+        '*/'
+      '      /* q41_140_Credgersaidasdifocormes, q41_010 * q41_040 */'
+      '      q41_160_Saldocredtransfmesantrelexpo,'
+      '      q41_170_Salcredtranmesantrelsaiisent,'
+      '      q41_180_Salcredtranmesantrelsaidifer,'
+      '      q41_190_Salcredmesantreloutcredntran,'
+      '      /*q41_220_Esdebtrcredrelexportacoes, 44_999 origem = 11 */'
+      
+        '      /*q41_230_Estdebtrcredrelsaidasisentas, 44_999 origem = 12' +
+        ' */'
+      
+        '      /*q41_240_Estdebportransfcredrelsaidif, 44_999 origem = 13' +
+        ' */'
+      
+        '      /*q41_960_Saldocredoracumuladorelexp,  (q41_120+q41_160+q4' +
+        '1_220) - q42_010 */'
+      
+        '      /*q41_970_Saldocredacumrelsaidasisenta,  (q41_130+q41_170+' +
+        'q41_230) - q42_020 */'
+      
+        '      /*q41_980_Saldocredacumrelativoasaidas,  (q41_140+q41_180+' +
+        'q41_240) - q42_030 */'
+      ''
+      '      q42_010_Debtranscredacumrelexport,'
+      '      q42_020_Debtranscredacumrelsaidasis,'
+      '      q42_030_debtranscredacumrelsaidasdif,'
+      '      q42_040_Debtransbensatpermoutestabel,'
+      '      q42_070_Outrosdebtranscreditos,'
+      ' '
+      '      /*q43_010_credtransfcredacum, = 44_999 origem = 1 */'
+      '      q43_020_credtransfativopermestabemp,'
+      '      q43_050_outroscredtransfcred,'
+      ''
+      '      q44_010_Totalpagosmesempregados,'
+      '      q44_020_MediaValpagosempregadosexant,'
+      '   /*q44_030_Incrementoverificado, CALCULADO */'
+      '      q44_040_Credpresumidoincgeremprego,'
+      '      q44_050_Credpresestababatedoraves5,'
+      '      q44_060_Credpresestababatedoraves4,'
+      '      q44_070_Credpresestababatedoraves3,'
+      '      q44_080_Credpresestababatsuinos6,'
+      '      q44_090_Credpresestababatsuinos5,'
+      '      q44_100_Credpresestababatsuinos4,'
+      '      q44_120_Credpresaqecf,'
+      '      q44_130_contribaoFUNDOSOCIAL,'
+      '      q44_131_CredcontribFUNDOSOCIAL,'
+      '     /* q44_140_AplicFUNCULTURAL, = 44_999 origem = 2 */'
+      '     /* q44_150_AplicFUNTURISMO, = 44_999 origem = 3 */'
+      '     /* q44_160_AplicFUNDESPORTE, = 44_999 origem = 4 */'
+      '      q44_190_Outroscredpresumidos,'
+      '   /*q44_990_Totaldecreditospresumidos, CALCULADO */'
+      ''
+      '      q45_010_saldodevmesantesdedincent,'
+      '      q45_020_credporincentfisc,'
+      '      q45_030_valordorecibo,'
+      '      q45_040_credporincentfiscpercvlrrec,'
+      '      q45_050_outroscredincentfiscais,'
+      ''
+      '      q51_010_PrestServsujaoISS,'
+      '      q51_020_25transfrecebprecovendavarej,'
+      '      q51_030_IPIrelaqmatprimasmerc,'
+      '      q51_040_ParICMSretSubstTributaria,'
+      '      q51_050_SubsConcorgaosgovfedestoumun,'
+      '   /*q51_980_Totalvalexcluidosentradas, CALCULADO */'
+      '      q51_060_PrestervicosvsujeitaaoISS,'
+      '      q51_070_25TransfEfetaPrecoVendaVarej,'
+      '      q51_080_IPIincidentesaidademerc,'
+      '      q51_090_ParceladoICMSretporSubstTrib,'
+      '   /*q51_990_Totaldosvaloresexcdassaidas CALCULADO */'
+      ''
+      '      q80_010_EstoqueInicioExercicio,'
+      '      q80_020_EstoqueFimExercicio,'
+      '      q80_030_ReceitaBrutaVendasServicos,'
+      ''
+      '      q81_023_Circulante,'
+      '      q81_024_Disponibilidades,'
+      '      q81_025_Contasareceberdocirculante,'
+      '      q81_026_Estoquedemercemateriaprima,'
+      '      q81_027_Outrosestoques,'
+      '      q81_028_Outrascontasdoativcirculante,'
+      '      q81_029_Realizavelalongoprazo,'
+      '      q81_030_Contasareceberdorealizavel,'
+      '      q81_031_Outrascontasdorealizavel,'
+      '      q81_032_Permanente,'
+      '      q81_033_Investimentos,'
+      '      q81_034_Imobilizado_liquido,'
+      '      q81_035_Diferido,'
+      '   /*q81_990_Totalgeraldoativo CALCULADO */'
+      ''
+      '     q82_037_Circulante,'
+      '     q82_038_Fornecedores,'
+      '     q82_039_Emprestimosefinanciamentos,'
+      '     q82_040_Outrascontasdopassivocirc,'
+      '     q82_041_Exigivelalongoprazo,'
+      '     q82_042_Resultadosdeexfuturos,'
+      '     q82_269_PassivoaDescoberto,'
+      '     q82_043_Patrimonioliquido,'
+      '     q82_044_Capitalsocial,'
+      '     q82_045_Outrascontasdopatrimonioliq,'
+      '     q82_279_Outrascontasdopatrimonioliqvalneg,'
+      '  /*q82_990_Totalgeraldopassivo, CALCULADO */'
+      ''
+      '     q83_047_Receitabrutavendasservicos,'
+      '     q83_048_Devabatimentoseimpostos,'
+      '     q83_049_Receitaliquidavendasservicos,'
+      '     q83_050_Custodamercadoriavendida,'
+      '     q83_051_Lucrobruto,'
+      '     q83_331_prejuizobruto,'
+      '     q83_333_OutrasRecOper,'
+      '     q83_052_Despesasoperacionais,'
+      '     q83_053_Lucroprejuizooperacional,'
+      '     q83_341_prejuizooperacional,'
+      '     q83_054_Receitasnaooperacionais,'
+      '     q83_055_Despesasnaooperacionais,'
+      '     q83_056_Saldodacontacorrecaomonet,'
+      '     q83_057_ResultadoantesdoIR,'
+      '     q83_351_resultadoNegantesdoir,'
+      '     q83_058_ProvisaoparaoIR,'
+      '     q83_059_ResultadoaposoIR,'
+      '     q83_060_Participacoesecontribuicoes,'
+      '     q83_398_prejuizodoexercicio,'
+      '     q83_061_Lucroouprejuizo,'
+      ''
+      '     q84_062_Prolabore,'
+      '     q84_063_Comissoessalariosordenados,'
+      '     q84_064_Combustiveiselubrificantes,'
+      '     q84_065_Encargossociais,'
+      '     q84_066_Tributosfederais,'
+      '     q84_067_Tributosestaduais,'
+      '     q84_068_Tributosmunicipais,'
+      '     q84_069_Aguaetelefone,'
+      '     q84_070_Energiaeletrica,'
+      '     q84_071_Alugueis,'
+      '     q84_072_Servicosprofissionais,'
+      '     q84_073_Seguros,'
+      '     q84_074_Fretesecarretos,'
+      '     q84_075_Despesasfinanceiras,'
+      '     q84_076_Outrasdespesas,'
+      '   /*q84_990_Total CALCULADO */'
+      ''
+      '     q90_010_EstoqueInicioExercicio,'
+      '     q90_020_EstoqueFimExercicio,'
+      '     q90_030_ReceitaBrutaVendasServicos,'
+      ''
+      '     q91_023_Circulante,'
+      '     q91_024_Disponibilidades              ,'
+      '     q91_025_Contasareceberdocirculante    ,'
+      '     q91_026_Estoquedemercemateriaprima    ,'
+      '     q91_027_Outrosestoques                ,'
+      '     q91_028_Outrascontasdoativcirculante  ,'
+      '     q91_029_Realizavelalongoprazo         ,'
+      '     q91_030_Contasareceberdorealizavel    ,'
+      '     q91_031_Outrascontasdorealizavel      ,'
+      '     q91_032_Permanente                    ,'
+      '     q91_033_Investimentos                 ,'
+      '     q91_034_Imobilizado_liquido           ,'
+      '     q91_035_Diferido                      ,'
+      '  /*q91_990_Totalgeraldoativo             , CALCULADO */'
+      ''
+      '     q92_037_Circulante                    ,'
+      '     q92_038_Fornecedores                  ,'
+      '     q92_039_Emprestimosefinanciamentos    ,'
+      '     q92_040_Outrascontasdopassivocirc     ,'
+      '     q92_041_Exigivelalongoprazo           ,'
+      '     q92_042_Resultadosdeexfuturos         ,'
+      '     q92_269_PassivoaDescoberto,'
+      '     q92_043_Patrimonioliquido             ,'
+      '     q92_044_Capitalsocial                 ,'
+      '     q92_045_Outrascontasdopatrimonioliq   ,'
+      '     q92_279_Outrascontasdopatrimonioliqvalneg,'
+      '  /*q92_990_Totalgeraldopassivo           ,  CALCULADO */'
+      ''
+      '     q93_047_Receitabrutavendasservicos,'
+      '     q93_048_Devabatimentoseimpostos,'
+      '     q93_049_Receitaliquidavendasservicos,'
+      '     q93_050_Custodamercadoriavendida,'
+      '     q93_051_Lucrobruto,'
+      '     q93_331_prejuizobruto,'
+      '     q93_333_OutrasRecOper,'
+      '     q93_052_Despesasoperacionais,'
+      '     q93_053_Lucroprejuizooperacional,'
+      '     q93_341_prejuizooperacional,'
+      '     q93_054_Receitasnaooperacionais,'
+      '     q93_055_Despesasnaooperacionais,'
+      '     q93_056_Saldodacontacorrecaomonet,'
+      '     q93_057_ResultadoantesdoIR,'
+      '     q93_351_resultadoNegantesdoir,'
+      '     q93_058_ProvisaoparaoIR,'
+      '     q93_059_ResultadoaposoIR,'
+      '     q93_060_Participacoesecontribuicoes,'
+      '     q93_398_prejuizodoexercicio,'
+      '     q93_061_Lucroouprejuizo,'
+      ' '
+      '     q94_062_Prolabore                     ,'
+      '     q94_063_Comissoessalariosordenados    ,'
+      '     q94_064_Combustiveiselubrificantes    ,'
+      '     q94_065_Encargossociais               ,'
+      '     q94_066_Tributosfederais              ,'
+      '     q94_067_Tributosestaduais             ,'
+      '     q94_068_Tributosmunicipais            ,'
+      '     q94_069_Aguaetelefone                 ,'
+      '     q94_070_Energiaeletrica               ,'
+      '     q94_071_Alugueis                      ,'
+      '     q94_072_Servicosprofissionais         ,'
+      '     q94_073_Seguros                       ,'
+      '     q94_074_Fretesecarretos               ,'
+      '     q94_075_Despesasfinanceiras           ,'
+      '     q94_076_Outrasdespesas                ,'
+      '  /*q94_990_Total                         CALCULADO */'
+      '     observacao'
+      'from quadrosdime'
+      'where true'
+      ''
+      '   %ListadeFiliais'
+      ''
+      '   and periodo between (:MesInicial) and (:MesFinal)'
+      'order by filial, periodo')
+    RequestLive = False
+    Left = 56
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'MesInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'MesFinal'
+        ParamType = ptUnknown
+      end>
+    object qryQuadrosDIMEfilial: TIntegerField
+      DisplayLabel = 'Quadro 00 - Filial'
+      FieldName = 'filial'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryQuadrosDIMEperiodo: TStringField
+      DisplayLabel = 'Per'#237'odo'
+      FieldName = 'periodo'
+      Required = True
+      Size = 7
+    end
+    object qryQuadrosDIMEq00_040_tipodedeclaracao: TIntegerField
+      DisplayLabel = 'Quadro 00 - Tipo de declara'#231#227'o'
+      FieldName = 'q00_040_tipodedeclaracao'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryQuadrosDIMEq00_050_regimedeapuracao: TIntegerField
+      DisplayLabel = 'Quadro 00 - Regime de apura'#231#227'o'
+      FieldName = 'q00_050_regimedeapuracao'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryQuadrosDIMEq00_060_portedaempresa: TIntegerField
+      DisplayLabel = 'Quadro 00 - Porte da empresa'
+      FieldName = 'q00_060_portedaempresa'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryQuadrosDIMEq00_070_apuracaoconsolidada: TIntegerField
+      DisplayLabel = 'Quadro 00 - Apura'#231#227'o consolidada'
+      FieldName = 'q00_070_apuracaoconsolidada'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryQuadrosDIMEq00_080_apuracaocentralizada: TIntegerField
+      DisplayLabel = 'Quadro 00 - Apura'#231#227'o centralizada'
+      FieldName = 'q00_080_apuracaocentralizada'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryQuadrosDIMEq00_090_transfcreditosnoperiodo: TIntegerField
+      DisplayLabel = 'Quadro 00 - Transfer'#234'ncia de cr'#233'ditos no per'#237'odo'
+      FieldName = 'q00_090_transfcreditosnoperiodo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryQuadrosDIMEq00_100_temcreditospresumidos: TIntegerField
+      DisplayLabel = 'Quadro 00 - Tem cr'#233'ditos presumidos'
+      FieldName = 'q00_100_temcreditospresumidos'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryQuadrosDIMEq00_110_temcreditosporincentfiscais: TIntegerField
+      DisplayLabel = 'Quadro 00 - Tem cr'#233'ditos por incentivos fiscais'
+      FieldName = 'q00_110_temcreditosporincentfiscais'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryQuadrosDIMEq00_120_movimentos: TIntegerField
+      DisplayLabel = 'Quadro 00 - Movimentos'
+      FieldName = 'q00_120_movimentos'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryQuadrosDIMEq00_130_substitutotributario: TIntegerField
+      DisplayLabel = 'Quadro 00 - Substituto tribut'#225'rio'
+      FieldName = 'q00_130_substitutotributario'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryQuadrosDIMEq00_140_temescritacontabil: TIntegerField
+      DisplayLabel = 'Quadro 00 - Tem escrita cont'#225'bil'
+      FieldName = 'q00_140_temescritacontabil'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryQuadrosDIMEq00_150_qttrabalhadoresnaativ: TIntegerField
+      DisplayLabel = 'Quadro 00 - Trabalhadores na atividade'
+      FieldName = 'q00_150_qttrabalhadoresnaativ'
+      Required = True
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryQuadrosDIMEq04_010_debitopelassaidas: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q04_010_debitopelassaidas'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq04_020_debdifaliqativperm: TFloatField
+      FieldName = 'q04_020_debdifaliqativperm'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq04_030_debdifaliqmatusoons: TFloatField
+      FieldName = 'q04_030_debdifaliqmatusoons'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq04_040_debmaqeqimpativperm: TFloatField
+      FieldName = 'q04_040_debmaqeqimpativperm'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq04_050_estornocredito: TFloatField
+      FieldName = 'q04_050_estornocredito'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq04_060_outrosestornos: TFloatField
+      FieldName = 'q04_060_outrosestornos'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq04_070_outrosdebitos: TFloatField
+      FieldName = 'q04_070_outrosdebitos'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq04_990_subtotaldebitos: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'q04_990_subtotaldebitos'
+      DisplayFormat = '0.00'
+      currency = True
+      Calculated = True
+    end
+    object qryQuadrosDIMEsaldocredormesant: TFloatField
+      FieldName = 'saldocredormesant'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq05_020_creditopelasentradas: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q05_020_creditopelasentradas'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq05_030_credativpermanente: TFloatField
+      FieldName = 'q05_030_credativpermanente'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq05_040_creddifaliqmatusocons: TFloatField
+      FieldName = 'q05_040_creddifaliqmatusocons'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq05_050_credicmsretsubstrib: TFloatField
+      FieldName = 'q05_050_credicmsretsubstrib'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq05_060_estdebtransfcredacum: TFloatField
+      FieldName = 'q05_060_estdebtransfcredacum'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq05_070_outrosestdeb: TFloatField
+      FieldName = 'q05_070_outrosestdeb'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq05_100_credrelopimport: TFloatField
+      FieldName = 'q05_100_credrelopimport'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq05_110_credrelaqatacouunfed: TFloatField
+      FieldName = 'q05_110_credrelaqatacouunfed'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq05_120_credresptributaria: TFloatField
+      FieldName = 'q05_120_credresptributaria'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq05_130_outpagtosocasfatogerador: TFloatField
+      FieldName = 'q05_130_outpagtosocasfatogerador'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq05_140_credregimeespecial: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q05_140_credregimeespecial'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq05_150_restituicaodeicms: TFloatField
+      FieldName = 'q05_150_restituicaodeicms'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq05_160_outroscreditos: TFloatField
+      FieldName = 'q05_160_outroscreditos'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq05_990_subtotalcreditos: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q05_990_subtotalcreditos'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq06_010_rectribestab: TFloatField
+      FieldName = 'q06_010_rectribestab'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq06_020_rectribestabcent: TFloatField
+      FieldName = 'q06_020_rectribestabcent'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq06_030_TotrectributApdeb: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q06_030_TotrectributApdeb'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq06_040_impdevcalcsobtotrectribut: TFloatField
+      FieldName = 'q06_040_impdevcalcsobtotrectribut'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq06_050_credregpagamento: TFloatField
+      FieldName = 'q06_050_credregpagamento'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq06_070_credrelaquisatacoutrasuf: TFloatField
+      FieldName = 'q06_070_credrelaquisatacoutrasuf'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq06_990_subtotalcreditos: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q06_990_subtotalcreditos'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq07_010_debvalorentradas: TFloatField
+      FieldName = 'q07_010_debvalorentradas'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq07_020_debsobdifentsaidas: TFloatField
+      FieldName = 'q07_020_debsobdifentsaidas'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq07_980_subtotaldebitos: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q07_980_subtotaldebitos'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq07_030_credrelaqatoutuf: TFloatField
+      FieldName = 'q07_030_credrelaqatoutuf'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq07_990_subtotalcreditos: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q07_990_subtotalcreditos'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq08_010_Debapnomes: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q08_010_Debapnomes'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq08_020_debacumateomesantnosemestre: TFloatField
+      FieldName = 'q08_020_debacumateomesantnosemestre'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq08_980_totdebacumsemestre: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q08_980_totdebacumsemestre'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq08_030_credapnomes: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q08_030_credapnomes'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq08_040_credacumateomesantnosemestre: TFloatField
+      FieldName = 'q08_040_credacumateomesantnosemestre'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq08_050_somaparcestateomesnosemestre: TFloatField
+      FieldName = 'q08_050_somaparcestateomesnosemestre'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq08_990_totcredacumsemestre: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q08_990_totcredacumsemestre'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq09_010_subtotaldebitos: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q09_010_subtotaldebitos'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq09_011_compldebmudancaregimeap: TFloatField
+      FieldName = 'q09_011_compldebmudancaregimeap'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq09_020_saldodevrecestabcons: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q09_020_saldodevrecestabcons'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq09_030_credtransoutcontrib: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q09_030_credtransoutcontrib'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq09_040_totaldebitos: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q09_040_totaldebitos'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq09_050_subtotalcreditos: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q09_050_subtotalcreditos'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq09_051_complcredmudancaregimeap: TFloatField
+      FieldName = 'q09_051_complcredmudancaregimeap'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq09_052_crepagtoindevidoperanterior: TFloatField
+      FieldName = 'q09_052_crepagtoindevidoperanterior'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq09_060_SaldoCredRecEstaCons: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q09_060_SaldoCredRecEstaCons'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq09_075_creinformadonodcip: TFloatField
+      FieldName = 'q09_075_creinformadonodcip'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq09_070_CredRecebTransfOutContrib: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q09_070_CredRecebTransfOutContrib'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq09_080_TotalCreditos: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q09_080_TotalCreditos'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq09_090_imposto1decendio: TFloatField
+      FieldName = 'q09_090_imposto1decendio'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq09_105_antecipliqcombgasosos: TFloatField
+      FieldName = 'q09_105_antecipliqcombgasosos'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq09_100_imposto2decendio: TFloatField
+      FieldName = 'q09_100_imposto2decendio'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq09_110_TotalAjustesApDecendial: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q09_110_TotalAjustesApDecendial'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq09_120_SaldoDevedor: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q09_120_SaldoDevedor'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq09_999_ImpostoaRecolher: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q09_999_ImpostoaRecolher'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq09_130_SaldoDevTransfEstabConsolidador: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q09_130_SaldoDevTransfEstabConsolidador'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq09_140_SaldoCredor: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q09_140_SaldoCredor'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq09_150_SaldoCredTransfEstabConsolidador: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q09_150_SaldoCredTransfEstabConsolidador'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq09_998_saldocredperseguinte: TFloatField
+      FieldName = 'q09_998_saldocredperseguinte'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq09_998_SaldoCredPerSeguinte_calculado: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q09_998_SaldoCredPerSeguinte_calculado'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq09_160_saldocredorcredrelexport: TFloatField
+      FieldName = 'q09_160_saldocredorcredrelexport'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq09_170_saldocredorcredrelsaidisent: TFloatField
+      FieldName = 'q09_170_saldocredorcredrelsaidisent'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq09_180_saldocredorcredrelsaidif: TFloatField
+      FieldName = 'q09_180_saldocredorcredrelsaidif'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq09_190_saldocredordeoutroscreditos: TFloatField
+      FieldName = 'q09_190_saldocredordeoutroscreditos'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq10_010_debrelopimportacao: TFloatField
+      FieldName = 'q10_010_debrelopimportacao'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq10_020_debrelaqatacdeoutrasuf: TFloatField
+      FieldName = 'q10_020_debrelaqatacdeoutrasuf'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq10_030_debporesptribut: TFloatField
+      FieldName = 'q10_030_debporesptribut'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq10_040_outrosdebocasfatgerador: TFloatField
+      FieldName = 'q10_040_outrosdebocasfatgerador'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq10_050_outrosdebeventuais: TFloatField
+      FieldName = 'q10_050_outrosdebeventuais'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq10_990_TotalDebitos: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q10_990_TotalDebitos'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq11_010_valordosprodutos: TFloatField
+      FieldName = 'q11_010_valordosprodutos'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq11_020_valordoipi: TFloatField
+      FieldName = 'q11_020_valordoipi'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq11_030_despesasacessorias: TFloatField
+      FieldName = 'q11_030_despesasacessorias'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq11_040_basedecalculodoicmsproprio: TFloatField
+      FieldName = 'q11_040_basedecalculodoicmsproprio'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq11_050_icmsproprio: TFloatField
+      FieldName = 'q11_050_icmsproprio'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq11_065_debocafatger: TFloatField
+      FieldName = 'q11_065_debocafatger'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq11_073_debocfatgerapuracaomensal: TFloatField
+      FieldName = 'q11_073_debocfatgerapuracaomensal'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq11_075_slddevrecestcons: TFloatField
+      FieldName = 'q11_075_slddevrecestcons'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq11_125_sldcredrecestcons: TFloatField
+      FieldName = 'q11_125_sldcredrecestcons'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq11_155_antecipliqcombgasosos: TFloatField
+      FieldName = 'q11_155_antecipliqcombgasosos'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq11_170_saldodevedor: TFloatField
+      FieldName = 'q11_170_saldodevedor'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq11_180_slddevtrestcons: TFloatField
+      FieldName = 'q11_180_slddevtrestcons'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq11_190_saldocredor: TFloatField
+      FieldName = 'q11_190_saldocredor'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq11_200_sldcredtrestcons: TFloatField
+      FieldName = 'q11_200_sldcredtrestcons'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq11_060_basecalcicmssubsttributaria: TFloatField
+      FieldName = 'q11_060_basecalcicmssubsttributaria'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq11_070_impretporsubsttributaria: TFloatField
+      FieldName = 'q11_070_impretporsubsttributaria'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq11_080_totaldedebitos: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'q11_080_totaldedebitos'
+      DisplayFormat = '0.00'
+      currency = True
+      Calculated = True
+    end
+    object qryQuadrosDIMEq11_090_saldocredperantsubsttribut: TFloatField
+      FieldName = 'q11_090_saldocredperantsubsttribut'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq11_100_devmercedesfazimentodevenda: TFloatField
+      FieldName = 'q11_100_devmercedesfazimentodevenda'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq11_110_ressarcimentoicmssubsttribut: TFloatField
+      FieldName = 'q11_110_ressarcimentoicmssubsttribut'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq11_120_outroscreditos: TFloatField
+      FieldName = 'q11_120_outroscreditos'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq11_130_totalcrediajustesapdecendial: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'q11_130_totalcrediajustesapdecendial'
+      DisplayFormat = '0.00'
+      currency = True
+      Calculated = True
+    end
+    object qryQuadrosDIMEq11_140_imposto1decendio: TFloatField
+      FieldName = 'q11_140_imposto1decendio'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq11_150_imposto2decendio: TFloatField
+      FieldName = 'q11_150_imposto2decendio'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq11_160_totalajustesapdecendial: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'q11_160_totalajustesapdecendial'
+      DisplayFormat = '0.00'
+      currency = True
+      Calculated = True
+    end
+    object qryQuadrosDIMEq11_998_saldocredorparaomesseguinte: TFloatField
+      FieldName = 'q11_998_saldocredorparaomesseguinte'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq11_999_imparecolhersobresubsttribut: TFloatField
+      FieldName = 'q11_999_imparecolhersobresubsttribut'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq41_010_perccredreltotaq3ultmeses: TFloatField
+      FieldName = 'q41_010_perccredreltotaq3ultmeses'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq41_020_prodexpmes: TFloatField
+      FieldName = 'q41_020_prodexpmes'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq41_030_prodsaidaisentaounaotrib: TFloatField
+      FieldName = 'q41_030_prodsaidaisentaounaotrib'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq41_040_prodcomsaidadiferidanomes: TFloatField
+      FieldName = 'q41_040_prodcomsaidadiferidanomes'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq41_120_credgerexpocormes: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'q41_120_credgerexpocormes'
+      DisplayFormat = '0.00'
+      currency = True
+      Calculated = True
+    end
+    object qryQuadrosDIMEq41_130_credgersaidasisentasocormes: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'q41_130_credgersaidasisentasocormes'
+      DisplayFormat = '0.00'
+      currency = True
+      Calculated = True
+    end
+    object qryQuadrosDIMEq41_140_credgersaidasdifocormes: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'q41_140_credgersaidasdifocormes'
+      DisplayFormat = '0.00'
+      currency = True
+      Calculated = True
+    end
+    object qryQuadrosDIMEq41_160_saldocredtransfmesantrelexpo: TFloatField
+      FieldName = 'q41_160_saldocredtransfmesantrelexpo'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq41_170_salcredtranmesantrelsaiisent: TFloatField
+      FieldName = 'q41_170_salcredtranmesantrelsaiisent'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq41_180_salcredtranmesantrelsaidifer: TFloatField
+      FieldName = 'q41_180_salcredtranmesantrelsaidifer'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq41_190_salcredmesantreloutcredntran: TFloatField
+      FieldName = 'q41_190_salcredmesantreloutcredntran'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq41_220_esdebtrcredrelexportacoes: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'q41_220_esdebtrcredrelexportacoes'
+      DisplayFormat = '0.00'
+      currency = True
+      Calculated = True
+    end
+    object qryQuadrosDIMEq41_230_estdebtrcredrelsaidasisentas: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'q41_230_estdebtrcredrelsaidasisentas'
+      DisplayFormat = '0.00'
+      currency = True
+      Calculated = True
+    end
+    object qryQuadrosDIMEq41_240_estdebportransfcredrelsaidif: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'q41_240_estdebportransfcredrelsaidif'
+      DisplayFormat = '0.00'
+      currency = True
+      Calculated = True
+    end
+    object qryQuadrosDIMEq41_960_saldocredoracumuladorelexp: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'q41_960_saldocredoracumuladorelexp'
+      DisplayFormat = '0.00'
+      currency = True
+      Calculated = True
+    end
+    object qryQuadrosDIMEq41_970_saldocredacumrelsaidasisenta: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'q41_970_saldocredacumrelsaidasisenta'
+      DisplayFormat = '0.00'
+      currency = True
+      Calculated = True
+    end
+    object qryQuadrosDIMEq41_980_saldocredacumrelativoasaidas: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'q41_980_saldocredacumrelativoasaidas'
+      DisplayFormat = '0.00'
+      currency = True
+      Calculated = True
+    end
+    object qryQuadrosDIMEq42_010_debtranscredacumrelexport: TFloatField
+      FieldName = 'q42_010_debtranscredacumrelexport'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq42_020_debtranscredacumrelsaidasis: TFloatField
+      FieldName = 'q42_020_debtranscredacumrelsaidasis'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq42_030_debtranscredacumrelsaidasdif: TFloatField
+      FieldName = 'q42_030_debtranscredacumrelsaidasdif'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq42_040_debtransbensatpermoutestabel: TFloatField
+      FieldName = 'q42_040_debtransbensatpermoutestabel'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq42_070_outrosdebtranscreditos: TFloatField
+      FieldName = 'q42_070_outrosdebtranscreditos'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq42_990_totdebtranscredacum: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q42_990_totdebtranscredacum'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq43_010_credtransfcredacum: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'q43_010_credtransfcredacum'
+      DisplayFormat = '0.00'
+      currency = True
+      Calculated = True
+    end
+    object qryQuadrosDIMEq43_020_credtransfativopermestabemp: TFloatField
+      FieldName = 'q43_020_credtransfativopermestabemp'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq43_050_outroscredtransfcred: TFloatField
+      FieldName = 'q43_050_outroscredtransfcred'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq43_990_totalcredtransfcred: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q43_990_totalcredtransfcred'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq44_010_totalpagosmesempregados: TFloatField
+      FieldName = 'q44_010_totalpagosmesempregados'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq44_020_mediavalpagosempregadosexant: TFloatField
+      FieldName = 'q44_020_mediavalpagosempregadosexant'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq44_030_incrementoverificado: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'q44_030_incrementoverificado'
+      DisplayFormat = '0.00'
+      currency = True
+      Calculated = True
+    end
+    object qryQuadrosDIMEq44_040_credpresumidoincgeremprego: TFloatField
+      FieldName = 'q44_040_credpresumidoincgeremprego'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq44_050_credpresestababatedoraves5: TFloatField
+      FieldName = 'q44_050_credpresestababatedoraves5'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq44_060_credpresestababatedoraves4: TFloatField
+      FieldName = 'q44_060_credpresestababatedoraves4'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq44_070_credpresestababatedoraves3: TFloatField
+      FieldName = 'q44_070_credpresestababatedoraves3'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq44_080_credpresestababatsuinos6: TFloatField
+      FieldName = 'q44_080_credpresestababatsuinos6'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq44_090_credpresestababatsuinos5: TFloatField
+      FieldName = 'q44_090_credpresestababatsuinos5'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq44_100_credpresestababatsuinos4: TFloatField
+      FieldName = 'q44_100_credpresestababatsuinos4'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq44_120_credpresaqecf: TFloatField
+      FieldName = 'q44_120_credpresaqecf'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq44_130_contribaofundosocial: TFloatField
+      FieldName = 'q44_130_contribaofundosocial'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq44_131_credcontribfundosocial: TFloatField
+      FieldName = 'q44_131_credcontribfundosocial'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq44_140_aplicfuncultural: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'q44_140_aplicfuncultural'
+      DisplayFormat = '0.00'
+      currency = True
+      Calculated = True
+    end
+    object qryQuadrosDIMEq44_150_aplicfunturismo: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'q44_150_aplicfunturismo'
+      DisplayFormat = '0.00'
+      currency = True
+      Calculated = True
+    end
+    object qryQuadrosDIMEq44_160_aplicfundesporte: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'q44_160_aplicfundesporte'
+      DisplayFormat = '0.00'
+      currency = True
+      Calculated = True
+    end
+    object qryQuadrosDIMEq44_190_outroscredpresumidos: TFloatField
+      FieldName = 'q44_190_outroscredpresumidos'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq44_990_totaldecreditospresumidos: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'q44_990_totaldecreditospresumidos'
+      DisplayFormat = '0.00'
+      currency = True
+      Calculated = True
+    end
+    object qryQuadrosDIMEq45_010_saldodevmesantesdedincent: TFloatField
+      FieldName = 'q45_010_saldodevmesantesdedincent'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq45_020_credporincentfisc: TFloatField
+      FieldName = 'q45_020_credporincentfisc'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq45_030_valordorecibo: TFloatField
+      FieldName = 'q45_030_valordorecibo'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq45_040_credporincentfiscpercvlrrec: TFloatField
+      FieldName = 'q45_040_credporincentfiscpercvlrrec'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq45_050_outroscredincentfiscais: TFloatField
+      FieldName = 'q45_050_outroscredincentfiscais'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq45_990_totalcredincentfisc: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'q45_990_totalcredincentfisc'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryQuadrosDIMEq51_010_prestservsujaoiss: TFloatField
+      FieldName = 'q51_010_prestservsujaoiss'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq51_020_25transfrecebprecovendavarej: TFloatField
+      FieldName = 'q51_020_25transfrecebprecovendavarej'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq51_030_ipirelaqmatprimasmerc: TFloatField
+      FieldName = 'q51_030_ipirelaqmatprimasmerc'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq51_040_paricmsretsubsttributaria: TFloatField
+      FieldName = 'q51_040_paricmsretsubsttributaria'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq51_050_subsconcorgaosgovfedestoumun: TFloatField
+      FieldName = 'q51_050_subsconcorgaosgovfedestoumun'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq51_980_totalvalexcluidosentradas: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'q51_980_totalvalexcluidosentradas'
+      DisplayFormat = '0.00'
+      currency = True
+      Calculated = True
+    end
+    object qryQuadrosDIMEq51_060_prestervicosvsujeitaaoiss: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'q51_060_prestervicosvsujeitaaoiss'
+      DisplayFormat = '0.00'
+      currency = True
+      Calculated = True
+    end
+    object qryQuadrosDIMEq51_070_25transfefetaprecovendavarej: TFloatField
+      FieldName = 'q51_070_25transfefetaprecovendavarej'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq51_080_ipiincidentesaidademerc: TFloatField
+      FieldName = 'q51_080_ipiincidentesaidademerc'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq51_090_parceladoicmsretporsubsttrib: TFloatField
+      FieldName = 'q51_090_parceladoicmsretporsubsttrib'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq51_990_totaldosvaloresexcdassaidas: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'q51_990_totaldosvaloresexcdassaidas'
+      DisplayFormat = '0.00'
+      currency = True
+      Calculated = True
+    end
+    object qryQuadrosDIMEq80_010_estoqueinicioexercicio: TFloatField
+      FieldName = 'q80_010_estoqueinicioexercicio'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq80_020_estoquefimexercicio: TFloatField
+      FieldName = 'q80_020_estoquefimexercicio'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq80_030_receitabrutavendasservicos: TFloatField
+      FieldName = 'q80_030_receitabrutavendasservicos'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq81_023_circulante: TFloatField
+      FieldName = 'q81_023_circulante'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq81_024_disponibilidades: TFloatField
+      FieldName = 'q81_024_disponibilidades'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq81_025_contasareceberdocirculante: TFloatField
+      FieldName = 'q81_025_contasareceberdocirculante'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq81_026_estoquedemercemateriaprima: TFloatField
+      FieldName = 'q81_026_estoquedemercemateriaprima'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq81_027_outrosestoques: TFloatField
+      FieldName = 'q81_027_outrosestoques'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq81_028_outrascontasdoativcirculante: TFloatField
+      FieldName = 'q81_028_outrascontasdoativcirculante'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq81_029_realizavelalongoprazo: TFloatField
+      FieldName = 'q81_029_realizavelalongoprazo'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq81_030_contasareceberdorealizavel: TFloatField
+      FieldName = 'q81_030_contasareceberdorealizavel'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq81_031_outrascontasdorealizavel: TFloatField
+      FieldName = 'q81_031_outrascontasdorealizavel'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq81_032_permanente: TFloatField
+      FieldName = 'q81_032_permanente'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq81_033_investimentos: TFloatField
+      FieldName = 'q81_033_investimentos'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq81_034_imobilizado_liquido: TFloatField
+      FieldName = 'q81_034_imobilizado_liquido'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq81_035_diferido: TFloatField
+      FieldName = 'q81_035_diferido'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq81_990_totalgeraldoativo: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'q81_990_totalgeraldoativo'
+      DisplayFormat = '0.00'
+      currency = True
+      Calculated = True
+    end
+    object qryQuadrosDIMEq82_037_circulante: TFloatField
+      FieldName = 'q82_037_circulante'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq82_038_fornecedores: TFloatField
+      FieldName = 'q82_038_fornecedores'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq82_039_emprestimosefinanciamentos: TFloatField
+      FieldName = 'q82_039_emprestimosefinanciamentos'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq82_040_outrascontasdopassivocirc: TFloatField
+      FieldName = 'q82_040_outrascontasdopassivocirc'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq82_041_exigivelalongoprazo: TFloatField
+      FieldName = 'q82_041_exigivelalongoprazo'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq82_042_resultadosdeexfuturos: TFloatField
+      FieldName = 'q82_042_resultadosdeexfuturos'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq82_043_patrimonioliquido: TFloatField
+      FieldName = 'q82_043_patrimonioliquido'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq82_044_capitalsocial: TFloatField
+      FieldName = 'q82_044_capitalsocial'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq82_045_outrascontasdopatrimonioliq: TFloatField
+      FieldName = 'q82_045_outrascontasdopatrimonioliq'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq82_279_outrascontasdopatrimonioliqvalneg: TFloatField
+      FieldName = 'q82_279_outrascontasdopatrimonioliqvalneg'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq82_990_totalgeraldopassivo: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'q82_990_totalgeraldopassivo'
+      DisplayFormat = '0.00'
+      currency = True
+      Calculated = True
+    end
+    object qryQuadrosDIMEq83_047_receitabrutavendasservicos: TFloatField
+      FieldName = 'q83_047_receitabrutavendasservicos'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq83_048_devabatimentoseimpostos: TFloatField
+      FieldName = 'q83_048_devabatimentoseimpostos'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq83_049_receitaliquidavendasservicos: TFloatField
+      FieldName = 'q83_049_receitaliquidavendasservicos'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq83_050_custodamercadoriavendida: TFloatField
+      FieldName = 'q83_050_custodamercadoriavendida'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq83_051_lucrobruto: TFloatField
+      FieldName = 'q83_051_lucrobruto'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq83_052_despesasoperacionais: TFloatField
+      FieldName = 'q83_052_despesasoperacionais'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq83_053_lucroprejuizooperacional: TFloatField
+      FieldName = 'q83_053_lucroprejuizooperacional'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq83_054_receitasnaooperacionais: TFloatField
+      FieldName = 'q83_054_receitasnaooperacionais'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq83_055_despesasnaooperacionais: TFloatField
+      FieldName = 'q83_055_despesasnaooperacionais'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq83_056_saldodacontacorrecaomonet: TFloatField
+      FieldName = 'q83_056_saldodacontacorrecaomonet'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq83_057_resultadoantesdoir: TFloatField
+      FieldName = 'q83_057_resultadoantesdoir'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq83_058_provisaoparaoir: TFloatField
+      FieldName = 'q83_058_provisaoparaoir'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq83_059_resultadoaposoir: TFloatField
+      FieldName = 'q83_059_resultadoaposoir'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq83_060_participacoesecontribuicoes: TFloatField
+      FieldName = 'q83_060_participacoesecontribuicoes'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq83_061_lucroouprejuizo: TFloatField
+      FieldName = 'q83_061_lucroouprejuizo'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq84_062_prolabore: TFloatField
+      FieldName = 'q84_062_prolabore'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq84_063_comissoessalariosordenados: TFloatField
+      FieldName = 'q84_063_comissoessalariosordenados'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq84_064_combustiveiselubrificantes: TFloatField
+      FieldName = 'q84_064_combustiveiselubrificantes'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq84_065_encargossociais: TFloatField
+      FieldName = 'q84_065_encargossociais'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq84_066_tributosfederais: TFloatField
+      FieldName = 'q84_066_tributosfederais'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq84_067_tributosestaduais: TFloatField
+      FieldName = 'q84_067_tributosestaduais'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq84_068_tributosmunicipais: TFloatField
+      FieldName = 'q84_068_tributosmunicipais'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq84_069_aguaetelefone: TFloatField
+      FieldName = 'q84_069_aguaetelefone'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq84_070_energiaeletrica: TFloatField
+      FieldName = 'q84_070_energiaeletrica'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq84_071_alugueis: TFloatField
+      FieldName = 'q84_071_alugueis'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq84_072_servicosprofissionais: TFloatField
+      FieldName = 'q84_072_servicosprofissionais'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq84_073_seguros: TFloatField
+      FieldName = 'q84_073_seguros'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq84_074_fretesecarretos: TFloatField
+      FieldName = 'q84_074_fretesecarretos'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq84_075_despesasfinanceiras: TFloatField
+      FieldName = 'q84_075_despesasfinanceiras'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq84_076_outrasdespesas: TFloatField
+      FieldName = 'q84_076_outrasdespesas'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq84_990_total: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'q84_990_total'
+      DisplayFormat = '0.00'
+      currency = True
+      Calculated = True
+    end
+    object qryQuadrosDIMEq90_010_estoqueinicioexercicio: TFloatField
+      FieldName = 'q90_010_estoqueinicioexercicio'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq90_020_estoquefimexercicio: TFloatField
+      FieldName = 'q90_020_estoquefimexercicio'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq90_030_receitabrutavendasservicos: TFloatField
+      FieldName = 'q90_030_receitabrutavendasservicos'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq91_023_circulante: TFloatField
+      FieldName = 'q91_023_circulante'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq91_024_disponibilidades: TFloatField
+      FieldName = 'q91_024_disponibilidades'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq91_025_contasareceberdocirculante: TFloatField
+      FieldName = 'q91_025_contasareceberdocirculante'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq91_026_estoquedemercemateriaprima: TFloatField
+      FieldName = 'q91_026_estoquedemercemateriaprima'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq91_027_outrosestoques: TFloatField
+      FieldName = 'q91_027_outrosestoques'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq91_028_outrascontasdoativcirculante: TFloatField
+      FieldName = 'q91_028_outrascontasdoativcirculante'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq91_029_realizavelalongoprazo: TFloatField
+      FieldName = 'q91_029_realizavelalongoprazo'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq91_030_contasareceberdorealizavel: TFloatField
+      FieldName = 'q91_030_contasareceberdorealizavel'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq91_031_outrascontasdorealizavel: TFloatField
+      FieldName = 'q91_031_outrascontasdorealizavel'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq91_032_permanente: TFloatField
+      FieldName = 'q91_032_permanente'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq91_033_investimentos: TFloatField
+      FieldName = 'q91_033_investimentos'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq91_034_imobilizado_liquido: TFloatField
+      FieldName = 'q91_034_imobilizado_liquido'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq91_035_diferido: TFloatField
+      FieldName = 'q91_035_diferido'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq91_990_totalgeraldoativo: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'q91_990_totalgeraldoativo'
+      DisplayFormat = '0.00'
+      currency = True
+      Calculated = True
+    end
+    object qryQuadrosDIMEq92_037_circulante: TFloatField
+      FieldName = 'q92_037_circulante'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq92_038_fornecedores: TFloatField
+      FieldName = 'q92_038_fornecedores'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq92_039_emprestimosefinanciamentos: TFloatField
+      FieldName = 'q92_039_emprestimosefinanciamentos'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq92_040_outrascontasdopassivocirc: TFloatField
+      FieldName = 'q92_040_outrascontasdopassivocirc'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq92_041_exigivelalongoprazo: TFloatField
+      FieldName = 'q92_041_exigivelalongoprazo'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq92_042_resultadosdeexfuturos: TFloatField
+      FieldName = 'q92_042_resultadosdeexfuturos'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq92_043_patrimonioliquido: TFloatField
+      FieldName = 'q92_043_patrimonioliquido'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq92_044_capitalsocial: TFloatField
+      FieldName = 'q92_044_capitalsocial'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq92_045_outrascontasdopatrimonioliq: TFloatField
+      FieldName = 'q92_045_outrascontasdopatrimonioliq'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq92_990_totalgeraldopassivo: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'q92_990_totalgeraldopassivo'
+      DisplayFormat = '0.00'
+      currency = True
+      Calculated = True
+    end
+    object qryQuadrosDIMEq93_047_receitabrutavendasservicos: TFloatField
+      FieldName = 'q93_047_receitabrutavendasservicos'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq93_048_devabatimentoseimpostos: TFloatField
+      FieldName = 'q93_048_devabatimentoseimpostos'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq93_049_receitaliquidavendasservicos: TFloatField
+      FieldName = 'q93_049_receitaliquidavendasservicos'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq93_050_custodamercadoriavendida: TFloatField
+      FieldName = 'q93_050_custodamercadoriavendida'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq93_051_lucrobruto: TFloatField
+      FieldName = 'q93_051_lucrobruto'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq93_052_despesasoperacionais: TFloatField
+      FieldName = 'q93_052_despesasoperacionais'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq93_053_lucroprejuizooperacional: TFloatField
+      FieldName = 'q93_053_lucroprejuizooperacional'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq93_054_receitasnaooperacionais: TFloatField
+      FieldName = 'q93_054_receitasnaooperacionais'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq93_055_despesasnaooperacionais: TFloatField
+      FieldName = 'q93_055_despesasnaooperacionais'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq93_056_saldodacontacorrecaomonet: TFloatField
+      FieldName = 'q93_056_saldodacontacorrecaomonet'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq93_057_resultadoantesdoir: TFloatField
+      FieldName = 'q93_057_resultadoantesdoir'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq93_058_provisaoparaoir: TFloatField
+      FieldName = 'q93_058_provisaoparaoir'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq93_059_resultadoaposoir: TFloatField
+      FieldName = 'q93_059_resultadoaposoir'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq93_060_participacoesecontribuicoes: TFloatField
+      FieldName = 'q93_060_participacoesecontribuicoes'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq93_061_lucroouprejuizo: TFloatField
+      FieldName = 'q93_061_lucroouprejuizo'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq94_062_prolabore: TFloatField
+      FieldName = 'q94_062_prolabore'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq94_063_comissoessalariosordenados: TFloatField
+      FieldName = 'q94_063_comissoessalariosordenados'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq94_064_combustiveiselubrificantes: TFloatField
+      FieldName = 'q94_064_combustiveiselubrificantes'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq94_065_encargossociais: TFloatField
+      FieldName = 'q94_065_encargossociais'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq94_066_tributosfederais: TFloatField
+      FieldName = 'q94_066_tributosfederais'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq94_067_tributosestaduais: TFloatField
+      FieldName = 'q94_067_tributosestaduais'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq94_068_tributosmunicipais: TFloatField
+      FieldName = 'q94_068_tributosmunicipais'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq94_069_aguaetelefone: TFloatField
+      FieldName = 'q94_069_aguaetelefone'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq94_070_energiaeletrica: TFloatField
+      FieldName = 'q94_070_energiaeletrica'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq94_071_alugueis: TFloatField
+      FieldName = 'q94_071_alugueis'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq94_072_servicosprofissionais: TFloatField
+      FieldName = 'q94_072_servicosprofissionais'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq94_073_seguros: TFloatField
+      FieldName = 'q94_073_seguros'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq94_074_fretesecarretos: TFloatField
+      FieldName = 'q94_074_fretesecarretos'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq94_075_despesasfinanceiras: TFloatField
+      FieldName = 'q94_075_despesasfinanceiras'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq94_076_outrasdespesas: TFloatField
+      FieldName = 'q94_076_outrasdespesas'
+      DisplayFormat = '0.00'
+      currency = True
+    end
+    object qryQuadrosDIMEq94_990_total: TFloatField
+      FieldKind = fkCalculated
+      FieldName = 'q94_990_total'
+      DisplayFormat = '0.00'
+      currency = True
+      Calculated = True
+    end
+    object qryQuadrosDIMEinscricaoestadual: TStringField
+      FieldName = 'inscricaoestadual'
+      Size = 50
+    end
+    object qryQuadrosDIMErazao: TStringField
+      FieldName = 'razao'
+      Size = 50
+    end
+    object qryQuadrosDIMEq83_331_prejuizobruto: TFloatField
+      FieldName = 'q83_331_prejuizobruto'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq83_333_outrasrecoper: TFloatField
+      FieldName = 'q83_333_outrasrecoper'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq83_341_prejuizooperacional: TFloatField
+      FieldName = 'q83_341_prejuizooperacional'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq83_351_resultadonegantesdoir: TFloatField
+      FieldName = 'q83_351_resultadonegantesdoir'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq83_398_prejuizodoexercicio: TFloatField
+      FieldName = 'q83_398_prejuizodoexercicio'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq82_269_passivoadescoberto: TFloatField
+      FieldName = 'q82_269_passivoadescoberto'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq92_269_passivoadescoberto: TFloatField
+      FieldName = 'q92_269_passivoadescoberto'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq92_279_outrascontasdopatrimonioliqvalneg: TFloatField
+      FieldName = 'q92_279_outrascontasdopatrimonioliqvalneg'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq93_331_prejuizobruto: TFloatField
+      FieldName = 'q93_331_prejuizobruto'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq93_333_outrasrecoper: TFloatField
+      FieldName = 'q93_333_outrasrecoper'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq93_341_prejuizooperacional: TFloatField
+      FieldName = 'q93_341_prejuizooperacional'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq93_351_resultadonegantesdoir: TFloatField
+      FieldName = 'q93_351_resultadonegantesdoir'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEq93_398_prejuizodoexercicio: TFloatField
+      FieldName = 'q93_398_prejuizodoexercicio'
+      DisplayFormat = '0.00'
+    end
+    object qryQuadrosDIMEobservacao: TStringField
+      FieldName = 'observacao'
+      Size = 200
+    end
+    object qryQuadrosDIMEq11_105_creditosdeclaradosnadcip: TFloatField
+      FieldName = 'q11_105_creditosdeclaradosnadcip'
+    end
+  end
+  object qryq46_RegimeEspecial: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select filial,'
+      '          periodo, '
+      '         regime,'
+      '         valor,'
+      '         origem'
+      'from q46_regimeespecial'
+      'where filial = :filial and'
+      '           periodo = :periodo'
+      'order by regime')
+    RequestLive = False
+    Left = 192
+    Top = 176
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'periodo'
+        ParamType = ptUnknown
+      end>
+    object qryq46_RegimeEspecialvalor: TFloatField
+      DisplayLabel = 'Quadro 46 - Valor'
+      FieldName = 'valor'
+      Required = True
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryq46_RegimeEspecialfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryq46_RegimeEspecialperiodo: TStringField
+      FieldName = 'periodo'
+      Size = 7
+    end
+    object qryq46_RegimeEspecialorigem: TIntegerField
+      DisplayLabel = 'Quadro 46 - origem'
+      FieldName = 'origem'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryq46_RegimeEspecialregime: TStringField
+      FieldName = 'regime'
+      Size = 15
+    end
+  end
+  object qryq12_discrpagtos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select filial,'
+      '          periodo,'
+      '          origem  ,'
+      '          codigoreceita,'
+      '          classevencto ,'
+      '          datavencto    ,'
+      '         valor              ,'
+      '         cast(numeroacordo as integer) as numeroacordo'
+      'from q12_discrpagtos'
+      'where filial = :filial and'
+      '           periodo = :periodo'
+      'order by origem,codigoreceita,classevencto,datavencto')
+    RequestLive = False
+    Left = 224
+    Top = 128
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'periodo'
+        ParamType = ptUnknown
+      end>
+    object qryq12_discrpagtosfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryq12_discrpagtosperiodo: TStringField
+      FieldName = 'periodo'
+      Size = 7
+    end
+    object qryq12_discrpagtosorigem: TIntegerField
+      FieldName = 'origem'
+      DisplayFormat = '0'
+    end
+    object qryq12_discrpagtoscodigoreceita: TIntegerField
+      FieldName = 'codigoreceita'
+      DisplayFormat = '0'
+    end
+    object qryq12_discrpagtosclassevencto: TIntegerField
+      FieldName = 'classevencto'
+      DisplayFormat = '0'
+    end
+    object qryq12_discrpagtosdatavencto: TDateField
+      Alignment = taCenter
+      FieldName = 'datavencto'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryq12_discrpagtosvalor: TFloatField
+      FieldName = 'valor'
+      DisplayFormat = '0.00'
+    end
+    object qryq12_discrpagtosnumeroacordo: TIntegerField
+      FieldName = 'numeroacordo'
+    end
+  end
+  object qryq47_compraexproagrop: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select filial,'
+      '          periodo,  '
+      '         codmunicipio,'
+      '          valor'
+      'from q47_compraexproagrop'
+      'where filial = :filial and'
+      '           periodo = :periodo'
+      'order by codmunicipio')
+    RequestLive = False
+    Left = 464
+    Top = 12
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'periodo'
+        ParamType = ptUnknown
+      end>
+    object qryq47_compraexproagropcodmunicipio: TIntegerField
+      DisplayLabel = 'Quadro 47 - C'#243'digo do munic'#237'pio'
+      FieldName = 'codmunicipio'
+      Required = True
+    end
+    object qryq47_compraexproagropvalor: TFloatField
+      DisplayLabel = 'Quadro 47 - Valor'
+      FieldName = 'valor'
+      Required = True
+    end
+    object qryq47_compraexproagropfilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryq47_compraexproagropperiodo: TStringField
+      FieldName = 'periodo'
+      Size = 7
+    end
+  end
+  object qryq48_recprestservfornenereletrica: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select filial,'
+      '          periodo,  '
+      '         codmunicipio,'
+      '          valor'
+      'from q48_recprestservfornenereletrica'
+      'where filial = :filial and'
+      '           periodo = :periodo'
+      'order by codmunicipio')
+    RequestLive = False
+    Left = 464
+    Top = 88
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'periodo'
+        ParamType = ptUnknown
+      end>
+    object qryq48_recprestservfornenereletricafilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryq48_recprestservfornenereletricaperiodo: TStringField
+      FieldName = 'periodo'
+      Size = 7
+    end
+    object qryq48_recprestservfornenereletricacodmunicipio: TIntegerField
+      DisplayLabel = 'Quadro 48 - C'#243'digo do munic'#237'pio'
+      FieldName = 'codmunicipio'
+      Required = True
+    end
+    object qryq48_recprestservfornenereletricavalor: TFloatField
+      DisplayLabel = 'Quadro 48 - Valor'
+      FieldName = 'valor'
+      Required = True
+    end
+  end
+  object qryq50_saimercforneletrservicos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select '
+      ' filial,'
+      ' periodo,'
+      ' estado,'
+      ' valorcontabil_naocontrib,'
+      ' valorcontabil_contrib,'
+      ' basedecalculo_naocontrib,'
+      ' basedecalculo_contrib,'
+      ' outras,'
+      ' icmsretidosubstrib'
+      'from q50_saimercforneletrservicos'
+      'where filial = :filial and'
+      '           periodo = :periodo'
+      'order by estado')
+    RequestLive = False
+    Left = 462
+    Top = 232
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'periodo'
+        ParamType = ptUnknown
+      end>
+    object qryq50_saimercforneletrservicosfilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryq50_saimercforneletrservicosperiodo: TStringField
+      FieldName = 'periodo'
+      Size = 7
+    end
+    object qryq50_saimercforneletrservicosestado: TStringField
+      DisplayLabel = 'Quadro 50 - Unidade de federa'#231#227'o'
+      FieldName = 'estado'
+      Required = True
+      Size = 2
+    end
+    object qryq50_saimercforneletrservicosvalorcontabil_naocontrib: TFloatField
+      DisplayLabel = 'Quadro 50 - Valor cont'#225'bil - n'#227'o contrib.'
+      FieldName = 'valorcontabil_naocontrib'
+      Required = True
+    end
+    object qryq50_saimercforneletrservicosvalorcontabil_contrib: TFloatField
+      DisplayLabel = 'Quadro 50 - Valor cont'#225'bil - contribuiente'
+      FieldName = 'valorcontabil_contrib'
+      Required = True
+    end
+    object qryq50_saimercforneletrservicosbasedecalculo_naocontrib: TFloatField
+      DisplayLabel = 'Quadro 50 - Base de c'#225'lculo - n'#227'o contrib.'
+      FieldName = 'basedecalculo_naocontrib'
+      Required = True
+    end
+    object qryq50_saimercforneletrservicosbasedecalculo_contrib: TFloatField
+      DisplayLabel = 'Quadro 50 - Base de c'#225'lculo - contribuinte'
+      FieldName = 'basedecalculo_contrib'
+      Required = True
+    end
+    object qryq50_saimercforneletrservicosoutras: TFloatField
+      DisplayLabel = 'Quadro 50 - Outras'
+      FieldName = 'outras'
+      Required = True
+    end
+    object qryq50_saimercforneletrservicosicmsretidosubstrib: TFloatField
+      DisplayLabel = 'Quadro 50 - ICMS retido subst. trib.'
+      FieldName = 'icmsretidosubstrib'
+      Required = True
+    end
+  end
+  object qryq49_entmercbensaqservicos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select filial,'
+      '          periodo,          '
+      '          estado,'
+      '          valorcontabil,'
+      '          basedecalculo,'
+      '          outras,'
+      '          icmsretidosubstrib1,'
+      '          icmsretidosubstrib2'
+      'from q49_entmercbensaqservicos'
+      'where filial = :filial and'
+      '           periodo = :periodo'
+      'order by estado')
+    RequestLive = False
+    Left = 464
+    Top = 160
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'periodo'
+        ParamType = ptUnknown
+      end>
+    object qryq49_entmercbensaqservicosfilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryq49_entmercbensaqservicosperiodo: TStringField
+      FieldName = 'periodo'
+      Size = 7
+    end
+    object qryq49_entmercbensaqservicosestado: TStringField
+      DisplayLabel = 'Quadro 49 - Unidade de federe'#231#227'o'
+      FieldName = 'estado'
+      Required = True
+      Size = 2
+    end
+    object qryq49_entmercbensaqservicosvalorcontabil: TFloatField
+      DisplayLabel = 'Quadro 49 - Valor cont'#225'bil'
+      FieldName = 'valorcontabil'
+      Required = True
+    end
+    object qryq49_entmercbensaqservicosbasedecalculo: TFloatField
+      DisplayLabel = 'Quadro 49 - Base de c'#225'lculo'
+      FieldName = 'basedecalculo'
+      Required = True
+    end
+    object qryq49_entmercbensaqservicosoutras: TFloatField
+      DisplayLabel = 'Quadro 49 - Outras'
+      FieldName = 'outras'
+      Required = True
+    end
+    object qryq49_entmercbensaqservicosicmsretidosubstrib1: TFloatField
+      DisplayLabel = 'Quadro 49 - ICMS retido - petr'#243'leo, combust'#237'veis...'
+      FieldName = 'icmsretidosubstrib1'
+      Required = True
+    end
+    object qryq49_entmercbensaqservicosicmsretidosubstrib2: TFloatField
+      DisplayLabel = 'Quadro 49 - ICMS retido - outras'
+      FieldName = 'icmsretidosubstrib2'
+      Required = True
+    end
+  end
+  object qryq50_saimercforneletrservicostotal: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select '
+      ' cast('#39'TT'#39' as varchar) as estado,'
+      ' sum(valorcontabil_naocontrib) as valorcontabil_naocontrib,'
+      ' sum(valorcontabil_contrib) as valorcontabil_contrib,'
+      ' sum(basedecalculo_naocontrib) as basedecalculo_naocontrib,'
+      ' sum(basedecalculo_contrib) as basedecalculo_contrib,'
+      ' sum(outras) as outras,'
+      ' sum(icmsretidosubstrib) as icmsretidosubstrib'
+      'from q50_saimercforneletrservicos'
+      'where filial = :filial and'
+      '           periodo = :periodo')
+    RequestLive = False
+    Left = 504
+    Top = 248
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'periodo'
+        ParamType = ptUnknown
+      end>
+    object qryq50_saimercforneletrservicostotalestado: TStringField
+      FieldName = 'estado'
+      Size = 2
+    end
+    object qryq50_saimercforneletrservicostotalvalorcontabil_naocontrib: TFloatField
+      FieldName = 'valorcontabil_naocontrib'
+    end
+    object qryq50_saimercforneletrservicostotalvalorcontabil_contrib: TFloatField
+      FieldName = 'valorcontabil_contrib'
+    end
+    object qryq50_saimercforneletrservicostotalbasedecalculo_naocontrib: TFloatField
+      FieldName = 'basedecalculo_naocontrib'
+    end
+    object qryq50_saimercforneletrservicostotalbasedecalculo_contrib: TFloatField
+      FieldName = 'basedecalculo_contrib'
+    end
+    object qryq50_saimercforneletrservicostotaloutras: TFloatField
+      FieldName = 'outras'
+    end
+    object qryq50_saimercforneletrservicostotalicmsretidosubstrib: TFloatField
+      FieldName = 'icmsretidosubstrib'
+    end
+  end
+  object qryq49_entmercbensaqservicostotal: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cast('#39'TT'#39' as varchar) as estado,'
+      '          sum(valorcontabil) as  valorcontabil,'
+      '          sum(basedecalculo) as basedecalculo,'
+      '          sum(outras) as outras,'
+      '          sum(icmsretidosubstrib1) as icmsretidosubstrib1,'
+      '          sum(icmsretidosubstrib2) as icmsretidosubstrib2'
+      'from q49_entmercbensaqservicos'
+      'where filial = :filial and'
+      '           periodo = :periodo')
+    RequestLive = False
+    Left = 496
+    Top = 176
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'periodo'
+        ParamType = ptUnknown
+      end>
+    object qryq49_entmercbensaqservicostotalestado: TStringField
+      FieldName = 'estado'
+      Size = 2
+    end
+    object qryq49_entmercbensaqservicostotalvalorcontabil: TFloatField
+      FieldName = 'valorcontabil'
+    end
+    object qryq49_entmercbensaqservicostotalbasedecalculo: TFloatField
+      FieldName = 'basedecalculo'
+    end
+    object qryq49_entmercbensaqservicostotaloutras: TFloatField
+      FieldName = 'outras'
+    end
+    object qryq49_entmercbensaqservicostotalicmsretidosubstrib1: TFloatField
+      FieldName = 'icmsretidosubstrib1'
+    end
+    object qryq49_entmercbensaqservicostotalicmsretidosubstrib2: TFloatField
+      FieldName = 'icmsretidosubstrib2'
+    end
+  end
+  object qryq48_recprestservfornenereletricatotal: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cast('#39'99999'#39' as integer) as codmunicipio,'
+      '          sum(valor) as valor'
+      'from q48_recprestservfornenereletrica'
+      'where filial = :filial and'
+      '           periodo = :periodo')
+    RequestLive = False
+    Left = 496
+    Top = 104
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'periodo'
+        ParamType = ptUnknown
+      end>
+    object qryq48_recprestservfornenereletricatotalcodmunicipio: TIntegerField
+      FieldName = 'codmunicipio'
+    end
+    object qryq48_recprestservfornenereletricatotalvalor: TFloatField
+      FieldName = 'valor'
+    end
+  end
+  object qryq47_compraexproagroptotal: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cast('#39'99999'#39' as integer) as codmunicipio,'
+      '          sum(valor) as valor'
+      'from q47_compraexproagrop'
+      'where filial = :filial and'
+      '           periodo = :periodo')
+    RequestLive = False
+    Left = 496
+    Top = 32
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'periodo'
+        ParamType = ptUnknown
+      end>
+    object qryq47_compraexproagroptotalcodmunicipio: TIntegerField
+      FieldName = 'codmunicipio'
+    end
+    object qryq47_compraexproagroptotalvalor: TFloatField
+      FieldName = 'valor'
+    end
+  end
+  object qryq46_RegimeEspecialtotal: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cast(0 as integer) as regime,'
+      '          sum(valor) as valor,'
+      '         cast(0 as integer) as origem'
+      'from q46_regimeespecial'
+      'where filial = :filial and'
+      '     periodo = :periodo')
+    RequestLive = False
+    Left = 288
+    Top = 192
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'periodo'
+        ParamType = ptUnknown
+      end>
+    object qryq46_RegimeEspecialtotalregime: TIntegerField
+      FieldName = 'regime'
+      DisplayFormat = '0'
+    end
+    object qryq46_RegimeEspecialtotalvalor: TFloatField
+      FieldName = 'valor'
+      DisplayFormat = '0.00'
+    end
+    object qryq46_RegimeEspecialtotalorigem: TIntegerField
+      FieldName = 'origem'
+      DisplayFormat = '0'
+    end
+  end
+  object qryRecolhimentoDime: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select filial,'
+      '          periodo,          '
+      '          numeroguia,'
+      '          dataguia,'
+      '          valorguia,'
+      '          orgaoguia'
+      'from recolhimentodime'
+      'where filial = :filial and'
+      '           periodo = :periodo'
+      'order by numeroguia')
+    RequestLive = True
+    Left = 232
+    Top = 256
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'periodo'
+        ParamType = ptUnknown
+      end>
+    object qryRecolhimentoDimefilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryRecolhimentoDimeperiodo: TStringField
+      FieldName = 'periodo'
+      Size = 7
+    end
+    object qryRecolhimentoDimenumeroguia: TStringField
+      DisplayLabel = 'N'#250'mero da Guia'
+      FieldName = 'numeroguia'
+      Size = 10
+    end
+    object qryRecolhimentoDimedataguia: TDateField
+      DisplayLabel = 'Data'
+      FieldName = 'dataguia'
+    end
+    object qryRecolhimentoDimevalorguia: TFloatField
+      DisplayLabel = 'Valor'
+      FieldName = 'valorguia'
+    end
+    object qryRecolhimentoDimeorgaoguia: TStringField
+      DisplayLabel = #211'rg'#227'o'
+      FieldName = 'orgaoguia'
+    end
+  end
+end

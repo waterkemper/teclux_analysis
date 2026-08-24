@@ -1,0 +1,1792 @@
+inherited dtmImpostos: TdtmImpostos
+  OldCreateOrder = False
+  Left = 428
+  Top = 211
+  Height = 643
+  Width = 1094
+  object dsrTrib_Imposto: TtecDataSource
+    DataSet = qryTrib_Imposto
+    Left = 48
+    Top = 32
+  end
+  object qryTrib_Imposto: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryTrib_ImpostoAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select t_i.id_imposto,'
+      '       t_i.codigo,'
+      '       t_i.descricao,'
+      '       t_i.esfera,'
+      '       t_i.agrupamento,'
+      ''
+      '       (select t_i_c.codigo_cst'
+      '        from trib_imposto_classtrib t_i_c'
+      '        where t_i_c.is_default'
+      
+        '          and t_i_c.id_imposto = t_i.id_imposto) as codigo_cst_d' +
+        'efault,'
+      ''
+      '       (select t_i_c.cclasstrib'
+      '        from trib_imposto_classtrib t_i_c'
+      '        where t_i_c.is_default'
+      
+        '          and t_i_c.id_imposto = t_i.id_imposto) as cclasstrib_d' +
+        'efault'
+      ''
+      'from trib_imposto t_i'
+      'where t_i.ativo'
+      'and t_i.agrupamento is null'
+      ''
+      'union all'
+      ''
+      'select min(t_i.id_imposto),'
+      '       t_i.agrupamento as codigo,'
+      '       t_i.agrupamento as descricao,'
+      '       string_agg(t_i.esfera, '#39','#39') as esfera,'
+      '       t_i.agrupamento,'
+      ''
+      '       (select t_i_c.codigo_cst'
+      '        from trib_imposto_classtrib t_i_c'
+      '        where t_i_c.is_default'
+      
+        '          and t_i_c.id_imposto = min(t_i.id_imposto) ) as codigo' +
+        '_cst_default,'
+      ''
+      '       (select t_i_c.cclasstrib'
+      '        from trib_imposto_classtrib t_i_c'
+      '        where t_i_c.is_default'
+      
+        '          and t_i_c.id_imposto = min(t_i.id_imposto)) as cclasst' +
+        'rib_default'
+      ''
+      'from trib_imposto t_i'
+      'where t_i.ativo'
+      '  and t_i.agrupamento is not null'
+      'group by t_i.agrupamento'
+      ''
+      'order by id_imposto'
+      '')
+    RequestLive = True
+    Left = 64
+    Top = 48
+    object qryTrib_Impostoid_imposto: TIntegerField
+      DisplayLabel = 'ID'
+      FieldName = 'id_imposto'
+      ReadOnly = True
+      Required = True
+    end
+    object qryTrib_Impostocodigo: TStringField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      ReadOnly = True
+      Required = True
+    end
+    object qryTrib_Impostodescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      ReadOnly = True
+      Required = True
+      Size = 80
+    end
+    object qryTrib_Impostoesfera: TStringField
+      DisplayLabel = 'Esfera'
+      FieldName = 'esfera'
+      ReadOnly = True
+      Required = True
+      Size = 80
+    end
+    object qryTrib_Impostocodigo_cst_default: TStringField
+      FieldName = 'codigo_cst_default'
+      Size = 3
+    end
+    object qryTrib_Impostocclasstrib_default: TStringField
+      FieldName = 'cclasstrib_default'
+      Size = 6
+    end
+    object qryTrib_Impostoagrupamento: TStringField
+      FieldName = 'agrupamento'
+    end
+  end
+  object dsrtrib_imposto_situacao: TtecDataSource
+    DataSet = qrytrib_imposto_situacao
+    Left = 144
+    Top = 32
+  end
+  object qrytrib_imposto_situacao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkFields = 'id_imposto=id_imposto'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrTrib_Imposto
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select t_i_s.*'
+      'from trib_imposto_situacao t_i_s'
+      'where t_i_s.ativo'
+      'order by t_i_s.id_situacao, t_i_s.id_imposto, t_i_s.codigo'
+      '')
+    RequestLive = True
+    Left = 176
+    Top = 48
+    object qrytrib_imposto_situacaoid_situacao: TLargeintField
+      FieldName = 'id_situacao'
+      ReadOnly = True
+    end
+    object qrytrib_imposto_situacaoid_imposto: TIntegerField
+      FieldName = 'id_imposto'
+      ReadOnly = True
+    end
+    object qrytrib_imposto_situacaocodigo: TStringField
+      DisplayLabel = 'C'#243'digo'
+      DisplayWidth = 3
+      FieldName = 'codigo'
+      ReadOnly = True
+      Size = 10
+    end
+    object qrytrib_imposto_situacaodescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      ReadOnly = True
+      Size = 120
+    end
+    object qrytrib_imposto_situacaogera_debito: TBooleanField
+      FieldName = 'gera_debito'
+      ReadOnly = True
+      Visible = False
+    end
+    object qrytrib_imposto_situacaogera_credito: TBooleanField
+      FieldName = 'gera_credito'
+      ReadOnly = True
+      Visible = False
+    end
+    object qrytrib_imposto_situacaotipo_tratamento: TStringField
+      DisplayLabel = 'Tratamento'
+      FieldName = 'tipo_tratamento'
+      ReadOnly = True
+      Visible = False
+      Size = 30
+    end
+    object qrytrib_imposto_situacaoaliquota_forcada: TFloatField
+      DisplayLabel = 'Al'#237'q. For'#231'ada'
+      FieldName = 'aliquota_forcada'
+      ReadOnly = True
+      Visible = False
+      DisplayFormat = '0.00'
+    end
+    object qrytrib_imposto_situacaopermite_reducao_bc: TBooleanField
+      FieldName = 'permite_reducao_bc'
+      ReadOnly = True
+      Visible = False
+    end
+    object qrytrib_imposto_situacaoind_gibscbs: TBooleanField
+      FieldName = 'ind_gibscbs'
+      ReadOnly = True
+    end
+    object qrytrib_imposto_situacaoind_gibscbsmono: TBooleanField
+      FieldName = 'ind_gibscbsmono'
+      ReadOnly = True
+    end
+    object qrytrib_imposto_situacaoind_gred: TBooleanField
+      FieldName = 'ind_gred'
+      ReadOnly = True
+    end
+    object qrytrib_imposto_situacaoind_gdif: TBooleanField
+      FieldName = 'ind_gdif'
+      ReadOnly = True
+    end
+    object qrytrib_imposto_situacaoind_gtransfcred: TBooleanField
+      FieldName = 'ind_gtransfcred'
+      ReadOnly = True
+    end
+    object qrytrib_imposto_situacaoind_gcredpresibszfm: TBooleanField
+      FieldName = 'ind_gcredpresibszfm'
+      ReadOnly = True
+    end
+    object qrytrib_imposto_situacaoind_gajustecompet: TBooleanField
+      FieldName = 'ind_gajustecompet'
+      ReadOnly = True
+    end
+    object qrytrib_imposto_situacaoind_redutorbc: TBooleanField
+      FieldName = 'ind_redutorbc'
+      ReadOnly = True
+    end
+    object qrytrib_imposto_situacaoativo: TBooleanField
+      DisplayLabel = 'Ativo'
+      FieldName = 'ativo'
+      ReadOnly = True
+    end
+  end
+  object dsrtrib_imposto_classtrib: TtecDataSource
+    DataSet = qrytrib_imposto_classtrib
+    Left = 288
+    Top = 32
+  end
+  object qrytrib_imposto_classtrib: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkFields = 'id_imposto=id_imposto;codigo=codigo_cst'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrtrib_imposto_situacao
+    Constraints = <>
+    AfterPost = qrytrib_imposto_classtribAfterPost
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select t_i_c.id_classtrib,'
+      '       t_i_c.id_imposto,'
+      '       t_i_c.codigo_cst,'
+      '       t_i_c.cclasstrib,'
+      '       t_i_c.ativo,'
+      '       t_i_c.is_default,'
+      ''
+      ''
+      '       t_c_s.descricao_cst_ibs_cbs,'
+      '       t_c_s.nome_cclass_trib,'
+      '       t_c_s.descricao_cclass_trib,'
+      '       t_c_s.lc_redacao,'
+      '       t_c_s.lc_214_25,'
+      '       t_c_s.tipo_aliquota,'
+      '       t_c_s.pred_ibs,'
+      '       t_c_s.pred_cbs,'
+      '       t_c_s.ind_gtribregular,'
+      '       t_c_s.ind_gcredpresoper,'
+      '       t_c_s.ind_gmonopadrao,'
+      '       t_c_s.ind_gmonoreten,'
+      '       t_c_s.ind_gmonoret,'
+      '       t_c_s.ind_gmonodif,'
+      '       t_c_s.ind_gestornocred,'
+      '       t_c_s.dinivig,'
+      '       t_c_s.dfimvig,'
+      '       t_c_s.data_atualizacao,'
+      '       t_c_s.indnfeabi,'
+      '       t_c_s.indnfe,'
+      '       t_c_s.indnfce,'
+      '       t_c_s.indcte,'
+      '       t_c_s.indcteos,'
+      '       t_c_s.indbpe,'
+      '       t_c_s.indbpeta,'
+      '       t_c_s.indbpetm,'
+      '       t_c_s.indnf3e,'
+      '       t_c_s.indnfse,'
+      '       t_c_s.indnfse_via,'
+      '       t_c_s.indnfcom,'
+      '       t_c_s.indnfag,'
+      '       t_c_s.indnfgas,'
+      '       t_c_s.inddere,'
+      '       t_c_s.anexo,'
+      '       t_c_s.link'
+      ''
+      'from trib_imposto_classtrib t_i_c'
+      '     JOIN trib_classtrib_stg t_c_s'
+      '     on t_i_c.codigo_cst = t_c_s.cst_ibs_cbs'
+      '     and t_i_c.cclasstrib = t_c_s.cclass_trib'
+      ''
+      'where t_i_c.ativo'
+      ''
+      'order by t_i_c.id_classtrib,'
+      '         t_i_c.id_imposto,'
+      '         t_i_c.codigo_cst,'
+      '         t_i_c.cclasstrib')
+    RequestLive = True
+    Left = 320
+    Top = 48
+    object qrytrib_imposto_classtribid_classtrib: TLargeintField
+      FieldName = 'id_classtrib'
+    end
+    object qrytrib_imposto_classtribid_imposto: TIntegerField
+      FieldName = 'id_imposto'
+    end
+    object qrytrib_imposto_classtribcodigo_cst: TStringField
+      FieldName = 'codigo_cst'
+      Size = 3
+    end
+    object qrytrib_imposto_classtribcclasstrib: TStringField
+      FieldName = 'cclasstrib'
+      Size = 6
+    end
+    object qrytrib_imposto_classtribnome_cclass_trib: TStringField
+      FieldName = 'nome_cclass_trib'
+      Size = 160
+    end
+    object qrytrib_imposto_classtribativo: TBooleanField
+      FieldName = 'ativo'
+    end
+    object qrytrib_imposto_classtribis_default: TBooleanField
+      DisplayLabel = 'Padr'#227'o'
+      FieldName = 'is_default'
+      OnChange = qrytrib_imposto_classtribis_defaultChange
+    end
+    object qrytrib_imposto_classtribdescricao_cst_ibs_cbs: TMemoField
+      FieldName = 'descricao_cst_ibs_cbs'
+      BlobType = ftMemo
+    end
+    object qrytrib_imposto_classtribdescricao_cclass_trib: TMemoField
+      FieldName = 'descricao_cclass_trib'
+      BlobType = ftMemo
+    end
+    object qrytrib_imposto_classtriblc_redacao: TMemoField
+      FieldName = 'lc_redacao'
+      BlobType = ftMemo
+    end
+    object qrytrib_imposto_classtriblc_214_25: TMemoField
+      FieldName = 'lc_214_25'
+      BlobType = ftMemo
+    end
+    object qrytrib_imposto_classtribtipo_aliquota: TStringField
+      FieldName = 'tipo_aliquota'
+      Size = 50
+    end
+    object qrytrib_imposto_classtribpred_ibs: TFloatField
+      FieldName = 'pred_ibs'
+      DisplayFormat = '0.00'
+    end
+    object qrytrib_imposto_classtribpred_cbs: TFloatField
+      FieldName = 'pred_cbs'
+      DisplayFormat = '0.00'
+    end
+    object qrytrib_imposto_classtribind_gtribregular: TIntegerField
+      FieldName = 'ind_gtribregular'
+    end
+    object qrytrib_imposto_classtribind_gcredpresoper: TIntegerField
+      FieldName = 'ind_gcredpresoper'
+    end
+    object qrytrib_imposto_classtribind_gmonopadrao: TIntegerField
+      FieldName = 'ind_gmonopadrao'
+    end
+    object qrytrib_imposto_classtribind_gmonoreten: TIntegerField
+      FieldName = 'ind_gmonoreten'
+    end
+    object qrytrib_imposto_classtribind_gmonoret: TIntegerField
+      FieldName = 'ind_gmonoret'
+    end
+    object qrytrib_imposto_classtribind_gmonodif: TIntegerField
+      FieldName = 'ind_gmonodif'
+    end
+    object qrytrib_imposto_classtribind_gestornocred: TIntegerField
+      FieldName = 'ind_gestornocred'
+    end
+    object qrytrib_imposto_classtribdinivig: TDateField
+      Alignment = taCenter
+      FieldName = 'dinivig'
+      EditMask = '99/99/9999;1; '
+    end
+    object qrytrib_imposto_classtribdfimvig: TDateField
+      Alignment = taCenter
+      FieldName = 'dfimvig'
+      EditMask = '99/99/9999;1; '
+    end
+    object qrytrib_imposto_classtribdata_atualizacao: TDateField
+      Alignment = taCenter
+      FieldName = 'data_atualizacao'
+      EditMask = '99/99/9999;1; '
+    end
+    object qrytrib_imposto_classtribindnfeabi: TIntegerField
+      FieldName = 'indnfeabi'
+    end
+    object qrytrib_imposto_classtribindnfe: TIntegerField
+      FieldName = 'indnfe'
+    end
+    object qrytrib_imposto_classtribindnfce: TIntegerField
+      FieldName = 'indnfce'
+    end
+    object qrytrib_imposto_classtribindcte: TIntegerField
+      FieldName = 'indcte'
+    end
+    object qrytrib_imposto_classtribindcteos: TIntegerField
+      FieldName = 'indcteos'
+    end
+    object qrytrib_imposto_classtribindbpe: TIntegerField
+      FieldName = 'indbpe'
+    end
+    object qrytrib_imposto_classtribindbpeta: TIntegerField
+      FieldName = 'indbpeta'
+    end
+    object qrytrib_imposto_classtribindbpetm: TIntegerField
+      FieldName = 'indbpetm'
+    end
+    object qrytrib_imposto_classtribindnf3e: TIntegerField
+      FieldName = 'indnf3e'
+    end
+    object qrytrib_imposto_classtribindnfse: TIntegerField
+      FieldName = 'indnfse'
+    end
+    object qrytrib_imposto_classtribindnfse_via: TMemoField
+      FieldName = 'indnfse_via'
+      BlobType = ftMemo
+    end
+    object qrytrib_imposto_classtribindnfcom: TIntegerField
+      FieldName = 'indnfcom'
+    end
+    object qrytrib_imposto_classtribindnfag: TIntegerField
+      FieldName = 'indnfag'
+    end
+    object qrytrib_imposto_classtribindnfgas: TIntegerField
+      FieldName = 'indnfgas'
+    end
+    object qrytrib_imposto_classtribinddere: TIntegerField
+      FieldName = 'inddere'
+    end
+    object qrytrib_imposto_classtribanexo: TMemoField
+      FieldName = 'anexo'
+      BlobType = ftMemo
+    end
+    object qrytrib_imposto_classtriblink: TMemoField
+      FieldName = 'link'
+      BlobType = ftMemo
+    end
+  end
+  object qryTrib_Regra: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkFields = 'id_imposto=id_imposto'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrTrib_Imposto
+    Constraints = <>
+    AfterInsert = qryTrib_RegraAfterInsert
+    AfterEdit = qryTrib_RegraAfterEdit
+    AfterDelete = qryTrib_RegraAfterDelete
+    AfterScroll = qryTrib_RegraAfterScroll
+    OnNewRecord = qryTrib_RegraNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select t_r.*,'
+      ''
+      '/*'
+      '      (select t_i_s.codigo'
+      '       from trib_imposto_situacao t_i_s'
+      '       where t_i_s.id_situacao = t_r.id_situacao) as codigo_cst,'
+      ''
+      '       */'
+      ''
+      '       coalesce((case when t_i.codigo = '#39'PIS'#39' then'
+      ''
+      '         (select t_r2.aliquota'
+      '          from trib_regra t_r2'
+      '               join trib_imposto t_i2'
+      #9#9#9'   on t_r2.id_imposto = t_i2.id_imposto'
+      '          where t_i2.codigo = '#39'COFINS'#39
+      '            and t_r2.id_regra_origem = t_r.id_regra)'
+      '       end), cast(null as numeric(11,2)))  as aliquota_cofins,'
+      ''
+      ''
+      '       coalesce((case when t_i.codigo = '#39'CBS'#39' then'
+      ''
+      '         (select t_r2.aliquota'
+      '          from trib_regra t_r2'
+      '               join trib_imposto t_i2'
+      #9#9#9'   on t_r2.id_imposto = t_i2.id_imposto'
+      '          where t_i2.codigo = '#39'IBSUF'#39
+      '            and t_r2.id_regra_origem = t_r.id_regra)'
+      '       end), cast(null as numeric(11,2)))  as aliquota_ibsuf,'
+      ''
+      '       coalesce((case when t_i.codigo = '#39'CBS'#39' then'
+      '         (select t_r2.aliquota'
+      '          from trib_regra t_r2'
+      '               join trib_imposto t_i2'
+      #9#9#9'   on t_r2.id_imposto = t_i2.id_imposto'
+      '          where t_i2.codigo = '#39'IBSMUN'#39
+      '            and t_r2.id_regra_origem = t_r.id_regra)'
+      '       end), cast(null as numeric(11,2)))  as aliquota_ibsmun,'
+      ''
+      ''
+      '       case'
+      '          when t_r.criterio ? '#39'contribuinteIcms'#39
+      
+        '            then (t_r.criterio->'#39'contribuinteIcms'#39') @> jsonb_bui' +
+        'ld_array(true)'
+      '          else false'
+      '        end as CKBsIMDesstinatarioContribICMS,'
+      ''
+      '       case'
+      '          when t_r.criterio ? '#39'contribuinteIcms'#39
+      
+        '            then (t_r.criterio->'#39'contribuinteIcms'#39') @> jsonb_bui' +
+        'ld_array(false)'
+      '          else false'
+      '        end as ckbNaoDesstinatarioContribICMS,'
+      ''
+      '        case'
+      '          when t_r.criterio ? '#39'orgaoPublico'#39
+      
+        '            then (t_r.criterio->'#39'orgaoPublico'#39') @> jsonb_build_a' +
+        'rray(true)'
+      '          else false'
+      '        end as ckbSimDestinatarioOrgaoPublico,'
+      ''
+      '        case'
+      '          when t_r.criterio ? '#39'orgaoPublico'#39
+      
+        '            then (t_r.criterio->'#39'orgaoPublico'#39') @> jsonb_build_a' +
+        'rray(false)'
+      '          else false'
+      '        end as ckbNaoDestinatarioOrgaoPublico,'
+      ''
+      '        case'
+      '          when t_r.criterio ? '#39'consumidorFinal'#39
+      
+        '            then (t_r.criterio->'#39'consumidorFinal'#39') @> jsonb_buil' +
+        'd_array(true)'
+      '          else false'
+      '        end as ckbSimDestinatarioConsumidorFinal,'
+      ''
+      '        case'
+      '          when t_r.criterio ? '#39'consumidorFinal'#39
+      
+        '            then (t_r.criterio->'#39'consumidorFinal'#39') @> jsonb_buil' +
+        'd_array(false)'
+      '          else false'
+      '        end as ckbNaoDestinatarioConsumidorFinal'
+      ''
+      ''
+      'from trib_regra t_r'
+      '     join trib_imposto t_i'
+      '     on t_r.id_imposto = t_i.id_imposto'
+      ''
+      'where t_r.ativo')
+    RequestLive = True
+    Left = 48
+    Top = 136
+    object qryTrib_Regraid_regra: TLargeintField
+      DisplayLabel = 'Id'
+      FieldName = 'id_regra'
+      Required = True
+    end
+    object qryTrib_Regracontexto: TStringField
+      FieldName = 'contexto'
+      Required = True
+      Size = 10
+    end
+    object qryTrib_Regraid_imposto: TIntegerField
+      FieldName = 'id_imposto'
+      Required = True
+    end
+    object qryTrib_Regravigencia_inicio: TDateField
+      Alignment = taCenter
+      DisplayLabel = 'Vig. Inicial'
+      FieldName = 'vigencia_inicio'
+      Required = True
+      EditMask = '99/99/9999;1; '
+    end
+    object qryTrib_Regravigencia_fim: TDateField
+      Alignment = taCenter
+      DisplayLabel = 'Vig. Final'
+      FieldName = 'vigencia_fim'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryTrib_Regraprioridade: TIntegerField
+      DisplayLabel = 'Prioridade'
+      FieldName = 'prioridade'
+      Required = True
+    end
+    object qryTrib_Regraativo: TBooleanField
+      DisplayLabel = 'Ativo'
+      FieldName = 'ativo'
+      Required = True
+    end
+    object qryTrib_Regraid_situacao: TLargeintField
+      FieldName = 'id_situacao'
+    end
+    object qryTrib_Regramodo_calculo: TStringField
+      DisplayLabel = 'Modo C'#225'lculo'
+      FieldName = 'modo_calculo'
+      Required = True
+      Size = 30
+    end
+    object qryTrib_Regraaliquota: TFloatField
+      DisplayLabel = '% CBS'
+      FieldName = 'aliquota'
+      DisplayFormat = '0.00'
+    end
+    object qryTrib_Regraaliquota_ibsuf: TFloatField
+      DisplayLabel = '% IBSUF'
+      FieldName = 'aliquota_ibsuf'
+      DisplayFormat = '0.00'
+    end
+    object qryTrib_Regraaliquota_ibsmun: TFloatField
+      DisplayLabel = '% IBSMun'
+      FieldName = 'aliquota_ibsmun'
+      DisplayFormat = '0.00'
+    end
+    object qryTrib_Regraaliquota_cofins: TFloatField
+      DisplayLabel = '% COFINS'
+      FieldName = 'aliquota_cofins'
+      DisplayFormat = '0.00'
+    end
+    object qryTrib_Regrareducao_bc: TFloatField
+      DisplayLabel = '% Red. BC'
+      FieldName = 'reducao_bc'
+      DisplayFormat = '0.00'
+    end
+    object qryTrib_Regracclasstrib: TStringField
+      FieldName = 'cclasstrib'
+      Size = 6
+    end
+    object qryTrib_Regraobservacao: TStringField
+      DisplayLabel = 'Observa'#231#245'es'
+      DisplayWidth = 300
+      FieldName = 'observacao'
+      Size = 300
+    end
+    object qryTrib_Regradescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 100
+    end
+    object qryTrib_Regramodo_calculolookup: TStringField
+      FieldKind = fkLookup
+      FieldName = 'modo_calculolookup'
+      LookupDataSet = qrytrib_modo_calculo
+      LookupKeyFields = 'modo'
+      LookupResultField = 'modo'
+      KeyFields = 'modo_calculo'
+      Size = 30
+      Lookup = True
+    end
+    object qryTrib_Regrackbsimdesstinatariocontribicms: TBooleanField
+      FieldName = 'ckbsimdesstinatariocontribicms'
+    end
+    object qryTrib_Regrackbnaodesstinatariocontribicms: TBooleanField
+      FieldName = 'ckbnaodesstinatariocontribicms'
+    end
+    object qryTrib_Regrackbsimdestinatarioorgaopublico: TBooleanField
+      FieldName = 'ckbsimdestinatarioorgaopublico'
+    end
+    object qryTrib_Regrackbnaodestinatarioorgaopublico: TBooleanField
+      FieldName = 'ckbnaodestinatarioorgaopublico'
+    end
+    object qryTrib_Regrackbsimdestinatarioconsumidorfinal: TBooleanField
+      FieldName = 'ckbsimdestinatarioconsumidorfinal'
+    end
+    object qryTrib_Regrackbnaodestinatarioconsumidorfinal: TBooleanField
+      FieldName = 'ckbnaodestinatarioconsumidorfinal'
+    end
+    object qryTrib_Regraid_regra_origem: TLargeintField
+      FieldName = 'id_regra_origem'
+    end
+  end
+  object dsrTrib_Regra: TtecDataSource
+    DataSet = qryTrib_Regra
+    Left = 80
+    Top = 160
+  end
+  object qrynfe_natureza_operacao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qrynfe_natureza_operacaoAfterPost
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select'
+      '  n.id_natureza,'
+      '  n.codigo,'
+      '  n.descricao,'
+      '  n.contexto,'
+      '  exists ('
+      '    select 1'
+      '    from jsonb_array_elements('
+      '           coalesce('
+      '             r.criterio->'#39'operacao_cf'#39','
+      '             jsonb_build_array()'
+      '           )'
+      '         ) e'
+      '    where cast(e->>'#39'id_natureza'#39' as integer) = n.id_natureza'
+      '  ) as selecionado'
+      'from public.nfe_natureza_operacao n'
+      'left join public.trib_regra r'
+      '  on r.id_regra = :id_regra'
+      'where n.ativo = true'
+      '  and n.contexto = :contexto'
+      'order by n.id_natureza, n.contexto, n.descricao;')
+    RequestLive = True
+    Left = 488
+    Top = 24
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'id_regra'
+        ParamType = ptUnknown
+        Value = 5
+      end
+      item
+        DataType = ftString
+        Name = 'contexto'
+        ParamType = ptUnknown
+        Value = 'SAIDA'
+      end>
+    object qrynfe_natureza_operacaoid_natureza: TIntegerField
+      FieldName = 'id_natureza'
+      ReadOnly = True
+      Required = True
+      Visible = False
+    end
+    object qrynfe_natureza_operacaocodigo: TStringField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      ReadOnly = True
+      Required = True
+      Size = 30
+    end
+    object qrynfe_natureza_operacaodescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      ReadOnly = True
+      Required = True
+      Size = 120
+    end
+    object qrynfe_natureza_operacaocontexto: TStringField
+      FieldName = 'contexto'
+      ReadOnly = True
+      Required = True
+      Visible = False
+      Size = 10
+    end
+    object qrynfe_natureza_operacaoselecionado: TBooleanField
+      DisplayLabel = 'Selecionar'
+      FieldName = 'selecionado'
+    end
+  end
+  object dsrnfe_natureza_operacao: TtecDataSource
+    DataSet = qrynfe_natureza_operacao
+    Left = 544
+    Top = 40
+  end
+  object qrytrib_grupo_ncm: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qrytrib_grupo_ncmAfterPost
+    OnNewRecord = qrytrib_grupo_ncmNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select'
+      '  n.id_grupo,'
+      '  n.codigo,'
+      '  n.descricao,'
+      '  '
+      ''
+      '  exists ('
+      '    select 1'
+      '    from jsonb_array_elements('
+      '           coalesce('
+      '             r.criterio->'#39'grupo_ncm_itens'#39','
+      '             jsonb_build_array()'
+      '           )'
+      '         ) e'
+      '    where cast(e->>'#39'id_grupo'#39' as integer) = n.id_grupo'
+      '  ) as selecionado'
+      ''
+      ''
+      'from public.trib_grupo_ncm n'
+      'left join public.trib_regra r'
+      '  on r.id_regra = :id_regra'
+      'where n.ativo = true'
+      'order by n.descricao')
+    RequestLive = True
+    Left = 456
+    Top = 216
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'id_regra'
+        ParamType = ptUnknown
+        Value = 5
+      end>
+    object qrytrib_grupo_ncmid_grupo: TIntegerField
+      FieldName = 'id_grupo'
+    end
+    object qrytrib_grupo_ncmcodigo: TStringField
+      DisplayLabel = 'Grupo'
+      FieldName = 'codigo'
+      Required = True
+      Size = 30
+    end
+    object qrytrib_grupo_ncmdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 200
+    end
+    object qrytrib_grupo_ncmselecionado: TBooleanField
+      DisplayLabel = 'Selecionar'
+      FieldName = 'selecionado'
+    end
+  end
+  object dsrtrib_grupo_ncm: TtecDataSource
+    DataSet = qrytrib_grupo_ncm
+    Left = 496
+    Top = 232
+  end
+  object qrytrib_grupo_ncm_itens: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkFields = 'id_grupo=id_grupo'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrtrib_grupo_ncm
+    Constraints = <>
+    AfterPost = qrytrib_grupo_ncm_itensAfterPost
+    OnNewRecord = qrytrib_grupo_ncm_itensNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select tgni.*'
+      'from trib_grupo_ncm_itens tgni'
+      'order by tgni.id_grupo, tgni.ncm')
+    RequestLive = True
+    Left = 480
+    Top = 296
+    object qrytrib_grupo_ncm_itensid_grupo: TIntegerField
+      FieldName = 'id_grupo'
+      Required = True
+    end
+    object qrytrib_grupo_ncm_itensncm: TStringField
+      DisplayLabel = 'NCM'
+      FieldName = 'ncm'
+      Size = 8
+    end
+  end
+  object dsrtrib_grupo_ncm_itens: TtecDataSource
+    DataSet = qrytrib_grupo_ncm_itens
+    Left = 512
+    Top = 312
+  end
+  object qryEstadosDestino: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryEstadosDestinoAfterPost
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select'
+      '  e.codigo,'
+      '  e.nome,'
+      '  coalesce('
+      '    r.criterio->'#39'estados_destino'#39' @> to_jsonb(e.codigo),'
+      '    false'
+      '  ) as selecionado'
+      'from public.estados e'
+      'left join public.trib_regra r'
+      '  on r.id_regra = :id_regra'
+      'order by e.codigo')
+    RequestLive = True
+    Left = 848
+    Top = 464
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'id_regra'
+        ParamType = ptUnknown
+        Value = 5
+      end>
+    object qryEstadosDestinocodigo: TStringField
+      DisplayLabel = 'UF'
+      FieldName = 'codigo'
+      Required = True
+      Size = 2
+    end
+    object qryEstadosDestinonome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Required = True
+      Size = 30
+    end
+    object qryEstadosDestinoselecionado: TBooleanField
+      DisplayLabel = 'Selecionar'
+      FieldName = 'selecionado'
+    end
+  end
+  object dsrEstadosDestino: TtecDataSource
+    DataSet = qryEstadosDestino
+    Left = 896
+    Top = 496
+  end
+  object qryCodigosFiscais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkFields = 'id_natureza=id_natureza'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrnfe_natureza_operacao
+    Constraints = <>
+    AfterPost = qryCodigosFiscaisAfterPost
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select distinct cf.*,'
+      ''
+      '  exists ('
+      '    select 1'
+      '    from jsonb_array_elements('
+      '           coalesce('
+      '             r.criterio->'#39'operacao_cf'#39','
+      '             jsonb_build_array()'
+      '           )'
+      '         ) e'
+      '    where cast(e->>'#39'id_natureza'#39' as integer) = cf.id_natureza'
+      '      and exists ('
+      '        select 1'
+      
+        '        from jsonb_array_elements_text(e->'#39'codigosfiscais'#39') cfj(' +
+        'cfop_txt)'
+      '        where cast(cfop_txt as integer) = cf.codigo'
+      '      )'
+      '  ) as selecionado'
+      'from'
+      '('
+      ''
+      'select cf.codigo, cf.descricao, cf.id_natureza'
+      'from codigosfiscais cf'
+      '     join nfe_natureza_operacao nno'
+      '     on cf.id_natureza = nno.id_natureza'
+      'where cf.id_natureza is not null'
+      ''
+      'union all'
+      ''
+      'select distinct cf.codigo, cf.descricao, n.id_natureza'
+      'from codigosfiscais cf'
+      '     join naturezas n'
+      '     on n.codigofiscal = cf.codigo'
+      'where n.id_natureza is not null     '
+      ') as cf'
+      'left join public.trib_regra r'
+      '  on r.id_regra = :id_regra'
+      'order by cf.codigo;'
+      '')
+    RequestLive = True
+    Left = 488
+    Top = 112
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'id_regra'
+        ParamType = ptUnknown
+        Value = 5
+      end>
+    object qryCodigosFiscaiscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Required = True
+    end
+    object qryCodigosFiscaisdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Required = True
+      Size = 80
+    end
+    object qryCodigosFiscaisid_natureza: TIntegerField
+      FieldName = 'id_natureza'
+    end
+    object qryCodigosFiscaisselecionado: TBooleanField
+      DisplayLabel = 'Selecionar'
+      FieldName = 'selecionado'
+    end
+  end
+  object dsrCodigosFiscais: TtecDataSource
+    DataSet = qryCodigosFiscais
+    Left = 520
+    Top = 126
+  end
+  object qryTrib_FinalidadeNFe: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryTrib_FinalidadeNFeAfterPost
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select'
+      '  n.codigo,'
+      '  n.descricao,'
+      '  coalesce('
+      '    r.criterio->'#39'trib_finalidadenfe'#39' @> to_jsonb(n.codigo),'
+      '    false'
+      '  ) as selecionado'
+      'from public.trib_finalidadenfe n'
+      'left join public.trib_regra r'
+      '  on r.id_regra = :id_regra'
+      ''
+      'order by n.codigo')
+    RequestLive = True
+    Left = 672
+    Top = 96
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'id_regra'
+        ParamType = ptUnknown
+        Value = 5
+      end>
+    object qryTrib_FinalidadeNFecodigo: TIntegerField
+      DisplayLabel = 'FinNFe'
+      FieldName = 'codigo'
+      ReadOnly = True
+    end
+    object qryTrib_FinalidadeNFedescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      ReadOnly = True
+      Size = 60
+    end
+    object qryTrib_FinalidadeNFeselecionado: TBooleanField
+      DisplayLabel = 'Selecionar'
+      FieldName = 'selecionado'
+    end
+  end
+  object dsrTrib_FinalidadeNFe: TtecDataSource
+    DataSet = qryTrib_FinalidadeNFe
+    Left = 704
+    Top = 112
+  end
+  object qryTrib_Regime_Emissor: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryTrib_Regime_EmissorAfterPost
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select'
+      '  n.codigo,'
+      '  n.descricao,'
+      '  coalesce('
+      '    r.criterio->'#39'regime_emissor'#39' @> to_jsonb(n.codigo),'
+      '    false'
+      '  ) as selecionado'
+      'from public.trib_regime_interno n'
+      'left join public.trib_regra r'
+      '  on r.id_regra = :id_regra'
+      'where n.tipo = '#39'Tributa'#231#227'o'#39'  '
+      'order by n.codigo')
+    RequestLive = True
+    Left = 688
+    Top = 168
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'id_regra'
+        ParamType = ptUnknown
+        Value = 5
+      end>
+    object qryTrib_Regime_Emissorcodigo: TIntegerField
+      DisplayLabel = 'CRT'
+      FieldName = 'codigo'
+      ReadOnly = True
+      Required = True
+    end
+    object qryTrib_Regime_Emissordescricao: TStringField
+      DisplayLabel = 'Regime'
+      FieldName = 'descricao'
+      ReadOnly = True
+      Required = True
+      Size = 80
+    end
+    object qryTrib_Regime_Emissorselecionado: TBooleanField
+      DisplayLabel = 'Selecionar'
+      FieldName = 'selecionado'
+    end
+  end
+  object dsrTrib_Regime_Emissor: TtecDataSource
+    DataSet = qryTrib_Regime_Emissor
+    Left = 728
+    Top = 184
+  end
+  object qryOrigemMercadorias: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryOrigemMercadoriasAfterPost
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select'
+      '  om.codigo,'
+      '  om.descricao,'
+      '    coalesce('
+      '    r.criterio->'#39'origemmercadorias'#39' @> to_jsonb(om.codigo),'
+      '    false'
+      '  ) as selecionado'
+      'from public.origemmercadorias om'
+      'left join public.trib_regra r'
+      '  on r.id_regra = :id_regra'
+      ''
+      'order by om.codigo')
+    RequestLive = True
+    Left = 688
+    Top = 248
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'id_regra'
+        ParamType = ptUnknown
+        Value = 5
+      end>
+    object qryOrigemMercadoriascodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Required = True
+    end
+    object qryOrigemMercadoriasdescricao: TStringField
+      DisplayLabel = 'Origem'
+      DisplayWidth = 170
+      FieldName = 'descricao'
+      Required = True
+      Size = 170
+    end
+    object qryOrigemMercadoriasselecionado: TBooleanField
+      DisplayLabel = 'Selecionar'
+      FieldName = 'selecionado'
+    end
+  end
+  object dsrOrigemMercadorias: TtecDataSource
+    DataSet = qryOrigemMercadorias
+    Left = 736
+    Top = 264
+  end
+  object qrymodalidadebc_icms: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qrymodalidadebc_icmsAfterPost
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select'
+      '  mb.codigo,'
+      '  mb.descricao,'
+      '    coalesce('
+      '    r.criterio->'#39'modalidadebc_icms'#39' @> to_jsonb(mb.codigo),'
+      '    false'
+      '  ) as selecionado'
+      'from public.modalidadebc_icms mb'
+      'left join public.trib_regra r'
+      '  on r.id_regra = :id_regra'
+      ''
+      'order by mb.codigo')
+    RequestLive = True
+    Left = 688
+    Top = 320
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'id_regra'
+        ParamType = ptUnknown
+        Value = 5
+      end>
+    object qrymodalidadebc_icmscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Required = True
+    end
+    object qrymodalidadebc_icmsdescricao: TStringField
+      DisplayLabel = 'Modalidade BC ICMS'
+      FieldName = 'descricao'
+      Size = 35
+    end
+    object qrymodalidadebc_icmsselecionado: TBooleanField
+      DisplayLabel = 'Selecionar'
+      FieldName = 'selecionado'
+    end
+  end
+  object dsrmodalidadebc_icms: TtecDataSource
+    DataSet = qrymodalidadebc_icms
+    Left = 720
+    Top = 336
+  end
+  object qrymodalidadebc_icms_st: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qrymodalidadebc_icms_stAfterPost
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select'
+      '  mb.codigo,'
+      '  mb.descricao,'
+      '    coalesce('
+      '    r.criterio->'#39'modalidadebc_icms_st'#39' @> to_jsonb(mb.codigo),'
+      '    false'
+      '  ) as selecionado'
+      'from public.modalidadebc_icms_st mb'
+      'left join public.trib_regra r'
+      '  on r.id_regra = :id_regra'
+      ''
+      'order by mb.codigo')
+    RequestLive = True
+    Left = 688
+    Top = 400
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'id_regra'
+        ParamType = ptUnknown
+        Value = 5
+      end>
+    object IntegerField1: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Required = True
+    end
+    object StringField1: TStringField
+      DisplayLabel = 'Modalidade BC ICMS'
+      FieldName = 'descricao'
+      Size = 35
+    end
+    object BooleanField1: TBooleanField
+      DisplayLabel = 'Selecionar'
+      FieldName = 'selecionado'
+    end
+  end
+  object dsrmodalidadebc_icms_st: TtecDataSource
+    DataSet = qrymodalidadebc_icms_st
+    Left = 720
+    Top = 416
+  end
+  object qrytrib_tipodocumento: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qrytrib_tipodocumentoAfterPost
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select'
+      '  tt.codigo,'
+      '  tt.descricao,'
+      '  coalesce('
+      '    r.criterio->'#39'trib_tipodocumento'#39' @> to_jsonb(tt.codigo),'
+      '    false'
+      '  ) as selecionado'
+      'from public.trib_tipodocumento tt'
+      '     left join public.trib_regra r'
+      '  on r.id_regra = :id_regra'
+      ''
+      'order by tt.codigo')
+    RequestLive = True
+    Left = 672
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'id_regra'
+        ParamType = ptUnknown
+        Value = 5
+      end>
+    object qrytrib_tipodocumentocodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Required = True
+    end
+    object qrytrib_tipodocumentodescricao: TStringField
+      DisplayLabel = 'Tipo'
+      FieldName = 'descricao'
+      Required = True
+      Size = 40
+    end
+    object qrytrib_tipodocumentoselecionado: TBooleanField
+      DisplayLabel = 'Selecionar'
+      FieldName = 'selecionado'
+    end
+  end
+  object dsrtrib_tipodocumento: TtecDataSource
+    DataSet = qrytrib_tipodocumento
+    Left = 720
+    Top = 32
+  end
+  object qrytrib_modo_calculo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select tmc.*'
+      'from trib_modo_calculo tmc'
+      'order by tmc.modo')
+    RequestLive = False
+    Left = 184
+    Top = 136
+    object qrytrib_modo_calculomodo: TStringField
+      FieldName = 'modo'
+      Size = 30
+    end
+    object qrytrib_modo_calculodescricao: TStringField
+      FieldName = 'descricao'
+      Size = 120
+    end
+  end
+  object dsrtrib_modo_calculo: TtecDataSource
+    DataSet = qrytrib_modo_calculo
+    Left = 208
+    Top = 160
+  end
+  object qrytrib_regra_id_regra_seq: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select nextval('#39'trib_regra_id_regra_seq'#39') as id_regra')
+    RequestLive = False
+    Left = 72
+    Top = 528
+    object qrytrib_regra_id_regra_seqid_regra: TLargeintField
+      FieldName = 'id_regra'
+    end
+  end
+  object qrytrib_grupo_ncm_id_grupo_seq: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select nextval('#39'trib_grupo_ncm_id_grupo_seq'#39') as id_grupo')
+    RequestLive = False
+    Left = 240
+    Top = 528
+    object qrytrib_grupo_ncm_id_grupo_seqid_grupo: TLargeintField
+      FieldName = 'id_grupo'
+    end
+  end
+  object qryUpdateTrib_Regra_criterio: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update trib_regra'
+      'set criterio = cast(:criterio_text as jsonb)'
+      'where id_regra = :id_regra')
+    RequestLive = False
+    Left = 80
+    Top = 256
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'criterio_text'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'id_regra'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryUpdateTrib_Regra: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select *'
+      'from public.sync_trib_regra_por_origem('
+      '          :p_id_regra_origem,'
+      '     cast(:p_destinos as jsonb));')
+    RequestLive = False
+    Left = 80
+    Top = 320
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'p_id_regra_origem'
+        ParamType = ptUnknown
+        Value = '5'
+      end
+      item
+        DataType = ftUnknown
+        Name = 'p_destinos'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryEvento_Fiscal: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryEvento_FiscalAfterPost
+    Filtered = True
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select'
+      '  e_f.codigo,'
+      '  e_f.descricao,'
+      '    coalesce('
+      '    r.criterio->'#39'evento_fiscal'#39' @> to_jsonb(e_f.codigo),'
+      '    false'
+      '  ) as selecionado'
+      'from public.evento_fiscal e_f'
+      'left join public.trib_regra r'
+      '  on r.id_regra = :id_regra'
+      'where e_f.ativo = true'
+      '  and (e_f.id_imposto is null or e_f.id_imposto = :id_imposto)'
+      ''
+      'order by e_f.id_evento, e_f.descricao')
+    RequestLive = True
+    Left = 480
+    Top = 392
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'id_regra'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'id_imposto'
+        ParamType = ptUnknown
+      end>
+    object qryEvento_Fiscalcodigo: TStringField
+      DisplayLabel = 'Evento'
+      FieldName = 'codigo'
+      Size = 60
+    end
+    object qryEvento_Fiscaldescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 200
+    end
+    object qryEvento_Fiscalselecionado: TBooleanField
+      DisplayLabel = 'Selecionar'
+      FieldName = 'selecionado'
+    end
+  end
+  object dsrEvento_Fiscal: TtecDataSource
+    DataSet = qryEvento_Fiscal
+    Left = 528
+    Top = 416
+  end
+  object qryEstadosOrigem: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryEstadosDestinoAfterPost
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select'
+      '  e.codigo,'
+      '  e.nome,'
+      '  coalesce('
+      '    r.criterio->'#39'estados_origem'#39' @> to_jsonb(e.codigo),'
+      '    false'
+      '  ) as selecionado'
+      'from public.estados e'
+      'left join public.trib_regra r'
+      '  on r.id_regra = :id_regra'
+      'order by e.codigo')
+    RequestLive = True
+    Left = 672
+    Top = 472
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'id_regra'
+        ParamType = ptUnknown
+        Value = 5
+      end>
+    object qryEstadosOrigemcodigo: TStringField
+      DisplayLabel = 'UF'
+      FieldName = 'codigo'
+      Required = True
+      Size = 2
+    end
+    object qryEstadosOrigemnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Required = True
+      Size = 30
+    end
+    object qryEstadosOrigemselecionado: TBooleanField
+      DisplayLabel = 'Selecionar'
+      FieldName = 'selecionado'
+    end
+  end
+  object dsrEstadosOrigem: TtecDataSource
+    DataSet = qryEstadosOrigem
+    Left = 704
+    Top = 488
+  end
+  object qryTrib_Regime_Destinatario: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryTrib_Regime_EmissorAfterPost
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select'
+      '  n.codigo,'
+      '  n.descricao,'
+      '  coalesce('
+      '    r.criterio->'#39'regime_destinatario'#39' @> to_jsonb(n.codigo),'
+      '    false'
+      '  ) as selecionado'
+      'from public.trib_regime_interno n'
+      'left join public.trib_regra r'
+      '  on r.id_regra = :id_regra'
+      'where n.tipo = '#39'Tributa'#231#227'o'#39
+      'order by n.codigo')
+    RequestLive = True
+    Left = 864
+    Top = 176
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'id_regra'
+        ParamType = ptUnknown
+        Value = 5
+      end>
+    object IntegerField2: TIntegerField
+      DisplayLabel = 'CRT'
+      FieldName = 'codigo'
+      ReadOnly = True
+      Required = True
+    end
+    object StringField2: TStringField
+      DisplayLabel = 'Regime'
+      FieldName = 'descricao'
+      ReadOnly = True
+      Required = True
+      Size = 80
+    end
+    object BooleanField2: TBooleanField
+      DisplayLabel = 'Selecionar'
+      FieldName = 'selecionado'
+    end
+  end
+  object dsrTrib_Regime_Destinatario: TtecDataSource
+    DataSet = qryTrib_Regime_Destinatario
+    Left = 912
+    Top = 192
+  end
+  object qryTrib_Regime_Apuracao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryTrib_Regime_EmissorAfterPost
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select'
+      '  n.codigo,'
+      '  n.descricao,'
+      '  coalesce('
+      '    r.criterio->'#39'regime_apuracao'#39' @> to_jsonb(n.descricao),'
+      '    false'
+      '  ) as selecionado'
+      'from public.trib_regime_interno n'
+      'left join public.trib_regra r'
+      '  on r.id_regra = :id_regra'
+      ''
+      'where n.tipo = '#39'Apura'#231#227'o'#39
+      ''
+      'order by n.codigo')
+    RequestLive = True
+    Left = 864
+    Top = 256
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'id_regra'
+        ParamType = ptUnknown
+        Value = 5
+      end>
+    object qryTrib_Regime_Apuracaocodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+    end
+    object qryTrib_Regime_Apuracaodescricao: TStringField
+      FieldName = 'descricao'
+      Required = True
+      Size = 80
+    end
+    object qryTrib_Regime_Apuracaoselecionado: TBooleanField
+      FieldName = 'selecionado'
+    end
+  end
+  object dsrTrib_Regime_Apuracao: TtecDataSource
+    DataSet = qryTrib_Regime_Apuracao
+    Left = 904
+    Top = 272
+  end
+  object qryTiposProduto: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryEstadosDestinoAfterPost
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select'
+      '  tp.codigo,'
+      '  tp.descricao,'
+      '  coalesce('
+      '    r.criterio->'#39'tipos_produto'#39' @> to_jsonb(tp.codigo),'
+      '    false'
+      '  ) as selecionado'
+      'from public.tiposproduto tp'
+      'left join public.trib_regra r'
+      '  on r.id_regra = :id_regra'
+      'order by tp.codigo')
+    RequestLive = True
+    Left = 472
+    Top = 496
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'id_regra'
+        ParamType = ptUnknown
+        Value = 5
+      end>
+    object qryTiposProdutocodigo: TStringField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Required = True
+      Size = 2
+    end
+    object qryTiposProdutodescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 30
+    end
+    object qryTiposProdutoselecionado: TBooleanField
+      FieldName = 'selecionado'
+    end
+  end
+  object dsrTiposProduto: TtecDataSource
+    DataSet = qryTiposProduto
+    Left = 504
+    Top = 512
+  end
+end

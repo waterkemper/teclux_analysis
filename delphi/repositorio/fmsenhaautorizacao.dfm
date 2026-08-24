@@ -1,6 +1,6 @@
 object frmSenhaAutorizacao: TfrmSenhaAutorizacao
-  Left = 352
-  Top = 257
+  Left = 556
+  Top = 244
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
   ActiveControl = edtSenha
@@ -17,7 +17,7 @@ object frmSenhaAutorizacao: TfrmSenhaAutorizacao
   Font.Pitch = fpVariable
   Font.Style = []
   OldCreateOrder = True
-  Position = poDesktopCenter
+  Position = poScreenCenter
   Scaled = False
   OnCloseQuery = FormCloseQuery
   PixelsPerInch = 96

@@ -1,0 +1,1796 @@
+unit fmquadrosdime;
+
+interface
+uses
+  //CLX
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs, StdCtrls, ExtCtrls, DBCtrls,
+  cpdbtext, Buttons, Mask, ComCtrls, Grids, DBGrids, Menus,
+  //Terceiros
+  ZQuery,
+  //Componentes
+  cpdbdata, cpdbfindcontrols, cppagecontrol, cpnumero, cpdbgrid, cptexto, cpdbradiogroup, cpdbmesano,
+  //Repositorio
+  fmcadastropadrao, fmconsultabasica, cpdbmemo,
+  //Biblio
+  ctconstantes, DB, ZPgSqlQuery, cpquery, ActnList, Windows, ToolWin;
+
+type
+  TfrmQuadrosDIME = class(TfrmCadastroPadrao)
+    pnlFundoJanela: TPanel;
+    pgcDeclaracao: TPageControl;
+    tstInformacoesIniciais: TTabSheet;
+    tstDeclaracaoICMS: TTabSheet;
+    tstDeclaracaoComplementarAnual: TTabSheet;
+    tstDeclaracaoComplementarEncerrAtividades: TTabSheet;
+    sbnProcuraFilial: TSpeedButton;
+    edt_00_030_Periodo: TDBEditmesano;
+    flkFilial: TtecDBFindLookup;
+    dtx_00_010_InscricaoEstadual: TtecDBText;
+    dtx_00_020_RazaoFilial: TtecDBText;
+    rgb_00_040_TipoDeDeclaracao: TtecDBRadioGroup;
+    rbn_00_040_1_TipoDecl_Normal: TtecRadioButton;
+    rbn_00_040_2_TipoDecl_EncerramentodeAtividades: TtecRadioButton;
+    rbn_00_040_3_TipoDecl_SaidadoRegimedeEstimativaFiscal: TtecRadioButton;
+    rgb_00_050_RegimedeApuracao: TtecDBRadioGroup;
+    rbn_00_050_1_Regime_Simples: TtecRadioButton;
+    rbn_00_050_2_Regime_Normal: TtecRadioButton;
+    rbn_00_050_3_Regime_EstimativaFiscal: TtecRadioButton;
+    rbn_00_050_4_Regime_BaresRestaurantesSimilares: TtecRadioButton;
+    rbn_00_050_5_Regime_ProdutorPrimario: TtecRadioButton;
+    rgp_00_060_PorteDaEmpresa: TtecDBRadioGroup;
+    rbn_00_060_1_NaoSeAplica: TtecRadioButton;
+    rbn_00_060_1_Porte_SimplesME: TtecRadioButton;
+    rbn_00_060_2_Porte_SimplesEPP: TtecRadioButton;
+    rbn_00_060_3_Porte_Normal: TtecRadioButton;
+    rbn_00_060_4_Porte_ProdutorPrimario: TtecRadioButton;
+    rgb_00_070_ApuracaoConsolidada: TtecDBRadioGroup;
+    rbn_00_070_1_NaoeApuracaoConsolidada: TtecRadioButton;
+    rbn_00_070_2_eEstabelecimentoConsolidador: TtecRadioButton;
+    rbn_00_070_3_eEstabelecimentoConsolidado: TtecRadioButton;
+    rgb_00_090_TransferenciadeCreditosnoPeriodo: TtecDBRadioGroup;
+    rbn_00_090_1_NaoApurouReservouCreditos: TtecRadioButton;
+    rbn_00_090_2_ApurouReservouCreditos: TtecRadioButton;
+    rbn_00_090_3_TransfCred_RecebeuCreditos: TtecRadioButton;
+    rbn_00_090_4_TransfCred_TransferiueRecebeuCreditos: TtecRadioButton;
+    rgb_00_100_TemCreditosPresumidos: TtecDBRadioGroup;
+    rbn_00_100_1_TemCreditosPres_Sim: TtecRadioButton;
+    rbn_00_100_2_TemCreditosPres_Nao: TtecRadioButton;
+    rgb_00_110_TemCreditosporIncentFiscais: TtecDBRadioGroup;
+    rbn_00_110_1_TemCreditosIncentFiscais_Sim: TtecRadioButton;
+    rbn_00_110_2_TemCreditosIncentFiscais_Nao: TtecRadioButton;
+    rgb_00_120_Movimento: TtecDBRadioGroup;
+    rbn_00_120_1_Mov_Semmovimentoesemsaldos: TtecRadioButton;
+    rbn_00_120_2_Mov_Semmovimentoecomsaldos: TtecRadioButton;
+    rbn_00_120_3_Mov_ComMovimento: TtecRadioButton;
+    rgb_00_130_SubstitutoTributario: TtecDBRadioGroup;
+    rbn_00_130_1_SubstTribut_Sim: TtecRadioButton;
+    rbn_00_130_2_SubstTribut_Nao: TtecRadioButton;
+    rbn_00_130_3_SubstTribut_SubstituidoSolidario: TtecRadioButton;
+    rgb_00_140_TemEscritaContabil: TtecDBRadioGroup;
+    rbn_00_140_1_TemEscritaContabil_Sim: TtecRadioButton;
+    rbn_00_140_2_TemEscritaContabil_Nao: TtecRadioButton;
+    gbx_00_150_QuantidadedeTrabalhadoresnaAtividade: TGroupBox;
+    edt_00_150_QtTrabAtividade: TDBEditNumero;
+    rgp_00_080_ApuracaoCentralizada: TtecDBRadioGroup;
+    rbn_00_080_1_ApConsolid_NaoEnquadradoSimplesouUnico: TtecRadioButton;
+    rbn_00_080_2_ApConsolid_EstabelecimentoCentralizador: TtecRadioButton;
+    rbn_00_080_3_ApConsolid_EstabelecimentoCentralizado: TtecRadioButton;
+    pgcDeclaracaoComplementarAnual: TPageControl;
+    tst_80: TTabSheet;
+    tst_81: TTabSheet;
+    tst_82: TTabSheet;
+    tst_83: TTabSheet;
+    tst_84: TTabSheet;
+    pgcDeclaracaoComplEncerramentoAtiv: TPageControl;
+    tst_90: TTabSheet;
+    tst_91: TTabSheet;
+    tst_92: TTabSheet;
+    tst_93: TTabSheet;
+    tst_94: TTabSheet;
+    pgcQuadrosDime: TtecPageControl;
+    tst_01: TTabSheet;
+    dbg_01_ValoresFiscaisEntradas: TtecDBGrid;
+    tst_02: TTabSheet;
+    dbg_02_ValoresFiscaisSaidas: TtecDBGrid;
+    tst_03: TTabSheet;
+    tst_04: TTabSheet;
+    edt04_020: TDBEditNumero;
+    edt04_030: TDBEditNumero;
+    edt04_040: TDBEditNumero;
+    edt04_050: TDBEditNumero;
+    edt04_060: TDBEditNumero;
+    edt04_070: TDBEditNumero;
+    tst_05: TTabSheet;
+    edt_05_050: TDBEditNumero;
+    edt_05_060: TDBEditNumero;
+    edt_05_030: TDBEditNumero;
+    edt_05_040: TDBEditNumero;
+    edt_05_070: TDBEditNumero;
+    edt_05_010: TDBEditNumero;
+    edt_05_100: TDBEditNumero;
+    edt_05_120: TDBEditNumero;
+    edt_05_110: TDBEditNumero;
+    edt_05_130: TDBEditNumero;
+    edt_05_150: TDBEditNumero;
+    edt_05_160: TDBEditNumero;
+    tst_06: TTabSheet;
+    edt06_010: TDBEditNumero;
+    edt06_020: TDBEditNumero;
+    edt06_040: TDBEditNumero;
+    edt06_050: TDBEditNumero;
+    edt06_070: TDBEditNumero;
+    edt06_080: TDBEditNumero;
+    tst_07: TTabSheet;
+    edt07_010: TDBEditNumero;
+    edt07_020: TDBEditNumero;
+    edt07_030: TDBEditNumero;
+    edt07_050: TDBEditNumero;
+    tst_08: TTabSheet;
+    edt08_020: TDBEditNumero;
+    edt08_040: TDBEditNumero;
+    edt08_050: TDBEditNumero;
+    tst_09: TTabSheet;
+    edt09_010: TDBEditNumero;
+    edt09_020: TDBEditNumero;
+    edt09_030: TDBEditNumero;
+    edt09_040: TDBEditNumero;
+    edt09_050: TDBEditNumero;
+    edt09_060: TDBEditNumero;
+    edt09_070: TDBEditNumero;
+    edt09_080: TDBEditNumero;
+    edt09_090: TDBEditNumero;
+    edt09_100: TDBEditNumero;
+    edt09_170: TDBEditNumero;
+    edt09_160: TDBEditNumero;
+    edt09_180: TDBEditNumero;
+    edt09_190: TDBEditNumero;
+    tst_10: TTabSheet;
+    edt10_010: TDBEditNumero;
+    edt10_020: TDBEditNumero;
+    edt10_030: TDBEditNumero;
+    edt10_040: TDBEditNumero;
+    edt10_050: TDBEditNumero;
+    tst_11: TTabSheet;
+    edt11_090: TDBEditNumero;
+    edt11_100: TDBEditNumero;
+    edt11_110: TDBEditNumero;
+    edt11_120: TDBEditNumero;
+    edt11_140: TDBEditNumero;
+    edt11_150: TDBEditNumero;
+    edt11_070: TDBEditNumero;
+    edt11_060: TDBEditNumero;
+    edt11_050: TDBEditNumero;
+    edt11_040: TDBEditNumero;
+    edt11_030: TDBEditNumero;
+    edt11_020: TDBEditNumero;
+    edt11_010: TDBEditNumero;
+    tst_12: TTabSheet;
+    dbg_12: TtecDBGrid;
+    tst_41: TTabSheet;
+    tst_42: TTabSheet;
+    edt42_010: TDBEditNumero;
+    edt42_070: TDBEditNumero;
+    edt42_990: TDBEditNumero;
+    edt42_030: TDBEditNumero;
+    edt42_020: TDBEditNumero;
+    edt42_040: TDBEditNumero;
+    tst_43: TTabSheet;
+    edt43_020: TDBEditNumero;
+    edt43_010: TDBEditNumero;
+    edt43_050: TDBEditNumero;
+    edt43_990: TDBEditNumero;
+    tst_44: TTabSheet;
+    tst_45: TTabSheet;
+    edt45_10: TDBEditNumero;
+    edt45_20: TDBEditNumero;
+    edt45_30: TDBEditNumero;
+    edt45_040: TDBEditNumero;
+    edt45_050: TDBEditNumero;
+    edt45_990: TDBEditNumero;
+    tst_46: TTabSheet;
+    dbg_46: TtecDBGrid;
+    edt_46_999: TEditNumero;
+    tst_47: TTabSheet;
+    dbg_47: TtecDBGrid;
+    edt_47_999: TEditNumero;
+    tst_48: TTabSheet;
+    dbg_48: TtecDBGrid;
+    tst_49: TTabSheet;
+    dbg_49: TtecDBGrid;
+    lbl_49_999: TStaticText;
+    edt_49_valorcontabil: TEditNumero;
+    edt_49_basedecalculo: TEditNumero;
+    edt_49_outras: TEditNumero;
+    edt_49_icmsretido1: TEditNumero;
+    edt_49_icmsretido2: TEditNumero;
+    tst_50: TTabSheet;
+    dbg_50: TtecDBGrid;
+    edt_50_valorcontabilnaocontribuinte: TEditNumero;
+    edt_50_valorcontabilcontribuinte: TEditNumero;
+    edt_50_basedecalculonaocontribuinte: TEditNumero;
+    edt_50_basedecalculocontribuinte: TEditNumero;
+    edt_50_outras: TEditNumero;
+    edt_50_icmsretidosubstrib: TEditNumero;
+    tst_51: TTabSheet;
+    edt51_010: TDBEditNumero;
+    edt51_020: TDBEditNumero;
+    edt51_050: TDBEditNumero;
+    edt51_030: TDBEditNumero;
+    edt51_040: TDBEditNumero;
+    edt51_980: TDBEditNumero;
+    edt51_060: TDBEditNumero;
+    edt51_070: TDBEditNumero;
+    edt51_080: TDBEditNumero;
+    edt51_090: TDBEditNumero;
+    edt51_990: TDBEditNumero;
+    pnlQuadro: TPanel;
+    lblQuadro: TLabel;
+    edt_03_010: TEditNumero;
+    edt_03_020: TEditNumero;
+    edt_03_030: TEditNumero;
+    edt_03_040: TEditNumero;
+    edt_03_050: TEditNumero;
+    edt_03_060: TEditNumero;
+    edt_03_070: TEditNumero;
+    edt_03_080: TEditNumero;
+    edt_03_090: TEditNumero;
+    edt_03_100: TEditNumero;
+    sbnAtualizarQuadro01: TSpeedButton;
+    sbnAtualizarQuadro02: TSpeedButton;
+    sbnAtualizarQuadro49: TSpeedButton;
+    sbnAtualizarQuadro50: TSpeedButton;
+    sbn05_010: TSpeedButton;
+    sbnAtualizarq06_080: TSpeedButton;
+    sbn07_050: TSpeedButton;
+    sbnAtualizarq08_020_livro: TSpeedButton;
+    sbn11_090: TSpeedButton;
+    sbnAtualizarq08_020_dime: TSpeedButton;
+    sbnAtualizarq08_040_livro: TSpeedButton;
+    sbnAtualizarq08_040_dime: TSpeedButton;
+    rbn_00_140_3_TemEscritaContabil_Sim_diep: TtecRadioButton;
+    edt44_040: TDBEditNumero;
+    edt44_050: TDBEditNumero;
+    edt44_060: TDBEditNumero;
+    edt44_070: TDBEditNumero;
+    edt44_080: TDBEditNumero;
+    edt44_090: TDBEditNumero;
+    edt44_100: TDBEditNumero;
+    edt44_190: TDBEditNumero;
+    edt44_990: TDBEditNumero;
+    edt44_020: TDBEditNumero;
+    edt44_010: TDBEditNumero;
+    edt44_030: TDBEditNumero;
+    edt44_120: TDBEditNumero;
+    edt44_130: TDBEditNumero;
+    edt44_131: TDBEditNumero;
+    edt44_140: TDBEditNumero;
+    edt44_150: TDBEditNumero;
+    edt44_160: TDBEditNumero;
+    edt09_011: TDBEditNumero;
+    edt09_051: TDBEditNumero;
+    edt09_052: TDBEditNumero;
+    edt41_010: TDBEditNumero;
+    edt41_020: TDBEditNumero;
+    edt41_030: TDBEditNumero;
+    edt41_040: TDBEditNumero;
+    edt41_120: TDBEditNumero;
+    edt41_130: TDBEditNumero;
+    edt41_140: TDBEditNumero;
+    edt41_160: TDBEditNumero;
+    edt41_170: TDBEditNumero;
+    edt41_180: TDBEditNumero;
+    edt41_190: TDBEditNumero;
+    edt41_220: TDBEditNumero;
+    edt41_230: TDBEditNumero;
+    edt41_240: TDBEditNumero;
+    edt41_960: TDBEditNumero;
+    edt41_970: TDBEditNumero;
+    edt41_980: TDBEditNumero;
+    sbn41_160: TSpeedButton;
+    sbn41_170: TSpeedButton;
+    sbn41_180: TSpeedButton;
+    sbn41_190: TSpeedButton;
+    dtx04_010: TDBEditNumero;
+    dtx04_990: TDBEditNumero;
+    dtx_05_020: TDBEditNumero;
+    dtx_05_080: TDBEditNumero;
+    dtx_05_090: TDBEditNumero;
+    dtx_05_140: TDBEditNumero;
+    dtx_05_990: TDBEditNumero;
+    dtx06_030: TDBEditNumero;
+    dtx06_990: TDBEditNumero;
+    dtx06_060: TDBEditNumero;
+    dtx07_990: TDBEditNumero;
+    dtx07_040: TDBEditNumero;
+    dtx07_980: TDBEditNumero;
+    edt09_105: TDBEditNumero;
+    edt11_155: TDBEditNumero;
+    tstRecolhimentoDime: TTabSheet;
+    dbgRecolhimentoICMS: TtecDBGrid;
+    gbxObservacao: TGroupBox;
+    mmoObservacao: TtecDBMemo;
+    rbn_00_080_1_ApConsolid_NaoseAplica: TtecRadioButton;
+    rbn_00_110_3_InformacaoDesnecessaria: TtecRadioButton;
+    edt09_075: TDBEditNumero;
+    gbxFilial: TGroupBox;
+    gbxPeriodo: TGroupBox;
+    gbxIncricaoEstadual: TGroupBox;
+    lbl00_010: TStaticText;
+    lbl00_020: TStaticText;
+    lbl00_030: TStaticText;
+    lbl00_040: TStaticText;
+    lbl00_050: TStaticText;
+    lbl00_060: TStaticText;
+    lbl00_070: TStaticText;
+    lblEstabelecimentoUnico: TStaticText;
+    lbl00_080: TStaticText;
+    lbl00_090: TStaticText;
+    lbl00_100: TStaticText;
+    lbl00_110: TStaticText;
+    lbl00_120: TStaticText;
+    lbl00_130: TStaticText;
+    lbl00_140: TStaticText;
+    lblEstabelecimentoPrincipal: TStaticText;
+    lbl00_150: TStaticText;
+    lblSeDeclaranteCPP: TLabel;
+    gbxResumoValoresFiscais: TGroupBox;
+    lbl03_010: TStaticText;
+    lbl03_010a050: TStaticText;
+    lbl03_020: TStaticText;
+    lbl03_030: TStaticText;
+    lbl03_040: TStaticText;
+    lbl03_050: TStaticText;
+    lbl11_060a100: TStaticText;
+    lbl03_060: TStaticText;
+    lbl03_070: TStaticText;
+    lbl03_080: TStaticText;
+    lbl03_090: TStaticText;
+    lbl03_100: TStaticText;
+    pnl03_010a057: TPanel;
+    pnl03_060a199: TPanel;
+    gbxResumoApuracaoDebitos: TGroupBox;
+    lbl04_010a040: TStaticText;
+    lbl04_040: TStaticText;
+    lbl04_030: TStaticText;
+    lbl04_020: TStaticText;
+    lbl04_010: TStaticText;
+    lbl04_050a060: TStaticText;
+    lbl04_050: TStaticText;
+    lbl04_060: TStaticText;
+    lbl04_070a070: TStaticText;
+    lbl04_070: TStaticText;
+    lbl04_990: TStaticText;
+    lbl04_990a: TStaticText;
+    pnl04_010a040: TPanel;
+    pnl04_050a060: TPanel;
+    pnl04_070a070: TPanel;
+    pnl04_990a990: TPanel;
+    gbxResumoApuracaoCreditos: TGroupBox;
+    lbl05_010a010: TStaticText;
+    lbl05_010: TStaticText;
+    lbl05_020: TStaticText;
+    lbl05_030: TStaticText;
+    lbl05_040: TStaticText;
+    lbl05_050: TStaticText;
+    lbl05_060: TStaticText;
+    lbl05_070: TStaticText;
+    lbl05_080: TStaticText;
+    lbl05_090: TStaticText;
+    lbl05_100: TStaticText;
+    lbl05_110: TStaticText;
+    lbl05_120: TStaticText;
+    lbl05_130: TStaticText;
+    lbl05_990: TStaticText;
+    lbl05_140: TStaticText;
+    lbl05_150: TStaticText;
+    lbl05_160: TStaticText;
+    lbl05_990a990: TStaticText;
+    lbl04_990a990: TStaticText;
+    lbl05_160a160: TStaticText;
+    lbl05_020a050: TStaticText;
+    lbl05_060a070: TStaticText;
+    lbl05_080a080: TStaticText;
+    lbl05_090a090: TStaticText;
+    lbl05_100a130: TStaticText;
+    lbl05_140a150: TStaticText;
+    pnl05_020a050: TPanel;
+    pnl05_060a070: TPanel;
+    pnl05_080a080: TPanel;
+    pnl05_090a090: TPanel;
+    pnl05_100a130: TPanel;
+    pnl05_140a150: TPanel;
+    pnl05_160a160: TPanel;
+    pnl05_010a010: TPanel;
+    pnl05_990a990: TPanel;
+    gbxEmpresasSIMPLES: TGroupBox;
+    lbl06_010a030: TStaticText;
+    lbl06_10: TStaticText;
+    lbl06_020: TStaticText;
+    lbl06_030: TStaticText;
+    lbl06_040: TStaticText;
+    lbl06_080: TStaticText;
+    lbl06_050: TStaticText;
+    lbl06_060: TStaticText;
+    lbl06_070: TStaticText;
+    lbl06_990: TStaticText;
+    lbl06_040a040: TStaticText;
+    lbl06_040b: TStaticText;
+    lbl06_050a090: TStaticText;
+    lbl06_990b: TStaticText;
+    gbxApuracaoBaresRestaurantes: TGroupBox;
+    lbl07_010: TStaticText;
+    lbl07_010a980: TStaticText;
+    lbl07_980: TStaticText;
+    lbl07_020: TStaticText;
+    lbl07_030: TStaticText;
+    lbl07_990: TStaticText;
+    lbl07_050: TStaticText;
+    lbl07_040: TStaticText;
+    lbl030a990: TStaticText;
+    lbl07_990b: TStaticText;
+    lbl07_980b: TStaticText;
+    pnl06_010a030: TPanel;
+    pnl06_040a040: TPanel;
+    pnl06_050a990: TPanel;
+    pnl07_010a980: TPanel;
+    pnl07_030a990: TPanel;
+    gbxApuracaoEstimativaFixa: TGroupBox;
+    lbl08_010: TStaticText;
+    lbl08_010a980: TStaticText;
+    lbl08_980: TStaticText;
+    lbl08_980b: TStaticText;
+    lbl08_020: TStaticText;
+    lbl08_030: TStaticText;
+    lbl08_990: TStaticText;
+    lbl08_990b: TStaticText;
+    lbl08_050: TStaticText;
+    lbl08_040: TStaticText;
+    lbl08_030a990: TStaticText;
+    pnl08_010a980: TPanel;
+    pnl08_030a990: TPanel;
+    gbxCalculodoImpostoPagar: TGroupBox;
+    lbl09_010: TStaticText;
+    lbl09_010a040: TStaticText;
+    lbl09_020: TStaticText;
+    lbl09_011: TStaticText;
+    lbl09_050: TStaticText;
+    lbl09_060: TStaticText;
+    lbl09_052: TStaticText;
+    lbl09_051: TStaticText;
+    lbl09_050a080: TStaticText;
+    pnl09_010a040: TPanel;
+    pnl09_050a080: TPanel;
+    lbl09_030: TStaticText;
+    lbl09_040: TStaticText;
+    lbl09_070: TStaticText;
+    lbl09_075: TStaticText;
+    lbl09_080: TStaticText;
+    lbl09_090a110: TStaticText;
+    lbl09_090: TStaticText;
+    lbl09_100: TStaticText;
+    lbl09_105: TStaticText;
+    lbl09_110: TStaticText;
+    lbl09_120a999: TStaticText;
+    lbl09_120: TStaticText;
+    lbl09_130: TStaticText;
+    lbl09_999: TStaticText;
+    pnl09_090a110: TPanel;
+    pnl09_120a999: TPanel;
+    lbl09_120a: TStaticText;
+    lbl09_140a998: TStaticText;
+    lbl09_140: TStaticText;
+    lbl09_140a: TStaticText;
+    lbl09_150: TStaticText;
+    lbl09_998: TStaticText;
+    lbl09_160a190: TStaticText;
+    lbl09_160: TStaticText;
+    lbl09_170: TStaticText;
+    lbl09_180: TStaticText;
+    lbl09_190: TStaticText;
+    pnl09_140a998: TPanel;
+    pnl09_160a190: TPanel;
+    gbxDebitosEspecificos: TGroupBox;
+    lbl10_010: TStaticText;
+    lbl10_010a990: TStaticText;
+    lbl10_020: TStaticText;
+    lbl10_030: TStaticText;
+    lbl10_990: TStaticText;
+    lbl10_050: TStaticText;
+    lbl10_040: TStaticText;
+    pnl10_010a990: TPanel;
+    gbxDebitosPorTransferenciasCreditos: TGroupBox;
+    lbl42_010: TStaticText;
+    lbl42_010a990: TStaticText;
+    lbl42_020: TStaticText;
+    lbl42_030: TStaticText;
+    lbl42_990: TStaticText;
+    lbl42_040: TStaticText;
+    pnl42_010a990: TPanel;
+    lbl42_070: TStaticText;
+    lbl42_040a: TStaticText;
+    lbl42_990b: TStaticText;
+    lbl42_990c: TStaticText;
+    gbxCreditosPorTransferencia: TGroupBox;
+    lbl43_010: TStaticText;
+    lbl43_010a990: TStaticText;
+    lbl43_990: TStaticText;
+    lbl43_990b: TStaticText;
+    lbl43_990c: TStaticText;
+    lbl43_050: TStaticText;
+    pnl43_010a990: TPanel;
+    lbl43_020: TStaticText;
+    lbl43_020a: TStaticText;
+    gbxInformacoesSubstituicaoTributaria: TGroupBox;
+    lbl11_010: TStaticText;
+    lbl11_030: TStaticText;
+    lbl11_020: TStaticText;
+    lbl11_060: TStaticText;
+    lbl11_090: TStaticText;
+    lbl11_080: TStaticText;
+    lbl11_070: TStaticText;
+    lbl11_070a080: TStaticText;
+    lbl11_040: TStaticText;
+    lbl11_050: TStaticText;
+    pnl11_010a060: TPanel;
+    lbl11_100: TStaticText;
+    lbl11_110: TStaticText;
+    lbl11_120: TStaticText;
+    pnl11_070a080: TPanel;
+    lbl11_140a160: TStaticText;
+    lbl11_130: TStaticText;
+    lbl11_140: TStaticText;
+    lbl11_155: TStaticText;
+    lbl11_160: TStaticText;
+    lbl11_170a998: TStaticText;
+    lbl11_999: TStaticText;
+    lbl11_998: TStaticText;
+    pnl11_090a130: TPanel;
+    pnl11_140a160: TPanel;
+    pnl11_170a998: TPanel;
+    lbl11_090a130: TStaticText;
+    lbl11_150: TStaticText;
+    gbxDemonstrativoCreditosAcumulados: TGroupBox;
+    lbl41_010: TStaticText;
+    lbl41_010a010: TStaticText;
+    lbl41_030: TStaticText;
+    lbl41_020: TStaticText;
+    lbl41_120: TStaticText;
+    lbl41_160: TStaticText;
+    lbl41_140: TStaticText;
+    lbl41_130: TStaticText;
+    lbl41_120a140: TStaticText;
+    lbl41_040: TStaticText;
+    pnl41_010a010: TPanel;
+    lbl41_170: TStaticText;
+    lbl41_180: TStaticText;
+    lbl41_190: TStaticText;
+    pnl41_120a140: TPanel;
+    lbl41_220a240: TStaticText;
+    lbl41_220: TStaticText;
+    lbl41_230: TStaticText;
+    lbl41_240: TStaticText;
+    lbl41_960: TStaticText;
+    lbl41_970: TStaticText;
+    lbl41_980: TStaticText;
+    pnl41_160a190: TPanel;
+    pnl41_220a240: TPanel;
+    pnl41_960a981: TPanel;
+    lbl41_960a981: TStaticText;
+    lbl41_010a: TStaticText;
+    lbl41_020a040: TStaticText;
+    pnl41_020a040: TPanel;
+    lbl41_160a190: TStaticText;
+    gbxCreditosPresumidos: TGroupBox;
+    lbl44_010: TStaticText;
+    lbl44_010a040: TStaticText;
+    lbl44_030: TStaticText;
+    lbl44_020: TStaticText;
+    lbl44_050: TStaticText;
+    lbl44_080: TStaticText;
+    lbl44_070: TStaticText;
+    lbl44_060: TStaticText;
+    lbl44_050a100: TStaticText;
+    lbl44_040: TStaticText;
+    pnl44_010a040: TPanel;
+    lbl44_090: TStaticText;
+    lbl44_100: TStaticText;
+    lbl44_120: TStaticText;
+    pnl44_050a100: TPanel;
+    lbl44_130a131: TStaticText;
+    lbl44_130: TStaticText;
+    lbl44_131: TStaticText;
+    lbl44_140: TStaticText;
+    lbl44_150: TStaticText;
+    lbl44_160: TStaticText;
+    pnl44_130a131: TPanel;
+    pnl44_140a160: TPanel;
+    lbl44_190: TStaticText;
+    lbl44_990: TStaticText;
+    pnl44_190a990: TPanel;
+    lbl44_190a990: TStaticText;
+    lbl44_140a160: TStaticText;
+    lbl44_120a120: TStaticText;
+    pnl44_120a120: TPanel;
+    lbl44_990b: TStaticText;
+    lbl44_990c: TStaticText;
+    lbl44_990a: TStaticText;
+    gbxCreditosIncentivosFiscais: TGroupBox;
+    lbl45_010: TStaticText;
+    lbl45_010a040: TStaticText;
+    lbl45_030: TStaticText;
+    lbl45_990: TStaticText;
+    lbl45_050: TStaticText;
+    lbl45_040: TStaticText;
+    pnl45_010a040: TPanel;
+    lbl45_020: TStaticText;
+    lbl45_020a: TStaticText;
+    lbl45_020b: TStaticText;
+    lbl45_040a: TStaticText;
+    lbl45_050a990: TStaticText;
+    lbl45_990b: TStaticText;
+    lbl45_990a: TStaticText;
+    pnl45_050a990: TPanel;
+    gbxExclusoesValorAdicionado: TGroupBox;
+    lbl51_010: TStaticText;
+    lbl51_010a980: TStaticText;
+    stx51_050: TStaticText;
+    lbl51_020: TStaticText;
+    stx51_040: TStaticText;
+    lbl51_070: TStaticText;
+    lbl51_980: TStaticText;
+    stx51_030: TStaticText;
+    pnl51_010a980: TPanel;
+    lbl51_080: TStaticText;
+    lbl51_990: TStaticText;
+    pnl51_060a990: TPanel;
+    lbl51_010a: TStaticText;
+    stx051_030a: TStaticText;
+    stx51_040a: TStaticText;
+    lbl51_060a990: TStaticText;
+    stx51_060: TStaticText;
+    stx51_060a: TStaticText;
+    lbl51_080a: TStaticText;
+    lbl51_090: TStaticText;
+    lbl51_090a: TStaticText;
+    lbl06_040a: TStaticText;
+    lbl06_990a: TStaticText;
+    lbl42_990a: TStaticText;
+    lbl43_990a: TStaticText;
+    lbl07_980a: TStaticText;
+    lbl07_990a: TStaticText;
+    lbl08_980a: TStaticText;
+    lbl08_990a: TStaticText;
+    gbx46_Total: TGroupBox;
+    gbx47_Total: TGroupBox;
+    gbxSaidasPorUF: TGroupBox;
+    gbxValorContabil: TGroupBox;
+    gbxBaseCalculo: TGroupBox;
+    gbxTotaisSaidas: TGroupBox;
+    gbxEntradasPorUF: TGroupBox;
+    gbxTotaisEntradasPorUF: TGroupBox;
+    GroupBox1: TGroupBox;
+    gbxCFOPEntradas: TGroupBox;
+    gbx01_OperacoesComCredito: TGroupBox;
+    gbx01_OperacoesSemCredito: TGroupBox;
+    gbx01_TotaisEntradas: TGroupBox;
+    edt_01_010: TEditNumero;
+    edt_01_020: TEditNumero;
+    edt_01_030: TEditNumero;
+    edt_01_040: TEditNumero;
+    edt_01_050: TEditNumero;
+    gbxCFOPSaidas: TGroupBox;
+    gbxTotaisValoresSaidas: TGroupBox;
+    edt_02_060: TEditNumero;
+    edt_02_070: TEditNumero;
+    edt_02_080: TEditNumero;
+    edt_02_090: TEditNumero;
+    edt_02_100: TEditNumero;
+    gbxOperacoesComDebito: TGroupBox;
+    gbxOperacoesSemDebito: TGroupBox;
+    lbl11_065: TStaticText;
+    edt11_065: TDBEditNumero;
+    lbl11_073: TStaticText;
+    edt11_073: TDBEditNumero;
+    lbl11_075: TStaticText;
+    edt11_075: TDBEditNumero;
+    lbl11_125: TStaticText;
+    edt11_125: TDBEditNumero;
+    lbl11_170: TStaticText;
+    edt11_170: TDBEditNumero;
+    lbl11_180: TStaticText;
+    edt11_180: TDBEditNumero;
+    lbl11_190: TStaticText;
+    edt11_190: TDBEditNumero;
+    lbl11_200: TStaticText;
+    edt11_200: TDBEditNumero;
+    sbnAtualizasaldosdevedoresrecebidosdeestabelecimentosconsolidad: TSpeedButton;
+    sbnAtualizasaldoscredoresrecebidosdeestabelecimentosconsolidado: TSpeedButton;
+    lbl11_170a: TStaticText;
+    lbl11_190a: TStaticText;
+    gbxResumoLivroInvetarioReceitaBruta: TGroupBox;
+    lbl80_010: TStaticText;
+    lbl80_010a020: TStaticText;
+    lbl80_020: TStaticText;
+    lbl80_030: TStaticText;
+    pnl80_010a020: TPanel;
+    lbl80_030a030: TStaticText;
+    edt80_010: TDBEditNumero;
+    edt80_020: TDBEditNumero;
+    edt80_030: TDBEditNumero;
+    pnl80_030a030: TPanel;
+    gbxAtivo: TGroupBox;
+    lbl81_110: TStaticText;
+    lbl81_111: TStaticText;
+    pnl81_110a199: TPanel;
+    lbl81_113: TStaticText;
+    lbl81_121: TStaticText;
+    lbl81_123: TStaticText;
+    lbl81_128: TStaticText;
+    lbl81_130: TStaticText;
+    lbl81_131: TStaticText;
+    lbl81_148: TStaticText;
+    lbl81_150: TStaticText;
+    lbl81_151: TStaticText;
+    lbl81_155: TStaticText;
+    lbl81_157: TStaticText;
+    lbl81_199: TStaticText;
+    edt81_110: TDBEditNumero;
+    edt81_111: TDBEditNumero;
+    edt81_113: TDBEditNumero;
+    edt81_121: TDBEditNumero;
+    edt81_123: TDBEditNumero;
+    edt81_128: TDBEditNumero;
+    edt81_130: TDBEditNumero;
+    edt81_131: TDBEditNumero;
+    edt81_148: TDBEditNumero;
+    edt81_150: TDBEditNumero;
+    edt81_151: TDBEditNumero;
+    edt81_155: TDBEditNumero;
+    edt81_157: TDBEditNumero;
+    edt81_199: TDBEditNumero;
+    gbxPassivo: TGroupBox;
+    lbl82_210: TStaticText;
+    lbl82_211: TStaticText;
+    lbl82_213: TStaticText;
+    lbl82_215: TStaticText;
+    lbl82_230: TStaticText;
+    lbl82_240: TStaticText;
+    lbl82_269: TStaticText;
+    lbl82_270: TStaticText;
+    lbl82_271: TStaticText;
+    lbl82_278: TStaticText;
+    lbl82_279: TStaticText;
+    lbl82_299: TStaticText;
+    pnl82_210a299: TPanel;
+    edt82_210: TDBEditNumero;
+    edt82_211: TDBEditNumero;
+    edt82_213: TDBEditNumero;
+    edt82_215: TDBEditNumero;
+    edt82_230: TDBEditNumero;
+    edt82_240: TDBEditNumero;
+    edt82_269: TDBEditNumero;
+    edt82_270: TDBEditNumero;
+    edt82_271: TDBEditNumero;
+    edt82_278: TDBEditNumero;
+    edt82_279: TDBEditNumero;
+    edt82_299: TDBEditNumero;
+    gbxDemonstracaoResultado: TGroupBox;
+    lbl83_310: TStaticText;
+    lbl83_311: TStaticText;
+    lbl83_320: TStaticText;
+    lbl83_323: TStaticText;
+    lbl83_330: TStaticText;
+    lbl83_331: TStaticText;
+    lbl83_333: TStaticText;
+    lbl83_335: TStaticText;
+    lbl83_340: TStaticText;
+    lbl83_341: TStaticText;
+    lbl83_343: TStaticText;
+    lbl83_345: TStaticText;
+    lbl83_350: TStaticText;
+    lbl83_399: TStaticText;
+    pnl83_310a399: TPanel;
+    lbl83_351: TStaticText;
+    lbl83_353: TStaticText;
+    lbl83_360: TStaticText;
+    lbl83_361: TStaticText;
+    lbl83_363: TStaticText;
+    lbl83_398: TStaticText;
+    edt83_310: TDBEditNumero;
+    edt83_311: TDBEditNumero;
+    edt83_320: TDBEditNumero;
+    edt83_330: TDBEditNumero;
+    edt83_323: TDBEditNumero;
+    edt83_331: TDBEditNumero;
+    edt83_333: TDBEditNumero;
+    edt83_335: TDBEditNumero;
+    edt83_340: TDBEditNumero;
+    edt83_341: TDBEditNumero;
+    edt83_343: TDBEditNumero;
+    edt83_345: TDBEditNumero;
+    edt83_350: TDBEditNumero;
+    edt83_351: TDBEditNumero;
+    edt83_353: TDBEditNumero;
+    edt83_360: TDBEditNumero;
+    edt83_361: TDBEditNumero;
+    edt83_363: TDBEditNumero;
+    edt83_398: TDBEditNumero;
+    edt83_399: TDBEditNumero;
+    gbxDetalhamentoDespesas: TGroupBox;
+    lbl84_411: TStaticText;
+    lbl84_412: TStaticText;
+    lbl84_413: TStaticText;
+    lbl84_421: TStaticText;
+    lbl84_422: TStaticText;
+    lbl84_423: TStaticText;
+    lbl84_424: TStaticText;
+    lbl84_432: TStaticText;
+    lbl84_433: TStaticText;
+    lbl84_441: TStaticText;
+    lbl84_451: TStaticText;
+    lbl84_442: TStaticText;
+    lbl84_443: TStaticText;
+    lbl84_499: TStaticText;
+    pnl84_411a499: TPanel;
+    lbl84_461: TStaticText;
+    lbl84_498: TStaticText;
+    edt84_411: TDBEditNumero;
+    edt84_412: TDBEditNumero;
+    edt84_413: TDBEditNumero;
+    edt84_421: TDBEditNumero;
+    edt84_422: TDBEditNumero;
+    edt84_423: TDBEditNumero;
+    edt84_424: TDBEditNumero;
+    edt84_432: TDBEditNumero;
+    edt84_433: TDBEditNumero;
+    edt84_441: TDBEditNumero;
+    edt84_451: TDBEditNumero;
+    edt84_442: TDBEditNumero;
+    edt84_443: TDBEditNumero;
+    edt84_461: TDBEditNumero;
+    edt84_498: TDBEditNumero;
+    edt84_499: TDBEditNumero;
+    gbxResumoInventarioReceitaBruta: TGroupBox;
+    lbl90_010: TStaticText;
+    lbl90_010a020: TStaticText;
+    lbl90_020: TStaticText;
+    lbl90_030: TStaticText;
+    pnl90_010a020: TPanel;
+    lbl90_030a030: TStaticText;
+    pnl90_030a030: TPanel;
+    edt90_010: TDBEditNumero;
+    edt90_020: TDBEditNumero;
+    edt90_030: TDBEditNumero;
+    gbx91Ativo: TGroupBox;
+    lbl91_110: TStaticText;
+    lbl91_111: TStaticText;
+    lbl91_113: TStaticText;
+    lbl91_121: TStaticText;
+    lbl91_123: TStaticText;
+    lbl91_128: TStaticText;
+    lbl91_130: TStaticText;
+    lbl91_131: TStaticText;
+    lbl91_148: TStaticText;
+    lbl91_150: TStaticText;
+    lbl91_151: TStaticText;
+    lbl91_155: TStaticText;
+    lbl91_157: TStaticText;
+    lbl91_199: TStaticText;
+    pnl91_110a199: TPanel;
+    edt91_110: TDBEditNumero;
+    edt91_111: TDBEditNumero;
+    edt91_113: TDBEditNumero;
+    edt91_121: TDBEditNumero;
+    edt91_123: TDBEditNumero;
+    edt91_128: TDBEditNumero;
+    edt91_130: TDBEditNumero;
+    edt91_131: TDBEditNumero;
+    edt91_148: TDBEditNumero;
+    edt91_150: TDBEditNumero;
+    edt91_151: TDBEditNumero;
+    edt91_155: TDBEditNumero;
+    edt91_157: TDBEditNumero;
+    edt91_199: TDBEditNumero;
+    gbx92Passivo: TGroupBox;
+    lbl92_210: TStaticText;
+    lbl92_211: TStaticText;
+    lbl92_213: TStaticText;
+    lbl92_215: TStaticText;
+    lbl92_230: TStaticText;
+    lbl92_240: TStaticText;
+    lbl92_269: TStaticText;
+    lbl92_270: TStaticText;
+    lbl92_271: TStaticText;
+    lbl92_278: TStaticText;
+    lbl92_279: TStaticText;
+    lbl92_299: TStaticText;
+    pnl92_210a299: TPanel;
+    edt92_210: TDBEditNumero;
+    edt92_211: TDBEditNumero;
+    edt92_213: TDBEditNumero;
+    edt92_215: TDBEditNumero;
+    edt92_230: TDBEditNumero;
+    edt92_240: TDBEditNumero;
+    edt92_269: TDBEditNumero;
+    edt92_270: TDBEditNumero;
+    edt92_271: TDBEditNumero;
+    edt92_278: TDBEditNumero;
+    edt92_279: TDBEditNumero;
+    edt92_299: TDBEditNumero;
+    gbx83DemonstracaoResultado: TGroupBox;
+    lbl93_310: TStaticText;
+    lbl93_311: TStaticText;
+    lbl93_320: TStaticText;
+    lbl93_323: TStaticText;
+    lbl93_330: TStaticText;
+    lbl93_331: TStaticText;
+    lbl93_333: TStaticText;
+    lbl93_335: TStaticText;
+    lbl93_340: TStaticText;
+    lbl93_341: TStaticText;
+    lbl93_343: TStaticText;
+    lbl93_345: TStaticText;
+    lbl93_350: TStaticText;
+    lbl93_399: TStaticText;
+    lbl93_351: TStaticText;
+    lbl93_353: TStaticText;
+    lbl93_360: TStaticText;
+    lbl93_361: TStaticText;
+    lbl93_363: TStaticText;
+    lbl93_398: TStaticText;
+    pnl93_310a399: TPanel;
+    edt93_311: TDBEditNumero;
+    edt93_320: TDBEditNumero;
+    edt93_323: TDBEditNumero;
+    edt93_330: TDBEditNumero;
+    edt93_331: TDBEditNumero;
+    edt93_333: TDBEditNumero;
+    edt93_335: TDBEditNumero;
+    edt93_340: TDBEditNumero;
+    edt93_341: TDBEditNumero;
+    edt93_343: TDBEditNumero;
+    edt93_345: TDBEditNumero;
+    edt93_350: TDBEditNumero;
+    edt93_351: TDBEditNumero;
+    edt93_353: TDBEditNumero;
+    edt93_360: TDBEditNumero;
+    edt93_361: TDBEditNumero;
+    edt93_363: TDBEditNumero;
+    edt93_398: TDBEditNumero;
+    edt93_399: TDBEditNumero;
+    edt93_310: TDBEditNumero;
+    gbx94DetalhamentoDespesas: TGroupBox;
+    lbl94_412: TStaticText;
+    lbl94_413: TStaticText;
+    lbl94_421: TStaticText;
+    lbl94_422: TStaticText;
+    lbl94_423: TStaticText;
+    lbl94_424: TStaticText;
+    lbl94_432: TStaticText;
+    lbl94_433: TStaticText;
+    lbl94_441: TStaticText;
+    lbl94_451: TStaticText;
+    lbl94_442: TStaticText;
+    lbl94_443: TStaticText;
+    lbl94_499: TStaticText;
+    lbl94_461: TStaticText;
+    lbl94_498: TStaticText;
+    pnl94_411a499: TPanel;
+    edt94_411: TDBEditNumero;
+    edt94_412: TDBEditNumero;
+    edt94_413: TDBEditNumero;
+    edt94_421: TDBEditNumero;
+    edt94_422: TDBEditNumero;
+    edt94_423: TDBEditNumero;
+    edt94_424: TDBEditNumero;
+    edt94_432: TDBEditNumero;
+    edt94_433: TDBEditNumero;
+    edt94_441: TDBEditNumero;
+    edt94_461: TDBEditNumero;
+    edt94_498: TDBEditNumero;
+    edt94_499: TDBEditNumero;
+    edt94_442: TDBEditNumero;
+    edt94_443: TDBEditNumero;
+    edt94_451: TDBEditNumero;
+    actAtualizar: TActionList;
+    Action1: TAction;
+    ckbIncluirNFCopiaECF: TCheckBox;
+    edt08_010: TDBEditNumero;
+    edt08_980: TDBEditNumero;
+    edt08_030: TDBEditNumero;
+    edt08_990: TDBEditNumero;
+    lbl94_411: TStaticText;
+    GroupBox2: TGroupBox;
+    GroupBox3: TGroupBox;
+    lbl03_053: TStaticText;
+    lbl03_054: TStaticText;
+    lbl03_057: TStaticText;
+    edt_03_053: TEditNumero;
+    edt_03_054: TEditNumero;
+    edt_03_057: TEditNumero;
+    lbl03_103: TStaticText;
+    lbl03_104: TStaticText;
+    lbl03_199: TStaticText;
+    edt_03_103: TEditNumero;
+    edt_03_104: TEditNumero;
+    edt_03_199: TEditNumero;
+    lbl11_105: TStaticText;
+    edt11_105: TDBEditNumero;
+    edt_01_054: TEditNumero;
+    edt_01_057: TEditNumero;
+    edt_01_053: TEditNumero;
+    edt_02_103: TEditNumero;
+    edt_02_104: TEditNumero;
+    gbxCreditosPorRegimesAutorizacoesEspeciais: TGroupBox;
+    gbxDiscriminacaoPagtosImpostoDebitosEspecificos: TGroupBox;
+    gbxEntradasExtratoresProdutoresAgropecuariosPescadores: TGroupBox;
+    pn47lMunicipio: TPanel;
+    gbx47Municipio: TGroupBox;
+    gbxInformacoesParaRateioDoValorAdicionado: TGroupBox;
+    pnl48Municipio: TPanel;
+    GroupBox4: TGroupBox;
+    gbx48_Total: TGroupBox;
+    edt_48_999: TEditNumero;
+    gbxQ00_InformacoesIniciais: TGroupBox;
+    lbl11_010a: TStaticText;
+    lbl11_020a: TStaticText;
+    lbl11_030a: TStaticText;
+    lbl11_040a: TStaticText;
+    lbl11_050a: TStaticText;
+    lbl11_100a: TStaticText;
+    lbl11_100b: TStaticText;
+    lbl11_110a: TStaticText;
+    lbl11_110b: TStaticText;
+    rbn_00_090_5_ApuracaoReservaCredito: TtecRadioButton;
+    stxCooperativaAgropecuaria: TStaticText;
+    stxRecebeuCreditos: TStaticText;
+    rbn_00_100_1_NaoSeAplica: TtecRadioButton;
+    rbn_00_110_1_NaoSeAplica: TtecRadioButton;
+    stx04_990b: TStaticText;
+    stx05_990a: TStaticText;
+    stx05_990b: TStaticText;
+    stxl11_120a: TStaticText;
+    stx41_017a019: TStaticText;
+    edt41_017: TDBEditNumero;
+    stx41_017: TStaticText;
+    edt41_018: TDBEditNumero;
+    stx41_018: TStaticText;
+    edt41_019: TDBEditNumero;
+    stx41_019: TStaticText;
+    Panel1: TPanel;
+    SpeedButton1: TSpeedButton;
+    SpeedButton2: TSpeedButton;
+    SpeedButton3: TSpeedButton;
+    SpeedButton4: TSpeedButton;
+    stx41_217a219: TStaticText;
+    edt41_217: TDBEditNumero;
+    stx41_217: TStaticText;
+    edt41_218: TDBEditNumero;
+    stx41_218: TStaticText;
+    edt41_219: TDBEditNumero;
+    stx41_219: TStaticText;
+    stx41_961: TStaticText;
+    edt41_961: TDBEditNumero;
+    stx41_971: TStaticText;
+    edt41_971: TDBEditNumero;
+    stx41_981: TStaticText;
+    edt41_981: TDBEditNumero;
+    stx41_991a999: TStaticText;
+    edt41_991: TDBEditNumero;
+    stx41_991: TStaticText;
+    edt41_997: TDBEditNumero;
+    stx41_997: TStaticText;
+    Panel3: TPanel;
+    stx41_993: TStaticText;
+    edt41_993: TDBEditNumero;
+    stx41_999: TStaticText;
+    edt41_999: TDBEditNumero;
+    stx41_993a: TStaticText;
+    stx42_060: TStaticText;
+    edt42_060: TDBEditNumero;
+    stx42_050: TStaticText;
+    edt42_050: TDBEditNumero;
+    stx51_021: TStaticText;
+    edt51_021: TDBEditNumero;
+    stx51_021a: TStaticText;
+
+    procedure sbnProcuraFilialClick(Sender: TObject);
+    procedure pgcQuadrosDimeChange(Sender: TObject);
+    procedure rbn_00_050_1_Regime_SimplesClick(Sender: TObject);
+    procedure dbg_46KeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbg_47KeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbg_48KeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbg_49KeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbg_50KeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure pgcDeclaracaoComplementarAnualChange(Sender: TObject);
+    procedure pgcDeclaracaoComplEncerramentoAtivChange(Sender: TObject);
+    procedure pgcDeclaracaoChange(Sender: TObject);
+    procedure dbg_01_ValoresFiscaisEntradasKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure dbg_02_ValoresFiscaisSaidasKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure sbnAtualizarQuadro01Click(Sender: TObject);
+    procedure sbnAtualizarQuadro02Click(Sender: TObject);
+    procedure sbn05_010Click(Sender: TObject);
+    procedure sbn11_090Click(Sender: TObject);
+    procedure sbnAtualizarq08_020_dimeClick(Sender: TObject);
+    procedure sbnAtualizarq08_020_livroClick(Sender: TObject);
+    procedure sbnAtualizarq08_040_dimeClick(Sender: TObject);
+    procedure sbnAtualizarq08_040_livroClick(Sender: TObject);
+    procedure sbn41_160Click(Sender: TObject);
+    procedure sbn41_170Click(Sender: TObject);
+    procedure sbn41_180Click(Sender: TObject);
+    procedure sbn41_190Click(Sender: TObject);
+    procedure dbg_12KeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edt09_160Change(Sender: TObject);
+    procedure edt09_998Change(Sender: TObject);
+    procedure edt09_170Change(Sender: TObject);
+    procedure edt09_180Change(Sender: TObject);
+    procedure edt_00_030_PeriodoExit(Sender: TObject);
+    procedure sbnAtualizasaldosdevedoresrecebidosdeestabelecimentosconsolidadClick(
+      Sender: TObject);
+    procedure sbnAtualizasaldoscredoresrecebidosdeestabelecimentosconsolidadoClick(
+      Sender: TObject);
+    procedure Action1Update(Sender: TObject);
+    procedure ckbIncluirNFCopiaECFClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+  private
+    { Private declarations }
+    procedure VerificarQuadrosVisiveis;
+    procedure AfterUpdateDados(Sender: TObject);
+    procedure AfterUpdatePeriodo(Sender: TObject);
+
+
+  public
+    { Public declarations }
+    function  InternoIncluir: Boolean; override;
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    function  TabelaDePesquisa: TZDataSet; override;
+    function  PermitirProcura: Boolean;
+    function  TituloPesquisa(TipoProcura: TtecTabelasDIME): String;
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+    procedure CalcularItem_190_Quadro09;
+  end;
+
+var
+  frmQuadrosDIME: TfrmQuadrosDIME;
+  TipoProcura: TtecTabelasDIME;
+
+implementation
+
+uses
+  //CLX
+  {Qete,}
+  //Biblio
+  biblio,
+  //Repositorio
+  fmconsultaporcampo,
+  //Projeto
+  dmquadrosdime;
+
+{$R *.dfm}
+
+{ TfrmQuadrosDIME }
+
+
+
+constructor TfrmQuadrosDIME.Create(AOwner: TComponent);
+var na, nb: integer;
+begin
+   dtmQuadrosDIME := TdtmQuadrosdime.Create(Self);
+   inherited;
+
+   // É necessário definir height e width aqui, pois os valores retornam
+   // para 18 e 28, respectivamente se só definidos no Object Inspector.
+   // Para visulização quando fmQuadroDIME é editado, foram definidos
+   // MaxHeigth e MaxWidth.
+
+   with tstInformacoesIniciais, gbxQ00_InformacoesIniciais do
+      for na:= 0 to ControlCount - 1 do
+          if Controls[na] is TStaticText
+          then begin
+             TStaticText(Controls[na]).Height:= 14;
+             TStaticText(Controls[na]).Width := 22;
+          end;
+
+  dtmQuadrosDIME.OnUpdateDados := AfterUpdateDados;
+  dtmQuadrosDIME.OnUpdatePeriodo := AfterUpdatePeriodo;
+
+  dtmQuadrosDIME.Abre(ctLIVTabelaQuadrosDIME);
+  DataSet := dtmQuadrosDIME.TabelaQuadroDIME;
+  //VerificarQuadrosVisiveis;
+  pgcDeclaracao.ActivePageIndex:=0;
+  pgcDeclaracaoChange(pgcDeclaracao);
+end;
+
+destructor TfrmQuadrosDIME.Destroy;
+begin
+  dtmQuadrosDIME:=nil;
+  inherited;
+  frmQuadrosDIME := nil;
+end;
+
+function TfrmQuadrosDIME.InternoExcluir: Boolean;
+begin
+  Result := inherited InternoExcluir;
+  if Result then
+    if MensagemConfirmacao(Format(ctCONFIRMEEXCLUIR, [ctESTEQUADRODIME])) = smbOK then
+      Result := dtmQuadrosDIME.ExcluirQuadroDIME
+    else
+      Result := False
+end;
+
+function TfrmQuadrosDIME.InternoGravar: Boolean;
+begin
+  inherited InternoGravar;
+  if dtmQuadrosDIME.validarcreditomesseguinte then
+    Result := dtmQuadrosDIME.GravarQuadroDIME
+  else
+  begin
+    pgcDeclaracao.ActivePage := tstDeclaracaoICMS;
+    pgcQuadrosDime.ActivePage := tst_09;
+    edt09_190.SetFocus;
+    edt09_190.SelectAll;
+  end;      
+end;
+
+function TfrmQuadrosDIME.InternoIncluir: Boolean;
+begin
+  result := inherited internoincluir;
+  if result then
+    Result := dtmQuadrosDIME.IncluirQuadroDIME
+end;
+
+function TfrmQuadrosDIME.InternoPesquisar(Titulo: String): Integer;
+begin
+  Result := mrNone;
+  if PermitirProcura then begin
+    with dtmQuadrosDIME do begin
+      AbreTabelaPesquisa(tipoprocura);
+      Titulo := TituloPesquisa(tipoprocura);
+      Result:= Inherited InternoPesquisar(Titulo);
+      if Result = mrOK then
+        Selecionar(tipoProcura);
+      FechaTabelaPesquisa(tipoprocura);
+    end;
+  end;
+end;
+
+function TfrmQuadrosDIME.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa := True;
+end;
+
+function TfrmQuadrosDIME.PermitirProcura: Boolean;
+begin
+  Result := True;
+  if CtrlOn then begin
+    if flkFilial.Focused then begin
+      Result := True;
+      tipoProcura := tbFILIAIS;
+    end
+  end
+  else TipoProcura := tbQuadrosDIME;
+end;
+
+function TfrmQuadrosDIME.TabelaDePesquisa: TZDataSet;
+begin
+  if CtrlOn then
+    Result := dtmQuadrosDIME.TabelaConsultaFilial
+  else
+    Result := dtmQuadrosDIME.TabelaConsultaQuadroDIME;
+end;
+
+function TfrmQuadrosDIME.TituloPesquisa(
+  TipoProcura: TtecTabelasDIME): String;
+begin
+  case TipoProcura of
+    tbQuadrosDIME : Result := ctQUADROSDIME;
+    tbFILIAIS     : Result := ctFILIAIS;
+  end;
+end;
+
+procedure TfrmQuadrosDIME.sbnProcuraFilialClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:=True;
+  flkFilial.SetFocus;
+  internopesquisar(ctFILIAL);
+end;
+
+procedure TfrmQuadrosDIME.pgcQuadrosDimeChange(Sender: TObject);
+begin
+  inherited;
+  lblQuadro.Caption := pgcQuadrosDime.ActivePage.Hint;
+end;
+
+procedure TfrmQuadrosDIME.VerificarQuadrosVisiveis;
+begin
+  tst_04.TabVisible := rbn_00_050_2_Regime_Normal.Checked or
+                       rbn_00_050_5_Regime_ProdutorPrimario.Checked;
+                       
+  tst_05.TabVisible := rbn_00_050_2_Regime_Normal.Checked or
+                       rbn_00_050_5_Regime_ProdutorPrimario.Checked;
+  tst_06.TabVisible := rbn_00_050_1_Regime_Simples.Checked;
+  tst_07.TabVisible := rbn_00_050_4_Regime_BaresRestaurantesSimilares.Checked;
+  tst_08.TabVisible := rbn_00_050_3_Regime_EstimativaFiscal.Checked;
+  tst_11.TabVisible := rbn_00_130_1_SubstTribut_Sim.Checked or
+                       rbn_00_130_3_SubstTribut_SubstituidoSolidario.Checked;
+  tst_41.TabVisible := rbn_00_050_2_Regime_Normal.Checked or
+                       rbn_00_050_5_Regime_ProdutorPrimario.Checked;
+  tst_42.TabVisible := rbn_00_050_2_Regime_Normal.Checked or
+                       rbn_00_050_5_Regime_ProdutorPrimario.Checked;
+  tst_43.TabVisible := rbn_00_050_2_Regime_Normal.Checked or
+                       rbn_00_050_5_Regime_ProdutorPrimario.Checked;
+  tst_44.TabVisible := rbn_00_050_2_Regime_Normal.Checked or
+                       rbn_00_050_5_Regime_ProdutorPrimario.Checked or
+                       rbn_00_050_1_Regime_Simples.Checked or
+                       rbn_00_050_4_Regime_BaresRestaurantesSimilares.Checked;
+  tst_45.TabVisible := rbn_00_050_2_Regime_Normal.Checked or
+                       rbn_00_050_5_Regime_ProdutorPrimario.Checked;
+  tst_48.TabVisible := rbn_00_050_2_Regime_Normal.Checked or
+                       rbn_00_050_1_Regime_Simples.Checked;
+  tst_81.TabVisible := rbn_00_140_1_TemEscritaContabil_Sim.Checked or
+                       rbn_00_140_3_TemEscritaContabil_Sim_diep.Checked;
+  tst_82.TabVisible := rbn_00_140_1_TemEscritaContabil_Sim.Checked or
+                       rbn_00_140_3_TemEscritaContabil_Sim_diep.Checked;
+  tst_83.TabVisible := rbn_00_140_1_TemEscritaContabil_Sim.Checked or
+                       rbn_00_140_3_TemEscritaContabil_Sim_diep.Checked;
+  tst_91.TabVisible := rbn_00_140_1_TemEscritaContabil_Sim.Checked or
+                       rbn_00_140_3_TemEscritaContabil_Sim_diep.Checked;
+  tst_92.TabVisible := rbn_00_140_1_TemEscritaContabil_Sim.Checked or
+                       rbn_00_140_3_TemEscritaContabil_Sim_diep.Checked;
+  tst_93.TabVisible := rbn_00_140_1_TemEscritaContabil_Sim.Checked or
+                       rbn_00_140_3_TemEscritaContabil_Sim_diep.Checked;
+end;
+
+procedure TfrmQuadrosDIME.rbn_00_050_1_Regime_SimplesClick(
+  Sender: TObject);
+begin
+  inherited;
+  VerificarQuadrosVisiveis;
+end;
+
+procedure TfrmQuadrosDIME.AfterUpdateDados(Sender: TObject);
+begin
+//  if (dtmQuadrosDIME.TabelaQuadroDIME.state in [dsedit, dsinsert]) then
+//  begin
+    edt_00_030_Periodo.Text := dtmQuadrosDIME.Periodo;
+    dtmQuadrosDIME.LerTotaisq_01;
+    edt_03_010.Text := FormatarValor(dtmQuadrosDIME.q_01_valornota,2);
+    edt_03_020.Text := FormatarValor(dtmQuadrosDIME.q_01_base,2);
+    edt_03_030.Text := FormatarValor(dtmQuadrosDIME.q_01_valor,2);
+    edt_03_040.Text := FormatarValor(dtmQuadrosDIME.q_01_isentas,2);
+    edt_03_050.Text := FormatarValor(dtmQuadrosDIME.q_01_outras,2);
+
+    edt_03_053.Text := FormatarValor(dtmQuadrosDIME.q_01_icmsbasecalculost,2);
+    edt_03_054.Text := FormatarValor(dtmQuadrosDIME.q_01_icmsvalorst,2);
+    edt_03_057.Text := FormatarValor(dtmQuadrosDIME.q_01_vcredicmssn,2);
+
+    edt_01_010.Text := FormatarValor(dtmQuadrosDIME.q_01_valornota,2);
+    edt_01_020.Text := FormatarValor(dtmQuadrosDIME.q_01_base,2);
+    edt_01_030.Text := FormatarValor(dtmQuadrosDIME.q_01_valor,2);
+    edt_01_040.Text := FormatarValor(dtmQuadrosDIME.q_01_isentas,2);
+    edt_01_050.Text := FormatarValor(dtmQuadrosDIME.q_01_outras,2);
+
+    edt_01_053.Text := FormatarValor(dtmQuadrosDIME.q_01_icmsbasecalculost,2);
+    edt_01_054.Text := FormatarValor(dtmQuadrosDIME.q_01_icmsvalorst,2);
+    edt_01_057.Text := FormatarValor(dtmQuadrosDIME.q_01_vcredicmssn,2);
+
+    dtmQuadrosDIME.LerTotaisq_02;
+    edt_03_060.Text := FormatarValor(dtmQuadrosDIME.q_02_valornota,2);
+    edt_03_070.Text := FormatarValor(dtmQuadrosDIME.q_02_base,2);
+    edt_03_080.Text := FormatarValor(dtmQuadrosDIME.q_02_valor,2);
+    edt_03_090.Text := FormatarValor(dtmQuadrosDIME.q_02_isentas,2);
+    edt_03_100.Text := FormatarValor(dtmQuadrosDIME.q_02_outras,2);
+    edt_03_103.Text := FormatarValor(dtmQuadrosDIME.q_02_icmsbasecalculost,2);
+    edt_03_104.Text := FormatarValor(dtmQuadrosDIME.q_02_icmsvalorst,2);
+
+
+    edt_02_060.Text := FormatarValor(dtmQuadrosDIME.q_02_valornota,2);
+    edt_02_070.Text := FormatarValor(dtmQuadrosDIME.q_02_base,2);
+    edt_02_080.Text := FormatarValor(dtmQuadrosDIME.q_02_valor,2);
+    edt_02_090.Text := FormatarValor(dtmQuadrosDIME.q_02_isentas,2);
+    edt_02_100.Text := FormatarValor(dtmQuadrosDIME.q_02_outras,2);
+
+    edt_02_103.Text := FormatarValor(dtmQuadrosDIME.q_02_icmsbasecalculost,2);
+    edt_02_104.Text := FormatarValor(dtmQuadrosDIME.q_02_icmsvalorst,2);
+
+    edt_46_999.Text := FormatarValor(dtmQuadrosDIME.q_46_999_totalregimeespecial,2);
+    edt_47_999.Text := FormatarValor(dtmQuadrosDIME.q_47_999_compraexproagrop,2);
+    edt_48_999.Text := FormatarValor(dtmQuadrosDIME.q_48_999_recprestservfornenereletrica,2);
+
+    dtmQuadrosDIME.LerTotaisq_49;
+    edt_49_valorcontabil.Text := FormatarValor(dtmQuadrosDIME.q_49_valorcontabil,2);
+    edt_49_basedecalculo.Text := FormatarValor(dtmQuadrosDIME.q_49_basedecalculo,2);
+    edt_49_outras.Text := FormatarValor(dtmQuadrosDIME.q_49_outras,2);
+    edt_49_icmsretido1.Text := FormatarValor(dtmQuadrosDIME.q_49_icmsretsubtrib1,2);
+    edt_49_icmsretido2.Text := FormatarValor(dtmQuadrosDIME.q_49_icmsretsubtrib2,2);
+
+    dtmQuadrosDIME.LerTotaisq_50;
+    edt_50_valorcontabilnaocontribuinte.Text := FormatarValor(dtmQuadrosDIME.q_50_valorcontabilnaocontribuinte,2);
+    edt_50_valorcontabilcontribuinte.Text := FormatarValor(dtmQuadrosDIME.q_50_valorcontabilcontribuinte,2);
+    edt_50_basedecalculonaocontribuinte.Text := FormatarValor(dtmQuadrosDIME.q_50_basedecalculonaocontribuinte,2);
+    edt_50_basedecalculocontribuinte.Text := FormatarValor(dtmQuadrosDIME.q_50_basedecalculocontribuinte,2);
+    edt_50_outras.Text := FormatarValor(dtmQuadrosDIME.q_50_outras,2);
+    edt_50_icmsretidosubstrib.Text := FormatarValor(dtmQuadrosDIME.q_50_icmsretidosubstrib,2);
+// end;
+
+
+end;
+
+procedure TfrmQuadrosDIME.dbg_46KeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if (key = VK_Return) or
+     (key = VK_Return) then
+   dtmQuadrosDIME.Gravarq46_RegimeEspecial;
+end;
+
+procedure TfrmQuadrosDIME.dbg_47KeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if (key = VK_Return) or
+     (key = VK_Return) then
+   dtmQuadrosDIME.Gravarq47_compraexproagrop;
+end;
+
+procedure TfrmQuadrosDIME.dbg_48KeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if (key = VK_Return) or
+     (key = VK_Return) then
+   dtmQuadrosDIME.Gravarq48_recprestservfornenereletrica;
+
+end;
+
+procedure TfrmQuadrosDIME.dbg_49KeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if (key = VK_Return) or
+     (key = VK_Return) then
+   dtmQuadrosDIME.Gravarq49_entmercbensaqservicos;
+end;
+
+procedure TfrmQuadrosDIME.dbg_50KeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if (key = VK_Return) or
+     (key = VK_Return) then
+   dtmQuadrosDIME.Gravarq50_saimercforneletrservicos;
+end;
+
+procedure TfrmQuadrosDIME.pgcDeclaracaoComplementarAnualChange(
+  Sender: TObject);
+begin
+  inherited;
+  lblQuadro.Caption := pgcDeclaracaoComplementarAnual.ActivePage.Hint;
+end;
+
+procedure TfrmQuadrosDIME.pgcDeclaracaoComplEncerramentoAtivChange(
+  Sender: TObject);
+begin
+  inherited;
+  lblQuadro.Caption := pgcDeclaracaoComplEncerramentoAtiv.ActivePage.Hint;
+end;
+
+procedure TfrmQuadrosDIME.pgcDeclaracaoChange(Sender: TObject);
+begin
+  inherited;
+  case pgcDeclaracao.ActivePageIndex of
+  0: lblQuadro.Caption := '';
+  1: pgcQuadrosDimeChange(pgcquadrosdime);
+  2: pgcDeclaracaoComplementarAnualChange(pgcDeclaracaoComplementarAnual);
+  3: pgcDeclaracaoComplEncerramentoAtivChange(pgcDeclaracaoComplEncerramentoAtiv);
+  4: lblQuadro.Caption := '';
+  end;
+end;
+
+procedure TfrmQuadrosDIME.dbg_01_ValoresFiscaisEntradasKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (key = VK_Return) or
+     (key = VK_Return) then
+   dtmQuadrosDIME.Gravarq01_NotasEntradasCalculos;
+end;
+
+procedure TfrmQuadrosDIME.dbg_02_ValoresFiscaisSaidasKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (key = VK_Return) or
+     (key = VK_Return) then
+   dtmQuadrosDIME.Gravarq02_NotasSaidasCalculos;
+end;
+
+procedure TfrmQuadrosDIME.sbnAtualizarQuadro01Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao(sbnAtualizarQuadro01.Hint + '?')= smbOK then
+  begin
+   dtmQuadrosDIME.Atualizaq_01;
+   dtmQuadrosDIME.Atualizaq_49;
+  end;
+end;
+
+procedure TfrmQuadrosDIME.sbnAtualizarQuadro02Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao(sbnAtualizarQuadro02.Hint + '?') = smbOK then
+  begin
+   dtmQuadrosDIME.qryNotasSaidasCalculos.Close;
+   dtmQuadrosDIME.Atualizaq_02;
+   dtmQuadrosDIME.LerTotaisq_02;
+
+   dtmQuadrosDIME.qryNotasSaidasTotalUF.Close;
+   dtmQuadrosDIME.Atualizaq_50;
+  end;
+end;
+
+procedure TfrmQuadrosDIME.sbn05_010Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao(sbn05_010.Hint + '?') = smbOK then
+    dtmQuadrosDIME.AtualizaSaldoCredorMesAnterior;
+end;
+
+procedure TfrmQuadrosDIME.sbn11_090Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao(sbn11_090.Hint + '?') = smbOK then
+    dtmQuadrosDIME.AtualizaSaldoCredorMesAnteriorSubstTribut;
+end;
+
+procedure TfrmQuadrosDIME.sbnAtualizarq08_020_dimeClick(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao(sbnAtualizarq08_020_dime.Hint + '?') = smbOK then
+    dtmQuadrosDIME.AtualizaSaldoDevedorEstimativa_dime;
+end;
+
+procedure TfrmQuadrosDIME.sbnAtualizarq08_020_livroClick(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao(sbnAtualizarq08_020_livro.Hint + '?') = smbOK then
+    dtmQuadrosDIME.AtualizaSaldoDevedorEstimativa_livrossaidas;
+end;
+
+procedure TfrmQuadrosDIME.sbnAtualizarq08_040_dimeClick(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao(sbnAtualizarq08_040_dime.Hint + '?') = smbOK then
+    dtmQuadrosDIME.AtualizaSaldoCredorEstimativa_dime;
+
+end;
+
+procedure TfrmQuadrosDIME.sbnAtualizarq08_040_livroClick(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao(sbnAtualizarq08_040_livro.Hint + '?') = smbOK then
+    dtmQuadrosDIME.AtualizaSaldoCredorEstimativa_livroentradas;
+end;
+
+
+procedure TfrmQuadrosDIME.sbn41_160Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao(sbn41_160.Hint + '?') = smbOK then
+    dtmQuadrosDIME.Atualizaq_41_160_saldocredtransfmesantrelexpo;
+end;
+
+procedure TfrmQuadrosDIME.sbn41_170Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao(sbn41_170.Hint + '?') = smbOK then
+    dtmQuadrosDIME.Atualizaq_41_170_salcredtranmesantrelsaiisent;
+end;
+
+procedure TfrmQuadrosDIME.sbn41_180Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao(sbn41_180.Hint + '?') = smbOK then
+    dtmQuadrosDIME.Atualizaq_41_180_salcredtranmesantrelsaidifer;
+end;
+
+procedure TfrmQuadrosDIME.sbn41_190Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao(sbn41_190.Hint) = smbOK then
+    dtmQuadrosDIME.Atualizaq_41_190_salcredmesantreloutcredntran;
+end;
+
+procedure TfrmQuadrosDIME.dbg_12KeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if (key = VK_Return) or
+     (key = VK_Return) then
+   dtmQuadrosDIME.Gravarq12_DiscrPagtos;
+
+end;
+
+
+procedure TfrmQuadrosDIME.edt09_160Change(Sender: TObject);
+begin
+  inherited;
+  CalcularItem_190_Quadro09;
+
+end;
+
+procedure TfrmQuadrosDIME.CalcularItem_190_Quadro09;
+begin
+   with dtmQuadrosDIME do begin
+     qryQuadrosDIMEq09_190_saldocredordeoutroscreditos.AsCurrency :=
+       qryQuadrosDIMEq09_998_SaldoCredPerSeguinte_calculado.AsCurrency -
+       (qryQuadrosDIMEq09_160_saldocredorcredrelexport.AsCurrency +
+        qryQuadrosDIMEq09_170_saldocredorcredrelsaidisent.AsCurrency +
+        qryQuadrosDIMEq09_180_saldocredorcredrelsaidif.AsCurrency);
+   end;
+end;
+
+
+procedure TfrmQuadrosDIME.edt09_998Change(Sender: TObject);
+begin
+  inherited;
+  CalcularItem_190_Quadro09;
+end;
+
+procedure TfrmQuadrosDIME.edt09_170Change(Sender: TObject);
+begin
+  inherited;
+  CalcularItem_190_Quadro09;
+end;
+
+procedure TfrmQuadrosDIME.edt09_180Change(Sender: TObject);
+begin
+  inherited;
+  CalcularItem_190_Quadro09;
+end;
+
+procedure TfrmQuadrosDIME.edt_00_030_PeriodoExit(Sender: TObject);
+begin
+  inherited;
+  if StrToDate('01/'+edt_00_030_Periodo.Text) >= StrToDate('01/04/2008') then
+  begin
+    rbn_00_110_1_NaoSeAplica.                 Enabled := true;
+    rbn_00_110_1_TemCreditosIncentFiscais_Sim.Enabled := false;
+    rbn_00_110_2_TemCreditosIncentFiscais_Nao.Enabled := false;
+    rbn_00_110_3_InformacaoDesnecessaria.Enabled      := false;
+    rbn_00_110_3_InformacaoDesnecessaria.Checked      := false;
+  end
+  else
+  begin
+    rbn_00_110_1_NaoSeAplica.                 Enabled := false;
+    rbn_00_110_1_TemCreditosIncentFiscais_Sim.Enabled := true;
+    rbn_00_110_2_TemCreditosIncentFiscais_Nao.Enabled := true;
+    rbn_00_110_3_InformacaoDesnecessaria.Enabled := false;
+    rbn_00_110_3_InformacaoDesnecessaria.Checked := false;
+  end;
+
+end;
+
+procedure TfrmQuadrosDIME.sbnAtualizasaldosdevedoresrecebidosdeestabelecimentosconsolidadClick(
+  Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao(sbnAtualizasaldosdevedoresrecebidosdeestabelecimentosconsolidad.Hint + '?')= smbOK then
+    dtmQuadrosDIME.Atualizaq_11saldosdevedoresrecebidosdeestabelecimentosconsolidados;
+end;
+
+procedure TfrmQuadrosDIME.sbnAtualizasaldoscredoresrecebidosdeestabelecimentosconsolidadoClick(
+  Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao(sbnAtualizasaldoscredoresrecebidosdeestabelecimentosconsolidado.Hint + '?')= smbOK then
+    dtmQuadrosDIME.Atualizaq_11saldoscredoresrecebidosdeestabelecimentosconsolidados;
+end;
+
+procedure TfrmQuadrosDIME.AfterUpdatePeriodo(Sender: TObject);
+begin
+{  tstDeclaracaoComplementarAnual.TabVisible := copy(edt_00_030_Periodo.Text,1,2)='06';}
+  tstDeclaracaoComplementarAnual.TabVisible := (copy(dtmQuadrosDIME.qryQuadrosDIMEperiodo.AsString,1,2)='06') or
+                                               (dtmQuadrosDIME.qryQuadrosDIME.state=dsinsert);
+
+end;
+
+procedure TfrmQuadrosDIME.Action1Update(Sender: TObject);
+begin
+  inherited;
+  with dtmQuadrosDIME do begin
+(*   lbl11_010.Enabled := qryQuadrosDIMEperiodo.AsString < '2013-08';
+     lbl11_020.Enabled := qryQuadrosDIMEperiodo.AsString < '2013-08';
+     lbl11_030.Enabled := qryQuadrosDIMEperiodo.AsString < '2013-08';
+     lbl11_040.Enabled := qryQuadrosDIMEperiodo.AsString < '2013-08';
+     lbl11_050.Enabled := qryQuadrosDIMEperiodo.AsString < '2013-08';
+     lbl11_100.Enabled := qryQuadrosDIMEperiodo.AsString < '2013-08';
+     lbl11_100a.Enabled:= qryQuadrosDIMEperiodo.AsString < '2013-08';
+     lbl11_100b.Enabled:= qryQuadrosDIMEperiodo.AsString < '2013-08';
+     lbl11_110.Enabled := qryQuadrosDIMEperiodo.AsString < '2013-08';
+     lbl11_110a.Enabled:= qryQuadrosDIMEperiodo.AsString < '2013-08';
+     lbl11_110b.Enabled:= qryQuadrosDIMEperiodo.AsString < '2013-08';
+
+     edt11_010.Enabled := qryQuadrosDIMEperiodo.AsString < '2013-08';
+     edt11_020.Enabled := qryQuadrosDIMEperiodo.AsString < '2013-08';
+     edt11_030.Enabled := qryQuadrosDIMEperiodo.AsString < '2013-08';
+     edt11_040.Enabled := qryQuadrosDIMEperiodo.AsString < '2013-08';
+     edt11_050.Enabled := qryQuadrosDIMEperiodo.AsString < '2013-08';
+     edt11_100.Enabled := qryQuadrosDIMEperiodo.AsString < '2013-08';
+     edt11_110.Enabled := qryQuadrosDIMEperiodo.AsString < '2013-08';
+*)
+     lbl83_330.Enabled := qryQuadrosDIMEq83_051_LucroBruto.               Value <> 0;
+     lbl83_331.Enabled := qryQuadrosDIMEq83_331_PrejuizoBruto.            Value <> 0;
+     lbl83_340.Enabled := qryQuadrosDIMEq83_053_LucroPrejuizoOperacional. Value <> 0;
+     lbl83_341.Enabled := qryQuadrosDIMEq83_341_PrejuizoOperacional.      Value <> 0;
+     lbl83_350.Enabled := qryQuadrosDIMEq83_057_ResultadoAntesDoIR.       Value <> 0;
+     lbl83_351.Enabled := qryQuadrosDIMEq83_351_ResultadoNegAntesDoIR.    Value <> 0;
+     lbl83_360.Enabled := qryQuadrosDIMEq83_056_SaldoDaContaCorrecaoMonet.Value <> 0;
+     lbl83_361.Enabled := qryQuadrosDIMEq83_059_ResultadoAposoIR.         Value <> 0;
+     lbl83_398.Enabled := qryQuadrosDIMEq83_398_PrejuizodoExercicio.      Value <> 0;
+     lbl83_399.Enabled := qryQuadrosDIMEq83_061_LucroouPrejuizo.          Value <> 0;
+
+     edt83_330.Enabled := qryQuadrosDIMEq83_051_LucroBruto.               Value <> 0;
+     edt83_331.Enabled := qryQuadrosDIMEq83_331_PrejuizoBruto.            Value <> 0;
+     edt83_340.Enabled := qryQuadrosDIMEq83_053_LucroPrejuizoOperacional. Value <> 0;
+     edt83_341.Enabled := qryQuadrosDIMEq83_341_PrejuizoOperacional.      Value <> 0;
+     edt83_350.Enabled := qryQuadrosDIMEq83_057_ResultadoAntesDoIR.       Value <> 0;
+     edt83_351.Enabled := qryQuadrosDIMEq83_351_ResultadoNegAntesDoIR.    Value <> 0;
+     edt83_360.Enabled := qryQuadrosDIMEq83_056_SaldoDaContaCorrecaoMonet.Value <> 0;
+     edt83_361.Enabled := qryQuadrosDIMEq83_059_ResultadoAposoIR.         Value <> 0;
+     edt83_398.Enabled := qryQuadrosDIMEq83_398_PrejuizodoExercicio.      Value <> 0;
+     edt83_399.Enabled := qryQuadrosDIMEq83_061_LucroouPrejuizo.          Value <> 0;
+
+     lbl93_330.Enabled := qryQuadrosDIMEq93_051_LucroBruto.               Value <> 0;
+     lbl93_331.Enabled := qryQuadrosDIMEq93_331_PrejuizoBruto.            Value <> 0;
+     lbl93_340.Enabled := qryQuadrosDIMEq93_053_LucroPrejuizooperacional. Value <> 0;
+     lbl93_341.Enabled := qryQuadrosDIMEq93_341_Prejuizooperacional.      Value <> 0;
+     lbl93_350.Enabled := qryQuadrosDIMEq93_057_Resultadoantesdoir.       Value <> 0;
+     lbl93_351.Enabled := qryQuadrosDIMEq93_351_ResultadoNegAntesDoIR.    Value <> 0;
+     lbl93_360.Enabled := qryQuadrosDIMEq93_056_SaldoDaContaCorrecaoMonet.Value <> 0;
+     lbl93_361.Enabled := qryQuadrosDIMEq93_059_ResultadoAposoIR.         Value <> 0;
+     lbl93_398.Enabled := qryQuadrosDIMEq93_398_PrejuizodoExercicio.      Value <> 0;
+     lbl93_399.Enabled := qryQuadrosDIMEq93_061_LucroouPrejuizo.          Value <> 0;
+
+     edt93_330.Enabled := qryQuadrosDIMEq93_051_LucroBruto.               Value <> 0;
+     edt93_331.Enabled := qryQuadrosDIMEq93_331_PrejuizoBruto.            Value <> 0;
+     edt93_340.Enabled := qryQuadrosDIMEq93_053_LucroPrejuizooperacional. Value <> 0;
+     edt93_341.Enabled := qryQuadrosDIMEq93_341_Prejuizooperacional.      Value <> 0;
+     edt93_350.Enabled := qryQuadrosDIMEq93_057_Resultadoantesdoir.       Value <> 0;
+     edt93_351.Enabled := qryQuadrosDIMEq93_351_ResultadoNegAntesDoIR.    Value <> 0;
+     edt93_360.Enabled := qryQuadrosDIMEq93_056_SaldoDaContaCorrecaoMonet.Value <> 0;
+     edt93_361.Enabled := qryQuadrosDIMEq93_059_ResultadoAposoIR.         Value <> 0;
+     edt93_398.Enabled := qryQuadrosDIMEq93_398_PrejuizodoExercicio.      Value <> 0;
+     edt93_399.Enabled := qryQuadrosDIMEq93_061_LucroouPrejuizo.          Value <> 0;
+  end;
+end;
+
+procedure TfrmQuadrosDIME.ckbIncluirNFCopiaECFClick(Sender: TObject);
+begin
+  inherited;
+  dtmQuadrosDIME.IncluirNFCopiaECF := ckbIncluirNFCopiaECF.checked;
+  sbnAtualizarQuadro02Click(nil);
+end;
+
+procedure TfrmQuadrosDIME.FormShow(Sender: TObject);
+begin
+  inherited;
+  VerificarQuadrosVisiveis;
+end;
+
+end.

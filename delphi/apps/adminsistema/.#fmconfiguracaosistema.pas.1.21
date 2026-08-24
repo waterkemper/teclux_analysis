@@ -1,0 +1,1512 @@
+unit fmconfiguracaosistema;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs, Printers,
+  StdCtrls, ExtCtrls, Buttons, ComCtrls, clparametrossistema, Windows, {Qete,}
+  //Biblio
+  ctconstantes,
+  //componetes
+  cppagecontrol,
+  //Repositorio
+  fmnavcontroles, cptexto, cpnumero, cpdbradiogroup, DB, ZQuery, dmtecsoft, dmbasico,
+  ZPgSqlQuery, cpquery, cpdatasource, Grids, DBGrids, cpdbgrid, ToolWin, FileCtrl,
+  Spin;
+
+type
+  TfrmConfiguracoesSistema = class(TfrmNavControles)
+    pnlFundoJanela: TPanel;
+    pgcPreferencias: TtecPageControl;
+    tstECF: TTabSheet;
+    lblSerieECF: TLabel;
+    lblNumeroECF: TLabel;
+    sbnVerificaECF: TSpeedButton;
+    lblSerieECF1: TLabel;
+    lblNumeroECF1: TLabel;
+    lblMarca: TLabel;
+    lblMarca1: TLabel;
+    tstImpressoraCheque: TTabSheet;
+    cmbModeloImpressoraCheque: TComboBox;
+    cmbTipoPorta: TComboBox;
+    edtNumeroPortaImpCheque: TEditNumero;
+    lblPortaSerial: TLabel;
+    lblECF: TLabel;
+    cmbECF: TComboBox;
+    edtPortaSerial: TEditNumero;
+    tstCaixa: TTabSheet;
+    edtMaxColAutenticadora: TEditNumero;
+    tstEtiquetas: TTabSheet;
+    gbxTipoImpressora: TGroupBox;
+    rbnRabbit: TRadioButton;
+    rbnZebra: TRadioButton;
+    rbnMatricial: TRadioButton;
+    rbnJato: TRadioButton;
+    cmbImpEtiqueta: TComboBox;
+    rbnNenhum: TRadioButton;
+    tstOutrasImpressoras: TTabSheet;
+    gbsImpressoras: TGroupBox;
+    cmbImpNotaFiscalMercadorias: TComboBox;
+    cmbImpCarne: TComboBox;
+    cmbImpBoleto: TComboBox;
+    tblBarra: TToolBar;
+    sbnAjuda: TSpeedButton;
+    bbnCancelar: TSpeedButton;
+    bbnOK: TSpeedButton;
+    tbnDivisor: TToolButton;
+    cmbImpFechamentoCaixa: TComboBox;
+    rgpAutenticadoras: TRadioGroup;
+    ckbAutenticarECF: TCheckBox;
+    cmbImpContrato: TComboBox;
+    ckbImprimirCarneECF: TCheckBox;
+    tstNFe: TTabSheet;
+    gbxDirEnvio: TGroupBox;
+    lblDirEnvio: TLabel;
+    sbnDirEnvio: TSpeedButton;
+    gbxDirRetorno: TGroupBox;
+    sbnDirRetorno: TSpeedButton;
+    lblDirRetorno: TLabel;
+    gbxDirEnviados: TGroupBox;
+    sbnDirEnviados: TSpeedButton;
+    gbxDirErros: TGroupBox;
+    sbnDirErros: TSpeedButton;
+    lblDirErros: TLabel;
+    gbxTipoEmissao: TGroupBox;
+    rbnNFeNormal: TRadioButton;
+    rbnNFeContFormSeg: TRadioButton;
+    rbnNFeContScan: TRadioButton;
+    rbnNFeContEletronica: TRadioButton;
+    ckbVisualizarImpressaoDANFE: TCheckBox;
+    lblDirEnviados: TLabel;
+    gbxAmbienteNFe: TGroupBox;
+    rbnNFeProducao: TRadioButton;
+    rbnNFeHomologacao: TRadioButton;
+    gbxCompartilhamentoXML: TGroupBox;
+    lblDirCompartilhamento: TLabel;
+    sbnDirCompartilhamento: TSpeedButton;
+    edtNFeNVias: TEditNumero;
+    gbxNFeLogotipo: TGroupBox;
+    lblNFeLogotipo: TLabel;
+    sbnNFeLogotipo: TSpeedButton;
+    tstProducao: TTabSheet;
+    gbxDirPCP: TGroupBox;
+    sbnDirPCP: TSpeedButton;
+    lblDirPCP: TLabel;
+    gbxTEF: TGroupBox;
+    pgcTipoTEF: TPageControl;
+    tstTEFDedicado: TTabSheet;
+    lblLojaTEF: TLabel;
+    lblIPTEF: TLabel;
+    lblMensagemTEF: TLabel;
+    edtLojaTEF: TEditTexto;
+    edtIPTEF: TEditTexto;
+    edtMensagemTEF: TEditTexto;
+    edtTerminalTEF: TEditTexto;
+    lblTerminalTEF: TLabel;
+    tstTEFDiscado: TTabSheet;
+    sbnTEFReq: TSpeedButton;
+    sbnTEFResp: TSpeedButton;
+    sbnTEFExec: TSpeedButton;
+    lblTEFRequisicao: TLabel;
+    lblTEFResposta: TLabel;
+    lblTEFPrograma: TLabel;
+    lblTEFArqRequisicao: TLabel;
+    lblTEFArqResposta: TLabel;
+    lblTEFArqPrograma: TLabel;
+    lblNroViasTEF: TLabel;
+    edtNroViasTEF: TEditNumero;
+    tstTEFNenhum: TTabSheet;
+    rgpTipoTEF: TRadioGroup;
+    dlgExecTEF: TOpenDialog;
+    OpenDialog1: TOpenDialog;
+    gbxExecutavelUniNFe: TGroupBox;
+    sbnExecutavelUniNFe: TSpeedButton;
+    lblExecutavelUniNFe: TLabel;
+    gbxExecutavelUniDANFE: TGroupBox;
+    sbnExecutavelUniDANFE: TSpeedButton;
+    lblExecutavelUniDANFE: TLabel;
+    tstDiretorios: TTabSheet;
+    pgcDiretorios: TPageControl;
+    tstSped: TTabSheet;
+    gbxSpedFiscal: TGroupBox;
+    sbnSPEDFiscal: TSpeedButton;
+    lblSPEDFiscal: TLabel;
+    gbxSpedContabil: TGroupBox;
+    sbnSPEDContabil: TSpeedButton;
+    lblSPEDContabil: TLabel;
+    tstOutros: TTabSheet;
+    gbxDirExportacao: TGroupBox;
+    sbnDirExportacao: TSpeedButton;
+    lblDirExportacao: TLabel;
+    gbxImpressorasIndustria: TGroupBox;
+    cmbImpSetupProcesso: TComboBox;
+    cmbImpControleProcesso: TComboBox;
+    pgcNFE: TPageControl;
+    tstConfiguracaoNFE: TTabSheet;
+    tstContingenciaNFE: TTabSheet;
+    gbxContingencias: TGroupBox;
+    dbgContingencias: TtecDBGrid;
+    dsrContingencias: TtecDataSource;
+    qryContingencias: TtecQuery;
+    qryContingenciasdatahorainicial: TDateTimeField;
+    qryContingenciasdatahorafinal: TDateTimeField;
+    qryContingenciasrazao: TStringField;
+    ckbImprimirLineFeedImpressoraMatricial: TCheckBox;
+    cmbImpOSP: TComboBox;
+    cmbImpNotaFiscalServicos: TComboBox;
+    rbnArgox: TRadioButton;
+    gbxImpressora: TGroupBox;
+    gbxEFDContribuicoes: TGroupBox;
+    sbnEFDContribuicoes: TSpeedButton;
+    lblEFDContribuicoes: TLabel;
+    gbxFCONT: TGroupBox;
+    sbnFCONT: TSpeedButton;
+    lblFCONT: TLabel;
+    gbxNrVias: TGroupBox;
+    gbxModeloImpressoraCheque: TGroupBox;
+    gbxPortaCheque: TGroupBox;
+    gbxTipoPortaCheque: TGroupBox;
+    gbxNrPortaCheque: TGroupBox;
+    gbxNrMaxColunas: TGroupBox;
+    lblNrMaximo: TLabel;
+    stxAtutenticadora: TStaticText;
+    gbxOSP: TGroupBox;
+    gbxSetUp: TGroupBox;
+    gbxControleProcesso: TGroupBox;
+    gbxNFMercadorias: TGroupBox;
+    gbxNFServicos: TGroupBox;
+    gbxCarnes: TGroupBox;
+    gbxBoleto: TGroupBox;
+    gbxCaixa: TGroupBox;
+    gbxContratos: TGroupBox;
+    gbxIntensidadeImpressao: TGroupBox;
+    lblIntensidadeImpressao: TLabel;
+    spnIntensidadeImpressao: TSpinEdit;
+    tstNFSe: TTabSheet;
+    gbxDirEnvioNFSe: TGroupBox;
+    sbnDirEnvioNFSe: TSpeedButton;
+    lblDirEnvioNFSe: TLabel;
+    gbxDirRetornoNFSe: TGroupBox;
+    sbnDirRetornoNFSe: TSpeedButton;
+    lblDirRetornoNFSe: TLabel;
+    gbxAmbienteNFSe: TGroupBox;
+    rbnNFSeProducao: TRadioButton;
+    rbnNFSeHomologacao: TRadioButton;
+    gbxDirErrosNFSe: TGroupBox;
+    sbnDirErrosNFSe: TSpeedButton;
+    lblDirErrosNFSe: TLabel;
+    Timer1: TTimer;
+    gbxDirNotasEntrada: TGroupBox;
+    sbnDirNotasEntrada: TSpeedButton;
+    lblDirNotasEntrada: TLabel;
+    gbxCertificadoDigitalNFSe: TGroupBox;
+    lblCertificadoDigitalNFSe: TLabel;
+    sbnCertificadoDigital: TSpeedButton;
+    procedure sbnApagarClick(Sender: TObject);
+    procedure sbnVerificaECFClick(Sender: TObject);
+    procedure cmbModeloImpressoraChequeChange(Sender: TObject);
+    procedure bbnOKClick(Sender: TObject);
+    procedure bbnCancelarClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormDestroy(Sender: TObject);
+    procedure sbnDirEnvioClick(Sender: TObject);
+    procedure sbnDirRetornoClick(Sender: TObject);
+    procedure sbnDirEnviadosClick(Sender: TObject);
+    procedure sbnDirErrosClick(Sender: TObject);
+    procedure sbnDirCompartilhamentoClick(Sender: TObject);
+    procedure sbnNFeLogotipoClick(Sender: TObject);
+    procedure sbnDirPCPClick(Sender: TObject);
+    procedure sbnTEFReqClick(Sender: TObject);
+    procedure sbnTEFRespClick(Sender: TObject);
+    procedure sbnTEFExecClick(Sender: TObject);
+    procedure rgpTipoTEFClick(Sender: TObject);
+    procedure sbnExecutavelUniDANFEClick(Sender: TObject);
+    procedure sbnExecutavelUniNFeClick(Sender: TObject);
+    procedure sbnSPEDFiscalClick(Sender: TObject);
+    procedure sbnSPEDContabilClick(Sender: TObject);
+    procedure sbnDirExportacaoClick(Sender: TObject);
+    procedure rbnNFeContScanClick(Sender: TObject);
+    procedure rbnNFeNormalClick(Sender: TObject);
+    procedure qryContingenciasAfterInsert(DataSet: TDataSet);
+    procedure sbnFCONTClick(Sender: TObject);
+    procedure sbnEFDContribuicoesClick(Sender: TObject);
+    procedure rbnZebraClick(Sender: TObject);
+    procedure sbnDirEnvioNFSeClick(Sender: TObject);
+    procedure sbnDirRetornoNFSeClick(Sender: TObject);
+    procedure sbnDirErrosNFSeClick(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
+    procedure sbnDirNotasEntradaClick(Sender: TObject);
+    procedure sbnCertificadoDigitalClick(Sender: TObject);
+  private
+    FBackupAquivo : TStringList;
+  protected
+    dmbasico : TdtmBasico;
+    ECFLocalizada: Boolean;
+    Comm: String;
+    procedure ApagarECF;
+    procedure LerArquivoINI;
+    procedure VerificaECF;
+    procedure SalvarArquivo;
+    procedure SalvarImpressoraCheque;
+    procedure SalvarMiscelania;
+    procedure cancelar;
+    procedure backupAquivo;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+
+  public
+    constructor Create(AOwner: TComponent); override;
+  end;
+
+var
+  frmConfiguracoesSistema: TfrmConfiguracoesSistema;
+
+implementation
+
+Uses
+  //CLX
+  inifiles,
+  //Biblio
+  biblio, clusuario,
+  //Componentes
+  clecf, climpressorachequepadrao;
+
+
+{$R *.dfm}
+
+procedure TfrmConfiguracoesSistema.ApagarECF;
+var
+  ArquivoCFG: TIniFile;
+  NomeArquivoCliente: String;
+begin
+  NomeArquivoCliente := (*ExtractFilePath(Application.ExeName)+*) NomeArquivoCFG;
+  if FileExists(NomeArquivoCliente) then
+  begin
+    ArquivoCFG := TIniFile.Create(NomeArquivoCliente);
+    try
+{$IFDEF LINUX}
+      ArquivoCFG.CaseSensitive := False;
+{$ENDIF}
+      ArquivoCFG.EraseSection(ECFSection);
+      ArquivoCFG.UpdateFile;
+      ECFLocalizada          := False;
+      cmbECF.ItemIndex       := -1;
+      edtPortaSerial.Text    := '';
+      lblMarca1.Caption      := '';
+      lblSerieECF1.Caption   := '';
+      lblNumeroECF1.Caption  := '';
+      Comm                   := '';
+//      sbnApagar.Enabled      := False;
+    finally
+      ArquivoCFG.Free
+    end
+  end
+end;
+
+procedure TfrmConfiguracoesSistema.cmbModeloImpressoraChequeChange(Sender: TObject);
+begin
+  inherited;
+  cmbTipoPorta.Enabled            := cmbModeloImpressoraCheque.ItemIndex > 0;
+  edtNumeroPortaImpCheque.Enabled := cmbModeloImpressoraCheque.ItemIndex > 0;
+  if Not edtNumeroPortaImpCheque.Enabled then
+    edtNumeroPortaImpCheque.Clear
+end;
+
+constructor TfrmConfiguracoesSistema.Create(AOwner: TComponent);
+var
+  a: Integer;
+begin
+  inherited;
+  qryContingencias.Open;
+  qryContingencias.Last;
+
+  for a := Low(ECFS) to High(ECFS) do
+    cmbECF.Items.Add(ECFS[a]);
+  cmbECF.Enabled := UsuarioLogin.LoginUsuario = 'tecsoft';
+
+  cmbImpEtiqueta.Items.Clear;
+  cmbImpNotaFiscalMercadorias.Items.Clear;
+  cmbImpNotaFiscalServicos.Items.Clear;
+
+  cmbImpContrato.Items.Clear;
+  cmbImpCarne.Items.Clear;
+  cmbImpBoleto.Items.Clear;
+  cmbImpFechamentoCaixa.Clear;
+
+  cmbImpOSP.Items.clear;
+  cmbImpSetupProcesso.Items.clear;
+  cmbImpControleProcesso.Items.clear;
+
+
+  cmbImpEtiqueta.Items.Add  (ctImpDefault);
+  cmbImpNotaFiscalMercadorias.Items.Add(ctImpDefault);
+  cmbImpNotaFiscalServicos.Items.Add(ctImpDefault);
+  cmbImpContrato.Items.Add(ctImpDefault);
+  cmbImpCarne.Items.Add     (ctImpDefault);
+  cmbImpBoleto.Items.Add    (ctImpDefault);
+  cmbImpFechamentoCaixa.Items.Add(ctImpDefault);
+
+  cmbImpOSP.Items.Add(ctImpDefault);
+  cmbImpSetupProcesso.Items.Add(ctImpDefault);
+  cmbImpControleProcesso.Items.Add(ctImpDefault);
+
+  gbxImpressorasIndustria.Visible := ParSistema.ControlesVoltadosparaIndustria;
+
+  for a := 0 to Printer.Printers.Count - 1 do
+  begin
+    cmbImpEtiqueta.Items.add  (Printer.Printers[a]);
+    cmbImpNotaFiscalMercadorias.Items.Add(Printer.Printers[a]);
+    cmbImpNotaFiscalServicos.Items.Add(Printer.Printers[a]);
+    cmbImpContrato.Items.Add(Printer.Printers[a]);
+    cmbImpCarne.Items.Add     (Printer.Printers[a]);
+    cmbImpBoleto.Items.Add    (Printer.Printers[a]);
+    cmbImpFechamentoCaixa.Items.Add(printer.Printers[a]);
+    cmbImpOSP.Items.Add(printer.Printers[a]);
+    cmbImpSetupProcesso.Items.Add(printer.Printers[a]);
+    cmbImpControleProcesso.Items.Add(printer.Printers[a]);
+  end;
+
+  tstNFe.Enabled := ParSistema.EmissorNfe;
+{$IFDEF MSWINDOWS}
+  gbxTEF.Visible := True;
+  pgcTipoTEF.ActivePageIndex := rgpTipoTEF.ItemIndex;
+{$ENDIF}
+
+  LerArquivoINI;
+  backupAquivo;
+  pgcPreferencias.ActivePageIndex:=0;
+end;
+
+procedure TfrmConfiguracoesSistema.LerArquivoINI;
+var
+  ArquivoCFG: TIniFile;
+//  SerieNumero,
+  ModeloImpCheque,
+  TipoPorta,
+  NumeroPorta,
+  strFrenteCaixa: String;
+//  PosECFS,
+//  PosSeparador: Integer;
+  TipoTEF: Integer;
+{
+  function PosMarca: Integer;
+  var
+    a: Integer;
+  begin
+    Result := -1;
+    for a := Low(ECFS) to High(ECFS) do
+      if ECFS[a] = lblMarca1.Caption then
+      begin
+        Result := a;
+        break
+      end
+  end;
+}
+begin
+  if FileExists(NomeArquivoCFG) then
+  begin
+     ArquivoCFG := TIniFile.Create(NomeArquivoCFG);
+    try
+{$IFDEF LINUX}
+      ArquivoCFG.CaseSensitive := False;
+{$ENDIF}
+      if ArquivoCFG.SectionExists(ECFSection) then
+      begin
+        edtPortaSerial.Text := ArquivoCFG.ReadString(ECFSection, 'porta', '');
+{        lblMarca1.Caption     := ArquivoCFG.ReadString(ECFSection, 'marca', '');
+        PosECFS               := PosMarca;
+        if PosECFS >= Low(ECFS) then
+          cmbECF.ItemIndex := PosECFS - 1;
+        SerieNumero           := ArquivoCFG.ReadString(ECFSection, 'controle', '');
+        PosSeparador          := Pos(';', SerieNumero);
+        if PosSeparador > 0 then begin
+          lblSerieECF1.Caption  := Descriptografar(Copy(SerieNumero, 1, PosSeparador-1));
+          Delete(SerieNumero, 1, PosSeparador);
+          PosSeparador           := Pos(';', SerieNumero);
+          lblNumeroECF1.Caption := Copy(SerieNumero, 1, PosSeparador-1);
+          if PosSeparador > 0 then begin
+            Comm := Copy(SerieNumero, PosSeparador+1, Length(SerieNumero) - PosSeparador);
+            edtPortaSerial.Text   := Comm;
+          end
+        end;
+}
+//      sbnApagar.Enabled := (SerieNumero <> '') and (PosSeparador > 0) and (Comm <> '');
+      end;
+
+      if ArquivoCFG.SectionExists(TEFSection) then  // TEF
+      begin
+        TipoTEF := ArquivoCFG.ReadInteger(TEFSection,'Tipo',0);
+        rgpTipoTEF.ItemIndex := TipoTef;
+        pgcTipoTEF.ActivePageIndex := TipoTEF;
+        case TipoTEF of
+          1 : begin  // DISCADO
+                edtNroViasTEF.Text         := ArquivoCFG.ReadString(TEFSection,'Vias'   ,'');
+                lblTEFArqRequisicao.Caption:= ArquivoCFG.ReadString(TEFSection,'DirReq' ,'');
+                lblTEFArqResposta.Caption  := ArquivoCFG.ReadString(TEFSection,'DirResp','');
+                lblTEFArqPrograma.Caption  := ArquivoCFG.ReadString(TEFSection,'Exec'   ,'');
+              end;
+          2 : begin  // DEDICADO
+                edtLojaTEF.Text     := ArquivoCFG.ReadString(TEFSection,'Loja'    ,'');
+                edtMensagemTEF.Text := ArquivoCFG.ReadString(TEFSection,'Mensagem','');
+                edtIPTEF.Text       := ArquivoCFG.ReadString(TEFSection,'IP'      ,'');
+                edtTerminalTEF.Text := ArquivoCFG.ReadString(TEFSection,'Terminal','');
+              end;
+
+        end;
+      end;
+
+      if ArquivoCFG.SectionExists(IMPCHQSection) then begin
+        ModeloImpCheque := ArquivoCFG.ReadString(IMPCHQSection, 'marca', '');
+        TipoPorta       := ArquivoCFG.ReadString(IMPCHQSection, 'tipoporta', '0');
+        NumeroPorta     := ArquivoCFG.ReadString(IMPCHQSection, 'numeroporta', '');
+        if ModeloImpCheque = lstImpressorasCheque[1] then
+          cmbModeloImpressoraCheque.ItemIndex := 1
+        else if ModeloImpCheque = lstImpressorasCheque[2] then
+          cmbModeloImpressoraCheque.ItemIndex := 2
+        else
+          cmbModeloImpressoraCheque.ItemIndex := 0;
+        if TipoPorta = cmbTipoPorta.Items[0] then
+          cmbTipoPorta.ItemIndex := 0
+        else if TipoPorta = cmbTipoPorta.Items[1] then
+          cmbTipoPorta.ItemIndex := 1;
+        edtNumeroPortaImpCheque.Text := NumeroPorta;
+      end;
+      edtMaxColAutenticadora.Text := ArquivoCFG.ReadString(LoginSection, 'MaxColAutenticadora', '48');
+      if ArquivoCFG.SectionExists(FrenteCaixaSection) then begin
+        strFrenteCaixa := ArquivoCFG.ReadString(FrenteCaixaSection, 'trabalharcomo', '');
+      end;
+
+      rbnArgox.    Checked:= ParSistema.TipoImpressoraEtiqueta = ctARGOX;
+      rbnJato.     Checked:= ParSistema.TipoImpressoraEtiqueta = ctJATO;
+      rbnMatricial.Checked:= ParSistema.TipoImpressoraEtiqueta = ctMATRICIAL;
+      rbnRabbit.   Checked:= ParSistema.TipoImpressoraEtiqueta = ctRABBIT;
+      rbnZebra.    Checked:= ParSistema.TipoImpressoraEtiqueta = ctZEBRA;
+      rbnNenhum.   Checked:= ParSistema.TipoImpressoraEtiqueta = ctNENHUMA;
+
+     if ParSistema.NomeImpressoraEtiqueta <> '' then
+        cmbImpEtiqueta.ItemIndex := cmbImpEtiqueta.Items.IndexOf(ParSistema.NomeImpressoraEtiqueta);
+
+     spnIntensidadeImpressao.Value := ParSistema.IntensidadeImpressaoZebra;
+
+     if ParSistema.NomeImpressoraNotaMercadorias <> '' then
+        cmbImpNotaFiscalMercadorias.itemIndex := cmbImpNotaFiscalMercadorias.Items.IndexOf(ParSistema.NomeImpressoraNotaMercadorias);
+
+     if ParSistema.NomeImpressoraNotaServicos <> '' then
+        cmbImpNotaFiscalServicos.itemIndex := cmbImpNotaFiscalServicos.Items.IndexOf(ParSistema.NomeImpressoraNotaServicos);
+
+
+     if ParSistema.NomeImpressoraContrato <> '' then
+        cmbImpContrato.ItemIndex := cmbImpContrato.Items.IndexOf(ParSistema.NomeImpressoraContrato);
+
+     ckbImprimirCarneECF.Checked := ArquivoCFG.ReadBool(ImpressoraSection, 'imprimircarneecf', False);
+     ckbImprimirLineFeedImpressoraMatricial.Checked := ArquivoCFG.ReadBool(ImpressoraSection, 'imprimirlinefeednaimpressoramatricial', False);
+
+     if (not ckbImprimirCarneECF.Checked) and (ParSistema.NomeImpressoraCarne <> '') then
+        cmbImpCarne.itemIndex := cmbImpCarne.Items.IndexOf(ParSistema.NomeImpressoraCarne);
+
+     if ParSistema.NomeImpressoraBoleto <> '' then
+        cmbImpBoleto.itemIndex := cmbImpBoleto.Items.IndexOf(ParSistema.NomeImpressoraBoleto);
+
+     if ParSistema.NomeImpressoraFechamentoCaixa <> '' then
+        cmbImpFechamentoCaixa.itemIndex := cmbImpFechamentoCaixa.Items.IndexOf(ParSistema.NomeImpressoraFechamentoCaixa);
+
+     if ParSistema.NomeImpressoraOSP <> '' then
+        cmbImpOSP.itemIndex := cmbImpOSP.Items.IndexOf(ParSistema.NomeImpressoraOSP);
+
+     if ParSistema.NomeImpressoraControleProcesso <> '' then
+        cmbImpControleProcesso.itemIndex := cmbImpControleProcesso.Items.IndexOf(ParSistema.NomeImpressoraControleProcesso);
+
+     if ParSistema.NomeImpressoraSetupProcesso <> '' then
+        cmbImpSetupProcesso.itemIndex := cmbImpSetupProcesso.Items.IndexOf(ParSistema.NomeImpressoraSetupProcesso);
+
+     if ParSistema.NomeImpressoraControleProcesso <> '' then
+        cmbImpControleProcesso.itemIndex := cmbImpControleProcesso.Items.IndexOf(ParSistema.NomeImpressoraControleProcesso);
+
+     ckbAutenticarECF.Checked := ArquivoCFG.ReadBool(AutenticacaoSection, 'autenticarecf', False);
+     rgpAutenticadoras.ItemIndex := ArquivoCFG.ReadInteger(AutenticacaoSection, 'autenticadora', 3)-1;
+
+     lblDirNotasEntrada.Caption    := FNFeDirNotasEntrada;
+
+     if ParSistema.EmissorNfe and ArquivoCFG.SectionExists(NFeSection) then
+     begin
+
+       case ArquivoCFG.ReadInteger(NFeSection, 'Ambiente', 1) of
+         1 : rbnNFeProducao.Checked         := True;
+         2 : rbnNFeHomologacao.Checked      := True;
+       end;
+
+       case ArquivoCFG.ReadInteger(NFeSection, 'TipoEmissao', 1) of
+         1 : rbnNFeNormal.Checked         := True;
+         3 : begin
+               rbnNFeContScan.OnClick := nil;
+               rbnNFeContScan.Checked       := true;
+               rbnNFeContScan.OnClick := rbnNFeContScanClick;
+             end;
+         4 : rbnNFeContEletronica.Checked := True;
+       end;
+       
+//       lblDirEnvio.Caption    := ArquivoCFG.ReadString(NFeSection,   'DirEnvio'   , '');
+       lblDirEnvio.Caption    := FNFeDirEnvio;
+
+
+
+//       lblDirRetorno.Caption  := ArquivoCFG.ReadString(NFeSection,   'DirRetorno' , '');
+       lblDirRetorno.Caption  := FNFeDirRetorno;
+
+       case ArquivoCFG.ReadInteger(NFSeSection, 'Ambiente', 1) of
+         1 : rbnNFSeProducao.Checked         := True;
+         2 : rbnNFSeHomologacao.Checked      := True;
+       end;
+
+       lblDirEnvioNFSe.Caption    := ArquivoCFG.ReadString(NFSeSection,   'DirEnvio'   , '');
+       lblDirRetornoNFSe.Caption  := ArquivoCFG.ReadString(NFSeSection,   'DirRetorno' , '');
+       lblDirErrosNFSe.Caption    := ArquivoCFG.ReadString(NFSeSection,   'DirErros'   , '');
+       lblCertificadoDigitalNFSe.Caption := ArquivoCFG.ReadString(NFSeSection,   'CertificadoNFSe', '');
+
+//       lblDirEnviados.Caption := ArquivoCFG.ReadString(NFeSection,   'DirEnviados', '');
+       lblDirEnviados.Caption := FNFeDirEnviados;
+
+//       lblDirErros.Caption    := ArquivoCFG.ReadString(NFeSection,   'DirErros'   , '');
+       lblDirErros.Caption    := FNFeDirErros;
+
+//       lblDirCompartilhamento.Caption := ArquivoCFG.ReadString(NFeSection, 'DirComp'   , '');
+       lblDirCompartilhamento.Caption := FNFeDirCompartilha;
+
+       lblNFeLogotipo.Caption := ArquivoCFG.ReadString(NFeSection,   'Logotipo'   , '');
+
+//       lblExecutavelUniNFe.Caption := ArquivoCFG.ReadString(NFeSection,   'ExecNFe'   , '');
+       lblExecutavelUniNFe.Caption := FNFeExecNFe;
+
+//     lblExecutavelUniDANFE.Caption := ArquivoCFG.ReadString(NFeSection, 'ExecDANFE'   , '');
+       lblExecutavelUniDANFE.Caption := FNFeExecDANFE;
+
+       //ckbVisualizarImpressaoDANFE.Checked := ArquivoCFG.ReadBool(NFeSection, 'Visualizar', False);
+       case ArquivoCFG.ReadInteger(NFeSection, 'Visualizar', 0) of
+         0 : ckbVisualizarImpressaoDANFE.Checked := False;
+         1 : ckbVisualizarImpressaoDANFE.Checked := True;
+       end;
+       edtNFeNVias.Text := ArquivoCFG.ReadString(NFeSection, 'NumVias', '1');
+     end;
+
+     lblDirPCP.          Caption := ArquivoCFG.ReadString(PCPSection,        'DirExp',              '');
+     lblSPEDFiscal.      Caption := ArquivoCFG.ReadString(SpedSection,       'DirSpedFiscal',       '');
+     lblSPEDContabil.    Caption := ArquivoCFG.ReadString(SpedSection,       'DirSpedContabil',     '');
+     lblFCONT.           Caption := ArquivoCFG.ReadString(SpedSection,       'DirSpedFCont',        '');
+     lblEFDContribuicoes.Caption := ArquivoCFG.ReadString(SpedSection,       'DirEFDContribuições', '');
+     lblDirExportacao.   Caption := ArquivoCFG.ReadString(ExportacaoSection, 'DirExportação',      '');
+
+
+    finally
+      ArquivoCFG.Free
+    end
+  end
+end;
+
+procedure TfrmConfiguracoesSistema.SalvarArquivo;
+var
+  ArquivoCFG: TIniFile;
+//  ecfClass: TtecECFClass;
+//  NroCripto: String;
+begin
+  if FileExists(NomeArquivoCFG) then
+  begin
+    ArquivoCFG := TIniFile.Create(NomeArquivoCFG);
+    try
+{$IFDEF LINUX}
+      ArquivoCFG.CaseSensitive := False;
+{$ENDIF}
+
+      if trim(edtPortaSerial.Text) <> '' then
+        ArquivoCFG.WriteString(ECFSection, 'porta', edtPortaSerial.Text);
+{      else
+        ArquivoCFG.EraseSection(ECFSection);
+
+      if ECFLocalizada then
+      begin
+         NroCripto := Criptografar(lblSerieECF1.Caption);
+         ArquivoCFG.WriteString(ECFSection, 'marca', lblMarca1.Caption);
+         ArquivoCFG.WriteString(ECFSection, 'controle', NroCripto + ';' +
+                                                        lblNumeroECF1.Caption + ';' +
+                                                        Comm[4]);
+      end;
+      if ECFLocalizada then
+      begin
+        ecfClass := TtecECFClass(GetClass('TtecECF'+ ECFS[cmbECF.ItemIndex+1]));
+        //if Assigned(ecfClass) then
+        //begin
+          if not Assigned(ECFPadrao) then
+            ECFPadrao := ecfClass.Create(Self);
+          ECFPadrao.IniciarImpressora(Comm);
+          ECFPadrao.SerieConfigurada  := lblSerieECF1.Caption;
+          ECFPadrao.NumeroConfigurado := lblNumeroECF1.Caption;
+          ECFPadrao.LerAliquotasDaECF;
+          if ECFPadrao.Erro then
+          begin
+            MensagemErro(ECFPadrao.Mensagem)
+          end
+          else
+          begin
+            ECFPadrao.LerFormasPagamento;
+            if ECFPadrao.Erro then
+              MensagemErro(ECFPadrao.Mensagem)
+          end;
+        //end
+      end;
+}
+      case rgpTipoTEF.ItemIndex of  // TEF
+        1 : begin  // DISCADO
+              ArquivoCFG.WriteInteger(TEFSection,'Tipo'   , 1);
+              ArquivoCFG.WriteString(TEFSection,'Vias'   ,edtNroViasTEF.Text);
+              ArquivoCFG.WriteString(TEFSection,'DirReq' ,lblTEFArqRequisicao.Caption);
+              ArquivoCFG.WriteString(TEFSection,'DirResp',lblTEFArqResposta.Caption);
+              ArquivoCFG.WriteString(TEFSection,'Exec'   ,lblTEFArqPrograma.Caption);
+              ArquivoCFG.DeleteKey(TEFSection  ,'Loja');
+              ArquivoCFG.DeleteKey(TEFSection  ,'IP');
+              ArquivoCFG.DeleteKey(TEFSection  ,'Mensagem');
+              ArquivoCFG.DeleteKey(TEFSection  ,'Terminal');
+            end;
+        2 : begin  // DEDICADO
+              ArquivoCFG.WriteInteger(TEFSection,'Tipo'   , 2);
+              ArquivoCFG.WriteString(TEFSection,'Loja'    ,edtLojaTEF.Text);
+              ArquivoCFG.WriteString(TEFSection,'IP'      ,edtIPTEF.Text);
+              ArquivoCFG.WriteString(TEFSection,'Mensagem',edtMensagemTEF.Text);
+              ArquivoCFG.WriteString(TEFSection,'Terminal',edtTerminalTEF.Text);
+              ArquivoCFG.DeleteKey(TEFSection  ,'Vias');
+              ArquivoCFG.DeleteKey(TEFSection  ,'DirReq');
+              ArquivoCFG.DeleteKey(TEFSection  ,'DirResp');
+              ArquivoCFG.DeleteKey(TEFSection  ,'Exec');
+            end;
+      else   // SEM TEF
+        ArquivoCFG.EraseSection(TEFSection);
+      end;
+
+      ParSistema.Autenticadora := rgpAutenticadoras.ItemIndex+1;
+      ArquivoCFG.WriteInteger(AutenticacaoSection, 'autenticadora', rgpAutenticadoras.ItemIndex+1);
+
+      ParSistema.AutenticarECF := ckbAutenticarECF.Checked;
+      ArquivoCFG.WriteBool(AutenticacaoSection, 'autenticarecf', ckbAutenticarECF.Checked);
+
+      if cmbImpNotaFiscalMercadorias.Text <> ctImpDefault then
+      begin
+         ArquivoCFG.WriteString(ImpressoraSection, 'notafiscal', cmbImpNotaFiscalMercadorias.Text);
+         ParSistema.NomeImpressoraNotaMercadorias := cmbImpNotaFiscalMercadorias.Text;
+      end
+      else
+      begin
+         ArquivoCFG.DeleteKey(ImpressoraSection, 'notafiscal');
+         ParSistema.NomeImpressoraNotaMercadorias := '';
+      end;
+
+
+      if cmbImpNotaFiscalServicos.Text <> ctImpDefault then
+      begin
+         ArquivoCFG.WriteString(ImpressoraSection, 'notafiscalservicos', cmbImpNotaFiscalServicos.Text);
+         ParSistema.NomeImpressoraNotaServicos := cmbImpNotaFiscalServicos.Text;
+      end
+      else
+      begin
+         ArquivoCFG.DeleteKey(ImpressoraSection, 'notafiscalservicos');
+         ParSistema.NomeImpressoraNotaServicos := '';
+      end;
+
+
+      if cmbImpContrato.Text <> ctImpDefault then
+      begin
+         ArquivoCFG.WriteString(ImpressoraSection, 'contrato', cmbImpContrato.Text);
+         ParSistema.NomeImpressoraContrato := cmbImpContrato.Text;
+      end
+      else
+      begin
+         ArquivoCFG.DeleteKey(ImpressoraSection, 'contrato');
+         ParSistema.NomeImpressoraContrato := '';
+      end;
+
+      ParSistema.ImpressaoCarneECF := ckbImprimirCarneECF.Checked;
+      ArquivoCFG.WriteBool(ImpressoraSection, 'imprimircarneecf', ckbImprimirCarneECF.Checked);
+
+      ParSistema.ImprimirLineFeednaImpressoraMatricial := ckbImprimirLineFeedImpressoraMatricial.Checked;
+      ArquivoCFG.WriteBool(ImpressoraSection, 'imprimirlinefeednaimpressoramatricial', ckbImprimirLineFeedImpressoraMatricial.Checked);
+
+      if (cmbImpCarne.Text <> ctImpDefault) and (not ckbImprimirCarneECF.Checked) then
+      begin
+         ArquivoCFG.WriteString(ImpressoraSection, 'carne', cmbImpCarne.Text);
+         ParSistema.NomeImpressoraCarne := cmbImpCarne.Text;
+      end
+      else
+      begin
+         ArquivoCFG.DeleteKey(ImpressoraSection, 'carne');
+         ParSistema.NomeImpressoraCarne := '';
+      end;
+
+      if cmbImpBoleto.Text <> ctImpDefault then
+      begin
+         ArquivoCFG.WriteString(ImpressoraSection, 'boleto', cmbImpBoleto.Text);
+         ParSistema.NomeImpressoraBoleto := cmbImpBoleto.Text;
+      end
+      else
+      begin
+         ArquivoCFG.DeleteKey(ImpressoraSection, 'boleto');
+         ParSistema.NomeImpressoraBoleto := '';
+      end;
+
+      if cmbImpOSP.Text <> ctImpDefault then
+      begin
+         ArquivoCFG.WriteString(ImpressoraSection, 'OSP', cmbImpOSP.Text);
+         ParSistema.NomeImpressoraOSP := cmbImpOSP.Text;
+      end
+      else
+      begin
+         ArquivoCFG.DeleteKey(ImpressoraSection, 'OSP');
+         ParSistema.NomeImpressoraOSP := '';
+      end;
+
+      if cmbImpSetupProcesso.Text <> ctImpDefault then
+      begin
+         ArquivoCFG.WriteString(ImpressoraSection, 'SetupProcesso', cmbImpSetupProcesso.Text);
+         ParSistema.NomeImpressoraSetupProcesso := cmbImpSetupProcesso.Text;
+      end
+      else
+      begin
+         ArquivoCFG.DeleteKey(ImpressoraSection, 'SetupProcesso');
+         ParSistema.NomeImpressoraSetupProcesso := '';
+      end;
+
+      if cmbImpControleProcesso.Text <> ctImpDefault then
+      begin
+         ArquivoCFG.WriteString(ImpressoraSection, 'ControleProcesso', cmbImpControleProcesso.Text);
+         ParSistema.NomeImpressoraControleProcesso := cmbImpControleProcesso.Text;
+      end
+      else
+      begin
+         ArquivoCFG.DeleteKey(ImpressoraSection, 'ControleProcesso');
+         ParSistema.NomeImpressoraControleProcesso := '';
+      end;
+
+      if cmbImpFechamentoCaixa.Text <> ctImpDefault then
+      begin
+         ArquivoCFG.WriteString(ImpressoraSection, 'fechamentocaixa', cmbImpFechamentoCaixa.Text);
+         ParSistema.NomeImpressoraFechamentoCaixa := cmbImpFechamentoCaixa.Text;
+      end
+      else
+      begin
+         ArquivoCFG.DeleteKey(ImpressoraSection, 'fechamentocaixa');
+         ParSistema.NomeImpressoraBoleto := '';
+      end;
+
+      if (cmbImpEtiqueta.Text <> '') then
+      begin  // 1ctImpDefault) then
+         ArquivoCFG.WriteString(TipoImpEtiquetaSection, 'impressora', cmbImpEtiqueta.Text);
+         ParSistema.NomeImpressoraEtiqueta := cmbImpEtiqueta.Text;
+      end
+      else
+      begin
+        ArquivoCFG.DeleteKey(TipoImpEtiquetaSection, 'impressora');
+        ParSistema.NomeImpressoraEtiqueta := '';
+        rbnNenhum.Checked := True;
+      end;
+
+      if rbnRabbit.Checked then
+      begin
+        ArquivoCFG.WriteString(TipoImpEtiquetaSection, 'tipo', ctRABBIT);
+        ParSistema.TipoImpressoraEtiqueta := ctRABBIT;
+      end;
+
+      if rbnZebra.Checked then
+      begin
+        ArquivoCFG.WriteString(TipoImpEtiquetaSection, 'tipo', ctZEBRA);
+        ParSistema.TipoImpressoraEtiqueta := ctZEBRA;
+        ArquivoCFG.WriteInteger(TipoImpEtiquetaSection, 'Intensidade de impressão zebra', spnIntensidadeImpressao.Value);
+        ParSistema.IntensidadeImpressaoZebra := spnIntensidadeImpressao.Value
+      end
+      else
+      begin
+        ArquivoCFG.DeleteKey(TipoImpEtiquetaSection, 'Intensidade de impressão zebra');
+        if rbnArgox.Checked then
+        begin
+          ArquivoCFG.WriteString(TipoImpEtiquetaSection, 'tipo', ctARGOX);
+          ParSistema.TipoImpressoraEtiqueta := ctARGOX;
+          ArquivoCFG.WriteInteger(TipoImpEtiquetaSection, 'Intensidade de impressão zebra', spnIntensidadeImpressao.Value);
+          ParSistema.IntensidadeImpressaoZebra := spnIntensidadeImpressao.Value
+        end
+        else
+         ArquivoCFG.DeleteKey(TipoImpEtiquetaSection, 'Intensidade de impressão zebra');
+      end;
+
+      if rbnMatricial.Checked then
+      begin
+        ArquivoCFG.WriteString(TipoImpEtiquetaSection, 'tipo', ctMATRICIAL);
+        ParSistema.TipoImpressoraEtiqueta := ctMATRICIAL;
+      end;
+
+      if rbnJato.Checked then
+      begin
+        ArquivoCFG.WriteString(TipoImpEtiquetaSection, 'tipo', CTJATO);
+        ParSistema.TipoImpressoraEtiqueta := ctJATO;
+      end;
+
+      if rbnNenhum.Checked then
+      begin
+        ArquivoCFG.DeleteKey(TipoImpEtiquetaSection, 'tipo');
+        ParSistema.TipoImpressoraEtiqueta := '';
+        ParSistema.NomeImpressoraEtiqueta := '';
+        rbnNenhum.Checked := True;
+      end;
+
+      ArquivoCFG.WriteInteger(LoginSection, 'MaxColAutenticadora', edtMaxColAutenticadora.ValorSemFormatacao);
+
+      if lblDirNotasEntrada.Caption <> '' then
+        ArquivoCFG.WriteString(NFeEntradaSection, 'DirNotasEntrada', lblDirNotasEntrada.Caption);
+
+      if ParSistema.EmissorNfe then
+      begin
+
+        if rbnNFeProducao.Checked then
+          ArquivoCFG.WriteInteger(NFeSection, 'Ambiente', 1)
+        else if rbnNFeHomologacao.Checked then
+          ArquivoCFG.WriteInteger(NFeSection, 'Ambiente', 2);
+
+        if rbnNFSeProducao.Checked then
+          ArquivoCFG.WriteInteger(NFSeSection, 'Ambiente', 1)
+        else if rbnNFSeHomologacao.Checked then
+          ArquivoCFG.WriteInteger(NFSeSection, 'Ambiente', 2);
+
+        if rbnNFeNormal.Checked then
+          ArquivoCFG.WriteInteger(NFeSection, 'TipoEmissao', 1)
+        else if rbnNFeContScan.Checked then
+          ArquivoCFG.WriteInteger(NFeSection, 'TipoEmissao', 3)
+        else if rbnNFeContEletronica.Checked then
+          ArquivoCFG.WriteInteger(NFeSection, 'TipoEmissao', 4);
+
+        if lblDirEnvio.Caption <> '' then
+          ArquivoCFG.WriteString(NFeSection, 'DirEnvio',    lblDirEnvio.Caption);
+
+        if lblDirRetorno.Caption <> '' then
+          ArquivoCFG.WriteString(NFeSection, 'DirRetorno',  lblDirRetorno.Caption);
+
+        if lblDirEnviados.Caption <> '' then
+          ArquivoCFG.WriteString(NFeSection, 'DirEnviados', lblDirEnviados.Caption);
+
+        if lblDirErros.Caption <> '' then
+          ArquivoCFG.WriteString(NFeSection, 'DirErros',    lblDirErros.Caption);
+
+        if lblDirCompartilhamento.Caption <> '' then
+          ArquivoCFG.WriteString(NFeSection, 'DirComp',     lblDirCompartilhamento.Caption);
+        if lblNFeLogotipo.Caption <> '' then
+          ArquivoCFG.WriteString(NFeSection,  'Logotipo',   lblNFeLogotipo.Caption);
+        if lblExecutavelUniNFe.Caption <> '' then
+          ArquivoCFG.WriteString(NFeSection,  'ExecNFe',    lblExecutavelUniNFe.Caption);
+        if lblExecutavelUniDANFE.Caption <> '' then
+          ArquivoCFG.WriteString(NFeSection,  'ExecDANFE',  lblExecutavelUniDANFE.Caption);
+        //ArquivoCFG.WriteBool(NFeSection, 'Visualizar',      ckbVisualizarImpressaoDANFE.Checked);
+        if ckbVisualizarImpressaoDANFE.Checked then
+          ArquivoCFG.WriteInteger(NFeSection, 'Visualizar', 1)
+        else
+          ArquivoCFG.WriteInteger(NFeSection, 'Visualizar', 0);
+        if (edtNFeNVias.Text <> '') and (edtNFeNVias.Text <> '0') then
+          ArquivoCFG.WriteString(NFeSection, 'NumVias', edtNFeNVias.Text)
+        else
+          ArquivoCFG.WriteString(NFeSection, 'NumVias', '1');
+      end;
+
+      if ParSistema.EmissorNFPSe then
+      begin
+
+        if rbnNFSeProducao.Checked then
+          ArquivoCFG.WriteInteger(NFSeSection, 'Ambiente', 1)
+        else if rbnNFSeHomologacao.Checked then
+          ArquivoCFG.WriteInteger(NFSeSection, 'Ambiente', 2);
+
+        if lblDirEnvioNFSe.Caption <> '' then
+          ArquivoCFG.WriteString(NFSeSection, 'DirEnvio',    lblDirEnvioNFSe.Caption);
+
+        if lblDirRetornoNFSe.Caption <> '' then
+          ArquivoCFG.WriteString(NFSeSection, 'DirRetorno',  lblDirRetornoNFSe.Caption);
+
+        if lblDirErrosNFSe.Caption <> '' then
+          ArquivoCFG.WriteString(NFSeSection, 'DirErros',    lblDirErrosNFSe.Caption);
+
+        if lblCertificadoDigitalNFSe.Caption <> '' then
+          ArquivoCFG.WriteString(NFSeSection, 'CertificadoNFSe', lblCertificadoDigitalNFse.Caption);
+
+      end;
+
+
+
+      ArquivoCFG.WriteString(PCPSection,        'DirExp',              lblDirPCP.          Caption);
+      ArquivoCFG.WriteString(SpedSection,       'DirSpedFiscal',       lblSPEDFiscal.      Caption);
+      ArquivoCFG.WriteString(SpedSection,       'DirSpedContabil',     lblSPEDContabil.    Caption);
+      ArquivoCFG.WriteString(SpedSection,       'DirSpedFCont',        lblFCONT.           Caption);
+      ArquivoCFG.WriteString(SpedSection,       'DirEFDContribuições', lblEFDContribuicoes.Caption);
+      ArquivoCFG.WriteString(ExportacaoSection, 'DirExportação',       lblDirExportacao.   Caption);
+
+//------carlos --------------------------------------------------
+//      sbnApagar.Enabled      := True;
+    finally
+      ArquivoCFG.UpdateFile;
+
+      if ParSistema.NomeImpressoraNotaMercadorias    = '' then
+         ParSistema.NomeImpressoraNotaMercadorias    := ctImpDefault;
+
+      if ParSistema.NomeImpressoraNotaServicos    = '' then
+         ParSistema.NomeImpressoraNotaServicos    := ctImpDefault;
+
+      if ParSistema.NomeImpressoraContrato= '' then
+         ParSistema.NomeImpressoraContrato:= ctImpDefault;
+
+      if ParSistema.NomeImpressoraCarne   = ''
+         then ParSistema.NomeImpressoraCarne   := ctImpDefault;
+
+      if ParSistema.NomeImpressoraBoleto  = ''
+         then ParSistema.NomeImpressoraBoleto  := ctImpDefault;
+
+      if ParSistema.NomeImpressoraFechamentoCaixa = ''
+         then ParSistema.NomeImpressoraFechamentoCaixa := ctImpDefault;
+
+      ArquivoCFG.Free;
+      SalvarImpressoraCheque;
+      SalvarMiscelania;
+    end;
+  end;
+end;
+
+procedure TfrmConfiguracoesSistema.SalvarImpressoraCheque;
+var
+  ArquivoCFG: TIniFile;
+  ImpChequeClass: TtecImpressoraChequePadraoClass;
+begin
+  if FileExists(NomeArquivoCFG) then begin
+    ArquivoCFG := TIniFile.Create(NomeArquivoCFG);
+    try
+      if Assigned(ImpChequePadrao) then begin
+        ImpChequePadrao.Free;
+        ImpChequePadrao := nil
+      end;
+      if cmbModeloImpressoraCheque.ItemIndex > 0 then begin
+        ImpChequeClass := TtecImpressoraChequePadraoClass(GetClass('TtecImpCheque'+lstImpressorasCheque[cmbModeloImpressoraCheque.ItemIndex]));
+
+        if Assigned(ImpChequeClass) then begin
+          ImpChequePadrao := ImpChequeClass.Create;
+          if cmbTipoPorta.ItemIndex = 0 then
+            ImpChequePadrao.PortaImpressao := pisSERIAL
+          else
+            ImpChequePadrao.PortaImpressao := pisPARALELA;
+          ArquivoCFG.WriteString(IMPCHQSection, 'marca', lstImpressorasCheque[cmbModeloImpressoraCheque.ItemIndex]);
+          ArquivoCFG.WriteString(IMPCHQSection, 'tipoporta', cmbTipoPorta.Items[cmbTipoPorta.ItemIndex]);
+          if Trim(edtNumeroPortaImpCheque.Text) <> '' then begin
+            ArquivoCFG.WriteString(IMPCHQSection, 'numeroporta', Trim(edtNumeroPortaImpCheque.Text));
+            ImpChequePadrao.NumeroPorta := StrToInt(edtNumeroPortaImpCheque.Text)
+          end else
+          begin
+            ArquivoCFG.WriteString(IMPCHQSection, 'numeroporta', '1');
+            ImpChequePadrao.NumeroPorta := 1
+          end;
+        end
+      end else if ArquivoCFG.SectionExists(IMPCHQSection) then
+        ArquivoCFG.EraseSection(IMPCHQSection);
+      ArquivoCFG.UpdateFile;
+    finally
+      ArquivoCFG.Free
+    end
+  end
+end;
+
+procedure TfrmConfiguracoesSistema.SalvarMiscelania;
+var
+  ArquivoCFG: TIniFile;
+begin
+  if FileExists(NomeArquivoCFG) then begin
+    ArquivoCFG := TIniFile.Create(NomeArquivoCFG);
+    try
+      ArquivoCFG.UpdateFile;
+    finally
+      ArquivoCFG.Free
+    end
+  end
+end;
+
+procedure TfrmConfiguracoesSistema.sbnApagarClick(Sender: TObject);
+begin
+  inherited;
+  ApagarECF
+end;
+
+procedure TfrmConfiguracoesSistema.sbnVerificaECFClick(Sender: TObject);
+begin
+  inherited;
+  VerificaECF
+end;
+
+procedure TfrmConfiguracoesSistema.VerificaECF;
+var
+  ecfClass: TtecECFClass;
+//  ecf: TtecECF;
+  Serie: String;
+begin
+{
+  ECFLocalizada := False;
+//  ecf           := nil;
+  if cmbECF.ItemIndex >= 0 then
+  begin
+    try
+      ecfClass := TtecECFClass(GetClass('TtecECF'+ ECFS[cmbECF.ItemIndex+1]));
+      if not Assigned(ECFPadrao) then
+        ECFPadrao := ecfClass.Create(Self)
+      else
+        ECFPadrao.Modelo := cmbECF.ItemIndex+1;
+      if Trim(edtPortaSerial.Text) <> '' then
+        ECFPadrao.Porta := 'COM' + edtPortaSerial.Text;
+
+  //    if ECFPadrao.AcharECF(true,edtPortaSerial.Text = '') then
+  //      ECFPadrao.Ativar;
+
+      ECFPadrao.IniciarImpressora('COM'+Trim(edtPortaSerial.Text));
+      if ECFPadrao.Erro then
+        MensagemErro(ECFPadrao.Mensagem)
+      else begin
+        Serie  := ECFPadrao.SerieMaquina;
+        if ECFPadrao.Erro then
+          ECFPadrao.FinalizarImpressora
+        else begin
+          lblSerieECF1.Caption  := Serie;
+          lblMarca1.Caption     := ECFS[cmbECF.ItemIndex+1];
+          lblNumeroECF1.Caption := ECFPadrao.NumeroMaquina;
+          Comm                  := ECFPadrao.PortaSerial;
+          ECFLocalizada         := True
+        end
+      end;
+      if ECFPadrao.Erro then
+        FreeAndNil(ECFPadrao);
+      if not Assigned(ECFPadrao) then
+        MensagemAviso('Nenhuma ECF foi encontrada')
+    except
+      FreeAndNil(ECFPadrao);
+      raise
+    end
+  end
+}
+end;
+
+procedure TfrmConfiguracoesSistema.bbnOKClick(Sender: TObject);
+ begin
+  inherited;
+//  qryContingencias.Last;
+  if rbnNFeContScan.Checked
+   and (qryContingenciasrazao.AsString='') then
+  begin
+    MensagemErro('Informe a razão da contingência');
+    dbgContingencias.SetFocus;
+    dbgContingencias.SelectedIndex := 1;
+  end
+  else
+  begin
+
+    try
+      dmbasico.perpetrar([qryContingencias]);
+    except
+    end;
+
+    if qryContingencias.RecNo <> qryContingencias.RecordCount then
+      qryContingencias.Last;
+    if rbnNFeContScan.Checked then
+    begin
+      ParSistema.DataHoraInicialContingencia := datetimetostr(qrycontingenciasdatahorainicial.asdatetime);
+      ParSistema.RazaoContingencia := qryContingenciasrazao.AsString;
+    end
+    else
+    begin
+      ParSistema.DataHoraInicialContingencia := '';
+      ParSistema.RazaoContingencia := '';
+    end;
+    SalvarArquivo;
+    LerArquivoCFG(nil, false);
+  end;
+end;
+
+procedure TfrmConfiguracoesSistema.cancelar;
+begin
+  if FileExists(NomeArquivoCFG) then
+    DeleteFile(pChar(NomeArquivoCFG));
+  FBackupAquivo.SaveToFile(NomeArquivoCFG);
+  Close;
+end;
+
+procedure TfrmConfiguracoesSistema.backupAquivo;
+begin
+  if not Assigned(FBackupAquivo) then
+    FBackupAquivo := TStringList.Create;
+  if FileExists(NomeArquivoCFG) then
+  begin
+    FBackupAquivo.LoadFromFile(NomeArquivoCFG);
+  end;
+end;
+
+procedure TfrmConfiguracoesSistema.bbnCancelarClick(Sender: TObject);
+begin
+  inherited;
+  cancelar;
+end;
+
+procedure TfrmConfiguracoesSistema.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  inherited;
+  if (ModalResult = mrCancel) or (ModalResult = mrAbort) then
+    cancelar;
+
+end;
+
+procedure TfrmConfiguracoesSistema.FormDestroy(Sender: TObject);
+begin
+  if Assigned(FBackupAquivo) then
+    FBackupAquivo.Free;
+  inherited;
+end;
+
+procedure TfrmConfiguracoesSistema.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if Key = VK_F5 then
+    SalvarArquivo;
+  if Key = VK_F6 then
+    cancelar;
+end;
+
+procedure TfrmConfiguracoesSistema.sbnDirEnvioClick(Sender: TObject);
+var
+  Dir: String;
+begin
+  inherited;
+  if SelectDirectory('Selecionar diretório de Envio','',Dir) then
+  begin
+    lblDirEnvio.Caption := Dir;
+    FNFeDirEnvio := Dir;
+  end;
+end;
+
+procedure TfrmConfiguracoesSistema.sbnDirRetornoClick(Sender: TObject);
+var
+  Dir: String;
+begin
+  inherited;
+  if SelectDirectory('Selecionar diretório de Retorno','',Dir) then
+  begin
+    lblDirRetorno.Caption := Dir;
+    FNFeDirRetorno := Dir;
+  end;
+
+end;
+
+procedure TfrmConfiguracoesSistema.sbnDirEnviadosClick(Sender: TObject);
+var
+  Dir: String;
+begin
+  inherited;
+  if SelectDirectory('Selecionar diretório de Arquivamento','',Dir) then
+  begin
+    lblDirEnviados.Caption := Dir;
+    FNFeDirEnviados := Dir;
+  end;
+end;
+
+procedure TfrmConfiguracoesSistema.sbnDirErrosClick(Sender: TObject);
+var
+  Dir: String;
+begin
+  inherited;
+  if SelectDirectory('Selecionar diretório de Erros','',Dir) then
+  begin
+    lblDirErros.Caption := Dir;
+    FNFeDirErros := Dir;
+  end;
+end;
+
+procedure TfrmConfiguracoesSistema.sbnDirCompartilhamentoClick(
+  Sender: TObject);
+var
+  Dir: String;
+begin
+  inherited;
+  if SelectDirectory('Selecionar diretório de Compartilhamento','',Dir) then
+    lblDirCompartilhamento.Caption := Dir;
+end;
+
+procedure TfrmConfiguracoesSistema.sbnNFeLogotipoClick(Sender: TObject);
+begin
+  inherited;
+  OpenDialog1.Title := 'Logotipo DANFE';
+  OpenDialog1.DefaultExt := '*.JPG';
+  OpenDialog1.Filter := 'Arquivos JPG (*.JPG)|*.JPG|' +
+                        'Arquivos JPEG (*.JPEG)|*.JPEG|' +
+                        'Arquivos GIF (*.GIF)|*.GIF|' +
+                        'Todos os Arquivos (*.*)|*.*';
+  OpenDialog1.InitialDir := ExtractFileDir(application.ExeName);
+  if OpenDialog1.Execute then
+    lblNFeLogotipo.Caption := OpenDialog1.FileName;
+end;
+
+procedure TfrmConfiguracoesSistema.sbnDirPCPClick(Sender: TObject);
+var
+  Dir: String;
+begin
+  inherited;
+  if SelectDirectory('Selecionar diretório de Exportação PCP','',Dir) then
+    lblDirPCP.Caption := Dir;
+end;
+
+procedure TfrmConfiguracoesSistema.sbnTEFReqClick(Sender: TObject);
+var
+  Dir: String;
+begin
+  inherited;
+  if SelectDirectory('Diretório de Requisição TEF', '', Dir) then
+    lblTEFArqRequisicao.Caption := Dir;
+end;
+
+procedure TfrmConfiguracoesSistema.sbnTEFRespClick(Sender: TObject);
+var
+  Dir: String;
+begin
+  inherited;
+  if SelectDirectory('Diretório de Resposta TEF', '', Dir) then
+    lblTEFArqResposta.Caption := Dir;
+end;
+
+procedure TfrmConfiguracoesSistema.sbnTEFExecClick(Sender: TObject);
+begin
+  inherited;
+  OpenDialog1.Title := 'Selecione o Programa Gerenciador Padrão';
+  OpenDialog1.DefaultExt := '*.exe';
+  OpenDialog1.Filter := 'Arquivos PFX (*.exe)|*.exe|Todos os Arquivos (*.*)|*.*';
+  OpenDialog1.InitialDir := 'C:\tef_dial';
+  if OpenDialog1.Execute then
+    lblTEFArqPrograma.Caption := OpenDialog1.FileName
+end;
+
+procedure TfrmConfiguracoesSistema.rgpTipoTEFClick(Sender: TObject);
+begin
+  inherited;
+  case rgpTipoTEF.ItemIndex of
+    0 : pgcTipoTEF.ActivePage := tstTEFNenhum;
+    1 : pgcTipoTEF.ActivePage := tstTEFDiscado;
+    2 : pgcTipoTEF.ActivePage := tstTEFDedicado;
+  end;
+end;
+
+procedure TfrmConfiguracoesSistema.sbnExecutavelUniDANFEClick(
+  Sender: TObject);
+begin
+  inherited;
+  OpenDialog1.Title := 'Executável UniDANFE';
+  OpenDialog1.DefaultExt := '*.EXE';
+  OpenDialog1.Filter := 'Arquivos EXE (*.EXE)|*.EXE|'+
+                        'Todos os Arquivos (*.*)|*.*';
+  OpenDialog1.InitialDir := ExtractFileDir(application.ExeName);
+  if OpenDialog1.Execute then
+    lblExecutavelUniDANFE.Caption := OpenDialog1.FileName;
+end;
+
+procedure TfrmConfiguracoesSistema.sbnExecutavelUniNFeClick(
+  Sender: TObject);
+begin
+  inherited;
+  OpenDialog1.Title := 'Executável UniNFe';
+  OpenDialog1.DefaultExt := '*.EXE';
+  OpenDialog1.Filter := 'Arquivos EXE (*.EXE)|*.EXE|'+
+                        'Todos os Arquivos (*.*)|*.*';
+  OpenDialog1.InitialDir := ExtractFileDir(application.ExeName);
+  if OpenDialog1.Execute then
+  begin
+    lblExecutavelUniNFe.Caption := OpenDialog1.FileName;
+    FNFeExecNFe := OpenDialog1.FileName;
+    DefinirPastasNFE;
+
+    lblDirEnvio.Caption    := FNFeDirEnvio;
+    lblDirRetorno.Caption  := FNFeDirRetorno;
+    lblDirEnviados.Caption := FNFeDirEnviados;
+    lblDirErros.Caption    := FNFeDirErros;
+
+  end;
+end;
+
+procedure TfrmConfiguracoesSistema.sbnSPEDFiscalClick(Sender: TObject);
+var Dir: string;
+begin
+   inherited;
+   if SelectDirectory('Selecione a pasta para o arquivo do SPED Fiscal','',Dir)
+   then lblSPEDFiscal.Caption := Dir;
+end;
+
+procedure TfrmConfiguracoesSistema.sbnSPEDContabilClick(Sender: TObject);
+var Dir: string;
+begin
+   inherited;
+   if SelectDirectory('Selecione a pasta para o arquivo do SPED Contábil','',Dir)
+   then lblSPEDContabil.Caption:= Dir;
+end;
+
+procedure TfrmConfiguracoesSistema.sbnDirExportacaoClick(Sender: TObject);
+var Dir: string;
+begin
+   inherited;
+   if SelectDirectory('Selecione a pasta para Exportação de Dados','',Dir)
+   then lblDirExportacao.Caption := Dir;
+end;
+
+procedure TfrmConfiguracoesSistema.rbnNFeContScanClick(Sender: TObject);
+begin
+  inherited;
+
+  if rbnNFeContScan.Checked then
+  begin
+    //gbxContingencias.Enabled := true;
+//    dbgContingencias.Enabled := TRUE;
+    qryContingencias.AfterInsert := nil;
+
+    if qryContingencias.State<>dsinsert then
+    begin
+      qryContingencias.Append;
+      qryContingenciasdatahorainicial.AsDateTime := now();
+      qryContingencias.DisableControls;
+    end;
+
+    qryContingenciasdatahorafinal.clear;
+
+    dbgContingencias.SetFocus;
+    dbgContingencias.SelectedIndex := 1;
+    qryContingencias.AfterInsert := qryContingenciasAfterInsert;
+
+
+
+  end;
+end;
+
+procedure TfrmConfiguracoesSistema.rbnNFeNormalClick(Sender: TObject);
+begin
+  inherited;
+  if qryContingencias.State = dsinsert then
+  begin
+    qryContingencias.Cancel;
+    qryContingencias.EnableControls;
+  end
+  else
+  begin
+    qryContingencias.Last;
+    if qryContingenciasdatahorafinal.isnull then
+    begin
+      qryContingencias.Edit;
+      qryContingenciasdatahorafinal.AsDateTime := now();
+    end;
+
+    dbgContingencias.SelectedIndex := 1;
+    qryContingencias.EnableControls;
+  end;
+
+  //gbxContingencias.Enabled := false;
+  //dbgContingencias.Enabled := false;
+
+
+end;
+
+procedure TfrmConfiguracoesSistema.qryContingenciasAfterInsert(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryContingencias.Cancel;
+end;
+
+procedure TfrmConfiguracoesSistema.sbnFCONTClick(Sender: TObject);
+var Dir: string;
+begin
+   inherited;
+   if SelectDirectory('Selecione a pasta para o arquivo do FCONT','',Dir)
+   then lblFCONT.Caption := Dir;
+end;
+
+procedure TfrmConfiguracoesSistema.sbnEFDContribuicoesClick(Sender: TObject);
+var Dir: string;
+begin
+   inherited;
+   if SelectDirectory('Selecione a pasta para o arquivo da EFD Contribuições','',Dir)
+   then lblEFDContribuicoes.Caption := Dir;
+end;
+
+procedure TfrmConfiguracoesSistema.rbnZebraClick(Sender: TObject);
+begin
+  inherited;
+  lblIntensidadeImpressao.Visible := rbnZebra.Checked or rbnArgox.Checked;
+  gbxIntensidadeImpressao.Visible := rbnZebra.Checked or rbnArgox.Checked;
+end;
+
+procedure TfrmConfiguracoesSistema.sbnDirEnvioNFSeClick(Sender: TObject);
+var
+  Dir: String;
+begin
+  inherited;
+  if SelectDirectory('Selecionar diretório de Envio da NFSe','',Dir) then
+    lblDirEnvioNFSe.Caption := Dir;
+end;
+
+procedure TfrmConfiguracoesSistema.sbnDirRetornoNFSeClick(Sender: TObject);
+var
+  Dir: String;
+begin
+  inherited;
+  if SelectDirectory('Selecionar diretório de Retorno da NFSe','',Dir) then
+    lblDirRetornoNFSe.Caption := Dir;
+end;
+
+procedure TfrmConfiguracoesSistema.sbnDirErrosNFSeClick(Sender: TObject);
+var
+  Dir: String;
+
+begin
+  inherited;
+  if SelectDirectory('Selecionar diretório de Erros','',Dir) then
+    lblDirErrosNFSe.Caption := Dir;
+end;
+
+procedure TfrmConfiguracoesSistema.Timer1Timer(Sender: TObject);
+begin
+  inherited;
+
+  sbnDirEnvio.Visible := (FNFeExecNFe = '');
+  sbnDirRetorno.Visible := (FNFeExecNFe = '');
+  sbnDirEnviados.Visible := (FNFeExecNFe = '');
+  sbnDirErros.Visible := (FNFeExecNFe = '');
+
+end;
+
+procedure TfrmConfiguracoesSistema.sbnDirNotasEntradaClick(
+  Sender: TObject);
+var
+  Dir: String;
+
+begin
+  inherited;
+  if SelectDirectory('Selecionar diretório de Notas de Entrada','',Dir) then
+  begin
+    lblDirNotasEntrada.Caption := Dir;
+    FNFeDirNotasEntrada := Dir;
+  end;
+
+end;
+
+
+procedure TfrmConfiguracoesSistema.sbnCertificadoDigitalClick(
+  Sender: TObject);
+begin
+  inherited;
+  OpenDialog1.Title := 'Certificado digital NFSe';
+  OpenDialog1.DefaultExt := '*.EXE';
+  OpenDialog1.Filter := 'Arquivos PFX (*.PFX)|*.PFX|'+
+                        'Todos os Arquivos (*.*)|*.*';
+  OpenDialog1.InitialDir := ExtractFileDir(application.ExeName);
+  if OpenDialog1.Execute then
+    lblCertificadoDigitalNFSe.Caption := OpenDialog1.FileName;
+
+
+
+end;
+
+end.

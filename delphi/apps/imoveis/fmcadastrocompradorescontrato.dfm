@@ -14,9 +14,9 @@ inherited frmcadastroCompradoresContrato: TfrmcadastroCompradoresContrato
   end
   object GroupBox1: TGroupBox
     Left = 0
-    Top = 40
+    Top = 45
     Width = 704
-    Height = 142
+    Height = 177
     Align = alClient
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clBlack
@@ -67,6 +67,7 @@ inherited frmcadastroCompradoresContrato: TfrmcadastroCompradoresContrato
           MaxLength = 6
           LookupField = 'codigo'
           LookupSource = fraConsultaComprador.dsrProcuraCliente
+          LookupQueryParameter = 'codigo'
           Parameter = ' '
           ActiveSetControls = False
           DenyInsert = False
@@ -121,6 +122,7 @@ inherited frmcadastroCompradoresContrato: TfrmcadastroCompradoresContrato
           MaxLength = 6
           LookupField = 'codigo'
           LookupSource = fraConsultaRepresentante.dsrProcuraCliente
+          LookupQueryParameter = 'codigo'
           Parameter = ' '
           ActiveSetControls = False
           DenyInsert = False
@@ -171,6 +173,7 @@ inherited frmcadastroCompradoresContrato: TfrmcadastroCompradoresContrato
           MaxLength = 6
           LookupField = 'codigo'
           LookupSource = fraConsultaFiador.dsrProcuraCliente
+          LookupQueryParameter = 'codigo'
           Parameter = ' '
           ActiveSetControls = False
           DenyInsert = False

@@ -1008,7 +1008,8 @@ inherited dtmCadastroContratosAuxiliar: TdtmCadastroContratosAuxiliar
       '       c.intervensao,'
       '       df.data as datasaida,'
       '       pnp.dadofiscal,'
-      '       np.chv_nfe'
+      '       np.chv_nfe,'
+      '       df.contrato'
       ''
       ''
       '/*'
@@ -1024,23 +1025,19 @@ inherited dtmCadastroContratosAuxiliar: TdtmCadastroContratosAuxiliar
       '     and np.tipofornecedor = vf.tipo'
       ''
       '     join produtosnotaspag pnp'
-      '          join (dadosfiscais df'
-      '                left join notas n on df.numero = n.dadofiscal'
-      '                left join cupons c on df.numero = c.dadofiscal)'
+      '          join ((dadosfiscais df'
+      '                 left join notas n on df.numero = n.dadofiscal'
+      '                 left join cupons c on df.numero = c.dadofiscal)'
+      ''
+      '                 join contratos ct'
+      '                 on df.contrato = ct.numero)'
+      ''
       '          on pnp.dadofiscal = df.numero'
       '     on np.codigo = pnp.codigonota'
       ''
-      'where df.contrato = :contrato     '
-      ''
-      '/*'
-      'where np.codigo in (select distinct pnp.codigonota'
-      '                    from produtosnotaspag pnp'
-      '                    where pnp.dadofiscal in (select df.numero'
-      '                                            from dadosfiscais df'
       
-        '                                            where df.contrato = ' +
-        ':contrato))'
-      '*/'
+        'where coalesce(ct.primogenito,ct.numero) = coalesce(NullIf(:prim' +
+        'ogenito,'#39#39'),:contrato)'
       ''
       'ORDER by np.data, np.numero'
       '')
@@ -1048,6 +1045,11 @@ inherited dtmCadastroContratosAuxiliar: TdtmCadastroContratosAuxiliar
     Left = 80
     Top = 272
     ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'primogenito'
+        ParamType = ptUnknown
+      end
       item
         DataType = ftUnknown
         Name = 'contrato'
@@ -1118,6 +1120,9 @@ inherited dtmCadastroContratosAuxiliar: TdtmCadastroContratosAuxiliar
       EditMask = '99\-9999\-99999999999999\-99\-999\-999999999\-9\-99999999\-9;0;_'
       Size = 44
     end
+    object qryNotasDevolucoesContratocontrato: TStringField
+      FieldName = 'contrato'
+    end
   end
   object dsrNotasDevolucoesContrato: TtecDataSource
     DataSet = qryNotasDevolucoesContrato
@@ -1130,7 +1135,7 @@ inherited dtmCadastroContratosAuxiliar: TdtmCadastroContratosAuxiliar
     Transaction = dtmTecSoft.tstTecSoft
     CachedUpdates = False
     ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
-    Options = [doAutoFillDefs]
+    Options = [doHourGlass, doAutoFillDefs]
     LinkOptions = [loAlwaysResync]
     Constraints = <>
     AfterScroll = qryNotaseCuponsdoContratoAfterScroll
@@ -1159,13 +1164,17 @@ inherited dtmCadastroContratosAuxiliar: TdtmCadastroContratosAuxiliar
       '          df.nome as nomecliente,'
       '          df.valortotal,'
       '          df.numero as dadofiscal,'
-      '          df.chv_nfe'
+      '          df.chv_nfe,'
+      '          df.contrato'
       ''
-      '  From    notas n, dadosfiscais df'
-      '  Where (n.dadofiscal = df.numero)'
       
-        '       and ((df.contrato = :contrato) or ((df.contrato = :primog' +
-        'enito) and :primogenito is not null))'
+        '  From    notas n, dadosfiscais df join contratos ct on df.contr' +
+        'ato = ct.numero'
+      ''
+      '  Where n.dadofiscal = df.numero'
+      
+        '       and coalesce(ct.primogenito, ct.numero) = coalesce(NullIf' +
+        '(:primogenito,'#39#39'),:contrato)'
       ''
       '       union all'
       ''
@@ -1187,11 +1196,16 @@ inherited dtmCadastroContratosAuxiliar: TdtmCadastroContratosAuxiliar
       '          df.nome as nomecliente,'
       '          df.valortotal,'
       '          df.numero as dadofiscal,'
-      '          df.chv_nfe'
+      '          df.chv_nfe,'
+      '          df.contrato'
       ''
-      '  From    cupons c, dadosfiscais df'
-      '  Where (c.dadofiscal = df.numero)'
-      '       and (df.contrato =:contrato)'
+      
+        '  From    cupons c, dadosfiscais df  join contratos ct on df.con' +
+        'trato = ct.numero'
+      '  Where c.dadofiscal = df.numero'
+      
+        '    and coalesce(ct.primogenito, ct.numero) = coalesce(NullIf(:p' +
+        'rimogenito,'#39#39'),:contrato)'
       ''
       ') as notasecupons'
       'order by datasaida, numero')
@@ -1200,13 +1214,13 @@ inherited dtmCadastroContratosAuxiliar: TdtmCadastroContratosAuxiliar
     Top = 276
     ParamData = <
       item
-        DataType = ftString
-        Name = 'contrato'
+        DataType = ftUnknown
+        Name = 'primogenito'
         ParamType = ptUnknown
       end
       item
-        DataType = ftUnknown
-        Name = 'primogenito'
+        DataType = ftString
+        Name = 'contrato'
         ParamType = ptUnknown
       end>
     object qryNotaseCuponsdoContratofilial: TIntegerField
@@ -1269,6 +1283,9 @@ inherited dtmCadastroContratosAuxiliar: TdtmCadastroContratosAuxiliar
       FieldName = 'chv_nfe'
       EditMask = '99\-9999\-99999999999999\-99\-999\-999999999\-9\-99999999\-9;0;_'
       Size = 44
+    end
+    object qryNotaseCuponsdoContratocontrato: TStringField
+      FieldName = 'contrato'
     end
   end
   object dsrNotaseCuponsdoContrato: TDataSource
@@ -1894,7 +1911,7 @@ inherited dtmCadastroContratosAuxiliar: TdtmCadastroContratosAuxiliar
     Transaction = dtmTecSoft.tstTecSoft
     CachedUpdates = False
     ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
-    Options = [doAutoFillDefs]
+    Options = [doHourGlass, doAutoFillDefs]
     LinkOptions = [loAlwaysResync]
     Constraints = <>
     AfterScroll = qryNotasFreteAfterScroll
@@ -1924,9 +1941,10 @@ inherited dtmCadastroContratosAuxiliar: TdtmCadastroContratosAuxiliar
       '       c.intervensao,'
       '       df.data as datasaida,'
       '       df.numero as dadofiscal,'
-      '       np.chv_nfe'
-      '       '
-      'from notaspag np, notaspagchv nc, '
+      '       np.chv_nfe,'
+      '       df.contrato'
+      ''
+      'from notaspag np, notaspagchv nc,'
       '     (dadosfiscais df'
       '                left join notas n on df.numero = n.dadofiscal'
       '                left join cupons c on df.numero = c.dadofiscal),'
@@ -1941,11 +1959,18 @@ inherited dtmCadastroContratosAuxiliar: TdtmCadastroContratosAuxiliar
       '  and np.situacao='#39'N'#39
       '  and vf.codigo=np.fornecedor'
       '  and vf.tipo=np.tipofornecedor'
-      '  and ct.numero=:contrato')
+      
+        '  and coalesce(ct.primogenito,ct.numero) = coalesce(NullIf(:prim' +
+        'ogenito,'#39#39'),:contrato)')
     RequestLive = False
     Left = 80
     Top = 344
     ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'primogenito'
+        ParamType = ptUnknown
+      end
       item
         DataType = ftUnknown
         Name = 'contrato'
@@ -2014,6 +2039,9 @@ inherited dtmCadastroContratosAuxiliar: TdtmCadastroContratosAuxiliar
     object qryNotasFretechv_nfe: TStringField
       FieldName = 'chv_nfe'
       Size = 44
+    end
+    object qryNotasFretecontrato: TStringField
+      FieldName = 'contrato'
     end
   end
   object dsrNotasFrete: TtecDataSource

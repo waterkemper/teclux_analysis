@@ -2731,6 +2731,7 @@ end;
 
 procedure TdtmConsultaNotasFiscais.qryNotasCalcFields(DataSet: TDataSet);
 begin
+
   inherited;
   if ((qryDadosFiscaismodelodocto.AsString='55') or
       (qryDadosFiscaismodelodocto.AsString='65')) and
@@ -2820,7 +2821,7 @@ begin
                             (parsistema.EmissorNfPSe and
                              (qryDadosFiscaismodelodocto.AsString = '99') and
                              (qryServicosDadosFiscais.recordcount <> 0) and
-                             (ftipoemissaonfeservico in [Florianopolis_SoftPlan, Eletronica_AmbNacional, Palhoca_IPM]))
+                             (ftipoemissaonfeservico in [Eletronica_Betha_Sistemas, Florianopolis_SoftPlan, Eletronica_AmbNacional, Palhoca_IPM]))
 
   else
     fCondicaoEmissorNFE := (parsistema.EmissorNfe and
@@ -2833,7 +2834,7 @@ begin
                            (parsistema.EmissorNfPSe and
                             (ModeloDoctoFiscalServico = '99') and
                             (qryServicosDadosFiscais.recordcount <> 0) and
-                            (ftipoemissaonfeservico in [Florianopolis_SoftPlan, Eletronica_AmbNacional, Palhoca_IPM]));
+                            (ftipoemissaonfeservico in [Eletronica_Betha_Sistemas, Florianopolis_SoftPlan, Eletronica_AmbNacional, Palhoca_IPM]));
 
   Result := fCondicaoEmissorNFE;
 end;
@@ -3084,13 +3085,13 @@ begin
     fCondicaoEmissorNFPSe := (parsistema.EmissorNfPSe and
                               (qryDadosFiscaismodelodocto.AsString = '99') and
                               (qryServicosDadosFiscais.recordcount <> 0) and
-                              (ftipoemissaonfeservico in [Florianopolis_SoftPlan, Eletronica_AmbNacional, Palhoca_IPM]))
+                              (ftipoemissaonfeservico in [Eletronica_Betha_Sistemas, Florianopolis_SoftPlan, Eletronica_AmbNacional, Palhoca_IPM]))
 
   else
     fCondicaoEmissorNFPSe := (parsistema.EmissorNfPSe and
                               (ModeloDoctoFiscalServico = '99') and
                               (qryServicosDadosFiscais.recordcount <> 0) and
-                              (ftipoemissaonfeservico in [Florianopolis_SoftPlan, Eletronica_AmbNacional, Palhoca_IPM]));
+                              (ftipoemissaonfeservico in [Eletronica_Betha_Sistemas, Florianopolis_SoftPlan, Eletronica_AmbNacional, Palhoca_IPM]));
 
   Result := fCondicaoEmissorNFPSe;
 

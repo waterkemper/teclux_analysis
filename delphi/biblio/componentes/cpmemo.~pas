@@ -1,0 +1,85 @@
+unit cpmemo;
+
+interface
+
+uses
+  Windows, DBCtrls, Controls, StdCtrls, Graphics, Classes, ctconstantes, cpquery, Db, biblio;
+
+{ Const Validos = ['0'..'9','A'..'Z','a'..'z','&','@','*',',','.','-','(',')','[',']',':','/',' '];}
+
+type
+  TtecMemo = class(TMemo)
+    constructor Create(AOwner: TComponent); override;
+    procedure DoEnter; override;
+    procedure DoExit; override;
+    procedure KeyPress(var Key: Char); override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+  public
+    procedure Append(Texto : String);
+
+  end;
+
+implementation
+
+{ TtecMemo }
+
+procedure TtecMemo.Append(Texto: String);
+begin
+  Text := Text + Texto;
+end;
+
+constructor TtecMemo.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+//  WrapBreak:= wbWhitespace;
+end;
+
+procedure TtecMemo.DoEnter;
+begin
+  inherited;
+  if Focused then
+    Color:= CorFundoControle;
+end;
+
+procedure TtecMemo.DoExit;
+begin
+  inherited;
+  Color:= clWindow;
+end;
+
+procedure TtecMemo.KeyDown(var Key: Word; Shift: TShiftState);
+//var
+//  vCharFromVirtualKey : String;
+begin
+  inherited;
+
+// If ((GetCharFromVirtualKey(Key)<>'') and
+//      not (GetCharFromVirtualKey(Key)[1] in  CharSemAcentos + CharComAcentos)) then
+
+// vCharFromVirtualKey := GetCharFromVirtualKey(Key);
+
+// If (vCharFromVirtualKey<>'') and
+//     not (vCharFromVirtualKey[1] in  CharSemAcentos + CharComAcentos) then
+
+//    if (Length(Text) > self.MaxLength) and (self.MaxLength>0) then
+//    begin
+//      Key := 0;
+//      MessageBeep(0);
+//    end;
+end;
+
+procedure TtecMemo.KeyPress(var Key: Char);
+begin
+  inherited;
+  if not CtrlOn and (key = chr(VK_RETURN)) then
+      key :=  #0
+  else
+  if (Key in [#32..#255]) and
+     ((not (Key in CharSemAcentos + CharComAcentos )) or
+         ((CharValidos<>'') and (pos(key,CharValidos)=0))) and
+        (key <> chr(vk_back)) then
+     Key := #0;
+
+end;
+
+end.

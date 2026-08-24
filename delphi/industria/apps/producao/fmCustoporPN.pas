@@ -1,0 +1,85 @@
+unit fmCustoporPN;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmrelatoriopadrao, ExtCtrls, Buttons, ToolWin, ComCtrls,
+  StdCtrls, Mask, DBCtrls, cpdbtext, frconsulta, frconsultacodigo, ctconstantes,
+  ActnList;
+
+type
+  TfrmCustoporPN = class(TFrmRelatorioPadrao)
+    gbxCliente: TGroupBox;
+    gbxProduto: TGroupBox;
+    dtxCliente: TtecDBText;
+    PN: TGroupBox;
+    fraConsultaPN: TfraConsultaCodigo;
+    dtxNomedoCliente: TtecDBText;
+    dtxProduto: TtecDBText;
+    dtxDescricaoProduto: TtecDBText;
+    actHabilitar: TActionList;
+    actHabilitarBotoes: TAction;
+    procedure actHabilitarBotoesUpdate(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure internoImpressao; Override;
+
+
+  end;
+
+var
+  frmCustoporPN: TfrmCustoporPN;
+
+implementation
+
+uses dmCustoporPN;
+
+{$R *.dfm}
+
+{ TfrmCustoporPN }
+
+constructor TfrmCustoporPN.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmCustoporPN := TdtmCustoporPN.Create(Self);
+  fraConsultaPN.TipoPesquisa := pesCaracteristicasProdutosClientes;
+
+end;
+
+destructor TfrmCustoporPN.Destroy;
+begin
+  dtmCustoporPN := nil;
+  inherited;
+  frmCustoporPN := nil;
+
+end;
+
+procedure TfrmCustoporPN.actHabilitarBotoesUpdate(Sender: TObject);
+begin
+  inherited;
+  sbnImprimir.enabled := (fraConsultaPN.qryProcuraCaracteristicasProdutosClientes.RecordCount <> 0);
+
+end;
+
+procedure TfrmCustoporPN.internoImpressao;
+begin
+  inherited;
+  if fraConsultaPN.qryProcuraCaracteristicasProdutosClientes.RecordCount <> 0 then
+  begin
+    with dtmCustoporPN do
+    begin
+       ExportarExcel(fraConsultaPN.qryProcuraCaracteristicasProdutosClientes.FieldByName('codigodocliente').AsInteger,
+                     fraConsultaPN.qryProcuraCaracteristicasProdutosClientes.FieldByName('tipocliente').AsString,
+                     fraConsultaPN.qryProcuraCaracteristicasProdutosClientes.FieldByName('codigoproduto').AsString);
+
+
+    end;
+  end;
+end;
+
+end.

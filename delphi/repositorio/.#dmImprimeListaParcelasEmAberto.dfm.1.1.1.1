@@ -1,0 +1,119 @@
+inherited dtmImprimeListaParcelasEmAberto: TdtmImprimeListaParcelasEmAberto
+  OldCreateOrder = False
+  OnCreate = DataModuleCreate
+  OnDestroy = DataModuleDestroy
+  Left = 446
+  Top = 133
+  Height = 175
+  Width = 151
+  object qryParcelasContrato: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select c.cliente,'
+      '       c.numero,'
+      '       c.data as datavenda,'
+      '       p.parcelaorigem,'
+      '       p.contrato,'
+      '       p.datavencto,'
+      '       p.datapagto,'
+      '       p.valorvencto,'
+      '       cl.nome'
+      '  from contratos c'
+      '  join parcelas p  on p.contrato = c.numero'
+      '  join clientes cl on cl.codigo = c.cliente'
+      ' where c.cliente = :cliente'
+      '   and p.datapagto is null'
+      '   and (c.situacao in ('#39'F'#39','#39'N'#39','#39'P'#39'))'
+      
+        '   and (0 = coalesce((select Count(*) from contratos c1 where c1' +
+        '.origem = c.numero),0))'
+      
+        '   and (0 < coalesce((select count(*) from parcelas p where (p.c' +
+        'ontrato = c.numero) and (p.datapagto is null)),0))'
+      '/* Ru8n-Time  */'
+      'order by to_number(c.numero, '#39'99999999999999999999'#39') desc')
+    RequestLive = False
+    Left = 60
+    Top = 40
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'cliente'
+        ParamType = ptUnknown
+      end>
+    object qryParcelasContratocliente: TIntegerField
+      FieldName = 'cliente'
+    end
+    object qryParcelasContratodatavenda: TDateField
+      FieldName = 'datavenda'
+    end
+    object qryParcelasContratoparcelaorigem: TStringField
+      FieldName = 'parcelaorigem'
+      Size = 7
+    end
+    object qryParcelasContratocontrato: TStringField
+      FieldName = 'contrato'
+    end
+    object qryParcelasContratodatavencto: TDateField
+      FieldName = 'datavencto'
+    end
+    object qryParcelasContratovalorvencto: TFloatField
+      FieldName = 'valorvencto'
+    end
+    object qryParcelasContratonome: TStringField
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryParcelasContratonumero: TStringField
+      FieldName = 'numero'
+    end
+  end
+  object qryTotalAberto: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select sum(p.valorvencto) as total'
+      '  from contratos c'
+      '  join parcelas p  on p.contrato = c.numero'
+      '  join clientes cl on cl.codigo = c.cliente'
+      ' where c.cliente = :cliente'
+      '   and p.datapagto is null'
+      '   and (c.situacao in ('#39'F'#39','#39'N'#39','#39'P'#39'))'
+      
+        '   and (0 = coalesce((select Count(*) from contratos c1 where c1' +
+        '.origem = c.numero),0))'
+      
+        '   and (0 < coalesce((select count(*) from parcelas p where (p.c' +
+        'ontrato = c.numero) and (p.datapagto is null)),0))'
+      '  /* Run-Time */   ')
+    RequestLive = False
+    Left = 60
+    Top = 90
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'cliente'
+        ParamType = ptUnknown
+      end>
+    object qryTotalAbertototal: TFloatField
+      FieldName = 'total'
+    end
+  end
+end

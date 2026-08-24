@@ -1,0 +1,1970 @@
+unit cltefdiscado;
+
+interface
+
+Uses
+  //CLX
+  Classes, 
+  //Componentes
+  cttef, ACBrTEFD, ACBrTEFDClass, Controls, Dialogs, ACBrDevice, ACBrUtil,
+  ctconstantes;
+
+type
+  TtecTEFOperacao = (sopADMIN, sopCHEQUE, sopCARTAO);//, sopCANCELAMENTO,
+//                     sopCONFIRMACAO, sopNAOCONFIRMACAO);
+  TtecArrayString = Array of String;
+  TtecTEFFormasPagto = record
+    NomeRede: String;
+    Valor: Currency
+  end;
+  TtecTEFParcela = record
+    DataVencto: String;
+    Valor: Double;
+    NSU: String;
+  end;
+
+  TtecTEFArrayParcelas = array of TtecTEFParcela;
+
+  TtecErroTEF = (etNenhum, etHeader, etIdentificacao, etTransacaoNegada);
+
+  TtecTEFDiscado = class(TACBrTEFD)
+  private
+    FNSU: String;
+    FNomeRede: String;
+    FDataTransacao: String;
+    FHoraTransacao: String;
+    HeaderEnviado: String;
+    NroSeq: String;
+    FCupomFiscal: String;
+    FFinalizacao: String;
+    FComprovante: array of TtecArrayString;
+    FParcelas: array of TtecTEFArrayParcelas;
+    FQtdadeComprovantes: Integer;
+    FTextoOperador: String;
+    FValorTransacaoStr: String;
+    FValorTransacao: Real;
+    FTipoTransacao_: Integer;
+    CodErro: TtecErroTEF;
+//    ErroNroSeq: Boolean;
+    FTipoParcelamento: Integer;
+    FQtdadeParcelas: Integer;
+    FCredQtdadeParcelasPermitidas: Integer;
+    FDebQtdadeParcelasPermitidas: Integer;
+    FHeader: String;
+    FStatusTransacao_: String;
+    FQtdadeLinhasComprovante: Integer;
+    FValorParcialCartoes: Currency;
+    FValorTotalCartoes: Real;
+    FTipoTransacaoPermitida: Integer;
+    FFormasPagto: Array of TtecTEFFormasPagto;
+    FFrenteCaixa: Boolean;
+    TipoOperacaoGlobal: TtecTEFOperacao;
+    FTextoCliente: String;
+    FTipoPessoa: Char;
+    FCMC7: String;
+    FHoraTransacaoCancelada: String;
+    FDocumentoFiscalVinculado: String;
+    FDataCheque: String;
+    FIdentificacao_: String;
+    FDocumentoPessoa: String;
+    FAutorizacaoTransacao: String;
+    FDataPreDatado: String;
+    FDataTransacaoCancelada: String;
+    FNroTransacaoCancelada: String;
+    FAdministradora: String;
+//    FLoteTransacao: String;
+    FMoeda: String;
+    FCCF: String;
+    FValorPagoDinheiro: Currency;
+    FValorPagocheque: Currency;
+    FValorPagoCartao: Currency;
+    fMensagemCupom: TTecStringRetorno;
+    FValorDesconto: Currency;
+    FValorAcrescimo: Currency;
+    fTotalPago: Currency;
+    FValorCreditoTroca: Currency;
+    fnrautorizacaocartao: String;
+    fcnpjcredenciadora: String;
+    fbandeiraoperadora: String;
+//    FDataHoraTransacaoLocal: TDateTime;
+//    FDataHoraTransacaoHost: TDateTime;
+    procedure ApagarArquivo(NomeArq: String);
+    function  Clock: Comp;
+    function  EsperandoArquivo(Arq: String; ComTimeOut: Boolean): Boolean;
+    procedure InterpretaLinha(Valor: String; SomenteLerArq: Boolean; var NroLinha: Integer);
+    function  InterpretarResposta(SomenteLerArq: Boolean): Boolean;
+    procedure NovoNumeroSequencia;
+    procedure setValorTransacao(const Value: String);
+    procedure setValorTotalCartoes(const Value: Real);
+    function getComprovante(Index: Integer): TtecArrayString;
+    function getFormasPagto(Index: Integer): TtecTEFFormasPagto;
+    function getParcelas(Index: Integer): TtecTEFArrayParcelas;
+    procedure ExibirMensagemTemporizada;
+    procedure SetValorPagoDinheiro(const Value: Currency);
+    procedure SetValorPagocheque(const Value: Currency);
+    procedure SetValorCreditoTroca(const Value: Currency);
+  protected
+    function FormatarValor(Valor: String): String;
+    function EsperandoConfirmacaoTEF: Boolean;
+    function EsperandoRespostaTEF: Boolean;
+    function PreencherRequesicao(Req: String; DadosReq: array of String): Boolean;
+
+    procedure AntesFinalizarRequisicao(Req : TACBrTEFDReq);
+    procedure AntesCancelarTransacao(RespostaPendente: TACBrTEFDResp);
+    procedure ExibeMsg(Operacao : TACBrTEFDOperacaoMensagem; Mensagem : String; var AModalResult : TModalResult);
+    procedure ComandaECF(Operacao : TACBrTEFDOperacaoECF;  Resp : TACBrTEFDResp; var RetornoECF : Integer );
+    procedure ComandaECFAbreVinculado(COO, IndiceECF : String; Valor : Double; var RetornoECF : Integer);
+    procedure ComandaECFImprimeVia(TipoRelatorio : TACBrTEFDTipoRelatorio; Via : Integer; ImagemComprovante : TStringList; var RetornoECF : Integer);
+    procedure InfoECF(Operacao : TACBrTEFDInfoECF;  var RetornoECF : String );
+    procedure ComandaECFSubtotaliza(DescAcre: Double; var RetornoECF: Integer);
+    procedure ComandaECFPagamento(IndiceECF : String; Valor : Double; var RetornoECF : Integer);
+    procedure MudaEstadoResp(EstadoResp: TACBrTEFDRespEstado);
+
+  public
+    ComprovanteOK : Boolean;
+    maior : integer;
+    procedure ApagarArquivoResposta;
+    function  CancelarTransacao(NSU, NomeRede, Hora, Data: String; Valor: Currency; MDI: Boolean): Boolean;
+    procedure CancelarUltimaTransacaoPendente;
+    function ConfirmaTransacao: Boolean;
+
+    constructor Create(AOwner: TComponent); override; // virtual;
+
+    procedure AtivarTEF(GP : TACBrTEFDTipo = gpNenhum);
+
+    class procedure DiretorioRequisicao(Valor: String); overload;
+    class function  DiretorioRequisicao: String;        overload;
+    class procedure DiretorioResposta(Valor: String);   overload;
+    class function  DiretorioResposta: String;          overload;
+    class procedure ExecutavelTEF(Valor: String);     overload;
+    class function  ExecutavelTEF: String;            overload;
+    function ExecutarOperacao(TipoOperacao: TtecTEFOperacao; QtdadeCartoes: Integer): Boolean;
+    function GerenciadorAtivo(Aguardar: Boolean): Boolean;
+    function ImprimirCupom(var CupomEmitido: Boolean; PagarDinheiro: Currency; DadosFornec, FormaPagto: String; QtdadeCartoes: Integer): Boolean;
+    function Mensagem: String;
+    function NaoConfirmaVendaOuImpressao: Boolean;
+
+    property CupomFiscal: String read FCupomFiscal write FCupomFiscal;
+    property CCF: String read FCCF write FCCF;
+    property FormasPagto[Index: Integer]: TtecTEFFormasPagto read getFormasPagto;
+    property FrenteCaixa: Boolean read FFrenteCaixa write FFrenteCaixa;
+    property QtdadeComprovantes: Integer read FQtdadeComprovantes write FQtdadeComprovantes;
+    property CredQtdadeParcelasPermitidas: Integer read FCredQtdadeParcelasPermitidas write FCredQtdadeParcelasPermitidas;
+    property DebQtdadeParcelasPermitidas: Integer read FDebQtdadeParcelasPermitidas write FDebQtdadeParcelasPermitidas;
+    property TipoTransacaoPermitida: Integer read FTipoTransacaoPermitida write FTipoTransacaoPermitida;
+    property ValorParcialCartoes: Currency read FValorParcialCartoes;
+    property ValorTotalCartoes: Real read FValorTotalCartoes write setValorTotalCartoes;
+
+    property Header: String read FHeader write FHeader;
+    property Identificacao_: String read FIdentificacao_ write FIdentificacao_;
+    property DocumentoFiscalVinculado: String read FDocumentoFiscalVinculado write FDocumentoFiscalVinculado;
+    property ValorTransacao: String read FValorTransacaoStr write setValorTransacao;
+    property ValorPagoDinheiro: Currency read FValorPagoDinheiro write SetValorPagoDinheiro;
+    property ValorCreditoTroca: Currency read FValorCreditoTroca write SetValorCreditoTroca;
+
+    property ValorPagocheque: Currency read FValorPagocheque write SetValorPagocheque;
+    property ValorpagoCartao: Currency read FValorPagoCartao write FValorPagoCartao;
+    property ValorDesconto: Currency read FValorDesconto write FValorDesconto;
+    property ValorAcrescimo: Currency read FValorAcrescimo write FValorAcrescimo;
+    property TotalPago: Currency read fTotalPago write fTotalPago;
+
+    property Moeda: String read FMoeda write FMoeda;
+    property CMC7: String read FCMC7 write FCMC7;
+    property TipoPessoa: Char read FTipoPessoa write FTipoPessoa;
+    property DocumentoPessoa: String read FDocumentoPessoa write FDocumentoPessoa;
+    property DataCheque: String read FDataCheque write FDataCheque;
+    property StatusTransacao_: String read FStatusTransacao_ write FStatusTransacao_;
+    property NomeRede: String read FNomeRede write fNomeRede;
+    property TipoTransacao_: Integer read FTipoTransacao_ write FTipoTransacao_;
+    property NSU: String read FNSU write FNSU;
+    property AutorizacaoTransacao: String read FAutorizacaoTransacao;
+    property cnpjcredenciadora: String read fcnpjcredenciadora write fcnpjcredenciadora;
+    property bandeiraoperadora: String read fbandeiraoperadora write fbandeiraoperadora;
+    property nrautorizacaocartao: String read fnrautorizacaocartao write fnrautorizacaocartao;
+
+{    property LoteTransacao: String read FLoteTransacao;
+    property DataHoraTransacaoHost: TDateTime read FDataHoraTransacaoHost;
+    property DataHoraTransacaoLocal: TDateTime read FDataHoraTransacaoLocal;
+}    property TipoParcelamento: Integer read FTipoParcelamento write FTipoParcelamento;
+    property QtdadeParcelas: Integer read FQtdadeParcelas write FQtdadeParcelas;
+    property Parcelas[Index: Integer]: TtecTEFArrayParcelas read getParcelas;
+    property DataTransacao: String read FDataTransacao write FDataTransacao;
+    property HoraTransacao: String read FHoraTransacao write fHoraTransacao;
+    property DataPreDatado: String read FDataPreDatado;
+    property NroTransacaoCancelada: String read FNroTransacaoCancelada;
+    property DataTransacaoCancelada: String read FDataTransacaoCancelada;
+    property HoraTransacaoCancelada: String read FHoraTransacaoCancelada;
+    property Finalizacao: String read FFinalizacao;
+    property QtdadeLinhasComprovante: Integer read FQtdadeLinhasComprovante;
+    property Comprovante[Index:Integer]: TtecArrayString read getComprovante;
+    property TextoOperador: String read FTextoOperador;
+    property TextoCliente: String read FTextoCliente;
+    property Administradora: String read FAdministradora write FAdministradora;
+    property MensagemCupom: TTecStringRetorno read fMensagemCupom write fMensagemCupom;
+  end;
+
+var
+  TEFPadrao: TtecTEFDiscado;
+
+
+implementation
+
+Uses
+  //CLX
+  {$IFDEF MSWINDOWS} Windows, {$ENDIF} SysUtils, Forms, IdGlobal,
+  //Biblio
+  biblio, clparametrossistema, clecf, fmmensagemtemporizada,
+  ACBrECF;
+
+{ TtecTEFDiscado }
+
+const
+
+  NomeArq         = 'intpos.001';
+  NomeArqTemp     = 'intpos.tmp';
+  NomeArqSts      = 'intpos.sts';
+  NomeArqTEFAtivo = 'ativo.001';
+
+  ctCODIGO000    = '000';
+  ctCODIGO001    = '001';
+  ctCODIGO002    = '002';
+  ctCODIGO003    = '003';
+  ctCODIGO004    = '004';
+  ctCODIGO005    = '005';
+  ctCODIGO006    = '006';
+  ctCODIGO007    = '007';
+  ctCODIGO008    = '008';
+  ctCODIGO009    = '009';
+  ctCODIGO010    = '010';
+  ctCODIGO011    = '011';
+  ctCODIGO012    = '012';
+  ctCODIGO013    = '013';
+  ctCODIGO014    = '014';
+  ctCODIGO015    = '015';
+  ctCODIGO016    = '016';
+  ctCODIGO017    = '017';
+  ctCODIGO018    = '018';
+  ctCODIGO019    = '019';
+  ctCODIGO020    = '020';
+  ctCODIGO021    = '021';
+  ctCODIGO022    = '022';
+  ctCODIGO023    = '023';
+  ctCODIGO024    = '024';
+  ctCODIGO025    = '025';
+  ctCODIGO026    = '026';
+  ctCODIGO027    = '027';
+  ctCODIGO028    = '028';
+  ctCODIGO029    = '029';
+  ctCODIGO030    = '030';
+  ctCODIGO031    = '031';
+  ctCODIGO040    = '040';
+  ctCODIGO999    = '999';
+
+var
+  DirExec,
+  FDirReq,
+  FDirResp,
+  FExeTEF: String;
+
+procedure TtecTEFDiscado.ComandaECFImprimeVia(
+  TipoRelatorio: TACBrTEFDTipoRelatorio; Via: Integer;
+  ImagemComprovante: TStringList; var RetornoECF: Integer);
+begin
+  Sleep(1);
+(*
+  Memo1.Lines.Add( 'tefpadraoComandaECFImprimeVia, Tipo: '+
+     IfThen(TipoRelatorio = trGerencial, 'trGerencial','trVinculado') +
+     ' Via: '+IntToStr(Via) );
+  Memo1.Lines.AddStrings( ImagemComprovante );
+  *)
+
+  { *** Se estiver usando ACBrECF... Lembre-se de configurar ***
+    ecfpadrao.MaxLinhasBuffer   := 3; // Os homologadores permitem no máximo
+                                     // Impressao de 3 em 3 linhas
+    ecfpadrao.LinhasEntreCupons := 7; // (ajuste conforme o seu ECF)
+
+    NOTA: ACBrECF nao possui comando para imprimir a 2a via do CCD }
+
+  {AQUI SERÁ GUARDADO O COMPROVANTE }  
+  try
+     case TipoRelatorio of
+       trGerencial :
+         if assigned(ecfpadrao) then
+           ecfpadrao.LinhaRelatorioGerencial( ImagemComprovante.Text ) ;
+
+       trVinculado :
+         if assigned(ecfpadrao) then
+           ecfpadrao.LinhaCupomVinculado( ImagemComprovante.Text );  {aqui e agora}
+     end;
+
+    if assigned(ecfpadrao) and ECFPadrao.Erro then
+      RetornoECF := 0
+    else
+      RetornoECF := 1 ;
+
+  except
+     RetornoECF := 0 ;
+  end;
+  Sleep(1);
+end;
+
+procedure TtecTEFDiscado.ApagarArquivo(NomeArq: String);
+begin
+  if FileExists(NomeArq) then begin
+      DeleteFile(DirExec + 'tectef.tmp');
+      DeleteFile(NomeArq);
+  end
+//    RenameFile(NomeArq,NomeArq+NroSeq);
+end;
+
+procedure TtecTEFDiscado.ApagarArquivoResposta;
+begin
+  ApagarArquivo(FDirResp+NomeArq);
+end;
+
+procedure TtecTEFDiscado.AtivarTEF(GP: TACBrTEFDTipo);
+begin
+  if not assigned(TefPadrao) then
+    TefPadrao := TtecTEFDiscado.create(TefPadrao);
+
+  TEFPadrao.OnAntesFinalizarRequisicao := AntesFinalizarRequisicao;
+  TEFPadrao.onAntesCancelarTransacao := AntesCancelarTransacao;
+  TEFPadrao.OnExibeMsg := ExibeMsg;
+  TEFPadrao.OnComandaECF := ComandaECF;
+  TEFPadrao.OnComandaECFAbreVinculado := ComandaECFAbreVinculado;
+  TEFPadrao.OnComandaECFImprimeVia := ComandaECFImprimeVia;
+  TEFPadrao.OnInfoECF := InfoECF;
+  TEFPadrao.PathBackup := ExtractFilePath(Application.ExeName);
+  Tefpadrao.Resp.ArqBackup := 'tefdiscadobackup.ini';
+  TEFPadrao.SuportaDesconto := true;
+  TEFPadrao.SuportaSaque := true;
+  TEFPadrao.autoEfetuarpagamento := false;
+  TEFPadrao.MultiplosCartoes := true;
+  TEFPadrao.AutoFinalizarCupom := true;
+
+//  TEFPadrao.NumeroMaximoCartoes := 0;
+//  Tefpadrao.EsperaSleep := 250;
+//  Tefpadrao.EsperaMinimaMensagemFinal := 5;
+// Tefpadrao.EsperaSTS := 7;
+
+  Tefpadrao.EsperaSleep := 10;
+  Tefpadrao.EsperaMinimaMensagemFinal := 0;
+  Tefpadrao.EsperaSTS := 7;
+
+
+  Tefpadrao.NumVias := ParSistema.QtdeViaTEFDiscado;
+
+
+  Tefpadrao.ArqLOG := 'TEF_DIAL.log';
+  Tefpadrao.Identificacao.NomeAplicacao := 'teclux';
+  Tefpadrao.Identificacao.VersaoAplicacao := '2.35';
+  Tefpadrao.Identificacao.RazaoSocial := 'TECSOFT ME';
+
+  TEFPadrao.TrocoMaximo := 100;
+  TEFPadrao.OnComandaECFSubtotaliza := ComandaECFSubtotaliza;
+  TefPadrao.OnComandaECFPagamento := ComandaECFPagamento;
+  TefPadrao.OnMudaEstadoResp := MudaEstadoResp;
+
+
+  TEFPadrao.Inicializar(GP);
+end;
+
+function TtecTEFDiscado.CancelarTransacao(NSU, NomeRede, Hora, Data: String; Valor: Currency; MDI: Boolean): Boolean;
+var
+//  Msg: String;
+  a: Integer;
+//  SerieOK,
+  Sair: Boolean;
+begin
+{  SerieOK := ECFPadrao.ImpressoraConfiguradaIgualConectada;
+  while ECFPadrao.Erro or Not SerieOK do begin
+    if ECFPadrao.Erro then
+      Msg := 'Aguardando impressora fiscal'+sLineBreak+'Erro: '+ECFPadrao.Mensagem
+    else if Not SerieOK then
+      Msg := 'Aguardando impressora fiscal'+sLineBreak+'Erro: '+
+             Format(ctERROSERIEECFDIFERENTE, ['', ECFPadrao.SerieMaquina, ECFPadrao.NumeroMaquina]);
+    if Assigned(frmMsg) then
+      frmMsg.Mensagem := Msg
+    else if MDI then
+      frmMsg := TfrmMensagemTemporizada.Create(Screen.ActiveForm, Msg);
+    frmMsg.Fechar:= False;
+    frmMsg.Show;
+    frmMsg.SetFocus;
+    Application.ProcessMessages;
+    SerieOK := ECFPadrao.ImpressoraConfiguradaIgualConectada;
+  end;
+  if Assigned(frmMsg) then begin
+    frmMsg.Fechar := True;
+    frmMsg.Close;
+    Application.ProcessMessages
+  end;
+}
+  HeaderEnviado := 'CNC';
+  NovoNumeroSequencia;
+  Result := PreencherRequesicao(HeaderEnviado, ['003-000 = ' + ValorTransacao,
+                                                '010-000 = ' + NomeRede,
+                                                '012-000 = ' + NSU,
+                                                '022-000 = ' + Data,
+                                                '023-000 = ' + Hora]);
+  if Result and EsperandoRespostaTEF then
+    if InterpretarResposta(False) then
+    begin
+      Sair := False;
+      if FQtdadeComprovantes = 0 then
+      begin
+        if TextoOperador <> '' then
+          MensagemAviso(TextoOperador);
+        if TextoCliente <> '' then
+          MensagemAviso(TextoCliente);
+        ApagarArquivo(FDirResp+NomeArq);
+      end else
+      begin
+        BlockInput(True);
+        try
+          ECFPadrao.CancelarCupom;
+          ECFPadrao.FecharRelatorioGerencial;
+//          ECFPadrao.FechaNaoFiscal;
+          if TextoOperador <> '' then
+          begin
+{            if MDI then
+              frmMsg := TfrmMensagemTemporizada.Create(Screen.ActiveForm, TextoOperador)
+            else
+              frmMsg.Mensagem := TextoOperador;
+            frmMsg.Show;
+            frmMsg.SetFocus;
+}           ExibirMensagemTemporizada;
+          end;
+          repeat
+            for a := 0 to ParSistema.QtdeViaTEFDiscado - 1 do
+            begin
+              ECFPadrao.RelatorioGerencial(FComprovante[0], 1);
+              if ECFPadrao.Erro then
+                break
+              else if ParSistema.QtdeViaTEFDiscado > a then
+                ECFPadrao.RelatorioGerencial([sLineBreak+sLineBreak+sLineBreak+sLineBreak+sLineBreak],1);
+            end;
+            if Not ECFPadrao.Erro then
+              ECFPadrao.FecharRelatorioGerencial;
+            if ECFPadrao.Erro then
+            begin
+              repeat
+                try
+                  if ECFPadrao.CupomAberto then
+                    ECFPadrao.CancelarCupom;
+                  ECFPadrao.FecharRelatorioGerencial;
+//                  ECFPadrao.FechaNaoFiscal;
+                except
+                  if ECFPadrao.Erro then
+                  begin
+                    BlockInput(False);
+                    if MensagemConfirmacao(ECFPadrao.Mensagem + sLineBreak + ctTEFIMPRIMIRNOVAMENTE) <> smbOK then
+                    begin
+                      sleep(2000);
+                      Sair := True;
+                    end;
+                    BlockInput(True);
+                  end
+                end
+              until (Not ECFPadrao.Erro) or Sair;
+              if Sair then
+              begin
+//                ECFPadrao.FecharRelatorioGerencial;
+//                ECFPadrao.FechaNaoFiscal;
+                Result := False;
+                if Assigned(frmMsg) then
+                  frmMsg.Free;
+                if NaoConfirmaVendaOuImpressao then
+                begin
+                  BlockInput(False);
+                  MensagemAviso(Mensagem);
+                  BlockInput(True);
+                  ApagarArquivo(FDirResp+NomeArq);
+                end
+              end
+            end else
+            begin
+              Result := ConfirmaTransacao;
+              Sair   := True;
+              if Assigned(frmMsg) then
+                frmMsg.Free;
+            end
+          until Sair;
+        finally
+          BlockInput(False)
+        end
+      end
+    end else
+    begin
+      Result := False;
+      if TextoOperador <> '' then
+        MensagemAviso(TextoOperador);
+      NaoConfirmaVendaOuImpressao;
+      ApagarArquivo(FDirResp+NomeArq);
+    end
+end;
+
+procedure TtecTEFDiscado.CancelarUltimaTransacaoPendente;
+var
+  Str, Valor: String;
+  NSUStr, ValorStr: String;
+begin
+  if FileExists(DirExec + 'tectef.tmp') then begin //and Not FileExists(FDirResp+NomeArq) then begin
+    if FileExists(FDirResp+NomeArq) then
+      DeleteFile(FDirResp+NomeArq);
+      ApagarArquivo(FDirResp+NomeArq);
+    CopyFileTo(DirExec + 'tectef.tmp', FDirResp+NomeArq);
+    DeleteFile(DirExec + 'tectef.tmp');
+  end;
+  if FileExists(FDirResp+NomeArq) then begin
+    InterpretarResposta(True);
+    if FStatusTransacao_ = '0' then begin
+      NSUStr   := NSU;
+      ValorStr := ValorTransacao;
+      HeaderEnviado := 'NCN';
+      NovoNumeroSequencia;
+      PreencherRequesicao(HeaderEnviado, ['010-000 = ' + NomeRede,
+                                          '012-000 = ' + NSU,
+                                          '027-000 = ' + Finalizacao]);
+    end;
+    DeleteFile(FDirResp+NomeArq);
+    ApagarArquivo(FDirResp+NomeArq);
+    DeleteFile(DirExec + 'tectef.tmp');
+    if FStatusTransacao_ = '0' then begin
+      BlockInput(True);
+      try
+        if Assigned(ECFPadrao) then
+          if ECFPadrao.CupomAberto then
+            ECFPadrao.CancelarCupom;
+//          else begin
+            ECFPadrao.FecharRelatorioGerencial;
+//            ECFPadrao.FechaNaoFiscal;
+//          end
+      finally
+        BlockInput(False)
+      end;
+      Str := 'Cancelada a transação:'+ sLineBreak +
+             'Rede:  ' + NomeRede + sLineBreak +
+             'NSU:   ' + NSUStr;
+      if ValorStr <> '' then begin
+        Valor := ValorStr;
+        Insert(',', Valor, Length(Valor) - 1);
+        Str := Str + sLineBreak + 'Valor: ' + FloatToStrF(StrToCurr(Valor), ffCurrency, 15, 2);;
+      end;
+      MensagemAviso(Str);
+    end
+  end
+end;
+
+function TtecTEFDiscado.Clock: Comp;
+begin
+  Result := GetTickCount;
+end;
+
+procedure TtecTEFDiscado.ComandaECF(Operacao: TACBrTEFDOperacaoECF;
+  Resp: TACBrTEFDResp; var RetornoECF: Integer);
+Var
+   Est : TACBrECFEstado ;
+   P   : Integer;
+   Linha, CodFPG : String ;
+   ValorFPG : Double ;
+
+begin
+
+//  Memo1.Lines.Add('ComandaECF: '+GetEnumName( TypeInfo(TACBrTEFDOperacaoECF),
+//                                              integer(Operacao) ));
+
+  Sleep(1);
+  try
+    if assigned(ECFPadrao) then
+      Est := ECFPadrao.Estado;
+
+    case Operacao of
+      opeAbreGerencial :
+      begin
+        if assigned(ECFPadrao) then
+           ECFPadrao.AbreRelatorioGerencial ;  {ok}
+      end;
+
+      opeCancelaCupom :
+      begin
+         if assigned(ECFPadrao) and (Est = estNaoFiscal) then
+             ECFPadrao.CancelarNaoFiscal
+         else
+         if assigned(ECFPadrao) then
+             ECFPadrao.CancelarCupom;
+      end;
+
+      opeFechaCupom :
+      begin
+         if assigned(ECFPadrao) and (Est = estNaoFiscal) then
+            ECFPadrao.FechaNaoFiscal    {ok}
+         else
+         if assigned(ECFPadrao) then
+            ECFPadrao.FinalizarCupom('','',Tefpadrao.MensagemCupom);
+      end;
+
+      opeSubTotalizaCupom :
+      begin
+         if assigned(ECFPadrao) and (Est = estNaoFiscal) then
+            ECFPadrao.SubtotalizaNaoFiscal( 0, '') {ok não salva nenhuma informçaõ}
+         else
+         if assigned(ECFPadrao) then
+            ECFPadrao.TotalizaCupom('$', FloatToStr((tefpadrao.ValorDesconto*-1)+tefpadrao.ValorAcrescimo));
+      end;
+
+      opeFechaGerencial, opeFechaVinculado :
+      begin
+        if assigned(ECFPadrao) then
+          ECFPadrao.FecharRelatorioGerencial;
+      end;
+
+      opePulaLinhas :
+      begin
+          if assigned(ECFPadrao) then
+          begin
+            ECFPadrao.PulaLinhas( ECFPadrao.LinhasEntreCupons );
+            ECFPadrao.CortaPapel( True );
+          end;
+          Sleep(2000);
+      end;
+
+      opeImprimePagamentos :
+      begin
+        if Est = estNaoFiscal then
+        begin
+          if tefpadrao.ValorPagoDinheiro<>0 then
+          begin
+            if assigned(ECFPadrao) then
+              ecfpadrao.PagamentoNaoFiscal('Dinheiro', tefpadrao.ValorPagoDinheiro,  false);
+
+            tefpadrao.TotalPago := tefpadrao.TotalPago + tefpadrao.ValorPagoDinheiro;
+          end;
+
+          if tefpadrao.ValorCreditoTroca<>0 then
+          begin
+            if assigned(ECFPadrao) then
+              ecfpadrao.PagamentoNaoFiscal('Credito Troca', tefpadrao.ValorCreditoTroca,  false);
+
+            tefpadrao.TotalPago := tefpadrao.TotalPago + tefpadrao.ValorCreditoTroca;
+          end;
+
+          if tefpadrao.ValorPagocheque<>0 then
+          begin
+            if assigned(ECFPadrao) then
+              ecfpadrao.PagamentoNaoFiscal('Cheque',tefpadrao.ValorPagocheque);
+
+            tefpadrao.TotalPago := tefpadrao.TotalPago + tefpadrao.ValorPagocheque;
+          end;
+        end
+        else
+        begin
+          if tefpadrao.ValorPagoDinheiro<>0 then
+          begin
+            if assigned(ECFPadrao) then
+              ecfpadrao.PagamentoCupom('DINHEIRO',floattostr(tefpadrao.ValorPagoDinheiro));
+
+            tefpadrao.TotalPago := tefpadrao.TotalPago + tefpadrao.ValorPagoDinheiro;
+          end;
+
+          if tefpadrao.ValorCreditoTroca<>0 then
+          begin
+            if assigned(ECFPadrao) then
+              ecfpadrao.PagamentoCupom('CREDITO TROCA',floattostr(tefpadrao.ValorCreditoTroca));
+
+            tefpadrao.TotalPago := tefpadrao.TotalPago + tefpadrao.ValorCreditoTroca;
+          end;
+
+          if tefpadrao.ValorPagocheque<>0 then
+          begin
+            if assigned(ECFPadrao) then
+              ecfpadrao.PagamentoCupom('CHEQUE',floattostr(tefpadrao.ValorPagocheque));
+
+            tefpadrao.TotalPago := tefpadrao.TotalPago + tefpadrao.ValorPagocheque;
+          end;
+        end;
+      end;
+    end;
+
+    if assigned(ECFPadrao) and ECFPadrao.Erro then
+        RetornoECF := 0
+      else
+        RetornoECF := 1 ;
+
+  except
+    RetornoECF := 0 ;
+  end;
+
+  if Assigned(ECFPadrao) then
+    ECFPadrao.AtualizarTotalizadorGeral(NomeArquivoECFs);
+
+  Sleep(1);
+end;
+
+procedure TtecTEFDiscado.ComandaECFAbreVinculado(COO, IndiceECF: String;
+  Valor: Double; var RetornoECF: Integer);
+begin
+  if assigned(ECFPadrao) then
+  begin
+    Sleep(1);
+    try
+       EcfPadrao.IniciarVinculado('CARTAO', 'Cartao', floattostr(Valor), COO);
+      if ECFPadrao.Erro then
+        RetornoECF := 0
+      else
+        RetornoECF := 1 ;
+    except
+       RetornoECF := 0 ;
+    end;
+    Sleep(1);
+  end
+  else
+    RetornoECF := 1 ;
+end;
+
+
+function TtecTEFDiscado.ConfirmaTransacao: Boolean;
+begin
+  GerenciadorAtivo(True);
+  HeaderEnviado := 'CNF';
+  NovoNumeroSequencia;
+  Result := PreencherRequesicao(HeaderEnviado,['010-000 = ' + NomeRede,
+                                               '012-000 = ' + NSU,
+                                               '027-000 = ' + Finalizacao]);
+  if Result then
+    ApagarArquivo(FDirResp+NomeArq);
+end;
+
+constructor TtecTEFDiscado.Create(AOwner: TComponent);
+begin
+  inherited Create(AOWner);
+
+  FValorParcialCartoes := 0;
+  FQtdadeComprovantes  := 0;
+end;
+
+class function TtecTEFDiscado.DiretorioRequisicao: String;
+begin
+  Result := FDirReq
+end;
+
+class procedure TtecTEFDiscado.DiretorioRequisicao(Valor: String);
+var
+  Comp: Integer;
+begin
+  FDirReq := Valor;
+  Comp    := Length(FDirReq);
+  if (Comp > 0) and (Valor[Comp] <> '\') then
+    FDirReq := FDirReq + '\';
+end;
+
+class function TtecTEFDiscado.DiretorioResposta: String;
+begin
+  Result := FDirResp
+end;
+
+class procedure TtecTEFDiscado.DiretorioResposta(Valor: String);
+var
+  Comp: Integer;
+begin
+  FDirResp := Valor;
+  Comp     := Length(FDirResp);
+  if (Comp > 0) and (Valor[Comp] <> '\') then
+    FDirResp := Valor + '\'
+end;
+
+function TtecTEFDiscado.EsperandoArquivo(Arq: String; ComTimeOut: Boolean): Boolean;
+const
+  MaxTimeout = 7000;
+var
+  TimeOut, TimeOut1: Comp;
+begin
+  TimeOut := Clock + MaxTimeout;
+  repeat
+   Result := FileExists(Arq);
+   TimeOut1 := Clock;
+  until Result or ((TimeOut1 > TimeOut) and ComTimeOut);
+end;
+
+function TtecTEFDiscado.EsperandoConfirmacaoTEF: Boolean;
+var
+  ArqResp: Text;
+  Valor: String;
+  NroLinha: Integer;
+begin
+  repeat
+    Result := EsperandoArquivo(FDirResp+NomeArqSts, True);
+    if Result then begin
+      CodErro := etNenhum;
+      try
+        //MensagemAviso('passou');
+        sleep(500);
+        AssignFile(ArqResp, FDirResp+NomeArqSts);
+        Reset(ArqResp);
+        FTextoOperador := '';
+        FTextoCliente := '';
+        NroLinha := 0;
+        repeat
+          Readln(ArqResp, Valor);
+          InterpretaLinha(Valor, False, NroLinha);
+        until Eof(ArqResp);
+        CloseFile(ArqResp);
+        Result := CodErro = etNenhum;
+        if Result then
+          DeleteFile(FDirResp+NomeArqSts)
+      except
+        on E: Exception do MensagemAviso(E.Message + 'EsperandoConfirmacao!');
+      end;
+    end else
+      break
+  until Result;
+end;
+
+{$IFDEF MSWINDOWS}
+procedure MinimizarTEFDial;
+var
+  Wnd: HWND;
+begin
+  Wnd := FindWindow('TApplication', 'tef_dial');
+  if Wnd > 0 then
+    ShowWindow(Wnd, SW_HIDE);
+  Wnd := FindWindow('#32770', 'TEF VISANET [TELA 000]');
+  if Wnd > 0 then
+    ShowWindow(Wnd, SW_HIDE)
+end;
+{$ENDIF}
+
+function TtecTEFDiscado.EsperandoRespostaTEF: Boolean;
+begin
+  Result := EsperandoArquivo(FDirResp+NomeArq, False);
+{$IFDEF MSWINDOWS}
+  MinimizarTEFDial;
+{$ENDIF}
+  if Result then begin
+    if FileExists(DirExec + 'tectef.tmp') then
+      DeleteFile(DirExec + 'tectef.tmp');
+    CopyFileTo(FDirResp+NomeArq, DirExec + 'tectef.tmp');
+  end;
+end;
+
+function TtecTEFDiscado.ExecutarOperacao(TipoOperacao: TtecTEFOperacao; QtdadeCartoes: Integer): Boolean;
+var
+//  CodigoErro: TtecErroTEF;
+  Texto: String;
+begin
+  if Assigned(frmMsg) then
+    frmMsg.Free;
+  NovoNumeroSequencia;
+  TipoOperacaoGlobal:=TipoOperacao;
+  if TipoOperacao = sopCARTAO then
+  begin
+
+    if assigned(ECFPadrao) then
+      result := TEFPadrao.CRT( fValorTransacao ,'02', ECFPadrao.NumCOO)
+    else
+    begin
+      tefpadrao.ComprovanteOK := false;
+      result := TEFPadrao.CRT( fValorTransacao ,'02', '');
+    end;
+
+    (*
+    HeaderEnviado := 'CRT';
+//    Result := PreencherRequesicao(HeaderEnviado, ['003-000 = ' + ValorTransacao, '777-777 = TESTE REDECARD']);
+    Result := PreencherRequesicao(HeaderEnviado, ['003-000 = ' + ValorTransacao]);
+    *)
+
+  end
+  else if TipoOperacao = sopCHEQUE then
+  begin
+    if assigned(ECFPadrao) then
+      result := TEFPadrao.CHQ( fValorTransacao ,'03', ECFPadrao.NumCOO)
+    else
+      result := TEFPadrao.CHQ( fValorTransacao ,'03', '')
+
+    {
+    HeaderEnviado := 'CHQ';
+    Result := PreencherRequesicao(HeaderEnviado, ['003-000 = ' + ValorTransacao]);
+    }
+
+  end
+  else if TipoOperacao = sopADMIN then
+  begin
+    ECFPadrao.FecharRelatorioGerencial;
+//      ECFPadrao.FechaNaoFiscal;
+    HeaderEnviado := 'ADM';
+    Result := PreencherRequesicao(HeaderEnviado, []);
+  end
+  else
+    Result := False;
+
+  if Result and not ((TipoOperacao = sopCARTAO) or (TipoOperacao = sopCHEQUE)) then
+  begin
+    if EsperandoRespostaTEF then
+    begin
+      if InterpretarResposta(False) then
+      begin
+        if QtdadeCartoes > 0 then
+        begin
+          SetLength(FFormasPagto, QtdadeCartoes);
+          FFormasPagto[QtdadeCartoes - 1].NomeRede       := NomeRede;
+          FFormasPagto[QtdadeCartoes - 1].Valor          := FValorTransacao;
+        end;
+
+        if HeaderEnviado = 'ADM' then
+          if assigned(ECFPadrao) then
+            if ECFPadrao.CupomAberto then
+              ECFPadrao.CancelarCupom
+            else
+              ECFPadrao.FecharRelatorioGerencial;
+
+        FValorParcialCartoes := FValorParcialCartoes + FValorTransacao;
+        if FQtdadeComprovantes = 0 then
+        begin
+          if TextoOperador <> '' then
+            MensagemAviso(TextoOperador);
+          ApagarArquivo(FDirResp+NomeArq);
+          Result := False;  // Nao deve haver impressao de cupom qdo campo28 = 0, talvez result := not header = 'ADM'
+        end else if (HeaderEnviado = 'CRT') and (Abs(ValorTotalCartoes - FValorParcialCartoes) >= 0.01) then
+        begin    // CASO NAO SEJA A ULTIMA TRANSACAO
+          Texto := TextoOperador;
+          if Texto <> '' then
+          begin
+{            frmMsg := TfrmMensagemTemporizada.Create(Screen.ActiveForm, Texto);
+            frmMsg.Show;
+            frmMsg.SetFocus;
+}           ExibirMensagemTemporizada;
+            Application.ProcessMessages;
+          end;
+          Result := ConfirmaTransacao;
+        end else
+        begin
+          if TextoOperador <> '' then
+          begin
+{            frmMsg := TfrmMensagemTemporizada.Create(Screen.ActiveForm, TextoOperador);
+            frmMsg.Show;
+            frmMsg.SetFocus;
+}           ExibirMensagemTemporizada;
+            Application.ProcessMessages
+          end;
+        end;
+      end else
+      begin
+        if Assigned(Screen.Forms[0]) then
+        begin
+          Screen.Forms[0].BringToFront;
+          Screen.Forms[0].SetFocus;
+        end;
+        if (CodErro in [etNenhum, etTransacaoNegada]) and (TextoOperador <> '') then
+          MensagemAviso(TextoOperador);
+{
+        CodigoErro := CodErro;
+        if (CodigoErro > 3) then //eh necessario fazer a verificacao caso o coderro seja 3, para mostrar mensagem com o valor o campo 030
+          NaoConfirmaVendaOuImpressao;
+        ApagarArquivo(FDirResp+NomeArq);
+        if CodigoErro = 4 then
+          MensagemErro('A quantidade de parcelas definida no contrato para pagamento com cartão'+sLineBreak+
+                       'não é igual a quantidade efetivada na transação TEF.')
+        else if CodigoErro = 5 then
+          MensagemErro('A operação efetivada no TEF não esta condizente'+sLineBreak+
+                       'com a forma de pagamento definida nas parcelas.');
+}
+        Result := False;
+      end;
+    end else
+      MensagemAviso('TEF não esta atívo');
+  end;
+end;
+
+class function TtecTEFDiscado.ExecutavelTEF: String;
+begin
+  Result := FExeTEF
+end;
+
+class procedure TtecTEFDiscado.ExecutavelTEF(Valor: String);
+begin
+  FExeTEF := Valor
+end;
+
+procedure TtecTEFDiscado.ExibeMsg(Operacao: TACBrTEFDOperacaoMensagem;
+  Mensagem: String; var AModalResult: TModalResult);
+var
+   Fim : TDateTime;
+   OldMensagem : String;
+begin
+//StatusBar1.Panels[1].Text := '' ;
+//StatusBar1.Panels[2].Text := '' ;
+
+  case Operacao of
+
+    opmOK :
+       AModalResult := MessageDlg( Mensagem, mtInformation, [mbOK], 0);
+
+    opmYesNo :
+       AModalResult := MessageDlg( Mensagem, mtConfirmation, [mbYes,mbNo], 0);
+  end;
+
+(*
+  opmExibirMsgOperador, opmRemoverMsgOperador :
+       lMensagemOperador.Caption := Mensagem ;
+
+  opmExibirMsgCliente, opmRemoverMsgCliente :
+       lMensagemCliente.Caption := Mensagem ;
+
+    opmDestaqueVia :
+       begin
+         OldMensagem := lMensagemOperador.Caption ;
+         try
+            lMensagemOperador.Caption := Mensagem ;
+            pMensagemOperador.Visible := True ;
+            pMensagem.Visible         := True ;
+
+            { Aguardando 3 segundos }
+            Fim := IncSecond( now, 3)  ;
+            repeat
+               sleep(200) ;
+               lMensagemOperador.Caption := Mensagem + ' ' + IntToStr(SecondsBetween(Fim,now));
+               Application.ProcessMessages;
+            until (now > Fim) ;
+
+         finally
+            lMensagemOperador.Caption := OldMensagem ;
+         end;
+       end;
+  end;
+
+  pMensagemOperador.Visible := (lMensagemOperador.Caption <> '') ;
+  pMensagemCliente.Visible  := (lMensagemCliente.Caption <> '') ;
+
+  pMensagem.Visible := pMensagemOperador.Visible or pMensagemCliente.Visible;
+  *)
+  sleep(2000) ;
+  Application.ProcessMessages;
+
+end;
+
+procedure TtecTEFDiscado.ExibirMensagemTemporizada;
+begin
+  frmMsg := TfrmMensagemTemporizada.Create(Screen.ActiveForm, TextoOperador);
+  frmMsg.Show;
+  frmMsg.SetFocus;
+end;
+
+function TtecTEFDiscado.FormatarValor(Valor: String): String;
+var
+  PosVirg: Integer;
+begin
+  Result := Valor;
+  PosVirg := Pos(',', Result);
+  if PosVirg = 0 then
+    Result := Result + '00'
+  else begin
+    Delete(Result, PosVirg, 1);
+    if PosVirg = Length(Result) then
+      Result := Result + '0';
+  end
+end;
+
+function TtecTEFDiscado.GerenciadorAtivo(Aguardar: Boolean): Boolean;
+begin
+  if FileExists(FExeTEF) then
+  begin
+    repeat
+      HeaderEnviado := 'ATV';
+{
+      if Aguardar then
+      begin
+        repeat
+          Result := PreencherRequesicao(HeaderEnviado, []);
+          if Not Result then begin
+            BlockInput(False);
+            MensagemAviso(ctTEFTEGERENCIADORINATIVO);
+            BlockInput(True);
+          end
+
+        until Result;
+      end else
+}
+      NovoNumeroSequencia;
+      Result := PreencherRequesicao(HeaderEnviado, []);
+      if not Result then  // CASO NÃO HAJA RESPOSTA DO "GP"
+      begin
+        MensagemAviso(ctTEFTEGERENCIADORINATIVO);
+{$IFDEF MSWINDOWS}ExecutarProcesso(FexeTEF, 0);{$ENDIF}
+      end;
+    until Result;
+  end else
+    Result := False
+end;
+
+function TtecTEFDiscado.getComprovante(Index: Integer): TtecArrayString;
+begin
+  Result := FComprovante[Index];
+end;
+
+function TtecTEFDiscado.getFormasPagto(Index: Integer): TtecTEFFormasPagto;
+begin
+  Result := FFormasPagto[Index];
+end;
+
+function TtecTEFDiscado.getParcelas(Index: Integer): TtecTEFArrayParcelas;
+begin
+  Result := FParcelas[Index]
+end;
+
+function TtecTEFDiscado.ImprimirCupom(var CupomEmitido: Boolean; PagarDinheiro: Currency;
+  DadosFornec, FormaPagto: String; QtdadeCartoes: Integer): Boolean;
+var
+  a{, b}: Integer;
+  Sair,
+  Confirmado: Boolean;
+//  NroCupom: String;
+  TipoPagamento:String;
+begin
+  Result := True;
+  Sair   := False;
+  BlockInput(True);
+  repeat
+    if TipoOperacaoGlobal = sopCARTAO then
+      TipoPagamento:='CARTAO'
+    else if (TipoOperacaoGlobal = sopCHEQUE) then
+      TipoPagamento:='CHEQUE';
+
+    if Not (CupomEmitido or ECFPadrao.CupomAberto) then
+    begin
+      for a := 0 to QtdadeComprovantes - 1 do begin
+        ECFPadrao.RelatorioGerencial(FComprovante[a], 2);  //CupomVinculadoTef(CupomFiscal, TipoPagamento, FormasPagto[a].Valor, Comprovante[a], ParSistema.QtdeViaTEFDiscado); //RelatorioGerencial(Comprovante[a]);
+        if ECFPadrao.Erro then
+          break;
+        Application.ProcessMessages;
+      end;
+      if Not ECFPadrao.Erro then begin
+        ECFPadrao.FecharRelatorioGerencial;
+        if Not ECFPadrao.Erro then begin
+          Result := ConfirmaTransacao;
+          Sair := True;
+        end
+      end
+    end else
+    begin
+      if PagarDinheiro > 0 then
+        repeat
+         ECFPadrao.PagamentoCupom('Dinheiro', FloatToStr(PagarDinheiro));
+          if ECFPadrao.Erro then
+          begin
+            BlockInput(False);
+            if biblio.MensagemConfirmacao(ECFPadrao.Mensagem + sLineBreak + ctTEFIMPRIMIRNOVAMENTE) <> smbOK then
+            begin
+              sleep(2000);
+              Sair := True;
+              Result := False
+            end;
+            BlockInput(True);
+          end
+        until Sair or (Not ECFPadrao.Erro);
+      if Not ECFPadrao.Erro then
+      begin
+        a := 0;
+        repeat
+            ECFPadrao.PagamentoCupom(TipoPagamento{FormasPagto[a].NomeRede}, FloatToStr(FormasPagto[a].Valor));
+          if ECFPadrao.Erro then
+          begin
+            BlockInput(False);
+            if biblio.MensagemConfirmacao(ECFPadrao.Mensagem + sLineBreak + ctTEFIMPRIMIRNOVAMENTE) <> smbOK then
+            begin
+              sleep(2000);
+              Sair := True;
+              Result := False
+            end;
+            BlockInput(True);
+          end else
+            INc(a);
+        until Sair or ((Not ECFPadrao.Erro) and (a >= QtdadeCartoes));
+      end;
+      if Not ECFPadrao.Erro then
+        repeat
+          if ECFPadrao.CupomAberto then
+            ECFPadrao.FinalizarCupom(TipoPagamento{FormasPagto[QtdadeCartoes-1].NomeRede}, FloatToStr(ValorTotalCartoes), DadosFornec);
+          if ECFPadrao.Erro then
+          begin
+            BlockInput(False);
+            if biblio.MensagemConfirmacao(ECFPadrao.Mensagem + sLineBreak + ctTEFIMPRIMIRNOVAMENTE) <> smbOK then
+            begin
+              sleep(2000);
+              Sair := True;
+              Result := False
+            end;
+            BlockInput(True);
+          end
+        until Sair or (Not ECFPadrao.Erro);
+      if Not ECFPadrao.Erro then
+      begin
+        if FQtdadeLinhasComprovante > 0 then
+        for a := 0 to QtdadeCartoes - 1 do
+        begin
+          repeat;
+            BlockInput(True);
+           //try
+              ECFPadrao.CupomVinculadoTEF(CupomFiscal, TipoPagamento, FormasPagto[a].Valor, Comprovante[a], ParSistema.QtdeViaTEFDiscado);
+            //except
+              if ECFPadrao.Erro then
+              begin
+                BlockInput(False);
+                if biblio.MensagemConfirmacao(ECFPadrao.Mensagem + sLineBreak + ctTEFIMPRIMIRNOVAMENTE) <> smbOK then
+                begin
+                  sleep(2000);
+                  Sair := True;
+                  Result := False
+                end
+                else
+                begin
+                  BlockInput(True);
+                  repeat;
+                    ECFPadrao.RelatorioGerencial(Comprovante[a],1);
+                    if ECFPadrao.Erro then
+                    begin
+                      BlockInput(False);
+                      if biblio.MensagemConfirmacao(ECFPadrao.Mensagem + sLineBreak + ctTEFIMPRIMIRNOVAMENTE) = smbOK then
+                      begin
+                        BlockInput(True);
+                        sleep(2000);
+                        Sair := false;
+                        Result := False
+                      end;
+                    end
+                    else
+                      Sair := True;
+                  until
+                    Sair or (Not ECFPadrao.Erro);
+                end;
+              end
+          until Sair or (Not ECFPadrao.Erro);
+          Application.ProcessMessages;
+        end;
+(*          if Not ECFPadrao.Erro then
+            repeat
+              //if FormaPagto = '' then
+//              ECFPadrao.CupomVinculado(CupomFiscal, TipoPagamento, FormasPagto[a].Valor, FormasPagto[a], ParSistema.QtdeViaTEFDiscado);
+              ECFPadrao.IniciarVinculado(TipoPagamento{FormasPagto[a].NomeRede}, FloatToStrF(FormasPagto[a].Valor, ffNumber, 15, 2), CupomFiscal);
+              //else
+              //  ECFPadrao.IniciarVinculado(FormaPagto, ValorTransacao, NroCupom);
+              if ECFPadrao.Erro then
+              begin
+                BlockInput(False);
+                if biblio.MensagemConfirmacao(ECFPadrao.Mensagem + sLineBreak + ctTEFIMPRIMIRNOVAMENTE) <> smbOK then
+                begin
+                  sleep(2000);
+                  Sair := True;
+                  Result := False
+                end;
+                BlockInput(True);
+              end
+            until Sair or (Not ECFPadrao.Erro);
+          Application.ProcessMessages;
+          if Not ECFPadrao.Erro then
+          begin
+            CupomEmitido := False;
+            if ParSistema.QtdeViaTEFDiscado = 1 then
+            begin
+//              GerenciadorAtivo(true);
+              ECFPadrao.ImprimirVinculado(Comprovante[a]);
+              if ECFPadrao.Erro then
+                break;
+              Application.ProcessMessages;
+            end else
+              for b := 1 to ParSistema.QtdeViaTEFDiscado do begin
+//                GerenciadorAtivo(true);
+                ECFPadrao.ImprimirVinculado(Comprovante[a]);
+                Application.ProcessMessages;
+                if ECFPadrao.Erro then
+                  break
+                else if ParSistema.QtdeViaTEFDiscado > b then begin
+//                  GerenciadorAtivo(true);
+                  ECFPadrao.ImprimirVinculado([sLineBreak+sLineBreak+sLineBreak+sLineBreak+sLineBreak+sLineBreak]);
+                  Sleep(5000);
+                end;
+              end;
+            if Not ECFPadrao.Erro then
+              ECFPadrao.FinalizarVinculado;
+          end
+        end;
+*)
+      end;
+      if ECFPadrao.Erro then begin
+        if Sair and NaoConfirmaVendaOuImpressao then
+        begin
+          BlockInput(False);
+          MensagemAviso(Mensagem);
+          ApagarArquivoResposta;
+        end
+      end else
+      begin
+        Result := ConfirmaTransacao;
+        Sair   := True;
+      end
+    end;
+
+    if ECFPadrao.Erro and Not Sair then
+    begin
+      Result := False;
+      BlockInput(False);
+      Confirmado := biblio.MensagemConfirmacao(ECFPadrao.Mensagem + sLineBreak + ctTEFIMPRIMIRNOVAMENTE) = smbOK;
+      BlockInput(True);
+      if Confirmado then
+        if CupomEmitido then
+          ECFPadrao.FinalizarVinculado
+        else
+        begin
+          repeat
+            if ECFPadrao.CupomAberto then
+              ECFPadrao.CancelarCupom
+            else
+            begin
+//              ECFPadrao.FechaNaoFiscal;
+              ECFPadrao.FecharRelatorioGerencial;
+            end;
+            if ECFPadrao.Erro then
+            begin
+              BlockInput(False);
+              if biblio.MensagemConfirmacao(ECFPadrao.Mensagem + sLineBreak + ctTEFIMPRIMIRNOVAMENTE) <> smbOK then
+              begin
+                sleep(2000);
+                Sair := True;
+              end;
+              BlockInput(True);
+            end
+          until (Not ECFPadrao.Erro) or Sair;
+          if Sair then
+          begin
+//            ECFPadrao.FechaNaoFiscal;
+            ECFPadrao.FecharRelatorioGerencial;
+            if NaoConfirmaVendaOuImpressao then
+            begin
+              BlockInput(False);
+              MensagemAviso(Mensagem);
+              BlockInput(True);
+              ApagarArquivoResposta;
+            end
+          end
+        end
+      else
+      begin
+        if NaoConfirmaVendaOuImpressao then
+        begin
+          BlockInput(False);
+          MensagemAviso(Mensagem);
+          BlockInput(True);
+          ApagarArquivoResposta;
+        end;
+        ECFPadrao.FinalizarVinculado;
+        Sair := True;
+      end;
+    end
+  until Sair;
+  if Assigned(frmMsg) then
+    frmMsg.Free;
+  BlockInput(False);
+end;
+
+procedure TtecTEFDiscado.InterpretaLinha(Valor: String; SomenteLerArq: Boolean; var NroLinha: Integer);
+var
+  CodCampo: String;
+  ComplementoCod: Integer;
+  ValorCampo: String;
+begin
+  if trim(Valor) <> '' then
+  begin
+    CodCampo       := Copy(Valor, 1, 3);
+    ComplementoCod := StrToInt(Copy(Valor, 5, 3));
+    Delete(Valor, 1, 10);
+    ValorCampo := TrimRight(Valor);
+    if CodCampo = ctCODIGO000 then
+    begin
+      if SomenteLerArq then
+        FHeader := ValorCampo
+      else if ValorCampo <> HeaderEnviado then
+        CodErro := etHeader
+    end else if CodCampo = ctCODIGO001 then begin
+      FIdentificacao_ := ValorCampo;
+      if FIdentificacao_ <> NroSeq then
+      begin
+        CodErro := etIdentificacao;
+  //      ErroNroSeq := true;
+      end;
+    end else if CodCampo = ctCODIGO002 then begin
+      FDocumentoFiscalVinculado := ValorCampo
+    end else if CodCampo = ctCODIGO003 then begin
+      if (SomenteLerArq or (HeaderEnviado = 'ADM')) and (ValorCampo <> '') then
+      begin
+        Insert(',', ValorCampo, Length(ValorCampo) - 1);
+        ValorTransacao := ValorCampo
+      end
+    end else if CodCampo = ctCODIGO004 then begin
+      if ValorCampo = '0' then
+        FMoeda := 'Real'
+      else if ValorCampo = '1' then
+        FMoeda := 'Dolar'
+    end else if CodCampo = ctCODIGO005 then begin
+      FCMC7 := ValorCampo
+    end else if CodCampo = ctCODIGO006 then begin
+      FTipoPessoa := ValorCampo[1]
+    end else if CodCampo = ctCODIGO007 then begin
+      FDocumentoPessoa := ValorCampo
+    end else if CodCampo = ctCODIGO008 then begin
+      FDataCheque := ValorCampo
+    end else if CodCampo = ctCODIGO009 then begin
+      FStatusTransacao_ := ValorCampo;
+      if ValorCampo <> '0' then
+        CodErro := etTransacaoNegada
+    end else if CodCampo = ctCODIGO010 then
+      FNomeRede := ValorCampo
+    else if CodCampo = ctCODIGO011 then
+    begin
+      FTipoTransacao_ := StrToInt(Trim(ValorCampo));
+      //if HeaderEnviado = 'CRT' then begin
+      //  if (FStatusTransacao = '0') and Not FrenteCaixa then begin
+      //    if FTipoTransacaoPermitida = 10 then begin
+      //      if Not (FTipoTransacao in [10,12]) then
+      //        CodErro := 5
+      //    end else if FTipoTransacaoPermitida = 11 then begin
+      //      if Not (FTipoTransacao in [10,11,12]) then
+      //        CodErro := 5
+      //    end else if FTipoTransacaoPermitida = 20 then begin
+      //      if Not (FTipoTransacao in [20, 21, 23, 24, 25]) then
+      //        CodErro := 5
+      //    end else if FTipoTransacaoPermitida = 40 then begin
+      //      if FTipoTransacao <> 40 then //if Not (FTipoTransacao in [22, 40]) then
+      //        CodErro := 5
+      //    end else  if FTipoTransacaoPermitida = 0 then
+      //      if Not (FTipoTransacao in [20, 21, 23, 24, 25]) then
+      //        CodErro := 5
+      //  end
+      //end
+    end else if CodCampo = ctCODIGO012 then
+      FNSU := ValorCampo
+    else if CodCampo = ctCODIGO013 then
+      FAutorizacaoTransacao := ValorCampo
+{    else if CodCampo = ctCODIGO014 then
+      FLoteTransacao := ValorCampo
+    else if CodCampo = ctCODIGO015 then
+      FDataHoraTransacaoHost := StrToDateTime(ValorCampo)
+    else if CodCampo = ctCODIGO016 then
+      FDataHoraTransacaoLocal := StrToDateTime(ValorCampo)
+}
+    else if CodCampo = ctCODIGO017 then
+      FTipoParcelamento := StrToInt(Trim(ValorCampo))
+//    else if CodCampo = ctCODIGO018 then begin
+//      FQtdadeParcelas := StrToInt(Trim(ValorCampo));
+//      if FQtdadeParcelas > 0 then begin
+//        SetLength(FParcelas , FQtdadeComprovantes);
+//        SetLength(FParcelas[FQtdadeComprovantes - 1], FQtdadeParcelas);
+//      end
+      //if (CodErro = 0) and Not FrenteCaixa then begin
+      //  if (FTipoTransacao = 10{in [10, 12]}) and (CredQtdadeParcelasPermitidas <> 1) and (HeaderEnviado = 'CRT') then
+      //    CodErro := 4
+      //  else if (FTipoTransacao = 11) and (FTipoParcelamento = 0) and
+      //          (FQtdadeParcelas <> CredQtdadeParcelasPermitidas)
+      //  then
+      //    CodErro := 4
+      //  else if (FTipoTransacao in [{20, }21, 23, 24, 25]) and (FQtdadeParcelas <> 1) then
+      //    CodErro := 4
+      //  else if (FTipoTransacao = 22) and (FQtdadeParcelas <> DebQtdadeParcelasPermitidas) then
+      //    CodErro := 4
+      //end
+    else if CodCampo = ctCODIGO022 then
+      FDataTransacao := ValorCampo
+    else if CodCampo = ctCODIGO023 then
+      FHoraTransacao := ValorCampo
+    else if CodCampo = ctCODIGO024 then
+      FDataPreDatado := ValorCampo
+    else if CodCampo = ctCODIGO025 then
+      FNroTransacaoCancelada := ValorCampo
+    else if CodCampo = ctCODIGO026 then
+      FDataTransacaoCancelada := ValorCampo
+    else if CodCampo = ctCODIGO027 then
+      FFinalizacao := ValorCampo
+    else if CodCampo = ctCODIGO028 then
+    begin
+      FQtdadeLinhasComprovante := StrToInt(Trim(ValorCampo));
+      if FQtdadeLinhasComprovante > 0 then
+      begin
+        Inc(FQtdadeComprovantes);
+        SetLength(FComprovante, FQtdadeComprovantes);
+        SetLength(FComprovante[FQtdadeComprovantes - 1], FQtdadeLinhasComprovante);
+      end
+    end else if CodCampo = ctCODIGO029 then
+    begin
+      if FQtdadeLinhasComprovante = NroLinha then
+      begin
+        FQtdadeLinhasComprovante := NroLinha + 1;
+        SetLength(FComprovante[FQtdadeComprovantes - 1], FQtdadeLinhasComprovante);
+      end;
+      FComprovante[FQtdadeComprovantes-1][NroLinha] := Copy(ValorCampo, 2, Length(ValorCampo)-2);
+      if FComprovante[FQtdadeComprovantes-1][NroLinha] = '' then
+        FComprovante[FQtdadeComprovantes-1][NroLinha] := ' ';
+      Inc(NroLinha)
+    end else if CodCampo = ctCODIGO030 then
+      FTextoOperador := ValorCampo
+    else if CodCampo = ctCODIGO031 then
+      FTextoCliente := ValorCampo
+    else if CodCampo = ctCODIGO040 then
+      FAdministradora := ValorCampo;
+  end;
+end;
+
+function TtecTEFDiscado.InterpretarResposta(SomenteLerArq: Boolean): Boolean;
+var
+  ArqResp: Text;
+  Valor: String;
+  NroLinha: Integer;
+
+  procedure CapturarParcelas;
+  var
+    CodCampo: String;
+    ComplementoCod: Integer;
+    ValorCampo: String;
+  begin
+    Reset(ArqResp);
+    repeat
+      Readln(ArqResp,Valor);
+
+      CodCampo       := Copy(Valor, 1, 3);
+      ComplementoCod := StrToInt(Copy(Valor, 5, 3));
+      Delete(Valor, 1, 10);
+      ValorCampo := TrimRight(Valor);
+
+      if CodCampo = ctCODIGO019 then
+        FParcelas[FQtdadeComprovantes-1][ComplementoCod-1].DataVencto := ValorCampo
+      else
+      if CodCampo = ctCODIGO020 then
+      begin
+        Insert(',',ValorCampo,length(ValorCampo)-1);
+        FParcelas[FQtdadeComprovantes-1][ComplementoCod-1].Valor := StrToFloat(ValorCampo);
+      end
+      else
+      if CodCampo = ctCODIGO021 then
+        FParcelas[FQtdadeComprovantes-1][ComplementoCod-1].NSU := ValorCampo;
+
+    until Eof(ArqResp);
+  end;
+
+begin
+  repeat
+    CodErro := etNenhum;
+    try
+      AssignFile(ArqResp, FDirResp+NomeArq);
+      Append(ArqResp);
+      Writeln(ArqResp, ' ');
+      Flush(ArqResp);
+      Reset(ArqResp);
+      FTextoOperador := '';
+      FTextoCliente := '';
+      NroLinha := 0;
+      repeat
+        Readln(ArqResp, Valor);
+        InterpretaLinha(Valor, SomenteLerArq, NroLinha);
+      until Eof(ArqResp);
+//      if FQtdadeParcelas > 0 then
+//        CapturarParcelas;
+      CloseFile(ArqResp);
+    except
+      on E: Exception do MensagemAviso(E.Message + 'InterpretarResposta!');
+    end;
+    if SomenteLerArq then
+      Result := True
+    else begin
+      Result := CodErro = etNenhum;
+      if not Result then
+        ApagarArquivo(FDirResp+NomeArq);
+//      repeat until EsperandoRespostaTEF; end
+    end;
+  until Result or (CodErro <> etIdentificacao);
+end;
+
+function TtecTEFDiscado.Mensagem: String;
+begin
+  Result := 'Cancelada a transação:'+ sLineBreak +
+            'Rede:  ' + NomeRede + sLineBreak +
+            'NSU:   ' + NSU;
+  if FValorTransacao <> 0 then
+    Result := Result + sLineBreak + 'Valor: ' + FloatToStrF(FValorTransacao, ffCurrency, 15, 2);
+end;
+
+function TtecTEFDiscado.NaoConfirmaVendaOuImpressao: Boolean;
+begin
+  GerenciadorAtivo(True);
+  HeaderEnviado := 'NCN';
+  NovoNumeroSequencia;
+  Result := PreencherRequesicao(HeaderEnviado,['010-000 = ' + NomeRede,
+                                               '012-000 = ' + NSU,
+                                               '027-000 = ' + Finalizacao]);
+end;
+
+procedure TtecTEFDiscado.NovoNumeroSequencia;
+begin
+  DateTimeToString(NroSeq, 'mdhnszzz', Now);
+  NroSeq := Copy(NroSeq, 1, 10);
+end;
+
+function TtecTEFDiscado.PreencherRequesicao(Req: String; DadosReq: array of String): Boolean;
+var
+  a: Integer;
+  ArqReq: Text;
+begin
+  if FileExists(FDirResp+NomeArqSts) then
+    DeleteFile(FDirResp+NomeArqSts);
+  if FileExists(FDirReq+NomeArqTemp) then
+    DeleteFile(FDirReq+NOmeArqTemp);
+  if FileExists(FDirReq+NomeArq) then
+    DeleteFile(FDirReq+NomeArq);
+  try
+    AssignFile(ArqReq, FDirReq+NomeArqTemp);
+    Rewrite(ArqReq);
+    Writeln(ArqReq, '000-000 = '+Req);
+    Writeln(ArqReq, '001-000 = '+NroSeq);
+    for a := Low(DadosReq) to High(DadosReq) do
+            Writeln(ArqReq, DadosReq[a]);
+    Writeln(ArqReq, '999-999 = 0');
+    CloseFile(ArqReq);
+  except
+    on E: Exception do MensagemAviso(E.Message + 'PreencherRequisicao!');
+  end;
+  repeat
+  until FileExists(FDirReq+NomeArqTemp);
+  repeat
+  until RenameFile(FDirReq+NomeArqTemp, FDirReq+NomeArq);
+  Result := EsperandoConfirmacaoTEF;
+end;
+
+procedure TtecTEFDiscado.setValorTotalCartoes(const Value: Real);
+begin
+  FValorTotalCartoes   := Value;
+end;
+
+procedure TtecTEFDiscado.setValorTransacao(const Value: String);
+var
+  PosVirg: Integer;
+begin
+  FValorTransacao    := StrToFloat(Value);
+  FValorTransacaoStr := Value;
+  PosVirg            := Pos(',', FValorTransacaoStr);
+  if PosVirg = 0 then
+    FValorTransacaoStr := FValorTransacaoStr + '00'
+  else begin
+    Delete(FValorTransacaoStr, PosVirg, 1);
+    if PosVirg = Length(FValorTransacaoStr) then
+      FValorTransacaoStr := FValorTransacaoStr + '0';
+  end
+end;
+
+procedure TtecTEFDiscado.InfoECF(Operacao: TACBrTEFDInfoECF;
+  var RetornoECF: String);
+var
+   ASubTotal: Currency;
+begin
+   Sleep(1);
+   try
+      if assigned(ecfpadrao) then
+        if not ecfpadrao.Ativo then
+           ecfpadrao.Ativar ;
+   except
+      { Para CliSiTEF ou V&SPague aplique o IF abaixo em sua aplicação, que
+        permite saber se o Cupom foi concluido mesmo com o ECF desligado }
+
+      if (not tefpadrao.TEF.Inicializado) and   { Está na inicialização ? }
+         (Operacao = ineEstadoECF) and          { Quer Saber o estado do ECF ? (mas se chegou aqui é pq o ECF já está com problemas) }
+         (tefpadrao.GPAtual in [gpCliSiTef,gpVeSPague]) then
+      begin
+         { Leia o último Documento Gravado no seu Banco de Dados, e verifique
+           se o Cupom já foi finalizado,ou se já foi aberto um CCD ou Gerencial...
+           Exemplo:
+
+           Documento.Le(0);
+
+           if (Documento.Finalizado) or (pos(Documento.Denominacao,'CC|RG') > 0) then
+              RetornoECF := 'R'
+           else
+              RetornoECF := 'O' ;
+         }
+
+         //RetornoECF := 'O';    // Executará CancelarTransacoesPendentes;
+         RetornoECF := 'R';    // Executará ConfirmarESolicitarImpressaoTransacoesPendentes;
+         exit ;
+      end ;
+
+      raise ;
+   end;
+
+   case Operacao of
+     ineSubTotal :
+       begin
+       { VER O VALOR CORRETO SE NÃO FOR ECF }
+         if assigned(ecfpadrao) then
+         begin
+           ASubTotal := ecfpadrao.Subtotal;
+           ASubTotal := ASubTotal -
+                        tefpadrao.TotalPago +
+                        tefpadrao.ValorAcrescimo -
+                        tefpadrao.ValorDesconto;
+         end
+         else
+         begin
+           ASubTotal := tefPadrao.fValorTransacao -
+                        tefpadrao.TotalPago {+
+                        tefpadrao.ValorAcrescimo -
+                        tefpadrao.ValorDesconto};  //neste caso fValortransacao ja esta com acrescimo e desconto
+
+         end;
+
+         RetornoECF := FloatToStr( ASubTotal ) ;
+       end;
+
+     ineTotalAPagar :
+     begin
+
+       if (tefpadrao.ValorPagoDinheiro +
+           tefpadrao.ValorCreditoTroca +
+           tefpadrao.ValorPagocheque) <>0 then
+         RetornoECF := floattostr(tefpadrao.ValorPagoDinheiro + tefpadrao.ValorCreditoTroca + tefpadrao.ValorPagocheque)
+       else
+         RetornoECF := '0';
+
+     end;
+
+     ineEstadoECF :
+       begin
+         if assigned(ecfpadrao) then
+         begin
+           Case ecfpadrao.Estado of
+             estLivre     : RetornoECF := 'L' ;
+             estVenda     : RetornoECF := 'V' ;
+             estPagamento : RetornoECF := 'P' ;
+             estRelatorio : RetornoECF := 'R' ;
+             estNaoFiscal : RetornoECF := 'N' ;
+           else
+             RetornoECF := 'O' ;
+           end;
+         end
+         else
+         begin
+           if TefPadrao.comprovanteOK then
+             RetornoECF := 'L'
+           else
+             RetornoECF := 'N' ;  //setando o estado como Nao Fiscal quando sem ECF
+         end;
+       end;
+   end;
+   Sleep(1);
+end;
+
+procedure TtecTEFDiscado.ComandaECFSubtotaliza(DescAcre: Double;
+  var RetornoECF: Integer);
+Var
+   Est : TACBrECFEstado ;
+//   MeuAcresDesc : Double ;
+begin
+  Sleep(1);
+//  Memo1.Lines.Add('ComandaECFSubtotaliza: DescAcre: ' + FormatFloat('0.00',DescAcre) );
+
+//  MeuAcresDesc := StringToFloatDef( edValorDescAcre.Text, 0 );
+  {VERIFICAR A SITUACAO DO SUBTOTALIZA SEM ECF}
+  try
+    if assigned(ECFPadrao) then
+      Est := ECFPadrao.Estado;
+
+
+    if Est = estNaoFiscal then
+    begin
+      if assigned(ECFPadrao) then
+        ECFPadrao.SubtotalizaNaoFiscal( DescAcre {+ MeuAcresDesc} ) {Rever}  {Aqui não fiscal}
+    end
+    else
+    begin
+//     ECFPadrao.SubtotalizaCupom( DescAcre {+ MeuAcresDesc}, 'Projeto ACBr|http://acbr.sf.net' );
+       if assigned(ECFPadrao) then
+         ECFPadrao.TotalizaCupom('', floattostr(DescAcre + tefpadrao.ValorAcrescimo - tefpadrao.ValorDesconto));
+
+    { Remove o Desconto pois já foi aplicado, caso contrário iria influenciar o
+      retorno de ineSubTotal }
+//    edValorDescAcre.Text := '0,00';
+      tefpadrao.ValorDesconto := 0;
+      tefpadrao.ValorAcrescimo := 0;
+    end;
+
+    if assigned(ECFPadrao) and ECFPadrao.Erro then
+      RetornoECF := 0
+    else
+      RetornoECF := 1 ;
+  except
+    RetornoECF := 0 ;
+  end;
+  Sleep(1);
+end;
+
+procedure TtecTEFDiscado.ComandaECFPagamento(IndiceECF: String;
+  Valor: Double; var RetornoECF: Integer);
+var
+   Est : TACBrECFEstado ;
+begin
+  Sleep(1);
+  try
+//     Memo1.Lines.Add( 'ComandaECFPagamento, IndiceECF: '+IndiceECF+
+//        ' Valor: '+FormatFloat('0.00',Valor) );
+
+     if assigned(ECFPadrao) then
+       Est := ECFPadrao.Estado;
+
+     if Est = estNaoFiscal then
+     begin
+        if assigned(ECFPadrao) then
+          ECFPadrao.PagamentoNaoFiscal('CARTAO', Valor);
+        {nao fiscal nao incrementa o ecfpadrao.totalpago, portanto utilizarei estas variaveis para guardar o total ***** VERIFICAR ****}
+        if assigned(ECFPadrao) then
+        begin
+          if not ECFPadrao.Erro then
+            tefpadrao.TotalPago := TEFPadrao.totalpago + Valor;
+        end
+        else
+          tefpadrao.TotalPago := TEFPadrao.totalpago + Valor;
+
+     end
+     else
+     begin
+//        ECFPadrao.EfetuaPagamento(IndiceECF, Valor);
+        if assigned(ECFPadrao) then
+          ECFPadrao.PagamentoCupom('CARTAO', floattostr(Valor));
+
+        if assigned(ECFPadrao) then
+        begin
+          if not ECFPadrao.Erro then
+            tefpadrao.TotalPago := TEFPadrao.totalpago + Valor;
+        end
+        else
+          tefpadrao.TotalPago := TEFPadrao.totalpago + Valor;
+     end;
+
+    if assigned(ECFPadrao) and ECFPadrao.Erro then
+      RetornoECF := 0
+    else
+      RetornoECF := 1 ;
+  except
+     RetornoECF := 0 ;
+  end;
+  Sleep(1);
+end;
+
+procedure TtecTEFDiscado.MudaEstadoResp(EstadoResp: TACBrTEFDRespEstado);
+//const
+     {
+  VISA: array [0 .. 4] of string =
+    ('VISA Crédito'
+    , 'VISA Electron'
+    , 'VISA Crediário'
+    , 'VISA Electron'
+    , 'VISA Parcelado Loja');
+  MASTERCARD: array [0 .. 1] of string = ('MASTERCARD', 'MAESTRO');
+  AMERICAN = 'AMEX';
+  SOROCRED = 'SOROCRED';
+      }
+begin
+  case EstadoResp of
+    respConcluida :
+    begin
+      TefPadrao.TipoTransacao_    := TEFPadrao.Resp.TipoTransacao;
+      TefPadrao.Administradora    := TEFPadrao.Resp.NomeAdministradora;
+      TefPadrao.StatusTransacao_  := TEFPadrao.Resp.StatusTransacao;
+      TefPadrao.DataTransacao     := FormatDateTime('DD/MM/YYYY', Tefpadrao.Resp.DataHoraTransacaoComprovante);
+      TefPadrao.HoraTransacao     := FormatDateTime('HH:MM:SS', Tefpadrao.Resp.DataHoraTransacaoComprovante);
+      TEfPadrao.NomeRede          := TefPadrao.resp.Rede;
+      TEfPadrao.NSU               := TefPadrao.resp.NSU;
+
+{      TEfPadrao.cnpjcredenciadora := TefPadrao.resp.NFCeSAT.CNPJCredenciadora;}
+
+//      TEfPadrao.cnpjcredenciadora := Credenciadora
+
+//      TEfPadrao.bandeiraoperadora :=
+
+      {
+      if MatchText(TEFPadrao.Resp.NomeAdministradora, VISA) then
+        TEfPadrao.bandeiraoperadora := '01'
+
+      else if MatchText(TEFPadrao.Resp.NomeAdministradora, MASTERCARD) then
+        TEfPadrao.bandeiraoperadora := '02'
+      else if TEFPadrao.Resp.NomeAdministradora = AMERICAN then
+        TEfPadrao.bandeiraoperadora := '03'
+      else if TEFPadrao.Resp.NomeAdministradora = SOROCRED then
+        TEfPadrao.bandeiraoperadora := '04'
+      else
+        TEfPadrao.bandeiraoperadora := '99';
+      }
+      {TEfPadrao.bandeiraoperadora := TefPadrao.resp.NFCeSAT.Bandeira;}
+
+      TEfPadrao.nrautorizacaocartao := TefPadrao.resp.NSU;{TefPadrao.resp.NFCeSAT.autorizacao;}
+
+      if tefpadrao.Resp.QtdParcelas = 0 then
+        TefPadrao.QtdadeParcelas   := 1
+      else
+        TefPadrao.QtdadeParcelas   := tefpadrao.Resp.QtdParcelas;
+
+      TefPadrao.TipoParcelamento := tefpadrao.Resp.TipoParcelamento;  {0 - loja  1 - adm}
+
+      TefPadrao.ComprovanteOK := true;
+
+
+    end;
+  end;
+end;
+
+procedure TtecTEFDiscado.AntesCancelarTransacao(
+  RespostaPendente: TACBrTEFDResp);
+var
+   Est: TACBrECFEstado;
+begin
+   if assigned(ecfpadrao) then
+   begin
+     Est := ecfpadrao.Estado;
+
+     case Est of
+        estVenda, estPagamento :
+  //        ecfpadrao.CancelaCupom;
+          ECFPadrao.CancelarCupom;
+
+        estRelatorio :
+  //         ecfpadrao.FechaRelatorio;
+          ECFPadrao.FecharRelatorioGerencial;
+     else
+        if not ( Est in [estLivre, estDesconhecido, estNaoInicializada] ) then
+  //         ecfpadrao.CorrigeEstadoErro( False ) ;
+          ecfpadrao.CorrigeEstadoDeErro( False );
+     end;
+   end;
+
+   
+end;
+
+procedure TtecTEFDiscado.AntesFinalizarRequisicao(Req: TACBrTEFDReq);
+begin
+   if Req.Header = 'CRT' then
+      Req.GravaInformacao(777,777,'TESTE REDECARD');
+
+//   Memo1.Lines.Add('Enviando: '+Req.Header+' ID: '+IntToStr( Req.ID ) );
+
+end;
+
+procedure TtecTEFDiscado.SetValorPagoDinheiro(const Value: Currency);
+begin
+  FValorPagoDinheiro := {FValorPagoDinheiro +} Value;
+end;
+
+procedure TtecTEFDiscado.SetValorPagocheque(const Value: Currency);
+begin
+  FValorPagocheque := {FValorPagocheque +} Value;
+end;
+
+procedure TtecTEFDiscado.SetValorCreditoTroca(const Value: Currency);
+begin
+  FValorCreditoTroca := Value;
+end;
+
+initialization
+   DirExec := ExtractFilePath(Application.ExeName);
+
+end.

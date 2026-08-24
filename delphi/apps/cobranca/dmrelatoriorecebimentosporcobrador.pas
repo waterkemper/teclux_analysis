@@ -9,9 +9,9 @@ uses
   // Componentes
   cpdatasource, cpquery,
   // Terceiros
-  FR_DSet, FR_DBSet, FR_Class, ZQuery, ZPgSqlQuery,
+  FR_DSet, FR_DBSet, FR_Class, ZQuery, ZPgSqlQuery, frx2xto30,
   // Repositorio
-  dmtecsoft, dmbasico, clparametrossistema, fmpreviewpadrao;
+  dmtecsoft, dmbasico, clparametrossistema, fmpreviewpadrao, frxClass;
 
 type
   TdtmRelatorioRecebimentosPorCobrador = class(TdtmBasico)
@@ -48,7 +48,7 @@ type
     qryRecebimentosnomecliente: TStringField;
     qryRecebimentosdatacobranca: TDateField;
     qryRecebimentosusuario: TIntegerField;
-    qryRecebimentosnomecobrador: TStringField;
+    qryRecebimentosnomecobrador: TStringField;    frxReport1: TfrxReport;
     procedure frpRecebimentosBeforePrint(Memo: TStringList; View: TfrView);
   protected
     FParametroCabecalho: String;
@@ -167,11 +167,13 @@ var
   Relatorio: TfrReport;
   frmPreview: TfrmPreviewPadrao;
 begin
+
+
   frVariables['Rua']   := RuaFilialBase;
   frVariables['Bairro']:= BairroFilialBase + ' - CEP: ' + CEPFilialBase;
   frVariables['Cidade']:= CidadeFilialBase + ' - ' + EstadoFilialBase;
   frVariables['Fone']  := FoneFilialBase;
-  frVariables['Outras']:= FParametroCabecalho;
+  frVariables['Outras']:= FParametroCabecalho;  frpRecebimentos.designreport;  frxReport1.designreport;
   frmPreview := TfrmPreviewPadrao.create(self);
   try
     Relatorio := frmPreview.frCompositeReport;

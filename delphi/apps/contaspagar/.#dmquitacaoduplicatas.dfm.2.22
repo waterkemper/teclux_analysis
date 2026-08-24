@@ -1,0 +1,1992 @@
+inherited dtmQuitacaoDuplicatas: TdtmQuitacaoDuplicatas
+  OldCreateOrder = False
+  OnDestroy = DataModuleDestroy
+  Left = 540
+  Top = 198
+  Height = 632
+  Width = 969
+  object qryFilial: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT f.Codigo,'
+      '       f.Nome'
+      ''
+      'FROM   filiais f'
+      ''
+      'WHERE  f.codigo = :codigo'
+      '')
+    RequestLive = True
+    Left = 57
+    Top = 15
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'codigo'
+        ParamType = ptUnknown
+        Value = 0
+      end>
+    object qryFilialcodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryFilialnome: TStringField
+      FieldName = 'nome'
+      Size = 40
+    end
+  end
+  object dsrFilial: TtecDataSource
+    DataSet = qryFilial
+    Left = 186
+    Top = 15
+  end
+  object qryConsultaFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT  f.Nome,'
+      '        f.Codigo'
+      ''
+      'FROM    filiais f'
+      ''
+      'ORDER BY UPPER(TO_ASCII(f.nome,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 336
+    Top = 15
+    object qryConsultaFiliaisnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryConsultaFiliaiscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+  end
+  object qryGrupoFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT codigo, descricao'
+      'FROM     gruposfiliais'
+      'WHERE codigo=:codigo')
+    RequestLive = True
+    Left = 57
+    Top = 134
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'codigo'
+        ParamType = ptUnknown
+        Value = 0
+      end>
+    object qryGrupoFiliaiscodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryGrupoFiliaisdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 30
+    end
+  end
+  object dsrGrupoFiliais: TtecDataSource
+    DataSet = qryGrupoFiliais
+    Left = 186
+    Top = 134
+  end
+  object qryConsultaGrupoFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT descricao,codigo'
+      'FROM     gruposfiliais'
+      'ORDER BY UPPER(TO_ASCII(descricao,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 336
+    Top = 134
+    object qryConsultaGrupoFiliaisdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 30
+    end
+    object qryConsultaGrupoFiliaiscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+    end
+  end
+  object qryFornecedores: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryFornecedoresBeforeOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select  codigo,'
+      '            coalesce(razao,nome) as nome,'
+      '            tipo'
+      'From    vfornecedores'
+      'Where (tipo =:tipo) and'
+      '            (codigo =:codigo)')
+    RequestLive = True
+    Left = 57
+    Top = 193
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'tipo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'codigo'
+        ParamType = ptUnknown
+        Value = '0'
+      end>
+    object qryFornecedorescodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryFornecedoresnome: TStringField
+      FieldName = 'nome'
+      Size = 50
+    end
+    object qryFornecedorestipo: TStringField
+      FieldName = 'tipo'
+    end
+  end
+  object dsrFornecedores: TtecDataSource
+    DataSet = qryFornecedores
+    Left = 186
+    Top = 193
+  end
+  object qryConsultaFornecedores: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'ClausulaWhere'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'SELECT v.nome as nome ,v.razao,'
+      '       v.Codigo,'
+      '       v.Tipo,'
+      '       Formatar_CPF_CNPJ(v.PessoaNumero) as PessoaNumero,'
+      '       Descricao_TipoCliente(v.Tipo) as TipoCliente,'
+      '       v.Estado,'
+      '       c.Nome as NomeCidade'
+      ''
+      'FROM   vFornecedores v, Cidades c '
+      '%ClausulaWhere'
+      ''
+      '      AND (v.Estado = c.Estado)'
+      '      AND (v.Cidade = c.Codigo)'
+      ''
+      'ORDER BY UPPER(TO_ASCII(coalesce(v.razao,v.nome),'#39'LATIN1'#39'))'
+      '')
+    RequestLive = True
+    Left = 336
+    Top = 193
+    object qryConsultaFornecedoresNome: TStringField
+      DisplayLabel = 'Nome Fantasia'
+      FieldName = 'Nome'
+      Size = 40
+    end
+    object qryConsultaFornecedoresrazao: TStringField
+      DisplayLabel = 'Raz'#227'o Social'
+      DisplayWidth = 40
+      FieldName = 'razao'
+      Size = 60
+    end
+    object qryConsultaFornecedoresPessoaNumero: TStringField
+      Alignment = taCenter
+      DisplayLabel = 'CPF ouCNPJ'
+      FieldName = 'PessoaNumero'
+      Size = 18
+    end
+    object qryConsultaFornecedoresNomeCidade: TStringField
+      DisplayLabel = 'Cidade'
+      FieldName = 'NomeCidade'
+      Required = True
+      Size = 30
+    end
+    object qryConsultaFornecedoresEstado: TStringField
+      Alignment = taCenter
+      DisplayLabel = 'UF'
+      FieldName = 'Estado'
+      Size = 2
+    end
+    object qryConsultaFornecedoresCodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'Codigo'
+      DisplayFormat = '###,###,##0'
+    end
+    object qryConsultaFornecedoresTipoCliente: TStringField
+      DisplayLabel = 'Tipo fornecedor'
+      FieldName = 'TipoCliente'
+      Size = 18
+    end
+    object qryConsultaFornecedoresTipo: TStringField
+      FieldName = 'Tipo'
+      Visible = False
+      Size = 1
+    end
+  end
+  object qryBancos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT b.Codigo,'
+      '       b.Sigla'
+      ''
+      'FROM   bancos b'
+      ''
+      'WHERE  b.Codigo = :Codigo AND'
+      '       b.Inativo IS NULL ')
+    RequestLive = True
+    Left = 57
+    Top = 261
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'codigo'
+        ParamType = ptUnknown
+        Value = '-1'
+      end>
+    object qryBancoscodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+    end
+    object qryBancossigla: TStringField
+      FieldName = 'sigla'
+      Size = 10
+    end
+  end
+  object dsrBanco: TtecDataSource
+    DataSet = qryBancos
+    Left = 186
+    Top = 263
+  end
+  object qryConsultarBancos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT   b.Sigla,'
+      '         b.Codigo,'
+      '         b.Nome'
+      ''
+      'FROM     bancos b'
+      ''
+      'WHERE    b.Inativo IS NULL'
+      ''
+      'ORDER BY b.Sigla'
+      '')
+    RequestLive = True
+    Left = 336
+    Top = 263
+    object qryConsultarBancosSigla: TStringField
+      FieldName = 'Sigla'
+      Size = 15
+    end
+    object qryConsultarBancosCodigo: TIntegerField
+      Alignment = taCenter
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'Codigo'
+      DisplayFormat = '000'
+    end
+    object qryConsultarBancoNome: TStringField
+      FieldName = 'Nome'
+      Size = 50
+    end
+  end
+  object qryDuplicatas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryDuplicatasBeforeOpen
+    AfterInsert = qryDuplicatasAfterInsert
+    AfterPost = qryDuplicatasAfterPost
+    OnFilterRecord = qryDuplicatasFilterRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'vencimento'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'grupofilial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'fornecedor'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Documento'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'banco'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'tipo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Administrador'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ordenacao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';SELECT * FROM'
+      '('
+      'SELECT t.DocumentoPag,'
+      '       t.DataVencto,'
+      ''
+      '       CASE WHEN t.DataVencto < :DataCalculoDataPagamento THEN'
+      '                 ABS(t.DataVencto - :DataCalculoDataPagamento)'
+      '            ELSE 0'
+      '       END AS Atraso,'
+      ''
+      '       t.ValorVencto,'
+      '       t.ValorDesconto,'
+      '       t.TipoJuros,'
+      '       t.Juros,'
+      '       t.TipoMulta,'
+      '       t.Multa,'
+      '       t.Numero,  '
+      '       t.ContaPagto,'
+      ''
+      '       FALSE as Quitar,'
+      ''
+      '       CASE WHEN t.DataVencto < :DataCalculoDataPagamento THEN'
+      '                 CASE WHEN t.TipoMulta = '#39'%'#39' THEN '
+      '                           CASE WHEN t.TipoJuros = '#39'%'#39' THEN '
+      
+        '                                     t.ValorVencto + (t.ValorVen' +
+        'cto * COALESCE(t.Multa,0)) / 100 +'
+      
+        '                                                     (t.ValorVen' +
+        'cto * (ABS(t.DataVencto - :DataCalculoDataPagamento) *'
+      
+        '                                                                ' +
+        '                       COALESCE(t.juros,0) / 100))'
+      '                                WHEN t.TipoJuros = '#39'V'#39' THEN'
+      
+        '                                     t.ValorVencto + (t.ValorVen' +
+        'cto * COALESCE(t.Multa,0)) / 100 +'
+      
+        '                                                          (ABS(t' +
+        '.DataVencto - :DataCalculoDataPagamento) * COALESCE(t.juros,0))'
+      '                           END'
+      ''
+      '                      WHEN t.tipoMulta = '#39'V'#39' THEN'
+      '                           CASE WHEN t.TipoJuros = '#39'%'#39' THEN'
+      
+        '                                     t.ValorVencto + COALESCE(t.' +
+        'Multa,0) +'
+      
+        '                                    (t.ValorVencto * (ABS(t.Data' +
+        'Vencto - :DataCalculoDataPagamento) * COALESCE(t.juros,0) / 100)' +
+        ')'
+      ''
+      '                                WHEN t.TipoJuros = '#39'V'#39' THEN'
+      
+        '                                     t.ValorVencto + COALESCE(t.' +
+        'Multa,0) +'
+      
+        '                                                     (ABS(t.Data' +
+        'Vencto - :DataCalculoDataPagamento) * COALESCE(t.juros,0))'
+      '                           END'
+      '                 END'
+      ''
+      '            ELSE t.ValorVencto - coalesce(t.valordesconto,0)'
+      '       END AS Previsao,'
+      '       False as PrevisaoAlterada,'
+      ''
+      ''
+      '       CASE WHEN t.DataVencto < :DataCalculoDataPagamento THEN'
+      '                 CASE WHEN t.TipoMulta = '#39'%'#39' THEN'
+      '                           CASE WHEN t.TipoJuros = '#39'%'#39' THEN'
+      
+        '                                     t.ValorVencto + (t.ValorVen' +
+        'cto * COALESCE(t.Multa,0)) / 100 +'
+      
+        '                                                     (t.ValorVen' +
+        'cto * (ABS(t.DataVencto - :DataCalculoDataPagamento) *'
+      
+        '                                                                ' +
+        '                       COALESCE(t.juros,0) / 100))'
+      '                                WHEN t.TipoJuros = '#39'V'#39' THEN'
+      
+        '                                     t.ValorVencto + (t.ValorVen' +
+        'cto * COALESCE(t.Multa,0)) / 100 +'
+      
+        '                                                          (ABS(t' +
+        '.DataVencto - :DataCalculoDataPagamento) * COALESCE(t.juros,0))'
+      '                           END'
+      ''
+      '                      WHEN t.tipoMulta = '#39'V'#39' THEN'
+      '                           CASE WHEN t.TipoJuros = '#39'%'#39' THEN'
+      
+        '                                     t.ValorVencto + COALESCE(t.' +
+        'Multa,0) +'
+      
+        '                                    (t.ValorVencto * (ABS(t.Data' +
+        'Vencto - :DataCalculoDataPagamento) * COALESCE(t.juros,0) / 100)' +
+        ')'
+      ''
+      '                                WHEN t.TipoJuros = '#39'V'#39' THEN'
+      
+        '                                     t.ValorVencto + COALESCE(t.' +
+        'Multa,0) +'
+      
+        '                                                     (ABS(t.Data' +
+        'Vencto - :DataCalculoDataPagamento) * COALESCE(t.juros,0))'
+      '                           END'
+      '                 END'
+      ''
+      '            ELSE t.ValorVencto - coalesce(t.valordesconto,0)'
+      '       END AS PrevisaoAnterior,'
+      ''
+      '       d.Fornecedor,'
+      '       d.TipoFornecedor,'
+      ''
+      
+        '       (SELECT coalesce(v.razao,v.nome) as nome    FROM   vForne' +
+        'cedores v'
+      '                        WHERE (d.Fornecedor = v.Codigo) AND'
+      
+        '                              (d.TipoFornecedor = CAST(v.Tipo as' +
+        ' CHAR))) AS Nome,'
+      ''
+      '                              /*'
+      
+        '       COALESCE(CAST(REPLACE(TRIM(TO_CHAR((SELECT n.Numero FROM ' +
+        ' NotasPag n'
+      
+        '                                              WHERE n.DocumentoP' +
+        'ag = t.DocumentoPag), '#39'999,999,999'#39')),'#39','#39','#39'.'#39') AS VARCHAR(15)),'
+      ''
+      
+        '                cast(case when position('#39'/'#39' in d.complemento)<>0' +
+        ' then SUBSTRING(d.Complemento FROM position('#39'/'#39' in d.complemento' +
+        ') FOR length(d.complemento))'
+      '                else d.complemento end as varchar(15))'
+      ''
+      '                ) AS Nota,'
+      ''
+      '       COALESCE(CAST((SELECT n.Serie FROM  NotasPag n'
+      
+        '                                     WHERE n.DocumentoPag = t.Do' +
+        'cumentoPag) AS VARCHAR),'
+      ''
+      
+        '                cast(case when position('#39'/'#39' in d.complemento)<>0' +
+        ' then SUBSTRING(d.Complemento FROM 1 FOR position('#39'/'#39' in d.compl' +
+        'emento)-1)'
+      '                else null end as varchar(3))'
+      ''
+      '                ) AS Serie,'
+      '                */'
+      '       d.complemento,'
+      ''
+      '       t.observacao'
+      ''
+      'FROM   Duplicatas t, DocumentosPag d'
+      ''
+      'WHERE (t.DocumentoPag = d.Numero)'
+      '%Vencimento'
+      '    AND (d.Previsao = FALSE)'
+      '    AND (t.DataPagto IS NULL)'
+      '    AND (t.Autorizado = TRUE)'
+      ''
+      '%Filial'
+      '%GrupoFilial'
+      '%Fornecedor'
+      '%Documento'
+      '%Banco'
+      '%Tipo'
+      '%Administrador'
+      ')'
+      'AS dp'
+      '%Ordenacao')
+    RequestLive = True
+    Left = 57
+    Top = 337
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'DataCalculoDataPagamento'
+        ParamType = ptUnknown
+      end>
+    object qryDuplicatasdocumentopag: TIntegerField
+      FieldName = 'documentopag'
+      ReadOnly = True
+      Required = True
+      DisplayFormat = '###,###'
+    end
+    object qryDuplicatasnumero: TIntegerField
+      FieldName = 'numero'
+      ReadOnly = True
+      DisplayFormat = '0'
+    end
+    object qryDuplicatasnome: TStringField
+      FieldName = 'nome'
+      Size = 50
+    end
+    object qryDuplicatasdatavencto: TDateField
+      Alignment = taCenter
+      FieldName = 'datavencto'
+      ReadOnly = True
+      Required = True
+      EditMask = '99/99/9999;1; '
+    end
+    object qryDuplicatasvalordesconto: TFloatField
+      FieldName = 'valordesconto'
+      ReadOnly = True
+      DisplayFormat = '###,##0.00'
+    end
+    object qryDuplicatasquitar: TBooleanField
+      FieldName = 'quitar'
+      ReadOnly = True
+    end
+    object qryDuplicatasjuros: TFloatField
+      FieldName = 'juros'
+      ReadOnly = True
+      DisplayFormat = '###,##0.00'
+    end
+    object qryDuplicatasmulta: TFloatField
+      FieldName = 'multa'
+      ReadOnly = True
+      DisplayFormat = '###,##0.00'
+    end
+    object qryDuplicatastipojuros: TStringField
+      FieldName = 'tipojuros'
+      ReadOnly = True
+      Size = 1
+    end
+    object qryDuplicatastipomulta: TStringField
+      FieldName = 'tipomulta'
+      ReadOnly = True
+      Size = 1
+    end
+    object qryDuplicatasprevisao: TFloatField
+      FieldName = 'previsao'
+      OnChange = qryDuplicatasprevisaoChange
+      DisplayFormat = '###,##0.00'
+    end
+    object qryDuplicatasvalorvencto: TFloatField
+      FieldName = 'valorvencto'
+      ReadOnly = True
+      DisplayFormat = '###,##0.00'
+    end
+    object qryDuplicatasatraso: TIntegerField
+      FieldName = 'atraso'
+      ReadOnly = True
+      DisplayFormat = '#'
+    end
+    object qryDuplicatasfornecedor: TIntegerField
+      FieldName = 'fornecedor'
+      ReadOnly = True
+      DisplayFormat = '###,##0'
+    end
+    object qryDuplicatastipofornecedor: TStringField
+      FieldName = 'tipofornecedor'
+      ReadOnly = True
+      Size = 1
+    end
+    object qryDuplicatasContaPagto: TIntegerField
+      FieldName = 'ContaPagto'
+      ReadOnly = True
+      DisplayFormat = '0'
+    end
+    object qryDuplicatasprevisaoanterior: TFloatField
+      FieldName = 'previsaoanterior'
+      ReadOnly = True
+    end
+    object qryDuplicatasobservacao: TStringField
+      FieldName = 'observacao'
+      Size = 512
+    end
+    object qryDuplicatascomplemento: TStringField
+      FieldName = 'complemento'
+      Size = 15
+    end
+    object qryDuplicatasprevisaoalterada: TBooleanField
+      FieldName = 'previsaoalterada'
+    end
+  end
+  object dsrDuplicatas: TtecDataSource
+    DataSet = qryDuplicatas
+    OnDataChange = dsrDuplicatasDataChange
+    Left = 186
+    Top = 329
+  end
+  object qryTipoPagto: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select   codigo,'
+      '             descricao,'
+      '             saidadocaixa'
+      'From     tipospagamentos'
+      'Where  codigo =:codigo'
+      '     and codigo<>3')
+    RequestLive = False
+    Left = 59
+    Top = 457
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'codigo'
+        ParamType = ptUnknown
+        Value = '0'
+      end>
+    object qryTipoPagtocodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryTipoPagtodescricao: TStringField
+      FieldName = 'descricao'
+      Size = 30
+    end
+    object qryTipoPagtosaidadocaixa: TBooleanField
+      FieldName = 'saidadocaixa'
+    end
+  end
+  object dsrTipoPagto: TtecDataSource
+    DataSet = qryTipoPagto
+    Left = 188
+    Top = 453
+  end
+  object qryConsultaTipoPagto: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select descricao,'
+      '           codigo'
+      'From   tipospagamentos'
+      'where codigo<>3'
+      'Order By UPPER(TO_ASCII(descricao,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 342
+    Top = 450
+    object qryConsultaTipoPagtodescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 30
+    end
+    object qryConsultaTipoPagtocodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+    end
+  end
+  object qryAgrupadas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryAgrupadasBeforeOpen
+    AfterInsert = qryAgrupadasAfterInsert
+    AfterScroll = qryAgrupadasAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'Vencimento'
+        ParamType = ptUnknown
+        Value = 'and (t.datavencto between ('#39'01/01/2000'#39') and ('#39'01/01/2000'#39'))'
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'GrupoFilial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Fornecedor'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Banco'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Tipo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ordenacao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';SELECT *, false as PrevisaoAlterada FROM'
+      '('
+      'Select  d.fornecedor,'
+      '            d.tipofornecedor,'
+      '            (Select coalesce(v.razao,v.nome) as nome '
+      '            From vfornecedores v'
+      '            where (d.fornecedor = v.codigo)  and'
+      
+        '                       (d.tipofornecedor = cast(v.tipo as char))' +
+        ') as nome,'
+      '            t.documentopag as documento,'
+      '            min(t.datavencto) as datavencto,'
+      
+        '            cast(avg(case when (t.datavencto < :DataCalculoDataP' +
+        'agamento) then abs(t.datavencto - :DataCalculoDataPagamento)'
+      '                                   else 0'
+      '                           end) as Integer) as atraso,'
+      ''
+      '            sum(t.valorvencto) as valorvencto,'
+      ''
+      '            false as quitar,'
+      ''
+      
+        '            round(sum(case when (t.datavencto < :DataCalculoData' +
+        'Pagamento) then'
+      
+        '                                         case when (t.tipomulta ' +
+        '= '#39'%'#39') then'
+      
+        '                                                      case when ' +
+        '(t.tipojuros = '#39'%'#39') then t.valorvencto + ((t.valorvencto * coale' +
+        'sce(t.multa,0)) / 100) +'
+      
+        '                                                                ' +
+        '                                                                ' +
+        '     (t.valorvencto * (abs(t.datavencto - :DataCalculoDataPagame' +
+        'nto) * coalesce(t.juros,0) / 100))'
+      
+        '                                                           when ' +
+        '(t.tipojuros =  '#39'V'#39') then t.valorvencto + ((t.valorvencto * coal' +
+        'esce(t.multa,0)) / 100) +'
+      
+        '                                                                ' +
+        '                                                                ' +
+        '      (abs(t.datavencto - :DataCalculoDataPagamento) * coalesce(' +
+        't.juros,0))'
+      '                                                      end'
+      
+        '                                                  when (t.tipomu' +
+        'lta = '#39'V'#39') then'
+      
+        '                                                      case when ' +
+        '(t.tipojuros = '#39'%'#39') then t.valorvencto + coalesce(t.multa,0) +'
+      
+        '                                                                ' +
+        '                                                           (t.va' +
+        'lorvencto * (abs(t.datavencto - :DataCalculoDataPagamento) * coa' +
+        'lesce(t.juros,0) / 100))'
+      
+        '                                                           when ' +
+        '(t.tipojuros =  '#39'V'#39') then t.valorvencto + coalesce(t.multa,0) +'
+      
+        '                                                                ' +
+        '                                                           (abs(' +
+        't.datavencto - :DataCalculoDataPagamento) * coalesce(t.juros,0))'
+      '                                                      end'
+      '                                        end'
+      
+        '                                        else t.ValorVencto - coa' +
+        'lesce(t.valordesconto,0)'
+      '                                end),2) as  previsao,'
+      ''
+      
+        '            round(sum(case when (t.datavencto < :DataCalculoData' +
+        'Pagamento) then'
+      
+        '                                         case when (t.tipomulta ' +
+        '= '#39'%'#39') then'
+      
+        '                                                      case when ' +
+        '(t.tipojuros = '#39'%'#39') then t.valorvencto + ((t.valorvencto * coale' +
+        'sce(t.multa,0)) / 100) +'
+      
+        '                                                                ' +
+        '                                                                ' +
+        '     (t.valorvencto * (abs(t.datavencto - c:DataCalculoDataPagam' +
+        'ento) * coalesce(t.juros,0) / 100))'
+      
+        '                                                           when ' +
+        '(t.tipojuros =  '#39'V'#39') then t.valorvencto + ((t.valorvencto * coal' +
+        'esce(t.multa,0)) / 100) +'
+      
+        '                                                                ' +
+        '                                                                ' +
+        '      (abs(t.datavencto - :DataCalculoDataPagamento) * coalesce(' +
+        't.juros,0))'
+      '                                                      end'
+      
+        '                                                  when (t.tipomu' +
+        'lta = '#39'V'#39') then'
+      
+        '                                                      case when ' +
+        '(t.tipojuros = '#39'%'#39') then t.valorvencto + coalesce(t.multa,0) +'
+      
+        '                                                                ' +
+        '                                                           (t.va' +
+        'lorvencto * (abs(t.datavencto - :DataCalculoDataPagamento) * coa' +
+        'lesce(t.juros,0) / 100))'
+      
+        '                                                           when ' +
+        '(t.tipojuros =  '#39'V'#39') then t.valorvencto + coalesce(t.multa,0) +'
+      
+        '                                                                ' +
+        '                                                           (abs(' +
+        't.datavencto - :DataCalculoDataPagamento) * coalesce(t.juros,0))'
+      '                                                      end'
+      '                                        end'
+      
+        '                                        else t.ValorVencto - coa' +
+        'lesce(t.valordesconto,0)'
+      '                                end),2) as  previsaoAnterior,'
+      '          cast('#39'0/'#39'||count(*) as varchar)  as qtdeduplicatas,'
+      '          0.00 as aQuitar'
+      'From   duplicatas t, documentospag d'
+      'where (t.documentopag = d.numero)'
+      '           and (d.previsao = false)'
+      '           and (t.datapagto is null)'
+      '           and (t.autorizado = true)'
+      '%Vencimento  /*     Vencimento     */'
+      '%Filial      /*     Filial         */'
+      '%GrupoFilial /*     Grupo Filial   */'
+      '%Fornecedor  /*     Fornecedor     */'
+      '%Banco       /*     Banco          */'
+      '%Tipo        /*     Tipo           */'
+      ''
+      'group by t.documentopag, nome, d.fornecedor, d.tipofornecedor'
+      ')'
+      'as dp'
+      '%Ordenacao'
+      '')
+    RequestLive = True
+    Left = 57
+    Top = 391
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'DataCalculoDataPagamento'
+        ParamType = ptUnknown
+      end>
+    object qryAgrupadasDocumento: TIntegerField
+      FieldName = 'Documento'
+      ReadOnly = True
+      DisplayFormat = '###,##0'
+    end
+    object qryAgrupadasDataVencto: TDateField
+      Alignment = taCenter
+      DisplayLabel = 'Vencto'
+      FieldName = 'DataVencto'
+      ReadOnly = True
+      EditMask = '99/99/9999;1; '
+    end
+    object qryAgrupadasValorVencto: TFloatField
+      DisplayLabel = 'Valor'
+      FieldName = 'ValorVencto'
+      ReadOnly = True
+      DisplayFormat = '###,##0.00'
+    end
+    object qryAgrupadasQuitar: TBooleanField
+      FieldName = 'Quitar'
+      ReadOnly = True
+    end
+    object qryAgrupadasAtraso: TIntegerField
+      FieldName = 'Atraso'
+      ReadOnly = True
+      DisplayFormat = '0'
+    end
+    object qryAgrupadasPrevisao: TFloatField
+      FieldName = 'Previsao'
+      ReadOnly = True
+      OnChange = qryAgrupadasPrevisaoChange
+      DisplayFormat = '###,##0.00'
+    end
+    object qryAgrupadasNome: TStringField
+      FieldName = 'Nome'
+      Size = 50
+    end
+    object qryAgrupadasFornecedor: TIntegerField
+      FieldName = 'Fornecedor'
+      ReadOnly = True
+      DisplayFormat = '###,##0'
+    end
+    object qryAgrupadasTipoFornecedor: TStringField
+      FieldName = 'TipoFornecedor'
+      ReadOnly = True
+      Size = 1
+    end
+    object qryAgrupadasprevisaoanterior: TFloatField
+      FieldName = 'previsaoanterior'
+      ReadOnly = True
+    end
+    object qryAgrupadasaquitar: TFloatField
+      FieldName = 'aquitar'
+      ReadOnly = True
+      DisplayFormat = '###,##0.00'
+    end
+    object qryAgrupadasqtdeduplicatas: TStringField
+      FieldName = 'qtdeduplicatas'
+      ReadOnly = True
+      Size = 50
+    end
+    object qryAgrupadasprevisaoalterada: TBooleanField
+      FieldName = 'previsaoalterada'
+    end
+  end
+  object dsrAgrupadas: TtecDataSource
+    DataSet = qryAgrupadas
+    OnDataChange = dsrAgrupadasDataChange
+    Left = 185
+    Top = 388
+  end
+  object qryModeloCheque: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT Configurar,'
+      '       Cabecalho,'
+      '       Produto,'
+      '       Rodape,'
+      '       CopiaCheque'
+      ''
+      'FROM   modelosnotasfiscais'
+      ''
+      'WHERE  Codigo = :Codigo')
+    RequestLive = False
+    Left = 441
+    Top = 262
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryModeloChequeConfigurar: TStringField
+      FieldName = 'Configurar'
+      Size = 50
+    end
+    object qryModeloChequeCabecalho: TStringField
+      DisplayLabel = 'Cabe'#231'alho'
+      DisplayWidth = 1200
+      FieldName = 'Cabecalho'
+      Size = 1200
+    end
+    object qryModeloChequeProduto: TStringField
+      DisplayWidth = 800
+      FieldName = 'Produto'
+      Size = 800
+    end
+    object qryModeloChequeRodape: TStringField
+      DisplayWidth = 1800
+      FieldName = 'Rodape'
+      Size = 1800
+    end
+    object qryModeloChequeCopiaCheque: TStringField
+      FieldName = 'CopiaCheque'
+      Size = 1
+    end
+  end
+  object qryConsultarContas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'SoComModeloCheque'
+        ParamType = ptUnknown
+      end>
+    DataSource = dsrContas
+    Sql.Strings = (
+      'SELECT b.Sigla,'
+      '       a.Nome,'
+      '       c.Conta,'
+      '       c.Digito,'
+      '       c.Titular,'
+      '       c.Banco,'
+      '       c.Agencia,'
+      '       b.ModeloCheque,'
+      '       c.contacontabil'
+      ''
+      'FROM   Contas c JOIN Bancos b   ON c.Banco   = b.Codigo'
+      '                JOIN Agencias a ON c.Banco   = a.Banco AND'
+      '                                   c.Agencia = a.Codigo'
+      '%SoComModeloCheque'
+      ''
+      
+        'ORDER BY b.Sigla, UPPER(TO_ASCII(a.nome,'#39'LATIN1'#39')), UPPER(TO_ASC' +
+        'II(c.titular,'#39'LATIN1'#39'))')
+    RequestLive = True
+    Left = 340
+    Top = 516
+    object qryConsultarContasSigla: TStringField
+      FieldName = 'Sigla'
+      Size = 10
+    end
+    object qryConsultarContasNome: TStringField
+      DisplayLabel = 'Nome da Ag'#234'ncia'
+      FieldName = 'Nome'
+      Size = 30
+    end
+    object qryConsultarContasConta: TIntegerField
+      FieldName = 'Conta'
+      DisplayFormat = '0'
+    end
+    object qryConsultarContasDigito: TStringField
+      Alignment = taCenter
+      DisplayLabel = 'D'
+      FieldName = 'Digito'
+      Size = 2
+    end
+    object qryConsultarContasTitular: TStringField
+      FieldName = 'Titular'
+      Size = 50
+    end
+    object qryConsultarContasAgencia: TIntegerField
+      FieldName = 'Agencia'
+      Visible = False
+      DisplayFormat = '0'
+    end
+    object qryConsultarContasBanco: TIntegerField
+      FieldName = 'Banco'
+      Visible = False
+      DisplayFormat = '0'
+    end
+    object qryConsultarContascontacontabil: TIntegerField
+      DisplayLabel = 'Conta Cont'#225'bil'
+      FieldName = 'contacontabil'
+    end
+  end
+  object qryContas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryContasAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT c.Banco,'
+      '       c.Agencia,'
+      '       c.Conta,'
+      '       c.Digito,'
+      '       c.Titular,'
+      '       b.Sigla,'
+      '       b.ModeloCheque,'
+      '       a.Nome,'
+      '       c.contacontabil  '
+      ''
+      'FROM   Contas c JOIN Bancos b   ON c.Banco   = b.Codigo'
+      '                JOIN Agencias a ON c.Banco   = a.Banco AND'
+      '                                   c.Agencia = a.Codigo'
+      ''
+      'WHERE  c.Conta = :Conta'
+      '')
+    RequestLive = True
+    Left = 60
+    Top = 518
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Conta'
+        ParamType = ptUnknown
+      end>
+    object qryContasBanco: TIntegerField
+      FieldName = 'Banco'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryContasAgencia: TIntegerField
+      DisplayLabel = 'Ag'#234'ncia'
+      FieldName = 'Agencia'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryContasConta: TIntegerField
+      FieldName = 'Conta'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryContasDigito: TStringField
+      DisplayLabel = 'D'#237'gito'
+      FieldName = 'Digito'
+      Required = True
+      Size = 2
+    end
+    object qryContasTitular: TStringField
+      FieldName = 'Titular'
+      Size = 50
+    end
+    object qryContasSigla: TStringField
+      FieldName = 'Sigla'
+      Size = 10
+    end
+    object qryContasNome: TStringField
+      FieldName = 'Nome'
+      Size = 30
+    end
+    object qryContasModeloCheque: TIntegerField
+      FieldName = 'ModeloCheque'
+    end
+    object qryContascontacontabil: TIntegerField
+      FieldName = 'contacontabil'
+    end
+  end
+  object dsrContas: TtecDataSource
+    DataSet = qryContas
+    Left = 185
+    Top = 521
+  end
+  object qryFilPagto: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT f.Codigo,'
+      '       f.Nome'
+      ''
+      'FROM   filiais f'
+      ''
+      'WHERE  f.codigo = :codigo'
+      '')
+    RequestLive = True
+    Left = 57
+    Top = 72
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'Codigo'
+        ParamType = ptUnknown
+        Value = 0
+      end>
+    object qryFilPagtoCodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'Codigo'
+      DisplayFormat = '0'
+    end
+    object qryFilPagtoNome: TStringField
+      FieldName = 'Nome'
+      Size = 40
+    end
+  end
+  object dsrFilPagto: TtecDataSource
+    DataSet = qryFilPagto
+    Left = 186
+    Top = 72
+  end
+  object qryConsultaFilPagto: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT  f.Nome,'
+      '        f.Codigo'
+      ''
+      'FROM    filiais f'
+      ''
+      'ORDER BY UPPER(TO_ASCII(f.nome,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 336
+    Top = 72
+    object qryConsultaFilPagtoNome: TStringField
+      FieldName = 'Nome'
+      Size = 40
+    end
+    object qryConsultaFilPagtoCodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'Codigo'
+      DisplayFormat = '0'
+    end
+  end
+  object qryConsultaContaContabil: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'consulta'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      
+        'SELECT   cast(repeat('#39' '#39', length(btrim(p.classificacao)))||p.Des' +
+        'cricao as varchar) as DescricaoEdentada,'
+      '         p.descricao,'
+      '         p.classificacao,'
+      '         p.Codigo,'
+      '         p.tipo'
+      'FROM     planocontas p'
+      'WHERE    p.Inativo IS NULL'
+      '%consulta'
+      
+        'order by p.classificacao, UPPER(TO_ASCII(p.descricao,'#39'LATIN1'#39')),' +
+        ' p.codigo')
+    RequestLive = True
+    Left = 369
+    Top = 320
+    object qryConsultaContaContabildescricaoedentada: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricaoedentada'
+      Size = 52
+    end
+    object qryConsultaContaContabildescricao: TStringField
+      FieldName = 'descricao'
+      Visible = False
+      Size = 50
+    end
+    object qryConsultaContaContabilclassificacao: TStringField
+      DisplayLabel = 'Classifica'#231#227'o'
+      FieldName = 'classificacao'
+    end
+    object qryConsultaContaContabilcodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+    end
+    object qryConsultaContaContabiltipo: TStringField
+      DisplayLabel = 'Tipo'
+      FieldName = 'tipo'
+      Size = 1
+    end
+  end
+  object qryProcuraCreditarPagamento: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      
+        'select codigo, cast(btrim(classificacao, '#39'. '#39') as varchar) as cl' +
+        'assificacao, descricao'
+      'from planocontas'
+      'where codigo = :codigo'
+      '  and tipo = '#39'A'#39
+      '  and inativo is null')
+    RequestLive = False
+    Left = 350
+    Top = 375
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraCreditarPagamentocodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryProcuraCreditarPagamentoclassificacao: TStringField
+      FieldName = 'classificacao'
+    end
+    object qryProcuraCreditarPagamentodescricao: TStringField
+      FieldName = 'descricao'
+      Required = True
+      Size = 50
+    end
+  end
+  object dsrProcuraCreditarPagamento: TtecDataSource
+    DataSet = qryProcuraCreditarPagamento
+    Left = 374
+    Top = 392
+  end
+  object qryAgrupadas_Documento: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterInsert = qryAgrupadasAfterInsert
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'Vencimento'
+        ParamType = ptUnknown
+        Value = 'and (t.datavencto between ('#39'01/01/2000'#39') and ('#39'01/01/2000'#39'))'
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'GrupoFilial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Fornecedor'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Banco'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Tipo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ordenacao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';SELECT *, false as PrevisaoAlterada FROM (Select  d.fornecedor,'
+      '            d.tipofornecedor,'
+      '            (Select coalesce(v.razao,v.nome) as nome '
+      '            From vfornecedores v'
+      '            where (d.fornecedor = v.codigo)  and'
+      
+        '                       (d.tipofornecedor = cast(v.tipo as char))' +
+        ') as nome,'
+      '            t.documentopag as documento,'
+      '            min(t.datavencto) as datavencto,'
+      
+        '            cast(avg(case when (t.datavencto < :DataCalculoDataP' +
+        'agamento) then abs(t.datavencto - :DataCalculoDataPagamento)'
+      '                                   else 0'
+      '                           end) as Integer) as atraso,'
+      ''
+      '            sum(t.valorvencto) as valorvencto,'
+      ''
+      '            false as quitar,'
+      ''
+      
+        '            round(sum(case when (t.datavencto < :DataCalculoData' +
+        'Pagamento) then'
+      
+        '                                         case when (t.tipomulta ' +
+        '= '#39'%'#39') then'
+      
+        '                                                      case when ' +
+        '(t.tipojuros = '#39'%'#39') then t.valorvencto + ((t.valorvencto * coale' +
+        'sce(t.multa,0)) / 100) +'
+      
+        '                                                                ' +
+        '                                                                ' +
+        '     (t.valorvencto * (abs(t.datavencto - :DataCalculoDataPagame' +
+        'nto) * coalesce(t.juros,0) / 100))'
+      
+        '                                                           when ' +
+        '(t.tipojuros =  '#39'V'#39') then t.valorvencto + ((t.valorvencto * coal' +
+        'esce(t.multa,0)) / 100) +'
+      
+        '                                                                ' +
+        '                                                                ' +
+        '      (abs(t.datavencto - :DataCalculoDataPagamento) * coalesce(' +
+        't.juros,0))'
+      '                                                      end'
+      
+        '                                                  when (t.tipomu' +
+        'lta = '#39'V'#39') then'
+      
+        '                                                      case when ' +
+        '(t.tipojuros = '#39'%'#39') then t.valorvencto + coalesce(t.multa,0) +'
+      
+        '                                                                ' +
+        '                                                           (t.va' +
+        'lorvencto * (abs(t.datavencto - :DataCalculoDataPagamento) * coa' +
+        'lesce(t.juros,0) / 100))'
+      
+        '                                                           when ' +
+        '(t.tipojuros =  '#39'V'#39') then t.valorvencto + coalesce(t.multa,0) +'
+      
+        '                                                                ' +
+        '                                                           (abs(' +
+        't.datavencto - :DataCalculoDataPagamento) * coalesce(t.juros,0))'
+      '                                                      end'
+      '                                        end'
+      
+        '                                        else t.ValorVencto - coa' +
+        'lesce(t.valordesconto,0)'
+      '                                end),2) as  previsao,'
+      ''
+      
+        '            round(sum(case when (t.datavencto < :DataCalculoData' +
+        'Pagamento) then'
+      
+        '                                         case when (t.tipomulta ' +
+        '= '#39'%'#39') then'
+      
+        '                                                      case when ' +
+        '(t.tipojuros = '#39'%'#39') then t.valorvencto + ((t.valorvencto * coale' +
+        'sce(t.multa,0)) / 100) +'
+      
+        '                                                                ' +
+        '                                                                ' +
+        '     (t.valorvencto * (abs(t.datavencto - :DataCalculoDataPagame' +
+        'nto) * coalesce(t.juros,0) / 100))'
+      
+        '                                                           when ' +
+        '(t.tipojuros =  '#39'V'#39') then t.valorvencto + ((t.valorvencto * coal' +
+        'esce(t.multa,0)) / 100) +'
+      
+        '                                                                ' +
+        '                                                                ' +
+        '      (abs(t.datavencto - :DataCalculoDataPagamento) * coalesce(' +
+        't.juros,0))'
+      '                                                      end'
+      
+        '                                                  when (t.tipomu' +
+        'lta = '#39'V'#39') then'
+      
+        '                                                      case when ' +
+        '(t.tipojuros = '#39'%'#39') then t.valorvencto + coalesce(t.multa,0) +'
+      
+        '                                                                ' +
+        '                                                           (t.va' +
+        'lorvencto * (abs(t.datavencto - :DataCalculoDataPagamento) * coa' +
+        'lesce(t.juros,0) / 100))'
+      
+        '                                                           when ' +
+        '(t.tipojuros =  '#39'V'#39') then t.valorvencto + coalesce(t.multa,0) +'
+      
+        '                                                                ' +
+        '                                                           (abs(' +
+        't.datavencto - :DataCalculoDataPagamento) * coalesce(t.juros,0))'
+      '                                                      end'
+      '                                        end'
+      
+        '                                        else t.ValorVencto - coa' +
+        'lesce(t.valordesconto,0)'
+      '                                end),2) as  previsaoAnterior,'
+      '          cast('#39'0/'#39'||count(*) as varchar)  as qtdeduplicatas,'
+      '          0.00 as aQuitar'
+      'From   duplicatas t, documentospag d'
+      'where (t.documentopag = d.numero)'
+      '           and (d.previsao = false)'
+      '           and (t.datapagto is null)'
+      '           and (t.autorizado = true)'
+      '%Vencimento  /*     Vencimento     */'
+      '%Filial      /*     Filial         */'
+      '%GrupoFilial /*     Grupo Filial   */'
+      '%Fornecedor  /*     Fornecedor     */'
+      '%Banco       /*     Banco          */'
+      '%Tipo        /*     Tipo           */'
+      ''
+      
+        'group by t.documentopag, nome, d.fornecedor, d.tipofornecedor) A' +
+        'S dp'
+      '%Ordenacao')
+    RequestLive = True
+    Left = 633
+    Top = 367
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'DataCalculoDataPagamento'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryAgrupadas_Fornecedor: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterInsert = qryAgrupadasAfterInsert
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'Vencimento'
+        ParamType = ptUnknown
+        Value = 'and (t.datavencto between ('#39'01/01/2000'#39') and ('#39'01/01/2000'#39'))'
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'GrupoFilial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Fornecedor'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Banco'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Tipo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ordenacao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';SELECT *, false as PrevisaoAlterada FROM'
+      '(Select  d.fornecedor,'
+      '            d.tipofornecedor,'
+      '            (Select coalesce(v.razao,v.nome) as nome '
+      '            From vfornecedores v'
+      '            where (d.fornecedor = v.codigo)  and'
+      
+        '                       (d.tipofornecedor = cast(v.tipo as char))' +
+        ') as nome,'
+      '            min(t.documentopag) as documento,'
+      '            min(t.datavencto) as datavencto,'
+      
+        '            cast(avg(case when (t.datavencto < :DataCalculoDataP' +
+        'agamento) then abs(t.datavencto - :DataCalculoDataPagamento)'
+      '                                   else 0'
+      '                           end) as Integer) as atraso,'
+      ''
+      '            sum(t.valorvencto) as valorvencto,'
+      ''
+      '            false as quitar,'
+      ''
+      
+        '            round(sum(case when (t.datavencto < :DataCalculoData' +
+        'Pagamento) then'
+      
+        '                                         case when (t.tipomulta ' +
+        '= '#39'%'#39') then'
+      
+        '                                                      case when ' +
+        '(t.tipojuros = '#39'%'#39') then t.valorvencto + ((t.valorvencto * coale' +
+        'sce(t.multa,0)) / 100) +'
+      
+        '                                                                ' +
+        '                                                                ' +
+        '     (t.valorvencto * (abs(t.datavencto - :DataCalculoDataPagame' +
+        'nto) * coalesce(t.juros,0) / 100))'
+      
+        '                                                           when ' +
+        '(t.tipojuros =  '#39'V'#39') then t.valorvencto + ((t.valorvencto * coal' +
+        'esce(t.multa,0)) / 100) +'
+      
+        '                                                                ' +
+        '                                                                ' +
+        '      (abs(t.datavencto - :DataCalculoDataPagamento) * coalesce(' +
+        't.juros,0))'
+      '                                                      end'
+      
+        '                                                  when (t.tipomu' +
+        'lta = '#39'V'#39') then'
+      
+        '                                                      case when ' +
+        '(t.tipojuros = '#39'%'#39') then t.valorvencto + coalesce(t.multa,0) +'
+      
+        '                                                                ' +
+        '                                                           (t.va' +
+        'lorvencto * (abs(t.datavencto - :DataCalculoDataPagamento) * coa' +
+        'lesce(t.juros,0) / 100))'
+      
+        '                                                           when ' +
+        '(t.tipojuros =  '#39'V'#39') then t.valorvencto + coalesce(t.multa,0) +'
+      
+        '                                                                ' +
+        '                                                           (abs(' +
+        't.datavencto - :DataCalculoDataPagamento) * coalesce(t.juros,0))'
+      '                                                      end'
+      '                                        end'
+      
+        '                                        else t.ValorVencto - coa' +
+        'lesce(t.valordesconto,0)'
+      '                                end),2) as  previsao,'
+      ''
+      
+        '            round(sum(case when (t.datavencto < :DataCalculoData' +
+        'Pagamento) then'
+      
+        '                                         case when (t.tipomulta ' +
+        '= '#39'%'#39') then'
+      
+        '                                                      case when ' +
+        '(t.tipojuros = '#39'%'#39') then t.valorvencto + ((t.valorvencto * coale' +
+        'sce(t.multa,0)) / 100) +'
+      
+        '                                                                ' +
+        '                                                                ' +
+        '     (t.valorvencto * (abs(t.datavencto - :DataCalculoDataPagame' +
+        'nto) * coalesce(t.juros,0) / 100))'
+      
+        '                                                           when ' +
+        '(t.tipojuros =  '#39'V'#39') then t.valorvencto + ((t.valorvencto * coal' +
+        'esce(t.multa,0)) / 100) +'
+      
+        '                                                                ' +
+        '                                                                ' +
+        '      (abs(t.datavencto - :DataCalculoDataPagamento) * coalesce(' +
+        't.juros,0))'
+      '                                                      end'
+      
+        '                                                  when (t.tipomu' +
+        'lta = '#39'V'#39') then'
+      
+        '                                                      case when ' +
+        '(t.tipojuros = '#39'%'#39') then t.valorvencto + coalesce(t.multa,0) +'
+      
+        '                                                                ' +
+        '                                                           (t.va' +
+        'lorvencto * (abs(t.datavencto - :DataCalculoDataPagamento) * coa' +
+        'lesce(t.juros,0) / 100))'
+      
+        '                                                           when ' +
+        '(t.tipojuros =  '#39'V'#39') then t.valorvencto + coalesce(t.multa,0) +'
+      
+        '                                                                ' +
+        '                                                           (abs(' +
+        't.datavencto - :DataCalculoDataPagamento) * coalesce(t.juros,0))'
+      '                                                      end'
+      '                                        end'
+      
+        '                                        else t.ValorVencto - coa' +
+        'lesce(t.valordesconto,0)'
+      '                                end),2) as  previsaoAnterior,'
+      '          cast('#39'0/'#39'||count(*) as varchar) as qtdeduplicatas,'
+      '          0.00 as aQuitar'
+      'From   duplicatas t, documentospag d'
+      'where (t.documentopag = d.numero)'
+      '           and (d.previsao = false)'
+      '           and (t.datapagto is null)'
+      '           and (t.autorizado = true)'
+      '%Vencimento  /*     Vencimento     */'
+      '%Filial      /*     Filial         */'
+      '%GrupoFilial /*     Grupo Filial   */'
+      '%Fornecedor  /*     Fornecedor     */'
+      '%Banco       /*     Banco          */'
+      '%Tipo        /*     Tipo           */'
+      ''
+      'GROUP BY nome, d.fornecedor, d.tipofornecedor) as dp'
+      ''
+      '%Ordenacao'
+      '')
+    RequestLive = True
+    Left = 633
+    Top = 423
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'DataCalculoDataPagamento'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryDuplicatasObservacoes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update duplicatas set observacao = :observacao'
+      'where documentopag = :documentopag'
+      '    and datavencto = :datavencto'
+      '    and numero = :numero')
+    RequestLive = False
+    Left = 104
+    Top = 352
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'observacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'documentopag'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datavencto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryConta_e_Cheque: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select d.datapagto     ,'
+      '       d.valorpagto    ,'
+      '       d.filialpagto   ,'
+      '       d.contapagto    ,'
+      '       d.chequepagto   ,'
+      '       d.tipopagamento ,'
+      '       d.contacredito  ,'
+      '       d.autorizado,'
+      '       d.sequencia,'
+      '      (d.nrlotecontabil/1000000000) as nrlotecontabil'
+      'from duplicatas d'
+      'where d.contapagto  = :contapagto'
+      '  and d.chequepagto = :chequepagto'
+      '')
+    RequestLive = False
+    Left = 472
+    Top = 64
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'contapagto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'chequepagto'
+        ParamType = ptUnknown
+      end>
+    object qryConta_e_Chequedatapagto: TDateField
+      FieldName = 'datapagto'
+    end
+    object qryConta_e_Chequevalorpagto: TFloatField
+      FieldName = 'valorpagto'
+    end
+    object qryConta_e_Chequefilialpagto: TIntegerField
+      FieldName = 'filialpagto'
+    end
+    object qryConta_e_Chequecontapagto: TIntegerField
+      FieldName = 'contapagto'
+    end
+    object qryConta_e_Chequechequepagto: TIntegerField
+      FieldName = 'chequepagto'
+    end
+    object qryConta_e_Chequetipopagamento: TIntegerField
+      FieldName = 'tipopagamento'
+    end
+    object qryConta_e_Chequecontacredito: TIntegerField
+      FieldName = 'contacredito'
+    end
+    object qryConta_e_Chequeautorizado: TBooleanField
+      FieldName = 'autorizado'
+    end
+    object qryConta_e_Chequesequencia: TIntegerField
+      FieldName = 'sequencia'
+    end
+    object qryConta_e_Chequenrlotecontabil: TLargeintField
+      FieldName = 'nrlotecontabil'
+    end
+  end
+  object qryDuplicatas_PrevisoesAlteradas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnFilterRecord = qryDuplicatas_PrevisoesAlteradasFilterRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select  cast(null as integer) as documentopag,'
+      '        cast(null as integer) as numero,'
+      '        cast(null as Date) as DataVencto,'
+      '        cast(null as integer) as fornecedor,'
+      '        cast(null as varchar(1)) as tipofornecedor')
+    RequestLive = True
+    Left = 464
+    Top = 480
+    object qryDuplicatas_PrevisoesAlteradasdocumentopag: TIntegerField
+      FieldName = 'documentopag'
+    end
+    object qryDuplicatas_PrevisoesAlteradasnumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryDuplicatas_PrevisoesAlteradasdatavencto: TDateField
+      FieldName = 'datavencto'
+    end
+    object qryDuplicatas_PrevisoesAlteradasfornecedor: TIntegerField
+      FieldName = 'fornecedor'
+    end
+    object qryDuplicatas_PrevisoesAlteradastipofornecedor: TStringField
+      FieldName = 'tipofornecedor'
+      Size = 1
+    end
+  end
+end

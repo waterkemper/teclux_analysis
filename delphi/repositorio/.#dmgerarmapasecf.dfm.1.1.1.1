@@ -1,0 +1,559 @@
+inherited dtmGerarMapasECF: TdtmGerarMapasECF
+  OldCreateOrder = False
+  Left = 194
+  Top = 146
+  Height = 446
+  Width = 639
+  object qryCuponsExistentes_MesmaData: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'ListadeDatas'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'select df.data,'
+      '          max(c.numero) as cupom'
+      'from cupons c join dadosfiscais df on c.dadofiscal = df.numero'
+      'where c.filial = :Filial'
+      '  and c.maquina = :Maquina'
+      '  and c.intervensao = :Intervensao'
+      '%ListadeDatas'
+      'group by df.data')
+    RequestLive = False
+    Left = 72
+    Top = 8
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Maquina'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Intervensao'
+        ParamType = ptUnknown
+      end>
+    object qryCuponsExistentes_MesmaDatadata: TDateField
+      FieldName = 'data'
+    end
+    object qryCuponsExistentes_MesmaDatacupom: TIntegerField
+      FieldName = 'cupom'
+    end
+  end
+  object qryApagarMapasECF: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      
+        'delete from mapasecf where (filial,maquina,intervensao,data) in ' +
+        '()')
+    RequestLive = False
+    Left = 280
+    Top = 16
+  end
+  object qryIncluirMapasECF: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'insert into MapasECF'
+      '( filial,'
+      '  maquina,'
+      '  intervensao,'
+      '  data,'
+      '  cupomfinal,'
+      '  reducoes,'
+      '  grandetotal,'
+      '  cancelamentos,'
+      '  descontos,'
+      '  substituicao,'
+      '  isento,'
+      '  naotributado)'
+      ''
+      '  values'
+      ''
+      '( :filial,'
+      '  :maquina,'
+      '  :intervensao,'
+      '  :data,'
+      '  :cupomfinal,'
+      '  :reducoes,'
+      '  :grandetotal,'
+      '  :cancelamentos,'
+      '  :descontos,'
+      '  :substituicao,'
+      '  :isento,'
+      '  :naotributado);')
+    RequestLive = False
+    Left = 280
+    Top = 64
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'maquina'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'intervensao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'cupomfinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'reducoes'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'grandetotal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'cancelamentos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'descontos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'substituicao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'isento'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'naotributado'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryIncluirMapasECFTributados: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Insert into MapasECFTributados'
+      ' (filial,'
+      '  maquina,'
+      '  intervensao,'
+      '  data,'
+      '  aliquota,'
+      '  base,'
+      '  valor)'
+      ''
+      ' values'
+      ''
+      ' (:filial,'
+      '  :maquina,'
+      '  :intervensao,'
+      '  :data,'
+      '  :aliquota,'
+      '  :base,'
+      '  :valor)')
+    RequestLive = False
+    Left = 280
+    Top = 120
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'maquina'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'intervensao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'aliquota'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'base'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'valor'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryCuponsExistentes_InferiorData: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select max(c.numero) as cupom'
+      'from cupons c join dadosfiscais df on c.dadofiscal = df.numero'
+      'where c.filial = :Filial'
+      '  and c.maquina = :Maquina'
+      '  and c.intervensao = :Intervensao'
+      '  and df.data < :data')
+    RequestLive = False
+    Left = 104
+    Top = 24
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Maquina'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Intervensao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end>
+    object qryCuponsExistentes_InferiorDatacupom: TIntegerField
+      FieldName = 'cupom'
+    end
+  end
+  object qryCuponsExistentes_SuperiorData: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select max(c.numero) as cupom'
+      'from cupons c join dadosfiscais df on c.dadofiscal = df.numero'
+      'where c.filial = :Filial'
+      '  and c.maquina = :Maquina'
+      '  and c.intervensao = :Intervensao'
+      '  and df.data < :data')
+    RequestLive = False
+    Left = 136
+    Top = 40
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Maquina'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Intervensao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end>
+    object qryCuponsExistentes_SuperiorDatacupom: TIntegerField
+      FieldName = 'cupom'
+    end
+  end
+  object ZMonitor1: TZMonitor
+    Left = 448
+    Top = 88
+  end
+  object qryReducoesZ: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'insert into reducoesz'
+      ' ('
+      '    NumeroFabricacao,'
+      '    Filial,'
+      '    MFadicional,'
+      '    ModelodoECF,'
+      '    Numerousuario,'
+      '    CRZ,'
+      '    COO,'
+      '    COO_Inicial,'
+      '    COO_Final,'
+      '    CRO,'
+      '    DataMovimento,'
+      '    DataEmissao,'
+      '    HoraEmissao,'
+      '    VendaBrutaDiaria,'
+      '    TotalizadorGeral,'
+      '    ParametroIncidenciaISSQN'
+      '  )'
+      ''
+      '  values'
+      ''
+      '  ('
+      '    :NumeroFabricacao,'
+      '    :Filial,'
+      '    :MFadicional,'
+      '    :ModelodoECF,'
+      '    :Numerousuario,'
+      '    :CRZ,'
+      '    :COO,'
+      '    :COO_Inicial,'
+      '    :COO_Final,'
+      '    :CRO,'
+      '    cast(:DataMovimento as date),'
+      '    cast(:DataEmissao as timestamp),'
+      '    cast(:HoraEmissao as timestamp),'
+      '    :VendaBrutaDiaria,'
+      '    :TotalizadorGeral,'
+      '    :ParametroIncidenciaISSQN'
+      '  )')
+    RequestLive = True
+    Left = 48
+    Top = 120
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'NumeroFabricacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'MFadicional'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ModelodoECF'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Numerousuario'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'CRZ'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'COO'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'COO_Inicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'COO_Final'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'CRO'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataMovimento'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataEmissao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'HoraEmissao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'VendaBrutaDiaria'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'TotalizadorGeral'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ParametroIncidenciaISSQN'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryReducoesZDetalhes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'insert into reducoeszdetalhes'
+      ' ('
+      '  Filial,'
+      '  NumeroUsuario,'
+      '  CRO,'
+      '  DataMovimento,'
+      '  TipoTotalizadorParcial,'
+      '  aliquota,'
+      '  ValorAcumulado'
+      ' )'
+      ''
+      ' values'
+      ''
+      ' ('
+      '  :Filial,'
+      '  :NumeroUsuario,'
+      '  :CRO,'
+      '  :DataMovimento,'
+      '  :TipoTotalizadorParcial,'
+      '  :aliquota,'
+      '  :ValorAcumulado'
+      ' )')
+    RequestLive = True
+    Left = 96
+    Top = 144
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'NumeroUsuario'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'CRO'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataMovimento'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'TipoTotalizadorParcial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'aliquota'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ValorAcumulado'
+        ParamType = ptUnknown
+      end>
+  end
+end

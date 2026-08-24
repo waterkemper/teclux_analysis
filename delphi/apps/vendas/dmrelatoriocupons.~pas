@@ -1,0 +1,115 @@
+unit dmrelatoriocupons;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery, fr_dset,
+  fr_dbset, fr_class, ZTransact;
+
+type
+  TdtmRelatorioCupons = class(TdtmBasico)
+    qryVendas: TtecQuery;
+    qryVendascoo: TIntegerField;
+    qryVendasdatahora: TDateTimeField;
+    qryVendasvalortotal: TFloatField;
+    qryVendasproduto: TStringField;
+    qryVendassequencia: TIntegerField;
+    qryVendasquantidade: TFloatField;
+    qryVendasvalorunitario: TFloatField;
+    qryVendasvendedor: TIntegerField;
+    qryVendasnomevendedor: TStringField;
+    frpVendas: TfrReport;
+    fdsVendas: TfrDBDataSet;
+    qryVendasdescricaoproduto: TStringField;
+    qryVendasvl_tot_item: TFloatField;
+    qryVendasdescacres: TFloatField;
+    procedure frpVendasBeforePrint(Memo: TStringList; View: TfrView);
+  private
+    fVendedor: String;
+    fFilial: String;
+    fDataInicial: String;
+    fDataFinal: String;
+    fParametroCabecalho: String;
+    procedure SetDataFinal(const Value: String);
+    procedure SetFilial(const Value: String);
+    procedure SetVendedor(const Value: String);
+    { Private declarations }
+  public
+    procedure ImprimirRelatorio;
+    procedure MontarSQL;
+    function AbrirRelatorio: Boolean;
+
+    property ParametroCabecalho: String read fParametroCabecalho write fParametroCabecalho;
+    property Filial            : String read fFilial             write SetFilial;
+    property Vendedor          : String read fVendedor           write SetVendedor;
+    property DataInicial       : String read fDataInicial        write fDataInicial;
+    property DataFinal         : String read fDataFinal          write SetDataFinal;
+    { Public declarations }
+  end;
+
+var
+  dtmRelatorioCupons: TdtmRelatorioCupons;
+
+implementation
+
+uses
+  biblio, fmpreviewpadrao;
+
+{$R *.dfm}
+
+{ TdtmRelatorioCupons }
+
+function TdtmRelatorioCupons.AbrirRelatorio: Boolean;
+begin
+  qryVendas.Open;
+  Result := not qryVendas.IsEmpty
+end;
+
+procedure TdtmRelatorioCupons.ImprimirRelatorio;
+begin
+  ImprimirRelatoriofast('RELATÓRIO DE CUPONS FISCAIS', FParametroCabecalho, MSimples, 0, [frpVendas], false, self.owner);
+end;
+
+procedure TdtmRelatorioCupons.MontarSQL;
+begin
+  qryVendas.Close;
+  if fFilial <> '' then
+    qryVendas.MacroByName('FILIAL').AsString := '  AND det.filial = ' + fFilial
+  else
+    qryVendas.MacroByName('FILIAL').AsString := '';
+  if fVendedor <> '' then
+    qryVendas.MacroByName('VENDEDOR').AsString := '  AND vendedor = ' + fVendedor
+  else
+    qryVendas.MacroByName('VENDEDOR').AsString := '';
+  qryVendas.MacroByName('DATA').AsString := MontarIntervaloData('det.dt_ini',fDataInicial,fDataFinal,True);
+end;
+
+procedure TdtmRelatorioCupons.SetDataFinal(const Value: String);
+begin
+  fDataFinal := Value;
+  if fDataFinal <> '' then
+    fParametroCabecalho := fParametroCabecalho + ' Entre: ' + fDataInicial + ' e ' + fDataFinal;
+end;
+
+procedure TdtmRelatorioCupons.SetFilial(const Value: String);
+begin
+  fFilial := Value;
+  if fFilial <> '' then
+    fParametroCabecalho := fParametroCabecalho + 'Filial: ' + fFilial + ' '
+end;
+
+procedure TdtmRelatorioCupons.SetVendedor(const Value: String);
+begin
+  fVendedor := Value;
+  if fVendedor <> '' then
+    fParametroCabecalho := fParametroCabecalho + 'Vendedor: ' + fVendedor + ' '
+end;
+
+procedure TdtmRelatorioCupons.frpVendasBeforePrint(Memo: TStringList;
+  View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpVendas,View);
+end;
+
+end.

@@ -1,7 +1,7 @@
 inherited frmecf: Tfrmecf
   Left = 462
   Top = 168
-  ActiveControl = edtnum_rec
+  ActiveControl = DBTabControlP030
   BorderIcons = [biSystemMenu, biMinimize, biMaximize]
   Caption = 'ecf - Escritura'#231#227'o Cont'#225'bil Fiscal'
   ClientHeight = 689
@@ -245,7 +245,7 @@ inherited frmecf: Tfrmecf
     Top = 88
     Width = 1064
     Height = 601
-    ActivePage = tstECF
+    ActivePage = tstLucroPresumido
     Align = alClient
     TabOrder = 3
     OnChange = pgcECFChange
@@ -1784,7 +1784,6 @@ inherited frmecf: Tfrmecf
                             FieldName = 'ind_lan_ant'
                             Title.Alignment = taCenter
                             Title.Caption = 'DIFERIDO'
-                            Width = 64
                             Visible = True
                           end>
                       end

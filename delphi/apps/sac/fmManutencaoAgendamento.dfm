@@ -400,12 +400,15 @@ inherited frmManutencaoAgendamento: TfrmManutencaoAgendamento
                 Width = 616
                 Height = 418
                 inherited Splitter1: TSplitter
+                  Left = 581
                   Height = 404
                 end
                 inherited dbgSelecaoAleatoria: TtecDBGrid
+                  Width = 581
                   Height = 404
                 end
                 inherited pnlLabels: TPanel
+                  Left = 584
                   Height = 404
                 end
                 inherited pnlAbaixo: TPanel
@@ -465,23 +468,8 @@ inherited frmManutencaoAgendamento: TfrmManutencaoAgendamento
           end
           inherited tstSelecaoAleatoriaClasseProduto: TTabSheet
             inherited fraSelecaoaleatoriaclassesprodutos: TfraSelecaoaleatoriaclassesprodutos
-              Width = 616
-              Height = 442
               inherited fraSelecaoAleatoriaClasseProduto: TfraSelecaoAleatoria
-                Width = 616
-                Height = 442
-                inherited Splitter1: TSplitter
-                  Height = 427
-                end
-                inherited dbgSelecaoAleatoria: TtecDBGrid
-                  Height = 427
-                end
-                inherited pnlLabels: TPanel
-                  Height = 427
-                end
                 inherited pnlAbaixo: TPanel
-                  Top = 427
-                  Width = 616
                   Font.Pitch = fpVariable
                   inherited lblOrientacao: TLabel
                     Font.Pitch = fpVariable
@@ -633,23 +621,8 @@ inherited frmManutencaoAgendamento: TfrmManutencaoAgendamento
           end
           inherited tstSelecaoAleatoriaMarketPlace: TTabSheet
             inherited fraSelecaoaleatoriamarketplace1: TfraSelecaoaleatoriamarketplace
-              Width = 616
-              Height = 442
               inherited fraSelecaoAleatoriamarketplace: TfraSelecaoAleatoria
-                Width = 616
-                Height = 442
-                inherited Splitter1: TSplitter
-                  Height = 427
-                end
-                inherited dbgSelecaoAleatoria: TtecDBGrid
-                  Height = 427
-                end
-                inherited pnlLabels: TPanel
-                  Height = 427
-                end
                 inherited pnlAbaixo: TPanel
-                  Top = 427
-                  Width = 616
                   Font.Pitch = fpVariable
                   inherited lblOrientacao: TLabel
                     Font.Pitch = fpVariable

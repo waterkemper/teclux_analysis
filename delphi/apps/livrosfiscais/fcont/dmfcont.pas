@@ -5,14 +5,14 @@ interface
 uses
   SysUtils, Classes, dmbasico, biblio, DB, ZQuery, ZPgSqlQuery, cpquery, dmtecsoft,
   Controls, Forms, DateUtils, clparametrossistema, cpdatasource, ctconstantes,
-  ACBrSpedContabil ;
+  ACBrSpedContabil, ACBrBase ;
 
 
 type
 
   Tdtmfcont = class(TdtmBasico)
     qryecd: TtecQuery;
-    qryFiliais: TZPgSqlQuery;
+    qryFiliais: TtecQuery;
     dsrecd: TtecDataSource;
     qryFiliaissuframa: TStringField;
     qryFiliaisind_perfil: TStringField;

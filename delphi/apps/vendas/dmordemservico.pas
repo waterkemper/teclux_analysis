@@ -1270,6 +1270,10 @@ type
     dsrAtendimentos: TtecDataSource;
     qryAtendimentosdescricao: TStringField;
     qryAtendimentosdata: TDateField;
+    qryProcuraServiconbs: TStringField;
+    qryProcuraServicocindop: TStringField;
+    qryServicosOrdemServiconbs: TStringField;
+    qryServicosOrdemServicocindop: TStringField;
     procedure qryOrdemServicoAfterOpen(DataSet: TDataSet);
     procedure qryProcuraEquipamentosOSAfterOpen(DataSet: TDataSet);
     procedure AbreTabelasConsulta(TipoConsulta: TtecOrdemServicoTipoConsulta);
@@ -2914,7 +2918,6 @@ begin
     qryServicosOrdemServicoaliquotaissqn.AsFloat     := qryProcuraServicoaliquotaissqn.AsFloat;
     qryServicosOrdemServicovalorservico.AsFloat      := qryProcuraServicovalor.AsFloat;
     qryServicosOrdemServicodescricaoservico.AsString := qryProcuraServicodescricao.AsString;
-
     qryServicosOrdemServicocnae.Asinteger                     := qryProcuraServicocnae.AsInteger;
     qryServicosOrdemServicocodigoatividade.AsString           := qryProcuraServicocodigoatividade.AsString;
     qryServicosOrdemServicocodigoatividademunicipio.asinteger := qryProcuraServicocodigoatividademunicipio.asinteger;
@@ -2924,7 +2927,12 @@ begin
     qryServicosOrdemServicocofinscst.asString                 := qryProcuraServicocofinscst.AsString;
     qryServicosOrdemServicocofinsaliquota.ascurrency          := qryProcuraServicocofinsaliquota.AsCurrency;
     qryServicosOrdemServicocodigolcp116.AsString              := qryProcuraServicocodigolcp116.AsString;
+    qryServicosOrdemServiconbs.AsString              := qryProcuraServiconbs.AsString;
+    qryServicosOrdemServicocindop.AsString              := qryProcuraServicocindop.AsString;
+
     qryServicosOrdemServicocodigoatividade.AsString           := qryProcuraServicocodigoatividade.AsString;
+
+
   end;
 end;
 
@@ -8250,6 +8258,7 @@ begin
   if not assigned(fdtmCadastroContratos) then
   begin
     fdtmCadastroContratos := TdtmCadastroContratos.Create(self, false, True);
+    fdtmCadastroContratos.name := 'dtmcadastrocontratosOrdemServico';
 //    fdtmCadastroContratos.OnComplementarNota := ComplementarNota;
   end;
 

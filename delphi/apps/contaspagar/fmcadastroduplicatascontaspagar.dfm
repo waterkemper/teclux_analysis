@@ -1060,7 +1060,7 @@ inherited frmCadastroDuplicatasContasPagar: TfrmCadastroDuplicatasContasPagar
           Height = 30
           TabStop = False
           Color = clBtnFace
-          DataField = 'ValorAPagar'
+          DataField = 'ValoraPagarCalc'
           DataSource = dtmContasPagar.dsrDuplicatas
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clBlack

@@ -1,0 +1,4655 @@
+inherited dtmCadastroOperacoes: TdtmCadastroOperacoes
+  OldCreateOrder = False
+  Left = 373
+  Top = 131
+  Height = 582
+  Width = 899
+  object qryOperacoes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterClose = qryOperacoesAfterClose
+    AfterScroll = qryOperacoesAfterScroll
+    OnNewRecord = qryOperacoesNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select *'
+      'from operacoes'
+      'where (nome = :nome and'
+      '       coalesce(c01,'#39#39') = :c01 and'
+      '       coalesce(c02,'#39#39') = :c02 and'
+      '       coalesce(c03,'#39#39') = :c03)'
+      ''
+      '')
+    RequestLive = True
+    Left = 72
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'nome'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftString
+        Name = 'c01'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftString
+        Name = 'c02'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftString
+        Name = 'c03'
+        ParamType = ptUnknown
+      end>
+    object qryOperacoescodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesnome: TStringField
+      FieldName = 'nome'
+      Required = True
+      Size = 10
+    end
+    object qryOperacoesc01: TStringField
+      FieldName = 'c01'
+      Size = 2
+    end
+    object qryOperacoesc02: TStringField
+      FieldName = 'c02'
+      Size = 2
+    end
+    object qryOperacoesc03: TStringField
+      FieldName = 'c03'
+      Size = 2
+    end
+    object qryOperacoessetup2: TBooleanField
+      FieldName = 'setup'
+    end
+    object qryOperacoesplanocontrole: TBooleanField
+      FieldName = 'planocontrole'
+    end
+    object qryOperacoesdescricao: TStringField
+      DisplayLabel = 'descri'#231#227'o'
+      FieldName = 'descricao'
+      Required = True
+      Size = 60
+    end
+    object qryOperacoesdescr_c01: TStringField
+      FieldName = 'descr_c01'
+    end
+    object qryOperacoesdescr_c02: TStringField
+      FieldName = 'descr_c02'
+    end
+    object qryOperacoesdescr_c03: TStringField
+      FieldName = 'descr_c03'
+    end
+    object qryOperacoesppm: TIntegerField
+      FieldName = 'ppm'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesdescricaosetup: TStringField
+      FieldName = 'descricaosetup'
+      Size = 2000
+    end
+    object qryOperacoesnroperadores: TIntegerField
+      FieldName = 'nroperadores'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesnaobloqueiausuario: TBooleanField
+      FieldName = 'naobloqueiausuario'
+    end
+  end
+  object qryOperacoesSetup: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryOperacoesSetupAfterPost
+    AfterDelete = qryOperacoesSetupAfterDelete
+    OnNewRecord = qryOperacoesSetupNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select *'
+      'from operacoessetup'
+      'where operacao = :operacao')
+    RequestLive = True
+    Left = 72
+    Top = 80
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'operacao'
+        ParamType = ptUnknown
+      end>
+    object qryOperacoesSetupoperacao: TIntegerField
+      FieldName = 'operacao'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesSetupsequencia: TIntegerField
+      FieldName = 'sequencia'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesSetuppergunta: TStringField
+      FieldName = 'pergunta'
+      Size = 110
+    end
+    object qryOperacoesSetupresposta: TStringField
+      FieldName = 'resposta'
+      Size = 30
+    end
+  end
+  object qryOperacoesNiveisSalariais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryOperacoesNiveisSalariaisAfterOpen
+    BeforePost = qryOperacoesNiveisSalariaisBeforePost
+    AfterPost = qryOperacoesNiveisSalariaisAfterPost
+    AfterDelete = qryOperacoesNiveisSalariaisAfterDelete
+    OnNewRecord = qryOperacoesNiveisSalariaisNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select ons.*,'
+      '       ns.descricao,'
+      '       nivelsalarial as auxnivelsalarial'
+      
+        'from operacoesniveissalariais ons join niveissalariais ns on ons' +
+        '.nivelsalarial = ns.codigo'
+      'where ons.operacao = :operacao')
+    RequestLive = True
+    Left = 72
+    Top = 144
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'operacao'
+        ParamType = ptUnknown
+      end>
+    object qryOperacoesNiveisSalariaisoperacao: TIntegerField
+      FieldName = 'operacao'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesNiveisSalariaisnivelsalarial: TIntegerField
+      DisplayLabel = 'N'#237'vel salarial'
+      FieldName = 'nivelsalarial'
+      Required = True
+      DisplayFormat = '0'
+      EditFormat = '###'
+      MaxValue = 999
+      MinValue = 1
+    end
+    object qryOperacoesNiveisSalariaisdescricao: TStringField
+      DisplayLabel = 'descri'#231#227'o'
+      FieldName = 'descricao'
+      Required = True
+    end
+    object qryOperacoesNiveisSalariaisauxnivelsalarial: TIntegerField
+      FieldName = 'auxnivelsalarial'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesNiveisSalariaisnroperadores: TIntegerField
+      FieldName = 'nroperadores'
+      DisplayFormat = '0'
+    end
+  end
+  object dsrOperacoes: TtecDataSource
+    DataSet = qryOperacoes
+    Left = 104
+    Top = 32
+  end
+  object dsrOperacoesSetup: TtecDataSource
+    DataSet = qryOperacoesSetup
+    Left = 104
+    Top = 96
+  end
+  object dsrOperacoesNiveisSalariais: TtecDataSource
+    DataSet = qryOperacoesNiveisSalariais
+    Left = 104
+    Top = 160
+  end
+  object qryOperacoesProximo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select coalesce(max(codigo),0)+1 as codigo'
+      'from operacoes')
+    RequestLive = True
+    Left = 224
+    Top = 16
+    object qryOperacoesProximocodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+  end
+  object qryControleProcessos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterEdit = qryControleProcessosAfterEdit
+    OnNewRecord = qryControleProcessosNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cp.*'
+      'from controleprocessos cp'
+      'where cp.operacao = :operacao')
+    RequestLive = True
+    Left = 224
+    Top = 120
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'operacao'
+        ParamType = ptUnknown
+      end>
+    object qryControleProcessosoperacao: TIntegerField
+      FieldName = 'operacao'
+      DisplayFormat = '0'
+    end
+    object qryControleProcessosrevisao: TDateField
+      Alignment = taCenter
+      FieldName = 'revisao'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryControleProcessosresponsavel: TStringField
+      FieldName = 'responsavel'
+      Size = 30
+    end
+    object qryControleProcessosequipe: TStringField
+      FieldName = 'equipe'
+      Size = 60
+    end
+  end
+  object dsrControleProcessos: TtecDataSource
+    DataSet = qryControleProcessos
+    Left = 280
+    Top = 136
+  end
+  object qryProcessosControle: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryProcessosControleAfterPost
+    AfterDelete = qryProcessosControleAfterDelete
+    OnCalcFields = qryProcessosControleCalcFields
+    OnNewRecord = qryProcessosControleNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select pc.*'
+      'from processoscontrole pc'
+      'where pc.operacao = :operacao'
+      'order by pc.sequencia')
+    RequestLive = True
+    Left = 248
+    Top = 208
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'operacao'
+        ParamType = ptUnknown
+      end>
+    object qryProcessosControleoperacao: TIntegerField
+      FieldName = 'operacao'
+      DisplayFormat = '0'
+    end
+    object qryProcessosControlesequencia: TIntegerField
+      FieldName = 'sequencia'
+      DisplayFormat = '0'
+    end
+    object qryProcessosControlemaquinadispositivopadrao: TStringField
+      FieldName = 'maquinadispositivopadrao'
+      Size = 100
+    end
+    object qryProcessosControlecaracteristicaproduto: TStringField
+      FieldName = 'caracteristicaproduto'
+      Size = 100
+    end
+    object qryProcessosControlecaracteristicaprocesso: TStringField
+      FieldName = 'caracteristicaprocesso'
+      Size = 100
+    end
+    object qryProcessosControlecsr: TStringField
+      FieldName = 'csr'
+      Size = 4
+    end
+    object qryProcessosControlemd: TStringField
+      FieldName = 'md'
+    end
+    object qryProcessosControletiporegistrometodocontrole: TStringField
+      FieldName = 'tiporegistrometodocontrole'
+      Size = 100
+    end
+    object qryProcessosControletoleranciaespecproduto: TStringField
+      FieldName = 'toleranciaespecproduto'
+      Size = 160
+    end
+    object qryProcessosControletecnicaavaliacaomedicao: TStringField
+      FieldName = 'tecnicaavaliacaomedicao'
+      Size = 160
+    end
+    object qryProcessosControletamanho: TIntegerField
+      FieldName = 'tamanho'
+      DisplayFormat = '0'
+    end
+    object qryProcessosControlefrequencia: TStringField
+      FieldName = 'frequencia'
+      Size = 15
+    end
+    object qryProcessosControleplanoreacao: TStringField
+      FieldName = 'planoreacao'
+      Size = 100
+    end
+    object qryProcessosControlemodofalhapotencial: TStringField
+      FieldName = 'modofalhapotencial'
+      Size = 100
+    end
+    object qryProcessosControleefeitospotenciaisfalha: TStringField
+      FieldName = 'efeitospotenciaisfalha'
+      Size = 100
+    end
+    object qryProcessosControlesev: TIntegerField
+      FieldName = 'sev'
+      DisplayFormat = '0'
+    end
+    object qryProcessosControlecla: TIntegerField
+      FieldName = 'cla'
+      DisplayFormat = '0'
+    end
+    object qryProcessosControlecausaspotenciaisfalha: TStringField
+      FieldName = 'causaspotenciaisfalha'
+      Size = 100
+    end
+    object qryProcessosControleoco: TIntegerField
+      FieldName = 'oco'
+      DisplayFormat = '0'
+    end
+    object qryProcessosControlecontrolesatuaisprocesso: TStringField
+      FieldName = 'controlesatuaisprocesso'
+      Size = 100
+    end
+    object qryProcessosControledet: TIntegerField
+      FieldName = 'det'
+      DisplayFormat = '0'
+    end
+    object qryProcessosControleacoesrecomendadas: TStringField
+      FieldName = 'acoesrecomendadas'
+      Size = 100
+    end
+    object qryProcessosControleresponsavel: TStringField
+      FieldName = 'responsavel'
+      Size = 30
+    end
+    object qryProcessosControleprazo: TDateField
+      Alignment = taCenter
+      FieldName = 'prazo'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryProcessosControleacoestomadas: TStringField
+      FieldName = 'acoestomadas'
+      Size = 100
+    end
+    object qryProcessosControlecontrolesprevencao: TStringField
+      FieldName = 'controlesprevencao'
+      Size = 100
+    end
+    object qryProcessosControlerevisar: TBooleanField
+      FieldName = 'revisar'
+    end
+    object qryProcessosControlenpr: TIntegerField
+      FieldKind = fkCalculated
+      FieldName = 'npr'
+      ReadOnly = True
+      DisplayFormat = '0'
+      Calculated = True
+    end
+  end
+  object dsrProcessosControle: TtecDataSource
+    DataSet = qryProcessosControle
+    OnDataChange = dsrProcessosControleDataChange
+    Left = 280
+    Top = 224
+  end
+  object qryProcessosControleCopia: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select pc.*'
+      'from processoscontrole pc'
+      'where pc.operacao = :operacao'
+      'order by pc.sequencia')
+    RequestLive = True
+    Left = 704
+    Top = 24
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'operacao'
+        ParamType = ptUnknown
+      end>
+    object qryProcessosControleCopiaoperacao: TIntegerField
+      FieldName = 'operacao'
+      DisplayFormat = '0'
+    end
+    object qryProcessosControleCopiasequencia: TIntegerField
+      FieldName = 'sequencia'
+      DisplayFormat = '0'
+    end
+    object qryProcessosControleCopiamaquinadispositivopadrao: TStringField
+      FieldName = 'maquinadispositivopadrao'
+      Size = 100
+    end
+    object qryProcessosControleCopiacaracteristicaproduto: TStringField
+      FieldName = 'caracteristicaproduto'
+      Size = 100
+    end
+    object qryProcessosControleCopiacaracteristicaprocesso: TStringField
+      FieldName = 'caracteristicaprocesso'
+      Size = 100
+    end
+    object qryProcessosControleCopiacsr: TStringField
+      FieldName = 'csr'
+      Size = 4
+    end
+    object qryProcessosControleCopiamd: TStringField
+      FieldName = 'md'
+    end
+    object qryProcessosControleCopiatiporegistrometodocontrole: TStringField
+      FieldName = 'tiporegistrometodocontrole'
+      Size = 100
+    end
+    object qryProcessosControleCopiatoleranciaespecproduto: TStringField
+      FieldName = 'toleranciaespecproduto'
+      Size = 100
+    end
+    object qryProcessosControleCopiatecnicaavaliacaomedicao: TStringField
+      FieldName = 'tecnicaavaliacaomedicao'
+      Size = 100
+    end
+    object qryProcessosControleCopiatamanho: TIntegerField
+      FieldName = 'tamanho'
+      DisplayFormat = '0'
+    end
+    object qryProcessosControleCopiafrequencia: TStringField
+      FieldName = 'frequencia'
+      Size = 15
+    end
+    object qryProcessosControleCopiaplanoreacao: TStringField
+      FieldName = 'planoreacao'
+      Size = 100
+    end
+    object qryProcessosControleCopiamodofalhapotencial: TStringField
+      FieldName = 'modofalhapotencial'
+      Size = 100
+    end
+    object qryProcessosControleCopiaefeitospotenciaisfalha: TStringField
+      FieldName = 'efeitospotenciaisfalha'
+      Size = 100
+    end
+    object qryProcessosControleCopiasev: TIntegerField
+      FieldName = 'sev'
+      DisplayFormat = '0'
+    end
+    object qryProcessosControleCopiacla: TIntegerField
+      FieldName = 'cla'
+      DisplayFormat = '0'
+    end
+    object qryProcessosControleCopiacausaspotenciaisfalha: TStringField
+      FieldName = 'causaspotenciaisfalha'
+      Size = 100
+    end
+    object qryProcessosControleCopiaoco: TIntegerField
+      FieldName = 'oco'
+      DisplayFormat = '0'
+    end
+    object qryProcessosControleCopiacontrolesatuaisprocesso: TStringField
+      FieldName = 'controlesatuaisprocesso'
+      Size = 100
+    end
+    object qryProcessosControleCopiadet: TIntegerField
+      FieldName = 'det'
+      DisplayFormat = '0'
+    end
+    object qryProcessosControleCopiaacoesrecomendadas: TStringField
+      FieldName = 'acoesrecomendadas'
+      Size = 100
+    end
+    object qryProcessosControleCopiaresponsavel: TStringField
+      FieldName = 'responsavel'
+      Size = 30
+    end
+    object qryProcessosControleCopiaprazo: TDateField
+      Alignment = taCenter
+      FieldName = 'prazo'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryProcessosControleCopiaacoestomadas: TStringField
+      FieldName = 'acoestomadas'
+      Size = 100
+    end
+    object qryProcessosControleCopiacontrolesprevencao: TStringField
+      FieldName = 'controlesprevencao'
+      Size = 100
+    end
+    object qryProcessosControleCopiarevisar: TBooleanField
+      FieldName = 'revisar'
+    end
+  end
+  object qryFalhasOperacoes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryFalhasOperacoesAfterOpen
+    AfterEdit = qryFalhasOperacoesAfterEdit
+    AfterPost = qryFalhasOperacoesAfterPost
+    AfterDelete = qryFalhasOperacoesAfterDelete
+    OnNewRecord = qryFalhasOperacoesNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT fo.Falha,'
+      '       fo.Operacao,      '
+      '       f.Descricao'
+      ''
+      'FROM falhasoperacoes fo'
+      '     JOIN falhas f ON fo.Falha = f.Codigo'
+      ''
+      'WHERE fo.Operacao = :Operacao'
+      ''
+      'ORDER BY f.Descricao'
+      '')
+    RequestLive = True
+    Left = 72
+    Top = 240
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'Operacao'
+        ParamType = ptUnknown
+      end>
+    object qryFalhasOperacoesfalha: TIntegerField
+      FieldName = 'falha'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryFalhasOperacoesdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 300
+    end
+    object qryFalhasOperacoesoperacao: TIntegerField
+      FieldName = 'operacao'
+      DisplayFormat = '0'
+    end
+  end
+  object dsrFalhasOperacoes: TtecDataSource
+    DataSet = qryFalhasOperacoes
+    Left = 96
+    Top = 272
+  end
+  object qryOperacoesMaquinas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryOperacoesMaquinasAfterOpen
+    AfterEdit = qryOperacoesMaquinasAfterEdit
+    AfterPost = qryOperacoesMaquinasAfterPost
+    AfterDelete = qryOperacoesMaquinasAfterDelete
+    OnNewRecord = qryOperacoesMaquinasNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select om.operacao,'
+      '       om.maquina,'
+      '       m.descricao'
+      ''
+      'from operacoesmaquinas om'
+      '     join maquinas m'
+      '     on om.maquina = m.codigo'
+      ''
+      'where om.operacao = :operacao     '
+      ''
+      'order by om.maquina'
+      '')
+    RequestLive = True
+    Left = 96
+    Top = 360
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'operacao'
+        ParamType = ptUnknown
+      end>
+    object qryOperacoesMaquinasOperacao: TIntegerField
+      FieldName = 'operacao'
+    end
+    object qryOperacoesMaquinasmaquina: TIntegerField
+      FieldName = 'maquina'
+    end
+    object qryOperacoesMaquinasdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 30
+    end
+  end
+  object dsrOperacoesMaquinas: TtecDataSource
+    DataSet = qryOperacoesMaquinas
+    Left = 144
+    Top = 376
+  end
+  object qryRegistrodasOperacaoes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'SELECT Inclusao.UsuarioInclusao,'
+      
+        '       CAST(TO_CHAR(Inclusao.DataInclusao, '#39'DD/MM/YYYY HH24:MI:S' +
+        'S'#39') AS VARCHAR(20)) AS DataInclusao,'
+      '      (SELECT u.Nome'
+      '          FROM Usuarios u'
+      
+        '          WHERE u.UseName = UsuarioInclusao) AS NomeUsuarioInclu' +
+        'sao,'
+      ''
+      '       Alteracao.UsuarioAlteracao,'
+      
+        '       CAST(TO_CHAR(Alteracao.DataAlteracao, '#39'DD/MM/YYYY HH24:MI' +
+        ':SS'#39') AS VARCHAR(20)) AS DataAlteracao,'
+      '      (SELECT u.Nome'
+      '          FROM Usuarios u'
+      
+        '          WHERE u.UseName = UsuarioAlteracao) AS NomeUsuarioAlte' +
+        'racao,'
+      '       Alteracao.Operacao,'
+      '       Alteracao.Tabela'
+      ''
+      'FROM'
+      ''
+      '('
+      ' SELECT Inclusao.*'
+      ' FROM'
+      ''
+      ' ('
+      '  (SELECT opl.Trigger_User    AS UsuarioInclusao,'
+      '          opl.Trigger_Changed AS DataInclusao'
+      '      FROM Operacoes_Log opl'
+      '      WHERE opl.Codigo   = :Operacao AND'
+      '            Trigger_Mode = '#39'INSERT'#39
+      '      ORDER BY opl.Trigger_Changed DESC LIMIT 1)'
+      ''
+      ''
+      '  UNION ALL'
+      ''
+      '  (SELECT CAST(NULL AS VARCHAR(50)) AS UsuarioInclusao,'
+      '          CAST(NULL AS TIMESTAMP)   AS DataInclusao'
+      '      WHERE NOT EXISTS (SELECT opl.Codigo'
+      '                           FROM Operacoes_Log opl'
+      '                           WHERE opl.Codigo = :Operacao AND'
+      '                                 Trigger_Mode = '#39'INSERT'#39
+      
+        '                           ORDER BY opl.Trigger_Changed DESC LIM' +
+        'IT 1))'
+      ' ) AS Inclusao'
+      ''
+      ') AS Inclusao,'
+      ''
+      ''
+      '('
+      ' SELECT Alteracao.*'
+      ' FROM'
+      ''
+      ' ('
+      '  SELECT Alteracao.* FROM'
+      ''
+      '  ('
+      '   (SELECT opl.Trigger_User AS UsuarioAlteracao,'
+      '           opl.Trigger_Changed AS DataAlteracao,'
+      ''
+      
+        '           CAST(CASE WHEN Trigger_Mode = '#39'INSERT'#39' THEN '#39'INCLUS'#195'O' +
+        #39
+      
+        '                                                  ELSE '#39'ALTERA'#199#195 +
+        'O'#39
+      '                END AS VARCHAR(10)) AS Operacao,'
+      '           CAST('#39'OPERA'#199#213'ES'#39' AS VARCHAR(30)) AS Tabela'
+      ''
+      '       FROM Operacoes_Log opl'
+      '       WHERE opl.Codigo = :Operacao               AND'
+      '             Trigger_Mode IN ('#39'INSERT'#39', '#39'UPDATE'#39') AND'
+      '             Trigger_Tuple = '#39'new'#39
+      '       ORDER BY opl.Trigger_Changed DESC LIMIT 1)'
+      ''
+      ''
+      '   UNION ALL'
+      ''
+      '   (SELECT opl.Trigger_User AS UsuarioAlteracao,'
+      '           opl.Trigger_Changed AS DataAlteracao,'
+      ''
+      
+        '           CAST(CASE WHEN Trigger_Mode = '#39'INSERT'#39' THEN '#39'INCLUS'#195'O' +
+        #39
+      
+        '                     WHEN Trigger_Mode = '#39'UPDATE'#39' THEN '#39'ALTERA'#199#195 +
+        'O'#39
+      
+        '                                                  ELSE '#39'EXCLUS'#195'O' +
+        #39
+      '                END AS VARCHAR(10)) AS Operacao,'
+      '           CAST('#39'OP. N'#205'VEIS SALARIAIS'#39' AS VARCHAR(30)) AS Tabela'
+      ''
+      '       FROM Operacoesniveissalariais_Log opl'
+      '       WHERE opl.Operacao = :Operacao AND'
+      '             Trigger_Mode IN ('#39'INSERT'#39', '#39'UPDATE'#39', '#39'DELETE'#39')'
+      '       ORDER BY opl.Trigger_Changed DESC LIMIT 1)'
+      ''
+      ''
+      '   UNION ALL'
+      ''
+      '   (SELECT opl.Trigger_User AS UsuarioAlteracao,'
+      '           opl.Trigger_Changed AS DataAlteracao,'
+      ''
+      
+        '           CAST(CASE WHEN Trigger_Mode = '#39'INSERT'#39' THEN '#39'INCLUS'#195'O' +
+        #39
+      
+        '                     WHEN Trigger_Mode = '#39'UPDATE'#39' THEN '#39'ALTERA'#199#195 +
+        'O'#39
+      
+        '                                                  ELSE '#39'EXCLUS'#195'O' +
+        #39
+      '                END AS VARCHAR(10)) AS Operacao,'
+      '           CAST('#39'OP. M'#193'QUINAS'#39' AS VARCHAR(30)) AS Tabela'
+      ''
+      '       FROM Operacoesmaquinas_Log opl'
+      '       WHERE opl.Operacao = :Operacao AND'
+      '             Trigger_Mode IN ('#39'INSERT'#39', '#39'UPDATE'#39', '#39'DELETE'#39')'
+      '       ORDER BY opl.Trigger_Changed DESC LIMIT 1)'
+      ''
+      ''
+      '   UNION ALL'
+      ''
+      '   (SELECT opl.Trigger_User AS UsuarioAlteracao,'
+      '           opl.Trigger_Changed AS DataAlteracao,'
+      ''
+      
+        '           CAST(CASE WHEN Trigger_Mode = '#39'INSERT'#39' THEN '#39'INCLUS'#195'O' +
+        #39
+      
+        '                     WHEN Trigger_Mode = '#39'UPDATE'#39' THEN '#39'ALTERA'#199#195 +
+        'O'#39
+      
+        '                                                  ELSE '#39'EXCLUS'#195'O' +
+        #39
+      '                END AS VARCHAR(10)) AS Operacao,'
+      '           CAST('#39'OP. SETUP'#39' AS VARCHAR(30)) AS Tabela'
+      ''
+      '       FROM OperacoesSetUp_Log opl'
+      '       WHERE opl.Operacao = :Operacao AND'
+      '             Trigger_Mode IN ('#39'INSERT'#39', '#39'UPDATE'#39', '#39'DELETE'#39')'
+      '       ORDER BY opl.Trigger_Changed DESC LIMIT 1)'
+      ''
+      ''
+      '   UNION ALL'
+      ''
+      '   (SELECT opl.Trigger_User AS UsuarioAlteracao,'
+      '           opl.Trigger_Changed AS DataAlteracao,'
+      ''
+      
+        '           CAST(CASE WHEN Trigger_Mode = '#39'INSERT'#39' THEN '#39'INCLUS'#195'O' +
+        #39
+      
+        '                     WHEN Trigger_Mode = '#39'UPDATE'#39' THEN '#39'ALTERA'#199#195 +
+        'O'#39
+      
+        '                                                  ELSE '#39'EXCLUS'#195'O' +
+        #39
+      '                END AS VARCHAR(10)) AS Operacao,'
+      '           CAST('#39'CONTROLE PROCESSOS'#39' AS VARCHAR(30)) AS Tabela'
+      ''
+      '       FROM ControleProcessos_Log opl'
+      '       WHERE opl.Operacao = :Operacao AND'
+      '             Trigger_Mode IN ('#39'INSERT'#39', '#39'UPDATE'#39', '#39'DELETE'#39')'
+      '       ORDER BY opl.Trigger_Changed DESC LIMIT 1)'
+      ''
+      ''
+      '   UNION ALL'
+      ''
+      '   (SELECT opl.Trigger_User AS UsuarioAlteracao,'
+      '           opl.Trigger_Changed AS DataAlteracao,'
+      ''
+      
+        '           CAST(CASE WHEN Trigger_Mode = '#39'INSERT'#39' THEN '#39'INCLUS'#195'O' +
+        #39
+      
+        '                     WHEN Trigger_Mode = '#39'UPDATE'#39' THEN '#39'ALTERA'#199#195 +
+        'O'#39
+      
+        '                                                  ELSE '#39'EXCLUS'#195'O' +
+        #39
+      '                END AS VARCHAR(10)) AS Operacao,'
+      '           CAST('#39'PROCESSOS CONTROLE'#39' AS VARCHAR(30)) AS Tabela'
+      ''
+      '       FROM ProcessosControle_Log opl'
+      '       WHERE opl.Operacao = :Operacao AND'
+      '             Trigger_Mode IN ('#39'INSERT'#39', '#39'UPDATE'#39', '#39'DELETE'#39')'
+      '       ORDER BY opl.Trigger_Changed DESC LIMIT 1)'
+      ''
+      ''
+      '   UNION ALL'
+      ''
+      '   (SELECT opl.Trigger_User AS UsuarioAlteracao,'
+      '           opl.Trigger_Changed AS DataAlteracao,'
+      ''
+      
+        '           CAST(CASE WHEN Trigger_Mode = '#39'INSERT'#39' THEN '#39'INCLUS'#195'O' +
+        #39
+      
+        '                     WHEN Trigger_Mode = '#39'UPDATE'#39' THEN '#39'ALTERA'#199#195 +
+        'O'#39
+      
+        '                                                  ELSE '#39'EXCLUS'#195'O' +
+        #39
+      '                 END AS VARCHAR(10)) AS Operacao,'
+      '           CAST('#39'FALHAS OPERA'#199#213'ES'#39' AS VARCHAR(30)) AS Tabela'
+      ''
+      '       FROM FalhasOperacoes_Log opl'
+      '       WHERE opl.Operacao = :Operacao AND'
+      '             Trigger_Mode IN ('#39'INSERT'#39', '#39'UPDATE'#39', '#39'DELETE'#39')'
+      '       ORDER BY opl.Trigger_Changed DESC LIMIT 1)'
+      ''
+      ''
+      '   UNION ALL'
+      ''
+      '   (SELECT opt.Trigger_User AS UsuarioAlteracao,'
+      '           opt.Trigger_Changed AS DataAlteracao,'
+      ''
+      
+        '           CAST(CASE WHEN Trigger_Mode = '#39'INSERT'#39' THEN '#39'INCLUS'#195'O' +
+        #39
+      
+        '                     WHEN Trigger_Mode = '#39'UPDATE'#39' THEN '#39'ALTERA'#199#195 +
+        'O'#39
+      
+        '                                                  ELSE '#39'EXCLUS'#195'O' +
+        #39
+      '                 END AS VARCHAR(10)) AS Operacao,'
+      '           CAST('#39'TEMPOS PADR'#195'O'#39' AS VARCHAR(30)) AS Tabela'
+      ''
+      '       FROM OperacoesTemposPadrao_Log opt'
+      '       WHERE opt.Operacao = :Operacao AND'
+      '             Trigger_Mode IN ('#39'INSERT'#39', '#39'UPDATE'#39', '#39'DELETE'#39')'
+      '       ORDER BY opt.Trigger_Changed DESC LIMIT 1)'
+      ''
+      '  ) AS Alteracao'
+      '  ORDER BY DataAlteracao DESC LIMIT 1'
+      ' ) AS Alteracao'
+      ') AS Alteracao'
+      'ORDER BY UsuarioInclusao')
+    RequestLive = False
+    Left = 488
+    Top = 48
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'operacao'
+        ParamType = ptUnknown
+      end>
+    object qryRegistrodasOperacaoesusuarioinclusao: TStringField
+      FieldName = 'usuarioinclusao'
+      Size = 32
+    end
+    object qryRegistrodasOperacaoesdatainclusao: TStringField
+      FieldName = 'datainclusao'
+    end
+    object qryRegistrodasOperacaoesusuarioalteracao: TStringField
+      FieldName = 'usuarioalteracao'
+      Size = 6
+    end
+    object qryRegistrodasOperacaoesdataalteracao: TStringField
+      FieldName = 'dataalteracao'
+      Size = 19
+    end
+    object qryRegistrodasOperacaoesoperacao: TStringField
+      FieldName = 'operacao'
+      Size = 10
+    end
+    object qryRegistrodasOperacaoestabela: TStringField
+      FieldName = 'tabela'
+      Size = 30
+    end
+    object qryRegistrodasOperacaoesnomeusuarioinclusao: TStringField
+      FieldName = 'nomeusuarioinclusao'
+      Size = 40
+    end
+    object qryRegistrodasOperacaoesnomeusuarioalteracao: TStringField
+      FieldName = 'nomeusuarioalteracao'
+      Size = 40
+    end
+  end
+  object fdsImprimirOperacoes: TfrDBDataSet
+    CloseDataSource = True
+    DataSet = qryImprimirOperacoes
+    Left = 528
+    Top = 176
+  end
+  object frpOperacoesComMaquinas: TfrReport
+    Dataset = fdsImprimirOperacoes
+    InitialZoom = pzDefault
+    PreviewButtons = [pbZoom, pbLoad, pbSave, pbPrint, pbFind, pbHelp, pbExit]
+    StoreInDFM = True
+    RebuildPrinter = False
+    OnBeforePrint = frpOperacoesComMaquinasBeforePrint
+    Left = 376
+    Top = 288
+    ReportForm = {
+      190000004497000019FFFF00000A0050444643726561746F7200FFFFFFFFFF00
+      000000340800009A0B0000480000004800000024000000240000000000040000
+      00000000000000000000000000000000030400466F726D00FEFFFFFFDC000000
+      780000007C0100002C01000004000000FFFFFFFFFF00000000340800009A0B00
+      000000000000000000000000000000000000000400000000FFFF000000000000
+      000000000000030400466F726D00FEFFFFFFDC000000780000007C0100002C01
+      000004000000FFFFFFFFFF00000000340800009A0B0000000000000000000000
+      0000000000000001000400000000FFFF00000000000000000000000003040046
+      6F726D00FEFFFFFFDC000000780000007C0100002C01000004000000FFFFFFFF
+      FF00000000340800009A0B000000000000000000000000000000000000000004
+      000000000000000000000000000000000000030400466F726D00FEFFFFFFDC00
+      0000780000007C0100002C01000004000000FFFFFFFFFF00000000340800009A
+      0B00000000000000000000000000000000000000000400000000000000000000
+      0000000000000000030400466F726D00FEFFFFFFDC000000780000007C010000
+      2C01000004000000FFFFFFFFFF00000000340800009A0B000000000000000000
+      0000000000000000000000040000000000000000000000000000000000000304
+      00466F726D00FEFFFFFFDC000000780000007C0100002C01000004000000FFFF
+      FFFFFF00000000340800009A0B00000000000000000000000000000000000000
+      0004000000000000000000000000000000000000030400466F726D00FEFFFFFF
+      DC000000780000007C0100002C01000004000000FFFFFFFFFF00000000340800
+      009A0B00000000000000000000000000000000000000000400000000FFFF0000
+      00000000000000000000030400466F726D00FEFFFFFFDC000000780000007C01
+      00002C010000040000000200480300000C004461646F734D6573747265310002
+      010000000094000000F5020000830000003600050001000000000000000000FF
+      FFFF1F000000001400666473496D7072696D69724F70657261636F6573000000
+      00000000FFFF0000000000020000000100000000060046696C68613100010000
+      00C800000014000000010000000000000200BB030000130043616265E7616C68
+      6F44652050E167696E6131000201000000001C000000F5020000460000003000
+      020001000000000000000000FFFFFF1F00000000000000000000000000FFFF00
+      0000000002000000010000000000000001000000C80000001400000001000000
+      0000000200240400000900726470506167696E61000201000000005D010000F5
+      0200000C0000003000030001000000000000000000FFFFFF1F00000000000000
+      000000000000FFFF000000000002000000010000000000000001000000C80000
+      00140000000100000000000002008A040000060046696C686131000201000000
+      00B8010000F50200001E0000003000150001000000000000000000FFFFFF1F00
+      000000000000000000000000FFFF000000000002000000010000000000000001
+      000000C800000014000000010000000000000300E40400000A00537562526570
+      6F72743300020000000000FB000000700200001A00000001000F000100000000
+      0000000000FFFFFF1F2C0200000000000100000000000000FFFF000000000002
+      00000001000000000300000000007F05000005004D656D6F3100020000000000
+      A1000000600000000C0000004300000001000000000000000000FFFFFF1F2C02
+      000000000001001D005B717279496D7072696D69724F70657261636F65732E22
+      6E6F6D65225D00000000FFFF0000000000020000000100000000050041726961
+      6C00080000000200000000000A0000000100020000000000FFFFFF0000000002
+      0000000000000000001906000005004D656D6F3800020061000000A10000001A
+      0000000C0000004300000001000000000000000000FFFFFF1F2C020000000000
+      01001C005B717279496D7072696D69724F70657261636F65732E22633031225D
+      00000000FFFF00000000000200000001000000000500417269616C0008000000
+      0000000000000A0000000100020000000000FFFFFF0000000002000000000000
+      000000B306000005004D656D6F390002007C000000A10000001A0000000C0000
+      004300000001000000000000000000FFFFFF1F2C02000000000001001C005B71
+      7279496D7072696D69724F70657261636F65732E22633032225D00000000FFFF
+      00000000000200000001000000000500417269616C0008000000000000000000
+      0A0000000100020000000000FFFFFF00000000020000000000000000004E0700
+      0006004D656D6F313000020097000000A10000001A0000000C00000043000000
+      01000000000000000000FFFFFF1F2C02000000000001001C005B717279496D70
+      72696D69724F70657261636F65732E22633033225D00000000FFFF0000000000
+      0200000001000000000500417269616C00080000000000000000000A00000001
+      00020000000000FFFFFF0000000002000000000000000000D507000006004D65
+      6D6F31310002000000000095000000600000000B00000043000F00F401000000
+      0000000000FFFFFF1F2C020000000000010008004F50455241C7C34F00000000
+      FFFF00000000000200000001000000000500417269616C000600000000000000
+      00000A0000000100020000000000FFFFFF000000000200000000000000000056
+      08000006004D656D6F313200020060000000950000001B0000000B0000004300
+      0F00F4010000000000000000FFFFFF1F2C020000000000010002004331000000
+      00FFFF00000000000200000001000000000500417269616C0006000000000000
+      0000000A0000000100020000000000FFFFFF0000000002000000000000000000
+      D708000006004D656D6F313300020096000000950000001B0000000B00000043
+      000F00F4010000000000000000FFFFFF1F2C0200000000000100020043330000
+      0000FFFF00000000000200000001000000000500417269616C00060000000000
+      000000000A0000000100020000000000FFFFFF00000000020000000000000000
+      005809000006004D656D6F31340002007B000000950000001B0000000B000000
+      43000F00F4010000000000000000FFFFFF1F2C02000000000001000200433200
+      000000FFFF00000000000200000001000000000500417269616C000600000000
+      00000000000A0000000100020000000000FFFFFF000000000200000000000000
+      0000F909000006004D656D6F313500020061000000D30000007A0000000C0000
+      004300000001000000000000000000FFFFFF1F2C020000000000010022005B71
+      7279496D7072696D69724F70657261636F65732E2264657363725F633031225D
+      00000000FFFF00000000000200000001000000000500417269616C0008000000
+      000000000000080000000100020000000000FFFFFF0000000002000000000000
+      0000009A0A000006004D656D6F31360002007C000000C20000007A0000000C00
+      00004300000001000000000000000000FFFFFF1F2C020000000000010022005B
+      717279496D7072696D69724F70657261636F65732E2264657363725F63303222
+      5D00000000FFFF00000000000200000001000000000500417269616C00080000
+      00000000000000080000000100020000000000FFFFFF00000000020000000000
+      000000003B0B000006004D656D6F313700020097000000B10000007A0000000C
+      0000004300000001000000000000000000FFFFFF1F2C02000000000001002200
+      5B717279496D7072696D69724F70657261636F65732E2264657363725F633033
+      225D00000000FFFF00000000000200000001000000000500417269616C000800
+      0000000000000000080000000100020000000000FFFFFF000000000200000000
+      00000004008A0B000005004C696E653100020060000000980000000000000048
+      00000001000400F4010000000000000000FFFFFF002C02000000000000000000
+      0000FFFF00000000000200000001000000000400D90B000005004C696E653200
+      02007B0000009A000000000000003400000001000400F4010000000000000000
+      FFFFFF002C020000000000000000000000FFFF00000000000200000001000000
+      0000007C0C000006004D656D6F31380002003F010000E2000000540000000D00
+      000043000F0064000000000000000000FFFFFF1F2C020000000000010024005B
+      717279496D7072696D69724F70657261636F65732E2274656D706F7061647261
+      6F225D00000000FFFF00000000000200000001000000000500417269616C0007
+      0000000000000000000A0000000100020000000000FFFFFF0000000002000000
+      000000000000070D000006004D656D6F31390002003F010000CD000000A90000
+      000B00000043000F00F4010000000000000000FFFFFF1F2C0200000000000100
+      0C0054454D504F2050414452C34F00000000FFFF000000000002000000010000
+      00000500417269616C00060000000000000000000A0000000100020000000000
+      FFFFFF0000000002000000000000000000A20D000006004D656D6F3230000200
+      B2000000A1000000240000000C0000004300000001000000000000000000FFFF
+      FF1F2C02000000000001001C005B717279496D7072696D69724F70657261636F
+      65732E2270706D225D00000000FFFF0000000000020000000100000000050041
+      7269616C00080000000000000000000A0000000100020000000000FFFFFF0000
+      000002000000000000000000240E000006004D656D6F3231000200B100000095
+      000000250000000B00000043000F00F4010000000000000000FFFFFF1F2C0200
+      000000000100030050504D00000000FFFF000000000002000000010000000005
+      00417269616C00060000000000000000000A0000000100020000000000FFFFFF
+      0000000002000000000000000400730E000005004C696E653300020061000000
+      E00000005A000000000000000100080064000000000000000000FFFFFF002C02
+      0000000000000000000000FFFF00000000000200000001000000000400C20E00
+      0005004C696E65340002007B000000CE00000058000000000000000100080064
+      000000000000000000FFFFFF002C020000000000000000000000FFFF00000000
+      000200000001000000000400110F000005004C696E6537000200960000009B00
+      0000000000002200000001000400F4010000000000000000FFFFFF002C020000
+      000000000000000000FFFF00000000000200000001000000000400600F000005
+      004C696E653800020096000000BD000000540000000000000001000800640000
+      00000000000000FFFFFF002C020000000000000000000000FFFF000000000002
+      000000010000000000000410000006004D656D6F3330000200D7000000A10000
+      004F0000000C0000004300000001000000000000000000FFFFFF1F2C02000000
+      0000010025005B717279496D7072696D69724F70657261636F65732E226E726F
+      70657261646F726573225D00000000FFFF000000000002000000010000000005
+      00417269616C00080000000000000000000A0000000100020000000000FFFFFF
+      00000000020000000000000000009010000006004D656D6F3332000200D60000
+      0095000000500000000B00000043000F00F4010000000000000000FFFFFF1F2C
+      02000000000001000D004EBA204F50455241444F52455300000000FFFF000000
+      00000200000001000000000500417269616C00060000000000000000000A0000
+      000100020000000000FFFFFF00000000020000000000000000005C1100000600
+      4D656D6F393100020093010000E2000000550000000D00000043000F00640000
+      00000000000000FFFFFF1F2C0204010A002323232C2323232E30300001004300
+      5B464F524D4154464C4F41542827232323232E2323272C20363030302F5B7172
+      79496D7072696D69724F70657261636F65732E2274656D706F70616472616F22
+      5D295D00000000FFFF00000000000200000001000000000500417269616C0007
+      0000000000000000000A0000000100020000000000FFFFFF0000000002000000
+      000000000000E711000006004D656D6F39320002003F010000D8000000540000
+      000A00000043000F00F4010000000000000000FFFFFF1F2C0200000000000100
+      0C006D696E2F3130307065E7617300000000FFFF000000000002000000010000
+      00000500417269616C00060000000000000000000A0000000100020000000000
+      FFFFFF00000000020000000000000000006F12000006004D656D6F3933000200
+      93010000D8000000550000000A00000043000F00F4010000000000000000FFFF
+      FF1F2C020000000000010009007065E7612F686F726100000000FFFF00000000
+      000200000001000000000500417269616C00060000000000000000000A000000
+      0100020000000000FFFFFF00000000020000000000000000005813000006004D
+      656D6F3934000200DA010000A20000000A0000000900000043000F0064000000
+      000000000000FFFFFF1F2C02000000000000000006000500626567696E0D3100
+      20206966205B717279496D7072696D69724F70657261636F65732E2273657475
+      70225D203D2054727565207468656E20200D0F0020206D656D6F203A3D202758
+      2720200D0600656C736520200D0D0020206D656D6F203A3D2027273B0D030065
+      6E6400FFFF00000000000200000001000000000500417269616C000700000000
+      00000000000A0000000100020000000000FFFFFF000000000200000000000000
+      00004E14000006004D656D6F3935000200DA010000AE0000000A000000090000
+      0043000F0064000000000000000000FFFFFF1F2C020000000000010000000006
+      000500626567696E0D3A0020206966205B717279496D7072696D69724F706572
+      61636F65732E22706C616E6F636F6E74726F6C65225D203D2054727565207468
+      656E2020200D100020206D656D6F203A3D202758272020200D0700656C736520
+      20200D0D0020206D656D6F203A3D2027273B0D0300656E6400FFFF0000000000
+      0200000001000000000500417269616C00070000000000000000000A00000001
+      00020000000000FFFFFF00000000020000000000000000004B15000006004D65
+      6D6F3936000200DA010000BA0000000A0000000900000043000F006400000000
+      0000000000FFFFFF1F2C02000000000000000006000500626567696E0D410020
+      20206966205B717279496D7072696D69724F70657261636F65732E226E616F62
+      6C6F71756569617573756172696F225D203D2054727565207468656E20202020
+      0D110020206D656D6F203A3D20275827202020200D0800656C7365202020200D
+      0D0020206D656D6F203A3D2027273B0D0300656E6400FFFF0000000000020000
+      0001000000000500417269616C00070000000000000000000A00000001000200
+      00000000FFFFFF0000000002000000000000000000D415000006004D656D6F39
+      370002003F01000095000000A90000000B00000043000F00F401000000000000
+      0000FFFFFF1F2C02000000000001000A0052455155495349544F5300000000FF
+      FF00000000000200000001000000000500417269616C00060000000000000000
+      000A0000000100020000000000FFFFFF00000000020000000000000000006316
+      000006004D656D6F39380002003F010000A0000000950000000D000000430004
+      0064000000000000000000FFFFFF1F2C020000000000010010004E4543455353
+      495441205345542D555000000000FFFF00000000000200000001000000000500
+      417269616C0006000000000000000000080000000100020000000000FFFFFF00
+      00000002000000000000000000FA16000006004D656D6F39390002003F010000
+      AC000000950000000D0000004300040064000000000000000000FFFFFF1F2C02
+      0000000000010018004E454345535349544120504C414E4F20434F4E54524F4C
+      4500000000FFFF00000000000200000001000000000500417269616C00060000
+      00000000000000080000000100020000000000FFFFFF00000000020000000000
+      000000008E17000007004D656D6F3130300002003F010000B900000095000000
+      0D0000004300040064000000000000000000FFFFFF1F2C020000000000010014
+      004EC34F20424C4F515545494120555355C152494F00000000FFFF0000000000
+      0200000001000000000500417269616C00060000000000000000000800000001
+      00020000000000FFFFFF0000000002000000000000000400DD17000005004C69
+      6E6539000200E8010000A0000000000000002600000001000400640000000000
+      00000000FFFFFF002C020000000000000000000000FFFF000000000002000000
+      010000000004002D18000006004C696E6531300002003F010000C6000000A900
+      0000000000000100080064000000000000000000FFFFFF002C02000000000000
+      0000000000FFFF00000000000200000001000000000000D518000007004D656D
+      6F3130310002003C020000AA0000004C0000000B00000043000F006400000000
+      0000000000FFFFFF1F2C020000000000010028005B717279496D7072696D6972
+      4F70657261636F65732E227573756172696F696E636C7573616F225D00000000
+      FFFF00000000000200000001000000000500417269616C000500000000000000
+      00000A0000000100020000000000FFFFFF0000000002000000000000000000C0
+      19000007004D656D6F3130320002003C020000B50000004C0000000B00000043
+      000F0064000000000000000000FFFFFF1F2C00020300000001006B005B636F70
+      79286966285B717279496D7072696D69724F70657261636F65732E2264617461
+      686F7261696E636C7573616F225D3C3E27272C5B717279496D7072696D69724F
+      70657261636F65732E2264617461686F7261696E636C7573616F225D2C272729
+      2C312C3136295D00000000FFFF00000000000200000001000000000500417269
+      616C00050000000000000000000A0000000100020000000000FFFFFF00000000
+      02000000000000000000AD1A000007004D656D6F313033000200C2020000B500
+      00004C0000000B00000043000F0064000000000000000000FFFFFF1F2C020000
+      00000001006D005B636F7079286966285B717279496D7072696D69724F706572
+      61636F65732E2264617461686F7261616C7465726163616F225D3C3E27272C5B
+      717279496D7072696D69724F70657261636F65732E2264617461686F7261616C
+      7465726163616F225D2C2727292C312C3136295D00000000FFFF000000000002
+      00000001000000000500417269616C00050000000000000000000A0000000100
+      020000000000FFFFFF0000000002000000000000000000561B000007004D656D
+      6F313034000200C2020000AA0000004C0000000B00000043000F006400000000
+      0000000000FFFFFF1F2C020000000000010029005B717279496D7072696D6972
+      4F70657261636F65732E227573756172696F616C7465726163616F225D000000
+      00FFFF00000000000200000001000000000500417269616C0005000000000000
+      0000000A0000000100020000000000FFFFFF0000000002000000000000000000
+      E71B000007004D656D6F31303500020002020000950000000C0100000B000000
+      43000F00F4010000000000000000FFFFFF1F2C020000000000010011004C4F47
+      20444153204F50455241C7D5455300000000FFFF000000000002000000010000
+      00000500417269616C00060000000000000000000A0000000100020000000000
+      FFFFFF0000000002000000000000000000881C000007004D656D6F3130360002
+      00C2020000C00000004C0000000B00000041000F0064000000000000000000FF
+      FFFF1F2C020000000000010021005B717279496D7072696D69724F7065726163
+      6F65732E226F7065726163616F225D00000000FFFF0000000000020000000100
+      0000000500417269616C00050000000000000000000A00000001000200000000
+      00FFFFFF00000000020000000000000000002F1D000007004D656D6F31303700
+      0200C2020000CB0000004C0000000B00000043000F0064000000000000000000
+      FFFFFF1F2C020000000000010027005B5452494D285B717279496D7072696D69
+      724F70657261636F65732E22746162656C61225D295D00000000FFFF00000000
+      000200000001000000000500417269616C00050000000000000000000A000000
+      0100020000000000FFFFFF0000000002000000000000000000B71D000007004D
+      656D6F31303800020002020000A0000000860000000A00000043000F00F40100
+      00000000000000FFFFFF1F2C00020300000001000800494E434C5553C34F0000
+      0000FFFF00000000000200000001000000000500417269616C00060000000000
+      000000000A0000000100020000000000FFFFFF00000000020000000000000000
+      003E1E000007004D656D6F31303900020002020000AA0000003A0000000B0000
+      0043000F0064000000000000000000FFFFFF1F2C000203000000010007005553
+      55C152494F00000000FFFF00000000000200000001000000000500417269616C
+      0006000000000000000000080000000100020000000000FFFFFF000000000200
+      0000000000000000C71E000007004D656D6F31313000020002020000B5000000
+      3A0000000B00000043000F0064000000000000000000FFFFFF1F2C0002030000
+      0001000900444154412F484F524100000000FFFF000000000002000000010000
+      00000500417269616C0006000000000000000000080000000100020000000000
+      FFFFFF0000000002000000000000000000501F000007004D656D6F3131310002
+      0088020000A0000000860000000A00000043000F00F4010000000000000000FF
+      FFFF1F2C00020300000001000900414C54455241C7C34F00000000FFFF000000
+      00000200000001000000000500417269616C00060000000000000000000A0000
+      000100020000000000FFFFFF0000000002000000000000000000D71F00000700
+      4D656D6F31313200020088020000AA0000003A0000000B00000043000F006400
+      0000000000000000FFFFFF1F2C00020300000001000700555355C152494F0000
+      0000FFFF00000000000200000001000000000500417269616C00060000000000
+      00000000080000000100020000000000FFFFFF00000000020000000000000000
+      006020000007004D656D6F31313300020088020000B50000003A0000000B0000
+      0043000F0064000000000000000000FFFFFF1F2C000203000000010009004441
+      54412F484F524100000000FFFF00000000000200000001000000000500417269
+      616C0006000000000000000000080000000100020000000000FFFFFF00000000
+      02000000000000000000E820000007004D656D6F31313400020088020000C000
+      00003A0000000B00000043000F0064000000000000000000FFFFFF1F2C000203
+      000000010008004F50455241C7C34F00000000FFFF0000000000020000000100
+      0000000500417269616C00060000000000000000000800000001000200000000
+      00FFFFFF00000000020000000000000000006E21000007004D656D6F31313500
+      020088020000CB0000003A0000000B00000043000F0064000000000000000000
+      FFFFFF1F2C00020300000001000600544142454C4100000000FFFF0000000000
+      0200000001000000000500417269616C00060000000000000000000800000001
+      00020000000000FFFFFF00000000020000000000000001009339000007006670
+      764C6F676F000200000000001C000000900000002D0000000500000001000000
+      000000000000FFFFFF1F2C020000000000000000000000FFFF00000000000200
+      00000100000006010093390000424DCE17000000000000360400002800000083
+      00000026000000010008000000000098130000120B0000120B00000001000000
+      01000000000000E8E5A800AA9E000099990000ADADAD003A3C4100A3970000BF
+      B73700D8D48600FBFAF000A5A5A5001E1D1C00D8D9DA0054575A00D6D6D500E7
+      E8F20012161B00B6AD1900CBC55B008C8D9200BEC0C500E1E2E40085878A005E
+      606300494C4F00090D12002C2E3300DEDB98007D7F8100EFEDCB00B9BABB00AE
+      A400007C7B7B00C5BE440066666600D1CC6F00CDC9810048484600F7F6E600AF
+      A5080004080D00F9F8ED00B8AF2700DBD68C00999999001B1A1900C6BF510013
+      1312003B3A3A00FFFFFF00EAE8BE00CCCCCC0023262A00E2DEA400F1EFD600B0
+      B1B300D3CD7500B1A81000CCCC660072727200535252004342420001060A00EC
+      E9C3008C8C8B00F5F4DF004A4A4A0057575600B6AC1F00282B3000C7C05C0061
+      615F00F7F7F70088888700DDD89300E3E0A600FDFCF70021242900070A1000BD
+      B53100C5BE4A00E3E3E200A69C000099999900BABAB900DEDEDE00525458002A
+      292800D9D58A005F5E5D00C7C595001B1E2300E8E5B60000000700B5AB1300D5
+      D07B00C6C6C500B2A80B0021202000B9B12400504F4E00666666006B6D7000B5
+      B5BD0084848400E0DC9E00BCB42C00F7EFD6005B5B5A00EFEFEF0087898B00DE
+      DEE6003E3D3C0014181E00C8C25300CCC55F00A8A9AC00BDBDBC00E5E1AC0075
+      767900181B2000E6E6E6000E1117000810190033333300929191002D2C2B00B5
+      B5B4000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000003131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131543D42470E31313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131523131313131486D3131316D6D4C3131316D6D31313131313131
+      3131316D4831313131313131316D6D3131316D040A6C6C313131313131486D6D
+      4C3131313131316D6D4C313131313131313131313131486D6D6D313131313131
+      486D6D48313131316D483131316D6D3131313131313131313131316D6D6D3131
+      486D6D6D31313131313152313131317F7E6631554225256031603D4264793142
+      0C313B7D316D6C3D70403131662C316D593D7068313133646C70253148425531
+      2C70643059313131310C2525420E31477431420E4825793131315442433D474C
+      4C640E3120423C300A3131207E2C317F70254748484251512531603C316D5925
+      3C620A312C25433068313131313152313131316C2031315959313131317C7D4C
+      4C31487C0E3159683177424C51347531434031203D487957543130494C7F3D31
+      487C0C310B37317F70313131313C6631313131642C317C33487E513131313131
+      79602F55317C3331316D793B7031487E14314857043131316D7C55557E311E30
+      31542D4C314340313148790A0B4C313131315231313131477D313125306C6433
+      4C5779313131487C0E31224931422C31314340316C7D313C7D3131594931570C
+      31543D31487C0C3168705930253131313170706C3C0E313C0A313033317C5131
+      31310C702570474C4C3033312C7C64300A3148300E3179624343224848305151
+      7C31603D316D6464590B2C31547C42301C313131313152313131314749313166
+      420C5548313D2C484831487C0E48302C311C4248516275316C7D31493D487962
+      7F31256848373031487C0E3131550E207031313131473C0C554831642C4C7E33
+      0C62793131316830796D3131487C3331577D6D6D313148303331487C49555131
+      487C0C0C7E4C2C703131480C0E7C2C313C476D6D31313131313152313131040B
+      7E20316D473C6C33310E3D3C6C7931254264646D31486C42706831316C7D3148
+      4742702031310E3D433D6C31484355314043473D0A31313131796C3C6C0E3166
+      70597E3C3D20313131310E256C6C7731316C0E312C3D47430431772F3D0A3133
+      424366484825643C7E6C7C74316D225943425531543D59437D31313131315231
+      31316D643B6D3131316D514831313179514C316D51793131313131796D313131
+      3C40313131796D313131313179794831317F6D316D1515483131313131313179
+      5148314879516D796D3131313131313151517931317F6D31316D51516D315157
+      7F6D313131797931316D51516D5148313131515151313131314851516D313131
+      3131523131313140043131313131313131313131313131313131313131313131
+      313131316804313131313131313131313131313148660F313131313131313131
+      31313131313131313131313131313131313131313131313131220E3131313131
+      3131316655313131313131313131313131313131313131313131313131313131
+      3131313131315231313131313131313131313131313131313131313131313131
+      313131313131313131313131313131313131313131313131315C46121212463F
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313152313131313131313131313131313131313131313131
+      31313131313131313131313131313131313131313131313131313131315F0602
+      0202061B31313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131523131313131310E40173C18183D6E313131
+      3131310C2C666C3C181818181805683131313131316D3768220D051631313131
+      3108021F1F1F5235313131313172070707070707070707070707070750732B36
+      31313131313131313131362B73212112081D3131313131313131312350505050
+      4B3131313131313131313F08122E505050085231313131312C103E191919195D
+      17313131317966713E4E191919191919195D0D31313131312C34282819190017
+      313131313108021F1F1F52353131313131115202020202020202020202020202
+      0202022776313131313131313F501F02020202020202075C313131313131316A
+      060202065F313131313131314C120202020202020221523131313175287A7878
+      7878784E223131310E1A3E10787871717171717171281731313131773E7A7171
+      71712822313131313108021F1F1F5235313131313144021F1F1F1F1F1F1F1F1F
+      1F1F1F1F1F1F1F1F1F1D31313131310802021F1F1F1F1F1F1F1F020223313131
+      31313107021F1F0208313131313131313A521F1F1F1F1F1F1F5052313131310D
+      4E7878787A7A71282231316D7C4E7878784E4E7A717171717128173131312C3E
+      7171717119195D22313131313108021F1F1F5269314C4C4C4C631F1F1F1F1F1F
+      1F1F1F1F1F1F1F1F1F1F1F1F52503131313138521F1F1F0202020202021F1F1F
+      5212313131313107021F1F0208313131313131361F1F1F1F1F02020202215231
+      31316D457A78787A3D370E0E5131313B3E7878787A2274140E0E0E0E0E0E1531
+      3115787A787871190D0A145A2A6A6A6A2A5F3636363636504411111111322626
+      2626262626262626262626264A1F1F1F1F612631311B521F1F1F02443A080823
+      63021F1F1F525F3131313107021F1F02083131313131311B021F1F1F1F6A2B35
+      3532523131310E71717171710C313131313115781078784E6831313131313131
+      31313131311C287878787A2C3131310106020202025F31313131315052020202
+      023631313131313131313131313131313144021F1F1F32312639021F1F1F584C
+      31313131311B27021F1F1F3631313107021F1F020831313131313123021F1F1F
+      11093131313152313131337A717171454831313131312C28787810344C313131
+      313131313131313131057A78784E663131313135021F1F1F025F313131313150
+      021F1F1F1F3631313131313131313131313131314C5E021F1F0276315F521F1F
+      1F4B313131313131313132271F1F527331313107021F1F020831313131313112
+      021F1F0272313131313152313131601978787A7C4C3131313131662878781045
+      166E6E6E6E6E6E6E6E1C0431555B1078717A603131313135021F1F1F025F3131
+      31313150021F1F1F1F36313131313131314C0909090909363A021F1F1F1F3F31
+      4F021F02723131313131313131313123021F1F1109313107021F1F0208313131
+      3131312E021F1F0273313131313152313131601978787A054C31313131315619
+      78787871282828282828282828005631337A717171346D313131313552020202
+      025F31313131312106020202023631313131762E635E61616161611F1F1F1F1F
+      1F114C26611F1F0276313131313131313131311D1F1F1F1F1D313107021F1F02
+      083131313131312E021F1F023A313131313152313131601978787A054C313131
+      31311819787878787878787878787878784E1731141978787A45483131313176
+      4444444444241551515151464F4F4F4F4F413131313A0202021F1F1F1F1F1F1F
+      1F1F1F1F521B311D1F1F1F1F363131313131313131313126391F1F1F5C313107
+      021F1F02083131313131312E021F1F023A313131313152313131601978787A05
+      4C31313131315619787878787878787878787878784E1731337A717171346D31
+      3131313109090909097D713434347A37313131313131313158521F1F1F1F1F02
+      02020202020202275831311D1F1F1F1F1D3131313131313131313126391F1F1F
+      5C313107021F1F02083131313131312E021F1F023A3131313131523131316019
+      78787A054C3131313131224E787878784E28282828282828280056310C787171
+      715B0C31313131313131313131133E1010105D74313131313131312939021F1F
+      1F1F3911636363636A50083631313126611F1F024B313131313131313131313F
+      021F1F1F36313107021F1F02083131313131312E021F1F023A31313131315231
+      3131601978787A054C313131313116287878101A2C2C2C2C2C2C2C2C2C7D1E31
+      6D1A7A7878197F31313131313131313131134E78787828743131313131313176
+      021F1F1F1F23263131313131313131313131313107021F022131313131313131
+      31313173021F1F444C313107021F1F02083131313131312E021F1F023A313131
+      313152313131601978787A054C31313131317F19717171344831313131313131
+      3131313131561978784E6631313131313131313131134E787878287431313131
+      3131312B521F1F1F6129313131313131313131313131313158521F1F024A3131
+      3131313131317602021F522331313107021F1F02083131313131312E021F1F02
+      3A313131313152313131331978787A053131313131316D347A78784E13313131
+      3131313131313131317D28787871710431313131313131313113001919190004
+      313131313131312B521F1F1F274131313131313131313131313131310911021F
+      1F1F232631313131295F1F1F1F1F612931313107021F1F022B3131313131312E
+      021F1F52233131313131520E14602C7A78787A7C141414140C3131203E787871
+      71660A1E6014141414140E3131155B107878107A567D371E1E1E1E1E1E13566C
+      6C6C182C75757575756D315C021F1F1F1F211B1B1B1B1B1B4A4A4A4A4A363131
+      3176021F1F1F0261502323725E021F1F1F0258762B2B4A44021F1F1F504A4A4A
+      2B1D312E021F1F1F074A4A4A4A5C520D7A7A7A78787878787A7A7A5D17313179
+      45197878784E4E7A7A7A7A7A7A5D6C313131165D717171711919191919191919
+      5D6E313131313166007A7A7A4E1431295E021F1F1F0202020202020202020202
+      062B313131315802021F1F1F020202021F1F1F1F52384C395252521F1F1F1F1F
+      020202020608312E021F1F1F1F0202020221521771717878787878787171714E
+      22313131335B28717878787871717171714E1731313131173E7A717878787878
+      787878784E6E313131313166287171717A6031314A521F1F1F1F1F1F1F1F1F1F
+      1F1F1F1F524A31313131316939521F1F1F1F1F1F1F1F020258310911021F1F1F
+      1F1F1F1F1F1F1F1F022B312E021F1F1F1F1F1F1F1F50520D1919197878787878
+      1919190017313131310C0D10284E4E191919191919000D31313131317D1A4E4E
+      4E19191919191919001C3131313131662878787810603131315F020202020202
+      0202020202020202062B31313131313136733902020202020261721D31312961
+      5252521F1F1F1F1F020202020608312E021F1F1F1F0202020221527D17173C10
+      7878714D1717170D2C3131313131310E0A1C3B2217171717170D7D3131313131
+      3148757D77661717171717170D0431313131316628787878106031313131364A
+      3A7272727272727272727272505C3131313131313131264B5F73733835413131
+      3131093A7272725E1F1F1F1F4F1212122E5C312E021F1F1F6312121212585231
+      31310E1978787A05313131313131313131313131313131313131313131313131
+      313131313131313131313131313131313131313131313117003E3E3E5D753131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313131313107021F1F52583131313131312E021F1F0223313131
+      313152313131601978787A054C31313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131317F686E6E6E
+      6E15313131313131313131313131313131313131313131313131313131313131
+      31313131313131313131313131313121021F1F02073131313131312E021F1F02
+      3A313131313152313131601978787A054C313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313173021F1F1F1F4F3A233A32312E
+      021F1F023A313131313152313131601978787A054C3131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313131313131313131313131313131313169521F1F1F1F020202
+      0608312E021F1F023A313131313152313131601978787A054C31313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131310963521F1F
+      1F1F1F1F024A312E021F1F023A313131313152313131601971717A054C313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      4150611F1F1F1F1F024A3150021F1F023A3131313131523131310C0D17176C77
+      4C31313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131315C3872727272725C31082E2E2E2E1B31313131315200001E3A00
+      0006004D656D6F3930000200660100001F0000004F0100001100000043000000
+      01000000000000000000FFFFFF1F2C020000000000010008005B544954554C4F
+      5D00000000FFFF0000000000020000000100000000090068656C766574696361
+      000B000000020000000000020000000100020000000000FFFFFF000000000200
+      0000000000000000B53A000007004D656D6F313136000200C10200001C000000
+      300000000F0000004300000001000000000000000000FFFFFF1F2C0200000000
+      00010013005B4441544520234464642F6D6D2F797979795D00000000FFFF0000
+      000000020000000100000006090068656C766574696361000700000000000000
+      0000010000000100020000000000FFFFFF00000000020000000000000000004D
+      3B000007004D656D6F313137000200CD02000037000000200000000F00000043
+      00000001000000000000000000FFFFFF1F2C020000000000010014005B504147
+      45235D2F5B544F54414C50414745535D00000000FFFF00000000000200000001
+      00000000090068656C7665746963610007000000000000000000010000000100
+      020000000000FFFFFF0000000002000000000000000000DC3B000007004D656D
+      6F31313800020076010000330000003F0100002D00000043000000F401000000
+      0000000000FFFFFF1F2C02000000000001000B005B535542544954554C4F5D00
+      000000FFFF0000000000020000000100000000090068656C7665746963610007
+      000000000000000000000000000100020000000000FFFFFF0000000002000000
+      000000000000823C000013006D6D6F464F4E4546494C49414C424153455F5200
+      02009900000033000000CA0000000A00000004000000F4010000000000000000
+      FFFFFF1F2C02000000000001001600464F4E453A205B464F4E4546494C49414C
+      424153455D00000000FFFF0000000000020000000100000000090068656C7665
+      746963610006000000000000000000100000000100020000000000FFFFFF0000
+      000002000000000000000000373D000014006D6D6F454E44455245434F5F4241
+      4952524F5F52000200990000003D000000CB0000000A00000000000000F40100
+      00000000000000FFFFFF1F2C020000000000010024005B52554146494C49414C
+      424153455D202D205B42414952524F46494C49414C424153455D00000000FFFF
+      0000000000020000000100000000090068656C76657469636100060000000000
+      00000000100000000100020000000000FFFFFF00000000020000000000000000
+      00043E000012006D6D6F4345505F4349444144455F55465F5200020099000000
+      47000000CB0000000A00000000000000F4010000000000000000FFFFFF1F2C02
+      000000000001003E004345503A205B43455046494C49414C424153455D202D20
+      5B43494441444546494C49414C424153455D202D205B45535441444F46494C49
+      414C424153455D00000000FFFF0000000000020000000100000000090068656C
+      7665746963610006000000000000000000100000000100020000000000FFFFFF
+      00000000020000000000000000009A3E000008006D6D6F52415A414F00020099
+      0000001F000000CB0000001400000003000000F4010000000000000000FFFFFF
+      1F2C020000000000010011005B52415A414F46494C49414C424153455D000000
+      00FFFF0000000000020000000100000000090068656C76657469636100060000
+      00000000000000100000000100020000000000FFFFFF00000000020000000000
+      000000002F3F000007004D656D6F313139000200000000005D01000078000000
+      0B0000004300000001000000000000000000FFFFFF1F2C020000000000010011
+      005B54494D4520235468683A6D6D3A73735D00000000FFFF0000000000020000
+      000100000006090068656C766574696361000700000000000000000000000000
+      0100020000000000FFFFFF0000000002000000000000000000D43F000007004D
+      656D6F3132300002004E0200005D010000A40000000B00000043000000010000
+      00000000000000FFFFFF1F2C02000000000001002100746563534F4654202D20
+      5465636E6F6C6F67696120656D2053697374656D61732000000000FFFF000000
+      0000020000000100000006090068656C76657469636100070000000000000000
+      00010000000100020000000000FFFFFF00000000020000000000000000007640
+      000007004D656D6F31333300020000000000ED000000270100000B0000004300
+      000001000000000000000000FFFFFF1F2C020000000000010022005B71727949
+      6D7072696D69724F70657261636F65732E2264657363726963616F225D000000
+      00FFFF00000000000200000001000000000500417269616C0008000000000000
+      0000000A0000000100020000000000FFFFFF0000000002000000000000000000
+      FF40000007004D656D6F31333400020000000000E2000000270100000B000000
+      43000F0001000000000000000000FFFFFF1F2C02000000000001000900444553
+      435249C7C34F00000000FFFF0000000000020000000100000000050041726961
+      6C00060000000000000000000A0000000100020000000000FFFFFF0000000002
+      000000000000000300574100000A005375625265706F72743700020000000000
+      C401000060000000120000000100000001000000000000000000FFFFFF1F2C02
+      0000000000000000000000FFFF00000000000200000001000000000700000002
+      01D74100000C004461646F734D657374726532000201000000006C000000F502
+      00000C0000003000050001000000000000000000FFFFFF1F0000000014006664
+      734F70657261636F65734D617175696E617300000000000000FFFF0000000000
+      0200000001000000000000000100000090000000020000000100000000000002
+      0147420000100043616265E7616C686F4D657374726531000201000000004400
+      0000F50200000B0000003000040001000000000000000000FFFFFF1F00000000
+      000000000000000000FFFF000000000002000000010000000000000001000000
+      C800000014000000010000000000000201B44200000D00526F646170E94D6573
+      7472653100020100000000A8000000F502000006000000300006000100000000
+      0000000000FFFFFF1F00000000000000000000000000FFFF0000000000020000
+      00010000000000000001000000C8000000140000000100000000000000015243
+      000005004D656D6F32000200000000006C000000150000000C00000043000400
+      64000000000000000000FFFFFF1F2C020000000000010020005B7172794F7065
+      7261636F65734D617175696E61732E226D617175696E61225D00000000FFFF00
+      000000000200000001000000000500417269616C000800000000000000000009
+      0000000100020000000000FFFFFF0000000002000000000000000001F2430000
+      05004D656D6F33000200170000006C0000009D0000000C000000430001006400
+      0000000000000000FFFFFF1F2C020000000000010022005B7172794F70657261
+      636F65734D617175696E61732E2264657363726963616F225D00000000FFFF00
+      000000000200000001000000000500417269616C000800000000000000000008
+      0000000100020000000000FFFFFF000000000200000000000000000184440000
+      06004D656D6F32320002000000000044000000B40000000B00000043000F00F4
+      010000000000000000FFFFFF1F2C020000000000010013004DC15155494E4153
+      204153534F43494144415300000000FFFF000000000002000000010000000005
+      00417269616C00060000000000000000000A0000000100020000000000FFFFFF
+      0000000002000000000000000401D344000005004C696E653500020000000000
+      A8000000B4000000000000000100080064000000000000000000FFFFFF002C02
+      0000000000000000000000FFFF00000000000200000001000000000202514500
+      000C004461646F734D657374726533000201000000005C0000002F0400000A00
+      00003000050001000000000000000000FFFFFF1F00000000120066647346616C
+      6861734F70657261636F657300000000000000FFFF0000000000020000000100
+      00000000000001000000C800000014000000010000000000000202C145000010
+      0043616265E7616C686F4D657374726532000201000000002C0000002F040000
+      0C0000003000040001000000000000000000FFFFFF1F00000000000000000000
+      000000FFFF000000000002000000010000000000000001000000C80000001400
+      00000100000000000002022E4600000D00526F646170E94D6573747265320002
+      01000000008C0000002F040000030000003000060001000000000000000000FF
+      FFFF1F00000000000000000000000000FFFF0000000000020000000100000000
+      00000001000000C800000014000000010000000000000002C846000005004D65
+      6D6F34000200000000005C0000001B0000000A00000043000400640000000000
+      00000000FFFFFF1F2C02000000000001001C005B71727946616C6861734F7065
+      7261636F65732E2266616C6861225D00000000FFFF0000000000020000000100
+      0000000500417269616C00070000000000000000000900000001000200000000
+      00FFFFFF00000000020000000000000000026647000005004D656D6F35000200
+      1B0000005C000000780100000A0000004300010064000000000000000000FFFF
+      FF1F2C020000000000010020005B71727946616C6861734F70657261636F6573
+      2E2264657363726963616F225D00000000FFFF00000000000200000001000000
+      000500417269616C0007000000000000000000080000000100020000000000FF
+      FFFF0000000002000000000000000002F647000006004D656D6F323300020000
+      0000002C000000930100000C00000043000F00F4010000000000000000FFFFFF
+      1F2C0200000000000100110046414C484153204153534F434941444153000000
+      00FFFF00000000000200000001000000000500417269616C0006000000000000
+      0000000A0000000100020000000000FFFFFF0000000002000000000000000402
+      4548000005004C696E6536000200000000008D00000093010000000000000100
+      080064000000000000000000FFFFFF002C020000000000000000000000FFFF00
+      000000000200000001000000000203C24800000C004461646F734D6573747265
+      340002010000000070000000F502000008000000310005000100000000000000
+      0000FFFFFF1F0000000011006664734F70657261636F65735365747570000000
+      00000000FFFF000000000002000000010000000000000001000000C800000014
+      00000001000000000000020332490000100043616265E7616C686F4D65737472
+      65330002010000000037000000F50200001A0000003000040001000000000000
+      000000FFFFFF1F00000000000000000000000000FFFF00000000000200000001
+      0000000000000001000000C8000000140000000100000000000002039F490000
+      0D00526F646170E94D65737472653300020100000000A4000000F5020000A600
+      00003000060001000000000000000000FFFFFF1F000000000000000000000000
+      00FFFF000000000002000000010000000000000001000000C800000014000000
+      010000000000000003244A00000A006D6D6F5A65627261646F00020000000000
+      7000000010030000080000004300000001000000000000000000FFFFFF1F2C02
+      00000000000100000000000000FFFF0000000000020000000100000000070043
+      6F75726965720008000000000000000000100000000100020000000000FFFFFF
+      0000000002000000000000000003C24A000005004D656D6F3600020016000000
+      7000000068020000080000004300000001000000000000000000FFFFFF1F2C02
+      000000000001001E005B7172794F70657261636F657353657475702E22706572
+      67756E7461225D00000000FFFF00000000000200000001000000000700436F75
+      726965720008000000000000000000100000000100020000000000FFFFFF0000
+      000002000000000000000003624B000006004D656D6F32340002000000000070
+      00000014000000080000004300040064000000000000000000FFFFFF1F2C0200
+      0000000001001F005B7172794F70657261636F657353657475702E2273657175
+      656E636961225D00000000FFFF00000000000200000001000000000700436F75
+      726965720008000000000000000000120000000100020000000000FFFFFF0000
+      000002000000000000000003014C000006004D656D6F32350002007D02000070
+      00000093000000080000004300050064000000000000000000FFFFFF1F2C0200
+      0000000001001E005B7172794F70657261636F657353657475702E2272657370
+      6F737461225D00000000FFFF00000000000200000001000000000700436F7572
+      6965720009000000000000000000100000000100020000000000FFFFFF000000
+      0002000000000000000003864C000006004D656D6F3236000200000000003B00
+      0000100300000B00000043000F00F4010000000000000000FFFFFF1F2C020000
+      000000010006005345542D555000000000FFFF00000000000200000001000000
+      000500417269616C00060000000000000000000A0000000100020000000000FF
+      FFFF0000000002000000000000000003074D000006004D656D6F323700020000
+      00000046000000160000000B00000043000F00F4010000000000000000FFFFFF
+      1F2C020000000000010002004EBA00000000FFFF000000000002000000010000
+      00000500417269616C00060000000000000000000A0000000100020000000000
+      FFFFFF0000000002000000000000000003924D000006004D656D6F3238000200
+      1600000046000000670200000B00000043000F00F4010000000000000000FFFF
+      FF1F2C02000000000001000C0050524F434544494D454E544F00000000FFFF00
+      000000000200000001000000000500417269616C00060000000000000000000A
+      0000000100020000000000FFFFFF0000000002000000000000000003194E0000
+      06004D656D6F32390002007D02000046000000930000000B00000043000F00F4
+      010000000000000000FFFFFF1F2C02000000000001000800524553504F535441
+      00000000FFFF00000000000200000001000000000500417269616C0006000000
+      0000000000000A0000000100020000000000FFFFFF0000000002000000000000
+      000003C14E000006004D656D6F333400020000000000AF000000100300007D00
+      000043000F0064000000000000000000FFFFFF1F2C020000000000010027005B
+      717279496D7072696D69724F70657261636F65732E2264657363726963616F73
+      65747570225D00000000FFFF00000000000200000001000000000700436F7572
+      6965720008000000000000000000000000000100020000000000FFFFFF000000
+      0002000000000000000003534F000006004D656D6F333500020000000000A400
+      0000100300000B00000043000F00F4010000000000000000FFFFFF1F2C020000
+      00000001001300444553435249C7C34F20444F205345542D555000000000FFFF
+      00000000000200000001000000060500417269616C0006000000000000000000
+      0A0000000100020000000000FFFFFF0000000002000000000000000303AB4F00
+      000A005375625265706F72743400020000000000370100005801000012000000
+      01000F0001000000000000000000FFFFFF1F2C020000000000000000000000FF
+      FF00000000000200000001000000000400000002042B5000000C004461646F73
+      4D6573747265350002010000000058000000F50200000D000000310005000100
+      0000000000000000FFFFFF1F00000000140066647350726F636573736F73436F
+      6E74726F6C6500000000000000FFFF0000000000020000000100000000000000
+      01000000C8000000140000000100000000000002049B500000100043616265E7
+      616C686F4D657374726534000201000000001E000000F5020000220000003000
+      040001000000000000000000FFFFFF1F00000000000000000000000000FFFF00
+      0000000002000000010000000000000001000000C80000001400000001000000
+      0000000204085100000D00526F646170E94D657374726534000201000000009A
+      000000F5020000120000003000060001000000000000000000FFFFFF1F000000
+      00000000000000000000FFFF0000000000020000000100000000000000010000
+      00C800000014000000010000000000000004905100000D006D6D6F5A65627261
+      646F5375620002000000000058000000100300000D0000004300000064000000
+      000000000000FFFFFF1F2C0200000000000100000000000000FFFF0000000000
+      0200000001000000000700436F75726965720008000000000000000000080000
+      000100020000000000FFFFFF0000000002000000000000000004415200000500
+      4D656D6F370002000B00000058000000C30000000D00000043000F0064000000
+      000000000000FFFFFF1F2C020000000000010031005B71727950726F63657373
+      6F73436F6E74726F6C652E226D617175696E61646973706F73697469766F7061
+      6472616F225D00000000FFFF00000000000200000001000000000700436F7572
+      6965720008000000000000000000080000000100020000000000FFFFFF000000
+      0002000000000000000004E252000006004D656D6F3331000200000000005800
+      00000B0000000D00000043000F0064000000000000000000FFFFFF1F2C020000
+      000000010022005B71727950726F636573736F73436F6E74726F6C652E227365
+      7175656E636961225D00000000FFFF0000000000020000000100000000050041
+      7269616C00070000000000000000000A0000000100020000000000FFFFFF0000
+      0000020000000000000000049153000006004D656D6F3333000200CE00000058
+      0000005F0000000D00000043000F0064000000000000000000FFFFFF1F2C0200
+      0000000001002E005B71727950726F636573736F73436F6E74726F6C652E2263
+      6172616374657269737469636170726F6475746F225D00000000FFFF00000000
+      000200000001000000000700436F757269657200080000000000000000000800
+      00000100020000000000FFFFFF00000000020000000000000000044154000006
+      004D656D6F33360002002D010000580000008A0000000D00000043000F006400
+      0000000000000000FFFFFF1F2C02000000000001002F005B71727950726F6365
+      73736F73436F6E74726F6C652E22636172616374657269737469636170726F63
+      6573736F225D00000000FFFF00000000000200000001000000000700436F7572
+      6965720008000000000000000000080000000100020000000000FFFFFF000000
+      0002000000000000000004DE54000006004D656D6F3337000200B70100005800
+      0000190000000D00000043000F0064000000000000000000FFFFFF1F2C020000
+      00000001001C005B71727950726F636573736F73436F6E74726F6C652E226373
+      72225D00000000FFFF00000000000200000001000000000700436F7572696572
+      0008000000000000000000080000000100020000000000FFFFFF000000000200
+      00000000000000047A55000006004D656D6F3338000200D00100005800000015
+      0000000D00000043000F0064000000000000000000FFFFFF1F2C020000000000
+      01001B005B71727950726F636573736F73436F6E74726F6C652E226D64225D00
+      000000FFFF00000000000200000001000000000700436F757269657200080000
+      00000000000000080000000100020000000000FFFFFF00000000020000000000
+      000000042E56000006004D656D6F3339000200E5010000580000007C0000000D
+      00000043000F0064000000000000000000FFFFFF1F2C02000000000001003300
+      5B71727950726F636573736F73436F6E74726F6C652E227469706F7265676973
+      74726F6D65746F646F636F6E74726F6C65225D00000000FFFF00000000000200
+      000001000000000700436F757269657200080000000000000000000800000001
+      00020000000000FFFFFF0000000002000000000000000004D356000006004D65
+      6D6F343000020061020000580000008F0000000D00000043000F006400000000
+      0000000000FFFFFF1F2C020000000000010024005B71727950726F636573736F
+      73436F6E74726F6C652E22706C616E6F72656163616F225D00000000FFFF0000
+      0000000200000001000000000700436F75726965720008000000000000000000
+      080000000100020000000000FFFFFF0000000002000000000000000004BD5700
+      0006004D656D6F3431000200F002000058000000200000000D00000043000700
+      64000000000000000000FFFFFF1F2C0200000000000100000000060005006265
+      67696E0D320020206966205B71727950726F636573736F73436F6E74726F6C65
+      2E2272657669736172225D203D2054727565207468656E200D0E0020206D656D
+      6F203A3D20275827200D0500656C7365200D0D0020206D656D6F203A3D202727
+      3B0D0300656E6400FFFF00000000000200000001000000000500417269616C00
+      090000000000000000000A0000000100020000000000FFFFFF00000000020000
+      000000000000043E58000006004D656D6F3432000200000000002A0000000B00
+      00001600000043000F00F4010000000000000000FFFFFF1F2C02000000000001
+      0002004EBA00000000FFFF00000000000200000001000000000500417269616C
+      00060000000000000000000A0000000100020000000000FFFFFF000000000200
+      0000000000000004D158000006004D656D6F34330002000B0000002A000000C3
+      0000000B00000043000F00F4010000000000000000FFFFFF1F2C020000000000
+      010014004DC15155494E412C20444953504F53495449564F00000000FFFF0000
+      0000000200000001000000000500417269616C00060000000000000000000A00
+      00000100020000000000FFFFFF00000000020000000000000000045759000006
+      004D656D6F3434000200CE000000350000005F0000000B00000043000F00F401
+      0000000000000000FFFFFF1F2C0200000000000100070050524F4455544F0000
+      0000FFFF00000000000200000001000000000500417269616C00060000000000
+      000000000A0000000100020000000000FFFFFF00000000020000000000000000
+      04D959000006004D656D6F3435000200B70100002A0000001900000016000000
+      43000F00F4010000000000000000FFFFFF1F2C02000000000001000300435352
+      00000000FFFF00000000000200000001000000000500417269616C0006000000
+      0000000000000A0000000100020000000000FFFFFF0000000002000000000000
+      000004605A000006004D656D6F34360002002D010000350000008A0000000B00
+      000043000F00F4010000000000000000FFFFFF1F2C0200000000000100080050
+      524F434553534F00000000FFFF00000000000200000001000000000500417269
+      616C00060000000000000000000A0000000100020000000000FFFFFF00000000
+      02000000000000000004E15A000006004D656D6F3437000200D00100002A0000
+      00150000001600000043000F00F4010000000000000000FFFFFF1F2C02000000
+      0000010002004D4400000000FFFF000000000002000000010000000005004172
+      69616C00060000000000000000000A0000000100020000000000FFFFFF000000
+      00020000000000000000046F5B000006004D656D6F3438000200E50100002A00
+      00007C0000001600000043000F00F4010000000000000000FFFFFF1F2C020000
+      00000001000F004D45544F444F20434F4E54524F4C4500000000FFFF00000000
+      000200000001000000000500417269616C00060000000000000000000A000000
+      0100020000000000FFFFFF0000000002000000000000000004FA5B000006004D
+      656D6F3439000200610200002A0000008F0000001600000043000F00F4010000
+      000000000000FFFFFF1F2C02000000000001000C00504C414E4F20524541C7C3
+      4F00000000FFFF00000000000200000001000000000500417269616C00060000
+      000000000000000A0000000100020000000000FFFFFF00000000020000000000
+      000000047E5C000006004D656D6F3530000200F00200002A0000002000000016
+      00000043000F00F4010000000000000000FFFFFF1F2C02000000000001000500
+      524556455200000000FFFF00000000000200000001000000000500417269616C
+      00060000000000000000000A0000000100020000000000FFFFFF000000000200
+      0000000000000004155D000006004D656D6F35310002000B00000035000000C3
+      0000000B00000043000F00F4010000000000000000FFFFFF1F2C020000000000
+      0100180046455252414D454E544120502F204D414E5546415455524100000000
+      FFFF00000000000200000001000000000500417269616C000600000000000000
+      00000A0000000100020000000000FFFFFF0000000002000000000000000004A5
+      5D000006004D656D6F3532000200CE0000002A000000E90000000B0000004300
+      0F00F4010000000000000000FFFFFF1F2C020000000000010011004341524143
+      54455249535449434120444F00000000FFFF0000000000020000000100000000
+      0500417269616C00060000000000000000000A0000000100020000000000FFFF
+      FF0000000002000000000000000004385E000006004D656D6F36340002000000
+      00001F000000100300000B00000043000F00F4010000000000000000FFFFFF1F
+      2C02000000000001001400434F4E54524F4C452044452050524F434553534F00
+      000000FFFF00000000000200000001000000000500417269616C000600000000
+      00000000000A0000000100020000000000FFFFFF000000000200000000000000
+      0304905E00000A005375625265706F727435000200000000009A000000540100
+      00120000000100000001000000000000000000FFFFFF1F2C0200000000000000
+      00000000FFFF0000000000020000000100000000050000000205005F00001000
+      43616265E7616C686F4D6573747265350002010000000040000000F502000016
+      0000003000040001000000000000000000FFFFFF1F0000000000000000000000
+      0000FFFF000000000002000000010000000000000001000000C8000000140000
+      00010000000000000205805F00000C004461646F734D65737472653600020100
+      00000084000000F5020000360000003100050001000000000000000000FFFFFF
+      1F00000000140066647350726F636573736F73436F6E74726F6C650000000000
+      0000FFFF000000000002000000010000000000000001000000C8000000140000
+      00010000000000000205ED5F00000D00526F646170E94D657374726535000201
+      00000000F9000000F5020000210000003000060001000000000000000000FFFF
+      FF1F00000000000000000000000000FFFF000000000002000000010000000000
+      000001000000C8000000140000000100000000000000057B60000010006D6D6F
+      5A65627261646F53756253756200020000000000840000001003000036000000
+      4300000064000000000000000000FFFFFF1F2C020000000000020000000D0000
+      00000000FFFF00000000000200000001000000000700436F7572696572000800
+      0000000000000000000000000100020000000000FFFFFF000000000200000000
+      00000000052B61000006004D656D6F35330002000B0000008400000028010000
+      3600000043000F0064000000000000000000FFFFFF1F2C02000000000001002F
+      005B71727950726F636573736F73436F6E74726F6C652E22746F6C6572616E63
+      6961657370656370726F6475746F225D00000000FFFF00000000000200000001
+      000000000700436F757269657200080000000000000000000000000001000200
+      00000000FFFFFF0000000002000000000000000005DC61000006004D656D6F35
+      340002003301000084000000280100003600000043000F006400000000000000
+      0000FFFFFF1F2C020000000000010030005B71727950726F636573736F73436F
+      6E74726F6C652E227465636E6963616176616C696163616F6D65646963616F22
+      5D00000000FFFF00000000000200000001000000000700436F75726965720008
+      000000000000000000000000000100020000000000FFFFFF0000000002000000
+      0000000000057D62000006004D656D6F35350002005B020000840000002E0000
+      003600000043000F0064000000000000000000FFFFFF1F2C0200000000000100
+      20005B71727950726F636573736F73436F6E74726F6C652E2274616D616E686F
+      225D00000000FFFF00000000000200000001000000000700436F757269657200
+      08000000000000000000020000000100020000000000FFFFFF00000000020000
+      000000000000052163000006004D656D6F353600020089020000840000008700
+      00003600000043000F0064000000000000000000FFFFFF1F2C02000000000001
+      0023005B71727950726F636573736F73436F6E74726F6C652E22667265717565
+      6E636961225D00000000FFFF00000000000200000001000000000700436F7572
+      6965720008000000000000000000020000000100020000000000FFFFFF000000
+      0002000000000000000005C963000006004D656D6F35370002000B0000004B00
+      0000280100000B00000043000F00F4010000000000000000FFFFFF1F2C020000
+      00000001002900544F4C4552C24E4349412F45535045434946494341C7C34F20
+      444F2050524F442F50524F434553534F00000000FFFF00000000000200000001
+      000000000500417269616C00060000000000000000000A000000010002000000
+      0000FFFFFF00000000020000000000000000056464000006004D656D6F353800
+      0200330100004B000000280100000B00000043000F00F4010000000000000000
+      FFFFFF1F2C02000000000001001C0054C9434E494341204445204156414C4941
+      C7C34F2F4D454449C7C34F00000000FFFF000000000002000000010000000005
+      00417269616C00060000000000000000000A0000000100020000000000FFFFFF
+      0000000002000000000000000005EA64000006004D656D6F35390002005B0200
+      004B0000002E0000000B00000043000F00F4010000000000000000FFFFFF1F2C
+      0200000000000100070054414D414E484F00000000FFFF000000000002000000
+      01000000000500417269616C00060000000000000000000A0000000100020000
+      000000FFFFFF00000000020000000000000000057365000006004D656D6F3630
+      000200890200004B000000870000000B00000043000F00F40100000000000000
+      00FFFFFF1F2C02000000000001000A004652455155CA4E43494100000000FFFF
+      00000000000200000001000000000500417269616C0006000000000000000000
+      0A0000000100020000000000FFFFFF0000000002000000000000000005146600
+      0006004D656D6F363100020000000000840000000B0000003600000043000F00
+      64000000000000000000FFFFFF1F2C020000000000010022005B71727950726F
+      636573736F73436F6E74726F6C652E2273657175656E636961225D00000000FF
+      FF00000000000200000001000000000500417269616C00080000000000000000
+      000A0000000100020000000000FFFFFF00000000020000000000000000059566
+      000006004D656D6F3632000200000000004B0000000B0000000B00000043000F
+      00F4010000000000000000FFFFFF1F2C020000000000010002004EBA00000000
+      FFFF00000000000200000001000000000500417269616C000600000000000000
+      00000A0000000100020000000000FFFFFF00000000020000000000000000052F
+      67000006004D656D6F36330002000000000040000000100300000B0000004300
+      0F00F4010000000000000000FFFFFF1F2C02000000000001001B004DC9544F44
+      4F2028504C414E4F5320444520434F4E54524F4C452900000000FFFF00000000
+      000200000001000000000500417269616C00060000000000000000000A000000
+      0100020000000000FFFFFF0000000002000000000000000305876700000A0053
+      75625265706F7274360002000000000003010000580100001600000001000000
+      01000000000000000000FFFFFF1F2C020000000000000000000000FFFF000000
+      0000020000000100000000060000000206F7670000100043616265E7616C686F
+      4D6573747265360002010000000034000000F502000023000000300004000100
+      0000000000000000FFFFFF1F00000000000000000000000000FFFF0000000000
+      02000000010000000000000001000000C8000000140000000100000000000002
+      06776800000C004461646F734D657374726538000201000000007C000000F502
+      00000E0000003100050001000000000000000000FFFFFF1F0000000014006664
+      7350726F636573736F73436F6E74726F6C6500000000000000FFFF0000000000
+      02000000010000000000000001000000C8000000140000000100000000000000
+      060369000013006D6D6F5A65627261646F537562537562537562000200000000
+      007C000000100300000E0000004300000064000000000000000000FFFFFF1F2C
+      0200000000000100000000000000FFFF00000000000200000001000000000500
+      417269616C00070000000000000000000A0000000100020000000000FFFFFF00
+      00000002000000000000000006A469000006004D656D6F363500020000000000
+      7C000000100000000E00000043000F0064000000000000000000FFFFFF1F2C02
+      0000000000010022005B71727950726F636573736F73436F6E74726F6C652E22
+      73657175656E636961225D00000000FFFF000000000002000000010000000005
+      00417269616C00070000000000000000000A0000000100020000000000FFFFFF
+      00000000020000000000000000064E6A000006004D656D6F3636000200100000
+      007C0000005B0000000E00000043000F0064000000000000000000FFFFFF1F2C
+      02000000000001002B005B71727950726F636573736F73436F6E74726F6C652E
+      226D6F646F66616C6861706F74656E6369616C225D00000000FFFF0000000000
+      0200000001000000000500417269616C00070000000000000000000A00000001
+      00020000000000FFFFFF0000000002000000000000000006FC6A000006004D65
+      6D6F36370002006B0000007C000000640000000E00000043000F006400000000
+      0000000000FFFFFF1F2C02000000000001002F005B71727950726F636573736F
+      73436F6E74726F6C652E2265666569746F73706F74656E636961697366616C68
+      61225D00000000FFFF00000000000200000001000000000500417269616C0007
+      0000000000000000000A0000000100020000000000FFFFFF0000000002000000
+      000000000006986B000006004D656D6F3638000200CF0000007C000000190000
+      000E00000003000F0064000000000000000000FFFFFF1F2C0104010100230001
+      001C005B71727950726F636573736F73436F6E74726F6C652E22736576225D00
+      000000FFFF00000000000200000001000000000500417269616C000700000000
+      00000000000A0000000100020000000000FFFFFF000000000200000000000000
+      0006346C000006004D656D6F3639000200E80000007C000000190000000E0000
+      0003000F0064000000000000000000FFFFFF1F2C0104010100230001001C005B
+      71727950726F636573736F73436F6E74726F6C652E22636C61225D00000000FF
+      FF00000000000200000001000000000500417269616C00070000000000000000
+      000A0000000100020000000000FFFFFF0000000002000000000000000006E16C
+      000006004D656D6F3730000200010100007C000000650000000E00000043000F
+      0064000000000000000000FFFFFF1F2C02000000000001002E005B7172795072
+      6F636573736F73436F6E74726F6C652E22636175736173706F74656E63696169
+      7366616C6861225D00000000FFFF000000000002000000010000000005004172
+      69616C00070000000000000000000A0000000100020000000000FFFFFF000000
+      0002000000000000000006906D000006004D656D6F3731000200660100007C00
+      0000680000000E00000043000F0064000000000000000000FFFFFF1F2C020000
+      000000010030005B71727950726F636573736F73436F6E74726F6C652E22636F
+      6E74726F6C657361747561697370726F636573736F225D00000000FFFF000000
+      00000200000001000000000500417269616C00070000000000000000000A0000
+      000100020000000000FFFFFF00000000020000000000000000062C6E00000600
+      4D656D6F3732000200CE0100007C000000180000000E00000003000F00640000
+      00000000000000FFFFFF1F2C0104010100230001001C005B71727950726F6365
+      73736F73436F6E74726F6C652E22646574225D00000000FFFF00000000000200
+      000001000000000500417269616C00070000000000000000000A000000010002
+      0000000000FFFFFF0000000002000000000000000006C86E000006004D656D6F
+      3733000200E60100007C000000190000000E00000003000F0064000000000000
+      000000FFFFFF1F2C0104010100230001001C005B71727950726F636573736F73
+      436F6E74726F6C652E226E7072225D00000000FFFF0000000000020000000100
+      0000000500417269616C00070000000000000000000A00000001000200000000
+      00FFFFFF0000000002000000000000000006716F000006004D656D6F37340002
+      00FF0100007C000000700000000E00000043000F0064000000000000000000FF
+      FFFF1F2C02000000000001002A005B71727950726F636573736F73436F6E7472
+      6F6C652E2261636F65737265636F6D656E6461646173225D00000000FFFF0000
+      0000000200000001000000000500417269616C00070000000000000000000A00
+      00000100020000000000FFFFFF00000000020000000000000000061470000006
+      004D656D6F37350002006F0200007C000000530000000E00000043000F006400
+      0000000000000000FFFFFF1F2C020000000000010024005B71727950726F6365
+      73736F73436F6E74726F6C652E22726573706F6E736176656C225D00000000FF
+      FF00000000000200000001000000000500417269616C00070000000000000000
+      000A0000000100020000000000FFFFFF0000000002000000000000000006B870
+      000006004D656D6F3736000200C20200007C0000004F0000000E00000043000F
+      0064000000000000000000FFFFFF1F2C020000000000010025005B7172795072
+      6F636573736F73436F6E74726F6C652E2261636F6573746F6D61646173225D00
+      000000FFFF00000000000200000001000000000500417269616C000700000000
+      00000000000A0000000100020000000000FFFFFF000000000200000000000000
+      00063971000006004D656D6F3737000200000000004200000010000000150000
+      0043000F00F4010000000000000000FFFFFF1F2C020000000000010002004EBA
+      00000000FFFF00000000000200000001000000000500417269616C0006000000
+      0000000000000A0000000100020000000000FFFFFF0000000002000000000000
+      000006CC71000006004D656D6F373800020010000000420000005B0000001500
+      000043000F00F4010000000000000000FFFFFF1F2C020000000000010014004D
+      4F444F2046414C484120504F54454E4349414C00000000FFFF00000000000200
+      000001000000000500417269616C00060000000000000000000A000000010002
+      0000000000FFFFFF00000000020000000000000000066372000006004D656D6F
+      37390002006B00000042000000640000001500000043000F00F4010000000000
+      000000FFFFFF1F2C0200000000000100180045464549544F5320504F54454E43
+      494149532046414C484100000000FFFF00000000000200000001000000000500
+      417269616C00060000000000000000000A0000000100020000000000FFFFFF00
+      00000002000000000000000006E572000006004D656D6F3830000200CF000000
+      42000000190000001500000043000F00F4010000000000000000FFFFFF1F2C02
+      00000000000100030053455600000000FFFF0000000000020000000100000000
+      0500417269616C00060000000000000000000A0000000100020000000000FFFF
+      FF00000000020000000000000000066773000006004D656D6F3831000200E800
+      000042000000190000001500000043000F00F4010000000000000000FFFFFF1F
+      2C02000000000001000300434C4100000000FFFF000000000002000000010000
+      00000500417269616C00060000000000000000000A0000000100020000000000
+      FFFFFF0000000002000000000000000006FE73000006004D656D6F3832000200
+      0101000042000000650000001500000043000F00F4010000000000000000FFFF
+      FF1F2C0200000000000100180043415553415320504F54CA4E43494149532046
+      414C48415300000000FFFF00000000000200000001000000000500417269616C
+      00060000000000000000000A0000000100020000000000FFFFFF000000000200
+      00000000000000069774000006004D656D6F3833000200660100004200000068
+      0000001500000043000F00F4010000000000000000FFFFFF1F2C020000000000
+      01001A00434F4E54524F4C4553204154554149532050524F434553534F530000
+      0000FFFF00000000000200000001000000000500417269616C00060000000000
+      000000000A0000000100020000000000FFFFFF00000000020000000000000000
+      061975000006004D656D6F3834000200CE010000420000001800000015000000
+      43000F00F4010000000000000000FFFFFF1F2C02000000000001000300444554
+      00000000FFFF00000000000200000001000000000500417269616C0006000000
+      0000000000000A0000000100020000000000FFFFFF0000000002000000000000
+      0000069B75000006004D656D6F3835000200E601000042000000190000001500
+      000043000F00F4010000000000000000FFFFFF1F2C020000000000010003004E
+      505200000000FFFF00000000000200000001000000000500417269616C000600
+      00000000000000000A0000000100020000000000FFFFFF000000000200000000
+      00000000062C76000006004D656D6F3836000200FF0100004200000070000000
+      1500000043000F00F4010000000000000000FFFFFF1F2C020000000000010012
+      0041C7D54553205245434F4D454E444144415300000000FFFF00000000000200
+      000001000000000500417269616C00060000000000000000000A000000010002
+      0000000000FFFFFF0000000002000000000000000006BC76000006004D656D6F
+      38370002006F02000042000000530000001500000043000F00F4010000000000
+      000000FFFFFF1F2C02000000000001001100524553504F4E53C156454C205052
+      415A4F00000000FFFF00000000000200000001000000000500417269616C0006
+      0000000000000000000A0000000100020000000000FFFFFF0000000002000000
+      0000000000064877000006004D656D6F3838000200C2020000420000004F0000
+      001500000043000F00F4010000000000000000FFFFFF1F2C0200000000000100
+      0D0041C7D5455320544F4D4144415300000000FFFF0000000000020000000100
+      0000000500417269616C00060000000000000000000A00000001000200000000
+      00FFFFFF0000000002000000000000000006CB77000006004D656D6F38390002
+      000000000037000000110300000B00000043000F00F4010000000000000000FF
+      FFFF1F2C02000000000001000400464D454100000000FFFF0000000000020000
+      0001000000000500417269616C00060000000000000000000A00000001000200
+      00000000FFFFFF0000000002000000000000000207387800000C004461646F73
+      4D65737472653700020100000000A9000000F502000022000000300005000100
+      0000000000000000FFFFFF1F0000000001003100000000000000FFFF00000000
+      0002000000010000000000000001000000C80000001400000001000000000000
+      02079D780000050042616E64310002010000000000000000F502000046000000
+      3000020001000000000000000000FFFFFF1F00000000000000000000000000FF
+      FF000000000002000000010000000000000001000000C8000000140000000100
+      00000000000307F57800000A005375625265706F72743100020000000000B600
+      0000B40000001100000001000F0001000000000000000000FFFFFF1F2C020000
+      000000000000000000FFFF00000000000200000001000000000100000003074D
+      7900000A005375625265706F727432000200CC000000B5000000930100001200
+      000001000F0001000000000000000000FFFFFF1F2C0200000000000000000000
+      00FFFF0000000000020000000100000000020000000107739100000800506963
+      74757265310002000000000000000000900000002D0000000500000001000000
+      000000000000FFFFFF1F2C020000000000000000000000FFFF00000000000200
+      00000100000006010073910000424DCE17000000000000360400002800000083
+      00000026000000010008000000000098130000120B0000120B00000001000000
+      01000000000000E8E5A800AA9E000099990000ADADAD003A3C4100A3970000BF
+      B73700D8D48600FBFAF000A5A5A5001E1D1C00D8D9DA0054575A00D6D6D500E7
+      E8F20012161B00B6AD1900CBC55B008C8D9200BEC0C500E1E2E40085878A005E
+      606300494C4F00090D12002C2E3300DEDB98007D7F8100EFEDCB00B9BABB00AE
+      A400007C7B7B00C5BE440066666600D1CC6F00CDC9810048484600F7F6E600AF
+      A5080004080D00F9F8ED00B8AF2700DBD68C00999999001B1A1900C6BF510013
+      1312003B3A3A00FFFFFF00EAE8BE00CCCCCC0023262A00E2DEA400F1EFD600B0
+      B1B300D3CD7500B1A81000CCCC660072727200535252004342420001060A00EC
+      E9C3008C8C8B00F5F4DF004A4A4A0057575600B6AC1F00282B3000C7C05C0061
+      615F00F7F7F70088888700DDD89300E3E0A600FDFCF70021242900070A1000BD
+      B53100C5BE4A00E3E3E200A69C000099999900BABAB900DEDEDE00525458002A
+      292800D9D58A005F5E5D00C7C595001B1E2300E8E5B60000000700B5AB1300D5
+      D07B00C6C6C500B2A80B0021202000B9B12400504F4E00666666006B6D7000B5
+      B5BD0084848400E0DC9E00BCB42C00F7EFD6005B5B5A00EFEFEF0087898B00DE
+      DEE6003E3D3C0014181E00C8C25300CCC55F00A8A9AC00BDBDBC00E5E1AC0075
+      767900181B2000E6E6E6000E1117000810190033333300929191002D2C2B00B5
+      B5B4000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000003131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131543D42470E31313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131523131313131486D3131316D6D4C3131316D6D31313131313131
+      3131316D4831313131313131316D6D3131316D040A6C6C313131313131486D6D
+      4C3131313131316D6D4C313131313131313131313131486D6D6D313131313131
+      486D6D48313131316D483131316D6D3131313131313131313131316D6D6D3131
+      486D6D6D31313131313152313131317F7E6631554225256031603D4264793142
+      0C313B7D316D6C3D70403131662C316D593D7068313133646C70253148425531
+      2C70643059313131310C2525420E31477431420E4825793131315442433D474C
+      4C640E3120423C300A3131207E2C317F70254748484251512531603C316D5925
+      3C620A312C25433068313131313152313131316C2031315959313131317C7D4C
+      4C31487C0E3159683177424C51347531434031203D487957543130494C7F3D31
+      487C0C310B37317F70313131313C6631313131642C317C33487E513131313131
+      79602F55317C3331316D793B7031487E14314857043131316D7C55557E311E30
+      31542D4C314340313148790A0B4C313131315231313131477D313125306C6433
+      4C5779313131487C0E31224931422C31314340316C7D313C7D3131594931570C
+      31543D31487C0C3168705930253131313170706C3C0E313C0A313033317C5131
+      31310C702570474C4C3033312C7C64300A3148300E3179624343224848305151
+      7C31603D316D6464590B2C31547C42301C313131313152313131314749313166
+      420C5548313D2C484831487C0E48302C311C4248516275316C7D31493D487962
+      7F31256848373031487C0E3131550E207031313131473C0C554831642C4C7E33
+      0C62793131316830796D3131487C3331577D6D6D313148303331487C49555131
+      487C0C0C7E4C2C703131480C0E7C2C313C476D6D31313131313152313131040B
+      7E20316D473C6C33310E3D3C6C7931254264646D31486C42706831316C7D3148
+      4742702031310E3D433D6C31484355314043473D0A31313131796C3C6C0E3166
+      70597E3C3D20313131310E256C6C7731316C0E312C3D47430431772F3D0A3133
+      424366484825643C7E6C7C74316D225943425531543D59437D31313131315231
+      31316D643B6D3131316D514831313179514C316D51793131313131796D313131
+      3C40313131796D313131313179794831317F6D316D1515483131313131313179
+      5148314879516D796D3131313131313151517931317F6D31316D51516D315157
+      7F6D313131797931316D51516D5148313131515151313131314851516D313131
+      3131523131313140043131313131313131313131313131313131313131313131
+      313131316804313131313131313131313131313148660F313131313131313131
+      31313131313131313131313131313131313131313131313131220E3131313131
+      3131316655313131313131313131313131313131313131313131313131313131
+      3131313131315231313131313131313131313131313131313131313131313131
+      313131313131313131313131313131313131313131313131315C46121212463F
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313152313131313131313131313131313131313131313131
+      31313131313131313131313131313131313131313131313131313131315F0602
+      0202061B31313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131523131313131310E40173C18183D6E313131
+      3131310C2C666C3C181818181805683131313131316D3768220D051631313131
+      3108021F1F1F5235313131313172070707070707070707070707070750732B36
+      31313131313131313131362B73212112081D3131313131313131312350505050
+      4B3131313131313131313F08122E505050085231313131312C103E191919195D
+      17313131317966713E4E191919191919195D0D31313131312C34282819190017
+      313131313108021F1F1F52353131313131115202020202020202020202020202
+      0202022776313131313131313F501F02020202020202075C313131313131316A
+      060202065F313131313131314C120202020202020221523131313175287A7878
+      7878784E223131310E1A3E10787871717171717171281731313131773E7A7171
+      71712822313131313108021F1F1F5235313131313144021F1F1F1F1F1F1F1F1F
+      1F1F1F1F1F1F1F1F1F1D31313131310802021F1F1F1F1F1F1F1F020223313131
+      31313107021F1F0208313131313131313A521F1F1F1F1F1F1F5052313131310D
+      4E7878787A7A71282231316D7C4E7878784E4E7A717171717128173131312C3E
+      7171717119195D22313131313108021F1F1F5269314C4C4C4C631F1F1F1F1F1F
+      1F1F1F1F1F1F1F1F1F1F1F1F52503131313138521F1F1F0202020202021F1F1F
+      5212313131313107021F1F0208313131313131361F1F1F1F1F02020202215231
+      31316D457A78787A3D370E0E5131313B3E7878787A2274140E0E0E0E0E0E1531
+      3115787A787871190D0A145A2A6A6A6A2A5F3636363636504411111111322626
+      2626262626262626262626264A1F1F1F1F612631311B521F1F1F02443A080823
+      63021F1F1F525F3131313107021F1F02083131313131311B021F1F1F1F6A2B35
+      3532523131310E71717171710C313131313115781078784E6831313131313131
+      31313131311C287878787A2C3131310106020202025F31313131315052020202
+      023631313131313131313131313131313144021F1F1F32312639021F1F1F584C
+      31313131311B27021F1F1F3631313107021F1F020831313131313123021F1F1F
+      11093131313152313131337A717171454831313131312C28787810344C313131
+      313131313131313131057A78784E663131313135021F1F1F025F313131313150
+      021F1F1F1F3631313131313131313131313131314C5E021F1F0276315F521F1F
+      1F4B313131313131313132271F1F527331313107021F1F020831313131313112
+      021F1F0272313131313152313131601978787A7C4C3131313131662878781045
+      166E6E6E6E6E6E6E6E1C0431555B1078717A603131313135021F1F1F025F3131
+      31313150021F1F1F1F36313131313131314C0909090909363A021F1F1F1F3F31
+      4F021F02723131313131313131313123021F1F1109313107021F1F0208313131
+      3131312E021F1F0273313131313152313131601978787A054C31313131315619
+      78787871282828282828282828005631337A717171346D313131313552020202
+      025F31313131312106020202023631313131762E635E61616161611F1F1F1F1F
+      1F114C26611F1F0276313131313131313131311D1F1F1F1F1D313107021F1F02
+      083131313131312E021F1F023A313131313152313131601978787A054C313131
+      31311819787878787878787878787878784E1731141978787A45483131313176
+      4444444444241551515151464F4F4F4F4F413131313A0202021F1F1F1F1F1F1F
+      1F1F1F1F521B311D1F1F1F1F363131313131313131313126391F1F1F5C313107
+      021F1F02083131313131312E021F1F023A313131313152313131601978787A05
+      4C31313131315619787878787878787878787878784E1731337A717171346D31
+      3131313109090909097D713434347A37313131313131313158521F1F1F1F1F02
+      02020202020202275831311D1F1F1F1F1D3131313131313131313126391F1F1F
+      5C313107021F1F02083131313131312E021F1F023A3131313131523131316019
+      78787A054C3131313131224E787878784E28282828282828280056310C787171
+      715B0C31313131313131313131133E1010105D74313131313131312939021F1F
+      1F1F3911636363636A50083631313126611F1F024B313131313131313131313F
+      021F1F1F36313107021F1F02083131313131312E021F1F023A31313131315231
+      3131601978787A054C313131313116287878101A2C2C2C2C2C2C2C2C2C7D1E31
+      6D1A7A7878197F31313131313131313131134E78787828743131313131313176
+      021F1F1F1F23263131313131313131313131313107021F022131313131313131
+      31313173021F1F444C313107021F1F02083131313131312E021F1F023A313131
+      313152313131601978787A054C31313131317F19717171344831313131313131
+      3131313131561978784E6631313131313131313131134E787878287431313131
+      3131312B521F1F1F6129313131313131313131313131313158521F1F024A3131
+      3131313131317602021F522331313107021F1F02083131313131312E021F1F02
+      3A313131313152313131331978787A053131313131316D347A78784E13313131
+      3131313131313131317D28787871710431313131313131313113001919190004
+      313131313131312B521F1F1F274131313131313131313131313131310911021F
+      1F1F232631313131295F1F1F1F1F612931313107021F1F022B3131313131312E
+      021F1F52233131313131520E14602C7A78787A7C141414140C3131203E787871
+      71660A1E6014141414140E3131155B107878107A567D371E1E1E1E1E1E13566C
+      6C6C182C75757575756D315C021F1F1F1F211B1B1B1B1B1B4A4A4A4A4A363131
+      3176021F1F1F0261502323725E021F1F1F0258762B2B4A44021F1F1F504A4A4A
+      2B1D312E021F1F1F074A4A4A4A5C520D7A7A7A78787878787A7A7A5D17313179
+      45197878784E4E7A7A7A7A7A7A5D6C313131165D717171711919191919191919
+      5D6E313131313166007A7A7A4E1431295E021F1F1F0202020202020202020202
+      062B313131315802021F1F1F020202021F1F1F1F52384C395252521F1F1F1F1F
+      020202020608312E021F1F1F1F0202020221521771717878787878787171714E
+      22313131335B28717878787871717171714E1731313131173E7A717878787878
+      787878784E6E313131313166287171717A6031314A521F1F1F1F1F1F1F1F1F1F
+      1F1F1F1F524A31313131316939521F1F1F1F1F1F1F1F020258310911021F1F1F
+      1F1F1F1F1F1F1F1F022B312E021F1F1F1F1F1F1F1F50520D1919197878787878
+      1919190017313131310C0D10284E4E191919191919000D31313131317D1A4E4E
+      4E19191919191919001C3131313131662878787810603131315F020202020202
+      0202020202020202062B31313131313136733902020202020261721D31312961
+      5252521F1F1F1F1F020202020608312E021F1F1F1F0202020221527D17173C10
+      7878714D1717170D2C3131313131310E0A1C3B2217171717170D7D3131313131
+      3148757D77661717171717170D0431313131316628787878106031313131364A
+      3A7272727272727272727272505C3131313131313131264B5F73733835413131
+      3131093A7272725E1F1F1F1F4F1212122E5C312E021F1F1F6312121212585231
+      31310E1978787A05313131313131313131313131313131313131313131313131
+      313131313131313131313131313131313131313131313117003E3E3E5D753131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313131313107021F1F52583131313131312E021F1F0223313131
+      313152313131601978787A054C31313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131317F686E6E6E
+      6E15313131313131313131313131313131313131313131313131313131313131
+      31313131313131313131313131313121021F1F02073131313131312E021F1F02
+      3A313131313152313131601978787A054C313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313173021F1F1F1F4F3A233A32312E
+      021F1F023A313131313152313131601978787A054C3131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313131313131313131313131313131313169521F1F1F1F020202
+      0608312E021F1F023A313131313152313131601978787A054C31313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131310963521F1F
+      1F1F1F1F024A312E021F1F023A313131313152313131601971717A054C313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      4150611F1F1F1F1F024A3150021F1F023A3131313131523131310C0D17176C77
+      4C31313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131315C3872727272725C31082E2E2E2E1B31313131315200070D9200
+      0007004D656D6F3132310002009900000015000000CA0000000A000000040000
+      00F4010000000000000000FFFFFF1F2C02000000000001001600464F4E453A20
+      5B464F4E4546494C49414C424153455D00000000FFFF00000000000200000001
+      00000000090068656C7665746963610006000000000000000000100000000100
+      020000000000FFFFFF0000000002000000000000000007B592000007004D656D
+      6F3132320002009900000020000000CB0000000A00000000000000F401000000
+      0000000000FFFFFF1F2C020000000000010024005B52554146494C49414C4241
+      53455D202D205B42414952524F46494C49414C424153455D00000000FFFF0000
+      000000020000000100000000090068656C766574696361000600000000000000
+      0000100000000100020000000000FFFFFF000000000200000000000000000777
+      93000007004D656D6F313233000200990000002B000000CB0000000A00000000
+      000000F4010000000000000000FFFFFF1F2C02000000000001003E004345503A
+      205B43455046494C49414C424153455D202D205B43494441444546494C49414C
+      424153455D202D205B45535441444F46494C49414C424153455D00000000FFFF
+      0000000000020000000100000000090068656C76657469636100060000000000
+      00000000100000000100020000000000FFFFFF00000000020000000000000000
+      070C94000007004D656D6F3132340002009900000000000000CB000000140000
+      0003000000F4010000000000000000FFFFFF1F2C020000000000010011005B52
+      415A414F46494C49414C424153455D00000000FFFF0000000000020000000100
+      000006090068656C766574696361000600000000000000000010000000010002
+      0000000000FFFFFF00000000020000000000000000079894000007004D656D6F
+      3132350002008201000003000000F30000001100000043000000010000000000
+      00000000FFFFFF1F2C020000000000010008005B544954554C4F5D00000000FF
+      FF0000000000020000000100000000090068656C766574696361000B00000002
+      0000000000020000000100020000000000FFFFFF000000000200000000000000
+      00072795000007004D656D6F3132360002008201000017000000F30000002500
+      000043000000F4010000000000000000FFFFFF1F2C02000000000001000B005B
+      535542544954554C4F5D00000000FFFF00000000000200000001000000000900
+      68656C76657469636100080000000000000000000A0000000100020000000000
+      FFFFFF0000000002000000000000000007BE95000007004D656D6F3132370002
+      00BC02000000000000300000000F0000004300000001000000000000000000FF
+      FFFF1F2C020000000000010013005B4441544520234464642F6D6D2F79797979
+      5D00000000FFFF0000000000020000000100000006090068656C766574696361
+      0007000000000000000000010000000100020000000000FFFFFF000000000200
+      00000000000000075696000007004D656D6F313238000200C802000019000000
+      200000000F0000004300000001000000000000000000FFFFFF1F2C0200000000
+      00010014005B50414745235D2F5B544F54414C50414745535D00000000FFFF00
+      00000000020000000100000000090068656C7665746963610007000000000000
+      000000010000000100020000000000FFFFFF000000000200000000000000FEFE
+      FF0A0000000A002043617465676F727931000000000600544954554C4F000000
+      000900535542544954554C4F000000000F0052415A414F46494C49414C424153
+      45000000000E00464F4E4546494C49414C424153450000000010004241495252
+      4F46494C49414C42415345000000000D0043455046494C49414C424153450000
+      00000D0052554146494C49414C4241534500000000100043494441444546494C
+      49414C4241534500000000100045535441444F46494C49414C42415345000000
+      000000000000000000FC000000000000000000000000000000005800C55F4539
+      7511E4402E3ACF3CCF49E440}
+  end
+  object fdsOperacoesMaquinas: TfrDBDataSet
+    DataSet = qryOperacoesMaquinas
+    OpenDataSource = False
+    Left = 528
+    Top = 240
+  end
+  object fdsFalhasOperacoes: TfrDBDataSet
+    DataSet = qryFalhasOperacoes
+    OpenDataSource = False
+    Left = 528
+    Top = 304
+  end
+  object fdsOperacoesSetup: TfrDBDataSet
+    DataSet = qryOperacoesSetup
+    OpenDataSource = False
+    Left = 528
+    Top = 368
+  end
+  object fdsProcessosControle: TfrDBDataSet
+    DataSet = qryProcessosControle
+    OpenDataSource = False
+    Left = 528
+    Top = 416
+  end
+  object qryImprimirOperacoes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryImprimirOperacoesAfterScroll
+    OnNewRecord = qryOperacoesNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'datainclusao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'dataalteracao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FluxogramaOperacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'InclusaoOperacoes'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'AlteracaoOperacoes'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListarSetup'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListarPlano'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListarBloqueio'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'CodigoOperacao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      'SELECT TempoPadrao(o.Codigo, CURRENT_DATE) AS TempoPadrao,'
+      ''
+      
+        '      CAST(TO_CHAR(DataHoraAlteracao, '#39'DD/MM/YY HH24:MI:SS'#39') AS ' +
+        'VARCHAR(20)) AS DataHoraAlteracao,'
+      '      o.*'
+      'FROM'
+      ''
+      '('
+      ' SELECT o.*,'
+      ''
+      ''
+      '       (SELECT ol.Trigger_User'
+      '           FROM Operacoes_Log ol'
+      '           WHERE ol.Trigger_Mode = '#39'INSERT'#39' AND'
+      '                 ol.Codigo = o.Codigo'
+      '                 %DataInclusao'
+      
+        '           ORDER BY ol.Trigger_Changed DESC LIMIT 1) AS UsuarioI' +
+        'nclusao,'
+      ''
+      
+        '       (SELECT CAST(TO_CHAR(ol.Trigger_Changed, '#39'DD/MM/YY HH24:M' +
+        'I:SS'#39') AS VARCHAR(20))'
+      '           FROM Operacoes_Log ol'
+      '           WHERE ol.Trigger_Mode = '#39'INSERT'#39' AND'
+      '                 ol.Codigo = o.Codigo'
+      '                 %DataInclusao'
+      
+        '           ORDER BY ol.Trigger_Changed DESC LIMIT 1) AS DataHora' +
+        'Inclusao,'
+      ''
+      ''
+      '       (SELECT UsuarioAlteracao'
+      '        FROM'
+      ''
+      '        ('
+      '         (SELECT ol.Trigger_User    AS UsuarioAlteracao,'
+      '                 ol.Trigger_Changed AS DataHoraAlteracao'
+      '             FROM Operacoes_Log ol'
+      '             WHERE ol.Codigo = o.Codigo AND'
+      '                   ol.Trigger_Mode in ('#39'INSERT'#39', '#39'UPDATE'#39') AND'
+      '                   ol.Trigger_Tuple = '#39'new'#39
+      '                   %DataAlteracao'
+      '             ORDER BY ol.Trigger_Changed DESC LIMIT 1)'
+      ''
+      ''
+      '         UNION ALL'
+      ''
+      '         (SELECT fol.Trigger_User    AS UsuarioAlteracao,'
+      '                 fol.Trigger_Changed AS DataHoraAlteracao'
+      '             FROM FalhasOperacoes_Log fol'
+      '             WHERE fol.Trigger_Mode in ('#39'INSERT'#39', '#39'UPDATE'#39') AND'
+      '                   fol.Trigger_Tuple = '#39'new'#39'                AND'
+      '                   fol.Operacao      = o.Codigo'
+      '                   %DataAlteracao'
+      '             ORDER BY fol.Trigger_Changed DESC LIMIT 1)'
+      ''
+      ''
+      '         UNION ALL'
+      ''
+      '         (SELECT oml.Trigger_User    AS UsuarioAlteracao,'
+      '                 oml.Trigger_Changed AS DataHoraAlteracao'
+      '             FROM OperacoesMaquinas_Log oml'
+      '             WHERE oml.Trigger_Mode in ('#39'INSERT'#39', '#39'UPDATE'#39') AND'
+      '                   oml.Trigger_Tuple = '#39'new'#39'               AND'
+      '                   oml.Operacao      = o.Codigo'
+      '                   %DataAlteracao'
+      '             ORDER BY oml.Trigger_Changed DESC LIMIT 1)'
+      ''
+      ''
+      '         UNION ALL'
+      ''
+      '         (SELECT osl.Trigger_User    AS UsuarioAlteracao,'
+      '                 osl.Trigger_Changed AS DataHoraAlteracao'
+      '             FROM OperacoesSetUp_Log osl'
+      '             WHERE osl.Trigger_Mode in ('#39'INSERT'#39', '#39'UPDATE'#39') AND'
+      '                   osl.Trigger_Tuple = '#39'new'#39'                AND'
+      '                   osl.Operacao      = o.Codigo'
+      '                   %DataAlteracao'
+      '             ORDER BY osl.Trigger_Changed DESC LIMIT 1)'
+      ''
+      ''
+      '     '#9'   UNION ALL'
+      ''
+      '         (SELECT pcl.Trigger_User    AS UsuarioAlteracao,'
+      '                 pcl.Trigger_Changed AS DataHoraAlteracao'
+      '            FROM ProcessosControle_Log pcl'
+      '            WHERE pcl.Trigger_Mode in ('#39'INSERT'#39', '#39'UPDATE'#39') AND'
+      '                  pcl.Trigger_Tuple = '#39'new'#39'                AND'
+      '                  pcl.Operacao      = o.Codigo'
+      '                  %DataAlteracao'
+      '            ORDER BY pcl.Trigger_Changed DESC LIMIT 1)'
+      ''
+      ''
+      '     '#9'   UNION ALL'
+      ''
+      '         (SELECT otpl.Trigger_User    AS UsuarioAlteracao,'
+      '                 otpl.Trigger_Changed AS DataHoraAlteracao'
+      '            FROM OperacoesTemposPadrao_Log otpl'
+      '            WHERE otpl.Trigger_Mode in ('#39'INSERT'#39', '#39'UPDATE'#39') AND'
+      '                  otpl.Trigger_Tuple = '#39'new'#39'                AND'
+      '                  otpl.Operacao     = o.Codigo'
+      '                  %DataAlteracao'
+      '            ORDER BY otpl.Trigger_Changed DESC LIMIT 1)'
+      #9#9#9
+      '        ) AS Selecao'
+      
+        '        ORDER BY DataHoraAlteracao DESC LIMIT 1) AS UsuarioAlter' +
+        'acao,'
+      ''
+      ''
+      '       (SELECT DataHoraAlteracao'
+      '        FROM'
+      ''
+      '        ('
+      '         (SELECT ol.Trigger_Changed AS DataHoraAlteracao'
+      '             FROM Operacoes_Log ol'
+      '             WHERE ol.Codigo = o.Codigo AND'
+      '                   ol.Trigger_Mode in ('#39'INSERT'#39', '#39'UPDATE'#39') AND'
+      '                   ol.Trigger_Tuple = '#39'new'#39
+      '                   %DataAlteracao'
+      '             ORDER BY ol.Trigger_Changed DESC LIMIT 1)'
+      ''
+      ''
+      '         UNION ALL'
+      ''
+      '         (SELECT fol.Trigger_Changed  AS DataHoraAlteracao'
+      '             FROM FalhasOperacoes_Log fol'
+      '             WHERE fol.Trigger_Mode in ('#39'INSERT'#39', '#39'UPDATE'#39') AND'
+      '                   fol.Trigger_Tuple = '#39'new'#39'                AND'
+      '                   fol.Operacao      = o.Codigo'
+      '                   %DataAlteracao'
+      '             ORDER BY fol.Trigger_Changed DESC LIMIT 1)'
+      ''
+      ''
+      '         UNION ALL'
+      ''
+      '         (SELECT oml.Trigger_Changed AS DataHoraAlteracao'
+      '             FROM OperacoesMaquinas_Log oml'
+      '             WHERE oml.Trigger_Mode in ('#39'INSERT'#39', '#39'UPDATE'#39') AND'
+      '                   oml.Trigger_Tuple = '#39'new'#39'               AND'
+      '                   oml.Operacao      = o.Codigo'
+      '                   %DataAlteracao'
+      '             ORDER BY oml.Trigger_Changed DESC LIMIT 1)'
+      ''
+      ''
+      '         UNION ALL'
+      ''
+      '         (SELECT osl.Trigger_Changed AS DataHoraAlteracao'
+      '             FROM OperacoesSetUp_Log osl'
+      '             WHERE osl.Trigger_Mode in ('#39'INSERT'#39', '#39'UPDATE'#39') AND'
+      '                   osl.Trigger_Tuple = '#39'new'#39'                AND'
+      '                   osl.Operacao      = o.Codigo'
+      '                   %DataAlteracao'
+      '             ORDER BY osl.Trigger_Changed DESC LIMIT 1)'
+      ''
+      ''
+      '     '#9'   UNION ALL'
+      ''
+      '         (SELECT pcl.Trigger_Changed AS DataHoraAlteracao'
+      '            FROM ProcessosControle_Log pcl'
+      '            WHERE pcl.Trigger_Mode in ('#39'INSERT'#39', '#39'UPDATE'#39') AND'
+      '                  pcl.Trigger_Tuple = '#39'new'#39'                AND'
+      '                  pcl.Operacao      = o.Codigo'
+      '                  %DataAlteracao'
+      '            ORDER BY pcl.Trigger_Changed DESC LIMIT 1)'
+      ''
+      ''
+      '     '#9'   UNION ALL'
+      ''
+      '         (SELECT otpl.Trigger_Changed AS DataHoraAlteracao'
+      '            FROM OperacoesTemposPadrao_Log otpl'
+      '            WHERE otpl.Trigger_Mode in ('#39'INSERT'#39', '#39'UPDATE'#39') AND'
+      '                  otpl.Trigger_Tuple = '#39'new'#39'                AND'
+      '                  otpl.Operacao     = o.Codigo'
+      '                  %DataAlteracao'
+      '            ORDER BY otpl.Trigger_Changed DESC LIMIT 1)'
+      #9#9
+      '        ) AS Selecao'
+      
+        '        ORDER BY DataHoraAlteracao DESC LIMIT 1) AS DataHoraAlte' +
+        'racao,'
+      ''
+      ''
+      '       (SELECT Operacao'
+      '        FROM'
+      ''
+      '        ('
+      '         (SELECT ol.Trigger_Changed AS DataHoraAlteracao,'
+      '                 CAST(CASE WHEN ol.Trigger_Mode = '#39'INSERT'#39
+      '                           THEN '#39'INCLUS'#195'O'#39
+      '                           ELSE '#39'ALTERA'#199#195'O'#39
+      '                      END AS VARCHAR(10)) AS Operacao'
+      '             FROM Operacoes_Log ol'
+      '             WHERE ol.Codigo = o.Codigo AND'
+      '                   ol.Trigger_Mode in ('#39'INSERT'#39', '#39'UPDATE'#39') AND'
+      '                   ol.Trigger_Tuple = '#39'new'#39
+      '                   %DataAlteracao'
+      '             ORDER BY ol.Trigger_Changed DESC LIMIT 1)'
+      ''
+      ''
+      '         UNION ALL'
+      ''
+      '         (SELECT fol.Trigger_Changed  AS DataHoraAlteracao,'
+      '                 CAST(CASE WHEN fol.Trigger_Mode = '#39'INSERT'#39
+      '                           THEN '#39'INCLUS'#195'O'#39
+      '                           ELSE '#39'ALTERA'#199#195'O'#39
+      '                      END AS VARCHAR(10)) AS Operacao'
+      '             FROM FalhasOperacoes_Log fol'
+      '             WHERE fol.Trigger_Mode in ('#39'INSERT'#39', '#39'UPDATE'#39') AND'
+      '                   fol.Trigger_Tuple = '#39'new'#39'                AND'
+      '                   fol.Operacao      = o.Codigo'
+      '                   %DataAlteracao'
+      '             ORDER BY fol.Trigger_Changed DESC LIMIT 1)'
+      ''
+      ''
+      '         UNION ALL'
+      ''
+      '         (SELECT oml.Trigger_Changed AS DataHoraAlteracao,'
+      '                 CAST(CASE WHEN oml.Trigger_Mode = '#39'INSERT'#39
+      '                           THEN '#39'INCLUS'#195'O'#39
+      '                           ELSE '#39'ALTERA'#199#195'O'#39
+      '                      END AS VARCHAR(10)) AS Operacao'
+      '             FROM OperacoesMaquinas_Log oml'
+      '             WHERE oml.Trigger_Mode in ('#39'INSERT'#39', '#39'UPDATE'#39') AND'
+      '                   oml.Trigger_Tuple = '#39'new'#39'               AND'
+      '                   oml.Operacao      = o.Codigo'
+      '                   %DataAlteracao'
+      '             ORDER BY oml.Trigger_Changed DESC LIMIT 1)'
+      ''
+      ''
+      '         UNION ALL'
+      ''
+      '         (SELECT osl.Trigger_Changed AS DataHoraAlteracao,'
+      '                 CAST(CASE WHEN osl.Trigger_Mode = '#39'INSERT'#39
+      '                           THEN '#39'INCLUS'#195'O'#39
+      '                           ELSE '#39'ALTERA'#199#195'O'#39
+      '                      END AS VARCHAR(10)) AS Operacao'
+      '             FROM OperacoesSetUp_Log osl'
+      '             WHERE osl.Trigger_Mode in ('#39'INSERT'#39', '#39'UPDATE'#39') AND'
+      '                   osl.Trigger_Tuple = '#39'new'#39'                AND'
+      '                   osl.Operacao      = o.Codigo'
+      '                   %DataAlteracao'
+      '             ORDER BY osl.Trigger_Changed DESC LIMIT 1)'
+      ''
+      ''
+      '     '#9'   UNION ALL'
+      ''
+      '         (SELECT pcl.Trigger_Changed AS DataHoraAlteracao,'
+      '                 CAST(CASE WHEN pcl.Trigger_Mode = '#39'INSERT'#39
+      '                           THEN '#39'INCLUS'#195'O'#39
+      '                          ELSE '#39'ALTERA'#199#195'O'#39
+      '                      END AS VARCHAR(10)) AS Operacao'
+      '            FROM ProcessosControle_Log pcl'
+      '            WHERE pcl.Trigger_Mode in ('#39'INSERT'#39', '#39'UPDATE'#39') AND'
+      '                  pcl.Trigger_Tuple = '#39'new'#39'                AND'
+      '                  pcl.Operacao      = o.Codigo'
+      '                  %DataAlteracao'
+      '            ORDER BY pcl.Trigger_Changed DESC LIMIT 1)'
+      ''
+      ''
+      '     '#9'   UNION ALL'
+      ''
+      '         (SELECT otpl.Trigger_Changed AS DataHoraAlteracao,'
+      '                 CAST(CASE WHEN otpl.Trigger_Mode = '#39'INSERT'#39
+      '                           THEN '#39'INCLUS'#195'O'#39
+      '                          ELSE '#39'ALTERA'#199#195'O'#39
+      '                      END AS VARCHAR(10)) AS Operacao'
+      '            FROM OperacoesTemposPadrao_Log otpl'
+      '            WHERE otpl.Trigger_Mode in ('#39'INSERT'#39', '#39'UPDATE'#39') AND'
+      '                  otpl.Trigger_Tuple = '#39'new'#39'                AND'
+      '                  otpl.Operacao     = o.Codigo'
+      '                  %DataAlteracao'
+      '            ORDER BY otpl.Trigger_Changed DESC LIMIT 1)'
+      #9#9#9
+      '        ) AS Selecao'
+      '        ORDER BY DataHoraAlteracao DESC LIMIT 1) AS Operacao,'
+      ''
+      ''
+      '       (SELECT Tabela '
+      '        FROM'
+      ''
+      '        ('
+      '         (SELECT ol.Trigger_Changed AS DataHoraAlteracao,'
+      '                 CAST('#39'OPERA'#199#213'ES'#39' AS VARCHAR(30)) AS Tabela'
+      '             FROM Operacoes_Log ol'
+      '             WHERE ol.Codigo = o.Codigo AND'
+      '                   ol.Trigger_Mode in ('#39'INSERT'#39', '#39'UPDATE'#39') AND'
+      '                   ol.Trigger_Tuple = '#39'new'#39
+      '                   %DataAlteracao'
+      '             ORDER BY ol.Trigger_Changed DESC LIMIT 1)'
+      ''
+      ''
+      '         UNION ALL'
+      ''
+      '         (SELECT fol.Trigger_Changed  AS DataHoraAlteracao,'
+      
+        '                 CAST('#39'FALHAS OPERA'#199#213'ES'#39' AS VARCHAR(30)) AS Tabe' +
+        'la'
+      '             FROM FalhasOperacoes_Log fol'
+      '             WHERE fol.Trigger_Mode in ('#39'INSERT'#39', '#39'UPDATE'#39') AND'
+      '                   fol.Trigger_Tuple = '#39'new'#39'                AND'
+      '                   fol.Operacao      = o.Codigo'
+      '                   %DataAlteracao'
+      '             ORDER BY fol.Trigger_Changed DESC LIMIT 1)'
+      ''
+      ''
+      '         UNION ALL'
+      ''
+      '         (SELECT oml.Trigger_Changed AS DataHoraAlteracao,'
+      
+        '                 CAST('#39'M'#193'QUINAS OPERA'#199#213'ES'#39' AS VARCHAR(30)) AS Ta' +
+        'bela'
+      '             FROM OperacoesMaquinas_Log oml'
+      '             WHERE oml.Trigger_Mode in ('#39'INSERT'#39', '#39'UPDATE'#39') AND'
+      '                   oml.Trigger_Tuple = '#39'new'#39'               AND'
+      '                   oml.Operacao      = o.Codigo'
+      '                   %DataAlteracao'
+      '             ORDER BY oml.Trigger_Changed DESC LIMIT 1)'
+      ''
+      ''
+      '         UNION ALL'
+      ''
+      '         (SELECT osl.Trigger_Changed AS DataHoraAlteracao,'
+      
+        '                 CAST('#39'SET-UP OPERA'#199#213'ES'#39' AS VARCHAR(30)) AS Tabe' +
+        'la'
+      '             FROM OperacoesSetUp_Log osl'
+      '             WHERE osl.Trigger_Mode in ('#39'INSERT'#39', '#39'UPDATE'#39') AND'
+      '                   osl.Trigger_Tuple = '#39'new'#39'                AND'
+      '                   osl.Operacao      = o.Codigo'
+      '                   %DataAlteracao'
+      '             ORDER BY osl.Trigger_Changed DESC LIMIT 1)'
+      ''
+      ''
+      '     '#9'   UNION ALL'
+      ''
+      '         (SELECT pcl.Trigger_Changed AS DataHoraAlteracao,'
+      
+        '                 CAST('#39'OP. PLANO CONTROLE'#39' AS VARCHAR(30)) AS Ta' +
+        'bela'
+      '            FROM ProcessosControle_Log pcl'
+      '            WHERE pcl.Trigger_Mode in ('#39'INSERT'#39', '#39'UPDATE'#39') AND'
+      '                  pcl.Trigger_Tuple = '#39'new'#39'                AND'
+      '                  pcl.Operacao      = o.Codigo'
+      '                  %DataAlteracao'
+      '            ORDER BY pcl.Trigger_Changed DESC LIMIT 1)'
+      ''
+      ''
+      '     '#9'   UNION ALL'
+      ''
+      '         (SELECT otpl.Trigger_Changed AS DataHoraAlteracao,'
+      '                 CAST('#39'TEMPOS PADR'#195'O'#39' AS VARCHAR(30)) AS Tabela'
+      '            FROM OperacoesTemposPadrao_Log otpl'
+      '            WHERE otpl.Trigger_Mode in ('#39'INSERT'#39', '#39'UPDATE'#39') AND'
+      '                  otpl.Trigger_Tuple = '#39'new'#39'                AND'
+      '                  otpl.Operacao     = o.Codigo'
+      '                  %DataAlteracao'
+      '            ORDER BY otpl.Trigger_Changed DESC LIMIT 1)'
+      #9#9#9
+      '        ) AS Selecao'
+      '        ORDER BY DataHoraAlteracao DESC LIMIT 1) AS Tabela'
+      ''
+      ' FROM Operacoes o'
+      '      %FluxogramaOperacao'
+      ''
+      ' WHERE TRUE'
+      '       %InclusaoOperacoes'
+      '       %AlteracaoOperacoes'
+      '       %ListarSetup'
+      '       %ListarPlano'
+      '       %ListarBloqueio'
+      '       %CodigoOperacao'
+      ''
+      ') AS o'#9' '
+      ''
+      'ORDER BY o.Nome, o.C01, o.C02, o.C03'
+      ''
+      ''
+      '/*'
+      ':fluxograma'
+      ':Codigo'
+      ':DatainicialInclusao'
+      ':DatafinalInclusao'
+      ':DatainicialAlteracao'
+      ':DatafinalAlteracao'
+      '*/')
+    RequestLive = True
+    Left = 422
+    Top = 176
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'fluxograma'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datainicialinclusao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinalinclusao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datainicialalteracao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinalalteracao'
+        ParamType = ptUnknown
+      end>
+    object qryImprimirOperacoescodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryImprimirOperacoesnome: TStringField
+      FieldName = 'nome'
+      Size = 10
+    end
+    object qryImprimirOperacoesc01: TStringField
+      FieldName = 'c01'
+      Size = 2
+    end
+    object qryImprimirOperacoesc02: TStringField
+      FieldName = 'c02'
+      Size = 2
+    end
+    object qryImprimirOperacoesc03: TStringField
+      FieldName = 'c03'
+      Size = 2
+    end
+    object qryImprimirOperacoessetup: TBooleanField
+      FieldName = 'setup'
+    end
+    object qryImprimirOperacoesplanocontrole: TBooleanField
+      FieldName = 'planocontrole'
+    end
+    object qryImprimirOperacoesdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 60
+    end
+    object qryImprimirOperacoesdescr_c01: TStringField
+      FieldName = 'descr_c01'
+    end
+    object qryImprimirOperacoesdescr_c02: TStringField
+      FieldName = 'descr_c02'
+    end
+    object qryImprimirOperacoesdescr_c03: TStringField
+      FieldName = 'descr_c03'
+    end
+    object qryImprimirOperacoestempopadrao: TFloatField
+      FieldName = 'tempopadrao'
+      DisplayFormat = '0.00'
+    end
+    object qryImprimirOperacoesppm: TIntegerField
+      FieldName = 'ppm'
+      DisplayFormat = '0'
+    end
+    object qryImprimirOperacoesnroperadores: TIntegerField
+      FieldName = 'nroperadores'
+      DisplayFormat = '0'
+    end
+    object qryImprimirOperacoesdescricaosetup: TStringField
+      FieldName = 'descricaosetup'
+      Size = 512
+    end
+    object qryImprimirOperacoesnaobloqueiausuario: TBooleanField
+      FieldName = 'naobloqueiausuario'
+    end
+    object qryImprimirOperacoesdatahorainclusao: TStringField
+      FieldName = 'datahorainclusao'
+      Size = 17
+    end
+    object qryImprimirOperacoesusuarioinclusao: TStringField
+      FieldName = 'usuarioinclusao'
+      Size = 6
+    end
+    object qryImprimirOperacoesusuarioalteracao: TStringField
+      FieldName = 'usuarioalteracao'
+      Size = 7
+    end
+    object qryImprimirOperacoesdatahoraalteracao: TStringField
+      FieldName = 'datahoraalteracao'
+      Size = 17
+    end
+    object qryImprimirOperacoesoperacao: TStringField
+      FieldName = 'operacao'
+      Size = 9
+    end
+    object qryImprimirOperacoestabela: TStringField
+      FieldName = 'tabela'
+      Size = 18
+    end
+  end
+  object frpOperacoesSoMaquinas: TfrReport
+    Dataset = fdsImprimirOperacoes
+    InitialZoom = pzDefault
+    PreviewButtons = [pbZoom, pbLoad, pbSave, pbPrint, pbFind, pbHelp, pbExit]
+    StoreInDFM = True
+    RebuildPrinter = False
+    Left = 376
+    Top = 384
+    ReportForm = {
+      19000000862B000019FFFF00000A0050444643726561746F7200FFFFFFFFFF00
+      000000340800009A0B0000000000000000000000000000000000000000040000
+      0000FFFF000000000000000000000000030400466F726D00FEFFFFFFDC000000
+      780000007C0100002C01000004000000FFFFFFFFFF00000000340800009A0B00
+      000000000000000000000000000000000001000400000000FFFF000000000000
+      000000000000030400466F726D00FEFFFFFFDC000000780000007C0100002C01
+      000004000000FFFFFFFFFF00000000340800009A0B0000480000004800000024
+      0000002400000000000400000000000000000000000000000005005061676531
+      00030400466F726D00FEFFFFFFDC000000780000007C0100002C010000040000
+      000200990100000C004461646F734D657374726532000201000000006C000000
+      F50200000C0000003000050001000000000000000000FFFFFF1F000000001400
+      6664734F70657261636F65734D617175696E617300000000000000FFFF000000
+      0000020000000100000000000000010000009000000002000000010000000000
+      00020009020000100043616265E7616C686F4D65737472653100020100000000
+      3C000000F5020000130000003000040001000000000000000000FFFFFF1F0000
+      0000000000000000000000FFFF00000000000200000001000000000000000100
+      0000C800000014000000010000000000000200760200000D00526F646170E94D
+      65737472653100020100000000A8000000F50200000600000030000600010000
+      00000000000000FFFFFF1F00000000000000000000000000FFFF000000000002
+      000000010000000000000001000000C800000014000000010000000000000000
+      1403000005004D656D6F32000200000000006C000000150000000C0000004300
+      040064000000000000000000FFFFFF1F2C020000000000010020005B7172794F
+      70657261636F65734D617175696E61732E226D617175696E61225D00000000FF
+      FF00000000000200000001000000000500417269616C00080000000000000000
+      00090000000100020000000000FFFFFF0000000002000000000000000000B403
+      000005004D656D6F33000200170000006C0000009D0000000C00000043000100
+      64000000000000000000FFFFFF1F2C020000000000010022005B7172794F7065
+      7261636F65734D617175696E61732E2264657363726963616F225D00000000FF
+      FF00000000000200000001000000000500417269616C00080000000000000000
+      00080000000100020000000000FFFFFF00000000020000000000000000004604
+      000006004D656D6F32320002000000000044000000B40000000B00000043000F
+      00F4010000000000000000FFFFFF1F2C020000000000010013004DC15155494E
+      4153204153534F43494144415300000000FFFF00000000000200000001000000
+      000500417269616C00060000000000000000000A0000000100020000000000FF
+      FFFF00000000020000000000000004009504000005004C696E65350002000000
+      0000A8000000B4000000000000000100080064000000000000000000FFFFFF00
+      2C020000000000000000000000FFFF0000000000020000000100000000020113
+      0500000C004461646F734D657374726533000201000000005C0000002F040000
+      0A0000003000050001000000000000000000FFFFFF1F00000000120066647346
+      616C6861734F70657261636F657300000000000000FFFF000000000002000000
+      010000000000000001000000C800000014000000010000000000000201830500
+      00100043616265E7616C686F4D65737472653200020100000000240000002F04
+      0000140000003000040001000000000000000000FFFFFF1F0000000000000000
+      0000000000FFFF000000000002000000010000000000000001000000C8000000
+      14000000010000000000000201F00500000D00526F646170E94D657374726532
+      000201000000008C0000002F0400001300000030000600010000000000000000
+      00FFFFFF1F00000000000000000000000000FFFF000000000002000000010000
+      000000000001000000C8000000140000000100000000000000018A0600000500
+      4D656D6F34000200000000005C0000001B0000000A0000004300040064000000
+      000000000000FFFFFF1F2C02000000000001001C005B71727946616C6861734F
+      70657261636F65732E2266616C6861225D00000000FFFF000000000002000000
+      01000000000500417269616C0007000000000000000000090000000100020000
+      000000FFFFFF00000000020000000000000000012807000005004D656D6F3500
+      02001B0000005C000000780100000A0000004300010064000000000000000000
+      FFFFFF1F2C020000000000010020005B71727946616C6861734F70657261636F
+      65732E2264657363726963616F225D00000000FFFF0000000000020000000100
+      0000000500417269616C00070000000000000000000800000001000200000000
+      00FFFFFF0000000002000000000000000001B807000006004D656D6F32330002
+      00000000002C000000930100000C00000043000F00F4010000000000000000FF
+      FFFF1F2C0200000000000100110046414C484153204153534F43494144415300
+      000000FFFF00000000000200000001000000000500417269616C000600000000
+      00000000000A0000000100020000000000FFFFFF000000000200000000000000
+      04010708000005004C696E6536000200000000008D0000009301000000000000
+      0100080064000000000000000000FFFFFF002C020000000000000000000000FF
+      FF00000000000200000001000000000202870800000C004461646F734D657374
+      72653700020100000000B4000000F50200004E00000030000500010000000000
+      00000000FFFFFF1F000000001400666473496D7072696D69724F70657261636F
+      657300000000000000FFFF000000000002000000010000000000000001000000
+      C800000014000000010000000000000202EC080000050042616E643100020100
+      00000034000000F5020000460000003000020001000000000000000000FFFFFF
+      1F00000000000000000000000000FFFF00000000000200000001000000000000
+      0001000000C80000001400000001000000000000020255090000090072647050
+      6167696E610002010000000068010000F50200000C0000003000030001000000
+      000000000000FFFFFF1F00000000000000000000000000FFFF00000000000200
+      0000010000000000000001000000C800000014000000010000000000000302AD
+      0900000A005375625265706F72743100020000000000D8000000B40000001100
+      000001000F0001000000000000000000FFFFFF1F2C0200000000000000000000
+      00FFFF0000000000020000000100000000000000000302050A00000A00537562
+      5265706F727432000200CC000000D7000000640100001200000001000F000100
+      0000000000000000FFFFFF1F2C020000000000000000000000FFFF0000000000
+      0200000001000000000100000001022B22000008005069637475726531000200
+      0000000034000000900000002D0000000500000001000000000000000000FFFF
+      FF1F2C020000000000000000000000FFFF000000000002000000010000000601
+      002B220000424DCE170000000000003604000028000000830000002600000001
+      0008000000000098130000120B0000120B0000000100000001000000000000E8
+      E5A800AA9E000099990000ADADAD003A3C4100A3970000BFB73700D8D48600FB
+      FAF000A5A5A5001E1D1C00D8D9DA0054575A00D6D6D500E7E8F20012161B00B6
+      AD1900CBC55B008C8D9200BEC0C500E1E2E40085878A005E606300494C4F0009
+      0D12002C2E3300DEDB98007D7F8100EFEDCB00B9BABB00AEA400007C7B7B00C5
+      BE440066666600D1CC6F00CDC9810048484600F7F6E600AFA5080004080D00F9
+      F8ED00B8AF2700DBD68C00999999001B1A1900C6BF5100131312003B3A3A00FF
+      FFFF00EAE8BE00CCCCCC0023262A00E2DEA400F1EFD600B0B1B300D3CD7500B1
+      A81000CCCC660072727200535252004342420001060A00ECE9C3008C8C8B00F5
+      F4DF004A4A4A0057575600B6AC1F00282B3000C7C05C0061615F00F7F7F70088
+      888700DDD89300E3E0A600FDFCF70021242900070A1000BDB53100C5BE4A00E3
+      E3E200A69C000099999900BABAB900DEDEDE00525458002A292800D9D58A005F
+      5E5D00C7C595001B1E2300E8E5B60000000700B5AB1300D5D07B00C6C6C500B2
+      A80B0021202000B9B12400504F4E00666666006B6D7000B5B5BD0084848400E0
+      DC9E00BCB42C00F7EFD6005B5B5A00EFEFEF0087898B00DEDEE6003E3D3C0014
+      181E00C8C25300CCC55F00A8A9AC00BDBDBC00E5E1AC0075767900181B2000E6
+      E6E6000E1117000810190033333300929191002D2C2B00B5B5B4000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000003131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131543D42470E313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131315231
+      31313131486D3131316D6D4C3131316D6D313131313131313131316D48313131
+      31313131316D6D3131316D040A6C6C313131313131486D6D4C3131313131316D
+      6D4C313131313131313131313131486D6D6D313131313131486D6D4831313131
+      6D483131316D6D3131313131313131313131316D6D6D3131486D6D6D31313131
+      313152313131317F7E6631554225256031603D42647931420C313B7D316D6C3D
+      70403131662C316D593D7068313133646C702531484255312C70643059313131
+      310C2525420E31477431420E4825793131315442433D474C4C640E3120423C30
+      0A3131207E2C317F70254748484251512531603C316D59253C620A312C254330
+      68313131313152313131316C2031315959313131317C7D4C4C31487C0E315968
+      3177424C51347531434031203D487957543130494C7F3D31487C0C310B37317F
+      70313131313C6631313131642C317C33487E51313131313179602F55317C3331
+      316D793B7031487E14314857043131316D7C55557E311E3031542D4C31434031
+      3148790A0B4C313131315231313131477D313125306C64334C5779313131487C
+      0E31224931422C31314340316C7D313C7D3131594931570C31543D31487C0C31
+      68705930253131313170706C3C0E313C0A313033317C513131310C702570474C
+      4C3033312C7C64300A3148300E31796243432248483051517C31603D316D6464
+      590B2C31547C42301C313131313152313131314749313166420C5548313D2C48
+      4831487C0E48302C311C4248516275316C7D31493D4879627F31256848373031
+      487C0E3131550E207031313131473C0C554831642C4C7E330C62793131316830
+      796D3131487C3331577D6D6D313148303331487C49555131487C0C0C7E4C2C70
+      3131480C0E7C2C313C476D6D31313131313152313131040B7E20316D473C6C33
+      310E3D3C6C7931254264646D31486C42706831316C7D31484742702031310E3D
+      433D6C31484355314043473D0A31313131796C3C6C0E316670597E3C3D203131
+      31310E256C6C7731316C0E312C3D47430431772F3D0A3133424366484825643C
+      7E6C7C74316D225943425531543D59437D3131313131523131316D643B6D3131
+      316D514831313179514C316D51793131313131796D3131313C40313131796D31
+      3131313179794831317F6D316D15154831313131313131795148314879516D79
+      6D3131313131313151517931317F6D31316D51516D3151577F6D313131797931
+      316D51516D5148313131515151313131314851516D3131313131523131313140
+      0431313131313131313131313131313131313131313131313131313168043131
+      31313131313131313131313148660F3131313131313131313131313131313131
+      3131313131313131313131313131313131220E31313131313131316655313131
+      3131313131313131313131313131313131313131313131313131313131315231
+      3131313131313131313131313131313131313131313131313131313131313131
+      31313131313131313131313131313131315C46121212463F3131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131523131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131315F06020202061B31313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131523131313131310E40173C18183D6E3131313131310C2C666C3C
+      181818181805683131313131316D3768220D0516313131313108021F1F1F5235
+      313131313172070707070707070707070707070750732B363131313131313131
+      3131362B73212112081D31313131313131313123505050504B31313131313131
+      31313F08122E505050085231313131312C103E191919195D1731313131796671
+      3E4E191919191919195D0D31313131312C34282819190017313131313108021F
+      1F1F523531313131311152020202020202020202020202020202022776313131
+      313131313F501F02020202020202075C313131313131316A060202065F313131
+      313131314C120202020202020221523131313175287A78787878784E22313131
+      0E1A3E10787871717171717171281731313131773E7A71717171282231313131
+      3108021F1F1F5235313131313144021F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F
+      1F1D31313131310802021F1F1F1F1F1F1F1F02022331313131313107021F1F02
+      08313131313131313A521F1F1F1F1F1F1F5052313131310D4E7878787A7A7128
+      2231316D7C4E7878784E4E7A717171717128173131312C3E7171717119195D22
+      313131313108021F1F1F5269314C4C4C4C631F1F1F1F1F1F1F1F1F1F1F1F1F1F
+      1F1F1F1F52503131313138521F1F1F0202020202021F1F1F5212313131313107
+      021F1F0208313131313131361F1F1F1F1F0202020221523131316D457A78787A
+      3D370E0E5131313B3E7878787A2274140E0E0E0E0E0E15313115787A78787119
+      0D0A145A2A6A6A6A2A5F36363636365044111111113226262626262626262626
+      262626264A1F1F1F1F612631311B521F1F1F02443A08082363021F1F1F525F31
+      31313107021F1F02083131313131311B021F1F1F1F6A2B353532523131310E71
+      717171710C313131313115781078784E683131313131313131313131311C2878
+      78787A2C3131310106020202025F313131313150520202020236313131313131
+      31313131313131313144021F1F1F32312639021F1F1F584C31313131311B2702
+      1F1F1F3631313107021F1F020831313131313123021F1F1F1109313131315231
+      3131337A717171454831313131312C28787810344C3131313131313131313131
+      31057A78784E663131313135021F1F1F025F313131313150021F1F1F1F363131
+      3131313131313131313131314C5E021F1F0276315F521F1F1F4B313131313131
+      313132271F1F527331313107021F1F020831313131313112021F1F0272313131
+      313152313131601978787A7C4C3131313131662878781045166E6E6E6E6E6E6E
+      6E1C0431555B1078717A603131313135021F1F1F025F313131313150021F1F1F
+      1F36313131313131314C0909090909363A021F1F1F1F3F314F021F0272313131
+      3131313131313123021F1F1109313107021F1F02083131313131312E021F1F02
+      73313131313152313131601978787A054C313131313156197878787128282828
+      2828282828005631337A717171346D313131313552020202025F313131313121
+      06020202023631313131762E635E61616161611F1F1F1F1F1F114C26611F1F02
+      76313131313131313131311D1F1F1F1F1D313107021F1F02083131313131312E
+      021F1F023A313131313152313131601978787A054C3131313131181978787878
+      7878787878787878784E1731141978787A454831313131764444444444241551
+      515151464F4F4F4F4F413131313A0202021F1F1F1F1F1F1F1F1F1F1F521B311D
+      1F1F1F1F363131313131313131313126391F1F1F5C313107021F1F0208313131
+      3131312E021F1F023A313131313152313131601978787A054C31313131315619
+      787878787878787878787878784E1731337A717171346D313131313109090909
+      097D713434347A37313131313131313158521F1F1F1F1F020202020202020227
+      5831311D1F1F1F1F1D3131313131313131313126391F1F1F5C313107021F1F02
+      083131313131312E021F1F023A313131313152313131601978787A054C313131
+      3131224E787878784E28282828282828280056310C787171715B0C3131313131
+      3131313131133E1010105D74313131313131312939021F1F1F1F391163636363
+      6A50083631313126611F1F024B313131313131313131313F021F1F1F36313107
+      021F1F02083131313131312E021F1F023A313131313152313131601978787A05
+      4C313131313116287878101A2C2C2C2C2C2C2C2C2C7D1E316D1A7A7878197F31
+      313131313131313131134E78787828743131313131313176021F1F1F1F232631
+      31313131313131313131313107021F02213131313131313131313173021F1F44
+      4C313107021F1F02083131313131312E021F1F023A3131313131523131316019
+      78787A054C31313131317F197171713448313131313131313131313131561978
+      784E6631313131313131313131134E7878782874313131313131312B521F1F1F
+      6129313131313131313131313131313158521F1F024A31313131313131317602
+      021F522331313107021F1F02083131313131312E021F1F023A31313131315231
+      3131331978787A053131313131316D347A78784E133131313131313131313131
+      317D28787871710431313131313131313113001919190004313131313131312B
+      521F1F1F274131313131313131313131313131310911021F1F1F232631313131
+      295F1F1F1F1F612931313107021F1F022B3131313131312E021F1F5223313131
+      3131520E14602C7A78787A7C141414140C3131203E78787171660A1E60141414
+      14140E3131155B107878107A567D371E1E1E1E1E1E13566C6C6C182C75757575
+      756D315C021F1F1F1F211B1B1B1B1B1B4A4A4A4A4A3631313176021F1F1F0261
+      502323725E021F1F1F0258762B2B4A44021F1F1F504A4A4A2B1D312E021F1F1F
+      074A4A4A4A5C520D7A7A7A78787878787A7A7A5D1731317945197878784E4E7A
+      7A7A7A7A7A5D6C313131165D7171717119191919191919195D6E313131313166
+      007A7A7A4E1431295E021F1F1F0202020202020202020202062B313131315802
+      021F1F1F020202021F1F1F1F52384C395252521F1F1F1F1F020202020608312E
+      021F1F1F1F0202020221521771717878787878787171714E22313131335B2871
+      7878787871717171714E1731313131173E7A717878787878787878784E6E3131
+      31313166287171717A6031314A521F1F1F1F1F1F1F1F1F1F1F1F1F1F524A3131
+      3131316939521F1F1F1F1F1F1F1F020258310911021F1F1F1F1F1F1F1F1F1F1F
+      022B312E021F1F1F1F1F1F1F1F50520D19191978787878781919190017313131
+      310C0D10284E4E191919191919000D31313131317D1A4E4E4E19191919191919
+      001C3131313131662878787810603131315F0202020202020202020202020202
+      062B31313131313136733902020202020261721D313129615252521F1F1F1F1F
+      020202020608312E021F1F1F1F0202020221527D17173C107878714D1717170D
+      2C3131313131310E0A1C3B2217171717170D7D31313131313148757D77661717
+      171717170D0431313131316628787878106031313131364A3A72727272727272
+      72727272505C3131313131313131264B5F737338354131313131093A7272725E
+      1F1F1F1F4F1212122E5C312E021F1F1F631212121258523131310E1978787A05
+      3131313131313131313131313131313131313131313131313131313131313131
+      31313131313131313131313131313117003E3E3E5D7531313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      31313107021F1F52583131313131312E021F1F02233131313131523131316019
+      78787A054C313131313131313131313131313131313131313131313131313131
+      313131313131313131313131313131313131317F686E6E6E6E15313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313121021F1F02073131313131312E021F1F023A31313131315231
+      3131601978787A054C3131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313131313173021F1F1F1F4F3A233A32312E021F1F023A313131
+      313152313131601978787A054C31313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      31313131313131313131313131313169521F1F1F1F0202020608312E021F1F02
+      3A313131313152313131601978787A054C313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313131313131313131313131310963521F1F1F1F1F1F024A312E
+      021F1F023A313131313152313131601971717A054C3131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131314150611F1F1F1F1F
+      024A3150021F1F023A3131313131523131310C0D17176C774C31313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131315C38
+      72727272725C31082E2E2E2E1B3131313131520002C522000007004D656D6F31
+      32310002009900000048000000CA0000000A00000004000000F4010000000000
+      000000FFFFFF1F2C02000000000001001600464F4E453A205B464F4E4546494C
+      49414C424153455D00000000FFFF000000000002000000010000000009006865
+      6C7665746963610006000000000000000000100000000100020000000000FFFF
+      FF00000000020000000000000000026D23000007004D656D6F31323200020099
+      00000053000000CB0000000A00000000000000F4010000000000000000FFFFFF
+      1F2C020000000000010024005B52554146494C49414C424153455D202D205B42
+      414952524F46494C49414C424153455D00000000FFFF00000000000200000001
+      00000000090068656C7665746963610006000000000000000000100000000100
+      020000000000FFFFFF00000000020000000000000000022F24000007004D656D
+      6F313233000200990000005E000000CB0000000A00000000000000F401000000
+      0000000000FFFFFF1F2C02000000000001003E004345503A205B43455046494C
+      49414C424153455D202D205B43494441444546494C49414C424153455D202D20
+      5B45535441444F46494C49414C424153455D00000000FFFF0000000000020000
+      000100000000090068656C766574696361000600000000000000000010000000
+      0100020000000000FFFFFF0000000002000000000000000002C424000007004D
+      656D6F3132340002009900000034000000CB0000001400000003000000F40100
+      00000000000000FFFFFF1F2C020000000000010011005B52415A414F46494C49
+      414C424153455D00000000FFFF0000000000020000000100000006090068656C
+      7665746963610006000000000000000000100000000100020000000000FFFFFF
+      00000000020000000000000000025025000007004D656D6F3132350002008201
+      000036000000F3000000110000004300000001000000000000000000FFFFFF1F
+      2C020000000000010008005B544954554C4F5D00000000FFFF00000000000200
+      00000100000000090068656C766574696361000B000000020000000000020000
+      000100020000000000FFFFFF0000000002000000000000000002DF2500000700
+      4D656D6F313236000200820100004A000000F30000002500000043000000F401
+      0000000000000000FFFFFF1F2C02000000000001000B005B535542544954554C
+      4F5D00000000FFFF0000000000020000000100000000090068656C7665746963
+      610008000000000000000000000000000100020000000000FFFFFF0000000002
+      0000000000000000027626000007004D656D6F313237000200BC020000340000
+      00300000000F0000004300000001000000000000000000FFFFFF1F2C02000000
+      0000010013005B4441544520234464642F6D6D2F797979795D00000000FFFF00
+      00000000020000000100000006090068656C7665746963610007000000000000
+      000000010000000100020000000000FFFFFF0000000002000000000000000002
+      0E27000007004D656D6F313238000200C80200004C000000200000000F000000
+      4300000001000000000000000000FFFFFF1F2C020000000000010014005B5041
+      4745235D2F5B544F54414C50414745535D00000000FFFF000000000002000000
+      0100000000090068656C76657469636100070000000000000000000100000001
+      00020000000000FFFFFF0000000002000000000000000002A327000007004D65
+      6D6F3131390002001800000068010000780000000B0000004300000001000000
+      000000000000FFFFFF1F2C020000000000010011005B54494D4520235468683A
+      6D6D3A73735D00000000FFFF0000000000020000000100000006090068656C76
+      65746963610007000000000000000000000000000100020000000000FFFFFF00
+      000000020000000000000000024828000007004D656D6F313230000200240200
+      0068010000A40000000B0000004300000001000000000000000000FFFFFF1F2C
+      02000000000001002100746563534F4654202D205465636E6F6C6F6769612065
+      6D2053697374656D61732000000000FFFF000000000002000000010000000609
+      0068656C76657469636100070000000000000000000100000001000200000000
+      00FFFFFF0000000002000000000000000002EA28000007004D656D6F31333300
+      020060000000C1000000270100000C00000041000F0064000000000000000000
+      FFFFFF1F2C020000000000010022005B717279496D7072696D69724F70657261
+      636F65732E2264657363726963616F225D00000000FFFF000000000002000000
+      01000000000500417269616C00080000000000000000000A0000000100020000
+      000000FFFFFF00000000020000000000000000027329000007004D656D6F3133
+      3400020060000000B6000000270100000B00000043000F000100000000000000
+      0000FFFFFF1F2C02000000000001000900444553435249C7C34F00000000FFFF
+      00000000000200000001000000000500417269616C0006000000000000000000
+      0A0000000100020000000000FFFFFF0000000002000000000000000002102A00
+      0007004D656D6F31323900020000000000C1000000600000000C00000043000F
+      0064000000000000000000FFFFFF1F2C02000000000001001D005B717279496D
+      7072696D69724F70657261636F65732E226E6F6D65225D00000000FFFF000000
+      00000200000001000000000500417269616C00080000000000000000000A0000
+      000100020000000000FFFFFF0000000002000000000000000002982A00000700
+      4D656D6F31333000020000000000B6000000600000000B00000043000F00F401
+      0000000000000000FFFFFF1F2C020000000000010008004F50455241C7C34F00
+      000000FFFF00000000000200000001000000000500417269616C000600000000
+      00000000000A0000000100020000000000FFFFFF000000000200000000000000
+      FEFEFF0A0000000A002043617465676F727931000000000600544954554C4F00
+      0000000900535542544954554C4F000000000F0052415A414F46494C49414C42
+      415345000000000E00464F4E4546494C49414C42415345000000001000424149
+      52524F46494C49414C42415345000000000D0043455046494C49414C42415345
+      000000000D0052554146494C49414C4241534500000000100043494441444546
+      494C49414C4241534500000000100045535441444F46494C49414C4241534500
+      0000000000000000000000FC000000000000000000000000000000005800C55F
+      45397511E4406440CF3CCF49E440}
+  end
+  object frpOperacoesSemMaquinas: TfrReport
+    Dataset = fdsImprimirOperacoes
+    InitialZoom = pzDefault
+    PreviewButtons = [pbZoom, pbLoad, pbSave, pbPrint, pbFind, pbHelp, pbExit]
+    StoreInDFM = True
+    RebuildPrinter = False
+    OnBeforePrint = frpOperacoesSemMaquinasBeforePrint
+    Left = 376
+    Top = 336
+    ReportForm = {
+      190000000570000019FFFF00000A0050444643726561746F7200FFFFFFFFFF00
+      000000340800009A0B0000480000004800000024000000240000000000040000
+      FFFF0000000000000000000000000000030400466F726D00FEFFFFFFDC000000
+      780000007C0100002C01000004000000FFFFFFFFFF00000000340800009A0B00
+      0000000000000000000000000000000000000004000000000000000000000000
+      000000000000030400466F726D00FEFFFFFFDC000000780000007C0100002C01
+      000004000000FFFFFFFFFF00000000340800009A0B0000000000000000000000
+      0000000000000000000400000000000000000000000000000000000003040046
+      6F726D00FEFFFFFFDC000000780000007C0100002C01000004000000FFFFFFFF
+      FF00000000340800009A0B000000000000000000000000000000000000000004
+      000000000000000000000000000000000000030400466F726D00FEFFFFFFDC00
+      0000780000007C0100002C01000004000000FFFFFFFFFF00000000340800009A
+      0B00000000000000000000000000000000000000000400000000000000000000
+      0000000000000000030400466F726D00FEFFFFFFDC000000780000007C010000
+      2C010000040000000200400200000C004461646F734D65737472653100020100
+      00000094000000F5020000830000003200050001000000000000000000FFFFFF
+      1F000000001400666473496D7072696D69724F70657261636F65730000000000
+      0000FFFF000000000002000000010000000000000001000000C8000000140000
+      00010000000000000200B3020000130043616265E7616C686F44652050E16769
+      6E6131000201000000001C000000F50200004600000030000200010000000000
+      00000000FFFFFF1F00000000000000000000000000FFFF000000000002000000
+      010000000000000001000000C8000000140000000100000000000002001C0300
+      000900726470506167696E61000201000000005D010000F50200000C00000030
+      00030001000000000000000000FFFFFF1F00000000000000000000000000FFFF
+      000000000002000000010000000000000001000000C800000014000000010000
+      000000000300760300000A005375625265706F72743300020000000000FB0000
+      00700200001A00000001000F0001000000000000000000FFFFFF1F2C02000000
+      00000100000000000000FFFF0000000000020000000100000000010000000000
+      1104000005004D656D6F3100020000000000A1000000600000000C0000004300
+      000001000000000000000000FFFFFF1F2C02000000000001001D005B71727949
+      6D7072696D69724F70657261636F65732E226E6F6D65225D00000000FFFF0000
+      0000000200000001000000000500417269616C00080000000200000000000A00
+      00000100020000000000FFFFFF0000000002000000000000000000AB04000005
+      004D656D6F3800020061000000A10000001A0000000C00000043000000010000
+      00000000000000FFFFFF1F2C02000000000001001C005B717279496D7072696D
+      69724F70657261636F65732E22633031225D00000000FFFF0000000000020000
+      0001000000000500417269616C00080000000000000000000A00000001000200
+      00000000FFFFFF00000000020000000000000000004505000005004D656D6F39
+      0002007C000000A10000001A0000000C00000043000000010000000000000000
+      00FFFFFF1F2C02000000000001001C005B717279496D7072696D69724F706572
+      61636F65732E22633032225D00000000FFFF0000000000020000000100000000
+      0500417269616C00080000000000000000000A0000000100020000000000FFFF
+      FF0000000002000000000000000000E005000006004D656D6F31300002009700
+      0000A10000001A0000000C0000004300000001000000000000000000FFFFFF1F
+      2C02000000000001001C005B717279496D7072696D69724F70657261636F6573
+      2E22633033225D00000000FFFF00000000000200000001000000000500417269
+      616C00080000000000000000000A0000000100020000000000FFFFFF00000000
+      020000000000000000006706000006004D656D6F313100020000000000950000
+      00600000000B00000043000F00F4010000000000000000FFFFFF1F2C02000000
+      0000010008004F50455241C7C34F00000000FFFF000000000002000000010000
+      00000500417269616C00060000000000000000000A0000000100020000000000
+      FFFFFF0000000002000000000000000000E806000006004D656D6F3132000200
+      60000000950000001B0000000B00000043000F00F4010000000000000000FFFF
+      FF1F2C02000000000001000200433100000000FFFF0000000000020000000100
+      0000000500417269616C00060000000000000000000A00000001000200000000
+      00FFFFFF00000000020000000000000000006907000006004D656D6F31330002
+      0096000000950000001B0000000B00000043000F00F4010000000000000000FF
+      FFFF1F2C02000000000001000200433300000000FFFF00000000000200000001
+      000000000500417269616C00060000000000000000000A000000010002000000
+      0000FFFFFF0000000002000000000000000000EA07000006004D656D6F313400
+      02007B000000950000001B0000000B00000043000F00F4010000000000000000
+      FFFFFF1F2C02000000000001000200433200000000FFFF000000000002000000
+      01000000000500417269616C00060000000000000000000A0000000100020000
+      000000FFFFFF00000000020000000000000000008B08000006004D656D6F3135
+      00020061000000D30000007A0000000C00000043000000010000000000000000
+      00FFFFFF1F2C020000000000010022005B717279496D7072696D69724F706572
+      61636F65732E2264657363725F633031225D00000000FFFF0000000000020000
+      0001000000000500417269616C00080000000000000000000800000001000200
+      00000000FFFFFF00000000020000000000000000002C09000006004D656D6F31
+      360002007C000000C20000007A0000000C000000430000000100000000000000
+      0000FFFFFF1F2C020000000000010022005B717279496D7072696D69724F7065
+      7261636F65732E2264657363725F633032225D00000000FFFF00000000000200
+      000001000000000500417269616C000800000000000000000008000000010002
+      0000000000FFFFFF0000000002000000000000000000CD09000006004D656D6F
+      313700020097000000B10000007A0000000C0000004300000001000000000000
+      000000FFFFFF1F2C020000000000010022005B717279496D7072696D69724F70
+      657261636F65732E2264657363725F633033225D00000000FFFF000000000002
+      00000001000000000500417269616C0008000000000000000000080000000100
+      020000000000FFFFFF00000000020000000000000004001C0A000005004C696E
+      65310002006000000098000000000000004800000001000400F4010000000000
+      000000FFFFFF002C020000000000000000000000FFFF00000000000200000001
+      0000000004006B0A000005004C696E65320002007B0000009A00000000000000
+      3400000001000400F4010000000000000000FFFFFF002C020000000000000000
+      000000FFFF000000000002000000010000000000000E0B000006004D656D6F31
+      380002003F010000E2000000540000000D00000043000F006400000000000000
+      0000FFFFFF1F2C020000000000010024005B717279496D7072696D69724F7065
+      7261636F65732E2274656D706F70616472616F225D00000000FFFF0000000000
+      0200000001000000000500417269616C00070000000000000000000A00000001
+      00020000000000FFFFFF0000000002000000000000000000990B000006004D65
+      6D6F31390002003F010000CD000000A90000000B00000043000F00F401000000
+      0000000000FFFFFF1F2C02000000000001000C0054454D504F2050414452C34F
+      00000000FFFF00000000000200000001000000000500417269616C0006000000
+      0000000000000A0000000100020000000000FFFFFF0000000002000000000000
+      000000340C000006004D656D6F3230000200B2000000A1000000240000000C00
+      00004300000001000000000000000000FFFFFF1F2C02000000000001001C005B
+      717279496D7072696D69724F70657261636F65732E2270706D225D00000000FF
+      FF00000000000200000001000000000500417269616C00080000000000000000
+      000A0000000100020000000000FFFFFF0000000002000000000000000000B60C
+      000006004D656D6F3231000200B100000095000000250000000B00000043000F
+      00F4010000000000000000FFFFFF1F2C0200000000000100030050504D000000
+      00FFFF00000000000200000001000000000500417269616C0006000000000000
+      0000000A0000000100020000000000FFFFFF0000000002000000000000000400
+      050D000005004C696E653300020061000000E00000005A000000000000000100
+      080064000000000000000000FFFFFF002C020000000000000000000000FFFF00
+      000000000200000001000000000400540D000005004C696E65340002007B0000
+      00CE00000058000000000000000100080064000000000000000000FFFFFF002C
+      020000000000000000000000FFFF00000000000200000001000000000400A30D
+      000005004C696E6537000200960000009B000000000000002200000001000400
+      F4010000000000000000FFFFFF002C020000000000000000000000FFFF000000
+      00000200000001000000000400F20D000005004C696E653800020096000000BD
+      00000054000000000000000100080064000000000000000000FFFFFF002C0200
+      00000000000000000000FFFF00000000000200000001000000000000960E0000
+      06004D656D6F3330000200D7000000A10000004F0000000C0000004300000001
+      000000000000000000FFFFFF1F2C020000000000010025005B717279496D7072
+      696D69724F70657261636F65732E226E726F70657261646F726573225D000000
+      00FFFF00000000000200000001000000000500417269616C0008000000000000
+      0000000A0000000100020000000000FFFFFF0000000002000000000000000000
+      220F000006004D656D6F3332000200D600000095000000500000000B00000043
+      000F00F4010000000000000000FFFFFF1F2C02000000000001000D004EBA204F
+      50455241444F52455300000000FFFF0000000000020000000100000000050041
+      7269616C00060000000000000000000A0000000100020000000000FFFFFF0000
+      000002000000000000000000EE0F000006004D656D6F393100020093010000E2
+      000000550000000D00000043000F0064000000000000000000FFFFFF1F2C0204
+      010A002323232C2323232E303000010043005B464F524D4154464C4F41542827
+      232323232E2323272C20363030302F5B717279496D7072696D69724F70657261
+      636F65732E2274656D706F70616472616F225D295D00000000FFFF0000000000
+      0200000001000000000500417269616C00070000000000000000000A00000001
+      00020000000000FFFFFF00000000020000000000000000007910000006004D65
+      6D6F39320002003F010000D8000000540000000A00000043000F00F401000000
+      0000000000FFFFFF1F2C02000000000001000C006D696E2F3130307065E76173
+      00000000FFFF00000000000200000001000000000500417269616C0006000000
+      0000000000000A0000000100020000000000FFFFFF0000000002000000000000
+      0000000111000006004D656D6F393300020093010000D8000000550000000A00
+      000043000F00F4010000000000000000FFFFFF1F2C0200000000000100090070
+      65E7612F686F726100000000FFFF000000000002000000010000000005004172
+      69616C00060000000000000000000A0000000100020000000000FFFFFF000000
+      0002000000000000000000EA11000006004D656D6F3934000200DA010000A200
+      00000A0000000900000043000F0064000000000000000000FFFFFF1F2C020000
+      00000000000006000500626567696E0D310020206966205B717279496D707269
+      6D69724F70657261636F65732E227365747570225D203D205472756520746865
+      6E20200D0F0020206D656D6F203A3D2027582720200D0600656C736520200D0D
+      0020206D656D6F203A3D2027273B0D0300656E6400FFFF000000000002000000
+      01000000000500417269616C00070000000000000000000A0000000100020000
+      000000FFFFFF0000000002000000000000000000E012000006004D656D6F3935
+      000200DA010000AE0000000A0000000900000043000F00640000000000000000
+      00FFFFFF1F2C020000000000010000000006000500626567696E0D3A00202069
+      66205B717279496D7072696D69724F70657261636F65732E22706C616E6F636F
+      6E74726F6C65225D203D2054727565207468656E2020200D100020206D656D6F
+      203A3D202758272020200D0700656C73652020200D0D0020206D656D6F203A3D
+      2027273B0D0300656E6400FFFF00000000000200000001000000000500417269
+      616C00070000000000000000000A0000000100020000000000FFFFFF00000000
+      02000000000000000000DD13000006004D656D6F3936000200DA010000BA0000
+      000A0000000900000043000F0064000000000000000000FFFFFF1F2C02000000
+      000000000006000500626567696E0D41002020206966205B717279496D707269
+      6D69724F70657261636F65732E226E616F626C6F71756569617573756172696F
+      225D203D2054727565207468656E202020200D110020206D656D6F203A3D2027
+      5827202020200D0800656C7365202020200D0D0020206D656D6F203A3D202727
+      3B0D0300656E6400FFFF00000000000200000001000000000500417269616C00
+      070000000000000000000A0000000100020000000000FFFFFF00000000020000
+      000000000000006614000006004D656D6F39370002003F01000095000000A900
+      00000B00000043000F00F4010000000000000000FFFFFF1F2C02000000000001
+      000A0052455155495349544F5300000000FFFF00000000000200000001000000
+      000500417269616C00060000000000000000000A0000000100020000000000FF
+      FFFF0000000002000000000000000000F514000006004D656D6F39380002003F
+      010000A0000000950000000D0000004300040064000000000000000000FFFFFF
+      1F2C020000000000010010004E4543455353495441205345542D555000000000
+      FFFF00000000000200000001000000000500417269616C000600000000000000
+      0000080000000100020000000000FFFFFF00000000020000000000000000008C
+      15000006004D656D6F39390002003F010000AC000000950000000D0000004300
+      040064000000000000000000FFFFFF1F2C020000000000010018004E45434553
+      5349544120504C414E4F20434F4E54524F4C4500000000FFFF00000000000200
+      000001000000000500417269616C000600000000000000000008000000010002
+      0000000000FFFFFF00000000020000000000000000002016000007004D656D6F
+      3130300002003F010000B9000000950000000D00000043000400640000000000
+      00000000FFFFFF1F2C020000000000010014004EC34F20424C4F515545494120
+      555355C152494F00000000FFFF00000000000200000001000000000500417269
+      616C0006000000000000000000080000000100020000000000FFFFFF00000000
+      020000000000000004006F16000005004C696E6539000200E8010000A0000000
+      00000000260000000100040064000000000000000000FFFFFF002C0200000000
+      00000000000000FFFF00000000000200000001000000000400BF16000006004C
+      696E6531300002003F010000C6000000A9000000000000000100080064000000
+      000000000000FFFFFF002C020000000000000000000000FFFF00000000000200
+      0000010000000000006717000007004D656D6F3130310002003C020000AA0000
+      004C0000000B00000043000F0064000000000000000000FFFFFF1F2C02000000
+      0000010028005B717279496D7072696D69724F70657261636F65732E22757375
+      6172696F696E636C7573616F225D00000000FFFF000000000002000000010000
+      00000500417269616C00050000000000000000000A0000000100020000000000
+      FFFFFF00000000020000000000000000005218000007004D656D6F3130320002
+      003C020000B50000004C0000000B00000043000F0064000000000000000000FF
+      FFFF1F2C00020300000001006B005B636F7079286966285B717279496D707269
+      6D69724F70657261636F65732E2264617461686F7261696E636C7573616F225D
+      3C3E27272C5B717279496D7072696D69724F70657261636F65732E2264617461
+      686F7261696E636C7573616F225D2C2727292C312C3136295D00000000FFFF00
+      000000000200000001000000000500417269616C00050000000000000000000A
+      0000000100020000000000FFFFFF00000000020000000000000000003F190000
+      07004D656D6F313033000200C2020000B50000004C0000000B00000043000F00
+      64000000000000000000FFFFFF1F2C02000000000001006D005B636F70792869
+      66285B717279496D7072696D69724F70657261636F65732E2264617461686F72
+      61616C7465726163616F225D3C3E27272C5B717279496D7072696D69724F7065
+      7261636F65732E2264617461686F7261616C7465726163616F225D2C2727292C
+      312C3136295D00000000FFFF0000000000020000000100000000050041726961
+      6C00050000000000000000000A0000000100020000000000FFFFFF0000000002
+      000000000000000000E819000007004D656D6F313034000200C2020000AA0000
+      004C0000000B00000043000F0064000000000000000000FFFFFF1F2C02000000
+      0000010029005B717279496D7072696D69724F70657261636F65732E22757375
+      6172696F616C7465726163616F225D00000000FFFF0000000000020000000100
+      0000000500417269616C00050000000000000000000A00000001000200000000
+      00FFFFFF0000000002000000000000000000791A000007004D656D6F31303500
+      020002020000950000000C0100000B00000043000F00F4010000000000000000
+      FFFFFF1F2C020000000000010011004C4F4720444153204F50455241C7D54553
+      00000000FFFF00000000000200000001000000000500417269616C0006000000
+      0000000000000A0000000100020000000000FFFFFF0000000002000000000000
+      0000001A1B000007004D656D6F313036000200C2020000C00000004C0000000B
+      00000041000F0064000000000000000000FFFFFF1F2C02000000000001002100
+      5B717279496D7072696D69724F70657261636F65732E226F7065726163616F22
+      5D00000000FFFF00000000000200000001000000000500417269616C00050000
+      000000000000000A0000000100020000000000FFFFFF00000000020000000000
+      00000000C11B000007004D656D6F313037000200C2020000CB0000004C000000
+      0B00000043000F0064000000000000000000FFFFFF1F2C020000000000010027
+      005B5452494D285B717279496D7072696D69724F70657261636F65732E227461
+      62656C61225D295D00000000FFFF000000000002000000010000000005004172
+      69616C00050000000000000000000A0000000100020000000000FFFFFF000000
+      0002000000000000000000491C000007004D656D6F31303800020002020000A0
+      000000860000000A00000043000F00F4010000000000000000FFFFFF1F2C0002
+      0300000001000800494E434C5553C34F00000000FFFF00000000000200000001
+      000000000500417269616C00060000000000000000000A000000010002000000
+      0000FFFFFF0000000002000000000000000000D01C000007004D656D6F313039
+      00020002020000AA0000003A0000000B00000043000F00640000000000000000
+      00FFFFFF1F2C00020300000001000700555355C152494F00000000FFFF000000
+      00000200000001000000000500417269616C0006000000000000000000080000
+      000100020000000000FFFFFF0000000002000000000000000000591D00000700
+      4D656D6F31313000020002020000B50000003A0000000B00000043000F006400
+      0000000000000000FFFFFF1F2C00020300000001000900444154412F484F5241
+      00000000FFFF00000000000200000001000000000500417269616C0006000000
+      000000000000080000000100020000000000FFFFFF0000000002000000000000
+      000000E21D000007004D656D6F31313100020088020000A0000000860000000A
+      00000043000F00F4010000000000000000FFFFFF1F2C00020300000001000900
+      414C54455241C7C34F00000000FFFF0000000000020000000100000000050041
+      7269616C00060000000000000000000A0000000100020000000000FFFFFF0000
+      000002000000000000000000691E000007004D656D6F31313200020088020000
+      AA0000003A0000000B00000043000F0064000000000000000000FFFFFF1F2C00
+      020300000001000700555355C152494F00000000FFFF00000000000200000001
+      000000000500417269616C000600000000000000000008000000010002000000
+      0000FFFFFF0000000002000000000000000000F21E000007004D656D6F313133
+      00020088020000B50000003A0000000B00000043000F00640000000000000000
+      00FFFFFF1F2C00020300000001000900444154412F484F524100000000FFFF00
+      000000000200000001000000000500417269616C000600000000000000000008
+      0000000100020000000000FFFFFF00000000020000000000000000007A1F0000
+      07004D656D6F31313400020088020000C00000003A0000000B00000043000F00
+      64000000000000000000FFFFFF1F2C000203000000010008004F50455241C7C3
+      4F00000000FFFF00000000000200000001000000000500417269616C00060000
+      00000000000000080000000100020000000000FFFFFF00000000020000000000
+      000000000020000007004D656D6F31313500020088020000CB0000003A000000
+      0B00000043000F0064000000000000000000FFFFFF1F2C000203000000010006
+      00544142454C4100000000FFFF00000000000200000001000000000500417269
+      616C0006000000000000000000080000000100020000000000FFFFFF00000000
+      020000000000000001002538000007006670764C6F676F000200000000001C00
+      0000900000002D0000000500000001000000000000000000FFFFFF1F2C020000
+      000000000000000000FFFF000000000002000000010000000601002538000042
+      4DCE170000000000003604000028000000830000002600000001000800000000
+      0098130000120B0000120B0000000100000001000000000000E8E5A800AA9E00
+      0099990000ADADAD003A3C4100A3970000BFB73700D8D48600FBFAF000A5A5A5
+      001E1D1C00D8D9DA0054575A00D6D6D500E7E8F20012161B00B6AD1900CBC55B
+      008C8D9200BEC0C500E1E2E40085878A005E606300494C4F00090D12002C2E33
+      00DEDB98007D7F8100EFEDCB00B9BABB00AEA400007C7B7B00C5BE4400666666
+      00D1CC6F00CDC9810048484600F7F6E600AFA5080004080D00F9F8ED00B8AF27
+      00DBD68C00999999001B1A1900C6BF5100131312003B3A3A00FFFFFF00EAE8BE
+      00CCCCCC0023262A00E2DEA400F1EFD600B0B1B300D3CD7500B1A81000CCCC66
+      0072727200535252004342420001060A00ECE9C3008C8C8B00F5F4DF004A4A4A
+      0057575600B6AC1F00282B3000C7C05C0061615F00F7F7F70088888700DDD893
+      00E3E0A600FDFCF70021242900070A1000BDB53100C5BE4A00E3E3E200A69C00
+      0099999900BABAB900DEDEDE00525458002A292800D9D58A005F5E5D00C7C595
+      001B1E2300E8E5B60000000700B5AB1300D5D07B00C6C6C500B2A80B00212020
+      00B9B12400504F4E00666666006B6D7000B5B5BD0084848400E0DC9E00BCB42C
+      00F7EFD6005B5B5A00EFEFEF0087898B00DEDEE6003E3D3C0014181E00C8C253
+      00CCC55F00A8A9AC00BDBDBC00E5E1AC0075767900181B2000E6E6E6000E1117
+      000810190033333300929191002D2C2B00B5B5B4000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000003131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      543D42470E313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313131313131313131313131313131313131523131313131486D
+      3131316D6D4C3131316D6D313131313131313131316D4831313131313131316D
+      6D3131316D040A6C6C313131313131486D6D4C3131313131316D6D4C31313131
+      3131313131313131486D6D6D313131313131486D6D48313131316D483131316D
+      6D3131313131313131313131316D6D6D3131486D6D6D31313131313152313131
+      317F7E6631554225256031603D42647931420C313B7D316D6C3D70403131662C
+      316D593D7068313133646C702531484255312C70643059313131310C2525420E
+      31477431420E4825793131315442433D474C4C640E3120423C300A3131207E2C
+      317F70254748484251512531603C316D59253C620A312C254330683131313131
+      52313131316C2031315959313131317C7D4C4C31487C0E3159683177424C5134
+      7531434031203D487957543130494C7F3D31487C0C310B37317F70313131313C
+      6631313131642C317C33487E51313131313179602F55317C3331316D793B7031
+      487E14314857043131316D7C55557E311E3031542D4C314340313148790A0B4C
+      313131315231313131477D313125306C64334C5779313131487C0E3122493142
+      2C31314340316C7D313C7D3131594931570C31543D31487C0C31687059302531
+      31313170706C3C0E313C0A313033317C513131310C702570474C4C3033312C7C
+      64300A3148300E31796243432248483051517C31603D316D6464590B2C31547C
+      42301C313131313152313131314749313166420C5548313D2C484831487C0E48
+      302C311C4248516275316C7D31493D4879627F31256848373031487C0E313155
+      0E207031313131473C0C554831642C4C7E330C62793131316830796D3131487C
+      3331577D6D6D313148303331487C49555131487C0C0C7E4C2C703131480C0E7C
+      2C313C476D6D31313131313152313131040B7E20316D473C6C33310E3D3C6C79
+      31254264646D31486C42706831316C7D31484742702031310E3D433D6C314843
+      55314043473D0A31313131796C3C6C0E316670597E3C3D20313131310E256C6C
+      7731316C0E312C3D47430431772F3D0A3133424366484825643C7E6C7C74316D
+      225943425531543D59437D3131313131523131316D643B6D3131316D51483131
+      3179514C316D51793131313131796D3131313C40313131796D31313131317979
+      4831317F6D316D15154831313131313131795148314879516D796D3131313131
+      313151517931317F6D31316D51516D3151577F6D313131797931316D51516D51
+      48313131515151313131314851516D3131313131523131313140043131313131
+      3131313131313131313131313131313131313131313168043131313131313131
+      31313131313148660F3131313131313131313131313131313131313131313131
+      3131313131313131313131220E31313131313131316655313131313131313131
+      3131313131313131313131313131313131313131313131315231313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      31313131313131313131315C46121212463F3131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313152313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131315F06020202061B31313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      523131313131310E40173C18183D6E3131313131310C2C666C3C181818181805
+      683131313131316D3768220D0516313131313108021F1F1F5235313131313172
+      070707070707070707070707070750732B3631313131313131313131362B7321
+      2112081D31313131313131313123505050504B3131313131313131313F08122E
+      505050085231313131312C103E191919195D17313131317966713E4E19191919
+      1919195D0D31313131312C34282819190017313131313108021F1F1F52353131
+      3131311152020202020202020202020202020202022776313131313131313F50
+      1F02020202020202075C313131313131316A060202065F313131313131314C12
+      0202020202020221523131313175287A78787878784E223131310E1A3E107878
+      71717171717171281731313131773E7A717171712822313131313108021F1F1F
+      5235313131313144021F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1D31313131
+      310802021F1F1F1F1F1F1F1F02022331313131313107021F1F02083131313131
+      31313A521F1F1F1F1F1F1F5052313131310D4E7878787A7A71282231316D7C4E
+      7878784E4E7A717171717128173131312C3E7171717119195D22313131313108
+      021F1F1F5269314C4C4C4C631F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F5250
+      3131313138521F1F1F0202020202021F1F1F5212313131313107021F1F020831
+      3131313131361F1F1F1F1F0202020221523131316D457A78787A3D370E0E5131
+      313B3E7878787A2274140E0E0E0E0E0E15313115787A787871190D0A145A2A6A
+      6A6A2A5F36363636365044111111113226262626262626262626262626264A1F
+      1F1F1F612631311B521F1F1F02443A08082363021F1F1F525F3131313107021F
+      1F02083131313131311B021F1F1F1F6A2B353532523131310E71717171710C31
+      3131313115781078784E683131313131313131313131311C287878787A2C3131
+      310106020202025F313131313150520202020236313131313131313131313131
+      31313144021F1F1F32312639021F1F1F584C31313131311B27021F1F1F363131
+      3107021F1F020831313131313123021F1F1F11093131313152313131337A7171
+      71454831313131312C28787810344C313131313131313131313131057A78784E
+      663131313135021F1F1F025F313131313150021F1F1F1F363131313131313131
+      3131313131314C5E021F1F0276315F521F1F1F4B313131313131313132271F1F
+      527331313107021F1F020831313131313112021F1F0272313131313152313131
+      601978787A7C4C3131313131662878781045166E6E6E6E6E6E6E6E1C0431555B
+      1078717A603131313135021F1F1F025F313131313150021F1F1F1F3631313131
+      3131314C0909090909363A021F1F1F1F3F314F021F0272313131313131313131
+      3123021F1F1109313107021F1F02083131313131312E021F1F02733131313131
+      52313131601978787A054C313131313156197878787128282828282828282800
+      5631337A717171346D313131313552020202025F313131313121060202020236
+      31313131762E635E61616161611F1F1F1F1F1F114C26611F1F02763131313131
+      31313131311D1F1F1F1F1D313107021F1F02083131313131312E021F1F023A31
+      3131313152313131601978787A054C3131313131181978787878787878787878
+      7878784E1731141978787A454831313131764444444444241551515151464F4F
+      4F4F4F413131313A0202021F1F1F1F1F1F1F1F1F1F1F521B311D1F1F1F1F3631
+      31313131313131313126391F1F1F5C313107021F1F02083131313131312E021F
+      1F023A313131313152313131601978787A054C31313131315619787878787878
+      787878787878784E1731337A717171346D313131313109090909097D71343434
+      7A37313131313131313158521F1F1F1F1F0202020202020202275831311D1F1F
+      1F1F1D3131313131313131313126391F1F1F5C313107021F1F02083131313131
+      312E021F1F023A313131313152313131601978787A054C3131313131224E7878
+      78784E28282828282828280056310C787171715B0C3131313131313131313113
+      3E1010105D74313131313131312939021F1F1F1F3911636363636A5008363131
+      3126611F1F024B313131313131313131313F021F1F1F36313107021F1F020831
+      31313131312E021F1F023A313131313152313131601978787A054C3131313131
+      16287878101A2C2C2C2C2C2C2C2C2C7D1E316D1A7A7878197F31313131313131
+      313131134E78787828743131313131313176021F1F1F1F232631313131313131
+      31313131313107021F02213131313131313131313173021F1F444C313107021F
+      1F02083131313131312E021F1F023A313131313152313131601978787A054C31
+      313131317F197171713448313131313131313131313131561978784E66313131
+      31313131313131134E7878782874313131313131312B521F1F1F612931313131
+      3131313131313131313158521F1F024A31313131313131317602021F52233131
+      3107021F1F02083131313131312E021F1F023A31313131315231313133197878
+      7A053131313131316D347A78784E133131313131313131313131317D28787871
+      710431313131313131313113001919190004313131313131312B521F1F1F2741
+      31313131313131313131313131310911021F1F1F232631313131295F1F1F1F1F
+      612931313107021F1F022B3131313131312E021F1F52233131313131520E1460
+      2C7A78787A7C141414140C3131203E78787171660A1E6014141414140E313115
+      5B107878107A567D371E1E1E1E1E1E13566C6C6C182C75757575756D315C021F
+      1F1F1F211B1B1B1B1B1B4A4A4A4A4A3631313176021F1F1F0261502323725E02
+      1F1F1F0258762B2B4A44021F1F1F504A4A4A2B1D312E021F1F1F074A4A4A4A5C
+      520D7A7A7A78787878787A7A7A5D1731317945197878784E4E7A7A7A7A7A7A5D
+      6C313131165D7171717119191919191919195D6E313131313166007A7A7A4E14
+      31295E021F1F1F0202020202020202020202062B313131315802021F1F1F0202
+      02021F1F1F1F52384C395252521F1F1F1F1F020202020608312E021F1F1F1F02
+      02020221521771717878787878787171714E22313131335B2871787878787171
+      7171714E1731313131173E7A717878787878787878784E6E3131313131662871
+      71717A6031314A521F1F1F1F1F1F1F1F1F1F1F1F1F1F524A3131313131693952
+      1F1F1F1F1F1F1F1F020258310911021F1F1F1F1F1F1F1F1F1F1F022B312E021F
+      1F1F1F1F1F1F1F50520D19191978787878781919190017313131310C0D10284E
+      4E191919191919000D31313131317D1A4E4E4E19191919191919001C31313131
+      31662878787810603131315F0202020202020202020202020202062B31313131
+      313136733902020202020261721D313129615252521F1F1F1F1F020202020608
+      312E021F1F1F1F0202020221527D17173C107878714D1717170D2C3131313131
+      310E0A1C3B2217171717170D7D31313131313148757D77661717171717170D04
+      31313131316628787878106031313131364A3A7272727272727272727272505C
+      3131313131313131264B5F737338354131313131093A7272725E1F1F1F1F4F12
+      12122E5C312E021F1F1F631212121258523131310E1978787A05313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      31313131313131313117003E3E3E5D7531313131313131313131313131313131
+      313131313131313131313131313131313131313131313131313131313107021F
+      1F52583131313131312E021F1F0223313131313152313131601978787A054C31
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313131313131317F686E6E6E6E15313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3121021F1F02073131313131312E021F1F023A31313131315231313160197878
+      7A054C3131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313173021F1F1F1F4F3A233A32312E021F1F023A313131313152313131
+      601978787A054C31313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      31313131313131313169521F1F1F1F0202020608312E021F1F023A3131313131
+      52313131601978787A054C313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313131313131310963521F1F1F1F1F1F024A312E021F1F023A31
+      3131313152313131601971717A054C3131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131314150611F1F1F1F1F024A3150021F
+      1F023A3131313131523131310C0D17176C774C31313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131315C3872727272725C
+      31082E2E2E2E1B3131313131520000B038000006004D656D6F39300002006601
+      00001F0000004F010000110000004300000001000000000000000000FFFFFF1F
+      2C020000000000010008005B544954554C4F5D00000000FFFF00000000000200
+      00000100000000090068656C766574696361000B000000020000000000020000
+      000100020000000000FFFFFF0000000002000000000000000000473900000700
+      4D656D6F313136000200C10200001C000000300000000F000000430000000100
+      0000000000000000FFFFFF1F2C020000000000010013005B4441544520234464
+      642F6D6D2F797979795D00000000FFFF00000000000200000001000000060900
+      68656C7665746963610007000000000000000000010000000100020000000000
+      FFFFFF0000000002000000000000000000DF39000007004D656D6F3131370002
+      00CD02000037000000200000000F0000004300000001000000000000000000FF
+      FFFF1F2C020000000000010014005B50414745235D2F5B544F54414C50414745
+      535D00000000FFFF0000000000020000000100000000090068656C7665746963
+      610007000000000000000000010000000100020000000000FFFFFF0000000002
+      0000000000000000006E3A000007004D656D6F31313800020072010000330000
+      003B0100002D00000043000000F4010000000000000000FFFFFF1F2C02000000
+      000001000B005B535542544954554C4F5D00000000FFFF000000000002000000
+      0100000000090068656C76657469636100070000000000000000000000000001
+      00020000000000FFFFFF0000000002000000000000000000143B000013006D6D
+      6F464F4E4546494C49414C424153455F520002009900000033000000CA000000
+      0A00000004000000F4010000000000000000FFFFFF1F2C020000000000010016
+      00464F4E453A205B464F4E4546494C49414C424153455D00000000FFFF000000
+      0000020000000100000000090068656C76657469636100060000000000000000
+      00100000000100020000000000FFFFFF0000000002000000000000000000C93B
+      000014006D6D6F454E44455245434F5F42414952524F5F52000200990000003D
+      000000CB0000000A00000000000000F4010000000000000000FFFFFF1F2C0200
+      00000000010024005B52554146494C49414C424153455D202D205B4241495252
+      4F46494C49414C424153455D00000000FFFF0000000000020000000100000000
+      090068656C766574696361000600000000000000000010000000010002000000
+      0000FFFFFF0000000002000000000000000000963C000012006D6D6F4345505F
+      4349444144455F55465F520002009900000047000000CB0000000A0000000000
+      0000F4010000000000000000FFFFFF1F2C02000000000001003E004345503A20
+      5B43455046494C49414C424153455D202D205B43494441444546494C49414C42
+      4153455D202D205B45535441444F46494C49414C424153455D00000000FFFF00
+      00000000020000000100000000090068656C7665746963610006000000000000
+      000000100000000100020000000000FFFFFF0000000002000000000000000000
+      2C3D000008006D6D6F52415A414F000200990000001F000000CB000000140000
+      0003000000F4010000000000000000FFFFFF1F2C020000000000010011005B52
+      415A414F46494C49414C424153455D00000000FFFF0000000000020000000100
+      000000090068656C766574696361000600000000000000000010000000010002
+      0000000000FFFFFF0000000002000000000000000000C13D000007004D656D6F
+      313139000200020000005D010000780000000B00000043000000010000000000
+      00000000FFFFFF1F2C020000000000010011005B54494D4520235468683A6D6D
+      3A73735D00000000FFFF0000000000020000000100000006090068656C766574
+      6963610007000000000000000000000000000100020000000000FFFFFF000000
+      0002000000000000000000663E000007004D656D6F3132300002004F0200005D
+      010000A40000000B0000004300000001000000000000000000FFFFFF1F2C0200
+      0000000001002100746563534F4654202D205465636E6F6C6F67696120656D20
+      53697374656D61732000000000FFFF0000000000020000000100000006090068
+      656C7665746963610007000000000000000000010000000100020000000000FF
+      FFFF0000000002000000000000000000083F000007004D656D6F313333000200
+      00000000ED000000270100000B0000004100000001000000000000000000FFFF
+      FF1F2C020000000000010022005B717279496D7072696D69724F70657261636F
+      65732E2264657363726963616F225D00000000FFFF0000000000020000000100
+      0000000500417269616C00080000000000000000000A00000001000200000000
+      00FFFFFF0000000002000000000000000000913F000007004D656D6F31333400
+      020000000000E2000000270100000B00000043000F0001000000000000000000
+      FFFFFF1F2C02000000000001000900444553435249C7C34F00000000FFFF0000
+      0000000200000001000000000500417269616C00060000000000000000000A00
+      00000100020000000000FFFFFF00000000020000000000000002010E4000000C
+      004461646F734D6573747265340002010000000070000000F502000008000000
+      3100050001000000000000000000FFFFFF1F0000000011006664734F70657261
+      636F6573536574757000000000000000FFFF0000000000020000000100000000
+      00000001000000C8000000140000000100000000000002017E40000010004361
+      6265E7616C686F4D6573747265330002010000000037000000F50200001A0000
+      003000040001000000000000000000FFFFFF1F00000000000000000000000000
+      FFFF000000000002000000010000000000000001000000C80000001400000001
+      0000000000000201EB4000000D00526F646170E94D6573747265330002010000
+      0000A4000000F5020000A60000003000060001000000000000000000FFFFFF1F
+      00000000000000000000000000FFFF0000000000020000000100000000000000
+      01000000C800000014000000010000000000000001704100000A006D6D6F5A65
+      627261646F000200000000007000000010030000080000004300000001000000
+      000000000000FFFFFF1F2C0200000000000100000000000000FFFF0000000000
+      0200000001000000000700436F75726965720008000000000000000000100000
+      000100020000000000FFFFFF00000000020000000000000000010E4200000500
+      4D656D6F36000200160000007000000068020000080000004300000001000000
+      000000000000FFFFFF1F2C02000000000001001E005B7172794F70657261636F
+      657353657475702E2270657267756E7461225D00000000FFFF00000000000200
+      000001000000000700436F757269657200080000000000000000001000000001
+      00020000000000FFFFFF0000000002000000000000000001AE42000006004D65
+      6D6F323400020000000000700000001400000008000000430004006400000000
+      0000000000FFFFFF1F2C02000000000001001F005B7172794F70657261636F65
+      7353657475702E2273657175656E636961225D00000000FFFF00000000000200
+      000001000000000700436F757269657200080000000000000000001200000001
+      00020000000000FFFFFF00000000020000000000000000014D43000006004D65
+      6D6F32350002007D020000700000009300000008000000430005006400000000
+      0000000000FFFFFF1F2C02000000000001001E005B7172794F70657261636F65
+      7353657475702E22726573706F737461225D00000000FFFF0000000000020000
+      0001000000000700436F75726965720009000000000000000000100000000100
+      020000000000FFFFFF0000000002000000000000000001D243000006004D656D
+      6F3236000200000000003B000000100300000B00000043000F00F40100000000
+      00000000FFFFFF1F2C020000000000010006005345542D555000000000FFFF00
+      000000000200000001000000000500417269616C00060000000000000000000A
+      0000000100020000000000FFFFFF000000000200000000000000000153440000
+      06004D656D6F32370002000000000046000000160000000B00000043000F00F4
+      010000000000000000FFFFFF1F2C020000000000010002004EBA00000000FFFF
+      00000000000200000001000000000500417269616C0006000000000000000000
+      0A0000000100020000000000FFFFFF0000000002000000000000000001DE4400
+      0006004D656D6F32380002001600000046000000670200000B00000043000F00
+      F4010000000000000000FFFFFF1F2C02000000000001000C0050524F43454449
+      4D454E544F00000000FFFF00000000000200000001000000000500417269616C
+      00060000000000000000000A0000000100020000000000FFFFFF000000000200
+      00000000000000016545000006004D656D6F32390002007D0200004600000093
+      0000000B00000043000F00F4010000000000000000FFFFFF1F2C020000000000
+      01000800524553504F53544100000000FFFF0000000000020000000100000000
+      0500417269616C00060000000000000000000A0000000100020000000000FFFF
+      FF00000000020000000000000000010D46000006004D656D6F33340002000000
+      0000AF000000100300007D00000043000F0064000000000000000000FFFFFF1F
+      2C020000000000010027005B717279496D7072696D69724F70657261636F6573
+      2E2264657363726963616F7365747570225D00000000FFFF0000000000020000
+      0001000000000700436F75726965720008000000000000000000000000000100
+      020000000000FFFFFF00000000020000000000000000019F46000006004D656D
+      6F333500020000000000A4000000100300000B00000043000F00F40100000000
+      00000000FFFFFF1F2C02000000000001001300444553435249C7C34F20444F20
+      5345542D555000000000FFFF0000000000020000000100000006050041726961
+      6C00060000000000000000000A0000000100020000000000FFFFFF0000000002
+      000000000000000301F74600000A005375625265706F72743400020000000000
+      37010000580100001200000001000F0001000000000000000000FFFFFF1F2C02
+      0000000000000000000000FFFF00000000000200000001000000000200000002
+      02774700000C004461646F734D6573747265350002010000000058000000F502
+      00000D0000003100050001000000000000000000FFFFFF1F0000000014006664
+      7350726F636573736F73436F6E74726F6C6500000000000000FFFF0000000000
+      02000000010000000000000001000000C8000000140000000100000000000002
+      02E7470000100043616265E7616C686F4D657374726534000201000000001E00
+      0000F5020000220000003000040001000000000000000000FFFFFF1F00000000
+      000000000000000000FFFF000000000002000000010000000000000001000000
+      C800000014000000010000000000000202544800000D00526F646170E94D6573
+      74726534000201000000009A000000F502000012000000300006000100000000
+      0000000000FFFFFF1F00000000000000000000000000FFFF0000000000020000
+      00010000000000000001000000C800000014000000010000000000000002DC48
+      00000D006D6D6F5A65627261646F537562000200000000005800000010030000
+      0D0000004300000064000000000000000000FFFFFF1F2C020000000000010000
+      0000000000FFFF00000000000200000001000000000700436F75726965720008
+      000000000000000000080000000100020000000000FFFFFF0000000002000000
+      0000000000028D49000005004D656D6F370002000B00000058000000C3000000
+      0D00000043000F0064000000000000000000FFFFFF1F2C020000000000010031
+      005B71727950726F636573736F73436F6E74726F6C652E226D617175696E6164
+      6973706F73697469766F70616472616F225D00000000FFFF0000000000020000
+      0001000000000700436F75726965720008000000000000000000080000000100
+      020000000000FFFFFF00000000020000000000000000022E4A000006004D656D
+      6F333100020000000000580000000B0000000D00000043000F00640000000000
+      00000000FFFFFF1F2C020000000000010022005B71727950726F636573736F73
+      436F6E74726F6C652E2273657175656E636961225D00000000FFFF0000000000
+      0200000001000000000500417269616C00070000000000000000000A00000001
+      00020000000000FFFFFF0000000002000000000000000002DD4A000006004D65
+      6D6F3333000200CE000000580000005F0000000D00000043000F006400000000
+      0000000000FFFFFF1F2C02000000000001002E005B71727950726F636573736F
+      73436F6E74726F6C652E22636172616374657269737469636170726F6475746F
+      225D00000000FFFF00000000000200000001000000000700436F757269657200
+      08000000000000000000080000000100020000000000FFFFFF00000000020000
+      000000000000028D4B000006004D656D6F33360002002D010000580000008A00
+      00000D00000043000F0064000000000000000000FFFFFF1F2C02000000000001
+      002F005B71727950726F636573736F73436F6E74726F6C652E22636172616374
+      657269737469636170726F636573736F225D00000000FFFF0000000000020000
+      0001000000000700436F75726965720008000000000000000000080000000100
+      020000000000FFFFFF00000000020000000000000000022A4C000006004D656D
+      6F3337000200B701000058000000190000000D00000043000F00640000000000
+      00000000FFFFFF1F2C02000000000001001C005B71727950726F636573736F73
+      436F6E74726F6C652E22637372225D00000000FFFF0000000000020000000100
+      0000000700436F75726965720008000000000000000000080000000100020000
+      000000FFFFFF0000000002000000000000000002C64C000006004D656D6F3338
+      000200D001000058000000150000000D00000043000F00640000000000000000
+      00FFFFFF1F2C02000000000001001B005B71727950726F636573736F73436F6E
+      74726F6C652E226D64225D00000000FFFF000000000002000000010000000007
+      00436F75726965720008000000000000000000080000000100020000000000FF
+      FFFF00000000020000000000000000027A4D000006004D656D6F3339000200E5
+      010000580000007C0000000D00000043000F0064000000000000000000FFFFFF
+      1F2C020000000000010033005B71727950726F636573736F73436F6E74726F6C
+      652E227469706F726567697374726F6D65746F646F636F6E74726F6C65225D00
+      000000FFFF00000000000200000001000000000700436F757269657200080000
+      00000000000000080000000100020000000000FFFFFF00000000020000000000
+      000000021F4E000006004D656D6F343000020061020000580000008F0000000D
+      00000043000F0064000000000000000000FFFFFF1F2C02000000000001002400
+      5B71727950726F636573736F73436F6E74726F6C652E22706C616E6F72656163
+      616F225D00000000FFFF00000000000200000001000000000700436F75726965
+      720008000000000000000000080000000100020000000000FFFFFF0000000002
+      000000000000000002094F000006004D656D6F3431000200F002000058000000
+      200000000D0000004300070064000000000000000000FFFFFF1F2C0200000000
+      00010000000006000500626567696E0D320020206966205B71727950726F6365
+      73736F73436F6E74726F6C652E2272657669736172225D203D20547275652074
+      68656E200D0E0020206D656D6F203A3D20275827200D0500656C7365200D0D00
+      20206D656D6F203A3D2027273B0D0300656E6400FFFF00000000000200000001
+      000000000500417269616C00090000000000000000000A000000010002000000
+      0000FFFFFF00000000020000000000000000028A4F000006004D656D6F343200
+      0200000000002A0000000B0000001600000043000F00F4010000000000000000
+      FFFFFF1F2C020000000000010002004EBA00000000FFFF000000000002000000
+      01000000000500417269616C00060000000000000000000A0000000100020000
+      000000FFFFFF00000000020000000000000000021D50000006004D656D6F3433
+      0002000B0000002A000000C30000000B00000043000F00F40100000000000000
+      00FFFFFF1F2C020000000000010014004DC15155494E412C20444953504F5349
+      5449564F00000000FFFF00000000000200000001000000000500417269616C00
+      060000000000000000000A0000000100020000000000FFFFFF00000000020000
+      00000000000002A350000006004D656D6F3434000200CE000000350000005F00
+      00000B00000043000F00F4010000000000000000FFFFFF1F2C02000000000001
+      00070050524F4455544F00000000FFFF00000000000200000001000000000500
+      417269616C00060000000000000000000A0000000100020000000000FFFFFF00
+      000000020000000000000000022551000006004D656D6F3435000200B7010000
+      2A000000190000001600000043000F00F4010000000000000000FFFFFF1F2C02
+      00000000000100030043535200000000FFFF0000000000020000000100000000
+      0500417269616C00060000000000000000000A0000000100020000000000FFFF
+      FF0000000002000000000000000002AC51000006004D656D6F34360002002D01
+      0000350000008A0000000B00000043000F00F4010000000000000000FFFFFF1F
+      2C0200000000000100080050524F434553534F00000000FFFF00000000000200
+      000001000000000500417269616C00060000000000000000000A000000010002
+      0000000000FFFFFF00000000020000000000000000022D52000006004D656D6F
+      3437000200D00100002A000000150000001600000043000F00F4010000000000
+      000000FFFFFF1F2C020000000000010002004D4400000000FFFF000000000002
+      00000001000000000500417269616C00060000000000000000000A0000000100
+      020000000000FFFFFF0000000002000000000000000002BB52000006004D656D
+      6F3438000200E50100002A0000007C0000001600000043000F00F40100000000
+      00000000FFFFFF1F2C02000000000001000F004D45544F444F20434F4E54524F
+      4C4500000000FFFF00000000000200000001000000000500417269616C000600
+      00000000000000000A0000000100020000000000FFFFFF000000000200000000
+      00000000024653000006004D656D6F3439000200610200002A0000008F000000
+      1600000043000F00F4010000000000000000FFFFFF1F2C02000000000001000C
+      00504C414E4F20524541C7C34F00000000FFFF00000000000200000001000000
+      000500417269616C00060000000000000000000A0000000100020000000000FF
+      FFFF0000000002000000000000000002CA53000006004D656D6F3530000200F0
+      0200002A000000200000001600000043000F00F4010000000000000000FFFFFF
+      1F2C02000000000001000500524556455200000000FFFF000000000002000000
+      01000000000500417269616C00060000000000000000000A0000000100020000
+      000000FFFFFF00000000020000000000000000026154000006004D656D6F3531
+      0002000B00000035000000C30000000B00000043000F00F40100000000000000
+      00FFFFFF1F2C0200000000000100180046455252414D454E544120502F204D41
+      4E5546415455524100000000FFFF000000000002000000010000000005004172
+      69616C00060000000000000000000A0000000100020000000000FFFFFF000000
+      0002000000000000000002F154000006004D656D6F3532000200CE0000002A00
+      0000E90000000B00000043000F00F4010000000000000000FFFFFF1F2C020000
+      00000001001100434152414354455249535449434120444F00000000FFFF0000
+      0000000200000001000000000500417269616C00060000000000000000000A00
+      00000100020000000000FFFFFF00000000020000000000000000028455000006
+      004D656D6F3634000200000000001F000000100300000B00000043000F00F401
+      0000000000000000FFFFFF1F2C02000000000001001400434F4E54524F4C4520
+      44452050524F434553534F00000000FFFF000000000002000000010000000005
+      00417269616C00060000000000000000000A0000000100020000000000FFFFFF
+      0000000002000000000000000302DC5500000A005375625265706F7274350002
+      00000000009A00000054010000120000000100000001000000000000000000FF
+      FFFF1F2C020000000000000000000000FFFF0000000000020000000100000000
+      0300000002034C560000100043616265E7616C686F4D65737472653500020100
+      00000040000000F5020000160000003000040001000000000000000000FFFFFF
+      1F00000000000000000000000000FFFF00000000000200000001000000000000
+      0001000000C800000014000000010000000000000203CC5600000C004461646F
+      734D6573747265360002010000000084000000F5020000360000003100050001
+      000000000000000000FFFFFF1F00000000140066647350726F636573736F7343
+      6F6E74726F6C6500000000000000FFFF00000000000200000001000000000000
+      0001000000C800000014000000010000000000000203395700000D00526F6461
+      70E94D65737472653500020100000000F9000000F50200002100000030000600
+      01000000000000000000FFFFFF1F00000000000000000000000000FFFF000000
+      000002000000010000000000000001000000C800000014000000010000000000
+      000003C757000010006D6D6F5A65627261646F53756253756200020000000000
+      8400000010030000360000004300000064000000000000000000FFFFFF1F2C02
+      0000000000020000000D000000000000FFFF0000000000020000000100000000
+      0700436F75726965720008000000000000000000000000000100020000000000
+      FFFFFF00000000020000000000000000037758000006004D656D6F3533000200
+      0B00000084000000280100003600000043000F0064000000000000000000FFFF
+      FF1F2C02000000000001002F005B71727950726F636573736F73436F6E74726F
+      6C652E22746F6C6572616E636961657370656370726F6475746F225D00000000
+      FFFF00000000000200000001000000000700436F757269657200080000000000
+      00000000000000000100020000000000FFFFFF00000000020000000000000000
+      032859000006004D656D6F353400020033010000840000002801000036000000
+      43000F0064000000000000000000FFFFFF1F2C020000000000010030005B7172
+      7950726F636573736F73436F6E74726F6C652E227465636E6963616176616C69
+      6163616F6D65646963616F225D00000000FFFF00000000000200000001000000
+      000700436F757269657200080000000000000000000000000001000200000000
+      00FFFFFF0000000002000000000000000003C959000006004D656D6F35350002
+      005B020000840000002E0000003600000043000F0064000000000000000000FF
+      FFFF1F2C020000000000010020005B71727950726F636573736F73436F6E7472
+      6F6C652E2274616D616E686F225D00000000FFFF000000000002000000010000
+      00000700436F7572696572000800000000000000000002000000010002000000
+      0000FFFFFF00000000020000000000000000036D5A000006004D656D6F353600
+      02008902000084000000870000003600000043000F0064000000000000000000
+      FFFFFF1F2C020000000000010023005B71727950726F636573736F73436F6E74
+      726F6C652E226672657175656E636961225D00000000FFFF0000000000020000
+      0001000000000700436F75726965720008000000000000000000020000000100
+      020000000000FFFFFF0000000002000000000000000003155B000006004D656D
+      6F35370002000B0000004B000000280100000B00000043000F00F40100000000
+      00000000FFFFFF1F2C02000000000001002900544F4C4552C24E4349412F4553
+      5045434946494341C7C34F20444F2050524F442F50524F434553534F00000000
+      FFFF00000000000200000001000000000500417269616C000600000000000000
+      00000A0000000100020000000000FFFFFF0000000002000000000000000003B0
+      5B000006004D656D6F3538000200330100004B000000280100000B0000004300
+      0F00F4010000000000000000FFFFFF1F2C02000000000001001C0054C9434E49
+      4341204445204156414C4941C7C34F2F4D454449C7C34F00000000FFFF000000
+      00000200000001000000000500417269616C00060000000000000000000A0000
+      000100020000000000FFFFFF0000000002000000000000000003365C00000600
+      4D656D6F35390002005B0200004B0000002E0000000B00000043000F00F40100
+      00000000000000FFFFFF1F2C0200000000000100070054414D414E484F000000
+      00FFFF00000000000200000001000000000500417269616C0006000000000000
+      0000000A0000000100020000000000FFFFFF0000000002000000000000000003
+      BF5C000006004D656D6F3630000200890200004B000000870000000B00000043
+      000F00F4010000000000000000FFFFFF1F2C02000000000001000A0046524551
+      55CA4E43494100000000FFFF0000000000020000000100000000050041726961
+      6C00060000000000000000000A0000000100020000000000FFFFFF0000000002
+      000000000000000003605D000006004D656D6F36310002000000000084000000
+      0B0000003600000043000F0064000000000000000000FFFFFF1F2C0200000000
+      00010022005B71727950726F636573736F73436F6E74726F6C652E2273657175
+      656E636961225D00000000FFFF00000000000200000001000000000500417269
+      616C00080000000000000000000A0000000100020000000000FFFFFF00000000
+      02000000000000000003E15D000006004D656D6F3632000200000000004B0000
+      000B0000000B00000043000F00F4010000000000000000FFFFFF1F2C02000000
+      0000010002004EBA00000000FFFF000000000002000000010000000005004172
+      69616C00060000000000000000000A0000000100020000000000FFFFFF000000
+      00020000000000000000037B5E000006004D656D6F3633000200000000004000
+      0000100300000B00000043000F00F4010000000000000000FFFFFF1F2C020000
+      00000001001B004DC9544F444F2028504C414E4F5320444520434F4E54524F4C
+      452900000000FFFF00000000000200000001000000000500417269616C000600
+      00000000000000000A0000000100020000000000FFFFFF000000000200000000
+      0000000303D35E00000A005375625265706F7274360002000000000003010000
+      58010000160000000100000001000000000000000000FFFFFF1F2C0200000000
+      00000000000000FFFF0000000000020000000100000000040000000204435F00
+      00100043616265E7616C686F4D6573747265360002010000000034000000F502
+      0000230000003000040001000000000000000000FFFFFF1F0000000000000000
+      0000000000FFFF000000000002000000010000000000000001000000C8000000
+      14000000010000000000000204C35F00000C004461646F734D65737472653800
+      0201000000007C000000F50200000E0000003100050001000000000000000000
+      FFFFFF1F00000000140066647350726F636573736F73436F6E74726F6C650000
+      0000000000FFFF000000000002000000010000000000000001000000C8000000
+      140000000100000000000000044F60000013006D6D6F5A65627261646F537562
+      537562537562000200000000007C000000100300000E00000043000000640000
+      00000000000000FFFFFF1F2C0200000000000100000000000000FFFF00000000
+      000200000001000000000500417269616C00070000000000000000000A000000
+      0100020000000000FFFFFF0000000002000000000000000004F060000006004D
+      656D6F3635000200000000007C000000100000000E00000043000F0064000000
+      000000000000FFFFFF1F2C020000000000010022005B71727950726F63657373
+      6F73436F6E74726F6C652E2273657175656E636961225D00000000FFFF000000
+      00000200000001000000000500417269616C00070000000000000000000A0000
+      000100020000000000FFFFFF00000000020000000000000000049A6100000600
+      4D656D6F3636000200100000007C0000005B0000000E00000043000F00640000
+      00000000000000FFFFFF1F2C02000000000001002B005B71727950726F636573
+      736F73436F6E74726F6C652E226D6F646F66616C6861706F74656E6369616C22
+      5D00000000FFFF00000000000200000001000000000500417269616C00070000
+      000000000000000A0000000100020000000000FFFFFF00000000020000000000
+      000000044862000006004D656D6F36370002006B0000007C000000640000000E
+      00000043000F0064000000000000000000FFFFFF1F2C02000000000001002F00
+      5B71727950726F636573736F73436F6E74726F6C652E2265666569746F73706F
+      74656E636961697366616C6861225D00000000FFFF0000000000020000000100
+      0000000500417269616C00070000000000000000000A00000001000200000000
+      00FFFFFF0000000002000000000000000004E462000006004D656D6F36380002
+      00CF0000007C000000190000000E00000003000F0064000000000000000000FF
+      FFFF1F2C0104010100230001001C005B71727950726F636573736F73436F6E74
+      726F6C652E22736576225D00000000FFFF000000000002000000010000000005
+      00417269616C00070000000000000000000A0000000100020000000000FFFFFF
+      00000000020000000000000000048063000006004D656D6F3639000200E80000
+      007C000000190000000E00000003000F0064000000000000000000FFFFFF1F2C
+      0104010100230001001C005B71727950726F636573736F73436F6E74726F6C65
+      2E22636C61225D00000000FFFF00000000000200000001000000000500417269
+      616C00070000000000000000000A0000000100020000000000FFFFFF00000000
+      020000000000000000042D64000006004D656D6F3730000200010100007C0000
+      00650000000E00000043000F0064000000000000000000FFFFFF1F2C02000000
+      000001002E005B71727950726F636573736F73436F6E74726F6C652E22636175
+      736173706F74656E636961697366616C6861225D00000000FFFF000000000002
+      00000001000000000500417269616C00070000000000000000000A0000000100
+      020000000000FFFFFF0000000002000000000000000004DC64000006004D656D
+      6F3731000200660100007C000000680000000E00000043000F00640000000000
+      00000000FFFFFF1F2C020000000000010030005B71727950726F636573736F73
+      436F6E74726F6C652E22636F6E74726F6C657361747561697370726F63657373
+      6F225D00000000FFFF00000000000200000001000000000500417269616C0007
+      0000000000000000000A0000000100020000000000FFFFFF0000000002000000
+      0000000000047865000006004D656D6F3732000200CE0100007C000000180000
+      000E00000003000F0064000000000000000000FFFFFF1F2C0104010100230001
+      001C005B71727950726F636573736F73436F6E74726F6C652E22646574225D00
+      000000FFFF00000000000200000001000000000500417269616C000700000000
+      00000000000A0000000100020000000000FFFFFF000000000200000000000000
+      00041466000006004D656D6F3733000200E60100007C000000190000000E0000
+      0003000F0064000000000000000000FFFFFF1F2C0104010100230001001C005B
+      71727950726F636573736F73436F6E74726F6C652E226E7072225D00000000FF
+      FF00000000000200000001000000000500417269616C00070000000000000000
+      000A0000000100020000000000FFFFFF0000000002000000000000000004BD66
+      000006004D656D6F3734000200FF0100007C000000700000000E00000043000F
+      0064000000000000000000FFFFFF1F2C02000000000001002A005B7172795072
+      6F636573736F73436F6E74726F6C652E2261636F65737265636F6D656E646164
+      6173225D00000000FFFF00000000000200000001000000000500417269616C00
+      070000000000000000000A0000000100020000000000FFFFFF00000000020000
+      000000000000046067000006004D656D6F37350002006F0200007C0000005300
+      00000E00000043000F0064000000000000000000FFFFFF1F2C02000000000001
+      0024005B71727950726F636573736F73436F6E74726F6C652E22726573706F6E
+      736176656C225D00000000FFFF00000000000200000001000000000500417269
+      616C00070000000000000000000A0000000100020000000000FFFFFF00000000
+      020000000000000000040468000006004D656D6F3736000200C20200007C0000
+      004F0000000E00000043000F0064000000000000000000FFFFFF1F2C02000000
+      0000010025005B71727950726F636573736F73436F6E74726F6C652E2261636F
+      6573746F6D61646173225D00000000FFFF000000000002000000010000000005
+      00417269616C00070000000000000000000A0000000100020000000000FFFFFF
+      00000000020000000000000000048568000006004D656D6F3737000200000000
+      0042000000100000001500000043000F00F4010000000000000000FFFFFF1F2C
+      020000000000010002004EBA00000000FFFF0000000000020000000100000000
+      0500417269616C00060000000000000000000A0000000100020000000000FFFF
+      FF00000000020000000000000000041869000006004D656D6F37380002001000
+      0000420000005B0000001500000043000F00F4010000000000000000FFFFFF1F
+      2C020000000000010014004D4F444F2046414C484120504F54454E4349414C00
+      000000FFFF00000000000200000001000000000500417269616C000600000000
+      00000000000A0000000100020000000000FFFFFF000000000200000000000000
+      0004AF69000006004D656D6F37390002006B0000004200000064000000150000
+      0043000F00F4010000000000000000FFFFFF1F2C020000000000010018004546
+      4549544F5320504F54454E43494149532046414C484100000000FFFF00000000
+      000200000001000000000500417269616C00060000000000000000000A000000
+      0100020000000000FFFFFF0000000002000000000000000004316A000006004D
+      656D6F3830000200CF00000042000000190000001500000043000F00F4010000
+      000000000000FFFFFF1F2C0200000000000100030053455600000000FFFF0000
+      0000000200000001000000000500417269616C00060000000000000000000A00
+      00000100020000000000FFFFFF0000000002000000000000000004B36A000006
+      004D656D6F3831000200E800000042000000190000001500000043000F00F401
+      0000000000000000FFFFFF1F2C02000000000001000300434C4100000000FFFF
+      00000000000200000001000000000500417269616C0006000000000000000000
+      0A0000000100020000000000FFFFFF00000000020000000000000000044A6B00
+      0006004D656D6F38320002000101000042000000650000001500000043000F00
+      F4010000000000000000FFFFFF1F2C0200000000000100180043415553415320
+      504F54CA4E43494149532046414C48415300000000FFFF000000000002000000
+      01000000000500417269616C00060000000000000000000A0000000100020000
+      000000FFFFFF0000000002000000000000000004E36B000006004D656D6F3833
+      0002006601000042000000680000001500000043000F00F40100000000000000
+      00FFFFFF1F2C02000000000001001A00434F4E54524F4C455320415455414953
+      2050524F434553534F5300000000FFFF00000000000200000001000000000500
+      417269616C00060000000000000000000A0000000100020000000000FFFFFF00
+      00000002000000000000000004656C000006004D656D6F3834000200CE010000
+      42000000180000001500000043000F00F4010000000000000000FFFFFF1F2C02
+      00000000000100030044455400000000FFFF0000000000020000000100000000
+      0500417269616C00060000000000000000000A0000000100020000000000FFFF
+      FF0000000002000000000000000004E76C000006004D656D6F3835000200E601
+      000042000000190000001500000043000F00F4010000000000000000FFFFFF1F
+      2C020000000000010003004E505200000000FFFF000000000002000000010000
+      00000500417269616C00060000000000000000000A0000000100020000000000
+      FFFFFF0000000002000000000000000004786D000006004D656D6F3836000200
+      FF01000042000000700000001500000043000F00F4010000000000000000FFFF
+      FF1F2C0200000000000100120041C7D54553205245434F4D454E444144415300
+      000000FFFF00000000000200000001000000000500417269616C000600000000
+      00000000000A0000000100020000000000FFFFFF000000000200000000000000
+      0004086E000006004D656D6F38370002006F0200004200000053000000150000
+      0043000F00F4010000000000000000FFFFFF1F2C020000000000010011005245
+      53504F4E53C156454C205052415A4F00000000FFFF0000000000020000000100
+      0000000500417269616C00060000000000000000000A00000001000200000000
+      00FFFFFF0000000002000000000000000004946E000006004D656D6F38380002
+      00C2020000420000004F0000001500000043000F00F4010000000000000000FF
+      FFFF1F2C02000000000001000D0041C7D5455320544F4D4144415300000000FF
+      FF00000000000200000001000000000500417269616C00060000000000000000
+      000A0000000100020000000000FFFFFF0000000002000000000000000004176F
+      000006004D656D6F38390002000000000037000000110300000B00000043000F
+      00F4010000000000000000FFFFFF1F2C02000000000001000400464D45410000
+      0000FFFF00000000000200000001000000000500417269616C00060000000000
+      000000000A0000000100020000000000FFFFFF000000000200000000000000FE
+      FEFF0A0000000A002043617465676F727931000000000600544954554C4F0000
+      00000900535542544954554C4F000000000F0052415A414F46494C49414C4241
+      5345000000000E00464F4E4546494C49414C4241534500000000100042414952
+      524F46494C49414C42415345000000000D0043455046494C49414C4241534500
+      0000000D0052554146494C49414C424153450000000010004349444144454649
+      4C49414C4241534500000000100045535441444F46494C49414C424153450000
+      00000000000000000000FC000000000000000000000000000000005800C55F45
+      397511E4409B46CF3CCF49E440}
+  end
+  object qryOperacoesTemposPadrao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryOperacoesTemposPadraoAfterOpen
+    AfterEdit = qryOperacoesTemposPadraoAfterEdit
+    AfterPost = qryOperacoesTemposPadraoAfterPost
+    AfterDelete = qryOperacoesTemposPadraosAfterDelete
+    OnCalcFields = qryOperacoesTemposPadraoCalcFields
+    OnNewRecord = qryOperacoesTemposPadraoNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT otp.Operacao,'
+      '       otp.Data,'
+      '       otp.TempoPadrao'
+      ''
+      'FROM operacoestempospadrao otp'
+      ''
+      'WHERE otp.Operacao = :Operacao'
+      ''
+      'ORDER BY otp.Data'
+      '')
+    RequestLive = True
+    Left = 96
+    Top = 424
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'operacao'
+        ParamType = ptUnknown
+      end>
+    object qryOperacoesTemposPadraoOperacao: TIntegerField
+      FieldName = 'operacao'
+    end
+    object qryOperacoesTemposPadraoData: TDateField
+      DisplayLabel = 'Data'
+      FieldName = 'data'
+      Required = True
+      DisplayFormat = 'DD/MM/YY'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryOperacoesTemposPadraoTempoPadrao: TFloatField
+      DisplayLabel = 'Tempo padr'#227'o'
+      FieldName = 'tempopadrao'
+      Required = True
+    end
+    object qryOperacoesTemposPadraoPecasPorHora: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'PecasPorHora'
+      ReadOnly = True
+      Calculated = True
+    end
+  end
+  object dsrOperacoesTemposPadrao: TtecDataSource
+    DataSet = qryOperacoesTemposPadrao
+    Left = 144
+    Top = 440
+  end
+  object frpVersaoSintetica: TfrReport
+    Dataset = fdsImprimirOperacoes
+    InitialZoom = pzDefault
+    PreviewButtons = [pbZoom, pbLoad, pbSave, pbPrint, pbFind, pbHelp, pbExit]
+    StoreInDFM = True
+    RebuildPrinter = False
+    OnBeforePrint = frpVersaoSinteticaBeforePrint
+    Left = 376
+    Top = 456
+    ReportForm = {
+      190000002B2E000019FFFF00000A0050444643726561746F7200FFFFFFFFFF00
+      000000340800009A0B0000480000004800000024000000240000000000040000
+      FFFF0000000000000000000000000000030400466F726D00FEFFFFFFDC000000
+      780000007C0100002C010000040000000200E80000000C004461646F734D6573
+      7472653100020100000000B0000000F50200000D000000300005000100000000
+      0000000000FFFFFF1F000000001400666473496D7072696D69724F7065726163
+      6F657300000000000000FFFF0000000000020000000100000000000000010000
+      00C8000000140000000100000000000002005B010000130043616265E7616C68
+      6F44652050E167696E6131000201000000001B000000F50200005A0000003000
+      020001000000000000000000FFFFFF1F00000000000000000000000000FFFF00
+      0000000002000000010000000000000001000000C80000001400000001000000
+      0000000200C40100000900726470506167696E61000201000000005D010000F5
+      0200000C0000003000030001000000000000000000FFFFFF1F00000000000000
+      000000000000FFFF000000000002000000010000000000000001000000C80000
+      0014000000010000000000000000560200000A006D6D6F5A65627261646F0002
+      0002000000B1000000F10200000C0000004300000001000000000000000000FF
+      FFFF1F2C020000000000010000000002000600626567696E200D0400656E6420
+      00FFFF00000000000200000001000000000500417269616C0008000000000000
+      0000000A0000000100020000000000FFFFFF0000000002000000000000000000
+      F102000005004D656D6F3100020000000000B1000000600000000C0000004300
+      000001000000000000000000FFFFFF1F2C02000000000001001D005B71727949
+      6D7072696D69724F70657261636F65732E226E6F6D65225D00000000FFFF0000
+      0000000200000001000000000500417269616C00080000000000000000000800
+      00000100020000000000FFFFFF00000000020000000000000000008B03000005
+      004D656D6F3800020061000000B10000001A0000000C00000043000000010000
+      00000000000000FFFFFF1F2C02000000000001001C005B717279496D7072696D
+      69724F70657261636F65732E22633031225D00000000FFFF0000000000020000
+      0001000000000500417269616C00080000000000000000000A00000001000200
+      00000000FFFFFF00000000020000000000000000002504000005004D656D6F39
+      0002007C000000B10000001A0000000C00000043000000010000000000000000
+      00FFFFFF1F2C02000000000001001C005B717279496D7072696D69724F706572
+      61636F65732E22633032225D00000000FFFF0000000000020000000100000000
+      0500417269616C00080000000000000000000A0000000100020000000000FFFF
+      FF0000000002000000000000000000C004000006004D656D6F31300002009700
+      0000B10000001A0000000C0000004300000001000000000000000000FFFFFF1F
+      2C02000000000001001C005B717279496D7072696D69724F70657261636F6573
+      2E22633033225D00000000FFFF00000000000200000001000000000500417269
+      616C00080000000000000000000A0000000100020000000000FFFFFF00000000
+      020000000000000000004705000006004D656D6F313100020000000000690000
+      00600000000B00000043000F00F4010000000000000000FFFFFF1F2C02000000
+      0000010008004F50455241C7C34F00000000FFFF000000000002000000010000
+      00000500417269616C00060000000000000000000A0000000100020000000000
+      FFFFFF0000000002000000000000000000C805000006004D656D6F3132000200
+      60000000690000001B0000000B00000043000F00F4010000000000000000FFFF
+      FF1F2C02000000000001000200433100000000FFFF0000000000020000000100
+      0000000500417269616C00060000000000000000000A00000001000200000000
+      00FFFFFF00000000020000000000000000004906000006004D656D6F31330002
+      0096000000690000001B0000000B00000043000F00F4010000000000000000FF
+      FFFF1F2C02000000000001000200433300000000FFFF00000000000200000001
+      000000000500417269616C00060000000000000000000A000000010002000000
+      0000FFFFFF0000000002000000000000000000CA06000006004D656D6F313400
+      02007B000000690000001B0000000B00000043000F00F4010000000000000000
+      FFFFFF1F2C02000000000001000200433200000000FFFF000000000002000000
+      01000000000500417269616C00060000000000000000000A0000000100020000
+      000000FFFFFF00000000020000000000000000008807000006004D656D6F3138
+      00020017020000B1000000360000000D00000043000000640000000000000000
+      00FFFFFF1F2C02000000000001003F005B464F524D4154464C4F41542827232C
+      2323302E3030272C205B717279496D7072696D69724F70657261636F65732E22
+      74656D706F70616472616F225D295D00000000FFFF0000000000020000000100
+      0000000500417269616C00070000000000000000000900000001000200000000
+      00FFFFFF00000000020000000000000000001008000006004D656D6F31390002
+      001D020000690000003C0000000B00000043000F00F4010000000000000000FF
+      FFFF1F2C02000000000001000900542E2050414452C34F00000000FFFF000000
+      00000200000001000000000500417269616C00060000000000000000000A0000
+      000100020000000000FFFFFF0000000002000000000000000000C40800000600
+      4D656D6F32300002005A020000B1000000240000000C00000043000000010000
+      00000000000000FFFFFF1F2C020000000000010035005B464F524D4154464C4F
+      4154282723232C232323272C205B717279496D7072696D69724F70657261636F
+      65732E2270706D225D295D00000000FFFF000000000002000000010000000005
+      00417269616C0008000000000000000000090000000100020000000000FFFFFF
+      00000000020000000000000000004609000006004D656D6F3231000200590200
+      0069000000250000000B00000043000F00F4010000000000000000FFFFFF1F2C
+      0200000000000100030050504D00000000FFFF00000000000200000001000000
+      000500417269616C00060000000000000000000A0000000100020000000000FF
+      FFFF00000000020000000000000001006B21000007006670764C6F676F000200
+      000000001B000000900000002D0000000500000001000000000000000000FFFF
+      FF1F2C020000000000000000000000FFFF000000000002000000010000000601
+      006B210000424DCE170000000000003604000028000000830000002600000001
+      0008000000000098130000120B0000120B0000000100000001000000000000E8
+      E5A800AA9E000099990000ADADAD003A3C4100A3970000BFB73700D8D48600FB
+      FAF000A5A5A5001E1D1C00D8D9DA0054575A00D6D6D500E7E8F20012161B00B6
+      AD1900CBC55B008C8D9200BEC0C500E1E2E40085878A005E606300494C4F0009
+      0D12002C2E3300DEDB98007D7F8100EFEDCB00B9BABB00AEA400007C7B7B00C5
+      BE440066666600D1CC6F00CDC9810048484600F7F6E600AFA5080004080D00F9
+      F8ED00B8AF2700DBD68C00999999001B1A1900C6BF5100131312003B3A3A00FF
+      FFFF00EAE8BE00CCCCCC0023262A00E2DEA400F1EFD600B0B1B300D3CD7500B1
+      A81000CCCC660072727200535252004342420001060A00ECE9C3008C8C8B00F5
+      F4DF004A4A4A0057575600B6AC1F00282B3000C7C05C0061615F00F7F7F70088
+      888700DDD89300E3E0A600FDFCF70021242900070A1000BDB53100C5BE4A00E3
+      E3E200A69C000099999900BABAB900DEDEDE00525458002A292800D9D58A005F
+      5E5D00C7C595001B1E2300E8E5B60000000700B5AB1300D5D07B00C6C6C500B2
+      A80B0021202000B9B12400504F4E00666666006B6D7000B5B5BD0084848400E0
+      DC9E00BCB42C00F7EFD6005B5B5A00EFEFEF0087898B00DEDEE6003E3D3C0014
+      181E00C8C25300CCC55F00A8A9AC00BDBDBC00E5E1AC0075767900181B2000E6
+      E6E6000E1117000810190033333300929191002D2C2B00B5B5B4000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000003131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131543D42470E313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131315231
+      31313131486D3131316D6D4C3131316D6D313131313131313131316D48313131
+      31313131316D6D3131316D040A6C6C313131313131486D6D4C3131313131316D
+      6D4C313131313131313131313131486D6D6D313131313131486D6D4831313131
+      6D483131316D6D3131313131313131313131316D6D6D3131486D6D6D31313131
+      313152313131317F7E6631554225256031603D42647931420C313B7D316D6C3D
+      70403131662C316D593D7068313133646C702531484255312C70643059313131
+      310C2525420E31477431420E4825793131315442433D474C4C640E3120423C30
+      0A3131207E2C317F70254748484251512531603C316D59253C620A312C254330
+      68313131313152313131316C2031315959313131317C7D4C4C31487C0E315968
+      3177424C51347531434031203D487957543130494C7F3D31487C0C310B37317F
+      70313131313C6631313131642C317C33487E51313131313179602F55317C3331
+      316D793B7031487E14314857043131316D7C55557E311E3031542D4C31434031
+      3148790A0B4C313131315231313131477D313125306C64334C5779313131487C
+      0E31224931422C31314340316C7D313C7D3131594931570C31543D31487C0C31
+      68705930253131313170706C3C0E313C0A313033317C513131310C702570474C
+      4C3033312C7C64300A3148300E31796243432248483051517C31603D316D6464
+      590B2C31547C42301C313131313152313131314749313166420C5548313D2C48
+      4831487C0E48302C311C4248516275316C7D31493D4879627F31256848373031
+      487C0E3131550E207031313131473C0C554831642C4C7E330C62793131316830
+      796D3131487C3331577D6D6D313148303331487C49555131487C0C0C7E4C2C70
+      3131480C0E7C2C313C476D6D31313131313152313131040B7E20316D473C6C33
+      310E3D3C6C7931254264646D31486C42706831316C7D31484742702031310E3D
+      433D6C31484355314043473D0A31313131796C3C6C0E316670597E3C3D203131
+      31310E256C6C7731316C0E312C3D47430431772F3D0A3133424366484825643C
+      7E6C7C74316D225943425531543D59437D3131313131523131316D643B6D3131
+      316D514831313179514C316D51793131313131796D3131313C40313131796D31
+      3131313179794831317F6D316D15154831313131313131795148314879516D79
+      6D3131313131313151517931317F6D31316D51516D3151577F6D313131797931
+      316D51516D5148313131515151313131314851516D3131313131523131313140
+      0431313131313131313131313131313131313131313131313131313168043131
+      31313131313131313131313148660F3131313131313131313131313131313131
+      3131313131313131313131313131313131220E31313131313131316655313131
+      3131313131313131313131313131313131313131313131313131313131315231
+      3131313131313131313131313131313131313131313131313131313131313131
+      31313131313131313131313131313131315C46121212463F3131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131523131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131315F06020202061B31313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131523131313131310E40173C18183D6E3131313131310C2C666C3C
+      181818181805683131313131316D3768220D0516313131313108021F1F1F5235
+      313131313172070707070707070707070707070750732B363131313131313131
+      3131362B73212112081D31313131313131313123505050504B31313131313131
+      31313F08122E505050085231313131312C103E191919195D1731313131796671
+      3E4E191919191919195D0D31313131312C34282819190017313131313108021F
+      1F1F523531313131311152020202020202020202020202020202022776313131
+      313131313F501F02020202020202075C313131313131316A060202065F313131
+      313131314C120202020202020221523131313175287A78787878784E22313131
+      0E1A3E10787871717171717171281731313131773E7A71717171282231313131
+      3108021F1F1F5235313131313144021F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F
+      1F1D31313131310802021F1F1F1F1F1F1F1F02022331313131313107021F1F02
+      08313131313131313A521F1F1F1F1F1F1F5052313131310D4E7878787A7A7128
+      2231316D7C4E7878784E4E7A717171717128173131312C3E7171717119195D22
+      313131313108021F1F1F5269314C4C4C4C631F1F1F1F1F1F1F1F1F1F1F1F1F1F
+      1F1F1F1F52503131313138521F1F1F0202020202021F1F1F5212313131313107
+      021F1F0208313131313131361F1F1F1F1F0202020221523131316D457A78787A
+      3D370E0E5131313B3E7878787A2274140E0E0E0E0E0E15313115787A78787119
+      0D0A145A2A6A6A6A2A5F36363636365044111111113226262626262626262626
+      262626264A1F1F1F1F612631311B521F1F1F02443A08082363021F1F1F525F31
+      31313107021F1F02083131313131311B021F1F1F1F6A2B353532523131310E71
+      717171710C313131313115781078784E683131313131313131313131311C2878
+      78787A2C3131310106020202025F313131313150520202020236313131313131
+      31313131313131313144021F1F1F32312639021F1F1F584C31313131311B2702
+      1F1F1F3631313107021F1F020831313131313123021F1F1F1109313131315231
+      3131337A717171454831313131312C28787810344C3131313131313131313131
+      31057A78784E663131313135021F1F1F025F313131313150021F1F1F1F363131
+      3131313131313131313131314C5E021F1F0276315F521F1F1F4B313131313131
+      313132271F1F527331313107021F1F020831313131313112021F1F0272313131
+      313152313131601978787A7C4C3131313131662878781045166E6E6E6E6E6E6E
+      6E1C0431555B1078717A603131313135021F1F1F025F313131313150021F1F1F
+      1F36313131313131314C0909090909363A021F1F1F1F3F314F021F0272313131
+      3131313131313123021F1F1109313107021F1F02083131313131312E021F1F02
+      73313131313152313131601978787A054C313131313156197878787128282828
+      2828282828005631337A717171346D313131313552020202025F313131313121
+      06020202023631313131762E635E61616161611F1F1F1F1F1F114C26611F1F02
+      76313131313131313131311D1F1F1F1F1D313107021F1F02083131313131312E
+      021F1F023A313131313152313131601978787A054C3131313131181978787878
+      7878787878787878784E1731141978787A454831313131764444444444241551
+      515151464F4F4F4F4F413131313A0202021F1F1F1F1F1F1F1F1F1F1F521B311D
+      1F1F1F1F363131313131313131313126391F1F1F5C313107021F1F0208313131
+      3131312E021F1F023A313131313152313131601978787A054C31313131315619
+      787878787878787878787878784E1731337A717171346D313131313109090909
+      097D713434347A37313131313131313158521F1F1F1F1F020202020202020227
+      5831311D1F1F1F1F1D3131313131313131313126391F1F1F5C313107021F1F02
+      083131313131312E021F1F023A313131313152313131601978787A054C313131
+      3131224E787878784E28282828282828280056310C787171715B0C3131313131
+      3131313131133E1010105D74313131313131312939021F1F1F1F391163636363
+      6A50083631313126611F1F024B313131313131313131313F021F1F1F36313107
+      021F1F02083131313131312E021F1F023A313131313152313131601978787A05
+      4C313131313116287878101A2C2C2C2C2C2C2C2C2C7D1E316D1A7A7878197F31
+      313131313131313131134E78787828743131313131313176021F1F1F1F232631
+      31313131313131313131313107021F02213131313131313131313173021F1F44
+      4C313107021F1F02083131313131312E021F1F023A3131313131523131316019
+      78787A054C31313131317F197171713448313131313131313131313131561978
+      784E6631313131313131313131134E7878782874313131313131312B521F1F1F
+      6129313131313131313131313131313158521F1F024A31313131313131317602
+      021F522331313107021F1F02083131313131312E021F1F023A31313131315231
+      3131331978787A053131313131316D347A78784E133131313131313131313131
+      317D28787871710431313131313131313113001919190004313131313131312B
+      521F1F1F274131313131313131313131313131310911021F1F1F232631313131
+      295F1F1F1F1F612931313107021F1F022B3131313131312E021F1F5223313131
+      3131520E14602C7A78787A7C141414140C3131203E78787171660A1E60141414
+      14140E3131155B107878107A567D371E1E1E1E1E1E13566C6C6C182C75757575
+      756D315C021F1F1F1F211B1B1B1B1B1B4A4A4A4A4A3631313176021F1F1F0261
+      502323725E021F1F1F0258762B2B4A44021F1F1F504A4A4A2B1D312E021F1F1F
+      074A4A4A4A5C520D7A7A7A78787878787A7A7A5D1731317945197878784E4E7A
+      7A7A7A7A7A5D6C313131165D7171717119191919191919195D6E313131313166
+      007A7A7A4E1431295E021F1F1F0202020202020202020202062B313131315802
+      021F1F1F020202021F1F1F1F52384C395252521F1F1F1F1F020202020608312E
+      021F1F1F1F0202020221521771717878787878787171714E22313131335B2871
+      7878787871717171714E1731313131173E7A717878787878787878784E6E3131
+      31313166287171717A6031314A521F1F1F1F1F1F1F1F1F1F1F1F1F1F524A3131
+      3131316939521F1F1F1F1F1F1F1F020258310911021F1F1F1F1F1F1F1F1F1F1F
+      022B312E021F1F1F1F1F1F1F1F50520D19191978787878781919190017313131
+      310C0D10284E4E191919191919000D31313131317D1A4E4E4E19191919191919
+      001C3131313131662878787810603131315F0202020202020202020202020202
+      062B31313131313136733902020202020261721D313129615252521F1F1F1F1F
+      020202020608312E021F1F1F1F0202020221527D17173C107878714D1717170D
+      2C3131313131310E0A1C3B2217171717170D7D31313131313148757D77661717
+      171717170D0431313131316628787878106031313131364A3A72727272727272
+      72727272505C3131313131313131264B5F737338354131313131093A7272725E
+      1F1F1F1F4F1212122E5C312E021F1F1F631212121258523131310E1978787A05
+      3131313131313131313131313131313131313131313131313131313131313131
+      31313131313131313131313131313117003E3E3E5D7531313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      31313107021F1F52583131313131312E021F1F02233131313131523131316019
+      78787A054C313131313131313131313131313131313131313131313131313131
+      313131313131313131313131313131313131317F686E6E6E6E15313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313121021F1F02073131313131312E021F1F023A31313131315231
+      3131601978787A054C3131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313131313173021F1F1F1F4F3A233A32312E021F1F023A313131
+      313152313131601978787A054C31313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      31313131313131313131313131313169521F1F1F1F0202020608312E021F1F02
+      3A313131313152313131601978787A054C313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313131313131313131313131310963521F1F1F1F1F1F024A312E
+      021F1F023A313131313152313131601971717A054C3131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131314150611F1F1F1F1F
+      024A3150021F1F023A3131313131523131310C0D17176C774C31313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131315C38
+      72727272725C31082E2E2E2E1B3131313131520000F621000006004D656D6F39
+      30000200660100001F0000004F01000011000000430000000100000000000000
+      0000FFFFFF1F2C020000000000010008005B544954554C4F5D00000000FFFF00
+      00000000020000000100000000090068656C766574696361000B000000020000
+      000000020000000100020000000000FFFFFF0000000002000000000000000000
+      8D22000007004D656D6F313136000200C10200001B000000300000000F000000
+      4300000001000000000000000000FFFFFF1F2C020000000000010013005B4441
+      544520234464642F6D6D2F797979795D00000000FFFF00000000000200000001
+      00000006090068656C7665746963610007000000000000000000010000000100
+      020000000000FFFFFF00000000020000000000000000002523000007004D656D
+      6F313137000200CD02000037000000200000000F000000430000000100000000
+      0000000000FFFFFF1F2C020000000000010014005B50414745235D2F5B544F54
+      414C50414745535D00000000FFFF000000000002000000010000000009006865
+      6C7665746963610007000000000000000000010000000100020000000000FFFF
+      FF0000000002000000000000000000B423000007004D656D6F31313800020072
+      010000330000003B0100002D00000043000000F4010000000000000000FFFFFF
+      1F2C02000000000001000B005B535542544954554C4F5D00000000FFFF000000
+      0000020000000100000000090068656C76657469636100070000000000000000
+      00000000000100020000000000FFFFFF00000000020000000000000000005A24
+      000013006D6D6F464F4E4546494C49414C424153455F52000200990000003300
+      0000CA0000000A00000004000000F4010000000000000000FFFFFF1F2C020000
+      00000001001600464F4E453A205B464F4E4546494C49414C424153455D000000
+      00FFFF0000000000020000000100000000090068656C76657469636100060000
+      00000000000000100000000100020000000000FFFFFF00000000020000000000
+      000000000F25000014006D6D6F454E44455245434F5F42414952524F5F520002
+      00990000003D000000CB0000000A00000000000000F4010000000000000000FF
+      FFFF1F2C020000000000010024005B52554146494C49414C424153455D202D20
+      5B42414952524F46494C49414C424153455D00000000FFFF0000000000020000
+      000100000000090068656C766574696361000600000000000000000010000000
+      0100020000000000FFFFFF0000000002000000000000000000DC25000012006D
+      6D6F4345505F4349444144455F55465F520002009900000047000000CB000000
+      0A00000000000000F4010000000000000000FFFFFF1F2C02000000000001003E
+      004345503A205B43455046494C49414C424153455D202D205B43494441444546
+      494C49414C424153455D202D205B45535441444F46494C49414C424153455D00
+      000000FFFF0000000000020000000100000000090068656C7665746963610006
+      000000000000000000100000000100020000000000FFFFFF0000000002000000
+      0000000000007226000008006D6D6F52415A414F000200990000001F000000CB
+      0000001400000003000000F4010000000000000000FFFFFF1F2C020000000000
+      010011005B52415A414F46494C49414C424153455D00000000FFFF0000000000
+      020000000100000000090068656C766574696361000600000000000000000010
+      0000000100020000000000FFFFFF000000000200000000000000000007270000
+      07004D656D6F313139000200020000005D010000780000000B00000043000000
+      01000000000000000000FFFFFF1F2C020000000000010011005B54494D452023
+      5468683A6D6D3A73735D00000000FFFF00000000000200000001000000060900
+      68656C7665746963610007000000000000000000000000000100020000000000
+      FFFFFF0000000002000000000000000000AC27000007004D656D6F3132300002
+      004D0200005D010000A40000000B0000004300000001000000000000000000FF
+      FFFF1F2C02000000000001002100746563534F4654202D205465636E6F6C6F67
+      696120656D2053697374656D61732000000000FFFF0000000000020000000100
+      000006090068656C766574696361000700000000000000000001000000010002
+      0000000000FFFFFF00000000020000000000000000004E28000007004D656D6F
+      313333000200B6000000B1000000640100000B00000041000000010000000000
+      00000000FFFFFF1F2C020000000000010022005B717279496D7072696D69724F
+      70657261636F65732E2264657363726963616F225D00000000FFFF0000000000
+      0200000001000000000500417269616C00080000000000000000000800000001
+      00020000000000FFFFFF0000000002000000000000000000D728000007004D65
+      6D6F313334000200B1000000690000006C0100000B00000043000F00F4010000
+      000000000000FFFFFF1F2C02000000000001000900444553435249C7C34F0000
+      0000FFFF00000000000200000001000000000500417269616C00060000000000
+      000000000A0000000100020000000000FFFFFF00000000020000000000000000
+      005B29000005004D656D6F320002007E02000069000000280000000B00000043
+      000F00F4010000000000000000FFFFFF1F2C020000000000010006005345542D
+      555000000000FFFF00000000000200000001000000000500417269616C000600
+      00000000000000000A0000000100020000000000FFFFFF000000000200000000
+      0000000000DF29000005004D656D6F33000200A602000069000000250000000B
+      00000043000F00F4010000000000000000FFFFFF1F2C02000000000001000600
+      502E2043544C00000000FFFF0000000000020000000100000000050041726961
+      6C00060000000000000000000A0000000100020000000000FFFFFF0000000002
+      000000000000000000602A000005004D656D6F34000200CB0200006900000028
+      0000000B00000043000F00F4010000000000000000FFFFFF1F2C020000000000
+      010003004E425500000000FFFF00000000000200000001000000000500417269
+      616C00060000000000000000000A0000000100020000000000FFFFFF00000000
+      02000000000000000000502B000005004D656D6F350002007F020000B1000000
+      270000000C0000004300000001000000000000000000FFFFFF1F2C0200000000
+      00010000000006000600626567696E200D320020206966205B717279496D7072
+      696D69724F70657261636F65732E227365747570225D203D2054727565207468
+      656E2020200D100020206D656D6F203A3D202758272020200D0700656C736520
+      20200D0E0020206D656D6F203A3D2027273B200D0400656E642000FFFF000000
+      00000200000001000000000500417269616C00080000000000000000000A0000
+      000100020000000000FFFFFF00000000020000000000000000004C2C00000600
+      4D656D6F3135000200A6020000B1000000260000000C00000043000000010000
+      00000000000000FFFFFF1F2C020000000000010000000006000600626567696E
+      200D3B0020206966205B717279496D7072696D69724F70657261636F65732E22
+      706C616E6F636F6E74726F6C65225D203D2054727565207468656E202020200D
+      110020206D656D6F203A3D20275827202020200D0800656C7365202020200D0E
+      0020206D656D6F203A3D2027273B200D0400656E642000FFFF00000000000200
+      000001000000000500417269616C00080000000000000000000A000000010002
+      0000000000FFFFFF00000000020000000000000000003D2D000006004D656D6F
+      3136000200CD020000B1000000270000000C0000004300000001000000000000
+      000000FFFFFF1F2C020000000000010000000006000600626567696E200D3200
+      20206966205B717279496D7072696D69724F70657261636F65732E2273657475
+      70225D203D2054727565207468656E2020200D100020206D656D6F203A3D2027
+      58272020200D0700656C73652020200D0E0020206D656D6F203A3D2027273B20
+      0D0400656E642000FFFF00000000000200000001000000000500417269616C00
+      080000000000000000000A0000000100020000000000FFFFFF00000000020000
+      0000000000FEFEFF0A0000000A002043617465676F7279310000000006005449
+      54554C4F000000000900535542544954554C4F000000000F0052415A414F4649
+      4C49414C42415345000000000E00464F4E4546494C49414C4241534500000000
+      100042414952524F46494C49414C42415345000000000D0043455046494C4941
+      4C42415345000000000D0052554146494C49414C424153450000000010004349
+      4441444546494C49414C4241534500000000100045535441444F46494C49414C
+      42415345000000000000000000000000FC000000000000000000000000000000
+      005800C55F45397511E4409B46CF3CCF49E440}
+  end
+  object qryOperacoesMaquinasCopia: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select om.operacao,'
+      '       om.maquina,'
+      '       m.descricao'
+      ''
+      'from operacoesmaquinas om'
+      '     join maquinas m'
+      '     on om.maquina = m.codigo'
+      ''
+      'where om.operacao = :operacao     '
+      ''
+      'order by om.maquina'
+      '')
+    RequestLive = True
+    Left = 704
+    Top = 80
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'operacao'
+        ParamType = ptUnknown
+      end>
+    object qryOperacoesMaquinasCopiaoperacao: TIntegerField
+      FieldName = 'operacao'
+    end
+    object qryOperacoesMaquinasCopiamaquina: TIntegerField
+      FieldName = 'maquina'
+    end
+    object qryOperacoesMaquinasCopiadescricao: TStringField
+      FieldName = 'descricao'
+      Size = 30
+    end
+  end
+  object qryOperacoesSetupCopia: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select *'
+      'from operacoessetup'
+      'where operacao = :operacao')
+    RequestLive = True
+    Left = 704
+    Top = 136
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'operacao'
+        ParamType = ptUnknown
+      end>
+    object qryOperacoesSetupCopiaoperacao: TIntegerField
+      FieldName = 'operacao'
+    end
+    object qryOperacoesSetupCopiasequencia: TIntegerField
+      FieldName = 'sequencia'
+    end
+    object qryOperacoesSetupCopiapergunta: TStringField
+      FieldName = 'pergunta'
+      Size = 110
+    end
+    object qryOperacoesSetupCopiaresposta: TStringField
+      FieldName = 'resposta'
+      Size = 30
+    end
+  end
+  object qryFalhasOperacoesCopia: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryFalhasOperacoesAfterOpen
+    AfterEdit = qryFalhasOperacoesAfterEdit
+    AfterPost = qryFalhasOperacoesAfterPost
+    AfterDelete = qryFalhasOperacoesAfterDelete
+    OnNewRecord = qryFalhasOperacoesNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT fo.Falha,'
+      '       fo.Operacao,      '
+      '       f.Descricao'
+      ''
+      'FROM falhasoperacoes fo'
+      '     JOIN falhas f ON fo.Falha = f.Codigo'
+      ''
+      'WHERE fo.Operacao = :Operacao'
+      ''
+      'ORDER BY f.Descricao'
+      '')
+    RequestLive = True
+    Left = 704
+    Top = 192
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'Operacao'
+        ParamType = ptUnknown
+      end>
+    object qryFalhasOperacoesCopiafalha: TIntegerField
+      FieldName = 'falha'
+    end
+    object qryFalhasOperacoesCopiaoperacao: TIntegerField
+      FieldName = 'operacao'
+    end
+    object qryFalhasOperacoesCopiadescricao: TStringField
+      FieldName = 'descricao'
+      Size = 300
+    end
+  end
+end

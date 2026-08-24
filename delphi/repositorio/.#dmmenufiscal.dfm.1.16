@@ -1,0 +1,1829 @@
+inherited dtmMenuFiscal: TdtmMenuFiscal
+  OldCreateOrder = False
+  Left = 109
+  Top = 225
+  Height = 876
+  Width = 1616
+  object qryProdutos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select sel.*,'
+      '       CASE WHEN upper(hash_paf_registro_p2) ='
+      
+        '                 upper(hash_paf_registro_p2_calculado) THEN true' +
+        ' ELSE false END as registrovalido'
+      'from'
+      ' ('
+      '  select *,'
+      
+        '          md5(cnpj||cast(produto as varchar)||descricao||unidade' +
+        '||ippt||situacaotributaria||cast(aliquota as varchar)||cast(valo' +
+        'runitario as varchar)) as  hash_paf_registro_p2_calculado'
+      '  from registro_p2'
+      '  where cnpj = :cnpj'
+      ''
+      '  ) as sel'
+      'order by produto'
+      '')
+    RequestLive = False
+    Left = 48
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'cnpj'
+        ParamType = ptUnknown
+      end>
+    object qryProdutoscnpj: TStringField
+      FieldName = 'cnpj'
+      Size = 14
+    end
+    object qryProdutosproduto: TStringField
+      FieldName = 'produto'
+      Size = 14
+    end
+    object qryProdutosdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 50
+    end
+    object qryProdutosunidade: TStringField
+      FieldName = 'unidade'
+      Size = 6
+    end
+    object qryProdutosiat: TStringField
+      FieldName = 'iat'
+      Size = 1
+    end
+    object qryProdutosippt: TStringField
+      FieldName = 'ippt'
+      Size = 1
+    end
+    object qryProdutossituacaotributaria: TStringField
+      FieldName = 'situacaotributaria'
+      Size = 1
+    end
+    object qryProdutosaliquota: TFloatField
+      FieldName = 'aliquota'
+    end
+    object qryProdutosvalorunitario: TFloatField
+      FieldName = 'valorunitario'
+    end
+    object qryProdutoshash_paf_registro_p2: TStringField
+      FieldName = 'hash_paf_registro_p2'
+      Size = 32
+    end
+    object qryProdutoshash_paf_registro_p2_calculado: TMemoField
+      FieldName = 'hash_paf_registro_p2_calculado'
+      BlobType = ftMemo
+    end
+    object qryProdutosregistrovalido: TBooleanField
+      FieldName = 'registrovalido'
+    end
+  end
+  object qryEstoques_anterior: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'SQLListaParcialdeProdutos'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      'SELECT sel.codigovisual,descricao,'
+      
+        '       case when hash_paf_registro_e2=hash_paf_registro_e2_calcu' +
+        'lado THEN unidade ELSE '#39'?'#39' END as unidade,'
+      '       estoque'
+      'FROM'
+      '('
+      '       SELECT p.codigovisual,'
+      
+        '              CAST(p.descricao || coalesce(p.valorgrade1,'#39#39') || ' +
+        'coalesce(p.valorgrade2,'#39#39') AS VARCHAR) AS descricao,'
+      '              u.descricao AS unidade,'
+      '              e.emestoque as estoque,'
+      '              hash_paf_registro_e2,'
+      
+        '              md5(f.cnpj||cast(e.produto as varchar)||p.descrica' +
+        'o||u.descricao||'#39'+'#39'||cast(emestoque as varchar)) as hash_paf_reg' +
+        'istro_e2_calculado'
+      
+        '       FROM caracteristicas c JOIN produtos p ON (p.caracteristi' +
+        'ca = c.codigo),'
+      '            unidades u,estoques e,filiais f'
+      '       WHERE c.unidade=u.codigo'
+      '       and e.filial=:filialbase'
+      '       and e.produto=p.codigo'
+      '       and f.codigo=:filialbase'
+      '       AND e.filial=f.codigo'
+      '       %SQLListaParcialdeProdutos'
+      '       ORDER BY p.codigovisual'
+      ') as sel')
+    RequestLive = False
+    Left = 88
+    Top = 88
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filialbase'
+        ParamType = ptUnknown
+      end>
+    object qryEstoques_anteriorcodigovisual: TStringField
+      FieldName = 'codigovisual'
+      Size = 30
+    end
+    object qryEstoques_anteriordescricao: TStringField
+      FieldName = 'descricao'
+      Size = 40
+    end
+    object qryEstoques_anteriorunidade: TStringField
+      FieldName = 'unidade'
+      Size = 8
+    end
+    object qryEstoques_anteriorestoque: TFloatField
+      FieldName = 'estoque'
+    end
+  end
+  object ACBrPAF1: TACBrPAF
+    Path = 'C:\Arquivos de programas\Borland\Delphi6\Bin\'
+    Delimitador = '|'
+    CurMascara = '#0.00'
+    AssinarArquivo = False
+    Left = 128
+    Top = 24
+  end
+  object qryReducaoZMes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT not exists(SELECT *'
+      '                  FROM reducoesz'
+      '                  WHERE numerofabricacao = :serie'
+      
+        '                    AND EXTRACT(year FROM datamovimento) = EXTRA' +
+        'CT(year FROM current_date)'
+      
+        '                    AND EXTRACT(month FROM datamovimento) = EXTR' +
+        'ACT(month FROM current_date)'
+      '                  ) AS naoexiste')
+    RequestLive = False
+    Left = 144
+    Top = 72
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'serie'
+        ParamType = ptUnknown
+      end>
+    object qryReducaoZMesnaoexiste: TBooleanField
+      FieldName = 'naoexiste'
+    end
+  end
+  object qryReducoesZ: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select *,'
+      
+        '       CASE WHEN upper(hash_paf_registro_r02)=upper(md5(numerofa' +
+        'bricacao ||cast(crz as varchar)||cast(coo as varchar)||cast(cro ' +
+        'as varchar)||to_char(datamovimento,'#39'DD/MM/YYYY'#39')||to_char(dataem' +
+        'issao,'#39'DD/MM/YYYY HH24:MI:SS'#39')||to_char(horaemissao,'#39'DD/MM/YYYY ' +
+        'HH24:MI:SS'#39')||cast(vendabrutadiaria as varchar))) THEN'
+      '         true ELSE false END as registrovalido'
+      'from reducoesz'
+      'where datamovimento between :datainicial and :datafinal'
+      
+        '     and numerofabricacao=:numerofabricacao /*numerofabricacao =' +
+        ' :numerofabricacao*/'
+      
+        'order by numerofabricacao, mfadicional, modelodoecf, numerousuar' +
+        'io,'
+      '         crz, coo, cro, datamovimento, dataemissao, horaemissao,'
+      '         vendabrutadiaria, parametroincidenciaissqn, filial')
+    RequestLive = False
+    Left = 48
+    Top = 136
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numerofabricacao'
+        ParamType = ptUnknown
+      end>
+    object qryReducoesZnumerofabricacao: TStringField
+      FieldName = 'numerofabricacao'
+    end
+    object qryReducoesZfilial: TIntegerField
+      FieldName = 'filial'
+      Required = True
+    end
+    object qryReducoesZmfadicional: TStringField
+      FieldName = 'mfadicional'
+      Size = 1
+    end
+    object qryReducoesZmodelodoecf: TStringField
+      FieldName = 'modelodoecf'
+    end
+    object qryReducoesZnumerousuario: TIntegerField
+      FieldName = 'numerousuario'
+      Required = True
+    end
+    object qryReducoesZcrz: TIntegerField
+      FieldName = 'crz'
+    end
+    object qryReducoesZcoo: TIntegerField
+      FieldName = 'coo'
+    end
+    object qryReducoesZcro: TIntegerField
+      FieldName = 'cro'
+      Required = True
+    end
+    object qryReducoesZdatamovimento: TDateField
+      FieldName = 'datamovimento'
+      Required = True
+    end
+    object qryReducoesZdataemissao: TDateTimeField
+      FieldName = 'dataemissao'
+    end
+    object qryReducoesZhoraemissao: TDateTimeField
+      FieldName = 'horaemissao'
+    end
+    object qryReducoesZvendabrutadiaria: TFloatField
+      FieldName = 'vendabrutadiaria'
+    end
+    object qryReducoesZparametroincidenciaissqn: TStringField
+      FieldName = 'parametroincidenciaissqn'
+      Size = 1
+    end
+    object qryReducoesZregistrovalido: TBooleanField
+      FieldName = 'registrovalido'
+    end
+  end
+  object qryReducoesZDetalhes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkFields = 
+      'filial=filial;numerousuario=numerousuario;cro=cro;datamovimento=' +
+      'datamovimento'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrReducoesZ
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select rzd.*,'
+      
+        #9#9#9#9'case when upper(hash_paf_registro_r03)=upper(md5(rz.NumeroFa' +
+        'bricacao||cast(rzd.numerousuario as varchar)||to_char(rzd.datamo' +
+        'vimento,'#39'DD/MM/YYYY'#39')||cast(rzd.tipototalizadorparcial as varcha' +
+        'r)||cast(rzd.aliquota as varchar)||cast(rzd.valoracumulado as va' +
+        'rchar)||cast(rz.crz as varchar))) then'
+      '          true'
+      '        else'
+      '          false'
+      '        end as registrovalido'
+      ''
+      'from reducoesz rz'
+      '     join reducoeszdetalhes rzd'
+      '     on   rz.filial = rzd.filial'
+      '     and  rz.numerousuario = rzd.numerousuario'
+      '     and  rz.cro = rzd.cro'
+      '     and  rz.datamovimento = rzd.datamovimento'
+      'where rz.datamovimento between :datainicial and :datafinal'
+      
+        '     and rz.numerofabricacao=:numerofabricacao /*rz.numerofabric' +
+        'acao = :numerofabricacao*/'
+      
+        'order by numerousuario, cro, datamovimento, tipototalizadorparci' +
+        'al, filial')
+    RequestLive = False
+    Left = 56
+    Top = 192
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numerofabricacao'
+        ParamType = ptUnknown
+      end>
+    object qryReducoesZDetalhesfilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryReducoesZDetalhesnumerousuario: TIntegerField
+      FieldName = 'numerousuario'
+    end
+    object qryReducoesZDetalhescro: TIntegerField
+      FieldName = 'cro'
+    end
+    object qryReducoesZDetalhesdatamovimento: TDateField
+      FieldName = 'datamovimento'
+    end
+    object qryReducoesZDetalhestipototalizadorparcial: TStringField
+      FieldName = 'tipototalizadorparcial'
+      Size = 7
+    end
+    object qryReducoesZDetalhesaliquota: TFloatField
+      FieldName = 'aliquota'
+    end
+    object qryReducoesZDetalhesvaloracumulado: TFloatField
+      FieldName = 'valoracumulado'
+    end
+    object qryReducoesZDetalhesregistrovalido: TBooleanField
+      FieldName = 'registrovalido'
+    end
+  end
+  object qryUltimaReducaoZ: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select max(crz) as crz'
+      'from reducoesz'
+      'where  numerofabricacao = :numerofabricacao'
+      '   and cro = :cro'
+      '   and filial = :filialbase')
+    RequestLive = False
+    Left = 176
+    Top = 144
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'numerofabricacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'cro'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filialbase'
+        ParamType = ptUnknown
+      end>
+    object qryUltimaReducaoZcrz: TIntegerField
+      FieldName = 'crz'
+    end
+  end
+  object qryMeiosPagto: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'SELECT sel.*,'
+      '       CASE WHEN upper(hash_paf_registro_a2) ='
+      
+        '                 upper(hash_paf_registro_a2_calculado) THEN true' +
+        ' ELSE false END as registrovalido'
+      'FROM'
+      '('
+      '  SELECT *,'
+      
+        '        md5(coalesce(cast(ecf as varchar),'#39#39')||cast(data as varc' +
+        'har)||cast(tipodocto as varchar)||cast(valoracumulado as varchar' +
+        ')) as hash_paf_registro_a2_calculado'
+      '  FROM registro_a2'
+      '  WHERE filial = :filial'
+      '  and data between :datainicial and :datafinal'
+      '  ORDER BY data'
+      ') as sel'
+      '')
+    RequestLive = True
+    Left = 176
+    Top = 200
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end>
+    object qryMeiosPagtoecf: TIntegerField
+      FieldName = 'ecf'
+    end
+    object qryMeiosPagtofilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryMeiosPagtodata: TDateField
+      FieldName = 'data'
+    end
+    object qryMeiosPagtotipodocto: TStringField
+      FieldName = 'tipodocto'
+      Size = 1
+    end
+    object qryMeiosPagtomeiopagto: TStringField
+      FieldName = 'meiopagto'
+      Size = 50
+    end
+    object qryMeiosPagtovaloracumulado: TFloatField
+      FieldName = 'valoracumulado'
+    end
+    object qryMeiosPagtohash_paf_registro_a2: TStringField
+      FieldName = 'hash_paf_registro_a2'
+      Size = 32
+    end
+    object qryMeiosPagtohash_paf_registro_a2_calculado: TMemoField
+      FieldName = 'hash_paf_registro_a2_calculado'
+      BlobType = ftMemo
+    end
+    object qryMeiosPagtoregistrovalido: TBooleanField
+      FieldName = 'registrovalido'
+    end
+  end
+  object dsrReducoesZ: TtecDataSource
+    DataSet = qryReducoesZ
+    Left = 80
+    Top = 144
+  end
+  object qryDadosCupom: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select dc.num_fab,'
+      '       dlc.*,'
+      
+        '       case when upper(hash_paf_registro_r04)=upper(md5(dc.Num_f' +
+        'ab||cast(dlc.ccf as varchar)||cast(dc.coo as varchar)||cast(dlc.' +
+        'vl_tot as varchar)||cast(dlc.canc as varchar))) then'
+      '        true'
+      '       else'
+      '        false'
+      '       end as registrovalido'
+      'from dadoscupom dc'
+      '     join detalhecupom dlc'
+      '       on  dc.filial = dlc.filial'
+      '       and dc.num_usu = dlc.num_usu'
+      '       and dc.cro = dlc.cro'
+      '       and dc.coo = dlc.coo'
+      
+        'where cast(dlc.dt_ini as date) between :datainicial and :datafin' +
+        'al'
+      '  and dc.num_fab = :num_fab/*dc.num_fab = :num_fab*/'
+      '  '
+      
+        'order by dc.num_fab, dc.num_usu, dc.cro, dc.coo, dlc.ccf, dc.fil' +
+        'ial')
+    RequestLive = False
+    Left = 56
+    Top = 248
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'num_fab'
+        ParamType = ptUnknown
+      end>
+    object qryDadosCupomnum_fab: TStringField
+      FieldName = 'num_fab'
+    end
+    object qryDadosCupomfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryDadosCupomnum_usu: TIntegerField
+      FieldName = 'num_usu'
+      DisplayFormat = '0'
+    end
+    object qryDadosCupomcro: TIntegerField
+      FieldName = 'cro'
+      DisplayFormat = '0'
+    end
+    object qryDadosCupomcoo: TIntegerField
+      FieldName = 'coo'
+      DisplayFormat = '0'
+    end
+    object qryDadosCupomccf: TIntegerField
+      FieldName = 'ccf'
+      DisplayFormat = '0'
+    end
+    object qryDadosCupomdt_ini: TDateField
+      Alignment = taCenter
+      FieldName = 'dt_ini'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryDadosCupomsub_docto: TFloatField
+      FieldName = 'sub_docto'
+      DisplayFormat = '0.00'
+    end
+    object qryDadosCupomsub_descto: TFloatField
+      FieldName = 'sub_descto'
+      DisplayFormat = '0.00'
+    end
+    object qryDadosCupomtp_descto: TStringField
+      FieldName = 'tp_descto'
+      Size = 1
+    end
+    object qryDadosCupomsub_acres: TFloatField
+      FieldName = 'sub_acres'
+      DisplayFormat = '0.00'
+    end
+    object qryDadosCupomtp_acres: TStringField
+      FieldName = 'tp_acres'
+      Size = 1
+    end
+    object qryDadosCupomvl_tot: TFloatField
+      FieldName = 'vl_tot'
+      DisplayFormat = '0.00'
+    end
+    object qryDadosCupomcanc: TStringField
+      FieldName = 'canc'
+      Size = 1
+    end
+    object qryDadosCupomvl_ca: TFloatField
+      FieldName = 'vl_ca'
+      DisplayFormat = '0.00'
+    end
+    object qryDadosCupomordem_da: TStringField
+      FieldName = 'ordem_da'
+      Size = 1
+    end
+    object qryDadosCupomnome_cli: TStringField
+      FieldName = 'nome_cli'
+    end
+    object qryDadosCupomcnpj_cpf: TStringField
+      FieldName = 'cnpj_cpf'
+      Size = 14
+    end
+    object qryDadosCupomregistrovalido: TBooleanField
+      FieldName = 'registrovalido'
+    end
+  end
+  object dsrDadosCupom: TtecDataSource
+    DataSet = qryDadosCupom
+    Left = 104
+    Top = 264
+  end
+  object qryDadosItemCupom: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkFields = 'filial=filial; num_usu=num_usu; cro=cro;  coo=coo'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrDadosCupom
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select dic.*,'
+      
+        '       case when upper(hash_paf_registro_r05)=upper(md5(dc.num_f' +
+        'ab||cast(dc.coo as varchar)||cast(dlc.ccf as varchar)||cast(cod_' +
+        'item as varchar)||cast(qtde_item as varchar)||cast(vl_unit as va' +
+        'rchar)||cast(vl_tot_item as varchar)||cast(cod_tot_parc as varch' +
+        'ar)||cast(ind_canc as varchar))) then'
+      '         true'
+      '       else'
+      '         false'
+      '       end as registrovalido'
+      'from dadoscupom dc'
+      '     join detalhecupom dlc'
+      '       on  dc.filial = dlc.filial'
+      '       and dc.num_usu = dlc.num_usu'
+      '       and dc.cro = dlc.cro'
+      '       and dc.coo = dlc.coo'
+      '     join dadositemcupom dic'
+      '       on  dc.filial = dic.filial'
+      '       and dc.num_usu = dic.num_usu'
+      '       and dc.cro = dic.cro'
+      '       and dc.coo = dic.coo'
+      
+        'where cast(dlc.dt_ini as date) between :datainicial and :datafin' +
+        'al'
+      '  and dc.num_fab = :num_fab'
+      'order by dc.num_usu, dc.cro, dc.coo, dic.num_item, dc.filial')
+    RequestLive = False
+    Left = 56
+    Top = 312
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'num_fab'
+        ParamType = ptUnknown
+      end>
+    object qryDadosItemCupomfilial: TIntegerField
+      FieldName = 'filial'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryDadosItemCupomnum_usu: TIntegerField
+      FieldName = 'num_usu'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryDadosItemCupomcro: TIntegerField
+      FieldName = 'cro'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryDadosItemCupomcoo: TIntegerField
+      FieldName = 'coo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryDadosItemCupomnum_item: TIntegerField
+      FieldName = 'num_item'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryDadosItemCupomcod_item: TStringField
+      FieldName = 'cod_item'
+      Size = 14
+    end
+    object qryDadosItemCupomdesc_item: TStringField
+      FieldName = 'desc_item'
+      Size = 100
+    end
+    object qryDadosItemCupomqtde_item: TFloatField
+      FieldName = 'qtde_item'
+      DisplayFormat = '0.00'
+    end
+    object qryDadosItemCupomun_med: TStringField
+      FieldName = 'un_med'
+      Size = 3
+    end
+    object qryDadosItemCupomvl_unit: TFloatField
+      FieldName = 'vl_unit'
+      DisplayFormat = '0.00'
+    end
+    object qryDadosItemCupomdescto_item: TFloatField
+      FieldName = 'descto_item'
+      DisplayFormat = '0.00'
+    end
+    object qryDadosItemCupomacres_item: TFloatField
+      FieldName = 'acres_item'
+      DisplayFormat = '0.00'
+    end
+    object qryDadosItemCupomvl_tot_item: TFloatField
+      FieldName = 'vl_tot_item'
+      DisplayFormat = '0.00'
+    end
+    object qryDadosItemCupomcod_tot_parc: TStringField
+      FieldName = 'cod_tot_parc'
+      Size = 7
+    end
+    object qryDadosItemCupomind_canc: TStringField
+      FieldName = 'ind_canc'
+      Size = 1
+    end
+    object qryDadosItemCupomqtde_canc: TFloatField
+      FieldName = 'qtde_canc'
+      DisplayFormat = '0.00'
+    end
+    object qryDadosItemCupomvl_canc: TFloatField
+      FieldName = 'vl_canc'
+      DisplayFormat = '0.00'
+    end
+    object qryDadosItemCupomvl_canc_acres: TFloatField
+      FieldName = 'vl_canc_acres'
+      DisplayFormat = '0.00'
+    end
+    object qryDadosItemCupomiat: TStringField
+      FieldName = 'iat'
+      Size = 1
+    end
+    object qryDadosItemCupomippt: TStringField
+      FieldName = 'ippt'
+      Size = 1
+    end
+    object qryDadosItemCupomqtde_decimal: TIntegerField
+      FieldName = 'qtde_decimal'
+      DisplayFormat = '0'
+    end
+    object qryDadosItemCupomvl_decimal: TIntegerField
+      FieldName = 'vl_decimal'
+      DisplayFormat = '0'
+    end
+    object qryDadosItemCupomregistrovalido: TBooleanField
+      FieldName = 'registrovalido'
+    end
+  end
+  object qryFormasPagamentoCupom: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkFields = 'filial=filial; num_usu=num_usu; cro=cro;  coo=coo'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrDadosCupom
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select fp.*,'
+      '       dlc.ccf,'
+      '       case when'
+      
+        '         upper(hash_paf_registro_r07)=upper(md5(dc.num_fab||cast' +
+        '(dc.coo as varchar)||cast(COALESCE(dlc.ccf,0) as varchar)))'
+      '       then'
+      '          true'
+      '       else'
+      '          false'
+      '       end as registrovalido'
+      'from dadoscupom dc'
+      '     join detalhecupom dlc'
+      '       on  dc.filial = dlc.filial'
+      '       and dc.num_usu = dlc.num_usu'
+      '       and dc.cro = dlc.cro'
+      '       and dc.coo = dlc.coo'
+      '     join formaspagamentoecf fp'
+      '       on  dc.filial = fp.filial'
+      '       and dc.num_usu = fp.num_usu'
+      '       and dc.cro = fp.cro'
+      '       and dc.coo = fp.coo'
+      
+        'where cast(dlc.dt_ini as date) between :datainicial and :datafin' +
+        'al'
+      '  and dc.num_fab = :num_fab'
+      'order by dc.num_usu, dc.cro, dc.coo, fp.num_item, dc.filial')
+    RequestLive = False
+    Left = 56
+    Top = 360
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'num_fab'
+        ParamType = ptUnknown
+      end>
+    object qryFormasPagamentoCupomfilial: TIntegerField
+      FieldName = 'filial'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryFormasPagamentoCupomnum_usu: TIntegerField
+      FieldName = 'num_usu'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryFormasPagamentoCupomcro: TIntegerField
+      FieldName = 'cro'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryFormasPagamentoCupomcoo: TIntegerField
+      FieldName = 'coo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryFormasPagamentoCupomnum_item: TIntegerField
+      FieldName = 'num_item'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryFormasPagamentoCupommp: TStringField
+      FieldName = 'mp'
+      Size = 15
+    end
+    object qryFormasPagamentoCupomvl_pagto: TFloatField
+      FieldName = 'vl_pagto'
+      DisplayFormat = '0.00'
+    end
+    object qryFormasPagamentoCupomind_est: TStringField
+      FieldName = 'ind_est'
+      Size = 1
+    end
+    object qryFormasPagamentoCupomvl_est: TFloatField
+      FieldName = 'vl_est'
+      DisplayFormat = '0.00'
+    end
+    object qryFormasPagamentoCupomccf: TIntegerField
+      FieldName = 'ccf'
+      DisplayFormat = '0'
+    end
+    object qryFormasPagamentoCupomregistrovalido: TBooleanField
+      FieldName = 'registrovalido'
+    end
+  end
+  object qryDemaisDoctos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select ddc.*,'
+      
+        '       case when upper(hash_paf_registro_r06)=upper(md5(dc.num_f' +
+        'ab||cast(dc.coo as varchar)||cast(COALESCE(gnf,0) as varchar)||c' +
+        'ast(COALESCE(cdc,0) as varchar)||cast(denom as varchar)||to_char' +
+        '(dt_fin,'#39'DD/MM/YYYY'#39'))) then'
+      '          true'
+      '       else'
+      '          false'
+      '       end as registrovalido'
+      'from dadoscupom dc'
+      '     join detalhedemaisdoctos ddc'
+      '       on  dc.filial = ddc.filial'
+      '       and dc.num_usu = ddc.num_usu'
+      '       and dc.cro = ddc.cro'
+      '       and dc.coo = ddc.coo'
+      
+        '       /*nao trazer cupom fiscal cancelado .. verificar se dever' +
+        'ia ser gravado em detalhdemaisdoctos*/'
+      
+        '       and not exists (select * from detalhecupom dlc where dlc.' +
+        'filial=dc.filial and dlc.num_usu=dc.num_usu and dlc.cro=dc.cro a' +
+        'nd dlc.coo=ddc.cooref and dlc.canc='#39'S'#39') '
+      
+        'where cast(ddc.dt_fin as date) between :datainicial and :datafin' +
+        'al'
+      '  and dc.num_fab = :num_fab'
+      'order by dc.num_usu, dc.cro, dc.coo, dc.filial')
+    RequestLive = False
+    Left = 176
+    Top = 256
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'num_fab'
+        ParamType = ptUnknown
+      end>
+    object qryDemaisDoctosfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryDemaisDoctosnum_usu: TIntegerField
+      FieldName = 'num_usu'
+      DisplayFormat = '0'
+    end
+    object qryDemaisDoctoscro: TIntegerField
+      FieldName = 'cro'
+      DisplayFormat = '0'
+    end
+    object qryDemaisDoctoscoo: TIntegerField
+      FieldName = 'coo'
+      DisplayFormat = '0'
+    end
+    object qryDemaisDoctoscooref: TIntegerField
+      FieldName = 'cooref'
+      DisplayFormat = '0'
+    end
+    object qryDemaisDoctosgnf: TIntegerField
+      FieldName = 'gnf'
+      DisplayFormat = '0'
+    end
+    object qryDemaisDoctosgrg: TIntegerField
+      FieldName = 'grg'
+      DisplayFormat = '0'
+    end
+    object qryDemaisDoctoscdc: TIntegerField
+      FieldName = 'cdc'
+      DisplayFormat = '0'
+    end
+    object qryDemaisDoctosdenom: TStringField
+      FieldName = 'denom'
+      Size = 2
+    end
+    object qryDemaisDoctosdt_fin: TDateTimeField
+      FieldName = 'dt_fin'
+    end
+    object qryDemaisDoctoshr_fin: TDateTimeField
+      FieldName = 'hr_fin'
+    end
+    object qryDemaisDoctosregistrovalido: TBooleanField
+      FieldName = 'registrovalido'
+    end
+  end
+  object dsrDemaisDoctos: TtecDataSource
+    DataSet = qryDemaisDoctos
+    Left = 208
+    Top = 272
+  end
+  object qryFormasPagtoDemais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkFields = 'filial=filial; num_usu=num_usu; cro=cro;  coo=coo'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrDemaisDoctos
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select fp.*,'
+      '       ddc.gnf,'
+      '       case when'
+      
+        '         upper(hash_paf_registro_r07)=upper(md5(dc.num_fab||cast' +
+        '(dc.coo as varchar)||cast(COALESCE(ddc.gnf,0) as varchar)||cast(' +
+        'COALESCE(ddc.cdc,0) as varchar)||cast(ddc.denom as varchar)||cas' +
+        't(ddc.dt_fin as varchar)))'
+      '       then'
+      '          true'
+      '       else'
+      '          false'
+      '       end as registrovalido'
+      'from dadoscupom dc'
+      '     join detalhedemaisdoctos ddc'
+      '       on  dc.filial = ddc.filial'
+      '       and dc.num_usu = ddc.num_usu'
+      '       and dc.cro = ddc.cro'
+      '       and dc.coo = ddc.coo'
+      '     join formaspagamentoecf fp'
+      '       on  dc.filial = fp.filial'
+      '       and dc.num_usu = fp.num_usu'
+      '       and dc.cro = fp.cro'
+      '       and dc.coo = fp.coo'
+      '       and ind_est ='#39'N'#39
+      
+        '       where cast(ddc.dt_fin as date) between :datainicial and :' +
+        'datafinal'
+      '  and dc.num_fab = :num_fab'
+      'order by dc.num_usu, dc.cro, dc.coo, fp.num_item, dc.filial')
+    RequestLive = False
+    Left = 176
+    Top = 328
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'num_fab'
+        ParamType = ptUnknown
+      end>
+    object qryFormasPagtoDemaisfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryFormasPagtoDemaisnum_usu: TIntegerField
+      FieldName = 'num_usu'
+      DisplayFormat = '0'
+    end
+    object qryFormasPagtoDemaiscro: TIntegerField
+      FieldName = 'cro'
+      DisplayFormat = '0'
+    end
+    object qryFormasPagtoDemaiscoo: TIntegerField
+      FieldName = 'coo'
+      DisplayFormat = '0'
+    end
+    object qryFormasPagtoDemaisnum_item: TIntegerField
+      FieldName = 'num_item'
+      DisplayFormat = '0'
+    end
+    object qryFormasPagtoDemaismp: TStringField
+      FieldName = 'mp'
+      Size = 15
+    end
+    object qryFormasPagtoDemaisvl_pagto: TFloatField
+      FieldName = 'vl_pagto'
+      DisplayFormat = '0.00'
+    end
+    object qryFormasPagtoDemaisind_est: TStringField
+      FieldName = 'ind_est'
+      Size = 1
+    end
+    object qryFormasPagtoDemaisvl_est: TFloatField
+      FieldName = 'vl_est'
+      DisplayFormat = '0.00'
+    end
+    object qryFormasPagtoDemaisgnf: TIntegerField
+      FieldName = 'gnf'
+      DisplayFormat = '0'
+    end
+    object qryFormasPagtoDemaisregistrovalido: TBooleanField
+      FieldName = 'registrovalido'
+    end
+  end
+  object ZMonitor1: TZMonitor
+    Left = 264
+    Top = 48
+  end
+  object qryDataMovimentoUltimaZ: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select datamovimento'
+      'from reducoesz'
+      'where  numerofabricacao = :numerofabricacao'
+      '   and cro = :cro'
+      '   and filial = :filialbase'
+      '   and crz = :crz')
+    RequestLive = False
+    Left = 288
+    Top = 120
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'numerofabricacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'cro'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filialbase'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'crz'
+        ParamType = ptUnknown
+      end>
+    object qryDataMovimentoUltimaZdatamovimento: TDateField
+      FieldName = 'datamovimento'
+    end
+  end
+  object qryDadosECF: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select serie,mfadicional,tipo,marca,modelodescricao,'
+      
+        '       CASE WHEN upper(hash_paf_registro_r01)=upper(hash_paf_reg' +
+        'istro_r01_calculado) THEN true ELSE false END as registrovalido,'
+      '       versao_sb,data_sb,maquina,cnpj,ie,'
+      
+        '        codigo,filial,intervencao,cniee,modelo,grandetotal,venda' +
+        'bruta,'
+      
+        '        CASE WHEN (select upper(hash_calculado) from hash_inclus' +
+        'ao_exclusao WHERE nome_registro='#39'MOVECF'#39') ='
+      '                  ('
+      
+        '                      upper(md5(('#9'select cast(sum(total) as varc' +
+        'har)'
+      #9#9#9#9#9#9#9#9#9#9#9#9#9#9#9'from'
+      #9#9#9#9#9#9#9#9#9#9#9#9#9#9#9'('
+      #9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9'select count(*) as total from ecfs'
+      #9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9'union'
+      #9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9'select count(*) as total from reducoesz'
+      #9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9'union'
+      #9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9'select count(*) as total from reducoeszdetalhes'
+      #9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9'union'
+      #9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9'select count(*) as total from dadoscupom'
+      #9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9'union'
+      #9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9'select count(*) as total from dadositemcupom'
+      #9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9'union'
+      
+        #9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9'select count(*) as total from detalhedemaisdocto' +
+        's'
+      #9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9'union'
+      #9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9'select count(*) as total from detalhecupom'
+      #9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9'union'
+      #9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9'select count(*) as total from formaspagamentoecf'
+      #9#9#9#9#9#9#9#9#9#9#9#9#9#9#9') as sel'
+      #9#9#9#9#9#9#9#9#9#9#9#9#9#9'))'
+      '                  ))'
+      '        THEN'
+      '           false'
+      '        else'
+      '            true'
+      '        end as inclusao_exclusao'
+      ''
+      'from'
+      '('
+      '  select *,'
+      
+        '       md5(serie || mfadicional||tipo||marca||modelodescricao||v' +
+        'ersao_sb ||cast(data_sb as varchar)||cast(maquina as varchar)||c' +
+        'ast(cnpj as varchar)||COALESCE(ie,'#39#39#39#39')) as hash_paf_registro_r0' +
+        '1_calculado'
+      ''
+      '  from ecfs'
+      ') as sel')
+    RequestLive = False
+    Left = 288
+    Top = 168
+    object qryDadosECFcodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryDadosECFfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryDadosECFmaquina: TStringField
+      FieldName = 'maquina'
+      Size = 4
+    end
+    object qryDadosECFintervencao: TStringField
+      FieldName = 'intervencao'
+      Size = 4
+    end
+    object qryDadosECFserie: TStringField
+      FieldName = 'serie'
+    end
+    object qryDadosECFcniee: TStringField
+      FieldName = 'cniee'
+      Size = 6
+    end
+    object qryDadosECFmodelo: TIntegerField
+      FieldName = 'modelo'
+      DisplayFormat = '0'
+    end
+    object qryDadosECFmodelodescricao: TStringField
+      FieldName = 'modelodescricao'
+    end
+    object qryDadosECFgrandetotal: TFloatField
+      FieldName = 'grandetotal'
+      DisplayFormat = '0.00'
+    end
+    object qryDadosECFvendabruta: TFloatField
+      FieldName = 'vendabruta'
+      DisplayFormat = '0.00'
+    end
+    object qryDadosECFmfadicional: TStringField
+      FieldName = 'mfadicional'
+      Size = 1
+    end
+    object qryDadosECFtipo: TStringField
+      FieldName = 'tipo'
+      Size = 7
+    end
+    object qryDadosECFmarca: TStringField
+      FieldName = 'marca'
+    end
+    object qryDadosECFdata_sb: TDateTimeField
+      FieldName = 'data_sb'
+    end
+    object qryDadosECFcnpj: TStringField
+      FieldName = 'cnpj'
+    end
+    object qryDadosECFie: TStringField
+      FieldName = 'ie'
+    end
+    object qryDadosECFversao_sb: TStringField
+      FieldName = 'versao_sb'
+      Size = 15
+    end
+    object qryDadosECFregistrovalido: TBooleanField
+      FieldName = 'registrovalido'
+    end
+    object qryDadosECFinclusao_exclusao: TBooleanField
+      FieldName = 'inclusao_exclusao'
+    end
+  end
+  object ACBrEAD1: TACBrEAD
+    OnGetChavePrivada = ACBrEAD1GetChavePrivada
+    Left = 424
+    Top = 112
+  end
+  object qryEstoquesData: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      
+        'select cnpj,inscricao_estadual,inscricao_municipal,razao_social,' +
+        'numero_fabricacao,mf_adicional,'
+      '       tipo_ecf,marca_do_ecf,modelo_do_ecf,'
+      
+        '       case WHEN hash_registro_e3=hash_registro_e3_atual THEN tr' +
+        'ue ELSE false END as registrovalido,'
+      '       data_do_estoque,cast(hora_do_estoque as varchar(8)),'
+      
+        '       case when (select hash_calculado from hash_inclusao_exclu' +
+        'sao where nome_registro='#39'ESTOQUE'#39')=md5((select cast(count(*) as ' +
+        'varchar) from registro_e2))then'
+      '         false'
+      '       else'
+      '         true'
+      '       end as inclusao_exclusao'
+      'FROM'
+      '('
+      'select *,'
+      
+        '       md5(cnpj || COALESCE(inscricao_estadual,'#39#39') || COALESCE(i' +
+        'nscricao_municipal,'#39#39') || razao_social'
+      
+        '           || numero_fabricacao || mf_adicional || tipo_ecf || m' +
+        'arca_do_ecf || modelo_do_ecf'
+      
+        '           || cast(data_do_estoque as varchar) || cast(hora_do_e' +
+        'stoque as varchar)) as hash_registro_e3_atual'
+      
+        '         from paf_cabecalho WHERE filial=:filialbase and atual L' +
+        'IMIT 1) AS sel;'
+      '/*select data, cast(hora as varchar) as hora'
+      'from movimentos'
+      'order by data desc, hora desc limit 1;*/')
+    RequestLive = False
+    Left = 392
+    Top = 248
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filialbase'
+        ParamType = ptUnknown
+      end>
+    object qryEstoquesDatacnpj: TStringField
+      FieldName = 'cnpj'
+      Size = 14
+    end
+    object qryEstoquesDatainscricao_estadual: TStringField
+      FieldName = 'inscricao_estadual'
+      Size = 14
+    end
+    object qryEstoquesDatainscricao_municipal: TStringField
+      FieldName = 'inscricao_municipal'
+      Size = 14
+    end
+    object qryEstoquesDatarazao_social: TStringField
+      FieldName = 'razao_social'
+      Size = 50
+    end
+    object qryEstoquesDatanumero_fabricacao: TStringField
+      FieldName = 'numero_fabricacao'
+    end
+    object qryEstoquesDatamf_adicional: TStringField
+      FieldName = 'mf_adicional'
+      Size = 1
+    end
+    object qryEstoquesDatatipo_ecf: TStringField
+      FieldName = 'tipo_ecf'
+      Size = 7
+    end
+    object qryEstoquesDatamarca_do_ecf: TStringField
+      FieldName = 'marca_do_ecf'
+    end
+    object qryEstoquesDatamodelo_do_ecf: TStringField
+      FieldName = 'modelo_do_ecf'
+      Size = 50
+    end
+    object qryEstoquesDatadata_do_estoque: TDateField
+      FieldName = 'data_do_estoque'
+    end
+    object qryEstoquesDatahora_do_estoque: TStringField
+      FieldName = 'hora_do_estoque'
+      Size = 8
+    end
+    object qryEstoquesDataregistrovalido: TBooleanField
+      FieldName = 'registrovalido'
+    end
+    object qryEstoquesDatainclusao_exclusao: TBooleanField
+      FieldName = 'inclusao_exclusao'
+    end
+  end
+  object qryEstoques: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'SQLListaParcialdeProdutos'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      'SELECT sel.*,'
+      '       CASE WHEN upper(hash_paf_registro_e2) ='
+      
+        '                 upper(hash_paf_registro_e2_calculado) THEN true' +
+        ' ELSE false END as registrovalido'
+      'FROM'
+      '('
+      '  SELECT *,'
+      
+        '        md5(cnpj||cast(produto as varchar)||descricao||unidade||' +
+        #39'+'#39'||cast(emestoque as varchar)) as hash_paf_registro_e2_calcula' +
+        'do'
+      '  FROM registro_e2'
+      '  WHERE cnpj = :cnpj'
+      '  %SQLListaParcialdeProdutos'
+      '  ORDER BY produto'
+      ') as sel')
+    RequestLive = False
+    Left = 40
+    Top = 72
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'cnpj'
+        ParamType = ptUnknown
+      end>
+    object qryEstoquescnpj: TStringField
+      FieldName = 'cnpj'
+      Size = 14
+    end
+    object qryEstoquesproduto: TStringField
+      FieldName = 'produto'
+      Size = 14
+    end
+    object qryEstoquesdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 50
+    end
+    object qryEstoquesunidade: TStringField
+      FieldName = 'unidade'
+      Size = 6
+    end
+    object qryEstoquesemestoque: TFloatField
+      FieldName = 'emestoque'
+    end
+    object qryEstoquesmensuracao: TStringField
+      FieldName = 'mensuracao'
+      Size = 1
+    end
+    object qryEstoqueshash_paf_registro_e2: TStringField
+      FieldName = 'hash_paf_registro_e2'
+      Size = 32
+    end
+    object qryEstoqueshash_paf_registro_e2_calculado: TMemoField
+      FieldName = 'hash_paf_registro_e2_calculado'
+      BlobType = ftMemo
+    end
+    object qryEstoquesregistrovalido: TBooleanField
+      FieldName = 'registrovalido'
+    end
+  end
+  object qryprodutos_anterior: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'SELECT codigovisual,descricao,'
+      
+        '       CASE WHEN hash_paf_registro_p2=hash_paf_registro_p2_calcu' +
+        'lado THEN unidade ELSE '#39'?'#39' END AS unidade,'
+      '       producaopropria,situacaotributaria,aliquota,precounitario'
+      'FROM'
+      '('
+      '   SELECT p.codigovisual,'
+      
+        '       CAST(p.descricao || coalesce(p.valorgrade1,'#39#39') || coalesc' +
+        'e(p.valorgrade2,'#39#39') AS VARCHAR) AS descricao,'
+      ''
+      '       u.descricao AS unidade,'
+      '       CAST(CASE WHEN c.producaopropria THEN '#39'P'#39
+      '                                        ELSE '#39'T'#39
+      '            END AS CHAR) as producaopropria,'
+      ''
+      '       CAST(CASE WHEN c.incidencia = 5           THEN '#39'I'#39
+      '                 WHEN c.incidencia in (4,6,7,11) THEN '#39'N'#39
+      '                 WHEN c.incidencia in (2,9,10)   THEN '#39'F'#39
+      '                 WHEN c.incidencia in (1,3,8)    THEN '#39'T'#39
+      '            END AS CHAR) AS situacaotributaria,'
+      ''
+      
+        '       CAST(COALESCE((SELECT ei.valor FROM estadosicms ei WHERE ' +
+        'ei.icms = c.icms AND ei.estado = :estado),0) AS NUMERIC) AS aliq' +
+        'uota,'
+      ''
+      '       estoques_preco(p.codigo,:filialbase) AS precounitario,'
+      ''
+      '       hash_paf_registro_p2,'
+      ''
+      '       md5(f.cnpj||p.codigo||p.descricao||u.descricao||'#39'T'#39'||'#39'T'#39
+      '           || CAST(CASE WHEN c.incidencia = 5  THEN '#39'I'#39
+      #9'      '#9'        WHEN c.incidencia in (4,6,7,11) THEN '#39'N'#39
+      #9#9#9'WHEN c.incidencia in (2,9,10)   THEN '#39'F'#39
+      #9#9#9'WHEN c.incidencia in (1,3,8)    THEN '#39'T'#39
+      '                    END AS CHAR)'
+      
+        '           || CAST(COALESCE((SELECT ei.valor FROM estadosicms ei' +
+        ' WHERE ei.icms = c.icms AND ei.estado = f.estado),0) AS NUMERIC)'
+      
+        #9#9#9#9#9#9#9'|| estoques_preco(p.codigo,f.codigo))  as hash_paf_regist' +
+        'ro_p2_calculado'
+      ''
+      ''
+      
+        '   FROM caracteristicas c JOIN produtos p ON p.caracteristica = ' +
+        'c.codigo,'
+      '        filiais f, unidades u,estoques e'
+      '   WHERE f.codigo=:filialbase'
+      '   AND u.codigo=c.unidade'
+      '   AND e.filial=f.codigo'
+      '   AND e.produto=p.codigo'
+      '   ORDER BY p.codigovisual'
+      ') AS SEL')
+    RequestLive = False
+    Left = 408
+    Top = 24
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'estado'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filialbase'
+        ParamType = ptUnknown
+      end>
+    object StringField1: TStringField
+      FieldName = 'codigovisual'
+      Required = True
+      Size = 30
+    end
+    object StringField2: TStringField
+      FieldName = 'descricao'
+      Size = 40
+    end
+    object StringField3: TStringField
+      FieldName = 'unidade'
+      Size = 8
+    end
+    object StringField4: TStringField
+      FieldName = 'producaopropria'
+      Size = 1
+    end
+    object StringField5: TStringField
+      FieldName = 'situacaotributaria'
+      Size = 1
+    end
+    object FloatField1: TFloatField
+      FieldName = 'aliquota'
+      DisplayFormat = '0.00'
+    end
+    object FloatField2: TFloatField
+      FieldName = 'precounitario'
+      DisplayFormat = '0.00'
+    end
+  end
+  object qryInclusaoExclusao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      
+        'SELECT CASE WHEN upper(hash_paf_registro_u1)=upper(hash_paf_regi' +
+        'stro_u1_calculado) THEN true ELSE false END as registrovalido'
+      'from'
+      '(select hash_paf_registro_u1,'
+      ''
+      ''
+      #9#9#9#9#9#9#9#9'md5(('#9'select cast(sum(total) as varchar)'
+      #9#9#9#9#9#9#9#9#9#9'from'
+      #9#9#9#9#9#9#9#9#9#9'('
+      #9#9#9#9#9#9#9#9#9#9#9'select count(*) as total from registro_a2'
+      #9#9#9#9#9#9#9#9#9#9#9'union all'
+      #9#9#9#9#9#9#9#9#9#9#9'select count(*) as total from registro_p2'
+      #9#9#9#9#9#9#9#9#9#9#9'union all'
+      #9#9#9#9#9#9#9#9#9#9#9'select count(*) as total from registro_e2'
+      #9#9#9#9#9#9#9#9#9#9#9'union all'
+      #9#9#9#9#9#9#9#9#9#9#9'select count(*) as total from ecfs'
+      #9#9#9#9#9#9#9#9#9#9#9'union all'
+      #9#9#9#9#9#9#9#9#9#9#9'select count(*) as total from paf_cabecalho'
+      #9#9#9#9#9#9#9#9#9#9#9'union all'
+      #9#9#9#9#9#9#9#9#9#9#9'('
+      #9#9#9#9#9#9#9#9#9#9#9#9'select count(*) as total '
+      #9#9#9#9#9#9#9#9#9#9#9#9'from reducoesz rz'
+      #9#9#9#9#9#9#9#9#9#9#9#9'where datamovimento<current_date'#9#9#9#9#9#9#9#9#9#9#9#9' '
+      #9#9#9#9#9#9#9#9#9#9#9')'
+      #9#9#9#9#9#9#9#9#9#9#9'union all'
+      #9#9#9#9#9#9#9#9#9#9#9'('
+      #9#9#9#9#9#9#9#9#9#9#9#9'select count(*) as total'
+      #9#9#9#9#9#9#9#9#9#9#9#9'from reducoesz rz'
+      #9#9#9#9#9#9#9#9#9#9#9#9#9' join reducoeszdetalhes rzd'
+      #9#9#9#9#9#9#9#9#9#9#9#9#9' on   rz.filial = rzd.filial'
+      #9#9#9#9#9#9#9#9#9#9#9#9#9' and  rz.numerousuario = rzd.numerousuario'
+      #9#9#9#9#9#9#9#9#9#9#9#9#9' and  rz.cro = rzd.cro'
+      #9#9#9#9#9#9#9#9#9#9#9#9#9' and  rz.datamovimento = rzd.datamovimento'
+      #9#9#9#9#9#9#9#9#9#9#9#9'where rz.datamovimento < current_date'
+      #9#9#9#9#9#9#9#9#9#9#9')'#9#9#9#9#9#9#9#9#9#9#9
+      #9#9#9#9#9#9#9#9#9#9#9'union all'
+      #9#9#9#9#9#9#9#9#9#9#9'('
+      #9#9#9#9#9#9#9#9#9#9#9#9'select count(*) from dadoscupom'
+      #9#9#9#9#9#9#9#9#9#9#9#9
+      #9#9#9#9#9#9#9#9#9#9#9')'
+      #9#9#9#9#9#9#9#9#9#9#9'union all '
+      #9#9#9#9#9#9#9#9#9#9#9'select count(*) from detalhecupom'
+      #9#9#9#9#9#9#9#9#9#9#9'union all'
+      #9#9#9#9#9#9#9#9#9#9#9'('
+      #9#9#9#9#9#9#9#9#9#9#9#9'select count(*) from dadositemcupom'#9#9#9#9#9#9#9#9#9#9#9#9
+      #9#9#9#9#9#9#9#9#9#9#9')'
+      #9#9#9#9#9#9#9#9#9#9#9'union all'
+      #9#9#9#9#9#9#9#9#9#9#9'select count(*) as total from detalhedemaisdoctos'
+      #9#9#9#9#9#9#9#9#9#9#9'union all'
+      #9#9#9#9#9#9#9#9#9#9#9'select count(*) as total from detalhecupom '
+      #9#9#9#9#9#9#9#9#9#9#9'union all'
+      #9#9#9#9#9#9#9#9#9#9#9'('
+      #9#9#9#9#9#9#9#9#9#9#9#9'select count(*) from formaspagamentoecf'
+      #9#9#9#9#9#9#9#9#9#9#9')'
+      #9#9#9#9#9#9#9#9#9#9') as sel'
+      #9#9#9#9#9#9#9#9#9')) as hash_paf_registro_u1_calculado'
+      #9'from filiais'
+      #9'where codigo=:filial'
+      ') as sel'
+      '')
+    RequestLive = False
+    Left = 368
+    Top = 320
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object qryInclusaoExclusaoregistrovalido: TBooleanField
+      FieldName = 'registrovalido'
+    end
+  end
+  object qryTroco: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select *,'
+      
+        '       case WHEN hash_registro_h2=hash_registro_h2_calculado THE' +
+        'N true ELSE false END as registrovalido'
+      'FROM'
+      '('
+      'select rh.*,e.mfadicional,e.tipo,e.marca,e.modelo,'
+      
+        '       md5(cnpj_credenciadora || rh.numero_fabricacao || cast(co' +
+        'o as varchar) || cast(ccf as varchar)'
+      
+        '          || cast(valor_troco as varchar) || to_char(data_troco,' +
+        #39'DD/MM/YYYY H24:MI:SS'#39') || cpf || titulo) as hash_registro_h2_ca' +
+        'lculado'
+      '         from registro_h2 rh,ecfs e'
+      '         WHERE rh.filial=:filialbase'
+      '         and rh.numero_fabricacao=e.serie'
+      
+        '         AND data_troco between :datainicial and :datafinal) AS ' +
+        'sel;'
+      '')
+    RequestLive = False
+    Left = 328
+    Top = 224
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filialbase'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end>
+    object qryTrocofilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryTrococnpj_credenciadora: TStringField
+      FieldName = 'cnpj_credenciadora'
+      Size = 14
+    end
+    object qryTroconumero_fabricacao: TStringField
+      FieldName = 'numero_fabricacao'
+    end
+    object qryTrococoo: TIntegerField
+      FieldName = 'coo'
+      DisplayFormat = '0'
+    end
+    object qryTrococcf: TIntegerField
+      FieldName = 'ccf'
+      DisplayFormat = '0'
+    end
+    object qryTrocovalor_troco: TFloatField
+      FieldName = 'valor_troco'
+      DisplayFormat = '0.00'
+    end
+    object qryTrocodata_troco: TDateTimeField
+      FieldName = 'data_troco'
+    end
+    object qryTrococpf: TStringField
+      FieldName = 'cpf'
+      Size = 14
+    end
+    object qryTrocotitulo: TStringField
+      FieldName = 'titulo'
+      Size = 7
+    end
+    object qryTrocohash_registro_h2: TStringField
+      FieldName = 'hash_registro_h2'
+      Size = 32
+    end
+    object qryTrocohash_registro_h2_calculado: TMemoField
+      FieldName = 'hash_registro_h2_calculado'
+      BlobType = ftMemo
+    end
+    object qryTrocoregistrovalido: TBooleanField
+      FieldName = 'registrovalido'
+    end
+    object qryTrocomfadicional: TStringField
+      FieldName = 'mfadicional'
+      Size = 1
+    end
+    object qryTrocotipo: TStringField
+      FieldName = 'tipo'
+      Size = 7
+    end
+    object qryTrocomarca: TStringField
+      FieldName = 'marca'
+    end
+    object qryTrocomodelo: TIntegerField
+      FieldName = 'modelo'
+    end
+  end
+end

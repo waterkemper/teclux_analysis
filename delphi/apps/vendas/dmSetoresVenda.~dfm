@@ -1,0 +1,68 @@
+inherited dtmSetoresVenda: TdtmSetoresVenda
+  OldCreateOrder = False
+  Left = 422
+  Top = 312
+  Height = 360
+  Width = 513
+  object qrySetoresVenda: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select sv.*'
+      'from setoresvenda sv'
+      'where sv.codigo = :codigo')
+    RequestLive = True
+    Left = 40
+    Top = 40
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qrySetoresVendacodigo: TIntegerField
+      AutoGenerateValue = arAutoInc
+      FieldName = 'codigo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qrySetoresVendanome: TStringField
+      FieldName = 'nome'
+      Size = 100
+    end
+  end
+  object spcSetoresVendaProximo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select setoresvenda_proximocodigo() as codigo')
+    RequestLive = False
+    Left = 72
+    Top = 94
+    object spcSetoresVendaProximocodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+  end
+  object dsrSetoresVenda: TtecDataSource
+    DataSet = qrySetoresVenda
+    Left = 136
+    Top = 32
+  end
+end

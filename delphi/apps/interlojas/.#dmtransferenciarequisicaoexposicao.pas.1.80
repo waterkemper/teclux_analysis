@@ -1,0 +1,2782 @@
+unit dmtransferenciarequisicaoexposicao;
+
+interface
+
+uses
+  SysUtils, Classes, Math, Forms, Controls, Graphics, Variants, DB,
+  // Componentes
+  cpquery, cpdatasource,
+  // Terceiros
+  ZPgSqlQuery, ZQuery,  clnfe,
+  // Constantes
+  biblio, ctconstantes,
+  // projeto
+  dmbasico, dmimprimefiscal, fmpreviewpadrao, FR_DSet, FR_DBSet, FR_Class,
+  ZTransact,dmtecsoft, fmmensagemgrid;
+
+
+type
+  TtecFornecedorTransporte = Record
+    FornecedorTransporte: Integer;
+    TipoFrete           : String;
+    TipoTransp          : String;
+    Volumes             : Integer;
+    PesoBruto           : Real;
+    PesoLiquido         : Real;
+    Numeracao           : String;
+    Marca               : String;
+    EspecieTransporte   : String;
+    EstadoPlaca         : String;
+    Placa               : String;
+    Observacao          : String;
+  end;
+
+  TtipoNotaFiscalaEmitir = (VendaTransferencia, DevolucaoTransferencia, Transferencia, NaoEmitir);
+
+  
+
+type
+   TdtmTransferenciaRequisicaoExposicao = class(TdtmBasico)
+    qryProcuraFiliais: TtecQuery;
+    dsrProcuraFiliais: TtecDataSource;
+    qryConsultaFiliais: TtecQuery;
+    qryConsultaFiliaisnome: TStringField;
+    qryConsultaFiliaiscodigo: TIntegerField;
+    qryPedidosFiliais: TtecQuery;
+    dsrPedidosFiliais: TtecDataSource;
+    qryPedidosFiliaiscodigo: TIntegerField;
+    qryPedidosFiliaisproduto: TLargeintField;
+    qryPedidosFiliaisqtdepedida: TFloatField;
+    qryPedidosFiliaissituacao: TStringField;
+    qryPedidosFiliaisdescricao: TStringField;
+    qryProcuraFiliaiscodigo: TIntegerField;
+    qryProcuraFiliaisnome: TStringField;
+    qryPedidosFiliaisnota_serie: TStringField;
+    qryPedidosFiliaisobservacao: TStringField;
+    qryPedidosFiliaissemvalor: TFloatField;
+    qryNotas: TtecQuery;
+    qryNotasfilial: TIntegerField;
+    qryNotasserie: TStringField;
+    qryNotasnumero: TIntegerField;
+    qryNotasdadofiscal: TIntegerField;
+    qryDadosFiscais: TtecQuery;
+    qryProdutos: TtecQuery;
+    qrySeriesFiliais: TtecQuery;
+    qrySeriesFiliaisvalor: TStringField;
+    qrySeriesFiliaisnumeroinicial: TIntegerField;
+    qrySeriesFiliaisnumerofinal: TIntegerField;
+    qrySeriesFiliaismodelonota: TIntegerField;
+    qryEstoqueBloqueio: TtecQuery;
+    qryMovimentos: TtecQuery;
+    qryMovimentosnumero: TIntegerField;
+    qryMovimentosproduto: TLargeintField;
+    qryMovimentosfilial: TIntegerField;
+    qryMovimentostipomovimento: TStringField;
+    qryMovimentosquantidade: TFloatField;
+    qryMovimentosreferencia: TStringField;
+    qryMovimentosoperacao: TStringField;
+    qryMovimentosemestoque: TFloatField;
+    qryMovimentosreservado: TFloatField;
+    qryMovimentostransito: TFloatField;
+    qryMovimentosdemonstracao: TFloatField;
+    qryMovimentosconserto: TFloatField;
+    qryMovimentosfuturo: TFloatField;
+    qryMovimentosdanificada: TFloatField;
+    qryMovimentosfinanceiro: TFloatField;
+    qryMovimentosvalor: TFloatField;
+    qryMovimentosdata: TDateField;
+    spcMovimentosProximo: TtecQuery;
+    spcMovimentosProximonumero: TIntegerField;
+    spcDadosFiscaisProximo: TtecQuery;
+    spcDadosFiscaisProximonumero: TIntegerField;
+    qryFilialDestino: TtecQuery;
+    qryFilialDestinonome: TStringField;
+    qryFilialDestinorua: TStringField;
+    qryFilialDestinoestado: TStringField;
+    qryFilialDestinobairro: TIntegerField;
+    qryFilialDestinocidade: TIntegerField;
+    qryFilialDestinocnpj: TStringField;
+    qryFilialDestinofoneddd: TIntegerField;
+    qryFilialDestinofonenumero: TIntegerField;
+    qryFilialDestinoinscricaoestadual: TStringField;
+    qryFilialDestinocodigo: TIntegerField;
+    qryFilialDestinocep: TIntegerField;
+    qryEstoqueBloqueioproduto: TLargeintField;
+    qryEstoqueBloqueiofilial: TIntegerField;
+    qryEstoqueBloqueioemestoque: TFloatField;
+    qryMovimentostrfproduto: TLargeintField;
+    qryMovimentostrffilial: TIntegerField;
+    qryAtualizarPedidosFiliais: TtecQuery;
+    qryAtualizarPedidosFiliaiscodigo: TIntegerField;
+    qryAtualizarPedidosFiliaisproduto: TLargeintField;
+    qryAtualizarPedidosFiliaissituacao: TStringField;
+    qryConsultaFornecedorTransporte: TtecQuery;
+    qryConsultaFornecedorTransporterazao: TStringField;
+    qryConsultaFornecedorTransportepessoanumero: TStringField;
+    qryConsultaFornecedorTransportecodigo: TIntegerField;
+    qryConsultaFornecedorTransportenome: TStringField;
+    qryConsultaFornecedorTransporteestado: TStringField;
+    qryConsultaEstados: TtecQuery;
+    qryConsultaEstadoscodigo: TStringField;
+    qryConsultaEstadosnome: TStringField;
+    qryProcuraEstados: TtecQuery;
+    qryProcuraEstadosnome: TStringField;
+    qryProcuraEstadoscodigo: TStringField;
+    dsrProcuraEstados: TtecDataSource;
+    qryProcuraFornecedorTransporte: TtecQuery;
+    qryProcuraFornecedorTransportecodigo: TIntegerField;
+    qryProcuraFornecedorTransporterazao: TStringField;
+    dsrProcuraFornecedorTransporte: TtecDataSource;
+    dsrDadosFiscais: TtecDataSource;
+    qryPedidosFiliaisrequisitante: TIntegerField;
+    qryPedidosFiliaisrequisitada: TIntegerField;
+    qryPedidosFiliaisestoquerequisitante: TFloatField;
+    qryPedidosFiliaisestoquerequisitada: TFloatField;
+    qryAtualizarPedidosFiliaisrequisitante: TIntegerField;
+    qryAtualizarPedidosFiliaisrequisitada: TIntegerField;
+    qryPedidosFiliaisnumero: TIntegerField;
+    qryPedidosFiliaisserie: TStringField;
+    qryAtualizarPedidosFiliaisdadofiscal: TIntegerField;
+    qryEstoques: TtecQuery;
+    qryEstoquesproduto: TLargeintField;
+    qryEstoquesfilial: TIntegerField;
+    qryEstoquesemestoque: TFloatField;
+    qryEstoquesreservado: TFloatField;
+    qryEstoquestransito: TFloatField;
+    qryEstoquesdemonstracao: TFloatField;
+    qryEstoquesconserto: TFloatField;
+    qryEstoquesfuturo: TFloatField;
+    qryEstoquesdanificada: TFloatField;
+    dsrEstoques: TtecDataSource;
+    qryExisteEstoque: TtecQuery;
+    qryExisteEstoqueproduto: TLargeintField;
+    qryExisteEstoquefilial: TIntegerField;
+    qryEstoquesestoquefisico: TFloatField;
+    qryMovimentoscliente: TIntegerField;
+    qryMovimentostipocliente: TStringField;
+    qryPedidosFiliaisqtderecebida: TFloatField;
+    qryPedidosFiliaislinha: TStringField;
+    qryPedidosFiliaiscoluna: TStringField;
+    qryPedidosFiliaisvalorgrade1: TStringField;
+    qryPedidosFiliaisvalorgrade2: TStringField;
+    frpPedidosFiliais: TfrReport;
+    fdsPedidosFiliais: TfrDBDataSet;
+    qryFilialDestinorazao: TStringField;
+    qryPedidosFiliaisreferencia: TStringField;
+    qryPedidosFiliaisreservapreviarequisitada: TFloatField;
+    qryMovimentosCancelamentoReabertura: TtecQuery;
+    qryMovimentosCancelamentoReaberturanumero: TIntegerField;
+    qryMovimentosCancelamentoReaberturaproduto: TLargeintField;
+    qryMovimentosCancelamentoReaberturafilial: TIntegerField;
+    qryMovimentosCancelamentoReaberturatipomovimento: TStringField;
+    qryMovimentosCancelamentoReaberturaquantidade: TFloatField;
+    qryMovimentosCancelamentoReaberturareferencia: TStringField;
+    qryMovimentosCancelamentoReaberturaoperacao: TStringField;
+    qryMovimentosCancelamentoReaberturaemestoque: TFloatField;
+    qryMovimentosCancelamentoReaberturareservado: TFloatField;
+    qryMovimentosCancelamentoReaberturatransito: TFloatField;
+    qryMovimentosCancelamentoReaberturademonstracao: TFloatField;
+    qryMovimentosCancelamentoReaberturaconserto: TFloatField;
+    qryMovimentosCancelamentoReaberturafuturo: TFloatField;
+    qryMovimentosCancelamentoReaberturadanificada: TFloatField;
+    qryMovimentosCancelamentoReaberturafinanceiro: TFloatField;
+    qryMovimentosCancelamentoReaberturavalor: TFloatField;
+    qryMovimentosCancelamentoReaberturadata: TDateField;
+    qryMovimentosCancelamentoReaberturatrfproduto: TLargeintField;
+    qryMovimentosCancelamentoReaberturatrffilial: TIntegerField;
+    qryMovimentosCancelamentoReaberturacliente: TIntegerField;
+    qryMovimentosCancelamentoReaberturatipocliente: TStringField;
+    qryEstoqueBloqueioreservaprevia: TFloatField;
+    qryMovimentosdadofiscal: TIntegerField;
+    qryVolumesDadosFiscais: TtecQuery;
+    qryVolumesDadosFiscaisdadofiscal: TIntegerField;
+    qryVolumesDadosFiscaiscodigo: TIntegerField;
+    qryVolumesDadosFiscaisvolumes: TIntegerField;
+    qryVolumesDadosFiscaisnumeracao: TStringField;
+    qryVolumesDadosFiscaismarca: TStringField;
+    qryVolumesDadosFiscaispesobruto: TFloatField;
+    qryVolumesDadosFiscaispesoliquido: TFloatField;
+    qryVolumesDadosFiscaisespecietransporte: TStringField;
+    dsrVolumesDadosFiscais: TtecDataSource;
+    qryFilialDestinocodigoibge: TIntegerField;
+    qryFilialDestinonumero: TIntegerField;
+    qryFilialDestinocomplemento: TStringField;
+    qryFilialDestinonomebairro: TStringField;
+    qryFilialDestinonomecidade: TStringField;
+    qryPedidosFiliaisCodigoBarras: TtecQuery;
+    qryPedidosFiliaisCodigoBarrasproduto: TLargeintField;
+    qryPedidosFiliaisCodigoBarrascodigobarras: TStringField;
+    qryPedidosFiliaisqtderecebidaanterior: TFloatField;
+    qryPedidosFiliaisresultadocurvaabc: TStringField;
+    qryTotaisPedidosFiliais: TtecQuery;
+    dsrTotaisPedidosFiliais: TtecDataSource;
+    qryTotaisPedidosFiliaisqtdepedida: TFloatField;
+    qryTotaisPedidosFiliaisqtderecebida: TFloatField;
+    qryPedidosFiliaisdata: TDateTimeField;
+    qryLotesTransferencia: TtecQuery;
+    dsrLotesTransferencia: TtecDataSource;
+    qryLotesTransferenciacodigo: TIntegerField;
+    qryLotesTransferenciausuario: TIntegerField;
+    qryLotesTransferenciadatahora: TDateTimeField;
+    qryLotesTransferencia_ProximoCodigo: TtecQuery;
+    qryLotesTransferencia_ProximoCodigocodigo: TIntegerField;
+    qryPedidosFiliaislotetransferencia: TIntegerField;
+    qryPedidosFiliaismarcarlotetransferencia: TBooleanField;
+    qryPedidosFiliaiscodigovisual: TStringField;
+    qryLotesPedidosFiliais: TtecQuery;
+    dsrLotesPedidosFiliais: TtecDataSource;
+    qryLotesPedidosFiliaislotetransferencia: TStringField;
+    qryApagarProdutoConferencia: TtecQuery;
+    dsrLotesPedidosFiliais_: TtecDataSource;
+    qryLotesPedidosFiliais_: TtecQuery;
+    qryLotesPedidosFiliais_lotetransferencia: TStringField;
+    qryFilialDestinocontribicms: TBooleanField;
+    qryProcuraFiliaiscnpj: TStringField;
+    qryProcuraFiliaisestado: TStringField;
+    spcContratosProximo: TtecQuery;
+    spcContratosProximonumero: TStringField;
+    qryFuncaoGerarContratoporDadoFiscal: TtecQuery;
+    qryFuncaoGerarContratoporDadoFiscalgerarcontratopordadofiscal: TBooleanField;
+    qryVenctosDadosFiscais: TtecQuery;
+    qryVenctosDadosFiscaisdadofiscal: TIntegerField;
+    qryVenctosDadosFiscaisnumero: TIntegerField;
+    qryVenctosDadosFiscaisdatavencto: TDateField;
+    qryVenctosDadosFiscaisvalorvencto: TFloatField;
+    qryVenctosDadosFiscaistiporecebimento: TIntegerField;
+    qryVenctosDadosFiscaisformapagamento: TStringField;
+    qryVenctosDadosFiscaistransacao: TIntegerField;
+    qryPedidosFiliaisfilial_estoque: TIntegerField;
+    qryProcuraFiliaisfilial_estoque: TIntegerField;
+    qryPedidosFiliaisfilial_estoque_requisitante: TIntegerField;
+    qryProdutosTrocados: TtecQuery;
+    dsrProdutosTrocados: TtecDataSource;
+    qryProdutosTrocadostipo: TStringField;
+    qryProdutosTrocadosdata: TDateTimeField;
+    qryProdutosTrocadoscliente: TIntegerField;
+    qryProdutosTrocadostipocliente: TStringField;
+    qryProdutosTrocadosfilial: TIntegerField;
+    qryProdutosTrocadosvalor: TFloatField;
+    qryProdutosTrocadossaldo: TFloatField;
+    qryProdutosTrocadosusuario: TIntegerField;
+    qryProdutosTrocadosreferencia: TStringField;
+    qryProdutosTrocadosdefeito: TBooleanField;
+    qryTiposRecebimentos: TtecQuery;
+    qryTiposRecebimentoscodigo: TIntegerField;
+    spcProdutosTrocadosProximo: TtecQuery;
+    spcProdutosTrocadosProximonumero: TIntegerField;
+    qryProdutosTrocadosnumero: TIntegerField;
+    qryPedidosFiliaiscst_produto: TStringField;
+    qryPedidosFiliaiscsosn_produto: TStringField;
+    qryPedidosFiliaiscofinscst_produto: TStringField;
+    qryPedidosFiliaispiscst_produto: TStringField;
+    qryPedidosFiliaisestadofilialrequisitante: TStringField;
+    qryPedidosFiliaisnomefilialrequisitante: TStringField;
+    qryDadosNotasPag: TtecQuery;
+    qryDadosNotasPagcodigonota: TIntegerField;
+    qryDadosNotasPagnumero: TIntegerField;
+    qryDadosNotasPagdata: TDateField;
+    qryDadosNotasPagquantidade: TFloatField;
+    qryDadosNotasPagqtdedevolvida: TFloatField;
+    qryNotaEntradaRef: TtecQuery;
+    qryNotaEntradaReffornecedor: TIntegerField;
+    qryNotaEntradaReftipofornecedor: TStringField;
+    qryNotaEntradaRefserie: TStringField;
+    qryNotaEntradaRefnumero: TIntegerField;
+    qryNotaEntradaRefcodigo: TIntegerField;
+    qryNotaEntradaRefdata: TDateField;
+    qryNotaEntradaRefnumeronfe: TStringField;
+    qryNotaEntradaRefpessoanumero: TStringField;
+    qryNotaEntradaRefmodelodocto: TStringField;
+    qryNotaEntradaRefnumeronf: TIntegerField;
+    qryNotaEntradaRefcidadeibge: TIntegerField;
+    qryAtualizarPedidosFiliaislotetransferencia: TIntegerField;
+    qryZerarPedidosFiliaisLotes: TtecQuery;
+    qryPedidosFiliaisloteverificado: TBooleanField;
+    qryPedidosInconsistentes: TtecQuery;
+    dsrPedidosInconsistentes: TtecDataSource;
+    qryPedidosInconsistentesdata: TDateTimeField;
+    qryPedidosInconsistentesrequisitante: TIntegerField;
+    qryPedidosInconsistentesrequisitada: TIntegerField;
+    qryPedidosInconsistentesqtdepedida: TFloatField;
+    qryPedidosInconsistentesqtderecebida: TFloatField;
+    qryPedidosInconsistentessituacao: TStringField;
+    qryPedidosInconsistenteslotetransferencia: TIntegerField;
+    qryPedidosInconsistenteslido: TFloatField;
+    qryPedidosInconsistentesprodutovisual: TStringField;
+    qryPedidosInconsistentesproduto: TLargeintField;
+    qryPedidosFiliaislocalizacao: TStringField;
+    qryPedidosInconsistentesreservapreviarequisitada: TFloatField;
+    qryPedidosFiliaisdescricaolc: TStringField;
+    qryNotaEntradaRefnumprotocolonfe: TStringField;
+    qryPedidosFiliaispromocao: TIntegerField;
+    qryPedidosFiliaisdescricaopromocao: TStringField;
+    procedure dsrPedidosFiliaisDataChange(Sender: TObject; Field: TField);
+    procedure qryPedidosFiliaisAfterPost(DataSet: TDataSet);
+    procedure qryPedidosFiliaisAfterScroll(DataSet: TDataSet);
+    procedure qryPedidosFiliaisBeforeInsert(DataSet: TDataSet);
+    procedure frpPedidosFiliaisBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure qryDadosFiscaisNewRecord(DataSet: TDataSet);
+    procedure qryPedidosFiliaisFilterRecord(DataSet: TDataSet;
+      var Accept: Boolean);
+    procedure qryPedidosFiliaisBeforePost(DataSet: TDataSet);
+    procedure qryPedidosFiliaisAfterOpen(DataSet: TDataSet);
+    procedure qryPedidosFiliaisCalcFields(DataSet: TDataSet);
+//    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+  private
+    FOnScrollLinhaColunaGrade: TNotifyEvent;
+    fCurvaABC_A: Boolean;
+    fCurvaABC_NaoDefinido: Boolean;
+    fCurvaABC_B: Boolean;
+    fCurvaABC_C: Boolean;
+    fCondicaoEmissorNFE: Boolean;
+    fNumContrato: String;
+    fTtipoNotaFiscalaEmitir: TtipoNotaFiscalaEmitir;
+    function GetColunadaGrade: String;
+    function GetLinhadaGrade: String;
+    function GetCondicaoEmissorNFE: Boolean;
+    function GetNumContrato: String;
+  protected
+    FRequisicaoAfterScroll: TNotifyEvent;
+    FDataFinal: String;
+    FDataInicial: String;
+    FRequisitante: Integer;
+    FFilialEstoqueRequisitante: Integer;
+    FFilialRequisitante: String;
+    FSituacao: Integer;
+    FImprimindoNota: Boolean;
+    FPrimeiraVez: Boolean;
+//    OperacaoOK: Boolean;
+    TranspNotaFiscal: TtecFornecedorTransporte;
+    function  GetConfirmado: Boolean;
+    procedure SetFilialRequisitante(const Value: String);
+    procedure AtualizarPedidosFiliais;
+    procedure BloquearEstoque;
+    function  ComplementoDadosFiscais: Boolean;
+    function  GetCancelado: Boolean;
+    function  GetConsultaFiliais: TtecQuery;
+    function  GetFechado: Boolean;
+    function  GetNrRegistro: Integer;
+    function  GetQtdeRecebida: Currency;
+    function  GetTabelaConsultaEstados: TZDataset;
+    function  GetTabelaConsultaFornecedorTransporte: TZDataset;
+    function  GetTabelaRequisicao: TtecQuery;
+    function ImprimirNotaFiscal: Boolean;
+    procedure IncluirMovimentos;
+    function VerificarSaldoEstoqueouReserva: boolean;
+    function IncluirProdutos: Boolean;
+    procedure InicializarTabelas;
+    procedure MontaIntervaloData;
+    procedure NovoMovimento(Produto: String; Filial: Integer);
+    function  NovoNumeroDadoFiscal: Integer;
+{    procedure PreencherDadoFiscal;}
+    function  PreencherNotaFiscal: Boolean;
+    procedure SetDataFinal(const Value: String);
+    procedure SetDataInicial(const Value: String);
+    procedure SetSituacao(const Value: Integer);
+    function  VerificarSerieFilial: Boolean;
+    procedure ReservaPreviaProduto(Situacao: String);
+    property NumContrato: String read GetNumContrato write fNumContrato;
+  private
+    vImprimindoRequisicoes : boolean;
+    function TabelaReferenciada: TtecQuery;
+    function ExisteInconsistenciaLotes_Confirmada_X_Lida: Boolean;
+    function ExisteInconsistenciaLotes_qtderecebida_X_reservapreviarequisitada: Boolean;
+
+  public
+    procedure AbrirTabelas(TipoConsulta: TtecTransferenciaRequisicao);
+    function  CancelarRequisicao: Boolean;
+    function ConfirmaRequisicao: Boolean;
+    constructor Create(AOwner: TComponent); override;
+    function  ExisteEstado(NomeCampo: String; Value: Variant): Boolean;
+    function  ExisteFiliais(Campo, Codigo: String): Boolean;
+    function  ExisteFornecedorTransporte(NomeCampo: String; Value: Variant): Boolean;
+    procedure FecharTabelaRequisicao;
+    procedure FecharTabelas(TipoConsulta: TtecTransferenciaRequisicao);
+    function  GerarConsultaRequisicao: Boolean;
+    procedure GravarInformacoesFornecedorTransporte;
+    function  GravarRequisicao: Boolean;
+    procedure ImprimirRequisicoes;
+    procedure Selecionar(TipoConsulta: TtecTransferenciaRequisicao);
+
+    property  Cancelado: Boolean read GetCancelado;
+    property  Confirmado: Boolean read GetConfirmado;
+    property  ConsultaFiliais: TtecQuery  read GetConsultaFiliais;
+    property  DataFinal: String read FDataFinal write SetDataFinal;
+    property  DataInicial: String read FDataInicial write SetDataInicial;
+    property  Situacao: Integer read FSituacao write SetSituacao;
+    property  FilialRequisitante: String read FFilialRequisitante write SetFilialRequisitante;
+    property  Fechado: Boolean read GetFechado;
+    property  NrRegistro: Integer read GetNrRegistro;
+    property  QtdeRecebida: Currency read GetQtdeRecebida;
+    property  RequisicaoAfterScroll: TNotifyEvent read FRequisicaoAfterScroll write FRequisicaoAfterScroll;
+    property  TabelaConsultaEstados: TZDataset read GetTabelaConsultaEstados;
+    property  TabelaConsultaFornecedorTransporte: TZDataset read GetTabelaConsultaFornecedorTransporte;
+    property  TabelaRequisicao: TtecQuery read GetTabelaRequisicao;
+    property  OnScrollLinhaColunaGrade    : TNotifyEvent read FOnScrollLinhaColunaGrade write FOnScrollLinhaColunaGrade;
+    property LinhadaGrade: String read GetLinhadaGrade;
+    property ColunadaGrade: String read GetColunadaGrade;
+    procedure LocalizarProduto(TextodePesquisa: String; TipoPesquisaProduto:TtecTipoPesquisaProduto);
+    property CurvaABC_A: Boolean read fCurvaABC_A write fCurvaABC_A;
+    property CurvaABC_B: Boolean read fCurvaABC_B write fCurvaABC_B;
+    property CurvaABC_C: Boolean read fCurvaABC_C write fCurvaABC_C;
+    property CurvaABC_NaoDefinido: Boolean read fCurvaABC_NaoDefinido write fCurvaABC_NaoDefinido;
+    procedure VerificarLoteTransferencia;
+    procedure GerarLoteTransferencia;
+    procedure ZerarLotesSemVerificacao;
+
+    property CondicaoEmissorNFE: Boolean read GetCondicaoEmissorNFE write fCondicaoEmissorNFE;
+    procedure AbrirLotesPedidosFiliais;
+    property TipoNotaFiscalaEmitir: TtipoNotaFiscalaEmitir read fTtipoNotaFiscalaEmitir write fTtipoNotaFiscalaEmitir;
+
+    procedure LigarDesligarEventosPedidosFiliais(Desligar: boolean);
+
+  end;
+
+var
+  dtmTransferenciaRequisicaoExposicao: TdtmTransferenciaRequisicaoExposicao;
+  ListadeLotes: String;
+
+
+implementation
+
+uses
+  //Biblio
+  clparametrossistema, clusuario,
+  //Projetos
+  fmdadostransportador;
+
+{$R *.dfm}
+
+{ TdtmTransferenciaRequisicaoExposicao }
+
+procedure TdtmTransferenciaRequisicaoExposicao.AbrirTabelas(TipoConsulta: TtecTransferenciaRequisicao);
+begin
+  case TipoConsulta of
+    ttrFORNECEDORES: Abre(ctLOJTabelaConsultaFornecedoresTransporte);
+         ttrESTADOS: Abre(ctLOJTabelaConsultaEstados);
+         ttrFILIAIS: Abre(ctLOJTabelaConsultaFiliais);
+  end;
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.AtualizarPedidosFiliais;
+var
+  vListaPedidos : tStringlist;
+  i: integer;
+
+begin
+
+
+
+  qryAtualizarPedidosFiliais.Open;
+  if qryAtualizarPedidosFiliais.RecordCount > 0 then
+  begin
+    vListapedidos := tStringList.Create;
+    try
+
+      qryProdutos.First;
+      while not qryProdutos.Eof do
+      begin
+        vListaPedidos := Explode(',',qryProdutos.FieldByName('Listacodigopedidofilial').AsSTring);
+
+        for i:=0 to vListaPedidos.Count-1 do
+        begin
+          if (qryAtualizarPedidosFiliais.Locate('codigo',vListaPedidos[i],[])) then
+          begin
+            qryAtualizarPedidosFiliais.Edit;
+            qryAtualizarPedidosFiliaissituacao.AsString   := 'F';
+            qryAtualizarPedidosFiliaisdadofiscal.AsInteger:= qryNotasdadofiscal.AsInteger;
+            qryAtualizarPedidosFiliais.Post;
+          end;
+        end;
+
+        qryProdutos.Next;
+      end;
+    finally
+      vListapedidos.free;
+    end;
+  end;
+
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.BloquearEstoque;
+var
+  Pos: TBookmark;
+  WhereSQL: String;
+
+  procedure IncluirProdutoNoEstoque;
+  begin
+    qryEstoques.Insert;
+    qryEstoquesproduto.AsString      := qryProdutos.FieldByName('produto').AsString;
+    qryEstoquesfilial.AsInteger        := FFilialEstoqueRequisitante;
+    qryEstoquesemestoque.AsCurrency     := 0;
+    qryEstoquesreservado.AsCurrency     := 0;
+    qryEstoquestransito.AsCurrency      := 0;
+    qryEstoquesdemonstracao.AsCurrency  := 0;
+    qryEstoquesconserto.AsCurrency      := 0;
+    qryEstoquesfuturo.AsCurrency        := 0;
+    qryEstoquesdanificada.AsCurrency    := 0;
+    qryEstoquesestoquefisico.AsCurrency := 0;
+    qryEstoques.Post;
+  end;
+
+begin
+  // Verifica a existencia do produto na filial requisitante.
+  qryProdutos.First;
+  while not qryProdutos.Eof do begin
+    ReFazConsulta(qryExisteEstoque,[0,1],[qryProdutos.FieldByName('produto').AsString, FFilialEstoqueRequisitante]);
+    if qryExisteEstoque.IsEmpty then
+      IncluirProdutoNoEstoque;
+    qryProdutos.Next;
+  end;
+  Perpetrar([qryEstoques]);
+
+  Pos := qryProdutos.GetBookmark;
+  qryProdutos.DisableControls;
+  try
+    if qryProdutos.RecordCount = 0 then
+      WhereSQL := 'false'
+    else begin
+      WhereSQL := '';
+      qryProdutos.First;
+      while Not qryProdutos.Eof do begin
+        WhereSQL := WhereSQL +
+        '((e.produto = ' + qryProdutos.FieldByName('produto').AsString + ')and' +
+        '(e.filial = '   + qryProdutos.FieldByName('filial').AsString  + '))or';
+        qryProdutos.Next
+      end;
+      Delete(WhereSQL, Length(WhereSQL) - 1, 2);
+    end
+  finally
+    qryProdutos.GotoBookmark(Pos);
+    qryProdutos.FreeBookmark(Pos);
+    qryProdutos.EnableControls;
+  end;
+  qryEstoqueBloqueio.MacroByName('ProdutoFilial').AsString := WhereSQL;
+  if qryEstoqueBloqueio.Active then
+    qryEstoqueBloqueio.Close;
+  qryEstoqueBloqueio.Open;
+end;
+
+function TdtmTransferenciaRequisicaoExposicao.CancelarRequisicao: Boolean;
+var
+  Op: String;
+  SitAux: String;
+  vObservacaoAux : String;
+begin
+  //SE CANCELAMENTO - RETORNAR QUANTIDADES PARA O ESTOQUE  - CASO REABERTURA COLOCAR NA RESERVA PREVIA
+  if Cancelado then Op:= ' a Re-abertura'
+  else              Op:= ' o cancelamento';
+  Result:= False;
+
+  if MensagemSimNaoOpcaoCancelarmmo('Confirma' + Op + ' da REQUISIÇÃO DO PRODUTO?', '', false, '&Sim', '&Não', '', True) = mrYes then
+  begin
+    //try
+
+       if qryPedidosFiliaissituacao.AsString = 'C' then
+          SitAux := 'A'
+       else SitAux := 'C';
+
+       vObservacaoAux := TRIM(qryPedidosFiliaisobservacao.asString + ' ''Motivo d' + trim(Op) + ':''' + vTextoJanelaMensagem);
+
+       {
+       QryUpdPedidosFiliais.Sql.Clear;
+       QryUpdPedidosFiliais.Sql.Add('UPDATE pedidosfiliais');
+       QryUpdPedidosFiliais.Sql.Add('SET situacao='+quotedstr(SitAux)+',');
+       QryUpdPedidosFiliais.Sql.Add('qtderecebida=0,');
+       QryUpdPedidosFiliais.Sql.Add('observacao = '+ quotedstr(vObservacaoAux) );
+       QryUpdPedidosFiliais.Sql.Add('WHERE codigo='+qryPedidosFiliaisCodigo.AsString);
+       QryUpdPedidosFiliais.ExecSql;
+       }
+
+
+       if qryPedidosFiliais.readonly then
+         qryPedidosFiliais.readonly := false;
+
+       if ParSistema.RequisicaoSubtraiEstoque then
+       begin
+         ReservaPreviaProduto(SitAux);
+         result := Perpetrar([qryMovimentosCancelamentoReabertura]);
+       end;
+
+//       dsrPedidosFiliais.onDataChange := nil;
+
+       qryPedidosFiliais.edit;
+       qryPedidosFiliaisobservacao.asString := vObservacaoAux;
+       qryPedidosFiliaissituacao.asstring := SitAux;
+
+       if SitAux = 'C' then
+         qryPedidosFiliaisqtderecebida.clear;
+
+       if qryPedidosFiliais.state = dsedit then
+         qryPedidosFiliais.post;
+
+
+//       dsrPedidosFiliais.onDataChange := dsrPedidosFiliaisDataChange;
+
+
+    //except
+    //  Result := False;
+    //  Exit;
+    //end;
+    //Result:= True;
+    // para fazer update dos dados -> eles não deveriam estar mais aparecendo na tela,
+    // neste ponto
+//      qryPedidosFiliais.Close;
+//      qryPedidosFiliais.Open;
+  end;
+end;
+
+function TdtmTransferenciaRequisicaoExposicao.ComplementoDadosFiscais: Boolean;
+begin
+  Result:= True;
+  if FPrimeiraVez then
+  begin
+    frmDadosTransportador:= TfrmDadosTransportador.Create(frmDadosTransportador);
+    try
+//      frmDadosTransportador.DataModulo:= Self;
+      Result:= frmDadosTransportador.ShowModal = mrOk;
+    finally
+      frmDadosTransportador.Free;
+    end;
+  end;
+
+  if Result then begin
+    qryDadosFiscais.Edit;
+    with TranspNotaFiscal do begin
+      if FornecedorTransporte > 0 then
+        qryDadosFiscais.fieldbyname('FornecedorTransporte').AsInteger := FornecedorTransporte;
+      if TipoFrete <> '' then
+        qryDadosFiscais.fieldbyname('frete').AsString             := TipoFrete;
+      if TipoTransp <> '' then
+        qryDadosFiscais.fieldbyname('viatransporte').AsString     := TipoTransp;
+      if EstadoPlaca <> '' then
+        qryDadosFiscais.fieldbyname('estadoplaca').AsString       := EstadoPlaca;
+      if Placa <> '' then
+        qryDadosFiscais.fieldbyname('placa').AsString             := Placa;
+      if Observacao <> '' then
+        qryDadosFiscais.fieldbyname('observacoes').AsString       := {qryDadosFiscais.fieldbyname('observacoes').AsString +} Observacao;
+      if not FPrimeiraVez then
+        qryVolumesDadosFiscais.Append
+      else
+        qryVolumesDadosFiscais.edit;
+      qryVolumesDadosFiscaisdadofiscal.AsInteger  := qryDadosFiscais.fieldbyname('numero').AsInteger;
+      qryVolumesDadosFiscaiscodigo.AsInteger      := 1;
+      if Volumes > 0 then
+        qryVolumesDadosFiscaisvolumes.AsInteger   := Volumes;
+      if PesoBruto > 0 then
+        qryVolumesDadosFiscaispesobruto.AsFloat   := PesoBruto;
+      if PesoLiquido > 0 then
+        qryVolumesDadosFiscaispesoliquido.AsFloat := PesoLiquido;
+      if Numeracao <> '' then
+        qryVolumesDadosFiscaisnumeracao.AsString  := Numeracao;
+      if Marca <> '' then
+        qryVolumesDadosFiscaismarca.AsString      := Marca;
+      if EspecieTransporte <> '' then
+        qryVolumesDadosFiscaisespecietransporte.AsString := EspecieTransporte;
+    end;
+    qryDadosFiscais.Post;
+    qryVolumesDadosFiscais.Post;
+  end;
+end;
+
+function TdtmTransferenciaRequisicaoExposicao.ConfirmaRequisicao: Boolean;
+var
+  WhereSQL: String;
+  Posicao: TBookmark;
+begin
+  result := true;
+
+  if not ExisteInconsistenciaLotes_qtderecebida_X_reservapreviarequisitada then
+    if not ExisteInconsistenciaLotes_Confirmada_X_Lida then
+    begin
+      if MensagemConfirmacao(ctCONFIRMATRANSFERENCIA) = smbOk then
+      begin
+
+        TipoNotaFiscalaEmitir := NaoEmitir;
+
+        ReFazConsulta(qryNaturezasPadrao_,[],[]);
+        FImprimindoNota:= True;
+        FPrimeiraVez   := True;
+        WhereSQL:= '';
+        ListadeLotes := '';
+        Posicao:= qryPedidosFiliais.GetBookmark;
+        qryPedidosFiliais.DisableControls;
+        try
+          InicializarTabelas;
+          qryPedidosFiliais.First;
+
+          while not qryPedidosFiliais.Eof do
+          begin
+
+            if (qryPedidosFiliaisqtderecebida.AsCurrency > 0) and
+               (qryPedidosFiliaissituacao.AsString = 'A')    then
+            begin
+              if (Frequisitante > 0) and (Frequisitante <> qryPedidosFiliaisrequisitante.AsInteger) then
+              begin
+                Delete(WhereSQL,Length(WhereSQL),1);
+                delete(ListadeLotes, Length(ListadeLotes)-1,2);
+
+                qryAtualizarPedidosFiliais.Sql[08]:= '(pf.codigo in (' + WhereSql + '))';
+                ImprimirNotaFiscal;
+                InicializarTabelas;
+                FPrimeiraVez:= False;
+                WhereSQL:= '';
+                ListadeLotes := '';
+              end;
+
+              Frequisitante := qryPedidosFiliaisRequisitante.AsInteger;
+              FFilialEstoqueRequisitante := qryPedidosFiliaisfilial_estoque_requisitante.AsInteger;
+              result := IncluirProdutos;
+
+              if not result then
+                break;
+
+              WhereSQL:= WhereSQL + qryPedidosFiliaiscodigo.AsString + ',';
+
+              if pos(qryPedidosFiliaislotetransferencia.AsString+', ', ListadeLotes)=0 then
+                ListadeLotes := ListadeLotes + qryPedidosFiliaislotetransferencia.AsString + ', ';
+
+            end;
+            qryPedidosFiliais.Next;
+
+          end;
+
+          if result then
+            if (qryProdutos.RecordCount > 0) then begin
+              Delete(WhereSQL,Length(WhereSQL),1);
+              delete(ListadeLotes, Length(ListadeLotes)-1,2);
+              qryAtualizarPedidosFiliais.Sql[08]:= '(pf.codigo in (' + WhereSql + '))';
+              ImprimirNotaFiscal;
+            end;
+
+        finally
+          qryPedidosFiliais.GotoBookmark(Posicao);
+          qryPedidosFiliais.FreeBookmark(Posicao);
+          qryPedidosFiliais.EnableControls;
+          FImprimindoNota:= False;
+          GerarConsultaRequisicao;
+          qryPedidosFiliais.Filtered := false;
+          qryPedidosFiliais.Filtered := true;
+        end;
+
+      end;
+    end
+    else
+      result := false;
+end;
+
+constructor TdtmTransferenciaRequisicaoExposicao.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryProcuraFiliais.Tag := ctTabelas;
+  qryProcuraFornecedorTransporte.Tag := ctTabelas;
+  qryProcuraEstados.Tag := ctTabelas;
+  qryTiposRecebimentos.Tag := ctTabelas;
+  qryProdutosTrocados.Tag := ctTabelas;
+  qryConsultaFiliais.Tag:= ctLOJTabelaConsultaFiliais;
+  qryConsultaFornecedorTransporte.Tag := ctLOJTabelaConsultaFornecedoresTransporte;
+  qryConsultaEstados.Tag := ctLOJTabelaConsultaEstados;
+  qryProcuraFiliais.Params[1].AsInteger := FilialBase;
+  qryConsultaFiliais.Params[0].AsInteger:= FilialBase;
+  qryPedidosFiliais.Params[0].AsInteger := FilialBase;
+  FImprimindoNota:= False;
+  FRequisitante:= 0;
+  FFilialEstoqueRequisitante:=0;
+  qryPedidosFiliaisestoquerequisitante     .DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryPedidosFiliaisestoquerequisitada      .DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryPedidosFiliaisreservapreviarequisitada.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryPedidosFiliaisqtdepedida              .DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryPedidosFiliaisqtderecebida            .DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+
+  qryTotaisPedidosFiliaisqtdepedida              .DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryTotaisPedidosFiliaisqtderecebida            .DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+
+  qryPedidosInconsistentesqtdepedida.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryPedidosInconsistentesqtderecebida.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryPedidosInconsistenteslido.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+
+
+
+
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.dsrPedidosFiliaisDataChange(Sender: TObject; Field: TField);
+var
+  DisponivelParaTransferir : Currency;
+begin
+  inherited;
+
+  dsrPedidosFiliais.OnDataChange:= nil;
+
+  if Field = qryPedidosFiliaisqtderecebida then
+  begin
+
+    if qryPedidosFiliaisqtderecebida.AsCurrency = 0 then
+    begin
+      if (qryPedidosFiliaislotetransferencia.asinteger <> 0) then
+      begin
+        qryPedidosFiliaismarcarlotetransferencia.asboolean := false;
+        dsrPedidosFiliaisDataChange(self, qryPedidosFiliaismarcarlotetransferencia);
+      end;
+    end;
+
+    if (qryPedidosFiliaiscodigo.AsInteger > 0) then
+    begin
+      if ParSistema.RequisicaoSubtraiEstoque then
+        DisponivelParaTransferir:=qryPedidosFiliaisreservapreviarequisitada.Ascurrency
+      else
+        DisponivelParaTransferir:=qryPedidosFiliaisestoquerequisitada.AsCurrency;
+
+      if (qryPedidosFiliaisqtderecebida.AsCurrency > DisponivelParaTransferir) then
+      begin
+        MensagemAviso(ctQUANTIDADEINDISPONILVEL);
+//        qryPedidosFiliais.FieldByName('qtderecebida').FocusControl;
+        if qryPedidosFiliais.State = dsEdit then
+        begin
+//          qryPedidosFiliaisqtderecebida.Clear;
+          if qryPedidosFiliaisqtderecebidaanterior.AsCurrency <> 0 then
+            qryPedidosFiliaisqtderecebida.AsCurrency := qryPedidosFiliaisqtderecebidaanterior.AsCurrency
+          else
+            qryPedidosFiliaisqtderecebida.AsCurrency := 0;
+//          qryPedidosFiliais.Post;
+        end;
+      end
+      else
+      if (qryPedidosFiliaisqtdepedida.AsCurrency > 0) and
+              (qryPedidosFiliaisqtderecebida.AsCurrency > qryPedidosFiliaisqtdepedida.AsCurrency) then
+      begin
+        if MensagemConfirmacao(ctQTDETRANSFERIDAMAIORPEDIDA) = smbCancel then
+        begin
+//          qryPedidosFiliaisqtderecebida.Clear;
+//          qryPedidosFiliais.FieldByName('qtderecebida').FocusControl;
+          if qryPedidosFiliais.State = dsEdit then
+          begin
+            if qryPedidosFiliaisqtderecebidaanterior.AsCurrency <> 0 then
+              qryPedidosFiliaisqtderecebida.AsCurrency := qryPedidosFiliaisqtderecebidaanterior.AsCurrency
+            else
+              qryPedidosFiliaisqtderecebida.AsCurrency := 0;
+          end;
+//        else
+//          qryPedidosFiliais.FieldByName('qtderecebida').FocusControl;
+        end;
+      end
+      else
+      if qryPedidosFiliais.State = dsEdit then
+      begin
+//        qryPedidosFiliais.DisableControls;
+        qryPedidosFiliais.bloquearordenacao := true;
+        qryPedidosFiliais.Post;
+        qryPedidosFiliais.bloquearordenacao := false;
+//        qryPedidosFiliais.EnableControls;
+
+      end;
+
+      qryPedidosFiliais.FieldByName('qtderecebida').FocusControl;
+    end;
+  end
+  else
+  if field = qryPedidosFiliaismarcarlotetransferencia then
+  begin
+    if not field.AsBoolean then
+    begin
+      if (qryPedidosFiliaislotetransferencia.asinteger <> 0) then
+      begin
+        if MensagemSelecionaOpcao('Confirma a retirada do produto do lote?') = smbYES then
+        begin
+          qryApagarProdutoConferencia.parambyname('lotetransferencia').asString := qryPedidosFiliaislotetransferencia.asString;
+          qryApagarProdutoConferencia.parambyname('produto').asString := qryPedidosFiliaisproduto.asString;
+          qryApagarProdutoConferencia.execSQL;
+
+          qryPedidosFiliaisqtderecebida.clear;
+          qryPedidosFiliaislotetransferencia.Clear;
+
+        end
+        else
+        begin
+          if qryPedidosFiliaisqtderecebidaanterior.AsCurrency <> 0 then
+            qryPedidosFiliaisqtderecebida.AsCurrency := qryPedidosFiliaisqtderecebidaanterior.AsCurrency
+          else
+            qryPedidosFiliaisqtderecebida.clear;
+
+          qryPedidosFiliaismarcarlotetransferencia.asBoolean := true;
+        end;
+      end
+      else
+      begin
+        qryPedidosFiliaisqtderecebida.clear;
+        qryPedidosFiliaislotetransferencia.Clear;
+      end;
+    end
+    else
+      qryPedidosFiliaisqtderecebida.AsFloat := qryPedidosFiliaisqtdepedida.AsFloat;
+  end;
+
+  dsrPedidosFiliais.OnDataChange:= dsrPedidosFiliaisDataChange;
+end;
+
+function TdtmTransferenciaRequisicaoExposicao.ExisteEstado(NomeCampo: String; Value: Variant): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaEstados, NomeCampo, Value)
+end;
+
+function TdtmTransferenciaRequisicaoExposicao.ExisteFiliais(Campo, Codigo: String): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaFiliais, campo, codigo);
+end;
+
+function TdtmTransferenciaRequisicaoExposicao.ExisteFornecedorTransporte(NomeCampo: String; Value: Variant): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaFornecedorTransporte, NomeCampo, Value)
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.FecharTabelaRequisicao;
+begin
+  if qryPedidosFiliais.Active then begin
+    qryPedidosFiliais.Close;
+    FRequisitante:= 0;
+    FFilialEstoqueRequisitante:=0;
+  end;
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.FecharTabelas(TipoConsulta: TtecTransferenciaRequisicao);
+begin
+  case TipoConsulta of
+    ttrFORNECEDORES: Fecha(ctLOJTabelaConsultaFornecedoresTransporte);
+         ttrESTADOS: Fecha(ctLOJTabelaConsultaEstados);
+         ttrFILIAIS: Fecha(ctLOJTabelaConsultaFiliais);
+  end;
+end;
+
+function TdtmTransferenciaRequisicaoExposicao.GerarConsultaRequisicao: Boolean;
+var
+ SQLFilial, SQLEstoque, SQLProdutos, SQLSituacaoProdutos, SQLCurvaABC : String;
+
+begin
+  if qryPedidosFiliais.Active then
+    qryPedidosFiliais.Close;
+
+  if qryPedidosFiliaisCodigoBarras.Active then
+    qryPedidosFiliaisCodigoBarras.Close;
+
+  SQLCurvaABC := '';
+  if CurvaABC_A then
+     SQLCurvaABC := SQLCurvaABC + ' p.resultadocurvaabc = ''A''';
+
+  if CurvaABC_B then
+    if (length(SQLCurvaABC)<>0) then
+      SQLCurvaABC := SQLCurvaABC + ' or  p.resultadocurvaabc = ''B'''
+    else
+      SQLCurvaABC := ' p.resultadocurvaabc = ''B''';
+
+  if CurvaABC_C then
+    if (length(SQLCurvaABC)<>0) then
+      SQLCurvaABC := SQLCurvaABC + ' or p.resultadocurvaabc = ''C'''
+    else
+      SQLCurvaABC := ' p.resultadocurvaabc = ''C''';
+
+  if CurvaABC_NaoDefinido then
+    if (length(SQLCurvaABC)<>0) then
+      SQLCurvaABC := SQLCurvaABC + ' or  coalesce(p.resultadocurvaabc,'''') = '''''
+    else
+      SQLCurvaABC := ' coalesce(p.resultadocurvaabc,'''') = ''''';
+
+  if (length(SQLCurvaABC)<>0) then
+  begin
+    SQLCurvaABC := SQLCurvaABC + ')';
+    Insert(' and (', SQLCurvaABC, 0)
+  end;
+
+  if (length(SQLCurvaABC)<>0) then
+    qryPedidosFiliais.MacroByName('CurvaABC').AsString := SQLCurvaABC
+  else
+    qryPedidosFiliais.MacroByName('CurvaABC').AsString := '';
+
+//  qrypedidosfiliais.filtered := false;
+  qryPedidosFiliaisCodigoBarras.Macrobyname('Periodo').asstring        := qryPedidosFiliais.Macrobyname('Periodo').asstring;
+  qryPedidosFiliaisCodigoBarras.Macrobyname('Requisitante').asstring   := qryPedidosFiliais.Macrobyname('Requisitante').asstring;
+  qryPedidosFiliaisCodigoBarras.Macrobyname('Situacao').asstring       := qryPedidosFiliais.Macrobyname('Situacao').asstring;
+  qryPedidosFiliaisCodigoBarras.Macrobyname('QtdeConfirmada').asstring := qryPedidosFiliais.Macrobyname('QtdeConfirmada').asstring;
+  qryPedidosFiliaisCodigoBarras.Parambyname('Requisitada').asstring    := qryPedidosFiliais.Parambyname('Requisitada').asstring;
+  qryPedidosFiliaisCodigoBarras.MacroByName('CurvaABC').AsString       := qryPedidosFiliais.MacroByName('CurvaABC').AsString;
+
+  qryPedidosFiliais.Open;
+  qryPedidosFiliaisCodigoBarras.Open;
+
+  qryDadosFiscais.Close;
+  qryDadosFiscais.Open;
+  qryProdutos.Close;
+  qryProdutos.Open;
+  qryVolumesDadosFiscais.Close;
+  qryVolumesDadosFiscais.Open;
+  Result := (qryPedidosFiliais.recordcount<>0);
+  if not Result then
+    qryPedidosFiliais.Close;
+
+end;
+
+function TdtmTransferenciaRequisicaoExposicao.GetCancelado: Boolean;
+begin
+  Result:= qryPedidosFiliaissituacao.AsString = 'C';
+end;
+
+function TdtmTransferenciaRequisicaoExposicao.GetColunadaGrade: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryPedidosFiliaiscoluna.AsString)
+end;
+
+function TdtmTransferenciaRequisicaoExposicao.GetConfirmado: Boolean;
+begin
+  Result:= (qryPedidosFiliaissituacao.AsString = 'D');
+end;
+
+function TdtmTransferenciaRequisicaoExposicao.GetConsultaFiliais: TtecQuery;
+begin
+  Result:= qryConsultaFiliais;
+end;
+
+function TdtmTransferenciaRequisicaoExposicao.GetFechado: Boolean;
+begin
+  Result:= qryPedidosFiliaissituacao.AsString = 'F';
+end;
+
+function TdtmTransferenciaRequisicaoExposicao.GetLinhadaGrade: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryPedidosFiliaislinha.AsString)
+end;
+
+function TdtmTransferenciaRequisicaoExposicao.GetNrRegistro: Integer;
+begin
+  Result:= qryPedidosFiliais.RecordCount;
+end;
+
+function TdtmTransferenciaRequisicaoExposicao.GetQtdeRecebida: Currency;
+begin
+  Result:= qryPedidosFiliaisqtderecebida.AsCurrency;
+end;
+
+function TdtmTransferenciaRequisicaoExposicao.GetTabelaConsultaEstados: TZDataset;
+begin
+  Result := qryConsultaEstados
+end;
+
+function TdtmTransferenciaRequisicaoExposicao.GetTabelaConsultaFornecedorTransporte: TZDataset;
+begin
+  Result := qryConsultaFornecedorTransporte
+end;
+
+function TdtmTransferenciaRequisicaoExposicao.GetTabelaRequisicao: TtecQuery;
+begin
+  Result:= qryPedidosFiliais;
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.GravarInformacoesFornecedorTransporte;
+begin
+  FillChar(TranspNotaFiscal,SizeOf(TranspNotaFiscal),0);
+  with TranspNotaFiscal do begin
+    FornecedorTransporte := qryDadosFiscais.fieldbyname('FornecedorTransporte').AsInteger;
+    TipoFrete            := qryDadosFiscais.fieldbyname('frete').AsString;
+    TipoTransp           := qryDadosFiscais.fieldbyname('viatransporte').AsString;
+    EstadoPlaca          := Trim(qryDadosFiscais.fieldbyname('estadoplaca').AsString);
+    Placa                := Trim(qryDadosFiscais.fieldbyname('placa').AsString);
+    Observacao           := qryDadosFiscais.fieldbyname('observacoes').AsString;
+    Volumes              := qryVolumesDadosFiscaisvolumes.AsInteger;
+    PesoBruto            := qryVolumesDadosFiscaispesobruto.AsFloat;
+    PesoLiquido          := qryVolumesDadosFiscaispesoliquido.AsFloat;
+    Numeracao            := Trim(qryVolumesDadosFiscaisnumeracao.AsString);
+    Marca                := Trim(qryVolumesDadosFiscaismarca.AsString);
+    EspecieTransporte    := Trim(qryVolumesDadosFiscaisespecietransporte.AsString);
+  end;
+end;
+
+function TdtmTransferenciaRequisicaoExposicao.GravarRequisicao: Boolean;
+begin
+  Result:= True;
+  if qryPedidosFiliais.State = dsEdit then
+    qryPedidosFiliais.Post;
+end;
+
+function TdtmTransferenciaRequisicaoExposicao.ImprimirNotaFiscal: Boolean;
+var
+  ChaveAcesso: String;
+//  NFe: TTecNotaFiscalEletronica;
+  LoteNFe, ReciboNFe, ProtocoloNFe, status, DataHoraProcessamento: String;
+//  ValorPIS, ValorCOFINS: Currency;
+  vListaNFeEmailValidos : String;
+
+
+  procedure PreencherDadoFiscal;
+  var
+    Cont: Integer;
+  begin
+    qryNotas.Edit;
+    qryNotasdadofiscal.AsInteger := NovoNumeroDadoFiscal;
+    qryNotas.Post;
+
+    qryDadosFiscais.Insert;
+    qryDadosFiscais.FieldByName('numero').AsInteger       := qryNotasdadofiscal.AsInteger;
+    qryDadosFiscais.FieldByName('data').AsDateTime        := DataServidor;
+    qryDadosFiscais.FieldByName('situacao').AsString      := 'N';
+    qryDadosFiscais.FieldByName('filialvenda').AsInteger  := FilialBase;
+    qryDadosFiscais.FieldByName('estadocfo').AsString     := qryFilialDestinoestado.AsString;
+
+    fnumContrato := '';
+    case TipoNotaFiscalaEmitir of
+
+      VendaTransferencia:
+      begin
+        qryDadosFiscais.FieldByName('contratofrentecaixa').AsString := numContrato;
+        qryDadosFiscais.FieldByName('vendedor').asInteger := UsuarioLogin.CodigoUsuario;
+        qryDadosFiscais.FieldByName('vendatransferencia').asBoolean := true;
+      end;
+
+      DevolucaoTransferencia:
+        qryDadosFiscais.FieldByName('finalidadenf').AsInteger := 4;   // devolução
+
+    end;
+
+    qryDadosFiscais.FieldByName('codigonatureza').AsInteger := qryprodutos.fieldbyname('natureza').AsInteger;
+    qryDadosFiscais.FieldByName('natureza').AsString       := qryprodutos.fieldbyname('descricaonatureza').AsString;
+    qryDadosFiscais.FieldByName('codigofiscal').AsInteger  := qryprodutos.fieldbyname('codigofiscal').AsInteger;
+
+    qryDadosFiscais.FieldByName('pessoatipo').AsString    := 'J';
+    qryDadosFiscais.FieldByName('pessoanumero').AsString  := qryFilialDestinocnpj.AsString;
+    qryDadosFiscais.FieldByName('nome').AsString          := qryFilialDestinorazao.AsString;
+    qryDadosFiscais.fieldbyname('clientecontribicms').AsBoolean := qryFilialDestinocontribicms.AsBoolean;
+
+    if qryFilialDestinoestado.AsString='.' then {estrangeiro}
+    begin
+      qryDadosFiscais.FieldByName('pais').AsString    := qryFilialDestinocodigoibge.AsString;
+      qryDadosFiscais.FieldByName('nomepais').AsString                 := qryFilialDestinonomecidade.AsString;
+      qryDadosFiscais.FieldByName('rua').AsString                      := qryFilialDestinorua.AsString;
+      qryDadosFiscais.FieldByName('endnumero').AsString                := qryFilialDestinonumero.AsString;
+      qryDadosFiscais.FieldByName('endcomplemento').AsString           := qryFilialDestinocomplemento.AsString;
+      qryDadosFiscais.FieldByName('bairro').AsInteger                   := qryFilialDestinobairro.AsInteger;
+      //qryDadosFiscaisnomebairro.AsString               := qryFilialDestinonomebairro.AsString;
+      qryDadosFiscais.FieldByName('cidade').AsInteger                   := qryFilialDestinocidade.AsInteger;
+      qryDadosFiscais.FieldByName('nomecidade').AsString               := qryFilialDestinonomebairro.AsString;
+      //qryDadosFiscaiscidadeibge.AsString             := qryFilialDestinocodigoibge.AsString;
+      qryDadosFiscais.FieldByName('estado').AsString                   := qryFilialDestinoestado.AsString;
+      //qryDadosFiscaiscep.AsInteger                     := ConsultaOSP.qryProcuraClientecep.AsInteger;
+    end
+    else
+    begin
+      qryDadosFiscais.FieldByName('pais').AsInteger                    := 1058;
+      qryDadosFiscais.FieldByName('nomepais').AsString                 := 'Brasil';
+      qryDadosFiscais.FieldByName('rua').AsString                      := qryFilialDestinorua.AsString;
+      qryDadosFiscais.FieldByName('endnumero').AsString                := qryFilialDestinonumero.AsString;
+      qryDadosFiscais.FieldByName('endcomplemento').AsString           := qryFilialDestinocomplemento.AsString;
+      qryDadosFiscais.FieldByName('bairro').Asinteger                  := qryFilialDestinobairro.AsInteger;
+      qryDadosFiscais.FieldByName('nomebairro').AsString               := qryFilialDestinonomebairro.AsString;
+      qryDadosFiscais.FieldByName('cidade').AsInteger                   := qryFilialDestinocidade.AsInteger;
+      qryDadosFiscais.FieldByName('nomecidade').AsString               := qryFilialDestinonomecidade.AsString;
+      qryDadosFiscais.FieldByName('cidadeibge').Asstring    := qryFilialDestinocodigoibge.AsString;
+      qryDadosFiscais.FieldByName('estado').AsString                   := qryFilialDestinoestado.AsString;
+      qryDadosFiscais.FieldByName('cep').AsInteger                      := qryFilialDestinocep.AsInteger;
+    end;
+
+    qryDadosFiscais.FieldByName('foneddd').AsInteger      := qryFilialDestinofoneddd.AsInteger;
+    qryDadosFiscais.FieldByName('fonenumero').AsInteger   := qryFilialDestinofonenumero.AsInteger;
+    qryDadosFiscais.FieldByName('documento').AsString     := qryFilialDestinoinscricaoestadual.AsString;
+
+    qryDadosFiscais.FieldByName('filialemissao').AsInteger:= FilialBase;
+    qryDadosFiscais.FieldByName('datasaida').AsDateTime   := DataServidor;
+    qryDadosFiscais.FieldByName('Desconto').AsCurrency    := 0;
+    qryDadosFiscais.FieldByName('seguro').AsCurrency      := 0;
+    qryDadosFiscais.FieldByName('cliente').AsInteger      := qryFilialDestinocodigo.AsInteger;
+    qryDadosFiscais.FieldByName('tipocliente').AsString   := 'L';
+
+    qryDadosFiscais.FieldByName('viatransporte').AsString := 'R';
+    qryDadosFiscais.FieldByName('frete').AsString         := '1';
+    qryDadosFiscais.Post;
+
+    Cont := 0;
+    GuardarRegistroAtual(qryProdutos,True);
+    try
+      qryProdutos.First;
+      while not qryProdutos.Eof do
+      begin
+        qryProdutos.Edit;
+        qryProdutos.FieldByName('dadofiscal').AsInteger := qryDadosFiscais.FieldByName('numero').AsInteger;
+        qryProdutos.FieldByName('numero').AsInteger     := Cont + 1;
+        qryProdutos.Post;
+
+//        ValorPIS := ValorPIS + qryProdutos.FieldByName('pisvalor').AsCurrency;
+//        ValorCOFINS := ValorCOFINS + qryProdutos.FieldByname('cofinsvalor').AsCurrency;
+
+        qryProdutos.Next;
+        Inc(Cont);
+      end;
+    finally
+      VoltarRegistroAtual(qryProdutos);
+    end;
+  end;
+
+  function ImprimirNFE(Validando: Boolean = False) : boolean;
+  begin
+    qryDadosFiscais.Edit;
+    qryDadosFiscais.FieldByName('nrdocumento').AsInteger  := qryNotasnumero.AsInteger;
+
+    qryDadosFiscais.FieldByName('codaleatorio').Asinteger := Aleatorio(qryDadosFiscais.FieldByName('data').AsDateTime, qryDadosFiscais.FieldByName('nrdocumento').Asstring);
+
+    ChaveAcesso :=
+               copy(CodigoCidadeIBGEFilialBase,1,2)+                       // 2
+               FormatDateTime('YYMM',qryDadosFiscais.FieldByName('data').AsDateTime)+      // 4
+               preencheString(CNPJFilialBase,'0',14,false)+                // 14
+               preencheString(qryDadosFiscais.FieldByName('modelodocto').AsString,'0',2,false)+ // 2
+               preencheString(SerieSugestao,'0',3,false)+                  // 3
+               preencheString(qryDadosFiscais.FieldByName('nrdocumento').Asstring,'0',9,false) + // 9
+               qryDadosFiscais.fieldbyname('formaemissao').AsString +  //1
+               preencheString(qryDadosFiscais.FieldByName('codaleatorio').Asstring,'0',8,false);  // 8
+
+    qryDadosFiscais.FieldByName('digchaveacesso').AsString   := Modulo11(ChaveAcesso);
+    qryDadosFiscais.FieldByName('chv_nfe').AsString := ChaveAcesso + qryDadosFiscais.FieldByName('digchaveacesso').AsString;
+  //             modulo11(ChaveAcesso,'98765432',false);
+
+    {1 - PRODUÇÃO 2 - HOMOLOGAÇÃO}
+    qryDadosFiscais.FieldByName('ambiente').AsInteger         := NFeAmbiente;// '2';
+
+    {1 - normal 2 - compelementar}
+    {if qryDadosFiscais.FieldByName('dadofiscalcomplementar').AsInteger=0 then
+       qryDadosFiscais.FieldByName('finalidadenf').AsInteger  := 1
+    else
+       qryDadosFiscais.FieldByName('finalidadenf').AsInteger  := 2;}
+
+    qryDadosFiscais.FieldByName('procemissao').AsString      := '0';
+    qryDadosFiscais.FieldByName('versaoteclux').AsString     := VersaoTecLUX;
+    qryDadosFiscais.FieldByName('infcomplementar').AsString := qryDadosFiscais.FieldByName('observacoes').AsString;
+
+    if (regimetributario = 1) and //simples
+       (parsistema.obsnfeClientesnoSimples <> '') then
+       qryDadosFiscais.FieldByName('infcomplementar').AsString := qryDadosFiscais.FieldByName('infcomplementar').AsString +
+                                                  parsistema.obsnfeClientesnoSimples;
+
+{    qryDadosFiscais.FieldByName('totalvalorpis').AsCurrency := ValorPIS;
+    qryDadosFiscais.FieldByName('totalvalorcofins').AsCurrency := ValorCOFINS;
+}
+
+    qryDadosFiscais.Post;
+
+    if not Validando then
+      NFe := TTecNotaFiscalEletronica.Create
+    else
+      NFe := TTecNotaFiscalEletronica.Create(dtmTecSoft.Database);
+
+      {
+    NFe.DiretorioEnvio       := NFeDirEnvio;
+    NFe.DiretorioEnviado     := NFeDirEnviados;
+    NFe.DiretorioRetorno     := NFeDirRetorno;
+    NFe.DiretorioCompartilha := NfeDirCompartilha;
+    NFe.Executavel           := NFeExecNFe;
+    }
+    try
+      if not validando then
+      begin
+        ShowProcessando('Gerando o arquivo da NF-e!');
+        Sleep(500);
+      end;
+
+      // EMITENTE
+      NFe.Emit_Documento := CNPJFilialBase;
+      NFe.Emit_Nome      := RazaoFilialBase;
+      NFe.Emit_Rua       := RuaSemNumeroFilialBase;
+      NFe.Emit_Nro       := NumeroFilialBase;
+      NFe.Emit_Compl     := ComplementoFilialBase;
+      NFe.Emit_Bairro    := BairroFilialBase;
+      NFe.Emit_CodMun    := CodigoCidadeIBGEFilialBase;
+      NFe.Emit_Mun       := CidadeFilialBase;
+      NFe.Emit_UF        := EstadoFilialBase;
+      NFe.Emit_CEP       := CEPFilialBase;
+      NFe.Emit_Fone      := DDDFilialBase+FoneFilialBase;
+      NFe.Emit_IE        := InscricaoEstadualFilialBase;
+      NFe.Emit_IM        := InscricaoMunicipalFilialBase;
+      NFe.Emit_CNAE      := CNAEFiscalFilialBase;
+      NFe.Emit_CRT       := qrydadosfiscais.fieldbyname('regimetributario').AsInteger;
+
+
+      // DESTINATARIO
+      NFe.Dest_TipoPessoa := qryDadosFiscais.fieldbyname('pessoatipo').AsString;
+      NFe.Dest_Documento := qryDadosFiscais.fieldbyname('pessoanumero').AsString;
+      NFe.Dest_Nome      := qryDadosFiscais.fieldbyname('nome').AsString;
+      NFe.Dest_Rua       := qryDadosFiscais.fieldbyname('rua').AsString;
+      NFe.Dest_Nro       := qryDadosFiscais.fieldbyname('endnumero').AsString;
+      NFe.Dest_Compl     := qryDadosFiscais.fieldbyname('endcomplemento').AsString;
+      NFe.Dest_Bairro    := qryDadosFiscais.fieldbyname('nomebairro').AsString;
+      NFe.Dest_CodMun    := qryDadosFiscais.fieldbyname('cidadeibge').AsString;
+      NFe.Dest_Mun       := qryDadosFiscais.fieldbyname('nomecidade').AsString;
+      NFe.Dest_UF        := qryDadosFiscais.fieldbyname('estado').AsString;
+      NFe.Dest_CEP       := qryDadosFiscais.fieldbyname('cep').AsString;
+      NFe.Dest_CodPais   := qryDadosFiscais.fieldbyname('pais').AsInteger;
+      NFe.Dest_Pais      := qryDadosFiscais.fieldbyname('nomepais').AsString;
+      NFe.Dest_Fone      := qryDadosFiscais.fieldbyname('foneddd').AsString+qryDadosFiscais.fieldbyname('fonenumero').AsString;
+      NFe.Dest_IE        := qryDadosFiscais.fieldbyname('documento').AsString;
+      NFe.Dest_ISUF      := qryDadosFiscais.fieldbyname('iesubsttributario').AsString;
+
+      // ENTREGA
+      NFe.Entrega_Documento := qryDadosFiscais.fieldbyname('localentrega_cnpj').AsString;
+      NFe.Entrega_Rua       := qryDadosFiscais.fieldbyname('localentrega_rua').AsString;
+      NFe.Entrega_Nro       := qryDadosFiscais.fieldbyname('localentrega_numero').AsString;
+      NFe.Entrega_Compl     := qryDadosFiscais.fieldbyname('localentrega_complemento').AsString;
+      NFe.Entrega_Bairro    := qryDadosFiscais.fieldbyname('localentrega_nomebairro').AsString;
+      NFe.Entrega_CodMun    := qryDadosFiscais.fieldbyname('localentrega_cidadeibge').AsString;
+      NFe.Entrega_Mun       := qryDadosFiscais.fieldbyname('localentrega_nomecidade').AsString;
+      NFe.Entrega_UF        := qryDadosFiscais.fieldbyname('localentrega_estado').AsString;
+
+      nfe.Validando := validando;
+
+      result:=NFe.GerarNFe(qryDadosFiscais, TabelaReferenciada, qryProdutos,nil,nil,nil,
+                   qryVolumesDadosFiscais, nil, nil,nil,SerieSugestao,'S');
+
+      if result and not validando then
+      begin
+        if NFeTipoEmissao in [1,3] then
+        begin
+          ShowProcessando;
+          ShowProcessando('Verificando status do serviço NF-e!');
+          Sleep(500);
+          if NFe.VerificarStatusServico(IntToStr(NFeAmbiente)) then
+          begin
+            ShowProcessando;
+            ShowProcessando('Processando o arquivo de envio da NF-e!');
+            Sleep(500);
+            Result := NFe.EnviarNFe(ChaveAcesso+qryDadosFiscais.fieldbyname('digchaveacesso').AsString, LoteNFe, ReciboNFe);
+            if Result then
+            begin
+              qryDadosFiscais.Edit;
+              qryDadosFiscais.fieldbyname('numlotenfe').AsString   := LoteNFe;
+              qryDadosFiscais.fieldbyname('numrecibonfe').AsString := ReciboNFe;
+              qryDadosFiscais.Post;
+              Result := Perpetrar([qryDadosFiscais]);
+              if Result then
+              begin
+                ShowProcessando;
+                ShowProcessando('Consultando o arquivo de retorno da NF-e!');
+                Sleep(5000);
+                Result := NFe.ConsultarSituacaoLote(ReciboNFe, ProtocoloNFe, status, DataHoraProcessamento, IntToStr(NFeAmbiente));
+              end;
+              if Result then
+              begin
+                qryDadosFiscais.Edit;
+                qryDadosFiscais.fieldbyname('numprotocolonfe').AsString := ProtocoloNFe;
+                qryDadosFiscais.fieldbyname('statusnfe').AsString := status;
+                qryDadosFiscais.fieldbyname('dhprocnfe').AsDateTime := FormatarTimeStamp(DataHoraProcessamento);
+
+                if (qryDadosFiscais.fieldbyname('statusnfe').AsString = '301') or
+                   (qryDadosFiscais.fieldbyname('statusnfe').AsString = '302') then
+                begin
+                  qryDadosFiscais.Edit;
+                  qryDadosFiscais.fieldbyname('situacao').AsString := 'D';
+                  qryDadosFiscais.Post;
+                  //LimparTabela(qrymovimentos);
+                  //Result := Perpetrar([qryMovimentos, qryDadosFiscais]);
+                  Result := Perpetrar([qryDadosFiscais]);
+                  MensagemAviso('Nota fiscal em uso denegado.');
+                end
+                else
+                begin
+
+                  Result := Perpetrar([qryDadosFiscais]);
+
+                  if Result then
+                  begin
+                    ShowProcessando;
+                    ShowProcessando('Gerando o arquivo de compartilhamento da NF-e!');
+                    Sleep(500);
+                    Result := NFe.CompartilharXML(ChaveAcesso+qryDadosFiscais.fieldbyname('digchaveacesso').AsString,
+                                                  ReciboNFe, qryDadosFiscais.fieldbyname('filialemissao').AsString,
+                                                  SerieSugestao, qryDadosFiscais.fieldbyname('nrdocumento').AsString,
+                                                  qryDadosFiscais.fieldbyname('data').AsDateTime);
+                    if Result then
+                    begin
+                      SalvarConteudoxml('S', qryDadosFiscais.fieldbyname('numero').asString);
+                      {if not NFeVisualizarDANFE then
+                        MensagemAviso('Impressão da Nota Fiscal será iniciada.')
+                      else
+                      begin
+                      } ShowProcessando;
+                        ShowProcessando('Imprimindo o DANFE!');
+                      //end;
+                      NFe.ImprimirDanfe({ChaveAcesso+qryDadosFiscaisdigchaveacesso.AsString,}
+                                        qryDadosFiscais.fieldbyname('filialemissao').AsString,
+                                        SerieSugestao,
+                                        qryDadosFiscais.fieldbyname('nrdocumento').AsString,
+                                        qryDadosFiscais.fieldbyname('localentrega_cep').AsString,
+                                        qryDadosFiscais.fieldbyname('email').AsString,
+                                        IntToStr(NFeNVias), NFeLogotipoDANFE,
+                                        ParSistema.NomeImpressoraNotaMercadorias, NFeVisualizarDANFE,
+                                        qryDadosFiscais.fieldbyname('data').AsDateTime,
+                                        qryProdutos, NFeExecDANFE, Enviar, 'S');
+                      ShowProcessando;
+
+
+                      vListaNFeEmailValidos := '';
+                      ListaStringEmailValido(ListadeEmails('DF', qryDadosFiscais.fieldbyname('numero').AsInteger), vListaNFeEmailValidos, true);
+
+
+                      if (vListaNFeEmailValidos <> '')      and
+                         (UsuarioLogin.PortaSmpt        <> '')      and
+                         (UsuarioLogin.HostSmtp         <> '')      and
+                         (UsuarioLogin.Email            <> '')      and
+                         (UsuarioLogin.SenhaEmail       <> '') then
+                      begin
+                        ShowProcessando('Enviando email para o cliente');
+                        try
+                                                          if not NFe.EnviarEmail(UsuarioLogin.Email, vListaNFeEmailValidos,
+                                                                              qryDadosFiscais.fieldbyname('nrdocumento').AsString, SerieSugestao, IntToStr(FilialBase),
+                                                                              NomeFilialBase, RazaoFilialBase, CNPJFilialBase, DDDFilialBase, FoneFilialBase,
+                                                                              DDDFaxFilialBase, FaxFilialBase, UsuarioLogin.NomeUsuario, UsuarioLogin.PortaSMPT,
+                                                                              UsuarioLogin.HostSMTP, UsuarioLogin.UsuarioEmail, UsuarioLogin.SenhaEmail,
+                                                                              qryDadosFiscais.fieldbyname('data').AsDateTime, qryDadosFiscais.fieldbyname('valortotal').AsCurrency,
+                                                                              UsuarioLogin.AutenticarSMTP, qryDadosFiscais.fieldbyname('data').AsDateTime) then
+                                                                MensagemAviso('Ocorreu um erro inesperado no envio do email')
+                                                        finally
+                                                              ShowProcessando;
+                                                        end;
+                      end;
+                    end
+                    else
+                      ShowProcessando;
+                  end;
+
+                end;
+              end
+              else
+                ShowProcessando;
+            end
+            else
+              ShowProcessando;
+          end
+          else
+            ShowProcessando;
+        end
+        else
+        begin
+          if not NFeVisualizarDANFE then
+            MensagemAviso('Impressão da Nota Fiscal será iniciada.');
+          NFe.ImprimirDanfe({ChaveAcesso+qryDadosFiscaisdigchaveacesso.AsString,}
+                            qryDadosFiscais.fieldbyname('filialemissao').AsString,
+                            SerieSugestao,
+                            qryDadosFiscais.fieldbyname('nrdocumento').AsString,
+                            qryDadosFiscais.fieldbyname('localentrega_cep').AsString,
+                            qryDadosFiscais.fieldbyname('email').AsString,
+                            IntToStr(NFeNVias), NFeLogotipoDANFE,
+                            ParSistema.NomeImpressoraNotaMercadorias, NFeVisualizarDANFE,
+                            qryDadosFiscais.fieldbyname('data').AsDateTime,
+                            qryProdutos, NFeExecDANFE, Enviar, 'S');
+        end;
+      end;
+    finally
+      FreeAndNil(NFe); //NFe.Free;
+    end;
+  end;
+
+  procedure IncluirEntradaCreditoTrocaFilial;
+  begin
+      qryProdutosTrocados.append;
+
+      spcProdutosTrocadosProximo.Open;
+      qryProdutosTrocadosnumero.AsInteger := spcProdutosTrocadosProximonumero.AsInteger;
+      spcProdutosTrocadosProximo.close;
+
+      qryProdutosTrocadostipo.AsString := 'E';
+      qryProdutosTrocadosdata.Asdatetime := DataHoraServidor;
+      qryProdutosTrocadoscliente.AsInteger := filialbase;
+      qryProdutosTrocadostipocliente.AsString := 'L';
+      qryProdutosTrocadosfilial.asinteger := qryDadosFiscais.fieldbyname('cliente').asinteger;
+      qryProdutosTrocadosvalor.AsCurrency := qryDadosFiscais.fieldbyname('valortotal').AsCurrency;
+      qryProdutosTrocadosdefeito.AsBoolean := false;
+      qryProdutosTrocadosusuario.AsInteger := CodigoUsuario;
+      qryProdutosTrocadosreferencia.asString := 'NF TRANSF. DEV. FILIAL ' + qrydadosfiscais.fieldbyname('cliente').asString
+                                                                  + ' SÉRIE ' + qryNotasserie.asString
+                                                                  + ' N° ' + qryNotasnumero.asstring;
+      qryProdutosTrocados.Post;
+  end;
+
+  procedure IncluirSaidaCreditoTrocaFilial;
+  var
+    vSaldoCreditoTroca : Currency;
+  begin
+      vSaldoCreditoTroca := ValorCreditoTrocaEntreFiliais(FilialBase, qryFilialDestinocodigo.AsInteger);
+
+      if vSaldoCreditoTroca <> 0 then
+      begin
+        qryDadosFiscais.edit;
+        if vSaldoCreditoTroca > qryDadosFiscais.fieldbyname('valortotal').AsCurrency then
+          qryDadosFiscais.FieldByName('creditotroca').asCurrency := qryDadosFiscais.fieldbyname('valortotal').AsCurrency
+        else
+          qryDadosFiscais.FieldByName('creditotroca').asCurrency := vSaldoCreditoTroca;
+
+        qryDadosFiscais.post;
+
+        qryProdutosTrocados.append;
+
+        spcProdutosTrocadosProximo.Open;
+        qryProdutosTrocadosnumero.AsInteger := spcProdutosTrocadosProximonumero.AsInteger;
+        spcProdutosTrocadosProximo.close;
+
+        qryProdutosTrocadostipo.AsString := 'S';
+        qryProdutosTrocadosdata.Asdatetime := DataHoraServidor;
+        qryProdutosTrocadoscliente.AsInteger := qryDadosFiscais.fieldbyname('cliente').asinteger;
+        qryProdutosTrocadostipocliente.AsString := 'L';
+        qryProdutosTrocadosfilial.asinteger := filialbase;
+        qryProdutosTrocadosvalor.AsCurrency := qryDadosFiscais.FieldByName('creditotroca').asCurrency;
+        qryProdutosTrocadosdefeito.AsBoolean := false;
+        qryProdutosTrocadosusuario.AsInteger := CodigoUsuario;
+        qryProdutosTrocadosreferencia.asString := 'NF TRANSF. VENDA. FILIAL ' + inttostr(filialbase)
+                                                                  + ' SÉRIE ' + qryNotasserie.asString
+                                                                  + ' N° ' + qryNotasnumero.asstring;
+        qryProdutosTrocados.Post;
+      end;
+  end;
+
+
+begin
+  result := VerificarSerieFilial;
+  if result then
+  begin
+    BloquearEstoque;
+    result := VerificarSaldoEstoqueouReserva;
+    if result then
+    begin
+      result := PreencherNotaFiscal;
+      if result  then
+      begin
+
+        PreencherDadoFiscal;
+        IncluirMovimentos;
+        AtualizarPedidosFiliais;
+
+        case TipoNotaFiscalaEmitir of
+          VendaTransferencia : result := CalcularImpostos(qryProdutos, qryDadosFiscais, ContribIPI, true, true, nil, nil, false, TransferenciaSaida);
+          DevolucaoTransferencia : result := CalcularImpostos(qryProdutos, qryDadosFiscais, ContribIPI,true, true, nil, nil, false, DevolucaoPorTransferencia);
+          Transferencia : result := CalcularImpostos(qryProdutos, qryDadosFiscais, ContribIPI,true, true, nil, nil, false, TransferenciaSaida);
+        end;
+
+        if result then
+           result := ComplementoDadosFiscais;
+
+        if ListadeLotes<>'' then
+        begin
+          qrydadosfiscais.edit;
+          qryDadosFiscais.fieldbyName('observacoes').asString := 'LOTES '+ListadeLotes+ ' '+qryDadosFiscais.fieldbyName('observacoes').asString;
+          qrydadosfiscais.post;
+        end;
+
+        if result then
+        begin
+          refazconsulta(qryVenctosDadosFiscais,[],[]);
+          case TipoNotaFiscalaEmitir of
+            DevolucaoTransferencia : IncluirEntradaCreditoTrocaFilial;
+            VendaTransferencia     :
+            begin
+              IncluirSaidaCreditoTrocaFilial;
+              if qryDadosFiscais.fieldbyname('creditotroca').AsCurrency<>0 then
+              begin
+                qryVenctosDadosFiscais.Append;
+                qryVenctosDadosFiscaisdadofiscal.AsInteger      := qryDadosFiscais.fieldByName('numero').AsInteger;
+                qryVenctosDadosFiscaisnumero.AsInteger          := 1;
+                qryVenctosDadosFiscaisdatavencto.AsDateTime     := qryDadosFiscais.fieldByName('data').AsDateTime;
+                qryVenctosDadosFiscaisvalorvencto.AsCurrency    := qryDadosFiscais.fieldbyname('creditotroca').AsCurrency;
+
+                 if qryTiposRecebimentoscodigo.asinteger <> 0 then
+                  qryVenctosDadosFiscaistiporecebimento.asInteger := qryTiposRecebimentoscodigo.asinteger
+                else
+                  qryVenctosDadosFiscaistiporecebimento.clear;
+
+                qryVenctosDadosFiscaisformapagamento.AsString   := 'T';
+                qryVenctosDadosFiscaistransacao.clear;
+                qryVenctosDadosFiscais.Post;
+
+                if ((qryDadosFiscais.fieldbyname('valortotal').AsCurrency - qryDadosFiscais.fieldbyname('creditotroca').AsCurrency) <> 0) then
+                begin
+                  qryVenctosDadosFiscais.Append;
+                  qryVenctosDadosFiscaisdadofiscal.AsInteger      := qryDadosFiscais.fieldByName('numero').AsInteger;
+                  qryVenctosDadosFiscaisnumero.AsInteger          := 2;
+                  qryVenctosDadosFiscaisdatavencto.AsDateTime     := qryDadosFiscais.fieldByName('data').AsDateTime;
+                  qryVenctosDadosFiscaisvalorvencto.AsCurrency    := qryDadosFiscais.fieldbyname('valortotal').AsCurrency - qryDadosFiscais.fieldbyname('creditotroca').AsCurrency;
+                  qryVenctosDadosFiscaistiporecebimento.AsInteger := 1;
+                  qryVenctosDadosFiscaisformapagamento.AsString   := 'D';
+                  qryVenctosDadosFiscaistransacao.clear;
+                  qryVenctosDadosFiscais.Post;
+                end;
+              end
+              else
+              begin
+                qryVenctosDadosFiscais.Append;
+                qryVenctosDadosFiscaisdadofiscal.AsInteger      := qryDadosFiscais.fieldByName('numero').AsInteger;
+                qryVenctosDadosFiscaisnumero.AsInteger          := 1;
+                qryVenctosDadosFiscaisdatavencto.AsDateTime     := qryDadosFiscais.fieldByName('data').AsDateTime;
+                qryVenctosDadosFiscaisvalorvencto.AsCurrency    := qryDadosFiscais.fieldbyname('valortotal').AsCurrency;
+                qryVenctosDadosFiscaistiporecebimento.AsInteger := 1;
+                qryVenctosDadosFiscaisformapagamento.AsString   := 'D';
+                qryVenctosDadosFiscaistransacao.clear;
+                qryVenctosDadosFiscais.Post;
+              end;
+            end;
+          end;
+
+          if CondicaoEmissorNFE then
+             result := ImprimirNFE(true);
+
+          if result then
+          begin
+
+            result := Perpetrar([qryDadosFiscais, qryVenctosDadosFiscais, qryNotas, qryMovimentos, qryProdutos,
+                                qrySeriesFiliais, qryAtualizarPedidosFiliais, qryVolumesDadosFiscais, qryProdutosTrocados]);
+
+            if result then
+            begin
+              if ListadeLotes <> '' then
+              begin
+                qryZerarPedidosFiliaisLotes.parambyname('Lotes').asString := ListadeLotes;
+                qryZerarPedidosFiliaisLotes.execSQL;
+                result := perpetrar([qryZerarPedidosFiliaisLotes]);
+              end;
+            end;
+
+            if result then
+            begin
+              if TipoNotaFiscalaEmitir = VendaTransferencia then
+              begin
+                qryFuncaoGerarContratoporDadoFiscal.close;
+                qryFuncaoGerarContratoporDadoFiscal.ParamByName('dadofiscal').asinteger := qryDadosFiscais.FieldByName('numero').AsInteger;
+                qryFuncaoGerarContratoporDadoFiscal.ParamByName('origem').asString := 'Transferencia';
+                qryFuncaoGerarContratoporDadoFiscal.open;
+                result := perpetrar([]);
+
+                if result then
+                begin
+                  if (qrydadosfiscais.RecordCount <> 0) then
+                  begin
+                    qryDadosFiscais.edit;
+                    qryDadosFiscais.fieldbyname('contrato').asstring := qryDadosFiscais.FieldByName('contratofrentecaixa').AsString;
+                    qryDadosFiscais.FieldByName('contratofrentecaixa').clear;
+                    qryDadosFiscais.post;
+                    perpetrar([qryDadosFiscais]);
+                  end;
+                end;
+              end;
+
+              if not CondicaoEmissorNFE then
+              begin
+                dtmImprimeFiscal := TdtmImprimeFiscal.Create(Self);
+                try
+                  dtmImprimeFiscal.ImprimirNota(qryDadosFiscais.fieldbyname('numero').AsInteger, qrySeriesFiliaismodelonota.AsInteger);
+                finally
+                  dtmImprimeFiscal.Free
+                end;
+              end
+              else
+                result := ImprimirNFE;
+            end;
+          end;
+
+        end
+        else Abort;
+      end;
+    end;
+  end;
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.ImprimirRequisicoes;
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+  vImprimindoRequisicoes := true;
+//  qryPedidosFiliais.filtered := true;
+
+  frVariables['Rua']   := RuaFilialBase;
+  frVariables['Bairro']:= BairroFilialBase + ' - CEP: ' + CEPFilialBase;
+  frVariables['Cidade']:= CidadeFilialBase + ' - ' + EstadoFilialBase;
+  frVariables['Fone']  := FoneFilialBase;
+  frVariables['Outras']:= RazaoFilialBase;
+//  frpPedidosFiliais.DesignReport;
+  frmPreview := TfrmPreviewPadrao.create(self);
+  try
+
+   Relatorio := frmPreview.frCompositeReport;
+   frmPreview.frCompositeReport.Reports.Clear;
+   frmPreview.frCompositeReport.Reports.Add(frpPedidosFiliais);
+   Relatorio.Preview := frmPreview.frPreviewPadrao;
+   Relatorio.ShowReport;
+
+   frmPreview.ShowModal;
+
+  finally
+   frmPreview.Free;
+
+   vImprimindoRequisicoes := false;
+   {
+   if (trim(dtmtransferenciarequisicaoexposicao.qryLotesPedidosFiliaislotetransferencia.asstring)<>'') then
+     dtmtransferenciarequisicaoexposicao.qrypedidosfiliais.filtered := true
+   else
+     dtmtransferenciarequisicaoexposicao.qrypedidosfiliais.filtered := false;
+   }
+   
+  end;
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.IncluirMovimentos;
+var
+  SituacaoProduto : TtecComposicao;
+//  Pos: TBookMark;
+  Total: Currency;
+  vProduto : String;
+  vFilial : Integer;
+begin
+//  Pos := qryProdutos.GetBookmark;
+  GuardarRegistroAtual(qryPedidosFiliais,True);
+//  qryProdutos.DisableControls;
+  try
+    Total:= 0;
+
+
+    for SituacaoProduto := stNAOCOMPOSTO to stCOMPOSTO do
+    begin
+      qryProdutos.First;
+      while not qryProdutos.Eof do
+      begin
+        vProduto := qryProdutos.FieldByName('produto').AsString;
+        vFilial := qryProdutos.FieldByName('filial').AsInteger;
+
+        if FiltrarComposto(qryProdutos.FieldByName('composto').AsBoolean, SituacaoProduto) then
+        begin
+
+          NovoMovimento(vProduto, qryProdutos.FieldByName('filial').AsInteger);
+          qryMovimentosquantidade.AsCurrency   := qryProdutos.FieldByName('quantidade').AsCurrency;
+          if (ParSistema.RequisicaoSubtraiEstoque) then
+            qryMovimentostipomovimento.AsString := 'SPT'
+          else
+            qryMovimentostipomovimento.AsString := 'SET';
+          qryMovimentosreferencia.AsString    := 'NF-' + IntToStr(qryNotasnumero.AsInteger) +
+                                                 ' S-' + SerieSugestao + ' TRANSFERENCIA';
+          qryMovimentosvalor.AsCurrency       := truncar((qryMovimentosquantidade.AsCurrency *
+                                                          qryProdutos.FieldByName('precovenda').AsCurrency),2);
+          qryMovimentostrfproduto.AsString  := vProduto;
+          qryMovimentostrffilial.AsInteger    := FFilialEstoqueRequisitante;
+          qryMovimentosdadofiscal.AsInteger   := qryDadosFiscais.fieldbyname('numero').AsInteger;
+          qryMovimentos.Post;
+
+          Total:= Total + qryMovimentosvalor.AsCurrency;
+
+          if qryPedidosFiliais.Locate('produto;filial_estoque', VarArrayOf([vproduto,vfilial]),[]) then
+          begin
+            //CASO TRABALHE COM RESERVA PRÉVIA A QUANTIDADE QUE NÃO FOI CONFIRMADA DEVERÁ VOLTAR PARA O ESTOQUE
+            if (ParSistema.RequisicaoSubtraiEstoque) and
+               (qryProdutos.FieldByName('quantidade').AsCurrency < qryPedidosFiliaisqtdepedida.AsCurrency) and
+               (qryPedidosFiliaisqtderecebida.AsCurrency>0) then
+            begin
+               NovoMovimento(qryPedidosFiliaisproduto.AsString,qryPedidosFiliaisfilial_estoque.AsInteger);
+               qryMovimentostipomovimento.AsString := 'TPE';
+               qryMovimentosquantidade.AsCurrency   := qryPedidosFiliaisqtdepedida.AsCurrency - qryProdutos.FieldByName('quantidade').AsCurrency;
+               qryMovimentosreferencia.AsString    := 'REQUISICAO '+qryPedidosFiliaiscodigo.AsString+' QTDE NAO CONFIRMADA';
+               qryMovimentos.Post;
+            end;
+          end;
+          qryProdutos.Next;
+        end
+        else
+          qryProdutos.Next;
+      end;
+    end;
+
+    qryDadosFiscais.Edit;
+    qryDadosFiscais.fieldbyname('valorvista').AsCurrency:= Total;
+    qryDadosFiscais.fieldbyname('valortotal').AsCurrency:= Total;
+    qryDadosFiscais.Post;
+
+  finally
+    VoltarRegistroAtual(qryPedidosFiliais);
+//    qryProdutos.GotoBookmark(Pos);
+//    qryProdutos.FreeBookmark(Pos);
+    qryProdutos.EnableControls
+  end
+end;
+
+function TdtmTransferenciaRequisicaoExposicao.IncluirProdutos: Boolean;
+var
+  vQuantidadeJaVerificada : Currency;
+begin
+  result := true;
+  if result then
+  begin
+    if (qryFilialDestinocodigo.asInteger <> Frequisitante) or (TipoNotaFiscalaEmitir = NaoEmitir) then
+    begin
+      ReFazConsulta(qryFilialDestino,[0],[Frequisitante], false);
+      if not ehRaizCNPJ(qryFilialDestinocnpj.AsString) then
+      begin
+        case MensagemSimNaoOpcaoCancelar('Definição do tipo de nota fiscal.','',true,' NF de &Venda ',' Nfe de &Devolução ') of
+          mrYes    : TipoNotaFiscalaEmitir := VendaTransferencia;
+          mrNo     : TipoNotaFiscalaEmitir := DevolucaoTransferencia;
+          mrCancel : begin
+                       TipoNotaFiscalaEmitir := NaoEmitir;
+                       result := false;
+                     end;
+        end;
+      end
+      else
+        TipoNotaFiscalaEmitir := Transferencia;
+    end;
+
+    if result then
+    begin
+
+      case TipoNotaFiscalaEmitir of
+        Transferencia :
+        begin
+
+          if qryprodutos.Locate('produto;filial', VarArrayOf([qryPedidosFiliaisproduto.AsString,FilialEstoque]),[]) then
+            qryProdutos.edit
+          else
+          begin
+            qryProdutos.append;
+            qryProdutos.FieldByName('produto').AsString    := qryPedidosFiliaisproduto.AsString;
+            qryProdutos.FieldByName('filial').AsInteger      := FilialEstoque;
+          end;
+
+          qryProdutos.FieldByName('quantidade').AsCurrency := qryProdutos.FieldByName('quantidade').AsCurrency + qryPedidosFiliaisqtderecebida.AsCurrency;
+          qryProdutos.FieldByName('tribquantidade').AsCurrency := qryProdutos.FieldByName('tribquantidade').AsCurrency + qryPedidosFiliaisqtderecebida.AsCurrency;
+
+          if qryprodutos.state = dsinsert then
+          begin
+            AtribuirDadosProdutos(qryprodutos, nil, nil, false, TransferenciaSaida, qryPedidosFiliaisestadofilialrequisitante.asString );
+            qryProdutos.FieldByName('quantidade').AsCurrency := qryPedidosFiliaisqtderecebida.AsCurrency;
+            qryProdutos.FieldByName('tribquantidade').AsCurrency := qryPedidosFiliaisqtderecebida.AsCurrency;
+            qryProdutos.FieldByName('Listacodigopedidofilial').AsString := qryPedidosFiliaiscodigo.AsString;
+          end
+          else
+            qryProdutos.FieldByName('Listacodigopedidofilial').AsString := qryProdutos.FieldByName('Listacodigopedidofilial').AsString +', '+
+                                                                      qryPedidosFiliaiscodigo.AsString;
+
+          qryprodutos.fieldbyname('qtdeestoque').AsFloat   := qryProdutos.fieldbyname('quantidade').AsFloat * qryProdutos.fieldbyname('fatorconversao').AsFloat;
+
+          qryProdutos.FieldByName('entregar').AsBoolean    := True;
+          AtribuirDadosCalculosImpostos(nil, qryDadosProdutos_, nil, qryProdutos, TransferenciaSaida, false, noTRANSFERENCIAMERCADORIASSAIDA, qryPedidosFiliaisestadofilialrequisitante.asString);
+        end;
+
+
+        VendaTransferencia :
+        begin
+
+          if qryprodutos.Locate('produto;filial', VarArrayOf([qryPedidosFiliaisproduto.AsString,FilialEstoque]),[]) then
+            qryProdutos.edit
+          else
+          begin
+            qryProdutos.append;
+            qryProdutos.FieldByName('produto').AsString    := qryPedidosFiliaisproduto.AsString;
+            qryProdutos.FieldByName('filial').AsInteger      := FilialEstoque;
+          end;
+
+          qryProdutos.FieldByName('quantidade').AsCurrency := qryProdutos.FieldByName('quantidade').AsCurrency + qryPedidosFiliaisqtderecebida.AsCurrency;
+          qryProdutos.FieldByName('tribquantidade').AsCurrency := qryProdutos.FieldByName('tribquantidade').AsCurrency + qryPedidosFiliaisqtderecebida.AsCurrency;
+
+
+          if qryprodutos.state = dsinsert then
+          begin
+            AtribuirDadosProdutos(qryprodutos, nil, nil, false, TransferenciaSaida, qryPedidosFiliaisestadofilialrequisitante.asString );
+            qryProdutos.FieldByName('quantidade').AsCurrency := qryPedidosFiliaisqtderecebida.AsCurrency;
+            qryProdutos.FieldByName('tribquantidade').AsCurrency := qryPedidosFiliaisqtderecebida.AsCurrency;
+            qryProdutos.FieldByName('Listacodigopedidofilial').AsString := qryPedidosFiliaiscodigo.AsString;
+          end
+          else
+            qryProdutos.FieldByName('Listacodigopedidofilial').AsString := qryProdutos.FieldByName('Listacodigopedidofilial').AsString +', '+
+                                                                     qryPedidosFiliaiscodigo.AsString;
+
+          qryprodutos.fieldbyname('qtdeestoque').AsFloat   := qryProdutos.fieldbyname('quantidade').AsFloat * qryProdutos.fieldbyname('fatorconversao').AsFloat;
+          qryProdutos.FieldByName('entregar').AsBoolean    := True;
+
+          AtribuirDadosCalculosImpostos(nil, qryDadosProdutos_, nil, qryProdutos, TransferenciaSaida, true, noVENDAS_TRANSFERENCIA_ENTRE_EMPRESA, qryPedidosFiliaisestadofilialrequisitante.asString);
+
+        end;
+
+        DevolucaoTransferencia :
+        begin
+          vQuantidadeJaVerificada := 0;
+
+          if not ( qryDadosNotasPag.Active and
+                  (qryDadosNotasPag.recordcount <> 0) and
+                  (qryDadosNotaspag.ParamByName('filialdevolucao').AsInteger = FRequisitante) and
+                  (qryDadosNotaspag.ParamByName('produto').AsString = qryPedidosFiliaisproduto.AsString)) then
+             RefazConsultaPorNome(qryDadosNotasPag, ['filialdevolucao', 'produto'], [Frequisitante, qryPedidosFiliaisproduto.AsString]);
+
+
+          qryDadosNotasPag.first;
+          while not qryDadosNotasPag.eof do
+          begin
+            if (qryPedidosFiliaisqtderecebida.AsCurrency - vQuantidadeJaVerificada) <= (qryDadosNotasPagquantidade.asCurrency - qryDadosNotasPagqtdedevolvida.asCurrency) then
+            begin
+              qryDadosNotasPag.edit;
+              qryDadosNotasPagqtdedevolvida.asCurrency := qryDadosNotasPagqtdedevolvida.asCurrency + qryPedidosFiliaisqtderecebida.AsCurrency - vQuantidadeJaVerificada;
+              vQuantidadeJaVerificada := vQuantidadeJaVerificada + qryDadosNotasPagqtdedevolvida.asCurrency;
+              qryDadosNotasPag.post;
+            end
+            else
+            begin
+              qryDadosNotasPag.edit;
+              qryDadosNotasPagqtdedevolvida.asCurrency := qryDadosNotasPagqtdedevolvida.asCurrency + (qryDadosNotasPagquantidade.asCurrency - qryDadosNotasPagqtdedevolvida.asCurrency);
+              vQuantidadeJaVerificada := vQuantidadeJaVerificada + qryDadosNotasPagqtdedevolvida.asCurrency;
+              qryDadosNotasPag.post;
+            end;
+
+            if vQuantidadeJaVerificada = qryPedidosFiliaisqtderecebida.AsCurrency then
+              break;
+
+            qryDadosNotasPag.next;
+          end;
+
+          if vQuantidadeJaVerificada <> qryPedidosFiliaisqtderecebida.AsCurrency then
+          begin
+            result := false;
+            MensagemErro('Saldo da quantidade em notas de entrada: ' + CurrToStr(vQuantidadeJaVerificada) + chr(13) +
+                         'Quantidade solicitada: ' + CurrToStr(qryPedidosFiliaisqtderecebida.AsCurrency) + chr(13) +
+                         'Saldo do produto '+ qryPedidosFiliaisproduto.AsString + ' insuficiente para suprir a saída por devolução. ');
+          end
+          else
+          begin
+
+            qryDadosNotasPag.first;
+            while not qryDadosNotasPag.eof do
+            begin
+              if qryDadosNotasPagqtdedevolvida.AsCurrency <> 0 then
+              begin
+                if qryprodutos.Locate('codigonota;produto;filial;numeroprodutotabela',
+                           VarArrayOf([qryDadosNotasPagcodigonota.asinteger,
+                                       qryPedidosFiliaisproduto.AsString,
+                                       FilialEstoque,
+                                       qryDadosNotasPagnumero.asinteger]),[]) then
+                  qryProdutos.edit
+                else
+                begin
+                  qryProdutos.append;
+                  qryProdutos.FieldByName('produto').AsString    := qryPedidosFiliaisproduto.AsString;
+                  qryProdutos.FieldByName('filial').AsInteger      := FilialEstoque;
+                  qryProdutos.FieldByName('codigonota').asinteger := qryDadosNotasPagcodigonota.asinteger;
+                  qryprodutos.fieldbyname('numeroprodutotabela').asinteger := qryDadosNotasPagnumero.asinteger;
+                end;
+
+                qryProdutos.FieldByName('quantidade').AsCurrency := qryDadosNotasPagqtdedevolvida.AsCurrency;
+                qryProdutos.FieldByName('tribquantidade').AsCurrency := qryDadosNotasPagqtdedevolvida.AsCurrency;
+
+                if qryprodutos.state = dsinsert then
+                begin
+                  AtribuirDadosProdutos(qryprodutos, nil, nil, false, DevolucaoporTransferencia, qryPedidosFiliaisestadofilialrequisitante.asString );
+                  qryProdutos.FieldByName('quantidade').AsCurrency := qryDadosNotasPagqtdedevolvida.AsCurrency;
+                  qryProdutos.FieldByName('tribquantidade').AsCurrency := qryDadosNotasPagqtdedevolvida.AsCurrency;
+                  qryProdutos.FieldByName('Listacodigopedidofilial').AsString := qryPedidosFiliaiscodigo.AsString;
+                end
+                else
+                  qryProdutos.FieldByName('Listacodigopedidofilial').AsString := qryProdutos.FieldByName('Listacodigopedidofilial').AsString +', '+
+                                                                           qryPedidosFiliaiscodigo.AsString;
+
+                qryprodutos.fieldbyname('qtdeestoque').AsFloat   := qryProdutos.fieldbyname('quantidade').AsFloat * qryProdutos.fieldbyname('fatorconversao').AsFloat;
+                qryProdutos.FieldByName('entregar').AsBoolean    := True;
+
+                AtribuirDadosCalculosImpostos(nil, qryDadosProdutos_, nil, qryProdutos, TransferenciaSaida, true, noSAIDADEVOLUCAO_TRANSFERENCIA_ENTRE_EMPRESA, qryPedidosFiliaisestadofilialrequisitante.asString);
+//                qryProdutos.post;
+              end
+              else
+                break;
+
+              qryDadosNotasPag.next;
+
+            end;
+
+          end;
+        end;
+      end;
+
+      if result then
+      begin
+        if (qryProdutos.FieldByName('precovenda').AsCurrency=0)  then
+        begin
+          result := false;
+          MensagemAviso('Produto  '+ qryPedidosFiliaisproduto.AsString +' com custo zerado!');
+        end
+        else
+          qryProdutos.Post;
+      end;
+
+    end;
+
+  end;
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.InicializarTabelas;
+begin
+  if qryDadosFiscais.Active then
+    qryDadosFiscais.Close;
+  qryDadosFiscais.Open;
+
+  if qryNotas.Active then
+    qryNotas.Close;
+  qryNotas.Open;
+
+  if qryProdutos.Active then
+    qryProdutos.Close;
+  qryProdutos.Open;
+
+{  if qryCalculos.Active then
+    qryCalculos.Close;
+  qryCalculos.Open;}
+
+  if qryMovimentos.Active then
+    qryMovimentos.Close;
+  qryMovimentos.Open;
+
+  if qryEstoques.Active then
+    qryEstoques.Close;
+  qryEstoques.Open;
+
+  if qryVolumesDadosFiscais.Active then
+    qryVolumesDadosFiscais.Close;
+  qryVolumesDadosFiscais.Open;
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.MontaIntervaloData;
+const
+  Data_1: String = 'and (cast(pf.data as date) = ';
+  Data_2: String = 'and (cast(pf.data as date) between (';
+begin
+  if not DataEmBranco(FDataInicial) then begin
+    if DataEmBranco(FDataFinal) then
+         qryPedidosFiliais.macrobyname('Periodo').asstring := Data_1 + '''' + FDataInicial + ''')'
+    else qryPedidosFiliais.macrobyname('Periodo').asstring := Data_2 + '''' + FDataInicial + ''') and (''' + FDataFinal + '''))';
+  end
+  else begin
+    if not DataEmBranco(FDataFinal) then
+         qryPedidosFiliais.macrobyname('Periodo').asstring := Data_1 + '''' + FDataFinal + ''')'
+    else qryPedidosFiliais.macrobyname('Periodo').asstring := '';
+  end;
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.NovoMovimento(Produto: String; Filial: Integer);
+begin
+  qryMovimentos.Append;
+  spcMovimentosProximo.Open;
+  qryMovimentosnumero.AsInteger := spcMovimentosProximonumero.AsInteger;
+  spcMovimentosProximo.Close;
+  qryMovimentosproduto.AsString   := Produto;
+  qryMovimentosfilial.AsInteger     := Filial;
+  qryMovimentoscliente.AsInteger    := Filial;
+  qryMovimentostipocliente.AsString := 'L';
+end;
+
+function TdtmTransferenciaRequisicaoExposicao.NovoNumeroDadoFiscal: Integer;
+begin
+  spcDadosFiscaisProximo.Open;
+  Result := spcDadosFiscaisProximonumero.AsInteger;
+  spcDadosFiscaisProximo.Close;
+end;
+
+
+function TdtmTransferenciaRequisicaoExposicao.PreencherNotaFiscal: Boolean;
+begin
+  qryNotas.Append;
+  qryNotasfilial.AsInteger            := FilialBase;
+  qryNotasserie.AsString              := SerieSugestao;
+  qryNotasnumero.AsInteger            := qrySeriesFiliaisnumeroinicial.AsInteger;
+
+  qrySeriesFiliais.Edit;
+  qrySeriesFiliaisnumeroinicial.AsInteger := qrySeriesFiliaisnumeroinicial.AsInteger + 1;
+  qrySeriesFiliais.Post;
+
+  if qrySeriesFiliaisnumeroinicial.AsInteger <= qrySeriesFiliaisnumerofinal.AsInteger then
+    Result := True
+  else
+    Result := MensagemAviso(Format(ctSERIEESGOTADA, [qrySeriesFiliaisnumerofinal.AsString]) + #13#10 + ctCONFIRMEINPRESSAO) = smbOK;
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.qryPedidosFiliaisAfterPost(DataSet: TDataSet);
+{var
+  produto: String;
+  filial : Integer;}
+begin
+  if not FImprimindoNota then
+  begin
+    GuardarRegistroAtual(qryPedidosFiliais,True);
+//    produto := qryPedidosFiliaisproduto.AsString;
+//    filial  := qryPedidosFiliaisrequisitante.AsInteger;
+    Perpetrar([qryPedidosFiliais]);
+//    qryPedidosFiliais.Locate('produto;requisitante', varArrayOf([produto,filial]),[]);
+
+    VoltarRegistroAtual(qryPedidosFiliais);
+  end;
+  qryPedidosFiliaisAfterOpen(qryPedidosFiliais);
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.qryPedidosFiliaisAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  qryPedidosFiliais.ReadOnly:= Fechado or Cancelado;
+  if Assigned(FRequisicaoAfterScroll) then
+    FRequisicaoAfterScroll(qryPedidosFiliais);
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.qryPedidosFiliaisBeforeInsert(DataSet: TDataSet);
+begin
+  inherited;
+  Abort;
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.ReservaPreviaProduto(
+  Situacao: String);
+
+  procedure NovoMovimentoReservaPrevia(Produto: int64; Filial: Integer);
+  begin
+    if qryMovimentosCancelamentoReabertura.State = dsInactive then
+      qryMovimentosCancelamentoReabertura.Open;
+    qryMovimentosCancelamentoReabertura.Append;
+    spcMovimentosProximo.Open;
+    qryMovimentosCancelamentoReaberturanumero.AsInteger := spcMovimentosProximonumero.AsInteger;
+    spcMovimentosProximo.Close;
+    qryMovimentosCancelamentoReaberturaproduto.AsLargeInt   := Produto;
+    qryMovimentosCancelamentoReaberturafilial.AsInteger     := Filial;
+    qryMovimentosCancelamentoReaberturareferencia.AsString:='REQUISICAO ' + qryPedidosFiliaiscodigo.AsString;
+  end;
+
+begin
+  NovoMovimentoReservaPrevia(qryPedidosFiliaisproduto.AsLargeInt,qryPedidosFiliaisfilial_estoque.AsInteger);
+  if Situacao='C' then
+    qryMovimentosCancelamentoReaberturatipomovimento.AsString:='TPE'
+  else
+    qryMovimentosCancelamentoReaberturatipomovimento.AsString:='TEP';
+  qryMovimentosCancelamentoReaberturaquantidade.AsCurrency:=qryPedidosFiliaisqtdepedida.AsCurrency;
+  qryMovimentosCancelamentoReabertura.Post;
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.Selecionar(TipoConsulta: TtecTransferenciaRequisicao);
+begin
+  case TipoConsulta of
+    ttrFORNECEDORES: begin
+                       qryDadosFiscais.Edit;
+                       qryDadosFiscais.fieldbyname('fornecedortransporte').AsInteger:= qryConsultaFornecedorTransportecodigo.AsInteger;
+                       qryDadosFiscais.Post;
+                     end;
+    ttrESTADOS     : begin
+                       qryDadosFiscais.Edit;
+                       qryDadosFiscais.fieldbyname('estadoplaca').AsString:= qryConsultaEstadoscodigo.AsString;
+                       qryDadosFiscais.Post;
+                     end;
+    ttrFILIAIS     : ReFazConsulta(qryProcuraFiliais,[0],[qryConsultaFiliaiscodigo.AsInteger]);
+  end;
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.SetDataFinal(const Value: String);
+begin
+  if FDataFinal <> Value then
+    FDataFinal:= Value;
+  MontaIntervaloData;
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.SetDataInicial(const Value: String);
+begin
+  if FDataInicial <> Value then
+    FDataInicial:= Value;
+  MontaIntervaloData;
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.SetFilialRequisitante(const Value: String);
+begin
+  if Value <> '' then
+       qryPedidosFiliais.macrobyname('Requisitante').asstring := 'and (pf.requisitante = ' + Value + ')'
+  else qryPedidosFiliais.macrobyname('Requisitante').asstring := '';
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.SetSituacao(const Value: Integer);
+begin
+  case Value of
+    0: qryPedidosFiliais.macrobyname('Situacao').asstring := 'and (pf.situacao = ' + QuotedStr('A') + ')';
+    1: qryPedidosFiliais.macrobyname('Situacao').AsString := 'and (pf.situacao = ' + QuotedStr('F') + ')';
+    2: qryPedidosFiliais.macrobyname('Situacao').AsString := 'and (pf.situacao = ' + QuotedStr('D') + ')';
+    3: qryPedidosFiliais.macrobyname('Situacao').AsString := 'and (pf.situacao = ' + QuotedStr('C') + ')';
+  end;
+end;
+
+function TdtmTransferenciaRequisicaoExposicao.VerificarSerieFilial: Boolean;
+begin
+  ReFazConsulta(qrySeriesFiliais, [0,1], [FilialBase, SerieSugestao]);
+  if qrySeriesFiliais.RecordCount = 0 then begin
+    MensagemAviso(format(ctFILIALSEMSERIE, [FilialBase, 'mercadorias']));
+    Result := False;
+  end else if qrySeriesFiliaismodelonota.IsNull then begin
+    MensagemAviso(ctSERIESUGESTAOSEMMODELO);
+    Result := False;
+  end else
+    Result := True;
+end;
+
+{procedure TdtmTransferenciaRequisicaoExposicao.ZMonitor1MonitorEvent(Sql,
+  Result: String);
+var
+ Listar : TStringList;
+ arquivo : String;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  arquivo := 'c:\monitor.sql';
+  if fileexists(arquivo) then
+    Listar.loadfromfile(arquivo);
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile(arquivo);
+  listar.free;
+end;}
+
+procedure TdtmTransferenciaRequisicaoExposicao.frpPedidosFiliaisBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+inherited;
+  ZebrarLinhaRelatorio(frpPedidosFiliais, view);
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.ZMonitor1MonitorEvent(Sql,
+  Result: String);
+var
+ Listar : TStringList;
+ arquivo: String;
+begin
+  inherited;
+  Listar := tStringlist.Create;
+  arquivo := 'c:\Transferencias.sql';
+  if fileexists(arquivo) then
+    Listar.loadfromfile(arquivo);
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile(arquivo);
+  listar.free;
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.qryDadosFiscaisNewRecord(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryDadosFiscais.fieldbyname('modelodocto').AsString := ModeloDoctoFiscal;
+  qryDadosFiscais.fieldbyname('manual').Asboolean := False;
+  qryDadosFiscais.fieldbyname('versaolayout').AsCurrency   := 3.10;
+  { 0 – pagamento à vista   1 – pagamento à prazo     2 - outros }
+  qryDadosFiscais.fieldbyname('formapagto').AsInteger      := 2;
+  { 1-Retrato/ 2-Paisagem }
+  qryDadosFiscais.fieldbyname('formatodanfe').AsInteger    := 1;
+  {1-Normal/ 2-Contingência}
+  qryDadosFiscais.fieldbyname('formaemissao').AsInteger    := NFeTipoEmissao;
+  qrydadosfiscais.fieldbyname('regimetributario').AsInteger := RegimeTributario;
+  qryDadosFiscais.fieldbyname('indpres').AsInteger := 1;
+  qryDadosFiscais.FieldByName('finalidadenf').AsInteger := 1;   // normal
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.qryPedidosFiliaisFilterRecord(
+  DataSet: TDataSet; var Accept: Boolean);
+begin
+  inherited;
+  Accept := true;
+  if vImprimindoRequisicoes then
+  begin
+    if ParSistema.ImprimirRequisicaoNaoConfirmada then
+      Accept := qryPedidosFiliaisqtderecebida.AsCurrency >= 0
+    else
+      Accept := qryPedidosFiliaisqtderecebida.AsCurrency > 0;
+  end;
+
+  if (trim(qryLotesPedidosFiliaislotetransferencia.asstring)<>'') then
+    Accept := Accept and (trim(qryPedidosFiliaislotetransferencia.AsString) =
+                          trim(qryLotesPedidosFiliaislotetransferencia.AsString));
+
+
+
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.LocalizarProduto(
+  TextodePesquisa: String; TipoPesquisaProduto: TtecTipoPesquisaProduto);
+var
+  vRecno: integer;
+  vRegistroEncontrado : TBookMark;
+  incrementado : Boolean;
+
+  procedure IncrementarQuantidade;
+  begin
+    qryPedidosFiliais.Edit;
+    qryPedidosFiliaisqtderecebida.AsCurrency := qryPedidosFiliaisqtderecebida.AsCurrency + 1;
+
+    dsrPedidosFiliais.OnDataChange:= nil;
+    qryPedidosFiliais.Edit;
+    qryPedidosFiliaismarcarlotetransferencia.AsBoolean := true;
+    qryPedidosFiliais.post;
+    dsrPedidosFiliais.OnDataChange:= dsrPedidosFiliaisDataChange;
+
+    incrementado := true;
+  end;
+
+begin
+  incrementado := false;
+  case TipoPesquisaProduto of
+    pesCODIGOBARRAS:
+    begin
+      if not qryPedidosFiliaisCodigoBarras.Locate('codigobarras',TextodePesquisa,[]) then
+        MensagemAviso('O Código de Barras não foi encontrado', true)
+      else
+      if not qryPedidosFiliais.Locate('produto', qryPedidosFiliaisCodigoBarrasproduto.AsString,[]) then
+        MensagemAviso('O Código de Barras não foi encontrado', true)
+      else
+      begin
+
+        vRegistroEncontrado := qryPedidosFiliais.GetBookmark;
+
+        while not qryPedidosFiliais.eof do
+        begin
+          if qryPedidosFiliaisproduto.AsString = qryPedidosFiliaisCodigoBarrasproduto.AsString then
+          begin
+
+            if not ((qryPedidosFiliaisqtdepedida.AsCurrency > 0) and
+                    (qryPedidosFiliaisqtderecebida.AsCurrency + 1 > qryPedidosFiliaisqtdepedida.AsCurrency)) then
+            begin
+              IncrementarQuantidade;
+              break;
+            end
+          end;
+
+          qryPedidosFiliais.next;
+
+        end;
+
+        if not incrementado then
+        begin
+          qryPedidosFiliais.GotoBookmark(vRegistroEncontrado);
+          IncrementarQuantidade;
+        end;
+        qryPedidosFiliais.FreeBookmark(vRegistroEncontrado);
+
+      end;
+    end;
+
+    pesPRODUTO:
+    begin
+
+      if not qrypedidosfiliais.Locate('produto',TextodePesquisa,[]) then
+        MensagemAviso('O Produto não foi localizado')
+      else
+      begin
+
+        vRegistroEncontrado := qryPedidosFiliais.GetBookmark;
+
+        while not qryPedidosFiliais.eof do
+        begin
+          if qryPedidosFiliaisproduto.AsString = TextodePesquisa then
+          begin
+
+            if not ((qryPedidosFiliaisqtdepedida.AsCurrency > 0) and
+                     (qryPedidosFiliaisqtderecebida.AsCurrency + 1 > qryPedidosFiliaisqtdepedida.AsCurrency)) then
+            begin
+              IncrementarQuantidade;
+              break;
+            end
+          end;
+
+          qryPedidosFiliais.next;
+
+        end;
+
+        if not incrementado then
+        begin
+          qryPedidosFiliais.GotoBookmark(vRegistroEncontrado);
+          IncrementarQuantidade;
+        end;
+        qryPedidosFiliais.FreeBookmark(vRegistroEncontrado);
+
+      end;
+    end;
+  end;
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.qryPedidosFiliaisBeforePost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryPedidosFiliaisqtderecebidaanterior.AsCurrency := qryPedidosFiliaisqtderecebida.AsCurrency
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.qryPedidosFiliaisAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+
+  qryTotaisPedidosFiliais.Close;
+  qryTotaisPedidosFiliais.Open;
+  qryTotaisPedidosFiliais.Append;
+  qryTotaisPedidosFiliaisqtdepedida.AsCurrency := SomarValores(qryPedidosFiliais, [qryPedidosFiliaisqtdepedida],[],[],[]);
+  qryTotaisPedidosFiliaisqtderecebida.AsCurrency := SomarValores(qryPedidosFiliais, [qryPedidosFiliaisqtderecebida],[],[],[]);
+  qryTotaisPedidosFiliais.post;
+
+  AbrirLotesPedidosFiliais;
+
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.VerificarLoteTransferencia;
+{
+ Cria se pedidosfiliais não tiver  e atribui a todos pedidofilial se lote não preenchido e marcado lotetransferencia
+}
+var
+  produto: String;
+  n, i, filial : Integer;
+  VarArray: Variant;
+  vproduto: String;
+begin
+  if qryPedidosFiliaislotetransferencia.IsNull then
+  begin
+    qryPedidosFiliais.AfterPost := nil;
+
+    qryLotesTransferencia_ProximoCodigo.Close;
+    qryLotesTransferencia_ProximoCodigo.OPen;
+    qryLotesTransferencia.Close;
+    qryLotesTransferencia.Open;
+    qryLotesTransferencia.Append;
+    qryLotesTransferenciacodigo.AsInteger := qryLotesTransferencia_ProximoCodigocodigo.AsInteger;
+    qryLotesTransferenciausuario.AsInteger := UsuarioLogin.CodigoUsuario;
+    qryLotesTransferenciadatahora.AsDateTime := DataHoraServidor;
+    qryLotesTransferencia.post;
+
+    GuardarRegistroAtual(qryPedidosFiliais, true);
+
+    VarArray := VarArrayCreate([0,0], varVariant);
+
+    qryPedidosFiliais.First;
+    while not qryPedidosFiliais.Eof do
+    begin
+      if qryPedidosFiliaismarcarlotetransferencia.AsBoolean and
+         qryPedidosFiliaislotetransferencia.IsNull then
+      begin
+        n  := VarArrayHighBound(VarArray, 1);
+        if not VarIsEmpty(VarArrayGet(VarArray, [n])) then
+        begin
+          inc(n);
+          VarArrayRedim(VarArray, n);
+        end;
+        VarArrayPut(VarArray, qrypedidosfiliaisproduto.asvariant, n);
+      end;
+      qryPedidosFiliais.Next;
+    end;
+
+   { Now read the elements of the array }
+    for I := VarArrayLowBound(VarArray, 1) to VarArrayHighBound(VarArray, 1) do
+    begin
+      vproduto := VarArrayGet(VarArray, [I]);
+      if qrypedidosfiliais.Locate('produto', vproduto,[]) then
+      begin
+        qryPedidosFiliais.Edit;
+        qryPedidosFiliaislotetransferencia.AsInteger := qryLotesTransferenciacodigo.AsInteger;
+        qryPedidosFiliais.post;
+      end;
+    end;
+
+    VoltarRegistroAtual(qryPedidosFiliais);
+
+    produto := qryPedidosFiliaisproduto.AsString;
+    filial  := qryPedidosFiliaisrequisitante.AsInteger;
+    perpetrar([qryLotesTransferencia, qryPedidosFiliais]);
+    qryPedidosFiliais.Locate('produto;requisitante', varArrayOf([produto,filial]),[]);
+
+    qryPedidosFiliais.AfterPost := qryPedidosFiliaisAfterPost;
+
+
+  end;
+
+end;
+
+function TdtmTransferenciaRequisicaoExposicao.GetCondicaoEmissorNFE: Boolean;
+begin
+  if qryDadosFiscais.recordcount <> 0 then
+    fCondicaoEmissorNFE := parsistema.EmissorNfe and
+                           ((qryDadosFiscais.fieldbyname('modelodocto').AsString = '55') or
+                            (qryDadosFiscais.fieldbyname('modelodocto').AsString = '57'))
+  else
+    fCondicaoEmissorNFE := parsistema.EmissorNfe and
+                           ((ModeloDoctoFiscal = '55') or
+                            (ModeloDoctoFiscal = '57'));
+
+  Result := fCondicaoEmissorNFE;
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.AbrirLotesPedidosFiliais;
+begin
+  qryLotesPedidosFiliais.ParamByName('requisitada').Asinteger := qryPedidosFiliais.ParamByName('requisitada').Asinteger;
+  qryLotesPedidosFiliais.Macros := qryPedidosFiliais.Macros;
+  qryLotesPedidosFiliais.Close;
+  qryLotesPedidosFiliais.Open;
+  qryLotesPedidosFiliais.First;
+
+  qryLotesPedidosFiliais_.ParamByName('requisitada').Asinteger := qryPedidosFiliais.ParamByName('requisitada').Asinteger;
+  qryLotesPedidosFiliais_.Macros := qryPedidosFiliais.Macros;
+  qryLotesPedidosFiliais_.Close;
+  qryLotesPedidosFiliais_.Open;
+  qryLotesPedidosFiliais_.First;
+
+
+end;
+
+function TdtmTransferenciaRequisicaoExposicao.GetNumContrato: String;
+begin
+  if (fNumContrato = '')  then
+  begin
+    spcContratosProximo.Close;
+    spcContratosProximo.Open;
+    fNumContrato := spcContratosProximonumero.AsString;
+  end;
+  result := fNumContrato;
+end;
+
+function TdtmTransferenciaRequisicaoExposicao.TabelaReferenciada: TtecQuery;
+var
+  vListaCodigosNotasPag : String;
+begin
+  result := nil;
+
+  if qryDadosFiscais.FieldByName('finalidadenf').AsInteger = 4 then
+  begin
+    vListaCodigosNotasPag := RetornarLista(qryProdutos, qryProdutos.fieldbyname('codigonota'), nil, true);
+    if (vListaCodigosNotasPag <> '') then
+    begin
+      qryNotaEntradaRef.macrobyname('SQL').asString := 'and np.codigo in ('+vListaCodigosNotasPag+')';
+      qryNotaEntradaRef.close;
+      qryNotaEntradaRef.open;
+      qryNotaEntradaRef.macrobyname('SQL').asString := '';
+    end;
+    result := qryNotaEntradaRef;
+  end;
+
+end;
+
+function TdtmTransferenciaRequisicaoExposicao.VerificarSaldoEstoqueouReserva: boolean;
+var
+  SituacaoProduto : TtecComposicao;
+  QuantidadeCompara: Currency;
+  vProduto : String;
+  vFilial : Integer;
+
+begin
+
+  for SituacaoProduto := stNAOCOMPOSTO to stCOMPOSTO do
+  begin
+    qryProdutos.First;
+    while not qryProdutos.Eof do
+    begin
+      vProduto := qryProdutos.FieldByName('produto').AsString;
+      vFilial := qryProdutos.FieldByName('filial').AsInteger;
+
+      if FiltrarComposto(qryProdutos.FieldByName('composto').AsBoolean, SituacaoProduto) then
+      begin
+        if qryEstoqueBloqueio.Locate('produto;filial', VarArrayOf([vProduto,
+                                                                   qryProdutos.FieldByName('filial').AsInteger]) ,[]) then
+        begin
+          if (ParSistema.RequisicaoSubtraiEstoque) then
+            QuantidadeCompara:=qryEstoqueBloqueioreservaprevia.AsCurrency
+          else
+            QuantidadeCompara:=qryEstoqueBloqueioemestoque.AsCurrency;
+
+          if not (QuantidadeCompara >= qryProdutos.FieldByName('quantidade').AsCurrency) then
+            qryProdutos.Delete
+          else
+            qryProdutos.next;
+        end
+        else
+          qryProdutos.Next;
+      end
+      else
+        qryProdutos.Next;
+    end;
+  end;
+
+  result := (qryProdutos.recordcount <> 0);
+
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.ZerarLotesSemVerificacao;
+begin
+  AtribuirDados(qryPedidosFiliais, [qryPedidosFiliaislotetransferencia], [null], [qryPedidosFiliaisqtderecebida], [0], ['=']);
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.LigarDesligarEventosPedidosFiliais(
+  Desligar: boolean);
+begin
+  if desligar then
+  begin
+    dsrPedidosFiliais.onDataChange := nil;
+    qryPedidosFiliais.afterpost := nil;
+    qryPedidosFiliais.AfterScroll := nil;
+
+  end
+  else
+  begin
+    dsrPedidosFiliais.onDataChange := dsrPedidosFiliaisDataChange;
+    qryPedidosFiliais.afterpost := qryPedidosFiliaisAfterPost;
+    qryPedidosFiliais.AfterScroll := qryPedidosFiliaisAfterScroll;
+  end;
+end;
+
+function TdtmTransferenciaRequisicaoExposicao.ExisteInconsistenciaLotes_Confirmada_X_Lida: Boolean;
+var
+ vLista: String;
+begin
+  vlista := '';
+  guardarregistroAtual(qryPedidosFiliais, true);
+  qryPedidosFiliais.first;
+  while not qryPedidosFiliais.eof do
+  begin
+    if not qryPedidosFiliaislotetransferencia.isnull and
+       (qryPedidosFiliaisqtderecebida.AsCurrency > 0) and
+       (qryPedidosFiliaissituacao.AsString = 'A')    then
+      vLista := vLista + '('+qryPedidosFiliaislotetransferencia.asString + ','+qryPedidosFiliaisproduto.asString + '),';
+
+    qryPedidosFiliais.next;
+  end;
+  VoltarRegistroAtual(qryPedidosFiliais);
+
+  if vlista = '' then
+    result := false
+  else
+  begin
+    if not parsistema.Permitir_Requisicoes_de_Produtos_Duplicadas then
+    begin
+
+      delete(vlista,length(vlista), 1);
+      qryPedidosInconsistentes.macrobyname('ListaLotesProdutos').asString := vlista;
+      qryPedidosInconsistentes.macrobyname('CondicaoInconsistencia').asString := 'coalesce(selecao.qtderecebida,0) <> coalesce(selecao.lido,0)';
+
+      qryPedidosInconsistenteslido.Visible := true;
+      qryPedidosInconsistentesreservapreviarequisitada.Visible := false;
+
+      qryPedidosInconsistentes.close;
+      qryPedidosInconsistentes.open;
+      if qryPedidosInconsistentes.recordcount = 0 then
+        result := false
+      else
+      begin
+        result := true;
+        frmMensagemGrid := TfrmMensagemGrid.Create(frmMensagemGrid);
+        frmMensagemGrid.Caption := 'Mensagem de inconsistência';
+        frmMensagemGrid.lblTitulo.Caption := 'INCONSISTÊNCIA NOS PRODUTOS LIDOS!';
+        frmMensagemGrid.lblTExto.Caption := 'Verifique no quadro abaixo os produtos que estão inconsistentes em relação a quantidade lida.';
+        frmMensagemGrid.dbgMensagem.DataSource :=dsrPedidosInconsistentes;
+        frmMensagemGrid.width := 750;
+        frmMensagemGrid.ShowModal;
+        frmMensagemGrid.Free;
+
+      end;
+    end;
+
+  end;
+end;
+
+function TdtmTransferenciaRequisicaoExposicao.ExisteInconsistenciaLotes_qtderecebida_X_reservapreviarequisitada: Boolean;
+var
+ vLista: String;
+begin
+  vlista := '';
+  guardarregistroAtual(qryPedidosFiliais, true);
+  qryPedidosFiliais.first;
+  while not qryPedidosFiliais.eof do
+  begin
+    if not qryPedidosFiliaislotetransferencia.isnull and
+           qryPedidosFiliaismarcarlotetransferencia.asboolean and
+       (qryPedidosFiliaisqtderecebida.AsCurrency > qryPedidosFiliaisreservapreviarequisitada.asCurrency) and
+       (qryPedidosFiliaissituacao.AsString = 'A')    then
+      vLista := vLista + '('+qryPedidosFiliaislotetransferencia.asString + ','+qryPedidosFiliaisproduto.asString + '),';
+
+    qryPedidosFiliais.next;
+  end;
+  VoltarRegistroAtual(qryPedidosFiliais);
+
+  if vlista = '' then
+    result := false
+  else
+  begin
+    delete(vlista,length(vlista), 1);
+    qryPedidosInconsistentes.macrobyname('ListaLotesProdutos').asString := vlista;
+    qryPedidosInconsistentes.macrobyname('CondicaoInconsistencia').asString := ' true ';
+    qryPedidosInconsistenteslido.Visible := false;
+    qryPedidosInconsistentesreservapreviarequisitada.Visible := true;
+
+    qryPedidosInconsistentes.close;
+    qryPedidosInconsistentes.open;
+    if qryPedidosInconsistentes.recordcount = 0 then
+      result := false
+    else
+    begin
+      result := true;
+      frmMensagemGrid := TfrmMensagemGrid.Create(frmMensagemGrid);
+      frmMensagemGrid.Caption := 'Mensagem de inconsistência';
+      frmMensagemGrid.lblTitulo.Caption := 'INCONSISTÊNCIA NOS PRODUTOS LIDOS!';
+      frmMensagemGrid.lblTExto.Caption := 'Verifique no quadro abaixo os produtos que estão inconsistentes em relação a quantidade reserva prévia da filial requisitada.';
+      frmMensagemGrid.dbgMensagem.DataSource :=dsrPedidosInconsistentes;
+      frmMensagemGrid.width := 820;
+      frmMensagemGrid.ShowModal;
+      frmMensagemGrid.Free;
+
+    end;
+  end;
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.qryPedidosFiliaisCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryPedidosFiliaisdescricaolc.asString := trim(qryPedidosFiliaisdescricao.asString +
+        ' ' + qryPedidosFiliaisvalorgrade1.asString +
+        ' ' + qryPedidosFiliaisvalorgrade2.asString);
+end;
+
+procedure TdtmTransferenciaRequisicaoExposicao.GerarLoteTransferencia;
+var
+  produto: String;
+  n, i, filial : Integer;
+  VarArray: Variant;
+  vproduto: String;
+begin
+  if qryPedidosFiliaislotetransferencia.IsNull then
+  begin
+    qryPedidosFiliais.AfterPost := nil;
+
+    qryLotesTransferencia_ProximoCodigo.Close;
+    qryLotesTransferencia_ProximoCodigo.OPen;
+    qryLotesTransferencia.Close;
+    qryLotesTransferencia.Open;
+    qryLotesTransferencia.Append;
+    qryLotesTransferenciacodigo.AsInteger := qryLotesTransferencia_ProximoCodigocodigo.AsInteger;
+    qryLotesTransferenciausuario.AsInteger := UsuarioLogin.CodigoUsuario;
+    qryLotesTransferenciadatahora.AsDateTime := DataHoraServidor;
+    qryLotesTransferencia.post;
+
+    GuardarRegistroAtual(qryPedidosFiliais, true);
+
+    qryPedidosFiliais.First;
+    while not qryPedidosFiliais.Eof do
+    begin
+      if qryPedidosFiliaismarcarlotetransferencia.AsBoolean and
+         qryPedidosFiliaislotetransferencia.IsNull then
+      begin
+        qryPedidosFiliais.Edit;
+        qryPedidosFiliaislotetransferencia.AsInteger := qryLotesTransferenciacodigo.AsInteger;
+
+        qryPedidosFiliais.post;
+      end;
+        qryPedidosFiliais.Next;
+    end;
+
+    VoltarRegistroAtual(qryPedidosFiliais);
+
+    produto := qryPedidosFiliaisproduto.AsString;
+    filial  := qryPedidosFiliaisrequisitante.AsInteger;
+    perpetrar([qryLotesTransferencia, qryPedidosFiliais]);
+    qryPedidosFiliais.Locate('produto;requisitante', varArrayOf([produto,filial]),[]);
+
+    qryPedidosFiliais.AfterPost := qryPedidosFiliaisAfterPost;
+
+
+  end;
+
+end;
+
+end.
+

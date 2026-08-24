@@ -8,7 +8,7 @@ Uses
   //CLX
   classes,
   //Projeto
-  fmrequisicaoexposicao, fmconsultarequisicaoexposicao, fmconsultaprodutosadquiridos,
+  {fmrequisicaoexposicao,} fmconsultarequisicaoexposicao, fmconsultaprodutosadquiridos,
   fmtransferenciarequisicaoexposicao, fmconfirmarnotastransferencia,
   fmconfirmarromaneiostransferencia,
   fmconfirmarnotastransferenciaporitem, fmexportacaonotastransferencia,
@@ -16,7 +16,7 @@ Uses
 
 initialization
 
-  RegisterClasses([TfrmRequisicaoExposicao, TfrmConsultaRequisicaoExposicao,
+  RegisterClasses([{TfrmRequisicaoExposicao,} TfrmConsultaRequisicaoExposicao,
                    TfrmConsultaProdutosAdquiridos, TfrmTransferenciaRequisicaoExposicao,
                    TfrmConfirmarNotasTransferencia, TfrmConfirmarNotasTransferenciaPorItem,
                    TfrmExportacaoNotasTransferencia, TfrmImportacaoNotasTransferencia,

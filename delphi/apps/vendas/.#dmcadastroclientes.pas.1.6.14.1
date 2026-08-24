@@ -1,0 +1,1633 @@
+unit dmcadastroclientes;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, DB,
+  //Biblio
+  ctconstantes, biblio, clparametrossistema,
+  //Repositorio
+  dmbasico, dmtecsoft,
+  //Componentes
+  cpdatasource, cpquery,
+  //Terceiros
+  ZQuery, ZPgSqlQuery, ZTransact;
+
+type
+  TdtmCadastroClientes = class(TdtmBasico)
+    qryClientes: TtecQuery;
+    qryClientescodigo: TIntegerField;
+    qryClientesnome: TStringField;
+    qryClientesnascto: TDateField;
+    qryClientesapelido: TStringField;
+    qryClientessexo: TStringField;
+    qryClientescivil: TStringField;
+    qryClientescivildata: TDateField;
+    qryClientesiddocumento: TStringField;
+    qryClientesidorgao: TStringField;
+    qryClientesiddata: TDateField;
+    qryClientesidestado: TStringField;
+    qryClientespessoatipo: TStringField;
+    qryClientespessoanumero: TStringField;
+    qryClientesmae: TStringField;
+    qryClientespai: TStringField;
+    qryClientesconceito: TIntegerField;
+    qryClientesnaturalcidade: TIntegerField;
+    qryClientesnaturalestado: TStringField;
+    qryClientesrua: TStringField;
+    qryClientesestado: TStringField;
+    qryClientescidade: TIntegerField;
+    qryClientesbairro: TIntegerField;
+    qryClientescep: TIntegerField;
+    qryClientesfonetipo: TStringField;
+    qryClientesfoneddd: TIntegerField;
+    qryClientesfonenumero: TIntegerField;
+    qryClientesfoneramal: TStringField;
+    qryClientesfone2ddd: TIntegerField;
+    qryClientesfone2numero: TIntegerField;
+    qryClientesfone2ramal: TStringField;
+    qryClientesrestipo: TStringField;
+    qryClientesresonus: TFloatField;
+    qryClientesrestempo: TDateField;
+    qryClientesempresa: TStringField;
+    qryClientesempadmissao: TDateField;
+    qryClientesempcep: TIntegerField;
+    qryClientesempcomprovado: TBooleanField;
+    qryClientesempfoneddd: TIntegerField;
+    qryClientesempfonenumero: TIntegerField;
+    qryClientesempfoneramal: TStringField;
+    qryClientesempoutrasdescricao: TStringField;
+    qryClientesempoutrasfaixa: TIntegerField;
+    qryClientesempoutrasvalor: TFloatField;
+    qryClientesemprendafaixa: TIntegerField;
+    qryClientesemprendavalor: TFloatField;
+    qryClientesemprua: TStringField;
+    qryClientesempestado: TStringField;
+    qryClientesempcidade: TIntegerField;
+    qryClientesempbairro: TIntegerField;
+    qryClientesempcargo: TIntegerField;
+    qryClientesconjuge: TIntegerField;
+    qryClientesconnome: TStringField;
+    qryClientesconadmissao: TDateField;
+    qryClientesconcep: TIntegerField;
+    qryClientesconempresa: TStringField;
+    qryClientesconfoneddd: TIntegerField;
+    qryClientesconfonenumero: TIntegerField;
+    qryClientesconfoneramal: TStringField;
+    qryClientesconnascto: TDateField;
+    qryClientesconrendafaixa: TIntegerField;
+    qryClientesconrendavalor: TFloatField;
+    qryClientesconrua: TStringField;
+    qryClientesconestado: TStringField;
+    qryClientesconcidade: TIntegerField;
+    qryClientesconbairro: TIntegerField;
+    qryClientesconcargo: TIntegerField;
+    qryClientesreferencia: TStringField;
+    qryClientesreftipo: TStringField;
+    qryClientesrefrua: TStringField;
+    qryClientesrefestado: TStringField;
+    qryClientesrefcidade: TIntegerField;
+    qryClientesrefbairro: TIntegerField;
+    qryClientesrefcep: TIntegerField;
+    qryClientesreffoneddd: TIntegerField;
+    qryClientesreffonenumero: TIntegerField;
+    qryClientesreffoneramal: TStringField;
+    qryClientesreffone2ddd: TIntegerField;
+    qryClientesreffone2numero: TIntegerField;
+    qryClientesreffone2ramal: TStringField;
+    qryClientesobservacoes: TStringField;
+    qryClientesemail: TStringField;
+    qryClientesautomovel: TBooleanField;
+    qryClientescartaocredito: TBooleanField;
+    qryClientescartaoloja: TBooleanField;
+    qryClientescheque: TBooleanField;
+    qryClienteschequeespecial: TBooleanField;
+    qryClientesdependentes: TIntegerField;
+    qryClientesonus: TFloatField;
+    qryClientesnomecidadecliente: TStringField;
+    qryClientesnomebairrocliente: TStringField;
+    qryClientesnomecidadeempresa: TStringField;
+    qryClientesnomebairroempresa: TStringField;
+    qryClientesnomecidadeconjuge: TStringField;
+    qryClientesnomebairroconjuge: TStringField;
+    qryClientesnomecidadereferencia: TStringField;
+    qryClientesnomebairroreferencia: TStringField;
+    qryClientesnomecidadenaturalidade: TStringField;
+    dsrClientes: TtecDataSource;
+    qryConsultaClientes: TtecQuery;
+    qryConsultaClientesnome: TStringField;
+    qryConsultaConceitos: TtecQuery;
+    qryConsultaConceitosdescricao: TStringField;
+    qryConsultaConceitoscodigo: TIntegerField;
+    qryConsultaEstados: TtecQuery;
+    qryConsultaEstadoscodigo: TStringField;
+    qryConsultaEstadosnome: TStringField;
+    qryConsultaCidades: TtecQuery;
+    qryConsultaCidadesnome: TStringField;
+    qryConsultaCidadescodigo: TIntegerField;
+    spcClientesProximoCodigo: TtecQuery;
+    spcClientesProximoCodigocodigo: TIntegerField;
+    qryConjuge: TtecQuery;
+    qryProcuraConceitos: TtecQuery;
+    dsrProcuraConceitos: TtecDataSource;
+    qryProcuraEstados: TtecQuery;
+    dsrProcuraEstados: TtecDataSource;
+    qryProcuraCidades: TtecQuery;
+    dsrProcuraCidades: TtecDataSource;
+    qryProcuraCargosCliente: TtecQuery;
+    qryProcuraCargosClientedescricao: TStringField;
+    qryProcuraCargosClientecodigo: TIntegerField;
+    dsrProcuraCargosCliente: TtecDataSource;
+    qryConsultaCargos: TtecQuery;
+    qryConsultaCargosdescricao: TStringField;
+    qryConsultaCargoscodigo: TIntegerField;
+    qryConsultaEstadosCidades: TtecQuery;
+    qryConsultaEstadosCidadescodigo: TStringField;
+    qryConsultaEstadosCidadesnome: TStringField;
+    qryProcuraCargosConjuge: TtecQuery;
+    qryProcuraCargosConjugedescricao: TStringField;
+    qryProcuraCargosConjugecodigo: TIntegerField;
+    dsrProcuraCargosConjuge: TtecDataSource;
+    qryConsultaCidadesestado: TStringField;
+    qryConsultaClientesnascto: TDateField;
+    qryProcuraConjuge: TtecQuery;
+    qryProcuraConjugecodigo: TIntegerField;
+    qryProcuraConjugenome: TStringField;
+    dsrProcuraConjuge: TtecDataSource;
+    qryConjugecodigo: TIntegerField;
+    qryConjugenome: TStringField;
+    qryConjugenascto: TDateField;
+    qryConjugecivildata: TDateField;
+    qryConjugecivil: TStringField;
+    qryConjugeconjuge: TIntegerField;
+    qryConjugeemprua: TStringField;
+    qryConjugeempbairro: TIntegerField;
+    qryConjugeempcidade: TIntegerField;
+    qryConjugeempcep: TIntegerField;
+    qryConjugeempestado: TStringField;
+    qryConjugeempfoneddd: TIntegerField;
+    qryConjugeempfonenumero: TIntegerField;
+    qryConjugeempfoneramal: TStringField;
+    qryConjugeempresa: TStringField;
+    qryConjugeempadmissao: TDateField;
+    qryConjugeempcargo: TIntegerField;
+    qryConjugeemprendavalor: TFloatField;
+    qryConjugeemprendafaixa: TIntegerField;
+    qryClienteCadastrado: TtecQuery;
+    qryClienteCadastradocodigo: TIntegerField;
+    qryConsultaClientespessoanumero: TStringField;
+    qryConsultaClientescodigo: TIntegerField;
+    qryClienteCadastradonome: TStringField;
+    qrySeriesClientes: TtecQuery;
+    dsrSeriesClientes: TtecDataSource;
+    qrySeriesClientescliente: TIntegerField;
+    qrySeriesClientesserie: TStringField;
+    qryConjugeValido: TtecQuery;
+    qryConjugeValidocodigo: TIntegerField;
+    qryConjugeValidonome: TStringField;
+    qryConjugerua: TStringField;
+    qryConjugebairro: TIntegerField;
+    qryConjugecidade: TIntegerField;
+    qryConjugeestado: TStringField;
+    qryConjugecep: TIntegerField;
+    qryConjugesexo: TStringField;
+    qryClientesenderecoalterado: TDateField;
+    qryConsultaClientesnomecidade: TStringField;
+    qryConsultaClientesestado: TStringField;
+    qryDependentesClientes: TtecQuery;
+    dsrDependentesClientes: TtecDataSource;
+    qryDependentesClientescodigo: TIntegerField;
+    qryDependentesClientesnome: TStringField;
+    qryDependentesClientesautorizadoacomprar: TBooleanField;
+    qryDependentesClientescliente: TIntegerField;
+    spcDependentesClientesProximoCodigo: TtecQuery;
+    spcDependentesClientesProximoCodigocodigo: TIntegerField;
+    qryClientesfilialcadastro: TIntegerField;
+    qryConjugefilialcadastro: TIntegerField;
+    qryClientesnomefilialcadastro: TStringField;
+    qryClientesdatacadastro: TDateField;
+    qryClientesconbairronome: TStringField;
+    qryClientesconcidadenome: TStringField;
+    qryConjugenomecidadeempresa: TStringField;
+    qryConjugenomebairroempresa: TStringField;
+    qryConjugedescricacaocargo: TStringField;
+    qryClientesultimaalteracao: TDateField;
+    qryProcuraDebitar: TtecQuery;
+    qryProcuraDebitarcodigo: TIntegerField;
+    qryProcuraDebitarclassificacao: TStringField;
+    qryProcuraDebitardescricao: TStringField;
+    qryProcuraCreditar: TtecQuery;
+    IntegerField3: TIntegerField;
+    StringField6: TStringField;
+    StringField7: TStringField;
+    dsrProcuraCreditar: TtecDataSource;
+    dsrProcuraDebitar: TtecDataSource;
+    qryConsultaContaContabil: TtecQuery;
+    qryConsultaContaContabildescricaoedentada: TStringField;
+    qryConsultaContaContabildescricao: TStringField;
+    qryConsultaContaContabilclassificacao: TStringField;
+    qryConsultaContaContabilcodigo: TIntegerField;
+    qryConsultaContaContabiltipo: TStringField;
+    qryClientesdebito: TIntegerField;
+    qryClientescredito: TIntegerField;
+    dsrReceitaOculos: TtecDataSource;
+    qryReceitaOculos: TtecQuery;
+    qryReceitaOculoscontrato: TStringField;
+    qryReceitaOculosesferico_od: TFloatField;
+    qryReceitaOculoscilindro_od: TFloatField;
+    qryReceitaOculoseixo_od: TFloatField;
+    qryReceitaOculoslonge_dnp_od: TFloatField;
+    qryReceitaOculosperto_dnp_od: TFloatField;
+    qryReceitaOculosesferico_oe: TFloatField;
+    qryReceitaOculoscilindo_oe: TFloatField;
+    qryReceitaOculoseixo_oe: TFloatField;
+    qryReceitaOculoslonge_dnp_oe: TFloatField;
+    qryReceitaOculosperto_dnp_oe: TFloatField;
+    qryReceitaOculoslente: TStringField;
+    qryReceitaOculoscor: TStringField;
+    qryReceitaOculostipo: TIntegerField;
+    qryReceitaOculosadicao: TFloatField;
+    qryReceitaOculosmedida: TStringField;
+    qryReceitaOculosajuste: TStringField;
+    qryReceitaOculosentrega: TStringField;
+    qryReceitaOculosmedico: TStringField;
+    qryReceitaOculossituacao: TStringField;
+    qryDependentesClientesnascto: TDateField;
+    qryProcuraPlano: TtecQuery;
+    qryProcuraPlanocodigo: TIntegerField;
+    qryProcuraPlanodescricao: TStringField;
+    dsrProcuraPlano: TtecDataSource;
+    qryConsultaPlano: TtecQuery;
+    qryConsultaPlanodescricao: TStringField;
+    qryConsultaPlanocodigo: TIntegerField;
+    qryConsultaPlanotaxamensaljuros: TFloatField;
+    qryConsultaPlanotaxajurosanual: TFloatField;
+    qryClientesplanopadrao: TIntegerField;
+    qryClientesnaoexibirfichafinanceira: TBooleanField;
+    ZMonitor1: TZMonitor;
+    qryContatosClientes: TtecQuery;
+    dsrContatosClientes: TtecDataSource;
+    qryContatosCargos: TtecQuery;
+    qryContatosCargoscodigo: TIntegerField;
+    qryContatosCargoscontato: TStringField;
+    qryContatosCargosfoneddd: TIntegerField;
+    qryContatosCargosfonenumero: TIntegerField;
+    qryContatosCargosemail: TStringField;
+    qryContatosCargosobservacoes: TStringField;
+    qryContatosCargoscodigovfornecedores: TIntegerField;
+    qryContatosCargostipovfornecedores: TStringField;
+    qryContatosCargoscargo: TIntegerField;
+    qryContatosClientescodigo: TIntegerField;
+    qryContatosClientescontato: TStringField;
+    qryContatosClientesfonenumero: TIntegerField;
+    qryContatosClientesfoneddd: TIntegerField;
+    qryContatosClientesemail: TStringField;
+    qryContatosClientescodigovfornecedores: TIntegerField;
+    qryContatosClientestipovfornecedores: TStringField;
+    qryContatosClientescargo: TIntegerField;
+    qryContatosClientesobservacoes: TStringField;
+    qryContatosClientesdescricaocargo: TStringField;
+    qryContatosClientesfoneramal: TStringField;
+    spccontatosclienteproximocodigo: TtecQuery;
+    spccontatosclienteproximocodigocodigo: TIntegerField;
+    qryClientescontribicms: TBooleanField;
+    qryClientesmarkup: TFloatField;
+    qryClientesaniversario: TDateField;
+    qryClientesnumero: TIntegerField;
+    qryClientesempnumero: TIntegerField;
+    qryClientesconnumero: TIntegerField;
+    qryClientesrefnumero: TIntegerField;
+    qryClientescomplemento: TStringField;
+    qryClientesempcomplemento: TStringField;
+    qryClientesconcomplemento: TStringField;
+    qryClientesrefcomplemento: TStringField;
+    qryClientessite: TStringField;
+    qrySeriesClientesmodelodoctofiscal: TStringField;
+    qryClienteshistoricocontabil: TIntegerField;
+    qryClientessuframa: TStringField;
+    qryClientesnosimples: TBooleanField;
+    qryClientesinscricaomunicipal: TStringField;
+    qryClientesconjugeoriginal: TIntegerField;
+    qryClientesnaoligar: TBooleanField;
+    qryClientesrazaonaoligar: TStringField;
+
+    procedure qryClientesemprendavalorChange(Sender: TField);
+    procedure qryClientesAfterOpen(DataSet: TDataSet);
+    procedure qryClientesNewRecord(DataSet: TDataSet);
+    procedure qrySeriesClientesAfterDelete(DataSet: TDataSet);
+    procedure qryProcuraConjugeBeforeOpen(DataSet: TDataSet);
+    procedure dsrClientesDataChange(Sender: TObject; Field: TField);
+    procedure qryClientesAfterClose(DataSet: TDataSet);
+    procedure qryClientesAfterInsert(DataSet: TDataSet);
+    procedure qryProcuraCidadesBeforeOpen(DataSet: TDataSet);
+    procedure qryDependentesClientesAfterInsert(DataSet: TDataSet);
+    procedure qryClientesAfterPost(DataSet: TDataSet);
+    procedure dsrReceitaOculosDataChange(Sender: TObject; Field: TField);
+    //procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure qryContatosClientesBeforeInsert(DataSet: TDataSet);
+    procedure qryContatosClientesNewRecord(DataSet: TDataSet);
+    procedure qryContatosClientesAfterPost(DataSet: TDataSet);
+    procedure qryContatosClientesAfterDelete(DataSet: TDataSet);
+    procedure qryClientesAfterScroll(DataSet: TDataSet);
+    procedure qryContatosClientesBeforePost(DataSet: TDataSet);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure qrySeriesClientesAfterPost(DataSet: TDataSet);
+    procedure dsrSeriesClientesDataChange(Sender: TObject; Field: TField);
+    procedure qrySeriesClientesBeforeEdit(DataSet: TDataSet);
+    procedure qrySeriesClientesBeforeInsert(DataSet: TDataSet);
+  private
+    Max: integer;
+    FSerieAntesEdicao: String;
+    FClienteHedoExterior: Boolean;
+    function GetReceitasOculos: Boolean;
+    function GetConsultarPlanoPadrao: TtecQuery;
+    function GetClienteHedoExterior: Boolean;
+  protected
+//    CodConjugeAnterior : integer;
+    FOnScrollClientes: TNotifyEvent;
+    FAfterPostClientes: TNotifyEvent;
+    FAfterCloseClientes: TNotifyEvent;
+    procedure AtribuirParametroProcuraConjuge;
+    function  GetTipoPessoa: String;
+    function  GetTabelaClientes: TtecQuery;
+    function  GetCodigoCliente: Integer;
+    function  GetCodigoEstadoCidade: String;
+    function  GetCodigoConsultaCliente: String;
+    function  GetConsultarCliente: TtecQuery;
+    function  GetConsultarConceito: TtecQuery;
+    function  GetConsultarEstado: TtecQuery;
+    function  GetConsultarCargo: TtecQuery;
+    function  GetConsultarCidade: TtecQuery;
+    function  GetConsultarEstadoCidade: TtecQuery;
+    function  GetTabelaDependentesClientes: TtecQuery;
+  public
+    function  ClienteJaCadastrado(Numero: String): Boolean;
+    function  IncluirCliente: Boolean;
+    function  IncluirDependentesClientes(Editar: Boolean): Boolean;
+    function  IncluirContatoFornecedor: Boolean;    
+    function  GravarCliente : Boolean;
+    function  GravarDependentesClientes: Boolean;
+    function  GravarContatosCliente: Boolean;
+    function ExcluirCliente: Boolean;
+    procedure ExcluirSeriesClientes;
+    function  ExcluirDependentesClientes: Boolean;
+    function  ExcluirContatosClientes: Boolean;
+    function  ExisteConjuge: Boolean;
+    function  ExisteCliente(campo, codigo: String): boolean;
+    function  ExisteConceito(campo, codigo: String): boolean;
+    function  ExisteCidade(campo, codigo: String): boolean;
+    function  ExisteEstado(campo, codigo: String): boolean;
+    function  ExisteEstadoCidade(campo, codigo: String): boolean;
+    function  ExisteCargo(campo, codigo: String): boolean;
+    function  ExisteContaContabil(campo, codigo: String): Boolean;
+    function  ExistePlano(campo, codigo: String): Boolean;
+
+    function  PosicionarEstado(codigo: String): Boolean;
+    function  PosicionarRegistro(tipoProcura: TtecProcuraClientesCrediario; Parametro: Integer): Boolean;
+    function  CalcularFaixa(Valor: Real): Integer;
+    function  DataTempoResidenciaInvalida: Boolean;
+    function  DataCivilInvalida: Boolean;
+    function  DataAdmissaoInvalida: Boolean;
+    procedure CalcularFaixaRendaCliente;
+    procedure CalcularFaixaRendaConjuge;
+    procedure CalcularFaixaOutrasRendaCliente;
+    procedure ZerarDadosConjuge;
+    procedure Selecionar(tipoProcura: TtecProcuraClientesCrediario);
+    procedure CalcularTempoCivil(Ano,Mes: String);
+    procedure CalcularTempoResidencia(Ano,Mes: String);
+    procedure AbreTabelasConsulta(tipoProcura: TtecProcuraClientesCrediario);
+    procedure FechaTabelasConsulta(tipoProcura: TtecProcuraClientesCrediario);
+    procedure ReFazConsultaCidades;
+
+    constructor Create(AOwner: TComponent); override;
+
+    property  OnScrollClientes: TNotifyEvent read FOnScrollClientes write FOnScrollClientes;
+    property  AfterPostClientes: TNotifyEvent read FAfterPostClientes write FAfterPostClientes;
+    property  AfterCloseClientes: TNotifyEvent read FAfterCloseClientes write FAfterCloseClientes;
+    property  CodigoConsultaCliente: String read GetCodigoConsultaCliente;
+    property  CodigoCliente: Integer   read GetCodigoCliente;
+    property  CodigoEstadoCidade: String read GetCodigoEstadoCidade;
+    property  TabelaClientes: TtecQuery read GetTabelaClientes;
+    property  TabelaDependentesClientes: TtecQuery read GetTabelaDependentesClientes;
+    property  ConsultarCliente: TtecQuery read GetConsultarCliente;
+    property  ConsultarConceito: TtecQuery read GetConsultarConceito;
+    property  ConsultarEstado: TtecQuery read GetConsultarEstado;
+    property  ConsultarCargo: TtecQuery read GetConsultarCargo;
+    property  ConsultarCidade: TtecQuery read GetConsultarCidade;
+    property  ConsultarEstadoCidade: TtecQuery read GetConsultarEstadoCidade;
+    property  TipoPessoa: String read GetTipoPessoa;
+    property  ReceitasOculos: Boolean read GetReceitasOculos;
+    property  ConsultarPlanoPadrao: TtecQuery read GetConsultarPlanoPadrao;
+    procedure ReFazConsultaCliente(Cliente:Integer);
+    function  CartaDevolvida(FormOrigem: String): Boolean;
+    procedure AtribuirConjugenoCliente;
+    procedure AtribuirClientenoConjuge;
+    function  VerificaSerie: Boolean;
+    procedure AtualizaSerie;
+    property  SerieAntesEdicao: String read FSerieAntesEdicao write FSerieAntesEdicao;
+    property  ClienteHedoExterior: Boolean read GetClienteHedoExterior write FClienteHedoExterior;
+
+
+  end;
+
+{var dtmCadastroClientes: TdtmCadastroClientes;}
+
+implementation
+
+var
+  aSeries: array of record
+  Serie: String
+end;
+
+
+
+
+{$R *.dfm}
+
+constructor TdtmCadastroClientes.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryClientes.Tag               := ctTabelas;
+  qryConsultaClientes.Tag       := ctCrediarioClienteConsulta;
+  qryConsultaConceitos.Tag      := ctCrediarioClienteConceito;
+  qryConsultaEstados.Tag        := ctCrediarioClienteEstado;
+  qryConsultaCargos.Tag         := ctCrediarioClienteCargo;
+  qryConsultaCidades.Tag        := ctCrediarioClienteCidade;
+  qryConsultaEstadosCidades.Tag := ctCrediarioClienteCidade;
+  qryProcuraCidades.Params[0].AsString := EstadoFilialBase;
+  qryConsultaContaContabil.Tag  := ctConsultaContaContabil;
+  qryConsultaPlano.Tag          := ctTabelasConsultaPlanos;
+  qryProcuraDebitar.Params[1].AsInteger := 0;
+  qryProcuraCreditar.Params[1].AsInteger := 0;
+
+  qryClientesempcargo.Required := parsistema.PrecosporCargo;
+
+end;
+
+function TdtmCadastroClientes.ClienteJaCadastrado(Numero: String): Boolean;
+begin
+  Result:= False;
+  if (ParSistema.CPF_CNPJObrigatorio and not ClienteHedoExterior or (qryClientespessoanumero.AsString <> '')) then
+    if qryClientes.State in [dsEdit, dsInsert] then begin
+      qryClienteCadastrado.Sql[02]:= 'Where (pessoanumero = ' + '''' + Numero + '''' + ')';
+      if qryClientes.State in [dsInsert] then
+        qryClienteCadastrado.Sql[03]:= ''
+      else if qryClientes.State in [dsEdit] then
+        qryClienteCadastrado.Sql[03]:= 'and (codigo <> ' + qryClientescodigo.AsString + ')';
+      qryClienteCadastrado.Open;
+      Result:= not qryClienteCadastrado.IsEmpty;
+      if Result then begin
+        if MensagemConfirmacao(format(ctCLIENTEJACADASTRADO,['cliente',qryClienteCadastradoNome.AsString])) = smbOk then
+          ReFazConsulta(qryClientes,[0],[qryClienteCadastradoCodigo.AsInteger])
+        else
+          qryClientespessoanumero.Clear;
+      end;
+    end;
+end;
+
+procedure TdtmCadastroClientes.abreTabelasConsulta(TipoProcura: TtecProcuraClientesCrediario);
+begin
+  case TipoProcura of
+    tpCLIENTES,
+    tpCONJUGECLIENTES      : begin
+                               qryConsultaClientes.sql[07] := 'where (c.codigo = 0)';
+                               if tipoProcura = tpCONJUGECLIENTES then
+                                    qryConsultaClientes.sql[08] := 'and (c.pessoatipo = ''F'') and not (c.sexo in (''E'',' + QuotedStr(qryClientessexo.AsString) + '))'
+                               else qryConsultaClientes.sql[08] := '';
+                               Abre(ctCrediarioClienteConsulta);
+                             end;
+    tpCONCEITOSCLIENTES    : Abre(ctCrediarioClienteConceito);
+    tpESTADOSCLIENTES      : Abre(ctCrediarioClienteEstado);
+    tpNATURALCIDADECLIENTES: Abre(ctCrediarioClienteCidade);
+    tpCARGOSCLIENTES,
+    tpCARGOSCONJUGECLIENTES: {begin
+                              if ParSistema.UsarConsultaInterativa then
+                                qryConsultaCargos.sql[2] := ''
+                              else qryConsultaCargos.sql[2] := 'where (codigo = 0)';
+                              Abre(ctCrediarioClienteCargo);
+                             end;                                                   }
+                             Abre(ctCrediarioClienteCargo);
+    tpCONTADEBITO         : begin
+                              if qryClientescredito.AsInteger<>0 then
+                                qryConsultaContaContabil.MacroByName('consulta').AsString :=
+                                  'and codigo <> '+qryClientescredito.AsString;
+                              Abre(ctConsultaContaContabil);
+                             end;
+    tpCONTACREDITO        : begin
+                              if qryClientesdebito.AsInteger<>0 then
+                                qryConsultaContaContabil.MacroByName('consulta').AsString :=
+                                  'and codigo <> '+qryClientesdebito.AsString;
+                              Abre(ctConsultaContaContabil);
+                             end;
+    tpPLANOPADRAO         : Abre(ctTabelasConsultaPlanos);
+  end;
+end;
+
+function TdtmCadastroClientes.CalcularFaixa(Valor:Real): Integer;
+begin
+  try
+    Result := Round(Valor / ParSistema.SalarioReferencia);
+  except
+    Result := 0;
+  end;
+end;
+
+function TdtmCadastroClientes.ExcluirCliente: Boolean;
+begin
+  result := false;
+  if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o CLIENTE'])) = smbOk then
+  begin
+    if not qryClientes.IsEmpty then
+         qryClientes.Delete
+    else qryClientes.Cancel;
+
+    result := Perpetrar([qryClientes, qrySeriesClientes]);
+
+  end;
+end;
+
+procedure TdtmCadastroClientes.ExcluirSeriesClientes;
+begin
+  if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['a SÉRIE'])) = smbOk then begin
+    if not qrySeriesClientes.IsEmpty then begin
+      qryClientes.Edit;
+      qrySeriesClientes.Delete;
+    end;
+  end;
+end;
+
+function TdtmCadastroClientes.ExcluirDependentesClientes: Boolean;
+begin
+  Result:= False;
+  if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR,['o DEPENDENTE DO CLIENTE'])) = smbOk then begin
+    if not qryDependentesClientes.IsEmpty then
+      qryDependentesClientes.Delete
+    else
+      qryDependentesClientes.Cancel;
+    if qryDependentesClientes.State = dsBrowse then
+      qryClientes.Edit;
+    Result:=True;
+  end;
+end;
+
+function TdtmCadastroClientes.ExisteCargo(Campo, Codigo: String): Boolean;
+const
+  SQL = 'and (upper(to_ascii(%s,''latin1'')) ilike upper(to_ascii(''%s%s'',''latin1'')))';
+begin
+  qryConsultaCargos.Sql[03]:= Format(SQL, [Campo, Codigo, '%']);
+  qryConsultaCargos.Open;
+  Result := qryConsultaCargos.RecordCount > 0
+end;
+
+function TdtmCadastroClientes.ExisteCidade(Campo, Codigo: String): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaCidades, Campo, Codigo);
+end;
+
+function TdtmCadastroClientes.ExisteCliente(Campo, Codigo: String): Boolean;
+begin
+  if Campo = 'nomecidade' then
+       Campo:= 'd.nome'
+  else Campo:= 'c.' + Campo;
+  qryConsultaClientes.sql[07] := 'where upper(to_ascii(' + Campo + ',''latin1'')) ilike upper(to_ascii(''' + ansiuppercase(Codigo) + '%'',''latin1''))';
+  Abre(ctCrediarioClienteConsulta);
+  Result:= not qryConsultaClientes.IsEmpty;
+end;
+
+function TdtmCadastroClientes.ExisteConceito(Campo, Codigo: String): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaConceitos, Campo, Codigo);
+end;
+
+function TdtmCadastroClientes.ExisteEstado(Campo, Codigo: String): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaEstados, Campo, Codigo);
+end;
+
+function TdtmCadastroClientes.ExisteEstadoCidade(Campo, Codigo: String): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaEstadosCidades, Campo, Codigo);
+end;
+
+procedure TdtmCadastroClientes.fechaTabelasConsulta(tipoProcura: TtecProcuraClientesCrediario);
+begin
+  case TipoProcura of
+    tpCLIENTES,
+    tpCONJUGECLIENTES      : Fecha(ctCrediarioClienteConsulta);
+    tpCONCEITOSCLIENTES    : Fecha(ctCrediarioClienteConceito);
+    tpESTADOSCLIENTES      : Fecha(ctCrediarioClienteEstado);
+    tpNATURALCIDADECLIENTES: Fecha(ctCrediarioClienteCidade);
+    tpCARGOSCLIENTES,
+    tpCARGOSCONJUGECLIENTES: Fecha(ctCrediarioClienteCargo);
+    tpCONTADEBITO,
+    tpCONTACREDITO         : Fecha(ctConsultaContaContabil);
+    tpPLANOPADRAO          : Fecha(ctTabelasConsultaPlanos);
+  end;
+end;
+
+function TdtmCadastroClientes.GetConsultarCargo: TtecQuery;
+begin
+  Result := qryConsultaCargos;
+end;
+
+function TdtmCadastroClientes.GetConsultarCidade: TtecQuery;
+begin
+  Result := qryConsultaCidades;
+end;
+
+function TdtmCadastroClientes.GetConsultarCliente: TtecQuery;
+begin
+  Result := qryConsultaClientes;
+end;
+
+function TdtmCadastroClientes.GetConsultarConceito: TtecQuery;
+begin
+  Result := qryConsultaConceitos;
+end;
+
+function TdtmCadastroClientes.GetConsultarEstado: TtecQuery;
+begin
+  Result := qryConsultaEstados;
+end;
+
+function TdtmCadastroClientes.GetTabelaClientes: TtecQuery;
+begin
+  Result := qryClientes;
+end;
+
+function TdtmCadastroClientes.GravarCliente: Boolean;
+var C: integer;
+begin
+
+  qryClientespessoanumero.Required:= ParSistema.CPF_CNPJObrigatorio and not ClienteHedoExterior;
+  qryClientesemail.Required:=Parsistema.EmailObrigatorio;
+
+  
+
+  if qryClientes.CheckRequiredFields then
+  begin
+    Result:= True;
+
+    if ExisteConjuge then
+    begin
+     if (qryClientespessoatipo.AsString = 'J') then
+       ZerarDadosConjuge
+     else
+      if (qryClientescivil.AsString <> 'C') and (qryClientescivil.AsString <> 'O') then begin
+        Result:= MensagemConfirmacao(ctINFORMACOESCONJUGE) = smbOk;
+        if Result then
+          ZerarDadosConjuge;
+      end;
+    end;
+
+    if Result then
+      if ((qryClientespessoatipo.AsString = 'F') and (qryClientessexo.AsString = 'E'))  or
+         ((qryClientespessoatipo.AsString = 'J') and (qryClientessexo.AsString <> 'E')) then begin
+        MensagemAviso('O sexo informado não corresponde ao Tipo de Pessoa.');
+        Result:= False;
+      end;
+
+    if Result then
+    begin
+      if qryClientesconjuge.AsInteger <> 0 then
+      begin
+        ReFazConsulta(qryConjugeValido,[0],[qryClientesconjuge.AsInteger]);
+
+        if (not qryConjugeValido.IsEmpty and
+           (qryClientescodigo.AsInteger <> qryConjugeValidocodigo.AsInteger)) then begin
+           MensagemAviso(Format(ctCONJUGEJACASADO,[qryConjugeValidonome.AsString]));
+           Result:= False;
+        end;
+      end;
+
+      if Result then
+        if ((qryClientesconjuge.AsInteger <> 0) and
+            (qryClientescodigo.AsInteger  = qryClientesconjuge.AsInteger)) then begin
+          MensagemAviso(ctCLIENTEIGUALCONJUGE);
+          Result:= False;
+        end;
+
+      if Result then
+      begin
+        Result:= not ClienteJaCadastrado(qryClientespessoanumero.AsString);
+
+        if Result then
+          if (qryClientespessoatipo.AsString = 'F') and
+          ((qryClientescivil.AsString = 'C')  or
+           ((qryClientescivil.AsString = 'O') and
+            (qryClientesconnome.Asstring<>'')
+            )
+           ) and
+           (ParSistema.InformarConjugeClienteCasado or
+            (qryClientesconjuge.AsInteger<>0)
+            ) then
+          begin
+            AtribuirClientenoConjuge;
+            Result := qryConjuge.CheckRequiredFields;
+          end;
+         // else
+         //   qryconjuge.Close;
+
+        if Result then begin
+          if qryClientes.State = dsInsert then begin
+            spcClientesProximoCodigo.Open;
+            qryClientescodigo.AsInteger := spcClientesProximoCodigocodigo.AsInteger;
+            spcClientesProximoCodigo.Close;
+            qryClientesdatacadastro.AsDateTime := now;
+{            if (qryClientespessoatipo.AsString = 'F') and ((qryClientescivil.AsString = 'C')  or
+                                                           ((qryClientescivil.AsString = 'O') and(qryClientesconjuge.AsInteger<>0))) and
+                (ParSistema.InformarConjugeClienteCasado or (qryClientesconjuge.AsInteger<>0)) then
+               AtribuirClientenoConjuge;
+}
+          end;
+
+          if not qrySeriesClientes.IsEmpty then begin
+            qrySeriesClientes.First;
+            while not qrySeriesClientes.Eof do begin
+              qrySeriesClientes.Edit;
+              qrySeriesClientescliente.AsInteger:= qryClientesCodigo.AsInteger;
+              qrySeriesClientes.Post;
+              qrySeriesClientes.Next;
+            end;
+          end;
+
+          qryContatosClientes.First;
+          for C:= 1 to qryContatosClientes.RecordCount do
+           begin
+            if qryContatosClientescodigovfornecedores.IsNull then
+             begin
+              qryContatosClientes.Edit;
+              qryContatosClientescodigovfornecedores.AsInteger := qryClientescodigo.asInteger;
+              qryContatosClientes.Post;
+             end;
+            qryContatosClientes.next;
+           end;
+
+          if not qryDependentesClientes.IsEmpty then
+          begin
+             qryDependentesClientes.First;
+             while not qryDependentesClientes.Eof do
+             begin
+               qryDependentesClientes.Edit;
+               qryDependentesClientescliente.AsInteger:=qryClientesCodigo.AsInteger;
+               qryDependentesClientes.Post;
+               qryDependentesClientes.Next;
+             end;
+          end;
+
+          if ParSistema.ANEXOCONTRATORECEITAOCULOS then
+          begin
+
+          end;
+
+          if qryClientescivil.AsString <> 'C' then
+            qryClientescivildata.Clear;
+
+          if Atualizavel(qryClientes) then
+            qryClientesultimaalteracao.AsDateTime := DataServidor;
+
+           if (qryClientesnosimples.IsNull) then
+                qryClientesnosimples.AsBoolean:=false;
+
+          qryClientes.Post;
+          Perpetrar([qryconjuge, qryClientes, qrySeriesClientes,
+                     qryDependentesClientes, qryContatosClientes, qryReceitaOculos]);
+
+          if (qryClientesconjugeoriginal.AsInteger <> qryClientesconjuge.AsInteger) and
+             (qryClientesconjugeoriginal.AsInteger <> 0) then
+          begin
+           RefazConsultaPorNome(qryConjuge,['codigo'],[qryClientesconjugeoriginal.AsInteger]);
+           qryconjuge.Edit;
+           qryConjugeconjuge.clear;
+           qryconjuge.Post;
+           Perpetrar([qryConjuge]);
+           RefazConsultaPorNome(qryConjuge,['codigo'],[qryClientesconjuge.AsInteger]);
+           qryClientesconjugeoriginal.AsInteger := qryClientesconjuge.AsInteger;
+          end;
+
+        end;
+      end
+    end
+  end
+  else
+    Result:= False;
+end;
+
+function TdtmCadastroClientes.GravarDependentesClientes: Boolean;
+begin
+  Result:=True;
+  if qryDependentesClientes.CheckRequiredFields then begin
+     if qryDependentesClientes.State = dsInsert then begin
+        spcDependentesClientesProximoCodigo.Close;
+        spcDependentesClientesProximoCodigo.Open;
+        qryDependentesClientescodigo.AsInteger:=spcDependentesClientesProximoCodigocodigo.AsInteger;
+      end;
+      qryDependentesClientes.Post;
+      if not (qryClientes.State in [dsinsert, dsedit]) then
+         qryClientes.Edit;
+  end;
+end;
+
+
+function TdtmCadastroClientes.IncluirCliente: Boolean;
+begin
+  qryClientes.Insert;
+  if ParSistema.ClienteComDependentes then
+  begin
+    qryDependentesClientes.Close;
+    qryDependentesClientes.Open;
+  end;
+  Result := True;
+end;
+
+function  TdtmCadastroClientes.IncluirDependentesClientes(Editar: Boolean): Boolean;
+begin
+  if editar then
+  begin
+   if qryDependentesClientes.IsEmpty then
+     qryDependentesClientes.Append
+   else
+   qryDependentesClientes.edit;
+  end
+  else
+   qryDependentesClientes.Append;
+  Result:=True;
+end;
+
+function TdtmCadastroClientes.PosicionarRegistro(tipoProcura: TtecProcuraClientesCrediario; Parametro: Integer): Boolean;
+begin
+  case TipoProcura of
+    tpCLIENTES             : Result := ExisteCliente(qryClientescodigo.FieldName, qryClientescodigo.AsString);
+    tpCONJUGECLIENTES      : Result := ExisteCliente(qryClientescodigo.FieldName, qryClientesconjuge.AsString);
+    tpNATURALCIDADECLIENTES: begin
+                               case Parametro of
+                                 0: Result := ExisteEstadoCidade(qryConsultaEstadosCidadescodigo.FieldName,qryClientesnaturalestado.AsString);
+                                -1: Result := ExisteCidade(qryConsultaCidadescodigo.FieldName, qryClientesnaturalcidade.AsString)
+                                 else
+                                   Result := False;
+                               end;
+                             end;
+    else                     Result := False;
+  end;
+end;
+
+procedure TdtmCadastroClientes.Selecionar(TipoProcura: TtecProcuraClientesCrediario);
+begin
+  case TipoProcura of
+    tpCLIENTES             : begin
+                               ReFazConsulta(qryClientes,[0],[qryConsultaClientescodigo.AsInteger]);
+                             end;
+    tpCONCEITOSCLIENTES    : begin
+                               qryClientes.Edit;
+                               qryClientesconceito.AsInteger := qryConsultaConceitoscodigo.AsInteger;
+                             end;
+    tpESTADOSCLIENTES      : begin
+                               qryClientes.Edit;
+                               qryClientesidestado.asString := qryConsultaEstadoscodigo.AsString;
+                             end;
+    tpNATURALCIDADECLIENTES: begin
+                               // as linhas a seguir,
+                               // acrescentadas por Daniel,
+                               // foram colocadas para corrigir
+                               // a seguinte situação:
+                               // ao escolher a cidade, estava sempre selecionando
+                               // a primeira cidade do estado, tendo o usuário
+                               // de digitar o código da cidade na tela de cadastro de clientes,
+                               // para setar a cidade corretamente
+                               // acrescentado por Daniel
+                               qryProcuraCidades.Close;
+                               qryProcuraCidades.Params[0].AsString := qryConsultaCidadesestado.AsString;
+                               // acrescentado por Daniel
+                               qryProcuraCidades.Params[1].AsString := qryConsultaCidadescodigo.AsString;
+                               // acrescentador por Daniel
+                               qryProcuraCidades.Open;
+                               qryClientes.Edit;
+                               qryClientesnaturalestado.asString    := qryConsultaCidadesestado.AsString;
+                               qryClientesnaturalcidade.asInteger   := qryConsultaCidadescodigo.AsInteger;
+                             end;
+    tpCARGOSCLIENTES       : begin
+                               qryClientes.Edit;
+                               qryClientesempcargo.asInteger:= qryConsultaCargoscodigo.AsInteger;
+                             end;
+    tpCARGOSCONJUGECLIENTES: begin
+                               qryClientes.Edit;
+                               qryClientesconcargo.asInteger:= qryConsultaCargoscodigo.AsInteger;
+                             end;
+          tpCONJUGECLIENTES: begin
+                               qryClientes.Edit;
+                               qryClientesconjuge.AsInteger:= qryConsultaClientescodigo.AsInteger;
+                             end;
+             tpCONTADEBITO: begin
+                              if qryConsultaContaContabiltipo.AsString<>'S' then
+                              begin
+                                if not (qryClientes.state in [dsinsert, dsedit]) then
+                                  qryClientes.Edit;
+                                qryClientesdebito.AsInteger := qryConsultaContaContabilcodigo.AsInteger
+                              end
+                              else
+                              begin
+                                if not qryClientesdebito.IsNull then
+                                begin
+                                  if not (qryClientes.state in [dsinsert, dsedit]) then
+                                    qryClientes.Edit;
+                                  qryClientesdebito.Clear;
+                                end;
+                              end;
+                            end;
+      tpCONTACREDITO       : begin
+                              if qryConsultaContaContabiltipo.AsString<>'S' then
+                              begin
+                                if not (qryClientes.state in [dsinsert, dsedit]) then
+                                  qryClientes.Edit;
+                                qryClientescredito.AsInteger := qryConsultaContaContabilcodigo.AsInteger
+                              end
+                              else
+                              begin
+                                if not qryClientescredito.IsNull then
+                                begin
+                                  if not (qryClientes.state in [dsinsert, dsedit]) then
+                                    qryClientes.Edit;
+                                  qryClientescredito.Clear;
+                                end;
+                              end
+                            end;
+      tpPLANOPADRAO        : begin
+                               qryClientes.Edit;
+                               qryClientesplanopadrao.AsInteger := qryConsultaPlanocodigo.AsInteger;
+                             end;
+  end;
+end;
+
+function TdtmCadastroClientes.PosicionarEstado(Codigo: String): Boolean;
+begin
+  if Codigo <> '' then
+       Result := ExisteCodigo(qryConsultaEstadosCidades, 'codigo', Codigo)
+  else Result := ExisteCodigo(qryConsultaEstadosCidades, 'codigo', EstadoFilialBase);
+  RefazConsultaCidades;
+end;
+
+procedure TdtmCadastroClientes.RefazConsultaCidades;
+begin
+  ReFazConsulta(qryConsultaCidades, [0], [qryConsultaEstadosCidadescodigo.AsString])
+end;
+
+function TdtmCadastroClientes.GetConsultarEstadoCidade: TtecQuery;
+begin
+  Result := qryConsultaEstadosCidades;
+end;
+
+
+procedure TdtmCadastroClientes.qryClientesemprendavalorChange(Sender: TField);
+begin
+  if qryClientes.State in [dsEdit, dsInsert] then
+    qryClientesemprendafaixa.asInteger := CalcularFaixa(qryClientesemprendavalor.AsFloat);
+end;
+
+function TdtmCadastroClientes.GetCodigoCliente: Integer;
+begin
+  Result := qryClientescodigo.AsInteger;
+end;
+
+function TdtmCadastroClientes.GetCodigoEstadoCidade: String;
+begin
+  Result := qryConsultaEstadosCidadescodigo.AsString;
+end;
+
+function TdtmCadastroClientes.GetCodigoConsultaCliente: String;
+begin
+  Result:= qryConsultaClientescodigo.AsString;
+end;
+
+procedure TdtmCadastroClientes.qryClientesAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  if ((not qryClientescodigo.IsNull and (qryClientespessoatipo.AsString = 'J')) or
+       not qrySeriesClientes.IsEmpty) then
+       ReFazConsulta(qrySeriesClientes,     [0],[qryClientesCodigo.AsInteger]);
+  if not qryClientescodigo.IsNull then
+  begin
+    ReFazConsulta(qryConjuge,            [0],[qryClientesconjuge.AsInteger]);
+    AtribuirConjugenoCliente;
+  end;
+  if not qryClientescodigo.IsNull then
+       RefazConsulta(qryDependentesClientes,[0],[qryClientesCodigo.AsInteger]);
+  if ParSistema.ANEXOCONTRATORECEITAOCULOS then
+    ReFazConsulta(qryReceitaOculos, [0], [qryClientescodigo.AsInteger]);
+  if Assigned(OnscrollClientes) then
+    OnscrollClientes(qryClientes);
+end;
+
+procedure TdtmCadastroClientes.qryClientesNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+  qryClientespessoatipo.AsString      := 'F';
+  qryClientessexo.AsString            := 'M';
+  qryClientescivil.AsString           := 'S';
+  qryClientesfonetipo.AsString        := 'P';
+  qryClientesrestipo.AsString         := 'P';
+  qryClientesreftipo.AsString         := 'P';
+  qryClientesempcomprovado.AsBoolean  := False;
+  qryClientesnaturalestado.AsString   := EstadoFilialBase;
+  qryClientescartaocredito.AsBoolean  := False;
+  qryClientescartaoloja.AsBoolean     := False;
+  qryClientescheque.AsBoolean         := False;
+  qryClienteschequeespecial.AsBoolean := False;
+  qryClientesautomovel.AsBoolean      := False;
+  qryClientesenderecoalterado.AsDateTime := DataHoraLocal;
+  qryClientesfilialcadastro.AsInteger := FilialBase;
+  qryClientesnomefilialcadastro.AsString := DescricaoFilial;
+  if ParSistema.ClienteComDependentes then
+    ReFazConsulta(qryDependentesClientes,[0],[0]);
+
+  qryClientesnaoligar.asboolean := false;  
+end;
+
+procedure TdtmCadastroClientes.CalcularTempoCivil(Ano, Mes: String);
+begin
+  qryClientes.Edit;
+  qryClientescivildata.AsDateTime:= RetornarDataPassada(Ano,Mes);
+end;
+
+procedure TdtmCadastroClientes.CalcularTempoResidencia(Ano, Mes: String);
+begin
+  qryClientes.Edit;
+  qryClientesrestempo.AsDateTime := RetornarDataPassada(Ano,Mes);
+end;
+
+procedure TdtmCadastroClientes.CalcularFaixaRendaCliente;
+begin
+  if qryClientes.State in [dsEdit, dsInsert] then
+    qryClientesemprendafaixa.asInteger:= CalcularFaixa(qryClientesemprendavalor.AsCurrency);
+end;
+
+procedure TdtmCadastroClientes.CalcularFaixaRendaConjuge;
+begin
+  if qryClientes.State in [dsEdit, dsInsert] then
+    qryClientesconrendafaixa.AsInteger:= CalcularFaixa(qryClientesconrendavalor.AsCurrency);
+end;
+
+procedure TdtmCadastroClientes.CalcularFaixaOutrasRendaCliente;
+begin
+  if qryClientes.State in [dsEdit, dsInsert] then
+    qryClientesempoutrasfaixa.AsInteger:= CalcularFaixa(qryClientesempoutrasvalor.AsCurrency);
+end;
+
+function TdtmCadastroClientes.DataCivilInvalida: Boolean;
+begin
+  Result:= False;
+  if (qryClientescivil.AsString = 'C') or (qryClientescivil.AsString = 'O') then begin
+    Result:= ((qryClientescivildata.AsDateTime <= qryClientesnascto.AsDateTime) and
+              (qryClientescivildata.AsDateTime > 0));
+    if Result then
+      qryClientescivildata.Clear;
+  end;
+end;
+
+function TdtmCadastroClientes.DataAdmissaoInvalida: Boolean;
+begin
+  Result:= ((qryClientesempadmissao.AsDateTime <= qryClientesnascto.AsDateTime) and
+            (qryClientesempadmissao.AsDateTime > 0));
+  if Result then
+    qryClientesempadmissao.Clear;
+end;
+
+function TdtmCadastroClientes.DataTempoResidenciaInvalida: Boolean;
+begin
+  Result:= ((qryClientesrestempo.AsDateTime <= qryClientesnascto.AsDateTime) and
+            (qryClientesrestempo.AsDateTime > 0));
+  if Result then
+    qryClientesrestempo.Clear;
+end;
+
+function TdtmCadastroClientes.ExisteConjuge: Boolean;
+begin
+  Result:= (qryClientesconjuge.AsInteger > 0) or (qryClientesconnome.AsString <> '');
+end;
+
+function TdtmCadastroClientes.GetTipoPessoa: String;
+begin
+  Result:= '';
+  if Assigned(qryClientes) then begin
+    if qryClientespessoatipo.AsString <> '' then
+         Result:= qryClientespessoatipo.AsString
+    else Result:= '';
+  end;
+end;
+
+procedure TdtmCadastroClientes.ZerarDadosConjuge;
+begin
+    dsrClientes.OnDataChange := nil;
+    qryClientesconjuge.Clear;
+    qryClientesconnome.clear;
+    qryClientesconnascto.clear;
+    qryClientesconempresa.clear;
+    qryClientesconadmissao.clear;
+    qryClientesconcargo.clear;
+    qryClientesconrendavalor.clear;
+    qryClientesconrendafaixa.clear;
+    qryClientesconrua.clear;
+    qryClientesconbairro.clear;
+    qryClientesconbairronome.clear;
+    qryClientesconcidade.clear;
+    qryClientesconcidadenome.clear;
+    qryClientesconfoneddd.clear;
+    qryClientesconfonenumero.clear;
+    qryClientesconfoneramal.clear;
+    qryClientescivildata.Clear;
+
+    if qryConjugecodigo.asinteger<>0 then
+    begin
+      qryConjuge.Edit;
+      qryConjugeconjuge.Clear;
+      if qryClientescivil.AsString = 'D' then
+        qryConjugecivil.AsString := 'D'
+      else
+        qryConjugecivil.AsString := 'S';
+      qryConjugecivildata.Clear;
+      qryconjuge.Post;
+    end;
+    dsrClientes.OnDataChange := dsrClientesDataChange;
+
+end;
+
+procedure TdtmCadastroClientes.qrySeriesClientesAfterDelete(DataSet: TDataSet);
+begin
+  inherited;
+  if not (qryClientes.State in [dsEdit, dsInsert]) then
+    qryClientes.Edit;
+end;
+
+function TdtmCadastroClientes.GetTabelaDependentesClientes: TtecQuery;
+begin
+  Result:= qryDependentesClientes;
+end;
+
+procedure TdtmCadastroClientes.AtribuirParametroProcuraConjuge;
+begin
+  qryProcuraConjuge.Sql[04]:= 'and not (sexo in (''E'',' + QuotedStr(qryClientessexo.AsString) + '))';
+end;
+
+procedure TdtmCadastroClientes.qryProcuraConjugeBeforeOpen(DataSet: TDataSet);
+begin
+  inherited;
+  AtribuirParametroProcuraConjuge
+end;
+
+procedure TdtmCadastroClientes.dsrClientesDataChange(Sender: TObject; Field: TField);
+begin
+  inherited;
+  if field = qryClientesconjuge then
+  begin
+    ReFazConsulta(qryConjuge, [0], [qryClientesconjuge.AsInteger]);
+    AtribuirConjugenoCliente;
+  end
+  else if field = qryClientesdebito then
+    qryProcuraCreditar.Params[1].AsInteger := qryClientesdebito.AsInteger
+  else if field = qryClientescredito then
+    qryProcuraDebitar.Params[1].AsInteger := qryClientescredito.AsInteger
+  else if field = qryClientesnaoligar then
+    qryClientesrazaonaoligar.Required := qryClientesnaoligar.AsBoolean;
+
+  if qryclientes.State = dsEdit then
+  begin
+   if (field = qryClientesrua) or
+      (field = qryClientesbairro) or
+      (field = qryClientescidade) or
+      (field = qryClientesestado) or
+      (field = qryClientescep) then
+    if (qryclientesRua.AsString <> qryClientesrua.OldValue) or
+       (qryclientesbairro.AsInteger <> qryClientesbairro.OldValue) or
+       (qryclientescidade.AsInteger <> qryClientescidade.OldValue) or
+       (qryClientesestado.AsString <> qryClientesestado.OldValue) or
+       (qryClientescep.AsInteger <> qryClientescep.OldValue) then
+     qryClientesenderecoalterado.AsDateTime := DataHoraLocal
+    else if qryClientesenderecoalterado.OldValue <> null then
+          qryClientesenderecoalterado.AsDateTime := qryClientesenderecoalterado.OldValue
+    else qryClientesenderecoalterado.clear
+  end;
+end;
+
+procedure TdtmCadastroClientes.qryClientesAfterClose(DataSet: TDataSet);
+begin
+  inherited;
+  if not qrySeriesClientes.IsEmpty then
+    qrySeriesClientes.Close;
+  if ParSistema.ANEXOCONTRATORECEITAOCULOS and not qryReceitaOculos.IsEmpty then
+    qryReceitaOculos.Close;
+  if Assigned(AfterCloseClientes) then
+    AfterCloseClientes(qryClientes);
+end;
+
+procedure TdtmCadastroClientes.qryClientesAfterInsert(DataSet: TDataSet);
+begin
+  inherited;
+  ReFazConsulta(qryConjuge,[0],[0]);
+  ReFazConsulta(qrySeriesClientes,[0],[0]);
+  if ParSistema.ANEXOCONTRATORECEITAOCULOS then
+    ReFazConsulta(qryReceitaOculos,[0],[0]);
+end;
+
+procedure TdtmCadastroClientes.qryProcuraCidadesBeforeOpen(DataSet: TDataSet);
+begin
+  inherited;
+  if qryClientesnaturalcidade.AsInteger > 0 then
+    qryProcuraCidades.Params[0].AsString:= qryClientesnaturalestado.AsString;
+end;
+
+procedure TdtmCadastroClientes.ReFazConsultaCliente(Cliente: Integer);
+begin
+  ReFazConsulta(qryCLientes,[0],[Cliente]);
+end;
+
+procedure TdtmCadastroClientes.qryDependentesClientesAfterInsert(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryDependentesClientesautorizadoacomprar.AsBoolean := false;
+end;
+
+procedure TdtmCadastroClientes.qryClientesAfterPost(DataSet: TDataSet);
+begin
+  inherited;
+  if (Assigned(AfterPostClientes)) then
+    AfterPostClientes(qryClientes);
+end;
+
+function TdtmCadastroClientes.CartaDevolvida(FormOrigem: String): Boolean;
+begin
+  Result := ClienteCartaDevolvida(qryClientescodigo.AsInteger, 'C', qryClientesnome.AsString, FormOrigem);
+end;
+
+procedure TdtmCadastroClientes.AtribuirConjugenoCliente;
+begin
+  if qryConjugecodigo.AsInteger <> 0 then
+  begin
+    qryClientesconnome.AsString         := qryConjugenome.AsString;
+    if qryConjugenascto.isnull then
+      qryClientesconnascto.Clear
+    else
+      qryClientesconnascto.AsDateTime     := qryConjugenascto.AsDateTime;
+
+    qryClientesconempresa.AsString      := qryConjugeempresa.AsString;
+    if qryConjugeempadmissao.IsNull then
+      qryClientesconadmissao.Clear
+    else
+      qryClientesconadmissao.AsDateTime   := qryConjugeempadmissao.AsDateTime;
+
+    if not qryConjugeempcargo.isnull then
+      qryClientesconcargo.AsInteger       := qryConjugeempcargo.AsInteger
+    else qryClientesconcargo.clear;
+
+    qryClientesconrendavalor.AsCurrency := qryConjugeemprendavalor.AsCurrency;
+    qryClientesconrendafaixa.AsCurrency := qryConjugeemprendafaixa.AsCurrency;
+    qryClientesconrua.AsString          := qryConjugeemprua.AsString;
+    if not qryConjugeempbairro.IsNull then
+      qryClientesconbairro.AsInteger      := qryConjugeempbairro.AsInteger
+    else qryClientesconbairro.clear;
+
+    qryClientesconbairronome.AsString   := qryConjugenomebairroempresa.AsString;
+    if not qryConjugeempcidade.IsNull then
+      qryClientesconcidade.AsInteger      := qryConjugeempcidade.AsInteger
+    else qryClientesconcidade.clear;
+
+    if qryConjugeempcep.AsInteger <> 0 then
+      qryClientesconcep.AsInteger := qryConjugeempcep.AsInteger
+    else qryClientesconcep.Clear;
+
+    if qryConjugeempestado.AsString <> '' then
+      qryClientesconEstado.AsString := qryConjugeempestado.AsString
+    else qryClientesconEstado.Clear;
+
+    qryClientesconcidadenome.AsString   := qryConjugenomecidadeempresa.AsString;
+    qryClientesconfoneddd.AsInteger     := qryConjugeempfoneddd.AsInteger;
+    qryClientesconfonenumero.AsInteger  := qryConjugeempfonenumero.AsInteger;
+    qryClientesconfoneramal.AsString    := qryConjugeempfoneramal.AsString;
+  end
+  else
+  begin
+    if ParSistema.InformarConjugeClienteCasado then
+    begin
+      qryClientesconnome.clear;
+      qryClientesconnascto.clear;
+      qryClientesconempresa.clear;
+      qryClientesconadmissao.clear;
+      qryClientesconcargo.clear;
+      qryClientesconrendavalor.clear;
+      qryClientesconrendafaixa.clear;
+      qryClientesconrua.clear;
+      qryClientesconbairro.clear;
+      qryClientesconbairronome.clear;
+      qryClientesconcidade.clear;
+      qryClientesconcidadenome.clear;
+      qryClientesconfoneddd.clear;
+      qryClientesconfonenumero.clear;
+      qryClientesconfoneramal.clear;
+    end;
+  end;
+end;
+
+procedure TdtmCadastroClientes.AtribuirClientenoConjuge;
+begin
+  if not (qryconjuge.State in [dsedit, dsinsert]) then
+    qryConjuge.Edit;
+
+  if qryConjugecodigo.AsInteger = 0 then begin
+    qryconjuge.Cancel;
+    qryconjuge.insert;
+    spcClientesProximoCodigo.Open;
+    qryConjugecodigo.AsInteger     := spcClientesProximoCodigocodigo.AsInteger;
+    spcClientesProximoCodigo.Close;
+    dsrClientes.OnDataChange := nil;
+    qryClientesconjuge.AsInteger := qryConjugecodigo.AsInteger;
+    dsrClientes.OnDataChange := dsrClientesDataChange;
+  end;
+  qryConjugerua.AsString         := qryClientesrua.AsString;
+  qryConjugeestado.AsString      := qryClientesestado.AsString;
+  qryConjugecidade.AsInteger     := qryClientescidade.AsInteger;
+  qryConjugebairro.AsInteger     := qryClientesbairro.AsInteger;
+  qryConjugecep.AsInteger        := qryClientescep.AsInteger;
+  qryConjugecivil.AsString       := qryClientescivil.AsString;
+
+  if Not qryClientescivildata.IsNull then
+    qryConjugecivildata.AsDateTime := qryClientescivildata.AsDateTime
+  else qryConjugecivildata.clear;
+
+  if qryClientessexo.AsString = 'M' then
+    qryConjugesexo.AsString := 'F'
+  else
+    qryConjugesexo.AsString := 'M';
+
+  qryConjugefilialcadastro.AsInteger := FilialBase;
+  if (qryclientes.State <> dsinsert) then
+    qryConjugeconjuge.AsInteger          := qryClientescodigo.AsInteger;
+  qryConjugenome.AsString              := qryClientesconnome.AsString;
+  if not qryClientesconnascto.IsNull then
+    qryConjugenascto.AsDateTime          := qryClientesconnascto.AsDateTime
+  else qryConjugenascto.clear;
+
+  qryConjugeempresa.AsString            := qryClientesconempresa.AsString;
+  if not qryClientesconadmissao.IsNull then
+    qryConjugeempadmissao.AsDateTime     := qryClientesconadmissao.AsDateTime
+  else qryConjugeempadmissao.clear;
+
+  if not qryClientesconcargo.IsNull then
+    qryConjugeempcargo.AsInteger         := qryClientesconcargo.AsInteger
+  else qryConjugeempcargo.clear;
+
+  qryConjugeemprendavalor.AsCurrency   := qryClientesconrendavalor.AsCurrency;
+  qryConjugeemprendafaixa.AsCurrency   := qryClientesconrendafaixa.AsCurrency;
+  qryConjugeemprua.AsString            := qryClientesconrua.AsString;
+
+  if not qryClientesconbairro.IsNull then
+    qryConjugeempbairro.AsInteger        := qryClientesconbairro.AsInteger
+  else qryConjugeempbairro.clear;
+
+  if not qryClientesconcidade.IsNull then
+    qryConjugeempcidade.AsInteger        := qryClientesconcidade.AsInteger
+  else qryConjugeempcidade.clear;
+
+  if qryClientesconcep.AsInteger <> 0 then
+    qryConjugeempcep.AsInteger := qryClientesconcep.AsInteger
+  else qryConjugeempcep.clear;
+
+  if qryClientesconEstado.AsString <> '' then
+    qryConjugeempestado.AsString := qryClientesconEstado.AsString
+  else qryConjugeempestado.Clear;
+
+  qryConjugeempfoneddd.AsInteger       := qryClientesconfoneddd.AsInteger;
+  qryConjugeempfonenumero.AsInteger    := qryClientesconfonenumero.AsInteger;
+  qryConjugeempfoneramal.AsString      := qryClientesconfoneramal.AsString;
+  qryConjuge.Post;
+end;
+
+function TdtmCadastroClientes.ExisteContaContabil(campo,
+  codigo: String): Boolean;
+begin
+  if campo = 'descricaoedentada' then
+    Result:= ExisteCodigo(qryConsultaContaContabil, 'descricao', codigo)
+  else
+    Result:= ExisteCodigo(qryConsultaContaContabil, campo, codigo);
+end;
+
+procedure TdtmCadastroClientes.dsrReceitaOculosDataChange(Sender: TObject;
+  Field: TField);
+begin
+  inherited;
+  if not (qryClientes.State in [dsEdit, dsInsert]) then
+    if (Field = qryReceitaOculosesferico_od)  or (Field = qryReceitaOculosesferico_oe)  or
+       (Field = qryReceitaOculoscilindro_od)  or (Field = qryReceitaOculoscilindo_oe)   or
+       (Field = qryReceitaOculoseixo_od)      or (Field = qryReceitaOculoseixo_oe)      or
+       (Field = qryReceitaOculoslonge_dnp_od) or (Field = qryReceitaOculosperto_dnp_oe) or
+       (Field = qryReceitaOculosperto_dnp_od) or (Field = qryReceitaOculoslonge_dnp_oe) or
+       (Field = qryReceitaOculoscor)          or (Field = qryReceitaOculoslente)        or
+       (Field = qryReceitaOculostipo)         or (Field = qryReceitaOculosadicao)       or
+       (Field = qryReceitaOculosmedida)       or (Field = qryReceitaOculosajuste)       or
+       (Field = qryReceitaOculosentrega)      or (Field = qryReceitaOculosmedico)       then
+      qryClientes.Edit;
+end;
+
+function TdtmCadastroClientes.GetReceitasOculos: Boolean;
+begin
+  Result := qryReceitaOculos.RecordCount > 0;
+end;
+
+function TdtmCadastroClientes.ExistePlano(campo, codigo: String): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaPlano,campo,codigo);
+end;
+
+function TdtmCadastroClientes.GetConsultarPlanoPadrao: TtecQuery;
+begin
+  Result := qryConsultaPlano;
+end;
+
+{procedure TdtmCadastroClientes.ZMonitor1MonitorEvent(Sql, Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:\logcli.txt') then
+    Listar.loadfromfile('c:\logcli.txt');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\logcli.txt');
+  listar.free;
+end;
+}
+function TdtmCadastroClientes.ExcluirContatosClientes: Boolean;
+begin
+  Result:= False;
+  if not qryContatosClientes.IsEmpty then begin
+    if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o CONTATO'])) = smbOk then begin
+      qryContatosClientes.Delete;
+      Result := True;
+    end;
+  end;
+end;
+
+procedure TdtmCadastroClientes.qryContatosClientesBeforeInsert(
+  DataSet: TDataSet);
+begin
+  inherited;
+      qryContatosClientes.Last;
+      Max:= qryContatosClientescodigo.asinteger + 1;
+end;
+
+procedure TdtmCadastroClientes.qryContatosClientesNewRecord(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryContatosClientestipovfornecedores.asstring := 'C';
+end;
+
+procedure TdtmCadastroClientes.qryContatosClientesAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryContatosClientes.SortByField('contato');
+  qryClientes.Edit;
+end;
+
+procedure TdtmCadastroClientes.qryContatosClientesAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+        qryClientes.Edit;
+end;
+
+procedure TdtmCadastroClientes.qryClientesAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  RefazConsulta(qryContatosClientes,[0],[qryClientescodigo.AsInteger]);
+end;
+
+function TdtmCadastroClientes.IncluirContatoFornecedor: Boolean;
+begin
+        qryContatosClientes.Append;
+        Result:= true;
+end;
+
+function TdtmCadastroClientes.GravarContatosCliente: Boolean;
+begin
+  Result:=True;
+  if qryContatosClientes.CheckRequiredFields then
+  begin
+     if qryContatosClientes.State = dsInsert then begin
+        spccontatosclienteproximocodigo.Close;
+        spccontatosclienteproximocodigo.Open;
+        qryContatosClientescodigo.AsInteger:=spcClientesProximoCodigocodigo.AsInteger;
+      end;
+      qryContatosClientes.Post;
+      if not (qryClientes.State in [dsinsert, dsedit]) then
+         qryClientes.Edit;
+  end;
+end;
+
+procedure TdtmCadastroClientes.qryContatosClientesBeforePost(
+  DataSet: TDataSet);
+begin
+  inherited;
+     if qryContatosClientes.state = dsinsert then
+     begin
+       spccontatosclienteproximocodigo.Open;
+       qryContatosClientescodigo.Value:= spccontatosclienteproximocodigocodigo.Value;
+       spccontatosclienteproximocodigo.Close;
+     end;
+end;
+
+procedure TdtmCadastroClientes.ZMonitor1MonitorEvent(Sql, Result: String);
+var
+ Listar : TStringList;
+ arquivo: String;
+begin
+  inherited;
+  Listar := tStringlist.Create;
+  arquivo := 'c:\Equipamentos.sql';
+  if fileexists(arquivo) then
+    Listar.loadfromfile(arquivo);
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile(arquivo);
+  listar.free;
+end;
+
+procedure TdtmCadastroClientes.qrySeriesClientesAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  AtualizaSerie;
+end;
+
+procedure TdtmCadastroClientes.dsrSeriesClientesDataChange(Sender: TObject;
+  Field: TField);
+begin
+  inherited;
+  if Field=qrySeriesClientesserie then
+   if VerificaSerie then
+    begin
+     mensagemaviso(ctSERIESJACADASTRADA);
+     qrySeriesClientes.Cancel;
+    end;
+end;
+
+function TdtmCadastroClientes.VerificaSerie: Boolean;
+var
+i: integer;
+begin
+  result := false;
+  for i := 0 to High(aseries) do
+  begin
+   if (qrySeriesClientesserie.AsString = aSeries[i].Serie) then
+    if (qrySeriesClientes.State = dsEdit) and
+       (qrySeriesClientesserie.AsString = SerieAntesEdicao) then
+      result := false
+    else  result := true ;
+  end;
+end;
+
+procedure TdtmCadastroClientes.AtualizaSerie;
+var
+i: integer;
+RegistroAtual : TBookMark;
+begin
+  i := 0;
+  aSeries := nil;
+  RegistroAtual := qrySeriesClientes.GetBookmark;
+  qrySeriesClientes.First;
+  while Not qrySeriesClientes.Eof do begin
+   SetLength(aseries, i + 1);
+   aSeries[i].Serie := qrySeriesClientesserie.AsString;
+   Inc(i);
+   qrySeriesClientes.next;
+  end;
+  qrySeriesClientes.GotoBookmark(RegistroAtual);
+  qrySeriesClientes.FreeBookmark(RegistroAtual);
+end;
+
+procedure TdtmCadastroClientes.qrySeriesClientesBeforeEdit(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryClientes.State = dsBrowse then
+   qryClientes.Edit;
+  SerieAntesEdicao := qrySeriesClientesserie.AsString;
+end;
+
+procedure TdtmCadastroClientes.qrySeriesClientesBeforeInsert(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryClientes.Edit;
+end;
+
+function TdtmCadastroClientes.GetClienteHedoExterior: Boolean;
+begin
+  FClienteHedoExterior := qryClientesestado.AsString = '.';
+  result := FClienteHedoExterior;
+end;
+
+end.

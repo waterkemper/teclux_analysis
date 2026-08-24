@@ -1,0 +1,2870 @@
+unit dmoperacoesosp;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery, dmtecsoft,
+  cpdatasource, biblio, ctconstantes, Forms, ZTransact, Windows, clusuario, Controls,
+  dmImprimeOsp, clparametrossistema, fmselecionarimpressoras;
+
+Const cmposp         = 1;   PosicaoAtual = 0;
+      cmplote        = 2;   Primeiro     = 1;
+                            Anterior     = 2;
+                            Proximo      = 3;
+                            Ultimo       = 4;
+type
+StatusCadastro = (Nenhum, IniciandoOperacao, FinalizandoOperacao);
+
+type
+  TdtmOperacoesOSP = class(TdtmBasico)
+    qryOperacoesOSP: TtecQuery;
+    qryOperacoesOSPosp: TIntegerField;
+    qryOperacoesOSPoperacao: TIntegerField;
+    qryOperacoesOSPUsuario: TtecQuery;
+    qryOperacoesOSPUsuarioFalhas: TtecQuery;
+    qryOperacoesOSPUsuarioFalhasusuario: TIntegerField;
+    qryOperacoesOSPUsuarioFalhasfalha: TIntegerField;
+    qryOperacoesOSPUsuarioFalhasquantidadeperda: TIntegerField;
+    qryOperacoesOSPUsuariousuario: TIntegerField;
+    qryOperacoesOSPUsuarioquantidade: TIntegerField;
+    dsrOperacoesOSP: TtecDataSource;
+    dsrOperacoesOSPUsuario: TtecDataSource;
+    dsrOperacoesOSPUsuarioFalhas: TtecDataSource;
+    qryOSPLotes: TtecQuery;
+    dsrOSPLotes: TtecDataSource;
+    qryOperacoesOSPnome: TStringField;
+    qryOperacoesOSPc01: TStringField;
+    qryOperacoesOSPc02: TStringField;
+    qryOperacoesOSPc03: TStringField;
+    qryOperacoesOSPtempopadrao: TFloatField;
+    qryOperacoesOSPUsuarionome: TStringField;
+    qryFluxoGramasOperacoes: TtecQuery;
+    qryFluxoGramasOperacoesfluxograma: TIntegerField;
+    qryFluxoGramasOperacoesoperacao: TIntegerField;
+    qryFluxoGramasOperacoesnome: TStringField;
+    qryFluxoGramasOperacoesc01: TStringField;
+    qryFluxoGramasOperacoesc02: TStringField;
+    qryFluxoGramasOperacoesc03: TStringField;
+    qryFluxoGramasOperacoestempopadrao: TFloatField;
+    qryFluxoGramasOperacoesdescricao: TStringField;
+    dsrFluxoGramasOperacoes: TtecDataSource;
+    qryOSPProximo: TtecQuery;
+    qryOSPProximonumero: TIntegerField;
+    qryOperacoesOSPUsuariousuariovalidado: TBooleanField;
+    ZMonitor1: TZMonitor;
+    qryOperacoesOSPUsuariodata: TDateField;
+    qryOperacoesOSPUsuarioosp: TIntegerField;
+    qryOperacoesOSPUsuariooperacao: TIntegerField;
+    qryOperacoesOSPUsuarioFalhasosp: TIntegerField;
+    qryOperacoesOSPUsuarioFalhasoperacao: TIntegerField;
+    qryOperacoesOSPUsuarioinicio: TTimeField;
+    qryOperacoesOSPUsuariotermino: TTimeField;
+    qryOperacoesOSPUsuarioFalhasdata: TDateField;
+    qryOperacoesOSPUsuarioFalhasinicio: TTimeField;
+    qryOperacoesOSPUsuarioFalhasfalhavalidada: TBooleanField;
+    qryOperacoesOSPppm: TIntegerField;
+    dsrClientesProdutos: TtecDataSource;
+    qryClientesProdutos: TtecQuery;
+    qryClientesProdutoscliente: TIntegerField;
+    qryClientesProdutostipocliente: TStringField;
+    qryClientesProdutosproduto: TLargeintField;
+    qryClientesProdutosproduto_cliente: TStringField;
+    qryClientesProdutosfinalidade: TStringField;
+    qryClientesProdutospn: TIntegerField;
+    qryClientesProdutosorigem: TStringField;
+    qryUsuarioOperacoesProducao: TtecQuery;
+    qryOperacoesOSPoperacaoliberada: TBooleanField;
+    qryUsuarioOperacoesProducaousuario: TIntegerField;
+    qryOperacoesOSPUsuariousuariorelacao: TIntegerField;
+    qryOperacoesOSPUsuariodatarelacao: TDateField;
+    qryOperacoesOSPUsuarioiniciorelacao: TTimeField;
+    qryOperacoesOSPsequencia: TStringField;
+    qryFluxoGramasOperacoessequencia: TStringField;
+    qryOperacoesOSPoperacaoemandamento: TBooleanField;
+    qryClientesProdutostamloteproducao: TIntegerField;
+    qryClientesProdutosexcedentepermitido: TIntegerField;
+    qryOperacoesOSPUsuarioFalhasperdatotal: TBooleanField;
+    qryFluxoGramasOperacoestipooperacao: TStringField;
+    qryFluxoGramasOperacoesorigemoperacaoalternativa: TIntegerField;
+    qryOperacoesOSPtipooperacao: TStringField;
+    qryOperacoesOSPorigemoperacaoalternativa: TIntegerField;
+    qryOperacoesOSPselecionada: TBooleanField;
+    qryOperacoesOSPalternativa: TStringField;
+    qryOperacoesOSPquantidade: TLargeintField;
+    qryOperacoesOSPSaldoFaltanteGeral: TIntegerField;
+    qryListaOperacaoLiberada: TtecQuery;
+    dsrListaOperacaoLiberada: TtecDataSource;
+    qryListaOperacaoLiberadanome: TStringField;
+    qryListaOperacaoLiberadac1: TStringField;
+    qryListaOperacaoLiberadac2: TStringField;
+    qryListaOperacaoLiberadac3: TStringField;
+    qryListaOperacaoLiberadaoperacao: TIntegerField;
+    qryListaFalhas: TtecQuery;
+    qryListaFalhascodigo: TIntegerField;
+    qryListaFalhasdescricao: TStringField;
+    qryListaFalhasoperacao: TIntegerField;
+    qryListaFalhasperdatotal: TBooleanField;
+    qryListaFalhasquantidade: TIntegerField;
+    dsrListaFalhas: TtecDataSource;
+    qryOSPLotesosp: TIntegerField;
+    qryOSPLotesnumero: TIntegerField;
+    qryOSPLotesquantidadelote: TFloatField;
+    qryOSPLotesexcedentelote: TFloatField;
+    qryOSPLotesproduzidalote: TFloatField;
+    qryOSPLotesentrega: TDateField;
+    qryOSPLotesentrega_anterior: TDateField;
+    qryOSPLotessemana: TIntegerField;
+    qryOSPLotesano: TIntegerField;
+    qryOSPLotesprioridade: TIntegerField;
+    qryOSPLotesobservacoes: TStringField;
+    qryOSPLotesproduto: TLargeintField;
+    qryOSPLotesdata: TDateField;
+    qryOSPLotescliente: TIntegerField;
+    qryOSPLotespedidocliente: TStringField;
+    qryOSPLotesquantidadeosp: TFloatField;
+    qryOSPLotesquantidade_anterior: TFloatField;
+    qryOSPLotespreco: TFloatField;
+    qryOSPLotesprodutovisual: TStringField;
+    qryOSPLotescaracteristica: TLargeintField;
+    qryOSPLotescaracteristicavisual: TStringField;
+    qryOSPLotesqtdeentregue: TFloatField;
+    qryOSPLotescomplementoproduto: TStringField;
+    qryOSPLotesunidade: TStringField;
+    qryOSPLotesapelido: TStringField;
+    qryOSPLotesalterada: TBooleanField;
+    qryOSPLotesTotal: TCurrencyField;
+    qryOSPLotesSaldo: TCurrencyField;
+    qryOperacoesOSPlote: TIntegerField;
+    qryOperacoesOSPUsuariolote: TIntegerField;
+    qryOperacoesOSPUsuarioFalhaslote: TIntegerField;
+    qryOperacoesOSPUsuarioFalhasdescricao: TStringField;
+    qryOperacoesOSPsetup: TBooleanField;
+    qryOperacoesOSPplanocontrole: TBooleanField;
+    qryFluxoGramasOperacoessetup: TBooleanField;
+    qryFluxoGramasOperacoesplanocontrole: TBooleanField;
+    qryUsuarios: TtecQuery;
+    qryUsuarioscodigo: TIntegerField;
+    qryUsuariosnome: TStringField;
+    qryUsuariosgerenteproducao: TBooleanField;
+    qryUsuariosoperador: TStringField;
+    dsrUsuarios: TtecDataSource;
+    qryUsuarioOSPLote: TtecQuery;
+    dsrUsuarioOSPLote: TtecDataSource;
+    qryUsuarioOSPLoteosp: TIntegerField;
+    qryUsuarioOSPLotelote: TIntegerField;
+    qryUsuariosturno: TIntegerField;
+    qryOperacoesOSPUsuarioturno: TIntegerField;
+    qryOperacoesOSPquantidadelimite: TIntegerField;
+    qryOperacoesOSPquantidadeanterior: TIntegerField;
+    qryOperacoesOSPSaldoFaltanteProducao: TIntegerField;
+    qryUsuarioOperacoesProducaohabilitadosetup: TBooleanField;
+    qryOperacoesOSPhabilitadosetup: TBooleanField;
+    qryUsuariosHabilitadosSetup: TtecQuery;
+    qryUsuariosHabilitadosSetupusuario: TIntegerField;
+    qryUsuariosHabilitadosSetupnome: TStringField;
+    dsrUsuariosHabilitadosSetup: TtecDataSource;
+    qryOperacoesOSPUsuariousuariosetup: TIntegerField;
+    qryOperacoesOSPUsuarionomeusuariosetup: TStringField;
+    qryOperacoesOSPUsuarionumeromovimento: TIntegerField;
+    qryMovimentos: TtecQuery;
+    dsrMovimentos: TtecDataSource;
+    qryMovimentosProximo: TtecQuery;
+    qryMovimentosProximonumero: TIntegerField;
+    qryTiposMovimentos: TtecQuery;
+    qryTiposMovimentosoperacao: TStringField;
+    qryMovimentosnumero: TIntegerField;
+    qryMovimentosproduto: TLargeintField;
+    qryMovimentosfilial: TIntegerField;
+    qryMovimentostipomovimento: TStringField;
+    qryMovimentosoperacao: TStringField;
+    qryMovimentosquantidade: TFloatField;
+    qryMovimentosfinanceiro: TFloatField;
+    qryMovimentosvalor: TFloatField;
+    qryMovimentosreferencia: TStringField;
+    qryOperacoesOSPUsuarioParadas: TtecQuery;
+    dsrOperacoesOSPUsuarioParadas: TtecDataSource;
+    qryOperacoesOSPUsuarioParadasosp: TIntegerField;
+    qryOperacoesOSPUsuarioParadaslote: TIntegerField;
+    qryOperacoesOSPUsuarioParadasoperacao: TIntegerField;
+    qryOperacoesOSPUsuarioParadasusuario: TIntegerField;
+    qryOperacoesOSPUsuarioParadasdata: TDateField;
+    qryOperacoesOSPUsuarioParadasinicio: TTimeField;
+    qryOperacoesOSPUsuarioParadascodigoparada: TIntegerField;
+    qryOperacoesOSPUsuarioParadastempoparada: TIntegerField;
+    qryOperacoesOSPUsuarioParadasdescricao: TStringField;
+    qryOperacoesOSPUsuarioParadasparadavalidada: TBooleanField;
+    qryOperacoesOSPtotaltempoparada: TLargeintField;
+    qryOperacoesOSPquantidadecomperda: TLargeintField;
+    qryOperacoesOSPquantidadesemperda: TLargeintField;
+    qryOperacoesOSPnaobloqueiausuario: TBooleanField;
+    qryFluxoGramasOperacoesnaobloqueiausuario: TBooleanField;
+    qryListaOperacaoLiberadatipooperacao: TStringField;
+    qryOperacoesOSPUsuariodatatermino: TDateField;
+    qryOperacoesOSPUsuariousuariotermino: TIntegerField;
+    qryOperacoesOSPUsuariousuariosetupvalidado: TBooleanField;
+    qryOperacoesOSPUsuariousuariofechamentovalidado: TBooleanField;
+    qryOperacoesOSPUsuarioretrabalho: TIntegerField;
+    qryOperacoesOSPUsuarioc8d: TStringField;
+    qryOperacoesOSPquantidadeanteriorcomplementar: TIntegerField;
+    qryOperacoesOSPoperacaoemandamento_complementar: TBooleanField;
+    qryOperacoesOSPheaprimeiraoperacao: TBooleanField;
+    procedure qryOSPLotesCalcFields(DataSet: TDataSet);
+    procedure qryOperacoesOSPUsuarioNewRecord(DataSet: TDataSet);
+    procedure qryOperacoesOSPAfterScroll(DataSet: TDataSet);
+    procedure qryOperacoesOSPUsuarioAfterPost(DataSet: TDataSet);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure qryOperacoesOSPUsuarioAfterOpen(DataSet: TDataSet);
+    procedure qryOperacoesOSPUsuarioFalhasNewRecord(DataSet: TDataSet);
+    procedure qryOperacoesOSPUsuariodataChange(Sender: TField);
+    procedure dsrOperacoesOSPUsuarioDataChange(Sender: TObject;
+      Field: TField);
+    procedure qryOperacoesOSPUsuarioFalhasAfterDelete(DataSet: TDataSet);
+    procedure qryOperacoesOSPUsuarioFalhasAfterPost(DataSet: TDataSet);
+    procedure qryOperacoesOSPUsuarioBeforeDelete(DataSet: TDataSet);
+    procedure qryOperacoesOSPUsuarioAfterScroll(DataSet: TDataSet);
+    procedure qryOperacoesOSPUsuarioFalhasAfterOpen(DataSet: TDataSet);
+    procedure qryOperacoesOSPUsuarioAfterInsert(DataSet: TDataSet);
+    procedure qryOperacoesOSPUsuarioAfterDelete(DataSet: TDataSet);
+    procedure qryOperacoesOSPUsuarioAfterEdit(DataSet: TDataSet);
+    procedure qryOSPLotesAfterScroll(DataSet: TDataSet);
+    procedure qryOSPLotesBeforeOpen(DataSet: TDataSet);
+    procedure qryOperacoesOSPUsuarioBeforePost(DataSet: TDataSet);
+    procedure qryOperacoesOSPFilterRecord(DataSet: TDataSet;
+      var Accept: Boolean);
+    procedure qryOperacoesOSPCalcFields(DataSet: TDataSet);
+    procedure qryOperacoesOSPAfterPost(DataSet: TDataSet);
+    procedure qryListaFalhasAfterInsert(DataSet: TDataSet);
+    procedure qryOperacoesOSPUsuarioFalhasAfterScroll(DataSet: TDataSet);
+    procedure qryOperacoesOSPBeforeDelete(DataSet: TDataSet);
+    procedure qryOperacoesOSPUsuarioParadasNewRecord(DataSet: TDataSet);
+    procedure qryOperacoesOSPUsuarioParadasAfterPost(DataSet: TDataSet);
+    procedure qryOperacoesOSPUsuarioParadasAfterOpen(DataSet: TDataSet);
+    procedure qryOperacoesOSPUsuarioParadasAfterDelete(DataSet: TDataSet);
+    procedure qryOperacoesOSPUsuarioFalhasBeforeCancel(DataSet: TDataSet);
+    procedure qryOperacoesOSPUsuarioFalhasAfterCancel(DataSet: TDataSet);
+  private
+    FListaUsuariosTerminoAberto: String;
+    FListaFalhas: String;
+    FTipoLoginSenha: TtecTipoLogin;
+    FSelecionarCampoQuantidade: TNotifyEvent;
+    FSelecionarCampoUsuario: TNotifyEvent;
+    FSelecionarCampoOSP: TNotifyEvent;
+    FSelecionarGradeFalhas: TNotifyEvent;
+    FSetarParametrosGrade: TNotifyEvent;
+    FListaParadas: String;
+    function GetUltimaOSP: integer;
+    { Private declarations }
+  protected
+
+    procedure AtualizaListaUsuariosTerminoemAberto;
+    procedure AtualizaListaFalhas;
+    procedure AtualizaListaParadas;
+
+    procedure CalcularQuantidades;
+    procedure CalcularTempoParada;
+
+
+    function SelecionarImpressora: String;
+
+  public
+    { Public declarations }
+    StatusCadastro: StatusCadastro;
+    IncluindoCodigoUsuario : Boolean;
+    TempoAbrirJanela : TDatetime;
+    constructor Create(AOwner: TComponent);override;
+    destructor Destroy; override;
+    property UltimaOSP: integer read GetUltimaOSP;
+    procedure EditarOSP;
+    procedure EditarOperacoesOSPUsuario;
+    function GravarOperacoesOSPUsuario: Boolean;
+    procedure LimparOperacoesOSPUsuario;
+    procedure LimparOperacoesOSPUsuarioSetup;
+    procedure LimparOperacoesOSPUsuarioFechamento;
+
+
+    procedure CancelarOperacoesOSPUsuario;
+    procedure CancelarOperacoesOSPUsuarioSetup;
+    procedure CancelarOperacoesOSPUsuarioFechamento;
+
+    function RegistrodeOperacoesOSPUsuario: boolean;
+    function RegistrodeOperacoesOSPUsuarioSetup: boolean;
+
+    procedure ExcluirOperacoesOSPUsuario;
+
+    property ListaUsuariosTerminoAberto: String read FListaUsuariosTerminoAberto write FListaUsuariosTerminoAberto;
+    property ListaFalhas: String read FListaFalhas write FListaFalhas;
+    property ListaParadas: String read FListaParadas write FListaParadas;
+
+    function PosicionarOperacoesOSPUsuarioAguardandoFechamento: boolean;
+
+    procedure MarcarOperacaoemAndamento(NaoPosicionar: Boolean = false);
+    function ExcluirOperacoesOSP: Boolean;
+
+    function GravarOperacoesOSPUsuarioFalhas: Boolean;
+    function GravarOperacoesOSPUsuarioParadas: Boolean;
+
+    procedure EditarOperacoesOSPUsuarioFalhas;
+    procedure EditarOperacoesOSPUsuarioParadas;
+
+    procedure LimparOperacoesOSPUsuarioFalhas;
+    procedure LimparOperacoesOSPUsuarioParadas;
+
+    function RegistrodeOperacoesOSPUsuarioFalhas: boolean;
+    function RegistrodeOperacoesOSPUsuarioParadas: boolean;
+
+    procedure ExcluirOperacoesOSPUsuarioFalhas;
+    procedure ExcluirOperacoesOSPUsuarioParadas;
+
+    procedure CancelarOperacoesOSPUsuarioFalhas;
+    procedure CancelarOperacoesOSPUsuarioParadas;
+
+    procedure  Percorrer(Campo: Byte; Key: Word; Shift: TShiftState);
+
+    property TipoLogin: TtecTipoLogin read FTipoLoginSenha write FTipoLoginSenha;
+    procedure IncluirOperacoesOSP;
+    function SelecionarOperacao: Boolean;
+    function selecionarUsuarioSetup: Boolean;
+    function FinalizarOperacao: Boolean;
+    function SelecionarUsuarioOperacao: Boolean;
+    property SelecionarCampoQuantidade: TNotifyEvent
+             read FSelecionarCampoQuantidade
+             write FSelecionarCampoQuantidade;
+
+    property SelecionarCampoUsuario: TNotifyEvent
+             read FSelecionarCampoUsuario
+             write FSelecionarCampoUsuario;
+
+    property SelecionarCampoOSP: TNotifyEvent
+             read FSelecionarCampoOSP
+             write FSelecionarCampoOSP;
+
+    property SelecionarGradeFalhas: TNotifyEvent
+             read FSelecionarGradeFalhas
+             write FSelecionarGradeFalhas;
+
+    property SetarParametrosGrade: TNotifyEvent
+             read FSetarParametrosGrade
+             write FSetarParametrosGrade;
+
+
+    function GravarDados: Boolean;
+
+    procedure IniciarOperacao;
+    procedure SetarSomenteLeitura(Valor: boolean);
+    procedure DefinirAlternativas;
+    procedure DefinirComplementar;
+
+    function ExisteOperacoesOSPUsuarios: boolean;
+    function ExisteOperacoesOSPUsuarios_Complementar: boolean;
+
+    function ImprimirProcessos: boolean;
+    function AbreOperacaoemAbertoUsuario: Boolean;
+
+  end;
+
+var
+  dtmOperacoesOSP: TdtmOperacoesOSP;
+
+implementation
+
+uses fmlistaoperacoesusuario, fmfechamentooperacaousuario,
+  fmusuariosoperacao, fmlistausuariossetup;
+
+{$R *.dfm}
+
+procedure TdtmOperacoesOSP.qryOSPLotesCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  qryOSPlotestotal.AsCurrency := qryOSPLotesquantidadeosp.AsCurrency * qryOSPLotespreco.AsCurrency;
+  if not qryOSPLotesqtdeentregue.IsNull then
+    qryOSPLotessaldo.AsCurrency := qryOSPLotesquantidadeosp.AsCurrency -
+                              qryOSPLotesqtdeentregue.AsCurrency
+  else
+    qryOSPLotessaldo.AsCurrency := qryOSPLotesquantidadeosp.AsCurrency;
+end;
+
+constructor TdtmOperacoesOSP.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryOSPProximo.Open;
+  ReFazConsulta(qryOSPLotes,[0,1,2],[0,0,0]);
+  ListaUsuariosTerminoAberto := '0';
+  ListaFalhas := '0';
+  ListaParadas := '0';
+
+  TipoLogin := NaoInformado;
+  qryTiposMovimentos.Tag := ctTabelas;
+end;
+
+destructor TdtmOperacoesOSP.Destroy;
+begin
+
+  inherited;
+end;
+
+function TdtmOperacoesOSP.GetUltimaOSP: integer;
+begin
+  result := qryOSPProximonumero.AsInteger - 1;
+end;
+
+procedure TdtmOperacoesOSP.EditarOperacoesOSPUsuario;
+begin
+  if not (qryOperacoesOSPUsuario.State in [dsedit, dsinsert]) then
+    qryOperacoesOSPUsuario.Edit;
+end;
+
+function TdtmOperacoesOSP.GravarOperacoesOSPUsuario: Boolean;
+begin
+  result := true;
+  if (qryOperacoesOSPUsuario.State in [dsedit,dsinsert]) then
+  begin
+    result := qryOperacoesOSPUsuario.CheckRequiredFields;
+    if result then
+       qryOperacoesOSPUsuario.Post;
+  end;
+end;
+
+procedure TdtmOperacoesOSP.LimparOperacoesOSPUsuario;
+begin
+   if not (qryOperacoesOSPUsuario.State in [dsedit, dsinsert]) then
+     qryOperacoesOSPUsuario.Edit;
+   qryOperacoesOSPUsuariousuario.Clear;
+   qryOperacoesOSPUsuarionome.Clear;
+end;
+
+procedure TdtmOperacoesOSP.qryOperacoesOSPUsuarioNewRecord(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryOperacoesOSPUsuarioosp.AsInteger := qryOperacoesOSPosp.AsInteger;
+  qryOperacoesOSPUsuariolote.AsInteger := qryOperacoesOSPlote.AsInteger;
+  qryOperacoesOSPUsuariooperacao.AsInteger := qryOperacoesOSPoperacao.AsInteger;
+  qryOperacoesOSPUsuariousuariovalidado.AsBoolean := false;
+  qryOperacoesOSPUsuariousuariosetupvalidado.AsBoolean := false;
+  qryOperacoesOSPUsuariousuariofechamentovalidado.AsBoolean := false;
+
+  qryOperacoesOSPUsuariodata.AsDateTime := DataSistema;
+  qryOperacoesOSPUsuarioinicio.AsString := FormatDateTime('HH:MM',Now);
+  qryOperacoesOSPUsuariodatatermino.Clear;
+  qryOperacoesOSPUsuariotermino.Clear;
+
+end;
+
+function TdtmOperacoesOSP.RegistrodeOperacoesOSPUsuario: boolean;
+begin
+  result := qryOperacoesOSPUsuariousuario.IsNull or
+            qryOperacoesOSPUsuarionome.IsNull;
+end;
+
+procedure TdtmOperacoesOSP.CancelarOperacoesOSPUsuario;
+var
+ RegistroAtual : TBookMark;
+begin
+  try
+    RegistroAtual := qryOperacoesOSPUsuario.getBookMark;
+    qryOperacoesOSPUsuario.AfterScroll := nil;
+    qryOperacoesOSPUsuario.Cancel;
+    qryOperacoesOSPUsuario.First;
+    while not qryOperacoesOSPUsuario.Eof do
+    begin
+      CancelarOperacoesOSPUsuarioFalhas;
+      if not qryOperacoesOSPUsuariousuariovalidado.AsBoolean then
+        qryOperacoesOSPUsuario.Delete
+      else
+        qryOperacoesOSPUsuario.next;
+
+    end;
+    qryOperacoesOSPUsuario.GotoBookmark(RegistroAtual);
+    qryOperacoesOSPUsuario.FreeBookmark(RegistroAtual);
+    qryOperacoesOSPUsuario.AfterScroll := qryOperacoesOSPUsuarioAfterScroll;
+  except
+  end;
+end;
+
+
+
+procedure TdtmOperacoesOSP.ExcluirOperacoesOSPUsuario;
+begin
+  if not qryOperacoesOSPUsuario.IsEmpty then
+    if not qryOperacoesOSPUsuario.ReadOnly then
+      if (MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o usuário desta operação'])) = smbOk) then
+         qryOperacoesOSPUsuario.Delete;
+end;
+
+procedure TdtmOperacoesOSP.AtualizaListaUsuariosTerminoemAberto;
+var
+  Pos: TBookmark;
+begin
+  Pos := qryOperacoesOSPUsuario.GetBookmark;
+  try
+    qryOperacoesOSPUsuario.AfterScroll := nil;
+    qryOperacoesOSPUsuario.DisableControls;
+    ListaUsuariosTerminoAberto := '';
+    qryOperacoesOSPUsuario.First;
+    while Not qryOperacoesOSPUsuario.Eof do
+    begin
+      if qryOperacoesOSPUsuariotermino.isnull then
+        if qryOperacoesOSPUsuariousuariovalidado.AsBoolean then
+          ListaUsuariosTerminoAberto := ListaUsuariosTerminoAberto +
+                                       qryOperacoesOSPUsuariousuario.AsString + ',';
+      qryOperacoesOSPUsuario.Next
+    end;
+
+    if ListaUsuariosTerminoAberto <> '' then
+      ListaUsuariosTerminoAberto := copy(ListaUsuariosTerminoAberto,0, Length(ListaUsuariosTerminoAberto)-1)
+    else
+      ListaUsuariosTerminoAberto := '0';
+
+  finally
+    qryOperacoesOSPUsuario.GotoBookmark(Pos);
+    qryOperacoesOSPUsuario.FreeBookmark(Pos);
+    qryOperacoesOSPUsuario.enableControls;
+    qryOperacoesOSPUsuario.AfterScroll := qryOperacoesOSPUsuarioAfterScroll;
+  end
+end;
+
+procedure TdtmOperacoesOSP.qryOperacoesOSPAfterScroll(DataSet: TDataSet);
+var
+ vValor : Boolean;
+
+begin
+  inherited;
+  dtmOperacoesOSP.TempoAbrirJanela := now();
+
+  case TipoLogin of
+    GerenteProducao:
+    begin
+      AtualizaListaUsuariosTerminoemAberto;
+      qryOperacoesOSPUsuario.RequestLive := (qryOperacoesOSPoperacaoemandamento.AsBoolean or
+                                             not qryOperacoesOSPUsuario.isempty) and
+                                             (TipoLogin = GerenteProducao);
+
+      vValor := qryOperacoesOSPUsuario.ReadOnly or
+                qryOperacoesOSPUsuario.IsEmpty or
+                (qryOperacoesOSPUsuario.State = dsinsert);
+
+      qryOperacoesOSPUsuarioFalhas.ReadOnly := vValor;
+      qryOperacoesOSPUsuarioParadas.ReadOnly := vValor;
+
+    end;
+
+    operador:
+    begin
+      if qryOperacoesOSPoperacaoliberada.AsBoolean then
+      begin
+        qryOperacoesOSPUsuario.ReadOnly := false;
+        qryOperacoesOSPUsuarioFalhas.ReadOnly := false;
+        qryOperacoesOSPUsuarioParadas.ReadOnly := false;
+
+        case StatusCadastro of
+         IniciandoOperacao:
+         begin
+            if qryOperacoesOSPUsuariotermino.IsNull and
+               (qryOperacoesOSPUsuariousuario.AsInteger = qryUsuariosCodigo.asinteger) then
+              qryOperacoesOSPUsuario.Delete;
+            IniciarOperacao;
+         end;
+         FinalizandoOperacao:
+         begin
+           if qryOperacoesOSPUsuariotermino.IsNull then
+           begin
+             qryOperacoesOSPUsuario.Edit;
+             SelecionarCampoQuantidade(nil);
+           end;
+         end;
+        end;
+      end
+      else
+      begin
+        qryOperacoesOSPUsuario.ReadOnly := true;
+        qryOperacoesOSPUsuarioFalhas.ReadOnly := true;
+        qryOperacoesOSPUsuarioParadas.ReadOnly := true;
+      end;
+    end;
+
+  end;
+
+  qryOperacoesOSPCalcFields(qryOperacoesOSP);
+end;
+
+procedure TdtmOperacoesOSP.qryOperacoesOSPUsuarioAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+
+  if qryOperacoesOSP.RecNo = qryOperacoesOSP.RecordCount then  // é a ultima operação
+  begin
+
+    if (qryOperacoesOSPUsuarioquantidade.AsCurrency<>0) then
+    begin
+      if (qryMovimentosnumero.AsInteger = qryOperacoesOSPUsuarionumeromovimento.AsInteger) and     // ja possui movimento
+         (qryMovimentosnumero.AsInteger <> 0) and
+         (qryOperacoesOSPUsuarioquantidade.AsCurrency <> qryMovimentosquantidade.AsCurrency) then  // e foi modificada
+      begin
+        if qryOperacoesOSPUsuarioquantidade.AsCurrency <> 0 then
+        begin
+          qryMovimentos.Edit;
+          qryMovimentosquantidade.AsCurrency := qryOperacoesOSPUsuarioquantidade.AsCurrency;
+          qryMovimentos.post;
+        end
+        else
+        begin
+          qryMovimentos.delete;
+
+          qryOperacoesOSPUsuario.AfterPost := nil;
+          qryOperacoesOSPUsuario.Edit;
+          qryOperacoesOSPUsuarionumeromovimento.clear;
+          qryOperacoesOSPUsuario.Post;
+          qryOperacoesOSPUsuario.AfterPost := qryOperacoesOSPUsuarioAfterPost;
+
+        end;
+      end
+      else
+      begin
+        qryMovimentosProximo.close;
+        qryMovimentosProximo.Open;
+
+        qryMovimentos.append;
+        qryMovimentosproduto.asLargeint := qryOSPLotesproduto.AsLargeInt;
+        qryMovimentosfilial.asInteger   := FilialBase;
+        qryMovimentostipomovimento.asString := 'ESP';
+        qryMovimentosoperacao.AsString := qryTiposMovimentosoperacao.AsString;
+        qryMovimentosquantidade.ascurrency := qryOperacoesOSPUsuarioquantidade.AsCurrency;
+        qryMovimentosfinanceiro.ascurrency := 0;
+        qryMovimentosvalor.ascurrency := 0;
+        qryMovimentosreferencia.AsString := 'SAÍDA DA PRODUÇÃO. OSP: '+qryOSPLotesosp.AsString+' LOTE: '+qryOSPLotesnumero.AsString+
+                                            ' USUARIO: '+qryOperacoesOSPUsuariousuario.AsString+'-'+qryOperacoesOSPUsuarionome.AsString;
+
+        qryMovimentosnumero.AsInteger := qryMovimentosProximonumero.AsInteger;
+
+        qryMovimentos.post;
+
+        qryOperacoesOSPUsuario.AfterPost := nil;
+        qryOperacoesOSPUsuario.Edit;
+        qryOperacoesOSPUsuarionumeromovimento.AsInteger := qryMovimentosProximonumero.AsInteger;
+
+        qryOperacoesOSPUsuario.Post;
+
+        qryOperacoesOSPUsuario.AfterPost := qryOperacoesOSPUsuarioAfterPost;
+
+      end;
+    end
+    else
+    begin
+      if (qryMovimentosnumero.AsInteger = qryOperacoesOSPUsuarionumeromovimento.AsInteger) and     // ja possui movimento
+         (qryMovimentosnumero.AsInteger <> 0) and
+         (qryOperacoesOSPUsuarioquantidade.AsCurrency <> qryMovimentosquantidade.AsCurrency) then  // e foi modificada
+      begin
+        qryMovimentos.delete;
+
+        qryOperacoesOSPUsuario.AfterPost := nil;
+        qryOperacoesOSPUsuario.Edit;
+        qryOperacoesOSPUsuarionumeromovimento.clear;
+        qryOperacoesOSPUsuario.Post;
+        qryOperacoesOSPUsuario.AfterPost := qryOperacoesOSPUsuarioAfterPost;
+
+      end;
+    end;
+  end;
+
+  case TipoLogin of
+    GerenteProducao:
+    begin
+      EditarOSP;
+      qryOperacoesOSPUsuarioFalhas.ReadOnly := qryOperacoesOSPUsuario.ReadOnly or
+                                           qryOperacoesOSPUsuario.IsEmpty or
+                                           (qryOperacoesOSPUsuario.State = dsinsert);
+
+      qryOperacoesOSPUsuarioParadas.ReadOnly := qryOperacoesOSPUsuario.ReadOnly or
+                                           qryOperacoesOSPUsuario.IsEmpty or
+                                           (qryOperacoesOSPUsuario.State = dsinsert);
+
+    end;
+  end;
+  CalcularQuantidades;
+
+end;
+
+procedure TdtmOperacoesOSP.ZMonitor1MonitorEvent(Sql, Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:\log240809.sql') then
+    Listar.loadfromfile('c:\log240809.sql');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\log240809.sql');
+  listar.free;
+end;
+
+procedure TdtmOperacoesOSP.qryOperacoesOSPUsuarioAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  case TipoLogin of
+    GerenteProducao:
+      AtualizaListaUsuariosTerminoemAberto;
+  end;
+end;
+
+procedure TdtmOperacoesOSP.qryOperacoesOSPUsuarioFalhasNewRecord(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryOperacoesOSPUsuarioFalhasosp.AsInteger := qryOperacoesOSPosp.AsInteger;
+  qryOperacoesOSPUsuarioFalhaslote.AsInteger := qryOperacoesOSPlote.AsInteger;
+  qryOperacoesOSPUsuarioFalhasoperacao.AsInteger := qryOperacoesOSPoperacao.AsInteger;
+  qryOperacoesOSPUsuarioFalhasusuario.AsInteger := qryOperacoesOSPUsuariousuariorelacao.AsInteger;
+  qryOperacoesOSPUsuarioFalhasdata.AsDateTime := qryOperacoesOSPUsuariodatarelacao.AsDateTime;
+  qryOperacoesOSPUsuarioFalhasinicio.AsString := qryOperacoesOSPUsuarioiniciorelacao.AsString;
+  qryOperacoesOSPUsuarioFalhasquantidadeperda.AsInteger := 0;
+
+
+end;
+
+procedure TdtmOperacoesOSP.qryOperacoesOSPUsuariodataChange(
+  Sender: TField);
+begin
+  inherited;
+  {
+  qryOperacoesOSPUsuarioinicio.ReadOnly := false;
+  qryOperacoesOSPUsuariotermino.ReadOnly := false;
+  qryOperacoesOSPUsuarioquantidade.ReadOnly := false;
+   }
+end;
+
+procedure TdtmOperacoesOSP.dsrOperacoesOSPUsuarioDataChange(
+  Sender: TObject; Field: TField);
+begin
+  inherited;
+
+  if field = qryOperacoesOSPUsuarioinicio then
+  begin
+    if NOT qryOperacoesOSPUsuariotermino.IsNull AND
+       (qryOperacoesOSPUsuarioinicio.AsString >
+        qryOperacoesOSPUsuariotermino.AsString) and
+       (qryOperacoesOSPUsuariodata.AsString >=
+        qryOperacoesOSPUsuariodatatermino.AsString) then
+    begin
+      MensagemErro('A hora de início não pode ser superior à de término.');
+      qryOperacoesOSPUsuarioinicio.Clear;
+    end;
+//    qryOperacoesOSPUsuariotermino.ReadOnly := qryOperacoesOSPUsuarioinicio.IsNull;
+  end
+  else
+  if field = qryOperacoesOSPUsuariotermino then
+  begin
+    if qryOperacoesOSPUsuariodatatermino.isnull and not qryOperacoesOSPUsuariotermino.isnull then
+      qryOperacoesOSPUsuariodatatermino.asdatetime := dataatual;
+
+    if NOT qryOperacoesOSPUsuariotermino.IsNull AND
+       (qryOperacoesOSPUsuarioinicio.AsString >
+        qryOperacoesOSPUsuariotermino.AsString) and
+       (qryOperacoesOSPUsuariodata.AsString >=
+        qryOperacoesOSPUsuariodatatermino.AsString) then
+    begin
+      MensagemErro('A hora de término não pode ser inferior à de início.');
+      qryOperacoesOSPUsuariotermino.Clear;
+    end;
+//    qryOperacoesOSPUsuarioquantidade.ReadOnly := qryOperacoesOSPUsuariotermino.IsNull;
+  end
+  else
+  if field = qryOperacoesOSPUsuarioquantidade then
+  begin
+    if qryOperacoesOSPUsuarioquantidade.AsInteger <> 0 then
+    begin
+      qryOperacoesOSPUsuariodatatermino.asdatetime := dataatual;
+      qryOperacoesOSPUsuariotermino.AsString := FormatDateTime('HH:MM',Now);
+
+      qryOperacoesOSPUsuarioFalhas.RequestLive := true;
+    end
+    else
+    begin
+      qryOperacoesOSPUsuariodatatermino.clear;
+      qryOperacoesOSPUsuariotermino.Clear;
+      case TipoLogin of
+      Operador : qryOperacoesOSPUsuarioFalhas.RequestLive := false;
+      end;
+    end
+  end
+  else
+  if field = qryOperacoesOSPUsuarioretrabalho then
+  begin
+    if qryOperacoesOSPUsuarioretrabalho.AsInteger <> 0 then
+    begin
+      if qryOperacoesOSPUsuarioretrabalho.AsInteger >
+         qryOperacoesOSPUsuarioquantidade.AsInteger then
+      begin
+        MensagemAviso('A quantidade de retrabalho não pode ser superior a quantidade produzida');
+        qryOperacoesOSPUsuarioretrabalho.clear;
+      end;
+    end;
+  end;
+
+end;
+
+function TdtmOperacoesOSP.GravarDados: Boolean;
+var
+  RegistroAtualOSPUsuario : TBookMark;
+  RegistroAtualOperacaoOSP: TBookMark;
+
+  function VerificarFalhas: Boolean;
+  begin
+    result := true;
+    if TipoLogin = GerenteProducao then
+    begin
+      if (qryOperacoesOSPUsuariotermino.AsString<>'') and
+         (qryOperacoesOSPUsuarioFalhas.RecordCount=0) then
+        result := MensagemConfirmacao('Não existem falhas cadastradas. Deseja gravar assim mesmo?') = smbOk;
+    end;
+  end;
+
+begin
+  try
+
+    result := GravarOperacoesOSPUsuario;
+
+    RegistroAtualOperacaoOSP := qryOperacoesOSP.GetBookmark;
+    RegistroAtualOSPUsuario := qryOperacoesOSPUsuario.GetBookmark;
+
+
+    if result then
+      result := GravarOperacoesOSPUsuarioFalhas;
+
+    if result then
+    begin
+      CancelarOperacoesOSPUsuario;
+
+      result := VerificarFalhas;
+      if result then
+      begin
+        if qryOSPLotes.State in [dsedit, dsinsert] then
+          qryosplotes.Post;
+
+        result := perpetrar([qryOperacoesOSP, qrymovimentos,
+                             qryOperacoesOSPUsuario, qryOperacoesOSPUsuarioFalhas,
+                             qryOperacoesOSPUsuarioParadas]);
+        if result then
+
+        if result then
+        begin
+//          qryOSPLotes.cancel;
+          SetarSomenteLeitura(True);
+
+  {        case TipoLogin of
+          GerenteProducao: AtualizaListaUsuariosTerminoemAberto;
+          Operador: MarcarOperacaoemAndamento;
+          end;
+  }
+        end;
+      end
+      else
+        SelecionarGradeFalhas(nil);
+    end;
+  finally
+
+    qryOperacoesOSP.GotoBookmark(RegistroAtualOperacaoOSP);
+    qryOperacoesOSPUsuario.GotoBookmark(RegistroAtualOSPUsuario);
+
+    qryOperacoesOSP.FreeBookmark(RegistroAtualOperacaoOSP);
+    qryOperacoesOSPUsuario.FreeBookmark(RegistroAtualOSPUsuario);
+  end;
+end;
+
+procedure TdtmOperacoesOSP.qryOperacoesOSPUsuarioFalhasAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  case TipoLogin of
+    GerenteProducao, Operador:
+    begin
+      EditarOSP;
+      AtualizaListaFalhas;
+      CalcularQuantidades;
+    end;
+  end;
+end;
+
+procedure TdtmOperacoesOSP.qryOperacoesOSPUsuarioFalhasAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  case TipoLogin of
+    GerenteProducao, operador:
+    begin
+      EditarOSP;
+      AtualizaListaFalhas;
+      CalcularQuantidades;
+    end;
+  end;
+end;
+
+procedure TdtmOperacoesOSP.qryOperacoesOSPUsuarioBeforeDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  case TipoLogin of
+    GerenteProducao:
+    begin
+      qryOperacoesOSPUsuarioFalhas.First;
+      while not qryOperacoesOSPUsuarioFalhas.Eof do
+        qryOperacoesOSPUsuarioFalhas.Delete;
+
+      qryOperacoesOSPUsuarioParadas.First;
+      while not qryOperacoesOSPUsuarioParadas.Eof do
+        qryOperacoesOSPUsuarioParadas.Delete;
+
+      qrymovimentos.First;
+      while not qrymovimentos.Eof do
+        qrymovimentos.delete;
+    end;
+  end;
+end;
+
+function TdtmOperacoesOSP.ExcluirOperacoesOSP: Boolean;
+begin
+  result := false;
+  if not qryOperacoesOSP.IsEmpty then
+    if (MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['e todas as OPERAÇÕES DA OSP'])) = smbOk) then
+    begin
+      qryOperacoesOSP.Filtered := false;
+      qryoperacoesosp.DisableControls;
+      qryOperacoesOSP.First;
+      while not qryoperacoesosp.Eof do
+        qryOperacoesOSP.Delete;
+      qryoperacoesosp.EnableControls;
+      result := perpetrar([qryOperacoesOSP, qrymovimentos]);
+      qryOperacoesOSP.Filtered := true;
+    end;
+end;
+
+procedure TdtmOperacoesOSP.EditarOperacoesOSPUsuarioFalhas;
+begin
+  if not (qryOperacoesOSPUsuarioFalhas.State in [dsedit, dsinsert]) then
+    qryOperacoesOSPUsuarioFalhas.Edit;
+
+  if not (qryOperacoesOSPUsuarioParadas.State in [dsedit, dsinsert]) then
+    qryOperacoesOSPUsuarioParadas.Edit;
+end;
+
+procedure TdtmOperacoesOSP.AtualizaListaFalhas;
+var
+  Pos: TBookmark;
+begin
+  if qryOperacoesOSPUsuarioFalhas.Active then
+  begin
+    Pos := qryOperacoesOSPUsuarioFalhas.GetBookmark;
+    try
+      qryOperacoesOSPUsuarioFalhas.DisableControls;
+      ListaFalhas := '';
+
+      qryOperacoesOSPUsuarioFalhas.First;
+      while Not qryOperacoesOSPUsuarioFalhas.Eof do
+      begin
+        if qryOperacoesOSPUsuarioFalhasfalhavalidada.AsBoolean then
+          ListaFalhas := ListaFalhas +
+                         qryOperacoesOSPUsuarioFalhasfalha.AsString + ',';
+        qryOperacoesOSPUsuarioFalhas.Next
+      end;
+
+      if ListaFalhas <> '' then
+        ListaFalhas := copy(ListaFalhas,0, Length(ListaFalhas)-1)
+      else
+        ListaFalhas := '0';
+
+    finally
+      qryOperacoesOSPUsuarioFalhas.GotoBookmark(Pos);
+      qryOperacoesOSPUsuarioFalhas.FreeBookmark(Pos);
+      qryOperacoesOSPUsuarioFalhas.enableControls;
+    end
+  end;
+end;
+
+procedure TdtmOperacoesOSP.qryOperacoesOSPUsuarioAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+ dtmOperacoesOSP.TempoAbrirJanela := now();
+ case TipoLogin of
+    GerenteProducao : begin
+                        AtualizaListaFalhas;
+                        AtualizaListaParadas;
+                        SetarSomenteLeitura(false);
+                      end;
+    Operador        : begin
+                        AtualizaListaFalhas;
+                        AtualizaListaParadas;
+                        SetarSomenteLeitura(not(qryUsuarioscodigo.asinteger = qryOperacoesOSPUsuariousuario.AsInteger));
+                      end;
+    NaoInformado    : SetarSomenteLeitura(true);
+  end;
+end;
+
+procedure TdtmOperacoesOSP.qryOperacoesOSPUsuarioFalhasAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  case TipoLogin of
+    GerenteProducao, Operador: AtualizaListaFalhas;
+  end;
+end;
+
+procedure TdtmOperacoesOSP.LimparOperacoesOSPUsuarioFalhas;
+begin
+   if not (qryOperacoesOSPUsuarioFalhas.State in [dsedit, dsinsert]) then
+     qryOperacoesOSPUsuarioFalhas.Edit;
+   qryOperacoesOSPUsuarioFalhasfalha.Clear;
+   qryOperacoesOSPUsuarioFalhasdescricao.Clear;
+   qryOperacoesOSPUsuarioFalhasperdatotal.Clear;
+end;
+
+function TdtmOperacoesOSP.RegistrodeOperacoesOSPUsuarioFalhas: boolean;
+begin
+  result := qryOperacoesOSPUsuarioFalhasfalha.IsNull;
+end;
+
+procedure TdtmOperacoesOSP.ExcluirOperacoesOSPUsuarioFalhas;
+begin
+  if not qryOperacoesOSPUsuarioFalhas.IsEmpty then
+    if not qryOperacoesOSPUsuarioFalhas.ReadOnly then
+      if (MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['a falha desta operação'])) = smbOk) then
+         qryOperacoesOSPUsuarioFalhas.Delete;
+end;
+
+procedure TdtmOperacoesOSP.CancelarOperacoesOSPUsuarioFalhas;
+var
+  RegistroAtual : TBookmark;
+begin
+  try
+    RegistroAtual := qryOperacoesOSPUsuarioFalhas.getBookMark;
+
+    qryOperacoesOSPUsuarioFalhas.Cancel;
+    qryOperacoesOSPUsuarioFalhas.First;
+    while not qryOperacoesOSPUsuarioFalhas.Eof do
+    begin
+      if not (qryOperacoesOSPUsuarioFalhasfalhavalidada.AsBoolean) or
+              qryOperacoesOSPUsuarioFalhasquantidadeperda.IsNull then
+        qryOperacoesOSPUsuarioFalhas.Delete
+      else
+        qryOperacoesOSPUsuarioFalhas.next;
+    end;
+    qryOperacoesOSPUsuarioFalhas.GotoBookmark(RegistroAtual);
+    qryOperacoesOSPUsuarioFalhas.FreeBookmark(RegistroAtual);
+
+  except
+  end;
+end;
+
+procedure TdtmOperacoesOSP.Percorrer(Campo: Byte; Key: Word;
+  Shift: TShiftState);
+var Operacao: Byte;
+    osp, lote: Integer;
+begin
+   Operacao := 0;
+   with qryOSPLotes do begin
+      if ssCtrl in Shift
+      then case Key of
+             VK_Home:     Operacao:= Primeiro;
+             VK_End:      Operacao:= Ultimo;
+           end
+      else case Key of
+             VK_PRIOR:   Operacao:= Anterior;
+             VK_next: Operacao:= Proximo;
+           end;
+
+{      case Campo of
+         cmposp:} case Operacao of
+                            Primeiro,
+                            Proximo:  qryOSPLotes.MacroByName('Ordenacao').AsString:=
+                                                  'ORDER BY osplotes.osp, osplotes.numero LIMIT 1';
+                            Anterior,
+                            Ultimo:   qryOSPLotes.MacroByName('Ordenacao').AsString:=
+                                                  'ORDER BY osplotes.osp DESC, osplotes.numero LIMIT 1';
+                   end;
+{      end;}
+
+      osp         := qryOSPLotesosp.AsInteger;
+      lote        := qryOSPLotesnumero.AsInteger;
+
+      RefazConsulta(qryOSPLotes, [0, 1, 2, 3],
+                    [Campo, Operacao, qryOSPLotesosp.AsInteger, qryOSPLotesnumero.asinteger]);
+
+      if qryOSPLotes.RecordCount = 0 then
+      begin
+          RefazConsulta(qryOSPLotes, [0,1,2,3],
+                        [PosicaoAtual, PosicaoAtual, osp,lote]);
+
+         case campo of
+         cmposp: case Operacao of
+                   Anterior,Primeiro: MensagemAviso('Esta é a 1ª OSP');
+                   Proximo, Ultimo  : MensagemAviso('Esta é a última OSP');
+                 end;
+         cmplote: case Operacao of
+                   Anterior,Primeiro: MensagemAviso('Este é o 1º LOTE');
+                   Proximo, Ultimo  : MensagemAviso('Este é o último LOTE');
+                 end;
+         end;
+
+         case campo of
+          1 : qryOSPLotesosp.FocusControl;
+          2 : qryOSPLotesnumero.FocusControl;
+         end;
+      end;
+  //   EnableControls;
+   end;
+   qryOSPLotes.Params[0].AsInteger := 0;
+   qryOSPLotes.Params[1].AsInteger := 0;
+end;
+
+
+procedure TdtmOperacoesOSP.IncluirOperacoesOSP;
+
+begin
+//  TipoLogin := NaoInformado;
+{  UsuarioAut := ObterAutorizacao(taLOGIN, 'Registro de operações', 'Gerente ou Operador de Produção', '');
+
+  if Assigned(UsuarioAut) then
+  begin
+
+    if UsuarioAut.GerenteProducao then
+      TipoLogin := GerenteProducao
+    else
+      TipoLogin := Operador;}
+
+  if SelecionarUsuarioOperacao then
+  begin
+    SetarParametrosGrade(nil);
+    MarcarOperacaoemAndamento;
+
+    case TipoLogin of
+      Operador:
+      begin
+        SetarSomenteLeitura(true);
+        if qryOperacoesOSPUsuariotermino.IsNull and
+           (qryOperacoesOSPUsuario.RecordCount<>0) and
+           (qryOperacoesOSPUsuariousuario.AsInteger = qryUsuarioscodigo.asinteger) and
+           not (qryOperacoesOSPnaobloqueiausuario.AsBoolean) then
+        begin
+          StatusCadastro := FinalizandoOperacao;
+          qryOperacoesOSPUsuario.ReadOnly := false;
+          qryOperacoesOSPUsuarioquantidade.ReadOnly := false;
+          qryOperacoesOSPUsuario.Edit;
+//          qryOperacoesOSPUsuarioquantidade.AsInteger := qryOperacoesOSPSaldoFaltanteProducao.AsInteger;
+          qryOperacoesOSPUsuariodatatermino.Asdatetime := dataatual;
+          qryOperacoesOSPUsuariotermino.AsString := FormatDateTime('HH:MM',Now);
+
+          qryOperacoesOSPUsuariousuariotermino.AsInteger := qryUsuarioscodigo.asinteger;
+          qryOperacoesOSPUsuariousuariofechamentovalidado.AsBoolean := True;
+
+          qryOperacoesOSPUsuarioFalhas.RequestLive := true;
+
+          qryOperacoesOSPUsuariotermino.FocusControl;
+
+          if (qryOperacoesOSPUsuarioinicio.AsString <= qryOperacoesOSPUsuariotermino.AsString) and
+             (qryOperacoesOSPUsuariodata.Asdatetime <= qryOperacoesOSPUsuariodatatermino.AsDateTime) then
+          begin
+            if FinalizarOperacao then
+            begin
+              if Gravardados then
+              begin
+                SelecionarCampoOSP(self);
+
+                MarcarOperacaoemAndamento(true);
+  //              SelecionarCampoQuantidade(self);
+  //              EditarOSP;
+                IncluirOperacoesOSP;
+              end;
+            end
+            else
+              SelecionarCampoOSP(self);
+          end
+          else
+          begin
+            qryOperacoesOSPUsuario.Cancel;
+            StatusCadastro := Nenhum;
+            qryOperacoesOSPUsuario.ReadOnly := true;
+            qryOperacoesOSPUsuarioquantidade.ReadOnly := true;
+            IncluirOperacoesOSP;
+          end;
+        end
+        else
+        begin
+          if SelecionarOperacao then
+          begin
+            if qryListaOperacaoLiberadatipooperacao.AsString = 'FECHAMENTO' then
+            begin
+              if PosicionarOperacoesOSPUsuarioAguardandoFechamento then
+              begin
+                StatusCadastro := FinalizandoOperacao;
+                qryOperacoesOSPUsuario.ReadOnly := false;
+                qryOperacoesOSPUsuarioquantidade.ReadOnly := false;
+                qryOperacoesOSPUsuario.Edit;
+                //          qryOperacoesOSPUsuarioquantidade.AsInteger := qryOperacoesOSPSaldoFaltanteProducao.AsInteger;
+                qryOperacoesOSPUsuariodatatermino.Asdatetime := dataatual;
+                qryOperacoesOSPUsuariotermino.AsString := FormatDateTime('HH:MM',Now);
+
+//                if qryOperacoesOSPUsuariousuario.AsInteger <> qryUsuarioscodigo.asinteger then
+                qryOperacoesOSPUsuariousuariotermino.AsInteger := qryUsuarioscodigo.asinteger;
+                qryOperacoesOSPUsuariousuariofechamentovalidado.AsBoolean := True;
+
+                qryOperacoesOSPUsuarioFalhas.RequestLive := true;
+                qryOperacoesOSPUsuariotermino.FocusControl;
+                if FinalizarOperacao then
+                begin
+                  if Gravardados then
+                  begin
+                    SelecionarCampoOSP(self);
+
+                    MarcarOperacaoemAndamento(true);
+                    IncluirOperacoesOSP;
+                  end;
+                end
+                else
+                  SelecionarCampoOSP(self);
+              end;
+            end
+            else
+            begin
+              if (qryOperacoesOSPhabilitadosetup.AsBoolean or not
+                  qryOperacoesOSPsetup.AsBoolean) or
+
+                 (not qryOperacoesOSPhabilitadosetup.AsBoolean and
+                  qryOperacoesOSPsetup.AsBoolean and selecionarUsuarioSetup) then
+              begin
+                IniciarOperacao;
+                if Gravardados then
+                begin
+                  ImprimirProcessos;
+                  SelecionarCampoOSP(self);
+                  MarcarOperacaoemAndamento(true);
+                  IncluirOperacoesOSP;
+                end;
+              end;
+            end;
+          end
+          else
+          begin
+            if qryListaOperacaoLiberada.RecordCount = 0 then
+            begin
+              MensagemErro(format('O usuário ''%s'' não está habilitado para a operação ''%s''.',
+                             [inttostr(qryUsuarioscodigo.asinteger)+' - '+
+                              qryUsuariosnome.asstring,
+
+                              trim(qryOperacoesOSPnome.asstring+ ' '+
+                                   qryOperacoesOSPc01.asstring+ ' '+
+                                   qryOperacoesOSPc02.asstring+ ' '+
+                                   qryOperacoesOSPc03.asstring) ]));
+              SelecionarCampoOSP(self);
+              IncluirOperacoesOSP;
+            end;
+          end;
+        end;
+      end;
+
+      GerenteProducao:
+      begin
+        SetarSomenteLeitura(false);
+        qryOperacoesOSPAfterScroll(nil);
+        qryOperacoesOSPUsuarioAfterScroll(nil);
+      end;
+    end;
+  end;
+  IncluindoCodigoUsuario := false;
+end;
+
+procedure TdtmOperacoesOSP.qryOperacoesOSPUsuarioAfterInsert(
+  DataSet: TDataSet);
+begin
+  inherited;
+  case TipoLogin of
+    Operador: begin
+                if (qryOperacoesOSPoperacaoliberada.AsBoolean and
+                    qryOperacoesOSPoperacaoemandamento.AsBoolean) or
+                   not qryOperacoesOSPoperacaoliberada.AsBoolean then
+                 qryOperacoesOSPUsuario.Cancel;
+              end;
+    GerenteProducao: EditarOSP;
+  end;
+end;
+
+procedure TdtmOperacoesOSP.EditarOSP;
+begin
+  if not (qryOSPLotes.State in [dsedit, dsinsert]) then
+    qryOSPLotes.Edit;
+end;
+
+procedure TdtmOperacoesOSP.qryOperacoesOSPUsuarioAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  case TipoLogin of
+    GerenteProducao: EditarOSP;
+  end;
+  CalcularQuantidades;  
+end;
+
+procedure TdtmOperacoesOSP.qryOperacoesOSPUsuarioAfterEdit(
+  DataSet: TDataSet);
+begin
+  inherited;
+  case TipoLogin of
+    GerenteProducao: EditarOSP;
+  end;
+end;
+
+procedure TdtmOperacoesOSP.qryOSPLotesAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  SelecionarCampoOSP(nil);
+  qryOperacoesOSP.AfterScroll := nil;
+  RefazConsultaPorNome(qryClientesProdutos,['cliente','produto'],
+                        [qryOSPLotescliente.AsVariant,qryOSPLotesproduto.AsVariant]);
+
+  RefazConsultaPorNome(qryOperacoesOSP,['osp', 'lote'],[qryOSPLotesosp.Asinteger, qryOSPLotesnumero.Asinteger]);
+  if qryOperacoesOSP.IsEmpty then
+  begin
+    qryOperacoesOSP.DisableControls;
+    RefazConsultaPorNome(qryFluxoGramasOperacoes,['numero'],[qryOSPLotesosp.Asinteger]);
+    ListaUsuariosTerminoAberto := '0';
+    ListaFalhas := '0';
+    qryFluxoGramasOperacoes.First;
+    while not qryFluxoGramasOperacoes.Eof do
+    begin
+      qryOperacoesOSP.Append;
+      qryOperacoesOSPosp.AsInteger := qryOSPLotesosp.AsVariant;
+      qryOperacoesOSPlote.AsInteger := qryOSPLotesnumero.AsVariant;
+      qryOperacoesOSPoperacao.AsInteger := qryFluxoGramasOperacoesoperacao.AsVariant;
+      qryOperacoesOSPsequencia.AsString := qryFluxoGramasOperacoessequencia.AsString;
+      qryOperacoesOSPnome.AsString := qryFluxoGramasOperacoesnome.AsString;
+      qryOperacoesOSPc01.AsString := qryFluxoGramasOperacoesc01.AsString;
+      qryOperacoesOSPc02.AsString := qryFluxoGramasOperacoesc02.AsString;
+      qryOperacoesOSPc03.AsString := qryFluxoGramasOperacoesc03.AsString;
+      qryOperacoesOSPtempopadrao.AsFloat := qryFluxoGramasOperacoestempopadrao.AsFloat;
+      qryOperacoesOSPtipooperacao.AsString := qryFluxoGramasOperacoestipooperacao.AsString;
+      qryOperacoesOSPorigemoperacaoalternativa.AsString := qryFluxoGramasOperacoesorigemoperacaoalternativa.AsString;
+      qryOperacoesOSPoperacaoemandamento.AsBoolean := false;
+      qryOperacoesOSPoperacaoemandamento_complementar.AsBoolean := false;
+
+      qryOperacoesOSPselecionada.AsBoolean := qryFluxoGramasOperacoestipooperacao.AsString = 'N';
+      qryOperacoesOSPsetup.AsBoolean := qryFluxoGramasOperacoessetup.AsBoolean;
+      qryOperacoesOSPplanocontrole.AsBoolean := qryFluxoGramasOperacoesplanocontrole.AsBoolean;
+      qryOperacoesOSPnaobloqueiausuario.AsBoolean := qryFluxoGramasOperacoesnaobloqueiausuario.AsBoolean;
+      qryOperacoesOSP.Post;
+
+      if qryFluxoGramasOperacoestipooperacao.AsString = 'A' then
+      begin
+       if qryoperacoesosp.Locate('operacao',qryFluxoGramasOperacoesorigemoperacaoalternativa.AsString,[]) then
+       begin
+         qryOperacoesOSP.AfterPost := nil;
+         qryOperacoesOSP.Edit;
+         qryOperacoesOSPtipooperacao.asstring := 'A';
+         qryOperacoesOSP.Post;
+         qryOperacoesOSP.AfterPost := qryOperacoesOSPAfterPost;
+       end;
+      end;
+
+      qryFluxoGramasOperacoes.Next;
+    end;
+    qryOperacoesOSP.EnableControls;
+    qryoperacoesosp.First;
+  end;
+
+  RefazConsultaPorNome(qryOperacoesOSPUsuario,
+                       ['OSP', 'Lote'],
+                       [qryOSPLotesosp.Asinteger, qryOSPLotesnumero.Asinteger]);
+
+  RefazConsultaPorNome(qryOperacoesOSPUsuarioFalhas,
+                       ['OSP', 'Lote'],
+                       [qryOSPLotesosp.Asinteger, qryOSPLotesnumero.Asinteger]);
+
+  RefazConsultaPorNome(qryOperacoesOSPUsuarioParadas,
+                       ['OSP', 'Lote'],
+                       [qryOSPLotesosp.Asinteger, qryOSPLotesnumero.Asinteger]);
+
+  RefazConsultaPorNome(qryMovimentos,
+                       ['OSP', 'Lote'],
+                       [qryOSPLotesosp.Asinteger, qryOSPLotesnumero.Asinteger]);
+
+  MarcarOperacaoemAndamento;
+
+  qryOperacoesOSP.AfterScroll := qryOperacoesOSPAfterScroll;
+  qryOperacoesOSPAfterScroll(nil);
+
+  dtmOperacoesOSP.TempoAbrirJanela := now();
+
+
+
+end;
+
+function TdtmOperacoesOSP.GravarOperacoesOSPUsuarioFalhas: Boolean;
+begin
+  result := true;
+  if (qryOperacoesOSPUsuarioFalhas.State in [dsedit, dsinsert]) then
+  begin
+    result := qryOperacoesOSPUsuarioFalhas.CheckRequiredFields;
+    if result then
+      qryOperacoesOSPUsuarioFalhas.Post;
+  end;
+end;
+
+procedure TdtmOperacoesOSP.IniciarOperacao;
+begin
+  SelecionarCampoUsuario(self);
+  qryOperacoesOSPUsuario.Requestlive := true;
+  qryOperacoesOSPUsuariousuario.ReadOnly := true;
+  qryOperacoesOSPUsuarioquantidade.ReadOnly := true;
+  qryOperacoesOSPUsuario.AfterInsert := nil;
+  qryOperacoesOSPUsuario.append;
+  qryOperacoesOSPUsuariousuario.AsInteger := qryUsuarioscodigo.asinteger;
+
+  if qryUsuariosturno.AsInteger <> 0 then
+    qryOperacoesOSPUsuarioturno.AsInteger := qryUsuariosturno.AsInteger
+  else
+    qryOperacoesOSPUsuarioturno.clear;
+
+  if qryOperacoesOSPsetup.AsBoolean then
+  begin
+    if qryOperacoesOSPhabilitadosetup.AsBoolean then
+    begin
+      qryOperacoesOSPUsuariousuariosetup.AsInteger := qryUsuarioscodigo.asinteger;
+      qryOperacoesOSPUsuarionomeusuariosetup.AsString := qryUsuariosnome.AsString;
+    end
+    else
+    begin
+      qryOperacoesOSPUsuariousuariosetup.AsInteger := qryUsuariosHabilitadosSetupusuario.asinteger;
+      qryOperacoesOSPUsuarionomeusuariosetup.AsString := qryUsuariosHabilitadosSetupnome.asString;
+    end;
+  end;
+
+  qryOperacoesOSPUsuarionome.AsString := qryUsuariosnome.asstring;
+  qryOperacoesOSPUsuariousuariovalidado.AsBoolean := true;
+  qryOperacoesOSPUsuariousuariosetupvalidado.AsBoolean := true;
+
+  qryOperacoesOSPUsuario.AfterInsert := qryOperacoesOSPUsuarioAfterInsert;
+  EditarOSP;
+end;
+
+procedure TdtmOperacoesOSP.qryOSPLotesBeforeOpen(DataSet: TDataSet);
+begin
+  inherited;
+  if qryOSPLotes.ParamByName('campo').IsNull then
+    qryOSPLotes.ParamByName('campo').AsInteger := 0;
+
+  if qryOSPLotes.ParamByName('operacao').IsNull then
+    qryOSPLotes.ParamByName('operacao').AsInteger := 0;
+
+end;
+
+procedure TdtmOperacoesOSP.SetarSomenteLeitura(Valor: boolean);
+begin
+  qryOperacoesOSPUsuariousuario.ReadOnly               := valor;
+  qryOperacoesOSPUsuariodata.ReadOnly                  := valor;
+  qryOperacoesOSPUsuarioinicio.ReadOnly                := valor;
+  qryOperacoesOSPUsuariodatatermino.ReadOnly           := valor;
+  qryOperacoesOSPUsuariotermino.ReadOnly               := valor;
+  qryOperacoesOSPUsuarioquantidade.ReadOnly            := valor;
+//  qryOperacoesOSPUsuarioFalhasfalha.ReadOnly           := valor;
+//  qryOperacoesOSPUsuarioFalhasquantidadeperda.ReadOnly := valor;
+end;
+
+procedure TdtmOperacoesOSP.qryOperacoesOSPUsuarioBeforePost(
+  DataSet: TDataSet);
+var
+  NRegistros: integer;
+  
+begin
+  inherited;
+
+  qryOperacoesOSPUsuarioFalhas.First;
+  NRegistros := 0;
+  while not qryOperacoesOSPUsuarioFalhas.Eof do
+  begin
+    NRegistros := qryOperacoesOSPUsuarioFalhas.RecordCount;
+
+    qryOperacoesOSPUsuarioFalhas.AfterPost := nil;
+    qryOperacoesOSPUsuarioFalhas.Edit;
+    qryOperacoesOSPUsuarioFalhasusuario.AsInteger := qryOperacoesOSPUsuariousuario.AsInteger;
+    qryOperacoesOSPUsuarioFalhasdata.AsDateTime := qryOperacoesOSPUsuariodata.AsDateTime;
+    qryOperacoesOSPUsuarioFalhasinicio.AsString := qryOperacoesOSPUsuarioinicio.AsString;
+    qryOperacoesOSPUsuarioFalhas.Post;
+    qryOperacoesOSPUsuarioFalhas.AfterPost := qryOperacoesOSPUsuarioFalhasAfterPost;
+
+    if NRegistros = qryOperacoesOSPUsuarioFalhas.RecordCount then
+      qryOperacoesOSPUsuarioFalhas.Next;
+  end;
+
+
+  qryOperacoesOSPUsuarioParadas.First;
+  NRegistros := 0;
+  while not qryOperacoesOSPUsuarioParadas.Eof do
+  begin
+    NRegistros := qryOperacoesOSPUsuarioParadas.RecordCount;
+
+    qryOperacoesOSPUsuarioParadas.AfterPost := nil;
+    qryOperacoesOSPUsuarioParadas.Edit;
+    qryOperacoesOSPUsuarioParadasusuario.AsInteger := qryOperacoesOSPUsuariousuario.AsInteger;
+    qryOperacoesOSPUsuarioParadasdata.AsDateTime := qryOperacoesOSPUsuariodata.AsDateTime;
+    qryOperacoesOSPUsuarioParadasinicio.AsString := qryOperacoesOSPUsuarioinicio.AsString;
+    qryOperacoesOSPUsuarioParadas.Post;
+    qryOperacoesOSPUsuarioParadas.AfterPost := qryOperacoesOSPUsuarioParadasAfterPost;
+
+    if NRegistros = qryOperacoesOSPUsuarioParadas.RecordCount then
+      qryOperacoesOSPUsuarioParadas.Next;
+  end;
+
+  qryOperacoesOSPUsuariousuariorelacao.AsVariant := qryOperacoesOSPUsuariousuario.AsVariant;
+  qryOperacoesOSPUsuariodatarelacao.AsVariant := qryOperacoesOSPUsuariodata.AsVariant;
+  qryOperacoesOSPUsuarioiniciorelacao.AsVariant := qryOperacoesOSPUsuarioinicio.AsVariant;
+
+
+
+
+
+end;
+
+
+procedure TdtmOperacoesOSP.MarcarOperacaoemAndamento(NaoPosicionar: Boolean = false);
+var
+  vOperacaoOSPAnteriorSemRegistrodeUsuario,
+  vOperacaoOSPUsuarioAnterioremAberto,
+  vExisteOperacaoOSPAnteriorFechada,
+  vExisteOperacaoOSPAnterioremAberto,
+  vVerificarCondicoes, vProsseguir: Boolean;
+
+  vTipoSequenciaAnterior,
+  vProximaOperacaoAnterior: String;
+
+  RegistroAtualUsuario : TBookMark;
+  RegistroAtualOperacao: TBookMark;
+
+
+
+  procedure SetarOperacaoemAndamento;
+  begin
+    qryOperacoesOSP.AfterPost := nil;
+
+    qryOperacoesOSP.Edit;
+    qryOperacoesOSPoperacaoemandamento.AsBoolean := (qryOperacoesOSPSaldoFaltanteProducao.AsInteger > 0);
+    qryOperacoesOSP.Post;
+    qryOperacoesOSP.AfterPost := qryOperacoesOSPAfterPost;
+
+    if qryOperacoesOSPoperacaoemandamento.AsBoolean and
+       qryOperacoesOSPoperacaoliberada.AsBoolean then
+    begin
+      if qryOperacoesOSPnaobloqueiausuario.AsBoolean and
+         PosicionarOperacoesOSPUsuarioAguardandoFechamento then
+      begin
+        qryListaOperacaoLiberada.Append;
+        qryListaOperacaoLiberadaoperacao.AsInteger := qryOperacoesOSPoperacao.AsInteger;
+        qryListaOperacaoLiberadanome.AsString := qryOperacoesOSPnome.AsString;
+        qryListaOperacaoLiberadac1.AsString := qryOperacoesOSPc01.AsString;
+        qryListaOperacaoLiberadac2.AsString := qryOperacoesOSPc02.AsString;
+        qryListaOperacaoLiberadac3.AsString := qryOperacoesOSPc03.AsString;
+        qryListaOperacaoLiberadatipooperacao.AsString := 'FECHAMENTO';
+        qryListaOperacaoLiberada.post;
+      end
+      else
+      begin
+        if qryOperacoesOSPSaldoFaltanteProducao.AsInteger <> 0 then
+        begin
+          qryListaOperacaoLiberada.Append;
+          qryListaOperacaoLiberadaoperacao.AsInteger := qryOperacoesOSPoperacao.AsInteger;
+          qryListaOperacaoLiberadanome.AsString := qryOperacoesOSPnome.AsString;
+          qryListaOperacaoLiberadac1.AsString := qryOperacoesOSPc01.AsString;
+          qryListaOperacaoLiberadac2.AsString := qryOperacoesOSPc02.AsString;
+          qryListaOperacaoLiberadac3.AsString := qryOperacoesOSPc03.AsString;
+          qryListaOperacaoLiberadatipooperacao.AsString := 'ABERTURA';
+          qryListaOperacaoLiberada.post;
+        end;
+      end;
+
+    end;
+  end;
+
+
+  procedure desmarcaroperacoes;
+  begin
+    {Desmarcar as operações em andamento e liberadas}
+    qryOperacoesOSP.AfterPost := nil;
+    qryOperacoesOSP.First;
+    while not qryOperacoesOSP.Eof do
+    begin
+      if qryOperacoesOSPoperacaoemandamento.AsBoolean then
+      begin
+        qryOperacoesOSP.Edit;
+        qryOperacoesOSPoperacaoemandamento.AsBoolean := false;
+        qryOperacoesOSP.Post;
+      end;
+
+      if qryOperacoesOSPoperacaoliberada.AsBoolean then
+      begin
+        qryOperacoesOSP.Edit;
+        qryOperacoesOSPoperacaoliberada.AsBoolean := false;
+        qryOperacoesOSPhabilitadosetup.AsBoolean := false;
+        qryOperacoesOSP.Post;
+      end;
+
+      qryOperacoesOSP.Next;
+    end;
+    qryOperacoesOSP.AfterPost := qryOperacoesOSPAfterPost;
+  end;
+
+  procedure CalcularLimiteQuantidade;
+  var
+   vEncontrouaPrimeira : Boolean;
+   vQuantidadeLimiteAnterior,
+   vProduzidaAnterior,
+   vProduzidaAnteriorComplementarOrigem,
+   vOrigemOperacaoAlternativa : integer;
+
+   vSequenciaOrigem : String;
+
+  begin
+    qryOperacoesOSP.AfterPost := nil;
+    qryOperacoesOSP.First;
+    vEncontrouaPrimeira := false;
+    while not qryOperacoesOSP.Eof do
+    begin
+      if qryOperacoesOSPselecionada.AsBoolean then
+      begin
+        if not vEncontrouaPrimeira then
+        begin
+          qryOperacoesOSP.Edit;
+          qryOperacoesOSPheaprimeiraoperacao.AsBoolean := true;
+          qryOperacoesOSPquantidadelimite.AsInteger   := qryOSPLotesquantidadelote.AsInteger + qryOSPLotesexcedentelote.AsInteger;
+          qryOperacoesOSPquantidadeanterior.AsInteger := qryOSPLotesquantidadelote.AsInteger + qryOSPLotesexcedentelote.AsInteger;
+          qryOperacoesOSP.Post;
+          vEncontrouaPrimeira := true;
+        end
+        else
+        begin
+          qryOperacoesOSP.Edit;
+          qryOperacoesOSPheaprimeiraoperacao.AsBoolean := false;
+          qryOperacoesOSPquantidadelimite.AsInteger := vQuantidadeLimiteAnterior;
+          qryOperacoesOSPquantidadeanterior.AsInteger := vProduzidaAnterior;
+
+
+          if  qryOperacoesOSPorigemoperacaoalternativa.IsNull and
+             (qryOperacoesOSPtipooperacao.AsString = 'C') then
+          begin
+            vOrigemOperacaoAlternativa := qryOperacoesOSPoperacao.AsInteger;
+            vSequenciaOrigem := qryOperacoesOSPsequencia.AsString;
+
+            vProduzidaAnteriorComplementarOrigem :=  vProduzidaAnterior;
+            vSequenciaOrigem := qryOperacoesOSPsequencia.AsString
+          end
+          else
+          if  not qryOperacoesOSPorigemoperacaoalternativa.IsNull and
+             (qryOperacoesOSPtipooperacao.AsString = 'C') and
+             (vSequenciaOrigem+'.1' = qryOperacoesOSPsequencia.AsString) then
+
+            qryOperacoesOSPquantidadeanteriorcomplementar.AsInteger :=vProduzidaAnteriorComplementarOrigem
+          else
+            vProduzidaAnteriorComplementarOrigem := 0;
+
+
+          qryOperacoesOSP.Post;
+
+        end;
+
+        vProduzidaAnterior := qryOperacoesOSPquantidade.AsInteger;
+
+        if (qryOperacoesOSPquantidade.AsInteger + qryOperacoesOSPquantidadecomperda.AsInteger) >  qryOperacoesOSPquantidadelimite.AsInteger then
+           vQuantidadeLimiteAnterior := qryOperacoesOSPquantidade.AsInteger + qryOperacoesOSPquantidadecomperda.AsInteger
+        else
+           vQuantidadeLimiteAnterior :=  qryOperacoesOSPquantidadelimite.AsInteger;
+
+
+      end;
+      qryOperacoesOSP.Next;
+
+    end;
+    qryOperacoesOSP.AfterPost := qryOperacoesOSPAfterPost;
+  end;
+
+
+  procedure SetarOperacaoLiberada;
+  begin
+    qryOperacoesOSP.AfterPost := nil;
+    case  TipoLogin of
+      operador:
+      begin
+        RefazConsultaPorNome(qryUsuarioOperacoesProducao,
+                             ['operacao','usuario'],
+                             [qryOperacoesOSPoperacao.AsVariant,
+                              qryUsuarioscodigo.asinteger]);
+
+        if qryUsuarioOperacoesProducao.RecordCount<>0 then
+        begin
+          if not qryOperacoesOSPoperacaoliberada.AsBoolean then
+          begin
+            qryOperacoesOSP.Edit;
+            qryOperacoesOSPoperacaoliberada.AsBoolean := true;
+            qryOperacoesOSPhabilitadosetup.AsBoolean := qryUsuarioOperacoesProducaohabilitadosetup.AsBoolean;
+//            qryOperacoesOSPhabilitadosetup.AsBoolean := qryUsuarioOperacoesProducaohabilitadosetup.AsBoolean;
+
+            qryOperacoesOSP.Post;
+          end;
+        end
+        else
+        begin
+          if qryOperacoesOSPoperacaoliberada.AsBoolean then
+          begin
+            qryOperacoesOSP.Edit;
+            qryOperacoesOSPoperacaoliberada.AsBoolean := false;
+            qryOperacoesOSPhabilitadosetup.AsBoolean := false;
+            qryOperacoesOSP.Post;
+          end;
+        end;
+
+      end;
+
+      GerenteProducao:
+      begin
+        if not qryOperacoesOSPoperacaoliberada.AsBoolean then
+        begin
+          qryOperacoesOSP.Edit;
+          qryOperacoesOSPoperacaoliberada.AsBoolean := true;
+          qryOperacoesOSPhabilitadosetup.AsBoolean := true;
+          qryOperacoesOSP.Post;
+        end;
+      end;
+
+      NaoInformado:
+      begin
+        if qryOperacoesOSPoperacaoliberada.AsBoolean then
+        begin
+          qryOperacoesOSP.Edit;
+          qryOperacoesOSPoperacaoliberada.AsBoolean := false;
+          qryOperacoesOSPhabilitadosetup.AsBoolean := false;
+          qryOperacoesOSP.Post;
+        end;
+      end;
+    end;
+    qryOperacoesOSP.AfterPost := qryOperacoesOSPAfterPost;
+  end;
+
+begin
+
+  qryOperacoesOSP.AfterScroll := nil;
+
+  vOperacaoOSPAnteriorSemRegistrodeUsuario := false;
+  vOperacaoOSPUsuarioAnterioremAberto := false;
+  vExisteOperacaoOSPAnteriorFechada := false;
+  vExisteOperacaoOSPAnterioremAberto := false;
+  vVerificarCondicoes := false;
+
+  qryListaOperacaoLiberada.Close;
+  qryListaOperacaoLiberada.open;
+  qryListaOperacaoLiberada.delete;
+
+
+  RegistroAtualOperacao := qryOperacoesOSP.GetBookmark;
+  RegistroAtualUsuario := qryOperacoesOSPUsuario.GetBookmark;
+
+  desmarcaroperacoes;
+
+  CalcularLimiteQuantidade;
+
+  qryOperacoesOSP.First;
+  while not qryOperacoesOSP.Eof do
+  begin
+    SetarOperacaoLiberada;
+    qryOperacoesOSP.next;
+  end;
+
+  qryOperacoesOSP.First;
+  while not qryOperacoesOSP.Eof do
+  begin
+    if not vVerificarCondicoes then
+    begin
+      vVerificarCondicoes := true;
+      vProsseguir := true;
+    end
+    else
+    begin
+      if vOperacaoOSPAnteriorSemRegistrodeUsuario then
+        vProsseguir := false
+      else
+      case tipologin of
+      Operador:
+        begin
+          if vOperacaoOSPUsuarioAnterioremAberto then {Considerar 1. esta}
+            vProsseguir := false
+          else
+          if vExisteOperacaoOSPAnteriorFechada then
+          begin
+            vProsseguir := true;
+            vExisteOperacaoOSPAnteriorFechada := false;
+          end
+          else
+          if vExisteOperacaoOSPAnterioremAberto then
+          begin
+            if not qryOperacoesOSPorigemoperacaoalternativa.IsNull and
+               (qryOperacoesOSPtipooperacao.AsString = 'C') then
+              vProsseguir := true
+            else
+            begin
+              vProsseguir := false;
+              qryOperacoesOSP.Prior;
+            end;
+          end
+        end;
+      NaoInformado, GerenteProducao:
+        begin
+          if vExisteOperacaoOSPAnteriorFechada then   {Considerar 1. esta}
+          begin
+            vProsseguir := true;
+            vExisteOperacaoOSPAnteriorFechada := false;
+          end
+          else
+          if vExisteOperacaoOSPAnterioremAberto then
+          begin
+            if not qryOperacoesOSPorigemoperacaoalternativa.IsNull and
+               (qryOperacoesOSPtipooperacao.AsString = 'C') then
+              vProsseguir := true
+            else
+            begin
+              vProsseguir := false;
+              qryOperacoesOSP.Prior;
+            end;
+          end;
+        end;
+      end;
+    end;
+
+    if vProsseguir then
+    begin
+
+      vProsseguir := false;
+      SetarOperacaoemAndamento;
+
+      qryOperacoesOSPUsuario.First;
+      if qryOperacoesOSPUsuario.IsEmpty then
+        vOperacaoOSPAnteriorSemRegistrodeUsuario := true
+      else
+      begin
+        case TipoLogin of
+        Operador:
+          begin
+            while not qryOperacoesOSPUsuario.Eof do
+            begin
+              if  (qryOperacoesOSPUsuariotermino.IsNull) and
+                 (qryOperacoesOSPUsuariousuario.AsInteger = qryUsuarioscodigo.asinteger) and
+                 not qryOperacoesOSPnaobloqueiausuario.AsBoolean then
+              begin
+                vOperacaoOSPUsuarioAnterioremAberto := true;
+                break;
+              end
+              else
+              if not qryOperacoesOSPUsuariotermino.IsNull and
+                 not vExisteOperacaoOSPAnteriorFechada then
+                vExisteOperacaoOSPAnteriorFechada := true
+              else
+              if qryOperacoesOSPUsuariotermino.IsNull and
+                  not vExisteOperacaoOSPAnterioremAberto then
+                vExisteOperacaoOSPAnterioremAberto := true;
+
+              qryOperacoesOSPUsuario.Next;
+            end;
+          end;
+
+          NaoInformado, GerenteProducao:
+          begin
+            while not qryOperacoesOSPUsuario.Eof do
+            begin
+              if (qryOperacoesOSPUsuariotermino.IsNull) and
+                 not vExisteOperacaoOSPAnterioremAberto then
+                vExisteOperacaoOSPAnterioremAberto := true
+              else
+              if not qryOperacoesOSPUsuariotermino.IsNull and
+                 not vExisteOperacaoOSPAnteriorFechada then
+              begin
+                vExisteOperacaoOSPAnteriorFechada := true;
+                break;
+              end;
+              qryOperacoesOSPUsuario.Next;
+            end;
+          end;
+
+        end;
+      end;
+
+      if ((TipoLogin = Operador) and  (vOperacaoOSPUsuarioAnterioremAberto or
+         (vExisteOperacaoOSPAnterioremAberto and not vExisteOperacaoOSPAnteriorFechada))) or
+         vOperacaoOSPAnteriorSemRegistrodeUsuario then
+          break
+      else
+      begin
+        qryOperacoesOSP.Next;
+        vProsseguir := false;
+      end;
+    end
+    else
+      break;
+  end;
+
+  if NaoPosicionar then
+  begin
+    qryOperacoesOSP.GotoBookmark(RegistroAtualOperacao);
+    qryOperacoesOSPUsuario.GotoBookmark(RegistroAtualUsuario);
+  end;
+  qryOperacoesOSP.FreeBookmark(RegistroAtualOperacao);
+  qryOperacoesOSPUsuario.FreeBookmark(RegistroAtualUsuario);
+
+  qryOperacoesOSP.AfterScroll := qryOperacoesOSPAfterScroll;
+
+end;
+
+
+procedure TdtmOperacoesOSP.qryOperacoesOSPFilterRecord(DataSet: TDataSet;
+  var Accept: Boolean);
+begin
+  inherited;
+  Accept := qryOperacoesOSPselecionada.AsBoolean;
+end;
+
+procedure TdtmOperacoesOSP.qryOperacoesOSPCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  if {qryOperacoesOSPpossuialternativa.AsBoolean or} (qryOperacoesOSPtipooperacao.AsString = 'A') then
+    qryOperacoesOSPalternativa.AsString := 'A'
+  else
+  if {qryOperacoesOSPpossuicomplementar.AsBoolean or} (qryOperacoesOSPtipooperacao.AsString = 'C') then
+    qryOperacoesOSPalternativa.AsString := 'C'
+  else
+    qryOperacoesOSPalternativa.AsString := '';
+
+{
+  qryOperacoesOSPSaldoFaltante.AsInteger := (qryOSPLotesquantidadelote.AsInteger +
+                                             qryOSPLotesexcedentelote.AsInteger) -
+                                            (qryOperacoesOSPquantidade.AsInteger +
+                                             qryOperacoesOSPquantidadeperda.AsInteger);
+}
+
+
+  qryOperacoesOSPSaldoFaltanteGeral.AsInteger := qryOperacoesOSPquantidadelimite.AsInteger -
+                                            (qryOperacoesOSPquantidade.AsInteger +
+                                             qryOperacoesOSPquantidadecomperda.AsInteger);
+
+  qryOperacoesOSPSaldoFaltanteProducao.AsInteger := qryOperacoesOSPquantidadeanterior.AsInteger +
+                                                    qryOperacoesOSPquantidadeanteriorcomplementar.AsInteger  -
+
+                                            (qryOperacoesOSPquantidade.AsInteger +
+                                             qryOperacoesOSPquantidadecomperda.AsInteger {+
+
+                                             qryOperacoesOSPquantidadecomplementar.AsInteger +
+                                             qryOperacoesOSPquantidadecomperdacomplementar.AsInteger}
+
+                                             );
+
+
+
+end;
+
+procedure TdtmOperacoesOSP.DefinirAlternativas;
+var
+  vOrigemOperacaoAlternativa, vOperacao : String;
+begin
+
+  vOrigemOperacaoAlternativa := '';
+  vOperacao := '';
+
+  if TipoLogin = GerenteProducao then
+  begin
+    if qryOperacoesOSPalternativa.AsString = 'A' then
+    begin
+      if not ExisteOperacoesOSPUsuarios then
+      begin
+        vOrigemOperacaoAlternativa := IfThen(not qryOperacoesOSPorigemoperacaoalternativa.IsNull,qryOperacoesOSPorigemoperacaoalternativa.asstring,'');
+        vOperacao := IfThen(qryOperacoesOSPorigemoperacaoalternativa.IsNull,qryOperacoesOSPoperacao.asstring,'');
+        if vOperacao <> '' then
+        begin
+          qryOperacoesOSP.Edit;
+          qryOperacoesOSPselecionada.AsBoolean := false;
+          qryOperacoesOSP.Post;
+
+          qryoperacoesosp.Filtered := false;
+          if qryoperacoesosp.Locate('origemoperacaoalternativa',vOperacao,[]) then
+          begin
+            while (qryOperacoesOSPorigemoperacaoalternativa.AsString = vOperacao) and
+                  not qryOperacoesOSP.Eof do
+            begin
+              qryOperacoesOSP.Edit;
+              qryOperacoesOSPselecionada.AsBoolean := true;
+              qryOperacoesOSP.Post;
+
+              qryOperacoesOSP.Next;
+            end;
+          end;
+
+          qryOperacoesOSP.Filtered := true;
+          qryoperacoesosp.Locate('origemoperacaoalternativa',vOperacao,[]);
+
+        end
+        else
+          if vOrigemOperacaoAlternativa <> '' then
+          begin
+            qryoperacoesosp.Filtered := false;
+            if qryoperacoesosp.Locate('origemoperacaoalternativa',vOrigemOperacaoAlternativa,[]) then
+            begin
+              while (qryOperacoesOSPorigemoperacaoalternativa.AsString = vOrigemOperacaoAlternativa) and
+                    not qryOperacoesOSP.Eof do
+              begin
+                qryOperacoesOSP.Edit;
+                qryOperacoesOSPselecionada.AsBoolean := false;
+                qryOperacoesOSP.Post;
+
+                qryOperacoesOSP.Next;
+              end;
+
+            end;
+            if qryoperacoesosp.Locate('operacao',vOrigemOperacaoAlternativa,[]) then
+            begin
+              qryOperacoesOSP.Edit;
+              qryOperacoesOSPselecionada.AsBoolean := true;
+              qryOperacoesOSP.Post;
+            end;
+            qryOperacoesOSP.Filtered := true;
+            qryoperacoesosp.Locate('operacao',vOrigemOperacaoAlternativa,[]);
+
+          end;
+      end
+      else
+        MensagemAviso('A operação já possui movimentação e não pode ser trocada.');
+
+    end;
+  end;
+end;
+
+function TdtmOperacoesOSP.ExisteOperacoesOSPUsuarios: boolean;
+var
+  RegistroAtual: TBookmark;
+  vOrigemOperacaoAlternativa : String;
+begin
+  result := false;
+  RegistroAtual := qryOperacoesOSP.GetBookmark;
+  try
+    if qryOperacoesOSPorigemoperacaoalternativa.IsNull then
+      result := not qryOperacoesOSPUsuario.IsEmpty
+    else
+    begin
+      vOrigemOperacaoAlternativa := qryOperacoesOSPorigemoperacaoalternativa.asString;
+      if qryOperacoesOSP.Locate('origemoperacaoalternativa',vOrigemOperacaoAlternativa,[]) then
+      begin
+        while (qryOperacoesOSPorigemoperacaoalternativa.AsString = vOrigemOperacaoAlternativa) and not
+              qryOperacoesOSP.Eof do
+        begin
+          if not qryOperacoesOSPUsuario.IsEmpty then
+          begin
+            result := true;
+            break;
+          end
+          else
+            qryOperacoesOSP.Next;
+        end;
+      end;
+    end;
+  finally
+    qryOperacoesOSP.GotoBookmark(RegistroAtual);
+    qryOperacoesOSP.FreeBookmark(RegistroAtual);
+  end;
+end;
+
+procedure TdtmOperacoesOSP.qryOperacoesOSPAfterPost(DataSet: TDataSet);
+begin
+  inherited;
+  if TipoLogin = GerenteProducao then
+    qryospLotes.Edit;
+end;
+
+procedure TdtmOperacoesOSP.CalcularQuantidades;
+var
+  vQuantidade, vQuantidadeComPerdaTotal, vQuantidadeSemPerdaTotal : integer;
+  RegistroAtual : TBookMark;
+begin
+  RegistroAtual := qryOperacoesOSPUsuario.GetBookmark;
+  try
+    vQuantidade := 0;
+    vQuantidadeComPerdaTotal := 0;
+    vQuantidadeSemPerdaTotal := 0;
+
+    qryOperacoesOSPUsuario.First;
+    while not qryOperacoesOSPUsuario.Eof do
+    begin
+      vQuantidade := vQuantidade + qryOperacoesOSPUsuarioquantidade.AsInteger - qryOperacoesOSPUsuarioretrabalho.AsInteger;
+
+      qryOperacoesOSPUsuarioFalhas.First;
+      while not qryOperacoesOSPUsuarioFalhas.Eof do
+      begin
+        if qryOperacoesOSPUsuarioFalhasperdatotal.AsBoolean then
+          vQuantidadeComPerdaTotal := vQuantidadeComPerdaTotal + qryOperacoesOSPUsuarioFalhasquantidadeperda.AsInteger
+        else
+          vQuantidadeSemPerdaTotal := vQuantidadeSemPerdaTotal + qryOperacoesOSPUsuarioFalhasquantidadeperda.AsInteger;
+
+        qryOperacoesOSPUsuarioFalhas.next;
+      end;
+
+      qryOperacoesOSPUsuario.next;
+    end;
+
+    if (qryOperacoesOSPquantidade.AsInteger <> vQuantidade) or
+       (qryOperacoesOSPquantidadecomperda.AsInteger <> vQuantidadeComPerdaTotal) or
+       (qryOperacoesOSPquantidadesemperda.AsInteger <> vQuantidadeSemPerdaTotal) then
+    begin
+      qryOperacoesOSP.AfterPost := nil;
+      qryOperacoesOSP.Edit;
+      qryOperacoesOSPquantidade.AsInteger := vQuantidade;
+      qryOperacoesOSPquantidadecomperda.AsInteger := vQuantidadeComPerdaTotal;
+      qryOperacoesOSPquantidadeSemperda.AsInteger := vQuantidadeSemPerdaTotal;
+      qryOperacoesOSP.Post;
+      qryOperacoesOSP.AfterPost := qryOperacoesOSPAfterPost;
+    end;
+
+  finally
+    qryOperacoesOSPUsuario.GotoBookmark(RegistroAtual);
+    qryOperacoesOSPUsuario.FreeBookmark(RegistroAtual);
+  end;
+end;
+
+function TdtmOperacoesOSP.SelecionarOperacao: Boolean;
+begin
+  result := qryListaOperacaoLiberada.RecordCount <> 0 ;
+
+  if result then
+  begin
+    frmListaOperacoesUsuario := TfrmListaOperacoesUsuario.Create(frmListaOperacoesUsuario);
+    Result := frmListaOperacoesUsuario.ShowModal = mrOK;
+    if result then
+    begin
+      if qryOperacoesOSPoperacao.AsInteger <> qryListaOperacaoLiberadaoperacao.AsInteger then
+        qryOperacoesOSP.Locate('operacao', qryListaOperacaoLiberadaoperacao.AsInteger,[])
+    end;
+
+    frmListaOperacoesUsuario.free;
+    RestaurarFoco;
+  end;
+end;
+
+function TdtmOperacoesOSP.FinalizarOperacao: Boolean;
+begin
+  RefazConsultaPorNome(qryListaFalhas,['operacao'],[qryOperacoesOSPoperacao.AsVariant]);
+  frmFechamentoOperacoesUsuario := TfrmFechamentoOperacoesUsuario.Create(frmFechamentoOperacoesUsuario);
+  Result := frmFechamentoOperacoesUsuario.ShowModal = mrOK;
+  if result then
+  begin
+    if qryOperacoesOSPUsuarioquantidade.AsInteger <> 0 then
+    begin
+      qryOperacoesOSPUsuariodatatermino.Asdatetime := dataatual;
+      qryOperacoesOSPUsuariotermino.AsString := frmFechamentoOperacoesUsuario.lblHoraTermino.Caption;
+      qryOperacoesOSPUsuario.Post;
+
+      qryListaFalhas.First;
+      while not qryListaFalhas.Eof do
+      begin
+        if qryListaFalhasquantidade.AsInteger <> 0 then
+        begin
+          qryOperacoesOSPUsuarioFalhas.Append;
+          qryOperacoesOSPUsuarioFalhasfalha.AsInteger := qryListaFalhascodigo.AsInteger;
+          qryOperacoesOSPUsuarioFalhasdescricao.AsString := qryListaFalhasdescricao.AsString;
+          qryOperacoesOSPUsuarioFalhasquantidadeperda.AsInteger := qryListaFalhasquantidade.AsInteger;
+          qryOperacoesOSPUsuarioFalhasperdatotal.AsBoolean := qryListaFalhasperdatotal.AsBoolean;
+          qryOperacoesOSPUsuarioFalhasfalhavalidada.AsBoolean := true;
+          qryOperacoesOSPUsuarioFalhas.post;
+        end;
+        qryListaFalhas.Next;
+      end;
+
+      
+
+    end
+    else
+    begin
+      result := false;
+      qryOperacoesOSPUsuarioquantidade.clear;
+      qryOperacoesOSPUsuariotermino.Clear;
+      qryOperacoesOSPUsuariodatatermino.Clear;
+    end;
+
+  end
+  else
+    qryOperacoesOSPUsuario.Cancel;
+  frmFechamentoOperacoesUsuario.free;
+  RestaurarFoco;
+end;
+
+procedure TdtmOperacoesOSP.qryListaFalhasAfterInsert(DataSet: TDataSet);
+begin
+  inherited;
+  qryListaFalhas.Cancel;
+end;
+
+function TdtmOperacoesOSP.SelecionarImpressora: String;
+begin
+  result := '';
+  frmSelecionarImpressoras := TfrmSelecionarImpressoras.Create(frmSelecionarImpressoras, ' ');
+  try
+    if frmSelecionarImpressoras.ShowModal = mrok then
+      result := frmSelecionarImpressoras.NomeImpressora
+    else
+      MensagemAviso(ctSELECIONARIMPRESSORA);
+  finally
+    frmSelecionarImpressoras.Free;
+  end;
+end;
+
+
+function TdtmOperacoesOSP.ImprimirProcessos: boolean;
+var
+  vImprimiuSetup, vImprimiuControle   : Boolean;
+  vImpressora : String;
+begin
+  result := false;
+  vImprimiuSetup := false;
+  vImprimiuControle := false;
+
+  vImpressora := '';
+
+  if qryOperacoesOSPsetup.AsBoolean or qryOperacoesOSPplanocontrole.AsBoolean then
+  begin
+    dtmImprimeOsp := TdtmImprimeOsp.Create(Self);
+
+    try
+
+      if qryOperacoesOSPsetup.AsBoolean and (result or not vImprimiuSetup) then
+      begin
+        if MensagemSimNaoOpcaoCancelar(Format(ctMENSAGEMIMPRIMIR,['o SET-UP DA OPERAÇÃO']),'',false) = mryes then
+        begin
+          if ParSistema.NomeImpressoraSetupProcesso='' then
+            vImpressora := SelecionarImpressora
+           else
+            vImpressora := ParSistema.NomeImpressoraSetupProcesso;
+
+          if vImpressora <> '' then
+          begin
+
+            if dtmImprimeOsp.ImpressaoSetup(qryOSPLotesosp.asinteger, qryOSPLotesnumero.AsInteger,
+                                            qryOperacoesOSPoperacao.AsInteger,
+                                            qryOperacoesOSPUsuariousuariosetup.AsInteger,
+                                            qryOperacoesOSPUsuarionomeusuariosetup.AsString,
+                                            vImpressora) then
+            begin
+              result := true;
+              vImprimiuSetup := true;
+            end
+            else
+              result := false;
+
+          end;
+        end;
+      end;
+
+      if qryOperacoesOSPplanocontrole.AsBoolean and (result or not vImprimiuControle) then
+      begin
+
+        if MensagemSimNaoOpcaoCancelar(Format(ctMENSAGEMIMPRIMIR,['o CONTROLE DA OPERAÇÃO']),'',false) = mryes then
+        begin
+          if ParSistema.NomeImpressoraControleProcesso='' then
+            vImpressora := SelecionarImpressora
+          else
+            vImpressora := ParSistema.NomeImpressoraSetupProcesso;
+
+          if vImpressora <> '' then
+          begin
+
+            if dtmImprimeOsp.ImpressaoControleProcesso(qryOSPLotesosp.asinteger, qryOSPLotesnumero.AsInteger, qryOperacoesOSPoperacao.AsInteger,
+                                                       qryOperacoesOSPUsuariousuariosetup.AsInteger,
+                                                       qryOperacoesOSPUsuarionomeusuariosetup.AsString, vImpressora) then
+            begin
+              result := true;
+              vImprimiuControle := true;
+            end
+            else
+              result := false;
+          end;
+        end;
+      end;
+    finally
+      dtmImprimeOsp.Free;
+      dtmImprimeOsp := nil;
+    end;
+  end;
+end;
+
+function TdtmOperacoesOSP.SelecionarUsuarioOperacao: Boolean;
+var
+  UsuarioAut: TtecUsuarios;
+begin
+  try
+    TipoLogin := NaoInformado;
+    result := false;
+    refazconsulta(qryusuarios,[0],[0]);
+    qryOSPLotes.ParamByName('osp').AsInteger := 0;
+    qryOSPLotes.ParamByName('numero').asinteger := 0;
+
+    IncluindoCodigoUsuario := true;
+    frmUsuariosOperacao := TfrmUsuariosOperacao.Create(frmUsuariosOperacao);
+    Result := frmUsuariosOperacao.ShowModal = mrOK;
+    if result then
+    begin
+      if qryUsuariosgerenteproducao.AsBoolean then
+      begin
+        if UsuarioLogin.GerenteProducao then
+          UsuarioAut := ObterAutorizacao(taSENHA, ctPARAAUTORIZACAOOPERACOESOSP, ctGERENTEPRODUCAO, '')
+        else
+          UsuarioAut := ObterAutorizacao(taLOGIN, ctPARAAUTORIZACAOOPERACOESOSP, ctGERENTEPRODUCAO, '');
+
+        if Assigned(UsuarioAut) and UsuarioAut.GerenteProducao then
+          TipoLogin := GerenteProducao
+      end
+      else
+        TipoLogin := Operador;
+    end;
+  finally
+    frmUsuariosOperacao.free;
+  end;
+
+  RestaurarFoco;
+end;
+
+
+function TdtmOperacoesOSP.AbreOperacaoemAbertoUsuario: boolean;
+begin
+  result := false;
+  RefazConsultaPorNome(qryUsuarioOSPLote,['usuario'],[qryUsuarioscodigo.AsVariant]);
+
+  if qryUsuarioOSPLote.RecordCount<>0 then
+  begin
+
+//    qryOSPLotes.AfterScroll := nil;
+    qryOSPLotes.AfterClose := nil;
+    qryOSPLotes.AfterCancel := nil;
+
+    RefazConsulta(qryOSPLotes, [0, 1, 2, 3],
+                 [0, 0, qryUsuarioOSPLoteosp.AsInteger, qryUsuarioOSPLotelote.asinteger]);
+
+//    qryOSPLotes.AfterScroll := qryOSPLotesAfterScroll;
+    qryOSPLotes.AfterClose := qryOSPLotesAfterScroll;
+    qryOSPLotes.AfterCancel := qryOSPLotesAfterScroll;
+
+    result := qryospLotes.recordcount <> 0;
+
+  end;
+
+end;
+
+procedure TdtmOperacoesOSP.qryOperacoesOSPUsuarioFalhasAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  dtmOperacoesOSP.TempoAbrirJanela := now();
+end;
+
+function TdtmOperacoesOSP.selecionarUsuarioSetup: Boolean;
+begin
+  RefazConsultaPorNome(qryUsuariosHabilitadosSetup, ['operacao'],[qryOperacoesOSPoperacao.AsInteger]);
+  result := qryUsuariosHabilitadosSetup.RecordCount <> 0 ;
+
+  if result then
+  begin
+    frmListaUsuariosSetup := TfrmListaUsuariosSetup.Create(frmListaUsuariosSetup);
+    Result := frmListaUsuariosSetup.ShowModal = mrOK;
+    frmListaUsuariosSetup.free;
+  end
+  else
+    MensagemErro(format('Não existem usuários habilitados para o setup da operação ''%s''.',
+                   [trim(qryOperacoesOSPnome.asstring+ ' '+
+                         qryOperacoesOSPc01.asstring+ ' '+
+                         qryOperacoesOSPc02.asstring+ ' '+
+                         qryOperacoesOSPc03.asstring) ]));
+end;
+
+procedure TdtmOperacoesOSP.qryOperacoesOSPBeforeDelete(DataSet: TDataSet);
+begin
+  inherited;
+  case TipoLogin of
+    GerenteProducao:
+    begin
+      qryOperacoesOSPUsuario.First;
+      while not qryOperacoesOSPUsuario.Eof do
+        qryOperacoesOSPUsuario.Delete;
+    end;
+  end;
+
+end;
+
+procedure TdtmOperacoesOSP.qryOperacoesOSPUsuarioParadasNewRecord(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryOperacoesOSPUsuarioParadasosp.AsInteger := qryOperacoesOSPosp.AsInteger;
+  qryOperacoesOSPUsuarioParadaslote.AsInteger := qryOperacoesOSPlote.AsInteger;
+  qryOperacoesOSPUsuarioParadasoperacao.AsInteger := qryOperacoesOSPoperacao.AsInteger;
+  qryOperacoesOSPUsuarioParadasusuario.AsInteger := qryOperacoesOSPUsuariousuario.AsInteger;
+  qryOperacoesOSPUsuarioParadasdata.AsDateTime := qryOperacoesOSPUsuariodata.AsDateTime;
+  qryOperacoesOSPUsuarioParadasinicio.AsString := qryOperacoesOSPUsuarioinicio.AsString;
+  qryOperacoesOSPUsuarioParadastempoparada.AsInteger := 0;
+
+end;
+
+procedure TdtmOperacoesOSP.qryOperacoesOSPUsuarioParadasAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  case TipoLogin of
+    GerenteProducao:
+    begin
+      EditarOSP;
+      AtualizaListaParadas;
+      CalcularTempoParada;
+    end;
+  end;
+end;
+
+procedure TdtmOperacoesOSP.AtualizaListaParadas;
+var
+  Pos: TBookmark;
+begin
+  if qryOperacoesOSPUsuarioParadas.Active then
+  begin
+    Pos := qryOperacoesOSPUsuarioParadas.GetBookmark;
+    try
+      qryOperacoesOSPUsuarioParadas.DisableControls;
+      ListaParadas := '';
+
+      qryOperacoesOSPUsuarioParadas.First;
+      while Not qryOperacoesOSPUsuarioParadas.Eof do
+      begin
+        if qryOperacoesOSPUsuarioParadasparadavalidada.AsBoolean then
+          ListaParadas := ListaParadas +
+                         qryOperacoesOSPUsuarioParadascodigoparada.AsString + ',';
+        qryOperacoesOSPUsuarioParadas.Next
+      end;
+
+      if ListaParadas <> '' then
+        ListaParadas := copy(ListaParadas,0, Length(ListaParadas)-1)
+      else
+        ListaParadas := '0';
+
+    finally
+      qryOperacoesOSPUsuarioParadas.GotoBookmark(Pos);
+      qryOperacoesOSPUsuarioParadas.FreeBookmark(Pos);
+      qryOperacoesOSPUsuarioParadas.enableControls;
+    end
+  end;
+end;
+
+procedure TdtmOperacoesOSP.CalcularTempoParada;
+var
+  vTotalTempoParada: integer;
+  RegistroAtual : TBookMark;
+begin
+  RegistroAtual := qryOperacoesOSPUsuario.GetBookmark;
+  try
+    vTotalTempoParada := 0;
+    qryOperacoesOSPUsuario.First;
+    while not qryOperacoesOSPUsuario.Eof do
+    begin
+      qryOperacoesOSPUsuarioParadas.First;
+      while not qryOperacoesOSPUsuarioParadas.Eof do
+      begin
+        vTotalTempoParada := vTotalTempoParada + qryOperacoesOSPUsuarioParadastempoparada.AsInteger;
+        qryOperacoesOSPUsuarioParadas.next;
+      end;
+
+      qryOperacoesOSPUsuario.next;
+    end;
+
+    if (qryOperacoesOSPtotaltempoparada.AsInteger <> vTotalTempoParada) then
+    begin
+      qryOperacoesOSP.AfterPost := nil;
+      qryOperacoesOSP.Edit;
+      qryOperacoesOSPtotaltempoparada.AsInteger := vTotalTempoParada;
+      qryOperacoesOSP.Post;
+      qryOperacoesOSP.AfterPost := qryOperacoesOSPAfterPost;
+    end;
+
+  finally
+    qryOperacoesOSPUsuario.GotoBookmark(RegistroAtual);
+    qryOperacoesOSPUsuario.FreeBookmark(RegistroAtual);
+  end;
+end;
+
+procedure TdtmOperacoesOSP.qryOperacoesOSPUsuarioParadasAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  case TipoLogin of
+    GerenteProducao, Operador: AtualizaListaParadas;
+  end;
+end;
+
+procedure TdtmOperacoesOSP.qryOperacoesOSPUsuarioParadasAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  case TipoLogin of
+    GerenteProducao, Operador:
+    begin
+      EditarOSP;
+      AtualizaListaParadas;
+      CalcularTempoParada;
+    end;
+  end;
+end;
+
+procedure TdtmOperacoesOSP.EditarOperacoesOSPUsuarioParadas;
+begin
+  if not (qryOperacoesOSPUsuarioParadas.State in [dsedit, dsinsert]) then
+    qryOperacoesOSPUsuarioParadas.Edit;
+end;
+
+procedure TdtmOperacoesOSP.LimparOperacoesOSPUsuarioParadas;
+begin
+   if not (qryOperacoesOSPUsuarioParadas.State in [dsedit, dsinsert]) then
+     qryOperacoesOSPUsuarioParadas.Edit;
+   qryOperacoesOSPUsuarioParadascodigoparada.Clear;
+   qryOperacoesOSPUsuarioParadasdescricao.Clear;
+   qryOperacoesOSPUsuarioParadastempoparada.Clear;
+end;
+
+function TdtmOperacoesOSP.RegistrodeOperacoesOSPUsuarioParadas: boolean;
+begin
+  result := qryOperacoesOSPUsuarioParadascodigoparada.IsNull;
+end;
+
+procedure TdtmOperacoesOSP.ExcluirOperacoesOSPUsuarioParadas;
+begin
+  if not qryOperacoesOSPUsuarioParadas.IsEmpty then
+    if not qryOperacoesOSPUsuarioParadas.ReadOnly then
+      if (MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['a parada desta operação'])) = smbOk) then
+         qryOperacoesOSPUsuarioParadas.Delete;
+end;
+
+procedure TdtmOperacoesOSP.CancelarOperacoesOSPUsuarioParadas;
+var
+  RegistroAtual : TBookmark;
+begin
+  try
+    RegistroAtual := qryOperacoesOSPUsuarioParadas.getBookMark;
+
+    qryOperacoesOSPUsuarioParadas.Cancel;
+    qryOperacoesOSPUsuarioParadas.First;
+    while not qryOperacoesOSPUsuarioParadas.Eof do
+    begin
+      if not (qryOperacoesOSPUsuarioParadasparadavalidada.AsBoolean) or
+              qryOperacoesOSPUsuarioParadastempoparada.IsNull then
+        qryOperacoesOSPUsuarioParadas.Delete
+      else
+        qryOperacoesOSPUsuarioParadas.next;
+    end;
+    qryOperacoesOSPUsuarioParadas.GotoBookmark(RegistroAtual);
+    qryOperacoesOSPUsuarioParadas.FreeBookmark(RegistroAtual);
+
+  except
+  end;
+end;
+
+function TdtmOperacoesOSP.GravarOperacoesOSPUsuarioParadas: Boolean;
+begin
+  result := true;
+  if (qryOperacoesOSPUsuarioParadas.State in [dsedit, dsinsert]) then
+  begin
+    result := qryOperacoesOSPUsuarioParadas.CheckRequiredFields;
+    if result then
+      qryOperacoesOSPUsuarioParadas.Post;
+  end;
+end;
+
+function TdtmOperacoesOSP.PosicionarOperacoesOSPUsuarioAguardandoFechamento: boolean;
+begin
+  result := false;
+  qryOperacoesOSPUsuario.First;
+  while not qryOperacoesOSPUsuario.eof do
+  begin
+    if qryOperacoesOSPUsuariotermino.IsNull then
+    begin
+      result := true;
+      break;
+    end
+    else
+      qryOperacoesOSPUsuario.Next;
+  end;
+end;
+
+procedure TdtmOperacoesOSP.LimparOperacoesOSPUsuarioSetup;
+begin
+   if not (qryOperacoesOSPUsuario.State in [dsedit, dsinsert]) then
+     qryOperacoesOSPUsuario.Edit;
+   qryOperacoesOSPUsuariousuariosetup.Clear;
+end;
+
+procedure TdtmOperacoesOSP.CancelarOperacoesOSPUsuarioSetup;
+var
+ RegistroAtual : TBookMark;
+begin
+  try
+    RegistroAtual := qryOperacoesOSPUsuario.getBookMark;
+    qryOperacoesOSPUsuario.AfterScroll := nil;
+    qryOperacoesOSPUsuario.Cancel;
+    qryOperacoesOSPUsuario.First;
+    while not qryOperacoesOSPUsuario.Eof do
+    begin
+      CancelarOperacoesOSPUsuarioFalhas;
+      if not qryOperacoesOSPUsuariousuariosetupvalidado.AsBoolean then
+        qryOperacoesOSPUsuario.Delete
+      else
+        qryOperacoesOSPUsuario.next;
+
+    end;
+    qryOperacoesOSPUsuario.GotoBookmark(RegistroAtual);
+    qryOperacoesOSPUsuario.FreeBookmark(RegistroAtual);
+    qryOperacoesOSPUsuario.AfterScroll := qryOperacoesOSPUsuarioAfterScroll;
+  except
+  end;
+end;
+
+function TdtmOperacoesOSP.RegistrodeOperacoesOSPUsuarioSetup: boolean;
+begin
+  result := qryOperacoesOSPUsuariousuarioSetup.IsNull;
+end;
+
+procedure TdtmOperacoesOSP.LimparOperacoesOSPUsuarioFechamento;
+begin
+   if not (qryOperacoesOSPUsuario.State in [dsedit, dsinsert]) then
+     qryOperacoesOSPUsuario.Edit;
+   qryOperacoesOSPUsuariousuariotermino.Clear;
+end;
+
+procedure TdtmOperacoesOSP.CancelarOperacoesOSPUsuarioFechamento;
+var
+ RegistroAtual : TBookMark;
+begin
+  try
+    RegistroAtual := qryOperacoesOSPUsuario.getBookMark;
+    qryOperacoesOSPUsuario.AfterScroll := nil;
+    qryOperacoesOSPUsuario.Cancel;
+    qryOperacoesOSPUsuario.First;
+    while not qryOperacoesOSPUsuario.Eof do
+    begin
+      CancelarOperacoesOSPUsuarioFalhas;
+      if not qryOperacoesOSPUsuariousuariofechamentovalidado.AsBoolean then
+        qryOperacoesOSPUsuario.Delete
+      else
+        qryOperacoesOSPUsuario.next;
+
+    end;
+    qryOperacoesOSPUsuario.GotoBookmark(RegistroAtual);
+    qryOperacoesOSPUsuario.FreeBookmark(RegistroAtual);
+    qryOperacoesOSPUsuario.AfterScroll := qryOperacoesOSPUsuarioAfterScroll;
+  except
+  end;
+end;
+
+procedure TdtmOperacoesOSP.DefinirComplementar;
+var
+  vOrigemOperacaoAlternativa, vOperacaoNormal : String;
+begin
+
+  vOrigemOperacaoAlternativa := '';
+  vOperacaoNormal := '';
+
+  if TipoLogin = GerenteProducao then
+  begin
+    if (qryOperacoesOSPalternativa.AsString = 'A') or
+       (qryOperacoesOSPalternativa.AsString = 'C') then
+    begin
+      //if qryOperacoesOSPSaldoFaltanteProducao.AsCurrency > 0 then
+      //begin
+        vOrigemOperacaoAlternativa := IfThen(not qryOperacoesOSPorigemoperacaoalternativa.IsNull,qryOperacoesOSPorigemoperacaoalternativa.asstring,'');  // é uma operação alternativa
+        vOperacaoNormal := IfThen(qryOperacoesOSPorigemoperacaoalternativa.IsNull,qryOperacoesOSPoperacao.asstring,''); // não é uma operação de origem das alternativa
+
+        {se estiver em uma operação origem das alternativas}
+        if vOperacaoNormal <> '' then
+        begin
+          if qryOperacoesOSPtipooperacao.AsString = 'A' then
+          begin
+            qryOperacoesOSP.Edit;
+            qryOperacoesOSPselecionada.AsBoolean := true;
+            qryOperacoesOSPtipooperacao.AsString := 'C';
+            qryOperacoesOSP.Post;
+
+            qryoperacoesosp.Filtered := false;
+            if qryoperacoesosp.Locate('origemoperacaoalternativa',vOperacaoNormal,[]) then
+            begin
+              while (qryOperacoesOSPorigemoperacaoalternativa.AsString = vOperacaoNormal) and
+
+                    not qryOperacoesOSP.Eof do
+              begin
+                qryOperacoesOSP.Edit;
+                qryOperacoesOSPselecionada.AsBoolean := true;
+                qryOperacoesOSPtipooperacao.AsString := 'C';
+                qryOperacoesOSP.Post;
+
+                qryOperacoesOSP.Next;
+              end;
+            end;
+
+            qryOperacoesOSP.Filtered := true;
+            qryoperacoesosp.Locate('operacao',vOperacaoNormal,[]);
+          end
+          else
+          begin
+            if not ExisteOperacoesOSPUsuarios_Complementar then
+            begin
+              qryOperacoesOSP.Edit;
+              qryOperacoesOSPselecionada.AsBoolean := true;
+              qryOperacoesOSPtipooperacao.AsString := 'A';
+              qryOperacoesOSP.Post;
+
+              qryoperacoesosp.Filtered := false;
+
+              if qryoperacoesosp.Locate('origemoperacaoalternativa',vOperacaoNormal,[]) then
+              begin
+                while (qryOperacoesOSPorigemoperacaoalternativa.AsString = vOperacaoNormal) and
+
+                      not qryOperacoesOSP.Eof do
+                begin
+                  qryOperacoesOSP.Edit;
+                  qryOperacoesOSPselecionada.AsBoolean := false;
+                  qryOperacoesOSPtipooperacao.AsString := 'A';
+                  qryOperacoesOSP.Post;
+
+                  qryOperacoesOSP.Next;
+                end;
+              end;
+
+              qryOperacoesOSP.Filtered := true;
+              qryoperacoesosp.Locate('operacao',vOperacaoNormal,[]);
+
+            end
+            else
+              MensagemAviso('A operação já possui movimentação e não pode ser trocada.');
+
+          end;
+        end
+        else
+          if (qryOperacoesOSPalternativa.AsString = 'C') and
+             (vOrigemOperacaoAlternativa <> '') then
+          begin
+            if not ExisteOperacoesOSPUsuarios_Complementar then
+            begin
+              qryoperacoesosp.Filtered := false;
+              if qryoperacoesosp.Locate('origemoperacaoalternativa',vOrigemOperacaoAlternativa,[]) then
+              begin
+                while (qryOperacoesOSPorigemoperacaoalternativa.AsString = vOrigemOperacaoAlternativa) and
+                      not qryOperacoesOSP.Eof do
+                begin
+                  qryOperacoesOSP.Edit;
+                  qryOperacoesOSPselecionada.AsBoolean := false;
+                  qryOperacoesOSPtipooperacao.AsString := 'A';
+                  qryOperacoesOSP.Post;
+                  qryOperacoesOSP.Next;
+                end;
+              end;
+
+              if qryoperacoesosp.Locate('operacao',vOrigemOperacaoAlternativa,[]) then
+              begin
+                qryOperacoesOSP.Edit;
+                qryOperacoesOSPselecionada.AsBoolean := true;
+                qryOperacoesOSPtipooperacao.AsString := 'A';
+                qryOperacoesOSP.Post;
+              end;
+              qryOperacoesOSP.Filtered := true;
+              qryoperacoesosp.Locate('operacao',vOrigemOperacaoAlternativa,[]);
+            end
+            else
+              MensagemAviso('A operação já possui movimentação e não pode ser trocada.');
+
+          end;
+      //end
+      //else
+      //  MensagemAviso('A quantidade produzida em relação a operação anterior já foi atingida.');
+
+    end;
+  end;
+end;
+
+function TdtmOperacoesOSP.ExisteOperacoesOSPUsuarios_Complementar: boolean;
+var
+  RegistroAtual: TBookmark;
+  vOperacao : String;
+begin
+  result := false;
+  RegistroAtual := qryOperacoesOSP.GetBookmark;
+  try
+    if qryOperacoesOSPorigemoperacaoalternativa.IsNull then
+    begin
+      result := not qryOperacoesOSPUsuario.IsEmpty;
+
+      if not result then
+      begin
+        vOperacao := qryOperacoesOSPoperacao.asString;
+        if qryOperacoesOSP.Locate('origemoperacaoalternativa',vOperacao,[]) then
+        begin
+          while (qryOperacoesOSPorigemoperacaoalternativa.AsString = vOperacao) and not
+                qryOperacoesOSP.Eof do
+          begin
+            if not qryOperacoesOSPUsuario.IsEmpty then
+            begin
+              result := true;
+              break;
+            end
+            else
+              qryOperacoesOSP.Next;
+          end;
+        end;
+      end;
+
+    end
+    else
+    begin
+      result := not qryOperacoesOSPUsuario.IsEmpty;
+
+      if not result then
+      begin
+        vOperacao := qryOperacoesOSPorigemoperacaoalternativa.asString;
+        if qryOperacoesOSP.Locate('origemoperacaoalternativa',vOperacao,[]) then
+        begin
+          while (qryOperacoesOSPorigemoperacaoalternativa.AsString = vOperacao) and not
+                qryOperacoesOSP.Eof do
+          begin
+            if not qryOperacoesOSPUsuario.IsEmpty then
+            begin
+              result := true;
+              break;
+            end
+            else
+              qryOperacoesOSP.Next;
+          end;
+        end;
+      end;
+
+    end;
+
+  finally
+    qryOperacoesOSP.GotoBookmark(RegistroAtual);
+    qryOperacoesOSP.FreeBookmark(RegistroAtual);
+  end;
+end;
+
+procedure TdtmOperacoesOSP.qryOperacoesOSPUsuarioFalhasBeforeCancel(
+  DataSet: TDataSet);
+begin
+  inherited;
+;
+end;
+
+procedure TdtmOperacoesOSP.qryOperacoesOSPUsuarioFalhasAfterCancel(
+  DataSet: TDataSet);
+begin
+  inherited;
+ ;
+end;
+
+end.
+
+

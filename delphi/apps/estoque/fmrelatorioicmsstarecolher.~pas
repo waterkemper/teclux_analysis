@@ -1,0 +1,115 @@
+unit fmrelatorioicmsstarecolher;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, Windows,
+  StdCtrls, fmrelatoriopadrao, ExtCtrls, Buttons, frconsulta, DateUtils,
+  frconsultacodigo, cpdata, CheckLst, ComCtrls, cppagecontrol,
+  dmrelatorioicmsstarecolher, frlistafiliais, ctconstantes, Biblio, ToolWin,
+  cpdbradiogroup;
+
+type
+  Tfrmrelatorioicmsstarecolher = class(TfrmRelatorioPadrao)
+    gbxPeriodo: TGroupBox;
+    edtDataInicial: TEditData;
+    edtDataFinal: TEditData;
+    gbxFornecedor: TGroupBox;
+    gbxProduto: TGroupBox;
+    fraConsultaFornecedor: TfraConsultaCodigo;
+    fraConsultaProdutos: TfraConsultaCodigo;
+    fraListaFiliais: TfraListaFiliais;
+    lblA: TLabel;
+    rgpTipoPeriodo: TRadioGroup;
+    rgpOpcaoNCM: TtecDBRadioGroup;
+    rbnNCMNotaFiscal: TtecRadioButton;
+    rbnNCMEmpresa: TtecRadioButton;
+  private
+    { Private declarations }
+    ListaFiliais : String;
+    Fornecedor   : String;
+    Produto      : String;
+    DataInicial  : String;
+    DataFinal    : String;
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    function  ValidarCamposSelecao: Boolean;
+    procedure InternoImpressao; override;
+  public
+    { Public declarations }
+  end;
+
+var
+  frmrelatorioicmsstarecolher: Tfrmrelatorioicmsstarecolher;
+
+implementation
+
+{$R *.dfm}
+
+{ Tfrmrelatorioicmsstarecolher }
+
+constructor Tfrmrelatorioicmsstarecolher.Create(AOwner: TComponent);
+begin
+   inherited;
+   dtmrelatorioicmsstarecolher:= Tdtmrelatorioicmsstarecolher.Create(Self);
+   edtDataInicial.Text:=  datetostr(PrimeiroDiaMesPassado(1));
+   edtDataFinal.  Text:=  datetostr(UltimoDiaMesPassado(1));
+
+   fraConsultaFornecedor.TipoPesquisa:= pesFORNECEDORES;
+   fraConsultaFornecedor.TipoCliente := 'F';
+   fraConsultaProdutos.  TipoPesquisa:= pesITEMPRODUTOS;
+   fraListaFiliais.gbxFiliais.Font.Height:= -11;
+   edtDataInicial.SelectAll;
+end;
+
+destructor Tfrmrelatorioicmsstarecolher.Destroy;
+begin
+  inherited;
+  dtmrelatorioicmsstarecolher:= nil;
+end;
+
+procedure Tfrmrelatorioicmsstarecolher.InternoImpressao;
+begin
+  inherited;
+  if ValidarCamposSelecao then
+  begin
+    with dtmrelatorioicmsstarecolher do
+    begin
+      if AbrirConsulta(ListaFiliais,Fornecedor,Produto,
+                       DataInicial, DataFinal, TTipoIntervaloData(rgpTipoPeriodo.itemindex), TOpcaoNCM(strtoint(ifthen(rbnNCMNotaFiscal.checked, '0', '1'))) ) then
+        ImprimirRelatorio
+      else
+      begin
+        MensagemAviso(format(ctNENHUMREGISTROENCONTRADO,['registro']));
+        edtDataInicial.SetFocus;
+      end;
+    end;
+  end
+  else
+    MensagemAviso(ctERROPERIODO);
+end;
+
+function Tfrmrelatorioicmsstarecolher.ValidarCamposSelecao: Boolean;
+begin
+  Result       := True;
+  Fornecedor   := '';
+  Produto      := '';
+  ListaFiliais := '';
+  DataInicial  := '';
+  DataFinal    := '';
+  if DataEmBranco(edtDataInicial.Text) and DataEmBranco(edtDataFinal.Text) then
+    Result:= False
+  else
+  begin
+    if fraListaFiliais.ListaSelecionada <> '' then
+      ListaFiliais := fraListaFiliais.ListaSelecionada;
+    if fraConsultaFornecedor.edfCodigo.Text <> '' then
+      Fornecedor   := fraConsultaFornecedor.edfCodigo.Text;
+    if fraConsultaProdutos.edfCodigo.Text <> '' then
+      Produto      := fraConsultaProdutos.edfcodigo.ValoraDataFieldInterno;
+    DataInicial  := edtDataInicial.Text;
+    DataFinal    := edtDataFinal.Text;
+  end;
+end;
+
+end.

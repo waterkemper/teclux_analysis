@@ -1,0 +1,541 @@
+unit dmacertocupomcancelado;
+
+interface
+
+uses
+  SysUtils, Classes, DB, ZQuery, ZPgSqlQuery, cpquery,
+  cpdatasource, biblio, Variants, ZTransact, dmbasico, cltefdiscado,
+  dmcontrolenotasfiscaiseletronicas, clusuario;
+
+type
+  TdtmAcertoCupomCancelado = class(TdtmBasico)
+    qryProdutos: TtecQuery;
+    qryMovimentos: TtecQuery;
+    qryMovimentosnumero: TIntegerField;
+    qryMovimentosproduto: TLargeintField;
+    qryMovimentosdadofiscal: TIntegerField;
+    qryDadosFiscais: TtecQuery;
+    qryProdutosdadofiscal: TIntegerField;
+    qryProdutosnumero: TIntegerField;
+    qryProdutosproduto: TLargeintField;
+    qryProdutosfilial: TIntegerField;
+    qryProdutosmovimento: TIntegerField;
+    qryProdutosquantidade: TFloatField;
+    qryProdutosprecovenda: TFloatField;
+    qryProdutosprecotabela: TFloatField;
+    qryProdutosdescricaoprecovenda: TStringField;
+    qryProdutosaliquotaicms: TFloatField;
+    qryProdutosicms: TIntegerField;
+    qryProdutosincidencia: TStringField;
+    qryProdutosorigem: TIntegerField;
+    qryProdutosdescricao: TStringField;
+    qryProdutosvalorgrade1: TStringField;
+    qryProdutosvalorgrade2: TStringField;
+    qryProdutosipi: TIntegerField;
+    qryProdutosaliquotaipi: TFloatField;
+    qryProdutosvaloripi: TFloatField;
+    qryProdutosclassificacaofiscal: TStringField;
+    qryProdutosbaseicms: TFloatField;
+    qryProdutosreducaobase: TFloatField;
+    qryProdutoscomposto: TBooleanField;
+    qryProdutosdiscriminarcomposto: TStringField;
+    qryProdutosdiscriminarpreco: TBooleanField;
+    qryContratoDadosFiscais: TtecQuery;
+    qryContratoDadosFiscaisquant: TLargeintField;
+    qryParcelasPagas: TtecQuery;
+    qryParcelasPagasexiste: TBooleanField;
+    qryContratos: TtecQuery;
+    qryContratossituacao: TStringField;
+    qryContratosnumero: TStringField;
+    qryContratosoperacao: TStringField;
+    qryDadosFiscaisfilial: TIntegerField;
+    qryDadosFiscaismaquina: TIntegerField;
+    qryDadosFiscaiscupom: TIntegerField;
+    qryDadosFiscaisnumero: TIntegerField;
+    qryDadosFiscaisdata: TDateField;
+    qryDadosFiscaissituacao: TStringField;
+    qryDadosFiscaiscontrato: TStringField;
+    qryAutenticacoes: TtecQuery;
+    qryAutenticacoesnumero: TIntegerField;
+    qryAutenticacoesfilial: TIntegerField;
+    qryAutenticacoesnum_usu: TIntegerField;
+    qryAutenticacoescro: TIntegerField;
+    qryAutenticacoescoo: TIntegerField;
+    qryAutenticar: TtecQuery;
+    qryAutenticarcaixa: TIntegerField;
+    qryAutenticarautenticacao: TIntegerField;
+    qryAutenticarfilial: TIntegerField;
+    qryAutenticarnumero: TIntegerField;
+    qryAutenticarsituacao: TBooleanField;
+    qryAutenticartipo: TStringField;
+    qryAutenticarvalor: TFloatField;
+    spcAutenticacaoProximo: TtecQuery;
+    spcAutenticacaoProximonumero: TIntegerField;
+    qryAutenticacoesvalor: TFloatField;
+    qryDetalheCupom: TtecQuery;
+    qryDetalhedemaisdoctos: TtecQuery;
+    qryDadosFiscaiscontratofrentecaixa: TStringField;
+    qryRecebimentos: TtecQuery;
+    qryAutenticacoestransacao: TIntegerField;
+    qryRecebimentoscodigo: TIntegerField;
+    qryRecebimentossituacao: TStringField;
+    qryRecebimentosTemp: TtecQuery;
+    qryRecebimentosTempnomeredensu: TStringField;
+    qryRecebimentosTemptef: TStringField;
+    qryRecebimentosTempdatalancto: TDateField;
+    qryRecebimentosTemphora: TTimeField;
+    qryRecebimentosTempvalortotal: TFloatField;
+    qryProdutosTrocados: TtecQuery;
+    qryProdutosTrocadosnumero: TIntegerField;
+    qryProdutosTrocadostipo: TStringField;
+    qryProdutosTrocadosdata: TDateTimeField;
+    qryProdutosTrocadoscliente: TIntegerField;
+    qryProdutosTrocadostipocliente: TStringField;
+    qryProdutosTrocadoscontrato: TStringField;
+    qryProdutosTrocadosfilial: TIntegerField;
+    qryProdutosTrocadosusuario: TIntegerField;
+    qryProdutosTrocadosvalor: TFloatField;
+    spcProdutosTrocadosProximo: TtecQuery;
+    spcProdutosTrocadosProximonumero: TIntegerField;
+    qryDadosFiscaiscreditotroca: TFloatField;
+    qryDadosFiscaiscliente: TIntegerField;
+    qryDadosFiscaistipocliente: TStringField;
+    qryOrcamentos: TtecQuery;
+    qryDadoFiscalVinculado: TtecQuery;
+    qryDadoFiscalVinculadonumero: TIntegerField;
+    qryDadoFiscalVinculadosituacao: TStringField;
+    qryDadoFiscalVinculadomodelodocto: TStringField;
+    qryDadosFiscaisorcamento: TIntegerField;
+    qryVenctosDadosFiscais: TtecQuery;
+    qryVenctosDadosFiscaisdadofiscal: TIntegerField;
+    qryVenctosDadosFiscaisnumero: TIntegerField;
+    qryVenctosDadosFiscaisdatavencto: TDateField;
+    qryVenctosDadosFiscaisvalorvencto: TFloatField;
+    qryVenctosDadosFiscaistiporecebimento: TIntegerField;
+    qryVenctosDadosFiscaisformapagamento: TStringField;
+    qryVenctosDadosFiscaistransacao: TIntegerField;
+  private
+    function nullMovimentoProdutosDadosFiscais: Boolean;
+    function ExcluirMovimentos: Boolean;
+    function NumeroDadosFiscaisContrato(ECF,Intervencao,Cupom: Integer; num_fab: String): Integer;
+    function TemParcelaPaga: Boolean;
+    function ProximoNumeroAutenticacao: Integer;
+    { Private declarations }
+  public
+    function AcertaMovimentacoes(ECF,Intervencao,Cupom: Integer; num_fab: String): Boolean;
+    function AcertaMovimentacoesNFCe(dadofiscal: Integer): Boolean;
+    { Public declarations }
+  end;
+
+var
+  dtmAcertoCupomCancelado: TdtmAcertoCupomCancelado;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmAcertoCupomCancelado }
+
+function TdtmAcertoCupomCancelado.AcertaMovimentacoes(ECF,Intervencao,Cupom: Integer; num_fab: String): Boolean;
+var
+  vCooVenda : integer;
+  vNovaSituacaodoContrato : String;
+  ControleNFe: TdtmControleNotasFiscaisEletronicas;
+
+begin
+
+  vCooVenda := 0;
+  Result := False;
+  // Verificar se o numero do cupom é de venda
+  RefazConsultaPorNome(qryDetalheCupom, ['filial','num_usu', 'cro', 'num_fab', 'coo'],
+                                        [FilialBase, ECF, Intervencao, num_fab, Cupom]);
+  if not qryDetalheCupom.IsEmpty then
+    vCooVenda := Cupom
+  else
+  begin
+  //se for vinculado entao o numero será o da referencia
+    RefazConsultaPorNome(qryDetalhedemaisdoctos, ['filial','num_usu', 'cro', 'num_fab', 'coo'],
+                                                 [FilialBase, ECF, Intervencao, num_fab, Cupom]);
+    if not qryDetalhedemaisdoctos.IsEmpty then
+      vCooVenda := qryDetalhedemaisdoctos.fieldbyname('cooref').AsInteger
+  end;
+
+  if vCooVenda <> 0 then
+  begin
+    ReFazConsulta(qryDadosFiscais,[0,1,2,3,4],[FilialBase, ECF, Intervencao, vCooVenda, num_fab]);
+    if qryDadosFiscais.RecordCount > 0 then
+    begin
+      ReFazConsulta(qryProdutos,[0],[qryDadosFiscaisnumero.AsInteger]);
+      RefazConsulta(qryAutenticacoes,[0,1,2,3,4],[FilialBase,ECF,Intervencao, vCooVenda, num_fab]);
+      RefazConsultaPorNome(qryRecebimentos,['transacao'],[qryAutenticacoestransacao.AsInteger]);
+      RefazConsultaPorNome(qryRecebimentosTemp,['transacao'],[qryAutenticacoestransacao.AsInteger]);
+
+      try
+        qryContratos.ParamByName('contrato').AsString := qryDadosFiscaiscontrato.AsString;
+
+        vNovaSituacaodoContrato := '';
+        if qryDadosFiscaiscontratofrentecaixa.AsString <> '' then    {Venda pelo frente de caixa}
+          vNovaSituacaodoContrato := 'C'
+        else
+        if (NumeroDadosFiscaisContrato(ECF,Intervencao,vCooVenda, num_fab) > 1) then
+          vNovaSituacaodoContrato := 'P'
+        else if (NumeroDadosFiscaisContrato(ECF,Intervencao,vCooVenda, num_fab) = 1) and TemParcelaPaga then
+          vNovaSituacaodoContrato := 'F'
+        else if (NumeroDadosFiscaisContrato(ECF,Intervencao,vCooVenda, num_fab) = 1) and not TemParcelaPaga then
+          vNovaSituacaodoContrato := 'R';
+
+        if vNovaSituacaodoContrato <> '' then
+        begin
+          if not qryContratos.Active then
+            qryContratos.Open;
+
+          if qrycontratos.recordcount = 1 then
+          begin
+            qryContratos.Edit;
+            qryContratossituacao.AsString := vNovaSituacaodoContrato;
+
+            if vNovaSituacaodoContrato = 'R' then
+              qryContratosoperacao.AsString := 'C';
+            qryContratos.Post;
+          end;
+        end;
+
+        if (qryDadosFiscaiscontratofrentecaixa.AsString <> '') and
+           (qryDadosFiscaiscreditotroca.AsCurrency <> 0) then   {Devolver o crédito de troca usado no frente de caixa,
+                                                                 quando a venda for pelo contrato ele continua valendo}
+        begin
+          qryProdutosTrocados.Open;
+          spcProdutosTrocadosProximo.Open;
+          qryprodutostrocados.Insert;
+          qryProdutosTrocadosnumero.AsInteger := spcProdutosTrocadosProximonumero.AsInteger;
+          qryProdutosTrocadostipo.AsString := 'E';
+          qryProdutosTrocadosdata.AsDateTime := DataHoraServidor;
+          qryProdutosTrocadoscliente.AsInteger := qryDadosFiscaiscliente.AsInteger;
+          qryProdutosTrocadostipocliente.AsString := qryDadosFiscaistipocliente.AsString;
+          qryProdutosTrocadoscontrato.AsString := qryDadosFiscaiscontrato.AsString;
+          qryProdutosTrocadosfilial.Asinteger := FilialBase;
+          qryProdutosTrocadosusuario.AsInteger := UsuarioLogin.CodigoUsuario;
+          qryProdutosTrocadosvalor.AsCurrency := qryDadosFiscaiscreditotroca.AsCurrency;
+          qryprodutostrocados.post;
+
+        end;
+
+        if (qryDadosFiscaiscontrato.asString <> '') or (qryDadosFiscaisorcamento.asinteger <> 0) then
+        begin
+          RefazConsultaPorNome(qryorcamentos, ['contrato','orcamento'], [qryDadosFiscaiscontrato.asString, qryDadosFiscaisorcamento.asinteger]);
+          if qryOrcamentos.recordCount = 1 then
+          begin
+            qryOrcamentos.edit;
+            qryOrcamentos.fieldbyName('situacao').asString := 'A';
+            qryOrcamentos.fieldbyName('contrato').clear;
+            qryOrcamentos.post;
+          end;
+        end;
+
+        if NullMovimentoProdutosDadosFiscais then
+        begin
+          if ExcluirMovimentos then
+          begin
+            qryDadosFiscais.Edit;
+            qryDadosFiscaissituacao.AsString := 'C';
+            qryDadosFiscais.Post;
+
+            RefazConsultaPorNome(qryDadoFiscalVinculado, ['dadofiscal'], [qryDadosFiscaisnumero.AsInteger]);
+
+            if qryDadoFiscalVinculado.recordcount = 1 then  { Encontrado a nota vinculada com o cupom }
+            begin
+              if not ((qryDadoFiscalVinculadomodelodocto.asString = '55') or
+                      (qryDadoFiscalVinculadomodelodocto.asString = '57')) then
+              begin
+                qryDadoFiscalVinculado.edit;
+                qryDadoFiscalVinculadosituacao.asString := 'C';
+                qryDadoFiscalVinculado.post;
+              end;
+            end;
+
+            if not qryAutenticacoes.IsEmpty then
+              qryAutenticar.Open;
+
+            while not qryAutenticacoes.Eof do
+            begin
+              qryAutenticar.Append;
+              qryAutenticarcaixa.AsInteger        := CodigoUsuario;
+              qryAutenticarautenticacao.AsInteger := qryAutenticacoesnumero.AsInteger;
+              qryAutenticarfilial.AsInteger       := FilialBase;
+              qryAutenticarnumero.AsInteger       := ProximoNumeroAutenticacao;
+              qryAutenticarsituacao.AsBoolean     := true;
+              qryAutenticartipo.AsString          := 'C';
+              qryAutenticarvalor.AsCurrency       := qryAutenticacoesvalor.AsCurrency;
+              qryAutenticar.Post;
+
+              qryAutenticacoes.Next;
+            end;
+
+            AtribuirDados(qryRecebimentos, [qryRecebimentossituacao], ['C']);
+
+            Result := Perpetrar([qryProdutos, qryMovimentos, qryDadosFiscais,
+                                 qryContratos, qryAutenticar, qryRecebimentos,
+                                 qryProdutosTrocados, qryOrcamentos, qryDadoFiscalVinculado]);
+
+            if result then
+            begin
+              if assigned(tefpadrao) then
+              begin
+                qryrecebimentostemp.first;
+                while not qryrecebimentostemp.eof do
+                begin
+                  tefpadrao.CNC(qryRecebimentostempnomeredensu.asstring,
+                                qryRecebimentostemptef.AsString,
+                                strtodatetime(qryRecebimentosTempdatalancto.AsString + ' ' +qryRecebimentosTemphora.AsString),
+                                qryRecebimentosTempvalortotal.AsCurrency);
+
+                  qryrecebimentostemp.Next
+                end;
+              end;
+
+              if qryDadoFiscalVinculado.recordcount = 1 then  { Encontrado a nota vinculada com o cupom }
+              begin
+                if ((qryDadoFiscalVinculadomodelodocto.asString = '55') or
+                        (qryDadoFiscalVinculadomodelodocto.asString = '57')) then
+                begin
+                  try
+                    ControleNFe := TdtmControleNotasFiscaisEletronicas.Create(nil);
+                    result := ControleNFe.SelecionarNotas(1,4,qryDadosFiscaisnumero.AsInteger, true);
+                    if result then
+                      result := ControleNFe.EnviarNotasFiscais;
+                  finally
+                    FreeAndNil(ControleNFe);
+                  end;
+                end;
+              end;
+            end;
+
+          end;
+        end
+
+      except
+        //Result := False;
+      on E: Exception do MensagemAviso(E.Message);
+        //MensagemAviso('Problemas durante a operação de acerto dos movimento relativos ao último cupom');
+      end;
+    end;
+    {
+    else
+      MensagemAviso('Não há registros referentes ao Cupom : ' + IntToStr(vCooVenda));
+      }
+  end;
+end;
+
+function TdtmAcertoCupomCancelado.AcertaMovimentacoesNFCe(
+  dadofiscal: Integer): Boolean;
+var
+  vNovaSituacaodoContrato : String;
+begin
+
+  Result := False;
+  // Verificar se o numero do cupom é de venda
+
+  ReFazConsulta(qryDadosFiscais,[0,1,2,3,4,5],[null,null,null,null,null,dadofiscal]);
+
+  if qryDadosFiscais.RecordCount > 0 then
+  begin
+    ReFazConsulta(qryProdutos,[0],[qryDadosFiscaisnumero.AsInteger]);
+    ReFazConsulta(qryVenctosDadosFiscais,[0],[qryDadosFiscaisnumero.AsInteger]);
+
+    RefazConsulta(qryAutenticacoes,[0,1,2,3,4,5],[null,null,null,null,null,dadofiscal]);
+    RefazConsultaPorNome(qryRecebimentos,['transacao'],[qryAutenticacoestransacao.AsInteger]);
+    RefazConsultaPorNome(qryRecebimentosTemp,['transacao'],[qryAutenticacoestransacao.AsInteger]);
+
+    try
+      qryContratos.ParamByName('contrato').AsString := qryDadosFiscaiscontrato.AsString;
+
+      vNovaSituacaodoContrato := '';
+      if qryDadosFiscaiscontratofrentecaixa.AsString <> '' then    {Venda pelo frente de caixa}
+        vNovaSituacaodoContrato := 'C'
+        (*
+      else
+      if (NumeroDadosFiscaisContrato(ECF,Intervencao,vCooVenda, num_fab) > 1) then
+        vNovaSituacaodoContrato := 'P'
+      else if (NumeroDadosFiscaisContrato(ECF,Intervencao,vCooVenda, num_fab) = 1) and TemParcelaPaga then
+        vNovaSituacaodoContrato := 'F'
+      else if (NumeroDadosFiscaisContrato(ECF,Intervencao,vCooVenda, num_fab) = 1) and not TemParcelaPaga then
+        vNovaSituacaodoContrato := 'R'*) ;
+
+      if vNovaSituacaodoContrato <> '' then
+      begin
+        if not qryContratos.Active then
+          qryContratos.Open;
+
+        if qrycontratos.recordcount = 1 then
+        begin
+          qryContratos.Edit;
+          qryContratossituacao.AsString := vNovaSituacaodoContrato;
+
+          if vNovaSituacaodoContrato = 'R' then
+            qryContratosoperacao.AsString := 'C';
+          qryContratos.Post;
+        end;
+      end;
+
+      if (qryDadosFiscaiscontratofrentecaixa.AsString <> '') and
+         (qryDadosFiscaiscreditotroca.AsCurrency <> 0) then   {Devolver o crédito de troca usado no frente de caixa,
+                                                               quando a venda for pelo contrato ele continua valendo}
+      begin
+        qryProdutosTrocados.Open;
+        spcProdutosTrocadosProximo.Open;
+        qryprodutostrocados.Insert;
+        qryProdutosTrocadosnumero.AsInteger := spcProdutosTrocadosProximonumero.AsInteger;
+        qryProdutosTrocadostipo.AsString := 'E';
+        qryProdutosTrocadosdata.AsDateTime := DataHoraServidor;
+        qryProdutosTrocadoscliente.AsInteger := qryDadosFiscaiscliente.AsInteger;
+        qryProdutosTrocadostipocliente.AsString := qryDadosFiscaistipocliente.AsString;
+        qryProdutosTrocadoscontrato.AsString := qryDadosFiscaiscontrato.AsString;
+        qryProdutosTrocadosfilial.Asinteger := FilialBase;
+        qryProdutosTrocadosusuario.AsInteger := UsuarioLogin.CodigoUsuario;
+        qryProdutosTrocadosvalor.AsCurrency := qryDadosFiscaiscreditotroca.AsCurrency;
+        qryprodutostrocados.post;
+
+      end;
+
+      if (qryDadosFiscaiscontrato.asString <> '') or (qryDadosFiscaisorcamento.asinteger <> 0) then
+      begin
+        RefazConsultaPorNome(qryorcamentos, ['contrato','orcamento'], [qryDadosFiscaiscontrato.asString, qryDadosFiscaisorcamento.asinteger]);
+        if qryOrcamentos.recordCount = 1 then
+        begin
+          qryOrcamentos.edit;
+          qryOrcamentos.fieldbyName('situacao').asString := 'A';
+          qryOrcamentos.fieldbyName('contrato').clear;
+          qryOrcamentos.post;
+        end;
+      end;
+
+      if NullMovimentoProdutosDadosFiscais then
+      begin
+        if ExcluirMovimentos then
+        begin
+          qryDadosFiscais.Edit;
+          qryDadosFiscaissituacao.AsString := 'C';
+          qryDadosFiscais.Post;
+
+          (*
+
+          RefazConsultaPorNome(qryDadoFiscalVinculado, ['dadofiscal'], [qryDadosFiscaisnumero.AsInteger]);
+
+          if qryDadoFiscalVinculado.recordcount = 1 then  { Encontrado a nota vinculada com o cupom }
+          begin
+            if not ((qryDadoFiscalVinculadomodelodocto.asString = '55') or
+                    (qryDadoFiscalVinculadomodelodocto.asString = '57')) then
+            begin
+              qryDadoFiscalVinculado.edit;
+              qryDadoFiscalVinculadosituacao.asString := 'C';
+              qryDadoFiscalVinculado.post;
+            end;
+          end;
+          *)
+
+          if not qryAutenticacoes.IsEmpty then
+            qryAutenticar.Open;
+
+          while not qryAutenticacoes.Eof do
+          begin
+            qryAutenticar.Append;
+            qryAutenticarcaixa.AsInteger        := CodigoUsuario;
+            qryAutenticarautenticacao.AsInteger := qryAutenticacoesnumero.AsInteger;
+            qryAutenticarfilial.AsInteger       := FilialBase;
+            qryAutenticarnumero.AsInteger       := ProximoNumeroAutenticacao;
+            qryAutenticarsituacao.AsBoolean     := true;
+            qryAutenticartipo.AsString          := 'C';
+            qryAutenticarvalor.AsCurrency       := qryAutenticacoesvalor.AsCurrency;
+            qryAutenticar.Post;
+
+            qryAutenticacoes.Next;
+          end;
+
+          AtribuirDados(qryRecebimentos, [qryRecebimentossituacao], ['C']);
+          LimparCampos(qryVenctosDadosFiscais, [qryVenctosDadosFiscaistransacao]);
+
+          Result := Perpetrar([qryProdutos, qryMovimentos, qryDadosFiscais,
+                               qryContratos, qryAutenticar, qryRecebimentos,
+                               qryProdutosTrocados, qryOrcamentos, qryVenctosDadosFiscais]);
+
+          if result then
+          begin
+            if assigned(tefpadrao) then
+            begin
+              qryrecebimentostemp.first;
+              while not qryrecebimentostemp.eof do
+              begin
+                tefpadrao.CNC(qryRecebimentostempnomeredensu.asstring,
+                              qryRecebimentostemptef.AsString,
+                              strtodatetime(qryRecebimentosTempdatalancto.AsString + ' ' +qryRecebimentosTemphora.AsString),
+                              qryRecebimentosTempvalortotal.AsCurrency);
+
+                qryrecebimentostemp.Next
+              end;
+            end;
+
+          end;
+
+        end;
+      end
+
+    except
+      //Result := False;
+    on E: Exception do MensagemAviso(E.Message);
+      //MensagemAviso('Problemas durante a operação de acerto dos movimento relativos ao último cupom');
+    end;
+  end;
+end;
+
+function TdtmAcertoCupomCancelado.ExcluirMovimentos: Boolean;
+begin
+  Result:=True;
+  ReFazConsulta(qryMovimentos,[0],[qryDadosFiscaisnumero.AsInteger]);
+  qryMovimentos.First;
+  try
+    while not qryMovimentos.Eof do
+      qryMovimentos.Delete;
+  except
+    Result:=False;
+  end;
+end;
+
+function TdtmAcertoCupomCancelado.nullMovimentoProdutosDadosFiscais: Boolean;
+begin
+  Result := True;
+  try
+    while not qryProdutos.Eof do
+    begin
+      qryProdutos.Edit;
+      qryProdutosmovimento.AsVariant := Null;
+      qryProdutos.Post;
+      qryProdutos.Next;
+    end;
+  except
+    Result := False;
+  end;
+end;
+
+function TdtmAcertoCupomCancelado.NumeroDadosFiscaisContrato(ECF,Intervencao,Cupom: Integer; num_fab: String): Integer;
+begin
+  if not qryContratoDadosFiscais.Active then
+    ReFazConsulta(qryContratoDadosFiscais,[0,1,2,3,4],[FilialBase, ECF, Intervencao, Cupom, num_fab]);
+  Result := qryContratoDadosFiscaisquant.AsInteger;
+end;
+
+function TdtmAcertoCupomCancelado.ProximoNumeroAutenticacao: Integer;
+begin
+  spcAutenticacaoProximo.Open;
+  result := spcAutenticacaoProximonumero.AsInteger;
+  spcAutenticacaoProximo.Close;
+end;
+
+function TdtmAcertoCupomCancelado.TemParcelaPaga: Boolean;
+begin
+  if not qryParcelasPagas.Active then
+    RefazConsulta(qryParcelasPagas,[0],[qryDadosFiscaiscontrato.AsString]);
+  Result := qryParcelasPagasexiste.AsBoolean;
+end;
+
+
+end.

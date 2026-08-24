@@ -84,9 +84,9 @@ end;
 function TdtmSenhaAutorizacao.Janela: TForm;
 begin
   if FTipoAutorizacao = taSENHA then
-    Result := TfrmSenhaAutorizacao.Create(Self)
+    Result := TfrmSenhaAutorizacao.Create(nil)
   else
-    Result := TfrmAutorizacao.Create(FTexto,Self);
+    Result := TfrmAutorizacao.Create(FTexto,nil);
 end;
 
 procedure TdtmSenhaAutorizacao.Login;
@@ -99,12 +99,25 @@ begin
     end else
       Tentativa := LimiteTentativasLogin;
   finally
-    frmJanela.Free;
+//    frmJanela.Free;
   end;
 end;
 
 procedure TdtmSenhaAutorizacao.Reconectar;
 begin
+
+     {
+  login;
+
+  if frmJanela.ModalResult = mrCancel then
+    exit;
+
+  if (dbaTecSoft.Login = '') or
+     (dbaTecSoft.Password = '') then
+   Reconectar;
+   }
+
+
   dbaTecSoft.Connected := False;
   try
     dbaTecSoft.Connected := True;

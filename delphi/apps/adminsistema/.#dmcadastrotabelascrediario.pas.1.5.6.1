@@ -1,0 +1,2226 @@
+unit dmcadastrotabelascrediario;
+
+interface
+
+uses
+  SysUtils, Classes, DB, Forms,
+  // Terceiros
+  ZQuery, ZPgSqlQuery,
+  // Componentes
+   cpquery, cpdatasource, cptransact, cpdatabase,
+  // Biblio
+  ctconstantes, biblio, clparametrossistema,
+  // Repositorio
+  dmbasico, ZConnect, ZPgSqlCon, FR_Desgn, FR_Class, FR_DSet, FR_DBSet,
+  ZTransact;
+
+type
+  TdtmCadastroTabelasCrediario = class(TdtmBasico)
+    qryAgentes: TtecQuery;
+    qryCargos: TtecQuery;
+    qryConceitos: TtecQuery;
+    qryMotivos: TtecQuery;
+    qryTiposCartas: TtecQuery;
+    dsrAgentes: TtecDataSource;
+    dsrCargos: TtecDataSource;
+    dsrConceitos: TtecDataSource;
+    dsrMotivos: TtecDataSource;
+    dsrTiposCartas: TtecDataSource;
+    qryAgentesdescricao: TStringField;
+    qryConceitoscodigo: TIntegerField;
+    qryConceitosdescricao: TStringField;
+    qryMotivoscodigo: TIntegerField;
+    qryMotivosdescricao: TStringField;
+    qryTiposCartascodigo: TIntegerField;
+    qryTiposCartasdescricao: TStringField;
+    qryTiposPlanos: TtecQuery;
+    dsrTiposPlanos: TtecDataSource;
+    qryTiposPlanoscodigo: TIntegerField;
+    qryTiposPlanosdescricao: TStringField;
+    spcCargosProximo: TtecQuery;
+    spcTiposPlanosProximo: TtecQuery;
+    spcMotivosProximo: TtecQuery;
+    spcTiposCartasProximo: TtecQuery;
+    spcCargosProximocodigo: TIntegerField;
+    spcTiposPlanosProximocodigo: TIntegerField;
+    spcMotivosProximocodigo: TIntegerField;
+    spcTiposCartasProximocodigo: TIntegerField;
+    qryAgentesinativo: TDateField;
+    qryMotivosinativo: TDateField;
+    qryConceitosinativo: TDateField;
+    qryCargoscodigo: TIntegerField;
+    qryCargosdescricao: TStringField;
+    qryCargosinativo: TDateField;
+    qryCargospontos: TIntegerField;
+    qryCargosrenda: TFloatField;
+    qryConceitosrestricoes: TBooleanField;
+    qryConsultaAgentes: TtecQuery;
+    qryConsultaAgentescodigo: TIntegerField;
+    qryConsultaAgentesdescricao: TStringField;
+    qryConsultaCargos: TtecQuery;
+    qryConsultaCargoscodigo: TIntegerField;
+    qryConsultaCargosdescricao: TStringField;
+    qryConsultaConceitos: TtecQuery;
+    qryConsultaConceitoscodigo: TIntegerField;
+    qryConsultaConceitosdescricao: TStringField;
+    qryConsultaTiposPlanos: TtecQuery;
+    qryConsultaTiposPlanoscodigo: TIntegerField;
+    qryConsultaTiposPlanosdescricao: TStringField;
+    qryConsultaMotivos: TtecQuery;
+    qryConsultaMotivoscodigo: TIntegerField;
+    qryConsultaMotivosdescricao: TStringField;
+    qryConsultaTiposCartas: TtecQuery;
+    qryConsultaTiposCartascodigo: TIntegerField;
+    qryConsultaTiposCartasdescricao: TStringField;
+    qryAgentescodigo: TIntegerField;
+    qryNaturezas: TtecQuery;
+    dsrNaturezas: TtecDataSource;
+    qryConsultaNaturezas: TtecQuery;
+    spcNaturezasProximo: TtecQuery;
+    qryConsultaNaturezasdescricao: TStringField;
+    qryConsultaNaturezascodigo: TIntegerField;
+    qryNaturezascodigo: TIntegerField;
+    qryNaturezasdescricao: TStringField;
+    qryNaturezasinativo: TDateField;
+    spcNaturezasProximocodigo: TIntegerField;
+    qryTiposCartastipo: TStringField;
+    qryNaturezasTipo: TStringField;
+    qryNaturezascodigofiscal: TIntegerField;
+    qryNaturezasTipomovimento: TStringField;
+    qryProcuraCodigosFiscais: TtecQuery;
+    dsrProcuraCodigosFiscais: TtecDataSource;
+    qryConsultaCodigosFiscais: TtecQuery;
+    qryConsultaCodigosFiscaisdescricao: TStringField;
+    qryConsultaCodigosFiscaiscodigo: TIntegerField;
+    qryProcuraCodigosFiscaiscodigo: TIntegerField;
+    qryProcuraCodigosFiscaisdescricao: TStringField;
+    qryProcuraTiposMovimentos: TtecQuery;
+    dsrProcuraTiposMovimentos: TtecDataSource;
+    qryConsultaTiposMovimentos: TtecQuery;
+    qryProcuraTiposMovimentoscodigo: TStringField;
+    qryProcuraTiposMovimentosdescricao: TStringField;
+    qryConsultaTiposMovimentosdescricao: TStringField;
+    qryConsultaTiposMovimentoscodigo: TStringField;
+    qryNaturezasgerarpagamento: TBooleanField;
+    qryMotivostipomotivo: TStringField;
+    qryTiposCartasinativo: TDateField;
+    qryTiposCartasarquivo: TStringField;
+    qryAgentesTiposCartas: TtecQuery;
+    qryAgentesTiposCartasagente: TIntegerField;
+    qryAgentesTiposCartastipocarta: TIntegerField;
+    qryAgentesTiposCartasdescricao: TStringField;
+    dsrAgentesTiposCartas: TtecDataSource;
+    qryConceitosTiposCartas: TtecQuery;
+    qryConceitosTiposCartasconceito: TIntegerField;
+    qryConceitosTiposCartastipocarta: TIntegerField;
+    qryConceitosTiposCartasdescricao: TStringField;
+    dsrConceitosTiposCartas: TtecDataSource;
+    qryTiposCartasatraso: TIntegerField;
+    qryTiposCartascarencia: TIntegerField;
+    qryTiposCartasenderecoincompleto: TBooleanField;
+    qryTiposCartascartadevolvida: TBooleanField;
+    qryTiposCartasprecedente: TIntegerField;
+    qryProcuraTiposCartasPrecedente: TtecQuery;
+    qryProcuraTiposCartasPrecedentecodigo: TIntegerField;
+    qryProcuraTiposCartasPrecedentedescricao: TStringField;
+    dsrProcuraTiposCartasPrecedente: TtecDataSource;
+    qryProcuraAgentesTiposCartas: TtecQuery;
+    dsrProcuraAgentesTiposCartas: TtecDataSource;
+    qryProcuraConceitosTiposCartas: TtecQuery;
+    dsrProcuraConceitosTiposCartas: TtecDataSource;
+    qryConsultaAgentesTiposCartas: TtecQuery;
+    qryConsultaConceitosTiposCartas: TtecQuery;
+    qryProcuraAgentesTiposCartascodigo: TIntegerField;
+    qryProcuraAgentesTiposCartasdescricao: TStringField;
+    qryProcuraConceitosTiposCartascodigo: TIntegerField;
+    qryProcuraConceitosTiposCartasdescricao: TStringField;
+    qryConsultaTiposCartasPrecedente: TtecQuery;
+    qryConsultaAgentesTiposCartasdescricao: TStringField;
+    qryConsultaAgentesTiposCartascodigo: TIntegerField;
+    qryConsultaConceitosTiposCartasdescricao: TStringField;
+    qryConsultaConceitosTiposCartascodigo: TIntegerField;
+    qryConsultaTiposCartasPrecedentedescricao: TStringField;
+    qryConsultaTiposCartasPrecedentecodigo: TIntegerField;
+    qryTiposCartasexportar: TStringField;
+    qryTiposCartascampos: TStringField;
+    frDesigner1: TfrDesigner;
+    qryTiposCartasetiqueta: TStringField;
+    fdsCartas: TfrDBDataSet;
+    qryCartasDetalhe: TtecQuery;
+    qryCartasDetalheMes_atual: TStringField;
+    qryCartasDetalheEtiquetas: TtecQuery;
+    qryCartasDetalheEtiquetasnumero: TIntegerField;
+    qryCartasDetalheEtiquetassexo: TStringField;
+    qryCartasDetalheEtiquetaseavalista: TBooleanField;
+    qryCartasDetalheEtiquetascodigocliente: TIntegerField;
+    qryCartasDetalheEtiquetastipocliente: TStringField;
+    qryCartasDetalheEtiquetascliente: TStringField;
+    qryCartasDetalheEtiquetascodigoavalista: TIntegerField;
+    qryCartasDetalheEtiquetasavalista: TStringField;
+    qryCartasDetalheEtiquetasrua: TStringField;
+    qryCartasDetalheEtiquetasbairro: TStringField;
+    qryCartasDetalheEtiquetascep: TIntegerField;
+    qryCartasDetalheEtiquetascidade: TStringField;
+    qryCartasDetalheEtiquetasestado: TStringField;
+    fdsEtiquetas: TfrDBDataSet;
+    qryCartasDetalhecarta: TStringField;
+    qryCartasDetalhetipocarta: TIntegerField;
+    qryCartasDetalhecliente: TIntegerField;
+    qryCartasDetalhetipocliente: TStringField;
+    qryCartasDetalheavalista: TIntegerField;
+    qryCartasDetalheenviada: TDateTimeField;
+    qryCartasDetalheeavalista: TBooleanField;
+    qryCartasDetalhefaturamento: TDateField;
+    qryCartasDetalhenomecliente: TStringField;
+    qryCartasDetalhecontratoparcela: TStringField;
+    qryCartasDetalheparcela: TStringField;
+    qryCartasDetalhedatavencto: TDateField;
+    qryCartasDetalhevalorvencto: TFloatField;
+    qryCartasDetalherua: TStringField;
+    qryCartasDetalheestado: TStringField;
+    qryCartasDetalhecep: TIntegerField;
+    qryCartasDetalhecodigocidade: TIntegerField;
+    qryCartasDetalhecodigobairro: TIntegerField;
+    qryCartasDetalhenomeavalista: TStringField;
+    qryCartasDetalhesexo: TStringField;
+    qryCartasDetalhecidade: TStringField;
+    qryCartasDetalhebairro: TStringField;
+    qryNaturezasentrada: TStringField;
+    qryCargospercrendaconjuge: TFloatField;
+    qryConsultaContaContabil: TtecQuery;
+    qryConsultaContaContabildescricaoedentada: TStringField;
+    qryConsultaContaContabildescricao: TStringField;
+    qryConsultaContaContabilclassificacao: TStringField;
+    qryConsultaContaContabilcodigo: TIntegerField;
+    qryConsultaContaContabiltipo: TStringField;
+    qryProcuraDebitar: TtecQuery;
+    qryProcuraDebitarcodigo: TIntegerField;
+    qryProcuraDebitarclassificacao: TStringField;
+    qryProcuraDebitardescricao: TStringField;
+    dsrProcuraDebitar: TtecDataSource;
+    qryProcuraCreditar: TtecQuery;
+    IntegerField1: TIntegerField;
+    StringField1: TStringField;
+    StringField2: TStringField;
+    dsrProcuraCreditar: TtecDataSource;
+    qryNaturezasdebitar: TIntegerField;
+    qryNaturezascreditar: TIntegerField;
+    qryNaturezashistorico: TIntegerField;
+    qryProcuraHistorico: TtecQuery;
+    qryProcuraHistoricocodigo: TIntegerField;
+    qryProcuraHistoricodescricao: TStringField;
+    dsrProcuraHistorico: TtecDataSource;
+    qryConsultaHistorico: TtecQuery;
+    qryConsultaHistoricodescricao: TStringField;
+    qryConsultaHistoricocodigo: TIntegerField;
+    qryProcuraCodigosFiscaisdebitoconta: TIntegerField;
+    qryProcuraCodigosFiscaiscreditoconta: TIntegerField;
+    qryProcuraCodigosFiscaishistorico: TIntegerField;
+    qryLancamentosNaturezas: TtecQuery;
+    dsrLancamentosNaturezas: TtecDataSource;
+    qryLancamentosNaturezasdescricao: TStringField;
+    qryLancamentosNaturezasnatureza: TIntegerField;
+    qryLancamentosNaturezasoperacao: TStringField;
+    qryLancamentosNaturezascontacontabil: TIntegerField;
+    qryLancamentosNaturezashistorico: TIntegerField;
+    qryProcuraContaContabil: TtecQuery;
+    dsrProcuraContaContabil: TtecDataSource;
+    qryProcuraContaContabilcodigo: TIntegerField;
+    qryProcuraContaContabilclassificacao: TStringField;
+    qryProcuraContaContabildescricao: TStringField;
+    qryLancamentosNaturezasclassificacao: TStringField;
+    qryOperacao: TtecQuery;
+    qryOperacaooperacao: TStringField;
+    qryOperacaodescricao: TStringField;
+    qryLancamentosNaturezasoperacaol: TStringField;
+    qryTiposRecebimentos: TtecQuery;
+    dsrTiposRecebimentos: TtecDataSource;
+    qryTiposRecebimentoscodigo: TIntegerField;
+    qryTiposRecebimentosdescricao: TStringField;
+    qryTiposRecebimentostiporecebimento: TStringField;
+    qryTiposRecebimentosdevolucaocaixa: TBooleanField;
+    qryTiposRecebimentosinativo: TDateField;
+    spcTiposRecebimentosProximo: TtecQuery;
+    spcTiposRecebimentosProximocodigo: TIntegerField;
+    qryConsultaTiposRecebimentos: TtecQuery;
+    qryConsultaTiposRecebimentoscodigo: TIntegerField;
+    qryConsultaTiposRecebimentosdescricao: TStringField;
+    qryTiposRecebimentosdesagio: TFloatField;
+    qryRecebimentosTiposRecebimentos: TtecQuery;
+    qryRecebimentosTiposRecebimentostiporecebimento: TIntegerField;
+    qryRecebimentosTiposRecebimentosnumero: TIntegerField;
+    qryRecebimentosTiposRecebimentosdatainicial: TIntegerField;
+    qryRecebimentosTiposRecebimentosdatafinal: TIntegerField;
+    qryRecebimentosTiposRecebimentosdia: TIntegerField;
+    qryRecebimentosTiposRecebimentosmes: TStringField;
+    dsrRecebimentosTiposRecebimentos: TtecDataSource;
+    qryMesRecebimento: TtecQuery;
+    qryRecebimentosTiposRecebimentosmes_: TStringField;
+    qryMesRecebimentomes: TStringField;
+    qryMesRecebimentodescricao: TStringField;
+    qryNaturezasdestacaripi: TBooleanField;
+    qryProcuraCodigosFiscaisdestacaripi: TBooleanField;
+    qryTiposRecebimentosdiasuteis: TIntegerField;
+    qryProdutosporCargo: TtecQuery;
+    dsrprodutosporCargo: TtecDataSource;
+    qryProdutos: TtecQuery;
+    qryProdutoscodigo: TLargeintField;
+    qryProdutosdescricao: TStringField;
+    qryProdutospreco: TIntegerField;
+    qryProdutosvalorgrade1: TStringField;
+    qryProdutosvalorgrade2: TStringField;
+    qryProdutosfilial: TIntegerField;
+    qryProdutosemestoque: TFloatField;
+    qryProdutosporCargocargo: TIntegerField;
+    qryProdutosporCargoproduto: TLargeintField;
+    qryProdutosporCargomarkup: TFloatField;
+    qryProdutoscaracteristica: TLargeintField;
+    qryProdutospreconormal: TFloatField;
+    qryCargosmarkuppadrao: TFloatField;
+    qryProdutosporCargodescricao: TStringField;
+    qryProcuraTiposCartasPrecedenteatraso: TIntegerField;
+    qryConsultaTiposCartasatraso: TIntegerField;
+    qryProcuraTiposAtendimentos: TtecQuery;
+    qryProcuraTiposAtendimentoscodigo: TIntegerField;
+    qryProcuraTiposAtendimentosdescricao: TStringField;
+    dsrProcuraTiposAtendimentos: TtecDataSource;
+    qryConsultaTiposAtendimentos: TtecQuery;
+    qryConsultaTiposAtendimentosdescricao: TStringField;
+    qryConsultaTiposAtendimentoscodigo: TIntegerField;
+    qryConsultaTiposAtendimentostipo: TStringField;
+    qryTiposCartastipoatendimento: TIntegerField;
+    qryNaturezascredbigualvalornota: TBooleanField;
+    qryNaturezasgravarsemlanctos: TBooleanField;
+    qryConsultaNaturezascodigofiscal: TIntegerField;
+    qryConsultaNaturezastipomovimento: TStringField;
+    qryTiposRecebimentosnumerorecebimentos: TIntegerField;
+    qryTiposRecebimentosintervalorecebimentos: TIntegerField;
+    qryNaturezaslanctoscustomedio: TBooleanField;
+    qryNaturezasind_mov_fisica: TIntegerField;
+    qryContasTiposRecebimentos: TtecQuery;
+    dsrContasTiposRecebimentos: TtecDataSource;
+    qryContasTiposRecebimentosconta: TIntegerField;
+    qryContasTiposRecebimentostiporecebimento: TIntegerField;
+    qryContasTiposRecebimentosfilial: TIntegerField;
+    dsrProcuraContas: TtecDataSource;
+    qryProcuraContas: TtecQuery;
+    qryProcuraContasBanco: TIntegerField;
+    qryProcuraContasAgencia: TIntegerField;
+    qryProcuraContasConta: TIntegerField;
+    qryProcuraContasDigito: TStringField;
+    qryProcuraContasTitular: TStringField;
+    qryProcuraContasSigla: TStringField;
+    qryProcuraContasNome: TStringField;
+    qryContasTiposRecebimentosbanco: TIntegerField;
+    qryContasTiposRecebimentosagencia: TIntegerField;
+    qryContasTiposRecebimentosdigito: TStringField;
+    qryContasTiposRecebimentostitular: TStringField;
+    qryConsultaContas: TtecQuery;
+    qryConsultaContasSigla: TStringField;
+    qryConsultaContasNome: TStringField;
+    qryConsultaContasConta: TIntegerField;
+    qryConsultaContasDigito: TStringField;
+    qryConsultaContasTitular: TStringField;
+    qryConsultaContasBanco: TIntegerField;
+    qryConsultaContasAgencia: TIntegerField;
+    qryContasTiposRecebimentosevento: TIntegerField;
+    qryNaturezasicmssobreipi: TBooleanField;
+    qryNaturezascsosn: TStringField;
+    qryNaturezasdiferenciada: TBooleanField;
+    qryNaturezasnaogerarcreditoicms: TBooleanField;
+    qryNaturezasicmscst: TStringField;
+    qryNaturezasnaogerarcreditoipi: TBooleanField;
+    qryNaturezasnaogerardebitoicms: TBooleanField;
+    qryNaturezasnaogerardebitoipi: TBooleanField;
+    qryNaturezasnaocalcularipisobrefrete: TBooleanField;
+    qryTiposRecebimentosagente: TIntegerField;
+    qryProcuraAgentes: TtecQuery;
+    dsrProcuraAgentes: TtecDataSource;
+    qryProcuraAgentescodigo: TIntegerField;
+    qryProcuraAgentesdescricao: TStringField;
+    qryNaturezasnaoutilizarobsautomaticas: TBooleanField;
+    procedure qryNaturezasNewRecord(DataSet: TDataSet);
+    procedure dsrNaturezasDataChange(Sender: TObject; Field: TField);
+    procedure qryTiposCartasAfterScroll(DataSet: TDataSet);
+    procedure qryTiposCartasAfterInsert(DataSet: TDataSet);
+    procedure dsrTiposCartasDataChange(Sender: TObject; Field: TField);
+    procedure qryNaturezasAfterOpen(DataSet: TDataSet);
+    procedure dsrLancamentosNaturezasDataChange(Sender: TObject;
+      Field: TField);
+    procedure qryLancamentosNaturezasAfterInsert(DataSet: TDataSet);
+    procedure qryLancamentosNaturezasAfterPost(DataSet: TDataSet);
+    procedure qryNaturezasAfterInsert(DataSet: TDataSet);
+    procedure qryTiposRecebimentosAfterOpen(DataSet: TDataSet);
+    procedure qryTiposRecebimentosAfterInsert(DataSet: TDataSet);
+    procedure dsrRecebimentosTiposRecebimentosDataChange(Sender: TObject;
+      Field: TField);
+    procedure qryRecebimentosTiposRecebimentosAfterPost(DataSet: TDataSet);
+    procedure qryRecebimentosTiposRecebimentosAfterDelete(
+      DataSet: TDataSet);
+    procedure qryCargosAfterScroll(DataSet: TDataSet);
+    procedure qryCargosAfterOpen(DataSet: TDataSet);
+    procedure qryCargosAfterInsert(DataSet: TDataSet);
+    procedure dsrCargosDataChange(Sender: TObject; Field: TField);
+    procedure dsrprodutosporCargoDataChange(Sender: TObject;
+      Field: TField);
+    procedure qryProdutosporCargoBeforePost(DataSet: TDataSet);
+    procedure qryProdutosporCargoAfterPost(DataSet: TDataSet);
+    procedure qryProcuraContasAfterOpen(DataSet: TDataSet);
+    procedure qryContasTiposRecebimentosBeforeInsert(DataSet: TDataSet);
+    procedure qryNaturezasBeforePost(DataSet: TDataSet);
+  private
+    FNumeroRegistros: String;
+    FOrdenarCodigo: Integer;
+    FRegistroCargos: Integer;
+    FformularioInsercao: Boolean;
+    FMarcador: Integer;
+    FSelecionado: Integer;
+    function GetCamposTiposCartas: String;
+    procedure SetCamposTiposCartas(const Value: String);
+    function GetTipoContaContabil: String;
+    function GetTabelaTiposRecebimentos: TZDataSet;
+    function GetConsultarTiposRecebimentos: TZDataSet;
+  protected
+    function GetTabelaAgentes: TZDataSet;
+    function GetTabelaMotivos: TZDataSet;
+    function GetTabelaConceitos: TZDataSet;
+    function GetTabelaTiposPlanos: TZDataSet;
+    function GetTabelaTiposCartas: TZDataSet;
+    function GetTabelaNaturezas: TZDataSet;
+    function GetTabelaCargos: TZDataSet;
+    function GetConsultarAgentes: TZDataSet;
+    function GetConsultarCargos: TZDataSet;
+    function GetConsultarMotivos: TZDataSet;
+    function GetConsultarConceitos: TZDataSet;
+    function GetConsultarTiposPlanos: TZDataSet;
+    function GetConsultarTiposCartas: TZDataSet;
+    function GetConsultarNaturezas: TZDataSet;
+    function GetConsultarCodigosFiscais: TZDataset;
+    function GetConsultarTiposMovimentos: TZDataset;
+    function GetTabelaAgentesTiposCartas: TZDataSet;
+    function GetTabelaConceitosTiposCartas: TZDataSet;
+    function GetTabelaConsultaAgentesTiposCartas: TZDataSet;
+    function GetTabelaConsultaConceitosTiposCartas: TZDataSet;
+    function GetConsultarTiposCartasPrecedentes: TZDataSet;
+    function GetTiposCartasarquivo: String;
+    procedure setTiposCartasArquivo(const Value: String);
+    function GetTiposCartasexportar: String;
+    procedure setTiposCartasexportar(const Value: String);
+    function GetTiposCartasEtiqueta: String;
+    procedure setTiposCartasEtiqueta(const Value: String);
+    function  MontaFiltroAgentes(Editando: Boolean): String;
+    function  MontaFiltroConceitos(Editando: Boolean): String;
+  public
+    procedure AbrirTabelasCadastro(Tabela: TtecTabelasCrediario);
+    procedure AbrirTabelasConsulta(Tabela: TtecTabelasCrediario);
+    procedure FecharTabelasConsulta(Tabela: TtecTabelasCrediario);
+    procedure SelecionarMultiplas(Tabela: TtecTabelasCrediario);
+    procedure EditarContasTiposRecebimentos;
+    function ExcluirConceito: Boolean;
+    function ExcluirCargo: Boolean;
+    function ExcluirAgente: Boolean;
+    function ExcluirTipoPlano: Boolean;
+    function ExcluirMotivo: Boolean;
+    function ExcluirTipoCarta: Boolean;
+    function ExcluirNatureza: Boolean;
+    function ExcluirTIpoRecebimento: Boolean;
+    function ExcluirProdutoCargo: Boolean;
+    function ExcluirContasTiposRecebimentos: Boolean;
+    function GravarConceito: Boolean;
+    function GravarCargo: Boolean;
+    function GravarProdutoCargo: Boolean;
+    function GravarAgente: Boolean;
+    function GravarTipoPlano: Boolean;
+    function GravarMotivo: Boolean;
+    function GravarTipoCarta: Boolean;
+    function GravarNatureza: Boolean;
+    function GravarTipoRecebimento: Boolean;
+    function GravarContasTiposRecebimentos: Boolean;
+    function IncluirConceito: Boolean;
+    function IncluirCargo: Boolean;
+    function IncluirAgente: Boolean;
+    function IncluirTipoPlano: Boolean;
+    function IncluirMotivo: Boolean;
+    function IncluirTipoCarta: Boolean;
+    function IncluirNatureza: Boolean;
+    function IncluirTipoRecebimento: Boolean;
+    function IncluirContasTiposRecebimentos: Boolean;
+    function ExisteAgente(campo, codigo: string): boolean;
+    function ExisteCargo(campo, codigo: string): boolean;
+    function ExisteConceito(campo, codigo: string): boolean;
+    function ExisteMotivo(campo, codigo: string): boolean;
+    function ExisteTipoPlano(campo, codigo: string): boolean;
+    function ExisteTipoCarta(campo, codigo: string): boolean;
+    function ExisteNatureza(campo, codigo: String): boolean;
+    function ExisteCodigosFiscais(campo, codigo: String): Boolean;
+    function ExisteTiposMovimentos(campo, codigo: String): Boolean;
+    function ExisteAgenteTiposCartas(campo, codigo: string): boolean;
+    function ExisteConceitoTiposCartas(campo, codigo: string): boolean;
+    function ExisteTipoCartaPrecedente(campo, codigo: string): boolean;
+    function ExisteContaContabil(campo, codigo: String): Boolean;
+    function ExisteHistorico(campo, codigo: string): boolean;
+    function ExisteTipoRecebimento(campo, codigo: string): boolean;
+    function ExisteConta(campo, codigo: string): boolean;
+
+    constructor Create(AOwner: TComponent); override;
+
+    property TabelaAgentes: TZDataSet read GetTabelaAgentes;
+    property TabelaMotivos: TZDataSet read GetTabelaMotivos;
+    property TabelaConceitos: TZDataSet read GetTabelaConceitos;
+    property TabelaTiposPlanos: TZDataSet read GetTabelaTiposPlanos;
+    property TabelaTiposCartas: TZDataSet read GetTabelaTiposCartas;
+    property TabelaNaturezas: TZDataSet read GetTabelaNaturezas;
+    property TabelaCargos: TZDataSet read GetTabelaCargos;
+    property ConsultarAgentes: TZDataSet read GetConsultarAgentes;
+    property ConsultarCargos: TZDataSet read GetConsultarCargos;
+    property ConsultarMotivos: TZDataSet read GetConsultarMotivos;
+    property ConsultarConceitos: TZDataSet read GetConsultarConceitos;
+    property ConsultarTiposPlanos: TZDataSet read GetConsultarTiposPlanos;
+    property ConsultarTiposCartas: TZDataSet read GetConsultarTiposCartas;
+    property ConsultarNaturezas: TZDataSet read GetConsultarNaturezas;
+    property ConsultarCodigosFiscais: TZDataset read GetConsultarCodigosFiscais;
+    property ConsultarTiposMovimentos: TZDataset read GetConsultarTiposMovimentos;
+    property ConsultarTiposCartasPrecedentes: TZDataSet read GetConsultarTiposCartasPrecedentes;
+    function ExcluirAgenteTipoCarta: Boolean;
+    function ExcluirConceitoTipoCarta: Boolean;
+    function ExcluirRecebimentoTipoRecebimento: Boolean;
+    property TabelaAgentesTiposCartas: TZDataSet read GetTabelaAgentesTiposCartas;
+    property TabelaConceitosTiposCartas: TZDataSet read GetTabelaConceitosTiposCartas;
+    property TabelaConsultaAgentesTiposCartas: TZDataSet read GetTabelaConsultaAgentesTiposCartas;
+    property TabelaConsultaConceitosTiposCartas: TZDataSet read GetTabelaConsultaConceitosTiposCartas;
+    function GravarAgenteTipoCarta: Boolean;
+    function GravarConceitoTipoCarta: Boolean;
+    function IncluirAgenteTipoCarta(Editar: Boolean): Boolean;
+    function IncluirConceitoTipoCarta(Editar: Boolean): Boolean;
+    property TiposCartasarquivo: String read GetTiposCartasarquivo write setTiposCartasArquivo;
+    property TiposCartasexportar: String read GetTiposCartasexportar write setTiposCartasexportar;
+    property TiposCartasEtiqueta: String read GetTiposCartasEtiqueta write setTiposCartasEtiqueta;
+    procedure passarparametrotipodecarta;
+    property CamposTiposCartas: String read GetCamposTiposCartas write SetCamposTiposCartas;
+    procedure AlterarModeloAviso;
+    procedure AlterarModeloEtiqueta;
+    procedure AtualizarListaLancamentosNaturezas;
+    property TipoContaContabil: String read GetTipoContaContabil;
+    procedure GravarLancamentosNaturezas;
+    property TabelaTiposRecebimentos: TZDataSet read GetTabelaTiposRecebimentos;
+    property ConsultarTiposRecebimentos: TZDataSet read GetConsultarTiposRecebimentos;
+    property NumeroRegistros : String read FNumeroRegistros write FNumeroRegistros ;
+    procedure OrdenarProdutosCargos;
+    property OrdenarCodigo: Integer read FOrdenarCodigo write FOrdenarCodigo;
+    procedure EditarProdutosCargos;
+    property RegistroCargos : Integer read FRegistroCargos write FRegistroCargos;
+    property formularioInsercao : Boolean read FformularioInsercao write FformularioInsercao;
+    property Marcador : Integer read FMarcador write fMarcador;
+    property Selecionado : Integer read FSelecionado write FSelecionado;
+  end;
+
+var
+  dtmCadastroTabelasCrediario: TdtmCadastroTabelasCrediario;
+
+implementation
+
+uses dmtecsoft;
+
+{$R *.dfm}
+
+constructor TdtmCadastroTabelasCrediario.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryAgentes.Tag                 := ctCrediarioTabelaAgentes;
+  qryCargos.Tag                  := ctCrediarioTabelaCargos;
+  qryConceitos.Tag               := ctCrediarioTabelaConceitos;
+  qryMotivos.Tag                 := ctCrediarioTabelaMotivos;
+  qryTiposPlanos.Tag             := ctCrediarioTabelaTiposPlanos;
+  qryTiposCartas.Tag             := ctCrediarioTabelaTiposCartas;
+  qryNaturezas.Tag               := ctCrediarioTabelaNaturezas;
+  qryOperacao.tag                := ctCrediarioTabelaNaturezas;
+  qryTiposRecebimentos.Tag       := ctCrediarioTabelaTiposRecebimentos;
+  qryConsultaAgentes.Tag         := ctCrediarioTabelaConsultaAgentes;
+  qryConsultaAgentesTiposCartas.Tag := ctCrediarioTabelaConsultaAgentesTiposCartas;
+  qryConsultaCargos.Tag          := ctCrediarioTabelaConsultaCargos;
+  qryConsultaConceitos.Tag       := ctCrediarioTabelaConsultaConceitos;
+  qryConsultaConceitosTiposCartas.Tag := ctCrediarioTabelaConsultaConceitosTiposCartas;
+  qryConsultaMotivos.Tag         := ctCrediarioTabelaConsultaMotivos;
+  qryConsultaTiposCartas.Tag     := ctCrediarioTabelaConsultaTiposCartas;
+  qryConsultaTiposCartasPrecedente.Tag := ctCrediarioTabelaConsultaTiposCartasPrecedente;
+  qryConsultaTiposPlanos.Tag     := ctCrediarioTabelaConsultaTiposPlanos;
+  qryConsultaNaturezas.Tag       := ctCrediarioTabelaConsultaNaturezas;
+  qryConsultaCodigosFiscais.Tag  := ctTabelaConsultaCodigoFiscal;
+  qryConsultaTiposMovimentos.Tag := ctConsultaTiposMovimentos;
+  qryConsultaHistorico.Tag       := ctConsultaHistoricos;
+  qryConsultaTiposRecebimentos.Tag := ctConsultaTiposRecebimentos;
+  qryConsultaContaContabil.Tag := ctConsultaContaContabil;
+  qryProdutosporCargo.Tag      := ctCrediarioTabelasProdutosCargos;
+  qryConsultaContas.Tag        := ctConsultaContas;
+  qryProcuraDebitar.Params[1].AsInteger := 0;
+  qryProcuraCreditar.Params[1].AsInteger := 0;
+end;
+
+procedure TdtmCadastroTabelasCrediario.AbrirTabelasCadastro(Tabela: TtecTabelasCrediario);
+begin
+  case Tabela of
+    tbcAGENTE          : Abre(ctCrediarioTabelaAgentes);
+    tbcCARGO           : Abre(ctCrediarioTabelaCargos);
+    tbcCONCEITO        : Abre(ctCrediarioTabelaConceitos);
+    tbcTIPOPLANO       : Abre(ctCrediarioTabelaTiposPlanos);
+    tbcMOTIVO          : Abre(ctCrediarioTabelaMotivos);
+    tbcTIPOCARTA       : Abre(ctCrediarioTabelaTiposCartas);
+    tbcNATUREZA        : Abre(ctCrediarioTabelaNaturezas);
+    tbcTIPORECEBIMENTO : Abre(ctCrediarioTabelaTiposRecebimentos);
+    tbcPRODUTOSCARGOS  : qryProdutosporCargo.Open;
+    tbcCONTAS          : qryContasTiposRecebimentos.Open;
+  end;
+end;
+
+procedure TdtmCadastroTabelasCrediario.AbrirTabelasConsulta(Tabela: TtecTabelasCrediario);
+begin
+  case Tabela of
+    tbcAGENTE : Abre(ctCrediarioTabelaConsultaAgentes);
+    tbcAGENTETIPOCARTA : Abre(ctCrediarioTabelaConsultaAgentesTiposCartas);
+    tbcCARGO    : Abre(ctCrediarioTabelaConsultaCargos);
+    tbcCONCEITO : Abre(ctCrediarioTabelaConsultaConceitos);
+    tbcCONCEITOTIPOCARTA : Abre(ctCrediarioTabelaConsultaConceitosTiposCartas);
+    tbcTIPOPLANO: Abre(ctCrediarioTabelaConsultaTiposPlanos);
+    tbcMOTIVO   : Abre(ctCrediarioTabelaConsultaMotivos);
+    tbcTIPOCARTA: Abre(ctCrediarioTabelaConsultaTiposCartas);
+    tbcTIPOATENDIMENTO : qryConsultaTiposAtendimentos.Open;
+    tbcAGENTETIPORECEBIMENTO : qryConsultaAgentes.Open;
+    tbcTIPOCARTAPRECEDENTE: begin
+                             qryConsultaTiposCartas.MacroByName('SQL').AsString := '';
+                             qryConsultaTiposCartasPrecedente.Params[0].AsInteger := qryTiposCartascodigo.AsInteger;
+                             Abre(ctCrediarioTabelaConsultaTiposCartasPrecedente);
+                            end;
+    tbcNATUREZA : Abre(ctCrediarioTabelaConsultaNaturezas);
+    tbcCFOP     : Abre(ctTabelaConsultaCodigoFiscal);
+    tbcTIPOMOVTO: Abre(ctConsultaTiposMovimentos);
+    tbcCONTADEBITO : begin
+                       if qryNaturezascreditar.AsInteger<>0 then
+                         qryConsultaContaContabil.MacroByName('consulta').AsString :=
+                           'and codigo <> '+qryNaturezascreditar.AsString;
+                       Abre(ctConsultaContaContabil);
+                     end;
+    tbcCONTACREDITO : begin
+                       if qryNaturezasdebitar.AsInteger<>0 then
+                         qryConsultaContaContabil.MacroByName('consulta').AsString :=
+                           'and codigo <> '+qryNaturezasdebitar.AsString;
+                       Abre(ctConsultaContaContabil);
+                      end;
+    tbcCONTACONTABIL : begin
+                         qryConsultaContaContabil.MacroByName('consulta').AsString :='';
+                         Abre(ctConsultaContaContabil);
+                      end;
+    tbcHISTORICO   : abre(ctConsultaHistoricos);
+    tbcTIPORECEBIMENTO : abre(ctConsultaTiposRecebimentos);
+    tbcCONTAS : abre(ctConsultaContas);
+  end;
+end;
+
+procedure TdtmCadastroTabelasCrediario.FecharTabelasConsulta(Tabela: TtecTabelasCrediario);
+begin
+  case Tabela of
+    tbcAGENTE : Fecha(ctCrediarioTabelaConsultaAgentes);
+    tbcAGENTETIPOCARTA : Fecha(ctCrediarioTabelaConsultaAgentesTiposCartas);
+    tbcCARGO    : Fecha(ctCrediarioTabelaConsultaCargos);
+    tbcCONCEITO : Fecha(ctCrediarioTabelaConsultaConceitos);
+    tbcCONCEITOTIPOCARTA : Fecha(ctCrediarioTabelaConsultaConceitosTiposCartas);
+    tbcTIPOPLANO: Fecha(ctCrediarioTabelaConsultaTiposPlanos);
+    tbcMOTIVO   : Fecha(ctCrediarioTabelaConsultaMotivos);
+    tbcTIPOCARTA: Fecha(ctCrediarioTabelaConsultaTiposCartas);
+    tbcAGENTETIPORECEBIMENTO: qryConsultaAgentes.Close;
+    tbcTIPOATENDIMENTO: qryConsultaTiposAtendimentos.Close;
+    tbcTIPOCARTAPRECEDENTE: Fecha(ctCrediarioTabelaConsultaTiposCartasPrecedente);
+    tbcNATUREZA : Fecha(ctCrediarioTabelaConsultaNaturezas);
+    tbcCFOP     : Fecha(ctTabelaConsultaCodigoFiscal);
+    tbcTIPOMOVTO: Fecha(ctConsultaTiposMovimentos);
+    tbcCONTADEBITO,
+    tbcCONTACREDITO,
+    tbcCONTACONTABIL: Fecha(ctCONSULTACONTACONTABIL);
+    tbcHISTORICO   : Fecha(ctConsultaHistoricos);
+    tbcTIPORECEBIMENTO : Fecha(ctConsultaTiposRecebimentos);
+    tbcPRODUTOSCARGOS  : qryProdutosporCargo.Close;
+    tbcCONTAS : Fecha(ctConsultaContas);
+  end;
+end;
+
+function TdtmCadastroTabelasCrediario.ExcluirConceito: Boolean;
+begin
+  if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o CONCEITO'])) = smbOk then begin
+    if not qryConceitos.IsEmpty then
+         qryConceitos.Delete
+    else qryConceitos.Cancel;
+    Perpetrar([qryConceitos]);
+    Result:= True;
+  end
+  else
+    Result:= False;
+end;
+
+function TdtmCadastroTabelasCrediario.ExcluirCargo: Boolean;
+begin
+  if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o CARGO'])) = smbOk then begin
+    if not qryCargos.IsEmpty then
+       qryCargos.Delete
+    else qryCargos.Cancel;
+    Perpetrar([qryCargos]);
+    Result:= True;
+  end
+  else
+    Result:= False;
+end;
+
+function TdtmCadastroTabelasCrediario.ExcluirAgente: Boolean;
+begin
+  if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o AGENTE'])) = smbOk then begin
+    if not qryAgentes.IsEmpty then
+         qryAgentes.Delete
+    else qryAgentes.Cancel;
+    Perpetrar([qryAgentes]);
+    Result:= True;
+  end
+  else
+    Result:= False;
+end;
+
+function TdtmCadastroTabelasCrediario.ExcluirTipoPlano: Boolean;
+begin
+  if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o TIPO DE PLANO'])) = smbOk then begin
+    if not qryTiposPlanos.IsEmpty then
+         qryTiposPlanos.Delete
+    else qryTiposPlanos.Cancel;
+    Perpetrar([qryTiposPlanos]);
+    Result:= True;
+  end
+  else
+    Result:= False;
+end;
+
+function TdtmCadastroTabelasCrediario.ExcluirMotivo: Boolean;
+begin
+  if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o MOTIVO'])) = smbOk then begin
+    if not qryMotivos.IsEmpty then
+         qryMotivos.Delete
+    else qryMotivos.Cancel;
+    Perpetrar([qryMotivos]);
+    Result:= True;
+  end
+  else
+    Result:= False;
+end;
+
+function TdtmCadastroTabelasCrediario.ExcluirTipoCarta: Boolean;
+begin
+  if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o TIPO DE CARTA'])) = smbOk then begin
+    if not qryTiposCartas.IsEmpty then
+         qryTiposCartas.Delete
+    else qryTiposCartas.Cancel;
+    Perpetrar([qryTiposCartas]);
+    Result:= True;
+  end
+  else
+    Result:= False;
+end;
+
+function TdtmCadastroTabelasCrediario.ExcluirNatureza: Boolean;
+begin
+  if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['a NATUREZA DE OPERAÇÃO'])) = smbOk then begin
+    if not qryNaturezas.IsEmpty then
+         qryNaturezas.Delete
+    else qryNaturezas.Cancel;
+    Perpetrar([qryNaturezas]);
+    if qryLancamentosNaturezas.Active then
+      qryLancamentosNaturezas.Close;
+    Result:= True;
+  end
+  else
+    Result:= False;
+end;
+
+function TdtmCadastroTabelasCrediario.GravarConceito: Boolean;
+begin
+  if qryConceitos.CheckRequiredFields then begin
+    if qryConceitos.State = dsInsert then
+      qryConceitos.Post;
+      Perpetrar([qryConceitos]);
+      Result:= True;
+    end
+  else
+    Result:= False;
+end;
+
+function TdtmCadastroTabelasCrediario.GravarCargo: Boolean;
+begin
+  if qryCargos.CheckRequiredFields then begin
+    if qryCargos.State = dsInsert then
+    begin
+      spcCargosProximo.Open;
+      qryCargoscodigo.asInteger:= spcCargosProximocodigo.AsInteger;
+      spcCargosProximo.Close;
+    end;
+    qryCargos.Post;
+    Perpetrar([qryCargos]);
+    Result:= True;
+  end
+  else
+    Result:= False;
+end;
+
+function TdtmCadastroTabelasCrediario.GravarAgente: Boolean;
+begin
+  if qryAgentes.CheckRequiredFields then begin
+    qryAgentes.Post;
+    Perpetrar([qryAgentes]);
+    Result:= True;
+  end
+  else
+    Result:= False;  
+end;
+
+function TdtmCadastroTabelasCrediario.GravarTipoPlano: Boolean;
+begin
+  if qryTiposPlanos.CheckRequiredFields then begin
+    if qryTiposPlanos.State = dsInsert then
+    begin
+      spcTiposPlanosProximo.Open;
+      qryTiposPlanoscodigo.AsInteger:= spcTiposPlanosProximocodigo.AsInteger;
+      spcTiposPlanosProximo.Close;
+    end;
+    qryTiposPlanos.Post;
+    Perpetrar([qryTiposPlanos]);
+    Result:= True;
+  end
+  else
+    Result:= False;
+end;
+
+function TdtmCadastroTabelasCrediario.GravarMotivo: Boolean;
+begin
+  if qryMotivos.CheckRequiredFields then begin
+    if qryMotivos.State = dsInsert then
+    begin
+      spcMotivosProximo.Open;
+      qryMotivoscodigo.asInteger:= spcMotivosProximocodigo.AsInteger;
+      spcMotivosProximo.Close;
+    end;
+    qryMotivos.Post;
+    Perpetrar([qryMotivos]);
+    Result:= True;
+  end
+  else
+    Result:= False;
+end;
+
+function TdtmCadastroTabelasCrediario.GravarTipoCarta: Boolean;
+var
+  cnt: Integer;
+begin
+  if qryTiposCartas.CheckRequiredFields then begin
+    if qryTiposCartas.State = dsInsert then
+    begin
+      spcTiposCartasProximo.Open;
+      qryTiposCartascodigo.asInteger:= spcTiposCartasProximocodigo.AsInteger;
+      spcTiposCartasProximo.Close;
+    end;
+    qryTiposCartas.Post;
+    qryAgentesTiposCartas.DisableControls;
+    qryAgentesTiposCartas.First;
+    for cnt:= 1 to qryAgentesTiposCartas.RecordCount do
+    begin
+     if qryAgentesTiposCartastipocarta.Value = 0 then
+     begin
+      qryAgentesTiposCartas.Edit;
+      qryAgentesTiposCartastipocarta.AsInteger := qryTiposCartascodigo.AsInteger;
+      qryAgentesTiposCartas.Post;
+     end;
+     qryAgentesTiposCartas.Next;
+    end;
+    qryAgentesTiposCartas.EnableControls;
+    qryConceitosTiposCartas.DisableControls;
+    qryConceitosTiposCartas.First;
+    for cnt:= 1 to qryConceitosTiposCartas.RecordCount do
+    begin
+     if qryConceitosTiposCartastipocarta.Value = 0 then
+     begin
+      qryConceitosTiposCartas.Edit;
+      qryConceitosTiposCartastipocarta.AsInteger := qryTiposCartascodigo.AsInteger;
+      qryConceitosTiposCartas.Post;
+     end;
+     qryConceitosTiposCartas.Next;
+    end;
+    qryConceitosTiposCartas.EnableControls;
+    Perpetrar([qryTiposCartas, qryAgentesTiposCartas, qryConceitosTiposCartas]);
+    Result:= True;
+  end
+  else
+    Result:= False;
+end;
+
+function TdtmCadastroTabelasCrediario.GravarNatureza: Boolean;
+begin
+  Result:= False;
+  if qryNaturezas.CheckRequiredFields then
+  begin
+    if qryNaturezasTipo.AsString = 'E' then  //entrada
+    begin
+      result := (strtoint(copy(qryNaturezascodigofiscal.AsString,1,1)) in [1,2,3]);
+      if not result then
+        MensagemErro('O código fiscal não é uma operação de entrada');
+    end
+    else
+    if qryNaturezasTipo.AsString = 'S' then  //saida
+    begin
+      result := (strtoint(copy(qryNaturezascodigofiscal.AsString,1,1)) in [5,6,7]);
+      if not result then
+        MensagemErro('O código fiscal não é uma operação de saída');
+    end
+    else
+    if qryNaturezasTipo.AsString = 'R' then  //Serviços
+      result := true;
+
+    if result then
+    begin
+      if qryNaturezas.State = dsInsert then
+      begin
+        spcNaturezasProximo.Open;
+        qryNaturezascodigo.AsInteger:= spcNaturezasProximocodigo.AsInteger;
+        spcNaturezasProximo.Close;
+      end;
+      if ParSistema.GerarContabilidade then
+      begin
+        qryLancamentosNaturezas.AfterPost := nil;
+
+        qryLancamentosNaturezas.First;
+        while not qryLancamentosNaturezas.Eof do
+        begin
+          if ((qryLancamentosNaturezasoperacao.AsString = 'N') and
+              (qryLancamentosNaturezascontacontabil.AsInteger=0) and
+              (qryLancamentosNaturezashistorico.AsInteger=0) and
+              (qryLancamentosNaturezasclassificacao.AsString='')) or
+
+             (qryNaturezaslanctoscustomedio.AsBoolean and
+              ((qryLancamentosNaturezasdescricao.AsString <> 'Custo da mercadoria') and
+               (qryLancamentosNaturezasdescricao.AsString <> 'Total da nota') 
+{               (qryLancamentosNaturezasdescricao.AsString = 'Despesas de ICMS') or
+               (qryLancamentosNaturezasdescricao.AsString = 'Despesas de IPI') or
+               (qryLancamentosNaturezasdescricao.AsString = 'Despesas de ISS') or
+               (qryLancamentosNaturezasdescricao.AsString = 'Frete') or
+               (qryLancamentosNaturezasdescricao.AsString = 'ICMS a recolher') or
+               (qryLancamentosNaturezasdescricao.AsString = 'ICMS substituição tributária') or
+               (qryLancamentosNaturezasdescricao.AsString = 'IPI a recolher') or
+               (qryLancamentosNaturezasdescricao.AsString = 'ISS a recolher') or
+               (qryLancamentosNaturezasdescricao.AsString = 'Receita de produtos') or
+               (qryLancamentosNaturezasdescricao.AsString = 'Receita de serviços') or
+               (qryLancamentosNaturezasdescricao.AsString = 'Seguro')}) )  then
+
+            qryLancamentosNaturezas.Delete
+          else
+            qryLancamentosNaturezas.Next;
+        end;
+
+        qryLancamentosNaturezas.First;
+        while not qryLancamentosNaturezas.Eof do
+        begin
+          qryLancamentosNaturezas.Edit;
+          qryLancamentosNaturezasnatureza.AsInteger := qryNaturezascodigo.AsInteger;
+          qryLancamentosNaturezas.Post;
+          qryLancamentosNaturezas.Next;
+        end;
+        qryLancamentosNaturezas.AfterPost := qryLancamentosNaturezasAfterPost;
+      end;
+      qryNaturezas.Post;
+      Perpetrar([qryNaturezas,qryLancamentosNaturezas]);
+      if ParSistema.GerarContabilidade then
+        AtualizarListaLancamentosNaturezas;
+      Result:= True;
+    end;
+  end;
+end;
+
+function TdtmCadastroTabelasCrediario.IncluirConceito: Boolean;
+begin
+  qryConceitos.Insert;
+  qryConceitosrestricoes.AsBoolean:= False;
+  Result:= True;
+end;
+
+function TdtmCadastroTabelasCrediario.IncluirCargo: Boolean;
+begin
+  qryCargos.Insert;
+  Result:= True;
+end;
+
+function TdtmCadastroTabelasCrediario.IncluirAgente: Boolean;
+begin
+  qryAgentes.Insert;
+  Result:= True;
+end;
+
+function TdtmCadastroTabelasCrediario.IncluirTipoPlano: Boolean;
+begin
+  qryTiposPlanos.Insert;
+  Result:= True;
+end;
+
+function TdtmCadastroTabelasCrediario.IncluirMotivo: Boolean;
+begin
+  qryMotivos.Insert;
+  qryMotivostipomotivo.AsString:= 'O';
+  Result:= True;
+end;
+
+function TdtmCadastroTabelasCrediario.IncluirTipoCarta: Boolean;
+begin
+  qryTiposCartas.Insert;
+  qryTiposCartastipo.AsString:= 'A';
+  Result:= True;
+end;
+
+function TdtmCadastroTabelasCrediario.IncluirNatureza: Boolean;
+begin
+  qryNaturezas.Insert;
+  qryNaturezasTipo.AsString:= 'S';
+  Result:= True;
+end;
+
+function TdtmCadastroTabelasCrediario.ExisteAgente(campo, codigo: string): boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaAgentes, campo, codigo);
+end;
+
+function TdtmCadastroTabelasCrediario.ExisteCargo(campo, codigo: string): boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaCargos, campo, codigo);
+end;
+
+function TdtmCadastroTabelasCrediario.ExisteConceito(campo, codigo: string): boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaConceitos, campo, codigo);
+end;
+
+function TdtmCadastroTabelasCrediario.ExisteMotivo(campo, codigo: string): boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaMotivos, campo, codigo);
+end;
+
+(*function TdtmCadastroTabelasCrediario.ExistePlano(campo, codigo: string): boolean;
+begin;
+  Result:= ExisteCodigo(qryConsultaPlanos, campo, codigo);
+end;*)
+
+function TdtmCadastroTabelasCrediario.ExisteTipoPlano(campo, codigo: string): boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaTiposPlanos, campo, codigo);
+end;
+
+function TdtmCadastroTabelasCrediario.ExisteTipoCarta(campo, codigo: string): boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaTiposCartas, campo, codigo);
+end;
+
+function TdtmCadastroTabelasCrediario.ExisteNatureza(campo, codigo: String): boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaNaturezas, campo, codigo);
+end;
+
+function TdtmCadastroTabelasCrediario.ExisteCodigosFiscais(campo, codigo: String): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaCodigosFiscais, campo, codigo);
+end;
+
+function TdtmCadastroTabelasCrediario.ExisteTiposMovimentos(campo, codigo: String): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaTiposMovimentos, campo, codigo);
+end;
+
+procedure TdtmCadastroTabelasCrediario.SelecionarMultiplas(Tabela: TtecTabelasCrediario);
+begin
+  case Tabela of
+    tbcAGENTE   : ReFazConsulta(qryAgentes,    [0],[qryConsultaAgentescodigo.asInteger]);
+    tbcAGENTETIPOCARTA :
+    begin
+     qryAgentesTiposCartas.Edit;
+     qryAgentesTiposCartasagente.AsInteger  := qryConsultaAgentesTiposCartascodigo.AsInteger;
+     qryAgentesTiposCartasdescricao.AsString:= qryConsultaAgentesTiposCartasdescricao.AsString;
+    end;
+    tbcCARGO    :
+      ReFazConsulta(qryCargos,[0],[qryConsultaCargoscodigo.asInteger]);
+    tbcPRODUTOSCARGOS : ReFazConsulta(qryProdutosporCargo,[0],[qryCargoscodigo.AsVariant]);
+    tbcCONCEITO : ReFazConsulta(qryConceitos,  [0],[qryConsultaConceitoscodigo.asInteger]);
+    tbcCONCEITOTIPOCARTA :
+    begin
+     qryConceitosTiposCartas.Edit;
+     qryConceitosTiposCartasconceito.AsInteger:= qryConsultaConceitosTiposCartascodigo.AsInteger;
+     qryConceitosTiposCartasdescricao.AsString:= qryConsultaConceitosTiposCartasdescricao.AsString;
+    end;
+    tbcTIPOPLANO: ReFazConsulta(qryTiposPlanos,[0],[qryConsultaTiposPlanoscodigo.AsInteger]);
+    tbcMOTIVO   : ReFazConsulta(qryMotivos,    [0],[qryConsultaMotivoscodigo.AsInteger]);
+    tbcTIPOCARTA: ReFazConsulta(qryTiposCartas,[0],[qryConsultaTiposCartascodigo.AsInteger]);
+    tbcTIPOATENDIMENTO:
+    begin
+      qryTiposCartas.edit;
+      qryTiposCartastipoatendimento.AsInteger := qryConsultaTiposAtendimentoscodigo.AsInteger;
+    end;
+    tbcAGENTETIPORECEBIMENTO:
+    begin
+       qryTiposRecebimentos.Edit;
+       qryTiposRecebimentosagente.AsInteger := qryConsultaAgentescodigo.AsInteger;
+    end;
+
+
+    tbcTIPOCARTAPRECEDENTE: begin
+                             qryTiposCartas.Edit;
+                             qryTiposCartasprecedente.AsInteger := qryConsultaTiposCartasPrecedentecodigo.AsInteger;
+                            end;
+    tbcNATUREZA : ReFazConsulta(qryNaturezas,  [0],[qryConsultaNaturezascodigo.AsInteger]);
+    tbcCFOP     : begin
+                    qryNaturezas.Edit;
+                    qryNaturezascodigofiscal.AsInteger:= qryConsultaCodigosFiscaiscodigo.AsInteger;
+                  end;
+    tbcTIPOMOVTO: begin
+                    qryNaturezas.Edit;
+                    qryNaturezasTipomovimento.AsString:= qryConsultaTiposMovimentoscodigo.AsString;
+                  end;
+    tbcCONTADEBITO : begin
+                        if qryConsultaContaContabiltipo.AsString<>'S' then
+                        begin
+                          if not (qryNaturezas.state in [dsinsert, dsedit]) then
+                            qryNaturezas.Edit;
+                          qryNaturezasdebitar.AsInteger := qryConsultaContaContabilcodigo.AsInteger
+                        end
+                        else
+                        begin
+                          if not qryNaturezasdebitar.IsNull then
+                          begin
+                            if not (qryNaturezas.state in [dsinsert, dsedit]) then
+                              qryNaturezas.Edit;
+                            qryNaturezasdebitar.Clear;
+                          end;
+                        end
+                      end;
+    tbcCONTACREDITO : begin
+                        if qryConsultaContaContabiltipo.AsString<>'S' then
+                        begin
+                          if not (qryNaturezas.state in [dsinsert, dsedit]) then
+                            qryNaturezas.Edit;
+                          qryNaturezascreditar.AsInteger := qryConsultaContaContabilcodigo.AsInteger
+                        end
+                        else
+                        begin
+                          if not qryNaturezascreditar.IsNull then
+                          begin
+                            if not (qryNaturezas.state in [dsinsert, dsedit]) then
+                              qryNaturezas.Edit;
+                            qryNaturezascreditar.Clear;
+                          end;
+                        end
+                      end;
+    tbcCONTACONTABIL : begin
+                        if qryConsultaContaContabiltipo.AsString<>'S' then
+                        begin
+                          if not (qryLancamentosNaturezas.state in [dsedit]) then
+                            qryLancamentosNaturezas.Edit;
+                          qryLancamentosNaturezascontacontabil.AsInteger := qryConsultaContaContabilcodigo.AsInteger;
+                          qryLancamentosNaturezasclassificacao.AsString := qryConsultaContaContabilclassificacao.AsString;
+                        end
+                        else
+                        begin
+                          if not (qryLancamentosNaturezas.state in [dsedit]) then
+                            qryLancamentosNaturezas.Edit;
+                          qryLancamentosNaturezascontacontabil.Clear;
+                        end
+                       end;
+
+    tbcHISTORICO   : begin
+{
+                       if not (qryNaturezas.state in [dsinsert, dsedit]) then
+                          qryNaturezas.Edit;
+                       qryNaturezashistorico.AsInteger := qryConsultaHistoricocodigo.AsInteger
+}
+                       if not (qryLancamentosNaturezas.state in [dsedit]) then
+                          qryLancamentosNaturezas.Edit;
+                       qryLancamentosNaturezashistorico.AsInteger := qryConsultaHistoricocodigo.AsInteger
+                      end;
+
+    tbcTIPORECEBIMENTO : ReFazConsulta(qryTiposRecebimentos,[0],[qryConsultaTiposRecebimentoscodigo.AsInteger]);
+    tbcCONTAS : ReFazConsulta(qryProcuraContas,[0],[qryConsultaContasConta.AsInteger]);
+  end;
+end;
+
+function TdtmCadastroTabelasCrediario.GetTabelaAgentes: TZDataSet;
+begin
+  Result:= qryAgentes;
+end;
+
+function TdtmCadastroTabelasCrediario.GetTabelaMotivos: TZDataSet;
+begin
+  Result:= qryMotivos;
+end;
+
+function TdtmCadastroTabelasCrediario.GetTabelaConceitos: TZDataSet;
+begin
+  Result:= qryConceitos;
+end;
+
+function TdtmCadastroTabelasCrediario.GetTabelaTiposPlanos: TZDataSet;
+begin
+  Result:= qryTiposPlanos;
+end;
+
+function TdtmCadastroTabelasCrediario.GetTabelaTiposCartas: TZDataSet;
+begin
+  Result:= qryTiposCartas;
+end;
+
+function TdtmCadastroTabelasCrediario.GetTabelaNaturezas: TZDataSet;
+begin
+  Result:= qryNaturezas;
+end;
+
+function TdtmCadastroTabelasCrediario.GetTabelaCargos: TZDataSet;
+begin
+  Result:= qryCargos;
+end;
+
+function TdtmCadastroTabelasCrediario.GetConsultarAgentes: TZDataSet;
+begin
+  Result:= qryConsultaAgentes;
+end;
+
+function TdtmCadastroTabelasCrediario.GetConsultarCargos: TZDataSet;
+begin
+  Result:= qryConsultaCargos;
+end;
+
+(*function TdtmCadastroTabelasCrediario.GetConsultarPlanos: TZDataSet;
+begin
+  Result:= qryConsultaPlanos;
+end;*)
+
+function TdtmCadastroTabelasCrediario.GetConsultarMotivos: TZDataSet;
+begin
+  Result:= qryConsultaMotivos;
+end;
+
+function TdtmCadastroTabelasCrediario.GetConsultarConceitos: TZDataSet;
+begin
+  Result:= qryConsultaConceitos;
+end;
+
+function TdtmCadastroTabelasCrediario.GetConsultarTiposPlanos: TZDataSet;
+begin
+  Result:= qryConsultaTiposPlanos;
+end;
+
+function TdtmCadastroTabelasCrediario.GetConsultarTiposCartas: TZDataSet;
+begin
+  Result:= qryConsultaTiposCartas;
+end;
+
+function TdtmCadastroTabelasCrediario.GetConsultarNaturezas: TZDataSet;
+begin
+  Result:= qryConsultaNaturezas;
+end;
+
+procedure TdtmCadastroTabelasCrediario.qryNaturezasNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+  qryNaturezasTipo.AsString:= 'E';
+  qryNaturezasdestacaripi.AsBoolean := false;
+  qryNaturezascredbigualvalornota.AsBoolean := false;
+  qryNaturezasgravarsemlanctos.AsBoolean := false;
+  qryNaturezaslanctoscustomedio.AsBoolean := false;
+  qryNaturezasicmssobreipi.AsBoolean := false;
+  qryNaturezasdiferenciada.AsBoolean := false;
+  qryNaturezasnaogerarcreditoicms.AsBoolean := false;
+
+end;
+
+function TdtmCadastroTabelasCrediario.GetConsultarCodigosFiscais: TZDataset;
+begin
+  Result:= qryConsultaCodigosFiscais;
+end;
+
+function TdtmCadastroTabelasCrediario.GetConsultarTiposMovimentos: TZDataset;
+begin
+  Result:= qryConsultaTiposMovimentos;
+end;
+
+procedure TdtmCadastroTabelasCrediario.dsrNaturezasDataChange(Sender: TObject; Field: TField);
+var Tipo: String[1];
+begin
+  inherited;
+  if Field = qryNaturezasTipo then begin
+     Tipo:= qryNaturezasTipo.AsString;
+     Case Tipo[1] of
+        'E': begin {--------------------------------------------- NF de entrada}
+                if (qryNaturezasCodigoFiscal.AsInteger < 1000) or
+                   (qryNaturezasCodigoFiscal.AsInteger > 3999) then begin
+                   qryNaturezas.Edit;
+                   qryNaturezasCodigoFiscal.Clear;
+                end;
+                qryConsultaCodigosFiscais.MacroByName('TipodeNotaFiscal').AsString := ' and Codigo > 1000 AND Codigo < 4000 ';
+                qryProcuraCodigosFiscais.MacroByName('TipodeNotaFiscal').AsString := ' and Codigo > 1000 AND Codigo < 4000 ';
+                qryNaturezaslanctoscustomedio.AsBoolean := false;
+             end;
+
+        'S': begin {----------------------------------------------- NF de saída}
+                if (qryNaturezasCodigoFiscal.AsInteger < 5000) or
+                   (qryNaturezasCodigoFiscal.AsInteger > 7999) then begin
+                   qryNaturezas.Edit;
+                   qryNaturezasCodigoFiscal.Clear;
+                end;
+                qryConsultaCodigosFiscais.MacroByName('TipodeNotaFiscal').AsString := ' and Codigo > 5000 AND Codigo < 8000 ';
+                qryProcuraCodigosFiscais.MacroByName('TipodeNotaFiscal').AsString := ' and Codigo > 5000 AND Codigo < 8000 ';
+             end;
+        'R': begin {--------------------------------------------- NF de serviço}
+                if qryNaturezasCodigoFiscal.AsInteger < 8000 then begin
+                   qryNaturezas.Edit;
+                   qryNaturezasCodigoFiscal.Clear;
+                end;
+                qryConsultaCodigosFiscais.MacroByName('TipodeNotaFiscal').AsString := ' and Codigo >= 8000 ';
+                qryProcuraCodigosFiscais.MacroByName('TipodeNotaFiscal').AsString := ' and Codigo >= 8000 ';
+                qryNaturezaslanctoscustomedio.AsBoolean := false;
+             end;
+     end;
+  end
+  else
+  if field = qryNaturezasCodigoFiscal then begin
+     if not qryNaturezasCodigoFiscal.IsNull then begin
+        qryNaturezasdebitar.   AsVariant := qryProcuraCodigosFiscaisdebitoconta. AsVariant;
+        qryNaturezascreditar.  AsVariant := qryProcuraCodigosFiscaiscreditoconta.AsVariant;
+        qryNaturezashistorico. AsVariant := qryProcuraCodigosFiscaishistorico.   AsVariant;
+       qryNaturezasdestacaripi.AsBoolean := qryProcuraCodigosFiscaisdestacaripi. AsBoolean;
+     end;
+  end
+  else if Field = qryNaturezasdebitar then
+    qryProcuraCreditar.Params[1].AsInteger := qryNaturezasdebitar.AsInteger
+  else if field = qryNaturezascreditar then
+    qryProcuraDebitar.Params[1].AsInteger := qryNaturezascreditar.AsInteger;
+end;
+
+function TdtmCadastroTabelasCrediario.ExcluirAgenteTipoCarta: Boolean;
+begin
+  if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o AGENTE'])) = smbOk then
+  begin
+    if not qryAgentesTiposCartas.IsEmpty then
+      qryAgentesTiposCartas.Delete
+    else
+      qryAgentesTiposCartas.Cancel;
+    qryProcuraAgentesTiposCartas.Sql[4]  := 'AND'   + MontaFiltroAgentes(False);
+    qryConsultaAgentesTiposCartas.Sql[3] := 'WHERE' + MontaFiltroAgentes(False);
+    qryTiposCartas.Edit;
+    Result:= True;
+  end
+  else
+    Result:= False;
+end;
+
+function TdtmCadastroTabelasCrediario.ExcluirConceitoTipoCarta: Boolean;
+begin
+  if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o CONCEITO'])) = smbOk then
+  begin
+    if not qryConceitosTiposCartas.IsEmpty then
+      qryConceitosTiposCartas.Delete
+    else
+      qryConceitosTiposCartas.Cancel;
+    qryProcuraConceitosTiposCartas.Sql[4]  := 'AND' + MontaFiltroConceitos(False);
+    qryConsultaConceitosTiposCartas.Sql[3] := 'WHERE' + MontaFiltroConceitos(False);
+    qryTiposCartas.Edit;
+    Result:= True;
+  end
+  else
+    Result:= False;
+end;
+
+function TdtmCadastroTabelasCrediario.MontaFiltroAgentes(
+  Editando: Boolean): String;
+var
+  Campos: String;
+  Pos   : TBookmark;
+  CodAnterior: Integer;
+begin
+  if Editando then
+    CodAnterior:= qryAgentesTiposCartasagente.AsInteger
+  else
+    CodAnterior:= 0;
+  Result := ' codigo NOT IN (%s)';
+  Campos := '';
+  Pos := qryAgentesTiposCartas.GetBookmark;
+  qryAgentesTiposCartas.DisableControls;
+  qryAgentesTiposCartas.First;
+  if qryAgentesTiposCartas.IsEmpty then
+    Campos := '0'
+  else
+  begin
+    while not qryAgentesTiposCartas.Eof do
+    begin
+      if qryAgentesTiposCartasagente.AsInteger <> CodAnterior then
+        Campos := Campos + '''' + qryAgentesTiposCartasagente.AsString + ''','
+      else
+        Campos := '0,';
+      qryAgentesTiposCartas.Next;
+    end;
+    Campos := Copy(Campos, 0, Length(Campos) - 1);
+  end;
+  Result := Format(Result, [Campos]);
+  qryAgentesTiposCartas.GotoBookmark(Pos);
+  qryAgentesTiposCartas.FreeBookmark(Pos);
+  qryAgentesTiposCartas.EnableControls;
+end;
+
+function TdtmCadastroTabelasCrediario.MontaFiltroConceitos(
+  Editando: Boolean): String;
+var
+  Campos: String;
+  Pos   : TBookmark;
+  CodAnterior: Integer;
+begin
+  if Editando then
+    CodAnterior:= qryConceitosTiposCartasConceito.AsInteger
+  else
+    CodAnterior:= 0;
+  Result := ' codigo NOT IN (%s)';
+  Campos := '';
+  Pos := qryConceitosTiposCartas.GetBookmark;
+  qryConceitosTiposCartas.DisableControls;
+  qryConceitosTiposCartas.First;
+  if qryConceitosTiposCartas.IsEmpty then
+    Campos := '0'
+  else
+  begin
+    while not qryConceitosTiposCartas.Eof do
+    begin
+      if qryConceitosTiposCartasConceito.AsInteger <> CodAnterior then
+        Campos := Campos + '''' +  qryConceitosTiposCartasconceito.AsString + ''','
+      else
+        Campos := '0,';
+      qryConceitosTiposCartas.Next;
+    end;
+    Campos := Copy(Campos, 0, Length(Campos) - 1);
+  end;
+  Result := Format(Result,[Campos]);
+  qryConceitosTiposCartas.GotoBookmark(Pos);
+  qryConceitosTiposCartas.FreeBookmark(Pos);
+  qryConceitosTiposCartas.EnableControls;
+end;
+
+function TdtmCadastroTabelasCrediario.GetTabelaAgentesTiposCartas: TZDataSet;
+begin
+  Result:= qryAgentesTiposCartas;
+end;
+
+function TdtmCadastroTabelasCrediario.GetTabelaConceitosTiposCartas: TZDataSet;
+begin
+  Result:= qryConceitosTiposCartas;
+end;
+
+function TdtmCadastroTabelasCrediario.GetTabelaConsultaAgentesTiposCartas: TZDataSet;
+begin
+  Result:= qryConsultaAgentesTiposCartas;
+end;
+
+function TdtmCadastroTabelasCrediario.GetTabelaConsultaConceitosTiposCartas: TZDataSet;
+begin
+  Result:= qryConsultaConceitosTiposCartas;
+end;
+
+function TdtmCadastroTabelasCrediario.GravarAgenteTipoCarta: Boolean;
+begin
+  qryAgentesTiposCartasdescricao.Value := qryProcuraAgentesTiposCartasdescricao.Value;
+  qryAgentesTiposCartas.Post;
+  if not (qryTiposCartas.State in [dsEdit]) then
+    qryTiposCartas.Edit;
+  Result:= True;
+end;
+
+function TdtmCadastroTabelasCrediario.GravarConceitoTipoCarta: Boolean;
+begin
+  qryConceitosTiposCartasdescricao.Value := qryProcuraConceitosTiposCartasdescricao.Value;
+  qryConceitosTiposCartas.Post;
+  if not (qryTiposCartas.State in [dsEdit]) then
+    qryTiposCartas.Edit;
+  Result:= True;
+end;
+
+function TdtmCadastroTabelasCrediario.IncluirAgenteTipoCarta(
+  Editar: Boolean): Boolean;
+begin
+  qryProcuraAgentesTiposCartas.Sql[4]  := 'AND' + MontaFiltroAgentes(Editar);
+  qryConsultaAgentesTiposCartas.Sql[3] := 'WHERE' + MontaFiltroAgentes(Editar);
+  if qryAgentesTiposCartas.State in [dsInsert, dsEdit] then
+    qryAgentesTiposCartas.Cancel;
+  if Editar and not qryAgentesTiposCartas.IsEmpty then
+    qryAgentesTiposCartas.Edit
+  else
+    qryAgentesTiposCartas.Append;
+  Result := True;
+end;
+
+function TdtmCadastroTabelasCrediario.IncluirConceitoTipoCarta(
+  Editar: Boolean): Boolean;
+begin
+  qryProcuraConceitosTiposCartas.Sql[4] := 'AND' + MontaFiltroConceitos(Editar);
+  qryConsultaConceitosTiposCartas.Sql[3] := 'WHERE' + MontaFiltroConceitos(Editar);
+  if qryConceitosTiposCartas.State in [dsInsert, dsEdit] then
+    qryConceitosTiposCartas.Cancel;
+  if Editar and not qryConceitosTiposCartas.IsEmpty then
+    qryConceitosTiposCartas.Edit
+  else
+    qryConceitosTiposCartas.Append;
+  Result := True;
+end;
+
+function TdtmCadastroTabelasCrediario.ExisteAgenteTiposCartas(campo,
+  codigo: string): boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaAgentesTiposCartas, campo, codigo);
+end;
+
+function TdtmCadastroTabelasCrediario.ExisteConceitoTiposCartas(campo,
+  codigo: string): boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaConceitosTiposCartas, campo, codigo);
+end;
+
+function TdtmCadastroTabelasCrediario.ExisteTipoCartaPrecedente(campo,
+  codigo: string): boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaTiposCartasPrecedente, campo, codigo);
+end;
+
+function TdtmCadastroTabelasCrediario.GetConsultarTiposCartasPrecedentes: TZDataSet;
+begin
+  Result:= qryConsultaTiposCartasPrecedente;
+end;
+
+procedure TdtmCadastroTabelasCrediario.qryTiposCartasAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  RefazConsulta(qryAgentesTiposCartas, [0], [qryTiposCartascodigo.Value]);
+  RefazConsulta(qryConceitosTiposCartas, [0], [qryTiposCartascodigo.Value]);
+end;
+
+function TdtmCadastroTabelasCrediario.GetTiposCartasarquivo: String;
+begin
+ result := qryTiposCartasarquivo.AsString;
+end;
+
+procedure TdtmCadastroTabelasCrediario.setTiposCartasArquivo(
+  const Value: String);
+var
+ i: integer;
+ arquivo: String;
+begin
+  arquivo:='';
+  for i:=1 to Length(trim(Value)) do
+  begin
+   if copy(value,i,1)='\' then
+//     arquivo:=arquivo+copy(value,i,1)+'\'
+   arquivo:=arquivo+copy(value,i,1)
+   else
+     arquivo:=arquivo+copy(value,i,1);
+  end;
+  if not (qryTiposCartas.State in [dsedit, dsinsert]) then
+   qrytiposCartas.Edit;
+  qryTiposCartasarquivo.AsString := arquivo;
+end;
+
+procedure TdtmCadastroTabelasCrediario.passarparametrotipodecarta;
+begin
+   qryProcuraTiposCartasPrecedente.Parambyname('tipocarta').AsInteger := qryTiposCartascodigo.AsInteger;
+end;
+
+procedure TdtmCadastroTabelasCrediario.qryTiposCartasAfterInsert(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryTiposCartasenderecoincompleto.AsBoolean := True ;
+  qryTiposCartascartadevolvida.AsBoolean := True ;
+end;
+
+function TdtmCadastroTabelasCrediario.GetTiposCartasexportar: String;
+begin
+ result := qryTiposCartasexportar.AsString;
+end;
+
+procedure TdtmCadastroTabelasCrediario.setTiposCartasexportar(
+  const Value: String);
+var
+ i: integer;
+ arquivo: String;
+begin
+  arquivo:='';
+  for i:=1 to Length(trim(Value)) do
+  begin
+   if copy(value,i,1)='\' then
+     arquivo:=arquivo+copy(value,i,1)+'\'
+   else
+     arquivo:=arquivo+copy(value,i,1);
+  end;
+  if not (qryTiposCartas.State in [dsedit, dsinsert]) then
+   qrytiposCartas.Edit;
+  qryTiposCartasexportar.AsString := arquivo;
+end;
+
+function TdtmCadastroTabelasCrediario.GetCamposTiposCartas: String;
+begin
+  Result:= qryTiposCartascampos.AsString;
+end;
+
+procedure TdtmCadastroTabelasCrediario.SetCamposTiposCartas(
+  const Value: String);
+begin
+  if qryTiposCartas.State in [dsInsert, dsEdit] then
+    qryTiposCartascampos.Value:= Value;
+end;
+
+procedure TdtmCadastroTabelasCrediario.dsrTiposCartasDataChange(
+  Sender: TObject; Field: TField);
+begin
+  inherited;
+  if Field = qryTiposCartastipo then
+  begin
+   if qryTiposCartastipo.AsString<>'M' then
+   begin
+    qryTiposCartasarquivo.Required := True ;
+    qryTiposCartasexportar.Required := True ;
+   end
+   else
+   begin
+    qryTiposCartasarquivo.Required := False ;
+    qryTiposCartasexportar.Required := False ;
+   end;
+  end;
+
+
+end;
+
+procedure TdtmCadastroTabelasCrediario.AlterarModeloAviso;
+var
+ Aviso : TfrReport;
+begin
+ aviso := TFrReport.Create(self);
+ if FileExists(ExtractFilePath(Application.ExeName) + qryTiposCartasarquivo.AsString) then
+ begin
+  aviso.LoadFromFile(ExtractFilePath(Application.ExeName)+qryTiposCartasarquivo.AsString);
+  aviso.DesignReport;
+ end
+ else
+  MensagemErro(format(ctARQUIVONAOENCONTRADO,[ExtractFilePath(Application.ExeName)+qrytiposcartasarquivo.asstring]));
+end;
+
+function TdtmCadastroTabelasCrediario.GetTiposCartasEtiqueta: String;
+begin
+ result := qryTiposCartasetiqueta.AsString;
+end;
+
+procedure TdtmCadastroTabelasCrediario.setTiposCartasEtiqueta(
+  const Value: String);
+var
+ i: integer;
+ arquivo: String;
+begin
+  arquivo:='';
+  for i:=1 to Length(trim(Value)) do
+  begin
+   if copy(value,i,1)='\' then
+     arquivo:=arquivo+copy(value,i,1)+'\'
+   else
+     arquivo:=arquivo+copy(value,i,1);
+  end;
+  if not (qryTiposCartas.State in [dsedit, dsinsert]) then
+   qrytiposCartas.Edit;
+  qryTiposCartasetiqueta.AsString := arquivo;
+end;
+
+procedure TdtmCadastroTabelasCrediario.AlterarModeloEtiqueta;
+var
+ Aviso : TfrReport;
+begin
+ aviso := TFrReport.Create(self);
+ if FileExists(ExtractFilePath(Application.ExeName)+qryTiposCartasetiqueta.AsString) then
+ begin
+  aviso.LoadFromFile(ExtractFilePath(Application.ExeName)+ qryTiposCartasetiqueta.AsString);
+  aviso.DesignReport;
+ end
+ else
+  MensagemErro(format(ctARQUIVONAOENCONTRADO,[ExtractFilePath(Application.ExeName) + qrytiposcartasetiqueta.asstring]));
+end;
+
+function TdtmCadastroTabelasCrediario.ExisteContaContabil(campo,
+  codigo: String): Boolean;
+begin
+  if campo = 'descricaoedentada' then
+    Result:= ExisteCodigo(qryConsultaContaContabil, 'descricao', codigo)
+  else
+    Result:= ExisteCodigo(qryConsultaContaContabil, campo, codigo);
+end;
+
+function TdtmCadastroTabelasCrediario.ExisteHistorico(campo,
+  codigo: string): boolean;
+begin
+  Result := ExisteCodigo(qryConsultaHistorico, campo, codigo);
+end;
+
+procedure TdtmCadastroTabelasCrediario.qryNaturezasAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if ParSistema.GerarContabilidade then
+  begin
+    ReFazConsulta(qryLancamentosNaturezas,[0],[qryNaturezascodigo.AsVariant]);
+    if qryNaturezas.RecordCount<>0 then
+      AtualizarListaLancamentosNaturezas;
+  end;
+end;
+
+procedure TdtmCadastroTabelasCrediario.AtualizarListaLancamentosNaturezas;
+var
+  vLancamentosNaturezas: TtecLancamentosNaturezas;
+begin
+  qryLancamentosNaturezas.AfterPost := nil;
+  qryLancamentosNaturezas.AfterInsert := nil;
+  for vLancamentosNaturezas := lnAcrescimoFinanceiro to lnTotaldaNota do
+   if not qryLancamentosNaturezas.Locate('Descricao', vstrLancamentosNaturezas[vLancamentosNaturezas],[]) then
+   begin
+     qryLancamentosNaturezas.First;
+     while not qryLancamentosNaturezas.Eof do
+     begin
+       if qryLancamentosNaturezasdescricao.AsString > vstrLancamentosNaturezas[vLancamentosNaturezas] then
+       begin
+         qryLancamentosNaturezas.insert;
+         break;
+       end
+       else
+         qryLancamentosNaturezas.Next;
+     end;
+
+     if qryLancamentosNaturezas.State <> dsinsert then
+       qryLancamentosNaturezas.Append;
+     qryLancamentosNaturezasdescricao.AsString := vstrLancamentosNaturezas[vLancamentosNaturezas];
+     qryLancamentosNaturezasoperacao.AsString := 'N';
+     qryLancamentosNaturezas.Post;
+   end;
+  qryLancamentosNaturezas.AfterInsert := qryLancamentosNaturezasAfterInsert;
+  qryLancamentosNaturezas.AfterPost := qryLancamentosNaturezasAfterPost;
+
+end;
+
+procedure TdtmCadastroTabelasCrediario.dsrLancamentosNaturezasDataChange(
+  Sender: TObject; Field: TField);
+begin
+  inherited;
+  if field = qryLancamentosNaturezascontacontabil then
+  begin
+    if field.asstring<>'' then
+    begin
+      dsrLancamentosNaturezas.OnDataChange := nil;
+      ReFazConsulta(qryProcuraContaContabil,[0],
+              [qryLancamentosNaturezasContaContabil.AsVariant]);
+      if qryProcuraContaContabil.IsEmpty then
+      begin
+        if field.AsInteger<>0 then
+          MensagemAviso(format(ctCODIGOINEXISTENTE,[qryLancamentosNaturezasContaContabil.AsString]));
+        qryLancamentosNaturezascontacontabil.FocusControl;
+        qryLancamentosNaturezascontacontabil.Clear;
+        qryLancamentosNaturezasclassificacao.clear;
+      end
+      else
+      begin
+        qryLancamentosNaturezasclassificacao.AsString := qryProcuraContaContabilclassificacao.AsString;
+        qryLancamentosNaturezascontacontabil.FocusControl;
+      end;
+      dsrLancamentosNaturezas.OnDataChange := dsrLancamentosNaturezasDataChange;
+    end;
+  end
+  else
+  if field = qryLancamentosNaturezashistorico then
+  begin
+    if field.asstring<>'' then
+    begin
+      dsrLancamentosNaturezas.OnDataChange := nil;
+      ReFazConsulta(qryProcuraHistorico,[0],
+              [qryLancamentosNaturezashistorico.AsVariant]);
+      if qryProcuraHistorico.IsEmpty then
+      begin
+        if field.AsInteger<>0 then
+          MensagemAviso(format(ctCODIGOINEXISTENTE,[qryLancamentosNaturezashistorico.AsString]));
+        field.FocusControl;
+        field.Clear;
+      end
+      else
+        field.FocusControl;
+        
+      dsrLancamentosNaturezas.OnDataChange := dsrLancamentosNaturezasDataChange;
+    end;
+  end;
+end;
+
+function TdtmCadastroTabelasCrediario.GetTipoContaContabil: String;
+begin
+  result := qryLancamentosNaturezasoperacao.AsString;
+end;
+
+procedure TdtmCadastroTabelasCrediario.qryLancamentosNaturezasAfterInsert(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryLancamentosNaturezas.Cancel;
+end;
+
+procedure TdtmCadastroTabelasCrediario.qryLancamentosNaturezasAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryNaturezas.Edit;
+end;
+
+procedure TdtmCadastroTabelasCrediario.GravarLancamentosNaturezas;
+begin
+  if qryLancamentosNaturezas.State = dsedit then
+  qryLancamentosNaturezas.Post;
+end;
+
+
+procedure TdtmCadastroTabelasCrediario.qryNaturezasAfterInsert(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if ParSistema.GerarContabilidade then
+  begin
+    ReFazConsulta(qryLancamentosNaturezas,[0],[qryNaturezascodigo.AsVariant]);
+//    if qryNaturezas.RecordCount<>0 then
+      AtualizarListaLancamentosNaturezas;
+  end;
+end;
+
+function TdtmCadastroTabelasCrediario.ExcluirTIpoRecebimento: Boolean;
+begin
+  if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o TIPO DE RECEBIMENTO'])) = smbOk then
+  begin
+    if not qryTiposRecebimentos.IsEmpty then
+      qryTiposRecebimentos.Delete
+    else
+      qryTiposRecebimentos.Cancel;
+    Perpetrar([qryTiposRecebimentos]);
+    Result:= True;
+  end
+  else
+    Result:= False;
+end;
+
+function TdtmCadastroTabelasCrediario.GravarTipoRecebimento: Boolean;
+var
+  n:Integer;
+begin
+//  qryTiposRecebimentosdiasuteis.Required := qryTiposRecebimentostiporecebimento.AsString = 'B';
+  if qryTiposRecebimentos.CheckRequiredFields then
+  begin
+    if qryTiposRecebimentos.State = dsInsert then
+    begin
+      spcTiposRecebimentosProximo.Open;
+      qryTiposRecebimentoscodigo.asInteger:= spcTiposRecebimentosProximocodigo.AsInteger;
+      spcTiposRecebimentosProximo.Close;
+    end;
+
+    if not qryTiposRecebimentosdiasuteis.IsNull and
+       not qryRecebimentosTiposRecebimentos.IsEmpty then
+      if MensagemConfirmacao('O campo "DIAS ÚTEIS" anula os valores definidos no grid "RECEBIMENTOS".' + sLineBreak +
+                             'Deseja manter os valores definidos?') <> smbOK then
+        LimparTabela(qryRecebimentosTiposRecebimentos);
+
+    if// (qryTiposRecebimentostiporecebimento.AsString <> 'B') and
+       not qryRecebimentosTiposRecebimentos.IsEmpty and
+       qryRecebimentosTiposRecebimentos.CheckRequiredFields then
+    begin
+      qryRecebimentosTiposRecebimentos.AfterPost := nil;
+      GuardarRegistroAtual(qryRecebimentosTiposRecebimentos,true);
+      qryRecebimentosTiposRecebimentos.First;
+      n := 1;
+      while not qryRecebimentosTiposRecebimentos.Eof do
+      begin
+        qryRecebimentosTiposRecebimentos.Edit;
+        qryRecebimentosTiposRecebimentostiporecebimento.AsInteger := qryTiposRecebimentoscodigo.AsInteger;
+        qryRecebimentosTiposRecebimentosnumero.AsInteger := n;
+        Inc(n);
+        qryRecebimentosTiposRecebimentos.Post;
+        qryRecebimentosTiposRecebimentos.Next;
+      end;
+      VoltarRegistroAtual(qryRecebimentosTiposRecebimentos);
+      qryRecebimentosTiposRecebimentos.AfterPost := qryRecebimentosTiposRecebimentosAfterPost;
+    end;
+
+    if not qryContasTiposRecebimentos.IsEmpty then
+    begin
+      GuardarRegistroAtual(qryContasTiposRecebimentos,true);
+      qryContasTiposRecebimentos.First;
+      while not qryContasTiposRecebimentos.Eof do
+      begin
+        qryContasTiposRecebimentos.Edit;
+        qryContasTiposRecebimentostiporecebimento.AsInteger := qryTiposRecebimentoscodigo.AsInteger;
+        qryContasTiposRecebimentos.Post;
+        qryContasTiposRecebimentos.Next;
+      end;
+      VoltarRegistroAtual(qryContasTiposRecebimentos);
+    end;
+
+    qryTiposRecebimentos.Post;
+//    if qryTiposRecebimentostiporecebimento.AsString <> 'B' then
+      Result := Perpetrar([qryTiposRecebimentos, qryRecebimentosTiposRecebimentos,
+                           qryContasTiposRecebimentos])
+//    else
+//      Result := Perpetrar([qryTiposRecebimentos]);
+  end
+  else
+    Result:= False;
+end;
+
+function TdtmCadastroTabelasCrediario.IncluirTipoRecebimento: Boolean;
+begin
+  qryTiposRecebimentos.Insert;
+  qryTiposRecebimentostiporecebimento.AsString:= 'D';
+  Result:= True;
+end;
+
+function TdtmCadastroTabelasCrediario.ExisteTipoRecebimento(campo,
+  codigo: string): boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaTiposRecebimentos, campo, codigo);
+end;
+
+function TdtmCadastroTabelasCrediario.GetTabelaTiposRecebimentos: TZDataSet;
+begin
+  Result := qryTiposRecebimentos;
+end;
+
+function TdtmCadastroTabelasCrediario.GetConsultarTiposRecebimentos: TZDataSet;
+begin
+  Result := qryConsultaTiposRecebimentos;
+end;
+
+procedure TdtmCadastroTabelasCrediario.qryTiposRecebimentosAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  RefazConsulta(qryRecebimentosTiposRecebimentos, [0], [qryTiposRecebimentoscodigo.AsInteger]);
+  ReFazConsulta(qryContasTiposRecebimentos,[0],[qryTiposRecebimentoscodigo.AsInteger]);
+end;
+
+procedure TdtmCadastroTabelasCrediario.qryTiposRecebimentosAfterInsert(
+  DataSet: TDataSet);
+begin
+  inherited;
+  ReFazConsulta(qryRecebimentosTiposRecebimentos, [0], [qryTiposRecebimentoscodigo.AsVariant]);
+end;
+
+procedure TdtmCadastroTabelasCrediario.dsrRecebimentosTiposRecebimentosDataChange(
+  Sender: TObject; Field: TField);
+begin
+  inherited;
+  if Assigned(field) then
+  begin
+    qryTiposRecebimentos.Edit;
+    if qryRecebimentosTiposRecebimentosmes.AsString = '' then
+      qryRecebimentosTiposRecebimentosmes.AsString := 'A';
+    if Field = qryRecebimentosTiposRecebimentosdatainicial then
+    begin
+      if Field.AsInteger > qryRecebimentosTiposRecebimentosdatafinal.AsInteger then
+        qryRecebimentosTiposRecebimentosdatafinal.AsInteger := Field.AsInteger + 1;
+    end
+    else
+    if Field = qryRecebimentosTiposRecebimentosdatafinal then
+    begin
+      if (Field.AsInteger > qryRecebimentosTiposRecebimentosdia.AsInteger) and
+         (qryRecebimentosTiposRecebimentosmes.AsString = 'A') then
+        qryRecebimentosTiposRecebimentosdia.AsInteger := Field.AsInteger + 1;
+      if Field.AsInteger < qryRecebimentosTiposRecebimentosdatainicial.AsInteger then
+        Field.AsInteger := qryRecebimentosTiposRecebimentosdatainicial.AsInteger + 1;
+      if Field.AsInteger > 31 then
+        Field.AsInteger := 31;
+    end
+    else
+    if Field = qryRecebimentosTiposRecebimentosdia then
+    begin
+      if (Field.AsInteger < qryRecebimentosTiposRecebimentosdatafinal.AsInteger) and
+         (qryRecebimentosTiposRecebimentosmes.AsString = 'A') then
+        qryRecebimentosTiposRecebimentosmes.AsString := 'P';
+      if Field.AsInteger > 31 then
+        Field.AsInteger := 31;
+    end;
+  end;
+end;
+
+procedure TdtmCadastroTabelasCrediario.qryRecebimentosTiposRecebimentosAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryTiposRecebimentos.Edit;
+end;
+
+function TdtmCadastroTabelasCrediario.ExcluirRecebimentoTipoRecebimento: Boolean;
+begin
+  if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o RECEBIMENTO'])) = smbOk then
+  begin
+    if not qryRecebimentosTiposRecebimentos.IsEmpty then
+      qryRecebimentosTiposRecebimentos.Delete
+    else
+      qryRecebimentosTiposRecebimentos.Cancel;
+    qryRecebimentosTiposRecebimentos.Edit;
+    Result:= True;
+  end
+  else
+    Result:= False;
+end;
+
+procedure TdtmCadastroTabelasCrediario.qryRecebimentosTiposRecebimentosAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryTiposRecebimentos.Edit;
+end;
+
+procedure TdtmCadastroTabelasCrediario.qryCargosAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  RefazConsulta(qryProdutosporCargo,[0],[qryCargoscodigo.AsVariant]);
+  FNumeroRegistros := inttostr(qryProdutosporCargo.RecordCount);
+end;
+
+procedure TdtmCadastroTabelasCrediario.qryCargosAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  RefazConsulta(qryProdutosporCargo,[0],[qryCargoscodigo.AsVariant]);
+end;
+
+procedure TdtmCadastroTabelasCrediario.qryCargosAfterInsert(
+  DataSet: TDataSet);
+begin
+  inherited;
+  RefazConsulta(qryProdutosporCargo,[0],[qryCargoscodigo.AsVariant]);
+  FNumeroRegistros := inttostr( qryProdutosporCargo.RecordCount);
+end;
+
+procedure TdtmCadastroTabelasCrediario.dsrCargosDataChange(Sender: TObject;
+  Field: TField);
+begin
+  inherited;
+  ReFazConsulta(qryProdutosporCargo,[0],[qryCargoscodigo.AsVariant]);
+end;
+
+function TdtmCadastroTabelasCrediario.GravarProdutoCargo: Boolean;
+var Pos: TBookmark;
+begin
+ // Pos:= qryProdutosporCargo.GetBookmark;
+ // qryProdutosporCargo.DisableControls;
+  if qryProdutosporCargo.CheckRequiredFields then begin
+    qryProdutosporCargo.Post;
+    try
+      Perpetrar([qryProdutosporCargo]);
+    Except
+      MensagemErro('Produto já cadastrado');
+    end;
+    Result:= True;
+  end
+  else
+    Result:= False;
+  //qryProdutosporCargo.GotoBookmark(Pos);
+  //qryProdutosporCargo.FreeBookmark(Pos);
+  //qryProdutosporCargo.EnableControls;
+end;
+
+function TdtmCadastroTabelasCrediario.ExcluirProdutoCargo: Boolean;
+begin
+  Result:= False;
+  if not qryProdutosporCargo.IsEmpty then begin
+    if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o PRODUTO'])) = smbOk then begin
+      qryProdutosporCargo.Delete;
+      Perpetrar([qryProdutosporCargo]);
+      Result := True;
+    end;
+  end;
+end;
+
+
+
+procedure TdtmCadastroTabelasCrediario.dsrprodutosporCargoDataChange(
+  Sender: TObject; Field: TField);
+begin
+  inherited;
+  dsrprodutosporCargo.OnDataChange:= nil;
+  if not formularioInsercao then
+  begin
+    if Field = qryProdutosporCargomarkup then
+    begin
+      qryProdutosporCargo.DisableControls;
+      if not (qryProdutosporCargo.State in [dsedit,dsinsert]) then
+        qryProdutosporCargo.Edit;
+      if qryProdutosporCargomarkup.AsFloat > 0 then
+        qryProdutosporCargo.Post;
+    end;
+  end;
+  dsrprodutosporCargo.OnDataChange:= dsrprodutosporCargoDataChange;
+end;
+
+procedure TdtmCadastroTabelasCrediario.OrdenarProdutosCargos;
+const SQLOrdenacao =  'order by %s';
+begin
+  qryProdutosporCargo.DisableControls;
+  qryProdutosporCargo.Close;
+
+  case OrdenarCodigo of
+  0: begin
+    qryProdutosporCargo.MacroByName('Ordenacao').AsString:= Format(SQLOrdenacao,['pc.produto']);
+     end;
+  1: begin
+    qryProdutosporCargo.MacroByName('Ordenacao').AsString:= Format(SQLOrdenacao,['descricao']);
+     end;
+  end;
+
+  qryProdutosporCargo.Open;
+  qryProdutosporCargo.EnableControls;
+end;
+
+procedure TdtmCadastroTabelasCrediario.EditarProdutosCargos;
+var Pos : TBookMark;
+begin
+  Pos:= qryProdutosporCargo.GetBookmark;
+  try
+    qryprodutosporCargo.DisableControls;
+    qryprodutosporCargo.Edit;
+  finally
+    qryprodutosporCargo.EnableControls;
+    qryprodutosporCargo.GotoBookmark(Pos);
+    qryprodutosporCargo.FreeBookmark(Pos);
+    formularioInsercao:= False;
+  end;
+end;
+
+procedure TdtmCadastroTabelasCrediario.qryProdutosporCargoBeforePost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if not formularioInsercao then
+    FMarcador:= qryProdutosporCargoproduto.AsLargeInt;
+end;
+
+procedure TdtmCadastroTabelasCrediario.qryProdutosporCargoAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if not formularioInsercao then
+  begin
+    Perpetrar([qryProdutosporCargo]);
+    qryProdutosporCargo.RecNo:= FSelecionado;
+    qryProdutosporCargo.Locate('Produto',FMarcador,[]);
+    qryProdutosporCargo.EnableControls;
+  end;
+end;
+
+function TdtmCadastroTabelasCrediario.ExisteConta(campo,
+  codigo: string): boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaContas, campo, codigo);
+end;
+
+function TdtmCadastroTabelasCrediario.ExcluirContasTiposRecebimentos: Boolean;
+begin
+  Result := False;
+  if not qryContasTiposRecebimentos.IsEmpty then
+  begin
+    qryContasTiposRecebimentos.Delete;
+    qryTiposRecebimentos.Edit;
+    Result := True;
+  end;
+end;
+
+function TdtmCadastroTabelasCrediario.GravarContasTiposRecebimentos: Boolean;
+begin
+  if qryContasTiposRecebimentos.CheckRequiredFields then
+  begin
+    if qryContasTiposRecebimentos.State in [dsInsert, dsEdit] then
+    begin
+      qryContasTiposRecebimentos.Post;
+      qryTiposRecebimentos.Edit;
+      Result := True;
+    end;
+  end
+  else
+    Result := False;
+end;
+
+function TdtmCadastroTabelasCrediario.IncluirContasTiposRecebimentos: Boolean;
+begin
+  qryContasTiposRecebimentos.Append;
+  qryContasTiposRecebimentosfilial.AsInteger := FilialBase;
+  Result := True;
+end;
+
+procedure TdtmCadastroTabelasCrediario.EditarContasTiposRecebimentos;
+begin
+  if qryContasTiposRecebimentos.IsEmpty then
+    IncluirContasTiposRecebimentos
+  else
+    qryContasTiposRecebimentos.Edit;
+end;
+
+procedure TdtmCadastroTabelasCrediario.qryProcuraContasAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if not (qryContasTiposRecebimentos.State in [dsInsert, dsEdit]) then
+    qryContasTiposRecebimentos.Edit;
+  qryContasTiposRecebimentosconta.AsInteger   := qryProcuraContasConta.AsInteger;
+  qryContasTiposRecebimentosdigito.AsInteger  := qryProcuraContasDigito.AsInteger;
+  qryContasTiposRecebimentosbanco.AsInteger   := qryProcuraContasBanco.AsInteger;
+  qryContasTiposRecebimentosagencia.AsInteger := qryProcuraContasAgencia.AsInteger;
+  qryContasTiposRecebimentostitular.AsString  := qryProcuraContasTitular.AsString;
+end;
+
+procedure TdtmCadastroTabelasCrediario.qryContasTiposRecebimentosBeforeInsert(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryProcuraContas.Close;
+end;
+
+procedure TdtmCadastroTabelasCrediario.qryNaturezasBeforePost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if not ((qryNaturezasTipo.AsString = 'E')  and
+          ((Regimetributario=1) or
+           {para o regime normal libera-se somnete os cst´s que são tributados}
+           ((Regimetributario<>1) and
+            ((qryNaturezasicmscst.asstring = ctTRIBUTADA               ) or    {00}
+             (qryNaturezasICMSCST.asstring = ctREDUCAOBASE             ) or    {20}
+             (qryNaturezasICMSCST.asstring = ctDIFERIMENTO             ) or    {51}
+             (qryNaturezasICMSCST.asstring = ctCOBRADOSUSTITUICAO      ) or    {60}
+             (qryNaturezasICMSCST.asstring = ctOUTROS                  ))      {90}
+           ) )) then
+    qryNaturezasnaogerarcreditoicms.AsBoolean := false;
+
+  if not (qryNaturezasTipo.AsString = 'E') then
+    qryNaturezasNaoGerarCreditoIPI.asboolean := false;
+
+
+  if not ((qryNaturezasTipo.AsString = 'S')  and
+
+                                      ((Regimetributario=1) or
+                                       {para o regime normal libera-se somnete os cst´s que são tributados}
+                                       ((Regimetributario<>1) and
+                                        ((qryNaturezasicmscst.asstring = ctTRIBUTADA               ) or    {00}
+                                         (qryNaturezasICMSCST.asstring = ctREDUCAOBASE             ) or    {20}
+                                         (qryNaturezasICMSCST.asstring = ctDIFERIMENTO             ) or    {51}
+                                         (qryNaturezasICMSCST.asstring = ctCOBRADOSUSTITUICAO      ) or    {60}
+                                         (qryNaturezasICMSCST.asstring = ctOUTROS                  ))      {90}
+                                       ) )) then
+    qryNaturezasNaoGerarDebitoICMS.asboolean := false;
+
+  if not (qryNaturezasTipo.AsString = 'S') then
+    qryNaturezasNaoGerarDebitoIPI.asboolean := false;
+
+end;
+
+end.

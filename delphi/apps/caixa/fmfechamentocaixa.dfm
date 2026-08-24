@@ -1,7 +1,7 @@
 inherited frmfechamentocaixa: Tfrmfechamentocaixa
   Left = 441
   Top = 138
-  ActiveControl = ckbCancelamentos
+  ActiveControl = dbgEventos
   Caption = 'Fechamento de Caixa'
   ClientHeight = 568
   ClientWidth = 853
@@ -201,7 +201,7 @@ inherited frmfechamentocaixa: Tfrmfechamentocaixa
       Top = 54
       Width = 844
       Height = 463
-      ActivePage = tstImpressao
+      ActivePage = tstEventos
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBlack
       Font.Height = -12

@@ -6,7 +6,7 @@ uses
   SysUtils, Classes, DB, cpdatasource, ZQuery, ZPgSqlQuery, cpquery, Variants,
   ctconstantes, dmbasico, dmtecsoft, biblio, ZTransact, clparametrossistema, clusuario,
   FR_DSet, FR_DBSet, FR_Class, fmpreviewpadrao, Graphics, dmImprimeContratos,
-  Provider, DBClient, dmcadastrocontratosauxiliar, DateUtils;
+  Provider, DBClient, dmcadastrocontratosauxiliar, DateUtils, frxClass;
 
 type
   TdtmConsultaContratos = class(TdtmBasico)

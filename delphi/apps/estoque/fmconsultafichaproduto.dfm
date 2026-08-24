@@ -1,6 +1,6 @@
 inherited frmConsultaFichaProduto: TfrmConsultaFichaProduto
-  Left = 206
-  Top = 147
+  Left = 327
+  Top = 166
   BorderIcons = [biSystemMenu, biMinimize, biMaximize]
   Caption = 'Consulta Ficha do Produto'
   ClientHeight = 580

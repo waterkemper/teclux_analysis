@@ -1,0 +1,747 @@
+unit dmvendasporatividades;
+
+interface
+
+uses
+  {$IFDEF MSWINDOWS} FileCtrl, {$ENDIF}
+  SysUtils, Classes, DB, cpdatasource, ZQuery, ZPgSqlQuery, cpquery, Forms, DateUtils,
+  dmbasico, biblio, ctconstantes, ZTransact, ComObj;
+
+type
+  TdtmVendasporAtividades = class(TdtmBasico)
+    qryVendasClientesporAtividades: TtecQuery;
+    dsrVendasClientesporAtividades: TtecDataSource;
+    qryVendasporAtividades: TtecQuery;
+    dsrVendasporAtividades: TtecDataSource;
+    qryVendasClientesporAtividades_AUX: TtecQuery;
+    qryVendasporAtividades_AUX: TtecQuery;
+    qrynMeses: TtecQuery;
+    qrynmeses_aux: TtecQuery;
+    ZMonitor1: TZMonitor;
+    qryVendas: TtecQuery;
+    dsrVendas: TtecDataSource;
+    qryVendas_AUX: TtecQuery;
+    qryVendasporAtividadesPerc: TtecQuery;
+    dsrVendasporAtividadesPerc: TtecDataSource;
+    qryVendasporAtividadesempcargo: TIntegerField;
+    qryVendasClientesporAtividadescargocliente: TStringField;
+    qryVendasClientesporAtividadesexpandir: TStringField;
+    qryVendasClientesporAtividadescliente: TIntegerField;
+    qryVendasClientesporAtividadesnome: TStringField;
+    qryVendasClientesporAtividadesempcargo: TIntegerField;
+    qryVendasClientesporAtividadesdescricao: TStringField;
+    qryVendasporAtividadescargocliente: TStringField;
+    qryVendasporAtividadesexpandir: TStringField;
+    qryVendasporAtividadescliente: TIntegerField;
+    qryVendasporAtividadesnome: TStringField;
+    qryVendasporAtividadesdescricao: TStringField;
+    qryVendasClientesporAtividadesTotal: TCurrencyField;
+    qryVendasporAtividadesPerc_AUX: TtecQuery;
+    qryVendasClientesporAtividadesTipoCliente: TStringField;
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure qryVendasClientesporAtividadesFilterRecord(DataSet: TDataSet;
+      var Accept: Boolean);
+    procedure qryVendasClientesporAtividadesCalcFields(DataSet: TDataSet);
+    procedure qryVendasAfterOpen(DataSet: TDataSet);
+  private
+    { Private declarations }
+    AtividadesSelecionadas: TStringList;
+    fVisualizarClientes: boolean;
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    procedure FiltrarVendas(tecla:String);
+    Property VisualizarClientes: boolean read fVisualizarClientes write fVisualizarClientes;
+    procedure SetarVisualizacao;
+    procedure GerarPlanilha(PeriodoInicial, PeriodoFinal, moeda: String);
+    function GerarConsulta(periodoinicial, periodofinal, moeda: String): Boolean;
+  end;
+
+var
+  dtmVendasporAtividades: TdtmVendasporAtividades;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmVendasporAtividades }
+
+constructor TdtmVendasporAtividades.Create(AOwner: TComponent);
+begin
+  inherited;
+  VisualizarClientes := True;
+end;
+
+procedure TdtmVendasporAtividades.FiltrarVendas(tecla:String);
+var
+ cargo: String;
+begin
+  if VisualizarClientes then
+  begin
+    if not assigned(AtividadesSelecionadas) then
+      AtividadesSelecionadas := TStringList.Create;
+
+    GuardarRegistroAtual(qryVendasClientesporAtividades, false);
+
+    if qryVendasClientesporAtividadesexpandir.AsString = '+' then
+    begin
+      if (tecla = '') or (tecla = '+') then
+      begin
+        if qryVendasClientesporAtividades.fieldbyname('empcargo').AsString<>'' then
+          AtividadesSelecionadas.Delete(AtividadesSelecionadas.IndexOf(qryVendasClientesporAtividades.fieldbyname('empcargo').AsString));
+
+        qryVendasClientesporAtividades.Edit;
+        qryVendasClientesporAtividadesexpandir.AsString := '-';
+        qryVendasClientesporAtividades.Post;
+
+        if qryVendasClientesporAtividades.FieldByName('nome').AsString='' then
+        begin
+          qryVendasClientesporAtividades.Prior;
+          if qryVendasClientesporAtividadesexpandir.AsString='' then
+            MensagemAviso('erro')
+          else
+          begin
+            qryVendasClientesporAtividades.Edit;
+            qryVendasClientesporAtividadesexpandir.AsString := '-';
+            qryVendasClientesporAtividades.Post;
+          end;
+        end
+        else
+        begin
+          qryVendasClientesporAtividades.next;
+          if qryVendasClientesporAtividadesexpandir.AsString='' then
+            MensagemAviso('erro')
+          else
+          begin
+            qryVendasClientesporAtividades.Edit;
+            qryVendasClientesporAtividadesexpandir.AsString := '-';
+            qryVendasClientesporAtividades.Post;
+          end
+        end;
+      end;
+    end
+    else
+    if qryVendasClientesporAtividadesexpandir.AsString = '-' then
+    begin
+      if (tecla='') or (tecla='-') then
+      begin
+        if qryVendasClientesporAtividades.fieldbyname('empcargo').AsString<>'' then
+          AtividadesSelecionadas.Append(qryVendasClientesporAtividades.fieldbyname('empcargo').AsString);
+
+        qryVendasClientesporAtividades.Edit;
+        qryVendasClientesporAtividadesexpandir.AsString := '+';
+        qryVendasClientesporAtividades.Post;
+        if qryVendasClientesporAtividades.FieldByName('nome').AsString='' then
+        begin
+          qryVendasClientesporAtividades.Prior;
+          if qryVendasClientesporAtividadesexpandir.AsString='' then
+            MensagemAviso('erro')
+          else
+          begin
+          qryVendasClientesporAtividades.Edit;
+          qryVendasClientesporAtividadesexpandir.AsString := '+';
+          qryVendasClientesporAtividades.Post;
+          end;
+        end
+        else
+        begin
+          qryVendasClientesporAtividades.next;
+          if qryVendasClientesporAtividadesexpandir.AsString='' then
+            MensagemAviso('erro')
+          else
+          begin
+          qryVendasClientesporAtividades.Edit;
+          qryVendasClientesporAtividadesexpandir.AsString := '+';
+          qryVendasClientesporAtividades.Post;
+          end;
+        end;
+      end;
+    end;
+
+    qryVendasClientesporAtividades.Filtered :=
+      (AtividadesSelecionadas.Count<>0);
+
+    VoltarRegistroAtual(qryVendasClientesporAtividades);
+  end;
+end;
+
+procedure TdtmVendasporAtividades.GerarPlanilha(PeriodoInicial,
+  PeriodoFinal, moeda: String);
+const
+ xlCenter = -4108;
+
+var i,coluna,eline: Integer;
+    oXL, oWB, oSheet, oRng, VArray : Variant;
+    NomeArquivo,v: String;
+    ColunaSomatorioEvento, LinhaSomatorioEvento, LinhaSomatorioGrupo: Integer;
+
+begin
+  inherited;
+  // Start Excel and get Application Object
+  oXL:= CreateOleObject('Excel.Application');
+  oXL.Visible := true;
+
+  // Get a new workbook
+  oWB := oXL.Workbooks.Add;
+  oSheet := oWB.ActiveSheet;
+
+  // Dataset Header
+
+  eline :=1;
+
+  oSheet.name := 'VENDAS ACUMULADAS';
+  oSheet.Cells[eline,2].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,2].Font.size := 14;
+
+  oSheet.Cells[eline,2] := 'VENDAS ACUMULADAS POR ATIVIDADE '+
+                           ansiuppercase(nomeMeses[strtoint(copy(PeriodoInicial,1,2))]) +
+                           ' DE '+copy(PeriodoInicial,4,4)+
+                           ' ATÉ '+
+                           ansiuppercase(nomeMeses[strtoint(copy(PeriodoFinal,1,2))]) +
+                           ' DE '+copy(PeriodoFinal,4,4);
+  eline := eline + 1;
+
+  oSheet.Cells[eline,3].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,3].Font.size := 14;
+  oSheet.Cells[eline,3] := 'V E R S A N D  N A C H  B R A N C H E N';
+
+  eline := eline + 2;
+
+  coluna:=1;
+  for i:=0 to qryVendasClientesporAtividades.FieldCount -1 do
+  begin
+    if qryVendasClientesporAtividades.Fields[i].Visible then
+      if qryVendasClientesporAtividades.Fields[i].FieldName <> 'expandir' then
+      begin
+        oSheet.Cells[eline,coluna].Font.FontStyle := 'Negrito';
+        oSheet.Cells[eline,coluna] := ' '+qryVendasClientesporAtividades.Fields[i].DisplayLabel;
+        oSheet.Cells[eline,coluna].HorizontalAlignment := xlCenter;
+        inc(coluna);
+      end;
+  end;
+
+  if qryVendasClientesporAtividades.IsEmpty then
+    Inc(eline);
+
+  qryVendasClientesporAtividades.First;
+
+  while not qryVendasClientesporAtividades.Eof do // Detail
+  begin
+    Inc(eline); // Add 1 to the line of Sheet
+    coluna :=1;
+    for i:=0 to (qryVendasClientesporAtividades.FieldCount-1) do
+    begin
+      if qryVendasClientesporAtividades.Fields[i].visible then
+      begin
+        if qryVendasClientesporAtividades.Fields[i].FieldName <> 'expandir' then
+        begin
+          if qryVendasClientesporAtividades.Fields[i].fieldname = 'nome' then
+          begin
+            if ((qryVendasClientesporAtividadesexpandir.AsString<>'')
+                 and VisualizarClientes) or
+               ((qryVendasClientesporAtividadesexpandir.AsString<>'')
+                 and (qryVendasClientesporAtividadesempcargo.IsNull)) then
+               oSheet.Cells[eline,coluna].Font.FontStyle := 'Negrito';
+            oSheet.Cells[eline,coluna].ColumnWidth := 50;
+            oSheet.Cells[eline,coluna] := qryVendasClientesporAtividades.Fields[i].value;
+          end
+          else
+          begin
+            oSheet.Cells[eline,coluna].ColumnWidth := 15;
+            if qryVendasClientesporAtividadesnome.AsString='' then
+            begin
+              oSheet.Cells[eline,coluna] := qryVendasClientesporAtividades.Fields[i].value/100;
+              oSheet.Cells[eline,coluna].numberformat := '##0,00%';
+            end
+            else
+            begin
+              oSheet.Cells[eline,coluna] := qryVendasClientesporAtividades.Fields[i].value;
+              oSheet.Cells[eline,coluna].numberformat := '###.###.##0,00';
+            end;
+            if ((qryVendasClientesporAtividadesexpandir.AsString<>'')
+                 and VisualizarClientes) {or
+               ((qryVendasClientesporAtividadesexpandir.AsString<>'')
+                 and (qryVendasClientesporAtividadesempcargo.IsNull)) or
+               (qryVendasClientesporAtividades.Fields[i].fieldname = 'Total')} then
+               oSheet.Cells[eline,coluna].Font.FontStyle := 'Negrito';
+          end;
+          inc(coluna);
+        end;
+      end;
+    end;
+    qryVendasClientesporAtividades.Next;
+
+    if (qryVendasClientesporAtividadesexpandir.AsString <> '') and
+       (qryVendasClientesporAtividadesnome.AsString<>'') then
+      inc(eline);
+
+  end;
+  // Save the file
+  NomeArquivo := ExtractFilePath(Application.ExeName) + 'Saidas';
+
+  if not DirectoryExists(NomeArquivo) then
+    if not CreateDir(NomeArquivo) then
+    raise Exception.Create('Impossível criar o diretório '+NomeArquivo);
+
+  NomeArquivo := NomeArquivo+'\VendasAcumuladasporAtividades_'+
+                 copy(PeriodoInicial,4,4)+'_'+copy(PeriodoInicial,1,2)+'_a_'+
+                 copy(PeriodoFinal,4,4)+'_'+copy(PeriodoFinal,1,2);
+  try
+  oWB.SaveAs(NomeArquivo); except end;
+//  oXL.Visible := true;
+//  oXL.Quit;
+end;
+
+procedure TdtmVendasporAtividades.SetarVisualizacao;
+var
+ i:integer;
+begin
+  qryVendasClientesporAtividades.Filtered := false;
+
+  qryVendasClientesporAtividades.Filtered := not VisualizarClientes;
+
+  if assigned(AtividadesSelecionadas) then
+  begin
+    if not VisualizarClientes then
+    begin
+      for i:=0 to AtividadesSelecionadas.Count -1 do
+      begin
+        if qryVendasClientesporAtividades.Locate('empcargo',AtividadesSelecionadas[i],[]) then
+        begin
+          if (qryVendasClientesporAtividadesexpandir.AsString<>'-') and
+             (qryVendasClientesporAtividadesexpandir.AsString<>'') then
+          begin
+            qryVendasClientesporAtividades.Edit;
+            qryVendasClientesporAtividadesexpandir.AsString := '-';
+            qryVendasClientesporAtividades.Next;
+            qryVendasClientesporAtividades.Edit;
+            qryVendasClientesporAtividadesexpandir.AsString := '-';
+            qryVendasClientesporAtividades.Post;
+          end
+        end;
+      end;
+      AtividadesSelecionadas := nil;
+    end;
+  end;
+
+end;
+
+procedure TdtmVendasporAtividades.ZMonitor1MonitorEvent(Sql,
+  Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:\loganalisevenda_.sql') then
+    Listar.loadfromfile('c:\loganalisevenda_.sql');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\loganalisevenda_.sql');
+  listar.free;
+end;
+
+procedure TdtmVendasporAtividades.qryVendasClientesporAtividadesFilterRecord(
+  DataSet: TDataSet; var Accept: Boolean);
+begin
+  inherited;
+  if VisualizarClientes then
+  begin
+    if AtividadesSelecionadas.Count = 0 then
+      Accept := true
+    else
+    begin
+      if qryVendasClientesporAtividadesexpandir.AsString<>'' then
+        accept := true
+      else
+        accept := AtividadesSelecionadas.IndexOf(qryVendasClientesporAtividades.fieldbyname('empcargo').AsString)=-1;
+    end;
+  end
+  else
+  begin
+   if not VisualizarClientes then
+   begin
+     if (qryVendasClientesporAtividadesexpandir.AsString <> '') then
+       Accept := true
+     else
+       Accept := false;
+   end;
+  end;
+end;
+
+function TdtmVendasporAtividades.GerarConsulta(periodoinicial,
+  periodofinal, moeda: String): Boolean;
+const
+  FiltroData = ' and (df.data BETWEEN ''%s'' AND  ''%s'')';
+  FiltroCotacao = ' and (mc.data BETWEEN ''%s'' AND  ''%s'')';
+  FiltrocomMoeda = 'where mc.moeda = ''%s''';
+  FiltrosemMoeda = 'where mc.moeda is null';
+  FiltroMoedaSelecionada = 'case when true then';
+  FiltroMoedaNaoSelecionada = 'case when false then';
+var
+  FiltroVendas,
+  FiltroServicos, mes, meses,teste : String;
+  i,j,posicaomeses :integer;
+  DataInicial, Datafinalaux, DataFinal: String;
+  TotalLinha : Currency;
+begin
+  TotalLinha := 0;
+  qryVendasClientesporAtividades.Filtered := false;
+  if Assigned(atividadesselecionadas) then
+    atividadesselecionadas := nil;
+  DataInicial := FormatDateTime('dd/mm/yyyy', strtodatetime('01/'+periodoinicial));
+  Datafinalaux := FormatDateTime('dd/mm/yyyy', strtodatetime(trim('01/'+periodofinal)));
+  DataFinal   := FormatDateTime('dd/mm/yyyy', strtodatetime(inttostr(DaysInMonth(strtodatetime(Datafinalaux))) + '/'+ periodofinal));
+
+  qryvendas.Close;
+  qryvendas.Sql.Text := qryVendas_AUX.Sql.Text;
+
+  qryVendasporAtividades.Close;
+  qryVendasporAtividades.sql.Text := qryVendasporAtividades_AUX.Sql.Text;
+
+  qryVendasporAtividadesPerc.Close;
+  qryVendasporAtividadesPerc.sql.Text := qryVendasporAtividadesPerc_AUX.Sql.Text;
+
+  qryVendasClientesporAtividades.close;
+  qryVendasClientesporAtividades.sql.text := qryVendasClientesporAtividades_AUX.sql.text;
+
+  qrynMeses.Close;
+  qrynMeses.sql.text := qrynmeses_aux.sql.text;
+
+  qryVendas.Sql[NumerodalinhanoTexto(qryVendas.sql, '%sqlDataFaturamento')] :=
+    format(FiltroData,[quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(dataInicial))),
+                       quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(datafinal)))]);
+  qryVendas.Sql[NumerodalinhanoTexto(qryVendas.sql, '%sqlDataCotacao')] :=
+    format(FiltroCotacao,[quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(dataInicial))),
+                       quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(datafinal)))]);
+
+  if moeda<>'' then
+  begin
+    qryVendas.Sql[NumerodalinhanoTexto(qryVendas.sql, '%sqlMoedaSelecionada')] :=
+      FiltroMoedaSelecionada;
+    qryVendas.Sql[NumerodalinhanoTexto(qryVendas.sql, '%sqlMoeda')] :=
+      format(FiltrocomMoeda,[quotedstr(moeda)]);
+  end
+  else
+  begin
+    qryVendas.Sql[NumerodalinhanoTexto(qryVendas.sql, '%sqlMoedaSelecionada')] :=
+      FiltroMoedaNaoSelecionada;
+    qryVendas.Sql[NumerodalinhanoTexto(qryVendas.sql, '%sqlMoeda')] :=
+      FiltrosemMoeda;
+  end;
+  
+  qryVendas.Sql[NumerodalinhanoTexto(qryVendas.sql, '%DataInicial_1')] :=
+     formatdatetime('yyyy-mm-dd',strtodatetime(dataInicial));
+  qryVendas.Sql[NumerodalinhanoTexto(qryVendas.sql, '%DataInicial_2')] :=
+     formatdatetime('yyyy-mm-dd',strtodatetime(dataInicial));
+  qryVendas.Sql[NumerodalinhanoTexto(qryVendas.sql, '%DataFinal')] :=
+     formatdatetime('yyyy-mm-dd',strtodatetime(datafinal));
+
+  qryVendasporAtividades.Sql[NumerodalinhanoTexto(qryVendasporAtividades.sql, '%sqlDataFaturamento')] :=
+    format(FiltroData,[quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(dataInicial))),
+                       quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(datafinal)))]);
+  qryVendasporAtividades.Sql[NumerodalinhanoTexto(qryVendasporAtividades.sql, '%sqlDataCotacao')] :=
+    format(FiltroCotacao,[quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(dataInicial))),
+                       quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(datafinal)))]);
+  if moeda<>'' then
+  begin
+    qryVendasporAtividades.Sql[NumerodalinhanoTexto(qryVendasporAtividades.sql, '%sqlMoedaSelecionada')] :=
+      FiltroMoedaSelecionada;
+    qryVendasporAtividades.Sql[NumerodalinhanoTexto(qryVendasporAtividades.sql, '%sqlMoeda')] :=
+      format(FiltrocomMoeda,[quotedstr(moeda)]);
+  end
+  else
+  begin
+    qryVendasporAtividades.Sql[NumerodalinhanoTexto(qryVendasporAtividades.sql, '%sqlMoedaSelecionada')] :=
+      FiltroMoedaNaoSelecionada;
+    qryVendasporAtividades.Sql[NumerodalinhanoTexto(qryVendasporAtividades.sql, '%sqlMoeda')] :=
+      FiltrosemMoeda;
+  end;
+  qryVendasporAtividades.Sql[NumerodalinhanoTexto(qryVendasporAtividades.sql, '%DataInicial_1')] :=
+     formatdatetime('yyyy-mm-dd',strtodatetime(dataInicial));
+  qryVendasporAtividades.Sql[NumerodalinhanoTexto(qryVendasporAtividades.sql, '%DataInicial_2')] :=
+     formatdatetime('yyyy-mm-dd',strtodatetime(dataInicial));
+  qryVendasporAtividades.Sql[NumerodalinhanoTexto(qryVendasporAtividades.sql, '%DataFinal')] :=
+     formatdatetime('yyyy-mm-dd',strtodatetime(datafinal));
+
+  qryVendasporAtividadesPerc.Sql[NumerodalinhanoTexto(qryVendasporAtividadesPerc.sql, '%sqlDataFaturamento')] :=
+    format(FiltroData,[quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(dataInicial))),
+                       quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(datafinal)))]);
+  qryVendasporAtividadesPerc.Sql[NumerodalinhanoTexto(qryVendasporAtividadesPerc.sql, '%sqlDataCotacao')] :=
+    format(FiltroCotacao,[quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(dataInicial))),
+                       quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(datafinal)))]);
+  if moeda<>'' then
+  begin
+    qryVendasporAtividadesPerc.Sql[NumerodalinhanoTexto(qryVendasporAtividadesPerc.sql, '%sqlMoedaSelecionada')] :=
+      FiltroMoedaSelecionada;
+    qryVendasporAtividadesPerc.Sql[NumerodalinhanoTexto(qryVendasporAtividadesPerc.sql, '%sqlMoeda')] :=
+      format(FiltrocomMoeda,[quotedstr(moeda)]);
+  end
+  else
+  begin
+    qryVendasporAtividadesPerc.Sql[NumerodalinhanoTexto(qryVendasporAtividadesPerc.sql, '%sqlMoedaSelecionada')] :=
+      FiltroMoedaNaoSelecionada;
+    qryVendasporAtividadesPerc.Sql[NumerodalinhanoTexto(qryVendasporAtividadesPerc.sql, '%sqlMoeda')] :=
+      FiltrosemMoeda;
+  end;
+  qryVendasporAtividadesPerc.Sql[NumerodalinhanoTexto(qryVendasporAtividadesPerc.sql, '%DataInicial_1')] :=
+     formatdatetime('yyyy-mm-dd',strtodatetime(dataInicial));
+  qryVendasporAtividadesPerc.Sql[NumerodalinhanoTexto(qryVendasporAtividadesPerc.sql, '%DataInicial_2')] :=
+     formatdatetime('yyyy-mm-dd',strtodatetime(dataInicial));
+  qryVendasporAtividadesPerc.Sql[NumerodalinhanoTexto(qryVendasporAtividadesPerc.sql, '%DataFinal')] :=
+     formatdatetime('yyyy-mm-dd',strtodatetime(datafinal));
+
+  qryVendasClientesporAtividades.Sql[NumerodalinhanoTexto(qryVendasClientesporAtividades.sql, '%sqlDataFaturamento')] :=
+    format(FiltroData,[quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(dataInicial))),
+                       quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(datafinal)))]);
+
+  qryVendasClientesporAtividades.Sql[NumerodalinhanoTexto(qryVendasClientesporAtividades.sql, '%sqlDataCotacao')] :=
+    format(FiltroCotacao,[quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(dataInicial))),
+                       quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(datafinal)))]);
+  if moeda<>'' then
+  begin
+    qryVendasClientesporAtividades.Sql[NumerodalinhanoTexto(qryVendasClientesporAtividades.sql, '%sqlMoedaSelecionada')] :=
+      FiltroMoedaSelecionada;
+    qryVendasClientesporAtividades.Sql[NumerodalinhanoTexto(qryVendasClientesporAtividades.sql, '%sqlMoeda')] :=
+      format(FiltrocomMoeda,[quotedstr(moeda)]);
+  end
+  else
+  begin
+    qryVendasClientesporAtividades.Sql[NumerodalinhanoTexto(qryVendasClientesporAtividades.sql, '%sqlMoedaSelecionada')] :=
+      FiltroMoedaNaoSelecionada;
+    qryVendasClientesporAtividades.Sql[NumerodalinhanoTexto(qryVendasClientesporAtividades.sql, '%sqlMoeda')] :=
+      FiltrosemMoeda;
+  end;
+  qryVendasClientesporAtividades.Sql[NumerodalinhanoTexto(qryVendasClientesporAtividades.sql, '%DataInicial_1')] :=
+     formatdatetime('yyyy-mm-dd',strtodatetime(dataInicial));
+  qryVendasClientesporAtividades.Sql[NumerodalinhanoTexto(qryVendasClientesporAtividades.sql, '%DataInicial_2')] :=
+     formatdatetime('yyyy-mm-dd',strtodatetime(dataInicial));
+  qryVendasClientesporAtividades.Sql[NumerodalinhanoTexto(qryVendasClientesporAtividades.sql, '%DataFinal')] :=
+     formatdatetime('yyyy-mm-dd',strtodatetime(datafinal));
+
+
+  qrynMeses.Sql[NumerodalinhanoTexto(qrynMeses.sql, '%DataInicial_1')] :=
+     formatdatetime('yyyy-mm-dd',strtodatetime(dataInicial));
+  qrynMeses.Sql[NumerodalinhanoTexto(qrynMeses.sql, '%DataInicial_2')] :=
+     formatdatetime('yyyy-mm-dd',strtodatetime(dataInicial));
+  qrynMeses.Sql[NumerodalinhanoTexto(qrynMeses.sql, '%DataFinal')] :=
+     formatdatetime('yyyy-mm-dd',strtodatetime(datafinal));
+
+  qrynMeses.close;
+  qrynMeses.Open;
+
+  posicaomeses := NumerodalinhanoTexto(qryVendas.sql, '%meses');
+  qrynMeses.First;
+  for i:=0 to qrynMeses.RecordCount-1 do
+  begin
+    mes := 'm'+copy(qrynMeses.FieldByName('mes').AsString,6,2)+'_'+
+           copy(qrynMeses.FieldByName('mes').AsString,1,4);
+
+    if i = qrynMeses.RecordCount-1 then
+      qryVendas.Sql.Insert(posicaomeses+i,mes+' numeric(12,2)')
+    else
+      qryVendas.Sql.Insert(posicaomeses+i,mes+' numeric(12,2),');
+    qrynMeses.Next;
+  end;
+
+  posicaomeses := NumerodalinhanoTexto(qryVendasporAtividadesPerc.sql, '%meses');
+  qrynMeses.First;
+  for i:=0 to qrynMeses.RecordCount-1 do
+  begin
+    mes := 'm'+copy(qrynMeses.FieldByName('mes').AsString,6,2)+'_'+
+           copy(qrynMeses.FieldByName('mes').AsString,1,4);
+
+    if i = qrynMeses.RecordCount-1 then
+      qryVendasporAtividadesPerc.Sql.Insert(posicaomeses+i,mes+' numeric(12,2)')
+    else
+      qryVendasporAtividadesPerc.Sql.Insert(posicaomeses+i,mes+' numeric(12,2),');
+    qrynMeses.Next;
+  end;
+
+
+  for i:=0 to qryVendasporAtividades.FieldCount-1 do
+  begin
+    while copy(qryVendasporAtividades.Fields[i].FieldName,1,1) = 'm' do
+    begin
+      qryVendasporAtividades.Fields[i].Free;
+      if i = qryVendasporAtividades.FieldCount then
+        break;
+    end;
+    if i = qryVendasporAtividades.FieldCount then
+      break;
+  end;
+
+  posicaomeses := NumerodalinhanoTexto(qryVendasporAtividades.sql, '%meses');
+  qrynMeses.First;
+  for i:=0 to qrynMeses.RecordCount-1 do
+  begin
+    mes := 'm'+copy(qrynMeses.FieldByName('mes').AsString,6,2)+'_'+
+           copy(qrynMeses.FieldByName('mes').AsString,1,4);
+
+    with TCurrencyField.Create(dsrVendasporAtividades) do
+    begin
+     DisplayLabel := uppercase(copy(NomeMeses[strtoint(copy(mes,2,2))],1,3)
+                     +'/'+
+                     copy(mes,5,4));
+     FieldName := mes;
+     FieldKind:= fkData;
+     DataSet := qryVendasporAtividades;
+     DisplayFormat := '###,###,##0.00';
+     DisplayWidth := 11;
+     qryVendasporAtividades.FieldDefs.Add('qryVendasporAtividades'+mes, ftCurrency);
+    end;
+
+    if i = qrynMeses.RecordCount-1 then
+      qryVendasporAtividades.Sql.Insert(posicaomeses+i,mes+' numeric(12,2)')
+    else
+      qryVendasporAtividades.Sql.Insert(posicaomeses+i,mes+' numeric(12,2),');
+    qrynMeses.Next;
+  end;
+
+  for i:=0 to qryVendasClientesporAtividades.FieldCount-1 do
+  begin
+    while copy(qryVendasClientesporAtividades.Fields[i].FieldName,1,1) = 'm' do
+    begin
+      qryVendasClientesporAtividades.Fields[i].Free;
+      if i = qryVendasClientesporAtividades.FieldCount-1 then
+        break;
+    end;
+    if i = qryVendasClientesporAtividades.FieldCount-1 then
+      break;
+  end;
+
+  posicaomeses := NumerodalinhanoTexto(qryVendasClientesporAtividades.sql, '%meses');
+  qrynMeses.First;
+  for i:=0 to qrynMeses.RecordCount-1 do
+  begin
+    mes := 'm'+copy(qrynMeses.FieldByName('mes').AsString,6,2)+'_'+
+           copy(qrynMeses.FieldByName('mes').AsString,1,4);
+    with TCurrencyField.Create(dsrVendasClientesporAtividades) do
+    begin
+     DisplayLabel := uppercase(copy(NomeMeses[strtoint(copy(mes,2,2))],1,3)
+                     +'/'+
+                     copy(mes,5,4));
+     FieldName := mes;
+     FieldKind:= fkData;
+     DataSet := qryVendasClientesporAtividades;
+     DisplayFormat := '###,###,##0.00';
+     DisplayWidth := 11;
+     qryVendasClientesporAtividades.FieldDefs.Add('qryVendasClientesporAtividades'+mes, ftCurrency);
+    end;
+
+    if i = qrynMeses.RecordCount-1 then
+      qryVendasClientesporAtividades.Sql.Insert(posicaomeses+i,mes+' numeric(12,2)')
+    else
+      qryVendasClientesporAtividades.Sql.Insert(posicaomeses+i,mes+' numeric(12,2),');
+    qrynMeses.Next;
+  end;
+
+  qryvendas.Open;
+  qryVendasporAtividadesPerc.Open;
+  qryVendasporAtividadesPerc.First;
+  while not qryVendasporAtividadesPerc.Eof do
+  begin
+    TotalLinha := 0;
+    qryVendasporAtividadesPerc.edit;
+    for i:=0 to qryVendasporAtividadesPerc.FieldCount-1 do
+    begin
+      if copy(qryVendasporAtividadesPerc.Fields[i].FieldName,1,1) = 'm' then
+      begin
+        if not qryVendas.Fieldbyname(qryVendasporAtividadesPerc.Fields[i].fieldname).isnull then
+        begin
+          TotalLinha := TotalLinha + qryVendasporAtividadesPerc.Fields[i].AsCurrency;
+          qryVendasporAtividadesPerc.Fields[i].AsCurrency := qryVendasporAtividadesPerc.Fields[i].AsCurrency * 100/
+                                                          qryVendas.Fieldbyname(qryVendasporAtividadesPerc.Fields[i].fieldname).AsCurrency;
+        end;
+      end;
+    end;
+
+    if qryVendas.Fieldbyname('total').AsCurrency<>0 then
+      qryVendasporAtividadesPerc.FieldByName('total').AsCurrency :=
+         TotalLinha * 100 / qryVendas.Fieldbyname('total').AsCurrency;
+    qryVendasporAtividadesPerc.Post;
+    qryVendasporAtividadesPerc.Next;
+  end;
+
+  qryVendasporAtividades.Open;
+  qryVendasporAtividades.First;
+  qryVendasporAtividadesPerc.First;
+//  qryVendasClientesporAtividades.OnCalcFields := nil;
+  qryVendasClientesporAtividades.DisableControls;
+  qryVendasClientesporAtividades.Open;
+  while not qryVendasporAtividades.Eof do
+  begin
+    if qryVendasClientesporAtividades.Locate('empcargo',qryVendasporAtividades.fieldbyname('empcargo').AsInteger,[]) then
+    begin
+      //GRAVANDO PERCENTUAIS
+      qryVendasClientesporAtividades.Insert;
+      for i:=0 to qryVendasporAtividadesPerc.FieldCount-1 do
+        qryVendasClientesporAtividades.FieldByName(qryVendasporAtividadesPerc.Fields[i].FieldName).Value :=
+          qryVendasporAtividadesPerc.fields[i].Value;
+      qryVendasClientesporAtividades.Post;
+
+      //GRAVANDO VALORES
+      qryVendasClientesporAtividades.Insert;
+      for i:=0 to qryVendasporAtividades.FieldCount-1 do
+      begin
+        if qryVendasporAtividades.fields[i].FieldName = 'descricao' then
+          qryVendasClientesporAtividadesnome.Value := qryVendasporAtividades.fields[i].Value
+        else
+          qryVendasClientesporAtividades.FieldByName(qryVendasporAtividades.Fields[i].FieldName).Value :=
+            qryVendasporAtividades.fields[i].Value;
+      end;
+      qryVendasClientesporAtividades.Post;
+    end;
+    qryVendasporAtividades.Next;
+    qryVendasporAtividadesPerc.Next;
+  end;
+
+  //GRAVANDO TOTAIS
+  qryVendasClientesporAtividades.Append;
+  for i:=0 to qryVendas.FieldCount-1 do
+      qryVendasClientesporAtividades.FieldByName(qryVendas.Fields[i].FieldName).Value :=
+        qryVendas.fields[i].Value;
+  qryVendasClientesporAtividades.Post;
+
+  qryVendasClientesporAtividades.First;
+  qryVendasClientesporAtividades.EnableControls;
+
+  qryVendasClientesporAtividadesTotal.Index := qryVendasClientesporAtividades.FieldCount-1;
+
+//  qryVendasClientesporAtividades.OnCalcFields := qryVendasClientesporAtividadesCalcFields;
+
+  result := not qryVendasporAtividades.IsEmpty;
+end;
+
+procedure TdtmVendasporAtividades.qryVendasClientesporAtividadesCalcFields(
+  DataSet: TDataSet);
+var i:integer;
+begin
+  inherited;
+  if qryVendasClientesporAtividadesnome.AsString<>'' then
+  begin
+    qryVendasClientesporAtividadesTotal.AsCurrency := 0;
+    for i:=0 to qryVendasClientesporAtividades.FieldCount-1 do
+      if copy(qryVendasClientesporAtividades.Fields[i].FieldName,1,1)='m' then
+        qryVendasClientesporAtividadesTotal.AsCurrency :=
+          qryVendasClientesporAtividadesTotal.AsCurrency +
+          qryVendasClientesporAtividades.Fields[i].AsCurrency;
+  end;
+end;
+
+procedure TdtmVendasporAtividades.qryVendasAfterOpen(DataSet: TDataSet);
+var i:integer;
+begin
+  inherited;
+  qryVendas.Edit;
+  qryVendas.FieldByName('total').AsCurrency := 0;
+  for i:=0 to qryVendas.FieldCount-1 do
+    if copy(qryVendas.Fields[i].FieldName,1,1)='m' then
+      qryVendas.FieldByName('total').AsCurrency :=
+        qryVendas.FieldByName('total').AsCurrency +
+        qryVendas.Fields[i].AsCurrency;
+  qryVendas.Post;
+end;
+
+end.

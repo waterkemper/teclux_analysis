@@ -1,0 +1,528 @@
+unit fmcadastroeventos;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  DBCtrls, ExtCtrls, Buttons, StdCtrls, Mask, Grids, Windows, DBGrids, {Qete,} DB,
+  //Componentes
+  cpdbfindcontrols, cpnumero, cptexto, cpdbdata, cpdbgrid,
+  //Repositorio
+  fmcadastropadrao, fmconsultabasica, fmconsultaporcampo,
+  //Projeto
+  dmcadastroeventos, fmcadastrohistoricosevento,
+  //Terceiros
+  ZQuery, ComCtrls,
+  Biblio, cpdbtext, ctConstantes, ZPgSqlQuery, cpquery, cpdbradiogroup,
+  cpmascara, ActnList, frconsulta, frconsultacodigo, clparametrossistema,
+  frconsultacontabil, frconsultacodigocontabil, ToolWin;
+
+type
+  TfrmCadastroEventos = class(TfrmCadastroPadrao)
+    pnlFundoJanela: TPanel;
+    gbxDescricao: TGroupBox;
+    gbxInativo: TGroupBox;
+    edtInativo: TDBEditData;
+    gbxOpcoes: TGroupBox;
+    ckbCentroCusto: TDBCheckBox;
+    ckbRecibo: TDBCheckBox;
+    ckbSaldoCliente: TDBCheckBox;
+    edtDescricaoEvento: TDBEditTexto;
+    gbxCodigo: TGroupBox;
+    edfCodigo: TtecDbEditFind;
+    gbxClassificacao: TGroupBox;
+    edtClassificacao: TDBEditmascara;
+    rgpTipo: TtecDBRadioGroup;
+    rbnAnalitica: TtecRadioButton;
+    rbnSintetica: TtecRadioButton;
+    gbxVinculacao: TGroupBox;
+    dbgPlanoContasVinculados: TtecDBGrid;
+    aclAbilitar: TActionList;
+    Action1: TAction;
+    pnlEventos: TPanel;
+    gbxHistoricos: TGroupBox;
+    dbgHistorico: TtecDBGrid;
+    pnlBotesHistorico: TPanel;
+    sbnInserirHistoricos: TSpeedButton;
+    sbnExcluirHistoricos: TSpeedButton;
+    ckbPlanilhaCustos: TDBCheckBox;
+    rgbTipoMovimentacao: TtecDBRadioGroup;
+    rbnEntrada: TtecRadioButton;
+    rbnSaida: TtecRadioButton;
+    rbnTransferencia: TtecRadioButton;
+    gbxContasContabeis: TGroupBox;
+    dbgEventosContasContabeis: TtecDBGrid;
+    ckbIncluirNaDRE: TDBCheckBox;
+    DBCheckBox1: TDBCheckBox;
+    procedure dbgHistoricoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure sbnExcluirHistoricosClick(Sender: TObject);
+    procedure sbnInserirHistoricosClick(Sender: TObject);
+    procedure dbgHistoricoDblClick(Sender: TObject);
+    procedure edtInativoExit(Sender: TObject);
+    procedure edtClassificacaoChange(Sender: TObject);
+    procedure edtClassificacaoExit(Sender: TObject);
+    procedure edfCodigoKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edtClassificacaoKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edtInativoKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edtDescricaoEventoKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbgEventosContasContabeisDblClick(Sender: TObject);
+    procedure dbgEventosContasContabeisKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure FormActivate(Sender: TObject);
+  protected
+    fraConsultaContaContabil: TfraConsultaCodigoContabil;
+    fraConsultaHistoricoContabil: TfraConsultaCodigoContabil;
+
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function  IncluirHistoricosNoEvento(Editar: Boolean): Boolean;
+    function  IncluirContaContabil(Editar: Boolean): Boolean;
+
+    function  InternoExcluir: Boolean; override;
+    function  InternoIncluir: Boolean; override;
+    function  InternoGravar: Boolean; Override;
+
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    function  TabelaDePesquisa: TZDataSet; override;
+    function  TabelaDoParametro(Parametro: Integer): TZDataSet; override;
+    function ValidaData(ExibirMsg:Boolean):Boolean;
+    procedure EventosVinculado_SinteticasAfterOpen(Sender: TObject);
+    procedure PercorrerPlanoContas(Campo: Byte; var Key: Word; Shift: TShiftState);
+
+    procedure AtribuirDadosContaContabil;
+    procedure AtribuirDadosHistoricoContabil;
+
+    procedure AcionaPesquisaGrade;
+
+  public
+    constructor Create(AOwner: TComponent); Override;
+    destructor  Destroy; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+
+  end;
+
+var
+  frmCadastroEventos: TfrmCadastroEventos;
+  TipoPesquisa: TtecEventos;
+
+implementation
+
+uses fmnavcontroles;
+
+
+{$R *.dfm}
+
+constructor TfrmCadastroEventos.Create(AOwner: TComponent);
+begin
+   dtmcadastroeventos := Tdtmcadastroeventos.Create(Self);
+   inherited;
+   DataSet := dtmcadastroeventos.TabelaEventos;
+   dtmCadastroEventos.EventosVinculado_SinteticasAfterOpen := EventosVinculado_SinteticasAfterOpen;
+
+   fraConsultaContaContabil := TfraConsultaCodigoContabil.Create(self);
+   fraConsultaContaContabil.Name := 'fraConsultaContaContabil';
+   fraConsultaContaContabil.TipoContaContabilCreditoSelecionavel := '';
+   fraConsultaContaContabil.TipoContaContabilConsultaSelecionavel := '';
+   fraConsultaContaContabil.edfCodigo.MaxLength := 6;
+   fraConsultaContaContabil.edfCodigo.DataSource := dtmCadastroEventos.dsrEventosContasContabeis;
+   fraConsultaContaContabil.edfCodigo.DataField := 'contacontabil';
+   fraConsultaContaContabil.edfCodigo.Operacao := opATRIBUICAO;
+   fraConsultaContaContabil.edfCodigo.LookupSource := fraConsultaContaContabil.dsrProcuraCreditar;
+   fraConsultaContaContabil.edfCodigo.LookupField := 'codigo';
+   fraConsultaContaContabil.edfCodigo.LookupQueryParameter := 'codigo';
+   fraConsultaContaContabil.AbrirTabelaProcura := false;
+   fraconsultacontaContabil.TipoContaContabilCreditoSelecionavel := 'A';
+   fraconsultacontaContabil.TipoContaContabilConsultaSelecionavel := 'A';
+   fraConsultaContaContabil.TipoPesquisa := pesCONTACREDITO;
+   fraConsultaContaContabil.OnFound := AtribuirDadosContaContabil;
+
+   fraConsultaHistoricoContabil := TfraConsultaCodigoContabil.Create(self);
+   fraConsultaHistoricoContabil.Name := 'fraConsultaHistoricoContabil';
+   fraConsultaHistoricoContabil.edfCodigo.MaxLength := 5;
+   fraConsultaHistoricoContabil.edfCodigo.DataSource := dtmCadastroEventos.dsrEventosContasContabeis;
+   fraConsultaHistoricoContabil.edfCodigo.DataField := 'Historicocontabil';
+   fraConsultaHistoricoContabil.edfCodigo.Operacao := opATRIBUICAO;
+   fraConsultaHistoricoContabil.edfCodigo.LookupSource := fraConsultaHistoricoContabil.dsrProcuraHistorico;
+   fraConsultaHistoricoContabil.edfCodigo.LookupField := 'codigo';
+   fraConsultaHistoricoContabil.edfCodigo.LookupQueryParameter := 'codigo';
+   fraConsultaHistoricoContabil.AbrirTabelaProcura := false;
+   fraConsultaHistoricoContabil.TipoPesquisa := pesHISTORICOCONTABIL;
+   fraConsultaHistoricoContabil.OnFound := AtribuirDadosHistoricoContabil;
+
+//   gbxContasContabeis.Visible := parsistema.GerarContabilidade;
+   if ParSistema.GerarContabilidade
+   then begin
+      gbxContasContabeis.Visible:= true;
+      pnlEventos.Top:= 471;
+      self.Height:= 734;
+   end
+   else begin
+      gbxContasContabeis.Visible:= false;
+      pnlEventos.Top:= 308;
+      self.Height:= 571;
+   end;
+
+end;
+
+procedure TfrmCadastroEventos.dbgHistoricoDblClick(Sender: TObject);
+begin
+  inherited;
+  IncluirHistoricosNoEvento(True);
+end;
+
+procedure TfrmCadastroEventos.dbgHistoricoKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+    case Key of
+      TeclaEditarRegistro : IncluirHistoricosNoEvento(True);
+      TeclaInserirRegistro: IncluirHistoricosNoEvento(False);
+    end;
+end;
+
+destructor TfrmCadastroEventos.Destroy;
+begin
+  try
+        dtmcadastroeventos.Fecha(ctCaixaCadastroEventos);
+        dtmcadastroeventos:=nil;
+        inherited;
+        frmCadastroEventos := nil;
+  except
+         on E: Exception do ShowMessage(E.Message);
+  end;
+end;
+
+function TfrmCadastroEventos.ExisteInformacao(Parametro: Integer;
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+   case TipoPesquisa of
+      tevEVENTOS:    Result:= dtmCadastroEventos.ExisteEvento   (NomeCampo, Value);
+      else           Result:= False;
+   end;
+end;
+
+function TfrmCadastroEventos.IncluirHistoricosNoEvento(Editar: Boolean): Boolean;
+begin
+  frmCadastroHistoricosEvento := TfrmCadastroHistoricosEvento.Create(frmCadastroHistoricosEvento);
+  dtmcadastroeventos.IncluirHistoricosEventos(Editar);
+  Result := frmCadastroHistoricosEvento.ShowModal = mrok;
+  frmCadastroHistoricosEvento.free;
+
+end;
+
+function TfrmCadastroEventos.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result and not CtrlOn then
+  begin
+    Result:= dtmCadastroEventos.ExcluirEventos;
+  end;
+end;
+
+function TfrmCadastroEventos.InternoGravar: Boolean;
+begin
+   Result:= inherited InternoGravar;
+   if Result and not CtrlOn
+   then if ValidaData(dtmCadastroEventos.TabelaEventos.State=dsinsert) then begin
+           dtmcadastroeventos.GravarEvento;
+           edfCodigo.SetFocus;
+        end;
+end;
+
+function TfrmCadastroEventos.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result and not CtrlOn then
+  begin
+    if dtmcadastroeventos.IncluirEventos then
+    begin
+      edtClassificacao.SetFocus;
+      edtClassificacao.SelectAll;
+    end;
+  end;
+end;
+
+function TfrmCadastroEventos.InternoPesquisar(Titulo:String): Integer;
+begin
+   Result:= mrOK;
+   if CtrlOn then
+       TipoPesquisa:= tevNENHUM
+   else TipoPesquisa:= tevEVENTOS;
+
+   if TipoPesquisa <> tevNENHUM then
+   begin
+      dtmCadastroEventos.AbrirTabelas(TipoPesquisa);
+      Result:= inherited InternoPesquisar(Titulo);
+      if Result = mrOK then begin
+         dtmCadastroEventos.Selecionar(TipoPesquisa);
+         if TipoPesquisa = tevEVENTOS then
+         begin
+           edfCodigo.Text := dtmCadastroEventos.qryConsultaEventosCodigo.AsString;
+           edfcodigo.Exist;
+         end;
+      end;
+      dtmCadastroEventos.FecharTabelas(TipoPesquisa);
+   end;
+
+end;
+
+function TfrmCadastroEventos.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa := True;
+  TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := False;
+end;
+
+procedure TfrmCadastroEventos.sbnExcluirHistoricosClick(Sender: TObject);
+begin
+  dtmCadastroEventos.ExcluirHistoricosEventos;
+end;
+
+procedure TfrmCadastroEventos.sbnInserirHistoricosClick(Sender: TObject);
+begin
+  inherited;
+  IncluirHistoricosNoEvento(False);
+end;
+
+function TfrmCadastroEventos.TabelaDePesquisa: TZDataSet;
+begin
+   case TipoPesquisa of
+      tevEVENTOS:    Result:= dtmCadastroEventos.TabelaConsultaEventos;
+      tevCONTACONTABIL : Result := dtmCadastroEventos.TabelaConsultaContaContabil;
+      else           Result:= nil;
+   end;
+end;
+
+function TfrmCadastroEventos.TabelaDoParametro(Parametro: Integer): TZDataSet;
+begin
+  Result:= dtmcadastroeventos.TabelaEventos;
+end;
+
+procedure TfrmCadastroEventos.edtInativoExit(Sender: TObject);
+begin
+  inherited;
+  ValidaData(false);
+end;
+
+function TfrmCadastroEventos.ValidaData(ExibirMsg:Boolean): Boolean;
+begin
+  Result := True;
+  if not edtInativo.Criticar(ExibirMsg) then
+    Result := False
+  else
+  begin
+   if (edtinativo.Text<>'')  then
+    if strtodate(edtInativo.Text)>dtmCadastroEventos.DataServidor then
+     if MensagemConfirmacao(ctDATASUPERIORAATUAL)=smbCancel then
+      Result := False;
+  end;
+  if not Result then
+   edtinativo.SetFocus;
+end;
+
+procedure TfrmCadastroEventos.edtClassificacaoChange(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroEventos.PercorrendoPlanoContas := false;
+  dtmCadastroEventos.VerificarMascaraClassificacao(edtClassificacao.Text);
+end;
+
+procedure TfrmCadastroEventos.edtClassificacaoExit(Sender: TObject);
+begin
+  inherited;
+  if not edtClassificacao.ClassificacaoInvalida then
+  begin
+    dtmCadastroEventos.ValidarContas(true);
+    dtmCadastroEventos.VerificarClassificacao;
+  end;
+end;
+
+procedure TfrmCadastroEventos.EventosVinculado_SinteticasAfterOpen(
+  Sender: TObject);
+begin
+  edtClassificacao.OnExit := nil;
+  rbnAnalitica.Enabled := dtmCadastroEventos.AbilitarAnalitica;
+  if not rbnAnalitica.Enabled then
+    rbnSintetica.Enabled := true
+  else
+    rbnSintetica.Enabled := dtmCadastroEventos.AbilitarSintetica;
+  edtClassificacao.OnExit := edtClassificacaoExit;
+end;
+
+procedure TfrmCadastroEventos.edfCodigoKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  PercorrerPlanoContas(cmpcodigo, Key, Shift);
+end;
+
+procedure TfrmCadastroEventos.PercorrerPlanoContas(Campo: Byte;
+  var Key: Word; Shift: TShiftState);
+begin
+   if (Key = VK_NEXT) or
+      (Key = VK_PRIOR)   or
+     ((ssCtrl in Shift) and ((Key = VK_HOME) or (Key = VK_END))) then
+   begin
+     dtmCadastroEventos.PercorrendoPlanoContas := true;
+     dtmCadastroEventos.PercorrerPlanoContas(Campo, Key, Shift);
+//     edfCodigo.Text := dtmPlanoContas.qryPlanoContascodigo.AsString;
+//     edfcodigo.Exist;
+     case campo of
+      cmpcodigo        : edfCodigo.SelectAll;
+      cmpClassificacao : edtClassificacao.SelectAll;
+      cmpDescricao     : edtDescricaoEvento.SelectAll;
+      cmpDataInativo   : edtInativo.SelectAll;
+     end;
+   end;
+end;
+
+procedure TfrmCadastroEventos.edtClassificacaoKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  PercorrerPlanoContas(cmpClassificacao, Key, Shift);
+
+end;
+
+procedure TfrmCadastroEventos.edtInativoKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  PercorrerPlanoContas(cmpDataInativo, Key, Shift);
+
+end;
+
+procedure TfrmCadastroEventos.edtDescricaoEventoKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  PercorrerPlanoContas(cmpDescricao, Key, Shift);
+
+end;
+
+function TfrmCadastroEventos.IncluirContaContabil(
+  Editar: Boolean): Boolean;
+begin
+
+end;
+
+procedure TfrmCadastroEventos.AtribuirDadosContaContabil;
+begin
+  dtmCadastroEventos.qryEventosContasContabeis.Edit;
+  dtmCadastroEventos.qryEventosContasContabeisdescricaoplanocontas.AsString := fraConsultaContaContabil.qryProcuraCreditardescricao.AsString;
+end;
+
+procedure TfrmCadastroEventos.AtribuirDadosHistoricoContabil;
+begin
+  dtmCadastroEventos.qryEventosContasContabeis.Edit;
+  dtmCadastroEventos.qryEventosContasContabeisdescricaohistorico.AsString := fraConsultaHistoricoContabil.qryProcuraHistoricodescricao.AsString;
+end;
+
+procedure TfrmCadastroEventos.dbgEventosContasContabeisDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionaPesquisaGrade;
+end;
+
+procedure TfrmCadastroEventos.AcionaPesquisaGrade;
+begin
+  if dbgEventosContasContabeis.Focused then
+  begin
+    case dbgEventosContasContabeis.SelectedIndex of
+    0,1 :
+      begin
+        fraConsultaContaContabil.CtrlOn := True;
+        fraConsultaContaContabil.InternoPesquisar('Conta Contábil');
+        dbgEventosContasContabeis.SetFocus;
+        dbgEventosContasContabeis.SelectedIndex :=  0;
+      end;
+    2,3 :
+      begin
+        fraConsultaHistoricoContabil.CtrlOn := True;
+        fraConsultaHistoricoContabil.InternoPesquisar('Histórico Contábil');
+        dbgEventosContasContabeis.SetFocus;
+        dbgEventosContasContabeis.SelectedIndex :=  2;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmCadastroEventos.dbgEventosContasContabeisKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if CtrlOn then
+  begin
+    case Key of
+      VK_F9 : AcionaPesquisaGrade;
+    end;
+  end
+  else
+  begin
+    case key of
+      VK_Return :
+      begin
+        case dbgEventosContasContabeis.SelectedIndex of
+        0 : begin
+              if not fraConsultaContaContabil.edfCodigo.Exist then
+                dtmCadastroEventos.qryEventosContasContabeisdescricaoplanocontas.clear
+              else
+                AtribuirDadosContaContabil;
+
+              dbgEventosContasContabeis.SelectedIndex := 0;
+              dbgEventosContasContabeis.SetFocus;
+            end;
+        2 : begin
+              if not fraConsultaHistoricoContabil.edfCodigo.Exist then
+                dtmCadastroEventos.qryEventosContasContabeisdescricaohistorico.clear
+              else
+                AtribuirDadosHistoricoContabil;
+
+              dbgEventosContasContabeis.SelectedIndex := 2;
+              dbgEventosContasContabeis.SetFocus;
+            end;
+        end;
+
+        if dtmCadastroEventos.qryEventosContasContabeis.State in [dsedit, dsinsert] then
+           dtmCadastroEventos.qryEventosContasContabeis.Post;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmCadastroEventos.FormActivate(Sender: TObject);
+begin
+  inherited;
+  if ParSistema.GerarContabilidade
+  then begin
+     gbxContasContabeis.Visible:= true;
+     pnlEventos.Top:= 471;
+     self.Height:= 734;
+  end
+  else begin
+     gbxContasContabeis.Visible:= false;
+     pnlEventos.Top:= 308;
+     self.Height:= 571;
+  end;
+end;
+
+procedure TfrmCadastroEventos.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  {
+  if Key = VK_ESCAPE then
+  begin
+    if dtmCadastroEventos.qryEventos.recordcount = 0 then
+      dtmCadastroEventos.qryEventosVinculado_Sinteticas.Close;
+  end;
+  }
+end;
+
+end.
+

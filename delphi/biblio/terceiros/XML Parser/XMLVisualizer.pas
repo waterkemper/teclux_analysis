@@ -1,0 +1,780 @@
+unit XMLVisualizer;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Classes, ECXMLParser, Graphics, Controls,
+  XMLColorHelpers, ExtCtrls, StdCtrls;
+
+type
+  TXMLVisualItemData = class;
+  TXMLVisualizer = class;
+
+  TBeforeDrawItemEvent = procedure (XMLItem : TXMLItem; XMLItemPositionInfo : TXMLVisualItemData; var ColorSet : String) of object;
+  TCheckDrawItemEvent = procedure (XMLItem : TXMLItem; var DrawItem : Boolean) of object;
+  TOnSelectionChange = procedure (Sender : TXMLVisualizer; OldSelection, NewSelection : TXMLItem) of object;
+
+  TXMLVisualItemData = class
+  private
+    FList : TList;
+    FOwner: TXMLItem;
+    FExpanded: Boolean;
+    FDisplayRect: TRect;
+    procedure SetOwner(const Value: TXMLItem);
+    function  GetLevel: Integer;
+    procedure SetExpanded(const Value: Boolean);
+    procedure SetBottomRight(const Value: TPoint);
+    procedure SetDisplayRect(const Value: TRect);
+    function  GetBottomRight: TPoint;
+    procedure SetCenter(const Value: TPoint);
+    function  GetCenter: TPoint;
+    function  GetParent: TXMLVisualItemData;
+    function  GetCount: Integer;
+    function  GetItems(index: Integer): TXMLVisualItemData;
+  public
+    constructor Create(anOwner : TXMLItem );
+    destructor Destroy; override;
+
+    function  ItemAtXY(X, Y: Integer): TXMLVisualItemData;
+    function  IsChildOf(Item : TXMLVisualItemData) : Boolean;
+    procedure MoveTo(Item : TXMLVisualItemData);
+    function  IndexOf(Item : TXMLVisualItemData) : Integer;
+    procedure Delete(Index : Integer);
+    procedure Clear;
+    
+    property Level : Integer read GetLevel;
+    property Owner : TXMLItem read FOwner write SetOwner;
+    property Expanded : Boolean read FExpanded write SetExpanded;
+    property BottomRight : TPoint read GetBottomRight write SetBottomRight;
+    property DisplayRect : TRect read FDisplayRect write SetDisplayRect;
+    property Center : TPoint read GetCenter write SetCenter;
+    property Parent : TXMLVisualItemData read GetParent;
+    property Count  : Integer read GetCount;
+    property Items[index : Integer]: TXMLVisualItemData read GetItems;
+  end;
+
+  TXMLVisualizer = class(TComponent)
+  private
+    FXMLParser: TECXMLParser;
+    FRows  : Array of Integer;
+    FColWidth: Integer;
+    FRowHeight: Integer;
+    FCurMaxWidth,
+    FCurMaxHeight : Integer;
+    FXMLColors: TECXMLParser;
+    FDefaultFont: TColor;
+    FDefaultBackground: TColor;
+    FDefaultBorder: TColor;
+    FBackgroundColor: TColor;
+    FFontColorName: String;
+    FBackgroundColorName: String;
+    FBorderColorName: String;
+    FColorItemName: String;
+    FDefaultColorName: String;
+    FPaintBox: TPaintBox;
+    FOldPaintBoxOnPaint : TNotifyEvent;
+    FConnectionLineName: String;
+    FBeforeDrawItem: TBeforeDrawItemEvent;
+    FOnSwap: TNotifyEvent;
+    FSelectedColorSet: String;
+    FSelectedItem: TXMLItem;
+    FOnSelectionChange: TOnSelectionChange;
+    FCheckCanDrawItem: TCheckDrawItemEvent;
+    FRedrawOnSelectChanged: Boolean;
+    FAfterSelectionChange: TOnSelectionChange;
+    FOnStartDraw: TNotifyEvent;
+    procedure SetXMLParser(const Value: TECXMLParser);
+    procedure SetColWidth(const Value: Integer);
+    procedure SetRowHeight(const Value: Integer);
+    procedure SetXMLColors(const Value: TECXMLParser);
+    procedure SetDefaultBackground(const Value: TColor);
+    procedure SetDefaultBorder(const Value: TColor);
+    procedure SetDefaultFont(const Value: TColor);
+    procedure SetBackgroundColor(const Value: TColor);
+    procedure SetBackgroundColorName(const Value: String);
+    procedure SetBorderColorName(const Value: String);
+    procedure SetFontColorName(const Value: String);
+    procedure SetColorItemName(const Value: String);
+    procedure SetDefaultColorName(const Value: String);
+    procedure SetPaintBox(const Value: TPaintBox);
+    procedure SetConnectionLineName(const Value: String);
+    procedure SetBeforeDrawItem(const Value: TBeforeDrawItemEvent);
+    procedure SetOnSwap(const Value: TNotifyEvent);
+    procedure SetSelectedColorSet(const Value: String);
+    procedure SetSelectedItem(const Value: TXMLItem);
+    procedure SetOnSelectionChange(const Value: TOnSelectionChange);
+    procedure SetCheckCanDrawItem(const Value: TCheckDrawItemEvent);
+    procedure SetRedrawOnSelectChanged(const Value: Boolean);
+    procedure SetAfterSelectionChange(const Value: TOnSelectionChange);
+    procedure SetOnStartDraw(const Value: TNotifyEvent);
+    { Private declarations }
+  protected
+    { Protected declarations }
+    FBackBuffer : TBitmap;
+    function  RetrieveItemColor( Item : TXMLItem ) : String;
+    procedure SetColors( ColorName : String );
+    procedure pbXMLPaint(Sender: TObject);
+    procedure CalcItemInfo( Item : TXMLItem; Center : TPoint );
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+
+    procedure DrawItem(Item : TXMLItem; DrawChildren : Boolean = true; CalcPos : Boolean = true);
+    procedure Draw;
+    procedure Swap;
+    procedure TextBox(ColorCode, Text : String; DisplayRect : TRect);
+    procedure ConnectionLine(Item : TXMLItem);
+    function  ItemAtXY( X, Y : Integer ) : TXMLItem;
+
+    procedure ClearAll;
+
+    property  BackBuffer : TBitmap read FBackBuffer;
+    property  SelectedItem : TXMLItem read FSelectedItem write SetSelectedItem;
+  published
+    { Published declarations }
+    property XMLParser : TECXMLParser read FXMLParser write SetXMLParser;
+    property XMLColors : TECXMLParser read FXMLColors write SetXMLColors;
+    property PaintBox  : TPaintBox read FPaintBox write SetPaintBox;
+    property RowHeight : Integer read FRowHeight write SetRowHeight;
+    property ColWidth  : Integer read FColWidth write SetColWidth;
+    property DefaultColorName : String read FDefaultColorName write SetDefaultColorName;
+    property DefaultBorder    : TColor read FDefaultBorder write SetDefaultBorder;
+    property DefaultBackground: TColor read FDefaultBackground write SetDefaultBackground;
+    property DefaultFont      : TColor read FDefaultFont write SetDefaultFont;
+    property BackgroundColor  : TColor read FBackgroundColor write SetBackgroundColor;
+    property BorderColorName  : String read FBorderColorName write SetBorderColorName;
+    property BackgroundColorName : String read FBackgroundColorName write SetBackgroundColorName;
+    property FontColorName    : String read FFontColorName write SetFontColorName;
+    property ItemColorName    : String read FColorItemName write SetColorItemName;
+    property ConnectionLineName : String read FConnectionLineName write SetConnectionLineName;
+    property SelectedColorSet : String read FSelectedColorSet write SetSelectedColorSet;
+    property RedrawOnSelectChanged : Boolean read FRedrawOnSelectChanged write SetRedrawOnSelectChanged;
+
+    property CheckCanDrawItem : TCheckDrawItemEvent read FCheckCanDrawItem write SetCheckCanDrawItem;
+    property OnSelectionChange: TOnSelectionChange read FOnSelectionChange write SetOnSelectionChange;
+    property AfterSelectionChange: TOnSelectionChange read FAfterSelectionChange write SetAfterSelectionChange;
+    property BeforeDrawItem   : TBeforeDrawItemEvent read FBeforeDrawItem write SetBeforeDrawItem;
+    property OnSwap           : TNotifyEvent read FOnSwap write SetOnSwap;
+    property OnStartDraw      : TNotifyEvent read FOnStartDraw write SetOnStartDraw;
+  end;
+
+procedure Register;
+
+implementation
+
+procedure Register;
+begin
+  RegisterComponents('Eon Clash', [TXMLVisualizer]);
+end;
+
+{ TXMLVisualizer }
+
+procedure TXMLVisualizer.ConnectionLine(Item: TXMLItem);
+var
+  pItmD,
+  ItmD : TXMLVisualItemData;
+begin
+  if Assigned(Item.Parent) then
+    begin
+      SetColors(ConnectionLineName);
+      pItmD := Item.Parent.Data;
+      ItmD  := Item.Data;
+      FBackBuffer.Canvas.MoveTo(pItmD.Center.X, pItmD.DisplayRect.Bottom);
+      FBackBuffer.Canvas.LineTo(ItmD.Center.X, ItmD.DisplayRect.Top);
+    end;
+end;
+
+constructor TXMLVisualizer.Create(AOwner: TComponent);
+begin
+  inherited;
+  FRowHeight := 70;
+  FColWidth  := 100;
+  SetLength(FRows, 0);
+  FDefaultFont := clBlack;
+  FDefaultBackground := clYellow;
+  FDefaultBorder := clGreen;
+  FBackgroundColor := clWhite;
+  BorderColorName := 'Border';
+  BackgroundColorName := 'Background';
+  FontColorName := 'Font';
+  ItemColorName := 'ColorCode';
+  FBackBuffer := TBitmap.Create;
+  FRedrawOnSelectChanged := true;
+  DefaultColorName := 'Default';
+  ConnectionLineName := 'ConnectionLine';
+end;
+
+destructor TXMLVisualizer.Destroy;
+begin
+  FBackBuffer.Free;
+  inherited;
+end;
+
+procedure TXMLVisualizer.Draw;
+begin
+  if Assigned(FOnStartDraw) then
+    FOnStartDraw(Self);
+  FCurMaxWidth := 0;
+  FCurMaxHeight:= 0;
+  SetLength(FRows, 0);
+  SetColors('Background');
+  FBackBuffer.Canvas.Rectangle(0, 0, FBackBuffer.Width, FBackBuffer.Height);
+  DrawItem(FXMLParser.Root);
+  Swap;
+end;
+
+procedure TXMLVisualizer.DrawItem(Item: TXMLItem; DrawChildren : Boolean = true; CalcPos : Boolean = true);
+var
+  ItmD : TXMLVisualItemData;
+  Lvl, Count, CWid, CHei,
+  I    : Integer;
+  ColorCodeName : String;
+  CPoint : TPoint;
+  bCanDraw : Boolean;
+begin
+  bCanDraw := true;
+  if Assigned(FCheckCanDrawItem) then
+    FCheckCanDrawItem(Item, bCanDraw);
+  if not bCanDraw then
+    exit;
+
+  if Item.Data = nil then
+    TXMLVisualItemData.Create(Item);
+  ItmD := Item.Data;
+
+  Lvl := ItmD.Level;
+  if CalcPos then
+    begin
+      if Lvl + 1 > Length(FRows) then
+        begin
+          I := Length(FRows);
+          SetLength(FRows, Lvl + 1);
+          for Count := I to Lvl do
+            FRows[Count] := 0;
+        end;
+
+      FRows[Lvl] := FRows[Lvl] + 1;
+
+      CWid := FRows[Lvl] * FColWidth;
+      CHei := Length(FRows) * FRowHeight;
+
+      if CWid > FCurMaxWidth then
+        begin
+          FBackBuffer.Width := CWid;
+          SetColors('Background');
+          FBackBuffer.Canvas.Rectangle(FCurMaxWidth, 0, CWid, FBackBuffer.Height);
+          FCurMaxWidth := CWid;
+        end;
+
+      if CHei > FCurMaxHeight then
+        begin
+          FBackBuffer.Height := CHei;
+          SetColors('Background');
+          FBackBuffer.Canvas.Rectangle(0, FCurMaxHeight, FBackBuffer.Width, CHei);
+          FCurMaxHeight := CHei;
+        end;
+
+      CPoint := Point(((FRows[Lvl] + 1) * ColWidth) - (ColWidth div 2) - ColWidth,
+                      ((Lvl + 1) * RowHeight) - (RowHeight div 2));
+
+      CalcItemInfo(Item, CPoint);
+    end;
+
+  ColorCodeName := RetrieveItemColor(Item);
+
+  if Assigned(FBeforeDrawItem) then
+    FBeforeDrawItem(Item, ItmD, ColorCodeName);
+
+  TextBox(ColorCodeName, Item.Name, ItmD.DisplayRect);
+
+  ConnectionLine(Item);
+
+  if DrawChildren and ItmD.Expanded then
+    for I := 0 to ItmD.Owner.SubItemCount -1 do
+      DrawItem(ItmD.Owner.SubItems[I], CalcPos);
+end;
+
+procedure TXMLVisualizer.pbXMLPaint(Sender: TObject);
+begin
+  PaintBox.Canvas.Draw(0, 0, FBackBuffer);
+  if Assigned(FOldPaintBoxOnPaint) then
+    FOldPaintBoxOnPaint(Sender);
+end;
+
+procedure TXMLVisualizer.SetBackgroundColor(const Value: TColor);
+begin
+  FBackgroundColor := Value;
+end;
+
+procedure TXMLVisualizer.SetBackgroundColorName(const Value: String);
+begin
+  FBackgroundColorName := Value;
+end;
+
+procedure TXMLVisualizer.SetBorderColorName(const Value: String);
+begin
+  FBorderColorName := Value;
+end;
+
+procedure TXMLVisualizer.SetColors(ColorName: String);
+var
+  xItm : TXMLItem;
+begin
+  if XMLColors <> nil then
+    begin
+      if XMLColors.Root.IndexOfName(ColorName) > -1 then
+        begin
+          xItm := XMLColors.Root.NamedItem[ColorName];
+          with FBackBuffer.Canvas do
+            begin
+              Pen.Color   := XMLColorToDelphiColor(xItm.NamedItem[BorderColorName].Text);
+              Brush.Color := XMLColorToDelphiColor(xItm.NamedItem[BackgroundColorName].Text);
+              Font.Color  := XMLColorToDelphiColor(xItm.NamedItem[FontColorName].Text);
+            end;
+        end
+      else
+        begin
+          if AnsiCompareText('Background', ColorName) = 0 then
+            begin
+              with FBackBuffer.Canvas do
+                begin
+                  Pen.Color   := BackgroundColor;
+                  Brush.Color := BackgroundColor;
+                  Font.Color  := DefaultFont;
+                end;
+            end
+          else
+            begin
+              with FBackBuffer.Canvas do
+                begin
+                  Pen.Color   := DefaultBorder;
+                  Brush.Color := DefaultBackground;
+                  Font.Color  := DefaultFont;
+                end;
+            end;
+        end;
+    end
+  else
+    begin
+      if AnsiCompareText('Background', ColorName) = 0 then
+        begin
+          with FBackBuffer.Canvas do
+            begin
+              Pen.Color       := BackgroundColor;
+              Brush.Color     := BackgroundColor;
+              Font.Color  := DefaultFont;
+            end;
+        end
+      else
+        begin
+          with FBackBuffer.Canvas do
+            begin
+              Pen.Color   := DefaultBorder;
+              Brush.Color := DefaultBackground;
+              Font.Color  := DefaultFont;
+            end;
+        end;
+    end;
+end;
+
+procedure TXMLVisualizer.SetColorItemName(const Value: String);
+begin
+  FColorItemName := Value;
+end;
+
+procedure TXMLVisualizer.SetColWidth(const Value: Integer);
+begin
+  FColWidth := Value;
+end;
+
+procedure TXMLVisualizer.SetDefaultBackground(const Value: TColor);
+begin
+  FDefaultBackground := Value;
+end;
+
+procedure TXMLVisualizer.SetDefaultBorder(const Value: TColor);
+begin
+  FDefaultBorder := Value;
+end;
+
+procedure TXMLVisualizer.SetDefaultColorName(const Value: String);
+begin
+  FDefaultColorName := Value;
+end;
+
+procedure TXMLVisualizer.SetDefaultFont(const Value: TColor);
+begin
+  FDefaultFont := Value;
+end;
+
+procedure TXMLVisualizer.SetFontColorName(const Value: String);
+begin
+  FFontColorName := Value;
+end;
+
+procedure TXMLVisualizer.SetPaintBox(const Value: TPaintBox);
+begin
+  if FPaintBox <> nil then
+    begin
+      FPaintBox.OnPaint := FOldPaintBoxOnPaint;
+      FOldPaintBoxOnPaint := nil;
+    end;
+  FPaintBox := Value;
+  if Value <> nil then
+    begin
+      FOldPaintBoxOnPaint := FPaintBox.OnPaint;
+      FBackBuffer.Canvas.Font.Assign(FPaintBox.Canvas.Font);
+      FPaintBox.OnPaint := pbXMLPaint;
+    end;
+end;
+
+procedure TXMLVisualizer.SetRowHeight(const Value: Integer);
+begin
+  FRowHeight := Value;
+end;
+
+procedure TXMLVisualizer.SetXMLColors(const Value: TECXMLParser);
+begin
+  FXMLColors := Value;
+end;
+
+procedure TXMLVisualizer.SetXMLParser(const Value: TECXMLParser);
+begin
+  FXMLParser := Value;
+end;
+
+procedure TXMLVisualizer.Swap;
+begin
+  if PaintBox <> nil then
+    with PaintBox do
+      begin
+        Width := FBackBuffer.Width;
+        Height:= FBackBuffer.Height;
+        Invalidate;
+      end;
+  if Assigned(FOnSwap) then
+    FOnSwap(Self);
+end;
+
+procedure TXMLVisualizer.TextBox(ColorCode, Text : String; DisplayRect : TRect);
+var
+  DRec : TRect;
+begin
+  SetColors(ColorCode);
+
+  DRec := DisplayRect;
+  FBackBuffer.Canvas.Rectangle(DRec);
+
+  DRec.Top := DRec.Top + 5;
+  DRec.Left:= DRec.Left + 5;
+  DRec.Bottom := DRec.Bottom - 5;
+  DRec.Right  := DRec.Right - 5;
+  FBackBuffer.Canvas.TextRect(DRec, DRec.Left, DRec.Top, Text);
+end;
+
+function TXMLVisualizer.RetrieveItemColor(Item: TXMLItem): String;
+begin
+  if (Item = SelectedItem) and
+     (SelectedColorSet <> '') then
+    begin
+      Result := SelectedColorSet;
+      exit;
+    end;
+  if Item.IndexOfName(ItemColorName) > -1 then
+    begin
+      Result := Item.NamedItem[ItemColorName].Text;
+    end
+  else
+    begin
+      Result := DefaultColorName;
+    end;
+end;
+
+procedure TXMLVisualizer.SetConnectionLineName(const Value: String);
+begin
+  FConnectionLineName := Value;
+end;
+
+procedure TXMLVisualizer.CalcItemInfo(Item: TXMLItem; Center : TPoint);
+var
+  DRec : TRect;
+  TSize: TPoint;
+  sMsg : String;
+begin
+  sMsg := Item.Name;
+  TSize.X := BackBuffer.Canvas.TextWidth(sMsg);
+  TSize.Y := BackBuffer.Canvas.TextHeight(sMsg);
+
+  DRec.TopLeft := Point( Center.X - (TSize.X div 2) - 5,
+                         Center.Y - (TSize.Y div 2) - 5);
+  DRec.BottomRight := Point( DRec.Left + TSize.X + 10,
+                             DRec.Top + TSize.Y + 10 );
+
+  TXMLVisualItemData(Item.Data).DisplayRect := DRec;
+end;
+
+procedure TXMLVisualizer.SetBeforeDrawItem(
+  const Value: TBeforeDrawItemEvent);
+begin
+  FBeforeDrawItem := Value;
+end;
+
+procedure TXMLVisualizer.SetOnSwap(const Value: TNotifyEvent);
+begin
+  FOnSwap := Value;
+end;
+
+procedure TXMLVisualizer.SetSelectedColorSet(const Value: String);
+begin
+  FSelectedColorSet := Value;
+end;
+
+procedure TXMLVisualizer.SetSelectedItem(const Value: TXMLItem);
+var
+  oItm : TXMLItem;
+begin
+  oItm := FSelectedItem;
+  if Assigned(FOnSelectionChange) then
+    FOnSelectionChange(Self, FSelectedItem, Value);
+  FSelectedItem := Value;
+  if Assigned(FAfterSelectionChange) then
+    FAfterSelectionChange(Self, oItm, FSelectedItem);
+  if FRedrawOnSelectChanged then
+    Draw;
+end;
+
+function TXMLVisualizer.ItemAtXY(X, Y: Integer): TXMLItem;
+var
+  r,
+  p : TXMLVisualItemData;
+begin
+  if SelectedItem <> nil then
+    p := SelectedItem.Data
+  else
+    p :=  XMLParser.Root.Data;
+
+  if p = nil then
+    begin
+      result := nil;
+      exit;
+    end;
+
+  r := p.ItemAtXY(X, Y);
+
+  while (r = nil) and
+     (p.Parent <> nil) do
+    begin
+      r := p.Parent.ItemAtXY(X, Y);
+      p := p.Parent;
+    end;
+  if r <> nil then
+    Result := r.Owner
+  else
+    Result := nil;
+end;
+
+procedure TXMLVisualizer.SetOnSelectionChange(
+  const Value: TOnSelectionChange);
+begin
+  FOnSelectionChange := Value;
+end;
+
+procedure TXMLVisualizer.SetCheckCanDrawItem(
+  const Value: TCheckDrawItemEvent);
+begin
+  FCheckCanDrawItem := Value;
+end;
+
+procedure TXMLVisualizer.SetRedrawOnSelectChanged(const Value: Boolean);
+begin
+  FRedrawOnSelectChanged := Value;
+end;
+
+procedure TXMLVisualizer.SetAfterSelectionChange(
+  const Value: TOnSelectionChange);
+begin
+  FAfterSelectionChange := Value;
+end;
+
+procedure TXMLVisualizer.SetOnStartDraw(const Value: TNotifyEvent);
+begin
+  FOnStartDraw := Value;
+end;
+
+procedure TXMLVisualizer.ClearAll;
+var
+  p : TXMLVisualItemData;
+begin
+  p := XMLParser.Root.Data;
+  if Assigned(p) then
+    p.Clear
+  else
+    TXMLVisualItemData.Create(XMLParser.Root);
+end;
+
+{ TXMLVisualItemData }
+
+procedure TXMLVisualItemData.Clear;
+begin
+  while Count > 0 do
+    Delete(0);
+end;
+
+constructor TXMLVisualItemData.Create(anOwner: TXMLItem);
+begin
+  inherited Create;
+  Owner := anOwner;
+  FList  := TList.Create;
+  FExpanded := true;
+end;
+
+procedure TXMLVisualItemData.Delete(Index: Integer);
+begin
+  Items[Index].Free;
+end;
+
+destructor TXMLVisualItemData.Destroy;
+begin
+  Clear;
+  if Parent <> nil then
+    Parent.FList.Delete(Parent.IndexOf(Self));
+  FList.Free;
+  inherited;
+end;
+
+function TXMLVisualItemData.GetBottomRight: TPoint;
+begin
+  Result := FDisplayRect.BottomRight;
+end;
+
+function TXMLVisualItemData.GetCenter: TPoint;
+var
+  cX, cY : integer;
+begin
+  cX := FDisplayRect.Left + ((FDisplayRect.Right - FDisplayRect.Left) div 2);
+  cY := FDisplayRect.Top + ((FDisplayRect.Bottom - FDisplayRect.Top) div 2);
+  Result := Point(cX, cY);
+end;
+
+function TXMLVisualItemData.GetCount: Integer;
+begin
+  Result := FList.Count;
+end;
+
+function TXMLVisualItemData.GetItems(index: Integer): TXMLVisualItemData;
+begin
+  Result := FList[Index];
+end;
+
+function TXMLVisualItemData.GetLevel: Integer;
+begin
+  if Owner.Parent <> nil then
+    Result := TXMLVisualItemData(Owner.Parent.Data).Level + 1
+  else
+    Result := 0;
+end;
+
+function TXMLVisualItemData.GetParent: TXMLVisualItemData;
+begin
+  if Owner = nil then
+    Result := nil
+  else
+    if Owner.Parent <> nil then
+      Result := Owner.Parent.Data
+    else
+      Result := nil;
+end;
+
+function TXMLVisualItemData.IndexOf(Item: TXMLVisualItemData): Integer;
+begin
+  Result := FList.IndexOf(Item);
+end;
+
+function TXMLVisualItemData.IsChildOf(Item: TXMLVisualItemData): Boolean;
+var
+  p : TXMLVisualItemData;
+begin
+  result := false;
+  p := Self;
+  while (p <> nil) and
+        (result = false) do
+    begin
+      if p = Item then
+        Result := true;
+      p := p.Parent;
+    end;
+end;
+
+function TXMLVisualItemData.ItemAtXY(X, Y: Integer): TXMLVisualItemData;
+var
+  i : Integer;
+begin
+  i := Count -1;
+  Result := nil;
+  while (i > -1) and
+        (not Assigned(Result)) do
+    begin
+      if Items[i] <> nil then
+        Result := Items[i].ItemAtXY(X, Y);
+      dec(i);
+    end;
+
+  if (not Assigned(Result)) and
+     (X < DisplayRect.Right) and
+     (X > DisplayRect.Left) and
+     (Y < DisplayRect.Bottom) and
+     (Y > DisplayRect.Top) then
+    begin
+      if Parent = nil then
+        Result := Self
+      else
+        begin
+          if Parent.Expanded = True then
+            Result := Self;
+        end;
+    end;
+end;
+
+procedure TXMLVisualItemData.MoveTo(Item: TXMLVisualItemData);
+begin
+  Parent.FList.Delete(Parent.FList.IndexOf(Self));
+  Item.FList.Add(Self);
+end;
+
+procedure TXMLVisualItemData.SetBottomRight(const Value: TPoint);
+begin
+  FDisplayRect.BottomRight := Value;
+end;
+
+procedure TXMLVisualItemData.SetCenter(const Value: TPoint);
+begin
+
+end;
+
+procedure TXMLVisualItemData.SetDisplayRect(const Value: TRect);
+begin
+  FDisplayRect := Value;
+end;
+
+procedure TXMLVisualItemData.SetExpanded(const Value: Boolean);
+begin
+  FExpanded := Value;
+end;
+
+procedure TXMLVisualItemData.SetOwner(const Value: TXMLItem);
+begin
+  if Parent <> nil then
+    begin
+      Parent.FList.Delete(Parent.IndexOf(Self));
+    end;
+  FOwner := Value;
+  FOwner.Data := Self;
+  if Parent <> nil then
+    begin
+      Parent.FList.Add(Self);
+    end;
+end;
+
+end.
+ 

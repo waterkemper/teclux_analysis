@@ -5,7 +5,7 @@ interface
 uses
   SysUtils, Classes, dmbasico, dmtecsoft, DB, cpdatasource, ZQuery,
   ZPgSqlQuery, cpquery, fr_dset, fr_dbset, fr_class, Biblio, fmpreviewpadrao,
-  ZTransact, clparametrossistema, variants;
+  ZTransact, clparametrossistema, variants, frx2xto30, frxClass;
 
 type
   Tdtmrelatoriocontasareceberportipoderecebimento = class(TdtmBasico)
@@ -41,6 +41,7 @@ type
     qryRecebimentosdescricaoformaderecebimento: TStringField;
     qryRecebimentosagrupadorformaderecebimento: TStringField;
     qryRecebimentosfaturamento: TDateField;
+    frxReport1: TfrxReport;
     procedure frpRecebimentosPISCOFINSBeforePrint(Memo: TStringList; View: TfrView);
     procedure qryRecebimentosCalcFields(DataSet: TDataSet);
     procedure frpRecebimentosPISCOFINSGetValue(const ParName: String;
@@ -285,7 +286,17 @@ begin
   frpRecebimentos.Pages[0].PrintToPrevPage := False;
   frpRecebimentosResumo.Pages[0].PrintToPrevPage := False;
 
-//frpRecebimentos.DesignReport;
+  frpRecebimentos.DesignReport;
+  frxReport1.designreport;
+
+  frpRecebimentosResumo.DesignReport;
+  frxReport1.designreport;
+
+  frpRecebimentosPISCOFINS.DesignReport;
+  frxReport1.designreport;
+
+  frpRecebimentosResumoPISCOFINS.DesignReport;
+  frxReport1.designreport;
 
   if VisualizarValoresPISeCOFINS then
     ImprimirRelatoriofast(null, null, MPadrao, Resumo, [frpRecebimentosPISCOFINS, frpRecebimentosResumoPISCOFINS], false, self)

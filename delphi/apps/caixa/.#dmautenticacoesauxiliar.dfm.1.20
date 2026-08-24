@@ -1,0 +1,2608 @@
+inherited dtmautenticacoesauxiliar: Tdtmautenticacoesauxiliar
+  Left = 525
+  Top = 230
+  Height = 700
+  Width = 900
+  object qryTaxas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      
+        'select to_number(Parametros_Valor('#39'PRINCIPAL'#39','#39'JUROS'#39',0),'#39'999D99' +
+        #39') as juros,'
+      
+        '         to_number(Parametros_Valor('#39'PRINCIPAL'#39','#39'DESCONTO'#39',0),'#39'9' +
+        '99D99'#39') as desconto')
+    RequestLive = False
+    Left = 80
+    Top = 200
+    object qryTaxasjuros: TFloatField
+      FieldName = 'juros'
+      DisplayFormat = '0.00'
+    end
+    object qryTaxasdesconto: TFloatField
+      FieldName = 'desconto'
+      DisplayFormat = '0.00'
+    end
+  end
+  object spcAutenticacaoProximo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select autenticacoes_proximonumero() as numero')
+    RequestLive = False
+    Left = 80
+    Top = 8
+    object spcAutenticacaoProximonumero: TIntegerField
+      FieldName = 'numero'
+    end
+  end
+  object spcParcelasProximo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      
+        'select parcelas_proximonumero(cast(:contrato as varchar)) as num' +
+        'ero')
+    RequestLive = False
+    Left = 80
+    Top = 56
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end>
+    object spcParcelasProximonumero: TIntegerField
+      FieldName = 'numero'
+    end
+  end
+  object qryAutenticar: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'insert into autenticacoes'
+      '  (autenticacao,'
+      '   banco,'
+      '   contabanco,'
+      '   caixa,'
+      '   cheque,'
+      '   contrato,'
+      '   contratoparcela,'
+      '   datadocumento,'
+      '   venctoduplicata,'
+      '   documentopag,'
+      '   numeroduplicata,'
+      '   evento,'
+      '   filial,'
+      '   historico,'
+      '   motivo,'
+      '   nota,'
+      '   numero,'
+      '   parametros,'
+      '   parcela,'
+      '   situacao,'
+      '   tipo,'
+      '   transferencia,'
+      '   valor,'
+      '   valorvenctoparcela,'
+      '   cliente,'
+      '   tipocliente,'
+      '   diferencatransferencia,'
+      '   transacao,'
+      '   ecf)'
+      'values'
+      '  (:autenticacao,'
+      '   :banco,'
+      '   :contabanco,'
+      '   :caixa,'
+      '   :cheque,'
+      '   cast(:contrato as varchar),'
+      '   cast(:contratoparcela as varchar),'
+      '   :datadocumento,'
+      '   :venctoduplicata,'
+      '   :documentopag,'
+      '   :numeroduplicata,'
+      '   :evento,'
+      '   :filial,'
+      '   :historico,'
+      '   :motivo,'
+      '   :nota,'
+      '   :numero,'
+      '   :parametros,'
+      '   :parcela,'
+      '   :situacao,'
+      '   :tipo,'
+      '   :transferencia,'
+      '   :valor,'
+      '   :valorvenctoparcela,'
+      '   :clientedev,'
+      '   :tipoclientedev,'
+      '   :diferencatransferencia,'
+      '   :transacao,'
+      '   :ecf)')
+    RequestLive = True
+    Left = 248
+    Top = 152
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'autenticacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'banco'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'contabanco'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'caixa'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'cheque'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'contratoparcela'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datadocumento'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'venctoduplicata'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'documentopag'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numeroduplicata'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'evento'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'historico'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'motivo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'nota'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'parametros'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'parcela'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'situacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'tipo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'transferencia'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'valor'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'valorvenctoparcela'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'clientedev'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'tipoclientedev'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'diferencatransferencia'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'transacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ecf'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryCadastroCheque: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      
+        'insert into cheques (numero, data, vencto, valor, cliente, tipoc' +
+        'liente,titular, situacao, filial, observacao)'
+      
+        'values (:numero, :data, :vencto, :valor, :cliente, :tipocliente,' +
+        ' :titular, :situacao, :filial, :observacao) ')
+    RequestLive = False
+    Left = 248
+    Top = 8
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'vencto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'valor'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'cliente'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'tipocliente'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'titular'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'situacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'observacao'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryVerificaCheque: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cheques_valido(:cheque) as chequevalido')
+    RequestLive = False
+    Left = 248
+    Top = 104
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'cheque'
+        ParamType = ptUnknown
+      end>
+    object qryVerificaChequechequevalido: TBooleanField
+      FieldName = 'chequevalido'
+    end
+  end
+  object qryAtualizarParcelaParcial: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update parcelas'
+      ''
+      '   set valorvencto    = :valorvencto,'
+      '       valorpagto     = :valorpagto,'
+      '       datapagto      = :datapagto,'
+      '       filialpagto    = :filial,'
+      '       formapagamento = :formapagto,'
+      '       viaCaixa       = :viaCaixa'
+      ''
+      'where contrato = cast(:contrato as varchar) and'
+      '          numero = :numero')
+    RequestLive = False
+    Left = 568
+    Top = 8
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'valorvencto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'valorpagto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datapagto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'formapagto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'viaCaixa'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryParcelasDevolucao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select parcelas.contrato,'
+      '       parcelas.numero,'
+      '       parcelas.parcelaorigem,'
+      '       parcelas.datavencto,'
+      '       parcelas.valorvencto,'
+      '       parcelas.datapagto,'
+      '       parcelas.valorpagto,'
+      '       parcelas.filialpagto,'
+      '       parcelas.tipopagto,'
+      '       parcelas.deventrada,'
+      '       parcelas.devcaixa,'
+      '       parcelas.devfilial,'
+      '       parcelas.copiapagto'
+      'from parcelas'
+      'where parcelas.contrato = cast(:contrato as varchar) and'
+      '        ( parcelas.tipopagto = '#39'D'#39' or parcelas.tipopagto = '#39'P'#39' )'
+      'order by parcelas.datavencto,parcelas.numero')
+    RequestLive = True
+    Left = 408
+    Top = 8
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end>
+    object qryParcelasDevolucaocontrato: TStringField
+      FieldName = 'contrato'
+    end
+    object qryParcelasDevolucaonumero: TIntegerField
+      FieldName = 'numero'
+      DisplayFormat = '0'
+    end
+    object qryParcelasDevolucaodatavencto: TDateField
+      Alignment = taCenter
+      FieldName = 'datavencto'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryParcelasDevolucaovalorvencto: TFloatField
+      FieldName = 'valorvencto'
+      DisplayFormat = '0.00'
+    end
+    object qryParcelasDevolucaodatapagto: TDateField
+      Alignment = taCenter
+      FieldName = 'datapagto'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryParcelasDevolucaovalorpagto: TFloatField
+      FieldName = 'valorpagto'
+      DisplayFormat = '0.00'
+    end
+    object qryParcelasDevolucaofilialpagto: TIntegerField
+      FieldName = 'filialpagto'
+      DisplayFormat = '0'
+    end
+    object qryParcelasDevolucaotipopagto: TStringField
+      FieldName = 'tipopagto'
+      Size = 1
+    end
+    object qryParcelasDevolucaodeventrada: TDateField
+      Alignment = taCenter
+      FieldName = 'deventrada'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryParcelasDevolucaodevcaixa: TDateField
+      Alignment = taCenter
+      FieldName = 'devcaixa'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryParcelasDevolucaodevfilial: TIntegerField
+      FieldName = 'devfilial'
+      DisplayFormat = '0'
+    end
+    object qryParcelasDevolucaoparcelaorigem: TStringField
+      FieldName = 'parcelaorigem'
+      Size = 7
+    end
+    object qryParcelasDevolucaocopiapagto: TIntegerField
+      FieldName = 'copiapagto'
+      DisplayFormat = '0'
+    end
+  end
+  object qryInserirParcelaDevolucao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'set datestyle = iso, european;'
+      'insert into parcelas'
+      '  ( contrato,'
+      '    numero,'
+      '    parcelaorigem,'
+      '    datavencto,'
+      '    valorvencto,'
+      '    datapagto,'
+      '    valorpagto, '
+      '    filialpagto,'
+      '    tipopagto,'
+      '    deventrada,'
+      '    copiapagto,'
+      '    origempagto)'
+      'values'
+      '  ( cast(:contrato as varchar),'
+      '    :numero,'
+      '    :parcelaorigem,'
+      '    :datavencto,'
+      '    :valorvencto,'
+      '    :datapagto,'
+      '    :valorpagto, '
+      '    :filialpagto,'
+      '    :tipopagto,'
+      '    :deventrada,'
+      '    :copiapagto,'
+      '    :origempagto)')
+    RequestLive = False
+    Left = 408
+    Top = 56
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'parcelaorigem'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datavencto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'valorvencto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datapagto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'valorpagto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filialpagto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'tipopagto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'deventrada'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'copiapagto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'origempagto'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryAtualizarParcelaDevolucao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update parcelas'
+      'set devcaixa = :devcaixa,'
+      '    devfilial = :devfilial,'
+      '    tipopagto = :tipopagto'
+      'where contrato = cast(:contrato as varchar) and'
+      '      numero = :numero')
+    RequestLive = False
+    Left = 408
+    Top = 104
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'devcaixa'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'devfilial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'tipopagto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end>
+  end
+  object spcParcelasChequesProximo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select parcelascheques_proximonumero(:cheque) as numero')
+    RequestLive = False
+    Left = 80
+    Top = 104
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'cheque'
+        ParamType = ptUnknown
+      end>
+    object spcParcelasChequesProximonumero: TIntegerField
+      FieldName = 'numero'
+    end
+  end
+  object qryAtualizarDuplicata: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update duplicatas'
+      'set valorpagto = :valorpago,'
+      '     datapagto = :datapago,'
+      '     filialpagto  =: filialpagto,'
+      
+        '     evento = (select evento from documentospag where numero=:Do' +
+        'cumentoPag)'
+      'where (documentopag = :DocumentoPag) and'
+      '          (datavencto = :DataVencto)'
+      '')
+    RequestLive = False
+    Left = 408
+    Top = 152
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'valorpago'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datapago'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filialpagto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'documentopag'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datavencto'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryCancelarAutenticacao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update autenticacoes'
+      'set situacao = false'
+      'where numero = :autenticacao')
+    RequestLive = False
+    Left = 248
+    Top = 200
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'autenticacao'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryQuitarParcelasPerda: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update parcelas'
+      'set valorpagto = valorvencto,'
+      '     datapagto = now(),'
+      '     tipopagto = '#39'J'#39','
+      '     filialpagto = :filial'
+      'where contrato = cast(:contrato as varchar) and'
+      '          datapagto is null ')
+    RequestLive = False
+    Left = 408
+    Top = 208
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryAtualizarParcela: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update parcelas'
+      'set valorpagto = :valorpagto,'
+      '    datapagto = :datapagto,'
+      '    filialpagto = :filial,'
+      '    formapagamento = :formapagto,'
+      '    transacao = :transacao,'
+      '    viaCaixa = :ViaCaixa'
+      'where contrato = cast(:contrato as varchar) and'
+      '          numero = :numero')
+    RequestLive = False
+    Left = 568
+    Top = 56
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'valorpagto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datapagto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'formapagto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'transacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ViaCaixa'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryInserirParcelaParcial: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'insert into parcelas '
+      
+        '  (contrato, numero, datavencto, valorvencto, datapagto, valorpa' +
+        'gto, parcelaorigem, parcelaoriginal, viaCaixa)'
+      'values'
+      
+        '  (cast(:contrato as varchar), :numero, :datavencto, :valorvenct' +
+        'o, :datapagto, :valorpagto, :parcelaorigem,:parcelaoriginal, :Vi' +
+        'aCaixa)')
+    RequestLive = False
+    Left = 568
+    Top = 104
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datavencto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'valorvencto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datapagto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'valorpagto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'parcelaorigem'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'parcelaoriginal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ViaCaixa'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryAtualizarParcelaResgateParcial: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update parcelascheques'
+      'set valorvencto = :valorvencto,'
+      '     valorpagto = :valorpagto,'
+      '     datapagto = :datapagto,'
+      '     filialpagto = :filialpagto,'
+      '     autenticacao = :autenticacao'
+      'where cheque = :cheque and'
+      '          numero = :numero')
+    RequestLive = False
+    Left = 80
+    Top = 488
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'valorvencto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'valorpagto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datapagto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filialpagto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'autenticacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'cheque'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryAtualizarParcelaResgate: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update parcelascheques'
+      'set valorpagto = :valorpagto,'
+      '     datapagto = :datapagto,'
+      '     filialpagto = :filialpagto,'
+      '     autenticacao = :Autenticacao'
+      'where (cheque = :Cheque) and'
+      '      (numero = :Numero)')
+    RequestLive = False
+    Left = 248
+    Top = 488
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'valorpagto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datapagto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filialpagto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Autenticacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Cheque'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Numero'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryInserirParcelaResgateParcial: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'insert into parcelascheques '
+      
+        '  (cheque, numero, datavencto, valorvencto, autenticacao, resgat' +
+        'e)'
+      'values'
+      
+        '  (:cheque, :numero, :datavencto, :valorvencto, :autenticacao, :' +
+        'resgate)')
+    RequestLive = False
+    Left = 80
+    Top = 616
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'cheque'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datavencto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'valorvencto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Autenticacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'resgate'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryAtualizarAutenticacaoTransferencia: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update autenticacoes'
+      'set confirmacao = :confirmacao,'
+      '     entradapendente = :entradapendente'
+      'where autenticacoes.numero = :numero')
+    RequestLive = False
+    Left = 80
+    Top = 304
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'confirmacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'entradapendente'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryDadosConfirmacaoTransferencia: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select autenticacoes.numero,'
+      '         autenticacoes.caixa,'
+      '         autenticacoes.valor'
+      'from autenticacoes'
+      'where autenticacoes.numero = :numero')
+    RequestLive = False
+    Left = 80
+    Top = 352
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end>
+    object qryDadosConfirmacaoTransferencianumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryDadosConfirmacaoTransferenciacaixa: TIntegerField
+      FieldName = 'caixa'
+    end
+    object qryDadosConfirmacaoTransferenciavalor: TFloatField
+      FieldName = 'valor'
+    end
+  end
+  object qryAutenticacoes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select *'
+      'from autenticacoes'
+      'where autenticacoes.numero = :autenticacao')
+    RequestLive = False
+    Left = 248
+    Top = 256
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'autenticacao'
+        ParamType = ptUnknown
+      end>
+    object qryAutenticacoesnumero: TIntegerField
+      FieldName = 'numero'
+      DisplayFormat = '0'
+    end
+    object qryAutenticacoesdata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryAutenticacoesfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryAutenticacoescaixa: TIntegerField
+      FieldName = 'caixa'
+      DisplayFormat = '0'
+    end
+    object qryAutenticacoesautenticacao: TIntegerField
+      FieldName = 'autenticacao'
+      DisplayFormat = '0'
+    end
+    object qryAutenticacoesbanco: TIntegerField
+      FieldName = 'banco'
+      DisplayFormat = '0'
+    end
+    object qryAutenticacoescheque: TStringField
+      FieldName = 'cheque'
+      Size = 30
+    end
+    object qryAutenticacoescontrato: TStringField
+      FieldName = 'contrato'
+    end
+    object qryAutenticacoesdatadocumento: TDateField
+      Alignment = taCenter
+      FieldName = 'datadocumento'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryAutenticacoesevento: TIntegerField
+      FieldName = 'evento'
+      DisplayFormat = '0'
+    end
+    object qryAutenticacoeshistorico: TIntegerField
+      FieldName = 'historico'
+      DisplayFormat = '0'
+    end
+    object qryAutenticacoeshora: TTimeField
+      FieldName = 'hora'
+    end
+    object qryAutenticacoesmotivo: TIntegerField
+      FieldName = 'motivo'
+      DisplayFormat = '0'
+    end
+    object qryAutenticacoesnota: TIntegerField
+      FieldName = 'nota'
+      DisplayFormat = '0'
+    end
+    object qryAutenticacoesparametros: TStringField
+      FieldName = 'parametros'
+      Size = 300
+    end
+    object qryAutenticacoescontratoparcela: TStringField
+      FieldName = 'contratoparcela'
+    end
+    object qryAutenticacoesparcela: TIntegerField
+      FieldName = 'parcela'
+      DisplayFormat = '0'
+    end
+    object qryAutenticacoessaldo: TFloatField
+      FieldName = 'saldo'
+      DisplayFormat = '0.00'
+    end
+    object qryAutenticacoessituacao: TBooleanField
+      FieldName = 'situacao'
+    end
+    object qryAutenticacoestipo: TStringField
+      FieldName = 'tipo'
+      Size = 1
+    end
+    object qryAutenticacoestransferencia: TIntegerField
+      FieldName = 'transferencia'
+      DisplayFormat = '0'
+    end
+    object qryAutenticacoesentradapendente: TBooleanField
+      FieldName = 'entradapendente'
+    end
+    object qryAutenticacoesconfirmacao: TBooleanField
+      FieldName = 'confirmacao'
+    end
+    object qryAutenticacoesvalor: TFloatField
+      FieldName = 'valor'
+      DisplayFormat = '0.00'
+    end
+    object qryAutenticacoesvenctoduplicata: TDateField
+      Alignment = taCenter
+      FieldName = 'venctoduplicata'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryAutenticacoesdocumentopag: TIntegerField
+      FieldName = 'documentopag'
+      DisplayFormat = '0'
+    end
+    object qryAutenticacoescliente: TIntegerField
+      FieldName = 'cliente'
+    end
+    object qryAutenticacoestipocliente: TStringField
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+  end
+  object qrySomaValorDevolucao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select sum(parcelas.valorpagto)  as valordevolucao'
+      'from parcelas '
+      'where parcelas.contrato = cast(:contrato as varchar) and '
+      
+        '          parcelas.devcaixa = :devcaixa /* data de devolucao no ' +
+        'caixa */')
+    RequestLive = False
+    Left = 736
+    Top = 8
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'devcaixa'
+        ParamType = ptUnknown
+      end>
+    object qrySomaValorDevolucaovalordevolucao: TFloatField
+      FieldName = 'valordevolucao'
+    end
+  end
+  object qryAtualizarDevolucaoCancelamento: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update parcelas'
+      'set devcaixa = null,'
+      '     devfilial = null,'
+      '     tipopagto = (case when tipopagto = '#39'X'#39' then '#39'P'#39
+      '                                 when tipopagto = '#39'C'#39' then '#39'D'#39
+      '                                 else tipopagto end)'
+      'where contrato = cast(:contrato as varchar) and'
+      '          devcaixa = :devcaixa')
+    RequestLive = False
+    Left = 736
+    Top = 56
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'devcaixa'
+        ParamType = ptUnknown
+      end>
+  end
+  object qrySituacaoCheque: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      
+        'select (case when cheques.situacao = '#39'N'#39' then true else false en' +
+        'd) as chequeinalterado'
+      'from cheques'
+      'where cheques.numero = :cheque')
+    RequestLive = False
+    Left = 736
+    Top = 104
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'cheque'
+        ParamType = ptUnknown
+      end>
+    object qrySituacaoChequechequeinalterado: TBooleanField
+      FieldName = 'chequeinalterado'
+    end
+  end
+  object qryRemoverCheque: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'delete '
+      'from cheques'
+      'where cheques.numero = :cheque')
+    RequestLive = False
+    Left = 736
+    Top = 152
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'cheque'
+        ParamType = ptUnknown
+      end>
+  end
+  object qrySomaParcelasPerda: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select (coalesce(sum(parcelas.valorpagto),0)) as totalperda'
+      'from parcelas'
+      'where parcelas.contrato = cast(:contrato as varchar) and'
+      '          parcelas.tipopagto = '#39'J'#39)
+    RequestLive = False
+    Left = 408
+    Top = 256
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end>
+    object qrySomaParcelasPerdatotalperda: TFloatField
+      FieldName = 'totalperda'
+    end
+  end
+  object qryAtualizarParcelasPerda: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update parcelas'
+      'set datapagto = null,'
+      '     valorpagto = null,'
+      '     filialpagto = null,'
+      '     tipopagto = null'
+      'where contrato = cast(:contrato as varchar) and'
+      '          tipopagto = '#39'J'#39)
+    RequestLive = False
+    Left = 408
+    Top = 304
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryAtualizarParcelaResgateCancelar: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update parcelascheques'
+      'set valorpagto = :valorpagto,'
+      '     datapagto = :datapagto,'
+      '     filialpagto = :filialpagto'
+      'where autenticacao = :Autenticacao')
+    RequestLive = False
+    Left = 248
+    Top = 544
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'valorpagto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datapagto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filialpagto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Autenticacao'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryAtualizarCheque: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update cheques set data        = :data,'
+      '                   vencto      = :vencto,'
+      '                   valor       = :valor,'
+      '                   cliente     = :cliente,'
+      '                   tipocliente = :tipocliente,'
+      '                   titular     = :titular,'
+      '                   situacao    = :situacao,'
+      '                   filial      = :filial,'
+      '                   observacao  =: observacao'
+      'where numero = :numero')
+    RequestLive = False
+    Left = 248
+    Top = 56
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'vencto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'valor'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'cliente'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'tipocliente'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'titular'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'situacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'observacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'observacao'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryAtualizarSituacaoCheque: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update cheques set situacao = :situacao'
+      'where numero = :numero')
+    RequestLive = False
+    Left = 80
+    Top = 248
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'situacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryParcelasPrestacao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select parcelas.contrato,'
+      '       parcelas.numero,'
+      '       parcelas.formapagamento,'
+      '       parcelas.valorpagto,'
+      '       parcelas.valorvencto'
+      'from parcelas'
+      'where (parcelas.contrato = cast(:contrato as varchar)) and'
+      '      (parcelas.tipopagto is null)')
+    RequestLive = True
+    Left = 736
+    Top = 200
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end>
+    object qryParcelasPrestacaocontrato: TStringField
+      FieldName = 'contrato'
+    end
+    object qryParcelasPrestacaonumero: TIntegerField
+      FieldName = 'numero'
+      DisplayFormat = '0'
+    end
+    object qryParcelasPrestacaoformapagamento: TStringField
+      FieldName = 'formapagamento'
+      Size = 1
+    end
+    object qryParcelasPrestacaovalorpagto: TFloatField
+      FieldName = 'valorpagto'
+    end
+    object qryParcelasPrestacaovalorvencto: TFloatField
+      FieldName = 'valorvencto'
+    end
+  end
+  object qryCancelarParcela: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update parcelas '
+      'set valorpagto = :valorpagto,'
+      '     datapagto = :datapagto,'
+      '     filialpagto = :filial'
+      'where contrato = cast(:contrato as varchar) and'
+      '          numero = :numero')
+    RequestLive = False
+    Left = 736
+    Top = 248
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'valorpagto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datapagto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryParcelasTEF: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select a.numero as autenticacao,'
+      '       a.valor as valorautenticacao,'
+      '       t.numeronsu,'
+      '       t.datansu,'
+      '       t.horansu,'
+      '       t.nomeredensu,'
+      '       t.valor,'
+      '       p.parcela,'
+      '       p.contrato'
+      'from tef t, parcelastef p, autenticacoes a'
+      'where (p.contrato = cast(:Contrato as varchar)) and'
+      '      (t.codigo = p.tef) and'
+      '      (a.contratoparcela = p.contrato) and'
+      '      (p.parcela = a.parcela) and'
+      
+        '      (not exists (select a1.numero from autenticacoes a1 where ' +
+        'a1.autenticacao = a.numero)) '
+      'order by t.numeronsu,p.parcela')
+    RequestLive = True
+    Left = 248
+    Top = 312
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Contrato'
+        ParamType = ptUnknown
+      end>
+    object qryParcelasTEFnumeronsu: TStringField
+      FieldName = 'numeronsu'
+      Size = 12
+    end
+    object qryParcelasTEFdatansu: TDateField
+      Alignment = taCenter
+      FieldName = 'datansu'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryParcelasTEFhoransu: TTimeField
+      FieldName = 'horansu'
+    end
+    object qryParcelasTEFnomeredensu: TStringField
+      FieldName = 'nomeredensu'
+      Size = 8
+    end
+    object qryParcelasTEFvalor: TFloatField
+      FieldName = 'valor'
+      DisplayFormat = '0.00'
+    end
+    object qryParcelasTEFparcela: TIntegerField
+      FieldName = 'parcela'
+      DisplayFormat = '0'
+    end
+    object qryParcelasTEFcontrato: TStringField
+      FieldName = 'contrato'
+    end
+    object qryParcelasTEFautenticacao: TIntegerField
+      FieldName = 'autenticacao'
+      Required = True
+    end
+    object qryParcelasTEFvalorautenticacao: TFloatField
+      FieldName = 'valorautenticacao'
+    end
+  end
+  object spcProdutosTrocadosProximo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select produtostrocados_proximocodigo() as numero')
+    RequestLive = False
+    Left = 80
+    Top = 152
+    object spcProdutosTrocadosProximonumero: TIntegerField
+      FieldName = 'numero'
+    end
+  end
+  object qryProdutosTrocados: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select pt.numero,'
+      '          pt.tipo,'
+      '          pt.data,'
+      '          pt.cliente,'
+      '          pt.tipocliente,'
+      '          pt.filial,'
+      '          pt.usuario,'
+      '          pt.valor,'
+      '          pt.referencia'
+      'from produtostrocados pt'
+      'where pt.valor = :valor'
+      'and pt.referencia = :referencia')
+    RequestLive = True
+    Left = 736
+    Top = 304
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'valor'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'referencia'
+        ParamType = ptUnknown
+      end>
+    object qryProdutosTrocadosnumero: TIntegerField
+      FieldName = 'numero'
+      DisplayFormat = '0'
+    end
+    object qryProdutosTrocadostipo: TStringField
+      FieldName = 'tipo'
+      Size = 1
+    end
+    object qryProdutosTrocadosdata: TDateTimeField
+      FieldName = 'data'
+    end
+    object qryProdutosTrocadoscliente: TIntegerField
+      FieldName = 'cliente'
+      DisplayFormat = '0'
+    end
+    object qryProdutosTrocadostipocliente: TStringField
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+    object qryProdutosTrocadosfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryProdutosTrocadosusuario: TIntegerField
+      FieldName = 'usuario'
+      DisplayFormat = '0'
+    end
+    object qryProdutosTrocadosvalor: TFloatField
+      FieldName = 'valor'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosTrocadosreferencia: TStringField
+      FieldName = 'referencia'
+      Size = 100
+    end
+  end
+  object qryParcelaParcialGerada: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'null'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'select numero, parcelaoriginal, valorvencto'
+      'from parcelas'
+      'where contrato = cast(:contrato as varchar)'
+      'and parcelaoriginal = :parcela'
+      '%null'
+      '')
+    RequestLive = False
+    Left = 408
+    Top = 360
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'parcela'
+        ParamType = ptUnknown
+      end>
+    object qryParcelaParcialGeradanumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryParcelaParcialGeradavalorvencto: TFloatField
+      FieldName = 'valorvencto'
+    end
+    object qryParcelaParcialGeradaparcelaoriginal: TIntegerField
+      FieldName = 'parcelaoriginal'
+    end
+  end
+  object qryAtualizarParcelaCancelamento: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update parcelas'
+      'set valorvencto = :valorvencto'
+      'where contrato = cast(:contrato as varchar)'
+      'and numero = :parcela')
+    RequestLive = False
+    Left = 408
+    Top = 408
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'valorvencto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'parcela'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryApagarParcelaParcial: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'delete'
+      'from parcelas'
+      'where contrato = cast(:contrato as varchar)'
+      'and numero = :parcela')
+    RequestLive = False
+    Left = 568
+    Top = 408
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'parcela'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryParcelaParcialOriginal: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select contrato,'
+      '       numero,'
+      '       valorvencto'
+      'from parcelas'
+      'where contrato = cast(:contrato as varchar)'
+      'and numero = :parcela')
+    RequestLive = False
+    Left = 568
+    Top = 360
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'parcela'
+        ParamType = ptUnknown
+      end>
+    object qryParcelaParcialOriginalcontrato: TStringField
+      FieldName = 'contrato'
+    end
+    object qryParcelaParcialOriginalnumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryParcelaParcialOriginalvalorvencto: TFloatField
+      FieldName = 'valorvencto'
+    end
+  end
+  object qryCancelarRecebimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update recebimentos'
+      'set situacao  = '#39'C'#39','
+      '    conta     = NULL,'
+      '    sequencia = NULL'
+      'where transacao = :transacao')
+    RequestLive = False
+    Left = 736
+    Top = 360
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'transacao'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryAtualizarTEF: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'UPDATE tef'
+      'SET cancelado = TRUE'
+      'WHERE codigo = (SELECT tef'
+      '                FROM parcelastef'
+      '                WHERE contrato = cast(:contrato as varchar)'
+      '                  AND parcela = :parcela)')
+    RequestLive = False
+    Left = 736
+    Top = 416
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'parcela'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryInserirParcelaResgate: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'insert into parcelascheques'
+      
+        '  (cheque, numero, datavencto, valorvencto, autenticacao, resgat' +
+        'e, datapagto, valorpagto, filialpagto)'
+      'values'
+      
+        '  (:cheque, :numero, :datavencto, :valorvencto, :autenticacao, :' +
+        'resgate, :datapagto, :valorpagto, :filialpagto)')
+    RequestLive = False
+    Left = 80
+    Top = 560
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'cheque'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datavencto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'valorvencto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Autenticacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'resgate'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datapagto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'valorpagto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filialpagto'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryAutenticarObservacoes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update autenticacoes set observacoes = :observacoes'
+      'where numero = :numero;')
+    RequestLive = False
+    Left = 248
+    Top = 376
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'observacoes'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryParcelasAux: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select parcelas.contrato,'
+      '       parcelas.numero,'
+      '       parcelas.valorvencto'
+      'from parcelas'
+      'where parcelas.contrato = :contrato'
+      '   and parcelas.numero = :numero')
+    RequestLive = True
+    Left = 720
+    Top = 488
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end>
+    object qryParcelasAuxcontrato: TStringField
+      FieldName = 'contrato'
+    end
+    object qryParcelasAuxnumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryParcelasAuxvalorvencto: TFloatField
+      FieldName = 'valorvencto'
+    end
+  end
+  object qryAutenticarModo2: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select'
+      '  autenticacao,'
+      '   banco,'
+      '   caixa,'
+      '   cheque,'
+      '   contrato,'
+      '   contratoparcela,'
+      '   datadocumento,'
+      '   venctoduplicata,'
+      '   documentopag,'
+      '   numeroduplicata,'
+      '   evento,'
+      '   filial,'
+      '   historico,'
+      '   motivo,'
+      '   nota,'
+      '   numero,'
+      '   parametros,'
+      '   parcela,'
+      '   situacao,'
+      '   tipo,'
+      '   transferencia,'
+      '   valor,'
+      '   valorvenctoparcela,'
+      '   cliente,'
+      '   tipocliente,'
+      '   diferencatransferencia,'
+      '   transacao,'
+      '   ecf'
+      'from autenticacoes'
+      'where false')
+    RequestLive = True
+    Left = 408
+    Top = 472
+    object qryAutenticarModo2autenticacao: TIntegerField
+      FieldName = 'autenticacao'
+    end
+    object qryAutenticarModo2banco: TIntegerField
+      FieldName = 'banco'
+    end
+    object qryAutenticarModo2caixa: TIntegerField
+      FieldName = 'caixa'
+    end
+    object qryAutenticarModo2cheque: TStringField
+      FieldName = 'cheque'
+      Size = 30
+    end
+    object qryAutenticarModo2contrato: TStringField
+      FieldName = 'contrato'
+    end
+    object qryAutenticarModo2contratoparcela: TStringField
+      FieldName = 'contratoparcela'
+    end
+    object qryAutenticarModo2datadocumento: TDateField
+      FieldName = 'datadocumento'
+    end
+    object qryAutenticarModo2venctoduplicata: TDateField
+      FieldName = 'venctoduplicata'
+    end
+    object qryAutenticarModo2documentopag: TIntegerField
+      FieldName = 'documentopag'
+    end
+    object qryAutenticarModo2numeroduplicata: TIntegerField
+      FieldName = 'numeroduplicata'
+    end
+    object qryAutenticarModo2evento: TIntegerField
+      FieldName = 'evento'
+    end
+    object qryAutenticarModo2filial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryAutenticarModo2historico: TIntegerField
+      FieldName = 'historico'
+    end
+    object qryAutenticarModo2motivo: TIntegerField
+      FieldName = 'motivo'
+    end
+    object qryAutenticarModo2nota: TIntegerField
+      FieldName = 'nota'
+    end
+    object qryAutenticarModo2numero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryAutenticarModo2parametros: TStringField
+      FieldName = 'parametros'
+      Size = 300
+    end
+    object qryAutenticarModo2parcela: TIntegerField
+      FieldName = 'parcela'
+    end
+    object qryAutenticarModo2situacao: TBooleanField
+      FieldName = 'situacao'
+    end
+    object qryAutenticarModo2tipo: TStringField
+      FieldName = 'tipo'
+      Size = 1
+    end
+    object qryAutenticarModo2transferencia: TIntegerField
+      FieldName = 'transferencia'
+    end
+    object qryAutenticarModo2valor: TFloatField
+      FieldName = 'valor'
+    end
+    object qryAutenticarModo2valorvenctoparcela: TFloatField
+      FieldName = 'valorvenctoparcela'
+    end
+    object qryAutenticarModo2cliente: TIntegerField
+      FieldName = 'cliente'
+    end
+    object qryAutenticarModo2tipocliente: TStringField
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+    object qryAutenticarModo2diferencatransferencia: TBooleanField
+      FieldName = 'diferencatransferencia'
+    end
+    object qryAutenticarModo2transacao: TIntegerField
+      FieldName = 'transacao'
+    end
+    object qryAutenticarModo2ecf: TIntegerField
+      FieldName = 'ecf'
+    end
+  end
+  object qryChequesIncluidos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select numero,'
+      '          data,'
+      '          vencto,'
+      '          valor,'
+      '          cliente,'
+      '          tipocliente,'
+      '          titular,'
+      '          filial,'
+      '          situacao,'
+      '          observacao,'
+      '          cast(null as integer) as NumeroRegistroRecebimentoTemp'
+      'from cheques'
+      'where numero=:numero'
+      '')
+    RequestLive = True
+    Left = 315
+    Top = 80
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end>
+    object qryChequesIncluidosnumero: TStringField
+      FieldName = 'numero'
+      Size = 30
+    end
+    object qryChequesIncluidosdata: TDateField
+      FieldName = 'data'
+    end
+    object qryChequesIncluidosvencto: TDateField
+      FieldName = 'vencto'
+    end
+    object qryChequesIncluidosvalor: TFloatField
+      FieldName = 'valor'
+    end
+    object qryChequesIncluidoscliente: TIntegerField
+      FieldName = 'cliente'
+    end
+    object qryChequesIncluidostipocliente: TStringField
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+    object qryChequesIncluidostitular: TStringField
+      FieldName = 'titular'
+      Size = 40
+    end
+    object qryChequesIncluidosfilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryChequesIncluidossituacao: TStringField
+      FieldName = 'situacao'
+      Size = 1
+    end
+    object qryChequesIncluidosnumeroregistrorecebimentotemp: TIntegerField
+      FieldName = 'numeroregistrorecebimentotemp'
+    end
+    object qryChequesIncluidosnumerocheque: TStringField
+      FieldKind = fkCalculated
+      FieldName = 'numerocheque'
+      Size = 6
+      Calculated = True
+    end
+    object qryChequesIncluidosobservacao: TStringField
+      FieldName = 'observacao'
+      Size = 512
+    end
+  end
+  object qryRecebimentosTemp: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select distinct'
+      '       r.nomeredensu,'
+      '       r.tef,'
+      '       r.datalancto,'
+      '       r.hora,'
+      '       r.valortotal'
+      'from recebimentos r'
+      'where r.transacao = : transacao'
+      '  and r.nomeredensu is not null'
+      '  and r.tef is not null')
+    RequestLive = True
+    Left = 540
+    Top = 196
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'transacao'
+        ParamType = ptUnknown
+      end>
+    object qryRecebimentosTempnomeredensu: TStringField
+      FieldName = 'nomeredensu'
+      Size = 8
+    end
+    object qryRecebimentosTemptef: TStringField
+      FieldName = 'tef'
+      Size = 12
+    end
+    object qryRecebimentosTempdatalancto: TDateField
+      Alignment = taCenter
+      FieldName = 'datalancto'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryRecebimentosTemphora: TTimeField
+      Alignment = taCenter
+      FieldName = 'hora'
+      EditMask = '99:99;1; '
+    end
+    object qryRecebimentosTempvalortotal: TFloatField
+      FieldName = 'valortotal'
+      DisplayFormat = '0.00'
+    end
+  end
+  object qryLock_Unlock_Autenticacoes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    RequestLive = True
+    Left = 792
+    Top = 472
+  end
+end

@@ -1,0 +1,1079 @@
+inherited dtmVendasporAtividades: TdtmVendasporAtividades
+  OldCreateOrder = False
+  Left = 452
+  Top = 139
+  Height = 767
+  Width = 862
+  object qryVendasClientesporAtividades: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnCalcFields = qryVendasClientesporAtividadesCalcFields
+    OnFilterRecord = qryVendasClientesporAtividadesFilterRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT * FROM crosstab'
+      '('
+      
+        #39'select cast(descricao||cast(empcargo as varchar)||nome||cast(cliente as varchar) as varchar(70)) ' +
+        'as cargocliente,'
+      '        cast('#39#39'+'#39#39' as varchar(1)) as expandir,'
+      
+        '        cliente, cast('#39#39'   '#39#39'||nome as varchar(43)) as nome, emp' +
+        'cargo, descricao,'
+      '        ano_mes, valor_mes'
+      ' from'
+      ' ('
+      
+        '   select df.cliente, df.nome, df.empcargo, /* df.descricao, */ ' +
+        'df.ano_mes,'
+      '          CASE WHEN df.TipoCliente = '#39#39'C'#39#39
+      '               THEN (SELECT c.Descricao FROM Cargos c'
+      '                        WHERE c.Codigo = df.EmpCargo)'
+      '               ELSE '#39#39'OUTRAS ATIVIDADES'#39#39
+      '          END AS Descricao,'
+      ''
+      '          case when true then'
+      '            df.valor_mes/mc.cotacao'
+      '          else'
+      '            df.valor_mes'
+      '          end as valor_mes'
+      '   from'
+      '  ('
+      '   select df.cliente,'
+      '          cl.nome,'
+      '          cl.empcargo,'
+      '/*        c.descricao, */'
+      '          to_char(df.data, '#39#39'YYYY/MM'#39#39') as ano_mes,'
+      '          cast(sum((df.valortotal -'
+      '                    coalesce(df.seguro,0) -'
+      '                    coalesce(df.valorfrete,0) -'
+      
+        '                     coalesce(df.valoripi,0))) as numeric(11,2))' +
+        ' as valor_mes'
+      
+        '          from dadosfiscais df join clientes cl /* left join car' +
+        'gos c on cl.empcargo = c.codigo)*/'
+      '                              on df.cliente = cl.codigo'
+      '          where /* df.tipocliente = '#39#39'C'#39#39
+      
+        '            and */ df.data between('#39#39'2008-01-01'#39#39') and ('#39#39'2008-1' +
+        '2-31'#39#39')'
+      
+        '          group by  df.cliente, cl.nome, cl.empcargo, c.descrica' +
+        'o, ano_mes'
+      '  ) as df left join'
+      '               (select ano_mes,'
+      '                       avg(mc.cotacao) as cotacao'
+      '                from ('
+      
+        '                       select to_char(mc.data, '#39#39'YYYY/MM'#39#39') as a' +
+        'no_mes,'
+      '                              mc.cotacao'
+      '                       from moedascotacoes mc'
+      '                       where mc.moeda = '#39#39'US$'#39#39
+      
+        '                        and mc.data between('#39#39'2008-01-01'#39#39') and ' +
+        '('#39#39'2008-12-31'#39#39')'
+      '                      ) as mc'
+      
+        '                group by ano_mes) as mc on df.ano_mes = mc.ano_m' +
+        'es'
+      ' ) as temp'
+      ' order by 1'#39','
+      ''
+      #39'select distinct to_char(cast('#39#39
+      '        2008-01-01'
+      
+        '        '#39#39' as date)  + s.a,'#39#39'YYYY/MM'#39#39') as mes from generate_ser' +
+        'ies(1,cast('#39#39
+      '        2008-12-31'
+      '            '#39#39' as date)-cast('#39#39
+      '        2008-01-01'
+      '             '#39#39' as date)) as s(a) order by 1'#39
+      ')'
+      'AS'
+      ' ( cargocliente varchar(70),'
+      '   expandir varchar(1),'
+      '   cliente int,'
+      '   nome varchar(43),'
+      '   empcargo int,'
+      '   descricao varchar(30),'
+      '   m01_2008 numeric(11,2),'
+      '   m02_2008 numeric(11,2),'
+      '   m03_2008 numeric(11,2),'
+      '   m04_2008 numeric(11,2),'
+      '   m05_2008 numeric(11,2),'
+      '   m06_2008 numeric(11,2),'
+      '   m07_2008 numeric(11,2),'
+      '   m08_2008 numeric(11,2),'
+      '   m09_2008 numeric(11,2),'
+      '   m10_2008 numeric(11,2),'
+      '   m11_2008 numeric(11,2),'
+      '   m12_2008 numeric(11,2)'
+      ')'
+      'order by cargocliente')
+    RequestLive = True
+    Left = 72
+    Top = 8
+    object qryVendasClientesporAtividadescargocliente: TStringField
+      FieldName = 'cargocliente'
+      Visible = False
+      Size = 59
+    end
+    object qryVendasClientesporAtividadesexpandir: TStringField
+      DisplayLabel = 'E'
+      FieldName = 'expandir'
+      Size = 1
+    end
+    object qryVendasClientesporAtividadesTipoCliente: TStringField
+      FieldName = 'TipoCliente'
+      Visible = False
+      Size = 1
+    end
+    object qryVendasClientesporAtividadescliente: TIntegerField
+      FieldName = 'cliente'
+      Visible = False
+    end
+    object qryVendasClientesporAtividadesnome: TStringField
+      DisplayLabel = 'Cliente'
+      DisplayWidth = 20
+      FieldName = 'nome'
+      Size = 43
+    end
+    object qryVendasClientesporAtividadesempcargo: TIntegerField
+      FieldName = 'empcargo'
+      Visible = False
+    end
+    object qryVendasClientesporAtividadesdescricao: TStringField
+      FieldName = 'descricao'
+      Visible = False
+      Size = 15
+    end
+    object qryVendasClientesporAtividadesTotal: TCurrencyField
+      DisplayWidth = 14
+      FieldKind = fkCalculated
+      FieldName = 'Total'
+      DisplayFormat = '###,###,###,##0.00'
+      Calculated = True
+    end
+  end
+  object dsrVendasClientesporAtividades: TtecDataSource
+    DataSet = qryVendasClientesporAtividades
+    Left = 72
+    Top = 64
+  end
+  object qryVendasporAtividades: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT * FROM crosstab'
+      '('
+      
+        #39'select cast(descricao||cast(empcargo as varchar) as varchar(70)) as cargocliente' +
+        ','
+      '        cast('#39#39'-'#39#39' as varchar(1)) as expandir,'
+      
+        '        cast(null as integer) as cliente, cast(null as varchar(4' +
+        '0)) as nome,'
+      '        empcargo, descricao,'
+      '        ano_mes, valor_mes'
+      ' from'
+      ' ('
+      ''
+      '  /*VENDAS*/'
+      ''
+      '  ('
+      '   select cl.EmpCargo,'
+      '          CASE WHEN df.TipoCliente = '#39#39'C'#39#39
+      '               THEN (SELECT c.Descricao FROM Cargos c'
+      '                        WHERE c.Codigo = df.EmpCargo)'
+      '               ELSE '#39#39'OUTRAS ATIVIDADES'#39#39
+      '          END AS Descricao,'
+      ''
+      '/*        c.descricao, */'
+      '          to_char(df.data, '#39#39'YYYY/MM'#39#39') as ano_mes,'
+      '          cast(sum((df.valortotal -'
+      '                    coalesce(df.seguro,0) -'
+      '                    coalesce(df.valorfrete,0) -'
+      
+        '                    coalesce(df.valoripi,0))) as numeric(11,2)) ' +
+        'as valor_mes'
+      
+        '          from dadosfiscais df  join clientes cl /* left join ca' +
+        'rgos c on cl.empcargo = c.codigo) */'
+      '                               on df.cliente = cl.codigo '
+      '          where /* df.tipocliente = '#39#39'C'#39#39
+      
+        '            and */ df.data between('#39#39'2008-01-01'#39#39') and ('#39#39'2008-1' +
+        '2-31'#39#39')'
+      '          group by  cl.empcargo, c.descricao, ano_mes'
+      '  )'
+      ' ) as temp'
+      ' order by 1'#39','
+      ''
+      #39'select distinct to_char(cast('#39#39
+      '        2008-01-01'
+      
+        '        '#39#39' as date)  + s.a,'#39#39'YYYY/MM'#39#39') as mes from generate_ser' +
+        'ies(1,cast('#39#39
+      '            2008-12-31'
+      '            '#39#39' as date)-cast('#39#39
+      '              2008-01-01'
+      '             '#39#39' as date)) as s(a) order by 1'#39
+      ')'
+      'AS'
+      ' ( cargocliente varchar(70),'
+      '   expandir varchar(1),'
+      '   cliente integer,'
+      '   nome varchar(40),'
+      '   empcargo integer,'
+      '   descricao varchar(30),'
+      '   m01_2008 numeric(11,2),'
+      '   m02_2008 numeric(11,2),'
+      '   m03_2008 numeric(11,2),'
+      '   m04_2008 numeric(11,2),'
+      '   m05_2008 numeric(11,2),'
+      '   m06_2008 numeric(11,2),'
+      '   m07_2008 numeric(11,2),'
+      '   m08_2008 numeric(11,2),'
+      '   m09_2008 numeric(11,2),'
+      '   m10_2008 numeric(11,2),'
+      '   m11_2008 numeric(11,2),'
+      '   m12_2008 numeric(11,2)'
+      ')'
+      'order by cargocliente'
+      '')
+    RequestLive = True
+    Left = 72
+    Top = 120
+    object qryVendasporAtividadesempcargo: TIntegerField
+      FieldName = 'empcargo'
+    end
+    object qryVendasporAtividadescargocliente: TStringField
+      FieldName = 'cargocliente'
+      Size = 16
+    end
+    object qryVendasporAtividadesexpandir: TStringField
+      FieldName = 'expandir'
+      Size = 1
+    end
+    object qryVendasporAtividadescliente: TIntegerField
+      FieldName = 'cliente'
+    end
+    object qryVendasporAtividadesnome: TStringField
+      FieldName = 'nome'
+      Size = 50
+    end
+    object qryVendasporAtividadesdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 15
+    end
+  end
+  object dsrVendasporAtividades: TtecDataSource
+    DataSet = qryVendasporAtividades
+    Left = 72
+    Top = 176
+  end
+  object qryVendasClientesporAtividades_AUX: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'meses'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'SELECT * FROM crosstab'
+      '('
+      
+        #39'select cast(descricao||cast(empcargo as varchar)||nome||cast(cliente as varchar) as varchar(70)) ' +
+        'as cargocliente,'
+      '        cast('#39#39#39#39' as varchar(1)) as expandir,'
+      '        TipoCliente,'
+      
+        '        cliente, cast('#39#39'   '#39#39'||nome as varchar(43)) as nome, emp' +
+        'cargo, descricao,'
+      '        ano_mes, valor_mes'
+      ' from'
+      ' ('
+      
+        '   select df.TipoCliente, df.cliente, df.nome, df.empcargo, df.d' +
+        'escricao, df.ano_mes,'
+      ''
+      '          %sqlMoedaSelecionada /*case when true then*/'
+      '            case when mc.cotacao is not null then'
+      '              df.valor_mes/mc.cotacao end'
+      '          else'
+      '            df.valor_mes'
+      '          end as valor_mes'
+      '   from'
+      '  ('
+      '   select df.TipoCliente, df.cliente,'
+      '          vf.Nome,'
+      ''
+      '          CASE WHEN df.TipoCliente = '#39#39'C'#39#39
+      
+        '               THEN COALESCE((SELECT cl.EmpCargo FROM Clientes c' +
+        'l'
+      
+        '                                 WHERE cl.Codigo = df.Cliente), ' +
+        '0)'
+      '               ELSE 0'
+      '          END AS EmpCargo,'
+      ''
+      '          CASE WHEN df.TipoCliente = '#39#39'C'#39#39
+      '               THEN COALESCE((SELECT c.Descricao FROM Cargos c'
+      
+        '                                 WHERE c.Codigo = (SELECT cl.Emp' +
+        'Cargo FROM Clientes cl'
+      
+        '                                                      WHERE cl.C' +
+        'odigo = df.Cliente)), CAST('#39#39'OUTRAS ATIVIDADES'#39#39' AS VARCHAR(30))' +
+        ')'
+      '               ELSE '#39#39'OUTRAS ATIVIDADES'#39#39
+      '          END AS Descricao,'
+      ''
+      '          to_char(df.data, '#39#39'YYYY/MM'#39#39') as ano_mes,'
+      ''
+      '          CAST(SUM((df.ValorTotal -'
+      '                    COALESCE(df.TotalValorICMSSubstituicao, 0) -'
+      '                    COALESCE(df.Seguro,     0) -'
+      '                    COALESCE(df.ValorFrete, 0) -'
+      
+        '                    COALESCE(df.ValorIPI,   0))) AS NUMERIC(11,2' +
+        ')) AS Valor_Mes'
+      '          FROM DadosFiscais df'
+      
+        '               JOIN vFornecedores vf on df.Cliente     = vf.Codi' +
+        'go AND'
+      '                                        df.TipoCliente = vf.Tipo'
+      '          WHERE df.Situacao = '#39#39'N'#39#39
+      
+        '            AND (MOD(df.CodigoFiscal,1000) BETWEEN 101 AND 125 O' +
+        'R'
+      
+        '                 MOD(df.codigofiscal,1000) BETWEEN 401 and 405 O' +
+        'R'
+      '                 MOD(df.CodigoFiscal,1000) BETWEEN 501 AND 503)'
+      ''
+      
+        '            AND NOT (df.Numero IN (SELECT n.DadoFiscal FROM Nota' +
+        's n WHERE n.EstornadaPorOSP))'
+      ''
+      '            %sqlDataFaturamento'
+      
+        '          GROUP BY  df.TipoCliente, df.Cliente, vf.Nome, EmpCarg' +
+        'o, Descricao, Ano_Mes'
+      ''
+      '  ) as df left join'
+      '               (select ano_mes,'
+      '                       avg(mc.cotacao) as cotacao'
+      '                from ('
+      
+        '                       select to_char(mc.data, '#39#39'YYYY/MM'#39#39') as a' +
+        'no_mes,'
+      '                              mc.cotacao'
+      '                       from moedascotacoes mc'
+      '                       %sqlMoeda /*where mc.moeda = '#39#39'US$'#39#39'*/'
+      
+        '                       %sqlDataCotacao /* and mc.data between('#39#39 +
+        '2008-01-01'#39#39') and ('#39#39'2008-12-31'#39#39')*/'
+      '                      ) as mc'
+      
+        '                group by ano_mes) as mc on df.ano_mes = mc.ano_m' +
+        'es'
+      ' ) as temp'
+      ' order by 1'#39','
+      ''
+      #39'select distinct to_char(cast('#39#39
+      '        %DataInicial_1'
+      
+        '        '#39#39' as date)  + s.a,'#39#39'YYYY/MM'#39#39') as mes from generate_ser' +
+        'ies(1,cast('#39#39
+      '            %DataFinal'
+      '            '#39#39' as date)-cast('#39#39
+      '              %DataInicial_2'
+      '             '#39#39' as date)) as s(a) order by 1'#39
+      ')'
+      'AS'
+      ' ( cargocliente varchar(70),'
+      '   expandir varchar(1),'
+      '   TipoCliente Char(1),'
+      '   cliente int,'
+      '   nome varchar(43),'
+      '   empcargo int,'
+      '   descricao varchar(30),'
+      '   %meses'
+      ')'
+      'order by cargocliente'
+      '')
+    RequestLive = False
+    Left = 304
+    Top = 8
+  end
+  object qryVendasporAtividades_AUX: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'meses'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'SELECT * FROM crosstab'
+      '('
+      
+        #39'select cast(descricao||cast(empcargo as varchar) as varchar(70)) as cargocliente' +
+        ','
+      '        cast('#39#39'-'#39#39' as varchar(1)) as expandir,'
+      '        CAST(NULL AS Char(1)) AS TipoCliente,'
+      
+        '        cast(null as integer) as cliente, cast(null as varchar(4' +
+        '0)) as nome,'
+      '        empcargo, descricao,'
+      '        ano_mes, valor_mes'
+      ' from'
+      ' ('
+      ''
+      '   select df.empcargo, df.descricao, df.ano_mes,'
+      '          %sqlMoedaSelecionada /*case when true then*/'
+      '            case when mc.cotacao is not null then'
+      '              df.valor_mes/mc.cotacao end'
+      '          else'
+      '            df.valor_mes'
+      '          end as valor_mes'
+      '   from'
+      '  ('
+      '   select CASE WHEN df.TipoCliente = '#39#39'C'#39#39
+      
+        '               THEN COALESCE((SELECT cl.EmpCargo FROM Clientes c' +
+        'l'
+      
+        '                                 WHERE cl.Codigo = df.Cliente), ' +
+        '0)'
+      '               ELSE 0'
+      '          END AS EmpCargo,'
+      ''
+      '          CASE WHEN df.TipoCliente = '#39#39'C'#39#39
+      '               THEN COALESCE((SELECT c.Descricao FROM Cargos c'
+      
+        '                                 WHERE c.Codigo = (SELECT cl.Emp' +
+        'Cargo FROM Clientes cl'
+      
+        '                                                      WHERE cl.C' +
+        'odigo = df.Cliente)), CAST('#39#39'OUTRAS ATIVIDADES'#39#39' AS VARCHAR(30))' +
+        ')'
+      '               ELSE '#39#39'OUTRAS ATIVIDADES'#39#39
+      '          END AS Descricao,'
+      ''
+      '          to_char(df.data, '#39#39'YYYY/MM'#39#39') as ano_mes,'
+      ''
+      '          CAST(SUM((df.ValorTotal -'
+      '                    COALESCE(df.TotalValorICMSSubstituicao, 0) -'
+      '                    COALESCE(df.Seguro,     0) -'
+      '                    COALESCE(df.ValorFrete, 0) -'
+      
+        '                    COALESCE(df.ValorIPI,   0))) AS NUMERIC(11,2' +
+        ')) AS Valor_Mes'
+      '          FROM DadosFiscais df'
+      
+        '               JOIN vFornecedores vf on df.Cliente     = vf.Codi' +
+        'go AND'
+      '                                        df.TipoCliente = vf.Tipo'
+      '          WHERE df.Situacao = '#39#39'N'#39#39
+      
+        '            AND (MOD(df.CodigoFiscal,1000) BETWEEN 101 AND 125 O' +
+        'R'
+      
+        '                 MOD(df.codigofiscal,1000) BETWEEN 401 and 405 O' +
+        'R'
+      '                 MOD(df.CodigoFiscal,1000) BETWEEN 501 AND 503)'
+      ''
+      
+        '            AND NOT (df.Numero IN (SELECT n.DadoFiscal FROM Nota' +
+        's n WHERE n.EstornadaPorOSP))'
+      ''
+      '            %sqlDataFaturamento'
+      '          GROUP BY  EmpCargo, Descricao, Ano_Mes'
+      ''
+      '  ) as df left join'
+      '               (select ano_mes,'
+      '                       avg(mc.cotacao) as cotacao'
+      '                from ('
+      
+        '                       select to_char(mc.data, '#39#39'YYYY/MM'#39#39') as a' +
+        'no_mes,'
+      '                              mc.cotacao'
+      '                       from moedascotacoes mc'
+      '                       %sqlMoeda /*where mc.moeda = '#39#39'US$'#39#39'*/'
+      
+        '                       %sqlDataCotacao /* and mc.data between('#39#39 +
+        '2008-01-01'#39#39') and ('#39#39'2008-12-31'#39#39')*/'
+      '                      ) as mc'
+      
+        '                group by ano_mes) as mc on df.ano_mes = mc.ano_m' +
+        'es'
+      ''
+      ' ) as temp'
+      ' order by 1'#39','
+      ''
+      #39'select distinct to_char(cast('#39#39
+      '        %DataInicial_1'
+      
+        '        '#39#39' as date)  + s.a,'#39#39'YYYY/MM'#39#39') as mes from generate_ser' +
+        'ies(1,cast('#39#39
+      '            %DataFinal'
+      '            '#39#39' as date)-cast('#39#39
+      '              %DataInicial_2'
+      '             '#39#39' as date)) as s(a) order by 1'#39
+      ')'
+      'AS'
+      ' ( cargocliente varchar(70),'
+      '   expandir varchar(1),'
+      '   TipoCliente CHAR(1),'
+      '   cliente integer,'
+      '   nome varchar(40),'
+      '   empcargo int,'
+      '   descricao varchar(30),'
+      '   %meses'
+      ')'
+      'order by cargocliente'
+      '')
+    RequestLive = False
+    Left = 304
+    Top = 120
+  end
+  object qrynMeses: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select distinct to_char(cast('#39
+      '        %datainicial_1'
+      
+        '        '#39' as date)  + s.a,'#39'YYYY/MM'#39') as mes from generate_series' +
+        '(1,cast('#39
+      '            %datafinal'
+      '            '#39' as date)-cast('#39
+      '              %datainicial_2'
+      '             '#39' as date)) as s(a) order by 1')
+    RequestLive = False
+    Left = 80
+    Top = 456
+  end
+  object qrynmeses_aux: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select distinct to_char(cast('#39
+      '        %datainicial_1'
+      
+        '        '#39' as date)  + s.a,'#39'YYYY/MM'#39') as mes from generate_series' +
+        '(1,cast('#39
+      '            %datafinal'
+      '            '#39' as date)-cast('#39
+      '              %datainicial_2'
+      '             '#39' as date)) as s(a) order by 1')
+    RequestLive = False
+    Left = 312
+    Top = 456
+  end
+  object ZMonitor1: TZMonitor
+    OnMonitorEvent = ZMonitor1MonitorEvent
+    Left = 544
+    Top = 88
+  end
+  object qryVendas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryVendasAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT * FROM crosstab'
+      '('
+      #39'select cast('#39#39'-'#39#39' as varchar(1)) as cargocliente,'
+      '        cast('#39#39'-'#39#39' as varchar(1)) as expandir,'
+      '        cast(null as integer) as cliente,'
+      '        cast(null as varchar(40)) as nome,'
+      '        cast(null as integer) as empcargo,'
+      '        cast(null as varchar(30)) as descricao,'
+      ''
+      '        ano_mes, valor_mes'
+      ' from'
+      ' ('
+      ''
+      '  /*VENDAS*/'
+      ''
+      '  ('
+      '   select to_char(df.data, '#39#39'YYYY/MM'#39#39') as ano_mes,'
+      '          cast(sum((df.valortotal -'
+      '                    coalesce(df.seguro,0) -'
+      '                    coalesce(df.valorfrete,0) -'
+      
+        '                    coalesce(df.valoripi,0))) as numeric(11,2)) ' +
+        'as valor_mes'
+      
+        '          from dadosfiscais df join clientes cl /* left join car' +
+        'gos c on cl.empcargo = c.codigo) */'
+      '                               on df.cliente = cl.codigo'
+      '          where /* df.tipocliente = '#39#39'C'#39#39
+      
+        '            and */ df.data between('#39#39'2008-01-01'#39#39') and ('#39#39'2008-1' +
+        '2-31'#39#39')'
+      '          group by  ano_mes'
+      '  )'
+      ' ) as temp'
+      ' order by 1'#39','
+      ''
+      #39'select distinct to_char(cast('#39#39
+      '        2008-01-01'
+      
+        '        '#39#39' as date)  + s.a,'#39#39'YYYY/MM'#39#39') as mes from generate_ser' +
+        'ies(1,cast('#39#39
+      '            2008-12-31'
+      '            '#39#39' as date)-cast('#39#39
+      '              2008-01-01'
+      '             '#39#39' as date)) as s(a) order by 1'#39
+      ')'
+      'AS'
+      ' ( cargocliente varchar(1),'
+      '   expandir varchar(1),'
+      '   cliente integer,'
+      '   nome varchar(40),'
+      '   empcargo int,'
+      '   descricao varchar(30),'
+      '   m01_2008 numeric(11,2),'
+      '   m02_2008 numeric(11,2),'
+      '   m03_2008 numeric(11,2),'
+      '   m04_2008 numeric(11,2),'
+      '   m05_2008 numeric(11,2),'
+      '   m06_2008 numeric(11,2),'
+      '   m07_2008 numeric(11,2),'
+      '   m08_2008 numeric(11,2),'
+      '   m09_2008 numeric(11,2),'
+      '   m10_2008 numeric(11,2),'
+      '   m11_2008 numeric(11,2),'
+      '   m12_2008 numeric(11,2)'
+      ')'
+      '')
+    RequestLive = True
+    Left = 72
+    Top = 336
+  end
+  object dsrVendas: TtecDataSource
+    DataSet = qryVendas
+    Left = 72
+    Top = 392
+  end
+  object qryVendas_AUX: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'meses'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'SELECT * FROM crosstab'
+      '('
+      #39'select cast('#39#39'-'#39#39' as varchar(1)) as cargocliente,'
+      '        cast('#39#39'-'#39#39' as varchar(1)) as expandir,'
+      '        CAST(NULL AS CHAR(1)) AS TipoCliente,'
+      '        cast(null as integer) as cliente,'
+      '        cast('#39#39'TOTAL'#39#39' as varchar(40)) as nome,'
+      '        cast(null as integer) as empcargo,'
+      '        cast(null as varchar(30)) as descricao,'
+      '        cast(null as numeric(12,2)) as Total,'
+      '        ano_mes, valor_mes'
+      ' from'
+      ' ('
+      '   select df.ano_mes,'
+      '          %sqlMoedaSelecionada /*case when true then*/'
+      '            case when mc.cotacao is not null then'
+      '              df.valor_mes/mc.cotacao end'
+      '          else'
+      '            df.valor_mes'
+      '          end as valor_mes'
+      '   from'
+      '  ('
+      '   select to_char(df.data, '#39#39'YYYY/MM'#39#39') as ano_mes,'
+      ''
+      '          CAST(SUM((df.ValorTotal -'
+      '                    COALESCE(df.TotalValorICMSSubstituicao, 0) -'
+      '                    COALESCE(df.Seguro,     0) -'
+      '                    COALESCE(df.ValorFrete, 0) -'
+      
+        '                    COALESCE(df.ValorIPI,   0))) AS NUMERIC(11,2' +
+        ')) AS Valor_Mes'
+      '          FROM DadosFiscais df'
+      
+        '               JOIN vFornecedores vf on df.Cliente     = vf.Codi' +
+        'go AND'
+      '                                        df.TipoCliente = vf.Tipo'
+      '          WHERE df.Situacao = '#39#39'N'#39#39
+      
+        '            AND (MOD(df.CodigoFiscal,1000) BETWEEN 101 AND 125 O' +
+        'R'
+      
+        '                 MOD(df.codigofiscal,1000) BETWEEN 401 and 405 O' +
+        'R'
+      '                 MOD(df.CodigoFiscal,1000) BETWEEN 501 AND 503)'
+      ''
+      
+        '            AND NOT (df.Numero IN (SELECT n.DadoFiscal FROM Nota' +
+        's n WHERE n.EstornadaPorOSP))'
+      ''
+      '            %sqlDataFaturamento'
+      '          GROUP BY Ano_Mes'
+      ''
+      '  ) as df left join'
+      '               (select ano_mes,'
+      '                       avg(mc.cotacao) as cotacao'
+      '                from ('
+      
+        '                       select to_char(mc.data, '#39#39'YYYY/MM'#39#39') as a' +
+        'no_mes,'
+      '                              mc.cotacao'
+      '                       from moedascotacoes mc'
+      '                       %sqlMoeda /*where mc.moeda = '#39#39'US$'#39#39'*/'
+      
+        '                       %sqlDataCotacao /* and mc.data between('#39#39 +
+        '2008-01-01'#39#39') and ('#39#39'2008-12-31'#39#39')*/'
+      '                      ) as mc'
+      
+        '                group by ano_mes) as mc on df.ano_mes = mc.ano_m' +
+        'es'
+      ' ) as temp'
+      ' order by 1'#39','
+      ''
+      #39'select distinct to_char(cast('#39#39
+      '        %DataInicial_1'
+      
+        '        '#39#39' as date)  + s.a,'#39#39'YYYY/MM'#39#39') as mes from generate_ser' +
+        'ies(1,cast('#39#39
+      '            %DataFinal'
+      '            '#39#39' as date)-cast('#39#39
+      '              %DataInicial_2'
+      '             '#39#39' as date)) as s(a) order by 1'#39
+      ')'
+      'AS'
+      ' ( cargocliente varchar(1),'
+      '   expandir varchar(1),'
+      '   TipoCliente CHAR(1),'
+      '   cliente integer,'
+      '   nome varchar(40) ,'
+      '   empcargo int,'
+      '   descricao varchar(30),'
+      '   Total numeric(12,2),'
+      '   %meses'
+      ')'
+      '')
+    RequestLive = False
+    Left = 304
+    Top = 336
+  end
+  object qryVendasporAtividadesPerc: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT * FROM crosstab'
+      '('
+      
+        #39'select cast(descricao||cast(empcargo as varchar) as varchar(70)) as cargocliente' +
+        ','
+      '        cast('#39#39'-'#39#39' as varchar(1)) as expandir,'
+      
+        '        cast(null as integer) as cliente, cast(null as varchar(4' +
+        '0)) as nome,'
+      
+        '        empcargo, descricao, cast(null as numeric(5,2)) as Total' +
+        ','
+      '        ano_mes, valor_mes'
+      ' from'
+      ' ('
+      ''
+      '  /*VENDAS*/'
+      ''
+      '  ('
+      '   select cl.empcargo,'
+      '          CASE WHEN df.TipoCliente = '#39#39'C'#39#39
+      '               THEN (SELECT c.Descricao FROM Cargos c'
+      '                        WHERE c.Codigo = cl.EmpCargo)'
+      '               ELSE '#39#39'OUTRAS ATIVIDADES'#39#39
+      '          END AS Descricao,'
+      ''
+      '/*          c.descricao, */'
+      '          to_char(df.data, '#39#39'YYYY/MM'#39#39') as ano_mes,'
+      '          cast(sum((df.valortotal -'
+      '                    coalesce(df.seguro,0) -'
+      '                    coalesce(df.valorfrete,0) -'
+      
+        '                    coalesce(df.valoripi,0))) as numeric(11,2)) ' +
+        'as valor_mes'
+      
+        '          from dadosfiscais df join clientes cl /* left join car' +
+        'gos c on cl.empcargo = c.codigo) */'
+      '                               on df.cliente = cl.codigo'
+      '          where /* df.tipocliente = '#39#39'C'#39#39
+      
+        '            and */ df.data between('#39#39'2008-01-01'#39#39') and ('#39#39'2008-1' +
+        '2-31'#39#39')'
+      '          group by  cl.empcargo, c.descricao, ano_mes'
+      '  )'
+      ' ) as temp'
+      ' order by 1'#39','
+      ''
+      #39'select distinct to_char(cast('#39#39
+      '        2008-01-01'
+      
+        '        '#39#39' as date)  + s.a,'#39#39'YYYY/MM'#39#39') as mes from generate_ser' +
+        'ies(1,cast('#39#39
+      '            2008-12-31'
+      '            '#39#39' as date)-cast('#39#39
+      '              2008-01-01'
+      '             '#39#39' as date)) as s(a) order by 1'#39
+      ')'
+      'AS'
+      ' ( cargocliente varchar(70),'
+      '   expandir varchar(1),'
+      '   cliente integer,'
+      '   nome varchar(40),'
+      '   empcargo int,'
+      '   descricao varchar(30),'
+      '   Total Numeric(5,2),'
+      '   m01_2008 numeric(11,2),'
+      '   m02_2008 numeric(11,2),'
+      '   m03_2008 numeric(11,2),'
+      '   m04_2008 numeric(11,2),'
+      '   m05_2008 numeric(11,2),'
+      '   m06_2008 numeric(11,2),'
+      '   m07_2008 numeric(11,2),'
+      '   m08_2008 numeric(11,2),'
+      '   m09_2008 numeric(11,2),'
+      '   m10_2008 numeric(11,2),'
+      '   m11_2008 numeric(11,2),'
+      '   m12_2008 numeric(11,2)'
+      ')'
+      'order by cargocliente'
+      '')
+    RequestLive = True
+    Left = 72
+    Top = 224
+  end
+  object dsrVendasporAtividadesPerc: TtecDataSource
+    DataSet = qryVendasporAtividadesPerc
+    Left = 72
+    Top = 280
+  end
+  object qryVendasporAtividadesPerc_AUX: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'meses'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'SELECT * FROM crosstab'
+      '('
+      
+        #39'select cast(descricao||cast(empcargo as varchar) as varchar(70)) as cargocliente' +
+        ','
+      '        cast('#39#39'-'#39#39' as varchar(1)) as expandir,'
+      '        CAST(NULL AS CHAR(1)) AS TipoCliente,'
+      
+        '        cast(null as integer) as cliente, cast(null as varchar(4' +
+        '0)) as nome,'
+      '        empcargo, descricao,'
+      '        cast(null as numeric(12,2)) as Total,'
+      '        ano_mes, valor_mes'
+      ' from'
+      ' ('
+      ''
+      '   select df.empcargo, df.descricao, df.ano_mes,'
+      '          %sqlMoedaSelecionada /*case when true then*/'
+      '            case when mc.cotacao is not null then'
+      '              df.valor_mes/mc.cotacao end'
+      '          else'
+      '            df.valor_mes'
+      '          end as valor_mes'
+      '   from'
+      '  ('
+      '   select CASE WHEN df.TipoCliente = '#39#39'C'#39#39
+      
+        '               THEN COALESCE((SELECT cl.EmpCargo FROM Clientes c' +
+        'l'
+      
+        '                                 WHERE cl.Codigo = df.Cliente), ' +
+        '0)'
+      '               ELSE 0'
+      '          END AS EmpCargo,'
+      ''
+      '          CASE WHEN df.TipoCliente = '#39#39'C'#39#39
+      '               THEN COALESCE((SELECT c.Descricao FROM Cargos c'
+      
+        '                                 WHERE c.Codigo = (SELECT cl.Emp' +
+        'Cargo FROM Clientes cl'
+      
+        '                                                      WHERE cl.C' +
+        'odigo = df.Cliente)), CAST('#39#39'OUTRAS ATIVIDADES'#39#39' AS VARCHAR(30))' +
+        ')'
+      '               ELSE '#39#39'OUTRAS ATIVIDADES'#39#39
+      '          END AS Descricao,'
+      ''
+      '          to_char(df.data, '#39#39'YYYY/MM'#39#39') as ano_mes,'
+      ''
+      '          CAST(SUM((df.ValorTotal -'
+      '                    COALESCE(df.TotalValorICMSSubstituicao, 0) -'
+      '                    COALESCE(df.Seguro,     0) -'
+      '                    COALESCE(df.ValorFrete, 0) -'
+      
+        '                    COALESCE(df.ValorIPI,   0))) AS NUMERIC(11,2' +
+        ')) AS Valor_Mes'
+      '          FROM DadosFiscais df'
+      
+        '               JOIN vFornecedores vf on df.Cliente     = vf.Codi' +
+        'go AND'
+      '                                        df.TipoCliente = vf.Tipo'
+      '          WHERE df.Situacao = '#39#39'N'#39#39
+      
+        '            AND (MOD(df.CodigoFiscal,1000) BETWEEN 101 AND 125 O' +
+        'R'
+      
+        '                 MOD(df.codigofiscal,1000) BETWEEN 401 and 405 O' +
+        'R'
+      '                 MOD(df.CodigoFiscal,1000) BETWEEN 501 AND 503)'
+      ''
+      
+        '            AND NOT (df.Numero IN (SELECT n.DadoFiscal FROM Nota' +
+        's n WHERE n.EstornadaPorOSP))'
+      ''
+      '            %sqlDataFaturamento'
+      '          GROUP BY EmpCargo, Descricao, Ano_Mes'
+      ''
+      '  ) as df left join'
+      '               (select ano_mes,'
+      '                       avg(mc.cotacao) as cotacao'
+      '                from ('
+      
+        '                       select to_char(mc.data, '#39#39'YYYY/MM'#39#39') as a' +
+        'no_mes,'
+      '                              mc.cotacao'
+      '                       from moedascotacoes mc'
+      '                       %sqlMoeda /*where mc.moeda = '#39#39'US$'#39#39'*/'
+      
+        '                       %sqlDataCotacao /* and mc.data between('#39#39 +
+        '2008-01-01'#39#39') and ('#39#39'2008-12-31'#39#39')*/'
+      '                      ) as mc'
+      
+        '                group by ano_mes) as mc on df.ano_mes = mc.ano_m' +
+        'es'
+      ''
+      ' ) as temp'
+      ' order by 1'#39','
+      ''
+      #39'select distinct to_char(cast('#39#39
+      '        %DataInicial_1'
+      
+        '        '#39#39' as date)  + s.a,'#39#39'YYYY/MM'#39#39') as mes from generate_ser' +
+        'ies(1,cast('#39#39
+      '            %DataFinal'
+      '            '#39#39' as date)-cast('#39#39
+      '              %DataInicial_2'
+      '             '#39#39' as date)) as s(a) order by 1'#39
+      ')'
+      'AS'
+      ' ( cargocliente varchar(70),'
+      '   expandir varchar(1),'
+      '   TipoCliente CHAR(1),'
+      '   cliente integer,'
+      '   nome varchar(40),'
+      '   empcargo int,'
+      '   descricao varchar(30),'
+      '   Total numeric(12,2),'
+      '   %meses'
+      ')'
+      'order by cargocliente'
+      '')
+    RequestLive = False
+    Left = 304
+    Top = 216
+  end
+end

@@ -1,0 +1,393 @@
+unit fmcadastrofluxogramas;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmcadastropadrao, ComCtrls, Buttons, ExtCtrls, DBCtrls,
+  cptexto, Mask, cpdbfindcontrols, Grids, DBGrids, cpdbgrid,
+  dmcadastrofluxogramas, frconsultacodigo, ctconstantes, db, Windows, biblio,
+  ActnList, ToolWin, frRegistroOperacoes;
+
+type
+  TfrmCadastroFluxoGramas = class(TFrmCadastroPadrao)
+    gbxCodigoFluxograma: TGroupBox;
+    gbxNomeFluxograma: TGroupBox;
+    edfCodigo: TtecDBFindLookup;
+    edtDescricao: TDBEditTexto;
+    gbxOperacoes: TGroupBox;
+    Bevel1: TBevel;
+    dbgOperacoes: TtecDBGrid;
+    pnlOperacoes: TPanel;
+    sbnIncluirOperacao: TSpeedButton;
+    sbnIncluirAlternativa: TSpeedButton;
+    actLiberarBotoes: TActionList;
+    Action1: TAction;
+    PageControl1: TPageControl;
+    tstCadastro: TTabSheet;
+    tstLog: TTabSheet;
+    fraRegistroOperacoes1: TfraRegistroOperacoes;
+    sbnImprimir: TSpeedButton;
+    ckbNaoControlaQuantidadeAnterior: TDBCheckBox;
+    ckbInformarTerminodoProcesso: TDBCheckBox;
+    ckbOperacaoConjugada: TDBCheckBox;
+    gbxtitulocusto: TGroupBox;
+    edttitulocusto: TDBEditTexto;
+    gbxCorFluxoGrama: TGroupBox;
+    ColorBox1: TColorBox;
+    procedure sbnExcluirOperacoesSetupClick(Sender: TObject);
+    procedure dbgOperacoesDblClick(Sender: TObject);
+    procedure dbgOperacoesKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnProcurarClick(Sender: TObject);
+    procedure sbnIncluirOperacaoClick(Sender: TObject);
+    procedure sbnIncluirAlternativaClick(Sender: TObject);
+    procedure Action1Update(Sender: TObject);
+    procedure sbnImprimirClick(Sender: TObject);
+    procedure ColorBox1Select(Sender: TObject);
+  private
+    { Private declarations }
+    procedure CondicoesFluxoGramasOperacoes;
+
+    procedure FluxoGramaSOperacoesNewRecord(Sender: TObject);
+    procedure FluxoGramasAfterScroll(Sender: TObject);
+
+    procedure AcionarPesquisaGradeOperacao;
+    function VerificarOperacoes: boolean;
+
+
+  protected
+    ConsultaFluxoGrama : TfraConsultaCodigo;
+    ConsultaOperacoes : TfraConsultaCodigo;
+
+
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoIncluir: Boolean; override;
+    procedure AbrirFluxoGrama;
+    procedure AtribuirDadosFluxoGramasOperacoes;
+
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+  end;
+
+var
+  frmCadastroFluxoGramas: TfrmCadastroFluxoGramas;
+
+implementation
+
+uses frconsulta, fmImprimirfluxogramas;
+
+{$R *.dfm}
+
+{ TfrmCadastroFluxoGramas }
+
+procedure TfrmCadastroFluxoGramas.AbrirFluxoGrama;
+begin
+  edfCodigo.Text := ConsultaFluxoGrama.qryProcuraFluxogramas.FieldByName('codigo').AsString;
+  dtmCadastroFluxoGramas.
+        refazconsulta(dtmCadastroFluxoGramas.qryFluxoGramas,[0],
+             [ConsultaFluxoGrama.qryProcuraFluxogramas.FieldByName('codigo').AsString]);
+end;
+
+procedure TfrmCadastroFluxoGramas.AtribuirDadosFluxoGramasOperacoes;
+begin
+  with dtmCadastroFluxoGramas do
+  begin
+    EditarFluxoGramasOperacoes;
+    qryFluxoGramasOperacoesoperacao.AsString := ConsultaOperacoes.qryProcuraOperacoescodigo.AsString;
+    qryFluxoGramasOperacoesnome.AsString := ConsultaOperacoes.qryProcuraOperacoesnome.AsString;
+    qryFluxoGramasOperacoesc01.AsString := ConsultaOperacoes.qryProcuraOperacoesc01.AsString;
+    qryFluxoGramasOperacoesc02.AsString := ConsultaOperacoes.qryProcuraOperacoesc02.AsString;
+    qryFluxoGramasOperacoesc03.AsString := ConsultaOperacoes.qryProcuraOperacoesc03.AsString;
+    qryFluxoGramasOperacoesdescricao.AsString := ConsultaOperacoes.qryProcuraOperacoesdescricao.AsString;
+    qryFluxoGramasOperacoestempopadrao.AsString := ConsultaOperacoes.qryProcuraOperacoestempopadrao.AsString;
+    qryFluxoGramasOperacoes.Post;
+  end;
+end;
+
+procedure TfrmCadastroFluxoGramas.CondicoesFluxoGramasOperacoes;
+const
+  SQL = 'and (codigo not in (%s) or codigo = %s)';
+var
+  codigoproduto : String;
+begin
+   codigoproduto := inttostr(dtmCadastroFluxoGramas.qryFluxoGramasOperacoesoperacao.Asinteger);
+   if (dtmCadastroFluxoGramas.qryFluxoGramasOperacoes.State = dsInsert) or
+      (dtmCadastroFluxoGramas.qryFluxoGramasOperacoesdescricao.AsString='') then
+     codigoproduto := '0';
+
+   ConsultaOperacoes.qryProcuraOperacoes.MacroByName('SQLOperacoesJaSelecionadas').AsString :=
+     format(SQL,[dtmCadastroFluxoGramas.ListaOperacoesSelecionadas, codigoproduto]);
+   ConsultaOperacoes.qryConsultaOperacoes.MacroByName('SQLOperacoesJaSelecionadas').AsString :=
+     format(SQL,[dtmCadastroFluxoGramas.ListaOperacoesSelecionadas, codigoproduto]);
+end;
+
+constructor TfrmCadastroFluxoGramas.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmCadastroFluxoGramas := TdtmCadastroFluxoGramas.Create(Self);
+  DataSet := dtmCadastroFluxoGramas.qryFluxoGramas;
+
+  ConsultaFluxoGrama := TfraConsultaCodigo.Create(self);
+  ConsultaFluxoGrama.edfCodigo.DataSource := dtmCadastroFluxoGramas.dsrFluxoGramas;
+  ConsultaFluxoGrama.edfCodigo.DataField := 'codigo';
+  ConsultaFluxoGrama.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaFluxoGrama.AbrirTabelaProcura := false;
+  ConsultaFluxoGrama.TipoPesquisa := pesFLUXOGRAMA;
+  ConsultaFluxoGrama.OnFound := AbrirFluxoGrama;
+  ConsultaFluxoGrama.Name := 'fraConsultaFluxoGrama';
+
+  ConsultaOperacoes := TfraConsultaCodigo.Create(self);
+  ConsultaOperacoes.Name := 'fraConsultaOperacoes';
+  ConsultaOperacoes.edfCodigo.MaxLength := 3;
+  ConsultaOperacoes.edfCodigo.DataSource := dtmCadastroFluxoGramas.dsrFluxoGramasOperacoes;
+  ConsultaOperacoes.edfCodigo.DataField := 'operacao';
+  ConsultaOperacoes.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaOperacoes.edfCodigo.LookupSource := ConsultaOperacoes.dsrProcuraOperacaoes;
+  ConsultaOperacoes.edfCodigo.LookupQueryParameter := 'Codigo';
+  ConsultaOperacoes.edfCodigo.LookupField := 'Codigo';
+  ConsultaOperacoes.AbrirTabelaProcura := false;
+  ConsultaOperacoes.CondicoesdaConsulta := CondicoesFluxoGramasOperacoes;
+  ConsultaOperacoes.TipoPesquisa := pesOPERACOES;
+  ConsultaOperacoes.OnFound := AtribuirDadosFluxoGramasOperacoes;
+
+
+  dtmCadastroFluxoGramas.onFluxoGramasOperacoesNewRecord := FluxoGramaSOperacoesNewRecord;
+  dtmCadastroFluxoGramas.FluxoGramasAfterScroll := FluxoGramasAfterScroll;
+  dbgOperacoes.OnDelete := dtmCadastroFluxoGramas.ExcluirFluxoGramaOperacoes;
+end;
+
+destructor TfrmCadastroFluxoGramas.Destroy;
+begin
+  dtmCadastroFluxoGramas.qryFluxoGramas.close;
+  dtmCadastroFluxoGramas.qryFluxoGramasOperacoes.close;
+  dtmCadastroFluxoGramas := nil;
+  inherited;
+end;
+
+procedure TfrmCadastroFluxoGramas.FluxoGramaSOperacoesNewRecord(
+  Sender: TObject);
+begin
+  dbgOperacoes.SelectedIndex := 1;
+end;
+
+function TfrmCadastroFluxoGramas.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then begin
+    if not CtrlOn then
+      dtmCadastroFluxoGramas.ExcluirFluxograma;
+  end;
+end;
+
+function TfrmCadastroFluxoGramas.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if Result then
+  begin
+    dtmCadastroFluxoGramas.qryFluxoGramascorplanilhacusto.AsString := inttostr(tcolorref(ColorBox1.Selected));
+    dtmCadastroFluxoGramas.GravarFluxoGrama;
+  end;
+end;
+
+function TfrmCadastroFluxoGramas.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then begin
+    if not CtrlOn then
+      dtmCadastroFluxoGramas.IncluirFluxoGrama;
+  end;
+end;
+
+procedure TfrmCadastroFluxoGramas.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if not CtrlOn then
+  begin
+    if (key =VK_F9) then
+    begin
+      if sbnProcurar.Enabled then
+      begin
+        ConsultaFluxoGrama.InternoPesquisar(ctFLUXOGRAMA);
+        self.SetFocus;
+      end
+    end;
+    if (key =VK_F7) then
+      sbnImprimirClick(frmImprimirfluxogramas);
+  end;
+end;
+
+procedure TfrmCadastroFluxoGramas.sbnExcluirOperacoesSetupClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroFluxoGramas.ExcluirFluxoGramaOperacoes;
+end;
+
+procedure TfrmCadastroFluxoGramas.dbgOperacoesDblClick(Sender: TObject);
+begin
+  inherited;
+  if dbgOperacoes.SelectedIndex in [1..4] then
+    AcionarPesquisaGradeOperacao;
+end;
+
+procedure TfrmCadastroFluxoGramas.AcionarPesquisaGradeOperacao;
+begin
+  dbgOperacoes.SetFocus;
+  ConsultaOperacoes.CtrlOn := True;
+  ConsultaOperacoes.InternoPesquisar(ctOPERACOES);
+  dbgOperacoes.SetFocus;
+  dbgOperacoes.SelectedIndex :=  1;
+end;
+
+procedure TfrmCadastroFluxoGramas.dbgOperacoesKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+     VK_F9     : begin
+                     if dbgOperacoes.SelectedIndex in [1..4] then
+                     begin
+                       ConsultaOperacoes.CtrlOn := Shift = [ssCtrl];
+                       if (Shift = []) or ConsultaOperacoes.CtrlOn then
+                         AcionarPesquisaGradeOperacao
+                     end;
+                   end;
+    end;
+  end
+  else if Shift = [] then
+  case Key of
+   VK_Return: begin
+                  if dbgOperacoes.SelectedIndex = 4 then
+                  begin
+                    if VerificarOperacoes then
+                     dbgOperacoes.SelectedIndex := dbgOperacoes.SelectedIndex + 1
+                    else
+                      key := 0;
+                  end
+                  else
+                  if dbgOperacoes.SelectedIndex = 6 then
+                       dtmCadastroFluxoGramas.GravarFluxoGramaOperacoes
+                  else
+                  if (dbgOperacoes.SelectedIndex <> 4) then
+                     dbgOperacoes.SelectedIndex := dbgOperacoes.SelectedIndex + 1;
+                end;
+  end;
+  inherited;
+
+end;
+
+function TfrmCadastroFluxoGramas.VerificarOperacoes: boolean;
+begin
+  result := true;
+//  ConsultaOperacoes.edfCodigo.DoExit;
+  ConsultaOperacoes.qryProcuraOperacoes.ParamByName('codigo').asinteger := 0;
+  ConsultaOperacoes.qryProcuraOperacoes.ParamByName('nome').AsString :=
+    dtmCadastroFluxoGramas.qryFluxoGramasOperacoesnome.AsString;
+  ConsultaOperacoes.qryProcuraOperacoes.ParamByName('c01').AsString :=
+    dtmCadastroFluxoGramas.qryFluxoGramasOperacoesc01.AsString;
+  ConsultaOperacoes.qryProcuraOperacoes.ParamByName('c02').AsString :=
+    dtmCadastroFluxoGramas.qryFluxoGramasOperacoesc02.AsString;
+  ConsultaOperacoes.qryProcuraOperacoes.ParamByName('c03').AsString :=
+    dtmCadastroFluxoGramas.qryFluxoGramasOperacoesc03.AsString;
+
+  ConsultaOperacoes.qryProcuraOperacoes.Close;
+  ConsultaOperacoes.qryProcuraOperacoes.open;
+
+  if not ConsultaOperacoes.qryProcuraOperacoes.IsEmpty then
+    AtribuirDadosFluxoGramasOperacoes
+  else
+  begin
+    ShowMessage(Format(ctCODIGOINEXISTENTE, ['['+
+    dtmCadastroFluxoGramas.qryFluxoGramasOperacoesnome.AsString +', '+
+    dtmCadastroFluxoGramas.qryFluxoGramasOperacoesc01.AsString  +', '+
+    dtmCadastroFluxoGramas.qryFluxoGramasOperacoesc02.AsString  +', '+
+    dtmCadastroFluxoGramas.qryFluxoGramasOperacoesc03.AsString  +']']));
+    result := false;
+    dbgOperacoes.SetFocus;
+  end;
+end;
+
+procedure TfrmCadastroFluxoGramas.sbnProcurarClick(Sender: TObject);
+begin
+  inherited;
+  ConsultaFluxoGrama.InternoPesquisar(ctFLUXOGRAMA);
+  self.SetFocus;
+end;
+
+procedure TfrmCadastroFluxoGramas.sbnIncluirOperacaoClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroFluxoGramas.IncluirOperacao;
+end;
+
+
+
+
+procedure TfrmCadastroFluxoGramas.sbnIncluirAlternativaClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroFluxoGramas.IncluirOperacaoAlternativa;
+end;
+
+procedure TfrmCadastroFluxoGramas.Action1Update(Sender: TObject);
+begin
+  inherited;
+  sbnIncluirAlternativa.Enabled := (dtmCadastroFluxoGramas.qryFluxoGramasOperacoestipooperacao.AsString = 'N') and
+          not dtmCadastroFluxoGramas.qryFluxoGramasOperacoesoperacao.IsNull;
+
+{
+  if ckbNaoControlaQuantidadeAnterior.Checked or
+     (pos('A',dtmCadastroFluxoGramas.qryFluxoGramasOperacoestipo.AsString)<>0) or // não pode ser alternativa
+     (pos('G',uppercase(dtmCadastroFluxoGramas.qryFluxoGramasOperacoestipo.AsString))<>0) // não pode estar agrupada
+  then
+    ckbOperacaoConjugada.Enabled := false
+  else
+    ckbOperacaoConjugada.Enabled := true;
+
+  if ckbOperacaoConjugada.Checked then
+    ckbNaoControlaQuantidadeAnterior.Enabled := false
+  else
+    ckbNaoControlaQuantidadeAnterior.Enabled := true;
+}
+
+  ckbOperacaoConjugada.Enabled := dtmCadastroFluxoGramas.qryFluxoGramasOperacoespermiteconjugar.AsBoolean;
+  ckbNaoControlaQuantidadeAnterior.Enabled := dtmCadastroFluxoGramas.qryFluxoGramasOperacoespermiteagrupar.AsBoolean;
+
+end;
+
+procedure TfrmCadastroFluxoGramas.sbnImprimirClick(Sender: TObject);
+begin
+  inherited;
+  frmImprimirfluxogramas := TfrmImprimirfluxogramas.Create(frmImprimirfluxogramas);
+  frmImprimirfluxogramas.ShowModal;
+  frmImprimirfluxogramas.Free;
+end;
+
+procedure TfrmCadastroFluxoGramas.ColorBox1Select(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroFluxoGramas.EditarFluxoGramas;
+end;
+
+procedure TfrmCadastroFluxoGramas.FluxoGramasAfterScroll(Sender: TObject);
+begin
+  if dtmCadastroFluxoGramas.qryFluxoGramascorplanilhacusto.asstring<>'' then
+  begin
+    ColorBox1.Selected := StringtoColor(dtmCadastroFluxoGramas.qryFluxoGramascorplanilhacusto.asstring);
+    ColorBox1.Refresh;
+//    ColorBox1.Color := StringtoColor(dtmCadastroFluxoGramas.qryFluxoGramascorplanilhacusto.asstring);
+  end;  
+
+end;
+
+end.
+

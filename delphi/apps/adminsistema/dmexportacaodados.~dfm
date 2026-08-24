@@ -1,0 +1,650 @@
+inherited dtmExportacaoDados: TdtmExportacaoDados
+  OldCreateOrder = False
+  Left = 299
+  Top = 276
+  Height = 499
+  Width = 845
+  object qryExportacaoTabelas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeScroll = qryExportacaoTabelasBeforeScroll
+    AfterScroll = qryExportacaoTabelasAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select et.codigo,'
+      '          et.descricao,'
+      '          cast(et.sql as varchar(100000)) as sql,'
+      '         false as marcar '
+      'from exportacaotabelas et'
+      'where et.sql is not null'
+      'order by et.codigo')
+    RequestLive = True
+    Left = 56
+    Top = 80
+    object qryExportacaoTabelascodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryExportacaoTabelasdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 100
+    end
+    object qryExportacaoTabelasmarcar: TBooleanField
+      FieldName = 'marcar'
+    end
+    object qryExportacaoTabelassql: TStringField
+      FieldName = 'sql'
+      Size = 100000
+    end
+  end
+  object qryExportacao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryExportacaoAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select *'
+      'from exportacao'
+      'where codigo = :codigo')
+    RequestLive = True
+    Left = 56
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryExportacaocodigo: TIntegerField
+      AutoGenerateValue = arAutoInc
+      FieldName = 'codigo'
+    end
+    object qryExportacaodescricao: TStringField
+      FieldName = 'descricao'
+      Size = 100
+    end
+  end
+  object dsrExportacao: TtecDataSource
+    DataSet = qryExportacao
+    Left = 104
+    Top = 32
+  end
+  object qryExportacaoModelos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkFields = 'codigo=codigotabela'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrExportacaoTabelas
+    Constraints = <>
+    OnNewRecord = qryExportacaoModelosNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select em.*'
+      'from exportacaomodelos em'
+      'where em.codigoexportacao = :codigoexportacao')
+    RequestLive = True
+    Left = 56
+    Top = 152
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigoexportacao'
+        ParamType = ptUnknown
+      end>
+    object qryExportacaoModeloscodigoexportacao: TIntegerField
+      FieldName = 'codigoexportacao'
+      DisplayFormat = '0'
+    end
+    object qryExportacaoModeloscodigotabela: TIntegerField
+      FieldName = 'codigotabela'
+      DisplayFormat = '0'
+    end
+    object qryExportacaoModelosseparadorcampos: TStringField
+      FieldName = 'separadorcampos'
+      Size = 1
+    end
+    object qryExportacaoModelosnomearquivo: TStringField
+      FieldName = 'nomearquivo'
+      Size = 50
+    end
+    object qryExportacaoModelosseparadordecimal: TStringField
+      FieldName = 'separadordecimal'
+      Size = 1
+    end
+    object qryExportacaoModelosseparadormilhar: TStringField
+      FieldName = 'separadormilhar'
+      Size = 1
+    end
+  end
+  object dsrExportacaoModelos: TtecDataSource
+    DataSet = qryExportacaoModelos
+    Left = 88
+    Top = 168
+  end
+  object qryExportacaoProximo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select coalesce(max(codigo),0)+1 as codigo'
+      'from exportacao')
+    RequestLive = True
+    Left = 240
+    Top = 56
+    object qryExportacaoProximocodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+  end
+  object dsrExportacaoTabelas: TtecDataSource
+    DataSet = qryExportacaoTabelas
+    Left = 104
+    Top = 96
+  end
+  object qryExportacaoTabelasConsulta: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryExportacaoTabelasConsultaBeforeOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    RequestLive = False
+    Left = 480
+    Top = 272
+  end
+  object qryExportacaoTabelaCampos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cast(null as integer) as SEQUENCIA,'
+      '          cast(null as varchar(50)) as NOMECAMPO,'
+      '          cast(null as varchar(50)) as MASCARA,'
+      '          cast(null as varchar(1)) as DELIMITADOR,'
+      '          cast(null as varchar(10)) as TIPO,'
+      '          cast(null as integer) as TAMANHO,'
+      '          cast(null as integer) as DECIMAIS')
+    RequestLive = True
+    Left = 296
+    Top = 248
+    object qryExportacaoTabelaCamposdelimitador: TStringField
+      FieldName = 'delimitador'
+      Size = 1
+    end
+    object qryExportacaoTabelaCamposnomecampo: TStringField
+      FieldName = 'nomecampo'
+      Size = 50
+    end
+    object qryExportacaoTabelaCampossequencia: TIntegerField
+      FieldName = 'sequencia'
+    end
+    object qryExportacaoTabelaCamposmascara: TStringField
+      FieldName = 'mascara'
+      Size = 50
+    end
+    object qryExportacaoTabelaCampostipo: TStringField
+      FieldName = 'tipo'
+      Size = 10
+    end
+    object qryExportacaoTabelaCampostamanho: TIntegerField
+      FieldName = 'tamanho'
+    end
+    object qryExportacaoTabelaCamposdecimais: TIntegerField
+      FieldName = 'decimais'
+    end
+  end
+  object dsrExportacaoTabelaCampos: TtecDataSource
+    DataSet = qryExportacaoTabelaCampos
+    Left = 328
+    Top = 264
+  end
+  object qryExportacaoCampos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkFields = 'codigo=codigotabela'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrExportacaoTabelas
+    Constraints = <>
+    BeforeInsert = qryExportacaoCamposBeforeInsert
+    AfterPost = qryExportacaoCamposAfterPost
+    AfterDelete = qryExportacaoCamposAfterDelete
+    AfterScroll = qryExportacaoCamposAfterScroll
+    OnNewRecord = qryExportacaoCamposNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select ec.*'
+      'from exportacaocampos ec'
+      'where ec.codigoexportacao = :codigoexportacao'
+      'order by ec.sequencia')
+    RequestLive = True
+    Left = 56
+    Top = 216
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigoexportacao'
+        ParamType = ptUnknown
+      end>
+    object qryExportacaoCampossequencia: TIntegerField
+      DisplayLabel = 'Sequ'#234'ncia'
+      FieldName = 'sequencia'
+    end
+    object qryExportacaoCamposcodigoexportacao: TIntegerField
+      FieldName = 'codigoexportacao'
+      ReadOnly = True
+      DisplayFormat = '0'
+    end
+    object qryExportacaoCamposcodigotabela: TIntegerField
+      FieldName = 'codigotabela'
+      ReadOnly = True
+      DisplayFormat = '0'
+    end
+    object qryExportacaoCamposcampo: TStringField
+      FieldName = 'campo'
+      Size = 30
+    end
+    object qryExportacaoCamposmascara: TStringField
+      FieldName = 'mascara'
+      Size = 30
+    end
+    object qryExportacaoCamposdelimitador: TStringField
+      FieldName = 'delimitador'
+      Size = 1
+    end
+    object qryExportacaoCampostipo: TStringField
+      FieldName = 'tipo'
+      Size = 10
+    end
+    object qryExportacaoCampostamanho: TIntegerField
+      FieldName = 'tamanho'
+      DisplayFormat = '0'
+    end
+    object qryExportacaoCamposdecimais: TIntegerField
+      FieldName = 'decimais'
+      DisplayFormat = '0'
+    end
+    object qryExportacaoCamposcampocriado: TBooleanField
+      FieldName = 'campocriado'
+      ReadOnly = True
+    end
+    object qryExportacaoCamposvalorpadrao: TStringField
+      FieldName = 'valorpadrao'
+      Size = 100
+    end
+  end
+  object dsrExportacaoCampos: TtecDataSource
+    DataSet = qryExportacaoCampos
+    Left = 104
+    Top = 232
+  end
+  object qryExportacaoFiltros: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkFields = 'codigo=codigotabela'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrExportacaoTabelas
+    Constraints = <>
+    BeforeDelete = qryExportacaoFiltrosBeforeDelete
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select ef.*,'
+      
+        '      (select f.descricao from filtros f where f.codigo = ef.cod' +
+        'igofiltro) as descricao,'
+      
+        '      (select f.macro from filtros f where f.codigo = ef.codigof' +
+        'iltro) as macro,'
+      '     cast(null as varchar(5000)) as sqldescricao'
+      'from exportacaofiltros ef'
+      'Where ef.codigoexportacao = :codigoexportacao')
+    RequestLive = True
+    Left = 424
+    Top = 176
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigoexportacao'
+        ParamType = ptUnknown
+      end>
+    object qryExportacaoFiltroscodigoexportacao: TIntegerField
+      FieldName = 'codigoexportacao'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryExportacaoFiltroscodigotabela: TIntegerField
+      FieldName = 'codigotabela'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryExportacaoFiltroscodigofiltro: TIntegerField
+      FieldName = 'codigofiltro'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryExportacaoFiltrosdescricao: TStringField
+      DisplayLabel = 'SELECIONADO'
+      FieldName = 'descricao'
+      Size = 50
+    end
+    object qryExportacaoFiltrosmacro: TStringField
+      FieldName = 'macro'
+      Size = 50
+    end
+    object qryExportacaoFiltrossql: TStringField
+      FieldName = 'sql'
+      Size = 5000
+    end
+    object qryExportacaoFiltrossqldescricao: TStringField
+      FieldName = 'sqldescricao'
+      Size = 5000
+    end
+  end
+  object dsrExportacaoFiltros: TtecDataSource
+    DataSet = qryExportacaoFiltros
+    Left = 456
+    Top = 192
+  end
+  object qryFiltros: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnFilterRecord = qryFiltrosFilterRecord
+    Filter = 'exibir'
+    Filtered = True
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select f.*,'
+      '          true as exibir'
+      'from filtros f'
+      'order by f.codigo')
+    RequestLive = True
+    Left = 424
+    Top = 96
+    object qryFiltroscodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryFiltrosdescricao: TStringField
+      DisplayLabel = 'DESCRI'#199#195'O'
+      FieldName = 'descricao'
+      Size = 50
+    end
+    object qryFiltrosmacro: TStringField
+      FieldName = 'macro'
+      Size = 50
+    end
+    object qryFiltrosexibir: TBooleanField
+      FieldName = 'exibir'
+    end
+    object qryFiltrossqlpadrao: TStringField
+      FieldName = 'sqlpadrao'
+      Size = 5000
+    end
+  end
+  object dsrFiltros: TtecDataSource
+    DataSet = qryFiltros
+    Left = 456
+    Top = 112
+  end
+  object dsrExportacaoTabelasConsulta: TtecDataSource
+    DataSet = qryExportacaoTabelasConsulta
+    Left = 536
+    Top = 312
+  end
+  object qryExportacaoDados: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryExportacaoDadosBeforeOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    RequestLive = True
+    Left = 544
+    Top = 152
+  end
+  object dsrExportacaoDados: TtecDataSource
+    DataSet = qryExportacaoDados
+    Left = 576
+    Top = 200
+  end
+  object qrySeparadorCampos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cast('#39','#39' as varchar(1)) as separador union'
+      'select cast('#39';'#39' as varchar(1)) as separador union'
+      'select cast('#39'|'#39' as varchar(1)) as separador union'
+      'select cast('#39#39' as varchar(1)) as separador')
+    RequestLive = False
+    Left = 296
+    Top = 8
+    object qrySeparadorCamposseparador: TStringField
+      FieldName = 'separador'
+      Size = 1
+    end
+  end
+  object qrySeparadorDecimal: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cast('#39'.'#39' as char(1)) as separador union'
+      'select cast('#39','#39' as char(1)) as separador')
+    RequestLive = False
+    Left = 432
+    Top = 8
+    object qrySeparadorDecimalseparador: TStringField
+      FieldName = 'separador'
+      Size = 1
+    end
+  end
+  object qrySeparadorMilhar: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cast('#39','#39' as char(1)) as separador union'
+      'select cast('#39'.'#39' as char(1)) as separador')
+    RequestLive = False
+    Left = 560
+    Top = 8
+    object qrySeparadorMilharseparador: TStringField
+      FieldName = 'separador'
+      Size = 1
+    end
+  end
+  object dsrSeparadorCampos: TtecDataSource
+    DataSet = qrySeparadorCampos
+    Left = 328
+    Top = 24
+  end
+  object dsrSeparadorDecimal: TtecDataSource
+    DataSet = qrySeparadorDecimal
+    Left = 464
+    Top = 24
+  end
+  object dsrSeparadorMilhar: TtecDataSource
+    DataSet = qrySeparadorMilhar
+    Left = 592
+    Top = 24
+  end
+  object qryParametrosSelecao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkFields = 'codigo = chaveacesso_2'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrExportacaoTabelas
+    Constraints = <>
+    AfterPost = qryParametrosSelecaoAfterPost
+    OnCalcFields = qryParametrosSelecaoCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select *'
+      'from parametrosselecao'
+      'where formulario = :formulario'
+      '    and chaveacesso_1 = :exportacao')
+    RequestLive = True
+    Left = 240
+    Top = 192
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'formulario'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'exportacao'
+        ParamType = ptUnknown
+      end>
+    object qryParametrosSelecaoformulario: TStringField
+      FieldName = 'formulario'
+      Size = 30
+    end
+    object qryParametrosSelecaodata: TDateTimeField
+      FieldName = 'data'
+    end
+    object qryParametrosSelecaochaveacesso_1: TStringField
+      FieldName = 'chaveacesso_1'
+      Size = 30
+    end
+    object qryParametrosSelecaochaveacesso_2: TStringField
+      FieldName = 'chaveacesso_2'
+      Size = 30
+    end
+    object qryParametrosSelecaointervalodatasformaselecao: TIntegerField
+      FieldName = 'intervalodatasformaselecao'
+      DisplayFormat = '0'
+    end
+    object qryParametrosSelecaointervalodatasdatainicial: TDateField
+      Alignment = taCenter
+      FieldName = 'intervalodatasdatainicial'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryParametrosSelecaointervalodatasdatafinal: TDateField
+      Alignment = taCenter
+      FieldName = 'intervalodatasdatafinal'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryParametrosSelecaolistadefiliais: TStringField
+      FieldName = 'listadefiliais'
+      Size = 500
+    end
+    object qryParametrosSelecaolistadenaturezas: TStringField
+      FieldName = 'listadenaturezas'
+      Size = 512
+    end
+    object qryParametrosSelecaolistadeseries: TStringField
+      FieldName = 'listadeseries'
+      Size = 512
+    end
+    object qryParametrosSelecaolistadecodigosfiscais: TStringField
+      FieldName = 'listadecodigosfiscais'
+      Size = 512
+    end
+    object qryParametrosSelecaoextensao: TStringField
+      FieldKind = fkCalculated
+      FieldName = 'extensao'
+      Size = 50
+      Calculated = True
+    end
+    object qryParametrosSelecaogerararquivoporfilial: TBooleanField
+      FieldName = 'gerararquivoporfilial'
+    end
+    object qryParametrosSelecaolistadecontascontabeis: TStringField
+      FieldName = 'listadecontascontabeis'
+      Size = 2000
+    end
+  end
+  object dsrParametrosSelecao: TtecDataSource
+    DataSet = qryParametrosSelecao
+    Left = 272
+    Top = 208
+  end
+end

@@ -1,0 +1,360 @@
+unit cpcpfcnpj;
+
+interface
+
+uses
+  Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, Mask, DBCtrls, biblio, ctconstantes, Windows,
+  SysUtils, DB;
+
+  {
+const
+  MascaraPessoaFisica_   = '000\.000\.000\-00;0;_';
+  MascaraPessoaJuridica_ = '>AA\.AAA\.AAA\/AAAA-00;0;_';
+  }
+
+type
+  TDBEditCPFCNPJ = class(TDBEdit)
+  private
+    FTamanho: Word;
+    FTipo: String;
+    FOnChangeTipo: TNotifyEvent;
+    FPressionadoEscape: Boolean;
+    procedure SetTipo(const Value: String);
+    function LimparCPF(const ATexto: string): string;
+    function LimparCNPJ(const ATexto: string): string;
+    function ValorCaracterCNPJ(const AChar: Char): Integer;
+  protected
+    procedure DoChangeTipo; virtual;
+    procedure DoExit; override;
+    procedure Resize; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure Change; override;
+    procedure DoEnter; override;
+    property PressionadoEscape: Boolean read FPressionadoEscape write FPressionadoEscape;
+  public
+    constructor Create(AOwner: TComponent); override;
+    function Criticar(Mostrar: Boolean): Boolean;
+  published
+    property Tamanho: Word read FTamanho write FTamanho;
+    property Tipo: String read FTipo write SetTipo;
+    property OnChangeTipo: TNotifyEvent read FOnChangeTipo write FOnChangeTipo;
+  end;
+
+implementation
+
+function TDBEditCPFCNPJ.LimparCPF(const ATexto: string): string;
+var
+  I: Integer;
+begin
+  Result := '';
+  for I := 1 to Length(ATexto) do
+    if ATexto[I] in ['0'..'9'] then
+      Result := Result + ATexto[I];
+end;
+
+function TDBEditCPFCNPJ.LimparCNPJ(const ATexto: string): string;
+var
+  I: Integer;
+  C: Char;
+begin
+  Result := '';
+  for I := 1 to Length(ATexto) do
+  begin
+    C := UpCase(ATexto[I]);
+    if C in ['0'..'9', 'A'..'Z'] then
+      Result := Result + C;
+  end;
+end;
+
+function TDBEditCPFCNPJ.ValorCaracterCNPJ(const AChar: Char): Integer;
+begin
+  Result := Ord(UpCase(AChar)) - 48;
+end;
+
+procedure TDBEditCPFCNPJ.Change;
+begin
+  inherited;
+
+  if Assigned(Field) then
+    if Field.EditMask = '' then
+      if FTipo = 'F' then
+        Field.EditMask := MascaraPessoaFisica_
+      else if FTipo = 'J' then
+        Field.EditMask := MascaraPessoaJuridica_;
+end;
+
+constructor TDBEditCPFCNPJ.Create(AOwner: TComponent);
+begin
+  inherited;
+  FTipo := 'J';
+  MaxLength := 14;
+  Height := 23;
+end;
+
+function TDBEditCPFCNPJ.Criticar(Mostrar: Boolean): Boolean;
+
+  function CriticarCPF: Boolean;
+  var
+    Texto: array[1..11] of Byte;
+    Digito, ND: Byte;
+    CPF: string;
+  begin
+    Result := False;
+    CPF := LimparCPF(Text);
+
+    if Length(CPF) <> 11 then
+    begin
+      if Mostrar then
+        MensagemAviso('CPF Inválido !');
+      Exit;
+    end;
+
+    for ND := 1 to 11 do
+      Texto[ND] := StrToInt(CPF[ND]);
+
+    Digito := (10 * Texto[01] + 9 * Texto[02] + 8 * Texto[03] +
+                7 * Texto[04] + 6 * Texto[05] + 5 * Texto[06] +
+                4 * Texto[07] + 3 * Texto[08] + 2 * Texto[09]) mod 11;
+
+    if Digito in [0, 1] then
+      Digito := 0
+    else
+      Digito := 11 - Digito;
+
+    if Digito = Texto[10] then
+    begin
+      Digito := (11 * Texto[01] + 10 * Texto[02] + 9 * Texto[03] +
+                  8 * Texto[04] +  7 * Texto[05] + 6 * Texto[06] +
+                  5 * Texto[07] +  4 * Texto[08] + 3 * Texto[09] +
+                  2 * Texto[10]) mod 11;
+
+      if Digito in [0, 1] then
+        Digito := 0
+      else
+        Digito := 11 - Digito;
+
+      Result := Digito = Texto[11];
+    end;
+
+    if not Result and Mostrar then
+      MensagemAviso('CPF Inválido !');
+  end;
+
+  function CriticarCNPJ: Boolean;
+  const
+    Peso1: array[1..12] of Integer = (5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2);
+    Peso2: array[1..13] of Integer = (6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2);
+  var
+    CNPJ: string;
+    I, Soma, Resto, Digito1, Digito2: Integer;
+  begin
+    Result := False;
+    CNPJ := LimparCNPJ(Text);
+
+    if Length(CNPJ) <> 14 then
+    begin
+      if Mostrar then
+        MensagemAviso('CNPJ Inválido !');
+      Exit;
+    end;
+
+    if not (CNPJ[13] in ['0'..'9']) or
+       not (CNPJ[14] in ['0'..'9']) then
+    begin
+      if Mostrar then
+        MensagemAviso('CNPJ Inválido !');
+      Exit;
+    end;
+
+    Soma := 0;
+    for I := 1 to 12 do
+      Soma := Soma + ValorCaracterCNPJ(CNPJ[I]) * Peso1[I];
+
+    Resto := Soma mod 11;
+    if Resto in [0, 1] then
+      Digito1 := 0
+    else
+      Digito1 := 11 - Resto;
+
+    if Digito1 <> StrToInt(CNPJ[13]) then
+    begin
+      if Mostrar then
+        MensagemAviso('CNPJ Inválido !');
+      Exit;
+    end;
+
+    Soma := 0;
+    for I := 1 to 13 do
+      Soma := Soma + ValorCaracterCNPJ(CNPJ[I]) * Peso2[I];
+
+    Resto := Soma mod 11;
+    if Resto in [0, 1] then
+      Digito2 := 0
+    else
+      Digito2 := 11 - Resto;
+
+    if Digito2 <> StrToInt(CNPJ[14]) then
+    begin
+      if Mostrar then
+        MensagemAviso('CNPJ Inválido !');
+      Exit;
+    end;
+
+    Result := True;
+  end;
+
+begin
+  Result := True;
+
+  if Length(Trim(Text)) > 0 then
+  begin
+    if FTipo = 'J' then
+      Result := CriticarCNPJ
+    else if FTipo = 'F' then
+      Result := CriticarCPF;
+  end
+  else if Assigned(Field) and Field.Required then
+  begin
+    Result := False;
+
+    if Mostrar then
+      if FTipo = 'J' then
+        MensagemAviso('CNPJ Inválido !')
+      else if FTipo = 'F' then
+        MensagemAviso('CPF Inválido !');
+  end;
+end;
+
+procedure TDBEditCPFCNPJ.DoChangeTipo;
+begin
+  if Assigned(OnChangeTipo) then
+    OnChangeTipo(Self);
+end;
+
+procedure TDBEditCPFCNPJ.DoEnter;
+begin
+  inherited;
+
+  if Focused then
+    Color := CorFundoControle;
+
+  Tamanho := Byte(MaxLength);
+  SelStart := 0;
+end;
+
+procedure TDBEditCPFCNPJ.DoExit;
+begin
+  inherited;
+
+  Color := clWindow;
+
+  if not PressionadoEscape and
+     (Trim(Text) <> '') and
+     not Criticar(True) then
+    if CanFocus then
+      SetFocus;
+
+  PressionadoEscape := False;
+end;
+
+procedure TDBEditCPFCNPJ.KeyDown(var Key: Word; Shift: TShiftState);
+var
+  Ch: string;
+  Valor: string;
+begin
+  inherited KeyDown(Key, Shift);
+
+  if Key = VK_ESCAPE then
+  begin
+    PressionadoEscape := True;
+    Exit;
+  end;
+
+  if not (Key in [32..255]) then
+    Exit;
+
+  if (Tamanho > 0) and (Length(LimparCNPJ(Text)) - SelLength >= Tamanho) then
+  begin
+    Key := 0;
+    Beep;
+    Exit;
+  end;
+
+  Ch := GetCharFromVirtualKey(Key);
+
+  if Ch = '' then
+    Exit;
+
+  Ch[1] := UpCase(Ch[1]);
+
+  if FTipo = 'F' then
+  begin
+    if not (Ch[1] in ['0'..'9']) then
+    begin
+      Key := 0;
+      Beep;
+    end;
+  end
+  else if FTipo = 'J' then
+  begin
+    Valor := LimparCNPJ(Text);
+
+    if Length(Valor) < 12 then
+    begin
+      if not (Ch[1] in ['0'..'9', 'A'..'Z']) then
+      begin
+        Key := 0;
+        Beep;
+      end;
+    end
+    else
+    begin
+      if not (Ch[1] in ['0'..'9']) then
+      begin
+        Key := 0;
+        Beep;
+      end;
+    end;
+  end;
+end;
+
+procedure TDBEditCPFCNPJ.Resize;
+begin
+  if csDesigning in ComponentState then
+    Height := 23
+  else
+    inherited;
+end;
+
+procedure TDBEditCPFCNPJ.SetTipo(const Value: String);
+begin
+  if Assigned(DataSource) then
+    if Assigned(DataSource.DataSet.FieldByName(DataField)) then
+      if (FTipo <> Value) or
+         (DataSource.DataSet.FieldByName(DataField).EditMask = '') then
+      begin
+        FTipo := Value;
+
+        if FTipo = 'F' then
+        begin
+          MaxLength := 11;
+          Tamanho := 11;
+
+          if Field.EditMask <> MascaraPessoaFisica_ then
+            Field.EditMask := MascaraPessoaFisica_;
+        end
+        else if FTipo = 'J' then
+        begin
+          MaxLength := 14;
+          Tamanho := 14;
+
+          if Field.EditMask <> MascaraPessoaJuridica_ then
+            Field.EditMask := MascaraPessoaJuridica_;
+        end;
+
+        DoChangeTipo;
+      end;
+end;
+
+end.

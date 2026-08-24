@@ -687,7 +687,7 @@ begin
     edfTipoAtendimento.ReadOnly := false;
     edfCodigoCliente.ReadOnly := false;
     sbnCliente.Enabled := true;
-    dtmCadastroAtendimentos.IncluirAtendimentos(Value);
+    dtmCadastroAtendimentos.IncluirAtendimentosValues(Value);
     edfCodigo.SetControl(true);
 
     if not dtmcadastroatendimentos.qryatendimentos.isempty then
@@ -720,7 +720,7 @@ begin
     else
     begin
     }
-      dtmCadastroAtendimentos.IncluirAtendimentos(Value);
+      dtmCadastroAtendimentos.IncluirAtendimentosValues(Value);
 
       if dtmCadastroAtendimentos.qryAtendimentostipoatendimento.asinteger <> 0 then
       begin
@@ -737,7 +737,7 @@ begin
   else
   if (value[0] = 'IncluirFollowupRomaneio') then
   begin
-      dtmCadastroAtendimentos.IncluirAtendimentos(Value);
+      dtmCadastroAtendimentos.IncluirAtendimentosValues(Value);
       mmoEditarInformes.Text := Value[6];
 
       if self.formstyle=fsMDIChild then
@@ -766,7 +766,7 @@ begin
     else
     begin
     }
-      dtmCadastroAtendimentos.IncluirAtendimentos(Value);
+      dtmCadastroAtendimentos.IncluirAtendimentosValues(Value);
 
       if dtmCadastroAtendimentos.qryAtendimentostipoatendimento.asinteger <> 0 then
         mmoEditarInformes.setfocus
@@ -786,7 +786,7 @@ begin
     edfTipoAtendimento.ReadOnly := true;
     edfCodigoCliente.ReadOnly := true;
     sbnCliente.Enabled := false;
-    dtmCadastroAtendimentos.IncluirAtendimentos(Value);
+    dtmCadastroAtendimentos.IncluirAtendimentosValues(Value);
 
 //    if edttpLembrar.dbedit.CanFocus then
     if edttpLembrar.CanFocus then

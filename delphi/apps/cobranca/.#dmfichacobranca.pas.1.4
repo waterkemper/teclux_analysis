@@ -1,0 +1,708 @@
+unit dmfichacobranca;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery, cpdatasource,
+  biblio,ctConstantes, FR_DSet, FR_DBSet, FR_Class, dmtecsoft,
+  clparametrossistema, CheckLst,
+  fmpreviewpadrao, dmimprimefichacobranca, ZTransact;
+
+type
+  TdtmFichaCobranca = class(TdtmBasico)
+    qryFilial: TtecQuery;
+    qryFilialcodigo: TIntegerField;
+    qryFilialnome: TStringField;
+    dsrFilial: TtecDataSource;
+    qryGrupoFiliais: TtecQuery;
+    qryGrupoFiliaiscodigo: TIntegerField;
+    qryGrupoFiliaisdescricao: TStringField;
+    dsrGrupoFiliais: TtecDataSource;
+    qryRegiao: TtecQuery;
+    qryRegiaocodigo: TStringField;
+    qryRegiaonome: TStringField;
+    dsrRegiao: TtecDataSource;
+    qryCobrador: TtecQuery;
+    qryCobradorcodigo: TIntegerField;
+    qryCobradornome: TStringField;
+    dsrCobrador: TtecDataSource;
+    qryAgentes: TtecQuery;
+    qryAgentescodigo: TIntegerField;
+    qryAgentesdescricao: TStringField;
+    qryConceitos: TtecQuery;
+    qryConceitoscodigo: TIntegerField;
+    qryConceitosdescricao: TStringField;
+    qryConsultaFilial: TtecQuery;
+    qryConsultaFilialnome: TStringField;
+    qryConsultaFilialcodigo: TIntegerField;
+    qryConsultaGrupoFiliais: TtecQuery;
+    qryConsultaGrupoFiliaisdescricao: TStringField;
+    qryConsultaGrupoFiliaiscodigo: TIntegerField;
+    qryConsultaRegiao: TtecQuery;
+    qryConsultaRegiaonome: TStringField;
+    qryConsultaRegiaocodigo: TStringField;
+    qryConsultaCobrador: TtecQuery;
+    qryConsultaCobradornome: TStringField;
+    qryConsultaCobradorcodigo: TIntegerField;
+    qryContratosFichaCobranca: TtecQuery;
+    dsrContratosFichaCobranca: TtecDataSource;
+    qryUsuariosContratos: TtecQuery;
+    dsrCobradorContrato: TtecDataSource;
+    qryCobradorContrato: TtecQuery;
+    qryCobradorContratocodigo: TIntegerField;
+    qryCobradorContratonome: TStringField;
+    qryUsuariosContratoscontrato: TStringField;
+    qryUsuariosContratosusuario: TIntegerField;
+    qryUsuariosContratosdata: TDateField;
+    qryCobrancaExiste: TtecQuery;
+    qryCobrancaExistecontrato: TStringField;
+    qryContratosFichaCobrancanumero: TStringField;
+    qryContratosFichaCobrancadata: TDateField;
+    qryContratosFichaCobrancafilialvenda: TIntegerField;
+    qryContratosFichaCobrancaestado: TStringField;
+    qryContratosFichaCobrancacidade: TIntegerField;
+    qryContratosFichaCobrancabairro: TIntegerField;
+    qryContratosFichaCobrancacliente: TIntegerField;
+    qryContratosFichaCobrancatipocliente: TStringField;
+    qryContratosFichaCobrancanome: TStringField;
+    qryContratosFichaCobrancacidaderesidencia: TStringField;
+    qryContratosFichaCobrancabairroresidencia: TStringField;
+    qryContratosFichaCobrancatotalaberto: TFloatField;
+    qryContratosFichaCobrancaatraso: TDateField;
+    qryContratosFichaCobrancaselecionar: TBooleanField;
+    procedure qryContratosFichaCobrancaAfterInsert(DataSet: TDataSet);
+  private
+    Fordenacao: Integer;
+    FListaAgentes: TStringList;
+    FListaConceitos: TStringList;
+    function GetListaAgentes: Tstrings;
+    function GetListaConceitos: Tstrings;
+    procedure SetAgentes(const Value: String);
+    procedure SetConceitos(const Value: String);
+  protected
+    FichaCobranca: TdtmImprimeFichaCobranca;
+    FTotalValores: Real;
+    FTotalRegistro: Integer;
+    FTotalValoresMarcados: Real;
+    FNumeroRegistroMarcado: Integer;
+    FDataVenctoInicial: String;
+    FDataVenctoFinal: String;
+    function GetTotalValores: Real;
+    function GetTotalRegistro: Integer;
+    function GetTotalValoresMarcados: Real;
+    function GetNumeroRegistroMarcado: Integer;
+    function GetConsultarFilial: TTecQuery;
+    function GetConsultarGrupoFilial: TTecQuery;
+    function GetConsultarRegiao: TTecQuery;
+    function GetConsultarCobrador: TTecQuery;
+    function GetDescricaoAgente: String;
+    function GetDescricaoConceito: String;
+    function GetTabelaAgente: TtecQuery;
+    function GetTabelaConceito: TtecQuery;
+
+    procedure SetOrdenacao(const Value: Integer);
+    procedure SetAtraso(const Value: Boolean);
+    procedure SetOcorrenciasCobranca(const Value: Boolean);
+    procedure SetPrimeiraCompra(const Value: Boolean);
+    procedure SetFilial(const Value: string);
+    procedure SetGrupoFilial(const Value: string);
+    procedure SetRegiao(const Value: string);
+    procedure SetCobrador(const Value: string);
+    procedure SetContratosSemCobrador(const Value: Boolean);
+    procedure SetDataVenctoFinal(const Value: String);
+    procedure SetDataVenctoInicial(const Value: String);
+  public
+    procedure ImprimirFichasCobranca;
+    procedure SelecionarContratoParaImpressao(Todos: Boolean);
+    procedure FecharTabelaContrato;
+    function  AbrirTabelaContrato: Boolean;
+    function  MontaDataVencimento(Whereorand:String): String;
+    procedure MontaDataVenda(Data: String);
+    procedure Selecionar(TipoPesquisa: TtecFichaCobranca);
+    procedure AbreTabelaConsulta(TipoPesquisa: TtecFichaCobranca);
+    procedure FechaTabelaConsulta(TipoPesquisa: TtecFichaCobranca);
+    function  ExisteFilial(Campo, Codigo: string): Boolean;
+    function  ExisteGrupoFiliais(Campo, Codigo: string): Boolean;
+    function  ExisteRegiao(Campo, Codigo: string): Boolean;
+    function  ExisteCobrador(Campo, Codigo: string): Boolean;
+
+    constructor Create(AOwner: TComponent); Override;
+
+    property DescricaoAgente: String read GetDescricaoAgente;
+    property DescricaoConceito: String read GetDescricaoConceito;
+    property TabelaAgente: TtecQuery read GetTabelaAgente;
+    property TabelaConceito: TtecQuery read GetTabelaConceito;
+    property ConsultarFilial: TTecQuery read GetConsultarFilial;
+    property ConsultarGrupoFilial: TTecQuery read GetConsultarGrupoFilial;
+    property ConsultarRegiao: TTecQuery read GetConsultarRegiao;
+    property ConsultarCobrador: TTecQuery read GetConsultarCobrador;
+    property Filial: string write SetFilial;
+    property GrupoFilial: string write SetGrupoFilial;
+    property Cobrador: string write SetCobrador;
+    property Regiao: string write SetRegiao;
+    property ListaAgentes: Tstrings read GetListaAgentes;
+    property ListaConceitos: Tstrings read GetListaConceitos;
+    property DataVenctoInicial: String read FDataVenctoInicial write SetDataVenctoInicial;
+    property DataVenctoFinal  : String read FDataVenctoFinal   write SetDataVenctoFinal;
+    property Atraso: Boolean write SetAtraso;
+    property OcorrenciasCobranca: Boolean write SetOcorrenciasCobranca;
+    property PrimeiraCompra: Boolean write SetPrimeiraCompra;
+    property Ordenacao: Integer read Fordenacao write SetOrdenacao;
+    property NumeroRegistroMarcado: Integer read GetNumeroRegistroMarcado write FNumeroRegistroMarcado;
+    property TotalValoresMarcados : Real read GetTotalValoresMarcados write FTotalValoresMarcados;
+    property TotalRegistro: Integer read GetTotalRegistro write FTotalRegistro;
+    property TotalValores: Real read GetTotalValores write FTotalValores;
+    property ContratosSemCobrador: Boolean write SetContratosSemCobrador;
+    procedure MontarFiltroAgentes(Usar: TCheckListBox);
+    procedure MontarFiltroConceitos(Usar: TCheckListBox);
+    property Agentes: String write SetAgentes;
+    property Conceitos: String write SetConceitos;
+  end;
+
+//var
+//  dtmFichaCobranca: TdtmFichaCobranca;
+
+const
+
+  FC_WhereBase            = 27;
+  FC_Data                 = FC_WhereBase + 1;
+  FC_Filial               = FC_WhereBase + 4;
+  FC_GrupoFilial          = FC_WhereBase + 5;
+  FC_Agente               = FC_WhereBase + 6;
+  FC_Conceito             = FC_WhereBase + 7;
+  FC_Regiao               = FC_WhereBase + 8;
+  FC_Cobrador             = FC_WhereBase + 9;
+  FC_ContratosSemCobrador = FC_WhereBase + 10;
+  FC_Atraso               = FC_WhereBase + 11;
+  FC_PrimeiraCompra       = FC_WhereBase + 12;
+  FC_OcorrenciaCobranca   = FC_WhereBase + 13;
+  FC_Ordenacao            = 42;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmFichaCobranca }
+
+procedure TdtmFichaCobranca.AbreTabelaConsulta(TipoPesquisa: TtecFichaCobranca);
+begin
+  case TipoPesquisa of
+    fcFILIAIS             : Abre(ctConsultaFiliais);
+    fcGRUPOSFILIAIS       : Abre(ctConsultaGruposFiliais);
+    fcREGIOES             : Abre(ctConsultaRegioes);
+    fcCOBRADORES,
+    fcCOBRADORESCONTRATOS : Abre(ctConsultaCobradores);
+  end;
+end;
+
+constructor TdtmFichaCobranca.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryFilial.Tag              := ctConsultaTabelas;
+  qryGrupoFiliais.Tag        := ctConsultaTabelas;
+  qryRegiao.Tag              := ctConsultaTabelas;
+  qryCobrador.Tag            := ctConsultaTabelas;
+  qryAgentes.Tag             := ctConsultaTabelas;
+  qryConceitos.Tag           := ctConsultaTabelas;
+  qryCobradorContrato.Tag    := ctConsultaTabelas;
+
+  qryConsultaFilial.Tag      := ctConsultaFiliais;
+  qryConsultaRegiao.Tag      := ctConsultaRegioes;
+  qryConsultaCobrador.Tag    := ctConsultaCobradores;
+  qryConsultaGrupoFiliais.Tag:= ctConsultaGruposFiliais;
+
+  FNumeroRegistroMarcado := 0;
+  FTotalValoresMarcados  := 0;
+  FTotalRegistro         := 0;
+  FTotalValores          := 0;
+end;
+
+function TdtmFichaCobranca.ExisteFilial(Campo, Codigo: string): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaFilial,Campo,Codigo);
+end;
+
+function TdtmFichaCobranca.ExisteGrupoFiliais(Campo,
+  Codigo: string): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaGrupoFiliais,Campo,Codigo);
+end;
+
+function TdtmFichaCobranca.ExisteRegiao(Campo, Codigo: string): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaRegiao,Campo,Codigo);
+end;
+
+function TdtmFichaCobranca.ExisteCobrador(Campo, Codigo: string): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaCobrador,Campo,Codigo);
+end;
+
+procedure TdtmFichaCobranca.FechaTabelaConsulta(TipoPesquisa: TtecFichaCobranca);
+begin
+  case TipoPesquisa of
+    fcFILIAIS             : Fecha(ctConsultaFiliais);
+    fcGRUPOSFILIAIS       : Fecha(ctConsultaGruposFiliais);
+    fcREGIOES             : Fecha(ctConsultaRegioes);
+    fcCOBRADORES,
+    fcCOBRADORESCONTRATOS : Fecha(ctConsultaCobradores);
+  end;
+end;
+
+function TdtmFichaCobranca.GetConsultarFilial: TTecQuery;
+begin
+  Result:= qryConsultaFilial;
+end;
+
+function TdtmFichaCobranca.GetConsultarGrupoFilial: TTecQuery;
+begin
+  Result:= qryConsultaGrupoFiliais;
+end;
+
+function TdtmFichaCobranca.GetConsultarRegiao: TTecQuery;
+begin
+  Result:= qryConsultaRegiao;
+end;
+
+function TdtmFichaCobranca.GetConsultarCobrador: TTecQuery;
+begin
+  Result:= qryConsultaCobrador;
+end;
+
+function TdtmFichaCobranca.GetDescricaoAgente: String;
+begin
+  Result:= qryAgentesdescricao.AsString;
+end;
+
+function TdtmFichaCobranca.GetDescricaoConceito: String;
+begin
+  Result:= qryConceitosdescricao.AsString;
+end;
+
+function TdtmFichaCobranca.GetTabelaAgente: TtecQuery;
+begin
+  Result:= qryAgentes;
+end;
+
+function TdtmFichaCobranca.GetTabelaConceito: TtecQuery;
+begin
+  Result:= qryConceitos;
+end;
+
+procedure TdtmFichaCobranca.Selecionar(TipoPesquisa: TtecFichaCobranca);
+begin
+  case TipoPesquisa of
+    fcFILIAIS             : RefazConsulta(qryFilial,           [0],[qryConsultaFilialcodigo.AsInteger]);
+    fcGRUPOSFILIAIS       : RefazConsulta(qryGrupoFiliais,     [0],[qryConsultaGrupoFiliaiscodigo.AsInteger]);
+    fcREGIOES             : RefazConsulta(qryRegiao,           [0],[qryConsultaRegiaocodigo.AsString]);
+    fcCOBRADORES          : RefazConsulta(qryCobrador,         [0],[qryConsultaCobradorcodigo.AsInteger]);
+    fcCOBRADORESCONTRATOS : RefazConsulta(qryCobradorContrato, [0],[qryConsultaCobradorcodigo.AsInteger]);
+  end;
+end;
+
+procedure TdtmFichaCobranca.SetFilial(const Value: string);
+begin
+  if (Value <> '') then
+       qryContratosFichaCobranca.MacroByName('Filial').AsString := 'and (ct.filialvenda = ' + Value + ')'
+  else qryContratosFichaCobranca.MacroByName('Filial').AsString := '';
+end;
+
+procedure TdtmFichaCobranca.SetGrupoFilial(const Value: string);
+begin
+  if (Value <> '') then
+    qryContratosFichaCobranca.MacroByName('GrupoFilial').AsString := 'and (ct.filialvenda in (Select filial From filiaisgruposfiliais Where grupo = ' + Value + '))'
+  else qryContratosFichaCobranca.MacroByName('GrupoFilial').AsString := '';
+end;
+
+procedure TdtmFichaCobranca.SetRegiao(const Value: string);
+begin
+  if (Value <> '') then
+       qryContratosFichaCobranca.MacroByName('Regiao').AsString := 'and (vf.bairro in (Select codigo ' +
+                                                                    'From  bairros '  +
+                                                                    'Where regiao = ''' + Value + '''))'
+  else qryContratosFichaCobranca.MacroByName('Regiao').AsString := '';
+end;
+
+procedure TdtmFichaCobranca.SetCobrador(const Value: string);
+begin
+  if (Value <> '') then
+       qryContratosFichaCobranca.MacroByName('Cobrador').AsString:='and exists (Select uc.contrato '       +
+                                                                    'From usuarioscontratos uc '             +
+                                                                    'Where (uc.contrato = ct.numero)    and ' +
+                                                                    '      (uc.usuario= ' + Value + ') and ' +
+                                                                    '      (uc.retorno is null))'
+  else qryContratosFichaCobranca.MacroByName('Cobrador').AsString := '';
+end;
+
+procedure TdtmFichaCobranca.MontaDataVenda(Data: String);
+const
+SQL = 'and (ct.faturamento >= ''%s'')';
+begin
+  if not DataEmBranco(Data) then
+    qryContratosFichaCobranca.MacroByName('Faturamento').AsString  :=  format(SQL,[Data])
+  else qryContratosFichaCobranca.MacroByName('Faturamento').AsString  := '';
+end;
+
+function TdtmFichaCobranca.MontaDataVencimento(Whereorand: String): String;
+Var
+  Data_1, Data_2: String;
+begin
+
+  Data_1 := Whereorand+' ((p.datavencto = ''%s'') and p.datapagto is null)';
+
+  Data_2 := Whereorand+' ((p.datavencto between (''%s'') and (''%s'')) and p.datapagto is null)';
+
+  if not DataEmBranco(FDataVenctoInicial) then begin
+
+    if DataEmBranco(FDataVenctoFinal) then
+
+         Result:= Format(Data_1, [FDataVenctoInicial])
+
+    else Result:= format(Data_2, [FDataVenctoInicial,FDataVenctoFinal]);
+
+  end
+
+  else begin
+
+    if not DataEmBranco(FDataVenctoFinal) then
+
+         Result:= Format(Data_1, [FDataVenctoFinal])
+
+    else Result:= '';
+
+  end;
+
+end;
+
+
+procedure TdtmFichaCobranca.SetAtraso(const Value: Boolean);
+const
+  Atraso = 'and (clientes_primeiroatraso(ct.cliente, ct.tipocliente) >= p.atraso)';
+begin
+  if Value then
+     qryContratosFichaCobranca.MacroByName('PrimeiroAtraso').AsString := Atraso
+  else
+     qryContratosFichaCobranca.MacroByName('PrimeiroAtraso').AsString := '';
+end;
+
+procedure TdtmFichaCobranca.SetOcorrenciasCobranca(const Value: Boolean);
+begin
+  if Value then
+    qryContratosFichaCobranca.MacroByName('Atendimentos').AsString:='and not (atendimentos_cobrancasemaviso(cliente,tipocliente))'
+  else qryContratosFichaCobranca.MacroByName('Atendimentos').AsString:= '';
+end;
+
+procedure TdtmFichaCobranca.SetPrimeiraCompra(const Value: Boolean);
+begin
+  if Value then
+       qryContratosFichaCobranca.MacroByName('PrimeiraCompra').asstring:=
+                                     'and ((Select count(t1.numero) '+
+                                     '      From contratos t1 '+
+                                     '      Where (t1.cliente = ct.cliente) and '         +
+                                     '            (t1.tipocliente = ct.tipocliente) and ' +
+                                     '            (ct.situacao in (''F'',''N'',''P''))    and ' +
+                                     '            (ct.origem is null)) = 1)'
+  else qryContratosFichaCobranca.MacroByName('PrimeiraCompra').asstring := '';
+end;
+
+procedure TdtmFichaCobranca.SetOrdenacao(const Value: Integer);
+begin
+  with qryContratosFichaCobranca do
+  case Value of
+    0: MacroByName('Ordenacao').AsString:= 'ORDER BY UPPER(TO_ASCII(CidadeResidencia,''LATIN1'')), ' +
+                                                    'UPPER(TO_ASCII(BairroResidencia,''LATIN1''))';
+    1: MacroByName('Ordenacao').AsString:= 'ORDER BY TotalAberto';
+    2: MacroByName('Ordenacao').AsString:= 'ORDER BY UPPER(TO_ASCII(Nome,''LATIN1''))';
+    3: MacroByName('Ordenacao').AsString:= 'ORDER BY Cliente, TipoCliente';
+  end;
+end;
+
+function TdtmFichaCobranca.AbrirTabelaContrato: Boolean;
+begin
+  qryContratosFichaCobranca.MacroByName('Vencimento').asstring:= MontaDataVencimento('Where');
+  qryContratosFichaCobranca.close;
+  qryContratosFichaCobranca.Open;
+  Result:= qryContratosFichaCobranca.IsEmpty;
+end;
+
+procedure TdtmFichaCobranca.FecharTabelaContrato;
+begin
+  if qryContratosFichaCobranca.Active then begin
+    qryContratosFichaCobranca.Active:= False;
+    FTotalRegistro:= 0;
+  end;
+end;
+
+procedure TdtmFichaCobranca.SelecionarContratoParaImpressao(Todos: Boolean);
+var
+  Pos: TBookmark;
+  I  : Integer;
+
+  procedure IncrementaValores;
+  begin
+    if qryContratosFichaCobrancaselecionar.AsBoolean then begin
+      FNumeroRegistroMarcado:= FNumeroRegistroMarcado + 1;
+      FTotalValoresMarcados := FTotalValoresMarcados + qryContratosFichaCobrancatotalaberto.AsCurrency;
+    end
+    else begin
+      FNumeroRegistroMarcado:= FNumeroRegistroMarcado - 1;
+      FTotalValoresMarcados := FTotalValoresMarcados - qryContratosFichaCobrancatotalaberto.AsCurrency;
+    end;
+  end;
+
+begin
+  if (qryContratosFichaCobranca.RecordCount > 0) then begin
+    if not Todos then begin
+      qryContratosFichaCobranca.Edit;
+      qryContratosFichaCobrancaselecionar.AsBoolean:= not qryContratosFichaCobrancaselecionar.AsBoolean;
+      qryContratosFichaCobranca.Post;
+      IncrementaValores;
+    end
+    else begin
+      with qryContratosFichaCobranca do begin
+        Pos:= GetBookmark;
+        try
+          DisableControls;
+          First;
+          for I:= 1 to RecordCount do begin
+            Edit;
+            qryContratosFichaCobrancaselecionar.AsBoolean:= not qryContratosFichaCobrancaselecionar.AsBoolean;
+            Post;
+            IncrementaValores;
+            Next;
+          end;
+        finally
+          GotoBookmark(Pos);
+          FreeBookmark(Pos);
+          EnableControls;
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TdtmFichaCobranca.qryContratosFichaCobrancaAfterInsert(DataSet: TDataSet);
+begin
+  inherited;
+  qryContratosFichaCobranca.Cancel;
+end;
+
+procedure TdtmFichaCobranca.ImprimirFichasCobranca;
+var
+  Pos          : TBookmark;
+  ListaContrato: String;
+begin
+  ListaContrato:= '';
+  qryContratosFichaCobranca.DisableControls;
+  Pos:= qryContratosFichaCobranca.GetBookmark;
+  qryContratosFichaCobranca.First;
+  try
+    while not qryContratosFichaCobranca.Eof do begin
+      if qryContratosFichaCobrancaselecionar.AsBoolean then
+        ListaContrato:= ListaContrato + QuotedStr(qryContratosFichaCobrancanumero.AsString) + ',';
+      qryContratosFichaCobranca.Next;
+    end;
+  finally
+    qryContratosFichaCobranca.GotoBookmark(Pos);
+    qryContratosFichaCobranca.FreeBookmark(Pos);
+    qryContratosFichaCobranca.EnableControls;
+  end;
+  Delete(ListaContrato,Length(ListaContrato),1);
+
+  FichaCobranca := TdtmImprimeFichaCobranca.Create(Self);
+  try
+    FichaCobranca.ImprimirFichaFinanceira(ListaContrato,
+    qryContratosFichaCobranca.macrobyname('Ordenacao').AsString,
+    MontaDataVencimento('and'));
+  finally
+    FichaCobranca.Free;
+    FichaCobranca := nil;
+  end;
+
+  if qryUsuariosContratos.State = dsInactive then
+    qryUsuariosContratos.Active:= True;
+
+  qryCobrancaExiste.Sql[03]:= '(contrato in (' + ListaContrato + '))';
+  qryCobrancaExiste.Open;
+
+  qryContratosFichaCobranca.DisableControls;
+  Pos:= qryContratosFichaCobranca.GetBookmark;
+  qryContratosFichaCobranca.First;
+  try
+    while not qryContratosFichaCobranca.Eof do begin
+      if qryContratosFichaCobrancaselecionar.AsBoolean then begin
+         if not qryCobrancaExiste.Locate('contrato', qryContratosFichaCobrancanumero.AsString,[]) then begin
+           qryUsuariosContratos.Insert;
+           qryUsuariosContratoscontrato.AsString := qryContratosFichaCobrancanumero.AsString;
+           qryUsuariosContratosusuario.AsInteger := qryCobradorContratocodigo.AsInteger;
+           qryUsuariosContratosdata.AsDateTime   := DataServidor;
+           qryUsuariosContratos.Post;
+         end;
+      end;
+      qryContratosFichaCobranca.Next;
+    end;
+  finally
+    qryContratosFichaCobranca.GotoBookmark(Pos);
+    qryContratosFichaCobranca.FreeBookmark(Pos);
+    qryContratosFichaCobranca.EnableControls;
+
+    Perpetrar([qryUsuariosContratos]);
+    qryUsuariosContratos.Close;
+  end;
+end;
+
+function TdtmFichaCobranca.GetNumeroRegistroMarcado: Integer;
+begin
+  Result := FNumeroRegistroMarcado;
+end;
+
+function TdtmFichaCobranca.GetTotalValoresMarcados: Real;
+begin
+  Result := FTotalValoresMarcados;
+end;
+
+function TdtmFichaCobranca.GetTotalRegistro: Integer;
+begin
+  Result := qryContratosFichaCobranca.RecordCount;
+end;
+
+function TdtmFichaCobranca.GetTotalValores: Real;
+var
+  Pos   : TBookmark;
+  I     : Integer;
+  Total : Real;
+begin
+  Total:= 0;
+  with qryContratosFichaCobranca do begin
+    Pos:= GetBookmark;
+    try
+      DisableControls;
+      First;
+      for I:= 1 to RecordCount do begin
+        Total:= Total + qryContratosFichaCobrancatotalaberto.Value;
+        Next;
+      end;
+    finally
+      GotoBookmark(Pos);
+      FreeBookmark(Pos);
+      EnableControls;
+    end;
+  end;
+  Result := Total;
+end;
+
+procedure TdtmFichaCobranca.SetContratosSemCobrador(const Value: Boolean);
+begin
+  if value then
+       qryContratosFichaCobranca.MacroByName('ContratoSemCobrador').AsString :=
+                                    'and ((Select count(uc.contrato) '   +
+                                          'From   usuarioscontratos uc ' +
+                                          'Where  (uc.contrato = ct.numero) ' +
+                                          'and    (uc.retorno is null)) = 0)'
+  else qryContratosFichaCobranca.MacroByName('ContratoSemCobrador').AsString :='';
+end;
+
+procedure TdtmFichaCobranca.SetDataVenctoFinal(const Value: String);
+begin
+  if not DataEmBranco(Value) then
+     FDataVenctoFinal := Value
+  else
+     FDataVenctoFinal := '';
+end;
+
+
+procedure TdtmFichaCobranca.SetDataVenctoInicial(const Value: String);
+begin
+  if not DataEmBranco(Value) then
+       FDataVenctoInicial := Value
+  else FDataVenctoInicial := '';
+
+end;
+
+
+
+function TdtmFichaCobranca.GetListaAgentes: Tstrings;
+begin
+  FListaAgentes:= TStringList.Create;
+  qryAgentes.open;
+  qryAgentes.First;
+  while not qryAgentes.Eof do
+  begin
+    FListaAgentes.AddObject(format('%3s',[qryAgentescodigo.AsString])+'.'+
+    qryAgentesdescricao.AsString, Pointer(qryAgentescodigo.AsInteger));
+    qryAgentes.Next;
+  end;
+  qryAgentes.close;
+  Result := FListaAgentes;
+end;
+
+function TdtmFichaCobranca.GetListaConceitos: Tstrings;
+begin
+  FListaConceitos:= TStringList.Create;
+  qryConceitos.open;
+  qryConceitos.First;
+  while not qryConceitos.Eof do
+  begin
+    FListaConceitos.AddObject(format('%3s',[qryConceitosCodigo.AsString])+'.'+
+    qryConceitosDescricao.AsString, Pointer(qryConceitoscodigo.AsInteger));
+    qryConceitos.Next;
+  end;
+  qryConceitos.close;
+  Result := FListaConceitos;
+end;
+
+procedure TdtmFichaCobranca.MontarFiltroAgentes(Usar: TCheckListBox);
+var
+  STRAgentes: String;
+  TodosAgentes: Boolean;
+  cnt: Integer;
+begin
+  TodosAgentes := True;
+  STRAgentes := '';
+  for cnt := 0 to FListaAgentes.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRAgentes := STRAgentes + '''' + IntToStr(Integer(FListaAgentes.Objects[cnt])) + ''','
+    else
+      TodosAgentes := False;
+
+  STRAgentes := Copy(STRAgentes, 0, Length(STrAgentes) - 1);
+  if not TodosAgentes then
+    Agentes:=STRAgentes;
+end;
+
+
+procedure TdtmFichaCobranca.MontarFiltroConceitos(Usar: TCheckListBox);
+var
+  STRConceitos: String;
+  TodosConceitos : Boolean;
+  cnt: Integer;
+begin
+  TodosConceitos := True;
+  STRConceitos := '';
+  for cnt := 0 to FListaConceitos.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRConceitos := STRConceitos + '''' + IntToStr(Integer(FListaConceitos.Objects[cnt])) + ''','
+    else
+      TodosConceitos:=false;
+  STRConceitos := Copy(STRConceitos, 0, Length(STRConceitos) - 1);
+  if not todosconceitos then
+    Conceitos := STRConceitos ;
+end;
+
+procedure TdtmFichaCobranca.SetAgentes(const Value: String);
+begin
+  if (Value <> '') then
+       qryContratosFichaCobranca.macrobyname('Agentes').asstring := 'and (ct.agente in (' + Value + '))'
+  else qryContratosFichaCobranca.macrobyname('Agentes').asstring := '';
+end;
+
+procedure TdtmFichaCobranca.SetConceitos(const Value: String);
+begin
+  if (Value <> '') then
+       qryContratosFichaCobranca.macrobyname('Conceito').asstring := 'and (ct.conceito in (' + Value + '))'
+  else qryContratosFichaCobranca.macrobyname('Conceito').asstring:= '';
+end;
+
+
+end.

@@ -5,7 +5,7 @@ inherited frmTrocaSenha: TfrmTrocaSenha
   Caption = 'Trocar senha do usu'#225'rio'
   ClientHeight = 161
   ClientWidth = 293
-  Position = poDesktopCenter
+  Position = poScreenCenter
   PixelsPerInch = 96
   TextHeight = 16
   object pnlFundoJanela: TPanel

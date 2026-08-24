@@ -1,0 +1,779 @@
+unit dmconsultaorcamentos;
+
+interface
+
+uses
+  SysUtils, Classes, DB, Forms,
+  // Constantes
+  ctconstantes, biblio,
+  // Componentes
+  cpquery, cpdatasource,
+  // Terceiros
+  ZQuery, ZPgSqlQuery,
+  // Repositorio
+  dmimprimeorcamento, dmbasico, dmtecsoft, ZTransact,
+  clparametrossistema, clusuario;
+
+type
+  TdtmConsultaOrcamentos = class(TdtmBasico)
+    qryOrcamentos: TtecQuery;
+    dsrOrcamentos: TtecDataSource;
+    qryOrcamentosnome: TStringField;
+    qryOrcamentosvalidade: TDateField;
+    qryOrcamentosselecionar: TBooleanField;
+    qryOrcamentoscodigo: TIntegerField;
+    qryOrcamentossituacao: TStringField;
+    qryOrcamentoscliente: TIntegerField;
+    qryOrcamentosvendedor: TIntegerField;
+    qryConsultaMotivos: TtecQuery;
+    qryConsultaMotivosdescricao: TStringField;
+    qryConsultaMotivoscodigo: TIntegerField;
+    qryOperacoesOrcamentos: TtecQuery;
+    qryOrcamentostotalprodutos: TFloatField;
+    qryOrcamentoscontrato: TStringField;
+    qryOrcamentostipocliente: TStringField;
+    qryOrcamentoscancelamento: TDateField;
+    qryOrcamentosnatendimentos: TLargeintField;
+    qryOrcamentoslembrardatahora: TDateTimeField;
+    qryOrcamentosassunto: TStringField;
+    qryOrcamentosdata: TDateField;
+    qryOrcamentosvalorprazo: TFloatField;
+    qryProdutosOrcamentos: TtecQuery;
+    dsrProdutosOrcamentos: TtecDataSource;
+    qryProdutosOrcamentosorcamento: TIntegerField;
+    qryProdutosOrcamentosproduto: TLargeintField;
+    qryProdutosOrcamentosprodutodigitado: TStringField;
+    qryProdutosOrcamentosfilial: TIntegerField;
+    qryProdutosOrcamentosnumero: TIntegerField;
+    qryProdutosOrcamentosquantidade: TFloatField;
+    qryProdutosOrcamentosprecovenda: TFloatField;
+    qryProdutosOrcamentosprecotabela: TFloatField;
+    qryProdutosOrcamentostotal: TFloatField;
+    qryProdutosOrcamentosdescricaoprecovenda: TStringField;
+    qryProdutosOrcamentosvendido: TFloatField;
+    qryProdutosOrcamentosmontagem: TStringField;
+    qryProdutosOrcamentosentrega: TStringField;
+    qryProdutosOrcamentosprevisao: TDateField;
+    qryProdutosOrcamentosdescricao: TStringField;
+    qryProdutosOrcamentosemestoque: TFloatField;
+    qryProdutosOrcamentosreservado: TFloatField;
+    qryProdutosOrcamentospromocao: TBooleanField;
+    qryProdutosOrcamentosvendedor: TIntegerField;
+    qryProdutosOrcamentosvalordescontoitem: TFloatField;
+    qryProdutosOrcamentoscodigobarras: TStringField;
+    qryProdutosOrcamentosprodutovisual: TStringField;
+    qryProdutosOrcamentosvalorgrade1: TStringField;
+    qryProdutosOrcamentosvalorgrade2: TStringField;
+    qryProdutosOrcamentoslinha: TStringField;
+    qryProdutosOrcamentoscoluna: TStringField;
+    qryProdutosOrcamentosunidade: TStringField;
+    qryProdutosOrcamentosbrinde: TBooleanField;
+    qryProdutosOrcamentosvendasemestoque: TStringField;
+    qryProdutosOrcamentoscomposto: TBooleanField;
+    qryProdutosOrcamentosmontagemoriginal: TBooleanField;
+    qryProdutosOrcamentosfuturo: TFloatField;
+    qryProdutosOrcamentossituacao_produto: TStringField;
+    qryProdutosOrcamentosdescricaolc: TStringField;
+    qryOrcamentosnome_vendedor: TStringField;
+    qryOrcamentossituacao_contrato: TStringField;
+    qryOrcamentosmotivocancelamento: TIntegerField;
+    qryOrcamentosdescricaomotivocancelamento: TStringField;
+    qryOrcamentosfilial: TIntegerField;
+    qryOrcamentosProdutos: TtecQuery;
+    StringField1: TStringField;
+    IntegerField1: TIntegerField;
+    DateField1: TDateField;
+    DateField2: TDateField;
+    BooleanField1: TBooleanField;
+    IntegerField2: TIntegerField;
+    StringField2: TStringField;
+    IntegerField3: TIntegerField;
+    IntegerField4: TIntegerField;
+    FloatField1: TFloatField;
+    StringField3: TStringField;
+    StringField4: TStringField;
+    DateField3: TDateField;
+    LargeintField1: TLargeintField;
+    DateTimeField1: TDateTimeField;
+    StringField5: TStringField;
+    DateField4: TDateField;
+    FloatField2: TFloatField;
+    StringField6: TStringField;
+    StringField7: TStringField;
+    IntegerField5: TIntegerField;
+    StringField8: TStringField;
+    dsrOrcamentosProdutos: TtecDataSource;
+    dsrDetalheProdutosOrcamentos: TtecDataSource;
+    qryDetalheProdutosOrcamentos: TtecQuery;
+    qryDetalheProdutosOrcamentosgrupo: TStringField;
+    qryDetalheProdutosOrcamentosdescricaogrupo: TStringField;
+    qryOrcamentosdescricaocancelamento: TStringField;
+    qryOrcamentosemissao: TDateTimeField;
+    procedure qryOrcamentosAfterScroll(DataSet: TDataSet);
+    procedure qryProdutosOrcamentosBeforeOpen(DataSet: TDataSet);
+    procedure qryProdutosOrcamentosCalcFields(DataSet: TDataSet);
+    procedure qryProdutosOrcamentosAfterScroll(DataSet: TDataSet);
+  private
+    fListaClasses: String;
+    fListaMarcas: String;
+    fListaGrupos: String;
+    FListaItemProdutos: String;
+    FListaProdutos: String;
+    FDataContatoInicial: String;
+    FDataContatoFinal: String;
+    FDataLembraremInicial: String;
+    FDataLembraremFinal: String;
+    fValorTotalOrcamentoInicial: String;
+    fValorTotalOrcamentoFinal: STring;
+    fListaCondicionalPromocoes: String;
+    function GetPodeCancelar: Boolean;
+    procedure SetListaClasses(const Value: String);
+    procedure SetListaGrupos(const Value: String);
+    procedure SetListaItemProdutos(const Value: String);
+    procedure SetListaMarcas(const Value: String);
+    procedure SetListaProdutos(const Value: String);
+    procedure SetMarcadosparanaoligar(const Value: Byte);
+    procedure SetQtAtendimentos(const Value: String);
+    procedure SetDataContatoFinal(const Value: String);
+    procedure SetDataContatoInicial(const Value: String);
+
+    procedure SetDataLembraremFinal(const Value: String);
+    procedure SetDataLembraremInicial(const Value: String);
+
+    procedure SetValorTotalOrcamentoFinal(const Value: String);
+    procedure SetValorTotalOrcamentoInicial(const Value: String);
+    procedure SetListaCondicionalPromocoes(const Value: String);
+  protected
+    FEmissaoInicial: String;
+    FValidadeInicial: String;
+    FValidadeFinal: String;
+    FEmissaoFinal: String;
+    FContem: String;
+
+    function GetConsultarMotivos: TtecQuery;
+    function GetQtdeContratos: Integer;
+    function GetTotalContratos: Real;
+
+    procedure SetCliente(const Value: String);
+    procedure SetOrdenacao(const Value: Integer);
+    procedure SetProduto(const Value: String);
+    procedure SetPlano(const Value: String);
+    procedure SetFilial(const Value: String);
+    procedure SetSituacao(const Value: Integer);
+    procedure SetVendedor(const Value: String);
+    procedure SetEmissaoInicial(const Value: String);
+    procedure SetEmissaoFinal(const Value: String);
+    procedure SetValidadeFinal(const Value: String);
+    procedure SetValidadeInicial(const Value: String);
+    procedure SetContem(const Value: String);
+  public
+    VisualizandoProdutos : Boolean;
+    procedure AbreTabelaConsulta(TipoConsulta: TtecConsultaOrcamentos);
+    function  AbrirConsultaOrcamento: Boolean;
+    function CancelarOrcamentos(Cancelar: Boolean): boolean;
+    constructor Create(AOwner: TComponent); Override;
+
+    procedure FecharConsultaOrcamentos;
+    procedure FechaTabelaConsulta(TipoConsulta: TtecConsultaOrcamentos);
+    procedure ImprimirOrcamento;
+    procedure MarcarSelecionados(Marcando, Todos: Boolean);
+
+    property  ConsultarMotivos: TtecQuery read GetConsultarMotivos;
+    property  Filial: String write SetFilial;
+    property  Vendedor: String write SetVendedor;
+    property  Situacao: Integer write SetSituacao;
+    property  Ordenacao: Integer write SetOrdenacao;
+    property  Cliente: String write SetCliente;
+    property  Produto: String write SetProduto;
+    property  Plano: String write SetPlano;
+    property  EmissaoInicial: String read FEmissaoInicial write SetEmissaoInicial;
+    property  EmissaoFinal: String read FEmissaoFinal write SetEmissaoFinal;
+
+    property  ValidadeInicial: String read FValidadeInicial write SetValidadeInicial;
+    property  ValidadeFinal: String read FValidadeFinal write SetValidadeFinal;
+    property  Contem: String read FContem write SetContem;
+    property  QtdeContratos: Integer read GetQtdeContratos;
+    property  TotalContratos: Real read GetTotalContratos;
+    property  PodeCancelar: Boolean read GetPodeCancelar;
+
+    property ListaItemProdutos: String read FListaItemProdutos write SetListaItemProdutos;
+    property ListaProdutos: String read FListaProdutos write SetListaProdutos;
+    property ListaGrupos: String read fListaGrupos write SetListaGrupos;
+    property ListaClasses: String read fListaClasses write SetListaClasses;
+    property ListaMarcas: String read fListaMarcas write SetListaMarcas;
+    property ListaCondicionalPromocoes: String read fListaCondicionalPromocoes write SetListaCondicionalPromocoes;
+    property Marcadosparanaoligar: Byte write SetMarcadosparanaoligar;
+    property QtAtendimentos: String write SetQtAtendimentos;
+
+    property  DataContatoInicial: String read FDataContatoInicial write SetDataContatoInicial;
+    property  DataContatoFinal: String read FDataContatoFinal write SetDataContatoFinal;
+
+    property  DataLembraremInicial: String read FDataLembraremInicial write SetDataLembraremInicial;
+    property  DataLembraremFinal: String read FDataLembraremFinal write SetDataLembraremFinal;
+
+    property ValorTotalOrcamentoInicial: String read fValorTotalOrcamentoInicial write SetValorTotalOrcamentoInicial;
+    property ValorTotalOrcamentoFinal: String read fValorTotalOrcamentoFinal write SetValorTotalOrcamentoFinal;
+
+//    procedure AbrirProdutos;
+
+
+  end;
+
+const
+  WhereBase = 12;
+  WhereSituacao  = WhereBase + 1;
+  WhereFilial    = WhereBase + 2;
+  WhereVendedor  = WhereBase + 3;
+  WhereCliente   = WhereBase + 4;
+  WhereContem    = WhereBase + 5;
+  WherePlano     = WhereBase + 6;
+  WhereProduto   = WhereBase + 7;
+  WhereEmissao   = WhereBase + 8;
+  WhereValidade  = WhereBase + 9;
+  WhereOrdenacao = WhereBase + 10;
+
+implementation
+
+{$R *.dfm}
+
+procedure TdtmConsultaOrcamentos.AbreTabelaConsulta(TipoConsulta: TtecConsultaOrcamentos);
+begin
+  case TipoConsulta of
+    ccoPLANOS    : Abre(ctTabelasConsultaPlanos);
+  end;
+end;
+
+function TdtmConsultaOrcamentos.AbrirConsultaOrcamento: Boolean;
+var
+  vListaOrcamento : String;
+
+begin
+  QtdeMarcados := 0;
+  TotalMarcados:= 0;
+  if qryOrcamentos.Active then
+    qryOrcamentos.Close;
+  qryOrcamentos.Open;
+
+  vListaOrcamento := RetornarLista(qryOrcamentos, qryorcamentoscodigo, nil, true);
+
+  if vlistaorcamento='' then
+    vListaOrcamento := '0';
+
+  qryProdutosOrcamentos.MacroByName('Listaorcamentos').asString := vlistaorcamento;
+  qryProdutosOrcamentos.close;
+  qryProdutosOrcamentos.open;
+
+  Result:= qryOrcamentos.IsEmpty;
+
+
+end;
+
+function TdtmConsultaOrcamentos.CancelarOrcamentos(Cancelar: Boolean): boolean;
+var
+  Codigos, SQL: String;
+  vQt : integer;
+
+  UsrAut: TtecUsuarios;
+
+begin
+  result := true;
+  if Cancelar and qryConsultaMotivoscodigo.IsNull then
+    MensagemAviso(ctORCAMENTO_MOTIVO)
+  else
+  begin
+    vQt := 0;
+    Codigos := '';
+
+    qryOrcamentos.First;
+    while not qryOrcamentos.Eof do
+    begin
+      if qryOrcamentosselecionar.AsBoolean and (qryOrcamentossituacao.AsString = 'A') then
+      begin
+        Codigos:= Codigos + qryOrcamentoscodigo.AsString + ',';
+        inc(vQt);
+      end;
+      qryOrcamentos.Next;
+    end;
+
+
+    if vQt > 1 then
+    begin
+//      O cancelamento de mais de um orçamento requer a confirmação de um gerente de vendas.
+      UsrAut := ObterAutorizacao(taLOGIN,'O Cancelamento de mais de um orçamento requer a autorização', 'Gerente de Vendas',  '');
+
+      if not assigned(UsrAut) or not usrAut.gerentevendas then
+      begin
+        mensagemaviso('Usuário não possui autorização de ''Gerente de Vendas''');
+        Result := False;
+      end;
+    end;
+
+    if result then
+    begin
+
+      qryOrcamentos.First;
+      while not qryOrcamentos.Eof do
+      begin
+        if qryOrcamentosselecionar.AsBoolean and ((qryOrcamentossituacao.AsString = 'A') {or
+                                                  (qryOrcamentossituacao.AsString = 'P')}) then
+        begin
+          Codigos:= Codigos + qryOrcamentoscodigo.AsString + ',';
+
+          if Cancelar then
+          begin
+            if IncluirAtendimento_(qryOrcamentoscodigo.AsInteger, qryOrcamentoscliente.AsInteger, qryOrcamentostipocliente.AsString, CancelamentoOrcamentoConsulta, TextoCancelamento) then
+            begin
+              qryOperacoesOrcamentos.Sql.Clear;
+              SQL:= 'UPDATE Orcamentos SET situacao = ''C'', cancelamento = ''' +
+                    formatdatetime('yyyy-mm-dd', dataServidor) + ''', motivo = ' + qryConsultaMotivoscodigo.AsString +
+                    ' , descricaocancelamento = ''' +textocancelamento + '''' +
+                    ' WHERE codigo = ' + qryOrcamentoscodigo.AsString;
+
+              qryOperacoesOrcamentos.Sql.Text:= SQL;
+              qryOperacoesOrcamentos.ExecSql;
+
+              result := Perpetrar([qryOperacoesOrcamentos]);
+
+              qryOrcamentos.Edit;
+              qryOrcamentoscancelamento.AsDateTime:= DataServidor;
+              qryOrcamentosmotivocancelamento.AsInteger       := qryConsultaMotivoscodigo.AsInteger;
+              qryOrcamentossituacao.AsString      := 'C';
+              qryOrcamentos.Post;
+
+              result := Perpetrar([qryOperacoesOrcamentos]);
+              if not result then
+                Rollback([]);
+              EncerrarDataModule2_;
+            end;
+          end;
+        end;
+        qryOrcamentos.Next;
+      end;
+
+
+      if (Codigos <> '') and not cancelar then
+      begin
+        Delete(Codigos,Length(Codigos),1);
+
+        qryOperacoesOrcamentos.Sql.Clear;
+        {
+        if Cancelar then
+          SQL:= 'UPDATE orcamentos SET cancelamento = ' + QuotedStr(DateToStr(DataServidor)) + ', ' +
+                                      'situacao = ' + QuotedStr('C') + ', ' +
+                                      'motivo = ' + qryConsultaMotivoscodigo.AsString +
+                ' WHERE (codigo in (' + Codigos + '))'
+        else
+        }
+          SQL:= 'DELETE FROM orcamentos WHERE (codigo in (' + Codigos + '))';
+
+        qryOperacoesOrcamentos.Sql.Text:= SQL;
+        qryOperacoesOrcamentos.ExecSql;
+        result := Perpetrar([qryOperacoesOrcamentos]);
+      end;
+      AbrirConsultaOrcamento;
+
+    end;
+
+  end;
+end;
+
+constructor TdtmConsultaOrcamentos.Create(AOwner: TComponent);
+begin
+  inherited;
+  VisualizandoProdutos := ParSistema.VisualizarSituacaoProdutos;
+  qryConsultaMotivos.Tag    := ctTabelasConsultaMotivos;
+
+end;
+
+procedure TdtmConsultaOrcamentos.FecharConsultaOrcamentos;
+begin
+  qryOrcamentos.Close;
+  QtdeMarcados := 0;
+  TotalMarcados:= 0;
+end;
+
+procedure TdtmConsultaOrcamentos.FechaTabelaConsulta(TipoConsulta: TtecConsultaOrcamentos);
+begin
+  case TipoConsulta of
+    ccoFILIAIS   : Fecha(ctTabelasConsultaFiliais);
+    ccoVENDEDORES: Fecha(ctTabelasConsultaVendedores);
+    ccoCLIENTES  : Fecha(ctTabelasConsultaClientes);
+    ccoPRODUTOS  : Fecha(ctTabelasConsultaProdutos);
+    ccoPLANOS    : Fecha(ctTabelasConsultaPlanos);
+  end;
+end;
+
+function TdtmConsultaOrcamentos.GetConsultarMotivos: TtecQuery;
+begin
+  Result:= qryConsultaMotivos;
+end;
+
+function TdtmConsultaOrcamentos.GetQtdeContratos: Integer;
+begin
+  Result:= qryOrcamentos.RecordCount;
+end;
+
+function TdtmConsultaOrcamentos.GetTotalContratos: Real;
+begin
+  Result:= TotalizarValores[qryOrcamentos, qryOrcamentostotalprodutos, nil];
+end;
+
+procedure TdtmConsultaOrcamentos.MarcarSelecionados(Marcando, Todos: Boolean);
+begin
+  MarcarRegistros(qryOrcamentos,
+                  qryOrcamentosselecionar,
+                  qryOrcamentostotalprodutos,
+                  Marcando,
+                  Todos);
+end;
+
+procedure TdtmConsultaOrcamentos.SetCliente(const Value: String);
+begin
+  if Value <> '' then qryOrcamentos.MacroByName('Cliente').asString := 'and (o.cliente = ' + Value + ')'
+  else                qryOrcamentos.MacroByName('Cliente').asString := '';
+end;
+
+procedure TdtmConsultaOrcamentos.SetContem(const Value: String);
+begin
+  if FContem <> Value then qryOrcamentos.MacroByName('Contem').asString := 'and (upper(to_ascii(o.nome,''latin1'')) ilike upper(to_ascii(' + QuotedStr('%' + ansiuppercase(Value) + '%') + ',''latin1''))'
+  else                     qryOrcamentos.MacroByName('Contem').asString := '';
+end;
+
+procedure TdtmConsultaOrcamentos.SetEmissaoFinal(const Value: String);
+begin
+  FEmissaoFinal := Value;
+  qryOrcamentos.MacroByName('Emissao').asString  := MontarIntervaloData('cast(o.emissao as date)',FEmissaoInicial,FEmissaoFinal);
+end;
+
+procedure TdtmConsultaOrcamentos.SetEmissaoInicial(const Value: String);
+begin
+  FEmissaoInicial := Value;
+  qryOrcamentos.MacroByName('Emissao').asString := MontarIntervaloData('cast(o.emissao as date)',FEmissaoInicial,FEmissaoFinal);
+end;
+
+procedure TdtmConsultaOrcamentos.SetFilial(const Value: String);
+begin
+  if Value <> '' then qryOrcamentos.MacroByName('Filial').asString := 'and (o.filial = ' + Value + ')'
+  else                qryOrcamentos.MacroByName('Filial').asString := ''
+end;
+
+procedure TdtmConsultaOrcamentos.SetOrdenacao(const Value: Integer);
+begin
+  Case Value of
+    0: qryOrcamentos.MacroByName('Ordenacao').asString := 'Order by upper(to_ascii(o.nome,''latin1'')), o.emissao';
+    1: qryOrcamentos.MacroByName('Ordenacao').asString := 'Order By o.emissao, upper(to_ascii(o.nome,''latin1''))';
+    2: qryOrcamentos.MacroByName('Ordenacao').asString := 'Order By o.validade, upper(to_ascii(o.nome,''latin1''))';
+  end;
+end;
+
+procedure TdtmConsultaOrcamentos.SetPlano(const Value: String);
+begin
+  if Value <> '' then qryOrcamentos.MacroByName('Plano').asString := 'and ((Select count(*) ' +
+                                                               'From planosorcamentos po ' +
+                                                               'Where (po.orcamento = o.codigo) and ' +
+                                                                     '(po.plano = ' + Value + ')) > 0)'
+  else                qryOrcamentos.MacroByName('Plano').asString := ''
+end;
+
+procedure TdtmConsultaOrcamentos.SetProduto(const Value: String);
+begin
+  if Value <> '' then qryOrcamentos.MacroByName('Produto').asString := 'and ((Select count(*) ' +
+                                                               'From produtosorcamentos po ' +
+                                                               'Where (po.orcamento = o.codigo) and ' +
+                                                                     '(po.produto = ' + Value + ')) > 0)'
+  else                qryOrcamentos.MacroByName('Produto').asString := ''
+end;
+
+procedure TdtmConsultaOrcamentos.SetSituacao(const Value: Integer);
+begin
+  Case Value of
+    0: qryOrcamentos.MacroByName('Situacao').asString := 'Where (o.situacao = ''A'')';
+    1: qryOrcamentos.MacroByName('Situacao').asString := 'Where (o.situacao = ''C'')';
+    2: qryOrcamentos.MacroByName('Situacao').asString := 'Where (o.situacao = ''T'')';
+//  3: qryOrcamentos.MacroByName('Situacao').asString := 'Where (o.situacao = ''P'')';
+    3: qryOrcamentos.MacroByName('Situacao').asString := 'Where (o.situacao <> ''X'')'; //Quanquer situacao
+  end;
+end;
+
+procedure TdtmConsultaOrcamentos.SetValidadeFinal(const Value: String);
+begin
+  FValidadeFinal:= Value;
+  qryOrcamentos.MacroByName('Validade').asString := MontarIntervaloData('o.validade',FValidadeInicial,FValidadeFinal);
+end;
+
+procedure TdtmConsultaOrcamentos.SetValidadeInicial(const Value: String);
+begin
+  FValidadeInicial:= Value;
+  qryOrcamentos.MacroByName('Validade').asString := MontarIntervaloData('o.validade',FValidadeInicial,FValidadeFinal);
+end;
+
+procedure TdtmConsultaOrcamentos.SetVendedor(const Value: String);
+begin
+  if Value <> '' then qryOrcamentos.MacroByName('Vendedor').asString := 'and (o.vendedor = ' + Value + ')'
+  else                qryOrcamentos.MacroByName('Vendedor').asString := '';
+end;
+
+procedure TdtmConsultaOrcamentos.ImprimirOrcamento;
+var
+  dtmImprimir: TdtmImprimeOrcamento;
+  Contratos: String;
+begin
+  Contratos:= '';
+  qryOrcamentos.First;
+  while not qryOrcamentos.Eof do begin
+    if qryOrcamentosselecionar.AsBoolean then
+      Contratos:= Contratos + qryOrcamentoscodigo.AsString + ',';
+    qryOrcamentos.Next;
+  end;
+  Delete(Contratos,Length(Contratos),1);
+
+  if Contratos <> '' then begin
+    dtmImprimir := TdtmImprimeOrcamento.Create(Self);
+    try
+      dtmImprimir.ImprimirOrcamento(Contratos);
+    finally
+      dtmImprimir.Free;
+//      dtmImprimir := nil;
+    end;
+  end;
+end;
+
+function TdtmConsultaOrcamentos.GetPodeCancelar: Boolean;
+begin
+  Result:= (qryOrcamentossituacao.AsString = 'A');
+end;
+
+
+procedure TdtmConsultaOrcamentos.SetListaClasses(const Value: String);
+begin
+  fListaClasses := Value;
+  if Value <> '' then
+    qryOrcamentos.macrobyname('ListaClasses').asString := ' and (' + FListaClasses + ')'
+  else
+    qryOrcamentos.macrobyname('ListaClasses').asString := '';
+end;
+
+procedure TdtmConsultaOrcamentos.SetListaGrupos(const Value: String);
+begin
+  fListaGrupos := Value;
+  if Value <> '' then
+    qryOrcamentos.macrobyname('ListaGrupos').asString := ' and (' + FListaGrupos + ')'
+  else
+    qryOrcamentos.macrobyname('ListaGrupos').asString := '';
+end;
+
+procedure TdtmConsultaOrcamentos.SetListaItemProdutos(const Value: String);
+begin
+  FListaItemProdutos := Value;
+  if Value <> '' then
+    qryOrcamentos.macrobyname('ListaItemProdutos').asString := ' and (' + FListaItemProdutos +')'
+  else
+    qryOrcamentos.macrobyname('ListaItemProdutos').asString := '';
+end;
+
+procedure TdtmConsultaOrcamentos.SetListaMarcas(const Value: String);
+begin
+  fListaMarcas := Value;
+  if Value <> '' then
+    qryOrcamentos.macrobyname('ListaMarcas').asString := ' and (' + FListaMarcas +')'
+  else
+    qryOrcamentos.macrobyname('ListaMarcas').asString := '';
+end;
+
+procedure TdtmConsultaOrcamentos.SetListaProdutos(const Value: String);
+begin
+  FListaProdutos := Value;
+  if Value <> '' then
+    qryOrcamentos.macrobyname('ListaProdutos').asString := ' and (' + FListaProdutos +')'
+  else
+    qryOrcamentos.macrobyname('ListaProdutos').asString := '';
+end;
+
+procedure TdtmConsultaOrcamentos.SetMarcadosparanaoligar(
+  const Value: Byte);
+const
+  Marcadosparanaoligar = 'and coalesce((Select c.naoligar From clientes c ' +
+                                'Where (c.codigo = o.cliente) and '     +
+                                '      (o.tipocliente = ''C'')),false)';
+
+  NaoMarcadosparanaoligar = 'and coalesce((Select not c.naoligar From clientes c ' +
+                                'Where (c.codigo = o.cliente) and '     +
+                                '      (o.tipocliente = ''C'')),true)';
+                                
+begin
+  case value of
+  0 : qryOrcamentos.MacrobyName('Marcadosparanaoligar').asstring := Marcadosparanaoligar;
+  1 : qryOrcamentos.MacrobyName('Marcadosparanaoligar').asstring := NaoMarcadosparanaoligar;
+  2 : qryOrcamentos.MacrobyName('Marcadosparanaoligar').asstring := '';
+  end;
+end;
+
+procedure TdtmConsultaOrcamentos.SetQtAtendimentos(const Value: String);
+const
+  QtAtendimentos = ' and (select count(*) from atendimentos a where a.orcamento = o.codigo) ';
+  
+begin
+  if Value <> '0' then
+    qryOrcamentos.MacrobyName('QtAtendimentos').asstring := QtAtendimentos + Value
+  else
+    qryOrcamentos.MacrobyName('QtAtendimentos').asstring := '';
+end;
+
+procedure TdtmConsultaOrcamentos.SetDataContatoFinal(const Value: String);
+begin
+  FDataContatoFinal := Value;
+  if (FDataContatoInicial <> '') or (FDataContatoFinal <> '') then
+    qryOrcamentos.MacroByName('DataContato').asString := ' and exists (select a.codigo from atendimentos a where a.orcamento = o.codigo  ' + MontarIntervaloData('a.data',FDataContatoInicial, FDataContatoFinal) + ')'
+  else
+    qryOrcamentos.MacroByName('DataContato').asString := '';
+end;
+
+procedure TdtmConsultaOrcamentos.SetDataContatoInicial(
+  const Value: String);
+begin
+  FDataContatoInicial := Value;
+  if (FDataContatoInicial <> '') or (FDataContatoFinal <> '') then
+    qryOrcamentos.MacroByName('DataContato').asString := ' and exists (select a.codigo from atendimentos a where a.orcamento = o.codigo ' + MontarIntervaloData('a.data',FDataContatoInicial, FDataContatoFinal) + ')'
+  else
+    qryOrcamentos.MacroByName('DataContato').asString := '';
+end;
+
+procedure TdtmConsultaOrcamentos.qryOrcamentosAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  (*
+  if VisualizandoProdutos then
+//    if not qryOrcamentos.controlsdisabled then
+       AbrirProdutos;
+       *)
+end;
+
+procedure TdtmConsultaOrcamentos.qryProdutosOrcamentosBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryProdutosOrcamentos.parambyname('VisualizarSituacaoProdutos').asBoolean := ParSistema.VisualizarSituacaoProdutos;
+end;
+
+procedure TdtmConsultaOrcamentos.qryProdutosOrcamentosCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryProdutosOrcamentosdescricaolc.asString := qryProdutosOrcamentosdescricao.asString + ' ' +
+                                               qryProdutosOrcamentosvalorgrade1.asString + ' '+
+                                               qryProdutosOrcamentosvalorgrade2.asString;
+end;
+
+{
+procedure TdtmConsultaOrcamentos.AbrirProdutos;
+begin
+  refazConsultaporNome(qryProdutosOrcamentos,['orcamento'],[qryOrcamentoscodigo.asInteger]);
+end;
+}
+
+procedure TdtmConsultaOrcamentos.SetDataLembraremFinal(
+  const Value: String);
+begin
+  FDataLembraremFinal := Value;
+//  FDataLembraremInicial := Value;
+
+{
+		 /*
+          case when a.origem is null then
+            COALESCE(  (select min(a2.lembrar)
+                 			  from atendimentos a2
+                        where coalesce(a2.origem,a2.codigo) = coalesce(a.origem,a.codigo)
+                  			 and a2.lembrar >= current_date),
+
+                			 (select max(a2.lembrar)
+			                  from atendimentos a2
+                 			 where coalesce(a2.origem,a2.codigo) = coalesce(a.origem,a.codigo)
+                			 and a2.lembrar < current_date)
+                      )
+          else
+            a.lembrar
+          end as lembrar,
+		  */
+		  
+		  /* considerar a data do lembrar em do follow-up com codigo maior - requisito 239 */
+		  
+		  (select a2.lembrar
+           from atendimentos a2
+           where coalesce(a2.origem,a2.codigo) = coalesce(a.origem,a.codigo)
+           order by a2.codigo desc limit 1) as lembrar,
+
+}
+
+  if (FDataLembraremInicial <> '') or (FDataLembraremFinal <> '') then
+//    qryOrcamentos.MacroByName('Lembrarem').asString := MontarIntervaloData('(select max(a.lembrar) from atendimentos a where a.orcamento = o.codigo)',FDataLembraremInicial, FDataLembraremFinal)
+    qryOrcamentos.MacroByName('Lembrarem').asString :=
+                MontarIntervaloData('(select a.lembrar '+
+                                    ' from atendimentos a '+
+                                    ' where a.orcamento = o.codigo '+
+                                    ' order by a.codigo desc limit 1)',
+                                    FDataLembraremInicial, FDataLembraremFinal)
+
+  else
+    qryOrcamentos.MacroByName('Lembrarem').asString := '';
+
+end;
+
+procedure TdtmConsultaOrcamentos.SetDataLembraremInicial(
+  const Value: String);
+begin
+  FDataLembraremInicial := Value;
+  if (FDataLembraremInicial <> '') or (FDataLembraremFinal <> '') then
+//    qryOrcamentos.MacroByName('Lembrarem').asString := MontarIntervaloData('(select max(a.lembrar) from atendimentos a where a.orcamento = o.codigo)',FDataLembraremInicial, FDataLembraremFinal)
+    qryOrcamentos.MacroByName('Lembrarem').asString :=  
+                MontarIntervaloData('(select a.lembrar '+
+                                    ' from atendimentos a '+
+                                    ' where a.orcamento = o.codigo '+
+                                    ' order by a.codigo desc limit 1)',
+                                    FDataLembraremInicial, FDataLembraremFinal)
+
+  else
+    qryOrcamentos.MacroByName('Lembrarem').asString := '';
+end;
+
+procedure TdtmConsultaOrcamentos.SetValorTotalOrcamentoFinal(
+  const Value: String);
+begin
+  fValorTotalOrcamentoFinal := Value;
+  if (fValorTotalOrcamentoInicial <> '') or (fValorTotalOrcamentoFinal <> '') then
+    qryOrcamentos.MacroByName('IntervaloValorTotal').asString := MontarIntervaloValor('o.valortotal',fValorTotalOrcamentoInicial, fValorTotalOrcamentoFinal)
+  else
+    qryOrcamentos.MacroByName('IntervaloValorTotal').asString := '';
+end;
+
+procedure TdtmConsultaOrcamentos.SetValorTotalOrcamentoInicial(
+  const Value: String);
+begin
+  fValorTotalOrcamentoInicial := Value;
+  if (fValorTotalOrcamentoInicial <> '') or (fValorTotalOrcamentoFinal <> '') then
+    qryOrcamentos.MacroByName('IntervaloValorTotal').asString := MontarIntervaloValor('o.valortotal',fValorTotalOrcamentoInicial, fValorTotalOrcamentoFinal)
+  else
+    qryOrcamentos.MacroByName('IntervaloValorTotal').asString := '';
+
+end;
+
+procedure TdtmConsultaOrcamentos.qryProdutosOrcamentosAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  RefazConsultaPorNome(qryDetalheProdutosOrcamentos,['produto'],[qryProdutosOrcamentosproduto.asLargeint]);
+end;
+
+procedure TdtmConsultaOrcamentos.SetListaCondicionalPromocoes(
+  const Value: String);
+begin
+  fListaCondicionalPromocoes := Value;
+  if Value <> '' then
+    qryOrcamentos.macrobyname('ListaCondicionalPromocoes').asString := ' and (' + ListaCondicionalPromocoes +')'
+  else
+    qryOrcamentos.macrobyname('ListaCondicionalPromocoes').asString := '';
+
+
+end;
+
+end.

@@ -1,0 +1,1450 @@
+unit dmmanutencaopreco;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls,
+  Math, DB,
+  //Terceiros
+  ZQuery, ZPgSqlQuery,
+  //Biblio
+  ctconstantes, biblio, clusuario, clparametrossistema,
+  //Componentes
+  cpquery, cpdatasource,
+  //Repositorio
+  dmtecsoft, dmbasico, ZTransact;
+
+const
+ caract_preco_col = 1;
+ caracteristica   = 2;
+ preco            = 3;
+ coluna           = 4;
+ valor            = 5;
+ validade         = 6;
+
+ caracteristicam  = 1;
+ markup           = 2;
+
+type
+  TdtmManutencaoPreco = class(TdtmBasico)
+    qryColuna: TtecQuery;
+    qryColunacodigo: TIntegerField;
+    qryColunadescricao: TStringField;
+    qryManutencaoPreco: TtecQuery;
+    dsrManutencaoPreco: TtecDataSource;
+    qryExisteColunaPreco: TtecQuery;
+    qryExisteColunaPrecocaracteristica: TLargeintField;
+    qryExisteColunaPrecopreco: TIntegerField;
+    qryExisteColunaPrecocoluna: TIntegerField;
+    qryExisteColunaPrecovalor: TFloatField;
+    qryExisteColunaPrecovalidade: TDateField;
+    qryExisteColunaPrecodata: TDateField;
+    qryColunasPrecos: TtecQuery;
+    qryProcuraColunas: TtecQuery;
+    dsrProcuraColunas: TtecDataSource;
+    qryProcuraColunascodigo: TIntegerField;
+    qryProcuraColunasdescricao: TStringField;
+    qryConsultaColunas: TtecQuery;
+    qryConsultaColunasdescricao: TStringField;
+    qryConsultaColunascodigo: TIntegerField;
+    qryProcuraFornecedores: TtecQuery;
+    dsrProcuraFornecedores: TtecDataSource;
+    qryConsultaFornecedores: TtecQuery;
+    qryConsultaFornecedoresnome: TStringField;
+    qryConsultaFornecedorescodigo: TIntegerField;
+    qryProcuraFornecedorescodigo: TIntegerField;
+    qryProcuraFornecedoresnome: TStringField;
+    qryColunasFiliais: TtecQuery;
+    qryProcuraFiliais: TtecQuery;
+    dsrProcuraFiliais: TtecDataSource;
+    qryProcuraFiliaiscodigo: TIntegerField;
+    qryProcuraFiliaisnome: TStringField;
+    qryConsultaFiliais: TtecQuery;
+    qryConsultaFiliaisnome: TStringField;
+    qryConsultaFiliaiscodigo: TIntegerField;
+    qryColunasFiliaispreconormal: TIntegerField;
+    qryColunasFiliaisprecopromocao: TIntegerField;
+    qryMultiplosProduto: TtecQuery;
+    qryMultiplosProdutomultiplo_produto: TFloatField;
+    qryMultiplosProdutomultiplo_grupo: TFloatField;
+    qryMultiplosProdutomultiplo_classe: TFloatField;
+    ZMonitor1: TZMonitor;
+    qryConsultaFiliaisMovimentos: TtecQuery;
+    qryProcuraFilialMovimentos: TtecQuery;
+    dsrProcuraFilialMovimentos: TtecDataSource;
+    qryConsultaTipoMovimentos: TtecQuery;
+    qryConsultaFornecedorNFentrada: TtecQuery;
+    qryConsultaSerieNfEntrada: TtecQuery;
+    qryConsultaNfEntrada: TtecQuery;
+    qryProcuraTipoMovimentos: TtecQuery;
+    dsrProcuraTipoMovimentos: TtecDataSource;
+    qryProcuraFornecedorNFEntrada: TtecQuery;
+    qryProcuraSerieNFEntrada: TtecQuery;
+    qryProcuraNFEntrada: TtecQuery;
+    dsrProcuraFornecedorNFEntrada: TtecDataSource;
+    dsrProcuraSerieNFEntrada: TtecDataSource;
+    dsrProcuraNFEntrada: TtecDataSource;
+    qryConsultaTipoMovimentoscodigo: TStringField;
+    qryConsultaTipoMovimentosdescricao: TStringField;
+    qryConsultaFornecedorNFentradanome: TStringField;
+    qryConsultaFornecedorNFentradacodigo: TIntegerField;
+    qryConsultaFornecedorNFentradapessoanumero: TStringField;
+    qryConsultaFornecedorNFentradaestado: TStringField;
+    qryConsultaFornecedorNFentradanomecidade: TStringField;
+    qryConsultaSerieNfEntradaserie: TStringField;
+    qryConsultaNfEntradanumero: TIntegerField;
+    qryProcuraFilialMovimentoscodigo: TIntegerField;
+    qryProcuraFilialMovimentosnome: TStringField;
+    qryProcuraTipoMovimentoscodigo: TStringField;
+    qryProcuraTipoMovimentosdescricao: TStringField;
+    qryProcuraFornecedorNFEntradacodigo: TIntegerField;
+    qryProcuraFornecedorNFEntradanome: TStringField;
+    qryProcuraSerieNFEntradaserie: TStringField;
+    qryProcuraNFEntradanumero: TIntegerField;
+    qryConsultaFiliaisMovimentosnome: TStringField;
+    qryConsultaFiliaisMovimentoscodigo: TIntegerField;
+    qryProdutosCargos: TtecQuery;
+    qryProdutosCargoscargo: TIntegerField;
+    qryProdutosCargosdescricao: TStringField;
+    qryManutencao_preco: TtecQuery;
+    qryManutencao_precocargo: TtecQuery;
+    qryManutencao_precocargovalor: TFloatField;
+    qryCaracteristicas: TtecQuery;
+    qryAtualizarCaracteristicas: TtecQuery;
+    qryCaracteristicascodigo: TLargeintField;
+    qryCaracteristicasmarkup: TFloatField;
+    qryColunanormal: TBooleanField;
+    qryColunapromocao: TBooleanField;
+    qryManutencao_precoprecovenda: TFloatField;
+    qryManutencao_precoprecovendaantesimpostos: TFloatField;
+    procedure qryManutencaoPrecoAfterInsert(DataSet: TDataSet);
+    procedure qryManutencaoPrecoAfterEdit(DataSet: TDataSet);
+    procedure DataModuleDestroy(Sender: TObject);
+    procedure qryManutencaoPrecoAfterOpen(DataSet: TDataSet);
+    procedure dsrManutencaoPrecoDataChange(Sender: TObject; Field: TField);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure qryProcuraSerieNFEntradaAfterScroll(DataSet: TDataSet);
+    procedure qryProcuraFornecedorNFEntradaAfterScroll(DataSet: TDataSet);
+  private
+    FDataInicial: String;
+    FDataFinal: String;
+    FFornecedores: Boolean;
+    FDataMovtoInicial: String;
+    FDataMovtoFinal: String;
+    FDataNotaInicial: String;
+    FDataNotaFinal: String;
+    procedure SetDataFinal(const Value: String);
+    procedure SetDataInicial(const Value: String);
+    procedure SetDataMovtoInicial(const Value: String);
+    procedure SetDataMovtoFinal(const Value: String);
+    procedure SetDataNotaFinal(const Value: String);
+    procedure SetDataNotaInicial(const Value: String);
+    procedure AlterarValoresPrecosMarkup(AlterarPrecoNormal: boolean = true);
+    procedure setColunaPromocao(const Value: integer);
+  protected
+    PrecosCaracteristicasAlterados: array [1..6] of TStringList;
+    CaracteristicasAlteradas: array [1..2] of TStringList;
+
+    PNormal: String;
+    PPromocao: String;
+    FColunaPromocao : integer;
+    FPrecosDiferenciados: Boolean;
+    FPrecos: Integer;
+    FOrdenacao: Integer;
+    FProdutos: Integer;
+    FEditando: boolean;
+    function GetConsultarColunas: TtecQuery;
+    function GetConsultarFornecedores: TtecQuery;
+    function GetConsultaFiliais: TtecQuery;
+//    function GetDescricaoColuna: String;
+    function GetNumeroRegistro: Integer;
+    function ArredondarPrecoProduto(Produto: LargeInt; Valor: Currency; Coluna: Integer): Variant;
+  public
+    FCodigosAlteracoesPrecos: array of Integer;
+    procedure AplicarPercentualEValidade(Origem: Integer; Percentual, Validade: String);
+    procedure AbreTabelaPesquisa(TipoPesquisa: TtecPesquisa);
+    procedure AlterarColunasPrecosProdutos;
+    procedure CopiarColunaPreco(Origem, Destino: Integer; Validade, Percentual: String);
+    constructor Create(AOwner: TComponent); override;
+    procedure ExcluirColunaPreco(Coluna: Integer);
+    function  ExisteColunas(Campo, codigo: String): Boolean;
+    function  ExisteFornecedores(campo, codigo: String): Boolean;
+    function  ExisteFiliais(campo, codigo: String): Boolean;
+    function  ExisteFilialFornec(campo, codigo: String): Boolean;
+    function  ExisteTipoMovto(campo, codigo: String): Boolean;
+    function  ExisteSerieNota(campo, codigo: String): Boolean;
+    function  ExisteNota(campo, codigo: String): Boolean;
+    function  ExisteFornecedorNota(campo, codigo: String): Boolean;
+    procedure FechaTabelaPesquisa(TipoPesquisa: TtecPesquisa);
+    procedure LimpaTabelas;
+    procedure MontarSQLManutencaoPreco(CondicaoCaracteristica, CondicaoItemProduto, CondicaoMarca, CondicaoGrupo, CondicaoClasse: String);
+    procedure PreencherComboBox(Lista: TComboBox; definirpromocao: boolean = false);
+    procedure ReFazConsultaFiliais;
+    procedure Selecionar(TipoPesquisa: TTecPesquisa);
+
+    property ConsultarColunas: TtecQuery read GetConsultarColunas;
+    property ConsultarFornecedores: TtecQuery read GetConsultarFornecedores;
+    property ConsultaFiliais: TtecQuery read GetConsultaFiliais;
+//    property DescricaoColuna: String read GetDescricaoColuna;
+    property NumeroRegistro: Integer read GetNumeroRegistro;
+    property Editando: boolean read FEditando write FEditando;
+    property Produtos: Integer read FProdutos write FProdutos;
+    property Ordenacao: Integer read FOrdenacao write FOrdenacao;
+    property Precos: Integer read FPrecos write FPrecos;
+    property PrecosDiferenciados: Boolean read FPrecosDiferenciados write FPrecosDiferenciados;
+    property DataInicial: String read FDataInicial write SetDataInicial;
+    property DataFinal: String read FDataFinal write SetDataFinal;
+    property DataMovtoInicial: String read FDataMovtoInicial write SetDataMovtoInicial;
+    property DataMovtoFinal: String read FDataMovtoFinal write SetDataMovtoFinal;
+    property DataNotaInicial: String read FDataNotaInicial write SetDataNotaInicial;
+    property DataNotaFinal  : String read FDataNotaFinal write SetDataNotaFinal; 
+    property Fornecedores: Boolean read FFornecedores write FFornecedores;
+
+    function  MontaCondicaoMovimentacao: String;
+    function  MontaCondicaoNotaEntrada: String;
+    procedure AtualizarPrecos;
+    procedure AtualizarMarkups;
+    procedure LimparProdutosAlterados;
+    procedure MarcarRegistrosManutencaoPrecosAtualizar(Marcando, Todos: boolean);
+    property ColunaPromocao: integer read fColunaPromocao write setColunaPromocao;
+  end;
+
+var
+  Index : Integer;
+  IndexM : integer;
+  DataValidade: String;
+  AtualizandoPrecos, VarrendoManutencao: Boolean;
+  Col : String;
+  vLimiteCampoAlteravel: Integer;
+
+ { dtmManutencaoPreco: TdtmManutencaoPreco;}
+
+
+implementation
+
+{$R *.dfm}
+
+procedure TdtmManutencaoPreco.AbreTabelaPesquisa(TipoPesquisa: TtecPesquisa);
+begin
+  case TipoPesquisa of
+             pesCOLUNAS : Abre(ctConsultaColunas);
+        pesFORNECEDORES : Abre(ctConsultaFornecedores);
+     pesTIPOSMOVIMENTOS : qryConsultaTipoMovimentos.Open;
+               pesNOTAS : qryConsultaNfEntrada.Open;
+  pesSERIESFORNECEDORES : qryConsultaSerieNfEntrada.Open;
+   pesFORNECEDORESNOTAS : qryConsultaFornecedorNFentrada.Open;
+             pesFILIAIS : if not FFornecedores then Abre(ctConsultaFiliais)
+                          else qryConsultaFiliaisMovimentos.Open;
+  end;
+end;
+
+function TdtmManutencaoPreco.ArredondarPrecoProduto(Produto: LargeInt; Valor: Currency; Coluna: Integer): Variant;
+Var
+  Mult: Real;
+begin
+  Mult:= 0;
+  ReFazConsulta(qryMultiplosProduto,[0],[Produto]);
+  if not qryMultiplosProduto.IsEmpty then begin
+    if qryMultiplosProdutomultiplo_produto.AsFloat > 0 then
+      Mult:= Multiplo(Valor,qryMultiplosProdutomultiplo_produto.AsFloat)
+    else if (qryMultiplosProdutomultiplo_grupo.AsFloat > 0) then
+      Mult:= Multiplo(Valor,qryMultiplosProdutomultiplo_grupo.AsFloat)
+    else if (qryMultiplosProdutomultiplo_classe.AsFloat > 0) then
+      Mult:= Multiplo(Valor,qryMultiplosProdutomultiplo_classe.AsFloat)
+  end;
+  if (Mult = 0) and (ParSistema.MultiploPreco > 0) then
+    Mult:= Multiplo(Valor,ParSistema.MultiploPreco);
+  if Mult > 0 then
+       Result:= Mult
+  else Result:= Valor;
+end;
+
+procedure TdtmManutencaoPreco.AplicarPercentualEValidade(Origem: Integer; Percentual, Validade: String);
+var
+  Pos: TBookmark;
+  Orig, OrigDataVal, I: Integer;
+  Perc: Real;
+begin
+  if Percentual <> '' then
+       Perc:= StrToFloat(Percentual)
+  else Perc:= 0;
+//  Orig:= (12 + ((Origem -1 )* 2));
+
+  if Origem = 1 then
+  begin
+    Orig:= (vLimiteCampoAlteravel + (Origem*2) - 1);
+    OrigDataVal := Orig+2;
+  end
+  else
+  begin
+    Orig:= (vLimiteCampoAlteravel + (Origem*2) - 1) + 1;
+    OrigDataVal := Orig+1;
+  end;
+
+  qryManutencaoPreco.DisableControls;
+  Pos:= qryManutencaoPreco.GetBookmark;
+  try
+    VarrendoManutencao := True;
+    qryManutencaoPreco.First;
+    for I:= 1 to qryManutencaoPreco.RecordCount do
+    begin
+      if qryManutencaoPreco.FieldByName('alterar').asboolean then
+      begin
+        qryManutencaoPreco.Edit;
+        if Perc <> 0 then
+             qryManutencaoPreco.Fields[Orig].AsVariant:= ArredondarPrecoProduto(qryManutencaoPreco.FieldbyName('produto').AsVariant,
+                                                                                (qryManutencaoPreco.Fields[Orig].AsFloat +
+                                                                                 RoundTo(qryManutencaoPreco.Fields[Orig].AsFloat * (Perc / 100),-2)),
+                                                                                Orig)
+        else qryManutencaoPreco.Fields[Orig].AsVariant:= qryManutencaoPreco.Fields[Orig].AsVariant;
+        if Validade <> '' then
+             qryManutencaoPreco.Fields[OrigDataVal].asVariant:= Validade
+        else qryManutencaoPreco.Fields[OrigDataVal].AsVariant:= qryManutencaoPreco.Fields[OrigDataVal].AsVariant;
+        qryManutencaoPreco.Post;
+        dsrManutencaoPrecoDataChange(self,qryManutencaoPreco.Fields[Orig]);
+      end;
+      qryManutencaoPreco.Next;
+    end;
+  finally
+    qryManutencaoPreco.GotoBookmark(Pos);
+    qryManutencaoPreco.FreeBookmark(Pos);
+    qryManutencaoPreco.EnableControls;
+    VarrendoManutencao := False;
+  end;
+end;
+
+procedure TdtmManutencaoPreco.CopiarColunaPreco(Origem, Destino: Integer; Validade, Percentual: String);
+var
+  Pos: TBookmark;
+  Orig, OrigDataVal, Dest, DestDataVal, I: Integer;
+  Perc: Real;
+  Valor : Variant;
+  NomeCampo : String;
+begin
+  if Percentual <> '' then
+       Perc:= StrToFloat(Percentual)
+  else Perc:= 0;
+
+  ////ATENÇÃO AO ESRQUEMA ABAIXO QUDO ACRESCENTAR NOVOS CAMPOS A TABELA;
+
+  if Origem = 1 then
+  begin
+    Orig:= (vLimiteCampoAlteravel + (Origem*2) - 1);
+    OrigDataVal := Orig+2;
+  end  
+  else
+  begin
+    Orig:= (vLimiteCampoAlteravel + (Origem*2) - 1) + 1;
+    OrigDataVal := Orig+1;
+  end;
+
+  if Destino = 1 then
+  begin
+    Dest:= (vLimiteCampoAlteravel + (Destino*2) -1);
+    DestDataVal := Dest + 2;
+  end  
+  else
+  begin
+    Dest:= (vLimiteCampoAlteravel + (Destino*2) -1) + 1;
+    DestDataVal := Dest + 1;
+  end;
+
+
+
+  qryManutencaoPreco.DisableControls;
+  Pos:= qryManutencaoPreco.GetBookmark;
+  try
+    VarrendoManutencao := True;
+    qryManutencaoPreco.First;
+    for I:= 1 to qryManutencaoPreco.RecordCount do
+    begin
+      if qryManutencaoPreco.FieldByName('alterar').asboolean then
+      begin
+        Valor := qryManutencaoPreco.Fields[Orig].AsVariant;
+
+        {somente para debug}
+        NomeCampo := qryManutencaoPreco.Fields[Orig].fieldname;
+        NomeCampo := qryManutencaoPreco.Fields[OrigDataVal].fieldname;
+
+        NomeCampo := qryManutencaoPreco.Fields[Dest].fieldname;
+        NomeCampo := qryManutencaoPreco.Fields[DestDataVal].fieldname;
+        //****************/
+
+        
+        if Valor > 0 then
+        begin
+          qryManutencaoPreco.Edit;
+          if Perc <> 0 then
+               qryManutencaoPreco.Fields[Dest].AsVariant:= ArredondarPrecoProduto(qryManutencaoPreco.Fieldbyname('produto').AsVariant,
+                                                                                  (qryManutencaoPreco.Fields[Orig].AsVariant +
+                                                                                   RoundTo(qryManutencaoPreco.Fields[Orig].AsVariant * (Perc / 100),-2)),
+                                                                                  Dest)
+          else qryManutencaoPreco.Fields[Dest].AsVariant:= qryManutencaoPreco.Fields[Orig].AsVariant;
+          if Validade <> '' then
+               qryManutencaoPreco.Fields[DestDataVal].AsVariant:= Validade
+          else qryManutencaoPreco.Fields[DestDataVal].AsVariant:= qryManutencaoPreco.Fields[OrigDataVal].AsVariant;
+          qryManutencaoPreco.Post;
+          dsrManutencaoPrecoDataChange(self,qryManutencaoPreco.Fields[Dest]);
+        end;
+      end;
+      qryManutencaoPreco.Next;
+    end;
+  finally
+    qryManutencaoPreco.GotoBookmark(Pos);
+    qryManutencaoPreco.FreeBookmark(Pos);
+    qryManutencaoPreco.EnableControls;
+    VarrendoManutencao := False;
+  end;
+end;
+
+procedure TdtmManutencaoPreco.PreencherComboBox(Lista: TComboBox; definirpromocao: boolean);
+var
+  I, J: Integer;
+begin
+  Lista.Items.Clear;
+  Lista.Items.Add('Nenhuma');
+    {
+    if not qryProcuraColunascodigo.IsNull then
+    begin
+      if (qryProcuraColunascodigo.AsInteger <> StrToInt(PNormal)) then begin
+        if qryColuna.Locate('codigo',StrToInt(PNormal),[]) then
+             Lista.Items.Add(PrimeiraMaiuscula(LowerCase(qryColunadescricao.AsString)))
+        else Lista.Items.Add('');
+      end;
+      Lista.Items.Add(PrimeiraMaiuscula(LowerCase(qryProcuraColunasdescricao.AsString)));
+    end
+    else
+    begin
+      qryColuna.First;
+      for I:= 1 to qryColuna.RecordCount do begin
+        Lista.Items.Add(PrimeiraMaiuscula(LowerCase(qryColunadescricao.AsString)));
+        qryColuna.Next;
+      end;
+    end;
+    }
+
+    J := 0;
+    qryColuna.First;
+    for I:= 1 to qryColuna.RecordCount do
+    begin
+      Lista.Items.Add(PrimeiraMaiuscula(LowerCase(qryColunadescricao.AsString)));
+
+      if definirpromocao then
+        if qryColunapromocao.asboolean then
+        begin
+          J := I;
+          fColunaPromocao := I;
+        end;
+
+      qryColuna.Next;
+    end;
+
+    Lista.ItemIndex := J;
+
+
+
+end;
+
+constructor TdtmManutencaoPreco.Create(AOwner: TComponent);
+begin
+  inherited;
+//  qryColuna.Tag                  := ctTabelas;
+  qryProcuraColunas.Tag          := ctTabelas;
+  qryProcuraFornecedores.Tag     := ctTabelas;
+  qryProcuraFiliais.Tag          := ctTabelas;
+
+  qryConsultaColunas.Tag         := ctConsultaColunas;
+  qryConsultaFornecedores.Tag    := ctConsultaFornecedores;
+  qryConsultaFiliais.Tag         := ctConsultaFiliais;
+  qryManutencaoPreco.Tag         := ctManutencaoPreco;
+
+  PrecosCaracteristicasAlterados[caract_preco_col] := TStringList.Create;
+  PrecosCaracteristicasAlterados[Caracteristica] := TStringList.Create;
+  PrecosCaracteristicasAlterados[preco] := TStringList.Create;
+  PrecosCaracteristicasAlterados[coluna] := TStringList.Create;
+
+  PrecosCaracteristicasAlterados[valor] := TStringList.Create;
+
+  PrecosCaracteristicasAlterados[validade] := TStringList.Create;
+
+  CaracteristicasAlteradas[caracteristicam] := TStringList.Create;
+  CaracteristicasAlteradas[markup] := TStringList.Create;
+  fColunaPromocao := 0;
+
+end;
+
+procedure TdtmManutencaoPreco.ExcluirColunaPreco(Coluna: Integer);
+var
+  Pos: TBookmark;
+  Col, ColDataVal, I: Integer;
+begin
+
+  Col:= (12 + (Coluna*2) - 1);
+
+  if coluna = 1 then
+  begin
+    col := (vLimiteCampoAlteravel + (coluna*2) - 1);
+    ColDataVal := col+2;
+  end  
+  else
+  begin
+    col:= (vLimiteCampoAlteravel + (coluna*2) - 1) + 1;
+    colDataVal := col+1;
+  end;
+
+
+  qryManutencaoPreco.DisableControls;
+  Pos:= qryManutencaoPreco.GetBookmark;
+  try
+    VarrendoManutencao := True;
+    qryManutencaoPreco.First;
+    for I:= 1 to qryManutencaoPreco.RecordCount do
+    begin
+      if qryManutencaoPreco.FieldByName('alterar').asboolean then
+      begin
+        qryManutencaoPreco.Edit;
+        qryManutencaoPreco.Fields[Col].AsCurrency  := 0;
+        qryManutencaoPreco.Fields[ColDataVal].Clear;
+        qryManutencaoPreco.Post;
+        dsrManutencaoPrecoDataChange(self,qryManutencaoPreco.Fields[Col]);
+      end;
+      qryManutencaoPreco.Next;
+
+    end;
+  finally
+    qryManutencaoPreco.GotoBookmark(Pos);
+    qryManutencaoPreco.FreeBookmark(Pos);
+    qryManutencaoPreco.EnableControls;
+    VarrendoManutencao := False;
+  end;
+end;
+
+
+
+function TdtmManutencaoPreco.ExisteColunas(Campo, codigo: String): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaColunas, campo, codigo);
+end;
+
+
+function TdtmManutencaoPreco.ExisteFornecedores(campo, codigo: String): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaFornecedores, campo, codigo);
+end;
+
+function TdtmManutencaoPreco.ExisteFiliais(campo, codigo: String): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaFiliais, campo, codigo);
+end;
+
+procedure TdtmManutencaoPreco.FechaTabelaPesquisa(TipoPesquisa: TtecPesquisa);
+begin
+  case TipoPesquisa of
+     pesCARACTERISTICAS : Fecha(ctPesquisaCaracteristica);
+             pesCLASSES : Fecha(ctPesquisaClasse);
+              pesGRUPOS : Fecha(ctPesquisaGrupo);
+             pesCOLUNAS : Fecha(ctConsultaColunas);
+              pesMARCAS : Fecha(ctConsultaMarcas);
+        pesFORNECEDORES : Fecha(ctConsultaFornecedores);
+     pesTIPOSMOVIMENTOS : qryConsultaTipoMovimentos.Close;
+               pesNOTAS : qryConsultaNfEntrada.Close;
+  pesSERIESFORNECEDORES : qryConsultaSerieNfEntrada.Close;
+   pesFORNECEDORESNOTAS : qryConsultaFornecedorNFentrada.Close;
+             pesFILIAIS : if not FFornecedores then Fecha(ctConsultaFiliais)
+                          else qryConsultaFiliaisMovimentos.Close;
+  end;
+end;
+
+
+function TdtmManutencaoPreco.GetConsultarColunas: TtecQuery;
+begin
+  Result:= qryConsultaColunas;
+end;
+
+function TdtmManutencaoPreco.GetConsultarFornecedores: TtecQuery;
+begin
+  Result:= qryConsultaFornecedores;
+end;
+
+function TdtmManutencaoPreco.GetConsultaFiliais: TtecQuery;
+begin
+  Result:= qryConsultaFiliais;
+end;
+
+//function TdtmManutencaoPreco.GetDescricaoColuna: String;
+//begin
+//  Result:= PrimeiraMaiuscula(LowerCase(qryProcuraColunasdescricao.AsString));
+//end;
+
+function TdtmManutencaoPreco.GetNumeroRegistro: Integer;
+begin
+  Result:= qryManutencaoPreco.RecordCount;
+end;
+
+procedure TdtmManutencaoPreco.LimpaTabelas;
+begin
+  if not qryProcuraFornecedores.IsEmpty then
+    RefazConsulta(qryProcuraFornecedores, [0],[0]);
+  if not qryProcuraColunas.IsEmpty then
+    ReFazConsulta(qryProcuraColunas,[0],[0]);
+  if not qryProcuraFiliais.IsEmpty then
+    ReFazConsultaFiliais;
+  if not qryManutencaoPreco.IsEmpty then
+    Fecha(ctManutencaoPreco);
+end;
+
+procedure TdtmManutencaoPreco.MontarSQLManutencaoPreco(CondicaoCaracteristica, CondicaoItemProduto, CondicaoMarca, CondicaoGrupo, CondicaoClasse: String);
+const
+  Sql_1  = 'SELECT c.codigo as caracteristica, '  + #13 +
+                  'c.codigovisual as caracteristicavisual, ' + #13 +
+                  'p.codigo as produto, '        + #13 +
+                  'p.codigovisual as produtovisual, '   + #13 +
+                  'p.descricao as descproduto, ' + #13 +
+                  'p.referencia, '               + #13 +
+                  'p.resultadocurvaabc, '        + #13 +
+                  'pr.codigo as preco, '        + #13 +
+                  'pr.descricao as descpreco, '    + #13 +
+                  '(select ti.valor from tributosicms ti where ti.codigo = c.icms) as cst_produto, ' + #13 +
+                  'c.csosn as csosn_produto, ' + #13 +
+                  '(Select e.valorultimacompra from estoques e where e.produto = p.codigo and e.filial  = %s) as ultimacompra, ' + #13 +
+                  'CASE WHEN c.csosn in (''101'',''102'') THEN ' + #13 +
+                  '(Select e.valorultimacompra + (e.precocomicms - e.precosemicms) from estoques e where e.produto = p.codigo and e.filial = %s) ELSE ' + #13 +
+                  '(Select e.valorultimacompra from estoques e where e.produto = p.codigo and e.filial = %s) END as ultimacompra_com_icms, ' + #13 +
+                  'true as alterar, '            + #13 +
+                  'false as alterado, '          + #13 +
+                  'c.markup, ' + #13 +
+                  '(Select e.precocomicms from estoques e where e.produto = p.codigo and e.filial  = %s) as precocomicms, ' + #13 +
+                  '(Select e.precosemicms from estoques e where e.produto = p.codigo and e.filial  = %s) as precosemicms, ' + #13 +
+                  '(select precovendaantesimpostos from formacaoprecovenda(p.codigo, cast(%s as integer), '''', '''', (Select e.valorultimacompra from estoques e where e.produto = p.codigo and e.filial  = %s), 0, c.markup, 0, 0)) as precovendaantesimpostos';
+
+  From_1 = ' from (((((caracteristicas c join produtos p on c.codigo = p.caracteristica ' + #13 +
+                                                      '  join precos pr on pr.caracteristica = c.codigo ' + #13 +
+														        ' and pr.codigo = p.preco)) '+ #13 +
+                                                        ' join marcas m on c.marca = m.codigo) ' + #13 +
+                                                        ' join grupos g on c.grupo = g.codigo) ' + #13 +
+														' join classes cl on c.classe = cl.codigo) ';
+
+var
+  Select,
+  From,
+  Where,
+  Ordem: String;
+  Filial, I: Integer;
+
+begin
+  PNormal := '0';
+  PPromocao := '0';
+
+  Fecha(ctManutencaoPreco);
+  if FPrecosDiferenciados then
+  begin
+    Filial:= qryProcuraFiliaiscodigo.AsInteger;
+    ReFazConsulta(qryColunasFiliais,[0],[qryProcuraFiliaiscodigo.AsInteger]);
+    PNormal := qryColunasFiliaispreconormal.AsString;
+    PPromocao := qryColunasFiliaisprecopromocao.AsString;
+  end
+  else
+  begin
+    Filial := FilialBase;
+    PNormal:= PrecoNormal;
+    PPromocao := PrecoPromocao;
+
+  end;
+  if PPromocao = '' then
+    PPromocao := '0';
+    
+  Select:= Sql_1;
+  Select:= Format(Select,[inttostr(Filial), inttostr(Filial), inttostr(Filial), inttostr(Filial), inttostr(Filial), inttostr(Filial), inttostr(Filial)]);
+  From  := From_1;
+  Ordem := '';
+
+  qryColuna.parambyname('PNormal').asInteger := strtoint(PNormal);
+  qryColuna.parambyname('PPromocao').asInteger := strtoint(PPromocao);
+
+  if not qryProcuraColunascodigo.IsNull then
+    qryColuna.macrobyname('Sql').asString := ' and (codigo = ' + PNormal + ' or ' +
+                                             '      codigo = ' + PPromocao + ' or ' +
+                                             '      codigo = ' + qryProcuraColunascodigo.asString + ')'
+  else
+    qryColuna.macrobyname('Sql').asString := '';
+
+  qryColuna.close;
+  qryColuna.Open;
+  qryColuna.First;
+
+  {
+  for I := 1 to qryColuna.RecordCount do
+  begin
+    if ((qryProcuraColunascodigo.IsNull) or
+        ((not qryProcuraColunascodigo.IsNull) and
+         (qryColunacodigo.AsInteger = qryProcuraColunascodigo.AsInteger))) then
+    begin
+      if ((not qryProcuraColunascodigo.IsNull) and (qryProcuraColunascodigo.AsInteger <> StrToInt(PNormal))) then
+      begin
+        Select := Select + ', ' + #13;
+        Select := Select + 'l' + PNormal + '.valor as valor_l' + PNormal + ', ' + #13;
+        Select := Select + 'l' + PNormal + '.validade as validade_l' + PNormal + #13;
+        From := From  + 'LEFT JOIN colunasprecos as l' + PNormal  + ' ON (pr.caracteristica = l' + PNormal + '.caracteristica)' + #13 +
+                        ' and (pr.codigo = l'+ PNormal + '.preco)' + #13 +
+                        ' and (l' + PNormal + '.coluna = ' + PNormal + ') ' + #13;
+      end;
+      Select := Select + ', ' + #13;
+      Select := Select + 'l' + qryColunacodigo.AsString + '.valor as valor_l' + qryColunacodigo.AsString + ', ' + #13;
+      Select := Select + 'l' + qryColunacodigo.AsString + '.validade as validade_l' + qryColunacodigo.AsString + #13;
+      From := From  + 'LEFT JOIN colunasprecos as l' + qryColunacodigo.AsString  + ' ON (pr.caracteristica = l' + qryColunacodigo.AsString + '.caracteristica)' + #13 +
+                      ' and (pr.codigo = l'+ qryColunacodigo.AsString + '.preco)' + #13 +
+                      ' and (l' + qryColunacodigo.AsString + '.coluna = ' + qryColunacodigo.AsString + ') ' + #13;
+    end;
+    qryColuna.Next;
+  end;
+  }
+
+
+  for I := 1 to qryColuna.RecordCount do
+  begin
+    Select := Select + ', ' + #13;
+    Select := Select + 'l' + qryColunacodigo.AsString + '.valor as valor_l' + qryColunacodigo.AsString + ', ' + #13;
+
+    if qryColunanormal.AsBoolean then
+    begin
+      Select := Select + 'CASE WHEN COALESCE(l' + qryColunacodigo.AsString + '.valor,0)=0 THEN 0 ELSE (1 - (Select e.valorultimacompra from estoques e where e.produto = p.codigo and e.filial  = %s)/l' + qryColunacodigo.AsString + '.valor) * 100 END as margem_l' + qryColunacodigo.AsString + ', ' + #13;
+      Select := Select + 'l' + qryColunacodigo.AsString + '.validade as validade_l' + qryColunacodigo.AsString + #13;
+    end
+    else
+      Select := Select + 'l' + qryColunacodigo.AsString + '.validade as validade_l' + qryColunacodigo.AsString + #13;
+
+    From := From  + 'LEFT JOIN colunasprecos as l' + qryColunacodigo.AsString  + ' ON (pr.caracteristica = l' + qryColunacodigo.AsString + '.caracteristica)' + #13 +
+                    ' and (pr.codigo = l'+ qryColunacodigo.AsString + '.preco)' + #13 +
+                    ' and (l' + qryColunacodigo.AsString + '.coluna = ' + qryColunacodigo.AsString + ') ';
+
+    if (FDataInicial<>'') and (FDataFinal <> '') then
+      From := From +  #13 +'and (l' + qryColunacodigo.AsString + '.alteracao between '''+FormatDateTime('yyyy-mm-dd',strtodate(FDataInicial))+''' and ''' + FormatDateTime('yyyy-mm-dd',strtodate(FDataFinal)) + ''')';
+
+    qryColuna.Next;
+  end;
+
+
+  Where := ' (p.caracteristica = c.codigo) '     + #13 +
+                 'and (c.codigo  = pr.caracteristica) ' + #13 +
+                 'and (p.preco = pr.codigo)          ' + #13;
+
+  if CondicaoCaracteristica<>'' then
+    Where:= Where + 'and ( ' + CondicaoCaracteristica + ')' + #13;
+
+  if CondicaoItemProduto<>'' then
+    Where:= Where + 'and ( ' + CondicaoItemProduto + ')' + #13;
+
+  if CondicaoMarca <> '' then
+    Where:= Where + 'and ( ' + CondicaoMarca + ')' + #13;
+
+  if Condicaogrupo <> '' then
+    Where:= Where + 'and ( ' + Condicaogrupo + ')' + #13;
+
+  if CondicaoClasse <> '' then
+    Where:= Where + 'and ( ' + CondicaoClasse + ')' + #13;
+
+  if not qryProcuraFornecedorescodigo.IsNull then
+    Where:= Where + 'and ((SELECT COUNT(*) ' + #13 +
+                          'FROM fornecedoresprodutos fp ' + #13 +
+                          'WHERE (fp.caracteristica = c.codigo) and ' +  #13 +
+                                '(fp.fornecedor = ' + qryProcuraFornecedorescodigo.AsString + ')) > 0)' + #13;
+
+  Where:= Where + MontaCondicaoMovimentacao +' '+ #13; //Condições para Filtrar pro Movimetação de estoque
+  Where:= Where + MontaCondicaoNotaEntrada +' '+ #13;  //Condição para Filtrar por Notas de Entrada
+
+  case FProdutos of
+    0: Where:= Where + 'and ((c.inativo is null) or (c.inativo > current_date)) ' +
+                       'and ((c.ForaLinha is null) or (c.ForaLinha > current_date)) and ((p.inativo is null) or (p.inativo > current_date)) and ((p.ForaLinha is null) or (p.ForaLinha > current_date))'      + #13;
+    1: Where:= Where + 'and (((c.inativo is not null) and (c.inativo < current_date)) or ((p.inativo is not null) and (p.inativo < current_date)))'     + #13;
+    2: Where:= Where + 'and (((c.ForaLinha is not null) and (c.ForaLinha < current_date)) or ((p.ForaLinha is not null) and (p.ForaLinha < current_date)))' + #13;
+    3: Where:= Where + 'and (select sum(emestoque+reservado+conserto+demonstracao+reservaprevia+futuro) from estoques where estoques.produto=p.codigo)>0 ' + #13;
+  end;
+
+  case FPrecos of
+    0: Where:= Where + 'and not estoques_produtoempromocao(p.codigo, ' + IntToStr(Filial) + ')' + #13;
+    1: Where:= Where + 'and estoques_produtoempromocao(p.codigo, ' + IntToStr(Filial) + ')'     + #13;
+  end;
+
+  case FOrdenacao of
+     0: Ordem:= 'ORDER BY p.codigovisual ';
+     1: Ordem:= 'ORDER BY UPPER(TO_ASCII(p.Descricao,''LATIN1'')), p.codigovisual ';
+  end;
+
+
+  if parsistema.PrecosporCargo then
+  begin
+    qryProdutosCargos.MacroByName('SQLCondicao').asString := ' and ' + where;
+
+    qryProdutosCargos.close;
+    qryProdutosCargos.open;
+
+    for I := 1 to qryProdutosCargos.RecordCount do
+    begin
+      Select := Select + ', ' + #13;
+
+      select := select + ' NULLIF(estoques_preco(p.codigo, ' + inttostr(filial) + ' ,(Select pc.markup ' + #13 +
+                                         ' from produtoscargos pc  where pc.cargo = '+qryProdutosCargoscargo.AsString + ' and ' + #13 +
+                                         ' pc.produto = p.codigo)), 0) as cargo_' + qryProdutosCargoscargo.AsString;
+      qryProdutosCargos.Next;
+    end;
+  end;
+
+
+  qryManutencaoPreco.Sql.Clear;
+  qryManutencaoPreco.Sql.Text := Format(Select,[inttostr(Filial)]) + From + ' where ' + Where + Ordem;
+  Abre(ctManutencaoPreco);
+
+  vLimiteCampoAlteravel := qryManutencaoPreco.fieldbyname('precovendaantesimpostos').Index;
+
+  qryManutencaoPreco.fieldByName('alterado').ReadOnly:= True;
+  qryManutencaoPreco.fieldByName('alterar').ReadOnly:= false;
+  qryManutencaoPreco.fieldByName('caracteristica').ReadOnly:= True;
+  qryManutencaoPreco.fieldByName('produto').ReadOnly:= True;
+  qryManutencaoPreco.fieldByName('produtovisual').ReadOnly:= True;
+  qryManutencaoPreco.fieldByName('descproduto').ReadOnly:= True;
+  qryManutencaoPreco.fieldByName('referencia').ReadOnly:= True;
+  qryManutencaoPreco.fieldByName('resultadocurvaabc').ReadOnly:= True;
+
+  qryManutencaoPreco.fieldByName('preco').ReadOnly:= True;
+  qryManutencaoPreco.fieldByName('descpreco').ReadOnly:= True;
+  qryManutencaoPreco.fieldByName('cst_produto').ReadOnly:= True;
+  qryManutencaoPreco.fieldByName('csosn_produto').ReadOnly:= True;
+
+  qryManutencaoPreco.fieldByName('ultimacompra').ReadOnly:= True;
+  qryManutencaoPreco.fieldByName('markup').ReadOnly := false;
+  qryManutencaoPreco.fieldByName('precocomicms').ReadOnly:= True;
+  qryManutencaoPreco.fieldByName('precosemicms').ReadOnly:= True;
+  qryManutencaoPreco.fieldByName('precovendaantesimpostos').ReadOnly:= True;
+
+  qryManutencaoPreco.fieldByName('margem_l'+PNormal).ReadOnly:= True;
+
+  // somente markup e as colunas de precos e validades é permitido alterar
+
+  for i := qryManutencaoPreco.FieldCount-1 downto 0 do  // campos de cargos da tabela também readonly
+    if copy(qryManutencaoPreco.fields[i].FieldName,1,6) = 'cargo_' then
+      qryManutencaoPreco.fields[i].readonly := true
+    else
+      break;
+
+end;
+
+procedure TdtmManutencaoPreco.qryManutencaoPrecoAfterEdit(DataSet: TDataSet);
+begin
+  inherited;
+  FEditando:= True;
+end;
+
+procedure TdtmManutencaoPreco.qryManutencaoPrecoAfterInsert(DataSet: TDataSet);
+begin
+  inherited;
+  qryManutencaoPreco.Cancel;
+end;
+
+procedure TdtmManutencaoPreco.Selecionar(TipoPesquisa: TTecPesquisa);
+begin
+  case TipoPesquisa of
+             pesCOLUNAS : ReFazConsulta(qryProcuraColunas,[0],[qryConsultaColunascodigo.AsInteger]);
+        pesFORNECEDORES : ReFazConsulta(qryProcuraFornecedores,[0],[qryConsultaFornecedorescodigo.AsInteger]);
+     pesTIPOSMOVIMENTOS : ReFazConsulta(qryProcuraTipoMovimentos,[0],[qryConsultaTipoMovimentoscodigo.AsVariant]);
+               pesNOTAS : ReFazConsulta(qryProcuraNFEntrada,[0,1,2],[qryProcuraFornecedorNFEntradacodigo.AsVariant,
+                                                                     qryProcuraSerieNFEntradaserie.AsVariant,
+                                                                     qryConsultaNfEntradanumero.AsVariant]);
+  pesSERIESFORNECEDORES : ReFazConsulta(qryProcuraSerieNFEntrada,[0,1],[qryProcuraFornecedorNFEntradacodigo.AsVariant,
+                                                                          qryConsultaSerieNfEntradaserie.AsVariant]);
+   pesFORNECEDORESNOTAS : ReFazConsulta(qryProcuraFornecedorNFEntrada,[0],[qryConsultaFornecedorNFentradacodigo.AsVariant]);
+             pesFILIAIS : if not FFornecedores then
+                            ReFazConsulta(qryProcuraFiliais,[0],[qryConsultaFiliaiscodigo.AsInteger])
+                          else
+                            ReFazConsulta(qryProcuraFilialMovimentos,[0],[qryConsultaFiliaisMovimentoscodigo.AsInteger]);
+  end;
+end;
+
+procedure TdtmManutencaoPreco.ReFazConsultaFiliais;
+begin
+  ReFazConsulta(qryProcuraFiliais,[0],[0]);
+end;
+
+procedure TdtmManutencaoPreco.DataModuleDestroy(Sender: TObject);
+begin
+  SetLength(FCodigosAlteracoesPrecos, 0);
+  inherited;
+end;
+
+procedure TdtmManutencaoPreco.qryManutencaoPrecoAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  {
+  qryManutencaoPreco.Fields[0].Visible := false;
+  qryManutencaoPreco.Fields[1].visible := False;
+  }
+  LimparProdutosAlterados;
+end;
+
+procedure TdtmManutencaoPreco.dsrManutencaoPrecoDataChange(Sender: TObject;
+  Field: TField);
+begin
+  inherited;
+  if (field <> nil) and
+     (field.fieldname <> 'alterado') and
+     (field.fieldname <> 'alterar') then
+  begin
+    if qryManutencaoPreco.state <> dsedit then
+      qryManutencaoPreco.edit;
+    qryManutencaoPreco.fieldbyname('alterado').asBoolean := true;
+    if qryManutencaoPreco.state = dsedit then
+      qryManutencaoPreco.post;
+  end;
+
+  if not AtualizandoPrecos then
+    if field <> nil then
+
+      if ((copy(Field.FieldName,1,7)='valor_l') or
+          (copy(Field.FieldName,1,10)='validade_l')) and
+          (qryManutencaoPreco.fieldByName('caracteristica').asstring<>'') then
+      begin
+        if copy(Field.FieldName,1,7)='valor_l' then
+          Col := copy(Field.FieldName,8,length(Field.FieldName)-7)
+        else Col := copy(Field.FieldName,11,length(Field.FieldName)-10);
+        index := PrecosCaracteristicasAlterados[caract_preco_col].IndexOf(
+            qryManutencaoPreco.fieldByName('caracteristica').asstring +
+            qryManutencaoPreco.fieldByName('preco').asstring +
+            Col);
+
+        if index = -1 then
+        begin
+          PrecosCaracteristicasAlterados[caract_preco_col].Add(
+              qryManutencaoPreco.fieldByName('caracteristica').asstring +
+              qryManutencaoPreco.fieldByName('preco').asstring +
+              Col);
+          PrecosCaracteristicasAlterados[caracteristica].Add(qryManutencaoPreco.fieldByName('caracteristica').asstring);
+          PrecosCaracteristicasAlterados[preco].Add(qryManutencaoPreco.fieldByName('preco').asstring);
+          PrecosCaracteristicasAlterados[coluna].Add(Col);
+
+          if (qryManutencaoPreco.FieldByName('valor_l'+col).AsString='') then
+
+           PrecosCaracteristicasAlterados[valor].Add('0')
+
+          else
+
+           PrecosCaracteristicasAlterados[valor].Add(qryManutencaoPreco.FieldByName('valor_l'+col).AsString);
+
+          PrecosCaracteristicasAlterados[validade].Add(qryManutencaoPreco.FieldByName('validade_l'+col).AsString);
+
+          index := PrecosCaracteristicasAlterados[caract_preco_col].IndexOf(
+
+                   qryManutencaoPreco.fieldByName('caracteristica').asstring +
+                   qryManutencaoPreco.fieldByName('preco').asstring +
+                   Col);
+        end
+
+        else
+
+        begin
+
+          if (PrecosCaracteristicasAlterados[valor].Strings[index] <> qryManutencaoPreco.FieldByName('valor_l'+col).AsString) or
+             (PrecosCaracteristicasAlterados[validade].Strings[index] <> qryManutencaoPreco.FieldByName('validade_l'+col).AsString) then
+          begin
+            if (qryManutencaoPreco.FieldByName('valor_l'+col).AsString='') then
+             PrecosCaracteristicasAlterados[valor].Strings[index] := '0'
+            else
+             PrecosCaracteristicasAlterados[valor].Strings[index] := qryManutencaoPreco.FieldByName('valor_l'+col).AsString;
+            PrecosCaracteristicasAlterados[validade].Strings[index] := qryManutencaoPreco.FieldByName('validade_l'+col).AsString;
+          end;
+        end;
+
+        if not VarrendoManutencao then
+          AtualizarPrecos;
+
+        if (col = PNormal) or
+           (col = PPromocao) then
+          AlterarValoresPrecosMarkup(false);
+
+      end
+      else
+      if (field.FieldName = 'markup') then
+      begin
+        if (qryManutencaoPreco.fieldByName('caracteristica').asstring<>'') then
+        begin
+          indexM := CaracteristicasAlteradas[caracteristicam].IndexOf(
+            qryManutencaoPreco.fieldByName('caracteristica').asstring);
+
+          if indexM = -1 then
+          begin
+            CaracteristicasAlteradas[caracteristicam].Add(qryManutencaoPreco.fieldByName('caracteristica').asstring);
+            CaracteristicasAlteradas[markup].Add(qryManutencaoPreco.fieldByName('markup').asstring);
+            indexM := CaracteristicasAlteradas[caracteristicaM].IndexOf(qryManutencaoPreco.fieldByName('caracteristica').asstring);
+          end
+          else
+            if (CaracteristicasAlteradas[markup].Strings[indexM] <> qryManutencaoPreco.FieldByName('markup').AsString) then
+              CaracteristicasAlteradas[markup].Strings[indexM] := qryManutencaoPreco.FieldByName('markup').AsString;
+
+          if not VarrendoManutencao then
+            AtualizarMarkups;
+        end;
+
+        AlterarValoresPrecosMarkup;
+      end;
+
+end;
+
+procedure TdtmManutencaoPreco.AtualizarPrecos;
+var
+ RegistroAtual : TBookMark;
+begin
+ AtualizandoPrecos := True;
+ RegistroAtual := qryManutencaoPreco.GetBookmark;
+ qryManutencaoPreco.DisableControls;
+ qryManutencaoPreco.First;
+ While not qryManutencaoPreco.Eof do
+ begin
+
+   if ((qryManutencaoPreco.fieldByName('caracteristica').asstring + qryManutencaoPreco.fieldByName('preco').AsString + col) =  PrecosCaracteristicasAlterados[caract_preco_col].strings[index]) and
+     ((qryManutencaoPreco.FieldByName('valor_l'+col).AsString <> PrecosCaracteristicasAlterados[valor].strings[index]) or
+      (qryManutencaoPreco.FieldByName('validade_l'+col).AsString <> PrecosCaracteristicasAlterados[validade].strings[index])) then
+   begin
+     qryManutencaoPreco.Edit;
+     qrymanutencaopreco.FieldByName('valor_l'+col).AsString := PrecosCaracteristicasAlterados[valor].strings[index];
+     qrymanutencaopreco.FieldByName('validade_l'+col).AsString := PrecosCaracteristicasAlterados[validade].strings[index];
+     qryManutencaoPreco.post;
+   end;
+
+
+
+   qryManutencaoPreco.Next;
+ end;
+ qrymanutencaopreco.GotoBookmark(RegistroAtual);
+ qryManutencaoPreco.FreeBookmark(RegistroAtual);
+ qryManutencaoPreco.enableControls;
+ AtualizandoPrecos := False;
+end;
+
+procedure TdtmManutencaoPreco.AlterarColunasPrecosProdutos;
+var
+  Usuario: TtecUsuarios;
+  Indice: INteger;
+
+  procedure InserirColunasPreco;
+  begin
+     qryColunasPrecos.Sql.Clear;
+      qryColunasPrecos.Sql.Add('Insert Into colunasprecos (caracteristica, preco, coluna, valor, validade, data, alteracao)' + #13 +
+                               ' Values (' + PrecosCaracteristicasAlterados[caracteristica].strings[indice]       + ', ' +
+                                             PrecosCaracteristicasAlterados[preco].strings[indice]                + ', ' +
+                                             PrecosCaracteristicasAlterados[coluna].strings[indice]               + ', ' +
+                                             Trocar(PrecosCaracteristicasAlterados[valor].strings[indice],',','.')+ ', ' +
+                                             DataValidade                                                         + ', ' +
+                                             'Current_Date'                                                       + ', ' +
+                                             'Current_Date' + ')');
+      qryColunasPrecos.Open;
+//      Perpetrar([qryColunasPrecos]);
+  end;
+
+  procedure AtualizarColunasPreco;
+  begin
+    qryColunasPrecos.Sql.Clear;
+    qryColunasPrecos.Sql.Add('Update colunasprecos Set valor      = ' + Trocar(PrecosCaracteristicasAlterados[valor].strings[indice],',','.') + ',' +
+                                                       'validade  = ' + DataValidade                                                             + ',' +
+                                                       'data      = ' + 'Current_Date' + ',' + #13 +
+                                                       'alteracao = ' + 'Current_Date' + #13 +
+                              'Where caracteristica = ' + qryExisteColunaPrecocaracteristica.AsString +
+                              ' and  preco          = ' + qryExisteColunaPrecopreco.AsString          +
+                              ' and  coluna         = ' + qryExisteColunaPrecocoluna.AsString         + '');
+    qryColunasPrecos.Open;
+//    Perpetrar([qryColunasPrecos]);
+  end;
+
+  procedure ExluirColunasPreco;
+  begin
+    qryColunasPrecos.Sql.Clear;
+    qryColunasPrecos.Sql.Add('Delete From colunasprecos Where caracteristica = ' + qryExisteColunaPrecocaracteristica.AsString +
+                             ' and preco = '  + qryExisteColunaPrecopreco.AsString  +
+                             ' and coluna = ' + qryExisteColunaPrecocoluna.AsString + '');
+    qryColunasPrecos.Open;
+//    Perpetrar([qryColunasPrecos]);
+  end;
+
+begin
+
+  Usuario:= TtecUsuarios.Create(dtmTecSoft.Database);
+  try
+    if UsuarioLogin.GerenteEstoque then
+         Usuario:= ObterAutorizacao(taSENHA)
+    else Usuario:= ObterAutorizacao(taLOGIN, ctGERENTEESTOQUE, ctAUTORIZADO);
+
+    if Assigned(Usuario) then
+    begin
+      if Usuario.GerenteEstoque then
+      begin
+       for indice := 0 to PrecosCaracteristicasAlterados[caract_preco_col].Count -1 do
+       begin
+//        PrecosCaracteristicasAlterados[preco].strings[indice]:= qryManutencaoPreco.fieldByName('preco').AsString;
+        ReFazConsulta(qryExisteColunaPreco,[0,1,2],[PrecosCaracteristicasAlterados[caracteristica].strings[indice],
+                                                    PrecosCaracteristicasAlterados[preco].strings[indice],
+                                                    PrecosCaracteristicasAlterados[coluna].strings[indice]]);
+        if PrecosCaracteristicasAlterados[validade].strings[indice]<>'' then
+             DataValidade:= '''' + PrecosCaracteristicasAlterados[validade].strings[indice]+ ''''
+        else DataValidade:= 'null';
+
+        if not qryExisteColunaPreco.IsEmpty then begin
+          if StrToCurr(PrecosCaracteristicasAlterados[valor].strings[indice]) = 0 then
+              ExluirColunasPreco
+          else
+          if ((StrToCurr(PrecosCaracteristicasAlterados[valor].strings[indice])  <> qryExisteColunaPrecovalor.AsCurrency) or
+              (PrecosCaracteristicasAlterados[validade].strings[indice] <> qryExisteColunaPrecovalidade.AsString)) then
+            AtualizarColunasPreco;
+        end
+        else
+          if (StrToCurr(PrecosCaracteristicasAlterados[valor].strings[indice]) <> 0) then
+              InserirColunasPreco;
+       end;
+       Perpetrar([qryColunasPrecos]);
+
+
+       for indice := 0 to CaracteristicasAlteradas[caracteristicam].Count -1 do
+       begin
+        ReFazConsultapornome(qryCaracteristicas,['codigo'], [CaracteristicasAlteradas[caracteristicaM].strings[indice]]);
+        if qryCaracteristicas.recordcount = 1 then
+        begin
+          if CaracteristicasAlteradas[markup].strings[indice] <> qryCaracteristicasmarkup.asString  then
+          begin
+            qryAtualizarCaracteristicas.ParamByName('codigo').asString := qryCaracteristicascodigo.asString;
+            qryAtualizarCaracteristicas.ParamByName('markup').asString := CaracteristicasAlteradas[markup].strings[indice];
+            qryAtualizarCaracteristicas.execSQL;
+          end
+        end
+        else
+          mensagemerro('O produto ' + CaracteristicasAlteradas[caracteristicaM].strings[indice] + ' não foi encontrado.');
+       end;
+       Perpetrar([qryAtualizarCaracteristicas]);
+
+       LimparProdutosAlterados;
+       FEditando:= False;
+      end
+      else
+       MensagemAviso(ctUSUARIOSEMPERMISSAO);
+    end;
+  finally
+    Usuario.Free;
+  end;
+end;
+
+procedure TdtmManutencaoPreco.LimparProdutosAlterados;
+begin
+  PrecosCaracteristicasAlterados[caract_preco_col].Clear;
+  PrecosCaracteristicasAlterados[Caracteristica].Clear;
+  PrecosCaracteristicasAlterados[preco].Clear;
+  PrecosCaracteristicasAlterados[coluna].Clear;
+  PrecosCaracteristicasAlterados[valor].Clear;
+  PrecosCaracteristicasAlterados[validade].Clear;
+
+  CaracteristicasAlteradas[CaracteristicaM].Clear;
+  CaracteristicasAlteradas[markup].Clear;
+
+  AtribuirDados(qryManutencaoPreco, [qryManutencaoPreco.fieldbyname('alterado')], [false], true);
+
+end;
+
+procedure TdtmManutencaoPreco.SetDataFinal(const Value: String);
+begin
+  FDataFinal := Value;
+end;
+
+procedure TdtmManutencaoPreco.SetDataInicial(const Value: String);
+begin
+  FDataInicial := Value;
+end;
+
+procedure TdtmManutencaoPreco.ZMonitor1MonitorEvent(Sql, Result: String);
+var
+ Listar : TStringList;
+ FileName: String;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  FileName := 'c:\lixo\manutencaoprecos.sql';
+  if fileexists(FileName) then
+    Listar.loadfromfile(FileName);
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile(FileName);
+  listar.free;
+end;
+
+function TdtmManutencaoPreco.MontaCondicaoMovimentacao: String;
+var SQLMovimentacao, SQLFiltroMovimento: String;
+begin
+  SQLMovimentacao:= 'and (p.codigo in (Select m.produto from movimentos m where ';
+  SQLFiltroMovimento:= '';
+  if not qryProcuraFilialMovimentos.IsEmpty then
+    SQLFiltroMovimento:= SQLFiltroMovimento + 'and m.filial = '+ qryProcuraFilialMovimentoscodigo.AsString+' ';
+  if not qryProcuraTipoMovimentos.IsEmpty then
+    SQLFiltroMovimento:= SQLFiltroMovimento + 'and m.tipomovimento = '+QuotedStr(qryProcuraTipoMovimentoscodigo.AsString)+' ';
+  if not DataEmBranco(DataMovtoInicial) and (DataEmBranco(DataMovtoFinal)) then
+    SQLFiltroMovimento:= SQLFiltroMovimento + 'and m.data >= '+quotedstr(DataMovtoInicial)+' '
+  else if DataEmBranco(DataMovtoInicial) and not (DataEmBranco(DataMovtoFinal)) then
+    SQLFiltroMovimento:= SQLFiltroMovimento + 'and m.data <= '+quotedstr(DataMovtoFinal)+' '
+  else if not (DataEmBranco(DataMovtoInicial)) and not (DataEmBranco(DataMovtoFinal)) then
+    SQLFiltroMovimento:= SQLFiltroMovimento + 'and m.data between '+quotedstr(DataMovtoInicial)+' and '+quotedstr(DataMovtoFinal);
+
+  if SQLFiltroMovimento <> '' then
+  begin
+    Delete(SQLFiltroMovimento,1,4);
+    SQLMovimentacao:= SQLMovimentacao + SQLFiltroMovimento + '))';
+    Result:= SQLMovimentacao;
+  end
+  else
+    Result:= '';
+end;
+
+procedure TdtmManutencaoPreco.qryProcuraSerieNFEntradaAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryProcuraNFEntrada.ParamByName('Serie').Value  := qryProcuraSerieNFEntradaserie.AsString;
+  qryConsultaNfEntrada.ParamByName('Serie').Value := qryProcuraSerieNFEntradaserie.AsString;
+end;
+
+procedure TdtmManutencaoPreco.qryProcuraFornecedorNFEntradaAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryProcuraSerieNFEntrada.ParamByName('fornecedor').Value:= qryProcuraFornecedorNFEntradacodigo.AsInteger;
+  qryConsultaSerieNfEntrada.ParamByName('fornecedor').Value:= qryProcuraFornecedorNFEntradacodigo.AsInteger;
+  qryProcuraNFEntrada.ParamByName('fornecedor').Value:= qryProcuraFornecedorNFEntradacodigo.AsInteger;
+  qryConsultaNfEntrada.ParamByName('fornecedor').Value:= qryProcuraFornecedorNFEntradacodigo.AsInteger;
+end;
+
+function TdtmManutencaoPreco.ExisteFilialFornec(campo,
+  codigo: String): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaFiliaisMovimentos, campo, codigo);
+end;
+
+function TdtmManutencaoPreco.ExisteFornecedorNota(campo,
+  codigo: String): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaFornecedorNFentrada, campo, codigo);
+end;
+
+function TdtmManutencaoPreco.ExisteNota(campo, codigo: String): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaNfEntrada, campo, codigo);
+end;
+
+function TdtmManutencaoPreco.ExisteSerieNota(campo,
+  codigo: String): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaSerieNfEntrada, campo, codigo);
+end;
+
+function TdtmManutencaoPreco.ExisteTipoMovto(campo,
+  codigo: String): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaTipoMovimentos, campo, codigo);
+end;
+
+procedure TdtmManutencaoPreco.SetDataMovtoInicial(const Value: String);
+begin
+  FDataMovtoInicial := Value;
+end;
+
+procedure TdtmManutencaoPreco.SetDataMovtoFinal(const Value: String);
+begin
+  FDataMovtoFinal := Value;
+end;
+
+function TdtmManutencaoPreco.MontaCondicaoNotaEntrada: String;
+var SQLNotasEntrada, SQLFiltrosNotas: String;
+begin
+  SQLNotasEntrada:= ' and (p.codigo in (Select pn.produto from produtosnotaspag pn join notaspag np on pn.codigonota = np.codigo where  ';
+  SQLFiltrosNotas:= '';
+
+  if not DataEmBranco(DataNotaInicial) and (DataEmBranco(DataNotaFinal)) then
+      SQLFiltrosNotas:= SQLFiltrosNotas + 'and np.data >= '+quotedstr(DataMovtoInicial)+' '
+    else if DataEmBranco(DataNotaInicial) and not (DataEmBranco(DataNotaFinal)) then
+      SQLFiltrosNotas:= SQLFiltrosNotas + 'and np.data <= '+quotedstr(DataNotaFinal)+' '
+    else if not (DataEmBranco(DataNotaInicial)) and not (DataEmBranco(DataNotaFinal)) then
+      SQLFiltrosNotas:= SQLFiltrosNotas + 'and np.data between '+quotedstr(DataNotaInicial)+' and '+quotedstr(DataNotaFinal);
+
+  if not qryProcuraFornecedorNFEntrada.IsEmpty then
+    SQLFiltrosNotas:= SQLFiltrosNotas + 'and np.fornecedor = '+qryProcuraFornecedorNFEntradacodigo.AsString+' ';
+  if not qryProcuraSerieNFEntrada.IsEmpty then
+    SQLFiltrosNotas:= SQLFiltrosNotas + 'and np.serie = '+QuotedStr(qryProcuraSerieNFEntradaserie.AsString)+' ';
+  if not qryProcuraNFEntrada.IsEmpty then
+    SQLFiltrosNotas:= SQLFiltrosNotas + 'and np.numero = '+qryProcuraNFEntradanumero.AsString;
+
+
+  if SQLFiltrosNotas <> '' then
+  begin
+    Delete(SQLFiltrosNotas,1,4);
+    SQLNotasEntrada:= SQLNotasEntrada + SQLFiltrosNotas + '))';
+    Result:= SQLNotasEntrada;
+  end
+  else
+    result:= '';
+end;
+
+procedure TdtmManutencaoPreco.SetDataNotaFinal(const Value: String);
+begin
+  FDataNotaFinal := Value;
+end;
+
+procedure TdtmManutencaoPreco.SetDataNotaInicial(const Value: String);
+begin
+  FDataNotaInicial := Value;
+end;
+
+procedure TdtmManutencaoPreco.AlterarValoresPrecosMarkup(AlterarPrecoNormal: boolean);
+var
+ i: integer;
+ vDataValidade: String;
+begin
+  if AlterarPrecoNormal then
+  begin
+    refazconsultapornome(qrymanutencao_preco, ['produto','filial', 'markup','valorultimacompra'],
+                                              [qryManutencaoPreco.fieldbyname('produto').asString,
+                                               filialbase,
+                                               qryManutencaoPreco.fieldbyname('markup').ascurrency,
+                                               qryManutencaoPreco.fieldbyname('ultimacompra').ascurrency]);
+    if qryManutencaoPreco.FieldByName('valor_l'+PNormal).AsCurrency <> qryManutencao_precoprecovenda.AsCurrency then
+    begin
+      qryManutencaoPreco.edit;
+      qryManutencaoPreco.FieldByName('valor_l'+PNormal).AsCurrency := qryManutencao_precoprecovenda.AsCurrency;
+      qryManutencaoPreco.FieldByName('precovendaantesimpostos').AsCurrency := qryManutencao_precoprecovendaantesimpostos.AsCurrency;
+
+      qryManutencaoPreco.FieldByName('margem_l'+PNormal).AsCurrency := (1-(qryManutencaoPreco.FieldByName('ultimacompra').AsCurrency/qryManutencaoPreco.FieldByName('valor_l'+PNormal).AsCurrency)) * 100;
+      qryManutencaoPreco.FieldByName('alterado').AsBoolean := true;
+
+      if qryManutencaoPreco.state = dsedit then
+        qryManutencaoPreco.post;
+    end;
+  end;
+
+
+  if roundtod(qryManutencaoPreco.FieldByName('margem_l'+PNormal).AsCurrency, 2) <> roundtod(((1-(qryManutencaoPreco.FieldByName('ultimacompra').AsCurrency/qryManutencaoPreco.FieldByName('valor_l'+PNormal).AsCurrency)) * 100), 2) then
+  begin
+    qryManutencaoPreco.edit;
+    qryManutencaoPreco.FieldByName('margem_l'+PNormal).AsCurrency := (1-(qryManutencaoPreco.FieldByName('ultimacompra').AsCurrency/qryManutencaoPreco.FieldByName('valor_l'+PNormal).AsCurrency)) * 100;
+    if qryManutencaoPreco.state = dsedit then
+      qryManutencaoPreco.post;
+  end;
+
+  for i := qryManutencaoPreco.FieldCount-1 downto vLimiteCampoAlteravel+1 do
+    if copy(qryManutencaoPreco.fields[i].FieldName,1,6) = 'cargo_' then
+    begin
+       vDataValidade := FormatDateTime('yyyy-mm-dd', DataServidor-1);
+       if (PPromocao<>'0') then
+       begin
+         if (qryManutencaoPreco.FieldByName('validade_l'+PPromocao).asString <> '') then
+           vDataValidade := FormatDateTime('yyyy-mm-dd', qryManutencaoPreco.FieldByName('validade_l'+PPromocao).asDatetime);
+
+         refazconsultapornome(qrymanutencao_precocargo, ['produto','cargo','ValorPrecoNormal','ValorPrecoPromocao','DataValidadePromocao'],
+                                                      [qryManutencaoPreco.fieldbyname('produto').asString,
+                                                       strtoint(somentenumero(qryManutencaoPreco.fields[i].FieldName)),
+                                                       qryManutencaoPreco.FieldByName('valor_l'+PNormal).AsCurrency,
+                                                       qryManutencaoPreco.FieldByName('valor_l'+PPromocao).AsCurrency,
+                                                       vDataValidade]);
+       end
+       else
+         refazconsultapornome(qrymanutencao_precocargo, ['produto','cargo','ValorPrecoNormal','ValorPrecoPromocao','DataValidadePromocao'],
+                                                      [qryManutencaoPreco.fieldbyname('produto').asString,
+                                                       strtoint(somentenumero(qryManutencaoPreco.fields[i].FieldName)),
+                                                       qryManutencaoPreco.FieldByName('valor_l'+PNormal).AsCurrency,
+                                                       0,
+                                                       vDataValidade]);
+       if qryManutencaoPreco.Fields[i].AsCurrency <> qryManutencao_precocargovalor.AsCurrency then
+       begin
+         qryManutencaoPreco.edit;
+         qryManutencaoPreco.Fields[i].AsCurrency := qryManutencao_precocargovalor.AsCurrency;
+         qryManutencaoPreco.FieldByName('alterado').AsBoolean := true;
+         if qryManutencaoPreco.state = dsedit then
+           qryManutencaoPreco.post;
+       end;
+    end;
+end;
+
+procedure TdtmManutencaoPreco.AtualizarMarkups;
+var
+ RegistroAtual : TBookMark;
+begin
+ AtualizandoPrecos := True;
+ RegistroAtual := qryManutencaoPreco.GetBookmark;
+ qryManutencaoPreco.DisableControls;
+ qryManutencaoPreco.First;
+ While not qryManutencaoPreco.Eof do
+ begin
+   if (qryManutencaoPreco.fieldByName('caracteristica').asstring =  CaracteristicasAlteradas[caracteristicam].strings[indexM]) and
+      (qryManutencaoPreco.FieldByName('markup').AsString <> CaracteristicasAlteradas[markup].strings[indexM]) then
+   begin
+     qryManutencaoPreco.Edit;
+     qrymanutencaopreco.FieldByName('markup').AsString := CaracteristicasAlteradas[markup].strings[indexM];
+     qryManutencaoPreco.post;
+   end;
+   qryManutencaoPreco.Next;
+ end;
+ qrymanutencaopreco.GotoBookmark(RegistroAtual);
+ qryManutencaoPreco.FreeBookmark(RegistroAtual);
+ qryManutencaoPreco.enableControls;
+ AtualizandoPrecos := False;
+end;
+
+procedure TdtmManutencaoPreco.MarcarRegistrosManutencaoPrecosAtualizar(
+  Marcando, Todos: boolean);
+begin
+  if todos then
+    MarcarRegistros(qryManutencaoPreco, TBooleanField(qryManutencaoPreco.fieldByName('alterar')), Marcando, true)
+  else
+    MarcarRegistros(qryManutencaoPreco, TBooleanField(qryManutencaoPreco.fieldByName('alterar')), not qryManutencaoPreco.fieldByName('alterar').asboolean, false);
+end;
+
+procedure TdtmManutencaoPreco.setColunaPromocao(const Value: integer);
+var
+  RegistroAtual : TBookMark;
+  i: integer;
+begin
+  if value <> fColunaPromocao then
+  begin
+    fColunaPromocao := Value;
+    if ColunaPromocao > 0 then
+    begin
+      qrycoluna.first;
+      for I:= 1 to qryColuna.RecordCount do
+      begin
+        if ColunaPromocao = I then
+        begin
+          PPromocao := qryColunacodigo.AsString;
+          break;
+        end;
+        qryColuna.Next;
+      end;
+    end
+    else
+     PPromocao := '0';
+
+
+    AtualizandoPrecos := True;
+    RegistroAtual := qryManutencaoPreco.GetBookmark;
+    qryManutencaoPreco.DisableControls;
+
+    try
+      qryManutencaoPreco.First;
+      while not qryManutencaoPreco.eof do
+      begin
+        AlterarValoresPrecosMarkup(false);
+        qryManutencaoPreco.next;
+      end;
+    finally
+      AtualizandoPrecos := false;
+      qryManutencaoPreco.GotoBookmark(registroatual);
+      qryManutencaoPreco.FreeBookmark(registroatual);
+      qryManutencaoPreco.enableControls;
+    end;
+
+  end;
+end;
+
+end.
+
+

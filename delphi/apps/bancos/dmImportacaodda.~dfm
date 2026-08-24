@@ -1,0 +1,997 @@
+inherited dtmImportacaoDDA: TdtmImportacaoDDA
+  OldCreateOrder = False
+  Left = 324
+  Top = 276
+  Height = 565
+  Width = 895
+  object qryConciliacao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnCalcFields = qryConciliacaoCalcFields
+    OnNewRecord = qryConciliacaoNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select co.*,'
+      ''
+      '       (select sum(ce.valor)'
+      '        from conciliacaoextrato ce'
+      
+        '        where ce.numeroconciliacao = co.numero) as totalaconcili' +
+        'ar,'
+      ''
+      '       (select sum(mbe.valor)'
+      '        from movtosbancoseventos mbe'
+      '             join conciliacaoextrato ce'
+      '             on mbe.conta = ce.conta'
+      '             and mbe.transacao = ce.transacao'
+      
+        '        where ce.numeroconciliacao = co.numero) as totalconcilia' +
+        'do'
+      '        '
+      'from conciliacao co'
+      'where co.conta = :conta'
+      '  and co.datainicial = :datainicial'
+      '  and co.datafinal = :datafinal'
+      '')
+    RequestLive = True
+    Left = 43
+    Top = 80
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'conta'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end>
+    object qryConciliacaoconta: TIntegerField
+      FieldName = 'conta'
+      Required = True
+    end
+    object qryConciliacaodatainicial: TDateField
+      FieldName = 'datainicial'
+      Required = True
+    end
+    object qryConciliacaodatafinal: TDateField
+      FieldName = 'datafinal'
+      Required = True
+    end
+    object qryConciliacaosaldo: TFloatField
+      FieldName = 'saldo'
+      DisplayFormat = '###,##0.00'
+    end
+    object qryConciliacaostatus: TStringField
+      FieldKind = fkCalculated
+      FieldName = 'status'
+      Calculated = True
+    end
+    object qryConciliacaonumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryConciliacaototalconciliado: TFloatField
+      FieldName = 'totalconciliado'
+    end
+    object qryConciliacaototalaconciliar: TFloatField
+      FieldName = 'totalaconciliar'
+    end
+  end
+  object dsrConciliacao: TtecDataSource
+    DataSet = qryConciliacao
+    Left = 75
+    Top = 96
+  end
+  object qryconciliacaoextrato: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryconciliacaoextratoAfterScroll
+    OnCalcFields = qryconciliacaoextratoCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'ListaTransacoes'
+        ParamType = ptUnknown
+        Value = #39'0'#39','#39'1'#39
+      end>
+    Sql.Strings = (
+      'select ce.*,'
+      ''
+      '       (select sum(mbe.valor)'
+      '        from movtosbancoseventos mbe'
+      '        where mbe.conta = ce.conta'
+      '          and mbe.transacao = ce.transacao) as TotalConciliado'
+      ''
+      'from conciliacaoextrato ce'
+      'where ce.conta = :conta'
+      '  and ce.transacao in (%ListaTransacoes)'
+      'order by ce.sequencial'
+      ''
+      ''
+      '/*'
+      ''
+      ':datainicial'
+      ':datafinal'
+      ''
+      '*/')
+    RequestLive = True
+    Left = 144
+    Top = 88
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'conta'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+      end>
+    object qryconciliacaoextratoconta: TIntegerField
+      FieldName = 'conta'
+      Required = True
+    end
+    object qryconciliacaoextratotransacao: TStringField
+      DisplayLabel = 'TRANSA'#199#195'O'
+      FieldName = 'transacao'
+      Required = True
+      Size = 60
+    end
+    object qryconciliacaoextratosequencial: TIntegerField
+      DisplayLabel = 'N.'
+      FieldName = 'sequencial'
+    end
+    object qryconciliacaoextratodocumento: TStringField
+      DisplayLabel = 'DOCUMENTO'
+      FieldName = 'documento'
+      Size = 60
+    end
+    object qryconciliacaoextratodata: TDateField
+      Alignment = taCenter
+      DisplayLabel = 'DATA'
+      FieldName = 'data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryconciliacaoextratotipo: TStringField
+      DisplayLabel = 'TIPO'
+      FieldName = 'tipo'
+      Size = 1
+    end
+    object qryconciliacaoextratovalor: TFloatField
+      DisplayLabel = 'VALOR'
+      FieldName = 'valor'
+      DisplayFormat = '###,##0.00'
+    end
+    object qryconciliacaoextratodescricao: TStringField
+      DisplayLabel = 'DESCRI'#199#195'O'
+      FieldName = 'descricao'
+      Size = 100
+    end
+    object qryconciliacaoextratototalconciliado: TFloatField
+      FieldName = 'totalconciliado'
+      DisplayFormat = '###,##0.00'
+    end
+    object qryconciliacaoextratoSaldo: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'Saldo'
+      DisplayFormat = '###,##0.00'
+      Calculated = True
+    end
+    object qryconciliacaoextratonumeroconciliacao: TIntegerField
+      FieldName = 'numeroconciliacao'
+    end
+  end
+  object dsrconciliacaoextrato: TtecDataSource
+    DataSet = qryconciliacaoextrato
+    Left = 179
+    Top = 104
+  end
+  object qryContaConciliacao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT c.Banco,'
+      '       c.Agencia,'
+      '       c.Conta,'
+      '       c.Digito,'
+      '       c.Titular,'
+      '       b.Sigla,'
+      '       a.Nome'
+      ''
+      'FROM  Contas c JOIN Bancos b   ON c.Banco   = b.Codigo'
+      '               JOIN Agencias a ON c.Banco   = a.Banco AND'
+      '                                  c.Agencia = a.Codigo'
+      ''
+      'WHERE Conta = :Conta'
+      ''
+      ''
+      '')
+    RequestLive = True
+    Left = 313
+    Top = 79
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'Conta'
+        ParamType = ptUnknown
+        Value = '-1'
+      end>
+    object qryContaConciliacaobanco: TIntegerField
+      FieldName = 'banco'
+    end
+    object qryContaConciliacaoagencia: TIntegerField
+      FieldName = 'agencia'
+    end
+    object qryContaConciliacaoconta: TIntegerField
+      FieldName = 'conta'
+    end
+    object qryContaConciliacaodigito: TStringField
+      FieldName = 'digito'
+      Size = 2
+    end
+    object qryContaConciliacaotitular: TStringField
+      FieldName = 'titular'
+      Size = 50
+    end
+    object qryContaConciliacaosigla: TStringField
+      FieldName = 'sigla'
+      Size = 10
+    end
+    object qryContaConciliacaonome: TStringField
+      FieldName = 'nome'
+      Size = 30
+    end
+  end
+  object dsrContaConciliacao: TtecDataSource
+    DataSet = qryContaConciliacao
+    Left = 339
+    Top = 96
+  end
+  object qryMovtosBancosEventos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryMovtosBancosEventosAfterPost
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'CondicaoBuscaAproximadambe'
+        ParamType = ptUnknown
+        Value = 'false'
+      end>
+    Sql.Strings = (
+      
+        'select case when mb.origemlancto = '#39'B'#39' then cast('#39'BANCOS'#39' as var' +
+        'char(20))'
+      
+        '            WHEN mb.origemlancto = '#39'A'#39' then cast('#39'ADIANTAMENTOS'#39 +
+        ' as varchar(20))'
+      
+        '            WHEN mb.origemlancto = '#39'P'#39' then cast('#39'A PAGAR'#39' as va' +
+        'rchar(20))'
+      
+        '            WHEN mb.origemlancto = '#39'R'#39' then cast('#39'A RECEBER'#39' as ' +
+        'varchar(20))'
+      ''
+      '       end as operacao,'
+      '       mbe.conta,'
+      '       mbe.data,'
+      '       mbe.sequencia,'
+      ''
+      ''
+      '       mbe.transacao,'
+      ''
+      '       mb.documento,'
+      ''
+      '       mbe.evento,'
+      '       mbe.sequenciaevento,'
+      ''
+      
+        '       (select e.descricao from eventos e where e.codigo = mbe.e' +
+        'vento) as descricaoevento,'
+      ''
+      '       mbe.observacoes,'
+      '       mbe.valor,'
+      ''
+      
+        '       case when mbe.transacao is not null then true else false ' +
+        'end as conciliar'
+      ''
+      ''
+      'from movtosbancoseventos mbe,'
+      '     movtosbancos mb'
+      ''
+      'where mbe.conta = mb.conta'
+      '  and mbe.data = mb.data'
+      '  and mbe.sequencia = mb.sequencia'
+      ''
+      '  and mbe.conta = :conta and'
+      '       ((mbe.transacao = :Transacao) or'
+      '        (%CondicaoBuscaAproximadambe))'
+      ''
+      ''
+      
+        'Order by case when mbe.transacao is not null then 1 else 2 end, ' +
+        'mbe.valor=abs(:valor) desc, mbe.data, mbe.sequencia, mbe.evento,' +
+        ' mbe.sequenciaevento'
+      ''
+      ''
+      ''
+      '/*'
+      ':datainicial'
+      ':datafinal'
+      ':valor'
+      ''
+      ':DiasAbaixo'
+      ':DiasAcima'
+      ':PercentualValorAbaixo'
+      ':PercentualValorAcima'
+      ''
+      '*/')
+    RequestLive = True
+    Left = 384
+    Top = 224
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'conta'
+        ParamType = ptUnknown
+        Value = '0'
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Transacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftString
+        Name = 'valor'
+        ParamType = ptUnknown
+        Value = '0'
+      end
+      item
+        DataType = ftString
+        Name = 'datainicial'
+        ParamType = ptUnknown
+        Value = '0'
+      end
+      item
+        DataType = ftString
+        Name = 'datafinal'
+        ParamType = ptUnknown
+        Value = '0'
+      end
+      item
+        DataType = ftString
+        Name = 'DiasAbaixo'
+        ParamType = ptUnknown
+        Value = '0'
+      end
+      item
+        DataType = ftString
+        Name = 'DiasAcima'
+        ParamType = ptUnknown
+        Value = '0'
+      end
+      item
+        DataType = ftUnknown
+        Name = 'PercentualValorAbaixo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftString
+        Name = 'PercentualValorAcima'
+        ParamType = ptUnknown
+        Value = '0'
+      end>
+    object qryMovtosBancosEventosoperacao: TStringField
+      DisplayLabel = 'OPERA'#199#195'O'
+      DisplayWidth = 20
+      FieldName = 'operacao'
+      Size = 50
+    end
+    object qryMovtosBancosEventosconta: TIntegerField
+      FieldName = 'conta'
+    end
+    object qryMovtosBancosEventostransacao: TStringField
+      FieldName = 'transacao'
+      Size = 60
+    end
+    object qryMovtosBancosEventosdocumento: TStringField
+      FieldName = 'documento'
+    end
+    object qryMovtosBancosEventosvalor: TFloatField
+      FieldName = 'valor'
+      DisplayFormat = '###,##0.00'
+    end
+    object qryMovtosBancosEventosevento: TIntegerField
+      FieldName = 'evento'
+    end
+    object qryMovtosBancosEventosdescricaoevento: TStringField
+      FieldName = 'descricaoevento'
+      Size = 50
+    end
+    object qryMovtosBancosEventosobservacoes: TStringField
+      FieldName = 'observacoes'
+      Size = 1000
+    end
+    object qryMovtosBancosEventosconciliar: TBooleanField
+      FieldName = 'conciliar'
+      OnChange = qryMovtosBancosEventosconciliarChange
+    end
+    object qryMovtosBancosEventosdata: TDateField
+      FieldName = 'data'
+    end
+    object qryMovtosBancosEventossequencia: TIntegerField
+      FieldName = 'sequencia'
+    end
+    object qryMovtosBancosEventossequenciaevento: TIntegerField
+      FieldName = 'sequenciaevento'
+    end
+  end
+  object dsrMovtosBancosEventos: TtecDataSource
+    DataSet = qryMovtosBancosEventos
+    OnDataChange = dsrMovtosBancosEventosDataChange
+    Left = 392
+    Top = 280
+  end
+  object OFXReader1: TOFXReader
+    Left = 320
+    Top = 168
+  end
+  object qryAtualizarMovtosBancos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update movtosbancos set compensacao = :compensacao'
+      'where conta = :conta'
+      '  and data = :data'
+      '  and sequencia = :sequencia')
+    RequestLive = True
+    Left = 96
+    Top = 296
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'compensacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'conta'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'sequencia'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryProximoNumero_Conciliacao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select nextval('#39'conciliacao_proximonumero'#39') as numero')
+    RequestLive = False
+    Left = 80
+    Top = 24
+    object qryProximoNumero_Conciliacaonumero: TLargeintField
+      FieldName = 'numero'
+    end
+  end
+  object qryAtualizarMovtosBancosEventos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update movtosbancoseventos set transacao = :transacao'
+      'where conta = :conta'
+      '  and data = :data'
+      '  and sequencia = :sequencia'
+      '  and evento = :evento'
+      '  and sequenciaevento = :sequenciaevento')
+    RequestLive = True
+    Left = 96
+    Top = 352
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'transacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'conta'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'sequencia'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'evento'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'sequenciaevento'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryProcuraContas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT c.Banco,'
+      '       c.Agencia,'
+      '       c.Conta,'
+      '       c.Digito,'
+      '       c.Titular,'
+      '       b.Sigla,'
+      '       a.Nome,'
+      ''
+      '       SaldoBanco(c.Conta, (SELECT MAX(Data)'
+      '                               FROM  MovtosBancos'
+      
+        '                               WHERE Conta = c.Conta), '#39'L'#39') AS S' +
+        'aldoLancado'
+      ''
+      'FROM  Contas c JOIN Bancos b   ON c.Banco   = b.Codigo'
+      '               JOIN Agencias a ON c.Banco   = a.Banco AND'
+      '                                  c.Agencia = a.Codigo'
+      ''
+      'WHERE Conta = :Conta'
+      ''
+      ''
+      '')
+    RequestLive = True
+    Left = 472
+    Top = 81
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Conta'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraContasBanco: TIntegerField
+      FieldName = 'Banco'
+      DisplayFormat = '0'
+    end
+    object qryProcuraContasAgencia: TIntegerField
+      FieldName = 'Agencia'
+      DisplayFormat = '0'
+    end
+    object qryProcuraContasConta: TIntegerField
+      FieldName = 'Conta'
+      DisplayFormat = '0'
+    end
+    object qryProcuraContasDigito: TStringField
+      FieldName = 'Digito'
+      Size = 2
+    end
+    object qryProcuraContasTitular: TStringField
+      FieldName = 'Titular'
+      Size = 50
+    end
+    object qryProcuraContasSigla: TStringField
+      FieldName = 'Sigla'
+      Size = 10
+    end
+    object qryProcuraContasNome: TStringField
+      FieldName = 'Nome'
+      Size = 30
+    end
+    object qryProcuraContasSaldoLancado: TFloatField
+      DisplayLabel = 'Saldo'
+      FieldName = 'SaldoLancado'
+      DisplayFormat = '###,###,##0.00'
+    end
+  end
+  object dsrProcuraContas: TtecDataSource
+    DataSet = qryProcuraContas
+    Left = 494
+    Top = 102
+  end
+  object qryConciliacao_Importacao_OFX: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnCalcFields = qryConciliacaoCalcFields
+    OnNewRecord = qryConciliacaoNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select co.*,'
+      ''
+      '       (select sum(ce.valor)'
+      '        from conciliacaoextrato ce'
+      
+        '        where ce.numeroconciliacao = co.numero) as totalaconcili' +
+        'ar,'
+      ''
+      '       (select sum(mbe.valor)'
+      '        from movtosbancoseventos mbe'
+      '             join conciliacaoextrato ce'
+      '             on mbe.conta = ce.conta'
+      '             and mbe.transacao = ce.transacao'
+      
+        '        where ce.numeroconciliacao = co.numero) as totalconcilia' +
+        'do'
+      '        '
+      'from conciliacao co'
+      'where co.conta = :conta'
+      '  and co.datainicial = :datainicial'
+      '  and co.datafinal = :datafinal'
+      '')
+    RequestLive = True
+    Left = 715
+    Top = 48
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'conta'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryConciliacao_Consulta: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnCalcFields = qryConciliacaoCalcFields
+    OnNewRecord = qryConciliacaoNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cast(null as integer) as numero,'
+      '       cast(:conta as integer) as conta,'
+      '       cast(:datainicial as date) as datainicial,'
+      '       cast(:datafinal as date) as datafinal,'
+      '       cast(null as numeric(11,2)) as Saldo,'
+      ''
+      '       (select sum(ce.valor)'
+      '        from conciliacaoextrato ce'
+      '        where ce.conta = :conta'
+      
+        '        and ce.data between :datainicial and :datafinal) as tota' +
+        'laconciliar,'
+      ''
+      '       (select sum(mbe.valor)'
+      '        from movtosbancoseventos mbe'
+      '             join conciliacaoextrato ce'
+      '             on mbe.conta = ce.conta'
+      '             and mbe.transacao = ce.transacao'
+      '        where ce.conta = :conta'
+      
+        '        and ce.data between :datainicial and :datafinal) as tota' +
+        'lconciliado'
+      '')
+    RequestLive = True
+    Left = 715
+    Top = 104
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'conta'
+        ParamType = ptUnknown
+        Value = '0'
+      end
+      item
+        DataType = ftString
+        Name = 'datainicial'
+        ParamType = ptUnknown
+        Value = #39'2019-01-01'#39
+      end
+      item
+        DataType = ftString
+        Name = 'datafinal'
+        ParamType = ptUnknown
+        Value = #39'2019-01-01'#39
+      end>
+  end
+  object qryConsultaContas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT b.Sigla,'
+      '       a.Nome,'
+      '       c.Conta,'
+      '       c.Digito,'
+      '       c.Titular,'
+      '       c.Banco,'
+      '       c.Agencia,'
+      ''
+      '       SaldoBanco(c.Conta, (SELECT MAX(Data)'
+      '                               FROM  MovtosBancos'
+      
+        '                               WHERE Conta = c.Conta), '#39'L'#39') AS S' +
+        'aldoLancado'
+      ''
+      'FROM   Contas c JOIN Bancos b   ON c.Banco   = b.Codigo'
+      '                JOIN Agencias a ON c.Banco   = a.Banco AND'
+      '                                   c.Agencia = a.Codigo'
+      ''
+      'ORDER BY b.Sigla, UPPER(TO_ASCII(a.Nome,    '#39'LATIN1'#39')),'
+      '                  UPPER(TO_ASCII(c.Titular, '#39'LATIN1'#39'))')
+    RequestLive = True
+    Left = 510
+    Top = 167
+    object qryConsultaContasSigla: TStringField
+      FieldName = 'Sigla'
+      Size = 10
+    end
+    object qryConsultaContasNome: TStringField
+      FieldName = 'Nome'
+      Size = 30
+    end
+    object qryConsultaContasConta: TIntegerField
+      DisplayLabel = 'N'#186' Conta'
+      FieldName = 'Conta'
+      DisplayFormat = '0'
+    end
+    object qryConsultaContasDigito: TStringField
+      DisplayLabel = 'V'
+      DisplayWidth = 1
+      FieldName = 'Digito'
+      Size = 2
+    end
+    object qryConsultaContasTitular: TStringField
+      FieldName = 'Titular'
+      Size = 50
+    end
+    object qryConsultaContasSaldoLancado: TFloatField
+      DisplayLabel = 'Saldo'
+      FieldName = 'SaldoLancado'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryConsultaContasBanco: TIntegerField
+      FieldName = 'Banco'
+      Visible = False
+      DisplayFormat = '0'
+    end
+    object qryConsultaContasAgencia: TIntegerField
+      FieldName = 'Agencia'
+      Visible = False
+      DisplayFormat = '0'
+    end
+  end
+  object qryDuplicatas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select d.documentopag, d.numero, d.datavencto'
+      'from duplicatas d'
+      'where d.contapagto = :conta'
+      ' and d.datapagto = :data'
+      ' and d.sequencia = :sequencia'
+      ' and d.evento = :evento'
+      ' and d.sequenciaevento = :sequenciaevento')
+    RequestLive = False
+    Left = 576
+    Top = 264
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'conta'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'sequencia'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'evento'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'sequenciaevento'
+        ParamType = ptUnknown
+      end>
+    object qryDuplicatasdocumentopag: TIntegerField
+      FieldName = 'documentopag'
+      Required = True
+    end
+    object qryDuplicatasnumero: TIntegerField
+      FieldName = 'numero'
+      Required = True
+    end
+    object qryDuplicatasdatavencto: TDateField
+      FieldName = 'datavencto'
+      Required = True
+    end
+  end
+  object qryParcelas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select p.contrato, p.numero'
+      'from parcelas p'
+      'where p.contaboleto = :conta'
+      ' and coalesce(p.datacredito,p.datapagto) = :data'
+      ' and p.sequencia = :sequencia'
+      ' and p.evento = :evento'
+      ' and p.valorpagto = :valorpagto   /*  Estranho...por'#233'm....*/')
+    RequestLive = False
+    Left = 576
+    Top = 336
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'conta'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'sequencia'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'evento'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'valorpagto'
+        ParamType = ptUnknown
+      end>
+    object qryParcelascontrato: TStringField
+      FieldName = 'contrato'
+      Required = True
+    end
+    object qryParcelasnumero: TIntegerField
+      FieldName = 'numero'
+      Required = True
+    end
+  end
+  object ACBrBoleto1: TACBrBoleto
+    Banco.TamanhoMaximoNossoNum = 10
+    Banco.TipoCobranca = cobNenhum
+    Banco.LayoutVersaoArquivo = 0
+    Banco.LayoutVersaoLote = 0
+    Cedente.TipoInscricao = pJuridica
+    NumeroArquivo = 0
+    LayoutRemessa = c240
+    Left = 232
+    Top = 208
+  end
+end

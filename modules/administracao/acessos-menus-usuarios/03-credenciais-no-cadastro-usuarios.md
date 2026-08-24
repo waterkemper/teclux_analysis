@@ -10,14 +10,14 @@ e cite arquivos e linhas concretos.
 
 Leia antes:
 
-- modules/administracao/acessos-menus-usuarios/README.md
-- modules/administracao/acessos-menus-usuarios/pesquisa-padroes-laravel.md
-- laravel/backend/app/Services/User/UsersService.php
-- laravel/backend/app/Http/Controllers/User/UsersController.php
-- laravel/backend/app/Http/Requests/User/StoreUserRequest.php
-- laravel/backend/app/Http/Requests/User/UpdateUserRequest.php
-- laravel/backend/resources/js/Pages/Cadastros/Users/UsersCadastroForm.tsx
-- laravel/backend/routes/console.php
+- /mnt/c/teclux_analysis/modules/administracao/acessos-menus-usuarios/README.md
+- /mnt/c/teclux_analysis/modules/administracao/acessos-menus-usuarios/pesquisa-padroes-laravel.md
+- /mnt/c/teclux_analysis/laravel/backend/app/Services/User/UsersService.php
+- /mnt/c/teclux_analysis/laravel/backend/app/Http/Controllers/User/UsersController.php
+- /mnt/c/teclux_analysis/laravel/backend/app/Http/Requests/User/StoreUserRequest.php
+- /mnt/c/teclux_analysis/laravel/backend/app/Http/Requests/User/UpdateUserRequest.php
+- /mnt/c/teclux_analysis/laravel/backend/resources/js/Pages/Cadastros/Users/UsersCadastroForm.tsx
+- /mnt/c/teclux_analysis/laravel/backend/routes/console.php
 - migrations e testes de usuarios, usuarios_auth e auditoria
 
 Nao procure, solicite ou invente codigo Delphi. Classifique cada achado como

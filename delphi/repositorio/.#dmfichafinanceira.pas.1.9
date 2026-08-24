@@ -1,0 +1,1210 @@
+unit dmfichafinanceira;
+
+interface
+
+uses
+  // CLX
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, DB, Math,
+  // Terceiros_DBSet, FR_Class,FR_Prntr, Math,
+  // Componentes
+  cpdatasource, cpquery, clfinanceira,
+  // Repositorio
+  dmbasico, dmtecsoft, dmimprimecarne, dmimprimeboleto, dmimprimesaldocliente,
+  // Constantes
+  ctConstantes, biblio, clusuario, clparametrossistema, FR_Desgn, ZTransact,
+  FR_DSet, FR_DBSet, FR_Class, ZQuery, ZPgSqlQuery;
+
+
+type
+  TdtmFichaFinanceira = class(TdtmBasico)
+    qryContratos: TtecQuery;
+    dsrContratos: TtecDataSource;
+    qryParcelas: TtecQuery;
+    dsrParcelas: TtecDataSource;
+    qryProdutos: TtecQuery;
+    dsrProdutos: TtecDataSource;
+    qryNotas: TtecQuery;
+    dsrNotas: TtecDataSource;
+    qryCupons: TtecQuery;
+    dsrCupons: TtecDataSource;
+    qryProdutosproduto: TLargeintField;
+    qryProdutosquantidade: TFloatField;
+    qryProdutosprecovenda: TFloatField;
+    qryProdutosfilial: TIntegerField;
+    qryProdutoscancelado: TFloatField;
+    qryProdutosdescricao: TStringField;
+    qryNotasfilial: TIntegerField;
+    qryNotasserie: TStringField;
+    qryNotasnumero: TIntegerField;
+    qryCuponsmaquina: TIntegerField;
+    qryCuponsfilial: TIntegerField;
+    qryCuponsintervensao: TIntegerField;
+    qryCuponsnumero: TIntegerField;
+    qryNotasdata: TDateField;
+    qryCuponsdata: TDateField;
+    qryUsuarios: TtecQuery;
+    qryUsuarioscodigo: TIntegerField;
+    qryUsuariosnome: TStringField;
+    qryUsuarioscodigofolha: TIntegerField;
+    qryUsuariostipocomissao: TStringField;
+    qryUsuariosinativo: TDateField;
+    qryEmAbertoCOP: TtecQuery;
+    dsrEmAberto: TtecDataSource;
+    qryEmAtrasoCOP: TtecQuery;
+    dsrAtraso: TtecDataSource;
+    qryUsuarioscredito: TBooleanField;
+    qryUsuariosreserva: TBooleanField;
+    qryUsuarioscobranca: TBooleanField;
+    qryUsuariosvenda: TBooleanField;
+    qryUsuariosatendimento: TBooleanField;
+    qryUsuarioscaixa: TBooleanField;
+    qryEmAbertoCOPTotalAberto: TCurrencyField;
+    qryEmAtrasoCOPTotalAtrasado: TCurrencyField;
+    qryEmAbertoCOPTotalDebito: TCurrencyField;
+    qryParcelascontrato: TStringField;
+    qryParcelasdatavencto: TDateField;
+    qryParcelasvalorvencto: TFloatField;
+    qryParcelasdatapagto: TDateField;
+    qryParcelasvalorpagto: TFloatField;
+    qryParcelasfilialpagto: TIntegerField;
+    qryParcelastipopagto: TStringField;
+    qryParcelasdeventrada: TDateField;
+    qryParcelasdevcaixa: TDateField;
+    qryParcelasQuitar: TBooleanField;
+    qryEmAbertoCOPvalor: TFloatField;
+    qryContratoscliente: TIntegerField;
+    qryContratosnumero: TStringField;
+    qryContratosdata: TDateField;
+    qryContratosvalor: TFloatField;
+    qryContratosorigem: TStringField;
+    qryEmAbertoCOPdescontos: TFloatField;
+    qryContratosnome: TStringField;
+    qryContratosaberto: TBooleanField;
+    qryClientes: TtecQuery;
+    qryConsultaClientes: TtecQuery;
+    qryConsultaClientesNome: TStringField;
+    qryConsultaClientesCodigo: TIntegerField;
+    qryContratosPorCliente: TtecQuery;
+    qryContratosPorClientenumero: TStringField;
+    dsrContratosPorCliente: TtecDataSource;
+    qryContratosPorClienteaberto: TBooleanField;
+    qryEmAtrasoCOPvalor: TFloatField;
+    qryEmAtrasoCOPjuros: TFloatField;
+    qryParcelasCalcularDebito: TtecQuery;
+    dsrParcelasCalcularDebito: TtecDataSource;
+    qryParcelasCalcularDebitoaux: TStringField;
+    qryParcelasCalcularDebitonumerocontrato: TStringField;
+    qryParcelasCalcularDebitodatavencimento: TDateField;
+    qryParcelasCalcularDebitovalorvencimento: TFloatField;
+    qryParcelasCalcularDebitodatapagamento: TDateField;
+    qryParcelasCalcularDebitovalorpagamento: TFloatField;
+    qryParcelasCalcularDebitofilialpagamento: TIntegerField;
+    qryParcelasCalcularDebitotipopagamento: TStringField;
+    qryParcelasCalcularDebitodataentrada: TDateField;
+    qryParcelasCalcularDebitodatacaixa: TDateField;
+    qryParcelasCalcularDebitoQuitar: TBooleanField;
+    qryParcelasCalcularDebitoJurosDescontos: TCurrencyField;
+    qryParcelasCalcularDebitonumeroparcela: TIntegerField;
+    qryParcelasCalcularDebitoparcelas: TBooleanField;
+    qryContratosPorClienteorigem: TStringField;
+    qryContratosrenegociado: TStringField;
+    qryContratosPorClienterenegociado: TStringField;
+    qryContratossituacao: TStringField;
+    qryContratossituacaocontrato: TStringField;
+    frpCalcularDebito: TfrReport;
+    fdsCalcularDebito: TfrDBDataSet;
+    qryRomaneios: TtecQuery;
+    dsrRomaneios: TtecDataSource;
+    qryRomaneiosnumero: TIntegerField;
+    qryRomaneiosemissao: TDateField;
+    qryRomaneiosfornecedortransporte: TIntegerField;
+    qryRomaneiosrazao: TStringField;
+    qryRomaneiosnota: TStringField;
+    qryRomaneioscupom: TStringField;
+    qryProdutosRomaneios: TtecQuery;
+    dsrProdutosRomaneios: TtecDataSource;
+    qryProdutosRomaneiosproduto: TLargeintField;
+    qryProdutosRomaneiosfilial: TIntegerField;
+    qryProdutosRomaneiosquantidade: TFloatField;
+    qryProdutosRomaneiosdescricao: TStringField;
+    qryRomaneiosdadofiscal: TIntegerField;
+    qryContratosPorClientesituacao: TStringField;
+    qryContratosprimogenito: TStringField;
+    qryContratosnomeclienteorigem: TStringField;
+    qryContratosnomeclienterenegociado: TStringField;
+    qryContratosnomeclienteprimogenito: TStringField;
+    qryContratosPorClienteprimogenito: TStringField;
+    qryParcelasnumero: TStringField;
+    qryConsultaClientespessoanumero: TStringField;
+    qryServicos: TtecQuery;
+    dsrServicos: TtecDataSource;
+    qryServicosdescricaoservico: TStringField;
+    qryServicosquantidade: TIntegerField;
+    qryServicosaliquotaissqn: TFloatField;
+    qryServicosvalorservico: TFloatField;
+    qryServicoscomplementoservico: TStringField;
+    qryServicosdescricaoequipamento: TStringField;
+    qryClientescodigo: TIntegerField;
+    qryClientesnome: TStringField;
+    qryConsultaClientestipoorig: TStringField;
+    qryConsultaClientestipo: TStringField;
+    qryClientestipo: TStringField;
+    qryServicosreferencia: TStringField;
+    qryContratostipocliente: TStringField;
+    qryContratosavalista: TIntegerField;
+    qryContratosnomeavalista: TStringField;
+    qryConsultaClientesestado: TStringField;
+    qryConsultaClientesnomecidade: TStringField;
+    qryParcelasCalcularDebitovalorvista: TFloatField;
+    qryParcelasCalcularDebitovalorprazo: TFloatField;
+    qryContratosfilialvenda: TIntegerField;
+    qryContratosPorClientesituacaocontrato: TStringField;
+    qryParcelasdescontosugerido: TFloatField;
+    qryParcelasjurosdesctos: TFloatField;
+    qryParcelasliquido: TFloatField;
+    qryProdutoslinha: TStringField;
+    qryProdutoscoluna: TStringField;
+    qryProdutosvalorgrade1: TStringField;
+    qryProdutosvalorgrade2: TStringField;
+    qryContratosvalorvista: TFloatField;
+    qryContratosfrete: TFloatField;
+    qryContratosdesconto: TFloatField;
+    qryContratosacrescimo: TFloatField;
+    qryContratosnomedependente: TStringField;
+    qryParcelasnomeagencia: TStringField;
+    qryParcelassiglabanco: TStringField;
+    qryParcelasusuarioextracaixa: TStringField;
+    qryParcelasContaBoleto: TIntegerField;
+    qryParcelasDigito: TStringField;
+    qryMontagens: TtecQuery;
+    qryMontagensnumero: TIntegerField;
+    qryMontagensserie: TStringField;
+    qryMontagensproduto: TLargeintField;
+    qryMontagensdescricaoproduto: TStringField;
+    qryMontagenslinha: TStringField;
+    qryMontagenscoluna: TStringField;
+    qryMontagensvalorgrade1: TStringField;
+    qryMontagensvalorgrade2: TStringField;
+    qryMontagenssituacao: TStringField;
+    dsrMontagens: TtecDataSource;
+    qryContratosnomecobrador: TStringField;
+    qryClientesdescricaoconceito: TStringField;
+    qryContratosfaturamento: TDateField;
+    qryParcelasnparcela: TIntegerField;
+    qryRecebimentos: TtecQuery;
+    dsrRecebimentos: TtecDataSource;
+    qryRecebimentoscodigo: TIntegerField;
+    qryRecebimentosvalorlancto: TFloatField;
+    qryParcelastiporecebimento: TStringField;
+    qryRecebimentostiporecebimento: TStringField;
+    qryRecebimentosdatavencto: TDateField;
+    qryConsultaClientesapelido: TStringField;
+    qryContratosplanoresumido: TStringField;
+    qryContratosplano: TIntegerField;
+    qryContratosdescricaoplano: TStringField;
+    qryParcelasRecebimentos: TtecQuery;
+    qryParcelasRecebimentoscontrato: TStringField;
+    qryParcelasRecebimentosnumero: TStringField;
+    qryParcelasRecebimentosdatavencto: TDateField;
+    qryParcelasRecebimentosvalorvencto: TFloatField;
+    qryParcelasRecebimentosdatapagto: TDateField;
+    qryParcelasRecebimentosValorPagto: TFloatField;
+    qryParcelasRecebimentosfilialpagto: TIntegerField;
+    qryParcelasRecebimentostipopagto: TStringField;
+    qryParcelasRecebimentosdeventrada: TDateField;
+    qryParcelasRecebimentosdevcaixa: TDateField;
+    qryParcelasRecebimentosQuitar: TBooleanField;
+    qryParcelasRecebimentosdescontosugerido: TFloatField;
+    qryParcelasRecebimentosjurosdesctos: TFloatField;
+    qryParcelasRecebimentosliquido: TFloatField;
+    qryParcelasRecebimentosnomeagencia: TStringField;
+    qryParcelasRecebimentossiglabanco: TStringField;
+    qryParcelasRecebimentosusuarioextracaixa: TStringField;
+    qryParcelasRecebimentosContaBoleto: TIntegerField;
+    qryParcelasRecebimentosDigito: TStringField;
+    qryParcelasRecebimentosnparcela: TIntegerField;
+    qryParcelasRecebimentostiporecebimento: TStringField;
+    dsrParcelasRecebimentos: TtecDataSource;
+    qryRecebimentostransacao: TIntegerField;
+    qryRecebimentosdatalancto: TDateTimeField;
+    qryParcelasdiasatraso: TIntegerField;
+    qryProdutosdevolvidos: TFloatField;
+    qryProdutostrocados: TFloatField;
+    qryServicosservico: TIntegerField;
+    qryServicosequipamento: TStringField;
+    procedure qryContratosPorClienteAfterScroll(DataSet: TDataSet);
+    procedure qryClientesAfterClose(DataSet: TDataSet);
+    procedure qryClientesAfterOpen(DataSet: TDataSet);
+    procedure qryEmAbertoCOPCalcFields(DataSet: TDataSet);
+    procedure qryEmAtrasoCOPCalcFields(DataSet: TDataSet);
+    procedure qryParcelasCalcularDebitoAfterInsert(DataSet: TDataSet);
+    procedure qryParcelasCalcularDebitoCalcFields(DataSet: TDataSet);
+    procedure dsrParcelasCalcularDebitoDataChange(Sender: TObject; Field: TField);
+    procedure qryParcelasCalcularDebitoAfterScroll(DataSet: TDataSet);
+    procedure qryRomaneiosAfterScroll(DataSet: TDataSet);
+    procedure frpCalcularDebitoBeforePrint(Memo: TStringList; View: TfrView);
+    procedure qryProdutosAfterOpen(DataSet: TDataSet);
+    procedure qryProdutosAfterScroll(DataSet: TDataSet);
+    procedure qryMontagensAfterScroll(DataSet: TDataSet);
+    procedure qryContratosAfterScroll(DataSet: TDataSet);
+    procedure qryClientesAfterScroll(DataSet: TDataSet);
+  private
+    FAtrasoJuro: Currency;
+    FEmAbertoParcela: Currency;
+    FAtrasoParcela: Currency;
+    FEmAbertoDesconto: Currency;
+    FOnScrollLinhaColunaGrade: TNotifyEvent;
+    FSomenteEmAberto: Boolean;
+    function GetAtrasoJuro: Currency;
+    function    GetAtrasoParcela: Currency;
+    function GetEmAbertoDesconto: Currency;
+    function GetEmAbertoParcela: Currency;
+    function GetColunadaGrade: String;
+    function GetLinhadaGrade: String;
+    function GetQtdeCancelada: Currency;
+    function GetQtdeVendida: Currency;
+    function GetIntervaloCarnes: vString;
+    function GetIntervaloCarnesAbertas: vString;
+  protected
+    FDataCalculo: TDateTime;
+    FAfterCloseClientes: TNotifyEvent;
+    FAfterScrollContratosPorCliente: TNotifyEvent;
+    FJuroParcela: Currency;
+    FDescontoParcela: Currency;
+    FValorParcela: Currency;
+    procedure SetDataCalculo(const Value: TDateTime);
+    function  GetCodigoCliente: Integer;
+    function  GetTipoCliente: String;
+    function  GetContratoEmAberto: Boolean;
+    function  GetContratoEstornado: Boolean;
+    function  GetContratoRenegociado: Boolean;
+    function  GetContratoEmAtraso: Boolean;
+    function  GetDescontoParcela: Currency;
+    function  GetJuroParcela: Currency;
+    function  GetParcelaAtrasada: Boolean;
+    function  GetSituacao: String;
+    function  GetSituacaoContrato: String;
+    function  GetTabelaConsultaClientes: TtecQuery;
+    function  GetTabelaContratosClienteVazia: Boolean;
+    function  GetValorParcela: Currency;
+  public
+    procedure ImprimirCalculosDebitos;
+    procedure AtribuirDataDefault(AlterouDataBase, TodosContrato: Boolean);
+    procedure CalcularDebitoParcelaEmAberto(ReCalcular:Boolean);
+    procedure DesFazAlteracoesParcelas;
+    function  ExisteClientes(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; overload;
+    procedure LimparTabelas(Completo: Boolean = True);
+    procedure ImprimirContrato;
+    procedure ImprimirCarne(SomenteAbertas: Boolean); overload;
+    procedure ImprimirCarne(NumeroParcelas: vString); overload;
+    procedure ImprimirBoleto(NumeroParcelas: vString);
+    procedure ImprimirSaldo;
+    function  PermiteRecalcular: Boolean;
+    procedure ReFazConsultaCliente(Cliente:Integer; Tipo: String);
+    procedure ReFazConsultaContratosPorCliente;
+    procedure CalcularDebitos(AlterouDataBase: Boolean);
+    procedure Selecionar;
+    procedure SelecionarContratos;
+    procedure SelecionarNotasCupons;
+    procedure SelecionarParcelas;
+    procedure SelecionarProdutos;
+    procedure SelecionarServicos;
+    procedure SelecionarRomaneios;
+    procedure SelecionarRecebimentos;
+    procedure SetarCampoQuitarFalse;
+    procedure ZerarVariaveis;
+    function  CartaDevolvida(FormOrigem: String): Boolean;
+    procedure SelecionarMontagens;
+
+    constructor Create(AOwner: TComponent); override;
+
+    property  AfterScrollContratosPorCliente: TNotifyEvent read FAfterScrollContratosPorCliente write FAfterScrollContratosPorCliente;
+    property  AfterCloseClientes: TNotifyEvent read FAfterCloseClientes write FAfterCloseClientes;
+    property  TabelaContratosClienteVazia: Boolean read GetTabelaContratosClienteVazia;
+    property  CodigoCliente: Integer read GetCodigoCliente;
+    property  TipoCliente: String read GetTipoCliente;
+    property  ContratoEmAberto: Boolean read GetContratoEmAberto;
+    property  ContratoEstornado: Boolean read GetContratoEstornado;
+    property  ContratoEmAtraso: Boolean read GetContratoEmAtraso;
+    property  ContratoRenegociado: Boolean read GetContratoRenegociado;
+    property  ValorParcela: Currency read GetValorParcela write FValorParcela;
+    property  JuroParcela : Currency read GetJuroParcela write FJuroParcela;
+    property  DescontoParcela: Currency read GetDescontoParcela write FDescontoParcela;
+    property  AtrasoParcela: Currency read GetAtrasoParcela write FAtrasoParcela;
+    property  AtrasoJuro: Currency read GetAtrasoJuro write FAtrasoJuro;
+    property  EmAbertoParcela: Currency read GetEmAbertoParcela write FEmAbertoParcela;
+    property  EmAbertoDesconto: Currency read GetEmAbertoDesconto write FEmAbertoDesconto;
+    property  TabelaConsultaClientes: TtecQuery read GetTabelaConsultaClientes;
+    property  DataCalculo: TDateTime read FDataCalculo write SetDataCalculo;
+    property  Situacao: String read GetSituacao;
+    property  ParcelaAtrasada: Boolean read GetParcelaAtrasada;
+    property  SituacaoContrato: String read GetSituacaoContrato;
+    property  QtdeVendida: Currency read GetQtdeVendida;
+    property  QtdeCancelada: Currency read GetQtdeCancelada;
+    property  OnScrollLinhaColunaGrade    : TNotifyEvent read FOnScrollLinhaColunaGrade write FOnScrollLinhaColunaGrade;
+    property LinhadaGrade: String read GetLinhadaGrade;
+    property ColunadaGrade: String read GetColunadaGrade;
+    property SomenteEmAberto: Boolean read FSomenteEmAberto write FSomenteEmAberto;
+    property IntervaloCarnes: vString read GetIntervaloCarnes;
+    property IntervaloCarnesAbertas: vString read GetIntervaloCarnesAbertas;
+
+  end;
+
+const
+  ctWhereBase       = 09;
+  ctSituacao        = ctWhereBase + 01;
+  ctEstornado       = ctWhereBase + 02;
+  ctSomenteEmAberto = ctWhereBase + 03;
+
+var
+  dtmFichaFinanceira: TdtmFichaFinanceira;
+  Contratos         : String;
+  PrimeiraVez       : Boolean;
+
+implementation
+
+uses dmimprimecontratos, fmpreviewpadrao;
+
+{$R *.dfm}
+
+{ TdtmFichaFinanceira }
+
+procedure TdtmFichaFinanceira.AtribuirDataDefault(AlterouDataBase, TodosContrato: Boolean);
+var
+  a:byte;
+  Pos: TBookmark;
+  Aux, ValorArredondado: Currency;
+begin
+  if AlterouDataBase or not TodosContrato then
+    ZerarVariaveis;
+
+  dsrParcelasCalcularDebito.OnDataChange:= nil;
+  Pos:= qryParcelasCalcularDebito.GetBookmark;
+  qryParcelasCalcularDebito.DisableControls;
+  qryParcelasCalcularDebito.First;
+  try
+    for a:=1 to qryParcelasCalcularDebito.RecordCount do begin
+      if (qryParcelasCalcularDebitoAux.AsString = '')                        and
+//         (qryParcelasCalcularDebitoDataVencimento.AsDateTime <= DataCalculo) and
+         (qryParcelasCalcularDebitoDataPagamento.AsDateTime = 0        )     and
+         (qryParcelasCalcularDebitoValorPagamento.AsCurrency  = 0)           then begin
+         if qryParcelasCalcularDebito.ReadOnly then
+           qryParcelasCalcularDebito.ReadOnly:= False;
+         qryParcelasCalcularDebito.Edit;
+
+         if (qryParcelasCalcularDebitoDataVencimento.AsDateTime <= DataCalculo) then begin
+           qryParcelasCalcularDebitoQuitar.AsBoolean:= True;
+           qryParcelasCalcularDebitoDataPagamento.AsDateTime:= DataCalculo;
+
+           qryParcelasCalcularDebitoValorPagamento.AsCurrency:=
+                       qryParcelasCalcularDebitoValorVencimento.AsCurrency +
+                       tecFinanceira.CalcularJuros(qryParcelasCalcularDebitoValorVencimento.AsCurrency,
+                                                   qryParcelasCalcularDebitodatavencimento.AsDateTime,
+                                                   qryParcelasCalcularDebitodatapagamento.AsDateTime);
+            if (qryParcelasCalcularDebitoValorVencimento.AsCurrency <> qryParcelasCalcularDebitoValorPagamento.AsCurrency) then
+              qryParcelasCalcularDebitoValorPagamento.AsCurrency:= Multiplo(qryParcelasCalcularDebitoValorPagamento.AsCurrency,
+                                                                            ParSistema.ArredondamentoJurosCaixa);
+            FValorParcela  := RoundTo(FValorParcela + qryParcelasCalcularDebitoValorVencimento.AsCurrency,-2);
+         end
+         else if (qryParcelasCalcularDebitoDataVencimento.AsDateTime > qryParcelasCalcularDebitoDataPagamento.AsDateTime) and
+                 (qryParcelasCalcularDebitovalorprazo.AsCurrency > qryParcelasCalcularDebitovalorvista.AsCurrency) then begin
+
+           Aux:=  qryParcelasCalcularDebitoValorVencimento.AsCurrency +
+                  tecFinanceira.CalcularDesctos(qryParcelasCalcularDebitoValorVencimento.AsCurrency,
+                                                qryParcelasCalcularDebitodatavencimento.AsDateTime,
+                                                DataCalculo);
+           ValorArredondado:= Multiplo(Aux, ParSistema.ArredondamentoJurosCaixa);
+           if (ValorArredondado < qryParcelasCalcularDebitoValorVencimento.AsCurrency) then
+             Aux:= ValorArredondado;
+           FEmAbertoDesconto := FEmAbertoDesconto + (qryParcelasCalcularDebitoValorVencimento.AsCurrency - Aux);
+         end;
+
+         if (qryParcelasCalcularDebitoDataVencimento.AsDateTime < qryParcelasCalcularDebitoDataPagamento.AsDateTime) then
+           FAtrasoParcela := RoundTo(FAtrasoParcela + qryParcelasCalcularDebitoValorVencimento.AsCurrency,-2)
+         else
+         if (qryParcelasCalcularDebitoDataVencimento.AsDateTime >= qryParcelasCalcularDebitoDataPagamento.AsDateTime) then
+           FEmAbertoParcela := RoundTo(FEmAbertoParcela + qryParcelasCalcularDebitoValorVencimento.AsCurrency,-2);
+
+         if (qryParcelasCalcularDebitoValorPagamento.AsCurrency > 0) then
+              qryParcelasCalcularDebitoJurosDescontos.AsCurrency:= qryParcelasCalcularDebitoValorPagamento.AsCurrency - qryParcelasCalcularDebitoValorVencimento.AsCurrency
+         else qryParcelasCalcularDebitoJurosDescontos.AsCurrency:= 0;
+
+         if qryParcelasCalcularDebitoJurosDescontos.AsCurrency > 0 then begin
+           FJuroParcela := RoundTo(FJuroParcela + qryParcelasCalcularDebitoJurosDescontos.AsCurrency,-2);
+           FAtrasoJuro  := FJuroParcela;
+         end;
+         qryParcelasCalcularDebito.Post;
+      end;
+      qryParcelasCalcularDebito.Next;
+    end;
+  finally
+    qryParcelasCalcularDebito.GotoBookmark(Pos);
+    qryParcelasCalcularDebito.FreeBookmark(Pos);
+    qryParcelasCalcularDebito.EnableControls;
+  end;
+  dsrParcelasCalcularDebito.OnDataChange:= dsrParcelasCalcularDebitoDataChange;
+end;
+
+procedure TdtmFichaFinanceira.CalcularDebitoParcelaEmAberto(ReCalcular:Boolean);
+const
+  WhereBase = '(parcelasquitar.numerocontrato in (';
+var
+  Posicao: Integer;
+  ValorArredondado: Currency;
+begin
+  dsrParcelasCalcularDebito.OnDataChange:= nil;
+  if not qryParcelasCalcularDebito.IsEmpty then begin
+    if (qryParcelasCalcularDebitoAux.AsString = '')             and
+       (qryParcelasCalcularDebitoFilialPagamento.AsInteger = 0) then begin
+
+      if qryParcelasCalcularDebitoQuitar.AsBoolean then begin
+        FValorParcela:= FValorParcela - qryParcelasCalcularDebitoValorVencimento.AsCurrency;
+        if ((qryParcelasCalcularDebitovalorpagamento.AsCurrency - qryParcelasCalcularDebitovalorvencimento.AsCurrency)  > 0) then
+             FJuroParcela     := RoundTo(FJuroParcela - qryParcelasCalcularDebitoJurosDescontos.AsCurrency,-2)
+        else FDescontoParcela := RoundTo(FDescontoParcela - Abs(qryParcelasCalcularDebitoJurosDescontos.AsCurrency),-2);
+      end;
+
+      if qryParcelasCalcularDebito.ReadOnly then
+        qryParcelasCalcularDebito.ReadOnly:= False;
+
+      if not ReCalcular then
+        qryParcelasCalcularDebitoQuitar.AsBoolean:= not qryParcelasCalcularDebitoQuitar.AsBoolean;
+
+      qryParcelasCalcularDebito.Edit;
+      if qryParcelasCalcularDebitoQuitar.AsBoolean then begin
+        if not ReCalcular then
+          qryParcelasCalcularDebitoDataPagamento.AsDateTime := DataCalculo;
+        if (qryParcelasCalcularDebitoDataVencimento.AsDateTime < qryParcelasCalcularDebitoDataPagamento.AsDateTime) then begin
+          qryParcelasCalcularDebitoValorPagamento.AsCurrency:=
+                             qryParcelasCalcularDebitovalorvencimento.AsCurrency +
+                             tecFinanceira.CalcularJuros(qryParcelasCalcularDebitovalorvencimento.AsCurrency,
+                                                         qryParcelasCalcularDebitodatavencimento.AsDateTime,
+                                                         qryParcelasCalcularDebitodatapagamento.AsDateTime);
+          if (qryParcelasCalcularDebitoValorVencimento.AsCurrency <> qryParcelasCalcularDebitoValorPagamento.AsCurrency) then
+            qryParcelasCalcularDebitoValorPagamento.AsCurrency:= Multiplo(qryParcelasCalcularDebitoValorPagamento.AsCurrency,
+                                                                          ParSistema.ArredondamentoJurosCaixa);
+        end
+        else if (qryParcelasCalcularDebitoDataVencimento.AsDateTime > qryParcelasCalcularDebitoDataPagamento.AsDateTime) and
+                (qryParcelasCalcularDebitovalorprazo.AsCurrency > qryParcelasCalcularDebitovalorvista.AsCurrency) then begin
+          qryParcelasCalcularDebitoValorPagamento.AsCurrency:=
+                             qryParcelasCalcularDebitovalorvencimento.AsCurrency +
+                             tecFinanceira.CalcularDesctos(qryParcelasCalcularDebitovalorvencimento.AsCurrency,
+                                                           qryParcelasCalcularDebitodatavencimento.AsDateTime,
+                                                           qryParcelasCalcularDebitodatapagamento.AsDateTime);
+          ValorArredondado:= Multiplo(qryParcelasCalcularDebitoValorPagamento.AsCurrency, ParSistema.ArredondamentoJurosCaixa);
+          if (ValorArredondado < qryParcelasCalcularDebitovalorvencimento.AsCurrency) then
+            qryParcelasCalcularDebitoValorPagamento.AsCurrency:= ValorArredondado;
+        end
+        else
+          qryParcelasCalcularDebitoValorPagamento.AsCurrency:= qryParcelasCalcularDebitoValorVencimento.AsCurrency;
+
+        qryParcelasCalcularDebitoJurosDescontos.AsCurrency:= qryParcelasCalcularDebitoValorPagamento.AsCurrency -
+                                                             qryParcelasCalcularDebitoValorVencimento.AsCurrency;
+
+        FValorParcela:= RoundTo(FValorParcela + qryParcelasCalcularDebitoValorVencimento.AsCurrency,-2);
+        if qryParcelasCalcularDebitoJurosDescontos.AsCurrency > 0 then
+          FJuroParcela := RoundTo(FJuroParcela + qryParcelasCalcularDebitoJurosDescontos.AsCurrency,-2)
+        else if qryParcelasCalcularDebitoJurosDescontos.AsCurrency < 0 then
+          FDescontoParcela := RoundTo(FDescontoParcela + Abs(qryParcelasCalcularDebitoJurosDescontos.AsCurrency),-2);
+      end
+      else begin
+        qryParcelasCalcularDebitoDataPagamento.Clear;
+        qryParcelasCalcularDebitoValorPagamento.Clear;
+        qryParcelasCalcularDebitoJurosDescontos.Clear;
+      end;
+      qryParcelasCalcularDebito.Post;
+    end
+    else begin
+      if (qryParcelasCalcularDebitoAux.AsString <> '') then begin
+        if Contratos <> '' then
+          Contratos := Contratos + ',';
+        Posicao:= Pos(qryParcelasCalcularDebitoaux.AsString,Contratos);
+        if Posicao > 0 then
+             Delete(Contratos,Posicao-1,Length(qryParcelasCalcularDebitoaux.AsString)+3)
+        else Contratos := Contratos + '''' + qryParcelasCalcularDebitoaux.AsString + ''',';
+        qryParcelasCalcularDebito.Sql[61]:= 'Where';
+        if Contratos <> '' then begin
+          Delete(Contratos,Length(Contratos),1);
+          qryParcelasCalcularDebito.Sql[62]:= WhereBase + Contratos + ')) or';
+        end
+        else
+          qryParcelasCalcularDebito.Sql[62]:= '';
+        qryParcelasCalcularDebito.Sql[63]  := 'parcelasquitar.parcelas';
+        ReFazConsulta(qryParcelasCalcularDebito,[0],[qryClientescodigo.AsInteger]);
+        SetarCampoQuitarFalse;
+        AtribuirDataDefault(False,False);
+      end;
+    end;
+  end;
+  dsrParcelasCalcularDebito.OnDataChange:= dsrParcelasCalcularDebitoDataChange;
+end;
+
+procedure TdtmFichaFinanceira.CalcularDebitos(AlterouDataBase: Boolean);
+begin
+  if (qryParcelasCalcularDebito.IsEmpty) or AlterouDataBase then begin
+    Contratos   := '';
+    PrimeiraVez := True;
+    qryParcelasCalcularDebito.Sql[61]:= '';
+    qryParcelasCalcularDebito.Sql[62]:= '';
+    qryParcelasCalcularDebito.Sql[63]:= '';
+    ReFazConsulta(qryParcelasCalcularDebito,[0],[qryClientescodigo.AsInteger]);
+    SetarCampoQuitarFalse;
+    AtribuirDataDefault(AlterouDataBase,True);
+  end;
+end;
+
+constructor TdtmFichaFinanceira.Create(AOwner: TComponent);
+begin
+  try
+    inherited;
+    qryClientes.Tag            := ctTabelas;
+    qryContratosPorCliente.Tag := ctCrediarioConsultaContratos;
+    qryConsultaClientes.Tag    := ctCrediarioConsultaClientes;
+    qryContratos.Tag           := 1; //SO PARA TESTAR E VER SE NÃO ABRE AO CRIAR A FICHA
+    qryclientes.Params[1].AsString := 'C';
+    tecfinanceira.LerParametros;
+    SomenteEmAberto:=ParSistema.MostrarSomenteContratosEmabertoFicha;
+    qryProdutosquantidade.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+    qryProdutoscancelado.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  except
+    on E: Exception do ShowMessage(E.Message);
+  end;
+end;
+
+procedure TdtmFichaFinanceira.DesFazAlteracoesParcelas;
+begin
+  //A qryParcelas deve estar setada como cachedUpdates = true;
+  qryParcelas.Transaction.Rollback;
+end;
+
+procedure TdtmFichaFinanceira.dsrParcelasCalcularDebitoDataChange(Sender: TObject; Field: TField);
+begin
+  if Field = qryParcelasCalcularDebitodatapagamento then begin
+    if Field.OldValue <> Field.AsDateTime then begin
+      if PermiteRecalcular then
+        CalcularDebitoParcelaEmAberto(True);
+    end;
+  end;
+end;
+
+function TdtmFichaFinanceira.ExisteClientes(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+const
+  SQL = ' Where (upper(to_ascii(%s,''latin1'')) ilike upper(to_ascii(''%s%s'',''latin1'')))';
+var
+  vNomeCampo : String;
+begin
+
+  vNomeCampo := NomeCampo;
+  if NomeCampo = 'nomecidade' then
+    vNomeCampo:= 'c.nome'
+  else if NomeCampo = 'tipo' then
+    vNomeCampo:= 'v.tipo'
+  else if nomecampo = 'nome' then
+    vNomeCampo := 'v.razao'
+  else if nomecampo = 'apelido' then
+     vNomeCampo :='v.nome'
+  else
+    vNomeCampo:= 'v.' + NomeCampo;
+
+  qryConsultaClientes.Sql[08]:= Format(SQL, [vNomeCampo, Value, '%']);
+
+  qryConsultaClientes.Open;
+  Result := qryConsultaClientes.RecordCount > 0
+end;
+
+function TdtmFichaFinanceira.GetCodigoCliente: Integer;
+begin
+  Result:= qryClientesCodigo.AsInteger;
+end;
+
+function TdtmFichaFinanceira.GetContratoEmAberto: Boolean;
+begin
+  Result:= qryContratosPorClienteAberto.AsBoolean;
+end;
+
+function TdtmFichaFinanceira.GetContratoEstornado: Boolean;
+begin
+  Result := qryContratosPorClientesituacaocontrato.AsString='ESTORNADO';
+end;
+
+function TdtmFichaFinanceira.GetContratoEmAtraso: Boolean;
+begin
+  Result:=Pos('/',qryContratosPorClientesituacaocontrato.AsString)>0;
+end;
+
+function TdtmFichaFinanceira.GetContratoRenegociado: Boolean;
+begin
+  Result:= qryContratosPorClienterenegociado.AsString <> '';
+end;
+
+function TdtmFichaFinanceira.GetDescontoParcela: Currency;
+begin
+  Result := FDescontoParcela;
+end;
+
+function TdtmFichaFinanceira.GetJuroParcela: Currency;
+begin
+  Result := FJuroParcela;
+end;
+
+function TdtmFichaFinanceira.GetParcelaAtrasada: Boolean;
+begin
+  Result:= (qryParcelasdatavencto.AsDateTime <> 0)          and
+           (qryParcelasdatavencto.AsDateTime < DataServidor) and
+           (qryParcelasdatapagto.AsDateTime = 0);
+end;
+
+function TdtmFichaFinanceira.GetSituacao: String;
+begin
+  Result:= qryContratosPorClientesituacao.AsString;
+end;
+
+function TdtmFichaFinanceira.GetSituacaoContrato: String;
+begin
+  Result:= qryContratosPorClientesituacao.AsString;
+end;
+
+function TdtmFichaFinanceira.GetTabelaConsultaClientes: TtecQuery;
+begin
+  Result:= qryConsultaClientes;
+end;
+
+function TdtmFichaFinanceira.GetTabelaContratosClienteVazia: Boolean;
+begin
+  Result:= qryContratosPorCliente.IsEmpty;
+end;
+
+function TdtmFichaFinanceira.GetValorParcela: Currency;
+begin
+  Result := FValorParcela;
+end;
+
+function TdtmFichaFinanceira.GetTipoCliente: String;
+begin
+  Result:= qryClientesTipo.AsString;
+end;
+
+function TdtmFichaFinanceira.GetAtrasoJuro: Currency;
+begin
+  Result := FAtrasoJuro;
+end;
+
+function TdtmFichaFinanceira.GetAtrasoParcela: Currency;
+begin
+  Result := FAtrasoParcela;
+end;
+
+function TdtmFichaFinanceira.GetEmAbertoDesconto: Currency;
+begin
+  Result := FEmAbertoDesconto;
+end;
+
+function TdtmFichaFinanceira.GetEmAbertoParcela: Currency;
+begin
+  Result := FEmAbertoParcela;
+end;
+
+function TdtmFichaFinanceira.GetQtdeCancelada: Currency;
+begin
+  Result:= qryProdutoscancelado.AsCurrency;
+end;
+
+function TdtmFichaFinanceira.GetQtdeVendida: Currency;
+begin
+  Result:= qryProdutosquantidade.AsCurrency;
+end;
+
+procedure TdtmFichaFinanceira.ImprimirCalculosDebitos;
+var
+//  Impressora: TfrPrinter;
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+  frVariables['Rua']   := RuaFilialBase;
+  frVariables['Bairro']:= BairroFilialBase + ' - CEP: ' + CEPFilialBase;
+  frVariables['Cidade']:= CidadeFilialBase + ' - ' + EstadoFilialBase;
+  frVariables['Fone']  := FoneFilialBase;
+  frVariables['DataBase'] := DataCalculo;
+//  frVariables['TaxaJuros']     := FloatToStr(ParSistema.TaxaJuros);
+
+  frVariables['AtrasoValor']    := FormatarValor(AtrasoParcela,2);
+  frVariables['AtrasoJuro']     := FormatarValor(AtrasoJuro,2);
+  frVariables['AtrasoTotal']    := FormatarValor(AtrasoParcela + AtrasoJuro,2);
+
+  frVariables['AbertoValor']     := FormatarValor(EmAbertoParcela,2);
+  frVariables['AbertoDesconto'] := FormatarValor(Abs(EmAbertoDesconto),2);
+  frVariables['AbertoTotal']    := FormatarValor(EmAbertoParcela - Abs(EmAbertoDesconto),2);
+
+  frVariables['TotalDebito']    := FormatarValor(RoundTo(AtrasoParcela + AtrasoJuro,-2) +
+                                                 RoundTo(EmAbertoParcela - Abs(EmAbertoDesconto),-2),2);
+
+  frVariables['ValorParcelas'] := FormatarValor(ValorParcela,2);
+  frVariables['ValorJuros']    := FormatarValor(JuroParcela,2);
+  frVariables['ValorDesconto'] := FormatarValor(DescontoParcela,2);
+  frVariables['TotalCarne']    := FormatarValor(ValorParcela + JuroParcela - DescontoParcela,2);
+
+  frVariables['Titulo']:= 'CÁLCULO DOS DÉBITOS';
+  frmPreview := TfrmPreviewPadrao.create(self);
+  try
+   Relatorio := frmPreview.frCompositeReport;
+   with frmPreview do
+   begin
+    frCompositeReport.Reports.Clear;
+    frCompositeReport.Reports.Add(frpCalcularDebito);
+   end;
+//   Impressora.Printer.SetPrinter('');
+   Relatorio.Preview := frmPreview.frPreviewPadrao;
+   Relatorio.ShowReport;
+
+   frmPreview.ShowModal;
+
+  finally
+
+   frmPreview.Free
+
+  end;
+
+end;
+
+
+procedure TdtmFichaFinanceira.LimparTabelas(Completo: Boolean);
+begin
+  if Completo then
+  begin
+    qryContratosPorCliente.Close;
+    qryContratos.Close;
+    qryParcelas.Close;
+    qryProdutos.Close;
+    qryServicos.Close;
+    qryNotas.Close;
+    qryCupons.Close;
+    DesFazAlteracoesParcelas;
+    qryParcelasCalcularDebito.Close;
+    qryMontagens.Close;
+    qryRecebimentos.Close;
+    qryParcelasRecebimentos.Close;
+  end
+  else
+  begin
+    qryParcelas.Close;
+    qryProdutos.Close;
+    qryServicos.Close;
+    qryNotas.Close;
+    qryCupons.Close;
+    qryMontagens.Close;
+    qryRecebimentos.Close;
+    qryParcelasRecebimentos.Close;
+  end;
+//ReFazConsulta(qryContratosPorCliente,[0,1],[0,0]);
+//  ReFazConsulta(qryContratos          ,[0],[0]); //DESNECESSARIO JÁ QUE NO ONSCROLL DE QRYCONTRATOS CLIENTES REABRE.
+//  ReFazConsulta(qryParcelas           ,[0],[0]);
+//  ReFazConsulta(qryProdutos           ,[0],[0]);
+//  RefazConsulta(qryServicos           ,[0],[0]);
+//  ReFazConsulta(qryNotas              ,[0],[0]);
+//  ReFazConsulta(qryCupons             ,[0],[0]);
+end;
+
+function TdtmFichaFinanceira.PermiteRecalcular: Boolean;
+begin
+  Result:= (qryParcelasCalcularDebitodatapagamento.AsDateTime  <> 0)  and
+           (qryParcelasCalcularDebitovalorpagamento.AsCurrency <> 0) and
+           (qryParcelasCalcularDebitoFilialPagamento.AsInteger  = 0);
+end;
+
+procedure TdtmFichaFinanceira.qryClientesAfterClose(DataSet: TDataSet);
+begin
+  inherited;
+  LimparTabelas;
+  if Assigned(FAfterCloseClientes) then
+    FAfterCloseClientes(qryClientes);
+end;
+
+procedure TdtmFichaFinanceira.qryClientesAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  ValorParcela   := 0;
+  DescontoParcela:= 0;
+  JuroParcela    := 0;
+end;
+
+procedure TdtmFichaFinanceira.qryContratosPorClienteAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  ReFazConsulta(qryContratos,[0],[qryContratosPorClientenumero.AsString]);
+  LimparTabelas(False);
+  if Assigned(FAfterScrollContratosPorCliente) then
+    FAfterScrollContratosPorCliente(qryContratosPorCliente);
+end;
+
+procedure TdtmFichaFinanceira.qryEmAbertoCOPCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+//  qryEmAbertoTotalAberto.AsCurrency:= Abs(qryEmAbertoValor.AsCurrency  -
+//                                          qryEmAbertoDescontos .AsCurrency);
+
+//  qryEmAbertoTotalDebito.AsCurrency:= qryEmAtrasoTotalAtrasado.AsCurrency +
+//                                      qryEmAbertoTotalAberto.AsCurrency;
+end;
+
+procedure TdtmFichaFinanceira.qryEmAtrasoCOPCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+//  qryEmAtrasoTotalAtrasado.AsCurrency:= qryEmAtrasoValor.AsCurrency +
+//                                        qryEmAtrasoJuros.AsCurrency;
+end;
+
+procedure TdtmFichaFinanceira.qryParcelasCalcularDebitoAfterInsert(DataSet: TDataSet);
+begin
+  inherited;
+  qryParcelasCalcularDebito.Cancel;
+end;
+
+procedure TdtmFichaFinanceira.qryParcelasCalcularDebitoAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  if not PrimeiraVez  then
+     qryParcelasCalcularDebito.ReadOnly:= not qryParcelasCalcularDebitoQuitar.AsBoolean;
+end;
+
+procedure TdtmFichaFinanceira.qryParcelasCalcularDebitoCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  if qryParcelasCalcularDebitovalorpagamento.AsCurrency <> 0 Then
+       qryParcelasCalcularDebitoJurosDescontos.AsCurrency:= (qryParcelasCalcularDebitovalorpagamento.AsCurrency -
+                                                             qryParcelasCalcularDebitovalorvencimento.AsCurrency)
+  else qryParcelasCalcularDebitoJurosDescontos.AsCurrency:= 0;
+end;
+
+procedure TdtmFichaFinanceira.qryRomaneiosAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  ReFazConsulta(qryProdutosRomaneios,[0],[qryRomaneiosdadofiscal.AsInteger]);
+end;
+
+procedure TdtmFichaFinanceira.ReFazConsultaCliente(Cliente:Integer; Tipo: String);
+begin
+  ReFazConsulta(qryCLientes,[0,1],[Cliente,Tipo]);
+end;
+
+procedure TdtmFichaFinanceira.ReFazConsultaContratosPorCliente;
+var
+  Usuario: TtecUsuarios;
+begin
+  Usuario:= TtecUsuarios.Create(dtmTecSoft.Database);
+  try
+    ReFazConsulta(qryUsuarios,[0],[CodigoUsuario]);
+    Fecha(ctCrediarioConsultaContratos);
+    qryContratosPorCliente.Params[0].AsInteger:= qryClientesCodigo.AsInteger;
+    qryContratosPorCliente.Params[1].AsString := qryClientestipo.AsString;
+    if Usuario.AnalistaCredito then begin
+      qryContratosPorCliente.Sql[ctSituacao] := 'and (v.situacao in (''C'',''R'',''F'',''N'',''P''))';
+      qryContratosPorCliente.Sql[ctEstornado]:= '';
+    end
+    else begin
+      qryContratosPorCliente.Sql[ctSituacao] := 'and (v.situacao in (''R'',''F'',''N'',''P''))';
+      qryContratosPorCliente.Sql[ctEstornado]:= 'and ((select count(c.numero) from contratos c where (c.origem = v.numero)) = 0)';
+    end;
+    if (SomenteEmAberto) then
+      qryContratosPorCliente.Sql[ctSomenteEmAberto] := ' AND aberto=''t'' '
+    else
+      qryContratosPorCliente.Sql[ctSomenteEmAberto] := '';
+    Abre(ctCrediarioConsultaContratos);
+  finally
+    Usuario.Free;
+  end;
+end;
+
+procedure TdtmFichaFinanceira.Selecionar;
+begin
+  ReFazConsulta(qryClientes,[0,1],[qryConsultaClientesCodigo.AsVariant,
+                                   qryConsultaClientestipoorig.AsVariant]);
+end;
+
+procedure TdtmFichaFinanceira.SelecionarContratos;
+begin
+  ReFazConsulta(qryContratos,[0],[qryContratosPorClienteNumero.AsString]);
+end;
+
+procedure TdtmFichaFinanceira.SelecionarNotasCupons;
+begin
+  if (not qryNotas.Active) and (not qryCupons.Active) then
+  begin
+    if qryContratosprimogenito.AsString <> '' then begin
+      ReFazConsulta(qryNotas ,[0],[qryContratosPorClienteprimogenito.AsString]);
+      ReFazConsulta(qryCupons,[0],[qryContratosPorClienteprimogenito.AsString]);
+    end
+    else begin
+      ReFazConsulta(qryNotas ,[0],[qryContratosPorClientenumero.AsString]);
+      ReFazConsulta(qryCupons,[0],[qryContratosPorClientenumero.AsString]);
+    end;
+  end;
+end;
+
+procedure TdtmFichaFinanceira.SelecionarParcelas;
+begin
+  if not qryParcelas.Active then
+    ReFazConsulta(qryParcelas,[0],[qryContratosPorClienteNumero.AsString]);
+end;
+
+procedure TdtmFichaFinanceira.SelecionarProdutos;
+begin
+  if not qryProdutos.Active then
+    ReFazConsulta(qryProdutos,[0],[qryContratosPorClienteNumero.AsString]);
+end;
+
+procedure TdtmFichaFinanceira.SelecionarRomaneios;
+begin
+  if not qryRomaneios.Active then
+    ReFazConsulta(qryRomaneios,[0],[qryContratosPorClienteNumero.AsString]);
+end;
+
+procedure TdtmFichaFinanceira.SetarCampoQuitarFalse;
+var
+  a:byte;
+  Pos: TBookmark;
+begin
+  Pos:= qryParcelasCalcularDebito.GetBookmark;
+  qryParcelasCalcularDebito.DisableControls;
+  qryParcelasCalcularDebito.First;
+  try
+    for a:=1 to qryParcelasCalcularDebito.RecordCount do begin
+      if not qryParcelasCalcularDebitoQuitar.AsBoolean then begin
+        if qryParcelasCalcularDebito.ReadOnly then
+          qryParcelasCalcularDebito.ReadOnly:= False;
+        qryParcelasCalcularDebito.Edit;
+        qryParcelasCalcularDebitoquitar.AsBoolean:= False;
+        qryParcelasCalcularDebito.Post;
+        if PrimeiraVez then begin
+          if qryParcelasCalcularDebitoaux.AsString <> '' then begin
+            if Contratos = '' then
+                 Contratos:= Contratos + ''''  + qryParcelasCalcularDebitoaux.AsString + ''','
+            else Contratos:= Contratos + ',''' + qryParcelasCalcularDebitoaux.AsString + ''',';
+            Delete(Contratos,Length(Contratos),1);
+          end;
+        end;
+      end;
+      qryParcelasCalcularDebito.Next;
+    end;
+  finally
+    qryParcelasCalcularDebito.GotoBookmark(Pos);
+    qryParcelasCalcularDebito.FreeBookmark(Pos);
+    qryParcelasCalcularDebito.EnableControls;
+    PrimeiraVez:= False;
+  end;
+end;
+
+procedure TdtmFichaFinanceira.SetDataCalculo(const Value: TDateTime);
+begin
+  if FDataCalculo <> Value then
+    FDataCalculo:= Value;
+end;
+
+procedure TdtmFichaFinanceira.frpCalcularDebitoBeforePrint(Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  if (View.Name = 'fpvLogo') then
+    if FileExists(LogotipoFilialBase) then
+      try
+        TfrPictureView(View).Picture.LoadFromFile(LogotipoFilialBase)
+      except
+      end;
+end;
+
+procedure TdtmFichaFinanceira.SelecionarServicos;
+begin
+  if not qryServicos.Active then
+    ReFazConsulta(qryServicos,[0],[qryContratosPorClienteNumero.AsString]);
+end;
+
+
+procedure TdtmFichaFinanceira.ImprimirBoleto(NumeroParcelas: vString);
+var
+  ImprimeBoleto: TdtmImprimeBoleto;
+begin
+  ImprimeBoleto := TdtmImprimeBoleto.Create(Self);
+  try
+    ImprimeBoleto.ImprimirBoletoContrato(qryContratosPorClientenumero.AsString, NumeroParcelas)
+  finally
+    ImprimeBoleto.Free
+  end
+end;
+
+
+procedure TdtmFichaFinanceira.ImprimirCarne(SomenteAbertas: Boolean);
+var
+  ImprimeCarne: TdtmImprimeCarne;
+begin
+  ImprimeCarne := TdtmImprimeCarne.Create(Self);
+  try
+    ImprimeCarne.ImprimirCarnesContrato(qryContratosPorClientenumero.AsString, SomenteAbertas);
+  finally
+    ImprimeCarne.Free;
+  end
+end;
+
+procedure TdtmFichaFinanceira.ImprimirContrato;
+var
+  ImprimeContrato: TdtmImprimeContratos;
+begin
+  ImprimeContrato:= TdtmImprimeContratos.Create(Self);
+  try
+    ImprimeContrato.ImprimirContratos(qryContratosPorClientenumero.AsString);
+  finally
+    ImprimeContrato.Free;
+  end;
+end;
+
+procedure TdtmFichaFinanceira.ImprimirSaldo;
+var
+  ImprimeSaldo: TdtmImprimeSaldoCliente;
+begin
+  ImprimeSaldo:= TdtmImprimeSaldoCliente.Create(Self);
+  try
+    ImprimeSaldo.ImprimirSaldo(qryClientescodigo.AsInteger, qryClientestipo.AsString);
+  finally
+    ImprimeSaldo.Free;
+  end;
+end;
+
+procedure TdtmFichaFinanceira.ZerarVariaveis;
+begin
+  FAtrasoParcela    := 0;
+  FAtrasoJuro       := 0;
+  FEmAbertoParcela  := 0;
+  FEmAbertoDesconto := 0;
+  FValorParcela     := 0;
+  FJuroParcela      := 0;
+  FDescontoParcela  := 0;
+end;
+
+procedure TdtmFichaFinanceira.qryProdutosAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  qryProdutosvalorgrade1.Visible := ParSistema.UsarGradesProdutos;
+  qryProdutosvalorgrade2.Visible := ParSistema.UsarGradesProdutos;
+end;
+
+function TdtmFichaFinanceira.GetColunadaGrade: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryProdutoscoluna.AsString)
+end;
+
+function TdtmFichaFinanceira.GetLinhadaGrade: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryProdutoslinha.AsString)
+end;
+
+procedure TdtmFichaFinanceira.qryProdutosAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+    if Assigned(OnScrollLinhaColunaGrade) then
+    OnScrollLinhaColunaGrade(qryProdutos);
+end;
+
+function TdtmFichaFinanceira.CartaDevolvida(FormOrigem: String): Boolean;
+begin
+  Result := ClienteCartaDevolvida(CodigoCliente, TipoCliente,
+                                  qryClientesnome.AsString,
+                                   FormOrigem);
+end;
+
+
+{procedure TdtmFichaFinanceira.ZMonitor1MonitorEvent(Sql, Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:\log.txt') then
+    Listar.loadfromfile('c:\log.txt');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\log.txt');
+  listar.free;
+end;}
+
+procedure TdtmFichaFinanceira.SelecionarMontagens;
+begin
+  if not qryMontagens.Active then
+    RefazConsulta(qryMontagens,[0],[qryContratosPorClientenumero.AsString]);
+end;
+
+procedure TdtmFichaFinanceira.qryMontagensAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  if Assigned(OnScrollLinhaColunaGrade) then
+    OnScrollLinhaColunaGrade(qryMontagens);
+end;
+
+function TdtmFichaFinanceira.GetIntervaloCarnes: vString;
+var
+  a: integer;
+begin
+  a:=0;
+  result := nil;
+  SetLength(result, qryparcelas.RecordCount);
+  qryParcelas.First;
+  while not qryparcelas.Eof do
+  begin
+    result[a] := qryParcelasnparcela.AsString;
+    inc(a);
+    qryparcelas.next;
+  end;
+end;
+
+function TdtmFichaFinanceira.GetIntervaloCarnesAbertas: vString;
+var
+  a: integer;
+begin
+  a:=0;
+  result := nil;
+  qryParcelas.First;
+  while not qryparcelas.Eof do
+  begin
+    if qryParcelasdatapagto.AsString='' then
+    begin
+      SetLength(result, length(result)+1);
+      result[a] := qryParcelasnparcela.AsString;
+      inc(a);
+    end;
+    qryparcelas.next;
+  end;
+end;
+
+procedure TdtmFichaFinanceira.ImprimirCarne(NumeroParcelas: vString);
+var
+  dtmImprimeCarne: TdtmImprimeCarne;
+begin
+  dtmImprimeCarne := TdtmImprimeCarne.Create(Self);
+  try
+    dtmImprimeCarne.ImprimirCarnesContrato(qryContratosPorClientenumero.AsString, NumeroParcelas)
+  finally
+    dtmImprimeCarne.Free;
+  end
+end;
+
+procedure TdtmFichaFinanceira.SelecionarRecebimentos;
+begin
+  if not qryRecebimentos.Active then
+    ReFazConsulta(qryRecebimentos,[0],[qryContratosPorClienteNumero.AsString]);
+    
+  if not qryParcelasRecebimentos.Active then
+    RefazConsulta(qryParcelasRecebimentos,[0],[qryRecebimentostransacao.AsInteger]);
+
+end;
+
+procedure TdtmFichaFinanceira.qryContratosAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  RefazConsultaPorNome(qryRomaneios,['contrato'],[qryContratosnumero.AsVariant]);
+end;
+
+procedure TdtmFichaFinanceira.qryClientesAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  RefazConsultaPorNome(qryRomaneios,['contrato'],[qryContratosnumero.AsVariant]);
+end;
+
+end.

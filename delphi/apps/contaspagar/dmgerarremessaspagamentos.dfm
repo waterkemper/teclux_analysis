@@ -938,7 +938,7 @@ inherited dtmGerarRemessasPagamentos: TdtmGerarRemessasPagamentos
       00746974756C6F000000000C00204167727570616D656E746F00000000120041
       677275706172477275706F46696C69616C00050046616C7365000D0041677275
       70617246696C69616C00050046616C7365000000000000000000FC0000000000
-      00000000000000000000005800A3C98A978BB2E340FAEF86E22DCEE540}
+      00000000000000000000005800A3C98A978BB2E3401A30BE94D46FE640}
   end
   object qryDuplicatas: TtecQuery
     Tag = -1
@@ -1215,5 +1215,26 @@ inherited dtmGerarRemessasPagamentos: TdtmGerarRemessasPagamentos
     Configuracoes.Arquivos.PathSalvar = 'C:\Borland\Delphi7\Bin\'
     Left = 504
     Top = 88
+  end
+  object frxReport1: TfrxReport
+    Version = '4.0.11'
+    DotMatrixReport = False
+    IniFile = '\Software\Fast Reports'
+    PreviewOptions.Buttons = [pbPrint, pbLoad, pbSave, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbEdit, pbNavigator, pbExportQuick]
+    PreviewOptions.Zoom = 1.000000000000000000
+    PrintOptions.Printer = 'Default'
+    PrintOptions.PrintOnSheet = 0
+    ReportOptions.CreateDate = 45947.587727696760000000
+    ReportOptions.LastChange = 45947.587727696760000000
+    ScriptLanguage = 'PascalScript'
+    ScriptText.Strings = (
+      'begin'
+      ''
+      'end.')
+    Left = 376
+    Top = 208
+    Datasets = <>
+    Variables = <>
+    Style = <>
   end
 end

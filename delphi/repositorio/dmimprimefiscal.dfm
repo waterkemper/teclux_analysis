@@ -7532,6 +7532,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
     Top = 352
   end
   object DANFeSimplificado_: TfrxReport
+    Tag = 1
     Version = '4.0.11'
     DotMatrixReport = False
     IniFile = '\Software\Fast Reports'
@@ -7540,7 +7541,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
     PrintOptions.Printer = 'selecionar'
     PrintOptions.PrintOnSheet = 0
     ReportOptions.CreateDate = 40401.475989294000000000
-    ReportOptions.LastChange = 45187.695479780100000000
+    ReportOptions.LastChange = 46140.708491527780000000
     ScriptLanguage = 'PascalScript'
     ScriptText.Strings = (
       ''
@@ -7551,14 +7552,30 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
       '  Memo5.Visible := not( <Parametros."Contingencia_Valor"> = '#39#39');'
       'end;'
       ''
-      'procedure Memo39OnBeforePrint(Sender: TfrxComponent);'
+      'procedure MemoDestinatarioOnBeforePrint(Sender: TfrxComponent);'
       'begin'
-      '  Memo39.visible := (<LocalEntrega."XLgr"> = '#39#39');'
+      '  MemoDestinatario.visible := (<LocalEntrega."XLgr"> = '#39#39');'
       'end;'
       ''
-      'procedure Memo12OnBeforePrint(Sender: TfrxComponent);'
+      'procedure MemoLocalEntregaOnBeforePrint(Sender: TfrxComponent);'
       'begin'
-      '  Memo12.visible := (<LocalEntrega."XLgr"> <> '#39#39');'
+      '  MemoLocalEntrega.visible := (<LocalEntrega."XLgr"> <> '#39#39');'
+      'end;'
+      ''
+      
+        'procedure MemoLocalEntregaXNomeOnBeforePrint(Sender: TfrxCompone' +
+        'nt);'
+      'begin'
+      
+        '  MemoLocalEntregaXNome.visible := (<LocalEntrega."XLgr"> <> '#39#39')' +
+        ';'
+      'end;'
+      ''
+      
+        'procedure MemoDestinatarioXNomeOnBeforePrint(Sender: TfrxCompone' +
+        'nt);'
+      'begin'
+      '  MemoDestinatarioXNome.visible := (<LocalEntrega."XLgr"> = '#39#39');'
       'end;'
       ''
       'begin'
@@ -7628,24 +7645,25 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
       Width = 1000.000000000000000000
     end
     object Page1: TfrxReportPage
-      PaperWidth = 105.000000000000000000
+      PaperWidth = 100.000000000000000000
       PaperHeight = 152.000000000000000000
       PaperSize = 256
       MirrorMargins = True
+      EndlessHeight = True
       LargeDesignHeight = True
       PrintIfEmpty = False
       OnBeforePrint = 'Page1OnBeforePrint'
       object DadosProdutos: TfrxMasterData
         Height = 11.338582680000000000
         Top = 536.693260000000000000
-        Width = 396.850650000000000000
+        Width = 377.953000000000000000
         DataSetName = 'DadosProdutos'
         PrintIfDetailEmpty = True
         RowCount = 0
         Stretched = True
         object Memo131: TfrxMemoView
           ShiftMode = smWhenOverlapped
-          Left = 241.015669920000000000
+          Left = 225.897549920000000000
           Width = 30.236240000000000000
           Height = 11.338582680000000000
           StretchMode = smActualHeight
@@ -7663,7 +7681,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
         end
         object Memo23: TfrxMemoView
           ShiftMode = smWhenOverlapped
-          Left = 14.362204720000000000
+          Left = -0.755915280000000000
           Width = 226.771800000000000000
           Height = 11.338582680000000000
           StretchMode = smActualHeight
@@ -7681,7 +7699,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
         end
         object Memo21: TfrxMemoView
           ShiftMode = smWhenOverlapped
-          Left = 272.126160000000000000
+          Left = 257.008040000000000000
           Width = 18.897650000000000000
           Height = 11.338582680000000000
           StretchMode = smActualHeight
@@ -7699,7 +7717,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
         end
         object Memo37: TfrxMemoView
           ShiftMode = smWhenOverlapped
-          Left = 291.023810000000000000
+          Left = 275.905690000000000000
           Width = 49.133890000000000000
           Height = 11.338582680000000000
           StretchMode = smActualHeight
@@ -7717,7 +7735,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
         end
         object Memo38: TfrxMemoView
           ShiftMode = smWhenOverlapped
-          Left = 340.157700000000000000
+          Left = 325.039580000000000000
           Width = 45.354360000000000000
           Height = 11.338582680000000000
           StretchMode = smActualHeight
@@ -7737,10 +7755,10 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
       object DadosProdutosHeader: TfrxGroupHeader
         Height = 15.118120000000000000
         Top = 498.897960000000000000
-        Width = 396.850650000000000000
+        Width = 377.953000000000000000
         Condition = 'DadosProdutos."ChaveNFe"'
         object Memo121: TfrxMemoView
-          Left = 270.795243860000000000
+          Left = 255.677123860000000000
           Top = 0.574798270000000000
           Width = 20.787396690000000000
           Height = 11.338572910000000000
@@ -7759,7 +7777,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           VAlign = vaCenter
         end
         object Memo123: TfrxMemoView
-          Left = 298.582804090000000000
+          Left = 283.464684090000000000
           Top = 0.574798270000000000
           Width = 39.685036930000000000
           Height = 11.338572910000000000
@@ -7779,7 +7797,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           VAlign = vaCenter
         end
         object Memo116: TfrxMemoView
-          Left = 18.897650000000000000
+          Left = 3.779530000000000000
           Top = 0.574798270000000000
           Width = 37.795300000000000000
           Height = 11.338572910000000000
@@ -7798,7 +7816,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           VAlign = vaCenter
         end
         object Memo117: TfrxMemoView
-          Left = 69.370130000000000000
+          Left = 54.252010000000000000
           Top = 0.574798270000000000
           Width = 139.842429370000000000
           Height = 11.338572910000000000
@@ -7816,7 +7834,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           VAlign = vaCenter
         end
         object Memo122: TfrxMemoView
-          Left = 244.795229210000000000
+          Left = 229.677109210000000000
           Top = 0.574798270000000000
           Width = 26.456680710000000000
           Height = 11.338572910000000000
@@ -7835,7 +7853,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           VAlign = vaCenter
         end
         object Memo125: TfrxMemoView
-          Left = 340.157602360000000000
+          Left = 325.039482360000000000
           Top = 0.574798270000000000
           Width = 45.354316060000000000
           Height = 11.338572910000000000
@@ -7854,6 +7872,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           VAlign = vaCenter
         end
         object Memo30: TfrxMemoView
+          Left = -15.118120000000000000
           Top = 7.559060000000000000
           Width = 396.850393700000000000
           Height = 7.559060000000000000
@@ -7869,6 +7888,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           VAlign = vaCenter
         end
         object Memo7: TfrxMemoView
+          Left = -15.118120000000000000
           Width = 396.850650000000000000
           Height = 7.559060000000000000
           Font.Charset = ANSI_CHARSET
@@ -7886,10 +7906,10 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
       object PageHeader1: TfrxPageHeader
         Height = 71.811070000000000000
         Top = 162.519790000000000000
-        Width = 396.850650000000000000
+        Width = 377.953000000000000000
         Stretched = True
         object ImgLogo: TfrxPictureView
-          Left = 34.015770000000000000
+          Left = 18.897650000000000000
           Top = 1.000000000000000000
           Width = 294.803340000000000000
           Height = 64.252010000000000000
@@ -7901,10 +7921,10 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
       object Header1: TfrxHeader
         Height = 180.409531810000000000
         Top = 294.803340000000000000
-        Width = 396.850650000000000000
+        Width = 377.953000000000000000
         Stretched = True
         object Memo4: TfrxMemoView
-          Left = 0.338590000000000000
+          Left = -14.779530000000000000
           Top = 61.692950000000000000
           Width = 396.850393700000000000
           Height = 7.559060000000000000
@@ -7920,7 +7940,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           VAlign = vaCenter
         end
         object Memo10: TfrxMemoView
-          Left = 0.220470000000000000
+          Left = -14.897650000000000000
           Top = 103.929190000000000000
           Width = 396.850393700000000000
           Height = 7.559060000000000000
@@ -7936,7 +7956,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           VAlign = vaCenter
         end
         object Memo13: TfrxMemoView
-          Left = 117.165430000000000000
+          Left = 102.047310000000000000
           Top = 74.692979290000000000
           Width = 268.346630000000000000
           Height = 26.456710000000000000
@@ -7954,7 +7974,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           ParentFont = False
         end
         object Memo6: TfrxMemoView
-          Left = 14.362204720000000000
+          Left = -0.755915280000000000
           Top = 62.354360000000000000
           Width = 393.071120000000000000
           Height = 18.897650000000000000
@@ -7972,7 +7992,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           WordBreak = True
         end
         object Memo11: TfrxMemoView
-          Left = 43.574830000000000000
+          Left = 28.456710000000000000
           Top = 74.692979290000000000
           Width = 64.252010000000000000
           Height = 26.456710000000000000
@@ -7990,7 +8010,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           VAlign = vaCenter
         end
         object Memo16: TfrxMemoView
-          Left = 18.779530000000000000
+          Left = 3.661410000000000000
           Top = 78.472509290000000000
           Width = 22.677165350000000000
           Height = 18.897635350000000000
@@ -8008,12 +8028,12 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           WordWrap = False
           VAlign = vaCenter
         end
-        object Memo12: TfrxMemoView
-          Left = 10.582674720000000000
+        object MemoLocalEntrega: TfrxMemoView
+          Left = -4.535445280000000000
           Top = 125.606370000000000000
           Width = 374.173470000000000000
           Height = 51.023631810000000000
-          OnBeforePrint = 'Memo12OnBeforePrint'
+          OnBeforePrint = 'MemoLocalEntregaOnBeforePrint'
           StretchMode = smActualHeight
           DisplayFormat.DecimalSeparator = ','
           Font.Charset = ANSI_CHARSET
@@ -8026,7 +8046,6 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           HAlign = haCenter
           LineSpacing = 4.000000000000000000
           Memo.UTF8 = (
-            '[LocalEntrega."XNome"]'
             
               '[LocalEntrega."XLgr"], [LocalEntrega."nro"] [IIF(<LocalEntrega."' +
               'xCpl"><>'#39#39',<LocalEntrega."xCpl">,'#39#39')] - [LocalEntrega."xBairro"]' +
@@ -8038,11 +8057,14 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
               '[LocalEntrega."IE"]')
           ParentFont = False
         end
-        object Memo18: TfrxMemoView
-          Left = 12.338590000000000000
-          Top = 104.929190000000000000
+        object MemoLocalEntregaXNome: TfrxMemoView
+          ShiftMode = smWhenOverlapped
+          Left = -2.779530000000000000
+          Top = 108.708720000000000000
           Width = 366.614410000000000000
           Height = 11.338590000000000000
+          OnBeforePrint = 'MemoLocalEntregaXNomeOnBeforePrint'
+          StretchMode = smActualHeight
           DisplayFormat.DecimalSeparator = ','
           Font.Charset = ANSI_CHARSET
           Font.Color = clBlack
@@ -8050,16 +8072,18 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           Font.Name = 'Arial'
           Font.Style = [fsBold]
           Frame.Width = 0.500000000000000000
+          GapY = 2.000000000000000000
           HAlign = haCenter
           Memo.UTF8 = (
-            'ENTREGA [LocalEntrega."XNome"]')
+            
+              'ENTREGA [IIF(<LocalEntrega."XNome">='#39#39',<Destinatario."XNome">,<L' +
+              'ocalEntrega."XNome">)]')
           ParentFont = False
           VAlign = vaCenter
         end
         object Memo2: TfrxMemoView
-          Left = 15.118120000000000000
           Top = 18.897650000000000000
-          Width = 374.173470000000000000
+          Width = 370.393940000000000000
           Height = 39.685041810000000000
           DisplayFormat.DecimalSeparator = ','
           Font.Charset = ANSI_CHARSET
@@ -8080,10 +8104,13 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           ParentFont = False
         end
         object Memo19: TfrxMemoView
-          Left = 14.362204720000000000
+          ShiftMode = smWhenOverlapped
+          Left = -0.755915280000000000
           Top = 3.779530000000000000
           Width = 370.393940000000000000
           Height = 13.228331810000000000
+          StretchMode = smMaxHeight
+          AutoWidth = True
           DisplayFormat.DecimalSeparator = ','
           Font.Charset = ANSI_CHARSET
           Font.Color = clBlack
@@ -8098,12 +8125,12 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
             '[Emitente."XNome"]')
           ParentFont = False
         end
-        object Memo39: TfrxMemoView
-          Left = 11.338590000000000000
+        object MemoDestinatario: TfrxMemoView
+          Left = -3.779530000000000000
           Top = 124.724490000000000000
           Width = 374.173470000000000000
           Height = 51.023631810000000000
-          OnBeforePrint = 'Memo39OnBeforePrint'
+          OnBeforePrint = 'MemoDestinatarioOnBeforePrint'
           StretchMode = smActualHeight
           DisplayFormat.DecimalSeparator = ','
           Font.Charset = ANSI_CHARSET
@@ -8116,7 +8143,6 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           HAlign = haCenter
           LineSpacing = 4.000000000000000000
           Memo.UTF8 = (
-            '[Destinatario."XNome"] '
             
               '[Destinatario."XLgr"], [Destinatario."nro"] [IIF(<Destinatario."' +
               'xCpl"><>'#39#39',<Destinatario."xCpl">,'#39#39')] - [Destinatario."xBairro"]' +
@@ -8128,14 +8154,36 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
               ','#39#39')] [Destinatario."IE"]')
           ParentFont = False
         end
+        object MemoDestinatarioXNome: TfrxMemoView
+          ShiftMode = smWhenOverlapped
+          Left = -2.779530000000000000
+          Top = 108.708720000000000000
+          Width = 366.614410000000000000
+          Height = 11.338590000000000000
+          OnBeforePrint = 'MemoDestinatarioXNomeOnBeforePrint'
+          StretchMode = smActualHeight
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          Frame.Width = 0.500000000000000000
+          GapY = 2.000000000000000000
+          HAlign = haCenter
+          Memo.UTF8 = (
+            'ENTREGA [Destinatario."XNome"]')
+          ParentFont = False
+          VAlign = vaCenter
+        end
       end
       object ReportTitle1: TfrxReportTitle
         Height = 120.944960000000000000
         Top = 18.897650000000000000
-        Width = 396.850650000000000000
+        Width = 377.953000000000000000
         Stretched = True
         object Memo9: TfrxMemoView
-          Left = 16.228353780000000000
+          Left = 1.110233780000000000
           Top = 1.000000000000000000
           Width = 370.393940000000000000
           Height = 15.118120000000000000
@@ -8152,7 +8200,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           VAlign = vaCenter
         end
         object BarCodeChave: TfrxBarCodeView
-          Left = 58.472480000000000000
+          Left = 43.354360000000000000
           Top = 19.220470000000000000
           Width = 277.000000000000000000
           Height = 37.795275590000000000
@@ -8166,7 +8214,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           Zoom = 1.000000000000000000
         end
         object Memo1: TfrxMemoView
-          Left = 14.338590000000000000
+          Left = -0.779530000000000000
           Top = 60.456710000000000000
           Width = 374.173470000000000000
           Height = 11.338590000000000000
@@ -8183,7 +8231,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           VAlign = vaCenter
         end
         object Memo8: TfrxMemoView
-          Left = 14.559060000000000000
+          Left = -0.559060000000000000
           Top = 74.251992910000000000
           Width = 374.173470000000000000
           Height = 15.118120000000000000
@@ -8200,7 +8248,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           VAlign = vaBottom
         end
         object Memo22: TfrxMemoView
-          Left = 14.448823780000000000
+          Left = -0.669296220000000000
           Top = 101.692950000000000000
           Width = 374.173470000000000000
           Height = 13.228344020000000000
@@ -8217,7 +8265,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           VAlign = vaBottom
         end
         object Memo5: TfrxMemoView
-          Left = 14.338590000000000000
+          Left = -0.779530000000000000
           Top = 88.692950000000000000
           Width = 374.173470000000000000
           Height = 13.228344020000000000
@@ -8234,6 +8282,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           VAlign = vaBottom
         end
         object Memo3: TfrxMemoView
+          Left = -15.118120000000000000
           Top = 113.385900000000000000
           Width = 396.850650000000000000
           Height = 3.779530000000000000
@@ -8252,11 +8301,11 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
       object GroupFooter1: TfrxGroupFooter
         Height = 49.133890000000000000
         Top = 570.709030000000000000
-        Width = 396.850650000000000000
+        Width = 377.953000000000000000
         Child = DANFeSimplificado_.Child1
         Stretched = True
         object Memo197: TfrxMemoView
-          Left = 3.023622050000000000
+          Left = -12.094497950000000000
           Top = 3.354320940000000000
           Width = 393.071120000000000000
           Height = 12.472440940000000000
@@ -8278,7 +8327,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           VAlign = vaCenter
         end
         object Memo24: TfrxMemoView
-          Left = 18.141742050000000000
+          Left = 3.023622050000000000
           Top = 18.897650000000000000
           Width = 59.338580240000000000
           Height = 31.370090940000000000
@@ -8300,7 +8349,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           WordWrap = False
         end
         object Memo25: TfrxMemoView
-          Left = 18.897537720000000000
+          Left = 3.779417720000000000
           Top = 33.259849840000000000
           Width = 56.692950000000000000
           Height = 12.472440940000000000
@@ -8322,7 +8371,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           VAlign = vaCenter
         end
         object Memo26: TfrxMemoView
-          Left = 77.480322280000000000
+          Left = 62.362202280000000000
           Top = 18.897650000000000000
           Width = 63.118110240000000000
           Height = 31.370090940000000000
@@ -8344,7 +8393,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           WordWrap = False
         end
         object Memo27: TfrxMemoView
-          Left = 79.370017720000000000
+          Left = 64.251897720000000000
           Top = 33.259849840000000000
           Width = 56.692950000000000000
           Height = 12.472440940000000000
@@ -8366,6 +8415,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           VAlign = vaCenter
         end
         object Memo20: TfrxMemoView
+          Left = -15.118120000000000000
           Width = 396.850650000000000000
           Height = 7.559060000000000000
           Font.Charset = ANSI_CHARSET
@@ -8380,7 +8430,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           VAlign = vaCenter
         end
         object Memo14: TfrxMemoView
-          Left = 326.173228346457000000
+          Left = 311.055108350000000000
           Top = 18.897650000000000000
           Width = 63.118110240000000000
           Height = 31.370090940000000000
@@ -8402,7 +8452,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           WordWrap = False
         end
         object Memo33: TfrxMemoView
-          Left = 328.818997720000000000
+          Left = 313.700877720000000000
           Top = 33.259849840000000000
           Width = 56.692950000000000000
           Height = 12.472440940000000000
@@ -8424,7 +8474,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           VAlign = vaCenter
         end
         object Memo29: TfrxMemoView
-          Left = 140.598432520000000000
+          Left = 125.480312520000000000
           Top = 18.897650000000000000
           Width = 63.118110240000000000
           Height = 31.370090940000000000
@@ -8446,7 +8496,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           WordWrap = False
         end
         object Memo31: TfrxMemoView
-          Left = 144.377935670000000000
+          Left = 129.259815670000000000
           Top = 33.259849840000000000
           Width = 56.692950000000000000
           Height = 12.472440940000000000
@@ -8468,7 +8518,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           VAlign = vaCenter
         end
         object Memo32: TfrxMemoView
-          Left = 266.834652990000000000
+          Left = 251.716532990000000000
           Top = 18.897650000000000000
           Width = 59.338580240000000000
           Height = 31.370090940000000000
@@ -8490,7 +8540,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           WordWrap = False
         end
         object Memo34: TfrxMemoView
-          Left = 269.102425670000000000
+          Left = 253.984305670000000000
           Top = 33.259849840000000000
           Width = 52.913420000000000000
           Height = 12.472440940000000000
@@ -8512,7 +8562,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           VAlign = vaCenter
         end
         object Memo35: TfrxMemoView
-          Left = 203.716535433071000000
+          Left = 188.598415430000000000
           Top = 18.897650000000000000
           Width = 63.118110240000000000
           Height = 31.370090940000000000
@@ -8534,7 +8584,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           WordWrap = False
         end
         object Memo36: TfrxMemoView
-          Left = 208.629945670000000000
+          Left = 193.511825670000000000
           Top = 33.259849840000000000
           Width = 56.692950000000000000
           Height = 12.472440940000000000
@@ -8559,11 +8609,11 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
       object ReportSummary1: TfrxReportSummary
         Height = 24.881894650000000000
         Top = 725.669760000000000000
-        Width = 396.850650000000000000
+        Width = 377.953000000000000000
         Stretched = True
         object Memo15: TfrxMemoView
           Align = baBottom
-          Left = -3.779530000000000000
+          Left = -18.897650000000000000
           Top = 17.322834650000000000
           Width = 396.850393700000000000
           Height = 7.559060000000000000
@@ -8579,7 +8629,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           VAlign = vaCenter
         end
         object Memo28: TfrxMemoView
-          Left = 14.094493070000000000
+          Left = -1.023626930000000000
           Top = 7.118120000000000000
           Width = 372.283540240000000000
           Height = 10.204714650000000000
@@ -8597,12 +8647,13 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           ParentFont = False
         end
         object Line1: TfrxLineView
+          Left = -15.118120000000000000
           Top = 3.779530000000000000
           Width = 396.850393700000000000
           Frame.Typ = [ftTop]
         end
         object Memo17: TfrxMemoView
-          Left = 57.472480000000000000
+          Left = 42.354360000000000000
           Top = 24.881906850000000000
           Width = 264.567100000000000000
           Height = 11.338577800000000000
@@ -8628,8 +8679,9 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
       object Child1: TfrxChild
         Height = 22.677180000000000000
         Top = 642.520100000000000000
-        Width = 396.850650000000000000
+        Width = 377.953000000000000000
         object Subreport1: TfrxSubreport
+          Left = 3.779530000000000000
           Top = 3.779530000000000000
           Width = 370.393940000000000000
           Height = 18.897650000000000000
@@ -8638,21 +8690,20 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
       end
     end
     object Page2: TfrxReportPage
-      PaperWidth = 105.000000000000000000
+      PaperWidth = 100.000000000000000000
       PaperHeight = 152.000000000000000000
       PaperSize = 256
-      LeftMargin = 10.000000000000000000
-      RightMargin = 10.000000000000000000
-      TopMargin = 10.000000000000000000
-      BottomMargin = 10.000000000000000000
+      MirrorMargins = True
+      EndlessHeight = True
+      LargeDesignHeight = True
       object DetailData1: TfrxDetailData
         Height = 30.236240000000000000
-        Top = 84.000000000000000000
-        Width = 321.260050000000000000
+        Top = 90.708720000000000000
+        Width = 377.953000000000000000
         DataSetName = 'Volumes'
         RowCount = 0
         object Memo45: TfrxMemoView
-          Left = 18.897650000000000000
+          Left = -0.000000000000001049
           Top = 11.338590000000000000
           Width = 34.015770000000000000
           Height = 18.897650000000000000
@@ -8669,7 +8720,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           ParentFont = False
         end
         object Memo46: TfrxMemoView
-          Left = 60.472480000000000000
+          Left = 41.574830000000000000
           Top = 11.338590000000000000
           Width = 83.149660000000000000
           Height = 18.897650000000000000
@@ -8685,9 +8736,9 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           ParentFont = False
         end
         object Memo47: TfrxMemoView
-          Left = 147.401670000000000000
+          Left = 128.504020000000000000
           Top = 11.338590000000000000
-          Width = 83.149660000000000000
+          Width = 79.370130000000000000
           Height = 18.897650000000000000
           DataField = 'Marca'
           DataSetName = 'Volumes'
@@ -8701,7 +8752,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           ParentFont = False
         end
         object Memo48: TfrxMemoView
-          Left = 234.330860000000000000
+          Left = 207.874150000000000000
           Top = 11.338590000000000000
           Width = 37.795300000000000000
           Height = 18.897650000000000000
@@ -8718,7 +8769,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           ParentFont = False
         end
         object Memo49: TfrxMemoView
-          Left = 283.464750000000000000
+          Left = 245.669450000000000000
           Top = 11.338590000000000000
           Width = 45.354360000000000000
           Height = 18.897650000000000000
@@ -8735,9 +8786,9 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           ParentFont = False
         end
         object Memo50: TfrxMemoView
-          Left = 336.378170000000000000
+          Left = 291.023810000000000000
           Top = 11.338590000000000000
-          Width = 49.133890000000000000
+          Width = 64.252010000000000000
           Height = 18.897650000000000000
           DataField = 'PesoB'
           DataSetName = 'Volumes'
@@ -8752,7 +8803,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           ParentFont = False
         end
         object Memo51: TfrxMemoView
-          Left = 18.897650000000000000
+          Left = -0.000000000000001049
           Width = 41.574830000000000000
           Height = 11.338590000000000000
           DisplayFormat.DecimalSeparator = ','
@@ -8768,7 +8819,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           ParentFont = False
         end
         object Memo52: TfrxMemoView
-          Left = 60.472480000000000000
+          Left = 41.574830000000000000
           Width = 86.929190000000000000
           Height = 11.338590000000000000
           DisplayFormat.DecimalSeparator = ','
@@ -8785,8 +8836,8 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           ParentFont = False
         end
         object Memo53: TfrxMemoView
-          Left = 147.401670000000000000
-          Width = 86.929190000000000000
+          Left = 128.504020000000000000
+          Width = 79.370130000000000000
           Height = 11.338590000000000000
           DisplayFormat.DecimalSeparator = ','
           Font.Charset = DEFAULT_CHARSET
@@ -8802,8 +8853,8 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           ParentFont = False
         end
         object Memo54: TfrxMemoView
-          Left = 234.330860000000000000
-          Width = 49.133890000000000000
+          Left = 207.874150000000000000
+          Width = 37.795300000000000000
           Height = 11.338590000000000000
           DisplayFormat.DecimalSeparator = ','
           Font.Charset = DEFAULT_CHARSET
@@ -8819,8 +8870,8 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           ParentFont = False
         end
         object Memo55: TfrxMemoView
-          Left = 283.464750000000000000
-          Width = 49.133890000000000000
+          Left = 245.669450000000000000
+          Width = 45.354360000000000000
           Height = 11.338590000000000000
           DisplayFormat.DecimalSeparator = ','
           Font.Charset = DEFAULT_CHARSET
@@ -8836,7 +8887,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           ParentFont = False
         end
         object Memo56: TfrxMemoView
-          Left = 332.598640000000000000
+          Left = 291.023810000000000000
           Width = 64.252010000000000000
           Height = 11.338590000000000000
           DisplayFormat.DecimalSeparator = ','
@@ -8853,6 +8904,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           ParentFont = False
         end
         object Memo57: TfrxMemoView
+          Left = -18.897650000000000000
           Width = 18.897650000000000000
           Height = 11.338590000000000000
           DisplayFormat.DecimalSeparator = ','
@@ -8867,12 +8919,12 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
       end
       object MasterData1: TfrxMasterData
         Height = 49.133890000000000000
-        Top = 16.000000000000000000
-        Width = 321.260050000000000000
+        Top = 18.897650000000000000
+        Width = 377.953000000000000000
         DataSetName = 'Transportador'
         RowCount = 0
         object Memo40: TfrxMemoView
-          Left = 18.897650000000000000
+          Left = 3.779529999999999000
           Top = 15.118120000000000000
           Width = 377.953000000000000000
           Height = 11.338590000000000000
@@ -8888,7 +8940,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           ParentFont = False
         end
         object Memo41: TfrxMemoView
-          Left = 18.897650000000000000
+          Left = 3.779529999999999000
           Top = 37.795300000000000000
           Width = 185.196970000000000000
           Height = 11.338590000000000000
@@ -8904,7 +8956,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           ParentFont = False
         end
         object Memo42: TfrxMemoView
-          Left = 18.897650000000000000
+          Left = 3.779529999999999000
           Top = 26.456710000000000000
           Width = 377.953000000000000000
           Height = 11.338590000000000000
@@ -8941,7 +8993,7 @@ inherited dtmImprimeFiscal: TdtmImprimeFiscal
           VAlign = vaCenter
         end
         object Memo44: TfrxMemoView
-          Left = 215.433210000000000000
+          Left = 200.315090000000000000
           Top = 37.795300000000000000
           Width = 181.417440000000000000
           Height = 11.338590000000000000

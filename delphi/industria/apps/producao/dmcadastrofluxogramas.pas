@@ -1,0 +1,696 @@
+unit dmcadastrofluxogramas;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, ZTransact, cpdatasource, ZQuery,
+  ZPgSqlQuery, cpquery, biblio, ctconstantes, Forms, fmpreviewpadrao,
+  dmtecsoft, fr_dset, fr_dbset, fr_class;
+
+type
+  TdtmCadastroFluxoGramas = class(TdtmBasico)
+    qryFluxoGramas: TtecQuery;
+    dsrFluxoGramas: TtecDataSource;
+    qryFluxoGramasProximo: TtecQuery;
+    qryFluxoGramasOperacoes: TtecQuery;
+    dsrFluxoGramasOperacoes: TtecDataSource;
+    qryFluxoGramascodigo: TIntegerField;
+    qryFluxoGramasdescricao: TStringField;
+    qryFluxoGramasProximocodigo: TIntegerField;
+    qryFluxoGramasOperacoesfluxograma: TIntegerField;
+    qryFluxoGramasOperacoesoperacao: TIntegerField;
+    qryFluxoGramasOperacoesnome: TStringField;
+    qryFluxoGramasOperacoesc01: TStringField;
+    qryFluxoGramasOperacoesc02: TStringField;
+    qryFluxoGramasOperacoesc03: TStringField;
+    qryFluxoGramasOperacoesdescricao: TStringField;
+    qryFluxoGramasOperacoestempopadrao: TFloatField;
+    updOperacoes: TtecQuery;
+    qryFluxoGramasOperacoessequencia: TStringField;
+    qryFluxoGramasOperacoestipooperacao: TStringField;
+    qryFluxoGramasOperacoesorigemoperacaoalternativa: TIntegerField;
+    qryRegistrodasOperacoes: TtecQuery;
+    qryRegistrodasOperacoesusuarioinclusao: TStringField;
+    qryRegistrodasOperacoesdatainclusao: TStringField;
+    qryRegistrodasOperacoesusuarioalteracao: TStringField;
+    qryRegistrodasOperacoesdataalteracao: TStringField;
+    qryRegistrodasOperacoesoperacao: TStringField;
+    qryRegistrodasOperacoestabela: TStringField;
+    qryRegistrodasOperacoesnomeusuarioinclusao: TStringField;
+    qryRegistrodasOperacoesnomeusuarioalteracao: TStringField;
+    fdsImprimirFluxogramas: TfrDBDataSet;
+    qryImprimirFluxogramas: TtecQuery;
+    qryImprimirFluxogramascodigo: TIntegerField;
+    qryImprimirFluxogramasdescricao: TStringField;
+    qryImprimirFluxogramasusuarioinclusao: TStringField;
+    qryImprimirFluxogramasdatahorainclusao: TDateTimeField;
+    qryImprimirFluxogramasusuarioalteracao: TStringField;
+    qryImprimirFluxogramasdatahoraalteracao: TStringField;
+    qryImprimirFluxogramasoperacao: TStringField;
+    qryImprimirFluxogramastabela: TStringField;
+    qryImprimirFluxogramascodigooperacao: TIntegerField;
+    qryImprimirFluxogramasnome: TStringField;
+    qryImprimirFluxogramasc01: TStringField;
+    qryImprimirFluxogramasc02: TStringField;
+    qryImprimirFluxogramasc03: TStringField;
+    qryImprimirFluxogramassetup: TBooleanField;
+    qryImprimirFluxogramasplanocontrole: TBooleanField;
+    qryImprimirFluxogramasdescricaooperacao: TStringField;
+    qryImprimirFluxogramastempopadrao: TFloatField;
+    frpImprimirFluxogramas: TfrReport;
+    qryImprimirFluxogramassequencia: TStringField;
+    qryFluxoGramasOperacoesOperacaoemGrupoComAnterior: TBooleanField;
+    qryFluxoGramasOperacoesInformarTerminodoProcesso: TBooleanField;
+    qryFluxoGramasOperacoesoperacaoconjugada: TBooleanField;
+    qryFluxoGramasOperacoestipo: TStringField;
+    qryFluxoGramasOperacoespermiteconjugar: TBooleanField;
+    qryFluxoGramasOperacoespermiteagrupar: TBooleanField;
+    qryFluxoGramasOperacoesPercentualOperador: TFloatField;
+    qryFluxoGramasOperacoescusto: TBooleanField;
+    qryFluxoGramastitulocusto: TStringField;
+    qryFluxoGramascorplanilhacusto: TStringField;
+    procedure qryFluxoGramasOperacoesAfterOpen(DataSet: TDataSet);
+    procedure qryFluxoGramasOperacoesAfterPost(DataSet: TDataSet);
+    procedure qryFluxoGramasOperacoesAfterDelete(DataSet: TDataSet);
+    procedure qryFluxoGramasOperacoesNewRecord(DataSet: TDataSet);
+    procedure qryFluxoGramasAfterScroll(DataSet: TDataSet);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure qryFluxoGramasOperacoesAfterEdit(DataSet: TDataSet);
+    procedure qryFluxoGramasOperacoesAfterClose(DataSet: TDataSet);
+    procedure qryFluxoGramasOperacoesBeforeDelete(DataSet: TDataSet);
+    procedure dsrFluxoGramasOperacoesDataChange(Sender: TObject;
+      Field: TField);
+    procedure frpImprimirFluxogramasBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure qryFluxoGramasOperacoesAfterScroll(DataSet: TDataSet);
+    private
+    FonFluxoGramasOperacoesNewRecord: TNotifyEvent;
+    FListaOperacoesSelecionadas: String;
+    ListaTempoPadraoOriginal: array[1..2] of TStringList;
+    FFluxoGramasAfterScroll: TNotifyEvent;
+    { Private declarations }
+    function ProximoCodigo: Integer;
+    procedure AtualizaListaOperacoes;
+
+  public
+    { Public declarations }
+
+    constructor Create(AOwner: TComponent);override;
+
+    procedure ExcluirFluxoGrama;
+    procedure IncluirFluxoGrama;
+    function GravarFluxoGrama: boolean;
+    function SalvarFluxogramaperacoes: boolean;
+    procedure EditarFluxoGramas;
+    procedure EditarFluxoGramasOperacoes;
+    property FluxoGramasAfterScroll: TNotifyEvent read FFluxoGramasAfterScroll write FFluxoGramasAfterScroll;
+    property onFluxoGramasOperacoesNewRecord : TNotifyEvent read FonFluxoGramasOperacoesNewRecord write FonFluxoGramasOperacoesNewRecord;
+
+    property ListaOperacoesSelecionadas: String read FListaOperacoesSelecionadas write FListaOperacoesSelecionadas;
+
+    procedure ExcluirFluxoGramaOperacoes;
+    procedure GravarFluxoGramaOperacoes;
+    procedure IncluirOperacao;
+    procedure IncluirOperacaoAlternativa;
+    procedure imprimir(dataInicialInclusao, dataFinalInclusao, dataInicialAlteracao, dataFinalAlteracao: String;
+                       ordenacao: integer);
+
+
+  end;
+
+const
+  Operacao = 1;
+  Tempo    = 2;
+
+var
+  dtmCadastroFluxoGramas: TdtmCadastroFluxoGramas;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmCadastroFluxoGramas }
+
+procedure TdtmCadastroFluxoGramas.AtualizaListaOperacoes;
+var
+  Pos: TBookmark;
+  i,j : integer;
+  vOperacaoAnterior : String;
+  vOperacaoOrigemAgrupamento : String;
+  Vtipo : String;
+  vOperacaoAgruparSN : Boolean;
+begin
+  Pos := qryFluxoGramasOperacoes.GetBookmark;
+  qryFluxoGramasOperacoes.DisableControls;
+  i := 0;
+  j := 0;
+
+  try
+    ListaOperacoesSelecionadas := '';
+
+    qryFluxoGramasOperacoes.AfterEdit := nil;
+    qryFluxoGramasOperacoes.AfterPost := nil;
+    vOperacaoAnterior := '';
+    vOperacaoOrigemAgrupamento := '';
+
+    vOperacaoAgruparSN := false;
+    vTipo := '';
+
+    if qryFluxoGramasOperacoesOperacaoemGrupoComAnterior.AsBoolean then
+    begin
+      vOperacaoAgruparSN := true;
+      if not qryFluxoGramasOperacoesorigemoperacaoalternativa.IsNull then
+        vOperacaoOrigemAgrupamento := qryFluxoGramasOperacoesorigemoperacaoalternativa.AsString
+      else
+        vOperacaoOrigemAgrupamento :=  qryFluxoGramasOperacoesoperacao.AsString;
+    end
+    else
+    begin
+      vOperacaoAgruparSN := false;
+      if not qryFluxoGramasOperacoesorigemoperacaoalternativa.IsNull then
+        vOperacaoOrigemAgrupamento := qryFluxoGramasOperacoesorigemoperacaoalternativa.AsString
+      else
+        vOperacaoOrigemAgrupamento :=  qryFluxoGramasOperacoesoperacao.AsString
+    end;
+
+    qryFluxoGramasOperacoes.First;
+    while Not qryFluxoGramasOperacoes.Eof do
+    begin
+      if qryFluxoGramasOperacoesoperacao.AsString<>'' then
+        if ListaOperacoesSelecionadas <> '' then
+          ListaOperacoesSelecionadas := ListaOperacoesSelecionadas + ', '+
+                                       qryFluxoGramasOperacoesoperacao.AsString
+        else
+          ListaOperacoesSelecionadas := qryFluxoGramasOperacoesoperacao.AsString;
+
+      if (qryFluxoGramasOperacoestipooperacao.AsString = 'N') then
+      begin
+        i := i + 1;
+        j := 0;
+
+        if qryFluxoGramasOperacoessequencia.AsString <> inttostr(i) then
+        begin
+          qryFluxoGramasOperacoes.Edit;
+          qryFluxoGramasOperacoessequencia.AsString := inttostr(i);
+        end;
+
+        vOperacaoAnterior := qryFluxoGramasOperacoesoperacao.AsString;
+      end
+      else
+      if (qryFluxoGramasOperacoesorigemoperacaoalternativa.AsString = vOperacaoAnterior) then
+      begin
+        j := j + 1;
+        if  qryFluxoGramasOperacoessequencia.AsString <> inttostr(i)+'.'+inttostr(j) then
+        begin
+          qryFluxoGramasOperacoes.Edit;
+          qryFluxoGramasOperacoessequencia.AsString := inttostr(i)+'.'+
+                                                       inttostr(j);
+        end;
+      end;
+
+      if ((qryFluxoGramasOperacoesoperacao.AsString = vOperacaoOrigemAgrupamento) and
+          (qryFluxoGramasOperacoesOperacaoemGrupoComAnterior.AsBoolean <> vOperacaoAgruparSN)) or
+         ((qryFluxoGramasOperacoesorigemoperacaoalternativa.AsString = vOperacaoOrigemAgrupamento) and
+          (qryFluxoGramasOperacoesOperacaoemGrupoComAnterior.AsBoolean <> vOperacaoAgruparSN)) then
+      begin
+        qryFluxoGramasOperacoes.Edit;
+        qryFluxoGramasOperacoesOperacaoemGrupoComAnterior.AsBoolean :=  vOperacaoAgruparSN;
+      end;
+
+      qryFluxoGramasOperacoes.Next;
+
+    end;
+
+
+  finally
+
+  if ListaOperacoesSelecionadas = ''
+  then ListaOperacoesSelecionadas := '0';
+
+
+    qryFluxoGramasOperacoes.AfterEdit := qryFluxoGramasOperacoesAfterEdit;
+    qryFluxoGramasOperacoes.AfterPost := qryFluxoGramasOperacoesAfterPost;
+
+    qryFluxoGramasOperacoes.GotoBookmark(Pos);
+    qryFluxoGramasOperacoes.FreeBookmark(Pos);
+
+
+    qryFluxoGramasOperacoes.EnableControls;
+  end;
+end;
+
+
+procedure TdtmCadastroFluxoGramas.EditarFluxoGramasOperacoes;
+begin
+  if not (qryFluxoGramasOperacoes.State in [dsedit, dsinsert]) then
+    qryFluxoGramasOperacoes.Edit;
+end;
+
+procedure TdtmCadastroFluxoGramas.ExcluirFluxograma;
+begin
+  if not qryFluxoGramas.IsEmpty then
+    if (MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o FLUXOGRAMA'])) = smbOk) then
+    begin
+       qryFluxoGramas.Delete;
+       Perpetrar([qryFluxoGramas]);
+       RefazConsultaPorNome(qryRegistrodasOperacoes,['fluxograma'],[qryFluxoGramascodigo.AsVariant]);
+    end;
+end;
+
+function TdtmCadastroFluxoGramas.GravarFluxoGrama: boolean;
+var
+  CodigoFluxogramaGerado,
+  i: integer;
+  ListaTempoPadrao: array[1..2] of TStringList;
+  vOperacao : integer;
+
+  function AtribuirCodigo: boolean;
+  var
+    j:integer;
+  begin
+    result := true;
+//    i:=1;
+    ListaTempoPadrao[Operacao] := TStringList.Create;
+    ListaTempoPadrao[Tempo]    := TStringList.Create;
+
+    qryFluxoGramasOperacoes.AfterPost := nil;
+
+    GuardarRegistroAtual(qryFluxoGramasOperacoes,true);
+    qryFluxoGramasOperacoes.First;
+    while not qryFluxoGramasOperacoes.Eof do
+    begin
+      if qryFluxoGramasOperacoesfluxograma.AsInteger = CodigoFluxogramaGerado then
+      begin
+        qryFluxoGramasOperacoes.Edit;
+        if qryFluxoGramasOperacoesfluxograma.AsInteger <> qryFluxoGramascodigo.AsInteger then
+          qryFluxoGramasOperacoesfluxograma.AsInteger := qryFluxoGramascodigo.AsInteger;
+        qryFluxoGramasOperacoes.Post;
+      end;
+      (* COMPARA O VALOR DO TEMPO PADRAO COM O ORIGINAL E GUARDA EM "LISTATEMPOPADRAO" P/ GERAR O UPDATE *)
+      for j:=0 to ListaTempoPadraoOriginal[operacao].Count-1 do
+      begin
+        if (ListaTempoPadraoOriginal[operacao].Strings[j] = qryFluxoGramasOperacoesoperacao.AsString) and
+           (ListaTempoPadraoOriginal[tempo].Strings[j] <> qryFluxoGramasOperacoestempopadrao.AsString) then
+        begin
+          ListaTempoPadrao[Operacao].Append(qryFluxoGramasOperacoesoperacao.AsString);
+          ListaTempoPadrao[Tempo].Append(qryFluxoGramasOperacoestempopadrao.AsString);
+          break;
+        end;
+      end;
+
+      result := qryFluxoGramasOperacoes.CheckRequiredFields;
+      if not result then
+        break
+      else
+        Inc(i);
+      qryFluxoGramasOperacoes.Next;
+    end;
+    qryFluxoGramasOperacoes.AfterPost := qryFluxoGramasOperacoesAfterPost;
+    VoltarRegistroAtual(qryFluxoGramasOperacoes);
+  end;
+
+begin
+  result := false;
+  vOperacao := qryFluxoGramasOperacoesoperacao.AsInteger;
+
+  AtualizaListaOperacoes;
+
+  if (qryFluxoGramas.CheckRequiredFields) then
+  begin
+    if SalvarFluxogramaperacoes then
+    begin
+      CodigoFluxogramaGerado := qryFluxoGramascodigo.AsInteger;
+      if qryFluxoGramas.State = dsinsert then
+          qryFluxoGramascodigo.AsInteger := ProximoCodigo;
+
+      if AtribuirCodigo then
+      begin
+        qryFluxoGramas.Post;
+        result := Perpetrar([qryFluxoGramas,
+                             qryFluxoGramasOperacoes]);
+
+        if Result then
+          for i := 0 to ListaTempoPadrao[Operacao].Count - 1 do
+          begin
+            updOperacoes.Close;
+            updOperacoes.ParamByName('tempo').AsCurrency   := StrToCurr(ListaTempoPadrao[Tempo].Strings[i]);
+            updOperacoes.ParamByName('operacao').AsInteger := StrToInt(ListaTempoPadrao[Operacao].Strings[i]);
+            updOperacoes.ExecSql;
+          end;
+        RefazConsultaPorNome(qryFluxoGramas,['codigo'],[qryFluxoGramascodigo.AsVariant]);
+        qryFluxoGramasOperacoes.Locate('operacao',vOperacao,[]);
+//        RefazConsultaPorNome(qryRegistrodasOperacoes,['fluxograma'],[qryFluxoGramascodigo.AsVariant]);
+      end;
+    end;
+  end;
+end;
+
+procedure TdtmCadastroFluxoGramas.IncluirFluxoGrama;
+begin
+  qryFluxoGramas.Insert;
+  qryFluxoGramascodigo.AsInteger := ProximoCodigo;
+end;
+
+function TdtmCadastroFluxoGramas.ProximoCodigo: Integer;
+begin
+ qryFluxoGramasProximo.Open;
+ result := qryFluxoGramasProximocodigo.AsInteger;
+ qryFluxoGramasProximo.Close;
+end;
+
+function TdtmCadastroFluxoGramas.SalvarFluxogramaperacoes: boolean;
+begin
+  result := true;
+
+  qryFluxoGramasOperacoes.AfterPost := nil;
+
+  if (qryFluxoGramasOperacoes.State in [dsedit, dsinsert]) then
+  begin
+    if qryFluxoGramasOperacoes.CheckRequiredFields then
+      qryFluxoGramasOperacoes.Post
+    else
+      result := false;
+  end;
+
+  qryFluxoGramasOperacoes.AfterPost := qryFluxoGramasOperacoesAfterPost;
+
+end;
+
+procedure TdtmCadastroFluxoGramas.qryFluxoGramasOperacoesAfterOpen(
+  DataSet: TDataSet);
+begin
+  AtualizaListaOperacoes;
+
+  ListaTempoPadraoOriginal[operacao] := TStringList.Create;    // Guarda os valores originais de tempo padrao
+  ListaTempoPadraoOriginal[tempo]    := TStringList.Create;    // para posterior update
+
+  while Not qryFluxoGramasOperacoes.Eof do
+  begin
+    ListaTempoPadraoOriginal[operacao].Append(qryFluxoGramasOperacoesoperacao.AsString);
+    ListaTempoPadraoOriginal[tempo].Append(qryFluxoGramasOperacoestempopadrao.AsString);
+    qryFluxoGramasOperacoes.Next;
+  end;
+  qryFluxoGramasOperacoes.First;
+
+  inherited;
+  
+end;
+
+procedure TdtmCadastroFluxoGramas.qryFluxoGramasOperacoesAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  EditarFluxoGramas;
+  AtualizaListaOperacoes;
+
+  GravarFluxoGrama;
+end;
+
+procedure TdtmCadastroFluxoGramas.qryFluxoGramasOperacoesAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  EditarFluxoGramas;
+  AtualizaListaOperacoes;
+
+  GravarFluxoGrama;
+end;
+
+procedure TdtmCadastroFluxoGramas.qryFluxoGramasOperacoesNewRecord(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryFluxoGramasOperacoesfluxograma.AsInteger := qryFluxoGramascodigo.AsInteger;
+  qryFluxoGramasOperacoestipooperacao.AsString := 'N';
+//  qryF                                                                                  luxoGramasOperacoesdesviodeprocesso.AsBoolean := false;
+  qryFluxoGramasOperacoesOperacaoemGrupoComAnterior.AsBoolean := false;
+  qryFluxoGramasOperacoesOperacaoemGrupoComAnterior.AsBoolean := false;
+  qryFluxoGramasOperacoesoperacaoconjugada.AsBoolean := false;
+
+  qryFluxoGramasOperacoesInformarTerminodoProcesso.AsBoolean := false;
+  qryFluxoGramasOperacoescusto.asboolean := true;
+
+end;
+
+procedure TdtmCadastroFluxoGramas.qryFluxoGramasAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  ReFazConsulta(qryFluxoGramasOperacoes,[0], [qryFluxoGramascodigo.AsVariant]);
+  RefazConsultaPorNome(qryRegistrodasOperacoes,['fluxograma'],[qryFluxoGramascodigo.AsVariant]);
+  FluxoGramasAfterScroll(qryFluxoGramas);
+end;
+
+procedure TdtmCadastroFluxoGramas.ExcluirFluxoGramaOperacoes;
+begin
+  if not qryFluxoGramasOperacoes.IsEmpty then
+    if not qryFluxoGramasOperacoes.ReadOnly then
+      if (MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['a OPERAÇÃO deste FLUXOGRAMA'])) = smbOk) then
+         qryFluxoGramasOperacoes.Delete;
+end;
+
+procedure TdtmCadastroFluxoGramas.GravarFluxoGramaOperacoes;
+begin
+  if (qryFluxoGramasOperacoes.State in [dsedit, dsinsert]) then
+     qryFluxoGramasOperacoes.Post;
+end;
+
+constructor TdtmCadastroFluxoGramas.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryFluxoGramas.Tag := ctTabelas;
+//  qryFluxoGramasOperacoes.Tag := ctTabelas;
+  FListaOperacoesSelecionadas := '0';
+end;
+
+procedure TdtmCadastroFluxoGramas.EditarFluxoGramas;
+begin
+  if not (qryFluxoGramas.State in [dsedit, dsinsert]) then
+    qryFluxoGramas.Edit;
+end;
+
+procedure TdtmCadastroFluxoGramas.ZMonitor1MonitorEvent(Sql,
+  Result: String);
+var
+ Listar : TStringList;
+ Arquivo: String;
+begin
+  inherited;
+  Arquivo := 'c:\fluxo.sql';
+  Listar := tStringlist.create;
+  if fileexists(arquivo) then
+    Listar.loadfromfile(arquivo);
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile(arquivo);
+  listar.free;
+end;
+
+procedure TdtmCadastroFluxoGramas.qryFluxoGramasOperacoesAfterEdit(
+  DataSet: TDataSet);
+begin
+  inherited;
+  EditarFluxoGramas;
+end;
+
+procedure TdtmCadastroFluxoGramas.qryFluxoGramasOperacoesAfterClose(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if Assigned(ListaTempoPadraoOriginal[operacao]) then
+    ListaTempoPadraoOriginal[operacao].Free;
+  if Assigned(ListaTempoPadraoOriginal[tempo]) then
+    ListaTempoPadraoOriginal[tempo].Free;
+end;
+
+procedure TdtmCadastroFluxoGramas.IncluirOperacao;
+begin
+  qryFluxoGramasOperacoes.Insert;
+end;
+
+procedure TdtmCadastroFluxoGramas.qryFluxoGramasOperacoesBeforeDelete(
+  DataSet: TDataSet);
+var
+  i:integer;
+begin
+  inherited;
+  for i:=0 to ListaTempoPadraoOriginal[operacao].Count-1 do
+  begin
+    if qryFluxoGramasOperacoesoperacao.AsString = ListaTempoPadraoOriginal[operacao].Strings[i] then
+    begin
+      ListaTempoPadraoOriginal[operacao].Delete(i);
+      ListaTempoPadraoOriginal[tempo].Delete(i);
+      break;
+    end;
+  end;      
+end;
+
+procedure TdtmCadastroFluxoGramas.dsrFluxoGramasOperacoesDataChange(
+  Sender: TObject; Field: TField);
+begin
+  inherited;
+  if (Field = qryFluxoGramasOperacoestempopadrao) and
+     (qryFluxoGramasOperacoes.State = dsInsert) then
+  begin
+    ListaTempoPadraoOriginal[operacao].Append(qryFluxoGramasOperacoesoperacao.AsString);
+    ListaTempoPadraoOriginal[tempo].Append(qryFluxoGramasOperacoestempopadrao.AsString);
+  end
+  else
+  if field = qryFluxoGramasOperacoestipooperacao then
+  begin
+    if field.Value = 'N' then
+    begin
+      dsrFluxoGramasOperacoes.OnDataChange := nil;
+      qryFluxoGramasOperacoesorigemoperacaoalternativa.Clear;
+      dsrFluxoGramasOperacoes.OnDataChange := dsrFluxoGramasOperacoesDataChange;
+    end;
+  end;
+end;
+
+procedure TdtmCadastroFluxoGramas.IncluirOperacaoAlternativa;
+var
+  vOperacaoAnterior: String;
+begin
+  vOperacaoAnterior := qryFluxoGramasOperacoesoperacao.AsString;
+  qryFluxoGramasOperacoes.Next;
+  while not qryFluxoGramasOperacoes.Eof do
+  begin
+    if qryFluxoGramasOperacoestipooperacao.AsString = 'N' then
+      break;
+    qryFluxoGramasOperacoes.Next;
+  end;
+
+  if qryFluxoGramasOperacoes.Eof then
+    qryFluxoGramasOperacoes.Append
+  else
+    qryFluxoGramasOperacoes.Insert;
+
+
+  qryFluxoGramasOperacoestipooperacao.AsString := 'A';
+  qryFluxoGramasOperacoesorigemoperacaoalternativa.AsString := vOperacaoAnterior;
+end;
+
+
+procedure TdtmCadastroFluxoGramas.imprimir(dataInicialInclusao,
+  dataFinalInclusao, dataInicialAlteracao, dataFinalAlteracao: String;
+  ordenacao: integer);
+const
+  SQLDataInicial = 'and cast(trigger_changed as date) between :datainicialalteracao and :datafinalalteracao';
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+  if (dataInicialInclusao<>'') and (dataFinalInclusao<>'') then
+  begin
+    qryImprimirfluxogramas.MacroByName('datainclusao').asstring := 'and cast(trigger_changed as date) between :datainicialinclusao and :datafinalinclusao';
+    qryImprimirfluxogramas.MacroByName('Inclusaofluxogramas').asstring := 'and cast(datahorainclusao as date) between :datainicialinclusao and :datafinalinclusao';
+
+    qryImprimirfluxogramas.paramByName('datainicialinclusao').AsDateTime := strtodatetime(dataInicialinclusao);
+    qryImprimirfluxogramas.paramByName('datafinalinclusao').AsDateTime := strtodatetime(dataFinalinclusao);
+
+  end
+   else
+  if (dataInicialinclusao<>'') and (dataFinalinclusao='') then
+  begin
+    qryImprimirfluxogramas.MacroByName('datainclusao').asstring := 'and cast(trigger_changed as date) >= :datainicialinclusao';
+    qryImprimirfluxogramas.MacroByName('Inclusaofluxogramas').asstring := 'and cast(datahorainclusao as date) >= :datainicialinclusao';
+    qryImprimirfluxogramas.paramByName('datainicialinclusao').AsDateTime := strtodatetime(dataInicialinclusao);
+    qryImprimirfluxogramas.paramByName('datafinalinclusao').clear;
+  end
+  else
+  if (dataInicialinclusao='') and (dataFinalinclusao<>'') then
+  begin
+    qryImprimirfluxogramas.MacroByName('datainclusao').asstring := 'and cast(trigger_changed as date) <= :datafinalinclusao';
+    qryImprimirfluxogramas.MacroByName('Inclusaofluxogramas').asstring := 'and cast(datahorainclusao as date) <= :datafinalinclusao';
+    qryImprimirfluxogramas.paramByName('datainicialinclusao').clear;
+    qryImprimirfluxogramas.paramByName('datafinalinclusao').AsDateTime := strtodatetime(dataFinalinclusao);
+  end
+  else
+  if (dataInicialinclusao='') and (dataFinalinclusao='') then
+  begin
+    qryImprimirfluxogramas.MacroByName('datainclusao').asstring := '';
+    qryImprimirfluxogramas.MacroByName('Inclusaofluxogramas').asstring := '';
+    qryImprimirfluxogramas.paramByName('datainicialinclusao').clear;
+    qryImprimirfluxogramas.paramByName('datafinalinclusao').clear;
+  end;
+
+
+
+  if (dataInicialalteracao<>'') and (dataFinalalteracao<>'') then
+  begin
+    qryImprimirfluxogramas.MacroByName('dataalteracao').asstring := 'and cast(trigger_changed as date) between :datainicialalteracao and :datafinalalteracao';
+    qryImprimirfluxogramas.MacroByName('Alteracaofluxogramas').asstring := 'and cast(datahoraalteracao as date) between :datainicialalteracao and :datafinalalteracao';
+    qryImprimirfluxogramas.paramByName('datainicialalteracao').AsDateTime := strtodatetime(dataInicialAlteracao);
+    qryImprimirfluxogramas.paramByName('datafinalalteracao').AsDateTime := strtodatetime(dataFinalAlteracao);
+  end
+  else
+  if (dataInicialalteracao<>'') and (dataFinalalteracao='') then
+  begin
+    qryImprimirfluxogramas.MacroByName('dataalteracao').asstring := 'and cast(trigger_changed as date) >= :datainicialalteracao';
+    qryImprimirfluxogramas.MacroByName('Alteracaofluxogramas').asstring := 'and cast(datahoraalteracao as date) >= :datainicialalteracao';
+    qryImprimirfluxogramas.paramByName('datainicialalteracao').AsDateTime := strtodatetime(dataInicialAlteracao);
+    qryImprimirfluxogramas.paramByName('datafinalalteracao').clear;
+  end
+  else
+  if (dataInicialalteracao='') and (dataFinalalteracao<>'') then
+  begin
+    qryImprimirfluxogramas.MacroByName('dataalteracao').asstring := 'and cast(trigger_changed as date) <= :datafinalalteracao';
+    qryImprimirfluxogramas.MacroByName('Alteracaofluxogramas').asstring := 'and cast(datahoraalteracao as date) <= :datafinalalteracao';
+    qryImprimirfluxogramas.paramByName('datainicialalteracao').clear;
+    qryImprimirfluxogramas.paramByName('datafinalalteracao').AsDateTime := strtodatetime(dataFinalAlteracao);
+  end
+  else
+  if (dataInicialalteracao='') and (dataFinalalteracao='') then
+  begin
+    qryImprimirfluxogramas.MacroByName('dataalteracao').asstring := '';
+    qryImprimirfluxogramas.MacroByName('Alteracaofluxogramas').asstring := '';
+    qryImprimirfluxogramas.paramByName('datainicialalteracao').clear;
+    qryImprimirfluxogramas.paramByName('datafinalalteracao').clear;
+  end;
+
+  case ordenacao of
+  0: begin
+       qryImprimirfluxogramas.MacroByName('Ordenacao').asstring := 'order by f.codigo, CAST(f.Sequencia AS NUMERIC)';
+     end;
+  1: begin
+       qryImprimirfluxogramas.MacroByName('Ordenacao').asstring := 'order by f.descricao, CAST(f.Sequencia AS NUMERIC)';
+     end;
+  end;
+
+
+  frmPreview := TfrmPreviewPadrao.create(self);
+  frmPreview.cmbZoom.ItemIndex := 3; //125%
+  try
+   Relatorio := frmPreview.frCompositeReport;
+   with frmPreview do
+   begin
+     frCompositeReport.Reports.Clear;
+     frCompositeReport.DoublePass:= True;
+     frVariables['TITULO'] := 'CADASTRO DE FLUXOGRAMAS';
+     frVariables['SUBTITULO'] := '';
+     frCompositeReport.Reports.Add(frpImprimirfluxogramas);
+     Relatorio.Preview := frmPreview.frPreviewPadrao;
+     Relatorio.ShowReport;
+     frmPreview.ShowModal;
+   end;
+  finally
+   frmPreview.Free
+  end; 
+
+end;
+
+procedure TdtmCadastroFluxoGramas.frpImprimirFluxogramasBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+   ZebrarLinhaRelatorio(frpImprimirFluxogramas,View);
+end;
+
+procedure TdtmCadastroFluxoGramas.qryFluxoGramasOperacoesAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+//  qryFluxoGramasOperacoesdesviodeprocesso.ReadOnly := qryFluxoGramasOperacoestipooperacao.AsString <> 'A';
+end;
+
+end.

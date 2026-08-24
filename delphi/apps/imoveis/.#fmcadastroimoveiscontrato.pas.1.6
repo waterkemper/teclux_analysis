@@ -1,0 +1,563 @@
+unit fmcadastroimoveiscontrato;
+
+interface
+
+uses
+  SysUtils, Windows, Types, Classes, Graphics, Controls, Forms, Dialogs,BIBLIO,
+  StdCtrls, fmcadastropadrao, ComCtrls, Buttons, ExtCtrls, ctconstantes,
+  frendereco, cpnumero, DBCtrls, cpdbmemo, cpdbtext, cpdblookupcombobox,
+  dmcontratosimoveis, Mask, cpdbfindcontrols, frconsulta, frconsultacodigo,
+  cpdbcombobox, {Qete,} Messages, fmconsultabasica, DB, Zquery, fmConsultaPorCampo,
+  ToolWin;
+
+type
+  TfrmCadastroImoveisContrato = class(TFrmCadastroPadrao)
+    gbxDados: TGroupBox;
+    gbxEmpreendimentos: TGroupBox;
+    fraConsultaEmpreendimento: TfraConsultaCodigo;
+    gbxBlocos: TGroupBox;
+    gbxNumero: TGroupBox;
+    gbxPavimento: TGroupBox;
+    dtxpavimento: TtecDBText;
+    gbxareas: TGroupBox;
+    gbxPrivativa: TGroupBox;
+    gbxComum: TGroupBox;
+    gbxTotal: TGroupBox;
+    gbxFracaoIdeal: TGroupBox;
+    lblMais: TLabel;
+    lblIgual: TLabel;
+    gbxObservacoes: TGroupBox;
+    mmoObservacoes: TtecDBMemo;
+    dtxPrivativa: TtecDBText;
+    dtxComum: TtecDBText;
+    dtxtotal: TtecDBText;
+    dtxFracaoideal: TtecDBText;
+    gbxPrecoVenda: TGroupBox;
+    edtPrecoVenda: TDBEditNumero;
+    clxBlocos: TTecDBLookupComboBox;
+    clxImoveis: TTecDBLookupComboBox;
+    gbxObsContrato: TGroupBox;
+    mmoObsContrato: TtecDBMemo;
+    gbxTipodeUnidade: TGroupBox;
+    cbxTipodeUnidade: TTecDBLookupComboBox;
+    gbxPrecoImovel: TGroupBox;
+    dtxPrevoImovel: TtecDBText;
+    gbxNrImovel: TGroupBox;
+    dtxNrOrdemImovel: TtecDBText;
+    procedure clxBlocosCloseUp(Sender: TObject);
+    procedure clxImoveisCloseUp(Sender: TObject);
+    procedure clxBlocosEnter(Sender: TObject);
+    procedure clxImoveisEnter(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure sbnProcurarClick(Sender: TObject);
+    procedure clxImoveisExit(Sender: TObject);
+    procedure fraConsultaEmpreendimentoedfCodigoFound(Found: Boolean);
+    procedure clxBlocosExit(Sender: TObject);
+    procedure cbxTipodeUnidadeCloseUp(Sender: TObject);
+    procedure cbxTipodeUnidadeEnter(Sender: TObject);
+    procedure cbxTipodeUnidadeExit(Sender: TObject);
+    procedure fraConsultaEmpreendimentoedfCodigoEnter(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+  private
+    { Private declarations }
+
+  protected
+    Jan: TfrmConsultaPorCampo;
+    TipoPesquisa: TtecPesquisa;
+    procedure AtribuirParametros;
+    procedure AtribuirMacro;
+    procedure AlterarEstadoBotoes; override;
+    function  InternoCancelar: Boolean; override;
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    function  InternoIncluir: Boolean; override;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    function  TabelaDePesquisa: TZDataSet; override;
+    function  TabelaDoParametro(Parametro: Integer): TZDataSet; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure CancelarInclusao(Sender: TObject);
+
+  public
+    { Public declarations }
+    Editar: boolean;
+    Gravando: boolean;
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    Function AtualizarTiposUnidades: Boolean;
+    Function AtualizarNumeroImoveis: Boolean;
+    procedure AtualizarImoveis(Sender: TObject);
+  end;
+
+var
+  frmCadastroImoveisContrato: TfrmCadastroImoveisContrato;
+
+implementation
+
+uses dmbasico, fmajudabt;
+
+{$R *.dfm}
+
+{ TfrmCadastroImoveisContrato }
+
+procedure TfrmCadastroImoveisContrato.AtribuirParametros;
+begin
+  fraConsultaEmpreendimentoedfCodigoFound(true);
+{  dtmContratosImoveis.ParametrosImoveis(fraConsultaEmpreendimento.edfCodigo.Text,'','','');}
+{
+  dtmContratosImoveis.RefazConsultaPorNome(dtmContratosImoveis.qryConsultaBlocos,['Empreendimento'],
+                                          [fraConsultaEmpreendimento.qryProcuraEmpreendimentoscodigo.AsVariant]);
+                                          }
+end;
+
+function TfrmCadastroImoveisContrato.AtualizarNumeroImoveis: Boolean;
+begin
+  with dtmContratosImoveis do
+  begin
+    ParametrosImoveis(fraConsultaEmpreendimento.edfCodigo.Text,
+                       qryConsultaBlocoscodigo.AsString,
+                       {qryConsultaImoveisimovel.AsString,} '',
+                       qryConsultaTiposUnidadescodigo.AsString);
+//    RefazConsulta(qryConsultaImoveis,[0],[qryConsultaBlocoscodigo.AsVariant]);
+    Result:= qryConsultaImoveis.RecordCount > 0;
+  end;
+end;
+
+procedure TfrmCadastroImoveisContrato.AtualizarImoveis(Sender: TObject);
+begin
+  with dtmContratosImoveis do
+  begin
+    if not (qryImoveisVendidos.State in [dsinsert,dsedit]) then
+      qryImoveisVendidos.Edit;
+    qryImoveisVendidosunidade.AsInteger       := qryConsultaImoveisunidade.AsInteger;
+    qryImoveisVendidostipounidade.AsString    := qryConsultaImoveistipounidade.AsString;
+    qryImoveisVendidospavimento.AsString      := qryConsultaImoveispavimento.AsString;
+    qryImoveisVendidosPrecoVenda.asfloat      := qryConsultaImoveisPreco.AsFloat;
+    qryImoveisVendidosareaprivativa.AsFloat   := qryConsultaImoveisareaprivativa.AsFloat;
+    qryImoveisVendidosareacomum.AsFloat       := qryConsultaImoveisareacomum.AsFloat;
+    qryImoveisVendidosareatotal.AsFloat       := qryConsultaImoveisAreaTotal.AsFloat;
+    qryImoveisVendidosfracaoideal.AsFloat     := qryConsultaImoveisfracaoideal.AsFloat;
+    qryImoveisVendidosnomebloco.AsString      := qryConsultaImoveisnomebloco.AsString;
+    qryImoveisVendidosempreendimento.AsString := qryConsultaImoveisempreendimento.AsString;
+    qryImoveisVendidosdatahabitese.AsDateTime := qryConsultaImoveisdatahabitese.AsDateTime;
+  end;
+end;
+
+constructor TfrmCadastroImoveisContrato.Create(AOwner: TComponent);
+begin
+  inherited;
+  DataSet:= dtmContratosImoveis.qryImoveisVendidos;
+  dtmContratosImoveis.qryImoveisVendidos.Open;
+  fraConsultaEmpreendimento.TipoPesquisa := pesEMPREENDIMENTOS;
+  fraConsultaEmpreendimento.CondicoesdaConsulta:= AtribuirMacro;
+  fraConsultaEmpreendimento.OnFound := AtribuirParametros;
+  dtmContratosImoveis.CancelarInclusao:= cancelarInclusao;
+end;
+
+destructor TfrmCadastroImoveisContrato.Destroy;
+begin
+  inherited;
+  frmCadastroImoveisContrato:= nil;
+  
+end;
+
+procedure TfrmCadastroImoveisContrato.clxBlocosCloseUp(Sender: TObject);
+begin
+  inherited;
+  if AtualizarTiposUnidades then
+  begin
+    with dtmContratosImoveis do
+    begin
+      if not (qryImoveisVendidos.State in [dsinsert, dsedit]) then
+        qryImoveisVendidos.Edit;
+      qryImoveisVendidosbloco.AsInteger:= qryConsultaBlocoscodigo.AsInteger;
+      qryImoveisVendidosunidade.AsInteger := qryConsultaTiposUnidadescodigo.AsInteger;
+      qryImoveisVendidostipounidade.AsString:= qryConsultaTiposUnidadesnome.AsString;
+    end;
+  end
+  else
+  begin
+    clxBlocos.OnExit:= nil;
+    InternoIncluir;
+    fraConsultaEmpreendimento.edfCodigo.SetFocus;
+  end;
+end;
+
+procedure TfrmCadastroImoveisContrato.clxImoveisCloseUp(Sender: TObject);
+begin
+  inherited;
+  AtualizarImoveis(Self);
+  with dtmContratosImoveis do
+  begin
+    if not (qryImoveisVendidos.State in [dsinsert, dsedit]) then
+      qryImoveisVendidos.Edit;
+    if qryConsultaImoveis.RecordCount > 0 then
+      qryImoveisVendidosnumero.AsString := qryConsultaImoveisimovel.AsString;
+  end;
+end;
+
+procedure TfrmCadastroImoveisContrato.clxBlocosEnter(Sender: TObject);
+begin
+  inherited;
+  clxBlocos.Color:= CorFundoControle;
+  clxBlocos.OnExit:= clxBlocosExit;
+  clxBlocos.DropDown;
+  with dtmContratosImoveis do
+  begin
+    if qryImoveisVendidos.ReadOnly then
+      qryImoveisVendidos.ReadOnly:= False;
+    if not (qryImoveisVendidos.State in [dsinsert, dsedit]) then
+      qryImoveisVendidos.Edit;
+    qryImoveisVendidosbloco.AsInteger:= qryConsultaBlocoscodigo.AsInteger;
+  end;
+end;
+
+procedure TfrmCadastroImoveisContrato.clxImoveisEnter(Sender: TObject);
+begin
+  inherited;
+  clxImoveis.Color:= CorFundoControle;
+  clxImoveis.DropDown;
+  with dtmContratosImoveis do
+  begin
+    if qryImoveisVendidos.ReadOnly then
+      qryImoveisVendidos.ReadOnly:= False;
+    if not (qryImoveisVendidos.State in [dsinsert, dsedit]) then
+      qryImoveisVendidos.Edit;
+    if qryConsultaImoveis.RecordCount > 0 then
+      qryImoveisVendidosnumero.AsString := qryConsultaImoveisimovel.AsString;
+  end;
+
+end;
+
+
+function TfrmCadastroImoveisContrato.InternoCancelar: Boolean;
+begin
+  dtmContratosImoveis.qryImoveisVendidos.Cancel;
+  dtmContratosImoveis.FecharTabelasConsultas;
+  fraConsultaEmpreendimento.edfCodigo.Text:= '';
+  fraConsultaEmpreendimento.edfCodigo.Exist;
+  dtmContratosImoveis.qryConsultaBlocos.Close;
+  dtmContratosImoveis.qryConsultaTiposUnidades.Close;
+  dtmContratosImoveis.qryConsultaImoveis.Close;
+
+end;
+
+function TfrmCadastroImoveisContrato.InternoExcluir: Boolean;
+begin
+  if dtmContratosImoveis.ExcluirImovelContrato then
+  begin
+    close;
+  (*
+    fraConsultaEmpreendimento.edfCodigo.clear;
+    fraConsultaEmpreendimento.edfCodigo.Exist;
+
+    with dtmContratosImoveis do
+    begin
+      ReFazConsulta(qryConsultaBlocos,[0],[0]);
+      ReFazConsulta(qryConsultaImoveis,[0],[0]);
+    end;
+    fraConsultaEmpreendimento.edfCodigo.SetFocus;
+    *)
+  end;
+end;
+
+function TfrmCadastroImoveisContrato.InternoGravar: Boolean;
+begin
+  Gravando:= True;
+  dtmContratosImoveis.GravarImovelContrato;
+  edtPrecoVenda.SetFocus;
+  Gravando:= false;
+end;
+
+function TfrmCadastroImoveisContrato.InternoIncluir: Boolean;
+begin
+  dtmContratosImoveis.IncluirImoveisContrato;
+  Editar:= False;
+  if dtmContratosImoveis.qryContratosempreendimento.AsInteger {Empreendimento} <> 0 then
+  begin
+    fraConsultaEmpreendimento.edfCodigo.Text:= dtmContratosImoveis.qryContratosempreendimento.AsString; {Empreendimento}
+    fraConsultaEmpreendimento.edfCodigo.Exist;
+//    fraConsultaEmpreendimento.edfCodigo.ReadOnly := true;
+    fraConsultaEmpreendimentoedfCodigoFound(true);
+  end
+  else
+  begin
+    fraConsultaEmpreendimento.edfCodigo.clear;
+//    fraConsultaEmpreendimento.edfCodigo.ReadOnly := false;
+  end;
+
+  with dtmContratosImoveis do
+  begin
+//    qryConsultaBlocos.MacroByName('WhereBloco').AsString:= '';
+    qryConsultaImoveis.MacroByName('WhereImoveis').AsString:= '';
+    qryConsultaImoveis.MacroByName('WhereUnidades').AsString:= '';
+  end;
+  fraConsultaEmpreendimento.edfCodigo.SetFocus;
+end;
+
+procedure TfrmCadastroImoveisContrato.FormShow(Sender: TObject);
+begin
+  inherited;
+  if ((Editar) and (dtmContratosImoveis.qryImoveisVendidos.RecordCount > 0)) then
+  begin
+    with dtmContratosImoveis do
+    begin
+      fraConsultaEmpreendimento.edfCodigo.Text:= qryimoveisvendidosCodigoEmpreendimento.AsString;
+      fraConsultaEmpreendimento.edfCodigo.Exist;
+
+//      ReFazConsulta(qryConsultaBlocos,[0],[qryimoveisvendidosCodigoEmpreendimento.AsVariant]);
+//      ReFazConsulta(qryConsultaImoveis,[0],[qryImoveisVendidosbloco.AsVariant]);
+
+      ParametrosImoveis(qryimoveisvendidosCodigoEmpreendimento.AsString,
+                         qryImoveisVendidosbloco.AsVariant,
+                         '',
+                         qryImoveisVendidosunidade.AsString);
+
+      edtPrecoVenda.SetFocus;
+    end;
+  end
+  else
+  begin
+    if dtmContratosImoveis.qryContratosempreendimento.AsInteger {Empreendimento} <> 0 then
+    begin
+      with dtmContratosImoveis do
+      begin
+        qryConsultaBlocos.Close;
+        qryConsultaTiposUnidades.Close;
+        qryConsultaImoveis.Close;
+      end;
+      dtmContratosImoveis.qryImoveisVendidos.Insert;
+      fraConsultaEmpreendimento.edfCodigo.Text:= dtmContratosImoveis.qryContratosempreendimento.AsString {Empreendimento};
+      fraConsultaEmpreendimento.edfCodigo.Exist;
+      fraConsultaEmpreendimento.edfCodigoFound(True);
+      fraConsultaEmpreendimento.edfCodigo.SetFocus;
+    end
+    else
+      fraConsultaEmpreendimento.edfCodigo.SetFocus;
+  end;
+end;
+
+function TfrmCadastroImoveisContrato.InternoPesquisar(Titulo: String): Integer;
+begin
+  if not CtrlOn then
+  begin
+    TipoPesquisa:= pesIMOVEIS;
+    Titulo:= 'Imóveis';
+    dtmContratosImoveis.AbreTabelasConsulta(TipoPesquisa);
+    Result := inherited InternoPesquisar(Titulo);
+    if Result = mrOK then
+    begin
+      case TipoPesquisa of
+        pesIMOVEIS :  begin
+                        with dtmContratosImoveis do
+                        begin
+                          Selecionar(TipoPesquisa);
+                          if (not(Editar) and not (qryImoveisVendidos.State in [dsinsert])) then
+                            qryImoveisVendidos.Insert
+                          else if Editar then
+                            qryImoveisVendidos.Edit;
+                          fraConsultaEmpreendimento.edfCodigo.Text:= qryConsultarImoveisemp.AsString;
+                          fraConsultaEmpreendimento.edfCodigo.Exist;
+                          qryImoveisVendidosbloco.AsInteger:= qryConsultarImoveisbloco.AsInteger;
+                          qryImoveisVendidosnumero.AsString:= qryConsultarImoveisnumero.AsString;
+                          clxImoveisExit(Self);
+                          edtPrecoVenda.SetFocus;
+                        end;
+                      end;
+      end;
+    end;
+    dtmContratosImoveis.FechaTabelaConsulta(TipoPesquisa);
+  end;
+end;
+
+function TfrmCadastroImoveisContrato.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Jan := TfrmConsultaPorCampo.Create(nil);
+  Jan.ConsultaInterativa := True;
+  Result := Jan;
+end;
+
+function TfrmCadastroImoveisContrato.TabelaDePesquisa: TZDataSet;
+begin
+  WITH dtmContratosImoveis DO
+  BEGIN
+    case TipoPesquisa of
+      pesIMOVEIS : Result:= qryConsultarImoveis;
+    end;
+  END;
+end;
+
+function TfrmCadastroImoveisContrato.TabelaDoParametro(Parametro: Integer): TZDataSet;
+begin
+
+end;
+
+procedure TfrmCadastroImoveisContrato.sbnProcurarClick(Sender: TObject);
+begin
+  TipoPesquisa:= pesIMOVEIS;
+  inherited;
+end;
+
+procedure TfrmCadastroImoveisContrato.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  if Key = VK_ESCAPE then
+  begin
+    if ActiveControl = fraConsultaEmpreendimento.edfCodigo then
+    begin
+      InternoCancelar;
+      fraConsultaEmpreendimento.edfCodigo.SetFocus;
+     end
+    else
+    begin
+      fraConsultaEmpreendimento.edfCodigo.SetFocus;
+    end;
+  end
+  else
+    inherited;
+end;
+
+procedure TfrmCadastroImoveisContrato.clxImoveisExit(Sender: TObject);
+begin
+  inherited;
+  if not Gravando then
+    AtualizarImoveis(Self);
+end;
+
+procedure TfrmCadastroImoveisContrato.AtribuirMacro;
+begin
+  if dtmContratosImoveis.qryContratosempreendimento.AsInteger  {Empreendimento} <> 0 then
+  begin
+//    fraConsultaEmpreendimento.qryConsultaEmpreendimentos.MacroByName('JaCadastrado').AsString:= 'and e.Codigo = '+dtmContratosImoveis.Empreendimento;
+//    fraConsultaEmpreendimento.qryProcuraEmpreendimentos.MacroByName('JaCadastrado').AsString:= 'and em.Codigo = '+dtmContratosImoveis.Empreendimento;
+  end;
+end;
+
+procedure TfrmCadastroImoveisContrato.fraConsultaEmpreendimentoedfCodigoFound(Found: Boolean);
+begin
+  inherited;
+  if fraConsultaEmpreendimento.edfCodigo.Text <> '' then
+  begin
+    dtmContratosImoveis.ParametrosImoveis(fraConsultaEmpreendimento.edfCodigo.Text,'','','');
+//    AtribuirParametros;
+    fraConsultaEmpreendimento.edfCodigo.SetControl(true);
+    with dtmContratosImoveis do
+    begin
+      if (qryImoveisVendidos.State in [dsinsert]) then
+        qryImoveisVendidosbloco.AsInteger:= qryConsultaBlocoscodigo.AsInteger;
+
+      if qryContratosAVPTaxaDesconto.IsNull then
+        qryContratosAVPTaxaDesconto.AsCurrency := fraConsultaEmpreendimento.qryProcuraEmpreendimentosavptaxadesconto.AsCurrency;
+
+    end;
+    clxBlocos.SetFocus;
+  end;
+end;
+
+procedure TfrmCadastroImoveisContrato.CancelarInclusao(Sender: TObject);
+begin
+  InternoCancelar;
+end;
+
+procedure TfrmCadastroImoveisContrato.AlterarEstadoBotoes;
+begin
+  inherited;
+  sbnProcurar.Enabled:= True;
+  sbnIncluir.Enabled := (dtmContratosImoveis.SituacaoContrato = sciRESERVADO) and not (dtmContratosImoveis.qryImoveisVendidos.State = dsinsert);
+  sbnExcluir.Enabled := sbnIncluir.Enabled;
+end;
+
+function TfrmCadastroImoveisContrato.ExisteInformacao(Parametro: Integer;
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmContratosImoveis do
+  begin
+    case TipoPesquisa of
+      pesIMOVEIS : ExisteCodigo(qryConsultarImoveis,NomeCampo,Value);
+    end;
+  end;    
+end;
+
+procedure TfrmCadastroImoveisContrato.clxBlocosExit(Sender: TObject);
+begin
+  inherited;
+  if not AtualizarTiposUnidades then
+    fraConsultaEmpreendimento.edfCodigo.SetFocus;
+end;
+
+procedure TfrmCadastroImoveisContrato.cbxTipodeUnidadeCloseUp(
+  Sender: TObject);
+begin
+  inherited;
+  if AtualizarNumeroImoveis then
+  begin
+    with dtmContratosImoveis do
+    begin
+      if not (qryImoveisVendidos.State in [dsinsert, dsedit]) then
+        qryImoveisVendidos.Edit;
+      qryImoveisVendidosunidade.AsInteger := qryConsultaTiposUnidadescodigo.AsInteger;
+      qryImoveisVendidostipounidade.AsString:= qryConsultaTiposUnidadesnome.AsString;
+    end;
+  end
+  else
+  begin
+    cbxTipodeUnidade.OnExit:= nil;
+    InternoIncluir;
+    fraConsultaEmpreendimento.edfCodigo.SetFocus;
+  end;
+end;
+
+procedure TfrmCadastroImoveisContrato.cbxTipodeUnidadeEnter(
+  Sender: TObject);
+begin
+  inherited;
+  cbxTipodeUnidade.Color:= CorFundoControle;
+  cbxTipodeUnidade.OnExit:= cbxTipodeUnidadeExit;
+  cbxTipodeUnidade.DropDown;
+  with dtmContratosImoveis do
+  begin
+    if qryImoveisVendidos.ReadOnly then
+      qryImoveisVendidos.ReadOnly:= False;
+    if not (qryImoveisVendidos.State in [dsinsert, dsedit]) then
+      qryImoveisVendidos.Edit;
+    qryImoveisVendidosunidade.AsInteger := qryConsultaTiposUnidadescodigo.AsInteger;
+    qryImoveisVendidostipounidade.AsString:= qryConsultaTiposUnidadesnome.AsString;
+
+  end;
+end;
+
+procedure TfrmCadastroImoveisContrato.cbxTipodeUnidadeExit(
+  Sender: TObject);
+begin
+  inherited;
+  if not AtualizarNumeroImoveis then
+    clxBlocos.SetFocus;
+end;
+
+function TfrmCadastroImoveisContrato.AtualizarTiposUnidades: Boolean;
+begin
+  with dtmContratosImoveis do
+  begin
+    ParametrosImoveis(fraConsultaEmpreendimento.edfCodigo.Text,
+                       qryConsultaBlocoscodigo.AsString, '', '');
+//    RefazConsulta(qryConsultaTiposUnidades,[0],[qryConsultaBlocoscodigo.AsVariant]);
+    Result:= qryConsultaTiposUnidades.RecordCount > 0;
+  end;
+end;
+
+procedure TfrmCadastroImoveisContrato.fraConsultaEmpreendimentoedfCodigoEnter(
+  Sender: TObject);
+begin
+  inherited;
+    fraConsultaEmpreendimento.edfCodigo.SetControl(false);
+
+end;
+
+procedure TfrmCadastroImoveisContrato.FormActivate(Sender: TObject);
+begin
+  inherited;
+  fraConsultaEmpreendimento.edfCodigo.SetFocus;
+end;
+
+end.

@@ -1,0 +1,974 @@
+unit fmmovtosbancos;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, Biblio, Windows,
+  {Qete,} StdCtrls, fmcadastropadrao, cpdbfindcontrols, Mask, DBCtrls, cptexto,
+  cpdbtext, cpnumero, ComCtrls, Buttons, ExtCtrls, ctConstantes,
+  fmconsultabasica, fmconsultaporcampo, ZQuery, cpdbmemo, cpdbdata, dateUtils,
+  clparametrossistema, Variants, DB, ZPgSqlQuery, cpquery,
+  frlercontacorrentesaldo, dmBasico, Menus, Grids, DBGrids,
+  cpdbgrid, frconsulta, frconsultacodigo,
+  frconsultacontabil, frconsultacodigocontabil, ToolWin,
+  fmvisualizarlog;
+
+
+type
+  TfrmMovtosBancos = class(TfrmCadastroPadrao)
+    gbxLancamento: TGroupBox;
+    gbxObservacoes: TGroupBox;
+    mmoObservacoes: TtecDBMemo;
+    dtxTipo: TtecDBText;
+    gbxDataLancto: TGroupBox;
+    gbxCompensacao: TGroupBox;
+    edtCompensacao: TDBEditData;
+    gbxSequencia: TGroupBox;
+    gbxValorMovto: TGroupBox;
+    edtValor: TDBEditNumero;
+    gbxOrigem: TGroupBox;
+    dtxOrigem: TtecDBText;
+    fraLerContaCorrenteSaldo1: TfraLerContaCorrenteSaldo;
+    edfSequencia: TtecDBFindLookup;
+    edfData: TtecDBFindLookup;
+    lblDataSaldo: TtecDBText;
+    gbxDocumento: TGroupBox;
+    edtDocumento: TtecDBMemo;
+    Bevel1: TBevel;
+    gbxEventos: TGroupBox;
+    dbgMovtosBancosEventos: TtecDBGrid;
+    Bevel2: TBevel;
+    pnlOpcoesContabil: TPanel;
+    sbnIncluirMovtosBancosEventos: TSpeedButton;
+    sbnExcluirMovtosBancosEventos: TSpeedButton;
+    gbxPeriodoReferencia: TGroupBox;
+    edtPeriodoReferencia: TDBEditData;
+    sbnLogClientes: TSpeedButton;
+    SpeedButton1: TSpeedButton;
+
+
+    procedure sbnConsultaEventoDocumentosClick(Sender: TObject);
+    procedure edtDataKeyDown (Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure edfSequenciaKeyDown   (Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure edtCompensacaoKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edtValorKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edtCompensacaoExit(Sender: TObject);
+    procedure edtDocumentoKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edfCodigoEventoKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edtCompensacaoEnter(Sender: TObject);
+    procedure PercorrerMovtosBancos(Campo: Byte; var Key: Word; Shift: TShiftState);
+    procedure fraLerContaCorrenteSaldo1sbnProcurarContaClick(
+      Sender: TObject);
+    procedure fraLerContaCorrenteSaldo1edfContaExit(Sender: TObject);
+    procedure AtualizarSaldoDaConciliacao;
+    procedure FormLoaded(Sender: TObject);
+    procedure dbgMovtosBancosEventosDblClick(Sender: TObject);
+    procedure dbgMovtosBancosEventosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnIncluirMovtosBancosEventosClick(Sender: TObject);
+    procedure sbnExcluirMovtosBancosEventosClick(Sender: TObject);
+    procedure edtDocumentoKeyPress(Sender: TObject; var Key: Char);
+    procedure fraLerContaCorrenteSaldo1edfContaFound(Found: Boolean);
+    procedure sbnLogClientesClick(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
+  private
+    { Private declarations }
+     procedure CondicoesEventos;
+     procedure AtribuirDadosEventos(Found: Boolean);
+
+     procedure CondicoesContas;
+     procedure AtribuirDadosContas(Found: Boolean);
+
+
+
+  protected
+     ConsultaEventos : TfraConsultaCodigoContabil;
+     ConsultaContas : TfraConsultaCodigo;
+     function  TabelaDePesquisa: TZDataSet; override;
+     function  InternoExcluir: Boolean; override;
+     function  InternoGravar: Boolean; Override;
+     function  InternoIncluir: Boolean; override;
+     function  InternoPesquisar(Titulo:String): Integer; override;
+     function  JanelaPesquisa: TfrmConsultaBasica; override;
+     function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+     procedure DefinirCamposReadOnly(Sender: TObject);
+     procedure GravarMovtosBancos(Sender: TObject);
+
+     procedure AcionarPesquisaGrade;
+
+
+  public
+    { Public declarations }
+     constructor Create(AOwner: TComponent); Override;
+     destructor  Destroy; override;
+     procedure OperacaoPadrao(Value: Array of Variant); override;
+
+  end;
+
+var
+  frmMovtosBancos: TfrmMovtosBancos;
+  TipoPesquisa: TtecMovtosBancos;
+
+implementation
+
+{$R *.dfm}
+
+Uses dmmovtosbancos, dmconciliacaobancaria, fmconciliacaobancaria;
+
+{ TfrmMovtosBancos }
+
+constructor TfrmMovtosBancos.Create(AOwner: TComponent);
+begin
+  dtmMovtosBancos:= TdtmMovtosBancos.Create(Self);
+  inherited;
+  DataSet:= dtmMovtosBancos.TabelaMovtosBancos;
+  edfData.       Minimo:= DaysBetween(DataLocal, ParSistema.BancoDataInicial);
+  edfData.       Maximo:= DaysBetween(ParSistema.BancoDataFinal, DataLocal);
+  edtCompensacao.Minimo:= DaysBetween(DataLocal, ParSistema.BancoDataInicial);
+  edtCompensacao.Maximo:= DaysBetween(ParSistema.BancoDataFinal, DataLocal);
+  dtmMovtosBancos.OnExibirMovto := DefinirCamposReadOnly;
+  dtmMovtosBancos.OnGravarMovtosBancos := GravarMovtosBancos;
+
+  fraLerContaCorrenteSaldo1.edfConta.SetFocus;
+
+  ConsultaEventos := TfraConsultaCodigoContabil.Create(self);
+  ConsultaEventos.Name := 'fraConsultaEvento';
+  ConsultaEventos.edfCodigo.MaxLength := 3;
+  ConsultaEventos.edfCodigo.DataSource := dtmMovtosBancos.dsrMovtosBancosEventos;
+  ConsultaEventos.edfCodigo.DataField := 'evento';
+  ConsultaEventos.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaEventos.edfCodigo.LookupSource := ConsultaEventos.dsrProcuraEventos;
+  ConsultaEventos.edfCodigo.LookupQueryParameter := 'Codigo';
+  ConsultaEventos.edfCodigo.LookupField := 'Codigo';
+  ConsultaEventos.AbrirTabelaProcura := false;
+  ConsultaEventos.CondicoesdaConsulta := CondicoesEventos;
+  ConsultaEventos.TipoPesquisa := pesEVENTO;
+  ConsultaEventos.OnFound := AtribuirDadosEventos;
+
+  ConsultaContas := TfraConsultaCodigo.Create(self);
+  ConsultaContas.Name := 'fraConsultaContas';
+  ConsultaContas.edfCodigo.MaxLength := 6;
+  ConsultaContas.edfCodigo.DataSource := dtmMovtosBancos.dsrMovtosBancosEventos;
+  ConsultaContas.edfCodigo.DataField := 'contatransf';
+  ConsultaContas.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaContas.edfCodigo.LookupSource := ConsultaContas.dsrProcuraContas;
+  ConsultaContas.edfCodigo.LookupQueryParameter := 'Conta';
+  ConsultaContas.edfCodigo.LookupField := 'Conta';
+  ConsultaContas.AbrirTabelaProcura := false;
+  ConsultaContas.CondicoesdaConsulta := CondicoesContas;
+  ConsultaContas.TipoPesquisa := pesCONTAS;
+  ConsultaContas.OnFound := AtribuirDadosContas;
+
+  dbgMovtosBancosEventos.OnDelete := dtmMovtosBancos.ExcluirMovtosBancosEventos;
+end;
+
+destructor TfrmMovtosBancos.Destroy;
+begin
+  inherited;
+end;
+
+
+function TfrmMovtosBancos.ExisteInformacao(Parametro: Integer;
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+   case TipoPesquisa of
+      tmbCONTAS:  Result:= dtmMovtosBancos.ExisteConta (NomeCampo, Value);
+      tmbMOVTOS:  Result:= dtmMovtosBancos.ExisteMovto (NomeCampo, Value);
+      else        Result:= False;
+   end;
+end;
+
+
+function TfrmMovtosBancos.InternoIncluir: Boolean;
+begin
+   with dtmMovtosBancos do begin
+      if ContaEstaDefinida then begin
+         Result:= inherited InternoIncluir;
+         if Result then begin
+            if not CtrlOn then begin
+               edfSequencia.Enabled:= False;
+               if edfData.Text<>'' then
+                 dtmMovtosBancos.DataInclusao := strtodate(edfData.Text)
+               else
+                 dtmMovtosBancos.DataInclusao := date;
+               IncluirMovtosBancos;
+{               edtValor.SetFocus;}
+               edfData.SetFocus;
+               edfData.selectall;
+
+//               edtCompensacao.SetFocus;
+
+            end;
+         end;
+      end
+      else begin
+         MensagemAviso('Não há conta definida!');
+         Result:= False;
+      end;
+   end;               
+end;
+
+function TfrmMovtosBancos.InternoPesquisar(Titulo: String): Integer;
+begin
+   Result:= mrOK;
+   if CtrlOn then
+   begin
+           if ActiveControl = fraLerContaCorrenteSaldo1.edfConta        then TipoPesquisa:= tmbCONTAS
+     { else if ActiveControl = edfCodigoEvento then TipoPesquisa:= tmbEVENTOS}
+                                              else TipoPesquisa:= tmbNENHUM;
+   end
+   else If dtmMovtosBancos.ContaEstaDefinida
+        then TipoPesquisa:= tmbMOVTOS
+        else begin
+           TipoPesquisa:= tmbNENHUM;
+           MensagemAviso('Não há conta definida!');
+        end;
+
+   if TipoPesquisa <> tmbNENHUM then
+   begin
+      dtmMovtosBancos.AbrirTabelas(TipoPesquisa);
+      Result:= inherited InternoPesquisar(Titulo);
+      if Result = mrOK then begin
+         dtmMovtosBancos.Selecionar(TipoPesquisa);
+         if (TipoPesquisa = tmbCONTAS) or
+            (TipoPesquisa = tmbMOVTOS)
+         then
+         begin
+          // fraLerContaCorrenteSaldo1.edfconta.text := dtmMovtosBancos.qryProcuraContasConta.AsString;
+           fraLerContaCorrenteSaldo1.edfconta.exist;
+
+           edfData.SetFocus;
+         end;
+      end;
+      dtmMovtosBancos.FecharTabelas(TipoPesquisa);
+      CtrlOn := False;
+   end;
+end;
+
+
+function TfrmMovtosBancos.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa := True;
+  TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := False
+end;
+
+function TfrmMovtosBancos.TabelaDePesquisa: TZDataSet;
+begin
+   case TipoPesquisa of
+      tmbCONTAS:  Result:= dtmMovtosBancos.TabelaConsultaContas;
+      tmbMOVTOS:  Result:= dtmMovtosBancos.TabelaConsultaMovtos;
+      else        Result:= nil;
+   end;
+end;
+
+procedure TfrmMovtosBancos.sbnConsultaEventoDocumentosClick(
+  Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+{  edfCodigoEvento.SetFocus;}
+  InternoPesquisar('');
+end;
+
+function TfrmMovtosBancos.InternoExcluir: Boolean;
+begin
+   Result:= inherited InternoExcluir;
+   if Result then begin
+      if not CtrlOn then begin
+         dtmMovtosBancos.ExcluirMovtosBancos;
+         edfData.SetFocus;
+      end;
+   end;
+end;
+
+function TfrmMovtosBancos.InternoGravar: Boolean;
+begin
+   Result:= inherited InternoGravar;
+   if Result then begin
+      If dtmMovtosBancos.GravarMovtosBancos then
+      begin
+        edfSequencia.Enabled:= True;
+        edfdata.SetFocus;
+      end;
+   end;
+end;
+
+
+procedure TfrmMovtosBancos.PercorrerMovtosBancos(Campo: Byte;  var Key: Word; Shift: TShiftState);
+begin
+   if (Key = VK_NEXT) or
+      (Key = VK_PRIOR)   or
+     ((ssCtrl in Shift) and ((Key = VK_HOME) or (Key = VK_END)))
+   then dtmMovtosBancos.PercorrerMovtosBancos(Campo, Key, Shift);
+end;
+
+procedure TfrmMovtosBancos.edtDataKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+   inherited;
+   PercorrerMovtosBancos(cmpData, Key, Shift);
+end;
+
+procedure TfrmMovtosBancos.edfSequenciaKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+   inherited;
+   PercorrerMovtosBancos(cmpSequencia, Key, Shift);
+end;
+
+procedure TfrmMovtosBancos.edtCompensacaoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+   inherited;
+   PercorrerMovtosBancos(cmpCompensacao, Key, Shift);
+end;
+
+
+procedure TfrmMovtosBancos.edtCompensacaoExit(Sender: TObject);
+begin
+  inherited;
+  if edtCompensacao.Text<>'' then
+    if StrToDate(EdtCompensacao.Text) <
+       StrToDate(EdfData.       Text) then begin
+       MensagemErro('A data de compensação é anterior à de lançamento');
+       edtCompensacao.SetFocus;
+    end;
+end;
+
+
+procedure TfrmMovtosBancos.edtValorKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+   inherited;
+   PercorrerMovtosBancos(cmpValor, Key, Shift);
+end;
+
+procedure TfrmMovtosBancos.edtDocumentoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+   inherited;
+   PercorrerMovtosBancos(cmpDocumento, Key, Shift);
+end;
+
+procedure TfrmMovtosBancos.edfCodigoEventoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+   inherited;
+{   PercorrerMovtosBancos(cmpEvento, Key, Shift);}
+end;
+
+
+procedure TfrmMovtosBancos.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+   if mmoObservacoes.Focused
+   then if TeclaEnterOuReturn(key) then begin
+           If dtmMovtosBancos.Inserindo
+           then InternoGravar;
+           edfData.SetFocus;
+        end;
+
+   inherited;
+end;
+
+procedure TfrmMovtosBancos.OperacaoPadrao(Value: array of Variant);
+begin
+   inherited;
+   fraLerContaCorrenteSaldo1.edfConta.Text:= Value[0];
+   fraLerContaCorrenteSaldo1.edfConta.Exist;
+   fraLerContaCorrenteSaldo1edfContaExit(Self);
+
+   with dtmMovtosBancos do begin
+      edfData.Text     := Value[1];
+      edfSequencia.Text:= Value[2];
+
+      qryMovtosBancosData.     AsString:= Value[1];
+      qryMovtosBancosSequencia.AsString:= Value[2];
+
+     RefazConsulta(qryMovtosBancos, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            [cmpData, PosicaoAtual,
+                            qryProcuraContasConta.        AsVariant,
+                            qryMovtosBancosData.          AsVariant,
+                            qryMovtosBancosSequencia.     AsVariant,
+                            ParSistema.BancoDataInicial,
+                            ParSistema.BancoDataFinal,
+                            qryMovtosBancosValor.    AsVariant,
+                            qryMovtosBancosCompensacao.   AsVariant,
+                            qryMovtosBancosSeqCompensacao.AsVariant,
+                            qryMovtosBancosDocumento.     AsVariant{,
+                            qryMovtosBancosEvento.        AsVariant}]);
+
+      edfData.SetFocus;
+   end;
+end;
+
+procedure TfrmMovtosBancos.edtCompensacaoEnter(Sender: TObject);
+begin
+   inherited;
+   with dtmMovtosBancos do begin
+      if VarIsNull(qryMovtosBancosCompensacao.AsVariant)
+      then qryMovtosBancosCompensacao.Text:= qryMovtosBancosData.Text;
+   end;
+end;
+
+procedure TfrmMovtosBancos.DefinirCamposReadOnly;
+begin
+   with dtmMovtosBancos do
+   begin
+   {
+       if (qryMovtosBancosOrigem.AsString = 'BANCOS') or Inserindo then begin
+          dbgMovtosBancosEventos.Font.Color := clBlack;
+          dtxOrigem.          Font.Color:= clBlack;
+          dtxTipo.            Font.Color:= clBlack;
+          edtValor.           Font.Color:= clBlack;
+          edtDocumento.       Font.Color:= clBlack;
+          mmoObservacoes.     Font.Color:= clBlack;
+       end
+       else if qryMovtosBancosOrigem.AsString = 'CONTAS A PAGAR' then begin
+          dbgMovtosBancosEventos.Font.Color := clRed;
+          dtxOrigem.          Font.Color:= clRed;
+          dtxTipo.            Font.Color:= clRed;
+          edtValor.           Font.Color:= clRed;
+          edtDocumento.       Font.Color:= clRed;
+          mmoObservacoes.     Font.Color:= clRed;
+       end
+       else if qryMovtosBancosOrigem.AsString = 'CONTAS A RECEBER' then begin
+          dbgMovtosBancosEventos.Font.Color := clGreen;
+          dtxOrigem.          Font.Color:= clGreen;
+          dtxTipo.            Font.Color:= clGreen;
+          edtValor.           Font.Color:= clGreen;
+          edtDocumento.       Font.Color:= clGreen;
+          mmoObservacoes.     Font.Color:= clGreen;
+       end;
+   }
+
+       if (qryMovtosBancosTipo.AsString = '') or Inserindo then begin
+          dbgMovtosBancosEventos.Font.Color := clBlack;
+          dtxOrigem.          Font.Color:= clBlack;
+          dtxTipo.            Font.Color:= clBlack;
+          edtValor.           Font.Color:= clBlack;
+          edtDocumento.       Font.Color:= clBlack;
+          mmoObservacoes.     Font.Color:= clBlack;
+       end
+       else if qryMovtosBancosTipo.AsString = 'S' then begin
+          dbgMovtosBancosEventos.Font.Color := clRed;
+          dtxOrigem.          Font.Color:= clRed;
+          dtxTipo.            Font.Color:= clRed;
+          edtValor.           Font.Color:= clRed;
+          edtDocumento.       Font.Color:= clRed;
+          mmoObservacoes.     Font.Color:= clRed;
+       end
+       else if (qryMovtosBancosTipo.AsString = 'E') or
+               (qryMovtosBancosTipo.AsString = 'T')  then begin
+          dbgMovtosBancosEventos.Font.Color := clGreen;
+          dtxOrigem.          Font.Color:= clGreen;
+          dtxTipo.            Font.Color:= clGreen;
+          edtValor.           Font.Color:= clGreen;
+          edtDocumento.       Font.Color:= clGreen;
+          mmoObservacoes.     Font.Color:= clGreen;
+       end;
+
+       dbgMovtosBancosEventos.ReadOnly := ((qryMovtosBancosOrigem.AsString <> 'BANCOS') and
+                                           (qryMovtosBancosOrigem.AsString <> '')) or
+                                           (qryMovtosBancosTipo.AsString='T');
+       edtDocumento.   ReadOnly := dbgMovtosBancosEventos.ReadOnly;
+       mmoObservacoes. ReadOnly := edtDocumento.ReadOnly;
+       sbnIncluirMovtosBancosEventos.Enabled := not edtDocumento.ReadOnly;
+       sbnExcluirMovtosBancosEventos.Enabled := not edtDocumento.ReadOnly;
+       sbnExcluir.Enabled := not edtDocumento.ReadOnly;
+   end;
+end;
+
+
+procedure TfrmMovtosBancos.fraLerContaCorrenteSaldo1sbnProcurarContaClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(fraLerContaCorrenteSaldo1.edfConta, ctCONTAS);
+end;
+
+procedure TfrmMovtosBancos.fraLerContaCorrenteSaldo1edfContaExit(
+  Sender: TObject);
+begin
+  inherited;
+   with dtmMovtosBancos do
+   begin
+      if ContaEstaDefinida and NumeroContaFoiAlterado then begin
+         AcessarUltimoMovtosBancos;
+
+         if qryProcuraContasSaldoLancado.AsCurrency < 0
+         then fraLerContaCorrenteSaldo1.dtxSaldo.Font.Color:= clRed
+         else fraLerContaCorrenteSaldo1.dtxSaldo.Font.Color:= clBlack;
+
+         qryUltimoLancto.ParamByName('Conta').AsString:= qryProcuraContasConta.AsString;
+         UltimaDataLancamento;
+{        fraLerContaCorrenteSaldo1.gbxSaldo.Caption:= 'SALDO LANÇADO ATÉ ' + qryUltimoLanctoData.AsString;
+}
+         edfData.SetFocus;
+      end;
+   end;
+end;
+
+procedure TfrmMovtosBancos.AtualizarSaldoDaConciliacao;
+begin
+   with dtmMovtosBancos do begin
+      RefazConsulta(qryProcuraContas, [0],
+                   [dtmConciliacaoBancaria.qryProcuraContasConta.AsVariant]);
+
+      if qryProcuraContasSaldoLancado.AsCurrency < 0
+      then fraLerContaCorrenteSaldo1.dtxSaldo.Font.Color:= clRed
+      else fraLerContaCorrenteSaldo1.dtxSaldo.Font.Color:= clBlack;
+
+      qryUltimoLancto.ParamByName('Conta').AsString:= qryProcuraContasConta.AsString;
+      UltimaDataLancamento;
+      fraLerContaCorrenteSaldo1.gbxSaldo.Caption:= 'Saldo lançado até ' + qryUltimoLanctoData.AsString;
+   end;
+end;
+
+
+procedure TfrmMovtosBancos.FormLoaded(Sender: TObject);
+begin
+  inherited;
+  fraLerContaCorrenteSaldo1.edfConta.SetFocus;
+end;
+
+procedure TfrmMovtosBancos.AcionarPesquisaGrade;
+begin
+   if not dbgMovtosBancosEventos.ReadOnly  then
+   begin
+     case dbgMovtosBancosEventos.SelectedIndex of
+     0,2: begin
+            dbgMovtosBancosEventos.SetFocus;
+            ConsultaEventos.CtrlOn := True;
+            ConsultaEventos.InternoPesquisar(ctEVENTO);
+            dbgMovtosBancosEventos.SetFocus;
+            dbgMovtosBancosEventos.SelectedIndex :=  0;
+          end;
+     3,4,5,6: begin
+              if not dtmMovtosBancos.qryMovtosBancosEventoscontatransf.ReadOnly then
+              begin
+                dbgMovtosBancosEventos.SetFocus;
+                ConsultaContas.CtrlOn := True;
+                ConsultaContas.InternoPesquisar(ctCONTAS);
+                dbgMovtosBancosEventos.SetFocus;
+                dbgMovtosBancosEventos.SelectedIndex :=  3;
+              end;
+            end;
+     end;
+   end;
+end;
+
+procedure TfrmMovtosBancos.CondicoesEventos;
+const
+  SQL = ' and e.tipo = ''A'' ' +
+        ' and (e.codigo not in (%s) or e.codigo = %s) ';
+begin
+  if     (dtmMovtosBancos.qryMovtosBancosEventosevento.AsString<>'') and
+     not (dtmMovtosBancos.qryMovtosBancosEventos.state = dsinsert) then
+  begin
+    ConsultaEventos.qryProcuraEventos.MacroByName('condicoes').AsString :=
+      format(SQL,[dtmMovtosBancos.ListaEventosCadastrados,
+                  inttostr(dtmMovtosBancos.qryMovtosBancosEventosevento.asinteger)]);
+
+    ConsultaEventos.qryConsultaEventos.MacroByName('condicoes').AsString :=
+      format(SQL,[dtmMovtosBancos.ListaEventosCadastrados,
+                  inttostr(dtmMovtosBancos.qryMovtosBancosEventosevento.asinteger)]);
+  end
+  else
+  begin
+    ConsultaEventos.qryProcuraEventos.MacroByName('condicoes').AsString :=
+      format(SQL,[dtmMovtosBancos.ListaEventosCadastrados, inttostr(0)]);
+
+    ConsultaEventos.qryConsultaEventos.MacroByName('condicoes').AsString :=
+      format(SQL,[dtmMovtosBancos.ListaEventosCadastrados, inttostr(0)]);
+  end;
+
+  if ParSistema.GerarContabilidade then
+  begin
+    ConsultaEventos.qryProcuraEventos.MacroByName('condicoes').AsString :=
+    ' and (exists (select ecc.evento from eventoscontascontabeis ecc where ecc.evento = e.codigo) or (e.tipomovimentacao = ''T''))' +
+    ConsultaEventos.qryProcuraEventos.MacroByName('condicoes').AsString;
+
+    ConsultaEventos.qryConsultaEventos.MacroByName('condicoes').AsString :=
+    ' and (exists (select ecc.evento from eventoscontascontabeis ecc where ecc.evento = e.codigo) or (e.tipomovimentacao = ''T''))' +
+    ConsultaEventos.qryConsultaEventos.MacroByName('condicoes').AsString;
+  end;
+
+  if not dtmMovtosBancos.qryMovtosBancosEventos.IsEmpty then
+  begin
+    if (dtmMovtosBancos.qryMovtosBancosTipo.AsString = 'S') or
+       (dtmMovtosBancos.qryMovtosBancosTipo.AsString = 'T') then
+    begin
+      ConsultaEventos.qryProcuraEventos.MacroByName('condicoes').AsString :=
+      ' and e.tipomovimentacao in (''S'',''T'') ' +
+      ConsultaEventos.qryProcuraEventos.MacroByName('condicoes').AsString;
+
+      ConsultaEventos.qryConsultaEventos.MacroByName('condicoes').AsString :=
+      ' and e.tipomovimentacao in (''S'',''T'') ' +
+      ConsultaEventos.qryConsultaEventos.MacroByName('condicoes').AsString;
+    end
+    else
+    if dtmMovtosBancos.qryMovtosBancosTipo.AsString = 'E' then
+    begin
+      ConsultaEventos.qryProcuraEventos.MacroByName('condicoes').AsString :=
+      ' and e.tipomovimentacao = ''E'' ' +
+      ConsultaEventos.qryProcuraEventos.MacroByName('condicoes').AsString;
+
+      ConsultaEventos.qryConsultaEventos.MacroByName('condicoes').AsString :=
+      ' and e.tipomovimentacao = ''E'' ' +
+      ConsultaEventos.qryConsultaEventos.MacroByName('condicoes').AsString;
+    end
+  end;
+
+end;
+
+
+procedure TfrmMovtosBancos.AtribuirDadosEventos(Found: Boolean);
+begin
+  with dtmMovtosBancos do
+  begin
+    if (qryMovtosBancosEventosdescricaoevento.AsString <> ConsultaEventos.qryProcuraEventos.fieldbyname('descricao').AsString) or
+       (qryMovtosBancosEventosevento.AsString <> ConsultaEventos.qryProcuraEventos.fieldbyname('codigo').AsString) then
+    begin
+      EditarMovtosBancosEventos;
+      EditarMovtosBancos;
+
+      qryMovtosBancosEventosdescricaoevento.AsString := ConsultaEventos.qryProcuraEventos.fieldbyname('descricao').AsString;
+      qryMovtosBancosEventosevento.AsString := ConsultaEventos.qryProcuraEventos.fieldbyname('codigo').AsString;
+      qryMovtosBancosEventostipo.AsString := ConsultaEventos.qryProcuraEventos.fieldbyname('tipomovimentacao').AsString;
+
+      if (ConsultaEventos.qryProcuraEventos.fieldbyname('tipomovimentacao').AsString='S') or
+         (ConsultaEventos.qryProcuraEventos.fieldbyname('tipomovimentacao').AsString='T') then
+        qryMovtosBancosTipo.AsString := 'S'
+      else
+        qryMovtosBancosTipo.AsString := 'E';
+        
+      qryMovtosBancosEventoseventovalidado.AsBoolean := true;
+    end;
+  end;
+end;
+
+procedure TfrmMovtosBancos.dbgMovtosBancosEventosDblClick(Sender: TObject);
+begin
+  inherited;
+  AcionarPesquisaGrade;
+end;
+
+procedure TfrmMovtosBancos.dbgMovtosBancosEventosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+
+  Procedure VerificarEvento;
+  begin
+    if (dtmMovtosBancos.qryMovtosBancosEventos.State in [dsedit,dsinsert]) or
+       not (dtmMovtosBancos.qryMovtosBancosEventos.IsEmpty) then
+       begin
+          ConsultaEventos.edfCodigo.DoExit;
+          if ConsultaEventos.qryProcuraEventos.IsEmpty then
+          begin
+            dtmMovtosBancos.LimparMovtosBancosEventosEvento;
+            dbgMovtosBancosEventos.SetFocus;
+            dbgMovtosBancosEventos.SelectedIndex := 0;
+          end
+          else
+          begin
+            dtmMovtosBancos.qryMovtosBancosEventoseventovalidado.AsBoolean := true;
+            AtribuirDadosEventos(true);
+            dbgMovtosBancosEventos.SetFocus;
+            dbgMovtosBancosEventos.SelectedIndex := 0;
+          end;
+       end;
+  end;
+
+  Procedure VerificarContas;
+  begin
+    if (dtmMovtosBancos.qryMovtosBancosEventos.State in [dsedit,dsinsert]) or
+       not (dtmMovtosBancos.qryMovtosBancosEventos.IsEmpty) then
+       begin
+          ConsultaContas.edfCodigo.DoExit;
+          if ConsultaContas.qryProcuraContas.IsEmpty then
+          begin
+            dtmMovtosBancos.LimparMovtosBancosEventosContas;
+            dbgMovtosBancosEventos.SetFocus;
+            dbgMovtosBancosEventos.SelectedIndex := 3;
+          end
+          else
+          begin
+            dtmMovtosBancos.qryMovtosBancosEventoscontavalidada.AsBoolean := true;
+            AtribuirDadosContas(true);
+            dbgMovtosBancosEventos.SetFocus;
+            dbgMovtosBancosEventos.SelectedIndex := 3;
+          end;
+       end;
+  end;
+
+
+begin
+  inherited;
+
+  if Shift = [ssCtrl] then begin
+    case Key of
+      TeclaInserirRegistro: dtmMovtosBancos.IncluirMovtosBancosEventos;
+    end;
+  end;
+
+  case dbgMovtosBancosEventos.SelectedIndex of
+  0,2 :
+    begin
+      if Shift = [ssCtrl] then
+      begin
+        case Key of
+          VK_F9     : begin
+                         ConsultaEventos.CtrlOn := Shift = [ssCtrl];
+                         if (Shift = []) or ConsultaEventos.CtrlOn then
+                           AcionarPesquisaGrade
+                       end;
+        end;
+      end
+      else
+      case Key of
+        VK_Return: VerificarEvento;
+
+        VK_UP,
+        VK_DOWN,
+        VK_PRIOR,
+        VK_NEXT: begin
+                        if dtmMovtosBancos.RegistrodeMovtosBancosEventosEvento then
+                        begin
+                          dtmMovtosBancos.EditarMovtosBancosEventos;
+                          dtmMovtosBancos.qryMovtosBancos.CheckRequiredFields;
+                          key := 0;
+                        end;
+                      end;
+
+        VK_ESCAPE : begin
+                       dtmMovtosBancos.CancelarMovtosBancosEventosEvento;
+                       if dbgMovtosBancosEventos.Focused then
+                       begin
+                         dbgMovtosBancosEventos.SetFocus;
+                         dbgMovtosBancosEventos.SelectedIndex := 0;
+                       end;
+                     end;
+      end;
+    end;
+  3,4,5,6:
+    begin
+      if Shift = [ssCtrl] then
+      begin
+        case Key of
+          VK_F9     : begin
+                         ConsultaContas.CtrlOn := Shift = [ssCtrl];
+                         if (Shift = []) or ConsultaContas.CtrlOn then
+                           AcionarPesquisaGrade
+                       end;
+        end;
+      end
+      else
+      case Key of
+        VK_Return: VerificarContas;
+
+        VK_UP,
+        VK_DOWN,
+        VK_PRIOR,
+        VK_NEXT: begin
+                        if dtmMovtosBancos.RegistrodeMovtosBancosEventosContas then
+                        begin
+                          dtmMovtosBancos.EditarMovtosBancosEventos;
+                          dtmMovtosBancos.qryMovtosBancos.CheckRequiredFields;
+                          key := 0;
+                        end;
+                      end;
+
+        VK_ESCAPE : begin
+                       if dbgMovtosBancosEventos.Focused then
+                       begin
+                         dbgMovtosBancosEventos.SetFocus;
+                         dbgMovtosBancosEventos.SelectedIndex := 0;
+                       end;
+                     end;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmMovtosBancos.sbnIncluirMovtosBancosEventosClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmMovtosBancos.IncluirMovtosBancosEventos
+end;
+
+procedure TfrmMovtosBancos.sbnExcluirMovtosBancosEventosClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmMovtosBancos.ExcluirMovtosBancosEventos
+end;
+
+procedure TfrmMovtosBancos.edtDocumentoKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+  inherited;
+   if (key = #13) then
+     dbgMovtosBancosEventos.SelectedIndex := 0
+end;
+
+procedure TfrmMovtosBancos.CondicoesContas;
+const
+  SQL = ' and (c.conta not in (%s) or c.conta = %s) ';
+begin
+  if (dtmMovtosBancos.qryMovtosBancosEventoscontatransf.AsInteger<>0) and
+     not (dtmMovtosBancos.qryMovtosBancosEventos.state = dsinsert) then
+  begin
+    ConsultaContas.qryProcuraContas.MacroByName('condicoes').AsString :=
+      format(SQL,[dtmMovtosBancos.ListaContasCadastradas,
+                  inttostr(dtmMovtosBancos.qryMovtosBancosEventoscontatransf.asinteger)]);
+
+    ConsultaContas.qryConsultaContas.MacroByName('condicoes').AsString :=
+      format(SQL,[dtmMovtosBancos.ListaContasCadastradas,
+                  inttostr(dtmMovtosBancos.qryMovtosBancosEventoscontatransf.asinteger)]);
+  end
+  else
+  begin
+    ConsultaContas.qryProcuraContas.MacroByName('condicoes').AsString :=
+      format(SQL,[dtmMovtosBancos.ListaContasCadastradas,
+                  inttostr(0)]);
+
+    ConsultaContas.qryConsultaContas.MacroByName('condicoes').AsString :=
+      format(SQL,[dtmMovtosBancos.ListaContasCadastradas,
+                  inttostr(0)]);
+
+  end;
+
+  if ParSistema.GerarContabilidade then
+  begin
+    ConsultaContas.qryProcuraContas.MacroByName('condicoes').AsString :=
+    ' and c.contacontabil is not null' +
+    ConsultaContas.qryProcuraContas.MacroByName('condicoes').AsString;
+
+    ConsultaContas.qryConsultaContas.MacroByName('condicoes').AsString :=
+    ' and c.contacontabil is not null' +
+    ConsultaContas.qryConsultaContas.MacroByName('condicoes').AsString;
+  end;
+
+  if not dtmMovtosBancos.qryMovtosBancosEventos.IsEmpty then
+  begin
+    if (dtmMovtosBancos.qryMovtosBancosTipo.AsString = 'S') or
+       (dtmMovtosBancos.qryMovtosBancosTipo.AsString = 'T') then
+    begin
+      ConsultaContas.qryProcuraContas.MacroByName('condicoes').AsString :=
+      ' and true ' +
+      ConsultaContas.qryProcuraContas.MacroByName('condicoes').AsString;
+
+      Consultacontas.qryConsultaContas.MacroByName('condicoes').AsString :=
+      ' and true '+
+      ConsultaContas.qryConsultaContas.MacroByName('condicoes').AsString;
+    end
+    else
+    if dtmMovtosBancos.qryMovtosBancosTipo.AsString = 'E' then
+    begin
+      ConsultaContas.qryProcuraContas.MacroByName('condicoes').AsString :=
+      ' and false ' +
+      ConsultaContas.qryProcuraContas.MacroByName('condicoes').AsString;
+
+      Consultacontas.qryConsultaContas.MacroByName('condicoes').AsString :=
+      ' and false '+
+      ConsultaContas.qryConsultaContas.MacroByName('condicoes').AsString;
+    end;
+  end;
+
+end;
+
+procedure TfrmMovtosBancos.AtribuirDadosContas(Found: Boolean);
+begin
+  with dtmMovtosBancos do
+  begin
+    if (qryMovtosBancosEventoscontatransf.AsString <> ConsultaContas.qryProcuraContas.fieldbyname('conta').AsString) or
+       (qryMovtosBancosEventosdigito.AsString <> ConsultaContas.qryProcuraContas.fieldbyname('digito').AsString) or
+       (qryMovtosBancosEventossigla.AsString <> ConsultaContas.qryProcuraContas.fieldbyname('sigla').AsString) or
+       (qryMovtosBancosEventosnomeagencia.AsString <> ConsultaContas.qryProcuraContas.fieldbyname('agencia').AsString) then
+    begin
+      EditarMovtosBancosEventos;
+      EditarMovtosBancos;
+
+      qryMovtosBancosEventoscontatransf.AsString := ConsultaContas.qryProcuraContas.fieldbyname('conta').AsString;
+      qryMovtosBancosEventossigla.AsString := ConsultaContas.qryProcuraContas.fieldbyname('sigla').AsString;
+      qryMovtosBancosEventosnomeagencia.AsString := ConsultaContas.qryProcuraContas.fieldbyname('agencia').AsString;
+      qryMovtosBancosEventosdigito.AsString := ConsultaContas.qryProcuraContas.fieldbyname('digito').AsString;
+
+      qryMovtosBancosEventoscontavalidada.AsBoolean := true;
+    end;
+  end;
+end;
+
+procedure TfrmMovtosBancos.fraLerContaCorrenteSaldo1edfContaFound(
+  Found: Boolean);
+begin
+  inherited;
+  if found then
+  begin
+
+   with dtmMovtosBancos do
+   begin
+      if ContaEstaDefinida and NumeroContaFoiAlterado then begin
+         AcessarUltimoMovtosBancos;
+
+         if qryProcuraContasSaldoLancado.AsCurrency < 0
+         then fraLerContaCorrenteSaldo1.dtxSaldo.Font.Color:= clRed
+         else fraLerContaCorrenteSaldo1.dtxSaldo.Font.Color:= clBlack;
+
+         qryUltimoLancto.ParamByName('Conta').AsString:= qryProcuraContasConta.AsString;
+         UltimaDataLancamento;
+{        fraLerContaCorrenteSaldo1.gbxSaldo.Caption:= 'SALDO LANÇADO ATÉ ' + qryUltimoLanctoData.AsString;
+}
+         edfData.SetFocus;
+      end;
+   end;
+
+  end;
+end;
+
+procedure TfrmMovtosBancos.GravarMovtosBancos(Sender: TObject);
+var Frm: TForm;
+
+begin
+  Frm:= TfrmConciliacaoBancaria.Referencia;
+  if Assigned(Frm) then
+  with dtmConciliacaoBancaria do
+  begin
+      {
+      ReFazConsulta(qryProcuraContas, [0],
+                   [qryProcuraContasConta.AsVariant]);
+      }
+
+     ReFazConsulta(qryProcuraContas, [0],
+                  [dtmMovtosBancos.qryProcuraContasConta.AsVariant]);
+     TfrmConciliacaoBancaria(Frm).ExibirSaldoLancado(Self);
+     TfrmConciliacaoBancaria(Frm).ExibirMovtosConciliacao;
+  end;
+end;
+
+procedure TfrmMovtosBancos.sbnLogClientesClick(Sender: TObject);
+begin
+  inherited;
+  AcionarTelaVisualizarLog(self, 'movtosbancos_log', ['conta','data','sequencia'],
+    [dtmMovtosBancos.qryMovtosBancosConta.asString,
+     quotedstr(dtmMovtosBancos.qryMovtosBancosData.asString),
+     dtmMovtosBancos.qryMovtosBancosSequencia.asString], '');
+
+end;
+
+procedure TfrmMovtosBancos.SpeedButton1Click(Sender: TObject);
+begin
+  inherited;
+  AcionarTelaVisualizarLog(self, 'movtosbancoseventos_log',
+                ['conta','data','sequencia','evento', 'sequenciaevento'],
+
+    [dtmMovtosBancos.qryMovtosBancosConta.asString,
+     quotedstr(dtmMovtosBancos.qryMovtosBancosData.asString),
+     dtmMovtosBancos.qryMovtosBancosSequencia.asString,
+     dtmMovtosBancos.qryMovtosBancoseventosEvento.asString,
+     dtmMovtosBancos.qryMovtosBancoseventosSequenciaEvento.asString], '');
+
+end;
+
+end.
+

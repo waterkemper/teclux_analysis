@@ -70,14 +70,14 @@ inherited dtmRelatorioRequisicoesporMontador: TdtmRelatorioRequisicoesporMontado
       '       pessoanumero,'
       '       Codigo,'
       '       tipo,'
-      '       cast(case when tipo = ''F'' then ''Fornecedor'''
-      '                       when tipo = ''C'' then ''Cliente'''
+      '       cast(case when tipo = '#39'F'#39' then '#39'Fornecedor'#39
+      '                       when tipo = '#39'C'#39' then '#39'Cliente'#39
       '               end as varchar) as tipoorig'
       'From   vfornecedores'
       ''
       '/* editado em run time */'
       ''
-      'Order By UPPER(TO_ASCII(nome,''LATIN1''))'
+      'Order By UPPER(TO_ASCII(nome,'#39'LATIN1'#39'))'
       '')
     RequestLive = False
     Left = 484
@@ -93,7 +93,7 @@ inherited dtmRelatorioRequisicoesporMontador: TdtmRelatorioRequisicoesporMontado
       Size = 14
     end
     object qryConsultaClientescodigo: TIntegerField
-      DisplayLabel = 'Código'
+      DisplayLabel = 'C'#243'digo'
       FieldName = 'codigo'
       DisplayFormat = '0'
     end
@@ -143,7 +143,7 @@ inherited dtmRelatorioRequisicoesporMontador: TdtmRelatorioRequisicoesporMontado
         ParamType = ptUnknown
       end>
     object qryMontadorcodigo: TIntegerField
-      DisplayLabel = 'Código do Montador'
+      DisplayLabel = 'C'#243'digo do Montador'
       FieldName = 'codigo'
     end
     object qryMontadornome: TStringField
@@ -175,11 +175,11 @@ inherited dtmRelatorioRequisicoesporMontador: TdtmRelatorioRequisicoesporMontado
       'Select Nome,'
       '          Codigo,'
       '        tipo,'
-      '       cast(case when tipo = ''F'' then ''Fornecedor'''
-      '                       when tipo = ''U'' then ''Usuário'''
+      '       cast(case when tipo = '#39'F'#39' then '#39'Fornecedor'#39
+      '                       when tipo = '#39'U'#39' then '#39'Usu'#225'rio'#39
       '               end as varchar) as tipoorig'
       'From   vmontadores'
-      'Order By UPPER(TO_ASCII(nome,''LATIN1''))')
+      'Order By UPPER(TO_ASCII(nome,'#39'LATIN1'#39'))')
     RequestLive = False
     Left = 484
     Top = 88
@@ -189,7 +189,7 @@ inherited dtmRelatorioRequisicoesporMontador: TdtmRelatorioRequisicoesporMontado
       Size = 17
     end
     object qryConsultaMontadorcodigo: TIntegerField
-      DisplayLabel = 'Código'
+      DisplayLabel = 'C'#243'digo'
       FieldName = 'codigo'
       DisplayFormat = '0'
     end
@@ -292,8 +292,8 @@ inherited dtmRelatorioRequisicoesporMontador: TdtmRelatorioRequisicoesporMontado
       '   coalesce(vf.razao,vf.nome) as nomecliente,'
       '   ri.produto,'
       
-        '   cast(p.descricao||'' ''||coalesce(p.valorgrade1,'''')||'' ''||coale' +
-        'sce(p.valorgrade2,'''') as varchar)  as descricaoproduto,'
+        '   cast(p.descricao||'#39' '#39'||coalesce(p.valorgrade1,'#39#39')||'#39' '#39'||coale' +
+        'sce(p.valorgrade2,'#39#39') as varchar)  as descricaoproduto,'
       '   ri.filial,'
       '   ri.quantidade,'
       '   ri.datamontagem,'
@@ -302,25 +302,25 @@ inherited dtmRelatorioRequisicoesporMontador: TdtmRelatorioRequisicoesporMontado
       ''
       '   case when coalesce(vf.foneddd,0)<>0 then'
       
-        '     cast(''('' as varchar)||cast(vf.foneddd as varchar)||cast('')''' +
+        '     cast('#39'('#39' as varchar)||cast(vf.foneddd as varchar)||cast('#39')'#39 +
         ' as varchar)||cast(vf.fonenumero as varchar)'
       '   else'
       '     cast(vf.fonenumero as varchar)'
       '   end as fonenumero_1,'
       ''
-      '   case when r.tipocliente=''C'' then'
+      '   case when r.tipocliente='#39'C'#39' then'
       '     case when coalesce(cl.fone2ddd,0)<>0 then'
       
-        '       cast(''('' as varchar)||cast(cl.fone2ddd as varchar)||cast(' +
-        ''')'' as varchar)||cast(cl.fone2numero as varchar)'
+        '       cast('#39'('#39' as varchar)||cast(cl.fone2ddd as varchar)||cast(' +
+        #39')'#39' as varchar)||cast(cl.fone2numero as varchar)'
       '     else'
       '       cast(cl.fone2numero as varchar)'
       '     end'
       '   else'
       '     case when coalesce(vf.fonedddempresa,0)<>0 then'
       
-        '       cast(''('' as varchar)||cast(vf.fonedddempresa as varchar)|' +
-        '|cast('')'' as varchar)||cast(vf.fonenumeroempresa as varchar)'
+        '       cast('#39'('#39' as varchar)||cast(vf.fonedddempresa as varchar)|' +
+        '|cast('#39')'#39' as varchar)||cast(vf.fonenumeroempresa as varchar)'
       '     else'
       '       cast(vf.fonenumeroempresa as varchar)'
       '     end'
@@ -343,7 +343,7 @@ inherited dtmRelatorioRequisicoesporMontador: TdtmRelatorioRequisicoesporMontado
       
         '                                                               l' +
         'eft join clientes cl on r.cliente = cl.codigo and r.tipocliente ' +
-        '= ''C'')'
+        '= '#39'C'#39')'
       
         '                                                               j' +
         'oin (filiais f left join (filiaisgruposfiliais fgf left join gru' +
@@ -1063,7 +1063,7 @@ inherited dtmRelatorioRequisicoesporMontador: TdtmRelatorioRequisicoesporMontado
       656E7352657175697369636F65734D6F6E7461646F7300050046616C73650015
       004974656E7352657175697369636F65735061676F7300050046616C73650000
       00000000000000FC0000000000000000000000000000000058007D3BFF8ACFB6
-      E3404AAF7E927308E540}
+      E340D0EC6BD3AF70E640}
   end
   object fdsRequisicoesporMontador: TfrDBDataSet
     DataSet = qryRequisicoes
@@ -1670,7 +1670,7 @@ inherited dtmRelatorioRequisicoesporMontador: TdtmRelatorioRequisicoesporMontado
       18004974656E7352657175697369636F65734D6F6E7461646F7300050046616C
       73650015004974656E7352657175697369636F65735061676F7300050046616C
       7365000000000000000000FC0000000000000000000000000000000058007D3B
-      FF8ACFB6E3404AAF7E927308E540}
+      FF8ACFB6E34007F36BD3AF70E640}
   end
   object qryFiliais: TtecQuery
     Tag = -1
@@ -1723,7 +1723,7 @@ inherited dtmRelatorioRequisicoesporMontador: TdtmRelatorioRequisicoesporMontado
     Sql.Strings = (
       'select codigo,nome'
       'from filiais'
-      'order by UPPER(TO_ASCII(nome,''LATIN1''))')
+      'order by UPPER(TO_ASCII(nome,'#39'LATIN1'#39'))')
     RequestLive = False
     Left = 28
     Top = 147
@@ -1787,7 +1787,7 @@ inherited dtmRelatorioRequisicoesporMontador: TdtmRelatorioRequisicoesporMontado
     Sql.Strings = (
       'select codigo,descricao'
       'from gruposfiliais'
-      'order by UPPER(TO_ASCII(descricao,''LATIN1''))')
+      'order by UPPER(TO_ASCII(descricao,'#39'LATIN1'#39'))')
     RequestLive = False
     Left = 155
     Top = 137
@@ -1796,8 +1796,29 @@ inherited dtmRelatorioRequisicoesporMontador: TdtmRelatorioRequisicoesporMontado
       Size = 30
     end
     object qryConsultaGrupoFiliaiscodigo: TIntegerField
-      DisplayLabel = 'Código'
+      DisplayLabel = 'C'#243'digo'
       FieldName = 'codigo'
     end
+  end
+  object frxReport1: TfrxReport
+    Version = '4.0.11'
+    DotMatrixReport = False
+    IniFile = '\Software\Fast Reports'
+    PreviewOptions.Buttons = [pbPrint, pbLoad, pbSave, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbEdit, pbNavigator, pbExportQuick]
+    PreviewOptions.Zoom = 1.000000000000000000
+    PrintOptions.Printer = 'Default'
+    PrintOptions.PrintOnSheet = 0
+    ReportOptions.CreateDate = 45957.483572962960000000
+    ReportOptions.LastChange = 45957.483572962960000000
+    ScriptLanguage = 'PascalScript'
+    ScriptText.Strings = (
+      'begin'
+      ''
+      'end.')
+    Left = 504
+    Top = 224
+    Datasets = <>
+    Variables = <>
+    Style = <>
   end
 end

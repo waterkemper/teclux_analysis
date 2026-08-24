@@ -1,0 +1,480 @@
+unit dmfichafinanceirafornecedor;
+
+interface
+
+uses
+  SysUtils, Classes, DB,
+  // Constantes
+  ctconstantes, biblio, clusuario,
+  // Terceiros
+  ZQuery, ZPgSqlQuery,
+  // Componentes
+  cpdatasource, cpquery,
+  // Repositorio
+  dmbasico, clparametrossistema, dmtecsoft, ZTransact;
+
+type
+  TdtmFichaFinanceiraFornecedor = class(TdtmBasico)
+    qryFilial: TtecQuery;
+    dsrFilial: TtecDataSource;
+    qryFornecedor: TtecQuery;
+    dsrFornecedor: TtecDataSource;
+    qryFilialcodigo: TIntegerField;
+    qryFilialnome: TStringField;
+    qryFornecedorcodigo: TIntegerField;
+    qryConsultaFiliais: TtecQuery;
+    qryConsultaFiliaisnome: TStringField;
+    qryConsultaFiliaiscodigo: TIntegerField;
+    qryConsultaFornecedores: TtecQuery;
+    qryConsultaFornecedorescodigo: TIntegerField;
+    qryFichaFornecedor: TtecQuery;
+    dsrFichaFornecedor: TtecDataSource;
+    qryFichaFornecedornumero: TIntegerField;
+    qryFichaFornecedoremissao: TDateField;
+    qryFichaFornecedorfilial: TIntegerField;
+    qryFichaFornecedorvalor: TFloatField;
+    qryFichaFornecedorReferencia: TStringField;
+    qryDuplicatas: TtecQuery;
+    dsrDuplicatas: TtecDataSource;
+    qryFichaFornecedorcodigofiscal: TIntegerField;
+    qryProdutosNotas: TtecQuery;
+    dsrProdutosNotas: TtecDataSource;
+    qryFichaFornecedorfornecedor: TIntegerField;
+    qryProdutosNotasfilial: TIntegerField;
+    qryProdutosNotasproduto: TLargeintField;
+    qryProdutosNotasdescricao: TStringField;
+    qryProdutosNotasquantidade: TFloatField;
+    qryProdutosNotasprecounitario: TFloatField;
+    qryProdutosNotasprecototal: TFloatField;
+    qryProdutosNotasaliquotaicms: TFloatField;
+    qryConsultaFornecedoresnome: TStringField;
+    qryFornecedornome: TStringField;
+    qryCFOP: TtecQuery;
+    dsrCFOP: TtecDataSource;
+    qryConsultaCFOP: TtecQuery;
+    qryConsultaCFOPdescricao: TStringField;
+    qryConsultaCFOPcodigo: TIntegerField;
+    qryCFOPcodigo: TIntegerField;
+    qryCFOPdescricao: TStringField;
+    qryConsultaFornecedorestipo: TStringField;
+    qryFornecedortipo: TStringField;
+    qryGrupoFiliais: TtecQuery;
+    dsrGruposFiliais: TtecDataSource;
+    qryGrupoFiliaiscodigo: TIntegerField;
+    qryGrupoFiliaisdescricao: TStringField;
+    qryConsultaGruposFiliais: TtecQuery;
+    qryConsultaGruposFiliaisdescricao: TStringField;
+    qryConsultaGruposFiliaiscodigo: TIntegerField;
+    qryGruposFornecedores: TtecQuery;
+    qryGruposFornecedorescodigo: TIntegerField;
+    qryGruposFornecedoresnome: TStringField;
+    dsrGruposFornecedores: TtecDataSource;
+    qryConsultaGruposFornecedores: TtecQuery;
+    qryConsultaGruposFornecedoresnome: TStringField;
+    qryConsultaGruposFornecedorescodigo: TIntegerField;
+    qryFichaFornecedornome: TStringField;
+    qryFichaFornecedornomefilial: TStringField;
+    qryFichaFornecedorcfopdescricao: TStringField;
+    qryFichaFornecedorcodigo: TIntegerField;
+    qryConsultaFornecedorespessoanumero: TStringField;
+    qryConsultaFornecedoresestado: TStringField;
+    qryConsultaFornecedorestipocliente: TStringField;
+    qryConsultaFornecedoresnomecidade: TStringField;
+    qryProdutosNotaslinha: TStringField;
+    qryProdutosNotascoluna: TStringField;
+    qryProdutosNotasvalorgrade1: TStringField;
+    qryProdutosNotasvalorgrade2: TStringField;
+    qryFichaFornecedorcomplemento: TStringField;
+    qryDuplicatasdatavencto: TDateField;
+    qryDuplicatasvalorvencto: TFloatField;
+    qryDuplicatasdatapagto: TDateField;
+    qryDuplicatasvalorpagto: TFloatField;
+    qryDuplicatascontapagto: TIntegerField;
+    qryDuplicataschequepagto: TIntegerField;
+    qryDuplicatasfilialpagto: TIntegerField;
+    qryDuplicatasvalordesconto: TFloatField;
+    qryDuplicatasjuros: TFloatField;
+    qryFichaFornecedorirretido: TFloatField;
+    qryFichaFornecedorinssretido: TFloatField;
+    qryFichaFornecedorissretido: TFloatField;
+    qryFichaFornecedorcofinsretido: TFloatField;
+    qryFichaFornecedorpisretido: TFloatField;
+    qryFichaFornecedorcsllretido: TFloatField;
+    qryFichaFornecedorValorLiquido: TCurrencyField;
+    qryDuplicatasOrdem: TStringField;
+    qryProdutosNotascodigofiscal: TIntegerField;
+    qryFichaFornecedorpiscofinscsllretido: TFloatField;
+    qryFichaFornecedorDataLancto: TDateField;
+    qryFichaFornecedorEvento: TIntegerField;
+    qryFichaFornecedorDescricaoEvento: TStringField;
+    qryFichaFornecedorfichaalerta: TStringField;
+    procedure qryFichaFornecedorAfterScroll(DataSet: TDataSet);
+    procedure qryFornecedorBeforeOpen(DataSet: TDataSet);
+    procedure qryProdutosNotasAfterScroll(DataSet: TDataSet);
+    procedure qryFichaFornecedorCalcFields(DataSet: TDataSet);
+    procedure qryFichaFornecedorBeforeOpen(DataSet: TDataSet);
+//    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+  private
+    FOnScrollLinhaColunaGrade: TNotifyEvent;
+    function GetColunadaGrade: String;
+    function GetLinhadaGrade: String;
+  protected
+    FDataFinal: String;
+    FDataInicial: String;
+    FFilial: String;
+    FGrupoFilial: String;
+    FFornecedor: String;
+    FGrupoFornecedor: String;
+    FCFOP: String;
+    function  GetTipoPessoa: String;
+    function  GetConsultarFiliais: TtecQuery;
+    function  GetConsultarGrupoFiliais: TtecQuery;
+    function  GetConsultarFornecedores: TtecQuery;
+    function  GetConsultarGrupoFornecedores: TtecQuery;
+    function  GetConsultarCFOP: TtecQuery;
+    procedure SetDataFinal(const Value: String);
+    procedure SetDataInicial(const Value: String);
+    procedure SetFilial(const Value: String);
+    procedure SetGrupoFilial(const Value: String);
+    procedure SetFornecedor(const Value: String);
+    procedure SetGrupoFornecedor(const Value: String);
+    procedure SetCFOP(const Value: String);
+  public
+    function  ReFazConsultaFichaFornecedor: Boolean;
+    procedure LimparTabelas;
+    procedure MontarDataEmissao;
+    procedure AbreTabelaPesquisa(TipoPesquisa: TtecFichaFornecedor);
+    procedure FechaTabelaPesquisa(TipoPesquisa: TtecFichaFornecedor);
+    procedure Selecionar(TipoPesquisa: TtecFichaFornecedor);
+    function ExisteFiliais(Campo, Codigo: string): Boolean;
+    function ExisteGrupoFiliais(Campo, Codigo: String): Boolean;
+    function ExisteFornecedores(Campo, Codigo: string): Boolean;
+    function ExisteGrupoFornecedores(Campo, Codigo: String): Boolean;
+    function ExisteCodigosFiscais(Campo, Codigo: String): Boolean;
+    constructor Create(AOwner: TComponent); override;
+    property ConsultarFiliais: TtecQuery read GetConsultarFiliais;
+    property ConsultarGrupoFiliais: TtecQuery read GetConsultarGrupoFiliais;
+    property ConsultarFornecedores: TtecQuery read GetConsultarFornecedores;
+    property ConsultarGrupoFornecedores: TtecQuery read GetConsultarGrupoFornecedores;
+    property ConsultarCFOP: TtecQuery read GetConsultarCFOP;
+    property DataInicial: String read FDataInicial write SetDataInicial;
+    property DataFinal: String read FDataFinal write SetDataFinal;
+    property Filial: String read FFilial write SetFilial;
+    property GrupoFilial: String read FGrupoFilial write SetGrupoFilial;
+    property Fornecedor: String read FFornecedor write SetFornecedor;
+    property GrupoFornecedor: String read FGrupoFornecedor write SetGrupoFornecedor;
+    property CFOP: String read FCFOP write SetCFOP;
+    property TipoPessoa: String read GetTipoPessoa;
+    property  OnScrollLinhaColunaGrade    : TNotifyEvent read FOnScrollLinhaColunaGrade write FOnScrollLinhaColunaGrade;
+    property LinhadaGrade: String read GetLinhadaGrade;
+    property ColunadaGrade: String read GetColunadaGrade;
+    Function ExibirFicha(FormOrigem: String): boolean;
+
+
+  end;
+
+var
+    CodClienteAnt: Integer;
+    TipoClienteAnt: String;
+
+
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmFichaFinanceiraFornecedor }
+
+procedure TdtmFichaFinanceiraFornecedor.AbreTabelaPesquisa(TipoPesquisa: TtecFichaFornecedor);
+begin
+  case TipoPesquisa of
+           tfcFILIAIS: Abre(ctConsultaFiliais);
+      tfcGRUPOFILIAIS: Abre(ctConsultaGruposFiliais);
+      tfcFORNECEDORES: begin
+                         qryConsultaFornecedores.Sql[08]:= 'Where (v.codigo = 0)';
+                         Abre(ctConsultaFornecedores);
+                       end;
+ tfcGRUPOFORNECEDORES: Abre(ctConsultaGruposFornecedores);
+    tfcCODIGOFISCAL  : Abre(ctConsultaCodigosFiscais);
+  end;
+end;
+
+constructor TdtmFichaFinanceiraFornecedor.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryFilial.Tag                     := ctTabelas;
+  qryGrupoFiliais.Tag               := ctTabelas;
+  qryFornecedor.Tag                 := ctTabelas;
+  qryGruposFornecedores.Tag         := ctTabelas;
+  qryCFOP.Tag                       := ctTabelas;
+  qryConsultaFiliais.Tag            := ctConsultaFiliais;
+  qryConsultaGruposFiliais.Tag      := ctConsultaGruposFiliais;
+  qryConsultaCFOP.Tag               := ctConsultaCodigosFiscais;
+  qryConsultaFornecedores.Tag       := ctConsultaFornecedores;
+  qryConsultaGruposFornecedores.Tag := ctConsultaGruposFornecedores;
+  qryProdutosNotasquantidade.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+
+end;
+
+function TdtmFichaFinanceiraFornecedor.ExisteCodigosFiscais(Campo, Codigo: String): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaCFOP, Campo, Codigo);
+end;
+
+function TdtmFichaFinanceiraFornecedor.ExisteFiliais(Campo, Codigo: string): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaFiliais, Campo, Codigo);
+end;
+
+function TdtmFichaFinanceiraFornecedor.ExisteFornecedores(Campo, Codigo: string): Boolean;
+const
+  SQL = 'Where (to_ascii(%s,''latin1'') ilike to_ascii(''%s%s'',''latin1''))';
+begin
+  if Campo = 'nomecidade' then
+    Campo:= 'c.nome'
+  else if Campo = 'tipocliente' then
+    Campo:= 'v.tipo'
+  else
+    Campo:= 'v.' + Campo;
+  qryConsultaFornecedores.Sql[08] := Format(SQL, [Campo, Codigo, '%']);
+  qryConsultaFornecedores.Open;
+  Result := qryConsultaFornecedores.RecordCount > 0
+end;
+
+function TdtmFichaFinanceiraFornecedor.ExisteGrupoFiliais(Campo, Codigo: String): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaGruposFiliais, Campo, Codigo);
+end;
+
+function TdtmFichaFinanceiraFornecedor.ExisteGrupoFornecedores(Campo, Codigo: String): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaGruposFornecedores, Campo, Codigo);
+end;
+
+procedure TdtmFichaFinanceiraFornecedor.FechaTabelaPesquisa(TipoPesquisa: TtecFichaFornecedor);
+begin
+  case TipoPesquisa of
+            tfcFILIAIS: Fecha(ctConsultaFiliais);
+       tfcGRUPOFILIAIS: Fecha(ctConsultaGruposFiliais);
+       tfcFORNECEDORES: Fecha(ctConsultaFornecedores);
+  tfcGRUPOFORNECEDORES: Fecha(ctConsultaGruposFornecedores);
+       tfcCODIGOFISCAL: Fecha(ctConsultaCodigosFiscais);
+  end;
+end;
+
+function TdtmFichaFinanceiraFornecedor.GetColunadaGrade: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryProdutosNotascoluna.AsString)
+end;
+
+function TdtmFichaFinanceiraFornecedor.GetConsultarCFOP: TtecQuery;
+begin
+  Result:= qryConsultaCFOP;
+end;
+
+function TdtmFichaFinanceiraFornecedor.GetConsultarFiliais: TtecQuery;
+begin
+  Result:= qryConsultaFiliais;
+end;
+
+function TdtmFichaFinanceiraFornecedor.GetConsultarFornecedores: TtecQuery;
+begin
+  Result:= qryConsultaFornecedores;
+end;
+
+function TdtmFichaFinanceiraFornecedor.GetConsultarGrupoFiliais: TtecQuery;
+begin
+  Result:= qryConsultaGruposFiliais;
+end;
+
+function TdtmFichaFinanceiraFornecedor.GetConsultarGrupoFornecedores: TtecQuery;
+begin
+  Result:= qryConsultaGruposFornecedores;
+end;
+
+function TdtmFichaFinanceiraFornecedor.GetLinhadaGrade: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryProdutosNotaslinha.AsString)
+end;
+
+function TdtmFichaFinanceiraFornecedor.GetTipoPessoa: String;
+begin
+  if qryFornecedortipo.AsString = '' then
+       Result:= 'F'
+  else Result:= qryFornecedortipo.AsString;
+end;
+
+procedure TdtmFichaFinanceiraFornecedor.LimparTabelas;
+begin
+  qryDuplicatas.Close;
+  qryProdutosNotas.Close;
+  qryFichaFornecedor.Close;
+end;
+
+procedure TdtmFichaFinanceiraFornecedor.MontarDataEmissao;
+begin
+  if not DataEmBranco(FDataInicial) then begin
+    if DataEmBranco(FDataFinal) then
+       qryFichaFornecedor.MacroByName('dataemissao').AsString := 'and (d.emissao = ' + '''' + FDataInicial + ''')'
+    else
+       qryFichaFornecedor.MacroByName('dataemissao').AsString := 'and (d.emissao between (' + '''' + FDataInicial + ''') and (''' + FDataFinal + '''))';
+  end
+  else begin
+    if not DataEmBranco(FDataFinal) then
+       qryFichaFornecedor.MacroByName('dataemissao').AsString := 'and (d.emissao = ' + '''' + FDataFinal + ''')'
+    else
+       qryFichaFornecedor.MacroByName('dataemissao').AsString := '';
+  end;
+end;
+
+procedure TdtmFichaFinanceiraFornecedor.qryFichaFornecedorAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  ReFazConsulta(qryDuplicatas,[0],[qryFichaFornecedornumero.AsInteger]);
+  ReFazConsulta(qryProdutosNotas,[0],[qryFichaFornecedorcodigo.AsInteger]);
+end;
+
+procedure TdtmFichaFinanceiraFornecedor.qryFornecedorBeforeOpen(DataSet: TDataSet);
+begin
+  inherited;
+  if qryFornecedor.Params[0].AsString = '' then
+    qryFornecedor.Params[0].AsString:= 'F';
+end;
+
+function TdtmFichaFinanceiraFornecedor.ReFazConsultaFichaFornecedor: Boolean;
+begin
+  RefazConsulta(qryFichaFornecedor,[],[]);
+  Result:= qryFichaFornecedor.IsEmpty;
+  if Result then begin
+    qryDuplicatas.Close;
+    qryProdutosNotas.Close;
+  end;
+end;
+
+procedure TdtmFichaFinanceiraFornecedor.Selecionar(TipoPesquisa: TtecFichaFornecedor);
+begin
+  case TipoPesquisa of
+            tfcFILIAIS: ReFazConsulta(qryFilial,[0],[qryConsultaFiliaiscodigo.AsInteger]);
+       tfcGRUPOFILIAIS: ReFazConsulta(qryGrupoFiliais,[0],[qryConsultaGruposFiliaiscodigo.AsInteger]);
+       tfcFORNECEDORES: ReFazConsulta(qryFornecedor,[0,1],[qryConsultaFornecedorestipo.AsString,
+                                                           qryConsultaFornecedorescodigo.AsInteger]);
+  tfcGRUPOFORNECEDORES: ReFazConsulta(qryGruposFornecedores,[0],[qryConsultaGruposFornecedorescodigo.AsInteger]);
+       tfcCODIGOFISCAL: ReFazConsulta(qryCFOP,[0],[qryConsultaCFOPcodigo.AsInteger]);
+  end;
+end;
+
+procedure TdtmFichaFinanceiraFornecedor.SetCFOP(const Value: String);
+begin
+  if (Value <> '') then
+     qryFichaFornecedor.MacroByName('cfop').AsString := 'and (np.codigofiscal = ' + Value + ')'
+  else
+     qryFichaFornecedor.MacroByName('cfop').AsString := '';
+end;
+
+procedure TdtmFichaFinanceiraFornecedor.SetDataFinal(const Value: String);
+begin
+  if not DataEmBranco(Value) then
+       FDataFinal:= Value
+  else FDataFinal:= '';
+  MontarDataEmissao;
+end;
+
+procedure TdtmFichaFinanceiraFornecedor.SetDataInicial(const Value: String);
+begin
+  if not DataEmBranco(Value) then
+       FDataInicial:= Value
+  else FDataInicial:= '';
+  MontarDataEmissao;
+end;
+
+procedure TdtmFichaFinanceiraFornecedor.SetFilial(const Value: String);
+begin
+  if (Value <> '') then
+     qryFichaFornecedor.MacroByName('filial').AsString := 'and (d.filialemissao = ' + Value + ')'
+  else
+     qryFichaFornecedor.MacroByName('filial').AsString := '';
+end;
+
+procedure TdtmFichaFinanceiraFornecedor.SetFornecedor(const Value: String);
+begin
+  if (Value <> '') then
+     qryFichaFornecedor.MacroByName('fornecedor').AsString := 'and (d.fornecedor = ' + Value + ') ' +
+                                                     'and (d.tipofornecedor = ' + '''' + qryFornecedortipo.AsString + '''' + ')'
+  else
+     qryFichaFornecedor.MacroByName('fornecedor').AsString := '';
+end;
+
+procedure TdtmFichaFinanceiraFornecedor.SetGrupoFilial(const Value: String);
+begin
+  if (Value <> '') then
+     qryFichaFornecedor.MacroByName('grupofilial').AsString := 'and (d.filialemissao in (Select filial From filiaisgruposfiliais Where grupo = ' + Value + '))'
+  else
+     qryFichaFornecedor.MacroByName('grupofilial').AsString := '';
+end;
+
+procedure TdtmFichaFinanceiraFornecedor.SetGrupoFornecedor(const Value: String);
+begin
+  if (Value <> '') then
+     qryFichaFornecedor.MacroByName('grupofornecedor').AsString := 'and (v.grupofornecedor = ' + Value + ')'
+  else
+     qryFichaFornecedor.MacroByName('grupofornecedor').AsString := '';
+end;
+
+procedure TdtmFichaFinanceiraFornecedor.qryProdutosNotasAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if Assigned(FOnScrollLinhaColunaGrade) then
+  FOnScrollLinhaColunaGrade(DataSet)
+end;
+
+procedure TdtmFichaFinanceiraFornecedor.qryFichaFornecedorCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  qryFichaFornecedorValorLiquido.AsCurrency:= qryFichaFornecedorvalor.       AsCurrency -
+                                              qryFichaFornecedorIRRetido.    AsCurrency -
+                                              qryFichaFornecedorINSSRetido.  AsCurrency -
+                                              qryFichaFornecedorISSRetido.   AsCurrency -
+                                              qryFichaFornecedorPISRetido.   AsCurrency -
+                                              qryFichaFornecedorCOFINSRetido.AsCurrency -
+                                              qryFichaFornecedorCSLLRetido.  AsCurrency;
+
+end;
+
+{procedure TdtmFichaFinanceiraFornecedor.ZMonitor1MonitorEvent(Sql,
+  Result: String);
+var  Listar : TStringList;
+begin
+  inherited;
+
+  Listar := tStringlist.create;
+  if fileexists('c:\log.txt') then
+    Listar.loadfromfile('c:\log.txt');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\log.txt');
+  listar.free;
+
+
+end;}
+
+procedure TdtmFichaFinanceiraFornecedor.qryFichaFornecedorBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if not (UsuarioLogin.Administrador or UsuarioLogin.Suporte) then
+    qryFichaFornecedor.MacroByName('Administrador').AsString:= 'and not d.administrador';
+end;
+
+function TdtmFichaFinanceiraFornecedor.ExibirFicha(
+  FormOrigem: String): boolean;
+begin
+ result := ExibirFichacliente(qryFornecedorcodigo.AssInteger,
+                              qryFornecedortipo.AsString,
+                              qryFornecedornome.AsString,
+                              FormOrigem)
+
+end;
+
+end.

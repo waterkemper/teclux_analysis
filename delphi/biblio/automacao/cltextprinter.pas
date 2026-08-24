@@ -744,6 +744,7 @@ end;
 
 procedure TtecTextPrinter.EndDoc(Title: String);
 begin
+
 {$IFNDEF LINUX}
   if not (FImprimirParaArquivo) then
   begin

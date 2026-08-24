@@ -1,0 +1,503 @@
+unit fmfechamentooperacaousuario;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, Grids, DBGrids, cpdbgrid, Buttons, fmajuda, ctconstantes,
+  ExtCtrls, dmoperacoesosp, cpnumero, Windows, fmnavcontroles, db, biblio,
+  frconsulta, frconsultacodigo, cpdbfindcontrols, DBCtrls, cpdbedittext;
+
+type
+  TfrmFechamentoOperacoesUsuario = class(TfrmNavControles)
+    Label1: TLabel;
+    dbgOPeracoesOSPUsuarioFalhas: TtecDBGrid;
+    gbxHoraTermino: TGroupBox;
+    gbxQtidadeProduzida: TGroupBox;
+    lblHoraTermino: TLabel;
+    edtQuantidade: TDBEditNumero;
+    Timer1: TTimer;
+    bbnOK: TBitBtn;
+    bbnCancelar: TBitBtn;
+    dbgOPeracoesOSPUsuarioParadas: TtecDBGrid;
+    procedure Timer1Timer(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure edtQuantidadeKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbgOPeracoesOSPUsuarioFalhasKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure bbnOKClick(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure dbgOPeracoesOSPUsuarioFalhasDblClick(Sender: TObject);
+    procedure dbgOPeracoesOSPUsuarioParadasDblClick(Sender: TObject);
+    procedure dbgOPeracoesOSPUsuarioParadasKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+  private
+    { Private declarations }
+    procedure AtribuirDadosParadas(Found: Boolean);
+
+    procedure AcionarPesquisaGradeParadas;
+
+
+  protected
+    ConsultaListaFalhas : TfraConsultaCodigo;
+    ConsultaParadas : TfraConsultaCodigo;
+
+    procedure AtribuirDadosFalhasOperacoes(Found: Boolean);
+    procedure AcionarPesquisaGradeFalhas;
+    procedure CondicoesFalhas;
+    procedure CondicoesOperacoesOSPUsuarioParadas;
+
+  public
+    { Public declarations }
+    destructor Destroy; override;
+
+  end;
+
+var
+  frmFechamentoOperacoesUsuario: TfrmFechamentoOperacoesUsuario;
+
+implementation
+
+uses dmbasico;
+
+{$R *.dfm}
+
+procedure TfrmFechamentoOperacoesUsuario.Timer1Timer(Sender: TObject);
+begin
+  inherited;
+//  lblHoraTermino.Caption := FormatDateTime('HH:MM:SS',now());
+  lblHoraTermino.Caption := FormatDateTime('HH:MM:SS', dtmOperacoesOSP.HoraServidor);
+end;
+
+procedure TfrmFechamentoOperacoesUsuario.FormCreate(Sender: TObject);
+begin
+  inherited;
+  Timer1Timer(nil);
+
+  ConsultaListaFalhas := TfraConsultaCodigo.Create(self);
+  ConsultaListaFalhas.Name := 'fraConsultaListaFalhas';
+  ConsultaListaFalhas.edfCodigo.MaxLength := 3;
+  ConsultaListaFalhas.edfCodigo.DataSource := dtmOperacoesosp.dsrListaFalhas;
+  ConsultaListaFalhas.edfCodigo.DataField := 'codigo';
+  ConsultaListaFalhas.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaListaFalhas.edfCodigo.LookupSource := ConsultaListaFalhas.dsrProcuraFalhas;
+  ConsultaListaFalhas.edfCodigo.LookupQueryParameter := 'Codigo';
+  ConsultaListaFalhas.edfCodigo.LookupField := 'Codigo';
+  ConsultaListaFalhas.AbrirTabelaProcura := false;
+  ConsultaListaFalhas.CondicoesdaConsulta := CondicoesFalhas;
+  ConsultaListaFalhas.TipoPesquisa := pesFALHAS;
+  ConsultaListaFalhas.OnFound := AtribuirDadosFalhasOperacoes;
+
+  dtmOperacoesOSP.ListaFalhasSelecionadas := '0';
+
+  ConsultaParadas := TfraConsultaCodigo.Create(self);
+  ConsultaParadas.edfCodigo.NaoExecutarLookupFound := true;
+  ConsultaParadas.Name := 'fraConsultaParadas';
+  ConsultaParadas.edfCodigo.MaxLength := 3;
+  ConsultaParadas.edfCodigo.DataSource := dtmOperacoesOSP.dsrOperacoesOSPUsuarioParadas;
+  ConsultaParadas.edfCodigo.DataField := 'codigoparada';
+  ConsultaParadas.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaParadas.edfCodigo.LookupSource := ConsultaParadas.dsrProcuraMotivosParadas;
+  ConsultaParadas.edfCodigo.LookupQueryParameter := 'Codigo';
+  ConsultaParadas.edfCodigo.LookupField := 'Codigo';
+  ConsultaParadas.AbrirTabelaProcura := false;
+  ConsultaParadas.CondicoesdaConsulta := CondicoesOperacoesOSPUsuarioParadas;
+  ConsultaParadas.TipoPesquisa := pesMOTIVOSPARADAS;
+  ConsultaParadas.OnFound := AtribuirDadosParadas;
+
+
+end;
+
+procedure TfrmFechamentoOperacoesUsuario.edtQuantidadeKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+    if key =VK_return then
+//      if not dtmOperacoesOSP.qryListaFalhas.IsEmpty then
+      begin
+        dbgOPeracoesOSPUsuarioFalhas.SetFocus;
+        dbgOPeracoesOSPUsuarioFalhas.SelectedIndex := 0;
+      end;
+//      else
+//        bbnOK.SetFocus;
+end;
+
+procedure TfrmFechamentoOperacoesUsuario.dbgOPeracoesOSPUsuarioFalhasKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+     VK_F9     : begin
+                     ConsultaListaFalhas.CtrlOn := Shift = [ssCtrl];
+                     if (Shift = []) or ConsultaListaFalhas.CtrlOn then
+                       AcionarPesquisaGradeFalhas
+                   end;
+    end;
+  end
+  else
+  case Key of
+    VK_Return:
+    begin
+      if dbgOPeracoesOSPUsuarioFalhas.SelectedIndex = 0 then
+      begin
+        if ConsultaListaFalhas.edfcodigo.Exist then
+        begin
+          ConsultaListaFalhas.edfcodigo.Modified := true;
+          ConsultaListaFalhas.edfcodigo.DoExit;
+          dbgOPeracoesOSPUsuarioFalhas.SelectedIndex := 3;
+        end
+        else
+        begin
+          dtmOperacoesOSP.qryListaFalhascodigo.Clear;
+          dtmOperacoesOSP.qryListaFalhasdescricao.Clear;
+        end;
+      end
+      else
+      if dbgOPeracoesOSPUsuarioFalhas.SelectedIndex = 1 then
+        dbgOPeracoesOSPUsuarioFalhas.SelectedIndex := 3
+      else
+      if dbgOPeracoesOSPUsuarioFalhas.SelectedIndex = 2 then
+        dbgOPeracoesOSPUsuarioFalhas.SelectedIndex := 3
+      else
+      if dbgOPeracoesOSPUsuarioFalhas.SelectedIndex = 3 then
+      begin
+        if (dtmOperacoesOSP.qryListaFalhas.State in [dsinsert,dsedit]) then
+          dtmOperacoesOSP.GravarFalhas
+        else
+        begin
+          dtmOperacoesOSP.qryListaFalhas.Next;
+          if dtmOperacoesOSP.qryListaFalhas.eof then
+          begin
+            dbgOPeracoesOSPUsuarioParadas.SetFocus;
+            dbgOPeracoesOSPUsuarioParadas.SelectedIndex := 0;
+          end;
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmFechamentoOperacoesUsuario.bbnOKClick(Sender: TObject);
+var
+ vQtPerdaTotal, vQuantidadeLimite : integer;
+
+begin
+  inherited;
+  vQtPerdaTotal := 0;
+  with dtmOperacoesOSP do
+  begin
+    qryListaFalhas.DisableControls;
+    qryListaFalhas.First;
+    while not qryListaFalhas.Eof do
+    begin
+      if qryListaFalhasperdatotal.AsBoolean then
+        vQtPerdaTotal := vQtPerdaTotal + qryListaFalhasquantidade.Asinteger;
+      qryListaFalhas.Next;
+    end;
+
+    qryListaFalhas.EnableControls;
+
+    vQuantidadeLimite := qryOperacoesOSPquantidadeanterior.AsInteger - qryOperacoesOSPquantidade.AsInteger - qryOperacoesOSPquantidadenasalternativas.AsInteger;
+
+//    ModalResult := mrOK;
+
+    if qryOperacoesOSPUsuarioquantidade.AsInteger = 0 then
+    begin
+      MensagemErro(format('A quantidade não foi informada.',
+        [inttostr(vQuantidadeLimite)]));
+      edtQuantidade.SetFocus;
+      edtQuantidade.SelectAll;
+//      ModalResult := mrnone;
+    end
+    else
+    if not qryOperacoesOSPheaprimeiraoperacao.AsBoolean and
+      ((qryOperacoesOSPUsuarioquantidade.AsInteger + vQtPerdaTotal) > vQuantidadeLimite) and
+      not qryOperacoesOSPInformarTerminodoProcesso.AsBoolean then
+    begin
+      MensagemErro(format('A quantidade informada acrescida da perda total está ultrapassando o limite de %s em relação ao saldo do processo anterior',
+        [inttostr(vQuantidadeLimite)]));
+      edtQuantidade.SetFocus;
+      edtQuantidade.SelectAll;
+//    ModalResult := mrnone;
+    end
+    else
+    if qryOperacoesOSPheaprimeiraoperacao.AsBoolean and
+      ((qryOperacoesOSPUsuarioquantidade.AsInteger + vQtPerdaTotal) > vQuantidadeLimite) and
+      not qryOperacoesOSPInformarTerminodoProcesso.AsBoolean then
+    begin
+      if MensagemConfirmacao(format('A quantidade informada acrescida da perda total está ultrapassando o limite de %s em relação ao tamanho do lote e o excedente permitido',
+        [inttostr(vQuantidadeLimite)])) = smbOK then
+        ModalResult := mrOK
+      else
+      begin
+        edtQuantidade.SetFocus;
+        edtQuantidade.SelectAll;
+      end;
+//        ModalResult := mrnone;
+    end
+{
+    else
+    if qryOperacoesOSPdesviodeprocesso.AsBoolean and
+       qryOperacoesOSPUsuarioc8d.isnull then
+    begin
+      MensagemAviso('A operação é um desvio de processo, informe o documento do desvio.');
+      edtNrDocumentoProcesso.SetFocus;
+      edtNrDocumentoProcesso.SelectAll;
+    end
+    }
+    else
+      ModalResult := mrOK;
+  end;
+end;
+
+procedure TfrmFechamentoOperacoesUsuario.FormCloseQuery(Sender: TObject;
+  var CanClose: Boolean);
+begin
+  inherited;
+  CanClose := (ModalResult = mrOK) or (ModalResult = mrCancel);
+end;
+
+destructor TfrmFechamentoOperacoesUsuario.Destroy;
+begin
+  inherited;
+  frmFechamentoOperacoesUsuario := nil;
+end;
+
+procedure TfrmFechamentoOperacoesUsuario.AtribuirDadosFalhasOperacoes(Found: Boolean);
+begin
+
+  with dtmOperacoesOSP do
+  begin
+    qryListaFalhas.Edit;
+    qryListaFalhascodigo.AsString := ConsultaListaFalhas.qryProcuraFalhasCodigo.   AsString;
+    qryListaFalhasdescricao.AsString := ConsultaListaFalhas.qryProcuraFalhasDescricao.AsString;
+
+    if ConsultaListaFalhas.qryProcuraFalhasoperacaoorigemfalha.AsInteger <> 0 then
+    begin
+      qryListaFalhasoperacaoorigemfalha.asinteger := ConsultaListaFalhas.qryProcuraFalhasoperacaoorigemfalha.AsInteger;
+      qryListaFalhasfalhaoperacaoorigem.asinteger := ConsultaListaFalhas.qryProcuraFalhasfalhaoperacaoorigem.AsInteger;
+    end
+    else
+    begin
+      qryListaFalhasoperacaoorigemfalha.clear;
+      qryListaFalhasfalhaoperacaoorigem.clear;
+    end;
+
+    qryListaFalhasperdatotal.AsBoolean := ConsultaListaFalhas.qryProcuraFalhasperdatotal.AsBoolean;
+    qryListaFalhasfalhavalidada.AsBoolean := true;
+//    qryListaFalhas.Post;
+
+
+    if ConsultaListaFalhas.qryProcuraFalhasfalhaoperacaoorigem.AsInteger<>0 then
+    begin
+      RefazConsultaPorNome(qryVerificarFalhaOperacaoOrigem,['QuantidadeFalha','falha','osp','lote','sequencia','operacaoorigem'],
+        [qryListaFalhasquantidade.Asinteger, qryListaFalhasfalhaoperacaoorigem.asinteger,
+         qryOSPLotesosp.Asinteger, qryOSPLotesnumero.Asinteger, qryOperacoesOSPsequencia.asstring,
+         qryListaFalhasoperacaoorigemfalha.asinteger]);
+
+      if qryVerificarFalhaOperacaoOrigem.isempty then
+      begin
+        MensagemErro('Esta falha está vinculada à operação "'+
+                         Trim(ConsultaListaFalhas.qryProcuraFalhasnome_operacaofalhaoriginal.asstring+ ' '+
+                              ConsultaListaFalhas.qryProcuraFalhasc01_operacaofalhaoriginal.asstring+ ' '+
+                              ConsultaListaFalhas.qryProcuraFalhasc02_operacaofalhaoriginal.asstring+ ' '+
+                              ConsultaListaFalhas.qryProcuraFalhasc03_operacaofalhaoriginal.asstring+ '"'+#10#13+
+                             'que não é precedente da operação atual ou não há quantidade produzida.'));
+        qryListaFalhas.cancel;
+      end;
+    end;
+
+  end;
+
+end;
+
+procedure TfrmFechamentoOperacoesUsuario.dbgOPeracoesOSPUsuarioFalhasDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  if dbgOPeracoesOSPUsuarioFalhas.SelectedIndex in [0..1] then
+    AcionarPesquisaGradeFalhas;
+
+end;
+
+procedure TfrmFechamentoOperacoesUsuario.AcionarPesquisaGradeFalhas;
+begin
+  dbgOPeracoesOSPUsuarioFalhas.SetFocus;
+  ConsultaListaFalhas.CtrlOn := True;
+  ConsultaListaFalhas.InternoPesquisar('FALHAS');
+  dbgOPeracoesOSPUsuarioFalhas.SetFocus;
+  dbgOPeracoesOSPUsuarioFalhas.SelectedIndex :=  0;
+end;
+
+procedure TfrmFechamentoOperacoesUsuario.CondicoesFalhas;
+const
+  SQL = 'and (codigo not in (%s) or codigo = %s)';
+var
+  Codigo: string;
+begin
+  Codigo:= inttostr(dtmOperacoesOSP.qryListaFalhascodigo.AsInteger);
+  if (dtmOperacoesOSP.qryListaFalhas.State = dsInsert)  then
+    Codigo:= '0';
+
+  ConsultaListaFalhas.qryProcuraFalhas.MacroByName('SQLFalhasJaSelecionadas').AsString :=
+    format(SQL,[dtmOperacoesOSP.ListaFalhasSelecionadas, Codigo]);
+
+  ConsultaListaFalhas.qryConsultaFalhas.MacroByName('SQLFalhasJaSelecionadas').AsString :=
+    format(SQL,[dtmOperacoesOSP.ListaFalhasSelecionadas, Codigo]);
+end;
+
+procedure TfrmFechamentoOperacoesUsuario.AtribuirDadosParadas(Found: Boolean);
+begin
+
+  with dtmOperacoesOSP do
+  begin
+    EditarOperacoesOSPUsuarioParadas;
+    qryOperacoesOSPUsuarioParadascodigoParada.AsString := ConsultaParadas.qryProcuraMotivosParadascodigo.AsString;
+    qryOperacoesOSPUsuarioParadasdescricao.AsString := ConsultaParadas.qryProcuraMotivosParadasdescricao.AsString;
+    qryOperacoesOSPUsuarioParadasbloqueiamaquina.AsBoolean := ConsultaParadas.qryProcuraMotivosParadasbloqueiamaquina.AsBoolean;
+    qryOperacoesOSPUsuarioParadasparadavalidada.AsBoolean := true;
+  end;
+
+end;
+
+procedure TfrmFechamentoOperacoesUsuario.dbgOPeracoesOSPUsuarioParadasDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  if dbgOPeracoesOSPUsuarioParadas.SelectedIndex in [0,1] then
+    AcionarPesquisaGradeParadas;
+end;
+
+procedure TfrmFechamentoOperacoesUsuario.dbgOPeracoesOSPUsuarioParadasKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+  Procedure VerificarParadas;
+  begin
+    if (dtmOperacoesOSP.qryOperacoesOSPUsuarioParadas.State in [dsedit,dsinsert]) or
+       not (dtmOperacoesOSP.qryOperacoesOSPUsuarioParadas.IsEmpty) then
+       begin
+          ConsultaParadas.edfCodigo.Modified := true;
+          ConsultaParadas.edfCodigo.DoExit;
+          if ConsultaParadas.qryProcuraMotivosParadas.IsEmpty then
+          begin
+            dtmOperacoesOSP.LimparOperacoesOSPUsuarioParadas;
+            dbgOPeracoesOSPUsuarioParadas.SetFocus;
+            dbgOPeracoesOSPUsuarioParadas.SelectedIndex := 0;
+          end
+          else
+          begin
+            dtmOperacoesOSP.qryOperacoesOSPUsuarioParadasparadavalidada.AsBoolean := true;
+            AtribuirDadosParadas;
+            dbgOPeracoesOSPUsuarioParadas.SetFocus;
+            dbgOPeracoesOSPUsuarioParadas.SelectedIndex := 3;
+          end;
+       end;
+  end;
+
+begin
+  inherited;
+  case dbgOPeracoesOSPUsuarioParadas.SelectedIndex of
+  0 :
+    begin
+      if Shift = [ssCtrl] then
+      begin
+        case Key of
+         VK_F9     : begin
+                         ConsultaParadas.CtrlOn := Shift = [ssCtrl];
+                         if (Shift = []) or ConsultaParadas.CtrlOn then
+                           AcionarPesquisaGradeParadas
+                       end;
+        end;
+      end
+      else
+      case Key of
+       VK_Return: VerificarParadas;
+
+       VK_Up,
+       VK_Down,
+       VK_PRIOR,
+       VK_next: begin
+                        if dtmOperacoesOSP.RegistrodeOperacoesOSPUsuarioParadas then
+                        begin
+                          dtmOperacoesOSP.EditarOperacoesOSPUsuarioParadas;
+                          dtmOperacoesOSP.qryOperacoesOSPUsuarioParadas.CheckRequiredFields;
+                          key := 0;
+                        end;
+                      end;
+
+       VK_Escape : begin
+                       dtmOperacoesOSP.CancelarOperacoesOSPUsuarioParadas;
+                       if dbgOPeracoesOSPUsuarioParadas.Focused then
+                       begin
+                         dbgOPeracoesOSPUsuarioParadas.SetFocus;
+                         dbgOPeracoesOSPUsuarioParadas.SelectedIndex := 0;
+                       end;
+                     end;
+      end;
+    end;
+  1,2 : begin
+          case Key of
+            VK_Return: dbgOPeracoesOSPUsuarioParadas.SelectedIndex := 3 {dbgOPeracoesOSPUsuarioParadas.SelectedIndex + 1};
+          end;
+        end;
+  3 : begin
+        case Key of
+          VK_Return: begin
+                       if (dtmOperacoesOSP.qryOperacoesOSPUsuarioParadas.State in [dsinsert,dsedit]) then
+                         dtmOperacoesOSP.GravarOperacoesOSPUsuarioParadas
+                       else
+                       begin
+                         dtmOperacoesOSP.qryOperacoesOSPUsuarioParadas.Next;
+                         if dtmOperacoesOSP.qryOperacoesOSPUsuarioParadas.eof then
+                           bbnOK.SetFocus;
+                       end;
+                     end;
+        end;             
+      end;
+  end;
+end;
+
+procedure TfrmFechamentoOperacoesUsuario.AcionarPesquisaGradeParadas;
+begin
+    //ADICIONADO JR 13/02
+    dtmOperacoesOSP.qryOperacoesOSPUsuarioParadas.ReadOnly:=false;
+
+    dbgOPeracoesOSPUsuarioParadas.SetFocus;
+    ConsultaParadas.CtrlOn := True;
+    ConsultaParadas.InternoPesquisar('MOTIVO DAS PARADAS');
+    dbgOPeracoesOSPUsuarioParadas.SetFocus;
+    dbgOPeracoesOSPUsuarioParadas.SelectedIndex :=  0;
+{  end;}
+
+end;
+
+
+procedure TfrmFechamentoOperacoesUsuario.CondicoesOperacoesOSPUsuarioParadas;
+const
+  SQL = ' and (codigo not in (%s) or codigo = %s) ';
+
+begin
+  if (dtmOperacoesOSP.qryOperacoesOSPUsuarioParadascodigoparada.AsString<>'') and
+     not (dtmOperacoesOSP.qryOperacoesOSPUsuarioParadas.state = dsinsert) then
+  begin
+    ConsultaParadas.qryProcuraMotivosParadas.MacroByName('SQLParadasJaSelecionadas').AsString :=
+      format(SQL,[dtmOperacoesOSP.ListaParadas,
+                  inttostr(dtmOperacoesOSP.qryOperacoesOSPUsuarioParadascodigoparada.asinteger)]);
+
+    ConsultaParadas.qryConsultaMotivosParadas.MacroByName('SQLParadasJaSelecionadas').AsString :=
+      format(SQL,[dtmOperacoesOSP.ListaParadas,
+                  inttostr(dtmOperacoesOSP.qryOperacoesOSPUsuarioParadascodigoparada.asinteger)]);
+  end
+  else
+  begin
+    ConsultaParadas.qryProcuraMotivosParadas.MacroByName('SQLParadasJaSelecionadas').AsString :=
+      format(SQL,[dtmOperacoesOSP.ListaParadas, inttostr(0)]);
+
+    ConsultaParadas.qryConsultaMotivosParadas.MacroByName('SQLParadasJaSelecionadas').AsString :=
+      format(SQL,[dtmOperacoesOSP.ListaParadas, inttostr(0)]);
+  end;
+
+end;
+
+end.

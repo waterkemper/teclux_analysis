@@ -16,9 +16,9 @@ inherited frmCadastroImoveisContrato: TfrmCadastroImoveisContrato
   end
   object gbxDados: TGroupBox
     Left = 0
-    Top = 40
+    Top = 45
     Width = 638
-    Height = 362
+    Height = 357
     Align = alClient
     Ctl3D = True
     Font.Charset = DEFAULT_CHARSET

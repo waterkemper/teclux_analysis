@@ -1,0 +1,785 @@
+inherited dtmFCI: TdtmFCI
+  OldCreateOrder = False
+  Left = 674
+  Top = 156
+  Height = 610
+  Width = 874
+  object qryDadosFCI: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AutoCalcFields = False
+    AfterScroll = qryDadosFCIAfterScroll
+    OnCalcFields = qryDadosFCICalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'ListadePNs'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';select false as marcar,'
+      '        selecao.*,'
+      '       round(case when coalesce(PrecoVenda,0)<>0 then'
+      '         (ValorImportacao / PrecoVenda)'
+      '       else 0.00 end * 100., 2)  as PercImportacao'
+      ''
+      'from'
+      '('
+      'select (select cp.pn'
+      '        from clientesprodutos cp'
+      '        where cp.produto = selecao.codigo'
+      '          and cp.pn is not null'
+      '          and cliente<>1'
+      '          and tipocliente<>'#39'L'#39' limit 1) as pn,'
+      ''
+      
+        '       codigo, codigovisual, descricao, round(sum(ValorImportaca' +
+        'o),2) as ValorImportacao,'
+      ''
+      '       (select max(cp.precocliente)'
+      '        from clientesprodutos cp'
+      '        where cp.produto = selecao.codigo'
+      '          and cp.pn is not null'
+      '          and cliente<>1'
+      '          and tipocliente<>'#39'L'#39') as PrecoVenda,'
+      '       ncm, gtin, unidade'
+      'from'
+      '('
+      ''
+      '/*PRIMEIRO NIVEL */'
+      
+        'select p.codigo, p.codigovisual, p.descricao, p2.codigo as compo' +
+        'nente, p2.codigovisual as componentevisual,'
+      ''
+      
+        '       (pc.quantidade * pc.fatorconversao * (1+coalesce(pc.percp' +
+        'erda,0)/100.) *'
+      '       (select pnp.icmsbasecalculo/pnp.quantidade'
+      '        from produtosnotaspag pnp'
+      '        where (pnp.codigonota, pnp.produto) in'
+      '              (select m.codigonota, m.produto'
+      '               from movimentos m'
+      '               where m.filial = :filialbase'
+      '                 and coalesce(m.valormoeda,0)<>0'
+      '                 and m.codigonota is not null'
+      '                 and m.produto = p2.codigo'
+      '               order by m.data desc, m.lancto desc limit 1'
+      #9#9#9'   )'
+      #9'    limit 1'
+      #9#9')) as ValorImportacao,'
+      ''
+      
+        '    (select ipi.classificacaofiscal from ipi where ipi.codigo = ' +
+        'c.ipi) as ncm,'
+      '    c.gtin, c.unidade'
+      ''
+      'from caracteristicas c'
+      '     join produtos p'
+      '          join produtoscompostos pc'
+      '               join produtos p2'
+      '                    join caracteristicas c2'
+      '                    on p2.caracteristica = c2.codigo'
+      '               on pc.componente = p2.codigo'
+      '          on p.codigo = pc.composto'
+      '     on c.codigo = p.caracteristica'
+      ''
+      'where ((c.Inativo IS NULL) OR (c.Inativo >= CURRENT_DATE))'
+      '  AND c.tipoproduto = '#39'04'#39
+      '  and c2.origem in (1)'
+      '  %ListadePNs'
+      ''
+      '/*  and p.codigo = 1093700*/'
+      ''
+      'union all'
+      ''
+      '/* SEGUNDO NIVEL */'
+      ''
+      
+        'select p.codigo, p.codigovisual, p.descricao, p3.codigo as compo' +
+        'nente, p3.codigovisual as componentevisual,'
+      ''
+      
+        '       (pc2.quantidade * pc2.fatorconversao * (1+coalesce(pc2.pe' +
+        'rcperda,0)/100.) *'
+      '       (select pnp.icmsbasecalculo/pnp.quantidade'
+      '        from produtosnotaspag pnp'
+      '        where (pnp.codigonota, pnp.produto) in'
+      '              (select m.codigonota, m.produto'
+      '               from movimentos m'
+      '               where m.filial = :filialbase'
+      '                 and coalesce(m.valormoeda,0)<>0'
+      '                 and m.codigonota is not null'
+      '                 and m.produto = p3.codigo'
+      '               order by m.data desc, m.lancto desc limit 1'
+      #9#9#9'   )'
+      #9'    limit 1'
+      #9#9')) as ValorImportacao,'
+      ''
+      
+        '    (select ipi.classificacaofiscal from ipi where ipi.codigo = ' +
+        'c.ipi) as ncm,'
+      '    c.gtin, c.unidade'
+      ''
+      'from caracteristicas c'
+      '     join produtos p'
+      '          join produtoscompostos pc /* 1'#176' n'#237'vel */'
+      '               join produtos p2'
+      ''
+      '                    join caracteristicas c2'
+      '                    on p2.caracteristica = c2.codigo'
+      ''
+      ' '#9#9#9#9#9'join produtoscompostos pc2 /* 2'#176' n'#237'vel */'
+      #9#9#9#9#9#9' join produtos p3'
+      ''
+      #9#9#9#9#9#9'      join caracteristicas c3'
+      #9#9#9#9#9#9'      on p3.caracteristica = c3.codigo'
+      ''
+      #9#9#9#9#9#9' on p3.codigo = pc2.componente'
+      '   '#9#9#9#9'    on pc2.composto = p2.codigo'
+      ''
+      '               on pc.componente = p2.codigo'
+      '          on p.codigo = pc.composto'
+      '     on c.codigo = p.caracteristica'
+      ''
+      'where ((c.Inativo IS NULL) OR (c.Inativo >= CURRENT_DATE))'
+      '  AND c.tipoproduto = '#39'04'#39
+      '  and c2.origem not in (1)'
+      '  and c3.origem in (1)'
+      '  %ListadePNs'
+      '/*    and p.codigo = 1093700 */'
+      ''
+      ''
+      'union all'
+      ''
+      '/* '#9'TERCEIRO N'#205'VEL */'
+      
+        'select p.codigo, p.codigovisual, p.descricao, p4.codigo as compo' +
+        'nente, p4.codigovisual as componentevisual,'
+      ''
+      
+        '       (pc3.quantidade * pc3.fatorconversao * (1+coalesce(pc3.pe' +
+        'rcperda,0)/100.) *'
+      '       (select pnp.icmsbasecalculo/pnp.quantidade'
+      '        from produtosnotaspag pnp'
+      '        where (pnp.codigonota, pnp.produto) in'
+      '              (select m.codigonota, m.produto'
+      '               from movimentos m'
+      '               where m.filial = :filialbase'
+      '                 and coalesce(m.valormoeda,0)<>0'
+      '                 and m.codigonota is not null'
+      '                 and m.produto = p4.codigo'
+      '               order by m.data desc, m.lancto desc limit 1'
+      #9#9#9'   )'
+      #9'    limit 1'
+      #9#9')) as ValorImportacao,'
+      ''
+      
+        '    (select ipi.classificacaofiscal from ipi where ipi.codigo = ' +
+        'c.ipi) as ncm,'
+      '    c.gtin, c.unidade'
+      ''
+      'from caracteristicas c'
+      '     join produtos p'
+      '          join produtoscompostos pc /* 1'#176' n'#237'vel */'
+      '               join produtos p2'
+      ''
+      '                    join caracteristicas c2'
+      '                    on p2.caracteristica = c2.codigo'
+      ''
+      ' '#9#9#9#9#9'join produtoscompostos pc2 /* 2'#176' n'#237'vel */'
+      #9#9#9#9#9#9' join produtos p3'
+      ''
+      #9#9#9#9#9#9'      join caracteristicas c3'
+      #9#9#9#9#9#9'      on p3.caracteristica = c3.codigo'
+      ''
+      #9#9#9#9#9#9#9'  join produtoscompostos pc3 /* 3'#176' n'#237'vel */'
+      #9#9#9#9#9#9#9'       join produtos p4'
+      #9#9#9#9#9#9#9#9'        join caracteristicas c4'
+      #9#9#9#9#9#9#9#9#9#9'on p4.caracteristica = c4.codigo'
+      #9#9#9#9#9#9#9#9'   on pc3.componente = p4.codigo'
+      ''
+      #9#9#9#9#9#9#9'  on pc3.composto = p3.codigo'
+      ''
+      #9#9#9#9#9#9' on p3.codigo = pc2.componente'
+      '   '#9#9#9#9'    on pc2.composto = p2.codigo'
+      ''
+      '               on pc.componente = p2.codigo'
+      '          on p.codigo = pc.composto'
+      '     on c.codigo = p.caracteristica'
+      ''
+      'where ((c.Inativo IS NULL) OR (c.Inativo >= CURRENT_DATE))'
+      '  AND c.tipoproduto = '#39'04'#39
+      '  and c2.origem not in (1) /* 1'#176' n'#237'vel */'
+      '  and c3.origem not in (1) /* 2'#176' n'#237'vel */'
+      '  and c4.origem in (1) /* 3'#176' n'#237'vel */'
+      '  %ListadePNs'
+      ''
+      '/*    and p.codigo = 1093700*/'
+      ''
+      'union all'
+      ''
+      
+        'select selecao.codigo, selecao.codigovisual, selecao.descricao, ' +
+        'selecao.componente,  p.codigovisual as componentevisual,'
+      ''
+      '       (selecao.gramasporpeca/1000 *'
+      '       (select pnp.icmsbasecalculo/pnp.quantidade'
+      '        from produtosnotaspag pnp'
+      '        where (pnp.codigonota, pnp.produto) in'
+      '              (select m.codigonota, m.produto'
+      '               from movimentos m'
+      '               where m.filial = :filialbase'
+      '                 and coalesce(m.valormoeda,0)<>0'
+      '                 and m.codigonota is not null'
+      '                 and m.produto = p.codigo'
+      '               order by m.data desc, m.lancto desc limit 1'
+      #9#9#9'   )'
+      #9'    limit 1'
+      
+        #9#9')) as ValorImportacao, selecao.ncm, selecao.gtin, selecao.unid' +
+        'ade'
+      ''
+      ''
+      'from'
+      '('
+      
+        'select p.codigo, p.codigovisual, p.descricao, pcfi.gramasporpeca' +
+        ','
+      ''
+      '   case when p2.codigo is null then'
+      ''
+      '         (select p3.codigo'
+      '          from caracteristicas c2'
+      '               join produtos p3'
+      '                    join estoques e'
+      '                    on p3.codigo = e.produto'
+      '                    and e.filial = 1'
+      '               on c2.codigo = p3.caracteristica'
+      ''
+      
+        '          where c2.resistividade >= (pcfi.resistividade * (1-pcf' +
+        'i.tolerancia/100.))'
+      
+        '            and c2.resistividade <= (pcfi.resistividade * (1+pcf' +
+        'i.tolerancia/100.))'
+      '            and c2.liga = pcfi.liga'
+      '            and coalesce(e.emestoque,0)<>0'
+      
+        '            order by abs(pcfi.resistividade-c2.resistividade) de' +
+        'sc'
+      '          limit 1)'
+      '   else'
+      '     p2.codigo'
+      '   end as componente,'
+      ''
+      
+        '    (select ipi.classificacaofiscal from ipi where ipi.codigo = ' +
+        'c.ipi) as ncm,'
+      '    c.gtin, c.unidade'
+      ''
+      'from caracteristicas c'
+      '     join produtos p'
+      '          join produtoscompostosfios pcfi'
+      '               left join produtos p2'
+      '               on pcfi.componente = p2.codigovisual'
+      '          on p.codigo = pcfi.composto'
+      '     on c.codigo = p.caracteristica'
+      ''
+      'where ((c.Inativo IS NULL) OR (c.Inativo >= CURRENT_DATE))'
+      '  AND c.tipoproduto = '#39'04'#39
+      '  %ListadePNs'
+      '/*      and p.codigo = 1093700 */'
+      ''
+      ') as selecao'
+      '     join produtos p'
+      '          join caracteristicas c'
+      '          on p.caracteristica = c.codigo'
+      '     on selecao.componente = p.codigo'
+      'where  c.origem in (1)'
+      ''
+      ''
+      ') as selecao'
+      'group by codigo, codigovisual, descricao, ncm, gtin, unidade'
+      ') as selecao'
+      'where coalesce(trim(pn),'#39#39')<>'#39#39' '
+      'order by somentenumero(pn)')
+    RequestLive = True
+    Left = 144
+    Top = 72
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'filialbase'
+        ParamType = ptUnknown
+        Value = '0'
+      end>
+    object qryDadosFCIpn: TStringField
+      DisplayLabel = 'PN'
+      FieldName = 'pn'
+      Size = 4
+    end
+    object qryDadosFCIcodigo: TLargeintField
+      DisplayLabel = 'C'#211'DIGO'
+      FieldName = 'codigo'
+      Visible = False
+    end
+    object qryDadosFCIcodigovisual: TStringField
+      DisplayLabel = 'C'#211'DIGO'
+      FieldName = 'codigovisual'
+      Size = 30
+    end
+    object qryDadosFCIdescricao: TStringField
+      DisplayLabel = 'DESCRI'#199#195'O'
+      FieldName = 'descricao'
+      Size = 45
+    end
+    object qryDadosFCIvalorimportacao: TFloatField
+      DisplayLabel = 'VALOR IMPORTA'#199#195'O'
+      FieldName = 'valorimportacao'
+      DisplayFormat = '0.00'
+    end
+    object qryDadosFCIprecovenda: TFloatField
+      DisplayLabel = 'PRE'#199'O DE VENDA'
+      FieldName = 'precovenda'
+      DisplayFormat = '0.00'
+    end
+    object qryDadosFCIpercimportacao: TFloatField
+      DisplayLabel = '% IMPORTA'#199#195'O'
+      FieldName = 'percimportacao'
+      DisplayFormat = '0.00'
+    end
+    object qryDadosFCIncm: TStringField
+      DisplayLabel = 'NCM'
+      FieldName = 'ncm'
+      Size = 8
+    end
+    object qryDadosFCIunidade: TStringField
+      FieldName = 'unidade'
+      Size = 8
+    end
+    object qryDadosFCIDescricaoErro: TStringField
+      FieldKind = fkCalculated
+      FieldName = 'DescricaoErro'
+      Size = 200
+      Calculated = True
+    end
+    object qryDadosFCImarcar: TBooleanField
+      FieldName = 'marcar'
+      OnChange = qryDadosFCImarcarChange
+    end
+    object qryDadosFCIDesconsiderar: TBooleanField
+      FieldKind = fkCalculated
+      FieldName = 'Desconsiderar'
+      Calculated = True
+    end
+    object qryDadosFCIgtin: TStringField
+      FieldName = 'gtin'
+      Size = 14
+    end
+  end
+  object dsrDadosFCI: TtecDataSource
+    AutoEdit = False
+    DataSet = qryDadosFCI
+    Left = 192
+    Top = 96
+  end
+  object qryfci: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select fci.*'
+      'from fci'
+      'where data = current_date'
+      'order by numerofci')
+    RequestLive = True
+    Left = 144
+    Top = 192
+    object qryfcinumero: TIntegerField
+      FieldName = 'numero'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryfcidata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      Required = True
+      EditMask = '99/99/9999;1; '
+    end
+    object qryfcihora: TTimeField
+      Alignment = taCenter
+      FieldName = 'hora'
+      EditMask = '99:99;1; '
+    end
+    object qryfcinumerofci: TStringField
+      FieldName = 'numerofci'
+      Required = True
+    end
+    object qryfcidt_recepcao_arquivo: TStringField
+      FieldName = 'dt_recepcao_arquivo'
+    end
+    object qryfcicod_recepcao_arquivo: TStringField
+      FieldName = 'cod_recepcao_arquivo'
+      Size = 36
+    end
+    object qryfcidt_validacao_arquivo: TStringField
+      FieldName = 'dt_validacao_arquivo'
+    end
+    object qryfciin_validacao_arquivo: TStringField
+      FieldName = 'in_validacao_arquivo'
+    end
+  end
+  object qryFCIProximo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT fci_proximonumero() AS Numero ')
+    RequestLive = False
+    Left = 168
+    Top = 296
+    object qryFCIProximonumero: TIntegerField
+      FieldName = 'numero'
+    end
+  end
+  object qryFCIProdutos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select fcip.*'
+      'from fciprodutos fcip'
+      'where fcip.fci = :fci')
+    RequestLive = True
+    Left = 208
+    Top = 200
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'fci'
+        ParamType = ptUnknown
+      end>
+    object qryFCIProdutosfci: TIntegerField
+      FieldName = 'fci'
+      DisplayFormat = '0'
+    end
+    object qryFCIProdutosproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryFCIProdutosncm: TStringField
+      FieldName = 'ncm'
+      Size = 8
+    end
+    object qryFCIProdutosgtin: TStringField
+      FieldName = 'gtin'
+      Size = 14
+    end
+    object qryFCIProdutosunidade: TStringField
+      FieldName = 'unidade'
+      Size = 8
+    end
+    object qryFCIProdutosvalorimportacao: TFloatField
+      FieldName = 'valorimportacao'
+      DisplayFormat = '0.00'
+    end
+    object qryFCIProdutosvalorsaida: TFloatField
+      FieldName = 'valorsaida'
+      DisplayFormat = '0.00'
+    end
+    object qryFCIProdutospercimportacao: TFloatField
+      FieldName = 'percimportacao'
+      DisplayFormat = '0.00'
+    end
+  end
+  object qryProtocolo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select fci.*'
+      'from fci'
+      'where cod_recepcao_arquivo =  :cod_recepcao_arquivo')
+    RequestLive = False
+    Left = 352
+    Top = 304
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'cod_recepcao_arquivo'
+        ParamType = ptUnknown
+      end>
+    object qryProtocolonumero: TIntegerField
+      FieldName = 'numero'
+      Required = True
+    end
+    object qryProtocolodata: TDateField
+      FieldName = 'data'
+      Required = True
+    end
+    object qryProtocolonumerofci: TStringField
+      FieldName = 'numerofci'
+      Required = True
+    end
+    object qryProtocolodt_recepcao_arquivo: TStringField
+      FieldName = 'dt_recepcao_arquivo'
+    end
+    object qryProtocolocod_recepcao_arquivo: TStringField
+      FieldName = 'cod_recepcao_arquivo'
+      Size = 36
+    end
+    object qryProtocolodt_validacao_arquivo: TStringField
+      FieldName = 'dt_validacao_arquivo'
+    end
+    object qryProtocoloin_validacao_arquivo: TStringField
+      FieldName = 'in_validacao_arquivo'
+    end
+    object qryProtocolohora: TTimeField
+      FieldName = 'hora'
+    end
+  end
+  object qryFCIRetorno: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryFCIRetornoAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select fci.*'
+      'from fci'
+      'where cod_recepcao_arquivo = :cod_recepcao_arquivo')
+    RequestLive = True
+    Left = 144
+    Top = 376
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'cod_recepcao_arquivo'
+        ParamType = ptUnknown
+      end>
+    object qryFCIRetornonumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryFCIRetornodata: TDateField
+      FieldName = 'data'
+    end
+    object qryFCIRetornonumerofci: TStringField
+      FieldName = 'numerofci'
+    end
+    object qryFCIRetornodt_recepcao_arquivo: TStringField
+      FieldName = 'dt_recepcao_arquivo'
+    end
+    object qryFCIRetornocod_recepcao_arquivo: TStringField
+      FieldName = 'cod_recepcao_arquivo'
+      Size = 36
+    end
+    object qryFCIRetornodt_validacao_arquivo: TStringField
+      FieldName = 'dt_validacao_arquivo'
+    end
+    object qryFCIRetornoin_validacao_arquivo: TStringField
+      FieldName = 'in_validacao_arquivo'
+    end
+    object qryFCIRetornohora: TTimeField
+      FieldName = 'hora'
+    end
+  end
+  object qryFCIRetornoProdutos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select fcip.*,'
+      '       p.codigovisual,'
+      '       (select cp.pn'
+      '        from clientesprodutos cp'
+      '        where cp.produto = p.codigo'
+      '          and cp.pn is not null'
+      '          and cp.cliente<>1'
+      '          and cp.tipocliente<>'#39'L'#39' limit 1) as pn,'
+      '       p.descricao'
+      ''
+      'from fciprodutos fcip'
+      '     join produtos p'
+      '     on fcip.produto = p.codigo'
+      'where fcip.fci = :fci')
+    RequestLive = True
+    Left = 200
+    Top = 392
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'fci'
+        ParamType = ptUnknown
+      end>
+    object qryFCIRetornoProdutospn: TStringField
+      FieldName = 'pn'
+      Size = 50
+    end
+    object qryFCIRetornoProdutoscodigovisual: TStringField
+      FieldName = 'codigovisual'
+      Size = 30
+    end
+    object qryFCIRetornoProdutosdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 50
+    end
+    object qryFCIRetornoProdutosfci: TIntegerField
+      FieldName = 'fci'
+      DisplayFormat = '0'
+    end
+    object qryFCIRetornoProdutosproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryFCIRetornoProdutosncm: TStringField
+      FieldName = 'ncm'
+      Size = 8
+    end
+    object qryFCIRetornoProdutosunidade: TStringField
+      FieldName = 'unidade'
+      Size = 8
+    end
+    object qryFCIRetornoProdutosvalorimportacao: TFloatField
+      FieldName = 'valorimportacao'
+      DisplayFormat = '0.00'
+    end
+    object qryFCIRetornoProdutosvalorsaida: TFloatField
+      FieldName = 'valorsaida'
+      DisplayFormat = '0.00'
+    end
+    object qryFCIRetornoProdutospercimportacao: TFloatField
+      FieldName = 'percimportacao'
+      DisplayFormat = '0.00'
+    end
+    object qryFCIRetornoProdutoscodigo_fci: TStringField
+      FieldName = 'codigo_fci'
+      Size = 36
+    end
+    object qryFCIRetornoProdutosin_validacao_ficha: TStringField
+      FieldName = 'in_validacao_ficha'
+    end
+    object qryFCIRetornoProdutosgtin: TStringField
+      FieldName = 'gtin'
+      Size = 14
+    end
+  end
+  object dsrFCIRetornoProdutos: TtecDataSource
+    DataSet = qryFCIRetornoProdutos
+    Left = 264
+    Top = 400
+  end
+  object qryfciArquivoTexto: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select fci.*'
+      'from fci'
+      'where numero = :numero')
+    RequestLive = True
+    Left = 320
+    Top = 192
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end>
+    object IntegerField1: TIntegerField
+      FieldName = 'numero'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryfciArquivoTextoarquivofciremessa: TMemoField
+      FieldName = 'arquivofciremessa'
+      BlobType = ftMemo
+    end
+  end
+  object qryFCIRetornoArquivoTexto: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryFCIRetornoAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select fci.*'
+      'from fci'
+      'where numero = :numero')
+    RequestLive = True
+    Left = 440
+    Top = 392
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end>
+    object qryFCIRetornoArquivoTextonumero: TIntegerField
+      FieldName = 'numero'
+      DisplayFormat = '0'
+    end
+    object qryFCIRetornoArquivoTextoarquivofciretorno: TMemoField
+      FieldName = 'arquivofciretorno'
+      BlobType = ftMemo
+    end
+  end
+end

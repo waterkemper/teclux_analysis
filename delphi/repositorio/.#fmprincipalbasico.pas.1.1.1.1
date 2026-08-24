@@ -1,0 +1,75 @@
+unit fmprincipalbasico;
+
+interface
+
+uses
+  // CLX
+  SysUtils, Classes, {Qete,} Graphics, Controls, Forms, Dialogs,
+  StdCtrls, ExtCtrls, ComCtrls,
+  // Repositorio
+  dmbasico, fmajuda;
+
+type
+  TfrmPrincipalBasico = class(TfrmAjuda)
+    stbPrincipal: TStatusBar;
+    procedure FormResize(Sender: TObject);
+  protected
+    BitmapOriginal: TBitmap;
+    function NomeUsuario: String;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+    procedure MostrarFormRegistrado(Value: Array of Variant; NomeForm: String; Modal: Boolean); virtual;
+  end;
+
+implementation
+
+{$R *.dfm}
+
+Uses
+  //Biblio
+  ctconstantes, clusuario, fmfichafinanceira;
+
+{ TfrmPrincipalBasico }
+
+constructor TfrmPrincipalBasico.Create(AOwner: TComponent);
+begin
+  inherited;
+  if dmbasico.ComUsuario then
+    stbPrincipal.SimpleText := NomeUsuario;
+  Self.Color:= clWhite;
+  {
+  BitmapOriginal := TBitmap.Create;
+  BitmapOriginal.Assign(Bitmap);
+  Bitmap.Canvas.StretchDraw(Rect(0, 0, ClientWidth-1, ClientHeight-20), Bitmap);
+  }
+end;
+
+destructor TfrmPrincipalBasico.Destroy;
+begin
+  {BitmapOriginal.Free;}
+  inherited;
+end;
+
+procedure TfrmPrincipalBasico.FormResize(Sender: TObject);
+begin
+  inherited;
+  {
+  if Assigned(BitmapOriginal) then
+    Bitmap.Canvas.StretchDraw(Rect(0, 0, ClientWidth-1, ClientHeight-20), BitmapOriginal);
+    }
+end;
+
+procedure TfrmPrincipalBasico.MostrarFormRegistrado(Value: Array of Variant; NomeForm: String; Modal: Boolean);
+begin
+  if NomeForm = 'TfrmFichaFinanceira' then
+    if not Assigned(frmFichaFinanceira) then
+      frmFichaFinanceira:= TfrmFichaFinanceira.Create(nil);
+end;
+
+function TfrmPrincipalBasico.NomeUsuario: String;
+begin
+  Result := '   ' + ctNOMEUSUARIO + IntToStr(UsuarioLogin.CodigoUsuario) + ' - ' + UsuarioLogin.NomeUsuario
+end;
+
+end.

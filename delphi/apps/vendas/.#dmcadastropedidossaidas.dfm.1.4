@@ -1,0 +1,286 @@
+inherited dtmCadastroPedidosSaidas: TdtmCadastroPedidosSaidas
+  OldCreateOrder = False
+  Left = 359
+  Top = 216
+  Height = 341
+  Width = 513
+  object qryProdutosPedidosSaida: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryProdutosPedidosSaidaAfterOpen
+    AfterInsert = qryProdutosPedidosSaidaAfterInsert
+    AfterEdit = qryProdutosPedidosSaidaAfterEdit
+    AfterPost = qryProdutosPedidosSaidaAfterPost
+    AfterDelete = qryProdutosPedidosSaidaAfterDelete
+    AfterScroll = qryProdutosPedidosSaidaAfterScroll
+    OnCalcFields = qryProdutosPedidosSaidaCalcFields
+    OnNewRecord = qryProdutosPedidosSaidaNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select pps.pedidosaida,'
+      '       pps.produto,'
+      '       p.codigovisual as produtovisual,'
+      '       p.descricao,'
+      '       c.unidade,'
+      '       pps.osp,'
+      '       pps.numero,'
+      '       pps.quantidade,'
+      '       pps.preco,'
+      '       (select sum(pdf.quantidade)'
+      
+        '        from DadosFiscais df join produtosdadosfiscais pdf on df' +
+        '.numero = pdf.dadofiscal'
+      '        where (df.situacao='#39'N'#39')'
+      '          and pdf.pedidosaida = pps.pedidosaida'
+      '          and pdf.numeroprodutopedido = pps.numero'
+      '          and pdf.produto = pps.produto) as qtdeentregue,'
+      '       true as ProdutoValidado'
+      'from produtospedidossaida pps'
+      
+        '     join (produtos p join caracteristicas c on p.caracteristica' +
+        ' = c.codigo)'
+      '                      on pps.produto = p.codigo'
+      'where (pps.pedidosaida = :pedidosaida)'
+      'order by pps.numero')
+    RequestLive = True
+    Left = 48
+    Top = 192
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'pedidosaida'
+        ParamType = ptUnknown
+      end>
+    object qryProdutosPedidosSaidapedidosaida: TIntegerField
+      FieldName = 'pedidosaida'
+      DisplayFormat = '0'
+    end
+    object qryProdutosPedidosSaidaproduto: TLargeintField
+      DisplayLabel = 'Produto'
+      FieldName = 'produto'
+      Required = True
+      Visible = False
+    end
+    object qryProdutosPedidosSaidaprodutovisual: TStringField
+      DisplayLabel = 'Produto'
+      FieldName = 'produtovisual'
+      Required = True
+      Size = 30
+    end
+    object qryProdutosPedidosSaidadescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Required = True
+      Size = 40
+    end
+    object qryProdutosPedidosSaidaunidade: TStringField
+      DisplayLabel = 'UN'
+      FieldName = 'unidade'
+      Required = True
+      Size = 8
+    end
+    object qryProdutosPedidosSaidaosp: TIntegerField
+      DisplayLabel = 'OSP'
+      FieldName = 'osp'
+      DisplayFormat = '0'
+    end
+    object qryProdutosPedidosSaidanumero: TIntegerField
+      DisplayLabel = 'N'#250'mero'
+      FieldName = 'numero'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryProdutosPedidosSaidaquantidade: TFloatField
+      DisplayLabel = 'Quantidade'
+      FieldName = 'quantidade'
+      Required = True
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosPedidosSaidapreco: TFloatField
+      DisplayLabel = 'Pre'#231'o'
+      FieldName = 'preco'
+      Required = True
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryProdutosPedidosSaidaqtdeentregue: TFloatField
+      FieldName = 'qtdeentregue'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosPedidosSaidasaldo: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'saldo'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryProdutosPedidosSaidaprodutovalidado: TBooleanField
+      FieldName = 'produtovalidado'
+    end
+  end
+  object qryPedidosSaida: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryPedidosSaidaAfterScroll
+    OnNewRecord = qryPedidosSaidaNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select ps.numero,'
+      '       ps.data,'
+      '       ps.pedidocliente,'
+      '       ps.cliente,   '
+      '       cl.nome    '
+      'from pedidossaida ps join clientes cl on ps.cliente = cl.codigo'
+      'where ps.numero = :numero'
+      ''
+      ''
+      ''
+      '')
+    RequestLive = True
+    Left = 40
+    Top = 136
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end>
+    object qryPedidosSaidanumero: TIntegerField
+      AutoGenerateValue = arAutoInc
+      FieldName = 'numero'
+      DisplayFormat = '0'
+    end
+    object qryPedidosSaidadata: TDateField
+      Alignment = taCenter
+      DisplayLabel = 'Data do Pedido'
+      FieldName = 'data'
+      Required = True
+      EditMask = '99/99/9999;1; '
+    end
+    object qryPedidosSaidapedidocliente: TStringField
+      DisplayLabel = 'Pedido do Cliente'
+      FieldName = 'pedidocliente'
+      Size = 15
+    end
+    object qryPedidosSaidacliente: TIntegerField
+      DisplayLabel = 'Cliente'
+      FieldName = 'cliente'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryPedidosSaidanome: TStringField
+      FieldName = 'nome'
+      Size = 40
+    end
+  end
+  object dsrPedidosSaida: TtecDataSource
+    DataSet = qryPedidosSaida
+    OnDataChange = dsrPedidosSaidaDataChange
+    Left = 128
+    Top = 136
+  end
+  object dsrProdutosPedidosSaida: TtecDataSource
+    DataSet = qryProdutosPedidosSaida
+    Left = 168
+    Top = 192
+  end
+  object ZMonitor1: TZMonitor
+    Left = 328
+    Top = 24
+  end
+  object spcPedidosSaidaProximo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select PedidosSaida_proximonumero() as numero')
+    RequestLive = True
+    Left = 248
+    Top = 104
+    object spcPedidosSaidaProximonumero: TIntegerField
+      FieldName = 'numero'
+    end
+  end
+  object qryClientesProdutos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryClientesProdutosAfterPost
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT cp.cliente,'
+      '       cp.tipocliente,'
+      '       cp.produto,'
+      '       cp.produto_cliente,'
+      '       cp.finalidade,'
+      '       cp.pn,'
+      '       origem'
+      'FROM clientesprodutos cp'
+      'WHERE cp.cliente = :cliente'
+      '       and cp.tipocliente = '#39'C'#39)
+    RequestLive = True
+    Left = 328
+    Top = 192
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'cliente'
+        ParamType = ptUnknown
+      end>
+    object qryClientesProdutoscliente: TIntegerField
+      FieldName = 'cliente'
+    end
+    object qryClientesProdutostipocliente: TStringField
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+    object qryClientesProdutosproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryClientesProdutosproduto_cliente: TStringField
+      FieldName = 'produto_cliente'
+      Size = 12
+    end
+    object qryClientesProdutosfinalidade: TStringField
+      FieldName = 'finalidade'
+      Size = 30
+    end
+    object qryClientesProdutospn: TStringField
+      FieldName = 'pn'
+    end
+    object qryClientesProdutosorigem: TStringField
+      FieldName = 'origem'
+      Size = 1
+    end
+  end
+  object dsrClientesProdutos: TtecDataSource
+    DataSet = qryClientesProdutos
+    Left = 376
+    Top = 208
+  end
+end

@@ -1,0 +1,566 @@
+unit dmimprimirduplicatas;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery, cpdatasource,
+  biblio,ctConstantes, FR_DSet, FR_DBSet, FR_Class,
+  clparametrossistema,
+  Variants, DateUtils, QCheckLst,cltextprinter, FR_Desgn,
+  clusuario, fmpreviewpadrao, dmimprimecarne, ZTransact;
+
+
+type
+  TdtmImprimirDuplicatas = class(TdtmBasico)
+    qryFiliais: TtecQuery;
+    qryFiliaiscodigo: TIntegerField;
+    qryFiliaisnome: TStringField;
+    dsrFiliais: TtecDataSource;
+    qryConsultaFiliais: TtecQuery;
+    qryConsultaFiliaisnome: TStringField;
+    qryConsultaFiliaiscodigo: TIntegerField;
+    qryClientes: TtecQuery;
+    dsrClientes: TtecDataSource;
+    qryConsultaClientes: TtecQuery;
+    qryConsultaClientesnome: TStringField;
+    qryConsultaClientespessoanumero: TStringField;
+    qryConsultaClientesnomecidade: TStringField;
+    qryConsultaClientesestado: TStringField;
+    qryConsultaClientescodigo: TIntegerField;
+    qryConsultaClientestipocliente: TStringField;
+    qryConsultaClientestipo: TStringField;
+    qryParcelas: TtecQuery;
+    dsrParcelas: TtecDataSource;
+    qryFiliaisinscricaoestadual: TStringField;
+    qryAtualizarParcelas: TtecQuery;
+    qryFiliaiscnpj: TStringField;
+    qryContas: TtecQuery;
+    qryContasBanco: TIntegerField;
+    qryContasAgencia: TIntegerField;
+    qryContasConta: TIntegerField;
+    qryContasDigito: TStringField;
+    qryContasSigla: TStringField;
+    qryContasNome: TStringField;
+    dsrContas: TtecDataSource;
+    qryConsultaContas: TtecQuery;
+    qryConsultaContasSigla: TStringField;
+    qryConsultaContasNome: TStringField;
+    qryConsultaContasConta: TIntegerField;
+    qryConsultaContasDigito: TStringField;
+    qryConsultaContasTitular: TStringField;
+    qryConsultaContasAgencia: TIntegerField;
+    qryConsultaContasBanco: TIntegerField;
+    qryParcelasContrato: TStringField;
+    qryParcelasNumero: TIntegerField;
+    qryParcelasDataVencto: TDateField;
+    qryParcelasValorVencto: TFloatField;
+    qryParcelasContaBoleto: TIntegerField;
+    qryParcelasRemessa: TStringField;
+    qryParcelasSelecionar: TBooleanField;
+    qryParcelasCliente: TIntegerField;
+    qryParcelasEstado: TStringField;
+    qryParcelasNome: TStringField;
+    qryParcelasFilialVenda: TIntegerField;
+    qryParcelasFaturamento: TDateField;
+    qryParcelaspessoatipo: TStringField;
+    qryParcelasnomebairro: TStringField;
+    qryParcelasnomecidade: TStringField;
+    qryParcelasdocumento: TStringField;
+    qryParcelasrua: TStringField;
+    qryParcelasinscricao: TStringField;
+    qryParcelascep: TIntegerField;
+    qryParcelasnomefilial: TStringField;
+    qryParcelascnpj: TStringField;
+    qryClientesNome: TStringField;
+    qryClientesCodigo: TIntegerField;
+    qryClientesTipo: TStringField;
+    qryClientesPessoaNumero: TStringField;
+    qryClientesTipoCliente: TStringField;
+    qryClientesEstado: TStringField;
+    qryClientesNomeCidade: TStringField;
+    qryContasSequencial: TIntegerField;
+    qryParcelascnpjformatado: TStringField;
+    qryContascarteira: TStringField;
+    qryParcelas_CLIENTE_USA_CONTRATO: TtecQuery;
+    qryParcelas_CLIENTE_NFE_NAO_USA_CONTRATO: TtecQuery;
+    qryParcelasnrdocumento: TIntegerField;
+    procedure DataModuleDestroy(Sender: TObject);
+    procedure qryParcelasFilterRecord(DataSet: TDataSet;
+      var Accept: Boolean);
+  private
+    function GetTotalLidas: Real;
+
+  protected
+    FFiliais          : String;
+    FClientes         : String;
+    FDataVenctoInicial: String;
+    FDataVenctoFinal  : String;
+    FDataVendaInicial : String;
+    FDataVendaFinal   : String;
+    FNotaInicial      : String;
+    FNotaFinal        : String;
+    FIncluirSomenteCobrancaemCarteira        : Boolean;
+
+    Function  GetConsultarFiliais:  TTecQuery;
+    Function  GetConsultarClientes: TTecQuery;
+    Function  GetConsultarContas:   TTecQuery;
+    Function  GetCodigoCliente: integer;
+    function  GetQtdeLidas: integer;
+
+  public
+    constructor Create(AOwner: TComponent); Override;
+    procedure Selecionar(TipoPesquisa: TTecImprimirDuplicatas);
+    procedure AbreTabelaConsulta(TipoPesquisa: TTecImprimirDuplicatas);
+    procedure FechaTabelaConsulta(TipoPesquisa: TTecImprimirDuplicatas);
+
+    Function  ExisteFiliais (NomeCampo, Codigo: string): Boolean;
+    Function  ExisteClientes(NomeCampo, Codigo: String): Boolean;
+    Function  ExisteContas  (NomeCampo, Codigo: String): boolean;
+
+    property ConsultarFiliais:  TTecQuery read GetConsultarFiliais;
+    property ConsultarClientes: TTecQuery read GetConsultarClientes;
+    property ConsultarContas:   TTecQuery read GetConsultarContas;
+    property CodigoCliente:     integer   read GetCodigoCliente;
+    procedure MarcarSelecionados(Marcando, Todos: Boolean);
+    procedure SetFiliais(const Value: string);
+    procedure SetClientes(const Value: string);
+    procedure SetDataVenctoInicial(const Value: String);
+    procedure SetDataVenctoFinal(const Value: String);
+    procedure SetDataVendaInicial(const Value: String);
+    procedure SetDataVendaFinal(const Value: String);
+    procedure SetNotaInicial(const Value: String);
+    procedure SetNotaFinal(const Value: String);
+    procedure SetIncluirSomenteCobrancaemCarteira(const Value: Boolean);
+
+    procedure MarcarRegistrosSelecionados(Marcando, Todos: Boolean);
+    //---------------------------------------------------------------
+    function  AbrirParcelas: Boolean;
+    procedure AtualizarParcelas;
+
+    property Filiais:  string write SetFiliais;
+    property Clientes: string write SetClientes;
+    property DataVenctoInicial: string write SetDataVenctoInicial;
+    property DataVenctoFinal: string write SetDataVenctoFinal;
+    property DataVendaInicial: string write SetDataVendaInicial;
+    property DataVendaFinal: string write SetDataVendaFinal;
+    property NotaInicial: string write SetNotaInicial;
+    property NotaFinal: string write SetNotaFinal;
+    property IncluirSomenteCobrancaemCarteira: Boolean read FIncluirSomenteCobrancaemCarteira write SetIncluirSomenteCobrancaemCarteira;
+    property QtdeLidas: Integer read getQtdeLidas;
+    property TotalLidas: Real read getTotalLidas;
+    procedure ImprimirDuplicatas;
+  end;
+
+var
+  dtmImprimirDuplicatas: TdtmImprimirDuplicatas;
+
+implementation
+
+uses dmtecsoft,Math;
+
+{$R *.dfm}
+
+
+procedure TdtmImprimirDuplicatas.SetIncluirSomenteCobrancaemCarteira(const Value: Boolean);
+begin
+  FIncluirSomenteCobrancaemCarteira := Value;
+  if FIncluirSomenteCobrancaemCarteira then
+     qryParcelas.MacroByName('cobrancaemcarteira').AsString  := 'and coalesce(c.cobrancaemcarteira,false)'
+  else
+     qryParcelas.MacroByName('cobrancaemcarteira').AsString  := '' ;
+end;
+
+procedure TdtmImprimirDuplicatas.AbreTabelaConsulta(TipoPesquisa: TTecImprimirDuplicatas);
+begin
+  case TipoPesquisa of
+    idFILIAIS  : Abre(ctConsultaFiliais);
+    idCLIENTES : begin
+//                   qryConsultaClientes.MacroByName('ClausulaWHERE').AsString:= 'WHERE False';
+                     Abre(ctConsultaClientes);
+                  end;
+    idCONTAS:    Abre(ctConsultaContas);
+  end;
+end;
+
+constructor TdtmImprimirDuplicatas.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryFiliais.Params[0].AsInteger := FilialBase;
+  qryFiliais. Tag:= ctTabelas;
+  qryClientes.Tag:= ctTabelas;
+  qryContas.  Tag:= ctTabelas;
+
+  qryConsultaFiliais. Tag:= ctConsultaFiliais;
+  qryConsultaClientes.Tag:= ctConsultaClientes;
+  qryConsultaContas.  Tag:= ctConsultaContas;
+
+  qryClientes.Params[0].AsInteger:= 0;
+  qryClientes.Params[1].AsString := 'C';
+
+  if ParSistema.ClienteUsaContrato then
+    qryParcelas.Sql.Text := qryParcelas_CLIENTE_USA_CONTRATO.Sql.Text
+  else
+    qryParcelas.Sql.Text := qryParcelas_CLIENTE_NFE_NAO_USA_CONTRATO.Sql.Text;
+end;
+
+Function TdtmImprimirDuplicatas.ExisteFiliais(NomeCampo, Codigo: string): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaFiliais,NomeCampo,Codigo);
+end;
+
+Function TdtmImprimirDuplicatas.ExisteClientes(NomeCampo, Codigo: String): boolean;
+const
+  SQL = 'Where (to_ascii(%s,''latin1'') ilike to_ascii(''%s%s'',''latin1''))';
+begin
+  if NomeCampo = 'nomecidade' then
+    NomeCampo:= 'c.nome'
+  else if NomeCampo = 'tipocliente' then
+    NomeCampo:= 'v.tipo'
+  else
+    NomeCampo:= 'v.' + NomeCampo;
+
+  qryConsultaClientes.Sql[08]:= Format(SQL, [NomeCampo, Codigo, '%']);
+  qryConsultaClientes.Open;
+  Result := Not qryConsultaClientes.IsEmpty;
+end;
+
+Function TdtmImprimirDuplicatas.ExisteContas(NomeCampo, Codigo: string): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaContas,NomeCampo,Codigo);
+end;
+
+procedure TdtmImprimirDuplicatas.FechaTabelaConsulta(TipoPesquisa: TTecImprimirDuplicatas);
+begin
+   case TipoPesquisa of
+      idFILIAIS:  Fecha(ctConsultaFiliais);
+      idCLIENTES: Fecha(ctConsultaClientes);
+      idCONTAS:   Fecha(ctConsultaContas);
+   end;
+end;
+
+Function TdtmImprimirDuplicatas.GetConsultarFiliais: TTecQuery;
+begin
+  Result:= qryConsultaFiliais;
+end;
+
+Function TdtmImprimirDuplicatas.GetConsultarClientes: TTecQuery;
+begin
+  Result:= qryConsultaClientes;
+end;
+
+Function TdtmImprimirDuplicatas.GetConsultarContas: TTecQuery;
+begin
+  Result:= qryConsultaContas;
+end;
+
+
+procedure TdtmImprimirDuplicatas.Selecionar(TipoPesquisa: TTecImprimirDuplicatas);
+begin
+   case TipoPesquisa of
+      idFILIAIS:  RefazConsulta(qryFiliais,  [0], [qryConsultaFiliaisCodigo. AsInteger]);
+      idCLIENTES: RefazConsulta(qryClientes, [0], [qryConsultaClientesCodigo.AsInteger]);
+      idCONTAS:   RefazConsulta(qryContas,   [0], [qryConsultaContasConta.   AsInteger]);
+   end;
+end;
+
+Function TdtmImprimirDuplicatas.GetCodigoCliente: integer;
+begin
+  Result := qryClientesCodigo.AsInteger;
+end;
+
+
+procedure TdtmImprimirDuplicatas.SetFiliais(const Value: string);
+begin
+  if (Value <> '') then
+    qryParcelas.MacroByName('Filial').AsString  := 'and (ct.filialvenda = ' + Value + ')'
+  else
+    qryParcelas.MacroByName('Filial').AsString  := '';
+end;
+
+procedure TdtmImprimirDuplicatas.SetClientes(const Value: string);
+begin
+  if (Value <> '') then
+    qryParcelas.MacroByName('Cliente').AsString := 'and (ct.cliente = ' + Value + ')'
+  else
+    qryParcelas.MacroByName('Cliente').AsString  := '';
+end;
+
+procedure TdtmImprimirDuplicatas.SetDataVenctoInicial(const Value: string);
+begin
+  FDataVenctoInicial := Value;
+  qryParcelas.ParamByName('venctoinicial').AsString := FDataVenctoInicial;
+
+  if (FDataVenctoInicial <> '') and (FDataVenctoFinal <> '')  then
+     qryParcelas.MacroByName('DataVencto').AsString := 'and p.datavencto between :venctoinicial and :venctofinal'
+  else
+     qryParcelas.MacroByName('DataVencto').AsString := '';
+end;
+
+procedure TdtmImprimirDuplicatas.SetDataVenctoFinal(const Value: string);
+begin
+  FDataVenctoFinal := Value;
+  qryParcelas.ParamByName('venctofinal').AsString := FDataVenctoFinal;
+
+  if (FDataVenctoInicial <> '') and (FDataVenctoFinal <> '')  then
+     qryParcelas.MacroByName('DataVencto').AsString := 'and p.datavencto between :venctoinicial and :venctofinal'
+  else
+     qryParcelas.MacroByName('DataVencto').AsString := '';
+
+end;
+
+procedure TdtmImprimirDuplicatas.SetDataVendaInicial(const Value: String);
+begin
+  FDataVendaInicial := Value;
+  if (FDataVendaInicial <> '') and (FDataVendaFinal <> '')  then
+     qryParcelas.MacroByName('DataVenda').AsString := format('and ct.faturamento between (%s) and (%s)',
+                                                       [quotedstr(FDataVendaInicial),
+                                                        quotedstr(FDataVendaFinal)])
+  else
+     qryParcelas.MacroByName('DataVenda').AsString := '';
+end;
+
+procedure TdtmImprimirDuplicatas.SetDataVendaFinal(const Value: String);
+begin
+  FDataVendaFinal := Value;
+  if (FDataVendaInicial <> '') and (FDataVendaInicial <> '') then
+    qryParcelas.MacroByName('DataVenda').AsString := format('and ct.faturamento between (%s) and (%s)',
+                                                       [quotedstr(FDataVendaInicial),
+                                                        quotedstr(FDataVendaFinal)])
+  else
+    qryParcelas.MacroByName('DataVenda').AsString := '';
+end;
+
+procedure TdtmImprimirDuplicatas.SetNotaInicial(const Value: String);
+const
+ SQL = 'and ct.numero in (select df.contrato '+
+                         ' from dadosfiscais df '+
+                         ' where df.situacao = ''N'' and '+
+                              ' df.numero in (select n.dadofiscal as notafiscal '+
+                                            ' from notas n '+
+                                            ' where n.numero between (:NotaInicial) and (:NotaFinal)) '+
+                         ' order by df.contrato)';
+begin
+  FNotaInicial := Value;
+  if (FNotaInicial <> '') and (FNotaFinal <> '') then begin
+     qryParcelas.MacroByName('NotaFiscal').AsString := SQL;
+     qryParcelas.ParamByName('notainicial').AsString := FNotaInicial;
+     qryParcelas.ParamByName('notafinal').AsString   := FNotaFinal;
+  end else
+      qryParcelas.MacroByName('NotaFiscal').AsString := '';
+end;
+
+procedure TdtmImprimirDuplicatas.SetNotaFinal(const Value: String);
+const
+   SQL = 'and ct.numero in (select df.contrato from dadosfiscais df ' +
+              'where df.situacao = ''N'' and '  +
+                  'df.numero in (select n.dadofiscal ' +
+                       'from notas n ' +
+                         ' where n.numero between (:notaInicial) and (:notaFinal)) '+
+                                  'order by df.contrato) ';
+begin
+   FNotaFinal := Value;
+   if (FNotaInicial <> '') and (FNotaFinal <> '') then begin
+      qryParcelas.MacroByName('NotaFiscal').AsString := SQL;
+      qryParcelas.ParamByName('notainicial').AsString := FNotaInicial;
+      qryParcelas.ParamByName('notafinal').AsString   := FNotaFinal;
+   end else
+      qryParcelas.MacroByName('NotaFiscal').AsString := '';
+end;
+
+
+
+Function TdtmImprimirDuplicatas.AbrirParcelas: Boolean;
+begin
+  qryParcelas.DisableControls;
+  ReFazConsulta(qryparcelas,[],[]);
+  Result := not qryParcelas.IsEmpty;
+  qryParcelas.EnableControls;
+end;
+
+procedure TdtmImprimirDuplicatas.DataModuleDestroy(Sender: TObject);
+begin
+  inherited;
+  qryContas.Close;
+end;
+
+procedure TdtmImprimirDuplicatas.MarcarRegistrosSelecionados(Marcando, Todos: Boolean);
+begin
+  MarcarRegistros(qryParcelas,
+                  qryParcelasSelecionar,
+                  qryParcelasValorVencto,
+                  Marcando,
+                  Todos);
+end;
+
+
+function TdtmImprimirDuplicatas.GetQtdeLidas: Integer;
+begin
+   Result:= qryParcelas.RecordCount;
+end;
+
+function TdtmImprimirDuplicatas.GetTotalLidas: Real;
+begin
+   Result:= TotalizarValores[qryParcelas, qryParcelasValorVencto, nil];
+end;
+
+procedure TdtmImprimirDuplicatas.MarcarSelecionados(Marcando, Todos: Boolean);
+var Pos: TBookmark;
+    I  : Integer;
+
+    procedure AtualizarValores;
+    begin
+       if qryParcelasSelecionar.AsBoolean then begin
+          FQtdeMarcados  := FQtdeMarcados  + 1;
+          FTotalMarcados := FTotalMarcados + qryParcelasValorVencto.AsCurrency;
+       end
+       else begin
+          FQtdeMarcados  := FQtdeMarcados  - 1;
+          FTotalMarcados := FTotalMarcados - qryParcelasValorVencto.AsCurrency;
+       end;
+    end;
+
+begin
+   with qryParcelas do
+      if not IsEmpty
+      then if not Todos then begin
+              Edit;
+              qryParcelasSelecionar.AsBoolean:= not qryParcelasSelecionar.AsBoolean;
+              Post;
+              AtualizarValores;
+           end
+           else begin
+              Pos:= GetBookmark;
+              try
+                 DisableControls;
+                 First;
+                 for I:= 1 to RecordCount do begin
+                     Edit;
+                     if Marcando then begin
+                        if not qryParcelasSelecionar.AsBoolean then begin
+                           qryParcelasSelecionar.AsBoolean := True;
+                           AtualizarValores;
+                        end
+                     end
+                     else begin
+                        if qryParcelasSelecionar.AsBoolean then begin
+                           qryParcelasSelecionar.AsBoolean:= False;
+                           AtualizarValores;
+                        end;
+                     end;
+                     Post;
+                     Next;
+                 end;
+              finally
+                 GotoBookmark(Pos);
+                 FreeBookmark(Pos);
+                 EnableControls;
+              end;
+           end;
+end;
+
+
+procedure TdtmImprimirDuplicatas.AtualizarParcelas;
+var
+  Flag : Boolean;
+begin
+  Flag := False;
+  qryparcelas.DisableControls;
+  qryParcelas.First;
+  while not qryParcelas.Eof do begin
+    if qryParcelasSelecionar.AsBoolean then begin
+      Flag := True;
+      qryAtualizarParcelas.ParamByName('contaboleto').AsInteger := qryContasConta.AsInteger;
+      qryAtualizarParcelas.ParamByName('contrato').AsString     := qryParcelasContrato.AsString;
+      qryAtualizarParcelas.ParamByName('numero').AsInteger      := qryParcelasNumero.AsInteger;
+      qryAtualizarParcelas.ExecSql;
+    end;
+    qryParcelas.Next;
+  end;
+  qryParcelas.EnableControls;
+
+  if not Flag then begin
+    MensagemAviso('Não foi selecionada nenhuma parcela.');
+    Exit;
+  end
+  else
+  begin
+   Perpetrar([]);
+   MensagemAviso('Parcelas gravadas com sucesso.');
+  end;
+  qryParcelas.Close;
+end;
+
+
+
+procedure TdtmImprimirDuplicatas.qryParcelasFilterRecord(DataSet: TDataSet;
+  var Accept: Boolean);
+begin
+  inherited;
+  accept := qryParcelasSelecionar.AsBoolean;
+end;
+
+procedure TdtmImprimirDuplicatas.ImprimirDuplicatas;
+var
+  dtmImprimeCarne: TdtmImprimeCarne;
+  Numerocontrato: String;
+  NumeroParcelas: vString;
+  a: integer;
+begin
+  dtmImprimeCarne := TdtmImprimeCarne.Create(Self);
+  qryParcelas.First;
+  Numerocontrato := '';
+  a := 0;
+
+  NomeImpressoraEscolhida:=  parsistema.NomeImpressoraCarne;
+  if dtmImprimeCarne.AbrirModeloCarne then
+  begin
+    dtmImprimeCarne.InicializarDocumento;
+    GuardarRegistroAtual(qryparcelas,true);
+    while not qryparcelas.Eof do
+    begin
+      if qryParcelasSelecionar.AsBoolean then
+      begin
+         Numerocontrato := qryParcelasContrato.AsString;
+         While Numerocontrato = qryParcelasContrato.AsString do
+         begin
+           if qryParcelasSelecionar.AsBoolean then
+           begin
+             SetLength(NumeroParcelas,length(NumeroParcelas)+1);
+             NumeroParcelas[a]:= inttostr(qryParcelasNumero.AsInteger);
+             inc(a);
+           end;
+           qryparcelas.Next;
+           if qryparcelas.Eof then
+             break;
+         end;
+
+         if dtmImprimeCarne.ImprimirCarnesContrato(NumeroContrato, NumeroParcelas, false) then
+         begin
+           Numerocontrato := '';
+           NumeroParcelas := nil;
+           a := 0;
+         end
+         else
+           break;
+
+           if qryparcelas.Eof then
+             break;
+
+      end
+      else
+        qryParcelas.Next;
+    end;
+  end;
+
+  if assigned(dtmImprimeCarne) then
+  begin
+    dtmImprimeCarne.FinalizarDocumento;
+    dtmImprimeCarne.Free;
+    VoltarRegistroAtual(qryparcelas);
+  end;
+
+end;
+
+
+end.

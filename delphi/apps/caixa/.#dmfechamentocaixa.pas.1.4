@@ -1,0 +1,1641 @@
+unit dmfechamentocaixa;
+
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms,
+  Dialogs, DB,
+  //Terceiros
+  ZQuery, ZPgSqlQuery, FR_Class, FR_DSet, FR_DBSet,
+  //Componentes
+  cpquery, cpdatasource, ctConstantes,
+  //Repositorio
+  dmbasico, ZTransact;
+
+type
+
+  TdtmFechamentoCaixa = class(TdtmBasico)
+    qryCaixas: TtecQuery;
+    qryCaixascodigo: TIntegerField;
+    qryCaixasnome: TStringField;
+    dsrCaixas: TtecDataSource;
+    qryConsultaCaixas: TtecQuery;
+    qryConsultaCaixasnome: TStringField;
+    qryConsultaCaixascodigo: TIntegerField;
+    qryAutenticacoes: TtecQuery;
+    qryAutenticacoesnumero: TIntegerField;
+    qryAutenticacoesdata: TDateField;
+    qryAutenticacoesfilial: TIntegerField;
+    qryAutenticacoescaixa: TIntegerField;
+    qryAutenticacoesautenticacao: TIntegerField;
+    qryAutenticacoesbanco: TIntegerField;
+    qryAutenticacoescheque: TStringField;
+    qryAutenticacoescontrato: TStringField;
+    qryAutenticacoesdatadocumento: TDateField;
+    qryAutenticacoesevento: TIntegerField;
+    qryAutenticacoeshistorico: TIntegerField;
+    qryAutenticacoeshora: TTimeField;
+    qryAutenticacoesmotivo: TIntegerField;
+    qryAutenticacoesnota: TIntegerField;
+    qryAutenticacoesparametros: TStringField;
+    qryAutenticacoescontratoparcela: TStringField;
+    qryAutenticacoesparcela: TIntegerField;
+    qryAutenticacoessaldo: TFloatField;
+    qryAutenticacoessituacao: TBooleanField;
+    qryAutenticacoestipo: TStringField;
+    qryAutenticacoestransferencia: TIntegerField;
+    qryAutenticacoesentradapendente: TBooleanField;
+    qryAutenticacoesconfirmacao: TBooleanField;
+    qryAutenticacoesvalor: TFloatField;
+    qryTotalizacoesCaixa: TtecQuery;
+    qryTotalizacoesCaixasaldoanterior: TFloatField;
+    qryTotalizacoesCaixajuros: TFloatField;
+    qryTotalizacoesCaixadescontos: TFloatField;
+    qryTotalizacoesCaixadevolucoes: TFloatField;
+    qryTotalizacoesCaixachequeavista: TFloatField;
+    qryTotalizacoesCaixachequepre: TFloatField;
+    qryTotalizacoesCaixadocentrada: TFloatField;
+    qryTotalizacoesCaixadocsaida: TFloatField;
+    qryTotalizacoesCaixadeposito: TFloatField;
+    qryTotalizacoesCaixatransentrada: TFloatField;
+    qryTotalizacoesCaixatranssaida: TFloatField;
+    qryTotalizacoesCaixacancelamento: TLargeintField;
+    qryTotalizacoesCaixaperdas: TFloatField;
+    qryTotalizacoesCaixaprestacoes: TFloatField;
+    qryTotalizacoesCaixaresgatecheque: TFloatField;
+    dsrTotalizacoesCaixa: TtecDataSource;
+    qryTotalizacoesCaixasaldoatual: TFloatField;
+    qryTotalizacoesCaixaduplicatasfornecedores: TFloatField;
+    qryTransferenciaNaoConfirmada: TtecQuery;
+    qryTransferenciaNaoConfirmadanumero: TIntegerField;
+    qryTransferenciaNaoConfirmadacaixa: TIntegerField;
+    qryTransferenciaNaoConfirmadanomecaixa: TStringField;
+    qryTransferenciaNaoConfirmadanometransferencia: TStringField;
+    qryTotalizacoesCaixaTotal_Entradas: TFloatField;
+    qryTotalizacoesCaixaTotal_Saidas: TFloatField;
+    qryAutenticacoesnomebanco: TStringField;
+    qryAutenticacoestipocliente: TStringField;
+    qryAutenticacoescliente: TIntegerField;
+    qryAutenticacoesdescricaomotivo: TStringField;
+    qryAutenticacoesvalorvenctoparcela: TFloatField;
+    qryAutenticacoesvenctocheque: TDateField;
+    qryAutenticacoesdescricaoevento: TStringField;
+    qryAutenticacoesnomecaixa: TStringField;
+    qryAutenticacoesfornecedor: TIntegerField;
+    qryAutenticacoestipofornecedor: TStringField;
+    qryAutenticacoesdocumentopag: TIntegerField;
+    qryAutenticacoesnumeroduplicata: TIntegerField;
+    qryAutenticacoesvenctoduplicata: TDateField;
+    qryResumoVendas: TtecQuery;
+    qryResumoVendasfilialvenda: TIntegerField;
+    qryResumoVendasvalorvenctoparcela: TFloatField;
+    qryResumoVendasjuros: TFloatField;
+    qryResumoVendasdescontos: TFloatField;
+    qryResumoVendasnomefilialvenda: TStringField;
+    qryRenegociado: TtecQuery;
+    qryOrigem: TtecQuery;
+    qryRenegociadonumero: TIntegerField;
+    qryRenegociadovalor: TFloatField;
+    qryRenegociadovalorvencto: TFloatField;
+    qryRenegociadoprimogenito: TStringField;
+    qryRenegociadoparcela: TIntegerField;
+    qryOrigemvalorpagto: TFloatField;
+    qryOrigemvalorvencto: TFloatField;
+    qryCaixasdataaberturacaixa: TDateField;
+    qryCaixasdatafechamentocaixa: TDateField;
+    qryTotalizacoesCaixacartao: TFloatField;
+    qryCaixascaixaaberto: TBooleanField;
+    qryTotalizacoesCaixaSaldo_Atual: TCurrencyField;
+    qryTotalizacoesCaixafrentecaixa: TFloatField;
+    frDBDataSet1: TfrDBDataSet;
+    report1: TfrReport;
+    cdsRelatorio: TtecQuery;
+    cdsRelatoriotexto: TStringField;
+    qryTotalizacoesCaixadevolucoessaldo: TFloatField;
+    qryAutenticacoesclientedev: TIntegerField;
+    qryAutenticacoestipoclientedev: TStringField;
+    qryAutenticacoesnomeclientedev: TStringField;
+    qryTotalizacoesCaixafcdinheiro: TFloatField;
+    qryTotalizacoesCaixafccheque: TFloatField;
+    qryTotalizacoesCaixafcmd: TFloatField;
+    qryTotalizacoesCaixafcmc: TFloatField;
+    qryTotalizacoesCaixafcvd: TFloatField;
+    qryTotalizacoesCaixafcvc: TFloatField;
+    qryEventos: TtecQuery;
+    dsrEventos: TtecDataSource;
+    qryEventosevento: TIntegerField;
+    qryEventosdescricao: TStringField;
+    qryEventosparametros: TStringField;
+    qryEventosvalor: TFloatField;
+    qryEventosalterado: TBooleanField;
+    qryUpdateAutenticacoesEventos: TtecQuery;
+    qryEventosnumero: TIntegerField;
+    qryEventostipomovimentacao: TStringField;
+    qryTotalizacoesCaixafcad: TFloatField;
+    qryTotalizacoesCaixafcac: TFloatField;
+    qryTotalizacoesCaixafchd: TFloatField;
+    qryTotalizacoesCaixafchc: TFloatField;
+    procedure qryTotalizacoesCaixaCalcFields(DataSet: TDataSet);
+    procedure qryRenegociadoAfterScroll(DataSet: TDataSet);
+    procedure qryEventosBeforePost(DataSet: TDataSet);
+    procedure qryEventosAfterOpen(DataSet: TDataSet);
+    procedure qryEventosAfterInsert(DataSet: TDataSet);
+  private
+    FVisualizar : Boolean;
+    FEventosAfterPost: TNotifyEvent;
+    FEventosAfterOpen: TNotifyEvent;
+  Protected
+    function GetAssinatura1: String;
+    function GetAssinatura2: String;
+    function GetAssinatura3: String;
+    function GetNumeroCopias: String;
+    function GetSaldoAtual: Real;
+    function GetTabelaConsultarCaixa: TtecQuery;
+    procedure limparDataSet;
+    procedure preencheDataSet;
+    procedure VisualizarRelatorio;
+  public
+    constructor Create(AOwner: TComponent); override;
+    Function  ExisteCaixa(Campo, Codigo: string): Boolean;
+    function  Fecharcaixa(DataFechamento: TDateTime; Impressora: String): Boolean;
+    function  ImprimirFechamento(DataFechamento: String; Impressora: String): Boolean; overload;
+    function  ImprimirFechamento(DataFechamento: String;
+                                 Cancelamentos, ChequePrazo,
+                                 ChequeaVista, Depositos,
+                                 Devolucoes,DevolucoesSaldo,
+                                 Documentos, Duplicatas, Perdas,
+                                 Recebimentos, ResgateDeCheques,
+                                 Resumo, Transferencias,
+                                 ImprimirDetalhes: Boolean;
+                                 Impressora: String): Boolean; overload;
+    Procedure MontarFechamentoCaixa(Caixa, DataFec: String);
+    procedure Selecionar;
+    procedure SelecionarcaixaAtual;
+    function  TransferenciaNaoConfirmada: Boolean;
+    property  NumeroCopias: String read GetNumeroCopias;
+    property  Assinatura1: String read GetAssinatura1;
+    property  Assinatura2: String read GetAssinatura2;
+    property  Assinatura3: String read GetAssinatura3;
+    property  SaldoAtual: Real read GetSaldoAtual;
+    property  TabelaConsultarCaixa: TtecQuery read GetTabelaConsultarCaixa;
+    property  Visualizar : Boolean read FVisualizar write FVisualizar;
+    property EventosAfterPost: TNotifyEvent read FEventosAfterPost write FEventosAfterPost;
+    property EventosAfterOpen: TNotifyEvent read FEventosAfterOpen write FEventosAfterOpen;
+    function SalvarEventos: Boolean;
+
+
+ end;
+
+var
+  dtmFechamentoCaixa: TdtmFechamentoCaixa;
+
+implementation
+
+Uses
+  //CLX
+  {Printers, Graphics,}
+  //Biblio
+  clusuario, clparametrossistema, cltextprinter, ctepson, biblio,
+  //Repositorio
+  dmtecsoft;
+
+const
+WhereBase = 51;
+WhereParametroTipo = WhereBase+1;
+WhereOutrosFiltros = WhereBase+2;
+
+
+{$R *.dfm}
+
+{ tipos de autenticacoes
+    P - Prestações
+    D - Documento
+    N - Devoluções
+    A - Devolucoes de saldo de troca
+    B - Deposito
+    C - Cancelamento
+    H - Cheques
+    S - Transferência de saida
+    E - Transferência de entrada
+    J - Perdas
+    R - Resgate de cheque
+    G - Duplicatas
+    T - Cartao de Credito/Debito
+    F - Frente de Caixa
+}
+Constructor TdtmFechamentoCaixa.create(AOwner: TComponent);
+Begin
+  inherited;
+  qryCaixas.Tag:=  ctTabelas;
+  qryConsultaCaixas.Tag:= ctCaixaConsultaCaixas;
+  qryTotalizacoesCaixa.Tag := ctcaixaFechamento;
+  qryEventos.Tag := ctcaixaFechamento;
+  cdsRelatorio.open;
+End;
+
+function TdtmFechamentoCaixa.ExisteCaixa(Campo, Codigo: string): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaCaixas, Campo, Codigo);
+end;
+
+function TdtmFechamentoCaixa.Fecharcaixa(DataFechamento: TDateTime; Impressora: String): Boolean;
+begin
+  Result := ImprimirFechamento(DateToStr(DataFechamento), Impressora);
+  if Result then
+    Result := UsuarioLogin.FecharCaixa(DataFechamento);
+
+  if result then
+    if UsuarioLogin.GerenteCaixa then
+      result := SalvarEventos;
+end;
+
+function TdtmFechamentoCaixa.GetAssinatura1: String;
+begin
+  Result := ParSistema.Assinatura1
+end;
+
+function TdtmFechamentoCaixa.GetAssinatura2: String;
+begin
+  Result := ParSistema.Assinatura2
+end;
+
+function TdtmFechamentoCaixa.GetAssinatura3: String;
+begin
+  Result := ParSistema.Assinatura3
+end;
+
+function TdtmFechamentoCaixa.GetNumeroCopias: String;
+begin
+  Result := IntToStr(ParSistema.NumeroCopias)
+end;
+
+function TdtmFechamentoCaixa.GetSaldoAtual: Real;
+begin
+  Result := qryTotalizacoesCaixasaldoanterior.AsFloat
+            + qryTotalizacoesCaixaprestacoes.AsFloat
+            + qryTotalizacoesCaixadocentrada.AsFloat
+            + qryTotalizacoesCaixatransentrada.AsFloat
+            + qryTotalizacoesCaixaresgatecheque.AsFloat
+            + qryTotalizacoesCaixafrentecaixa.AsFloat
+            - qryTotalizacoesCaixadevolucoes.AsFloat
+            - qryTotalizacoesCaixadevolucoessaldo.AsFloat
+            - qryTotalizacoesCaixadeposito.AsFloat
+            - qryTotalizacoesCaixadocsaida.AsFloat
+            - qryTotalizacoesCaixatranssaida.AsFloat;
+end;
+
+function TdtmFechamentoCaixa.GetTabelaConsultarCaixa: TtecQuery;
+begin
+  Result:= qryConsultaCaixas;
+end;
+
+function TdtmFechamentoCaixa.ImprimirFechamento(DataFechamento: String; Impressora: String): Boolean;
+begin
+  Result := ImprimirFechamento(DataFechamento, ParSistema.Cancelamentos,
+                                               ParSistema.ChequePrazo,
+                                               ParSistema.ChequeVista,
+                                               ParSistema.Depositos,
+                                               ParSistema.Devolucoes,
+                                               ParSistema.DevolucoesSaldo,
+                                               ParSistema.Documentos,
+                                               ParSistema.Duplicatas,
+                                               ParSistema.Perdas,
+                                               ParSistema.Recebimentos,
+                                               ParSistema.ResgateDeCheques,
+                                               ParSistema.Resumo,
+                                               ParSistema.Transferencias, True, Impressora)
+end;
+
+function  TdtmFechamentoCaixa.ImprimirFechamento(DataFechamento: String;
+                                 Cancelamentos, ChequePrazo,
+                                 ChequeaVista, Depositos,
+                                 Devolucoes, DevolucoesSaldo,
+                                 Documentos, Duplicatas,
+                                 Perdas, Recebimentos,
+                                 ResgateDeCheques, Resumo,
+                                 Transferencias,
+                                 ImprimirDetalhes: Boolean;
+                                 Impressora: String): Boolean;
+const
+  WhereNotCancelado = 'and (Not Exists (SELECT a1.autenticacao FROM autenticacoes a1 WHERE a1.autenticacao=a.numero))';
+
+var
+  Linha: String;
+  a, b, Comp, MaxCol: Integer;
+  vvalor, vvencto, vjuros, vdescontos: double;
+
+  procedure Alinhar(Tipo: TAlignment; PosAtual: Integer = 0);
+  begin
+    case Tipo of
+      taCenter: Insert(stringOfChar(' ', (MaxCol - Length(linha)) div 2), Linha, 1);
+      taRightJustify: Insert(stringOfChar(' ', MaxCol - Length(linha) - PosAtual), Linha, 1);
+    end
+  end;
+
+  procedure ImprimirLinhaRecebimentos;
+  begin
+    if MaxCol = 54 then
+      Linha :=format('%6s', [qryAutenticacoesnumero.AsString]) + ' ' +
+            format('%-11s',[qryAutenticacoestipocliente.AsString+qryAutenticacoescliente.AsString])+ ' ' +
+            format('%3s', [qryAutenticacoesparcela.AsString])+' '+
+            format('%12s',[trim(Trocar(Trocar(Format('%9.2m',[qryAutenticacoesValorVenctoParcela.AsFloat]),'R',''),'$',''))])+
+            format('%10s',[trim(Trocar(Trocar(Format('%7.2m',[(qryAutenticacoesValor.AsFloat-
+                                                          qryAutenticacoesValorVenctoParcela.AsFloat)]),'R',''),'$',''))])
+    else
+      Linha :=format('%6s', [qryAutenticacoesnumero.AsString]) + ' ' +
+              format('%-11s',[qryAutenticacoestipocliente.AsString+qryAutenticacoescliente.AsString])+ ' ' +
+              format('%3s', [qryAutenticacoescaixa.AsString])+ ' ' +
+              format('%3s', [qryAutenticacoesparcela.AsString])+' '+
+              format('%12s',[trim(Trocar(Trocar(Format('%9.2m',[qryAutenticacoesValorVenctoParcela.AsFloat]),'R',''),'$',''))])+
+              format('%10s',[trim(Trocar(Trocar(Format('%7.2m',[(qryAutenticacoesValor.AsFloat-
+                                                            qryAutenticacoesValorVenctoParcela.AsFloat)]),'R',''),'$',''))]);
+    TextPrinter.writeText(Linha,0);
+    Comp := length(Linha);
+    Linha :=trim(Trocar(Trocar(Format('%9.2m',[qryAutenticacoesValor.AsFloat]),'R',''),'$',''));
+    Alinhar(taRightJustify,Comp);
+    TextPrinter.WriteTextln(Linha, 0);
+  end;
+
+  procedure ImprimirLinhaDocumentos;
+  begin
+    Linha :=format('%6s', [qryAutenticacoesnumero.AsString]) + ' ' +
+            format('%3s', [qryAutenticacoesevento.AsString])+ ' ' +
+            format('%-32s', [qryAutenticacoesdescricaoevento.AsString]);
+    TextPrinter.writeText(Linha,0);
+    Comp := length(Linha);
+    if MaxCol = 54 then
+      Linha :=trim(Trocar(Trocar(Format('%11.2m',[qryAutenticacoesValor.AsFloat]),'R',''),'$',''))
+    else
+      Linha :=trim(Trocar(Trocar(Format('%14.2m',[qryAutenticacoesValor.AsFloat]),'R',''),'$',''));
+    Alinhar(taRightJustify, comp);
+    TextPrinter.WriteTextln(Linha, 0);
+  end;
+
+  procedure ImprimirLinhaDevolucoes;
+  begin
+    if MaxCol = 54 then
+      Linha :=format('%6s', [qryAutenticacoesnumero.AsString]) + ' ' +
+            format('%-11s',[qryAutenticacoestipocliente.AsString+qryAutenticacoescliente.AsString])+ ' ' +
+            format('%2s', [qryAutenticacoesmotivo.AsString])+ ' ' +
+            format('%-19s',[qryAutenticacoesdescricaomotivo.AsString])
+    else
+      Linha :=format('%6s', [qryAutenticacoesnumero.AsString]) + ' ' +
+              format('%-11s',[qryAutenticacoestipocliente.AsString+qryAutenticacoescliente.AsString])+ ' ' +
+              format('%3s', [qryAutenticacoescaixa.AsString])+ ' ' +
+              format('%2s', [qryAutenticacoesmotivo.AsString])+ ' ' +
+              format('%-19s',[qryAutenticacoesdescricaomotivo.AsString]);
+    TextPrinter.writeText(Linha,0);
+    Comp := length(Linha);
+    Linha :=trim(Trocar(Trocar(Format('%9.2m',[qryAutenticacoesValor.AsFloat]),'R',''),'$',''));
+    Alinhar(taRightJustify, comp);
+    TextPrinter.WriteTextln(Linha, 0);
+  end;
+
+  procedure ImprimirLinhaDevolucoesSaldo;
+  begin
+    if MaxCol = 54 then
+      Linha :=format('%6s', [qryAutenticacoesnumero.AsString]) + ' ' +
+              format('%-8s',[qryAutenticacoestipoclientedev.AsString+qryAutenticacoesclientedev.AsString]) +
+              Format('%-24s',[qryAutenticacoesnomeclientedev.AsString])
+    else
+      Linha :=format('%6s', [qryAutenticacoesnumero.AsString]) + ' ' +
+              format('%-11s',[qryAutenticacoestipoclientedev.AsString+qryAutenticacoesclientedev.AsString]) +
+              Format('%21s',[qryAutenticacoesnomeclientedev.AsString]) + ' ' +
+              format('%3s', [qryAutenticacoescaixa.AsString]);
+    TextPrinter.writeText(Linha,0);
+    Comp := length(Linha);
+    Linha :=trim(Trocar(Trocar(Format('%9.2m',[qryAutenticacoesValor.AsFloat]),'R',''),'$',''));
+    Alinhar(taRightJustify, comp);
+    TextPrinter.WriteTextln(Linha, 0);
+  end;
+
+  procedure ImprimirLinhaCheques;
+  begin
+    Linha :=format('%6s', [qryAutenticacoesnumero.AsString]) + ' ' +
+            format('%-11s',[qryAutenticacoestipocliente.AsString+qryAutenticacoescliente.AsString])+ ' ' +
+            copy(qryAutenticacoescheque.AsString,12,6)+ ' ' +
+            copy(qryAutenticacoescheque.AsString,4,4)+ ' ' +
+            copy(qryAutenticacoescheque.AsString,1,3)+ ' ' +
+            qryAutenticacoesvenctocheque.AsString;
+    TextPrinter.writeText(Linha,0);
+    Comp := length(Linha);
+    Linha :=trim(Trocar(Trocar(Format('%12.2m',[qryAutenticacoesValor.AsFloat]),'R',''),'$',''));
+    Alinhar(taRightJustify, comp);
+    TextPrinter.WriteTextln(Linha, 0);
+  end;
+
+  procedure ImprimirLinhaDepositos;
+  begin
+     Linha := format('%6s', [qryAutenticacoesnumero.AsString]) + ' ' +
+              qryAutenticacoesnomebanco.AsString;
+     TextPrinter.WriteText(Linha,0);
+     Comp := length(Linha);
+     Linha := trim(Trocar(Trocar(Format('%9.2m',[qryAutenticacoesValor.AsFloat]),'R',''),'$',''));
+     Alinhar(taRightJustify, comp);
+     TextPrinter.WriteTextln(Linha, 0);
+  end;
+
+  procedure ImprimirLinhaPerdas;
+  begin
+    if MaxCol = 54 then
+      Linha := format('%6s', [qryAutenticacoesnumero.AsString]) + ' ' +
+               format('%-11s',[qryAutenticacoestipocliente.AsString+qryAutenticacoescliente.AsString])+ ' ' +
+               format('%2s', [qryAutenticacoesmotivo.AsString])+ ' ' +
+               format('%-19s',[qryAutenticacoesdescricaomotivo.AsString]) + ' '
+    else
+      Linha := format('%6s', [qryAutenticacoesnumero.AsString]) + ' ' +
+               format('%-11s',[qryAutenticacoestipocliente.AsString+qryAutenticacoescliente.AsString])+ ' ' +
+               format('%3s', [qryAutenticacoescaixa.AsString])+ ' ' +
+               format('%2s', [qryAutenticacoesmotivo.AsString])+ ' ' +
+               format('%-19s',[qryAutenticacoesdescricaomotivo.AsString]);
+    TextPrinter.WriteText(Linha,0);
+    Comp := length(Linha);
+    Linha := trim(Trocar(Trocar(Format('%9.2m',[qryAutenticacoesValor.AsFloat]),'R',''),'$',''));
+    Alinhar(taRightJustify, comp);
+    TextPrinter.WriteTextln(Linha, 0);
+  end;
+
+  procedure ImprimirLinhaTransferencia;
+  var
+    caixa : String;
+    valor : double;
+  begin
+    if qryAutenticacoestipo.asstring = 'S' then begin
+      caixa := qryAutenticacoestransferencia.AsString;
+      valor := -qryAutenticacoesValor.AsFloat;
+    end else begin
+      caixa := qryAutenticacoescaixa.AsString;
+      valor := qryAutenticacoesValor.AsFloat;
+    end;
+    Linha :=format('%6s', [qryAutenticacoesnumero.AsString]) + ' ' +
+            format('%3s', [caixa])+ ' ' +
+            format('%-31s', [qryAutenticacoesnomecaixa.AsString]) + ' ';
+    TextPrinter.writeText(Linha,0);
+    Comp := length(Linha);
+    if MaxCol = 54 then
+      Linha :=trim(Trocar(Trocar(Format('%11.2m',[valor]),'R',''),'$',''))
+    else
+      Linha :=trim(Trocar(Trocar(Format('%14.2m',[valor]),'R',''),'$',''));
+    Alinhar(taRightJustify, comp);
+    TextPrinter.WriteTextln(Linha, 0);
+  end;
+
+  procedure ImprimirLinhaResumoVendas;
+  begin
+    if MaxCol = 54 then
+      Linha :=format('%2s', [qryResumoVendasfilialvenda.AsString]) + ' ' +
+            format('%-20s', [qryResumoVendasnomefilialvenda.AsString]) +
+            format('%11s',[trim(Trocar(Trocar(Format('%9.2m',[qryResumoVendasValorVenctoParcela.AsFloat]),'R',''),'$',''))])+
+            format('%10s',[trim(Trocar(Trocar(Format('%7.2m',[qryResumoVendasJuros.AsFloat]),'R',''),'$',''))]) + ' '
+    else
+      Linha :=format('%3s', [qryResumoVendasfilialvenda.AsString]) + ' ' +
+              format('%-23s', [qryResumoVendasnomefilialvenda.AsString]) +
+              format('%12s',[trim(Trocar(Trocar(Format('%9.2m',[qryResumoVendasValorVenctoParcela.AsFloat]),'R',''),'$',''))])+
+              format('%10s',[trim(Trocar(Trocar(Format('%7.2m',[qryResumoVendasJuros.AsFloat]),'R',''),'$',''))]) + ' ';
+
+    TextPrinter.writeText(Linha,0);
+    Comp := length(Linha);
+    Linha :=trim(Trocar(Trocar(Format('%9.2m',[qryResumoVendasDescontos.AsFloat]),'R',''),'$',''));
+    Alinhar(taRightJustify,Comp);
+    TextPrinter.WriteTextln(Linha, 0);
+  end;
+
+  procedure ImprimirLinhaResumoRenegociados;
+  begin
+    Linha :=format('%7s', [qryRenegociadonumero.AsString]) +
+            format('%11s',[trim(Trocar(Trocar(Format('%9.2m',[qryRenegociadovalorvencto.AsFloat]),'R',''),'$',''))])+
+            format('%12s',[trim(Trocar(Trocar(Format('%10.2m',[qryRenegociadovalor.AsFloat]),'R',''),'$',''))]);
+    Comp := length(Linha);
+    qryorigem.first;
+    while not qryOrigem.Eof do begin
+      if MaxCol = 54 then begin
+        if qryorigem.Bof then
+          Linha := Linha + format('%12s',[trim(Trocar(Trocar(Format('%11.2m',[qryOrigemvalorvencto.AsFloat]),'R',''),'$',''))])
+        else
+          Linha := StringOfChar(' ', comp)+ format('%11s',[trim(Trocar(Trocar(Format('%11.2m',[qryOrigemvalorvencto.AsFloat]),'R',''),'$',''))]);
+        TextPrinter.writeText(Linha,0);
+        a := length(Linha);
+        Linha :=trim(Trocar(Trocar(Format('%12.2m',[qryOrigemvalorpagto.AsFloat]),'R',''),'$',''));
+      end
+      else begin
+        if qryorigem.Bof then
+          Linha := Linha + format('%14s',[trim(Trocar(Trocar(Format('%11.2m',[qryOrigemvalorvencto.AsFloat]),'R',''),'$',''))])
+        else
+          Linha := StringOfChar(' ', comp)+ format('%14s',[trim(Trocar(Trocar(Format('%11.2m',[qryOrigemvalorvencto.AsFloat]),'R',''),'$',''))]);
+        TextPrinter.writeText(Linha,0);
+        a := length(Linha);
+        Linha :=trim(Trocar(Trocar(Format('%14.2m',[qryOrigemvalorpagto.AsFloat]),'R',''),'$',''));
+      end;
+      Alinhar(taRightJustify,a);
+      TextPrinter.WriteTextln(Linha, 0);
+      qryOrigem.Next;
+    end;
+  end;
+
+  procedure ImprimirLinhaDuplicatas;
+  begin
+    Linha :=format('%6s', [qryAutenticacoesnumero.AsString]) + ' ' +
+            format('%-11s',[qryAutenticacoestipofornecedor.AsString+qryAutenticacoesfornecedor.AsString])+ ' ' +
+            format('%3s', [qryAutenticacoescaixa.AsString])+ ' ' +
+            format('%-11s', [qryAutenticacoesDocumentoPag.AsString+' ' +
+                             qryAutenticacoesnumeroduplicata.AsString])+' ' +
+            qryAutenticacoesvenctoduplicata.AsString;
+    TextPrinter.writeText(Linha,0);
+    Comp := length(Linha);
+    if MaxCol = 54 then
+      Linha :=trim(Trocar(Trocar(Format('%11.2m',[qryAutenticacoesValor.AsFloat]),'R',''),'$',''))
+    else
+      Linha :=trim(Trocar(Trocar(Format('%14.2m',[qryAutenticacoesValor.AsFloat]),'R',''),'$',''));
+    Alinhar(taRightJustify,Comp);
+    TextPrinter.WriteTextln(Linha, 0);
+  end;
+
+  procedure ImprimirCancelamento;
+  const
+    WhereCancelamento =  'and ((a.numero in (SELECT a1.autenticacao '+
+                                       'FROM autenticacoes a1 '+
+                                       'WHERE a1.autenticacao=a.numero)) '+
+                          'OR (a.tipo = %s))';
+  begin
+     qryAutenticacoes.MacroByName('WhereBase').AsString := '';
+     qryAutenticacoes.MacroByName('WhereTipo').AsString := 'and (a.tipo  = ''C'')';
+     qryAutenticacoes.MacroByName('OUTROSFILTROS').AsString := format(WhereCancelamento,['''C''']);
+     qryAutenticacoes.open;
+     if not qryAutenticacoes.IsEmpty then begin
+       qryAutenticacoes.First;
+       vvalor := 0;
+       Comp := maxcol div 2 - length('CANCELAMENTOS') div 2;
+       Linha := StringOfChar('-', comp) + 'CANCELAMENTOS' + StringOfChar('-', comp-1);
+       TextPrinter.WriteTextln(Linha,0);
+       if MaxCol = 54 then
+         Linha := 'LANCTO LANCTO CANCELADO   MOTIVO                 VALOR'
+       else
+         Linha := 'LANCTO LANCTO CANCELADO     MOTIVO                   VALOR';
+       TextPrinter.WriteTextln(Linha,0);
+       TextPrinter.WriteTextln(StringOfChar('-', MaxCol),0);
+       while not qryAutenticacoes.Eof do begin
+         if qryAutenticacoestipo.asstring = 'P' then
+           ImprimirLinhaRecebimentos
+         else if qryAutenticacoestipo.asstring = 'D' then
+           ImprimirLinhaDocumentos
+         else if qryAutenticacoestipo.asstring = 'N' then
+           ImprimirLinhaDevolucoes
+         else if qryAutenticacoestipo.AsString = 'A' then
+           ImprimirLinhaDevolucoesSaldo
+         else if qryAutenticacoestipo.asstring = 'B' then
+           ImprimirLinhaDepositos
+         else if qryAutenticacoestipo.asstring = 'H' then
+           ImprimirLinhaCheques
+         else if qryAutenticacoestipo.asstring = 'S' then
+           ImprimirLinhaTransferencia
+         else if qryAutenticacoestipo.asstring = 'E' then
+           ImprimirLinhaTransferencia
+         else if qryAutenticacoestipo.asstring = 'J' then
+           ImprimirLinhaPerdas
+         else if qryAutenticacoestipo.asstring = 'R' then
+           ImprimirLinhaCheques
+         else if qryAutenticacoestipo.asstring = 'G' then
+           ImprimirLinhaDuplicatas
+         else if qryAutenticacoestipo.asstring = 'C' then begin
+           if MaxCol = 54 then
+             Linha := format('%6s', [qryAutenticacoesnumero.AsString]) + ' ' +
+                   'CANCEL. ' +
+                   format('%-5s', [qryAutenticacoesautenticacao.AsString]) + ' ' +
+                   format('%2s', [qryAutenticacoesmotivo.AsString]) + ' ' +
+                   format('%-20s', [qryAutenticacoesdescricaomotivo.AsString])
+           else
+             Linha := format('%6s', [qryAutenticacoesnumero.AsString]) + ' ' +
+                     'CANCELAMENTO ' +
+                     format('%-5s', [qryAutenticacoesautenticacao.AsString]) + ' ' +
+                     format('%2s', [qryAutenticacoesmotivo.AsString]) + ' ' +
+                     format('%-20s', [qryAutenticacoesdescricaomotivo.AsString]);
+           TextPrinter.WriteText(Linha,0);
+           Comp := length(Linha);
+           Linha := trim(Trocar(Trocar(Format('%9.2m',[qryAutenticacoesValor.AsFloat]),'R',''),'$',''));
+           vvalor := vvalor + qryAutenticacoesValor.AsFloat;
+           Alinhar(taRightJustify, comp);
+           TextPrinter.WriteTextln(Linha, 0);
+         end;
+         qryAutenticacoes.Next;
+       end;
+       TextPrinter.writeln;
+     end;
+     qryAutenticacoes.Close;
+     qryAutenticacoes.MacroByName('WhereBase').AsString := WhereNotCancelado;
+     qryAutenticacoes.MacroByName('WhereTipo').AsString := 'and (a.tipo  = ''C'')';
+     qryAutenticacoes.MacroByName('OUTROSFILTROS').AsString := '';
+  end;
+
+  procedure ImprimirChequeAPrazo;
+  const
+    WhereChequeAPrazo =  'and (c.vencto > c.data)';
+  begin
+    qryAutenticacoes.MacroByName('OUTROSFILTROS').AsString := WhereChequeAPrazo;
+    qryAutenticacoes.MacroByName('WHERETIPO').AsString := 'and (a.tipo  = ''H'')';
+    qryAutenticacoes.open;
+    if not qryAutenticacoes.IsEmpty then begin
+      qryAutenticacoes.First;
+      vvalor := 0;
+      Comp := maxcol div 2 - length('CHEQUES A PRAZO') div 2;
+      Linha := StringOfChar('-', comp) + 'CHEQUES A PRAZO' + StringOfChar('-', comp-1);
+      TextPrinter.WriteTextln(Linha,0);
+      if MaxCol = 54 then
+        Linha := 'LANCTO CLIENTE     CHEQUE  AG. BCO   VENCTO      VALOR'
+      else
+        Linha := 'LANCTO CLIENTE     CHEQUE  AG. BCO   VENCTO          VALOR';
+      TextPrinter.WriteTextln(Linha,0);
+      TextPrinter.WriteTextln(StringOfChar('-', MaxCol),0);
+      while not qryAutenticacoes.Eof do begin
+        ImprimirLinhaCheques;
+        vvalor := vvalor + qryAutenticacoesValor.AsFloat;
+        qryAutenticacoes.Next;
+      end;
+      Linha := 'TOTAL ' + format('%14s',[trim(Trocar(Trocar(Format('%11.2m',[vvalor]),'R',''),'$',''))]);
+      Alinhar(taRightJustify);
+      TextPrinter.WriteTextln(Linha, 0);
+      TextPrinter.writeln;
+    end;
+    qryAutenticacoes.Close;
+    qryAutenticacoes.MacroByName('OUTROSFILTROS').AsString := '';
+  end;
+
+  procedure ImprimirChequeAVista;
+  const
+    WhereChequeAVista =  'and (c.vencto <= c.data)';
+  begin
+    qryAutenticacoes.MacroByName('OUTROSFILTROS').AsString := WhereChequeAVista;
+    qryAutenticacoes.MacroByName('WHERETIPO').AsString := 'and (a.tipo  = ''H'')';
+    qryAutenticacoes.open;
+    if not qryAutenticacoes.IsEmpty then begin
+      vvalor := 0;
+      qryAutenticacoes.First;
+      Comp := maxcol div 2 - length('CHEQUES A VISTA') div 2;
+      Linha := StringOfChar('-', comp) + 'CHEQUES A VISTA' + StringOfChar('-', comp-1);
+      TextPrinter.WriteTextln(Linha,0);
+      if MaxCol = 54 then
+        Linha := 'LANCTO CLIENTE     CHEQUE  AG. BCO   VENCTO      VALOR'
+      else
+        Linha := 'LANCTO CLIENTE     CHEQUE  AG. BCO   VENCTO          VALOR';
+      TextPrinter.WriteTextln(Linha,0);
+      TextPrinter.WriteTextln(StringOfChar('-', MaxCol),0);
+      while not qryAutenticacoes.Eof do begin
+        ImprimirLinhaCheques;
+        vvalor := vvalor + qryAutenticacoesValor.AsFloat;
+        qryAutenticacoes.Next;
+      end;
+      Linha := 'TOTAL ' + format('%14s',[trim(Trocar(Trocar(Format('%11.2m',[vvalor]),'R',''),'$',''))]);
+      Alinhar(taRightJustify);
+      TextPrinter.WriteTextln(Linha, 0);
+      TextPrinter.writeln;
+    end;
+    qryAutenticacoes.Close;
+    qryAutenticacoes.MacroByName('OUTROSFILTROS').AsString := '';
+  end;
+
+  procedure ImprimirDepositos;
+  begin
+    qryAutenticacoes.MacroByName('WHERETIPO').AsString := 'and (a.tipo  = ''B'')';
+    qryAutenticacoes.open;
+    if not qryAutenticacoes.IsEmpty then begin
+      vvalor := 0;
+      qryAutenticacoes.First;
+      Comp := maxcol div 2 - length('DEPOSITOS') div 2;
+      Linha := StringOfChar('-', comp) + 'DEPOSITOS' + StringOfChar('-', comp-1);
+      TextPrinter.WriteTextln(Linha,0);
+      if MaxCol = 54 then
+        Linha := 'LANCTO BANCO                                     VALOR'
+      else
+        Linha := 'LANCTO BANCO                                         VALOR';
+      TextPrinter.WriteTextln(Linha,0);
+      TextPrinter.WriteTextln(StringOfChar('-', MaxCol),0);
+      while not qryAutenticacoes.Eof do begin
+        ImprimirLinhaDepositos;
+        vvalor := vvalor + qryAutenticacoesValor.AsFloat;
+        qryAutenticacoes.Next;
+      end;
+      Linha := 'TOTAL ' + format('%14s',[trim(Trocar(Trocar(Format('%11.2m',[vvalor]),'R',''),'$',''))]);
+      Alinhar(taRightJustify);
+      TextPrinter.WriteTextln(Linha, 0);
+      TextPrinter.writeln;
+    end;
+    qryAutenticacoes.Close;
+  end;
+
+  procedure ImprimirDevolucoes;
+  begin
+    qryAutenticacoes.MacroByName('WHERETIPO').AsString := 'and (a.tipo  = ''N'')';
+    qryAutenticacoes.open;
+    if not qryAutenticacoes.IsEmpty then begin
+      vvalor := 0;
+      qryAutenticacoes.First;
+      Comp := maxcol div 2 - length('DEVOLUCOES DE NUMERARIO') div 2;
+      Linha := StringOfChar('-', comp) + 'DEVOLUCOES DE NUMERARIO' + StringOfChar('-', comp);
+      TextPrinter.WriteTextln(Linha,0);
+      if MaxCol = 54 then
+        Linha := 'LANCTO CLIENTE         MOTIVO                    VALOR'
+      else
+        Linha := 'LANCTO CLIENTE      NC MOTIVO                        VALOR';
+      TextPrinter.WriteTextln(Linha,0);
+      TextPrinter.WriteTextln(StringOfChar('-', MaxCol),0);
+      while not qryAutenticacoes.Eof do begin
+        ImprimirLinhaDevolucoes;
+        vvalor := vvalor + qryAutenticacoesValor.AsFloat;
+        qryAutenticacoes.Next;
+       end;
+       Linha := 'TOTAL ' + format('%14s',[trim(Trocar(Trocar(Format('%11.2m',[vvalor]),'R',''),'$',''))]);
+       Alinhar(taRightJustify);
+       TextPrinter.WriteTextln(Linha, 0);
+       TextPrinter.writeln;
+     end;
+     qryAutenticacoes.Close;
+  end;
+
+  procedure ImprimirDevolucoesSaldo;
+  begin
+    qryAutenticacoes.MacroByName('WHERETIPO').AsString := 'and (a.tipo  = ''A'')';
+    qryAutenticacoes.open;
+    if not qryAutenticacoes.IsEmpty then begin
+      vvalor := 0;
+      qryAutenticacoes.First;
+      Comp := maxcol div 2 - length('DEVOLUCOES DE SALDO DE TROCA') div 2;
+      Linha := StringOfChar('-', comp) + 'DEVOLUCOES DE SALDO DE TROCA' + StringOfChar('-', comp);
+      TextPrinter.WriteTextln(Linha,0);
+      if MaxCol = 54 then
+        Linha := 'LANCTO CLIENTE                                   VALOR'
+      else
+        Linha := 'LANCTO CLIENTE      NC                               VALOR';
+      TextPrinter.WriteTextln(Linha,0);
+      TextPrinter.WriteTextln(StringOfChar('-', MaxCol),0);
+      while not qryAutenticacoes.Eof do begin
+        ImprimirLinhaDevolucoesSaldo;
+        vvalor := vvalor + qryAutenticacoesValor.AsFloat;
+        qryAutenticacoes.Next;
+       end;
+       Linha := 'TOTAL ' + format('%14s',[trim(Trocar(Trocar(Format('%11.2m',[vvalor]),'R',''),'$',''))]);
+       Alinhar(taRightJustify);
+       TextPrinter.WriteTextln(Linha, 0);
+       TextPrinter.writeln;
+     end;
+     qryAutenticacoes.Close;
+  end;
+
+  procedure ImprimirDocumentosEntrada;
+  const
+    //Where =  'and not (e.saida)';
+    Where = 'and a.saldo > (select saldo from autenticacoes a1 where a1.numero<a.numero and a.caixa=a1.caixa and a.filial=a1.filial order by a1.numero desc limit 1)';
+  begin
+    qryAutenticacoes.MacroByName('OUTROSFILTROS').AsString := Where;
+    qryAutenticacoes.MacroByName('WHERETIPO').AsString := 'and (a.tipo  = ''D'')';
+    qryAutenticacoes.open;
+    if not qryAutenticacoes.IsEmpty then begin
+      vvalor := 0;
+      qryAutenticacoes.First;
+      Comp := maxcol div 2 - length('DOCUMENTOS AUTORIZADOS - ENTRADAS') div 2;
+      Linha := StringOfChar('-', comp) + 'DOCUMENTOS AUTORIZADOS - ENTRADAS' + StringOfChar('-', comp-1);
+      TextPrinter.WriteTextln(Linha,0);
+      if MaxCol = 54 then
+        Linha := 'LANCTO EVENTO                                    VALOR'
+      else
+        Linha := 'LANCTO EVENTO                                        VALOR';
+      TextPrinter.WriteTextln(Linha,0);
+      TextPrinter.WriteTextln(StringOfChar('-', MaxCol),0);
+      while not qryAutenticacoes.Eof do begin
+        ImprimirLinhaDocumentos;
+        vvalor := vvalor + qryAutenticacoesValor.AsFloat;
+        qryAutenticacoes.Next;
+      end;
+      Linha := 'TOTAL ' + format('%14s',[trim(Trocar(Trocar(Format('%11.2m',[vvalor]),'R',''),'$',''))]);
+      Alinhar(taRightJustify);
+      TextPrinter.WriteTextln(Linha, 0);
+      TextPrinter.writeln;
+    end;
+    qryAutenticacoes.MacroByName('OUTROSFILTROS').AsString := '';
+    qryAutenticacoes.Close;
+  end;
+
+  procedure ImprimirDocumentosSaida;
+  const
+    //Where =  'and (e.saida)';
+    Where = 'and a.saldo < (select saldo from autenticacoes a1 where a1.numero<a.numero and a.caixa=a1.caixa and a.filial=a1.filial order by a1.numero desc limit 1)';
+  begin
+    qryAutenticacoes.MacroByName('OUTROSFILTROS').AsString := Where;
+    qryAutenticacoes.MacroByName('WHERETIPO').AsString := 'and (a.tipo  = ''D'')';
+    qryAutenticacoes.open;
+    if not qryAutenticacoes.IsEmpty then begin
+      vvalor := 0;
+      qryAutenticacoes.First;
+      Comp := maxcol div 2 - length('DOCUMENTOS AUTORIZADOS - SAIDAS') div 2;
+      Linha := StringOfChar('-', comp) + 'DOCUMENTOS AUTORIZADOS - SAIDAS' + StringOfChar('-', comp-1);
+      TextPrinter.WriteTextln(Linha,0);
+      if MaxCol = 54 then
+        Linha := 'LANCTO EVENTO                                    VALOR'
+      else
+        Linha := 'LANCTO EVENTO                                        VALOR';
+      TextPrinter.WriteTextln(Linha,0);
+      TextPrinter.WriteTextln(StringOfChar('-', MaxCol),0);
+      while not qryAutenticacoes.Eof do begin
+        ImprimirLinhaDocumentos;
+        vvalor := vvalor + qryAutenticacoesValor.AsFloat;
+        qryAutenticacoes.Next;
+      end;
+      Linha := 'TOTAL ' + format('%14s',[trim(Trocar(Trocar(Format('%11.2m',[vvalor]),'R',''),'$',''))]);
+      Alinhar(taRightJustify);
+      TextPrinter.WriteTextln(Linha, 0);
+      TextPrinter.writeln;
+    end;
+    qryAutenticacoes.MacroByName('OUTROSFILTROS').AsString := '';
+    qryAutenticacoes.Close;
+  end;
+
+  procedure ImprimirDuplicatas;
+  begin
+    qryAutenticacoes.MacroByName('WHERETIPO').AsString := 'and (a.tipo  = ''G'')';
+    qryAutenticacoes.open;
+    if not qryAutenticacoes.IsEmpty then begin
+      vvalor := 0;
+      qryAutenticacoes.First;
+      Comp := maxcol div 2 - length('DUPLICATAS') div 2;
+      Linha := StringOfChar('-', comp) + 'DUPLICATAS' + StringOfChar('-', comp);
+      TextPrinter.WriteTextln(Linha,0);
+      if MaxCol = 54 then
+        Linha := 'LANCTO FORNECEDOR   NC ND        VENCIMENTO   VLR PAGO'
+      else
+        Linha := 'LANCTO FORNECEDOR   NC ND          VENCIMENTO       VLR PAGO';
+      TextPrinter.WriteTextln(Linha,0);
+      TextPrinter.WriteTextln(StringOfChar('-', MaxCol),0);
+      while not qryAutenticacoes.Eof do begin
+        ImprimirLinhaDuplicatas;
+        vvalor := vvalor + qryAutenticacoesValor.AsFloat;
+        qryAutenticacoes.Next;
+      end;
+      Linha := 'TOTAL ' + format('%14s',[trim(Trocar(Trocar(Format('%11.2m',[vvalor]),'R',''),'$',''))]);
+      Alinhar(taRightJustify);
+      TextPrinter.WriteTextln(Linha, 0);
+      TextPrinter.writeln;
+    end;
+    qryAutenticacoes.Close;
+  end;
+
+  procedure ImprimirPerdas;
+  begin
+    qryAutenticacoes.MacroByName('WHERETIPO').AsString := 'and (a.tipo  = ''J'')';
+    qryAutenticacoes.open;
+    if not qryAutenticacoes.IsEmpty then begin
+      vvalor := 0;
+      qryAutenticacoes.First;
+      Comp := maxcol div 2 - length('PERDAS') div 2;
+      Linha := StringOfChar('-', comp) + 'PERDAS' + StringOfChar('-', comp);
+      TextPrinter.WriteTextln(Linha,0);
+      if MaxCol = 54 then
+        Linha := 'LANCTO CLIENTE      NC MOTIVO                    VALOR'
+      else
+        Linha := 'LANCTO CLIENTE      NC MOTIVO                        VALOR';
+      TextPrinter.WriteTextln(Linha,0);
+      TextPrinter.WriteTextln(StringOfChar('-', MaxCol),0);
+      while not qryAutenticacoes.Eof do begin
+        ImprimirLinhaPerdas;
+        vvalor := vvalor + qryAutenticacoesValor.AsFloat;
+        qryAutenticacoes.Next;
+      end;
+      Linha := 'TOTAL ' + format('%14s',[trim(Trocar(Trocar(Format('%11.2m',[vvalor]),'R',''),'$',''))]);
+      Alinhar(taRightJustify);
+      TextPrinter.WriteTextln(Linha, 0);
+      TextPrinter.writeln;
+    end;
+    qryAutenticacoes.Close;
+  end;
+
+  procedure ImprimirRecebimentos;
+  begin
+    qryAutenticacoes.MacroByName('WHERETIPO').AsString := 'and (a.tipo  = ''P'')';
+    qryAutenticacoes.open;
+    if not qryAutenticacoes.IsEmpty then begin
+      vvencto := 0;
+      vjuros := 0;
+      vvalor := 0;
+      qryAutenticacoes.First;
+      Comp := maxcol div 2 - length('RECEBIMENTOS') div 2;
+      Linha := StringOfChar('-', comp) + 'RECEBIMENTOS' + StringOfChar('-', comp);
+      TextPrinter.WriteTextln(Linha,0);
+      if MaxCol = 54 then
+        Linha := 'LANCTO CLIENTE    NP  VLR.VENCTO  JUROS/DESC  VLR.PAGO'
+      else
+        Linha := 'LANCTO CLIENTE      NC  NP  VLR VENCTO  JUROS/DESC  VLR PAGO';
+      TextPrinter.WriteTextln(Linha,0);
+      TextPrinter.WriteTextln(StringOfChar('-', MaxCol),0);
+      while not qryAutenticacoes.Eof do begin
+        ImprimirLinhaRecebimentos;
+        vvencto := vvencto + qryAutenticacoesvalorvenctoparcela.AsFloat;
+        vjuros := vjuros + (qryAutenticacoesValor.AsFloat-
+                            qryAutenticacoesValorVenctoParcela.AsFloat);
+        vvalor := vvalor + qryAutenticacoesValor.AsFloat;
+        qryAutenticacoes.Next;
+      end;
+      Linha :='TOTAL ' +format('%12s',[trim(Trocar(Trocar(Format('%9.2m',[vvencto]),'R',''),'$',''))])+
+                        format('%10s',[trim(Trocar(Trocar(Format('%7.2m',[vjuros]),'R',''),'$',''))])+
+                        format('%11s',[trim(Trocar(Trocar(Format('%8.2m',[vvalor]),'R',''),'$',''))]);
+      Alinhar(taRightJustify);
+      TextPrinter.WriteTextln(Linha, 0);
+      TextPrinter.writeln;
+    end;
+    qryAutenticacoes.Close;
+  end;
+
+  procedure ImprimirResgateCheque;
+  begin
+    qryAutenticacoes.MacroByName('WHERETIPO').AsString := 'and (a.tipo  = ''R'')';
+    qryAutenticacoes.open;
+    if not qryAutenticacoes.IsEmpty then begin
+      vvalor := 0;
+      qryAutenticacoes.First;
+      Comp := maxcol div 2 - length('RESGATE DE CHEQUES') div 2;
+      Linha := StringOfChar('-', comp) + 'RESGATE DE CHEQUES' + StringOfChar('-', comp);
+      TextPrinter.WriteTextln(Linha,0);
+      if MaxCol = 54 then
+        Linha := 'LANCTO CLIENTE     CHEQUE  AG. BCO   VENCTO      VALOR'
+      else
+        Linha := 'LANCTO CLIENTE     CHEQUE  AG. BCO   VENCTO          VALOR';
+      TextPrinter.WriteTextln(Linha,0);
+      TextPrinter.WriteTextln(StringOfChar('-', MaxCol),0);
+      while not qryAutenticacoes.Eof do begin
+        ImprimirLinhaCheques;
+        vvalor := vvalor + qryAutenticacoesValor.AsFloat;
+        qryAutenticacoes.Next;
+      end;
+      Linha := 'TOTAL ' + format('%14s',[trim(Trocar(Trocar(Format('%11.2m',[vvalor]),'R',''),'$',''))]);
+      Alinhar(taRightJustify);
+      TextPrinter.WriteTextln(Linha, 0);
+      TextPrinter.writeln;
+    end;
+    qryAutenticacoes.Close;
+  end;
+
+  procedure ImprimirResumoVendas;
+  begin
+    qryResumoVendas.Params[3].AsString := 'P';
+    qryResumoVendas.open;
+    if not qryResumoVendas.IsEmpty then begin
+      vvencto := 0;
+      vjuros := 0;
+      vdescontos := 0;
+      qryResumoVendas.First;
+      Comp := maxcol div 2 - length('RESUMO POR FILIAL DE VENDA') div 2;
+      Linha := StringOfChar('-', comp) + 'RESUMO POR FILIAL DE VENDA' + StringOfChar('-', comp);
+      TextPrinter.WriteTextln(Linha,0);
+      if MaxCol = 54 then
+        Linha := 'FILIAL DE VENDA           PRESTACOES    JUROS  DESCONTOS'
+      else
+        Linha := 'FILIAL DE VENDA              PRESTACOES     JUROS  DESCONTOS';
+      TextPrinter.WriteTextln(Linha,0);
+      TextPrinter.WriteTextln(StringOfChar('-', MaxCol),0);
+      while not qryResumoVendas.Eof do begin
+        ImprimirLinhaResumoVendas;
+        vvencto := vvencto + qryResumoVendasValorVenctoParcela.AsFloat;
+        vjuros := vjuros + qryResumoVendasjuros.AsFloat;
+        vdescontos := vdescontos + qryResumoVendasdescontos.AsFloat;
+        qryResumoVendas.Next;
+      end;
+      Linha :='TOTAL ' +format('%12s',[trim(Trocar(Trocar(Format('%9.2m',[vvencto]),'R',''),'$',''))])+
+                        format('%10s',[trim(Trocar(Trocar(Format('%7.2m',[vjuros]),'R',''),'$',''))])+
+                        format('%11s',[trim(Trocar(Trocar(Format('%8.2m',[vdescontos]),'R',''),'$',''))]);
+      Alinhar(taRightJustify);
+      TextPrinter.WriteTextln(Linha, 0);
+      TextPrinter.writeln;
+    end;
+    qryResumoVendas.Close;
+  end;
+
+  procedure ImprimirResumoRenegociados;
+  var
+    R_Prestacoes,
+    R_ValorPago,
+    O_Prestacoes,
+    O_ValorPago : Double;
+  begin
+    R_Prestacoes := 0;
+    R_ValorPago := 0;
+    O_Prestacoes := 0;
+    O_ValorPago := 0;
+    qryRenegociado.Params[3].AsString := 'P';
+    qryRenegociado.open;
+    if not qryRenegociado.IsEmpty then begin
+      qryRenegociado.First;
+      Comp := maxcol div 2 - length('RESUMO DAS RENEGOCIACOES') div 2;
+      Linha := StringOfChar('-', comp) + 'RESUMO DAS RENEGOCIACOES' + StringOfChar('-', comp);
+      TextPrinter.WriteTextln(Linha,0);
+      Linha :='          R E N E G O C I A D O           O R I G E M';
+      TextPrinter.WriteTextln(Linha,0);
+      Linha :='LANCTO   PRESTACOES   VLR.PAGO  PRESTACOES  VALOR PAGO';
+      TextPrinter.WriteTextln(Linha,0);
+      TextPrinter.WriteTextln(StringOfChar('-', MaxCol),0);
+      while not qryRenegociado.Eof do begin
+        ImprimirLinhaResumoRenegociados;
+        R_Prestacoes := R_Prestacoes + qryRenegociadovalorvencto.AsFloat;
+        R_ValorPago := R_ValorPago + qryRenegociadovalor.AsFloat;
+        O_Prestacoes := O_Prestacoes + qryOrigemvalorvencto.AsFloat;
+        O_ValorPago := O_ValorPago + qryOrigemvalorpagto.AsFloat;
+        qryRenegociado.Next;
+      end;
+      Linha :='TOTAL ' +format('%12s',[trim(Trocar(Trocar(Format('%9.2m',[R_Prestacoes]),'R',''),'$',''))])+
+                        format('%12s',[trim(Trocar(Trocar(Format('%10.2m',[R_ValorPago]),'R',''),'$',''))])+
+                        format('%12s',[trim(Trocar(Trocar(Format('%11.2m',[O_Prestacoes]),'R',''),'$',''))])+
+                        format('%12s',[trim(Trocar(Trocar(Format('%11.2m',[O_ValorPago]),'R',''),'$',''))]);
+      Alinhar(taRightJustify);
+      TextPrinter.WriteTextln(Linha, 0);
+      TextPrinter.writeln;
+    end;
+    qryRenegociado.Close;
+  end;
+
+
+  procedure ImprimirTransferencias;
+  const
+    WhereTipo =  'and (((a.tipo = %s) and not a.entradapendente and confirmacao) OR (a.tipo = %s))';
+  begin
+    qryAutenticacoes.MacroByName('WHERETIPO').AsString := Format(WhereTipo,['''S''','''E''']);
+    qryAutenticacoes.open;
+    if not qryAutenticacoes.IsEmpty then begin
+      vvalor := 0;
+      qryAutenticacoes.First;
+      Comp := maxcol div 2 - length('TRANSFERENCIAS') div 2;
+      Linha := StringOfChar('-', comp) + 'TRANSFERENCIAS' + StringOfChar('-', comp-1);
+      TextPrinter.WriteTextln(Linha,0);
+      if MaxCol = 54 then
+        Linha := 'LANCTO CAIXA                                     VALOR'
+      else
+        Linha := 'LANCTO CAIXA                                         VALOR';
+      TextPrinter.WriteTextln(Linha,0);
+      TextPrinter.WriteTextln(StringOfChar('-', MaxCol),0);
+      while not qryAutenticacoes.Eof do begin
+        ImprimirLinhaTransferencia;
+        if qryAutenticacoestipo.AsString='S' then
+          vvalor := vvalor + (-qryAutenticacoesValor.AsFloat)
+        else
+          vvalor := vvalor + qryAutenticacoesValor.AsFloat;
+        qryAutenticacoes.Next;
+      end;
+      Linha := 'TOTAL ' + format('%14s',[trim(Trocar(Trocar(Format('%11.2m',[vvalor]),'R',''),'$',''))]);
+      Alinhar(taRightJustify);
+      TextPrinter.WriteTextln(Linha, 0);
+      TextPrinter.writeln;
+    end;
+    qryAutenticacoes.MacroByName('WHERETIPO').AsString := 'and (a.tipo  = ''S'')';
+    qryAutenticacoes.Close;
+  end;
+
+  procedure ImprimirTransferenciasPendentes;
+  const
+    WhereTipo =  'and ((a.tipo  = %s) and a.entradapendente)';
+  begin
+    qryAutenticacoes.MacroByName('WHERETIPO').AsString := Format(WhereTipo,['''S''']);
+    qryAutenticacoes.open;
+    if not qryAutenticacoes.IsEmpty then begin
+      qryAutenticacoes.First;
+      Comp := maxcol div 2 - length('TRANSFERENCIAS PENDENTES') div 2;
+      Linha := StringOfChar('-', comp) + 'TRANSFERENCIAS PENDENTES' + StringOfChar('-', comp-1);
+      TextPrinter.WriteTextln(Linha,0);
+      if MaxCol = 54 then
+        Linha := 'LANCTO CAIXA                                     VALOR'
+      else
+        Linha := 'LANCTO CAIXA                                         VALOR';
+      TextPrinter.WriteTextln(Linha,0);
+      TextPrinter.WriteTextln(StringOfChar('-', MaxCol),0);
+      while not qryAutenticacoes.Eof do begin
+        ImprimirLinhaTransferencia;
+        qryAutenticacoes.Next;
+      end;
+      TextPrinter.writeln;
+    end;
+    qryAutenticacoes.MacroByName('WHERETIPO').AsString := 'and (a.tipo  = ''S'')';
+    qryAutenticacoes.Close;
+  end;
+
+begin
+  if ParSistema.MaxColAutenticadora = 54 then
+    MaxCol := 54
+  else
+    MaxCol := 60;
+  qryAutenticacoes.Params[0].AsInteger := qryCaixascodigo.AsInteger;
+  qryAutenticacoes.Params[1].AsString := DataFechamento;
+  qryAutenticacoes.Params[2].Asinteger := filialbase;
+
+  qryResumoVendas.Params[0].AsInteger := qryCaixascodigo.AsInteger;
+  qryResumoVendas.Params[1].AsString := DataFechamento;
+  qryResumoVendas.Params[2].Asinteger := filialbase;
+
+  qryRenegociado.Params[0].AsInteger := qryCaixascodigo.AsInteger;
+  qryRenegociado.Params[1].AsString := DataFechamento;
+  qryRenegociado.Params[2].Asinteger := filialbase;
+
+  try
+    if FVisualizar then
+    begin
+      TextPrinter.ImprimirParaArquivo := True;
+      TextPrinter.Text.Clear;
+
+    end;
+    NomeImpressoraEscolhida := Impressora;
+    //TextPrinter.BeginDoc('', False);
+    if ParSistema.Autenticadora in [1,2,4] then
+    begin
+      TextPrinter.BeginDoc('', False);
+      TextPrinter.writeText(#$0F,0);
+    end
+    else
+    begin
+      TextPrinter.BeginDoc('', True);
+      TextPrinter.writeText(EPS_ON_CONDENSED,0);
+    end;
+    for a := 1 to ParSistema.NumeroCopias do begin
+      TextPrinter.WriteTextln(StringOfChar('_', MaxCol),0);
+
+      Linha := RazaoFilialBase + ' - ' + ctRESUMOGERALCAIXA;
+      Alinhar(taCenter);
+      TextPrinter.WriteTextln(Linha, 0);
+
+      Linha := ctFILIAL +': ' + IntToStr(FilialBase) + ' - ' + NomeFilialBase;
+      Alinhar(taCenter);
+      TextPrinter.WriteTextln(Linha, 0);
+
+      Linha := ctCAIXA + ': ' + inttostr(qryCaixascodigo.AsInteger) + ' - ' + qryCaixasnome.AsString;
+      Alinhar(taCenter);
+      TextPrinter.WriteTextln(Linha, 0);
+
+      Linha := 'Data: ' + DateToStr(DataServidor) + ' - Hora: ' + TimeToStr(Time);
+      Alinhar(taCenter);
+      TextPrinter.WriteTextln(Linha, 0);
+
+      TextPrinter.WriteTextln(StringOfChar('_', MaxCol),0);
+
+      TextPrinter.Writeln;
+
+      Linha := 'Referente a movimentacao de ' + DataFechamento;
+      Alinhar(taCenter);
+      TextPrinter.WriteTextln(Linha, 0);
+
+      TextPrinter.Writeln;
+      ReFazConsulta(qryCaixas, [], []);
+      if qryCaixascaixaaberto.AsBoolean then
+        if StrToDate(DataFechamento) < qryCaixasdataaberturacaixa.AsDateTime then
+          Linha := ctCAIXA + ' '+ ctFechado
+        else
+          Linha := ctCAIXA + ' '+ ctAberto
+      else
+        Linha := ctCAIXA + ' '+ ctFechado;
+      Alinhar(taCenter);
+      TextPrinter.WriteTextln(Linha, 0);
+
+      TextPrinter.Writeln;
+
+      Linha := 'Saldo Anterior do Caixa';
+      TextPrinter.WriteText(Linha,0);
+
+      Comp := length(Linha);
+      Linha := trim(Trocar(Trocar(Format('%11.2m',[qryTotalizacoesCaixasaldoanterior.AsFloat]),'R',''),'$',''));
+      Alinhar(taRightJustify, Comp);
+      TextPrinter.WriteTextln(Linha, 0);
+
+      TextPrinter.Writeln;
+
+      Comp := maxcol div 2 - length('E N T R A D A S') div 2;
+      Linha := StringOfChar('-', comp) + 'E N T R A D A S' + StringOfChar('-', comp-1);
+      TextPrinter.WriteTextln(Linha,0);
+
+      if qryTotalizacoesCaixaprestacoes.AsFloat<>0 then begin
+        Linha := 'Recebimentos de Prestacoes';
+        TextPrinter.WriteText(Linha,0);
+        Comp := length(Linha);
+        Linha := trim(Trocar(Trocar(Format('%11.2m',[qryTotalizacoesCaixaprestacoes.AsFloat-qryTotalizacoesCaixajuros.AsFloat]),'R',''),'$',''));
+        Alinhar(taRightJustify,Comp);
+        TextPrinter.WriteTextln(Linha, 0);
+      end;
+
+      if qryTotalizacoesCaixafrentecaixa.AsFloat<>0 then begin
+        Linha := 'Recebimentos de Frente de caixa';
+        TextPrinter.WriteText(Linha,0);
+        Comp := length(Linha);
+        Linha := trim(Trocar(Trocar(Format('%11.2m',[qryTotalizacoesCaixafrentecaixa.AsFloat]),'R',''),'$',''));
+        Alinhar(taRightJustify,Comp);
+        TextPrinter.WriteTextln(Linha, 0);
+      end;
+
+      if qryTotalizacoesCaixajuros.AsFloat<>0 then begin
+        Linha := 'Recebimentos de Juros';
+        TextPrinter.WriteText(Linha,0);
+        Comp := length(Linha);
+        Linha := trim(Trocar(Trocar(Format('%11.2m',[qryTotalizacoesCaixajuros.AsFloat]),'R',''),'$',''));
+        Alinhar(taRightJustify, Comp);
+        TextPrinter.WriteTextln(Linha, 0);
+      end;
+
+      if qryTotalizacoesCaixadescontos.AsFloat<>0 then begin
+        Linha := 'Descontos Concedidos';
+        TextPrinter.WriteText(Linha,0);
+        Comp := length(Linha);
+        Linha := trim(Trocar(Trocar(Format('%11.2m',[-qryTotalizacoesCaixadescontos.AsFloat]),'R',''),'$',''));
+        Alinhar(taRightJustify,Comp);
+        TextPrinter.WriteTextln(Linha, 0);
+      end;
+
+      if qryTotalizacoesCaixadocentrada.AsFloat<>0 then begin
+        Linha := 'Documentos de Entrada';
+       TextPrinter.WriteText(Linha,0);
+       Comp := length(Linha);
+       Linha := trim(Trocar(Trocar(Format('%11.2m',[qryTotalizacoesCaixadocentrada.AsFloat]),'R',''),'$',''));
+       Alinhar(taRightJustify, Comp);
+       TextPrinter.WriteTextln(Linha, 0);
+      end;
+
+      if qryTotalizacoesCaixatransentrada.AsFloat<>0 then begin
+        Linha := 'Entrada de Transferencias';
+        TextPrinter.WriteText(Linha,0);
+        Comp := length(Linha);
+        Linha := trim(Trocar(Trocar(Format('%11.2m',[qryTotalizacoesCaixatransentrada.AsFloat]),'R',''),'$',''));
+        Alinhar(taRightJustify, Comp);
+        TextPrinter.WriteTextln(Linha, 0);
+      end;
+
+      if qryTotalizacoesCaixaresgatecheque.AsFloat<>0 then begin
+        Linha := 'Resgate de Cheques';
+        TextPrinter.WriteText(Linha,0);
+        Comp := length(Linha);
+        Linha := trim(Trocar(Trocar(Format('%11.2m',[qryTotalizacoesCaixaresgatecheque.AsFloat]),'R',''),'$',''));
+        Alinhar(taRightJustify, Comp);
+        TextPrinter.WriteTextln(Linha, 0);
+      end;
+
+      TextPrinter.Writeln;
+
+      Linha := 'TOTAL ' + format('%14s',[trim(Trocar(Trocar(Format('%11.2m',[qryTotalizacoesCaixaTotal_Entradas.AsFloat]),'R',''),'$',''))]);
+      Alinhar(taRightJustify);
+      TextPrinter.WriteTextln(Linha,0);
+
+      TextPrinter.Writeln;
+
+      Comp := maxcol div 2 - length('S A I D A S') div 2;
+      Linha := StringOfChar('-', comp) + 'S A I D A S' + StringOfChar('-', comp-1);
+      TextPrinter.WriteTextln(Linha,0);
+
+      if qryTotalizacoesCaixadevolucoes.AsFloat<>0 then begin
+        Linha := 'Devolucoes de Numerarios';
+        TextPrinter.WriteText(Linha,0);
+        Comp := length(Linha);
+        Linha := trim(Trocar(Trocar(Format('%11.2m',[qryTotalizacoesCaixadevolucoes.AsFloat]),'R',''),'$',''));
+        Alinhar(taRightJustify,Comp);
+        TextPrinter.WriteTextln(Linha, 0);
+      end;
+
+      if qryTotalizacoesCaixadevolucoessaldo.AsFloat<>0 then begin
+        Linha := 'Devolucoes de Saldo de Troca';
+        TextPrinter.WriteText(Linha,0);
+        Comp := length(Linha);
+        Linha := trim(Trocar(Trocar(Format('%11.2m',[qryTotalizacoesCaixadevolucoessaldo.AsFloat]),'R',''),'$',''));
+        Alinhar(taRightJustify,Comp);
+        TextPrinter.WriteTextln(Linha, 0);
+      end;
+
+      if qryTotalizacoesCaixadocsaida.AsFloat<>0 then begin
+        Linha := 'Documentos de Saida';
+        TextPrinter.WriteText(Linha,0);
+        Comp := length(Linha);
+        Linha := trim(Trocar(Trocar(Format('%11.2m',[qryTotalizacoesCaixadocsaida.AsFloat]),'R',''),'$',''));
+        Alinhar(taRightJustify,Comp);
+        TextPrinter.WriteTextln(Linha, 0);
+      end;
+
+      if qryTotalizacoesCaixatranssaida.AsFloat<>0 then begin
+        Linha := 'Saida de Transferencia';
+        TextPrinter.WriteText(Linha,0);
+        Comp := length(Linha);
+        Linha := trim(Trocar(Trocar(Format('%11.2m',[qryTotalizacoesCaixatranssaida.AsFloat]),'R',''),'$',''));
+        Alinhar(taRightJustify,Comp);
+        TextPrinter.WriteTextln(Linha, 0);
+      end;
+
+      if qryTotalizacoesCaixadeposito.AsFloat<>0 then begin
+        Linha := 'Depositos Bancarios';
+        TextPrinter.WriteText(Linha,0);
+        Comp := length(Linha);
+        Linha := trim(Trocar(Trocar(Format('%11.2m',[qryTotalizacoesCaixadeposito.AsFloat]),'R',''),'$',''));
+        Alinhar(taRightJustify, Comp);
+        TextPrinter.WriteTextln(Linha, 0);
+      end;
+
+      if qryTotalizacoesCaixachequeavista.AsFloat<>0 then begin
+        Linha := 'Cheque a Vista';
+        TextPrinter.WriteText(Linha,0);
+        Comp := length(Linha);
+        Linha := trim(Trocar(Trocar(Format('%11.2m',[qryTotalizacoesCaixachequeavista.AsFloat]),'R',''),'$',''));
+        Alinhar(taRightJustify, Comp);
+        TextPrinter.WriteTextln(Linha, 0);
+      end;
+
+      if qryTotalizacoesCaixachequepre.AsFloat<>0 then begin
+        Linha := 'Cheque a Prazo';
+        TextPrinter.WriteText(Linha,0);
+        Comp := length(Linha);
+        Linha := trim(Trocar(Trocar(Format('%11.2m',[qryTotalizacoesCaixachequepre.AsFloat]),'R',''),'$',''));
+        Alinhar(taRightJustify, Comp);
+        TextPrinter.WriteTextln(Linha, 0);
+      end;
+
+      if qryTotalizacoesCaixaduplicatasfornecedores.AsFloat<>0 then begin
+        Linha := 'Duplicatas de Fornecedores';
+        TextPrinter.WriteText(Linha,0);
+        Comp := length(Linha);
+        Linha := trim(Trocar(Trocar(Format('%11.2m',[qryTotalizacoesCaixaduplicatasfornecedores.AsFloat]),'R',''),'$',''));
+        Alinhar(taRightJustify, Comp);
+        TextPrinter.WriteTextln(Linha, 0);
+      end;
+
+      TextPrinter.Writeln;
+
+      Linha := 'TOTAL ' + format('%14s',[trim(Trocar(Trocar(Format('%11.2m',[qryTotalizacoesCaixaTotal_Saidas.AsFloat]),'R',''),'$',''))]);
+      Alinhar(taRightJustify);
+      TextPrinter.WriteTextln(Linha,0);
+
+      TextPrinter.Writeln;
+
+      Comp := maxcol div 2 - length('O U T R O S') div 2;
+      Linha := StringOfChar('-', comp) + 'O U T R O S' + StringOfChar('-', comp-1);
+      TextPrinter.WriteTextln(Linha,0);
+
+      Linha := 'Saldo do Caixa no Dia';
+      TextPrinter.WriteText(Linha,0);
+      Comp := length(Linha);
+      Linha := trim(Trocar(Trocar(Format('%11.2m',[qryTotalizacoesCaixaSaldo_Atual.AsCurrency]),'R',''),'$',''));
+      Alinhar(taRightJustify, Comp);
+      TextPrinter.WriteTextln(Linha, 0);
+
+      if qryTotalizacoesCaixacancelamento.AsInteger<>0 then begin
+        Linha := 'Numero de Autenticacoes Canceladas';
+        TextPrinter.WriteText(Linha,0);
+        Comp := length(Linha);
+        Linha := trim(qryTotalizacoesCaixacancelamento.AsString);
+        Alinhar(taRightJustify,Comp);
+        TextPrinter.WriteTextln(Linha, 0);
+      end;
+
+      if qryTotalizacoesCaixaperdas.AsFloat<>0 then begin
+        Linha := 'Perdas';
+        TextPrinter.WriteText(Linha,0);
+        Comp := length(Linha);
+        Linha := trim(Trocar(Trocar(Format('%11.2m',[qryTotalizacoesCaixaperdas.AsFloat]),'R',''),'$',''));
+        Alinhar(taRightJustify, Comp);
+        TextPrinter.WriteTextln(Linha, 0);
+      end;
+
+      if qryTotalizacoesCaixacartao.AsFloat<>0 then begin
+        Linha := 'Cartões Crédito/Débito';
+        TextPrinter.WriteText(Linha,0);
+        Comp := length(Linha);
+        Linha := trim(Trocar(Trocar(Format('%11.2m',[qryTotalizacoesCaixacartao.AsFloat]),'R',''),'$',''));
+        Alinhar(taRightJustify, Comp);
+        TextPrinter.WriteTextln(Linha, 0);
+      end;
+
+      TextPrinter.Writeln;
+
+      if Cancelamentos or ImprimirDetalhes then
+        ImprimirCancelamento;
+      if ChequePrazo or ImprimirDetalhes then
+        ImprimirChequeAPrazo;
+      if ChequeaVista or ImprimirDetalhes then
+        ImprimirChequeAVista;
+      if Depositos or ImprimirDetalhes then
+        ImprimirDepositos;
+      if Devolucoes or ImprimirDetalhes then
+        ImprimirDevolucoes;
+      if DevolucoesSaldo or ImprimirDetalhes then
+        ImprimirDevolucoesSaldo;
+      if Documentos or ImprimirDetalhes then begin
+        ImprimirDocumentosEntrada;
+        ImprimirDocumentosSaida;
+      end;
+      if Duplicatas or ImprimirDetalhes then
+        ImprimirDuplicatas;
+      if Perdas or ImprimirDetalhes then
+        ImprimirPerdas;
+      if Recebimentos or ImprimirDetalhes then
+        ImprimirRecebimentos;
+      if ResgateDeCheques or ImprimirDetalhes then
+        ImprimirResgateCheque;
+      if Resumo or ImprimirDetalhes then begin
+        ImprimirResumoVendas;
+        ImprimirResumoRenegociados;
+      end;
+      if Transferencias or ImprimirDetalhes then begin
+        ImprimirTransferencias;
+        ImprimirTransferenciasPendentes;
+      end;
+
+      TextPrinter.writeTextln(ctMSGFECHAMENTOCAIXA,0);
+      for b := 1 to 3 do begin
+        TextPrinter.writeln;
+        TextPrinter.writeln;
+        TextPrinter.writeln;
+
+        Linha := stringOfChar('_', MaxCol-20);
+        Alinhar(tacenter);
+        TextPrinter.writeTextln(Linha, 0);
+        case b of
+         1 : Linha := ParSistema.Assinatura1;
+         2 : Linha := ParSistema.Assinatura2;
+         3 : Linha := ParSistema.Assinatura3;
+        end;
+        Alinhar(tacenter);
+        TextPrinter.WriteTExtln(Linha, 0);
+      end;
+      TextPrinter.writeln;
+
+      linha := DateToStr(dtmtecsoft.DataServidor) + ' ' + TimeToStr(Now);
+      TextPrinter.WriteText(linha,0);
+
+      Comp := length(Linha);
+
+      linha := 'tecSOFT';
+      Alinhar(taRightJustify, Comp);
+      TextPrinter.writeTextln(linha,0);
+      TextPrinter.writeln;
+    end;
+    if ParSistema.Autenticadora in [1,4] then
+      TextPrinter.writeText(#$12, 0)
+    else if ParSistema.Autenticadora = 2 then
+      TextPrinter.writeText(#$56, 0)
+    else
+      TextPrinter.writeText(EPS_OFF_CONDENSED,0);
+    TextPrinter.FormFeed;
+
+    TextPrinter.writeln;
+    TextPrinter.writeln;
+    TextPrinter.writeln;
+    TextPrinter.writeln;
+    TextPrinter.writeln;
+    TextPrinter.writeln;
+    TextPrinter.writeln;
+    TextPrinter.writeln;
+    TextPrinter.writeln;
+
+    TextPrinter.EndDoc('TecLUX - Imprimindo Fechamento de Caixa.');
+    NomeImpressoraEscolhida := '';
+    Result := True;
+    if FVisualizar then
+    begin
+      limparDataSet;
+      preencheDataSet;
+      VisualizarRelatorio;
+    end;
+  finally
+  end
+end;
+
+
+Procedure TdtmFechamentoCaixa.MontarFechamentoCaixa(Caixa, DataFec: String);
+Begin
+  qryTotalizacoesCaixa.Params[0].AsString := Caixa;
+  qryTotalizacoesCaixa.Params[1].AsString := DataFec;
+  qryTotalizacoesCaixa.Params[2].Asinteger := filialbase;
+
+  qryEventos.Params[0].AsString := Caixa;
+  qryEventos.Params[1].AsString := DataFec;
+  qryEventos.Params[2].Asinteger := filialbase;
+
+End;
+
+procedure TdtmFechamentoCaixa.Selecionar;
+Begin
+  ReFazConsulta(qryCaixas,[0],[qryConsultaCaixascodigo.AsVariant]);
+End;
+
+procedure TdtmFechamentoCaixa.SelecionarcaixaAtual;
+begin
+  ReFazConsulta(qryCaixas, [0], [CodigoUsuario])
+end;
+
+function TdtmFechamentoCaixa.TransferenciaNaoConfirmada: Boolean;
+begin
+  ReFazConsulta(qryTransferenciaNaoConfirmada, [0], [qryCaixascodigo.AsInteger]);
+  Result := qryTransferenciaNaoConfirmada.RecordCount > 0;
+end;
+
+procedure TdtmFechamentoCaixa.qryTotalizacoesCaixaCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryTotalizacoesCaixaTotal_Entradas.AsFloat := qryTotalizacoesCaixaprestacoes.AsFloat +
+                                                qryTotalizacoesCaixadocentrada.AsFloat +
+                                                qryTotalizacoesCaixatransentrada.AsFloat +
+                                                qryTotalizacoesCaixaresgatecheque.AsFloat +
+                                                qryTotalizacoesCaixafrentecaixa.AsFloat;
+
+  qryTotalizacoesCaixaTotal_Saidas.AsFloat   := qryTotalizacoesCaixadevolucoes.AsFloat +
+                                                qryTotalizacoesCaixadevolucoessaldo.AsFloat +
+                                                qryTotalizacoesCaixadocsaida.AsFloat +
+                                                qryTotalizacoesCaixatranssaida.AsFloat +
+                                                qryTotalizacoesCaixadeposito.AsFloat +
+                                                qryTotalizacoesCaixachequeavista.AsFloat +
+                                                qryTotalizacoesCaixachequepre.AsFloat +
+                                                qryTotalizacoesCaixaduplicatasfornecedores.AsFloat;
+  qryTotalizacoesCaixaSaldo_Atual.AsCurrency := qryTotalizacoesCaixasaldoanterior.AsCurrency
+                                              + qryTotalizacoesCaixaTotal_Entradas.AsCurrency
+                                              - qryTotalizacoesCaixaTotal_Saidas.AsCurrency;
+end;
+
+procedure TdtmFechamentoCaixa.qryRenegociadoAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  ReFazConsulta(qryOrigem, [0,1], [qryRenegociadoprimogenito.AsVariant,
+                                   qryRenegociadoparcela.AsVariant])
+end;
+
+procedure TdtmFechamentoCaixa.limparDataSet;
+begin
+  cdsRelatorio.close;
+  cdsRelatorio.open;
+end;
+
+procedure TdtmFechamentoCaixa.preencheDataSet;
+var
+  x : Integer;
+begin
+  for x := 0 to TextPrinter.Text.Count-1 do
+  begin
+     cdsRelatorio.Append;
+     cdsRelatorioTexto.AsString := TextPrinter.Text.Strings[x];
+     cdsRelatorio.Post;
+  end;
+end;
+
+procedure TdtmFechamentoCaixa.VisualizarRelatorio;
+begin
+  report1.ShowReport;
+end;
+procedure TdtmFechamentoCaixa.qryEventosBeforePost(DataSet: TDataSet);
+begin
+  inherited;
+  qryEventosalterado.AsBoolean := true;
+  if assigned(EventosAfterPost) then
+    EventosAfterPost(qryEventos);
+end;
+
+procedure TdtmFechamentoCaixa.qryEventosAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  qryEventos.ReadOnly := not UsuarioLogin.GerenteCaixa;
+  if assigned(EventosAfterOpen) then
+    EventosAfterOpen(qryEventos);
+end;
+
+procedure TdtmFechamentoCaixa.qryEventosAfterInsert(DataSet: TDataSet);
+begin
+  inherited;
+  qryEventos.Cancel;
+end;
+
+function TdtmFechamentoCaixa.SalvarEventos: Boolean;
+var
+  UsuarioAut: TtecUsuarios;
+begin
+  result := false;
+  UsuarioAut := ObterAutorizacao(taSENHA, ctPARAALTERACAOEVENTOCAIXA, ctGERENTECAIXA, '');
+  if Assigned(UsuarioAut) then
+  begin
+    Result := UsuarioAut.GerenteCaixa;
+    if Not Result then
+        MensagemAviso(ctUSUARIOSEMPERMISSAO);
+  end;
+
+  if result then
+  begin
+    qryEventos.BeforePost := nil;
+    GuardarRegistroAtual(qryEventos,false);
+    qryEventos.First;
+    while not qryEventos.Eof do
+    begin
+      if qryEventosalterado.AsBoolean then
+      begin
+        qryUpdateAutenticacoesEventos.ParamByName('numero').AsInteger := qryEventosnumero.AsInteger;
+        qryUpdateAutenticacoesEventos.ParamByName('evento').AsInteger := qryEventosevento.AsInteger;
+        qryUpdateAutenticacoesEventos.ParamByName('parametros').AsString := qryEventosparametros.AsString;
+        qryUpdateAutenticacoesEventos.ExecSql;
+        qryEventos.Edit;
+        qryEventosalterado.AsBoolean := false;
+        qryEventos.Post;
+      end;
+      qryEventos.Next;
+    end;
+    VoltarRegistroAtual(qryEventos);
+    qryEventos.BeforePost := qryEventosBeforePost;
+//    if qryUpdateAutenticacoesEventos.UpdatesPending then
+      result := Perpetrar([qryUpdateAutenticacoesEventos]);
+
+    if result then
+      if assigned(EventosAfterOpen) then
+         EventosAfterOpen(qryEventos);
+  end;       
+end;
+
+
+end.

@@ -1,0 +1,1133 @@
+unit dmgerarsintegraemarquivo;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery,
+  ctconstantes, cpdatasource, Forms, biblio, CheckLst,
+  clparametrossistema, ZTransact, dmtecsoft, StrUtils;
+
+type
+  TdtmGerarSintegraemArquivo = class(TdtmBasico)
+    qryFiliais: TtecQuery;
+    qryFiliaisnome: TStringField;
+    qryFiliaiscodigo: TIntegerField;
+    qryGrupoFiliais: TtecQuery;
+    qryGrupoFiliaisdescricao: TStringField;
+    qryGrupoFiliaiscodigo: TIntegerField;
+    qryAgentes: TtecQuery;
+    qryAgentescodigo: TIntegerField;
+    qryAgentesdescricao: TStringField;
+    qryProcuraCodigosFiscaisEntradaInicial: TtecQuery;
+    qryProcuraCodigosFiscaisEntradaInicialcodigo: TIntegerField;
+    qryProcuraCodigosFiscaisEntradaInicialdescricao: TStringField;
+    qryProcuraCodigosFiscaisEntradaFinal: TtecQuery;
+    qryProcuraCodigosFiscaisSaidaInicial: TtecQuery;
+    qryProcuraCodigosFiscaisSaidaFinal: TtecQuery;
+    qryconsultaCodigosFiscaisEntrada: TtecQuery;
+    qryConsultaCodigosFiscaisSaidas: TtecQuery;
+    dsrProcuraCodigosFiscaisEntradaInicial: TtecDataSource;
+    dsrProcuraCodigosFiscaisEntradaFinal: TtecDataSource;
+    dsrProcuraCodigosFiscaisSaidaInicial: TtecDataSource;
+    dsrProcuraCodigosFiscaisSaidaFinal: TtecDataSource;
+    qryConsultaEstados: TtecQuery;
+    qryProcuraEstados: TtecQuery;
+    dsrProcuraEstados: TtecDataSource;
+    qryconsultaCodigosFiscaisEntradacodigo: TIntegerField;
+    qryconsultaCodigosFiscaisEntradadescricao: TStringField;
+    qryConsultaCodigosFiscaisSaidascodigo: TIntegerField;
+    qryConsultaCodigosFiscaisSaidasdescricao: TStringField;
+    qryConsultaEstadoscodigo: TStringField;
+    qryConsultaEstadosnome: TStringField;
+    qryProcuraEstadoscodigo: TStringField;
+    qryProcuraEstadosnome: TStringField;
+    qryNotas: TtecQuery;
+    qryNotascnpj: TStringField;
+    qryNotasinscricaoestadual: TStringField;
+    qryNotascodigofiscal: TIntegerField;
+    qryNotasdata: TDateField;
+    qryNotasestado: TStringField;
+    qryNotasmodelo: TStringField;
+    qryNotasserie: TStringField;
+    qryNotasnumero: TIntegerField;
+    qryNotasemitentenotafiscal: TStringField;
+    qryNotasvalornota: TFloatField;
+    qryNotasbase: TFloatField;
+    qryNotasvalor: TFloatField;
+    qryNotasisentas: TFloatField;
+    qryNotasoutras: TFloatField;
+    qryNotasaliquota: TFloatField;
+    qryNotascancelado: TStringField;
+    qryCupons: TtecQuery;
+    qryCuponscodigofiscal: TIntegerField;
+    qryCuponsdescricao: TStringField;
+    qryCuponsvalortotal: TFloatField;
+    qryCuponsbase: TFloatField;
+    qryCuponsvalor: TFloatField;
+    qryCuponsisentas: TFloatField;
+    qryCuponsoutras: TFloatField;
+    qryTransportes: TtecQuery;
+    qryTransportescnpj: TStringField;
+    qryTransportesinscricaoestadual: TStringField;
+    qryTransportesdata: TDateField;
+    qryTransportesestado: TStringField;
+    qryTransportesmodelo: TStringField;
+    qryTransportesserie: TStringField;
+    qryTransportessubserie: TStringField;
+    qryTransportesnumero: TIntegerField;
+    qryTransportescodigofiscal: TIntegerField;
+    qryTransportesvalornota: TFloatField;
+    qryTransportesbase: TFloatField;
+    qryTransportesvalor: TFloatField;
+    qryTransportesisentas: TFloatField;
+    qryTransportesoutras: TFloatField;
+    qryTransportesciffob: TStringField;
+    qryTransportescancelado: TStringField;
+    qryConsultaFiliais: TtecQuery;
+    qryConsultaFiliaiscodigo: TIntegerField;
+    qryConsultaFiliaisnome: TStringField;
+    qryConsultaFiliaisrazao: TStringField;
+    qryConsultaFiliaiscnpj: TStringField;
+    qryConsultaFiliaisinscricaoestadual: TStringField;
+    qryConsultaFiliaisrua: TStringField;
+    qryConsultaFiliaismunicipio: TStringField;
+    qryConsultaFiliaisestado: TStringField;
+    qryConsultaFiliaisbairro: TStringField;
+    qryConsultaFiliaiscep: TIntegerField;
+    qryConsultaFiliaisfaxddd: TIntegerField;
+    qryConsultaFiliaisfaxnumero: TIntegerField;
+    qryConsultaFiliaisfoneddd: TIntegerField;
+    qryConsultaFiliaisfonenumero: TIntegerField;
+    qryProcuraCodigosFiscaisEntradaFinalcodigo: TIntegerField;
+    qryProcuraCodigosFiscaisEntradaFinaldescricao: TStringField;
+    qryProcuraCodigosFiscaisSaidaInicialcodigo: TIntegerField;
+    qryProcuraCodigosFiscaisSaidaInicialdescricao: TStringField;
+    qryProcuraCodigosFiscaisSaidaFinalcodigo: TIntegerField;
+    qryProcuraCodigosFiscaisSaidaFinaldescricao: TStringField;
+    qryRegistros60M: TtecQuery;
+    qryRegistros60Mtipo: TStringField;
+    qryRegistros60Msubtipo: TStringField;
+    qryRegistros60Mdatamovimento: TDateField;
+    qryRegistros60Mnumerofabricacao: TStringField;
+    qryRegistros60Mnumerousuario: TIntegerField;
+    qryRegistros60Mmodelodocfiscal: TStringField;
+    qryRegistros60Mcoo_inicial: TIntegerField;
+    qryRegistros60Mcoo_final: TIntegerField;
+    qryRegistros60Mcrz: TIntegerField;
+    qryRegistros60Mcro: TIntegerField;
+    qryRegistros60Mvendabrutadiaria: TFloatField;
+    qryRegistros60Mtotalizadorgeral: TFloatField;
+    qryRegistros60A: TtecQuery;
+    qryRegistros60Atipo: TStringField;
+    qryRegistros60Asubtipo: TStringField;
+    qryRegistros60Adatamovimento: TDateField;
+    qryRegistros60Anumerofabricacao: TStringField;
+    qryRegistros60Avaloracumulado: TFloatField;
+    qryRegistros60D: TtecQuery;
+    qryRegistros60Atotalizador: TStringField;
+    qryRegistros60Dtipo: TStringField;
+    qryRegistros60Dsubtipo: TStringField;
+    qryRegistros60Ddt_ini: TDateField;
+    qryRegistros60Dnum_fab: TStringField;
+    qryRegistros60Dcod_item: TStringField;
+    qryRegistros60Dqtde_item: TFloatField;
+    qryRegistros60Dvl_tot_item: TFloatField;
+    qryRegistros60Dbaseicms: TFloatField;
+    qryRegistros60Dtotalizador: TStringField;
+    qryRegistros60Dvaloricms: TFloatField;
+    qryRegistrosTipo75: TtecQuery;
+    qryRegistrosTipo75tipo: TStringField;
+    qryRegistrosTipo75validadeinicial: TDateField;
+    qryRegistrosTipo75validadefinal: TDateField;
+    qryRegistrosTipo75classificacaofiscal: TStringField;
+    qryRegistrosTipo75desc_item: TStringField;
+    qryRegistrosTipo75un_med: TStringField;
+    qryRegistrosTipo75aliquotaipi: TFloatField;
+    qryRegistrosTipo75percentualreducaobase: TFloatField;
+    qryRegistrosTipo75icmsbasecalculost: TFloatField;
+    qryRegistrosTipo75aliquotaicms: TFloatField;
+    qryRegistroTipo54: TtecQuery;
+    qryRegistroTipo54cnpj: TStringField;
+    qryRegistroTipo54modelo: TStringField;
+    qryRegistroTipo54serie: TStringField;
+    qryRegistroTipo54numero: TIntegerField;
+    qryRegistroTipo54codigofiscal: TIntegerField;
+    qryRegistroTipo54incidencia: TStringField;
+    qryRegistroTipo54numeroproduto: TIntegerField;
+    qryRegistroTipo54produto: TLargeintField;
+    qryRegistroTipo54quantidade: TFloatField;
+    qryRegistroTipo54valordoproduto: TFloatField;
+    qryRegistroTipo54valordodesconto: TFloatField;
+    qryRegistroTipo54icmsbasecalculo: TFloatField;
+    qryRegistroTipo54icmsbasecalculost: TFloatField;
+    qryRegistroTipo54valoripi: TFloatField;
+    qryRegistroTipo54aliquotaicms: TFloatField;
+    qryRegistroTipo54_macromaq: TtecQuery;
+    StringField6: TStringField;
+    StringField7: TStringField;
+    StringField8: TStringField;
+    IntegerField1: TIntegerField;
+    IntegerField2: TIntegerField;
+    StringField9: TStringField;
+    IntegerField3: TIntegerField;
+    LargeintField1: TLargeintField;
+    FloatField5: TFloatField;
+    FloatField6: TFloatField;
+    FloatField7: TFloatField;
+    FloatField8: TFloatField;
+    FloatField9: TFloatField;
+    FloatField10: TFloatField;
+    FloatField11: TFloatField;
+    qryRegistroTipo54origem: TIntegerField;
+    qryRegistroTipo54csosn: TStringField;
+    qryRegistros60Mfilial: TIntegerField;
+    qryRegistros60Afilial: TIntegerField;
+    qryRegistros60Anumerousuario: TIntegerField;
+    dsrRegistros60M: TtecDataSource;
+    qryRegistros60Acro: TIntegerField;
+    qryRegistros60Dfilial: TIntegerField;
+    qryRegistros60Dnum_usu: TIntegerField;
+    qryRegistros60Dcro: TIntegerField;
+    qryNotaschave: TIntegerField;
+    qryRegistroTipo54chave: TIntegerField;
+    qryRegistroTipo54emitentenotafiscal: TStringField;
+    dsrNotas: TtecDataSource;
+    qryRegistrosTipo75cod_item: TStringField;
+    qryRegistrosTipo74: TtecQuery;
+    qryRegistrosTipo74tipo: TStringField;
+    qryRegistrosTipo74codigoitem: TLargeintField;
+    qryRegistrosTipo74qtdestoque: TFloatField;
+    qryRegistrosTipo74vl_item: TFloatField;
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+
+  private
+    FListaFiliais: TStringList;
+    FListaGruposFiliais: TStringList;
+    FListaAgentes: TStringList;
+    FDataInicial: String;
+    FDataFinal: String;
+    FR10_10_CodIdConvenio: integer;
+    FR10_11_NatOperacoes: integer;
+    FR10_12_Finalidade: integer;
+    FCodigosFiliaisGerados: String;
+    fmaquina: String;
+    fintervensao: string;
+    fnumeroserie: String;
+    FDataInventario: String;
+    function GetListaFiliais: TStrings;
+    function GetListaGruposFiliais: TStrings;
+    function GetListaAgentes: TStrings;
+    procedure SetFiliais(const Value: String);
+    procedure SetGrupoFiliais(const Value: String);
+    procedure SetAgentes(const Value: String);
+    function GetconsultacodigosfiscaisEntrada: TtecQuery;
+    function GetconsultacodigosfiscaisSaida: TtecQuery;
+    function Getconsultaestado: TtecQuery;
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor create(AOwner: TComponent); override;
+    property ListaFiliais: TStrings read GetListaFiliais;
+    property ListaGruposFiliais: TStrings read GetListaGruposFiliais;
+    property ListaAgentes: TStrings read GetListaAgentes;
+    procedure MontarFiltroFiliais(Usar: TCheckListBox);
+    procedure MontarFiltroGrupoFiliais(Usar: TCheckListBox);
+    property Filiais: String write SetFiliais;
+    property GrupoFiliais: String write SetGrupoFiliais;
+    property Agentes: String write SetAgentes;
+    procedure GerarArquivo(NomeArquivo: String; pafecf: boolean = false);
+    procedure AbreTabelaPesquisa(TipoPesquisa: TTecPesquisa);
+    procedure FechaTabelaPesquisa(TipoPesquisa: TTecPesquisa);
+    procedure Selecionar(TipoPesquisa: TtecPesquisa);
+    function ExisteCodigoFiscalEntrada(Campo, Codigo: string): Boolean;
+    function ExisteCodigoFiscalSaida(Campo, Codigo: string): Boolean;
+    function ExisteEstado(Campo, Codigo: string): Boolean;
+    property consultacodigosfiscaisEntrada: TtecQuery read GetconsultacodigosfiscaisEntrada;
+    property consultacodigosfiscaisSaida: TtecQuery read GetconsultacodigosfiscaisSaida;
+    property consultaestado: TtecQuery read Getconsultaestado;
+    property DataInicial: String read FDataInicial write FDataInicial;
+    property DataFinal: String read FDataFinal write FDataFinal;
+    property DataInventarios: String read FDataInventario write FDataInventario;
+    property R10_10_CodIdConvenio: integer read FR10_10_CodIdConvenio write FR10_10_CodIdConvenio;
+    property R10_11_NatOperacoes: integer read FR10_11_NatOperacoes write FR10_11_NatOperacoes;
+    property R10_12_Finalidade: integer read FR10_12_Finalidade write FR10_12_Finalidade;
+    procedure MontarSQL;
+    property CodigosFiliaisGerados: String read FCodigosFiliaisGerados write FCodigosFiliaisGerados;
+    property maquina: string read fmaquina write fmaquina;
+    property intervensao: string read fintervensao write fintervensao;
+    property Numeroserie: String read fNumeroSerie write fNumeroSerie;
+
+  end;
+
+var
+  dtmGerarSintegraemArquivo: TdtmGerarSintegraemArquivo;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmGerarSintegraemArquivo }
+
+procedure TdtmGerarSintegraemArquivo.AbreTabelaPesquisa(
+  TipoPesquisa: TTecPesquisa);
+begin
+  case TipoPesquisa of
+    pesCODIGOFISCALENTRADAINICIAL,
+    pesCODIGOFISCALENTRADAFINAL : Abre(ctLIVTabelaConsultaCodigoFiscaisEntrada);
+    pesCODIGOFISCALSAIDAINICIAL,
+    pesCODIGOFISCALSAIDAFINAL: Abre(ctLIVTabelaConsultaCodigoFiscaisSaida);
+    pesESTADOS : Abre(ctLIVTabelaConsultaEstados);
+  end;
+end;
+
+constructor TdtmGerarSintegraemArquivo.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryFiliais.Tag      := ctLIVTabelaConsultaFiliais;
+  qryGrupoFiliais.Tag := ctLIVTabelaConsultaGruposFiliais;
+  qryAgentes.Tag      := ctLIVTabelaConsultaAgentes;
+  qryconsultaCodigosFiscaisEntrada.Tag := ctLIVTabelaConsultaCodigoFiscaisEntrada;
+  qryConsultaCodigosFiscaisSaidas.Tag := ctLIVTabelaConsultaCodigoFiscaisSaida;
+  qryConsultaEstados.Tag := ctLIVTabelaConsultaEstados;
+  qryProcuraCodigosFiscaisEntradaInicial.Tag := ctTabelas;
+  qryProcuraCodigosFiscaisEntradaFinal.Tag := ctTabelas;
+  qryProcuraCodigosFiscaisSaidaInicial.Tag := ctTabelas;
+  qryProcuraCodigosFiscaisSaidaFinal.Tag := ctTabelas;
+  qryProcuraEstados.Tag := ctTabelas;
+
+  R10_11_NatOperacoes := 3;
+  R10_12_Finalidade := 1;
+end;
+
+function TdtmGerarSintegraemArquivo.ExisteCodigoFiscalEntrada(Campo,
+  Codigo: string): Boolean;
+begin
+  Result:= ExisteCodigo(qryconsultaCodigosFiscaisEntrada, Campo, Codigo);
+end;
+
+function TdtmGerarSintegraemArquivo.ExisteCodigoFiscalSaida(Campo,
+  Codigo: string): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaCodigosFiscaisSaidas, Campo, Codigo);
+end;
+
+
+function TdtmGerarSintegraemArquivo.ExisteEstado(Campo,
+  Codigo: string): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaEstados, Campo, Codigo);
+end;
+
+procedure TdtmGerarSintegraemArquivo.FechaTabelaPesquisa(
+  TipoPesquisa: TTecPesquisa);
+begin
+  case TipoPesquisa of
+    pesCODIGOFISCALENTRADAINICIAL,
+    pesCODIGOFISCALENTRADAFINAL : Fecha(ctLIVTabelaConsultaCodigoFiscaisEntrada);
+    pesCODIGOFISCALSAIDAINICIAL,
+    pesCODIGOFISCALSAIDAFINAL: Fecha(ctLIVTabelaConsultaCodigoFiscaisSaida);
+    pesESTADOS : Fecha(ctLIVTabelaConsultaEstados);
+  end;
+end;
+
+procedure TdtmGerarSintegraemArquivo.GerarArquivo(NomeArquivo: String; pafecf: boolean = false);
+const
+ tipo = 0;
+ Qtidade =1;
+var
+  PosBarra,
+  NRegistrosTotal, I, J, N : integer;
+  IE, Tipos, Arquivo : String;
+  Arq: TextFile;
+  NrPorTipo: Array[0..1] of TStringList;
+  RegravarUltimaLinha : Boolean;
+  NumNota10: String;
+  NumNota06: String;
+
+  Tipo50, Tipo54, Tipo60, Tipo70, Tipo74, Tipo75: Integer;
+  FilAnt: Integer;
+  Tipo50Str, Tipo54Str, Tipo60Str, Tipo70Str, Tipo74Str, Tipo75Str, Tipo99Str: String;
+  Espacos : String;
+  Tam: Integer;
+  K: Byte;
+  CnpjStr, InscrStr: String;
+
+  procedure GravarLinha_String(str : String);
+  var
+   index :integer;
+  begin
+  {$IFDEF LINUX}
+   Writeln(Arq, str+#13);
+  {$ELSE }
+   Writeln(Arq, str);
+  {$ENDIF }
+   if not (strtoint(copy(str,1,2)) in [90]) then
+     NRegistrosTotal := NRegistrosTotal + 1;
+
+   if not (strtoint(copy(str,1,2)) in [10,11,90]) then begin
+     index := NrPorTipo[tipo].IndexOf(copy(str,1,2));
+     if index <> -1 then
+        nrPorTipo[Qtidade].Strings[index]:=inttostr(strtoint(nrPorTipo[Qtidade].Strings[index])+1)
+     else begin
+        NrPorTipo[tipo].Add(copy(str,1,2));
+        NrPorTipo[Qtidade].Add('1');
+     end;
+   end
+  end;
+
+begin
+//Estrutura conforme Convênio ICMS 57/95, com as alterações promovidas pelo Convênio ICMS 76/03.
+ R10_10_CodIdConvenio := 3;
+ IE := '';
+ NRegistrosTotal := 0;
+ RegravarUltimaLInha := false;
+ NrPorTipo[tipo] := tStringlist.Create;
+ NrPorTipo[Qtidade] := tStringlist.Create;
+ CodigosFiliaisGerados := '';
+
+{$IFDEF LINUX}
+  PosBarra := Pos('/', NomeArquivo);
+{$ELSE }
+  PosBarra := Pos('\', NomeArquivo);
+{$ENDIF }
+
+ if NomeArquivo = 'sintegra_n.txt' then
+    NomeArquivo := 'sintegra_.txt'
+ else
+  if (pos('.txt',NomeArquivo)=0) and
+     (pos('.',NomeArquivo)=0) then
+    if pafecf then
+      NomeArquivo := NomeArquivo+'.txt';
+
+  CodigosFiliaisGerados := #10#13;
+
+
+  ReFazConsulta(qryConsultaFiliais,[],[]);
+
+
+  Tipo50 := 0; Tipo54 := 0; Tipo60 := 0;  Tipo70 := 0; Tipo74:= 0; Tipo75:= 0;
+  Tipo50Str := '';  Tipo54Str := ''; Tipo60Str := ''; Tipo70Str := ''; Tipo74Str := '';
+  Tipo75Str := ''; Tipo99Str:= '';
+  CnpjStr := '';
+  InscrStr:= '';
+
+  qryConsultaFiliais.First;
+  FilAnt := qryConsultaFiliaisCODIGO.AsInteger;
+  CnpjStr  := qryConsultaFiliaisCNPJ.AsString;
+  InscrStr := qryConsultafiliaisINSCRICAOESTADUAL.AsString;
+
+  while not qryConsultaFiliais.Eof do
+  begin
+    if FilAnt <> qryConsultaFiliaisCODIGO.AsInteger then
+    begin
+       if Tipo50 <> 0 then
+          Tipo50Str := '50' + format('%8.8d',[Tipo50]);
+
+       if Tipo54 <> 0 then
+          Tipo54Str := '54' + format('%8.8d',[Tipo54]);
+
+       if Tipo60 <> 0 then
+          Tipo60Str := '60' + format('%8.8d',[Tipo60]);
+
+       if Tipo70 <> 0 then
+          Tipo70Str := '70' + format('%8.8d',[Tipo70]);
+
+       if Tipo74 <> 0 then
+          Tipo74Str := '74' + format('%8.8d',[Tipo74]);
+
+       if Tipo75 <> 0 then
+          Tipo75Str := '75' + format('%8.8d',[Tipo75]);
+
+       Espacos := '';
+       Tam :=  126 - (41 + Length(Tipo50Str + Tipo54Str + Tipo60Str + Tipo70Str + Tipo74Str + Tipo75Str));
+       for K := 1 to Tam do
+           Espacos := Espacos + ' ';
+
+       Tipo99Str := '99' + format('%-8.8d', [NregistrosTotal+1])+ Espacos + '1';
+
+
+
+       GravarLinha_String(
+           '90'+
+            format('%14.14d',[strtoint64(SomenteNumero(CnpjStr,true))])+
+            format('%-14s', [somentenumero(InscrStr)])+
+            Tipo50Str + Tipo54Str + Tipo60Str + Tipo70Str + Tipo74Str + Tipo75Str + Tipo99Str);
+
+        closefile(arq);
+
+
+        Tipo50Str := '';  Tipo54Str := ''; Tipo60Str := '';
+        Tipo70Str := ''; Tipo74Str := '';
+        Tipo75Str := ''; Tipo99Str:= '';
+
+        Tipo50 := 0;
+        Tipo54 := 0;
+        Tipo60 := 0;
+        Tipo70 := 0;
+        Tipo74 := 0;
+        Tipo75 := 0;
+
+        NregistrosTotal := 0;
+
+        FilAnt  := qryConsultaFiliaisCODIGO.AsInteger;
+        CnpjStr := qryConsultaFiliaisCNPJ.AsString;
+        InscrStr:= qryConsultafiliaisINSCRICAOESTADUAL.AsString;
+    end;
+
+    if not pafecf then
+    begin
+      if PosBarra = 0 then
+      begin
+        Arquivo := copy(NomeArquivo,0,pos('.',NomeArquivo)-1) +
+                   qryConsultaFiliaiscodigo.AsString +
+                   copy(NOmeArquivo,pos('.',NomeArquivo),length(NomeArquivo));
+        CodigosFiliaisGerados := CodigosFiliaisGerados + Arquivo + #10#13;
+        Arquivo := ExtractFilePath(Application.ExeName) + Arquivo;
+      end
+      else
+      begin
+        Arquivo := copy(ExtractFileName(NomeArquivo),0,pos('.',ExtractFileName(NomeArquivo))-1) +
+                   qryConsultaFiliaiscodigo.AsString +
+                   copy(ExtractFileName(NomeArquivo),pos('.',ExtractFileName(NomeArquivo)),length(ExtractFileName(NomeArquivo)));
+        CodigosFiliaisGerados := CodigosFiliaisGerados + Arquivo + #10#13;
+        Arquivo := ExtractFilePath(NomeArquivo) + Arquivo;
+      end;
+    end
+    else
+      Arquivo := NomeArquivo;
+    try
+
+    AssignFile(Arq,Arquivo);
+    Rewrite(Arq);
+
+    // Tipo 10 - Registro mestre do estabelecimento, destinado à identificação do estabelecimento informante;
+    GravarLinha_String(
+     '10'+
+     format('%14.14d',[strtoint64(SomenteNumero(qryconsultaFiliaiscnpj.AsString, true))])+
+     format('%-14s', [somenteNumero(qryConsultafiliaisinscricaoestadual.asstring)])+
+     format('%-35s', [Copy(qryConsultafiliaisRazao.asstring,1,35)])+
+     format('%-30s', [Copy(qryConsultafiliaisMunicipio.Asstring,1,30)])+
+     format('%-2s',  [Copy(qryConsultafiliaisestado.asstring,1,2)])+
+     format('%10.10d', [strtoint64(somenteNumero(Copy(qryConsultaFiliaisfaxddd.AsString + qryConsultaFiliaisfaxnumero.AsString,1,10),true))])+
+     FormatDateTime('YYYYmmdd',strtodatetime(DataInicial))+
+     FormatDateTime('YYYYmmdd',strtodatetime(DataFinal))+
+     Inttostr(R10_10_CodIdConvenio)+
+     inttostr(R10_11_NatOperacoes)+
+     inttostr(R10_12_Finalidade));
+
+   // Tipo 11 - Dados complementares do informante;
+    GravarLinha_String(
+     '11'+
+     format('%-34s', [Copy(qryConsultafiliaisrua.asstring,1,34)])+
+     format('%5.5d',  [1])+
+     format('%-22s',  [' '])+
+     format('%-15s',  [Copy(qryConsultafiliaisbairro.asstring,1,15)])+
+     format('%5.5d',  [qryConsultafiliaiscep.asinteger])+
+     format('%-28s',  [Copy(parsistema.nomeContador,1,28)])+
+     format('%12.12d',[strtoint64(somentenumero(Copy(qryConsultaFiliaisFONEDDD.AsString + qryConsultaFiliaisfoneNUMERO.AsString,1,10),true))]));
+
+    if true {not pafecf} then
+    begin
+      ReFazConsulta(qryNotas,[0,1,2],[qryConsultaFiliaisCODIGO.AsVariant, DataInicial, DataFinal]);
+     // ReFazConsulta(qryRegistroTipo54,[0,1,2],[qryConsultaFiliaisCODIGO.AsVariant, DataInicial, DataFinal]);
+
+      qryNotas.First;
+      while not qryNotas.Eof do
+      begin
+        NumNota10 := '';
+        NumNota10 := format('%10.10d',[qryNotasNumero.asinteger]);
+        NumNota06 := Copy(NumNota10,5,6);
+
+        if qryNotasinscricaoestadual.asstring<>'ISENTO' then
+          IE:= ifthen(somenteNumero(qryNotasinscricaoestadual.asstring)='','ISENTO',somenteNumero(qryNotasinscricaoestadual.asstring))
+        else
+          IE := qryNotasinscricaoestadual.asstring;
+
+        GravarLinha_String(
+           '50'+
+           format('%14.14d',[strtoint64(SomenteNumero(qryNotascnpj.AsString, true))])+
+           format('%-14s', [IE])+
+           FormatDateTime('YYYYmmdd',qryNotasdata.AsDateTime)+
+           format('%-2s', [qryNotasestado.AsString])+
+           format('%-2s', [qryNotasmodelo.AsString])+
+           format('%-3s', [ifthen((not PossuiSomenteNumero(qryNotasSerie.AsString)),'1',qryNotasSerie.AsString)])+
+           NumNota06 +
+  //       format('%6.6d',[qryNotasNumero.asinteger])+
+           format('%4.4d',[qryNotascodigofiscal.asinteger])+
+           qryNotasemitentenotafiscal.asstring+
+           formatfloat('0000000000000',round((qryNotasvalornota.Ascurrency*100)))+
+           formatfloat('0000000000000',round((qryNotasbase.Ascurrency*100)))+
+           formatfloat('0000000000000',round((qryNotasvalor.Ascurrency*100)))+
+           formatfloat('0000000000000',round((qryNotasisentas.Ascurrency*100)))+
+           formatfloat('0000000000000',round((qryNotasoutras.Ascurrency*100)))+
+           formatfloat('0000'         ,round((qryNotasaliquota.Ascurrency*100)))+
+           format('%-1s', [qryNotasCancelado.AsString]));
+
+        Inc(Tipo50);
+
+        {
+        **********
+        ATENÇÃO: PARA TER ESTE REGISTRO É NCESSARIO FECHAR O VALOR DOS IMPOSTOS DOS PRODUTOS COM CALCULOSNOTASPAG/CALCULOSDADOSFISCAIS_
+
+        NÃO IMPLEMENTADO AINDA.
+        **********
+        qryRegistroTipo54.First;
+        while not qryRegistroTipo54.Eof do
+        begin
+          NumNota10 := '';
+          NumNota10 := format('%10.10d',[qryRegistroTipo54Numero.asinteger]);
+          NumNota06 := Copy(NumNota10,5,6);
+
+          GravarLinha_String(
+             '54'+
+             format('%14.14d',[strtoint64(SomenteNumero(qryRegistroTipo54cnpj.AsString, true))])+
+             format('%-2s', [qryRegistroTipo54modelo.AsString])+
+             format('%-3s', [ifthen(not PossuiSomenteNumero(qryRegistroTipo54Serie.AsString),'1',qryRegistroTipo54Serie.AsString)])+
+             NumNota06 +
+             format('%4.4d',[qryRegistroTipo54codigofiscal.asinteger])+
+             ifthen(regimetributario = 1, qryRegistroTipo54csosn.asString, qryRegistroTipo54origem.AsString+qryRegistroTipo54incidencia.asString) +
+             format('%3.3d',[qryRegistroTipo54numeroproduto.asinteger])+
+             format('%-14s', [qryRegistroTipo54produto.AsString])+
+             formatfloat('00000000000',round((qryRegistroTipo54quantidade.Ascurrency*1000)))+
+             formatfloat('000000000000',round((qryRegistroTipo54valordoproduto.Ascurrency*100)))+
+             formatfloat('000000000000',round((qryRegistroTipo54valordodesconto.Ascurrency*100)))+
+             formatfloat('000000000000',round((qryRegistroTipo54icmsbasecalculo.Ascurrency*100)))+
+             formatfloat('000000000000',round((qryRegistroTipo54icmsbasecalculost.Ascurrency*100)))+
+             formatfloat('000000000000',round((qryRegistroTipo54valoripi.Ascurrency*100)))+
+             formatfloat('0000',round((qryRegistroTipo54aliquotaicms.Ascurrency*100))) );
+
+          Inc(Tipo54);
+          qryRegistroTipo54.next;
+        end;
+        }
+
+        qryNotas.next;
+      end;
+      qryRegistrosTipo75.Macros := qryRegistroTipo54.Macros;
+
+    end;
+
+    if pafecf then
+    begin
+     // colocado em comentario jr 23/08/2014 .. tem que trazer de todas as ecfs e nao somenete as conectadas
+     // qryRegistros60M.macrobyname('CondicaoPafEcf').asstring := 'and rz.numerousuario = '+maquina + ' and rz.cro = '+intervensao + ' and rz.numerofabricacao = '+quotedstr(Numeroserie);
+     // qryRegistros60A.macrobyname('CondicaoPafEcf').asstring := 'and rz.numerousuario = '+ maquina + ' and rz.cro = '+intervensao + ' and rz.numerofabricacao = '+quotedstr(Numeroserie);
+     // qryRegistros60D.macrobyname('CondicaoPafEcf').asstring := 'and dc.num_usu = '+maquina + ' and dc.cro = '+intervensao + ' and dc.num_fab = '+quotedstr(Numeroserie);
+    end;
+
+    ReFazConsulta(qryRegistros60M,[0,1,2],[qryConsultaFiliaisCODIGO.AsVariant, DataInicial, DataFinal]);
+    ReFazConsulta(qryRegistros60A,[0,1,2],[qryConsultaFiliaisCODIGO.AsVariant, DataInicial, DataFinal]);
+    ReFazConsulta(qryRegistros60D,[0,1,2],[qryConsultaFiliaisCODIGO.AsInteger, DataInicial, DataFinal]);
+
+    qryRegistros60M.First;
+    while not qryRegistros60M.Eof do
+    begin
+      GravarLinha_String(
+         qryRegistros60Mtipo.AsString +
+         qryRegistros60Msubtipo.AsString +
+         FormatDateTime('YYYYmmdd',qryRegistros60Mdatamovimento.AsDateTime)+
+         format('%-20s', [qryRegistros60Mnumerofabricacao.AsString])+
+         format('%3.3d',[qryRegistros60Mnumerousuario.asinteger])+
+         qryRegistros60Mmodelodocfiscal.AsString+
+         format('%6.6d',[qryRegistros60Mcoo_inicial.asinteger])+
+         format('%6.6d',[qryRegistros60Mcoo_final.asinteger])+
+         format('%6.6d',[qryRegistros60MCRZ.asinteger])+
+         format('%3.3d',[qryRegistros60MCRO.asinteger])+
+         formatfloat('0000000000000000',round((qryRegistros60Mvendabrutadiaria.Ascurrency*100)))+
+         formatfloat('0000000000000000',round((qryRegistros60Mtotalizadorgeral.Ascurrency*100)))+
+         '                                     ');
+      Inc(Tipo60);
+
+      qryRegistros60A.First;
+      while not qryRegistros60A.Eof do
+      begin
+        GravarLinha_String(
+           qryRegistros60Atipo.AsString +
+           qryRegistros60Asubtipo.AsString +
+           FormatDateTime('YYYYmmdd',qryRegistros60Adatamovimento.AsDateTime)+
+           format('%-20s', [qryRegistros60Anumerofabricacao.AsString])+
+           format('%-4s',[qryRegistros60Atotalizador.asstring])+
+           formatfloat('000000000000',round((qryRegistros60Avaloracumulado.Ascurrency*100)))+
+           '                                                                               ');
+        Inc(Tipo60);
+        qryRegistros60A.next;
+      end;
+
+      qryRegistros60D.First;
+      while not qryRegistros60D.Eof do
+      begin
+        GravarLinha_String(
+           qryRegistros60Dtipo.AsString +
+           qryRegistros60Dsubtipo.AsString +
+           FormatDateTime('YYYYmmdd',qryRegistros60Ddt_ini.AsDateTime)+
+           format('%-20s', [qryRegistros60Dnum_fab.AsString])+
+           format('%-14s', [qryRegistros60Dcod_item.AsString])+
+           formatfloat('0000000000000',round((qryRegistros60Dqtde_item.Ascurrency*1000)))+
+           formatfloat('0000000000000000',round((qryRegistros60Dvl_tot_item.Ascurrency*100)))+
+           formatfloat('0000000000000000',round((qryRegistros60Dbaseicms.Ascurrency*100)))+
+           format('%-4s',[qryRegistros60Dtotalizador.asstring])+
+           formatfloat('0000000000000',round((qryRegistros60Dvaloricms.Ascurrency*100)))+
+           '                   ');
+        Inc(Tipo60);
+        qryRegistros60D.next;
+      end;
+
+      qryRegistros60M.next;
+    end;
+
+    if true {not pafecf} then
+    begin
+      ReFazConsulta(qryTransportes,[0,1,2],[qryConsultaFiliaisCODIGO.AsVariant, DataInicial, DataFinal]);
+      qryTransportes.First;
+      while not qryTransportes.Eof do begin
+         NumNota10 := '';
+         NumNota10 := format('%10.10d',[qryTransportesNUMERO.AsInteger]);
+         NumNota06 := Copy(NumNota10,5,6);
+
+         if qryTransportesinscricaoestadual.asstring<>'ISENTO' then
+            IE:= ifthen(somenteNumero(qryTransportesinscricaoestadual.asstring)='','ISENTO',somenteNumero(qryTransportesinscricaoestadual.asstring))
+         else
+            IE := qryTransportesinscricaoestadual.asstring;
+        GravarLinha_String(
+         '70'+
+         format('%14.14d',[strtoint64(SomenteNumero(qryTransportescnpj.AsString, true))])+
+         format('%-14s', [IE])+
+         FormatDateTime('YYYYmmdd',qryTransportesdata.AsDateTime)+
+         format('%-2s', [Copy(qryTransportesestado.AsString,1,2)])+
+         format('%-2s', [Copy(qryTransportesmodelo.AsString,1,2)])+
+         format('%-1s', [Copy(qryTransportesserie.AsString,1,1)])+
+         format('%-2s', [Copy(qryTransportessubserie.AsString,1,2)])+
+         NumNota06 +
+     //  format('%6.6d',[qryTransportesnumero.asinteger])+
+         format('%4.4d',[qryTransportescodigofiscal.asinteger])+
+         formatfloat('0000000000000' ,round((qryTransportesvalornota.Ascurrency*100)))+
+         formatfloat('00000000000000',round((qryTransportesbase.Ascurrency*100)))+
+         formatfloat('00000000000000',round((qryTransportesvalor.Ascurrency*100)))+
+         formatfloat('00000000000000',round((qryTransportesisentas.Ascurrency*100)))+
+         formatfloat('00000000000000',round((qryTransportesoutras.Ascurrency*100)))+
+         format('%-1s', [qryTransportesciffob.AsString])+
+         format('%-1s', [qryTransportesCancelado.AsString]));
+         Inc(Tipo70);
+         qryTransportes.next;
+      end;
+    end;
+
+    if pafecf then
+    begin
+      //comentário em 23/08/2014 jr tem que trazer tudo
+      //qryRegistrosTipo75.macrobyname('CondicaoPafEcf').asstring := 'and dc.num_usu = '+maquina + ' and dc.cro = '+intervensao + ' and dc.num_fab = '+quotedstr(Numeroserie);
+      //qryRegistrosTipo75.macrobyname('SelecionarNotas').asstring := 'and false';
+    end;
+
+    if (DataInventarios<>'') then
+    begin
+    ReFazConsulta(qryRegistrosTipo74,[0,1],[DataInventarios,qryConsultaFiliaisCODIGO.AsVariant]);
+    qryRegistrosTipo74.First;
+    while not qryRegistrosTipo74.Eof do
+    begin
+      GravarLinha_String(
+         qryRegistrosTipo74tipo.AsString +
+         FormatDateTime('YYYYmmdd',strtodatetime(DataInventarios))+
+         format('%-14s', [qryRegistrosTipo74codigoitem.asstring])+
+         formatfloat('0000000000000',round((qryRegistrosTipo74qtdestoque.AsCurrency*1000)))+
+         formatfloat('0000000000000',round((qryRegistrosTipo74vl_item.AsCurrency*100)))+
+         '1'+
+         '00000000000000' + {qryConsultaFiliaiscnpj.AsString+}
+         preencheString(' ',' ',14) +
+         qryConsultaFiliaisestado.asstring+
+         preencheString(' ',' ',45));
+      Inc(Tipo74);
+      qryRegistrosTipo74.next;
+    end;
+    end;
+
+
+
+    ReFazConsultapornome(qryRegistrosTipo75,
+                         ['filial','datainicial','datafinal','estado','data_inventario','condicao_inventario'],
+                         [qryConsultaFiliaisCODIGO.AsVariant, DataInicial, DataFinal, estadofilialbase,ifthen(Datainventarios<>'',Datainventarios,'31/12/2099'),datainventarios<>'']);
+
+    qryRegistrosTipo75.First;
+    while not qryRegistrosTipo75.Eof do
+    begin
+      GravarLinha_String(
+         qryRegistrosTipo75tipo.AsString +
+//         FormatDateTime('YYYYmmdd',qryRegistrosTipo75validadeinicial.AsDateTime)+
+//         FormatDateTime('YYYYmmdd',qryRegistrosTipo75validadefinal.AsDateTime)+
+
+     FormatDateTime('YYYYmmdd',strtodatetime(DataInicial))+
+     FormatDateTime('YYYYmmdd',strtodatetime(DataFinal))+
+
+         format('%-14s', [qryRegistrosTipo75cod_item.asstring])+
+         format('%-8s', [qryRegistrosTipo75classificacaofiscal.asstring])+
+         format('%-53s', [copy(qryRegistrosTipo75desc_item.asstring,1,53)])+
+         format('%-6s', [qryRegistrosTipo75un_med.asstring])+
+         formatfloat('00000',round((qryRegistrosTipo75aliquotaipi.Ascurrency*100)))+
+         formatfloat('0000',round((qryRegistrosTipo75aliquotaicms.Ascurrency*100)))+
+         formatfloat('00000',round((qryRegistrosTipo75percentualreducaobase.Ascurrency*100)))+
+         formatfloat('0000000000000',round((qryRegistrosTipo75icmsbasecalculost.Ascurrency*100))));
+      Inc(Tipo75);
+      qryRegistrosTipo75.next;
+    end;
+
+
+    if NrPorTipo[tipo].Count > 8 then begin
+       N:= NrPorTipo[tipo].Count div 8;
+       if NrPorTipo[tipo].count > N then
+          N:=N+1;
+       if (NrPorTipo[tipo].Count mod 8)=0 then
+           RegravarUltimaLinha := true;
+    end else N := 1;
+
+
+    except
+      on E:EFCreateError do
+        MensagemErro(E.Message);
+    end;
+
+//  closefile(arq);
+    qryConsultaFiliais.next;
+  end;
+
+  if FilAnt <> 0 then begin
+
+       if Tipo50 <> 0 then
+          Tipo50Str := '50' + format('%8.8d',[Tipo50]);
+
+       if Tipo54 <> 0 then
+          Tipo54Str := '54' + format('%8.8d',[Tipo54]);
+
+       if Tipo60 <> 0 then
+          Tipo60Str := '60' + format('%8.8d',[Tipo60]);
+
+       if Tipo70 <> 0 then
+          Tipo70Str := '70' + format('%8.8d',[Tipo70]);
+
+       if Tipo74 <> 0 then
+          Tipo74Str := '74' + format('%8.8d',[Tipo74]);
+
+       if Tipo75 <> 0 then
+          Tipo75Str := '75' + format('%8.8d',[Tipo75]);
+
+     Espacos := '';
+     Tam :=  126 - (41 + Length(Tipo50Str + Tipo54Str + Tipo60Str +
+                                Tipo70Str + Tipo74Str +
+                                Tipo75Str));
+     for K := 1 to Tam do
+         Espacos := Espacos + ' ';
+
+     Tipo99Str := '99' + format('%-8.8d', [NregistrosTotal+1])+ Espacos + '1';
+
+     GravarLinha_String(
+         '90'+
+          format('%14.14d',[strtoint64(SomenteNumero(CnpjStr, true))])+
+          format('%-14s', [somentenumero(InscrStr)])+
+          Tipo50Str + Tipo54Str + Tipo60Str + Tipo70Str +
+          Tipo74Str +
+          Tipo75Str + Tipo99Str);
+
+
+     closefile(arq);
+  end;
+
+end;
+
+function TdtmGerarSintegraemArquivo.GetconsultacodigosfiscaisEntrada: TtecQuery;
+begin
+  result := qryconsultaCodigosFiscaisEntrada;
+end;
+
+function TdtmGerarSintegraemArquivo.GetconsultacodigosfiscaisSaida: TtecQuery;
+begin
+ result := qryConsultaCodigosFiscaisSaidas;
+end;
+
+function TdtmGerarSintegraemArquivo.Getconsultaestado: TtecQuery;
+begin
+  result := qryConsultaEstados;
+end;
+
+function TdtmGerarSintegraemArquivo.GetListaAgentes: TStrings;
+begin
+  FListaAgentes:= TStringList.Create;
+  qryAgentes.Open;
+  while not qryAgentes.Eof do
+  begin
+    FListaAgentes.AddObject(format('%3s',[qryAgentescodigo.asstring])+'.'+qryAgentesdescricao.AsString, Pointer(qryAgentescodigo.AsInteger));
+    qryAgentes.Next;
+  end;
+  qryAgentes.Close;
+  Result := FListaAgentes;
+end;
+
+function TdtmGerarSintegraemArquivo.GetListaFiliais: TStrings;
+begin
+  FListaFiliais:= TStringList.Create;
+  qryFiliais.Open;
+  while not qryFiliais.Eof do
+  begin
+    FListaFiliais.AddObject(format('%3s',[qryFiliaiscodigo.AsString])+'.'+qryFiliaisnome.AsString, Pointer(qryFiliaiscodigo.AsInteger));
+    qryFiliais.Next;
+  end;
+  qryFiliais.Close;
+  Result := FListaFiliais;
+end;
+
+function TdtmGerarSintegraemArquivo.GetListaGruposFiliais: TStrings;
+begin
+  FListaGruposFiliais:= TStringList.Create;
+  qryGrupoFiliais.Open;
+  while not qryGrupoFiliais.Eof do
+  begin
+    FListaGruposFiliais.AddObject(format('%2s',[qryGrupoFiliaiscodigo.asstring])+'.'+
+                                               qryGrupoFiliaisdescricao.AsString,
+                                               Pointer(qryGrupoFiliaiscodigo.AsInteger));
+    qryGrupoFiliais.Next;
+  end;
+  qryGrupoFiliais.Close;
+  Result := FListaGruposFiliais;
+end;
+
+procedure TdtmGerarSintegraemArquivo.MontarFiltroFiliais(
+  Usar: TCheckListBox);
+var
+  STRFiliais: String;
+  TodasFiliais: Boolean;
+  cnt: Integer;
+begin
+  TodasFiliais := True;
+  STRFiliais := '';
+  for cnt := 0 to FListaFiliais.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRFiliais := STRFiliais + '''' + IntToStr(Integer(FListaFiliais.Objects[cnt])) + ''','
+    else
+      TodasFiliais := False;
+
+  STRFiliais := Copy(STRFiliais, 0, Length(STrFiliais) - 1);
+  Filiais := STRFiliais;
+  if Trim(STRFiliais) <> '' then
+    if TodasFiliais then
+      Filiais := '';
+end;
+
+procedure TdtmGerarSintegraemArquivo.MontarFiltroGrupoFiliais(
+  Usar: TCheckListBox);
+var
+  STRGruposFiliais: String;
+  TodosGrupos: Boolean;
+  cnt: Integer;
+begin
+  STRGruposFiliais := '';
+  TodosGrupos := True;
+  for cnt := 0 to FListaGruposFiliais.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRGruposFiliais := STRGruposFiliais + '''' + IntToStr(Integer(FListaGruposFiliais.Objects[cnt]))+ ''','
+    else
+      TodosGrupos := False;
+
+  STRGruposFiliais := Copy(STRGruposFiliais, 0, Length(STrGruposFiliais) - 1);
+  GrupoFiliais:=STRGruposFiliais;
+  if Trim(STRGruposFiliais) <> '' then
+   if TodosGrupos then
+    GrupoFiliais:='';
+end;
+
+procedure TdtmGerarSintegraemArquivo.MontarSQL;
+const
+ CFEntradaIF = 'and cnp.codigofiscal >= %s and cnp.codigofiscal <= %s';
+ CFEntradaIF_Produtos = 'and pnp.codigofiscal >= %s and pnp.codigofiscal <= %s';
+
+ CFEntradaI = 'and cnp.codigofiscal >= %s';
+ CFEntradaI_Produtos = 'and pnp.codigofiscal >= %s';
+
+ CFEntradaF = 'and cnp.codigofiscal <= %s';
+ CFEntradaF_Produtos = 'and pnp.codigofiscal <= %s';
+
+ CFSaidaIF = 'and cdf.codigofiscal >= %s and cdf.codigofiscal <= %s';
+ CFSaidaI = 'and cdf.codigofiscal >= %s';
+ CFSaidaF = 'and cdf.codigofiscal <= %s';
+
+ CFSaidaIF_Produtos = 'and pdf.codigofiscal >= %s and pdf.codigofiscal <= %s';
+ CFSaidaI_Produtos = 'and pdf.codigofiscal >= %s';
+ CFSaidaF_Produtos = 'and pdf.codigofiscal <= %s';
+
+ CFEntradaUF = 'and np.estado = %s';
+ CFSaidaUF = 'and df.estado = %s';
+
+begin
+  if (qryProcuraCodigosFiscaisEntradaInicialcodigo.AsInteger<>0) and
+     (qryProcuraCodigosFiscaisEntradaFinalcodigo.AsInteger<>0) then
+  begin
+   qryNotas.MacroByName('WhereCodigosFiscais_entrada').AsString :=
+     format(CFEntradaIF,
+           [qryProcuraCodigosFiscaisEntradaInicialcodigo.AsString,
+            qryProcuraCodigosFiscaisEntradaFinalcodigo.AsString]);
+
+   qryRegistroTipo54.MacroByName('WhereCodigosFiscais_entrada').AsString :=
+     format(CFEntradaIF_Produtos,
+           [qryProcuraCodigosFiscaisEntradaInicialcodigo.AsString,
+            qryProcuraCodigosFiscaisEntradaFinalcodigo.AsString]);
+
+  end
+  else
+  if (qryProcuraCodigosFiscaisEntradaInicialcodigo.AsInteger<>0) and
+     (qryProcuraCodigosFiscaisEntradaFinalcodigo.AsInteger=0) then
+  begin
+   qryNotas.MacroByName('WhereCodigosFiscais_entrada').AsString :=
+     format(CFEntradaI,
+           [qryProcuraCodigosFiscaisEntradaInicialcodigo.AsString]);
+
+   qryRegistroTipo54.MacroByName('WhereCodigosFiscais_entrada').AsString :=
+     format(CFEntradaI_Produtos,
+           [qryProcuraCodigosFiscaisEntradaInicialcodigo.AsString])
+  end
+  else
+  if (qryProcuraCodigosFiscaisEntradaInicialcodigo.AsInteger=0) and
+     (qryProcuraCodigosFiscaisEntradaFinalcodigo.AsInteger<>0) then
+  begin
+   qryNotas.MacroByName('WhereCodigosFiscais_entrada').AsString :=
+     format(CFEntradaF,
+           [qryProcuraCodigosFiscaisEntradaFinalcodigo.AsString]);
+
+   qryRegistroTipo54.MacroByName('WhereCodigosFiscais_entrada').AsString :=
+     format(CFEntradaF_Produtos,
+           [qryProcuraCodigosFiscaisEntradaFinalcodigo.AsString]);
+
+  end
+  else
+  if (qryProcuraCodigosFiscaisEntradaInicialcodigo.AsInteger=0) and
+     (qryProcuraCodigosFiscaisEntradaFinalcodigo.AsInteger=0) then
+  begin
+    qryNotas.MacroByName('WhereCodigosFiscais_entrada').AsString := '';
+    qryRegistroTipo54.MacroByName('WhereCodigosFiscais_entrada').AsString := '';
+  end;
+
+  if (qryProcuraCodigosFiscaisSaidaInicialcodigo.AsInteger<>0) and
+     (qryProcuraCodigosFiscaisSaidaFinalcodigo.AsInteger<>0) then
+  begin
+    qryNotas.MacroByName('WhereCodigosFiscais_saida').AsString :=
+      format(CFSaidaIF,
+           [qryProcuraCodigosFiscaisSaidaInicialcodigo.AsString,
+           qryProcuraCodigosFiscaisSaidaFinalcodigo.AsString]);
+
+    qryRegistroTipo54.MacroByName('WhereCodigosFiscais_saida').AsString :=
+      format(CFSaidaIF_Produtos,
+           [qryProcuraCodigosFiscaisSaidaInicialcodigo.AsString,
+           qryProcuraCodigosFiscaisSaidaFinalcodigo.AsString])
+  end
+  else
+  if (qryProcuraCodigosFiscaisSaidaInicialcodigo.AsInteger<>0) and
+     (qryProcuraCodigosFiscaisSaidaFinalcodigo.AsInteger=0) then
+  begin
+    qryNotas.MacroByName('WhereCodigosFiscais_saida').AsString :=
+      format(CFSaidaI,
+           [qryProcuraCodigosFiscaisSaidaInicialcodigo.AsString]);
+
+    qryRegistroTipo54.MacroByName('WhereCodigosFiscais_saida').AsString :=
+      format(CFSaidaI_Produtos,
+           [qryProcuraCodigosFiscaisSaidaInicialcodigo.AsString]);
+  end
+  else
+  if (qryProcuraCodigosFiscaisSaidaInicialcodigo.AsInteger=0) and
+     (qryProcuraCodigosFiscaisSaidaFinalcodigo.AsInteger<>0) then
+  begin
+   qryNotas.MacroByName('WhereCodigosFiscais_saida').AsString :=
+      format(CFSaidaF,
+           [qryProcuraCodigosFiscaisSaidaFinalcodigo.AsString]);
+
+   qryRegistroTipo54.MacroByName('WhereCodigosFiscais_saida').AsString :=
+      format(CFSaidaF_Produtos,
+           [qryProcuraCodigosFiscaisSaidaFinalcodigo.AsString])
+  end
+  else
+  if (qryProcuraCodigosFiscaisSaidaInicialcodigo.AsInteger=0) and
+     (qryProcuraCodigosFiscaisSaidaFinalcodigo.AsInteger=0) then
+  begin
+    qryNotas.MacroByName('WhereCodigosFiscais_saida').AsString := '';
+    qryRegistroTipo54.MacroByName('WhereCodigosFiscais_saida').AsString := '';
+  end;
+
+  if qryProcuraEstadoscodigo.AsString<>'' then
+  begin
+   qrynotas.MacroByName('WhereEstado_entrada').AsString := format(CFEntradaUF,[quotedstr(qryProcuraEstadoscodigo.AsString)]);
+   qrynotas.MacroByName('WhereEstado_saida').AsString := format(CFSaidaUF,[quotedstr(qryProcuraEstadoscodigo.AsString)]);
+   qrytransportes.MacroByName('WhereEstado').AsString := format(CFEntradaUF,[quotedstr(qryProcuraEstadoscodigo.AsString)]);
+   qryRegistroTipo54.MacroByName('WhereEstado_entrada').AsString := format(CFEntradaUF,[quotedstr(qryProcuraEstadoscodigo.AsString)]);
+   qryRegistroTipo54.MacroByName('WhereEstado_saida').AsString := format(CFSaidaUF,[quotedstr(qryProcuraEstadoscodigo.AsString)]);
+  end
+  else
+  begin
+   qrynotas.MacroByName('WhereEstado_entrada').AsString := '';
+   qrynotas.MacroByName('WhereEstado_saida').AsString := '';
+   qrytransportes.MacroByName('WhereEstado').AsString := '';
+   qryRegistroTipo54.MacroByName('WhereEstado_entrada').AsString := '';
+   qryRegistroTipo54.MacroByName('WhereEstado_saida').AsString := '';
+  end;
+
+end;
+
+procedure TdtmGerarSintegraemArquivo.Selecionar(
+  TipoPesquisa: TtecPesquisa);
+begin
+  case TipoPesquisa of
+    pesCODIGOFISCALENTRADAINICIAL : ReFazConsulta(qryProcuraCodigosFiscaisEntradaInicial,[0], [qryconsultaCodigosFiscaisEntradacodigo.AsVariant]);
+    pesCODIGOFISCALENTRADAFINAL   : ReFazConsulta(qryProcuraCodigosFiscaisEntradaFinal,[0], [qryconsultaCodigosFiscaisEntradacodigo.AsVariant]);
+    pesCODIGOFISCALSAIDAINICIAL   : ReFazConsulta(qryProcuraCodigosFiscaisSaidaInicial,[0], [qryConsultaCodigosFiscaisSaidascodigo.AsVariant]);
+    pesCODIGOFISCALSAIDAFINAL     : ReFazConsulta(qryProcuraCodigosFiscaisSaidaInicial,[0], [qryConsultaCodigosFiscaisSaidascodigo.AsVariant]);
+    pesESTADOS : ReFazConsulta(qryProcuraEstados,[0], [qryConsultaEstadoscodigo.AsVariant]);
+  end;
+end;
+
+procedure TdtmGerarSintegraemArquivo.SetAgentes(const Value: String);
+const
+  SQLAgente = 'and df.agente in (%s)';
+begin
+  if (Value <> '') then
+  begin
+    qrynotas.MacroByName('WhereAgentes_saida').AsString := Format(SQLAgente,[Value]);
+    qryRegistroTipo54.MacroByName('WhereAgentes_saida').AsString := Format(SQLAgente,[Value])
+  end
+  else
+  begin
+    qrynotas.MacroByName('WhereAgentes_saida').AsString := '';
+    qryRegistroTipo54.MacroByName('WhereAgentes_saida').AsString := '';
+  end
+end;
+
+procedure TdtmGerarSintegraemArquivo.SetFiliais(const Value: String);
+const
+ FiltroFilial = 'and f.codigo in (%s)';
+begin
+  if (Value <> '') then
+    qryConsultaFiliais.macrobyname('condicao').asstring := Format(FiltroFilial,[Value])
+  else
+    qryConsultaFiliais.macrobyname('condicao').asstring :=  '';
+end;
+
+procedure TdtmGerarSintegraemArquivo.SetGrupoFiliais(const Value: String);
+const
+  FiltroGrupoFilial = ' and f.codigo IN (SELECT fgf.filial '+#13#10+
+                                  'FROM filiaisgruposfiliais fgf '+#13#10+
+                                    'WHERE fgf.grupo IN (%s))';
+begin
+  if (Value <> '') then
+      qryConsultaFiliais.Sql[22]:=Format(FiltroGrupoFilial,[Value])
+end;
+
+procedure TdtmGerarSintegraemArquivo.ZMonitor1MonitorEvent(Sql,
+  Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:\sentegra.sql') then
+    Listar.loadfromfile('c:\sentegra.sql');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\sentegra.sql');
+  listar.free;
+end;
+
+end.

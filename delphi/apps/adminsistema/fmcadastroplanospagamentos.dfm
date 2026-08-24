@@ -6,7 +6,7 @@ inherited frmCadastroPlanosPagamentos: TfrmCadastroPlanosPagamentos
   ClientHeight = 547
   ClientWidth = 612
   FormStyle = fsMDIChild
-  Position = poDesktopCenter
+  Position = poScreenCenter
   PixelsPerInch = 96
   TextHeight = 16
   inherited pnlBarra: TPanel

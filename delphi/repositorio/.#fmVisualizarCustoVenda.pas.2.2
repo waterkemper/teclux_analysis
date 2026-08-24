@@ -1,0 +1,440 @@
+unit fmVisualizarCustoVenda;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, DB, cpdatasource, ZQuery, ZPgSqlQuery, cpquery, dmbasico,
+  fmajuda, dmtecsoft, Grids, DBGrids, cpdbgrid, ExtCtrls, StdCtrls, Mask,
+  DBCtrls, Provider, DBClient, ctconstantes, cpdbtext, ComCtrls, clusuario, biblio;
+
+type
+  TfrmVisualizarCustoVenda = class(TFrmAjuda)
+    qryProdutos: TtecQuery;
+    dsrProdutos: TtecDataSource;
+    pnlTop: TPanel;
+    pnlBottom: TPanel;
+    dbgProdutos: TtecDBGrid;
+    lblSomaTotalVenda: TStaticText;
+    dtxSomaTotalVenda: TtecDBText;
+    lblSomadescontofinanceiro: TStaticText;
+    dtxSomadescontofinanceiro: TtecDBText;
+    lblSomaacrescimofinanceiro: TStaticText;
+    dtxSomaacrescimofinanceiro: TtecDBText;
+    lblSomaFrete: TStaticText;
+    dtxSomaFrete: TtecDBText;
+    lblSomaSeguro: TStaticText;
+    dtxSomaSeguro: TtecDBText;
+    lblSomaValorICMS: TStaticText;
+    dtxSomaICMSValor: TtecDBText;
+    lblSomapisvalor: TStaticText;
+    dtxSomapisvalor: TtecDBText;
+    lblSomaCofinsValor: TStaticText;
+    dtxSomaCofinsValor: TtecDBText;
+    lblSomaTotalCusto: TStaticText;
+    dtxSomaTotalCusto: TtecDBText;
+    qryProdutosproduto: TLargeintField;
+    qryProdutosdescricaoproduto: TStringField;
+    qryProdutostotalitens: TFloatField;
+    qryProdutosdescontofinanceiro: TFloatField;
+    qryProdutosacrescimofinanceiro: TFloatField;
+    qryProdutosfrete: TFloatField;
+    qryProdutosseguro: TFloatField;
+    qryProdutostotalvenda: TFloatField;
+    qryProdutostotalcusto: TFloatField;
+    qryProdutospercentualcusto: TFloatField;
+    qryProdutosvendabruta: TFloatField;
+    qryProdutosmargemlucro: TFloatField;
+    qryProdutospercentualmargemlucro: TFloatField;
+    dtxSomaPercentualTotalCusto: TtecDBText;
+    lblSomaVendaBruta: TStaticText;
+    dtxSomaVendaBruta: TtecDBText;
+    qryProdutosicmsvalor: TFloatField;
+    qryProdutosicmsvalorst: TFloatField;
+    qryProdutospisvalor: TFloatField;
+    qryProdutoscofinsvalor: TFloatField;
+    qryProdutosvaloripi: TFloatField;
+    StaticText1: TStaticText;
+    dtxMargemBrutaTotaisLucroReal: TtecDBText;
+    lblSomaMargemLucro: TStaticText;
+    dtxSomaMargemLucro: TtecDBText;
+    dtxPercentualMargemLucro: TtecDBText;
+    qryProdutosaliquotaicms_sn: TFloatField;
+    qryProdutosimpostossn: TFloatField;
+    qryProdutosmargemlucrosn: TFloatField;
+    qryProdutospercentualmargemlucrosn: TFloatField;
+    qryServicos: TtecQuery;
+    dsrServicos: TtecDataSource;
+    StaticText7: TStaticText;
+    dtxTotalServicos: TtecDBText;
+    StaticText8: TStaticText;
+    dtxTotalProdutos: TtecDBText;
+    qryServicosservico: TIntegerField;
+    qryServicosdescricaoservico: TStringField;
+    qryServicostotalitens: TFloatField;
+    qryServicosvalorissqn: TFloatField;
+    qryServicospisvalor: TFloatField;
+    qryServicoscofinsvalor: TFloatField;
+    qryServicosmargemlucro: TFloatField;
+    qryServicospercentualmargemlucro: TFloatField;
+    dbgServicos: TtecDBGrid;
+    StaticText14: TStaticText;
+    dtxSomaValorISSQN: TtecDBText;
+    qryContrato: TtecQuery;
+    dsrContrato: TtecDataSource;
+    qryContratototalitens: TFloatField;
+    qryContratototalservico: TFloatField;
+    qryContratodescontofinanceiro: TFloatField;
+    qryContratoacrescimofinanceiro: TFloatField;
+    qryContratofrete: TFloatField;
+    qryContratoseguro: TFloatField;
+    qryContratototalcusto: TFloatField;
+    qryContratoTotalProdutos: TCurrencyField;
+    qryContratoTotalVenda: TCurrencyField;
+    qryContratoPercentualTotalCusto: TCurrencyField;
+    qryContratoMargemBruta: TCurrencyField;
+    gbxVenda: TGroupBox;
+    pnlDesconto: TPanel;
+    pnlBrutoProdutos: TPanel;
+    StaticText16: TStaticText;
+    dtxTotalItens: TtecDBText;
+    pnlAcrescimo: TPanel;
+    pnlFrete: TPanel;
+    pnlSeguro: TPanel;
+    pnlTotalVenda: TPanel;
+    pnlTotalServicos: TPanel;
+    pnlMargemBruta: TPanel;
+    pnlTotaldoiCusto: TPanel;
+    pnlLiquidoProdutos: TPanel;
+    gbxLucroReal: TGroupBox;
+    pgcLucroReal: TPageControl;
+    tstTotais: TTabSheet;
+    tstProdutosLucroReal: TTabSheet;
+    tstServicosLucroReal: TTabSheet;
+    pnlMargemBrutaTotaisLucroReal: TPanel;
+    pnlCofinsTotaisLucroReal: TPanel;
+    pnlPISTotaisLucroReal: TPanel;
+    pnlICMSTotaisLucroReal: TPanel;
+    pnlMargemLucroTotaisLucroReal: TPanel;
+    Panel1: TPanel;
+    StaticText2: TStaticText;
+    dtxMargemBrutaTotaisProdutosLucroReal: TtecDBText;
+    Panel2: TPanel;
+    StaticText9: TStaticText;
+    dtxSomaICMSValorProdutos: TtecDBText;
+    Panel4: TPanel;
+    StaticText18: TStaticText;
+    dtxSomapisvalorprodutos: TtecDBText;
+    Panel5: TPanel;
+    StaticText19: TStaticText;
+    dtxSomaCofinsValorCofins: TtecDBText;
+    Panel7: TPanel;
+    StaticText21: TStaticText;
+    dtxSomaMargemLucroProdutos: TtecDBText;
+    dtxPercentualMargemLucroProdutos: TtecDBText;
+    pnlISSQNTotaisLucroReal: TPanel;
+    Panel8: TPanel;
+    StaticText10: TStaticText;
+    dtxtotalservico: TtecDBText;
+    Panel11: TPanel;
+    StaticText13: TStaticText;
+    dtxpisvalorservicos: TtecDBText;
+    Panel12: TPanel;
+    StaticText15: TStaticText;
+    dtxcofinsvalorservicos: TtecDBText;
+    Panel14: TPanel;
+    StaticText23: TStaticText;
+    dtxvalorissqn: TtecDBText;
+    Panel15: TPanel;
+    StaticText24: TStaticText;
+    dtxSomaMargemLucroServicos: TtecDBText;
+    dtxPercentualMargemLucroServicos: TtecDBText;
+    gbxSimplesNacional: TGroupBox;
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    Panel9: TPanel;
+    StaticText4: TStaticText;
+    dtxMargemBrutaTotalSN: TtecDBText;
+    Panel17: TPanel;
+    StaticText25: TStaticText;
+    dtxSNServicos: TtecDBText;
+    Panel18: TPanel;
+    StaticText26: TStaticText;
+    dtxSNProdutos: TtecDBText;
+    Panel19: TPanel;
+    StaticText27: TStaticText;
+    dtxSomaMargemLucroSN: TtecDBText;
+    dtxPercentualMargemLucroSN: TtecDBText;
+    TabSheet2: TTabSheet;
+    Panel21: TPanel;
+    StaticText29: TStaticText;
+    dtxMargemBrutaSNProdutos: TtecDBText;
+    Panel22: TPanel;
+    StaticText30: TStaticText;
+    dtxSNProdutosP: TtecDBText;
+    Panel27: TPanel;
+    StaticText35: TStaticText;
+    dtxSomaMargemLucroSNProdutos: TtecDBText;
+    dtxPercentualMargemLucroSNProdutos: TtecDBText;
+    TabSheet3: TTabSheet;
+    Panel28: TPanel;
+    StaticText36: TStaticText;
+    dtxtotalservicoSN: TtecDBText;
+    Panel29: TPanel;
+    StaticText37: TStaticText;
+    dtxSNServicosSN: TtecDBText;
+    Panel32: TPanel;
+    StaticText40: TStaticText;
+    dtxSomaMargemLucroSNServicos: TtecDBText;
+    dtxPercentualMargemLucroSNServicos: TtecDBText;
+    qryContratoMargemBrutaTotal: TCurrencyField;
+    qryContratoicmsvalor: TFloatField;
+    qryContratoicmsvalorst: TFloatField;
+    qryContratopisvalorprodutos: TFloatField;
+    qryContratocofinsvalorprodutos: TFloatField;
+    qryContratovalorissqn: TFloatField;
+    qryContratopisvalorservicos: TFloatField;
+    qryContratocofinsvalorservicos: TFloatField;
+    qryContratovaloripi: TFloatField;
+    qryContratoPisValor: TCurrencyField;
+    qryContratoCofinsValor: TCurrencyField;
+    qryContratoSomaMargemLucro: TCurrencyField;
+    qryContratoPercentualMargemLucro: TCurrencyField;
+    qryContratoSomaMargemLucroProdutos: TCurrencyField;
+    qryContratoPercentualMargemLucroProdutos: TCurrencyField;
+    qryContratoSomaMargemLucroServicos: TCurrencyField;
+    qryContratoPercentualMargemLucroServicos: TCurrencyField;
+    qryContratoaliquotaicms_sn: TFloatField;
+    qryContratoSNProdutos: TCurrencyField;
+    qryContratoSNServicos: TCurrencyField;
+    qryContratoSomaMargemLucroSN: TCurrencyField;
+    qryContratoPercentualMargemLucroSN: TCurrencyField;
+    qryContratoSomaMargemLucroSNProdutos: TCurrencyField;
+    qryContratoPercentualMargemLucroSNProdutos: TCurrencyField;
+    qryContratoSomaMargemLucroSNServicos: TCurrencyField;
+    qryContratoPercentualMargemLucroSNServicos: TCurrencyField;
+    qryServicosimpostossn: TFloatField;
+    qryServicosmargemlucrosn: TFloatField;
+    qryServicospercentualmargemlucrosn: TFloatField;
+    qryContratototalipi: TFloatField;
+    pnlIPI: TPanel;
+    lblSomaIPI: TStaticText;
+    dtxSomaIPI: TtecDBText;
+    pnlSubstTributaria: TPanel;
+    lblSomaSubstTributaria: TStaticText;
+    dtxSomaSubstTribut: TtecDBText;
+    qryContratovaloricmssubstituicao: TFloatField;
+    pnlRetencoes: TPanel;
+    StaticText3: TStaticText;
+    dtxRetencoes: TtecDBText;
+    qryContratoimpostoretido: TFloatField;
+    Panel3: TPanel;
+    StaticText5: TStaticText;
+    dtxLiquidoServicos: TtecDBText;
+    qryContratoLiquidoServicos: TCurrencyField;
+    qryOrcamentos: TtecQuery;
+    FloatField1: TFloatField;
+    FloatField2: TFloatField;
+    FloatField3: TFloatField;
+    FloatField4: TFloatField;
+    FloatField5: TFloatField;
+    FloatField6: TFloatField;
+    FloatField7: TFloatField;
+    CurrencyField1: TCurrencyField;
+    CurrencyField2: TCurrencyField;
+    CurrencyField3: TCurrencyField;
+    CurrencyField4: TCurrencyField;
+    CurrencyField5: TCurrencyField;
+    FloatField8: TFloatField;
+    FloatField9: TFloatField;
+    FloatField10: TFloatField;
+    FloatField11: TFloatField;
+    FloatField12: TFloatField;
+    FloatField13: TFloatField;
+    FloatField14: TFloatField;
+    FloatField15: TFloatField;
+    CurrencyField6: TCurrencyField;
+    CurrencyField7: TCurrencyField;
+    CurrencyField8: TCurrencyField;
+    CurrencyField9: TCurrencyField;
+    CurrencyField10: TCurrencyField;
+    CurrencyField11: TCurrencyField;
+    CurrencyField12: TCurrencyField;
+    CurrencyField13: TCurrencyField;
+    FloatField16: TFloatField;
+    CurrencyField14: TCurrencyField;
+    CurrencyField15: TCurrencyField;
+    CurrencyField16: TCurrencyField;
+    CurrencyField17: TCurrencyField;
+    CurrencyField18: TCurrencyField;
+    CurrencyField19: TCurrencyField;
+    CurrencyField20: TCurrencyField;
+    CurrencyField21: TCurrencyField;
+    FloatField17: TFloatField;
+    FloatField18: TFloatField;
+    FloatField19: TFloatField;
+    CurrencyField22: TCurrencyField;
+    qryProdutosOrcamentos: TtecQuery;
+    LargeintField1: TLargeintField;
+    StringField1: TStringField;
+    FloatField20: TFloatField;
+    FloatField21: TFloatField;
+    FloatField22: TFloatField;
+    FloatField23: TFloatField;
+    FloatField24: TFloatField;
+    FloatField25: TFloatField;
+    FloatField26: TFloatField;
+    FloatField27: TFloatField;
+    FloatField28: TFloatField;
+    FloatField29: TFloatField;
+    FloatField30: TFloatField;
+    FloatField31: TFloatField;
+    FloatField32: TFloatField;
+    FloatField33: TFloatField;
+    FloatField34: TFloatField;
+    FloatField35: TFloatField;
+    FloatField36: TFloatField;
+    FloatField37: TFloatField;
+    FloatField38: TFloatField;
+    FloatField39: TFloatField;
+    procedure qryContratoCalcFields(DataSet: TDataSet);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    destructor Destroy; override;
+  end;
+
+var
+  frmVisualizarCustoVenda: TfrmVisualizarCustoVenda;
+  AcionarTelaVisualizarCustoVenda: procedure (Owner: TComponent; Documento: TTecStringRetorno; Tipo: TTecStringRetorno );
+
+
+implementation
+
+{$R *.dfm}
+
+procedure AcionarTelaVisualizarCustoVenda_(Owner: TComponent; Documento: TTecStringRetorno; Tipo: TTecStringRetorno);
+var
+  UsrAut: TtecUsuarios;
+begin
+  UsrAut :=  TdtmBasico.ObterAutorizacao(taLOGIN, 'VISUALIZAR CUSTOS', 'Gerente de Vendas', '');
+  if Assigned(UsrAut) and Not UsrAut.GerenteVendas then
+    MensagemAviso(ctUSUARIOSEMPERMISSAO)
+  else
+  begin
+    if not assigned(frmVisualizarCustoVenda) or (frmVisualizarCustoVenda.Owner <> Owner) then
+    begin
+      if assigned(frmVisualizarCustoVenda) then
+        frmVisualizarCustoVenda.free;
+
+      frmVisualizarCustoVenda := TfrmVisualizarCustoVenda.create(Owner);
+
+      frmVisualizarCustoVenda.qryProdutos.parambyname('contrato').asString := Documento;
+      frmVisualizarCustoVenda.qryProdutos.close;
+      frmVisualizarCustoVenda.qryProdutos.open;
+
+      frmVisualizarCustoVenda.qryServicos.parambyname('contrato').asString := Documento;
+      frmVisualizarCustoVenda.qryServicos.close;
+      frmVisualizarCustoVenda.qryServicos.open;
+
+      frmVisualizarCustoVenda.qryContrato.parambyname('contrato').asString := Documento;
+      frmVisualizarCustoVenda.qryContrato.close;
+      frmVisualizarCustoVenda.qryContrato.open;
+
+
+      frmVisualizarCustoVenda.showmodal;
+    end;
+    frmVisualizarCustoVenda.Free;
+  end;
+
+end;
+
+
+destructor TfrmVisualizarCustoVenda.Destroy;
+begin
+  frmVisualizarCustoVenda := nil;
+  inherited;
+end;
+
+procedure TfrmVisualizarCustoVenda.qryContratoCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryContratoTotalProdutos.asCurrency := qryContratototalitens.asCurrency -
+                                         qryContratodescontofinanceiro.asCurrency +
+                                         qryContratoacrescimofinanceiro.asCurrency +
+                                         qryContratofrete.asCurrency +
+                                         qryContratoseguro.asCurrency +
+                                         qryContratototalipi.asCurrency +
+                                         qryContratovaloricmssubstituicao.asCurrency;
+
+
+  qryContratoLiquidoServicos.asCurrency := qryContratototalservico.asCurrency - qryContratoimpostoretido.asCurrency;
+
+  qryContratoTotalVenda.asCurrency :=  qryContratoTotalProdutos.asCurrency +
+                                       qryContratoLiquidoServicos.asCurrency;
+
+  qryContratoPercentualTotalCusto.ascurrency := (qryContratototalcusto.asCurrency * 100) / qryContratoTotalProdutos.asCurrency;
+  qryContratoMargemBruta.asCurrency :=  qryContratoTotalProdutos.asCurrency - qryContratototalcusto.asCurrency;
+
+
+  qryContratoMargemBrutaTotal.asCurrency := qryContratoMargemBruta.asCurrency +  qryContratoLiquidoServicos.asCurrency;
+
+  qryContratoPisValor.asCurrency := qryContratoPisValorProdutos.asCurrency + qryContratopisvalorservicos.asCurrency;
+
+  qryContratoCofinsValor.asCurrency := qryContratoCofinsValorProdutos.asCurrency + qryContratoCofinsValorSErvicos.asCurrency;
+
+  qryContratoSomaMargemLucro.asCurrency := qryContratoMargemBrutaTotal.asCurrency -
+                                           qryContratoicmsvalor.ascurrency -  {ver quando}
+                                           qryContratoPisValor.asCurrency -
+                                           qryContratoCofinsValor.asCurrency -
+                                           qryContratovalorissqn.asCurrency;
+
+  qryContratoPercentualMargemLucro.asCurrency := qryContratoSomaMargemLucro.asCurrency * 100 / qryContratoMargemBrutaTotal.asCurrency;
+
+  qryContratoSomaMargemLucroProdutos.asCurrency := qryContratoMargemBruta.asCurrency -
+                                           qryContratoicmsvalor.ascurrency -
+                                           qryContratoicmsvalorst.ascurrency -
+                                           qryContratopisvalorprodutos.asCurrency -
+                                           qryContratocofinsvalorprodutos.asCurrency -
+                                           qryContratovaloripi.asCurrency;
+
+  qryContratoPercentualMargemLucroProdutos.asCurrency :=  qryContratoSomaMargemLucroProdutos.asCurrency * 100 / qryContratoMargemBruta.asCurrency;
+
+  qryContratoSomaMargemLucroServicos.asCurrency := qryContratoLiquidoServicos.asCurrency -
+                                                   qryContratopisvalorservicos.asCurrency -
+                                                   qryContratoCofinsValorSErvicos.asCurrency -
+                                                   qryContratovalorissqn.asCurrency;
+
+  qryContratoPercentualMargemLucroServicos.asCurrency := qryContratoSomaMargemLucroServicos.asCurrency * 100 / qryContratoLiquidoServicos.asCurrency;
+
+  qryContratoSNProdutos.asCurrency := ((qryContratoTotalProdutos.asCurrency * qryContratoaliquotaicms_sn.asCurrency) / 100);
+  qryContratoSNServicos.asCurrency := ((qryContratoTotalServico.asCurrency * qryContratoaliquotaicms_sn.asCurrency) / 100);
+
+  qryContratoSomaMargemLucroSN.asCurrency :=  qryContratoMargemBrutaTotal.asCurrency -
+                                              qryContratoSNProdutos.asCurrency -
+                                              qryContratoSNServicos.asCurrency;
+
+  qryContratoPercentualMargemLucroSN.asCurrency := qryContratoSomaMargemLucroSN.asCurrency * 100 / qryContratoMargemBrutaTotal.asCurrency;
+
+  qryContratoSomaMargemLucroSNProdutos.asCurrency := qryContratoMargemBruta.asCurrency - qryContratoSNProdutos.asCurrency;
+
+  qryContratoPercentualMargemLucroSNProdutos.asCurrency :=  qryContratoSomaMargemLucroSNProdutos.asCurrency * 100 / qryContratoMargemBruta.asCurrency;
+
+  qryContratoSomaMargemLucroSNServicos.asCurrency :=  qryContratototalservico.asCurrency - qryContratoSNServicos.asCurrency;
+
+  qryContratoPercentualMargemLucroSNServicos.asCurrency := qryContratoSomaMargemLucroSNServicos.asCurrency * 100 / qryContratototalservico.asCurrency;
+
+
+
+
+
+
+end;
+
+initialization
+   AcionarTelaVisualizarCustoVenda :=  AcionarTelaVisualizarCustoVenda_;
+
+
+end.

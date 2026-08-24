@@ -1,0 +1,200 @@
+unit fmrelatorioresumoestoque;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmcadastropadrao, ComCtrls, Buttons, ExtCtrls, Mask,
+  cpdbfindcontrols, cpnumero, dmrelatorioresumoestoque, db, biblio, Windows,
+  ActnList, dateutils, ToolWin;
+
+type
+  TfrmRelatorioResumoEstoque = class(TFrmCadastroPadrao)
+    sbnImprimir: TSpeedButton;
+    gbxPeriodo: TGroupBox;
+    edfDataInicial: TtecDbEditFind;
+    edfDataFinal: TtecDbEditFind;
+    gbxconsumomateriais: TGroupBox;
+    gbxConsumoMateriaPrima: TGroupBox;
+    lblConsumoMateriaPrima: TLabel;
+    edtConsumoMateriaPrima: TDBEditNumero;
+    gbxConsumoPorcelana: TGroupBox;
+    lblConsumoPorcelana: TLabel;
+    edtConsumoPorcelana: TDBEditNumero;
+    gbxConsumoEmbalagem: TGroupBox;
+    lblConsumoEmbalagem: TLabel;
+    edtConsumoEmbalagem: TDBEditNumero;
+    gbxMateriaisFabricados: TGroupBox;
+    gbxFabricadolConsumo: TGroupBox;
+    lbFabricadolConsumo: TLabel;
+    edtabricadolConsumo: TDBEditNumero;
+    gbxFabricadolEstoque: TGroupBox;
+    lbFabricadolEstoque: TLabel;
+    edtFabricadolEstoque: TDBEditNumero;
+    gbxConsumoTotal: TGroupBox;
+    lblConsumoTotal: TLabel;
+    edtConsumoTotal: TDBEditNumero;
+    gbxEstoqueResistores: TGroupBox;
+    gbxResistoresAcabados: TGroupBox;
+    lblResistoresAcabados: TLabel;
+    edtResistoresAcabados: TDBEditNumero;
+    gbxResistoresSemiAcabados: TGroupBox;
+    lblResistoresSemiAcabados: TLabel;
+    edtResistoresSemiAcabados: TDBEditNumero;
+    gbxResistoresTotal: TGroupBox;
+    lblResistoresTotal: TLabel;
+    edtResistoresTotal: TDBEditNumero;
+    gbxEstoqueMateriais: TGroupBox;
+    gbxEstoqueMateriaPrima: TGroupBox;
+    lblEstoqueMateriaPrima: TLabel;
+    edtEstoqueMateriaPrima: TDBEditNumero;
+    gbxEstoquePorcelana: TGroupBox;
+    lblEstoquePorcelana: TLabel;
+    edtEstoquePorcelana: TDBEditNumero;
+    gbxEstoqueEmbalagem: TGroupBox;
+    lblEstoqueEmbalagem: TLabel;
+    edtEstoqueEmbalagem: TDBEditNumero;
+    gbxEstoqueTotal: TGroupBox;
+    lblEstoqueTotal: TLabel;
+    edtEstoqueTotal: TDBEditNumero;
+    gbxResumo: TGroupBox;
+    gbxMateriaPrimaFinal: TGroupBox;
+    lblMateriaPrimaFinal: TLabel;
+    edtMateriaPrimaFinal: TDBEditNumero;
+    gbxCompraMateriaPrima: TGroupBox;
+    lblCompraMateriaPrima: TLabel;
+    edtCompraMateriaPrima: TDBEditNumero;
+    gbxConsumo_MateriaPrima: TGroupBox;
+    lblConsumo_MateriaPrima: TLabel;
+    edtConsumo_MateriaPrima: TDBEditNumero;
+    gbxTotalMateriaPrima: TGroupBox;
+    lblTotalMateriaPrima: TPanel;
+    edtTotalMateriaPrima: TDBEditNumero;
+    gbxRetornoMateriaPrima: TGroupBox;
+    lblRetornoMateriaPrima: TLabel;
+    edtRetornoMateriaPrima: TDBEditNumero;
+    ActionList1: TActionList;
+    Action1: TAction;
+    lblA: TLabel;
+    procedure edfDataFinalFound(Found: Boolean);
+    procedure sbnImprimirClick(Sender: TObject);
+    procedure Action1Update(Sender: TObject);
+    procedure edfDataInicialKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+  private
+    { Private declarations }
+    function InternoGravar: Boolean; override;
+    function InternoExcluir: Boolean; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure AtualizarValores;
+  public
+    { Public declarations }
+
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+
+
+  end;
+
+var
+  frmRelatorioResumoEstoque: TfrmRelatorioResumoEstoque;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmRelatorioResumoEstoque }
+
+constructor TfrmRelatorioResumoEstoque.Create(AOwner: TComponent);
+begin
+  dtmRelatorioResumoEstoque := TdtmRelatorioResumoEstoque.Create(Self);
+  inherited;
+  DataSet := dtmRelatorioResumoEstoque.qryResumoEstoqueKrahIce;
+  edfDataInicial.Text := datetostr(PrimeiroDiaMesAnterior(now()));
+//  edfDataInicial.Update;
+  edfDataFinal.text := datetostr(UltimoDiaMesAnterior(now()));
+//  edfDataFinal.Update;
+  edfDataFinal.SelectAll;
+
+  edfDataInicial.Exist;
+  edfDataFinal.Exist;
+//  AtualizarValores;
+
+end;
+
+
+destructor TfrmRelatorioResumoEstoque.Destroy;
+begin
+  dtmRelatorioResumoEstoque := nil;
+  inherited;
+  frmRelatorioResumoEstoque := nil;
+end;
+
+procedure TfrmRelatorioResumoEstoque.edfDataFinalFound(Found: Boolean);
+begin
+  inherited;
+  if found then
+    AtualizarValores;
+end;
+
+function TfrmRelatorioResumoEstoque.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then
+    dtmRelatorioResumoEstoque.ExcluirRelatorioResumo
+end;
+
+function TfrmRelatorioResumoEstoque.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if Result then
+   dtmRelatorioResumoEstoque.GravarRelatorioResumo;
+end;
+
+procedure TfrmRelatorioResumoEstoque.sbnImprimirClick(Sender: TObject);
+begin
+  inherited;
+  dtmRelatorioResumoEstoque.ImprimirRelatorio;
+end;
+
+procedure TfrmRelatorioResumoEstoque.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if key =VK_F7 then
+    if sbnImprimir.Enabled then
+      dtmRelatorioResumoEstoque.ImprimirRelatorio;
+end;
+
+procedure TfrmRelatorioResumoEstoque.Action1Update(Sender: TObject);
+begin
+  inherited;
+  sbnImprimir.Enabled := not dtmRelatorioResumoEstoque.qryResumoEstoqueKrahIce.IsEmpty;
+
+end;
+
+procedure TfrmRelatorioResumoEstoque.edfDataInicialKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (key <>VK_return) and
+     (key <>VK_F5) and
+     (key <>VK_F6) then
+  begin
+    dtmRelatorioResumoEstoque.qryResumoEstoqueKrahIcedatafinal.Clear;
+    edfDataFinal.Clear
+  end;
+end;
+
+
+procedure TfrmRelatorioResumoEstoque.AtualizarValores;
+begin
+  dtmRelatorioResumoEstoque.AtualizarValores(edfDataInicial.Text, edfDataFinal.Text);
+  gbxMateriaisFabricados.Caption:= 'MATERIAIS FABRICADOS PELA KRAH-ICE EM ' + edfDataFinal.Text;
+  gbxEstoqueResistores.  Caption:= 'ESTOQUE DE RESISTORES EM TRÂNSITO EM ' + edfDataFinal.Text;
+  gbxEstoqueMateriais.   Caption:= 'ESTOQUE DE MATERIAIS EM ' + edfDataFinal.Text;
+  lblTotalMateriaPrima.  Caption:= 'TOTAL DE MATÉRIA-PRIMA EM ' + edfDataFinal.Text;
+  lblMateriaPrimaFinal.  Caption:= 'Estoque de Matéria-prima em '+formatdatetime('dd/mm/yyyy',strtodate(edfDataInicial.text)-1);
+end;
+
+end.

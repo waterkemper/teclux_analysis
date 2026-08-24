@@ -11,9 +11,9 @@ inherited frmDIPJ_IPI: TfrmDIPJ_IPI
   TextHeight = 16
   inherited pnlBarra: TPanel
     Left = 0
-    Top = 40
+    Top = 45
     Width = 991
-    Height = 547
+    Height = 542
     Align = alClient
     BevelOuter = bvNone
     Visible = True
@@ -80,6 +80,7 @@ inherited frmDIPJ_IPI: TfrmDIPJ_IPI
           ParentFont = False
           ReadOnly = True
           TabOrder = 0
+          Alignment = taLeftJustify
         end
       end
       object gbxFilial: TGroupBox
@@ -130,6 +131,7 @@ inherited frmDIPJ_IPI: TfrmDIPJ_IPI
             OnFound = fraConsultaFilialedfCodigoFound
             LookupField = 'codigo'
             LookupSource = fraConsultaFilial.dsrProcuraFiliais
+            LookupQueryParameter = 'codigo'
             Parameter = 'filial'
             ActiveSetControls = True
             DenyInsert = False
@@ -156,6 +158,7 @@ inherited frmDIPJ_IPI: TfrmDIPJ_IPI
         Top = 10
         Width = 63
         Height = 23
+        Alignment = taLeftJustify
         DataField = 'exercicio'
         DataSource = dtmDIPJ_IPI.dsrdipj_ipi
         EditMask = '!0000;1;_'
@@ -218,7 +221,6 @@ inherited frmDIPJ_IPI: TfrmDIPJ_IPI
       Height = 465
       ActivePage = tstApuracaoSaldoIPI
       MultiLine = True
-      TabIndex = 0
       TabOrder = 1
       object tstApuracaoSaldoIPI: TTabSheet
         Caption = '  F20 - Apura'#231#227'o do Saldo do IPI  '
@@ -294,8 +296,15 @@ inherited frmDIPJ_IPI: TfrmDIPJ_IPI
           CellHeights = 100
           StrippedColor = 16054260
           CanDelete = False
+          CanNotInsertFromGrid = False
           PostOnEnter = True
+          PostOnSetUpDown = False
           DenySort = True
+          DefaultRowHeight = 19
+          ExibirNumerodaLinha = False
+          NaoAtribuirDadosaTabelaaoDigitar = False
+          ShowWhenFieldInvisible = False
+          CanClickWhenEditing = False
           Columns = <
             item
               Expanded = False
@@ -391,7 +400,6 @@ inherited frmDIPJ_IPI: TfrmDIPJ_IPI
           Height = 434
           ActivePage = tstEntradasF21
           Align = alClient
-          TabIndex = 0
           TabOrder = 0
           object tstEntradasF21: TTabSheet
             Caption = '    F21 - Entrada e cr'#233'ditos  '
@@ -425,8 +433,15 @@ inherited frmDIPJ_IPI: TfrmDIPJ_IPI
               CellHeights = 100
               StrippedColor = 16054260
               CanDelete = False
+              CanNotInsertFromGrid = False
               PostOnEnter = True
+              PostOnSetUpDown = False
               DenySort = True
+              DefaultRowHeight = 19
+              ExibirNumerodaLinha = False
+              NaoAtribuirDadosaTabelaaoDigitar = False
+              ShowWhenFieldInvisible = False
+              CanClickWhenEditing = False
               Columns = <
                 item
                   Expanded = False
@@ -529,8 +544,15 @@ inherited frmDIPJ_IPI: TfrmDIPJ_IPI
               CellHeights = 100
               StrippedColor = 16054260
               CanDelete = False
+              CanNotInsertFromGrid = False
               PostOnEnter = True
+              PostOnSetUpDown = False
               DenySort = True
+              DefaultRowHeight = 19
+              ExibirNumerodaLinha = False
+              NaoAtribuirDadosaTabelaaoDigitar = False
+              ShowWhenFieldInvisible = False
+              CanClickWhenEditing = False
               Columns = <
                 item
                   Expanded = False
@@ -611,7 +633,6 @@ inherited frmDIPJ_IPI: TfrmDIPJ_IPI
               Height = 403
               ActivePage = tstRemetentesInsumo
               Align = alClient
-              TabIndex = 0
               TabOrder = 0
               object tstRemetentesInsumo: TTabSheet
                 Caption = '  F23 - Remetentes de Insumos  '
@@ -644,8 +665,15 @@ inherited frmDIPJ_IPI: TfrmDIPJ_IPI
                   CellHeights = 100
                   StrippedColor = 16054260
                   CanDelete = False
+                  CanNotInsertFromGrid = False
                   PostOnEnter = False
+                  PostOnSetUpDown = False
                   DenySort = True
+                  DefaultRowHeight = 19
+                  ExibirNumerodaLinha = False
+                  NaoAtribuirDadosaTabelaaoDigitar = False
+                  ShowWhenFieldInvisible = False
+                  CanClickWhenEditing = False
                   Columns = <
                     item
                       Expanded = False
@@ -734,8 +762,15 @@ inherited frmDIPJ_IPI: TfrmDIPJ_IPI
                   CellHeights = 100
                   StrippedColor = 16054260
                   CanDelete = False
+                  CanNotInsertFromGrid = False
                   PostOnEnter = False
+                  PostOnSetUpDown = False
                   DenySort = True
+                  DefaultRowHeight = 19
+                  ExibirNumerodaLinha = False
+                  NaoAtribuirDadosaTabelaaoDigitar = False
+                  ShowWhenFieldInvisible = False
+                  CanClickWhenEditing = False
                   Columns = <
                     item
                       Expanded = False
@@ -835,8 +870,15 @@ inherited frmDIPJ_IPI: TfrmDIPJ_IPI
                   CellHeights = 100
                   StrippedColor = 16054260
                   CanDelete = False
+                  CanNotInsertFromGrid = False
                   PostOnEnter = False
+                  PostOnSetUpDown = False
                   DenySort = True
+                  DefaultRowHeight = 19
+                  ExibirNumerodaLinha = False
+                  NaoAtribuirDadosaTabelaaoDigitar = False
+                  ShowWhenFieldInvisible = False
+                  CanClickWhenEditing = False
                   Columns = <
                     item
                       Expanded = False
@@ -929,8 +971,15 @@ inherited frmDIPJ_IPI: TfrmDIPJ_IPI
                   CellHeights = 100
                   StrippedColor = 16054260
                   CanDelete = False
+                  CanNotInsertFromGrid = False
                   PostOnEnter = False
+                  PostOnSetUpDown = False
                   DenySort = True
+                  DefaultRowHeight = 19
+                  ExibirNumerodaLinha = False
+                  NaoAtribuirDadosaTabelaaoDigitar = False
+                  ShowWhenFieldInvisible = False
+                  CanClickWhenEditing = False
                   Columns = <
                     item
                       Expanded = False
@@ -1021,7 +1070,7 @@ inherited frmDIPJ_IPI: TfrmDIPJ_IPI
         Left = 225
         Top = 2
         Width = 72
-        Height = 35
+        Height = 39
         Caption = 'Gerar F8'
         Flat = True
         Glyph.Data = {

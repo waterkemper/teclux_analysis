@@ -1207,7 +1207,7 @@ inherited dtmrelatorioestoqueicmsstarecolher: Tdtmrelatorioestoqueicmsstarecolhe
       54524F4C4553000000000E00436F6D5175616E74696461646573000400547275
       65000B0020417578696C69617265730000000005004C696E6861000100300000
       00000000000000FC00000000000000000000000000000000580067405A6238B2
-      E34071DE12633647E540}
+      E340200AA1D57373E640}
   end
   object dsrEstoque: TtecDataSource
     DataSet = qryEstoque
@@ -1229,5 +1229,26 @@ inherited dtmrelatorioestoqueicmsstarecolher: Tdtmrelatorioestoqueicmsstarecolhe
     DataSet = qryProdutosSTaRecolher
     Left = 408
     Top = 160
+  end
+  object frxReport1: TfrxReport
+    Version = '4.0.11'
+    DotMatrixReport = False
+    IniFile = '\Software\Fast Reports'
+    PreviewOptions.Buttons = [pbPrint, pbLoad, pbSave, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbEdit, pbNavigator, pbExportQuick]
+    PreviewOptions.Zoom = 1.000000000000000000
+    PrintOptions.Printer = 'Default'
+    PrintOptions.PrintOnSheet = 0
+    ReportOptions.CreateDate = 45978.478442384260000000
+    ReportOptions.LastChange = 45978.478442384260000000
+    ScriptLanguage = 'PascalScript'
+    ScriptText.Strings = (
+      'begin'
+      ''
+      'end.')
+    Left = 80
+    Top = 160
+    Datasets = <>
+    Variables = <>
+    Style = <>
   end
 end

@@ -111,7 +111,6 @@ type
     qryNotaFiscalnumeroconhecimentofrete: TIntegerField;
     qryNotaFiscalcnpj: TStringField;
     qryNotaFiscalinscricaoestadual: TStringField;
-    qryNotaFiscalfreteexterno: TFloatField;
     qryNotaFiscalirretido: TFloatField;
     qryNotaFiscalinssretido: TFloatField;
     qryNotaFiscalissretido: TFloatField;
@@ -291,6 +290,9 @@ type
     qryEntradasnumprotocolonfe: TStringField;
     qryEntradaspossuixmlnfe: TBooleanField;
     qryEntradaspermitirimprimir: TBooleanField;
+    qryNotaFiscalvalornotafreteexterno: TFloatField;
+    qryNotaFiscalvalorconhecimentofrete: TFloatField;
+    qryNotaFiscalicmsconhecimentofrete: TFloatField;
     procedure qryEntradasAfterScroll(DataSet: TDataSet);
     procedure qryProcurarFornecedoresAfterOpen(DataSet: TDataSet);
     procedure qryProcurarFornecedoresBeforeOpen(DataSet: TDataSet);

@@ -1,7 +1,7 @@
 inherited dtmConciliacaoBancaria: TdtmConciliacaoBancaria
   OldCreateOrder = False
-  Left = 341
-  Top = 215
+  Left = 594
+  Top = 236
   Height = 364
   Width = 651
   object qryMovtosBancos: TtecQuery
@@ -617,6 +617,213 @@ inherited dtmConciliacaoBancaria: TdtmConciliacaoBancaria
   object dsrMovtosBancosEventos: TtecDataSource
     DataSet = qryMovtosBancosEventos
     Left = 104
+    Top = 240
+  end
+  object OFXReader1: TOFXReader
+    Left = 352
+    Top = 176
+  end
+  object qryconciliacaoextrato: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'ListaTransacoes'
+        ParamType = ptUnknown
+        Value = #39'0'#39','#39'1'#39
+      end>
+    Sql.Strings = (
+      'select ce.*'
+      'from conciliacaoextrato ce'
+      'where ce.conta = :conta'
+      '  and ce.transacao in (%ListaTransacoes)'
+      'order by ce.sequencial')
+    RequestLive = True
+    Left = 280
+    Top = 232
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'conta'
+        ParamType = ptUnknown
+      end>
+    object qryconciliacaoextratoconta: TIntegerField
+      FieldName = 'conta'
+      Required = True
+    end
+    object qryconciliacaoextratotransacao: TStringField
+      DisplayLabel = 'TRANSA'#199#195'O'
+      FieldName = 'transacao'
+      Required = True
+      Size = 60
+    end
+    object qryconciliacaoextratosequencial: TIntegerField
+      DisplayLabel = 'N.'
+      FieldName = 'sequencial'
+    end
+    object qryconciliacaoextratodocumento: TStringField
+      DisplayLabel = 'DOCUMENTO'
+      FieldName = 'documento'
+      Size = 60
+    end
+    object qryconciliacaoextratodata: TDateField
+      DisplayLabel = 'DATA'
+      FieldName = 'data'
+    end
+    object qryconciliacaoextratotipo: TStringField
+      DisplayLabel = 'TIPO'
+      FieldName = 'tipo'
+      Size = 1
+    end
+    object qryconciliacaoextratovalor: TFloatField
+      DisplayLabel = 'VALOR'
+      FieldName = 'valor'
+    end
+    object qryconciliacaoextratodescricao: TStringField
+      DisplayLabel = 'DESCRI'#199#195'O'
+      FieldName = 'descricao'
+      Size = 100
+    end
+  end
+  object dsrconciliacaoextrato: TtecDataSource
+    DataSet = qryconciliacaoextrato
+    Left = 320
+    Top = 248
+  end
+  object qryConciliacao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select co.*'
+      'from conciliacao co'
+      'where co.conta = :conta'
+      '  and co.datainicial = :datainicial'
+      '  and co.datafinal = :datafinal'
+      '')
+    RequestLive = True
+    Left = 184
+    Top = 224
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'conta'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end>
+    object qryConciliacaoconta: TIntegerField
+      FieldName = 'conta'
+      Required = True
+    end
+    object qryConciliacaodatainicial: TDateField
+      FieldName = 'datainicial'
+      Required = True
+    end
+    object qryConciliacaodatafinal: TDateField
+      FieldName = 'datafinal'
+      Required = True
+    end
+    object qryConciliacaosaldo: TFloatField
+      FieldName = 'saldo'
+    end
+  end
+  object dsrConciliacao: TtecDataSource
+    DataSet = qryConciliacao
+    Left = 216
+    Top = 240
+  end
+  object qryContaConciliacao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryProcuraContasAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT c.Banco,'
+      '       c.Agencia,'
+      '       c.Conta,'
+      '       c.Digito,'
+      '       c.Titular,'
+      '       b.Sigla,'
+      '       a.Nome'
+      ''
+      'FROM  Contas c JOIN Bancos b   ON c.Banco   = b.Codigo'
+      '               JOIN Agencias a ON c.Banco   = a.Banco AND'
+      '                                  c.Agencia = a.Codigo'
+      ''
+      'WHERE Conta = :Conta'
+      ''
+      ''
+      '')
+    RequestLive = True
+    Left = 454
+    Top = 223
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'Conta'
+        ParamType = ptUnknown
+        Value = '-1'
+      end>
+    object qryContaConciliacaobanco: TIntegerField
+      FieldName = 'banco'
+    end
+    object qryContaConciliacaoagencia: TIntegerField
+      FieldName = 'agencia'
+    end
+    object qryContaConciliacaoconta: TIntegerField
+      FieldName = 'conta'
+    end
+    object qryContaConciliacaodigito: TStringField
+      FieldName = 'digito'
+      Size = 2
+    end
+    object qryContaConciliacaotitular: TStringField
+      FieldName = 'titular'
+      Size = 50
+    end
+    object qryContaConciliacaosigla: TStringField
+      FieldName = 'sigla'
+      Size = 10
+    end
+    object qryContaConciliacaonome: TStringField
+      FieldName = 'nome'
+      Size = 30
+    end
+  end
+  object dsrContaConciliacao: TtecDataSource
+    DataSet = qryContaConciliacao
+    Left = 480
     Top = 240
   end
 end

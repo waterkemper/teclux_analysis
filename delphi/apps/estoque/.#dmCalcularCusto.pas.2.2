@@ -1,0 +1,1000 @@
+unit dmCalcularCusto;
+
+interface
+
+uses
+  Classes, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery, ctconstantes,
+  clparametrossistema, StrUtils, biblio, Variants;
+
+type
+  TdtmCalcularCusto = class(TdtmBasico)
+    qryCaracteristicaCusto: TtecQuery;
+    qryMultiplosProduto: TtecQuery;
+    qryMultiplosProdutomultiplo: TFloatField;
+    qryMultiplosProdutomultiplo_grupo: TFloatField;
+    qryMultiplosProdutomultiplo_classe: TFloatField;
+    qryProcuraColunaPreco: TtecQuery;
+    qryProcuraColunaPrecocaracteristica: TLargeintField;
+    qryProcuraColunaPrecopreco: TIntegerField;
+    qryProcuraColunaPrecocoluna: TIntegerField;
+    qryProcuraColunaPrecovalor: TFloatField;
+    qryProdutosAlteracao: TtecQuery;
+    qryProdutosAlteracaocodigo: TLargeintField;
+    qryProdutosAlteracaopreco: TIntegerField;
+    qryColunasPrecos: TtecQuery;
+    qryColunasPrecoscaracteristica: TLargeintField;
+    qryColunasPrecospreco: TIntegerField;
+    qryColunasPrecoscoluna: TIntegerField;
+    qryColunasPrecosvalor: TFloatField;
+    qryColunasPrecosalteracao: TDateField;
+    qryColunasPrecosdescricaoprecoproduto: TStringField;
+    spcPrecos: TtecQuery;
+    spcPrecoscodigo: TIntegerField;
+    qryPrecos: TtecQuery;
+    qryPrecoscaracteristica: TLargeintField;
+    qryPrecoscodigo: TIntegerField;
+    qryPrecosdescricao: TStringField;
+    qryPrecosavariado: TBooleanField;
+    qryAtualizar_ProdutosCompostos: TtecQuery;
+  private
+    fDesabilitarControles_: TtecProcParametroBoolean;
+    { Private declarations }
+  public
+    { Public declarations }
+    vListaProdutosComponentesdosCompostos : TStringList;
+    constructor Create(AOwner: TComponent);override;
+    destructor Destroy; override;
+
+    procedure AtribuirPreco(var qryProdutos: TTecQuery;
+                                qryDocumento: TTecQuery;
+                                caracteristica: String;
+                                preco: integer;
+                                ValorCusto, precovenda: Currency;
+                                VerificarMaiorPreco: Boolean;
+                                CampoValorPreco: TField;
+                                OrigemCalculo : TtecOrigemCalculo = NotaEntrada);
+
+    function CalcularCusto_(var qryProdutos: TTecQuery;
+                                qryDocumento: TTecQuery;
+                            var FExisteAlteracaoCusto: Boolean;
+                                fImportacao : Boolean;
+                                ValorRatear : Currency;
+                                ValorRatearICMS : Currency;
+                                OrigemCalculo : TtecOrigemCalculo = NotaEntrada
+                            ): Boolean;
+
+    function CalcularPrecoVenda_(var qryProdutos: TTecQuery;
+                                 qryDocumento: TTecQuery;
+                                 qryFornecedores: TTecQuery;
+                                 var FExistePrecoDigitado: boolean;
+                                 OrigemCalculo : TtecOrigemCalculo = NotaEntrada
+                                ): Boolean;
+
+    function IncluirPrecosNaoCadastrados(var qryProdutos: TTecQuery;
+                                 qryDocumento: TTecQuery;
+                                 OrigemCalculo : TtecOrigemCalculo = NotaEntrada): Boolean;
+
+    procedure AdicionarListaProdutosComponentesdosCompostos(Produto: String);
+
+    procedure AtualizacoesAposGravacao;                             
+
+    property DesabilitarControles_: TtecProcParametroBoolean read fDesabilitarControles_ write fDesabilitarControles_;
+
+  end;
+
+
+
+var
+  dtmCalcularCusto: TdtmCalcularCusto;
+
+implementation
+
+
+
+
+
+
+uses
+  //CLX
+  SysUtils, Math;
+
+
+{$R *.dfm}
+
+{ TdtmCalcularCusto }
+
+procedure TdtmCalcularCusto.AdicionarListaProdutosComponentesdosCompostos(
+  Produto: String);
+begin
+  vListaProdutosComponentesdosCompostos.append(Produto);
+end;
+
+procedure TdtmCalcularCusto.AtribuirPreco(var qryProdutos: TTecQuery;
+                              qryDocumento: TTecQuery;
+                              caracteristica: String;
+                              preco: integer;
+                              ValorCusto, precovenda: Currency;
+                              VerificarMaiorPreco: Boolean;
+                              CampoValorPreco: TField;
+                              OrigemCalculo : TtecOrigemCalculo = NotaEntrada);
+var
+  RegistroAtual: TBookMark;
+
+  function f_Preco : integer;
+  begin
+    case OrigemCalculo of
+      NotaEntrada     : result := qryProdutos.fieldbyname('preco').asinteger;
+      CadastroPedidos : result := qryProdutos.fieldbyname('codigopreco').asinteger;
+    end;
+  end;
+
+  function ProdutoAtualizadonoPedido : Boolean;
+  var
+   ArrayPedido : TVariantArray;
+
+  begin
+    case OrigemCalculo of
+      NotaEntrada     :
+      begin
+        result := false;
+        if not qryProdutos.fieldbyname('pedido').isnull then
+        begin
+          ArrayPedido := ValorCampodaTabela('pedidos',
+                   ['numero'],
+                   [qryProdutos.fieldByName('pedido').asVariant],
+                   ['atualizarprecovenda']);
+          if ArrayPedido[0] <> null then
+            result := ArrayPedido[0];
+        end;
+      end;
+      CadastroPedidos : result := False;
+    end;
+  end;
+
+begin
+    { Varrer a tabela de produtos da nota para atribuir o maior preço
+      para as mesmas caracterisiticas e preços}
+
+  if qryProdutos.Active and (caracteristica <> '') then
+  begin
+    try
+      RegistroAtual := qryProdutos.GetBookmark;
+      qryprodutos.DisableControls;
+      DesabilitarControles_(true);
+      qryprodutos.First;
+
+      while not qryprodutos.Eof do
+      begin
+        if (qryProdutos.FieldByName('caracteristica').AsString = caracteristica) and
+           ((qryProdutos.FieldByName('custoparavenda').AsCurrency = ValorCusto) or
+            ((f_Preco = preco) and (preco<>0)))
+            then
+        begin
+          if VerificarMaiorPreco then
+          begin
+            {esta situacao ocorre somente qdo calculado}
+            if precovenda > CampoValorPreco.AsCurrency then
+            begin
+
+              qryprodutos.Edit;
+              CampoValorPreco.AsCurrency := precovenda;
+
+
+              if (qryDocumento.FieldByName('situacao').AsString = 'P') or (qryDocumento.state = dsinsert) then
+                if qryProdutos.FieldByName('calcularpreco').AsBoolean and
+                   (not (ParSistema.NaoAtualizarPrecoMenorQueAtual and
+                         (qryProdutos.FieldByName('precoatribuido').AsCurrency <
+                          qryProdutos.FieldByName('precoatual').AsCurrency))) then
+                begin
+                  if qryProdutos.FieldByName('permitiratualizardigitado').IsNull then
+                  begin
+                    if not ProdutoAtualizadonoPedido then
+                      qryProdutos.FieldByName('permitiratualizardigitado').AsBoolean := true;
+                  end
+                  else
+                  begin
+                    if qryProdutos.FieldByName('permitiratualizar').AsBoolean =
+                       qryProdutos.FieldByName('permitiratualizardigitado').AsBoolean then
+                    begin
+                      if not ProdutoAtualizadonoPedido then
+                        qryProdutos.FieldByName('permitiratualizardigitado').AsBoolean := true;
+                    end
+                  end;
+
+                  qryProdutos.FieldByName('permitiratualizar').AsBoolean := true;
+
+                end
+                else
+                begin
+                  if qryProdutos.FieldByName('permitiratualizardigitado').IsNull then
+                    qryProdutos.FieldByName('permitiratualizardigitado').AsBoolean := false
+                  else
+                  begin
+                    if qryProdutos.FieldByName('permitiratualizar').AsBoolean =
+                       qryProdutos.FieldByName('permitiratualizardigitado').AsBoolean then
+                      qryProdutos.FieldByName('permitiratualizardigitado').AsBoolean := false;
+                  end;
+                  qryProdutos.FieldByName('permitiratualizar').AsBoolean := false;
+                end;
+
+              if not qryProdutos.FieldByName('precodigitadoAlterado').asboolean then
+                qryProdutos.FieldByName('precodigitado').AsCurrency := qryProdutos.FieldByName('precoatribuido').AsCurrency;
+            end;
+
+          end
+          else
+          begin
+            {esta situacao ocorre somente qdo alterado}
+            qryprodutos.Edit;
+            CampoValorPreco.AsCurrency := precovenda;
+            qryProdutos.FieldByName('precodigitadoalterado').AsBoolean := true;
+          end
+        end;
+        qryprodutos.Next;
+      end;
+    finally
+
+      qryprodutos.enableControls;
+      qryProdutos.GotoBookmark(RegistroAtual);
+      qryprodutos.FreeBookmark(RegistroAtual);
+      DesabilitarControles_(false);
+
+    end;
+  end;
+end;
+
+procedure TdtmCalcularCusto.AtualizacoesAposGravacao;
+begin
+  if vListaProdutosComponentesdosCompostos.count <> 0 then
+  begin
+    vListaProdutosComponentesdosCompostos.Delimiter := ',';
+    vListaProdutosComponentesdosCompostos.QuoteChar := '''';
+    qryAtualizar_ProdutosCompostos.parambyname('p_ListaProdutos').asString :=
+      vListaProdutosComponentesdosCompostos.DelimitedText;
+    qryAtualizar_ProdutosCompostos.ParamByName('p_Filial').asInteger := FilialBase;
+    qryAtualizar_ProdutosCompostos.execsql;
+    perpetrar([]);
+  end;
+end;
+
+function TdtmCalcularCusto.CalcularCusto_(var qryProdutos: TTecQuery;
+                                              qryDocumento: TTecQuery;
+                                          var FExisteAlteracaoCusto: Boolean;
+                                          fImportacao : Boolean;
+                                          ValorRatear : Currency;
+                                          ValorRatearICMS : Currency;
+                                          OrigemCalculo : TtecOrigemCalculo = NotaEntrada
+                                         ): Boolean;
+var
+  Desconto, descontoRateado,
+  TotalBrutoProdutos,
+  PrecoItem,
+  PrecoItemVenda,
+  ValorRateado,
+  ValorRateadoSubst,
+  ValorRateadoIPI,
+  ValorRateadoICMS,
+  ValorICMSSubst,
+  PrecoCusto, PrecoCustoParaVenda,
+  TotalNota,
+  PIS,
+  COFINS,
+  ICMS, IPI,
+  diferenca: Currency;
+  SomenteLeituraProdutos: Boolean;
+  noRequestLive: Boolean;
+
+  function f_FilialBase: integer;
+  begin
+    case OrigemCalculo of
+      NotaEntrada : result := fFilialBase;
+      CadastroPedidos : result := qryDocumento.fieldByName('FilialFatura').asInteger;
+    end;
+  end;
+
+  function f_precounitario : double;
+  begin
+    case OrigemCalculo of
+      NotaEntrada : result := qryProdutos.fieldbyname('precounitario').asFloat;
+      CadastroPedidos : result := qryProdutos.fieldbyname('preco').asFloat;
+    end;
+  end;
+
+  function f_regimetributario : integer;
+  begin
+    case OrigemCalculo of
+      NotaEntrada : result := regimetributario;
+      CadastroPedidos : result := qryDocumento.fieldbyname('regimetributario').asInteger;
+    end;
+  end;
+
+begin
+
+  if qryProdutos.Active then
+  begin
+    SomenteLeituraProdutos := qryProdutos.readonly;
+    noRequestLive := not qryProdutos.RequestLive;
+
+    if SomenteLeituraProdutos then
+      qryProdutos.readonly := false;
+
+    if noRequestLive then
+      qryProdutos.RequestLive := true;
+
+    FExisteAlteracaoCusto := False;
+    GuardarRegistroAtual(qryprodutos,true);
+    try
+
+      DesabilitarControles_(true);
+
+      //CALCULA E VERIFICA O VALORSUBSTITUICAO
+      qryProdutos.First;
+      while not qryProdutos.Eof do
+      begin
+        ReFazConsultapornome(qryCaracteristicaCusto, ['estado','FilialBase','codigo'],
+               [qryDocumento.FieldByName('estado').AsString,
+               f_FilialBase,
+               qryProdutos.fieldbyname('caracteristica').AsVariant]);
+
+        if (qryProdutos.fieldbyname('grupo').AsString <> qryCaracteristicaCusto.fieldbyname('grupo').AsString) or
+           (qryProdutos.fieldbyname('classe').AsString <> qryCaracteristicaCusto.fieldbyname('classe').AsString) or
+           (qryProdutos.fieldbyname('naoreplicar').AsBoolean <> qryCaracteristicaCusto.fieldbyname('naoreplicar').AsBoolean) then
+        begin
+          qryProdutos.Edit;
+          qryProdutos.fieldbyname('grupo').AsString := qryCaracteristicaCusto.fieldbyname('grupo').AsString;
+          qryProdutos.fieldbyname('classe').AsString := qryCaracteristicaCusto.fieldbyname('classe').AsString;
+          qryProdutos.fieldbyname('naoreplicar').AsBoolean := qryCaracteristicaCusto.fieldbyname('naoreplicar').AsBoolean;
+          qryProdutos.Post;
+        end;
+
+        qryProdutos.Next
+      end;
+
+      //CALCULA O CUSTO
+      TotalBrutoProdutos:= qryDocumento.FieldByName('valorprodutos').AsCurrency;
+      TotalNota := 0;
+      qryProdutos.First;
+      while not qryProdutos.Eof do
+      begin
+        PrecoItem      := (f_precounitario *
+                          qryProdutos.fieldbyname('quantidade').AsFloat);
+
+        ValorRateado := 0;
+
+        if fImportacao then
+          ValorRateado := qryProdutos.fieldbyname('despesasacessorias').AsCurrency +
+                          qryProdutos.fieldbyname('frete').AsCurrency +
+                          qryProdutos.fieldbyname('iivalor').AsCurrency
+        else
+        begin
+          if (PrecoItem = 0) and (ValorRatear=0) and  (TotalBrutoProdutos=0) then
+            ValorRateado := 0
+          else
+            ValorRateado := PrecoItem * ValorRatear / TotalBrutoProdutos;
+        end;
+
+        if (PrecoItem = 0) and (ValorRatearICMS = 0) and  (TotalBrutoProdutos = 0) then
+          ValorRateadoICMS := 0
+        else
+          ValorRateadoICMS := PrecoItem * ValorRatearICMS / TotalBrutoProdutos;
+
+        PrecoCusto  := PrecoItem + IfThen(ContribIPI,0,qryProdutos.fieldbyname('valoripi').AsCurrency) + ValorRateado +
+                       qryProdutos.fieldbyname('icmsvalorstcusto').AsCurrency +
+                       qryProdutos.fieldbyname('frete').AsCurrency -
+                       qryProdutos.fieldbyname('desconto').AsCurrency;
+
+
+        if not FImportacao then
+        begin
+
+          PIS          := 0;
+          Cofins       := 0;
+
+          if ParSistema.RetirarPISCONFINSCalPreco then
+          begin
+            if (qryProdutos.fieldbyname('piscst').AsString = '50') or
+               (qryProdutos.fieldbyname('piscst').AsString = '51') or
+               (qryProdutos.fieldbyname('piscst').AsString = '52') or
+               (qryProdutos.fieldbyname('piscst').AsString = '53') or
+               (qryProdutos.fieldbyname('piscst').AsString = '54') or
+               (qryProdutos.fieldbyname('piscst').AsString = '55') or
+               (qryProdutos.fieldbyname('piscst').AsString = '56') then
+              PIS := qryProdutos.fieldbyname('pisvalor').AsCurrency;
+
+            if (qryProdutos.fieldbyname('cofinscst').AsString = '50') or
+               (qryProdutos.fieldbyname('cofinscst').AsString = '51') or
+               (qryProdutos.fieldbyname('cofinscst').AsString = '52') or
+               (qryProdutos.fieldbyname('cofinscst').AsString = '53') or
+               (qryProdutos.fieldbyname('cofinscst').AsString = '54') or
+               (qryProdutos.fieldbyname('cofinscst').AsString = '55') or
+               (qryProdutos.fieldbyname('cofinscst').AsString = '56') then
+              Cofins := qryProdutos.fieldbyname('cofinsvalor').AsCurrency;
+
+          end;
+
+          ICMS := 0;
+          if parsistema.RegimeTributarioparaCalculodoCusto = 4 then  // manter o Regime tributário da filial
+          begin
+            if f_Regimetributario<>1 then  //NAO E SIMPLES
+            begin
+              if not NotaSubstituicao(ifthen(f_regimetributario=1, qryProdutos.fieldbyname('csosn').AsString,qryProdutos.fieldbyname('incidencia').AsString)) then
+                ICMS := qryProdutos.fieldbyname('icmsvalor').AsCurrency  + ValorRateadoICMS;
+              ICMS := ICMS + qryProdutos.fieldbyname('vcredicmssn').AsCurrency;
+            end;
+          end
+          else
+          begin
+            if parsistema.RegimeTributarioparaCalculodoCusto<>1 then  //NAO E SIMPLES
+            begin
+              if not NotaSubstituicao(ifthen(parsistema.RegimeTributarioparaCalculodoCusto=1, qryProdutos.fieldbyname('csosn').AsString,qryProdutos.fieldbyname('incidencia').AsString)) then
+                ICMS := qryProdutos.fieldbyname('icmsvalor').AsCurrency  + ValorRateadoICMS;
+              ICMS := ICMS + qryProdutos.fieldbyname('vcredicmssn').AsCurrency;
+            end;
+          end;
+          PrecoCusto := PrecoCusto - ICMS - PIS - Cofins;
+
+        end;
+
+        if (qryProdutos.fieldbyname('custototal').AsCurrency <> PrecoCusto) and
+           (qryProdutos.fieldbyname('custototal').AsCurrency<>0) then
+          FExisteAlteracaoCusto := True;
+
+        qryProdutos.Edit;
+        
+        qryProdutos.fieldbyname('custototal').AsCurrency := PrecoCusto;
+        qryProdutos.fieldbyname('custototalfatorizado').AsCurrency := PrecoCusto / qryProdutos.fieldbyname('fatorconversao').Asfloat;
+
+        if ParSistema.NaorateardescontoparacalculodeprecodevendanaNFE then
+          qryProdutos.fieldbyname('custoparavenda').AsCurrency :=
+             truncar(((PrecoCusto+qryProdutos.fieldbyname('desconto').AsCurrency) / qryProdutos.fieldbyname('quantidade').AsFloat) / qryProdutos.fieldbyname('fatorconversao').Asfloat ,2)
+        else
+          qryProdutos.fieldbyname('custoparavenda').AsCurrency :=
+             truncar((PrecoCusto/ qryProdutos.fieldbyname('quantidade').AsFloat) / qryProdutos.fieldbyname('fatorconversao').Asfloat ,2);
+
+
+        qryProdutos.Next
+      end;
+
+
+      result := true;
+    finally
+      if SomenteLeituraProdutos then
+        qryProdutos.readonly := true;
+
+      if noRequestLive then
+        qryProdutos.RequestLive := false;
+
+      DesabilitarControles_(false);
+
+      VoltarRegistroAtual(qryProdutos);
+    end;
+  end;
+end;
+
+
+function TdtmCalcularCusto.CalcularPrecoVenda_(var qryProdutos: TTecQuery;
+                                 qryDocumento: TTecQuery;
+                                 qryFornecedores: TTecQuery;
+                                 var FExistePrecoDigitado: boolean;
+                                 OrigemCalculo : TtecOrigemCalculo = NotaEntrada): Boolean;
+var
+  SomenteLeituraProdutos: Boolean;
+  noRequestLive: Boolean;
+
+  vAliquotaICMS,vAliquotaPis,vAliquotaCofins,vPercentualReducaoBaseIcms : Currency;
+  regimetributario_utilizado:integer;
+
+  function f_regimetributario : integer;
+  begin
+    case OrigemCalculo of
+      NotaEntrada : result := regimetributario;
+      CadastroPedidos : result := qryDocumento.fieldbyname('regimetributario').asInteger;
+    end;
+  end;
+
+  function f_Preco : integer;
+  begin
+    case OrigemCalculo of
+      NotaEntrada     : result := qryProdutos.fieldbyname('preco').asinteger;
+      CadastroPedidos : result := qryProdutos.fieldbyname('codigopreco').asinteger;
+    end;
+  end;
+
+  procedure ArredondarPrecoProduto;
+  Var
+    Mult: Currency;
+  begin
+    Mult:= 0;
+    ReFazConsulta(qryMultiplosProduto,[0],[qryProdutos.FieldByName('caracteristica').AsString]);
+    if not qryMultiplosProduto.IsEmpty then begin
+      if qryMultiplosProdutomultiplo.ascurrency > 0 then
+        Mult:= Multiplo(qryProdutos.fieldbyname('precovenda').AsCurrency,qryMultiplosProdutomultiplo.ascurrency)
+      else if (qryMultiplosProdutomultiplo_grupo.ascurrency > 0) then
+        Mult:= Multiplo(qryProdutos.fieldbyname('precovenda').AsCurrency,qryMultiplosProdutomultiplo_grupo.ascurrency)
+      else if (qryMultiplosProdutomultiplo_classe.ascurrency > 0) then
+        Mult:= Multiplo(qryProdutos.fieldbyname('precovenda').AsCurrency,qryMultiplosProdutomultiplo_classe.ascurrency)
+    end;
+
+    if (Mult = 0) and (ParSistema.MultiploPreco > 0) then
+      Mult:= Multiplo(qryProdutos.fieldbyname('precovenda').AsCurrency,ParSistema.MultiploPreco);
+    if Mult > 0 then
+      qryProdutos.fieldbyname('precovenda').AsCurrency:= Mult;
+  end;
+
+  function f_ValorMarkup : Double;
+  begin
+
+    if (qryProdutos.FieldByName('markup_produto_1').ascurrency > 0) then
+      result := qryProdutos.FieldByName('markup_produto_1').AsCurrency
+    else if (qryProdutos.FieldByName('markup_grupo_1').ascurrency > 0) then
+      result := qryProdutos.FieldByName('markup_grupo_1').AsCurrency
+    else if (qryFornecedores.FieldByName('markup').ascurrency > 0) then
+      result := qryFornecedores.FieldByName('markup').AsCurrency
+    else
+      result := 0;
+
+  end;
+
+  function f_PrecoNormal : String;
+  begin
+    case OrigemCalculo of
+      NotaEntrada     : result := PrecoNormal;
+      CadastroPedidos : result := ValorCampodaTabela('filiais',
+                   ['codigo'],
+                   [qryDocumento.fieldByName('FilialFatura').asVariant],
+                   ['preconormal'])[0];
+    end;
+  end;
+
+
+
+begin
+  result := true;
+
+  if parsistema.RegimeTributarioparaCalculodoCusto = 4 then  // manter o Regime tributário da filial
+    regimetributario_utilizado := f_RegimeTributario
+  else
+    regimetributario_utilizado := parsistema.RegimeTributarioparaCalculodoCusto;
+
+
+  SomenteLeituraProdutos := qryProdutos.readonly;
+  noRequestLive := not qryProdutos.RequestLive;
+
+  if SomenteLeituraProdutos then
+    qryProdutos.readonly := false;
+
+  if noRequestLive then
+    qryProdutos.RequestLive := true;
+
+  FExistePrecoDigitado := false;
+  if qryProdutos.Active then
+  begin
+
+    GuardarRegistroAtual(qryProdutos,true);
+//    dsrProdutosnotafiscal.OnDataChange := nil;
+    try
+      DesabilitarControles_(true);
+
+      qryProdutos.First;
+      while not qryprodutos.Eof do
+      begin
+        qryProdutos.Edit;
+        qryProdutos.fieldbyname('precoatribuido').AsCurrency := 0;
+        qryprodutos.Next;
+      end;
+
+      qryProdutos.First;
+      while not qryprodutos.Eof do
+      begin
+        if NotaSubstituicao(qryProdutos.FieldByName('cst_produto').AsString) or
+           NotaSemICMS(qryProdutos.FieldByName('cst_produto').AsString) then
+        begin
+          vAliquotaICMS := 0.00;
+          vPercentualReducaoBaseIcms:=0.00;
+        end
+        else
+        begin
+          vAliquotaICMS := qryProdutos.FieldByName('aliquotaicmscalculopreco').AsCurrency;
+          vPercentualReducaoBaseIcms:=qryProdutos.FieldByName('percentualreducaobase_produto').AsCurrency;
+        end;
+
+        qryProdutos.Edit;
+
+        if (qryprocuracolunapreco.ParamByName('caracteristica').AsString <>
+            qryProdutos.FieldByName('caracteristica').AsString) or
+           (qryprocuracolunapreco.ParamByName('preco').AsInteger <>
+            f_preco) then
+          RefazConsulta(qryProcuracolunapreco,[0,1,2],
+                       [qryProdutos.FieldByName('caracteristica').AsVariant,
+                        f_preco,
+                        f_preconormal]);
+
+        qryProdutos.FieldByName('precoatual').AsCurrency := qryProcuraColunaPrecovalor.AsCurrency;
+        qryProdutos.FieldByName('precovenda').AsCurrency := qryProdutos.FieldByName('custoparavenda').AsCurrency;
+
+
+        if ParSistema.SugestaoPeloPrecoVenda then
+        begin
+          if (regimetributario_utilizado <> 1) then //NAO E SIMPLES
+          begin
+              qryProdutos.FieldByName('precovenda').AsCurrency :=
+                qryProdutos.FieldByName('precovenda').AsCurrency / (1 -
+                          (f_ValorMarkup +
+                           vAliquotaICMS +
+                           qryProdutos.FieldByName('pisaliquota').AsCurrency +
+                           qryProdutos.FieldByName('cofinsaliquota').AsCurrency)/ 100)
+          end
+          else
+          begin
+              qryProdutos.FieldByName('precovenda').AsCurrency :=
+                qryProdutos.FieldByName('precovenda').AsCurrency / (1 - f_ValorMarkup / 100)
+          end;
+        end
+        else
+        begin
+          qryProdutos.FieldByName('precovenda').AsCurrency :=
+            qryProdutos.FieldByName('precovenda').AsCurrency * (1 + f_ValorMarkup / 100);
+
+          if (regimetributario_utilizado <> 1) then //NAO E SIMPLES
+          begin
+              if (ParSistema.Nao_somar_PISCONFINS_no_calculo_do_preco_de_venda) then
+              begin
+                vAliquotaPis:=0;
+                vAliquotaCofins:=0;
+              end
+              else
+              begin
+                  vAliquotaPis:=qryProdutos.FieldByName('pisaliquota').AsCurrency;
+                  vAliquotaCofins:=qryProdutos.FieldByName('cofinsaliquota').AsCurrency;
+              end;
+
+              qryProdutos.FieldByName('precovenda').AsCurrency :=
+                        qryProdutos.FieldByName('precovenda').AsCurrency / (1-(vAliquotaICMS*(1-vPercentualReducaoBaseIcms/100)+vAliquotaPis+vAliquotaCofins)/100);
+          end;
+
+        end;
+
+        ArredondarPrecoProduto;
+
+        AtribuirPreco(qryProdutos,
+                      qryDocumento,
+                      qryProdutos.FieldByName('caracteristica').AsString,
+                      qryProdutos.FieldByName('preco').AsInteger,
+                      qryProdutos.FieldByName('custoparavenda').AsCurrency,
+                      qryProdutos.FieldByName('precovenda').AsCurrency,
+                      true,
+                      qryProdutos.FieldByName('precoatribuido'),
+                      OrigemCalculo);
+
+        if qryProdutos.FieldByName('permitiratualizardigitado').AsBoolean and
+           qryProdutos.FieldByName('precodigitadoalterado').AsBoolean then
+         FExistePrecoDigitado := true;
+
+        DesabilitarControles_(true);
+        qryProdutos.Next;
+      end;
+    finally
+
+      if SomenteLeituraProdutos then
+        qryProdutos.readonly := true;
+
+      if noRequestLive then
+        qryProdutos.RequestLive := false;
+
+
+      VoltarRegistroAtual(qryProdutos);
+
+      DesabilitarControles_(false);
+    end;
+  end;
+end;
+
+
+constructor TdtmCalcularCusto.Create(AOwner: TComponent);
+begin
+  inherited;
+  vListaProdutosComponentesdosCompostos := TStringList.create;
+  vListaProdutosComponentesdosCompostos.Duplicates := dupIgnore;
+end;
+
+destructor TdtmCalcularCusto.Destroy;
+begin
+  vListaProdutosComponentesdosCompostos.free;
+  dtmCalcularCusto := nil;
+
+  inherited;
+end;
+
+function TdtmCalcularCusto.IncluirPrecosNaoCadastrados(
+  var qryProdutos: TTecQuery; qryDocumento: TTecQuery;
+  OrigemCalculo: TtecOrigemCalculo): Boolean;
+var
+  produtos, itemProdutos, descricaopreco: String;
+  preco, codigopreco, i:integer;
+  caracteristica : TStringList;
+
+  function NomeCampoCodigoPreco: String;
+  begin
+    case OrigemCalculo of
+      NotaEntrada     : result := 'preco';
+      CadastroPedidos : result := 'codigopreco';
+    end;
+  end;
+
+  function VerificarPrecoVenda: Boolean;
+  begin
+    case OrigemCalculo of
+
+      NotaEntrada:
+      begin
+        result :=
+         (ParSistema.GerarPrecoAutomatico)                                and
+         (ParSistema.LocalCalculoPreco in [lcpNOTAENTRADA, lcpAMBOS])     and
+        // compras p/ industrialização, comercialização ou prestação de servicos
+         ((qryDocumento.FieldByName('CodigoFiscal').asinteger MOD 1000 > 100)
+           and (qryDocumento.FieldByName('CodigoFiscal').AsInteger MOD 1000 < 127)  or
+        // compra de energia eletrica
+          (qryDocumento.FieldByName('CodigoFiscal').AsInteger MOD 1000 > 250)
+           and (qryDocumento.FieldByName('CodigoFiscal').AsInteger MOD 1000 < 258)  or
+        // compras sujeitas ao regime de subst. tributária
+          (qryDocumento.FieldByName('CodigoFiscal').AsInteger MOD 1000 > 400)
+           and (qryDocumento.FieldByName('CodigoFiscal').AsInteger MOD 1000 < 408) or
+          (qryDocumento.FieldByName('CodigoFiscal').AsInteger MOD 1000 = 551));
+      end;
+
+      CadastroPedidos:
+      begin
+        result :=
+         (ParSistema.GerarPrecoAutomatico)                                and
+         (ParSistema.LocalCalculoPreco in [lcpNOTAENTRADA, lcpAMBOS]);
+      end;
+
+    end;
+
+  end;
+
+  function CodigoPrecoNovoProdutoJaExistentenaNota(Caracteristica: String; CustoUnitario: Currency): integer;
+  var
+    RegistroAtual: TBookMark;
+  begin
+   result := 0;
+   RegistroAtual := qryProdutos.GetBookmark;
+   qryProdutos.last;
+   while not qryProdutos.bof do
+   begin
+     if (qryProdutos.FieldByname('caracteristica').AsString = caracteristica) and
+        (qryProdutos.FieldByname('custoparavenda').AsCurrency = CustoUnitario) and
+        (qryProdutos.FieldByname(NomeCampoCodigoPreco).AsInteger <> 0) then
+     begin
+       result := qryProdutos.FieldByname(NomeCampoCodigoPreco).AsInteger;
+       descricaopreco := qryProdutos.FieldByname('descricaoprecoproduto').AsString;
+       break;
+     end;
+     qryProdutos.prior;
+   end;
+   qryProdutos.GotoBookmark(RegistroAtual);
+   qryProdutos.FreeBookmark(RegistroAtual);
+  end;
+
+  function f_PrecoNormal : String;
+  begin
+    case OrigemCalculo of
+      NotaEntrada     : result := PrecoNormal;
+      CadastroPedidos : result := ValorCampodaTabela('filiais',
+                   ['codigo'],
+                   [qryDocumento.fieldByName('FilialFatura').asVariant],
+                   ['preconormal'])[0];
+    end;
+  end;
+
+
+begin
+ result := true;
+  if qryProdutos.Active then
+  begin
+
+   GuardarRegistroAtual(qryProdutos,true);
+   caracteristica := tstringlist.Create;
+   try
+     DesabilitarControles_(true);
+//     qryProdutos.FieldByname('produto').OnChange := nil;
+     {abrir as colunas de preços de todos os produtos da nota}
+     qryProdutosAlteracao.MacroByName('Condicao').asstring := 'Where false';
+     qryColunasPrecos.MacroByName('Condicao').asstring := 'Where false';
+     produtos := ',';
+     itemProdutos := ',';
+     qryProdutos.First;
+     while Not qryProdutos.Eof do
+     begin
+       if qryProdutos.FieldByname('permitiratualizardigitado').AsBoolean then
+         if pos(','+qryProdutos.FieldByname('caracteristica').AsString+',',produtos)=0 then
+         begin
+           Produtos := Produtos + qryProdutos.FieldByname('caracteristica').AsString + ',';
+           caracteristica.Append(qryProdutos.FieldByname('caracteristica').AsString);
+         end;
+
+         if qryProdutos.FieldByname('permitiratualizardigitado').AsBoolean then
+           if pos(','+qryProdutos.FieldByname('produto').AsString+',',ItemProdutos)=0 then
+             ItemProdutos := ItemProdutos + qryProdutos.FieldByname('produto').AsString + ',';
+
+       qryProdutos.Next;
+     end;
+
+     if produtos<>',' then
+     begin
+       delete(produtos,1,1);
+       Delete(Produtos, Length(Produtos),1);
+       qryColunasPrecos.MacroByName('Condicao').asstring := 'Where (coluna = ' + f_PrecoNormal + ') and ' +
+                                                    '      (caracteristica in (' + Produtos + '))';
+     end;
+     qryColunasPrecos.close;
+     qryColunasPrecos.Open;
+
+     if itemProdutos<>',' then
+     begin
+       delete(ItemProdutos,1,1);
+       Delete(ItemProdutos, Length(ItemProdutos),1);
+       qryProdutosAlteracao.MacroByName('Condicao').asstring := 'Where (codigo in (' + ItemProdutos + '))';
+     end;
+     qryProdutosAlteracao.Close;
+     qryProdutosAlteracao.open;
+
+     {Verificar se os produtos sem preço se encaixam com algum definido na
+      nota que tenha preço, com o critério: mesma caracteristica e mesmo custo}
+
+     qryProdutos.First;
+     while not qryProdutos.Eof do
+     begin
+      if (qryProdutos.FieldByname(NomeCampoCodigoPreco).AsInteger = 0) and
+         qryProdutos.FieldByname('permitiratualizardigitado').AsBoolean then
+      begin
+        preco := CodigoPrecoNovoProdutoJaExistentenaNota
+                 (qryProdutos.FieldByname('caracteristica').asstring,
+                  qryProdutos.FieldByname('custoparavenda').AsCurrency);
+
+        if preco<>0 then
+        begin
+          qryProdutos.Edit;
+          qryProdutos.FieldByname(NomeCampoCodigoPreco).AsInteger := preco;
+          qryProdutos.FieldByname('descricaoprecoproduto').AsString := descricaopreco;
+          qryProdutos.Post;
+
+          if qryProdutosAlteracao.Locate('codigo',qryProdutos.FieldByname('produto').AsString,[]) then
+          begin
+            qryProdutosAlteracao.Edit;
+            qryProdutosAlteracaopreco.AsInteger := preco;
+            qryProdutosAlteracao.Post;
+          end;
+
+        end;
+      end;
+      qryProdutos.Next
+     end;
+
+     vListaProdutosComponentesdosCompostos.clear;
+     {Atualizar a coluna preço dos produtos que já tem preço}
+     qryProdutos.First;
+     while not qryProdutos.Eof do
+     begin
+      if (qryProdutos.FieldByname(NomeCampoCodigoPreco).AsInteger <> 0) and
+         qryProdutos.FieldByname('permitiratualizardigitado').AsBoolean and
+         VerificarPrecoVenda then
+      begin
+        AdicionarListaProdutosComponentesdosCompostos(qryProdutos.FieldByname('produto').asString);
+
+        if qryColunasPrecos.Locate('caracteristica;preco',
+               Vararrayof([qryProdutos.FieldByname('caracteristica').AsString,
+                            qryProdutos.FieldByname(NomeCampoCodigoPreco).Asinteger]),[]) then
+        begin
+          qrycolunasprecos.Edit;
+          qryColunasPrecosvalor.AsCurrency := qryProdutos.FieldByname('precodigitado').AsCurrency;
+          qryColunasPrecosalteracao.AsDateTime := DataLocal;
+          qryColunasPrecos.Post;
+        end
+        else
+        begin
+          qrycolunasprecos.Append;
+          qryColunasPrecoscaracteristica.AsString := qryProdutos.FieldByname('caracteristica').AsString;
+          qryColunasPrecospreco.AsInteger := qryProdutos.FieldByname(NomeCampoCodigoPreco).AsInteger;
+          qryColunasPrecoscoluna.AsString := f_preconormal;
+          qryColunasPrecosvalor.AsCurrency := qryProdutos.FieldByname('precodigitado').AsCurrency;
+          qryColunasPrecosalteracao.AsDateTime := DataLocal;
+          qryColunasPrecos.Post;
+        end;
+
+      end;
+      qryProdutos.Next
+     end;
+
+     {Atualizar a coluna preço dos produtos que não tem preço}
+     for i:=0 to caracteristica.Count-1 do
+     begin
+       codigopreco := 0;
+       qryProdutos.First;
+       while not qryProdutos.Eof do
+       begin
+
+        if (qryProdutos.FieldByname(NomeCampoCodigoPreco).AsInteger = 0) and
+           qryProdutos.FieldByname('permitiratualizardigitado').AsBoolean and
+           (qryProdutos.FieldByname('caracteristica').AsString = caracteristica[i]) then
+        begin
+
+          AdicionarListaProdutosComponentesdosCompostos(qryProdutos.FieldByname('produto').asString);
+
+          if qryColunasPrecos.Locate('caracteristica;valor',
+                             Vararrayof(
+                             [qryProdutos.FieldByname('caracteristica').AsString,
+                              qryProdutos.FieldByname('precodigitado').AsCurrency]),[]) then
+          begin
+            qryProdutos.Edit;
+            qryProdutos.FieldByname(NomeCampoCodigoPreco).AsInteger := qryColunasPrecospreco.AsInteger;
+            qryProdutos.FieldByname('descricaoprecoproduto').AsString := qryColunasPrecosdescricaoprecoproduto.AsString;
+
+            qryProdutos.Post;
+
+            if qryProdutosAlteracao.Locate('codigo',qryProdutos.FieldByname('produto').AsString,[]) then
+            begin
+              qryProdutosAlteracao.Edit;
+              qryProdutosAlteracaopreco.AsInteger := qryProdutos.FieldByname(NomeCampoCodigoPreco).AsInteger;
+              qryProdutosAlteracao.Post;
+            end;
+
+          end
+          else
+          begin
+            if CodigoPreco<>0 then
+              codigoPreco := CodigoPreco + 1
+            else
+            begin
+              spcPrecos.Params[0].AsString := qryProdutos.FieldByname('caracteristica').AsString;
+              spcPrecos.Open;
+              CodigoPreco := spcPrecoscodigo.Asinteger;
+              spcPrecos.close;
+            end;
+            if not qryPrecos.Active then
+              RefazConsulta(qryprecos,[0],[qryProdutos.FieldByname('caracteristica').asstring]);
+
+            qryPrecos.Append;
+            qryPrecoscaracteristica.Asstring := qryProdutos.FieldByname('caracteristica').AsString;
+            qryPrecoscodigo.Asinteger := codigopreco;
+            qryPrecosdescricao.AsString := qryProdutos.FieldByname('produto').AsString;
+            qryPrecosavariado.AsBoolean := false;
+            qryprecos.Post;
+
+            qrycolunasprecos.Append;
+            qryColunasPrecoscaracteristica.AsString := qryProdutos.FieldByname('caracteristica').AsString;
+            qryColunasPrecospreco.AsInteger := CodigoPreco;
+            qryColunasPrecoscoluna.AsString := f_preconormal;
+            qryColunasPrecosvalor.AsCurrency := qryProdutos.FieldByname('precodigitado').AsCurrency;
+            qryColunasPrecosalteracao.AsDateTime := DataLocal;
+            qryColunasPrecos.Post;
+
+            qryProdutos.Edit;
+            qryProdutos.FieldByname(NomeCampoCodigoPreco).AsInteger := codigopreco;
+            qryProdutos.FieldByname('descricaoprecoproduto').AsString := qryPrecosdescricao.AsString;
+            qryProdutos.Post;
+
+            if qryProdutosAlteracao.Locate('codigo',qryProdutos.FieldByname('produto').AsString,[]) then
+            begin
+              qryProdutosAlteracao.Edit;
+              qryProdutosAlteracaopreco.AsInteger := codigopreco;
+              qryProdutosAlteracao.Post;
+            end;
+
+          end;
+        end;
+        qryProdutos.Next
+       end;
+     end;
+
+   finally
+     VoltarRegistroAtual(qryProdutos);
+//     qryProdutos.FieldByname('produto').OnChange := qryProdutos.FieldByname('produto').Change;
+     caracteristica.Free;
+     DesabilitarControles_(false);
+   end;
+  end;
+
+end;
+
+end.

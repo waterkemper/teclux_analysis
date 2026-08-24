@@ -1,0 +1,725 @@
+unit dmfcont;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, biblio, DB, ZQuery, ZPgSqlQuery, cpquery, dmtecsoft,
+  Controls, Forms, DateUtils, clparametrossistema, cpdatasource, ctconstantes,
+  ACBrSpedFCont ;
+
+
+type
+
+  Tdtmfcont = class(TdtmBasico)
+    qryfcont: TtecQuery;
+    qryFiliais: TZPgSqlQuery;
+    dsrfcont: TtecDataSource;
+    qryFiliaissuframa: TStringField;
+    qryFiliaisind_perfil: TStringField;
+    qryFiliaisind_ativ: TStringField;
+    qryFiliaisrazao: TStringField;
+    qryFiliaiscnpj: TStringField;
+    qryFiliaisinscricaoestadual: TStringField;
+    qryFiliaisinscricaomunicipal: TStringField;
+    qryFiliaisestado: TStringField;
+    qryFiliaiscidadeibge: TIntegerField;
+    qryFiliaisfilialconsolidadoradime: TIntegerField;
+    qryRegistroI050: TtecQuery;
+    qryFiliaisjunta: TStringField;
+    qryFiliaisjuntadata: TDateField;
+    qryFiliaisnomecidade: TStringField;
+    qryRegistroI075: TtecQuery;
+    qryRegistroI155: TtecQuery;
+    qryRegistroI200: TtecQuery;
+    qryRegistroI200num_lcto: TStringField;
+    qryRegistroI200dt_lcto: TDateField;
+    qryRegistroI200vl_lcto: TFloatField;
+    qryRegistroI250: TtecQuery;
+    qryRegistroI250num_lcto: TStringField;
+    qryRegistroI250ind_dc: TStringField;
+    qryRegistroI250num_arq: TStringField;
+    qryRegistroI250hist: TStringField;
+    dsrRegistroI200: TtecDataSource;
+    qryRegistroJ930: TtecQuery;
+    dsrRegistroJ930: TtecDataSource;
+    qryRegistroJ930cpf: TStringField;
+    qryRegistroJ930nome: TStringField;
+    qryRegistroJ930qualificacao: TStringField;
+    qryRegistroJ930crc: TStringField;
+    qryRegistroJ930descricaoqualificacao: TStringField;
+    qryRegistroI155vl_sld_ini: TFloatField;
+    qryRegistroI155ind_dc_ini: TStringField;
+    qryRegistroI155vl_deb: TFloatField;
+    qryRegistroI155vl_cred: TFloatField;
+    qryRegistroI155vl_sld_fin: TFloatField;
+    qryRegistroI155ind_dc_fin: TStringField;
+    qryRegistroI200ind_lcto: TStringField;
+    qryRegistroI250vl_dc: TFloatField;
+    qryRegistroI250cod_hist_pad: TIntegerField;
+    qryRegistroI155cod_cta: TStringField;
+    qryRegistroI250cod_cta: TStringField;
+    qryRegistroI050data_alt: TDateField;
+    qryRegistroI050cod_nat: TStringField;
+    qryRegistroI050ind_cta: TStringField;
+    qryRegistroI050nivel: TIntegerField;
+    qryRegistroI050cod_cta: TStringField;
+    qryRegistroI050cta: TStringField;
+    qryRegistroI050cod_cta_ref: TStringField;
+    qryRegistroI050cod_cta_sup: TStringField;
+    qryRegistroI350: TtecQuery;
+    dsrRegistroI350: TtecDataSource;
+    qryRegistroI350data: TDateField;
+    qryRegistroI355: TtecQuery;
+    qryRegistroI355data: TDateField;
+    qryRegistroI355vl_cta: TFloatField;
+    qryRegistroI355cod_cta: TStringField;
+    qryRegistroI355ind_dc: TStringField;
+    qryFiliaiscodigo: TIntegerField;
+    qryIntervaloDatas: TtecQuery;
+    qryIntervaloDatasdatainicial: TDateField;
+    qryIntervaloDatasdatafinal: TDateField;
+    qryfcontexercicio: TStringField;
+    qryfcontnomearquivo: TStringField;
+    qryfcontdata: TDateTimeField;
+    qryfcontfilial: TIntegerField;
+    qryfcontnum_ord: TIntegerField;
+    qryfcontnatureza: TStringField;
+    ACBrSPEDFCont: TACBrSPEDFCont;
+    qryFiliaisquali_pj: TStringField;
+    qryFiliaisform_apur: TStringField;
+    qryFiliaisform_tribut: TIntegerField;
+    qryfcontsituacao: TIntegerField;
+    qryfcontIND_SIT_INI_PER: TIntegerField;
+    qryfcontTIPO_ESCRIT: TIntegerField;
+    qryfcontNro_Rec_Anterior: TStringField;
+    qryfcontId_escr_Per_ant: TStringField;
+    qryfcontsIT_sLD_PER_ANT: TStringField;
+    qryfcontInd_lcto_ini_sld: TIntegerField;
+    qryRegistroM025: TtecQuery;
+    qryRegistroM025cod_cta: TStringField;
+    qryRegistroM025cod_cta_ref: TStringField;
+    qryRegistroM025vl_sld_fin_fc: TFloatField;
+    qryRegistroM025ind_dc_fin_fc: TStringField;
+    qryRegistroM025vl_sld_fin_soc: TFloatField;
+    qryRegistroM025ind_dc_fin_soc: TStringField;
+    qryRegistroM030: TtecQuery;
+    qryRegistroM030vl_luc_liq: TFloatField;
+    qryRegistroM030ind_luc_liq: TStringField;
+    procedure qryfcontAfterScroll(DataSet: TDataSet);
+    procedure qryfcontNewRecord(DataSet: TDataSet);
+    procedure dsrfcontDataChange(Sender: TObject; Field: TField);
+    procedure ACBrSPEDFContError(const MsnError: String);
+  private
+    FTipoRemessa: byte;
+    FACBrSPEDFContonError: TNotifyEvent;
+    FDataInicial: TDateTime;
+    FDataFinal: TDateTime;
+    FTotalObrigacoes: Currency;
+
+    function SetarIntervalodeDatas: Boolean;
+
+    { Private declarations }
+
+
+    {Nível 0}
+    procedure Bloco_0;
+      {Nível 1}
+      procedure P_Registro0000;
+
+    {Nível 0}
+    procedure Bloco_I;
+      {Nível 1}
+      procedure P_RegistroI001;
+        {Nível 2}
+         procedure P_RegistroI050;
+            {Nível 3}
+            procedure P_RegistroI051;
+
+         procedure P_RegistroI075;
+         procedure P_RegistroI150;
+            Procedure P_RegistroI155;
+
+         procedure P_RegistroI200;
+            Procedure P_RegistroI250;
+
+         procedure P_RegistroI350;
+            Procedure P_RegistroI355;
+
+
+
+    {Nível 0}
+    procedure Bloco_J;
+      {Nível 1}
+      procedure P_RegistroJ001;
+        {Nível 2}
+        procedure P_RegistroJ930;
+
+    {Nível 0}
+    procedure Bloco_M;
+      {Nível 1}
+      procedure P_RegistroM001;
+        {Nível 2}
+        procedure P_RegistroM020;
+        procedure P_RegistroM025;
+        procedure P_RegistroM030;
+
+
+   procedure Bloco_9;
+
+
+  public
+    { Public declarations }
+    Erro: String;
+
+    constructor Create(AOwner: TComponent); override;
+
+
+    function GerarArquivo(pArquivo: String): Boolean;
+    property TipoRemessa: byte read FTipoRemessa write FTipoRemessa;
+    property DataInicial: TDateTime read FDataInicial write FDataInicial;
+    property DataFinal: TDateTime read FDataFinal write FDataFinal;
+    property ACBrSPEDFContonError: TNotifyEvent read fACBrSPEDFContonError write fACBrSPEDFContonError;
+
+    function  Incluirfcont: Boolean;
+    function  Gravarfcont: Boolean;
+    function  Excluirfcont: Boolean;
+
+
+    property TotalObrigacoes: Currency read FTotalObrigacoes write FTotalObrigacoes;
+
+
+
+  end;
+
+var
+  dtmfcont: Tdtmfcont;
+
+implementation
+
+uses ACBrFContBloco_0, ACBrFContBloco_M, ACBrFContBloco_J;
+
+
+
+{$R *.dfm}
+
+{ Tdtmfcont }
+
+
+{
+    BLOCO 0: ABERTURA, IDENTIFICAÇÃO E REFERÊNCIAS
+    BLOCO I: LANÇAMENTOS CONTÁBEIS
+    BLOCO J: DEMONSTRAÇÕES CONTÁBEIS
+
+}
+function Tdtmfcont.GerarArquivo(pArquivo: String): Boolean;
+var
+  NRegistrosDeclaracao,
+  NRegistrosTotal : integer;
+  Arq: TextFile;
+  vPath,
+  Barra,
+  formato : String;
+begin
+
+  result := false;
+
+  {$IFDEF LINUX}
+    Barra := '/';
+  {$ELSE}
+    Barra := '\';
+  {$ENDIF}
+
+  vPath := SpedContabilDir+Barra;
+
+  result := true;
+
+  if SetarIntervalodeDatas then
+  begin
+
+    Bloco_0;
+    Bloco_I;
+    Bloco_J;
+    Bloco_M;
+    Bloco_9;
+
+    try
+      with ACBrSPEDFCont do
+      begin
+        DT_INI := DataInicial;
+        DT_FIN := DataFinal;
+        Path := vPath;
+        SaveFileTXT(pArquivo);
+      end;
+
+    finally
+      with ACBrSPEDFCont do
+      begin
+        Bloco_0.LimpaRegistros;
+        Bloco_I.LimpaRegistros;
+        Bloco_J.LimpaRegistros;
+        Bloco_9.LimpaRegistros;
+      end;
+    end;
+
+    qryfcont.Edit;
+    qryfcontdata.AsDateTime := now();
+    qryfcont.post;
+  end
+  else
+    MensagemAviso('Esta filial não possui lançamentos contábeis no período');
+
+end;
+
+
+procedure Tdtmfcont.Bloco_0;
+begin
+  with ACBrSPEDFCont.Bloco_0 do
+  begin
+    P_Registro0000; //Abertura, Identificação e Referências
+  end;
+
+end;
+
+procedure Tdtmfcont.P_Registro0000;
+begin
+  with ACBrSPEDFCont.Bloco_0.Registro0000 do
+  begin
+    DT_INI      := DataInicial; // Data inicial das informações contidas no arquivo
+    DT_FIN      := DataFinal; // Data final das informações contidas no arquivo
+    NOME        := copy(qryFiliaisrazao.AsString,1,100); //Nome empresarial do empresário ou sociedade empresária.
+    CNPJ        := somentenumero(qryFiliaiscnpj.AsString); // Número de inscrição do empresário ou sociedade empresária no CNPJ.
+    UF          := qryFiliaisestado.AsString; // Sigla da unidade da federação do empresário ou sociedade empresária.
+    IE          := copy(somentenumero(qryFiliaisinscricaoestadual.AsString),1,14); // Inscrição Estadual do empresário ou sociedade empresária.
+    COD_MUN     := qryFiliaiscidadeibge.AsString; // Código do município do domicílio fiscal do empresário ou sociedade empresária, conforme tabela do IBGE - Instituto Brasileiro de Geografia e Estatística.
+    IM          := qryFiliaisinscricaomunicipal.AsString; // Inscrição Municipal do empresário ou sociedade empresária.
+
+    if (qryfcontsituacao.AsString <> '5') {and (qryfcontsituacao.AsString <> '0')} then
+      IND_SIT_ESP := qryfcontsituacao.AsString /// Indicador de situação especial (conforme tabela publicada pelo Sped)
+    else
+      IND_SIT_ESP :='';
+
+    IND_SIT_INI_PER := qryfcontIND_SIT_INI_PER.AsString;
+
+  end;
+end;
+
+
+
+
+
+
+constructor Tdtmfcont.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryfcont.Tag := ctTabelas;
+  qryRegistroJ930.Tag := ctTabelas;
+end;
+
+function Tdtmfcont.Excluirfcont: Boolean;
+begin
+  qryfcont.Delete;
+  Perpetrar([qryfcont]);
+  Result := True
+end;
+
+function Tdtmfcont.Gravarfcont: Boolean;
+var
+  ValorTotalDebito: Currency;
+begin
+  result := qryfcont.CheckRequiredFields;
+  if result then
+  begin
+    qryfcont.Post;
+    result := Perpetrar([qryfcont]);
+  end;
+end;
+
+function Tdtmfcont.Incluirfcont: Boolean;
+begin
+//  qryfcont.Params[0].Clear;
+  qryfcont.append;
+  Result := True;
+end;
+
+procedure Tdtmfcont.qryfcontAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  RefazConsultaPorNome(qryFiliais,['codigo'],[qryfcontfilial.asinteger]);
+
+  if qryfcontexercicio.asstring<>'' then
+  begin
+    DataInicial := strtodate('01/01/'+qryfcontexercicio.asstring);
+    DataFinal := strtodate('31/12/'+qryfcontexercicio.asstring);
+  end;
+
+end;
+
+procedure Tdtmfcont.qryfcontNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+  qryfcontdata.AsDateTime := now();
+  qryfcontsituacao.AsString := '5';
+  qryfcontnatureza.AsString := 'Diário';
+  qryfcontIND_SIT_INI_PER.AsString := '0';
+
+  qryfcontTIPO_ESCRIT.AsString := '0';
+  qryfcontIND_SIT_INI_PER.AsString := '0';
+  qryfcontInd_lcto_ini_sld.AsString := '0';
+  qryfcontsIT_sLD_PER_ANT.AsString := 'N';
+
+end;
+
+
+procedure Tdtmfcont.Bloco_I;
+begin
+  P_RegistroI001;
+    P_RegistroI050;
+    P_RegistroI075;
+    P_RegistroI150;
+
+//    P_RegistroI200;
+    P_RegistroI350;
+end;
+
+procedure Tdtmfcont.P_RegistroI001;
+begin
+  ACBrSpedFCont.Bloco_I.RegistroI001.IND_DAD := 0;
+end;
+
+
+procedure Tdtmfcont.P_RegistroI050;
+begin
+  RefazConsultaPorNome(qryRegistroI050,['filial','datainicial','datafinal','exercicio'],
+    [qryfcontfilial.AsVariant, datainicial, datafinal, qryfcontexercicio.AsVariant]);
+
+
+  qryRegistroI050.First;
+  while not qryRegistroI050.Eof do
+  begin
+    with ACBrSpedFCont.Bloco_I.RegistroI050.New do
+    begin
+      DT_ALT     :=  datainicial; // Data da inclusão/alteração.
+      COD_NAT    :=  qryRegistroI050.fieldbyname('COD_NAT')    .asString;     // Código da natureza da conta/grupo de contas, conforme tabela publicada pelo Sped.
+      IND_CTA    :=  qryRegistroI050.fieldbyname('IND_CTA')    .asString;         // Indicador do tipo de conta: S - Sintética (grupo de contas);A - Analítica (conta).
+      NIVEL      :=  qryRegistroI050.fieldbyname('NIVEL')      .asString;         // Nível da conta analítica/grupo de contas.
+      COD_CTA    :=  qryRegistroI050.fieldbyname('COD_CTA')    .asString;         // Código da conta analítica/grupo de contas.
+      COD_CTA_SUP:=  qryRegistroI050.fieldbyname('COD_CTA_SUP').asString;         // Código da conta sintética /grupo de contas de nível imediatamente superior.
+      CTA        :=  qryRegistroI050.fieldbyname('CTA')        .asString;         // Nome da conta analítica/grupo de contas.
+    end;
+    P_RegistroI051;
+    qryRegistroI050.Next;
+  end;
+end;
+
+procedure Tdtmfcont.P_RegistroI075;
+begin
+
+  RefazConsultaPorNome(qryRegistroI075,['filial','datainicial','datafinal'],
+    [qryfcontfilial.AsVariant, datainicial, datafinal]);
+
+  qryRegistroI075.First;
+  while not qryRegistroI075.Eof do
+  begin
+    with ACBrSpedFCont.Bloco_I.RegistroI075.New do
+    begin
+      COD_HIST   := qryRegistroI075.fieldbyname('codigo').asString; // Código do histórico padronizado.
+      DESCR_HIST := qryRegistroI075.fieldbyname('descricao').asString;  // Descrição do histórico padronizado.
+    end;
+    qryRegistroI075.Next;
+  end;
+
+end;
+
+procedure Tdtmfcont.P_RegistroI150;
+begin
+
+
+  RefazConsultaPorNome(qryRegistroI155,['filial','datainicial','datafinal','exercicio'],
+    [qryfcontfilial.AsVariant, datainicial, datafinal, qryfcontexercicio.AsVariant]);
+
+  if qryRegistroI155.RecordCount <> 0 then
+  begin
+    with ACBrSpedFCont.Bloco_I.RegistroI150.New do
+    begin
+       DT_INI := DataInicial;
+       DT_FIN := DataFinal;
+    end;
+    P_RegistroI155;
+  end;
+
+end;
+
+procedure Tdtmfcont.P_RegistroI155;
+begin
+  qryRegistroI155.First;
+  while not qryRegistroI155.Eof do
+  begin
+    with ACBrSpedFCont.Bloco_I.RegistroI150.Items[0].RegistroI155.New do  // p/ nós é sé anual
+    begin
+      COD_CTA   := qryregistroI155.fieldbyname('COD_CTA')   .asString;   // Código da conta analítica.
+//      COD_CCUS  := qryregistroI155.fieldbyname('COD_CCUS').asString;   // Código do centro de custos.
+      VL_SLD_INI:= qryregistroI155.fieldbyname('VL_SLD_INI').asCurrency; // Valor do saldo inicial do período.
+      IND_DC_INI:= qryregistroI155.fieldbyname('IND_DC_INI').asString;   // Indicador da situação do saldo inicial:D - Devedor;C - Credor.
+      VL_DEB    := qryregistroI155.fieldbyname('VL_DEB')    .asCurrency; // Valor total dos débitos no período.
+      VL_CRED   := qryregistroI155.fieldbyname('VL_CRED')   .asCurrency; // Valor total dos créditos no período.
+      VL_SLD_FIN:= qryregistroI155.fieldbyname('VL_SLD_FIN').asCurrency; // Valor do saldo final do período.
+      IND_DC_FIN:= qryregistroI155.fieldbyname('IND_DC_FIN').asString;   // Indicador da situação do saldo final: D - Devedor; C - Credor.
+    end;
+    qryRegistroI155.Next;
+  end;
+
+end;
+
+procedure Tdtmfcont.P_RegistroI200;
+begin
+
+  RefazConsultaPorNome(qryRegistroI200,['filial','datainicial','datafinal'],
+    [qryfcontfilial.AsVariant, datainicial, datafinal]);
+
+    RefazConsultaPorNome(qryRegistroI250,['filial','datainicial','datafinal'],
+      [qryfcontfilial.AsVariant, datainicial, datafinal]);
+
+
+  qryRegistroI200.First;
+  while not qryRegistroI200.Eof do
+  begin
+    with ACBrSpedFCont.Bloco_I.RegistroI200.New do
+    begin
+      NUM_LCTO := qryRegistroI200.fieldbyname('num_lcto').asString;   // Número de identificação do lançamento
+      DT_LCTO  := qryRegistroI200.fieldbyname('dt_lcto').asDateTime; // Data do lançamento
+      VL_LCTO  := qryRegistroI200.fieldbyname('vl_lcto').asCurrency; // Valor do Lançamento
+      {ver c/ lúcio}
+      IND_LCTO :=  'X' // qryRegistroI200.fieldbyname('ind_lcto').asString;   // Indicador do tipo do lançamento
+    end;
+    P_RegistroI250;
+    qryRegistroI200.Next;
+  end;
+
+end;
+
+procedure Tdtmfcont.P_RegistroI250;
+begin
+  qryRegistroI250.First;
+  while not qryRegistroI250.Eof do
+  begin
+    with ACBrSpedFCont.Bloco_I.RegistroI200.Items[qryRegistroI200.RecNo-1].RegistroI250.New do
+    begin
+      COD_CTA      := qryRegistroI250.fieldbyname('COD_CTA').asString;
+//    COD_CCUS     := qryRegistroI250.fieldbyname('COD_CCUS').asString;
+      VL_DC        := qryRegistroI250.fieldbyname('VL_DC').asCurrency;
+      IND_DC       := qryRegistroI250.fieldbyname('IND_DC').asString;
+//      NUM_ARQ      := qryRegistroI250.fieldbyname('NUM_ARQ').asString;
+      COD_HIST_PAD := qryRegistroI250.fieldbyname('COD_HIST_PAD').asString;
+      HIST         := qryRegistroI250.fieldbyname('HIST').asString;
+//    COD_PART     := qryRegistroI250.fieldbyname('COD_PART').asString;
+    end;
+    qryRegistroI250.Next;
+  end;
+end;
+
+procedure Tdtmfcont.Bloco_J;
+begin
+  P_RegistroJ001;
+  P_RegistroJ930;
+end;
+
+procedure Tdtmfcont.P_RegistroJ001;
+begin
+  ACBrSpedFCont.Bloco_J.RegistroJ001.IND_DAD := 0;
+end;
+
+procedure Tdtmfcont.P_RegistroJ930;
+begin
+  qryRegistroJ930.First;
+  while not qryRegistroJ930.Eof do
+  begin
+    with ACBrSpedFCont.Bloco_J.RegistroJ930.New do
+    begin
+      IDENT_NOM   := qryRegistroJ930nome.asString; // Nome do signatário.
+      IDENT_CPF_CNPJ   := qryRegistroJ930cpf.asString; // CPF.
+      IDENT_QUALIF:= qryRegistroJ930descricaoqualificacao.AsString; // Qualificação do assinante, conforme tabela do Departamento Nacional de Registro do Comércio - DNRC.
+      COD_ASSIN   := qryRegistroJ930qualificacao.asString; // Código de qualificação do assinante, conforme tabela do Departamento Nacional de Registro do Comércio - DNRC.
+      IND_CRC     := qryRegistroJ930crc.asString; // Número de inscrição do contabilista no Conselho Regional de Contabilidade.
+    end;
+    qryRegistroJ930.Next;
+  end;
+
+
+
+end;
+
+procedure Tdtmfcont.dsrfcontDataChange(Sender: TObject; Field: TField);
+begin
+  inherited;
+  if (field = qryfcontexercicio) or
+     (field = qryfcontfilial) then
+  begin
+    if (qryfcont.State = dsinsert) and
+       ((qryfcontexercicio.AsString <> '') and
+        (qryfcontfilial.AsInteger <> 0)) then
+    begin
+      DataInicial := strtodate('01/01/'+qryfcontexercicio.asstring);
+      DataFinal := strtodate('31/12/'+qryfcontexercicio.asstring);
+    end;
+    qryfcontnomearquivo.AsString := 'FCONT_'+
+      qryfcontfilial.AsString+'_'+
+      qryfcontexercicio.AsString+'.TXT';
+  end;
+end;
+
+procedure Tdtmfcont.Bloco_9;
+begin
+  ACBrSpedFCont.Bloco_9.Registro9001.IND_DAD := 0;
+end;
+
+procedure Tdtmfcont.P_RegistroI350;
+begin
+
+  RefazConsultaPorNome(qryRegistroI350,['filial','datainicial','datafinal'],
+    [qryfcontfilial.AsVariant, datainicial, datafinal]);
+
+    RefazConsultaPorNome(qryRegistroI355,['filial','datainicial','datafinal'],
+      [qryfcontfilial.AsVariant, datainicial, datafinal]);
+
+
+  qryRegistroI350.First;
+  while not qryRegistroI350.Eof do
+  begin
+    with ACBrSpedFCont.Bloco_I.RegistroI350.New do
+      DT_RES := qryRegistroI350data.AsDateTime; /// Data da apuração do resultado.
+
+    P_RegistroI355;
+    qryRegistroI350.Next;
+  end;
+
+end;
+
+procedure Tdtmfcont.P_RegistroI355;
+begin
+  qryRegistroI355.First;
+  while not qryRegistroI355.Eof do
+  begin
+    with ACBrSpedFCont.Bloco_I.RegistroI350.Items[qryRegistroI350.RecNo-1].RegistroI355.New do
+    begin
+      COD_CTA := qryRegistroI355cod_cta.AsString;     /// Código da conta analítica de resultado.
+      //COD_CCUS: String;    /// Código do centro de custos.
+      VL_CTA  := qryRegistroI355vl_cta.AsCurrency;    /// Valor do saldo final antes do lançamento de encerramento.
+      IND_DC  := qryRegistroI355ind_dc.AsString;  /// Indicador da situação do saldo final: D - Devedor; C - Credor.
+    end;
+    qryRegistroI355.Next;
+  end;
+end;
+
+
+procedure Tdtmfcont.P_RegistroI051;
+begin
+  if (qryRegistroI050.fieldbyname('cod_cta_ref').AsString<>'') and
+     (qryRegistroI050.fieldbyname('ind_cta').AsString='A') then
+  begin
+    with ACBrSpedFCont.Bloco_I.RegistroI050.Items[qryRegistroI050.RecNo-1].RegistroI051.New do
+    begin
+      COD_ENT_REF := '10'; // Código da instituição responsável pela manutenção do plano de contas referencial.
+//    COD_CCUS: String;  // Código do centro de custo.
+      COD_CTA_REF := qryRegistroI050.fieldbyname('cod_cta_ref').AsString ; // Código da conta de acordo com o plano de contas referencial, conforme tabela publicada pelos órgãos indicados no campo 02- COD_ENT_REF.
+    end;
+  end;
+end;
+
+
+function Tdtmfcont.SetarIntervalodeDatas: Boolean;
+begin
+ RefazConsultaPorNome(qryIntervaloDatas,['filial','exercicio'],[qryfcontfilial.AsVariant,qryfcontexercicio.AsVariant]);
+ if qryIntervaloDatas.RecordCount<>0 then
+ begin
+   result := true;
+   DataInicial := qryIntervaloDatasdatainicial.AsDateTime;
+   DataFinal := qryIntervaloDatasdatafinal.AsDateTime;
+ end
+ else
+   result := false;
+end;
+
+procedure Tdtmfcont.ACBrSPEDFContError(const MsnError: String);
+begin
+  inherited;
+  Erro := MsnError;
+  if Assigned(ACBrSPEDFContonError) then
+    ACBrSPEDFContonError(self);
+
+end;
+
+procedure Tdtmfcont.Bloco_M;
+begin
+  P_RegistroM001;
+    P_RegistroM020;
+    P_RegistroM025;
+    P_RegistroM030;
+end;
+
+procedure Tdtmfcont.P_RegistroM001;
+begin
+  ACBrSpedFCont.Bloco_M.RegistroM001.IND_DAD := 0;
+end;
+
+procedure Tdtmfcont.P_RegistroM020;
+begin
+  with ACBrSpedFCont.Bloco_M.RegistroM020 do
+  begin
+    QUALI_PJ          := qryFiliaisquali_pj.AsString       ; // Qualificação da Pessoa Jurídica.
+    TIPO_ESCRIT       := qryfcontTIPO_ESCRIT.AsString      ; // Tipo de Escrituração: 0-Original, 1-Retificadora
+    NRO_REC_ANTERIOR  := qryfcontNro_Rec_Anterior.AsString ; // Número do recibo da escrituração anterior a ser retificada.
+    Id_escr_Per_ant   := qryfcontId_escr_Per_ant.AsString  ;
+    sIT_sLD_PER_ANT   := qryfcontsIT_sLD_PER_ANT.AsString  ;
+    Ind_lcto_ini_sld  := qryfcontInd_lcto_ini_sld.AsString ;
+    Form_apur         := qryFiliaisform_apur.AsString      ; // Forma de apuração
+    Form_tribut       := qryFiliaisform_tribut.asString    ; // Forma de Tributação
+    TRIM_Luc_Arb      := '';   ///Trimestre de Lucro Arbitrado
+    Form_trib_tri     := '';
+  end;
+end;
+
+procedure Tdtmfcont.P_RegistroM025;
+begin
+
+  RefazConsultaPorNome(qryRegistroM025,['filial','datainicial','exercicio'],
+    [qryfcontfilial.AsVariant, datainicial, qryfcontexercicio.AsVariant]);
+
+  while not qryRegistroM025.Eof do
+  begin
+    with ACBrSpedFCont.Bloco_M.RegistroM025.New do
+    begin
+      COD_CTA        := qryRegistroM025cod_cta.AsString;          // Código da conta analítica.
+      COD_CCUS       := '';                                       // Código do centro de custos.
+      COD_CTA_REF    := qryRegistroM025cod_cta_ref.AsString;      // Código da conta no plano de contas referencial, conforme tabela publicada pelos órgãos indicados no campo COD_ENT_REF
+      VL_SLD_FIN_FC  := abs(qryRegistroM025vl_sld_fin_fc.AsCurrency);  // Valor do saldo final fiscal recuperado do período anterior.
+      IND_DC_FIN_FC  := qryRegistroM025ind_dc_fin_fc.AsString;    // Indicador da situação do saldo fiscal final: D - Devedor; C - Credor.
+      VL_SLD_FIN_SOC := abs(qryRegistroM025vl_sld_fin_soc.AsCurrency); // Valor do saldo final societário recuperado do período anterior.
+      IND_DC_FIN_SOC := qryRegistroM025ind_dc_fin_soc.AsString;   // Indicador da situação do saldo Societário final: D - Devedor; C - Credor.
+    end;
+    qryRegistroM025.Next;
+  end;
+end;
+
+procedure Tdtmfcont.P_RegistroM030;
+begin
+
+  RefazConsultaPorNome(qryRegistroM030,['filial','datafinal','exercicio'],
+    [qryfcontfilial.AsVariant, datafinal, qryfcontexercicio.AsVariant]);
+
+  with ACBrSpedFCont.Bloco_M.RegistroM030.New do
+  begin
+    IND_PER     := 'A00'; { Tabela de períodos:
+                            A00- Anual;
+                            T01- Primeiro trimestre;
+                            T02- Segundo trimestre;
+                            T03- Terceiro trimestre;
+                            T04- Quarto trimestre;
+                          }
+    VL_LUC_LIQ  := qryRegistroM030vl_luc_liq.AsCurrency;  //Valor do lucro líquido (ou do prejuízo) societário do período.
+    IND_LUC_LIQ := qryRegistroM030ind_luc_liq.AsString;
+  end;
+
+end;
+
+end.
+

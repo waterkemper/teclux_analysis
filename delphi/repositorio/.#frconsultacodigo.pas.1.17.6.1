@@ -1,0 +1,680 @@
+unit frconsultacodigo;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  frconsulta, StdCtrls, DBCtrls, cpdbtext, Buttons, Mask,
+  cpdbfindcontrols, ctconstantes, dmbasico, fmconsultabasica, fmconsultaporcampo,
+   Windows, zquery, DB, cpdatasource, ZPgSqlQuery, dmtecsoft,
+  clusuario, cpquery, clparametrossistema, ZTransact;
+                        
+
+type
+  TfraConsultaCodigo = class(TfraConsulta)
+    sbnProcura: TSpeedButton;
+    dtxDescricao: TtecDBText;
+    edfCodigo: TtecDBFindLookup;
+    procedure edfCodigoKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnProcuraClick(Sender: TObject);
+    procedure edfCodigoFound(Found: Boolean);
+    procedure edfCodigoExit(Sender: TObject);
+    procedure edfCodigoMessage(var Msg: String);
+  private
+    FQuantidadeNaturezas: Boolean;
+    FAbrirPesquisaQuandoReadOnly: boolean;
+    function getQuantidadeNaturezas: Boolean;
+  protected
+    dmbasico : TdtmBasico;
+    function JanelaPesquisa: TfrmConsultaBasica; override;
+    function TituloPesquisa: String;
+
+  private
+    FTipoCliente: String;
+    FOnFound: TtecProcedure;
+    FValorSelecionado: Variant;
+    FFilialSelecionada: Variant;
+    procedure SetTipoCliente(const Value: String);
+    function  PosicionarEstado(codigo: String): Boolean;
+    function  PosicionarRegistro(TipoPesquisa: TTecPesquisa; Parametro: Integer): Boolean;
+    property QuantidadeNaturezas: Boolean read getQuantidadeNaturezas write FQuantidadeNaturezas;
+
+
+
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+    
+    property TipoCliente: String read FTipoCliente write SetTipoCliente;
+    property OnFound: TTecProcedure read FOnFound write FOnFound;
+    function InternoPesquisar(Titulo: String): Integer; override;
+    procedure PosicionarTabelaNoParametro(Ind: Integer; var continuar: Boolean); override;
+    property ValorSelecionado: Variant read FValorSelecionado write FValorSelecionado;
+    property FilialSelecionada: Variant read FFilialSelecionada write FFilialSelecionada;
+    property AbrirPesquisaQuandoReadOnly: boolean read FAbrirPesquisaQuandoReadOnly write FAbrirPesquisaQuandoReadOnly default false;
+
+  end;
+
+  var
+    fraConsultaCodigo : tfraConsultaCodigo;
+
+implementation
+
+{$R *.dfm}
+
+constructor TfraConsultaCodigo.Create(AOwner: TComponent);
+begin
+  inherited;
+  AbrirPesquisaQuandoReadOnly := False;
+end;
+
+function TfraConsultaCodigo.InternoPesquisar(Titulo: String): Integer;
+var
+  vContinuar : Boolean;
+begin
+  vContinuar := true;
+
+  {nas atribuições qdo for readonly não há razão para pesquisar}
+  if (edfCodigo.Operacao = OPAtribuicao) or ((edfcodigo.Operacao = opPESQUISA) and (edfcodigo.Group<>'') ) then
+    if edfCodigo.DataField <> '' then
+      if edfcodigo.ReadOnly or edfCodigo.DataSource.DataSet.FieldByName(edfCodigo.DataField).ReadOnly then
+        if AbrirTabelaProcura then
+             vContinuar := AbrirPesquisaQuandoReadOnly;
+
+  if vContinuar then
+  begin
+    AbreTabelaConsulta(TipoPesquisa);
+    Result := inherited InternoPesquisar(Titulo);
+    if TipoPesquisa = pesNCMTABELAIPI then
+    begin
+      if Result <> mrCancel then
+        while not (qryConsultaNCMTabelasoua.ASString = 'A') do
+        begin
+           Result := inherited InternoPesquisar(Titulo);
+           if Result = mrCancel then
+             break;
+        end;
+
+    end;
+
+    if Result = mrOK then
+    begin
+      case edfCodigo.Operacao of
+        opATRIBUICAO :
+        begin
+          if edfcodigo.LookupQuery <> nil then
+            if edfCodigo.Group='' then
+              if not (edfCodigo.DataSource.State in [dsinsert, dsedit]) then
+                edfCodigo.DataSource.edit;
+
+          case TipoPesquisa of
+            pesITEMPRODUTOS,
+            pesITEMPRODUTOSFIOS,
+            pesITEMPRODUTOSFITAS  : begin
+                                if  ParSistema.PermitirProdutoAlfanumerico then
+                                  edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsString := qryConsultaItemProdutoscodigovisual.AsString
+                                else
+                                  edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsString := qryConsultaItemProdutoscodigo.AsString;
+                                Selecionar(TipoPesquisa);  
+                              end;
+            pesPRODUTOS     : begin
+                                if  ParSistema.PermitirProdutoAlfanumerico then
+                                  edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsString := qryConsultaProdutoscodigovisual.AsString
+                                else
+                                  edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsString := qryConsultaProdutoscodigo.AsString;
+                              end;
+
+            pesCaracteristicasProdutosClientes : begin
+                                                   Selecionar(TipoPesquisa);
+                                                 end;
+
+            pesGRUPOS       : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaGrupoProdutoscodigo.AsVariant;
+            pesMODALIDADEBCICMS : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaModalidadeBCICMScodigo.AsVariant;
+            pesMODALIDADEBCICMSST : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaModalidadeBCICMSSTcodigo.AsVariant;
+
+            pesTRIBUTOSPIS : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultatributospiscodigo.AsVariant;
+            pesTRIBUTOSCOFINS : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultatributoscofinscodigo.AsVariant;
+
+            pesTRIBUTOSIPI : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultatributosipicodigo.AsVariant;
+            pesTRIBUTOSICMS : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaTributosICMScodigo.AsVariant;
+
+            pesCLASSES      : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaClassescodigo.AsVariant;
+            pesNCMTABELAIPI : begin
+                                try
+                                  edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaNCMTabelacodigotipi.AsVariant;
+                                except end;
+                                Selecionar(TipoPesquisa);
+                              end;
+            pesMARCAS       : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaMarcascodigo.AsVariant;
+            pesCLIENTES,
+            pesFORNECEDORES : begin
+                                try
+                                  edfCodigo.DataSource.DataSet.fieldbyname('tipofornecedor').AsVariant := qryConsultaClientestipoorig.AsVariant;
+                                except end;
+
+                                Selecionar(TipoPesquisa);
+                                if assigned(edfCodigo.DataSource) then
+                                begin
+                                  edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaClientescodigo.AsVariant;
+                                  if edfCodigo.Group='' then
+                                    edfcodigo.Exist;
+                                end;
+                                FValorSelecionado:= qryConsultaClientescodigo.AsVariant;
+                              end;
+            pesCONTAS       : edfCodigo.DataSource.DataSet.FieldByName(edfCodigo.DataField).AsVariant:= qryConsultaContasconta.AsVariant;
+            pesFILIAIS      :Begin
+                               if (edfCodigo.group='') then
+                                 edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaFiliaiscodigo.AsVariant
+                               else
+                                 edfCodigo.Text := qryConsultaFiliaiscodigo.AsVariant;
+                               Selecionar(TipoPesquisa);
+                               FValorSelecionado:= qryConsultaFiliaisnome.AsVariant;
+                             end;
+            pesNOTASNUMERO  : begin
+                                edfCodigo.DataSource.DataSet.FieldByName(edfcodigo.DataField).AsVariant := qryConsultaNfSaidanumero.AsVariant;
+                                Selecionar(TipoPesquisa);
+                              end;
+            pesGRUPOSFILIAIS : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaGrupoFiliaiscodigo.AsVariant;
+            pesVENDEDORES : begin
+                              edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaVendedorescodigo.AsVariant;
+                              Selecionar(TipoPesquisa);
+                             end;
+                             
+            pesAGENTES    : edfCodigo.DataSource.DataSet.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaAgentescodigo.AsVariant;
+            pesCONCEITOS  : edfCodigo.DataSource.DataSet.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaConceitocodigo.AsVariant;
+  //          pesCONTACREDITO,
+  //          pesCONTADEBITO: edfCodigo.DataSource.DataSet.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaContacodigo.AsVariant;
+  //          pesCONTAREFERENCIAL: edfCodigo.DataSource.DataSet.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaPlanoReferencialcodigo.AsVariant;
+  //          pesHISTORICOCONTABIL : edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaHistoricocodigo.AsVariant;
+            pesBANCOS: edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaBancosCodigo.AsVariant;
+            pesPEDIDOS:begin
+                       edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaPedidonumero.AsVariant;
+                       Selecionar(TipoPesquisa);
+                       FValorSelecionado:= qryConsultaPedidonumero.AsVariant;
+                       end;
+            pesSERIESFORNECEDORES : begin
+                                      edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaSeriesFornecedorserie.AsVariant;
+                                      if edfCodigo.group<>'' then
+                                      begin
+                                        edfcodigo.Text := qryConsultaSeriesFornecedorserie.AsVariant;
+                                        edfcodigo.Exist;
+                                      end;  
+                                    end;
+            pesSERIES             : begin
+                                      qryProcuraSerie.ParamByName('Serie').AsString:= qryConsultaSerieSerie.AsVariant;
+                                      Selecionar(TipoPesquisa);
+                                      if edfCodigo.Group='' then
+                                        edfCodigo.DataSource.DataSet.FieldByName(edfCodigo.DataField).AsVariant:= qryConsultaSerieSerie.AsVariant
+                                      else
+                                        edfCodigo.Text := qryConsultaSerieSerie.AsVariant;
+                                    end;
+  //          pesEVENTO             : edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaEventoscodigo.AsVariant;
+            pesNUMERONOTASPAGPRODUTOS :  edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaNotasPagProdutosnumero.AsVariant;
+            pesESTADOS: edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaEstadoscodigo.AsVariant;
+            pesESTADOCIDADES: begin
+                                qryProcuraEstadoCidades.BeforeOpen := nil;
+                                qryProcuraEstadoCidades.ParamByName('estado').AsString := qryConsultaEstadoCidadesestado.AsString;
+                                edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaEstadoCidadescodigo.AsVariant;
+                                Selecionar(TipoPesquisa);
+                                qryProcuraEstadoCidades.BeforeOpen := qryProcuraEstadoCidadesBeforeOpen;
+                                //edfcodigo.Exist;
+                              end;
+            pesCONTRATOS: begin
+                            edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaContratonumero.AsVariant;
+                            Selecionar(TipoPesquisa);
+                          end;
+            pesPEDIDOSSAIDA: begin
+                            edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaPedidosSaidanumero.AsVariant;
+                            Selecionar(TipoPesquisa);
+                            valorselecionado := qryConsultaPedidosSaidanumero.AsVariant;
+                          end;
+            pesOSP: begin
+                      edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaOSPnumero.AsVariant;
+                      Selecionar(TipoPesquisa);
+                      valorselecionado := qryconsultaOSPnumero.asVariant;
+                    end;
+
+            pesREPASSECHEQUES: begin
+                      edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaRepasseChequesnumero.AsVariant;
+                      Selecionar(TipoPesquisa);
+                      valorselecionado := qryConsultaRepasseChequesnumero.asVariant;
+                    end;
+
+
+            pesCONTRATOSIMOVEIS: begin
+                                   edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaContratosImoveiscontrato.AsVariant;
+                                   Selecionar(TipoPesquisa);
+                                   valorselecionado := qryConsultaContratosImoveiscontrato.AsVariant;
+                                 end;
+            pesPARCELASIMOVEIS : begin
+                                   edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaParcelasImoveiscontrato.AsVariant;
+                                   Selecionar(TipoPesquisa);
+                                 end;
+            pesNOTASFILIAIS : begin
+                                edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaNotasnumero.AsVariant;
+                                Selecionar(TipoPesquisa);
+                              end;
+            pesNOTASFORNECEDOR : begin
+                                edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaNotasPagnumero.AsVariant;
+                                if edfcodigo.group <> '' then
+                                begin
+                                  edfcodigo.Text := qryConsultaNotasPagnumero.AsVariant;
+                                  edfcodigo.Exist;
+                                end;
+//                                Selecionar(TipoPesquisa);
+                              end;
+
+            pesNIVELSALARIAL: begin
+                      edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaNivelSalarialcodigo.AsVariant;
+                      Selecionar(TipoPesquisa);
+                      valorselecionado := qryConsultaNivelSalarialcodigo.asVariant;
+                    end;
+            pesMAQUINAS: begin
+                      edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaMaquinascodigo.AsVariant;
+                      Selecionar(TipoPesquisa);
+                      valorselecionado := qryConsultaMaquinascodigo.asVariant;
+                    end;
+            pesOPERACOES: begin
+                      Selecionar(TipoPesquisa);
+                      valorselecionado := qryConsultaOperacoescodigo.asVariant;
+                    end;
+
+            pesNIVEISCONHECIMENTO: begin
+                                     edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaNiveisConhecimentocodigo.AsVariant;
+                                     Selecionar(TipoPesquisa);
+                                   end;
+
+            pesMOTIVOSPARADAS:     begin
+                                     edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaMotivosParadascodigo.AsVariant;
+                                     Selecionar(TipoPesquisa);
+                                   end;
+
+            pesSETORESPRODUCAO:    begin
+                                     edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaSetoresProducaocodigo.AsVariant;
+                                     Selecionar(TipoPesquisa);
+                                   end;
+
+            pesTURNO: begin
+                        edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaTurnoscodigo.AsVariant;
+                        Selecionar(TipoPesquisa);
+                      end;
+
+            pesSERVICOSLCP116: begin
+                      edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaServicoslcp116codigo.AsVariant;
+                      Selecionar(TipoPesquisa);
+                      ValorSelecionado := qryConsultaServicoslcp116codigo.AsVariant;
+                    end;
+            pesCIDADES: edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaCidadescodigo.AsVariant;
+            pesCARGOS: edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaCargoscodigo.AsVariant;
+            pesMOEDAS: begin
+                         ValorSelecionado := qryConsultaMoedascodigo.AsVariant;
+                         edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaMoedascodigo.AsVariant;
+                       end;
+
+            pesFLUXOGRAMA: begin
+                             edfcodigo.DataSource.DataSet.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaFluxogramascodigo.asvariant;
+                             selecionar(TipoPesquisa);
+                           end;
+            pesINSTRUCOESTRABALHO: begin
+                             edfcodigo.DataSource.DataSet.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaInstrucoesTrabalhoinstrucao.AsString;
+                             selecionar(TipoPesquisa);
+                           end;
+
+
+            pesNATUREZAS: edfcodigo.DataSource.DataSet.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaNaturezascodigo.asvariant;
+            pesINVENTARIO: ValorSelecionado := qryConsultaInventarionumero.AsVariant;
+            pesIMOBILIZADO: ValorSelecionado := qryConsultaImobilizadonumero.AsVariant;
+            pesEXPORTACAODADOS : ValorSelecionado := qryConsultaExportacaoDadoscodigo.AsVariant;
+            pesPLANO: edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaPlanocodigo.AsVariant;
+            pesTRANSPORTADORES: edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaTransportadorcodigo.AsVariant;
+            pesNATUREZASCFOP: begin
+                                qryProcuraNaturezasCFOP.ParamByName('codigonatureza').AsInteger := qryConsultaNaturezasCFOPcodigo.Asinteger;
+                                edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaNaturezasCFOPcodigofiscal.AsVariant;
+                                Selecionar(TipoPesquisa);
+                              end;
+
+            pesUSUARIOS: begin
+                           edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaUsuarioscodigo.AsVariant;
+                           Selecionar(TipoPesquisa);
+                         end;
+            pesCOBRADOR: begin
+                           edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaCobradorcodigo.AsVariant;
+                           Selecionar(TipoPesquisa);
+                         end;
+            pesTIPOPRODUTO : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaTipoProdutocodigo.AsVariant;
+            pesNATBCCRED : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultapiscofins_t437codigo.AsVariant;
+            pesMODELO : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaModelocodigo.AsVariant;
+            pesFALHAS: begin
+                         edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaFalhascodigo.AsVariant;
+                         selecionar(TipoPesquisa);
+                         ValorSelecionado := qryConsultaFalhascodigo.AsVariant;
+                       end;
+            pesEMPREENDIMENTOS   : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaEmpreendimentoscodigo.AsVariant;
+            pesBLOCOS            : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaBlocoscodigo.AsVariant;
+            pesTIPOSUNIDADES     : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaTiposUnidadescodigo.AsVariant;
+            pesUNIDADES     : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaUnidadescodigo.AsVariant;
+
+            pesIMOVEIS           : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaImoveisnumero.AsVariant;
+            pesTIPORECEBIMENTO : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaTipoRecebimentocodigo.AsVariant;
+          end;
+          edfCodigoFound(true);
+        end;
+        opPESQUISA : begin
+                       if (TipoPesquisa = pesNOTASFORNECEDOR) and (edfcodigo.group<>'') then
+                       begin
+                         edfcodigo.Text := qryConsultaNotasPagnumero.AsVariant;
+                         edfcodigo.Exist;
+                       end
+                       else
+                         Selecionar(TipoPesquisa);
+                       if assigned(FOnFound) then
+                         FOnFound;
+                     end;
+      end;
+    end;
+    if abrirtabelaProcura then
+    begin
+      ActiveControl.SetFocus;
+      edfCodigo.SetFocus;
+      edfCodigo.SelectAll;
+    end;
+    FechaTabelaPesquisa(TipoPesquisa);
+  end;
+end;
+
+function TfraConsultaCodigo.JanelaPesquisa: TfrmConsultaBasica;
+{var
+  Jan: TfrmConsultaPorCampo;}
+begin
+  Jan := TfrmConsultaPorCampo.Create(Jan);
+  Jan.ConsultaInterativa := Not (TipoPesquisa in [pesPRODUTOS, pesITEMPRODUTOS, pesCaracteristicasProdutosClientes,
+                                                  pesFORNECEDORES, pesCLIENTES,
+                                                  pesCONTRATOS, pesPEDIDOSSAIDA,
+                                                  pesOSP, pesREPASSECHEQUES, pesNOTASFILIAIS,
+                                                  pesCONTRATOSIMOVEIS]) {and CtrlOn};
+
+  if (TipoPesquisa in [pesITEMPRODUTOSFIOS, pesITEMPRODUTOSFITAS]) then
+     Jan.ConsultaInterativa := true;
+
+  if (TipoPesquisa in [pesFORNECEDORES, pesCLIENTES]) {and CtrlOn} and ConsultarTodos then
+    Jan.ConsultaInterativa := true;
+
+  Jan.UsarParametrosDaTabela := False;
+  if (TipoPesquisa in [pesESTADOCIDADES, pesCONTRATOS, pesPEDIDOSSAIDA, pesNOTASFILIAIS, pesCONTRATOSIMOVEIS]) then
+    Jan.UsarParametrosDaTabela := true;
+
+  if (TipoPesquisa in [pesOSP, pesREPASSECHEQUES]) then
+    Jan.UsarParametrosDaTabela := qryProcuraCliente.IsEmpty;
+
+  Result := Jan;
+//  FreeAndNil(jan);
+end;
+
+
+{
+procedure TfraConsultaCodigo.SettipoPesquisaCodigo(
+  const Value: TTipoPesquisaCodigo);
+begin
+  FTipoPesquisaCodigo := Value;
+  case TipoPesquisaCodigo of
+    Cliente : TipoPesquisa := pesCLIENTES;
+    Fornecedor : TipoPesquisa := pesFORNECEDORES;
+    marca   : TipoPesquisa := pesMARCAS;
+  end;
+  AbreTabelaProcura(TipoPesquisa);
+end;
+}
+
+procedure TfraConsultaCodigo.edfCodigoKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  Case Key of
+    VK_F9     : begin
+                   CtrlOn := Shift = [ssCtrl];
+//                   if (Shift = []) or CtrlOn then
+                   if CtrlOn then
+
+                     InternoPesquisar(edfCodigo, TituloPesquisa);
+                 end;
+    VK_Return : begin
+                   case edfCodigo.Operacao of
+                     opPESQUISA : if assigned(FOnFound) then
+                                      FOnFound;
+                   end;
+                 end;
+  end;
+end;
+
+function TfraConsultaCodigo.TituloPesquisa: String;
+begin
+  case TipoPesquisa of
+    pesCLIENTES : result := ctCLIENTES;
+    pesCONTRATOS : result := ctCONTRATOS;
+    pesPEDIDOSSAIDA : result := ctPEDIDOS;
+    pesNIVELSALARIAL : result := ctNIVELSALARIAL;
+    pesMAQUINAS : result := ctMAQUINAS;
+    pesOPERACOES : result := ctOPERACOES;
+    pesNIVEISCONHECIMENTO : result := 'Nível de Conhecimento';
+    pesMOTIVOSPARADAS : result := 'Motivo da Parada';
+    pesSETORESPRODUCAO : rESULT := 'Setores da Produção';
+    pesTURNO : result := 'Turnos';
+    pesSERVICOSLCP116 : result := 'Serviços - Lei Compl. 116/03';
+    pesOSP : result := ctOSP;
+    pesREPASSECHEQUES : result := 'Repasse de Cheques';
+    pesCONTRATOSIMOVEIS : result:= 'Contratos Imóveis';
+    pesPARCELASIMOVEIS  : Result:= 'Parcelas do Contrato '+qryConsultaParcelasImoveiscontrato.AsString;
+    pesFORNECEDORES: result := ctFORNECEDORES;
+    pesMARCAS   : result := ctMARCAS;
+    pesFILIAIS  : result := ctFILIAIS;
+    pesCONTAS   : Result := ctCONTAS;
+    pesNOTASFILIAIS: RESULT := ctNOTASFISCAIS;
+    pesNOTASFORNECEDOR : Result := ctNOTASFISCAIS;
+    pesNOTASNUMERO:  RESULT := ctNOTASFISCAIS;
+    pesGRUPOSFILIAIS : result := ctGRUPOFILIAIS;
+    pesNCMTABELAIPI  : Result:= 'Classificação Fiscal do IPI';
+    pesGRUPOS: result := ctGRUPOS;
+    pesMODALIDADEBCICMS : result := 'BC ICMS' ;
+    pesMODALIDADEBCICMSST : result :='BC ICMS ST';
+    pesTRIBUTOSPIS :  result :='PIS SCT';
+    pesTRIBUTOSCOFINS :  result :='COFINS SCT';
+    pesTRIBUTOSIPI :  result :='IPI SCT';
+    pesTRIBUTOSICMS :  result :='ICMS SCT';
+    pesVENDEDORES : RESULT := ctVENDEDORES;
+    pesHISTORICOCONTABIL : Result := ctHISTORICO;
+    pesCONTADEBITO : Result := ctCONTADEBITO;
+    pesCONTACREDITO : Result := ctCONTACREDITO;
+    pesCONTAREFERENCIAL : Result := ctCONTAREFERENCIAL;
+    pesAGENTES      : Result := ctAGENTES;
+    pesCONCEITOS    : Result := ctCONCEITOS;
+    pesBANCOS : Result := ctBANCO;
+    pesPEDIDOS: Result := ctPEDIDOS;
+    pesSERIESFORNECEDORES : result := ctSERIEFORNECEDORES;
+    pesSERIES          : Result:= ctSERIES;
+    pesEVENTO : Result := ctEVENTO;
+    pesNUMERONOTASPAGPRODUTOS : result := ctNOTASFISCAIS;
+    pesESTADOS : Result := ctESTADO;
+    pesESTADOCIDADES : Result := ctESTADO;
+    pesCIDADES : result := ctCIDADES;
+    pesCARGOS  : Result := ctCARGOS;
+    pesMOEDAS  : Result := ctMOEDA;
+    pesFLUXOGRAMA : RESULT := ctFLUXOGRAMA;
+    pesINSTRUCOESTRABALHO : RESULT := ctINSTRUCOESTRABALHO;
+    pesNATUREZAS : result := ctNATUREZAS;
+    pesINVENTARIO : result := ctINVENTARIOESTOQUE;
+    pesIMOBILIZADO : Result := 'IMOBILIZADO';
+    pesITEMPRODUTOS,
+    pesITEMPRODUTOSFIOS,
+    pesITEMPRODUTOSFITAS : result := ctITEMPRODUTO;
+    pesEXPORTACAODADOS: RESULT := ctEXPORTACAO;
+    pesTIPORECEBIMENTO : Result := ctTIPOSRECEBIMENTOS;
+    pesPLANO : Result := ctPLANOSPAGAMENTOS;
+    pesTRANSPORTADORES : Result := ctTRANSPORTADORAS;
+    pesNATUREZASCFOP : Result := ctCODIGOFISCAL;
+    pesUSUARIOS : result := ctUSUARIOS;
+    pesCOBRADOR : result := ctCOBRADORES;
+    pesTIPOPRODUTO : result := 'Tipo Produto';
+    pesNATBCCRED : result := 'Natureza da Base';
+    pesMODELO : result := 'Modelo de Produto';
+    pesFALHAS : Result := 'Falha';
+    pesEMPREENDIMENTOS   : Result:= 'Empreendimentos';
+    pesBLOCOS            : Result:= 'Blocos';
+    pesTIPOSUNIDADES     : Result:= 'Tipos de Unidades';
+    pesUNIDADES     : Result:= 'Unidades';
+    pesIMOVEIS           : Result:= 'Imóveis';
+  end;
+end;
+
+procedure TfraConsultaCodigo.sbnProcuraClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfCodigo, TituloPesquisa);
+end;
+
+procedure TfraConsultaCodigo.SetTipoCliente(const Value: String);
+var
+  ValidarCliente : Boolean;
+begin
+  FTipoCliente := Value;
+  ValidarCliente := FTipoCliente<>'';
+  case TipoPesquisa of
+    pesCLIENTES :  if FTipoCliente='' then FTipoCliente := 'C';
+    pesFORNECEDORES: if FTipoCliente='' then FTipoCliente := 'F';
+  end;
+  qryProcuraCliente.Params[1].AsString := FTipoCliente;
+  if ValidarCliente then
+    if (TipoPesquisa in [pesCLIENTES, pesFORNECEDORES]) then
+      edfCodigo.Exist;
+end;
+
+procedure TfraConsultaCodigo.edfCodigoFound(Found: Boolean);
+begin
+  inherited;
+  case edfCodigo.Operacao of
+    opATRIBUICAO :
+      case TipoPesquisa of
+        pesCLIENTES, pesFORNECEDORES :
+        try
+          edfCodigo.DataSource.DataSet.fieldbyname('tipofornecedor').AsVariant := qryProcuraClientetipo.AsVariant;
+        except
+        end;
+      end;
+  end;
+
+  if assigned(FOnFound) then
+    FOnFound;
+end;
+
+procedure TfraConsultaCodigo.edfCodigoExit(Sender: TObject);
+var
+  ValorAnterior : Boolean;
+begin
+  inherited;
+  case edfCodigo.Operacao of
+    opATRIBUICAO :
+      case TipoPesquisa of
+        pesCLIENTES,
+        pesFORNECEDORES :
+        if edfcodigo.Text='' then
+          if (edfCodigo.DataSource.State in [dsinsert, dsedit]) then
+          begin
+            try
+              edfCodigo.DataSource.DataSet.fieldbyname('tipofornecedor').clear;
+            except
+            end;
+          end
+      end;
+  end;
+{
+  if dtmEmissaoNotaAvulsas.QuantidadeNaturezas then
+    InternoPesquisar(flkCodigoFiscal,ctCODIGOFISCAL);
+  VerificarTipoNotaSaida
+}
+  case TipoPesquisa of
+   pesNATUREZASCFOP :
+   begin
+     if QuantidadeNaturezas then
+     begin
+       ValorAnterior := AbrirTabelaProcura;
+       abrirtabelaProcura := false;
+       InternoPesquisar(ctCODIGOFISCAL);
+       qryProcuraNaturezasCFOP.ParamByName('codigonatureza').AsInteger := 0;
+       qryConsultaNaturezasCFOP.MacroByName('CodigoFiscal').AsString := '';
+       AbrirTabelaProcura := ValorAnterior;
+     end;
+   end;
+  end;
+end;
+
+procedure TfraConsultaCodigo.PosicionarTabelaNoParametro(Ind: Integer;
+  var continuar: Boolean);
+begin
+  inherited;
+    if (TipoPesquisa = pesESTADOCIDADES) and (Ind = 0) then
+       PosicionarEstado(dmbasico.EstadoFilialBase)
+    else
+      Continuar := PosicionarRegistro(TipoPesquisa, Ind);
+end;
+
+function TfraConsultaCodigo.PosicionarEstado(codigo: String): Boolean;
+begin
+  if Codigo <> '' then
+       Result := dmbasico.ExisteCodigo(qryConsultaEstados, 'codigo', Codigo)
+  else Result := dmbasico.ExisteCodigo(qryConsultaEstados, 'codigo', dmbasico.EstadoFilialBase);
+  AbreTabelaConsulta(tipopesquisa);
+end;
+
+function TfraConsultaCodigo.PosicionarRegistro(TipoPesquisa: TTecPesquisa;
+  Parametro: Integer): Boolean;
+begin
+  case TipoPesquisa of
+{    pesCLIENTES,
+    pesFORNECEDORES   : Result := ExisteCliente(qryClientescodigo.FieldName, qryClientescodigo.AsString);
+    tpCONJUGECLIENTES      : Result := ExisteCliente(qryClientescodigo.FieldName, qryClientesconjuge.AsString);}
+    pesESTADOCIDADES: begin
+                         case Parametro of
+                           0: Result := ExisteEstado(qryConsultaEstadoscodigo.FieldName,dmbasico.EstadoFilialBase);
+                          -1: Result := dmbasico.ExisteCodigo(qryconsultaestadocidades, qryConsultaEstadoCidadescodigo.FieldName, edfcodigo.Text);
+                           else
+                             Result := False;
+                         end;
+                       end;
+  else
+    Result := False;
+  end;
+end;
+
+function TfraConsultaCodigo.getQuantidadeNaturezas: Boolean;
+begin
+  FQuantidadeNaturezas := (qryProcuraNaturezasCFOP.RecordCount > 1) and
+            ((edfCodigo.DataSource.State in [dsinsert, dsedit]) or
+             (edfCodigo.Operacao = opPESQUISA)); 
+  result := FQuantidadeNaturezas;
+
+  if Result then
+    qryConsultaNaturezasCFOP.MacroByName('CodigoFiscal').AsString := 'and (n.codigofiscal = ' + IntToStr(qryProcuraNaturezasCFOP.ParamByname('codigofiscal').AsInteger) + ')'
+  else
+    qryConsultaNaturezasCFOP.MacroByName('CodigoFiscal').AsString := 'and (n.codigofiscal in (select cf.codigo from codigosfiscais cf))';
+end;
+
+procedure TfraConsultaCodigo.edfCodigoMessage(var Msg: String);
+begin
+  inherited;
+  case TipoPesquisa of
+    pesOSP : msg := 'Este número de OSP não esta cadastrado ou pertence a outro cliente';
+    pesREPASSECHEQUES : msg := 'Este repasse de cheque não esta cadastrado ou pertence a outro cliente';
+    pesCONTRATOSIMOVEIS: msg := 'Este número de contrato não está cadastrado ou pertence a outro cliente';
+  end;
+end;
+
+destructor TfraConsultaCodigo.Destroy;
+begin
+  if assigned(Jan) then
+    Jan := nil;
+  inherited;
+end;
+
+end.

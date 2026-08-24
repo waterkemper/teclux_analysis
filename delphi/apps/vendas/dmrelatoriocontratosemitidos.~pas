@@ -1,0 +1,688 @@
+unit dmrelatoriocontratosemitidos;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery, dmtecsoft,
+  cpdatasource, FR_DSet, FR_DBSet, FR_Class, ctconstantes, biblio,
+  CheckLst,
+  clparametrossistema, Buttons,
+  fmpreviewpadrao, FR_Desgn, ZTransact, variants;
+
+
+type
+  Tdtmrelatoriocontratosemitidos = class(TdtmBasico)
+    qryImprimirContratosParcelas: TtecQuery;
+    qryImprimirContratosParcelasdatavencto: TDateField;
+    qryImprimirContratosParcelasvalorvencto: TFloatField;
+    qryImprimirContratosParcelasdatapagto: TDateField;
+    qryImprimirContratosParcelasvalorpagto: TFloatField;
+    frpImprimirContratosEmitidos: TfrReport;
+    fdspImprimirContratosParcelas: TfrDBDataSet;
+    fdsImprimirContratosDadoFiscais: TfrDBDataSet;
+    qryImprimirContratosDadosFiscais: TtecQuery;
+    qryImprimirContratosDadosFiscaisserie: TStringField;
+    qryImprimirContratosDadosFiscaisnumeronota: TIntegerField;
+    qryImprimirContratosDadosFiscaismaquina: TIntegerField;
+    qryImprimirContratosDadosFiscaisintervensao: TIntegerField;
+    qryImprimirContratosDadosFiscaisnumerocupom: TIntegerField;
+    qryImprimirContratosParcelastipopagto: TStringField;
+    qryImprimirContratos: TtecQuery;
+    fdsImprimirContratos: TfrDBDataSet;
+    qryImprimirContratosfilialvenda: TIntegerField;
+    qryImprimirContratosnomefilialvenda: TStringField;
+    qryImprimirContratoscliente: TIntegerField;
+    qryImprimirContratosnomecliente: TStringField;
+    frpImprimirContratosEmitidosResumo: TfrReport;
+    qryAgentes: TtecQuery;
+    qryAgentescodigo: TIntegerField;
+    qryAgentesdescricao: TStringField;
+    qryAnalistaCredito: TtecQuery;
+    qryAnalistaCreditocodigo: TIntegerField;
+    qryAnalistaCreditonome: TStringField;
+    qryImprimirContratosgrupofilialvenda: TIntegerField;
+    qryImprimirContratosnomegrupofilialvenda: TStringField;
+    qryImprimirContratostotalvencto: TFloatField;
+    qryImprimirContratostotalpago: TFloatField;
+    qryImprimirContratosfaturamento: TDateField;
+    qryImprimirContratostipocliente: TStringField;
+    qryImprimirContratosnumero: TStringField;
+    qryImprimirContratosParcelasparcela: TStringField;
+    qryImprimirContratosParcelasfaturamento: TDateField;
+    frpImprimirContratosEmitidosSemParcelas: TfrReport;
+    frpImprimirContratosEmitidosSemParcelasResumo: TfrReport;
+    qryImprimirContratosobservacoes: TStringField;
+    qryImprimirContratosDadosFiscaisfilialemissao: TIntegerField;
+    qryImprimirContratosvendedor: TIntegerField;
+    qryImprimirContratosnomevendedor: TStringField;
+    qryImprimirContratosfilialserienumero: TStringField;
+    procedure qryImprimirContratosAfterScroll(DataSet: TDataSet);
+    procedure frpImprimirContratosEmitidosBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frpImprimirContratosEmitidosSemParcelas_BeforePrint(
+      Memo: TStringList; View: TfrView);
+    procedure frpImprimirContratosEmitidosSemParcelas_BeginDoc;
+    procedure frpImprimirContratosEmitidosSemParcelasBeforePrint(
+      Memo: TStringList; View: TfrView);
+    procedure frpImprimirContratosEmitidosSemParcelasBeginDoc;
+    procedure frpImprimirContratosEmitidosSemParcelasResumoBeforePrint(
+      Memo: TStringList; View: TfrView);
+  private
+    FListaFiliais: TStringList;
+    FListaGruposFiliais: TStringList;
+    FListaAgentes: TStringList;
+    FListaAnalistaCredito: TStringList;
+    FOrdenacao: Integer;
+    FTipo: Integer;
+    FResumo: Integer;
+    FDataInicial: String;
+    FDataFinal: String;
+    FParametroCabecalho: String;
+    FAgruparFilial: boolean;
+    FAgruparGrupoFilial: boolean;
+    FExibirTotalPorContrato: boolean;
+    FDataQuitacaoInicial: String;
+    FDataQuitacaoFinal: String;
+    FNaoListarParcelas: Boolean;
+    FVendaaPrazo: Boolean;
+    FVendaaVista: Boolean;
+    FFiliais: String;
+    FGrupoFiliais: String;
+    fCondicaoClientes: String;
+    fContratoComObservacoes: Boolean;
+    fFiltroObservacoes: String;
+    fListaClasses: String;
+    fListaMarcas: String;
+    fListaGrupos: String;
+    FListaItemProdutos: String;
+    FListaProdutos: String;
+    fComSemObs: boolean;
+    fListaCondicionalPromocoes: String;
+    { Private declarations }
+    procedure MontaDatas;
+    procedure SetAgentes(const Value: String);
+    procedure SetAnalistaCredito(const Value: String);
+    procedure SetDataFinal(const Value: String);
+    procedure SetFiliais(const Value: String);
+    procedure SetGrupoFiliais(const Value: String);
+    procedure SetTipo(const Value: Integer);
+    function GetListaAgentes: TStrings;
+    function GetListaAnalistaCredito: TStrings;
+    procedure SetDataQuitacaoFinal(const Value: String);
+    procedure SetVendaaPrazo(const Value: Boolean);
+    procedure SetCondicaoClientes(const Value: String);
+    procedure SetContratoComObservacoes(const Value: Boolean);
+    procedure SetFiltroObservacoes(const Value: String);
+    procedure SetListaClasses(const Value: String);
+    procedure SetListaGrupos(const Value: String);
+    procedure SetListaItemProdutos(const Value: String);
+    procedure SetListaMarcas(const Value: String);
+    procedure SetListaProdutos(const Value: String);
+    procedure SetListaCondicionalPromocoes(const Value: String);
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    property ListaAgentes: TStrings read GetListaAgentes;
+    property ListaAnalistaCredito: TStrings read GetListaAnalistaCredito;
+    property Filiais: String read FFiliais write SetFiliais;
+    property GrupoFiliais: String read FGrupoFiliais write SetGrupoFiliais;
+    property DataInicial: String read FDataInicial write FDataInicial;
+    property DataFinal: String read FDataFinal write SetDataFinal;
+    property Agentes: String write SetAgentes;
+    property AnalistaCredito: String write SetAnalistaCredito;
+    property Tipo: Integer read FTipo write SetTipo;
+    property Ordenacao: Integer read FOrdenacao write FOrdenacao;
+    procedure ImprimirRelatorio;
+    property Resumo: Integer read FResumo write FResumo;
+    procedure MontarFiltroAgentes(Usar: TCheckListBox);
+    procedure MontarFiltroAnalistaCredito(Usar: TCheckListBox);
+    property ParametroCabecalho: String read FParametroCabecalho write FParametroCabecalho;
+    property AgruparGrupoFilial: boolean read FAgruparGrupoFilial write FAgruparGrupoFilial;
+    property AgruparFilial: boolean read FAgruparFilial write FAgruparFilial;
+    property ExibirTotalPorContrato: boolean read FExibirTotalPorContrato write FExibirTotalPorContrato;
+    procedure MontarOrdenacao;
+    property DataQuitacaoInicial: String read FDataQuitacaoInicial write FDataQuitacaoInicial;
+    property DataQuitacaoFinal: String read FDataQuitacaoFinal write SetDataQuitacaoFinal;
+    function AbrirConsulta: Boolean;
+    property NaoListarParcelas: Boolean read FNaoListarParcelas write FNaoListarParcelas;
+    property VendaaVista: Boolean read FVendaaVista write FVendaaVista;
+    property VendaaPrazo: Boolean read FVendaaPrazo write SetVendaaPrazo;
+    property CondicaoClientes: String read fCondicaoClientes write SetCondicaoClientes;
+    property ContratoComObservacoes: Boolean read fContratoComObservacoes write SetContratoComObservacoes;
+    property FiltroObservacoes: String read fFiltroObservacoes write SetFiltroObservacoes;
+    property ComSemObs: boolean read fComSemObs write fComSemObs;
+    property ListaItemProdutos: String read FListaItemProdutos write SetListaItemProdutos;
+    property ListaProdutos: String read FListaProdutos write SetListaProdutos;
+    property ListaGrupos: String read fListaGrupos write SetListaGrupos;
+    property ListaClasses: String read fListaClasses write SetListaClasses;
+    property ListaMarcas: String read fListaMarcas write SetListaMarcas;
+    property ListaCondicionalPromocoes: String read fListaCondicionalPromocoes write SetListaCondicionalPromocoes;
+
+
+
+
+
+
+    
+  end;
+
+var
+  dtmrelatoriocontratosemitidos: Tdtmrelatoriocontratosemitidos;
+
+implementation
+
+{$R *.dfm}
+
+{ Tdtmrelatoriocontratosemitidos }
+
+const
+ // Filtros
+  FiltroFilial      = ' AND ( ct.filialvenda IN (%s)) ' +#13#10;
+  FiltroGrupoFilial = ' AND ( ct.filialvenda IN (SELECT filial '+#13#10+
+                                         'FROM filiaisgruposfiliais fgf '+#13#10+
+                                         'WHERE fgf.grupo IN (%s))) ';
+  FiltroAgente          = ' AND ( ct.agente IN (%s)) ' +#13#10;
+  FiltroAnalistaCredito = ' AND ( ct.analista IN (%s)) ' +#13#10;
+
+constructor Tdtmrelatoriocontratosemitidos.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryAgentes.Tag                :=ctTabelas;
+  qryAnalistaCredito.Tag        :=ctTabelas;
+end;
+
+procedure Tdtmrelatoriocontratosemitidos.ImprimirRelatorio;
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+  frVariables['AgruparGrupoFilial']:=FAgruparGrupoFilial;
+  frVariables['AgruparFilial']:=FAgruparFilial;
+  frVariables['ExibirTotalPorContrato']:=FExibirTotalPorContrato;
+  case Tipo of
+    0 : frVariables['Titulo']:= 'CONTRATOS EMITIDOS - Parcelas Nao Quitadas';
+    1 : frVariables['Titulo']:= 'CONTRATOS EMITIDOS - Entrada/Venda a Vista nao Quitada';
+    2 : frVariables['Titulo']:= 'CONTRATOS EMITIDOS - Quitados';
+    3 : frVariables['Titulo']:= 'CONTRATOS EMITIDOS';
+  end;
+
+//  frpImprimirContratosEmitidosSemParcelas.DesignReport;
+
+  if NaoListarParcelas then
+    ImprimirRelatoriofast(null, FParametroCabecalho, MPadrao, FResumo,
+                       [frpImprimirContratosEmitidosSemParcelas, frpImprimirContratosEmitidosSemParcelasResumo], false, self.owner)
+  else
+    ImprimirRelatoriofast(null, FParametroCabecalho, MPadrao, FResumo,
+                       [frpImprimirContratosEmitidos, frpImprimirContratosEmitidosResumo], false, self.owner);
+
+end;
+
+
+procedure Tdtmrelatoriocontratosemitidos.MontaDatas;
+const
+SQL = 'and ct.faturamento between %s and %s';
+begin
+  if FDataFinal<>'' then
+  begin
+    qryImprimirContratos.MacroByName('WherePeriodoFaturamento').AsString := format(SQL,[quotedstr(FDataInicial),quotedstr(FDataFinal)]);
+    FParametroCabecalho:=FParametroCabecalho+' Entre: '+FDataInicial+' e '+FDataFinal;
+  end
+  else
+    qryImprimirContratos.MacroByName('WherePeriodoFaturamento').AsString := '';
+end;
+
+procedure Tdtmrelatoriocontratosemitidos.SetAgentes(const Value: String);
+begin
+  if (Value <> '') then
+   qryImprimirContratos.MacroByName('WhereAgentes').AsString := Format(FiltroAgente,[Value])
+  else
+   qryImprimirContratos.MacroByName('WhereAgentes').AsString := '';
+end;
+
+procedure Tdtmrelatoriocontratosemitidos.SetAnalistaCredito(
+  const Value: String);
+begin
+  if (Value <> '') then
+    qryImprimirContratos.MacroByName('WhereAnalistaCredito').AsString := Format(FiltroAnalistaCredito,[Value])
+  else
+    qryImprimirContratos.MacroByName('WhereAnalistaCredito').AsString := '';
+end;
+
+procedure Tdtmrelatoriocontratosemitidos.SetDataFinal(const Value: String);
+begin
+  if not DataEmBranco(Value) then
+  begin
+    FDataFinal := Value;
+    if FDataInicial='' then
+      FDataInicial:=FDataFinal;
+  end
+  else FDataFinal := FDataInicial;
+  MontaDatas;
+end;
+
+procedure Tdtmrelatoriocontratosemitidos.SetFiliais(const Value: String);
+begin
+ FFiliais := Value;
+ if (Value <> '') then
+   qryImprimirContratos.MacroByName('WhereFiliais').AsString := Format(FiltroFilial,[Value])
+ else
+   qryImprimirContratos.MacroByName('WhereFiliais').AsString := '';
+end;
+
+procedure Tdtmrelatoriocontratosemitidos.SetGrupoFiliais(
+  const Value: String);
+begin
+  FGrupoFiliais := Value;
+  if (Value <> '') then
+  begin
+    if ParSistema.RelatorioSomenteFiliaisAutorizadas then
+     qryImprimirContratos.MacroByName('WhereFiliais').AsString :=
+       qryImprimirContratos.MacroByName('WhereFiliais').AsString+
+       Format(FiltroGrupoFilial,[Value])
+    else
+     qryImprimirContratos.MacroByName('WhereFiliais').AsString := Format(FiltroGrupoFilial,[Value]);
+  end;
+end;
+
+procedure Tdtmrelatoriocontratosemitidos.SetTipo(const Value: Integer);
+begin
+  FTipo := Value;
+  case FTipo of
+     0 : begin
+           qryImprimirContratos.macrobyname('WhereTipoContrato').asstring := ' and (select count(*) from parcelas p where p.contrato=ct.numero and p.datapagto is null) > 0';
+           qryImprimirContratosParcelas.macrobyname('WhereTipoParcelas').AsString :=' and p.datapagto is null';
+         end;
+     1 : begin
+           qryImprimirContratos.macrobyname('WhereTipoContrato').asstring :=
+          ' and (select count(*)'+
+                 ' from parcelas p where p.contrato=ct.numero and'+
+                ' p.datavencto <= ct.faturamento and'+
+                                     ' p.datapagto is null)>0';
+           qryImprimirContratosParcelas.macrobyname('WhereTipoParcelas').AsString :=
+           ' and (p.datavencto <= ct.faturamento) and p.datapagto is null';
+         end;
+     2 : begin
+           qryImprimirContratos.macrobyname('WhereTipoContrato').asstring :=
+           'and not exists (select p.contrato '+
+           '                from parcelas p '+
+           '                where p.contrato = ct.numero and '+
+           '                      p.datapagto is null) ';
+           qryImprimirContratosParcelas.macrobyname('WhereTipoParcelas').AsString := '';
+         end;
+     3 : begin
+           qryImprimirContratos.macrobyname('WhereTipoContrato').asstring := '';
+           qryImprimirContratosParcelas.macrobyname('WhereTipoParcelas').AsString := '';
+         end;
+  end;
+  if FDataQuitacaoFinal<>'' then
+    qryImprimirContratos.macrobyname('WhereContratonaoestornado').asstring :=
+   ' and (coalesce((select count(*) from parcelas p where '+
+   '(p.contrato = ct.numero and ((p.tipopagto in (''E'',''J'') and p.datapagto<='+quotedstr(FDataQuitacaoFinal)+')'+
+   'or (p.tipopagto in (''D'',''C'',''P'',''X'') and p.deventrada<='+quotedstr(FDataQuitacaoFinal)+'))) ),0)'+
+   '<> (select count(*) from parcelas p where p.contrato=ct.numero))'
+  else
+    qryImprimirContratos.macrobyname('WhereContratonaoestornado').asstring :=
+   ' and (coalesce((select count(*) from parcelas p where '+
+   '(p.contrato = ct.numero and ((p.tipopagto in (''E'',''J'') and p.datapagto<='+quotedstr(FDatafinal)+')'+
+   'or (p.tipopagto in (''D'',''C'',''P'',''X'') and p.deventrada<='+quotedstr(FDatafinal)+'))) ),0)'+
+   '<> (select count(*) from parcelas p where p.contrato=ct.numero))';
+end;
+
+procedure Tdtmrelatoriocontratosemitidos.qryImprimirContratosAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  RefazConsulta(qryImprimirContratosDadosFiscais, [0],[qryImprimirContratosnumero.AsVariant]);
+  if not NaoListarParcelas then
+    RefazConsulta(qryImprimirContratosParcelas, [0],[qryImprimirContratosnumero.AsVariant]);
+end;
+
+
+function Tdtmrelatoriocontratosemitidos.GetListaAgentes: TStrings;
+begin
+  FListaAgentes:= TStringList.Create;
+  qryAgentes.Open;
+  while not qryAgentes.Eof do
+  begin
+    FListaAgentes.AddObject(qryAgentesdescricao.AsString, Pointer(qryAgentescodigo.AsInteger));
+    qryAgentes.Next;
+  end;
+  qryAgentes.Close;
+  Result := FListaAgentes;
+end;
+
+function Tdtmrelatoriocontratosemitidos.GetListaAnalistaCredito: TStrings;
+begin
+  FListaAnalistaCredito:= TStringList.Create;
+  qryAnalistaCredito.Open;
+  while not qryAnalistaCredito.Eof do
+  begin
+    FListaAnalistaCredito.AddObject(qryAnalistaCreditonome.AsString, Pointer(qryAnalistaCreditocodigo.AsInteger));
+    qryAnalistaCredito.Next;
+  end;
+  qryAnalistaCredito.Close;
+  Result := FListaAnalistaCredito;
+end;
+
+procedure Tdtmrelatoriocontratosemitidos.MontarFiltroAgentes(
+  Usar: TCheckListBox);
+var
+  STRAgentes: String;
+  TodosAgentes: Boolean;
+  cnt: Integer;
+begin
+  TodosAgentes:=true;
+  STRAgentes := '';
+  for cnt := 0 to FListaAgentes.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRAgentes := STRAgentes + '''' + IntToStr(Integer(FListaAgentes.Objects[cnt])) + ''','
+    else
+      TodosAgentes:=false;
+
+  STRAgentes := Copy(STRAgentes, 0, Length(STRAgentes) - 1);
+  if Trim(STRAgentes) <> '' then
+  begin
+    if TodosAgentes then
+      FParametroCabecalho:=FParametroCabecalho+' Agentes: Todos'
+    else
+      FParametroCabecalho:=FParametroCabecalho+' Agentes: '+STRAgentes;
+  end;
+  Agentes := STRAgentes ;
+end;
+
+
+
+destructor Tdtmrelatoriocontratosemitidos.Destroy;
+begin
+//  DestruirRelatorios;
+
+  FListaAgentes.Free;
+  FListaAnalistaCredito.Free;
+
+  inherited;
+//  dtmrelatoriocontratosemitidos:=nil;
+end;
+
+procedure Tdtmrelatoriocontratosemitidos.MontarFiltroAnalistaCredito(
+  Usar: TCheckListBox);
+var
+  STRAnalistaCredito: String;
+  TodosAnalistas: Boolean;
+  cnt: Integer;
+begin
+  TodosAnalistas:=true;
+  STRAnalistaCredito := '';
+  for cnt := 0 to FListaAnalistaCredito.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRAnalistaCredito := STRAnalistaCredito + '''' + IntToStr(Integer(FListaAnalistaCredito.Objects[cnt])) + ''','
+    else
+      TodosAnalistas:=false;
+
+  STRAnalistaCredito := Copy(STRAnalistaCredito, 0, Length(STRAnalistaCredito) - 1);
+  if Trim(STRAnalistaCredito) <> '' then
+  begin
+    if TodosAnalistas then
+      FParametroCabecalho:=FParametroCabecalho+' Analistas de Credito: Todos'
+    else
+      FParametroCabecalho:=FParametroCabecalho+' Analistas de Credito: '+STRAnalistaCredito;
+  end;
+  AnalistaCredito := STRAnalistaCredito ;
+end;
+
+procedure Tdtmrelatoriocontratosemitidos.MontarOrdenacao;
+var
+Ordenacao: String;
+begin
+  Ordenacao:='';
+  if FAgruparGrupoFilial then
+    Ordenacao:=Ordenacao+', nomegrupofilialvenda, grupofilialvenda ';
+  if FAgruparFilial then
+    Ordenacao:=Ordenacao+', nomefilialvenda, filialvenda ';
+  case FOrdenacao of
+  0 : Ordenacao:=Ordenacao+', faturamento, nomecliente, cliente, tipocliente, numero';
+  1 : Ordenacao:=Ordenacao+', cliente, tipocliente, numero';
+  2 : Ordenacao:=Ordenacao+', nomecliente, cliente, tipocliente, numero';
+  end;
+  qryImprimirContratos.MacroByName('Ordenacao').AsString := 'Order by '+copy(Ordenacao,2,length(Ordenacao)-1);
+end;
+
+procedure Tdtmrelatoriocontratosemitidos.frpImprimirContratosEmitidosBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpImprimirContratosEmitidos, View);
+end;
+
+
+
+procedure Tdtmrelatoriocontratosemitidos.SetDataQuitacaoFinal(
+  const Value: String);
+const
+ SQL = ' and ct.numero in '+
+       ' (select distinct p.contrato '+
+
+       '  from parcelas p '+
+
+       '  where p.datapagto between %s and %s '+
+
+       '    and not exists (select p2.contrato '+
+
+       '                    from parcelas p2 '+
+
+       '                    where p2.contrato = p.contrato '+
+
+       '                      and (p2.datapagto > %s '+
+
+       '                           or p2.datapagto is null))) ';
+
+
+
+begin
+
+  if not DataEmBranco(Value) then
+  begin
+    FDataQuitacaoFinal := Value;
+    if FDataQuitacaoInicial='' then
+      FDataQuitacaoInicial:=FDataQuitacaoFinal;
+  end
+  else FDataQuitacaoFinal := FDataQuitacaoInicial;
+
+  if FDataQuitacaoFinal<>'' then
+  begin
+    qryImprimirContratos.MacroByName('WhereLimitePagamento').AsString := format(SQL, [quotedstr(FDataQuitacaoInicial), quotedstr(FDataQuitacaoFinal), quotedstr(FDataQuitacaoFinal)]);
+    FParametroCabecalho := FParametroCabecalho+' Quitacao entre: '+FDataQuitacaoInicial+' e '+FDataQuitacaoFinal;
+  end
+  else
+    qryImprimirContratos.MacroByName('WhereLimitePagamento').AsString := '';
+end;
+
+
+function Tdtmrelatoriocontratosemitidos.AbrirConsulta: Boolean;
+begin
+ ReFazConsulta(qryImprimirContratos,[],[]);
+ result := not (qryImprimirContratos.IsEmpty);
+end;
+
+procedure Tdtmrelatoriocontratosemitidos.frpImprimirContratosEmitidosSemParcelas_BeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpImprimirContratosEmitidosSemParcelas, View);
+end;
+
+procedure Tdtmrelatoriocontratosemitidos.frpImprimirContratosEmitidosSemParcelas_BeginDoc;
+begin
+  inherited;
+  Zebrado_Detalhe := True;
+  Zebrado_SubDetalhe_1 := True;
+  Zebrado_SubDetalhe_2 := True;
+end;
+
+procedure Tdtmrelatoriocontratosemitidos.SetVendaaPrazo(
+  const Value: Boolean);
+const
+ VendaaVista =' and ((select count(*) '+
+              '       from parcelas p '+
+              '       where p.contrato = ct.numero '+
+              '         and p.datavencto > ct.faturamento) = 0) ';
+ VendaaPrazo =' and ((select count(*) '+
+              '       from parcelas p '+
+              '       where p.contrato = ct.numero '+
+              '         and p.datavencto > ct.faturamento) > 0) ';
+begin
+  FVendaaPrazo := Value;
+if (FVendaaVista and FVendaaPrazo) or
+   (not FVendaaVista and not FVendaaPrazo) then
+  qryImprimirContratos.MacroByName('WhereVendaaVistaouPrazo').AsString := ''
+else
+ if FVendaaVista then
+ begin
+  qryImprimirContratos.MacroByName('WhereVendaaVistaouPrazo').AsString := VendaaVista;
+  FParametroCabecalho:=FParametroCabecalho+' Tipo de Venda: a vista';
+ end
+ else
+  if FVendaaPrazo then
+  begin
+   qryImprimirContratos.MacroByName('WhereVendaaVistaouPrazo').AsString := VendaaPrazo;
+   FParametroCabecalho:=FParametroCabecalho+' Tipo de Venda: a Prazo';
+  end;
+end;
+
+
+procedure Tdtmrelatoriocontratosemitidos.SetCondicaoClientes(
+  const Value: String);
+begin
+  fCondicaoClientes := Value;
+  if (Value <> '') then
+    qryImprimirContratos.MacroByName('Clientes').AsString :=' and (' + fCondicaoClientes + ')'
+  else
+    qryImprimirContratos.MacroByName('Clientes').AsString := '';
+end;
+
+procedure Tdtmrelatoriocontratosemitidos.frpImprimirContratosEmitidosSemParcelasBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpImprimirContratosEmitidosSemParcelas, View);
+end;
+
+procedure Tdtmrelatoriocontratosemitidos.frpImprimirContratosEmitidosSemParcelasBeginDoc;
+begin
+  inherited;
+  Zebrado_Detalhe := True;
+  Zebrado_SubDetalhe_1 := True;
+  Zebrado_SubDetalhe_2 := True;
+
+end;
+
+procedure Tdtmrelatoriocontratosemitidos.frpImprimirContratosEmitidosSemParcelasResumoBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpImprimirContratosEmitidosSemParcelasResumo, View);
+end;
+
+procedure Tdtmrelatoriocontratosemitidos.SetContratoComObservacoes(
+  const Value: Boolean);
+begin
+  fContratoComObservacoes := Value;
+  if fContratoComObservacoes then
+  begin
+    qryImprimirContratos.macroByName('WhereComObservacoes').asString := 'and (ct.consideracoes is not null or ct.montagemobs is not null)';
+    FParametroCabecalho:=FParametroCabecalho+' - Somente com observações '
+  end
+  else
+    qryImprimirContratos.macroByName('WhereComObservacoes').asString := '';
+end;
+
+procedure Tdtmrelatoriocontratosemitidos.SetFiltroObservacoes(
+  const Value: String);
+var
+  vCondicao : String;
+begin
+  fFiltroObservacoes := Value;
+  if (fFiltroObservacoes <> '') then
+  begin
+
+    if ComSemObs then
+
+      qryImprimirContratos.macroByName('WhereFiltroObservacoes').asString :=
+        ' and ((to_ascii(coalesce(ct.consideracoes,''''),''latin1'') not ilike to_ascii(''%'+fFiltroObservacoes+'%'',''latin1'')) and '+
+        ' (to_ascii(coalesce(ct.montagemobs,''''),''latin1'') not ilike to_ascii(''%'+fFiltroObservacoes+'%'',''latin1'')))'
+
+    else
+
+      qryImprimirContratos.macroByName('WhereFiltroObservacoes').asString :=
+          ' and ((to_ascii(ct.consideracoes,''latin1'') ilike to_ascii(''%'+fFiltroObservacoes+'%'',''latin1'')) or '+
+          ' (to_ascii(ct.montagemobs,''latin1'')  ilike to_ascii(''%'+fFiltroObservacoes+'%'',''latin1'')))';
+
+    FParametroCabecalho:=FParametroCabecalho+' - Observações: '+fFiltroObservacoes;
+  end
+  else
+    qryImprimirContratos.macroByName('WhereFiltroObservacoes').asString := '';
+end;
+
+procedure Tdtmrelatoriocontratosemitidos.SetListaClasses(
+  const Value: String);
+begin
+  fListaClasses := Value;
+  if Value <> '' then
+    qryImprimirContratos.macrobyname('ListaClasses').asString := ' and (' + FListaClasses +')'
+  else
+    qryImprimirContratos.macrobyname('ListaClasses').asString := '';
+end;
+
+procedure Tdtmrelatoriocontratosemitidos.SetListaGrupos(
+  const Value: String);
+begin
+  fListaGrupos := Value;
+  if Value <> '' then
+    qryImprimirContratos.macrobyname('ListaGrupos').asString := ' and (' + FListaGrupos +')'
+  else
+    qryImprimirContratos.macrobyname('ListaGrupos').asString := '';
+end;
+
+procedure Tdtmrelatoriocontratosemitidos.SetListaItemProdutos(
+  const Value: String);
+begin
+  FListaItemProdutos := Value;
+  if Value <> '' then
+    qryImprimirContratos.macrobyname('ListaItemProdutos').asString := ' and (' + FListaItemProdutos +')'
+  else
+    qryImprimirContratos.macrobyname('ListaItemProdutos').asString := '';
+
+end;
+
+procedure Tdtmrelatoriocontratosemitidos.SetListaMarcas(
+  const Value: String);
+begin
+  fListaMarcas := Value;
+  if Value <> '' then
+    qryImprimirContratos.macrobyname('ListaMarcas').asString := ' and (' + FListaMarcas +')'
+  else
+    qryImprimirContratos.macrobyname('ListaMarcas').asString := '';
+end;
+
+procedure Tdtmrelatoriocontratosemitidos.SetListaProdutos(
+  const Value: String);
+begin
+  FListaProdutos := Value;
+  if Value <> '' then
+    qryImprimirContratos.macrobyname('ListaProdutos').asString := ' and (' + FListaProdutos +')'
+  else
+    qryImprimirContratos.macrobyname('ListaProdutos').asString := '';
+end;
+
+procedure Tdtmrelatoriocontratosemitidos.SetListaCondicionalPromocoes(
+  const Value: String);
+begin
+  fListaCondicionalPromocoes := Value;
+  if Value <> '' then
+    qryImprimirContratos.macrobyname('ListaCondicionalPromocoes').asString := ' and (' + ListaCondicionalPromocoes +')'
+  else
+    qryImprimirContratos.macrobyname('ListaCondicionalPromocoes').asString := '';
+  
+end;
+
+end.

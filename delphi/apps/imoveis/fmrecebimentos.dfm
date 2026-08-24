@@ -151,9 +151,9 @@ inherited frmrecebimentos: Tfrmrecebimentos
   end
   object pnlDados: TPanel
     Left = 0
-    Top = 87
+    Top = 92
     Width = 575
-    Height = 240
+    Height = 235
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 3
@@ -948,7 +948,7 @@ inherited frmrecebimentos: Tfrmrecebimentos
   end
   object pnlContaBanco: TPanel
     Left = 0
-    Top = 40
+    Top = 45
     Width = 575
     Height = 47
     Align = alTop

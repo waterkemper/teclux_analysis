@@ -684,11 +684,32 @@ inherited dtmrelatorioromaneios: Tdtmrelatorioromaneios
       74616C4A75726F73000100300003005275610000000006004369646164650000
       00000400466F6E65000000000600546974756C6F0000000006004F7574726173
       00000000060042616972726F000000000000000000000000FC00000000000000
-      00000000000000000058007FF4AFC131E2E340706DF6746F4CE540}
+      00000000000000000058007FF4AFC131E2E340A9C6FDCA6C56E640}
   end
   object fdsRomaneios: TfrDBDataSet
     DataSet = qryRomaneios
     Left = 392
     Top = 96
+  end
+  object frxReport1: TfrxReport
+    Version = '4.0.11'
+    DotMatrixReport = False
+    IniFile = '\Software\Fast Reports'
+    PreviewOptions.Buttons = [pbPrint, pbLoad, pbSave, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbEdit, pbNavigator, pbExportQuick]
+    PreviewOptions.Zoom = 1.000000000000000000
+    PrintOptions.Printer = 'Default'
+    PrintOptions.PrintOnSheet = 0
+    ReportOptions.CreateDate = 45747.399519050920000000
+    ReportOptions.LastChange = 45747.399519050920000000
+    ScriptLanguage = 'PascalScript'
+    ScriptText.Strings = (
+      'begin'
+      ''
+      'end.')
+    Left = 384
+    Top = 184
+    Datasets = <>
+    Variables = <>
+    Style = <>
   end
 end

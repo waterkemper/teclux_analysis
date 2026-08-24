@@ -1,0 +1,1778 @@
+unit dmquitacaoduplicatas;
+
+interface
+
+uses
+  SysUtils, Classes, DB, dateutils, Controls,
+  // Biblio
+  ctconstantes, biblio, clusuario, clparametrossistema,
+  // Terceiros
+  ZQuery, ZPgSqlQuery,
+  // Componentes
+  cpdatasource, cpquery, cltextprinter,
+  // Repositorio
+  fmselecionarimpressoras, dmtecsoft, dmbasico, ZTransact,
+  dmcontaspagar, Provider, DBClient, variants, ACBrBase, ACBrDFe, ACBrNFSe;
+
+type
+  TipoTabelaOperacao = (Duplicatas, Agrupadas);
+
+type
+  TdtmQuitacaoDuplicatas = class(TdtmBasico)
+    qryFilial: TtecQuery;
+    qryFilialcodigo: TIntegerField;
+    qryFilialnome: TStringField;
+    dsrFilial: TtecDataSource;
+    qryConsultaFiliais: TtecQuery;
+    qryConsultaFiliaisnome: TStringField;
+    qryConsultaFiliaiscodigo: TIntegerField;
+
+    qryGrupoFiliais: TtecQuery;
+    qryGrupoFiliaiscodigo: TIntegerField;
+    qryGrupoFiliaisdescricao: TStringField;
+    dsrGrupoFiliais: TtecDataSource;
+    qryConsultaGrupoFiliais: TtecQuery;
+    qryConsultaGrupoFiliaisdescricao: TStringField;
+    qryConsultaGrupoFiliaiscodigo: TIntegerField;
+
+    qryFornecedores: TtecQuery;
+    dsrFornecedores: TtecDataSource;
+    qryFornecedorescodigo: TIntegerField;
+    qryFornecedoresnome: TStringField;
+    qryFornecedorestipo: TStringField;
+    qryConsultaFornecedores: TtecQuery;
+    qryConsultaFornecedoresNome: TStringField;
+    qryConsultaFornecedoresCodigo: TIntegerField;
+    qryConsultaFornecedoresTipo: TStringField;
+
+    qryBancos: TtecQuery;
+    dsrBanco: TtecDataSource;
+    qryConsultarBancos: TtecQuery;
+
+    qryDuplicatas: TtecQuery;
+    dsrDuplicatas: TtecDataSource;
+    qryDuplicatasdocumentopag: TIntegerField;
+    qryDuplicatasnome: TStringField;
+    qryDuplicatasdatavencto: TDateField;
+    qryDuplicatasvalordesconto: TFloatField;
+    qryDuplicatasjuros: TFloatField;
+    qryDuplicatasmulta: TFloatField;
+    qryDuplicatasquitar: TBooleanField;
+    qryTipoPagto: TtecQuery;
+    dsrTipoPagto: TtecDataSource;
+    qryConsultaTipoPagto: TtecQuery;
+    qryConsultaTipoPagtodescricao: TStringField;
+    qryConsultaTipoPagtocodigo: TIntegerField;
+    qryTipoPagtocodigo: TIntegerField;
+    qryTipoPagtodescricao: TStringField;
+
+    qryDuplicatastipojuros: TStringField;
+    qryDuplicatastipomulta: TStringField;
+    qryDuplicatasprevisao: TFloatField;
+
+    qryDuplicatasnumero: TIntegerField;
+    qryDuplicatasvalorvencto: TFloatField;
+    qryDuplicatasatraso: TIntegerField;
+    qryAgrupadas: TtecQuery;
+    qryAgrupadasDocumento: TIntegerField;
+    qryAgrupadasDataVencto: TDateField;
+    qryAgrupadasValorVencto: TFloatField;
+    qryAgrupadasQuitar: TBooleanField;
+    dsrAgrupadas: TtecDataSource;
+    qryAgrupadasAtraso: TIntegerField;
+    qryAgrupadasPrevisao: TFloatField;
+    qryAgrupadasNome: TStringField;
+    qryAgrupadasFornecedor: TIntegerField;
+    qryAgrupadasTipoFornecedor: TStringField;
+    qryModeloCheque: TtecQuery;
+    qryModeloChequeConfigurar: TStringField;
+    qryModeloChequeCabecalho: TStringField;
+    qryModeloChequeProduto: TStringField;
+    qryModeloChequeRodape: TStringField;
+
+    qryDuplicatasfornecedor: TIntegerField;
+    qryDuplicatastipofornecedor: TStringField;
+    qryModeloChequeCopiaCheque: TStringField;
+    qryConsultaFornecedoresPessoaNumero: TStringField;
+    qryConsultaFornecedoresTipoCliente: TStringField;
+    qryConsultaFornecedoresEstado: TStringField;
+    qryConsultaFornecedoresNomeCidade: TStringField;
+    qryDuplicatasContaPagto: TIntegerField;
+    qryConsultarContas: TtecQuery;
+    qryConsultarContasSigla: TStringField;
+    qryConsultarContasNome: TStringField;
+    qryConsultarContasConta: TIntegerField;
+    qryConsultarContasDigito: TStringField;
+    qryConsultarContasTitular: TStringField;
+    qryConsultarContasAgencia: TIntegerField;
+    qryConsultarContasBanco: TIntegerField;
+    qryContas: TtecQuery;
+    qryContasBanco: TIntegerField;
+    qryContasAgencia: TIntegerField;
+    qryContasConta: TIntegerField;
+    qryContasDigito: TStringField;
+    qryContasTitular: TStringField;
+    qryContasSigla: TStringField;
+    qryContasNome: TStringField;
+    qryContasModeloCheque: TIntegerField;
+    dsrContas: TtecDataSource;
+    qryConsultarBancosSigla: TStringField;
+    qryConsultarBancosCodigo: TIntegerField;
+    qryConsultarBancoNome: TStringField;
+    qryBancoscodigo: TIntegerField;
+    qryBancossigla: TStringField;
+    qryFilPagto: TtecQuery;
+    qryFilPagtoCodigo: TIntegerField;
+    qryFilPagtoNome: TStringField;
+    dsrFilPagto: TtecDataSource;
+    qryConsultaFilPagto: TtecQuery;
+    qryConsultaFilPagtoNome: TStringField;
+    qryConsultaFilPagtoCodigo: TIntegerField;
+    qryConsultaContaContabil: TtecQuery;
+    qryProcuraCreditarPagamento: TtecQuery;
+    qryProcuraCreditarPagamentocodigo: TIntegerField;
+    qryProcuraCreditarPagamentoclassificacao: TStringField;
+    qryProcuraCreditarPagamentodescricao: TStringField;
+    dsrProcuraCreditarPagamento: TtecDataSource;
+    qryConsultarContascontacontabil: TIntegerField;
+    qryContascontacontabil: TIntegerField;
+    qryConsultaContaContabildescricaoedentada: TStringField;
+    qryConsultaContaContabildescricao: TStringField;
+    qryConsultaContaContabilclassificacao: TStringField;
+    qryConsultaContaContabilcodigo: TIntegerField;
+    qryConsultaContaContabiltipo: TStringField;
+    qryDuplicatasprevisaoanterior: TFloatField;
+    qryAgrupadasprevisaoanterior: TFloatField;
+    qryAgrupadas_Documento: TtecQuery;
+    qryAgrupadas_Fornecedor: TtecQuery;
+    qryAgrupadasaquitar: TFloatField;
+    qryAgrupadasqtdeduplicatas: TStringField;
+    qryDuplicatasobservacao: TStringField;
+    ZMonitor1: TZMonitor;
+    qryDuplicatasObservacoes: TtecQuery;
+    qryConta_e_Cheque: TtecQuery;
+    qryTipoPagtosaidadocaixa: TBooleanField;
+    qryConta_e_Chequedatapagto: TDateField;
+    qryConta_e_Chequevalorpagto: TFloatField;
+    qryConta_e_Chequefilialpagto: TIntegerField;
+    qryConta_e_Chequecontapagto: TIntegerField;
+    qryConta_e_Chequechequepagto: TIntegerField;
+    qryConta_e_Chequetipopagamento: TIntegerField;
+    qryConta_e_Chequecontacredito: TIntegerField;
+    qryConta_e_Chequeautorizado: TBooleanField;
+    qryConta_e_Chequesequencia: TIntegerField;
+    qryConta_e_Chequenrlotecontabil: TLargeintField;
+    qryConsultaFornecedoresrazao: TStringField;
+    qryDuplicatascomplemento: TStringField;
+    qryDuplicatasprevisaoalterada: TBooleanField;
+    qryAgrupadasprevisaoalterada: TBooleanField;
+    qryDuplicatas_PrevisoesAlteradas: TtecQuery;
+    qryDuplicatas_PrevisoesAlteradasdocumentopag: TIntegerField;
+    qryDuplicatas_PrevisoesAlteradasnumero: TIntegerField;
+    qryDuplicatas_PrevisoesAlteradasdatavencto: TDateField;
+    qryDuplicatas_PrevisoesAlteradasfornecedor: TIntegerField;
+    qryDuplicatas_PrevisoesAlteradastipofornecedor: TStringField;
+    procedure qryFornecedoresBeforeOpen(DataSet: TDataSet);
+    procedure qryDuplicatasAfterInsert(DataSet: TDataSet);
+    procedure qryDuplicatasprevisaoChange(Sender: TField);
+    procedure qryAgrupadasAfterInsert(DataSet: TDataSet);
+    procedure DataModuleDestroy(Sender: TObject);
+    procedure qryContasAfterOpen(DataSet: TDataSet);
+    procedure qryAgrupadasAfterScroll(DataSet: TDataSet);
+    procedure qryAgrupadasPrevisaoChange(Sender: TField);
+    procedure qryDuplicatasFilterRecord(DataSet: TDataSet;
+      var Accept: Boolean);
+    procedure qryDuplicatasAfterPost(DataSet: TDataSet);
+    procedure qryDuplicatasBeforeOpen(DataSet: TDataSet);
+    procedure dsrDuplicatasDataChange(Sender: TObject; Field: TField);
+    procedure dsrAgrupadasDataChange(Sender: TObject; Field: TField);
+    procedure qryDuplicatas_PrevisoesAlteradasFilterRecord(
+      DataSet: TDataSet; var Accept: Boolean);
+    procedure qryAgrupadasBeforeOpen(DataSet: TDataSet);
+  protected
+    Usuario: TtecUsuarios;
+    dtmContasPagar: TdtmContasPagar;
+    function ValorPagar: Currency;
+
+  
+  private
+    FBanco,
+    FCheque: Integer;
+    FVenctoInicial: String;
+    FVenctoFinal: String;
+    FOnDuplicatasEdit: TNotifyEvent;
+    FOpcoes: Integer;
+    FAgrupado: Integer;
+    FDataQuitacao: String;
+    FNrCheque: String;
+    FCidade: String;
+    FTipoNominal: Integer;
+    FOrdenacao: Integer;
+    FTotalDuplicatas: Real;
+    FSomenteUmaDuplicata: boolean;
+    FNenhumaDuplicata: String;
+    FTodasDuplicatas: String;
+    FTotalAgrupadas: Real;
+    FQtdeMarcadosDuplicatas: integer;
+    FTotalMarcadosDuplicatas: Real;
+    FQtdeMarcadosAgrupados: integer;
+    FTotalMarcadosAgrupados: Real;
+    FQtdeDuplicatas: Integer;
+    FQtdeAgrupadas: Integer;
+    FQuitarTodasDuplicatas: Boolean;
+    FChequeUnico: Boolean;
+    FTotalCheque: Currency;
+    FNominal: String;
+    FReabrirDocumentoPag: Boolean;
+    FDocumentoPagAberto: integer;
+    fDataCalculoDataPagamento: TDateTime;
+    procedure QuitarDuplicatas;
+    procedure QuitarAgrupadas;
+    procedure MontaDataVencimento;
+    function  GetConsultaBancos: TtecQuery;
+    function  GetConsultaFiliais: TtecQuery;
+    function  GetConsultaFornecedores: TtecQuery;
+    function  GetConsultaGrupoFiliais: TtecQuery;
+    function  GetTipoPessoa: String;
+    procedure SetBanco(const Value: String);
+    procedure SetFilial(const Value: String);
+    procedure SetFornecedor(const Value: String);
+    procedure SetGrupo(const Value: String);
+    procedure SetVenctoFinal(const Value: String);
+    procedure SetVenctoInicial(const Value: String);
+    procedure SetTipo(const Value: String);
+    function GetConsultaTiposPagamentos: TtecQuery;
+    function GetDataContabil: TDateTime;
+    function TotalizarDuplicatas: Real;
+    function TotalizarAgrupadas: Real;
+    procedure SetOpcoes(const Value: Integer);
+    procedure SetAgrupado(const Value: Integer);
+    procedure SetCidade(const Value: String);
+    procedure SetDataQuitacao(const Value: String);
+    procedure SetNrCheque(const Value: String);
+    procedure SetOrdenacao(const Value: Integer);
+    function GetConsultaContas: TtecQuery;
+    function GetConsultaFilPagto: TtecQuery;
+    function getSomenteUmaDuplicata: boolean;
+    function GetNenhumaDuplicata: String;
+    function GetTodasDuplicatas: String;
+    function GetQuitarTodasDuplicatas: Boolean;
+    procedure SetDataCalculoDataPagamento(const Value: TDateTime);
+    function GetDataCalculoDataPagamento: TDateTime;
+    function getprevisaoalterada: boolean;
+  public
+    fprevisaoalterada: boolean;
+    OperacaoTabela : TipoTabelaOperacao;
+    ForcarRecalculo : boolean;
+    procedure ImprimirCheque(Total: Real48; NominalCheque: String);
+    procedure MarcarSelecionados(Marcando, Todos: Boolean);
+    function EfetuarQuitacao: boolean;
+    function  PosicionarBanco: Boolean;
+    function  SelecionarDuplicatas: Boolean;
+    procedure SelecionarDuplicatasPorFornecedor;
+    procedure SelecionarDuplicatasPorDocumento;
+    procedure gravarPrevisao_Agrupadas;
+    procedure gravarPrevisao_Detalhadas;
+    procedure ZerarConsultaDuplicatas;
+    procedure AbreTabelaPesquisa(TipoPesquisa: TtecQuitacaoDuplicatas);
+    procedure FechaTabelaPesquisa(TipoPesquisa: TtecQuitacaoDuplicatas);
+    procedure Selecionar(TipoPesquisa: TtecQuitacaoDuplicatas);
+    constructor Create(AOwner: TComponent); Override;
+    function ExisteFiliais(Campo, Codigo: string): Boolean;
+    function ExisteFilPagto(Campo, Codigo: string): Boolean;
+    function ExisteGrupoFiliais(Campo, Codigo: String): Boolean;
+    function ExisteFornecedores(Campo, Codigo: String): Boolean;
+    function ExisteBanco(Campo, Codigo: String): Boolean;
+    function ExisteConta(Campo, Codigo: String): Boolean;
+    function ExisteTipoPagamento(Campo, Codigo: String): Boolean;
+    function ExisteContaContabil(campo, codigo: String): Boolean;
+
+    property ConsultaContas: TtecQuery read GetConsultaContas;
+    property ConsultaFiliais: TtecQuery read GetConsultaFiliais;
+    property ConsultaFilPagto: TtecQuery read GetConsultaFilPagto;
+    property ConsultaGrupoFiliais: TtecQuery read GetConsultaGrupoFiliais;
+    property ConsultaFornecedores: TtecQuery read GetConsultaFornecedores;
+    property ConsultaBancos: TtecQuery read GetConsultaBancos;
+    property ConsultaTiposPagamentos: TtecQuery read GetConsultaTiposPagamentos;
+    property TipoPessoa: String read GetTipoPessoa;
+    property VenctoInicial: String read FVenctoInicial write SetVenctoInicial;
+    property VenctoFinal: String read FVenctoFinal write SetVenctoFinal;
+    property Filial: String write SetFilial;
+    property Grupo: String write SetGrupo;
+    property Fornecedor: String write SetFornecedor;
+    property Banco: String write SetBanco;
+    property Tipo: String write SetTipo;
+    property Opcoes: Integer read FOpcoes write SetOpcoes;
+    property Agrupado: Integer read FAgrupado write SetAgrupado;
+    property Ordenacao: Integer read FOrdenacao write SetOrdenacao;
+    property TipoNominal: Integer read FtipoNominal write FTipoNominal;
+    property Nominal: String read FNominal write FNominal;
+    property DataQuitacao: String read FDataQuitacao write SetDataQuitacao;
+    property NrCheque: String read FNrCheque write SetNrCheque;
+    property ChequeUnico: Boolean read FChequeUnico write FChequeUnico;
+    property Cidade: String read FCidade write SetCidade;
+    property DataContabil: TDateTime read GetDataContabil;
+    property QtdeDuplicatas: Integer read FQtdeDuplicatas write FQtdeDuplicatas;
+    property QtdeAgrupadas: Integer read FQtdeAgrupadas write FQtdeAgrupadas;
+    property TotalDuplicatas: Real read FTotalDuplicatas Write FTotalDuplicatas;
+    property TotalAgrupadas: Real read FTotalAgrupadas Write FTotalAgrupadas;
+    property QtdeMarcadosDuplicatas: integer read FQtdeMarcadosDuplicatas write FQtdeMarcadosDuplicatas;
+    property TotalMarcadosDuplicatas: Real read FTotalMarcadosDuplicatas write FTotalMarcadosDuplicatas;
+    property QtdeMarcadosAgrupados: integer read FQtdeMarcadosAgrupados write FQtdeMarcadosAgrupados;
+    property TotalMarcadosAgrupados: Real read FTotalMarcadosAgrupados write FTotalMarcadosAgrupados;
+    property OnDuplicatasEdit: TNotifyEvent read FOnDuplicatasEdit write FOnDuplicatasEdit;
+    property SomenteUmaDuplicata: boolean read getSomenteUmaDuplicata write FSomenteUmaDuplicata;
+    property TodasDuplicatas: String read GetTodasDuplicatas write FTodasDuplicatas;
+    property QuitarTodasDuplicatas: Boolean read GetQuitarTodasDuplicatas write FQuitarTodasDuplicatas;
+    property NenhumaDuplicata: String read GetNenhumaDuplicata write FNenhumaDuplicata;
+    procedure GuardarValoresAgrupados;
+    procedure MarcarDuplicatasAgrupadas;
+    property TotalCheque: Currency read FTotalCheque write FTotalCheque;
+    property DocumentoPagAberto: integer read FDocumentoPagAberto write FDocumentoPagAberto;
+    property ReabrirDocumentoPag: Boolean read FReabrirDocumentoPag write FReabrirDocumentoPag;
+    property DataCalculoDataPagamento : TDateTime read GetDataCalculoDataPagamento write SetDataCalculoDataPagamento;
+    procedure CalcularValoresPrevisao;
+    procedure ControlarPrevisoesAlteradas(Entra_ou_Sai: String);
+    property previsaoalterada : boolean read getprevisaoalterada write fprevisaoalterada; 
+
+
+
+
+  end;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmQuitacaoDuplicatas }
+
+procedure TdtmQuitacaoDuplicatas.AbreTabelaPesquisa(TipoPesquisa: TtecQuitacaoDuplicatas);
+begin
+   case TipoPesquisa of
+      dupFILIAIS:      Abre(ctConsultaFiliais);
+      dupFILIAISPAGTO: Abre(ctConsultaFilialPagamento);
+      dupGRUPOFILIAIS: Abre(ctConsultaGruposFiliais);
+      dupFORNECEDORES: begin
+                          qryConsultaFornecedores.MacroByName('ClausulaWhere').AsString:= 'WHERE v.Codigo = 0';
+                          Abre(ctConsultaFornecedores);
+                       end;
+      dupBANCO:        Abre(ctPagamentoConsultaBancos);
+      dupTIPOPAGTO:    Abre(ctConsultaTiposPagamentos);
+      dupCONTA:        begin
+                          if FOpcoes = 1
+                          then qryConsultarContas.MacroByName('SoComModeloCheque').AsString:= 'WHERE b.ModeloCheque IS NOT NULL'
+                          else qryConsultarContas.MacroByName('SoComModeloCheque').AsString:= '';
+
+                          Abre(ctConsultaContas);
+                       end;
+      dupCONTACREDITOPAGAMENTO : begin
+                                   qryConsultaContaContabil.MacroByName('consulta').AsString := '';
+                                   Abre(ctConsultaContaContabil);
+                                 end;
+   end;
+end;
+
+constructor TdtmQuitacaoDuplicatas.Create(AOwner: TComponent);
+begin
+  inherited;
+
+  qryFilial.         Tag:= ctTabelas;
+  qryFilPagto.       Tag:= ctTabelas;
+  qryGrupoFiliais.   Tag:= ctTabelas;
+  qryFornecedores.   Tag:= ctTabelas;
+  qryConsultarBancos.Tag:= ctTabelas;
+  qryTipoPagto.      Tag:= ctTabelas;
+  qryBancos.         Tag:= ctTabelas;
+  qryContas.         Tag:= ctTabelas;
+
+  qryConsultaFiliais.     Tag:= ctConsultaFiliais;
+  qryConsultaFilPagto.    Tag:= ctConsultaFilialPagamento;
+  qryConsultaGrupoFiliais.Tag:= ctConsultaGruposFiliais;
+  qryConsultaFornecedores.Tag:= ctConsultaFornecedores;
+  qryConsultaTipoPagto.   Tag:= ctConsultaTiposPagamentos;
+  qryConsultarContas.     Tag:= ctConsultaContas;
+  qryConsultaContaContabil.Tag := ctConsultaContaContabil;
+
+end;
+
+
+function TdtmQuitacaoDuplicatas.ExisteBanco(Campo, Codigo: String): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultarBancos, Campo, Codigo);
+end;
+
+function TdtmQuitacaoDuplicatas.ExisteFiliais(Campo, Codigo: string): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaFiliais, Campo, Codigo);
+end;
+
+function TdtmQuitacaoDuplicatas.ExisteFornecedores(Campo, Codigo: String): Boolean;
+begin
+        if Campo = 'NomeCidade'  then Campo:= 'c.Nome'
+   else if Campo = 'TipoCliente' then Campo:= 'v.Tipo'
+                                 else Campo:= 'v.' + Campo;
+   qryConsultaFornecedores.MacroByName('ClausulaWhere').AsString:= 
+                    Format('Where (to_ascii(%s,''latin1'') ilike to_ascii(''%s%s'',''latin1''))', [Campo, Codigo, '%']);
+   RefazConsulta(qryConsultaFornecedores, [], []);
+   Result:= qryConsultaFornecedores.RecordCount > 0
+end;
+
+function TdtmQuitacaoDuplicatas.ExisteGrupoFiliais(Campo, Codigo: String): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaGrupoFiliais, Campo, Codigo);
+end;
+
+function TdtmQuitacaoDuplicatas.ExisteTipoPagamento(Campo, Codigo: String): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaTipoPagto, Campo, Codigo);
+end;
+
+procedure TdtmQuitacaoDuplicatas.FechaTabelaPesquisa(TipoPesquisa: TtecQuitacaoDuplicatas);
+begin
+   case TipoPesquisa of
+      dupFILIAIS:      Fecha(ctConsultaFiliais);
+      dupFILIAISPAGTO: Fecha(ctConsultaFilialPagamento);
+      dupGRUPOFILIAIS: Fecha(ctConsultaGruposFiliais);
+      dupFORNECEDORES: Fecha(ctConsultaFornecedores);
+      dupBANCO:        Fecha(ctPagamentoConsultaBancos);
+      dupCONTA:        Fecha(ctConsultaContas);
+      dupTIPOPAGTO:   Fecha(ctConsultaTiposPagamentos);
+      dupCONTACREDITOPAGAMENTO : Fecha(ctConsultaContaContabil);
+   end;
+end;
+
+function TdtmQuitacaoDuplicatas.SelecionarDuplicatas: Boolean;
+begin
+  qryDuplicatas_PrevisoesAlteradas.close;
+  qryDuplicatas_PrevisoesAlteradas.open;
+  qryDuplicatas_PrevisoesAlteradas.delete;
+
+  case OperacaoTabela of
+    Duplicatas : begin
+                   qryduplicatas.Filtered := false;
+                   qryDuplicatas_PrevisoesAlteradas.filtered := false;
+                   ReFazConsulta(qryduplicatas,[],[]);
+                   TotalDuplicatas := TotalizarDuplicatas;
+                   QtdeDuplicatas := qryduplicatas.RecordCount;
+                 end;
+    Agrupadas  : begin
+                   ReFazConsulta(qryduplicatas,[],[]);
+                   ReFazConsulta(qryAgrupadas,[],[]);
+                   TotalAgrupadas := TotalizarAgrupadas;
+                   QtdeAgrupadas := qryAgrupadas.RecordCount;
+                 end;
+  end;
+
+  Result := not qryDuplicatas.IsEmpty or not qryAgrupadas.IsEmpty;
+end;
+
+procedure TdtmQuitacaoDuplicatas.SelecionarDuplicatasPorFornecedor;
+begin
+  qryduplicatas.Filter := 'fornecedor = '+qryAgrupadasfornecedor.AsString+
+                          ' and tipofornecedor = '+quotedstr(qryAgrupadastipofornecedor.AsString);
+  qryduplicatas.Filtered := True;
+
+  qryDuplicatas_PrevisoesAlteradas.Filter := 'fornecedor = '+qryAgrupadasfornecedor.AsString+
+                          ' and tipofornecedor = '+quotedstr(qryAgrupadastipofornecedor.AsString);
+  qryDuplicatas_PrevisoesAlteradas.Filtered := True;
+
+end;
+
+function TdtmQuitacaoDuplicatas.GetConsultaBancos: TtecQuery;
+begin
+  Result:= qryConsultarBancos;
+end;
+
+function TdtmQuitacaoDuplicatas.GetConsultaFiliais: TtecQuery;
+begin
+  Result:= qryConsultaFiliais;
+end;
+
+function TdtmQuitacaoDuplicatas.GetConsultaFornecedores: TtecQuery;
+begin
+  Result:= qryConsultaFornecedores;
+end;
+
+function TdtmQuitacaoDuplicatas.GetConsultaGrupoFiliais: TtecQuery;
+begin
+  Result:= qryConsultaGrupoFiliais;
+end;
+
+function TdtmQuitacaoDuplicatas.GetConsultaTiposPagamentos: TtecQuery;
+begin
+  Result:= qryConsultaTipoPagto;
+end;
+
+function TdtmQuitacaoDuplicatas.GetDataContabil: TDateTime;
+begin
+  Result:= ParSistema.DataContabil;
+end;
+
+function TdtmQuitacaoDuplicatas.GetTipoPessoa: String;
+begin
+  if qryFornecedorestipo.AsString = '' then
+       Result:= 'F'
+  else Result:= qryFornecedorestipo.AsString;
+end;
+
+procedure TdtmQuitacaoDuplicatas.MarcarSelecionados(Marcando, Todos: Boolean);
+  procedure GravaraQuitar;
+  begin
+    qryagrupadas.edit;
+    if qryAgrupadasQuitar.AsBoolean then
+    begin
+      qryAgrupadasaquitar.AsCurrency := qryAgrupadasPrevisao.AsCurrency;
+      qryAgrupadasqtdeduplicatas.AsString := TodasDuplicatas;
+    end
+    else
+    begin
+      qryAgrupadasaquitar.AsCurrency := 0;
+      qryAgrupadasqtdeduplicatas.AsString := NenhumaDuplicata;
+    end;
+    qryAgrupadas.Post;
+  end;
+
+begin
+  case OperacaoTabela of
+    Duplicatas:
+    begin
+      QtdeMarcados := QtdeMarcadosDuplicatas;
+      TotalMarcados := TotalMarcadosDuplicatas;
+      MarcarRegistros(qryduplicatas,qryduplicatasquitar,qryduplicatasprevisao,marcando,Todos);
+      QtdeMarcadosDuplicatas := QtdeMarcados;
+      TotalMarcadosDuplicatas := TotalMarcados;
+    end;
+    Agrupadas :
+    begin
+      QtdeMarcados := QtdeMarcadosAgrupados;
+      TotalMarcados := TotalMarcadosAgrupados;
+
+      if not todos
+         and qryAgrupadasQuitar.AsBoolean then
+        MarcarRegistros(qryAgrupadas,qryagrupadasquitar,qryagrupadasaquitar,marcando,Todos)
+      else
+        MarcarRegistros(qryAgrupadas,qryagrupadasquitar,qryagrupadasprevisao,marcando,Todos);
+
+      QtdeMarcadosAgrupados := QtdeMarcados;
+      TotalMarcadosAgrupados := TotalMarcados;
+
+      if todos then
+      begin
+        GuardarRegistroAtual(qryagrupadas,true);
+        qryagrupadas.First;
+        while not qryagrupadas.Eof do
+        begin
+          GravaraQuitar;
+          qryagrupadas.Next;
+        end;
+        VoltarRegistroAtual(qryAgrupadas);
+      end
+      else
+        GravaraQuitar;
+    end;
+  end;
+end;
+
+procedure TdtmQuitacaoDuplicatas.MontaDataVencimento;
+const
+  Data_1: String = 'and (t.datavencto = ';
+  Data_2: String = 'and (t.datavencto between (';
+begin
+   if not DataEmBranco(FVenctoInicial) then begin
+      if DataEmBranco(FVenctoFinal) then begin
+         qryDuplicatas.MacroByName('Vencimento').AsString:= Data_1 + '''' + FVenctoInicial + ''')';
+         qryAgrupadas. MacroByName('Vencimento').AsString:= Data_1 + '''' + FVenctoInicial + ''')';
+      end
+      else begin
+         qryDuplicatas.MacroByName('Vencimento').AsString:= Data_2 + '''' + FVenctoInicial + ''') and (''' + FVenctoFinal + '''))';
+         qryAgrupadas. MacroByName('Vencimento').AsString:= Data_2 + '''' + FVenctoInicial + ''') and (''' + FVenctoFinal + '''))';
+      end;
+   end
+   else begin
+      if not DataEmBranco(FVenctoFinal) then begin
+         qryDuplicatas.MacroByName('Vencimento').AsString:= Data_1 + '''' + FVenctoFinal + ''')';
+         qryAgrupadas. MacroByName('Vencimento').AsString:= Data_1 + '''' + FVenctoFinal + ''')';
+      end
+      else begin
+         qryDuplicatas.MacroByName('Vencimento').AsString:= '';
+         qryAgrupadas. MacroByName('Vencimento').AsString:= '';
+    end;
+  end;
+end;
+
+function TdtmQuitacaoDuplicatas.PosicionarBanco: Boolean;
+begin
+  Result := ExisteCodigo(qryConsultarBancos,
+                         qryConsultarBancosCodigo.FieldName,
+                         qryConsultarBancosCodigo.AsString);
+end;
+
+
+
+procedure TdtmQuitacaoDuplicatas.qryDuplicatasAfterInsert(DataSet: TDataSet);
+begin
+  inherited;
+  qryDuplicatas.Cancel;
+end;
+
+procedure TdtmQuitacaoDuplicatas.qryAgrupadasAfterInsert(DataSet: TDataSet);
+begin
+  inherited;
+  qryAgrupadas.Cancel;
+end;
+
+procedure TdtmQuitacaoDuplicatas.qryFornecedoresBeforeOpen(DataSet: TDataSet);
+begin
+  inherited;
+  if qryFornecedores.Params[0].AsString = '' then
+    qryFornecedores.Params[0].AsString:= 'F';
+end;
+
+procedure TdtmQuitacaoDuplicatas.ImprimirCheque(Total: Real48;
+                                                NominalCheque: String);
+var
+  Valor,
+  Extenso1,
+  Extenso2,
+  DiaCheque,
+  MesCheque,
+  AnoCheque,
+  CidadeCheque: String;
+  Dia, Mes, Ano: Word;
+  Linha: T_Extenso;
+
+begin
+  FillChar(Linha,SizeOf(Linha),0);
+  Linha.ExtTamLinha[1]:= 56;
+  Linha.ExtTamLinha[2]:= 56;
+  Extenso(Total,$92,'','','','','*', Linha);
+  Extenso1:= Linha.ExtLinha[1];
+  Extenso2:= Linha.ExtLinha[2];
+  Valor := Trocar(Trocar(Format('%9.2m',[Total]),'R',''),'$','');
+  DecodeDate(StrToDate(FDataQuitacao),Ano,Mes,Dia);
+  CidadeCheque:= FCidade + ',';
+  DiaCheque:= Format('%2.2d',[Dia]);
+  MesCheque:= ANSIUpperCase(MesExtenso(Mes));
+  AnoCheque:= Copy(IntToStr(Ano),Length(IntToStr(Ano))-1,2);
+
+  with TextPrinter do begin
+    BeginDoc(qryModeloChequeconfigurar.AsString);
+    if qryModeloChequecopiacheque.AsString = 'N' then begin
+      BandString := qryModeloChequecabecalho.AsString;
+      WriteBand([Valor,Extenso1,Extenso2,NominalCheque,CidadeCheque,DiaCheque,MesCheque,AnoCheque]);
+    end
+    else begin
+      BandString := qryModeloChequecabecalho.AsString;
+      WriteBand(['Banco: '   + Format('%3.3d',[FBanco]),
+//                 'Agencia: ' + Format('%4.4d',[FAgencia]),
+                 'Cheque: '  + Format('%6.6d',[StrToInt(FNrCheque)]), Valor]);
+      BandString := qryModeloChequeproduto.AsString;
+      WriteBand([Extenso1,Extenso2,NominalCheque,CidadeCheque,DiaCheque,MesCheque,AnoCheque])
+    end;
+    FormFeed;
+    EndDoc('TecLUX - Imprimindo Cheque.');
+  end;
+end;
+
+function TdtmQuitacaoDuplicatas.EfetuarQuitacao: boolean;
+begin
+   result := false;
+
+   if not assigned(Usuario) then
+     Usuario := TtecUsuarios.Create(dtmTecSoft.Database);
+
+   try
+      if UsuarioLogin.Pagamento
+      then Usuario:= ObterAutorizacao(taSENHA)
+      else Usuario:= ObterAutorizacao(taLOGIN, ctAUTORIZACAOPAGAMENTO, ctAUTORIZADO);
+
+      if Assigned(Usuario) and Usuario.Pagamento then
+      begin
+         result := true;
+         if FOpcoes = 0 then
+         begin
+            QuitarDuplicatas;
+            SelecionarDuplicatas;
+         end
+
+         else begin
+            ReFazConsulta(qryModeloCheque, [0], [qryContasModeloCheque.AsInteger]);
+
+            if not qryModeloCheque.IsEmpty then begin
+               frmSelecionarImpressoras := TfrmSelecionarImpressoras.Create(frmSelecionarImpressoras, ' ');
+               try
+                  if frmSelecionarImpressoras.ShowModal = mrok
+                  then NomeImpressoraEscolhida := frmSelecionarImpressoras.NomeImpressora
+                  else MensagemAviso(ctSELECIONARIMPRESSORA)
+               finally
+                  frmSelecionarImpressoras.Free;
+               end;
+
+               Nominal := '';
+               if (Opcoes = 0) or
+                 ((opcoes = 1) and (Agrupado = 2)) then QuitarDuplicatas
+               else QuitarAgrupadas;
+
+               SelecionarDuplicatas;
+            end
+            else MensagemAviso(ctMODELOIMPRESSAOCHEQUE);
+         end;
+      end
+      else MensagemAviso(format(ctUSUARIONAOAUTORIZADO,['autorizar o pagamento de duplicatas.']));
+
+   finally
+//      Usuario.Free;
+   end;
+end;
+
+procedure TdtmQuitacaoDuplicatas.QuitarAgrupadas;
+begin
+  Nominal := qryAgrupadasNome.AsString;
+  qryAgrupadas.First;
+  while not qryAgrupadas.Eof do
+  begin
+    if qryAgrupadasquitar.AsBoolean then
+    begin
+      case FAgrupado of
+        0: SelecionarDuplicatasPorDocumento;
+        1: SelecionarDuplicatasPorFornecedor;
+      end;
+      MarcarDuplicatasAgrupadas;
+      if not ChequeUnico then
+      begin
+        Nominal := qryAgrupadasNome.AsString;
+        QuitarDuplicatas;
+      end;
+    end;
+    qryAgrupadas.Next;
+  end;
+  qryDuplicatas.Filtered := false;
+  qryDuplicatas_PrevisoesAlteradas.filtered := false;
+
+  if ChequeUnico then
+  begin
+    TotalCheque := 0;
+    QuitarDuplicatas;
+  end;
+end;
+
+procedure TdtmQuitacaoDuplicatas.QuitarDuplicatas;
+var Fornecedor,DocumentoPag: Integer;
+//    Nominal:    String;
+    Tipo:       String;
+//  Total:      Currency;
+    vAgruparPagamentosnoLote : Boolean;
+begin
+   vAgruparPagamentosnoLote := false;
+   if NrCheque<>'' then
+     vAgruparPagamentosnoLote := qryConta_e_Cheque.Active or (MensagemSimNaoOpcaoCancelar(format('Deseja agrupar os pagamentos no cheque ''%s''',[NrCheque]),'',False) = mrYes);
+
+   if not ChequeUnico then
+     TotalCheque := 0;
+
+   Fornecedor   := 0;
+   DocumentoPag := 0;
+   FBanco       := 0;
+   FCheque      := 0;
+// FAgencia  := 0;
+
+   if not assigned(dtmContasPagar) then
+     dtmContasPagar := TdtmContasPagar.Create(self);
+
+   if not qryDuplicatas.IsEmpty then
+   begin
+     try
+       //qryDuplicatas.DisableControls;
+       qryDuplicatas.First;
+
+       while not qryDuplicatas.Eof do
+       begin
+         if qryDuplicatasquitar.AsBoolean then
+         begin
+           if DocumentoPagAberto = qryDuplicatasdocumentopag.AsInteger then
+             ReabrirDocumentoPag := true;
+
+           if FOpcoes = 1 then
+           begin
+             if (FAgrupado    = 0) and
+                (DocumentoPag > 0) and
+                (DocumentoPag <> qryDuplicatasdocumentopag.AsInteger) then
+             begin
+               ImprimirCheque(TotalCheque,Nominal);
+               TotalCheque:= 0;
+             end
+             else
+             if (FAgrupado  = 1) and
+                (Fornecedor > 0) and
+                ((Fornecedor <> qryDuplicatasfornecedor.AsInteger) or
+                 (Tipo <> qryDuplicatastipofornecedor.AsString)) then
+             begin
+               ImprimirCheque(TotalCheque,Nominal);
+               TotalCheque:= 0;
+             end;
+           end;
+
+           if dtmContasPagar.QuitarDuplicatas(
+                          qryDuplicatasdocumentopag         .AsInteger,
+                          qryDuplicatasnumero               .AsInteger,
+                          qryFilPagtoCodigo                 .AsInteger,
+                          qryTipoPagtocodigo                .AsInteger,
+                          qryContasConta                    .AsInteger,
+                          qryProcuraCreditarPagamentocodigo .AsInteger,
+                          FNrCheque,
+                          qryDuplicatasobservacao.asString,
+                          qryDuplicatasdatavencto           .AsDateTime,
+                          StrToDate(FDataQuitacao),
+                          qryDuplicatasprevisao             .AsCurrency,
+                          vAgruparPagamentosnoLote,
+                          qryConta_e_Chequesequencia.asstring,
+                          qryConta_e_Chequenrlotecontabil.asstring
+                          ) then
+           begin
+             if not qryContasConta.IsNull then
+             begin
+               if FNrCheque <> '' then
+               begin
+                 if FAgrupado = 2 then
+                   if not ChequeUnico then
+                     NrCheque := IntToStr(StrToInt(FNrCheque) + 1);
+               end;
+             end;
+
+             if FOpcoes = 1 then
+             begin
+
+               if not ChequeUnico then
+               begin
+                 Fornecedor   := qryDuplicatasfornecedor.    AsInteger;
+                 Tipo         := qryDuplicatastipofornecedor.AsString;
+                 DocumentoPag := qryDuplicatasdocumentopag.AsInteger;
+               end;
+
+               case TipoNominal of
+                0: Nominal:= '';
+                1: case OperacaoTabela of
+                     Duplicatas: if not chequeunico or
+                                    (Nominal = '') then
+                                    Nominal:= qryDuplicatasnome.AsString;
+                     Agrupadas : if not ChequeUnico then
+                                    Nominal:= qryAgrupadasNome. AsString;
+                   end;
+                2: Nominal:= NomeFilialBase;
+               end;
+
+               FBanco  := qryContasBanco.AsInteger;
+//               FCheque := qryQuitarDuplicataschequepagto.AsInteger;
+
+
+               if (FAgrupado <> 2) or
+                  ChequeUnico then
+                 TotalCheque:= TotalCheque + qryDuplicatasprevisao.AsCurrency
+               else
+               begin
+                 TotalCheque := qryDuplicatasprevisao.AsCurrency;
+                 ImprimirCheque(TotalCheque,Nominal);
+               end;
+
+             end;
+           end;
+         end;
+         qryDuplicatas.Next;
+       end;
+
+       if ((FOpcoes = 1) and
+           (FAgrupado in [0, 1])) or ChequeUnico then
+       begin
+         ImprimirCheque(TotalCheque, Nominal);
+         NrCheque:= IntToStr(StrToInt(FNrCheque) + 1);
+       end;
+
+     finally
+       //qryDuplicatas.EnableControls;
+     end;
+   end;
+//   dtmcontaspagar.Free;
+//   dtmContasPagar := nil;
+end;
+
+
+procedure TdtmQuitacaoDuplicatas.Selecionar(TipoPesquisa: TtecQuitacaoDuplicatas);
+begin
+  case TipoPesquisa of
+    dupFILIAIS:      ReFazConsulta(qryFilial,       [0],    [qryConsultaFiliaisCodigo.     AsInteger]);
+    dupFILIAISPAGTO: ReFazConsulta(qryFilPagto,     [0],    [qryConsultaFilPagtoCodigo.    AsInteger]);
+    dupGRUPOFILIAIS: ReFazConsulta(qryGrupoFiliais, [0],    [qryConsultaGrupoFiliaisCodigo.AsInteger]);
+    dupFORNECEDORES: ReFazConsulta(qryFornecedores, [0, 1], [qryConsultaFornecedoresTipo.  AsString,
+                                                             qryConsultaFornecedoresCodigo.AsInteger]);
+    dupBANCO:        ReFazConsulta(qryBancos,       [0],    [qryConsultarBancosCodigo.     AsInteger]);
+    dupTIPOPAGTO:    ReFazConsulta(qryTipoPagto,    [0],    [qryConsultaTipoPagtocodigo.   AsInteger]);
+
+    dupCONTA:        begin
+//                        if FOpcoes = 1
+//                        then qryContas.MacroByName('SoComCheque').AsString:= 'AND b.ModeloCheque IS NOT NULL'
+//                        else qryContas.MacroByName('SoComCheque').AsString:= '';
+                        ReFazConsulta(qryContas, [0], [qryConsultarContasConta.AsInteger]);
+                     end;
+    dupCONTACREDITOPAGAMENTO :
+                     refazconsulta(qryProcuraCreditarPagamento, [0], [qryConsultaContaContabilcodigo.AsVariant]);
+  end;
+end;
+
+
+
+procedure TdtmQuitacaoDuplicatas.SetBanco(const Value: String);
+begin
+   if Value <> '' then begin
+      qryDuplicatas.MacroByName('Banco').AsString:= 'and (t.bancocobranca = ' + Value + ')';
+      qryAgrupadas. MacroByName('Banco').AsString:= 'and (t.bancocobranca = ' + Value + ')';
+   end
+   else begin
+      qryDuplicatas.MacroByName('Banco').AsString:= '';
+      qryAgrupadas. MacroByName('Banco').AsString:= '';
+   end;
+end;
+
+procedure TdtmQuitacaoDuplicatas.SetFilial(const Value: String);
+begin
+   if Value <> '' then begin
+      qryDuplicatas.MacroByName('Filial').AsString:= 'and (d.filialemissao = ' + Value + ')';
+      qryAgrupadas. MacroByName('Filial').AsString:= 'and (d.filialemissao = ' + Value + ')';
+   end
+   else begin
+      qryDuplicatas.MacroByName('Filial').AsString:= '';
+      qryAgrupadas. MacroByName('Filial').AsString:= '';
+   end;
+end;
+
+procedure TdtmQuitacaoDuplicatas.SetFornecedor(const Value: String);
+begin
+   if Value <> '' then begin
+      qryDuplicatas.MacroByName('Fornecedor').AsString:= 'and (d.fornecedor = ' + Value + ') and ' +
+                                                         '(d.tipofornecedor = ' + '''' +
+                                                         qryFornecedorestipo.AsString + '''' + ')';
+
+      qryAgrupadas. MacroByName('Fornecedor').AsString:= 'and (d.fornecedor = ' + Value + ') and ' +
+                                                         '(d.tipofornecedor = ' + '''' +
+                                                         qryFornecedorestipo.AsString + '''' + ')';
+   end
+   else begin
+      qryDuplicatas.MacroByName('Fornecedor').AsString:= '';
+      qryAgrupadas. MacroByName('Fornecedor').AsString:= ''
+   end;
+end;
+
+procedure TdtmQuitacaoDuplicatas.SetGrupo(const Value: String);
+begin
+   if Value <> '' then begin
+      qryDuplicatas.MacroByName('GrupoFilial').AsString:= 'and (d.filialemissao in (Select filial From filiaisgruposfiliais Where grupo = ' + Value + '))';
+      qryAgrupadas. MacroByName('GrupoFilial').AsString:= 'and (d.filialemissao in (Select filial From filiaisgruposfiliais Where grupo = ' + Value + '))';
+   end
+   else begin
+      qryDuplicatas.MacroByName('GrupoFilial').AsString:= '';
+      qryAgrupadas. MacroByName('GrupoFilial').AsString:= '';
+   end;
+end;
+
+procedure TdtmQuitacaoDuplicatas.SetTipo(const Value: String);
+begin
+   case Value[1] of
+      'C': begin
+              qryDuplicatas.MacroByName('Tipo').AsString:= 'and (t.bancocobranca is null)';
+              qryAgrupadas. MacroByName('Tipo').AsString:= 'and (t.bancocobranca is null)';
+           end;
+      'B': begin
+              qryDuplicatas.MacroByName('Tipo').AsString:= 'and (t.bancocobranca is not null)';
+              qryAgrupadas. MacroByName('Tipo').AsString:= 'and (t.bancocobranca is not null)';
+           end;
+      'T': begin
+              qryDuplicatas.MacroByName('Tipo').AsString:= '';
+              qryAgrupadas. MacroByName('Tipo').AsString:= '';
+           end;
+   end;
+end;
+
+procedure TdtmQuitacaoDuplicatas.SetVenctoFinal(const Value: String);
+begin
+  if not DataEmBranco(Value) then
+       FVenctoFinal := Value
+  else FVenctoFinal := '';
+  MontaDataVencimento;
+end;
+
+procedure TdtmQuitacaoDuplicatas.SetVenctoInicial(const Value: String);
+begin
+  if not DataEmBranco(Value) then
+       FVenctoInicial := Value
+  else FVenctoInicial := '';
+  MontaDataVencimento;
+end;
+
+procedure TdtmQuitacaoDuplicatas.ZerarConsultaDuplicatas;
+begin
+   qryDuplicatas.Close;
+//   ReFazConsulta(qryFilial,   [0],[0]);
+//   ReFazConsulta(qryTipoPagto,[0],[0]);
+end;
+
+procedure TdtmQuitacaoDuplicatas.qryDuplicatasprevisaoChange(Sender: TField);
+begin
+  inherited;
+  qryDuplicatasprevisao.OnChange := nil;
+  if qryDuplicatas.State = dsedit then
+  begin
+    if qryDuplicatasquitar.AsBoolean then
+    begin
+      FTotalMarcadosDuplicatas:= ((FTotalMarcadosDuplicatas - qryDuplicatasPrevisaoAnterior.AsCurrency) +
+                                          qryDuplicatasprevisao.AsCurrency);
+    end;
+    FTotalDuplicatas:= ((FTotalDuplicatas - qryDuplicatasPrevisaoAnterior.AsCurrency) +
+                                        qryDuplicatasprevisao.AsCurrency);
+    qryDuplicatasprevisaoanterior.AsCurrency := qryDuplicatasprevisao.AsCurrency;
+    qryDuplicatas.post;
+    if Assigned(FOnDuplicatasEdit) then
+      FOnDuplicatasEdit(qryDuplicatas);
+  end;
+  qryDuplicatasprevisao.OnChange := qryDuplicatasprevisaoChange;
+end;
+
+procedure TdtmQuitacaoDuplicatas.SetOpcoes(const Value: Integer);
+begin
+  if FOpcoes <> Value then
+    FOpcoes:= Value;
+    
+  if (opcoes = 0) or
+     ((opcoes = 1) and (Agrupado = 2)) then
+     OperacaoTabela := Duplicatas
+  else
+     OperacaoTabela := Agrupadas;
+end;
+
+procedure TdtmQuitacaoDuplicatas.SetAgrupado(const Value: Integer);
+begin
+  if FAgrupado <> Value then
+    FAgrupado:= Value;
+  case agrupado of
+  0: qryAgrupadas.Sql.Text := qryAgrupadas_Documento.Sql.Text;
+  1: qryAgrupadas.Sql.Text := qryAgrupadas_Fornecedor.Sql.Text;
+  end;
+end;
+
+procedure TdtmQuitacaoDuplicatas.SetCidade(const Value: String);
+begin
+  if FCidade <> Value then
+    FCidade:= Value;
+end;
+
+procedure TdtmQuitacaoDuplicatas.SetDataQuitacao(const Value: String);
+begin
+  if FDataQuitacao <> Value then
+    FDataQuitacao:= Value;
+end;
+
+procedure TdtmQuitacaoDuplicatas.SetNrCheque(const Value: String);
+begin
+  if FNrCheque <> Value then
+    FNrCheque:= Value;
+end;
+
+procedure TdtmQuitacaoDuplicatas.DataModuleDestroy(Sender: TObject);
+begin
+  inherited;
+   if assigned(Usuario) then
+     Usuario.Free;
+
+  if assigned(dtmContasPagar) then
+  begin
+    dtmContasPagar.free;
+    dtmContasPagar := nil;
+  end;
+
+  qryConsultarContas.Close;
+end;
+
+procedure TdtmQuitacaoDuplicatas.SetOrdenacao(const Value: Integer);
+begin
+   FOrdenacao := Value;
+   case FOrdenacao of
+      0:   begin
+              qryDuplicatas.MacroByName('Ordenacao').AsString:= 'ORDER BY dp.DataVencto, UPPER(TO_ASCII(dp.nome,''LATIN1'')), dp.TipoFornecedor, dp.DocumentoPag, dp.ValorVencto';
+              qryAgrupadas. MacroByName('Ordenacao').AsString:= 'ORDER BY dp.DataVencto, UPPER(TO_ASCII(dp.nome,''LATIN1'')), dp.ValorVencto';
+           end;
+      1:   begin
+              qryDuplicatas.MacroByName('Ordenacao').AsString:= 'ORDER BY UPPER(TO_ASCII(dp.nome,''LATIN1'')), dp.Fornecedor, dp.TipoFornecedor, dp.DataVencto, dp.DocumentoPag, dp.ValorVencto';
+              qryAgrupadas. MacroByName('Ordenacao').AsString:= 'ORDER BY UPPER(TO_ASCII(dp.nome,''LATIN1'')), dp.Fornecedor, dp.ValorVencto';
+           end;
+      else begin
+              qryDuplicatas.MacroByName('Ordenacao').AsString:= 'ORDER BY dp.ValorVencto, dp.DataVencto, UPPER(TO_ASCII(dp.nome,''LATIN1'')), dp.TipoFornecedor, dp.DocumentoPag';
+              qryAgrupadas. MacroByName('Ordenacao').AsString:= 'ORDER BY dp.ValorVencto, UPPER(TO_ASCII(dp.nome,''LATIN1'')), dp.DataVencto';
+      end;
+{     0:   begin
+              qryDuplicatas.MacroByName('Ordenacao').AsString:= 'ORDER BY t.DataVencto, UPPER(TO_ASCII(nome,''LATIN1'')), d.TipoFornecedor, t.DocumentoPag, ValorVencto';
+              qryAgrupadas. MacroByName('Ordenacao').AsString:= 'ORDER BY DataVencto, UPPER(TO_ASCII(nome,''LATIN1'')), ValorVencto';
+           end;
+      1:   begin
+              qryDuplicatas.MacroByName('Ordenacao').AsString:= 'ORDER BY UPPER(TO_ASCII(nome,''LATIN1'')), d.Fornecedor, d.TipoFornecedor, t.DataVencto, t.DocumentoPag, ValorVencto';
+              qryAgrupadas. MacroByName('Ordenacao').AsString:= 'ORDER BY UPPER(TO_ASCII(nome,''LATIN1'')), Fornecedor, ValorVencto';
+           end;
+      else begin
+              qryDuplicatas.MacroByName('Ordenacao').AsString:= 'ORDER BY ValorVencto, DataVencto, UPPER(TO_ASCII(nome,''LATIN1'')), d.TipoFornecedor, t.DocumentoPag';
+              qryAgrupadas. MacroByName('Ordenacao').AsString:= 'ORDER BY ValorVencto, UPPER(TO_ASCII(nome,''LATIN1'')), DataVencto';
+      end;
+}
+   end;
+end;
+
+function TdtmQuitacaoDuplicatas.ExisteConta(Campo, Codigo: String): Boolean;
+begin
+   Result := ExisteCodigo(qryConsultarContas, Campo, Codigo);
+end;
+
+
+
+function TdtmQuitacaoDuplicatas.GetConsultaContas: TtecQuery;
+begin
+  Result:= qryConsultarContas;
+end;
+
+function TdtmQuitacaoDuplicatas.ExisteFilPagto(Campo, Codigo: string): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaFilPagto, Campo, Codigo);
+
+end;
+
+function TdtmQuitacaoDuplicatas.GetConsultaFilPagto: TtecQuery;
+begin
+  Result:= qryConsultaFilPagto;
+end;
+
+
+procedure TdtmQuitacaoDuplicatas.qryContasAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  if ParSistema.GerarContabilidade then
+    refazconsulta(qryProcuraCreditarPagamento, [0], [qryContascontacontabil.AsVariant]);
+end;
+
+function TdtmQuitacaoDuplicatas.ExisteContaContabil(campo,
+  codigo: String): Boolean;
+begin
+  if campo = 'descricaoedentada' then
+    Result:= ExisteCodigo(qryConsultaContaContabil, 'descricao', codigo)
+  else
+    Result:= ExisteCodigo(qryConsultaContaContabil, campo, codigo);
+end;
+
+function TdtmQuitacaoDuplicatas.TotalizarDuplicatas: Real;
+var
+  Total: Real;
+  Pos  : TBookmark;
+begin
+  Total:= 0;
+  if qryDuplicatas.Active and not qryDuplicatas.IsEmpty then
+  begin
+    Pos:= qryDuplicatas.GetBookmark;
+    try
+      qryDuplicatas.DisableControls;
+      qryDuplicatas.First;
+      while not qryDuplicatas.Eof do begin
+        Total:= Total + qryDuplicatasprevisao.AsCurrency;
+        qryDuplicatas.Next;
+      end;
+    finally
+      qryDuplicatas.GotoBookmark(Pos);
+      qryDuplicatas.FreeBookmark(Pos);
+      qryDuplicatas.EnableControls;
+    end;
+  end;
+  result := Total;
+end;
+
+procedure TdtmQuitacaoDuplicatas.qryAgrupadasAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryAgrupadasPrevisao.ReadOnly := not SomenteUmaDuplicata;
+end;
+
+procedure TdtmQuitacaoDuplicatas.qryAgrupadasPrevisaoChange(
+  Sender: TField);
+begin
+  inherited;
+  if qryAgrupadas.State = dsedit then
+  begin
+    if qryAgrupadasQuitar.AsBoolean then
+    begin
+      FTotalMarcadosAgrupados:= ((FTotalMarcadosAgrupados - qryAgrupadasPrevisaoAnterior.AsCurrency) +
+                                          qryAgrupadasprevisao.AsCurrency);
+      qryAgrupadasaquitar.AsCurrency := qryAgrupadasPrevisao.AsCurrency;
+    end;
+    FTotalAgrupadas:= ((FTotalAgrupadas - qryAgrupadasPrevisaoAnterior.AsCurrency) +
+                                        qryAgrupadasprevisao.AsCurrency);
+    qryAgrupadasprevisaoanterior.AsCurrency := qryAgrupadasprevisao.AsCurrency;
+    qryAgrupadas.post;
+    if SomenteUmaDuplicata then
+      if qryDuplicatas.Locate('documentopag',qryAgrupadasDocumento.AsInteger,[]) then
+      begin
+        qryduplicatas.Edit;
+        qryDuplicatasprevisao.AsCurrency := qryAgrupadasPrevisao.AsCurrency;
+//        qryduplicatas.Post;
+      end;
+    if Assigned(FOnDuplicatasEdit) then
+      FOnDuplicatasEdit(qryDuplicatas);
+  end;
+
+end;
+
+procedure TdtmQuitacaoDuplicatas.SelecionarDuplicatasPorDocumento;
+begin
+  qryduplicatas.Filter := 'documentopag = '+qryAgrupadasdocumento.AsString;
+  qryduplicatas.Filtered := True;
+
+  qryDuplicatas_PrevisoesAlteradas.Filter := 'documentopag = '+qryAgrupadasdocumento.AsString;
+  qryDuplicatas_PrevisoesAlteradas.Filtered := true;
+end;
+
+procedure TdtmQuitacaoDuplicatas.gravarPrevisao_Agrupadas;
+begin
+//  PrevisaoAlterada := false;
+  qryDuplicatasprevisao.OnChange := nil;
+  qryduplicatas.DisableControls;
+  if SomenteUmaDuplicata then
+  begin
+    TotalDuplicatas := qryAgrupadasPrevisao.AsCurrency;
+    QtdeDuplicatas := 1;
+    TotalMarcadosDuplicatas := 0;
+    QtdeMarcadosDuplicatas := 0;
+    if qryAgrupadasQuitar.AsBoolean then
+    begin
+      TotalMarcadosDuplicatas := qryAgrupadasPrevisao.AsCurrency;
+      QtdeMarcadosDuplicatas := 1;
+    end;
+
+    dsrDuplicatas.onDataChange := nil;
+    qryDuplicatas.Edit;
+    qryDuplicatasquitar.AsBoolean := qryAgrupadasQuitar.AsBoolean;
+    qryDuplicatasprevisaoanterior.AsCurrency := qryAgrupadasPrevisao.AsCurrency;
+    qryDuplicatasprevisao.AsCurrency := qryAgrupadasPrevisao.AsCurrency;
+    qryDuplicatasPrevisaoAlterada.asBoolean := qryAGrupadasPrevisaoAlterada.asBoolean;
+    qryDuplicatas.post;
+    dsrDuplicatas.onDataChange := dsrDuplicatasDataChange;
+
+    {
+    if qryDuplicatasPrevisaoAlterada.asBoolean then
+      PrevisaoAlterada := true;
+     }
+
+  end
+  else
+  if QuitarTodasDuplicatas then //todas
+  begin
+    TotalDuplicatas := 0;
+    QtdeDuplicatas := 0;
+    qryduplicatas.First;
+    while not qryduplicatas.Eof do
+    begin
+      qryduplicatas.Edit;
+      if not qryDuplicatasquitar.AsBoolean then
+        qryDuplicatasquitar.AsBoolean := true;
+      qryDuplicatasprevisaoanterior.AsCurrency := qryDuplicatasprevisao.AsCurrency;
+      qryduplicatas.Post;
+      totalduplicatas := totalduplicatas + qryDuplicatasprevisao.AsCurrency;
+      QtdeDuplicatas := QtdeDuplicatas + 1;
+
+      {
+      if qryDuplicatasPrevisaoAlterada.asBoolean then
+        PrevisaoAlterada := true;
+      }
+      qryduplicatas.Next;
+    end;
+    TotalMarcadosDuplicatas := totalduplicatas;
+    QtdeMarcadosDuplicatas := QtdeDuplicatas;
+  end
+  else
+  if not qryAgrupadasQuitar.AsBoolean then //nenhuma
+  begin
+    TotalDuplicatas := 0;
+    QtdeDuplicatas := 0;
+    qryduplicatas.First;
+    while not qryduplicatas.Eof do
+    begin
+      qryduplicatas.Edit;
+      if qryDuplicatasquitar.AsBoolean then
+        qryDuplicatasquitar.AsBoolean := false;
+      qryDuplicatasprevisaoanterior.AsCurrency := qryDuplicatasprevisao.AsCurrency;
+      qryduplicatas.Post;
+      totalduplicatas := totalduplicatas + qryDuplicatasprevisao.AsCurrency;
+      QtdeDuplicatas := QtdeDuplicatas + 1;
+
+      {
+      if qryDuplicatasPrevisaoAlterada.asBoolean then
+        PrevisaoAlterada := true;
+      }
+      qryduplicatas.Next;
+    end;
+    TotalMarcadosDuplicatas := 0;
+    QtdeMarcadosDuplicatas := 0;
+  end
+  else  //parcial
+  begin
+    TotalDuplicatas := 0;
+    QtdeDuplicatas := 0;
+    TotalMarcadosDuplicatas := 0;
+    QtdeMarcadosDuplicatas := 0;
+    qryduplicatas.First;
+    while not qryduplicatas.Eof do
+    begin
+      if qryDuplicatasquitar.AsBoolean then
+      begin
+        TotalMarcadosDuplicatas := TotalMarcadosDuplicatas + qryDuplicatasprevisao.AsCurrency;
+        QtdeMarcadosDuplicatas := QtdeMarcadosDuplicatas +1;
+      end;
+      totalduplicatas := totalduplicatas + qryDuplicatasprevisao.AsCurrency;
+      QtdeDuplicatas := QtdeDuplicatas + 1;
+      qryduplicatas.Edit;
+      qryDuplicatasprevisaoanterior.AsCurrency := qryDuplicatasprevisao.AsCurrency;
+      qryduplicatas.Post;
+
+      {
+      if qryDuplicatasPrevisaoAlterada.asBoolean then
+        PrevisaoAlterada := true;
+      }
+      qryduplicatas.Next;
+    end;
+  end;
+  qryduplicatas.EnableControls;
+  qryDuplicatasprevisao.OnChange := qryDuplicatasprevisaoChange;
+end;
+
+function TdtmQuitacaoDuplicatas.getSomenteUmaDuplicata: boolean;
+begin
+  FSomenteUmaDuplicata := (pos('/1',qryAgrupadasqtdeduplicatas.AsString)<>0)
+                           and (length(qryAgrupadasqtdeduplicatas.AsString)=3);
+  result := FSomenteUmaDuplicata;
+end;
+
+function TdtmQuitacaoDuplicatas.GetNenhumaDuplicata: String;
+begin
+  FNenhumaDuplicata := '0/'+
+                       copy(qryAgrupadasqtdeduplicatas.AsString,
+                          pos('/',qryAgrupadasqtdeduplicatas.AsString)+1,
+                          100);
+  Result := FNenhumaDuplicata;
+end;
+
+function TdtmQuitacaoDuplicatas.GetTodasDuplicatas: String;
+begin
+  FTodasDuplicatas := copy(qryAgrupadasqtdeduplicatas.AsString,
+                          pos('/',qryAgrupadasqtdeduplicatas.AsString)+1,
+                          100)+
+                     '/'+
+                     copy(qryAgrupadasqtdeduplicatas.AsString,
+                          pos('/',qryAgrupadasqtdeduplicatas.AsString)+1,
+                          100);
+  Result := FTodasDuplicatas;
+end;
+
+procedure TdtmQuitacaoDuplicatas.GuardarValoresAgrupados;
+begin
+end;
+
+function TdtmQuitacaoDuplicatas.TotalizarAgrupadas: Real;
+var
+  Total: Real;
+  Pos  : TBookmark;
+begin
+  Total:= 0;
+  if qryAgrupadas.Active and not qryAgrupadas.IsEmpty then
+  begin
+    Pos:= qryAgrupadas.GetBookmark;
+    try
+      qryAgrupadas.DisableControls;
+      qryAgrupadas.First;
+      while not qryAgrupadas.Eof do begin
+        Total:= Total + qryAgrupadasprevisao.AsCurrency;
+        qryAgrupadas.Next;
+      end;
+    finally
+      qryAgrupadas.GotoBookmark(Pos);
+      qryAgrupadas.FreeBookmark(Pos);
+      qryAgrupadas.EnableControls;
+    end;
+  end;
+  result := Total;
+end;
+
+function TdtmQuitacaoDuplicatas.GetQuitarTodasDuplicatas: Boolean;
+begin
+  FQuitarTodasDuplicatas := copy(qryAgrupadasqtdeduplicatas.AsString,
+                            1,
+                          pos('/',qryAgrupadasqtdeduplicatas.AsString)-1)=
+                     copy(qryAgrupadasqtdeduplicatas.AsString,
+                          pos('/',qryAgrupadasqtdeduplicatas.AsString)+1,
+                          100);
+
+  Result := FQuitarTodasDuplicatas;
+end;
+
+procedure TdtmQuitacaoDuplicatas.gravarPrevisao_Detalhadas;
+var
+ vqtdemarcadas, vqtde: integer;
+ vtotalmarcadas, vtotalprevisao: real;
+ vqtdeduplicatas: string;
+begin
+  vqtdemarcadas := 0;
+  vqtde         := 0;
+  vtotalmarcadas:= 0;
+  vtotalprevisao:= 0;
+
+  qryduplicatas.First;
+  while not qryduplicatas.Eof do
+  begin
+    if qryDuplicatasquitar.AsBoolean then
+    begin
+      vqtdemarcadas := vqtdemarcadas + 1;
+      vtotalmarcadas := vtotalmarcadas + qryDuplicatasprevisao.AsCurrency;
+    end;
+    vqtde := vqtde + 1;
+    vtotalprevisao := vtotalprevisao + qryDuplicatasprevisao.AsCurrency;
+
+    qryduplicatas.Next;
+  end;
+  qryAgrupadasPrevisao.OnChange := nil;
+  vqtdeduplicatas := inttostr(vqtdemarcadas)+'/'+inttostr(vqtde);
+
+  dsrAgrupadas.onDataChange := nil;
+
+  if (vqtdeduplicatas <> qryAgrupadasqtdeduplicatas.AsString)
+     or (vtotalprevisao<>qryAgrupadasPrevisao.AsCurrency)
+     or (vtotalmarcadas<>qryAgrupadasaquitar.AsCurrency)
+     or (PrevisaoAlterada <> qryAgrupadasPrevisaoAlterada.asBoolean) then
+  begin
+    if qryAgrupadasQuitar.AsBoolean and (vqtdemarcadas=0) then
+    begin
+      qryAgrupadas.Edit;
+      fQtdeMarcadosAgrupados := fQtdeMarcadosAgrupados -1;
+      fTotalMarcadosAgrupados := fTotalMarcadosAgrupados -
+                                qryAgrupadasaquitar.AsCurrency;
+      qryAgrupadasQuitar.AsBoolean := false;
+      qryAgrupadasaquitar.AsCurrency := 0;
+      qryAgrupadasqtdeduplicatas.AsString := vqtdeduplicatas;
+      fTotalAgrupadas := fTotalAgrupadas -
+                        qryAgrupadasprevisaoanterior.AsCurrency +
+                        vtotalprevisao;
+      qryAgrupadasPrevisao.AsCurrency := vtotalprevisao;
+      qryAgrupadasprevisaoanterior.AsCurrency := vtotalprevisao;
+      qryAgrupadasPrevisaoAlterada.asBoolean := PrevisaoAlterada;
+      qryagrupadas.Post;
+    end
+    else
+    if not qryagrupadasquitar.AsBoolean and (vqtdemarcadas=0) then
+    begin
+      if vtotalprevisao<>qryAgrupadasPrevisao.AsCurrency then
+      begin
+        qryagrupadas.Edit;
+        fTotalAgrupadas := fTotalAgrupadas -
+                          qryAgrupadasprevisaoanterior.AsCurrency +
+                          vtotalprevisao;
+        qryAgrupadasPrevisao.AsCurrency := vtotalprevisao;
+        qryAgrupadasprevisaoanterior.AsCurrency := vtotalprevisao;
+        qryAgrupadasPrevisaoAlterada.asBoolean := PrevisaoAlterada;
+        qryagrupadas.Post;
+      end;
+    end
+    else
+    if not qryAgrupadasQuitar.AsBoolean and (vqtdemarcadas<>0) then
+    begin
+      qryAgrupadas.Edit;
+      fQtdeMarcadosAgrupados := fQtdeMarcadosAgrupados +1;
+      fTotalMarcadosAgrupados := fTotalMarcadosAgrupados+
+                                vtotalmarcadas;
+      qryAgrupadasQuitar.AsBoolean := true;
+      qryAgrupadasaquitar.AsCurrency := vtotalmarcadas;
+      qryAgrupadasqtdeduplicatas.AsString := vqtdeduplicatas;
+      fTotalAgrupadas := fTotalAgrupadas -
+                        qryAgrupadasprevisaoanterior.AsCurrency +
+                        vtotalprevisao;
+      qryAgrupadasPrevisao.AsCurrency := vtotalprevisao;
+      qryAgrupadasprevisaoanterior.AsCurrency := vtotalprevisao;
+      qryAgrupadasPrevisaoAlterada.asBoolean := PrevisaoAlterada;
+      qryagrupadas.Post;
+    end
+    else
+    if qryAgrupadasQuitar.AsBoolean and (vqtdemarcadas<>0) then
+    begin
+      qryAgrupadas.Edit;
+//      fQtdeMarcadosAgrupados := fQtdeMarcadosAgrupados +1
+      fTotalMarcadosAgrupados := fTotalMarcadosAgrupados -
+                                qryAgrupadasaquitar.AsCurrency+
+                                vtotalmarcadas;
+//      qryAgrupadasQuitar.AsBoolean := true;
+      qryAgrupadasaquitar.AsCurrency := vtotalmarcadas;
+      qryAgrupadasqtdeduplicatas.AsString := vqtdeduplicatas;
+      fTotalAgrupadas := fTotalAgrupadas -
+                        qryAgrupadasprevisaoanterior.AsCurrency +
+                        vtotalprevisao;
+      qryAgrupadasPrevisao.AsCurrency := vtotalprevisao;
+      qryAgrupadasprevisaoanterior.AsCurrency := vtotalprevisao;
+      qryAgrupadasPrevisaoAlterada.asBoolean := PrevisaoAlterada;
+      qryagrupadas.Post;
+    end;
+  end;
+  qryAgrupadasPrevisao.OnChange := qryAgrupadasPrevisaoChange;
+  dsrAgrupadas.onDataChange := dsrAgrupadasDataChange;
+
+end;
+
+procedure TdtmQuitacaoDuplicatas.qryDuplicatasFilterRecord(
+  DataSet: TDataSet; var Accept: Boolean);
+begin
+  inherited;
+  if Agrupado = 1 then
+    Accept := (qryDuplicatasfornecedor.AsInteger = qryAgrupadasfornecedor.AsInteger) and
+              (qryDuplicatastipofornecedor.AsString = qryAgrupadastipofornecedor.AsString)
+  else if Agrupado = 0 then
+    Accept := (qryDuplicatasdocumentopag.AsString = qryAgrupadasdocumento.AsString);
+end;
+
+procedure TdtmQuitacaoDuplicatas.MarcarDuplicatasAgrupadas;
+begin
+  if QuitarTodasDuplicatas then
+  begin
+    qryduplicatas.First;
+    while not qryduplicatas.Eof do
+    begin
+      qryduplicatas.Edit;
+      qryDuplicatasquitar.AsBoolean := True;
+      qryduplicatas.Post;
+      qryduplicatas.Next;
+    end;
+  end;
+end;
+
+procedure TdtmQuitacaoDuplicatas.qryDuplicatasAfterPost(DataSet: TDataSet);
+begin
+  inherited;
+  if qryDuplicatasobservacao.AsString <>
+     qryDuplicatasobservacao.OldValue then
+  begin
+    qryDuplicatasObservacoes.ParamByName('observacao').AsString :=
+      qryDuplicatasobservacao.AsString;
+    qryDuplicatasObservacoes.ParamByName('documentopag').AsInteger :=
+      qryDuplicatasdocumentopag.AsInteger;
+    qryDuplicatasObservacoes.ParamByName('datavencto').AsDateTime :=
+      qryDuplicatasdatavencto.AsDateTime;
+    qryDuplicatasObservacoes.ParamByName('numero').AsInteger :=
+      qryDuplicatasnumero.AsInteger;
+    qryDuplicatasObservacoes.ExecSql;
+  end;
+end;
+
+procedure TdtmQuitacaoDuplicatas.qryDuplicatasBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if not (UsuarioLogin.Administrador or UsuarioLogin.Suporte) then
+    qryDuplicatas.MacroByName('Administrador').AsString:= 'and not d.administrador';
+
+  qryDuplicatas.parambyname('DataCalculoDataPagamento').asDateTime := DataCalculoDataPagamento;  
+end;
+
+procedure TdtmQuitacaoDuplicatas.dsrDuplicatasDataChange(Sender: TObject;
+  Field: TField);
+begin
+  inherited;
+  if Field = qryDuplicatasprevisao then
+  begin
+    if Field.value = 0 then
+    begin
+      MensagemAviso('Para quitação com 100% de desconto utilize o cadastro de contas a pagar.');
+      Field.value := qryDuplicatasvalorvencto.AsCurrency;
+    end;
+    qryDuplicatasprevisaoalterada.asBoolean := true;
+    ControlarPrevisoesAlteradas('+');
+  end;
+end;
+
+function TdtmQuitacaoDuplicatas.ValorPagar: Currency;
+var
+ Multa,Juros: Real;
+ NrDias: Integer;
+begin
+ Multa:= 0;  Juros:= 0;
+ if (DataCalculoDataPagamento > qryDuplicatasdatavencto.AsDateTime) then
+ begin
+   NrDias:= DaysBetween(DataCalculoDataPagamento,qryDuplicatasdatavencto.AsDateTime);
+   if qryDuplicatasmulta.AsFloat > 0 then
+     if (qryDuplicatastipomulta.AsString = '%') then
+          Multa := ((qryDuplicatasvalorvencto.AsCurrency * qryDuplicatasmulta.AsFloat) / 100)
+     else Multa := qryDuplicatasmulta.AsFloat;
+
+   if qryDuplicatasjuros.AsFloat > 0 then
+     if qryDuplicatastipojuros.AsString = '%' then
+          Juros := ((qryDuplicatasvalorvencto.AsCurrency * (qryDuplicatasjuros.AsFloat * NrDias)) / 100)
+     else Juros := (qryDuplicatasjuros.AsFloat * NrDias);
+ end;
+
+ if DataCalculoDataPagamento <= qryDuplicatasdatavencto.AsDateTime then
+   Result:= qryDuplicatasvalorvencto.AsCurrency + Multa + Juros - qryDuplicatasvalordesconto.AsCurrency
+ else
+   Result:= qryDuplicatasvalorvencto.AsCurrency + Multa + Juros;
+
+end;
+
+procedure TdtmQuitacaoDuplicatas.SetDataCalculoDataPagamento(
+  const Value: TDateTime);
+begin
+
+  if qryDuplicatas.active then
+    if (FDataCalculoDataPagamento <> Value) then
+    begin
+      fDataCalculoDataPagamento := Value;
+      ForcarRecalculo := true;
+      CalcularValoresPrevisao;
+    end;
+
+  fDataCalculoDataPagamento := Value;
+end;
+
+function TdtmQuitacaoDuplicatas.GetDataCalculoDataPagamento: TDateTime;
+begin
+  result := fDataCalculoDataPagamento;
+end;
+
+procedure TdtmQuitacaoDuplicatas.CalcularValoresPrevisao;
+begin
+
+  if ForcarRecalculo then
+  begin
+
+    dsrDuplicatas.onDataChange := nil;
+    GuardarRegistroAtual(qryDuplicatas, true);
+    if previsaoalterada then
+    begin
+      if (MensagemSimNaoOpcaoCancelar('Existem valores a pagar alterados manualmente, refazer o cálculo destes?', '', false) = mrYes) then
+      begin
+        fprevisaoalterada := false;
+        while not qryDuplicatas_PrevisoesAlteradas.eof do
+          qryDuplicatas_PrevisoesAlteradas.delete;
+      end;
+    end;
+
+    qryDuplicatas.first;
+    while not qryduplicatas.eof do
+    begin
+      if not qryDuplicatasprevisaoalterada.asBoolean or not fprevisaoalterada then
+      begin
+        qryDuplicatas.edit;
+        qryDuplicatasprevisao.AsCurrency := ValorPagar;
+        qryDuplicatas.edit;
+        qryDuplicatasprevisaoalterada.asBoolean := false;
+        if qryduplicatas.state = dsedit then
+          qryDuplicatas.post;
+      end;
+      qryduplicatas.next;
+    end;
+    VoltarregistroAtual(qryDuplicatas);
+    dsrDuplicatas.onDataChange := dsrDuplicatasDataChange;
+    ForcarRecalculo := false;
+  end;
+
+  case OperacaoTabela of
+    Agrupadas : begin
+                  GuardarRegistroAtual(qryAgrupadas, true);
+                  case Agrupado of
+                    0: SelecionarDuplicatasPorDocumento;
+                    1: SelecionarDuplicatasPorFornecedor;
+                  end;
+
+                  qryAgrupadas.first;
+                  while not qryAgrupadas.eof do
+                  begin
+                    gravarPrevisao_Detalhadas;
+                    qryAgrupadas.next;
+                  end;
+                  
+                  VoltarregistroAtual(qryAgrupadas);
+                end;
+  end
+
+end;
+
+procedure TdtmQuitacaoDuplicatas.dsrAgrupadasDataChange(Sender: TObject;
+  Field: TField);
+begin
+  inherited;
+  if Field = qryAgrupadasPrevisao then
+  begin
+    if Field.value = 0 then
+    begin
+      MensagemAviso('Para quitação com 100% de desconto utilize o cadastro de contas a pagar.');
+      Field.value := qryAgrupadasValorVencto.AsCurrency;
+    end;
+    qryAgrupadasprevisaoalterada.asBoolean := true;
+    ControlarPrevisoesAlteradas('+');
+  end;
+end;
+
+procedure TdtmQuitacaoDuplicatas.ControlarPrevisoesAlteradas(
+  Entra_ou_Sai: String);
+begin
+  case OperacaoTabela of
+    Duplicatas : begin
+                   if Entra_ou_Sai = '+' then
+                   begin
+                      if not qryDuplicatas_PrevisoesAlteradas.locate('documentopag;numero;datavencto',
+                          VarArrayof([qryDuplicatasdocumentopag.asInteger,
+                                      qryDuplicatasnumero.asinteger,
+                                      qryDuplicatasdatavencto.asDateTime]),[]) then
+                      begin
+                        qryDuplicatas_PrevisoesAlteradas.append;
+                        qryDuplicatas_PrevisoesAlteradasdocumentopag.asinteger := qryDuplicatasdocumentopag.asInteger;
+                        qryDuplicatas_PrevisoesAlteradasnumero.asinteger := qryDuplicatasnumero.asinteger;
+                        qryDuplicatas_PrevisoesAlteradasdatavencto.asDateTime := qryDuplicatasdatavencto.asDateTime;
+                        qryDuplicatas_PrevisoesAlteradasfornecedor.asinteger := qryDuplicatasFornecedor.asinteger;
+                        qryDuplicatas_PrevisoesAlteradastipofornecedor.asString := qryDuplicatastipoFornecedor.asString;
+
+                        qryDuplicatas_PrevisoesAlteradas.post;
+                      end;
+                   end;
+                end;
+
+    Agrupadas : begin
+                   case Agrupado of
+                   0: SelecionarDuplicatasPorDocumento;
+                   1: SelecionarDuplicatasPorFornecedor;
+                   end;
+                   OperacaoTabela := Duplicatas;
+                   ControlarPrevisoesAlteradas('+');
+                   OperacaoTabela := Agrupadas;
+                end;
+  end;
+end;
+
+function TdtmQuitacaoDuplicatas.getprevisaoalterada: boolean;
+begin
+  fprevisaoalterada :=  qryDuplicatas_PrevisoesAlteradas.recordcount <> 0;
+  Result := fprevisaoalterada;
+end;
+
+procedure TdtmQuitacaoDuplicatas.qryDuplicatas_PrevisoesAlteradasFilterRecord(
+  DataSet: TDataSet; var Accept: Boolean);
+begin
+  inherited;
+  if Agrupado = 1 then
+    Accept := (qryDuplicatas_PrevisoesAlteradasfornecedor.AsInteger = qryAgrupadasfornecedor.AsInteger) and
+              (qryDuplicatas_PrevisoesAlteradastipofornecedor.AsString = qryAgrupadastipofornecedor.AsString)
+  else if Agrupado = 0 then
+    Accept := (qryDuplicatas_PrevisoesAlteradasdocumentopag.AsString = qryAgrupadasdocumento.AsString);
+
+end;
+
+procedure TdtmQuitacaoDuplicatas.qryAgrupadasBeforeOpen(DataSet: TDataSet);
+begin
+  inherited;
+  qryAgrupadas.parambyname('DataCalculoDataPagamento').asDateTime := DataCalculoDataPagamento;
+end;
+
+end.
+

@@ -108,7 +108,8 @@ inherited dtmCadastroEnderecos: TdtmCadastroEnderecos
       '       FoneDDD,'
       '       CodigoIBGE,'
       '       CodigoDIMOB,'
-      '       regiao'
+      '       regiao,'
+      '       serienfse'
       ''
       'FROM   cidades'
       ''
@@ -179,6 +180,10 @@ inherited dtmCadastroEnderecos: TdtmCadastroEnderecos
     object qryCidadesregiao: TStringField
       FieldName = 'regiao'
       Size = 10
+    end
+    object qryCidadesserienfse: TStringField
+      FieldName = 'serienfse'
+      Size = 3
     end
   end
   object dsrCidades: TtecDataSource

@@ -1672,6 +1672,12 @@ type
     qryProdutosContratosLotesprodutoscontratoslotes_situacao: TStringField;
     qryProdutosContratosLotesquantidadeantesalterar: TFloatField;
     qryProdutosContratosLotessaldoestoque: TFloatField;
+    qryCancelarMovLotes: TtecQuery;
+    qryCancelarMovLotesproduto: TLargeintField;
+    qryCancelarMovLotesfilial: TIntegerField;
+    qryCancelarMovLotesreservado: TFloatField;
+    qryCancelarMovLotesfuturo: TFloatField;
+    qryCancelarMovLotesloteproduto: TLargeintField;
     procedure dsrContratosDataChange(Sender: TObject; Field: TField);
     procedure dsrProdutosContratosDataChange(Sender: TObject; Field: TField);
     procedure qryContratosAfterClose(DataSet: TDataSet);
@@ -3908,7 +3914,7 @@ function TdtmCadastroContratos.CancelarContratoReservado: Boolean;
 var
   SituacaoProduto : TtecComposicao;
   Pos: TBookmark;
-  SQL: String;
+  SQL, SQLLotes: String;
   MovExtra,
   MovExtraResPrevia: Boolean;
   Qtdade: Real;
@@ -3943,25 +3949,45 @@ begin
 
 //      AtualizarQtdePresentesListas(True);
 
-    qryProdutosContratos.DisableControls;
+//    qryProdutosContratos.DisableControls;
     Pos := qryProdutosContratos.GetBookmark;
     try
       SQL := '';
+      SQLLotes := '';
+
       qryProdutosContratos.First;
       while Not qryProdutosContratos.Eof do
       begin
-        SQL := SQL + '((m1.produto = ' + qryProdutosContratosproduto.AsString + ') and ' +
-                     '(m1.filial = ' + qryProdutosContratosfilial.AsString   + ')) or ';
+        if not qryProdutosContratosgerenciarloteevalidade.AsBoolean then
+          SQL := SQL + '((m1.produto = ' + qryProdutosContratosproduto.AsString + ') and ' +
+                       '(m1.filial = ' + qryProdutosContratosfilial.AsString   + ')) or '
+        else
+        begin
+          qryProdutosContratosLotes.first;
+          while not qryProdutosContratosLotes.eof do
+          begin
+
+            SQLLotes := SQLLotes + '((m1.produto = ' + qryProdutosContratosproduto.AsString + ') and ' +
+                                    '(m1.filial = ' + qryProdutosContratosfilial.AsString   + ') and ' +
+                                    '(m1.loteproduto = ' + qryProdutosContratosLotesLote.AsString   + ')) or ';
+
+            qryProdutosContratosLotes.next;
+
+          end;
+        end;
         qryProdutosContratos.Next;
       end;
 
-
+      {Movimentos sem Lote}
+      qryCancelarMov.close;
+      qryCancelarMov.Macrobyname('SQL').asString := ' and False ';
       if SQL <> '' then
       begin
         Delete(SQL, Length(SQL) - 3, 4);
-        qryCancelarMov.Sql[10] := SQL;
+        qryCancelarMov.Macrobyname('SQL').asString := ' and ' + SQL;
       end;
       qryCancelarMov.Open;
+
       if qryCancelarMov.RecordCount > 0 then
       begin
         try
@@ -3973,21 +3999,144 @@ begin
             while Not qryProdutosContratos.Eof do
             begin
 
-              if FiltrarComposto(qryprodutoscontratoscomposto.asboolean, SituacaoProduto) then
+              if not qryProdutosContratosgerenciarloteevalidade.AsBoolean then
               begin
-                if Not MovExtra then
-                  qryCancelarMov.Locate('produto;filial', VarArrayOf([qryProdutosContratosproduto.AsString, qryProdutosContratosfilial.AsInteger]), []);
 
-                NovoMovimento(qryProdutosContratosproduto.AsLargeInt, qryProdutosContratosfilial.AsInteger);
-                if qryProdutosContratosquantidade.AsCurrency = qryProdutosContratosqtdereservaprevia.AsCurrency then
+                if FiltrarComposto(qryprodutoscontratoscomposto.asboolean, SituacaoProduto) then
+                begin
+                  if Not MovExtra then
+                    qryCancelarMov.Locate('produto;filial', VarArrayOf([qryProdutosContratosproduto.AsString, qryProdutosContratosfilial.AsInteger]), []);
+
+                  NovoMovimento(qryProdutosContratosproduto.AsLargeInt, qryProdutosContratosfilial.AsInteger);
+                  if qryProdutosContratosquantidade.AsCurrency = qryProdutosContratosqtdereservaprevia.AsCurrency then
+                  begin
+                    qryMovimentos.fieldbyname('quantidade').AsCurrency   := qryProdutosContratosquantidade.AsCurrency;
+                    qryMovimentos.fieldbyname('tipomovimento').AsString := 'TPE';
+                  end
+                  else
+                  begin
+                    Qtdade := qryProdutosContratosquantidade.AsCurrency - qryProdutosContratosqtdereservaprevia.AsCurrency;
+                    if Qtdade <= qryCancelarMovfuturo.AsCurrency then begin
+                      if qryProdutosContratosqtdereservaprevia.AsCurrency > 0 then
+                      begin
+                        if MovExtra then
+                        begin
+                          qryMovimentos.fieldbyname('quantidade').AsCurrency := Qtdade;
+                          qryMovimentos.fieldbyname('tipomovimento').AsString := 'SQU';
+                        end
+                        else
+                        begin
+                          qryMovimentos.fieldbyname('quantidade').AsCurrency := qryProdutosContratosqtdereservaprevia.AsCurrency;
+                          qryMovimentos.fieldbyname('tipomovimento').AsString := 'TPE';
+                        end;
+                        MovExtra := Not MovExtra;
+                      end
+                      else
+                      begin
+                        qryMovimentos.fieldbyname('quantidade').AsCurrency := Qtdade;
+                        qryMovimentos.fieldbyname('tipomovimento').AsString := 'SQU';
+                      end;
+                    end
+                    else
+                    begin
+                      if MovExtra then
+                      begin
+                        qryMovimentos.fieldbyname('quantidade').AsCurrency := qryCancelarMovfuturo.AsCurrency;
+                        qryMovimentos.fieldbyname('tipomovimento').AsString := 'SQU'
+                      end
+                      else
+                      begin
+                        if MovExtraResPrevia then
+                        begin
+                          if qryProdutosContratosqtdereservaprevia.AsCurrency > 0 then
+                          begin
+                            qryMovimentos.fieldbyname('quantidade').AsCurrency := qryProdutosContratosqtdereservaprevia.AsCurrency;
+                            qryMovimentos.fieldbyname('tipomovimento').AsString := 'TPE';
+                          end
+                        end
+                        else
+                        begin
+                          qryMovimentos.fieldbyname('quantidade').AsCurrency := Qtdade - qryCancelarMovfuturo.AsCurrency;
+                          qryMovimentos.fieldbyname('tipomovimento').AsString := 'TRE';
+                        end;
+                        if qryProdutosContratosqtdereservaprevia.AsCurrency > 0 then
+                        begin
+                          MovExtraResPrevia := Not MovExtraResPrevia;
+                          MovExtra          := MovExtraResPrevia;
+                        end
+                      end;
+                      if qryCancelarMovfuturo.AsCurrency > 0 then
+                        MovExtra := Not MovExtra
+                    end
+                  end;
+                  qryMovimentos.fieldbyname('referencia').AsString  := 'CT ' + qryContratosnumero.AsString + ' CANCELADO';
+                  qryMovimentos.Post;
+                end;
+              end;
+
+              if Not (MovExtra or MovExtraResPrevia) then
+                qryProdutosContratos.Next;
+
+            end
+          end;
+        finally
+          qryCancelarMov.Close;
+        end;
+      end;
+
+      {Movimentos com Lote}
+      qryCancelarMovLotes.close;
+      qryCancelarMovLotes.Macrobyname('SQL').asString := ' and False ';
+      if SQLLotes <> '' then
+      begin
+        Delete(SQLLotes, Length(SQLLotes) - 3, 4);
+        qryCancelarMovLotes.Macrobyname('SQL').asString := ' and '+SQLLotes;
+      end;
+
+      qryCancelarMovLotes.Open;
+
+      if qryCancelarMovLotes.RecordCount > 0 then
+      begin
+        try
+          MovExtra          := False;
+          MovExtraResPrevia := False;
+
+          qryProdutosContratos.First;
+          while Not qryProdutosContratos.Eof do
+          begin
+
+            if qryProdutosContratosgerenciarloteevalidade.AsBoolean then
+            begin
+              qryProdutosContratosLotes.first;
+              while not qryProdutosContratosLotes.eof do
+              begin
+
+                if Not MovExtra then
+                  qryCancelarMovLotes.Locate('produto;filial;loteproduto',
+                       VarArrayOf([qryProdutosContratosproduto.AsString,
+                                   qryProdutosContratosfilial.AsInteger,
+                                   qryProdutosContratosLotesLote.asString]), []);
+
+                NovoMovimento(qryProdutosContratosproduto.AsLargeInt,
+                              qryProdutosContratosfilial.AsInteger,
+                              qryProdutosContratosLotesLote.asLargeInt);
+
+                {
+                if qryProdutosContratosLotesquantidade.AsCurrency = qryProdutosContratosqtdereservaprevia.AsCurrency then
                 begin
                   qryMovimentos.fieldbyname('quantidade').AsCurrency   := qryProdutosContratosquantidade.AsCurrency;
                   qryMovimentos.fieldbyname('tipomovimento').AsString := 'TPE';
                 end
                 else
                 begin
-                  Qtdade := qryProdutosContratosquantidade.AsCurrency - qryProdutosContratosqtdereservaprevia.AsCurrency;
-                  if Qtdade <= qryCancelarMovfuturo.AsCurrency then begin
+                }
+
+                  Qtdade := qryProdutosContratosLotesquantidade.AsCurrency {- qryProdutosContratosqtdereservaprevia.AsCurrency};
+
+                  if Qtdade <= qryCancelarMovfuturo.AsCurrency then
+                  begin
+
+                    {
                     if qryProdutosContratosqtdereservaprevia.AsCurrency > 0 then
                     begin
                       if MovExtra then
@@ -4004,9 +4153,12 @@ begin
                     end
                     else
                     begin
+                    }
+
                       qryMovimentos.fieldbyname('quantidade').AsCurrency := Qtdade;
                       qryMovimentos.fieldbyname('tipomovimento').AsString := 'SQU';
-                    end;
+
+                  { end; }
                   end
                   else
                   begin
@@ -4017,6 +4169,7 @@ begin
                     end
                     else
                     begin
+                      {
                       if MovExtraResPrevia then
                       begin
                         if qryProdutosContratosqtdereservaprevia.AsCurrency > 0 then
@@ -4027,36 +4180,43 @@ begin
                       end
                       else
                       begin
+                      }
                         qryMovimentos.fieldbyname('quantidade').AsCurrency := Qtdade - qryCancelarMovfuturo.AsCurrency;
                         qryMovimentos.fieldbyname('tipomovimento').AsString := 'TRE';
-                      end;
+                    {  end;
                       if qryProdutosContratosqtdereservaprevia.AsCurrency > 0 then
                       begin
                         MovExtraResPrevia := Not MovExtraResPrevia;
                         MovExtra          := MovExtraResPrevia;
                       end
+                    }
                     end;
+
                     if qryCancelarMovfuturo.AsCurrency > 0 then
-                      MovExtra := Not MovExtra
-                  end
-                end;
+                      MovExtra := Not MovExtra;
+                  end;
+
+              { end; }
+
                 qryMovimentos.fieldbyname('referencia').AsString  := 'CT ' + qryContratosnumero.AsString + ' CANCELADO';
                 qryMovimentos.Post;
+
+                if Not (MovExtra {or MovExtraResPrevia}) then
+                  qryProdutosContratosLotes.Next;
+
               end;
-
-              if Not (MovExtra or MovExtraResPrevia) then
-                qryProdutosContratos.Next;
-
-            end
+            end;
+            qryProdutosContratos.Next;
           end;
         finally
-          qryCancelarMov.Close;
-        end
-      end
+          qryCancelarMovLotes.Close;
+        end;
+      end;
+
     finally
       qryProdutosContratos.GotoBookmark(Pos);
       qryProdutosContratos.FreeBookmark(Pos);
-      qryProdutosContratos.EnableControls
+//      qryProdutosContratos.EnableControls
     end;
     if SituacaoContrato = scFATURADO then
     begin

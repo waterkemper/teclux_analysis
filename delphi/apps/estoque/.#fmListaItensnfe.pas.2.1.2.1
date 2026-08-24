@@ -1,0 +1,340 @@
+unit fmListaItensnfe;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, Grids, DBGrids, cpdbgrid, fmnavcontroles, ExtCtrls, StdCtrls,
+  Buttons, cpdbfindcontrols, Mask, DBCtrls, cpdbtext, cptexto;
+
+type
+  TfrmListaItensnfe = class(TfrmNavControles)
+    dbgProdutosNFE: TtecDBGrid;
+    bbnOK: TBitBtn;
+    bbnCancelar: TBitBtn;
+    pnlBottom: TPanel;
+    pnlTop: TPanel;
+    gbxDescricao: TGroupBox;
+    dtxProdutoDescricao: TEditTexto;
+    edfCaracteristica: TtecDBText;
+    gbxElemtoLinha: TGroupBox;
+    dtxLinha: TEditTexto;
+    GroupBox1: TGroupBox;
+    dtxColuna: TEditTexto;
+    gbxItensNFE: TGroupBox;
+    gbxItensNFELancados: TGroupBox;
+    dbgProdutosNotasPagNFEItems: TtecDBGrid;
+    lblPresencadoItem: TLabel;
+    shNotaImpressa: TShape;
+    ckbVisualizarComSaldosQuantidadeNFe: TCheckBox;
+    procedure FormShow(Sender: TObject);
+    procedure dbgProdutosNFEKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure bbnOKClick(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure dbgProdutosNFEDblClick(Sender: TObject);
+    procedure dbgProdutosNFEDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure dtxLinhaExit(Sender: TObject);
+    procedure dtxColunaExit(Sender: TObject);
+    procedure dtxLinhaKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dtxColunaKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbgProdutosNotasPagNFEItemsDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure ckbVisualizarComSaldosQuantidadeNFeClick(Sender: TObject);
+  protected
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+  private
+    vListaNumeroSequenciaNFe: String;
+    vNumeroSequenciaNFe, vNumeroSequenciaNFeItems: Integer;
+
+    { Private declarations }
+    procedure PosicionarValorLinhaColunaNoTexto;
+    function ValorLinhaColunaNoTexto: boolean;
+    function ValorProdutoLinhaColunanoTexto: boolean;
+
+  public
+    vValorLinha, vValorColuna: String;
+    procedure VerificarVisualizacoes;
+  
+    { Public declarations }
+  end;
+
+var
+  frmListaItensnfe: TfrmListaItensnfe;
+
+implementation
+uses dmcadastronotasfiscais, dmbasico, DB;
+
+{$R *.dfm}
+
+procedure TfrmListaItensnfe.FormShow(Sender: TObject);
+begin
+  inherited;
+  dbgProdutosNFE.SelectedIndex := 7;
+  PosicionarValorLinhaColunaNoTexto;
+end;
+
+procedure TfrmListaItensnfe.dbgProdutosNFEKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+    bbnOK.setfocus;
+end;
+
+procedure TfrmListaItensnfe.bbnOKClick(Sender: TObject);
+begin
+  inherited;
+  if dtmCadastroNotasFiscais.VerificarProdutosNotasPagNFEquantidadeselecionada then
+  begin
+    modalresult := mrOk;
+//    close;
+  end
+  else
+  begin
+    modalresult := mrnone;
+    dbgProdutosNFE.SelectedIndex := 7;
+  end;
+
+end;
+
+procedure TfrmListaItensnfe.FormCloseQuery(Sender: TObject;
+  var CanClose: Boolean);
+begin
+  inherited;
+  CanClose := (modalresult = mrOk) or (modalresult = mrCancel);
+end;
+
+procedure TfrmListaItensnfe.dbgProdutosNFEDblClick(Sender: TObject);
+begin
+  inherited;
+  if dtmCadastroNotasFiscais.VerificarProdutosNotasPagNFEquantidadeselecionada then
+  begin
+    modalresult := mrOk;
+//    close;
+  end
+  else
+  begin
+    modalresult := mrnone;
+    dbgProdutosNFE.SelectedIndex := 7;
+  end;
+
+end;
+
+procedure TfrmListaItensnfe.dbgProdutosNFEDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  with dtmCadastroNotasFiscais do
+  begin
+    if ValorLinhaColunanoTexto then
+      TDBGrid(Sender).Canvas.Font.Style := [fsBold]
+    else
+      TDBGrid(Sender).Canvas.Font.Style := [];
+
+    if (pos(','+qryProdutosNotasPagNFEnumero.asstring+',',vListaNumeroSequenciaNFe)<>0) then
+    begin
+      TDBGrid(Sender).Canvas.Brush.Color := $007FAA55;
+      TDBGrid(Sender).Canvas.Font.Color := clBlack;
+    end;
+
+  end;
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+
+
+end;
+
+procedure TfrmListaItensnfe.dtxLinhaExit(Sender: TObject);
+begin
+  inherited;
+  dbgProdutosNFE.Invalidate;
+//  dbgProdutosNFE.Refresh;
+  PosicionarValorLinhaColunaNoTexto
+end;
+
+procedure TfrmListaItensnfe.dtxColunaExit(Sender: TObject);
+begin
+  inherited;
+  dbgProdutosNFE.Invalidate;
+//  dbgProdutosNFE.Refresh;
+  PosicionarValorLinhaColunaNoTexto;
+end;
+
+procedure TfrmListaItensnfe.dtxLinhaKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+  begin
+//    key := 0;
+    dtxColuna.setfocus;
+  end;
+  
+end;
+
+procedure TfrmListaItensnfe.dtxColunaKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+  begin
+//    key := 0;
+    dbgProdutosNFE.setfocus;
+  end;
+end;
+
+procedure TfrmListaItensnfe.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+{
+ if key = vk_return then
+   key := 0;
+   }
+ inherited;
+
+end;
+
+function TfrmListaItensnfe.ValorLinhaColunaNoTexto: boolean;
+begin
+  with dtmCadastroNotasFiscais do
+  result :=((pos(dtxlinha.text, qryProdutosNotasPagNFEdescricaofornecedor.asstring)<>0) and
+            (pos(dtxColuna.text, qryProdutosNotasPagNFEdescricaofornecedor.asstring)<>0)) or
+           ((pos(dtxlinha.text, qryProdutosNotasPagNFEinfadprod.asstring)<>0) and
+            (pos(dtxColuna.text, qryProdutosNotasPagNFEinfadprod.asstring)<>0));
+
+end;
+
+procedure TfrmListaItensnfe.PosicionarValorLinhaColunaNoTexto;
+begin
+  with dtmCadastroNotasFiscais do
+  begin
+    GuardarRegistroAtual(qryProdutosNotasPagNFE, true);
+    qryProdutosNotasPagNFE.First;
+    while not qryProdutosNotasPagNFE.eof do
+    begin
+      if ValorLinhaColunaNoTexto then
+        break;
+      qryProdutosNotasPagNFE.next;
+    end;
+
+    if not ValorLinhaColunaNoTexto then
+      VoltarRegistroAtual(qryProdutosNotasPagNFE)
+    else
+      qryProdutosNotasPagNFE.EnableControls;
+
+  end;
+
+end;
+
+procedure TfrmListaItensnfe.dbgProdutosNotasPagNFEItemsDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  with dtmCadastroNotasFiscais do
+  begin
+    if ValorProdutoLinhaColunanoTexto then
+    begin
+      TDBGrid(Sender).Canvas.Brush.Color := $007FAA55;
+      TDBGrid(Sender).Canvas.Font.Color := clBlack;
+    end;
+  end;
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+function TfrmListaItensnfe.ValorProdutoLinhaColunanoTexto: boolean;
+begin
+  result := false;
+  with dtmCadastroNotasFiscais do
+  begin
+    result := (qryCaracteristicasNotaFiscalcaracteristica.asstring = qryProdutosNotasPagNFEItemscaracteristica.asstring) and
+              (vValorlinha = qryProdutosNotasPagNFEItemsvalorgrade1.asstring) and
+              (vValorColuna = qryProdutosNotasPagNFEItemsvalorgrade2.asstring);
+    if result then
+    begin
+      vNumeroSequenciaNFe := qryProdutosNotasPagNFEnumero.AsInteger;
+      vNumeroSequenciaNFeItems := qryProdutosNotasPagNFEItemsnumero.AsInteger;
+
+      if (pos(','+qryProdutosNotasPagNFEItemsnumerosequencianfe.asstring+',',vListaNumeroSequenciaNFe)=0) then
+        vListaNumeroSequenciaNFe := vListaNumeroSequenciaNFe + ','+qryProdutosNotasPagNFEItemsnumerosequencianfe.asstring+',';
+    end;
+  end;
+end;
+
+procedure TfrmListaItensnfe.VerificarVisualizacoes;
+var
+ vquantidadeselecionadalc, vquantidadeselecionadaGeral: Currency;
+begin
+
+  with dtmCadastroNotasFiscais do
+  begin
+    
+    qryProdutosNotasPagNFE.first;
+    while not qryProdutosNotasPagNFE.eof do
+    begin
+
+      qryProdutosNotasPagNFEitems.first;
+      vquantidadeselecionadalc := 0;
+      vquantidadeselecionadaGeral := 0;
+
+      while not qryProdutosNotasPagNFEitems.eof do
+      begin
+        if ValorProdutoLinhaColunanoTexto then
+          vquantidadeselecionadalc := vquantidadeselecionadalc + dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsquantidade.AsCurrency;
+        vquantidadeselecionadaGeral := vquantidadeselecionadaGeral + dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsquantidade.AsCurrency;
+
+        qryProdutosNotasPagNFEitems.Next;
+      end;
+
+      dsrProdutosNotasPagNFE.onDataChange := nil;
+
+      qryProdutosNotasPagNFE.edit;
+
+      dtmCadastroNotasFiscais.qryProdutosNotasPagNFEsaldoquantidadelc.asCurrency := dtmCadastroNotasFiscais.qryProdutosNotasPagNFEsaldoquantidade.AsCurrency;
+      if vquantidadeselecionadalc <> 0 then
+      begin
+        dtmCadastroNotasFiscais.qryProdutosNotasPagNFEquantidadeselecionadalc.asCurrency := vquantidadeselecionadalc;
+        dtmCadastroNotasFiscais.qryProdutosNotasPagNFEquantidadeselecionadalc_copia.asCurrency :=
+          dtmCadastroNotasFiscais.qryProdutosNotasPagNFEquantidadeselecionadalc.asCurrency;
+
+        dtmCadastroNotasFiscais.qryProdutosNotasPagNFEsaldoquantidadelc.asCurrency := dtmCadastroNotasFiscais.qryProdutosNotasPagNFEsaldoquantidade.AsCurrency +
+                                                                                      dtmCadastroNotasFiscais.qryProdutosNotasPagNFEquantidadeselecionadalc.asCurrency;
+      end
+      else
+      if vquantidadeselecionadaGeral <> 0 then
+      begin
+         dtmCadastroNotasFiscais.qryProdutosNotasPagNFEquantidadeselecionadalc.asCurrency := vquantidadeselecionadaGeral;
+         dtmCadastroNotasFiscais.qryProdutosNotasPagNFEquantidadeselecionadalc_copia.asCurrency :=
+           dtmCadastroNotasFiscais.qryProdutosNotasPagNFEquantidadeselecionadalc.asCurrency
+      end
+      else
+      begin
+        dtmCadastroNotasFiscais.qryProdutosNotasPagNFEquantidadeselecionadalc.asCurrency := dtmCadastroNotasFiscais.qryProdutosNotasPagNFEsaldoquantidadelc.asCurrency;
+        dtmCadastroNotasFiscais.qryProdutosNotasPagNFEquantidadeselecionadalc_copia.asCurrency :=
+          dtmCadastroNotasFiscais.qryProdutosNotasPagNFEquantidadeselecionadalc.asCurrency
+      end;
+
+      dsrProdutosNotasPagNFE.onDataChange := dsrProdutosNotasPagNFEDataChange;
+
+      qryProdutosNotasPagNFE.Next;
+    end;
+  end;
+
+  if vNumeroSequenciaNFe <> 0 then
+    if dtmCadastroNotasFiscais.qryprodutosnotaspagnfe.locate('numero', vNumeroSequenciaNFe, []) then
+      dtmCadastroNotasFiscais.qryprodutosnotaspagnfeitems.locate('numero', vNumeroSequenciaNFeItems, [])
+end;
+
+procedure TfrmListaItensnfe.ckbVisualizarComSaldosQuantidadeNFeClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroNotasFiscais.VisualizarComSaldosQuantidadeNFe := ckbVisualizarComSaldosQuantidadeNFe.checked;
+
+end;
+
+end.

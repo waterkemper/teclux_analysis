@@ -1,0 +1,703 @@
+unit dmRequisicoesOSP;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, ZTransact, DB, cpdatasource, ZQuery, clusuario,
+  ZPgSqlQuery, cpquery, Windows, biblio, dmtecsoft, ctconstantes, variants;
+
+Const cmposp         = 1;   PosicaoAtual = 0;
+      cmplote        = 2;   Primeiro     = 1;
+                            Anterior     = 2;
+                            Proximo      = 3;
+                            Ultimo       = 4;
+  
+
+type
+  TdtmRequisicoesOSP = class(TdtmBasico)
+    qryOSPLotes: TtecQuery;
+    qryOSPLotesosp: TIntegerField;
+    qryOSPLotesnumero: TIntegerField;
+    qryOSPLotesquantidadelote: TFloatField;
+    qryOSPLotesexcedentelote: TFloatField;
+    qryOSPLotesproduzidalote: TFloatField;
+    qryOSPLotesentrega: TDateField;
+    qryOSPLotesentrega_anterior: TDateField;
+    qryOSPLotessemana: TIntegerField;
+    qryOSPLotesano: TIntegerField;
+    qryOSPLotesprioridade: TIntegerField;
+    qryOSPLotesobservacoes: TStringField;
+    qryOSPLotesproduto: TLargeintField;
+    qryOSPLotesdata: TDateField;
+    qryOSPLotescliente: TIntegerField;
+    qryOSPLotespedidocliente: TStringField;
+    qryOSPLotesquantidadeosp: TFloatField;
+    qryOSPLotesquantidade_anterior: TFloatField;
+    qryOSPLotespreco: TFloatField;
+    qryOSPLotesprodutovisual: TStringField;
+    qryOSPLotescaracteristica: TLargeintField;
+    qryOSPLotescaracteristicavisual: TStringField;
+    qryOSPLotesqtdeentregue: TFloatField;
+    qryOSPLotescomplementoproduto: TStringField;
+    qryOSPLotesunidade: TStringField;
+    qryOSPLotesapelido: TStringField;
+    qryOSPLotesalterada: TBooleanField;
+    qryOSPLotesTotal: TCurrencyField;
+    qryOSPLotesSaldo: TCurrencyField;
+    qryOSPLotestipocliente: TStringField;
+    dsrOSPLotes: TtecDataSource;
+    qryClientesProdutos: TtecQuery;
+    qryClientesProdutoscliente: TIntegerField;
+    qryClientesProdutostipocliente: TStringField;
+    qryClientesProdutosproduto: TLargeintField;
+    qryClientesProdutosproduto_cliente: TStringField;
+    qryClientesProdutosfinalidade: TStringField;
+    qryClientesProdutospn: TStringField;
+    qryClientesProdutosorigem: TStringField;
+    qryClientesProdutostamloteproducao: TIntegerField;
+    qryClientesProdutosexcedentepermitido: TIntegerField;
+    dsrClientesProdutos: TtecDataSource;
+    qryRequisicoesOSP: TtecQuery;
+    dsrRequisicoesOSP: TtecDataSource;
+    qryRequisicoesOSPosp: TIntegerField;
+    qryRequisicoesOSPlote: TIntegerField;
+    qryRequisicoesOSPproduto: TLargeintField;
+    qryRequisicoesOSPtipo: TStringField;
+    qryRequisicoesOSPquantidade: TFloatField;
+    qryOSPLotesProdutos: TtecQuery;
+    qryOSPLotesProdutosProduto: TLargeintField;
+    qryOSPLotesProdutosQuantidade: TFloatField;
+    qryOSPLotesProdutosTipo: TStringField;
+    qryRequisicoesOSPdescricao: TStringField;
+    qryRequisicoesOSPOrigem: TStringField;
+    qryMovimentos: TtecQuery;
+    dsrMovimentos: TtecDataSource;
+    qryMovimentosdata: TDateField;
+    qryMovimentoshora: TTimeField;
+    qryMovimentosquantidade: TFloatField;
+    qryRequisicoesOSPquantidadeliberada: TFloatField;
+    qryRequisicoesOSPsaldo: TFloatField;
+    qryMovimentosproduto: TLargeintField;
+    qryOSPLotesProdutoscodigoVisual: TStringField;
+    qryOSPLotesProdutosDescricao: TStringField;
+    qryRequisicoesOSPquantidadees: TFloatField;
+    qryMovimentosnumero: TIntegerField;
+    qryMovimentosfilial: TIntegerField;
+    qryMovimentostipomovimento: TStringField;
+    qryMovimentososp: TIntegerField;
+    qryMovimentoslote: TIntegerField;
+    qryMovimentosreferencia: TStringField;
+    qryMovimentosquantidade_calc: TFloatField;
+    qryRequisicoesOSPemestoque: TFloatField;
+    qryRequisicoesOSPcomponente: TStringField;
+    qryRequisicoesOSPnumero: TIntegerField;
+    qryOSPLotesProdutosOrdem: TIntegerField;
+    qryRequisicoesOSPcodigovisual: TStringField;
+    qryRequisicoesOSPobservacoes: TStringField;
+    qryMovimentosnumerocontrole: TIntegerField;
+    qryRequisicoesOSPcomponente_c: TStringField;
+    qryRequisicoesOSPresistividade: TFloatField;
+    qryOSPLotesProdutosResistividade: TFloatField;
+    qryRequisicoesOSPsequencia: TStringField;
+    qryRequisicoesOSPcomponenteorigem: TStringField;
+    qryRequisicoesOSPnumeroorigem: TIntegerField;
+    qryMovimentostipocontrole: TStringField;
+    qryRequisicoesOSPquantidade_c: TFloatField;
+    qryRequisicoesOSPTipoOrigem: TStringField;
+    qryMovimentosusename: TStringField;
+    qryRequisicoesOSPOC: TStringField;
+    qryRequisicoesOSPOS: TStringField;
+    qryRequisicoesOSPNF: TStringField;
+    qryRequisicoesOSPchargecode: TStringField;
+    qryOSPLotesProdutosUnidade: TStringField;
+    qryRequisicoesOSPUnidade: TStringField;
+    qryRequisicoesOSPtolerancia: TIntegerField;
+    qryRequisicoesOSPliga: TStringField;
+    qryOSPLotesProdutostolerancia: TIntegerField;
+    qryOSPLotesProdutosliga: TStringField;
+    procedure qryOSPLotesAfterScroll(DataSet: TDataSet);
+    procedure qryRequisicoesOSPCalcFields(DataSet: TDataSet);
+    procedure qryOSPLotesBeforeOpen(DataSet: TDataSet);
+    procedure qryRequisicoesOSPAfterInsert(DataSet: TDataSet);
+    procedure qryMovimentosCalcFields(DataSet: TDataSet);
+    procedure qryRequisicoesOSPBeforeOpen(DataSet: TDataSet);
+    procedure qryRequisicoesOSPAfterScroll(DataSet: TDataSet);
+    procedure dsrRequisicoesOSPDataChange(Sender: TObject; Field: TField);
+    procedure qryRequisicoesOSPAfterPost(DataSet: TDataSet);
+    procedure qryRequisicoesOSPAfterDelete(DataSet: TDataSet);
+
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent);override;
+    destructor Destroy; override;
+    procedure  Percorrer(Campo: Byte; Key: Word; Shift: TShiftState);
+    procedure AtualizarListaRequisicoesOSP;
+
+    function GravarRequisicoesOSPProdutos: boolean;
+    function GravarRequisicoesOSP: boolean;
+    procedure IncluirComponente;
+{    procedure AtualizaListaRequisicoes;}
+    procedure RecalcularSaldos;
+
+
+
+  end;
+
+var
+  dtmRequisicoesOSP: TdtmRequisicoesOSP;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmRequisicoesOSP }
+
+procedure TdtmRequisicoesOSP.AtualizarListaRequisicoesOSP;
+begin
+  RefazConsultaPorNome(qryOSPLotesProdutos,['produto'],[qryOSPLotesproduto.AsString]);
+  GuardarRegistroAtual(qryRequisicoesOSP,true);
+
+  qryRequisicoesOSP.AfterPost := nil;
+  qryRequisicoesOSP.AfterInsert := nil;
+
+  qryOSPLotesProdutos.First;
+
+  while not qryOSPLotesProdutos.eof do
+  begin
+       //se for produtoscompostos
+    if ((qryOSPLotesProdutostipo.AsString = 'P') and
+        (not qryRequisicoesOSP.Locate('produto',qryOSPLotesProdutosproduto.AsString,[]))) or
+       // se for fios ou fitas
+       ((qryOSPLotesProdutostipo.AsString <> 'P') and
+        (not qryRequisicoesOSP.Locate('componente;numero;tipo',VarArrayOf([qryOSPLotesProdutoscodigovisual.AsString,
+                                                                           qryOSPLotesProdutosordem.AsString,
+                                                                           qryOSPLotesProdutostipo.AsString]),[])))
+    then
+    begin
+
+      qryRequisicoesOSP.Append;
+      qryRequisicoesOSPsequencia.AsInteger := qryRequisicoesOSP.RecordCount + 1;
+      qryRequisicoesOSPosp.AsInteger := qryOSPLotesosp.AsInteger;
+      qryRequisicoesOSPlote.AsInteger := qryOSPLotesnumero.AsInteger;
+      qryRequisicoesOSPproduto.AsString := qryOSPLotesProdutosproduto.AsString;
+      qryRequisicoesOSPcomponente.AsString := qryOSPLotesProdutoscodigovisual.AsString;
+      qryRequisicoesOSPresistividade.Asfloat := qryOSPLotesProdutosresistividade.asfloat;
+      qryRequisicoesOSPtolerancia.AsInteger := qryOSPLotesProdutostolerancia.AsInteger;
+      qryRequisicoesOSPliga.AsString := qryOSPLotesProdutosliga.AsString;
+
+      qryRequisicoesOSPUnidade.AsString:= qryOSPLotesProdutosUnidade.AsString;
+
+
+      if qryOSPLotesProdutostipo.AsString = 'P' then
+        qryRequisicoesOSPcodigovisual.AsString := qryOSPLotesProdutoscodigovisual.AsString;
+
+      qryRequisicoesOSPnumero.value := qryOSPLotesProdutosordem.Value ;
+
+      qryRequisicoesOSPdescricao.AsString := qryOSPLotesProdutosdescricao.AsString;
+      qryRequisicoesOSPtipo.AsString := qryOSPLotesProdutostipo.AsString;
+      qryRequisicoesOSPquantidade.AsFloat := qryOSPLotesProdutosquantidade.AsFloat *  (qryOSPLotesquantidadelote.AsFloat + qryOSPLotesexcedentelote.AsFloat);
+      qryRequisicoesOSP.Post;
+    end
+    else
+    begin
+      if (qryRequisicoesOSPtipo.AsString <> qryOSPLotesProdutostipo.AsString) or
+         (qryRequisicoesOSPquantidade.AsFloat <> ((qryOSPLotesquantidadelote.AsFloat + qryOSPLotesexcedentelote.AsFloat) * qryOSPLotesProdutosquantidade.AsFloat)) then
+      begin
+        qryRequisicoesOSP.Edit;
+  //      qryRequisicoesOSPosp.AsInteger := qryOSPLotesosp.AsInteger;
+  //      qryRequisicoesOSPlote.AsInteger := qryOSPLotesnumero.AsInteger;
+  //      qryRequisicoesOSPproduto.AsString := qryOSPLotesProdutosproduto.AsString;
+        qryRequisicoesOSPtipo.AsString := qryOSPLotesProdutostipo.AsString;
+        qryRequisicoesOSPquantidade.AsFloat := qryOSPLotesProdutosquantidade.AsFloat *  (qryOSPLotesquantidadelote.AsFloat + qryOSPLotesexcedentelote.AsFloat);
+        qryRequisicoesOSP.Post;
+      end;
+    end;
+
+    qryOSPLotesProdutos.next;
+  end;
+  VoltarRegistroAtual(qryRequisicoesOSP);
+
+  qryRequisicoesOSP.AfterInsert := qryRequisicoesOSPAfterInsert;
+  qryRequisicoesOSP.AfterPost := qryRequisicoesOSPAfterPost;
+
+end;
+
+constructor TdtmRequisicoesOSP.Create(AOwner: TComponent);
+begin
+  inherited;
+  ReFazConsulta(qryOSPLotes,[0,1,2,3],[0,0,0,0]);
+
+end;
+
+destructor TdtmRequisicoesOSP.Destroy;
+begin
+
+  inherited;
+end;
+
+function TdtmRequisicoesOSP.GravarRequisicoesOSP: boolean;
+var
+ vProduto : String;
+begin
+  vProduto := qryRequisicoesOSPproduto.AsString;
+
+  result := perpetrar([qryRequisicoesOSP,qryMovimentos]);
+  qryOSPLotesAfterScroll(qryOSPLotes);
+
+  if result then
+    qryRequisicoesOSP.Locate('produto',vproduto,[]);
+    
+end;
+
+function TdtmRequisicoesOSP.GravarRequisicoesOSPProdutos: boolean;
+begin
+  result := false;
+
+  if qryRequisicoesOSP.State = dsedit then
+    qryRequisicoesOSP.Post;
+
+  if qryRequisicoesOSPquantidadees.AsCurrency <> 0 then
+  begin
+
+    result := true;
+
+
+    qryMovimentos.Append;
+    qryMovimentosdata.AsDateTime := DataServidor;
+    qryMovimentoshora.AsDateTime := HoraServidor;
+    qryMovimentosproduto.AsString := qryRequisicoesOSPproduto.AsString;
+    qryMovimentosfilial.AsInteger := FilialBase;
+    qryMovimentososp.AsInteger := qryRequisicoesOSPosp.AsInteger;
+    qryMovimentoslote.AsInteger := qryRequisicoesOSPlote.AsInteger;
+    qryMovimentosnumerocontrole.value := qryRequisicoesOSPnumero.value;
+    qryMovimentostipocontrole.AsString := qryRequisicoesOSPtipo.AsString;
+
+    qryMovimentosquantidade.AsFloat := qryRequisicoesOSPquantidadees.AsFloat;
+    qryMovimentosreferencia.asstring := 'OSP '+qryRequisicoesOSPosp.AsString + 'Lote '+qryRequisicoesOSPlote.AsString;
+    qryMovimentosusename.AsString := UsuarioLogin.LoginUsuario;
+
+
+//    if qryRequisicoesOSPoperacao.AsString = 'S' then
+    if qryMovimentosquantidade.AsFloat > 0 then
+    begin
+//      qryMovimentosquantidade.AsFloat := qryRequisicoesOSPquantidadees.AsFloat;
+      qryMovimentostipomovimento.AsString := 'PK-'
+    end
+    else
+    begin
+//      qryMovimentosquantidade.AsFloat := qryRequisicoesOSPquantidadees.AsFloat;
+      qryMovimentostipomovimento.AsString := 'PK+';
+    end;
+
+    qryMovimentos.post;
+
+    qryRequisicoesOSP.Edit;
+    qryRequisicoesOSPquantidadeliberada.AsFloat := qryRequisicoesOSPquantidade.AsFloat -
+                                                   qryRequisicoesOSPsaldo.AsFloat;
+    qryRequisicoesOSPquantidadees.clear;
+    qryRequisicoesOSP.post;
+
+
+  end
+  else
+    MensagemErro('A quantidade não foi informada.');
+end;
+
+procedure TdtmRequisicoesOSP.Percorrer(Campo: Byte; Key: Word;
+  Shift: TShiftState);
+var Operacao: Byte;
+    osp, lote: Integer;
+  
+begin
+   Operacao := 0;
+   with qryOSPLotes do begin
+      if ssCtrl in Shift
+      then case Key of
+             VK_Home:     Operacao:= Primeiro;
+             VK_End:      Operacao:= Ultimo;
+           end
+      else case Key of
+             VK_PRIOR:   Operacao:= Anterior;
+             VK_next: Operacao:= Proximo;
+           end;
+
+{      case Campo of
+         cmposp:} case Operacao of
+                            Primeiro,
+                            Proximo:  qryOSPLotes.MacroByName('Ordenacao').AsString:=
+                                                  'ORDER BY osplotes.osp, osplotes.numero LIMIT 1';
+                            Anterior,
+                            Ultimo:   qryOSPLotes.MacroByName('Ordenacao').AsString:=
+                                                  'ORDER BY osplotes.osp DESC, osplotes.numero LIMIT 1';
+                   end;
+{      end;}
+
+      osp         := qryOSPLotesosp.AsInteger;
+      lote        := qryOSPLotesnumero.AsInteger;
+
+      RefazConsulta(qryOSPLotes, [0, 1, 2, 3],
+                    [Campo, Operacao, qryOSPLotesosp.AsInteger, qryOSPLotesnumero.asinteger]);
+
+      if qryOSPLotes.RecordCount = 0 then
+      begin
+          RefazConsulta(qryOSPLotes, [0,1,2,3],
+                        [PosicaoAtual, PosicaoAtual, osp,lote]);
+
+         case campo of
+         cmposp: case Operacao of
+                   Anterior,Primeiro: MensagemAviso('Esta é a 1ª OSP');
+                   Proximo, Ultimo  : MensagemAviso('Esta é a última OSP');
+                 end;
+         cmplote: case Operacao of
+                   Anterior,Primeiro: MensagemAviso('Este é o 1º LOTE');
+                   Proximo, Ultimo  : MensagemAviso('Este é o último LOTE');
+                 end;
+         end;
+
+         case campo of
+          1 : qryOSPLotesosp.FocusControl;
+          2 : qryOSPLotesnumero.FocusControl;
+         end;
+      end;
+  //   EnableControls;
+   end;
+   qryOSPLotes.Params[0].AsInteger := 0;
+   qryOSPLotes.Params[1].AsInteger := 0;
+
+end;
+
+procedure TdtmRequisicoesOSP.qryOSPLotesAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  RefazConsultaPorNome(qryClientesProdutos,['cliente','tipocliente','produto'],
+                        [qryOSPLotescliente.AsVariant,qryOSPLotestipocliente.AsVariant, qryOSPLotesproduto.AsVariant]);
+
+  RefazConsultaPorNome(qryRequisicoesOSP,['osp','lote'],
+                        [qryOSPLotesosp.asinteger, qryOSPLotesnumero.AsInteger]);
+
+  RefazConsultaPorNome(qryMovimentos,['osp','lote'],
+                        [qryOSPLotesosp.asinteger, qryOSPLotesnumero.AsInteger]);
+
+  if qryRequisicoesOSP.IsEmpty then
+    AtualizarListaRequisicoesOSP;
+end;
+
+procedure TdtmRequisicoesOSP.qryRequisicoesOSPCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryRequisicoesOSPtipo.AsString = 'P' then
+  begin
+    qryRequisicoesOSPOrigem.AsString := 'PRD';
+    qryRequisicoesOSPcomponente_c.clear;
+    qryRequisicoesOSPquantidade_c.AsFloat := qryRequisicoesOSPquantidade.AsFloat;
+  end
+  else
+  if qryRequisicoesOSPtipo.AsString = 'O' then
+  begin
+    if qryRequisicoesOSPcomponenteorigem.IsNull then
+    begin
+      qryRequisicoesOSPOrigem.AsString := 'FIO';
+      qryRequisicoesOSPcomponente_c.AsString := qryRequisicoesOSPcomponente.AsString;
+      qryRequisicoesOSPquantidade_c.AsFloat := qryRequisicoesOSPquantidade.AsFloat;
+    end
+    else
+    begin
+      qryRequisicoesOSPOrigem.clear;
+      qryRequisicoesOSPcomponente_c.clear;
+      qryRequisicoesOSPquantidade_c.clear;
+    end;
+  end
+  else
+  if qryRequisicoesOSPtipo.AsString = 'T' then
+  begin
+    if qryRequisicoesOSPcomponenteorigem.IsNull then
+    begin
+      qryRequisicoesOSPOrigem.AsString := 'FITA';
+      qryRequisicoesOSPcomponente_c.AsString := qryRequisicoesOSPcomponente.AsString;
+      qryRequisicoesOSPquantidade_c.AsFloat := qryRequisicoesOSPquantidade.AsFloat;
+    end
+    else
+    begin
+      qryRequisicoesOSPOrigem.clear;
+      qryRequisicoesOSPcomponente_c.clear;
+      qryRequisicoesOSPquantidade_c.clear;
+    end;
+  end;
+
+  if qryRequisicoesOSPquantidadees.AsFloat <= 0 then {Como operações de saídas são comuns, o negativo será para entradas}
+
+    qryRequisicoesOSPSALDO.AsFloat := qryRequisicoesOSPquantidade.AsFloat -
+                                      qryRequisicoesOSPquantidadeliberada.AsFloat +
+                                      abs(qryRequisicoesOSPquantidadees.AsFloat)
+  else
+
+    qryRequisicoesOSPSALDO.AsFloat := qryRequisicoesOSPquantidade.AsFloat -
+                                      qryRequisicoesOSPquantidadeliberada.AsFloat -
+                                      qryRequisicoesOSPquantidadees.AsFloat;
+
+
+
+
+//  qryRequisicoesOSPsaldocomquantidadees.AsFloat := qryRequisicoesOSPSALDO.AsFloat +
+//                                                   qryRequisicoesOSPquantidadees.AsFloat;
+
+end;
+
+procedure TdtmRequisicoesOSP.qryOSPLotesBeforeOpen(DataSet: TDataSet);
+begin
+  inherited;
+  if qryOSPLotes.ParamByName('campo').IsNull then
+    qryOSPLotes.ParamByName('campo').AsInteger := 0;
+
+  if qryOSPLotes.ParamByName('operacao').IsNull then
+    qryOSPLotes.ParamByName('operacao').AsInteger := 0;
+
+end;
+
+procedure TdtmRequisicoesOSP.qryRequisicoesOSPAfterInsert(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryRequisicoesOSP.Cancel;
+end;
+
+procedure TdtmRequisicoesOSP.qryMovimentosCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  if qryMovimentostipomovimento.AsString = 'PK-' then
+    qryMovimentosquantidade_calc.AsFloat := abs(qryMovimentosquantidade.AsFloat)
+  else
+  if qryMovimentostipomovimento.AsString = 'PK+' then
+    qryMovimentosquantidade_calc.AsFloat :=  - abs(qryMovimentosquantidade.AsFloat);
+end;
+
+procedure TdtmRequisicoesOSP.qryRequisicoesOSPBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryRequisicoesOSP.ParamByName('filialbase').AsInteger := FilialBase
+end;
+
+procedure TdtmRequisicoesOSP.qryRequisicoesOSPAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryRequisicoesOSPquantidadees.ReadOnly := qryRequisicoesOSPcodigovisual.IsNull;
+  qryRequisicoesOSPcodigovisual.ReadOnly := qryRequisicoesOSPquantidadeliberada.AsCurrency<>0;
+  qryRequisicoesOSPdescricao.ReadOnly := qryRequisicoesOSPquantidadeliberada.AsCurrency<>0;
+end;
+
+procedure TdtmRequisicoesOSP.dsrRequisicoesOSPDataChange(Sender: TObject;
+  Field: TField);
+begin
+  inherited;
+  if field = qryRequisicoesOSPquantidadees then
+  begin
+    qryRequisicoesOSPcodigovisual.ReadOnly := qryRequisicoesOSPquantidadeliberada.AsCurrency<>0;
+    qryRequisicoesOSPdescricao.ReadOnly := qryRequisicoesOSPquantidadeliberada.AsCurrency<>0;
+  end
+  else
+  if field = qryRequisicoesOSPquantidadeliberada then
+    RecalcularSaldos;
+
+end;
+
+procedure TdtmRequisicoesOSP.IncluirComponente;
+var
+  vComponente, vProduto,  vtipo, vSequencia_I, vSequencia_J, vliga : String;
+  vnumero, vNumeroOrigem, vtolerancia: integer;
+  vResistividade, vquantidade: double;
+
+  procedure GuardarDadosComponente;
+  begin
+    vComponente := qryRequisicoesOSPcomponente.AsString;
+    vtipo := qryRequisicoesOSPtipo.AsString;
+    vNumeroOrigem :=  qryRequisicoesOSPnumero.AsInteger;
+    vquantidade := qryRequisicoesOSPsaldo.AsFloat;
+    vProduto := qryRequisicoesOSPproduto.AsString;
+    vResistividade := qryRequisicoesOSPresistividade.Asfloat;
+    vTolerancia := qryRequisicoesOSPtolerancia.AsInteger;
+    vliga := qryRequisicoesOSPliga.AsString;
+
+
+    if pos('.', qryRequisicoesOSPsequencia.AsString)<>0 then
+    begin
+      vSequencia_I := copy(qryRequisicoesOSPsequencia.AsString, 1, pos('.', qryRequisicoesOSPsequencia.AsString)-1);
+      vSequencia_J := copy(qryRequisicoesOSPsequencia.AsString, pos('.', qryRequisicoesOSPsequencia.AsString)+1, length(qryRequisicoesOSPsequencia.AsString));
+    end
+    else
+    begin
+      vSequencia_I := qryRequisicoesOSPsequencia.AsString;
+      vSequencia_J := '0';
+    end;
+  end;
+
+begin
+
+  vnumero :=  qryRequisicoesOSPnumero.AsInteger;
+  GuardarDadosComponente;
+
+  GuardarRegistroAtual(qryRequisicoesOSP,true);
+  qryRequisicoesOSP.First;
+  while not qryRequisicoesOSP.Eof do
+  begin
+    if (vtipo = qryRequisicoesOSPtipo.AsString) and
+       (vnumero < qryRequisicoesOSPnumero.AsInteger) then
+      vnumero :=  qryRequisicoesOSPnumero.AsInteger;
+
+    qryRequisicoesOSP.next;
+  end;
+
+  VoltarRegistroAtual(qryRequisicoesOSP);
+
+  qryRequisicoesOSP.Next;
+  while pos('.', qryRequisicoesOSPsequencia.AsString)<>0 do
+  begin
+    GuardarDadosComponente;
+    qryRequisicoesOSP.Next;
+  end;
+
+  qryRequisicoesOSP.AfterInsert := nil;
+  if qryRequisicoesOSP.Eof then
+    qryRequisicoesOSP.Append
+  else
+    qryRequisicoesOSP.Insert;
+  qryRequisicoesOSP.AfterInsert := qryRequisicoesOSPAfterInsert;
+
+  qryRequisicoesOSPosp.AsInteger := qryOSPLotesosp.AsInteger;
+  qryRequisicoesOSPlote.AsInteger := qryOSPLotesnumero.AsInteger;
+  qryRequisicoesOSPproduto.AsString := vProduto;
+
+  qryRequisicoesOSPresistividade.Asfloat := vResistividade;
+  qryRequisicoesOSPtolerancia.AsInteger := vtolerancia;
+  qryRequisicoesOSPliga.AsString := vliga;
+
+  qryRequisicoesOSPcomponente.AsString := vComponente;
+
+
+
+  qryRequisicoesOSPnumero.AsInteger := vnumero + 1;
+
+  qryRequisicoesOSPquantidade.AsFloat := vquantidade;
+
+  qryRequisicoesOSPtipo.AsString := vtipo;
+
+  qryRequisicoesOSPsequencia.AsString := vSequencia_I+'.'+inttostr( (strtoint(vSequencia_J)+1) );
+
+  qryRequisicoesOSPcomponenteorigem.AsString := vComponente;
+  qryRequisicoesOSPnumeroorigem.asinteger := vNumeroOrigem;
+  qryRequisicoesOSPTipoOrigem.AsString := vTipo;
+
+  qryRequisicoesOSP.Post;
+  qryRequisicoesOSPcodigovisual.FocusControl;
+
+
+end;
+
+(*
+procedure TdtmRequisicoesOSP.AtualizaListaRequisicoes;
+var
+  i,j : integer;
+  vComponenteOrigem, vTipoOrigem : String;
+  vNumeroOrigem: integer;
+
+
+begin
+  i := 0;
+  j := 0;
+
+  GuardarRegistroAtual(qryRequisicoesOSP,true);
+
+  qryRequisicoesOSP.AfterPost := nil;
+
+  qryRequisicoesOSP.First;
+  while Not qryRequisicoesOSP.Eof do
+  begin
+    if qryRequisicoesOSPcomponenteorigem.isnull then
+    begin
+      i := i + 1;
+      j := 0;
+
+      if qryRequisicoesOSPsequencia.AsString <> inttostr(i) then
+      begin
+        qryRequisicoesOSP.Edit;
+        qryRequisicoesOSPsequencia.AsString := inttostr(i);
+      end;
+
+      vComponenteOrigem := qryRequisicoesOSPcomponente.AsString;
+      vNumeroOrigem := qryRequisicoesOSPnumero.AsInteger;
+      vTipoOrigem := qryRequisicoesOSPtipo.AsString;
+    end
+    else
+    if (qryRequisicoesOSPcomponenteorigem.AsString = vComponenteOrigem) and
+       (qryRequisicoesOSPnumeroorigem.AsInteger = vNumeroOrigem)
+    then
+    begin
+      j := j + 1;
+      if  qryRequisicoesOSPsequencia.AsString <> inttostr(i)+'.'+inttostr(j) then
+      begin
+        qryRequisicoesOSP.Edit;
+        qryRequisicoesOSPsequencia.AsString := inttostr(i)+'.'+
+                                                     inttostr(j);
+      end;
+    end;
+    qryRequisicoesOSP.Next;
+  end;
+
+  qryRequisicoesOSP.AfterPost := qryRequisicoesOSPAfterPost;
+  VoltarRegistroAtual(qryRequisicoesOSP);
+
+end;
+*)
+
+procedure TdtmRequisicoesOSP.qryRequisicoesOSPAfterPost(DataSet: TDataSet);
+begin
+  inherited;
+//  AtualizaListaRequisicoes;
+end;
+
+procedure TdtmRequisicoesOSP.qryRequisicoesOSPAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+//  AtualizaListaRequisicoes;
+end;
+
+procedure TdtmRequisicoesOSP.RecalcularSaldos;
+var
+  vComponente, vTipo : String;
+  vSaldo : double;
+  vNumero: integer;
+
+  procedure GuardarDadosComponente;
+  begin
+    vComponente := qryRequisicoesOSPcomponente.AsString;
+    vNumero := qryRequisicoesOSPnumero.AsInteger;
+    vTipo := qryRequisicoesOSPtipo.AsString;
+    vSaldo := qryRequisicoesOSPsaldo.AsFloat;
+  end;
+
+begin
+  GuardarDadosComponente;
+  GuardarRegistroAtual(qryRequisicoesOSP, true);
+  while true do
+  begin
+    if qryRequisicoesOSP.Locate('componenteorigem;numeroorigem;tipoorigem', VarArrayOf([vComponente, vNumero, vTipo]),[]) then
+    begin
+      qryRequisicoesOSP.Edit;
+      qryRequisicoesOSPquantidade.AsFloat := vSaldo;
+      qryRequisicoesOSP.post;
+      GuardarDadosComponente;
+    end
+    else
+      break;
+  end;
+
+  VoltarRegistroAtual(qryRequisicoesOSP);
+  qryRequisicoesOSP.Edit;
+end;
+
+end.

@@ -1,0 +1,1155 @@
+unit dmimprimeosp;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs, DB, Math,
+  //Terceiros
+  ZQuery, ZPgSqlQuery,
+  //Biblio
+  biblio, ctconstantes, ctepson,
+  //Repositorio
+  dmbasico, dmtecsoft,
+  //Componentes
+  cpquery, clecf, terminal, ZTransact, cpdatasource;
+
+type
+  TdtmImprimeOsp = class(TdtmBasico)
+    qryOsp: TtecQuery;
+    qryProdutosCompostos: TtecQuery;
+    qryProdutosCompostoscomposto: TLargeintField;
+    qryProdutosCompostosdescricao: TStringField;
+    qryProdutosCompostoscomponente: TLargeintField;
+    qryProdutosCompostosquantidade: TFloatField;
+    qryProdutosCompostospreco: TFloatField;
+    qryClientesProdutos: TtecQuery;
+    qryClientesProdutoscliente: TIntegerField;
+    qryClientesProdutostipocliente: TStringField;
+    qryClientesProdutosproduto: TLargeintField;
+    qryClientesProdutosproduto_cliente: TStringField;
+    qryClientesProdutosfinalidade: TStringField;
+    qryClientesProdutospn: TIntegerField;
+    qryClientesProdutosorigem: TStringField;
+    qryFluxogramasOperacoes: TtecQuery;
+    qryListaComponentes: TtecQuery;
+    qryListaComponentesqtde1: TStringField;
+    qryListaComponentesdescricao1: TStringField;
+    qryListaComponentesqtde2: TStringField;
+    qryListaComponentesdescricao2: TStringField;
+    qryListaComponentesqtde3: TStringField;
+    qryListaComponentesdescricao3: TStringField;
+    qryListaComponentesqtde4: TStringField;
+    qryListaComponentesdescricao4: TStringField;
+    qryListaComponentesqtde5: TStringField;
+    qryListaComponentesdescricao5: TStringField;
+    qryListaComponentesqtde6: TStringField;
+    qryListaComponentesdescricao6: TStringField;
+    qryListaComponentesqtde7: TStringField;
+    qryListaComponentesdescricao7: TStringField;
+    qryListaComponentesqtde8: TStringField;
+    qryListaComponentesdescricao8: TStringField;
+    qryListaComponentesqtde9: TStringField;
+    qryListaComponentesdescricao9: TStringField;
+    qryListaComponentesqtde10: TStringField;
+    qryListaComponentesdescricao10: TStringField;
+    qryListaComponentesqtde11: TStringField;
+    qryListaComponentesdescricao11: TStringField;
+    qryListaComponentesqtde12: TStringField;
+    qryListaComponentesdescricao12: TStringField;
+    qryListaComponentesqtde13: TStringField;
+    qryListaComponentesdescricao13: TStringField;
+    qryListaComponentesdados1: TStringField;
+    qryListaComponentesdados2: TStringField;
+    qryListaComponentesdados3: TStringField;
+    qryListaComponentesdados4: TStringField;
+    qryListaComponentesdados5: TStringField;
+    qryProdutosCompostosunidade: TStringField;
+    qryOspnumero: TIntegerField;
+    qryOspentrega: TDateField;
+    qryOspsemanafabr: TFloatField;
+    qryOspanofabr: TStringField;
+    qryOspano: TStringField;
+    qryOspprioridade: TIntegerField;
+    qryOspobservacoes: TStringField;
+    qryOspdadosmarcacao: TStringField;
+    qryOspproduto: TLargeintField;
+    qryOspdata: TDateField;
+    qryOspcliente: TIntegerField;
+    qryOspnomecliente: TStringField;
+    qryOsppedidocliente: TStringField;
+    qryOspquantidade: TFloatField;
+    qryOspquantidade_anterior: TFloatField;
+    qryOsppreco: TFloatField;
+    qryOspprodutovisual: TStringField;
+    qryOspcaracteristica: TLargeintField;
+    qryOspcaracteristicavisual: TStringField;
+    qryOspproduto_cliente: TStringField;
+    qryOspfluxograma: TIntegerField;
+    qryOsploteproducao: TIntegerField;
+    qryOspunidade: TStringField;
+    qryOspapelido: TStringField;
+    qrySetupOperacoes: TtecQuery;
+    qrySetupOperacoesnumero: TIntegerField;
+    qrySetupOperacoesoperacao: TIntegerField;
+    qrySetupOperacoessequencia: TIntegerField;
+    qrySetupOperacoescliente: TIntegerField;
+    qryDescricaoOperacoes: TtecQuery;
+    qrySetupOperacoesnome: TStringField;
+    qryOperacoesSetup: TtecQuery;
+    qrySetupOperacoesdatasetup: TStringField;
+    qryOperacoesSetupoperacao: TIntegerField;
+    qrySetupOperacoesid01: TStringField;
+    qrySetupOperacoesid02: TStringField;
+    qrySetupOperacoesid03: TStringField;
+    qryFluxogramasOperacoesfluxograma: TIntegerField;
+    qryFluxogramasOperacoesoperacao: TIntegerField;
+    qryFluxogramasOperacoesnome: TStringField;
+    qryFluxogramasOperacoesdescricao: TStringField;
+    qryFluxogramasOperacoesid01: TStringField;
+    qryFluxogramasOperacoesid02: TStringField;
+    qryFluxogramasOperacoesid03: TStringField;
+    qryFluxogramasOperacoestempopadrao: TFloatField;
+    qryFluxogramasOperacoessetup: TStringField;
+    qryFluxogramasOperacoesplanocontrole: TStringField;
+    qryOspsemana: TStringField;
+    qryFluxogramasOperacoessequencia: TStringField;
+    qryOspnumerolote: TIntegerField;
+    qryOspquantidadelote: TFloatField;
+    qryFios: TtecQuery;
+    qryListaFioseFitas: TtecQuery;
+    qryListaFioseFitasobslinha1: TStringField;
+    qryListaFioseFitasobslinha2: TStringField;
+    qryListaFioseFitasreferencia2: TStringField;
+    qryListaFioseFitasvoltas2: TStringField;
+    qryListaFioseFitasresistividade2: TStringField;
+    qryListaFioseFitasobslinha3: TStringField;
+    qryListaFioseFitasobslinha4: TStringField;
+    qryListaFioseFitasreferencia4: TStringField;
+    qryListaFioseFitasvoltas4: TStringField;
+    qryListaFioseFitasresistividade4: TStringField;
+    qryListaFioseFitasobslinha5: TStringField;
+    qryListaFioseFitasobslinha6: TStringField;
+    qryListaFioseFitasreferencia6: TStringField;
+    qryListaFioseFitasvoltas6: TStringField;
+    qryListaFioseFitasresistividade6: TStringField;
+    qryListaFioseFitasobslinha7: TStringField;
+    qryListaFioseFitasobslinha8: TStringField;
+    qryListaFioseFitasreferencia8: TStringField;
+    qryListaFioseFitasvoltas8: TStringField;
+    qryListaFioseFitasresistividade8: TStringField;
+    qryControleProcesso: TtecQuery;
+    qryOperacoesProcesso: TtecQuery;
+    qryOperacoesProcessooperacao: TIntegerField;
+    qryDescricaoOperacoesdescricaosetup: TStringField;
+    qrySetupOperacoesdescricao: TStringField;
+    qrySetupOperacoespergunta: TStringField;
+    qrySetupOperacoesresposta: TStringField;
+    qrySetupOperacoesusuariosetup: TIntegerField;
+    qrySetupOperacoesnomeusuariosetup: TStringField;
+    qryFitas: TtecQuery;
+    qryFioscomposto: TLargeintField;
+    qryFioscomponente: TStringField;
+    qryFiosordem: TIntegerField;
+    qryFiosbitola: TStringField;
+    qryFiosliga: TStringField;
+    qryFiosnrvoltas: TIntegerField;
+    qryFiosgramasporpeca: TFloatField;
+    qryFiosresistividade: TFloatField;
+    qryFiostolerancia: TIntegerField;
+    qryFitascomposto: TLargeintField;
+    qryFitascomponente: TStringField;
+    qryFitasordem: TIntegerField;
+    qryFitasespessura: TStringField;
+    qryFitaslargura: TStringField;
+    qryFitasliga: TStringField;
+    qryFitasnrvoltas: TIntegerField;
+    qryFitasgramasporpeca: TFloatField;
+    qryProdutosCompostoscodigovisual: TStringField;
+    qryOsppn: TIntegerField;
+    qryOsporigem: TStringField;
+    qryOsprevisao: TStringField;
+    qryOsppartnumber: TStringField;
+    qryListaFioseFitasquantidade2: TStringField;
+    qryListaFioseFitasquantidade4: TStringField;
+    qryListaFioseFitasquantidade6: TStringField;
+    qryListaFioseFitasquantidade8: TStringField;
+    qryListaFioseFitastolerancia2: TStringField;
+    qryListaFioseFitastolerancia4: TStringField;
+    qryListaFioseFitastolerancia6: TStringField;
+    qryListaFioseFitastolerancia8: TStringField;
+    qryListaDescricao: TtecQuery;
+    qrySetupOperacoesproduto_cliente: TStringField;
+    qryListaDescricaodescricao1: TStringField;
+    qryListaDescricaodescricao2: TStringField;
+    qryListaDescricaodescricao3: TStringField;
+    qryListaDescricaodescricao4: TStringField;
+    qryListaDescricaodescricao5: TStringField;
+    qryListaDescricaodescricao6: TStringField;
+    qryListaDescricaodescricao7: TStringField;
+    qryListaDescricaodescricao8: TStringField;
+    qryListaDescricaodescricao9: TStringField;
+    qryListaDescricaodescricao10: TStringField;
+    qryListaDescricaodescricao11: TStringField;
+    qryControleProcessonumero: TIntegerField;
+    qryControleProcessonome: TStringField;
+    qryControleProcessoc1: TStringField;
+    qryControleProcessoc2: TStringField;
+    qryControleProcessoc3: TStringField;
+    qryControleProcessodescricao: TStringField;
+    qryControleProcessotolerancia: TStringField;
+    qryControleProcessotecnica: TStringField;
+    qryControleProcessotamanho: TIntegerField;
+    qryControleProcessofrequencia: TStringField;
+    qryControleProcessoproduto_cliente: TStringField;
+    qryListaControleProcesso: TtecQuery;
+    qryListaControleProcessotolerancia1: TStringField;
+    qryListaControleProcessotolerancia2: TStringField;
+    qryListaControleProcessotolerancia3: TStringField;
+    qryListaControleProcessotolerancia4: TStringField;
+    qryListaControleProcessotecnica1: TStringField;
+    qryListaControleProcessotecnica2: TStringField;
+    qryListaControleProcessotecnica3: TStringField;
+    qryListaControleProcessotecnica4: TStringField;
+    qryListaControleProcessonumero: TIntegerField;
+    qryListaControleProcessonome: TStringField;
+    qryListaControleProcessoc1: TStringField;
+    qryListaControleProcessoc2: TStringField;
+    qryListaControleProcessoc3: TStringField;
+    qryListaControleProcessodescricao: TStringField;
+    qryListaControleProcessotamanho: TIntegerField;
+    qryListaControleProcessofrequencia: TStringField;
+    qryOsptipocliente: TStringField;
+    procedure qryOspCalcFields(DataSet: TDataSet);
+  private
+    { Private declarations }
+  protected
+    procedure ObterDadosOSP(OSP, Lote: Integer);
+    procedure ObterDadosSetup(OSP, Operacao: integer; UsuarioSetup: integer = 0; NomeUsuarioSetup: String = ''); overload;
+
+    procedure ObterDadosControleProcesso(OSP, Operacao: integer);
+
+    procedure MontarLinhasObservacoesOSP;
+    procedure MontarLinhasObservacoes;
+    procedure MontarGradeFioseFitas;
+    procedure MontarGradeProdutosCompostos;
+    procedure MontarLinhasDescricaoSetUp;
+    procedure MontarLinhasPlanoControle;
+    
+  public
+    function MensagemImpressao(MSG: String): Boolean;
+    function ImprimirOSP(OSP, Lote: Integer; Impressora: String = ''): Boolean;
+
+    function ImpressaoSetup(OSP : Integer; Impressora: String = ''):Boolean; overload;
+    function ImpressaoSetup(OSP, Operacao, UsuarioSetup : Integer; NomeUsuarioSetup: String; Impressora: String = ''):Boolean; overload;
+    function ImprimirSetup(Osp, Operacao: Integer;Impressora: String = ''): Boolean;
+
+    function ImpressaoControleProcesso(OSP : Integer; Impressora: String = ''):Boolean; overload;
+    function ImpressaoControleProcesso(OSP, Operacao : Integer; Impressora: String = ''):Boolean; overload;
+    function ImprimirControleProcesso(Impressora : String = ''): Boolean;
+
+    { Public declarations }
+  end;
+
+
+const
+
+     ConfigurarOSP = '<lp6><pl>78</pl><pp>20</pp><vl>4</vl>';
+     CabecalhoOSP = '<i>2</i><sp>(72)</sp><fsemanafabr>(2R)</f><sp>(4)</sp><fanofabr>(2R)</f><sbl><sbl>'+
+                 '<sp>(9)</sp><fprodutovisual>(33C)</f><sp>(1)</sp><fnomecliente>(15)</f><sp>(14)</sp><fsemana>(2R)</f><sp>(4)</sp><fano>(2R)</f>'+
+                 '<sbl><sbl><sbl>'+
+                 '<fnumero>(8C)</f>'+
+{                 '<fm>(%6.3f)<fquantidade>(6R)</f></fm>'+
+                 '<fm>(%6.3f)<fquantidadelote>(7R)</f></fm>'+}
+                 '<fquantidade>(8R)</f>'+
+                 '<fquantidadelote>(7R)</f>'+
+                 '<fnumerolote>(5C)</f>'+
+                 '<fpartnumber>(13C)</f>'+
+                 '<fproduto_cliente>(22C)</f>'+
+                 '<fpedidocliente>(16C)</f>';
+
+
+     obsVoltasOhmsOSP = '<i>09</i>'+
+                        {linha 1}
+                        '<sp>(29)</sp><fobslinha1>(50)</f><sbl>'+
+
+                        {linha 2}
+                        '<sp>(01)</sp><freferencia2>(9)</f>'+
+                        '<fvoltas2>(04R)</f><sp>(01)</sp>'+
+                        '<fresistividade2>(7R)</f>'+
+                        '<ftolerancia2>(3R)</f><sp>(02)</sp>'+
+                        '<fquantidade2>(11R)</f><sp>(02)</sp>'+
+                        '<fobslinha2>(30)</f><sbl>'+
+
+                        {linha 3}
+                        '<sp>(29)</sp><fobslinha3>(50)</f><sbl>'+
+
+                        {linha 4}
+                        '<sp>(01)</sp><freferencia4>(9)</f>'+
+                        '<fvoltas4>(04R)</f><sp>(01)</sp>'+
+                        '<fresistividade4>(7R)</f>'+
+                        '<ftolerancia4>(3R)</f><sp>(02)</sp>'+
+                        '<fquantidade4>(11R)</f><sp>(02)</sp>'+
+                        '<fobslinha4>(30)</f><sbl>'+
+
+                        {linha 5}
+                        '<sp>(29)</sp><fobslinha5>(50)</f><sbl>'+
+
+                        {linha 6}
+                        '<sp>(01)</sp><freferencia6>(9)</f>'+
+                        '<fvoltas6>(04R)</f><sp>(01)</sp>'+
+                        '<fresistividade6>(7R)</f>'+
+                        '<ftolerancia6>(3R)</f><sp>(02)</sp>'+
+                        '<fquantidade6>(11R)</f><sp>(02)</sp>'+
+                        '<fobslinha6>(30)</f><sbl>'+
+
+                        {linha 7}
+                        '<sp>(29)</sp><fobslinha7>(50)</f><sbl>'+
+
+                        {linha 8}
+                        '<sp>(01)</sp><freferencia8>(9)</f>'+
+                        '<fvoltas8>(04R)</f><sp>(01)</sp>'+
+                        '<fresistividade8>(7R)</f>'+
+                        '<ftolerancia8>(3R)</f><sp>(02)</sp>'+
+                        '<fquantidade8>(11R)</f><sp>(02)</sp>'+
+                        '<fobslinha8>(30)</f>';
+
+     ObsListaComponentesOSP = '<i>19</i>'+
+                              '<sp>(26)</sp><fdados1>(21)</f><sbl>'+
+                              '<sp>(26)</sp><fdados2>(21)</f><sbl>'+
+                              '<sp>(26)</sp><fdados3>(21)</f><sp>(2)</sp><fqtde1>(9R)</f><sp>(2)</sp><fdescricao1>(20L)</f><sbl>'+
+                              '<sp>(26)</sp><fdados4>(21)</f><sp>(2)</sp><fqtde2>(9R)</f><sp>(2)</sp><fdescricao2>(20L)</f><sbl>'+
+                              '<sp>(26)</sp><fdados5>(21)</f><sp>(2)</sp><fqtde3>(9R)</f><sp>(2)</sp><fdescricao3>(20L)</f><sbl>'+
+
+                              '<sp>(49)</sp><fqtde4>(9R)</f><sp>(2)</sp><fdescricao4>(20L)</f><sbl>'+
+                              '<sp>(49)</sp><fqtde5>(9R)</f><sp>(2)</sp><fdescricao5>(20L)</f><sbl>'+
+
+                              '<sp>(49)</sp><fqtde6>(9R)</f><sp>(2)</sp><fdescricao6>(20L)</f><sbl>'+
+                              '<sp>(49)</sp><fqtde7>(9R)</f><sp>(2)</sp><fdescricao7>(20L)</f><sbl>'+
+                              '<sp>(49)</sp><fqtde8>(9R)</f><sp>(2)</sp><fdescricao8>(20L)</f><sbl>'+
+                              '<sp>(49)</sp><fqtde9>(9R)</f><sp>(2)</sp><fdescricao9>(20L)</f><sbl>'+
+                              '<sp>(49)</sp><fqtde10>(9R)</f><sp>(2)</sp><fdescricao10>(20L)</f><sbl>'+
+                              '<sp>(49)</sp><fqtde11>(9R)</f><sp>(2)</sp><fdescricao11>(20L)</f><sbl>'+
+                              '<sp>(49)</sp><fqtde12>(9R)</f><sp>(2)</sp><fdescricao12>(20L)</f><sbl>'+
+                              '<sp>(49)</sp><fqtde13>(9R)</f><sp>(2)</sp><fdescricao13>(20L)</f>';
+
+     OperacoesOSP = '<i>37</i>'+
+                 '<sp>(1)</sp><fnome>(11)</f><fid01>(2L)</f><fid02>(2L)</f><fid03>(2L)</f><sp>(1)</sp><ftempopadrao>(7R)</f>'+
+                 '<sp>(1)</sp><fsetup>(1)</f><sp>(1)</sp><fplanocontrole>(1)</f><sbl><sbl>';
+
+     ConfigurarSetup = '<lp6><pl>36</pl><pp>12</pp><vl>1</vl>';
+
+     CabecalhoSetup = '<i>2</i><sp>(63)</sp><fnome>(10L)</f><sp>(1)</sp><fid01>(2L)</f><fid02>(2L)</f><fid03>(2L)</f><sbl><sbl>'+
+                      '<sp>(18)</sp><ex><fnumero>(6R)</f></ex><sp>(04)</sp><fdescricao>(45C)</f>';
+
+{    ListaSetup = '<i>6</i><sp>(2)</sp><cd><fpergunta>(112L)</f><sp>(09)</sp><fresposta>(30L)</f></cd><sbl>';  {30L estava 13L}
+     ListaSetup = '<i>6</i><fpergunta>(56)</f><sp>(10)</sp><fresposta>(14L)</f><sbl>';  {30L estava 13L}
+
+{     DescricaoOperacoes = '<i>19</i><sp>(01)</sp><m>(10,78)<fdescricaosetup>(78)</f></m>';}
+{     DescricaoOperacoes = '<i>19</i><m>(1,156)<fdescricaosetup>(1716)</f></m>';}
+     DescricaoOperacoes = '<i>19</i>'+
+                          '<fdescricao1>(80L)</f><sbl>'+
+                          '<fdescricao2>(80L)</f><sbl>'+
+                          '<fdescricao3>(80L)</f><sbl>'+
+                          '<fdescricao4>(80L)</f><sbl>'+
+                          '<fdescricao5>(80L)</f><sbl>'+
+                          '<fdescricao6>(80L)</f><sbl>'+
+                          '<fdescricao7>(80L)</f><sbl>'+
+                          '<fdescricao8>(80L)</f><sbl>'+
+                          '<fdescricao9>(80L)</f><sbl>'+
+                          '<fdescricao10>(80L)</f><sbl>'+
+                          '<fdescricao11>(80L)</f><sbl><sbl>';
+
+     RodapeSetup = '<i>30</i><fproduto_cliente>(40C)</f><sbl><sbl>'+
+                   '<sp>(43)</sp><fusuariosetup>(3)</f><sp>(1)</sp><fnomeusuariosetup>(12)</f>'{<sbl><sbl><sbl><sbl>'};
+
+     ConfigurarControleProcesso = '<lp6><pl>36</pl><pp>4</pp><vl>1</vl>';
+
+     CabecalhoControleProcesso = '<i>2</i><sp>(63)</sp><fnome>(10L)</f><sp>(1)</sp><fc1>(2L)</f><fc2>(2L)</f><fc3>(2L)</f><sbl><sbl>'+
+                      '<sp>(18)</sp><ex><fnumero>(6R)</f></ex><sp>(04)</sp><fdescricao>(45C)</f>';
+
+     ListaControleProcesso = '<i>8</i>'+
+                             '<cd><ftolerancia1>(39L)</f></cd><sp>(01)</sp>'+
+                             '<cd><ftecnica1>(39)</f></cd><sp>(01)</sp>'+
+                             '<ftamanho>(6C)</f><sp>(01)</sp>'  +
+                             '<ffrequencia>(18C)</f><sbl>'+
+
+                             '<cd><ftolerancia2>(39L)</f></cd><sp>(01)</sp>'+
+                             '<cd><ftecnica2>(39L)</f></cd><sbl>'+
+
+                             '<cd><ftolerancia3>(39L)</f></cd><sp>(01)</sp>'+
+                             '<cd><ftecnica3>(39L)</f></cd><sbl>'+
+
+                             '<cd><ftolerancia4>(39L)</f></cd><sp>(01)</sp>'+
+                             '<cd><ftecnica4>(39L)</f></cd><sbl><sbl>';
+
+     RodapeControleProcesso = '<i>28</i><fproduto_cliente>(40C)</f><sbl><sbl><sbl>';
+
+
+
+
+
+var
+  dtmImprimeOsp: TdtmImprimeOsp;
+
+implementation
+Uses
+  //Biblio
+  clparametrossistema,
+  //Componentes
+  cltextprinter;
+
+{$R *.dfm}
+
+{ TdtmImprimeOsp }
+
+function TdtmImprimeOsp.ImpressaoControleProcesso(OSP: Integer;
+  Impressora: String): Boolean;
+begin
+  result := true;
+  RefazConsultaPorNome(qryOperacoesProcesso,['OSP'],[OSP]);
+  if qryOperacoesProcesso.RecordCount > 0 then
+  begin
+    qryOperacoesProcesso.First;
+    while not qryOperacoesProcesso.Eof do
+    begin
+      ObterDadosControleProcesso(OSP, qryOperacoesProcessooperacao.AsInteger);
+      if qryControleProcesso.RecordCount <> 0 then
+        result := ImprimirControleProcesso(Impressora);
+      if result then
+        qryOperacoesProcesso.next
+      else
+        break;
+    end;
+  end;
+
+end;
+
+function TdtmImprimeOsp.ImpressaoSetup(OSP: Integer; Impressora: String): Boolean;
+var Operacao: Integer;
+begin
+  result := true;
+  RefazConsultaPorNome(qryOperacoesSetup,['OSP'],[OSP]);
+  if qryOperacoesSetup.RecordCount > 0 then
+  begin
+    qryOperacoesSetup.First;
+    while not qryOperacoesSetup.Eof do
+    begin
+      Operacao:= qryOperacoesSetupoperacao.AsInteger;
+      ObterDadosSetup(OSP, Operacao);
+      if qrySetupOperacoes.RecordCount <> 0 then
+        result := ImprimirSetup(OSP,Operacao,Impressora);
+
+      if result then
+        qryOperacoesSetup.next
+      else
+        break;
+    end;
+  end;
+//  else
+//    MensagemAviso(format(ctNENHUMREGISTROENCONTRADO,['Registro']));
+end;
+
+function TdtmImprimeOsp.ImpressaoControleProcesso(OSP, 
+  Operacao: Integer;  Impressora: String): Boolean;
+begin
+  result := true;
+  ObterDadosControleProcesso(OSP, Operacao);
+  if qryControleProcesso.RecordCount <> 0 then
+    result := ImprimirControleProcesso(Impressora);
+end;
+
+function TdtmImprimeOsp.ImpressaoSetup(OSP, Operacao, UsuarioSetup: Integer;
+  NomeUsuarioSetup: String;  Impressora: String ): Boolean;
+begin
+  result := false;
+  ObterDadosSetup(OSP, Operacao, UsuarioSetup, NomeUsuarioSetup);
+  if qrySetupOperacoes.RecordCount <> 0 then
+    result := ImprimirSetup(OSP,Operacao,Impressora);
+end;
+
+function TdtmImprimeOsp.ImprimirControleProcesso(
+  Impressora: String): Boolean;
+var Pagina, QtdePaginas, ControleAux, ControlePag, Count: Integer;
+begin
+  try
+
+    if Impressora = '' then
+      NomeImpressoraEscolhida:= ParSistema.NomeImpressoraControleProcesso
+    else
+      NomeImpressoraEscolhida:= Impressora;
+
+    Pagina  := 1;
+    ControleAux:= 0;
+    Result  := true;
+
+    EPS_ON_CONDENSED:= EPS_15CPP;
+    with TextPrinter do
+    begin
+      BeginDoc(ConfigurarControleProcesso);
+      ControlePag      := ProductPerPage(ConfigurarControleProcesso);
+
+      if Pagina = 1 then
+        ControleAux := qryControleProcesso.RecordCount;
+
+      if (ControleAux <= ControlePag) then
+        QtdePaginas:= 1
+      else
+      begin
+        QtdePaginas := ControleAux div ControlePag;
+        if (ControleAux mod ControlePag) > 0 then
+          Inc(QtdePaginas);
+      end;
+
+      repeat
+        BandString:= CabecalhoControleProcesso;
+        BreakToLine;
+        WriteBand(qryControleProcesso.Fields);
+
+        if qryControleProcesso.RecordCount > 0 then
+        begin
+          BandString:= ListaControleProcesso;
+          BreakToLine;
+
+          if Pagina = 1 then
+            qryControleProcesso.First;
+
+          Count:= 0;
+          while not qryControleProcesso.Eof do begin
+            MontarLinhasPlanoControle;
+            WriteBand(qryListaControleProcesso.Fields);
+            qryControleProcesso.Next;
+            Inc(Count);
+            if Count >= ControlePag then
+              Break;
+          end;
+          qryControleProcesso.EnableControls;
+        end;
+
+        BandString:= RodapeControleProcesso;
+        BreakToLine;
+        WriteBand(qryControleProcesso.Fields);
+
+
+        {$IFNDEF LINUX}
+        if Pagina < QtdePaginas then
+          WriteTextln('',0);
+        {$ENDIF}
+        Inc(Pagina);
+      until Pagina > QtdePaginas;
+      EndDoc('TecLUX - Emissão de Controle de Processo');
+    end;
+    EPS_ON_CONDENSED:= EPS_20CPP;
+
+  except
+    on E: Exception do
+    begin
+      ShowMessage(E.Message);
+      result := false;
+    end;
+  end;
+
+end;
+
+function TdtmImprimeOsp.ImprimirOSP(OSP, Lote: Integer; Impressora: String): Boolean;
+var Pagina, QtdePaginas, FluxoAux, FluxPag, ProdPag, Count: Integer;
+begin
+  try
+    if Impressora = '' then
+      NomeImpressoraEscolhida:= ParSistema.NomeImpressoraOSP
+    else
+      NomeImpressoraEscolhida:= Impressora;
+
+    ProdPag := 20;
+
+    Pagina  := 1;
+    FluxoAux:= 0;
+    Result  := true;
+
+    ObterDadosOSP(OSP, Lote);
+
+    with TextPrinter do
+    begin
+      BeginDoc(ConfigurarOSP);
+      FluxPag      := ProductPerPage(ConfigurarOSP);
+
+      if Pagina = 1 then
+      begin
+        qryFluxogramasOperacoes.DisableControls;
+        GuardarRegistroAtual(qryFluxogramasOperacoes, True);
+        qryFluxogramasOperacoes.First;
+        while not qryFluxogramasOperacoes.Eof do
+        begin
+          inc(fluxoAux);
+          qryFluxogramasOperacoes.Next;
+        end;
+        VoltarRegistroAtual(qryFluxogramasOperacoes);
+        qryFluxogramasOperacoes.EnableControls;
+      end;
+
+      if (FluxoAux <= FluxPag) then
+        QtdePaginas:= 1
+      else
+      begin
+        QtdePaginas:= FluxoAux div FluxPag;
+        if (FluxoAux mod FluxPag) > 0 then
+          Inc(QtdePaginas);
+      end;
+
+      repeat
+        BandString:= CabecalhoOSP;
+        BreakToLine;
+        WriteBand(qryOsp.Fields);
+
+        MontarGradeFioseFitas;
+        MontarLinhasObservacoesOSP;
+        BandString:= obsVoltasOhmsOSP;
+        BreakToLine;
+        WriteBand(qryListaFioseFitas.Fields);
+
+        MontarLinhasObservacoes;
+        MontarGradeprodutosCompostos;
+        BandString:= ObsListaComponentesOSP;
+        BreakToLine;
+        WriteBand(qryListaComponentes.Fields);
+
+        if qryFluxogramasOperacoes.RecordCount > 0 then
+        begin
+          BandString:= OperacoesOSP;
+          BreakToLine;
+          qryFluxogramasOperacoes.DisableControls;
+          if Pagina = 1 then
+            qryFluxogramasOperacoes.First;
+          Count:= 0;
+          while not qryFluxogramasOperacoes.Eof do
+          begin
+            WriteBand(qryFluxogramasOperacoes.Fields);
+            qryFluxogramasOperacoes.Next;
+            Inc(Count);
+            if Count >= ProdPag then
+              Break;
+          end;
+          qryFluxogramasOperacoes.EnableControls;
+        end;
+
+        FormFeed;
+
+        {$IFNDEF LINUX}
+        if Pagina < QtdePaginas then
+        begin
+          WriteTextln('',0);
+          WriteTextln('',0);
+        end;
+        {$ENDIF}
+
+        Inc(Pagina);
+      until Pagina > QtdePaginas;
+      EndDoc('TecLUX - Emissão de OSP');
+    end;
+  except
+    on E: Exception do
+    begin
+      ShowMessage(E.Message);
+      result := false;
+    end;
+  end;
+end;
+
+function TdtmImprimeOsp.ImprimirSetup(Osp, Operacao: Integer; Impressora: String): Boolean;
+var Pagina, QtdePaginas, SetupAux, SetupPag, Count: Integer;
+begin
+  try
+
+    if Impressora = '' then
+      NomeImpressoraEscolhida:= ParSistema.NomeImpressoraSetupProcesso
+    else
+      NomeImpressoraEscolhida:= Impressora;
+
+    Pagina  := 1;
+    SetupAux:= 0;
+    Result  := true;
+
+    with TextPrinter do
+    begin
+      BeginDoc(ConfigurarSetup);
+      SetupPag      := ProductPerPage(ConfigurarSetup);
+
+      if Pagina = 1 then
+      begin
+        qrySetupOperacoes.DisableControls;
+        GuardarRegistroAtual(qrySetupOperacoes, True);
+        qrySetupOperacoes.First;
+        while not qrySetupOperacoes.Eof do
+        begin
+          inc(SetupAux);
+          qrySetupOperacoes.Next;
+        end;
+        VoltarRegistroAtual(qrySetupOperacoes);
+        qrySetupOperacoes.EnableControls;
+      end;
+
+      if (SetupAux <= SetupPag) then
+        QtdePaginas:= 1
+      else
+      begin
+        QtdePaginas:= SetupAux div SetupPag;
+        if (SetupAux mod SetupPag) > 0 then
+          Inc(QtdePaginas);
+      end;
+
+      repeat
+        BandString:= CabecalhoSetup;
+        BreakToLine;
+        WriteBand(qrySetupOperacoes.Fields);
+
+        if qrySetupOperacoes.RecordCount > 0 then
+        begin
+          BandString:= ListaSetup;
+          BreakToLine;
+          qrySetupOperacoes.DisableControls;
+          if Pagina = 1 then
+            qrySetupOperacoes.First;
+          Count:= 0;
+          while not qrySetupOperacoes.Eof do
+          begin
+            WriteBand(qrySetupOperacoes.Fields);
+            qrySetupOperacoes.Next;
+            Inc(Count);
+            if Count >= SetupPag then
+              Break;
+          end;
+          qrySetupOperacoes.EnableControls;
+        end;
+
+        MontarLinhasDescricaoSetUp;
+        BandString:= DescricaoOperacoes;
+        BreaktoLine;
+        WriteBand(qryListaDescricao.Fields);
+
+        BandString:= RodapeSetup;
+        BreakToLine;
+        WriteBand(qrySetupOperacoes.Fields);
+
+        FormFeed;
+
+        {$IFNDEF LINUX}
+        if Pagina < QtdePaginas then
+          WriteTextln('',0);
+        {$ENDIF}
+        Inc(Pagina);
+      until Pagina > QtdePaginas;
+      EndDoc('TecLUX - Emissão de SET-UP de Processo');
+    end;
+
+  except
+    on E: Exception do
+    begin
+      ShowMessage(E.Message);
+      result := false;
+    end;
+  end;
+
+end;
+
+
+function TdtmImprimeOsp.MensagemImpressao(MSG: String): Boolean;
+begin
+  Result:= False;
+  if MensagemSimNaoOpcaoCancelar(Format(ctMENSAGEMIMPRIMIR,[MSG]),'',false) = mryes then
+  begin
+    MensagemAviso('Troque o Formulário na Impressora.');
+    Result:= True;
+  end;
+end;
+
+procedure TdtmImprimeOsp.MontarGradeFioseFitas;
+var n, m: Integer;
+    PesoFio: Real;
+begin
+  n:= 2;
+  m := 1;
+
+  if qryListaFioseFitas.Active
+  then qryListaFioseFitas.Close;
+
+  qryListaFioseFitas.Open;
+  qryListaFioseFitas.Delete;
+
+  qryFios.First;
+  while not qryFios.Eof do
+  begin
+    qryListaFioseFitas.Edit;
+    qryListaFioseFitas.FieldByName('referencia'+inttostr(n)).AsString:= qryFioscomponente.AsString;
+    qryListaFioseFitas.FieldByName('voltas'+inttostr(n)).AsString:= qryFiosnrvoltas.AsString;
+    qryListaFioseFitas.FieldByName('resistividade'+inttostr(n)).AsString:= FormatFloat('##0.000',qryFiosresistividade.AsFloat);
+    qryListaFioseFitas.FieldByName('tolerancia'+inttostr(n)).AsString:= FormatFloat('##0',qryFiosTolerancia.AsFloat);
+    PesoFio:= qryFiosGramasPorPeca.AsFloat * qryOspQuantidade.AsFloat / 1000.;
+    qryListaFioseFitas.FieldByName('quantidade'+inttostr(n)).AsString:= FormatFloat('##0.0000',PesoFio);
+    qryListaFioseFitas.Post;
+    qryFios.Next;
+    inc(m);
+    inc(n);
+    inc(n); {imprime nas linhas 2 4 6 8}
+    if m = 5 then
+      break;
+  end;
+
+  if m <= 4 then
+  begin
+
+    qryFitas.First;
+    while not qryFitas.Eof do
+    begin
+      qryListaFioseFitas.Edit;
+      qryListaFioseFitas.FieldByName('referencia'+inttostr(n)).AsString:= qryFitascomponente.AsString;
+      qryListaFioseFitas.FieldByName('voltas'+inttostr(n)).AsString:= qryFitasnrvoltas.AsString;
+      qryListaFioseFitas.FieldByName('resistividade'+inttostr(n)).AsString:= ''{FormatFloat('##0.000',qryFitastolerancia.AsFloat)};
+      qryListaFioseFitas.Post;
+      qryFitas.Next;
+      inc(m);
+      inc(n);
+      inc(n); {imprime nas linhas 2 4 6 8}
+
+      if m = 5 then
+        break;
+    end;
+
+  end;
+
+end;
+
+procedure TdtmImprimeOsp.MontarGradeProdutosCompostos;
+var n: Integer;
+begin
+  n:= 1;
+  qryProdutosCompostos.DisableControls;
+  qryProdutosCompostos.First;
+  while not qryProdutosCompostos.Eof do
+  begin
+    qryListaComponentes.Edit;
+    if uppercase(qryProdutosCompostosunidade.AsString) = 'MIL' then
+      qryListaComponentes.FieldByName('qtde'+inttostr(n)).AsString:= FormatFloat('###,###,##0.000',qryProdutosCompostosquantidade.AsFloat)+' '+'PC'
+    else
+      qryListaComponentes.FieldByName('qtde'+inttostr(n)).AsString:= FormatFloat('###,###,##0.000',qryProdutosCompostosquantidade.AsFloat)+' '+
+                                                                     qryProdutosCompostosunidade.AsString;
+
+    qryListaComponentes.FieldByName('descricao'+inttostr(n)).AsString:= qryProdutosCompostoscodigovisual.AsString{+' - '+qryProdutosCompostosdescricao.AsString};
+    qryListaComponentes.Post;
+    qryProdutosCompostos.Next;
+    inc(n);
+  end;
+  qryProdutosCompostos.EnableControls;
+end;
+
+procedure TdtmImprimeOsp.MontarLinhasObservacoes;
+var I,J, Inicio, Fim, Espaco: integer;
+    vQuebraLinha, vQuebraLinhaeTamanho : vString;
+    vTexto, vTextoAux : String;
+begin
+
+  vQuebraLinha := nil;
+
+  {quebrar os enters}
+  if Length(qryOspdadosmarcacao.AsString) > 0 then
+  begin
+    if pos(#13, qryOspdadosmarcacao.AsString) = 0 then
+    begin
+      SetLength(vQuebraLinha, length(vQuebraLinha)+1);
+      vQuebraLinha[0] := qryOspdadosmarcacao.AsString;
+    end
+    else
+    begin
+      I := 0;
+      vTexto := qryOspdadosmarcacao.AsString;
+      while (vTexto <> '') do
+      begin
+        SetLength(vQuebraLinha, length(vQuebraLinha)+1);
+        Inicio := 1;
+        Fim := pos(#13, vTexto);
+
+        if Fim = 0 then begin
+           Fim := length(vTexto);
+           vTextoAux := copy(vTexto, Inicio, Fim);
+        end
+        else vTextoAux := copy(vTexto, Inicio, Fim-1);
+        vQuebraLinha[i] := vTextoAux;
+        inc(i);
+        vTexto := copy(vTexto, Fim+2, length(vTexto));
+      end;
+    end;
+  end;
+
+  J := 0;
+
+  for i:=0 to length(vQuebraLinha)-1 do
+  begin
+    if vQuebraLinha[i] = '' then
+    begin
+      SetLength(vQuebraLinhaeTamanho, length(vQuebraLinhaeTamanho)+1);
+      vQuebraLinhaeTamanho[j] := '';
+      inc(j);
+    end
+    else
+    begin
+      Inicio:= 0;
+      Espaco:= 21;
+      Fim:= Espaco;
+      vTexto := Copy(vQuebraLinha[i],(Inicio+1),Fim);
+      while vTexto <> '' do
+      begin
+        SetLength(vQuebraLinhaeTamanho, length(vQuebraLinhaeTamanho)+1);
+        vQuebraLinhaeTamanho[j] := vTexto;
+        Inicio:= Inicio +(Espaco+1);
+        if (Length(vQuebraLinha[i])>(FIM+Espaco)) then
+          Fim:= Fim+Espaco
+        else
+          Fim:= Fim+(Length(vQuebraLinha[i])-Espaco);
+        vTexto := Copy(vQuebraLinha[i],(Inicio),Fim);
+        inc(j);
+      end;
+    end;
+  end;
+
+  if qryListaComponentes.active then
+    qryListaComponentes.close;
+
+  qryListaComponentes.Open;
+  qryListaComponentes.delete;
+
+  for i:=0 to length(vQuebraLinhaeTamanho)-1 do
+  begin
+    if i > 4 then
+      break;
+    qryListaComponentes.Edit;
+    qryListaComponentes.FieldByName(('dados'+inttostr(i+1))).AsString := vQuebraLinhaeTamanho[i];
+    qryListaComponentes.Post;
+  end;
+
+end;
+
+procedure TdtmImprimeOsp.MontarLinhasObservacoesOSP;
+const
+  Fim = 50;
+var I, Inicio: integer;
+begin
+  I:= 1;
+  Inicio:= 1;
+  if Length(qryOspobservacoes.AsString) > 0 then
+  begin
+    while  i <= 8 do
+    begin
+      qryListaFioseFitas.edit;
+      if Copy(qryOspobservacoes.AsString,Inicio,Fim)<> '' then
+        qryListaFioseFitas.FieldByName(('obslinha'+inttostr(i))).AsString:= Copy(qryOspobservacoes.AsString,Inicio,Fim)
+      else
+        qryListaFioseFitas.FieldByName(('obslinha'+inttostr(i))).AsString:= '';
+
+      qryListaFioseFitas.Post;
+
+      Inicio:= Inicio + fim ;
+
+      inc(i);
+    end;
+  end;
+end;
+
+procedure TdtmImprimeOsp.ObterDadosControleProcesso(OSP, Operacao: integer);
+begin
+  RefazConsultaPorNome(qryControleProcesso,['OSP','Operacao'],
+                                           [OSP, Operacao]);
+end;
+
+procedure TdtmImprimeOsp.ObterDadosOSP(OSP, Lote: Integer);
+begin
+  RefazConsultaporNome(qryOsp,['numero', 'numerolote'],[OSP, Lote]);
+
+  if qryOspnumero.AsInteger > 0 then
+  begin
+    RefazConsultaPorNome(qryClientesProdutos,    ['cliente','tipocliente','produto'],[qryOspcliente.AsVariant, qryOsptipocliente.AsVariant, qryOspproduto.AsVariant]);
+    RefazConsultaPorNome(qryProdutosCompostos,   ['composto'],[qryOspproduto.AsVariant]);
+    RefazConsultaPorNome(qryFios,          ['composto'],[qryOspproduto.AsVariant]);
+    RefazConsultaPorNome(qryFitas,          ['composto'],[qryOspproduto.AsVariant]);
+    RefazConsultaPorNome(qryFluxogramasOperacoes,['fluxograma'],[qryOspfluxograma.AsVariant]);
+  end;
+end;
+
+procedure TdtmImprimeOsp.ObterDadosSetup(OSP, Operacao: integer; UsuarioSetup: integer = 0; NomeUsuarioSetup: String = '');
+begin
+  RefazConsultaPorNome(qrySetupOperacoes,['OSP','Operacao','UsuarioSetup','NomeUsuarioSetup'],
+                                         [OSP, Operacao, UsuarioSetup, NomeUsuarioSetup]);
+
+  RefazConsultaPorNome(qryDescricaoOperacoes,['Operacao'],[Operacao]);
+end;
+
+procedure TdtmImprimeOsp.qryOspCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  qryOsppartnumber.AsString := qryOsppn.AsString+'.'+qryOsporigem.AsString+'.'+qryOsprevisao.AsString;
+end;
+
+
+
+procedure TdtmImprimeOsp.MontarLinhasDescricaoSetUp;
+var I,J, Inicio, Fim, Espaco: integer;
+    vQuebraLinha, vQuebraLinhaeTamanho : vString;
+    vTexto, vTextoAux : String;
+begin
+
+  vQuebraLinha := nil;
+
+  {quebrar os enters}
+  if Length(qryDescricaoOperacoesdescricaosetup.AsString) > 0 then
+  begin
+    if pos(#13, qryDescricaoOperacoesdescricaosetup.AsString) = 0 then
+    begin
+      SetLength(vQuebraLinha, length(vQuebraLinha)+1);
+      vQuebraLinha[0] := qryDescricaoOperacoesdescricaosetup.AsString;
+    end
+    else
+    begin
+      I := 0;
+      vTexto := qryDescricaoOperacoesdescricaosetup.AsString;
+      while (vTexto <> '') do
+      begin
+        SetLength(vQuebraLinha, length(vQuebraLinha)+1);
+        Inicio := 1;
+        Fim := pos(#13, vTexto);
+
+        if Fim = 0 then begin
+          Fim := length(vTexto);
+          vTextoAux := copy(vTexto, Inicio, Fim);
+        end
+        else vTextoAux := copy(vTexto, Inicio, Fim-1);
+
+        vQuebraLinha[i] := vTextoAux;
+        inc(i);
+        vTexto := copy(vTexto, Fim+2, length(vTexto));
+      end;
+    end;
+  end;
+
+  J := 0;
+
+  for i:=0 to length(vQuebraLinha)-1 do
+  begin
+    if vQuebraLinha[i] = '' then
+    begin
+      SetLength(vQuebraLinhaeTamanho, length(vQuebraLinhaeTamanho)+1);
+      vQuebraLinhaeTamanho[j] := '';
+      inc(j);
+    end
+    else
+    begin
+      Inicio:= 0;
+      Espaco:= 80;
+      Fim:= Espaco;
+      vTexto := Copy(vQuebraLinha[i],(Inicio+1),Fim);
+      while vTexto <> '' do
+      begin
+        SetLength(vQuebraLinhaeTamanho, length(vQuebraLinhaeTamanho)+1);
+        vQuebraLinhaeTamanho[j] := vTexto;
+        Inicio:= Inicio +(Espaco+1);
+        if (Length(vQuebraLinha[i])>(FIM+Espaco)) then
+          Fim:= Fim+Espaco
+        else
+          Fim:= Fim+(Length(vQuebraLinha[i])-Espaco);
+        vTexto := Copy(vQuebraLinha[i],(Inicio),Fim);
+        inc(j);
+      end;
+    end;
+  end;
+
+  if qryListaDescricao.active then
+    qryListaDescricao.close;
+    
+  qryListaDescricao.Open;
+  qryListaDescricao.delete;
+
+  for i:=0 to length(vQuebraLinhaeTamanho)-1 do
+  begin
+    if i > 11 then
+      break;
+    qryListaDescricao.Edit;
+    qryListaDescricao.FieldByName(('descricao'+inttostr(i+1))).AsString := vQuebraLinhaeTamanho[i];
+    qryListaDescricao.Post;
+  end;
+end;
+
+procedure TdtmImprimeOsp.MontarLinhasPlanoControle;
+var Tolerancia: array[1..4] of String[100];
+    Tecnica:    array[1..4] of string[100];
+
+
+    {--------------------------------------------------------------------------}
+    Procedure QuebrarLinhas(var ParaOnde;
+                                DeOnde:   string;
+                                Tamanho:  integer);
+    var Linhas:   array[1..4] of string[100] absolute ParaOnde;
+        Original: string;
+        NL:       integer;
+
+    begin
+        Fillchar(Linhas,SizeOf(Linhas),0);
+        Original:= Copy(DeOnde, 1, 4 * Tamanho);
+        if Original <> '' then begin
+           NL:= 1;
+           while (NL <= 4) and (Length(Original) > 0) do begin
+               Original:= TrimLeft(Original);
+               if (Pos(#13, Original) = 0) or
+                  (Pos(#13, Original) > Tamanho) then begin
+                  Linhas[NL]:= Copy(Original,1,Tamanho);
+                  if (Length(Original) > Tamanho)        and
+                     (Copy(Original,Tamanho+1,1) <> ' ') and
+                     (Copy(Original,Tamanho+1,1) <> #13) and
+                     (Pos(' ', Linhas[NL]) > 1)
+                  then while (Length(Linhas[NL]) > 1) and
+                              (Linhas[NL][Length(Linhas[NL])] <> ' ') do
+                         Delete(Linhas[NL],Length(Linhas[NL]),1);
+                  Linhas[NL]:= TrimRight(Linhas[NL]);
+                  Delete(Original,1,Length(Linhas[NL]));
+               end
+               else begin
+                  Linhas[NL]:= Copy(Original, 1, Pos(#13, Original)-1);
+                  Delete(Original,1,Length(Linhas[NL])+2);   {2 = Length(#13#10}
+              end;
+              inc(NL);
+           end;
+       end;
+     end; {QuebrarLinhas}
+
+
+begin
+
+   QuebrarLinhas(Tolerancia, qryControleProcessoTolerancia.AsString, 39);
+   QuebrarLinhas(Tecnica,    qryControleProcessoTecnica.   AsString, 39);
+
+   if qryListaControleProcesso.active then
+     qryListaControleProcesso.close;
+
+   qryListaControleProcesso.Open;
+   qryListaControleProcesso.delete;
+
+   qryListaControleProcesso.Edit;
+   qryListaControleProcessoTolerancia1.AsString := Tolerancia[1];
+   qryListaControleProcessoTolerancia2.AsString := Tolerancia[2];
+   qryListaControleProcessoTolerancia3.AsString := Tolerancia[3];
+   qryListaControleProcessoTolerancia4.AsString := Tolerancia[4];
+
+   qryListaControleProcessoTecnica1.   AsString := Tecnica[1];
+   qryListaControleProcessoTecnica2.   AsString := Tecnica[2];
+   qryListaControleProcessoTecnica3.   AsString := Tecnica[3];
+   qryListaControleProcessoTecnica4.   AsString := Tecnica[4];
+
+   qryListaControleProcessoFrequencia. AsString := qryControleProcessoFrequencia.AsString;
+   if qryControleProcessotamanho.AsInteger > 0
+   then qryListaControleProcessoTamanho.AsInteger:= qryControleProcessotamanho.AsInteger
+   else qryListaControleProcessoTamanho.AsString := '';
+   qryListaControleProcesso.Post;
+end;
+
+
+
+end.
+
+
+
+

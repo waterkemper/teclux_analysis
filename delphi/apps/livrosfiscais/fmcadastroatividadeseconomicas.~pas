@@ -1,0 +1,134 @@
+unit fmcadastroatividadeseconomicas;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs, ExtCtrls, Buttons,
+  DBCtrls, StdCtrls, Mask, ComCtrls,
+  //Terceiros
+  ZQuery,
+  //Biblio
+  ctconstantes, biblio,
+  //Componentes
+  cpdbdata, cptexto, cpdbfindcontrols, cpnumero, cpdbtext,
+  //Repositorio
+  fmcadastropadrao, fmconsultabasica, fmconsultaporcampo,
+  //Projeto
+  cpdbmemo, cpdbradiogroup, ToolWin, Grids, DBGrids, cpdbgrid;
+
+type
+  TfrmCadastroAtividadesEconomicas = class(TfrmCadastroPadrao)
+    pnlFundoJanela: TPanel;
+    edfCodigoFiscal: TtecDbEditFind;
+    edtDescricao: TDBEditTexto;
+    gbxCodigo: TGroupBox;
+    gbxAtividade: TGroupBox;
+    gbxDescricao: TGroupBox;
+    gbxDenominacao: TGroupBox;
+    edtDenominacao: TDBEditTexto;
+    edtCodigoAtividade: TDBEditTexto;
+    gbxItem: TGroupBox;
+    dtxItem: TDBEditTexto;
+    gbxCNAEMunicipios: TGroupBox;
+    gbxSubItem: TGroupBox;
+    DBEditTexto1: TDBEditTexto;
+    dbgCNAEMunicipios: TtecDBGrid;
+  protected
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    function  InternoIncluir: Boolean; override;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function  TabelaDePesquisa: TZDataSet; override;
+  public
+    Constructor Create(AOwner: TComponent); override;
+    Destructor  Destroy; override;
+  end;
+
+var
+  frmCadastroAtividadesEconomicas: TfrmCadastroAtividadesEconomicas;
+  TipoPesquisa: TtecCadastroAtividadesEconomicas;
+
+implementation
+
+uses dmcadastroatividadeseconomicas;
+
+{$R *.dfm}
+
+{ TfrmCadastroCodigosFiscais }
+
+constructor TfrmCadastroAtividadesEconomicas.Create(AOwner: TComponent);
+begin
+  dtmCadastroAtividadesEconomicas := TdtmCadastroAtividadesEconomicas.Create(Self);
+  inherited;
+  dtmCadastroAtividadesEconomicas.Abre(ctTabelas);
+  DataSet := dtmCadastroAtividadesEconomicas.TabelaAtividadesEconomicas;
+  TipoPesquisa := atvNENHUMA;
+end;
+
+destructor TfrmCadastroAtividadesEconomicas.Destroy;
+begin
+  dtmCadastroAtividadesEconomicas := nil;
+  inherited;
+  frmCadastroAtividadesEconomicas := nil;
+end;
+
+function TfrmCadastroAtividadesEconomicas.ExisteInformacao(Parametro: Integer;
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+  case TipoPesquisa of
+    atvATIVIDADE: Result:= dtmCadastroAtividadesEconomicas.ExisteAtividadeEconomica(NomeCampo, Value)
+    else          Result:= False;
+  end;
+end;
+
+function TfrmCadastroAtividadesEconomicas.InternoExcluir: Boolean;
+begin
+  Result:= False;
+  if MensagemConfirmacao(Format(ctCONFIRMEEXCLUIR, [ctATIVIDADEECONOMICA])) = smbOK then begin
+    Result := inherited InternoExcluir;
+    if Result then
+      Result := dtmCadastroAtividadesEconomicas.ExcluirAtividadeEconomica
+  end
+end;
+
+function TfrmCadastroAtividadesEconomicas.InternoGravar: Boolean;
+begin
+   Result := dtmCadastroAtividadesEconomicas.GravarAtividadeEconomica
+end;
+
+function TfrmCadastroAtividadesEconomicas.InternoIncluir: Boolean;
+begin
+  Result := dtmCadastroAtividadesEconomicas.IncluirAtividadeEconomica
+end;
+
+function TfrmCadastroAtividadesEconomicas.InternoPesquisar(Titulo: String): Integer;
+begin
+  TipoPesquisa := atvATIVIDADE;
+  Titulo:= 'Atividades Econômicas.';
+  dtmCadastroAtividadesEconomicas.Abre(ctConsultaAtividadesEconomicas);
+  Result := inherited InternoPesquisar(Titulo);
+  if Result = mrOK then begin
+    if TipoPesquisa = atvATIVIDADE then
+      dtmCadastroAtividadesEconomicas.RefazConsultaAtividadesEconomicas;
+  end;
+  dtmCadastroAtividadesEconomicas.Fecha(ctConsultaAtividadesEconomicas);
+end;
+
+function TfrmCadastroAtividadesEconomicas.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa    := True;
+  TfrmConsultaPorCampo(Result).UsarParametrosDaTabela:= False;
+end;
+
+function TfrmCadastroAtividadesEconomicas.TabelaDePesquisa: TZDataSet;
+begin
+  case TipoPesquisa of
+    atvATIVIDADE: Result:= dtmCadastroAtividadesEconomicas.TabelaConsultaAtividadesEconomicas;
+    else          Result:= nil;
+  end;
+end;
+
+end.

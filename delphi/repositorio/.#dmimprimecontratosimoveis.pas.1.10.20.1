@@ -1,0 +1,735 @@
+unit dmimprimecontratosimoveis;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, fr_dset, fr_dbset, fr_class, DB,
+  cpdatasource, ZQuery, ZPgSqlQuery, cpquery, fmPreviewPadrao,
+  dmtecsoft, ZTransact, Biblio, ctconstantes, Dateutils, variants;
+
+Type T_ParcelasPagas = array of record
+       Tipo:   String;
+       Numero: Integer;
+       Origem: String;
+       Resultado: String;
+     end;
+type T_SeqParcelas = array of record
+       Tipo: String;
+       NI  : Integer;
+       OrI : String;
+       NF  : Integer;
+       OrF : String;
+       Seq : Boolean;
+     end;
+
+type
+  TdtmImprimeContratosImoveis = class(TdtmBasico)
+    qryContratos: TtecQuery;
+    dsrContratos: TtecDataSource;
+    dsrCompradores: TtecDataSource;
+    qryCompradores: TtecQuery;
+    qryCompradorescontrato: TIntegerField;
+    qryCompradorescliente: TIntegerField;
+    qryCompradoresnomecliente: TStringField;
+    qryCompradorespercentual: TFloatField;
+    qryCompradoresrepresentante: TIntegerField;
+    qryCompradoresnomerepresentante: TStringField;
+    qryCompradoresfiador: TIntegerField;
+    qryCompradoresnomefiador: TStringField;
+    qryCompradoresobservacoes: TStringField;
+    qryCompradorestipocliente: TStringField;
+    qryCompradorestiporepresentante: TStringField;
+    qryCompradorestipofiador: TStringField;
+    qryImoveisVendidos: TtecQuery;
+    qryImoveisVendidoscontrato: TIntegerField;
+    qryImoveisVendidosempreendimento: TStringField;
+    qryImoveisVendidosbloco: TIntegerField;
+    qryImoveisVendidosnomebloco: TStringField;
+    qryImoveisVendidosnumero: TStringField;
+    qryImoveisVendidosunidade: TIntegerField;
+    qryImoveisVendidostipounidade: TStringField;
+    qryImoveisVendidosobservacoes: TStringField;
+    qryImoveisVendidoscodigoempreendimento: TIntegerField;
+    qryImoveisVendidosprecovendido: TFloatField;
+    qryImoveisVendidospavimento: TStringField;
+    qryImoveisVendidossituacao: TStringField;
+    qryImoveisVendidosareaprivativa: TFloatField;
+    qryImoveisVendidosareacomum: TFloatField;
+    qryImoveisVendidosareatotal: TFloatField;
+    qryImoveisVendidosfracaoideal: TFloatField;
+    dsrImoveisVendidos: TtecDataSource;
+    qryImoveis: TtecQuery;
+    qryImoveisbloco: TIntegerField;
+    qryImoveisnumero: TStringField;
+    qryImoveissituacao: TStringField;
+    qryImoveispavimento: TStringField;
+    qryImoveisvalor: TFloatField;
+    qryImoveisobservacoes: TStringField;
+    dsrImoveis: TtecDataSource;
+    qryParcelasContrato: TtecQuery;
+    dsrParcelasContrato: TtecDataSource;
+    frpExtratoParaCliente: TfrReport;
+    fdsContrato: TfrDBDataSet;
+    qryEnderecoempreendimento: TtecQuery;
+    qryEnderecoempreendimentorua: TStringField;
+    qryEnderecoempreendimentonumero: TIntegerField;
+    qryEnderecoempreendimentocomplemento: TStringField;
+    qryEnderecoempreendimentocep: TIntegerField;
+    qryEnderecoempreendimentoestado: TStringField;
+    qryEnderecoempreendimentonomecidadecliente: TStringField;
+    qryEnderecoempreendimentonomebairrocliente: TStringField;
+    dsrEnderecoempreendimento: TtecDataSource;
+    qryContratoscontrato: TIntegerField;
+    qryContratosdata: TDateField;
+    qryContratoshabite_se: TDateField;
+    qryContratossituacao: TStringField;
+    qryContratosnomesituacao: TStringField;
+    qryContratosvendedor: TIntegerField;
+    qryContratosvalortotal: TFloatField;
+    qryContratosindexadoratehabitese: TStringField;
+    qryContratosindexadoraposhabitese: TStringField;
+    qryContratosdatabase: TDateField;
+    qryContratosjuroscompostos: TBooleanField;
+    qryContratosjuros: TFloatField;
+    qryContratosatrasomulta: TFloatField;
+    qryContratosatrasojuros: TFloatField;
+    qryContratosContaCliente: TIntegerField;
+    qryContratosobservacoes: TStringField;
+    frpExtratoCompleto: TfrReport;
+    qryImoveisVendidosdatahabitese: TDateField;
+    qryImoveisVendidossigla: TStringField;
+    fdsImoveisVendidos: TfrDBDataSet;
+    fdsParcelas: TfrDBDataSet;
+    fdsCompradores: TfrDBDataSet;
+    frpContratoCompleto: TfrReport;
+    qryRecibos: TtecQuery;
+    qryReciboscontrato: TIntegerField;
+    qryRecibostipo: TStringField;
+    qryRecibosorigem: TStringField;
+    qryRecibosnumero: TIntegerField;
+    qryRecibosnrpagto: TIntegerField;
+    qryRecibosdatavencto: TDateField;
+    qryRecibosvalorhistorico: TFloatField;
+    qryRecibosvalorcontratado: TFloatField;
+    qryRecibosvalorvencto: TFloatField;
+    qryRecibosvalordevido: TFloatField;
+    qryRecibosvalorcorrigido: TFloatField;
+    qryRecibosdatapagto: TDateField;
+    qryRecibosvalorpagto: TFloatField;
+    qryRecibosjuros: TFloatField;
+    qryRecibosmoeda: TStringField;
+    qryRecibosdescricaomoeda: TStringField;
+    qryRecibosdatabase: TDateField;
+    qryRecibostaxajuros: TFloatField;
+    qryRecibosjuroscompostos: TBooleanField;
+    qryReciboscheque: TStringField;
+    qryReciboscontapagto: TIntegerField;
+    qryRecibosagencia: TIntegerField;
+    qryRecibosbancocheque: TIntegerField;
+    qryRecibosemitente: TStringField;
+    qryRecibosrecibopagto: TIntegerField;
+    qryRecibossequencia: TIntegerField;
+    qryReciboscorrecao: TFloatField;
+    qryRecibosdiferenca: TFloatField;
+    qryRecibospromissoria: TBooleanField;
+    qryRecibosdocumento: TStringField;
+    qryRecibosobservacoes: TStringField;
+    qryRecibostipopagto: TStringField;
+    qryRecibosselecionado: TBooleanField;
+    frpRecibos: TfrReport;
+    qryRecibosnomecliente: TStringField;
+    qryCompradoresnumerorepresentante: TStringField;
+    qryCompradoresnumerofiador: TStringField;
+    qryRecibossexo: TStringField;
+    qryRecibosnomebanco: TStringField;
+    qryContratosdatachaves: TDateField;
+    qryTotaisContrato: TtecQuery;
+    dsrTotaisContrato: TtecDataSource;
+    qryParcelasAberto: TtecQuery;
+    dsrParcelasAberto: TtecDataSource;
+    qryTotaisContratototalhistorico: TFloatField;
+    qryTotaisContratototalcontratado: TFloatField;
+    qryTotaisContratototaldevido: TFloatField;
+    qryTotaisContratototalpago: TFloatField;
+    qryTotaisContratosaldodevedor: TFloatField;
+    qryTotaisContratototaljuros: TFloatField;
+    qryTotaisContratototalcorrecao: TFloatField;
+    qryTotaisContratototaldiferenca: TFloatField;
+    qryParcelasAbertocontrato: TIntegerField;
+    qryParcelasAbertotipo: TStringField;
+    qryParcelasAbertoorigem: TStringField;
+    qryParcelasAbertonumero: TIntegerField;
+    qryParcelasAbertodatavencto: TDateField;
+    qryParcelasAbertovalorhistorico: TFloatField;
+    qryParcelasAbertovalorcontratado: TFloatField;
+    qryParcelasAbertovalordevido: TFloatField;
+    qryParcelasAbertovalorcorrigido: TFloatField;
+    qryParcelasAbertodatapagto: TDateField;
+    qryParcelasAbertovalorpagto: TFloatField;
+    qryParcelasAbertojuros: TFloatField;
+    qryParcelasAbertomoeda: TStringField;
+    qryParcelasAbertodatabase: TDateField;
+    qryParcelasAbertotaxajuros: TFloatField;
+    qryParcelasAbertojuroscompostos: TBooleanField;
+    qryParcelasAbertocorrecao: TFloatField;
+    qryParcelasAbertodiferenca: TFloatField;
+    qryParcelasAbertopromissoria: TBooleanField;
+    qryParcelasAbertodocumento: TStringField;
+    qryParcelasAbertonrpagto: TIntegerField;
+    qryParcelasAbertoobservacoes: TStringField;
+    qryParcelasAbertodatabase2: TDateField;
+    qryParcelasAbertomoeda2: TStringField;
+    qryParcelasAbertojuros2: TFloatField;
+    qryParcelasAbertocorrecao2: TFloatField;
+    qryCompradoresnumerocliente: TStringField;
+    qryContratosdataalteracao: TDateField;
+    qryParcelasContratocontrato: TIntegerField;
+    qryParcelasContratotipo: TStringField;
+    qryParcelasContratoorigem: TStringField;
+    qryParcelasContratonumero: TIntegerField;
+    qryParcelasContratodatavencto: TDateField;
+    qryParcelasContratovalorhistorico: TFloatField;
+    qryParcelasContratovalorcontratado: TFloatField;
+    qryParcelasContratovalordevido: TFloatField;
+    qryParcelasContratovalorcorrigido: TFloatField;
+    qryParcelasContratodatapagto: TDateField;
+    qryParcelasContratovalorpagto: TFloatField;
+    qryParcelasContratojuros: TFloatField;
+    qryParcelasContratomoeda: TStringField;
+    qryParcelasContratodatabase: TDateField;
+    qryParcelasContratotaxajuros: TFloatField;
+    qryParcelasContratojuroscompostos: TBooleanField;
+    qryParcelasContratocorrecao: TFloatField;
+    qryParcelasContratodiferenca: TFloatField;
+    qryParcelasContratopromissoria: TBooleanField;
+    qryParcelasContratodocumento: TStringField;
+    qryParcelasContratonrpagto: TIntegerField;
+    qryParcelasContratoobservacoes: TStringField;
+    qryParcelasContratodatabase2: TDateField;
+    qryParcelasContratomoeda2: TStringField;
+    qryParcelasContratojuros2: TFloatField;
+    qryParcelasContratocorrecao2: TFloatField;
+    frpExtratoSimplificado: TfrReport;
+    qryParcelasContratoAVPValor: TFloatField;
+    qryParcelasContratoAVPPrazo: TStringField;
+    procedure qryImoveisVendidosAfterOpen(DataSet: TDataSet);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure frpExtratoParaClienteBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frpExtratoCompletoBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frpExtratoSimplificadoBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frpRecibosBeforePrint(Memo: TStringList; View: TfrView);
+  private
+    { Private declarations }
+    FParcial : String;
+    FQuitacao: String;
+    FSaldo   : String;
+    FSaldoDevedor    : Currency;
+    FTotalHistorico  : Currency;
+    FTotalContratado : Currency;
+    FTotalDevido     : Currency;
+    FTotalDiferenca  : Currency;
+    FTotalJuros      : Currency;
+    FTotalCorrecao   : Currency;
+    FTotalPago       : Currency;
+    FTotalHistoricoAberto  : Currency;
+    FTotalContratadoAberto : Currency;
+    FTotalDevidoAberto     : Currency;
+    FTotalAbertoAtraso     : Currency;
+    FtotalAbertoVencer     : Currency;
+    FTotalCorrecaoAberto   : Currency;
+    FTotalJurosAberto      : Currency;
+    FValorTotalHistorico   : Currency;
+    FValorTotalContratado  : Currency;
+    procedure SaldoDevedor(DataSituacao: String);
+
+  protected
+    function DescricaoParcelasPagas: String;
+    function FiltrarTipoParcelas(Contrato: String; Recibo: Integer): Boolean;
+    function FiltroDescricaoParcelas(Contrato: String; Recibo: Integer; Tipo: Char): String;
+    function GetValorParcelas : Currency;
+
+  public
+    { Public declarations }
+    procedure ImprimirExtratos(Contrato, Data: String; TipoExtrato: TTecTipoExtratoContratoImoveis);
+    procedure ImprimirContrato(Contrato: String);
+    procedure ImprimirRecibo(Contrato: String; Recibo: Integer);
+  end;
+
+var
+  dtmImprimeContratosImoveis: TdtmImprimeContratosImoveis;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmImprimeContratosImoveis }
+
+procedure TdtmImprimeContratosImoveis.ImprimirExtratos(Contrato, Data: String; TipoExtrato: TTecTipoExtratoContratoImoveis);
+Var
+  {Relatorio: TfrReport;}
+{  frmPreview: TfrmPreviewPadrao;}
+  vContinuar : Boolean;
+begin
+  vContinuar := true;
+  RefazConsultaPorNome(qryContratos,['Contrato'],[Contrato]);
+
+  if not (strtodate(Data) < qryContratosdata.AsDateTime) then
+  begin
+    if (qryContratosdataalteracao.AsDateTime > 0) and (strtodate(Data) > qryContratosdataalteracao.AsDateTime) then
+    begin
+      vContinuar := false;
+      if (qryContratossituacao.asstring = 'G') then //renegociado
+        vContinuar := MensagemSelecionaOpcao('A data da renegociação é anterior à do extrato. Confirma a impressão?') = smbYES
+      else
+        MensagemAviso('A data do extrato é posterior à de alteração do contrato');
+    end;
+
+    if vContinuar then
+    begin
+      RefazConsultaPorNome(qryParcelasContrato,['Contrato','Data'],[Contrato,formatdatetime('yyyy-mm-dd',strtodate(Data))]);
+      RefazConsultaPorNome(qryCompradores,['Contrato'],[Contrato]);
+      RefazConsultaPorNome(qryImoveisVendidos,['Contrato'],[Contrato]);
+      RefazConsultaPorNome(qryParcelasAberto,['Contrato','Data'],[Contrato,FormatDateTime('YYYY-MM-DD',strtodate(Data))]);
+      RefazConsultaPorNome(qryTotaisContrato,['Contrato'],[Contrato]);
+
+      AtribuirParametrosBaseRelatorio;
+      SaldoDevedor(Data);
+      frVariables['Outras']:= 'EXTRATO COM A SITUAÇÃO EM '+FormatDateTime('DD/MM/YYYY',STRTODATE(DATA));
+      frVariables['Titulo']:= 'CONTRATO Nº '+qryContratoscontrato.AsString;
+      frVariables['SaldoDevedor']:= FormatFloat('###,###,###,##0.00',FSaldoDevedor);
+      frVariables['SaldoAtraso']:= FormatFloat('###,###,###,##0.00',FTotalAbertoAtraso);
+      frVariables['SaldoVencer']:= FormatFloat('###,###,###,##0.00',FtotalAbertoVencer);
+
+      frVariables['Historico']:= FormatFloat('###,###,###,##0.00',FTotalHistorico);
+      frVariables['Contratado']:= FormatFloat('###,###,###,##0.00',FTotalContratado);
+      frVariables['Devido']:= FormatFloat('###,###,###,##0.00',FTotalDevido);
+      frVariables['Juros']:= FormatFloat('###,###,###,##0.00',FTotalJuros);
+      frVariables['Correcao']:= FormatFloat('###,###,###,##0.00',FTotalCorrecao);
+      frVariables['Diferenca']:= FormatFloat('###,###,###,##0.00',FTotalDiferenca);
+      frVariables['ValorPago']:= FormatFloat('###,###,###,##0.00',FTotalPago);
+
+      frVariables['TotalHistorico'] := FormatFloat('###,###,###,##0.00',FValorTotalHistorico);
+      frVariables['TotalContratado']:= FormatFloat('###,###,###,##0.00',FValorTotalContratado);
+
+      frVariables['DevidoAberto']:= FormatFloat('###,###,###,##0.00',FTotalDevidoAberto);
+      frVariables['HistoricoAberto']:= FormatFloat('###,###,###,##0.00',FTotalHistoricoAberto);
+      frVariables['ContratadoAberto']:= FormatFloat('###,###,###,##0.00',FTotalContratadoAberto);
+      frVariables['JurosAberto']:= FormatFloat('###,###,###,##0.00',FTotalJurosAberto);
+      frVariables['CorrecaoAberto']:= FormatFloat('###,###,###,##0.00',FTotalCorrecaoAberto);
+      frVariables['FDATA']:=  strtodate(Data);
+      if ((qryContratossituacao.AsString[1] in ['T','G','S'])and
+         (strtodate(Data) >= qryContratosdataalteracao.AsDateTime)) then
+        frVariables['Situacao']:=  qryContratosnomesituacao.AsString
+      else
+        frVariables['Situacao']:=  '';
+//      frpExtratoSimplificado.DesignReport;
+//      frmPreview := TfrmPreviewPadrao.create(self);
+//      frmPreview.cmbZoom.ItemIndex := 4;
+      try
+//        Relatorio := frmPreview.frCompositeReport;
+//        frmPreview.frCompositeReport.Reports.Clear;
+//        frmPreview.frCompositeReport.DoublePass:= True;
+//        frmPreview.frCompositeReport.DoublePass:= True;
+//        frpExtratoParaCliente.DesignReport;
+
+        case TipoExtrato of
+//          ParaCliente  : frmPreview.frCompositeReport.Reports.Add(frpExtratoParaCliente);
+          ParaCliente  : ImprimirRelatoriofast(null, null, MSimples, 0, [frpExtratoParaCliente], true);
+
+//          Completo     : frmPreview.frCompositeReport.Reports.Add(frpExtratoCompleto);
+          Completo     : ImprimirRelatoriofast(null, null, MSimples, 0, [frpExtratoCompleto], true);
+
+//          Simplificado : frmPreview.frCompositeReport.Reports.Add(frpExtratoSimplificado);
+          Simplificado : ImprimirRelatoriofast(null, null, MSimples, 0, [frpExtratoSimplificado], true);
+        end;
+
+//        Relatorio.Preview := frmPreview.frPreviewPadrao;
+//        Relatorio.ShowReport;
+//        frmPreview.ShowModal;
+      finally
+//        frmPreview.Free;
+      end;
+    end;
+
+  end
+  else
+    MensagemAviso('A data do extrato é anterior à data de venda');
+end;
+
+procedure TdtmImprimeContratosImoveis.qryImoveisVendidosAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  RefazConsultaPorNome(qryImoveis,['Bloco','Numero'],[qryImoveisVendidosbloco.AsVariant,
+                                                      qryImoveisVendidosnumero.AsVariant]);
+  RefazConsultaPorNome(qryEnderecoempreendimento,['Empreendimento'],[qryImoveisVendidoscodigoempreendimento.AsVariant]);
+end;
+
+procedure TdtmImprimeContratosImoveis.ZMonitor1MonitorEvent(Sql,
+  Result: String);
+var
+ Listar : TStringList;
+ arquivo: String;
+begin
+  inherited;
+  Listar := tStringlist.Create;
+  arquivo := 'c:\Lixo\ImpressaoContratos.sql';
+  if fileexists(arquivo) then
+    Listar.loadfromfile(arquivo);
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile(arquivo);
+  listar.free;
+end;
+
+procedure TdtmImprimeContratosImoveis.frpExtratoParaClienteBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpExtratoParaCliente, View);
+end;
+
+procedure TdtmImprimeContratosImoveis.frpExtratoCompletoBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpExtratoCompleto, View);
+end;
+
+procedure TdtmImprimeContratosImoveis.SaldoDevedor(DataSituacao: String);
+var TotalPago, TotalDevido : Currency;
+begin
+  FSaldoDevedor         := 0;
+
+  FTotalHistorico       := 0;
+  FTotalContratado      := 0;
+  FTotalDevido          := 0;
+  FTotalPago            := 0;
+  FTotalCorrecao        := 0;
+  FTotalJuros           := 0;
+  FTotalDiferenca       := 0;
+
+  FValorTotalHistorico  := 0;
+  FValorTotalContratado := 0;
+
+  FTotalHistoricoAberto := 0;
+  FTotalContratadoAberto:= 0;
+  FTotalDevidoAberto    := 0;
+  FTotalAbertoAtraso     := 0;
+  FtotalAbertoVencer     := 0;
+
+  FTotalCorrecaoAberto  := 0;
+  FTotalJurosAberto     := 0;
+  GuardarRegistroAtual(qryParcelasContrato, True);
+  qryParcelasContrato.First;
+  while not qryParcelasContrato.Eof do
+  begin
+    if qryParcelasContratodatapagto.IsNull then
+    begin
+      FTotalHistoricoAberto  := FTotalHistoricoAberto   + qryParcelasContratovalorhistorico.AsCurrency;
+      FTotalContratadoAberto := FTotalContratadoAberto  + qryParcelasContratovalorcontratado.AsCurrency;
+      FTotalDevidoAberto     := FTotalDevidoAberto      + qryParcelasContratovalordevido.AsCurrency;
+      FTotalCorrecaoAberto   := FTotalCorrecaoAberto    + qryParcelasContratocorrecao2.AsCurrency;
+      FTotalJurosAberto      := FTotalJurosAberto       + qryParcelasContratojuros2.AsCurrency;
+      if qryParcelasContratodatavencto.AsDateTime < StrToDateTime(DataSituacao) then
+        FTotalAbertoAtraso := FTotalAbertoAtraso +  qryParcelasContratovalordevido.AsCurrency
+      else                                                                                   
+        FTotalAbertoVencer := FTotalAbertoVencer +  qryParcelasContratovalordevido.AsCurrency;
+    end
+    else
+    begin
+      FTotalPago       := FTotalPago        + qryParcelasContratovalorpagto.AsCurrency;
+      FTotalDevido     := FTotalDevido      + qryParcelasContratovalordevido.AsCurrency;
+      FTotalHistorico  := FTotalHistorico   + qryParcelasContratovalorhistorico.AsCurrency;
+      FTotalContratado := FTotalContratado  + qryParcelasContratovalorcontratado.AsCurrency;
+      FTotalJuros      := FTotalJuros       + qryParcelasContratojuros2.AsCurrency;
+      FTotalCorrecao   := FTotalCorrecao    + qryParcelasContratocorrecao2.AsCurrency;
+      FTotalDiferenca  := FTotalDiferenca   + qryParcelasContratodiferenca.AsCurrency;
+    end;
+    FValorTotalHistorico := FValorTotalHistorico  + qryParcelasContratovalorhistorico.AsCurrency;
+    FValorTotalContratado:= FValorTotalContratado + qryParcelasContratovalorcontratado.AsCurrency;;
+
+    qryParcelasContrato.Next;
+  end;
+  VoltarRegistroAtual(qryParcelasContrato);
+  FSaldoDevedor := FTotalDevidoAberto;
+end;
+
+procedure TdtmImprimeContratosImoveis.ImprimirContrato(Contrato: String);
+Var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+   RefazConsultaPorNome(qryContratos,['Contrato'],[Contrato]);
+   RefazConsultaPorNome(qryParcelasContrato,['Contrato','Data'],[Contrato,FormatDateTime('YYYY-MM-DD',DataLocal)]);
+   RefazConsultaPorNome(qryParcelasAberto,['Contrato','Data'],[Contrato,FormatDateTime('YYYY-MM-DD',DataLocal)]);
+   RefazConsultaPorNome(qryTotaisContrato,['Contrato'],[Contrato]);
+   RefazConsultaPorNome(qryCompradores,['Contrato'],[Contrato]);
+   RefazConsultaPorNome(qryImoveisVendidos,['Contrato'],[Contrato]);
+
+   AtribuirParametrosBaseRelatorio;
+   frVariables['Outras']:= 'EXTRATO EM '+FormatDateTime('DD/MM/YYYY',DataLocal);
+   frVariables['Titulo']:= 'CONTRATO Nº '+qryContratoscontrato.AsString;
+   frmPreview := TfrmPreviewPadrao.create(self);
+   frmPreview.cmbZoom.ItemIndex := 4;
+   try
+     Relatorio := frmPreview.frCompositeReport;
+     frmPreview.frCompositeReport.Reports.Clear;
+     frmPreview.frCompositeReport.DoublePass:= True;
+     frmPreview.frCompositeReport.Reports.Add(frpContratoCompleto);
+     Relatorio.Preview := frmPreview.frPreviewPadrao;
+     Relatorio.ShowReport;
+     frmPreview.ShowModal;
+   finally
+     frmPreview.Free;
+   end;
+end;
+
+procedure TdtmImprimeContratosImoveis.ImprimirRecibo(Contrato: String; Recibo: Integer);
+var
+  ValorExtenso: String;
+  LinhaE: T_Extenso;
+  ValorParcelas: Currency;
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+  Referencia: string;
+  AouO: char;
+  NR, Inicio, Tamanho: integer;
+
+begin
+  qryRecibos.MacroByName('TipoPagto').AsString:= '';
+  RefazConsultaPorNome(qryRecibos,['Contrato', 'Recibo'],[Contrato,Recibo]);
+  RefazConsultaPorNome(qryParcelasContrato,['Contrato'],[Contrato]);
+  RefazConsultaPorNome(qryCompradores,['Contrato'],[Contrato]);
+  RefazConsultaPorNome(qryImoveisVendidos,['Contrato'],[Contrato]);
+  AtribuirParametrosBaseRelatorio;
+  frVariables['COMPRADOR']:= PreencheString(qryCompradoresnomecliente.AsString,'*',40);
+  frVariables['CPFCNPJCOMPRADOR']  :=qryCompradoresnumerocliente.AsString;
+  ValorParcelas:= GetValorParcelas;
+  LinhaE.ExtTamLinha[1]:= 65;
+  LinhaE.ExtTamLinha[2]:= 78;
+  LinhaE.ExtTamLinha[3]:= 78;
+  Extenso(ValorParcelas,$92,'','','','','*', LinhaE);
+  frVariables['ValorExtenso1']:= trim(LinhaE.ExtLinha[1]);
+  frVariables['ValorExtenso2']:= trim(LinhaE.ExtLinha[2]);
+  frVariables['ValorExtenso3']:= trim(LinhaE.ExtLinha[3]);
+  frVariables['ValorParcelas']:= FormatFloat('###,###,###,##0.00',ValorParcelas);
+  FiltrarTipoParcelas(Contrato, Recibo);
+  qryRecibos.MacroByName('TipoPagto').AsString:= '';
+  RefazConsultaPorNome(qryRecibos,['Contrato', 'Recibo'],[Contrato,Recibo]);
+
+
+  if qryRecibos.RecordCount > 1
+  then Referencia:= Referencia + ' DAS PARCELAS '
+  else Referencia:= Referencia + ' DA PARCELA ';
+
+  if FSaldo <> '' then begin
+     frVariables['Referente_0']:= 'referente à'; AouO:= 'A';
+     Referencia:= 'QUITAÇÃO DO SALDO' + Referencia + FSaldo;
+  end
+  else if FParcial <> '' then begin
+          frVariables['Referente_0']:= 'referente ao';  AouO:= 'O';
+          Referencia:= 'PAGAMENTO PARCIAL' + Referencia + FParcial;
+       end
+       else {if FQuitacao <> '' then} begin
+               frVariables['Referente_0']:= 'referente à'; AouO:= 'A';
+               Referencia:= 'QUITAÇÃO' + Referencia + FQuitacao;
+            end;
+
+  if qryRecibosCheque.AsString <> '' then begin
+     Referencia:= Referencia + ', EFETUAD' + AouO +
+                  ' ATRAVÉS DO CHEQUE Nº ' + FormatFloat('###,###',qryRecibosCheque.AsFloat) +
+                 ' DO BANCO ' + FormatFloat('000', qryRecibosbancocheque.AsFloat) +
+                             ' - ' + qryRecibosNomeBanco.AsString;
+     if qryRecibosAgencia.AsFloat <> 0
+     then Referencia:= Referencia + ', AGÊNCIA '+ FormatFloat('0000', qryRecibosAgencia.AsFloat);
+
+     if (qryRecibosEmitente.AsString <> '') and
+        (qryRecibosEmitente.AsString <> qryCompradoresNomeCliente.AsString)
+     then Referencia:= Referencia + ', CUJO TITULAR É ' + qryRecibosEmitente.AsString;
+  end;
+
+  Referencia:= Referencia + ' - ' + qryImoveisVendidosEmpreendimento.AsString;
+  qryImoveisVendidos.First;
+  while not qryImoveisVendidos.Eof do begin
+     Referencia:= Referencia + ', BLOCO ' + qryImoveisVendidosnomeBloco.  AsString +
+                                    ' - ' + qryImoveisVendidosTipoUnidade.AsString +
+                                   ' Nº ' + qryImoveisVendidosNumero.     AsString;
+     qryImoveisVendidos.Next;
+  end;
+  Referencia:= Referencia + '.';
+
+  Inicio:=  1;
+  for NR:= 1 to 7 do begin
+      if NR in [1, 2] then Tamanho:= 68
+                      else Tamanho:= 78;
+      while (Inicio+Tamanho < length(Referencia)) and
+            (copy(Referencia,Inicio+Tamanho,1) <> ' ') do dec(Tamanho);
+      frVariables['Referente_' + FStr(NR,$11)]:= Copy(Referencia,Inicio,Tamanho);
+      inc(Inicio,Tamanho);
+      while copy(Referencia,inicio,1) = ' ' do delete(Referencia,Inicio,1);
+  end;
+
+  frVariables['Recibo']:= FormatFloat('###,###',qryRecibosrecibopagto.AsFloat);
+  frVariables['DIA']:= DayOf(qryRecibosdatapagto.AsDateTime);
+  frVariables['MES']:= LowerCase(MesExtenso(MonthOf(qryRecibosdatapagto.AsDateTime)));
+  frVariables['ANO']:= YearOf(qryRecibosdatapagto.AsDateTime);
+  frVariables['CONTRATO']:= qryReciboscontrato.AsString;
+  if qryCompradorestipocliente.AsString = 'F' then
+    frVariables['TIPO']:= True
+  else
+    frVariables['TIPO']:= False;
+//  frpRecibos.DesignReport;
+  frmPreview := TfrmPreviewPadrao.create(self);
+   frmPreview.cmbZoom.ItemIndex := 4;
+   try
+     Relatorio := frmPreview.frCompositeReport;
+     frmPreview.frCompositeReport.Reports.Clear;
+     frmPreview.frCompositeReport.DoublePass:= True;
+     frmPreview.frCompositeReport.Reports.Add(frpRecibos);
+     Relatorio.Preview := frmPreview.frPreviewPadrao;
+     Relatorio.ShowReport;
+     frmPreview.ShowModal;
+   finally
+     frmPreview.Free;
+   end;
+end;
+
+function TdtmImprimeContratosImoveis.DescricaoParcelasPagas: String;
+var Tipo, Parcela, Saida: String;
+    Numero, a, i, g, Total: Integer;
+    ArquivoParcelas: T_ParcelasPagas;
+    SequenciaParcelas: T_SeqParcelas;
+begin
+  if qryRecibos.RecordCount > 1 then
+  begin
+    a:= 0;
+    i:= -1;
+    Numero := 0;
+    tipo:= '';
+    Saida:= '';
+    GuardarRegistroAtual(qryRecibos, True);
+    qryRecibos.First;
+    SetLength(ArquivoParcelas, qryRecibos.RecordCount);
+    while not qryRecibos.Eof do
+    begin
+      ArquivoParcelas[a].Tipo     := qryRecibos.FieldByName('tipo').AsString;
+      ArquivoParcelas[a].Numero   := qryRecibos.FieldByName('numero').AsInteger;
+      ArquivoParcelas[a].Origem   := qryRecibos.FieldByName('origem').AsString;
+      ArquivoParcelas[a].Resultado:= qryRecibos.FieldByName('tipo').AsString + '-'+
+                                     qryRecibos.FieldByName('origem').AsString;
+      inc(a);
+
+      qryRecibos.Next;
+    end;
+    VoltarRegistroAtual(qryRecibos);
+    Total:= a;
+    SetLength(SequenciaParcelas,Total+1);
+    for a:=0 to Total-1 do
+    begin
+      if Tipo <> ArquivoParcelas[a].Tipo then
+      begin
+        inc(i);
+        Tipo:= ArquivoParcelas[a].Tipo;
+        SequenciaParcelas[i].Tipo:= ArquivoParcelas[a].Tipo;
+        SequenciaParcelas[i].NI  := ArquivoParcelas[a].Numero;
+        SequenciaParcelas[i].OrI := ArquivoParcelas[a].Resultado;
+        SequenciaParcelas[i].NF  := ArquivoParcelas[a].Numero;
+        SequenciaParcelas[i].OrF := ArquivoParcelas[a].Resultado;
+      end
+      else
+      begin
+        if (ArquivoParcelas[a].Numero - SequenciaParcelas[i].NF) = 1 then
+        begin
+          SequenciaParcelas[i].NF  := ArquivoParcelas[a].Numero;
+          SequenciaParcelas[i].OrF := ArquivoParcelas[a].Resultado;
+          SequenciaParcelas[i].Seq := True;
+        end
+        else
+        begin
+          Inc(i);
+          SequenciaParcelas[i].Tipo:= ArquivoParcelas[a].Tipo;
+          SequenciaParcelas[i].NI  := ArquivoParcelas[a].Numero;
+          SequenciaParcelas[i].OrI := ArquivoParcelas[a].Resultado;
+          SequenciaParcelas[i].NF  := ArquivoParcelas[a].Numero;
+          SequenciaParcelas[i].OrF := ArquivoParcelas[a].Resultado;
+        end;
+      end;
+    end;
+    for a:=0 to i do
+    begin
+      if SequenciaParcelas[a].Seq = True then
+        if i-1 = a then
+          Saida:= Saida + SequenciaParcelas[a].Tipo+'-'+preencheString(inttostr(SequenciaParcelas[a].NI),'0',3,False)+' A '+SequenciaParcelas[a].OrF+' E '
+        else
+          Saida:= Saida + SequenciaParcelas[a].Tipo+'-'+preencheString(inttostr(SequenciaParcelas[a].NI),'0',3,False)+' A '+SequenciaParcelas[a].OrF+', '
+      else
+        if i-1 = a then
+          Saida:= Saida + SequenciaParcelas[a].OrI+ ' E '
+        else
+          Saida:= Saida + SequenciaParcelas[a].OrI+ ', ';
+    end;
+    Delete(Saida,length(Saida)-1,1);
+    Result:= Saida+' do contrato nº '+qryRecibos.FieldByName('contrato').AsString;
+  end
+  else if qryRecibos.RecordCount = 1 then
+  Begin
+    Result:= qryRecibos.FieldByName('tipo').AsString+'-'+qryRecibos.fieldByName('origem').AsString +
+             ' DO CONTRATO Nº '+qryRecibos.FieldByName('contrato').AsString;
+  end
+  else
+    Result:= '';
+end;
+
+
+function TdtmImprimeContratosImoveis.GetValorParcelas: Currency;
+begin
+  Result:= 0;
+  if qryRecibos.RecordCount > 1 then
+  begin
+    GuardarRegistroAtual(qryRecibos, true);
+    qryRecibos.First;
+    while not qryRecibos.Eof do
+    begin
+      Result:= Result + qryRecibosvalorpagto.AsCurrency;
+      qryRecibos.Next;
+    end;
+    VoltarRegistroAtual(qryRecibos);
+  end
+  else
+    Result:= qryRecibosvalorpagto.AsCurrency;
+end;
+
+function TdtmImprimeContratosImoveis.FiltrarTipoParcelas(Contrato: String; Recibo: Integer): Boolean;
+begin
+  FQuitacao:= FiltroDescricaoParcelas(Contrato, Recibo, 'Q');
+  FSaldo   := FiltroDescricaoParcelas(Contrato, Recibo, 'S');
+  FParcial := FiltroDescricaoParcelas(Contrato, Recibo, 'P');
+end;
+
+function TdtmImprimeContratosImoveis.FiltroDescricaoParcelas(Contrato: String; Recibo: Integer; Tipo: Char): String;
+begin
+  qryRecibos.Close;
+  qryRecibos.MacroByName('TipoPagto').AsString:= 'AND pi.tipopagto = '+QuotedStr(Tipo);
+  RefazConsultaPorNome(qryRecibos,['Contrato','Recibo'],[Contrato, Recibo]);
+  Result:= DescricaoParcelasPagas;
+end;
+
+procedure TdtmImprimeContratosImoveis.frpExtratoSimplificadoBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpExtratoSimplificado, View);
+end;
+
+procedure TdtmImprimeContratosImoveis.frpRecibosBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpRecibos, View);
+end;
+
+end.

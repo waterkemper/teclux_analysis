@@ -1,0 +1,67 @@
+unit fmprodutosaentregar;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs, Windows,
+  StdCtrls, Buttons, Grids, DBGrids, cpdbgrid, {Qete,} fmnavcontroles;
+
+
+type
+  TfrmProdutosaEntregar = class(TfrmNavControles)
+    dbgProdutos: TtecDBGrid;
+    bbnOK: TBitBtn;
+    bbnCancelar: TBitBtn;
+    lblMensagem: TLabel;
+    gbxFiltroEntrega: TGroupBox;
+    ckbComEntrega: TCheckBox;
+    ckbSemEntrega: TCheckBox;
+    lblLegenda: TLabel;
+    procedure dbgProdutosDblClick(Sender: TObject);
+    procedure ckbComEntregaClick(Sender: TObject);
+    procedure dbgProdutosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    destructor  Destroy; override;
+  end;
+
+var
+  frmProdutosaEntregar: TfrmProdutosaEntregar;
+
+implementation
+
+uses dmcadastrocontratos;
+
+{$R *.dfm}
+
+procedure TfrmProdutosaEntregar.dbgProdutosDblClick(Sender: TObject);
+begin
+  dtmCadastroContratos.selecionarprodutosEntregar;
+end;
+
+procedure TfrmProdutosaEntregar.ckbComEntregaClick(Sender: TObject);
+begin
+  dtmCadastroContratos.filtrarEntrega(ckbComEntrega.Checked, ckbSemEntrega.Checked);
+end;
+
+procedure TfrmProdutosaEntregar.dbgProdutosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  if (Shift = [ssCtrl]) and (Key = VK_SPACE) then
+    dbgProdutosDblClick(dbgProdutos);
+
+end;
+
+destructor TfrmProdutosaEntregar.Destroy;
+begin
+  inherited;
+  frmProdutosaEntregar := nil;
+end;
+
+
+
+
+end.

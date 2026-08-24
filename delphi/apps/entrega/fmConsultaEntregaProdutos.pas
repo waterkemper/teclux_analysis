@@ -7,7 +7,7 @@ uses
   Dialogs, ComCtrls, frintervalodatas, StdCtrls, CheckLst, frlistafiliais,
   Grids, AdvObj, BaseGrid, AdvGrid, DBAdvGrid, dmConsultaEntregaProdutos,
   fmajudabt, Buttons, ToolWin, ExtCtrls, cpeditioncontrolvalidation, biblio,
-  ctconstantes, dmBasico, DBLup2, AdvDateTimePicker, AdvDBDateTimePicker,
+  ctconstantes, dmBasico, {DBLup2,} AdvDateTimePicker, AdvDBDateTimePicker,
   frmctrllink, AdvDBLookupComboBox, lpLstBox, Menus, AdvMenus,
   tmsAdvGridExcel, AsgFindDialog, fmReagendamentoEntregas,
   fmPrincipalBasico, frselecaoaleatoriaclientes;

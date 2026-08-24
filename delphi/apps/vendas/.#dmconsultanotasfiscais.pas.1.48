@@ -1,0 +1,2287 @@
+unit dmconsultanotasfiscais;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  DB, math,
+  // Terceiros
+  ZQuery, ZPgSqlQuery,
+  // Componentes
+  cpquery, cpdatasource, clusuario,
+  // Repositorio
+  dmbasico, dmimprimefiscalgrafica, dateutils,
+  // Biblio
+  biblio, ctconstantes, clparametrossistema, ZTransact,dmcontrolenotasfiscaiseletronicas;
+
+
+type
+  TdtmConsultaNotasFiscais = class(TdtmBasico)
+    qryDadosFiscais: TtecQuery;
+    qryNotas: TtecQuery;
+    dsrDadosFiscais: TtecDataSource;
+    qryProdutosDadosFiscais: TtecQuery;
+    dsrProdutosDadosFiscais: TtecDataSource;
+    qryVenctosDadosFiscais: TtecQuery;
+    dsrVenctosDadosFiscais: TtecDataSource;
+    qryProdutosDadosFiscaisquantidade: TFloatField;
+    qryProdutosDadosFiscaisaliquotaicms: TFloatField;
+    qryProdutosDadosFiscaisproduto: TLargeintField;
+    qryProdutosDadosFiscaispreco: TIntegerField;
+    qryCupons: TtecQuery;
+    qryProcurarFiliais: TtecQuery;
+    dsrProcurarFiliais: TtecDataSource;
+    qryProcurarFiliaiscodigo: TIntegerField;
+    qryProcurarFiliaisnome: TStringField;
+    qryProdutosDadosFiscaisprodutodescricao: TStringField;
+    qryProdutosDadosFiscaismarcadescricao: TStringField;
+    qryDadosFiscaisnumero: TIntegerField;
+    qryDadosFiscaisdata: TDateField;
+    qryDadosFiscaismanual: TBooleanField;
+    qryDadosFiscaisfilialvenda: TIntegerField;
+    qryDadosFiscaiscontrato: TStringField;
+    qryDadosFiscaisvalortotal: TFloatField;
+    qryDadosFiscaisvalorvista: TFloatField;
+    qryDadosFiscaisdesconto: TFloatField;
+    qryDadosFiscaiscodigofiscal: TIntegerField;
+    qryDadosFiscaisvendedor: TIntegerField;
+    qryDadosFiscaisagente: TIntegerField;
+    qryDadosFiscaisestadocfo: TStringField;
+    qryDadosFiscaisfilialemissao: TIntegerField;
+    qryDadosFiscaisnatureza: TStringField;
+    qryDadosFiscaisplano: TIntegerField;
+    qryDadosFiscaisviatransporte: TStringField;
+    qryDadosFiscaisdatasaida: TDateField;
+    qryDadosFiscaisfornecedortransporte: TIntegerField;
+    qryDadosFiscaisfrete: TStringField;
+    qryDadosFiscaiscliente: TIntegerField;
+    qryDadosFiscaisplaca: TStringField;
+    qryDadosFiscaisnome: TStringField;
+    qryDadosFiscaisrua: TStringField;
+    qryDadosFiscaisbairro: TIntegerField;
+    qryDadosFiscaiscidade: TIntegerField;
+    qryDadosFiscaisestado: TStringField;
+    qryDadosFiscaiscep: TIntegerField;
+    qryDadosFiscaispessoatipo: TStringField;
+    qryDadosFiscaisfonenumero: TIntegerField;
+    qryDadosFiscaisfoneddd: TIntegerField;
+    qryDadosFiscaisdocumento: TStringField;
+    qryDadosFiscaisobservacoes: TStringField;
+    qryDadosFiscaiscidadenome: TStringField;
+    qryDadosFiscaisbairronome: TStringField;
+    qryDadosFiscaisplanodescricao: TStringField;
+    qryDadosFiscaisnomevendedor: TStringField;
+    qryDadosFiscaisrazaofornecedortransporte: TStringField;
+    qryDadosFiscaismanualextenso: TStringField;
+    qryConsultaFiliais: TtecQuery;
+    qryConsultaFiliaisnome: TStringField;
+    qryConsultaFiliaiscodigo: TIntegerField;
+    qryDadosFiscaispessoanumero: TStringField;
+    qryConsultaCFOP: TtecQuery;
+    qryConsultaCFOPcodigo: TIntegerField;
+    qryConsultaCFOPdescricao: TStringField;
+    qryProcurarCFOP: TtecQuery;
+    dsrProcurarCFOP: TtecDataSource;
+    qryProcurarCFOPcodigo: TIntegerField;
+    qryDadosFiscaisnomecliente: TStringField;
+    qryProdutosDadosFiscaisprecovenda: TFloatField;
+    qryProdutosDadosFiscaisprecototal: TFloatField;
+    dsrNotas: TtecDataSource;
+    qryProcurarCFOPdescricao: TStringField;
+    qryNotasdadofiscal: TIntegerField;
+    qryNotasfilial: TIntegerField;
+    qryNotasserie: TStringField;
+    qryNotasnumero: TIntegerField;
+    dsrCupons: TtecDataSource;
+    qryCuponsdadofiscal: TIntegerField;
+    qryCuponsfilial: TIntegerField;
+    qryCuponsmaquina: TIntegerField;
+    qryCuponsintervensao: TIntegerField;
+    qryCuponsnumero: TIntegerField;
+    qryProcurarFornecedorTransporte: TtecQuery;
+    IntegerField1: TIntegerField;
+    qryProcurarFornecedorTransporterazao: TStringField;
+    dsrProcurarFornecedorTransporte: TtecDataSource;
+    qryConsultaFornecedorTransporte: TtecQuery;
+    qryConsultaFornecedorTransporterazao: TStringField;
+    qryConsultaFornecedorTransportecodigo: TIntegerField;
+    qryNotasmaquina: TIntegerField;
+    qryNotasintervensao: TIntegerField;
+    qryCuponsserie: TStringField;
+    qryCuponsnrnota: TIntegerField;
+    qryNotasnrcupom: TIntegerField;
+    qryDadosFiscaisdescricaosemprodutos: TStringField;
+    qryProcurarClientes: TtecQuery;
+    qryProcurarClientescodigo: TIntegerField;
+    qryProcurarClientesnome: TStringField;
+    qryProcurarClientestipo: TStringField;
+    dsrProcuraClientes: TtecDataSource;
+    qryConsultaClientes: TtecQuery;
+    qryConsultaClientesnome: TStringField;
+    qryConsultaClientescodigo: TIntegerField;
+    qryConsultaClientestipopessoa: TStringField;
+    qryConsultaClientestipo: TStringField;
+    qryServicosDadosFiscais: TtecQuery;
+    dsrServicosDadosFiscais: TtecDataSource;
+    qryVenctosDadosFiscaisnumero: TIntegerField;
+    qryVenctosDadosFiscaisdatavencto: TDateField;
+    qryVenctosDadosFiscaisvalorvencto: TFloatField;
+    qryConsultaClientespessoanumero: TStringField;
+    qryConsultaClientesestado: TStringField;
+    qryConsultaClientesnomecidade: TStringField;
+    qryProdutosDadosFiscaisentregar: TBooleanField;
+    qryDadosFiscaisacrescimo: TFloatField;
+    qryDadosFiscaistotalprodutos: TFloatField;
+    qryProdutosDadosFiscaislinha: TStringField;
+    qryProdutosDadosFiscaiscoluna: TStringField;
+    qryProdutosDadosFiscaisvalorgrade1: TStringField;
+    qryProdutosDadosFiscaisvalorgrade2: TStringField;
+    qryCuponscodigofiscal: TIntegerField;
+    qryNotascodigofiscal: TIntegerField;
+    qryProcurarCFOPPesquisa: TtecQuery;
+    qryProcurarCFOPPesquisacodigo: TIntegerField;
+    qryProcurarCFOPPesquisadescricao: TStringField;
+    dsrProcurarCFOPPesquisa: TtecDataSource;
+    qryDadosFiscaistipocliente: TStringField;
+    qryProcurarClientesDadosFiscais: TtecQuery;
+    dsrProcurarClientesDadosFiscais: TtecDataSource;
+    qryProcurarClientesDadosFiscaiscodigo: TIntegerField;
+    qryProcurarClientesDadosFiscaisnome: TStringField;
+    qryProcurarClientesDadosFiscaistipo: TStringField;
+    qryProcurarClientesDadosFiscaisinscricaoestadual: TStringField;
+    qryProcurarClientesDadosFiscaisestado: TStringField;
+    qryProcurarClientesDadosFiscaispessoatipo: TStringField;
+    qryProcurarClientesDadosFiscaispessoanumero: TStringField;
+    qryProcurarClientesDadosFiscaisrua: TStringField;
+    qryProcurarClientesDadosFiscaisbairro: TIntegerField;
+    qryProcurarClientesDadosFiscaiscidade: TIntegerField;
+    qryProcurarClientesDadosFiscaiscep: TIntegerField;
+    qryProcurarClientesDadosFiscaisfonenumero: TIntegerField;
+    qryProcurarClientesDadosFiscaisfoneddd: TIntegerField;
+    qryProcurarClientesDadosFiscaisnomecidade: TStringField;
+    qryProcurarClientesDadosFiscaisnomebairro: TStringField;
+    qryDadosFiscaisnomefilialvenda: TStringField;
+    qryDadosFiscaisbaseicms: TFloatField;
+    qryDadosFiscaisvaloricms: TFloatField;
+    qryDadosFiscaisseguro: TFloatField;
+    qryDadosFiscaisvaloripi: TFloatField;
+    qryDadosFiscaistotalservico: TFloatField;
+    qryDadosFiscaisvalorfrete: TFloatField;
+    qryDadosFiscaisimpretidos: TFloatField;
+    qryDadosFiscaisdespesasacessorias: TFloatField;
+    qryECFsDadosFiscais: TtecQuery;
+    dsrECFsDadosFiscais: TtecDataSource;
+    qryECFsDadosFiscaisdescricaoecf: TStringField;
+    qryECFsDadosFiscaisfilial: TIntegerField;
+    qryECFsDadosFiscaisecf: TIntegerField;
+    qryDadosFiscaistotalbaseicmssubstituicao: TFloatField;
+    qryDadosFiscaistotalvaloricmssubstituicao: TFloatField;
+    qryProdutosDadosFiscaisaliquotaipi: TFloatField;
+    qryProdutosDadosFiscaisvaloripi: TFloatField;
+    qryDadosFiscaissituacao: TStringField;
+    qryDadosFiscaissituacaocontrato: TStringField;
+    qryDadosFiscaisnomesituacaocontrato: TStringField;
+    qryDadosFiscaisestadoplaca: TStringField;
+    qryServicosDadosFiscaisdadofiscal: TIntegerField;
+    qryServicosDadosFiscaisservico: TIntegerField;
+    qryServicosDadosFiscaisdescricao: TStringField;
+    qryServicosDadosFiscaisquantidade: TIntegerField;
+    qryServicosDadosFiscaisaliquotaissqn: TFloatField;
+    qryServicosDadosFiscaisvalorservico: TFloatField;
+    qryServicosDadosFiscaiscomplementoservico: TStringField;
+    qryServicosDadosFiscaisequipamento: TIntegerField;
+    qryServicosDadosFiscaisestado: TStringField;
+    qryServicosDadosFiscaiscidade: TIntegerField;
+    qryServicosDadosFiscaisreterissqn: TBooleanField;
+    qryServicosDadosFiscaisvalorissqn: TFloatField;
+    qryServicosDadosFiscaisnomecidade: TStringField;
+    qryDadosFiscaisirretido: TFloatField;
+    qryDadosFiscaisinssretido: TFloatField;
+    qryDadosFiscaisissretido: TFloatField;
+    qryDadosFiscaiscofinsretido: TFloatField;
+    qryDadosFiscaispisretido: TFloatField;
+    qryDadosFiscaiscsllretido: TFloatField;
+    qryDadosFiscaisvalorprodutos: TFloatField;
+    qryProdutosDadosFiscaiscodigofiscal: TIntegerField;
+    qryDadosFiscaisendnumero: TIntegerField;
+    qryDadosFiscaisendcomplemento: TStringField;
+    qryProcurarClientesDadosFiscaisnumero: TIntegerField;
+    qryProcurarClientesDadosFiscaiscomplemento: TStringField;
+    qryVolumesDadosFiscais: TtecQuery;
+    dsrVolumesDadosfiscais: TtecDataSource;
+    qryVolumesDadosFiscaisdadofiscal: TIntegerField;
+    qryVolumesDadosFiscaiscodigo: TIntegerField;
+    qryVolumesDadosFiscaisvolumes: TIntegerField;
+    qryVolumesDadosFiscaisnumeracao: TStringField;
+    qryVolumesDadosFiscaismarca: TStringField;
+    qryVolumesDadosFiscaispesobruto: TFloatField;
+    qryVolumesDadosFiscaispesoliquido: TFloatField;
+    qryVolumesDadosFiscaisespecietransporte: TStringField;
+    qryLacresDadosFiscais: TtecQuery;
+    dsrLacresDadosFiscais: TtecDataSource;
+    qryLacresDadosFiscaisdadofiscal: TIntegerField;
+    qryLacresDadosFiscaiscodigovolume: TIntegerField;
+    qryLacresDadosFiscaislacre: TStringField;
+    qryDadosFiscaisnumlotenfe: TStringField;
+    qryDadosFiscaisnumrecibonfe: TStringField;
+    qryDadosFiscaisnumprotocolonfe: TStringField;
+    qryDadosFiscaisnumcancelamentonfe: TStringField;
+    qryDadosFiscaisnrdocumento: TIntegerField;
+    qryDadosFiscaiscodaleatorio: TIntegerField;
+    qryDadosFiscaisdigchaveacesso: TIntegerField;
+    qryDadosFiscaislocalentrega_cep: TIntegerField;
+    qryDadosFiscaischave_nfe: TStringField;
+    qryProdutosDadosFiscaislocalizacao: TStringField;
+    qryProdutosDadosFiscaisnumero: TIntegerField;
+    qryDadosFiscaissuframa: TStringField;
+    qryDadosFiscaisiesubsttributario: TStringField;
+    qryDadosFiscaistransportadora_cnpj: TStringField;
+    qryDadosFiscaistransportadora_ie: TStringField;
+    qryDadosFiscaistransportadora_nome: TStringField;
+    qryDadosFiscaistransportadora_rua: TStringField;
+    qryDadosFiscaistransportadora_bairro: TIntegerField;
+    qryDadosFiscaistransportadora_nomebairro: TStringField;
+    qryDadosFiscaistransportadora_cidade: TIntegerField;
+    qryDadosFiscaistransportadora_nomecidade: TStringField;
+    qryDadosFiscaistransportadora_cidadeibge: TIntegerField;
+    qryDadosFiscaistransportadora_estado: TStringField;
+    qryDadosFiscaistransportadora_rntc: TStringField;
+    qryDadosFiscaisinfcomplementar: TStringField;
+    qryProdutosDadosFiscaiscodigovisual: TStringField;
+    qryProdutosDadosFiscaisclassificacaofiscal: TStringField;
+    qryProdutosDadosFiscaisincidencia: TStringField;
+    qryProdutosDadosFiscaisunidade: TStringField;
+    qryProdutosDadosFiscaisicmsbasecalculo: TFloatField;
+    qryProdutosDadosFiscaisicmsvalor: TFloatField;
+    qryNaturezasPadrao: TtecQuery;
+    qryNaturezasPadraodescricao: TStringField;
+    qryNaturezasPadraonatureza: TIntegerField;
+    qryNaturezasPadraocodigofiscal: TIntegerField;
+    qryNaturezasPadraodestacaripi: TBooleanField;
+    qryNaturezasPadraocredbigualvalornota: TBooleanField;
+    qryNaturezasPadraogravarsemlanctos: TBooleanField;
+    qryNotaVinculada: TtecQuery;
+    qryNotaVinculadafilial: TIntegerField;
+    qryNotaVinculadaserie: TStringField;
+    qryNotaVinculadanumero: TIntegerField;
+    qryNotaVinculadadadofiscal: TIntegerField;
+    qryDadosFiscaiscodigonatureza: TIntegerField;
+    qrySeriesFiliais: TtecQuery;
+    qrySeriesFiliaisvalor: TStringField;
+    qrySeriesFiliaisnumeroinicial: TIntegerField;
+    qrySeriesFiliaisnumerofinal: TIntegerField;
+    qrySeriesFiliaismodelonota: TIntegerField;
+    qryDadosFiscaisNotaVinculada: TtecQuery;
+    qryDadosFiscaisnuminutilizacaonfe: TStringField;
+    dsrCalculosProdutos: TtecDataSource;
+    qryCalculosProdutos: TtecQuery;
+    qryCalculosProdutostipo: TStringField;
+    qryCalculosProdutosincidencia: TStringField;
+    qryCalculosProdutoscodigofiscal: TIntegerField;
+    qryCalculosProdutosbasecalculo: TFloatField;
+    qryCalculosProdutosaliquota: TFloatField;
+    qryCalculosProdutosvalor: TFloatField;
+    qryCalculosProdutosvalorst: TFloatField;
+    qryCalculosProdutosisentas: TFloatField;
+    qryCalculosProdutosoutras: TFloatField;
+    qryCalculosProdutostotal: TFloatField;
+    qrySeriesFiliaismodelodoctofiscal: TStringField;
+    qryProcurarClientesDadosFiscaisnosimples: TBooleanField;
+    qryProdutosDadosFiscaisreferencia: TStringField;
+    qryDadosFiscaisNotaVinculadanumero: TIntegerField;
+    qryDadosFiscaisNotaVinculadadata: TDateField;
+    qryDadosFiscaisNotaVinculadasituacao: TStringField;
+    qryDadosFiscaisNotaVinculadamanual: TBooleanField;
+    qryDadosFiscaisNotaVinculadafilialvenda: TIntegerField;
+    qryDadosFiscaisNotaVinculadacontrato: TStringField;
+    qryDadosFiscaisNotaVinculadavalortotal: TFloatField;
+    qryDadosFiscaisNotaVinculadavalorvista: TFloatField;
+    qryDadosFiscaisNotaVinculadadesconto: TFloatField;
+    qryDadosFiscaisNotaVinculadavalorfrete: TFloatField;
+    qryDadosFiscaisNotaVinculadaseguro: TFloatField;
+    qryDadosFiscaisNotaVinculadavaloripi: TFloatField;
+    qryDadosFiscaisNotaVinculadadespesasacessorias: TFloatField;
+    qryDadosFiscaisNotaVinculadacodigofiscal: TIntegerField;
+    qryDadosFiscaisNotaVinculadacodigofiscalservico: TIntegerField;
+    qryDadosFiscaisNotaVinculadavendedor: TIntegerField;
+    qryDadosFiscaisNotaVinculadaagente: TIntegerField;
+    qryDadosFiscaisNotaVinculadaestadocfo: TStringField;
+    qryDadosFiscaisNotaVinculadafilialemissao: TIntegerField;
+    qryDadosFiscaisNotaVinculadanatureza: TStringField;
+    qryDadosFiscaisNotaVinculadadescricaosemprodutos: TStringField;
+    qryDadosFiscaisNotaVinculadaplano: TIntegerField;
+    qryDadosFiscaisNotaVinculadaviatransporte: TStringField;
+    qryDadosFiscaisNotaVinculadadatasaida: TDateField;
+    qryDadosFiscaisNotaVinculadafornecedortransporte: TIntegerField;
+    qryDadosFiscaisNotaVinculadafrete: TStringField;
+    qryDadosFiscaisNotaVinculadacliente: TIntegerField;
+    qryDadosFiscaisNotaVinculadatipocliente: TStringField;
+    qryDadosFiscaisNotaVinculadaestadoplaca: TStringField;
+    qryDadosFiscaisNotaVinculadaplaca: TStringField;
+    qryDadosFiscaisNotaVinculadanome: TStringField;
+    qryDadosFiscaisNotaVinculadarua: TStringField;
+    qryDadosFiscaisNotaVinculadabairro: TIntegerField;
+    qryDadosFiscaisNotaVinculadacidade: TIntegerField;
+    qryDadosFiscaisNotaVinculadaestado: TStringField;
+    qryDadosFiscaisNotaVinculadacep: TIntegerField;
+    qryDadosFiscaisNotaVinculadapessoatipo: TStringField;
+    qryDadosFiscaisNotaVinculadapessoanumero: TStringField;
+    qryDadosFiscaisNotaVinculadafonenumero: TIntegerField;
+    qryDadosFiscaisNotaVinculadafoneddd: TIntegerField;
+    qryDadosFiscaisNotaVinculadadocumento: TStringField;
+    qryDadosFiscaisNotaVinculadaobservacoes: TStringField;
+    qryDadosFiscaisNotaVinculadaconceito: TIntegerField;
+    qryDadosFiscaisNotaVinculadadebitar: TIntegerField;
+    qryDadosFiscaisNotaVinculadacreditar: TIntegerField;
+    qryDadosFiscaisNotaVinculadahistorico: TIntegerField;
+    qryDadosFiscaisNotaVinculadatotalbaseicmsproprio: TFloatField;
+    qryDadosFiscaisNotaVinculadatotalvaloricmsproprio: TFloatField;
+    qryDadosFiscaisNotaVinculadatotalbaseicmssubstituicao: TFloatField;
+    qryDadosFiscaisNotaVinculadatotalvaloricmssubstituicao: TFloatField;
+    qryDadosFiscaisNotaVinculadaaliquotaicmsproprio: TFloatField;
+    qryDadosFiscaisNotaVinculadaanexotres: TStringField;
+    qryDadosFiscaisNotaVinculadaacrescimofinanceiro: TFloatField;
+    qryDadosFiscaisNotaVinculadaacrescimoexcluido: TFloatField;
+    qryDadosFiscaisNotaVinculadaicmsexcluido: TFloatField;
+    qryDadosFiscaisNotaVinculadacodigonatureza: TIntegerField;
+    qryDadosFiscaisNotaVinculadavalorservicos: TFloatField;
+    qryDadosFiscaisNotaVinculadairretido: TFloatField;
+    qryDadosFiscaisNotaVinculadainssretido: TFloatField;
+    qryDadosFiscaisNotaVinculadaissretido: TFloatField;
+    qryDadosFiscaisNotaVinculadacofinsretido: TFloatField;
+    qryDadosFiscaisNotaVinculadapisretido: TFloatField;
+    qryDadosFiscaisNotaVinculadacsllretido: TFloatField;
+    qryDadosFiscaisNotaVinculadabaseicms: TFloatField;
+    qryDadosFiscaisNotaVinculadavaloricms: TFloatField;
+    qryDadosFiscaisNotaVinculadavalorissqn: TFloatField;
+    qryDadosFiscaisNotaVinculadavalorprodutos: TFloatField;
+    qryDadosFiscaisNotaVinculadasubstituicaoipi: TBooleanField;
+    qryDadosFiscaisNotaVinculadaobservacoescomplementar: TStringField;
+    qryDadosFiscaisNotaVinculadaobscliente: TStringField;
+    qryDadosFiscaisNotaVinculadaobsclienteipisuspenso: TStringField;
+    qryDadosFiscaisNotaVinculadaobservacoesicmssubstituido: TStringField;
+    qryDadosFiscaisNotaVinculadadadofiscalcomplementar: TIntegerField;
+    qryDadosFiscaisNotaVinculadaversaolayout: TFloatField;
+    qryDadosFiscaisNotaVinculadamodelodocto: TStringField;
+    qryDadosFiscaisNotaVinculadanrdocumento: TIntegerField;
+    qryDadosFiscaisNotaVinculadacodaleatorio: TIntegerField;
+    qryDadosFiscaisNotaVinculadaformapagto: TIntegerField;
+    qryDadosFiscaisNotaVinculadaformatodanfe: TIntegerField;
+    qryDadosFiscaisNotaVinculadaformaemissao: TIntegerField;
+    qryDadosFiscaisNotaVinculadadigchaveacesso: TIntegerField;
+    qryDadosFiscaisNotaVinculadaambiente: TIntegerField;
+    qryDadosFiscaisNotaVinculadafinalidadenf: TIntegerField;
+    qryDadosFiscaisNotaVinculadaprocemissao: TIntegerField;
+    qryDadosFiscaisNotaVinculadaversaoteclux: TStringField;
+    qryDadosFiscaisNotaVinculadatotalimportacao: TFloatField;
+    qryDadosFiscaisNotaVinculadatotalvalorpis: TFloatField;
+    qryDadosFiscaisNotaVinculadatotalvalorcofins: TFloatField;
+    qryDadosFiscaisNotaVinculadanomebairro: TStringField;
+    qryDadosFiscaisNotaVinculadanomecidade: TStringField;
+    qryDadosFiscaisNotaVinculadacidadeibge: TIntegerField;
+    qryDadosFiscaisNotaVinculadapais: TIntegerField;
+    qryDadosFiscaisNotaVinculadanomepais: TStringField;
+    qryDadosFiscaisNotaVinculadalocalretirada_cnpj: TStringField;
+    qryDadosFiscaisNotaVinculadalocalretirada_rua: TStringField;
+    qryDadosFiscaisNotaVinculadalocalretirada_complemento: TStringField;
+    qryDadosFiscaisNotaVinculadalocalretirada_bairro: TIntegerField;
+    qryDadosFiscaisNotaVinculadalocalretirada_nomebairro: TStringField;
+    qryDadosFiscaisNotaVinculadalocalretirada_cidade: TIntegerField;
+    qryDadosFiscaisNotaVinculadalocalretirada_cep: TIntegerField;
+    qryDadosFiscaisNotaVinculadalocalretirada_nomecidade: TStringField;
+    qryDadosFiscaisNotaVinculadalocalretirada_cidadeibge: TIntegerField;
+    qryDadosFiscaisNotaVinculadalocalretirada_estado: TStringField;
+    qryDadosFiscaisNotaVinculadalocalentrega_cnpj: TStringField;
+    qryDadosFiscaisNotaVinculadalocalentrega_rua: TStringField;
+    qryDadosFiscaisNotaVinculadalocalentrega_complemento: TStringField;
+    qryDadosFiscaisNotaVinculadalocalentrega_bairro: TIntegerField;
+    qryDadosFiscaisNotaVinculadalocalentrega_nomebairro: TStringField;
+    qryDadosFiscaisNotaVinculadalocalentrega_cidade: TIntegerField;
+    qryDadosFiscaisNotaVinculadalocalentrega_cep: TIntegerField;
+    qryDadosFiscaisNotaVinculadalocalentrega_nomecidade: TStringField;
+    qryDadosFiscaisNotaVinculadalocalentrega_cidadeibge: TIntegerField;
+    qryDadosFiscaisNotaVinculadalocalentrega_estado: TStringField;
+    qryDadosFiscaisNotaVinculadatransportadora_cnpj: TStringField;
+    qryDadosFiscaisNotaVinculadatransportadora_ie: TStringField;
+    qryDadosFiscaisNotaVinculadatransportadora_nome: TStringField;
+    qryDadosFiscaisNotaVinculadatransportadora_rua: TStringField;
+    qryDadosFiscaisNotaVinculadatransportadora_bairro: TIntegerField;
+    qryDadosFiscaisNotaVinculadatransportadora_nomebairro: TStringField;
+    qryDadosFiscaisNotaVinculadatransportadora_cidade: TIntegerField;
+    qryDadosFiscaisNotaVinculadatransportadora_nomecidade: TStringField;
+    qryDadosFiscaisNotaVinculadatransportadora_cidadeibge: TIntegerField;
+    qryDadosFiscaisNotaVinculadatransportadora_estado: TStringField;
+    qryDadosFiscaisNotaVinculadatransportadora_rntc: TStringField;
+    qryDadosFiscaisNotaVinculadainfcomplementar: TStringField;
+    qryDadosFiscaisNotaVinculadaexportacoes_ufembarque: TStringField;
+    qryDadosFiscaisNotaVinculadaexportacoes_localembarque: TStringField;
+    qryDadosFiscaisNotaVinculadaendnumero: TIntegerField;
+    qryDadosFiscaisNotaVinculadaendcomplemento: TStringField;
+    qryDadosFiscaisNotaVinculadalocalretirada_numero: TIntegerField;
+    qryDadosFiscaisNotaVinculadalocalentrega_numero: TIntegerField;
+    qryDadosFiscaisNotaVinculadasuframa: TStringField;
+    qryDadosFiscaisNotaVinculadaiesubsttributario: TStringField;
+    qryDadosFiscaisNotaVinculadanumlotenfe: TStringField;
+    qryDadosFiscaisNotaVinculadanumrecibonfe: TStringField;
+    qryDadosFiscaisNotaVinculadanumprotocolonfe: TStringField;
+    qryDadosFiscaisNotaVinculadaemail: TStringField;
+    qryDadosFiscaisNotaVinculadadatacancelamento: TDateField;
+    qryDadosFiscaisNotaVinculadanumcancelamentonfe: TStringField;
+    qryDadosFiscaisNotaVinculadachv_nfe: TStringField;
+    qryDadosFiscaisNotaVinculadanuminutilizacaonfe: TStringField;
+    qryDadosFiscaisNotaVinculadadatahoraemissao: TDateTimeField;
+    qryDadosFiscaisNotaVinculadaregimetributario: TIntegerField;
+    qryDadosFiscaisNotaVinculadanosimples: TBooleanField;
+    qryDadosFiscaisNotaVinculadadhprocnfe: TDateTimeField;
+    qryDadosFiscaisNotaVinculadausuariologadoalteracao: TIntegerField;
+    qryDadosFiscaisNotaVinculadausuarioalteracao: TIntegerField;
+    qryDadosFiscaisNotaVinculadadatahoraalteracaousuario: TDateTimeField;
+    qryNotaVinculadadadofiscalvinculado: TIntegerField;
+    qryProdutosDadosFiscaisNotaVinculada: TtecQuery;
+    qryProdutosDadosFiscaisNotaVinculadadadofiscal: TIntegerField;
+    qryProdutosDadosFiscaisNotaVinculadanumero: TIntegerField;
+    qryProdutosDadosFiscaisNotaVinculadaproduto: TLargeintField;
+    qryProdutosDadosFiscaisNotaVinculadafilial: TIntegerField;
+    qryProdutosDadosFiscaisNotaVinculadavendedor: TIntegerField;
+    qryProdutosDadosFiscaisNotaVinculadaentregar: TBooleanField;
+    qryProdutosDadosFiscaisNotaVinculadaquantidade: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadaprecovenda: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadaprecotabela: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadadescricaoprecovenda: TStringField;
+    qryProdutosDadosFiscaisNotaVinculadareserva: TIntegerField;
+    qryProdutosDadosFiscaisNotaVinculadaaliquotaicms: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadareducaobase: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadaincidencia: TStringField;
+    qryProdutosDadosFiscaisNotaVinculadaicms: TIntegerField;
+    qryProdutosDadosFiscaisNotaVinculadamovimento: TIntegerField;
+    qryProdutosDadosFiscaisNotaVinculadabaseicms: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadaaliquotaipi: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadavaloripi: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadaclassificacaofiscal: TStringField;
+    qryProdutosDadosFiscaisNotaVinculadaipi: TIntegerField;
+    qryProdutosDadosFiscaisNotaVinculadacomposto: TBooleanField;
+    qryProdutosDadosFiscaisNotaVinculadadiscriminarcomposto: TStringField;
+    qryProdutosDadosFiscaisNotaVinculadadiscriminarpreco: TBooleanField;
+    qryProdutosDadosFiscaisNotaVinculadafatorsubstituicao: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadapercentualreducaobase: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadacodigonota: TIntegerField;
+    qryProdutosDadosFiscaisNotaVinculadabrinde: TBooleanField;
+    qryProdutosDadosFiscaisNotaVinculadaacrescimo: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadadesconto: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadafrete: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadaseguro: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadasubstituicaoipi: TBooleanField;
+    qryProdutosDadosFiscaisNotaVinculadadespesasacessorias: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadavalordescontoitem: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadanatureza: TIntegerField;
+    qryProdutosDadosFiscaisNotaVinculadacodigofiscal: TIntegerField;
+    qryProdutosDadosFiscaisNotaVinculadaosp: TIntegerField;
+    qryProdutosDadosFiscaisNotaVinculadaccf: TIntegerField;
+    qryProdutosDadosFiscaisNotaVinculadacst: TIntegerField;
+    qryProdutosDadosFiscaisNotaVinculadasequenciaipi: TIntegerField;
+    qryProdutosDadosFiscaisNotaVinculadadescricaoproduto: TStringField;
+    qryProdutosDadosFiscaisNotaVinculadagenero: TIntegerField;
+    qryProdutosDadosFiscaisNotaVinculadaextipi: TStringField;
+    qryProdutosDadosFiscaisNotaVinculadaicmsmodalidade: TIntegerField;
+    qryProdutosDadosFiscaisNotaVinculadaicmsmodsubst: TIntegerField;
+    qryProdutosDadosFiscaisNotaVinculadatribcodigoean: TStringField;
+    qryProdutosDadosFiscaisNotaVinculadatribunidade: TStringField;
+    qryProdutosDadosFiscaisNotaVinculadatribquantidade: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadatribunitario: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadaenquadramento: TIntegerField;
+    qryProdutosDadosFiscaisNotaVinculadaipicst: TStringField;
+    qryProdutosDadosFiscaisNotaVinculadaipibasecalculo: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadaiibasecalculo: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadaiidespaduaneira: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadaiivalor: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadaiiiof: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadapiscst: TStringField;
+    qryProdutosDadosFiscaisNotaVinculadapisbasecalculo: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadapisaliquota: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadapisvalor: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadacofinscst: TStringField;
+    qryProdutosDadosFiscaisNotaVinculadacofinsbasecalculo: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadacofinsaliquota: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadacofinsvalor: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadaicmsvalor: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadaunidade: TStringField;
+    qryProdutosDadosFiscaisNotaVinculadaicmsbasecalculo: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadapn: TLargeintField;
+    qryProdutosDadosFiscaisNotaVinculadaaliquotaicmsst: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadaicmsbasecalculost: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadaicmsvalorst: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadaind_mov_fisica: TIntegerField;
+    qryProdutosDadosFiscaisNotaVinculadalocalizacao: TStringField;
+    qryProdutosDadosFiscaisNotaVinculadacsosn: TStringField;
+    qryProdutosDadosFiscaisNotaVinculadapcredsn: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadavcredicmssn: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadapredbcst: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadareducaobasest: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadavbcstret: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadavicmsstret: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadaicmsisentas: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadaicmsoutras: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadaipioutras: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadaipiisentas: TFloatField;
+    qryProdutosDadosFiscaisNotaVinculadavaloripidigitado: TBooleanField;
+    qryProdutosDadosFiscaisNotaVinculadavaloricmsdigitado: TBooleanField;
+    qryProdutosDadosFiscaisNotaVinculadavaloricmsstdigitado: TBooleanField;
+    qryProdutosDadosFiscaisNotaVinculadanaogerardebitoicms: TBooleanField;
+    qryProdutosDadosFiscaisNotaVinculadanaogerardebitoipi: TBooleanField;
+    qryProdutosDadosFiscaisNotaVinculadanaocalcularipisobrefrete: TBooleanField;
+    qryProdutosDadosFiscaisNotaVinculadaxped: TStringField;
+    qryProdutosDadosFiscaisNotaVinculadaprodutomonstruario: TBooleanField;
+    qryProdutosDadosFiscaisNotaVinculadausuariologadoalteracao: TIntegerField;
+    qryProdutosDadosFiscaisNotaVinculadausuarioalteracao: TIntegerField;
+    qryProdutosDadosFiscaisNotaVinculadadatahoraalteracaousuario: TDateTimeField;
+    qryProdutosDadosFiscaisCompostosNotaVinculada: TtecQuery;
+    qryProdutosDadosFiscaisCompostosNotaVinculadadadofiscal: TIntegerField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadacomposto: TLargeintField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadanumero: TIntegerField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadacomponente: TLargeintField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadafilial: TIntegerField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadavendedor: TIntegerField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaentregar: TBooleanField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaquantidade: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaprecovenda: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaprecotabela: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadadescricaoprecovenda: TStringField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadareserva: TIntegerField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaaliquotaicms: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadareducaobase: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaincidencia: TStringField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaicms: TIntegerField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadabaseicms: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaaliquotaipi: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadavaloripi: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaclassificacaofiscal: TStringField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaipi: TIntegerField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadafatorsubstituicao: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadavalordescontoitem: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadapn: TLargeintField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadagenero: TIntegerField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaextipi: TStringField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaicmsmodalidade: TIntegerField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaicmsmodsubst: TIntegerField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaicmsbasecalculo: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaicmsvalor: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaicmsbasecalculost: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaicmsvalorst: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaaliquotaicmsst: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadatribcodigoean: TStringField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadatribunidade: TStringField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadatribquantidade: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadatribunitario: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaenquadramento: TIntegerField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaipicst: TStringField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaipibasecalculo: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaiibasecalculo: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaiidespaduaneira: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaiivalor: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaiiiof: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadapiscst: TStringField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadapisbasecalculo: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadapisaliquota: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadapisvalor: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadacofinscst: TStringField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadacofinsbasecalculo: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadacofinsaliquota: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadacofinsvalor: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaunidade: TStringField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadacodigofiscal: TIntegerField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadanatureza: TIntegerField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadadesconto: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadafrete: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaseguro: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaacrescimo: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadadescricao: TStringField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadacsosn: TStringField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadapcredsn: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadavcredicmssn: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadapredbcst: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadareducaobasest: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadavbcstret: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadavicmsstret: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaicmsisentas: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaicmsoutras: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaipioutras: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaipiisentas: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadadespesasacessorias: TFloatField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadapercentualreducaobase: TFloatField;
+    qryVenctosDadosFiscaisNotaVinculada: TtecQuery;
+    qryVenctosDadosFiscaisNotaVinculadadadofiscal: TIntegerField;
+    qryVenctosDadosFiscaisNotaVinculadanumero: TIntegerField;
+    qryVenctosDadosFiscaisNotaVinculadadatavencto: TDateField;
+    qryVenctosDadosFiscaisNotaVinculadavalorvencto: TFloatField;
+    qryServicosDadosFiscaisNotaVinculada: TtecQuery;
+    qryServicosDadosFiscaisNotaVinculadadadofiscal: TIntegerField;
+    qryServicosDadosFiscaisNotaVinculadaservico: TIntegerField;
+    qryServicosDadosFiscaisNotaVinculadaquantidade: TIntegerField;
+    qryServicosDadosFiscaisNotaVinculadaaliquotaissqn: TFloatField;
+    qryServicosDadosFiscaisNotaVinculadavalorservico: TFloatField;
+    qryServicosDadosFiscaisNotaVinculadacomplementoservico: TStringField;
+    qryServicosDadosFiscaisNotaVinculadaequipamento: TIntegerField;
+    qryServicosDadosFiscaisNotaVinculadaproduto: TLargeintField;
+    qryServicosDadosFiscaisNotaVinculadafilialproduto: TIntegerField;
+    qryServicosDadosFiscaisNotaVinculadaestado: TStringField;
+    qryServicosDadosFiscaisNotaVinculadacidade: TIntegerField;
+    qryServicosDadosFiscaisNotaVinculadareterissqn: TBooleanField;
+    qryServicosDadosFiscaisNotaVinculadavalorissqn: TFloatField;
+    qryServicosDadosFiscaisNotaVinculadanatureza: TIntegerField;
+    qryServicosDadosFiscaisNotaVinculadacodigofiscal: TIntegerField;
+    qryVolumesDadosFiscaisNotaVinculada: TtecQuery;
+    qryVolumesDadosFiscaisNotaVinculadadadofiscal: TIntegerField;
+    qryVolumesDadosFiscaisNotaVinculadacodigo: TIntegerField;
+    qryVolumesDadosFiscaisNotaVinculadavolumes: TIntegerField;
+    qryVolumesDadosFiscaisNotaVinculadanumeracao: TStringField;
+    qryVolumesDadosFiscaisNotaVinculadamarca: TStringField;
+    qryVolumesDadosFiscaisNotaVinculadapesobruto: TFloatField;
+    qryVolumesDadosFiscaisNotaVinculadapesoliquido: TFloatField;
+    qryVolumesDadosFiscaisNotaVinculadaespecietransporte: TStringField;
+    spcDadosFiscaisProximo: TtecQuery;
+    spcDadosFiscaisProximonumero: TIntegerField;
+    dsrDadosFiscaisNotaVinculada: TtecDataSource;
+    qryDadosFiscaisNotaVinculadatotalprodutos: TFloatField;
+    qryDadosFiscaisNotaVinculadavcredicmssn: TFloatField;
+    qryDadosFiscaisNotaVinculadavicmsstret: TFloatField;
+    qryNotasdadofiscalvinculado: TIntegerField;
+    qryNotasnumprotocolonfe: TStringField;
+    qryNotasnumcancelamentonfe: TStringField;
+    qryNotasnuminutilizacaonfe: TStringField;
+    qryNotaschave_nfe: TStringField;
+    qryNotasnumlotenfe: TStringField;
+    qryNotasnumrecibonfe: TStringField;
+    qryDadosFiscaisNotaVinculadanotavinculada: TBooleanField;
+    qryProdutosDadosFiscaisNotaVinculadacodigo_efd_t53: TStringField;
+    qryProdutosDadosFiscaisNotaVinculadanitemped: TIntegerField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadacodigo_efd_t53: TStringField;
+    qryDadosFiscaisNotaVinculadahsaient: TDateTimeField;
+    qryNotasdata: TDateField;
+    qryDadosFiscaisdescricaosituacao: TStringField;
+    qryDadosFiscaiscodigocidadeibgefilial: TIntegerField;
+    qryDadosFiscaiscnpjfilial: TStringField;
+    qryDadosFiscaismodelodocto: TStringField;
+    qryDadosFiscaisformaemissao: TIntegerField;
+    qryNotascodigocidadeibgefilial: TIntegerField;
+    qryNotascnpjfilial: TStringField;
+    qryNotasNFE_Calculada: TStringField;
+    qryNotasemail: TStringField;
+    qryProdutosDadosFiscaisproduto_cliente: TStringField;
+    qryProdutosDadosFiscaisdadofiscal: TIntegerField;
+    qryProdutosDadosFiscaisorigem: TIntegerField;
+    qryProdutosDadosFiscaisCompostosNotaVinculadaorigem: TIntegerField;
+    qryProdutosDadosFiscaisNotaVinculadaorigem: TIntegerField;
+    qryDadosFiscaisvbcstret: TFloatField;
+    qryDadosFiscaisvicmsstret: TFloatField;
+    qryDadosFiscaisvicmsstretdesp: TFloatField;
+    qryDadosFiscaisvbcstretdesp: TFloatField;
+    qryDadosFiscaisstatusnfe: TIntegerField;
+    qryDadosFiscaisNotaVinculadaclientecontribicms: TBooleanField;
+    procedure qryNotasAfterScroll(DataSet: TDataSet);
+    procedure qryCuponsAfterScroll(DataSet: TDataSet);
+    procedure qryDadosFiscaisAfterScroll(DataSet: TDataSet);
+    procedure qryProcurarClientesAfterOpen(DataSet: TDataSet);
+    procedure qryProdutosDadosFiscaisAfterInsert(DataSet: TDataSet);
+    procedure qryProdutosDadosFiscaisAfterOpen(DataSet: TDataSet);
+    procedure qryProdutosDadosFiscaisAfterScroll(DataSet: TDataSet);
+    procedure dsrDadosFiscaisDataChange(Sender: TObject; Field: TField);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure qryDadosFiscaisCalcFields(DataSet: TDataSet);
+    procedure qryNotasCalcFields(DataSet: TDataSet);
+    procedure qryCalculosProdutosBeforeOpen(DataSet: TDataSet);
+
+  private
+    FOnScrollLinhaColunaGrade: TNotifyEvent;
+    FOnScrollTipoPessoa: TNotifyEvent;
+    fCondicaoEmissorNFE: Boolean;
+    function GetTipoCliente: String;
+    function GetNotaCancelada: Boolean;
+    function GetColunadaGrade: String;
+    function GetLinhadaGrade: String;
+    function GetCondicaoEmissorNFE: Boolean;
+  protected
+    FEmissaoInicial: String;
+    FEmissaoFinal: String;
+    FConsultar: String;
+    function GetTipoPessoa: String;
+    function GetConsultarFornecedorTransporte: TZDataset;
+    function GetConsultarFiliais: TZDataSet;
+    function GetConsultarCFOP: TZDataSet;
+    function GetConsultarClientes: TZDataSet;
+    function GetTabelaDadosFiscais: TZDataset;
+    procedure SetConsultar(const Value: String);
+    procedure SetCliente(const Value: String);
+    procedure SetECF(const Value: String);
+    procedure SetEmissaoFinal(const Value: String);
+    procedure SetEmissaoInicial(const Value: String);
+    procedure SetFilial(const Value: String);
+    procedure SetCfop  (const Value: String);
+    procedure SetIntervencao(const Value: String);
+    procedure SetNumero(const Value: String);
+    procedure SetSerie(const Value: String);
+    procedure MontaDataEmissao;
+    procedure ReFazConsultaTabelas(Codigo: Integer);
+    procedure LimparTabelas;
+    function  VerificarSerieFilial:Boolean;
+
+
+  public
+    procedure AlterarSituacaoEntrega;
+    procedure AbreTabelaPesquisa(TipoPesquisa: TtecConsultaNotasCupons);
+    procedure FechaTabelaPesquisa(TipoPesquisa: TtecConsultaNotasCupons);
+    procedure Selecionar(Pesquisa: TtecConsultaNotasCupons);
+    function  ImprimirNota(Impressora: String): boolean;
+    function  GravarNotaVinculada: Boolean;
+    procedure ImprimirNFe(Impressora: String);
+    procedure ImprimirDanfe;
+    function  GerarNFe(Impressora: String): Boolean;
+    procedure ImprimirEspelhoNota;
+    procedure AcertarCasasDecimais;
+    function  AlterarNota: Boolean;
+    function  GerarConsulta: Boolean;
+    function  GravarAlteracoesNota: Boolean;
+    function  ExisteFilial (campo, codigo: string): Boolean;
+    function  ExisteCliente(Campo, codigo: string): Boolean;
+    function  ExisteCFOP   (campo, codigo: string): Boolean;
+    function  ExisteFornecedorTransporte(campo, codigo: String): Boolean;
+
+    constructor Create(AOwner: TComponent); override;
+    property ConsultarFiliais: TZDataSet read GetConsultarFiliais;
+    property ConsultarClientes: TZDataSet read GetConsultarClientes;
+    property ConsultarCFOP: TZDataSet read GetConsultarCFOP;
+    property ConsultarFornecedorTransporte: TZDataset read GetConsultarFornecedorTransporte;
+    property TabelaDadosFiscais: TZDataset read GetTabelaDadosFiscais;
+    property Filial:  String write SetFilial;
+    property Cliente: String write SetCliente;
+    property Cfop:    String write SetCfop;
+    property EmissaoInicial: String read FEmissaoInicial write SetEmissaoInicial;
+    property EmissaoFinal: String read FEmissaoFinal write SetEmissaoFinal;
+    property Serie: String write SetSerie;
+    property Numero: String write SetNumero;
+    property ECF: String write SetECF;
+    property Intervencao: String write SetIntervencao;
+    property Consultar: String read FConsultar write SetConsultar; // N ou C
+    property TipoPessoa: String read GetTipoPessoa;
+    property TipoCliente: String read GetTipoCliente;
+    property NotaCancelada: Boolean read GetNotaCancelada;
+    property OnScrollLinhaColunaGrade    : TNotifyEvent read FOnScrollLinhaColunaGrade write FOnScrollLinhaColunaGrade;
+    property LinhadaGrade: String read GetLinhadaGrade;
+    property ColunadaGrade: String read GetColunadaGrade;
+    property OnScrollTipoPessoa : TNotifyEvent read FOnScrollTipoPessoa write FOnScrollTipoPessoa;
+    function EmitirNFe(Validando: Boolean = False): Boolean;
+
+    function GetChave_nfe: String;
+    function GetCodigoNota: Integer;
+    function GetEmail: String;
+    function GetSerieNota: String;
+    function GetFilialNota: String;
+    function GetNumeroNota: String;
+    function GetEmailNotaVinculada: String;
+    function getDataNota: TDateTime;
+    function GetCondicaoCartaCorrecao: Boolean;
+
+    property chave_nfe : String read GetChave_nfe;
+    property codigonota: Integer read GetCodigoNota;
+    property email: String read GetEmail;
+    property filialNota: String read GetFilialNota;
+    property NumeroNota: String read GetNumeroNota;
+    property EmailNotaVinculada: String read GetEmailNotaVinculada;
+    property SerieNota: String read GetSerieNota;
+    property DataNota: TDateTime read getDataNota;
+    property CondicaoCartaCorrecao: Boolean read GetCondicaoCartaCorrecao;
+
+    property CondicaoEmissorNFE: Boolean read GetCondicaoEmissorNFE write fCondicaoEmissorNFE;
+
+
+  end;
+
+var
+    dtmConsultaNotasFiscais: TdtmConsultaNotasFiscais;
+
+  
+implementation
+
+uses
+  //Repositorio
+  dmtecsoft, dmimprimefiscal,
+  //Biblio
+  clnfe;
+
+{$R *.dfm}
+
+function TdtmConsultaNotasFiscais.AlterarNota: Boolean;
+var
+  Usuario           : TtecUsuarios;
+begin
+  Result:= False;
+  Usuario:= TtecUsuarios.Create(dtmTecSoft.Database);
+  try
+    if UsuarioLogin.AlterarDadosContabeis then
+         Usuario:= ObterAutorizacao(taSENHA)
+    else Usuario:= ObterAutorizacao(taLOGIN, ctALTERARDADOSCONTABEIS, ctAUTORIZADO);
+
+    if Assigned(Usuario) then begin
+      if Usuario.AlterarDadosContabeis then begin
+        Result:= True;
+        qryDadosFiscais.ReadOnly:= False;
+        qryProdutosDadosFiscais.ReadOnly:= False;
+        qryDadosFiscais.Edit;
+        qryDadosFiscaispessoanumero.AsString := qryProcurarClientesDadosFiscaispessoanumero.AsString;
+        qryDadosFiscaisdocumento.AsString    := qryProcurarClientesDadosFiscaisinscricaoestadual.AsString;
+        qryDadosFiscaisestadocfo.AsString    := qryProcurarClientesDadosFiscaisestado.AsString;
+        qryDadosFiscaisnome.AsString         := qryProcurarClientesDadosFiscaisnome.AsString;
+        qryDadosFiscaisrua.AsString          := qryProcurarClientesDadosFiscaisrua.AsString;
+
+        qryDadosFiscaisendnumero.AsString          := qryProcurarClientesDadosFiscaisnumero.AsString;
+        qryDadosFiscaisendcomplemento.AsString          := qryProcurarClientesDadosFiscaiscomplemento.AsString;
+
+
+        qryDadosFiscaisbairro.AsString := qryProcurarClientesDadosFiscaisbairro.AsString;
+
+        qryDadosFiscaisbairronome.AsString := qryProcurarClientesDadosFiscaisnomebairro.AsString;
+
+        qryDadosFiscaiscidade.AsString := qryProcurarClientesDadosFiscaiscidade.AsString;
+
+        qryDadosFiscaiscidadenome.AsString := qryProcurarClientesDadosFiscaisnomecidade.AsString;
+
+        qryDadosFiscaisestado.AsString := qryProcurarClientesDadosFiscaisestado.AsString;
+
+        qryDadosFiscaiscep.AsString    := qryProcurarClientesDadosFiscaiscep.AsString;
+
+        qryDadosFiscaispessoatipo.AsString := qryProcurarClientesDadosFiscaispessoatipo.AsString;
+
+        qryDadosFiscaisfonenumero.AsString := qryProcurarClientesDadosFiscaisfonenumero.AsString;
+
+        qryDadosFiscaisfoneddd.AsString    := qryProcurarClientesDadosFiscaisfoneddd.AsString;
+      end
+      else
+        MensagemAviso(ctUSUARIOSEMPERMISSAO);
+    end;
+  finally
+    Usuario.Free;
+  end;
+end;
+
+
+function TdtmConsultaNotasFiscais.GetConsultarFiliais: TZDataSet;
+begin
+  Result:= qryConsultaFiliais;
+end;
+
+function TdtmConsultaNotasFiscais.ExisteFilial(campo, codigo: string): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaFiliais, campo, codigo);
+end;
+
+constructor TdtmConsultaNotasFiscais.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryProcurarFiliais.Tag              := ctTabelas;
+  qryProcurarCFOP.Tag                 := ctTabelas;
+  qryProcurarCFOPPesquisa.Tag         := ctTabelas;
+  qryProcurarFornecedorTransporte.Tag := ctTabelas;
+  qryProcurarClientes.Tag             := ctTabelas;
+  qryProcurarClientesDadosFiscais.Tag := ctTabelas;
+  qryConsultaFiliais.Tag              := ctPesquisaFilial;
+  qryConsultaCFOP.Tag                 := ctPesquisaCodigoFiscal;
+  qryConsultaFornecedorTransporte.Tag := ctTabelasConsultaFornecedores;
+  qryConsultaClientes.Tag := ctPesquisaClientes;
+  qryProcurarClientes.Params[0].AsString := 'C';
+  qryProcurarClientesDadosFiscais.Params[0].AsString := 'C';
+  qryProdutosDadosFiscaisquantidade.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+end;
+
+procedure TdtmConsultaNotasFiscais.Selecionar(Pesquisa: TtecConsultaNotasCupons);
+begin
+  case Pesquisa of
+         cncFILIAL: ReFazConsulta(qryProcurarFiliais,[0],[qryConsultaFiliaiscodigo.AsInteger]);
+         cncCLIENTE: ReFazConsulta(qryProcurarClientes,[0,1],[qryConsultaClientestipo.AsString,
+                                                              qryConsultaClientescodigo.AsInteger]);
+         cncCLIENTEDADOFISCAL: begin
+                                ReFazConsulta(qryProcurarClientesDadosFiscais,[0,1],[qryConsultaClientestipo.AsString,
+                                                              qryConsultaClientescodigo.AsInteger]);
+                                qryDadosFiscaiscliente.AsInteger := qryConsultaClientescodigo.AsInteger;
+                                qryDadosFiscaistipocliente.AsString := qryConsultaClientestipo.AsString;
+                               end;
+         cncCFOP: qryDadosFiscaiscodigofiscal.AsInteger := qryConsultaCFOPcodigo.AsInteger;
+         cncCFOPSELECAO: ReFazConsulta(qryProcurarCFOPPesquisa,[0],[qryConsultaCFOPcodigo.AsInteger]);
+         cncFORNECEDORTRANSPORTE: qryDadosFiscaisfornecedortransporte.AsInteger:= qryConsultaFornecedorTransportecodigo.AsInteger;
+  end;
+end;
+
+procedure TdtmConsultaNotasFiscais.AlterarSituacaoEntrega;
+begin
+  if not qryProdutosDadosFiscais.ReadOnly then begin
+    qryProdutosDadosFiscais.Edit;
+    qryProdutosDadosFiscaisentregar.AsBoolean:= not qryProdutosDadosFiscaisentregar.AsBoolean;
+    qryProdutosDadosFiscais.Post;
+  end;  
+end;
+
+procedure TdtmConsultaNotasFiscais.AbreTabelaPesquisa(TipoPesquisa: TtecConsultaNotasCupons);
+begin
+  case TipoPesquisa of
+         cncFILIAL: Abre(ctPesquisaFilial);
+        cncCLIENTE, cncCLIENTEDADOFISCAL: Abre(ctPesquisaClientes); // qryConsultaClientes.Open;
+           cncCFOP, cncCFOPSELECAO: Abre(ctPesquisaCodigoFiscal);
+  cncFORNECEDORTRANSPORTE: Abre(ctTabelasConsultaFornecedores);
+  end;
+end;
+
+procedure TdtmConsultaNotasFiscais.FechaTabelaPesquisa(TipoPesquisa: TtecConsultaNotasCupons);
+begin
+  case TipoPesquisa of
+         cncFILIAL: Fecha(ctPesquisaFilial);
+        cncCLIENTE, cncCLIENTEDADOFISCAL: Fecha(ctPesquisaClientes);
+           cncCFOP, cncCFOPSELECAO: Fecha(ctPesquisaCodigoFiscal);
+  cncFORNECEDORTRANSPORTE: Fecha(ctTabelasConsultaFornecedores);
+  end;
+end;
+
+function TdtmConsultaNotasFiscais.GravarAlteracoesNota: Boolean;
+var
+  ValorNota,
+  ImpostoICMS,
+  ImpostoISS: Currency;
+  ICMS,
+  ISS: Boolean;
+begin
+  Result:= True;
+  ImpostoICMS := 0;
+  ImpostoISS  := 0;
+  ICMS        := False;
+  ISS         := False;
+  if qryDadosFiscais.State = dsEdit then begin
+        qryDadosFiscais.Post;
+        Perpetrar([qryDadosFiscais, qryProdutosDadosFiscais]);
+        qryDadosFiscais.ReadOnly:= True;
+        qryProdutosDadosFiscais.ReadOnly:= True;
+  end
+end;
+
+
+
+function TdtmConsultaNotasFiscais.ExisteCFOP(campo, codigo: string): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaCFOP, campo, codigo);
+end;
+
+function TdtmConsultaNotasFiscais.ExisteFornecedorTransporte(campo, codigo: String): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaFornecedorTransporte, campo, codigo);
+end;
+
+function TdtmConsultaNotasFiscais.ExisteCliente(Campo, codigo: string): Boolean;
+const
+  SQL = 'where (upper(to_ascii(%s,''latin1'')) ilike upper(to_ascii(''%s%s'',''latin1'')))';
+begin
+  if Campo = 'nomecidade' then
+    Campo:= 'c.nome'
+  else if Campo = 'tipopessoa' then
+    Campo:= 'v.tipo'
+  else Campo:= 'v.' + Campo;
+  qryConsultaClientes.Sql[11] := Format(SQL, [Campo, Codigo, '%']);
+  qryConsultaClientes.Open;
+  Result := qryConsultaClientes.RecordCount > 0
+end;
+
+function TdtmConsultaNotasFiscais.GetConsultarClientes: TZDataSet;
+begin
+  Result:= qryConsultaClientes;
+end;
+
+function TdtmConsultaNotasFiscais.GetConsultarCFOP: TZDataSet;
+begin
+  Result:= qryConsultaCFOP;
+end;
+
+function TdtmConsultaNotasFiscais.GetTabelaDadosFiscais: TZDataset;
+begin
+  Result:= qryDadosFiscais;
+end;
+
+function TdtmConsultaNotasFiscais.GetTipoCliente: String;
+begin
+  if qryProcurarClientestipo.AsString = '' then
+     Result:= 'F'
+  else
+     Result:= qryProcurarClientestipo.AsString;
+end;
+
+function TdtmConsultaNotasFiscais.GetConsultarFornecedorTransporte: TZDataset;
+begin
+  Result:= qryConsultaFornecedorTransporte;
+end;
+
+procedure TdtmConsultaNotasFiscais.SetCliente(const Value: String);
+begin
+  if FConsultar = 'N' then begin
+    if Value <> '' then
+         qryNotas.macrobyname('Cliente').asstring :=  'and (d.cliente = ' + Value + ') and (d.tipocliente = ' +
+                                      '''' + qryProcurarClientestipo.AsString + '''' + ')'
+    else qryNotas.macrobyname('Cliente').asstring := '';
+  end
+  else
+  begin
+    if Value <> '' then
+         qryCupons.macrobyname('Cliente').asstring := 'and (d.cliente = ' + Value + ') and (d.tipocliente = ' +
+                                       '''' + qryProcurarClientestipo.AsString + '''' + ')'
+
+    else qryCupons.macrobyname('Cliente').asstring := '';
+  end;
+end;
+
+procedure TdtmConsultaNotasFiscais.SetECF(const Value: String);
+begin
+  if Value <> '' then
+       qryCupons.macrobyname('ECF').asstring := 'and (c.maquina = ' + Value + ')'
+  else qryCupons.macrobyname('ECF').asstring := '';
+end;
+
+procedure TdtmConsultaNotasFiscais.SetEmissaoFinal(const Value: String);
+begin
+  if not DataEmBranco(Value) then
+       FEmissaoFinal:= Value
+  else FEmissaoFinal:= '';
+  MontaDataEmissao;
+end;
+
+procedure TdtmConsultaNotasFiscais.SetEmissaoInicial(const Value: String);
+begin
+  if not DataEmBranco(Value) then
+       FEmissaoInicial:= Value
+  else FEmissaoInicial:= '';
+  MontaDataEmissao;
+end;
+
+procedure TdtmConsultaNotasFiscais.SetFilial(const Value: String);
+begin
+  if FConsultar = 'N' then begin
+     if Value <> '' then qryNotas.macrobyname('Filial').asstring := 'and (n.filial = ' + Value + ')'
+                    else qryNotas.macrobyname('Filial').asstring := '';
+  end else begin
+     if Value <> '' then qryNotas.macrobyname('Filial').asstring := 'and (c.filial = ' + Value + ')'
+                    else qryNotas.macrobyname('Filial').asstring := '';
+  end;
+end;
+
+
+procedure TdtmConsultaNotasFiscais.SetCfop(const Value: String);
+begin
+  if FConsultar = 'N' then begin
+    if Value <> '' then qryNotas.macrobyname('cfop').asstring := 'and (d.codigofiscal = ' + Value + ')'
+                   else qryNotas.macrobyname('cfop').asstring := '';
+  end else begin
+    if Value <> '' then qryNotas.macrobyname('cfop').asstring := 'and (d.codigofiscal = ' + Value + ')'
+                   else qryNotas.macrobyname('cfop').asstring := '';
+  end;
+end;
+
+
+procedure TdtmConsultaNotasFiscais.SetIntervencao(const Value: String);
+begin
+  if Value <> '' then
+       qrycupons.macrobyname('Intervencao').asstring := 'and (c.intervensao = ' + Value + ')'
+  else qrycupons.macrobyname('Intervencao').asstring := '';
+end;
+
+procedure TdtmConsultaNotasFiscais.SetNumero(const Value: String);
+begin
+  if FConsultar = 'N' then
+  begin
+    if Value <> '' then
+         qryNotas.macrobyname('Numero').asstring := 'and (n.numero = ' + Value + ')'
+    else qryNotas.macrobyname('Numero').asstring := '';
+  end
+  else
+  begin
+    if Value <> '' then
+         qryCupons.macrobyname('Numero').asstring := 'and (c.numero = ' + Value + ')'
+    else qryCupons.macrobyname('Numero').asstring := '';
+  end;
+end;
+
+procedure TdtmConsultaNotasFiscais.SetSerie(const Value: String);
+begin
+  if FConsultar = 'N' then begin
+    if Value <> '' then
+        qryNotas.macrobyname('Serie').asstring := 'and (n.serie = ''' + Value + ''')'
+    else qryNotas.macrobyname('Serie').asstring := '';
+  end
+end;
+
+procedure TdtmConsultaNotasFiscais.SetConsultar(const Value: String);
+begin
+  if FConsultar <> Value then
+    FConsultar:= Value;
+end;
+
+procedure TdtmConsultaNotasFiscais.MontaDataEmissao;
+const
+  Data_1: String = 'and (d.data = ';
+  Data_2: String = 'and (d.data between (';
+begin
+  if (FEmissaoInicial <> '') then begin
+    if (FEmissaoFinal = '') then
+    begin
+      if consultar='N' then
+        qryNotas.macrobyname('Emissao').asstring := Data_1 + '''' + FEmissaoInicial + ''')'
+      else
+        qryNotas.macrobyname('Emissao').asstring := '';
+
+      if consultar='C' then
+         qryCupons.macrobyname('Emissao').asstring := Data_1 + '''' + FEmissaoInicial + ''')'
+      else
+        qryCupons.macrobyname('Emissao').asstring := '';
+
+    end
+    else begin
+      if consultar='N' then
+        qryNotas.macrobyname('Emissao').asstring := Data_2 + '''' + FEmissaoInicial + ''') and (''' + FEmissaoFinal + '''))'
+      else
+        qryNotas.macrobyname('Emissao').asstring := '';
+
+
+      if consultar='C' then
+        qryCupons.macrobyname('Emissao').asstring := Data_2 + '''' + FEmissaoInicial + ''') and (''' + FEmissaoFinal + '''))'
+      else
+        qryCupons.macrobyname('Emissao').asstring := '';
+
+    end;
+  end
+  else begin
+    if (FEmissaoFinal <> '') then begin
+
+      if consultar='N' then
+        qryNotas.macrobyname('Emissao').asstring := Data_1 + '''' + FEmissaoFinal + ''')'
+      else
+        qryNotas.macrobyname('Emissao').asstring := '';
+
+
+      if consultar='C' then
+        qryCupons.macrobyname('Emissao').asstring := Data_1 + '''' + FEmissaoFinal + ''')'
+      else
+        qryCupons.macrobyname('Emissao').asstring := '';
+
+    end
+    else begin
+      qryNotas.macrobyname('Emissao').asstring := '';
+      qryCupons.macrobyname('Emissao').asstring := '';
+    end;
+  end;
+end;
+
+function TdtmConsultaNotasFiscais.GerarConsulta: Boolean;
+begin
+  if FConsultar = 'N' then
+  begin
+    qrynotas.MacroByName('NumeroDadoFiscal').AsString := '';
+    qryNotas.Close;
+    qryNotas.Open;
+    Result:= qryNotas.IsEmpty;
+  end
+  else begin
+    qryCupons.MacroByName('NumeroDadoFiscal').AsString := '';
+    qryCupons.close;
+    qryCupons.Open;
+    Result:= qryCupons.IsEmpty;
+  end;
+  If Result then LimparTabelas;
+end;
+
+procedure TdtmConsultaNotasFiscais.ReFazConsultaTabelas(Codigo: Integer);
+begin
+  ReFazConsulta(qryDadosFiscais,        [0],[Codigo]);
+  ReFazConsulta(qryProdutosDadosFiscais,[0],[codigo]);
+  ReFazConsulta(qryServicosDadosFiscais,[0],[codigo]);
+  ReFazConsulta(qryVenctosDadosFiscais, [0],[Codigo]);
+  ReFazConsulta(qryCalculosProdutos,    [0],[codigo]);
+  ReFazConsulta(qryECFsDadosFiscais,    [0],[Codigo]);
+  RefazConsulta(qryVolumesDadosFiscais, [0],[Codigo]);
+  ReFazConsulta(qryLacresDadosFiscais,  [0],[codigo]);
+end;
+
+procedure TdtmConsultaNotasFiscais.qryNotasAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  if Consultar = 'N' then
+  begin
+    ReFazConsultaTabelas(qryNotasdadofiscal.AsInteger);
+    qryCupons.close;
+    qryCupons.MacroByName('NumeroDadoFiscal').AsString := ' and d.numero = '+inttostr(qryNotasdadofiscalvinculado.Asinteger);
+    qryCupons.Open;
+  end;
+end;
+
+procedure TdtmConsultaNotasFiscais.qryCuponsAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  if consultar='C' then
+  begin
+
+    if DataSet <> nil then
+      ReFazConsultaTabelas(qryCuponsdadofiscal.AsInteger);
+
+    qrynotas.close;
+    qrynotas.MacroByName('NumeroDadoFiscal').AsString := ' and n.dadofiscalvinculado = '+inttostr(qryCuponsdadofiscal.Asinteger) +
+                                                         ' and d.situacao=''N''';
+    qrynotas.Open;
+  end;
+end;
+
+procedure TdtmConsultaNotasFiscais.qryDadosFiscaisAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  refazconsulta(qryProcurarClientesDadosFiscais,[0,1],
+       [qryDadosFiscaistipocliente.AsVariant, qryDadosFiscaiscliente.AsVariant]);
+
+  if Assigned(OnScrollTipoPessoa) then
+    OnScrollTipoPessoa(qryDadosFiscais);
+  qryDadosFiscais.ReadOnly:= True;
+  qryProdutosDadosFiscais.ReadOnly:= True;
+
+  qryNotasCalcFields(nil);  
+
+  
+end;
+
+procedure TdtmConsultaNotasFiscais.qryProcurarClientesAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  if qryProcurarClientes.Params[0].AsString = '' then
+    qryProcurarClientes.Params[0].AsString:= 'F';
+end;
+
+function TdtmConsultaNotasFiscais.GetTipoPessoa: String;
+begin
+  Result:= '';
+  if Assigned(qryDadosFiscais) then begin
+    if qryDadosFiscaispessoatipo.AsSTring <> '' then
+         Result:= qryDadosFiscaispessoatipo.AsSTring
+    else Result:= '';
+  end;
+end;
+
+procedure TdtmConsultaNotasFiscais.LimparTabelas;
+begin
+  ReFazConsulta(qryDadosFiscais,        [0],['0']);
+  ReFazConsulta(qryProdutosDadosFiscais,[0],['0']);
+  ReFazConsulta(qryVenctosDadosFiscais, [0],[0]);
+  ReFazConsulta(qryCalculosProdutos,    [0],[0]);
+  ReFazConsulta(qryServicosDadosFiscais,[0],[0]);
+  ReFazConsulta(qryECFsDadosFiscais,    [0],[0]);
+end;
+
+function TdtmConsultaNotasFiscais.GravarNotaVinculada: Boolean;
+
+var
+  Usuario           : TtecUsuarios;
+  ChaveAcesso : String;
+
+  SomenteLeituraDadosFiscais : Boolean;
+
+  dtmConsultaNotasFiscaisNotaVinculada: TdtmConsultaNotasFiscais;
+
+
+  procedure SelecionarCodigoNatureza(descricao: String);
+  begin
+    qryNaturezasPadrao.Open;
+    if qryNaturezasPadrao.Locate('descricao',descricao,[]) then
+    begin
+      qryDadosFiscaiscodigonatureza.asinteger := qryNaturezasPadraonatureza.AsInteger;
+      qryDadosFiscaiscodigofiscal.AsInteger   := qryNaturezasPadraocodigofiscal.AsInteger;
+      if qryDadosFiscaiscodigofiscal.AsInteger <> 8000 then
+        if not (qryDadosFiscaisestado.AsString = EstadoFilialBase) then
+          if HeUnidadeFederacao(qryDadosFiscaisestado.AsString) then
+          begin
+            if  qryDadosFiscaiscodigofiscal.AsInteger = ctVENDASUBSTITUIDODENTROESTADO then
+              qryDadosFiscaiscodigofiscal.AsInteger := qryDadosFiscaiscodigofiscal.AsInteger+999
+            else
+              qryDadosFiscaiscodigofiscal.AsInteger := qryDadosFiscaiscodigofiscal.AsInteger+1000;
+          end
+          else
+            qryDadosFiscaiscodigofiscal.AsInteger := qryDadosFiscaiscodigofiscal.AsInteger+2000;
+    end;
+  end;
+
+begin
+   result := true;
+  {qdo nota fiscal não for vinculada, criar o vinculo inserindo a nf
+   e trocando o codigofiscal para 5929}
+  if (qryDadosFiscaiscodigofiscal.AsInteger mod 1000) <> 929 then
+  begin
+    if MonthOf(qryDadosFiscaisdata.AsDateTime) <> MonthOf(date()) then
+    begin
+      MensagemAviso('A nota vinculada não pode ser gerada pois o mês do cupom é diferente do mês atual.');
+      result := false;
+    end
+    else
+    if qryDadosFiscaisfilialemissao.AsInteger <> FilialBase then
+    begin
+      MensagemAviso('A nota vinculada não pode ser gerada pois a filial de emissão do cupom é diferente desta filial.');
+      result := false;
+    end
+    else
+    begin
+      Usuario := TtecUsuarios.Create(dtmTecSoft.Database);
+      try
+        if UsuarioLogin.EmissorNotaFiscal then
+          Usuario:= ObterAutorizacao(taSENHA)
+        else
+          Usuario:= ObterAutorizacao(taLOGIN, ctEMITIRNOTAFISCALVINCULADA, ctAUTORIZADO);
+
+        if Assigned(Usuario) then
+        begin
+          if Usuario.EmissorNotaFiscal then
+          begin
+            result := VerificarSerieFilial;
+            if result then
+            begin
+
+              SomenteLeituraDadosFiscais := qrydadosfiscais.readonly;
+
+              qrydadosfiscais.readonly := false;
+              qrydadosfiscais.Edit;
+              SelecionarCodigoNatureza('VENDAS CUPOM FISCAL');
+              qrydadosfiscais.Post;
+
+
+
+              RefazConsultaPorNome(qryDadosFiscaisNotaVinculada,['numero'],[qrydadosfiscaisnumero.asinteger]);
+
+              qryDadosFiscaisNotaVinculada.edit;
+              qryDadosFiscaisNotaVinculadanatureza.AsString := 'EMISSAO CUPOM FISCAL-ECF';
+              qryDadosFiscaisNotaVinculadacodigofiscal.AsInteger := qryDadosFiscaiscodigofiscal.asinteger;
+              qryDadosFiscaisNotaVinculadacodigonatureza.AsInteger := qryDadosFiscaiscodigonatureza.AsInteger;
+//              qryDadosFiscaisNotaVinculadanatureza.asstring := qryDadosFiscaisnatureza.AsString;
+              qryDadosFiscaisNotaVinculada.post;
+
+              RefazConsultaPorNome(qryProdutosDadosFiscaisNotaVinculada,['dadofiscal'],[qrydadosfiscaisnumero.asinteger]);
+              RefazConsultaPorNome(qryProdutosDadosFiscaisCompostosNotaVinculada,['dadofiscal'],[qrydadosfiscaisnumero.asinteger]);
+              RefazConsultaPorNome(qryServicosDadosFiscaisNotaVinculada,['dadofiscal'],[qrydadosfiscaisnumero.asinteger]);
+              RefazConsultaPorNome(qryVenctosDadosFiscaisNotaVinculada,['dadofiscal'],[qrydadosfiscaisnumero.asinteger]);
+              RefazConsultaPorNome(qryVolumesDadosFiscaisNotaVinculada,['dadofiscal'],[qrydadosfiscaisnumero.asinteger]);
+
+              if not assigned(dtmConsultaNotasFiscaisNotaVinculada) then
+                dtmConsultaNotasFiscaisNotaVinculada := TdtmConsultaNotasFiscais.Create(nil);
+
+              RefazConsultaPorNome(dtmConsultaNotasFiscaisNotaVinculada.qryDadosFiscaisNotaVinculada,['numero'],[0]);
+              RefazConsultaPorNome(dtmConsultaNotasFiscaisNotaVinculada.qryProdutosDadosFiscaisNotaVinculada,['dadofiscal'],[0]);
+              RefazConsultaPorNome(dtmConsultaNotasFiscaisNotaVinculada.qryProdutosDadosFiscaisCompostosNotaVinculada,['dadofiscal'],[0]);
+              RefazConsultaPorNome(dtmConsultaNotasFiscaisNotaVinculada.qryServicosDadosFiscaisNotaVinculada,['dadofiscal'],[0]);
+              RefazConsultaPorNome(dtmConsultaNotasFiscaisNotaVinculada.qryVenctosDadosFiscaisNotaVinculada,['dadofiscal'],[0]);
+              RefazConsultaPorNome(dtmConsultaNotasFiscaisNotaVinculada.qryVolumesDadosFiscaisNotaVinculada,['dadofiscal'],[0]);
+
+              CopiarRegistros(qryDadosFiscaisNotaVinculada, dtmConsultaNotasFiscaisNotaVinculada.qryDadosFiscaisNotaVinculada);
+              CopiarRegistros(qryProdutosDadosFiscaisNotaVinculada, dtmConsultaNotasFiscaisNotaVinculada.qryProdutosDadosFiscaisNotaVinculada);
+              CopiarRegistros(qryProdutosDadosFiscaisCompostosNotaVinculada, dtmConsultaNotasFiscaisNotaVinculada.qryProdutosDadosFiscaisCompostosNotaVinculada);
+              CopiarRegistros(qryServicosDadosFiscaisNotaVinculada, dtmConsultaNotasFiscaisNotaVinculada.qryServicosDadosFiscaisNotaVinculada);
+              CopiarRegistros(qryVenctosDadosFiscaisNotaVinculada, dtmConsultaNotasFiscaisNotaVinculada.qryVenctosDadosFiscaisNotaVinculada);
+              CopiarRegistros(qryVolumesDadosFiscaisNotaVinculada, dtmConsultaNotasFiscaisNotaVinculada.qryVolumesDadosFiscaisNotaVinculada);
+
+              dtmConsultaNotasFiscaisNotaVinculada.spcDadosFiscaisProximo.Open;
+              dtmConsultaNotasFiscaisNotaVinculada.qryDadosFiscaisNotaVinculada.edit;
+              dtmConsultaNotasFiscaisNotaVinculada.qryDadosFiscaisNotaVinculadanumero.AsInteger := dtmConsultaNotasFiscaisNotaVinculada.spcDadosFiscaisProximonumero.AsInteger;
+              dtmConsultaNotasFiscaisNotaVinculada.qryDadosFiscaisNotaVinculadanotavinculada.AsBoolean := True;
+              dtmConsultaNotasFiscaisNotaVinculada.qryDadosFiscaisNotaVinculada.post;
+              dtmConsultaNotasFiscaisNotaVinculada.spcDadosFiscaisProximo.Close;
+
+              AtribuirChave(dtmConsultaNotasFiscaisNotaVinculada.qryProdutosDadosFiscaisNotaVinculada,
+                                    [dtmConsultaNotasFiscaisNotaVinculada.qryProdutosDadosFiscaisNotaVinculadadadofiscal,
+                                     dtmConsultaNotasFiscaisNotaVinculada.qryProdutosDadosFiscaisNotaVinculadacodigofiscal,
+                                     dtmConsultaNotasFiscaisNotaVinculada.qryProdutosDadosFiscaisNotaVinculadanatureza],
+                                    [dtmConsultaNotasFiscaisNotaVinculada.qryDadosFiscaisNotaVinculadanumero,
+                                     dtmConsultaNotasFiscaisNotaVinculada.qryDadosFiscaisNotaVinculadacodigofiscal,
+                                     dtmConsultaNotasFiscaisNotaVinculada.qryDadosFiscaisNotaVinculadacodigonatureza]);
+
+              AtribuirDados(dtmConsultaNotasFiscaisNotaVinculada.qryProdutosDadosFiscaisNotaVinculada,
+                            [dtmConsultaNotasFiscaisNotaVinculada.qryProdutosDadosFiscaisNotaVinculadaincidencia,
+                             dtmConsultaNotasFiscaisNotaVinculada.qryProdutosDadosFiscaisNotaVinculadaaliquotaicms],
+                            [ifthen(regimetributario=1,ctSNOutrosS,ctOUTROS), 0.00]);
+
+              LimparCampos(dtmConsultaNotasFiscaisNotaVinculada.qryProdutosDadosFiscaisNotaVinculada,
+                           [dtmConsultaNotasFiscaisNotaVinculada.qryProdutosDadosFiscaisNotaVinculadamovimento]);
+
+              AtribuirChave(dtmConsultaNotasFiscaisNotaVinculada.qryProdutosDadosFiscaisCompostosNotaVinculada,
+                            [dtmConsultaNotasFiscaisNotaVinculada.qryProdutosDadosFiscaisCompostosNotaVinculadadadofiscal],
+                            [dtmConsultaNotasFiscaisNotaVinculada.qryDadosFiscaisNotaVinculadanumero]);
+
+              AtribuirChave(dtmConsultaNotasFiscaisNotaVinculada.qryVenctosDadosFiscaisNotaVinculada,
+                            [dtmConsultaNotasFiscaisNotaVinculada.qryVenctosDadosFiscaisNotaVinculadadadofiscal],
+                            [dtmConsultaNotasFiscaisNotaVinculada.qryDadosFiscaisNotaVinculadanumero]);
+
+              AtribuirChave(dtmConsultaNotasFiscaisNotaVinculada.qryServicosDadosFiscaisNotaVinculada,
+                            [dtmConsultaNotasFiscaisNotaVinculada.qryServicosDadosFiscaisNotaVinculadadadofiscal],
+                            [dtmConsultaNotasFiscaisNotaVinculada.qryDadosFiscaisNotaVinculadanumero]);
+
+              AtribuirChave(dtmConsultaNotasFiscaisNotaVinculada.qryVolumesDadosFiscaisNotaVinculada,
+                            [dtmConsultaNotasFiscaisNotaVinculada.qryVolumesDadosFiscaisNotaVinculadadadofiscal],
+                            [dtmConsultaNotasFiscaisNotaVinculada.qryDadosFiscaisNotaVinculadanumero]);
+
+              dtmConsultaNotasFiscaisNotaVinculada.qryProdutosDadosFiscaisNotaVinculada.First;
+              while not dtmConsultaNotasFiscaisNotaVinculada.qryProdutosDadosFiscaisNotaVinculada.Eof do
+              begin
+                AtribuirDadosProdutos(dtmConsultaNotasFiscaisNotaVinculada.qryProdutosDadosFiscaisNotaVinculada,
+                                      dtmConsultaNotasFiscaisNotaVinculada.qryDadosFiscaisNotaVinculada, nil, false, NotaVinculada );
+                dtmConsultaNotasFiscaisNotaVinculada.qryProdutosDadosFiscaisNotaVinculada.Next;
+              end;
+
+              if CalcularImpostos(dtmConsultaNotasFiscaisNotaVinculada.qryProdutosDadosFiscaisNotaVinculada,
+                                 dtmConsultaNotasFiscaisNotaVinculada.qryDadosFiscaisNotaVinculada, ContribIPI, true, true, nil,
+                                 dtmConsultaNotasFiscaisNotaVinculada.qryProdutosDadosFiscaisCompostosNotaVinculada, false, NotaContrato,
+                                 false, true,
+                                 dtmConsultaNotasFiscaisNotaVinculada.qryServicosDadosFiscaisNotaVinculada,true ) then
+              begin
+                result := true;
+
+                RefazConsultaPorNome(qryDadosFiscaisNotaVinculada,['numero'],[0]);
+                RefazConsultaPorNome(qryProdutosDadosFiscaisNotaVinculada,['dadofiscal'],[0]);
+                RefazConsultaPorNome(qryProdutosDadosFiscaisCompostosNotaVinculada,['dadofiscal'],[0]);
+                RefazConsultaPorNome(qryServicosDadosFiscaisNotaVinculada,['dadofiscal'],[0]);
+                RefazConsultaPorNome(qryVenctosDadosFiscaisNotaVinculada,['dadofiscal'],[0]);
+                RefazConsultaPorNome(qryVolumesDadosFiscaisNotaVinculada,['dadofiscal'],[0]);
+
+                CopiarRegistros(dtmConsultaNotasFiscaisNotaVinculada.qryDadosFiscaisNotaVinculada, qryDadosFiscaisNotaVinculada);
+                CopiarRegistros(dtmConsultaNotasFiscaisNotaVinculada.qryProdutosDadosFiscaisNotaVinculada, qryProdutosDadosFiscaisNotaVinculada);
+                CopiarRegistros(dtmConsultaNotasFiscaisNotaVinculada.qryProdutosDadosFiscaisCompostosNotaVinculada, qryProdutosDadosFiscaisCompostosNotaVinculada);
+                CopiarRegistros(dtmConsultaNotasFiscaisNotaVinculada.qryVenctosDadosFiscaisNotaVinculada, qryVenctosDadosFiscaisNotaVinculada);
+                CopiarRegistros(dtmConsultaNotasFiscaisNotaVinculada.qryServicosDadosFiscaisNotaVinculada, qryServicosDadosFiscaisNotaVinculada);
+                CopiarRegistros(dtmConsultaNotasFiscaisNotaVinculada.qryVolumesDadosFiscaisNotaVinculada, qryVolumesDadosFiscaisNotaVinculada);
+
+                qryNotaVinculada.Open;
+                qryNotaVinculada.Append;
+                qryNotaVinculadafilial.AsInteger     := FilialBase;
+                qryNotaVinculadaserie.AsString       := SerieSugestao;
+                qryNotaVinculadanumero.AsInteger     := qrySeriesFiliaisnumeroinicial.AsInteger;
+                qryNotaVinculadadadofiscal.AsInteger := qryDadosFiscaisNotaVinculadanumero.AsInteger;
+                qryNotaVinculadadadofiscalvinculado.AsInteger := qrydadosfiscaisnumero.asinteger;
+                qryNotaVinculada.Post;
+
+                qrySeriesFiliais.Edit;
+                qrySeriesFiliaisnumeroinicial.AsInteger := qrySeriesFiliaisnumeroinicial.AsInteger + 1;
+                qrySeriesFiliais.Post;
+
+                dtmConsultaNotasFiscaisNotaVinculada.Free;
+                dtmConsultaNotasFiscaisNotaVinculada := nil;
+
+                qryDadosFiscaisNotaVinculada.Edit;
+                qryDadosFiscaisNotaVinculadamodelodocto.AsString := qrySeriesFiliaismodelodoctofiscal.AsString;
+                qryDadosFiscaisNotaVinculadadata.AsDateTime := now();
+                qryDadosFiscaisNotaVinculadadatasaida.asdatetime := now();
+
+
+                if parsistema.EmissorNfe then
+                  result := EmitirNFe(true);
+
+                if qrydadosfiscaisNotaVinculada.state in [dsinsert, dsedit] then
+                  qrydadosfiscaisNotaVinculada.Post;
+
+              end
+              else
+                result := false;
+
+              if result then
+                result :=  Perpetrar([qryDadosFiscais, qryDadosFiscaisNotaVinculada, qryProdutosDadosFiscaisNotaVinculada,
+                                    qryProdutosDadosFiscaisCompostosNotaVinculada, qryServicosDadosFiscaisNotaVinculada,
+                                    qryVolumesDadosFiscaisNotaVinculada, qryVenctosDadosFiscaisNotaVinculada, qryNotaVinculada,
+                                    qrySeriesFiliais]);
+
+              if Result then
+              begin
+
+                if ParSistema.EmissorNfe {and
+                   (((qryDadosFiscaiscodigofiscal.AsInteger mod 1000) = 910) or NotaFiscalVinculada or Not Assigned(ECFPadrao))} then
+                begin
+                  Result := EmitirNFe;
+                  if Result then
+                    ImprimirDanfe;
+                end;
+              end;
+
+              qryDadosFiscaisNotaVinculada.Close;
+              qryProdutosDadosFiscaisNotaVinculada.Close;
+              qryProdutosDadosFiscaisCompostosNotaVinculada.Close;
+              qryServicosDadosFiscaisNotaVinculada.Close;
+              qryVolumesDadosFiscaisNotaVinculada.Close;
+              qryVenctosDadosFiscaisNotaVinculada.Close;
+              qryNotaVinculada.Close;
+              qrySeriesFiliais.Close;
+
+              qrydadosfiscais.readonly := SomenteLeituraDadosFiscais;
+
+            end;
+          end
+          else
+            MensagemAviso(ctUSUARIOSEMPERMISSAO);
+        end;
+      finally
+        Usuario.Free;
+      end;
+    end;
+  end;
+end;
+
+
+function TdtmConsultaNotasFiscais.ImprimirNota(Impressora: String): boolean;
+begin
+  result := true;
+
+
+  if Consultar = 'C' then  {se estiver consultando um cupom fiscal}
+    result := GravarNotaVinculada;
+
+  if result then
+  begin
+    dtmImprimeFiscal := TdtmImprimeFiscal.Create(Self);
+    try
+      if qryServicosDadosFiscais.RecordCount <> 0 then
+        dtmImprimeFiscal.ImprimirNota(qryDadosFiscaisnumero.AsInteger, ModeloNotaServicos, Impressora)
+      else
+        dtmImprimeFiscal.ImprimirNota(qryDadosFiscaisnumero.AsInteger, ModeloNota, Impressora);
+    finally
+      dtmImprimeFiscal.Free;
+      dtmImprimeFiscal := nil;
+    end;
+  end;
+
+end;
+
+
+function TdtmConsultaNotasFiscais.getDataNota: TDateTime;
+begin
+  Result := qryDadosFiscaisdata.AsDateTime
+end;
+
+function TdtmConsultaNotasFiscais.GetNotaCancelada: Boolean;
+begin
+  Result:= qryDadosFiscaissituacao.AsString = 'C';
+end;
+
+procedure TdtmConsultaNotasFiscais.qryProdutosDadosFiscaisAfterInsert(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryProdutosDadosFiscais.Cancel;
+end;
+
+
+procedure TdtmConsultaNotasFiscais.qryProdutosDadosFiscaisAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryProdutosDadosFiscaisvalorgrade1.Visible := ParSistema.UsarGradesProdutos;
+  qryProdutosDadosFiscaisvalorgrade2.Visible := ParSistema.UsarGradesProdutos;
+end;
+
+function TdtmConsultaNotasFiscais.GetColunadaGrade: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryProdutosDadosFiscaiscoluna.AsString)
+end;
+
+function TdtmConsultaNotasFiscais.GetLinhadaGrade: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryProdutosDadosFiscaislinha.AsString)
+end;
+
+procedure TdtmConsultaNotasFiscais.qryProdutosDadosFiscaisAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+    if Assigned(OnScrollLinhaColunaGrade) then
+    OnScrollLinhaColunaGrade(qryProdutosDadosFiscais);
+end;
+
+
+
+procedure TdtmConsultaNotasFiscais.dsrDadosFiscaisDataChange(
+  Sender: TObject; Field: TField);
+begin
+  inherited;
+  if field = qryDadosFiscaiscliente then
+  begin
+    qryDadosFiscaistipocliente.AsString  := qryProcurarClientesDadosFiscaistipo.AsString;
+    qryDadosFiscaispessoanumero.AsString := qryProcurarClientesDadosFiscaispessoanumero.AsString;
+    qryDadosFiscaisdocumento.AsString    := qryProcurarClientesDadosFiscaisinscricaoestadual.AsString;
+    qryDadosFiscaisestadocfo.AsString    := qryProcurarClientesDadosFiscaisestado.AsString;
+    qryDadosFiscaisnome.AsString         := qryProcurarClientesDadosFiscaisnome.AsString;
+    qryDadosFiscaisrua.AsString          := qryProcurarClientesDadosFiscaisrua.AsString;
+
+    qryDadosFiscaisendnumero.AsString          := qryProcurarClientesDadosFiscaisnumero.AsString;
+    qryDadosFiscaisendcomplemento.AsString          := qryProcurarClientesDadosFiscaiscomplemento.AsString;
+
+    qryDadosFiscaisbairro.AsString := qryProcurarClientesDadosFiscaisbairro.AsString;
+
+    qryDadosFiscaisbairronome.AsString := qryProcurarClientesDadosFiscaisnomebairro.AsString;
+
+    qryDadosFiscaiscidade.AsString := qryProcurarClientesDadosFiscaiscidade.AsString;
+
+    qryDadosFiscaiscidadenome.AsString := qryProcurarClientesDadosFiscaisnomecidade.AsString;
+
+    qryDadosFiscaisestado.AsString := qryProcurarClientesDadosFiscaisestado.AsString;
+
+    qryDadosFiscaiscep.AsString    := qryProcurarClientesDadosFiscaiscep.AsString;
+
+    qryDadosFiscaispessoatipo.AsString := qryProcurarClientesDadosFiscaispessoatipo.AsString;
+
+    qryDadosFiscaisfonenumero.AsString := qryProcurarClientesDadosFiscaisfonenumero.AsString;
+
+    qryDadosFiscaisfoneddd.AsString    := qryProcurarClientesDadosFiscaisfoneddd.AsString;
+  end;
+end;
+
+procedure TdtmConsultaNotasFiscais.AcertarCasasDecimais;
+begin
+  case ParSistema.PrecoUnitarioCasasDecimais of
+    2: qryProdutosDadosFiscaisprecovenda.DisplayFormat:= '###,###,##0.00';
+    3: qryProdutosDadosFiscaisprecovenda.DisplayFormat:= '###,###,##0.000';
+    4: qryProdutosDadosFiscaisprecovenda.DisplayFormat:= '###,###,##0.0000';
+    5: qryProdutosDadosFiscaisprecovenda.DisplayFormat:= '###,###,##0.00000';
+    6: qryProdutosDadosFiscaisprecovenda.DisplayFormat:= '###,###,##0.000000';
+    7: qryProdutosDadosFiscaisprecovenda.DisplayFormat:= '###,###,##0.0000000';
+    8: qryProdutosDadosFiscaisprecovenda.DisplayFormat:= '###,###,##0.00000000';
+  end;
+end;
+
+procedure TdtmConsultaNotasFiscais.ZMonitor1MonitorEvent(Sql,
+  Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:\lognota150109.sql') then
+    Listar.loadfromfile('c:\lognota150109.sql');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\lognota150109.sql');
+  listar.free;
+end;
+
+procedure TdtmConsultaNotasFiscais.ImprimirNFe(Impressora: String);
+var
+//  NFe : TTecNotaFiscalEletronica;
+  vProdutosDadosFiscais : TtecQuery;
+  ControleNFe: TdtmControleNotasFiscaisEletronicas;
+
+begin
+//  NFe                  := TTecNotaFiscalEletronica.Create;
+//  NFe.DiretorioCompartilha := NFeDirCompartilha;
+//  NFe.DiretorioEnviado := NFeDirEnviados;
+//  try
+
+    if consultar='C' then
+    begin
+      RefazConsultaPorNome(qryProdutosDadosFiscaisNotaVinculada, ['dadofiscal'], [qrydadosfiscaisnumero.asinteger]);
+      vProdutosDadosFiscais := qryProdutosDadosFiscaisNotaVinculada;
+    end
+    else
+      vProdutosDadosFiscais := qryProdutosDadosFiscais;
+
+    try
+      ControleNFe := TdtmControleNotasFiscaisEletronicas.Create(nil);
+      ControleNFE.ImpressoraDanfe := Impressora;
+      if ControleNFe.SelecionarNotas(1,3,'','','','','',qryDadosFiscaisnumero.asstring) then
+        if ControleNFe.EnviarNotasFiscais(qryNotasNFE_Calculada.asstring) then
+          if (qryDadosFiscaisnumprotocolonfe.AsString = '') and (ControleNFe.Protocolo<>'') then
+          begin
+
+            qryDadosFiscais.ReadOnly := False;
+            qrydadosfiscais.Edit;
+            qryDadosFiscaisnumprotocolonfe.AsString := ControleNFe.Protocolo;
+            qryDadosFiscaisnumcancelamentonfe.AsString := ControleNFe.ProtocoloCancelamento;
+
+            qryDadosFiscaisstatusnfe.AsString := ControleNFe.status;
+            if (qryDadosFiscaisstatusnfe.AsString = '301') or    //denegada emitente
+               (qryDadosFiscaisstatusnfe.AsString = '302') then  //denegada destinatario
+              qryDadosFiscaissituacao.AsString := 'D';
+
+            if (qryDadosFiscaischave_nfe.AsString = '') then
+              qryDadosFiscaischave_nfe.AsString := ControleNFe.chave_nfe;
+
+            qrydadosfiscais.post;
+
+            qrynotas.Edit;
+            qryNotasnumprotocolonfe.AsString := ControleNFe.Protocolo;
+            qryNotasnumcancelamentonfe.AsString := ControleNFe.ProtocoloCancelamento;
+            if (qryNotaschave_nfe.AsString = '') then
+              qryNotaschave_nfe.AsString := ControleNFe.chave_nfe;
+            qrynotas.post;
+
+            qryDadosFiscais.ReadOnly := true
+          end;
+    finally
+      ControleNFe.Free;
+    end;
+
+//  finally
+//    FreeAndNil(NFe);
+//  end;
+end;
+
+procedure TdtmConsultaNotasFiscais.ImprimirEspelhoNota;
+begin
+  dtmImprimeFiscalGrafica := TdtmImprimeFiscalGrafica.Create(self);
+  try
+    with dtmImprimeFiscalGrafica.Nota do
+    begin
+      Tipo              := nfSAIDA;
+      Filial            := qryNotasfilial.AsInteger;
+      Serie             := qryNotasserie.AsString;
+      Numero            := qryNotasnumero.AsInteger;
+      NaturezaDescricao := qryDadosFiscaisnatureza.AsString;
+      CodigoFiscal      := qryDadosFiscaiscodigofiscal.AsInteger;
+      CNPJ              := CNPJFilialBase;
+      IE                := InscricaoEstadualFilialBase;
+      IEST              := qryDadosFiscaisiesubsttributario.AsString;
+      Data              := qryDadosFiscaisdata.AsDateTime;
+      DataSaida         := qryDadosFiscaisdatasaida.AsDateTime;
+      InfComplementares := qryDadosFiscaisobservacoes.AsString;
+      codigovendedor    := qryDadosFiscaisvendedor.AsString;
+      nomevendedor      := qryDadosFiscaisnomevendedor.asstring;
+
+      if qryDadosFiscaisfrete.AsString = '1' then
+        TipoFrete       := tfEmitente
+      else
+        TipoFrete       := tfDestinatario;
+
+      with Cliente do
+      begin
+        CNPJ := qryDadosFiscaispessoanumero.AsString;
+        IE   := qryDadosFiscaisdocumento.AsString;
+        Nome := qryDadosFiscaisnome.AsString;
+        Rua  := qryDadosFiscaisrua.AsString;
+        Numero := qryDadosFiscaisendnumero.AsInteger;
+        Complemento := qryDadosFiscaisendcomplemento.AsString;
+        CEP := qryDadosFiscaiscep.AsInteger;
+        NomeBairro := qryDadosFiscaisbairronome.AsString;
+        NomeCidade := qryDadosFiscaiscidadenome.AsString;
+        Estado := qryDadosFiscaisestado.AsString;
+        FoneDDD := qryDadosFiscaisfoneddd.AsInteger;
+        FoneNumero := qryDadosFiscaisfonenumero.AsInteger;
+        codigo     := qryDadosFiscaiscliente.AsInteger;
+        tipo := qryDadosFiscaistipocliente.AsString;
+      end;
+
+      with Totais do
+      begin
+        IPI        := qryDadosFiscaisvaloripi.AsFloat;
+        ICMSBase   := qryDadosFiscaisbaseicms.AsFloat;
+        ICMS       := qryDadosFiscaisvaloricms.AsFloat;
+        ICMSSTBase := qryDadosFiscaistotalbaseicmssubstituicao.AsFloat;
+        ICMSST     := qryDadosFiscaistotalvaloricmssubstituicao.AsFloat;
+        Frete      := qryDadosFiscaisvalorfrete.AsFloat;
+        Seguro     := qryDadosFiscaisseguro.AsFloat;
+        Desconto   := qryDadosFiscaisdesconto.AsFloat;
+        Produtos   := qryDadosFiscaisvalorprodutos.AsFloat + qryDadosFiscaistotalservico.AsFloat;
+        Prazo      := qryDadosFiscaisvalortotal.AsFloat;
+        DespesasAcessorias := qryDadosFiscaisdespesasacessorias.AsFloat;
+      end;
+
+      with Transporte do
+      begin
+        CNPJ        := qryDadosFiscaistransportadora_cnpj.AsString;
+        IE          := qryDadosFiscaistransportadora_ie.AsString;
+        Nome        := qryDadosFiscaistransportadora_nome.AsString;
+        Rua         := qryDadosFiscaistransportadora_rua.AsString;
+        NomeCidade  := qryDadosFiscaistransportadora_nomecidade.AsString;
+        Estado      := qryDadosFiscaistransportadora_estado.AsString;
+        Placa       := qryDadosFiscaisplaca.AsString;
+        EstadoPlaca := qryDadosFiscaisestadoplaca.AsString;
+        Quantidade  := qryVolumesDadosFiscaisvolumes.AsInteger;
+        Especie     := qryVolumesDadosFiscaisespecietransporte.AsString;
+        Marca       := qryVolumesDadosFiscaismarca.AsString;
+        Numero      := qryVolumesDadosFiscaisnumeracao.AsString;
+        PesoBruto   := qryVolumesDadosFiscaispesobruto.AsFloat;
+        PesoLiquido := qryVolumesDadosFiscaispesoliquido.AsFloat;
+      end;
+
+      //VENCTOS
+//      i := 0;
+      GuardarRegistroAtual(qryVenctosDadosFiscais,true);
+      try
+        qryVenctosDadosFiscais.First;
+        while not qryVenctosDadosFiscais.Eof do
+        begin
+          with Venctos.Add do
+          begin;
+            Numero := qryVenctosDadosFiscaisnumero.AsInteger;
+            Data   := qryVenctosDadosFiscaisdatavencto.AsDateTime;
+            Valor  := qryVenctosDadosFiscaisvalorvencto.AsFloat;
+//            Inc(i);
+          end;
+          qryVenctosDadosFiscais.Next;
+        end;
+      finally
+        VoltarRegistroAtual(qryVenctosDadosFiscais);
+      end;
+
+      //PRODUTOS
+//      i := 0;
+      GuardarRegistroAtual(qryProdutosDadosFiscais,true);
+      try
+        qryProdutosDadosFiscais.First;
+        while not qryProdutosDadosFiscais.Eof do
+        begin
+          with Produtos.Add do
+          begin
+            CodigoVisual        := qryProdutosDadosFiscaiscodigovisual.AsString;
+            Descricao           := qryProdutosDadosFiscaisprodutodescricao.AsString;
+            Referencia          := qryProdutosDadosFiscaisreferencia.AsString;
+            ClassificacaoFiscal := qryProdutosDadosFiscaisclassificacaofiscal.AsString;
+            Origem              := qryProdutosDadosFiscaisorigem.AsString;
+            Incidencia          := qryProdutosDadosFiscaisincidencia.AsString;
+            CodigoFiscal        := qryProdutosDadosFiscaiscodigofiscal.AsInteger;
+            Unidade             := qryProdutosDadosFiscaisunidade.AsString;
+            Quantidade          := qryProdutosDadosFiscaisquantidade.AsFloat;
+            PrecoUnitario       := qryProdutosDadosFiscaisprecovenda.AsFloat;
+            PrecoTotal          := qryProdutosDadosFiscaisprecototal.AsFloat;
+            BaseCalculoICMS     := qryProdutosDadosFiscaisicmsbasecalculo.AsFloat;
+            ValorICMS           := qryProdutosDadosFiscaisicmsvalor.AsFloat;
+            ValorIPI            := qryProdutosDadosFiscaisvaloripi.AsFloat;
+            AliquotaICMS        := qryProdutosDadosFiscaisaliquotaicms.AsFloat;
+            AliquotaIPI         := qryProdutosDadosFiscaisaliquotaipi.AsFloat;
+//            Inc(i);
+          end;
+          qryProdutosDadosFiscais.Next;
+        end;
+      finally
+        VoltarRegistroAtual(qryProdutosDadosFiscais);
+      end;
+    end;
+    dtmImprimeFiscalGrafica.ImprimirNota;
+  finally
+    dtmImprimeFiscalGrafica.Free;
+  end;
+end;
+
+function TdtmConsultaNotasFiscais.VerificarSerieFilial: Boolean;
+begin
+  ReFazConsulta(qrySeriesFiliais, [0, 1], [FilialBase, SerieSugestao]);
+  if qrySeriesFiliais.RecordCount = 0 then begin
+    MensagemAviso(format(ctFILIALSEMSERIE, [FilialBase, 'mercadorias']));
+    Result := False;
+  end else if not ParSistema.EmissorNfe and qrySeriesFiliaismodelonota.IsNull then begin
+    MensagemAviso(ctSERIESUGESTAOSEMMODELO);
+    Result := False;
+  end else
+    Result := True;
+end;
+
+function TdtmConsultaNotasFiscais.GerarNFe(Impressora: String): boolean;
+begin
+  result := GravarNotaVinculada;
+end;
+
+
+function TdtmConsultaNotasFiscais.EmitirNFe(Validando: Boolean): Boolean;
+var
+  NFe : TTecNotaFiscalEletronica;
+  LoteNFe, ReciboNFe, ProtocoloNFe, status, DataHoraProcessamento, ChaveAcesso: String;
+
+
+begin
+  if not (qryDadosFiscaisNotaVinculada.state in [dsedit]) then
+    qryDadosFiscaisNotaVinculada.Edit;
+
+  qryDadosFiscaisNotaVinculadaversaolayout.AsCurrency := 3.10;
+  if qryDadosFiscaisNotaVinculadamodelodocto.IsNull then
+    qryDadosFiscaisNotavinculadamodelodocto.AsString  := '55';
+
+  qryDadosFiscaisNotaVinculadanrdocumento.AsInteger := qryNotaVinculadanumero.AsInteger;
+ {1-Normal/ 2-Contingência}
+  qryDadosFiscaisNotaVinculadaformaemissao.AsInteger    := NFeTipoEmissao;
+
+  { 1-Retrato/ 2-Paisagem }
+  qryDadosFiscaisNotaVinculadaformatodanfe.AsInteger    := 1;
+
+  { 0 – pagamento à vista   1 – pagamento à prazo     2 - outros }
+  qryDadosFiscaisNotaVinculadaformapagto.AsInteger      := 2;
+
+  qryDadosFiscaisNotaVinculadacodaleatorio.AsInteger    := Aleatorio(qryDadosFiscaisNotaVinculadadata.AsDateTime, qryDadosFiscaisNotaVinculadanrdocumento.asString);
+
+
+  ChaveAcesso :=
+           copy(CodigoCidadeIBGEFilialBase,1,2)+                       // 2
+           FormatDateTime('YYMM',qryDadosFiscaisNotaVinculadadata.AsDateTime)+      // 4
+           preencheString(CNPJFilialBase,'0',14,false) +
+           preencheString(qryDadosFiscaisNotaVinculadamodelodocto.AsString,'0',2,false)+ // 2
+           preencheString(SerieSugestao,'0',3,false)+                  // 3
+           preencheString(qryDadosFiscaisNotaVinculadanrdocumento.Asstring,'0',9,false) + // 9
+           qryDadosFiscaisNotaVinculadaformaemissao.AsString + //1
+           preencheString(qryDadosFiscaisNotaVinculadacodaleatorio.Asstring,'0',8,false);  // 8
+
+
+  qryDadosFiscaisNotaVinculadadigchaveacesso.AsString   := Modulo11(ChaveAcesso);
+  qryDadosFiscaisNotaVinculadachv_nfe.AsString := ChaveAcesso + qryDadosFiscaisNotaVinculadadigchaveacesso.AsString;
+
+  {1 - PRODUÇÃO 2 - HOMOLOGAÇÃO}
+  qryDadosFiscaisNotaVinculadaambiente.AsInteger         := NFeAmbiente;// '2';
+
+  {1 - normal 2 - compelementar}
+  qryDadosFiscaisNotaVinculadafinalidadenf.AsInteger  := 1;
+
+
+  qryDadosFiscaisNotaVinculadaprocemissao.AsString      := '0';
+  qryDadosFiscaisNotaVinculadaversaoteclux.AsString     := VersaoTecLUX;
+
+  qryDadosFiscaisNotaVinculadainfcomplementar.AsString := ctREFERENTECUPOMFISCAL + ' ' + qrycuponsnumero.asstring+ ' ' +  sLineBreak +
+                                                        qryDadosFiscaisNotaVinculadainfcomplementar.AsString;
+
+
+  qryDadosFiscaisNotaVinculadainfcomplementar.AsString:= qryDadosFiscaisNotaVinculadainfcomplementar.AsString  + ' ' +  sLineBreak +
+                                          qryDadosFiscaisNotaVinculadaobservacoes.AsString + ' ' + sLineBreak +
+                                          qryDadosFiscaisNotaVinculadaobservacoesicmssubstituido.AsString;
+
+//  if qryProcurarClientesDadosFiscaisnosimples.AsBoolean then
+    if (regimetributario = 1) and //simples
+       (parsistema.obsnfeClientesnoSimples <> '') then
+    qryDadosFiscaisNotaVinculadainfcomplementar.AsString := qryDadosFiscaisNotaVinculadainfcomplementar.AsString + ' ' +  sLineBreak +
+                                               parsistema.obsnfeClientesnoSimples;
+
+  if qrydadosfiscaisNotaVinculada.state in [dsinsert, dsedit] then
+    qryDadosFiscaisNotaVinculada.Post;
+
+  if not validando then
+    NFe := TTecNotaFiscalEletronica.Create
+  else
+    NFe := TTecNotaFiscalEletronica.Create(dtmTecSoft.Database);
+
+  NFe.DiretorioEnvio       := NFeDirEnvio;
+  NFe.DiretorioEnviado     := NFeDirEnviados;
+  NFe.DiretorioRetorno     := NFeDirRetorno;
+  NFe.DiretorioCompartilha := NfeDirCompartilha;
+  NFe.Executavel           := NFeExecNFe;
+
+  try
+    try
+      if not Validando then
+      begin
+        ShowProcessando('Gerando o arquivo da NF-e!');
+        Sleep(500);
+      end;
+      // EMITENTE
+      NFe.Emit_Documento := CNPJFilialBase;
+      NFe.Emit_Nome      := RazaoFilialBase;
+      NFe.Emit_Rua       := RuaSemNumeroFilialBase;
+      NFe.Emit_Nro       := NumeroFilialBase;
+      NFe.Emit_Compl     := ComplementoFilialBase;
+      NFe.Emit_Bairro    := BairroFilialBase;
+      NFe.Emit_CodMun    := CodigoCidadeIBGEFilialBase;
+      NFe.Emit_Mun       := CidadeFilialBase;
+      NFe.Emit_UF        := EstadoFilialBase;
+      NFe.Emit_CEP       := CEPFilialBase;
+  //    NFe.Emit_CodPais   := 1058;
+  //    NFe.Emit_Pais      := 'Brasil';
+      NFe.Emit_Fone      := DDDFilialBase+FoneFilialBase;
+      NFe.Emit_IE        := InscricaoEstadualFilialBase;
+  //    NFe.Emit_IEST      := '';
+      NFe.Emit_IM        := InscricaoMunicipalFilialBase;
+      NFe.Emit_CNAE      := CNAEFiscalFilialBase;
+      NFe.Emit_CRT       := RegimeTributario;
+
+      NFe.Dest_TipoPessoa := qryDadosFiscaisNotaVinculadapessoatipo.AsString;
+      NFe.Dest_Documento := qryDadosFiscaisNotaVinculadapessoanumero.AsString;
+      NFe.Dest_Nome      := qryDadosFiscaisNotaVinculadanome.AsString;
+      NFe.Dest_Rua       := qryDadosFiscaisNotaVinculadarua.AsString;
+      NFe.Dest_Nro       := qryDadosFiscaisNotaVinculadaendnumero.AsString;
+      NFe.Dest_Compl     := qryDadosFiscaisNotaVinculadaendcomplemento.AsString;
+      NFe.Dest_Bairro    := qryDadosFiscaisNotaVinculadanomebairro.AsString;
+      NFe.Dest_CodMun    := qryDadosFiscaisNotaVinculadacidadeibge.AsString;
+      NFe.Dest_Mun       := qryDadosFiscaisNotaVinculadanomecidade.AsString;
+      NFe.Dest_UF        := qryDadosFiscaisNotaVinculadaestado.AsString;
+      NFe.Dest_CEP       := qryDadosFiscaisNotaVinculadacep.AsString;
+      NFe.Dest_CodPais   := qryDadosFiscaisNotaVinculadapais.AsInteger;
+      NFe.Dest_Pais      := qryDadosFiscaisNotaVinculadanomepais.AsString;
+
+      if (qryDadosFiscaisNotaVinculadafoneddd.AsString <> '') and
+         (qryDadosFiscaisNotaVinculadafonenumero.AsString <> '') then
+        NFe.Dest_Fone      := qryDadosFiscaisNotaVinculadafoneddd.AsString+qryDadosFiscaisNotaVinculadafonenumero.AsString
+      else
+        NFe.Dest_Fone      := '';
+
+      NFe.Dest_IE        := qryDadosFiscaisNotaVinculadadocumento.AsString;
+      NFe.Dest_ISUF      := qryDadosFiscaisNotaVinculadaiesubsttributario.AsString;
+
+      // ENTREGA
+      NFe.Entrega_Documento := qryDadosFiscaisNotaVinculadalocalentrega_cnpj.AsString;
+      NFe.Entrega_Rua       := qryDadosFiscaisNotaVinculadalocalentrega_rua.AsString;
+      NFe.Entrega_Nro       := qryDadosFiscaisNotaVinculadalocalentrega_numero.AsString;
+      NFe.Entrega_Compl     := qryDadosFiscaisNotaVinculadalocalentrega_complemento.AsString;
+      NFe.Entrega_Bairro    := qryDadosFiscaisNotaVinculadalocalentrega_nomebairro.AsString;
+      NFe.Entrega_CodMun    := qryDadosFiscaisNotaVinculadalocalentrega_cidadeibge.AsString;
+      NFe.Entrega_Mun       := qryDadosFiscaisNotaVinculadalocalentrega_nomecidade.AsString;
+      NFe.Entrega_UF        := qryDadosFiscaisNotaVinculadalocalentrega_estado.AsString;
+
+      nfe.Validando := Validando;
+
+      Result := NFe.GerarNFe(qryDadosFiscaisNotaVinculada,nil,qryProdutosDadosFiscaisNotaVinculada, qryProdutosDadosFiscaisCompostosNotaVinculada,
+                   qryServicosDadosFiscaisNotaVinculada, qryVenctosDadosFiscaisNotaVinculada,qryVolumesDadosFiscaisNotaVinculada,
+                   nil,nil,nil,SerieSugestao,'S');
+
+      if Result and not Validando then
+      begin
+        if NFeTipoEmissao in [1,3] then
+        begin
+          ShowProcessando;
+          ShowProcessando('Verificando status do serviço NF-e!');
+          Sleep(500);
+          Result := NFe.VerificarStatusServico(IntToStr(NFeAmbiente));
+          if Result then
+          begin
+            ShowProcessando;
+            ShowProcessando('Processando o arquivo de envio da NF-e!');
+            Sleep(500);
+            Result := NFe.EnviarNFe(ChaveAcesso+qryDadosFiscaisNotaVinculadadigchaveacesso.AsString, LoteNFe, ReciboNFe);
+            if Result then
+            begin
+              qryDadosFiscaisNotaVinculada.Edit;
+              qryDadosFiscaisNotaVinculadanumlotenfe.AsString   := LoteNFe;
+              qryDadosFiscaisNotaVinculadanumrecibonfe.AsString := ReciboNFe;
+              qryDadosFiscaisNotaVinculada.Post;
+              Result := perpetrar([qryDadosFiscaisNotaVinculada]);
+              if Result then
+              begin
+                ShowProcessando;
+                ShowProcessando('Consultando o arquivo de retorno da NF-e!');
+                Sleep(500);
+                Result := NFe.ConsultarSituacaoLote(ReciboNFe, ProtocoloNFe, status, DataHoraProcessamento, IntToStr(NFeAmbiente));
+                if Result then
+                begin
+                  qryDadosFiscaisNotaVinculada.Edit;
+                  qryDadosFiscaisNotaVinculadanumprotocolonfe.AsString := ProtocoloNFe;
+                  qryDadosFiscaisNotaVinculadadhprocnfe.Asdatetime := FormatarTimeStamp(DataHoraProcessamento);
+
+                  qryDadosFiscaisNotaVinculada.Post;
+                  Result := Perpetrar([qryDadosFiscaisNotaVinculada]);
+                  if Result then
+                  begin
+                    ShowProcessando;
+                    ShowProcessando('Gerando o arquivo de compartilhamento da NF-e!');
+                    Sleep(500);
+                    NFe.CompartilharXML(ChaveAcesso+qryDadosFiscaisNotaVinculadadigchaveacesso.AsString,
+                                        ReciboNFe, qryDadosFiscaisNotaVinculadafilialemissao.AsString,
+                                        SerieSugestao, qryDadosFiscaisNotaVinculadanrdocumento.AsString,
+                                        qryDadosFiscaisNotaVinculadadata.AsDateTime);
+                    ShowProcessando;
+//                    Result := Perpetrar([qryDadosFiscaisNotaVinculada]);
+//                    if Result then
+//                    begin
+                      {if not NFeVisualizarDANFE then
+                        MensagemAviso('Impressão da Nota Fiscal será iniciada.')
+                      else
+                      begin
+                      }
+//                    end
+//                    else
+//                      ShowProcessando;
+                  end
+                  else
+                    ShowProcessando;
+                end
+                else
+                  ShowProcessando;
+              end
+              else
+                showProcessando;
+            end
+            else
+              ShowProcessando;
+          end
+          else
+            ShowProcessando;
+        end
+        else
+        begin
+          if not NFeVisualizarDANFE then
+            MensagemAviso('Impressão da Nota Fiscal será iniciada.');
+          NFe.ImprimirDanfe({ChaveAcesso+qryDadosFiscaisNotaVinculadadigchaveacesso.AsString,}
+                            qryDadosFiscaisNotaVinculadafilialemissao.AsString,
+                            SerieSugestao,
+                            qryDadosFiscaisNotaVinculadanrdocumento.AsString,
+                            qryDadosFiscaisNotaVinculadalocalentrega_cep.AsString,
+                            qryDadosFiscaisNotaVinculadaemail.AsString,
+                            IntToStr(NFeNVias), NFeLogotipoDANFE,
+                            ParSistema.NomeImpressoraNotaMercadorias, NFeVisualizarDANFE,
+                            qryDadosFiscaisNotaVinculadadata.AsDateTime,
+                            qryProdutosDadosFiscaisNotaVinculada,
+                            NFeExecDANFE);
+        end;
+      end;
+    except
+      Result := False;
+    end;
+  finally
+    FreeAndNil(NFe); //NFe.Free;
+  end;
+end;
+
+procedure TdtmConsultaNotasFiscais.ImprimirDanfe;
+var
+  NFe : TTecNotaFiscalEletronica;
+begin
+  NFe := TTecNotaFiscalEletronica.Create;
+  NFe.DiretorioEnvio       := NFeDirEnvio;
+  NFe.DiretorioEnviado     := NFeDirEnviados;
+  NFe.DiretorioRetorno     := NFeDirRetorno;
+  NFe.DiretorioCompartilha := NfeDirCompartilha;
+  NFe.Executavel           := NFeExecNFe;
+  try
+    ShowProcessando('Imprimindo o DANFE!');
+    //end;
+    NFe.ImprimirDanfe({ChaveAcesso+qryDadosFiscaisNotaVinculadadigchaveacesso.AsString,}
+                      qryDadosFiscaisNotaVinculadafilialemissao.AsString,
+                      SerieSugestao,
+                      qryDadosFiscaisNotaVinculadanrdocumento.AsString,
+                      qryDadosFiscaisNotaVinculadalocalentrega_cep.AsString,
+                      qryDadosFiscaisNotaVinculadaemail.AsString,
+                      IntToStr(NFeNVias), NFeLogotipoDANFE,
+                      ParSistema.NomeImpressoraNotaMercadorias, NFeVisualizarDANFE,
+                      qryDadosFiscaisNotaVinculadadata.AsDateTime,
+                      qryProdutosDadosFiscaisNotaVinculada,
+                      NFeExecDANFE);
+    ShowProcessando;
+    if (qryDadosFiscaisNotaVinculadaemail.AsString <> '')      and
+       (UsuarioLogin.PortaSmpt        <> '')      and
+       (UsuarioLogin.HostSmtp         <> '')      and
+       (UsuarioLogin.Email            <> '')      and
+       (UsuarioLogin.SenhaEmail       <> '')      and
+       EmailValido(qryDadosFiscaisNotaVinculadaemail.AsString) then
+    begin
+      ShowProcessando('Enviando email para o cliente');
+      {NFe.EnviarEmail(MontarEmailNFe,
+                      'Envio da NFe(xml) - Emitente: ' + NomeFilialBase + ' - ' +
+                                             'N.Doc: ' + FormatarNroNFe(qryDadosFiscaisNotaVinculadanrdocumento.AsString) +
+                                          ' - Série: ' + preencheString(SerieSugestao,'0',3,False),
+                      LowerCase(UsuarioLogin.Email), LowerCase(qryDadosFiscaisNotaVinculadaemail.AsString),
+                      NomeFilialBase, UsuarioLogin.PortaSmpt,UsuarioLogin.HostSmtp,
+                      LowerCase(UsuarioLogin.Email), UsuarioLogin.SenhaEmail,
+                      qryDadosFiscaisNotaVinculadafilialvenda.AsString, SerieSugestao,
+                      qryDadosFiscaisNotaVinculadanrdocumento.AsString, UsuarioLogin.AutenticarSmtp);}
+      try
+	    if not NFe.EnviarEmail(UsuarioLogin.Email,qryDadosFiscaisNotaVinculadaemail.AsString,
+				qryDadosFiscaisNotaVinculadanrdocumento.AsString, SerieSugestao, IntToStr(FilialBase),
+				NomeFilialBase, RazaoFilialBase, CNPJFilialBase, DDDFilialBase, FoneFilialBase,
+				DDDFaxFilialBase, FaxFilialBase, UsuarioLogin.NomeUsuario, UsuarioLogin.PortaSMPT,
+				UsuarioLogin.HostSMTP, UsuarioLogin.UsuarioEmail, UsuarioLogin.SenhaEmail,
+				qryDadosFiscaisNotaVinculadadata.AsDateTime, qryDadosFiscaisNotaVinculadavalortotal.AsCurrency,
+				UsuarioLogin.AutenticarSMTP, qryDadosFiscaisNotaVinculadadata.AsDateTime) then
+		MensagemAviso('Ocorreu um erro inesperado no envio do email')
+	  finally
+	    ShowProcessando;
+	  end;
+    end;
+  finally
+    FreeAndNil(Nfe);
+  end;
+end;
+
+procedure TdtmConsultaNotasFiscais.qryDadosFiscaisCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if (qryDadosFiscaissituacao.AsString = 'N') or
+     (trim(qryDadosFiscaissituacao.AsString) = '') then
+    qryDadosFiscaisdescricaosituacao.asvariant := null
+  else
+  if qryDadosFiscaissituacao.AsString = 'C' then
+    qryDadosFiscaisdescricaosituacao.AsString := ANSIUpperCase(ctCANCELADA)
+  else
+  if qryDadosFiscaissituacao.AsString = 'D' then
+    qryDadosFiscaisdescricaosituacao.AsString := 'DENEGADA'
+  else
+  if qryDadosFiscaissituacao.AsString = 'P' then
+    qryDadosFiscaisdescricaosituacao.AsString := ANSIUpperCase(ctParcial);
+
+end;
+
+
+procedure TdtmConsultaNotasFiscais.qryNotasCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  if (qryDadosFiscaismodelodocto.AsString='55') and PossuiSomenteNumero(qryNotasserie.AsString) then
+  begin
+    qryNotasNFE_Calculada.AsString :=
+       copy(qryNotasCodigoCidadeIBGEFilial.AsString,1,2) +       // 2
+       FormatDateTime('YYMM',qryDadosFiscaisdata.AsDateTime)+      // 4
+       preencheString(qryNotascnpjfilial.AsString,'0',14,false) +
+       preencheString(qryDadosFiscaismodelodocto.AsString,'0',2,false)+ // 2
+       preencheString(qryNotasserie.AsString,'0',3,false)+                  // 3
+       preencheString(qrynotasnumero.Asstring,'0',9,false) + // 9
+       ifthen(qryDadosFiscaisformaemissao.AsInteger<>0, qryDadosFiscaisformaemissao.AsString, inttostr(NFeTipoEmissao)) + //1
+       preencheString(inttostr(Aleatorio(qryDadosFiscaisdata.AsDateTime, qrynotasnumero.Asstring)),'0',8,false);
+
+    qryNotasNFE_Calculada.AsString := qryNotasNFE_Calculada.AsString +
+                                             Modulo11(qryNotasNFE_Calculada.AsString);
+  end;
+end;
+
+
+function TdtmConsultaNotasFiscais.GetChave_nfe: String;
+begin
+  result := qryNotaschave_nfe.AsString;
+end;
+
+function TdtmConsultaNotasFiscais.GetCodigoNota: Integer;
+begin
+  result := qryNotasdadofiscal.AsInteger;
+end;
+
+function TdtmConsultaNotasFiscais.GetEmail: String;
+begin
+  result := qryNotasemail.AsString;
+end;
+
+function TdtmConsultaNotasFiscais.GetSerieNota: String;
+begin
+  result := qryNotasserie.AsString;
+end;
+
+function TdtmConsultaNotasFiscais.GetFilialNota: String;
+begin
+  result := qryNotasfilial.AsString
+end;
+
+function TdtmConsultaNotasFiscais.GetNumeroNota: String;
+begin
+  result := qryNotasnumero.AsString;
+end;
+
+function TdtmConsultaNotasFiscais.GetEmailNotaVinculada: String;
+begin
+  result := qryDadosFiscaisNotaVinculadaemail.AsString;
+end;
+
+function TdtmConsultaNotasFiscais.GetCondicaoCartaCorrecao: Boolean;
+begin
+  result := (qryDadosFiscaissituacao.AsString = 'N') and
+            (qryDadosFiscaismodelodocto.AsString = '55') and
+            (qryNotasnumlotenfe.AsString <> '') and
+            (qryNotasnumrecibonfe.AsString <> '') and
+            (qryNotasnumprotocolonfe.AsString <> '') and
+            (qryNotaschave_nfe.AsString <> '')
+end;
+
+procedure TdtmConsultaNotasFiscais.qryCalculosProdutosBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryCalculosProdutos.parambyname('contribiss').AsBoolean := contribiss;
+end;
+
+function TdtmConsultaNotasFiscais.GetCondicaoEmissorNFE: Boolean;
+begin
+  if qryDadosFiscais.recordcount <> 0 then
+    fCondicaoEmissorNFE := parsistema.EmissorNfe and
+                           ((qryDadosFiscaismodelodocto.AsString = '55') or
+                            (qryDadosFiscaismodelodocto.AsString = '57'))
+  else
+    fCondicaoEmissorNFE := parsistema.EmissorNfe and
+                           ((ModeloDoctoFiscal = '55') or
+                            (ModeloDoctoFiscal = '57'));
+
+  Result := fCondicaoEmissorNFE;
+end;
+
+end.
+

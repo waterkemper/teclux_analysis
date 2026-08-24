@@ -1,0 +1,509 @@
+unit fmcadastrooperacoes;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, windows,
+  StdCtrls, dmcadastrooperacoes, fmcadastropadrao, DBCtrls, cptexto, variants,
+  Mask, cpdbfindcontrols, ComCtrls, Buttons, ExtCtrls, cpnumero, db, biblio,
+  Grids, DBGrids, cpdbgrid, frconsulta, frconsultacodigo, cpdbmemo, ctconstantes,
+  cpdbtext, cpdbdata, ToolWin, u_TEnhDBGrid;
+
+type
+  TfrmCadastroOperacoes = class(TfrmCadastroPadrao)
+    gbxNome: TGroupBox;
+    edfNome: TtecDbEditFind;
+    gbxc11: TGroupBox;
+    edfc1: TtecDbEditFind;
+    edfdescricaoc1: TDBEditTexto;
+    gbxc21: TGroupBox;
+    edfc2: TtecDbEditFind;
+    edfdescricaoc2: TDBEditTexto;
+    gbxc31: TGroupBox;
+    edfc3: TtecDbEditFind;
+    edfdescricaoc3: TDBEditTexto;
+    gbxDescricao: TGroupBox;
+    edtDescricao: TDBEditTexto;
+    ckbNecessitaSetup: TDBCheckBox;
+    ckbNecessitaPlanoControle: TDBCheckBox;
+    gbxVorgabezeit: TGroupBox;
+    lbligual: TLabel;
+    gbxppmMax: TGroupBox;
+    edtPPM: TDBEditNumero;
+    gbxOperadores: TGroupBox;
+    edtNrOperadores: TDBEditNumero;
+    gbxNecessita: TGroupBox;
+    gbxNiveisOperadores: TGroupBox;
+    dbgOperacoesNiveisSalariais: TtecDBGrid;
+    gbxEquipamento: TGroupBox;
+    fraConsultaMaquina: TfraConsultaCodigo;
+    pnlOpcoesFuncionarios: TPanel;
+    sbnExcluirFuncionarios: TSpeedButton;
+    pgcOperacoes: TPageControl;
+    tstOperacoes: TTabSheet;
+    tstSetup: TTabSheet;
+    gbxDescricaoSetup1: TGroupBox;
+    dbgDescricaoSetup: TtecDBGrid;
+    pnlDescricaoSetup: TPanel;
+    gbxDescricaoSetup: TGroupBox;
+    mmoDescricaoSetup: TtecDBMemo;
+    Bevel1: TBevel;
+    gbxMinPor100: TGroupBox;
+    gbxPecasPorHora: TGroupBox;
+    lblNrOperadores: TLabel;
+    gbxC1: TGroupBox;
+    gbxC2: TGroupBox;
+    gbxC3: TGroupBox;
+    Shape1: TShape;
+    Shape2: TShape;
+    lblV1: TLabel;
+    lblV2: TLabel;
+    gbxCaracteristicas: TGroupBox;
+    dtxPecasHora: TtecDBText;
+    sbnIncluirSetup: TSpeedButton;
+    tstControleProcesso: TTabSheet;
+    dbgControleProcesso: TtecDBGrid;
+    lblMaquinaDispositivo: TGroupBox;
+    lblCaracterisitca: TGroupBox;
+    lblTipoRegistro: TGroupBox;
+    gbxMetodosPlanosControle: TGroupBox;
+    gbxRevisao_1: TGroupBox;
+    gbxResponsavel_1: TGroupBox;
+    gbxEquipe_1: TGroupBox;
+    tstFMEA: TTabSheet;
+    dbgFMEA: TtecDBGrid;
+    gbxCausasMecanismos: TGroupBox;
+    edtRevisao: TDBEditData;
+    edtResponsavel: TDBEditTexto;
+    edtEquipe: TDBEditTexto;
+    sbnIncluirProcessosControle: TSpeedButton;
+    GBXMetodosControle: TGroupBox;
+    GBXtoleranciaespecproduto: TGroupBox;
+    GBXtecnicaavaliacaomedicao: TGroupBox;
+    GBXtamanho: TGroupBox;
+    GBXfrequencia: TGroupBox;
+    MMOtoleranciaespecproduto: TtecDBMemo;
+    MMOtecnicaavaliacaomedicao: TtecDBMemo;
+    MMOtamanho: TtecDBMemo;
+    mmofrequencia: TtecDBMemo;
+    pnlOperacoesProcessoControle: TPanel;
+    pnlOperacoesProcessos: TPanel;
+    pnlOperacoesProcessosFMEA: TPanel;
+    gbxRevisao_1FMEA: TGroupBox;
+    edtRevisaoFMEA: TDBEditData;
+    gbxResponsavel_1FMEA: TGroupBox;
+    edtResponsavelFMEA: TDBEditTexto;
+    gbxEquipe_1FMEA: TGroupBox;
+    edtEquipeFMEA: TDBEditTexto;
+    pnlRodapeOperacoesProcessoControle: TPanel;
+    Shape3: TShape;
+    lblReverProcessoControle: TLabel;
+    gbxCopiarProcessos: TGroupBox;
+    gbxCopiarOperacoes: TGroupBox;
+    gbxCopiaC1: TGroupBox;
+    gbxCopiaC2: TGroupBox;
+    gbxCopiaC3: TGroupBox;
+    fraConsultaProcesso: TfraConsultaCodigo;
+    edfCopiaC1: TtecDBFindLookup;
+    edfCopiaC2: TtecDBFindLookup;
+    edfCopiaC3: TtecDBFindLookup;
+    procedure dbgOperacoesNiveisSalariaisDblClick(Sender: TObject);
+    procedure dbgOperacoesNiveisSalariaisKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure sbnExcluirFuncionariosClick(Sender: TObject);
+    procedure sbnExcluirOperacoesSetupClick(Sender: TObject);
+    procedure sbnProcurarClick(Sender: TObject);
+    procedure sbnIncluirSetupClick(Sender: TObject);
+    procedure dbgDescricaoSetupKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edfc3KeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnIncluirProcessosControleClick(Sender: TObject);
+    procedure dbgControleProcessoDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure dbgControleProcessoDblClick(Sender: TObject);
+    procedure dbgControleProcessoKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnIncluirFMEAClick(Sender: TObject);
+    procedure dbgFMEAKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edfCopiaC3KeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+  private
+    { Private declarations }
+    procedure CondicoesOperacoesNiveisSalariais;
+    procedure OperacoesNiveisSalariaisNewRecord(Sender: TObject);
+    procedure AcionarPesquisaGrade;
+//    procedure ZerarCamposChave;
+    function VerificarNiveisSalariais: boolean;
+
+  protected
+    ConsultaOperacoes : TfraConsultaCodigo;
+    ConsultaNiveisSalariais : TfraConsultaCodigo;
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoIncluir: Boolean; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure AbrirOperacoes;
+    procedure AtribuirDadosOperacoesNiveisSalariais;
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+  end;
+
+var
+  frmCadastroOperacoes: TfrmCadastroOperacoes;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmCadastroOperacoes }
+
+procedure TfrmCadastroOperacoes.AbrirOperacoes;
+begin
+  edfNome.Text := ConsultaOperacoes.qryProcuraOperacoesnome.AsString;
+  edfc1.Text := ConsultaOperacoes.qryProcuraOperacoesc01.AsString;
+  edfc2.Text := ConsultaOperacoes.qryProcuraOperacoesc02.AsString;
+  edfc3.Text := ConsultaOperacoes.qryProcuraOperacoesc03.AsString;
+  dtmCadastroOperacoes.
+        refazconsulta(dtmCadastroOperacoes.qryOperacoes,[0,1,2,3],
+             [ConsultaOperacoes.qryProcuraOperacoesnome.AsString,
+              ConsultaOperacoes.qryProcuraOperacoesc01.AsString,
+              ConsultaOperacoes.qryProcuraOperacoesc02.AsString,
+              ConsultaOperacoes.qryProcuraOperacoesc03.AsString]);
+end;
+
+procedure TfrmCadastroOperacoes.AtribuirDadosOperacoesNiveisSalariais;
+begin
+  with dtmCadastroOperacoes do
+  begin
+    EditarOperacoesNiveisSalariais;
+    qryOperacoesNiveisSalariaisdescricao.AsString := ConsultaNiveisSalariais.qryProcuraNivelSalarialdescricao.AsString;
+    qryOperacoesNiveisSalariaisnivelsalarial.AsString := ConsultaNiveisSalariais.qryProcuraNivelSalarialcodigo.AsString;
+  end;
+end;
+
+procedure TfrmCadastroOperacoes.CondicoesOperacoesNiveisSalariais;
+const
+  SQL = 'and (codigo not in (%s) or codigo = %s)';
+var
+  codigoproduto : String;
+begin
+   codigoproduto := '0';
+   if (dtmCadastroOperacoes.qryOperacoesNiveisSalariais.State = dsInsert) or
+      (dtmCadastroOperacoes.qryOperacoesNiveisSalariaisdescricao.AsString='') then
+     codigoproduto := '0'
+   else
+   if dtmCadastroOperacoes.qryOperacoesNiveisSalariaisauxnivelsalarial.Asinteger =
+      dtmCadastroOperacoes.qryOperacoesNiveisSalariaisnivelsalarial.Asinteger then
+     codigoproduto := inttostr(dtmCadastroOperacoes.qryOperacoesNiveisSalariaisnivelsalarial.Asinteger)
+   else
+   if pos(','+dtmCadastroOperacoes.qryOperacoesNiveisSalariaisnivelsalarial.Asstring+',',
+          dtmCadastroOperacoes.FListaNiveisSelecionadoscomvirgula)<>0 then
+     codigoproduto := '0';
+
+   ConsultaNiveisSalariais.qryProcuraNivelSalarial.MacroByName('SQLNiveisJaSelecionados').AsString :=
+     format(SQL,[dtmCadastroOperacoes.ListaNiveisSelecionados, codigoproduto]);
+   ConsultaNiveisSalariais.qryConsultaNivelSalarial.MacroByName('SQLNiveisJaSelecionados').AsString :=
+     format(SQL,[dtmCadastroOperacoes.ListaNiveisSelecionados, codigoproduto]);
+end;
+
+constructor TfrmCadastroOperacoes.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmCadastroOperacoes := TdtmCadastroOperacoes.Create(Self);
+  DataSet := dtmCadastroOperacoes.qryOperacoes;
+
+  ConsultaOperacoes := TfraConsultaCodigo.Create(self);
+  ConsultaOperacoes.edfCodigo.DataSource := dtmCadastroOperacoes.dsrOperacoes;
+  ConsultaOperacoes.edfCodigo.DataField := 'codigo';
+  ConsultaOperacoes.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaOperacoes.AbrirTabelaProcura := false;
+  ConsultaOperacoes.TipoPesquisa := pesOPERACOES;
+  ConsultaOperacoes.OnFound := AbrirOperacoes;
+  ConsultaOperacoes.Name := 'fraConsultaOperacoes';
+
+  ConsultaNiveisSalariais := TfraConsultaCodigo.Create(self);
+  ConsultaNiveisSalariais.Name := 'fraConsultaNiveisSalariais';
+  ConsultaNiveisSalariais.edfCodigo.MaxLength := 3;
+  ConsultaNiveisSalariais.edfCodigo.DataSource := dtmCadastroOperacoes.dsrOperacoesNiveisSalariais;
+  ConsultaNiveisSalariais.edfCodigo.DataField := 'nivelsalarial';
+  ConsultaNiveisSalariais.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaNiveisSalariais.edfCodigo.LookupSource := ConsultaNiveisSalariais.dsrProcuraNivelSalarial;
+  ConsultaNiveisSalariais.edfCodigo.LookupQueryParameter := 'Codigo';
+  ConsultaNiveisSalariais.edfCodigo.LookupField := 'Codigo';
+  ConsultaNiveisSalariais.AbrirTabelaProcura := false;
+  ConsultaNiveisSalariais.CondicoesdaConsulta := CondicoesOperacoesNiveisSalariais;
+  ConsultaNiveisSalariais.TipoPesquisa := pesNIVELSALARIAL;
+  ConsultaNiveisSalariais.OnFound := AtribuirDadosOperacoesNiveisSalariais;
+
+  fraConsultaMaquina.TipoPesquisa := pesMAQUINAS;
+
+  dtmCadastroOperacoes.onOperacoesNiveisSalariaisNewRecord := OperacoesNiveisSalariaisNewRecord;
+  dbgOperacoesNiveisSalariais.OnDelete := dtmCadastroOperacoes.ExcluirOperacoesNiveisSalariais;
+  dbgDescricaoSetup.OnDelete := dtmCadastroOperacoes.ExcluirOperacoesSetup;
+
+  dbgControleProcesso.OnDelete := dtmCadastroOperacoes.ExcluirProcessosControle;
+
+  fraConsultaProcesso.TipoPesquisa := pesOPERACOES;
+
+  pgcOperacoes.ActivePage := tstOperacoes;
+  edfNome.SetFocus;
+  edfNome.SelectAll;
+
+end;
+
+destructor TfrmCadastroOperacoes.Destroy;
+begin
+  dtmCadastroOperacoes.qryOperacoes.close;
+  dtmCadastroOperacoes.qryOperacoesSetup.close;
+  dtmCadastroOperacoes.qryOperacoesNiveisSalariais.close;
+  dtmCadastroOperacoes := nil;
+  inherited;
+//  frmCadastroOperacoes := nil;
+end;
+
+function TfrmCadastroOperacoes.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then begin
+    if not CtrlOn then
+      dtmCadastroOperacoes.ExcluirOperacoes;
+  end;
+end;
+
+function TfrmCadastroOperacoes.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if Result then
+    if dtmCadastroOperacoes.ValidarNiveisSalariais then
+      dtmCadastroOperacoes.GravarOperacoes
+    else
+    begin
+      MensagemAviso('O número de operadores difere do informado');
+      edtNrOperadores.SetFocus;
+    end;
+end;
+
+function TfrmCadastroOperacoes.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then begin
+    if not CtrlOn then
+    begin
+      dtmCadastroOperacoes.IncluirOperacoes;
+      edfNome.SetFocus;
+    end;
+  end;
+end;
+
+procedure TfrmCadastroOperacoes.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if not CtrlOn then
+  begin
+    if (key =VK_F9) then
+    begin
+      if sbnProcurar.Enabled then
+      begin
+        ConsultaOperacoes.InternoPesquisar(ctoperacoes);
+        self.SetFocus;
+      end
+    end;
+  end;
+end;
+
+procedure TfrmCadastroOperacoes.OperacoesNiveisSalariaisNewRecord(
+  Sender: TObject);
+begin
+  dbgOperacoesNiveisSalariais.SelectedIndex := 0;
+end;
+
+procedure TfrmCadastroOperacoes.dbgOperacoesNiveisSalariaisDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  acionarPesquisaGrade;
+end;
+
+procedure TfrmCadastroOperacoes.AcionarPesquisaGrade;
+begin
+  dbgOperacoesNiveisSalariais.SetFocus;
+  ConsultaNiveisSalariais.CtrlOn := True;
+  ConsultaNiveisSalariais.InternoPesquisar(ctNIVELSALARIAL);
+  dbgOperacoesNiveisSalariais.SetFocus;
+  dbgOperacoesNiveisSalariais.SelectedIndex :=  0;
+end;
+
+procedure TfrmCadastroOperacoes.dbgOperacoesNiveisSalariaisKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+
+begin
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+     VK_F9     : begin
+                     ConsultaNiveisSalariais.CtrlOn := Shift = [ssCtrl];
+                     if (Shift = []) or ConsultaNiveisSalariais.CtrlOn then
+                       AcionarPesquisaGrade
+                   end;
+    end;
+  end
+  else
+  case Key of
+   VK_Return: if dbgOperacoesNiveisSalariais.SelectedIndex = 0 then
+                begin
+                  if VerificarNiveisSalariais then
+                    dtmCadastroOperacoes.GravarOperacoesNiveisSalariais;
+                end;
+  end;
+  inherited;
+end;
+
+
+procedure TfrmCadastroOperacoes.sbnExcluirFuncionariosClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroOperacoes.ExcluirOperacoesNiveisSalariais;
+end;
+
+function TfrmCadastroOperacoes.VerificarNiveisSalariais: boolean;
+begin
+  result := true;
+  ConsultaNiveisSalariais.edfCodigo.DoExit;
+  if not ConsultaNiveisSalariais.qryProcuraNivelSalarial.IsEmpty then
+    AtribuirDadosOperacoesNiveisSalariais
+  else
+  begin
+    result := false;
+    dbgOperacoesNiveisSalariais.SetFocus;
+    dbgOperacoesNiveisSalariais.SelectedIndex := 0;
+  end;
+end;
+
+
+procedure TfrmCadastroOperacoes.sbnExcluirOperacoesSetupClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroOperacoes.ExcluirOperacoesSetup;
+end;
+
+procedure TfrmCadastroOperacoes.sbnProcurarClick(Sender: TObject);
+begin
+  inherited;
+  ConsultaOperacoes.InternoPesquisar(ctOPERACOES);
+  self.SetFocus;
+end;
+
+procedure TfrmCadastroOperacoes.sbnIncluirSetupClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroOperacoes.IncluirSetUp(False);
+end;
+
+procedure TfrmCadastroOperacoes.dbgDescricaoSetupKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (shift = [ssCtrl]) and (key =VK_F3) then
+    sbnIncluirSetup.Click;
+
+
+end;
+
+procedure TfrmCadastroOperacoes.edfc3KeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+{  if (Shift=[]) and (TeclaEnterOuReturn(key) or (key =VK_tab)) then
+    dtmCadastroOperacoes.RefazConsultaOperacoes(edfNome.Text,edfc1.Text,edfc2.Text,edfc3.Text);}
+end;
+{
+procedure TfrmCadastroOperacoes.ZerarCamposChave;
+begin
+  edfNome.Modified := true;
+  edfc1.Modified   := true;
+  edfc2.Modified   := true;
+  edfc3.Modified   := true;
+end;
+}
+procedure TfrmCadastroOperacoes.sbnIncluirProcessosControleClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroOperacoes.IncluirProcessosControle(False);
+
+end;
+
+procedure TfrmCadastroOperacoes.dbgControleProcessoDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if dtmCadastroOperacoes.qryProcessosControlerevisar.AsBoolean then
+    TDBGrid(Sender).Canvas.Font.Color := clRed
+  else
+    TDBGrid(Sender).Canvas.Font.Color := clBlack;
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+procedure TfrmCadastroOperacoes.dbgControleProcessoDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroOperacoes.MarcarDesmarcarRevisao;
+end;
+
+procedure TfrmCadastroOperacoes.dbgControleProcessoKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (shift = [ssCtrl]) and (key =VK_F3) then
+    sbnIncluirProcessosControle.Click;
+
+  if (key =VK_space) and ctrlon then
+    if dbgControleProcesso.SelectedIndex = 12 then
+      dtmCadastroOperacoes.MarcarDesmarcarRevisao;
+
+
+end;
+
+procedure TfrmCadastroOperacoes.sbnIncluirFMEAClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroOperacoes.IncluirProcessosControle(False);
+
+end;
+
+procedure TfrmCadastroOperacoes.dbgFMEAKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (shift = [ssCtrl]) and (key =VK_F3) then
+    sbnIncluirProcessosControle.Click;
+
+
+end;
+
+procedure TfrmCadastroOperacoes.edfCopiaC3KeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (key =VK_return) then
+    if not fraConsultaProcesso.qryProcuraOperacoes.isempty then
+    begin
+      if (MensagemConfirmacao('A importação dos processos de controle da operação:  '+
+                              fraConsultaProcesso.qryProcuraOperacoesnome.AsString + ' '+
+                              fraConsultaProcesso.qryProcuraOperacoesc01.AsString + ' ' +
+                              fraConsultaProcesso.qryProcuraOperacoesc02.AsString + ' ' +
+                              fraConsultaProcesso.qryProcuraOperacoesc03.AsString) = smbOk) then
+        dtmCadastroOperacoes.importarprocessoscontrole(fraConsultaProcesso.qryProcuraOperacoescodigo.AsInteger);
+    end;
+end;
+
+end.

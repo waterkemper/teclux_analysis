@@ -11,9 +11,9 @@ inherited frmFCont: TfrmFCont
   TextHeight = 16
   inherited pnlBarra: TPanel
     Left = 0
-    Top = 40
+    Top = 45
     Width = 795
-    Height = 533
+    Height = 528
     Align = alClient
     BevelOuter = bvNone
     Visible = True
@@ -54,7 +54,6 @@ inherited frmFCont: TfrmFCont
           Height = 23
           Alignment = taLeftJustify
           DataField = 'exercicio'
-          DataSource = dtmFCont.dsrfcont
           EditMask = '!0000;1;_'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clBlack
@@ -119,7 +118,6 @@ inherited frmFCont: TfrmFCont
           TabStop = False
           Color = clBtnFace
           DataField = 'nomearquivo'
-          DataSource = dtmFCont.dsrfcont
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clBlack
           Font.Height = -12
@@ -174,12 +172,12 @@ inherited frmFCont: TfrmFCont
           inherited edfCodigo: TtecDBFindLookup
             Width = 37
             DataField = 'filial'
-            DataSource = dtmFCont.dsrfcont
             Group = 'periodo'
             MaxLength = 3
             OnFound = nil
             LookupField = 'codigo'
             LookupSource = fraConsultaFilial.dsrProcuraFiliais
+            LookupQueryParameter = 'codigo'
             Parameter = 'filial'
             LookupParameter = 'codigo'
           end
@@ -204,7 +202,6 @@ inherited frmFCont: TfrmFCont
         TabOrder = 4
         TabStop = False
         DataField = 'situacao'
-        DataSource = dtmFCont.dsrfcont
         object rbnAbertura: TtecRadioButton
           Left = 8
           Top = 16
@@ -320,7 +317,6 @@ inherited frmFCont: TfrmFCont
         TabOrder = 5
         TabStop = False
         DataField = 'IND_SIT_INI_PER'
-        DataSource = dtmFCont.dsrfcont
         object rbn_Periodo_0: TtecRadioButton
           Left = 8
           Top = 16
@@ -408,7 +404,6 @@ inherited frmFCont: TfrmFCont
         TabOrder = 3
         TabStop = False
         DataField = 'TIPO_ESCRIT'
-        DataSource = dtmFCont.dsrfcont
         object rbnOriginal: TtecRadioButton
           Left = 8
           Top = 16
@@ -478,7 +473,6 @@ inherited frmFCont: TfrmFCont
             Width = 200
             Height = 23
             DataField = 'Id_escr_Per_ant'
-            DataSource = dtmFCont.dsrfcont
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clBlack
             Font.Height = -12
@@ -512,7 +506,6 @@ inherited frmFCont: TfrmFCont
             Width = 200
             Height = 23
             DataField = 'Nro_Rec_Anterior'
-            DataSource = dtmFCont.dsrfcont
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clBlack
             Font.Height = -12
@@ -542,7 +535,6 @@ inherited frmFCont: TfrmFCont
           TabOrder = 2
           TabStop = False
           DataField = 'sIT_sLD_PER_ANT'
-          DataSource = dtmFCont.dsrfcont
           object tecRadioButton1: TtecRadioButton
             Left = 8
             Top = 14
@@ -627,7 +619,6 @@ inherited frmFCont: TfrmFCont
         TabOrder = 6
         TabStop = False
         DataField = 'Ind_lcto_ini_sld'
-        DataSource = dtmFCont.dsrfcont
         object rbnAjustar: TtecRadioButton
           Left = 8
           Top = 16
@@ -707,7 +698,7 @@ inherited frmFCont: TfrmFCont
         Left = 225
         Top = 2
         Width = 72
-        Height = 35
+        Height = 39
         Caption = 'Gerar F8'
         Flat = True
         Glyph.Data = {

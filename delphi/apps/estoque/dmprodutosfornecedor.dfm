@@ -1178,11 +1178,32 @@ inherited dtmProdutosFornecedor: TdtmProdutosFornecedor
       0000FEFEFF06000000070020546F746169730000000003005275610000000006
       00436964616465000000000400466F6E65000000000600546974756C6F000000
       00060042616972726F000000000000000000000000FC00000000000000000000
-      000000000000580092388DB15208E5406374181C1660E540}
+      000000000000580092388DB15208E540A1776499B572E640}
   end
   object fdsProdutos_Fornecedor: TfrDBDataSet
     DataSet = qryProdutos_Fornecedor
     Left = 78
     Top = 187
+  end
+  object frxReport1: TfrxReport
+    Version = '4.0.11'
+    DotMatrixReport = False
+    IniFile = '\Software\Fast Reports'
+    PreviewOptions.Buttons = [pbPrint, pbLoad, pbSave, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbEdit, pbNavigator, pbExportQuick]
+    PreviewOptions.Zoom = 1.000000000000000000
+    PrintOptions.Printer = 'Default'
+    PrintOptions.PrintOnSheet = 0
+    ReportOptions.CreateDate = 45973.668704710650000000
+    ReportOptions.LastChange = 45973.668704710650000000
+    ScriptLanguage = 'PascalScript'
+    ScriptText.Strings = (
+      'begin'
+      ''
+      'end.')
+    Left = 80
+    Top = 248
+    Datasets = <>
+    Variables = <>
+    Style = <>
   end
 end

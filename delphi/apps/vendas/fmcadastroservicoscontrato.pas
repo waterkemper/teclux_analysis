@@ -58,6 +58,8 @@ type
     fraConsultaEstado: TfraConsultaCodigo;
     fraConsultaCidades: TfraConsultaCodigo;
     ckbReter: TDBCheckBox;
+    GroupBox2: TGroupBox;
+    fraConsultaCIndOp: TfraConsultaCodigo;
     procedure flkServicoMessage(var Msg: String);
     procedure sbnProcuraServicosClick(Sender: TObject);
     procedure sbnProcurarEquipamentoClick(Sender: TObject);
@@ -118,6 +120,8 @@ begin
 
   fraConsultaCidades.TipoPesquisa := pesCIDADES;
   fraConsultaCidades.edfCodigo.Exist;
+
+  fraConsultaCIndOp.TipoPesquisa := pesIndOperNFSe;
 
   DataSet := dtmCadastroContratos.TabelaServicoContratos;
   TipoConsulta := cscNENHUM;
@@ -305,6 +309,12 @@ begin
   fraConsultaCidades.edfCodigo.DataSource := dtmCadastroContratos.dsrServicosContratos;
   dtxValorTotalServico.DataSource := dtmCadastroContratos.dsrServicosContratos;
   ckbReter.DataSource := dtmCadastroContratos.dsrServicosContratos;
+
+
+  fraConsultaCIndOp.edfCodigo.DataSource := dtmCadastroContratos.dsrServicosContratos;
+  fraConsultaCIndOp.edfCodigo.lookupSource := fraConsultaCIndOp.dsrProcuraIndOperNFSe;
+  fraConsultaCIndOp.dtxdescricao.DataSource := fraConsultaCIndOp.dsrProcuraIndOperNFSe;
+
 end;
 
 end.

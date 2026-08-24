@@ -2352,7 +2352,7 @@ inherited dtmCadastroInventario: TdtmCadastroInventario
       455F5546000000000B0020417578696C69617265730000000005004C696E6861
       00010030000900537562546974756C6F000000000600544954554C4F00000000
       0000000000000000FC00000000000000000000000000000000580077EB0FF70E
-      89E3403A3CFAEBEF0DE640}
+      89E340EEDE64FE8F71E640}
   end
   object fdsProdutosInventario: TfrDBDataSet
     DataSet = qryInventarioProduto
@@ -6089,22 +6089,25 @@ inherited dtmCadastroInventario: TdtmCadastroInventario
     Left = 504
     Top = 208
   end
-  object frxDBDataset1: TfrxDBDataset
-    UserName = 'frxDBDataset1'
-    CloseDataSource = False
-    Left = 512
-    Top = 384
-  end
-  object frxDBDataset2: TfrxDBDataset
-    UserName = 'frxDBDataset2'
-    CloseDataSource = False
-    Left = 512
-    Top = 440
-  end
-  object frxDBDataset3: TfrxDBDataset
-    UserName = 'frxDBDataset3'
-    CloseDataSource = False
-    Left = 520
-    Top = 488
+  object frxReport1: TfrxReport
+    Version = '4.0.11'
+    DotMatrixReport = False
+    IniFile = '\Software\Fast Reports'
+    PreviewOptions.Buttons = [pbPrint, pbLoad, pbSave, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbEdit, pbNavigator, pbExportQuick]
+    PreviewOptions.Zoom = 1.000000000000000000
+    PrintOptions.Printer = 'Default'
+    PrintOptions.PrintOnSheet = 0
+    ReportOptions.CreateDate = 45964.414621307870000000
+    ReportOptions.LastChange = 45964.414621307870000000
+    ScriptLanguage = 'PascalScript'
+    ScriptText.Strings = (
+      'begin'
+      ''
+      'end.')
+    Left = 776
+    Top = 40
+    Datasets = <>
+    Variables = <>
+    Style = <>
   end
 end

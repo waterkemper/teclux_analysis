@@ -1,0 +1,2726 @@
+unit dmcontrolenotasfiscaiseletronicas;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, cpdatasource, ZQuery, ZPgSqlQuery,
+  cpquery, biblio, ctconstantes, clnfe, clparametrossistema, clusuario,
+  ZTransact, dateutils, ACBrBase, ACBrDFe, ACBrNFSe, dmimprimefiscal, StrUtils;
+
+type
+  TTecNFSaidaDepoisdoCancelamento = procedure(const Documento: integer) of object ;
+
+
+type
+  TdtmControleNotasFiscaisEletronicas = class(TdtmBasico)
+    qryProcurarCFOPPesquisa: TtecQuery;
+    qryProcurarCFOPPesquisacodigo: TIntegerField;
+    qryProcurarCFOPPesquisadescricao: TStringField;
+    dsrProcurarCFOPPesquisa: TtecDataSource;
+    qryConsultaCFOP: TtecQuery;
+    qryConsultaCFOPdescricao: TStringField;
+    qryConsultaCFOPcodigo: TIntegerField;
+    qryNotasPag: TtecQuery;
+    dsrNotasPag: TtecDataSource;
+    qryDadosFiscais: TtecQuery;
+    dsrDadosFiscais: TtecDataSource;
+    qryProdutosNotasPag: TtecQuery;
+    qryProdutosDadosFiscais: TtecQuery;
+    qryVenctosNotasPag: TtecQuery;
+    qryVenctosDadosFiscais: TtecQuery;
+    qryVolumesDadosFiscais: TtecQuery;
+    qryVolumesNotasPag: TtecQuery;
+    qryLacresNotasPag: TtecQuery;
+    qryLacresDadosFiscais: TtecQuery;
+    qryImportacoes: TtecQuery;
+    qryAdicoes: TtecQuery;
+    qryVenctosDadosFiscaisdadofiscal: TIntegerField;
+    qryVenctosDadosFiscaisnumero: TIntegerField;
+    qryVenctosDadosFiscaisdatavencto: TDateField;
+    qryVenctosDadosFiscaisvalorvencto: TFloatField;
+    qryVolumesDadosFiscaisdadofiscal: TIntegerField;
+    qryVolumesDadosFiscaiscodigo: TIntegerField;
+    qryVolumesDadosFiscaisvolumes: TIntegerField;
+    qryVolumesDadosFiscaisnumeracao: TStringField;
+    qryVolumesDadosFiscaismarca: TStringField;
+    qryVolumesDadosFiscaispesobruto: TFloatField;
+    qryVolumesDadosFiscaispesoliquido: TFloatField;
+    qryVolumesDadosFiscaisespecietransporte: TStringField;
+    qryVolumesNotasPagnotapag: TIntegerField;
+    qryVolumesNotasPagcodigo: TIntegerField;
+    qryVolumesNotasPagvolumes: TIntegerField;
+    qryVolumesNotasPagnumeracao: TStringField;
+    qryVolumesNotasPagmarca: TStringField;
+    qryVolumesNotasPagpesobruto: TFloatField;
+    qryVolumesNotasPagpesoliquido: TFloatField;
+    qryVolumesNotasPagespecietransporte: TStringField;
+    qryLacresDadosFiscaisdadofiscal: TIntegerField;
+    qryLacresDadosFiscaiscodigovolume: TIntegerField;
+    qryLacresDadosFiscaislacre: TStringField;
+    qryLacresNotasPagnotapag: TIntegerField;
+    qryLacresNotasPagcodigovolume: TIntegerField;
+    qryLacresNotasPaglacre: TStringField;
+    qryImportacoesnumero: TStringField;
+    qryImportacoesdata: TDateField;
+    qryImportacoestaxacambio: TFloatField;
+    qryImportacoeslocaldesembaraco: TStringField;
+    qryImportacoesufdesembaraco: TStringField;
+    qryImportacoesdatadesembaraco: TDateField;
+    qryImportacoesexportador: TIntegerField;
+    qryAdicoesdadoimportacao: TStringField;
+    qryAdicoesnumero: TIntegerField;
+    qryAdicoesfabricante: TIntegerField;
+    qryAdicoesmercadoria: TFloatField;
+    qryAdicoesfrete: TFloatField;
+    qryAdicoesembalagem: TFloatField;
+    qryAdicoesthc: TFloatField;
+    qryAdicoesii: TFloatField;
+    qryAdicoesipi: TFloatField;
+    qryAdicoespis: TFloatField;
+    qryAdicoescofins: TFloatField;
+    qryAdicoessiscomex: TFloatField;
+    qryAdicoesbaseicms: TFloatField;
+    qryAdicoesvaloricms: TFloatField;
+    qryAdicoesnomefabricante: TStringField;
+    qryAdicoestotais: TBooleanField;
+    qryProdutosDadosFiscaisCompostos: TtecQuery;
+    qryProdutosDadosFiscaisCompostosdadofiscal: TIntegerField;
+    qryProdutosDadosFiscaisCompostoscomposto: TLargeintField;
+    qryProdutosDadosFiscaisCompostosnumero: TIntegerField;
+    qryProdutosDadosFiscaisCompostoscomponente: TLargeintField;
+    qryProdutosDadosFiscaisCompostosfilial: TIntegerField;
+    qryProdutosDadosFiscaisCompostosvendedor: TIntegerField;
+    qryProdutosDadosFiscaisCompostosentregar: TBooleanField;
+    qryProdutosDadosFiscaisCompostosquantidade: TFloatField;
+    qryProdutosDadosFiscaisCompostosprecovenda: TFloatField;
+    qryProdutosDadosFiscaisCompostosprecotabela: TFloatField;
+    qryProdutosDadosFiscaisCompostosdescricaoprecovenda: TStringField;
+    qryProdutosDadosFiscaisCompostosreserva: TIntegerField;
+    qryProdutosDadosFiscaisCompostosaliquotaicms: TFloatField;
+    qryProdutosDadosFiscaisCompostosreducaobase: TFloatField;
+    qryProdutosDadosFiscaisCompostosincidencia: TStringField;
+    qryProdutosDadosFiscaisCompostosorigem: TIntegerField;
+    qryProdutosDadosFiscaisCompostosicms: TIntegerField;
+    qryProdutosDadosFiscaisCompostosbaseicms: TFloatField;
+    qryProdutosDadosFiscaisCompostosaliquotaipi: TFloatField;
+    qryProdutosDadosFiscaisCompostosvaloripi: TFloatField;
+    qryProdutosDadosFiscaisCompostosclassificacaofiscal: TStringField;
+    qryProdutosDadosFiscaisCompostosipi: TIntegerField;
+    qryProdutosDadosFiscaisCompostosfatorsubstituicao: TFloatField;
+    qryProdutosDadosFiscaisCompostosvalordescontoitem: TFloatField;
+    qryProdutosDadosFiscaisCompostosgenero: TIntegerField;
+    qryProdutosDadosFiscaisCompostosextipi: TStringField;
+    qryProdutosDadosFiscaisCompostosicmsmodalidade: TIntegerField;
+    qryProdutosDadosFiscaisCompostosicmsmodsubst: TIntegerField;
+    qryProdutosDadosFiscaisCompostosicmsbasecalculo: TFloatField;
+    qryProdutosDadosFiscaisCompostosicmsvalor: TFloatField;
+    qryProdutosDadosFiscaisCompostosicmsbasecalculost: TFloatField;
+    qryProdutosDadosFiscaisCompostosicmsvalorst: TFloatField;
+    qryProdutosDadosFiscaisCompostosaliquotaicmsst: TFloatField;
+    qryProdutosDadosFiscaisCompostostribcodigoean: TStringField;
+    qryProdutosDadosFiscaisCompostostribunidade: TStringField;
+    qryProdutosDadosFiscaisCompostostribquantidade: TFloatField;
+    qryProdutosDadosFiscaisCompostosipicst: TStringField;
+    qryProdutosDadosFiscaisCompostosipibasecalculo: TFloatField;
+    qryProdutosDadosFiscaisCompostosiibasecalculo: TFloatField;
+    qryProdutosDadosFiscaisCompostosiidespaduaneira: TFloatField;
+    qryProdutosDadosFiscaisCompostosiivalor: TFloatField;
+    qryProdutosDadosFiscaisCompostosiiiof: TFloatField;
+    qryProdutosDadosFiscaisCompostospiscst: TStringField;
+    qryProdutosDadosFiscaisCompostospisbasecalculo: TFloatField;
+    qryProdutosDadosFiscaisCompostospisaliquota: TFloatField;
+    qryProdutosDadosFiscaisCompostospisvalor: TFloatField;
+    qryProdutosDadosFiscaisCompostoscofinscst: TStringField;
+    qryProdutosDadosFiscaisCompostoscofinsbasecalculo: TFloatField;
+    qryProdutosDadosFiscaisCompostoscofinsaliquota: TFloatField;
+    qryProdutosDadosFiscaisCompostoscofinsvalor: TFloatField;
+    qryProdutosDadosFiscaisCompostostribunitario: TFloatField;
+    qryProdutosDadosFiscaisCompostosenquadramento: TIntegerField;
+    qryProdutosDadosFiscaisCompostosunidade: TStringField;
+    qryProdutosDadosFiscaisCompostoscodigofiscal: TIntegerField;
+    qryProdutosDadosFiscaisCompostosnatureza: TIntegerField;
+    qryProdutosDadosFiscaisCompostosdesconto: TFloatField;
+    qryProdutosDadosFiscaisCompostosfrete: TFloatField;
+    qryProdutosDadosFiscaisCompostosseguro: TFloatField;
+    qryProdutosDadosFiscaisCompostosacrescimo: TFloatField;
+    qryProdutosDadosFiscaisCompostosdescricao: TStringField;
+    qryProdutosDadosFiscaisCompostospn: TLargeintField;
+    qryNotasPagcodigo: TIntegerField;
+    qryNotasPagfornecedor: TIntegerField;
+    qryNotasPagserie: TStringField;
+    qryNotasPagnrdocumento: TIntegerField;
+    qryNotasPagtipofornecedor: TStringField;
+    qryNotasPagfilial: TIntegerField;
+    qryNotasPagcodigofiscal: TIntegerField;
+    qryNotasPagsituacao: TStringField;
+    qryNotasPagcodigonatureza: TIntegerField;
+    qryNotasPagnatureza: TStringField;
+    qryNotasPagdata: TDateField;
+    qryNotasPagemissao: TDateField;
+    qryNotasPagestado: TStringField;
+    qryNotasPagcnpj: TStringField;
+    qryNotasPaginscricaoestadual: TStringField;
+    qryNotasPagcontrato: TStringField;
+    qryNotasPagvalornota: TFloatField;
+    qryNotasPagfreteinterno: TFloatField;
+    qryNotasPagdesconto: TFloatField;
+    qryNotasPagacrescimo: TFloatField;
+    qryNotasPagseguro: TFloatField;
+    qryNotasPagdespesasacessorias: TFloatField;
+    qryNotasPagbaseicmssubstituicao: TFloatField;
+    qryNotasPagvaloricmssubstituicao: TFloatField;
+    qryNotasPagdocumentopag: TIntegerField;
+    qryNotasPagfornecedorconhecimentofrete: TIntegerField;
+    qryNotasPagserieconhecimentofrete: TStringField;
+    qryNotasPagnumeroconhecimentofrete: TIntegerField;
+    qryNotasPagvalorconhecimentofrete: TFloatField;
+    qryNotasPagicmsconhecimentofrete: TFloatField;
+    qryNotasPagpermitirimprimir: TBooleanField;
+    qryNotasPagobservacoes: TStringField;
+    qryNotasPagfornecedortransporte: TIntegerField;
+    qryNotasPagfrete: TStringField;
+    qryNotasPagestadoplaca: TStringField;
+    qryNotasPagplaca: TStringField;
+    qryNotasPagviatransporte: TStringField;
+    qryNotasPagevento: TIntegerField;
+    qryNotasPagirretido: TFloatField;
+    qryNotasPagissretido: TFloatField;
+    qryNotasPaginssretido: TFloatField;
+    qryNotasPagpisretido: TFloatField;
+    qryNotasPagpiscofinscsllretido: TFloatField;
+    qryNotasPagcofinsretido: TFloatField;
+    qryNotasPagcsllretido: TFloatField;
+    qryNotasPagreferencia: TStringField;
+    qryNotasPagicmsfrete: TFloatField;
+    qryNotasPagicmsseguro: TFloatField;
+    qryNotasPagvalorprodutos: TFloatField;
+    qryNotasPagtotalprodutos: TFloatField;
+    qryNotasPagvaloripi: TFloatField;
+    qryNotasPagqtdeprodutos: TFloatField;
+    qryNotasPagobslivroentrada: TStringField;
+    qryNotasPagvalorservicos: TFloatField;
+    qryNotasPagbaseicms: TFloatField;
+    qryNotasPagvaloricms: TFloatField;
+    qryNotasPagndi: TStringField;
+    qryNotasPagversaolayout: TFloatField;
+    qryNotasPagmodelodocto: TStringField;
+    qryNotasPagcodaleatorio: TIntegerField;
+    qryNotasPagformapagto: TIntegerField;
+    qryNotasPagformatodanfe: TIntegerField;
+    qryNotasPagformaemissao: TIntegerField;
+    qryNotasPagdigchaveacesso: TIntegerField;
+    qryNotasPagchv_nfe: TStringField;
+    qryNotasPagambiente: TIntegerField;
+    qryNotasPagfinalidadenf: TIntegerField;
+    qryNotasPagprocemissao: TIntegerField;
+    qryNotasPagversaoteclux: TStringField;
+    qryNotasPagtotalimportacao: TFloatField;
+    qryNotasPagtotalvalorpis: TFloatField;
+    qryNotasPagtotalvalorcofins: TFloatField;
+    qryNotasPagnomebairro: TStringField;
+    qryNotasPagnomecidade: TStringField;
+    qryNotasPagcidadeibge: TIntegerField;
+    qryNotasPagpais: TIntegerField;
+    qryNotasPagnomepais: TStringField;
+    qryNotasPaglocalretirada_cnpj: TStringField;
+    qryNotasPaglocalretirada_rua: TStringField;
+    qryNotasPaglocalretirada_numero: TStringField;
+    qryNotasPaglocalretirada_complemento: TStringField;
+    qryNotasPaglocalretirada_bairro: TIntegerField;
+    qryNotasPaglocalretirada_nomebairro: TStringField;
+    qryNotasPaglocalretirada_cidade: TIntegerField;
+    qryNotasPaglocalretirada_cep: TIntegerField;
+    qryNotasPaglocalretirada_nomecidade: TStringField;
+    qryNotasPaglocalretirada_cidadeibge: TIntegerField;
+    qryNotasPaglocalretirada_estado: TStringField;
+    qryNotasPaglocalentrega_cnpj: TStringField;
+    qryNotasPaglocalentrega_rua: TStringField;
+    qryNotasPaglocalentrega_numero: TStringField;
+    qryNotasPaglocalentrega_complemento: TStringField;
+    qryNotasPaglocalentrega_bairro: TIntegerField;
+    qryNotasPaglocalentrega_nomebairro: TStringField;
+    qryNotasPaglocalentrega_cidade: TIntegerField;
+    qryNotasPaglocalentrega_cep: TIntegerField;
+    qryNotasPaglocalentrega_nomecidade: TStringField;
+    qryNotasPaglocalentrega_cidadeibge: TIntegerField;
+    qryNotasPaglocalentrega_estado: TStringField;
+    qryNotasPagtransportadora_cnpj: TStringField;
+    qryNotasPagtransportadora_ie: TStringField;
+    qryNotasPagtransportadora_nome: TStringField;
+    qryNotasPagtransportadora_rua: TStringField;
+    qryNotasPagtransportadora_bairro: TIntegerField;
+    qryNotasPagtransportadora_nomebairro: TStringField;
+    qryNotasPagtransportadora_cidade: TIntegerField;
+    qryNotasPagtransportadora_nomecidade: TStringField;
+    qryNotasPagtransportadora_cidadeibge: TIntegerField;
+    qryNotasPagtransportadora_estado: TStringField;
+    qryNotasPagtransportadora_rntc: TStringField;
+    qryNotasPagnome: TStringField;
+    qryNotasPagrua: TStringField;
+    qryNotasPagbairro: TIntegerField;
+    qryNotasPagcidade: TIntegerField;
+    qryNotasPagcep: TIntegerField;
+    qryNotasPagfonenumero: TIntegerField;
+    qryNotasPagfoneddd: TIntegerField;
+    qryNotasPagendnumero: TIntegerField;
+    qryNotasPagendcomplemento: TStringField;
+    qryNotasPaginfcomplementar: TStringField;
+    qryNotasPagnumlotenfe: TStringField;
+    qryNotasPagnumrecibonfe: TStringField;
+    qryNotasPagnumprotocolonfe: TStringField;
+    qryNotasPagnumcancelamentonfe: TStringField;
+    qryNotasPagnuminutilizacaonfe: TStringField;
+    qryNotasPagiesubsttributario: TStringField;
+    qryNotasPagsuframa: TStringField;
+    qryNotasPagfornecedorparaiss: TIntegerField;
+    qryNotasPagcreditar: TIntegerField;
+    qryNotasPagvalorservicos_nt: TFloatField;
+    qryNotasPagvalorterceiros: TFloatField;
+    qryNotasPagvalorpis: TFloatField;
+    qryNotasPagvalorcofins: TFloatField;
+    qryNotasPagdatahoraemissao: TDateTimeField;
+    qryNotasPagregimetributario: TIntegerField;
+    qryNotasPagvalorvista: TFloatField;
+    qryNotasPagvcredicmssn: TFloatField;
+    qryNotasPagvicmsstret: TFloatField;
+    qryNotasPagbaseicmscalculada: TFloatField;
+    qryNotasPagvaloricmscalculada: TFloatField;
+    qryNotasPagbaseicmssubstituicaocalculada: TFloatField;
+    qryNotasPagvaloricmssubstituicaocalculada: TFloatField;
+    qryNotasPagvaloripicalculada: TFloatField;
+    qryNotasPagvalornotacalculada: TFloatField;
+    qryProdutosNotasPagcodigonota: TIntegerField;
+    qryProdutosNotasPagnumero: TIntegerField;
+    qryProdutosNotasPagcodigovisual: TStringField;
+    qryProdutosNotasPagicms: TIntegerField;
+    qryProdutosNotasPagipi: TIntegerField;
+    qryProdutosNotasPagaliquotaipioriginal: TFloatField;
+    qryProdutosNotasPaggrade1: TIntegerField;
+    qryProdutosNotasPaggrade2: TIntegerField;
+    qryProdutosNotasPaglinha: TStringField;
+    qryProdutosNotasPagcoluna: TStringField;
+    qryProdutosNotasPagvalorgrade1: TStringField;
+    qryProdutosNotasPagvalorgrade2: TStringField;
+    qryProdutosNotasPagcaracteristica: TLargeintField;
+    qryProdutosNotasPagcaracteristicavisual: TStringField;
+    qryProdutosNotasPagdescricaocaracteristica: TStringField;
+    qryProdutosNotasPagpreco: TIntegerField;
+    qryProdutosNotasPagprodutototal: TFloatField;
+    qryProdutosNotasPagmarkup_produto: TFloatField;
+    qryProdutosNotasPagmarkup_grupo: TFloatField;
+    qryProdutosNotasPagcalcularpreco: TBooleanField;
+    qryProdutosNotasPagaliquotaicmscalculopreco: TFloatField;
+    qryProdutosNotasPagpermitiratualizar: TBooleanField;
+    qryProdutosNotasPagpermitiratualizardigitado: TBooleanField;
+    qryProdutosNotasPagcodigorecolha: TLargeintField;
+    qryProdutosNotasPagvaloratual: TFloatField;
+    qryProdutosNotasPagcomposto: TBooleanField;
+    qryProdutosNotasPagprecovenda: TFloatField;
+    qryProdutosNotasPagcustototal: TFloatField;
+    qryProdutosNotasPagcustoparavenda: TFloatField;
+    qryProdutosNotasPagprecoatual: TFloatField;
+    qryProdutosNotasPagprecoatribuido: TFloatField;
+    qryProdutosNotasPagprecodigitado: TFloatField;
+    qryProdutosNotasPagprecodigitadoalterado: TBooleanField;
+    qryProdutosNotasPaggrupo: TStringField;
+    qryProdutosNotasPagclasse: TStringField;
+    qryProdutosNotasPagnaoreplicar: TBooleanField;
+    qryProdutosNotasPagtipomovimento: TStringField;
+    qryProdutosNotasPagoperacao: TStringField;
+    qryProdutosNotasPaglocalizacao: TStringField;
+    qryProdutosNotasPagprodutook: TBooleanField;
+    qryProdutosNotasPagfilial: TIntegerField;
+    qryProdutosNotasPagaliquotaicms: TFloatField;
+    qryProdutosNotasPagbaseicms: TFloatField;
+    qryProdutosNotasPagvaloricms: TFloatField;
+    qryProdutosNotasPagaliquotaipi: TFloatField;
+    qryProdutosNotasPagvaloripi: TFloatField;
+    qryProdutosNotasPagdesconto: TFloatField;
+    qryProdutosNotasPagvalorreducaobase: TFloatField;
+    qryProdutosNotasPagprecounitario: TFloatField;
+    qryProdutosNotasPagquantidade: TFloatField;
+    qryProdutosNotasPagorigem: TIntegerField;
+    qryProdutosNotasPagpedido: TIntegerField;
+    qryProdutosNotasPagmovimento: TIntegerField;
+    qryProdutosNotasPagincidencia: TStringField;
+    qryProdutosNotasPagproduto: TLargeintField;
+    qryProdutosNotasPagpercentualreducaobase: TFloatField;
+    qryProdutosNotasPagvalordescontoitem: TFloatField;
+    qryProdutosNotasPagnatureza: TIntegerField;
+    qryProdutosNotasPagcodigofiscal: TIntegerField;
+    qryProdutosNotasPagmoeda: TStringField;
+    qryProdutosNotasPagvalormoeda: TFloatField;
+    qryProdutosNotasPagadicao: TIntegerField;
+    qryProdutosNotasPagnseqadicao: TIntegerField;
+    qryProdutosNotasPagdescricaoproduto: TStringField;
+    qryProdutosNotasPaggenero: TIntegerField;
+    qryProdutosNotasPagclassificacaofiscal: TStringField;
+    qryProdutosNotasPagunidade: TStringField;
+    qryProdutosNotasPagfrete: TFloatField;
+    qryProdutosNotasPagseguro: TFloatField;
+    qryProdutosNotasPagextipi: TStringField;
+    qryProdutosNotasPagicmsbasecalculo: TFloatField;
+    qryProdutosNotasPagicmsmodalidade: TIntegerField;
+    qryProdutosNotasPagicmsmodsubst: TIntegerField;
+    qryProdutosNotasPagtribcodigoean: TStringField;
+    qryProdutosNotasPagtribunidade: TStringField;
+    qryProdutosNotasPagtribquantidade: TFloatField;
+    qryProdutosNotasPagtribunitario: TFloatField;
+    qryProdutosNotasPagenquadramento: TIntegerField;
+    qryProdutosNotasPagipicst: TStringField;
+    qryProdutosNotasPagipibasecalculo: TFloatField;
+    qryProdutosNotasPagiibasecalculo: TFloatField;
+    qryProdutosNotasPagiidespaduaneira: TFloatField;
+    qryProdutosNotasPagiivalor: TFloatField;
+    qryProdutosNotasPagiiiof: TFloatField;
+    qryProdutosNotasPagpiscst: TStringField;
+    qryProdutosNotasPagpisbasecalculo: TFloatField;
+    qryProdutosNotasPagpisaliquota: TFloatField;
+    qryProdutosNotasPagpisvalor: TFloatField;
+    qryProdutosNotasPagcofinscst: TStringField;
+    qryProdutosNotasPagcofinsbasecalculo: TFloatField;
+    qryProdutosNotasPagcofinsaliquota: TFloatField;
+    qryProdutosNotasPagcofinsvalor: TFloatField;
+    qryProdutosNotasPagicmsvalor: TFloatField;
+    qryProdutosNotasPagdespesasacessorias: TFloatField;
+    qryProdutosNotasPagacrescimo: TFloatField;
+    qryProdutosNotasPagind_mov_fisica: TIntegerField;
+    qryProdutosNotasPagaliquotaicmsst: TFloatField;
+    qryProdutosNotasPagicmsbasecalculost: TFloatField;
+    qryProdutosNotasPagicmsvalorst: TFloatField;
+    qryProdutosNotasPagembalagem: TFloatField;
+    qryProdutosNotasPagthc: TFloatField;
+    qryProdutosNotasPagnaotribipi: TFloatField;
+    qryProdutosNotasPagnaotribicms: TFloatField;
+    qryProdutosNotasPagcsosn: TStringField;
+    qryProdutosNotasPagpcredsn: TFloatField;
+    qryProdutosNotasPagvcredicmssn: TFloatField;
+    qryProdutosNotasPagfatorsubstituicao: TFloatField;
+    qryProdutosNotasPagpredbcst: TFloatField;
+    qryProdutosNotasPagreducaobasest: TFloatField;
+    qryProdutosNotasPagvbcstret: TFloatField;
+    qryProdutosNotasPagvicmsstret: TFloatField;
+    qryProdutosNotasPagquantidadesaida: TFloatField;
+    qryProdutosNotasPagicmsisentas: TFloatField;
+    qryProdutosNotasPagicmsoutras: TFloatField;
+    qryProdutosNotasPagipioutras: TFloatField;
+    qryProdutosNotasPagipiisentas: TFloatField;
+    qryProdutosNotasPagicmsbasecalculostcusto: TFloatField;
+    qryProdutosNotasPagicmsvalorstcusto: TFloatField;
+    qryProdutosNotasPagvaloripidigitado: TBooleanField;
+    qryProdutosNotasPagvaloricmsdigitado: TBooleanField;
+    qryProdutosNotasPagnaogerarcreditoicms: TBooleanField;
+    qryProdutosNotasPagnaogerarcreditoipi: TBooleanField;
+    qryDadosFiscaisnumero: TIntegerField;
+    qryDadosFiscaisdata: TDateField;
+    qryDadosFiscaissituacao: TStringField;
+    qryDadosFiscaismanual: TBooleanField;
+    qryDadosFiscaisfilialvenda: TIntegerField;
+    qryDadosFiscaiscontrato: TStringField;
+    qryDadosFiscaisvalortotal: TFloatField;
+    qryDadosFiscaisvalorvista: TFloatField;
+    qryDadosFiscaisdesconto: TFloatField;
+    qryDadosFiscaisvalorfrete: TFloatField;
+    qryDadosFiscaisseguro: TFloatField;
+    qryDadosFiscaisvaloripi: TFloatField;
+    qryDadosFiscaisdespesasacessorias: TFloatField;
+    qryDadosFiscaiscodigofiscal: TIntegerField;
+    qryDadosFiscaisvendedor: TIntegerField;
+    qryDadosFiscaisagente: TIntegerField;
+    qryDadosFiscaisestadocfo: TStringField;
+    qryDadosFiscaisfilialemissao: TIntegerField;
+    qryDadosFiscaisnatureza: TStringField;
+    qryDadosFiscaisdescricaosemprodutos: TStringField;
+    qryDadosFiscaisplano: TIntegerField;
+    qryDadosFiscaisviatransporte: TStringField;
+    qryDadosFiscaisdatasaida: TDateField;
+    qryDadosFiscaisfrete: TStringField;
+    qryDadosFiscaiscliente: TIntegerField;
+    qryDadosFiscaistipocliente: TStringField;
+    qryDadosFiscaisestadoplaca: TStringField;
+    qryDadosFiscaisplaca: TStringField;
+    qryDadosFiscaisnome: TStringField;
+    qryDadosFiscaisrua: TStringField;
+    qryDadosFiscaisbairro: TIntegerField;
+    qryDadosFiscaiscidade: TIntegerField;
+    qryDadosFiscaisestado: TStringField;
+    qryDadosFiscaiscep: TIntegerField;
+    qryDadosFiscaispessoatipo: TStringField;
+    qryDadosFiscaispessoanumero: TStringField;
+    qryDadosFiscaisfonenumero: TIntegerField;
+    qryDadosFiscaisfoneddd: TIntegerField;
+    qryDadosFiscaisdocumento: TStringField;
+    qryDadosFiscaiscodigofiscalservico: TIntegerField;
+    qryDadosFiscaisfornecedortransporte: TIntegerField;
+    qryDadosFiscaisobservacoes: TStringField;
+    qryDadosFiscaisconceito: TIntegerField;
+    qryDadosFiscaisdebitar: TIntegerField;
+    qryDadosFiscaiscreditar: TIntegerField;
+    qryDadosFiscaishistorico: TIntegerField;
+    qryDadosFiscaistotalbaseicmsproprio: TFloatField;
+    qryDadosFiscaistotalvaloricmsproprio: TFloatField;
+    qryDadosFiscaistotalbaseicmssubstituicao: TFloatField;
+    qryDadosFiscaistotalvaloricmssubstituicao: TFloatField;
+    qryDadosFiscaisaliquotaicmsproprio: TFloatField;
+    qryDadosFiscaisanexotres: TStringField;
+    qryDadosFiscaisacrescimofinanceiro: TFloatField;
+    qryDadosFiscaisacrescimoexcluido: TFloatField;
+    qryDadosFiscaisicmsexcluido: TFloatField;
+    qryDadosFiscaiscodigonatureza: TIntegerField;
+    qryDadosFiscaisvalorservicos: TFloatField;
+    qryDadosFiscaisirretido: TFloatField;
+    qryDadosFiscaisinssretido: TFloatField;
+    qryDadosFiscaisissretido: TFloatField;
+    qryDadosFiscaiscofinsretido: TFloatField;
+    qryDadosFiscaispisretido: TFloatField;
+    qryDadosFiscaiscsllretido: TFloatField;
+    qryDadosFiscaisbaseicms: TFloatField;
+    qryDadosFiscaisvaloricms: TFloatField;
+    qryDadosFiscaisvalorissqn: TFloatField;
+    qryDadosFiscaisvalorprodutos: TFloatField;
+    qryDadosFiscaissubstituicaoipi: TBooleanField;
+    qryDadosFiscaisobservacoescomplementar: TStringField;
+    qryDadosFiscaisobscliente: TStringField;
+    qryDadosFiscaisobsclienteipisuspenso: TStringField;
+    qryDadosFiscaisobservacoesicmssubstituido: TStringField;
+    qryDadosFiscaisdadofiscalcomplementar: TIntegerField;
+    qryDadosFiscaisnumlotenfe: TStringField;
+    qryDadosFiscaisnumrecibonfe: TStringField;
+    qryDadosFiscaisversaolayout: TFloatField;
+    qryDadosFiscaismodelodocto: TStringField;
+    qryDadosFiscaisnrdocumento: TIntegerField;
+    qryDadosFiscaiscodaleatorio: TIntegerField;
+    qryDadosFiscaisformapagto: TIntegerField;
+    qryDadosFiscaisformatodanfe: TIntegerField;
+    qryDadosFiscaisformaemissao: TIntegerField;
+    qryDadosFiscaisdigchaveacesso: TIntegerField;
+    qryDadosFiscaisambiente: TIntegerField;
+    qryDadosFiscaisfinalidadenf: TIntegerField;
+    qryDadosFiscaisprocemissao: TIntegerField;
+    qryDadosFiscaisversaoteclux: TStringField;
+    qryDadosFiscaistotalimportacao: TFloatField;
+    qryDadosFiscaistotalvalorpis: TFloatField;
+    qryDadosFiscaistotalvalorcofins: TFloatField;
+    qryDadosFiscaisnomebairro: TStringField;
+    qryDadosFiscaisnomecidade: TStringField;
+    qryDadosFiscaiscidadeibge: TIntegerField;
+    qryDadosFiscaispais: TIntegerField;
+    qryDadosFiscaisnomepais: TStringField;
+    qryDadosFiscaislocalretirada_cnpj: TStringField;
+    qryDadosFiscaislocalretirada_rua: TStringField;
+    qryDadosFiscaislocalretirada_complemento: TStringField;
+    qryDadosFiscaislocalretirada_bairro: TIntegerField;
+    qryDadosFiscaislocalretirada_nomebairro: TStringField;
+    qryDadosFiscaislocalretirada_cidade: TIntegerField;
+    qryDadosFiscaislocalretirada_cep: TIntegerField;
+    qryDadosFiscaislocalretirada_nomecidade: TStringField;
+    qryDadosFiscaislocalretirada_cidadeibge: TIntegerField;
+    qryDadosFiscaislocalretirada_estado: TStringField;
+    qryDadosFiscaislocalentrega_cnpj: TStringField;
+    qryDadosFiscaislocalentrega_rua: TStringField;
+    qryDadosFiscaislocalentrega_complemento: TStringField;
+    qryDadosFiscaislocalentrega_bairro: TIntegerField;
+    qryDadosFiscaislocalentrega_nomebairro: TStringField;
+    qryDadosFiscaislocalentrega_cidade: TIntegerField;
+    qryDadosFiscaislocalentrega_cep: TIntegerField;
+    qryDadosFiscaislocalentrega_nomecidade: TStringField;
+    qryDadosFiscaislocalentrega_cidadeibge: TIntegerField;
+    qryDadosFiscaislocalentrega_estado: TStringField;
+    qryDadosFiscaistransportadora_cnpj: TStringField;
+    qryDadosFiscaistransportadora_ie: TStringField;
+    qryDadosFiscaistransportadora_nome: TStringField;
+    qryDadosFiscaistransportadora_rua: TStringField;
+    qryDadosFiscaistransportadora_bairro: TIntegerField;
+    qryDadosFiscaistransportadora_nomebairro: TStringField;
+    qryDadosFiscaistransportadora_cidade: TIntegerField;
+    qryDadosFiscaistransportadora_nomecidade: TStringField;
+    qryDadosFiscaistransportadora_cidadeibge: TIntegerField;
+    qryDadosFiscaistransportadora_estado: TStringField;
+    qryDadosFiscaistransportadora_rntc: TStringField;
+    qryDadosFiscaisinfcomplementar: TStringField;
+    qryDadosFiscaisexportacoes_ufembarque: TStringField;
+    qryDadosFiscaisexportacoes_localembarque: TStringField;
+    qryDadosFiscaisendnumero: TIntegerField;
+    qryDadosFiscaisendcomplemento: TStringField;
+    qryDadosFiscaislocalretirada_numero: TIntegerField;
+    qryDadosFiscaislocalentrega_numero: TIntegerField;
+    qryDadosFiscaissuframa: TStringField;
+    qryDadosFiscaisiesubsttributario: TStringField;
+    qryDadosFiscaisnumprotocolonfe: TStringField;
+    qryDadosFiscaisemail: TStringField;
+    qryDadosFiscaisdatacancelamento: TDateField;
+    qryDadosFiscaisnumcancelamentonfe: TStringField;
+    qryDadosFiscaischv_nfe: TStringField;
+    qryDadosFiscaisnuminutilizacaonfe: TStringField;
+    qryDadosFiscaisdatahoraemissao: TDateTimeField;
+    qryDadosFiscaisregimetributario: TIntegerField;
+    qryDadosFiscaisfilial: TIntegerField;
+    qryDadosFiscaisserie: TStringField;
+    qryDadosFiscaisnumeronota: TIntegerField;
+    qryDadosFiscaistotalprodutos: TFloatField;
+    qryDadosFiscaistotalqtdeprodutos: TFloatField;
+    qryDadosFiscaisvcredicmssn: TFloatField;
+    qryDadosFiscaisvicmsstret: TFloatField;
+    qryProdutosDadosFiscaisdadofiscal: TIntegerField;
+    qryProdutosDadosFiscaisnumero: TIntegerField;
+    qryProdutosDadosFiscaisfilial: TIntegerField;
+    qryProdutosDadosFiscaisvendedor: TIntegerField;
+    qryProdutosDadosFiscaisentregar: TBooleanField;
+    qryProdutosDadosFiscaisquantidade: TFloatField;
+    qryProdutosDadosFiscaisprecovenda: TFloatField;
+    qryProdutosDadosFiscaisprecotabela: TFloatField;
+    qryProdutosDadosFiscaisdescricaoprecovenda: TStringField;
+    qryProdutosDadosFiscaisreserva: TIntegerField;
+    qryProdutosDadosFiscaisaliquotaicms: TFloatField;
+    qryProdutosDadosFiscaisorigem: TIntegerField;
+    qryProdutosDadosFiscaisicms: TIntegerField;
+    qryProdutosDadosFiscaismovimento: TIntegerField;
+    qryProdutosDadosFiscaisreducaobase: TFloatField;
+    qryProdutosDadosFiscaisincidencia: TStringField;
+    qryProdutosDadosFiscaisproduto: TLargeintField;
+    qryProdutosDadosFiscaisbaseicms: TFloatField;
+    qryProdutosDadosFiscaisaliquotaipi: TFloatField;
+    qryProdutosDadosFiscaisvaloripi: TFloatField;
+    qryProdutosDadosFiscaisclassificacaofiscal: TStringField;
+    qryProdutosDadosFiscaisipi: TIntegerField;
+    qryProdutosDadosFiscaiscomposto: TBooleanField;
+    qryProdutosDadosFiscaisdiscriminarcomposto: TStringField;
+    qryProdutosDadosFiscaisdiscriminarpreco: TBooleanField;
+    qryProdutosDadosFiscaisfatorsubstituicao: TFloatField;
+    qryProdutosDadosFiscaispercentualreducaobase: TFloatField;
+    qryProdutosDadosFiscaiscodigonota: TIntegerField;
+    qryProdutosDadosFiscaisbrinde: TBooleanField;
+    qryProdutosDadosFiscaisacrescimo: TFloatField;
+    qryProdutosDadosFiscaisdesconto: TFloatField;
+    qryProdutosDadosFiscaisfrete: TFloatField;
+    qryProdutosDadosFiscaisseguro: TFloatField;
+    qryProdutosDadosFiscaissubstituicaoipi: TBooleanField;
+    qryProdutosDadosFiscaisdespesasacessorias: TFloatField;
+    qryProdutosDadosFiscaisvalordescontoitem: TFloatField;
+    qryProdutosDadosFiscaisnatureza: TIntegerField;
+    qryProdutosDadosFiscaiscodigofiscal: TIntegerField;
+    qryProdutosDadosFiscaisosp: TIntegerField;
+    qryProdutosDadosFiscaisccf: TIntegerField;
+    qryProdutosDadosFiscaiscst: TIntegerField;
+    qryProdutosDadosFiscaissequenciaipi: TIntegerField;
+    qryProdutosDadosFiscaisdescricaoproduto: TStringField;
+    qryProdutosDadosFiscaisgenero: TIntegerField;
+    qryProdutosDadosFiscaisextipi: TStringField;
+    qryProdutosDadosFiscaisicmsmodalidade: TIntegerField;
+    qryProdutosDadosFiscaisicmsmodsubst: TIntegerField;
+    qryProdutosDadosFiscaistribcodigoean: TStringField;
+    qryProdutosDadosFiscaistribunidade: TStringField;
+    qryProdutosDadosFiscaistribquantidade: TFloatField;
+    qryProdutosDadosFiscaistribunitario: TFloatField;
+    qryProdutosDadosFiscaisenquadramento: TIntegerField;
+    qryProdutosDadosFiscaisipicst: TStringField;
+    qryProdutosDadosFiscaisipibasecalculo: TFloatField;
+    qryProdutosDadosFiscaisiibasecalculo: TFloatField;
+    qryProdutosDadosFiscaisiidespaduaneira: TFloatField;
+    qryProdutosDadosFiscaisiivalor: TFloatField;
+    qryProdutosDadosFiscaisiiiof: TFloatField;
+    qryProdutosDadosFiscaispiscst: TStringField;
+    qryProdutosDadosFiscaispisbasecalculo: TFloatField;
+    qryProdutosDadosFiscaispisaliquota: TFloatField;
+    qryProdutosDadosFiscaispisvalor: TFloatField;
+    qryProdutosDadosFiscaiscofinscst: TStringField;
+    qryProdutosDadosFiscaiscofinsbasecalculo: TFloatField;
+    qryProdutosDadosFiscaiscofinsaliquota: TFloatField;
+    qryProdutosDadosFiscaiscofinsvalor: TFloatField;
+    qryProdutosDadosFiscaisicmsvalor: TFloatField;
+    qryProdutosDadosFiscaisunidade: TStringField;
+    qryProdutosDadosFiscaisicmsbasecalculo: TFloatField;
+    qryProdutosDadosFiscaispn: TLargeintField;
+    qryProdutosDadosFiscaisaliquotaicmsst: TFloatField;
+    qryProdutosDadosFiscaisicmsbasecalculost: TFloatField;
+    qryProdutosDadosFiscaisicmsvalorst: TFloatField;
+    qryProdutosDadosFiscaisind_mov_fisica: TIntegerField;
+    qryProdutosDadosFiscaislocalizacao: TStringField;
+    qryProdutosDadosFiscaiscsosn: TStringField;
+    qryProdutosDadosFiscaispcredsn: TFloatField;
+    qryProdutosDadosFiscaisvcredicmssn: TFloatField;
+    qryProdutosDadosFiscaispredbcst: TFloatField;
+    qryProdutosDadosFiscaisreducaobasest: TFloatField;
+    qryProdutosDadosFiscaisvbcstret: TFloatField;
+    qryProdutosDadosFiscaisvicmsstret: TFloatField;
+    qryProdutosDadosFiscaisicmsisentas: TFloatField;
+    qryProdutosDadosFiscaisicmsoutras: TFloatField;
+    qryProdutosDadosFiscaisipioutras: TFloatField;
+    qryProdutosDadosFiscaisipiisentas: TFloatField;
+    qryProdutosDadosFiscaisvaloripidigitado: TBooleanField;
+    qryProdutosDadosFiscaisvaloricmsdigitado: TBooleanField;
+    qryProdutosDadosFiscaisvaloricmsstdigitado: TBooleanField;
+    qryProdutosDadosFiscaisnaogerardebitoicms: TBooleanField;
+    qryProdutosDadosFiscaisnaogerardebitoipi: TBooleanField;
+    qryProdutosDadosFiscaisprodutovisual: TStringField;
+    qryProdutosDadosFiscaisquantidadeantesgravar: TFloatField;
+    qryProdutosDadosFiscaislinha: TStringField;
+    qryProdutosDadosFiscaiscoluna: TStringField;
+    qryProdutosDadosFiscaisvalorgrade1: TStringField;
+    qryProdutosDadosFiscaisvalorgrade2: TStringField;
+    qryProdutosDadosFiscaiscomposto_1: TBooleanField;
+    qryProdutosDadosFiscaisdiscriminarcomposto_1: TStringField;
+    qryProdutosDadosFiscaisdiscriminarpreco_1: TBooleanField;
+    qryProdutosDadosFiscaisserienotafiscalentrada: TStringField;
+    qryProdutosDadosFiscaisnumeronotafiscalentrada: TIntegerField;
+    qryProdutosDadosFiscaisprodutototal: TFloatField;
+    qryProdutosDadosFiscaistipopreco: TIntegerField;
+    qryProdutosDadosFiscaistipomovimento: TStringField;
+    qryProdutosDadosFiscaisoperacao: TStringField;
+    qryProdutosDadosFiscaistransferencia: TStringField;
+    qryProdutosDadosFiscaisdestacaripi: TBooleanField;
+    qryProdutosDadosFiscaisquantidadenotaentrada: TFloatField;
+    qryProdutosDadosFiscaisprodutook: TBooleanField;
+    qryProdutosDadosFiscaisCompostoscsosn: TStringField;
+    qryProdutosDadosFiscaisCompostospcredsn: TFloatField;
+    qryProdutosDadosFiscaisCompostosvcredicmssn: TFloatField;
+    qryProdutosDadosFiscaisCompostospredbcst: TFloatField;
+    qryProdutosDadosFiscaisCompostosreducaobasest: TFloatField;
+    qryProdutosDadosFiscaisCompostosvbcstret: TFloatField;
+    qryProdutosDadosFiscaisCompostosvicmsstret: TFloatField;
+    qryProdutosDadosFiscaisCompostosicmsisentas: TFloatField;
+    qryProdutosDadosFiscaisCompostosicmsoutras: TFloatField;
+    qryProdutosDadosFiscaisCompostosipioutras: TFloatField;
+    qryProdutosDadosFiscaisCompostosipiisentas: TFloatField;
+    qryProdutosDadosFiscaisCompostosdespesasacessorias: TFloatField;
+    qryProdutosDadosFiscaisCompostospercentualreducaobase: TFloatField;
+    qryCupons: TtecQuery;
+    qryCuponsfilial: TIntegerField;
+    qryCuponsmaquina: TIntegerField;
+    qryCuponsintervensao: TIntegerField;
+    qryCuponsnumero: TIntegerField;
+    qryCuponsdadofiscal: TIntegerField;
+    qryCuponsicmsestornado: TBooleanField;
+    qryCuponsnumeroserie: TStringField;
+    qryNotasPagemail: TStringField;
+    qryNotasPagpessoatipo: TStringField;
+    qryNotasPagdhprocnfe: TDateTimeField;
+    qryDadosFiscaisdhprocnfe: TDateTimeField;
+    qryNotasPaghsaient: TDateTimeField;
+    qryDadosFiscaishsaient: TDateTimeField;
+    qryDadosFiscaisvalortotalimpostoibt: TFloatField;
+    qryProdutosDadosFiscaisvalorimpostonacional: TFloatField;
+    qryProdutosDadosFiscaisvalorimpostoimportado: TFloatField;
+    qryProdutosDadosFiscaisfci: TStringField;
+    qryDadosFiscaiscnpjfilialemitente: TStringField;
+    qryDadosFiscaisrazaofilialemitente: TStringField;
+    qryDadosFiscaisruafilialemitente: TStringField;
+    qryDadosFiscaisnumerofilialemitente: TIntegerField;
+    qryDadosFiscaiscomplementofilialemitente: TStringField;
+    qryDadosFiscaisnomebairrofilialemitente: TStringField;
+    qryDadosFiscaiscidadeibgefilialemitente: TIntegerField;
+    qryDadosFiscaisnomecidadefilialemitente: TStringField;
+    qryDadosFiscaisestadofilialemitente: TStringField;
+    qryDadosFiscaiscepfilialemitente: TIntegerField;
+    qryDadosFiscaisfonedddfilialemitente: TIntegerField;
+    qryDadosFiscaisfonenumerofilialemitente: TIntegerField;
+    qryDadosFiscaisinscricaoestadualfilialemitente: TStringField;
+    qryDadosFiscaisinscricaomunicipalfilialemitente: TStringField;
+    qryDadosFiscaiscnaefiscalfilialemitente: TStringField;
+    qryNotasPagcnpjfilialemitente: TStringField;
+    qryNotasPagrazaofilialemitente: TStringField;
+    qryNotasPagruafilialemitente: TStringField;
+    qryNotasPagnumerofilialemitente: TIntegerField;
+    qryNotasPagcomplementofilialemitente: TStringField;
+    qryNotasPagnomebairrofilialemitente: TStringField;
+    qryNotasPagcidadeibgefilialemitente: TIntegerField;
+    qryNotasPagnomecidadefilialemitente: TStringField;
+    qryNotasPagestadofilialemitente: TStringField;
+    qryNotasPagcepfilialemitente: TIntegerField;
+    qryNotasPagfonedddfilialemitente: TIntegerField;
+    qryNotasPagfonenumerofilialemitente: TIntegerField;
+    qryNotasPaginscricaoestadualfilialemitente: TStringField;
+    qryNotasPaginscricaomunicipalfilialemitente: TStringField;
+    qryNotasPagcnaefiscalfilialemitente: TStringField;
+    qryNotasPagstatusnfe: TIntegerField;
+    qryDadosFiscaisstatusnfe: TIntegerField;
+    qryProdutosDadosFiscaisnacionalfederal: TFloatField;
+    qryProdutosDadosFiscaisimportadosfederal: TFloatField;
+    qryProdutosDadosFiscaiscargaestadual: TFloatField;
+    qryProdutosDadosFiscaiscargamunicipal: TFloatField;
+    qryProdutosDadosFiscaisvalorimpostoestadual: TFloatField;
+    qryProdutosDadosFiscaisvalorimpostomunicipal: TFloatField;
+    qryProdutosDadosFiscaischaveibpt: TStringField;
+    qryDadosFiscaisvalorimpostonacional: TFloatField;
+    qryDadosFiscaisvalorimpostoestadual: TFloatField;
+    qryDadosFiscaisvalorimpostomunicipal: TFloatField;
+    qryNotasPagclientecontribicms: TBooleanField;
+    qryDadosFiscaisclientecontribicms: TBooleanField;
+    qryDadosFiscaisindpres: TIntegerField;
+    qryDadosFiscaisvendaconsumidorfinal: TBooleanField;
+    qryImportacoestpviatransp: TIntegerField;
+    qryImportacoesvAFRMM: TFloatField;
+    qryImportacoestpIntermedio: TIntegerField;
+    qryImportacoescnpjadquirente: TStringField;
+    qryImportacoesufadquirente: TStringField;
+    qryNotasPagdadofiscalreferenciado: TIntegerField;
+    qryDadosFiscaisdadofiscalreferenciado: TIntegerField;
+    qryDadosFiscaiscodigonotareferenciado: TIntegerField;
+    qryProdutosDadosFiscaisvicmsstretdesp: TFloatField;
+    qryDadosFiscaisvicmsstretdesp: TFloatField;
+    qryProdutosNotasPagvicmsstretdesp: TFloatField;
+    qryNotasPagvicmsstretdesp: TFloatField;
+    qryNotasPagfilialemissao: TIntegerField;
+    qryDadosFiscaisvicmsufdest: TFloatField;
+    qryDadosFiscaisvicmsufremet: TFloatField;
+    qryDadosFiscaisvfcpufdest: TFloatField;
+    qryProdutosDadosFiscaispfcpufdest: TFloatField;
+    qryProdutosDadosFiscaispicmsinter: TFloatField;
+    qryProdutosDadosFiscaispicmsinterpart: TFloatField;
+    qryProdutosDadosFiscaisvfcpufdest: TFloatField;
+    qryProdutosDadosFiscaisvicmsufdest: TFloatField;
+    qryProdutosDadosFiscaisvicmsufremet: TFloatField;
+    qryProdutosDadosFiscaispicmsufdest: TFloatField;
+    qryProdutosDadosFiscaisvbcufdest: TFloatField;
+    qryProdutosDadosFiscaisCompostospfcpufdest: TFloatField;
+    qryProdutosDadosFiscaisCompostospicmsinter: TFloatField;
+    qryProdutosDadosFiscaisCompostospicmsinterpart: TFloatField;
+    qryProdutosDadosFiscaisCompostosvfcpufdest: TFloatField;
+    qryProdutosDadosFiscaisCompostosvicmsufdest: TFloatField;
+    qryProdutosDadosFiscaisCompostosvicmsufremet: TFloatField;
+    qryProdutosDadosFiscaisCompostosvbcufdest: TFloatField;
+    qryProdutosDadosFiscaisCompostospicmsufdest: TFloatField;
+    qryProdutosDadosFiscaiscest: TStringField;
+    qryDadosFiscaisdadofiscalvinculado: TIntegerField;
+    qryTotaisRecebimentosFrentedeCaixa: TtecQuery;
+    qryTotaisRecebimentosFrentedeCaixatiporecebimento: TStringField;
+    qryTotaisRecebimentosFrentedeCaixacnpjcredenciadora: TStringField;
+    qryTotaisRecebimentosFrentedeCaixabandeiraoperadora: TStringField;
+    qryTotaisRecebimentosFrentedeCaixanrautorizacaocartao: TStringField;
+    qryTotaisRecebimentosFrentedeCaixavalorlancto: TFloatField;
+    qryDadosFiscaisdhcont: TDateTimeField;
+    qryDadosFiscaisxjustcont: TStringField;
+    dsrNotas: TtecDataSource;
+    qryNotas: TtecQuery;
+    qryNotastiponfe: TStringField;
+    qryNotasfilial: TIntegerField;
+    qryNotasserie: TStringField;
+    qryNotasnrdocumento: TIntegerField;
+    qryNotasmodelodocto: TStringField;
+    qryNotasemissao: TDateField;
+    qryNotasnome: TStringField;
+    qryNotascnpj: TStringField;
+    qryNotasestado: TStringField;
+    qryNotasvalornota: TFloatField;
+    qryNotasselecionar: TBooleanField;
+    qryNotasoperacao: TStringField;
+    qryNotaschavenota: TIntegerField;
+    qryProdutosNotasPagcest: TStringField;
+    qryDadosFiscaisdescontoitem: TFloatField;
+    qryProdutosDadosFiscaisvicmsop: TFloatField;
+    qryProdutosDadosFiscaispdif: TFloatField;
+    qryProdutosDadosFiscaisvicmsdif: TFloatField;
+    qryDadosFiscaisresponsaveldifal: TBooleanField;
+    qryDadosFiscaisbasedupla: TBooleanField;
+    qryDadosFiscaiscancelamentonfforaprazolegal: TBooleanField;
+    qryDadosFiscaishash_paf_registro_j1: TStringField;
+    qryDadosFiscaisitensnumeroseries: TStringField;
+    qryServicosDadosFiscais: TtecQuery;
+    qryServicosDadosFiscaisdadofiscal: TIntegerField;
+    qryServicosDadosFiscaisservico: TIntegerField;
+    qryServicosDadosFiscaisquantidade: TIntegerField;
+    qryServicosDadosFiscaisaliquotaissqn: TFloatField;
+    qryServicosDadosFiscaisvalorservico: TFloatField;
+    qryServicosDadosFiscaisdescricao: TStringField;
+    qryServicosDadosFiscaiscomplementoservico: TStringField;
+    qryServicosDadosFiscaisEquipamento: TStringField;
+    qryServicosDadosFiscaisestado: TStringField;
+    qryServicosDadosFiscaiscidade: TIntegerField;
+    qryServicosDadosFiscaisreterissqn: TBooleanField;
+    qryServicosDadosFiscaisvalorissqn: TFloatField;
+    qryServicosDadosFiscaiscodigofiscal: TIntegerField;
+    qryServicosDadosFiscaisnatureza: TIntegerField;
+    qryServicosDadosFiscaisdestacaripi: TBooleanField;
+    qryServicosDadosFiscaispisbasecalculo: TFloatField;
+    qryServicosDadosFiscaispisvalor: TFloatField;
+    qryServicosDadosFiscaispiscst: TStringField;
+    qryServicosDadosFiscaisaliquotapis: TFloatField;
+    qryServicosDadosFiscaiscofinsbasecalculo: TFloatField;
+    qryServicosDadosFiscaiscofinsvalor: TFloatField;
+    qryServicosDadosFiscaiscofinscst: TStringField;
+    qryServicosDadosFiscaisaliquotacofins: TFloatField;
+    qryServicosDadosFiscaiscodigolcp116: TStringField;
+    qryServicosDadosFiscaiscstissqn: TIntegerField;
+    qryServicosDadosFiscaiscnae: TIntegerField;
+    qryDadosFiscaisstatusnfse: TIntegerField;
+    qryDadosFiscaisnumprotocolonfse: TStringField;
+    qryDadosFiscaisnfpse: TBooleanField;
+    qryNotasPagnfpse: TBooleanField;
+    qryNotas_: TtecQuery;
+    qryNotas_filial: TIntegerField;
+    qryNotas_serie: TStringField;
+    qryNotas_numero: TIntegerField;
+    qryNotas_dadofiscal: TIntegerField;
+    qryDadosFiscaisambientenfs: TIntegerField;
+    qryServicosDadosFiscaiscodigoatividade: TIntegerField;
+    qryServicosDadosFiscaisidcnae: TIntegerField;
+    qryServicosDadosFiscaisaliquotaissqntabelamunicipio: TFloatField;
+    qryDadosFiscaiscfps: TIntegerField;
+    qryDadosFiscaisissqnbasecalculo: TFloatField;
+    qryDadosFiscaisinscricaomunicipal: TStringField;
+    qryDadosFiscaiscsrfretido: TFloatField;
+    qryTotaisRecebimentos: TtecQuery;
+    qryTotaisRecebimentostiporecebimento: TStringField;
+    qryTotaisRecebimentosvalorlancto: TFloatField;
+    qryDadosFiscaisvfcp: TFloatField;
+    qryDadosFiscaisvfcpst: TFloatField;
+    qryDadosFiscaisvfcpstret: TFloatField;
+    qryProdutosDadosFiscaispfcp: TFloatField;
+    qryProdutosDadosFiscaisvfcp: TFloatField;
+    qryProdutosDadosFiscaisvbcfcpst: TFloatField;
+    qryProdutosDadosFiscaispfcpst: TFloatField;
+    qryProdutosDadosFiscaisvfcpst: TFloatField;
+    qryProdutosDadosFiscaisvbcfcp: TFloatField;
+    qryProdutosDadosFiscaisvbcfcpstret: TFloatField;
+    qryProdutosDadosFiscaispfcpstret: TFloatField;
+    qryProdutosDadosFiscaisvfcpstret: TFloatField;
+    qryProdutosDadosFiscaisvbcfcpufdest: TFloatField;
+    qryProdutosDadosFiscaispst: TFloatField;
+    qryNotasPagvfcp: TFloatField;
+    qryNotasPagvfcpst: TFloatField;
+    qryNotasPagvfcpstret: TFloatField;
+    qryProdutosNotasPagpfcp: TFloatField;
+    qryProdutosNotasPagvfcp: TFloatField;
+    qryProdutosNotasPagvbcfcpst: TFloatField;
+    qryProdutosNotasPagpfcpst: TFloatField;
+    qryProdutosNotasPagvfcpst: TFloatField;
+    qryProdutosNotasPagvbcfcp: TFloatField;
+    qryProdutosNotasPagvbcfcpstret: TFloatField;
+    qryProdutosNotasPagpfcpstret: TFloatField;
+    qryProdutosNotasPagvfcpstret: TFloatField;
+    qryProdutosNotasPagvbcfcpufdest: TFloatField;
+    qryProdutosNotasPagpst: TFloatField;
+    qryNotaEntradaRef: TtecQuery;
+    qryNotaEntradaReffornecedor: TIntegerField;
+    qryNotaEntradaReftipofornecedor: TStringField;
+    qryNotaEntradaRefserie: TStringField;
+    qryNotaEntradaRefnumero: TIntegerField;
+    qryNotaEntradaRefcodigo: TIntegerField;
+    qryNotaEntradaRefdata: TDateField;
+    qryNotaEntradaRefnumeronfe: TStringField;
+    qryNotaEntradaRefpessoanumero: TStringField;
+    qryNotaEntradaRefmodelodocto: TStringField;
+    qryNotaEntradaRefnumeronf: TIntegerField;
+    qryNotaEntradaRefcidadeibge: TIntegerField;
+    qryNotasPagdescontoitem: TFloatField;
+    qryProdutosDadosFiscaisxped: TStringField;
+    qryProdutosDadosFiscaisnitemped: TIntegerField;
+    qryProdutosDadosFiscaisCompostosnacionalfederal: TFloatField;
+    qryProdutosDadosFiscaisCompostosvalorimpostonacional: TFloatField;
+    qryProdutosDadosFiscaisCompostosimportadosfederal: TFloatField;
+    qryProdutosDadosFiscaisCompostosvalorimpostoimportado: TFloatField;
+    qryProdutosDadosFiscaisCompostoscargaestadual: TFloatField;
+    qryProdutosDadosFiscaisCompostoscargamunicipal: TFloatField;
+    qryProdutosDadosFiscaisCompostosvalorimpostoestadual: TFloatField;
+    qryProdutosDadosFiscaisCompostosvalorimpostomunicipal: TFloatField;
+    qryProdutosDadosFiscaisCompostoschaveibpt: TStringField;
+    qryProdutosDadosFiscaisCompostospercreducaomva: TFloatField;
+    qryProdutosDadosFiscaisCompostoscest: TStringField;
+    qryProdutosDadosFiscaisCompostospfcp: TFloatField;
+    qryProdutosDadosFiscaisCompostosvfcp: TFloatField;
+    qryProdutosDadosFiscaisCompostosvbcfcpst: TFloatField;
+    qryProdutosDadosFiscaisCompostospfcpst: TFloatField;
+    qryProdutosDadosFiscaisCompostosvfcpst: TFloatField;
+    qryProdutosDadosFiscaisCompostosvbcfcp: TFloatField;
+    qryProdutosDadosFiscaisCompostosvbcfcpstret: TFloatField;
+    qryProdutosDadosFiscaisCompostospfcpstret: TFloatField;
+    qryProdutosDadosFiscaisCompostosvfcpstret: TFloatField;
+    qryProdutosDadosFiscaisCompostosvbcfcpufdest: TFloatField;
+    qryProdutosDadosFiscaisCompostospst: TFloatField;
+    qryProdutosDadosFiscaisCompostoscodigo_efd_t53: TStringField;
+    qryNotaEntradaRefnumprotocolonfe: TStringField;
+    qryNotaEntradaRefverificarnumprotocolonfe: TBooleanField;
+    qryNotas_serienfse: TStringField;
+    qryNotas_link_nfse: TStringField;
+    qryNotaEntradaRefmaquina: TIntegerField;
+    qryNotaEntradaRefnumerocupom: TIntegerField;
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure qryDadosFiscaisBeforePost(DataSet: TDataSet);
+    procedure qryNotasPagBeforePost(DataSet: TDataSet);
+  private
+    FOperacao,
+    FTipoNotas: String;
+    fImpressoraDanfe: String;
+    fExibirMsgNfe: boolean;
+    fNFSaidaDepoisdoCancelamento: TTecNFSaidaDepoisdoCancelamento;
+{    fProtocolo: String; // VARIAVEL DE CONTROLE PARA DEFINIR A QUERY UTILIZADA}
+    function getQtdeNotas: Integer;
+    function getValorNotas: Currency;
+    function TabelaReferenciada: TtecQuery;
+    procedure AbrirTabelasDiversas;
+
+    function TotaisRecebimentos: TtecQuery;
+    function PreencherPropriedadesNFE(regerando: boolean): Boolean;
+
+    { Private declarations }
+  public
+    Protocolo, ProtocoloCancelamento, ProtocoloInutilizacao, vchave_nfe, status, StatusRetConsSitNFe : String;
+    Tabela, TabelaProdutos, TAbelaServicos: TtecQuery;
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure SelecionarRegistro;
+    procedure FecharTabelas;
+    function SelecionarNotas(TipoNFe, Operacao: Integer;
+                             ChaveNota: Integer = 0; NotaVinculada: boolean = false): Boolean;
+
+    function SelecionarGeral(DataInicial, DataFinal,
+                             SerieNota, NumeroNota, Cliente: String): Boolean;
+
+    function EnviarNotasFiscais(NFE_Calculada: String = ''): Boolean;
+    function EnviarGeral: boolean;
+    function AtualizaSituacaoNfe(var Tabela: TtecQuery;ChaveNota:String;Nfe:TTecNOtaFiscalEletronica; regerando: boolean = false):Boolean;
+    property QtdeNotas        : Integer  read getQtdeNotas;
+    property ValorNotas       : Currency read getValorNotas;
+    property ImpressoraDanfe  : String read fImpressoraDanfe write fImpressoraDanfe;
+    procedure MarcarNotas(Marcando, Todas: Boolean);
+    property ExibirMsgNfe : boolean read fExibirMsgNfe write fExibirMsgNfe default true;
+    property NFSaidaDepoisdoCancelamento: TTecNFSaidaDepoisdoCancelamento read fNFSaidaDepoisdoCancelamento write fNFSaidaDepoisdoCancelamento;
+
+    { Public declarations }
+  end;
+
+var
+  dtmControleNotasFiscaisEletronicas: TdtmControleNotasFiscaisEletronicas;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmControleNotasFiscaisEletronicas }
+
+constructor TdtmControleNotasFiscaisEletronicas.Create(AOwner: TComponent);
+begin
+  inherited create(AOwner);
+//  qryProcurarCFOPPesquisa.Tag := ctTabelas;
+  FTipoNotas := 'E';
+  ExibirMsgNfe := true;
+end;
+
+{
+   Funcao que ira atualizar situacao da nota:
+
+     1. verifica se tem protocolo e protocolo de cancelamento
+     2. Caso tenha protocolo e nao protocolo de cancelamento, situacao deve ser normal, preencher protocolo e gerar XML
+     3. Caso tenha protocolo e protocolo de cancelament, situacao deve ser 'C', preencher protocolo de cancelamento e protocolo, gerar XML nota e XML cancelamento;
+}
+function TdtmControleNotasFiscaisEletronicas.AtualizaSituacaoNfe(var Tabela: TtecQuery;ChaveNota:String;Nfe:TTecNotaFiscalEletronica;
+       regerando: boolean = false):Boolean;
+var
+  DataHoraProcessamento, MotivoNfe: String;
+  retorno : boolean;
+begin
+  vChave_Nfe :=  ChaveNota;
+  Result := False;
+  if ((foperacao = 'RI') and (Tabela.FieldByName('numprotocolonfe').AsString = '')) or (foperacao = 'T') or (foperacao = 'CI') or regerando  then
+  begin
+    retorno := Nfe.ConsultarSituacaoNFe(vChave_Nfe,IntToStr(NFeAmbiente),Protocolo, status, StatusRetConsSitNFe, ProtocoloCancelamento, DataHoraProcessamento, MotivoNFe);
+    if regerando then
+      result := retorno;
+  end;
+
+  if((Tabela.FieldByName('numprotocolonfe').AsString='') and (Protocolo<>'')) then
+  begin
+    Tabela.Edit;
+    Tabela.FieldByName('numprotocolonfe').AsString:=Protocolo;
+    Tabela.FieldByName('statusnfe').AsString:=status;
+
+    Tabela.FieldByName('situacao').AsString:='N';
+    if (status = '301') or //denegado emitente then
+       (status = '302') then // denegado destinatario
+      Tabela.FieldByName('situacao').AsString:='D';
+    Tabela.Post;
+
+    Result:=True;
+
+  end;
+
+  if((ProtocoloCancelamento<>'') and (Tabela.FieldByName('numcancelamentonfe').AsString='')) then
+  begin
+    Tabela.Edit;
+    Tabela.FieldByName('numcancelamentonfe').AsString:=ProtocoloCancelamento;
+    Tabela.FieldByName('situacao').AsString:='C';
+    Tabela.Post;
+
+    {Aqui chamar procedimento do objeto para demais procedimentos em um cancelamento}
+
+    //GERA ARQUIVO DE PEDIDO DE CANCELAMENTO NO DIRETORIO DE PROCESSAMENTO
+    Nfe.Recuperar_CancelarNfe(ChaveNota,Protocolo,'CANCELADA EMITIDA ERRONEAMENTE',IntToStr(NfeAmbiente),EstadoFilialBaseIBGE, CNPJFilialBase, DataHoraProcessamentoNfe, ProtocoloCancelamento);
+
+   (*
+
+    A Consulta da situação da nota ja esta sendo feita acima
+
+    //COM ESTA CONSULTA DE SITUACAO DE NOTA, O UNINFE GERA O ARQUIVO DE DISTRIBUICAO DE CANCELAMENTO
+    Nfe.ConsultarSituacaoNFe(ChaveNota,IntToStr(NfeAmbiente),Protocolo, status, StatusRetConsSitNFe, ProtocoloCancelamento, DataHoraProcessamento, MotivoNfe);
+
+    *)
+    //COPIA PARA O DIRETORIO DE COMPARTILHAMENTO (DATA DO CANCELAMENTO).
+    Nfe.CompartilharXMLCancelamento(ChaveNota,true,Tabela.FieldByName('datacancelamento').AsDateTime);
+    Result:=True;
+
+  end;
+end;
+
+function TdtmControleNotasFiscaisEletronicas.EnviarNotasFiscais(NFE_Calculada: String = ''): Boolean;
+var
+//  NFe: TTecNotaFiscalEletronica;
+  NumLote,
+  NumRecibo,
+  DataHoraProcessamento, MotivoNfe: String;
+
+  CampoData: TDateField;
+//  i: Integer;
+  vSituacaoNFeAtualizada: Boolean;
+
+  function ChaveNotaCalculada: String;
+  var
+  vModeloDocto : String;
+  begin
+
+    if not tabela.fieldbyname('modelodocto').isnull then
+      vModelodocto := tabela.fieldbyname('modelodocto').asString
+    else
+      vModelodocto := '55';
+
+    result := copy(CodigoCidadeIBGEFilialBase,1,2)+
+                         FormatDateTime('YYMM', CampoData.AsDateTime)+
+
+{                         preencheString(CNPJFilialBase,'0',14,false)+}
+                         preencheString(Tabela.FieldByName('cnpjfilialemitente').Asstring,'0',14,false)+
+
+                         vModeloDocto +
+                         preencheString(Tabela.FieldByName('serie').Asstring,'0',3,false)       +
+                         preencheString(Tabela.FieldByName('nrdocumento').Asstring,'0',9,false) +
+                         inttostr(NFeTipoEmissao) +
+                         preencheString(Tabela.FieldByName('codaleatorio').Asstring,'0',8,false);
+
+
+    result := result + Modulo11(result);
+  end;
+
+
+  function ChaveNota: String;
+  begin
+    if (foperacao = 'RI') then
+    begin
+      if (Tabela.FieldByName('chv_nfe').asstring <> '') then
+        result := Tabela.FieldByName('chv_nfe').asstring
+      else
+      begin
+        if NFE_Calculada<>'' then
+          result := NFE_Calculada
+        else
+          result := ChaveNotaCalculada;
+      end;
+    end
+    else
+    begin
+      if Tabela.FieldByName('formaemissao').asstring = '9' then
+        result := Tabela.FieldByName('chv_nfe').asstring
+      else
+      begin
+        if NFE_Calculada<>'' then
+          result := NFE_Calculada
+        else
+          result := ChaveNotaCalculada;
+      end;
+    end;
+    {
+      result := copy(CodigoCidadeIBGEFilialBase,1,2)+
+                           FormatDateTime('YYMM', CampoData.AsDateTime)+
+                           preencheString(CNPJFilialBase,'0',14,false)+
+                           '55'+
+                           preencheString(Tabela.FieldByName('serie').Asstring,'0',3,false)       +
+                           preencheString(Tabela.FieldByName('nrdocumento').Asstring,'0',9,false) +
+                           inttostr(NFeTipoEmissao) +
+                           preencheString(Tabela.FieldByName('codaleatorio').Asstring,'0',8,false)+
+                           Tabela.FieldByName('digchaveacesso').AsString;
+}
+  end;
+
+  function CancelarNotasSelecionadas: Boolean;
+  begin
+    result := true;
+
+    if tabela.fieldbyname('nfpse').asBoolean then
+    begin
+      CampoData := TDateField(Tabela.FieldByName('data'));
+      RefazConsultaPorNome(qryNotas_,['dadofiscal'], [tabela.fieldbyname('numero').asinteger]);
+      AtualizaSituacaoNFPSe(Tabela, qryNotas_);
+
+
+      if ((Tabela.FieldByName('statusnfse').AsString = '0') and
+          (ftipoemissaonfeservico = Florianopolis_SoftPlan)) or
+         ((Tabela.FieldByName('statusnfse').AsString = '1') and
+          (ftipoemissaonfeservico = Palhoca_IPM)) then
+
+      begin
+        PreencherPropriedadesNFE(true);
+
+        if NFe.CancelarNFPSe(tabela, qryNotas_, qryServicosDadosFiscais, 'CANCELADA EMITIDA ERRONEAMENTE') then
+        begin
+          SalvarConteudoxml('S', tabela.fieldbyname('numero').asString, true);
+          Tabela.Edit;
+
+          Tabela.FieldByName('statusnfse').AsString := nfe.status_NFPSe;
+          Tabela.FieldByName('datacancelamento').Asdatetime := FormatarTimeStamp(NFe.dataCancelamento_NFPSe);
+
+          Tabela.FieldByName('situacao').AsString := 'C';
+          Tabela.Post;
+
+          Docxml := nil;
+        end
+        else
+        begin
+          Tabela.Edit;
+          Tabela.FieldByName('situacao').AsString := 'N';
+          Tabela.Post;
+        end;
+      end;
+
+      Result := Perpetrar([Tabela, qryNotas_]);
+
+      if result then
+        if (FTipoNotas='S') and
+           ((Tabela.FieldByName('statusnfse').AsString = '1') and
+            (ftipoemissaonfeservico = Florianopolis_SoftPlan)) or
+           ((Tabela.FieldByName('statusnfse').AsString = '2') and
+            (ftipoemissaonfeservico = Palhoca_IPM)) then
+
+          OpNFSaidaAposCancelamento(Tabela);
+    end
+    else
+    begin
+
+      if FTipoNotas = 'E' then
+        CampoData := TDateField(Tabela.FieldByName('emissao'))
+      else
+        CampoData := TDateField(Tabela.FieldByName('data'));
+
+      AtualizaSituacaoNfe(Tabela,ChaveNota,Nfe, true);
+
+      if (Tabela.FieldByName('numcancelamentonfe').AsString='') then
+      begin
+        if NFe.CancelarNfe(ChaveNota,
+                         Tabela.FieldByName('numprotocolonfe').AsString,
+                         'CANCELADA EMITIDA ERRONEAMENTE',
+                         Tabela.FieldByName('ambiente').AsString,
+                         EstadoFilialBaseIBGE, CNPJFilialBase, DataHoraProcessamentoNfe,
+
+                         ProtocoloCancelamento) then
+        begin
+          if FTipoNotas = 'E' then
+            SalvarConteudoxml('E', tabela.fieldbyname('codigo').asString, true)
+          else
+            SalvarConteudoxml('S', tabela.fieldbyname('numero').asString, true);
+
+          Tabela.Edit;
+          Tabela.FieldByName('numcancelamentonfe').AsString := ProtocoloCancelamento;
+          Tabela.FieldByName('situacao').AsString := 'C';
+          Tabela.Post
+
+          {Aqui chamar procedimento do objeto para demais procedimentos em um cancelamento}
+
+        end
+        else
+        begin
+          Tabela.Edit;
+          Tabela.FieldByName('situacao').AsString := 'N';
+          Tabela.Post;
+        end;
+      end;
+
+      Result := Perpetrar([Tabela, qryNotas_]);
+
+      if result then
+        if (FTipoNotas='S') and
+           ((Tabela.FieldByName('numcancelamentonfe').AsString<>'') or
+            (Tabela.FieldByName('numinutilizacaonfe').AsString<>'')) then
+          OpNFSaidaAposCancelamento(Tabela);
+
+    end;
+  end;
+
+  function InutilizarNotasSelecionadas: Boolean;
+  var
+    ChaveNotaInutilizar : String;
+    vModeloDocto : String;
+  begin
+
+    if tabela.fieldbyname('nfpse').asBoolean then
+    begin
+      Tabela.Edit;
+      Tabela.FieldByName('statusnfse').AsString := '3'; {não existe inutilizada na nota de serviço, temos 0 gerada 1 cancelada}
+      Tabela.Post;
+
+      Result := Perpetrar([Tabela, qryNotas_]);
+
+      if result then
+        if (FTipoNotas='S') and
+           (Tabela.FieldByName('statusnfse').AsString='3') then
+          OpNFSaidaAposCancelamento(Tabela);
+
+    end
+    else
+    begin
+
+      if not tabela.fieldbyname('modelodocto').isnull then
+        vModelodocto := tabela.fieldbyname('modelodocto').asString
+      else
+        vModelodocto := '55';
+
+      ChaveNotaInutilizar := EstadoFilialBaseIBGE+
+//                       formatdatetime('YY',tabela.fieldbyname('data').AsDateTime)+
+                   FormatDateTime('YY',date()) +
+                   preencheString(CNPJFilialBase,'0',14,false)+
+                   vModelodocto +
+                   preencheString(Tabela.FieldByName('serie').Asstring,'0',3,false)       +
+                   preencheString(Tabela.FieldByName('nrdocumento').Asstring,'0',9,false) +
+                   preencheString(Tabela.FieldByName('nrdocumento').Asstring,'0',9,false);
+
+      if Tabela.FieldByName('chv_nfe').isnull or (not AtualizaSituacaoNfe(Tabela,Tabela.FieldByName('chv_nfe').AsString,Nfe)) then
+      begin
+        if NFe.InutilizarNFe(ChaveNotaInutilizar,
+                             'INUTILIZADA ERRO',
+                              inttostr(NFeAmbiente),
+                              EstadoFilialBaseIBGE,
+                              CNPJFilialBase,
+                              Tabela.FieldByName('modelodocto').AsString,
+                              Tabela.FieldByName('serie').AsString,
+                              Tabela.FieldByName('nrdocumento').AsString,
+                              ProtocoloInutilizacao) then
+        begin
+          if FTipoNotas = 'E' then
+            SalvarConteudoxml('E', tabela.fieldbyname('codigo').asString, true)
+          else
+            SalvarConteudoxml('S', tabela.fieldbyname('numero').asString, true);
+
+          Tabela.Edit;
+          Tabela.FieldByName('numinutilizacaonfe').AsString := ProtocoloInutilizacao;
+          Tabela.Post;
+
+          {Aqui chamar procedimento do objeto para demais procedimentos em um cancelamento}
+
+          Result := Perpetrar([Tabela, qryNotas_]);
+
+          if result then
+            if (FTipoNotas='S') and
+               ((Tabela.FieldByName('numcancelamentonfe').AsString<>'') or
+                (Tabela.FieldByName('numinutilizacaonfe').AsString<>'')) then
+              OpNFSaidaAposCancelamento(Tabela);
+        end;
+      end;
+
+    end;
+  end;
+
+
+  function GerarNFe(regerando: boolean = false): Boolean;
+  begin
+
+    ShowProcessando('Gerando o arquivo da NF-e!');
+    // EMITENTE
+    result := PreencherPropriedadesNFE(regerando);
+
+    if result then
+    begin
+      if FTipoNotas = 'E' then
+      begin
+
+
+        nfe.Validando := true;
+        nfe.CriarListaErro(dtmTecSoft.Database);
+        Result := NFe.GerarNFe(Tabela, TabelaReferenciada, qryProdutosNotasPag, nil, nil,
+                     qryVenctosNotasPag, qryVolumesNotasPag, qryLacresNotasPag,
+                     qryImportacoes, qryAdicoes,
+                     ifthen(regerando, tabela.fieldbyname('serie').asString, SerieSugestao_[Tabela.fieldbyname('modelodocto').asString]),
+                     FTipoNotas, nil, regerando, nil, nil, Enviar, qryNotas_ );
+
+        if result then
+        begin
+          nfe.Validando := false;
+          Result := NFe.GerarNFe(Tabela, TabelaReferenciada, qryProdutosNotasPag, nil, nil,
+                       qryVenctosNotasPag, qryVolumesNotasPag, qryLacresNotasPag,
+                       qryImportacoes, qryAdicoes,
+                       ifthen(regerando, tabela.fieldbyname('serie').asString, SerieSugestao_[Tabela.fieldbyname('modelodocto').asString]),
+                       FTipoNotas, nil, regerando, nil, nil, Enviar, qryNotas_);
+        end;
+      end
+      else
+      begin
+
+        nfe.Validando := true;
+
+        result := true;
+        if tabela.fieldbyname('nfpse').asBoolean then
+          if (ftipoemissaonfeservico in [Florianopolis_SoftPlan {, Palhoca_IPM}]) then
+            result := ValidarAliquotaGrade(tabela, qryServicosDadosFiscais);
+
+        if result then
+        begin
+          nfe.CriarListaErro(dtmTecSoft.Database);
+          Result := NFe.GerarNFe(Tabela, TabelaReferenciada, qryProdutosDadosFiscais,
+                     qryProdutosDadosFiscaisCompostos, qryServicosDadosFiscais,
+                     qryVenctosDadosFiscais, qryVolumesDadosFiscais,
+                     qryLacresDadosFiscais, nil, nil,
+                     ifthen(regerando, tabela.fieldbyname('serie').asString, SerieSugestao_[Tabela.fieldbyname('modelodocto').asString]),
+                     FTipoNotas, qrycupons, false, nil, TotaisRecebimentos, Enviar, qryNotas_);
+        end;
+
+        if result then
+        begin
+          nfe.Validando := false;
+          Result := NFe.GerarNFe(Tabela, TabelaReferenciada, qryProdutosDadosFiscais,
+                       qryProdutosDadosFiscaisCompostos, qryServicosDadosFiscais,
+                       qryVenctosDadosFiscais, qryVolumesDadosFiscais,
+                       qryLacresDadosFiscais, nil, nil,
+                       ifthen(regerando, tabela.fieldbyname('serie').asString, SerieSugestao_[Tabela.fieldbyname('modelodocto').asString]),
+                       FTipoNotas, qrycupons, false, nil, TotaisRecebimentos, Enviar, qryNotas_)
+        end;
+
+      end;
+    end;
+
+    sleep(500);
+    ShowProcessando
+  end;
+
+  function EnviarNFe: Boolean;
+  begin
+    ShowProcessando('Verificando status do serviço NF-e!');
+    sleep(500);
+    if NFe.VerificarStatusServico(IntToStr(NFeAmbiente)) then
+    begin
+      ShowProcessando;
+      ShowProcessando('Processando o arquivo de envio da NF-e!');
+      sleep(500);
+      Result := NFe.EnviarNFe(ChaveNota, NumLote, NumRecibo);
+      if Result then
+      begin
+        Tabela.Edit;
+        Tabela.FieldByName('numlotenfe').AsString   := NumLote;
+        Tabela.FieldByName('numrecibonfe').AsString := NumRecibo;
+//        Tabela.Post;
+      end;
+    end;
+    ShowProcessando
+  end;
+
+  function ConsultarLote(SomenteRetorno: Boolean): Boolean;
+  begin
+    ShowProcessando('Consultando o arquivo de retorno da NF-e!');
+    sleep(500);
+    Result := NFe.ConsultarSituacaoLote(Tabela.FieldByName('numrecibonfe').AsString,
+                                        Protocolo, status, DataHoraProcessamento, IntToStr(NFeAmbiente), SomenteRetorno);
+    if Result then
+    begin
+      Tabela.Edit;
+      Tabela.FieldByName('numprotocolonfe').AsString:=Protocolo;
+      Tabela.FieldByName('dhprocnfe').AsDateTime:=FormatarTimeStamp(DataHoraProcessamento);
+//      Tabela.Post;
+    end;
+    ShowProcessando
+  end;
+
+  function CompartilharXML(Recuperando_XML: Boolean; Esperar: boolean = false): Boolean;
+  begin
+    sleep(500);
+    if(Recuperando_Xml) then
+    begin
+        ShowProcessando('Gerando o arquivo de compartilhamento da NF-e! Recuperando_XML');
+        Result := NFe.CompartilharXML_Recuperado(ChaveNota,
+                                  Tabela.FieldByName('numrecibonfe').AsString,
+                                  Tabela.FieldByName('filial').AsString,
+                                  Tabela.FieldByName('serie').AsString,
+                                  Tabela.FieldByName('nrdocumento').AsString,
+                                  CampoData.AsDateTime, Esperar);
+
+
+    end
+    else
+    begin
+        ShowProcessando('Gerando o arquivo de compartilhamento da NF-e!');
+        Result := NFe.CompartilharXML(ChaveNota,
+                                  Tabela.FieldByName('numrecibonfe').AsString,
+                                  Tabela.FieldByName('filial').AsString,
+                                  Tabela.FieldByName('serie').AsString,
+                                  Tabela.FieldByName('nrdocumento').AsString,
+                                  CampoData.AsDateTime);
+
+    end;
+
+    if result then
+    begin
+      if FTipoNotas = 'E' then
+        SalvarConteudoxml('E', tabela.fieldbyname('codigo').asString)
+      else
+        SalvarConteudoxml('S', tabela.fieldbyname('numero').asString)
+    end;
+
+    ShowProcessando
+  end;
+
+  procedure EnviarEmail;
+  var
+   vListaNFeEmailValidos : String;
+  begin
+
+    vListaNFeEmailValidos := '';
+    if FTipoNotas = 'S' then
+      ListaStringEmailValido(ListadeEmails('DF', qryDadosFiscais.fieldbyname('numero').AsInteger), vListaNFeEmailValidos, true)
+    else
+      ListaStringEmailValido(Tabela.FieldByName('email').AsString, vListaNFeEmailValidos, true);
+
+    if (vListaNFeEmailValidos <> '')      and
+<<<<<<< dmcontrolenotasfiscaiseletronicas.pas
+       (UsuarioLogin.portasmtp               <> '')      and
+=======
+       (UsuarioLogin.PortaSmtp               <> '')      and
+>>>>>>> 1.110
+       (UsuarioLogin.HostSmtp                <> '')      and
+       (UsuarioLogin.Email                   <> '')      and
+       (UsuarioLogin.SenhaEmail              <> '')    then
+    begin
+      ShowProcessando('Enviando email para o cliente');
+      sleep(500);
+      try
+        if not NFe.EnviarEmail(UsuarioLogin.Email,
+        vListaNFeEmailValidos,
+        Tabela.FieldByName('nrdocumento').AsString,
+        Tabela.FieldByName('serie').AsString,
+        Tabela.FieldByName('filial').AsString,
+        NomeFilialBase, RazaoFilialBase, CNPJFilialBase, DDDFilialBase, FoneFilialBase,
+<<<<<<< dmcontrolenotasfiscaiseletronicas.pas
+        DDDFaxFilialBase, FaxFilialBase, UsuarioLogin.NomeUsuario, UsuarioLogin.portasmtp,
+=======
+        DDDFaxFilialBase, FaxFilialBase, UsuarioLogin.NomeUsuario, UsuarioLogin.PortaSMTP,
+>>>>>>> 1.110
+        UsuarioLogin.HostSMTP, UsuarioLogin.UsuarioEmail, UsuarioLogin.SenhaEmail,
+        CampoData.AsDateTime, Tabela.FieldByName('valortotal').AsCurrency,
+        UsuarioLogin.AutenticarSMTP, CampoData.AsDateTime) then
+        if Exibirmsgnfe then
+          MensagemAviso('Ocorreu um erro inesperado no envio do email');
+
+	    finally
+		    ShowProcessando;
+	    end;
+    end;
+  end;
+
+  procedure EnviarEmailNFPSe;
+  var
+   vListaNFeEmailValidos : String;
+  begin
+    ShowProcessando;
+
+    vListaNFeEmailValidos := '';
+    ListaStringEmailValido(ListadeEmails('DF', qryDadosFiscais.fieldbyname('numero').AsInteger), vListaNFeEmailValidos, true);
+
+    if (vListaNFeEmailValidos <> '')      and
+<<<<<<< dmcontrolenotasfiscaiseletronicas.pas
+       (UsuarioLogin.portasmtp        <> '')      and
+=======
+       (UsuarioLogin.PortaSmtp        <> '')      and
+>>>>>>> 1.110
+       (UsuarioLogin.HostSmtp         <> '')      and
+       (UsuarioLogin.Email            <> '')      and
+       (UsuarioLogin.SenhaEmail       <> '')     then
+    begin
+      ShowProcessando('Enviando email para o cliente');
+      try
+        if not NFe.EnviarEmail(UsuarioLogin.Email, vListaNFeEmailValidos,
+                            qryNotas_.FieldByName('numero').AsString, qryNotas_.fieldbyname('serie').AsString, IntToStr(fFilialBase),
+                            fNomeFilialBase, fRazaoFilialBase, fCNPJFilialBase, fDDDFilialBase, fFoneFilialBase,
+<<<<<<< dmcontrolenotasfiscaiseletronicas.pas
+                            fDDDFaxFilialBase, fFaxFilialBase, UsuarioLogin.NomeUsuario, UsuarioLogin.portasmtp,
+=======
+                            fDDDFaxFilialBase, fFaxFilialBase, UsuarioLogin.NomeUsuario, UsuarioLogin.PortaSMTP,
+>>>>>>> 1.110
+                            UsuarioLogin.HostSMTP, UsuarioLogin.UsuarioEmail, UsuarioLogin.SenhaEmail,
+                            qryDadosFiscais.fieldbyname('data').AsDateTime, qryDadosFiscais.fieldbyname('valortotal').AsCurrency,
+                            UsuarioLogin.AutenticarSMTP, qryDadosFiscais.fieldbyname('data').AsDateTime, nil, false, false, true) then
+              MensagemAviso('Ocorreu um erro inesperado no envio do email')
+      finally
+            ShowProcessando;
+      end;
+    end;
+
+  end;
+
+  function ImprimirNFPSe: boolean;
+  var
+    vArquivo: String;
+  begin
+    result := false;
+    ShowProcessando('Imprimindo o DANFE!');
+    sleep(500);
+
+    vArquivo := NFE.ArqRetornoNFSe(qryDadosFiscais, qryNotas_);
+
+    if not FileExists(vArquivo) then
+      RecuperarArquivoxml('S', qryDadosFiscais.fieldbyname('numero').asString, vArquivo);
+
+
+    result := ImprimirNotafiscalServico_(qryDadosFiscais.fieldbyname('numero').asInteger, vArquivo);
+
+    if result and (FOperacao = 'T') then
+      EnviarEmailNFPSe;
+
+    ShowProcessando
+  end;
+
+
+  function ImprimirDanfe: boolean;
+  var
+    Produtos: TtecQuery;
+  begin
+    result := false;
+    ShowProcessando('Imprimindo o DANFE!');
+    sleep(500);
+    if FTipoNotas = 'E' then
+    begin
+      if qryProdutosnotaspag.isempty then
+        RefazConsultaPorNome(qryProdutosNotasPag,['codigonota'],  [Tabela.FieldByName('codigo').AsInteger]);
+      Produtos := qryProdutosNotasPag;
+    end
+    else
+    begin
+      if qryProdutosDadosFiscais.isempty then
+        RefazConsultaPorNome(qryProdutosDadosFiscais, ['dadofiscal'],[Tabela.FieldByName('numero').AsInteger]);
+      Produtos := qryProdutosDadosFiscais;
+    end;
+
+//    if FOperacao = 'T' then
+//      ImpressoraDanfe := ParSistema.NomeImpressoraNotaMercadorias;
+
+    result := NFe.ImprimirDanfe({ChaveNota,}
+                      Tabela.FieldByName('filial').AsString,
+                      Tabela.FieldByName('serie').AsString,
+                      Tabela.FieldByName('nrdocumento').AsString,
+                      Tabela.FieldByName('localentrega_cep').AsString,
+                      Tabela.FieldByName('email').AsString,
+                      IntToStr(NFeNVias), NFeLogotipoDANFE,
+                      ImpressoraDanfe, NFeVisualizarDANFE,
+                      CampoData.AsDateTime,
+                      Produtos, NFeExecDANFE,
+                      Enviar,
+                      FTipoNotas);
+
+    if result and (FOperacao = 'T') then
+      EnviarEmail;
+
+    ShowProcessando
+  end;
+
+  procedure ConsultaSituacaoNotaFiscal;
+  begin
+      {
+        Consultar a situaçao da nota antes;
+        Verificar se tem numero de protocolo, numero de inutilizacao e numero de cancelamento
+        Setar numrecibo,numlote,numprotocolonfe,numinutilizacaonfe e numcancelamentonfe
+        Caso numcancelamentofe e numinutilizacaonfe setados, tem que mudar situacao da nota para C e alimentar estes campos
+        Fazer o download do XML caso exista
+      }
+//      NFE.ConsultarSituacaoNFe(ChaveNota,IntToStr(NFeAmbiente));
+  end;
+
+
+  procedure AtribuirDadosTabela;
+  var
+    vt: integer;
+
+    function ContigenciaScanNFCe: Boolean;
+    begin
+      result := (Tabela.FieldByName('formaemissao').asstring='9') and (Tabela.FieldByName('modelodocto').asstring='65');
+    end;  
+      
+  begin
+    Tabela.Edit;
+
+    if (Tabela.FieldByName('nrdocumento').AsString='') or
+       (Tabela.FieldByName('nrdocumento').Asinteger=0)  then
+      Tabela.FieldByName('nrdocumento').AsString := Tabela.FieldByName('numeronota').AsString;
+
+    if (Tabela.FieldByName('modelodocto').AsString='') then
+      Tabela.FieldByName('modelodocto').AsString := '55';
+
+    if tabela.fieldbyname('versaoteclux').isnull then
+      tabela.fieldbyname('versaoteclux').AsString   := VersaoTecLUX;
+
+
+    if Tabela.FieldByName('nfpse').AsBoolean then
+    begin
+      if (Tabela.FieldByName('ambientenfs').AsString='') or ((FOperacao='T') and not ContigenciaScanNFCe) then
+        Tabela.FieldByName('ambientenfs').Asinteger := NFSeAmbiente;
+    end
+    else
+    begin
+
+      if (Tabela.FieldByName('codaleatorio').Asinteger=0) or ((FOperacao='T') and not ContigenciaScanNFCe) then
+        Tabela.FieldByName('codaleatorio').Asinteger := Aleatorio( CampoData.AsDateTime,  Tabela.FieldByName('nrdocumento').asString);
+
+      if (Tabela.FieldByName('chv_nfe').AsString='') or ((FOperacao='T') and not ContigenciaScanNFCe) then
+      begin
+        Tabela.FieldByName('chv_nfe').AsString:=ChaveNota;
+        vchave_nfe := ChaveNota;
+      end;
+
+      if (Tabela.FieldByName('ambiente').AsString='') or ((FOperacao='T') and not ContigenciaScanNFCe) then
+        Tabela.FieldByName('ambiente').Asinteger := NFeAmbiente;
+
+      if (Tabela.FieldByName('formaemissao').AsString = '') or ((FOperacao='T') and not ContigenciaScanNFCe) then
+        Tabela.FieldByName('formaemissao').AsInteger := NFeTipoEmissao;
+
+      if (Tabela.FieldByName('digchaveacesso').asstring = '') or ((FOperacao='T') and not ContigenciaScanNFCe) then
+        Tabela.FieldByName('digchaveacesso').asstring := copy(Tabela.FieldByName('chv_nfe').AsString, 44, 1);
+
+      if tabela.fieldbyname('versaolayout').isnull  then
+        tabela.fieldbyname('versaolayout').AsCurrency := 3.10;
+
+      { 0 – pagamento à vista   1 – pagamento à prazo     2 - outros }
+      if tabela.fieldbyname('formapagto').isnull then
+        tabela.fieldbyname('formapagto').AsInteger    := 2;
+
+      { 1-Retrato/ 2-Paisagem }
+      if tabela.fieldbyname('formatodanfe').isnull then
+        tabela.fieldbyname('formatodanfe').AsInteger  := 1;
+
+      {1-Normal/ 2-Contingência}
+      if tabela.fieldbyname('finalidadenf').isnull then
+        tabela.fieldbyname('finalidadenf').AsInteger  := 1;
+
+      if tabela.fieldbyname('procemissao').isnull then
+        tabela.fieldbyname('procemissao').AsString    := '0';
+
+    end;
+
+//    Tabela.post;
+  end;
+
+  procedure AtualizarDataVencto;
+  begin
+    if FTipoNotas = 'E' then
+    begin
+      RefazConsultaPorNome(qryVenctosNotasPag, ['documentopag'],[Tabela.FieldByName('documentopag').AsInteger]);
+      qryVenctosNotasPag.first;
+      while not qryVenctosNotasPag.Eof do
+      begin
+        if qryVenctosNotasPag.fieldbyname('datavencto').asDateTime < DataServidor then
+        begin
+          qryVenctosNotasPag.edit;
+          qryVenctosNotasPag.fieldbyname('datavencto').asDateTime := DataServidor;
+          qryVenctosNotasPag.post;
+        end;
+        qryVenctosNotasPag.Next;
+      end;
+      perpetrar([qryVenctosNotasPag]);
+    end
+    else
+    begin
+      RefazConsultaPorNome(qryVenctosDadosFiscais, ['dadofiscal'],[Tabela.FieldByName('numero').AsInteger]);
+      qryVenctosDadosFiscais.first;
+      while not qryVenctosDadosFiscais.Eof do
+      begin
+        if qryVenctosDadosFiscais.fieldbyname('datavencto').asDateTime < DataServidor then
+        begin
+          qryVenctosDadosFiscais.edit;
+          qryVenctosDadosFiscais.fieldbyname('datavencto').asDateTime := DataServidor;
+          qryVenctosDadosFiscais.post;
+        end;
+        qryVenctosDadosFiscais.Next;
+      end;
+      perpetrar([qryVenctosDadosFiscais]);
+    end;
+  end;
+
+begin
+  Result := True;
+  NFe := TTecNotaFiscalEletronica.Create;
+  nfe.ExibirMsgNfe := self.ExibirMsgNfe;
+
+  nfe.codigoVerificacao_NFPSe := '';
+  nfe.numeroSerie_NFPSe := '';
+  nfe.status_NFPSe := '';
+  nfe.DataHoraProcessamento_NFPSe := '';
+  nfe.link_nfse := '';
+  nfe.DataEmissao_NFPSe := '';
+  nfe.dataCancelamento_NFPSe := '';
+
+
+  {
+  NFe.DiretorioEnvio       := fNFeDirEnvio;
+  NFe.DiretorioEnviado     := fNFeDirEnviados;
+  NFe.DiretorioRetorno     := fNFeDirRetorno;
+  NFe.DiretorioCompartilha := fNfeDirCompartilha;
+  nfe.DiretorioErros       := fNfeDirErros;
+  NFe.Executavel           := fNFeExecNFe;
+  }
+
+  Protocolo := '';
+  ProtocoloCancelamento := '';
+  ProtocoloInutilizacao := '';
+
+  if FTipoNotas = 'E' then
+  begin
+    Tabela := qryNotasPag;
+    TabelaProdutos := qryProdutosNotasPag;
+    CampoData   := TDateField(Tabela.FieldByName('emissao'))
+  end
+  else
+  begin
+    Tabela := qryDadosFiscais;
+    TabelaProdutos := qryProdutosDadosFiscais;
+    TabelaServicos := qryServicosDadosFiscais;
+    CampoData := TDateField(Tabela.FieldByName('data'));
+  end;
+
+  if FOperacao = 'CC' then //Confirmar Cancelamento/Inutilização
+     OpNFSaidaAposCancelamento(Tabela)
+  else
+  if FOperacao = 'RI' then //recuperar e imprimir
+  begin
+
+    try
+
+      vchave_nfe := '';
+      status := '';
+      StatusRetConsSitNFe := '';
+
+      vSituacaoNFeAtualizada := false;
+
+      AtribuirDadosTabela;
+
+      if Tabela.FieldByName('nfpse').AsBoolean then
+      begin
+        RefazConsultaPorNome(qryNotas_,['dadofiscal'], [tabela.fieldbyname('numero').asinteger]);
+
+//        if (Tabela.FieldByName('numprotocolonfse').AsString = '') then { A situação da NF não será atualizada se for cancelada diretamente no site}
+        begin
+          result := AtualizaSituacaoNFPSe(Tabela, qryNotas_);
+
+          vSituacaoNFeAtualizada := result;
+          if result then
+            if (FTipoNotas='S') and ( ((Tabela.FieldByName('statusnfse').AsString='1') and
+                                       (ftipoemissaonfeservico = Florianopolis_SoftPlan))
+
+                                      or
+
+                                      ((Tabela.FieldByName('statusnfse').AsString='2') and
+                                       (ftipoemissaonfeservico = Palhoca_IPM))
+                                     ) then //cancelado
+              OpNFSaidaAposCancelamento(Tabela);
+        end;
+
+        if Tabela.FieldByName('numprotocolonfse').AsString = '' then
+        begin
+           FOperacao := 'T';
+           result := EnviarNotasFiscais;
+           FOperacao := 'RI';
+        end
+        else
+        if ((Tabela.FieldByName('statusnfse').AsString = '0') and (ftipoemissaonfeservico = Florianopolis_SoftPlan)) or
+           ((Tabela.FieldByName('statusnfse').AsString = '1') and (ftipoemissaonfeservico = Palhoca_IPM)) then
+            ImprimirNFPSe;
+
+        Docxml := nil;
+
+      end
+      else
+      begin
+        if (Tabela.FieldByName('numprotocolonfe').AsString = '') then
+        begin
+          result := AtualizaSituacaoNfe(Tabela,ChaveNota,Nfe);
+          vSituacaoNFeAtualizada := true;
+
+          if (FTipoNotas='S') and
+             ((Tabela.FieldByName('numcancelamentonfe').AsString<>'') or
+              (Tabela.FieldByName('numinutilizacaonfe').AsString<>'')) then
+            OpNFSaidaAposCancelamento(Tabela);
+        end;
+
+        {NÃO PODE TRANSMITIR NFE COM FILIALEMISSAO QUE NÃO SEJA A PRÓPRIA}
+        if Tabela.FieldByName('numprotocolonfe').AsString = '' then
+        begin
+           FOperacao := 'T';
+           result := EnviarNotasFiscais(NFE_Calculada);
+           FOperacao := 'RI';
+       //   MensagemAviso('O número do protocolo não foi recuperado. Utilize a funcionalidade em ''Estoque - Controle de Notas Fiscais Eletônicas''')
+        end
+        else if (Tabela.FieldByName('statusnfe').AsString = '301') or
+                (Tabela.FieldByName('statusnfe').AsString = '302') then
+        begin
+          if ExibirMsgNFe then
+            MensagemAviso('Nota fiscal em uso denegado.');
+
+          if not CompartilharXML(true) then
+          begin
+             GerarNFe(true);
+             vChave_Nfe := ChaveNota;
+             nfe.ConsultarSituacaoNFe(vChave_Nfe, IntToStr(NFeAmbiente),Protocolo, status, StatusRetConsSitNFe, ProtocoloCancelamento, DataHoraProcessamento, MotivoNfe);
+             CompartilharXML(true, true);
+          end;
+        end
+        else
+        if (Tabela.FieldByName('numcancelamentonfe').AsString = '') and
+           not ImprimirDanfe then
+        begin
+          if not vSituacaoNFeAtualizada then
+            AtualizaSituacaoNfe(Tabela,ChaveNota,Nfe, True);
+
+          if not CompartilharXML(true) then
+          begin
+            IF Gerarnfe(true) then {Aqui é colocado na pasta de envio e uninfe processa colocando em processamento ou na pasta erro , capturar destas pastas e colocar na pasta de processamento}
+              CompartilharXML(true, true);
+          end;
+          ImprimirDanfe;
+        end;
+      end;
+
+      if result then
+      begin
+        if tabela.State = dsedit then
+          tabela.Post;
+      end
+      else
+      begin
+        if tabela.State = dsedit then
+          tabela.cancel;
+      end;
+
+    finally
+
+      if vSituacaoNFeAtualizada then
+        Perpetrar([Tabela, qryNotas_])
+      else
+        Perpetrar([Tabela,TabelaProdutos, qryNotas_]);
+    end;
+
+  end
+  else
+  begin
+    if Tabela.FieldByName('nfpse').AsBoolean then
+    begin
+
+      if FOperacao = 'C' then
+      begin
+        ShowProcessando;
+        ShowProcessando('Cancelando NF-e');
+        sleep(500);
+        RefazConsultaPorNome(qryNotas_, ['dadofiscal'], [tabela.fieldbyname('numero').asinteger]);
+        Result := CancelarNotasSelecionadas;
+        ShowProcessando;
+      end
+      else
+      if FOperacao = 'I' then
+      begin
+        ShowProcessando;
+        ShowProcessando('Inutilizando NF-e');
+        sleep(500);
+        Result := InutilizarNotasSelecionadas;
+        ShowProcessando;
+      end
+      else
+      if FOperacao = 'CI' then
+      begin
+        ShowProcessando;
+
+        Protocolo := '';
+        ProtocoloCancelamento := '';
+        ProtocoloInutilizacao := '';
+        vchave_nfe := '';
+        status := '';
+        StatusRetConsSitNFe := '';
+
+        vSituacaoNFeAtualizada := false;
+
+        if (Tabela.FieldByName('numprotocolonfse').AsString = '') then
+        begin
+          RefazConsultaPorNome(qryNotas_, ['dadofiscal'], [tabela.fieldbyname('numero').asinteger]);
+
+          result := AtualizaSituacaoNFPSe(Tabela, qryNotas_);
+          vSituacaoNFeAtualizada := true;
+
+          if ftipoemissaonfeservico = Palhoca_IPM then
+            if (Tabela.FieldByName('numprotocolonfse').AsString = '') then
+            begin
+               FOperacao := 'TPCI';  //transmitir para cancelar ou inutilizar,
+                                   //neste caso deverá haver uma tentativa de envio de nota pois a consulta
+                                   //se dá apenas pelo protocolo e não pelo identifador qryDadosFiscaisNumero
+               result := EnviarNotasFiscais;
+               FOperacao := 'CI';
+            end;
+        end;
+
+        if Tabela.FieldByName('numprotocolonfse').AsString = '' then
+        begin
+          ShowProcessando('Inutilizando NFPS-e');
+          sleep(500);
+          Result := InutilizarNotasSelecionadas;
+          ShowProcessando;
+        end
+        else
+        if ((Tabela.FieldByName('statusnfse').AsString = '0') and
+            (ftipoemissaonfeservico = Florianopolis_SoftPlan)) or
+           ((Tabela.FieldByName('statusnfse').AsString = '1') and
+            (ftipoemissaonfeservico = Palhoca_IPM)) then
+        begin
+          ShowProcessando;
+          ShowProcessando('Cancelando NFPS-e');
+          sleep(500);
+          Result := CancelarNotasSelecionadas;
+          ShowProcessando;
+        end;
+
+        Docxml := nil;
+
+      end
+      else
+      if FOperacao = 'TPCI'  then  //transmitir para cancelar ou inutilizar,
+      begin
+
+        ShowProcessando;
+        try
+
+          Tabela.edit;
+          Tabela.FieldByName('data').asDateTime := DataServidor;
+          AtribuirDadosTabela;
+//          AtualizarDataVencto;
+          AbrirTabelasDiversas;
+
+          result := GerarNotaEletronica(Tabela, nil, nil, nil, qryServicosDadosFiscais, nil, nil, nil, nil, nil,
+                        '', 'S',  nil, false, nil, nil, Enviar, true, nil, qrynotas_, nil, true); {olhe o último parametrozinho hehehehe}
+
+                        {
+
+                        
+          A grande charada: descobriu-se que ao enviar  uma nfse_teste junto com o identificador é o suficiente para pegar o protocolo,
+          se não retornar nada é porque não foi enviada....
+
+
+
+          if result then
+            result := GerarNotaEletronica(Tabela, nil, nil, nil, qryServicosDadosFiscais, nil, nil, nil, nil, nil,
+                          '', 'S',  nil, false, nil, nil, Enviar, false, nil, qrynotas_, nil);
+
+                          }
+
+          if result then
+          begin
+            if tabela.State = dsedit then
+              tabela.Post;
+          end
+          else
+          begin
+            if tabela.State = dsedit then
+              tabela.cancel;
+          end;
+
+        finally
+          Perpetrar([Tabela, TabelaProdutos, qryNotas_]);
+          Docxml := nil;
+        end;
+
+
+      end
+      else  { T - Transmitir }
+      begin
+
+        ShowProcessando;
+        try
+
+          Tabela.edit;
+          Tabela.FieldByName('data').asDateTime := DataServidor;
+          AtribuirDadosTabela;
+          AtualizarDataVencto;
+          AbrirTabelasDiversas;
+          if FOperacao = 'T' then
+          begin
+
+            result := GerarNotaEletronica(Tabela, nil, nil, nil, qryServicosDadosFiscais, nil, nil, nil, nil, nil,
+                          '', 'S',  nil, false, nil, nil, Enviar, true, nil, qrynotas_, nil);
+
+            if result then
+            begin
+
+              result := GerarNotaEletronica(Tabela, nil, nil, nil, qryServicosDadosFiscais, nil, nil, nil, nil, nil,
+                            '', 'S',  nil, false, nil, nil, Enviar, false, nil, qrynotas_, nil);
+
+              if result and (Tabela.FieldByName('numprotocolonfe').AsString <> '') then
+              begin
+
+                if ((Tabela.FieldByName('statusnfse').AsString = '0') and (ftipoemissaonfeservico = Florianopolis_SoftPlan)) or
+                   ((Tabela.FieldByName('statusnfse').AsString = '1') and (ftipoemissaonfeservico = Palhoca_IPM)) then
+                  ImprimirNFPSe;
+
+
+                if ((Tabela.FieldByName('statusnfse').AsString='1') and (ftipoemissaonfeservico = Florianopolis_SoftPlan)) or
+                   ((Tabela.FieldByName('statusnfse').AsString='2') and (ftipoemissaonfeservico = Palhoca_IPM)) then //cancelado
+                  OpNFSaidaAposCancelamento(Tabela);
+
+              end;
+
+            end;
+          end;
+
+          if result then
+          begin
+            if tabela.State = dsedit then
+              tabela.Post;
+          end
+          else
+          begin
+            if tabela.State = dsedit then
+              tabela.cancel;
+          end;
+
+        finally
+          Perpetrar([Tabela, TabelaProdutos, qryNotas_]);
+          Docxml := nil;
+        end;
+      end;
+
+    end
+    else
+    begin
+
+      ShowProcessando('Verificando status do serviço NF-e!');
+      sleep(500);
+      if NFe.VerificarStatusServico(IntToStr(NFeAmbiente)) then
+      begin
+
+        if FOperacao = 'C' then
+        begin
+          ShowProcessando;
+          ShowProcessando('Cancelando NF-e');
+          sleep(500);
+          Result := CancelarNotasSelecionadas;
+          ShowProcessando;
+        end
+        else
+        if FOperacao = 'I' then
+        begin
+          ShowProcessando;
+          ShowProcessando('Inutilizando NF-e');
+          sleep(500);
+          Result := InutilizarNotasSelecionadas;
+          ShowProcessando;
+        end
+        else
+        if FOperacao = 'CI' then
+        begin
+          ShowProcessando;
+
+          Protocolo := '';
+          ProtocoloCancelamento := '';
+          ProtocoloInutilizacao := '';
+          vchave_nfe := '';
+          status := '';
+          StatusRetConsSitNFe := '';
+
+          vSituacaoNFeAtualizada := false;
+
+          if (Tabela.FieldByName('numprotocolonfe').AsString = '') then
+          begin
+            AtualizaSituacaoNfe(Tabela,ChaveNota,Nfe);
+            vSituacaoNFeAtualizada := true;
+          end;
+
+          if Tabela.FieldByName('numprotocolonfe').AsString = '' then
+          begin
+            ShowProcessando('Inutilizando NF-e');
+            sleep(500);
+            Result := InutilizarNotasSelecionadas;
+            ShowProcessando;
+          end
+          else
+          if Tabela.FieldByName('numcancelamentonfe').AsString = '' then
+          begin
+            ShowProcessando;
+            ShowProcessando('Cancelando NF-e');
+            sleep(500);
+            Result := CancelarNotasSelecionadas;
+            ShowProcessando;
+          end;
+
+        end
+        else  { T - Transmitir }
+        begin
+          ShowProcessando;
+          try
+
+            Protocolo := '';
+            ProtocoloCancelamento := '';
+            ProtocoloInutilizacao := '';
+            vchave_nfe := '';
+            status := '';
+
+            if Tabela.FieldByName('formaemissao').asString <> '9' then   //ver forma mais generica para contigencia
+            begin
+              if FTipoNotas = 'E' then
+              begin
+                Tabela.Edit;
+                Tabela.FieldByName('emissao').asDateTime := DataServidor;
+              end
+              else
+              begin
+                Tabela.edit;
+                Tabela.FieldByName('data').asDateTime := DataServidor;
+              end;
+            end;
+
+            AtribuirDadosTabela;
+            AtualizarDataVencto;
+
+            if FOperacao = 'T' then
+            begin
+              result := GerarNFe;
+
+              if result then
+              begin
+
+                result := EnviarNFe;
+
+                if Result then
+                  result := ConsultarLote(false);
+
+                if result Then
+                  CompartilharXML(false);
+
+                if result and (Tabela.FieldByName('numprotocolonfe').AsString <> '') then
+                  ImprimirDanfe;
+
+              end;
+            end;
+
+            if result then
+            begin
+              if tabela.State = dsedit then
+                tabela.Post;
+            end
+            else
+            begin
+              if tabela.State = dsedit then
+                tabela.cancel;
+            end;
+
+          finally
+            Perpetrar([Tabela, TabelaProdutos, qryNotas_]);
+          end;
+        end;
+      end
+      else
+        ShowProcessando;
+    end;
+
+  end;
+end;
+
+procedure TdtmControleNotasFiscaisEletronicas.FecharTabelas;
+begin
+  qryNotas.close;
+  QtdeMarcados := 0;
+  TotalMarcados:= 0;
+end;
+
+function TdtmControleNotasFiscaisEletronicas.getQtdeNotas: Integer;
+begin
+  Result := qryNotas.RecordCount
+end;
+
+function TdtmControleNotasFiscaisEletronicas.getValorNotas: Currency;
+begin
+  Result := TotalizarValores[qryNotas, qryNotasvalornota, nil]
+end;
+
+function TdtmControleNotasFiscaisEletronicas.SelecionarNotas(TipoNFe, Operacao: Integer;
+  ChaveNota: Integer = 0; NotaVinculada: boolean = false): Boolean;
+begin
+{
+  if ZerarContadores then
+  begin
+    QtdeMarcados := 0;
+    TotalMarcados := 0;
+  end;
+}
+  FOperacao := '';
+
+  qryNotasPag.Close;
+  qryDadosFiscais.Close;
+
+  if TipoNFe = 0 then  // ENTRADA
+  begin
+
+    FTipoNotas := 'E';
+    qryNotasPag.ParamByName('ambiente').AsInteger := NFeAmbiente;
+    qryNotasPag.parambyname('ChaveNota').asInteger := ChaveNota;
+
+    qryNotasPag.MacroByName('OPERACAO').AsString := '';
+
+    case Operacao of
+
+      1: // TRANSMITIR NF-e
+      begin
+        FOperacao := 'RI';
+        qryNotasPag.MacroByName('OPERACAO').AsString := '  AND n.situacao = ''N''' +
+                                                        '  AND (n.numprotocolonfe IS NULL)';
+      end;
+
+      3:  // RECUPERAR E IMPRIMIR DANFE
+      begin
+        FOperacao := 'RI';
+        qryNotasPag.MacroByName('OPERACAO').AsString := '  AND n.situacao = ''N''';
+      end;
+
+      4:   //CANCELAR OU UNUTILIZAR
+      begin
+        FOperacao := 'CI';
+        qryNotasPag.MacroByName('OPERACAO').AsString := '  AND n.situacao = ''C'' AND n.modelodocto in (''55'',''65'') ' +
+                                                          ' AND ((n.numprotocolonfe IS NOT NULL AND n.numcancelamentonfe IS NULL) OR ' +
+                                                          '      (n.numprotocolonfe IS     NULL AND n.numinutilizacaonfe IS NULL ))';
+      end;
+    end;
+    qryNotasPag.Open;
+    Result := qryNotasPag.recordcount = 1;
+  end
+  else  // SAÍDA
+  begin
+    FTipoNotas := 'S';
+
+    qryDadosFiscais.ParamByName('NFeAmbiente').AsInteger := NFeAmbiente;
+    qryDadosFiscais.ParamByName('NFSeAmbiente').AsInteger := NFSeAmbiente;
+    qryDadosFiscais.ParamByName('CondicaoNFPSe').AsBoolean := (ftipoemissaonfeservico in [Eletronica_Betha_Sistemas, Florianopolis_SoftPlan, Palhoca_IPM]) and
+                                                               parsistema.EmissorNFPSe;
+
+    qryDadosFiscais.MacroByName('OPERACAO').AsString := '';
+
+    if NotaVinculada then
+      qryDadosFiscais.MacroByName('DOCTO').AsString   := ' and df.notavinculada and df.numero = (select n.dadofiscal from notas n where n.dadofiscalvinculado = :ChaveNota)'
+    else
+      qryDadosFiscais.MacroByName('DOCTO').AsString   := ' and df.numero = :ChaveNota';
+
+    qryDadosFiscais.paramByName('ChaveNota').asInteger := ChaveNota;
+
+    case Operacao of
+
+      1:  // TRANSMITIR NF-e
+      begin
+        FOperacao := 'RI';
+
+        qryDadosFiscais.MacroByName('OPERACAO').AsString := '  AND df.situacao = ''N'''+
+                                                            ' and case when :CondicaoNFPSe and                              '+
+                                                            '                (select count(*)                               '+
+                                                            '                 from servicosdadosfiscais sdf                 '+
+                                                            '                 where sdf.dadofiscal = df.numero) <> 0          '+
+                                                            '           then df.numprotocolonfse is null                '+
+                                                            '           else df.numprotocolonfe IS NULL '+
+                                                            '      end                                                      ';
+
+      end;
+
+      3:  // RECUPERAR E IMPRIMIR DANFE
+      begin
+        FOperacao := 'RI';
+        qryDadosFiscais.MacroByName('OPERACAO').AsString := '  AND df.situacao = ''N''';
+      end;
+
+      4:   //CANCELAR OU UNUTILIZAR
+      begin
+
+        FOperacao := 'CI';
+
+        qryDadosFiscais.MacroByName('OPERACAO').AsString := ' AND df.situacao = ''C''                                      '+
+                                                            ' AND df.modelodocto in (''55'',''65'',''99'')                  '+
+                                                            ' and case when :CondicaoNFPSe and                              '+
+                                                            '                (select count(*)                               '+
+                                                            '                 from servicosdadosfiscais sdf                 '+
+                                                            '                 where sdf.dadofiscal = df.numero)<>0 '+
+                                                            '                   and ((coalesce(df.statusnfse,0) in (0) and f.tipoemissaonfeservico=7) or '+
+                                                            '                        (coalesce(df.statusnfse,0) in (0,1) and f.tipoemissaonfeservico=8)) '+
+                                                            '           then true                    '+
+                                                            '           else ((df.numprotocolonfe IS NOT NULL AND df.numcancelamentonfe IS NULL) OR '+
+                                                            '                 (df.numprotocolonfe IS     NULL AND df.numinutilizacaonfe IS NULL )) '+
+                                                            '           end                                                 ';
+
+      end;
+      5:    //CONFIRMAR INUTILIZAÇÃO/CANCELAMENTO
+      begin
+        FOperacao := 'CC';
+      end;
+    end;
+    qryDadosFiscais.Open;
+    Result := qryDadosFiscais.RecordCount = 1;
+  end;
+end;
+
+procedure TdtmControleNotasFiscaisEletronicas.SelecionarRegistro;
+begin
+    MarcarRegistros(qryNotas,
+                    qryNotasselecionar,
+                    qryNotasvalornota,
+                    False,
+                    False)
+end;
+
+procedure TdtmControleNotasFiscaisEletronicas.ZMonitor1MonitorEvent(Sql,
+  Result: String);
+var
+ Listar : TStringList;
+ FileName: String;
+begin
+  inherited;
+  FileName := 'c:\teclux\nfe.sql';
+  Listar := tStringlist.create;
+  if fileexists(FileName) then
+    Listar.loadfromfile(FileName);
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile(FileName);
+  listar.free;
+end;
+
+procedure TdtmControleNotasFiscaisEletronicas.qryDadosFiscaisBeforePost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  {
+  if (qryDadosFiscaisnumprotocolonfe.AsString = '') then
+    qryDadosFiscaisdatahoraemissao.AsDateTime := DataHoraServidor;
+    }
+end;
+
+procedure TdtmControleNotasFiscaisEletronicas.qryNotasPagBeforePost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  {
+  if (qryNotasPagnumprotocolonfe.AsString = '') then
+    qryNotasPagdatahoraemissao.AsDateTime := DataHoraServidor;
+    }
+end;
+
+function TdtmControleNotasFiscaisEletronicas.TabelaReferenciada: TtecQuery;
+begin
+  if qryDadosFiscais.active then
+    qryNotaEntradaRef.ParamByName('dadofiscal').asinteger := qryDadosFiscaisnumero.asinteger
+  else
+    qryNotaEntradaRef.ParamByName('dadofiscal').asinteger := 0;
+
+  if qryNotasPag.Active then
+    qryNotaEntradaRef.ParamByName('codigonota').asinteger := qryNotasPagcodigo.asinteger
+  else
+    qryNotaEntradaRef.ParamByName('codigonota').asinteger := 0;
+
+  qryNotaEntradaRef.ParamByName('dadofiscalreferenciado').asinteger := Tabela.FieldByName('dadofiscalreferenciado').asinteger;
+
+  if tabela.findfield('codigonotareferenciado') <> nil then
+    qryNotaEntradaRef.ParamByName('codigonotareferenciado').asinteger := Tabela.FieldByName('codigonotareferenciado').AsInteger
+  else
+    qryNotaEntradaRef.ParamByName('codigonotareferenciado').asinteger := 0;
+
+  qryNotaEntradaRef.Close;
+  qryNotaEntradaRef.Open;
+
+  if qryNotaEntradaRef.recordcount <> 0 then
+    result := qryNotaEntradaRef
+  else
+    result := nil;
+end;
+
+function TdtmControleNotasFiscaisEletronicas.SelecionarGeral(DataInicial,
+  DataFinal, SerieNota, NumeroNota, Cliente: String): Boolean;
+
+begin
+  QtdeMarcados := 0;
+  TotalMarcados := 0;
+
+  qrynotas.close;
+
+  qryNotas.ParamByName('NFeAmbiente').AsInteger := NFeAmbiente;
+  qryNotas.ParamByName('NFSeAmbiente').AsInteger := NFSeAmbiente;
+  qryNotas.ParamByName('CondicaoNFPSe').AsBoolean := (ftipoemissaonfeservico in [Eletronica_Betha_Sistemas, Florianopolis_SoftPlan, Palhoca_IPM]) and
+                                                              parsistema.EmissorNFPSe;
+
+  qryNotas.MacroByName('FILIAL_ENTRADA').AsString   := ' AND n.filial = '+inttostr(FilialBase);
+
+  if trim(Cliente) <> '' then
+    qryNotas.MacroByName('FORNECEDOR_ENTRADA').AsString:= ' AND n.fornecedor = ' + Cliente
+  else
+    qryNotas.MacroByName('FORNECEDOR_ENTRADA').AsString:= '';
+
+  if trim(SerieNota) <> '' then
+    qryNotas.MacroByName('SERIE_ENTRADA').AsString     := ' AND n.serie = ''' + SerieNota + ''''
+  else
+    qryNotas.MacroByName('SERIE_ENTRADA').AsString     := '';
+
+  if trim(NumeroNota) <> '' then
+    qryNotas.MacroByName('NUMERO_ENTRADA').AsString    := ' AND n.numero = ' + NumeroNota
+  else
+    qryNotas.MacroByName('NUMERO_ENTRADA').AsString    := '';
+
+  if (trim(DataInicial) <> '') or (trim(DataFinal) <> '') then
+     qryNotas.MacroByName('DATA_ENTRADA').AsString      := MontarIntervaloData('n.emissao', DataInicial, DataFinal);
+
+  qryNotas.parambyname('selecionar').asboolean := false;
+
+
+  qryNotas.MacroByName('FILIAL_SAIDA').AsString   := 'and df.filialemissao = '+inttostr(FilialBase);
+
+  if trim(Cliente) <> '' then
+    qryNotas.MacroByName('CLIENTE_SAIDA').AsString := '  AND df.cliente = ' + Cliente
+  else
+    qryNotas.MacroByName('CLIENTE_SAIDA').AsString := '';
+
+  if trim(SerieNota) <> '' then
+    qryNotas.MacroByName('SERIE_SAIDA').AsString   := '  AND n.serie = ''' + SerieNota + ''''
+  else
+    qryNotas.MacroByName('SERIE_SAIDA').AsString   := '';
+
+  if trim(NumeroNota) <> '' then
+    qryNotas.MacroByName('NUMERO_SAIDA').AsString  := '  and df.nrdocumento = ' + NumeroNota
+  else
+    qryNotas.MacroByName('NUMERO_SAIDA').AsString  := '';
+
+  if (trim(DataInicial) <> '') or (trim(DataFinal) <> '') then
+    qryNotas.MacroByName('DATA_SAIDA').AsString      := MontarIntervaloData('df.data', DataInicial, DataFinal);
+
+  qryNotas.open;
+  Result := not qryNotas.IsEmpty;
+
+end;
+
+function TdtmControleNotasFiscaisEletronicas.EnviarGeral: boolean;
+var
+  vRegistroAtual : TBookMark;
+
+  function TipoNota: byte;
+  begin
+    if qryNotastiponfe.asString = 'ENTRADA' then result := 0
+    else result := 1;
+  end;
+
+  function Operacao: byte;
+  begin
+    if qryNotasoperacao.asString = 'CANCELAR' then result := 4
+    else
+    if qryNotasoperacao.asString = 'TRANSMITIR' then result := 1
+    else
+    if qryNotasoperacao.asString = 'INUTILIZAR' then result := 4
+    else
+    if qryNotasoperacao.asString = 'CONFIRMAÇÃO CANCELAMENTO' then result := 5
+
+  end;
+
+begin
+  result := true;
+  try
+    vRegistroAtual := qryNotas.getBookMark;
+
+    qryNotas.first;
+    while not qryNotas.eof do
+    begin
+      if qryNotasselecionar.AsBoolean then
+        if SelecionarNotas(TipoNota, Operacao, qryNotaschavenota.asInteger) then
+           EnviarNotasFiscais;
+      qryNotas.next;
+    end;
+  finally
+    qryNotas.gotobookmark(vRegistroAtual);
+    qryNotas.freeBookmark(vRegistroAtual);
+  end;
+end;
+
+procedure TdtmControleNotasFiscaisEletronicas.MarcarNotas(Marcando,
+  Todas: Boolean);
+begin
+  MarcarRegistros(qryNotas,
+                  qryNotasselecionar,
+                  qryNotasvalornota,
+                  Marcando,
+                  Todas);
+end;
+
+
+procedure TdtmControleNotasFiscaisEletronicas.AbrirTabelasDiversas;
+begin
+ if FTipoNotas = 'E' then
+ begin
+  RefazConsultaPorNome(qryProdutosNotasPag,['codigonota'],  [Tabela.FieldByName('codigo').AsInteger]);
+  RefazConsultaPorNome(qryVenctosNotasPag, ['documentopag'],[Tabela.FieldByName('documentopag').AsInteger]);
+  RefazConsultaPorNome(qryVolumesNotasPag, ['notapag'],     [Tabela.FieldByName('codigo').AsInteger]);
+  RefazConsultaPorNome(qryLacresNotasPag,  ['notapag'],     [Tabela.FieldByName('codigo').AsInteger]);
+  RefazConsultaPorNome(qryImportacoes,     ['numero'],      [Tabela.FieldByName('ndi').AsString]);
+  RefazConsultaPorNome(qryAdicoes,         ['importacao'],  [qryImportacoesnumero.AsString]);
+//  RefazConsultaPorNome(qryDadosFiscaisRef, ['dadofiscalreferenciado'],  [Tabela.FieldByName('dadofiscalreferenciado').AsInteger]);
+
+  qryTotaisRecebimentosFrentedeCaixa.close;
+  qryTotaisRecebimentos.close;
+
+ end
+ else
+ begin
+  RefazConsultaPorNome(qryProdutosDadosFiscais, ['dadofiscal'],[Tabela.FieldByName('numero').AsInteger]);
+  RefazConsultaPorNome(qryServicosDadosFiscais, ['dadofiscal'],[Tabela.FieldByName('numero').AsInteger]);
+
+  RefazConsultaPorNome(qryVenctosDadosFiscais, ['dadofiscal'],[Tabela.FieldByName('numero').AsInteger]);
+  RefazConsultaPorNome(qryVolumesDadosFiscais, ['dadofiscal'],[Tabela.FieldByName('numero').AsInteger]);
+  RefazConsultaPorNome(qryLacresDadosFiscais, ['dadofiscal'],[Tabela.FieldByName('numero').AsInteger]);
+  RefazConsultaPorNome(qryTotaisRecebimentosFrentedeCaixa, ['dadofiscal'],[Tabela.FieldByName('numero').AsInteger]);
+  RefazConsultaPorNome(qryTotaisRecebimentos, ['dadofiscal'],[Tabela.FieldByName('numero').AsInteger]);
+
+  RefazConsultaPorNome(qrycupons,              ['dadofiscal'],[Tabela.FieldByName('dadofiscalvinculado').AsInteger]);
+//  RefazConsultaPorNome(qryDadosFiscaisRef, ['dadofiscalreferenciado'],  [Tabela.FieldByName('dadofiscalreferenciado').AsInteger]);
+//  RefazConsultaPorNome(qryNotaEntradaRef, ['codigonotareferenciado'],  [Tabela.FieldByName('codigonotareferenciado').AsInteger]);
+
+
+  if ParSistema.UsaProdutoComposto then
+    RefazConsultaPorNome(qryProdutosDadosFiscaisCompostos,['dadofiscal'],[Tabela.FieldByName('numero').AsInteger]);
+
+ end;
+end;
+
+function TdtmControleNotasFiscaisEletronicas.TotaisRecebimentos: TtecQuery;
+begin
+  if qryTotaisRecebimentosFrentedeCaixa.active and
+    (qryTotaisRecebimentosFrentedeCaixa.recordcount <> 0) then
+    result := qryTotaisRecebimentosFrentedeCaixa
+  else
+  if qryTotaisRecebimentos.active and
+    (qryTotaisRecebimentos.recordcount <> 0) then
+      result := qryTotaisRecebimentos
+  else
+    result := nil;    
+
+end;
+
+destructor TdtmControleNotasFiscaisEletronicas.Destroy;
+begin
+  inherited;
+end;
+
+function TdtmControleNotasFiscaisEletronicas.PreencherPropriedadesNFE(
+  regerando: boolean): Boolean;
+begin
+  result := true;
+
+  if regerando then
+  begin
+    NFe.Emit_Documento := tabela.fieldbyname('cnpjfilialemitente').asstring;
+    NFe.Emit_Nome      := tabela.fieldbyname('razaofilialemitente').AsString;
+    NFe.Emit_Rua       := tabela.fieldbyname('ruafilialemitente').AsString;
+    NFe.Emit_Nro       := tabela.fieldbyname('numerofilialemitente').AsString;
+    NFe.Emit_Compl     := tabela.fieldbyname('complementofilialemitente').AsString;
+    NFe.Emit_Bairro    := tabela.fieldbyname('nomebairrofilialemitente').asstring;
+    NFe.Emit_CodMun    := tabela.fieldbyname('cidadeibgefilialemitente').AsString;
+    NFe.Emit_Mun       := tabela.fieldbyname('nomecidadefilialemitente').AsString;
+    NFe.Emit_UF        := tabela.fieldbyname('estadofilialemitente').AsString;
+    NFe.Emit_CEP       := tabela.fieldbyname('cepfilialemitente').AsString;
+//    NFe.Emit_CodPais   := 1058;
+//    NFe.Emit_Pais      := 'Brasil';
+    NFe.Emit_Fone      := tabela.fieldbyname('fonedddfilialemitente').AsString+tabela.fieldbyname('fonenumerofilialemitente').AsString;
+    NFe.Emit_IE        := tabela.fieldbyname('inscricaoestadualfilialemitente').AsString;
+//    NFe.Emit_IEST      := '';
+    NFe.Emit_IM        := tabela.fieldbyname('inscricaomunicipalfilialemitente').AsString;
+    NFe.Emit_CNAE      := tabela.fieldbyname('cnaefiscalfilialemitente').asstring;
+    NFe.Emit_CRT       := tabela.fieldbyname('RegimeTributario').AsInteger;
+  end
+  else
+  begin
+    if FilialBase = tabela.fieldbyname('filialemissao').asinteger then
+    begin
+      NFe.Emit_Documento := CNPJFilialBase;
+      NFe.Emit_Nome      := RazaoFilialBase;
+      NFe.Emit_Rua       := RuaSemNumeroFilialBase;
+      NFe.Emit_Nro       := NumeroFilialBase;
+      NFe.Emit_Compl     := ComplementoFilialBase;
+      NFe.Emit_Bairro    := BairroFilialBase;
+      NFe.Emit_CodMun    := CodigoCidadeIBGEFilialBase;
+      NFe.Emit_Mun       := CidadeFilialBase;
+      NFe.Emit_UF        := EstadoFilialBase;
+      NFe.Emit_CEP       := CEPFilialBase;
+  //    NFe.Emit_CodPais   := 1058;
+  //    NFe.Emit_Pais      := 'Brasil';
+      NFe.Emit_Fone      := DDDFilialBase+FoneFilialBase;
+      NFe.Emit_IE        := InscricaoEstadualFilialBase;
+  //    NFe.Emit_IEST      := '';
+      NFe.Emit_IM        := InscricaoMunicipalFilialBase;
+      NFe.Emit_CNAE      := CNAEFiscalFilialBase;
+      NFe.Emit_CRT       := tabela.fieldbyname('RegimeTributario').AsInteger;
+    end
+    else
+    begin
+      result := false;
+      MensagemErro(format('Filial de emissão : %s' + chr(13) +
+                          'Filial base: %s' + chr(13) +
+                          'Para a emissão da NFE, a filial base deve ser igual a filial que gerou a nota fiscal. Acesse o sistema com a filial que gerou a nota fiscal.',
+                          [tabela.fieldbyname('filialemissao').asString,
+                           inttostr(filialbase)]));
+    end;
+  end;
+
+  if result then
+  begin
+    if FTipoNotas = 'E' then
+    begin
+
+      AbrirTabelasDiversas;
+
+    // DESTINATARIO
+      NFe.Dest_TipoPessoa := qryNotaspagpessoatipo.AsString;
+      NFe.Dest_Documento := qryNotasPagcnpj.AsString;
+      NFe.Dest_Nome      := qryNotasPagnome.AsString;
+      NFe.Dest_Rua       := qryNotasPagrua.AsString;
+      NFe.Dest_Nro       := qryNotasPagendnumero.AsString;
+      NFe.Dest_Compl     := qryNotasPagendcomplemento.AsString;
+      NFe.Dest_Bairro    := qryNotasPagnomebairro.AsString;
+      NFe.Dest_CodMun    := qryNotasPagcidadeibge.AsString;
+      NFe.Dest_Mun       := qryNotasPagnomecidade.AsString;
+      NFe.Dest_UF        := qryNotasPagestado.AsString;
+      NFe.Dest_CEP       := qryNotasPagcep.AsString;
+      NFe.Dest_CodPais   := qryNotasPagpais.AsInteger;
+      NFe.Dest_Pais      := qryNotasPagnomepais.AsString;
+      NFe.Dest_Fone      := qryNotasPagfoneddd.AsString+qryNotasPagfonenumero.AsString;
+      NFe.Dest_IE        := qryNotasPaginscricaoestadual.AsString;
+//      NFe.Dest_ISUF      := qryNotasPagiesubsttributario.AsString;
+      NFe.Dest_ISUF      := qryNotasPagsuframa.AsString;
+
+    end
+    else
+    begin
+      AbrirTabelasDiversas;
+
+      // DESTINATARIO
+      NFe.Dest_TipoPessoa := qryDadosFiscaispessoatipo.AsString;
+      NFe.Dest_Documento := qryDadosFiscaispessoanumero.AsString;
+      NFe.Dest_Nome      := qryDadosFiscaisnome.AsString;
+      NFe.Dest_Rua       := qryDadosFiscaisrua.AsString;
+      NFe.Dest_Nro       := qryDadosFiscaisendnumero.AsString;
+      NFe.Dest_Compl     := qryDadosFiscaisendcomplemento.AsString;
+      NFe.Dest_Bairro    := qryDadosFiscaisnomebairro.AsString;
+      NFe.Dest_CodMun    := qryDadosFiscaiscidadeibge.AsString;
+      NFe.Dest_Mun       := qryDadosFiscaisnomecidade.AsString;
+      NFe.Dest_UF        := qryDadosFiscaisestado.AsString;
+      NFe.Dest_CEP       := qryDadosFiscaiscep.AsString;
+      NFe.Dest_CodPais   := qryDadosFiscaispais.AsInteger;
+      NFe.Dest_Pais      := qryDadosFiscaisnomepais.AsString;
+      NFe.Dest_Fone      := qryDadosFiscaisfoneddd.AsString+qryDadosFiscaisfonenumero.AsString;
+      NFe.Dest_IE        := qryDadosFiscaisdocumento.AsString;
+//      NFe.Dest_ISUF      := qryDadosFiscaisiesubsttributario.AsString;
+      NFe.Dest_ISUF      := qryDadosFiscaissuframa.AsString;
+
+      // ENTREGA
+      NFe.Entrega_Documento:= qryDadosFiscaislocalentrega_cnpj.AsString;
+      NFe.Entrega_Rua      := qryDadosFiscaislocalentrega_rua.AsString;
+      NFe.Entrega_Nro      := qryDadosFiscaislocalentrega_numero.AsString;
+      NFe.Entrega_Compl    := qryDadosFiscaislocalentrega_complemento.AsString;
+      NFe.Entrega_Bairro   := qryDadosFiscaislocalentrega_nomebairro.AsString;
+      NFe.Entrega_CodMun   := qryDadosFiscaislocalentrega_cidadeibge.AsString;
+      NFe.Entrega_Mun      := qryDadosFiscaislocalentrega_nomecidade.AsString;
+      NFe.Entrega_UF       := qryDadosFiscaislocalentrega_estado.AsString;
+
+    end;
+  end;
+
+end;
+
+end.

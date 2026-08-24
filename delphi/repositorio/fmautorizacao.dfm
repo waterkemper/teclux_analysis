@@ -5,6 +5,7 @@ inherited frmAutorizacao: TfrmAutorizacao
   Constraints.MaxWidth = 359
   Constraints.MinHeight = 103
   Constraints.MinWidth = 343
+  Position = poScreenCenter
   Visible = False
   PixelsPerInch = 96
   TextHeight = 16

@@ -223,7 +223,6 @@ type
     qryProcuraMarketPlace: TtecQuery;
     dsrProcuraMarketPlace: TtecDataSource;
     qryConsultaMarketPlace: TtecQuery;
-    qryConsultaMarketPlacesublocalizacao: TStringField;
     qryProcuraMarketPlacecodigo: TIntegerField;
     qryProcuraMarketPlacedescricao: TStringField;
     cdsMarketplacefilial: TIntegerField;
@@ -245,6 +244,8 @@ type
     qryproduto_marketplace: TtecQuery;
     cdsMarketplacevendedor: TIntegerField;
     cdsMarketplaceperccomissao_recalculado: TCurrencyField;
+    qryConsultaMarketPlacecodigo: TIntegerField;
+    qryConsultaMarketPlacedescricao: TStringField;
     procedure qryManutencaoPrecoAfterInsert(DataSet: TDataSet);
     procedure qryManutencaoPrecoAfterEdit(DataSet: TDataSet);
     procedure DataModuleDestroy(Sender: TObject);

@@ -1,0 +1,261 @@
+unit fmRelatorioVendasporSetores;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmrelatoriopadrao, ExtCtrls, Buttons, ToolWin, ComCtrls,
+  frintervalodatas, biblio, ctconstantes, StdCtrls, CheckLst,
+  frlistamarcasprodutos, frlistafiliais, frselecaoaleatoria, db,
+  frConsultaCodigo, cpdbfindcontrols, frordenacao, Grids, ValEdit,
+  frordenacao_cr;
+
+type
+  TfrmRelatorioVendasporSetores = class(TFrmRelatorioPadrao)
+    fraIntervaloDatas: TfraIntervaloDatas;
+    gbxSetoresVenda: TGroupBox;
+    sbnMarcarGrupos: TSpeedButton;
+    sbnDesmarcarGrupos: TSpeedButton;
+    clbSetoresdeVenda: TCheckListBox;
+    gbxGrupos: TGroupBox;
+    SpeedButton1: TSpeedButton;
+    SpeedButton2: TSpeedButton;
+    clbGrupos: TCheckListBox;
+    gbxClasses: TGroupBox;
+    sbnMarcarClasses: TSpeedButton;
+    sbnDesmarcarClasses: TSpeedButton;
+    clbClasses: TCheckListBox;
+    fraListamarcasProdutos1: TfraListamarcasProdutos;
+    fraListaFiliais1: TfraListaFiliais;
+    gbxCaixas: TGroupBox;
+    fraSelecaoAleatoriaFuncionarios: TfraSelecaoAleatoria;
+    rgpListaCasamento: TRadioGroup;
+    fraOrdenacao_cr1: TfraOrdenacao_cr;
+    procedure fraSelecaoAleatoriaFuncionariosqrySelecaoAleatoriaAfterOpen(
+      DataSet: TDataSet);
+    procedure fraSelecaoAleatoriaFuncionariossbnProcuraClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaFuncionariosdbgSelecaoAleatoriaDblClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaFuncionariosdbgSelecaoAleatoriaKeyDown(
+      Sender: TObject; var Key: Word; Shift: TShiftState);
+  private
+    { Private declarations }
+    function  ValidarCamposSelecao: Boolean;
+    procedure AtribuirDadosFuncionarios;
+    procedure AcionarPesquisaFuncionarios;
+    procedure InternoImpressao; override;
+
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+
+  end;
+
+var
+  frmRelatorioVendasporSetores: TfrmRelatorioVendasporSetores;
+
+implementation
+
+uses dmRelatorioVendasporSetores, fmajuda;
+
+{$R *.dfm}
+
+{ TfrmRelatorioVendasporSetores }
+
+constructor TfrmRelatorioVendasporSetores.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmRelatorioVendasporSetores := TdtmRelatorioVendasporSetores.Create(Self);
+  dtmRelatorioVendasporSetores.Abre(ctTabelas);
+  fraOrdenacao_cr1.qryLista.Open;
+  fraOrdenacao_cr1.VertScrollBar.Visible := false;
+
+  CarregarConfiguracoesFormulario;
+
+  fraIntervaloDatas.edtDataInicial.Text := datetostr(Date());
+  fraIntervaloDatas.edtDataFinal.Text := datetostr(Date());
+  ObterLista(dtmRelatorioVendasporSetores.ListaSetores, clbSetoresdeVenda);
+  ObterLista(dtmRelatorioVendasporSetores.ListaGrupos, clbGrupos);
+  ObterLista(dtmRelatorioVendasporSetores.ListaClasses, clbClasses);
+
+  fraSelecaoAleatoriaFuncionarios.CampoParaLista := 'codigo';
+  fraSelecaoAleatoriaFuncionarios.qrySelecaoAleatoria.Open;
+  with fraSelecaoAleatoriaFuncionarios do
+  begin
+    ConsultaSelecaoAleatoria := TfraConsultaCodigo.Create(self);
+    ConsultaSelecaoAleatoria.Name := 'fraConsultaSelecaoAleatoriaFuncionarios';
+    ConsultaSelecaoAleatoria.edfCodigo.MaxLength := 6;
+    ConsultaSelecaoAleatoria.edfCodigo.DataSource := dsrSelecaoAleatoria;
+    ConsultaSelecaoAleatoria.edfCodigo.DataField := 'codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.Operacao := opATRIBUICAO;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupSource := ConsultaSelecaoAleatoria.dsrProcuraUsuarios;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupQueryParameter := 'Codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.LookupField := 'Codigo';
+    ConsultaSelecaoAleatoria.AbrirTabelaProcura := false;
+    ConsultaSelecaoAleatoria.naofechartabelapesquisa := true;
+
+    ConsultaSelecaoAleatoria.TipoPesquisa := pesUSUARIOS;
+    ConsultaSelecaoAleatoria.OnFound := AtribuirDadosFuncionarios;
+  end;
+
+
+
+
+end;
+
+destructor TfrmRelatorioVendasporSetores.Destroy;
+begin
+  inherited;
+  frmRelatorioVendasporSetores := nil;
+end;
+
+procedure TfrmRelatorioVendasporSetores.InternoImpressao;
+begin
+  inherited;
+  if ValidarCamposSelecao then
+  begin
+    dtmRelatorioVendasporSetores.qryLista := fraOrdenacao_cr1.qrylista;
+    dtmRelatorioVendasporSetores.ImprimirRelatorio(fraIntervaloDatas.edtDataInicial.text,
+                                                  fraIntervaloDatas.edtDataFinal.text,
+                                                  fraListaFiliais1.ListaSelecionada,
+                                                  dtmRelatorioVendasporSetores.MontarListaSetores(clbSetoresdeVenda),
+                                                  fraSelecaoAleatoriaFuncionarios.StringSelecionada,
+                                                  dtmRelatorioVendasporSetores.MontarListaGrupos(clbGrupos),
+                                                  dtmRelatorioVendasporSetores.MontarListaClasses(clbClasses),
+                                                  fraListamarcasProdutos1.ListaSelecionada,
+                                                  rgpListaCasamento.ItemIndex
+                                                  );
+  end;
+end;
+
+function TfrmRelatorioVendasporSetores.ValidarCamposSelecao: Boolean;
+begin
+  Result := (fraIntervaloDatas.edtDataInicial.DataValida and fraIntervaloDatas.edtDataFinal.DataValida);
+  if Result then
+  begin
+    if (not dataembranco(fraIntervaloDatas.edtDataInicial.text) and not dataembranco(fraIntervaloDatas.edtDataFinal.text)) then
+      Result:=StrToDate(fraIntervaloDatas.edtDataInicial.Text) <= StrToDate(fraIntervaloDatas.edtDataFinal.Text);
+
+    if result then
+    begin
+      Result:=(not dataembranco(fraIntervaloDatas.edtDataInicial.text) or not dataembranco(fraIntervaloDatas.edtDataFinal.text));
+      if not Result then
+      begin
+        MensagemAviso(ctDATAINVALIDA);
+        fraIntervaloDatas.edtDataInicial.SetFocus;
+      end;
+    end
+    else
+    begin
+      MensagemAviso(ctDTINICIALMAIORDTFINAL);
+      fraIntervaloDatas.edtDataInicial.SetFocus;
+    end;
+  end;
+end;
+
+procedure TfrmRelatorioVendasporSetores.fraSelecaoAleatoriaFuncionariosqrySelecaoAleatoriaAfterOpen(
+  DataSet: TDataSet);
+var nc: integer;
+begin
+  inherited;
+  with fraSelecaoAleatoriaFuncionarios do
+  begin
+    qrySelecaoAleatoria.FieldByName('codigo').DisplayLabel := 'CÓDIGO';
+    qrySelecaoAleatoria.FieldByName('codigo').ReadOnly := False;
+
+    qrySelecaoAleatoria.FieldByName('nome').DisplayLabel := 'NOME DO VENDEDOR';
+    qrySelecaoAleatoria.FieldByName('nome').ReadOnly := true;
+
+    qrySelecaoAleatoria.Append;
+    qrySelecaoAleatoria.Post;
+
+    with dbgSelecaoAleatoria do
+    for nc:= 0 to 1 do with Columns[nc].Title do
+    begin
+        Alignment:= taCenter;
+        Font.Name:= 'helvetica';
+        Font.Height:= -9;
+    end;
+  end;
+
+end;
+
+procedure TfrmRelatorioVendasporSetores.fraSelecaoAleatoriaFuncionariossbnProcuraClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarPesquisaFuncionarios;
+end;
+
+procedure TfrmRelatorioVendasporSetores.AcionarPesquisaFuncionarios;
+begin
+  with fraSelecaoAleatoriaFuncionarios do
+  begin
+    dbgSelecaoAleatoria.SetFocus;
+    ConsultaSelecaoAleatoria.CtrlOn := True;
+    ConsultaSelecaoAleatoria.InternoPesquisar(ctUSUARIOS);
+    dbgSelecaoAleatoria.SetFocus;
+    dbgSelecaoAleatoria.SelectedIndex :=  0;
+  end;
+end;
+
+procedure TfrmRelatorioVendasporSetores.AtribuirDadosFuncionarios;
+begin
+  with fraSelecaoAleatoriaFuncionarios do
+  begin
+    qrySelecaoAleatoria.Edit;
+    qrySelecaoAleatoria.FieldByName('codigo').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraUsuarioscodigo.AsString;
+
+    qrySelecaoAleatoria.FieldByName('nome').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraUsuariosnome.AsString;
+
+    qrySelecaoAleatoria.Post;
+  end;
+end;
+
+procedure TfrmRelatorioVendasporSetores.fraSelecaoAleatoriaFuncionariosdbgSelecaoAleatoriaDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarPesquisaFuncionarios;
+
+end;
+
+procedure TfrmRelatorioVendasporSetores.fraSelecaoAleatoriaFuncionariosdbgSelecaoAleatoriaKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      VK_F9     : begin
+                    fraSelecaoAleatoriaFuncionarios.ConsultaSelecaoAleatoria.CtrlOn := Shift = [ssCtrl];
+                    if (Shift = []) or fraSelecaoAleatoriaFuncionarios.ConsultaSelecaoAleatoria.CtrlOn then
+                      AcionarPesquisaFuncionarios
+                  end;
+    end;
+  end
+  else
+  case Key of
+    VK_Return: if fraSelecaoAleatoriaFuncionarios.dbgSelecaoAleatoria.SelectedIndex = 0  then
+               begin
+                 fraSelecaoAleatoriaFuncionarios.ConsultaSelecaoAleatoria.edfCodigo.DoExit;
+                 if not fraSelecaoAleatoriaFuncionarios.ConsultaSelecaoAleatoria.qryProcuraUsuarios.IsEmpty then
+                    AtribuirDadosFuncionarios
+                 else
+                 begin
+                   key := 0;
+                   fraSelecaoAleatoriaFuncionarios.dbgSelecaoAleatoria.SelectedIndex := 0;
+                   fraSelecaoAleatoriaFuncionarios.dbgSelecaoAleatoria.SetFocus;
+                 end;
+               end;
+  end;
+  inherited;
+
+end;
+
+end.

@@ -1,0 +1,677 @@
+unit dmcadastroequipamentos;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery, dmtecsoft, cpdatasource,
+  ctconstantes, biblio, clparametrossistema, FR_DSet, FR_DBSet, FR_Class,
+  fmpreviewpadrao, ZTransact, ACBrBase, ACBrDFe, ACBrNFSe, dmDicionarioDados;
+
+type
+
+  TdtmCadastroEquipamentos = class(TdtmBasico)
+    qryEquipamentos: TtecQuery;
+    dsrEquipamentos: TtecDataSource;
+    qryConsultaEquipamentos: TtecQuery;
+    spcEquipamentosProximoCodigo: TtecQuery;
+    qryEquipamentosDescricao: TStringField;
+    qryConsultaEquipamentosDescricao: TStringField;
+    qryEquipamentosReferencia: TStringField;
+    qryConsultaEquipamentosReferencia: TStringField;
+    qryEquipamentosMarca: TIntegerField;
+    qryEquipamentosModelo: TStringField;
+    qryEquipamentosOpcionais: TStringField;
+    qryProcuraMarca: TtecQuery;
+    dsrProcuraMarca: TtecDataSource;
+    qryProcuraMarcaCodigo: TIntegerField;
+    qryProcuraMarcaDescricao: TStringField;
+    qryConsultaMarcas: TtecQuery;
+    qryConsultaMarcasDescricao: TStringField;
+    qryConsultaMarcasCodigo: TIntegerField;
+    qryEquipamentosAno: TIntegerField;
+    qryConsultaEquipamentosAno: TIntegerField;
+    qryEquipamentosCliente: TtecQuery;
+    qryEquipamentosClienteCliente: TIntegerField;
+    qryEquipamentosClienteDescricao: TStringField;
+    qryEquipamentosClienteReferencia: TStringField;
+    qryEquipamentosClienteModelo: TStringField;
+    qryEquipamentosClienteDescricaoMarca: TStringField;
+    qryEquipamentosClienteAno: TIntegerField;
+    qryEquipamentosClienteOpcionais: TStringField;
+    dsrEquipamentosClientes: TtecDataSource;
+    qryProdutosEquipamentos: TtecQuery;
+    dsrProdutosEquipamentos: TtecDataSource;
+    qryProdutosEquipamentosProduto: TLargeintField;
+    qryProdutosEquipamentosQuantidade: TFloatField;
+    qryProdutosEquipamentosNumero: TIntegerField;
+    qryProdutosEquipamentosDescricao: TStringField;
+    qryProdutosEquipamentosLinha: TStringField;
+    qryProdutosEquipamentosColuna: TStringField;
+    qryProdutosEquipamentosValorGrade1: TStringField;
+    qryProdutosEquipamentosValorGrade2: TStringField;
+    qryProcuraProduto: TtecQuery;
+    dsrProcuraProduto: TtecDataSource;
+    qryProcuraProdutoCodigo: TLargeintField;
+    qryProcuraProdutoDescricao: TStringField;
+    qryProcuraProdutoValorGrade1: TStringField;
+    qryProcuraProdutoValorGrade2: TStringField;
+    qryProcuraProdutoDescricaoLC: TStringField;
+    qryConsultaProdutos: TtecQuery;
+    qryConsultaProdutosDescricao: TStringField;
+    qryConsultaProdutosValorGrade1: TStringField;
+    qryConsultaProdutosValorGrade2: TStringField;
+    qryConsultaProdutosReferencia: TStringField;
+    qryConsultaProdutosCodigo: TLargeintField;
+    qryProdutosEquipamentosImprimir: TBooleanField;
+    fdsProdutosEquipamento: TfrDBDataSet;
+    frpEquipamento: TfrReport;
+    fdsEquipamento: TfrDBDataSet;
+    qryProdutosCompostos: TtecQuery;
+    qryProdutosCompostoscomposto: TLargeintField;
+    qryProdutosCompostoscomponente: TLargeintField;
+    qryProdutosCompostosquantidade: TFloatField;
+    qryProdutosCompostosdescricao: TStringField;
+    qryProdutosCompostosunidade: TStringField;
+    fdsProdutosCompostos: TfrDBDataSet;
+    qryProdutosCompostosvalorgrade1: TStringField;
+    qryProdutosCompostosvalorgrade2: TStringField;
+    qryConsultaProdutosCodigoBarras: TStringField;
+    qryEquipamentosCodigo: TStringField;
+    qryConsultaEquipamentosCodigo: TStringField;
+    spcEquipamentosProximoCodigoCodigo: TStringField;
+    qryEquipamentosClienteEquipamento: TStringField;
+    qryProdutosEquipamentosEquipamento: TStringField;
+    qryEquipamentoschecklist: TIntegerField;
+    procedure qryProdutosEquipamentosAfterDelete(DataSet: TDataSet);
+    procedure qryProdutosEquipamentosAfterScroll(DataSet: TDataSet);
+    procedure qryConsultaProdutosAfterOpen(DataSet: TDataSet);
+    procedure dsrProdutosEquipamentosDataChange(Sender: TObject;
+      Field: TField);
+    procedure qryProcuraProdutoCalcFields(DataSet: TDataSet);
+    procedure frpEquipamentoBeforePrint(Memo: TStringList; View: TfrView);
+    procedure qryProdutosEquipamentosFilterRecord(DataSet: TDataSet;
+      var Accept: Boolean);
+    procedure qryEquipamentosAfterScroll(DataSet: TDataSet);
+    procedure qryProdutosEquipamentosAfterClose(DataSet: TDataSet);
+    procedure qryProcuraProdutoBeforeOpen(DataSet: TDataSet);
+  private
+    FCliente: Integer;
+    FImprimindo: Boolean;
+    qryClientes: TtecQuery;
+    FOnScrollLinhaColunaGrade: TNotifyEvent;
+    function GetTabelaProdutosEquipamentos: TtecQuery;
+    function getColunaGrade: String;
+    function getLinhaGrade: String;
+    function GetTabelaConsultaProdutos: TtecQuery;
+    function GetRegistroSelecionado: Boolean;
+  protected
+    function GetTabelaConsultaEquipamentos: TtecQuery;
+    function GetTabelaConsultaMarcas: TtecQuery;
+    function GetTabelaEquipamentos: TtecQuery;
+  public
+    constructor Create(AOwner: TComponent); override;
+    procedure AbrirTabelas(TipoPesquisa: TtecCadastroEquipamentos);
+    procedure FecharTabelas(TipoPesquisa: TtecCadastroEquipamentos);
+    procedure Selecionar(TipoPesquisa: TtecCadastroEquipamentos);
+    function  ExcluirEquipamento: Boolean;
+    function  ExisteEquipamento(campo, codigo: string): boolean;
+    function  ExisteMarca(campo, codigo: String): Boolean;
+    function  ExisteProduto(campo, codigo: String): Boolean;
+    function  GravarEquipamento: Boolean;
+    function  IncluirEquipamento(Editar: Boolean): Boolean;
+    function  IncluirEquipamentosCliente(Editar: Boolean): Boolean;
+    function  ExcluirEquipamentosCliente: Boolean;
+    function  IncluirProdutoEquipamento(Editar: Boolean): Boolean;
+    function  ProcurarRegistroProdutoEquipamentos(Produto: Integer): Boolean;
+    function  CancelarProdutoEquipamento: Boolean;
+    function  GravarProdutoEquipamento: Boolean;
+    function  ExcluirProdutoEquipamento: Boolean;
+    procedure FechaEquipamentosCliente;
+    procedure RefazConsultaEquipamentos;
+    procedure RefazConsultaEquipamentosClientes(cliente: Integer);
+    procedure Imprimir;
+    procedure SelecionarRegistroImpressao;
+    property  TabelaEquipamentos : TtecQuery read GetTabelaEquipamentos;
+    property  TabelaConsultaEquipamentos : TtecQuery read GetTabelaConsultaEquipamentos;
+    property  TabelaConsultaMarcas: TtecQuery read GetTabelaConsultaMarcas;
+    property  TabelaConsultaProdutos: TtecQuery read GetTabelaConsultaProdutos;
+    property  Cliente: Integer read FCliente write FCliente;
+    property  TabelaClientes: TtecQuery read qryClientes write qryClientes;
+    property  TabelaProdutosEquipamentos: TtecQuery read GetTabelaProdutosEquipamentos;
+    property  OnScrollLinhaColunaGrade    : TNotifyEvent read FOnScrollLinhaColunaGrade write FOnScrollLinhaColunaGrade;
+    property  LinhaGrade: String read getLinhaGrade;
+    property  ColunaGrade: String read getColunaGrade;
+    property  RegistroSelecionado: Boolean read GetRegistroSelecionado;
+  end;
+
+{
+var
+  dtmCadastroEquipamentos: TdtmCadastroEquipamentos;
+}
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmCadastroCodigosFiscais }
+
+procedure TdtmCadastroEquipamentos.AbrirTabelas(TipoPesquisa: TtecCadastroEquipamentos);
+begin
+  case TipoPesquisa of
+    ceqEQUIPAMENTO: begin
+                        if (FCliente>0) then
+                          qryConsultaEquipamentos.Sql[05]:='WHERE codigo NOT IN (SELECT equipamento FROM equipamentosclientes)';
+                        Abre(ctConsultaEquipamentos);
+                    end;
+          ceqMARCA: Abre(ctConsultaMarcas);
+        ceqPRODUTO: begin
+                      qryConsultaProdutos.Sql[7] := 'where false';
+                      Abre(ctConsultaProdutos);
+                    end;
+  end;
+end;
+
+constructor TdtmCadastroEquipamentos.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryEquipamentos.Tag         := ctTabelas;
+  qryProcuraMarca.Tag         := ctTabelas;
+//  qryProdutosEquipamentos.Tag := ctTabelas;
+  qryProcuraProduto.Tag         := ctTabelas;
+  qryConsultaEquipamentos.Tag := ctConsultaEquipamentos;
+  qryConsultaMarcas.Tag       := ctConsultaMarcas;
+  qryConsultaProdutos.Tag     := ctConsultaProdutos;
+  qryProdutosEquipamentosquantidade.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  FCliente:=0;
+end;
+
+function TdtmCadastroEquipamentos.ExcluirEquipamento: Boolean;
+begin
+  if (FCliente>0) then
+  begin
+    if not qryEquipamentosCliente.IsEmpty then
+         qryEquipamentosCliente.Delete
+    else qryEquipamentosCliente.Cancel;
+    Perpetrar([qryEquipamentosCliente]);
+  end;
+  qryEquipamentos.Delete;
+  Perpetrar([qryEquipamentos, qryProdutosEquipamentos]);
+  Result := True;
+end;
+
+function TdtmCadastroEquipamentos.ExcluirEquipamentosCliente: Boolean;
+begin
+  Result:= False;
+  if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o EQUIPAMENTO DO CLIENTE'])) = smbOk then begin
+    if not qryEquipamentosCliente.IsEmpty then
+    begin
+         qryEquipamentosCliente.Delete;
+         Perpetrar([qryEquipamentosCliente]);
+    end
+    else qryEquipamentosCliente.Cancel;
+    Result:= True;
+  end;
+end;
+
+function TdtmCadastroEquipamentos.ExisteEquipamento(campo, codigo: string): boolean;
+begin
+  Result := ExisteCodigo(qryConsultaEquipamentos, campo, codigo);
+end;
+
+function TdtmCadastroEquipamentos.ExisteMarca(campo, codigo: String): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaMarcas, campo, codigo);
+end;
+
+procedure TdtmCadastroEquipamentos.FechaEquipamentosCliente;
+begin
+  qryEquipamentosCliente.Close;
+end;
+
+procedure TdtmCadastroEquipamentos.FecharTabelas(TipoPesquisa: TtecCadastroEquipamentos);
+begin
+  case TipoPesquisa of
+    ceqEQUIPAMENTO: Fecha(ctConsultaEquipamentos);
+          ceqMARCA: Fecha(ctConsultaMarcas);
+        ceqPRODUTO: Fecha(ctConsultaProdutos);
+  end;
+end;
+
+function TdtmCadastroEquipamentos.GetTabelaConsultaEquipamentos: TtecQuery;
+begin
+  Result := qryConsultaEquipamentos
+end;
+
+function TdtmCadastroEquipamentos.GetTabelaConsultaMarcas: TtecQuery;
+begin
+  Result:= qryConsultaMarcas;
+end;
+
+function TdtmCadastroEquipamentos.GetTabelaEquipamentos: TtecQuery;
+begin
+  Result := qryEquipamentos;
+end;
+
+function TdtmCadastroEquipamentos.GravarEquipamento: Boolean;
+var
+  n : Integer;
+begin
+  Result := False;
+  n := 0;
+  if qryEquipamentos.CheckRequiredFields then begin
+    if (qryEquipamentos.State = dsInsert) and
+       (qryEquipamentosCodigo.AsString = '') then begin
+      spcEquipamentosProximoCodigo.Open;
+      qryEquipamentosCodigo.AsString:= spcEquipamentosProximoCodigoCodigo.AsString;
+      spcEquipamentosProximoCodigo.Close;
+    end;
+    qryEquipamentos.Post;
+    if FCliente > 0 then
+    begin
+      if qryEquipamentosCliente.State=dsInsert then
+      begin
+        qryEquipamentosClientedescricao.AsString:=qryEquipamentosdescricao.AsString;
+        qryEquipamentosClienteequipamento.AsString:= qryEquipamentosCodigo.AsString;
+        qryEquipamentosClientereferencia.AsString:=qryEquipamentosreferencia.AsString;
+        qryEquipamentosClientemodelo.AsString:=qryEquipamentosmodelo.AsString;
+        qryEquipamentosClienteano.AsInteger:=qryEquipamentosano.AsInteger;
+        qryEquipamentosClienteopcionais.AsString:=qryEquipamentosopcionais.AsString;
+      end;
+      if not qryEquipamentosCliente.IsEmpty then
+      begin
+        qryEquipamentosCliente.First;
+        while not qryEquipamentosCliente.Eof do
+        begin
+          qryEquipamentosCliente.Edit;
+          qryEquipamentosClientecliente.AsInteger:= FCliente;
+          qryEquipamentosCliente.Post;
+          qryEquipamentosCliente.Next;
+        end;
+      end;
+    end;
+
+    qryProdutosEquipamentos.DisableControls;
+    qryProdutosEquipamentos.First;
+    while not qryProdutosEquipamentos.Eof do
+    begin
+      qryProdutosEquipamentos.Edit;
+      qryProdutosEquipamentosequipamento.AsString := qryEquipamentosCodigo.AsString;
+      Inc(n);
+      qryProdutosEquipamentosnumero.AsInteger := n;
+      qryProdutosEquipamentos.Post;
+      qryProdutosEquipamentos.Next;
+    end;
+    qryProdutosEquipamentos.EnableControls;
+
+    Perpetrar([qryEquipamentos,qryEquipamentosCliente,qryProdutosEquipamentos]);
+    if FCliente>0 then
+      RefazConsultaEquipamentosClientes(FCliente);
+    Result := True;
+  end
+end;
+
+function TdtmCadastroEquipamentos.IncluirEquipamento(Editar: Boolean): Boolean;
+begin
+  if(FCliente>0) then
+  begin
+    IncluirEquipamentosCliente(Editar);
+    if Editar then
+    begin
+      RefazConsulta(qryEquipamentos,[0],[qryEquipamentosClienteequipamento.AsString]);
+      qryEquipamentos.Edit;
+    end
+    else
+      qryEquipamentos.Insert;
+  end
+  else
+    qryEquipamentos.Insert;
+  Result := True;
+end;
+
+function TdtmCadastroEquipamentos.IncluirEquipamentosCliente(Editar: Boolean): Boolean;
+  procedure Equipamentos;
+  var
+    Pos: TBookmark;
+    Campos: String;
+    Equipamento: String;
+  begin
+    Campos:= '';
+    Equipamento:= qryEquipamentosClienteequipamento.AsString;
+    Pos:= qryEquipamentosCliente.GetBookmark;
+    try
+      qryEquipamentosCliente.DisableControls;
+      if not (qryEquipamentosCliente.State in [dsinsert, dsedit]) then
+        qryEquipamentosCliente.Edit;
+      qryEquipamentosCliente.First;
+      while not qryEquipamentosCliente.Eof do begin
+        if not Editar then
+          Campos:= Campos + '' + qryEquipamentosClienteequipamento.AsString + ','
+        else if qryEquipamentosClienteequipamento.AsString <> Equipamento then
+          Campos:= Campos + '' + qryEquipamentosClienteequipamento.AsString + ',';
+        qryEquipamentosCliente.Next;
+      end;
+    finally
+      qryEquipamentosCliente.GotoBookmark(Pos);
+      qryEquipamentosCliente.FreeBookmark(Pos);
+      qryEquipamentosCliente.EnableControls;
+      Delete(Campos,Length(Campos),1);
+      if Campos = '' then Campos:= '0';
+    end;
+//    qryProcuraEquipamentos.Sql[12] := Format('Where (ec.equipamento <> %s)',[IntToStr(Equipamento)]);
+//    qryProcuraEquipamentos.Sql[14] := Format('and not (e.codigo in (%s))',  [Campos]);
+//    qryConsultaEquipamentos.Sql[09]:= Format('Where (ec.equipamento <> %s)',[IntToStr(Equipamento)]);
+//    qryConsultaEquipamentos.Sql[11]:= Format('and not (e.codigo in (%s))',  [Campos]);
+  end;
+
+begin
+  Equipamentos;
+  if not Editar or qryEquipamentosCliente.IsEmpty then
+    qryEquipamentosCliente.Append
+  else
+  begin
+    qryEquipamentosCliente.Edit;
+    qryEquipamentosCliente.Cancel;
+  end;
+  Result:= True;
+end;
+
+procedure TdtmCadastroEquipamentos.RefazConsultaEquipamentos;
+begin
+  RefazConsulta(qryEquipamentos, [0], [qryConsultaEquipamentosCodigo.AsString]);
+end;
+
+procedure TdtmCadastroEquipamentos.RefazConsultaEquipamentosClientes(cliente: Integer);
+begin
+  qryEquipamentosCliente.MacroByName('OrderBy').AsString:= 'order by (e.descricao)';
+  ReFazConsulta(qryEquipamentosCliente,[0],[cliente]);
+end;
+
+procedure TdtmCadastroEquipamentos.Selecionar(TipoPesquisa: TtecCadastroEquipamentos);
+begin
+  case TipoPesquisa of
+    ceqEQUIPAMENTO: begin
+                        RefazConsulta(qryEquipamentos, [0], [qryConsultaEquipamentosCodigo.AsString]);
+                        if (FCliente>0) then
+                          qryEquipamentos.Edit;
+                    end;
+          ceqMARCA: begin
+                      qryEquipamentos.Edit;
+                      qryEquipamentosmarca.AsInteger:= qryConsultaMarcascodigo.AsInteger;
+                    end;
+        ceqPRODUTO: begin
+                      qryProdutosEquipamentos.Edit;
+                      qryProdutosEquipamentosproduto.AsLargeInt := qryConsultaProdutoscodigo.AsLargeInt;
+                      qryProdutosEquipamentosdescricao.AsString := qryConsultaProdutosdescricao.AsString;
+                      qryProdutosEquipamentosvalorgrade1.AsString := qryConsultaProdutosvalorgrade1.AsString;
+                      qryProdutosEquipamentosvalorgrade2.AsString := qryConsultaProdutosvalorgrade2.AsString;
+                      RefazConsulta(qryProcuraProduto,[0],[qryConsultaProdutoscodigo.AsVariant]);
+                    end;
+
+  end;
+end;
+
+
+procedure TdtmCadastroEquipamentos.qryProdutosEquipamentosAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryEquipamentos.State = dsBrowse then
+    qryEquipamentos.Edit;
+end;
+
+function TdtmCadastroEquipamentos.GetTabelaProdutosEquipamentos: TtecQuery;
+begin
+  Result := qryProdutosEquipamentos;
+end;
+
+function TdtmCadastroEquipamentos.IncluirProdutoEquipamento(
+  Editar: Boolean): Boolean;
+
+  procedure ProdutosUtilizados;
+  var
+    SQLP: String;
+    Produto: Int64;
+  begin
+    SQLP:= '';
+    if not qryProdutosEquipamentos.IsEmpty then begin
+      Produto:= qryProdutosEquipamentosproduto.AsLargeInt;
+      GuardarRegistroAtual(qryProdutosEquipamentos, True);
+      try
+        qryProdutosEquipamentos.First;
+        while not qryProdutosEquipamentos.Eof do begin
+          if not Editar or
+             (Editar and (Produto <> qryProdutosEquipamentosproduto.AsLargeInt)) then
+            SQLP:= SQLP + 'and (p.codigo <> ' + IntToStr(qryProdutosEquipamentosproduto.AsLargeInt) + ')';
+          qryProdutosEquipamentos.Next;
+        end;
+      finally
+        VoltarRegistroAtual(qryProdutosEquipamentos);
+      end;
+    end;
+    qryProcuraProduto.Sql[3] := SQLP;
+    qryConsultaProdutos.Sql[8]:= SQLP;
+  end;
+
+begin
+  ProdutosUtilizados;
+  if qryProdutosEquipamentos.State in [dsInsert, dsEdit] then
+    qryProdutosEquipamentos.Cancel;
+  if Editar and not qryProdutosEquipamentos.IsEmpty then begin
+    qryProcuraProduto.Params[0].AsString := qryProdutosEquipamentosproduto.AsString;
+    qryProdutosEquipamentos.Edit;
+    qryProdutosEquipamentos.Cancel;
+  end
+  else
+  begin
+    qryProcuraProduto.Params[0].Clear;
+    qryProdutosEquipamentos.Append;
+    qryProdutosEquipamentosquantidade.AsCurrency := ParSistema.ValordaQuantidade;
+  end;
+  Result := True;
+end;
+
+function TdtmCadastroEquipamentos.ProcurarRegistroProdutoEquipamentos(Produto: Integer): Boolean;
+begin
+  Result := qryProdutosEquipamentos.Locate('produto',Produto,[]);
+end;
+
+function TdtmCadastroEquipamentos.CancelarProdutoEquipamento: Boolean;
+begin
+  if qryProdutosEquipamentos.State in [dsEdit,dsInsert] then
+    qryProdutosEquipamentos.Cancel;
+  Result := True
+end;
+
+function TdtmCadastroEquipamentos.GravarProdutoEquipamento: Boolean;
+begin
+  Result:= False;
+  if qryProdutosEquipamentos.CheckRequiredFields then
+  begin
+    qryProdutosEquipamentos.Post;
+    qryEquipamentos.Edit;
+    Result:= True;
+  end
+end;
+
+function TdtmCadastroEquipamentos.ExcluirProdutoEquipamento: Boolean;
+begin
+  Result:= False;
+  if not qryProdutosEquipamentos.IsEmpty then
+  begin
+    if MensagemConfirmacao(Format(ctCONFIRMEEXCLUIR, ['o PRODUTO'])) = smbOk then
+      qryProdutosEquipamentos.Delete
+    else qryProdutosEquipamentos.Cancel;
+    Result:= True;
+  end;
+end;
+
+procedure TdtmCadastroEquipamentos.qryProdutosEquipamentosAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if Assigned(OnScrollLinhaColunaGrade) then
+    OnScrollLinhaColunaGrade(qryProdutosEquipamentos);
+  if FImprimindo then
+    RefazConsulta(qryProdutosCompostos, [0], [qryProdutosEquipamentosproduto.asVariant]);
+end;
+
+function TdtmCadastroEquipamentos.getColunaGrade: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryProdutosEquipamentoscoluna.AsString)
+end;
+
+function TdtmCadastroEquipamentos.getLinhaGrade: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryProdutosEquipamentoslinha.AsString)
+end;
+
+function TdtmCadastroEquipamentos.ExisteProduto(campo,
+  codigo: String): Boolean;
+const
+  SQL = 'Where (to_ascii(%s,''latin1'') ilike to_ascii(''%s%s'',''latin1''))';
+begin
+  qryConsultaProdutos.Sql[7] := Format(SQL, [Campo, Codigo, '%']);
+  qryConsultaProdutos.Open;
+  Result := (qryConsultaProdutos.RecordCount > 0);
+end;
+
+function TdtmCadastroEquipamentos.GetTabelaConsultaProdutos: TtecQuery;
+begin
+  Result := qryConsultaProdutos;
+end;
+
+procedure TdtmCadastroEquipamentos.qryConsultaProdutosAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryConsultaProdutosvalorgrade1.Visible := ParSistema.UsarGradesProdutos;
+  qryConsultaProdutosvalorgrade2.Visible := ParSistema.UsarGradesProdutos;
+end;
+
+procedure TdtmCadastroEquipamentos.dsrProdutosEquipamentosDataChange(
+  Sender: TObject; Field: TField);
+begin
+  inherited;
+   if Field = qryProdutosEquipamentosproduto then begin
+    qryProdutosEquipamentosdescricao.AsString   := qryProcuraProdutodescricao.AsString;
+    qryProdutosEquipamentosvalorgrade1.AsString := qryProcuraProdutovalorgrade1.AsString;
+    qryProdutosEquipamentosvalorgrade2.AsString := qryProcuraProdutovalorgrade2.AsString;
+  end;
+end;
+
+procedure TdtmCadastroEquipamentos.qryProcuraProdutoCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryProcuraProdutoDescricaoLC.AsString := qryProcuraProdutoDescricao.  AsString +
+                                           qryProcuraProdutoValorGrade1.AsString +
+                                           qryProcuraProdutoValorGrade2.AsString;
+end;
+
+procedure TdtmCadastroEquipamentos.Imprimir;
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+  qryProdutosEquipamentos.Filter   := 'imprimir';
+  GuardarRegistroAtual(qryProdutosEquipamentos, true);
+  qryProdutosEquipamentos.First;
+  while not qryProdutosEquipamentos.Eof do
+  begin
+    if qryProdutosEquipamentosimprimir.AsBoolean then
+    begin
+      qryProdutosEquipamentos.Filtered := True;
+      break;
+    end;
+    qryProdutosEquipamentos.Next;
+  end;
+  VoltarRegistroAtual(qryProdutosEquipamentos);
+
+{  if not flag then
+  begin
+    qryProdutosEquipamentos.First;
+    while not qryProdutosEquipamentos.Eof do
+    begin
+      qryProdutosEquipamentos.Edit;
+      qryProdutosEquipamentosimprimir.AsBoolean := true;
+      qryProdutosEquipamentos.Post;
+      qryProdutosEquipamentos.Next;
+    end;
+    qryProdutosEquipamentos.First;
+    VoltarRegistroAtual(qryProdutosEquipamentos);
+  end;
+}
+  FImprimindo := True;
+  frVariables['titulo']:='REQUISIÇÃO DE MATERIAL';
+//  frpEquipamento.DesignReport;
+  frmPreview := TfrmPreviewPadrao.create(self);
+  frmPreview.cmbZoom.ItemIndex := 3;
+  try
+    Relatorio := frmPreview.frCompositeReport;
+    frmPreview.frCompositeReport.Reports.Clear;
+    frmPreview.frCompositeReport.Reports.Add(frpEquipamento);
+    Relatorio.Preview := frmPreview.frPreviewPadrao;
+    Relatorio.ShowReport;
+    frmPreview.ShowModal;  finally
+    qryProdutosEquipamentos.Filtered := False;
+    frmPreview.Free;
+    FImprimindo := False;
+  end;
+end;
+
+procedure TdtmCadastroEquipamentos.frpEquipamentoBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpEquipamento, View);
+end;
+
+procedure TdtmCadastroEquipamentos.SelecionarRegistroImpressao;
+begin
+  qryProdutosEquipamentos.Edit;
+  qryProdutosEquipamentosimprimir.AsBoolean := not qryProdutosEquipamentosimprimir.AsBoolean;
+  qryProdutosEquipamentos.Post;
+end;
+
+procedure TdtmCadastroEquipamentos.qryProdutosEquipamentosFilterRecord(
+  DataSet: TDataSet; var Accept: Boolean);
+begin
+  inherited;
+  if qryProdutosEquipamentos.Filtered then
+    Accept := qryProdutosEquipamentosimprimir.AsBoolean;
+end;
+
+procedure TdtmCadastroEquipamentos.qryEquipamentosAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if not fimprimindo then
+    RefazConsulta(qryProdutosEquipamentos,[0],[qryEquipamentosCodigo.AsString]);
+
+end;
+
+procedure TdtmCadastroEquipamentos.qryProdutosEquipamentosAfterClose(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryProdutosEquipamentos.Close;
+end;
+
+function TdtmCadastroEquipamentos.GetRegistroSelecionado: Boolean;
+begin
+  Result := qryProdutosEquipamentosimprimir.AsBoolean;
+end;
+
+procedure TdtmCadastroEquipamentos.qryProcuraProdutoBeforeOpen(
+  DataSet: TDataSet);
+  var
+  teste : boolean;
+begin
+  inherited;
+  teste := true;
+
+end;
+
+end.
+

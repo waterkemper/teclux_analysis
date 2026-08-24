@@ -886,7 +886,7 @@ inherited dtmCadastroPedidos: TdtmCadastroPedidos
       '          (tipofornecimento[1] = '#39'T'#39')'
       'Order By UPPER(TO_ASCII(razao,'#39'LATIN1'#39'))')
     RequestLive = False
-    Left = 235
+    Left = 227
     Top = 124
     ParamData = <
       item
@@ -4028,22 +4028,22 @@ inherited dtmCadastroPedidos: TdtmCadastroPedidos
       45434F554E49544152494F4341534153444543494D414953000C00272323232C
       2323302E30302700040050414745000100300004007661757800000000000000
       0000000000FC00000000000000000000000000000000580024E317A17282E340
-      9D07C53B2E38E640}
+      E368A1076F52E640}
   end
   object fdsRelatorioPedidos: TfrDBDataSet
     DataSource = dsrPedidos
-    Left = 423
-    Top = 521
+    Left = 431
+    Top = 529
   end
   object fdsProdutosPedidos: TfrDBDataSet
     DataSource = dsrProdutosPedidos
-    Left = 504
-    Top = 504
+    Left = 520
+    Top = 520
   end
   object fdsPrevisaoPedidos: TfrDBDataSet
     DataSource = dsrPrevisoesPedidos
-    Left = 576
-    Top = 496
+    Left = 600
+    Top = 504
   end
   object qryProdutosSimilares: TtecQuery
     Tag = -1
@@ -5540,7 +5540,7 @@ inherited dtmCadastroPedidos: TdtmCadastroPedidos
     ScaleY = 1.000000000000000000
     KillEmptyLines = False
     ExportFrames = True
-    Left = 328
+    Left = 344
     Top = 312
   end
   object qrylogotipos: TtecQuery
@@ -5608,7 +5608,7 @@ inherited dtmCadastroPedidos: TdtmCadastroPedidos
   end
   object fdsPedidos: TfrDBDataSet
     DataSource = dsrPedidos
-    Left = 711
+    Left = 719
     Top = 385
   end
   object qryConsultaProdutosEntradaSefaz: TtecQuery
@@ -7413,6 +7413,27 @@ inherited dtmCadastroPedidos: TdtmCadastroPedidos
       0100300021004D415343415241505245434F554E49544152494F434153415344
       4543494D414953000C00272323232C2323302E30302700040050414745000100
       3000040076617578000000000000000000000000FC0000000000000000000000
-      0000000000580024E317A17282E3407820C53B2E38E640}
+      0000000000580024E317A17282E340877BA1076F52E640}
+  end
+  object frxReport1: TfrxReport
+    Version = '4.0.11'
+    DotMatrixReport = False
+    IniFile = '\Software\Fast Reports'
+    PreviewOptions.Buttons = [pbPrint, pbLoad, pbSave, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbEdit, pbNavigator, pbExportQuick]
+    PreviewOptions.Zoom = 1.000000000000000000
+    PrintOptions.Printer = 'Default'
+    PrintOptions.PrintOnSheet = 0
+    ReportOptions.CreateDate = 45714.737376469910000000
+    ReportOptions.LastChange = 45714.737376469910000000
+    ScriptLanguage = 'PascalScript'
+    ScriptText.Strings = (
+      'begin'
+      ''
+      'end.')
+    Left = 936
+    Top = 416
+    Datasets = <>
+    Variables = <>
+    Style = <>
   end
 end

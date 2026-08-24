@@ -1,9 +1,10 @@
 inherited frmCadastroServicos: TfrmCadastroServicos
-  Left = 316
-  Top = 0
+  Left = 548
+  Top = 40
   ActiveControl = dbgCNAEMunicipios
+  AutoSize = True
   Caption = 'Cadastro de Servi'#231'os'
-  ClientHeight = 665
+  ClientHeight = 708
   ClientWidth = 813
   Color = clSilver
   FormStyle = fsMDIChild
@@ -24,7 +25,7 @@ inherited frmCadastroServicos: TfrmCadastroServicos
     Left = 0
     Top = 45
     Width = 813
-    Height = 620
+    Height = 663
     Align = alClient
     BevelOuter = bvNone
     BorderWidth = 3
@@ -38,7 +39,7 @@ inherited frmCadastroServicos: TfrmCadastroServicos
     TabOrder = 2
     inline fraComissao1: TfraComissao
       Left = 110
-      Top = 192
+      Top = 288
       Width = 134
       Height = 68
       HorzScrollBar.Range = 146
@@ -53,7 +54,7 @@ inherited frmCadastroServicos: TfrmCadastroServicos
       Font.Pitch = fpVariable
       Font.Style = []
       ParentFont = False
-      TabOrder = 5
+      TabOrder = 7
       inherited gbxComissao: TGroupBox
         Top = 0
         Width = 132
@@ -317,9 +318,9 @@ inherited frmCadastroServicos: TfrmCadastroServicos
     end
     object gbxLCP116: TGroupBox
       Left = 10
-      Top = 100
+      Top = 97
       Width = 794
-      Height = 89
+      Height = 79
       Caption = 'LEI COMPLEMENTAR N'#186' 116/03'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBlack
@@ -333,7 +334,7 @@ inherited frmCadastroServicos: TfrmCadastroServicos
         Left = 3
         Top = 12
         Width = 540
-        Height = 25
+        Height = 53
         HorzScrollBar.Range = 540
         VertScrollBar.Range = 23
         AutoScroll = False
@@ -346,9 +347,10 @@ inherited frmCadastroServicos: TfrmCadastroServicos
         ParentFont = False
         TabOrder = 0
         inherited sbnProcura: TSpeedButton
-          Left = 71
+          Left = 44
+          Top = 24
           Width = 24
-          Height = 23
+          Height = 25
         end
         inherited dtxDescricao: TtecDBText
           Left = 97
@@ -377,12 +379,16 @@ inherited frmCadastroServicos: TfrmCadastroServicos
         inherited dsrProcuraCobrador: TtecDataSource
           Top = 35
         end
+        inherited qrySeriesDistintas: TtecQuery
+          Left = 8
+          Top = 40
+        end
       end
       object mmoDescricaoServico116: TtecDBMemo
-        Left = 100
+        Left = 75
         Top = 11
-        Width = 691
-        Height = 75
+        Width = 715
+        Height = 65
         TabStop = False
         DataField = 'descricao'
         DataSource = fraConsultaEFD.dsrProcuraServicosLCP116
@@ -399,7 +405,7 @@ inherited frmCadastroServicos: TfrmCadastroServicos
     end
     object gbxValorServicos: TGroupBox
       Left = 10
-      Top = 192
+      Top = 288
       Width = 90
       Height = 36
       Caption = 'PRE'#199'O SERVI'#199'O'
@@ -410,7 +416,7 @@ inherited frmCadastroServicos: TfrmCadastroServicos
       Font.Pitch = fpVariable
       Font.Style = []
       ParentFont = False
-      TabOrder = 4
+      TabOrder = 6
       object edtValor: TDBEditNumero
         Left = 2
         Top = 10
@@ -439,13 +445,13 @@ inherited frmCadastroServicos: TfrmCadastroServicos
     end
     object pgcContasContabeis: TPageControl
       Left = 3
-      Top = 479
+      Top = 522
       Width = 807
       Height = 138
       ActivePage = tstaVista
       Align = alBottom
       TabHeight = 20
-      TabOrder = 7
+      TabOrder = 9
       TabWidth = 120
       object tstaVista: TTabSheet
         Caption = '1 - Venda a Vista'
@@ -2245,9 +2251,9 @@ inherited frmCadastroServicos: TfrmCadastroServicos
     end
     inline fraComissao2: TfraComissao
       Left = 110
-      Top = 254
+      Top = 350
       Width = 131
-      Height = 66
+      Height = 56
       HorzScrollBar.Range = 146
       HorzScrollBar.Visible = False
       VertScrollBar.Range = 63
@@ -2260,19 +2266,19 @@ inherited frmCadastroServicos: TfrmCadastroServicos
       Font.Pitch = fpVariable
       Font.Style = []
       ParentFont = False
-      TabOrder = 6
+      TabOrder = 8
       inherited gbxComissao: TGroupBox
-        Top = 0
+        Top = -2
         Width = 132
-        Height = 60
+        Height = 58
         Caption = 'COMISS'#195'O INDICADORES'
         inherited lblComissao: TLabel
           Left = 59
-          Top = 20
+          Top = 17
         end
         inherited dtxComissao: TDBEditNumero
           Left = 53
-          Top = 33
+          Top = 30
           Height = 23
           Font.Height = -12
           DataField = 'comissaoindicador'
@@ -2282,17 +2288,17 @@ inherited frmCadastroServicos: TfrmCadastroServicos
           Left = 0
           Top = 12
           Width = 47
-          Height = 48
+          Height = 47
           DataField = 'tipocomissaoindicador'
           DataSource = dtmCadastroServicos.dsrServicos
           inherited rbnPercentual: TtecRadioButton
             Left = 6
-            Top = 11
+            Top = 10
             Font.Height = -12
           end
           inherited rbnValor: TtecRadioButton
             Left = 6
-            Top = 29
+            Top = 28
             Height = 16
             Font.Height = -12
           end
@@ -2320,7 +2326,7 @@ inherited frmCadastroServicos: TfrmCadastroServicos
       Adicional = 0
       Opcional = True
       ParentFont = False
-      TabOrder = 8
+      TabOrder = 10
       PermitirZero = False
       PermitirNulo = False
       Operacao = opATRIBUICAO
@@ -2332,10 +2338,9 @@ inherited frmCadastroServicos: TfrmCadastroServicos
     end
     object gbxCNAEMunicipios: TGroupBox
       Left = 3
-      Top = 316
+      Top = 409
       Width = 807
-      Height = 163
-      Align = alBottom
+      Height = 113
       Caption = ' ATIVIDADES ENCON'#212'MICAS DOS MUNIC'#205'PIOS '
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBlack
@@ -2344,12 +2349,12 @@ inherited frmCadastroServicos: TfrmCadastroServicos
       Font.Pitch = fpVariable
       Font.Style = [fsBold]
       ParentFont = False
-      TabOrder = 9
+      TabOrder = 11
       object dbgCNAEMunicipios: TtecDBGrid
         Left = 2
         Top = 16
         Width = 803
-        Height = 130
+        Height = 80
         Align = alClient
         DataSource = dtmCadastroServicos.dsrListaAtividadesEconomicasMunicipios
         Font.Charset = DEFAULT_CHARSET
@@ -2472,7 +2477,7 @@ inherited frmCadastroServicos: TfrmCadastroServicos
       end
       object pnlAbaixo: TPanel
         Left = 2
-        Top = 146
+        Top = 96
         Width = 803
         Height = 15
         Align = alBottom
@@ -2505,9 +2510,9 @@ inherited frmCadastroServicos: TfrmCadastroServicos
     end
     object gbxSituacoesTributarias: TGroupBox
       Left = 252
-      Top = 192
+      Top = 285
       Width = 552
-      Height = 129
+      Height = 121
       Caption = 'C'#211'DIGOS DE SITUA'#199#195'O TRIBUT'#193'RIA E AL'#205'QUOTAS '
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBlack
@@ -2516,69 +2521,10 @@ inherited frmCadastroServicos: TfrmCadastroServicos
       Font.Pitch = fpVariable
       Font.Style = [fsBold]
       ParentFont = False
-      TabOrder = 10
-      object gbxPISCST: TGroupBox
-        Left = 0
-        Top = 52
-        Width = 503
-        Height = 36
-        Caption = 'PIS - PROGRAMA DE INTEGRA'#199#195'O SOCIAL '
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clBlack
-        Font.Height = -9
-        Font.Name = 'helvetica'
-        Font.Pitch = fpVariable
-        Font.Style = []
-        ParentFont = False
-        TabOrder = 0
-        inline fraConsultaPISCST: TfraConsultaCodigo
-          Left = 3
-          Top = 11
-          Width = 498
-          Height = 23
-          HorzScrollBar.Range = 354
-          HorzScrollBar.Visible = False
-          VertScrollBar.Range = 23
-          VertScrollBar.Visible = False
-          AutoScroll = False
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clBlack
-          Font.Height = -11
-          Font.Name = 'helvetica'
-          Font.Pitch = fpVariable
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 0
-          inherited sbnProcura: TSpeedButton
-            Left = 32
-          end
-          inherited dtxDescricao: TtecDBText
-            Left = 56
-            Width = 441
-            DataField = 'descricao'
-            DataSource = fraConsultaPISCST.dsrProcuratributospis
-          end
-          inherited edfCodigo: TtecDBFindLookup
-            Width = 30
-            Alignment = taCenter
-            DataField = 'piscst'
-            DataSource = dtmCadastroServicos.dsrServicos
-            MaxLength = 2
-            LookupField = 'codigo'
-            LookupSource = fraConsultaPISCST.dsrProcuratributospis
-            LookupQueryParameter = 'codigo'
-            Parameter = ' '
-            ActiveSetControls = False
-            DenyInsert = False
-            NoSetControls = <>
-            SetControls = <>
-            LookupParameter = 'codigo'
-          end
-        end
-      end
+      TabOrder = 12
       object gbxPisAliquota: TGroupBox
         Left = 501
-        Top = 52
+        Top = 47
         Width = 50
         Height = 36
         Caption = ' % '
@@ -2616,7 +2562,7 @@ inherited frmCadastroServicos: TfrmCadastroServicos
       end
       object gbxCOFINSCST: TGroupBox
         Left = 0
-        Top = 92
+        Top = 83
         Width = 503
         Height = 36
         Caption = 
@@ -2677,7 +2623,7 @@ inherited frmCadastroServicos: TfrmCadastroServicos
       end
       object gbxCofinsAliquota: TGroupBox
         Left = 501
-        Top = 92
+        Top = 84
         Width = 50
         Height = 36
         Caption = ' % '
@@ -2812,6 +2758,214 @@ inherited frmCadastroServicos: TfrmCadastroServicos
           Tamanho = 3
           DataField = 'aliquotaissqn'
           DataSource = dtmCadastroServicos.dsrServicos
+        end
+      end
+      object gbxPISCST: TGroupBox
+        Left = 0
+        Top = 47
+        Width = 503
+        Height = 36
+        Caption = 'PIS - PROGRAMA DE INTEGRA'#199#195'O SOCIAL '
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        inline fraConsultaPISCST: TfraConsultaCodigo
+          Left = 3
+          Top = 11
+          Width = 498
+          Height = 23
+          HorzScrollBar.Range = 354
+          HorzScrollBar.Visible = False
+          VertScrollBar.Range = 23
+          VertScrollBar.Visible = False
+          AutoScroll = False
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          inherited sbnProcura: TSpeedButton
+            Left = 32
+          end
+          inherited dtxDescricao: TtecDBText
+            Left = 56
+            Width = 441
+            DataField = 'descricao'
+            DataSource = fraConsultaPISCST.dsrProcuratributospis
+          end
+          inherited edfCodigo: TtecDBFindLookup
+            Width = 30
+            Alignment = taCenter
+            DataField = 'piscst'
+            DataSource = dtmCadastroServicos.dsrServicos
+            MaxLength = 2
+            LookupField = 'codigo'
+            LookupSource = fraConsultaPISCST.dsrProcuratributospis
+            LookupQueryParameter = 'codigo'
+            Parameter = ' '
+            ActiveSetControls = False
+            DenyInsert = False
+            NoSetControls = <>
+            SetControls = <>
+            LookupParameter = 'codigo'
+          end
+        end
+      end
+    end
+    object GroupBox1: TGroupBox
+      Left = 10
+      Top = 176
+      Width = 794
+      Height = 73
+      Caption = 'NBS - NOMENCLATURA BRASILEIRA DE SERVI'#199'OS'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 4
+      inline fraConsultaNBS: TfraConsultaCodigo
+        Left = 3
+        Top = 12
+        Width = 540
+        Height = 53
+        HorzScrollBar.Range = 540
+        VertScrollBar.Range = 23
+        AutoScroll = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -11
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        inherited sbnProcura: TSpeedButton
+          Left = 74
+          Top = 24
+          Width = 24
+          Height = 23
+        end
+        inherited dtxDescricao: TtecDBText
+          Left = 129
+          Width = 443
+          DataField = 'descricao'
+          DataSource = fraConsultaEFD.dsrProcuraServicosLCP116
+        end
+        inherited edfCodigo: TtecDBFindLookup
+          Width = 97
+          DataField = 'nbs'
+          DataSource = dtmCadastroServicos.dsrServicos
+          MaxLength = 6
+          LookupField = 'codigo'
+          LookupSource = fraConsultaEFD.dsrProcuraNBS
+          LookupQueryParameter = 'codigo'
+          Parameter = ' '
+          ActiveSetControls = False
+          DenyInsert = False
+          NoSetControls = <>
+          SetControls = <>
+          LookupParameter = 'codigo'
+        end
+        inherited qryProcuraCobrador: TtecQuery
+          Top = 27
+        end
+        inherited dsrProcuraCobrador: TtecDataSource
+          Top = 35
+        end
+        inherited qrySeriesDistintas: TtecQuery
+          Left = 24
+          Top = 24
+        end
+      end
+      object mmoDescricaoNBS: TtecDBMemo
+        Left = 104
+        Top = 11
+        Width = 687
+        Height = 59
+        TabStop = False
+        DataField = 'descricao'
+        DataSource = fraConsultaEFD.dsrProcuraNBS
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 1
+      end
+    end
+    object GroupBox2: TGroupBox
+      Left = 10
+      Top = 250
+      Width = 794
+      Height = 36
+      Caption = 'CIndOp - C'#211'DIGO INDICADOR DE OPERA'#199#195'O (Padr'#227'o)'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 5
+      inline fraConsultaCIndOp: TfraConsultaCodigo
+        Left = 3
+        Top = 10
+        Width = 786
+        Height = 24
+        HorzScrollBar.Range = 436
+        HorzScrollBar.Visible = False
+        VertScrollBar.Range = 23
+        VertScrollBar.Visible = False
+        AutoScroll = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -11
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        inherited sbnProcura: TSpeedButton
+          Left = 74
+          Font.Height = -13
+        end
+        inherited dtxDescricao: TtecDBText
+          Left = 99
+          Width = 687
+          DataField = 'local_fornecimento_id_no_dfe'
+          DataSource = fraConsultaCIndOp.dsrProcuraIndOperNFSe
+        end
+        inherited edfCodigo: TtecDBFindLookup
+          Width = 73
+          Alignment = taCenter
+          DataField = 'cindop'
+          DataSource = dtmCadastroServicos.dsrServicos
+          MaxLength = 2
+          PermitirZero = True
+          PermitirNulo = True
+          LookupField = 'cindop'
+          LookupSource = fraConsultaCIndOp.dsrProcuraIndOperNFSe
+          LookupQueryParameter = 'cindop'
+          Parameter = ' '
+          ActiveSetControls = False
+          DenyInsert = False
+          NoSetControls = <>
+          SetControls = <>
+          LookupParameter = 'cindop'
         end
       end
     end

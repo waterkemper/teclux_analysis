@@ -415,6 +415,7 @@ type
     mitcomissaovendedorespagtoparcelas: TMenuItem;
     mitRelatorioLicitacoes: TMenuItem;
     mitDREGerencial: TMenuItem;
+    mitImpostos: TMenuItem;
     
     
 //    mitRazaoAuxiliarFornecedores: TMenuItem;
@@ -1042,11 +1043,11 @@ begin
     try
 //      if tecTEFDiscado.GerenciadorAtivo(False) then begin
       if assigned(tefpadrao) then
-        if TEFPadrao.Inicializado({gpTefDial}gpPayGo) then
+        if TEFPadrao.Inicializado(TipoTef) then
         begin
           CupomEmitido := False;
 //          if tecTEFDiscado.ExecutarOperacao(sopADMIN, 0) then
-          if tefpadrao.ADM({gpTefDial}gpPayGo) then
+          if tefpadrao.ADM(TipoTef) then
             if assigned(ECFPadrao) then
               TEFPadrao.ImprimirCupom(CupomEmitido, 0, '', '', 0)
         end else begin
@@ -1269,6 +1270,7 @@ begin
 
   if vprosseguir then
   begin
+  {
     frmAjuda := TfrmAjuda(FormExists(NomeForm));
     if Assigned(frmAjuda) then
       frmAjuda.OperacaoPadrao(Value)
@@ -1285,6 +1287,34 @@ begin
       end else
         MensagemErro(Format(ctCLASSENAOREGISTRADA, [NomeForm]))
     end;
+   }
+    frmAjuda := TfrmAjuda(FormExists(NomeForm));
+
+    {
+    if SameText(NomeForm, 'TfrmCadastroContratos') and Assigned(frmAjuda) then
+    begin
+      frmAjuda.Close;   // MDI: caminho seguro
+      Application.ProcessMessages; // garante que o caFree aconteceu
+      frmAjuda := nil;  // garante que vai recriar abaixo
+    end;
+    }
+
+    if not Assigned(frmAjuda) then
+    begin
+      frmAjudaClass := FormRegistrado(NomeForm);
+      if not Assigned(frmAjudaClass) then
+      begin
+        MensagemErro(Format(ctCLASSENAOREGISTRADA, [NomeForm]));
+        Exit;
+      end;
+
+      // Para MDIChild, Application como Owner costuma ser o mais seguro no D7
+      frmAjuda := frmAjudaClass.Create(Application);
+    end;
+
+    frmAjuda.OperacaoPadrao(Value);
+    ActivateMDIChild(frmAjuda);
+
   end;
 
 end;
@@ -1993,6 +2023,7 @@ end;
 procedure TfrmTecsoft.FormCreate(Sender: TObject);
 begin
   inherited;
+
 
 (*
   vMediaPlayer := MPlayer.TMediaPlayer.Create(Application);

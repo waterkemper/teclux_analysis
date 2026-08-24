@@ -1,0 +1,72 @@
+unit fmSelecionarFilial;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, frconsultacontabil, frconsultacodigocontabil, StdCtrls, Buttons,
+  ctconstantes, dmbasico;
+
+type
+  TfrmSelecionarFilial = class(TForm)
+    gbxFilial: TGroupBox;
+    fraConsultaFilial: TfraConsultaCodigoContabil;
+    btnOK: TBitBtn;
+    btncancelar: TBitBtn;
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure btnOKClick(Sender: TObject);
+  private
+    { Private declarations }
+    Procedure CondicaoConsultaFilial;
+  protected
+    dmbasico : TdtmBasico;
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+  end;
+
+var
+  frmSelecionarFilial: TfrmSelecionarFilial;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmSelecionarFilial }
+
+constructor TfrmSelecionarFilial.Create(AOwner: TComponent);
+begin
+  inherited;
+  fraConsultaFilial.TipoPesquisa := pesFILIAIS;
+  fraconsultafilial.qryProcuraFiliais.BeforeOpen := fraconsultafilial.qryProcuraFiliaisBeforeOpen;
+  fraconsultafilial.qryConsultaFiliais.BeforeOpen := fraconsultafilial.qryConsultaFiliaisBeforeOpen;
+  fraconsultafilial.CondicoesdaConsulta := CondicaoConsultaFilial;
+end;
+
+destructor TfrmSelecionarFilial.Destroy;
+begin
+  inherited;
+
+end;
+
+procedure TfrmSelecionarFilial.FormCloseQuery(Sender: TObject;
+  var CanClose: Boolean);
+begin
+  CanClose := (ModalResult = mrOK) or (ModalResult = mrCancel);
+end;
+
+procedure TfrmSelecionarFilial.btnOKClick(Sender: TObject);
+begin
+  if fraConsultaFilial.edfCodigo.Exist then
+    ModalResult := mrOK;
+end;
+
+procedure TfrmSelecionarFilial.CondicaoConsultaFilial;
+begin
+  fraConsultaFilial.qryProcuraFiliais.MacroByName('SQL').AsString := 'and codigo in (' + ListaEstoquesFiliais + ')';
+  fraConsultaFilial.qryConsultaFiliais.MacroByName('SQL').AsString :='and codigo in (' + ListaEstoquesFiliais + ')';
+end;
+
+end.

@@ -281,8 +281,8 @@ inherited dtmEFD: TdtmEFD
       'from notaspag np'
       'where np.data between :datainicial and :datafinal'
       
-        '  and np.modelodocto in ('#39'01'#39','#39'1B'#39','#39'04'#39','#39'55'#39','#39'65'#39','#39'99'#39','#39'06'#39','#39'28'#39 +
-        ','#39'29'#39','#39'07'#39','#39'08'#39','#39'8B'#39','#39'09'#39','#39'10'#39','#39'11'#39','#39'26'#39','#39'27'#39','#39'57'#39','#39'21'#39','#39'22'#39')'
+        '  and np.modelodocto in ('#39'01'#39','#39'1B'#39','#39'04'#39','#39'55'#39','#39'65'#39','#39'06'#39','#39'28'#39','#39'29'#39 +
+        ','#39'07'#39','#39'08'#39','#39'8B'#39','#39'09'#39','#39'10'#39','#39'11'#39','#39'26'#39','#39'27'#39','#39'57'#39','#39'21'#39','#39'22'#39','#39'62'#39')'
       '  and np.situacao='#39'N'#39
       '  and np.filial = :filial'
       '  and exists (select pnp.codigonota'
@@ -458,7 +458,7 @@ inherited dtmEFD: TdtmEFD
       '     join caracteristicas c on p.caracteristica = c.codigo */'
       ''
       'where np.data between :DataInicial and :DataFinal'
-      '  and np.modelodocto in ('#39'01'#39','#39'1B'#39','#39'04'#39','#39'55'#39','#39'65'#39','#39'99'#39')'
+      '  and np.modelodocto in ('#39'01'#39','#39'1B'#39','#39'04'#39','#39'55'#39','#39'65'#39')'
       '  and np.situacao = '#39'N'#39
       '  and not (np.permitirimprimir and np.modelodocto='#39'55'#39')'
       '  and np.filial = :filial'
@@ -963,7 +963,7 @@ inherited dtmEFD: TdtmEFD
       ''
       'where np.codigo = pnp.codigonota'
       '  and np.data between :datainicial and :datafinal'
-      '  and np.modelodocto in ('#39'01'#39','#39'1B'#39','#39'04'#39','#39'55'#39','#39'65'#39','#39'99'#39')'
+      '  and np.modelodocto in ('#39'01'#39','#39'1B'#39','#39'04'#39','#39'55'#39','#39'65'#39')'
       '  and np.situacao='#39'N'#39
       '  and not (np.permitirimprimir and np.modelodocto='#39'55'#39')'
       '  and np.filial = :filial'
@@ -1254,7 +1254,7 @@ inherited dtmEFD: TdtmEFD
       '       on np.codigo = pnp.codigonota'
       '  where np.codigo = pnp.codigonota'
       '    and np.data between :datainicial and :datafinal'
-      '    and np.modelodocto in ('#39'01'#39','#39'1B'#39','#39'04'#39','#39'55'#39','#39'65'#39','#39'99'#39')'
+      '    and np.modelodocto in ('#39'01'#39','#39'1B'#39','#39'04'#39','#39'55'#39','#39'65'#39')'
       '    and np.situacao = '#39'N'#39
       '    and not (np.permitirimprimir and np.modelodocto='#39'55'#39')'
       '    and np.filial = :filial'
@@ -1309,7 +1309,7 @@ inherited dtmEFD: TdtmEFD
       '    and data between :datainicial and :datafinal'
       
         '    and modelodocto in ('#39'01'#39','#39'1B'#39','#39'04'#39','#39'55'#39','#39'65'#39','#39'07'#39','#39'08'#39','#39'8B'#39',' +
-        #39'09'#39','#39'10'#39','#39'11'#39','#39'26'#39','#39'27'#39','#39'57'#39','#39'21'#39','#39'22'#39')'
+        #39'09'#39','#39'10'#39','#39'11'#39','#39'26'#39','#39'27'#39','#39'57'#39','#39'21'#39','#39'22'#39','#39'62'#39')'
       '    and situacao='#39'N'#39
       '    and not (permitirimprimir and modelodocto='#39'55'#39')'
       '    and filial = :filial'
@@ -1326,8 +1326,8 @@ inherited dtmEFD: TdtmEFD
       '    and (btrim(infcomplementar)<>'#39#39')'
       '    and data between :datainicial and :datafinal'
       
-        '    and modelodocto in ('#39'01'#39','#39'1B'#39','#39'04'#39','#39'55'#39','#39'65'#39','#39'99'#39','#39'07'#39','#39'21'#39',' +
-        #39'22'#39')'
+        '    and modelodocto in ('#39'01'#39','#39'1B'#39','#39'04'#39','#39'55'#39','#39'65'#39','#39'07'#39','#39'21'#39','#39'22'#39',' +
+        #39'62'#39')'
       '    and situacao='#39'N'#39
       '    and not (permitirimprimir and modelodocto='#39'55'#39')'
       '    and filial = :filial'
@@ -1473,7 +1473,7 @@ inherited dtmEFD: TdtmEFD
       'where ObsLivroEntrada is not null'
       '  and (btrim(ObsLivroEntrada)<>'#39#39')'
       '  and data between :datainicial and :datafinal'
-      '  and modelodocto in ('#39'01'#39','#39'1B'#39','#39'04'#39','#39'55'#39','#39'65'#39','#39'99'#39')'
+      '  and modelodocto in ('#39'01'#39','#39'1B'#39','#39'04'#39','#39'55'#39','#39'65'#39')'
       '  and situacao='#39'N'#39
       '  and not (permitirimprimir and modelodocto='#39'55'#39')'
       '  and filial = :filial'
@@ -1912,7 +1912,7 @@ inherited dtmEFD: TdtmEFD
       'from notaspag np'
       'where np.data between :datainicial and :datafinal'
       '  and np.situacao<>'#39'P'#39
-      '  and np.modelodocto in ('#39'01'#39','#39'1B'#39','#39'04'#39','#39'55'#39','#39'65'#39','#39'99'#39')'
+      '  and np.modelodocto in ('#39'01'#39','#39'1B'#39','#39'04'#39','#39'55'#39','#39'65'#39')'
       '  and np.filial = :filial'
       '  and exists (select pnp.codigonota'
       '              from produtosnotaspag pnp'
@@ -2176,7 +2176,7 @@ inherited dtmEFD: TdtmEFD
       'where np.data between :datainicial and :datafinal'
       '  and np.situacao<>'#39'P'#39
       '  and (btrim(np.observacoes)<>'#39#39')'
-      '  and np.modelodocto in ('#39'01'#39','#39'1B'#39','#39'04'#39','#39'55'#39','#39'65'#39','#39'99'#39')'
+      '  and np.modelodocto in ('#39'01'#39','#39'1B'#39','#39'04'#39','#39'55'#39','#39'65'#39')'
       '  and np.situacao = '#39'N'#39
       '  and np.filial = :filial'
       ''
@@ -2191,7 +2191,7 @@ inherited dtmEFD: TdtmEFD
       'where np.data between :datainicial and :datafinal'
       '  and np.situacao<>'#39'P'#39
       '  and (btrim(np.infcomplementar)<>'#39#39')'
-      '  and np.modelodocto in ('#39'01'#39','#39'1B'#39','#39'04'#39','#39'55'#39','#39'65'#39','#39'99'#39')'
+      '  and np.modelodocto in ('#39'01'#39','#39'1B'#39','#39'04'#39','#39'55'#39','#39'65'#39')'
       '  and np.situacao = '#39'N'#39
       '  and np.filial = :filial'
       ') as temp'
@@ -2372,7 +2372,7 @@ inherited dtmEFD: TdtmEFD
       '     join dadosimportacoes di'
       '     on np.ndi = di.numero'
       'where np.data between :datainicial and :datafinal'
-      '  and np.modelodocto in ('#39'01'#39','#39'1B'#39','#39'04'#39','#39'55'#39','#39'65'#39','#39'99'#39')'
+      '  and np.modelodocto in ('#39'01'#39','#39'1B'#39','#39'04'#39','#39'55'#39','#39'65'#39')'
       '  and np.situacao = '#39'N'#39
       '  and np.filial = :filial')
     RequestLive = False
@@ -2968,7 +2968,7 @@ inherited dtmEFD: TdtmEFD
       '     on np.codigo = pnp.codigonota'
       'where np.codigo = pnp.codigonota'
       '  and np.data between :datainicial and :datafinal'
-      '  and np.modelodocto in ('#39'01'#39','#39'1B'#39','#39'04'#39','#39'55'#39','#39'65'#39','#39'99'#39')'
+      '  and np.modelodocto in ('#39'01'#39','#39'1B'#39','#39'04'#39','#39'55'#39','#39'65'#39')'
       '  and np.situacao = '#39'N'#39
       '  and np.filial = :filial'
       '')
@@ -3447,7 +3447,7 @@ inherited dtmEFD: TdtmEFD
       '     on np.codigo = pnp.codigonota'
       'where np.codigo = pnp.codigonota'
       '  and np.data between :datainicial and :datafinal'
-      '  and np.modelodocto in ('#39'01'#39','#39'1B'#39','#39'04'#39','#39'55'#39','#39'65'#39','#39'99'#39')'
+      '  and np.modelodocto in ('#39'01'#39','#39'1B'#39','#39'04'#39','#39'55'#39','#39'65'#39')'
       '  and np.situacao = '#39'N'#39
       '  and np.filial = :filial'
       ') as registro_C190'
@@ -3548,7 +3548,7 @@ inherited dtmEFD: TdtmEFD
       '  where ObsLivroEntrada is not null'
       '    and (btrim(ObsLivroEntrada)<>'#39#39')'
       '    and data between :datainicial and :datafinal'
-      '    and modelodocto in ('#39'01'#39','#39'1B'#39','#39'04'#39','#39'55'#39','#39'65'#39','#39'99'#39')'
+      '    and modelodocto in ('#39'01'#39','#39'1B'#39','#39'04'#39','#39'55'#39','#39'65'#39')'
       '    and not (permitirimprimir and modelodocto='#39'55'#39')'
       '    and situacao='#39'N'#39
       '    and filial = :filial'
@@ -9332,7 +9332,7 @@ inherited dtmEFD: TdtmEFD
       '  and np.situacao<>'#39'P'#39
       
         '  and cast(coalesce(np.modelodocto,'#39'01'#39') as varchar(2)) in ('#39'21'#39 +
-        ','#39'22'#39')')
+        ','#39'22'#39','#39'62'#39')')
     RequestLive = False
     Left = 444
     Top = 261
@@ -9480,7 +9480,7 @@ inherited dtmEFD: TdtmEFD
       'where np.data between :datainicial and :datafinal'
       '  and np.situacao='#39'N'#39
       '  and cast(coalesce(np.modelodocto,'#39'01'#39') as varchar(2)) in'
-      '  ('#39'21'#39','#39'22'#39')'
+      '  ('#39'21'#39','#39'22'#39','#39'62'#39')'
       '  and np.filial = :filial'
       
         'group by np.codigo,  pnp.incidencia, pnp.codigofiscal, pnp.aliqu' +

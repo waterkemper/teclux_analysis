@@ -1,0 +1,79 @@
+unit fmconsultaporcampo;
+
+interface
+
+uses
+  //VCL/RTL
+  SysUtils, Classes, DB, Grids, DBGrids, StdCtrls, Buttons, Controls, Graphics,
+  ExtCtrls, Forms, Windows,
+  //Componentes
+  cpdbgrid, cpdatasource, biblio, ctconstantes,
+  //repositorio
+  fmconsultabasica, cptexto, ComCtrls,Dialogs;
+
+type
+  TfrmConsultaPorCampo = class(TfrmConsultaBasica)
+    procedure FormShow(Sender: TObject);
+  protected
+//    FConsultaInterativa: Boolean;
+    function ControleEdicaoParametroAtual: TEditTexto; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+  public
+
+  end;
+
+implementation
+
+{$R *.dfm}
+
+function TfrmConsultaPorCampo.ControleEdicaoParametroAtual: TEditTexto;
+begin
+  Result := inherited ControleEdicaoParametroAtual;
+  if Result = nil then
+    Result := GetControleProcura;
+end;
+
+procedure TfrmConsultaPorCampo.FormShow(Sender: TObject);
+begin
+  inherited;
+  if GetControleProcura.Focused then
+    ProcuraEnter(nil)
+  else if Assigned(ControleAtual) and ControleAtual.CanFocus then
+    ControleAtual.SetFocus;
+end;
+
+procedure TfrmConsultaPorCampo.KeyDown(var Key: Word; Shift: TShiftState);
+var
+  nomeCampo: String;
+begin
+  if Key = VK_Return then begin
+    if not ConsultaInterativa and (DataSet.RecordCount > 0) and (GetControleProcura.Text = '') then begin
+      bbnOK.Enabled := ControleEdicaoParametroAtual.Name = 'edtProcura';
+      DimensionaFormularioConsulta;
+    end
+    else
+      if not ConsultaInterativa and (GetControleProcura.Text <> '')then begin
+        nomeCampo := FieldName;
+        // as duas linhas abaixo foram colocadas por daniel, para corrigir
+        // erros na procura de ruas por bairro.
+        // TEM DE SER MUITO TESTADO AINDA, PARA TERMOS CERTEZA DE QUE
+        // NÃO ESTÁ OCASIONANDO BUGS!
+        if nomeCampo='nomebairro' then nomeCampo := 'b.nome';
+        if nomeCampo='cep' then nomeCampo:='r.cep';
+
+        if not ExisteCodigo(-1, NomeCampo, GetControleProcura.Text) then begin
+          if FMsg <> '' then
+               MensagemAviso(FMsg)
+          else MensagemAviso(Format(ctNENHUMREGISTROENCONTRADO,['registro']));
+          AlteraTituloGrid;
+        end
+        else begin
+          bbnOK.Enabled := ControleEdicaoParametroAtual.Name = 'edtProcura';
+          DimensionaFormularioConsulta;
+        end;
+      end;
+  end;
+  inherited
+end;
+
+end.

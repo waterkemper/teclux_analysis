@@ -2,7 +2,7 @@ inherited frmLerValor: TfrmLerValor
   ClientHeight = 94
   ClientWidth = 258
   PixelsPerInch = 96
-  TextHeight = 13
+  TextHeight = 16
   inherited pnlFundoJanela: TPanel
     Width = 258
     Height = 94
@@ -11,13 +11,12 @@ inherited frmLerValor: TfrmLerValor
       Height = 88
       inherited lblNumero: TLabel
         Left = 11
-        Width = 72
+        Width = 87
         Caption = 'Valor Recebido'
       end
       inherited edtNumero: TEditNumero
         Left = 10
         Width = 116
-        Alignment = taLeftJustify
         Decimais = True
       end
     end

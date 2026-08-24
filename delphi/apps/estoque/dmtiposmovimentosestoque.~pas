@@ -1,0 +1,182 @@
+unit dmtiposmovimentosestoque;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Classes,
+  //Repositorio
+  dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery, cpdatasource;
+
+type
+  TdtmTiposMovimentosDoEstoque = class(TdtmBasico)
+    dsrMovimentos: TtecDataSource;
+    qryMovimentos: TtecQuery;
+    qryMovimentoscodigo: TStringField;
+    qryMovimentosinativo: TDateField;
+    qryMovimentostransferencia: TStringField;
+    qryMovimentosoperacao: TStringField;
+    qryProcuraTransferencias: TtecQuery;
+    qryProcuraTransferenciascodigo: TStringField;
+    qryProcuraTransferenciasdescricao: TStringField;
+    dsrProcuraTransferencias: TtecDataSource;
+    qryConsultaMovimentos: TtecQuery;
+    qryConsultaMovimentosdescricao: TStringField;
+    qryConsultaMovimentoscodigo: TStringField;
+    qryMovimentosdescricao: TStringField;
+    qryMovimentosinterno: TBooleanField;
+    procedure qryMovimentosNewRecord(DataSet: TDataSet);
+    procedure qryMovimentosAfterOpen(DataSet: TDataSet);
+    procedure qryMovimentosAfterCancel(DataSet: TDataSet);
+  private
+    function getReadOnly: Boolean;
+  protected
+    function  GetCodigoConsultaMovimentos: String;
+    function  GetCodigoTransferencia: string;
+    function  GetConsultarMovimentos: TtecQuery;
+    function  GetOperacaoTipoMovimento: String;
+    function  GetTabelaMovimentos: TZDataSet;
+    procedure SetOperacaoTipoMovimento(const Value: String);
+  public
+    function AtribuirTransferencia: Boolean;
+    constructor Create(AOwner: TComponent); override;
+    function ExcluirMovimentos: Boolean;
+    function ExisteMovimentos(campo, codigo: String): Boolean;
+    function GravarMovimentos(Operacao: String): Boolean;
+    function IncluirMovimentos: Boolean;
+    procedure SelecionarMovimento;
+    property CodigoConsultaMovimentos: String read GetCodigoConsultaMovimentos;
+    property CodigoTransferencia: String  read GetCodigoTransferencia;
+    property ConsultarMovimentos: TtecQuery read GetConsultarMovimentos;
+    property OperacaoTipoMovimento: String read GetOperacaoTipoMovimento write SetOperacaoTipoMovimento;
+    property TabelaMovimentos: TZDataSet read GetTabelaMovimentos;
+    property ReadOnly: Boolean read getReadOnly;
+  end;
+
+var
+  dtmTiposMovimentosDoEstoque: TdtmTiposMovimentosDoEstoque;
+
+implementation
+
+uses
+  //Biblio
+  ctconstantes, clusuario;
+
+{$R *.dfm}
+
+function TdtmTiposMovimentosDoEstoque.AtribuirTransferencia: Boolean;
+begin
+   if not (qryMovimentos.State in [dsInsert, dsEdit]) then
+      qryMovimentos.Edit;
+   qryMovimentostransferencia.AsString:= qryConsultaMovimentoscodigo.AsString;
+   Result:= True;
+end;
+
+constructor TdtmTiposMovimentosDoEstoque.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryMovimentos.Tag             := ctTabelaMovimentos;
+  qryConsultaMovimentos.Tag     := ctConsultaTiposMovimentos;
+end;
+
+function TdtmTiposMovimentosDoEstoque.ExcluirMovimentos: Boolean;
+begin
+  qryMovimentos.Delete;
+  Perpetrar([qryMovimentos]);
+  Result:= True;
+end;
+
+function TdtmTiposMovimentosDoEstoque.ExisteMovimentos(campo,codigo: String): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaMovimentos, campo, codigo)
+end;
+
+function TdtmTiposMovimentosDoEstoque.GravarMovimentos(Operacao: String): Boolean;
+begin
+  qryMovimentosoperacao.AsString := Operacao;
+  if qryMovimentos.CheckRequiredFields then begin
+    qryMovimentos.Post;
+    Perpetrar([qryMovimentos]);
+    Result := True;
+  end
+  else
+    Result:= False;
+end;
+
+function TdtmTiposMovimentosDoEstoque.GetCodigoConsultaMovimentos: String;
+begin
+  Result := qryConsultaMovimentoscodigo.AsString
+end;
+
+function TdtmTiposMovimentosDoEstoque.GetCodigoTransferencia: String;
+begin
+  result:= qryMovimentostransferencia.AsString
+end;
+
+function TdtmTiposMovimentosDoEstoque.GetConsultarMovimentos: TtecQuery;
+begin
+  Result := qryConsultaMovimentos;
+end;
+
+function TdtmTiposMovimentosDoEstoque.GetOperacaoTipoMovimento: String;
+begin
+  Result := qryMovimentosoperacao.AsString
+end;
+
+function TdtmTiposMovimentosDoEstoque.GetTabelaMovimentos: TZDataSet;
+begin
+  Result := qryMovimentos;
+end;
+
+function TdtmTiposMovimentosDoEstoque.IncluirMovimentos: Boolean;
+begin
+  qryMovimentos.ReadOnly := False;
+  qryMovimentos.Insert;
+  Result := True;
+end;
+
+procedure TdtmTiposMovimentosDoEstoque.qryMovimentosAfterCancel(DataSet: TDataSet);
+begin
+  inherited;
+  if qryMovimentos.RecordCount > 0 then
+    qryMovimentos.ReadOnly := qryMovimentosinterno.AsBoolean and (UsuarioLogin.LoginUsuario <> 'tecsoft')
+  else
+    qryMovimentos.ReadOnly := False
+end;
+
+procedure TdtmTiposMovimentosDoEstoque.qryMovimentosAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  if qryMovimentos.RecordCount > 0 then
+    qryMovimentos.ReadOnly := qryMovimentosinterno.AsBoolean and (UsuarioLogin.LoginUsuario <> 'tecsoft')
+  else
+    qryMovimentos.ReadOnly := False
+end;
+
+procedure TdtmTiposMovimentosDoEstoque.qryMovimentosNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+  qryMovimentosoperacao.Value    := '********************';
+  qryMovimentosinterno.AsBoolean := False
+end;
+
+procedure TdtmTiposMovimentosDoEstoque.SelecionarMovimento;
+begin
+  ReFazConsulta(qryMovimentos, [0], [qryConsultaMovimentoscodigo.AsString]);
+end;
+
+procedure TdtmTiposMovimentosDoEstoque.SetOperacaoTipoMovimento(const Value: String);
+begin
+  if qryMovimentosoperacao.AsString <> Value then begin
+    if Not (qryMovimentos.State in [dsInsert, dsEdit]) then
+      qryMovimentos.Edit;
+    qryMovimentosoperacao.AsString := Value
+  end
+end;
+
+function TdtmTiposMovimentosDoEstoque.getReadOnly: Boolean;
+begin
+  Result := qryMovimentos.ReadOnly
+end;
+
+end.

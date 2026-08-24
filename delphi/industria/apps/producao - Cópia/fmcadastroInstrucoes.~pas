@@ -1,0 +1,344 @@
+unit fmcadastroInstrucoes;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmcadastropadrao, ComCtrls, Buttons, ExtCtrls, DBCtrls,
+  cptexto, Mask, cpdbfindcontrols, Grids, DBGrids, cpdbgrid,
+  dmcadastroInstrucoes, frconsultacodigo, ctconstantes, db, Windows, biblio,
+  ActnList, ToolWin, frRegistroOperacoes, cpdbdata;
+
+type
+  TfrmCadastroInstrucoes = class(TFrmCadastroPadrao)
+    gbxNomeInstrucao: TGroupBox;
+    edtDescricao: TDBEditTexto;
+    gbxOperacoes: TGroupBox;
+    Bevel1: TBevel;
+    dbgOperacoes: TtecDBGrid;
+    pnlOperacoes: TPanel;
+    sbnIncluirOperacao: TSpeedButton;
+    actLiberarBotoes: TActionList;
+    Action1: TAction;
+    PageControl1: TPageControl;
+    tstCadastro: TTabSheet;
+    tstLog: TTabSheet;
+    fraRegistroOperacoes1: TfraRegistroOperacoes;
+    sbnImprimir: TSpeedButton;
+    gbxInstrucao: TGroupBox;
+    edfInstrucao: TtecDBFindLookup;
+    gbxInativo: TGroupBox;
+    edtInativo: TDBEditData;
+    procedure sbnExcluirOperacoesSetupClick(Sender: TObject);
+    procedure dbgOperacoesDblClick(Sender: TObject);
+    procedure dbgOperacoesKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnProcurarClick(Sender: TObject);
+    procedure sbnIncluirOperacaoClick(Sender: TObject);
+    procedure sbnIncluirAlternativaClick(Sender: TObject);
+//    procedure Action1Update(Sender: TObject);
+//    procedure sbnImprimirClick(Sender: TObject);
+  private
+    { Private declarations }
+    procedure CondicoesInstrucoesOperacoes;
+
+    procedure InstrucoesOperacoesNewRecord(Sender: TObject);
+    procedure AcionarPesquisaGradeOperacao;
+    function VerificarOperacoes: boolean;
+
+
+  protected
+    ConsultaInstrucao : TfraConsultaCodigo;
+    ConsultaOperacoes : TfraConsultaCodigo;
+
+
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoIncluir: Boolean; override;
+    procedure AbrirInstrucao;
+    procedure AtribuirDadosInstrucoesOperacoes;
+
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+  end;
+
+var
+  frmCadastroInstrucoes: TfrmCadastroInstrucoes;
+
+implementation
+
+uses frconsulta; //fmImprimirInstrucoes;
+
+{$R *.dfm}
+
+{ TfrmCadastroInstrucoes }
+
+procedure TfrmCadastroInstrucoes.AbrirInstrucao;
+begin
+  edfInstrucao.Text := ConsultaInstrucao.qryConsultaInstrucoesTrabalhoinstrucao.AsString;
+  dtmCadastroInstrucoes.
+        refazconsulta(dtmCadastroInstrucoes.qryInstrucoes,[0],
+             [ConsultaInstrucao.qryProcuraInstrucoesTrabalhoinstrucao.AsString]);
+end;
+
+procedure TfrmCadastroInstrucoes.AtribuirDadosInstrucoesOperacoes;
+begin
+  with dtmCadastroInstrucoes do
+  begin
+    EditarInstrucoesOperacoes;
+    qryInstrucoesTrabalhoOperacoesoperacao.AsString := ConsultaOperacoes.qryProcuraOperacoescodigo.AsString;
+    qryInstrucoesTrabalhoOperacoesnome.AsString := ConsultaOperacoes.qryProcuraOperacoesnome.AsString;
+    qryInstrucoesTrabalhoOperacoesc01.AsString := ConsultaOperacoes.qryProcuraOperacoesc01.AsString;
+    qryInstrucoesTrabalhoOperacoesc02.AsString := ConsultaOperacoes.qryProcuraOperacoesc02.AsString;
+    qryInstrucoesTrabalhoOperacoesc03.AsString := ConsultaOperacoes.qryProcuraOperacoesc03.AsString;
+    qryInstrucoesTrabalhoOperacoesdescricao.AsString := ConsultaOperacoes.qryProcuraOperacoesdescricao.AsString;
+    qryInstrucoesTrabalhoOperacoestempopadrao.AsString := ConsultaOperacoes.qryProcuraOperacoestempopadrao.AsString;
+    qryInstrucoesTrabalhoOperacoes.Post;
+  end;
+end;
+
+procedure TfrmCadastroInstrucoes.CondicoesInstrucoesOperacoes;
+const
+  SQL = 'and (codigo not in (%s) or codigo = %s)';
+var
+  codigoproduto : String;
+begin
+   codigoproduto := inttostr(dtmCadastroInstrucoes.qryInstrucoesTrabalhoOperacoesoperacao.Asinteger);
+   if (dtmCadastroInstrucoes.qryInstrucoesTrabalhoOperacoes.State = dsInsert) or
+      (dtmCadastroInstrucoes.qryInstrucoesTrabalhoOperacoesdescricao.AsString='') then
+     codigoproduto := '0';
+
+   ConsultaOperacoes.qryProcuraOperacoes.MacroByName('SQLOperacoesJaSelecionadas').AsString :=
+     format(SQL,[dtmCadastroInstrucoes.ListaOperacoesSelecionadas, codigoproduto]);
+   ConsultaOperacoes.qryConsultaOperacoes.MacroByName('SQLOperacoesJaSelecionadas').AsString :=
+     format(SQL,[dtmCadastroInstrucoes.ListaOperacoesSelecionadas, codigoproduto]);
+end;
+
+constructor TfrmCadastroInstrucoes.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmCadastroInstrucoes := TdtmCadastroInstrucoes.Create(Self);
+  DataSet := dtmCadastroInstrucoes.qryInstrucoes;
+
+  ConsultaInstrucao := TfraConsultaCodigo.Create(self);
+  ConsultaInstrucao.edfCodigo.DataSource := dtmCadastroInstrucoes.dsrInstrucoes;
+  ConsultaInstrucao.edfCodigo.DataField := 'instrucao';
+  ConsultaInstrucao.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaInstrucao.AbrirTabelaProcura := false;
+  ConsultaInstrucao.TipoPesquisa := pesINSTRUCOESTRABALHO;
+  ConsultaInstrucao.OnFound := AbrirInstrucao;
+  ConsultaInstrucao.Name := 'fraConsultaInstrucao';
+
+  ConsultaOperacoes := TfraConsultaCodigo.Create(self);
+  ConsultaOperacoes.Name := 'fraConsultaOperacoes';
+  ConsultaOperacoes.edfCodigo.MaxLength := 3;
+  ConsultaOperacoes.edfCodigo.DataSource := dtmCadastroInstrucoes.dsrInstrucoesTrabalhoOperacoes;
+  ConsultaOperacoes.edfCodigo.DataField := 'operacao';
+  ConsultaOperacoes.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaOperacoes.edfCodigo.LookupSource := ConsultaOperacoes.dsrProcuraOperacaoes;
+  ConsultaOperacoes.edfCodigo.LookupQueryParameter := 'Codigo';
+  ConsultaOperacoes.edfCodigo.LookupField := 'Codigo';
+  ConsultaOperacoes.AbrirTabelaProcura := false;
+  ConsultaOperacoes.CondicoesdaConsulta := CondicoesInstrucoesOperacoes;
+  ConsultaOperacoes.TipoPesquisa := pesOPERACOES;
+  ConsultaOperacoes.OnFound := AtribuirDadosInstrucoesOperacoes;
+
+
+  dtmCadastroInstrucoes.onInstrucoesOperacoesNewRecord := InstrucoesOperacoesNewRecord;
+  dbgOperacoes.OnDelete := dtmCadastroInstrucoes.ExcluirInstrucaoOperacoes;
+end;
+
+destructor TfrmCadastroInstrucoes.Destroy;
+begin
+  dtmCadastroInstrucoes.qryInstrucoes.close;
+  dtmCadastroInstrucoes.qryInstrucoesTrabalhoOperacoes.close;
+  dtmCadastroInstrucoes := nil;
+  inherited;
+end;
+
+procedure TfrmCadastroInstrucoes.InstrucoesOperacoesNewRecord(
+  Sender: TObject);
+begin
+  dbgOperacoes.SelectedIndex := 0;
+end;
+
+function TfrmCadastroInstrucoes.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then begin
+    if not CtrlOn then
+      dtmCadastroInstrucoes.ExcluirInstrucao;
+  end;
+end;
+
+function TfrmCadastroInstrucoes.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if Result then
+    dtmCadastroInstrucoes.GravarInstrucao;
+end;
+
+function TfrmCadastroInstrucoes.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then begin
+    if not CtrlOn then
+      dtmCadastroInstrucoes.IncluirInstrucao;
+  end;
+end;
+
+procedure TfrmCadastroInstrucoes.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if not CtrlOn then
+  begin
+    if (key =VK_F9) then
+    begin
+      if sbnProcurar.Enabled then
+      begin
+        ConsultaInstrucao.InternoPesquisar(ctINSTRUCOESTRABALHO);
+        self.SetFocus;
+      end
+    end;
+//    if (key =VK_F7) then
+//      sbnImprimirClick(frmImprimirInstrucoes);
+  end;
+end;
+
+procedure TfrmCadastroInstrucoes.sbnExcluirOperacoesSetupClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroInstrucoes.ExcluirInstrucaoOperacoes;
+end;
+
+procedure TfrmCadastroInstrucoes.dbgOperacoesDblClick(Sender: TObject);
+begin
+  inherited;
+  if dbgOperacoes.SelectedIndex in [0..3] then
+    AcionarPesquisaGradeOperacao;
+end;
+
+procedure TfrmCadastroInstrucoes.AcionarPesquisaGradeOperacao;
+begin
+  dbgOperacoes.SetFocus;
+  ConsultaOperacoes.CtrlOn := True;
+  if ConsultaOperacoes.InternoPesquisar(ctOPERACOES) = mrOK then
+  begin
+    dbgOperacoes.SetFocus;
+    dbgOperacoes.SelectedIndex :=  0;
+  end;  
+end;
+
+procedure TfrmCadastroInstrucoes.dbgOperacoesKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+     VK_F9     : begin
+                   if dbgOperacoes.SelectedIndex in [0..3] then
+                   begin
+                     ConsultaOperacoes.CtrlOn := Shift = [ssCtrl];
+                     if (Shift = []) or ConsultaOperacoes.CtrlOn then
+                       AcionarPesquisaGradeOperacao
+                   end;
+                 end;
+    end;
+  end
+  else
+  if Shift = [] then
+  case Key of
+  VK_Return    : begin
+                   if dbgOperacoes.SelectedIndex = 3 then
+                   begin
+                     if VerificarOperacoes then
+                       dtmCadastroInstrucoes.GravarInstrucaoOperacoes
+                     else
+                       key := 0;
+                   end
+                   else
+                     dbgOperacoes.SelectedIndex := dbgOperacoes.SelectedIndex + 1;
+                 end;
+  end;
+  inherited;
+end;
+
+function TfrmCadastroInstrucoes.VerificarOperacoes: boolean;
+begin
+  result := true;
+//  ConsultaOperacoes.edfCodigo.DoExit;
+  ConsultaOperacoes.qryProcuraOperacoes.ParamByName('codigo').asinteger := 0;
+  ConsultaOperacoes.qryProcuraOperacoes.ParamByName('nome').AsString :=
+    dtmCadastroInstrucoes.qryInstrucoesTrabalhoOperacoesnome.AsString;
+  ConsultaOperacoes.qryProcuraOperacoes.ParamByName('c01').AsString :=
+    dtmCadastroInstrucoes.qryInstrucoesTrabalhoOperacoesc01.AsString;
+  ConsultaOperacoes.qryProcuraOperacoes.ParamByName('c02').AsString :=
+    dtmCadastroInstrucoes.qryInstrucoesTrabalhoOperacoesc02.AsString;
+  ConsultaOperacoes.qryProcuraOperacoes.ParamByName('c03').AsString :=
+    dtmCadastroInstrucoes.qryInstrucoesTrabalhoOperacoesc03.AsString;
+
+  ConsultaOperacoes.qryProcuraOperacoes.Close;
+  ConsultaOperacoes.qryProcuraOperacoes.open;
+
+  if not ConsultaOperacoes.qryProcuraOperacoes.IsEmpty then
+    AtribuirDadosInstrucoesOperacoes
+  else
+  begin
+    ShowMessage(Format(ctCODIGOINEXISTENTE, ['['+
+    dtmCadastroInstrucoes.qryInstrucoesTrabalhoOperacoesnome.AsString +', '+
+    dtmCadastroInstrucoes.qryInstrucoesTrabalhoOperacoesc01.AsString  +', '+
+    dtmCadastroInstrucoes.qryInstrucoesTrabalhoOperacoesc02.AsString  +', '+
+    dtmCadastroInstrucoes.qryInstrucoesTrabalhoOperacoesc03.AsString  +']']));
+    result := false;
+    dbgOperacoes.SetFocus;
+  end;
+end;
+
+procedure TfrmCadastroInstrucoes.sbnProcurarClick(Sender: TObject);
+begin
+  inherited;
+  ConsultaInstrucao.InternoPesquisar(ctINSTRUCOESTRABALHO);
+  self.SetFocus;
+end;
+
+procedure TfrmCadastroInstrucoes.sbnIncluirOperacaoClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroInstrucoes.IncluirOperacao;
+end;
+
+
+
+
+procedure TfrmCadastroInstrucoes.sbnIncluirAlternativaClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroInstrucoes.IncluirOperacaoAlternativa;
+end;
+{
+procedure TfrmCadastroInstrucoes.Action1Update(Sender: TObject);
+begin
+  inherited;
+  sbnIncluirAlternativa.Enabled := (dtmCadastroInstrucoes.qryInstrucoesTrabalhoOperacoestipooperacao.AsString = 'N') and
+          not dtmCadastroInstrucoes.qryInstrucoesTrabalhoOperacoesoperacao.IsNull
+
+end;
+
+procedure TfrmCadastroInstrucoes.sbnImprimirClick(Sender: TObject);
+begin
+  inherited;
+  frmImprimirInstrucoes := TfrmImprimirInstrucoes.Create(frmImprimirInstrucoes);
+  frmImprimirInstrucoes.ShowModal;
+  frmImprimirInstrucoes.Free;
+end;
+}
+end.
+
+

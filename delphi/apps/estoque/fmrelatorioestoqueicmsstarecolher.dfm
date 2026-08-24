@@ -1,6 +1,6 @@
 inherited frmrelatorioestoqueicmsstarecolher: Tfrmrelatorioestoqueicmsstarecolher
-  Left = 635
-  Top = 343
+  Left = 567
+  Top = 270
   ActiveControl = fraConsultaFilial
   Caption = 'Relat'#243'rio Estoque ICMS ST a recolher'
   ClientHeight = 200

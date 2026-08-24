@@ -6,7 +6,7 @@ inherited frmLivroRazao: TfrmLivroRazao
   ClientHeight = 440
   ClientWidth = 531
   FormStyle = fsMDIChild
-  Position = poDesktopCenter
+  Position = poScreenCenter
   Visible = True
   PixelsPerInch = 96
   TextHeight = 16

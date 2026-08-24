@@ -1,0 +1,876 @@
+unit dmligarclientes;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, dmtecsoft, DB, cpdatasource, ZQuery,
+  ZPgSqlQuery, cpquery, ctconstantes, biblio, ZTransact;
+
+type
+  TdtmLigarClientes = class(TdtmBasico)
+    qryFiliais: TtecQuery;
+    dsrFiliais: TtecDataSource;
+    qryConsultaFiliais: TtecQuery;
+    qryFiliaiscodigo: TIntegerField;
+    qryFiliaisnome: TStringField;
+    qryConsultaFiliaisnome: TStringField;
+    qryConsultaFiliaiscodigo: TIntegerField;
+    qryGrupoFiliais: TtecQuery;
+    qryGrupoFiliaiscodigo: TIntegerField;
+    qryGrupoFiliaisdescricao: TStringField;
+    dsrGruposFiliais: TtecDataSource;
+    qryConsultaGruposFiliais: TtecQuery;
+    qryConsultaGruposFiliaisdescricao: TStringField;
+    qryConsultaGruposFiliaiscodigo: TIntegerField;
+    qryUsuarios: TtecQuery;
+    qryUsuarioscodigo: TIntegerField;
+    qryUsuariosnome: TStringField;
+    dsrUsuarios: TtecDataSource;
+    qryConsultaUsuarios: TtecQuery;
+    qryConsultaUsuariosnome: TStringField;
+    qryConsultaUsuarioscodigo: TIntegerField;
+    qryaAgentes: TtecQuery;
+    qryaAgentescodigo: TIntegerField;
+    qryaAgentesdescricao: TStringField;
+    dsrAgentes: TtecDataSource;
+    qryConsultaAgentes: TtecQuery;
+    qryConsultaAgentesdescricao: TStringField;
+    qryConsultaAgentescodigo: TIntegerField;
+    qryConceitos: TtecQuery;
+    qryConceitoscodigo: TIntegerField;
+    qryConceitosdescricao: TStringField;
+    dsrConceitos: TtecDataSource;
+    qryConsultaConceitos: TtecQuery;
+    qryConsultaConceitosdescricao: TStringField;
+    qryConsultaConceitoscodigo: TIntegerField;
+    qryRegioes: TtecQuery;
+    qryRegioescodigo: TStringField;
+    qryRegioesnome: TStringField;
+    dsrRegioes: TtecDataSource;
+    qryConsultaRegioes: TtecQuery;
+    qryConsultaRegioesnome: TStringField;
+    qryConsultaRegioescodigo: TStringField;
+    dsrLigarClientes: TtecDataSource;
+    qryDadosClientes: TtecQuery;
+    dsrDadosClientes: TtecDataSource;
+    qryParcelas: TtecQuery;
+    dsrParcelas: TtecDataSource;
+    qryParcelascontrato: TStringField;
+    qryParcelasnumero: TIntegerField;
+    qryParcelasdatavencto: TDateField;
+    qryParcelasvalorvencto: TFloatField;
+    qryParcelasdata: TDateField;
+    qryLigarClientes: TtecQuery;
+    qryLigarClientesqtde: TLargeintField;
+    qryLigarClientesdatavencto: TDateField;
+    qryLigarClientesatrasado: TFloatField;
+    qryLigarClientescomcontato: TBooleanField;
+    qryLigarClientesdata: TDateField;
+    qryLigarClientescontrato: TStringField;
+    qryLigarClientescliente: TIntegerField;
+    qryLigarClientesnome: TStringField;
+    qryLigarClientesinformescobranca: TStringField;
+    qryLigarClientesinformesreclamacao: TStringField;
+    qryLigarClientesclientetipo: TStringField;
+    qryParcelasdiasatraso: TIntegerField;
+    qryLigarClientesAvisos: TtecQuery;
+    qryParcelasAvisos_Clientes: TtecQuery;
+    qryParcelasAvisos_Avalistas: TtecQuery;
+    qryParcelasAtrasosLembretes: TtecQuery;
+    qryParcelasnomeavalista: TStringField;
+    qryParcelasTipoAvalista: TStringField;
+    qryParcelaseavalista: TBooleanField;
+    ZMonitor1: TZMonitor;
+    qryDadosClientesnome: TStringField;
+    qryDadosClientescpf_cnpj: TStringField;
+    qryDadosClientesiddocumento: TStringField;
+    qryDadosClientesfone: TStringField;
+    qryDadosClientesfone2: TStringField;
+    qryDadosClientesfoneempresa: TStringField;
+    qryDadosClientesfoneconjuge: TStringField;
+    qryDadosClientesfonereferencia: TStringField;
+    qryDadosClientesfonereferencia2: TStringField;
+    qryDadosClientesrua: TStringField;
+    qryDadosClientesnumero: TIntegerField;
+    qryDadosClientescomplemento: TStringField;
+    qryDadosClientesestado: TStringField;
+    qryDadosClientesempresa: TStringField;
+    qryDadosClientesnomeconjuge: TStringField;
+    qryDadosClientescep: TStringField;
+    qryDadosClientesnomebairro: TStringField;
+    qryDadosClientesnomecidade: TStringField;
+    qryLigarClientesAvisoscliente: TIntegerField;
+    qryLigarClientesAvisosclientetipo: TStringField;
+    qryLigarClientesAvisosavalista: TIntegerField;
+    qryLigarClientesAvisosnome: TStringField;
+    qryLigarClientesAvisoscarta: TIntegerField;
+    qryLigarClientesAvisoscartanumero: TIntegerField;
+    qryLigarClientesAvisosnumerocarta: TStringField;
+    qryLigarClientesAvisoseavalista: TBooleanField;
+    qryLigarClientesAvisostipocarta: TIntegerField;
+    qryLigarClientesAvisostipoatendimento: TIntegerField;
+    qryLigarClientesAvisosdata: TDateField;
+    qryLigarClientesAvisosqtde: TLargeintField;
+    qryLigarClientesAvisosdatavencto: TDateField;
+    qryLigarClientesAvisosatrasado: TFloatField;
+    qryLigarClientesAvisoscomcontato: TBooleanField;
+    procedure qryParcelasCalcFields(DataSet: TDataSet);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+  private
+    function GetCarta: integer;
+    function GetCartaNumero: integer;
+    function GetDataAtraso: String;
+    function GeteAvalista: Boolean;
+    function GetEmissaoCarta: String;
+    function GetTipoAtendimentoCarta: Integer;
+    function GetTipodeCarta: integer;
+    function GetValorAtraso: String;
+    function GetstreAvalista: String;
+    procedure SetComSemCobrador(const Value: Byte);
+  protected
+    FLembrarFinal: String;
+    FLembrarInicial: String;
+    FTipoSelecao: Byte;
+    FVenctoFinal: String;
+    FVenctoInicial: String;
+    function  GetCodigoCliente: Integer;
+    function  GetComContato: Boolean;
+    function  GetConsultaAgentes: TtecQuery;
+    function  GetConsultaCobradores: TtecQuery;
+    function  GetConsultaConceitos: TtecQuery;
+    function  GetConsultaFiliais: TtecQuery;
+    function  GetConsultaGruposFiliais: TtecQuery;
+    function  GetConsultaRegioes: TtecQuery;
+    function  GetQtdeRegistros: Integer;
+    function  GetTotalRegistros: Real;
+    function  GetTipoCliente: string;
+    procedure MontarDataVencimento;
+    procedure MontarDataLembrar;
+    procedure SetAgente(const Value: String);
+    procedure SetCobrador(const Value: String);
+    procedure SetComContato(const Value: Boolean);
+    procedure SetConceito(const Value: String);
+    procedure SetFilial(const Value: String);
+    procedure SetGrupo(const Value: String);
+    procedure SetLembrarFinal(const Value: String);
+    procedure SetLembrarInicial(const Value: String);
+    procedure SetOcorrencia(const Value: Byte);
+    procedure SetOrdenacao(const Value: Byte);
+    procedure SetPagamento(const Value: Byte);
+    procedure SetPosOcorrencia(const Value: Byte);
+    procedure SetRegiao(const Value: String);
+    procedure SetTelefone(const Value: Byte);
+    procedure SetTipoSelecao(const Value: Byte);
+    procedure SetVenctoFinal(const Value: String);
+    procedure SetVenctoInicial(const Value: String);
+    procedure SetVenda(const Value: String);
+  public
+    procedure AbreTabelaPesquisa(TipoPesquisa: TtecLigarClientes);
+    constructor Create(AOwner: TComponent); override;
+    function ExisteAgentes(Campo, Codigo: String): Boolean;
+    function ExisteCobradores(Campo, Codigo: String): Boolean;
+    function ExisteConceitos(Campo, Codigo: String): Boolean;
+    function ExisteFiliais(Campo, Codigo: string): Boolean;
+    function ExisteGruposFiliais(Campo, Codigo: String): Boolean;
+    function ExisteRegioes(Campo, Codigo: String): Boolean;
+    procedure FechaTabelaPesquisa(TipoPesquisa: TtecLigarClientes);
+    procedure InformacoesCliente;
+    procedure Selecionar(TipoPesquisa: TtecLigarClientes);
+    function  SelecionarclientesLigar: Boolean;
+
+    property Agente: String write SetAgente;
+    property Cobrador: String write SetCobrador;
+    property CodigoCliente: Integer read GetCodigoCliente;
+    property Tipocliente: string read GetTipoCliente;
+    property carta: integer read GetCarta;
+    property CartaNumero: integer read GetCartaNumero;
+    property TipodeCarta: integer read GetTipodeCarta;
+    property EmissaoCarta: String read GetEmissaoCarta;
+    property eAvalista: Boolean read GeteAvalista;
+    property streAvalista: String read GetstreAvalista;
+    property dataAtraso: String read GetDataAtraso;
+    property ValorAtraso: String read GetValorAtraso;
+    property tipoAtendimentoCarta: Integer read GetTipoAtendimentoCarta;
+
+    property ComContato: Boolean read GetComContato write SetComContato;
+    property Conceito: String write SetConceito;
+    property ConsultaAgentes: TtecQuery read GetConsultaAgentes;
+    property ConsultaCobradores: TtecQuery read GetConsultaCobradores;
+    property ConsultaConceitos: TtecQuery read GetConsultaConceitos;
+    property ConsultaFiliais: TtecQuery read GetConsultaFiliais;
+    property ConsultaGruposFiliais: TtecQuery read GetConsultaGruposFiliais;
+    property ConsultaRegioes: TtecQuery read GetConsultaRegioes;
+    property Filial: String write SetFilial;
+    property Grupo: String write SetGrupo;
+    property LembrarFinal: String read FLembrarFinal write SetLembrarFinal;
+    property LembrarInicial: String read FLembrarInicial write SetLembrarInicial;
+    property Ocorrencia: Byte write SetOcorrencia;
+    property Ordenacao: Byte write SetOrdenacao;
+    property Pagamento: Byte write SetPagamento;
+    property PosOcorrencia: Byte write SetPosOcorrencia;
+    property QtdeRegistros: Integer read GetQtdeRegistros;
+    property Regiao: String write SetRegiao;
+    property Telefone: Byte write SetTelefone;
+    property ComSemCobrador: Byte write SetComSemCobrador;
+    property TipoSelecao: Byte read FTipoSelecao write SetTipoSelecao;
+    property TotalRegistros: Real read GetTotalRegistros;
+    property VenctoFinal: String read FVenctoFinal write SetVenctoFinal;
+    property VenctoInicial: String read FVenctoInicial write SetVenctoInicial;
+    property Venda: String write SetVenda;
+  end;
+
+//var
+//  dtmLigarClientes: TdtmLigarClientes;
+
+implementation
+
+const
+      WhereBase = 23;
+      WhereFilial        = WhereBase + 10;
+      WhereGrupo         = WhereBase + 11;
+      WhereCobrador      = WhereBase + 12;
+      WhereAgente        = WhereBase + 13;
+      WhereConceito      = WhereBase + 14;
+      WhereRegiao        = WhereBase + 15;
+      WhereVencto        = WhereBase + 16;
+      WhereVenda         = WhereBase + 17;
+      WherePagamento     = WhereBase + 18;
+      WhereOcorrencia    = WhereBase + 19;
+      WhereTelefone      = WhereBase + 20;
+      WhereLembrar       = WhereBase + 21;
+      WherePosOcorrencia = WhereBase + 22;
+      WhereComSemCobrador= WhereBase + 23;
+
+      WhereOrdenacao     = WhereComSemCobrador + 11;
+
+      WhereBaseAvisosClientes    = 38;
+      WhereFilialAvisosClientes  = WhereBaseAvisosClientes + 1;
+      WhereGrupoAvisosClientes   = WhereBaseAvisosClientes + 2;
+      WhereAgenteAvisosClientes   = WhereBaseAvisosClientes + 3;
+      WhereConceitosAvisosClientes  = WhereBaseAvisosClientes + 4;
+      WhereRegiaoAvisosClientes  = WhereBaseAvisosClientes + 5;
+      WhereComSemCobradorAvisosClientes = WhereBaseAvisosClientes + 7;
+
+      WhereBaseAvisosAvalistas   = 72;
+      WhereFilialAvisosAvalistas = WhereBaseAvisosAvalistas + 1;
+      WhereGrupoAvisosAvalistas  = WhereBaseAvisosAvalistas + 2;
+      WhereAgenteAvisosAvalistas = WhereBaseAvisosAvalistas + 3;
+      WhereConceitosAvisosAvalistas = WhereBaseAvisosAvalistas + 4;
+      WhereRegiaoAvisosAvalistas  = WhereBaseAvisosAvalistas + 5;
+      WhereComSemCobradorAvisosAvalistas  = WhereBaseAvisosAvalistas + 7;
+
+      WhereOrdenacaoAvisos = 84;
+
+{$R *.dfm}
+
+{ TdtmLigarClientes }
+procedure TdtmLigarClientes.AbreTabelaPesquisa(TipoPesquisa: TtecLigarClientes);
+begin
+  case TipoPesquisa of
+         tlcFILIAIS: Abre(ctSACConsultaFiliais);
+   tlcGRUPOSFILIAIS: Abre(ctSACConsultaGruposFiliais);
+      tlcCOBRADORES: Abre(ctSACConsultaUsuarios);
+         tlcAGENTES: Abre(ctSACConsultaAgentes);
+       tlcCONCEITOS: Abre(ctSACConsultaConceitos);
+         tlcREGIOES: Abre(ctSACConsultaRegioes);
+  end;
+end;
+
+constructor TdtmLigarClientes.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryGrupoFiliais.Tag:= ctTabelas;
+  qryFiliais.Tag     := ctTabelas;
+  qryUsuarios.Tag    := ctTabelas;
+  qryaAgentes.Tag    := ctTabelas;
+  qryConceitos.Tag   := ctTabelas;
+  qryRegioes.Tag     := ctTabelas;
+  qryConsultaGruposFiliais.Tag := ctSACConsultaGruposFiliais;
+  qryConsultaFiliais.Tag       := ctSACConsultaFiliais;
+  qryConsultaUsuarios.Tag      := ctSACConsultaUsuarios;
+  qryConsultaAgentes.Tag       := ctSACConsultaAgentes;
+  qryConsultaConceitos.Tag     := ctSACConsultaConceitos;
+  qryConsultaRegioes.Tag       := ctSACConsultaRegioes;
+end;
+
+function TdtmLigarClientes.ExisteAgentes(Campo, Codigo: String): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaAgentes, Campo, Codigo);
+end;
+
+function TdtmLigarClientes.ExisteCobradores(Campo, Codigo: String): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaUsuarios, Campo, Codigo);
+end;
+
+function TdtmLigarClientes.ExisteConceitos(Campo, Codigo: String): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaConceitos, Campo, Codigo);
+end;
+
+function TdtmLigarClientes.ExisteFiliais(Campo, Codigo: string): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaFiliais, Campo, Codigo);
+end;
+
+function TdtmLigarClientes.ExisteGruposFiliais(Campo, Codigo: String): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaGruposFiliais, Campo, Codigo);
+end;
+
+function TdtmLigarClientes.ExisteRegioes(Campo, Codigo: String): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaRegioes, Campo, Codigo);
+end;
+
+procedure TdtmLigarClientes.FechaTabelaPesquisa(TipoPesquisa: TtecLigarClientes);
+begin
+  case TipoPesquisa of
+         tlcFILIAIS: Fecha(ctSACConsultaFiliais);
+   tlcGRUPOSFILIAIS: Fecha(ctSACConsultaGruposFiliais);
+      tlcCOBRADORES: Fecha(ctSACConsultaUsuarios);
+         tlcAGENTES: Fecha(ctSACConsultaAgentes);
+       tlcCONCEITOS: Fecha(ctSACConsultaConceitos);
+         tlcREGIOES: Fecha(ctSACConsultaRegioes);
+  end;
+end;
+
+function TdtmLigarClientes.GetCodigoCliente: Integer;
+begin
+  result := dsrLigarClientes.DataSet.FindField('cliente').AsInteger;
+end;
+
+function TdtmLigarClientes.GetComContato: Boolean;
+begin
+ Result := dsrLigarClientes.DataSet.FindField('comcontato').AsBoolean;
+end;
+
+function TdtmLigarClientes.GetConsultaAgentes: TtecQuery;
+begin
+  Result:= qryConsultaAgentes;
+end;
+
+function TdtmLigarClientes.GetConsultaCobradores: TtecQuery;
+begin
+  Result:= qryConsultaUsuarios;
+end;
+
+function TdtmLigarClientes.GetConsultaConceitos: TtecQuery;
+begin
+  Result:= qryConsultaConceitos;
+end;
+
+function TdtmLigarClientes.GetConsultaFiliais: TtecQuery;
+begin
+  Result:= qryConsultaFiliais;
+end;
+
+function TdtmLigarClientes.GetConsultaGruposFiliais: TtecQuery;
+begin
+  Result:= qryConsultaGruposFiliais;
+end;
+
+function TdtmLigarClientes.GetConsultaRegioes: TtecQuery;
+begin
+  Result:= qryConsultaRegioes;
+end;
+
+function TdtmLigarClientes.GetQtdeRegistros: Integer;
+begin
+  Result:= dsrLigarClientes.DataSet.RecordCount;
+//  qryLigarClientes.RecordCount;
+end;
+
+function TdtmLigarClientes.GetTipoCliente: string;
+begin
+  result := dsrLigarClientes.DataSet.FindField('clientetipo').AsString;
+end;
+
+function TdtmLigarClientes.GetTotalRegistros: Real;
+Var
+ Valor : Currency;
+begin
+  Valor := 0;
+  case TipoSelecao of
+   0,1 : Valor := TotalizarValores[qryLigarClientes, qryLigarClientesatrasado];
+     2 : Valor := TotalizarValores[qryLigarClientesAvisos, qryLigarClientesAvisosatrasado];
+  end;
+  Result := Valor;
+end;
+
+procedure TdtmLigarClientes.InformacoesCliente;
+begin
+ case TipoSelecao of
+ 0,1 : begin
+         qryParcelas.Sql.Text := qryParcelasAtrasosLembretes.Sql.Text;
+         ReFazConsulta(qryDadosClientes,[0,1],
+            [qryLigarClientescliente.AsVariant,
+             qryLigarClientesclientetipo.AsVariant]);
+         ReFazConsulta(qryParcelas,[0,1],
+            [qryLigarClientescliente.AsVariant,
+             qryLigarClientesclientetipo.AsVariant]);
+       end;
+   2 : if qryLigarClientesAvisoseavalista.AsBoolean then
+       begin
+        qryParcelas.Sql.Text := qryParcelasAvisos_Avalistas.Sql.Text;
+         ReFazConsulta(qryDadosClientes,[0,1],
+            [qryLigarClientesAvisoscliente.AsVariant,'C']);
+         ReFazConsulta(qryParcelas,[0,1,2],
+            [qryLigarClientesAvisosavalista.AsVariant,
+             qryLigarClientesAvisosclientetipo.AsVariant,
+             qryLigarClientesAvisoscliente.AsVariant]);
+       end
+       else
+       begin
+        qryParcelas.Sql.Text := qryParcelasAvisos_Clientes.Sql.Text;
+         ReFazConsulta(qryDadosClientes,[0,1],
+            [qryLigarClientesAvisoscliente.AsVariant,
+             qryLigarClientesAvisosclientetipo.AsVariant]);
+         ReFazConsulta(qryParcelas,[0,1,2],
+            [qryLigarClientesAvisoscliente.AsVariant,
+             qryLigarClientesAvisosclientetipo.AsVariant,
+             qryLigarClientesAvisosavalista.AsVariant]);
+       end;
+ end;
+
+end;
+
+procedure TdtmLigarClientes.MontarDataLembrar;
+const
+  Data_1: String = 'and (a.lembrar = ';
+  Data_2: String = 'and (a.lembrar between (';
+begin
+  if not DataEmBranco(FLembrarInicial) then begin
+    if DataEmBranco(FLembrarFinal) then
+         qryLigarClientes.MacrobyName('Lembrar').asstring:= Data_1 + '''' + FLembrarInicial + ''')'
+    else qryLigarClientes.MacrobyName('Lembrar').asstring:= Data_2 + '''' + FLembrarInicial + ''') and (''' + FLembrarFinal + '''))';
+  end
+  else begin
+    if not DataEmBranco(FLembrarFinal) then
+         qryLigarClientes.MacrobyName('Lembrar').asstring:= Data_1 + '''' + FLembrarFinal + ''')'
+    else qryLigarClientes.MacrobyName('Lembrar').asstring:= '';
+  end;
+end;
+
+procedure TdtmLigarClientes.MontarDataVencimento;
+var
+  Data_1: String;
+  Data_2: String;
+begin
+  case FTipoSelecao of
+  0: begin
+      Data_1:= 'and (p.datavencto = ';
+      Data_2:= 'and (p.datavencto between (';
+     end;
+  1: begin
+      Data_1:= 'and (a.data = ';
+      Data_2:= 'and (a.data between (';
+     end;
+  end;
+
+  if not DataEmBranco(FVenctoInicial) then begin
+    if DataEmBranco(FVenctoFinal) then
+         qryLigarClientes.MacrobyName('Data_Vencto').asstring:= Data_1 + '''' + FVenctoInicial + ''')'
+    else qryLigarClientes.MacrobyName('Data_Vencto').asstring:= Data_2 + '''' + FVenctoInicial + ''') and (''' + FVenctoFinal + '''))';
+  end
+  else begin
+    if not DataEmBranco(FVenctoFinal) then
+         qryLigarClientes.MacrobyName('Data_Vencto').asstring:= Data_1 + '''' + FVenctoFinal + ''')'
+    else qryLigarClientes.MacrobyName('Data_Vencto').asstring:= '';
+  end;
+
+end;
+
+procedure TdtmLigarClientes.Selecionar(TipoPesquisa: TtecLigarClientes);
+begin
+  case TipoPesquisa of
+         tlcFILIAIS: ReFazConsulta(qryFiliais,[0],[qryConsultaFiliaiscodigo.AsInteger]);
+   tlcGRUPOSFILIAIS: ReFazConsulta(qryGrupoFiliais,[0],[qryConsultaGruposFiliaiscodigo.AsInteger]);
+      tlcCOBRADORES: ReFazConsulta(qryUsuarios,[0],[qryConsultaUsuarioscodigo.AsInteger]);
+         tlcAGENTES: ReFazConsulta(qryaAgentes,[0],[qryConsultaAgentescodigo.AsInteger]);
+       tlcCONCEITOS: ReFazConsulta(qryConceitos,[0],[qryConsultaConceitoscodigo.AsInteger]);
+         tlcREGIOES: ReFazConsulta(qryRegioes,[0],[qryConsultaRegioescodigo.AsString]);
+  end;
+end;
+
+function TdtmLigarClientes.SelecionarclientesLigar: Boolean;
+begin
+  result := False;
+  case TipoSelecao of
+  0,1 : begin
+          dsrLigarClientes.DataSet := qryLigarClientes;
+          qryLigarClientes.Close;
+          qryLigarClientes.Open;
+          Result:= qryLigarClientes.IsEmpty;
+        end;
+  2 : begin
+          dsrLigarClientes.DataSet := qryLigarClientesAvisos;
+          qryLigarClientesAvisos.Close;
+          qryLigarClientesAvisos.Open;
+          Result:= qryLigarClientesAvisos.IsEmpty;
+        end;
+  end;
+end;
+
+procedure TdtmLigarClientes.SetAgente(const Value: String);
+begin
+  if (Value <> '') then
+  begin
+   qryLigarClientes.MacrobyName('Agente').asstring:= 'and (t1.agente = ' + Value + ')';
+   qryLigarClientesAvisos.MacrobyName('Agentes').asstring:= 'and (contratos.agente = ' + Value + ')';
+   qryLigarClientesAvisos.MacrobyName('Agentes').asstring:= 'and (contratos.agente = ' + Value + ')';
+  end
+  else
+  begin
+   qryLigarClientes.MacrobyName('Agente').asstring:= '';
+   qryLigarClientesAvisos.MacrobyName('Agentes').asstring:= '';
+   qryLigarClientesAvisos.MacrobyName('Agentes').asstring:= '';
+  end;
+end;
+
+procedure TdtmLigarClientes.SetCobrador(const Value: String);
+begin
+  if (Value <> '') then
+       qryLigarClientes.MacrobyName('Cobrador').asstring:= 'and (a.usuario = ' + Value + ')'
+  else qryLigarClientes.MacrobyName('Cobrador').asstring:= '';
+end;
+
+procedure TdtmLigarClientes.SetComContato(const Value: Boolean);
+begin
+ dsrLigarClientes.DataSet.Edit;
+ dsrLigarClientes.DataSet.FindField('comcontato').AsBoolean := Value;
+ dsrLigarClientes.DataSet.Post;
+end;
+
+procedure TdtmLigarClientes.SetConceito(const Value: String);
+begin
+  if (Value <> '') then
+  begin
+    qryLigarClientes.MacrobyName('Conceito').asstring:= 'and (c1.conceito = ' + Value + ')';
+    qryLigarClientesAvisos.MacrobyName('Conceito').asstring:= 'and (contratos.conceito = ' + Value + ')';
+    qryLigarClientesAvisos.MacrobyName('Conceito').asstring:= 'and (contratos.conceito = ' + Value + ')';
+  end
+  else
+  begin
+    qryLigarClientes.MacrobyName('Conceito').asstring:= '';
+    qryLigarClientesAvisos.MacrobyName('Conceito').asstring:= '';
+    qryLigarClientesAvisos.MacrobyName('Conceito').asstring:= '';
+  end;
+end;
+
+procedure TdtmLigarClientes.SetFilial(const Value: String);
+begin
+  if (Value <> '') then
+  begin
+   qryLigarClientes.MacrobyName('Filial').asstring:= 'and (t1.filialvenda = ' + Value + ')';
+   qryLigarClientesAvisos.MacrobyName('Filiais').asstring:= ' and (Contratos.filialvenda = ' + Value + ') ';
+   qryLigarClientesAvisos.MacrobyName('Filiais').asstring:= ' and (Contratos.filialvenda = ' + Value + ') ';
+  end
+  else
+  begin
+   qryLigarClientes.MacrobyName('Filial').asstring:= '';
+   qryLigarClientesAvisos.MacrobyName('Filiais').asstring:= '';
+   qryLigarClientesAvisos.MacrobyName('Filiais').asstring:= '';
+  end;
+end;
+
+procedure TdtmLigarClientes.SetGrupo(const Value: String);
+begin
+  if (Value <> '') then
+  begin
+   qryLigarClientes.MacrobyName('Grupo').asstring:= 'and (t1.filialvenda in (Select filial From filiaisgruposfiliais Where grupo = ' + Value + '))';
+   qryLigarClientesAvisos.MacrobyName('Grupos').asstring:= 'and (contratos.filialvenda in (Select filial From filiaisgruposfiliais Where grupo = ' + Value + '))';
+   qryLigarClientesAvisos.MacrobyName('Grupos').asstring:= 'and (contratos.filialvenda in (Select filial From filiaisgruposfiliais Where grupo = ' + Value + '))';
+  end
+  else
+  begin
+   qryLigarClientes.MacrobyName('Grupo').asstring:= '';
+   qryLigarClientesAvisos.MacrobyName('Grupos').asstring:= '';
+   qryLigarClientesAvisos.MacrobyName('Grupos').asstring:= '';
+  end;
+end;
+
+procedure TdtmLigarClientes.SetLembrarFinal(const Value: String);
+begin
+  if not DataEmBranco(Value) then
+       FLembrarFinal := Value
+  else FLembrarFinal := '';
+  MontarDataLembrar;
+end;
+
+procedure TdtmLigarClientes.SetLembrarInicial(const Value: String);
+begin
+  if not DataEmBranco(Value) then
+       FLembrarInicial := Value
+  else FLembrarInicial := '';
+  MontarDataLembrar;
+end;
+
+procedure TdtmLigarClientes.SetOcorrencia(const Value: Byte);
+const
+  Ocorrencia = '(Select count(*) From atendimentos a ' +
+                                'Where (a.lembrar >= current_date) and '     +
+                                '      (a.cliente   = t1.cliente)  and '     +
+                                '      (a.tipocliente = t1.tipocliente) and' +
+                                '      (a.tipo      = ''C''))';
+begin
+  if (FTipoSelecao = 0) or
+     (FTipoSelecao = 1) then begin
+    case Value of
+      0: qryLigarClientes.MacrobyName('Ocorrencia').asstring:= 'and (' + Ocorrencia + ' = 0)';
+      1: qryLigarClientes.MacrobyName('Ocorrencia').asstring:= '';
+    end;
+  end
+  else qryLigarClientes.MacrobyName('Ocorrencia').asstring:= '';
+end;
+
+procedure TdtmLigarClientes.SetOrdenacao(const Value: Byte);
+begin
+  case value of
+    0: begin
+        qryLigarClientes.MacrobyName('Ordenacao').asstring:= ', t.Nome ORDER BY UPPER(TO_ASCII(nome,''LATIN1''))';
+        qryLigarClientesAvisos.MacrobyName('Ordenacao').asstring:= 'Order By UPPER(TO_ASCII(nome,''LATIN1''))';
+       end;
+    1: begin
+        qryLigarClientes.MacrobyName('Ordenacao').asstring:= 'Order By cliente';
+        qryLigarClientesAvisos.MacrobyName('Ordenacao').asstring:= 'Order By cliente';
+       end;
+    2: begin
+        qryLigarClientes.MacrobyName('Ordenacao').asstring:= 'Order By atrasado';
+        qryLigarClientesAvisos.MacrobyName('Ordenacao').asstring:= 'Order By atrasado';
+       end;
+    3: begin
+        qryLigarClientes.MacrobyName('Ordenacao').asstring:= 'Order By data';
+        qryLigarClientesAvisos.MacrobyName('Ordenacao').asstring:= 'Order By data';
+       end;
+  end;
+end;
+
+procedure TdtmLigarClientes.SetPagamento(const Value: Byte);
+begin
+  if FTipoSelecao = 0 then begin
+    case Value of
+      0: begin
+           qryLigarClientes.MacrobyName('Data_Pagto').asstring:= 'and (p.datavencto < current_date)';
+           qryLigarClientes.MacrobyName('Data_Vencto').asstring:= '';
+         end;
+      1: qryLigarClientes.MacrobyName('Data_Pagto').asstring:= '';
+      2: qryLigarClientes.MacrobyName('Data_Pagto').asstring:= 'and (0 = (Select Count(contrato) ' +
+                                                          'From parcelas ' +
+                                                          'Where (contrato = t1.numero)  and ' +
+                                                          '      (datapagto is not null) and ' +
+                                                          '      ((tipopagto is null) or not (tipopagto in (''X'',''P'')))))';
+    end;
+  end
+  else qryLigarClientes.MacrobyName('Data_Pagto').asstring:= '';
+end;
+
+procedure TdtmLigarClientes.SetPosOcorrencia(const Value: Byte);
+begin
+  if FTipoSelecao = 1 then begin
+    case Value of
+      0: qryLigarClientes.MacrobyName('PosOcorrencia').asstring := 'and (a.data > (Select Max(coalesce(p2.datapagto,''01/01/1899''))' +
+                                                     '               From parcelas p2, contratos t2'          +
+                                                     '               Where (p2.contrato = t2.numero)'         +
+                                                     '                 and (t2.cliente  = c1.codigo)'         +
+                                                     '                 and (t2.tipocliente = c1.tipo)' +
+                                                     '                 and (t2.situacao in (''F'',''N'',''P''))'    +
+                                                     '                 and (t2.numero not in (select contratos.origem from contratos where contratos.origem = t2.numero))))';
+      1: qryLigarClientes.MacrobyName('PosOcorrencia').asstring := '';
+    end;
+  end
+  else qryLigarClientes.MacrobyName('PosOcorrencia').asstring := '';
+end;
+
+procedure TdtmLigarClientes.SetRegiao(const Value: String);
+begin
+  if (Value <> '') then
+  begin
+   qryLigarClientes.MacrobyName('Regiao').asstring:= 'and ((c1.bairro in (Select codigo From bairros Where regiao = ''' + Value + ''')) or '+
+                                                           '(c1.cliente in (Select codigo From cidades Where regiao = ''' + Value + ''')))';
+
+   qryLigarClientesAvisos.MacrobyName('Regiao').asstring:= 'and ((vf.bairro in (Select codigo From bairros Where regiao = ''' + Value + ''')) or '+
+                                                                '(vf.cliente in (Select codigo From cidades Where regiao = ''' + Value + ''')))';
+
+   qryLigarClientesAvisos.MacrobyName('Regiao').asstring:= 'and ((c.bairro in (Select codigo From bairros Where regiao = ''' + Value + ''')) or '+
+                                                           '(c.cliente in (Select codigo From cidades Where regiao = ''' + Value + ''')))';
+
+  end
+  else
+  begin
+   qryLigarClientes.MacrobyName('Regiao').asstring:= '';
+   qryLigarClientesAvisos.MacrobyName('Regiao').asstring:= '';
+   qryLigarClientesAvisos.MacrobyName('Regiao').asstring:= '';
+  end;
+end;
+
+procedure TdtmLigarClientes.SetTelefone(const Value: Byte);
+begin
+  case Value of
+(*    1: qryLigarClientes.MacrobyName('Telefone').asstring := 'and ((c1.fonenumero     is not null) or '  +
+                                              '     (c1.fone2numero    is not null) or '  +
+                                              '     (c1.empfonenumero  is not null) or '  +
+                                              '     (c1.confonenumero  is not null) or '  +
+                                              '     (c1.reffonenumero  is not null) or '  +
+                                              '     (c1.reffone2numero is not null))'; *)
+    1: qryLigarClientes.MacrobyName('Telefone').asstring := '';
+    0: qryLigarClientes.MacrobyName('Telefone').asstring := '';
+  end;
+end;
+
+procedure TdtmLigarClientes.SetTipoSelecao(const Value: Byte);
+begin
+  if FTipoSelecao <> Value then
+    FTipoSelecao:= Value;
+  case FTipoSelecao of
+  0 : qryLigarClientes.MacrobyName('TipoSelecao').asstring:=
+      '(Select  c1.codigo as cliente, '+
+      '          c1.tipo    as clientetipo '+
+      ' From    parcelas p, contratos t1, vfornecedores c1 '+      ' Where   (p.contrato = t1.numero) '+
+      '     and (t1.cliente = c1.codigo) '+
+      '     and (t1.tipocliente = c1.tipo) '+
+      '     and (t1.situacao in (''F'',''N'',''P'')) '+
+      '     and (t1.numero not in (select contratos.origem from contratos where contratos.origem = t1.numero)) '+
+      '     and (p.datapagto is null)';
+
+  1 : qryLigarClientes.MacrobyName('TipoSelecao').asstring :=       '(Select  c1.codigo as cliente, '+
+       '         c1.tipo    as clientetipo '+
+       ' From    atendimentos a, vfornecedores c1, contratos t1 '+
+       ' Where   (a.cliente = c1.codigo) and (a.tipocliente = c1.tipo) '+
+       '     and (t1.cliente = c1.codigo) '+
+       '     and (t1.tipocliente = c1.tipo) '+
+       '     and (t1.situacao in (''F'',''N'',''P'')) '+
+       '     and (t1.numero not in (select contratos.origem from contratos where contratos.origem = t1.numero))';
+
+  //2 : SELEÇÃO POR AVISOS : UTILIZA qryLigarClientesAvisos
+  end;
+end;
+
+procedure TdtmLigarClientes.SetVenctoFinal(const Value: String);
+begin
+  if not DataEmBranco(Value) then
+       FVenctoFinal := Value
+  else FVenctoFinal := '';
+  MontarDataVencimento;
+end;
+
+procedure TdtmLigarClientes.SetVenctoInicial(const Value: String);
+begin
+  if not DataEmBranco(Value) then
+       FVenctoInicial := Value
+  else FVenctoInicial := '';
+  MontarDataVencimento;
+end;
+
+procedure TdtmLigarClientes.SetVenda(const Value: String);
+begin
+  if not DataEmBranco(Value) then
+       qryLigarClientes.MacrobyName('Data_Venda').asstring:= 'and (t1.data >= ' + '''' + Value + '''' + ')'
+  else qryLigarClientes.MacrobyName('Data_Venda').asstring:= '';
+end;
+
+
+procedure TdtmLigarClientes.qryParcelasCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  if (qryParcelasnomeavalista.AsString<>'') then
+   if qryParcelaseavalista.AsBoolean then
+     qryParcelasTipoAvalista.AsString := 'Avalista de:'
+   else
+     qryParcelasTipoAvalista.AsString := 'Avalisado por:'
+  else
+   qryParcelasTipoAvalista.AsString := '';
+
+end;
+
+function TdtmLigarClientes.GetCarta: integer;
+begin
+ result := qryLigarClientesAvisoscarta.AsInteger;
+end;
+
+function TdtmLigarClientes.GetCartaNumero: integer;
+begin
+ result := qryLigarClientesAvisoscartanumero.AsInteger;
+end;
+
+function TdtmLigarClientes.GetDataAtraso: String;
+begin
+ result := qryLigarClientesAvisosdatavencto.AsString;
+end;
+
+function TdtmLigarClientes.GeteAvalista: Boolean;
+begin
+  result := qryLigarClientesAvisoseavalista.AsBoolean;
+end;
+
+function TdtmLigarClientes.GetEmissaoCarta: String;
+begin
+ result := qryLigarClientesAvisosdata.AsString;
+end;
+
+function TdtmLigarClientes.GetTipoAtendimentoCarta: Integer;
+begin
+ result := qryLigarClientesAvisostipoatendimento.AsInteger;
+end;
+
+function TdtmLigarClientes.GetTipodeCarta: integer;
+begin
+  result := qryLigarClientesAvisostipocarta.AsInteger;
+end;
+
+function TdtmLigarClientes.GetValorAtraso: String;
+begin
+  result := FormatFloat('###,###,##0.00',qryLigarClientesAvisosatrasado.AsFloat);
+end;
+
+function TdtmLigarClientes.GetstreAvalista: String;
+begin
+ if qryLigarClientesAvisoseavalista.AsBoolean then
+  result := 'Sim' else Result := 'Nao';
+end;
+
+procedure TdtmLigarClientes.SetComSemCobrador(const Value: Byte);
+const
+ SQL0e1 = ' and not exists (select uc.contrato '+
+          '                 from usuarioscontratos uc '+
+          '                 where uc.contrato = t1.numero and '+
+          '                             uc.retorno is null) ';
+
+ SQL2   = ' and not exists (select uc.contrato '+
+          '                 from usuarioscontratos uc '+
+          '                 where uc.contrato = contratos.numero and '+
+          '                             uc.retorno is null) ';
+
+begin
+  case Value of
+  0: begin
+       qryLigarClientes.MacrobyName('Com_ou_Sem_Cobrador').asstring := SQL0e1;
+       qryLigarClientesAvisos.MacrobyName('Com_ou_sem_cobrador').asstring  := SQL2;
+       qryLigarClientesAvisos.MacrobyName('Com_ou_sem_cobrador').asstring := SQL2;
+     end;
+  1: begin
+       qryLigarClientes.MacrobyName('Com_ou_Sem_Cobrador').asstring := '';
+       qryLigarClientesAvisos.MacrobyName('Com_ou_sem_cobrador').asstring  := '';
+       qryLigarClientesAvisos.MacrobyName('Com_ou_sem_cobrador').asstring := '';
+     end;
+  end;
+end;
+
+procedure TdtmLigarClientes.ZMonitor1MonitorEvent(Sql, Result: String);
+var
+ Listar : TStringList;
+ arquivo: String;
+begin
+  inherited;
+  arquivo:='c:\dmligarclientes.sql';
+  Listar := tStringlist.create;
+  if fileexists(arquivo) then
+    Listar.loadfromfile(arquivo);
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile(arquivo);
+  listar.free;
+end;
+
+end.

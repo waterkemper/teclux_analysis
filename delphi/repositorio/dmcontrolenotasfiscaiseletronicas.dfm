@@ -1,7 +1,7 @@
 inherited dtmControleNotasFiscaisEletronicas: TdtmControleNotasFiscaisEletronicas
   OldCreateOrder = False
-  Left = 323
-  Top = 234
+  Left = 507
+  Top = 169
   Height = 599
   Width = 1020
   object qryProcurarCFOPPesquisa: TtecQuery
@@ -4405,7 +4405,7 @@ inherited dtmControleNotasFiscaisEletronicas: TdtmControleNotasFiscaisEletronica
     Transaction = dtmTecSoft.tstTecSoft
     CachedUpdates = True
     ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
-    Options = [doAutoFillDefs]
+    Options = [doHourGlass, doAutoFillDefs]
     LinkOptions = [loAlwaysResync]
     Constraints = <>
     ExtraOptions = [poTextAsMemo]
@@ -4461,7 +4461,7 @@ inherited dtmControleNotasFiscaisEletronicas: TdtmControleNotasFiscaisEletronica
         ParamType = ptUnknown
       end>
     Sql.Strings = (
-      ';'
+      'tecsoft ;'
       'select notas.*'
       'from'
       ''
@@ -4576,12 +4576,18 @@ inherited dtmControleNotasFiscaisEletronicas: TdtmControleNotasFiscaisEletronica
         '                                    where sdf.dadofiscal = df.nu' +
         'mero) <> 0'
       '                                    then'
-      #9#9#9#9#9#9#9#9#9
-      #9#9#9#9#9#9#9#9#9
+      ''
+      ''
       ''
       
         '                                                   df.numprotoco' +
         'lonfse IS NOT NULL /* tem protocolo e status errado */'
+      
+        '                                                   and coalesce(' +
+        'df.statusnfse, 0) IN (100)'
+      
+        '                                                                ' +
+        '                            /*'
       
         '                                                   AND ((coalesc' +
         'e(df.statusnfse, 0) IN (0) AND f.tipoemissaonfeservico=7) OR'
@@ -4591,6 +4597,7 @@ inherited dtmControleNotasFiscaisEletronicas: TdtmControleNotasFiscaisEletronica
       
         '                                                        (coalesc' +
         'e(df.statusnfse, 0) IN (0,1) AND f.tipoemissaonfeservico=8))'
+      '                                                        */'
       ''
       ''
       
@@ -4620,7 +4627,13 @@ inherited dtmControleNotasFiscaisEletronicas: TdtmControleNotasFiscaisEletronica
       ''
       
         '                                                   df.numprotoco' +
-        'lonfse IS NOT NULL  '
+        'lonfse IS NOT NULL'
+      
+        '                                                   and coalesce(' +
+        'df.statusnfse, 0) IN (1,3) and'
+      
+        '                                                                ' +
+        '                              /*'
       
         '                                                   AND ((coalesc' +
         'e(df.statusnfse, 0) IN (1,3) AND f.tipoemissaonfeservico=7) OR'
@@ -4630,6 +4643,7 @@ inherited dtmControleNotasFiscaisEletronicas: TdtmControleNotasFiscaisEletronica
       
         '                                                        (coalesc' +
         'e(df.statusnfse, 0) IN (2,3) AND f.tipoemissaonfeservico=8)) and'
+      '                                                        */'
       #9#9#9#9#9#9#9#9#9#9#9#9'   df.xmlnfe_canc_inut is null'#9
       ''
       ''
@@ -4699,6 +4713,10 @@ inherited dtmControleNotasFiscaisEletronicas: TdtmControleNotasFiscaisEletronica
         '                                                 df.numprotocolo' +
         'nfse IS NULL'
       
+        '                                                 and coalesce(df' +
+        '.statusnfse, 0) IN (100)'
+      '                                                 /*'
+      
         '                                              AND ((coalesce(df.' +
         'statusnfse, 0) IN (0) AND f.tipoemissaonfeservico=7) OR'
       
@@ -4707,6 +4725,7 @@ inherited dtmControleNotasFiscaisEletronicas: TdtmControleNotasFiscaisEletronica
       
         '                                                   (coalesce(df.' +
         'statusnfse, 0) IN (0,1) AND f.tipoemissaonfeservico=8))'
+      '                                                   */'
       
         '                                              AND df.modelodocto' +
         ' IN ('#39'99'#39')'
@@ -4739,7 +4758,13 @@ inherited dtmControleNotasFiscaisEletronicas: TdtmControleNotasFiscaisEletronica
       ''
       
         '                                    df.numprotocolonfse is not n' +
-        'ull and ((coalesce(df.statusnfse,0) in (1,3) and f.tipoemissaonf' +
+        'ull and coalesce(df.statusnfse,0) in (1,3)'
+      
+        '                                                                ' +
+        '    /*'
+      
+        '                                                                ' +
+        '    and ((coalesce(df.statusnfse,0) in (1,3) and f.tipoemissaonf' +
         'eservico=7) or'
       
         '                                                                ' +
@@ -4748,7 +4773,7 @@ inherited dtmControleNotasFiscaisEletronicas: TdtmControleNotasFiscaisEletronica
       
         '                                                                ' +
         '         (coalesce(df.statusnfse,0) in (2,3) and f.tipoemissaonf' +
-        'eservico=8)) and df.confirmacaoexclusaonfe is null'
+        'eservico=8))*/ and df.confirmacaoexclusaonfe is null'
       ''
       
         '                                    else (((df.numprotocolonfe I' +
@@ -4844,33 +4869,44 @@ inherited dtmControleNotasFiscaisEletronicas: TdtmControleNotasFiscaisEletronica
       
         '                                          where sdf.dadofiscal =' +
         ' df.numero) <> 0 then'
-      ''
+      #9#9#9#9#9#9#9#9#9#9'  '
+      #9#9#9#9#9#9#9#9#9#9'  '
       
         '                                                   df.numprotoco' +
         'lonfse IS NOT NULL /* tem protocolo e status errado */'
       
-        '                                                   AND ( ((coale' +
-        'sce(df.statusnfse, 0) IN (0) AND f.tipoemissaonfeservico=7) OR'
+        '                                                   AND ( coalesc' +
+        'e(df.statusnfse, 0) IN (100)'
       
-        '                                                          (coale' +
-        'sce(df.statusnfse, 0) IN (100) AND f.tipoemissaonfeservico=9) OR'
+        #9#9#9#9#9#9#9#9#9#9#9#9'         /*((coalesce(df.statusnfse, 0) IN (0) AND f' +
+        '.tipoemissaonfeservico=7) OR'
       
-        '                                                          (coale' +
-        'sce(df.statusnfse, 0) IN (0,1) AND f.tipoemissaonfeservico=8)) o' +
-        'r'
-      #9#9#9#9#9#9#9#9#9#9#9#9#9#9' '
+        '                                                            (coa' +
+        'lesce(df.statusnfse, 0) IN (100) AND f.tipoemissaonfeservico=9) ' +
+        'OR'
       
-        #9#9#9#9#9#9#9#9#9#9#9#9#9#9'  (((coalesce(df.statusnfse, 0) IN (1,3) AND f.tip' +
-        'oemissaonfeservico=7) OR'
+        '                                                            (coa' +
+        'lesce(df.statusnfse, 0) IN (0,1) AND f.tipoemissaonfeservico=8))' +
+        '*/  or'
+      ''
+      #9#9#9#9#9#9#9#9#9#9#9#9#9#9'  ( coalesce(df.statusnfse, 0) IN (1,3)'
+      #9#9#9#9#9#9#9#9#9#9#9#9#9#9'  '
       
-        '                                                           (coal' +
-        'esce(df.statusnfse, 0) IN (1,3) AND f.tipoemissaonfeservico=9) O' +
-        'R'
+        #9#9#9#9#9#9#9#9#9#9#9#9#9#9'    /*((coalesce(df.statusnfse, 0) IN (1,3) AND f.' +
+        'tipoemissaonfeservico=7) OR'
       
-        '                                                           (coal' +
-        'esce(df.statusnfse, 0) IN (2,3) AND f.tipoemissaonfeservico=8)) ' +
-        'and'
-      #9#9#9#9#9#9#9#9#9#9#9#9#9#9'   df.xmlnfe_canc_inut is null))'#9#9#9#9#9#9#9#9#9#9#9'    '
+        '                                                             (co' +
+        'alesce(df.statusnfse, 0) IN (1,3) AND f.tipoemissaonfeservico=9)' +
+        ' OR'
+      
+        '                                                             (co' +
+        'alesce(df.statusnfse, 0) IN (2,3) AND f.tipoemissaonfeservico=8)' +
+        ') */'
+      #9#9#9#9#9#9#9#9#9#9#9#9#9#9#9' '
+      #9#9#9#9#9#9#9#9#9#9#9#9#9#9#9' and'
+      #9#9#9#9#9#9#9#9#9#9#9#9#9#9'   df.xmlnfe_canc_inut is null)'
+      #9#9#9#9#9#9#9#9#9#9#9#9#9#9'   '
+      #9#9#9#9#9#9#9#9#9#9#9#9#9#9'   )'
       ''
       
         '                                          else df.numprotocolonf' +
@@ -4931,14 +4967,18 @@ inherited dtmControleNotasFiscaisEletronicas: TdtmControleNotasFiscaisEletronica
         '                                               df.numprotocolonf' +
         'se is null  /* n'#227'o tem protocolo e status errado e '#233' modelo 99*/'
       
-        '                                               and ((coalesce(df' +
-        '.statusnfse,0) in (0) and f.tipoemissaonfeservico=7) or'
+        '                                               and coalesce(df.s' +
+        'tatusnfse,0) in (100)'
+      #9#9#9#9#9#9#9#9#9#9#9'   '
+      
+        #9#9#9#9#9#9#9#9#9#9#9'    /* ((coalesce(df.statusnfse,0) in (0) and f.tipoe' +
+        'missaonfeservico=7) or'
       
         '                                                    (coalesce(df' +
         '.statusnfse,0) in (100) and f.tipoemissaonfeservico=9) or'
       
         '                                                    (coalesce(df' +
-        '.statusnfse,0) in (0,1) and f.tipoemissaonfeservico=8)) and'
+        '.statusnfse,0) in (0,1) and f.tipoemissaonfeservico=8)) */ and'
       
         '                                                 df.modelodocto ' +
         'in ('#39'99'#39')'
@@ -4974,14 +5014,17 @@ inherited dtmControleNotasFiscaisEletronicas: TdtmControleNotasFiscaisEletronica
         'nfse IS NOT NULL /* tem protocolo tem status correto porem n'#227'o c' +
         'onfirmada a exclus'#227'o no sistema */'
       
-        '                                              AND ((coalesce(df.' +
-        'statusnfse, 0) IN (1, 3) AND f.tipoemissaonfeservico=7) OR'
+        '                                              AND coalesce(df.st' +
+        'atusnfse, 0) IN (1, 3)'
+      
+        #9#9#9#9#9#9#9#9#9#9#9'    /*((coalesce(df.statusnfse, 0) IN (1, 3) AND f.ti' +
+        'poemissaonfeservico=7) OR'
       
         '                                                   (coalesce(df.' +
         'statusnfse, 0) IN (1, 3) AND f.tipoemissaonfeservico=9) OR'
       
         '                                                   (coalesce(df.' +
-        'statusnfse, 0) IN (2, 3) AND f.tipoemissaonfeservico=8))'
+        'statusnfse, 0) IN (2, 3) AND f.tipoemissaonfeservico=8)) */'
       
         '                                              AND df.confirmacao' +
         'exclusaonfe IS NULL'
@@ -5161,6 +5204,8 @@ inherited dtmControleNotasFiscaisEletronicas: TdtmControleNotasFiscaisEletronica
       '        sd.cofinscst,'
       '        sd.aliquotacofins,'
       '        s.codigolcp116,'
+      '        s.nbs,'
+      '        sd.cindop,'
       '        s.cnae,'
       '        sd.cstissqn,'
       '        (select ae.codigoatividade'
@@ -5313,6 +5358,13 @@ inherited dtmControleNotasFiscaisEletronicas: TdtmControleNotasFiscaisEletronica
     end
     object qryServicosDadosFiscaisaliquotaissqntabelamunicipio: TFloatField
       FieldName = 'aliquotaissqntabelamunicipio'
+    end
+    object qryServicosDadosFiscaisnbs: TStringField
+      FieldName = 'nbs'
+    end
+    object qryServicosDadosFiscaiscindop: TStringField
+      FieldName = 'cindop'
+      Size = 6
     end
   end
   object qryNotas_: TtecQuery

@@ -6,7 +6,8 @@ uses
   SysUtils, Classes, dmbasico, DB, cpdatasource, ZQuery, ZPgSqlQuery,
   cpquery, CheckLst, Dialogs,
     // Constantes
-  Biblio, ctConstantes, fr_dset, fr_dbset, fr_class, fr_desgn, ZTransact;
+  Biblio, ctConstantes, fr_dset, fr_dbset, fr_class, fr_desgn, ZTransact,
+  frxClass, frx2xto30;
 
 type
   TdtmRelatorioSugestaoCompra = class(TdtmBasico)
@@ -89,6 +90,7 @@ type
     qryProcuraGrupoProdutosFinaldescricao: TStringField;
     qryProcuraClassesFinalcodigo: TStringField;
     qryProcuraClassesFinaldescricao: TStringField;
+    frxReport1: TfrxReport;
     procedure frpSugestaoCompraBeforePrint(Memo: TStringList;
       View: TfrView);
     procedure qrySugestaoCompraAfterScroll(DataSet: TDataSet);
@@ -362,6 +364,10 @@ begin
   frVariables['AgruparGrupoProduto']:=AgruparGrupoProduto;
   frVariables['AgruparProduto']:=AgruparProduto;
 //  frpSugestaoCompra.DesignReport;
+//  frxReport1.designreport;
+//  frpSugestaoCompraDetalhes.DesignReport;
+//  frxReport1.designreport;
+
   frmPreview := TfrmPreviewPadrao.create(self);
   try
    Relatorio := frmPreview.frCompositeReport;

@@ -1,6 +1,6 @@
 inherited dtmCadastroContratos: TdtmCadastroContratos
-  Left = 84
-  Top = 117
+  Left = 71
+  Top = 69
   Height = 745
   Width = 1358
   object dsrContratos: TtecDataSource
@@ -4811,7 +4811,12 @@ inherited dtmCadastroContratos: TdtmCadastroContratos
     LinkOptions = [loAlwaysResync]
     Constraints = <>
     ExtraOptions = [poTextAsMemo, poOidAsBlob]
-    Macros = <>
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'SQL'
+        ParamType = ptUnknown
+      end>
     Sql.Strings = (
       'select produto,filial,reservado,futuro'
       'from movimentos'
@@ -4824,8 +4829,8 @@ inherited dtmCadastroContratos: TdtmCadastroContratos
       '                       (select m1.produto, m1.filial,'
       '                               max(m1.data) as data'
       '                        from movimentos m1'
-      '                        where'
-      '                        /* Preenchido em runtime */ False'
+      '                        where true'
+      '                        %SQL'
       '                        group by m1.produto, m1.filial'
       '                        )'
       '                 group by m2.produto, m2.filial, m2.data'
@@ -12386,6 +12391,7 @@ inherited dtmCadastroContratos: TdtmCadastroContratos
     LinkOptions = [loAlwaysResync]
     MasterSource = dsrProdutosContratos
     Constraints = <>
+    BeforeClose = qryProdutosContratosLotesBeforeClose
     AfterInsert = qryProdutosContratosLotesAfterInsert
     AfterEdit = qryProdutosContratosLotesAfterEdit
     AfterPost = qryProdutosContratosLotesAfterPost
@@ -12644,6 +12650,74 @@ inherited dtmCadastroContratos: TdtmCadastroContratos
     end
     object qryProdutosContratosAtribuidosvalordescontoitem: TFloatField
       FieldName = 'valordescontoitem'
+    end
+  end
+  object qryCancelarMovLotes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'SQL'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'select produto,filial,reservado,futuro, loteproduto'
+      ''
+      'from movimentos'
+      ''
+      'where (produto,filial,data,lancto, loteproduto) in'
+      ''
+      '                (select m2.produto, m2.filial, m2.data,'
+      '                        max(m2.lancto) as lancto, m2.loteproduto'
+      ''
+      '                 from movimentos m2'
+      
+        '                 where (m2.produto, m2.filial, m2.data, m2.lotep' +
+        'roduto) in'
+      ''
+      '                       (select m1.produto, m1.filial,'
+      
+        '                               max(m1.data) as data, m1.loteprod' +
+        'uto'
+      ''
+      '                        from movimentos m1'
+      '                        where true'
+      ''
+      '                        %SQL'
+      ''
+      
+        '                        group by m1.produto, m1.filial, m1.lotep' +
+        'roduto'
+      '                        )'
+      
+        '                 group by m2.produto, m2.filial, m2.data, m2.lot' +
+        'eproduto'
+      '                );')
+    RequestLive = False
+    Left = 96
+    Top = 264
+    object qryCancelarMovLotesproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryCancelarMovLotesfilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryCancelarMovLotesreservado: TFloatField
+      FieldName = 'reservado'
+    end
+    object qryCancelarMovLotesfuturo: TFloatField
+      FieldName = 'futuro'
+    end
+    object qryCancelarMovLotesloteproduto: TLargeintField
+      FieldName = 'loteproduto'
     end
   end
 end

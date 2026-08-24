@@ -1,6 +1,6 @@
 inherited frmNavControles: TfrmNavControles
-  Left = 441
-  Top = 422
+  Left = 762
+  Top = 728
   AutoScroll = False
   Caption = 'frmNavControles'
   ClientHeight = 136

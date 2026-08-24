@@ -1,0 +1,648 @@
+unit dmcadastroenderecos;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, DB,
+  //Biblio
+  ctconstantes,
+  //Terceiros
+  ZQuery, ZPgSqlQuery,
+  //Componentes
+  cpquery, cpdatasource, cpdatabase,
+  //Repositorio
+  dmbasico, biblio, ZTransact;
+
+type
+
+  TdtmCadastroEnderecos = class(TdtmBasico)
+    qryEstados: TtecQuery;
+    dsrEstados: TtecDataSource;
+    qryCidades: TtecQuery;
+    dsrCidades: TtecDataSource;
+    qryEstadosCodigo: TStringField;
+    qryEstadosNome: TStringField;
+    qryEstadosPontos: TIntegerField;
+    qryBairros: TtecQuery;
+    dsrBairros: TtecDataSource;
+    qryRuas: TtecQuery;
+    dsrRuas: TtecDataSource;
+    qryRegioes: TtecQuery;
+    dsrRegioes: TtecDataSource;
+    qryRegioescodigo: TStringField;
+    qryRegioesnome: TStringField;
+    qryRegioespontos: TIntegerField;
+    spcCidadeProximo: TtecQuery;
+    spcCidadeProximoCodigo: TIntegerField;
+    spcBairroProximo: TtecQuery;
+    spcRuaProximo: TtecQuery;
+    spcBairroProximocodigo: TIntegerField;
+    spcRuaProximocodigo: TIntegerField;
+    qryConsultaEstadosRuas: TtecQuery;
+    dsrConsultaEstadosRuas: TtecDataSource;
+    qryConsultaCidadesBairros: TtecQuery;
+    dsrConsultaCidadesBairros: TtecDataSource;
+    qryConsultaRegioesBairros: TtecQuery;
+    dsrConsultaRegioesBairros: TtecDataSource;
+    qryConsultaBairrosRuas: TtecQuery;
+    dsrConsultaBairrosRuas: TtecDataSource;
+    qryConsultaEstadosCidades: TtecQuery;
+    dsrConsultaEstadosCidades: TtecDataSource;
+    qryConsultaEstadosBairros: TtecQuery;
+    dsrConsultaEstadosBairros: TtecDataSource;
+    qryConsultaCidadesRuas: TtecQuery;
+    dsrConsultaCidadesRuas: TtecDataSource;
+    qryConsultaEstadosBairroscodigo: TStringField;
+    qryConsultaEstadosBairrosnome: TStringField;
+    qryConsultaEstadosCidadescodigo: TStringField;
+    qryConsultaEstadosCidadesnome: TStringField;
+    qryConsultaCidadesBairroscodigo: TIntegerField;
+    qryConsultaCidadesBairrosnome: TStringField;
+    qryConsultaRegioesBairroscodigo: TStringField;
+    qryConsultaRegioesBairrosnome: TStringField;
+    qryConsultaEstadosRuascodigo: TStringField;
+    qryConsultaEstadosRuasnome: TStringField;
+    qryConsultaCidadesRuascodigo: TIntegerField;
+    qryConsultaCidadesRuasnome: TStringField;
+    qryConsultaBairrosRuascodigo: TIntegerField;
+    qryConsultaBairrosRuasnome: TStringField;
+    qryRuascodigo: TIntegerField;
+    qryRuasnomerua: TStringField;
+    qryRuasateonde: TStringField;
+    qryRuasdaonde: TStringField;
+    qryRuaslado: TStringField;
+    qryRuastipo: TStringField;
+    qryRuasestado: TStringField;
+    qryRuascidade: TIntegerField;
+    qryRuasbairro: TIntegerField;
+    qryRuascep: TIntegerField;
+    qryBairrosestado: TStringField;
+    qryBairroscidade: TIntegerField;
+    qryBairroscodigo: TIntegerField;
+    qryBairrosnome: TStringField;
+    qryBairrosregiao: TStringField;
+    qryBairrospontos: TIntegerField;
+    qryBairroscep: TIntegerField;
+    qryCidadesestado: TStringField;
+    qryCidadescodigo: TIntegerField;
+    qryCidadesnome: TStringField;
+    qryCidadespontos: TIntegerField;
+    qryCidadescep: TIntegerField;
+    qryCidadesfoneprestadora: TIntegerField;
+    qryCidadesfoneddd: TIntegerField;
+    qryBairrosfrete: TIntegerField;
+    qryConsultaTabelaFretesBairros: TtecQuery;
+    dsrConsultaTabelaFretesBairros: TtecDataSource;
+    qryConsultaTabelaFretesBairroscodigo: TIntegerField;
+    qryConsultaTabelaFretesBairrosdescricao: TStringField;
+    qryRegioesfrete: TIntegerField;
+    qryConsultaTabelaFretesRegiao: TtecQuery;
+    dsrConsultaTabelaFretesRegiao: TtecDataSource;
+    qryConsultaTabelaFretesRegiaocodigo: TIntegerField;
+    qryConsultaTabelaFretesRegiaodescricao: TStringField;
+    qryEstadosCodigoIBGE: TIntegerField;
+    qryCidadescodigoibge: TIntegerField;
+    qryCidadescodigodimob: TIntegerField;
+    qryCidadesregiao: TStringField;
+    qryConsultaRegioesCidades: TtecQuery;
+    dsrConsultaRegioesCidades: TtecDataSource;
+    qryConsultaRegioesCidadescodigo: TStringField;
+    qryConsultaRegioesCidadesnome: TStringField;
+    qryEstadosPercFCP: TFloatField;
+    qryEstadosResponsavelDIFAL: TBooleanField;
+    qryEstadosBaseDupla: TBooleanField;
+    qryEstadosdatainiciodifal: TDateField;
+    qryLimitesEntregaRegioes: TtecQuery;
+    qryLimitesEntregaRegioesdia_da_semana: TIntegerField;
+    qryLimitesEntregaRegioesdescricaosemana: TStringField;
+    qryLimitesEntregaRegioesperiodo: TIntegerField;
+    qryLimitesEntregaRegioesquantidade: TIntegerField;
+    qryLimitesEntregaRegioesdescricaoperiodo: TStringField;
+    dsrLimitesEntregaRegioes: TtecDataSource;
+    qrySemana: TtecQuery;
+    qrySemanacodigo: TIntegerField;
+    qrySemanadescricao: TStringField;
+    dsrSemana: TtecDataSource;
+    qryperiodosentrega: TtecQuery;
+    qryperiodosentregacodigo: TIntegerField;
+    qryperiodosentregadescricao: TStringField;
+    qryperiodosentregahorapadrao: TTimeField;
+    qryperiodosentregainativo: TDateField;
+    qryperiodosentregainicio: TTimeField;
+    qryperiodosentregafim: TTimeField;
+    dsrperiodosentrega: TtecDataSource;
+    qryLimitesEntregaRegioesregiao: TStringField;
+    procedure qryConsultaEstadosBairrosAfterOpen(DataSet: TDataSet);
+    procedure qryConsultaCidadesRuasAfterOpen(DataSet: TDataSet);
+    procedure qryConsultaEstadosRuasAfterOpen(DataSet: TDataSet);
+    procedure qryRuasBeforeOpen(DataSet: TDataSet);
+    procedure qryRuasAfterOpen(DataSet: TDataSet);
+    procedure qryRuasBeforeCancel(DataSet: TDataSet);
+    procedure qryRuasAfterCancel(DataSet: TDataSet);
+    procedure qryRuasNewRecord(DataSet: TDataSet);
+    procedure qryEstadosNewRecord(DataSet: TDataSet);
+    procedure qryCidadesBeforeOpen(DataSet: TDataSet);
+    procedure qryRegioesAfterScroll(DataSet: TDataSet);
+    procedure qryLimitesEntregaRegioesNewRecord(DataSet: TDataSet);
+    procedure qryLimitesEntregaRegioesAfterDelete(DataSet: TDataSet);
+    procedure qryLimitesEntregaRegioesAfterPost(DataSet: TDataSet);
+  private
+    procedure SetRegiaoCidade(const Value: string);
+
+
+  protected
+    PosicionandoRua: Boolean;
+    function  GetCidadeBairro: integer;
+    function  GetCidadeRua: integer;
+    function  GetEstadoBairro: String;
+    function  GetEstadoCidade: string;
+    function  GetEstadoRua: String;
+
+    function  GetTabelaBairros: TZDataSet;
+    function  GetTabelaCidades: TZDataSet;
+    function  GetTabelaEstados: TZDataSet;
+    function  GetTabelaRegioes: TZDataSet;
+    function  GetTabelaRuas: TZDataSet;
+
+    procedure SetBairroRua(const Value: integer);
+    procedure SetCidadeBairro(const value: integer);
+    procedure SetCidadeRua(const value: integer);
+    procedure SetEstadoBairro(const value: string);
+    procedure SetEstadoCidade(const value: string);
+    procedure SetEstadoRua(const Value: String);
+    procedure SetRegiaoBairro(const Value: string);
+    procedure SetBairroFrete(const Value: integer);
+    procedure SetRegioesFrete(const Value: integer);
+
+  public
+    constructor Create(AOwner: TComponent); override;
+    function  ExcluirBairro: Boolean;
+    function  ExcluirCidade: Boolean;
+    function  ExcluirEstado: Boolean;
+    function  ExcluirRegiao: Boolean;
+    function  ExcluirRua:    Boolean;
+    function  GravarBairro:  Boolean;
+    function  GravarCidade:  Boolean;
+    function  GravarEstado:  Boolean;
+    function  GravarRegiao:  Boolean;
+    function  GravarRua:     Boolean;
+    function  IncluirBairro: Boolean;
+    function  IncluirCidade: Boolean;
+    function  IncluirEstado: Boolean;
+    function  IncluirRegiao: Boolean;
+    function  IncluirRua:    Boolean;
+    function  PermitirEditarBairros: Boolean;
+    function  PermitirEditarCidades: Boolean;
+    function  PermitirEditarRuas: Boolean;
+    procedure PosicionarBairro(Estado: String; Cidade, Codigo: Integer);
+    procedure PosicionarCidade(Estado: String; Codigo: Integer);
+    procedure PosicionarEstado(Codigo: String);
+    procedure PosicionarRegiao(Codigo: String);
+    procedure PosicionarRua(Codigo: Integer);
+
+    property  BairroRua: integer write SetBairroRua;
+    property  RegiaoBairro: string  write SetRegiaoBairro;
+    property  RegiaoCidade: string  write SetRegiaoCidade;
+
+    property  BairroFretes: integer write SetBairroFrete;
+    property  RegioesFretes: integer write SetRegioesFrete;
+
+    property  CidadeBairro: integer read GetCidadeBairro write SetCidadeBairro;
+    property  CidadeRua: integer    read GetCidadeRua    write SetCidadeRua;
+    property  EstadoBairro: string  read GetEstadoBairro write SetEstadoBairro;
+    property  EstadoCidade: string  read GetEstadoCidade write SetEstadoCidade;
+    property  EstadoRua: String     read GetEstadoRua    write SetEstadoRua;
+
+    property  TabelaBairros: TZDataSet read GetTabelaBairros;
+    property  TabelaCidades: TZDataSet read GetTabelaCidades;
+    property  TabelaEstados: TZDataSet read GetTabelaEstados;
+    property  TabelaRegioes: TZDataSet read GetTabelaRegioes;
+    property  TabelaRuas   : TZDataSet read GetTabelaRuas;
+  end;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmEnderecos }
+
+constructor TdtmCadastroEnderecos.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryEstados.Tag := ctTabelasCadastroEnderecos;
+  qryCidades.Tag := ctTabelasCadastroEnderecos;
+  qryBairros.Tag := ctTabelasCadastroEnderecos;
+  qryRegioes.Tag := ctTabelasCadastroEnderecos;
+  qryRuas.Tag    := ctTabelasCadastroEnderecos;
+
+  qrySemana.close;
+  qrySemana.open;
+
+  qryperiodosentrega.close;
+  qryperiodosentrega.open;
+
+end;
+
+function TdtmCadastroEnderecos.ExcluirBairro: Boolean;
+begin
+  qryBairros.Delete;
+  Perpetrar([qryBairros]);
+  Result := True;
+end;
+
+function TdtmCadastroEnderecos.ExcluirCidade: Boolean;
+begin
+  qryCidades.Delete;
+  Perpetrar([qryCidades]);
+  Result := True;
+end;
+
+function TdtmCadastroEnderecos.ExcluirEstado: Boolean;
+begin
+  qryEstados.Delete;
+  Perpetrar([qryEstados]);
+  Result := True;
+end;
+
+function TdtmCadastroEnderecos.ExcluirRegiao: Boolean;
+begin
+  qryRegioes.Delete;
+  Perpetrar([qryRegioes]);
+  Result := True;
+end;
+
+function TdtmCadastroEnderecos.ExcluirRua: Boolean;
+begin
+  qryRuas.Delete;
+  Perpetrar([qryRuas]);
+  Result := True;
+end;
+
+function TdtmCadastroEnderecos.GetCidadeBairro: Integer;
+begin
+  Result := qryBairroscidade.AsInteger
+end;
+
+function TdtmCadastroEnderecos.GetCidadeRua: Integer;
+begin
+  Result := qryRuascidade.AsInteger
+end;
+
+function TdtmCadastroEnderecos.GetEstadoBairro: String;
+begin
+  Result := qryBairrosestado.AsString;
+end;
+
+function TdtmCadastroEnderecos.GetEstadoCidade: String;
+begin
+  Result := qryCidadesestado.AsString;
+end;
+
+function TdtmCadastroEnderecos.GetEstadoRua: String;
+begin
+  Result := qryRuasestado.AsString
+end;
+
+function TdtmCadastroEnderecos.GetTabelaBairros: TZDataSet;
+begin
+  Result := qryBairros;
+end;
+
+function TdtmCadastroEnderecos.GetTabelaCidades: TZDataSet;
+begin
+  Result := qryCidades;
+end;
+
+function TdtmCadastroEnderecos.GetTabelaEstados: TZDataSet;
+begin
+  Result := qryEstados;
+end;
+
+
+function TdtmCadastroEnderecos.GetTabelaRegioes: TZDataSet;
+begin
+  Result := qryRegioes
+end;
+
+function TdtmCadastroEnderecos.GetTabelaRuas: TZDataSet;
+begin
+  Result := qryRuas
+end;
+
+function TdtmCadastroEnderecos.GravarBairro: Boolean;
+begin
+  if qryBairros.CheckRequiredFields then begin
+    if qryBairros.State = dsInsert then begin
+      spcBairroProximo.Params[0].Value := qryBairrosestado.AsString;
+      spcBairroProximo.Params[1].Value := qryBairroscidade.AsInteger;
+      spcBairroProximo.Open;
+      qryBairroscodigo.AsInteger := spcBairroProximocodigo.AsInteger;
+      spcBairroProximo.Close;
+    end;
+    qryBairros.Post;
+     Perpetrar([qryBairros]);
+    Result := True;
+  end else
+    Result := False
+end;
+
+function TdtmCadastroEnderecos.GravarCidade: Boolean;
+begin
+  if qryCidades.CheckRequiredFields then begin
+    if qryCidades.State = dsInsert then begin
+      spcCidadeProximo.Params[0].Value := qryCidadesestado.AsString;
+      spcCidadeProximo.Open;
+      qryCidadescodigo.AsInteger := spcCidadeProximoCodigo.AsInteger;
+      spcCidadeProximo.Close;
+    end;
+    qryCidades.Post;
+    Perpetrar([qryCidades]);
+    Result := True;
+  end else
+    Result := False;
+end;
+
+function TdtmCadastroEnderecos.GravarEstado: Boolean;
+begin
+  if qryEstados.CheckRequiredFields and (qryEstados.State in [dsEdit, dsInsert]) then begin
+    qryEstados.Post;
+    Perpetrar([qryEstados]);
+    Result := True;
+  end else
+    Result := False
+end;
+
+function TdtmCadastroEnderecos.GravarRegiao: Boolean;
+begin
+  result := qryRegioes.CheckRequiredFields;
+  if result then
+    result := qryLimitesEntregaRegioes.CheckRequiredFields(true, false, true, self.owner, true, true);
+
+  if result then
+  begin
+    AtribuirDados(qryLimitesEntregaRegioes, [qryLimitesEntregaRegioesregiao], [qryRegioescodigo.asString]);
+    qryRegioes.Post;
+    Perpetrar([qryRegioes, qryLimitesEntregaRegioes]);
+    Result := True;
+  end
+  else
+    Result := False
+end;
+
+function TdtmCadastroEnderecos.GravarRua: Boolean;
+begin
+  if qryRuas.CheckRequiredFields then begin
+    if qryRuas.State = dsInsert then begin
+      spcRuaProximo.Open;
+      qryRuascodigo.AsInteger := spcRuaProximocodigo.AsInteger;
+      spcRuaProximo.Close;
+    end;
+    qryRuas.Post;
+    Perpetrar([qryRuas]);
+    Result := True;
+  end else
+    Result := False
+end;
+
+function TdtmCadastroEnderecos.IncluirBairro: Boolean;
+begin
+  qryBairros.Insert;
+  Result := True;
+end;
+
+function TdtmCadastroEnderecos.IncluirCidade: Boolean;
+begin
+  qryCidades.Insert;
+  Result := True;
+end;
+
+function TdtmCadastroEnderecos.IncluirEstado: Boolean;
+begin
+  qryEstados.Insert;
+  Result := True;
+end;
+
+function TdtmCadastroEnderecos.IncluirRegiao: Boolean;
+begin
+  qryRegioes.Insert;
+  Result := True;
+end;
+
+function TdtmCadastroEnderecos.IncluirRua: Boolean;
+begin
+  qryRuas.Insert;
+  Result := True;
+end;
+
+function TdtmCadastroEnderecos.PermitirEditarBairros: Boolean;
+begin
+  Result := (qryBairros.State in [dsEdit, dsInsert]) and Not qryBairros.IsEmpty;
+end;
+
+function TdtmCadastroEnderecos.PermitirEditarCidades: Boolean;
+begin
+  Result := (qryCidades.State in [dsEdit, dsInsert]) and Not qryCidades.IsEmpty;
+end;
+
+function TdtmCadastroEnderecos.PermitirEditarRuas: Boolean;
+begin
+  Result := (qryRuas.State in [dsEdit, dsInsert]) and Not qryRuas.IsEmpty;
+end;
+
+procedure TdtmCadastroEnderecos.PosicionarBairro(Estado: String; Cidade, Codigo: Integer);
+begin
+  ReFazConsulta(qryBairros, [0,1,2], [Estado, Cidade, Codigo]);
+end;
+
+procedure TdtmCadastroEnderecos.PosicionarCidade(Estado: String; Codigo: Integer);
+begin
+  ReFazConsulta(qryCidades, [0, 1], [Estado, Codigo]);
+end;
+
+procedure TdtmCadastroEnderecos.PosicionarEstado(Codigo: String);
+begin
+  ReFazConsulta(qryEstados, [0], [Codigo]);
+end;
+
+procedure TdtmCadastroEnderecos.PosicionarRegiao(Codigo: String);
+begin
+  ReFazConsulta(qryRegioes, [0], [Codigo]);
+end;
+
+procedure TdtmCadastroEnderecos.PosicionarRua(Codigo: Integer);
+begin
+  ReFazConsulta(qryRuas, [0], [Codigo]);
+end;
+
+procedure TdtmCadastroEnderecos.qryConsultaCidadesRuasAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  ReFazConsulta(qryConsultaBairrosRuas, [0, 1], [qryConsultaEstadosRuascodigo.AsString,
+                                                 qryConsultaCidadesRuascodigo.AsInteger]);
+end;
+
+procedure TdtmCadastroEnderecos.qryConsultaEstadosBairrosAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  ReFazConsulta(qryConsultaCidadesBairros, [0], [qryConsultaEstadosBairroscodigo.AsString]);
+end;
+
+procedure TdtmCadastroEnderecos.qryConsultaEstadosRuasAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  ReFazConsulta(qryConsultaCidadesRuas, [0], [qryConsultaEstadosRuascodigo.AsString]);
+  if Not PosicionandoRua and (qryRuas.State <> dsInactive) then begin
+    if qryConsultaBairrosRuas.RecordCount = 0 then
+      qryRuasbairro.Clear;
+    if qryConsultaCidadesRuas.RecordCount = 0 then
+      qryRuascidade.Clear
+  end
+end;
+
+procedure TdtmCadastroEnderecos.qryRuasAfterCancel(DataSet: TDataSet);
+begin
+  inherited;
+  PosicionandoRua := False;
+end;
+
+procedure TdtmCadastroEnderecos.qryRuasAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  PosicionandoRua := False
+end;
+
+procedure TdtmCadastroEnderecos.qryRuasBeforeCancel(DataSet: TDataSet);
+begin
+  inherited;
+  PosicionandoRua := True;
+end;
+
+procedure TdtmCadastroEnderecos.qryRuasBeforeOpen(DataSet: TDataSet);
+begin
+  inherited;
+  PosicionandoRua := True;
+end;
+
+procedure TdtmCadastroEnderecos.qryRuasNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+  qryRuaslado.AsString := 'X';
+end;
+
+
+procedure TdtmCadastroEnderecos.SetBairroRua(const Value: integer);
+begin
+  if Not (qryRuas.State in [dsInsert, dsEdit]) then
+    qryRuas.Edit;
+  qryRuasbairro.AsInteger := Value
+end;
+
+procedure TdtmCadastroEnderecos.SetCidadeBairro(const Value: Integer);
+begin
+  if Not (qryBairros.State in [dsInsert, dsEdit]) then
+    qryBairros.Edit;
+  qryBairroscidade.AsInteger := Value
+end;
+
+procedure TdtmCadastroEnderecos.SetCidadeRua(const value: integer);
+begin
+  if Not (qryRuas.State in [dsInsert, dsEdit]) then
+    qryRuas.Edit;
+  qryRuascidade.AsInteger := Value
+end;
+
+procedure TdtmCadastroEnderecos.SetEstadoBairro(const Value: String);
+begin
+  if Not (qryBairros.State in [dsInsert, dsEdit]) then
+    qryBairros.Edit;
+  qryBairrosestado.AsString := Value
+end;
+
+procedure TdtmCadastroEnderecos.SetEstadoCidade(const Value: String);
+begin
+  if Not (qryCidades.State in [dsInsert, dsEdit]) then
+    qryCidades.Edit;
+  qryCidadesestado.AsString := Value
+end;
+
+procedure TdtmCadastroEnderecos.SetEstadoRua(const Value: String);
+begin
+  if Not (qryRuas.State in [dsInsert, dsEdit]) then
+    qryRuas.Edit;
+  qryRuasestado.AsString := Value
+end;
+
+procedure TdtmCadastroEnderecos.SetRegiaoBairro(const Value: string);
+begin
+  if Not (qryBairros.State in [dsInsert, dsEdit]) then
+    qryBairros.Edit;
+  qryBairrosregiao.AsString := Value
+end;
+
+procedure TdtmCadastroEnderecos.SetBairroFrete(const Value: integer);
+begin
+  if Not (qryBairros.State in [dsInsert, dsEdit]) then
+    qryBairros.Edit;
+  qryBairrosfrete.Asinteger := Value
+end;
+
+procedure TdtmCadastroEnderecos.SetRegioesFrete(const Value: integer);
+begin
+  if Not (qryRegioes.State in [dsInsert, dsEdit]) then
+    qryRegioes.Edit;
+  qryRegioesfrete.AsInteger := Value
+end;
+
+
+procedure TdtmCadastroEnderecos.SetRegiaoCidade(const Value: string);
+begin
+  if Not (qryCidades.State in [dsInsert, dsEdit]) then
+    qryCidades.Edit;
+  qryCidadesregiao.AsString := Value
+
+end;
+
+procedure TdtmCadastroEnderecos.qryEstadosNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+  qryEstadosResponsavelDIFAL.AsBoolean:= false;
+  qryEstadosBaseDupla.       AsBoolean:= false;
+end;
+
+procedure TdtmCadastroEnderecos.qryCidadesBeforeOpen(DataSet: TDataSet);
+begin
+  inherited;
+;
+end;
+
+procedure TdtmCadastroEnderecos.qryRegioesAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  RefazConsultaPorNome(qryLimitesEntregaRegioes,['regiao'],[qryRegioescodigo.AsString]);
+end;
+
+procedure TdtmCadastroEnderecos.qryLimitesEntregaRegioesNewRecord(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryLimitesEntregaRegioesdia_da_semana.asinteger := 1;
+  qryLimitesEntregaRegioesperiodo.asinteger := 1;
+
+end;
+
+procedure TdtmCadastroEnderecos.qryLimitesEntregaRegioesAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryregioes.edit;
+end;
+
+procedure TdtmCadastroEnderecos.qryLimitesEntregaRegioesAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryregioes.edit;
+end;
+
+end.

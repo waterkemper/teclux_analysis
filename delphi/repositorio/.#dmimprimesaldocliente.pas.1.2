@@ -1,0 +1,190 @@
+unit dmimprimesaldocliente;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery,
+  clparametrossistema, cltextprinter, ctconstantes, ctepson, biblio;
+
+type
+  Tdtmimprimesaldocliente = class(TdtmBasico)
+    qryTrocas: TtecQuery;
+    qryTrocasnumero: TIntegerField;
+    qryTrocastipo: TStringField;
+    qryTrocasdata: TDateTimeField;
+    qryTrocascliente: TIntegerField;
+    qryTrocastipocliente: TStringField;
+    qryTrocassaldo: TFloatField;
+    qryTrocasreferencia: TStringField;
+    qryTrocasnome: TStringField;
+    qryTrocasvalor: TFloatField;
+  protected
+    function ObterSaldo(Cliente: Integer; TipoCliente: String): Boolean;
+    function Imprimir(Cliente: Integer; TipoCliente: String): Boolean;
+  private
+    { Private declarations }
+  public
+    function ImprimirSaldo(Cliente: Integer; TipoCliente: String): Boolean;
+    { Public declarations }
+  end;
+
+var
+  dtmimprimesaldocliente: Tdtmimprimesaldocliente;
+
+implementation
+
+{$R *.dfm}
+
+{ Tdtmimprimesaldocliente }
+function Tdtmimprimesaldocliente.ImprimirSaldo(Cliente: Integer;
+  TipoCliente: String): Boolean;
+begin
+  Result := False;
+  if ObterSaldo(Cliente, TipoCliente) then begin
+    try
+      Result := Imprimir(Cliente, TipoCliente);
+    except
+      raise
+    end
+  end;
+end;
+
+function Tdtmimprimesaldocliente.ObterSaldo(Cliente: Integer;
+  TipoCliente: String): Boolean;
+begin
+  RefazConsulta(qryTrocas, [0,1], [Cliente, TipoCliente]);
+  Result := qryTrocas.RecordCount > 0;
+
+  if not Result then
+    MensagemAviso(ctCLIENTESEMSALDO);
+end;
+
+function Tdtmimprimesaldocliente.Imprimir(Cliente: Integer;
+  TipoCliente: String): Boolean;
+var
+  MaxCol, Comp: Integer;
+  Linha  : String;
+
+  procedure Alinhar(Tipo: TAlignment; PosAtual: Integer = 0);
+  begin
+    case Tipo of
+      taCenter: Insert(stringOfChar(' ', (MaxCol - Length(linha)) div 2), Linha, 1);
+      taRightJustify: Insert(stringOfChar(' ', MaxCol - Length(linha) - PosAtual), Linha, 1);
+    end
+  end;
+
+begin
+  MaxCol := ParSistema.MaxColAutenticadora;
+  with TextPrinter do
+  begin
+    NomeImpressoraEscolhida := ParSistema.NomeImpressoraFechamentoCaixa;
+    if ParSistema.Autenticadora in [1,2,4] then
+    begin
+      BeginDoc('', False);
+      writeText(#$0F,0);
+    end
+    else begin
+      BeginDoc('', True);
+      writeText(EPS_ON_CONDENSED,0);
+    end;
+
+    Linha := RazaoFilialBase;
+    Alinhar(taCenter);
+    WriteTextln(Linha, 0);
+
+    Linha := RuaFilialBase + ' - ' + BairroFilialBase;
+    Alinhar(taCenter);
+    WriteTextln(Linha, 0);
+
+    Linha := FormatarCEP(CEPFilialBase) + ' - ' + CidadeFilialBase + ' - ' + EstadoFilialBase;
+    Alinhar(taCenter);
+    WriteTextln(Linha, 0);
+
+    Linha := ctCGCMF + ' ' + FormatarCPFouCGC(CNPJFilialBase) ;
+    Alinhar(taCenter);
+    WriteTextln(Linha, 0);
+
+    Linha := ctIE + ' ' + InscricaoEstadualFilialBase ;
+    Alinhar(taCenter);
+    WriteTextln(Linha, 0);
+
+    writeln;
+
+    Linha := 'IMPRESSAO DE SALDO DO CLIENTE';
+    Alinhar(taCenter);
+    TextPrinter.WriteTextln(Linha,0);
+
+    writeln;
+
+    Linha := ANSIUpperCase(ctCLIENTE) + '.: ' +Format('%-28s', [qryTrocasnome.AsString]);
+    Alinhar(taCenter);
+    WriteTextln(Linha, 0);
+
+    Linha := format('%-15s',[ANSIUpperCase(ctCAIXA) + '...: '+inttostr(CodigoUsuario)])+
+             format('%-12s',[ANSIUpperCase(ctFILIAL) + '.: '+inttostr(filialbase)]);
+    Alinhar(taCenter);
+    WriteTextln(Linha, 0);
+
+    writeln;
+
+    Linha := 'DATA      NUMERO  REFERENCIA                 VALOR';
+    Alinhar(taCenter);
+    WriteTextln(Linha,0);
+
+    Linha := StringOfChar('-', 50);
+    Alinhar(taCenter);
+    WriteTextln(Linha,0);
+
+    linha:='';
+    qryTrocas.SortByField('Numero');
+    qryTrocas.First;
+    while not qryTrocas.Eof do begin
+      Linha := FormatDateTime('dd/mm/yy',qryTrocasdata.AsDateTime) + '  ' +
+                Format('%-6s', [qryTrocasnumero.AsString]) + '  ' +
+                Format('%-21s', [qryTrocasreferencia.AsString]) + '  ' +
+                format('%9s',[trim(Trocar(Trocar(Trocar(Trocar(Format('%8.2m',[qryTrocasvalor.AsFloat]),'R',''),'$',''),'(','-'),')',''))]);
+      Alinhar(taCenter);
+      WriteTextln(Linha,0);
+      qryTrocas.Next;
+    end;
+
+    Writeln;
+
+    Linha := 'SALDO ATUAL: ' + Format('%8.2m', [qryTrocassaldo.AsFloat]);
+    Comp := length(Linha);
+    Alinhar(taRightJustify,Comp);
+    WriteTextln(Linha,0);
+
+    Writeln;
+    Writeln;
+
+    Linha := CidadeFilialBase + ', ' + FormatDateTime( 'dd'' de ''mmmm'' de ''yyyy', DataServidor);
+    Alinhar(taCenter);
+    WriteTextln(Linha, 0);
+
+    if ParSistema.Autenticadora in [1,4] then
+      writeText(#$12, 0)
+    else if ParSistema.Autenticadora = 2 then
+      writeText(#$56, 0)
+    else
+      writeText(EPS_OFF_CONDENSED,0);
+    FormFeed;
+
+    qryTrocas.Close;
+
+    writeln;
+    writeln;
+    writeln;
+    writeln;
+    writeln;
+    writeln;
+    writeln;
+    writeln;
+    writeln;
+
+    EndDoc('TecLUX - Imprimindo Saldo de Troca.');
+    Result := True;
+  end;
+end;
+
+end.

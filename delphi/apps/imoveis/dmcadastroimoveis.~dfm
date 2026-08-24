@@ -1,0 +1,1122 @@
+inherited dtmCadastroImoveis: TdtmCadastroImoveis
+  Left = 896
+  Top = 265
+  Height = 595
+  Width = 806
+  object qryImoveis: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryImoveisBeforeOpen
+    AfterOpen = qryImoveisAfterOpen
+    BeforeClose = qryImoveisBeforeClose
+    AfterClose = qryImoveisAfterClose
+    AfterInsert = qryImoveisAfterInsert
+    BeforeCancel = qryImoveisBeforeCancel
+    AfterCancel = qryImoveisAfterCancel
+    OnCalcFields = qryImoveisCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT i.Bloco,'
+      '       b.Empreendimento AS Empreendimento,'
+      '       b.Descricao AS NomeBloco,'
+      '       i.Unidade,'
+      '       tu.Nome AS TipoUnidade,'
+      '       i.Numero,'
+      '       i.Pavimento,'
+      '       i.Situacao,'
+      '       i.AreaPrivativa,'
+      '       i.AreaComum,'
+      '       i.FracaoIdeal,'
+      '       i.Preco,'
+      '       i.Observacoes, '
+      '       '
+      '      (SELECT COALESCE(SUM(AreaPrivativa), 0)'
+      '          FROM Imoveis '
+      '          WHERE Bloco IN (SELECT Codigo'
+      '                             FROM Blocos'
+      
+        '                             WHERE Empreendimento = b.Empreendim' +
+        'ento)) AS TotalPrivativa,'
+      '      (SELECT COALESCE(SUM(AreaComum), 0)'
+      '          FROM Imoveis'
+      '          WHERE Bloco IN (SELECT Codigo'
+      '                             FROM Blocos'
+      
+        '                             WHERE Empreendimento = b.Empreendim' +
+        'ento)) AS TotalComum,'
+      '      (SELECT COALESCE(SUM(FracaoIdeal), 0)'
+      '          FROM Imoveis '
+      '          WHERE Bloco IN (SELECT Codigo'
+      '                             FROM Blocos'
+      
+        '                             WHERE Empreendimento = b.Empreendim' +
+        'ento)) AS TotalFracao'
+      '       '
+      ''
+      'FROM imoveis i JOIN blocos b         ON i.Bloco   = b.Codigo'
+      '               JOIN TiposUnidades tu ON i.Unidade = tu.Codigo'
+      ''
+      'WHERE i.Bloco   = :Bloco  AND'
+      '      i.Numero  = :Imovel AND'
+      '      i.unidade = :unidade'
+      ''
+      ''
+      '/*'
+      'SELECT i.Bloco,'
+      '       b.Empreendimento AS Empreendimento,'
+      '       b.Descricao AS NomeBloco,'
+      '       i.Unidade,'
+      '       tu.Nome AS TipoUnidade,'
+      '       i.Numero,'
+      '       i.Pavimento,'
+      '       i.Situacao,'
+      '       i.AreaPrivativa,'
+      '       i.AreaComum,'
+      '       i.FracaoIdeal,'
+      '       i.Preco,'
+      '       i.Observacoes'
+      ''
+      'FROM imoveis i JOIN blocos b         ON i.Bloco = b.Codigo'
+      '               JOIN TiposUnidades tu ON i.Unidade = tu.Codigo'
+      ''
+      'WHERE i.Bloco   = :Bloco'
+      '  AND i.Numero  = :Imovel'
+      '  AND i.unidade = :unidade'
+      '*/'
+      '')
+    RequestLive = True
+    Left = 48
+    Top = 24
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Bloco'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Imovel'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'unidade'
+        ParamType = ptUnknown
+      end>
+    object qryImoveisBloco: TIntegerField
+      FieldName = 'Bloco'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryImoveisEmpreendimento: TIntegerField
+      FieldName = 'Empreendimento'
+      DisplayFormat = '0'
+    end
+    object qryImoveisNomeBloco: TStringField
+      FieldName = 'NomeBloco'
+      Size = 35
+    end
+    object qryImoveisUnidade: TIntegerField
+      FieldName = 'Unidade'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryImoveisTipoUnidade: TStringField
+      FieldName = 'TipoUnidade'
+    end
+    object qryImoveisNumero: TStringField
+      DisplayLabel = 'N'#250'mero'
+      DisplayWidth = 10
+      FieldName = 'Numero'
+      Required = True
+      Size = 10
+    end
+    object qryImoveisPavimento: TStringField
+      DisplayWidth = 20
+      FieldName = 'Pavimento'
+    end
+    object qryImoveisSituacao: TStringField
+      FieldName = 'Situacao'
+      Size = 1
+    end
+    object qryImoveisAreaPrivativa: TFloatField
+      FieldName = 'AreaPrivativa'
+      DisplayFormat = '###,##0.0000'
+      EditFormat = '###,##0.0000'
+    end
+    object qryImoveisAreaComum: TFloatField
+      FieldName = 'AreaComum'
+      DisplayFormat = '###,##0.0000'
+      EditFormat = '###,##0.0000'
+    end
+    object qryImoveisFracaoIdeal: TFloatField
+      FieldName = 'FracaoIdeal'
+      DisplayFormat = '##0.000000'
+      EditFormat = '##0.000000'
+    end
+    object qryImoveisObservacoes: TStringField
+      FieldName = 'Observacoes'
+      Size = 512
+    end
+    object qryImoveisAreaTotal: TFloatField
+      DisplayLabel = #193'rea Total'
+      FieldKind = fkCalculated
+      FieldName = 'AreaTotal'
+      DisplayFormat = '###,###,##0.0000'
+      Calculated = True
+    end
+    object qryImoveisPreco: TFloatField
+      FieldName = 'Preco'
+      DisplayFormat = '0.00'
+    end
+    object qryImoveisTotalPrivativa: TFloatField
+      FieldName = 'TotalPrivativa'
+      DisplayFormat = '###,##0.0000'
+      EditFormat = '###,##0.0000'
+    end
+    object qryImoveisTotalComum: TFloatField
+      FieldName = 'TotalComum'
+      DisplayFormat = '###,##0.0000'
+      EditFormat = '###,##0.0000'
+    end
+    object qryImoveistotalfracao: TFloatField
+      FieldName = 'TotalFracao'
+      DisplayFormat = '##0.000000'
+    end
+    object qryImoveisTotalArea: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'TotalArea'
+      DisplayFormat = '###,##0.0000'
+      EditFormat = '###,##0.0000'
+      Calculated = True
+    end
+  end
+  object dsrImoveis: TtecDataSource
+    DataSet = qryImoveis
+    OnDataChange = dsrImoveisDataChange
+    Left = 72
+    Top = 40
+  end
+  object ZMonitor1: TZMonitor
+    Left = 72
+    Top = 208
+  end
+  object dsrConsultaBlocos: TtecDataSource
+    DataSet = qryConsultaBlocos
+    Left = 248
+    Top = 40
+  end
+  object qryConsultaBlocos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryConsultaBlocosAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select b.codigo,'
+      '           b.empreendimento,'
+      '           b.descricao'
+      'from blocos b'
+      'where b.empreendimento = : Empreendimento')
+    RequestLive = False
+    Left = 224
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Empreendimento'
+        ParamType = ptUnknown
+      end>
+    object qryConsultaBlocoscodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryConsultaBlocosempreendimento: TIntegerField
+      FieldName = 'empreendimento'
+    end
+    object qryConsultaBlocosdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 35
+    end
+  end
+  object qryConsultaEmpreendimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT e.Codigo,'
+      '       e.Nome,'
+      '       e.Sigla,'
+      '       e.Cidade,'
+      '       e.Estado,'
+      '       c.Nome as NomeCidade'
+      'FROM Empreendimentos e, Cidades c'
+      'WHERE (e.Estado = c.Estado) AND (e.Cidade = c.Codigo)'
+      'ORDER BY UPPER(TO_ASCII(e.Sigla,'#39'LATIN1'#39')),'
+      '         UPPER(TO_ASCII(e.Nome, '#39'LATIN1'#39'))'
+      '')
+    RequestLive = False
+    Left = 224
+    Top = 88
+    object qryConsultaEmpreendimentossigla: TStringField
+      DisplayLabel = 'Sigla'
+      FieldName = 'sigla'
+      Size = 10
+    end
+    object qryConsultaEmpreendimentosnome: TStringField
+      DisplayLabel = 'Nome do Empreendimento'
+      DisplayWidth = 40
+      FieldName = 'nome'
+      Size = 60
+    end
+    object qryConsultaEmpreendimentosnomecidade: TStringField
+      DisplayLabel = 'Cidade'
+      DisplayWidth = 28
+      FieldName = 'nomecidade'
+      Size = 40
+    end
+    object qryConsultaEmpreendimentosestado: TStringField
+      DisplayLabel = 'UF'
+      FieldName = 'estado'
+      Size = 2
+    end
+    object qryConsultaEmpreendimentoscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+  end
+  object qryProcuraEmpreendimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryProcuraEmpreendimentosAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select em.*,'
+      '       (Select cd.nome From cidades cd'
+      
+        '                       Where (cd.estado = em.estado) and (cd.cod' +
+        'igo = em.cidade)) as nomecidadecliente,'
+      '       (Select ba.nome From bairros ba'
+      
+        '                       Where (ba.estado = em.estado) and (ba.cid' +
+        'ade = em.cidade) and (ba.codigo = em.bairro)) as nomebairroclien' +
+        'te'
+      'from Empreendimentos em'
+      'where em.codigo = :Codigo')
+    RequestLive = False
+    Left = 248
+    Top = 112
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraEmpreendimentoscodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryProcuraEmpreendimentosnome: TStringField
+      FieldName = 'nome'
+      Size = 60
+    end
+    object qryProcuraEmpreendimentosrua: TStringField
+      FieldName = 'rua'
+      Size = 100
+    end
+    object qryProcuraEmpreendimentosnumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryProcuraEmpreendimentosestado: TStringField
+      FieldName = 'estado'
+      Size = 2
+    end
+    object qryProcuraEmpreendimentoscidade: TIntegerField
+      FieldName = 'cidade'
+    end
+    object qryProcuraEmpreendimentosbairro: TIntegerField
+      FieldName = 'bairro'
+    end
+    object qryProcuraEmpreendimentoscep: TIntegerField
+      FieldName = 'cep'
+    end
+    object qryProcuraEmpreendimentosobservacoes: TStringField
+      FieldName = 'observacoes'
+      Size = 512
+    end
+    object qryProcuraEmpreendimentoscomplemento: TStringField
+      FieldName = 'complemento'
+      Size = 15
+    end
+    object qryProcuraEmpreendimentossigla: TStringField
+      FieldName = 'sigla'
+      Size = 10
+    end
+    object qryProcuraEmpreendimentosnomecidadecliente: TStringField
+      FieldName = 'nomecidadecliente'
+      Size = 50
+    end
+    object qryProcuraEmpreendimentosnomebairrocliente: TStringField
+      FieldName = 'nomebairrocliente'
+      Size = 50
+    end
+  end
+  object dsrProcuraEmpreendimentos: TtecDataSource
+    DataSet = qryProcuraEmpreendimentos
+    Left = 272
+    Top = 136
+  end
+  object qryConsultaImoveis: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT e.Sigla,'
+      '       e.Nome      AS Empreendimento,'
+      '       b.Descricao AS NomeBloco,'
+      '       tu.Nome     AS Tipo,'
+      '       i.Numero,'
+      '       i.Bloco,'
+      '       i.unidade,'
+      '       i.Pavimento,'
+      '       i.Preco'
+      ''
+      'FROM Imoveis i JOIN (Blocos b'
+      '                     JOIN Empreendimentos e'
+      '                     ON b.Empreendimento = e.Codigo)'
+      '               ON i.Bloco = b.Codigo'
+      '               JOIN TiposUnidades tu'
+      '               ON i.Unidade = tu.Codigo'
+      ''
+      'ORDER BY UPPER(TO_ASCII(e.Sigla,     '#39'LATIN1'#39')),'
+      '         UPPER(TO_ASCII(e.Nome,      '#39'LATIN1'#39')),'
+      '         UPPER(TO_ASCII(b.Descricao, '#39'LATIN1'#39')),'
+      '         UPPER(TO_ASCII(tu.Nome,     '#39'LATIN1'#39')),'
+      '         UPPER(TO_ASCII(i.Numero,    '#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 224
+    Top = 184
+    object qryConsultaImoveisSigla: TStringField
+      DisplayLabel = 'Sigla'
+      FieldName = 'sigla'
+      Size = 10
+    end
+    object qryConsultaImoveisempreendimento: TStringField
+      DisplayLabel = 'Nome do Empreendimento'
+      FieldName = 'empreendimento'
+      Size = 30
+    end
+    object qryConsultaImoveisnomebloco: TStringField
+      DisplayLabel = 'Bloco'
+      DisplayWidth = 20
+      FieldName = 'nomebloco'
+      Size = 35
+    end
+    object qryConsultaImoveistipo: TStringField
+      DisplayLabel = 'Tipo'
+      FieldName = 'tipo'
+      Required = True
+      Size = 10
+    end
+    object qryConsultaImoveisnumero: TStringField
+      Alignment = taRightJustify
+      DisplayLabel = 'N'#250'mero'
+      DisplayWidth = 10
+      FieldName = 'numero'
+      Required = True
+      Size = 10
+    end
+    object qryConsultaImoveispavimento: TStringField
+      DisplayLabel = 'Pavimento'
+      FieldName = 'pavimento'
+      Size = 10
+    end
+    object qryConsultaImoveisbloco: TIntegerField
+      DisplayLabel = 'Bloco'
+      FieldName = 'bloco'
+      Required = True
+      Visible = False
+      DisplayFormat = '0'
+    end
+    object qryConsultaImoveispreco: TFloatField
+      DisplayLabel = 'Pre'#231'o'
+      DisplayWidth = 13
+      FieldName = 'preco'
+      DisplayFormat = '###,###,##0.00'
+      currency = True
+      Precision = 2
+    end
+    object qryConsultaImoveisunidade: TIntegerField
+      FieldName = 'unidade'
+      Required = True
+    end
+  end
+  object qryProcuraImoveis: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select i.*,'
+      '       b.descricao as DescricaoBloco,'
+      '       tu.nome as TipoUnidade'
+      'from imoveis i join Blocos b on i.bloco = b.codigo'
+      '               join tiposunidades tu on i.unidade = tu.codigo'
+      'where b.codigo = :Bloco and i.numero= :Codigo')
+    RequestLive = False
+    Left = 248
+    Top = 208
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Bloco'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraImoveisbloco: TIntegerField
+      FieldName = 'bloco'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryProcuraImoveisnumero: TStringField
+      DisplayLabel = 'N'#250'mero'
+      DisplayWidth = 10
+      FieldName = 'numero'
+      Size = 10
+    end
+    object qryProcuraImoveisunidade: TIntegerField
+      FieldName = 'unidade'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryProcuraImoveispavimento: TStringField
+      FieldName = 'pavimento'
+      Size = 10
+    end
+    object qryProcuraImoveissituacao: TStringField
+      FieldName = 'situacao'
+      Size = 1
+    end
+    object qryProcuraImoveisareaprivativa: TFloatField
+      FieldName = 'areaprivativa'
+      DisplayFormat = '0.00'
+    end
+    object qryProcuraImoveisareacomum: TFloatField
+      FieldName = 'areacomum'
+      DisplayFormat = '0.00'
+    end
+    object qryProcuraImoveisfracaoideal: TFloatField
+      FieldName = 'fracaoideal'
+      DisplayFormat = '0.00'
+    end
+    object qryProcuraImoveisprecotabela: TFloatField
+      FieldName = 'precotabela'
+      DisplayFormat = '0.00'
+    end
+    object qryProcuraImoveisobservacoes: TStringField
+      FieldName = 'observacoes'
+      Size = 512
+    end
+    object qryProcuraImoveisdescricaobloco: TStringField
+      FieldName = 'descricaobloco'
+      Size = 35
+    end
+    object qryProcuraImoveistipounidade: TStringField
+      FieldName = 'tipounidade'
+      Required = True
+    end
+  end
+  object dsrProcuraImoveis: TtecDataSource
+    DataSet = qryProcuraImoveis
+    Left = 272
+    Top = 232
+  end
+  object qryImoveisVendidos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryImoveisVendidosAfterOpen
+    AfterCancel = qryImoveisVendidosAfterCancel
+    AfterScroll = qryImoveisVendidosAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select iv.contrato,'
+      '       vi.situacao as  situacaocontrato,'
+      '       iv.bloco,'
+      '       iv.numero,'
+      '       iv.observacoes'
+      
+        'from imoveisvendidos iv join imoveis i on iv.bloco = i.bloco and' +
+        ' iv.numero = i.numero'
+      
+        '                     join vendasimoveis vi on iv.contrato = vi.c' +
+        'ontrato'
+      'where iv.bloco  = :Bloco'
+      '  and iv.numero = :Numero'
+      '  and iv.unidade = :unidade'
+      
+        '  and vi.situacao not in ('#39'S'#39','#39'C'#39') /* S -> Rescindido   C -> Can' +
+        'celado */'
+      '  and coalesce((select false'
+      '                from vendasimoveis vi2'
+      
+        '                where vi2.contrato_origem = vi.contrato),true)  ' +
+        '/* contrato deve ser o atual */'
+      '')
+    RequestLive = False
+    Left = 408
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Bloco'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Numero'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'unidade'
+        ParamType = ptUnknown
+      end>
+    object qryImoveisVendidoscontrato: TIntegerField
+      FieldName = 'contrato'
+    end
+    object qryImoveisVendidosbloco: TIntegerField
+      FieldName = 'bloco'
+    end
+    object qryImoveisVendidosnumero: TStringField
+      DisplayWidth = 10
+      FieldName = 'numero'
+      Size = 10
+    end
+    object qryImoveisVendidosobservacoes: TStringField
+      FieldName = 'observacoes'
+      Size = 200
+    end
+    object qryImoveisVendidossituacaocontrato: TStringField
+      FieldName = 'situacaocontrato'
+      Size = 50
+    end
+  end
+  object dsrImoveisVendidos: TtecDataSource
+    DataSet = qryImoveisVendidos
+    Left = 432
+    Top = 40
+  end
+  object qryVendasImoveis: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select vi.contrato,'
+      '       vi.data,'
+      '       vi.valortotal,'
+      '       vi.situacao,'
+      '       vi.vendedor,'
+      '       vi.observacoes '
+      'from vendasimoveis vi'
+      'where vi.contrato = :Contrato')
+    RequestLive = False
+    Left = 408
+    Top = 88
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Contrato'
+        ParamType = ptUnknown
+      end>
+    object qryVendasImoveiscontrato: TIntegerField
+      FieldName = 'contrato'
+      DisplayFormat = '0'
+    end
+    object qryVendasImoveisdata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryVendasImoveisvalortotal: TFloatField
+      FieldName = 'valortotal'
+      DisplayFormat = '0.00'
+    end
+    object qryVendasImoveissituacao: TStringField
+      FieldName = 'situacao'
+      Size = 1
+    end
+    object qryVendasImoveisvendedor: TIntegerField
+      FieldName = 'vendedor'
+      DisplayFormat = '0'
+    end
+    object qryVendasImoveisobservacoes: TStringField
+      FieldName = 'observacoes'
+      Size = 512
+    end
+  end
+  object dsrVendasImoveis: TtecDataSource
+    DataSet = qryVendasImoveis
+    Left = 432
+    Top = 112
+  end
+  object qryCompradores: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select co.contrato,'
+      '       co.cliente,'
+      
+        '       (Select coalesce(v.razao,v.nome)  from vfornecedores v wh' +
+        'ere co.cliente = v.codigo'
+      
+        '                                        and co.tipocliente = v.t' +
+        'ipo) as NomeComprador,'
+      '       co.tipocliente,'
+      '       co.percentual,'
+      '       co.representante,'
+      
+        '       (Select coalesce(v.razao,v.nome)  from vfornecedores v wh' +
+        'ere co.representante = v.codigo'
+      
+        '                                        and co.tiporepresentante' +
+        ' = v.tipo) as NomeRepresentante,'
+      '       co.tiporepresentante,'
+      '       co.fiador,'
+      
+        '       (Select coalesce(v.razao,v.nome)  from vfornecedores v wh' +
+        'ere co.fiador = v.codigo'
+      
+        '                                        and co.tipofiador = v.ti' +
+        'po) as NomeFiador,'
+      '       co.tipofiador'
+      'from compradores co'
+      'where contrato = :Contrato'
+      'order by co.percentual desc')
+    RequestLive = False
+    Left = 408
+    Top = 168
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Contrato'
+        ParamType = ptUnknown
+      end>
+    object qryCompradorescontrato: TIntegerField
+      FieldName = 'contrato'
+      DisplayFormat = '0'
+    end
+    object qryCompradorescliente: TIntegerField
+      FieldName = 'cliente'
+      DisplayFormat = '0'
+    end
+    object qryCompradoresnomecomprador: TStringField
+      FieldName = 'nomecomprador'
+      Size = 50
+    end
+    object qryCompradorespercentual: TFloatField
+      FieldName = 'percentual'
+      DisplayFormat = '0.00'
+    end
+    object qryCompradoresrepresentante: TIntegerField
+      FieldName = 'representante'
+      DisplayFormat = '0'
+    end
+    object qryCompradoresnomerepresentante: TStringField
+      FieldName = 'nomerepresentante'
+      Size = 50
+    end
+    object qryCompradorestiporepresentante: TStringField
+      FieldName = 'tiporepresentante'
+      Size = 1
+    end
+    object qryCompradoresfiador: TIntegerField
+      FieldName = 'fiador'
+      DisplayFormat = '0'
+    end
+    object qryCompradoresnomefiador: TStringField
+      FieldName = 'nomefiador'
+      Size = 50
+    end
+    object qryCompradorestipocliente: TStringField
+      FieldName = 'tipocliente'
+      Required = True
+      Size = 1
+    end
+    object qryCompradorestipofiador: TStringField
+      FieldName = 'tipofiador'
+      Required = True
+      Size = 1
+    end
+  end
+  object dsrCompradores: TtecDataSource
+    DataSet = qryCompradores
+    Left = 432
+    Top = 192
+  end
+  object qryOutrosImoveis: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select iv.contrato,'
+      
+        '       (Select tu.nome from tiposunidades tu where tu.codigo = i' +
+        '.unidade) as tipo,'
+      '       iv.bloco,'
+      
+        '       (select b.descricao from blocos b where b.codigo = iv.blo' +
+        'co) as nomebloco,'
+      '       iv.numero,'
+      
+        '       (select e.nome from blocos b join empreendimentos e on b.' +
+        'empreendimento = e.codigo'
+      
+        '                                    where b.codigo = iv.bloco) a' +
+        's NomeEmpreendimento'
+      
+        'from imoveisvendidos iv join imoveis i on iv.bloco = i.bloco and' +
+        ' iv.numero = i.numero'
+      'where contrato = :Contrato'
+      
+        '  and not (iv.bloco = :Bloco and iv.numero=:Numero and iv.unidad' +
+        'e=:unidade)')
+    RequestLive = False
+    Left = 408
+    Top = 328
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Contrato'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Bloco'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Numero'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'unidade'
+        ParamType = ptUnknown
+      end>
+    object qryOutrosImoveiscontrato: TIntegerField
+      FieldName = 'contrato'
+      DisplayFormat = '0'
+    end
+    object qryOutrosImoveisbloco: TIntegerField
+      FieldName = 'bloco'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryOutrosImoveisnomebloco: TStringField
+      FieldName = 'nomebloco'
+      Size = 50
+    end
+    object qryOutrosImoveisnumero: TStringField
+      DisplayWidth = 10
+      FieldName = 'numero'
+      Size = 10
+    end
+    object qryOutrosImoveisnomeempreendimento: TStringField
+      FieldName = 'nomeempreendimento'
+      Size = 50
+    end
+    object qryOutrosImoveistipo: TStringField
+      FieldName = 'tipo'
+      Size = 50
+    end
+  end
+  object dsrOutrosImoveis: TtecDataSource
+    DataSet = qryOutrosImoveis
+    Left = 432
+    Top = 352
+  end
+  object qryConsultaTiposUnidades: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryConsultaTiposUnidadesAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select tu.Codigo,'
+      '       tu.nome'
+      'from TiposUnidades tu'
+      'Order By UPPER(TO_ASCII(tu.Nome,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 56
+    Top = 294
+    object qryConsultaTiposUnidadescodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+      Visible = False
+    end
+    object qryConsultaTiposUnidadesnome: TStringField
+      DisplayLabel = 'Tipo de Unidade'
+      DisplayWidth = 65
+      FieldName = 'nome'
+      Required = True
+      Size = 65
+    end
+  end
+  object qryProcuraTiposUnidades: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select tu.Codigo,'
+      '       tu.nome'
+      'from TiposUnidades tu'
+      'where tu.codigo = :Codigo')
+    RequestLive = False
+    Left = 240
+    Top = 294
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraTiposUnidadescodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+    end
+    object qryProcuraTiposUnidadesnome: TStringField
+      FieldName = 'nome'
+      Required = True
+    end
+  end
+  object dsrProcuraTiposUnidades: TtecDataSource
+    DataSet = qryProcuraTiposUnidades
+    Left = 264
+    Top = 318
+  end
+  object qryConsultaNumeroImovel: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryConsultaNumeroImovelBeforeOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select i.numero'
+      
+        'from imoveis i left join (Blocos b join empreendimentos e on b.e' +
+        'mpreendimento = e.codigo)on i.bloco = b.codigo'
+      'where b.empreendimento =  :Empreendimento and i.bloco = :Bloco')
+    RequestLive = False
+    Left = 216
+    Top = 368
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Empreendimento'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Bloco'
+        ParamType = ptUnknown
+      end>
+    object qryConsultaNumeroImovelnumero: TStringField
+      DisplayLabel = 'N'#250'mero'
+      DisplayWidth = 10
+      FieldName = 'numero'
+      Required = True
+      Size = 10
+    end
+  end
+  object dsrConsultaNumeroImovel: TtecDataSource
+    DataSet = qryConsultaNumeroImovel
+    Left = 240
+    Top = 392
+  end
+  object qryBloquearImoveis: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select bloco, numero,'
+      '       user_write_lock_oid(oid) as lock'
+      'from imoveis'
+      'where bloco=:Bloco'
+      '  and numero=:Numero'
+      '  and unidade=:unidade ')
+    RequestLive = False
+    Left = 544
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Bloco'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Numero'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'unidade'
+        ParamType = ptUnknown
+      end>
+    object qryBloquearImoveisbloco: TIntegerField
+      FieldName = 'bloco'
+    end
+    object qryBloquearImoveisnumero: TStringField
+      DisplayWidth = 10
+      FieldName = 'numero'
+      Size = 10
+    end
+    object qryBloquearImoveislock: TIntegerField
+      FieldName = 'lock'
+    end
+  end
+  object qryDesbloquearImoveis: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select user_write_unlock_oid(oid) as lock'
+      'from imoveis'
+      'where bloco=:Bloco'
+      '  and numero=:Numero'
+      '  and unidade=:unidade')
+    RequestLive = False
+    Left = 544
+    Top = 64
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Bloco'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Numero'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'unidade'
+        ParamType = ptUnknown
+      end>
+    object qryDesbloquearImoveislock: TIntegerField
+      FieldName = 'lock'
+    end
+  end
+  object dsrConsultaTiposUnidades: TtecDataSource
+    DataSet = qryConsultaTiposUnidades
+    Left = 88
+    Top = 312
+  end
+end

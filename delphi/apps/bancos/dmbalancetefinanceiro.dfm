@@ -1,7 +1,7 @@
 inherited dtmbalancetefinanceiro: Tdtmbalancetefinanceiro
   OldCreateOrder = False
-  Left = 631
-  Top = 259
+  Left = 475
+  Top = 192
   Height = 600
   Width = 1053
   object qrySaldosFinanceiros: TtecQuery
@@ -20,8 +20,8 @@ inherited dtmbalancetefinanceiro: Tdtmbalancetefinanceiro
       'Saldosfinanceiros'
       'order by exercicio')
     RequestLive = False
-    Left = 56
-    Top = 8
+    Left = 48
+    Top = 32
     object qrySaldosFinanceirosExercicio: TIntegerField
       FieldName = 'Exercicio'
       DisplayFormat = '0'
@@ -67,8 +67,8 @@ inherited dtmbalancetefinanceiro: Tdtmbalancetefinanceiro
       'ORDER BY c.Conta'
       '')
     RequestLive = True
-    Left = 56
-    Top = 80
+    Left = 48
+    Top = 120
     ParamData = <
       item
         DataType = ftUnknown
@@ -118,25 +118,25 @@ inherited dtmbalancetefinanceiro: Tdtmbalancetefinanceiro
       '')
     RequestLive = True
     Left = 56
-    Top = 152
+    Top = 208
     object qryListaContasTemporariaCodigo: TIntegerField
       FieldName = 'Codigo'
     end
   end
   object dsrListaContasTemporaria: TtecDataSource
     DataSet = qryListaContasTemporaria
-    Left = 80
-    Top = 176
+    Left = 120
+    Top = 224
   end
   object dsrContasBancarias: TtecDataSource
     DataSet = qryContasBancarias
-    Left = 80
-    Top = 104
+    Left = 96
+    Top = 144
   end
   object dsrSaldosFinanceiros: TtecDataSource
     DataSet = qrySaldosFinanceiros
-    Left = 80
-    Top = 32
+    Left = 96
+    Top = 56
   end
   object qryEventos: TtecQuery
     Tag = -1
@@ -196,8 +196,8 @@ inherited dtmbalancetefinanceiro: Tdtmbalancetefinanceiro
       ''
       '')
     RequestLive = False
-    Left = 64
-    Top = 224
+    Left = 56
+    Top = 304
     ParamData = <
       item
         DataType = ftUnknown
@@ -290,8 +290,8 @@ inherited dtmbalancetefinanceiro: Tdtmbalancetefinanceiro
       'ORDER BY Classificacao, Descricao;'
       '')
     RequestLive = True
-    Left = 184
-    Top = 112
+    Left = 216
+    Top = 136
     ParamData = <
       item
         DataType = ftUnknown
@@ -346,7 +346,7 @@ inherited dtmbalancetefinanceiro: Tdtmbalancetefinanceiro
   object dsrEventos: TtecDataSource
     DataSet = qryEventos
     Left = 80
-    Top = 248
+    Top = 312
   end
   object qryGerarSaldosFinanceiros: TtecQuery
     Tag = -1
@@ -374,11 +374,6 @@ inherited dtmbalancetefinanceiro: Tdtmbalancetefinanceiro
     object qryGerarSaldosFinanceirosAcumularSaldosFinanceiros: TBooleanField
       FieldName = 'AcumularSaldosFinanceiros'
     end
-  end
-  object dsrGerarSaldosFinanceiros: TtecDataSource
-    DataSet = qryGerarSaldosFinanceiros
-    Left = 328
-    Top = 32
   end
   object frpBalancoBancario_12: TfrReport
     Dataset = fdsEventosTotal
@@ -794,7 +789,7 @@ inherited dtmbalancetefinanceiro: Tdtmbalancetefinanceiro
       7562546974756C6F0000000006004F7574726173000000000500544F54414C00
       010030000B004F75747261506167696E61000000000400534F4D410001003000
       0000000000000000FC000000000000000000000000000000005800F53699D253
-      83E3402DA568BA3859E540}
+      83E340FC9C951FED8DE640}
   end
   object frpBalancoBancario_6: TfrReport
     Dataset = fdsEventosTotal
@@ -853,18 +848,18 @@ inherited dtmbalancetefinanceiro: Tdtmbalancetefinanceiro
       000000010000000000000200120600001000526F646170E944652050E167696E
       613100020100000000D0010000F5020000120000003000030001000000000000
       000000FFFFFF1F00000000000000000000000000FFFF00000000000200000001
-      0000000000000001000000C800000014000000010000000000000200C8060000
-      050042616E64360002013401000000000000410000002F040000000013000100
-      0000000000000000FFFFFF1F0000000051004461646F73204D65737472653D66
-      64734576656E746F73546F74616C3B42616E64323D6664734576656E746F7354
-      6F74616C3B4D6173746572486561646572313D6664734576656E746F73546F74
-      616C3B0000000000000001000000000000020000000100000000000000010000
-      00C8000000140000000100000000000002002D070000050042616E6434000201
-      B401000000000000410000002F0400008000140001000000000000000000FFFF
-      FF1F000000000000000000000000000100000000000002000000010000000000
-      000001000000C80000001400000001000000000000020092070000050042616E
-      64350002011000000000000000DD0000002F040000C100120001000000000000
-      000000FFFFFF0000000000000000000000000000010000000000000200000001
+      0000000000000001000000C80000001400000001000000000000020077060000
+      050042616E6434000201B401000000000000410000002F040000800014000100
+      0000000000000000FFFFFF1F0000000000000000000000000001000000000000
+      02000000010000000000000001000000C8000000140000000100000000000002
+      00DC060000050042616E64350002011000000000000000DD0000002F040000C1
+      00120001000000000000000000FFFFFF00000000000000000000000000000100
+      000000000002000000010000000000000001000000C800000014000000010000
+      00000000020092070000050042616E6436000201340100000000000041000000
+      2F0400000000130001000000000000000000FFFFFF1F0000000051004461646F
+      73204D65737472653D6664734576656E746F73546F74616C3B42616E64323D66
+      64734576656E746F73546F74616C3B4D6173746572486561646572313D666473
+      4576656E746F73546F74616C3B00000000000000010000000000000200000001
       0000000000000001000000C80000001400000001000000000000000065080000
       05004D656D6F3100020034010000AD000000410000000A000000000000000100
       0000000000000000FFFFFF1F2C02030100000001000000000300050062656769
@@ -1229,8 +1224,8 @@ inherited dtmbalancetefinanceiro: Tdtmbalancetefinanceiro
       69616C42617365000000000600546974756C6F00000000090053756254697475
       6C6F0000000006004F7574726173000000000500544F54414C00010030000B00
       4F75747261506167696E61000000000400534F4D410001003000000000000000
-      0000FC000000000000000000000000000000005800F53699D25383E3402DA568
-      BA3859E540}
+      0000FC000000000000000000000000000000005800F53699D25383E340FC9C95
+      1FED8DE640}
   end
   object fdsEventosReceitas: TfrDBDataSet
     Left = 432

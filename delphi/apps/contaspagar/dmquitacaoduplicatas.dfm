@@ -1046,7 +1046,6 @@ inherited dtmQuitacaoDuplicatas: TdtmQuitacaoDuplicatas
         Name = 'SoComModeloCheque'
         ParamType = ptUnknown
       end>
-    DataSource = dsrContas
     Sql.Strings = (
       'SELECT b.Sigla,'
       '       a.Nome,'

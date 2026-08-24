@@ -1,0 +1,992 @@
+unit fmexportacaodados;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmcadastropadrao, ComCtrls, Buttons, ExtCtrls, Mask,
+  cpdbfindcontrols, DBCtrls, cptexto, cppagecontrol, cpdblookupcombobox,
+  QCheckLst, dmexportacaodados, frconsulta, frconsultacodigo, ctconstantes,
+  biblio, Grids, DBGrids, cpdbgrid, cpdbcombobox, {Qete,} frintervalodatasparametros,
+  frlistafiliais, frlistaseriesfiliais, frlistanaturezas, frlistacodigosfiscais,
+  frdataparametro, cpdbmemo, cpdbtext, frselecaoaleatoria, frconsultacontabil,
+  frconsultacodigocontabil, Windows, ToolWin, CheckLst;
+
+type
+  THackGrid = class(TTecDBGrid);
+  TfrmExportacaoDados = class(TfrmCadastroPadrao)
+    gbxCodigoExportacao: TGroupBox;
+    gbxDescricaoExportacao: TGroupBox;
+    edtDescricaoExportacao: TDBEditTexto;
+    pgcCamposFiltrosSelecao: TtecPageControl;
+    tstCampos: TTabSheet;
+    tstFiltros: TTabSheet;
+    sbnSelecionarCampo: TSpeedButton;
+    sbnSelecionarCampos: TSpeedButton;
+    sbnRetirarCampo: TSpeedButton;
+    sbnRetirarCampos: TSpeedButton;
+    pnlSecionarCampos: TPanel;
+    tstParametros: TTabSheet;
+    gbxCadastroExportacao: TGroupBox;
+    gbxDefinicao: TGroupBox;
+    gbxTabelas: TGroupBox;
+    edfCodigo: TtecDbEditFind;
+    dbgTabelas: TtecDBGrid;
+    dbgCamposSelecionados: TtecDBGrid;
+    dbgCamposTabela: TtecDBGrid;
+    lblSeparadordeColuna: TLabel;
+    sbnSubirCampo: TSpeedButton;
+    sbnDescerCampo: TSpeedButton;
+    dbgExportacaoFiltros: TtecDBGrid;
+    pnlSelecionarFiltros: TPanel;
+    sbnRetirarFiltro: TSpeedButton;
+    sbnRetirarFiltros: TSpeedButton;
+    sbnSelecionarFiltro: TSpeedButton;
+    sbnSelecionarFiltros: TSpeedButton;
+    sbnSubirFiltro: TSpeedButton;
+    sbnDescerFiltro: TSpeedButton;
+    dbgFiltrosTabelas: TtecDBGrid;
+    scrParametros: TScrollBox;
+    tstDados: TTabSheet;
+    dbgDados: TtecDBGrid;
+    lblSeparadordeMilhar: TLabel;
+    lblSeparadorDecimal: TLabel;
+    lblSeparador: TLabel;
+    edtNomeArquivo: TDBEditTexto;
+    gbxModelo: TGroupBox;
+    dblSeparadorDecimal: TTecDBLookupComboBox;
+    dblSeparadorMilhar: TTecDBLookupComboBox;
+    dblSeparadorColuna: TTecDBLookupComboBox;
+    sbnGerar: TSpeedButton;
+    pnlDados: TPanel;
+    sbnRefazerConsulta: TSpeedButton;
+    gbxInstrucao: TGroupBox;
+    Bevel1: TBevel;
+    mmoInstrucaoSQL: TtecDBMemo;
+    dtxExtensao: TtecDBText;
+    ckbReatualizarConsulta: TCheckBox;
+    gbxNomeArquivo: TGroupBox;
+    gbxExtensao: TGroupBox;
+    StatusBar1: TStatusBar;
+    CheckListBox1: TCheckListBox;
+    procedure sbnSelecionarCampoClick(Sender: TObject);
+    procedure sbnSelecionarCamposClick(Sender: TObject);
+    procedure dbgCamposTabelaCellClick(Column: TColumn);
+    procedure dbgCamposSelecionadosDragOver(Sender, Source: TObject; X,
+      Y: Integer; State: TDragState; var Accept: Boolean);
+    procedure dbgCamposSelecionadosDragDrop(Sender, Source: TObject; X,
+      Y: Integer);
+    procedure dbgCamposTabelaDblClick(Sender: TObject);
+    procedure dbgCamposSelecionadosCellClick(Column: TColumn);
+    procedure sbnRetirarCampoClick(Sender: TObject);
+    procedure sbnRetirarCamposClick(Sender: TObject);
+    procedure dbgCamposSelecionadosDblClick(Sender: TObject);
+    procedure sbnSubirCampoClick(Sender: TObject);
+    procedure sbnDescerCampoClick(Sender: TObject);
+    procedure dbgCamposSelecionadosDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure dbgCamposSelecionadosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbgTabelasDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure sbnSelecionarFiltroClick(Sender: TObject);
+    procedure pgcCamposFiltrosSelecaoChange(Sender: TObject);
+    procedure sbnSelecionarFiltrosClick(Sender: TObject);
+    procedure sbnRetirarFiltroClick(Sender: TObject);
+    procedure sbnRetirarFiltrosClick(Sender: TObject);
+    procedure sbnSubirFiltroClick(Sender: TObject);
+    procedure sbnDescerFiltroClick(Sender: TObject);
+    procedure dbgFiltrosTabelasDblClick(Sender: TObject);
+    procedure dbgExportacaoFiltrosDblClick(Sender: TObject);
+    procedure sbnRefazerConsultaClick(Sender: TObject);
+    procedure sbnGerarClick(Sender: TObject);
+    procedure sbnProcurarClick(Sender: TObject);
+    procedure edfCodigoFound(Found: Boolean);
+  private
+    { Private declarations }
+    procedure ExportacaoTabelasAfterScroll(Sender: TObject);
+    procedure ExportacaoTabelasBeforeScroll(Sender: TObject);
+    procedure MarcarListaTabelas;
+    procedure MontarParametros;
+    procedure GuardarParametros;
+    procedure CriarIntervalodeDatas;
+    procedure CriarParametroData;
+    procedure CriarListadeCodigosFiscais;
+    procedure CriarListadeFiliais;
+    procedure CriarListaSeriesFiliais;
+    procedure CriarListaContasContabeis;
+    procedure CriarListaNaturezas;
+    procedure AtualizarParametros;
+  protected
+    Altura: integer;
+    ConsultaExportacao: TfraConsultaCodigo;
+    MovendodbgCamposSelecionados: Boolean;
+    fraIntervaloDatasParametros: TfraIntervaloDatasParametros;
+    fraDataParametro: TfraDataParametro;
+    fraListaFiliais: TfraListaFiliais;
+    fraListaSeriesFiliais: TfraListaSeriesFiliais;
+    fraListaContasContabeis: TfraSelecaoAleatoria;
+    fraListaNaturezas: TfraListaNaturezas;
+    fraListaCodigosFiscais: TfraListaCodigosFiscais;
+    ckbGerarArquivoPorFilial: TDBCheckBox;
+
+    procedure AbrirExportacao(Found: Boolean);
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoIncluir: Boolean; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+
+    procedure AcionarPesquisaGrade(Sender: TObject);
+    procedure AtribuirDadosContaContabil;
+
+
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+
+  end;
+
+var
+  frmExportacaoDados: TfrmExportacaoDados;
+
+implementation
+
+uses DB, dmbasico, cpdata;
+
+{$R *.dfm}
+
+{ TfrmExportacaoContabil }
+
+procedure TfrmExportacaoDados.AbrirExportacao(Found: Boolean);
+begin
+  dtmExportacaoDados.
+        refazconsulta(dtmExportacaoDados.qryExportacao,[0],
+             [ConsultaExportacao.ValorSelecionado]);
+  edfCodigo.Text := ConsultaExportacao.ValorSelecionado;
+  AtualizarParametros;
+end;
+
+
+
+constructor TfrmExportacaoDados.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmExportacaoDados := TdtmExportacaoDados.Create(Self);
+  DataSet := dtmExportacaoDados.qryExportacao;
+  ConsultaExportacao := TfraConsultaCodigo.Create(self);
+  ConsultaExportacao.edfCodigo.DataSource := dtmExportacaoDados.dsrExportacao;
+  ConsultaExportacao.edfCodigo.DataField  := 'codigo';
+  ConsultaExportacao.edfCodigo.Operacao   := opATRIBUICAO;
+  ConsultaExportacao.AbrirTabelaProcura   := false;
+  ConsultaExportacao.TipoPesquisa         := pesEXPORTACAODADOS;
+  ConsultaExportacao.OnFound              := AbrirExportacao;
+  dtmExportacaoDados.ExportacaoTabelasAfterScroll := ExportacaoTabelasAfterScroll;
+  dtmExportacaoDados.ExportacaoTabelasBeforeScroll := ExportacaoTabelasBeforeScroll;
+//  ObterLista(dtmExportacaoDados.ListaTabelas, clbTabelas);
+
+  
+end;
+
+procedure TfrmExportacaoDados.ExportacaoTabelasAfterScroll(Sender: TObject);
+begin
+  MontarParametros;
+  if pgcCamposFiltrosSelecao.ActivePage = tstDados then
+    if ckbReatualizarConsulta.Checked then
+      dtmExportacaoDados.MontarDados;
+end;
+
+function TfrmExportacaoDados.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then begin
+    if not CtrlOn then
+      dtmExportacaoDados.ExcluirExportacao;
+  end;
+end;
+
+function TfrmExportacaoDados.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if Result then
+  begin
+    GuardarParametros;
+    MontarParametros;
+    dtmExportacaoDados.GravarExportacao;
+  end;
+end;
+
+function TfrmExportacaoDados.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then begin
+    if not CtrlOn then
+    begin
+      dtmExportacaoDados.IncluirExportacaoDados;
+      edtDescricaoExportacao.SetFocus;
+    end;
+  end;
+end;
+
+procedure TfrmExportacaoDados.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if not CtrlOn then
+  begin
+    if (key = VK_F9) then
+    begin
+      if sbnProcurar.Enabled then
+      begin
+        ConsultaExportacao.InternoPesquisar(ctEXPORTACAO);
+        self.SetFocus;
+      end
+    end
+    else
+    if (key = VK_F7) then
+    begin
+      if sbnGerar.Enabled then
+        sbnGerarClick(nil);
+    end;
+  end;
+end;
+
+procedure TfrmExportacaoDados.MarcarListaTabelas;
+ procedure Selecionar(Codigo: String);
+ var
+   ind : integer;
+ begin
+    for Ind:= 0 to (Length(flista) - 1) do
+      if codigo = flista[ind].codigo then
+      begin
+//        clbTabelas.Checked[ind] := true;
+        break;
+      end
+ end;
+
+begin
+
+//  MarcarLista(clbTabelas, False);
+{
+  with dtmExportacaoDados do
+  begin
+    qryExportacaoModelos.First;
+    while not qryExportacaoModelos.Eof do
+    begin
+      selecionar(qryExportacaoModeloscodigo.AsString);
+      qryExportacaoModelos.Next;
+    end;
+  end;
+  clbTabelas.ItemIndex := 0;
+  }
+end;
+
+procedure TfrmExportacaoDados.sbnSelecionarCampoClick(Sender: TObject);
+begin
+  inherited;
+  dtmExportacaoDados.MoverCampos(true,false);
+end;
+
+procedure TfrmExportacaoDados.sbnSelecionarCamposClick(Sender: TObject);
+begin
+  inherited;
+  dtmExportacaoDados.MoverCampos(true,true);
+end;
+
+procedure TfrmExportacaoDados.dbgCamposTabelaCellClick(Column: TColumn);
+begin
+  inherited;
+//  dbgCamposTabela.BeginDrag(True);
+//  MovendodbgCamposSelecionados := false;
+end;
+
+procedure TfrmExportacaoDados.dbgCamposSelecionadosDragOver(Sender,
+  Source: TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
+begin      
+  inherited;
+//  Accept := Source is TDBGrid;
+  Accept := (Sender is TDBGrid);
+end;
+
+procedure TfrmExportacaoDados.dbgCamposSelecionadosDragDrop(Sender,
+  Source: TObject; X, Y: Integer);
+var
+ Coordenadas: TGridCoord;
+ campo : String;
+begin
+  Coordenadas := THackGrid(dbgCamposSelecionados).MouseCoord(X,Y);
+  if (Coordenadas.X > 0) AND (Coordenadas.Y > 0) then
+  begin
+    with THackGrid(dbgCamposSelecionados) do
+    begin
+      if not MovendodbgCamposSelecionados then
+      begin
+        dtmExportacaoDados.dsrExportacaoCampos.DataSet.MoveBy(Coordenadas.Y - row);
+        campo := Columns.Items[-1 + Coordenadas.X].FieldName;
+        if campo = 'campo' then
+          dtmExportacaoDados.MoverCampos(true,false);
+  //      dtmExportacaoDados.qryExportacaoCampos.Insert;
+  //      Columns.Items[-1 + Coordenadas.X].Field.AsString := lNome;
+      end
+      else
+      begin
+        dtmExportacaoDados.MoverCampos(false,false);
+        dtmExportacaoDados.dsrExportacaoCampos.DataSet.MoveBy(Coordenadas.Y - row);
+        dtmExportacaoDados.MoverCampos(true,false);
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmExportacaoDados.dbgCamposTabelaDblClick(Sender: TObject);
+begin
+  inherited;
+  dtmExportacaoDados.MoverCampos(true,false);
+end;
+
+procedure TfrmExportacaoDados.dbgCamposSelecionadosCellClick(
+  Column: TColumn);
+begin
+  inherited;
+//  dbgCamposTabela.BeginDrag(True);
+//  MovendodbgCamposSelecionados := true;
+end;
+
+procedure TfrmExportacaoDados.sbnRetirarCampoClick(Sender: TObject);
+begin
+  inherited;
+  dtmExportacaoDados.MoverCampos(false,false);
+end;
+
+procedure TfrmExportacaoDados.sbnRetirarCamposClick(Sender: TObject);
+begin
+  inherited;
+  dtmExportacaoDados.MoverCampos(false,true);
+end;
+
+procedure TfrmExportacaoDados.dbgCamposSelecionadosDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmExportacaoDados.MoverCampos(false,false);
+end;
+
+procedure TfrmExportacaoDados.sbnSubirCampoClick(Sender: TObject);
+begin
+  inherited;
+  dtmExportacaoDados.MoverCampos(ParaCima);
+end;
+
+procedure TfrmExportacaoDados.sbnDescerCampoClick(Sender: TObject);
+begin
+  inherited;
+  dtmExportacaoDados.MoverCampos(ParaBaixo);
+end;
+
+procedure TfrmExportacaoDados.dbgCamposSelecionadosDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if not (gdSelected in State) then
+  begin
+    if not (dtmExportacaoDados.qryExportacaoCamposcampocriado.AsBoolean) then
+    begin
+      TDBGrid(Sender).Canvas.Font.Color := clRed;
+      TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+    end
+  end;
+end;
+
+procedure TfrmExportacaoDados.dbgCamposSelecionadosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  Case Key of
+    VK_Return  : dtmExportacaoDados.GravarExportacaoCampos;
+    VK_ESCAPE : dtmExportacaoDados.CancelarExportacaoCampos;
+  end;
+end;
+
+procedure TfrmExportacaoDados.dbgTabelasDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if (dtmExportacaoDados.qryExportacaoTabelasmarcar.AsBoolean) then
+    TDBGrid(Sender).Canvas.Brush.Color := clSilver;
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+procedure TfrmExportacaoDados.sbnSelecionarFiltroClick(Sender: TObject);
+begin
+  inherited;
+  dtmExportacaoDados.MoverFiltros(true,false);
+end;
+
+procedure TfrmExportacaoDados.pgcCamposFiltrosSelecaoChange(
+  Sender: TObject);
+begin
+  inherited;
+  if pgcCamposFiltrosSelecao.ActivePage = tstParametros then
+  begin
+    GuardarParametros;
+    MontarParametros;
+  end
+  else
+  if pgcCamposFiltrosSelecao.ActivePage = tstDados then
+  begin
+    GuardarParametros;
+    MontarParametros;
+    if ckbReatualizarConsulta.Checked then
+      dtmExportacaoDados.MontarDados;
+    StatusBar1.Panels[0].Text := 'TOTAL DE REGISTROS: '+inttostr(dtmExportacaoDados.qryExportacaoDados.RecordCount);
+  end
+end;
+
+procedure TfrmExportacaoDados.MontarParametros;
+var
+  i: integer;
+  filtro : String;
+  ListaString : String;
+begin
+  filtro := '';
+  altura := 0;
+
+  if Assigned(fraIntervaloDatasParametros)  then
+     fraIntervaloDatasParametros.Parent := tstParametros;
+
+  if Assigned(fraDataParametro)  then
+     fraDataParametro.Parent := tstParametros;
+
+  if Assigned(fraListaCodigosFiscais)       then
+     fraListaCodigosFiscais.Parent := tstParametros;
+
+  if Assigned(fraListaFiliais)              then
+  begin
+     fraListaFiliais.Parent := tstParametros;
+     ckbGerarArquivoPorFilial.Parent := tstParametros;
+  end;
+
+  if Assigned(fraListaSeriesFiliais)        then
+     fraListaSeriesFiliais.Parent := tstParametros;
+
+  if Assigned(fraListaNaturezas)            then
+     fraListaNaturezas.Parent := tstParametros;
+
+  if Assigned(fraListaContasContabeis)            then
+     fraListaContasContabeis.Parent := tstParametros;
+
+  scrParametros.BringToFront;
+
+  with dtmExportacaoDados do
+  begin
+    fSalvarParametros := True;
+    qryExportacaoFiltros.First;
+    while not qryExportacaoFiltros.Eof do
+    begin
+      filtro := '';
+      if (qryExportacaoFiltrosdescricao.AsString = 'INTERVALO DE DATAS') or
+         (qryExportacaoFiltrosdescricao.AsString = 'INTERVALO DE DATAS 2') then
+      begin
+        CriarIntervalodeDatas;
+        filtro := Format(qryExportacaoFiltrossql.AsString,[
+           quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(fraIntervaloDatasParametros.edtDataInicial.text))),
+           quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(fraIntervaloDatasParametros.edtDataFinal.text)))]);
+
+         DataInicial := FormatDateTime('yyyy-mm-dd',strtodate(fraIntervaloDatasParametros.edtDataInicial.text));
+         DataFinal := FormatDateTime('yyyy-mm-dd',strtodate(fraIntervaloDatasParametros.edtDataFinal.text));
+
+        if qryExportacaoFiltrossqldescricao.AsString <> filtro then
+        begin
+          qryExportacaoFiltros.Edit;
+          qryExportacaoFiltrossqldescricao.AsString := filtro;
+          qryExportacaoFiltros.Post;
+        end;
+      end
+      else
+      if qryExportacaoFiltrosdescricao.AsString = 'PARÂMETRO DATA' then
+      begin
+        CriarParametroData;
+        filtro := quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(fraDataParametro.edtDataFinal.text)));
+        if qryExportacaoFiltrossqldescricao.AsString <> filtro then
+        begin
+          qryExportacaoFiltros.Edit;
+          qryExportacaoFiltrossqldescricao.AsString := filtro;
+          qryExportacaoFiltros.Post;
+        end;
+      end
+      else
+      if qryExportacaoFiltrosdescricao.AsString = 'LISTA DE CÓDIGOS FISCAIS' then
+      begin
+        CriarListadeCodigosFiscais;
+
+        if fraListaCodigosFiscais.ListaSelecionada <> '' then
+          filtro := Format(qryExportacaoFiltrossql.AsString,[
+                            fraListaCodigosFiscais.ListaSelecionada]);
+
+        if qryExportacaoFiltrossqldescricao.AsString <> filtro then
+        begin
+          qryExportacaoFiltros.Edit;
+          qryExportacaoFiltrossqldescricao.AsString := filtro;
+          qryExportacaoFiltros.Post;
+        end;
+      end
+      else
+      if qryExportacaoFiltrosdescricao.AsString = 'LISTA DE FILIAIS' then
+      begin
+        CriarListadeFiliais;
+        if fraListaFiliais.ListaSelecionada <> ''  then
+        begin
+          filtro := format(qryExportacaoFiltrossql.AsString, [
+                            fraListaFiliais.ListaSelecionada]);
+          ListadeFiliais := fraListaFiliais.ListadeFiliaisSelecionadas;
+        end
+        else
+          ListadeFiliais := fraListaFiliais.ListaGeraldeFiliais;
+
+        if qryExportacaoFiltrossqldescricao.AsString <> filtro then
+        begin
+          qryExportacaoFiltros.Edit;
+          qryExportacaoFiltrossqldescricao.AsString := filtro;
+          qryExportacaoFiltros.Post;
+        end;
+      end
+      else
+      if qryExportacaoFiltrosdescricao.AsString = 'LISTA DE SÉRIES' then
+      begin
+        CriarListaSeriesFiliais;
+        filtro :=  format(qryExportacaoFiltrossql.AsString, [
+                         fraListaSeriesFiliais.ListaSelecionada]);
+
+        if qryExportacaoFiltrossqldescricao.AsString <> filtro then
+        begin
+          qryExportacaoFiltros.Edit;
+          qryExportacaoFiltrossqldescricao.AsString := filtro;
+          qryExportacaoFiltros.Post;
+        end;
+
+      end
+      else
+      if qryExportacaoFiltrosdescricao.AsString = 'LISTA DE NATUREZAS' then
+      begin
+        CriarListaNaturezas;
+
+        filtro := format(qryExportacaoFiltrossql.AsString, [
+                     fraListaNaturezas.ListaSelecionada]);
+
+        if qryExportacaoFiltrossqldescricao.AsString <> filtro then
+        begin
+          qryExportacaoFiltros.Edit;
+          qryExportacaoFiltrossqldescricao.AsString := filtro;
+          qryExportacaoFiltros.Post;
+        end;
+
+      end
+      else
+      if qryExportacaoFiltrosdescricao.AsString = 'LISTA DE CONTAS CONTÁBEIS' then
+      begin
+        CriarListaContasContabeis;
+
+        ListaString := fraListaContasContabeis.StringSelecionada;
+        if ListaString = '' then
+          ListaString := '0';
+
+        filtro := format(qryExportacaoFiltrossql.AsString, [
+                     ListaString,
+                     ListaString]);
+
+        if qryExportacaoFiltrossqldescricao.AsString <> filtro then
+        begin
+          qryExportacaoFiltros.Edit;
+          qryExportacaoFiltrossqldescricao.AsString := filtro;
+          qryExportacaoFiltros.Post;
+        end;
+
+      end;
+      qryExportacaoFiltros.Next;
+    end;
+  end;
+
+end;
+
+procedure TfrmExportacaoDados.sbnSelecionarFiltrosClick(Sender: TObject);
+begin
+  inherited;
+  dtmExportacaoDados.MoverFiltros(true,true);
+end;
+
+procedure TfrmExportacaoDados.sbnRetirarFiltroClick(Sender: TObject);
+begin
+  inherited;
+  dtmExportacaoDados.MoverFiltros(false,false);
+end;
+
+procedure TfrmExportacaoDados.sbnRetirarFiltrosClick(Sender: TObject);
+begin
+  inherited;
+  dtmExportacaoDados.MoverFiltros(false,true);
+end;
+
+procedure TfrmExportacaoDados.sbnSubirFiltroClick(Sender: TObject);
+begin
+  inherited;
+  dtmExportacaoDados.MoverFiltros(ParaCima);
+end;
+
+procedure TfrmExportacaoDados.sbnDescerFiltroClick(Sender: TObject);
+begin
+  inherited;
+  dtmExportacaoDados.MoverFiltros(ParaBaixo);
+end;
+
+procedure TfrmExportacaoDados.CriarIntervalodeDatas;
+begin
+  if not Assigned(fraIntervaloDatasParametros)  then
+  begin
+    fraIntervaloDatasParametros := TfraIntervaloDatasParametros.Create(scrParametros);
+//    fraIntervaloDatasParametros.dbcFormaSelecao.DataSource := dtmExportacaoDados.dsrParametrosSelecao;
+//    fraIntervaloDatasParametros.dbcFormaSelecao.DataField := dtmExportacaoDados.qryParametrosSelecaointervalodatasformaselecao.FieldName;
+  end;
+
+  fraIntervaloDatasParametros.Top := altura;
+  fraIntervaloDatasParametros.Parent := scrParametros;
+
+  fraIntervaloDatasParametros.edtDataFinal.Maximo := fraIntervaloDatasParametros.edtDataFinal.Minimo;
+
+  with dtmExportacaoDados do
+  begin
+    if not qryParametrosSelecaointervalodatasformaselecao.IsNull then
+    begin
+      fraIntervaloDatasParametros.dbcFormaSelecao.ItemIndex :=
+         qryParametrosSelecaointervalodatasformaselecao.AsInteger ;
+      fraIntervaloDatasParametros.edtDataInicial.Text :=
+        qryParametrosSelecaointervalodatasdatainicial.asstring;
+      fraIntervaloDatasParametros.edtDataFinal.Text :=
+        qryParametrosSelecaointervalodatasdatafinal.asstring;
+    end
+    else
+      fraIntervaloDatasParametros.dbcFormaSelecao.ItemIndex := 2;
+  end;
+  fraIntervaloDatasParametros.dbcFormaSelecaoChange(nil);
+  altura := altura + fraIntervaloDatasParametros.Height;
+end;
+
+procedure TfrmExportacaoDados.CriarListadeCodigosFiscais;
+begin
+  if not Assigned(fraListaCodigosFiscais)  then
+    fraListaCodigosFiscais := TfraListaCodigosFiscais.Create(scrParametros);
+  fraListaCodigosFiscais.Top := altura;
+  fraListaCodigosFiscais.Parent := scrParametros;
+//  if not dtmExportacaoDados.qryParametrosSelecaolistadecodigosfiscais.IsNull then
+    fraListaCodigosFiscais.MarcarListaArmazenada(
+       dtmExportacaoDados.qryParametrosSelecaolistadecodigosfiscais.AsString);
+  altura := altura + fraListaCodigosFiscais.Height;
+end;
+
+procedure TfrmExportacaoDados.CriarListadeFiliais;
+begin
+  if not Assigned(fraListaFiliais)  then
+    fraListaFiliais := TfraListaFiliais.Create(scrParametros);
+
+  if not assigned(ckbGerarArquivoPorFilial) then
+  begin
+   ckbGerarArquivoPorFilial := TDBCheckBox.Create(scrParametros);
+    with ckbGerarArquivoPorFilial do
+    begin
+      Caption := 'Gerar arquivo por filial';
+      DataSource := dtmExportacaoDados.dsrParametrosSelecao;
+      DataField := 'gerararquivoporfilial';
+    end;
+  end;
+
+//  if not dtmExportacaoDados.qryParametrosSelecaolistadefiliais.IsNull then
+    fraListaFiliais.MarcarListaArmazenada(
+       dtmExportacaoDados.qryParametrosSelecaolistadefiliais.AsString);
+
+  fralistafiliais.Top := altura;
+  fraListaFiliais.Parent := scrParametros;
+
+  ckbGerarArquivoPorFilial.Top := Altura;
+  ckbGerarArquivoPorFilial.Left := fralistafiliais.Width+5;
+  ckbGerarArquivoPorFilial.Width := 170;
+  ckbGerarArquivoPorFilial.Parent := scrParametros;
+  altura := altura + fraListaFiliais.Height;
+end;
+
+procedure TfrmExportacaoDados.CriarListaSeriesFiliais;
+begin
+  if not Assigned(fraListaSeriesFiliais)  then
+    fraListaSeriesFiliais := TfraListaSeriesFiliais.Create(scrParametros);
+//  if not dtmExportacaoDados.qryParametrosSelecaolistadeseries.IsNull then
+    fraListaSeriesFiliais.MarcarListaArmazenada(
+       dtmExportacaoDados.qryParametrosSelecaolistadeseries.AsString);
+  fralistaSeriesFiliais.Top := altura;
+  fraListaSeriesFiliais.Parent := scrParametros;
+  altura := altura + fraListaSeriesFiliais.Height;
+end;
+
+procedure TfrmExportacaoDados.CriarListaNaturezas;
+begin
+  if not Assigned(fraListaNaturezas)  then
+    fraListaNaturezas := TfraListaNaturezas.Create(scrParametros);
+//  if not dtmExportacaoDados.qryParametrosSelecaolistadenaturezas.IsNull then
+    fraListaNaturezas.MarcarListaArmazenada(
+       dtmExportacaoDados.qryParametrosSelecaolistadenaturezas.AsString);
+  fraListaNaturezas.Top := altura;
+  fraListaNaturezas.Parent := scrParametros;
+  altura := altura + fraListaNaturezas.Height;
+end;
+
+procedure TfrmExportacaoDados.dbgFiltrosTabelasDblClick(Sender: TObject);
+begin
+  inherited;
+  dtmExportacaoDados.MoverFiltros(true,false);
+end;
+
+procedure TfrmExportacaoDados.dbgExportacaoFiltrosDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmExportacaoDados.MoverFiltros(false,false);
+end;
+
+procedure TfrmExportacaoDados.sbnRefazerConsultaClick(Sender: TObject);
+begin
+  inherited;
+  dtmExportacaoDados.AbrirTodos := true;
+  dtmExportacaoDados.MontarDados;
+  dtmExportacaoDados.AbrirTodos := ckbReatualizarConsulta.checked;
+  StatusBar1.Panels[0].Text := 'TOTAL DE REGISTROS: '+inttostr(dtmExportacaoDados.qryExportacaoDados.RecordCount);
+end;
+
+procedure TfrmExportacaoDados.GuardarParametros;
+begin
+  with dtmExportacaoDados do
+  begin
+    if fSalvarParametros then
+    begin
+//      LimparParametrosSelecao;
+      qryExportacaoFiltros.First;
+      while not qryExportacaoFiltros.Eof do
+      begin
+        if (qryExportacaoFiltrosdescricao.AsString = 'INTERVALO DE DATAS') or
+           (qryExportacaoFiltrosdescricao.AsString = 'INTERVALO DE DATAS 2') then
+        begin
+          if assigned(fraIntervaloDatasParametros) then
+            SalvarIntervaloDatas(fraIntervaloDatasParametros.dbcFormaSelecao.ItemIndex,
+                                 strtodate(fraIntervaloDatasParametros.edtDataInicial.Text),
+                                 strtodate(fraIntervaloDatasParametros.edtDataFinal.Text))
+        end
+        else
+        if qryExportacaoFiltrosdescricao.AsString = 'PARÂMETRO DATA' then
+        begin
+          if assigned(fraDataParametro) then
+            SalvarData(fraDataParametro.dbcFormaSelecao.ItemIndex,
+                                 strtodate(fraDataParametro.edtDataFinal.Text))
+        end
+        else
+        if qryExportacaoFiltrosdescricao.AsString = 'LISTA DE CÓDIGOS FISCAIS' then
+        begin
+          if assigned(fraListaCodigosFiscais) then
+          SalvarListadeCodigosFiscais(fraListaCodigosFiscais.ListaSelecionada)
+        end
+        else
+        if qryExportacaoFiltrosdescricao.AsString = 'LISTA DE FILIAIS' then
+        begin
+          if assigned(fraListaFiliais) then
+            SalvarListadeFiliais(fraListaFiliais.ListaSelecionada)
+        end
+        else
+        if qryExportacaoFiltrosdescricao.AsString = 'LISTA DE SÉRIES' then
+        begin
+          if assigned(fraListaSeriesFiliais) then
+            SalvarListaSeriesFiliais(fraListaSeriesFiliais.ListaSelecionada)
+        end
+        else
+        if qryExportacaoFiltrosdescricao.AsString = 'LISTA DE NATUREZAS' then
+        begin
+          if assigned(fraListaNaturezas) then
+            SalvarListaNaturezas(fraListaNaturezas.ListaSelecionada);
+        end
+        else
+        if qryExportacaoFiltrosdescricao.AsString = 'LISTA DE CONTAS CONTÁBEIS' then
+        begin
+          if assigned(fraListaContasContabeis) then
+            SalvarListadeContasContabeis(fraListaContasContabeis.StringSelecionada);
+        end;
+        qryExportacaoFiltros.Next;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmExportacaoDados.ExportacaoTabelasBeforeScroll(
+  Sender: TObject);
+begin
+  GuardarParametros;
+end;
+
+procedure TfrmExportacaoDados.sbnGerarClick(Sender: TObject);
+var
+  vReatualizarConsulta : Boolean;
+begin
+  inherited;
+  try
+    dtmExportacaoDados.ShowProcessando;
+    vReatualizarConsulta := ckbReatualizarConsulta.Checked;
+    ckbReatualizarConsulta.Checked := true;
+    pgcCamposFiltrosSelecao.OnChange := nil;
+    pgcCamposFiltrosSelecao.ActivePage := tstDados;
+    pgcCamposFiltrosSelecao.OnChange := pgcCamposFiltrosSelecaoChange;
+    with dtmExportacaoDados do
+    begin
+      GerandoArquivoTexto := true;
+      qryExportacaoTabelas.First;
+      while not qryExportacaoTabelas.Eof do
+        qryExportacaoTabelas.Next;
+      GerandoArquivoTexto := false;
+    end;
+  finally
+    dtmExportacaoDados.ShowProcessando;
+    ckbReatualizarConsulta.Checked := vReatualizarConsulta;
+  end;
+end;
+
+procedure TfrmExportacaoDados.sbnProcurarClick(Sender: TObject);
+begin
+  inherited;
+  ConsultaExportacao.InternoPesquisar(ctEXPORTACAO);
+  self.SetFocus;
+
+end;
+
+procedure TfrmExportacaoDados.CriarParametroData;
+begin
+  if not Assigned(fraDataParametro)  then
+    fraDataParametro := TfraDataParametro.Create(scrParametros);
+
+  fraDataParametro.Top := altura;
+  fraDataParametro.Parent := scrParametros;
+
+  with dtmExportacaoDados do
+  begin
+    if not qryParametrosSelecaointervalodatasformaselecao.IsNull then
+    begin
+      fraDataParametro.dbcFormaSelecao.ItemIndex :=
+         qryParametrosSelecaointervalodatasformaselecao.AsInteger ;
+      fraDataParametro.edtDataFinal.Text :=
+        qryParametrosSelecaointervalodatasdatafinal.asstring;
+    end
+    else
+      fraDataParametro.dbcFormaSelecao.ItemIndex := 2;
+  end;
+  fraDataParametro.dbcFormaSelecaoChange(nil);
+  altura := altura + fraDataParametro.Height;
+end;
+
+procedure TfrmExportacaoDados.AtualizarParametros;
+begin
+  pgcCamposFiltrosSelecao.ActivePage := tstParametros;
+  with dtmExportacaoDados do
+  begin
+    qryExportacaoTabelas.First;
+    while not qryExportacaoTabelas.Eof do
+    begin
+      GuardarParametros;
+      MontarParametros;
+      qryExportacaoTabelas.Next;
+    end;
+    qryExportacaoTabelas.First;
+  end;
+end;
+
+procedure TfrmExportacaoDados.edfCodigoFound(Found: Boolean);
+begin
+  inherited;
+  if found and not dtmExportacaoDados.qryExportacaoFiltros.IsEmpty then
+    AtualizarParametros;
+end;
+
+procedure TfrmExportacaoDados.CriarListaContasContabeis;
+var
+  ListadeContas: String;
+begin
+  if not Assigned(fraListaContasContabeis)  then
+  begin
+    fraListaContasContabeis := TfraSelecaoAleatoria.Create(scrParametros);
+    with fraListaContasContabeis do
+    begin
+      ConsultaSelecaoAleatoriaContabil := TfraConsultaCodigoContabil.Create(self);
+      ConsultaSelecaoAleatoriaContabil.Name := 'fraConsultaSelecaoAleatoria';
+      ConsultaSelecaoAleatoriaContabil.edfCodigo.MaxLength := 6;
+      ConsultaSelecaoAleatoriaContabil.edfCodigo.DataSource := dsrSelecaoAleatoria;
+      ConsultaSelecaoAleatoriaContabil.edfCodigo.DataField := 'codigo';
+      ConsultaSelecaoAleatoriaContabil.edfCodigo.Operacao := opATRIBUICAO;
+      ConsultaSelecaoAleatoriaContabil.edfCodigo.LookupSource := ConsultaSelecaoAleatoriaContabil.dsrProcuraDebitar;
+      ConsultaSelecaoAleatoriaContabil.edfCodigo.LookupQueryParameter := 'Codigo';
+      ConsultaSelecaoAleatoriaContabil.edfCodigo.LookupField := 'Codigo';
+      ConsultaSelecaoAleatoriaContabil.AbrirTabelaProcura := false;
+    //    ConsultaSelecaoAleatoria.CondicoesdaConsulta := CondicoesFluxoGramasOperacoes;
+      ConsultaSelecaoAleatoriaContabil.TipoPesquisa := pesCONTADEBITO;
+      ConsultaSelecaoAleatoriaContabil.OnFound := AtribuirDadosContaContabil;
+      qrySelecaoAleatoria.AfterPost  := dtmExportacaoDados.qryParametrosSelecaoAfterPost;
+      qrySelecaoAleatoria.AfterDelete  := dtmExportacaoDados.qryParametrosSelecaoAfterPost;
+      sbnProcura.OnClick := AcionarPesquisaGrade;
+      Width := 630;
+    end;
+  end;
+
+
+  fraListaContasContabeis.CampoParaLista := 'codigo';
+  ListadeContas := dtmExportacaoDados.qryParametrosSelecaolistadecontascontabeis.AsString;
+
+  if ListadeContas='' then
+    ListadeContas:='0';
+
+  fraListaContasContabeis.qrySelecaoAleatoria.Sql.Text := ' SELECT  Codigo, descricao, classificacao, tipo '+
+                                                          ' FROM planocontas '+
+                                                          ' WHERE codigo in ('+ListadeContas+')';
+
+  fraListaContasContabeis.qrySelecaoAleatoria.Open;
+
+  fraListaContasContabeis.Top := altura;
+  fraListaContasContabeis.Parent := scrParametros;
+  altura := altura + fraListaContasContabeis.Height;
+end;
+
+procedure TfrmExportacaoDados.AcionarPesquisaGrade(Sender: TObject);
+begin
+  with fraListaContasContabeis do
+  begin
+    dbgSelecaoAleatoria.SetFocus;
+    ConsultaSelecaoAleatoriaContabil.CtrlOn := True;
+    ConsultaSelecaoAleatoriaContabil.InternoPesquisar(ctCONTAS);
+    dbgSelecaoAleatoria.SetFocus;
+    dbgSelecaoAleatoria.SelectedIndex :=  0;
+  end;
+end;
+
+procedure TfrmExportacaoDados.AtribuirDadosContaContabil;
+begin
+  with fraListaContasContabeis do
+  begin
+    qrySelecaoAleatoria.Edit;
+    qrySelecaoAleatoria.FieldByName('codigo').AsInteger :=
+        ConsultaSelecaoAleatoriaContabil.qryProcuraDebitarcodigo.AsInteger;
+
+    qrySelecaoAleatoria.FieldByName('descricao').AsString :=
+        ConsultaSelecaoAleatoriaContabil.qryProcuraDebitardescricao.AsString;
+
+    qrySelecaoAleatoria.FieldByName('classificacao').AsString :=
+        ConsultaSelecaoAleatoriaContabil.qryProcuraDebitarclassificacao.AsString;
+
+    qrySelecaoAleatoria.FieldByName('tipo').AsString :=
+        ConsultaSelecaoAleatoriaContabil.qryProcuraDebitartipo.AsString;
+
+    qrySelecaoAleatoria.Post;
+
+  end;
+end;
+
+end.

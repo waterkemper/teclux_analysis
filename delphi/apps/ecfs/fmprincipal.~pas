@@ -1,0 +1,866 @@
+unit fmprincipal;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, DBCtrls, inifiles, TypInfo,
+  ExtCtrls, ComCtrls, DB, ZQuery, ZPgSqlQuery, ZTransact, ZPgSqlTr,
+  ZConnect, ZPgSqlCon, Mask, Buttons, Math,
+  cpdata, biblio, ACBrDevice, ACBrBase, ACBrECF;
+
+type
+  TfrmPrincipal = class(TForm)
+    gbxModelo: TGroupBox;
+    cbxModelo: TComboBox;
+    gbxDescricaoModelo: TGroupBox;
+    gbxNrECF: TGroupBox;
+    gbxCRO: TGroupBox;
+    gbxNrSerie: TGroupBox;
+    gbxPorta: TGroupBox;
+    cbxPorta: TComboBox;
+    btnGravarECF: TButton;
+    btnAtivarDesativar: TButton;
+    lblNumeroECF: TLabel;
+    lblIntervencao: TLabel;
+    lblSerie: TLabel;
+    gbxGrandeTotal: TGroupBox;
+    lblGT: TLabel;
+    StatusBar1: TStatusBar;
+    gbxCRZ: TGroupBox;
+    lblCRZ: TLabel;
+    gbxVendaBruta: TGroupBox;
+    lblVendaBruta: TLabel;
+    gbxVersaoSB: TGroupBox;
+    lblVersaoSB: TLabel;
+    ZPgSqlDatabase1: TZPgSqlDatabase;
+    qryECFs: TZPgSqlQuery;
+    qryECFsProximo: TZPgSqlQuery;
+    gbxCNIEE: TGroupBox;
+    edtCNIEE: TEdit;
+    ZPgSqlTransact1: TZPgSqlTransact;
+    qryECFsProximocodigo: TIntegerField;
+    qryECFscodigo: TIntegerField;
+    qryECFsfilial: TIntegerField;
+    qryECFsserie: TStringField;
+    qryECFscniee: TStringField;
+    btnGerarArquivoECFs: TButton;
+    qryECFsgrandetotal: TFloatField;
+    gbxHost: TGroupBox;
+    edtHost: TEdit;
+    gbxBanco: TGroupBox;
+    edtBanco: TEdit;
+    gbxUsuario: TGroupBox;
+    edtUsuario: TEdit;
+    gbxSenha: TGroupBox;
+    edtSenha: TEdit;
+    gbxFilial: TGroupBox;
+    edtFilial: TEdit;
+    pgcPrincipal: TPageControl;
+    tstParametros: TTabSheet;
+    tstEmpresaDesenvolvedora: TTabSheet;
+    gbxCNPJ: TGroupBox;
+    edtCNPJ: TMaskEdit;
+    gbxIE: TGroupBox;
+    edtIE: TMaskEdit;
+    gbxIM: TGroupBox;
+    edtIM: TMaskEdit;
+    gbxNomedaEmpresa: TGroupBox;
+    edtNomeEmpresa: TMaskEdit;
+    gbxNomeComercial: TGroupBox;
+    edtNomeComercialPAFECF: TMaskEdit;
+    gbxVersaoPAFECF: TGroupBox;
+    edtVersaoPAFECF: TMaskEdit;
+    gbxCodigoMD5: TGroupBox;
+    edtCodigoMD5: TMaskEdit;
+    gbxCaminhoArquivo: TGroupBox;
+    edtCaminhoArquivo: TMaskEdit;
+    btnSalvarEmpresaDesenvolvedora: TButton;
+    sbnTEFResp: TSpeedButton;
+    dlgArquivoaExportar: TSaveDialog;
+    qryECFsmodelo: TIntegerField;
+    qryECFsmodelodescricao: TStringField;
+    qryECFsvendabruta: TFloatField;
+    qryECFsmaquina: TStringField;
+    qryECFsintervencao: TStringField;
+    gbxEndereco1: TGroupBox;
+    edtEndereco1: TMaskEdit;
+    edtEndereco2: TMaskEdit;
+    gbxTelefone: TGroupBox;
+    edtTelefone: TMaskEdit;
+    gbxContato: TGroupBox;
+    edtContato: TMaskEdit;
+    gbxLaudoPAF: TGroupBox;
+    edtLaudoPAF: TMaskEdit;
+    qryECFsmfadicional: TStringField;
+    qryECFstipo: TStringField;
+    qryECFsmarca: TStringField;
+    gbxTipo: TGroupBox;
+    gbxMF: TGroupBox;
+    gbxMarca: TGroupBox;
+    cbxTipoECF: TComboBox;
+    cbxMF: TComboBox;
+    edtMarca: TEdit;
+    edtDescricaoModelo: TEdit;
+    gbxDataSB: TGroupBox;
+    lblDataSB: TLabel;
+    gbxCNPJECF: TGroupBox;
+    lblCNPJECF: TLabel;
+    gbxIEECF: TGroupBox;
+    lblIEECF: TLabel;
+    qryECFsdata_sb: TDateTimeField;
+    qryECFscnpj: TStringField;
+    qryECFsie: TStringField;
+    qryECFsversao_sb: TStringField;
+    gbxGTCripto: TGroupBox;
+    lblGTCripto: TEdit;
+    ckbMinasLegal: TCheckBox;
+    ckbCupomMania: TCheckBox;
+    qryECFsminas_legal: TBooleanField;
+    qryECFscupom_mania: TBooleanField;
+    ckbParaibaLegal: TCheckBox;
+    ckbNotaLegalDF: TCheckBox;
+    qryECFsparaiba_legal: TBooleanField;
+    qryECFsnota_legal_df: TBooleanField;
+    edtGTCripto: TEdit;
+    gbxNrCredenciamento: TGroupBox;
+    edtNumeroCredenciadora: TMaskEdit;
+    gbxDataLaudoPAF: TGroupBox;
+    edtDataLaudoPAF: TEditData;
+    ACBrECF1: TACBrECF;
+    btSearchPorts: TSpeedButton;
+    procedure cbxModeloChange(Sender: TObject);
+    procedure cbxPortaChange(Sender: TObject);
+    procedure btnAtivarDesativarClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure btnGravarECFClick(Sender: TObject);
+    procedure btnGerarArquivoECFsClick(Sender: TObject);
+    procedure sbnTEFRespClick(Sender: TObject);
+    procedure btnSalvarEmpresaDesenvolvedoraClick(Sender: TObject);
+    procedure edtCNIEEChange(Sender: TObject);
+    procedure edtFilialChange(Sender: TObject);
+    procedure cbxMFChange(Sender: TObject);
+    procedure cbxTipoECFChange(Sender: TObject);
+    procedure edtDescricaoModeloChange(Sender: TObject);
+    procedure edtMarcaChange(Sender: TObject);
+    procedure btSearchPortsClick(Sender: TObject);
+  private
+    FDescricao,
+    FMarca,
+    FTipo,
+    FMF,
+    FNumeroECF,
+    FIntervencao,
+    FSerie,
+    FGT,
+    FCRZ,
+    FVendaBruta,
+    FVersaoSB,
+    FFilial,
+    FCNIEE,
+    FCNPJ,
+    FIE: String;
+    FDataSB: TDateTime;
+    procedure atualizarLabels(VerificaEstado:Boolean);
+    procedure TrataErros(Sender: TObject; E: Exception);
+    procedure gravarINI;
+    procedure gravarECF;
+    procedure gerarArquivoECFs;
+    procedure lerINI;
+    function EstadoECF: String;
+    procedure SalvarArquivo;
+    procedure LerArquivo;
+    function Criptografar(Valor: String): String;
+    function Descriptografar(Valor: String): String;
+    procedure Conectar;
+    procedure Desconectar;
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+const
+  Estados : array[TACBrECFEstado] of string =
+    ('Não Inicializada', 'Desconhecido', 'Livre', 'Venda',
+     'Pagamento', 'Relatório', 'Bloqueada', 'Requer Z', 'Requer X', 'Nao Fiscal' );
+
+var
+  frmPrincipal: TfrmPrincipal;
+  vVelocidadePorta: String;
+  vPorta : STring;
+
+const
+  MultKey  = 7;
+  AddKey   = 11;
+
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmPrincipal }
+
+procedure TfrmPrincipal.gravarINI;
+var
+  ArqINI : String ;
+  INI    : TIniFile ;
+begin
+  ArqINI := ChangeFileExt( Application.ExeName,'.ini' ) ;
+
+  INI := TIniFile.Create(ArqINI);
+  try
+    edtHost.Text    := INI.ReadString('login','host','');
+    edtBanco.Text   := INI.ReadString('login','banco','');
+    edtFilial.Text  := INI.ReadString('login','filialbase','');
+    
+{    edtUsuario.Text := 'tecsoft';
+    edtSenha.Text   := 'filosofia';
+    edtCNIEE.Text   := '381202';
+}  finally
+     INI.Free ;
+  end ;
+end;
+
+procedure TfrmPrincipal.lerINI;
+var
+  ArqINI : String ;
+  INI : TIniFile ;
+
+begin
+  ArqINI := ExtractFilePath(Application.ExeName) + 'tecsoft.ini';
+  INI := TIniFile.Create(ArqINI);
+  try
+    edtHost.Text    := INI.ReadString('login','host','localhost');
+    edtBanco.Text   := INI.ReadString('login','banco','tecsoft');
+    edtFilial.Text  := INI.ReadString('login','filialbase','1');
+    vVelocidadePorta := INI.ReadString('ecf','VelocidadePorta','9600');
+    vPorta := INI.ReadString('login','porta','5432');
+
+
+  finally
+    INI.Free ;
+  end ;
+end;
+
+procedure TfrmPrincipal.cbxModeloChange(Sender: TObject);
+begin
+  try
+    ACBrECF1.Modelo := TACBrECFModelo( cbxModelo.ItemIndex );
+  except
+    cbxModelo.ItemIndex := Integer( ACBrECF1.Modelo );
+    raise ;
+  end ;
+end;
+
+procedure TfrmPrincipal.cbxPortaChange(Sender: TObject);
+begin
+  try
+    ACBrECF1.Porta := cbxPorta.Text;
+  finally
+    cbxPorta.Text := ACBrECF1.Porta;
+  end ;
+end;
+
+procedure TfrmPrincipal.btnAtivarDesativarClick(Sender: TObject);
+begin
+  if btnAtivarDesativar.Caption = 'Ativar' then
+  begin
+    try
+      ACBrECF1.Porta := cbxPorta.Text;
+      ACBrECF1.Device.Baud := strtoint(vVelocidadePorta);
+
+      if cbxModelo.ItemIndex = 0 then
+        if not ACBrECF1.AcharECF(true,False) then
+        begin
+          MessageDlg('Nenhum ECF encontrado.',mtInformation,[mbOk], 0);
+          exit;
+        end;
+
+      ACBrECF1.Ativar;
+
+      btnAtivarDesativar.Caption := 'Desativar';
+      btnGravarECF.Enabled := True;
+
+//      GravarINI;
+    finally
+      cbxModelo.ItemIndex := Integer(ACBrECF1.Modelo);
+      cbxPorta.Text       := ACBrECF1.Porta;
+    end;
+  end
+  else
+  begin
+    ACBrECF1.Desativar;
+    btnAtivarDesativar.Caption := 'Ativar';
+    btnGravarECF.Enabled := False;
+  end;
+  atualizarLabels(True);
+end;
+
+procedure TfrmPrincipal.FormCreate(Sender: TObject);
+var
+  i : TACBrECFModelo ;
+begin
+//  ACBrECF1.FormMsgColor := clWindow;
+  cbxModelo.Items.Clear ;
+  for i := Low(TACBrECFModelo) to High(TACBrECFModelo) do
+    cbxModelo.Items.Add( GetEnumName(TypeInfo(TACBrECFModelo), integer(i)));
+
+  cbxModelo.Items[0] := 'Procurar' ;
+  cbxModelo.ItemIndex := 0 ;
+
+  btSearchPortsClick(Sender);
+
+  lblIntervencao.Caption:=Criptografar('00001');
+
+  lerINI;
+
+//  SaveDialog1.InitialDir := ExtractFilePath(Application.ExeName);
+  if FileExists(ExtractFilePath(Application.ExeName)+'tecsoft.ini') then
+  begin
+    edtCaminhoArquivo.Text := ExtractFilePath(Application.ExeName)+'tecsoft.ini';
+    LerArquivo;
+  end
+  else
+    ShowMessage('O arquivo ''tecsoft.ini'' não foi encontrado.');
+
+//  ShowMessage(criptografar('00001'));
+
+  Application.OnException := TrataErros;
+end;
+
+procedure TfrmPrincipal.atualizarLabels(VerificaEstado:Boolean);
+begin
+  if ACBrECF1.Ativo then
+  begin
+    try
+      edtDescricaoMOdelo.text := ACBRECF1.SubModeloECF;
+//    edtMarca.Text := copy(edtDescricaoModelo.Text,1,pos(' ', edtDescricaoModelo.Text)-1);
+      edtMarca.Text := ACBrECF1.ModeloStr;
+      lblNumeroECF.Caption := ACBrECF1.NumECF;
+      lblIntervencao.Caption := ACBrECF1.NumCRO;
+      showmessage(ACBrECF1.NumCRO);
+      showMessage(criptografar(ACBrECF1.NumCRO));
+      showMessage('N Maqui'+ACBRECF1.NumECF+ ' Crp'+criptografar(ACBRECF1.NumECF));
+
+      lblSerie.Caption := ACBrECF1.NumSerie;
+      lblGT.Caption := 'R$ ' + FloatToStr(ACBrECF1.GrandeTotal);
+      lblCRZ.Caption := ACBrECF1.NumCRZ;
+      lblVendaBruta.Caption := 'R$ ' + FloatToStr(ACBrECF1.VendaBruta);
+      lblVersaoSB.Caption   := ACBrECF1.NumVersao;
+      lblDataSB.Caption     := DateTimeToStr(ACBrECF1.DataHoraSB);
+      lblCNPJECF.Caption    := ACBrECF1.CNPJ;
+      lblIEECF.Caption      := ACBrECF1.IE;
+      edtGTCripto.Text    := Criptografar(FloatToStr(ACBrECF1.GrandeTotal));
+    except
+         on E: Exception do ShowMessage(E.Message);
+    end;
+  end
+  else
+  begin
+    edtDescricaoModelo.Text := '';
+    edtMarca.Text := '';
+    lblNumeroECF.Caption := '';
+    lblIntervencao.Caption := '';
+    lblSerie.Caption := '';
+    lblGT.Caption := '';
+    lblCRZ.Caption := '';
+    lblVendaBruta.Caption := '';
+    lblVersaoSB.Caption   := '';
+    lblDataSB.Caption     := '';
+    lblCNPJECF.Caption    := '';
+    lblIEECF.Caption      := '';
+  end;
+  if VerificaEstado then
+    StatusBar1.Panels[0].Text := EstadoECF;
+  FDescricao   := edtDescricaoModelo.Text;
+  FMarca       := edtMarca.Text;
+  FNumeroECF   := lblNumeroECF.Caption;
+  FIntervencao := lblIntervencao.Caption;
+  FSerie       := lblSerie.Caption;
+  FGT          := StringReplace(lblGT.Caption,'R$ ','',[rfReplaceAll]);
+  FCRZ         := lblCRZ.Caption;
+  FVendaBruta  := StringReplace(lblVendaBruta.Caption,'R$ ','',[rfReplaceAll]);
+  FVersaoSB    := lblVersaoSB.Caption;
+  FFilial      := edtFilial.Text;
+  FCNIEE       := edtCNIEE.Text;
+  FCNPJ        := lblCNPJECF.Caption;
+  FIE          := lblIEECF.Caption;
+  FDataSB      := ACBrECF1.DataHoraSB;
+end;
+
+procedure TfrmPrincipal.TrataErros(Sender: TObject; E: Exception);
+begin
+  atualizarLabels(False) ;
+  StatusBar1.Panels[0].Text := 'Exceção' ;
+  StatusBar1.Panels[1].Text := E.Message ;
+end;
+
+function TfrmPrincipal.EstadoECF: String;
+begin
+  Result :=  Estados[ACBrECF1.Estado];
+end;
+
+procedure TfrmPrincipal.btnGravarECFClick(Sender: TObject);
+begin
+  GravarECF;
+end;
+
+procedure TfrmPrincipal.gravarECF;
+begin
+  if trim(edtHost.Text) <> '' then
+    if trim(edtBanco.Text) <> '' then
+      if trim(edtUsuario.Text) <> '' then
+        if trim(edtFilial.Text) <> '' then
+          if trim(edtCNIEE.Text) <> '' then
+            if cbxTipoECF.ItemIndex >= 0 then // trim(edtTipo.Text) <> '' then
+              if cbxMF.ItemIndex >= 0 then // (trim(edtMF.Text) <> '') and ((edtMF.Text='S') or (edtMF.Text='N')) then
+                if trim(edtMarca.Text) <> '' then
+                  if Trim(edtDescricaoModelo.Text) <> '' then
+                  begin
+                    Conectar;
+
+                    qryECFs.MacroByName('WHERE').AsString := 'WHERE codigo = NULL';
+                    qryECFs.Open;
+                    qryECFs.Append;
+
+                    qryECFsProximo.Open;
+                    qryECFscodigo.AsInteger := qryECFsProximocodigo.AsInteger;
+                    qryECFsProximo.Close;
+
+                    qryECFsfilial.AsString      := FFilial;
+                    qryECFsmaquina.AsString     := FNumeroECF;
+                    qryECFsintervencao.AsString := FIntervencao;
+                    qryECFsserie.AsString       := FSerie;
+                    qryECFscniee.AsString       := FCNIEE;
+                    qryECFsmodelo.AsInteger     := cbxModelo.ItemIndex;
+                    qryECFsmodelodescricao.AsString := FDescricao;
+                    qryECFsmarca.AsString       := FMarca;
+                    qryECFstipo.AsString        := FTipo;
+                    qryECFsmfadicional.AsString := FMF;
+                    if FDataSB = 0 then
+                      qryECFsdata_sb.AsDateTime   := Now
+                    else
+                      qryECFsdata_sb.AsDateTime   := FDataSB;
+                    qryECFsversao_sb.AsString   := FVersaoSB;
+                    qryECFscnpj.AsString        := FCNPJ;
+                    qryECFsie.AsString          := FIE;
+
+                    qryECFsgrandetotal.AsString := FGT;
+                    qryECFsvendabruta.AsString  := FVendaBruta;
+                    qryECFsminas_legal.AsBoolean := ckbMinasLegal.Checked;
+                    qryECFscupom_mania.AsBoolean := ckbCupomMania.Checked;
+                    qryECFsparaiba_legal.AsBoolean := ckbParaibaLegal.Checked;
+                    qryECFsnota_legal_df.AsBoolean := ckbNotaLegalDF.Checked;
+
+
+                    qryECFs.Post;
+                    qryECFs.Close;
+
+                    Desconectar;
+
+                    btnGravarECF.Enabled := False;
+                    StatusBar1.Panels[1].Text := 'ECF gravado com sucesso!';
+                  end
+                  else
+                  begin
+                    ShowMessage('Informe a DESCRIÇÃO');
+                    edtDescricaoModelo.SetFocus;
+                  end
+                else
+                begin
+                  ShowMessage('Informe a MARCA');
+                  edtMarca.SetFocus;
+                end
+              else
+              begin
+                ShowMessage('Informe ''S'' ou ''N'' para a MF adicional');
+                cbxMF.SetFocus;
+              end
+            else
+            begin
+              ShowMessage('Informe o TIPO');
+              cbxTipoECF.SetFocus;
+            end
+          else
+          begin
+            ShowMessage('Informe o CNIEE');
+            edtCNIEE.SetFocus;
+          end
+        else
+        begin
+          ShowMessage('Informe o código da filial');
+          edtFilial.SetFocus;
+        end
+      else
+      begin
+        ShowMessage('Informe o usuário');
+        edtUsuario.SetFocus;
+      end
+    else
+    begin
+      ShowMessage('Informe o banco');
+      edtBanco.SetFocus;
+    end
+  else
+  begin
+    ShowMessage('Informe o endereço do servidor');
+    edtHost.SetFocus;
+  end
+end;
+
+procedure TfrmPrincipal.btnGerarArquivoECFsClick(Sender: TObject);
+begin
+  gerarArquivoECFs;
+end;
+
+procedure TfrmPrincipal.gerarArquivoECFs;
+var
+  ArqECFs: TIniFile;
+  Arq: String;
+begin
+  Conectar;
+
+  qryECFs.MacroByName('WHERE').AsString := 'WHERE filial = ' + edtFilial.Text;
+  qryECFs.Open;
+
+  if not qryECFs.IsEmpty then
+  begin
+    Arq := ExtractFilePath(Application.ExeName) + 'ECFs.ini';
+    if FileExists(Arq) then
+      DeleteFile(pchar(Arq));
+    ArqECFs := TIniFile.Create(Arq);
+    try
+      while not qryECFs.Eof do
+      begin
+        ArqECFs.WriteString(qryECFscodigo.AsString, 'modelo'    , qryECFsmodelo.AsString);
+        ArqECFs.WriteString(qryECFscodigo.AsString, 'serie'     , Criptografar(qryECFsserie.AsString));
+        ArqECFs.WriteString(qryECFscodigo.AsString, 'maquina'   , Criptografar(qryECFsmaquina.AsString));
+        ArqECFs.WriteString(qryECFscodigo.AsString, 'cro'       , Criptografar(qryECFsintervencao.AsString));
+        ArqECFs.WriteString(qryECFscodigo.AsString, 'gt'        , Criptografar(qryECFsgrandetotal.AsString));
+        ArqECFs.WriteString(qryECFscodigo.AsString, 'vendabruta', Criptografar(qryECFsvendabruta.AsString));
+        ArqECFs.WriteString(qryECFscodigo.AsString, 'marca'     , Criptografar(qryECFsmarca.AsString));
+        ArqECFs.WriteString(qryECFscodigo.AsString, 'tipo'      , Criptografar(qryECFstipo.AsString));
+        ArqECFs.WriteString(qryECFscodigo.AsString, 'MF'        , Criptografar(qryECFsmfadicional.AsString));
+        ArqECFs.WriteString(qryECFscodigo.AsString, 'cniee'     , Criptografar(qryECFscniee.AsString));
+        ArqECFs.WriteString(qryECFscodigo.AsString, 'SubModelo' , Criptografar(qryECFsmodelodescricao.AsString));
+        ArqECFs.WriteString(qryECFscodigo.AsString, 'MinasLegal' ,Criptografar(qryECFsminas_legal.AsString));
+        ArqECFs.WriteString(qryECFscodigo.AsString, 'CupomMania' ,Criptografar(qryECFscupom_mania.AsString));
+        ArqECFs.WriteString(qryECFscodigo.AsString, 'ParaibaLegal' ,Criptografar(qryECFsparaiba_legal.AsString));
+        ArqECFs.WriteString(qryECFscodigo.AsString, 'NotaLegalDF' ,Criptografar(qryECFsnota_legal_df.AsString));
+
+        qryECFs.Next;
+      end;
+      ArqECFs.UpdateFile;
+      StatusBar1.Panels[1].Text := 'Arquivo gerado com sucesso!';
+    finally
+      ArqECFs.Free;
+    end;
+  end
+  else
+    ShowMessage('Nenhum ECF cadastrado');
+  qryECFs.Close;
+
+  Desconectar;
+end;
+
+procedure TfrmPrincipal.sbnTEFRespClick(Sender: TObject);
+begin
+  if dlgArquivoaExportar.Execute then
+  begin
+    edtCaminhoArquivo.Text := dlgArquivoaExportar.FileName ;
+    LerArquivo;
+  end
+end;
+
+procedure TfrmPrincipal.btnSalvarEmpresaDesenvolvedoraClick(
+  Sender: TObject);
+begin
+  if (edtNomeEmpresa.Text        <> '') and
+     (edtCNPJ.Text               <> '') and
+     (edtNomeComercialPAFECF.Text<> '') and
+     (edtVersaoPAFECF.Text       <> '') and
+     (edtCodigoMD5.Text          <> '') and
+     (edtLaudoPAF.Text           <> '') and
+     (edtEndereco1.Text          <> '') and
+     (edtEndereco2.Text          <> '') and
+     (edtTelefone.Text           <> '') and
+     (edtContato.Text            <> '') and
+     (edtNumeroCredenciadora.text <> '') AND
+     (edtDataLaudoPAF.DataValida AND not dataembranco(edtDataLaudoPAF.text)) then
+  begin
+    if FileExists(edtCaminhoArquivo.text) then
+      SalvarArquivo
+    else
+      ShowMessage(Format('O arquivo %s não foi encontrado', [edtCaminhoArquivo.text]));
+  end
+  else
+  begin
+    ShowMessage('O dados estão incompletos');
+    edtNomeEmpresa.SetFocus;
+  end;
+end;
+
+procedure TfrmPrincipal.SalvarArquivo;
+var
+  ArquivoCFG : TIniFile;
+begin
+  ArquivoCFG := TIniFile.Create(edtCaminhoArquivo.text);
+  try
+    ArquivoCFG.WriteString('Empresa_Desenvolvedora',
+                           'NomeEmpresaDesenvolvedora',
+                           Criptografar(edtNomeEmpresa.Text));
+
+    ArquivoCFG.WriteString('Empresa_Desenvolvedora',
+                           'CNPJDesenvolvedora',
+                           Criptografar(edtCNPJ.Text));
+
+    ArquivoCFG.WriteString('Empresa_Desenvolvedora',
+                           'IEDesenvolvedora',
+                           Criptografar(edtIE.Text));
+
+    ArquivoCFG.WriteString('Empresa_Desenvolvedora',
+                           'IMDesenvolvedora',
+                           Criptografar(edtIM.Text));
+
+    ArquivoCFG.WriteString('Empresa_Desenvolvedora',
+                           'NomeComercialSistema',
+                           Criptografar(edtNomeComercialPAFECF.Text));
+
+    ArquivoCFG.WriteString('Empresa_Desenvolvedora',
+                           'VersaoPAFECF',
+                           Criptografar(edtVersaoPAFECF.Text));
+
+    ArquivoCFG.WriteString('Empresa_Desenvolvedora',
+                           'CodigoMD5',
+                           Criptografar(edtCodigoMD5.Text));
+
+    ArquivoCFG.WriteString('Empresa_Desenvolvedora',
+                           'LaudoPAFECF',
+                           Criptografar(edtLaudoPAF.Text));
+
+    ArquivoCFG.WriteString('Empresa_Desenvolvedora',
+                           'DataLaudoPAFECF',
+                           Criptografar(edtDataLaudoPAF.Text));
+
+    ArquivoCFG.WriteString('Empresa_Desenvolvedora',
+                           'NumeroCredenciamento',
+                           Criptografar(edtNumeroCredenciadora.Text));
+
+    ArquivoCFG.WriteString('Empresa_Desenvolvedora',
+                           'Endereco1',
+                           Criptografar(edtEndereco1.Text));
+    ArquivoCFG.WriteString('Empresa_Desenvolvedora',
+                           'Endereco2',
+                           Criptografar(edtEndereco2.Text));
+    ArquivoCFG.WriteString('Empresa_Desenvolvedora',
+                           'Telefone',
+                           Criptografar(edtTelefone.Text));
+    ArquivoCFG.WriteString('Empresa_Desenvolvedora',
+                           'Contato',
+                           Criptografar(edtContato.Text));
+    ArquivoCFG.UpdateFile;
+  finally
+    ArquivoCFG.Free;
+    ShowMessage('O dados da empresa desenvolvedora foram salvos com sucesso');
+  end;
+
+end;
+
+procedure TfrmPrincipal.LerArquivo;
+var
+  ArquivoCFG : TIniFile;
+begin
+  ArquivoCFG := TIniFile.Create(edtCaminhoArquivo.text);
+  try
+    iF ArquivoCFG.SectionExists('Empresa_Desenvolvedora') then
+    begin
+      edtNomeEmpresa.Text := Descriptografar(ArquivoCFG.ReadString('Empresa_Desenvolvedora',
+                             'NomeEmpresaDesenvolvedora',
+                             'TecSoft'));
+
+      edtCNPJ.Text := Descriptografar(ArquivoCFG.ReadString('Empresa_Desenvolvedora',
+                             'CNPJDesenvolvedora', ''));
+
+      edtIE.Text := Descriptografar(ArquivoCFG.ReadString('Empresa_Desenvolvedora',
+                             'IEDesenvolvedora',''));
+
+      edtIM.Text := Descriptografar(ArquivoCFG.ReadString('Empresa_Desenvolvedora',
+                             'IMDesenvolvedora',''));
+
+      edtNomeComercialPAFECF.Text := Descriptografar(ArquivoCFG.ReadString('Empresa_Desenvolvedora',
+                             'NomeComercialSistema',''));
+
+      edtVersaoPAFECF.Text := Descriptografar(ArquivoCFG.ReadString('Empresa_Desenvolvedora',
+                             'VersaoPAFECF', ''));
+
+      edtCodigoMD5.Text := Descriptografar(ArquivoCFG.ReadString('Empresa_Desenvolvedora',
+                             'CodigoMD5', ''));
+
+      edtLaudoPAF.Text  := Descriptografar(ArquivoCFG.ReadString('Empresa_Desenvolvedora',
+                           'LaudoPAFECF', ''));
+
+      edtDataLaudoPAF.Text  := Descriptografar(ArquivoCFG.ReadString('Empresa_Desenvolvedora',
+                           'DataLaudoPAFECF', ''));
+
+      edtEndereco1.Text := Descriptografar(ArquivoCFG.ReadString('Empresa_Desenvolvedora',
+                           'Endereco1', ''));
+
+      edtEndereco2.Text := Descriptografar(ArquivoCFG.ReadString('Empresa_Desenvolvedora',
+                           'Endereco2', ''));
+
+      edtTelefone.Text  := Descriptografar(ArquivoCFG.ReadString('Empresa_Desenvolvedora',
+                           'Telefone', ''));
+
+      edtContato.Text  := Descriptografar(ArquivoCFG.ReadString('Empresa_Desenvolvedora',
+                           'Contato', ''));
+    end;
+  finally
+    ArquivoCFG.Free;
+  end;
+end;
+
+function TfrmPrincipal.Criptografar(Valor: String): String;
+var
+  I : Byte;
+  Str: String;
+  Nro: int64;
+  StartKey: int64;
+begin
+  StartKey := 5;
+  Result   := '';
+  for I := 1 to Length(Valor) do begin
+    Result := Result + CHAR(Byte(Valor[I]) xor (StartKey shr 8));
+    StartKey := (Byte(Result[I]) + StartKey) * MultKey + AddKey;
+  end;
+  Str := '';
+  for i := 1 to Length(Result) do begin
+    Nro := Ord(Result[i]);
+    Str := Str + Format('%2.2X', [Nro]);
+  end;
+  Result := Str;
+end;
+
+function TfrmPrincipal.Descriptografar(Valor: String): String;
+var
+  I : Byte;
+  Str: String;
+  StartKey: int64;
+
+  function HexToDec(Valor: String): Integer;
+  var
+    a, Qtde: Integer;
+    val: Integer;
+  begin
+    Result := 0;
+    Qtde   := Length(Valor);
+    for a := 1 to Qtde do begin
+      case Valor[a] of
+        '0'..'9': Val := StrToInt(Valor[a]);
+        'A','a':  Val := 10;
+        'B','b':  Val := 11;
+        'C','c':  Val := 12;
+        'D','d':  Val := 13;
+        'E','e':  Val := 14;
+        'F','f':  Val := 15;
+      else
+        Val := 0;
+      end;
+      Result := Result + Floor(Power(16, Qtde - a)) * Val;
+    end
+  end;
+
+begin
+  Str := '';
+  I := 1;
+  while I < Length(Valor) do begin
+    Str := Str + Chr(HexToDec(Valor[I] + Valor[I + 1]));
+    Inc(I, 2);
+  end;
+  Valor := Str;
+  StartKey := 5;
+  Result   := '';
+  for I := 1 to Length(Valor) do begin
+    Result := Result + CHAR(Byte(Valor[I]) xor (StartKey shr 8));
+    StartKey := (Byte(Valor[I]) + StartKey) * MultKey + AddKey;
+  end;
+end;
+
+procedure TfrmPrincipal.edtCNIEEChange(Sender: TObject);
+begin
+  FCNIEE := edtCNIEE.Text
+end;
+
+procedure TfrmPrincipal.edtFilialChange(Sender: TObject);
+begin
+  FFilial := edtFilial.Text
+end;
+
+procedure TfrmPrincipal.cbxMFChange(Sender: TObject);
+begin
+  FMF := cbxMF.Items[cbxMF.ItemIndex]
+end;
+
+procedure TfrmPrincipal.cbxTipoECFChange(Sender: TObject);
+begin
+  FTipo := cbxTipoECF.Items[cbxTipoECF.ItemIndex]
+end;
+
+procedure TfrmPrincipal.Conectar;
+begin
+  if not ZPgSqlDatabase1.Connected then
+  begin
+    ZPgSqlDatabase1.Host     := edtHost.Text;
+    ZPgSqlDatabase1.Database := edtBanco.Text;
+    ZPgSqlDatabase1.Login    := edtUsuario.Text;
+    ZPgSqlDatabase1.Password := edtSenha.Text;
+    ZPgSqlDatabase1.port     := vPorta; 
+    ZPgSqlDatabase1.Connect;
+  end;
+end;
+
+procedure TfrmPrincipal.Desconectar;
+begin
+  ZPgSqlDatabase1.Disconnect
+end;
+
+procedure TfrmPrincipal.edtDescricaoModeloChange(Sender: TObject);
+begin
+ FDescricao := edtDescricaoModelo.Text;
+end;
+
+procedure TfrmPrincipal.edtMarcaChange(Sender: TObject);
+begin
+  FMarca := edtMarca.Text;
+end;
+
+procedure TfrmPrincipal.btSearchPortsClick(Sender: TObject);
+begin
+  cbxPorta.Items.Clear;
+  ACBrPosPrinter1.Device.AcharPortasSeriais( cbxPorta.Items );
+  {$IfDef MSWINDOWS}
+  ACBrPosPrinter1.Device.AcharPortasUSB( cbxPorta.Items );
+  {$EndIf}
+  ACBrPosPrinter1.Device.AcharPortasRAW( cbxPorta.Items );
+  {$IfDef HAS_BLUETOOTH}
+  try
+    ACBrPosPrinter1.Device.AcharPortasBlueTooth( cbxPorta.Items, True );
+  except
+  end;
+  {$EndIf}
+
+  cbxPorta.Items.Add('LPT1') ;
+  cbxPorta.Items.Add('\\localhost\Epson') ;
+  cbxPorta.Items.Add('c:\temp\ecf.txt') ;
+  cbxPorta.Items.Add('TCP:192.168.0.31:9100') ;
+
+  {$IfNDef MSWINDOWS}
+   cbxPorta.Items.Add('/dev/ttyS0') ;
+   cbxPorta.Items.Add('/dev/ttyUSB0') ;
+   cbxPorta.Items.Add('/tmp/ecf.txt') ;
+  {$EndIf}
+
+end;
+
+end.
+
+

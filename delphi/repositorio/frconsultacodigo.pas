@@ -574,6 +574,19 @@ begin
                       ValorSelecionado := qryConsultaServicoslcp116codigo.AsVariant;
                     end;
 
+            pesNBS: begin
+                      edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaNBScodigo.AsVariant;
+                      Selecionar(TipoPesquisa);
+                      ValorSelecionado := qryConsultaNBScodigo.AsVariant;
+                    end;
+
+            pesIndOperNFSe: begin
+                      edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaIndOperNFSecindop.AsVariant;
+                      Selecionar(TipoPesquisa);
+                      ValorSelecionado := qryConsultaIndOperNFSecindop.AsVariant;
+                    end;
+
+
             pesSERVICOS: begin
                       qryProcuraServicos.BeforeOpen := nil;
                       edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaServicoscodigo.AsVariant;
@@ -604,6 +617,8 @@ begin
 
 
             pesNATUREZAS: edfcodigo.DataSource.DataSet.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaNaturezascodigo.asvariant;
+            pesnfe_natureza_operacao: edfcodigo.DataSource.DataSet.FieldByName(edfCodigo.DataField).AsVariant := qryConsultanfe_natureza_operacaoid_natureza.asvariant;
+
             pesINVENTARIO: ValorSelecionado := qryConsultaInventarionumero.AsVariant;
             pesIMOBILIZADO: begin
                               ValorSelecionado := qryConsultaImobilizadonumero.AsVariant;
@@ -962,6 +977,9 @@ begin
     pesSETORESPRODUCAO : rESULT := 'Setores da Produção';
     pesTURNO : result := 'Turnos';
     pesSERVICOSLCP116 : result := 'Serviços - Lei Compl. 116/03';
+    pesNBS : result := 'NBS - Nomenclatura Brasileira de Serviços';
+    pesIndOperNFSe : result := 'CIndOp - Cód. Indicador de Operações na NFSe';
+
     pesSERVICOS : result := 'Serviços';
 
     pesOSP : result := ctOSP;
@@ -1025,7 +1043,8 @@ begin
     pesMOEDAS  : Result := ctMOEDA;
     pesFLUXOGRAMA : RESULT := ctFLUXOGRAMA;
     pesINSTRUCOESTRABALHO : RESULT := ctINSTRUCOESTRABALHO;
-    pesNATUREZAS : result := ctNATUREZAS;
+    pesNATUREZAS, pesnfe_natureza_operacao : result := ctNATUREZAS;
+
     pesINVENTARIO : result := ctINVENTARIOESTOQUE;
     pesIMOBILIZADO : Result := 'IMOBILIZADO';
     pesITEMPRODUTOS,

@@ -1,0 +1,324 @@
+unit dmcomissaocobradores;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, {QCheckLst,} DB, CheckLst, 
+  // Terceiros
+  ZQuery, ZPgSqlQuery,
+  // Repositorio
+  dmbasico,
+  // Constantes
+  ctconstantes, biblio,
+  //Componentes
+  cpquery, cpdatasource, FR_Class, FR_DSet, FR_DBSet;
+
+type
+  TdtmComissaoCobradores = class(TdtmBasico)
+    qryProcuraCobradores: TtecQuery;
+    qryConsultaCobradores: TtecQuery;
+    dsrProcuraCobradores: TtecDataSource;
+    qryProcuraCobradorescodigo: TIntegerField;
+    qryProcuraCobradoresnome: TStringField;
+    qryConsultaCobradoresnome: TStringField;
+    qryConsultaCobradorescodigo: TIntegerField;
+    qryResumoFolha: TtecQuery;
+    fdsComissao: TfrDBDataSet;
+    fdsResumoFolha: TfrDBDataSet;
+    frpAnalitico: TfrReport;
+    frpResumoFolha: TfrReport;
+    frpSintetico: TfrReport;
+    qryValorCobrado: TtecQuery;
+    qryValorRenegociado: TtecQuery;
+    qryRecolhidoDD: TtecQuery;
+    qryRecolhido: TtecQuery;
+    qryCheque: TtecQuery;
+    qryProporcoes: TtecQuery;
+    qryMeta: TtecQuery;
+    qryComissao: TtecQuery;
+    qryComissaocontrato: TStringField;
+    qryComissaoparcela: TIntegerField;
+    qryComissaodatapagto: TDateField;
+    qryComissaovalorpagto: TFloatField;
+    qryComissaousuario: TIntegerField;
+    qryComissaonomecobrador: TStringField;
+    qryComissaocliente: TIntegerField;
+    qryComissaonomedevedor: TStringField;
+    qryComissaodataocorre: TDateField;
+    qryComissaodiascobranca: TIntegerField;
+    qryComissaopercentual: TFloatField;
+    qryComissaoevento: TStringField;
+    qryComissaocomissao: TFloatField;
+    qryResumoFolhausuario: TIntegerField;
+    qryResumoFolhanomecobrador: TStringField;
+    qryResumoFolhacomissao: TFloatField;
+    qryResumoFolhaevento: TStringField;
+    qryDropTemp: TtecQuery;
+    qryDropTempteste: TStringField;
+  private
+    FTipoRelatorio: TtecRelatorioComissao;
+    FParametroCobrador: String;
+    FParametroInicioMeta: String;
+    FParametroFimMeta: String;
+    FParametroInicioComissao: String;
+    FParametroFimComissao: String;
+    FEventos: String;
+    FParametroAlterado: Boolean;
+    function GetCodigoCobrador: Integer;
+    procedure SetParametroCobrador(const Value: String);
+    procedure SetParametroFimComissao(const Value: String);
+    procedure SetParametroFimMeta(const Value: String);
+    procedure SetParametroInicioComissao(const Value: String);
+    procedure SetParametroInicioMeta(const Value: String);
+    procedure SetTipoRelatorio(const Value: TtecRelatorioComissao);
+  public
+   constructor Create(AOwner: TComponent); override;
+   function ExisteCobrador(campo, codigo: string): Boolean;
+   procedure SelecionarCobrador;
+   procedure MontarEventos(Usar: TCheckListBox);
+   procedure ExcluirTabelas;   
+   procedure GerarComissaoCobradores;
+   property CodigoCobrador: Integer read GetCodigoCobrador;
+   property ParametroCobrador: String read FParametroCobrador write SetParametroCobrador;
+   property ParametroInicioComissao: String read FParametroInicioComissao write SetParametroInicioComissao;
+   property ParametroFimComissao: String read FParametroFimComissao write SetParametroFimComissao;
+   property ParametroInicioMeta: String read FParametroInicioMeta write SetParametroInicioMeta;
+   property ParametroFimMeta: String read FParametroFimMeta write SetParametroFimMeta;
+   property ParametroAlterado: Boolean read FParametroAlterado write FParametroAlterado;
+   property TipoRelatorio: TtecRelatorioComissao read FTipoRelatorio write SetTipoRelatorio;
+  end;
+
+var
+  dtmComissaoCobradores: TdtmComissaoCobradores;
+
+const
+
+  // Filtro ultima cobranca
+  UltimaCobranca = 'SELECT DISTINCT ON (contrato) * ' + #13#10 +
+                   'FROM %s' + #13#10 +
+                   'WHERE diascobranca IN (' + #13#10 +
+                   '                        SELECT MIN(diascobranca)' + #13#10 +
+                   '                        FROM %s' + #13#10 +
+                   '                        GROUP BY contrato' + #13#10 +
+                   '                      ) UNION' + #13#10;
+  // Indice dos eventos
+  ID_COBRADO        = 0;
+  ID_RENEGOCIADO    = 1;
+  ID_RECOLHIDODD    = 2;
+  ID_RECOLHIDO      = 3;
+//  ID_CHEQUE         = 4;
+  ID_META           = 4;
+  ID_PROPORCAO      = 5;
+
+implementation
+
+uses
+  //Biblio
+  clparametrossistema,
+  //Repositorio
+  dmtecsoft;
+
+{$R *.dfm}
+
+constructor TdtmComissaoCobradores.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryConsultaCobradores.Tag := ctPesquisaVendedor;
+  qryProcuraCobradores.Tag := ctTabelas;
+end;
+
+function TdtmComissaoCobradores.GetCodigoCobrador: Integer;
+begin
+  Result := qryConsultaCobradorescodigo.AsInteger;
+end;
+
+function TdtmComissaoCobradores.ExisteCobrador(campo, codigo: string): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaCobradores, Campo, Codigo);
+end;
+
+procedure TdtmComissaoCobradores.SelecionarCobrador;
+begin
+  RefazConsulta(qryProcuraCobradores,[0],[CodigoCobrador]);
+end;
+
+procedure TdtmComissaoCobradores.MontarEventos(Usar: TCheckListBox);
+
+function EventosPreliminares: String;
+const
+{  Nome  : array [0..4] of String = ('comissaocobrado','comissaorenegociado',
+                                    'comissaorecolhido_dd','comissaorecolhido',
+                                    'comissaocheque');
+}
+  Nome  : array [0..3] of String = ('comissaocobrado','comissaorenegociado',
+                                    'comissaorecolhido_dd','comissaorecolhido');
+
+var
+  Evento: array [0..3] of TtecQuery;
+  cnt: Integer;
+begin
+  Evento[0] := qryValorCobrado;
+  Evento[1] := qryValorRenegociado;
+  Evento[2] := qryRecolhidoDD;
+  Evento[3] := qryRecolhido;
+//  Evento[4] := qryCheque;
+  for cnt := 0 to High(Evento) do
+  begin
+    if not(Evento[cnt].Active) then
+      ReFazConsulta(Evento[cnt], [0, 1, 2], [FilialBase,
+                                             FParametroInicioComissao,
+                                             FParametroFimComissao]);
+    Result := Result + Format(UltimaCobranca,[Nome[cnt], Nome[cnt]]);
+  end;
+  Delete(Result, Length(Result) - 6, 5); (* remove UNION do ultimo evento *)
+end;
+
+var
+  cnt: Integer;
+begin
+  FEventos := ' ';
+  for cnt := 0 to Usar.Items.Count - 1 do
+  begin
+    if Usar.Checked[cnt] then
+    case cnt of
+      ID_COBRADO     : begin
+                         ReFazConsulta(qryValorCobrado, [0, 1, 2], [FilialBase,
+                                                                    FParametroInicioComissao,
+                                                                    FParametroFimComissao]);
+                         FEventos := FEventos + Format(UltimaCobranca,['comissaocobrado','comissaocobrado']);
+                       end;
+      ID_RENEGOCIADO : begin
+                         ReFazConsulta(qryValorRenegociado, [0, 1, 2], [FilialBase,
+                                                                        FParametroInicioComissao,
+                                                                        FParametroFimComissao]);
+                         FEventos := FEventos + Format(UltimaCobranca,['comissaorenegociado','comissaorenegociado']);
+                       end;
+      ID_RECOLHIDODD : begin
+                         ReFazConsulta(qryRecolhidoDD, [0, 1, 2], [FilialBase,
+                                                                   FParametroInicioComissao,
+                                                                   FParametroFimComissao]);
+                         FEventos := FEventos + Format(UltimaCobranca,['comissaorecolhido_dd','comissaorecolhido_dd']);
+                       end;
+      ID_RECOLHIDO   : begin
+                         ReFazConsulta(qryRecolhido, [0, 1, 2], [FilialBase,
+                                                                 FParametroInicioComissao,
+                                                                 FParametroFimComissao]);
+                         FEventos := FEventos + Format(UltimaCobranca,['comissaorecolhido','comissaorecolhido']);
+                       end;
+{      ID_CHEQUE      : begin
+                         ReFazConsulta(qryCheque, [0, 1, 2], [FilialBase,
+                                                              FParametroInicioComissao,
+                                                              FParametroFimComissao]);
+                         FEventos := FEventos + Format(UltimaCobranca,['comissaocheque','comissaocheque']);
+                       end;
+}
+      ID_META        : begin
+                         qryMeta.Sql[36] := EventosPreliminares;
+                         ReFazConsulta(qryMeta, [0, 1], [ParSistema.TetoDaMetaCobranca,
+                                                         MesAno(FParametroInicioMeta)]);
+                         FEventos := FEventos + 'SELECT * FROM comissaometascobrador UNION'+ #13#10;
+                       end;
+      ID_PROPORCAO   : begin
+                         qryProporcoes.Sql[21] := EventosPreliminares;
+                         ReFazConsulta(qryProporcoes, [0], [MesAno(FParametroInicioComissao)]);
+                         FEventos := FEventos + 'SELECT * FROM comissaoproporcoescobrador UNION'+ #13#10;
+                       end;
+    end;
+  end;
+  Delete(FEventos, Length(FEventos) - 6, 5); (* remove UNION do ultimo evento *)
+  qryComissao.Sql[5] := FEventos;
+  qryResumoFolha.Sql[9] := FEventos;
+end;
+
+procedure TdtmComissaoCobradores.GerarComissaoCobradores;
+begin
+  if TipoRelatorio = trResumoFolha then
+    RefazConsulta(qryResumoFolha, [], [])
+  else
+    RefazConsulta(qryComissao, [], []);
+end;
+
+procedure TdtmComissaoCobradores.SetParametroCobrador(const Value: String);
+begin
+  if Value <> FParametroCobrador then
+  begin
+    FParametroCobrador := Value;
+    FParametroAlterado:= True;
+  end;
+end;
+
+procedure TdtmComissaoCobradores.SetParametroFimComissao(const Value: String);
+begin
+  if Value <> FParametroFimComissao then
+  begin
+    FParametroFimComissao := Value;
+    FParametroAlterado:= True;
+  end;
+end;
+
+procedure TdtmComissaoCobradores.SetParametroFimMeta(const Value: String);
+begin
+  if Value <> FParametroFimMeta then
+  begin
+    FParametroFimMeta := Value;
+    FParametroAlterado:= True;
+  end;
+end;
+
+procedure TdtmComissaoCobradores.SetParametroInicioComissao(const Value: String);
+begin
+  if Value <> FParametroInicioComissao then
+  begin
+    FParametroInicioComissao := Value;
+    FParametroAlterado:= True;
+  end;
+end;
+
+procedure TdtmComissaoCobradores.SetParametroInicioMeta(const Value: String);
+begin
+  if Value <> FParametroInicioMeta then
+  begin
+    FParametroInicioMeta := Value;
+    FParametroAlterado:= True;
+  end;
+end;
+
+procedure TdtmComissaoCobradores.SetTipoRelatorio(const Value: TtecRelatorioComissao);
+begin
+  FTipoRelatorio := Value;
+end;
+
+procedure TdtmComissaoCobradores.ExcluirTabelas;
+const
+{
+  Temp  : array [0..6] of String = ('comissaocobrado','comissaorenegociado',
+                                    'comissaorecolhido_dd','comissaorecolhido',
+                                    'comissaocheque','comissaometascobrador',
+                                    'comissaoproporcoescobrador');
+}
+  Temp  : array [0..5] of String = ('comissaocobrado','comissaorenegociado',
+                                    'comissaorecolhido_dd','comissaorecolhido',
+                                    'comissaometascobrador','comissaoproporcoescobrador');
+var
+  cnt: Integer;
+  Evento: array [0..5] of TtecQuery;
+begin
+  Evento[0] := qryValorCobrado;
+  Evento[1] := qryValorRenegociado;
+  Evento[2] := qryRecolhidoDD;
+  Evento[3] := qryRecolhido;
+  Evento[4] := qryCheque;
+//  Evento[5] := qryMeta;
+  Evento[5] := qryProporcoes;
+  for cnt := 0 to  High(Temp) do
+    try
+      qryDropTemp.Sql[1] := 'DROP TABLE ' + Temp[cnt];
+      qryDropTemp.ExecSql;
+      if Evento[cnt].Active then
+        Evento[cnt].Close;
+    except
+    end;
+end;
+
+end.

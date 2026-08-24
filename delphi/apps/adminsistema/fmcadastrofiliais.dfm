@@ -1728,7 +1728,7 @@ inherited frmCadastroFiliais: TfrmCadastroFiliais
             Top = 159
             Width = 190
             Height = 17
-            Caption = 'Palho'#231'a - IPM Fiscal'
+            Caption = 'IPM Fiscal'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clBlack
             Font.Height = -13

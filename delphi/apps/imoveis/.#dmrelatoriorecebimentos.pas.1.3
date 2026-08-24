@@ -1,0 +1,276 @@
+unit dmrelatoriorecebimentos;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, ctconstantes, dmtecsoft, FR_DSet,
+  FR_DBSet, FR_Class, biblio, clparametrossistema, fmpreviewpadrao,
+  FR_Desgn, StdCtrls, Variants, Graphics, DB, cpdatasource, ZQuery,
+  ZPgSqlQuery, cpquery, ZTransact;
+
+type
+  TdtmRelatorioRecebimentos = class(TdtmBasico)
+    qryParcelas: TtecQuery;
+    dsrParcelas: TtecDataSource;
+    qryParcelascontrato: TIntegerField;
+    qryParcelascliente: TIntegerField;
+    qryParcelasdata: TDateField;
+    qryParcelasnomeempreendimento: TStringField;
+    qryParcelasnomecliente: TStringField;
+    qryParcelasorigem: TStringField;
+    qryParcelastipo: TStringField;
+    qryParcelasnumero: TIntegerField;
+    qryParcelasnrpagto: TIntegerField;
+    qryParcelasvalorpagto: TFloatField;
+    qryParcelasdatapagto: TDateField;
+    qryParcelasvalorhistorico: TFloatField;
+    qryParcelasvalorcorrigido: TFloatField;
+    qryParcelasvalordevido: TFloatField;
+    qryParcelascorrecao: TFloatField;
+    qryParcelasjuros: TFloatField;
+    frpRelatorioParcelas: TfrReport;
+    fdsParcelas: TfrDBDataSet;
+    qryParcelasvalorcontratado: TFloatField;
+    qryParcelasdescontos: TFloatField;
+    qryParcelasjurosmulta: TFloatField;
+    qryRelatorioporClientes: TtecQuery;
+    dsrRelatorioporClientes: TtecDataSource;
+    frpRelatorioClientes: TfrReport;
+    fdsClientes: TfrDBDataSet;
+    qryRelatorioporClientescontrato: TIntegerField;
+    qryRelatorioporClientescliente: TIntegerField;
+    qryRelatorioporClientesdata: TDateField;
+    qryRelatorioporClientesnomeempreendimento: TStringField;
+    qryRelatorioporClientesnomecliente: TStringField;
+    qryRelatorioporClientesvalorpagto: TFloatField;
+    qryRelatorioporClientesvalorhistorico: TFloatField;
+    qryRelatorioporClientesvalorcontratado: TFloatField;
+    qryRelatorioporClientesvalorcorrigido: TFloatField;
+    qryRelatorioporClientesvalordevido: TFloatField;
+    qryRelatorioporClientescorrecao: TFloatField;
+    qryRelatorioporClientesjuros: TFloatField;
+    qryRelatorioporClientesjurosmulta: TFloatField;
+    qryRelatorioporClientesdescontos: TFloatField;
+    qryRelatorioporEmp: TtecQuery;
+    dsrRelatorioporEmp: TtecDataSource;
+    frpRelatorioEmp: TfrReport;
+    fdsEmp: TfrDBDataSet;
+    qryParcelascontapagto: TMemoField;
+    qryRelatorioporClientescontapagto: TMemoField;
+    ZMonitor1: TZMonitor;
+    qryParcelasconta: TIntegerField;
+    qryRelatorioporEmpempreendimento: TIntegerField;
+    qryRelatorioporEmpnomeempreendimento: TStringField;
+    qryRelatorioporEmpvalorpagto: TFloatField;
+    qryRelatorioporEmpvalorhistorico: TFloatField;
+    qryRelatorioporEmpvalorcontratado: TFloatField;
+    qryRelatorioporEmpvalorcorrigido: TFloatField;
+    qryRelatorioporEmpvalordevido: TFloatField;
+    qryRelatorioporEmpcorrecao: TFloatField;
+    qryRelatorioporEmpjuros: TFloatField;
+    qryRelatorioporEmpjurosmulta: TFloatField;
+    qryRelatorioporEmpdescontos: TFloatField;
+    qryParcelasdatavencto: TDateField;
+    procedure qryParcelasBeforeOpen(DataSet: TDataSet);
+    procedure frpRelatorioParcelasBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure qryRelatorioporClientesBeforeOpen(DataSet: TDataSet);
+    procedure qryRelatorioporEmpBeforeOpen(DataSet: TDataSet);
+    procedure frpRelatorioClientesBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frpRelatorioEmpBeforePrint(Memo: TStringList; View: TfrView);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+  private
+    FComParcelas: Boolean;
+    FSoCliente: Boolean;
+    FSoEmpreendimento: Boolean;
+    FCliente: Integer;
+    FEmpreendimento: Integer;
+    FDataInicial: TDateTime;
+    FDataFinal: TDateTime;
+    FTotaisporConta: Boolean;
+    FContaPagto: integer;
+    { Private declarations }
+  public
+    { Public declarations }
+    property DataInicial : TDateTime read FDataInicial write FDataInicial;
+    property DataFinal : TDateTime read FDataFinal write FDataFinal;
+    property Empreendimento : Integer read FEmpreendimento write FEmpreendimento;
+    property Cliente : Integer read FCliente write FCliente;
+    property ContaPagto : integer read FContaPagto write FContaPagto;
+    property SoEmpreendimento : Boolean read FSoEmpreendimento write FSoEmpreendimento;
+    property SoCliente : Boolean read FSoCliente write FSoCliente;
+    property ComParcelas : Boolean read FComParcelas write FComParcelas;
+    property TotaisporConta : Boolean read FTotaisporConta write FTotaisporConta;
+
+    procedure ImprimirRelatorio;
+  end;
+
+var
+  dtmRelatorioRecebimentos: TdtmRelatorioRecebimentos;
+
+implementation
+
+{$R *.dfm}
+
+procedure TdtmRelatorioRecebimentos.ImprimirRelatorio;
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+
+  if FSoCliente then
+  begin
+    qryRelatorioporClientes.Close;
+    qryRelatorioporClientes.Open;
+  end;
+  if FComParcelas then
+  begin
+    qryparcelas.Close;
+    qryParcelas.Open;
+  end;
+  if FSoEmpreendimento then
+  begin
+    qryRelatorioporEmp.Close;
+    qryRelatorioporEmp.Open;
+  end;
+  AtribuirParametrosBaseRelatorio;
+  frVariables['Titulo']:= 'RECEBIMENTOS ENTRE '+FormatDateTime('DD/MM/YYYY',FDataInicial)+
+                          ' E '+FormatDateTime('DD/MM/YYYY',FDataFinal);
+  frVariables['Totalizador']:= 'TOTAL DE RECEBIMENTOS ENTRE '+FormatDateTime('DD/MM/YYYY',FDataInicial)+' E '+FormatDateTime('DD/MM/YYYY',FDataFinal);
+  frVariables['CabecalhoContas']:= FTotaisporConta;
+
+  frVariables['SubTituloClientes']       := 'RESUMO POR CLIENTE';
+  frVariables['SubTituloEmpreendimentos']:= 'RESUMO POR EMPREENDIMENTO';
+  //frpRelatorioEmp.DesignReport;
+  frmPreview := TfrmPreviewPadrao.create(self);
+  frmPreview.cmbZoom.ItemIndex := 3; //125%
+  try
+   Relatorio := frmPreview.frCompositeReport;
+   with frmPreview do
+   begin
+     frCompositeReport.Reports.Clear;
+     frCompositeReport.DoublePass:= True;
+     if FComParcelas then
+       frCompositeReport.Reports.Add(frpRelatorioParcelas);
+     if FSoCliente then
+       frCompositeReport.Reports.Add(frpRelatorioClientes);
+     if FSoEmpreendimento then
+       frCompositeReport.Reports.Add(frpRelatorioEmp);
+     Relatorio.Preview := frmPreview.frPreviewPadrao;
+     Relatorio.ShowReport;
+     frmPreview.ShowModal;
+   end;
+  finally
+   frmPreview.Free
+  end;
+end;
+
+procedure TdtmRelatorioRecebimentos.qryParcelasBeforeOpen(DataSet: TDataSet);
+begin
+  inherited;
+  qryParcelas.ParamByName('DataInicial').AsDateTime:= FDataInicial;
+  qryParcelas.ParamByName('DataFinal').AsDateTime  := FDataFinal;
+  if FEmpreendimento > 0 then
+    qryParcelas.MacroByName('WhereEmpreendimentos').AsString:= 'AND e.codigo = '+IntToStr(FEmpreendimento)
+  else
+    qryParcelas.MacroByName('WhereEmpreendimentos').AsString:= '';
+  if FCliente > 0 then
+    qryParcelas.MacroByName('WhereClientes').AsString:= 'AND cliente = ' + inttostr(FCliente)
+  else
+    qryParcelas.MacroByName('WhereClientes').AsString:= '';
+  if FContaPagto > 0 then
+    qryParcelas.MacroByName('WhereConta').ASString := 'AND conta = ' + inttostr(FContaPagto)
+  else
+    qryParcelas.MacroByName('WhereConta').ASString := '';
+
+  if TotaisporConta then
+    qryParcelas.MacroByName('Ordenacao').ASString := 'ORDER BY TO_ASCII(NomeEmpreendimento, ''LATIN1''), contapagto, TO_ASCII(NomeCliente, ''LATIN1''), contrato'
+  else
+    qryParcelas.MacroByName('Ordenacao').ASString := 'ORDER BY TO_ASCII(NomeEmpreendimento, ''LATIN1''), TO_ASCII(NomeCliente, ''LATIN1''), contrato';
+
+end;
+
+procedure TdtmRelatorioRecebimentos.frpRelatorioParcelasBeforePrint(Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpRelatorioParcelas, View);
+end;
+
+procedure TdtmRelatorioRecebimentos.qryRelatorioporClientesBeforeOpen(DataSet: TDataSet);
+begin
+  inherited;
+  qryRelatorioporClientes.ParamByName('DataInicial').AsDateTime:= FDataInicial;
+  qryRelatorioporClientes.ParamByName('DataFinal').AsDateTime  := FDataFinal;
+  if FEmpreendimento > 0 then
+    qryRelatorioporClientes.MacroByName('WhereEmpreendimentos').AsString:= 'AND e.codigo = '+IntToStr(FEmpreendimento)
+  else
+    qryRelatorioporClientes.MacroByName('WhereEmpreendimentos').AsString:= '';
+  if FCliente > 0 then
+    qryRelatorioporClientes.MacroByName('WhereClientes').AsString:= 'AND cliente = ' + inttostr(FCliente)
+  else
+    qryRelatorioporClientes.MacroByName('WhereClientes').AsString:= '';
+  if FContaPagto > 0 then
+    qryRelatorioporClientes.MacroByName('WhereConta').ASString := 'AND conta = ' + inttostr(FContaPagto)
+  else
+    qryRelatorioporClientes.MacroByName('WhereConta').ASString := '';
+
+  if TotaisporConta then
+    qryRelatorioporClientes.MacroByName('Ordenacao').ASString := 'ORDER BY TO_ASCII(NomeEmpreendimento, ''LATIN1''),  contapagto, TO_ASCII(NomeCliente, ''LATIN1''), contrato'
+  else
+    qryRelatorioporClientes.MacroByName('Ordenacao').ASString := 'ORDER BY TO_ASCII(NomeEmpreendimento, ''LATIN1''), TO_ASCII(NomeCliente, ''LATIN1''), contrato'
+
+end;
+
+procedure TdtmRelatorioRecebimentos.qryRelatorioporEmpBeforeOpen(DataSet: TDataSet);
+begin
+  inherited;
+  qryRelatorioporEmp.ParamByName('DataInicial').AsDateTime:= FDataInicial;
+  qryRelatorioporEmp.ParamByName('DataFinal').AsDateTime  := FDataFinal;
+  if FEmpreendimento > 0 then
+    qryRelatorioporEmp.MacroByName('WhereEmpreendimentos').AsString:= 'AND e.codigo = '+IntToStr(FEmpreendimento)
+  else
+    qryRelatorioporEmp.MacroByName('WhereEmpreendimentos').AsString:= '';
+  if FCliente > 0 then
+    qryRelatorioporEmp.MacroByName('WhereClientes').AsString:= 'Where cliente = ' + inttostr(FCliente)
+  else
+    qryRelatorioporEmp.MacroByName('WhereClientes').AsString:= '';
+  if FContaPagto > 0 then
+    qryRelatorioporEmp.MacroByName('WhereConta').ASString := 'Where contapagto = ' + inttostr(FContaPagto)
+  else
+    qryRelatorioporEmp.MacroByName('WhereConta').ASString := '';
+end;
+
+procedure TdtmRelatorioRecebimentos.frpRelatorioClientesBeforePrint(Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpRelatorioClientes, View);
+end;
+
+procedure TdtmRelatorioRecebimentos.frpRelatorioEmpBeforePrint(Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpRelatorioEmp, View);
+end;
+
+
+
+procedure TdtmRelatorioRecebimentos.ZMonitor1MonitorEvent(Sql,
+  Result: String);
+var
+ Listar : TStringList;
+ arquivo: String;
+begin
+  inherited;
+  Listar := tStringlist.Create;
+  arquivo := 'C:\RecebimentosParcelas.sql';
+  if fileexists(arquivo) then
+    Listar.loadfromfile(arquivo);
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile(arquivo);
+  listar.free;
+end;
+
+end.

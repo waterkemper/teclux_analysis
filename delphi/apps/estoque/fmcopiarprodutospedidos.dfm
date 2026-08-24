@@ -4,7 +4,7 @@ inherited frmCopiarProdutosPedidos: TfrmCopiarProdutosPedidos
   Caption = 'Copiar Produtos Pedidos'
   ClientHeight = 356
   ClientWidth = 696
-  Position = poDesktopCenter
+  Position = poScreenCenter
   PixelsPerInch = 96
   TextHeight = 16
   inherited pnlTopMenu: TPanel

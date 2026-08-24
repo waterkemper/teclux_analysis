@@ -1,0 +1,1418 @@
+inherited dtmGerarMapasECF: TdtmGerarMapasECF
+  OldCreateOrder = False
+  Left = 665
+  Top = 142
+  Height = 446
+  Width = 639
+  object qryCuponsExistentes_MesmaData: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'ListadeDatas'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'select df.data,'
+      '          max(c.numero) as cupom'
+      'from cupons c join dadosfiscais df on c.dadofiscal = df.numero'
+      'where c.filial = :Filial'
+      '  and c.maquina = :Maquina'
+      '  and c.intervensao = :Intervensao'
+      '%ListadeDatas'
+      'group by df.data')
+    RequestLive = False
+    Left = 72
+    Top = 8
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Maquina'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Intervensao'
+        ParamType = ptUnknown
+      end>
+    object qryCuponsExistentes_MesmaDatadata: TDateField
+      FieldName = 'data'
+    end
+    object qryCuponsExistentes_MesmaDatacupom: TIntegerField
+      FieldName = 'cupom'
+    end
+  end
+  object qryApagarMapasECF: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      
+        'delete from mapasecf where (filial,maquina,intervensao,data) in ' +
+        '()')
+    RequestLive = False
+    Left = 280
+    Top = 16
+  end
+  object qryIncluirMapasECF: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'insert into MapasECF'
+      '( filial,'
+      '  maquina,'
+      '  intervensao,'
+      '  data,'
+      '  cupomfinal,'
+      '  reducoes,'
+      '  grandetotal,'
+      '  cancelamentos,'
+      '  descontos,'
+      '  substituicao,'
+      '  isento,'
+      '  naotributado)'
+      ''
+      '  values'
+      ''
+      '( :filial,'
+      '  :maquina,'
+      '  :intervensao,'
+      '  :data,'
+      '  :cupomfinal,'
+      '  :reducoes,'
+      '  :grandetotal,'
+      '  :cancelamentos,'
+      '  :descontos,'
+      '  :substituicao,'
+      '  :isento,'
+      '  :naotributado);')
+    RequestLive = False
+    Left = 280
+    Top = 64
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'maquina'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'intervensao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'cupomfinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'reducoes'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'grandetotal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'cancelamentos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'descontos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'substituicao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'isento'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'naotributado'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryIncluirMapasECFTributados: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Insert into MapasECFTributados'
+      ' (filial,'
+      '  maquina,'
+      '  intervensao,'
+      '  data,'
+      '  aliquota,'
+      '  base,'
+      '  valor)'
+      ''
+      ' values'
+      ''
+      ' (:filial,'
+      '  :maquina,'
+      '  :intervensao,'
+      '  :data,'
+      '  :aliquota,'
+      '  :base,'
+      '  :valor)')
+    RequestLive = False
+    Left = 280
+    Top = 120
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'maquina'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'intervensao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'aliquota'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'base'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'valor'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryCuponsExistentes_InferiorData: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select max(c.numero) as cupom'
+      'from cupons c join dadosfiscais df on c.dadofiscal = df.numero'
+      'where c.filial = :Filial'
+      '  and c.maquina = :Maquina'
+      '  and c.intervensao = :Intervensao'
+      '  and df.data < :data')
+    RequestLive = False
+    Left = 104
+    Top = 24
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Maquina'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Intervensao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end>
+    object qryCuponsExistentes_InferiorDatacupom: TIntegerField
+      FieldName = 'cupom'
+    end
+  end
+  object qryCuponsExistentes_SuperiorData: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select max(c.numero) as cupom'
+      'from cupons c join dadosfiscais df on c.dadofiscal = df.numero'
+      'where c.filial = :Filial'
+      '  and c.maquina = :Maquina'
+      '  and c.intervensao = :Intervensao'
+      '  and df.data < :data')
+    RequestLive = False
+    Left = 136
+    Top = 40
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Maquina'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Intervensao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end>
+    object qryCuponsExistentes_SuperiorDatacupom: TIntegerField
+      FieldName = 'cupom'
+    end
+  end
+  object ZMonitor1: TZMonitor
+    Left = 448
+    Top = 88
+  end
+  object qryReducoesZ: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'Condicao'
+        ParamType = ptUnknown
+        Value = 'false'
+      end>
+    Sql.Strings = (
+      'select rz.*'
+      'from reducoesz rz'
+      'where %Condicao'
+      'order by rz.datamovimento'
+      ''
+      '/*'
+      ''
+      ':DataInicial'
+      ':DataFinal'
+      ':crzinicial'
+      ':crzfinal'
+      ''
+      '*/'
+      '')
+    RequestLive = True
+    Left = 24
+    Top = 112
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'crzinicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'crzfinal'
+        ParamType = ptUnknown
+      end>
+    object qryReducoesZnumerofabricacao: TStringField
+      FieldName = 'numerofabricacao'
+    end
+    object qryReducoesZfilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryReducoesZmfadicional: TStringField
+      FieldName = 'mfadicional'
+      Size = 1
+    end
+    object qryReducoesZmodelodoecf: TStringField
+      FieldName = 'modelodoecf'
+    end
+    object qryReducoesZnumerousuario: TIntegerField
+      FieldName = 'numerousuario'
+    end
+    object qryReducoesZcrz: TIntegerField
+      FieldName = 'crz'
+    end
+    object qryReducoesZcoo: TIntegerField
+      FieldName = 'coo'
+    end
+    object qryReducoesZcro: TIntegerField
+      FieldName = 'cro'
+    end
+    object qryReducoesZdatamovimento: TDateField
+      FieldName = 'datamovimento'
+    end
+    object qryReducoesZdataemissao: TDateTimeField
+      FieldName = 'dataemissao'
+    end
+    object qryReducoesZhoraemissao: TDateTimeField
+      FieldName = 'horaemissao'
+    end
+    object qryReducoesZvendabrutadiaria: TFloatField
+      FieldName = 'vendabrutadiaria'
+    end
+    object qryReducoesZparametroincidenciaissqn: TStringField
+      FieldName = 'parametroincidenciaissqn'
+      Size = 1
+    end
+    object qryReducoesZcoo_inicial: TIntegerField
+      FieldName = 'coo_inicial'
+    end
+    object qryReducoesZcoo_final: TIntegerField
+      FieldName = 'coo_final'
+    end
+    object qryReducoesZtotalizadorgeral: TFloatField
+      FieldName = 'totalizadorgeral'
+    end
+    object qryReducoesZhash_paf_registro_r02: TStringField
+      FieldName = 'hash_paf_registro_r02'
+      Size = 32
+    end
+    object qryReducoesZcodigo_ecf: TIntegerField
+      FieldName = 'codigo_ecf'
+    end
+    object qryReducoesZdatahoraenviofiscoreducaoz: TDateTimeField
+      FieldName = 'datahoraenviofiscoreducaoz'
+    end
+    object qryReducoesZreciboenviofiscoreducaoz: TStringField
+      FieldName = 'reciboenviofiscoreducaoz'
+    end
+    object qryReducoesZdatahoraenviofiscoestoque: TDateTimeField
+      FieldName = 'datahoraenviofiscoestoque'
+    end
+    object qryReducoesZreciboenviofiscoestoque: TStringField
+      FieldName = 'reciboenviofiscoestoque'
+    end
+  end
+  object qryReducoesZDetalhes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkFields = 
+      'filial=filial;numerousuario=numerousuario;cro=cro;numerofabricac' +
+      'ao=numerofabricacao;datamovimento=datamovimento'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrReducoesZ
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'Condicao'
+        ParamType = ptUnknown
+        Value = 'false'
+      end>
+    Sql.Strings = (
+      'select rzd.*'
+      'from reducoeszdetalhes rzd'
+      '     join reducoesz rz'
+      
+        '     on  rzd.filial                  =  rz.filial              a' +
+        'nd'
+      
+        '         rzd.numerousuario           =  rz.numerousuario       a' +
+        'nd'
+      
+        '         rzd.cro                     =  rz.cro                 a' +
+        'nd'
+      
+        '         rzd.numerofabricacao        =  rz.numerofabricacao    a' +
+        'nd'
+      '         rzd.datamovimento           =  rz.datamovimento'
+      ''
+      'where %Condicao'
+      ''
+      'order by rzd.datamovimento'
+      ''
+      ''
+      '/*'
+      ''
+      ':DataInicial'
+      ':DataFinal'
+      ':crzinicial'
+      ':crzfinal'
+      ''
+      '*/'
+      '')
+    RequestLive = True
+    Left = 128
+    Top = 144
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'crzinicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'crzfinal'
+        ParamType = ptUnknown
+      end>
+    object qryReducoesZDetalhesfilial: TIntegerField
+      FieldName = 'filial'
+      Required = True
+    end
+    object qryReducoesZDetalhesnumerousuario: TIntegerField
+      FieldName = 'numerousuario'
+      Required = True
+    end
+    object qryReducoesZDetalhescro: TIntegerField
+      FieldName = 'cro'
+      Required = True
+    end
+    object qryReducoesZDetalhesdatamovimento: TDateField
+      FieldName = 'datamovimento'
+      Required = True
+    end
+    object qryReducoesZDetalhestipototalizadorparcial: TStringField
+      FieldName = 'tipototalizadorparcial'
+      Required = True
+      Size = 7
+    end
+    object qryReducoesZDetalhesaliquota: TFloatField
+      FieldName = 'aliquota'
+    end
+    object qryReducoesZDetalhesvaloracumulado: TFloatField
+      FieldName = 'valoracumulado'
+      Required = True
+    end
+    object qryReducoesZDetalheshash_paf_registro_r03: TStringField
+      FieldName = 'hash_paf_registro_r03'
+      Size = 32
+    end
+    object qryReducoesZDetalhesnumerofabricacao: TStringField
+      FieldName = 'numerofabricacao'
+      Required = True
+    end
+  end
+  object qryReducoesZ_: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'insert into reducoesz'
+      ' ('
+      '    NumeroFabricacao,'
+      '    Filial,'
+      '    MFadicional,'
+      '    ModelodoECF,'
+      '    Numerousuario,'
+      '    CRZ,'
+      '    COO,'
+      '    COO_Inicial,'
+      '    COO_Final,'
+      '    CRO,'
+      '    DataMovimento,'
+      '    DataEmissao,'
+      '    HoraEmissao,'
+      '    VendaBrutaDiaria,'
+      '    TotalizadorGeral,'
+      '    ParametroIncidenciaISSQN,'
+      '    hash_paf_registro_r02'
+      '  )'
+      ''
+      '  values'
+      ''
+      '  ('
+      '    :NumeroFabricacao,'
+      '    :Filial,'
+      '    :MFadicional,'
+      '    :ModelodoECF,'
+      '    :Numerousuario,'
+      '    :CRZ,'
+      '    :COO,'
+      '    :COO_Inicial,'
+      '    :COO_Final,'
+      '    :CRO,'
+      '    cast(:DataMovimento as date),'
+      '    cast(:DataEmissao as timestamp),'
+      '    cast(:HoraEmissao as timestamp),'
+      '    :VendaBrutaDiaria,'
+      '    :TotalizadorGeral,'
+      '    :ParametroIncidenciaISSQN,'
+      '    :hash_paf_registro_r02'
+      '  )')
+    RequestLive = True
+    Left = 376
+    Top = 256
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'NumeroFabricacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'MFadicional'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ModelodoECF'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Numerousuario'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'CRZ'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'COO'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'COO_Inicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'COO_Final'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'CRO'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataMovimento'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataEmissao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'HoraEmissao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'VendaBrutaDiaria'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'TotalizadorGeral'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ParametroIncidenciaISSQN'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'hash_paf_registro_r02'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryReducoesZDetalhes_: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'insert into reducoeszdetalhes'
+      ' ('
+      '  Filial,'
+      '  NumeroUsuario,'
+      '  CRO,'
+      '  numerofabricacao,'
+      '  DataMovimento,'
+      '  TipoTotalizadorParcial,'
+      '  aliquota,'
+      '  ValorAcumulado,'
+      '  hash_paf_registro_r03'
+      ' )'
+      ''
+      ' values'
+      ''
+      ' ('
+      '  :Filial,'
+      '  :NumeroUsuario,'
+      '  :CRO,'
+      '  :numerofabricacao,'
+      '  :DataMovimento,'
+      '  :TipoTotalizadorParcial,'
+      '  :aliquota,'
+      '  :ValorAcumulado,'
+      '  :hash_paf_registro_R03'
+      ''
+      ' )')
+    RequestLive = True
+    Left = 376
+    Top = 320
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'NumeroUsuario'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'CRO'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numerofabricacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataMovimento'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'TipoTotalizadorParcial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'aliquota'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ValorAcumulado'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'hash_paf_registro_R03'
+        ParamType = ptUnknown
+      end>
+  end
+  object ACBrBlocoX1: TACBrBlocoX
+    Configuracoes.VersaoER = erv0204
+    Configuracoes.Geral.SSLLib = libCapicom
+    Configuracoes.Geral.SSLCryptLib = cryCapicom
+    Configuracoes.Geral.SSLHttpLib = httpWinINet
+    Configuracoes.Geral.SSLXmlSignLib = xsMsXmlCapicom
+    Configuracoes.Geral.FormatoAlerta = 'TAG:%TAGNIVEL% ID:%ID%/%TAG%(%DESCRICAO%) - %MSG%.'
+    Configuracoes.WebServices.UF = 'SC'
+    Configuracoes.WebServices.AguardarConsultaRet = 0
+    Configuracoes.WebServices.QuebradeLinha = '|'
+    Left = 344
+    Top = 176
+  end
+  object qryDadosItemCupom: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select * from dadositemcupom'
+      'where filial = :filial'
+      '  and num_usu = :numerousuario'
+      '  and cro = :cro'
+      '  and coo between :coo_inicial and :coo_final'
+      '  and num_fab = :numerofabricacao'
+      '  and cod_tot_parc = :tipototalizadorparcial')
+    RequestLive = False
+    Left = 56
+    Top = 216
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numerousuario'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'cro'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'coo_inicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'coo_final'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numerofabricacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'tipototalizadorparcial'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryregistroH010: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'SELECT t.*,'
+      '       trunc((vl_item/qtdestoque),2) as vl_unit,'
+      '       cast('#39'0'#39' as varchar) as ind_prop'
+      'from'
+      '('
+      ''
+      
+        #9'SELECT cast(('#39'P'#39'||cast(ep.codigoitem as varchar)) as varchar(60' +
+        ')) as codigoitem,  ep.item, ep.situacaotributaria,'
+      ''
+      #9' ep.unidade, ep.aliquota,'
+      
+        #9' (ep.emestoque+ep.reservado+ep.transito+ep.demonstracao+ep.cons' +
+        'erto+ep.danificada+ep.reservaprevia) AS qtdestoque,'
+      #9' custo_medio as vl_item,'
+      #9' coalesce(subconta,0) as cod_cta'
+      #9'FROM'
+      #9' ('
+      #9' '
+      #9#9' select ep.*,'
+      #9#9' '
+      
+        #9#9#9#9' (select i.classificacaofiscal from ipi i where i.codigo = c' +
+        '.ipi) as classificacaofiscal,'
+      #9#9#9#9' cl.descricao AS classeproduto,'
+      #9#9#9#9' cl.codigo AS codigoclasse,'
+      #9#9#9#9' g.descricao AS grupoproduto,'
+      #9#9#9#9' g.codigo AS codigogrupo,'
+      #9#9#9#9' c.descricao AS produto,'
+      #9#9#9#9' c.codigo AS codigoproduto,'
+      
+        #9#9#9#9' cast(p.descricao||'#39' '#39'||coalesce(p.valorgrade1,'#39#39')||'#39' '#39'||coa' +
+        'lesce(p.valorgrade2,'#39#39') as varchar) AS item,'
+      #9#9#9#9' ma.descricao AS marca, p.referencia,'
+      #9#9#9#9' c.unidade,'
+      #9#9#9#9' c.subconta,'
+      ''
+      #9#9#9#9'CAST(CASE WHEN c.incidencia = 5 or c.csosn='#39'300'#39'  THEN '#39'I'#39
+      
+        #9#9#9#9#9#9'WHEN (c.incidencia in (4,6,7,11) or c.csosn in ('#39'103'#39','#39'400' +
+        #39','#39'900'#39')) THEN '#39'N'#39
+      
+        #9#9#9#9#9#9'WHEN (c.incidencia in (2,9,10) or c.csosn in ('#39'201'#39','#39'202'#39',' +
+        #39'203'#39','#39'500'#39'))  THEN '#39'F'#39
+      
+        #9#9#9#9#9#9'WHEN (c.incidencia in (1,3,8) or c.csosn in ('#39'101'#39','#39'102'#39'))' +
+        '    THEN '#39'T'#39
+      #9#9#9#9'END AS CHAR) AS situacaotributaria,'
+      ''
+      
+        '         CAST(COALESCE((SELECT ei.valor FROM estadosicms ei WHER' +
+        'E ei.icms = c.icms AND ei.estado = f.estado),0) AS NUMERIC(4,2))' +
+        ' AS aliquota'
+      ''
+      #9#9' from'
+      #9#9' ('
+      #9#9#9' select ep.*,'
+      #9#9#9' m2.valor,'
+      #9#9#9' m2.quantidade as qtdUltimaEntrada'
+      #9#9#9' from'
+      #9#9#9' ('
+      #9#9#9#9' select'
+      #9#9#9#9' e.codigofilial,'
+      #9#9#9#9' e.codigoitem,'
+      #9#9#9#9' e.localizacao,'
+      
+        #9#9#9#9' e.precocomicms, /*,estoques_preco(e.produto,e.filial) as pr' +
+        'ecovenda*/'
+      #9#9#9#9' m.emestoque,'
+      #9#9#9#9' m.reservado,'
+      #9#9#9#9' m.transito,'
+      #9#9#9#9' m.demonstracao,'
+      #9#9#9#9' m.conserto,'
+      #9#9#9#9' m.danificada,'
+      #9#9#9#9' m.reservaprevia,'
+      #9#9#9#9' m.estoquefisico,'
+      #9#9#9#9' m.financeiro as Custo_Medio'
+      #9#9#9#9' from'
+      #9#9#9#9' ('
+      #9#9#9#9#9' select m.numero,'
+      #9#9#9#9#9' e.filial as codigofilial,'
+      #9#9#9#9#9' e.produto as codigoitem,'
+      #9#9#9#9#9' e.localizacao,'
+      #9#9#9#9#9' e.precocomicms'
+      #9#9#9#9#9' from'
+      #9#9#9#9#9' ('
+      ''
+      #9#9#9#9#9#9' select m2.numero, m1.produto, m1.filial'
+      #9#9#9#9#9#9' from'
+      #9#9#9#9#9#9' ('
+      #9#9#9#9#9#9#9'select m1.data, m1.produto, m1.filial,'
+      #9#9#9#9#9#9#9
+      #9#9#9#9#9#9#9#9' (select max(m2.lancto)'
+      #9#9#9#9#9#9#9#9'  from movimentos m2'
+      #9#9#9#9#9#9#9#9'  where m2.produto = m1.produto'
+      #9#9#9#9#9#9#9#9'  and m2.filial = m1.filial'
+      #9#9#9#9#9#9#9#9'  and m2.data = m1.data) as lancto'
+      #9#9#9#9#9#9' '
+      #9#9#9#9#9#9#9' from'
+      #9#9#9#9#9#9#9' ('
+      #9#9#9#9#9#9#9#9' select max(m1.data) as data, m1.produto, m1.filial'
+      #9#9#9#9#9#9#9#9' from movimentos m1'
+      #9#9#9#9#9#9#9#9' where m1.data < (cast(:datafinal as date)+1)'
+      #9#9#9#9#9#9#9#9' group by m1.produto, m1.filial'
+      #9#9#9#9#9#9#9#9' order by m1.produto, m1.filial'
+      #9#9#9#9#9#9#9' ) as m1'
+      #9#9#9#9#9#9#9' '
+      
+        #9#9#9#9#9#9' ) as m1 join movimentos m2 on m1.data = m2.data and m1.la' +
+        'ncto = m2.lancto and m1.produto = m2.produto and m1.filial = m2.' +
+        'filial'
+      #9#9#9#9#9' '
+      
+        #9#9#9#9#9' ) as m join estoques e on m.produto = e.produto and m.fili' +
+        'al = e.filial'
+      
+        #9#9#9#9#9' Where (e.filial = :filial ) /* WHERE ESTOQUE where e.produ' +
+        'to =0 */'
+      ''
+      #9#9#9#9' ) as e join movimentos m on e.numero = m.numero'
+      #9#9#9#9'   and m.financeiro<>0 /*and m1.financeiro<>0*/'
+      #9#9#9'   '
+      
+        #9#9#9' ) as ep LEFT JOIN movimentos m2 ON m2.produto = ep.codigoite' +
+        'm AND'
+      #9#9#9#9' m2.filial = ep.codigofilial and'
+      #9#9#9#9' m2.numero = (SELECT max(m.numero)'
+      #9#9#9#9#9#9#9#9' from movimentos m'
+      #9#9#9#9#9#9#9#9' where m.produto=ep.codigoitem and'
+      #9#9#9#9#9#9#9#9' m.filial=ep.codigofilial and'
+      #9#9#9#9#9#9#9#9' m.data < (cast(:datafinal as date)+1) and'
+      #9#9#9#9#9#9#9#9' substring(m.operacao from 12 for 1)='#39'+'#39')'
+      ''
+      #9#9' ) as ep'
+      #9#9' JOIN filiais f'
+      #9#9' on ep.codigofilial = f.codigo'
+      #9#9' '
+      #9#9' JOIN ( produtos p'
+      #9#9' JOIN (((caracteristicas c'
+      #9#9' JOIN grupos g'
+      #9#9' ON c.grupo = g.codigo)'
+      #9#9' JOIN classes cl'
+      #9#9' ON c.classe=cl.codigo)'
+      #9#9' JOIN marcas ma'
+      #9#9' ON c.marca=ma.codigo)'
+      #9#9' ON p.caracteristica=c.codigo)'
+      #9#9' ON p.codigo = ep.codigoitem'
+      
+        #9#9' where ((not (c.inativo is not null)) or (c.inativo>:datafinal' +
+        '))'
+      ''
+      ''
+      #9') as EP'
+      #9'Order BY item, codigoitem'
+      ') as T'
+      ' WHERE qtdestoque>0'
+      '')
+    RequestLive = False
+    Left = 144
+    Top = 272
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object qryregistroH010codigoitem: TStringField
+      FieldName = 'codigoitem'
+      Size = 60
+    end
+    object qryregistroH010item: TStringField
+      DisplayWidth = 50
+      FieldName = 'item'
+      Size = 100
+    end
+    object qryregistroH010unidade: TStringField
+      FieldName = 'unidade'
+      Size = 8
+    end
+    object qryregistroH010qtdestoque: TFloatField
+      FieldName = 'qtdestoque'
+      DisplayFormat = '0.00'
+    end
+    object qryregistroH010vl_item: TFloatField
+      FieldName = 'vl_item'
+      DisplayFormat = '0.00'
+    end
+    object qryregistroH010cod_cta: TIntegerField
+      FieldName = 'cod_cta'
+      DisplayFormat = '0'
+    end
+    object qryregistroH010vl_unit: TFloatField
+      FieldName = 'vl_unit'
+      DisplayFormat = '0.00'
+    end
+    object qryregistroH010ind_prop: TStringField
+      FieldName = 'ind_prop'
+      Size = 50
+    end
+    object qryregistroH010situacaotributaria: TStringField
+      FieldName = 'situacaotributaria'
+      Size = 1
+    end
+    object qryregistroH010aliquota: TFloatField
+      FieldName = 'aliquota'
+    end
+  end
+  object ACBrEAD1: TACBrEAD
+    OnGetChavePrivada = ACBrEAD1GetChavePrivada
+    Left = 448
+    Top = 160
+  end
+  object qryWebService: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select ws.*'
+      'from webservice ws'
+      'where ws.descricao = '#39'ENVIO-FISCO'#39
+      'order by codigo desc limit 1')
+    RequestLive = False
+    Left = 144
+    Top = 336
+    object qryWebServicecodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryWebServicetipo: TStringField
+      FieldName = 'tipo'
+      Size = 50
+    end
+    object qryWebServicedescricao: TStringField
+      FieldName = 'descricao'
+      Size = 100
+    end
+    object qryWebServicenumeroserie: TStringField
+      FieldName = 'numeroserie'
+      Size = 50
+    end
+    object qryWebServicearquivopfx: TStringField
+      FieldName = 'arquivopfx'
+      Size = 200
+    end
+    object qryWebServiceproxyhost: TStringField
+      FieldName = 'proxyhost'
+      Size = 100
+    end
+    object qryWebServiceproxyport: TStringField
+      FieldName = 'proxyport'
+      Size = 100
+    end
+    object qryWebServiceproxyuser: TStringField
+      FieldName = 'proxyuser'
+      Size = 100
+    end
+    object qryWebServiceproxypass: TStringField
+      FieldName = 'proxypass'
+      Size = 10
+    end
+    object qryWebServicesenha: TStringField
+      FieldName = 'senha'
+      Size = 10
+    end
+  end
+  object SaveDialog1: TSaveDialog
+    Left = 56
+    Top = 312
+  end
+  object dsrReducoesZ: TtecDataSource
+    DataSet = qryReducoesZ
+    Left = 64
+    Top = 120
+  end
+  object qryECFs: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select ecfs.*'
+      'from ecfs'
+      'where filial = :filial'
+      '   and cast(maquina as integer) = :maquina'
+      '/* and cast(intervencao as integer) = :intervencao*/'
+      '   and serie = :serie'
+      'order by intervencao desc limit 1')
+    RequestLive = False
+    Left = 216
+    Top = 208
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'maquina'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'intervencao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'serie'
+        ParamType = ptUnknown
+      end>
+    object qryECFscodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryECFsfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryECFsmaquina: TStringField
+      FieldName = 'maquina'
+      Size = 5
+    end
+    object qryECFsintervencao: TStringField
+      FieldName = 'intervencao'
+      Size = 4
+    end
+    object qryECFsserie: TStringField
+      FieldName = 'serie'
+    end
+    object qryECFscniee: TStringField
+      FieldName = 'cniee'
+      Size = 6
+    end
+    object qryECFsmodelo: TIntegerField
+      FieldName = 'modelo'
+      DisplayFormat = '0'
+    end
+    object qryECFsmodelodescricao: TStringField
+      FieldName = 'modelodescricao'
+    end
+    object qryECFsgrandetotal: TFloatField
+      FieldName = 'grandetotal'
+      DisplayFormat = '0.00'
+    end
+    object qryECFsvendabruta: TFloatField
+      FieldName = 'vendabruta'
+      DisplayFormat = '0.00'
+    end
+    object qryECFsmfadicional: TStringField
+      FieldName = 'mfadicional'
+      Size = 1
+    end
+    object qryECFstipo: TStringField
+      FieldName = 'tipo'
+      Size = 7
+    end
+    object qryECFsmarca: TStringField
+      FieldName = 'marca'
+    end
+    object qryECFsdata_sb: TDateTimeField
+      FieldName = 'data_sb'
+    end
+    object qryECFscnpj: TStringField
+      FieldName = 'cnpj'
+    end
+    object qryECFsie: TStringField
+      FieldName = 'ie'
+    end
+    object qryECFsversao_sb: TStringField
+      FieldName = 'versao_sb'
+      Size = 15
+    end
+    object qryECFshash_paf_registro_r01: TStringField
+      FieldName = 'hash_paf_registro_r01'
+      Size = 32
+    end
+    object qryECFsminas_legal: TBooleanField
+      FieldName = 'minas_legal'
+    end
+    object qryECFscupom_mania: TBooleanField
+      FieldName = 'cupom_mania'
+    end
+    object qryECFsparaiba_legal: TBooleanField
+      FieldName = 'paraiba_legal'
+    end
+    object qryECFsnota_legal_df: TBooleanField
+      FieldName = 'nota_legal_df'
+    end
+  end
+  object qryReducaoNMovimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select count(*) <= :Dias as gerar'
+      'from reducoesz'
+      'where numerofabricacao = :numerofabricacao'
+      '  and cro = :cro'
+      '  and filial = :filial'
+      '  and numerousuario = :numerousuario'
+      '  and extract(month from datamovimento) = :MesReducao')
+    RequestLive = False
+    Left = 264
+    Top = 240
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Dias'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numerofabricacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'cro'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numerousuario'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'MesReducao'
+        ParamType = ptUnknown
+      end>
+    object qryReducaoNMovimentosgerar: TBooleanField
+      FieldName = 'gerar'
+    end
+  end
+  object qryDiasRegistroH010: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select cast(mes||'#39'-01'#39' as date)-1 as dataestoque'
+      'from'
+      '('
+      ''
+      'select distinct to_char(cast('
+      '                                :datainicial'
+      
+        '                                 as date)  + s.a,'#39'YYYY-MM'#39') as m' +
+        'es'
+      ''
+      '      from generate_series(1, cast('
+      '                                :datafinal'
+      '                                 as date)+1 - cast('
+      '                                :datainicial'
+      '                                 as date)) as s(a) order by 1'
+      ') as selecao')
+    RequestLive = False
+    Left = 480
+    Top = 248
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end>
+    object qryDiasRegistroH010dataestoque: TDateField
+      FieldName = 'dataestoque'
+    end
+  end
+end

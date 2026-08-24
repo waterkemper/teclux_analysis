@@ -1,0 +1,168 @@
+unit fmcadastrocontas;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls,  Mask, DBCtrls, cptexto, ComCtrls, Buttons,
+  ExtCtrls, DB, Windows,{Qete,}
+
+  //Terceiros
+  ZQuery,
+  //Biblio
+  ctconstantes, biblio,
+  // Componentes
+  cpdbfindcontrols, cpdocumento, cpdbtext, cpdbgrid, cpdbdata,
+  cpcnpj,
+  //Repositorio
+  fmconsultabasica, fmconsultaporcampo, fmcadastropadrao,
+  // Projeto
+  dmcadastrobancos, cpnumero, cpdbmemo, frconsulta, frconsultacodigo,
+  frconsultacontabil, frconsultacodigocontabil, ToolWin;
+
+
+type
+  Tfrmcadastrocontas = class(TfrmCadastroPadrao)
+    plnFundoJanela: TPanel;
+    gbxContas: TGroupBox;
+    edtConta: TDBEditNumero;
+    edtDigito: TDBEditNumero;
+    lblDigito: TLabel;
+    dtxSigla: TtecDBText;
+    dtxNomeAgencia: TtecDBText;
+    edtTitular: TDBEditTexto;
+    gbxBancoConta: TGroupBox;
+    gbxAgenciaConta: TGroupBox;
+    gbxContaCorrente: TGroupBox;
+    gbxTitular: TGroupBox;
+    gbxConvenio: TGroupBox;
+    edtConvenio: TDBEditNumero;
+    gbxCedente: TGroupBox;
+    edtCedente: TDBEditTexto;
+    pnlContabilidade: TPanel;
+    gbxContaContabil: TGroupBox;
+    gbxInstrucoesBoleto: TGroupBox;
+    gbxLocalPagamento: TGroupBox;
+    DBEditTexto1: TDBEditTexto;
+    mmoInstrucoesBoleto: TtecDBMemo;
+    gbxusodobanco: TGroupBox;
+    edtusodobanco: TDBEditTexto;
+    gbxCarteira: TGroupBox;
+    edtcarteira: TDBEditTexto;
+    ckbincluircontanofluxodecaixa: TDBCheckBox;
+    fraConsultaContaContabil: TfraConsultaCodigoContabil;
+    gbxSelecaoFilial: TGroupBox;
+    fraConsultaFilial: TfraConsultaCodigo;
+    gbxViasBoleto: TGroupBox;
+    edtViasBoleto: TDBEditNumero;
+    DBEditTexto2: TDBEditTexto;
+    gbxtaxaboleto: TGroupBox;
+    edtTaxaBoleto: TDBEditNumero;
+    gbxVariacaocarteira: TGroupBox;
+    edtVaricaoCarteira: TDBEditTexto;
+    gbxFormatacaoConvenio: TGroupBox;
+    edtFormatacaoConvenio: TDBEditTexto;
+    gbxContrato: TGroupBox;
+    DBEditTexto3: TDBEditTexto;
+    gbxFormatacaoNossoNumero: TGroupBox;
+    DBEditTexto4: TDBEditTexto;
+    gbxIsentoTaxaBoleto: TGroupBox;
+    edtIsentoTaxaBoleto: TDBEditNumero;
+    gbxBancoReferencia: TGroupBox;
+    edtBancoReferencia: TDBEditTexto;
+    procedure FormShow(Sender: TObject);
+
+ protected
+    dtmCadastroBancos: TdtmCadastroBancos;
+    function  InternoIncluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    function  InternoExcluir: Boolean; override;
+
+  private
+    { Private declarations }
+
+  public
+    { Public declarations }
+    procedure  SetDataModulo(Dtm: TdtmCadastroBancos);
+    constructor Create(AOwner: TComponent); Override;
+    destructor Destroy; override;
+    Function  ValidaControles: Boolean;
+
+  end;
+
+var
+  frmcadastrocontas: Tfrmcadastrocontas;
+  TipoPesquisa: TtecProcuraBancos;
+
+implementation
+
+uses fmnavcontroles;
+
+{$R *.dfm}
+
+
+procedure TfrmCadastroContas.SetDataModulo(Dtm: TdtmCadastroBancos);
+begin
+  dtmCadastroBancos := Dtm;
+end;
+
+function TfrmCadastroContas.InternoIncluir: Boolean;
+begin
+  Result:= False;
+  if not CtrlOn then
+    Result:= dtmCadastroBancos.IncluirContas(False);
+end;
+
+function TfrmCadastroContas.InternoGravar: Boolean;
+begin
+  if not ValidaControles then
+     Exit;
+
+  Result:= False;
+  if not CtrlOn then
+      Result:= dtmCadastroBancos.GravarConta;
+end;
+
+function TfrmCadastroContas.InternoExcluir: Boolean;
+begin
+  Result:= False;
+  if not CtrlOn then
+    with dtmCadastroBancos do
+      Result:= ExcluirContas;
+end;
+
+destructor TfrmCadastroContas.Destroy;
+begin
+  inherited;
+  frmCadastroContas := nil;
+end;
+
+
+procedure Tfrmcadastrocontas.FormShow(Sender: TObject);
+begin
+  inherited;
+  with dtmCadastroBancos do begin
+    qryContasBanco.Value   := qryBancosCodigo.Value;
+    qryContasAgencia.Value := qryAgenciasCodigo.Value;
+    edtConta.SetFocus;
+  end;
+end;
+
+Function Tfrmcadastrocontas.ValidaControles: Boolean;
+begin
+  Result:=False;
+  Result := dtmCadastroBancos.qryContas.CheckRequiredFields;
+end;
+
+
+constructor Tfrmcadastrocontas.Create(AOwner: TComponent);
+begin
+  inherited;
+  fraConsultaContaContabil.TipoContaContabilCreditoSelecionavel := 'A';
+  fraConsultaContaContabil.TipoContaContabilConsultaSelecionavel := 'A';
+  fraConsultaContaContabil.TipoPesquisa := pesCONTACREDITO;
+  fraConsultaFilial.TipoPesquisa := pesFILIAIS;
+  
+end;
+
+end.

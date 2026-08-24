@@ -1,0 +1,2039 @@
+inherited dtmPlanoContas: TdtmPlanoContas
+  OldCreateOrder = False
+  Left = 380
+  Top = 169
+  Height = 614
+  Width = 978
+  object dsrPlanoContas: TtecDataSource
+    DataSet = qryPlanoContas
+    OnDataChange = dsrPlanoContasDataChange
+    Left = 63
+    Top = 24
+  end
+  object qryConsultaPlanos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'Condicaotipo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'CondicaoConta'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Movtos'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      
+        'SELECT   cast(repeat('#39' '#39', length(btrim(p.classificacao)))||p.Des' +
+        'cricao as varchar) as DescricaoEdentada,'
+      '         p.descricao,'
+      '         p.classificacao,'
+      '         p.Codigo,'
+      '         p.tipo'
+      ''
+      ''
+      'FROM     planocontas p'
+      ''
+      'WHERE    p.Inativo IS NULL'
+      '%Condicaotipo'
+      '%CondicaoConta'
+      '%Movtos'
+      ''
+      
+        'order by p.classificacao, UPPER(TO_ASCII(p.Descricao,'#39'LATIN1'#39')),' +
+        ' p.codigo')
+    RequestLive = False
+    Left = 120
+    Top = 80
+    object qryConsultaPlanosdescricaoedentada: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricaoedentada'
+      Size = 52
+    end
+    object qryConsultaPlanosDescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'Descricao'
+      Required = True
+      Visible = False
+      Size = 50
+    end
+    object qryConsultaPlanosClassificacao: TStringField
+      DisplayLabel = 'Classifica'#231#227'o'
+      FieldName = 'Classificacao'
+    end
+    object qryConsultaPlanosCodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'Codigo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryConsultaPlanostipo: TStringField
+      DisplayLabel = 'Tipo'
+      FieldName = 'tipo'
+      Required = True
+      Size = 1
+    end
+  end
+  object spcPlanosProximo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT PlanoContas_ProximoCodigo() as Codigo')
+    RequestLive = True
+    Left = 447
+    Top = 16
+    object spcPlanosProximoCodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'Codigo'
+      DisplayFormat = '0'
+    end
+  end
+  object qryPlanoContas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryPlanoContasAfterOpen
+    AfterClose = qryPlanoContasAfterClose
+    BeforeInsert = qryPlanoContasBeforeInsert
+    AfterCancel = qryPlanoContasAfterCancel
+    AfterScroll = qryPlanoContasAfterScroll
+    OnNewRecord = qryPlanoContasNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'Ordenacao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'SELECT p.Codigo,'
+      '       p.Classificacao,'
+      '       p.Tipo,'
+      
+        '       (select pr.tipo from planoreferencial pr where pr.codigo ' +
+        '= p.referencia) as TipoReferencial,'
+      '       p.Descricao,'
+      '       p.referencia,'
+      
+        '       (select pr.classificacao from planoreferencial pr where p' +
+        'r.codigo = p.referencia) as ClassificacaoReferencial,'
+      '       p.Inativo,'
+      '       p.Natureza,'
+      '       p.DataIncAlt,'
+      '       p.DemoSPED'
+      ''
+      'FROM   planocontas p'
+      ''
+      'WHERE  p.Codigo IS NOT NULL'
+      ''
+      '   AND  ((:Campo = 0)    AND'
+      '         (:Operacao = 0) AND (Codigo  = :Codigo))'
+      ''
+      
+        '   OR ((:Campo = 1) AND /*--------------------------------------' +
+        '-------------------------  Codigo */'
+      '               /* PRIMEIRO */'
+      '              ((:Operacao = 1 AND Codigo = (SELECT MIN(Codigo)'
+      
+        '                                               FROM PlanoContas)' +
+        ')'
+      '               /* ANTERIOR */'
+      '            OR (:Operacao = 2 AND Codigo = (SELECT MAX(Codigo)'
+      '                                               FROM PlanoContas'
+      
+        '                                               WHERE Codigo < :C' +
+        'odigo))'
+      '               /* PR'#211'XIMO */'
+      '            OR (:Operacao = 3 AND Codigo = (SELECT MIN(Codigo)'
+      '                                               FROM PlanoContas'
+      
+        '                                               WHERE Codigo > :C' +
+        'odigo))'
+      '               /* '#218'LTIMO */'
+      '            OR (:Operacao = 4 AND Codigo = (SELECT MAX(Codigo)'
+      
+        '                                               FROM PlanoContas)' +
+        ')))'
+      '                                               '
+      
+        '   OR ((:Campo = 2) AND /*--------------------------------------' +
+        '------------------- Classificacao */'
+      '              /* PRIMEIRO */'
+      '              ((:Operacao = 1 AND Codigo = (SELECT Codigo '
+      '                                              FROM PlanoContas'
+      
+        '                                              WHERE Classificaca' +
+        'o = (SELECT MIN(Classificacao)'
+      
+        '                                                                ' +
+        '        FROM PlanoContas)'
+      
+        '                                              ORDER BY Classific' +
+        'acao,'
+      
+        '                                                       UPPER(TO_' +
+        'ASCII(Descricao,'#39'LATIN1'#39')),'
+      
+        '                                                       Codigo LI' +
+        'MIT 1))'
+      ''
+      '               /* ANTERIOR */'
+      '            OR (:Operacao = 2 AND Codigo = (SELECT Codigo'
+      '                                               FROM PlanoContas'
+      
+        '                                               WHERE   Classific' +
+        'acao < :Classificacao '
+      
+        '                                                  OR  (Classific' +
+        'acao = :Classificacao AND'
+      
+        '                                                       Descricao' +
+        '     < :Descricao)'
+      
+        '                                                  OR  (Classific' +
+        'acao = :Classificacao AND'
+      
+        '                                                       Descricao' +
+        '     = :Descricao     AND'
+      
+        '                                                       Codigo   ' +
+        '     < :Codigo)'
+      
+        '                                               ORDER BY Classifi' +
+        'cacao DESC,'
+      
+        '                                                        UPPER(TO' +
+        '_ASCII(Descricao,'#39'LATIN1'#39')) DESC,'
+      
+        '                                                        Codigo D' +
+        'ESC LIMIT 1))'
+      '               /* PR'#211'XIMO */'
+      '            OR (:Operacao = 3 AND Codigo = (SELECT Codigo'
+      '                                               FROM PlanoContas'
+      
+        '                                               WHERE   Classific' +
+        'acao > :Classificacao '
+      
+        '                                                  OR  (Classific' +
+        'acao = :Classificacao AND'
+      
+        '                                                       Descricao' +
+        '     > :Descricao)'
+      
+        '                                                  OR  (Classific' +
+        'acao = :Classificacao AND'
+      
+        '                                                       Descricao' +
+        '     = :Descricao     AND'
+      
+        '                                                       Codigo   ' +
+        '     > :Codigo)'
+      
+        '                                               ORDER BY Classifi' +
+        'cacao,'
+      
+        '                                                        UPPER(TO' +
+        '_ASCII(Descricao,'#39'LATIN1'#39')),'
+      
+        '                                                        Codigo L' +
+        'IMIT 1))'
+      '               /* '#218'LTIMO */'
+      '            OR (:Operacao = 4 AND Codigo = (SELECT Codigo '
+      '                                               FROM PlanoContas'
+      
+        '                                               WHERE Classificac' +
+        'ao = (SELECT MAX(Classificacao)'
+      
+        '                                                                ' +
+        '         FROM PlanoContas)'
+      
+        '                                              ORDER BY Classific' +
+        'acao DESC,'
+      
+        '                                                       UPPER(TO_' +
+        'ASCII(Descricao,'#39'LATIN1'#39')) DESC,'
+      
+        '                                                       Codigo DE' +
+        'SC LIMIT 1))))'
+      ''
+      ''
+      
+        '   OR ((:Campo = 3) AND /*--------------------------------------' +
+        '----------------------- Descricao */'
+      '               /* PRIMEIRO */'
+      '             ((:Operacao = 1 AND Codigo = (SELECT Codigo '
+      '                                             FROM PlanoContas'
+      
+        '                                             WHERE Descricao = (' +
+        'SELECT MIN(UPPER(TO_ASCII(Descricao, '#39'LATIN1'#39')))'
+      
+        '                                                                ' +
+        '   FROM PlanoContas)'
+      
+        '                                             ORDER BY Descricao,' +
+        ' Codigo LIMIT 1))'
+      ''
+      '               /* ANTERIOR */'
+      '           OR (:Operacao = 2 AND Codigo = (SELECT Codigo'
+      '                                              FROM PlanoContas'
+      
+        '                                              WHERE  UPPER(TO_AS' +
+        'CII( Descricao, '#39'LATIN1'#39')) <'
+      
+        '                                                     UPPER(TO_AS' +
+        'CII(:Descricao, '#39'LATIN1'#39')) '
+      
+        '                                                 OR (UPPER(TO_AS' +
+        'CII( Descricao, '#39'LATIN1'#39')) ='
+      
+        '                                                     UPPER(TO_AS' +
+        'CII(:Descricao, '#39'LATIN1'#39')) AND'
+      
+        '                                                                ' +
+        '                   Codigo < :Codigo)'
+      
+        '                                               ORDER BY UPPER(TO' +
+        '_ASCII(Descricao,'#39'LATIN1'#39')) DESC,'
+      
+        '                                                        Codigo D' +
+        'ESC LIMIT 1))'
+      '               /* PR'#211'XIMO */'
+      '           OR (:Operacao = 3 AND Codigo = (SELECT Codigo'
+      '                                               FROM PlanoContas'
+      
+        '                                               WHERE  UPPER(TO_A' +
+        'SCII( Descricao, '#39'LATIN1'#39')) >'
+      
+        '                                                      UPPER(TO_A' +
+        'SCII(:Descricao, '#39'LATIN1'#39')) '
+      
+        '                                                  OR (UPPER(TO_A' +
+        'SCII( Descricao, '#39'LATIN1'#39')) ='
+      
+        '                                                      UPPER(TO_A' +
+        'SCII(:Descricao, '#39'LATIN1'#39')) AND'
+      
+        '                                                                ' +
+        '                   Codigo > :Codigo)'
+      
+        '                                               ORDER BY UPPER(TO' +
+        '_ASCII(Descricao,'#39'LATIN1'#39')),'
+      
+        '                                                        Codigo L' +
+        'IMIT 1))'
+      '               /* '#218'LTIMO */'
+      '           OR (:Operacao = 4 AND Codigo = (SELECT Codigo '
+      '                                               FROM PlanoContas'
+      
+        '                                               WHERE Descricao =' +
+        ' (SELECT MAX(UPPER(TO_ASCII(Descricao, '#39'LATIN1'#39')))'
+      
+        '                                                                ' +
+        '     FROM PlanoContas)'
+      
+        '                                              ORDER BY UPPER(TO_' +
+        'ASCII(Descricao,'#39'LATIN1'#39')) DESC,'
+      
+        '                                                       Codigo DE' +
+        'SC LIMIT 1))))'
+      ''
+      
+        '   OR ((:Campo = 4) AND /*--------------------------------------' +
+        '------------------------- Inativo */'
+      '               /* PRIMEIRO */'
+      '              ((:Operacao = 1 AND Codigo = (SELECT Codigo'
+      '                                              FROM PlanoContas'
+      
+        '                                              WHERE Inativo IS N' +
+        'OT NULL AND'
+      
+        '                                                    CASE WHEN :I' +
+        'nativo <> '#39'01/01/1900'#39
+      
+        '                                                         THEN ((' +
+        'Inativo < :Inativo) OR'
+      
+        '                                                               (' +
+        'Inativo = :Inativo AND Classificacao <= :Classificacao'
+      
+        '                                                                ' +
+        '                   AND Descricao     <= :Descricao'
+      
+        '                                                                ' +
+        '                   AND Codigo        <  :Codigo))'
+      
+        '                                                         ELSE TR' +
+        'UE'
+      '                                                    END'
+      
+        '                                              ORDER BY Inativo, ' +
+        'Classificacao, UPPER(TO_ASCII(Descricao,'#39'LATIN1'#39')), Codigo LIMIT' +
+        ' 1))'
+      '              /* ANTERIOR */'
+      '           OR (:Operacao = 2 AND Codigo = (SELECT Codigo'
+      '                                              FROM PlanoContas'
+      
+        '                                              WHERE Inativo IS N' +
+        'OT NULL AND'
+      
+        '                                                    CASE WHEN :I' +
+        'nativo <> '#39'01/01/1900'#39
+      
+        '                                                         THEN In' +
+        'ativo < :Inativo OR CASE WHEN Inativo        = :Inativo       AN' +
+        'D'
+      
+        '                                                                ' +
+        '                              Classificacao <= :Classificacao AN' +
+        'D'
+      
+        '                                                                ' +
+        '                              Descricao     <= :Descricao'
+      
+        '                                                                ' +
+        '                         THEN Inativo        = :Inativo       AN' +
+        'D'
+      
+        '                                                                ' +
+        '                              Classificacao <= :Classificacao AN' +
+        'D'
+      
+        '                                                                ' +
+        '                              Descricao     <= :Descricao     AN' +
+        'D'
+      
+        '                                                                ' +
+        '                              Codigo        <  :Codigo'
+      
+        '                                                                ' +
+        '                                 '
+      
+        '                                                                ' +
+        '                         ELSE Inativo        = :Inativo       AN' +
+        'D'
+      
+        '                                                                ' +
+        '                              Classificacao <= :Classificacao AN' +
+        'D'
+      
+        '                                                                ' +
+        '                              Descricao     <= :Descricao '
+      
+        '                                                                ' +
+        '                    END'
+      
+        '                                                         ELSE TR' +
+        'UE'
+      '                                                    END'
+      
+        '                                              ORDER BY Inativo D' +
+        'ESC, Classificacao DESC,'
+      
+        '                                                       UPPER(TO_' +
+        'ASCII(Descricao,'#39'LATIN1'#39')) DESC, Codigo DESC LIMIT 1))'
+      '              /* PR'#211'XIMO */'
+      '           OR (:Operacao = 3 AND Codigo = (SELECT Codigo'
+      '                                              FROM PlanoContas'
+      
+        '                                              WHERE Inativo IS N' +
+        'OT NULL AND'
+      
+        '                                                    CASE WHEN :I' +
+        'nativo <> '#39'01/01/1900'#39
+      
+        '                                                         THEN In' +
+        'ativo > :Inativo OR CASE WHEN Inativo        = :Inativo       AN' +
+        'D'
+      
+        #9#9#9#9#9#9'                                  Classificacao >= :Classi' +
+        'ficacao AND'
+      
+        '                                                                ' +
+        '                              Descricao     >= :Descricao'
+      
+        ' '#9#9#9#9#9#9' '#9'                   THEN Inativo        = :Inativo      ' +
+        ' AND'
+      
+        #9#9#9#9#9#9#9'                        Classificacao >= :Classificacao A' +
+        'ND'
+      
+        '                                                                ' +
+        '                              Descricao     >= :Descricao     AN' +
+        'D'
+      #9#9#9#9#9#9#9'                        Codigo        >  :Codigo'
+      
+        '                                                                ' +
+        '                                '
+      
+        #9#9#9#9#9#9#9'                   ELSE Inativo        = :Inativo       A' +
+        'ND'
+      
+        #9#9#9#9#9#9#9'                        Classificacao >= :Classificacao A' +
+        'ND'
+      #9#9#9#9#9#9#9'                        Descricao     >= :Descricao'
+      
+        '                                                                ' +
+        '                    END'
+      
+        '                                                         ELSE TR' +
+        'UE'
+      '                                                    END'
+      
+        '                                              ORDER BY Inativo, ' +
+        'Classificacao, UPPER(TO_ASCII(Descricao,'#39'LATIN1'#39')), Codigo LIMIT' +
+        ' 1))'
+      '              /* '#218'LTIMO */'
+      '           OR (:Operacao = 4 AND Codigo = (SELECT Codigo'
+      '                                              FROM PlanoContas'
+      
+        '                                              WHERE  Inativo > :' +
+        'Inativo OR'
+      
+        '                                                    (Inativo = :' +
+        'Inativo AND Classificacao = :Classificacao AND'
+      
+        '                                                                ' +
+        '            Descricao    >= :Descricao     AND'
+      
+        '                                                                ' +
+        '            Codigo        > :Codigo)'
+      
+        '                                              ORDER BY Inativo D' +
+        'ESC, Classificacao DESC,'
+      
+        '                                                       UPPER(TO_' +
+        'ASCII(Descricao,'#39'LATIN1'#39')) DESC, Codigo DESC LIMIT 1))))'
+      '%Ordenacao')
+    RequestLive = True
+    Left = 32
+    Top = 8
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'Campo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'Operacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'Codigo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftString
+        Name = 'classificacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftString
+        Name = 'descricao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftString
+        Name = 'inativo'
+        ParamType = ptUnknown
+      end>
+    object qryPlanoContascodigo: TIntegerField
+      AutoGenerateValue = arAutoInc
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryPlanoContasclassificacao: TStringField
+      DisplayLabel = 'Classifica'#231#227'o'
+      FieldName = 'classificacao'
+      Required = True
+    end
+    object qryPlanoContastipo: TStringField
+      DisplayLabel = 'Tipo'
+      FieldName = 'tipo'
+      Required = True
+      Size = 1
+    end
+    object qryPlanoContasdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Required = True
+      Size = 50
+    end
+    object qryPlanoContasinativo: TDateField
+      Alignment = taCenter
+      DisplayLabel = 'Inativo'
+      FieldName = 'inativo'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryPlanoContasreferencia: TIntegerField
+      DisplayLabel = 'refer'#234'ncia'
+      FieldName = 'referencia'
+      DisplayFormat = '0'
+    end
+    object qryPlanoContasdataincalt: TDateField
+      Alignment = taCenter
+      FieldName = 'dataincalt'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryPlanoContasnatureza: TStringField
+      FieldName = 'natureza'
+      Required = True
+      Size = 1
+    end
+    object qryPlanoContasdemosped: TBooleanField
+      FieldName = 'demosped'
+    end
+    object qryPlanoContasclassificacaoreferencial: TStringField
+      FieldName = 'classificacaoreferencial'
+    end
+    object qryPlanoContastiporeferencial: TStringField
+      FieldName = 'tiporeferencial'
+      Size = 1
+    end
+  end
+  object dsrPlanoContasVinculado_Sinteticas: TtecDataSource
+    DataSet = qryPlanoContasVinculado_Sinteticas
+    Left = 128
+    Top = 192
+  end
+  object qryPlanoContasVinculado_Sinteticas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'WhereClassificacao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      
+        'SELECT   cast(repeat('#39' '#39', length(btrim(p.classificacao)))||p.Des' +
+        'cricao as varchar) as Descricao,'
+      '         p.classificacao,'
+      '         p.Codigo,'
+      '         p.tipo,'
+      '         p.natureza,'
+      ''
+      '         (select count(*)'
+      '          from planocontas'
+      '          where strpos(classificacao,:ultimaclassificacao)=1'
+      '             and tipo='#39'S'#39
+      '             and classificacao<>:ultimaclassificacao'
+      
+        '             and codigo <> :codigoselecionado) as nsinteticasult' +
+        'ima,'
+      ''
+      '         (select count(*)'
+      '          from planocontas'
+      '          where strpos(classificacao,:ultimaclassificacao)=1'
+      '             and tipo='#39'A'#39
+      
+        '             and codigo <> :codigoselecionado) as nanaliticasult' +
+        'ima'
+      ''
+      'FROM     planocontas p'
+      ''
+      'WHERE p.tipo = '#39'S'#39
+      '     AND p.Inativo IS NULL'
+      '%WhereClassificacao'
+      ''
+      'ORDER BY p.classificacao')
+    RequestLive = False
+    Left = 120
+    Top = 136
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'ultimaclassificacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'codigoselecionado'
+        ParamType = ptUnknown
+      end>
+    object qryPlanoContasVinculado_Sinteticasdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 50
+    end
+    object qryPlanoContasVinculado_Sinteticasclassificacao: TStringField
+      DisplayLabel = 'Classifica'#231#227'o'
+      FieldName = 'classificacao'
+      Size = 50
+    end
+    object qryPlanoContasVinculado_Sinteticascodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Visible = False
+    end
+    object qryPlanoContasVinculado_Sinteticastipo: TStringField
+      DisplayLabel = 'Tipo'
+      FieldName = 'tipo'
+      Size = 1
+    end
+    object qryPlanoContasVinculado_Sinteticasnsinteticasultima: TLargeintField
+      FieldName = 'nsinteticasultima'
+    end
+    object qryPlanoContasVinculado_Sinteticasnanaliticasultima: TLargeintField
+      FieldName = 'nanaliticasultima'
+    end
+    object qryPlanoContasVinculado_Sinteticasnatureza: TStringField
+      FieldName = 'natureza'
+      Size = 1
+    end
+  end
+  object ZMonitor1: TZMonitor
+    Left = 368
+    Top = 240
+  end
+  object frpPlano: TfrReport
+    Dataset = fdsPlano
+    InitialZoom = pzDefault
+    PreviewButtons = [pbZoom, pbLoad, pbSave, pbPrint, pbFind, pbHelp, pbExit]
+    StoreInDFM = True
+    RebuildPrinter = False
+    OnBeforePrint = frpPlanoBeforePrint
+    Left = 256
+    Top = 16
+    ReportForm = {
+      190000004D30000019FFFF00000A0050444643726561746F7200FFFFFFFFFF00
+      000000340800009A0B0000440000002C000000000000002B0000000000040000
+      0000FFFF010000001200000000000000030400466F726D00FEFFFFFFDC000000
+      780000007C0100002C010000041F000500626567696E0D170020206966205B4F
+      7264656E6163616F5D3D30207468656E0D07002020626567696E0D2300202020
+      204361626563616C686F4E6976656C2E76697369626C65203A3D20547275653B
+      0D200020202020526F646170654E6976656C2E76697369626C65203A3D205472
+      75653B0D05002020656E640D07002020656C7365200D07002020626567696E0D
+      2400202020204361626563616C686F4E6976656C2E76697369626C65203A3D20
+      46616C73653B0D210020202020526F646170654E6976656C2E76697369626C65
+      203A3D2046616C73653B0D06002020656E643B0D00000D190020206966205B49
+      4E4154495649444144455D3D30207468656E0D07002020626567696E0D1A0020
+      20204D656D6F496E617469766F2E5769647468203A3D20303B0D1B002020204D
+      656D6F496E617469766F2E486569676874203A3D20303B0D1E002020204D656D
+      6F44617461496E617469766F2E5769647468203A3D20303B0D1F002020204D65
+      6D6F44617461496E617469766F2E486569676874203A3D20303B0D2300202020
+      4D656D6F43616D706F4E6F6D65436F6E74612E5769647468203A3D203432393B
+      0D05002020656E640D06002020656C73650D07002020626567696E0D1B002020
+      204D656D6F496E617469766F2E5769647468203A3D2035303B0D1C002020204D
+      656D6F496E617469766F2E486569676874203A3D2031323B0D1F002020204D65
+      6D6F44617461496E617469766F2E5769647468203A3D2035303B0D2000202020
+      4D656D6F44617461496E617469766F2E486569676874203A3D2031323B0D2300
+      2020204D656D6F43616D706F4E6F6D65436F6E74612E5769647468203A3D2033
+      37393B0D0D002020656E643B202020202020200D00000D00000D0400656E643B
+      000200060400000900726470506167696E6100020100000000A4020000F50200
+      000D0000003000030001000000000000000000FFFFFF1F000000000000000000
+      0009000500626567696E0D18002020506167696E613A3D5B5B506167696E615D
+      2B315D3B200D1F002020696620285B5B506167696E615D3E5B4D6178696D6F5D
+      5D29207468656E0D15002020206966205B4C6976726F5D3C3E30207468656E0D
+      0800202020626567696E0D0E0020202020506167696E613A3D323B0D17002020
+      20204C6976726F3A3D5B5B4C6976726F5D2B315D3B0D0900202020656E643B20
+      200D0300656E6400FFFF000000000002000000010000000000000001000000C8
+      000000140000000100000000000002007304000005004E6F7461730002010000
+      0000A0000000F50200000D0000003100050001000000000000000000FFFFFF1F
+      000000000800666473506C616E6F00000000000000005B000000000002000000
+      010000000000000001000000C800000014000000010000000000000200DC0400
+      000900636162506167696E61000201000000002D000000F50200004800000030
+      00020001000000000000000000FFFFFF1F00000000000000000000000000FFFF
+      000000000002000000010000000000000001000000C800000014000000010000
+      0000000002008A0500000E004361626563616C686F4E6976656C000201000000
+      0088000000F5020000000000003200100001000000000000000000FFFFFF1F00
+      00000040005B6966285B4F7264656E6163616F5D3D302C5B434F5059285B7172
+      79506C616E6F732E22636C617373696669636163616F225D2C20302C2031295D
+      2C2727295D00000000000000FFFF000000000002000000010000000000000001
+      000000C800000014000000010000000000000200F50500000B00526F64617065
+      4E6976656C00020100000000D0000000F5020000000000003000110001000000
+      000000000000FFFFFF1F00000000000000000000000000FFFF00000000000200
+      0000010000000000000001000000C80000001400000001000000000000000081
+      0600000A006D6D6F5A65627261646F00020046000000A1000000960200000B00
+      00004100000001000000000000000000FFFFFF1F2C00040107002323232C2323
+      2300000000000000FFFF0000000000020000000100000000090068656C766574
+      6963610007000000000000000000020000001700020000000000FFFFFF000000
+      0002000000000000000400D006000005004C696E653700020056040000760000
+      0000000000240000000100040001000000000000000000FFFFFF1F2C02000000
+      0000000000000000FFFF00000000000200000001000000000000740700000500
+      4D656D6F3400020044000000A10000005A0000000B0000004100000001000000
+      000000000000FFFFFF1F2C00000007002323232C2323230001001B005B717279
+      506C616E6F732E22636C617373696669636163616F225D00000000FFFF000000
+      0000020000000100000000090068656C76657469636100070000000000000000
+      00000000001700020000000000FFFFFF00000000020000000000000000001008
+      00000D004D656D6F4E6F6D65436F6E7461000200D30000006600000002010000
+      0C00000041000F00F4010000000000000000FFFFFF1F2C020101000000010012
+      00444553435249C7C34F20444120434F4E544100000000015B00000000000200
+      00000100000000090068656C7665746963610006000000000000000000020000
+      001700020000000000FFFFFF0000000002000000000000000000990800000600
+      4D656D6F3635000200A9000000660000002A0000000C00000041000F00F40100
+      00000000000000FFFFFF1F2C0201010000000100060043D34449474F00000000
+      015B0000000000020000000100000000090068656C7665746963610006000000
+      000000000000020000001700020000000000FFFFFF0000000002000000000000
+      0000001D09000006004D656D6F36380002009F000000660000000A0000000C00
+      000041000F00F4010000000000000000FFFFFF1F2C0201010000000100010054
+      00000000015B0000000000020000000100000000090068656C76657469636100
+      06000000000000000000020000001700020000000000FFFFFF00000000020000
+      00000000000000AD09000006004D656D6F363900020044000000660000005B00
+      00000C00000041000F00F4010000000000000000FFFFFF1F2C02010100000001
+      000D00434C4153534946494341C7C34F00000000015B00000000000200000001
+      00000000090068656C7665746963610006000000000000000000020000001700
+      020000000000FFFFFF0000000002000000000000000000480A000005004D656D
+      6F310002009F000000A10000000A0000000B0000004100000001000000000000
+      000000FFFFFF1F2C00000007002323232C23232300010012005B717279506C61
+      6E6F732E227469706F225D00000000FFFF000000000002000000010000000009
+      0068656C76657469636100070000000000000000000200000017000200000000
+      00FFFFFF0000000002000000000000000000E50A000005004D656D6F33000200
+      A9000000A1000000290000000B0000004100000001000000000000000000FFFF
+      FF1F2C00000007002323232C23232300010014005B717279506C616E6F732E22
+      636F6469676F225D00000000FFFF000000000002000000010000000009006865
+      6C7665746963610007000000000000000000010000001700020000000000FFFF
+      FF00000000020000000000000000009A0B000012004D656D6F43616D706F4E6F
+      6D65436F6E7461000200D3000000A1000000010100000B000000430000000100
+      0000000000000000FFFFFF1F2C00000007002323232C2323230001001F005B71
+      7279506C616E6F732E2264657363726963616F6564656E74616461225D000000
+      00FFFF0000000000020000000100000000090068656C76657469636100070000
+      00000000000000000000001700020000000000FFFFFF00000000020000000000
+      00000100BF23000007006670764C6F676F000200440000002D00000078000000
+      2A00000007000000F4010000000000000000FFFFFF1F2C020000000000000000
+      000000FFFF00000000000200000001000000000100BF230000424DCE17000000
+      0000003604000028000000830000002600000001000800000000009813000012
+      0B0000120B0000000100000001000000000000E8E5A800AA9E000099990000AD
+      ADAD003A3C4100A3970000BFB73700D8D48600FBFAF000A5A5A5001E1D1C00D8
+      D9DA0054575A00D6D6D500E7E8F20012161B00B6AD1900CBC55B008C8D9200BE
+      C0C500E1E2E40085878A005E606300494C4F00090D12002C2E3300DEDB98007D
+      7F8100EFEDCB00B9BABB00AEA400007C7B7B00C5BE440066666600D1CC6F00CD
+      C9810048484600F7F6E600AFA5080004080D00F9F8ED00B8AF2700DBD68C0099
+      9999001B1A1900C6BF5100131312003B3A3A00FFFFFF00EAE8BE00CCCCCC0023
+      262A00E2DEA400F1EFD600B0B1B300D3CD7500B1A81000CCCC66007272720053
+      5252004342420001060A00ECE9C3008C8C8B00F5F4DF004A4A4A0057575600B6
+      AC1F00282B3000C7C05C0061615F00F7F7F70088888700DDD89300E3E0A600FD
+      FCF70021242900070A1000BDB53100C5BE4A00E3E3E200A69C000099999900BA
+      BAB900DEDEDE00525458002A292800D9D58A005F5E5D00C7C595001B1E2300E8
+      E5B60000000700B5AB1300D5D07B00C6C6C500B2A80B0021202000B9B1240050
+      4F4E00666666006B6D7000B5B5BD0084848400E0DC9E00BCB42C00F7EFD6005B
+      5B5A00EFEFEF0087898B00DEDEE6003E3D3C0014181E00C8C25300CCC55F00A8
+      A9AC00BDBDBC00E5E1AC0075767900181B2000E6E6E6000E1117000810190033
+      333300929191002D2C2B00B5B5B4000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000003131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131543D42470E31
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313131313131313131313131523131313131486D3131316D6D4C
+      3131316D6D313131313131313131316D4831313131313131316D6D3131316D04
+      0A6C6C313131313131486D6D4C3131313131316D6D4C31313131313131313131
+      3131486D6D6D313131313131486D6D48313131316D483131316D6D3131313131
+      313131313131316D6D6D3131486D6D6D31313131313152313131317F7E663155
+      4225256031603D42647931420C313B7D316D6C3D70403131662C316D593D7068
+      313133646C702531484255312C70643059313131310C2525420E31477431420E
+      4825793131315442433D474C4C640E3120423C300A3131207E2C317F70254748
+      484251512531603C316D59253C620A312C25433068313131313152313131316C
+      2031315959313131317C7D4C4C31487C0E3159683177424C5134753143403120
+      3D487957543130494C7F3D31487C0C310B37317F70313131313C663131313164
+      2C317C33487E51313131313179602F55317C3331316D793B7031487E14314857
+      043131316D7C55557E311E3031542D4C314340313148790A0B4C313131315231
+      313131477D313125306C64334C5779313131487C0E31224931422C3131434031
+      6C7D313C7D3131594931570C31543D31487C0C3168705930253131313170706C
+      3C0E313C0A313033317C513131310C702570474C4C3033312C7C64300A314830
+      0E31796243432248483051517C31603D316D6464590B2C31547C42301C313131
+      313152313131314749313166420C5548313D2C484831487C0E48302C311C4248
+      516275316C7D31493D4879627F31256848373031487C0E3131550E2070313131
+      31473C0C554831642C4C7E330C62793131316830796D3131487C3331577D6D6D
+      313148303331487C49555131487C0C0C7E4C2C703131480C0E7C2C313C476D6D
+      31313131313152313131040B7E20316D473C6C33310E3D3C6C7931254264646D
+      31486C42706831316C7D31484742702031310E3D433D6C31484355314043473D
+      0A31313131796C3C6C0E316670597E3C3D20313131310E256C6C7731316C0E31
+      2C3D47430431772F3D0A3133424366484825643C7E6C7C74316D225943425531
+      543D59437D3131313131523131316D643B6D3131316D514831313179514C316D
+      51793131313131796D3131313C40313131796D313131313179794831317F6D31
+      6D15154831313131313131795148314879516D796D3131313131313151517931
+      317F6D31316D51516D3151577F6D313131797931316D51516D51483131315151
+      51313131314851516D3131313131523131313140043131313131313131313131
+      3131313131313131313131313131313168043131313131313131313131313131
+      48660F3131313131313131313131313131313131313131313131313131313131
+      3131313131220E31313131313131316655313131313131313131313131313131
+      3131313131313131313131313131313131315231313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      31313131315C46121212463F3131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313152313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131315F06020202061B31313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131523131313131
+      310E40173C18183D6E3131313131310C2C666C3C181818181805683131313131
+      316D3768220D0516313131313108021F1F1F5235313131313172070707070707
+      070707070707070750732B3631313131313131313131362B73212112081D3131
+      3131313131313123505050504B3131313131313131313F08122E505050085231
+      313131312C103E191919195D17313131317966713E4E191919191919195D0D31
+      313131312C34282819190017313131313108021F1F1F52353131313131115202
+      0202020202020202020202020202022776313131313131313F501F0202020202
+      0202075C313131313131316A060202065F313131313131314C12020202020202
+      0221523131313175287A78787878784E223131310E1A3E107878717171717171
+      71281731313131773E7A717171712822313131313108021F1F1F523531313131
+      3144021F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1D31313131310802021F1F
+      1F1F1F1F1F1F02022331313131313107021F1F0208313131313131313A521F1F
+      1F1F1F1F1F5052313131310D4E7878787A7A71282231316D7C4E7878784E4E7A
+      717171717128173131312C3E7171717119195D22313131313108021F1F1F5269
+      314C4C4C4C631F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F5250313131313852
+      1F1F1F0202020202021F1F1F5212313131313107021F1F020831313131313136
+      1F1F1F1F1F0202020221523131316D457A78787A3D370E0E5131313B3E787878
+      7A2274140E0E0E0E0E0E15313115787A787871190D0A145A2A6A6A6A2A5F3636
+      3636365044111111113226262626262626262626262626264A1F1F1F1F612631
+      311B521F1F1F02443A08082363021F1F1F525F3131313107021F1F0208313131
+      3131311B021F1F1F1F6A2B353532523131310E71717171710C31313131311578
+      1078784E683131313131313131313131311C287878787A2C3131310106020202
+      025F31313131315052020202023631313131313131313131313131313144021F
+      1F1F32312639021F1F1F584C31313131311B27021F1F1F3631313107021F1F02
+      0831313131313123021F1F1F11093131313152313131337A7171714548313131
+      31312C28787810344C313131313131313131313131057A78784E663131313135
+      021F1F1F025F313131313150021F1F1F1F363131313131313131313131313131
+      4C5E021F1F0276315F521F1F1F4B313131313131313132271F1F527331313107
+      021F1F020831313131313112021F1F0272313131313152313131601978787A7C
+      4C3131313131662878781045166E6E6E6E6E6E6E6E1C0431555B1078717A6031
+      31313135021F1F1F025F313131313150021F1F1F1F36313131313131314C0909
+      090909363A021F1F1F1F3F314F021F02723131313131313131313123021F1F11
+      09313107021F1F02083131313131312E021F1F02733131313131523131316019
+      78787A054C3131313131561978787871282828282828282828005631337A7171
+      71346D313131313552020202025F31313131312106020202023631313131762E
+      635E61616161611F1F1F1F1F1F114C26611F1F0276313131313131313131311D
+      1F1F1F1F1D313107021F1F02083131313131312E021F1F023A31313131315231
+      3131601978787A054C31313131311819787878787878787878787878784E1731
+      141978787A454831313131764444444444241551515151464F4F4F4F4F413131
+      313A0202021F1F1F1F1F1F1F1F1F1F1F521B311D1F1F1F1F3631313131313131
+      31313126391F1F1F5C313107021F1F02083131313131312E021F1F023A313131
+      313152313131601978787A054C31313131315619787878787878787878787878
+      784E1731337A717171346D313131313109090909097D713434347A3731313131
+      3131313158521F1F1F1F1F0202020202020202275831311D1F1F1F1F1D313131
+      3131313131313126391F1F1F5C313107021F1F02083131313131312E021F1F02
+      3A313131313152313131601978787A054C3131313131224E787878784E282828
+      28282828280056310C787171715B0C31313131313131313131133E1010105D74
+      313131313131312939021F1F1F1F3911636363636A50083631313126611F1F02
+      4B313131313131313131313F021F1F1F36313107021F1F02083131313131312E
+      021F1F023A313131313152313131601978787A054C313131313116287878101A
+      2C2C2C2C2C2C2C2C2C7D1E316D1A7A7878197F31313131313131313131134E78
+      787828743131313131313176021F1F1F1F232631313131313131313131313131
+      07021F02213131313131313131313173021F1F444C313107021F1F0208313131
+      3131312E021F1F023A313131313152313131601978787A054C31313131317F19
+      7171713448313131313131313131313131561978784E66313131313131313131
+      31134E7878782874313131313131312B521F1F1F612931313131313131313131
+      3131313158521F1F024A31313131313131317602021F522331313107021F1F02
+      083131313131312E021F1F023A313131313152313131331978787A0531313131
+      31316D347A78784E133131313131313131313131317D28787871710431313131
+      313131313113001919190004313131313131312B521F1F1F2741313131313131
+      31313131313131310911021F1F1F232631313131295F1F1F1F1F612931313107
+      021F1F022B3131313131312E021F1F52233131313131520E14602C7A78787A7C
+      141414140C3131203E78787171660A1E6014141414140E3131155B107878107A
+      567D371E1E1E1E1E1E13566C6C6C182C75757575756D315C021F1F1F1F211B1B
+      1B1B1B1B4A4A4A4A4A3631313176021F1F1F0261502323725E021F1F1F025876
+      2B2B4A44021F1F1F504A4A4A2B1D312E021F1F1F074A4A4A4A5C520D7A7A7A78
+      787878787A7A7A5D1731317945197878784E4E7A7A7A7A7A7A5D6C313131165D
+      7171717119191919191919195D6E313131313166007A7A7A4E1431295E021F1F
+      1F0202020202020202020202062B313131315802021F1F1F020202021F1F1F1F
+      52384C395252521F1F1F1F1F020202020608312E021F1F1F1F02020202215217
+      71717878787878787171714E22313131335B28717878787871717171714E1731
+      313131173E7A717878787878787878784E6E313131313166287171717A603131
+      4A521F1F1F1F1F1F1F1F1F1F1F1F1F1F524A31313131316939521F1F1F1F1F1F
+      1F1F020258310911021F1F1F1F1F1F1F1F1F1F1F022B312E021F1F1F1F1F1F1F
+      1F50520D19191978787878781919190017313131310C0D10284E4E1919191919
+      19000D31313131317D1A4E4E4E19191919191919001C31313131316628787878
+      10603131315F0202020202020202020202020202062B31313131313136733902
+      020202020261721D313129615252521F1F1F1F1F020202020608312E021F1F1F
+      1F0202020221527D17173C107878714D1717170D2C3131313131310E0A1C3B22
+      17171717170D7D31313131313148757D77661717171717170D04313131313166
+      28787878106031313131364A3A7272727272727272727272505C313131313131
+      3131264B5F737338354131313131093A7272725E1F1F1F1F4F1212122E5C312E
+      021F1F1F631212121258523131310E1978787A05313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      31313117003E3E3E5D7531313131313131313131313131313131313131313131
+      313131313131313131313131313131313131313131313107021F1F5258313131
+      3131312E021F1F0223313131313152313131601978787A054C31313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131317F686E6E6E6E15313131313131313131313131313131313131
+      31313131313131313131313131313131313131313131313131313121021F1F02
+      073131313131312E021F1F023A313131313152313131601978787A054C313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313173
+      021F1F1F1F4F3A233A32312E021F1F023A313131313152313131601978787A05
+      4C31313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      31313169521F1F1F1F0202020608312E021F1F023A3131313131523131316019
+      78787A054C313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131310963521F1F1F1F1F1F024A312E021F1F023A31313131315231
+      3131601971717A054C3131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131314150611F1F1F1F1F024A3150021F1F023A313131
+      3131523131310C0D17176C774C31313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131315C3872727272725C31082E2E2E2E
+      1B31313131315200004D24000009006D6D6F544954554C4F000200710100002D
+      0000002A0100001200000043000000F4010000000000000000FFFFFF1F2C0200
+      00000000010008005B546974756C6F5D00000000FFFF00000000000200000001
+      00000000090068656C766574696361000A000000020000000000020000000100
+      020000000000FFFFFF0000000002000000000000000000E12400000C006D6D6F
+      535542544954554C4F00020071010000400000002A0100001300000043000000
+      F4010000000000000000FFFFFF1F2C02000000000001000B005B537562546974
+      756C6F5D00000000FFFF0000000000020000000100000000090068656C766574
+      6963610007000000020000000000020000000100020000000000FFFFFF000000
+      00020000000000000000007F25000010006D6D6F524F44415045484F52415F4C
+      560002004C000000A5020000500000000C00000043000000F401000000000000
+      0000FFFFFF1F2C020000000000010011005B54494D4520235468683A6D6D3A73
+      735D00000000FFFF0000000000020000000100000005090068656C7665746963
+      610007000000000000000000100000000100020000000000FFFFFF0000000002
+      0000000000000000002D26000010006D6D6F524F44415045544543534F465400
+      020018020000A5020000CA0000000C00000043000000F4010000000000000000
+      FFFFFF1F2C02000000000001002100746563534F4654202D205465636E6F6C6F
+      67696120656D2053697374656D61732000000000FFFF00000000000200000001
+      00000005090068656C7665746963610007000000000000000000110000000100
+      020000000000FFFFFF0000000002000000000000000000B72600000F006D6D6F
+      51554144524F504147494E410002009F0200002E0000003C0000001D00000043
+      000F00F4010000000000000000FFFFFF1F2C020000000000000000000000FFFF
+      0000000000020000000100000000090068656C76657469636100070000000000
+      00000000090000000100020000000000FFFFFF00000000020000000000000000
+      00552700000F006D6D6F524F54554C4F504147494E41000200A20200003C0000
+      00200000000C0000004100000001000000000000000000FFFFFF1F2C02000000
+      0000010012005B466F6C68615F6F755F706167696E615D3A00000000FFFF0000
+      000000020000000100000000090068656C766574696361000700000002000000
+      0000000000000100020000000000FFFFFF0000000002000000000000000000E3
+      27000009006D6D6F504147494E41000200C30200003C000000160000000C0000
+      004100000001000000000000000000FFFFFF1F2C020000000000010008005B50
+      6167696E615D00000000FFFF0000000000020000000100000000090068656C76
+      65746963610007000000000000000000010000000100020000000000FFFFFF00
+      00000002000000000000000000742800000E006D6D6F524F54554C4F4C495652
+      4F000200A20200002F000000200000000C000000410000000100000000000000
+      0000FFFFFF1F2C020000000000010006004C6976726F3A00000000FFFF000000
+      0000020000000100000000090068656C76657469636100070000000200000000
+      00000000000100020000000000FFFFFF00000000020000000000000000001329
+      000008006D6D6F4C4956524F000200C30200002F000000160000000C00000041
+      00000001000000000000000000FFFFFF1F2C02000000000001001A005B696628
+      5B4C6976726F5D3D302C27272C5B4C6976726F5D295D00000000FFFF00000000
+      00020000000100000000090068656C7665746963610007000000000000000000
+      010000000100020000000000FFFFFF0000000002000000000000000000AB2900
+      0005006D6D6F4945000200BE0000004C000000B20000000A0000004300000001
+      000000000000000000FFFFFF1F2C02000000000001001600492E4553542E3A5B
+      494546696C69616C426173655D2000000000FFFF000000000002000000010000
+      0000090068656C76657469636100070000000000000000001000000001000200
+      00000000FFFFFF0000000002000000000000000000452A000007006D6D6F434E
+      504A000200BE00000041000000B20000000A0000004300000001000000000000
+      000000FFFFFF1F2C02000000000001001600434E504A3A205B434E504A46696C
+      69616C426173655D00000000FFFF000000000002000000010000000009006865
+      6C7665746963610007000000000000000000100000000100020000000000FFFF
+      FF0000000002000000000000000000DB2A000008006D6D6F52415A414F000200
+      BE0000002D000000B2000000140000004300000001000000000000000000FFFF
+      FF1F2C020000000000010011005B52617A616F46696C69616C426173655D0000
+      0000FFFF0000000000020000000100000006090068656C766574696361000700
+      0000000000000000100000000100020000000000FFFFFF000000000200000000
+      00000000008F2B000005004D656D6F35000200D501000066000000070100000C
+      00000041000F00F4010000000000000000FFFFFF1F2C02010100000001003200
+      504C414E4F20444520434F4E544153205245464552454E4349414C2020202020
+      20202020202020202020202020202020202000000000015B0000000000020000
+      000100000000090068656C766574696361000600000000000000000002000000
+      1700020000000000FFFFFF00000000020000000000000000003A2C00000B004D
+      656D6F496E617469766F000200AB02000066000000320000000C00000000000F
+      00F4010000000000000000FFFFFF1F2C020101000000010023005B6966285B49
+      4E4154495649444144455D3C3E302C27494E415449564F272C2727295D000000
+      00015B0000000000020000000100000000090068656C76657469636100060000
+      00000000000000020000001700020000000000FFFFFF00000000020000000000
+      000000000E2D000005004D656D6F32000200D5010000A10000000A0100000B00
+      00004300000001000000000000000000FFFFFF1F2C00000007002323232C2323
+      230001004B005B717279506C616E6F732E22636C617373696669636163616F72
+      65666572656E6369616C225D2020205B717279506C616E6F732E226465736372
+      6963616F7265666572656E6369616C225D00000000FFFF000000000002000000
+      0100000000090068656C76657469636100070000000000000000000000000017
+      00020000000000FFFFFF00000000020000000000000000002A2E00000F004D65
+      6D6F44617461496E617469766F000200AC020000A1000000330000000B000000
+      0000000001000000000000000000FFFFFF1F2C00000007002323232C23232300
+      00000006000500626567696E0D220020206966205B717279506C616E6F732E22
+      696E617469766F225D3C3E30207468656E0D3E00202020206D656D6F203A3D20
+      5B464F524D41544441544554494D45282764642F6D6D2F7979272C5B71727950
+      6C616E6F732E22696E617469766F225D295D0D12002020656C7365206D656D6F
+      203A3D2027273B0D00000D0300656E6400FFFF00000000000200000001000000
+      00090068656C7665746963610007000000000000000000010000001700020000
+      000000FFFFFF000000000200000000000000FEFEFF1C0000000B0020496E7665
+      6E746172696F00000000030052756100000000060042616972726F0000000006
+      00436964616465000000000400466F6E650000000006004F7574726173000000
+      0005004C6976726F00010031000600506167696E61000100300006004D617869
+      6D6F00040039393939000400434E504A000000001100496E7363726963616F45
+      7374616475616C00000000050052617A616F000000000900537562546974756C
+      6F000000000600546974756C6F00110027504C414E4F20444520434F4E544153
+      27000F00466F6C68615F6F755F706167696E610008002750E167696E61270009
+      004F7264656E6163616F00010030000B00494E41544956494441444500010030
+      000C00204167727570616D656E746F0000000012004167727570617247727570
+      6F46696C69616C00050046616C7365000D004167727570617246696C69616C00
+      050046616C7365000B0020417578696C6961726573000000000E00464F4E4546
+      494C49414C42415345000000000D0052554146494C49414C4241534500000000
+      100042414952524F46494C49414C42415345000000000D0043455046494C4941
+      4C4241534500000000100043494441444546494C49414C424153450000000010
+      0045535441444F46494C49414C42415345000000000F0052415A414F46494C49
+      414C42415345000000000000000000000000FC00000000000000000000000000
+      00000058003B4C5D5E3484E340FDB055D354A0E440}
+  end
+  object fdsPlano: TfrDBDataSet
+    DataSet = qryPlanos
+    Left = 288
+    Top = 32
+  end
+  object qryContaVinculada: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT count(*) as vinculadas'
+      'FROM    planocontas p'
+      'WHERE  position(btrim(:conta,'#39'. '#39') in p.classificacao)=1')
+    RequestLive = False
+    Left = 240
+    Top = 224
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'conta'
+        ParamType = ptUnknown
+      end>
+    object qryContaVinculadavinculadas: TLargeintField
+      FieldName = 'vinculadas'
+    end
+  end
+  object qryExisteLancto: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select ('
+      'select (saldocontabil(:conta, cast(:datainicial as date))<>0)'
+      ''
+      'or'
+      ' '
+      '((select count(*) '
+      'from lancamentos '
+      'where debitar = :conta'
+      '     or creditar = :conta)<>0)) as existe')
+    RequestLive = False
+    Left = 240
+    Top = 280
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'conta'
+        ParamType = ptUnknown
+        Value = 0
+      end
+      item
+        DataType = ftString
+        Name = 'datainicial'
+        ParamType = ptUnknown
+        Value = '01/01/2007'
+      end>
+    object qryExisteLanctoexiste: TBooleanField
+      FieldName = 'existe'
+    end
+  end
+  object frpPlanosFiliais: TfrReport
+    Dataset = fdsPlanosFiliais
+    InitialZoom = pzDefault
+    PreviewButtons = [pbZoom, pbLoad, pbSave, pbPrint, pbFind, pbHelp, pbExit]
+    StoreInDFM = True
+    RebuildPrinter = False
+    OnBeforePrint = frpPlanosFiliaisBeforePrint
+    Left = 256
+    Top = 112
+    ReportForm = {
+      19000000C830000019FFFF00000A0050444643726561746F7200FFFFFFFFFF00
+      000000340800009A0B0000440000002C000000000000002B0000000000040000
+      0000FFFF010000001200000000000000030400466F726D00FEFFFFFFDC000000
+      780000007C0100002C010000041E000500626567696E0D1700696620285B4F72
+      64656E6163616F5D3D3029207468656E0D0500626567696E0D21002020436162
+      6563616C686F4E6976656C2E76697369626C65203A3D20547275653B0D200020
+      20526F646170654E6976656C2E76697369626C65203A3D20547275653B20200D
+      0300656E640D0400656C73650D0500626567696E0D220020204361626563616C
+      686F4E6976656C2E76697369626C65203A3D2046616C73653B0D23002020526F
+      646170654E6976656C2E76697369626C65203A3D2046616C73653B202020200D
+      0400656E643B0D00000D190020206966205B494E4154495649444144455D3D30
+      207468656E0D07002020626567696E0D1A002020204D656D6F496E617469766F
+      2E5769647468203A3D20303B0D1B002020204D656D6F496E617469766F2E4865
+      69676874203A3D20303B0D1E002020204D656D6F44617461496E617469766F2E
+      5769647468203A3D20303B0D1F002020204D656D6F44617461496E617469766F
+      2E486569676874203A3D20303B0D23002020204D656D6F43616D706F4E6F6D65
+      436F6E74612E5769647468203A3D203432393B0D05002020656E640D06002020
+      656C73650D07002020626567696E0D1B002020204D656D6F496E617469766F2E
+      5769647468203A3D2035303B0D1C002020204D656D6F496E617469766F2E4865
+      69676874203A3D2031323B0D1F002020204D656D6F44617461496E617469766F
+      2E5769647468203A3D2035303B0D20002020204D656D6F44617461496E617469
+      766F2E486569676874203A3D2031323B0D23002020204D656D6F43616D706F4E
+      6F6D65436F6E74612E5769647468203A3D203337393B0D0D002020656E643B20
+      2020202020200D00000D0400656E643B000200F6030000090072647050616769
+      6E6100020100000000A4020000F50200000D0000003000030001000000000000
+      000000FFFFFF1F0000000000000000000009000500626567696E0D1800202050
+      6167696E613A3D5B5B506167696E615D2B315D3B200D1F002020696620285B5B
+      506167696E615D3D5B4D6178696D6F5D5D29207468656E0D1500202020696620
+      5B4C6976726F5D3C3E30207468656E0D0800202020626567696E0D0E00202020
+      20506167696E613A3D323B0D1700202020204C6976726F3A3D5B5B4C6976726F
+      5D2B315D3B0D0900202020656E643B20200D0300656E6400FFFF000000000002
+      000000010000000000000001000000C800000014000000010000000000000200
+      6B04000005004E6F746173000201000000004C010000F50200000E0000003100
+      050001000000000000000000FFFFFF1F000000001000666473506C616E6F7346
+      696C6961697300000000000000005B0000000000020000000100000000000000
+      01000000C800000014000000010000000000000200F8040000120043616265E7
+      616C686F446520477275706F310002010000000044000000F50200004A000000
+      7200100001000000000000000000FFFFFF1F000000001B005B717279506C616E
+      6F7346696C696169732E2266696C69616C225D00000000000000FFFF00000000
+      0002000000010000000000000001000000C80000001400000001000000000000
+      0200AD0500000E004361626563616C686F4E6976656C00020100000000C20000
+      00F5020000000000003200100001000000000000000000FFFFFF1F0000000047
+      005B6966285B4F7264656E6163616F5D3D302C5B434F5059285B717279506C61
+      6E6F7346696C696169732E22636C617373696669636163616F225D2C20302C20
+      31295D2C2727295D00000000000000FFFF000000000002000000010000000000
+      000001000000C800000014000000010000000000000200180600000B00526F64
+      6170654E6976656C00020100000000CE010000F5020000000000003000110001
+      000000000000000000FFFFFF1F00000000000000000000000000FFFF00000000
+      0002000000010000000000000001000000C80000001400000001000000000000
+      0000A40600000A006D6D6F5A65627261646F000200460000004D010000960200
+      000B0000004100000001000000000000000000FFFFFF1F2C0004010700232323
+      2C23232300000000000000FFFF0000000000020000000100000000090068656C
+      7665746963610007000000000000000000020000001700020000000000FFFFFF
+      0000000002000000000000000400F306000005004C696E653700020056040000
+      7600000000000000240000000100040001000000000000000000FFFFFF1F2C02
+      0000000000000000000000FFFF000000000002000000010000000000009E0700
+      0005004D656D6F34000200440000004D010000590000000B0000004100000001
+      000000000000000000FFFFFF1F2C00000007002323232C23232300010022005B
+      717279506C616E6F7346696C696169732E22636C617373696669636163616F22
+      5D00000000FFFF0000000000020000000100000000090068656C766574696361
+      0007000000000000000000000000001700020000000000FFFFFF000000000200
+      00000000000000004008000005004D656D6F310002009F0000004D0100000A00
+      00000B0000004100000001000000000000000000FFFFFF1F2C00000007002323
+      232C23232300010019005B717279506C616E6F7346696C696169732E22746970
+      6F225D00000000FFFF0000000000020000000100000000090068656C76657469
+      63610007000000000000000000020000001700020000000000FFFFFF00000000
+      02000000000000000000E408000005004D656D6F33000200A90000004D010000
+      2B0000000B0000004100000001000000000000000000FFFFFF1F2C0000000700
+      2323232C2323230001001B005B717279506C616E6F7346696C696169732E2263
+      6F6469676F225D00000000FFFF0000000000020000000100000000090068656C
+      7665746963610007000000000000000000010000001700020000000000FFFFFF
+      0000000002000000000000000000A009000012004D656D6F43616D706F4E6F6D
+      65436F6E7461000200D30000004D010000FD0000000B00000043000000010000
+      00000000000000FFFFFF1F2C00000007002323232C23232300010026005B7172
+      79506C616E6F7346696C696169732E2264657363726963616F6564656E746164
+      61225D00000000FFFF0000000000020000000100000000090068656C76657469
+      63610007000000000000000000000000001700020000000000FFFFFF00000000
+      02000000000000000100C521000007006670764C6F676F000200440000004500
+      0000780000002A00000007000000F4010000000000000000FFFFFF1F2C020000
+      000000000000000000FFFF00000000000200000001000000000100C521000042
+      4DCE170000000000003604000028000000830000002600000001000800000000
+      0098130000120B0000120B0000000100000001000000000000E8E5A800AA9E00
+      0099990000ADADAD003A3C4100A3970000BFB73700D8D48600FBFAF000A5A5A5
+      001E1D1C00D8D9DA0054575A00D6D6D500E7E8F20012161B00B6AD1900CBC55B
+      008C8D9200BEC0C500E1E2E40085878A005E606300494C4F00090D12002C2E33
+      00DEDB98007D7F8100EFEDCB00B9BABB00AEA400007C7B7B00C5BE4400666666
+      00D1CC6F00CDC9810048484600F7F6E600AFA5080004080D00F9F8ED00B8AF27
+      00DBD68C00999999001B1A1900C6BF5100131312003B3A3A00FFFFFF00EAE8BE
+      00CCCCCC0023262A00E2DEA400F1EFD600B0B1B300D3CD7500B1A81000CCCC66
+      0072727200535252004342420001060A00ECE9C3008C8C8B00F5F4DF004A4A4A
+      0057575600B6AC1F00282B3000C7C05C0061615F00F7F7F70088888700DDD893
+      00E3E0A600FDFCF70021242900070A1000BDB53100C5BE4A00E3E3E200A69C00
+      0099999900BABAB900DEDEDE00525458002A292800D9D58A005F5E5D00C7C595
+      001B1E2300E8E5B60000000700B5AB1300D5D07B00C6C6C500B2A80B00212020
+      00B9B12400504F4E00666666006B6D7000B5B5BD0084848400E0DC9E00BCB42C
+      00F7EFD6005B5B5A00EFEFEF0087898B00DEDEE6003E3D3C0014181E00C8C253
+      00CCC55F00A8A9AC00BDBDBC00E5E1AC0075767900181B2000E6E6E6000E1117
+      000810190033333300929191002D2C2B00B5B5B4000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000003131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      543D42470E313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313131313131313131313131313131313131523131313131486D
+      3131316D6D4C3131316D6D313131313131313131316D4831313131313131316D
+      6D3131316D040A6C6C313131313131486D6D4C3131313131316D6D4C31313131
+      3131313131313131486D6D6D313131313131486D6D48313131316D483131316D
+      6D3131313131313131313131316D6D6D3131486D6D6D31313131313152313131
+      317F7E6631554225256031603D42647931420C313B7D316D6C3D70403131662C
+      316D593D7068313133646C702531484255312C70643059313131310C2525420E
+      31477431420E4825793131315442433D474C4C640E3120423C300A3131207E2C
+      317F70254748484251512531603C316D59253C620A312C254330683131313131
+      52313131316C2031315959313131317C7D4C4C31487C0E3159683177424C5134
+      7531434031203D487957543130494C7F3D31487C0C310B37317F70313131313C
+      6631313131642C317C33487E51313131313179602F55317C3331316D793B7031
+      487E14314857043131316D7C55557E311E3031542D4C314340313148790A0B4C
+      313131315231313131477D313125306C64334C5779313131487C0E3122493142
+      2C31314340316C7D313C7D3131594931570C31543D31487C0C31687059302531
+      31313170706C3C0E313C0A313033317C513131310C702570474C4C3033312C7C
+      64300A3148300E31796243432248483051517C31603D316D6464590B2C31547C
+      42301C313131313152313131314749313166420C5548313D2C484831487C0E48
+      302C311C4248516275316C7D31493D4879627F31256848373031487C0E313155
+      0E207031313131473C0C554831642C4C7E330C62793131316830796D3131487C
+      3331577D6D6D313148303331487C49555131487C0C0C7E4C2C703131480C0E7C
+      2C313C476D6D31313131313152313131040B7E20316D473C6C33310E3D3C6C79
+      31254264646D31486C42706831316C7D31484742702031310E3D433D6C314843
+      55314043473D0A31313131796C3C6C0E316670597E3C3D20313131310E256C6C
+      7731316C0E312C3D47430431772F3D0A3133424366484825643C7E6C7C74316D
+      225943425531543D59437D3131313131523131316D643B6D3131316D51483131
+      3179514C316D51793131313131796D3131313C40313131796D31313131317979
+      4831317F6D316D15154831313131313131795148314879516D796D3131313131
+      313151517931317F6D31316D51516D3151577F6D313131797931316D51516D51
+      48313131515151313131314851516D3131313131523131313140043131313131
+      3131313131313131313131313131313131313131313168043131313131313131
+      31313131313148660F3131313131313131313131313131313131313131313131
+      3131313131313131313131220E31313131313131316655313131313131313131
+      3131313131313131313131313131313131313131313131315231313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      31313131313131313131315C46121212463F3131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313152313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131315F06020202061B31313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      523131313131310E40173C18183D6E3131313131310C2C666C3C181818181805
+      683131313131316D3768220D0516313131313108021F1F1F5235313131313172
+      070707070707070707070707070750732B3631313131313131313131362B7321
+      2112081D31313131313131313123505050504B3131313131313131313F08122E
+      505050085231313131312C103E191919195D17313131317966713E4E19191919
+      1919195D0D31313131312C34282819190017313131313108021F1F1F52353131
+      3131311152020202020202020202020202020202022776313131313131313F50
+      1F02020202020202075C313131313131316A060202065F313131313131314C12
+      0202020202020221523131313175287A78787878784E223131310E1A3E107878
+      71717171717171281731313131773E7A717171712822313131313108021F1F1F
+      5235313131313144021F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1D31313131
+      310802021F1F1F1F1F1F1F1F02022331313131313107021F1F02083131313131
+      31313A521F1F1F1F1F1F1F5052313131310D4E7878787A7A71282231316D7C4E
+      7878784E4E7A717171717128173131312C3E7171717119195D22313131313108
+      021F1F1F5269314C4C4C4C631F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F5250
+      3131313138521F1F1F0202020202021F1F1F5212313131313107021F1F020831
+      3131313131361F1F1F1F1F0202020221523131316D457A78787A3D370E0E5131
+      313B3E7878787A2274140E0E0E0E0E0E15313115787A787871190D0A145A2A6A
+      6A6A2A5F36363636365044111111113226262626262626262626262626264A1F
+      1F1F1F612631311B521F1F1F02443A08082363021F1F1F525F3131313107021F
+      1F02083131313131311B021F1F1F1F6A2B353532523131310E71717171710C31
+      3131313115781078784E683131313131313131313131311C287878787A2C3131
+      310106020202025F313131313150520202020236313131313131313131313131
+      31313144021F1F1F32312639021F1F1F584C31313131311B27021F1F1F363131
+      3107021F1F020831313131313123021F1F1F11093131313152313131337A7171
+      71454831313131312C28787810344C313131313131313131313131057A78784E
+      663131313135021F1F1F025F313131313150021F1F1F1F363131313131313131
+      3131313131314C5E021F1F0276315F521F1F1F4B313131313131313132271F1F
+      527331313107021F1F020831313131313112021F1F0272313131313152313131
+      601978787A7C4C3131313131662878781045166E6E6E6E6E6E6E6E1C0431555B
+      1078717A603131313135021F1F1F025F313131313150021F1F1F1F3631313131
+      3131314C0909090909363A021F1F1F1F3F314F021F0272313131313131313131
+      3123021F1F1109313107021F1F02083131313131312E021F1F02733131313131
+      52313131601978787A054C313131313156197878787128282828282828282800
+      5631337A717171346D313131313552020202025F313131313121060202020236
+      31313131762E635E61616161611F1F1F1F1F1F114C26611F1F02763131313131
+      31313131311D1F1F1F1F1D313107021F1F02083131313131312E021F1F023A31
+      3131313152313131601978787A054C3131313131181978787878787878787878
+      7878784E1731141978787A454831313131764444444444241551515151464F4F
+      4F4F4F413131313A0202021F1F1F1F1F1F1F1F1F1F1F521B311D1F1F1F1F3631
+      31313131313131313126391F1F1F5C313107021F1F02083131313131312E021F
+      1F023A313131313152313131601978787A054C31313131315619787878787878
+      787878787878784E1731337A717171346D313131313109090909097D71343434
+      7A37313131313131313158521F1F1F1F1F0202020202020202275831311D1F1F
+      1F1F1D3131313131313131313126391F1F1F5C313107021F1F02083131313131
+      312E021F1F023A313131313152313131601978787A054C3131313131224E7878
+      78784E28282828282828280056310C787171715B0C3131313131313131313113
+      3E1010105D74313131313131312939021F1F1F1F3911636363636A5008363131
+      3126611F1F024B313131313131313131313F021F1F1F36313107021F1F020831
+      31313131312E021F1F023A313131313152313131601978787A054C3131313131
+      16287878101A2C2C2C2C2C2C2C2C2C7D1E316D1A7A7878197F31313131313131
+      313131134E78787828743131313131313176021F1F1F1F232631313131313131
+      31313131313107021F02213131313131313131313173021F1F444C313107021F
+      1F02083131313131312E021F1F023A313131313152313131601978787A054C31
+      313131317F197171713448313131313131313131313131561978784E66313131
+      31313131313131134E7878782874313131313131312B521F1F1F612931313131
+      3131313131313131313158521F1F024A31313131313131317602021F52233131
+      3107021F1F02083131313131312E021F1F023A31313131315231313133197878
+      7A053131313131316D347A78784E133131313131313131313131317D28787871
+      710431313131313131313113001919190004313131313131312B521F1F1F2741
+      31313131313131313131313131310911021F1F1F232631313131295F1F1F1F1F
+      612931313107021F1F022B3131313131312E021F1F52233131313131520E1460
+      2C7A78787A7C141414140C3131203E78787171660A1E6014141414140E313115
+      5B107878107A567D371E1E1E1E1E1E13566C6C6C182C75757575756D315C021F
+      1F1F1F211B1B1B1B1B1B4A4A4A4A4A3631313176021F1F1F0261502323725E02
+      1F1F1F0258762B2B4A44021F1F1F504A4A4A2B1D312E021F1F1F074A4A4A4A5C
+      520D7A7A7A78787878787A7A7A5D1731317945197878784E4E7A7A7A7A7A7A5D
+      6C313131165D7171717119191919191919195D6E313131313166007A7A7A4E14
+      31295E021F1F1F0202020202020202020202062B313131315802021F1F1F0202
+      02021F1F1F1F52384C395252521F1F1F1F1F020202020608312E021F1F1F1F02
+      02020221521771717878787878787171714E22313131335B2871787878787171
+      7171714E1731313131173E7A717878787878787878784E6E3131313131662871
+      71717A6031314A521F1F1F1F1F1F1F1F1F1F1F1F1F1F524A3131313131693952
+      1F1F1F1F1F1F1F1F020258310911021F1F1F1F1F1F1F1F1F1F1F022B312E021F
+      1F1F1F1F1F1F1F50520D19191978787878781919190017313131310C0D10284E
+      4E191919191919000D31313131317D1A4E4E4E19191919191919001C31313131
+      31662878787810603131315F0202020202020202020202020202062B31313131
+      313136733902020202020261721D313129615252521F1F1F1F1F020202020608
+      312E021F1F1F1F0202020221527D17173C107878714D1717170D2C3131313131
+      310E0A1C3B2217171717170D7D31313131313148757D77661717171717170D04
+      31313131316628787878106031313131364A3A7272727272727272727272505C
+      3131313131313131264B5F737338354131313131093A7272725E1F1F1F1F4F12
+      12122E5C312E021F1F1F631212121258523131310E1978787A05313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      31313131313131313117003E3E3E5D7531313131313131313131313131313131
+      313131313131313131313131313131313131313131313131313131313107021F
+      1F52583131313131312E021F1F0223313131313152313131601978787A054C31
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313131313131317F686E6E6E6E15313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3121021F1F02073131313131312E021F1F023A31313131315231313160197878
+      7A054C3131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313173021F1F1F1F4F3A233A32312E021F1F023A313131313152313131
+      601978787A054C31313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      31313131313131313169521F1F1F1F0202020608312E021F1F023A3131313131
+      52313131601978787A054C313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313131313131310963521F1F1F1F1F1F024A312E021F1F023A31
+      3131313152313131601971717A054C3131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131314150611F1F1F1F1F024A3150021F
+      1F023A3131313131523131310C0D17176C774C31313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131315C3872727272725C
+      31082E2E2E2E1B31313131315200005322000009006D6D6F544954554C4F0002
+      0071010000450000002A0100001200000043000000F4010000000000000000FF
+      FFFF1F2C020000000000010008005B546974756C6F5D00000000FFFF00000000
+      00020000000100000000090068656C766574696361000A000000020000000000
+      020000000100020000000000FFFFFF0000000002000000000000000000E72200
+      000C006D6D6F535542544954554C4F00020071010000580000002A0100001300
+      000043000000F4010000000000000000FFFFFF1F2C02000000000001000B005B
+      537562546974756C6F5D00000000FFFF00000000000200000001000000000900
+      68656C7665746963610007000000020000000000020000000100020000000000
+      FFFFFF00000000020000000000000000008523000010006D6D6F524F44415045
+      484F52415F4C5600020048000000A5020000500000000C00000043000000F401
+      0000000000000000FFFFFF1F2C020000000000010011005B54494D4520235468
+      683A6D6D3A73735D00000000FFFF000000000002000000010000000509006865
+      6C7665746963610007000000000000000000100000000100020000000000FFFF
+      FF00000000020000000000000000003324000010006D6D6F524F444150455445
+      43534F465400020014020000A5020000CA0000000C00000043000000F4010000
+      000000000000FFFFFF1F2C02000000000001002100746563534F4654202D2054
+      65636E6F6C6F67696120656D2053697374656D61732000000000FFFF00000000
+      00020000000100000005090068656C7665746963610007000000000000000000
+      110000000100020000000000FFFFFF0000000002000000000000000000BD2400
+      000F006D6D6F51554144524F504147494E410002009F020000460000003C0000
+      001D00000043000F00F4010000000000000000FFFFFF1F2C0200000000000000
+      00000000FFFF0000000000020000000100000000090068656C76657469636100
+      07000000000000000000090000000100020000000000FFFFFF00000000020000
+      000000000000005B2500000F006D6D6F524F54554C4F504147494E41000200A2
+      02000054000000200000000C0000004100000001000000000000000000FFFFFF
+      1F2C020000000000010012005B466F6C68615F6F755F706167696E615D3A0000
+      0000FFFF0000000000020000000100000000090068656C766574696361000700
+      0000020000000000000000000100020000000000FFFFFF000000000200000000
+      0000000000E925000009006D6D6F504147494E41000200C30200005400000016
+      0000000C0000004100000001000000000000000000FFFFFF1F2C020000000000
+      010008005B506167696E615D00000000FFFF0000000000020000000100000000
+      090068656C766574696361000700000000000000000001000000010002000000
+      0000FFFFFF00000000020000000000000000007A2600000E006D6D6F524F5455
+      4C4F4C4956524F000200A202000047000000200000000C000000410000000100
+      0000000000000000FFFFFF1F2C020000000000010006004C6976726F3A000000
+      00FFFF0000000000020000000100000000090068656C76657469636100070000
+      00020000000000000000000100020000000000FFFFFF00000000020000000000
+      000000001927000008006D6D6F4C4956524F000200C302000047000000160000
+      000C0000004100000001000000000000000000FFFFFF1F2C0200000000000100
+      1A005B6966285B4C6976726F5D3D302C27272C5B4C6976726F5D295D00000000
+      FFFF0000000000020000000100000000090068656C7665746963610007000000
+      000000000000010000000100020000000000FFFFFF0000000002000000000000
+      000000C827000005006D6D6F4945000200C000000064000000B20000000A0000
+      004300000001000000000000000000FFFFFF1F2C02000000000001002D00492E
+      4553542E3A5B717279506C616E6F7346696C696169732E22696E736372696361
+      6F657374616475616C225D00000000FFFF000000000002000000010000000009
+      0068656C76657469636100070000000000000000001000000001000200000000
+      00FFFFFF00000000020000000000000000006B28000007006D6D6F434E504A00
+      0200C000000059000000B20000000A0000004300000001000000000000000000
+      FFFFFF1F2C02000000000001001F00434E504A3A205B717279506C616E6F7346
+      696C696169732E22636E706A225D00000000FFFF000000000002000000010000
+      0000090068656C76657469636100070000000000000000001000000001000200
+      00000000FFFFFF00000000020000000000000000000A29000008006D6D6F5241
+      5A414F000200C000000044000000B20000001400000043000000010000000000
+      00000000FFFFFF1F2C02000000000001001A005B717279506C616E6F7346696C
+      696169732E2272617A616F225D00000000FFFF00000000000200000001000000
+      06090068656C7665746963610007000000000000000000100000000100020000
+      000000FFFFFF0000000002000000000000000000A62900000D004D656D6F4E6F
+      6D65436F6E7461000200D300000080000000FE0000000C00000041000F00F401
+      0000000000000000FFFFFF1F2C02010100000001001200444553435249C7C34F
+      20444120434F4E544100000000015B0000000000020000000100000000090068
+      656C7665746963610006000000000000000000020000001700020000000000FF
+      FFFF00000000020000000000000000002E2A000005004D656D6F32000200A900
+      0000800000002A0000000C00000041000F00F4010000000000000000FFFFFF1F
+      2C0201010000000100060043D34449474F00000000015B000000000002000000
+      0100000000090068656C76657469636100060000000000000000000200000017
+      00020000000000FFFFFF0000000002000000000000000000B12A000005004D65
+      6D6F350002009F000000800000000A0000000C00000041000F00F40100000000
+      00000000FFFFFF1F2C020101000000010001005400000000015B000000000002
+      0000000100000000090068656C76657469636100060000000000000000000200
+      00001700020000000000FFFFFF0000000002000000000000000000402B000005
+      004D656D6F3600020044000000800000005B0000000C00000041000F00F40100
+      00000000000000FFFFFF1F2C02010100000001000D00434C4153534946494341
+      C7C34F00000000015B0000000000020000000100000000090068656C76657469
+      63610006000000000000000000020000001700020000000000FFFFFF00000000
+      02000000000000000000F42B000005004D656D6F37000200D101000080000000
+      0B0100000C00000041000F00F4010000000000000000FFFFFF1F2C0201010000
+      0001003200504C414E4F20444520434F4E544153205245464552454E4349414C
+      202020202020202020202020202020202020202020202000000000015B000000
+      0000020000000100000000090068656C76657469636100060000000000000000
+      00020000001700020000000000FFFFFF0000000002000000000000000000992C
+      000005004D656D6F38000200AB02000080000000320000000C00000000000F00
+      F4010000000000000000FFFFFF1F2C020101000000010023005B6966285B494E
+      4154495649444144455D3C3E302C27494E415449564F272C2727295D00000000
+      015B0000000000020000000100000000090068656C7665746963610006000000
+      000000000000020000001700020000000000FFFFFF0000000002000000000000
+      0000007B2D000005004D656D6F39000200D10100004D0100000C0100000B0000
+      004300000001000000000000000000FFFFFF1F2C00000007002323232C232323
+      00010059005B717279506C616E6F7346696C696169732E22636C617373696669
+      636163616F7265666572656E6369616C225D2020205B717279506C616E6F7346
+      696C696169732E2264657363726963616F7265666572656E6369616C225D0000
+      0000FFFF0000000000020000000100000000090068656C766574696361000700
+      0000000000000000000000001700020000000000FFFFFF000000000200000000
+      0000000000A52E00000F004D656D6F44617461496E617469766F000200AB0200
+      004D010000330000000B0000000000000001000000000000000000FFFFFF1F2C
+      00000007002323232C2323230000000006000500626567696E0D290020206966
+      205B717279506C616E6F7346696C696169732E22696E617469766F225D3C3E30
+      207468656E0D4500202020206D656D6F203A3D205B464F524D41544441544554
+      494D45282764642F6D6D2F7979272C5B717279506C616E6F7346696C69616973
+      2E22696E617469766F225D295D0D12002020656C7365206D656D6F203A3D2027
+      273B0D00000D0300656E6400FFFF000000000002000000010000000009006865
+      6C7665746963610007000000000000000000010000001700020000000000FFFF
+      FF000000000200000000000000FEFEFF1C0000000B0020496E76656E74617269
+      6F00000000030052756100000000060042616972726F00000000060043696461
+      6465000000000400466F6E650000000006004F75747261730000000005004C69
+      76726F00010031000600506167696E61000100300006004D6178696D6F000400
+      39393939000400434E504A000000001100496E7363726963616F457374616475
+      616C00000000050052617A616F000000000900537562546974756C6F00000000
+      0600546974756C6F00110027504C414E4F20444520434F4E54415327000F0046
+      6F6C68615F6F755F706167696E610008002750E167696E61270009004F726465
+      6E6163616F00010030000B00494E41544956494441444500010030000C002041
+      67727570616D656E746F00000000120041677275706172477275706F46696C69
+      616C00050046616C7365000D004167727570617246696C69616C00050046616C
+      7365000B0020417578696C6961726573000000000E00464F4E4546494C49414C
+      42415345000000000D0052554146494C49414C42415345000000001000424149
+      52524F46494C49414C42415345000000000D0043455046494C49414C42415345
+      00000000100043494441444546494C49414C4241534500000000100045535441
+      444F46494C49414C42415345000000000F0052415A414F46494C49414C424153
+      45000000000000000000000000FC000000000000000000000000000000005800
+      3B4C5D5E3484E340FDB055D354A0E440}
+  end
+  object qryPlanosFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'Condicaotipo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'CondicaoConta'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Movtos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Filiais'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataInatividade'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Ordenacao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      
+        'SELECT   cast(repeat('#39' '#39', length(btrim(pl.classificacao)))||pl.D' +
+        'escricao as varchar) as DescricaoEdentada,'
+      '         pl.classificacao,'
+      '         pl.Codigo,'
+      '         pl.tipo,'
+      '         sc.filial,    '
+      '         f.razao,'
+      '         formatar_cpf_cnpj(f.cnpj) as cnpj,'
+      '         f.inscricaoestadual,'
+      '         pl.inativo,'
+      '         pr.classificacao as classificacaoreferencial,'
+      '         pr.descricao as descricaoreferencial'
+      
+        'from (planocontas pl left join (saldoscontabeis sc join filiais ' +
+        'f on sc.filial = f.codigo)'
+      
+        '                                                                ' +
+        '                   on pl.codigo = sc.conta)'
+      
+        '                     left join planoreferencial pr on pl.referen' +
+        'cia = pr.codigo'
+      
+        'WHERE ((sc.exercicio = EXTRACT(year from cast(:datainicial as da' +
+        'te))) or not cast(:SoComSaldo as boolean))'
+      '     %Condicaotipo'
+      '     %CondicaoConta'
+      '     %Movtos'
+      '     %Filiais'
+      '     %DataInatividade'
+      '%Ordenacao')
+    RequestLive = False
+    Left = 320
+    Top = 142
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SoComSaldo'
+        ParamType = ptUnknown
+      end>
+    object qryPlanosFiliaisdescricaoedentada: TStringField
+      FieldName = 'descricaoedentada'
+      Size = 50
+    end
+    object qryPlanosFiliaisclassificacao: TStringField
+      FieldName = 'classificacao'
+    end
+    object qryPlanosFiliaiscodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryPlanosFiliaistipo: TStringField
+      FieldName = 'tipo'
+      Size = 1
+    end
+    object qryPlanosFiliaisfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryPlanosFiliaisrazao: TStringField
+      FieldName = 'razao'
+      Size = 40
+    end
+    object qryPlanosFiliaiscnpj: TStringField
+      FieldName = 'cnpj'
+      Size = 50
+    end
+    object qryPlanosFiliaisinscricaoestadual: TStringField
+      FieldName = 'inscricaoestadual'
+    end
+    object qryPlanosFiliaisinativo: TDateField
+      FieldName = 'inativo'
+    end
+    object qryPlanosFiliaisclassificacaoreferencial: TStringField
+      FieldName = 'classificacaoreferencial'
+    end
+    object qryPlanosFiliaisdescricaoreferencial: TStringField
+      FieldName = 'descricaoreferencial'
+      Size = 150
+    end
+  end
+  object qryPlanos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'Condicaotipo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'CondicaoConta'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Movtos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Filiais'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataInatividade'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Ordenacao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';SELECT * FROM'
+      '('
+      'SELECT distinct'
+      
+        '         cast(repeat('#39' '#39', length(btrim(pl.classificacao)))||pl.D' +
+        'escricao as varchar) as DescricaoEdentada,'
+      '         pl.descricao,'
+      '         pl.classificacao,'
+      '         pl.Codigo,'
+      '         pl.tipo,'
+      '         pl.inativo,'
+      '         pr.classificacao as classificacaoreferencial,'
+      '         pr.descricao as descricaoreferencial'
+      ''
+      
+        'FROM     planocontas pl left join saldoscontabeis sc on pl.codig' +
+        'o = sc.conta'
+      
+        '                        left join planoreferencial pr on pl.refe' +
+        'rencia = pr.codigo'
+      
+        'WHERE ((sc.exercicio = EXTRACT(year from cast(:datainicial as da' +
+        'te))) or not cast(:SoComSaldo as boolean))'
+      '%Condicaotipo'
+      '%CondicaoConta'
+      '%Movtos'
+      '%Filiais'
+      '%DataInatividade'
+      ') AS pl'
+      '%Ordenacao')
+    RequestLive = False
+    Left = 320
+    Top = 45
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SoComSaldo'
+        ParamType = ptUnknown
+      end>
+    object qryPlanosdescricaoedentada: TStringField
+      FieldName = 'descricaoedentada'
+      Size = 55
+    end
+    object qryPlanosdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 50
+    end
+    object qryPlanosclassificacao: TStringField
+      FieldName = 'classificacao'
+    end
+    object qryPlanoscodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryPlanostipo: TStringField
+      FieldName = 'tipo'
+      Size = 1
+    end
+    object qryPlanosinativo: TDateField
+      Alignment = taCenter
+      FieldName = 'inativo'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryPlanosclassificacaoreferencial: TStringField
+      FieldName = 'classificacaoreferencial'
+    end
+    object qryPlanosdescricaoreferencial: TStringField
+      FieldName = 'descricaoreferencial'
+      Size = 150
+    end
+  end
+  object fdsPlanosFiliais: TfrDBDataSet
+    DataSet = qryPlanosFiliais
+    Left = 288
+    Top = 128
+  end
+  object qryParametros: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select * '
+      'from parametrosfiliais'
+      'where parametro = 269  /*Reatulizar Saldos Cont'#225'bies*/')
+    RequestLive = True
+    Left = 496
+    Top = 160
+    object qryParametrosparametro: TIntegerField
+      FieldName = 'parametro'
+      DisplayFormat = '0'
+    end
+    object qryParametrosfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryParametrosvalor: TStringField
+      FieldName = 'valor'
+      Size = 50
+    end
+  end
+  object qryApagarContaSaldosContabeis: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'delete from saldoscontabeis where conta = :conta')
+    RequestLive = True
+    Left = 160
+    Top = 8
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'conta'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryAtualizarNaturezas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update planocontas set natureza = :natureza'
+      
+        'where position(CAST(:classificacao AS VARCHAR) in  classificacao' +
+        ')=1'
+      '/*  and classificacao<>:classificacao; */'
+      '')
+    RequestLive = True
+    Left = 496
+    Top = 248
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'natureza'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'classificacao'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryPlanoContasVinculado_SinteticasReferencial: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryPlanoContasVinculado_SinteticasReferencialBeforeOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'WhereClassificacao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      
+        'SELECT   cast(repeat('#39' '#39', length(btrim(p.classificacao)))||p.Des' +
+        'cricao as varchar) as Descricao,'
+      '         p.classificacao,'
+      '         p.Codigo,'
+      '         p.tipo,'
+      ''
+      '         (select count(*)'
+      '          from planoreferencial'
+      '          where strpos(classificacao,:ultimaclassificacao)=1'
+      '             and tipo='#39'S'#39
+      '             and classificacao<>:ultimaclassificacao'
+      
+        '             and codigo <> :codigoselecionado) as nsinteticasult' +
+        'ima,'
+      ''
+      '         (select count(*)'
+      '          from planoreferencial'
+      '          where strpos(classificacao,:ultimaclassificacao)=1'
+      '             and tipo='#39'A'#39
+      
+        '             and codigo <> :codigoselecionado) as nanaliticasult' +
+        'ima'
+      ''
+      'FROM     planoreferencial  p'
+      ''
+      'WHERE p.tipo = '#39'S'#39
+      '     AND p.codigo IS NOT NULL'
+      '     and p.tipoplano = :tipoplano'
+      '%WhereClassificacao'
+      ''
+      'ORDER BY p.classificacao')
+    RequestLive = False
+    Left = 120
+    Top = 360
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'ultimaclassificacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'codigoselecionado'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'tipoplano'
+        ParamType = ptUnknown
+      end>
+    object qryPlanoContasVinculado_SinteticasReferencialdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 150
+    end
+    object qryPlanoContasVinculado_SinteticasReferencialclassificacao: TStringField
+      DisplayLabel = 'Classifica'#231#227'o'
+      FieldName = 'classificacao'
+    end
+    object qryPlanoContasVinculado_SinteticasReferencialcodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Visible = False
+      DisplayFormat = '0'
+    end
+    object qryPlanoContasVinculado_SinteticasReferencialtipo: TStringField
+      DisplayLabel = 'Tipo'
+      FieldName = 'tipo'
+      Size = 1
+    end
+    object qryPlanoContasVinculado_SinteticasReferencialnsinteticasultima: TLargeintField
+      FieldName = 'nsinteticasultima'
+    end
+    object qryPlanoContasVinculado_SinteticasReferencialnanaliticasultima: TLargeintField
+      FieldName = 'nanaliticasultima'
+    end
+  end
+  object dsrPlanoContasVinculado_SinteticasReferencial: TtecDataSource
+    DataSet = qryPlanoContasVinculado_SinteticasReferencial
+    Left = 120
+    Top = 408
+  end
+end

@@ -1,0 +1,422 @@
+unit dmRelatorioVendasporSetores;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, ZTransact, DB, ZQuery, ZPgSqlQuery, cpquery,
+  cpdatasource, fr_dset, fr_dbset, fr_class, fmpreviewpadrao, biblio,
+  ctconstantes, CheckLst, variants;
+
+type
+  TdtmRelatorioVendasporSetores = class(TDtmBasico)
+    qryRelatorioVendasporSetores: TtecQuery;
+    frpRelatorioVendasporSetores: TfrReport;
+    fdsRelatorioVendasporSetores: TfrDBDataSet;
+    dsrRelatorioVendasporSetores: TtecDataSource;
+    qryRelatorioVendasporSetorescontrato: TStringField;
+    qryRelatorioVendasporSetoresproduto: TLargeintField;
+    qryRelatorioVendasporSetoresdescricaoproduto: TStringField;
+    qryRelatorioVendasporSetoresquantidade: TFloatField;
+    qryRelatorioVendasporSetoresprecovenda: TFloatField;
+    qryRelatorioVendasporSetoresacrescimo: TFloatField;
+    qryRelatorioVendasporSetoresdesconto: TFloatField;
+    qryRelatorioVendasporSetoreslistacasamento: TIntegerField;
+    qryRelatorioVendasporSetoressetorvenda: TIntegerField;
+    qryRelatorioVendasporSetoresnomesetorvenda: TStringField;
+    qryRelatorioVendasporSetoressituacao: TStringField;
+    qryRelatorioVendasporSetoresprodutovisual: TStringField;
+    qryRelatorioVendasporSetoresfilial: TIntegerField;
+    qryRelatorioVendasporSetoresTotal: TFloatField;
+    qryGrupos: TtecQuery;
+    qryGruposdescricao: TStringField;
+    qryGruposcodigo: TStringField;
+    qrySetoresVenda: TtecQuery;
+    qrySetoresVendacodigo: TIntegerField;
+    qrySetoresVendanome: TStringField;
+    qryClasses: TtecQuery;
+    qryClassesdescricao: TStringField;
+    qryClassescodigo: TStringField;
+    qryRelatorioVendasporSetoresfilialvenda: TIntegerField;
+    qryRelatorioVendasporSetoresnomefilialvenda: TStringField;
+    qryRelatorioVendasporSetoresmarca: TIntegerField;
+    qryRelatorioVendasporSetoresdescricaomarca: TStringField;
+    qryRelatorioVendasporSetoresgrupo: TStringField;
+    qryRelatorioVendasporSetoresdescricaogrupo: TStringField;
+    qryRelatorioVendasporSetoresclasse: TStringField;
+    qryRelatorioVendasporSetoresdescricaoclasse: TStringField;
+    qryRelatorioVendasporSetoresnome_noiva: TStringField;
+    qryRelatorioVendasporSetoresnome_noivo: TStringField;
+    qryRelatorioVendasporSetoresvendedor: TIntegerField;
+    qryRelatorioVendasporSetoresnomevendedor: TStringField;
+    qryRelatorioVendasporSetoresprecotabela: TFloatField;
+    procedure frpRelatorioVendasporSetoresBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure qryRelatorioVendasporSetoresCalcFields(DataSet: TDataSet);
+    procedure frpRelatorioVendasporSetoresGetValue(const ParName: String;
+      var ParValue: Variant);
+  private
+    fqryLista: TtecQuery;
+    function GetListaSetores: TLista;
+    function GetListaClasses: TLista;
+    function GetListaGrupos: TLista;
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    procedure ImprimirRelatorio(DataInicial, DataFinal,
+              ListadeFiliais, ListadeSetores, ListadeVendedores,
+              ListadeGrupos, ListadeClasses, ListadeMarcas: String;
+              ListadeCasamento: integer);
+
+    property ListaSetores: TLista read GetListaSetores;
+    property ListaGrupos: TLista read GetListaGrupos;
+    property ListaClasses: TLista read GetListaClasses;
+
+    function MontarListaGrupos(Grupo: TCheckListBox): String;
+    function MontarListaClasses(Lista: TCheckListBox): String;
+    function MontarListaSetores(Lista: TCheckListBox): String;
+    property qryLista: TtecQuery read fqryLista write fqryLista;
+
+
+  end;
+
+var
+  dtmRelatorioVendasporSetores: TdtmRelatorioVendasporSetores;
+  FListaSetores : TLista;
+  FListaGrupos  : TLista;
+  FListaClasses : TLista;
+
+
+implementation
+uses dmtecsoft;
+
+{$R *.dfm}
+
+{ TdtmRelatorioVendasporSetores }
+
+procedure TdtmRelatorioVendasporSetores.ImprimirRelatorio(DataInicial, DataFinal,
+              ListadeFiliais, ListadeSetores, ListadeVendedores,
+              ListadeGrupos, ListadeClasses, ListadeMarcas: String;
+              ListadeCasamento: integer);
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+  FParametroCabecalho: String;
+  vOrdenacao: String;
+
+begin
+  qryLista.DisableControls;
+
+  FParametroCabecalho := 'Entre ' + DataInicial + ' e ' + DataFinal;
+
+  with qryRelatorioVendasporSetores do
+  begin
+    if ListadeFiliais<>'' then
+      MacroByName('Condicao_filiais').AsString := 'and ct.filialvenda in ('+ListadeFiliais+')'
+    else
+
+    if ListadeSetores<>'' then
+      MacroByName('Condicao_Setores').AsString := 'and setorvenda in ('+ListadeSetores+')'
+    else
+      MacroByName('Condicao_Setores').AsString := '';
+
+    if ListadeVendedores<>'' then
+      MacroByName('Condicao_Vendedores').AsString := 'and coalesce(pc.vendedor, ct.vendedor) in ('+ListadeVendedores+')'
+    else
+      MacroByName('Condicao_Vendedores').AsString := '';
+
+    if ListadeGrupos<>'' then
+      MacroByName('Condicao_grupos').AsString :=  'and ('+ListadeGrupos+')'
+    else
+      MacroByName('Condicao_grupos').AsString := '';
+
+    if ListadeClasses<>'' then
+      MacroByName('Condicao_classes').AsString := 'and ('+ListadeClasses+')'
+    else
+      MacroByName('Condicao_classes').AsString := '';
+
+    if ListadeMarcas<>'' then
+      MacroByName('Condicao_marcas').AsString := 'and ('+ListadeMarcas+')'
+    else
+      MacroByName('Condicao_marcas').AsString := '';
+
+    case ListadeCasamento of
+    0 : begin
+          MacroByName('Condicao_Listacasamento').AsString := 'left join listascasamento lc on selecao.listacasamento = lc.codigo';
+          MacroByName('Condicao_Listacasamento_semlista').AsString := '';
+          ParamByName('comListadeCasamento').asboolean := true;
+        end;
+    1 : begin
+          MacroByName('Condicao_Listacasamento').AsString := 'left join listascasamento lc on selecao.listacasamento = lc.codigo';
+          MacroByName('Condicao_Listacasamento_semlista').AsString := 'and listacasamento is null';
+          ParamByName('comListadeCasamento').asboolean := false;
+        end;
+    2 : begin
+          MacroByName('Condicao_Listacasamento').AsString := 'join listascasamento lc on selecao.listacasamento = lc.codigo';
+          MacroByName('Condicao_Listacasamento_semlista').AsString := '';
+          ParamByName('comListadeCasamento').asboolean := true;
+        end;
+    end;
+
+    qryLista.First;
+    while not qrylista.eof do
+    begin
+      if qrylista.fieldbyname('cabecalho').Asboolean or qrylista.fieldbyname('rodape').Asboolean then
+          vOrdenacao := vOrdenacao + qrylista.fieldbyname('campo').AsString + ' ' + qrylista.fieldbyname('tipo').AsString +', ';
+      qryLista.next;
+    end;
+
+    if vOrdenacao<>'' then
+      vOrdenacao := copy(vOrdenacao, 1, length(vordenacao)-2);
+
+    qryRelatorioVendasporSetores.MacroByName('ordenacao').asstring := 'order by '+vordenacao;
+
+    refazconsultapornome(qryRelatorioVendasporSetores,
+                       ['datainicial','datafinal'],
+                       [FormatDateTime('YYYY-MM-DD',strtodate(DataInicial)),
+                        FormatDateTime('YYYY-MM-DD',strtodate(DataFinal))]);
+
+
+    frVariables['RAZAOFILIALBASE']  := RazaoFilialBase;
+    frVariables['ENDERECO_BAIRRO']   := RuaFilialBase+ ' - '+BairroFilialBase;
+    frVariables['CEP_CIDADE_UF']:= FormatarCEP(CEPFilialBase)+'  '+CidadeFilialBase+ '  '+ EstadoFilialBase;
+    frVariables['Outras']:= FParametroCabecalho;
+//  frpRelatorioVendasporSetores.DesignReport;
+    frmPreview := TfrmPreviewPadrao.create(self);
+    try
+     Relatorio := frmPreview.frCompositeReport;
+     with frmPreview do
+     begin
+      frCompositeReport.Reports.Clear;
+      frCompositeReport.Reports.Add(frpRelatorioVendasporSetores);
+     end;
+     Relatorio.Preview := frmPreview.frPreviewPadrao;
+     Relatorio.ShowReport;
+     frmPreview.ShowModal;
+
+    finally
+
+     frmPreview.Free
+
+    end;
+  end;
+
+  qryLista.enableControls;
+
+
+end;
+
+procedure TdtmRelatorioVendasporSetores.frpRelatorioVendasporSetoresBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpRelatorioVendasporSetores, View);
+end;
+
+procedure TdtmRelatorioVendasporSetores.qryRelatorioVendasporSetoresCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryRelatorioVendasporSetoresTotal.ascurrency := (qryRelatorioVendasporSetoresquantidade.asfloat *
+                                                   qryRelatorioVendasporSetoresprecovenda.asfloat) -
+                                                   qryRelatorioVendasporSetoresdesconto.asFloat +
+                                                   qryRelatorioVendasporSetoresacrescimo.asFloat;
+end;
+
+
+function TdtmRelatorioVendasporSetores.GetListaSetores: TLista;
+Var
+  Ind: Integer;
+begin
+  FillChar(FListaSetores,SizeOf(FListaSetores),0);
+  qrySetoresVenda.Open;
+  SetLength(FListaSetores, qrySetoresVenda.RecordCount);
+  Ind:= 0;
+  while not qrySetoresVenda.Eof do begin
+    FListaSetores[Ind].codigo   := qrySetoresVendacodigo.AsString;
+    FListaSetores[Ind].descricao:= qrySetoresVendanome.AsString;
+    Inc(Ind);
+    qrySetoresVenda.Next;
+  end;
+  qrySetoresVenda.Close;
+  Result := FListaSetores;
+end;
+
+function TdtmRelatorioVendasporSetores.GetListaClasses: TLista;
+Var
+  Ind: Integer;
+begin
+  FillChar(FListaClasses,SizeOf(FListaClasses),0);
+  qryClasses.Open;
+  SetLength(FListaClasses, qryClasses.RecordCount);
+  Ind:= 0;
+  while not qryClasses.Eof do begin
+    FListaClasses[Ind].codigo   := qryClassescodigo.AsString;
+    FListaClasses[Ind].descricao:= qryClassesdescricao.AsString;
+    Inc(Ind);
+    qryClasses.Next;
+  end;
+  qryClasses.Close;
+  Result := FListaClasses;
+end;
+
+function TdtmRelatorioVendasporSetores.GetListaGrupos: TLista;
+Var
+  Ind: Integer;
+begin
+  FillChar(FListaGrupos,SizeOf(FListaGrupos),0);
+  qryGrupos.Open;
+  SetLength(FListaGrupos, qryGrupos.RecordCount);
+  Ind:= 0;
+  while not qryGrupos.Eof do begin
+    FListaGrupos[Ind].codigo   := qryGruposcodigo.AsString;
+    FListaGrupos[Ind].descricao:= qryGruposdescricao.AsString;
+    Inc(Ind);
+    qryGrupos.Next;
+  end;
+  qryGrupos.Close;
+  Result := FListaGrupos;
+end;
+
+
+function TdtmRelatorioVendasporSetores.MontarListaGrupos(Grupo: TCheckListBox): String;
+var
+  STRGrupos: String;
+  Ind: Integer;
+begin
+  STRGrupos := '';
+  for Ind:= 0 to (Length(FListaGrupos) - 1) do
+    if Grupo.Checked[Ind] then
+      STRGrupos := STRGrupos + QuotedStr(FListaGrupos[Ind].codigo) + ',';
+  STRGrupos := Copy(STRGrupos, 0, Length(STRGrupos) - 1);
+  result := STRGrupos;
+end;
+
+function TdtmRelatorioVendasporSetores.MontarListaClasses(Lista: TCheckListBox): String;
+var
+  STR: String;
+  Ind: Integer;
+begin
+  STR := '';
+  for Ind:= 0 to (Length(FListaClasses) - 1) do
+    if Lista.Checked[Ind] then
+      STR := STR + QuotedStr(FListaClasses[Ind].codigo) + ',';
+  STR := Copy(STR, 0, Length(STR) - 1);
+  result := STR;
+end;
+
+function TdtmRelatorioVendasporSetores.MontarListaSetores(Lista: TCheckListBox): String;
+var
+  STR: String;
+  Ind: Integer;
+begin
+  STR := '';
+  for Ind:= 0 to (Length(FListaSetores) - 1) do
+    if Lista.Checked[Ind] then
+      STR := STR + QuotedStr(FListaSetores[Ind].codigo) + ',';
+  STR := Copy(STR, 0, Length(STR) - 1);
+  result := STR;
+end;
+
+constructor TdtmRelatorioVendasporSetores.Create(AOwner: TComponent);
+begin
+  inherited;
+
+end;
+
+procedure TdtmRelatorioVendasporSetores.frpRelatorioVendasporSetoresGetValue(
+  const ParName: String; var ParValue: Variant);
+
+  procedure Posicionar(vrecno: integer);
+  begin
+    qryLista.First;
+    while not qrylista.Eof do
+    begin
+      if qrylista.RecNo = vrecno then
+        break
+      else
+        qrylista.next;
+    end;
+  end;
+
+  procedure AtribuirparametroAgrupamento;
+  begin
+    posicionar(strtoint(somentenumero(ParName)));
+    if not qrylista.fieldbyname('cabecalho').asboolean and
+       not qrylista.fieldbyname('rodape').asboolean then
+      ParValue := null
+    else
+      ParValue := qryRelatorioVendasporSetores.fieldbyname(qrylista.fieldbyname('campo').asstring).AsVariant;
+  end;
+
+  procedure AtribuirparametroAgrupamentoaux;
+  begin
+    posicionar(strtoint(somentenumero(ParName)));
+    if not qrylista.fieldbyname('cabecalho').asboolean and
+       not qrylista.fieldbyname('rodape').asboolean then
+      ParValue := null
+    else
+    if qrylista.fieldbyname('campo').asstring = 'vendedor' then
+      ParValue := qryRelatorioVendasporSetoresnomevendedor.AsVariant
+    else
+    if qrylista.fieldbyname('campo').asstring = 'listacasamento' then
+      ParValue := 'NOIVA: '+qryRelatorioVendasporSetoresnome_noiva.AsVariant + ' NOIVO: '+qryRelatorioVendasporSetoresnome_noivo.AsVariant
+    else
+    if qrylista.fieldbyname('campo').asstring = 'filialvenda' then
+      ParValue := qryRelatorioVendasporSetoresnomefilialvenda.AsVariant
+    else
+    if qrylista.fieldbyname('campo').asstring = 'setorvenda' then
+      ParValue := qryRelatorioVendasporSetoresnomesetorvenda.AsVariant
+    else
+    if qrylista.fieldbyname('campo').asstring = 'marca' then
+      ParValue := qryRelatorioVendasporSetoresdescricaomarca.AsVariant
+    else
+    if qrylista.fieldbyname('campo').asstring = 'classe' then
+      ParValue := qryRelatorioVendasporSetoresdescricaoclasse.AsVariant
+    else
+    if qrylista.fieldbyname('campo').asstring = 'grupo' then
+      ParValue := qryRelatorioVendasporSetoresdescricaogrupo.AsVariant;
+  end;
+
+  procedure AtribuirparametroRotulos;
+  begin
+    posicionar(strtoint(somentenumero(ParName)));
+    if not qrylista.fieldbyname('cabecalho').asboolean and
+       not qrylista.fieldbyname('rodape').asboolean then
+      ParValue := null
+    else
+    ParValue := qrylista.fieldbyname('campodescricao').asstring;
+  end;
+
+  procedure AtribuirparametroCabecalho;
+  begin
+    posicionar(strtoint(somentenumero(ParName)));
+    ParValue := qrylista.fieldbyname('cabecalho').asboolean;
+  end;
+
+  procedure AtribuirparametroRodape;
+  begin
+    posicionar(strtoint(somentenumero(ParName)));
+    ParValue := qrylista.fieldbyname('rodape').asboolean;
+  end;
+
+
+begin
+  inherited;
+  if copy(ParName,1,2)='ag' then
+    AtribuirParametroAgrupamento
+  else
+  if copy(ParName,1,5)='auxag' then
+    AtribuirParametroAgrupamentoaux
+  else
+  if copy(ParName,1,7)='labelag' then
+    AtribuirParametroRotulos
+  else
+  if copy(ParName,1,10)='cabvisible' then
+    AtribuirParametroCabecalho
+  else
+  if copy(ParName,1,10)='rodvisible' then
+    AtribuirParametroRodape;
+end;
+
+end.

@@ -1,0 +1,375 @@
+unit dmextratobonus;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery,
+  cpdatasource, Variants, ZTransact, dmtecsoft;
+
+type
+  TdtmExtratoBonus = class(TdtmBasico)
+    qryBonus: TtecQuery;
+    dsrBonus: TtecDataSource;
+    qryProcuraClientes: TtecQuery;
+    dsrProcuraClientes: TtecDataSource;
+    qryProcuraClientescodigo: TIntegerField;
+    qryProcuraClientesnome: TStringField;
+    qryConsultaClientes: TtecQuery;
+    qryConsultaClientescodigo: TIntegerField;
+    qryConsultaClientesnome: TStringField;
+    qryConsultaClientespessoanumero: TStringField;
+    qryConsultaClientesestado: TStringField;
+    qryConsultaClientesnomecidade: TStringField;
+    qrySaldoAtual: TtecQuery;
+    dsrSaldoAtual: TtecDataSource;
+    qryBonustipo: TStringField;
+    qryBonuscontrato: TStringField;
+    qryBonusdata: TDateField;
+    qryBonusparcela: TIntegerField;
+    qryBonusvalor: TIntegerField;
+    qryProdutosResgate: TtecQuery;
+    dsrProdutosResgate: TtecDataSource;
+    spcContratosProximo: TtecQuery;
+    qryProdutosResgatedescricao: TStringField;
+    qryProdutosResgatevalorgrade1: TStringField;
+    qryProdutosResgatevalorgrade2: TStringField;
+    qryProdutosResgatecodigo: TLargeintField;
+    qryProdutosResgatefilial: TIntegerField;
+    qryProdutosResgateemestoque: TFloatField;
+    qryProdutosResgatereservado: TFloatField;
+    qryProdutosResgatebrinde: TBooleanField;
+    qryProdutosResgateselecionar: TBooleanField;
+    qryProdutosResgatebonus: TFloatField;
+    qryProdutosResgatelinha: TStringField;
+    qryProdutosResgatecoluna: TStringField;
+    qryProdutosContratos: TtecQuery;
+    qryClientes: TtecQuery;
+    qryClientescodigo: TIntegerField;
+    qryClientesnome: TStringField;
+    qryClientesnascto: TDateField;
+    qryClientesapelido: TStringField;
+    qryClientessexo: TStringField;
+    qryClientescivil: TStringField;
+    qryClientescivildata: TDateField;
+    qryClientesiddocumento: TStringField;
+    qryClientesidorgao: TStringField;
+    qryClientesiddata: TDateField;
+    qryClientesidestado: TStringField;
+    qryClientespessoatipo: TStringField;
+    qryClientespessoanumero: TStringField;
+    qryClientesmae: TStringField;
+    qryClientespai: TStringField;
+    qryClientesconceito: TIntegerField;
+    qryClientesnaturalcidade: TIntegerField;
+    qryClientesnaturalestado: TStringField;
+    qryClientesrua: TStringField;
+    qryClientesestado: TStringField;
+    qryClientescidade: TIntegerField;
+    qryClientesbairro: TIntegerField;
+    qryClientescep: TIntegerField;
+    qryClientesfonetipo: TStringField;
+    qryClientesfoneddd: TIntegerField;
+    qryClientesfonenumero: TIntegerField;
+    qryClientesfoneramal: TStringField;
+    qryClientesfone2ddd: TIntegerField;
+    qryClientesfone2numero: TIntegerField;
+    qryClientesfone2ramal: TStringField;
+    qryClientesrestipo: TStringField;
+    qryClientesresonus: TFloatField;
+    qryClientesrestempo: TDateField;
+    qryClientesempresa: TStringField;
+    qryClientesempadmissao: TDateField;
+    qryClientesempcep: TIntegerField;
+    qryClientesempcomprovado: TBooleanField;
+    qryClientesempfoneddd: TIntegerField;
+    qryClientesempfonenumero: TIntegerField;
+    qryClientesempfoneramal: TStringField;
+    qryClientesempoutrasdescricao: TStringField;
+    qryClientesempoutrasfaixa: TIntegerField;
+    qryClientesempoutrasvalor: TFloatField;
+    qryClientesemprendafaixa: TIntegerField;
+    qryClientesemprendavalor: TFloatField;
+    qryClientesemprua: TStringField;
+    qryClientesempestado: TStringField;
+    qryClientesempcidade: TIntegerField;
+    qryClientesempbairro: TIntegerField;
+    qryClientesempcargo: TIntegerField;
+    qryClientesconjuge: TIntegerField;
+    qryClientesconnome: TStringField;
+    qryClientesconadmissao: TDateField;
+    qryClientesconcep: TIntegerField;
+    qryClientesconempresa: TStringField;
+    qryClientesconfoneddd: TIntegerField;
+    qryClientesconfonenumero: TIntegerField;
+    qryClientesconfoneramal: TStringField;
+    qryClientesconnascto: TDateField;
+    qryClientesconrendafaixa: TIntegerField;
+    qryClientesconrendavalor: TFloatField;
+    qryClientesconrua: TStringField;
+    qryClientesconestado: TStringField;
+    qryClientesconcidade: TIntegerField;
+    qryClientesconbairro: TIntegerField;
+    qryClientesconcargo: TIntegerField;
+    qryClientesreferencia: TStringField;
+    qryClientesreftipo: TStringField;
+    qryClientesrefrua: TStringField;
+    qryClientesrefestado: TStringField;
+    qryClientesrefcidade: TIntegerField;
+    qryClientesrefbairro: TIntegerField;
+    qryClientesrefcep: TIntegerField;
+    qryClientesreffoneddd: TIntegerField;
+    qryClientesreffonenumero: TIntegerField;
+    qryClientesreffoneramal: TStringField;
+    qryClientesreffone2ddd: TIntegerField;
+    qryClientesreffone2numero: TIntegerField;
+    qryClientesreffone2ramal: TStringField;
+    qryClientesobservacoes: TStringField;
+    qryClientesemail: TStringField;
+    qryClientesautomovel: TBooleanField;
+    qryClientescartaocredito: TBooleanField;
+    qryClientescartaoloja: TBooleanField;
+    qryClientescheque: TBooleanField;
+    qryClienteschequeespecial: TBooleanField;
+    qryClientesdependentes: TIntegerField;
+    qryClientesonus: TFloatField;
+    qryClientesenderecoalterado: TDateField;
+    qryClientesfilialcadastro: TIntegerField;
+    qryClientesdatacadastro: TDateField;
+    qryClientesultimaalteracao: TDateField;
+    qryProdutosResgatemontagem: TBooleanField;
+    qryProdutosContratoscontrato: TStringField;
+    qryProdutosContratosproduto: TLargeintField;
+    qryProdutosContratosfilial: TIntegerField;
+    qryProdutosContratosnumero: TIntegerField;
+    qryProdutosContratosquantidade: TFloatField;
+    qryProdutosContratosprecovenda: TFloatField;
+    qryProdutosContratosprecotabela: TFloatField;
+    qryProdutosContratosdescricaoprecovenda: TStringField;
+    qryProdutosContratosmontagem: TStringField;
+    qryProdutosContratosentrega: TStringField;
+    qryProdutosContratosprodutolista: TBooleanField;
+    qryProdutosContratoscancelado: TFloatField;
+    qryProdutosContratosdescricao: TStringField;
+    qryProdutosContratoslinha: TStringField;
+    qryProdutosContratoscoluna: TStringField;
+    qryProdutosContratosvalorgrade1: TStringField;
+    qryProdutosContratosvalorgrade2: TStringField;
+    qryProdutosContratosreserva: TFloatField;
+    qryProdutosContratosbrinde: TBooleanField;
+    qryProdutosContratosvendedor: TIntegerField;
+    qryProdutosContratospromocao: TBooleanField;
+    spcContratosProximonumero: TStringField;
+    qryBonuscancelado: TBooleanField;
+    qrySaldoAtualsaldoatual: TIntegerField;
+    qryBonusproduto: TStringField;
+    ZMonitor1: TZMonitor;
+    procedure qryProdutosResgateAfterScroll(DataSet: TDataSet);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+  private
+    FOnScrollLinhaColunaGrade: TNotifyEvent;
+    FClienteContrato: Integer;
+    function GetTabelaConsultaClientes: TtecQuery;
+    function GetTotalProdutos: Integer;
+    function GetQtdeProdutos: Integer;
+    function GetSaldoAtual: Integer;
+    function GetColunadaGrade: String;
+    function GetLinhadaGrade: String;
+
+
+    { Private declarations }
+  public
+    constructor Create(AOwner: TComponent); override;
+
+    procedure Selecionar;
+    procedure ReFazConsultaBonusCliente(Cliente: Integer; Cancelados: Boolean);
+    function  RefazConsultaProdutosResgate: Boolean;
+    procedure MarcarSelecionados(Marcando, Todos: Boolean);
+    function  ExisteClientes(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; overload;
+    function  GerarContrato: Boolean;
+    procedure LimparRegistros;
+    function  GravarProdutosSelecionados: Boolean;
+    property  TabelaConsultaClientes    : TtecQuery read GetTabelaConsultaClientes;
+    property  TotalProdutos             : Integer read GetTotalProdutos;
+    property  QtdeProdutos              : Integer read GetQtdeProdutos;
+    property  SaldoAtual                : Integer read GetSaldoAtual;
+    property  LinhadaGrade              : String read GetLinhadaGrade;
+    property  ColunadaGrade             : String read GetColunadaGrade;
+    property  OnScrollLinhaColunaGrade  : TNotifyEvent read FOnScrollLinhaColunaGrade write FOnScrollLinhaColunaGrade;
+    property  ClienteContrato           : Integer read FClienteContrato write FClienteContrato;
+    { Public declarations }
+  end;
+
+var
+  dtmExtratoBonus: TdtmExtratoBonus;
+
+implementation
+
+{$R *.dfm}
+uses
+  ctconstantes, biblio, clparametrossistema, dmcadastrocontratos;
+
+{ TdtmExtratoBonus }
+
+constructor TdtmExtratoBonus.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryProcuraClientes.Tag := ctTabelas;
+  qryConsultaClientes.Tag := ctCrediarioConsultaClientes;
+  qryBonus.Tag := ctCrediarioConsultaContratos;
+  qrySaldoAtual.Tag := ctCrediarioConsultaContratos;
+  qryProdutosResgate.Tag := ctTabelasConsultaProdutos;
+end;
+
+function TdtmExtratoBonus.ExisteClientes(Parametro: Integer;
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+  if NomeCampo = 'nomecidade' then
+    NomeCampo:= 'c.nome'
+  else
+    NomeCampo:= 'cl.' + NomeCampo;
+  qryConsultaClientes.Sql[06] := ' Where to_ascii(' + NomeCampo + ',''latin1'') ilike to_ascii(''' + Value + '%'',''latin1'')';
+
+  qryConsultaClientes.Open;
+  Result := Not qryConsultaClientes.IsEmpty;
+end;
+
+function TdtmExtratoBonus.GerarContrato: Boolean;
+begin
+  RefazConsulta(qryClientes,[0],[qryProcuraClientescodigo.AsInteger]);
+  Result := True;
+end;
+
+function TdtmExtratoBonus.GetColunadaGrade: String;
+begin
+  Result := PrimeiraLetraEmMaiuscula(qryProdutosResgatecoluna.AsString)
+end;
+
+function TdtmExtratoBonus.GetLinhadaGrade: String;
+begin
+  Result := PrimeiraLetraEmMaiuscula(qryProdutosResgatelinha.AsString)
+end;
+
+function TdtmExtratoBonus.GetSaldoAtual: Integer;
+begin
+  Result := qrySaldoAtualsaldoatual.AsInteger;
+end;
+
+function TdtmExtratoBonus.GetTabelaConsultaClientes: TtecQuery;
+begin
+  Result:= qryConsultaClientes;
+end;
+
+function TdtmExtratoBonus.GetTotalProdutos: Integer;
+begin
+  Result := Trunc(TotalizarValores[qryProdutosResgate,qryProdutosResgatebonus, nil]);
+end;
+
+procedure TdtmExtratoBonus.MarcarSelecionados(Marcando, Todos: Boolean);
+begin
+  MarcarRegistros(qryProdutosResgate,
+                  qryProdutosResgateselecionar,
+                  qryProdutosResgatebonus,
+                  Marcando,
+                  Todos);
+end;
+
+procedure TdtmExtratoBonus.ReFazConsultaBonusCliente(Cliente: Integer; Cancelados: Boolean);
+begin
+  Fecha(ctCrediarioConsultaContratos);
+  Fecha(ctTabelasConsultaProdutos);
+  qryBonus.ParamByName('cliente').AsInteger := Cliente;
+  qryBonus.ParamByName('data').AsDateTime := DataServidor - ParSistema.ValidadeBonus;
+
+  qrySaldoAtual.ParamByName('cliente').AsInteger := Cliente;
+
+  if Cancelados then
+    qryBonus.MacroByName('CANCELADOS').AsString := ''
+  else
+    qryBonus.MacroByName('CANCELADOS').AsString := 'AND NOT cancelado';
+  Abre(ctCrediarioConsultaContratos);
+  if qryBonus.RecordCount = 0 then
+    MensagemAviso('O cliente não possui registros de bônus.');
+end;
+
+function TdtmExtratoBonus.RefazConsultaProdutosResgate: Boolean;
+begin
+  Result := False;
+  if (not qryProdutosResgate.Active) and qryBonus.Active then
+  begin
+    qryProdutosResgate.ParamByName('SaldoAtual').AsInteger := qrySaldoAtualsaldoatual.AsInteger;
+    Abre(ctTabelasConsultaProdutos);
+    Result := True;
+  end;
+end;
+
+procedure TdtmExtratoBonus.Selecionar;
+begin
+  ReFazConsulta(qryProcuraClientes,[0],[qryConsultaClientesCodigo.AsVariant]);
+end;
+
+procedure TdtmExtratoBonus.qryProdutosResgateAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if Assigned(OnScrollLinhaColunaGrade) then
+    OnScrollLinhaColunaGrade(qryProdutosResgate);
+end;
+
+function TdtmExtratoBonus.GravarProdutosSelecionados: Boolean;
+var
+  Cont: Integer;
+  Flag: Boolean;
+begin
+  Flag := True;
+  qryProdutosResgate.DisableControls;
+  qryProdutosResgate.First;
+  Cont := 0;
+  while not qryProdutosResgate.Eof do
+  begin
+    if qryProdutosResgateselecionar.AsBoolean then
+    begin
+      dtmCadastroContratos.IncluirProdutosContrato;
+
+      Flag := dtmCadastroContratos.GravarProdutosBonus(qryProdutosResgatecodigo.AsString,
+                                                         qryProdutosResgatefilial.AsInteger);
+
+      Inc(Cont);
+    end;
+    if (Cont < QtdeMarcados) and Flag then
+      qryProdutosResgate.Next
+    else
+      Break;
+  end;
+  Result := Flag;
+end;
+
+function TdtmExtratoBonus.GetQtdeProdutos: Integer;
+begin
+  Result := qryProdutosResgate.RecordCount;
+end;
+
+procedure TdtmExtratoBonus.LimparRegistros;
+begin
+  QtdeMarcados := 0;
+  TotalMarcados:= 0;
+end;
+
+
+
+procedure TdtmExtratoBonus.ZMonitor1MonitorEvent(Sql, Result: String);
+var
+ Listar : TStringList;
+ arquivo: String;
+begin
+  inherited;
+  Listar := tStringlist.Create;
+  arquivo := 'c:\bonus.sql';
+  if fileexists(arquivo) then
+    Listar.loadfromfile(arquivo);
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile(arquivo);
+  listar.free;
+end;
+end.

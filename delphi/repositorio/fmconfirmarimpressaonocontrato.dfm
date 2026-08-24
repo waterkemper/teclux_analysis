@@ -1,6 +1,7 @@
 inherited frmConfirmarImpressaoNoContrato: TfrmConfirmarImpressaoNoContrato
   Left = 654
   Top = 223
+  BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Impress'#245'es do Contrato'
   ClientHeight = 276

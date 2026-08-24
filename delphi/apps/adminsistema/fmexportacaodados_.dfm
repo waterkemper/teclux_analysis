@@ -1,0 +1,1115 @@
+inherited frmExportacaoDados: TfrmExportacaoDados
+  Left = 394
+  Top = 162
+  ActiveControl = edfCodigo
+  BorderIcons = [biSystemMenu, biMinimize, biMaximize]
+  Caption = 'Exporta'#231#227'o de dados'
+  ClientHeight = 584
+  ClientWidth = 827
+  FormStyle = fsMDIChild
+  Visible = True
+  PixelsPerInch = 96
+  TextHeight = 16
+  object gbxDefinicao: TGroupBox [0]
+    Left = 0
+    Top = 96
+    Width = 827
+    Height = 488
+    Align = alClient
+    Caption = 'DEFINI'#199#213'ES'
+    Color = clBtnFace
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = 11
+    Font.Name = 'Arial'
+    Font.Pitch = fpVariable
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 2
+    object gbxTabelas: TGroupBox
+      Left = 2
+      Top = 61
+      Width = 178
+      Height = 425
+      Align = alLeft
+      Caption = 'TABELAS'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = 11
+      Font.Name = 'Arial'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 0
+      object dbgTabelas: TtecDBGrid
+        Left = 2
+        Top = 13
+        Width = 174
+        Height = 410
+        Align = alClient
+        DataSource = dtmExportacaoDados.dsrExportacaoTabelas
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = 11
+        Font.Name = 'Arial'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgTabs, dgRowSelect, dgCancelOnExit]
+        ParentFont = False
+        TabOrder = 0
+        TitleFont.Charset = DEFAULT_CHARSET
+        TitleFont.Color = clBlack
+        TitleFont.Height = 9
+        TitleFont.Name = 'Arial'
+        TitleFont.Pitch = fpVariable
+        TitleFont.Style = []
+        OnDrawColumnCell = dbgTabelasDrawColumnCell
+        RowWrap = 60
+        Large = False
+        DoubleRowColor = False
+        TitleMinHeight = 100
+        CellHeights = 100
+        StrippedColor = 16054260
+        CanDelete = False
+        CanNotInsertFromGrid = False
+        PostOnEnter = False
+        PostOnSetUpDown = False
+        DenySort = False
+        DefaultRowHeight = 13
+        ExibirNumerodaLinha = False
+        NaoAtribuirDadosaTabelaaoDigitar = False
+        ShowWhenFieldInvisible = False
+        CanClickWhenEditing = False
+        Columns = <
+          item
+            Expanded = False
+            FieldName = 'descricao'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = 9
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            Title.Caption = 'DESCRI'#199#195'O'
+            Width = 138
+            Visible = True
+          end>
+      end
+    end
+    object pgcCamposFiltrosSelecao: TtecPageControl
+      Left = 180
+      Top = 61
+      Width = 645
+      Height = 425
+      ActivePage = tstCampos
+      Align = alClient
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = 13
+      Font.Name = 'Arial'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+      OnChange = pgcCamposFiltrosSelecaoChange
+      object tstCampos: TTabSheet
+        Caption = 'Campos'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = 9
+        Font.Name = 'Arial'
+        Font.Pitch = fpVariable
+        Font.Style = [fsBold]
+        ParentFont = False
+        object pnlSecionarCampos: TPanel
+          Left = 207
+          Top = 0
+          Width = 25
+          Height = 397
+          Align = alLeft
+          BevelOuter = bvNone
+          TabOrder = 0
+          object sbnRetirarCampo: TSpeedButton
+            Left = 1
+            Top = 200
+            Width = 23
+            Height = 22
+            Hint = 'Remover campo'
+            Caption = '<'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = 12
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            ParentFont = False
+            OnClick = sbnRetirarCampoClick
+          end
+          object sbnRetirarCampos: TSpeedButton
+            Left = 1
+            Top = 224
+            Width = 23
+            Height = 22
+            Hint = 'Remover todos campos'
+            Caption = '<<'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = 12
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            ParentFont = False
+            OnClick = sbnRetirarCamposClick
+          end
+          object sbnSelecionarCampo: TSpeedButton
+            Left = 1
+            Top = 144
+            Width = 23
+            Height = 22
+            Hint = 'Adicionar campo'
+            Caption = '>'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = 12
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            ParentFont = False
+            OnClick = sbnSelecionarCampoClick
+          end
+          object sbnSelecionarCampos: TSpeedButton
+            Left = 1
+            Top = 168
+            Width = 23
+            Height = 22
+            Hint = 'Adicionar todos campos'
+            Caption = '>>'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = 12
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            ParentFont = False
+            OnClick = sbnSelecionarCamposClick
+          end
+          object sbnSubirCampo: TSpeedButton
+            Left = 0
+            Top = 88
+            Width = 23
+            Height = 22
+            Hint = 'Mover o  campo para cima'
+            Glyph.Data = {
+              6E000000424D6E000000000000003E000000280000000C0000000C0000000100
+              01000000000030000000120B0000120B00000200000002000000FFFFFF000000
+              0000000FFFFF000FFFFF070FFFFF070FFFFF070FFFFF1FCFFFFF0F8FFFFF070F
+              FFFF020FFFFF000FFFFF000FFFFF000FFFFF}
+            OnClick = sbnSubirCampoClick
+          end
+          object sbnDescerCampo: TSpeedButton
+            Left = 0
+            Top = 112
+            Width = 23
+            Height = 22
+            Hint = 'Mover o campo para baixo'
+            Glyph.Data = {
+              6E000000424D6E000000000000003E000000280000000C0000000C0000000100
+              01000000000030000000120B0000120B00000200000002000000FFFFFF000000
+              0000000FFFFF000FFFFF000FFFFF020FFFFF070FFFFF0F8FFFFF1FCFFFFF070F
+              FFFF070FFFFF070FFFFF000FFFFF000FFFFF}
+            OnClick = sbnDescerCampoClick
+          end
+        end
+        object dbgCamposSelecionados: TtecDBGrid
+          Left = 232
+          Top = 0
+          Width = 405
+          Height = 397
+          Align = alClient
+          DataSource = dtmExportacaoDados.dsrExportacaoCampos
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = 11
+          Font.Name = 'Arial'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColLines, dgTabs, dgCancelOnExit]
+          ParentFont = False
+          TabOrder = 1
+          TitleFont.Charset = DEFAULT_CHARSET
+          TitleFont.Color = clBlack
+          TitleFont.Height = 9
+          TitleFont.Name = 'Arial'
+          TitleFont.Pitch = fpVariable
+          TitleFont.Style = [fsBold]
+          OnDblClick = dbgCamposSelecionadosDblClick
+          OnKeyDown = dbgCamposSelecionadosKeyDown
+          RowWrap = 60
+          Large = False
+          DoubleRowColor = False
+          TitleMinHeight = 100
+          CellHeights = 100
+          StrippedColor = 16054260
+          CanDelete = False
+          CanNotInsertFromGrid = False
+          PostOnEnter = False
+          PostOnSetUpDown = False
+          DenySort = False
+          DefaultRowHeight = 13
+          ExibirNumerodaLinha = False
+          NaoAtribuirDadosaTabelaaoDigitar = False
+          ShowWhenFieldInvisible = False
+          CanClickWhenEditing = False
+          Columns = <
+            item
+              Expanded = False
+              FieldName = 'sequencia'
+              Title.Alignment = taCenter
+              Title.Caption = 'N'#176
+              Width = 25
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'campo'
+              Title.Caption = 'CAMPO'
+              Width = 163
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'mascara'
+              Title.Caption = 'M'#193'SCARA'
+              Width = 100
+              Visible = True
+            end
+            item
+              Alignment = taCenter
+              Expanded = False
+              FieldName = 'delimitador'
+              Title.Caption = 'SEPARADOR'
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'tipo'
+              PickList.Strings = (
+                'CARACTER'
+                'DATA'
+                'DATA/HORA'
+                'HORA'
+                'L'#211'GICO'
+                'INTEIRO'
+                'NUM'#201'RICO')
+              Title.Caption = 'TIPO'
+              Width = 100
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'tamanho'
+              Title.Alignment = taCenter
+              Title.Caption = 'TAM.'
+              Width = 30
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'decimais'
+              Title.Alignment = taCenter
+              Title.Caption = 'DEC.'
+              Width = 30
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'campocriado'
+              Title.Caption = 'ALTER'#193'VEL'
+              Width = 64
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'valorpadrao'
+              Title.Caption = 'VALOR PADR'#195'O'
+              Width = 120
+              Visible = True
+            end>
+        end
+        object dbgCamposTabela: TtecDBGrid
+          Left = 0
+          Top = 0
+          Width = 207
+          Height = 397
+          Align = alLeft
+          DataSource = dtmExportacaoDados.dsrExportacaoTabelaCampos
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = 11
+          Font.Name = 'Arial'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgTabs, dgCancelOnExit]
+          ParentFont = False
+          TabOrder = 2
+          TitleFont.Charset = DEFAULT_CHARSET
+          TitleFont.Color = clBlack
+          TitleFont.Height = 9
+          TitleFont.Name = 'Arial'
+          TitleFont.Pitch = fpVariable
+          TitleFont.Style = [fsBold]
+          OnCellClick = dbgCamposTabelaCellClick
+          OnDblClick = dbgCamposTabelaDblClick
+          RowWrap = 60
+          Large = False
+          DoubleRowColor = False
+          TitleMinHeight = 100
+          CellHeights = 100
+          StrippedColor = 16054260
+          CanDelete = False
+          CanNotInsertFromGrid = False
+          PostOnEnter = False
+          PostOnSetUpDown = False
+          DenySort = False
+          DefaultRowHeight = 13
+          ExibirNumerodaLinha = False
+          NaoAtribuirDadosaTabelaaoDigitar = False
+          ShowWhenFieldInvisible = False
+          CanClickWhenEditing = False
+          Columns = <
+            item
+              Expanded = False
+              FieldName = 'nomecampo'
+              Title.Caption = 'CAMPO'
+              Width = 170
+              Visible = True
+            end>
+        end
+      end
+      object tstFiltros: TTabSheet
+        Caption = 'Filtros'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = 11
+        Font.Name = 'Arial'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ImageIndex = 1
+        ParentFont = False
+        object dbgExportacaoFiltros: TtecDBGrid
+          Left = 232
+          Top = 0
+          Width = 209
+          Height = 397
+          Align = alLeft
+          DataSource = dtmExportacaoDados.dsrExportacaoFiltros
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = 11
+          Font.Name = 'Arial'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgTabs, dgCancelOnExit]
+          ParentFont = False
+          TabOrder = 0
+          TitleFont.Charset = DEFAULT_CHARSET
+          TitleFont.Color = clBlack
+          TitleFont.Height = 13
+          TitleFont.Name = 'Arial'
+          TitleFont.Pitch = fpVariable
+          TitleFont.Style = []
+          OnDblClick = dbgExportacaoFiltrosDblClick
+          RowWrap = 60
+          Large = False
+          DoubleRowColor = False
+          TitleMinHeight = 100
+          CellHeights = 100
+          StrippedColor = 16054260
+          CanDelete = False
+          CanNotInsertFromGrid = False
+          PostOnEnter = False
+          PostOnSetUpDown = False
+          DenySort = False
+          DefaultRowHeight = 13
+          ExibirNumerodaLinha = False
+          NaoAtribuirDadosaTabelaaoDigitar = False
+          ShowWhenFieldInvisible = False
+          CanClickWhenEditing = False
+          Columns = <
+            item
+              Expanded = False
+              FieldName = 'descricao'
+              Title.Font.Charset = DEFAULT_CHARSET
+              Title.Font.Color = clBlack
+              Title.Font.Height = 9
+              Title.Font.Name = 'Arial'
+              Title.Font.Pitch = fpVariable
+              Title.Font.Style = []
+              Width = 170
+              Visible = True
+            end>
+        end
+        object pnlSelecionarFiltros: TPanel
+          Left = 207
+          Top = 0
+          Width = 25
+          Height = 397
+          Align = alLeft
+          BevelOuter = bvNone
+          TabOrder = 1
+          object sbnRetirarFiltro: TSpeedButton
+            Left = 1
+            Top = 200
+            Width = 23
+            Height = 22
+            Hint = 'Remover campo'
+            Caption = '<'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = 12
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            ParentFont = False
+            OnClick = sbnRetirarFiltroClick
+          end
+          object sbnRetirarFiltros: TSpeedButton
+            Left = 1
+            Top = 224
+            Width = 23
+            Height = 22
+            Hint = 'Remover todos campos'
+            Caption = '<<'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = 12
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            ParentFont = False
+            OnClick = sbnRetirarFiltrosClick
+          end
+          object sbnSelecionarFiltro: TSpeedButton
+            Left = 1
+            Top = 144
+            Width = 23
+            Height = 22
+            Hint = 'Adicionar campo'
+            Caption = '>'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = 12
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            ParentFont = False
+            OnClick = sbnSelecionarFiltroClick
+          end
+          object sbnSelecionarFiltros: TSpeedButton
+            Left = 1
+            Top = 168
+            Width = 23
+            Height = 22
+            Hint = 'Adicionar todos campos'
+            Caption = '>>'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = 12
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            ParentFont = False
+            OnClick = sbnSelecionarFiltrosClick
+          end
+          object sbnSubirFiltro: TSpeedButton
+            Left = 0
+            Top = 88
+            Width = 23
+            Height = 22
+            Hint = 'Mover o  campo para cima'
+            Glyph.Data = {
+              6E000000424D6E000000000000003E000000280000000C0000000C0000000100
+              01000000000030000000120B0000120B00000200000002000000FFFFFF000000
+              0000000FFFFF000FFFFF070FFFFF070FFFFF070FFFFF1FCFFFFF0F8FFFFF070F
+              FFFF020FFFFF000FFFFF000FFFFF000FFFFF}
+            OnClick = sbnSubirFiltroClick
+          end
+          object sbnDescerFiltro: TSpeedButton
+            Left = 0
+            Top = 112
+            Width = 23
+            Height = 22
+            Hint = 'Mover o campo para baixo'
+            Glyph.Data = {
+              6E000000424D6E000000000000003E000000280000000C0000000C0000000100
+              01000000000030000000120B0000120B00000200000002000000FFFFFF000000
+              0000000FFFFF000FFFFF000FFFFF020FFFFF070FFFFF0F8FFFFF1FCFFFFF070F
+              FFFF070FFFFF070FFFFF000FFFFF000FFFFF}
+            OnClick = sbnDescerFiltroClick
+          end
+        end
+        object dbgFiltrosTabelas: TtecDBGrid
+          Left = 0
+          Top = 0
+          Width = 207
+          Height = 397
+          Align = alLeft
+          DataSource = dtmExportacaoDados.dsrFiltros
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = 11
+          Font.Name = 'Arial'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgTabs, dgCancelOnExit]
+          ParentFont = False
+          TabOrder = 2
+          TitleFont.Charset = DEFAULT_CHARSET
+          TitleFont.Color = clBlack
+          TitleFont.Height = 13
+          TitleFont.Name = 'Arial'
+          TitleFont.Pitch = fpVariable
+          TitleFont.Style = []
+          OnCellClick = dbgCamposTabelaCellClick
+          OnDblClick = dbgFiltrosTabelasDblClick
+          RowWrap = 60
+          Large = False
+          DoubleRowColor = False
+          TitleMinHeight = 100
+          CellHeights = 100
+          StrippedColor = 16054260
+          CanDelete = False
+          CanNotInsertFromGrid = False
+          PostOnEnter = False
+          PostOnSetUpDown = False
+          DenySort = False
+          DefaultRowHeight = 13
+          ExibirNumerodaLinha = False
+          NaoAtribuirDadosaTabelaaoDigitar = False
+          ShowWhenFieldInvisible = False
+          CanClickWhenEditing = False
+          Columns = <
+            item
+              Expanded = False
+              FieldName = 'descricao'
+              Title.Font.Charset = DEFAULT_CHARSET
+              Title.Font.Color = clBlack
+              Title.Font.Height = 9
+              Title.Font.Name = 'Arial'
+              Title.Font.Pitch = fpVariable
+              Title.Font.Style = []
+              Width = 170
+              Visible = True
+            end>
+        end
+        object gbxInstrucao: TGroupBox
+          Left = 441
+          Top = 0
+          Width = 196
+          Height = 397
+          Align = alClient
+          Caption = 'INSTRU'#199#195'O SQL'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = 9
+          Font.Name = 'Arial'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 3
+          object Bevel1: TBevel
+            Left = 2
+            Top = 11
+            Width = 192
+            Height = 8
+            Align = alTop
+            Shape = bsSpacer
+          end
+          object mmoInstrucaoSQL: TtecDBMemo
+            Left = 2
+            Top = 19
+            Width = 192
+            Height = 368
+            Align = alClient
+            DataField = 'sql'
+            DataSource = dtmExportacaoDados.dsrExportacaoFiltros
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = 11
+            Font.Name = 'Arial'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 0
+          end
+        end
+      end
+      object tstParametros: TTabSheet
+        Caption = 'Par'#226'metros'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = 9
+        Font.Name = 'Arial'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ImageIndex = 2
+        ParentFont = False
+        object scrParametros: TScrollBox
+          Left = 0
+          Top = 0
+          Width = 637
+          Height = 389
+          Align = alClient
+          BorderStyle = bsNone
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = 11
+          Font.Name = 'Arial'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+        end
+      end
+      object tstDados: TTabSheet
+        Caption = 'Dados'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = 9
+        Font.Name = 'Arial'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ImageIndex = 3
+        ParentFont = False
+        object dbgDados: TtecDBGrid
+          Left = 0
+          Top = 0
+          Width = 637
+          Height = 377
+          Align = alClient
+          DataSource = dtmExportacaoDados.dsrExportacaoDados
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = 11
+          Font.Name = 'Arial'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          TitleFont.Charset = DEFAULT_CHARSET
+          TitleFont.Color = clBlack
+          TitleFont.Height = 13
+          TitleFont.Name = 'Arial'
+          TitleFont.Pitch = fpVariable
+          TitleFont.Style = []
+          RowWrap = 60
+          Large = False
+          DoubleRowColor = False
+          TitleMinHeight = 100
+          CellHeights = 100
+          StrippedColor = 16054260
+          CanDelete = False
+          CanNotInsertFromGrid = False
+          PostOnEnter = False
+          PostOnSetUpDown = False
+          DenySort = False
+          DefaultRowHeight = 14
+          ExibirNumerodaLinha = False
+          NaoAtribuirDadosaTabelaaoDigitar = False
+          ShowWhenFieldInvisible = False
+          CanClickWhenEditing = False
+        end
+        object StatusBar1: TStatusBar
+          Left = 0
+          Top = 377
+          Width = 637
+          Height = 20
+          Panels = <
+            item
+              Text = 'TOTAL DE REGISTROS:'
+              Width = 200
+            end>
+        end
+      end
+    end
+    object gbxModelo: TGroupBox
+      Left = 2
+      Top = 13
+      Width = 823
+      Height = 48
+      Align = alTop
+      Color = clBtnFace
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = 9
+      Font.Name = 'Arial'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentColor = False
+      ParentFont = False
+      TabOrder = 2
+      object lblSeparador: TLabel
+        Left = 456
+        Top = 16
+        Width = 57
+        Height = 9
+        Caption = 'SEPARADORES:'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = 9
+        Font.Name = 'Arial'
+        Font.Pitch = fpVariable
+        Font.Style = [fsBold, fsUnderline]
+        ParentFont = False
+      end
+      object lblSeparadorDecimal: TLabel
+        Left = 549
+        Top = 16
+        Width = 31
+        Height = 9
+        Caption = 'DECIMAL'
+      end
+      object lblSeparadordeColuna: TLabel
+        Left = 712
+        Top = 16
+        Width = 29
+        Height = 9
+        Caption = 'COLUNA'
+      end
+      object lblSeparadordeMilhar: TLabel
+        Left = 627
+        Top = 16
+        Width = 26
+        Height = 9
+        Caption = 'MILHAR'
+      end
+      object gbxNomeArquivo: TGroupBox
+        Left = 5
+        Top = 6
+        Width = 225
+        Height = 36
+        Caption = 'NOME DO ARQUIVO'
+        TabOrder = 0
+        object edtNomeArquivo: TDBEditTexto
+          Left = 2
+          Top = 10
+          Width = 220
+          Height = 18
+          DataField = 'nomearquivo'
+          DataSource = dtmExportacaoDados.dsrExportacaoModelos
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = 11
+          Font.Name = 'Arial'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          MaxLength = -1
+          ParentFont = False
+          TabOrder = 0
+          CharCasenoDefault = False
+          Alignment = taLeftJustify
+        end
+      end
+      object gbxExtensao: TGroupBox
+        Left = 234
+        Top = 6
+        Width = 198
+        Height = 36
+        Caption = 'COMPLEMENTO DO NOME'
+        TabOrder = 1
+        object dtxExtensao: TtecDBText
+          Left = 2
+          Top = 14
+          Width = 193
+          Height = 18
+          TabStop = False
+          Color = clBtnFace
+          DataField = 'extensao'
+          DataSource = dtmExportacaoDados.dsrParametrosSelecao
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = 11
+          Font.Name = 'Arial'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          ReadOnly = True
+          TabOrder = 0
+          Alignment = taLeftJustify
+        end
+      end
+    end
+    object ckbReatualizarConsulta: TCheckBox
+      Left = 448
+      Top = 65
+      Width = 137
+      Height = 17
+      Caption = 'Reatualizar a consulta'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = 11
+      Font.Name = 'Arial'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 3
+    end
+  end
+  inherited pnlBarra: TPanel
+    Left = 0
+    Top = 45
+    Width = 827
+    Height = 51
+    Align = alTop
+    BevelOuter = bvNone
+    Visible = True
+    inherited bvlBotoesEd: TBevel
+      Height = 0
+    end
+    object gbxCadastroExportacao: TGroupBox
+      Left = 0
+      Top = 0
+      Width = 827
+      Height = 52
+      Align = alTop
+      Caption = 'PADR'#195'O PARA EXPORTA'#199#195'O'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = 11
+      Font.Name = 'Arial'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 0
+      object gbxDescricaoExportacao: TGroupBox
+        Left = 70
+        Top = 12
+        Width = 605
+        Height = 36
+        Caption = 'DESCRI'#199#195'O'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = 9
+        Font.Name = 'Arial'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 1
+        object edtDescricaoExportacao: TDBEditTexto
+          Left = 2
+          Top = 10
+          Width = 600
+          Height = 21
+          DataField = 'descricao'
+          DataSource = dtmExportacaoDados.dsrExportacao
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = 13
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          MaxLength = -1
+          ParentFont = False
+          TabOrder = 0
+          CharCasenoDefault = False
+          Alignment = taLeftJustify
+        end
+      end
+      object gbxCodigoExportacao: TGroupBox
+        Left = 4
+        Top = 12
+        Width = 62
+        Height = 36
+        Caption = 'C'#211'DIGO'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = 9
+        Font.Name = 'Arial'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        object edfCodigo: TtecDbEditFind
+          Left = 2
+          Top = 10
+          Width = 57
+          Height = 21
+          Alignment = taLeftJustify
+          DataField = 'codigo'
+          DataSource = dtmExportacaoDados.dsrExportacao
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = 13
+          Font.Name = 'Arial'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          Group = 'CodigoExportacao'
+          MaxLength = 6
+          Maximo = 0
+          Minimo = 37353
+          Adicional = 0
+          Opcional = True
+          OnFound = edfCodigoFound
+          ParentFont = False
+          TabOrder = 0
+          PermitirZero = False
+          PermitirNulo = False
+          Operacao = opATRIBUICAO
+          Parameter = 'codigo'
+          ActiveSetControls = True
+          DenyInsert = True
+          NoSetControls = <>
+          SetControls = <
+            item
+              Control = gbxDescricaoExportacao
+            end
+            item
+              Control = gbxDefinicao
+            end>
+        end
+      end
+    end
+  end
+  inherited pnlTopMenu: TPanel
+    Width = 827
+    inherited tblBarra: TToolBar
+      Width = 602
+      object sbnGerar: TSpeedButton
+        Left = 84
+        Top = 2
+        Width = 75
+        Height = 39
+        Hint = 'Gerar consulta de requisi'#231#227'o(s)'
+        Caption = 'Gerar F7'
+        Flat = True
+        Glyph.Data = {
+          36060000424D3606000000000000360000002800000020000000100000000100
+          18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDC808080000000808080DCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A058
+          5858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC80808000000080808000000000FFFF000000808080000000808080DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858A0A0A0585858FF
+          FFFF585858A0A0A0585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC00000000FFFF80808000000000FFFF00000080808000FFFF000000DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC585858DCDCDCA0A0A0585858DC
+          DCDC585858A0A0A0DCDCDC585858FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC80808080808000FFFF00FFFF00FFFF00FFFF00FFFF808080808080DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0A0A0A0DCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCA0A0A0A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          80808000000000000000FFFF80808000000080808000FFFF0000000000008080
+          80DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858585858DCDCDCA0A0A058
+          5858A0A0A0DCDCDC585858585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          00000000FFFF00FFFF00FFFF000000DCDCDC00000000FFFF00FFFF00FFFF0000
+          00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC585858DCDCDCDCDCDCDCDCDC585858DC
+          DCDC585858FFFFFFDCDCDCDCDCDC585858FFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          80808000000000000000FFFF80808000000080808000FFFF0000000000008080
+          80DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858585858DCDCDCA0A0A058
+          5858A0A0A0DCDCDC585858585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC80808080808000FFFF00FFFF00FFFF00FFFF00FFFF808080808080DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0A0A0A0DCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCA0A0A0A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC00000000FFFF80808000000000FFFF00000080808000FFFF000000DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC585858DCDCDCA0A0A0585858DC
+          DCDC585858A0A0A0DCDCDC585858FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC80808000000080808000000000FFFF000000808080000000808080DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858A0A0A0585858FF
+          FFFF585858A0A0A0585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDC808080000000808080DCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A058
+          5858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+        Layout = blGlyphTop
+        NumGlyphs = 2
+        Spacing = 0
+        OnClick = sbnGerarClick
+      end
+    end
+  end
+  object pnlDados: TPanel
+    Left = 414
+    Top = 157
+    Width = 34
+    Height = 20
+    BevelOuter = bvNone
+    TabOrder = 3
+    object sbnRefazerConsulta: TSpeedButton
+      Left = 3
+      Top = 1
+      Width = 27
+      Height = 20
+      Hint = 'Refazer a consulta'
+      Flat = True
+      Glyph.Data = {
+        36060000424D3606000000000000360000002800000020000000100000000100
+        18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDC808080000000808080DCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A058
+        5858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDC80808000000080808000000000FFFF000000808080000000808080DCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858A0A0A0585858FF
+        FFFF585858A0A0A0585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDC00000000FFFF80808000000000FFFF00000080808000FFFF000000DCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC585858DCDCDCA0A0A0585858DC
+        DCDC585858A0A0A0DCDCDC585858FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDC80808080808000FFFF00FFFF00FFFF00FFFF00FFFF808080808080DCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0A0A0A0DCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCA0A0A0A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        80808000000000000000FFFF80808000000080808000FFFF0000000000008080
+        80DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858585858DCDCDCA0A0A058
+        5858A0A0A0DCDCDC585858585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+        00000000FFFF00FFFF00FFFF000000DCDCDC00000000FFFF00FFFF00FFFF0000
+        00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC585858DCDCDCDCDCDCDCDCDC585858DC
+        DCDC585858FFFFFFDCDCDCDCDCDC585858FFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+        80808000000000000000FFFF80808000000080808000FFFF0000000000008080
+        80DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858585858DCDCDCA0A0A058
+        5858A0A0A0DCDCDC585858585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDC80808080808000FFFF00FFFF00FFFF00FFFF00FFFF808080808080DCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0A0A0A0DCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCA0A0A0A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDC00000000FFFF80808000000000FFFF00000080808000FFFF000000DCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC585858DCDCDCA0A0A0585858DC
+        DCDC585858A0A0A0DCDCDC585858FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDC80808000000080808000000000FFFF000000808080000000808080DCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A0585858A0A0A0585858FF
+        FFFF585858A0A0A0585858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDC808080000000808080DCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCA0A0A058
+        5858A0A0A0FFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+        DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+      Layout = blGlyphTop
+      NumGlyphs = 2
+      Spacing = 0
+      OnClick = sbnRefazerConsultaClick
+    end
+  end
+end

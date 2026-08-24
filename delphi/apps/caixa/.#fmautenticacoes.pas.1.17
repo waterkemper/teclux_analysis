@@ -1,0 +1,2931 @@
+unit fmautenticacoes;
+
+interface
+
+uses
+
+  //CLX
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  Grids, DBGrids, StdCtrls, Mask, ComCtrls, ExtCtrls, Buttons, DBCtrls,
+  Windows, Menus, DB, ActnList,
+  //Terceiros
+  ZQuery, ZPgSqlQuery,
+  //Biblio,
+  ctconstantes, clparametrossistema,
+  //Repositorio
+  fmcadastropadrao, frtelefone, frfoneramal, frendereco, frcgcoucpf,
+  fmconsultabasica, fmconsultaporcampo, fmajudabt, frdadoscliente,
+  //Projeto
+  dmautenticacoes, fmvalorparcial, fmimpressaoautenticacao, clhistorico,
+  fmconsultafitadecaixa, frcmc7, frcgccpf,
+  //Componentes
+  cpdbgrid, cpdbfindcontrols, cpdbdata, cptexto, cpnumero, cpdata,
+  cpdbtext, cpquery, cppagecontrol, cpdbmemo, fmvalortransferencia, ToolWin,
+  cpmemo, frconsulta, frconsultacodigo, frconsultacontabil,
+  frconsultacodigocontabil;
+
+type
+  TfrmAutenticacoesCaixa = class(TfrmAjudaBt)
+    pgcAutenticacoes: TtecPageControl;
+    tstPrestacoes: TTabSheet;
+    tstDevolucoes: TTabSheet;
+    tstDocumentos: TTabSheet;
+    tstCancelamento: TTabSheet;
+    tstResgateCheque: TTabSheet;
+    tstTransferencia: TTabSheet;
+    tstConfirmacaoTransferencia: TTabSheet;
+    tstPerdas: TTabSheet;
+    tstDuplicatas: TTabSheet;
+    tstDeposito: TTabSheet;
+    gbxTransferenciasPendentes: TGroupBox;
+    tstCheques: TTabSheet;
+    bvlBarra: TBevel;
+    pnlFundoJanela: TPanel;
+    sbnAutenticar: TSpeedButton;
+    sbnImprimir: TSpeedButton;
+    sbnFichaFinanceira: TSpeedButton;
+    gbxParcelas: TGroupBox;
+    gbxPrestacoesContrato: TGroupBox;
+    sbnConsultaContratoPrestacoes: TSpeedButton;
+    edfCodigoClienteContratoPrestacoes: TtecDbEditFind;
+    lblCodigoClienteContratoPrestacoes: TLabel;
+    gbxParcelasPrestacoes: TGroupBox;
+    dbgParcelasPrestacoes: TtecDBGrid;
+    gbxContratosPrestacoes: TGroupBox;
+    dbgContratosPrestacoes: TtecDBGrid;
+    sbnParcelaParcial: TSpeedButton;
+    sbnParcelaDesconto: TSpeedButton;
+    gbxDevolucao: TGroupBox;
+    gbxDevolucoes: TGroupBox;
+    sbnConsultaMotivoDevolucoes: TSpeedButton;
+    sbnConsultaDevolucaoContrato: TSpeedButton;
+    dtxDescricaoMotivoDevolucao: TtecDBText;
+    dtxValorSugeridoDevolucoes: TtecDBText;
+    lblNumeroContratodevolucoes: TLabel;
+    edfCodigoContratoDevolucoes: TtecDbEditFind;
+    lblValorDelvolvido: TLabel;
+    lblMotivoDevolucao: TLabel;
+    edfCodigoMotivoDevolucoes: TtecDbEditFind;
+    gbxDocumento: TGroupBox;
+    gbxDocumentos: TGroupBox;
+    sbnConsultaEventoDocumentos: TSpeedButton;
+    lblEventos: TLabel;
+    lblHistoricos: TLabel;
+    lblDataDocumento: TLabel;
+    lblValorDocumento: TLabel;
+    edfCodigoEventos: TtecDbEditFind;
+    edtDataDocumento: TEditData;
+    edtValorDocumento: TEditNumero;
+    dtxDescricaoEventos: TtecDBText;
+    dbgMenuHistorico: TtecDBGrid;
+    gbxCancelamento: TGroupBox;
+    gbxResgate: TGroupBox;
+    gbxParcelasCheque: TGroupBox;
+    dbgParcelasCheque: TtecDBGrid;
+    gbxChequesAberto: TGroupBox;
+    dbgChequesAberto: TtecDBGrid;
+    sbnResgateParcial: TSpeedButton;
+    gbxTransferencia: TGroupBox;
+    gbxDadosCaixaAtivo: TGroupBox;
+    lblSaldoCaixaAtivo: TLabel;
+    lblCodigoCaixaAtivo: TLabel;
+    dtxNomeCaixaAtivo: TtecDBText;
+    dtxSaldoCaixaAtivo: TtecDBText;
+    dtxCodigoCaixaAtivo: TtecDBText;
+    gbxCaixa: TGroupBox;
+    sbnConsultaCaixaTransferencia: TSpeedButton;
+    dtxNomeCaixa: TtecDBText;
+    lblCodigoCaixa: TLabel;
+    edfCodigoCaixa: TtecDbEditFind;
+    edtValorTransferencia: TEditNumero;
+    lblValorTransferencia: TLabel;
+    gbxPerdas: TGroupBox;
+    gbxPerdasContrato: TGroupBox;
+    sbnConsultaMotivosPerda: TSpeedButton;
+    sbnConsultaContratoPerda: TSpeedButton;
+    lblMotivoPerda: TLabel;
+    edfCodigoContratoPerdas: TtecDbEditFind;
+    edfCodigoMotivoPerda: TtecDbEditFind;
+    dtxValorPerda: TtecDBText;
+    lblValorPerda: TLabel;
+    dtxMotivosPerdaDescricao: TtecDBText;
+    lblContratoPerda: TLabel;
+    gbxContratosPerdas: TGroupBox;
+    dbgContratosPerdas: TtecDBGrid;
+    gbxParcelasContratosPerdas: TGroupBox;
+    dbgParcelasPerdas: TtecDBGrid;
+    gbxDuplicatas: TGroupBox;
+    gbxFornecedor: TGroupBox;
+    sbnConsultaFornecedorDuplicatas: TSpeedButton;
+    lblFornecedor: TLabel;
+    edfCodigoFornecedor: TtecDbEditFind;
+    dtxNomeFornecedor: TtecDBText;
+    gbxDocumentosEmAbertos: TGroupBox;
+    dbgDocumetnosEmAberto: TtecDBGrid;
+    gbxDeposito: TGroupBox;
+    gbxDepositos: TGroupBox;
+    edtValorDeposito: TEditNumero;
+    gbxCaixaAtivoDeposito: TGroupBox;
+    lblSaldoDeposito: TLabel;
+    lblCaixaDeposito: TLabel;
+    dtxNomeCaixaDeposito: TtecDBText;
+    dtxSaldoDeposito: TtecDBText;
+    dtxCaixaDeposito: TtecDBText;
+    pgcDados: TPageControl;
+    tstDadosCliente: TTabSheet;
+    fraDadosCliente: TfraDadosCliente;
+    gbxCheque: TGroupBox;
+    sbnConsultaClienteCheque: TSpeedButton;
+    flkCodigoClienteCheques: TtecDBFindLookup;
+    dtxNomeClienteCheques: TtecDBText;
+    edtTitularCheque: TEdit;
+    edtVencimentoCheque: TEditData;
+    edtValorCheque: TEditNumero;
+    dbgTransferenciasPendentes: TtecDBGrid;
+    tstDuplicatasFornecedor: TTabSheet;
+    gbxDuplicatasEmAberto: TGroupBox;
+    dbgDuplicatasAberto: TtecDBGrid;
+    tstParametrosDocumento: TTabSheet;
+    gbxDocumentosParametros: TGroupBox;
+    tstDadosFornecedor: TTabSheet;
+    fraCPFCGC1: TfraCPFCGC;
+    gbxDadosFornecedor: TGroupBox;
+    fraEnderecoFornecedor: TfraEndereco;
+    dtxInscEstFornecedor: TtecDBText;
+    lblDocumento: TLabel;
+    dtxFantasiaFornecedor: TtecDBText;
+    lblNomeFantasia: TLabel;
+    dtxRazaoFornecedor: TtecDBText;
+    lblRazao: TLabel;
+    sbnParcelaAlterar: TSpeedButton;
+    lblTotalAutenticadoValor: TLabel;
+    lblTotalAutenticado: TLabel;
+    ckbSaidas: TDBCheckBox;
+    fraCMC7Cheque: TfraCMC7;
+    fraCMC7Resgate: TfraCMC7;
+    aclHabilitar: TActionList;
+    actHabilitar: TAction;
+    dbgAutenticacoes: TtecDBGrid;
+    dtxDescricaoMotivoCancelamento: TtecDBText;
+    sbnConsultaMotivosCancelamento: TSpeedButton;
+    edfCodigoMotivoCancelamento: TtecDbEditFind;
+    lblMotivoCancelamento: TLabel;
+    sbnTroco: TSpeedButton;
+    sbnImprimirCheque: TSpeedButton;
+    sbnQuitarSemJuros: TSpeedButton;
+    Shape1: TShape;
+    Label1: TLabel;
+    Shape2: TShape;
+    Label2: TLabel;
+    Shape3: TShape;
+    Shape4: TShape;
+    Label3: TLabel;
+    Shape5: TShape;
+    Label4: TLabel;
+    sbnRecibo: TSpeedButton;
+    sbnAtendimento: TSpeedButton;
+    gbxDevolucaoSaldo: TGroupBox;
+    lblClienteDevolucoesSaldo: TLabel;
+    edfCodigoClienteDevolucoesSaldo: TtecDbEditFind;
+    sbnConsultaClienteDevolucoes: TSpeedButton;
+    dtxNomeClienteDevolucoesSaldo: TtecDBText;
+    lblSaldoDevolcoes: TLabel;
+    dtxSaldoDevolucoes: TtecDBText;
+    tstParcelasAberto: TTabSheet;
+    gbxParcelasAberto: TGroupBox;
+    gbxClientesParcelasAberto: TGroupBox;
+    lblClienteParcelasAberto: TLabel;
+    edfCodigoClienteParcelasAberto: TtecDbEditFind;
+    sbnConsultaCientesParcelasAberto: TSpeedButton;
+    gbxListaParcelasAberto: TGroupBox;
+    dbgParcelasAberto: TtecDBGrid;
+    lblMarcarDesmarcar: TLabel;
+    ckbMarcarTodas: TCheckBox;
+    gbxQtde: TGroupBox;
+    edtQtdeMarcados: TEditNumero;
+    edtQtdeTotal: TEditNumero;
+    lblQtdeMarcados: TLabel;
+    lblQtdeTotal: TLabel;
+    sbnParcelasAbertoParcial: TSpeedButton;
+    sbnQuitarParcelasAbertoSemJuros: TSpeedButton;
+    sbnDescontoParcelasAberto: TSpeedButton;
+    sbnAlterarParcelasAberto: TSpeedButton;
+    Label5: TLabel;
+    Shape6: TShape;
+    Shape7: TShape;
+    Label6: TLabel;
+    Label7: TLabel;
+    Shape8: TShape;
+    mmoObservacaoCheque1: TtecMemo;
+    gbxNumeroParcela: TGroupBox;
+    lblNumeroParcela: TLabel;
+    edtNumeroParcela: TEditNumero;
+    lblCobrador: TLabel;
+    dtxNomeCobrador: TtecDBText;
+    gbxContratoParcelasAberto: TGroupBox;
+    lblContratoParcelasAberto: TLabel;
+    lblParcelasAberto: TLabel;
+    edtContratoParcelasAberto: TEditNumero;
+    edtNumeroParcelasAberto: TEditNumero;
+    gbxTotalMarcados: TGroupBox;
+    edtTotalMarcados: TEditNumero;
+    gbxTotalValor: TGroupBox;
+    edtTotalValor: TEditNumero;
+    gbxTotalContrato: TGroupBox;
+    edtTotalContrato: TDBEditNumero;
+    gbxCheques: TGroupBox;
+    gbxObservacao: TGroupBox;
+    gbxCliente: TGroupBox;
+    gbxChequeTitular: TGroupBox;
+    gbxChequeVencto: TGroupBox;
+    gbxChequeValor: TGroupBox;
+    TabSheet1: TTabSheet;
+    gbxContaCorrente: TGroupBox;
+    gbxBanco: TGroupBox;
+    dtxSigla: TtecDBText;
+    gbxAgencia: TGroupBox;
+    dtxNomeAgencia: TtecDBText;
+    gbxContas: TGroupBox;
+    lbltraco: TLabel;
+    fraConsultaContas: TfraConsultaCodigo;
+    dtxDigito: TtecDBText;
+    gbxEventoDepostio: TGroupBox;
+    Label8: TLabel;
+    fraConsultaEventoDeposito: TfraConsultaCodigoContabil;
+    gbxValorDeposito: TGroupBox;
+    gbxTitularConta: TGroupBox;
+    dtxTitularConta: TtecDBText;
+    lblValorSaldoCreditoTrocaaDevolver: TLabel;
+    edtValorSaldoCreditoTrocaaDevolver: TEditNumero;
+
+    procedure edfCodigoClienteContratoPrestacoesFound(Found: Boolean);
+    procedure edfCodigoEventosFound(Found: Boolean);
+    procedure pgcAutenticacoesChange(Sender: TObject);
+    procedure edfCodigoContratoDevolucoesFound(Found: Boolean);
+    procedure dbgParcelasPrestacoesDrawColumnCell(Sender: TObject; const Rect: TRect;
+              DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure dbgParcelasPrestacoesKeyDown(Sender: TObject; var Key: Word;
+              Shift: TShiftState);
+    procedure sbnConsultaMotivoDevolucoesClick(Sender: TObject);
+    procedure sbnParcelaParcialClick(Sender: TObject);
+    procedure sbnConsultaClienteChequeClick(Sender: TObject);
+    procedure dbgParcelasChequeDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure dbgParcelasChequeKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edfCodigoContratoPerdasFound(Found: Boolean);
+    procedure sbnConsultaMotivosPerdaClick(Sender: TObject);
+    procedure sbnConsultaMotivosCancelamentoClick(Sender: TObject);
+    procedure dbgTransferenciasPendentesDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure edfCodigoFornecedorFound(Found: Boolean);
+    procedure sbnConsultaContratoPrestacoesClick(Sender: TObject);
+    procedure sbnConsultaDevolucaoContratoClick(Sender: TObject);
+    procedure sbnConsultaEventoDocumentosClick(Sender: TObject);
+    procedure sbnConsultaCaixaTransferenciaClick(Sender: TObject);
+    procedure sbnConsultaContratoPerdaClick(Sender: TObject);
+    procedure sbnConsultaFornecedorDuplicatasClick(Sender: TObject);
+    procedure edfCodigoContratoDevolucoesMessage(var Msg: String);
+    procedure dbgMenuHistoricoDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure edfCodigoCaixaMessage(var Msg: String);
+    procedure edfCodigoContratoPerdasMessage(var Msg: String);
+//    procedure sbnAtendimentosClick(Sender: TObject);
+    procedure sbnFichaFinanceiraClick(Sender: TObject);
+    procedure sbnAutenticarClick(Sender: TObject);
+    procedure edfCodigoEventosKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure edfCodigoMotivoDevolucoesFound(Found: Boolean);
+    procedure edfCodigoMotivoCancelamentoFound(Found: Boolean);
+    procedure edfCodigoMotivoPerdaFound(Found: Boolean);
+    procedure sbnResgateParcialClick(Sender: TObject);
+    procedure edfCodigoClienteContratoPrestacoesKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure edfCodigoContratoDevolucoesKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure edfCodigoCaixaKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure edfCodigoContratoPerdasKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure edfCodigoClienteContratoPrestacoesMessage(var Msg: String);
+    procedure sbnParcelaAlterarClick(Sender: TObject);
+    procedure fraCMC7ChequeedtCMC7Exit(Sender: TObject);
+    procedure fraCMC7ChequeedtManual3Exit(Sender: TObject);
+    procedure flkCodigoClienteChequesExit(Sender: TObject);
+    procedure fraCMC7ResgateedtCMC7Exit(Sender: TObject);
+    procedure fraCMC7ResgateedtManual3Exit(Sender: TObject);
+    procedure actHabilitarUpdate(Sender: TObject);
+    procedure sbnTrocoClick(Sender: TObject);
+    procedure sbnImprimirChequeClick(Sender: TObject);
+    procedure sbnQuitarSemJurosClick(Sender: TObject);
+    procedure dbgContratosPrestacoesDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure sbnImprimirClick(Sender: TObject);
+    procedure sbnParcelaDescontoClick(Sender: TObject);
+    procedure FormLoaded(Sender: TObject);
+    procedure sbnReciboClick(Sender: TObject);
+    procedure sbnAtendimentoClick(Sender: TObject);
+    procedure sbnConsultaClienteDevolucoesClick(Sender: TObject);
+    procedure edfCodigoClienteDevolucoesSaldoFound(Found: Boolean);
+    procedure edfCodigoClienteDevolucoesSaldoKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure sbnConsultaClientesParcelasClick(Sender: TObject);
+    procedure dbgParcelasAbertoKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure ckbMarcarTodasClick(Sender: TObject);
+    procedure edfCodigoClienteParcelasAbertoFound(Found: Boolean);
+    procedure edfCodigoClienteParcelasAbertoKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure edfCodigoClienteParcelasAbertoMessage(var Msg: String);
+    procedure dbgParcelasAbertoDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure dbgParcelasAbertoDblClick(Sender: TObject);
+    procedure edtNumeroParcelaEnter(Sender: TObject);
+    procedure edtNumeroParcelasAbertoKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+  private
+    FBuscandoParcelaAberto: Boolean;
+    FOntecClose: TtecProcedure;
+  protected
+    FOnScrollHistoricosEvento: TNotifyEvent;
+    totalAutenticado: real;
+
+    docHistorico: TParametrosHistorico;
+    docLabel    : TLabel;
+    docEdit     : TCustomEdit;
+
+    PrestacaoEmAndamento: Boolean;
+    EncontrouCheque     : Boolean;
+
+    Jan: TfrmConsultaPorCampo;
+
+    procedure AfterScrollHistoricosEvento(Sender: TObject);
+
+    procedure acionaFichaFinanceira;
+//    procedure acionaCadastroAtendimento(cliente: integer = 0);
+
+    procedure CriarDataModulo; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure processarAutenticacoes;
+    procedure AutenticacaoParcelas;
+    procedure AutenticacaoDevolucoes;
+    procedure AutenticacaoDocumentos;
+    procedure AutenticacaoCheques;
+    procedure AutenticacaoCancelamentos;
+    procedure AutenticacaoResgateCheques;
+    procedure AutenticacaoTransferencias;
+    procedure AutenticacaoConfirmacaoTransferencias;
+    procedure AutenticacaoPerdas;
+    procedure AutenticacaoDuplicatas;
+    procedure AutenticacaoDepositos;
+    procedure AutenticacaoDevolucoesSaldo;
+    procedure AutenticacaoParcelasAberto;
+    procedure Parcelas;
+    procedure Devolucoes;
+
+    procedure DesabilitarCamposCheque;
+    procedure PreencherCamposCheque;
+    procedure MontaParametros;
+    procedure CalcularPrestacaoAntecipada;
+    procedure ProcessarPrestacaoParcial;
+    procedure ProcessarAlteracaoPrestacao;
+    procedure ProcessarSemJuros;
+//    procedure ProcessarResgateParcial;
+    function  RetornarStringParametros: string;
+    function  AbrirJanelaImpressao(tipoAutenticacao: integer): integer;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    function  TabelaDePesquisa: TZDataSet; override;
+    function  TabelaDoParametro(Parametro: Integer): TZDataSet; override;
+    procedure PosicionarTabelaNoParametro(Ind: Integer; var Continuar: Boolean); override;
+    procedure ProximoControle(Ind: Integer); override;
+    function  ChequeOK: Boolean;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function  PermitirConsulta: boolean;
+    function  GetTitulo: string;
+    function  VerificarNumeroCheque(numero: string): boolean;
+    function  DadosCompletosParaAutenticarDevolucao: boolean;
+    function  DadosCompletosParaAutenticarCheque: boolean;
+    function  DadosCompletosParaAutenticarDeposito: boolean;
+    function  DadosCompletosParaAutenticarCancelamento: boolean;
+    function  DadosCompletosParaAutenticarPerda: boolean;
+    function  DadosCompletosParaAutenticarDocumento: boolean;
+    function  DadosCompletosParaAutenticarTransferencia: boolean;
+    function  DadosCompletosParaAutenticarDevolucaoSaldo: Boolean;
+    procedure ImprimirCheque;
+    procedure CadastraAtendimento;
+    procedure AtualizarContadores(SoMarcados: Boolean);
+    function  TestarNumeroParcela: Boolean;
+    function  ConfirmarValorTransferencia: Currency;
+  public
+    tipoConsulta : TtecConsultaAutenticacoes;
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+    property    OnScrollHistoricosEvento: TNotifyEvent read FOnScrollHistoricosEvento write FOnScrollHistoricosEvento;
+    property  OntecClose: TtecProcedure read FOntecClose write FOntecClose;
+  end;
+
+var
+  frmAutenticacoesCaixa: TfrmAutenticacoesCaixa;
+
+implementation
+
+Uses
+  //Biblio
+  biblio, climpressorachequepadrao,
+  //Repositorio
+  fmprincipalbasico, fmlerdatanumero,
+  //Projeto
+  fmtrococaixa, fmcadastroatendimentocaixa, fmajuda;
+
+
+{$R *.dfm}
+
+constructor TfrmAutenticacoesCaixa.Create(AOwner: TComponent);
+begin
+//try
+  inherited  Create(AOwner);
+  if not ParSistema.AutenticacaoParcelasModo2 then
+  begin
+    tstParcelasAberto.TabVisible := False;
+    totalAutenticado := 0;
+    PrestacaoEmAndamento := false;
+    lblTotalAutenticadoValor.Caption := FloatToStrF(TotalAutenticado, ffFixed, 18,2);
+    sbnImprimirCheque.Enabled := Assigned(ImpChequePadrao);
+    if not ParSistema.ClienteComDependentes then
+    begin
+      dbgContratosPrestacoes.Columns[4].Visible := False;
+      dbgContratosPrestacoes.Columns[2].Width:=75;
+    end;
+    edtNumeroParcela.ReadOnly := not ParSistema.InformarParcelaQuitar;
+
+    tstPrestacoes.PageIndex     := 0;
+    tstParcelasAberto.PageIndex := 11;
+    pgcAutenticacoes.ActivePageIndex := 0;
+
+  end
+  else
+  begin
+    tstParcelasAberto.Caption   := tstPrestacoes.Caption;
+    tstPrestacoes.PageIndex     := 11;
+    tstParcelasAberto.PageIndex := 0;
+    pgcAutenticacoes.ActivePageIndex := 0;
+    tstPrestacoes.TabVisible    := False;
+
+    if ParSistema.MostrarValorContrato then
+       gbxTotalContrato.Visible:= True;
+    pgcAutenticacoesChange(nil);
+  end;
+
+  fraConsultaContas.TipoPesquisa       := pesCONTAS;
+  fraConsultaEventoDeposito.TipoPesquisa := pesEvento;
+  fraConsultaEventoDeposito.edfcodigo.text := parsistema.EVENTOPARADEPOSITOSAUTENTICACOES;
+  fraConsultaEventoDeposito.edfcodigo.exist;
+//except
+//  on e:exception do ShowMessage(e.message);
+//end;
+
+
+end;
+
+procedure TfrmAutenticacoesCaixa.CriarDataModulo;
+begin
+  inherited;
+  dtmautenticacoes := Tdtmautenticacoes.Create(Self);
+  dtmautenticacoes.OnScrollHistoricosEvento := AfterScrollHistoricosEvento;
+  dtmautenticacoes.AbrirTabelaPrestacoes;
+end;
+
+destructor TfrmAutenticacoesCaixa.Destroy;
+begin
+  if Assigned(OntecClose) then
+    OntecClose;
+  inherited;
+  frmAutenticacoesCaixa := nil;
+end;
+
+procedure TfrmAutenticacoesCaixa.edfCodigoClienteContratoPrestacoesFound(Found: Boolean);
+begin
+  if Found then begin
+    TotalAutenticado := 0;
+    dtmautenticacoes.PagamentoEmDinheiro := 0;
+    lblTotalAutenticadoValor.Caption := FormatarValor(0,2);
+    dtmautenticacoes.RefazConsultaContrato;
+    PrestacaoEmAndamento := False;
+    if not ParSistema.InformarParcelaQuitar then
+      edtNumeroParcela.Text := IntToStr(dtmautenticacoes.NumeroPrestacaoPaga);
+  end else
+    dtmautenticacoes.RefazConsultaContrato;
+  pgcAutenticacoesChange(nil);
+end;
+
+procedure TfrmAutenticacoesCaixa.edfCodigoClienteContratoPrestacoesKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (Key = VK_ESCAPE) and (Shift = []) and (edfCodigoClienteContratoPrestacoes.Text = '') then begin
+    dtmautenticacoes.refazConsultaContrato;
+    lblTotalAutenticadoValor.Caption := FormatarValor(0,2);
+    edtNumeroParcela.Text := '';
+  end;
+end;
+
+procedure TfrmAutenticacoesCaixa.edfCodigoClienteContratoPrestacoesMessage(var Msg: String);
+begin
+  inherited;
+  Msg := Format(ctCONTRATONAOFATURADONOTA, [edfCodigoClienteContratoPrestacoes.Text]);
+end;
+
+function TfrmAutenticacoesCaixa.ExisteInformacao(Parametro: Integer; NomeCampo: string; Value: Variant): Boolean;
+begin
+  case tipoConsulta of
+    paCONTRATOSPRESTACOES: if Parametro = 0 then
+                             Result := dtmautenticacoes.ExisteCliente(NomeCampo,Value)
+                           else
+                             result := dtmautenticacoes.ExisteContrato(NomeCampo, Value);
+    paCONTRATOSPERDAS    : if Parametro = 0 then
+                             Result := dtmautenticacoes.ExisteCliente(NomeCampo,Value)
+                           else
+                             result := dtmautenticacoes.ExisteContratoPerda(NomeCampo, Value);
+    paCONTRATOSDEVOLUCOES: if Parametro = 0 then
+                             Result := dtmautenticacoes.ExisteCliente(NomeCampo,Value)
+                           else
+                             result := dtmautenticacoes.ExisteDevolucao(NomeCampo, Value);
+    paMOTIVOSDEVOLUCAO,
+    paMOTIVOSCANCELAMENTO,
+    paMOTIVOSPERDA       : result := dtmautenticacoes.ExisteMotivo(NomeCampo, Value);
+    paEVENTOS            : result := dtmautenticacoes.ExisteEvento(NomeCampo, Value);
+//    paCHEQUES            : result := dtmautenticacoes.ExisteCheque(NomeCampo, Value);
+    paCLIENTESCHEQUES,
+    paCLIENTESDEVOLUCOES,
+    paCLIENTEPARCELAS    : result := dtmautenticacoes.ExisteCliente(NomeCampo, Value);
+    paFORNECEDORES       : result := dtmautenticacoes.ExisteFornecedor(NomeCampo, Value);
+    paBANCOS             : result := dtmautenticacoes.ExisteBanco(NomeCampo, Value);
+//    paAUTENTICACOES      : result := dtmautenticacoes.ExisteAutenticacao(NomeCampo, Value);
+    paCAIXAS             : result := dtmautenticacoes.ExisteCaixa(NomeCampo, Value);
+  else
+    result := false
+  end //end case
+end;
+
+function TfrmAutenticacoesCaixa.GetTitulo: string;
+begin
+  case tipoConsulta of
+//    paCONTRATOSCHEQUES,
+    paCONTRATOSPRESTACOES,
+    paCONTRATOSDEVOLUCOES,
+    paCONTRATOSPERDAS    : result := 'Contratos';
+    paMOTIVOSDEVOLUCAO,
+    paMOTIVOSCANCELAMENTO,
+    paMOTIVOSPERDA       : result := 'Motivos';
+    paEVENTOS            : result := 'Eventos';
+//    paCHEQUES            : result := 'Cheques';
+    paCLIENTESCHEQUES,
+    paCLIENTESDEVOLUCOES,
+    paCLIENTEPARCELAS    : result := 'Clientes';
+    paFORNECEDORES       : result := 'Fornecedores';
+    paBANCOS             : result := 'Bancos';
+//    paAUTENTICACOES      : result := 'AutenticaÎ„es';
+    paCAIXAS             : result := 'Caixas';
+  else
+    result := ''
+  end //end case
+end;
+
+function TfrmAutenticacoesCaixa.InternoPesquisar(Titulo: String): Integer;
+begin
+  Result := mrNone;
+  with dtmautenticacoes do begin
+    if PermitirConsulta then begin
+  //    if not ((tipoConsulta = paCLIENTESCHEQUES) or (tipoConsulta = paCHEQUES)) then
+      AbreTabelasConsulta(TipoConsulta);
+      Result := Inherited InternoPesquisar(GetTitulo);
+      if Result = mrOK then begin
+        Selecionar(TipoConsulta);
+//        case TipoConsulta of
+//          paCLIENTESCHEQUES :
+//        end
+      end;
+      FechaTabelasConsulta(TipoConsulta)
+    end;
+  end;
+end;
+
+function TfrmAutenticacoesCaixa.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  case tipoConsulta of
+{    paAUTENTICACOES      : begin
+                             Result := TfrmConsultaFitaDeCaixa.Create(Self);
+                             TfrmConsultaFitaDeCaixa(Result).UsarParametrosDaTabela := False
+                           end;}
+    paCONTRATOSPRESTACOES,
+    paCONTRATOSPERDAS,
+    paCONTRATOSDEVOLUCOES: begin
+                             Result := TfrmConsultaPorCampo.Create(nil);
+                             TfrmConsultaPorCampo(Result).ConsultaInterativa     := False;
+                             TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := True;
+                           end;
+//    paCHEQUES,
+    paFORNECEDORES,
+    paCLIENTESCHEQUES,
+    paCLIENTESDEVOLUCOES,
+    paCLIENTEPARCELAS    : begin
+                             Result := TfrmConsultaPorCampo.Create(nil);
+                             TfrmConsultaPorCampo(Result).ConsultaInterativa     := False;
+                             TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := False;
+                           end;
+    paBANCOS,
+    paMOTIVOSCANCELAMENTO,
+    paCAIXAS,
+    paEVENTOS            : begin
+                             Result := TfrmConsultaPorCampo.Create(nil);
+                             TfrmConsultaPorCampo(Result).ConsultaInterativa     := True;
+                             TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := False
+                           end;
+{    paBANCOS             : begin
+                             Result := TfrmConsultaPorCampo.Create(nil);
+                             TfrmConsultaPorCampo(Result).ConsultaInterativa     := True;
+                             TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := False
+                           end;}
+    else begin
+      Result := TfrmConsultaPorCampo.Create(nil);
+      TfrmConsultaPorCampo(Result).ConsultaInterativa     := True;
+      TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := True
+    end
+  end; //end case
+  Jan := TfrmConsultaPorCampo(Result)
+end;
+
+function TfrmAutenticacoesCaixa.PermitirConsulta: boolean;
+begin
+  result := true;
+
+  if CtrlOn then begin
+    if ActiveControl = edfCodigoMotivoDevolucoes then
+      tipoConsulta := paMOTIVOSDEVOLUCAO
+    else if ActiveControl = edfCodigoMotivoCancelamento then
+      tipoConsulta := paMOTIVOSCANCELAMENTO
+    else if ActiveControl = edfCodigoMotivoPerda then
+      tipoConsulta := paMOTIVOSPERDA
+    else if ActiveControl = flkCodigoClienteCheques then
+      tipoConsulta := paCLIENTESCHEQUES
+    else if ActiveControl = edfCodigoClienteDevolucoesSaldo then
+      tipoConsulta := paCLIENTESDEVOLUCOES
+    else
+      case pgcAutenticacoes.ActivePageIndex of
+        0: if not ParSistema.AutenticacaoParcelasModo2 then
+             tipoConsulta := paCONTRATOSPRESTACOES
+           else tipoConsulta := paCLIENTEPARCELAS;
+        2: tipoConsulta := paCONTRATOSDEVOLUCOES;
+        3: tipoConsulta := paEVENTOS;
+//        4: tipoConsulta := paAUTENTICACOES;
+//        5: tipoConsulta := paCHEQUES;
+        6: tipoConsulta := paCAIXAS;
+        8: tipoConsulta := paCONTRATOSPERDAS;
+        9: tipoConsulta := paFORNECEDORES;
+       10: tipoConsulta := paBANCOS;
+      else
+        result := false
+      end
+  end else
+    result := false
+end;
+
+procedure TfrmAutenticacoesCaixa.PosicionarTabelaNoParametro(Ind: Integer; var Continuar: Boolean);
+begin
+  inherited;
+  continuar := dtmautenticacoes.PosicionarRegistro(tipoConsulta, Ind)
+end;
+
+procedure TfrmAutenticacoesCaixa.ProximoControle(Ind: Integer);
+begin
+  inherited;
+  case tipoConsulta of
+    paCONTRATOSPRESTACOES: if Ind = 0 then begin
+                             Jan.ConsultaInterativa := True;
+                             dtmautenticacoes.abreTabelasConsultaContrato;
+                            end else
+                              Jan.ConsultaInterativa := False;
+    paCONTRATOSDEVOLUCOES: if Ind = 0 then begin
+                             Jan.ConsultaInterativa := True;
+                             dtmautenticacoes.abreTabelasConsultaDevoluccao;
+                            end else
+                              Jan.ConsultaInterativa := False;
+    paCONTRATOSPERDAS:     if Ind = 0 then begin
+                             Jan.ConsultaInterativa := True;
+                             dtmautenticacoes.abreTabelasConsultaPerdas;
+                            end else
+                              Jan.ConsultaInterativa := False;
+  end
+end;
+
+function TfrmAutenticacoesCaixa.TabelaDePesquisa: TZDataSet;
+begin
+  case tipoConsulta of
+    paCONTRATOSPRESTACOES: result := dtmautenticacoes.ConsultarContrato;
+    paCONTRATOSPERDAS    : result := dtmautenticacoes.ConsultarContratoPerda;
+    paCONTRATOSDEVOLUCOES: result := dtmautenticacoes.ConsultarDevolucao;
+    paMOTIVOSDEVOLUCAO,
+    paMOTIVOSCANCELAMENTO,
+    paMOTIVOSPERDA       : result := dtmautenticacoes.ConsultarMotivo;
+    paEVENTOS            : result := dtmautenticacoes.ConsultarEvento;
+//    paCHEQUES            : result := dtmautenticacoes.ConsultarCheque;
+    paCLIENTESCHEQUES,
+    paCLIENTESDEVOLUCOES,
+    paCLIENTEPARCELAS    : result := dtmautenticacoes.ConsultarCliente;
+    paFORNECEDORES       : result := dtmautenticacoes.ConsultarFornecedor;
+    paBANCOS             : result := dtmautenticacoes.ConsultarBanco;
+//    paAUTENTICACOES      : result := dtmautenticacoes.ConsultarAutenticacao;
+    paCAIXAS             : result := dtmautenticacoes.ConsultarCaixa;
+  else
+    result := nil
+  end //end case
+end;
+
+function TfrmAutenticacoesCaixa.TabelaDoParametro(Parametro: Integer): TZDataSet;
+begin
+  with dtmautenticacoes do begin
+    case tipoConsulta of
+      paCONTRATOSPRESTACOES: result := ConsultarCliente;
+      paCONTRATOSPERDAS    : result := ConsultarCliente;
+      paCONTRATOSDEVOLUCOES: Result := ConsultarCliente;
+      paMOTIVOSDEVOLUCAO,
+      paMOTIVOSCANCELAMENTO,
+      paMOTIVOSPERDA       : result := ConsultarMotivo;
+      paEVENTOS            : result := ConsultarEvento;
+//      paCHEQUES            : result := ConsultarCheque;
+      paCLIENTESCHEQUES,
+      paCLIENTESDEVOLUCOES,
+      paCLIENTEPARCELAS    : result := ConsultarCliente;
+      paFORNECEDORES       : result := ConsultarFornecedor;
+      paBANCOS             : result := ConsultarBanco;
+//      paAUTENTICACOES      : result := ConsultarAutenticacao;
+      paCAIXAS             : result := ConsultarCaixa;
+    else
+      result := nil
+    end //end case
+  end
+end;
+
+procedure TfrmAutenticacoesCaixa.edfCodigoEventosFound(Found: Boolean);
+begin
+  inherited;
+  if found then begin
+    with dtmautenticacoes do begin
+      ReFazConsulta(dtmautenticacoes.TabelaHistoricosEvento,[0],[CodigoEvento]);
+      edtDataDocumento.Text := DateToStr(DataServidor);
+      if NroRegistrosHistoricosEvento > 0 then
+        MontaParametros;
+    end;
+  end;
+end;
+
+procedure TfrmAutenticacoesCaixa.edfCodigoEventosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Key = VK_ESCAPE then begin
+    if edfCodigoEventos.Text = '' then begin
+      dtmautenticacoes.refazConsulta(dtmautenticacoes.TabelaHistoricosEvento,[0],[0]);
+      edtDataDocumento.Text := '';
+      edtValorDocumento.Text := '';
+      MontaParametros;
+    end
+  end
+end;
+
+procedure TfrmAutenticacoesCaixa.pgcAutenticacoesChange(Sender: TObject);
+begin
+  inherited;
+  case pgcAutenticacoes.ActivePageIndex of
+    0: begin
+         if not ParSistema.AutenticacaoParcelasModo2 then
+         begin
+           dtmautenticacoes.AbrirTabelaPrestacoes;
+           pgcDados.Visible := (dtmautenticacoes.CodigoClientePrestacao > 0);
+           if dtmautenticacoes.CodigoClientePrestacao <> dtmautenticacoes.CodigoCliente then
+             dtmautenticacoes.reFazConsultaClientes(paCONTRATOSPRESTACOES);
+           if dtmautenticacoes.TipoCliente[paCONTRATOSPRESTACOES] = tcCLIENTE then
+             pgcDados.ActivePage := tstDadosCliente
+           else
+             pgcDados.ActivePage := tstDadosFornecedor;
+           edfCodigoClienteContratoPrestacoes.Enabled:= True;
+         end
+         else
+         begin
+           dtmautenticacoes.AbrirTabelaParcelasAberto;
+           if dtmautenticacoes.CodigoClienteParcelasAberto <> dtmautenticacoes.CodigoCliente then
+             dtmautenticacoes.reFazConsultaClientes(paCLIENTEPARCELAS);
+           if dtmautenticacoes.TipoCliente[paCLIENTEPARCELAS] = tcCLIENTE then
+             pgcDados.ActivePage := tstDadosCliente
+           else if dtmautenticacoes.TipoCliente[paCLIENTEPARCELAS] = tcFORNECEDOR then
+             pgcDados.ActivePage := tstDadosFornecedor;
+           edfCodigoClienteParcelasAberto.Enabled:= True;
+           if dtmautenticacoes.CodigoClienteParcelasAberto > 0 then
+             pgcDados.Visible := true;
+           if not (dtmautenticacoes.CodigoClienteParcelasAberto > 0) then
+           begin
+             edtTotalMarcados.Text := FloatToStrF(dtmautenticacoes.TotalMarcados,ffFixed,18,2);
+             edtTotalValor.Text := FloatToStrF(dtmautenticacoes.TotalMarcados,ffFixed,18,2);
+             edtQtdeMarcados.Text := '0';
+             edtQtdeTotal.Text := '0';
+           end;
+         end;
+         sbnRecibo.Enabled:= true;
+       end;
+    1: begin
+         fraCMC7Cheque.LimparCampos;
+         DesabilitarCamposCheque;
+         fraCMC7Cheque.edtCMC7.SetFocus;
+         gbxCheques.Enabled:= False;
+         pgcDados.Visible:= False;
+         pgcAutenticacoes.Height := 575;
+         dtmautenticacoes.AbrirTabelaCheque;
+       end;
+    2: begin
+         dtmautenticacoes.AbrirTabelasDevolucoes;
+         pgcDados.Visible := (dtmautenticacoes.CodigoClienteDevolucoes > 0) or (dtmautenticacoes.CodigoClienteDevolucoesSaldo > 0);
+         if dtmautenticacoes.CodigoClienteDevolucoes <> dtmautenticacoes.CodigoCliente then
+           dtmautenticacoes.reFazConsultaClientes(paCONTRATOSDEVOLUCOES)
+         else if dtmautenticacoes.CodigoClienteDevolucoesSaldo <> dtmautenticacoes.CodigoCliente then
+           dtmautenticacoes.reFazConsultaClientes(paCLIENTESDEVOLUCOES);
+         if (dtmautenticacoes.TipoCliente[paCONTRATOSDEVOLUCOES] = tcCLIENTE) or
+            (dtmautenticacoes.TipoCliente[paCLIENTESDEVOLUCOES] = tcCLIENTE) then
+           pgcDados.ActivePage := tstDadosCliente
+         else
+           pgcDados.ActivePage := tstDadosFornecedor;
+         edfCodigoContratoDevolucoes.Enabled:= True;
+         if (edfCodigoContratoDevolucoes.Text = '') and
+            edfCodigoContratoDevolucoes.CanFocus then
+           edfCodigoContratoDevolucoes.SetFocus
+       end;
+    3: begin
+         pgcDados.Visible    := True;
+         dtmautenticacoes.AbrirTabelaEvento;
+         pgcDados.ActivePage := tstParametrosDocumento;
+         edfCodigoEventos.Enabled:= True;
+         if edfCodigoEventos.CanFocus then
+           edfCodigoEventos.SetFocus
+       end;
+    4: begin
+         pgcDados.Visible    := False;
+         pgcAutenticacoes.Height := 535;
+         dtmautenticacoes.AbrirTabelasCancelamento;
+         if edfCodigoMotivoCancelamento.CanFocus then
+           edfCodigoMotivoCancelamento.SetFocus
+       end;
+    5: begin
+         pgcDados.Visible:= False;
+         pgcAutenticacoes.Height := 535;
+         fraCMC7Resgate.LimparCampos;
+         fraCMC7Resgate.edtCMC7.SetFocus;
+       end;
+    6: begin
+         pgcDados.Visible    := False;
+         dtmautenticacoes.AbrirTabelaTransferencia;
+         if edfCodigoCaixa.CanFocus then
+           edfCodigoCaixa.SetFocus;
+         dtmautenticacoes.ReFazConsultaCaixa
+       end;
+    7: begin
+         pgcDados.Visible    := False;
+         dtmautenticacoes.ReFazConsultaTransferenciaPendente;
+         dbgTransferenciasPendentes.SetFocus
+       end;
+    8: begin
+         dtmautenticacoes.AbrirTabelasPerda;
+         pgcDados.Visible := dtmautenticacoes.CodigoClientePerdas > 0;
+         if dtmautenticacoes.CodigoClientePerdas <> dtmautenticacoes.CodigoCliente then
+           dtmautenticacoes.reFazConsultaClientes(paCONTRATOSPERDAS);
+         if dtmautenticacoes.TipoCliente[paCONTRATOSPERDAS] = tcCLIENTE then
+           pgcDados.ActivePage := tstDadosCliente
+         else
+           pgcDados.ActivePage := tstDadosFornecedor;
+       end;
+    9: begin
+         dtmautenticacoes.AbrirTabelaFornecedores;
+         pgcDados.Visible := True;
+         pgcDados.ActivePage := tstDuplicatasFornecedor;
+         if edfCodigoFornecedor.CanFocus then
+           edfCodigoFornecedor.SetFocus
+       end;
+   10: begin
+         pgcDados.Visible    := False;
+//         dtmautenticacoes.AbrirTabelaDeposito;
+         dtmautenticacoes.ReFazConsultaCaixa;
+         if fraConsultaContas.edfCodigo.CanFocus then
+           fraConsultaContas.edfCodigo.SetFocus
+       end;
+  end;//end case
+end;
+
+procedure TfrmAutenticacoesCaixa.edfCodigoContratoDevolucoesFound(Found: Boolean);
+begin
+  inherited;
+  if found then begin
+    dtmautenticacoes.ReFazConsulta(dtmautenticacoes.TabelaMotivosDevolucao, [0], [0]);
+    dtmautenticacoes.reFazConsultaClientes(paCONTRATOSDEVOLUCOES);
+    dtmautenticacoes.refazConsultaDevolucoes(paCONTRATOSDEVOLUCOES);
+    gbxDevolucaoSaldo.Enabled := False;
+  end;
+  pgcAutenticacoesChange(nil);
+end;
+
+procedure TfrmAutenticacoesCaixa.edfCodigoContratoDevolucoesKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (Key = VK_ESCAPE) and (Shift = []) and (edfCodigoContratoDevolucoes.Text = '') then begin
+    dtmautenticacoes.ReFazConsultaMotivoDevolucao;
+    edfCodigoContratoDevolucoes.SetFocus;
+    edfCodigoMotivoDevolucoes.Enabled := False;
+    gbxDevolucaoSaldo.Enabled := true;
+  end
+end;
+
+procedure TfrmAutenticacoesCaixa.dbgParcelasPrestacoesDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  with dtmautenticacoes do
+  begin
+    if gdSelected in State then
+    begin
+      if dbgParcelasPrestacoes.DataSource.DataSet.FieldByName('quitado').AsBoolean then
+      begin
+        sbnQuitarSemJuros.Enabled := False;
+        if dbgParcelasPrestacoes.DataSource.DataSet.FieldByName('datapagto').AsDateTime = DataServidor then
+        begin
+          dbgParcelasPrestacoes.Canvas.Brush.Color := $00ABC7FF;
+        end
+        else
+        begin
+          dbgParcelasPrestacoes.Canvas.Brush.Color := $00ACACAC;
+        end;
+      end
+      else
+      begin
+        // Ismael
+        if dbgParcelasPrestacoes.DataSource.DataSet.FieldByName('valorpagto' ).AsCurrency >
+           dbgParcelasPrestacoes.DataSource.DataSet.FieldByName('valorvencto').AsCurrency
+        then
+          sbnQuitarSemJuros.Enabled := True
+        else
+          sbnQuitarSemJuros.Enabled := False;
+        dbgParcelasPrestacoes.Canvas.Brush.Color := $00D5FFD5;
+        if(dbgParcelasPrestacoes.DataSource.DataSet.FieldByName('datavencto').AsDateTime<DataServidor) then
+          dbgParcelasPrestacoes.Canvas.Font.Color:=clRed
+        else
+          dbgParcelasPrestacoes.Canvas.Font.Color  := clBlack;
+      end;
+    end
+    else
+    begin
+      if dbgParcelasPrestacoes.DataSource.DataSet.FieldByName('quitado').AsBoolean then
+      begin
+        sbnQuitarSemJuros.Enabled := False;
+        if dbgParcelasPrestacoes.DataSource.DataSet.FieldByName('datapagto').AsDateTime = DataServidor then
+        begin
+          dbgParcelasPrestacoes.Canvas.Brush.Color := $00ABC7FF;
+        end
+        else
+          dbgParcelasPrestacoes.Canvas.Brush.Color := $00E9E9E9;
+      end
+      else
+      begin
+        if(dbgParcelasPrestacoes.DataSource.DataSet.FieldByName('datavencto').AsDateTime<DataServidor) then
+        begin
+                {dbgParcelasPrestacoes.Canvas.Brush.Color:=$005555FF;
+                dbgParcelasPrestacoes.Canvas.Font.Color:=clYellow; }
+                dbgParcelasPrestacoes.Canvas.Brush.Color:=clWhite;
+                dbgParcelasPrestacoes.Canvas.Font.Color:= clRed;//$005555FF;
+        end
+        else
+        begin
+                dbgParcelasPrestacoes.Canvas.Brush.Color := clWhite;
+                dbgParcelasPrestacoes.Canvas.Font.Color  := clBlack;
+        end;
+      end;
+    end;
+    dbgParcelasPrestacoes.DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end;
+end;
+
+procedure TfrmAutenticacoesCaixa.KeyDown(var Key: Word; Shift: TShiftState);
+var Pagina: Integer;
+begin
+  if (Shift = [ssCtrl]) and not (Shift = [ssShift]) then
+  begin
+    case key of
+      VK_F1 :;
+//      VK_F2
+//      VK_F3
+//      VK_F4
+//      VK_F5
+//      VK_F6
+//      VK_F7
+//      VK_F8
+//      VK_F9
+//      VK_F10
+//      VK_F11
+//      VK_F12
+    end;
+  end;
+
+  if not (Shift = [ssCtrl]) and (Shift = [ssShift]) then
+  begin
+    case key of
+      VK_F1 : ;
+//      VK_F2
+//      VK_F3
+//      VK_F4
+//      VK_F5
+//      VK_F6
+//      VK_F7
+//      VK_F8
+//      VK_F9
+//      VK_F10
+//      VK_F11
+//      VK_F12
+    end;
+  end;
+
+  if not (Shift = [ssCtrl]) and not (Shift = [ssShift]) then
+  begin
+     case key of
+//       VK_F1
+       VK_F2 : if (((pgcAutenticacoes.ActivePage = tstPrestacoes) and sbnParcelaParcial.Enabled) or
+                    ((pgcAutenticacoes.ActivePage = tstParcelasAberto) and sbnParcelasAbertoParcial.Enabled)) then
+                begin
+                  ProcessarPrestacaoParcial;
+                end;
+       VK_F3 : if (((pgcAutenticacoes.ActivePage = tstPrestacoes) and sbnQuitarSemJuros.Enabled) or
+                    ((pgcAutenticacoes.ActivePage = tstParcelasAberto) and sbnQuitarParcelasAbertoSemJuros.Enabled)) then
+                begin
+                  ProcessarSemJuros;
+                end;
+       VK_F4 : if (((pgcAutenticacoes.ActivePage = tstPrestacoes) and sbnParcelaDesconto.Enabled) or
+                    ((pgcAutenticacoes.ActivePage = tstParcelasAberto) and sbnDescontoParcelasAberto.Enabled)) then
+                begin
+                  CalcularPrestacaoAntecipada;
+                end;
+       VK_F5 : if (((pgcAutenticacoes.ActivePage = tstPrestacoes) and sbnParcelaAlterar.Enabled) or
+                    ((pgcAutenticacoes.ActivePage = tstParcelasAberto) and sbnAlterarParcelasAberto.Enabled)) then
+                begin
+                  processarAlteracaoPrestacao;
+                end;
+       VK_F6 : sbnTrocoClick(sbnTroco);
+       VK_F7 : if ((pgcAutenticacoes.ActivePage = tstPrestacoes) or
+                    (pgcAutenticacoes.ActivePage = tstParcelasAberto)) then
+                begin
+                  dtmautenticacoes.imprimirParcelasEmAberto;
+                end;
+       VK_F8 : acionaFichaFinanceira;
+       VK_F9 : begin
+                  Pagina := pgcAutenticacoes.ActivePageIndex;
+                  ImprimirCheque;
+                  pgcAutenticacoes.SetFocus;
+                  pgcAutenticacoes.ActivePageIndex := Pagina;
+                end;
+       VK_F10 : CadastraAtendimento;
+       VK_F11 : sbnReciboClick(sbnRecibo);
+       VK_F12 : processarAutenticacoes;
+     VK_ESCAPE: begin
+                   if (pgcAutenticacoes.ActivePage = tstCheques) then
+                   begin
+                     DesabilitarCamposCheque;
+                     fraCMC7Cheque.LimparCampos;
+                     gbxCheques.Enabled:= False;
+                   end
+                   else
+                   begin
+                     if pgcAutenticacoes.ActivePage = tstResgateCheque then
+                     begin
+                       fraCMC7Resgate.LimparCampos;
+                       fraCMC7Resgate.edtCMC7.SetFocus;
+                       dtmautenticacoes.FecharTabelasResgate;
+                     end
+                     else
+                     begin
+                       if pgcAutenticacoes.ActivePage = tstCancelamento then
+                       begin
+                         dtmautenticacoes.ReFazConsultaCancelamento;
+                       end
+                       else
+                       begin
+                         if (pgcAutenticacoes.ActivePage = tstPrestacoes) or
+                            (pgcAutenticacoes.ActivePage = tstParcelasAberto) then
+                         begin
+                           PrestacaoEmAndamento := False;
+                           pgcDados.Visible     := False;
+                         end
+                         else
+                         begin
+                           if pgcAutenticacoes.ActivePage = tstDuplicatas then
+                           begin
+                             dtmautenticacoes.ReFazConsultaDocumentosPag(True);
+                           end
+                           else
+                           begin
+                             pgcDados.Visible := False;
+                           end;
+                         end;
+                       end;
+                     end;
+                   end;
+                 end;
+    end;
+  end;
+  inherited;
+end;
+
+procedure TfrmAutenticacoesCaixa.dbgParcelasPrestacoesKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  case key of
+    VK_DOWN  : if dtmautenticacoes.FinalParcelasPrestacao then
+                  key := MAXWORD;
+    VK_UP    : if dtmautenticacoes.InicioParcelasPrestacao then
+                  key := MAXWORD;
+    VK_Delete: if (shift = [ssCtrl]) then
+                  key := MAXWORD;
+  end; //end case
+end;
+
+procedure TfrmAutenticacoesCaixa.sbnConsultaMotivoDevolucoesClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  edfCodigoMotivoDevolucoes.SetFocus;
+  InternoPesquisar('');
+end;
+
+function TfrmAutenticacoesCaixa.verificarNumeroCheque(numero: string): boolean;
+begin
+  result := false;
+  if not dtmautenticacoes.chequeValido(numero) then
+    MensagemErro(ctERRORCHEQUENUMERO)
+  else if dtmautenticacoes.ExisteCheque('numero', numero) then
+    MensagemAviso(ctNUMEROCHEQUECADASTRADO)
+  else
+    result := true;
+end;
+
+procedure TfrmAutenticacoesCaixa.CalcularPrestacaoAntecipada;
+var
+  Pos: TBookmark;
+begin
+  if pgcAutenticacoes.ActivePage = tstPrestacoes then
+  begin
+    if (dtmautenticacoes.ParcelaAutenticavel) then
+    begin
+      pos := dtmautenticacoes.qryParcelasPrestacao.GetBookmark;
+      if dtmautenticacoes.parcelaAnteriorAutenticada(Pos) then
+      begin
+        dtmautenticacoes.ProcessarDescontoAntecipado
+      end
+      else
+        MensagemAviso(ctPARCELAESTAANTERIORNAOAUTENTICADA);
+    end
+    else
+      MensagemAviso(ctPARCELAESTAAUTENTICADA);
+  end
+  else
+  begin
+    if dtmautenticacoes.SelecionarParaAutenticacao then
+    begin
+      dtmautenticacoes.ProcessarDescontoAntecipadoParcelasAberto;
+      dtmautenticacoes.EditPostParcelasAberto;
+      AtualizarContadores(true);
+    end
+    else
+      MensagemAviso(ctALTERARVALORPARCELASABERTO);
+  end;
+end;
+
+procedure TfrmAutenticacoesCaixa.processarPrestacaoParcial;
+var
+  Pos: TBookmark;
+begin
+  if pgcAutenticacoes.ActivePage = tstPrestacoes then
+  begin
+    if (dtmautenticacoes.parcelaAutenticavel) then
+    begin
+      pos := dtmautenticacoes.qryParcelasPrestacao.GetBookmark;
+      if dtmautenticacoes.parcelaAnteriorAutenticada(Pos) then
+      begin
+        frmvalorparcial := Tfrmvalorparcial.Create(frmvalorparcial);
+        frmValorParcial.Caption:= 'Valor Parcial';
+        frmvalorparcial.setDataModuloAutenticacoes(dtmautenticacoes);
+        frmvalorparcial.setTipoPagamentoParcial(ppPARCELAS);
+        frmvalorparcial.ShowModal;
+        frmvalorparcial.Free;
+        SetFocus;
+      end
+      else
+        MensagemAviso(ctPARCELAESTAANTERIORNAOAUTENTICADA);
+    end else
+      MensagemAviso(ctPARCELAESTAAUTENTICADA);
+  end else
+  begin
+    if dtmautenticacoes.SelecionarParaAutenticacao then
+    begin
+      frmValorParcial := TfrmValorParcial.Create(frmValorParcial);
+      dtmautenticacoes.TotalMarcados := dtmautenticacoes.TotalMarcados - dtmautenticacoes.ParcelasAbertoValorPagto;
+      frmValorParcial.Caption := 'Valor Parcial';
+      frmvalorparcial.setDataModuloAutenticacoes(dtmautenticacoes);
+      frmvalorparcial.setTipoPagamentoParcial(ppPARCELASABERTO);
+      frmvalorparcial.ShowModal;
+      dtmautenticacoes.TotalMarcados := dtmautenticacoes.TotalMarcados + dtmautenticacoes.ParcelasAbertoValorPagto;
+      if frmValorParcial.ModalResult = mrok then
+      begin
+        dtmautenticacoes.EditPostParcelasAberto;
+        AtualizarContadores(true);
+      end;
+      frmvalorparcial.Free;
+      SetFocus;
+    end else
+      MensagemAviso(ctALTERARVALORPARCELASABERTO);
+  end;
+end;
+
+procedure TfrmAutenticacoesCaixa.processarAlteracaoPrestacao;
+var
+  Pos: TBookmark;
+begin
+  if pgcAutenticacoes.ActivePage = tstPrestacoes then
+  begin
+    if (dtmautenticacoes.ParcelaAutenticavel)then
+    begin
+      pos := dtmautenticacoes.qryParcelasPrestacao.GetBookmark;
+      if dtmautenticacoes.parcelaAnteriorAutenticada(Pos) then
+      begin
+        frmvalorparcial := Tfrmvalorparcial.Create(frmvalorparcial);
+        frmValorParcial.TotalAutenticado := StrToFloat(lblTotalAutenticadoValor.Caption);
+        frmValorParcial.EmAlteracao := True;
+        frmValorParcial.Caption:= 'Alterar valor';
+        frmvalorparcial.setDataModuloAutenticacoes(dtmautenticacoes);
+        frmvalorparcial.setTipoPagamentoParcial(ppALTERARPARCELAS);
+        frmvalorparcial.ShowModal;
+        frmvalorparcial.Free;
+        Refresh;
+        SetFocus;
+      end
+      else
+        MensagemAviso(ctPARCELAESTAANTERIORNAOAUTENTICADA);
+    end
+    else
+      MensagemAviso(ctPARCELAESTAAUTENTICADA);
+  end else
+  begin
+    if dtmautenticacoes.SelecionarParaAutenticacao then
+    begin
+      frmValorParcial := TfrmValorParcial.Create(frmvalorparcial);
+//      dtmautenticacoes.TotalMarcados := dtmautenticacoes.TotalMarcados - dtmautenticacoes.ParcelasAbertoValorPagto;
+      frmValorParcial.TotalAutenticado := StrToFloat(edtTotalMarcados.ValorSemFormatacao);
+      frmValorParcial.EmAlteracao := True;
+      frmValorParcial.Caption := 'Alterar valor';
+      frmValorParcial.setDataModuloAutenticacoes(dtmautenticacoes);
+      frmvalorparcial.setTipoPagamentoParcial(ppALTERARPARCELASABERTO);
+      frmvalorparcial.ShowModal;
+      dtmautenticacoes.TotalMarcados := dtmautenticacoes.TotalMarcados + dtmautenticacoes.ValorAlteracaoParcelasAberto;
+      if frmValorParcial.ModalResult = mrok then
+      begin
+        dtmautenticacoes.EditPostParcelasAberto;
+        AtualizarContadores(true);
+      end;
+      frmvalorparcial.Free;
+      Refresh;
+      dbgParcelasAberto.SetFocus;
+    end else
+      MensagemAviso(ctALTERARVALORPARCELASABERTO);
+  end
+end;
+
+procedure TfrmAutenticacoesCaixa.sbnParcelaAlterarClick(Sender: TObject);
+begin
+  inherited;
+  ProcessarAlteracaoPrestacao;
+end;
+
+procedure TfrmAutenticacoesCaixa.sbnParcelaParcialClick(Sender: TObject);
+begin
+  processarPrestacaoParcial;
+end;
+
+procedure TfrmAutenticacoesCaixa.processarAutenticacoes;
+begin
+  if (not(pgcAutenticacoes.ActivePageIndex in [4,7]) and (dtmautenticacoes.TransferenciaNaoConfirmada)) then
+    MensagemAviso(ctCAIXATRANSFERENCIANAOCONFIRMADA)
+  else// if dtmautenticacoes.ECFDisponivel then
+    case pgcAutenticacoes.ActivePageIndex of
+      0: Parcelas;
+      1: AutenticacaoCheques;
+      2: Devolucoes;
+      3: AutenticacaoDocumentos;
+      4: AutenticacaoCancelamentos;
+      5: AutenticacaoResgateCheques;
+      6: AutenticacaoTransferencias;
+      7: AutenticacaoConfirmacaoTransferencias;
+      8: AutenticacaoPerdas;
+      9: AutenticacaoDuplicatas;
+     10: AutenticacaoDepositos;
+    end
+end;
+
+procedure TfrmAutenticacoesCaixa.AutenticacaoCancelamentos;
+begin
+  if dtmautenticacoes.TransferenciaJaConfirmada then
+  begin
+    MensagemAviso(ctTRANSFERENCIAJACONFIRMADA);
+    dtmautenticacoes.RefazConsultaAutenticacoes;
+    edfCodigoMotivoCancelamento.SetFocus;
+  end
+  else
+    if dtmautenticacoes.VerificaAutenticacoesOrigemFrentedeCaixa and
+       dtmautenticacoes.VerificaAutenticacoesMesmaTransacao then
+    begin
+      dtmautenticacoes.VerificaExclusaoCheques;
+      if dtmautenticacoes.AutoriazadoParaCancelamento then
+        if dadosCompletosParaAutenticarCancelamento then
+          if abrirJanelaImpressao(ctCaixaCancelamento) = mrOK then begin
+            if not ParSistema.AutenticacaoParcelasModo2 then
+              lblTotalAutenticadoValor.Caption := FloatToStrF(strToFloat(lblTotalAutenticadoValor.Caption)-dtmautenticacoes.ValorAutenticacao, ffFixed, 18, 2)
+            else
+            begin
+              dtmautenticacoes.RefazConsultaParcelasAberto(True);
+              dtmautenticacoes.SelecionarAtrasadosData;
+              AtualizarContadores(False);
+            end;
+            dtmautenticacoes.RefazConsultaAutenticacoes;
+            edfCodigoMotivoCancelamento.SetFocus;
+          end;
+    end;
+end;
+
+procedure TfrmAutenticacoesCaixa.AutenticacaoCheques;
+begin
+    if fraCMC7Cheque.ChequeValido then begin
+//    if dtmautenticacoes.ChequeValido(edtNumeroCheque.Text) then begin
+      if DadosCompletosParaAutenticarCheque then
+        if AbrirJanelaImpressao(ctCaixaCheques) = mrOK then begin
+          flkCodigoClienteCheques.Clear;
+          dtxNomeClienteCheques.DataSource.DataSet.FieldByName('nome').Clear;
+          fraCMC7Cheque.LimparCampos;
+//          edtNumeroCheque.Clear;
+          DesabilitarCamposCheque;
+          PrestacaoEmAndamento:= False;
+        end
+//    end else begin
+//      MensagemErro(ctERRORCHEQUENUMERO);
+//      edtNumeroCheque.SetFocus;
+    end
+    else MensagemErro(ctERRORCHEQUENUMERO);
+end;
+
+procedure TfrmAutenticacoesCaixa.AutenticacaoConfirmacaoTransferencias;
+begin
+  if dtmautenticacoes.NroRegistrosTransferenciaPendente > 0 then begin
+    if dtmautenticacoes.TransferenciaCancelada then
+    begin
+      MensagemAviso(ctTRANSFERENCIACANCELADA);
+      dbgTransferenciasPendentes.SetFocus;
+    end
+    else if dtmautenticacoes.RetornoTransferencia then begin
+      if abrirJanelaImpressao(ctCaixaConfirmRetornoTransferencia) = mrOK then
+        dtmautenticacoes.reFazConsultaTransferenciaPendente
+    end else if MensagemConfirmacao(ctCONFIRMARECEBERTRANSF) = smbOk then begin
+      if ParSistema.PermitirTransferenciaValorDiferente then
+      begin
+        if ConfirmarValorTransferencia > 0 then
+          if abrirJanelaImpressao(ctCaixaConfirmacaoTransferencia) = mrOK then
+            dtmautenticacoes.reFazConsultaTransferenciaPendente
+      end
+      else
+        if abrirJanelaImpressao(ctCaixaConfirmacaoTransferencia) = mrOK then
+          dtmautenticacoes.reFazConsultaTransferenciaPendente
+   end //else if dtmautenticacoes.autenticarConfirmacaoTransferencia(dtmautenticacoes.NumeroTransferenciaPendente, atTransferenciaNaoConfirmada) = mrOK then
+ //     dtmautenticacoes.reFazConsultaTransferenciaPendente
+  end else
+    MensagemErro(ctERRORSEMTRANSFERENCIAPENDENTE)
+end;
+
+procedure TfrmAutenticacoesCaixa.AutenticacaoDepositos;
+begin
+  if edtValorDeposito.Enabled then
+  begin
+    if dadosCompletosParaAutenticarDeposito then
+    begin
+      if (Not ParSistema.SaldoCaixaNegativo) and (strToFloat(edtValorDeposito.ValorSemFormatacao) >= dtmautenticacoes.ValorSaldoAtualCaixa) then
+      begin
+        MensagemErro(ctERRORVALORDEPOSITO);
+        edtValorDeposito.SetFocus;
+        edtValorDeposito.SelectAll
+      end else
+      begin
+        abrirJanelaImpressao(ctCaixaDepositos);
+        edtValorDeposito.Clear;
+
+        fraConsultaContas.edfCodigo.SetFocus;
+        fraConsultaContas.edfCodigo.SetControl(false);
+        dtmautenticacoes.ReFazConsultaCaixa
+      end
+    end else
+      MensagemErro(ctERRORDADOSINCOMPLETOSAUTENTICACAO);
+  end else
+    MensagemAviso(ctBANCONAOINFORMADO)
+end;
+
+procedure TfrmAutenticacoesCaixa.AutenticacaoDevolucoes;
+begin
+  if Trim(edfCodigoContratoDevolucoes.Text) <> '' then
+  begin
+    if dtmautenticacoes.AutorizadoParaDevolucao then
+    begin
+      if dadosCompletosParaAutenticarDevolucao then
+      begin
+        if dtmautenticacoes.devolucaoAutenticavel then
+        begin
+          if abrirJanelaImpressao(ctCaixaDevolucao) = mrOK then
+          begin
+            dtmautenticacoes.ReFazConsulta(dtmautenticacoes.TabelaDevolucoes, [0], [0]);
+            dtmautenticacoes.ReFazConsulta(dtmautenticacoes.TabelaMotivosDevolucao, [0], [0]);
+            edfCodigoContratoDevolucoes.SetFocus;
+            edfCodigoContratoDevolucoes.SetControl(false);
+          end;
+        end
+        else
+          MensagemErro(ctERRORDEVOLUCAONAOAUTENTICAVEL);
+      end
+    end
+  end
+  else
+    MensagemAviso(ctCONTRATONAOINFORMADO)
+end;
+
+procedure TfrmAutenticacoesCaixa.AutenticacaoDocumentos;
+var
+ I: integer;
+begin
+  if dbgMenuHistorico.Enabled then begin
+    if dadosCompletosParaAutenticarDocumento then begin
+      if abrirJanelaImpressao(ctCaixaDocumentos) = mrOK then begin
+        dtmautenticacoes.ReFazConsulta(dtmautenticacoes.TabelaEvento, [0], [0]);
+        dtmautenticacoes.ReFazConsulta(dtmautenticacoes.TabelaHistoricosEvento, [0], [0]);
+        edtDataDocumento.Clear;
+        edtValorDocumento.Clear;
+        edfCodigoEventos.SetFocus;
+        edfCodigoEventos.SetControl(false);
+        for i := 0 to gbxDocumentosParametros.ComponentCount - 1 do
+        begin
+          TCustomEdit(gbxDocumentosParametros.Components[i]).Visible := false;
+          TLabel(gbxDocumentosParametros.Components[i]).visible := false;
+        end;
+//        MontaParametros;
+      end;
+    end
+  end else
+    MensagemAviso(ctEVENTONAOINFORMADO)
+end;
+
+procedure TfrmAutenticacoesCaixa.AutenticacaoDuplicatas;
+begin
+  if dtmautenticacoes.DuplicataAutenticavel then begin
+    if AbrirJanelaImpressao(ctCaixaDuplicatas)= mrOK then begin
+      if (dtmautenticacoes.NroRegistrosDuplicatasDoc > 0) then
+        dbgDuplicatasAberto.SetFocus
+      else begin
+        edfCodigoFornecedor.SetFocus;
+        edfCodigoFornecedor.SetControl(false)
+      end
+    end
+  end else
+    MensagemErro(ctERRORDUPLICATANAOAUTORIZADA)
+end;
+
+procedure TfrmAutenticacoesCaixa.AutenticacaoParcelas;
+var
+Pos: TBookmark;
+begin
+
+
+  if TestarNumeroParcela then
+  begin
+  //jr
+    Pos := dtmautenticacoes.qryParcelasPrestacao.GetBookmark;
+    if (edfCodigoClienteContratoPrestacoes.Text <> '') and dbgParcelasPrestacoes.Enabled then
+    begin
+    //if dtmautenticacoes.qryContratosPrestacao.Locate('numero',dbgContratosPrestacoes.DataSource.DataSet.FieldByName('numero').AsString,[]) then
+    //begin
+      edfCodigoClienteContratoPrestacoes.Text:=dbgContratosPrestacoes.DataSource.DataSet.FieldByName('numero').AsString;
+      if not dtmautenticacoes.qryParcelasPrestacaoquitado.AsBoolean then
+        if edfCodigoClienteContratoPrestacoes.Exist then
+          if dtmautenticacoes.parcelaAnteriorAutenticada(Pos) then
+            if dtmautenticacoes.parcelaAutenticavel then
+            begin
+              if AbrirJanelaImpressao(ctCaixaParcelas) = mrOK then
+              begin
+                lblTotalAutenticadoValor.Caption := FloatToStrF(strToFloat(lblTotalAutenticadoValor.Caption)+dtmautenticacoes.ValorParcela, ffFixed, 18, 2);
+                if ParSistema.InformarParcelaQuitar then
+                begin
+                  edtNumeroParcela.Text := '';
+                  edtNumeroParcela.SetFocus;
+                end
+                else
+                  edtNumeroParcela.Text := IntToStr(dtmautenticacoes.NumeroParcela);
+                PrestacaoEmAndamento := True;
+              end;
+            end
+            else
+              MensagemAviso(ctPARCELAESTAAUTENTICADA)
+          else
+            MensagemAviso(ctPARCELAESTAANTERIORNAOAUTENTICADA)
+        else
+        edfCodigoClienteContratoPrestacoesFound(True)
+      else
+        MensagemAviso(ctPARCELAESTAAUTENTICADA);
+    end
+    else
+       MensagemAviso(ctCONTRATONAOINFORMADO);
+  end;
+end;
+
+procedure TfrmAutenticacoesCaixa.AutenticacaoPerdas;
+begin
+  if dbgContratosPerdas.Enabled then begin
+    if dadosCompletosParaAutenticarPerda then begin
+      if abrirJanelaImpressao(ctCaixaPerda) = mrOK then begin
+        if (dtmautenticacoes.NroRegistrosContratosPerda > 0) then
+          dbgContratosPerdas.SetFocus
+        else begin
+          edfCodigoContratoPerdas.SetFocus;
+          dtmautenticacoes.ReFazConsulta(dtmautenticacoes.TabelaPerda, [0],[''])
+        end
+      end
+    end
+  end
+end;
+
+procedure TfrmAutenticacoesCaixa.AutenticacaoResgateCheques;
+begin
+  if dtmautenticacoes.ResgateAutenticavel then begin
+
+    frmvalorparcial := Tfrmvalorparcial.Create(frmvalorparcial);
+    frmvalorparcial.Caption:= 'Valor resgate';
+    frmvalorparcial.ResgateParc:= False;
+    frmvalorparcial.setDataModuloAutenticacoes(dtmautenticacoes);
+    frmvalorparcial.setTipoPagamentoParcial(ppPARCELASCHEQUES);
+    if frmvalorparcial.ShowModal = mrOK then begin
+      frmvalorparcial.Free;
+      SetFocus;
+
+      if AbrirJanelaImpressao(ctCaixaResgateCheques) = mrOK then begin
+        if dtmautenticacoes.NroRegistrosResgateCheques > 0 then
+             dbgParcelasCheque.SetFocus
+        else fraCMC7Cheque.edtCMC7.SetFocus;
+      end
+    end
+  end else
+    MensagemErro(ctRESGATEESTAAUTENTICADO)
+end;
+
+procedure TfrmAutenticacoesCaixa.AutenticacaoTransferencias;
+var
+valorcampo:real;
+temp:string;
+begin
+  if edtValorTransferencia.Enabled then
+  begin
+   temp:=Trocar(edtValorTransferencia.Text,'.','');
+   valorcampo:=StrToFloat(temp);
+    if dadosCompletosParaAutenticarTransferencia then
+    begin
+      if (valorcampo > dtmautenticacoes.ValorSaldoAtualCaixa) then
+      begin
+        MensagemErro(ctERRORVALORTRANSFERENCIA);
+        edtValorTransferencia.SetFocus;
+        edtValorTransferencia.SelectAll
+      end
+      else if abrirJanelaImpressao(ctCaixaTransferencia) = mrOK then
+      begin
+          dtmautenticacoes.ReFazConsultaCaixa;
+          edtValorTransferencia.Clear;
+          edfCodigoCaixa.SetFocus;
+          edfCodigoCaixa.SetControl(false)
+      end
+    end
+  end
+  else
+    MensagemAviso(ctUSUARIONAOINFORMADO)
+end;
+
+function TfrmAutenticacoesCaixa.abrirJanelaImpressao(tipoAutenticacao: integer): integer;
+var
+  ValorPrestacao: Real;
+  ValorPrestacaoAnterior:Real;
+begin
+  dtmautenticacoes.ObservacoesAutenticacoes := '';
+  frmimpressaoautenticacao:= Tfrmimpressaoautenticacao.Create(frmimpressaoautenticacao);
+
+  frmimpressaoautenticacao.setDataModulo(dtmautenticacoes);
+
+  case tipoAutenticacao of
+    ctCaixaParcelas                : begin
+                                       ValorPrestacaoAnterior:=dtmautenticacoes.PrestacaoValorPagto;
+                                       ValorPrestacao := dtmautenticacoes.PrestacaoValorPagtoCartao;
+                                       dtmautenticacoes.PrestacaoValorPagto:=ValorPrestacaoAnterior;
+                                       if ValorPrestacao > 0 then
+                                         frmimpressaoautenticacao.parametrosParcela(dtmautenticacoes.NumeroContratoPrestacao, True, tipoAutenticacao, ValorPrestacao, True)
+                                       else
+                                         frmimpressaoautenticacao.parametrosParcela(dtmautenticacoes.NumeroContratoPrestacao, True, tipoAutenticacao, dtmautenticacoes.PrestacaoValorPagto, False);
+                                     end;
+    ctCaixaDevolucao               : frmimpressaoautenticacao.parametrosDevolucao(tipoAutenticacao, edfCodigoContratoDevolucoes.text, strToInt(edfCodigoMotivoDevolucoes.text), dtmautenticacoes.ValorSugeridoDevolucao);
+    ctCaixaDocumentos              : frmimpressaoautenticacao.parametrosDocumento(tipoAutenticacao, strToInt(edfCodigoEventos.text), dtmautenticacoes.CodigoHistoricoHistoricoEvento, ckbSaidas.Checked, retornarStringParametros, edtDataDocumento.Text, strToFloat(edtValorDocumento.ValorSemFormatacao));
+    ctCaixaCheques                 : frmimpressaoautenticacao.parametrosCheque(tipoAutenticacao,
+                                                              fraCMC7Cheque.NumeroCheque {edtNumeroCheque.Text},
+                                                              edtTitularCheque.Text,
+                                                              flkCodigoClienteCheques.Text,
+                                                              dtmautenticacoes.NomeTipoCliente[paCLIENTESCHEQUES],
+                                                              edtVencimentoCheque.Text,
+                                                              strToFloat(edtValorCheque.ValorSemFormatacao),
+                                                              mmoObservacaoCheque1.Text);
+    ctCaixaCancelamento            : begin
+                                       if dtmautenticacoes.CancelamentoTransacao then
+                                         frmimpressaoautenticacao.parametrosCancelamentoTransacao(tipoAutenticacao,strToInt(edfCodigoMotivoCancelamento.Text))
+                                       else
+                                         frmimpressaoautenticacao.parametrosCancelamento(tipoAutenticacao, dtmautenticacoes.NumeroAutenticacaoParaCancelar, strToInt(edfCodigoMotivoCancelamento.Text), dtmautenticacoes.ValorAutenticacao);
+                                     end;
+    ctCaixaResgateCheques          : frmimpressaoautenticacao.parametrosResgateCheque(tipoAutenticacao, dtmautenticacoes.ChequeParcelasResgate, dtmautenticacoes.NumeroParcelasResgate, dtmautenticacoes.ResgateValorPagto);
+    ctCaixaTransferencia           : frmimpressaoautenticacao.parametrosTransferencia(tipoAutenticacao, strToInt(edfCodigoCaixa.Text), StrToFloaT(Trocar(edtValorTransferencia.Text,'.','')));
+    ctCaixaConfirmRetornoTransferencia,
+    ctCaixaConfirmacaoTransferencia: frmimpressaoautenticacao.parametrosConfirmacaoTransferencia(tipoAutenticacao, dtmautenticacoes.NumeroTransferenciaPendente, dtmautenticacoes.ValorTransferenciaPendente);
+    ctCaixaPerda                   : frmimpressaoautenticacao.parametrosPerda(tipoAutenticacao, dtmautenticacoes.NumeroContratoPerda, strToInt(edfCodigoMotivoPerda.Text), dtmautenticacoes.ValorPerdaContrato);
+    ctCaixaDuplicatas              : frmimpressaoautenticacao.parametrosDuplicata(tipoAutenticacao, dtmautenticacoes.ValorDuplicata);
+
+    ctCaixaDepositos               : frmimpressaoautenticacao.parametrosDeposito(tipoAutenticacao, fraConsultaContas.qryProcuraContasnrbanco.asInteger,
+                                                                                  fraConsultaContas.qryProcuraContasbanco.asString,
+                                                                                 fraConsultaContas.qryProcuraContasconta.asInteger,
+                                                                                 fraConsultaEventoDeposito.qryProcuraEventoscodigo.asinteger,
+                                                                                 strToFloat(edtValorDeposito.ValorSemFormatacao));
+
+    ctCaixaDevolucaoSaldo          : frmimpressaoautenticacao.parametrosDevolucaoSaldo(tipoAutenticacao, edtValorSaldoCreditoTrocaaDevolver.ValorSemFormatacao);
+    ctCaixaParcelasAberto          : frmimpressaoautenticacao.parametrosParcelasAberto(tipoAutenticacao, dtmautenticacoes.TotalMarcados,dtmautenticacoes.PrestacaoValorPagtoCartao>0);
+  end;
+  frmimpressaoautenticacao.ShowModal;
+  result := frmimpressaoautenticacao.Retorno;
+  frmimpressaoautenticacao.Free;
+  SetFocus;
+end;
+
+procedure TfrmAutenticacoesCaixa.sbnConsultaClienteChequeClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  flkCodigoClienteCheques.SetFocus;
+  InternoPesquisar('')
+end;
+
+function TfrmAutenticacoesCaixa.DadosCompletosParaAutenticarCheque: boolean;
+begin
+  Result := False;
+  if ActiveControl = flkCodigoClienteCheques then begin
+    if not flkCodigoClienteCheques.Exist then begin
+      MensagemAviso(Format(ctNAOCADASTRADO,['Cliente',flkCodigoClienteCheques.Text]));
+      flkCodigoClienteCheques.SetFocus;
+      Exit;
+    end;
+  end;
+  if flkCodigoClienteCheques.Text = '' then begin
+    MensagemAviso(Format(ctCAMPODEVESERPREENCHIDO, ['Cliente']));
+    flkCodigoClienteCheques.SetFocus;
+  end else if (edtTitularCheque.Text = '') then begin
+    MensagemAviso(Format(ctCAMPODEVESERPREENCHIDO, ['Titular']));
+    edtTitularCheque.SetFocus;
+  end else if (edtVencimentoCheque.Text = '') then begin
+    MensagemAviso(Format(ctCAMPODEVESERPREENCHIDO, ['Vencimento']));
+    edtVencimentoCheque.SetFocus;
+  end else if (edtValorCheque.Text = '') then begin
+    MensagemAviso(Format(ctCAMPODEVESERPREENCHIDO, ['Valor']));
+    edtValorCheque.SetFocus;
+  end else
+    result := true;
+end;
+
+procedure TfrmAutenticacoesCaixa.dbgParcelasChequeDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if gdSelected in State then begin
+    if dbgParcelasCheque.DataSource.DataSet.FieldByName('resgatado').AsBoolean then
+      dbgParcelasCheque.Canvas.Brush.Color := $00E9E9E9
+    else
+      dbgParcelasCheque.Canvas.Brush.Color := $00D5FFD5;
+  end else begin
+    if dbgParcelasCheque.DataSource.DataSet.FieldByName('resgatado').AsBoolean then
+      dbgParcelasCheque.Canvas.Brush.Color := $00E9E9E9
+    else
+      dbgParcelasCheque.Canvas.Brush.Color := clWhite;
+  end;
+  dbgParcelasCheque.Canvas.Font.Color  := clBlack;
+  dbgParcelasCheque.DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+procedure TfrmAutenticacoesCaixa.dbgParcelasChequeKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  case key of
+    VK_DOWN  : if dtmautenticacoes.FinalParcelasResgate then
+                  key := MAXWORD;
+    VK_UP    : if dtmautenticacoes.InicioParcelasResgate then
+                  key := MAXWORD;
+    VK_Delete: if (shift = [ssCtrl]) then
+                  key := MAXWORD;
+  end
+end;
+{
+procedure TfrmAutenticacoesCaixa.processarResgateParcial;
+begin
+  if (dtmautenticacoes.ResgateAutenticavel)then begin
+    frmvalorparcial := Tfrmvalorparcial.Create(Self);
+    frmvalorparcial.Caption:= 'Valor parcial';
+    frmvalorparcial.ResgateParc:= True;
+    frmvalorparcial.setDataModuloAutenticacoes(dtmautenticacoes);
+    frmvalorparcial.setTipoPagamentoParcial(ppPARCELASCHEQUES);
+    frmvalorparcial.ShowModal;
+    frmvalorparcial.Free;
+    SetFocus
+  end
+  else MensagemAviso(ctRESGATEESTAAUTENTICADO)
+end;
+ }
+function TfrmAutenticacoesCaixa.dadosCompletosParaAutenticarDeposito: boolean;
+begin
+  result := false;
+
+  if (ParSistema.InicioIntegracaoBancos > StrToDateTime('01/01/1980')) and
+     (parsistema.EVENTOPARADEPOSITOSAUTENTICACOES='') then
+  begin
+    MensagemErro('O sistema possui integração com bancos e o campo evento esta nulo'+chr(13)+
+                 'Verifique em Configurações/Parametros do Sistema/Caixa');
+  end
+  else
+  begin
+
+    if ActiveControl = fraConsultaContas.edfCodigo then begin
+      if not fraConsultaContas.edfCodigo.Exist then begin
+        fraConsultaContas.edfCodigo.SetFocus;
+        Exit;
+      end;
+    end;
+
+    if (fraConsultaContas.edfCodigo.Text = '') then begin
+      MensagemAviso(Format(ctCAMPODEVESERPREENCHIDO, ['Conta banco']));
+      fraConsultaContas.edfCodigo.SetFocus;
+    end else if (edtValorDeposito.Text = '') then begin
+      MensagemAviso(Format(ctCAMPODEVESERPREENCHIDO, ['Valor']));
+      edtValorDeposito.SetFocus;
+    end else
+      result := true;
+  end;
+end;
+
+procedure TfrmAutenticacoesCaixa.edfCodigoContratoPerdasFound(Found: Boolean);
+begin
+  inherited;
+  if Found then begin
+    dtmautenticacoes.refazConsultaContratosPerda;
+  end;
+end;
+
+procedure TfrmAutenticacoesCaixa.edfCodigoContratoPerdasKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (Key = VK_ESCAPE) and (Shift = []) and (edfCodigoContratoPerdas.Text = '') then begin
+    dtmautenticacoes.refazConsultaContratosPerda;
+    edfCodigoContratoPerdas.SetFocus;
+    edfCodigoMotivoPerda.Enabled := False
+  end;
+  pgcAutenticacoesChange(nil);
+end;
+
+function TfrmAutenticacoesCaixa.dadosCompletosParaAutenticarDevolucao: boolean;
+var
+  Str: String;
+begin
+  result := false;
+  if ActiveControl = edfCodigoContratoDevolucoes then begin
+    if not edfCodigoContratoDevolucoes.Exist then begin
+      edfCodigoContratoDevolucoes.SetFocus;
+      if edfCodigoContratoDevolucoes.Text <> '' then
+        Exit;
+    end;
+  end else if ActiveControl = edfCodigoMotivoDevolucoes then begin
+    if not edfCodigoMotivoDevolucoes.Exist then begin
+      Str := edfCodigoMotivoDevolucoes.Text;
+      edfCodigoMotivoDevolucoes.Text := '';
+      edfCodigoMotivoDevolucoes.SetFocus;
+      if Str <> '' then
+        Exit;
+    end
+  end;
+  if (edfCodigoMotivoDevolucoes.Text = '') then begin
+    MensagemAviso(Format(ctCAMPODEVESERPREENCHIDO, ['Motivo']));
+    edfCodigoMotivoDevolucoes.SetFocus;
+  end else
+    result := true;
+end;
+
+function TfrmAutenticacoesCaixa.dadosCompletosParaAutenticarCancelamento: boolean;
+var
+  Str: String;
+begin
+  result := false;
+  if dtmautenticacoes.NumeroAutenticacaoParaCancelar <= 0 then
+    Exit
+  else if ActiveControl = edfCodigoMotivoCancelamento then
+    if not edfCodigoMotivoCancelamento.Exist then begin
+      Str := edfCodigoMotivoCancelamento.Text;
+      edfCodigoMotivoCancelamento.Text := '';
+      edfCodigoMotivoCancelamento.SetFocus;
+      if Str <> '' then
+        Exit
+  end;
+  if (edfCodigoMotivoCancelamento.Text = '') then begin
+    MensagemAviso(Format(ctCAMPODEVESERPREENCHIDO, ['Motivo']));
+    edfCodigoMotivoCancelamento.SetFocus;
+  end else
+    result := true;
+end;
+
+function TfrmAutenticacoesCaixa.dadosCompletosParaAutenticarPerda: boolean;
+var
+  Str: String;
+begin
+  result := false;
+  if ActiveControl = edfCodigoContratoPerdas then begin
+    if not edfCodigoContratoPerdas.Exist then begin
+      edfCodigoContratoPerdas.SetFocus;
+      if edfCodigoContratoPerdas.Text <> '' then
+        Exit;
+    end;
+  end else begin
+    if ActiveControl = edfCodigoMotivoPerda then begin
+      if not edfCodigoMotivoPerda.Exist then begin
+        Str := edfCodigoMotivoPerda.Text;
+        edfCodigoMotivoPerda.Text := '';
+        edfCodigoMotivoPerda.SetFocus;
+        if Str <> '' then
+          Exit;
+      end;
+    end;
+  end;
+  if (edfCodigoMotivoPerda.Text = '') then begin
+    MensagemAviso(Format(ctCAMPODEVESERPREENCHIDO, ['Motivo']));
+    edfCodigoMotivoPerda.SetFocus;
+  end else if edfCodigoContratoPerdas.Text = '' then begin
+    MensagemAviso(ctCONTRATONAOINFORMADO);
+    edfCodigoContratoPerdas.SetFocus;
+  end else
+    result := true;
+end;
+
+procedure TfrmAutenticacoesCaixa.sbnConsultaMotivosPerdaClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  edfCodigoMotivoPerda.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmAutenticacoesCaixa.sbnConsultaMotivosCancelamentoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  edfCodigoMotivoCancelamento.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmAutenticacoesCaixa.MontaParametros;
+var i: integer;
+begin
+  if gbxDocumentosParametros.ComponentCount > 0 then
+    gbxDocumentosParametros.DestroyComponents;
+
+
+  if dtmautenticacoes.NroRegistrosHistoricosEvento > 0 then begin
+    if assigned(docHistorico) then
+      docHistorico.Free;
+    docHistorico := TParametrosHistorico.Create(dtmautenticacoes.DescricacaoHistoricosEvento);
+
+    for i := 0 to docHistorico.NroParametros - 1 do begin
+      docLabel           := TLabel.Create(gbxDocumentosParametros);
+      docLabel.Left      := 50;
+      docLabel.Width     := 130;
+      docLabel.Top       := (i * 27) + 40;
+
+      if docHistorico.ParametroTipo(i+1) = '*N' then
+        docEdit := TEditNumero.Create(gbxDocumentosParametros)
+      else if docHistorico.ParametroTipo(i+1) = '*DMA' then
+        docEdit := TEditData.Create(gbxDocumentosParametros)
+      else if docHistorico.ParametroTipo(i+1) = '*MA' then
+        docEdit := TEditMesAno.Create(gbxDocumentosParametros)
+      else begin
+        docEdit      := TEdit.Create(gbxDocumentosParametros);
+        TEdit(docEdit).CharCase  := ecUpperCase;
+        docEdit.Width:= 220;
+      end;
+      docEdit.Left      := docLabel.Left + docLabel.Width + 5;
+      docEdit.Top       := docLabel.Top - 2;
+
+      gbxDocumentosParametros.InsertControl(docLabel);
+      docLabel.Caption := docHistorico.ParametroDescricao(i+1);
+      gbxDocumentosParametros.InsertControl(docEdit);
+      docEdit.parent := gbxDocumentosParametros;
+      docEdit.TabOrder := i;
+    end;
+  end;
+end;
+
+procedure TfrmAutenticacoesCaixa.AfterScrollHistoricosEvento(Sender: TObject);
+begin
+  MontaParametros;
+end;
+
+function TfrmAutenticacoesCaixa.retornarStringParametros: string;
+var i: integer;
+begin
+  result := '';
+  if gbxDocumentosParametros.ComponentCount > 0 then begin
+    for i := 0 to gbxDocumentosParametros.ComponentCount - 1 do begin
+      if not (gbxDocumentosParametros.Components[i].ClassType = TLabel) then
+        result := result + TCustomEdit(gbxDocumentosParametros.Components[i]).text+';';
+    end;
+  end;
+end;
+
+function TfrmAutenticacoesCaixa.dadosCompletosParaAutenticarDocumento: boolean;
+var i: integer;
+begin
+   Result:= false;
+   if ActiveControl = edfCodigoEventos
+   then if not edfCodigoEventos.Exist then begin
+           edfCodigoEventos.SetFocus;
+           Exit;
+        end;
+
+   if edtDataDocumento.Text = '' then begin
+      MensagemAviso(Format(ctCAMPODEVESERPREENCHIDO, ['Data']));
+      edtDataDocumento.SetFocus;
+   end
+   else begin
+      if edtValorDocumento.Text = '' then begin
+         MensagemAviso(Format(ctCAMPODEVESERPREENCHIDO, ['Valor']));
+         edtValorDocumento.SetFocus;
+      end
+      else begin
+         if dtmautenticacoes.NroRegistrosHistoricosEvento = 0
+         then Result:= True
+         else begin
+            if docHistorico.NroParametros = 0
+            then result := true
+            else begin
+               for i := 0 to gbxDocumentosParametros.ComponentCount - 1 do begin
+                   if not (gbxDocumentosParametros.Components[i].ClassType = TLabel) then begin
+                      if (TCustomEdit(gbxDocumentosParametros.Components[i]).text = '') then begin
+                         MensagemAviso(Format(ctCAMPODEVESERPREENCHIDO, [TLabel(gbxDocumentosParametros.Components[i-1]).Caption]));
+                         TCustomEdit(gbxDocumentosParametros.Components[i]).SetFocus;
+                         Result:= false;
+                         Break;
+                      end
+                      else Result:= true;
+                   end;
+               end;
+            end;
+         end;
+      end;
+   end;
+end;
+
+function TfrmAutenticacoesCaixa.dadosCompletosParaAutenticarTransferencia: boolean;
+begin
+  result := false;
+  if ActiveControl = edfCodigoCaixa then begin
+    if not edfCodigoCaixa.Exist then begin
+      edfCodigoCaixa.SetFocus;
+      Exit;
+    end;
+  end;
+
+  if (edfCodigoCaixa.Text = '') then begin
+    MensagemAviso(Format(ctCAMPODEVESERPREENCHIDO, ['Código']));
+    edfCodigoCaixa.SetFocus;
+  end else if (edtValorTransferencia.Text = '') then begin
+    MensagemAviso(Format(ctCAMPODEVESERPREENCHIDO, ['Valor']));
+    edtValorTransferencia.SetFocus;
+  end else
+    result := true;
+end;
+procedure TfrmAutenticacoesCaixa.dbgTransferenciasPendentesDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if gdSelected in State then begin
+    if dtmautenticacoes.RetornoTransferencia then
+      dbgTransferenciasPendentes.Canvas.Brush.Color := $00D5D5D5
+    else
+      dbgTransferenciasPendentes.Canvas.Brush.Color := $00D5FFD5;
+  end else begin
+    if dtmautenticacoes.RetornoTransferencia then
+      dbgTransferenciasPendentes.Canvas.Brush.Color := $00E9E9E9
+    else
+      dbgTransferenciasPendentes.Canvas.Brush.Color := clWhite;
+  end;
+  dbgTransferenciasPendentes.Canvas.Font.Color  := clBlack;
+  dbgTransferenciasPendentes.DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+procedure TfrmAutenticacoesCaixa.edfCodigoFornecedorFound(Found: Boolean);
+begin
+  inherited;
+  if found then
+    dtmautenticacoes.ReFazConsultaDocumentosPag;
+end;
+
+procedure TfrmAutenticacoesCaixa.sbnConsultaContratoPrestacoesClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  edfCodigoClienteContratoPrestacoes.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmAutenticacoesCaixa.sbnConsultaDevolucaoContratoClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  edfCodigoContratoDevolucoes.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmAutenticacoesCaixa.sbnConsultaEventoDocumentosClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  edfCodigoEventos.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmAutenticacoesCaixa.sbnConsultaCaixaTransferenciaClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  edfCodigoCaixa.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmAutenticacoesCaixa.sbnConsultaContratoPerdaClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  edfCodigoContratoPerdas.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmAutenticacoesCaixa.sbnConsultaFornecedorDuplicatasClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  edfCodigoFornecedor.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmAutenticacoesCaixa.edfCodigoContratoDevolucoesMessage(
+  var Msg: String);
+begin
+  inherited;
+  Msg := Format(ctAVISODEVOLUCAONUMERARIO, [edfCodigoContratoDevolucoes.Text]);
+end;
+
+procedure TfrmAutenticacoesCaixa.DesabilitarCamposCheque;
+begin
+  with dtmautenticacoes do begin
+    flkCodigoClienteCheques.Clear;
+    dtxNomeClienteCheques.DataSource.DataSet.FieldByName('nome').Clear;
+    edtTitularCheque.Clear;
+    edtVencimentoCheque.Clear;
+    edtValorCheque.Clear;
+    mmoObservacaoCheque1.Clear;
+//    CancelTabelaCheque;
+//    FecharTabelaDadosClienteCheque;
+  end;  
+end;
+
+procedure TfrmAutenticacoesCaixa.PreencherCamposCheque;
+begin
+  with dtmautenticacoes do begin
+    AtribuirClientePrestacaoEmCheque;
+    edtVencimentoCheque.Text   := DateToStr(DataServidor);
+    edtValorCheque.Text        := lblTotalAutenticadoValor.Caption;
+    if dtmautenticacoes.TipoCliente[paCLIENTESCHEQUES] = tcCLIENTE then
+         edtTitularCheque.Text := dtmautenticacoes.NomeCliente
+    else edtTitularCheque.Text := dtmautenticacoes.NomeFornecedor;
+  end;
+end;
+
+procedure TfrmAutenticacoesCaixa.dbgMenuHistoricoDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  if gdSelected in State then
+    dbgMenuHistorico.Canvas.Brush.Color := $00D5D5D5
+  else
+    dbgMenuHistorico.Canvas.Brush.Color := clWhite;
+  dbgParcelasPrestacoes.Canvas.Font.Color  := clBlack;
+  dbgMenuHistorico.DefaultDrawColumnCell(Rect, DataCol, Column, State)
+end;
+
+procedure TfrmAutenticacoesCaixa.edfCodigoCaixaMessage(var Msg: String);
+begin
+  inherited;
+  Msg := Format(ctAVISOCAIXATRANSFERENCIA ,[edfCodigoCaixa.Text]);
+end;
+
+procedure TfrmAutenticacoesCaixa.edfCodigoCaixaKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (Key = VK_ESCAPE) and (Shift = []) and (edfCodigoCaixa.Text = '') then
+    edtValorTransferencia.Text := '';
+end;
+
+procedure TfrmAutenticacoesCaixa.edfCodigoContratoPerdasMessage(var Msg: String);
+begin
+  inherited;
+  Msg := Format(ctAVISOPERDA , [edfCodigoContratoPerdas.Text]);
+end;
+{
+procedure Tfrmautenticacoes.acionaCadastroAtendimento(cliente: integer);
+begin
+  if cliente = 0 then begin
+    if dbgParcelasPrestacoes.Enabled then
+      cliente := dtmautenticacoes.CodigoClientePrestacao;
+  end;
+  if not Assigned(frmCadastroAtendimento) then
+    frmCadastroAtendimento:= TfrmCadastroAtendimento.Create(Self);
+  frmCadastroAtendimento.CodigoClienteAtual := cliente;
+  frmCadastroAtendimento.Tipo               := 'R';
+  frmCadastroAtendimento.Show;
+end;
+ }
+procedure TfrmautenticacoesCaixa.AcionaFichaFinanceira;
+var
+  Cliente    : Integer;
+  TipoCliente: String;
+begin
+  if pgcAutenticacoes.ActivePage =  tstPrestacoes then begin
+    Cliente     := dtmautenticacoes.CodigoClientePrestacao;
+    TipoCliente := dtmautenticacoes.TipoClientePrestacao;
+  end
+  else if pgcAutenticacoes.ActivePage =  tstDevolucoes then begin
+    Cliente     := dtmautenticacoes.CodigoClienteDevolucoes;
+    TipoCliente := dtmautenticacoes.TipoClienteDevolucoes;
+  end
+  else if pgcAutenticacoes.ActivePage = tstCheques then begin
+    Cliente     := dtmautenticacoes.CodigoClienteClientesCheque;
+    TipoCliente := dtmautenticacoes.TipoClienteCheque;
+  end
+  else if pgcAutenticacoes.ActivePage =  tstResgateCheque then begin
+    Cliente     := dtmautenticacoes.CodigoClienteResgate;
+    TipoCliente := dtmautenticacoes.TipoClienteResgate;
+  end
+  else if pgcAutenticacoes.ActivePage = tstPerdas then begin
+    Cliente     := dtmautenticacoes.CodigoClientePerdas;
+    TipOCliente := dtmautenticacoes.TipoClientePerdas;
+  end
+  else if pgcAutenticacoes.ActivePage = tstParcelasAberto then begin
+    Cliente     := dtmautenticacoes.CodigoClienteParcelasAberto;
+    TipoCliente := dtmautenticacoes.TipoClienteParcelasAberto;
+  end
+  else
+    Cliente := 0;
+  if Cliente > 0 then
+    TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado([Cliente,TipoCliente], 'TfrmFichaFinanceira', True);
+end;
+  {
+procedure Tfrmautenticacoes.sbnAtendimentosClick(Sender: TObject);
+begin
+  inherited;
+  acionaCadastroAtendimento;
+end;
+ }
+procedure TfrmautenticacoesCaixa.sbnFichaFinanceiraClick(Sender: TObject);
+begin
+  inherited;
+  acionaFichaFinanceira;
+end;
+
+procedure TfrmAutenticacoesCaixa.sbnAutenticarClick(Sender: TObject);
+begin
+  inherited;
+   ProcessarAutenticacoes;
+end;
+
+procedure TfrmAutenticacoesCaixa.edfCodigoMotivoDevolucoesFound(Found: Boolean);
+begin
+  inherited;
+  if Not Found then
+    edfCodigoMotivoDevolucoes.Text := ''
+end;
+
+procedure TfrmAutenticacoesCaixa.edfCodigoMotivoCancelamentoFound(Found: Boolean);
+begin
+  inherited;
+  if Not Found then
+    edfCodigoMotivoCancelamento.Text := ''
+end;
+
+procedure TfrmAutenticacoesCaixa.edfCodigoMotivoPerdaFound(Found: Boolean);
+begin
+  inherited;
+  if Not Found then
+    edfCodigoMotivoPerda.Text := ''
+end;
+
+procedure TfrmAutenticacoesCaixa.sbnResgateParcialClick(Sender: TObject);
+begin
+  inherited;
+//  ProcessarResgateParcial
+end;
+
+function TfrmAutenticacoesCaixa.ChequeOk: Boolean;
+begin
+  inherited;
+  Result:= True;
+  with dtmautenticacoes do begin
+    if ChequeCadastrado(fraCMC7Cheque.NumeroCheque) then begin
+      if ChequeAutenticado then
+        MensagemAviso(ctCHEQUEAUTENTICADO)
+      else if not SituacaoChequeNormal then
+        MensagemAviso(ctCHEQUENAONORMAL)
+      else
+        MensagemAviso(ctNUMEROCHEQUECADASTRADO);
+
+      fraCMC7Cheque.LimparCampos;
+      flkCodigoClienteCheques.Clear;
+      dtxNomeClienteCheques.DataSource.DataSet.FieldByName('nome').Clear;
+      Result:= False;
+    end
+    else begin
+      if not gbxCheques.Enabled then
+        gbxCheques.Enabled:= True;
+//      AbrirTabelaCheque;
+      flkCodigoClienteCheques.SetFocus;
+      if not prestacaoEmAndamento then begin
+        edtVencimentoCheque.Text := DateToStr(DataServidor);
+//        edtValorCheque.Text      := '';
+//        edtTitularCheque.Text    := '';
+      end
+      else begin
+        PreencherCamposCheque;
+        ReFazConsultaClientes(paCLIENTESCHEQUES);
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmAutenticacoesCaixa.fraCMC7ChequeedtCMC7Exit(Sender: TObject);
+begin
+  inherited;
+  fraCMC7Cheque.edtCMC7Exit(Sender);
+  if fraCMC7Cheque.ChequeValido then
+    if not ChequeOK then begin
+      fraCMC7Cheque.LimparCampos;
+      gbxCheques.Enabled:= False;
+    end
+end;
+
+procedure TfrmAutenticacoesCaixa.fraCMC7ChequeedtManual3Exit(Sender: TObject);
+begin
+  inherited;
+  fraCMC7Cheque.edtManual3Exit(Sender);
+  if fraCMC7Cheque.ChequeValido then
+    if not ChequeOK then begin
+      fraCMC7Cheque.LimparCampos;
+      gbxCheques.Enabled:= False;
+    end
+end;
+
+procedure TfrmAutenticacoesCaixa.flkCodigoClienteChequesExit(Sender: TObject);
+begin
+  inherited;
+  if flkCodigoClienteCheques.Text <> '' then begin
+    dtmautenticacoes.ReFazConsultaClientes(paCLIENTESCHEQUES);
+    if dtmautenticacoes.TipoCliente[paCLIENTESCHEQUES] = tcCLIENTE then
+         edtTitularCheque.Text := dtmautenticacoes.NomeCliente
+    else edtTitularCheque.Text := dtmautenticacoes.NomeFornecedor;
+    edtValorCheque.SetFocus;
+  end;
+end;
+
+procedure TfrmAutenticacoesCaixa.fraCMC7ResgateedtCMC7Exit(Sender: TObject);
+begin
+  inherited;
+  with dtmautenticacoes do begin
+    fraCMC7Resgate.edtCMC7Exit(Sender);
+    if fraCMC7Resgate.ChequeValido then begin
+      if ReFazConsultaResgate(fraCMC7Resgate.NumeroCheque) then
+           dbgParcelasCheque.SetFocus
+      else fraCMC7Resgate.edtCMC7.SetFocus;
+    end;
+  end;
+end;
+
+procedure TfrmAutenticacoesCaixa.fraCMC7ResgateedtManual3Exit(Sender: TObject);
+begin
+  inherited;
+  with dtmautenticacoes do begin
+    fraCMC7Resgate.edtManual3Exit(Sender);
+    if fraCMC7Resgate.ChequeValido then begin
+      if ReFazConsultaResgate(fraCMC7Resgate.NumeroCheque) then
+           dbgParcelasCheque.SetFocus
+      else fraCMC7Resgate.edtManual1.SetFocus;
+    end;
+  end
+end;
+
+procedure TfrmAutenticacoesCaixa.actHabilitarUpdate(Sender: TObject);
+begin
+  inherited;
+  with dtmautenticacoes do begin
+    if (pgcAutenticacoes.ActivePage = tstPrestacoes) or
+       (pgcAutenticacoes.ActivePage = tstParcelasAberto) then begin
+      sbnParcelaParcial.Enabled  := NrParcelasPrestacao > 0;
+      sbnParcelaDesconto.Enabled:=(NrParcelasPrestacao > 0) and
+                                  ((TaxaJuroContrato > 0) or
+                                   (ValorPrazo > ValorVista));
+      sbnParcelaAlterar.Visible  := (NrParcelasPrestacao > 0) and PermitirAlterarVencto;
+      sbnParcelaAlterar.Enabled:=sbnParcelaAlterar.Visible;
+    end
+    else if pgcAutenticacoes.ActivePage = tstResgateCheque then
+      sbnResgateParcial.Enabled  := NroRegistrosResgateCheques > 0
+    else if pgcAutenticacoes.ActivePage = tstParcelasAberto then begin
+      sbnParcelasAbertoParcial.Enabled := QtdeParcelasAberto > 0;
+      sbnDescontoParcelasAberto.Enabled:= (QtdeParcelasAberto > 0) and
+                                          ((TaxaJurosContratoParcelasAberto > 0) or
+                                          (ValorPrazoParcelasAberto > ValorVistaParcelasAberto));
+      sbnAlterarParcelasAberto.Visible := (QtdeParcelasAberto > 0) and PermitirAlterarVencto;
+      sbnAlterarParcelasAberto.Enabled := sbnAlterarParcelasAberto.Visible;
+    end;
+  end;
+end;
+
+procedure TfrmAutenticacoesCaixa.sbnTrocoClick(Sender: TObject);
+begin
+  inherited;
+  if dtmautenticacoes.PagamentoEmDinheiro > 0 then begin
+    frmTrocoCaixa := TfrmTrocoCaixa.Create(frmTrocoCaixa);
+    try
+      frmTrocoCaixa.PagoEmDinheiro := dtmautenticacoes.PagamentoEmDinheiro;
+      frmTrocoCaixa.ShowModal
+    finally
+      frmTrocoCaixa.Free
+    end
+  end
+end;
+
+procedure TfrmAutenticacoesCaixa.sbnImprimirChequeClick(Sender: TObject);
+begin
+  inherited;
+  ImprimirCheque;
+end;
+
+procedure TfrmAutenticacoesCaixa.ImprimirCheque;
+begin
+  if Trim(fraCMC7Cheque.edtBanco.Text) = '' then begin
+    frmLerDataNumero := TfrmLerDataNumero.Create(frmLerDataNumero, 'Cheque', 'Valor');
+    frmLerDataNumero.edtNumero.Decimais := True;
+    if frmLerDataNumero.ShowModal = mrOK then
+      dtmautenticacoes.ImprimirCheque('001', frmLerDataNumero.Numero, frmLerDataNumero.Data);
+    frmLerDataNumero.Free;
+  end else if Trim(edtValorCheque.Text) =  '' then
+    MensagemAviso(format(ctVALORNAOPREENCHIDO,[ctCHEQUE]))
+  else if Trim(edtVencimentoCheque.Text) = '' then
+    MensagemAviso(ctDATACHEQUENAOPREENCHIDO)
+  else
+    dtmautenticacoes.ImprimirCheque(fraCMC7Cheque.edtBanco.ValorSemFormatacao, edtValorCheque.ValorSemFormatacao, edtVencimentoCheque.Text);
+end;
+
+procedure TfrmAutenticacoesCaixa.sbnQuitarSemJurosClick(Sender: TObject);
+begin
+  inherited;
+  ProcessarSemJuros;
+end;
+
+procedure TfrmAutenticacoesCaixa.ProcessarSemJuros;
+var
+  Pos: TBookmark;
+begin
+  if pgcAutenticacoes.ActivePage = tstPrestacoes then
+  begin
+    if (dtmautenticacoes.ParcelaAutenticavel) then
+    begin
+      pos := dtmautenticacoes.qryParcelasPrestacao.GetBookmark;
+      if dtmautenticacoes.parcelaAnteriorAutenticada(Pos) then
+      begin
+        if dtmautenticacoes.ProcessarSemJuros then
+        begin
+          frmvalorparcial := Tfrmvalorparcial.Create(frmvalorparcial);
+          frmValorParcial.Caption:= 'Valor Parcial';
+          frmvalorparcial.setDataModuloAutenticacoes(dtmautenticacoes);
+          frmvalorparcial.setTipoPagamentoParcial(ppPARCELASSEMJUROS);
+          if frmvalorparcial.ShowModal = mrOK then
+            dtmautenticacoes.ParcelaSemJuros := True
+          else
+            dtmautenticacoes.ParcelaSemJuros := False;
+          frmvalorparcial.Free;
+          SetFocus;
+        end;
+      end
+      else
+        MensagemAviso(ctPARCELAESTAANTERIORNAOAUTENTICADA);
+    end
+    else
+      MensagemAviso(ctPARCELAESTAAUTENTICADA);
+  end
+  else
+  begin
+    if dtmautenticacoes.SelecionarParaAutenticacao then
+    begin
+      if dtmautenticacoes.ProcessarSemJuros then
+      begin
+        frmvalorparcial := Tfrmvalorparcial.Create(frmvalorparcial);
+        dtmautenticacoes.TotalMarcados := dtmautenticacoes.TotalMarcados - dtmautenticacoes.ParcelasAbertoValorPagto;
+        frmValorParcial.TotalAutenticado := StrToFloat(edtTotalValor.ValorSemFormatacao);
+        frmValorParcial.EmAlteracao := True;
+        frmValorParcial.Caption:= 'Valor Parcial';
+        frmvalorparcial.setDataModuloAutenticacoes(dtmautenticacoes);
+        frmvalorparcial.setTipoPagamentoParcial(ppPARCELASABERTOSEMJUROS);
+        frmvalorparcial.ShowModal;
+        dtmautenticacoes.TotalMarcados := dtmautenticacoes.TotalMarcados + dtmautenticacoes.ParcelasAbertoValorPagto;
+        if frmValorParcial.ModalResult = mrok then
+        begin
+          dtmautenticacoes.EditPostParcelasAberto;
+          AtualizarContadores(true);
+        end;
+        frmvalorparcial.Free;
+        Refresh;
+        SetFocus;
+      end;
+    end else
+      MensagemAviso(ctALTERARVALORPARCELASABERTO);
+  end;
+end;
+
+procedure TfrmAutenticacoesCaixa.dbgContratosPrestacoesDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if dtmautenticacoes.ContratosPrestacaosituacaocontratoeData then
+  begin
+         {dbgContratosPrestacoes.Canvas.Brush.Color:= $005555FF;
+         dbgContratosPrestacoes.Canvas.Font.Color:=clYellow;}
+         dbgContratosPrestacoes.Canvas.Brush.Color:= clWhite;
+         dbgContratosPrestacoes.Canvas.Font.Color:= clRed;//$005555FF;
+
+  end;
+  dbgContratosPrestacoes.DefaultDrawColumnCell(Rect, DataCol, Column, State)
+end;
+procedure TfrmAutenticacoesCaixa.sbnImprimirClick(Sender: TObject);
+begin
+  inherited;
+  dtmautenticacoes.imprimirParcelasEmAberto;
+end;
+
+procedure TfrmAutenticacoesCaixa.sbnParcelaDescontoClick(Sender: TObject);
+begin
+  inherited;
+  CalcularPrestacaoAntecipada;
+end;
+
+procedure TfrmAutenticacoesCaixa.FormLoaded(Sender: TObject);
+begin
+  inherited;
+  if not ParSistema.AutenticacaoParcelasModo2 then
+  begin
+    pgcAutenticacoes.ActivePage := tstPrestacoes;
+    edfCodigoClienteContratoPrestacoes.SetFocus;
+  end
+  else
+  begin
+    pgcAutenticacoes.ActivePage := tstParcelasAberto;
+    edfCodigoClienteParcelasAberto.SetFocus;
+  end;
+end;
+
+procedure TfrmAutenticacoesCaixa.sbnReciboClick(Sender: TObject);
+var
+botao: TMessageButton;
+begin
+  inherited;
+  if (pgcAutenticacoes.ActivePageIndex = 0) and (edfCodigoClienteContratoPrestacoes.Text <> '') then
+    if dtmautenticacoes.qryParcelasPrestacaoquitado.AsBoolean then begin
+      if (dbgParcelasPrestacoes.DataSource.DataSet.FieldByName('datapagto').AsDateTime = dtmautenticacoes.DataServidor) then begin
+        if ParSistema.ImprimirReciboAcumulado then begin
+          botao := MensagemSelecionaOpcao(ctIMPRIMIRRECIBOACUMULADO);
+          if botao = smbYES then begin
+            if dtmautenticacoes.qryImprimirAcumulado.Active then
+              dtmautenticacoes.ImprimirReciboParcelasAcumuladas(dtmautenticacoes.RazaoFilialBase)
+            else MensagemAviso(ctSEMREGISTROSACUMULADOS);
+          end else if botao = smbNO then begin
+            dtmautenticacoes.AtribuirParametrosImprimirReciboParcela(dtmautenticacoes.qryParcelasPrestacaocontrato.AsString, dtmautenticacoes.qryParcelasPrestacaonumero.AsInteger);
+            dtmautenticacoes.ImprimirReciboParcela(dtmautenticacoes.PrestacaoValorPagto,nil,dtmautenticacoes.RazaoFilialBase);
+          end else
+            Exit;
+        end else begin
+          dtmautenticacoes.AtribuirParametrosImprimirReciboParcela(dtmautenticacoes.qryParcelasPrestacaocontrato.AsString, dtmautenticacoes.qryParcelasPrestacaonumero.AsInteger);
+          dtmautenticacoes.ImprimirReciboParcela(dtmautenticacoes.PrestacaoValorPagto,nil,dtmautenticacoes.RazaoFilialBase);
+        end;
+      end else
+        MensagemAviso(ctIMPRESSAOPARCELASHOJE);
+    end else
+      MensagemAviso(ctPARCELANAOESTAAUTENTICADA)
+  else if (pgcAutenticacoes.ActivePage = tstParcelasAberto) and (edfCodigoClienteParcelasAberto.Text <> '') then
+    if dtmautenticacoes.qryImprimirAcumulado.Active then
+      dtmautenticacoes.ImprimirReciboParcelasAcumuladas(dtmautenticacoes.RazaoFilialBase)
+    else MensagemAviso(ctSEMREGISTROSACUMULADOS);
+end;
+
+procedure TfrmAutenticacoesCaixa.sbnAtendimentoClick(Sender: TObject);
+begin
+  inherited;
+  CadastraAtendimento
+end;
+
+procedure TfrmAutenticacoesCaixa.CadastraAtendimento;
+begin
+  inherited;
+  if dtmAutenticacoes.qryCliente.Active then begin
+    frmCadastroAtendimentosCaixa := TfrmCadastroAtendimentosCaixa.Create(frmCadastroAtendimentosCaixa);
+    try
+      frmCadastroAtendimentosCaixa.ShowModal
+    finally
+      frmCadastroAtendimentosCaixa.Free;
+      SetFocus;
+    end
+  end else
+    MensagemAviso(ctCLIENTENAOINFORMADO);
+end;
+
+procedure TfrmAutenticacoesCaixa.sbnConsultaClienteDevolucoesClick(
+  Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  edfCodigoClienteDevolucoesSaldo.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmAutenticacoesCaixa.edfCodigoClienteDevolucoesSaldoFound(
+  Found: Boolean);
+begin
+  inherited;
+  if Found then
+  begin
+    dtmautenticacoes.RefazConsultaDevolucoes(paCLIENTESDEVOLUCOES);
+    edtValorSaldoCreditoTrocaaDevolver.valormaximo := dtmautenticacoes.qryDevolucoesSaldosaldo.ascurrency;
+    edtValorSaldoCreditoTrocaaDevolver.Value := dtmautenticacoes.qryDevolucoesSaldosaldo.ascurrency;
+
+    gbxDevolucoes.Enabled := False;
+  end;
+
+  
+end;
+
+procedure TfrmAutenticacoesCaixa.edfCodigoClienteDevolucoesSaldoKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (Key = VK_ESCAPE) and (Shift = []) and (edfCodigoClienteDevolucoesSaldo.Text = '') then begin
+    gbxDevolucoes.Enabled := true;
+  end;
+end;
+
+procedure TfrmAutenticacoesCaixa.AutenticacaoDevolucoesSaldo;
+begin
+  if Trim(edfCodigoClienteDevolucoesSaldo.Text) <> '' then
+  begin
+    if dtmautenticacoes.AutorizadoParaDevolucao then
+    begin
+      if dadosCompletosParaAutenticarDevolucaoSaldo then
+      begin
+        if dtmautenticacoes.DevolucaoSaldoAutenticavel then
+        begin
+          if abrirJanelaImpressao(ctCaixaDevolucaoSaldo) = mrOK  then
+          begin
+            dtmautenticacoes.ReFazConsulta(dtmautenticacoes.TabelaDevolucoesSaldo, [0], [0]);
+            edfCodigoClienteDevolucoesSaldo.SetFocus;
+            edfCodigoClienteDevolucoesSaldo.SetControl(false);
+          end;
+        end
+        else
+          MensagemErro(ctERRORDEVOLUCAONAOAUTENTICAVEL);
+      end
+    end
+  end
+  else
+    MensagemAviso(ctCLIENTENAOINFORMADO)
+end;
+
+function TfrmAutenticacoesCaixa.DadosCompletosParaAutenticarDevolucaoSaldo: Boolean;
+begin
+  result := false;
+  if edfCodigoClienteDevolucoesSaldo.Exist then
+  begin
+    edfCodigoClienteDevolucoesSaldo.SetFocus;
+    if dtmautenticacoes.ValorSaldoDevolucao > 0 then
+    begin
+      edtValorSaldoCreditoTrocaaDevolver.valormaximo := dtmautenticacoes.qryDevolucoesSaldosaldo.ascurrency;
+      if edtValorSaldoCreditoTrocaaDevolver.Criticar(true) then
+        result := true
+    end
+    else
+      Exit
+  end;
+end;
+
+procedure TfrmAutenticacoesCaixa.sbnConsultaClientesParcelasClick(
+  Sender: TObject);
+begin
+  CtrlOn := True;
+  edfCodigoClienteParcelasAberto.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmAutenticacoesCaixa.dbgParcelasAbertoKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (Shift = [ssCtrl]) and (Key = VK_SPACE) then begin
+    dtmautenticacoes.MarcarParcelas(ckbMarcarTodas.Checked, False);
+    AtualizarContadores(True);
+  end;
+end;
+
+procedure TfrmAutenticacoesCaixa.ckbMarcarTodasClick(Sender: TObject);
+begin
+  inherited;
+  dtmautenticacoes.MarcarParcelas(ckbMarcarTodas.Checked, True);
+  AtualizarContadores(True);
+  if not ckbMarcarTodas.Checked then
+    dtmautenticacoes.LimparDataValorPagto;
+end;
+
+procedure TfrmAutenticacoesCaixa.edfCodigoClienteParcelasAbertoFound(
+  Found: Boolean);
+begin
+  if not FBuscandoParcelaAberto then
+  begin
+    if Found then
+    begin
+      if dtmautenticacoes.CodigoClienteParcelasAberto <> dtmautenticacoes.CodigoCliente then
+      begin
+        dtmautenticacoes.PagamentoEmDinheiro := 0;
+        edtTotalValor.Text := FormatarValor(0,2);
+      end;
+      dtmautenticacoes.LimpaRegistrosParcelasAberto;
+      dtmautenticacoes.RefazConsultaParcelasAberto;
+      dtmautenticacoes.SelecionarAtrasadosData;
+      AtualizarContadores(False);
+      edtContratoParcelasAberto.Clear;
+      edtNumeroParcelasAberto.Clear;
+      pgcDados.Visible := (dtmautenticacoes.CodigoClienteParcelasAberto > 0);
+      if dtmautenticacoes.TipoCliente[paCLIENTEPARCELAS] = tcCLIENTE then
+        pgcDados.ActivePage := tstDadosCliente
+      else
+        pgcDados.ActivePage := tstDadosFornecedor;
+      dbgParcelasAberto.SetFocus;
+    end else
+      dtmautenticacoes.RefazConsultaParcelasAberto;
+  end;
+end;
+
+procedure TfrmAutenticacoesCaixa.edfCodigoClienteParcelasAbertoKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if {(Key = VK_ESCAPE) and (Shift = [])
+     and} (edfCodigoClienteParcelasAberto.Text = '') then
+  begin
+    dtmautenticacoes.refazConsultaParcelasAberto;
+    dtmautenticacoes.LimpaRegistrosParcelasAberto;
+    AtualizarContadores(False);
+    edtContratoParcelasAberto.Clear;
+    edtNumeroParcelasAberto.Clear;
+  end;
+end;
+
+procedure TfrmAutenticacoesCaixa.edfCodigoClienteParcelasAbertoMessage(
+  var Msg: String);
+begin
+  inherited;
+  Msg := ctCLIENTEPARCELASABERTO;
+end;
+
+procedure TfrmAutenticacoesCaixa.dbgParcelasAbertoDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  with dtmautenticacoes do
+  begin
+    if gdSelected in State then
+    begin
+      TDBGrid(Sender).Canvas.Brush.Color := $00D5FFD5;
+      if SelecionarParaAutenticacao then begin
+        TDBGrid(Sender).Canvas.Brush.Color := $00FFAA00;
+        TDBGrid(Sender).Canvas.Font.Color := clBlack;
+        sbnDescontoParcelasAberto.Enabled := False;
+      end;
+      if(TDBGrid(Sender).DataSource.DataSet.FieldByName('datavencto').AsDateTime<DataServidor) then
+        TDBGrid(Sender).Canvas.Font.Color:=clRed
+      else
+        TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+      if TDBGrid(Sender).DataSource.DataSet.FieldByName('valorpagto').AsFloat >
+         TDBGrid(Sender).DataSource.DataSet.FieldByName('valorvencto').AsFloat then
+        sbnDescontoParcelasAberto.Enabled := True
+      else
+        sbnDescontoParcelasAberto.Enabled := False;
+    end
+    else
+    begin
+      TDBGrid(Sender).Canvas.Brush.Color:=clWhite;
+      if SelecionarParaAutenticacao then
+      begin
+        TDBGrid(Sender).Canvas.Brush.Color := $00FFAA00;
+        TDBGrid(Sender).Canvas.Font.Color := clBlack;
+      end;
+      if(TDBGrid(Sender).DataSource.DataSet.FieldByName('datavencto').AsDateTime<DataServidor) then
+      begin
+        {TDBGrid(Sender).Canvas.Brush.Color:=$005555FF;
+        TDBGrid(Sender).Canvas.Font.Color:=clYellow;}
+        TDBGrid(Sender).Canvas.Font.Color:= clRed;//$005555FF;
+      end
+      else
+      begin
+        TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+      end;
+    end;
+    TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end;
+end;
+
+procedure TfrmAutenticacoesCaixa.dbgParcelasAbertoDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmautenticacoes.MarcarParcelas(ckbMarcarTodas.Checked, False);
+  AtualizarContadores(True);
+end;
+
+procedure TfrmAutenticacoesCaixa.AutenticacaoParcelasAberto;
+begin
+  if (edfCodigoClienteParcelasAberto.Text <> '') and dbgParcelasAberto.Enabled then
+  begin
+    if (StrToFloat(edtTotalMarcados.ValorSemFormatacao) > 0) then
+    begin
+      if dtmautenticacoes.ParcelasAbertoAnteriorAutenticada then
+      begin
+        if dtmautenticacoes.ParcelasAbertoTefMesmoContrato then
+        begin
+          dtmautenticacoes.refazerConsultaAutenticacoesModo2;
+          AtualizarContadores(True);
+          if AbrirJanelaImpressao(ctCaixaParcelasAberto) = mrOK then
+          begin
+            //edtTotalValor.Text := FloatToStrF(StrToFloat(edtTotalValor.ValorSemFormatacao)+dtmautenticacoes.TotalMarcados, ffFixed, 18, 2);
+            dtmautenticacoes.RefazConsultaParcelasAberto(true);
+            dtmautenticacoes.PagamentoEmDinheiro := 0;
+            AtualizarContadores(False);
+  //          dtmautenticacoes.LimpaRegistrosParcelasAberto;
+            PrestacaoEmAndamento := True;
+            edtContratoParcelasAberto.Clear;
+            edtNumeroParcelasAberto.Clear;
+          end;
+        end
+        else
+          MensagemAviso('A operação TEF não é permitida para parcelas de diferentes contratos.');
+      end
+      else
+        MensagemAviso(ctPARCELAESTAANTERIORNAOAUTENTICADA);
+    end
+    else
+      MensagemAviso(ctNAOFOISELECIONADOPARCELAS);
+  end
+  else
+     MensagemAviso(ctCLIENTENAOINFORMADO)
+end;
+
+procedure TfrmAutenticacoesCaixa.AtualizarContadores(SoMarcados: Boolean);
+begin
+  with dtmautenticacoes do begin
+    if SoMarcados then begin
+      edtQtdeMarcados.Text  := IntToStr(QtdeMarcados);
+      edtTotalMarcados.Text := Format('%8.2m', [TotalMarcados]);
+    end
+    else begin
+      edtQtdeTotal.Text     := IntToStr(QtdeParcelasAberto);
+      edtQtdeMarcados.Text  := IntToStr(QtdeMarcados);
+      edtTotalValor.Text    := Format('%8.2m', [PagamentoEmDinheiro]);
+      edtTotalMarcados.Text := Format('%8.2m', [TotalMarcados]);
+    end;
+  end;
+end;
+
+procedure TfrmAutenticacoesCaixa.Parcelas;
+begin
+  if ParSistema.AutenticacaoParcelasModo2 then
+    AutenticacaoParcelasAberto
+  else AutenticacaoParcelas;
+end;
+
+procedure TfrmAutenticacoesCaixa.Devolucoes;
+begin
+  if gbxDevolucoes.Enabled then
+    AutenticacaoDevolucoes
+  else AutenticacaoDevolucoesSaldo;
+end;
+
+procedure TfrmAutenticacoesCaixa.edtNumeroParcelaEnter(Sender: TObject);
+begin
+  inherited;
+  case dtmautenticacoes.LocalizarParcelaEmAberto(StrToInt(edtNumeroParcela.Text)) of
+   -1: MensagemAviso('Parcela já autenticada');
+    1: MensagemAviso('Parcela');
+   end;
+end;
+
+function TfrmAutenticacoesCaixa.TestarNumeroParcela: Boolean;
+begin
+  Result := True;
+  if ParSistema.InformarParcelaQuitar then
+  begin
+    if (edtNumeroParcela.Text = '') then
+    begin
+      MensagemAviso('Informe o número da parcela');
+      edtNumeroParcela.SetFocus;
+      Result := False;
+    end
+    else
+    begin
+      case dtmautenticacoes.LocalizarParcelaEmAberto(StrToInt(edtNumeroParcela.Text)) of
+         1: begin
+              MensagemAviso(ctPARCELAESTAANTERIORNAOAUTENTICADA);
+              edtNumeroParcela.SetFocus;
+              Result := False;
+            end;
+        -1: begin
+              MensagemAviso(ctPARCELAESTAAUTENTICADA);
+              edtNumeroParcela.SetFocus;
+              Result := False;
+            end;
+         0: begin
+              MensagemAviso('Parcela não encontrada. Verifique o número informado.');
+              edtNumeroParcela.SetFocus;
+              Result := False;
+            end;
+      end;
+    end;
+  end;
+end;
+
+function TfrmAutenticacoesCaixa.ConfirmarValorTransferencia: Currency;
+begin
+  frmValorTransferencia := TfrmValorTransferencia.Create(frmValorTransferencia);
+  try
+    frmValorTransferencia.setDataModulo(dtmautenticacoes);
+    frmValorTransferencia.ValorTransferencia := dtmautenticacoes.ValorTransferenciaPendente;
+    frmValorTransferencia.ShowModal;
+  finally
+    if dtmautenticacoes.ValorConfirmadoTransferencia > dtmautenticacoes.ValorTransferenciaPendente then
+    begin
+      Result := 0;
+      MensagemAviso('O valor da confirmação não pode ser maior que o valor da autenticação');
+    end
+    else
+      Result := dtmautenticacoes.ValorConfirmadoTransferencia;
+    frmValorTransferencia.Free;
+  end;
+end;
+
+
+procedure TfrmAutenticacoesCaixa.edtNumeroParcelasAbertoKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+  begin
+    FBuscandoParcelaAberto := True;
+    if (trim(edtContratoParcelasAberto.Text) <> '') and
+       (trim(edtNumeroParcelasAberto.Text) <> '') and
+       dtmautenticacoes.BuscarParcelaAberta(trim(edtContratoParcelasAberto.Text),
+                                            StrToInt(trim(edtNumeroParcelasAberto.Text))) then
+      edtContratoParcelasAberto.SetFocus;
+    AtualizarContadores(false);
+    FBuscandoParcelaAberto := False;
+  end;
+
+end;
+
+end.

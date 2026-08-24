@@ -1,0 +1,2592 @@
+unit dmcadastrosinternos;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, DB,
+  //Terceiros
+  ZQuery, ZPgSqlQuery,
+  //Componentes
+  cpquery, cpdatasource,
+  //Biblio
+  ctconstantes, Biblio, dmbasico, clparametrossistema,
+  //Repositorio
+  dmtecsoft, dmconsultaenderecos, ZTransact;
+
+
+type
+  TdtmCadastrosInternos = class(TdtmBasico)
+    qryFiliais: TtecQuery;
+    dsrFiliais: TtecDataSource;
+    qryConsultaFiliais: TtecQuery;
+    qryUsuarios: TtecQuery;
+    dsrUsuarios: TtecDataSource;
+    qryConsultaUsuarios: TtecQuery;
+    qryEstado: TtecQuery;
+    dsrEstado: TtecDataSource;
+    qryIDLogin: TtecQuery;
+    qryMetasUsuarios: TtecQuery;
+    dsrMetasUsuarios: TtecDataSource;
+    qryFiliaiscodigo: TIntegerField;
+    qryFiliaisnome: TStringField;
+    qryFiliaisrazao: TStringField;
+    qryFiliaiscnpj: TStringField;
+    qryFiliaisinscricaoestadual: TStringField;
+    qryFiliaisinscricaomunicipal: TStringField;
+    qryFiliaismnemonico: TStringField;
+    qryFiliaisrua: TStringField;
+    qryFiliaisestado: TStringField;
+    qryFiliaiscidade: TIntegerField;
+    qryFiliaisnomecidade: TStringField;
+    qryFiliaisbairro: TIntegerField;
+    qryFiliaisnomebairro: TStringField;
+    qryFiliaiscep: TIntegerField;
+    qryFiliaisfoneddd: TIntegerField;
+    qryFiliaisfonenumero: TIntegerField;
+    qryFiliaisfaxddd: TIntegerField;
+    qryFiliaisfaxnumero: TIntegerField;
+    qryFiliaistipofilial: TStringField;
+    qryFiliaisprazoreserva: TIntegerField;
+    qryFiliaisseriesugestao: TStringField;
+    qryFiliaismontagem: TIntegerField;
+    qryFiliaiscontabil: TIntegerField;
+    qryFiliaisrazaocarne: TStringField;
+    qryFiliaisrazaoquitacao: TStringField;
+    qryFiliaiscidadecarne: TStringField;
+    qryFiliaisporte: TStringField;
+    qryFiliaissimples: TStringField;
+    qryFiliaisjunta: TStringField;
+    qryFiliaisjuntadata: TDateField;
+    qryFiliaisspcregistro: TIntegerField;
+    qryFiliaisspcremessa: TIntegerField;
+    qryFiliaisspcretorno: TIntegerField;
+    qryFiliaistransfautomatica: TBooleanField;
+    qryConsultaUsuarioscodigo: TIntegerField;
+    qryConsultaUsuariosnome: TStringField;
+    qryMetasUsuariosusuario: TIntegerField;
+    qryMetasUsuariosvalor: TFloatField;
+    qryMetasUsuariostipo: TStringField;
+    qryMetasUsuarioscomissao: TFloatField;
+    qryMetasUsuariosuteismeta: TIntegerField;
+    qryMetasUsuariosuteismes: TIntegerField;
+    qryEstadocodigo: TStringField;
+    qryEstadonome: TStringField;
+    qryEstadopontos: TIntegerField;
+    dsrProcuraFiltros: TtecDataSource;
+    qryProcuraFiltros: TtecQuery;
+    qryProcuraFiltrosdescricao: TStringField;
+    qryProcuraFiltrosnumero: TIntegerField;
+    qryConsultaFiltros: TtecQuery;
+    qryConsultaFiltrosdescricao: TStringField;
+    qryConsultaFiltrosnumero: TIntegerField;
+    qryComissoesUsuarios: TtecQuery;
+    dsrComissoesUsuarios: TtecDataSource;
+    qryComissoesUsuariosusuario: TIntegerField;
+    qryComissoesUsuariosnumero: TIntegerField;
+    qryComissoesUsuariospercprazo: TFloatField;
+    qryComissoesUsuariospercvista: TFloatField;
+    qryComissoesUsuariospercentrada: TFloatField;
+    qryUsuarioscodigo: TIntegerField;
+    qryUsuariosnome: TStringField;
+    qryUsuarioscodigofolha: TIntegerField;
+    qryUsuarioscredito: TBooleanField;
+    qryUsuariosreserva: TBooleanField;
+    qryUsuariosexcluireserva: TBooleanField;
+    qryUsuariostipocomissao: TStringField;
+    qryUsuariosinativo: TDateField;
+    qryUsuariosvenda: TBooleanField;
+    qryUsuariosatendimento: TBooleanField;
+    qryUsuarioscaixa: TBooleanField;
+    qryUsuariosfiltrosac: TIntegerField;
+    qryUsuariosligacao: TIntegerField;
+    qryUsuariosoperador: TStringField;
+    qryUsuariospagamento: TBooleanField;
+    qryUsuariosalterarprecocontrato: TBooleanField;
+    qryUsuariosdescontoextra: TBooleanField;
+    qryUsuariosdevolucaoproduto: TBooleanField;
+    qryUsuariosdevolucaonumerario: TBooleanField;
+    qryUsuariosalterarfilial: TBooleanField;
+    qryUsuariositeclux: TBooleanField;
+    qryConsultaFornecedores: TtecQuery;
+    qryProcuraFilialContabil: TtecQuery;
+    dsrProcuraFilialContabil: TtecDataSource;
+    qryProcuraFilialContabilcodigo: TIntegerField;
+    qryProcuraFornecedores: TtecQuery;
+    qryProcuraFornecedoresCodigo: TIntegerField;
+    dsrProcuraFornecedores: TtecDataSource;
+    qryProcuraFilialMontagem: TtecQuery;
+    qryProcuraFilialMontagemcodigo: TIntegerField;
+    dsrProcuraFilialMontagem: TtecDataSource;
+    qryConsultaFiliaiscodigo: TIntegerField;
+    qryConsultaFiliaisnome: TStringField;
+    qryConsultaFornecedorescodigo: TIntegerField;
+    qryConsultaFornecedoresnome: TStringField;
+    qryFiliaispreconormal: TIntegerField;
+    qryFiliaisprecopromocao: TIntegerField;
+    qryConsultaColunas: TtecQuery;
+    qryConsultaColunascodigo: TIntegerField;
+    qryConsultaColunasdescricao: TStringField;
+    qryProcuraColunasNormal: TtecQuery;
+    qryProcuraColunasNormalcodigo: TIntegerField;
+    qryProcuraColunasNormaldescricao: TStringField;
+    dsrProcuraColunasNormal: TtecDataSource;
+    qryProcuraColunasPromocao: TtecQuery;
+    qryProcuraColunasPromocaocodigo: TIntegerField;
+    qryProcuraColunasPromocaodescricao: TStringField;
+    dsrProcuraColunasPromocao: TtecDataSource;
+    qryConsultaFornecedoresestado: TStringField;
+    qryProcuraFornecedoresnome: TStringField;
+    qryProcuraFilialContabilnome: TStringField;
+    qryProcuraFilialMontagemnome: TStringField;
+    qryConsultaFornecedorespessoanumero: TStringField;
+    qryProcuraModulos: TtecQuery;
+    qryProcuraModuloscodigo: TIntegerField;
+    qryProcuraModulosdescricao: TStringField;
+    dsrProcuraModulos: TtecDataSource;
+    qryConsultaModulos: TtecQuery;
+    qryConsultaModuloscodigo: TIntegerField;
+    qryConsultaModulosdescricao: TStringField;
+    qryProcuraFilial: TtecQuery;
+    dsrProcuraFilial: TtecDataSource;
+    qryProcuraFilialcodigo: TIntegerField;
+    qryProcuraFilialnome: TStringField;
+    qryComissoesUsuarioslimite: TFloatField;
+    dsrComissoesCobranca: TDataSource;
+    qryComissoesCobranca: TtecQuery;
+    qryEventosCobranca: TtecQuery;
+    qryEventosCobrancacodigo: TIntegerField;
+    qryEventosCobrancadescricao: TStringField;
+    qryGruposUsuarios: TtecQuery;
+    qryGruposUsuarioscodigo: TIntegerField;
+    qryGruposUsuariosnome: TStringField;
+    qryGruposUsuariosanalistacredito: TBooleanField;
+    qryGruposUsuariosreservaproduto: TBooleanField;
+    qryGruposUsuariosexcluireservaproduto: TBooleanField;
+    qryGruposUsuarioscaixa: TBooleanField;
+    qryGruposUsuariosvendedor: TBooleanField;
+    qryGruposUsuarioscobranca: TBooleanField;
+    qryGruposUsuariospagamento: TBooleanField;
+    qryGruposUsuariosatendimento: TBooleanField;
+    qryGruposUsuariosalterarprecocontrato: TBooleanField;
+    qryGruposUsuariosdescontoextra: TBooleanField;
+    qryGruposUsuariosdevolucaoproduto: TBooleanField;
+    qryGruposUsuariosgrupopostgresql: TIntegerField;
+    qryGruposUsuariosdevolucaonumerario: TBooleanField;
+    qryGruposUsuariositeclux: TBooleanField;
+    qryGruposUsuariosalterarfilial: TBooleanField;
+    dsrGruposUsuarios: TtecDataSource;
+    qryProcuraGrupoPostgreSQL: TtecQuery;
+    qryProcuraGrupoPostgreSQLgrosysid: TIntegerField;
+    qryProcuraGrupoPostgreSQLgroname: TStringField;
+    dsrProcuraGrupoPostgreSQL: TtecDataSource;
+    qryConsultaGrupoPostgreSQL: TtecQuery;
+    qryConsultaGrupoPostgreSQLgroname: TStringField;
+    qryConsultaGruposUsuarios: TtecQuery;
+    qryConsultaGruposUsuariosnome: TStringField;
+    qryConsultaGruposUsuarioscodigo: TIntegerField;
+    qryConsultaGrupoPostgreSQLgrosysid: TIntegerField;
+    spcGruposUsuariosProximo: TtecQuery;
+    spcGruposUsuariosProximocodigo: TIntegerField;
+    qryUsuariosgrupo: TIntegerField;
+    qryProcuraGrupoUsuarios: TtecQuery;
+    qryProcuraGrupoUsuarioscodigo: TIntegerField;
+    qryProcuraGrupoUsuariosnome: TStringField;
+    dsrProcuraGrupoUsuarios: TtecDataSource;
+    qrySeriesFiliais: TtecQuery;
+    qrySeriesFiliaisfilial: TIntegerField;
+    qrySeriesFiliaisvalor: TStringField;
+    qrySeriesFiliaisnumeroinicial: TIntegerField;
+    qrySeriesFiliaisnumerofinal: TIntegerField;
+    qrySeriesFiliaismodelonota: TIntegerField;
+    dsrSeriesFiliais: TtecDataSource;
+    qryUsuariosalterardadoscontabeis: TBooleanField;
+    qryGruposUsuariosgerenteestoque: TBooleanField;
+    qryUsuariosgerenteestoque: TBooleanField;
+    qryGruposUsuariosalterardadoscontabeis: TBooleanField;
+    qryProcuraModelosNotasFiscais: TtecQuery;
+    dsrProcuraModelosNotasFiscais: TtecDataSource;
+    qryProcuraModelosNotasFiscaiscodigo: TIntegerField;
+    qryProcuraModelosNotasFiscaisdescricao: TStringField;
+    qryConsultaModelosNotasFiscais: TtecQuery;
+    qryConsultaModelosNotasFiscaiscodigo: TIntegerField;
+    qryConsultaModelosNotasFiscaisdescricao: TStringField;
+    qryComissoesCobrancausuario: TIntegerField;
+    qryComissoesCobrancaevento: TIntegerField;
+    qryComissoesCobrancapercfaixa_1: TFloatField;
+    qryComissoesCobrancapercfaixa_2: TFloatField;
+    qryComissoesCobrancapercfaixa_3: TFloatField;
+    qryComissoesCobrancapercfaixa_4: TFloatField;
+    qryComissoesCobrancadescricao: TStringField;
+    qryManutencaoLogin: TtecQuery;
+    qryIDLoginusesysid: TIntegerField;
+    qryUsuarioslogin: TStringField;
+    dsrConsultaFiliais: TtecDataSource;
+    qryUsuariosmontador: TBooleanField;
+    qryGruposUsuariosmontador: TBooleanField;
+    qryFiliaisregime: TIntegerField;
+    qryExisteSerieFilialNotas: TtecQuery;
+    qryExisteSerieFilialNotasPag: TtecQuery;
+    qryExisteSerieFilialNotasmenornumero: TIntegerField;
+    qryExisteSerieFilialNotasmaiornumero: TIntegerField;
+    qryExisteSerieFilialNotasPagmenornumero: TIntegerField;
+    qryExisteSerieFilialNotasPagmaiornumero: TIntegerField;
+    qrySetoresUsuarios: TtecQuery;
+    qrySetoresUsuariosusuario: TIntegerField;
+    qrySetoresUsuariosgrupo: TStringField;
+    dsrSetoresUsuarios: TtecDataSource;
+    qryProcuraSetores: TtecQuery;
+    qryConsultaSetores: TtecQuery;
+    qryProcuraSetorescodigo: TStringField;
+    qryProcuraSetoresdescricao: TStringField;
+    qryConsultaSetoresdescricao: TStringField;
+    qryConsultaSetorescodigo: TStringField;
+    dsrProcuraSetor: TtecDataSource;
+    qrySetoresUsuariosdescricao: TStringField;
+    qryUsuariosconfirmartransfitem: TBooleanField;
+    qryGruposUsuariosconfirmartransfitem: TBooleanField;
+    qryConsultaFiliaiscnpj: TStringField;
+    qryIDLoginusesuper: TBooleanField;
+    qryFatoresPrecosFilial: TtecQuery;
+    dsrFatoresPrecosFilial: TtecDataSource;
+    qryFatoresPrecosFilialfatorpreco: TStringField;
+    qryFatoresPrecosFilialfilial: TIntegerField;
+    qryFatoresPrecosFilialfator: TFloatField;
+    qryFatoresPrecosFilialdescricao: TStringField;
+    qryProcuraFatoresPrecos: TtecQuery;
+    qryProcuraFatoresPrecoscodigo: TStringField;
+    qryProcuraFatoresPrecosdescricao: TStringField;
+    dsrProcuraFatoresPreco: TtecDataSource;
+    qryConsultaFatoresPrecos: TtecQuery;
+    qryConsultaFatoresPrecosdescricao: TStringField;
+    qryConsultaFatoresPrecoscodigo: TStringField;
+    qryUsuariosrestringirfichacliente: TBooleanField;
+    qryGruposUsuariosrestringirfichacliente: TBooleanField;
+    qryUsuariosemissornotafiscal: TBooleanField;
+    qryGruposUsuariosemissornotafiscal: TBooleanField;
+    qryMetasUsuariosmesano: TStringField;
+    qryMetasUsuariosmesanoeditado: TStringField;
+    qryUsuariosgerentecaixa: TBooleanField;
+    qryGruposUsuariosgerentecaixa: TBooleanField;
+    qryFiliaisspc_dasp_destinatario: TStringField;
+    qryFiliaisspc_remetente: TStringField;
+    qryFiliaisspc_dasp_remetente: TStringField;
+    qryFiliaisspc_operador: TStringField;
+    qryFiliaisspc_codigoinformante: TStringField;
+    qryFiliaisspc_destinatario: TStringField;
+    qryUsuariosadministrador: TBooleanField;
+    qryComissoesUsuariosGrupos: TtecQuery;
+    qryComissoesUsuariosGruposusuario: TIntegerField;
+    qryComissoesUsuariosGruposgrupo: TStringField;
+    qryComissoesUsuariosGrupostipocomissao: TStringField;
+    qryComissoesUsuariosGruposcomissao: TFloatField;
+    dsrComissoesUsuariosGrupos: TtecDataSource;
+    qryComissoesUsuariosGruposdescricao: TStringField;
+    qryProcuraGrupos: TtecQuery;
+    qryProcuraGruposcodigo: TStringField;
+    qryProcuraGruposdescricao: TStringField;
+    dsrProcuraGrupos: TtecDataSource;
+    qryConsultaGrupos: TtecQuery;
+    qryConsultaGruposdescricao: TStringField;
+    qryConsultaGruposcodigo: TStringField;
+    qryComissoesUsuariosClasses: TtecQuery;
+    qryComissoesUsuariosClassesusuario: TIntegerField;
+    qryComissoesUsuariosClassesclasse: TStringField;
+    qryComissoesUsuariosClassesdescricao: TStringField;
+    qryComissoesUsuariosClassestipocomissao: TStringField;
+    qryComissoesUsuariosClassescomissao: TFloatField;
+    dsrComissoesUsuariosClasses: TtecDataSource;
+    qryProcuraClasses: TtecQuery;
+    dsrProcuraClasses: TtecDataSource;
+    qryConsultaClasses: TtecQuery;
+    qryProcuraClassescodigo: TStringField;
+    qryProcuraClassesdescricao: TStringField;
+    qryConsultaClassesdescricao: TStringField;
+    qryConsultaClassescodigo: TStringField;
+    qryConsultaCodigoUsuario: TtecQuery;
+    qryConsultaCodigoUsuariocodigo: TIntegerField;
+    qryConsultaCodigoUsuarionome: TStringField;
+    qryUseSys: TtecQuery;
+    qryUseSysmaxusesysid: TIntegerField;
+    qryMaxUsuarios: TtecQuery;
+    qryMaxUsuarioscodigo: TIntegerField;
+    qryFiliaisexibircomplementonf: TBooleanField;
+    qryUsuariostrocaproduto: TBooleanField;
+    qryGruposUsuariostrocaproduto: TBooleanField;
+    qryUsuariosemail: TStringField;
+    qryUsuariosusuarioemail: TStringField;
+    qryUsuariossenhaemail: TStringField;
+    qryUsuarioshostpop: TStringField;
+    qryUsuariosportapop: TStringField;
+    qryUsuarioshostsmtp: TStringField;
+    qryUsuariosportasmtp: TStringField;
+    qryFiliaisinicioatividades: TDateField;
+    qryFiliaisfilialconsolidadoradime: TIntegerField;
+    qryProcuraFilialConsolidadoraDime: TtecQuery;
+    dsrProcuraFilialConsolidadoraDime: TtecDataSource;
+    qryProcuraFilialConsolidadoraDimecodigo: TIntegerField;
+    qryProcuraFilialConsolidadoraDimenome: TStringField;
+    qryProcuraContas: TtecQuery;
+    qryProcuraContascodigo: TIntegerField;
+    qryProcuraContasclassificacao: TStringField;
+    qryProcuraContasdescricao: TStringField;
+    dsrProcuraContas: TtecDataSource;
+    qryFiliaisdebito: TIntegerField;
+    qryFiliaiscredito: TIntegerField;
+    qryUsuariosusuarioiteclux: TStringField;
+    qryUsuarioIteclux: TtecQuery;
+    qryFiliaiscontribicms: TBooleanField;
+    qryFiliaiscontribiss: TBooleanField;
+    qryFiliaiscontribipi: TBooleanField;
+    qryUsuariosusename: TStringField;
+    qryIDLoginusename: TStringField;
+    qryIDLogincodigousuario: TIntegerField;
+    qryUsuariosexpiracaosenha: TDateField;
+    qryUsuariosdiasvalidadesenha: TIntegerField;
+    qryUsuariosdiasavisosenha: TIntegerField;
+    qryUsuariosFiliais: TtecQuery;
+    dsrUsuariosFiliais: TtecDataSource;
+    qryUsuariosFiliaisusuario: TIntegerField;
+    qryUsuariosFiliaisfilial: TIntegerField;
+    qryUsuariosFiliaisnome: TStringField;
+    qryUsuariosautenticarsmtp: TBooleanField;
+    qryUsuariosAssunto: TStringField;
+    qryUsuariosintroducao: TStringField;
+    qryUsuariosconclusao: TStringField;
+    qryFiliaisaliquotacreditoicms: TFloatField;
+    qryFiliaisnumero: TIntegerField;
+    qryFiliaiscomplemento: TStringField;
+    qryIESubstTributario: TtecQuery;
+    qryIESubstTributariocliente: TIntegerField;
+    qryIESubstTributariotipocliente: TStringField;
+    qryIESubstTributarioestado: TStringField;
+    qryIESubstTributarioinscricaoestadual: TStringField;
+    qryUsuariossalariohora: TFloatField;
+    qryUsuariosanuenio: TFloatField;
+    qryUsuariosturno: TIntegerField;
+    qryUsuariosgerenteproducao: TBooleanField;
+    qryFiliaissite: TStringField;
+    qryFiliaissuframa: TStringField;
+    qryFiliaisind_perfil: TStringField;
+    qryFiliaisind_ativ: TStringField;
+    qryEstoquesFiliais: TtecQuery;
+    qryEstoquesFiliaisfilialbase: TIntegerField;
+    qryEstoquesFiliaisfilialestoque: TIntegerField;
+    qryEstoquesFiliaisnome: TStringField;
+    qrySeriesFiliaismodelodoctofiscal: TStringField;
+    qryRespAdmCadastro: TtecQuery;
+    qryRespAdmCadastrofilial: TIntegerField;
+    qryRespAdmCadastroinstituicao: TStringField;
+    qryRespAdmCadastrocodigo: TStringField;
+    dsrRespAdmCadastro: TtecDataSource;
+    dsrEstoquesFiliais: TtecDataSource;
+    qryUsuariosOperacoesProducao: TtecQuery;
+    dsrUsuariosOperacoesProducao: TtecDataSource;
+    qryUsuariosOperacoesProducaousuario: TIntegerField;
+    qryUsuariosOperacoesProducaooperacao: TIntegerField;
+    qryUsuariosOperacoesProducaonivelconhecimento: TIntegerField;
+    qryUsuariosOperacoesProducaonome: TStringField;
+    qryUsuariosOperacoesProducaoc01: TStringField;
+    qryUsuariosOperacoesProducaoc02: TStringField;
+    qryUsuariosOperacoesProducaoc03: TStringField;
+    qryUsuariosOperacoesProducaodescricaonivelconhecimento: TStringField;
+    qryUsuariosOperacoesProducaodescricaooperacao: TStringField;
+    qryFiliaisregimetributario: TIntegerField;
+    qryAliquotasSimplesNacional: TtecQuery;
+    dsrAliquotasSimplesNacional: TtecDataSource;
+    qryAliquotasSimplesNacionalmesano: TStringField;
+    qryAliquotasSimplesNacionalfilial: TIntegerField;
+    qryAliquotasSimplesNacionalaliquotaicms: TFloatField;
+    qryAliquotas: TtecQuery;
+    qryAliquotasn: TLargeintField;
+    qryFiliaisregimesubstituicao: TIntegerField;
+    qryFiliaisclassificacaoipi: TStringField;
+    qrySeriesFiliaisativa: TBooleanField;
+    qryUsuariosFiliaispercentualgerente: TFloatField;
+    qryUsuariosFiliaispercentualsupervisor: TFloatField;
+    qryUsuariosgerentetecnico: TBooleanField;
+    qryFiliaisquali_pj: TStringField;
+    qryFiliaisform_apur: TStringField;
+    qryFiliaisform_tribut: TIntegerField;
+    qryUsuariosOperacoesProducaohabilitadosetup: TBooleanField;
+    qryUsuarioscobranca: TBooleanField;
+    qryUsuarioscobrancaanterior: TBooleanField;
+    qryFiliaissped_pis_cofins: TBooleanField;
+    qryFiliaissped_pis_cofins_rb: TBooleanField;
+    qryFiliaissped_pis_cofins_rem: TBooleanField;
+    qryFiliaissped_fiscal: TBooleanField;
+    qryFiliaisseriesugestaoservicos: TStringField;
+    qryUsuariosanalistasite: TBooleanField;
+    qryFiliaiscnaefiscal: TStringField;
+    qryFiliaistipoemissaonfeservico: TIntegerField;
+    qryFiliaisaedffatura: TStringField;
+    qryUsuariossetorvenda: TIntegerField;
+    qryUsuariosrua: TStringField;
+    qryUsuariosnrrua: TStringField;
+    qryUsuarioscomplemento: TStringField;
+    qryUsuariosbairro: TIntegerField;
+    qryUsuarioscep: TIntegerField;
+    qryUsuarioscidade: TIntegerField;
+    qryUsuariosestado: TStringField;
+    qryUsuariosnomecidadeusuario: TStringField;
+    qryUsuariosnomebairrousuario: TStringField;
+    qryUsuariospessoatipo: TStringField;
+    qryUsuariospessoanumero: TStringField;
+
+
+    procedure qryUsuariosAfterScroll(DataSet: TDataSet);
+    procedure qryUsuariosNewRecord(DataSet: TDataSet);
+    procedure qryComissoesUsuariosBeforeDelete(DataSet: TDataSet);
+    procedure qryFiliaisNewRecord(DataSet: TDataSet);
+    procedure qryGruposUsuariosNewRecord(DataSet: TDataSet);
+    procedure qrySeriesFiliaisNewRecord(DataSet: TDataSet);
+    procedure qrySeriesFiliaisBefore(DataSet: TDataSet);
+    procedure qryFiliaisAfterClose(DataSet: TDataSet);
+    procedure qryComissoesUsuariosAfterDelete(DataSet: TDataSet);
+    procedure qryComissoesCobrancaAfterDelete(DataSet: TDataSet);
+    procedure qryFiliaisAfterScroll(DataSet: TDataSet);
+    procedure qrySeriesFiliaisAfterScroll(DataSet: TDataSet);
+    procedure qrySetoresUsuariosAfterDelete(DataSet: TDataSet);
+    procedure dsrFatoresPrecosFilialDataChange(Sender: TObject;
+      Field: TField);
+    procedure qryUsuariosAfterOpen(DataSet: TDataSet);
+    procedure qryUsuariosAfterCancel(DataSet: TDataSet);
+    procedure qryMetasUsuariosAfterDelete(DataSet: TDataSet);
+    procedure qryUsuariosBeforeInsert(DataSet: TDataSet);
+    procedure qryComissoesUsuariosGruposAfterDelete(DataSet: TDataSet);
+    procedure qryComissoesUsuariosClassesAfterDelete(DataSet: TDataSet);
+    procedure dsrUsuariosDataChange(Sender: TObject; Field: TField);
+    procedure qryUsuariosFiliaisAfterDelete(DataSet: TDataSet);
+    procedure qryFiliaisAfterOpen(DataSet: TDataSet);
+    procedure qryIESubstTributarioAfterPost(DataSet: TDataSet);
+    procedure qryIESubstTributarioAfterDelete(DataSet: TDataSet);
+    procedure qryEstoquesFiliaisAfterPost(DataSet: TDataSet);
+    procedure qryEstoquesFiliaisAfterDelete(DataSet: TDataSet);
+    procedure qryRespAdmCadastroAfterPost(DataSet: TDataSet);
+    procedure qryRespAdmCadastroAfterDelete(DataSet: TDataSet);
+    procedure qryUsuariosOperacoesProducaoAfterOpen(DataSet: TDataSet);
+    procedure qryUsuariosOperacoesProducaoAfterPost(DataSet: TDataSet);
+    procedure qryUsuariosOperacoesProducaoAfterDelete(DataSet: TDataSet);
+    procedure qryUsuariosOperacoesProducaoBeforePost(DataSet: TDataSet);
+    procedure qryAliquotasSimplesNacionalAfterDelete(DataSet: TDataSet);
+    procedure qryAliquotasSimplesNacionalAfterPost(DataSet: TDataSet);
+    procedure qryAliquotasSimplesNacionalNewRecord(DataSet: TDataSet);
+    procedure qryAliquotasSimplesNacionalmesanoChange(Sender: TField);
+    procedure qryUsuarioscobrancaChange(Sender: TField);
+    procedure qryUsuariosBeforePost(DataSet: TDataSet);
+//    procedure qryUsuariosAfterInsert(DataSet: TDataSet);
+  private
+{    FTipoClienteEntrada: String;
+    FTipoClienteSaida: String;
+    FNomeFornecedor: String;
+    FNomeCliente: String;
+}
+    FOptantepeloSimples: Boolean;
+    FDataChangeFiliais: TNotifyEvent;
+    FListaOperacoesSelecionadas: String;
+//    FOnScrollInternet: TNotifyEvent;
+    function GetTabelaFatoresPrecos: TtecQuery;
+    function GetTabelaConsultaFatorPreco: TtecQuery;
+    function GetNrRegistrosCobranca: Integer;
+    function GetTabelaComissoesUsuariosGrupos: TtecQuery;
+    function GetTabelaConsultaGrupos: TtecQuery;
+    function GetTabelaComissoesUsuariosClasses: TtecQuery;
+    function GetTabelaConsultaClasses: TtecQuery;
+    procedure SetSenhaEmail(const Value: String);
+    function GetUsuarioItecLux: String;
+    function GetTabelaUsuariosFiliais: TtecQuery;
+    function GetOptantepeloSimples: Boolean;
+  private
+    procedure AtualizaListaOperacoes;
+    function VerificarAliquotasSimplesNacional: Boolean;
+
+  protected
+    FNRComissoes: Integer;
+    FSerieFilial: String;
+    function GetTabelaComissoesCobranca: TtecQuery;
+    function GetEditandoUsuario: Boolean;
+    function GetExisteSerieFilialUtilizada: Boolean;
+    function GetTabelaModeloNotaFiscal: TtecQuery;
+    function GetTabelaComissoesVendas: TtecQuery;
+    function GetTabelaConsultaColuna: TtecQuery;
+    function GetTabelaConsultaFiltroSAC: TtecQuery;
+    function GetTabelaConsultaUsuario: TtecQuery;
+    function GetTabelaConsultaFilial:TtecQuery;
+    function GetTabelaConsultaFornecedores: TtecQuery;
+    function GetTabelaConsultaModulo: TtecQuery;
+    function GetTabelaConsultaGrupoPostgreSQL: TTecQuery;
+    function GetTabelaConsultaGrupoUsuarios: TTecQuery;
+    function GetTabelaConsultaValorParametro: TtecQuery;
+    function GetTabelaMetasUsuarios: TtecQuery;
+    function GetTabelaFiliais:TtecQuery;
+    function GetTabelaGrupoUsuario: TtecQuery;
+    function GetTabelaSeriesFiliais: TtecQuery;
+    function GetTabelaUsuario: TtecQuery;
+    function GetTabelaSetoresUsuarios: TtecQuery;
+    function GetTabelaConsultaSetores: TtecQuery;
+    procedure SetSerieFilial(const Value: String);
+  public
+    procedure AbreTabelasParametrosSistemas(Procura: TtecParametroSistemas);
+    procedure AbreTabelasConsulta(Procura: TtecProcuraFiliais);
+    procedure AbreTabelasUsuarios(Procura: TtecProcuraUsuarios);
+    constructor Create(AOwner: TComponent); override;
+    procedure CancelarSerieFilial;
+    procedure EditarUsuarios;
+    function  ExlcuirComisssoesCobranca: Boolean;
+    function  ExcluirComissoesUsuarios: Boolean;
+    function  ExcluirGrupoUsuario: Boolean;
+    function  ExcluirFilial: Boolean;
+    function  ExcluirMetasUsuarios:Boolean;
+    function  ExcluirSetoresUsuarios: Boolean;
+    function  ExcluirComissoesUsuariosGrupos: Boolean;
+    function  ExcluirComissoesUsuariosClasses: Boolean;
+    function  ExcluirUsuariosFiliais: Boolean;
+
+    function  ExcluirUsuario(Login: String): Boolean;
+    function  ExisteFiltroSAC(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+    function  ExisteFilial(campo, codigo: string): boolean;
+    function  ExcluirSerieFilial: Boolean;
+    function  ExcluirFatoresPrecosFilial: Boolean;
+    function  ExisteSetores(campo, codigo: string): boolean;
+    function  ExisteGrupoPostgreSQL(campo, codigo: string): boolean;
+    function  ExisteGrupoUsuarios(campo, codigo: string): boolean;
+    function  ExisteColunas(Campo,Codigo: String): Boolean;
+    function  ExisteFornecedores(campo, codigo: string): boolean;
+    function  ExisteModulo(campo, codigo: string): boolean;
+    function  ExisteValorParametro(campo, codigo: string): boolean;
+    function  ExisteUsuario(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+    function  ExisteGrupos(campo, codigo: string): boolean;
+    function  ExisteClasses(campo, codigo: string): boolean;
+    function  ExisteSerieFilial(campo: String): Boolean;
+
+    procedure FechaTabelasConsulta(Procura: TtecProcuraFiliais);
+    procedure FechaTabelasUsuarios(Procura: TtecProcuraUsuarios);
+    procedure FechaTabelasParametrosSistemas(Procura: TtecParametroSistemas);
+    function  GravarFiliais(NewCodigo:Integer): Boolean;
+    function  GravarSeriesFilial: Boolean;
+    function  GravarFatoresPrecosFilial: Boolean;
+    function  GravarComissoesUsuarios: Boolean;
+    function  GravarComissoesCobranca: Boolean;
+    function  GravarMetasUsuarios(MesAno:String): Boolean;
+    function  GravarSetoresUsuarios: Boolean;
+    function  GravarComissoesUsuariosGrupos: Boolean;
+    function  GravarComissoesUsuariosClasses: Boolean;
+    function  GravarGrupoUsuario: Boolean;
+    function  GravarUsuario(Login, Senha: String): Boolean;
+    function  GravarUsuariosFiliais: Boolean;
+    procedure IncluirComissoesCobranca(Editar: Boolean);
+    procedure IncluirComissoesUsuarios(Editar: Boolean);
+    function IncluirComissoesUsuariosGrupos(Editar: Boolean): Boolean;
+    function IncluirComissoesUsuariosClasses(Editar: Boolean): Boolean;
+    function  IncluirFiliais: Boolean;
+    function  IncluirSerieFilial: Boolean;
+    function  IncluirFatoresPrecosFilial(Incluindo: Boolean): Boolean;
+
+    function  IncluirGrupoUsuarios: Boolean;
+    procedure IncluirMetasUsuarios(Editar: Boolean);
+    function  IncluirSetoresUsuarios(Editar: Boolean): Boolean;
+    function IncluirUsuariosFiliais(Editar: Boolean): Boolean;
+    function  IncluirUsuario: Boolean;
+    procedure LimitarAcessoConsultaUsuario;
+
+    procedure Selecionar(Pesquisa: TtecProcuraFiliais);
+    procedure SelecionarUsuario(Pesquisa: TtecProcuraUsuarios);
+    procedure SelecionarGrupoPostgreSQL;
+    procedure SelecionarGrupoUsuario;
+    procedure SelecionarModeloNotaFiscal;
+    procedure SelecionarFatorPreco;
+    function  VerificaIntervaloSerieFilial(numero: integer): Boolean;
+
+    property EditandoUsuario: Boolean read GetEditandoUsuario;
+    property TabelaConsultaColuna: TtecQuery read GetTabelaConsultaColuna;
+    property TabelaConsultaFilial    : TtecQuery read GetTabelaConsultaFilial;
+    property TabelaConsultaFiltroSAC: TtecQuery read GetTabelaConsultaFiltroSAC;
+    property TabelaConsultaFornecedores: TTecQuery read GetTabelaConsultaFornecedores;
+    property TabelaConsultaGrupoPostgreSQL: TTecQuery read GetTabelaConsultaGrupoPostgreSQL;
+    property TabelaConsultaGrupoUsuarios: TTecQuery read GetTabelaConsultaGrupoUsuarios;
+    property TabelaConsultaModulo : TtecQuery read GetTabelaConsultaModulo;
+    property TabelaConsultaUsuario: TtecQuery read GetTabelaConsultaUsuario;
+    property TabelaConsultaValorParametro: TtecQuery read GetTabelaConsultaValorParametro;
+    property TabelaConsultaSetores: TtecQuery read GetTabelaConsultaSetores;
+    property TabelaConsultaGrupos: TtecQuery read GetTabelaConsultaGrupos;
+    property TabelaConsultaClasses: TtecQuery read GetTabelaConsultaClasses;
+    property TabelaConsultaFatorPreco: TtecQuery read GetTabelaConsultaFatorPreco;
+    property TabelaFiliais: TtecQuery read GetTabelaFiliais;
+    property TabelaFatoresPrecos: TtecQuery read GetTabelaFatoresPrecos;
+    property TabelaGrupoUsuarios: TtecQuery read GetTabelaGrupoUsuario;
+    property TabelaSeriesFiliais: TtecQuery read GetTabelaSeriesFiliais;
+    property TabelaUsuarios: TtecQuery read GetTabelaUsuario;
+    property TabelaModeloNotaFiscal: TtecQuery read GetTabelaModeloNotaFiscal;
+    property TabelaComissoesVendas: TtecQuery read GetTabelaComissoesVendas;
+    property TabelaComissoesUsuariosGrupos: TtecQuery read GetTabelaComissoesUsuariosGrupos;
+    property TabelaComissoesUsuariosClasses: TtecQuery read GetTabelaComissoesUsuariosClasses;
+    property TabelaMetasUsuarios: TtecQuery read GetTabelaMetasUsuarios;
+    property TabelaSetoresUsuarios: TtecQuery read GetTabelaSetoresUsuarios;
+    property TabelaComissoesCobranca: TtecQuery read GetTabelaComissoesCobranca;
+    property TabelaUsuariosFiliais: TtecQuery read GetTabelaUsuariosFiliais;
+//    property UsuarioSomenteLeitura: Boolean read GetUsuarioSomenteLeitura write SetUsuarioSomenteLeitura;
+    procedure VerificarSerieFilial(Serie, inicial, final, modelo: String);
+    property SerieFilial: String read FSerieFilial Write SetSerieFilial;
+    property ExisteSerieFilialUtilizada: Boolean read GetExisteSerieFilialUtilizada;
+    property NrRegistrosCobranca: Integer read GetNrRegistrosCobranca;
+    property SenhaEmail: String write SetSenhaEmail;
+    property UsuarioItecLux: String read GetUsuarioItecLux;
+    property OptantepeloSimples: Boolean read GetOptantepeloSimples write FOptantepeloSimples;
+    property DataChangeFiliais: TNotifyEvent read FDataChangeFiliais write FDataChangeFiliais;
+//    property OnScrollInternet    : TNotifyEvent read FOnScrollInternet write FOnScrollInternet;
+    procedure GravarUsuarioItecLUX(Usuario, Senha: String);
+    function  EstadoVAriavel: Boolean;
+
+    procedure EditarUsuariosOperacaoProducao;
+    property ListaOperacoesSelecionadas: String read FListaOperacoesSelecionadas write FListaOperacoesSelecionadas;
+    function SalvarUsuariosOperacoesProducao(gravar: Boolean): boolean;
+    procedure GravarUsuariosOperacaoProducao;
+
+
+
+
+  end;
+
+
+var
+  dtmCadastrosInternos: TdtmCadastrosInternos;
+
+
+
+implementation
+
+{$R *.dfm}
+
+uses clusuario;
+
+constructor TdtmCadastrosInternos.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryFiliais.Tag                     := ctCadastroFiliais;
+  qrySeriesFiliais.Tag               := ctCadastroFiliais;
+  qryFatoresPrecosFilial.Tag         := ctCadastroFiliais;
+  qryConsultaModelosNotasFiscais.Tag := ctConsultaModeloNotaFiscal;
+  qryUsuarios.Tag                    := ctCadastroUsuarios;
+  qryMetasUsuarios.Tag               := ctCadastroUsuarios;
+  qryComissoesUsuarios.Tag           := ctCadastroUsuarios;
+  qryComissoesUsuariosGrupos.Tag     := ctCadastroUsuarios;
+  qryComissoesUsuariosClasses.Tag    := ctCadastroUsuarios;
+  qryComissoesCobranca.Tag           := ctCadastroUsuarios;
+  qryEventosCobranca.Tag             := ctCadastroUsuarios;
+  qrySetoresUsuarios.Tag             := ctCadastroUsuarios;
+  qryUsuariosFiliais.Tag             := ctCadastroUsuarios;
+
+  qryGruposUsuarios.Tag              := ctTabelaGruposUsuarios;
+  qryConsultaFiliais.Tag             := ctCrediarioTabelaConsultaFiliais;
+  qryConsultaColunas.Tag             := ctTabelasConsultaColunas;
+  qryConsultaFornecedores.Tag        := ctTabelasFornecedoresConsulta;
+  qryConsultaUsuarios.Tag            := ctTabelasConsultaUsuarios;
+  qryConsultaFiltros.Tag             := ctTabelasConsultaFiltrosSAC;
+  qryConsultaModulos.Tag             := ctTabelaConsultaModulos;
+  qryConsultaGruposUsuarios.Tag      := ctTabelaConsultaGrupoUsuarios;
+  qryConsultaGrupoPostgreSQL.Tag     := ctTabelaConsultaGrupoPostgreSQL;
+  qryConsultaSetores.Tag             := ctTabelaConsultaSetores;
+  qryConsultaFatoresPrecos.Tag       := ctConsultaFatoresPreco;
+  qryConsultaGrupos.Tag              := ctConsultaGrupos;
+  qryConsultaClasses.Tag             := ctConsultaClasses;
+
+  FListaOperacoesSelecionadas := '0';
+end;
+
+procedure TdtmCadastrosInternos.CancelarSerieFilial;
+begin
+  qrySeriesFiliais.Cancel;
+  ReFazConsulta(qrySeriesFiliais, [0], [qryFiliaiscodigo.AsInteger]);
+  Rollback([qryAliquotasSimplesNacional]);
+end;
+
+procedure TdtmCadastrosInternos.EditarUsuarios;
+begin
+  if Not (qryUsuarios.State in [dsEdit, dsInsert]) then
+    qryUsuarios.Edit
+end;
+
+function TdtmCadastrosInternos.ExcluirFilial: Boolean;
+begin
+  if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['a FILIAL'])) = smbOk then begin
+    if not (qryFiliais.IsEmpty) then
+         qryFiliais.Delete
+    else qryFiliais.Cancel;
+    Perpetrar([qryFiliais]);
+    Result := True;
+  end else
+    Result:= False
+end;
+
+function TdtmCadastrosInternos.GravarFiliais(NewCodigo:Integer): Boolean;
+begin
+  if qryFiliais.CheckRequiredFields then begin
+    if qryFiliais.State in [dsInsert] then
+       qryFiliaiscodigo.value := NewCodigo;
+
+    if qryFiliais.State in [dsEdit, dsInsert] then begin
+      qryFiliais.Post;
+      if qrySeriesFiliais.State in [dsEdit, dsInsert] then
+        qrySeriesFiliais.Post;
+
+      qrySeriesFiliais.DisableControls;
+      try
+        qrySeriesFiliais.First;
+        while not qrySeriesFiliais.eof do begin
+          if qrySeriesFiliaisfilial.IsNull then begin
+            qrySeriesFiliais.Edit;
+            qrySeriesFiliaisfilial.AsInteger := qryFiliaiscodigo.AsInteger;
+            qrySeriesFiliais.Post;
+          end;
+          qrySeriesFiliais.Next;
+        end;
+      finally
+        qrySeriesFiliais.EnableControls;
+      end;
+
+      if not qryIESubstTributario.IsEmpty then
+      begin
+         qryIESubstTributario.First;
+         while not qryIESubstTributario.Eof do
+         begin
+           qryIESubstTributario.Edit;
+           qryIESubstTributariocliente.AsInteger := qryFiliaiscodigo.AsInteger;
+           qryIESubstTributariotipocliente.AsString := 'L';
+           qryIESubstTributario.Post;
+           qryIESubstTributario.Next;
+         end;
+      end;
+
+      if not qryEstoquesFiliais.IsEmpty then
+      begin
+         qryEstoquesFiliais.First;
+         while not qryEstoquesFiliais.Eof do
+         begin
+           qryEstoquesFiliais.Edit;
+           qryEstoquesFiliaisfilialbase.AsInteger := qryFiliaiscodigo.AsInteger;
+           qryEstoquesFiliais.Post;
+           qryEstoquesFiliais.Next;
+         end;
+      end;
+
+      if not qryRespAdmCadastro.IsEmpty then
+      begin
+        qryRespAdmCadastro.First;
+        while not qryRespAdmCadastro.Eof do
+        begin
+          qryRespAdmCadastro.Edit;
+          qryRespAdmCadastrofilial.AsInteger := qryFiliaiscodigo.AsInteger;
+          qryRespAdmCadastro.Post;
+          qryRespAdmCadastro.Next;
+        end;
+      end;
+
+      if not FOptantepeloSimples then
+        qryFiliaisaliquotacreditoicms.AsCurrency:= 0;
+
+      qryFatoresPrecosFilial.DisableControls;
+      try
+        qryFatoresPrecosFilial.First;
+        while not qryFatoresPrecosFilial.eof do begin
+          if qryFatoresPrecosFilialfilial.IsNull then begin
+            qryFatoresPrecosFilial.Edit;
+            qryFatoresPrecosFilialfilial.AsInteger := qryFiliaiscodigo.AsInteger;
+            qryFatoresPrecosFilial.Post;
+          end;
+          qryFatoresPrecosFilial.Next;
+        end;
+      finally
+        qryFatoresPrecosFilial.EnableControls;
+      end;
+
+      qryAliquotasSimplesNacional.DisableControls;
+      try
+        qryAliquotasSimplesNacional.First;
+        while not qryAliquotasSimplesNacional.eof do begin
+          if qryAliquotasSimplesNacionalfilial.IsNull then begin
+            qryAliquotasSimplesNacional.Edit;
+            qryAliquotasSimplesNacionalfilial.AsInteger := qryFiliaiscodigo.AsInteger;
+            qryAliquotasSimplesNacional.Post;
+          end;
+          qryAliquotasSimplesNacional.Next;
+        end;
+      finally
+        qryAliquotasSimplesNacional.EnableControls;
+      end;
+
+
+      Perpetrar([qryFiliais, qrySeriesFiliais, qryFatoresPrecosFilial,
+                 qryIESubstTributario, qryEstoquesFiliais, qryRespAdmCadastro,
+                 qryAliquotasSimplesNacional]);
+
+
+      if qryFiliaiscodigo.AsInteger = FilialBase then
+        VerificarFilialBase
+    end;
+    Result:=True;
+  end
+  else
+    Result:= False;
+end;
+
+function TdtmCadastrosInternos.GravarGrupoUsuario: Boolean;
+begin
+  if qryGruposUsuarios.CheckRequiredFields then begin
+    if qryGruposUsuarios.State = dsInsert then begin
+      spcGruposUsuariosProximo.Open;
+      qryGruposUsuarioscodigo.AsInteger := spcGruposUsuariosProximocodigo.AsInteger;
+      spcGruposUsuariosProximo.Close;
+    end;
+    qryGruposUsuarios.Post;
+    Perpetrar([qryGruposUsuarios]);
+    Result := True;
+  end else
+    Result := False
+end;
+
+function TdtmCadastrosInternos.GravarSeriesFilial: Boolean;
+begin
+  if qrySeriesFiliais.CheckRequiredFields then begin
+     qrySeriesFiliais.Post;
+     Result := True;
+  end else
+    Result := False
+end;
+
+Function TdtmCadastrosInternos.IncluirFiliais: Boolean;
+Begin
+  if not qryFiliais.Active then
+     qryFiliais.Open;
+  qryFiliais.Insert;
+  Result:=True;
+End;
+
+function TdtmCadastrosInternos.IncluirGrupoUsuarios: Boolean;
+begin
+  qryGruposUsuarios.Insert;
+  Result := True;
+end;
+
+function TdtmCadastrosInternos.GetTabelaFiliais: TtecQuery;
+begin
+  Result:= qryFiliais;
+end;
+
+function TdtmCadastrosInternos.GetTabelaGrupoUsuario: TtecQuery;
+begin
+  Result := qryGruposUsuarios
+end;
+
+function TdtmCadastrosInternos.GetTabelaSeriesFiliais: TtecQuery;
+begin
+  Result := qrySeriesFiliais
+end;
+
+function TdtmCadastrosInternos.ExisteFiltroSAC(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaFiltros, NomeCampo, Value);
+end;
+
+function TdtmCadastrosInternos.ExisteFilial(campo, codigo: string): boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaFiliais, Campo, codigo);
+end;
+
+function TdtmCadastrosInternos.ExisteGrupoPostgreSQL(campo, codigo: string): boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaGrupoPostgreSQL, Campo, codigo);
+end;
+
+function TdtmCadastrosInternos.ExisteGrupoUsuarios(campo, codigo: string): boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaGruposUsuarios, Campo, codigo);
+end;
+
+function TdtmCadastrosInternos.ExisteModulo(campo, codigo: string): boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaModulos, Campo, codigo);
+end;
+
+function TdtmCadastrosInternos.GetTabelaConsultaFilial: TtecQuery;
+begin
+  Result:= qryConsultaFiliais;
+end;
+
+function TdtmCadastrosInternos.GetTabelaUsuario: TtecQuery;
+begin
+  Result := qryUsuarios
+end;
+
+function TdtmCadastrosInternos.ExcluirUsuario(Login: String): Boolean;
+begin
+  if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o USUÁRIO'])) = smbOk then begin
+    if not qryUsuarios.IsEmpty then
+       qryUsuarios.Delete
+    else qryUsuarios.Cancel;
+    Perpetrar([qryMetasUsuarios,qryComissoesUsuarios,qryUsuarios]);
+    if trim(login)<>'' then
+    begin
+     qryManutencaoLogin.Sql.Text := 'drop user '+Login;
+     qryManutencaoLogin.Open;
+    end;
+    Result:= True;
+  end
+  else
+    Result:= False;
+end;
+
+function TdtmCadastrosInternos.GravarUsuario(Login, Senha: String): Boolean;
+var
+  a:Integer;
+begin
+  Result := True;
+  if qryUsuarios.CheckRequiredFields then begin
+    if qryUsuarios.State in [dsInsert] then begin
+      ReFazConsulta(qryIDLogin,[0],[Login]);
+      if not qryIDLogin.IsEmpty then
+      begin
+        if (qryIDLogincodigousuario.AsInteger=qryIDLoginusesysid.AsInteger) then
+        begin
+          MensagemAviso(Format(ctLOGINUTILIZADO, [qryIDLoginusename.AsString,qryIDLogincodigousuario.AsInteger]));
+          Result := False
+        end
+        else
+        begin
+          Result := MensagemConfirmacao(Format(ctLOGINUSUARIOEXISTE, [Login])) = smbOK;
+          if Result then
+            qryUsuarioscodigo.AsInteger:= qryIDLoginusesysid.AsInteger
+        end
+      end
+      else
+      begin
+        ReFazConsulta(qryIDLogin,[0],[UsuarioLogin.LoginUsuario]);
+        if qryIDLoginusesuper.AsBoolean then
+        begin
+          qryManutencaoLogin.Sql.Text := 'create user ' + Login + ' with password ''' + Senha + '''';
+          qryUseSys.Open;
+          ReFazConsulta(qryConsultaCodigoUsuario, [0], [qryUseSysmaxusesysid.AsInteger+1]);
+          qryUseSys.Close;
+          if qryUsuarioscodigo.IsNull then
+          begin
+            qryMaxUsuarios.Open;
+            qryUsuarioscodigo.AsInteger := qryMaxUsuarioscodigo.AsInteger+1;
+            qryMaxUsuarios.Close;
+          end;
+          qryManutencaoLogin.Open;
+          if not qryConsultaCodigoUsuario.IsEmpty then begin
+
+            qryManutencaoLogin.Sql.Text := qryManutencaoLogin.Sql.Text + ' sysid ' +
+                                          IntToStr(qryUsuarioscodigo.AsInteger);
+          end;
+          if qryUsuariosadministrador.AsBoolean then
+            qryManutencaoLogin.Sql.Text := qryManutencaoLogin.Sql.Text + ' createuser';
+          ReFazConsulta(qryIDLogin,[0],[Login]);
+//          qryUsuarioscodigo.AsInteger:= qryMaxUsuarioscodigo.AsInteger+1;
+//          qryMaxUsuarios.Close;
+        end
+        else
+        begin
+          MensagemAviso(ctSEMPERMISSAOCRIARUSUARIO);
+          Result := False;
+        end;
+      end
+    end
+    else
+    begin
+      if(qryUsuariosusename.OldValue<>qryUsuariosusename.AsString) then
+      begin
+        ReFazConsulta(qryIDLogin,[0],[Login]);
+        if((not qryIDLogin.IsEmpty) and (qryIDLogincodigousuario.AsInteger<>qryUsuarioscodigo.AsInteger))then
+        begin
+            MensagemAviso('O login digitado já está sendo utilizado!');
+            Result:=false;
+        end;
+      end
+      else
+      begin
+        qryManutencaoLogin.Sql.Text := '';
+        if senha <> '' then
+          qryManutencaoLogin.Sql.Text := ' with password ''' + Senha + '''';
+        if qryUsuariosadministrador.AsBoolean <> qryUsuariosadministrador.OldValue then
+          if qryUsuariosadministrador.AsBoolean then
+            qryManutencaoLogin.Sql.Text := qryManutencaoLogin.Sql.Text + ' createuser'
+          else
+            qryManutencaoLogin.Sql.Text := qryManutencaoLogin.Sql.Text + ' nocreateuser';
+        if qryManutencaoLogin.Sql.Text <> '' then begin
+          qryManutencaoLogin.Sql.Text := 'alter user ' + Login + qryManutencaoLogin.Sql.Text;
+          qryManutencaoLogin.Open;
+        end
+      end;
+    end;
+
+    if result then
+      result := SalvarUsuariosOperacoesProducao(true);
+
+
+    if result then
+    begin
+      if qryUsuarioscobrancaanterior.AsBoolean and qryUsuarioscobranca.AsBoolean then
+        qryUsuarioscobranca.AsBoolean := not ExlcuirComisssoesCobranca;
+    end;
+
+    if Result then begin
+      qryMetasUsuarios.First;
+      for a:= 1 to qryMetasUsuarios.RecordCount do begin
+        qryMetasUsuarios.Edit;
+        qryMetasUsuariosusuario.AsInteger:= qryUsuarioscodigo.AsInteger;
+        qryMetasUsuarios.Next;
+      end;
+
+      FNRComissoes:= 0;
+      qryComissoesUsuarios.First;
+      for a:= 1 to qryComissoesUsuarios.RecordCount do begin
+        FNRComissoes:= FNRComissoes + 1;
+        if (qryComissoesUsuariosnumero.AsInteger = 0) then begin
+          qryComissoesUsuarios.Edit;
+          qryComissoesUsuariosusuario.AsInteger:= qryUsuarioscodigo.AsInteger;
+          qryComissoesUsuariosnumero.AsInteger:= FNRComissoes;
+        end;
+        qryComissoesUsuarios.Next;
+      end;
+
+      qryComissoesUsuariosGrupos.First;
+      for a:= 1 to qryComissoesUsuariosGrupos.RecordCount do begin
+        qryComissoesUsuariosgrupos.Edit;
+        qryComissoesUsuariosGruposusuario.AsInteger:= qryUsuarioscodigo.AsInteger;
+        qryComissoesUsuariosgrupos.Next;
+      end;
+
+      qryComissoesUsuariosClasses.First;
+      for a:= 1 to qryComissoesUsuariosClasses.RecordCount do begin
+        qryComissoesUsuariosClasses.Edit;
+        qryComissoesUsuariosClassesusuario.AsInteger:= qryUsuarioscodigo.AsInteger;
+        qryComissoesUsuariosClasses.Next;
+      end;
+
+      qryComissoesCobranca.First;
+      for a:= 1 to qryComissoesCobranca.RecordCount do begin
+        qryComissoesCobranca.Edit;
+        qryComissoesCobrancausuario.AsInteger:= qryUsuarioscodigo.AsInteger;
+        qryComissoesCobranca.Next;
+      end;
+
+      qryUsuariosFiliais.First;
+      for a:= 1 to qryUsuariosFiliais.RecordCount do begin
+        qryUsuariosFiliais.Edit;
+        qryUsuariosFiliaisusuario.AsInteger:= qryUsuarioscodigo.AsInteger;
+        qryUsuariosFiliais.Next;
+      end;
+
+      qryUsuariosOperacoesProducao.First;
+      for a:= 1 to qryUsuariosOperacoesProducao.RecordCount do begin
+        qryUsuariosOperacoesProducao.Edit;
+        qryUsuariosOperacoesProducaousuario.AsInteger:= qryUsuarioscodigo.AsInteger;
+        qryUsuariosOperacoesProducao.Next;
+      end;
+
+
+
+      qryUsuarios.Post;
+      Perpetrar([qryUsuarios,qryMetasUsuarios,qryComissoesUsuarios,
+                 qrycomissoesusuariosgrupos, qrycomissoesusuariosclasses,
+                 qryComissoesCobranca,qrySetoresUsuarios,qryUsuariosFiliais,
+                 qryUsuariosOperacoesProducao]);
+
+      ReFazConsulta(qryMetasUsuarios,[0],[qryUsuarioscodigo.AsInteger]);
+    end;
+  end;
+end;
+
+function TdtmCadastrosInternos.IncluirUsuario: Boolean;
+begin
+  qryUsuarios.Insert;
+  Result := True;
+end;
+
+function TdtmCadastrosInternos.GetTabelaConsultaUsuario: TtecQuery;
+begin
+  Result := qryConsultaUsuarios;
+end;
+
+function TdtmCadastrosInternos.ExisteUsuario(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaUsuarios, NomeCampo, Value)
+end;
+
+function TdtmCadastrosInternos.GettabelaConsultaFornecedores: TTecQuery;
+begin
+  result:= qryConsultaFornecedores;
+end;
+
+function TdtmCadastrosInternos.ExcluirMetasUsuarios: Boolean;
+begin
+  Result:= False;
+  if not qryMetasUsuarios.IsEmpty then begin
+    if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['a META DO USUÁRIO'])) = smbOk then begin
+      if qryMetasUsuarios.State in [dsEdit, dsInsert] then
+           qryMetasUsuarios.Cancel
+      else begin
+        qryMetasUsuarios.Delete;
+        qryUsuarios.Edit;
+      end;
+      Result:= True;
+    end;
+  end
+end;
+
+function TdtmCadastrosInternos.ExcluirSerieFilial: Boolean;
+begin
+  Result := False;
+  if qrySeriesFiliais.RecordCount > 0 then begin
+    if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['a SÉRIE FILIAL'])) = smbOk then begin
+      qrySeriesFiliais.Delete;
+//      Perpetrar([qrySeriesFiliais]);
+      if qryFiliais.State = dsBrowse then
+        qryFiliais.Edit;
+      Result := True;
+    end;
+  end;
+end;
+
+procedure TdtmCadastrosInternos.qryUsuariosNewRecord(DataSet: TDataSet);
+begin
+ inherited;
+  qryUsuariostipocomissao.AsString               := 'P';
+  qryUsuarioscredito.AsBoolean                   := False;
+  qryUsuariosreserva.AsBoolean                   := False;
+  qryUsuariosexcluireserva.AsBoolean             := False;
+  qryUsuarioscobranca.AsBoolean                  := False;
+  qryUsuariosvenda.AsBoolean                     := False;
+  qryUsuariosatendimento.AsBoolean               := False;
+  qryUsuarioscaixa.AsBoolean                     := False;
+  qryUsuarioscredito.AsBoolean                   := False;
+  qryUsuariosvenda.AsBoolean                     := False;
+  qryUsuariosatendimento.AsBoolean               := False;
+  qryUsuarioscaixa.AsBoolean                     := False;
+  qryUsuariospagamento.AsBoolean                 := False;
+  qryUsuariosalterarprecocontrato.AsBoolean      := False;
+  qryUsuariosdescontoextra.AsBoolean             := False;
+  qryUsuariosdevolucaoproduto.AsBoolean          := False;
+  qryUsuariostrocaproduto.AsBoolean              := False;
+  qryUsuariosdevolucaonumerario.AsBoolean        := False;
+  qryUsuariosalterarfilial.AsBoolean             := False;
+  qryUsuariositeclux.AsBoolean                   := False;
+  qryUsuariosalterardadoscontabeis.AsBoolean     := False;
+  qryUsuariosgerenteestoque.AsBoolean            := False;
+  qryUsuariosconfirmartransfitem.AsBoolean       := False;
+  qryUsuariosmontador.AsBoolean                  := False;
+  qryUsuariosrestringirfichacliente.AsBoolean    := False;
+  qryUsuariosemissornotafiscal.AsBoolean         := False;
+  qryUsuariosgerentecaixa.AsBoolean              := False;
+  qryUsuariosadministrador.AsBoolean             := False;
+  qryUsuariosanalistasite.AsBoolean              := False;
+  qryUsuariospessoatipo.asstring := 'F';
+end;
+
+procedure TdtmCadastrosInternos.qryUsuariosAfterCancel(DataSet: TDataSet);
+begin
+  inherited;
+  qryUsuarioslogin.ReadOnly := not qryUsuarios.IsEmpty;
+  qryUsuariosusename.ReadOnly:=qryUsuarioslogin.ReadOnly;
+end;
+
+procedure TdtmCadastrosInternos.qryUsuariosAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  qryUsuarioslogin.ReadOnly := not qryUsuarios.IsEmpty;
+  qryUsuariosusename.ReadOnly:=qryUsuarioslogin.ReadOnly;
+end;
+
+procedure TdtmCadastrosInternos.qryUsuariosAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  ReFazConsulta(qryMetasUsuarios,    [0],[qryUsuarioscodigo.AsInteger]);
+  ReFazConsulta(qryComissoesUsuarios,[0],[qryUsuarioscodigo.AsInteger]);
+  ReFazConsulta(qryComissoesUsuariosgrupos,[0],[qryUsuarioscodigo.AsInteger]);
+  ReFazConsulta(qryComissoesUsuariosClasses,[0],[qryUsuarioscodigo.AsInteger]);
+  ReFazConsulta(qryComissoesCobranca,[0],[qryUsuarioscodigo.AsInteger]);
+  ReFazConsulta(qrySetoresUsuarios,  [0],[qryUsuarioscodigo.AsInteger]);
+  ReFazConsulta(qryUsuariosFiliais,  [0],[qryUsuarioscodigo.AsInteger]);
+  RefazConsultaPorNome(qryUsuariosOperacoesProducao,  ['usuario'],[qryUsuarioscodigo.AsInteger]);
+
+//  if Assigned(OnScrollInternet) then
+//    OnScrollInternet(qryUsuarios);
+end;
+
+procedure TdtmCadastrosInternos.qryUsuariosBeforeInsert(DataSet: TDataSet);
+begin
+  inherited;
+  qryUsuarioslogin.ReadOnly := False;
+  qryUsuariosusename.ReadOnly:= False;
+end;
+
+function TdtmCadastrosInternos.GetTabelaConsultaFiltroSAC: TtecQuery;
+begin
+  Result:= qryConsultaFiltros;
+end;
+
+procedure TdtmCadastrosInternos.IncluirMetasUsuarios(Editar: Boolean);
+begin
+  if not Editar or qryMetasUsuarios.IsEmpty then begin
+    qryMetasUsuarios.Append;
+    qryMetasUsuariosusuario.AsInteger:= qryUsuarioscodigo.AsInteger;
+    qryMetasUsuariostipo.AsString    := '%';
+    qryMetasUsuarioscomissao.AsFloat := 0;
+  end;
+end;
+
+procedure TdtmCadastrosInternos.IncluirComissoesUsuarios(Editar: Boolean);
+begin
+  if not Editar or qryComissoesUsuarios.IsEmpty then begin
+    qryComissoesUsuarios.Append;
+    qryComissoesUsuariosusuario.AsInteger:= qryUsuarioscodigo.AsInteger;
+  end;
+end;
+
+function TdtmCadastrosInternos.ExcluirComissoesUsuarios: Boolean;
+begin
+  Result:= False;
+  if not qryComissoesUsuarios.isempty or not qryComissoesCobranca.isempty then
+    if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['a COMISSÃO DO USUÁRIO'])) = smbOk then
+    begin
+      if not qryComissoesUsuarios.IsEmpty then
+      begin
+        qryComissoesUsuarios.First;
+        while not qryComissoesUsuarios.eof do
+           qryComissoesUsuarios.Delete;
+      end
+      else
+        qryComissoesUsuarios.Cancel;
+
+      if not qryComissoesCobranca.IsEmpty then
+      begin
+        qryComissoesCobranca.First;
+        while not qryComissoesCobranca.eof do
+           qryComissoesCobranca.Delete
+      end
+      else
+        qryComissoesCobranca.Cancel;
+
+      Result:= True;
+    end
+end;
+
+function TdtmCadastrosInternos.ExcluirGrupoUsuario: Boolean;
+begin
+  Result:= False;
+  if MensagemConfirmacao(Format(ctCONFIRMEEXCLUIR, [ctOGRUPOUSUARIOS])) = smbok then begin
+   if not qryGruposUsuarios.IsEmpty then
+    qryGruposUsuarios.Delete
+   else
+    qryGruposUsuarios.cancel;
+   Result := Perpetrar([qryGruposUsuarios]);
+  end;
+end;
+
+procedure TdtmCadastrosInternos.qryComissoesUsuariosBeforeDelete(DataSet: TDataSet);
+begin
+  inherited BeforeDelete(DataSet);
+  qryUsuarios.Edit;
+end;
+
+function TdtmCadastrosInternos.ExisteFornecedores(campo, codigo: string): boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaFornecedores, campo, codigo);
+end;
+
+function TdtmCadastrosInternos.ExisteColunas(Campo,Codigo: String): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaColunas, campo, codigo);
+end;
+
+function TdtmCadastrosInternos.GetTabelaConsultaModulo: TtecQuery;
+begin
+  Result := qryConsultaModulos
+end;
+
+function TdtmCadastrosInternos.GetTabelaConsultaGrupoPostgreSQL: TTecQuery;
+begin
+  Result := qryConsultaGrupoPostgreSQL
+end;
+
+function TdtmCadastrosInternos.GetTabelaConsultaGrupoUsuarios: TTecQuery;
+begin
+  Result := qryConsultaGruposUsuarios
+end;
+
+function TdtmCadastrosInternos.GetTabelaConsultaValorParametro: TtecQuery;
+begin
+  Result := qryConsultaModulos;
+end;
+
+function TdtmCadastrosInternos.GetTabelaConsultaColuna: TtecQuery;
+begin
+  Result:= qryConsultaColunas;
+end;
+
+function TdtmCadastrosInternos.GetTabelaModeloNotaFiscal: TtecQuery;
+begin
+  Result := qryConsultaModelosNotasFiscais
+end;
+
+procedure TdtmCadastrosInternos.AbreTabelasParametrosSistemas(Procura: TtecParametroSistemas);
+begin
+  case Procura of
+    psMODULO    : Abre(ctTabelaConsultaModulos);
+    psPARAMETRO : Abre(ctTabelaConsultaParametros);
+    psFILIAL    : Abre(ctCrediarioTabelaConsultaFiliais);
+  end;
+end;
+
+procedure TdtmCadastrosInternos.AbreTabelasConsulta(Procura: TtecProcuraFiliais);
+begin
+  case Procura of
+    tpFILIAIS,
+    tpFILIALCONTABILFILIAIS,
+    tpFILIALMONTAGEMFILIAIS :
+    begin
+      qryConsultaFiliais.MacroByName('Filtro').AsString := '';
+      Abre(ctCrediarioTabelaConsultaFiliais);
+    end;
+    tpFILIALCONSOLIDADORADIME   :
+    begin
+      qryConsultaFiliais.MacroByName('Filtro').AsString := 'where filialconsolidadoradime is null';
+      Abre(ctCrediarioTabelaConsultaFiliais);
+    end;
+    tpCOLUNASPRECONORMALFILIAIS,
+    tpCOLUNASPRECOPROMOCAOFILIAIS: Abre(ctTabelasConsultaColunas);
+  end;
+end;
+
+procedure TdtmCadastrosInternos.FechaTabelasConsulta(Procura: TtecProcuraFiliais);
+begin
+  case Procura of
+    tpFILIAIS,
+    tpFILIALCONTABILFILIAIS,
+    tpFILIALMONTAGEMFILIAIS,
+    tpFILIALCONSOLIDADORADIME : Fecha(ctCrediarioTabelaConsultaFiliais);
+    tpCOLUNASPRECONORMALFILIAIS,
+    tpCOLUNASPRECOPROMOCAOFILIAIS: Fecha(ctTabelasConsultaColunas);
+    tpfCONTADEBITO,
+    tpfCONTACREDITO         : Fecha(ctConsultaContaContabil);
+  end;
+end;
+
+procedure TdtmCadastrosInternos.Selecionar(Pesquisa: TtecProcuraFiliais);
+begin
+  case Pesquisa of
+    tpFILIAIS                    : RefazConsulta(qryFiliais, [0], [qryConsultaFiliaisCodigo.AsInteger]);
+    tpFILIALCONTABILFILIAIS      : begin
+                                     qryFiliais.Edit;
+                                     qryFiliaiscontabil.AsInteger  := qryConsultaFiliaiscodigo.AsInteger;
+                                   end;
+    tpFILIALMONTAGEMFILIAIS      : begin
+                                     qryFiliais.Edit;
+                                     qryFiliaismontagem.AsInteger  := qryConsultaFiliaiscodigo.AsInteger;
+                                   end;
+    tpFILIALCONSOLIDADORADIME      : begin
+                                     qryFiliais.Edit;
+                                     qryFiliaisfilialconsolidadoradime.AsInteger  := qryConsultaFiliaiscodigo.AsInteger;
+                                   end;
+    tpCOLUNASPRECONORMALFILIAIS  : begin
+                                     qryFiliais.Edit;
+                                     qryFiliaispreconormal.AsInteger:= qryConsultaColunascodigo.AsInteger;
+                                   end;
+    tpCOLUNASPRECOPROMOCAOFILIAIS: begin
+                                     qryFiliais.Edit;
+                                     qryFiliaisprecopromocao.AsInteger:= qryConsultaColunascodigo.AsInteger;
+                                   end;
+
+  end;
+end;
+
+procedure TdtmCadastrosInternos.qryFiliaisNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+  qryFiliaistipofilial.AsString:= 'L';
+  qryFiliaisporte.AsString     := 'O';
+  qryFiliaissimples.AsString   := 'N';
+  qryFiliaisregime.AsInteger   := 1;
+  qryFiliaisinscricaoestadual.asString:= 'ISENTO';
+  qryFiliaisexibircomplementonf.AsBoolean := true;
+  qryFiliaiscontribicms.AsBoolean := false;
+  qryFiliaiscontribipi.AsBoolean := false;
+  qryFiliaiscontribiss.AsBoolean := false;
+  qryFiliaisind_perfil.AsString := 'A';
+  qryFiliaisind_ativ.AsString := '0';
+  qryFiliaisregimetributario.AsInteger := 1;
+  qryFiliaisquali_pj.AsString := '10';
+  qryFiliaisform_apur.AsString := 'A';
+  qryFiliaisform_tribut.AsString := '1';
+  qryFiliaissped_pis_cofins.AsBoolean := false;
+  qryFiliaissped_fiscal.AsBoolean := false;
+  qryFiliaissped_pis_cofins_rb.AsBoolean := false;
+  qryFiliaissped_pis_cofins_rem.AsBoolean := false;
+  qryFiliaistipoemissaonfeservico.asinteger := 1;
+end;
+
+procedure TdtmCadastrosInternos.qryGruposUsuariosNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+  qryGruposUsuariosanalistacredito.AsBoolean       := False;
+  qryGruposUsuariosreservaproduto.AsBoolean        := False;
+  qryGruposUsuariosexcluireservaproduto.AsBoolean  := False;
+  qryGruposUsuarioscaixa.AsBoolean                 := False;
+  qryGruposUsuariosvendedor.AsBoolean              := False;
+  qryGruposUsuarioscobranca.AsBoolean              := False;
+  qryGruposUsuariospagamento.AsBoolean             := False;
+  qryGruposUsuariosatendimento.AsBoolean           := False;
+  qryGruposUsuariosalterarprecocontrato.AsBoolean  := False;
+  qryGruposUsuariosdescontoextra.AsBoolean         := False;
+  qryGruposUsuariosdevolucaoproduto.AsBoolean      := False;
+  qryGruposUsuariostrocaproduto.AsBoolean          := False;
+  qryGruposUsuariosdevolucaonumerario.AsBoolean    := False;
+  qryGruposUsuariosalterarfilial.AsBoolean         := False;
+  qryGruposUsuariositeclux.AsBoolean               := False;
+  qryGruposUsuariosgerenteestoque.AsBoolean        := False;
+  qryGruposUsuariosalterardadoscontabeis.AsBoolean := False;
+  qryGruposUsuariosmontador.AsBoolean              := False;
+  qryGruposUsuariosconfirmartransfitem.AsBoolean   := False;
+  qryGruposUsuariosemissornotafiscal.AsBoolean     := False;
+  qryGruposUsuariosgerentecaixa.AsBoolean          := False;
+end;
+
+procedure TdtmCadastrosInternos.SelecionarUsuario(Pesquisa: TtecProcuraUsuarios);
+begin
+  case Pesquisa of
+    tpSETORES : begin
+                  qrySetoresUsuarios.Edit;
+                  qrySetoresUsuariosgrupo.AsString:= qryConsultaSetorescodigo.AsString;
+                end;
+    tpFILIAL  : begin
+                  qryUsuariosFiliais.Edit;
+                  qryUsuariosFiliaisfilial.asInteger := qryConsultaFiliaiscodigo.AsInteger;
+                end;
+    tpFILTRO  : begin
+                  qryUsuarios.Edit;
+                  qryUsuariosfiltrosac.asInteger:= qryConsultaFiltrosnumero.asInteger;
+                end;
+    tpUSUARIO : ReFazConsulta(qryUsuarios,[0],[qryConsultaUsuarioscodigo.asInteger]);
+    tpGRUPOSUSUARIOS: begin
+                        qryUsuarios.Edit;
+                        qryUsuariosgrupo.AsInteger := qryConsultaGruposUsuarioscodigo.AsInteger;
+                      end;
+    tpCOMISSOESGRUPOS  : begin
+                          qryComissoesUsuariosGrupos.Edit;
+                          qryComissoesUsuariosGruposgrupo.AsString := qryConsultaGruposcodigo.AsString;
+                         end;
+    tpCOMISSOESCLASSES : begin
+                          qryComissoesUsuariosClasses.Edit;
+                          qryComissoesUsuariosClassesclasse.AsString := qryConsultaClassescodigo.AsString;
+                         end;
+  end;
+end;
+
+procedure TdtmCadastrosInternos.AbreTabelasUsuarios(Procura: TtecProcuraUsuarios);
+begin
+  case Procura of
+    tpSETORES: Abre(ctTabelaConsultaSetores);
+    tpFILIAL : Abre(ctCrediarioTabelaConsultaFiliais);
+    tpFILTRO : Abre(ctTabelasConsultaFiltrosSAC);
+    tpUSUARIO: Abre(ctTabelasConsultaUsuarios);
+    tpGRUPOSUSUARIOS:Abre(ctTabelaConsultaGrupoUsuarios);
+    tpCOMISSOESGRUPOS : Abre(ctConsultaGrupos);
+    tpCOMISSOESCLASSES: Abre(ctConsultaClasses);
+  end;
+end;
+
+procedure TdtmCadastrosInternos.FechaTabelasParametrosSistemas(Procura: TtecParametroSistemas);
+begin
+  case Procura of
+    psMODULO    : Fecha(ctTabelaConsultaModulos);
+    psPARAMETRO : Fecha(ctTabelaConsultaParametros);
+    psFILIAL    : Fecha(ctCrediarioTabelaConsultaFiliais);
+  end;
+end;
+
+procedure TdtmCadastrosInternos.FechaTabelasUsuarios(Procura: TtecProcuraUsuarios);
+begin
+  case Procura of
+    tpSETORES: Fecha(ctTabelaConsultaSetores);
+    tpFILIAL : Fecha(ctCrediarioTabelaConsultaFiliais);
+    tpFILTRO : Fecha(ctTabelasConsultaFiltrosSAC);
+    tpUSUARIO: Fecha(ctTabelasConsultaUsuarios);
+    tpCOMISSOESGRUPOS : Fecha(ctConsultaGrupos);
+    tpCOMISSOESCLASSES : Fecha(ctConsultaClasses);
+  end;
+end;
+
+function TdtmCadastrosInternos.ExlcuirComisssoesCobranca: Boolean;
+begin
+  Result:= False;
+  if not qryComissoesCobranca.IsEmpty then begin
+    if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['as COMISSÕES COBRANÇAS'])) = smbOk then begin
+      qryEventosCobranca.First;
+      while not qryEventosCobranca.Eof do begin
+        qryComissoesCobranca.Delete;
+        qryEventosCobranca.Next;
+      end;
+      Result:= True;
+    end;
+  end;
+end;
+
+procedure TdtmCadastrosInternos.IncluirComissoesCobranca(Editar: Boolean);
+begin
+  if not Editar then
+  begin
+    if qryComissoesCobranca.IsEmpty then begin
+      qryEventosCobranca.First;
+      while not qryEventosCobranca.Eof do begin
+        qryComissoesCobranca.Append;
+        qryComissoesCobrancaevento.AsInteger  := qryEventosCobrancacodigo.AsInteger;
+        qryComissoesCobrancadescricao.AsString:= qryEventosCobrancadescricao.AsString;
+        qryComissoesCobranca.Post;
+        qryEventosCobranca.Next;
+      end;
+    end;
+  end;
+end;
+
+procedure TdtmCadastrosInternos.SelecionarGrupoPostgreSQL;
+begin
+  qryGruposUsuarios.Edit;
+  qryGruposUsuariosgrupopostgresql.AsInteger := qryConsultaGrupoPostgreSQLgrosysid.AsInteger;
+end;
+
+procedure TdtmCadastrosInternos.SelecionarGrupoUsuario;
+begin
+  ReFazConsulta(qryGruposUsuarios, [0], [qryConsultaGruposUsuarioscodigo.AsInteger]);
+end;
+
+procedure TdtmCadastrosInternos.SelecionarModeloNotaFiscal;
+begin
+  if qrySeriesFiliais.State = dsBrowse then
+    qrySeriesFiliais.Edit;
+  qrySeriesFiliaismodelonota.AsInteger := qryConsultaModelosNotasFiscaiscodigo.AsInteger
+end;
+
+function TdtmCadastrosInternos.IncluirSerieFilial: Boolean;
+begin
+  qrySeriesFiliaisvalor.ReadOnly := False;
+  qrySeriesFiliais.Append;
+  Result := True
+end;
+
+procedure TdtmCadastrosInternos.qrySeriesFiliaisBefore(DataSet: TDataSet);
+begin
+  inherited;
+  qryFiliais.Edit
+end;
+
+procedure TdtmCadastrosInternos.qrySeriesFiliaisNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+  qrySeriesFiliaisfilial.AsInteger := qryFiliaiscodigo.AsInteger;
+  qrySeriesFiliaisativa.AsBoolean := True;
+
+end;
+
+function TdtmCadastrosInternos.ExisteValorParametro(campo, codigo: string): boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaModulos, Campo, codigo);
+end;
+
+function TdtmCadastrosInternos.ExisteSerieFilial(campo: String): Boolean;
+begin
+  Result:= True;
+  if Campo <> '' then
+    Result:= qrySeriesFiliais.Locate('valor',campo,[loCaseInsensitive, loPartialKey]);
+end;
+
+procedure TdtmCadastrosInternos.qryComissoesCobrancaAfterDelete(DataSet: TDataSet);
+begin
+  inherited;
+  if qryUsuarios.State = dsBrowse then
+    qryUsuarios.Edit;
+end;
+
+procedure TdtmCadastrosInternos.qryComissoesUsuariosAfterDelete(DataSet: TDataSet);
+begin
+  inherited;
+  if qryUsuarios.State = dsBrowse then
+    qryUsuarios.Edit;
+end;
+
+procedure TdtmCadastrosInternos.qryFiliaisAfterClose(DataSet: TDataSet);
+begin
+  inherited;
+  qrySeriesFiliais.Close;
+  qryFatoresPrecosFilial.Close;
+end;
+
+function TdtmCadastrosInternos.GravarComissoesUsuarios: Boolean;
+begin
+  Result:= False;
+  if qryComissoesUsuarios.CheckRequiredFields then begin
+    qryComissoesUsuarios.Post;
+    Result := True;
+    qryUsuarios.Edit;
+  end;
+end;
+
+function TdtmCadastrosInternos.GetTabelaComissoesVendas: TtecQuery;
+begin
+  Result:= qryComissoesUsuarios;
+end;
+
+function TdtmCadastrosInternos.GravarMetasUsuarios(MesAno:String): Boolean;
+
+  function VerificarPeriodoMeta: Boolean;
+  var
+    I: Integer;
+  begin
+    I:= 0;
+    qryMetasUsuarios.First;
+    qryMetasUsuarios.DisableControls;
+    while not qryMetasUsuarios.Eof do begin
+      if qryMetasUsuariosmesano.AsString = MesAno then
+        Inc(I);
+      qryMetasUsuarios.Next;
+    end;
+    qryMetasUsuarios.EnableControls;
+    Result:= (I > 1);
+  end;
+
+begin
+  Result:= False;
+  if qryMetasUsuarios.CheckRequiredFields then begin
+    Delete(MesAno,3,1);
+    qryMetasUsuariosmesano.AsString:= MesAno;
+    if not VerificarPeriodoMeta then begin
+      qryUsuarios.Edit;
+      Result := True;
+    end
+    else begin
+      MensagemAviso('O período ' + qryMetasUsuariosmesanoeditado.AsString + ' já foi especificado.');
+      qryMetasUsuarios.Delete;
+    end;
+  end;
+end;
+
+function TdtmCadastrosInternos.GetTabelaMetasUsuarios: TtecQuery;
+begin
+  Result:= qryMetasUsuarios;
+end;
+
+function TdtmCadastrosInternos.GravarComissoesCobranca: Boolean;
+begin
+  Result := True;
+  qryComissoesCobranca.Post;
+  qryUsuarios.Edit;
+end;
+
+function TdtmCadastrosInternos.GetTabelaComissoesCobranca: TtecQuery;
+begin
+  Result:= qryComissoesCobranca;
+end;
+
+function TdtmCadastrosInternos.GetEditandoUsuario: Boolean;
+begin
+  Result := qryUsuarios.State = dsEdit
+end;
+{
+
+procedure TdtmCadastrosInternos.SetUsuarioSomenteLeitura(const Value: Boolean);
+begin
+  qryUsuarios.RequestLive := Not Value;
+end;
+function TdtmCadastrosInternos.GetUsuarioSomenteLeitura: Boolean;
+begin
+  Result := Not qryUsuarios.RequestLive
+end;
+ }
+procedure TdtmCadastrosInternos.qryFiliaisAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  ReFazConsulta(qrySeriesFiliais,[0],[qryFiliaiscodigo.AsInteger]);
+  ReFazConsulta(qryFatoresPrecosFilial,[0],[qryFiliaiscodigo.AsInteger]);
+  RefazConsulta(qryIESubstTributario,[0],[qryFiliaiscodigo.AsInteger]);
+  RefazConsulta(qryEstoquesFiliais,[0],[qryFiliaiscodigo.AsInteger]);
+  RefazConsulta(qryRespAdmCadastro,[0],[qryFiliaiscodigo.AsInteger]);
+  RefazConsultaPorNome(qryAliquotasSimplesNacional,['filial'],[qryFiliaiscodigo.AsInteger]);
+
+end;
+
+procedure TdtmCadastrosInternos.VerificarSerieFilial(Serie, inicial, final, modelo: String);
+var
+ EstadoTabelaSerie : TDataSetState;
+begin
+  if (Serie<>SerieFilial) then
+  begin
+   EstadoTabelaSerie := qrySeriesFiliais.State;
+   qrySeriesFiliais.Cancel;
+   if not qrySeriesFiliais.Locate('valor', Serie,[]) then
+   begin
+    if EstadoTabelaSerie = dsinsert then
+     IncluirSerieFilial
+    else
+     qrySeriesFiliais.Edit;
+    qrySeriesFiliaisvalor.AsString:=Serie;
+    qrySeriesFiliaisnumeroinicial.AsString:=inicial;
+    qrySeriesFiliaisnumerofinal.AsString:=final;
+    qrySeriesFiliaismodelonota.AsString:=modelo;
+   end;
+  end;
+end;
+
+procedure TdtmCadastrosInternos.SetSerieFilial(const Value: String);
+begin
+  FSerieFilial := Value;
+end;
+
+procedure TdtmCadastrosInternos.qrySeriesFiliaisAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  SerieFilial := qrySeriesFiliaisvalor.AsString;
+  ReFazConsulta(qryExisteSerieFilialNotasPag,[],[]);
+  ReFazConsulta(qryExisteSerieFilialNotas, [0,1],
+             [qrySeriesFiliaisfilial.AsVariant,
+              qrySeriesFiliaisvalor.AsVariant]);
+  if qryExisteSerieFilialNotas.IsEmpty then
+    qrySeriesFiliaisvalor.ReadOnly := False
+  else qrySeriesFiliaisvalor.ReadOnly := True;
+  if qryExisteSerieFilialNotas.IsEmpty then
+  begin
+   ReFazConsulta(qryExisteSerieFilialNotasPag, [0,1],
+              [qrySeriesFiliaisfilial.AsVariant,
+               qrySeriesFiliaisvalor.AsVariant]);
+   if qryExisteSerieFilialNotasPag.IsEmpty then
+     qrySeriesFiliaisvalor.ReadOnly := False
+   else qrySeriesFiliaisvalor.ReadOnly := true;
+  end;
+end;
+
+function TdtmCadastrosInternos.GetExisteSerieFilialUtilizada: Boolean;
+begin
+  result := not qryExisteSerieFilialNotas.IsEmpty or
+            not qryExisteSerieFilialNotasPag.IsEmpty
+end;
+
+
+function TdtmCadastrosInternos.VerificaIntervaloSerieFilial(numero: integer): Boolean;
+
+begin
+ qrySeriesFiliaisAfterScroll(qrySeriesFiliais);
+ result := ((numero >= qryExisteSerieFilialNotasmenornumero.AsInteger) and
+            (numero <= qryExisteSerieFilialNotasmaiornumero.AsInteger)) or
+           ((numero >= qryExisteSerieFilialNotasPagmenornumero.AsInteger) and
+            (numero <= qryExisteSerieFilialNotasPagmaiornumero.AsInteger))
+end;
+
+function TdtmCadastrosInternos.IncluirSetoresUsuarios(Editar: Boolean): Boolean;
+
+  procedure Setores(Editando: Boolean);
+  var
+    Campos,
+    Setor: String;
+    Pos  : TBookmark;
+  begin
+    Campos := '';
+    Setor:= qrySetoresUsuariosgrupo.AsString;
+    Pos:= qrySetoresUsuarios.GetBookmark;
+    try
+      qrySetoresUsuarios.DisableControls;
+      qrySetoresUsuarios.First;
+      while not qrySetoresUsuarios.Eof do begin
+        if (qrySetoresUsuariosgrupo.AsString <> '') then begin
+          if not Editando then
+            Campos := Campos + '' + QuotedStr(qrySetoresUsuariosGrupo.AsString) + ','
+          else if (qrySetoresUsuariosGrupo.AsString <> Setor) then
+            Campos := Campos + '' + QuotedStr(qrySetoresUsuariosgrupo.AsString) + ',';
+        end;
+        qrySetoresUsuarios.Next;
+      end;
+    finally
+      qrySetoresUsuarios.EnableControls;
+      qrySetoresUsuarios.GotoBookmark(Pos);
+      qrySetoresUsuarios.FreeBookmark(Pos);
+      Delete(Campos,Length(Campos),1);
+    end;
+    if Campos <> '' then begin
+      qryProcuraSetores.Sql[04] := Format('and not (codigo in (%s))', [Campos]);
+      qryConsultaSetores.Sql[03]:= Format('Where not (codigo in (%s))', [Campos]);
+    end
+    else begin
+      qryProcuraSetores.Sql[04] := '';
+      qryConsultaSetores.Sql[03]:= '';
+    end;
+  end;
+
+begin
+  Result:= True;
+  Setores(Editar);
+  if not Editar or qrySetoresUsuarios.IsEmpty then begin
+    qrySetoresUsuarios.Append;
+    qrySetoresUsuariosusuario.AsInteger:= qryUsuarioscodigo.AsInteger;
+  end
+  else begin
+    qrySetoresUsuarios.Edit;
+    qrySetoresUsuarios.Cancel;
+  end;
+end;
+
+function TdtmCadastrosInternos.GravarSetoresUsuarios: Boolean;
+
+begin
+  Result:= False;
+  if qrySetoresUsuarios.CheckRequiredFields then begin
+    qrySetoresUsuariosdescricao.AsString:= qryProcuraSetoresdescricao.AsString;
+    qrySetoresUsuarios.Post;
+    qryUsuarios.Edit;
+    Result:= True;
+  end;
+end;
+
+function TdtmCadastrosInternos.ExcluirSetoresUsuarios: Boolean;
+
+begin
+  Result:= False;
+  if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o SETOR DO USUÁRIO'])) = smbOk then begin
+    if not qrySetoresUsuarios.IsEmpty then
+         qrySetoresUsuarios.Delete
+    else qrySetoresUsuarios.Cancel;
+    Result:= True;
+  end
+end;
+
+function TdtmCadastrosInternos.GetTabelaSetoresUsuarios: TtecQuery;
+begin
+  Result:= qrySetoresUsuarios;
+end;
+
+function TdtmCadastrosInternos.ExisteSetores(campo, codigo: string): boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaSetores, Campo, codigo);
+end;
+
+function TdtmCadastrosInternos.GetTabelaConsultaSetores: TtecQuery;
+begin
+  Result:= qryConsultaSetores;
+end;
+
+
+procedure TdtmCadastrosInternos.qrySetoresUsuariosAfterDelete(DataSet: TDataSet);
+begin
+  inherited;
+  if qryUsuarios.State = dsBrowse then
+    qryUsuarios.Edit;
+end;
+
+function TdtmCadastrosInternos.IncluirFatoresPrecosFilial(Incluindo: Boolean): Boolean;
+
+  procedure MontarSQLFatoresPrecos;
+  var
+    Campos : String;
+    FP     : String;
+    Pos    : TBookmark;
+  begin
+    Campos := '';
+    FP := qryFatoresPrecosFilialfatorpreco.AsString;
+    qryFatoresPrecosFilial.DisableControls;
+    Pos:= qryFatoresPrecosFilial.GetBookmark;
+    try
+      qryFatoresPrecosFilial.First;
+      while not qryFatoresPrecosFilial.Eof do begin
+        if (qryFatoresPrecosFilialfatorpreco.AsString <> '') then begin
+          if Incluindo then
+            Campos := Campos + '' + QuotedStr(qryFatoresPrecosFilialfatorpreco.AsString) + ','
+          else if (qryFatoresPrecosFilialfatorpreco.AsString <> FP) then
+            Campos := Campos + '' + QuotedStr(qryFatoresPrecosFilialfatorpreco.AsString) + ',';
+        end;
+        qryFatoresPrecosFilial.Next;
+      end;
+    finally
+      qryFatoresPrecosFilial.GotoBookmark(Pos);
+      qryFatoresPrecosFilial.FreeBookmark(Pos);
+      qryFatoresPrecosFilial.EnableControls;
+      Delete(Campos,Length(Campos),1);
+      if Campos = '' then Campos:= '0';
+    end;
+    qryProcuraFatoresPrecos.Sql[04] := Format('and not (codigo in (%s))', [Campos]);
+    qryConsultaFatoresPrecos.Sql[03]:= Format('Where not (codigo in (%s))', [Campos]);
+  end;
+
+begin
+  Result:= True;
+  MontarSQLFatoresPrecos;
+  if Incluindo or qryFatoresPrecosFilial.IsEmpty then begin
+    qryFatoresPrecosFilial.Append;
+    qryFatoresPrecosFilialfator.AsCurrency:= 0;
+  end
+  else begin
+    qryFatoresPrecosFilial.Edit;
+    qryFatoresPrecosFilial.Cancel;
+  end;
+end;
+
+function TdtmCadastrosInternos.ExcluirFatoresPrecosFilial: Boolean;
+begin
+  Result:= False;
+  if (qryFatoresPrecosFilial.RecordCount > 0) then begin
+    if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o FATOR DE PREÇO'])) = smbOk then begin
+      if qryFatoresPrecosFilial.State in [dsEdit, dsInsert] then
+           qryFatoresPrecosFilial.Cancel
+      else qryFatoresPrecosFilial.Delete;
+      if qryFiliais.State = dsBrowse then
+        qryFiliais.Edit;
+      Result:= True;
+    end;
+  end;
+end;
+
+function TdtmCadastrosInternos.GravarFatoresPrecosFilial: Boolean;
+begin
+  Result:= False;
+  if qryFatoresPrecosFilial.CheckRequiredFields then begin
+    qryFatoresPrecosFilial.Post;
+    if qryFiliais.State = dsBrowse then
+      qryFiliais.Edit;
+    Result:= True;
+  end;
+end;
+
+function TdtmCadastrosInternos.GetTabelaFatoresPrecos: TtecQuery;
+begin
+  Result:= qryFatoresPrecosFilial;
+end;
+
+function TdtmCadastrosInternos.GetTabelaConsultaFatorPreco: TtecQuery;
+begin
+  Result:= qryConsultaFatoresPrecos;
+end;
+
+procedure TdtmCadastrosInternos.SelecionarFatorPreco;
+begin
+  if qryFatoresPrecosFilial.State = dsBrowse then
+    qryFatoresPrecosFilial.Edit;
+  qryFatoresPrecosFilialfatorpreco.AsString := qryConsultaFatoresPrecoscodigo.AsString;
+end;
+
+procedure TdtmCadastrosInternos.dsrFatoresPrecosFilialDataChange(Sender: TObject; Field: TField);
+begin
+  inherited;
+  if Field = qryFatoresPrecosFilialfatorpreco then
+    qryFatoresPrecosFilialdescricao.AsString  := qryProcuraFatoresPrecosdescricao.AsString;
+end;
+
+procedure TdtmCadastrosInternos.qryMetasUsuariosAfterDelete(DataSet: TDataSet);
+begin
+  inherited;
+  if not (qryUsuarios.State in [dsEdit, dsInsert]) then
+    qryUsuarios.Edit;
+end;
+
+function TdtmCadastrosInternos.GetNrRegistrosCobranca: Integer;
+begin
+  Result:= qryComissoesCobranca.RecordCount;
+end;
+
+procedure TdtmCadastrosInternos.LimitarAcessoConsultaUsuario;
+begin
+  if Not (UsuarioLogin.Administrador or UsuarioLogin.Suporte) then begin
+    qryConsultaUsuarios.Sql[3] := 'where codigo = ' + IntToStr(UsuarioLogin.CodigoUsuario);
+    qryUsuarios.MacroByName('Autorizado').AsString := 'and codigo = ' + IntToStr(UsuarioLogin.CodigoUsuario);
+  end else begin
+    qryConsultaUsuarios.Sql[3] := '';
+    qryUsuarios.MacroByName('Autorizado').AsString := '';
+  end
+end;
+
+function TdtmCadastrosInternos.GetTabelaComissoesUsuariosGrupos: TtecQuery;
+begin
+  Result:= qryComissoesUsuariosGrupos;
+end;
+
+function TdtmCadastrosInternos.IncluirComissoesUsuariosGrupos(
+  Editar: Boolean): boolean;
+
+  procedure Grupos(Editando: Boolean);
+  var
+    Campos,
+    Grupo: String;
+    Pos  : TBookmark;
+  begin
+    Campos := '';
+    Grupo:= qryComissoesUsuariosGruposgrupo.AsString;
+    Pos:= qryComissoesUsuariosGrupos.GetBookmark;
+    try
+      qryComissoesUsuariosGrupos.DisableControls;
+      qryComissoesUsuariosGrupos.First;
+      while not qryComissoesUsuariosGrupos.Eof do begin
+        if (qryComissoesUsuariosGruposgrupo.AsString <> '') then begin
+          if not Editando then
+            Campos := Campos + '' + QuotedStr(qryComissoesUsuariosGruposgrupo.AsString) + ','
+          else if (qryComissoesUsuariosGruposgrupo.AsString <> grupo) then
+            Campos := Campos + '' + QuotedStr(qryComissoesUsuariosGruposgrupo.AsString) + ',';
+        end;
+        qryComissoesUsuariosGrupos.Next;
+      end;
+    finally
+      qryComissoesUsuariosGrupos.EnableControls;
+      qryComissoesUsuariosGrupos.GotoBookmark(Pos);
+      qryComissoesUsuariosGrupos.FreeBookmark(Pos);
+      Delete(Campos,Length(Campos),1);
+    end;
+    if Campos <> '' then begin
+      qryProcuraGrupos.Sql[03] := Format('and not (codigo in (%s))', [Campos]);
+      qryConsultaGrupos.Sql[03]:= Format('Where not (codigo in (%s))', [Campos]);
+    end
+    else begin
+      qryProcuragrupos.Sql[03] := '';
+      qryConsultagrupos.Sql[03]:= '';
+    end;
+  end;
+
+begin
+  Result := True;
+  Grupos(Editar);
+  if not Editar or qryComissoesUsuariosGrupos.IsEmpty then begin
+    qryComissoesUsuariosGrupos.Append;
+    qryComissoesUsuariosGruposusuario.AsInteger:= qryUsuarioscodigo.AsInteger;
+  end
+  else begin
+    qryComissoesUsuariosGrupos.Edit;
+    qryComissoesUsuariosGrupos.Cancel;
+  end;
+end;
+
+function TdtmCadastrosInternos.ExisteGrupos(campo,
+  codigo: string): boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaGrupos, Campo, codigo);
+end;
+
+procedure TdtmCadastrosInternos.qryComissoesUsuariosGruposAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryUsuarios.State = dsBrowse then
+    qryUsuarios.Edit;
+end;
+
+procedure TdtmCadastrosInternos.qryComissoesUsuariosClassesAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryUsuarios.State = dsBrowse then
+    qryUsuarios.Edit;
+end;
+
+function TdtmCadastrosInternos.ExcluirComissoesUsuariosGrupos: Boolean;
+begin
+  Result:= False;
+  if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o GRUPO DESTA COMISSÃO DO USUÁRIO'])) = smbOk then begin
+    if not qryComissoesUsuariosGrupos.IsEmpty then
+         qryComissoesUsuariosGrupos.Delete
+    else qryComissoesUsuariosGrupos.Cancel;
+    Result:= True;
+  end
+end;
+
+function TdtmCadastrosInternos.GravarComissoesUsuariosGrupos: Boolean;
+begin
+  Result:= False;
+  if qryComissoesUsuariosGrupos.CheckRequiredFields then begin
+    qryComissoesUsuariosGruposdescricao.AsString:= qryProcuraGruposdescricao.AsString;
+    qryComissoesUsuariosGrupos.Post;
+    qryUsuarios.Edit;
+    Result:= True;
+  end;
+end;
+
+function TdtmCadastrosInternos.GetTabelaConsultaGrupos: TtecQuery;
+begin
+  Result:= qryConsultaGrupos;
+end;
+
+function TdtmCadastrosInternos.GetTabelaComissoesUsuariosClasses: TtecQuery;
+begin
+  Result:= qryComissoesUsuariosClasses;
+end;
+
+function TdtmCadastrosInternos.IncluirComissoesUsuariosClasses(
+  Editar: Boolean): Boolean;
+
+  procedure Classes(Editando: Boolean);
+  var
+    Campos,
+    Classe: String;
+    Pos  : TBookmark;
+  begin
+    Campos := '';
+    Classe:= qryComissoesUsuariosClassesclasse.AsString;
+    Pos:= qryComissoesUsuariosClasses.GetBookmark;
+    try
+      qryComissoesUsuariosClasses.DisableControls;
+      qryComissoesUsuariosClasses.First;
+      while not qryComissoesUsuariosClasses.Eof do begin
+        if (qryComissoesUsuariosClassesclasse.AsString <> '') then begin
+          if not Editando then
+            Campos := Campos + '' + QuotedStr(qryComissoesUsuariosClassesclasse.AsString) + ','
+          else if (qryComissoesUsuariosClassesclasse.AsString <> classe) then
+            Campos := Campos + '' + QuotedStr(qryComissoesUsuariosClassesclasse.AsString) + ',';
+        end;
+        qryComissoesUsuariosClasses.Next;
+      end;
+    finally
+      qryComissoesUsuariosClasses.EnableControls;
+      qryComissoesUsuariosClasses.GotoBookmark(Pos);
+      qryComissoesUsuariosClasses.FreeBookmark(Pos);
+      Delete(Campos,Length(Campos),1);
+    end;
+    if Campos <> '' then begin
+      qryProcuraClasses.Sql[03] := Format('and not (codigo in (%s))', [Campos]);
+      qryConsultaClasses.Sql[03]:= Format('Where not (codigo in (%s))', [Campos]);
+    end
+    else begin
+      qryProcuraClasses.Sql[03] := '';
+      qryConsultaClasses.Sql[03]:= '';
+    end;
+  end;
+
+begin
+  Result := True;
+  classes(Editar);
+  if not Editar or qryComissoesUsuariosClasses.IsEmpty then begin
+    qryComissoesUsuariosClasses.Append;
+    qryComissoesUsuariosClassesusuario.AsInteger:= qryUsuarioscodigo.AsInteger;
+  end
+  else begin
+    qryComissoesUsuariosClasses.Edit;
+    qryComissoesUsuariosClasses.Cancel;
+  end;
+end;
+
+function TdtmCadastrosInternos.ExcluirComissoesUsuariosClasses: Boolean;
+begin
+  Result:= False;
+  if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['a CLASSE DESTA COMISSÃO DO USUÁRIO'])) = smbOk then begin
+    if not qryComissoesUsuariosClasses.IsEmpty then
+         qryComissoesUsuariosClasses.Delete
+    else qryComissoesUsuariosClasses.Cancel;
+    Result:= True;
+  end
+end;
+
+function TdtmCadastrosInternos.GravarComissoesUsuariosClasses: Boolean;
+begin
+  Result:= False;
+  if qryComissoesUsuariosClasses.CheckRequiredFields then begin
+    qryComissoesUsuariosClassesdescricao.AsString:= qryProcuraClassesdescricao.AsString;
+    qryComissoesUsuariosClasses.Post;
+    qryUsuarios.Edit;
+    Result:= True;
+  end;
+
+end;
+
+function TdtmCadastrosInternos.ExisteClasses(campo,
+  codigo: string): boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaClasses, Campo, codigo);
+end;
+
+function TdtmCadastrosInternos.GetTabelaConsultaClasses: TtecQuery;
+begin
+ result := qryConsultaClasses;
+end;
+procedure TdtmCadastrosInternos.SetSenhaEmail(const Value: String);
+begin
+  if qryUsuarios.State in [dsInsert,dsEdit] then
+    qryUsuariossenhaemail.AsString:=value;
+end;
+
+
+function TdtmCadastrosInternos.GetUsuarioItecLux: String;
+begin
+  result := qryUsuariosusuarioiteclux.AsString;
+end;
+
+procedure TdtmCadastrosInternos.GravarUsuarioItecLUX(Usuario,
+  Senha: String);
+begin
+  if qryUsuarioIteclux.Active then
+    qryUsuarioIteclux.Close;
+  qryUsuarioIteclux.Params[0].AsString := '' + Usuario + '';
+  qryUsuarioIteclux.Params[1].AsString := '' + Senha + '';
+  qryUsuarioIteclux.Params[2].AsString := qryUsuarioscodigo.AsString;
+  qryUsuarioIteclux.ExecSql;
+end;
+
+procedure TdtmCadastrosInternos.dsrUsuariosDataChange(Sender: TObject;
+  Field: TField);
+begin
+  inherited;
+  if Field = qryUsuariosdiasvalidadesenha then
+  begin
+    if qryUsuariosdiasvalidadesenha.AsInteger > 0 then
+      qryUsuariosexpiracaosenha.AsDateTime := SomarDia(DataLocal, qryUsuariosdiasvalidadesenha.AsInteger, 'N')
+    else
+      qryUsuariosexpiracaosenha.AsString := '';
+  end
+  else
+  if field = qryUsuarioscobranca then
+  begin
+    if qryUsuarioscobranca.AsBoolean then
+        IncluirComissoesCobranca(False)
+    else
+      if (qryUsuarios.state in [dsedit, dsinsert]) then
+      begin
+        if not qryComissoesUsuarios.isempty or not qryComissoesCobranca.isempty then
+        begin
+          if not ExcluirComissoesUsuarios then
+          begin
+            dsrUsuarios.onDataChange := nil;
+            qryUsuarioscobranca.AsBoolean := true;
+            dsrUsuarios.onDataChange := dsrUsuariosDataChange
+          end;  
+        end;
+      end;
+  end;
+
+end;
+
+procedure TdtmCadastrosInternos.qryUsuariosFiliaisAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if not (qryUsuarios.State in [dsEdit, dsInsert]) then
+    qryUsuarios.Edit;
+end;
+
+function TdtmCadastrosInternos.ExcluirUsuariosFiliais: Boolean;
+begin
+  Result:= False;
+  if not qryUsuariosFiliais.IsEmpty then
+  begin
+    if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['a FILIAL DO USUÁRIO'])) = smbOk then begin
+      if qryUsuariosFiliais.State in [dsEdit, dsInsert] then
+           qryUsuariosFiliais.Cancel
+      else
+      begin
+        qryUsuariosFiliais.Delete;
+        qryUsuarios.Edit;
+      end;
+      Result:= True;
+    end;
+  end
+end;
+
+function TdtmCadastrosInternos.GravarUsuariosFiliais: Boolean;
+begin
+  Result:= False;
+  if qryUsuariosFiliais.CheckRequiredFields then
+  begin
+    qryUsuariosFiliaisnome.AsString:= qryProcuraFilialnome.AsString;
+    qryUsuariosFiliais.Post;
+    qryUsuarios.Edit;
+    Result:= True;
+  end;
+end;
+
+function TdtmCadastrosInternos.GetTabelaUsuariosFiliais: TtecQuery;
+begin
+  Result := qryUsuariosFiliais;
+end;
+
+function TdtmCadastrosInternos.IncluirUsuariosFiliais(Editar: Boolean): Boolean;
+
+  procedure Filiais(Editando: Boolean);
+  var
+    Campos,
+    Filial: String;
+    Pos  : TBookmark;
+  begin
+    Campos := '';
+    Filial:= qryUsuariosFiliaisfilial.AsString;
+    Pos:= qryUsuariosFiliais.GetBookmark;
+    try
+      qryUsuariosFiliais.DisableControls;
+      qryUsuariosFiliais.First;
+      while not qryUsuariosFiliais.Eof do
+      begin
+        if (qryUsuariosFiliaisfilial.AsString <> '') then
+        begin
+          if not Editando then
+            Campos := Campos + '' + QuotedStr(qryUsuariosFiliaisfilial.AsString) + ','
+          else if (qryUsuariosFiliaisfilial.AsString <> Filial) then
+            Campos := Campos + '' + QuotedStr(qryUsuariosFiliaisfilial.AsString) + ',';
+        end;
+        qryUsuariosFiliais.Next;
+      end;
+    finally
+      qryUsuariosFiliais.EnableControls;
+      qryUsuariosFiliais.GotoBookmark(Pos);
+      qryUsuariosFiliais.FreeBookmark(Pos);
+      Delete(Campos,Length(Campos),1);
+    end;
+    if Campos <> '' then
+    begin
+      qryProcuraFilial.Sql[03] := Format('and not (codigo in (%s))', [Campos]);
+      qryConsultaFiliais.Sql[04]:= Format('Where not (codigo in (%s))', [Campos]);
+    end
+    else
+    begin
+      qryProcuraFilial.Sql[03] := '';
+      qryConsultaFiliais.Sql[04]:= '';
+    end;
+  end;
+
+begin
+  Result := True;
+  Filiais(Editar);
+  if not Editar or qryUsuariosFiliais.IsEmpty then
+  begin
+    qryUsuariosFiliais.Append;
+    qryUsuariosFiliaisusuario.AsInteger:= qryUsuarioscodigo.AsInteger;
+  end
+  else begin
+    qryUsuariosFiliais.Edit;
+    qryUsuariosFiliais.Cancel;
+  end;
+end;
+
+procedure TdtmCadastrosInternos.qryFiliaisAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  if (qryFiliaissimples.AsString <> 'N') then
+    FOptantepeloSimples:= true
+  else
+    FOptantepeloSimples:= False;
+end;
+
+function TdtmCadastrosInternos.EstadoVariavel: Boolean;
+begin
+  GetOptantepeloSimples;
+  Result:= FOptantepeloSimples;
+
+end;
+
+function TdtmCadastrosInternos.GetOptantepeloSimples: Boolean;
+begin
+  if (qryFiliaissimples.AsString <> 'N') then
+    FOptantepeloSimples:= true
+  else
+    FOptantepeloSimples:= False;
+  Result := FOptantepeloSimples;
+end;
+
+procedure TdtmCadastrosInternos.qryIESubstTributarioAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryFiliais.Edit;
+end;
+
+procedure TdtmCadastrosInternos.qryIESubstTributarioAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryFiliais.Edit;
+end;
+
+
+procedure TdtmCadastrosInternos.qryEstoquesFiliaisAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryFiliais.Edit;
+end;
+
+procedure TdtmCadastrosInternos.qryEstoquesFiliaisAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryFiliais.Edit;
+end;
+
+procedure TdtmCadastrosInternos.qryRespAdmCadastroAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryFiliais.Edit;
+end;
+
+procedure TdtmCadastrosInternos.qryRespAdmCadastroAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryFiliais.Edit;
+end;
+
+procedure TdtmCadastrosInternos.EditarUsuariosOperacaoProducao;
+begin
+  if not (qryUsuariosOperacoesProducao.State in [dsedit, dsinsert]) then
+    qryUsuariosOperacoesProducao.Edit;
+
+
+end;
+
+procedure TdtmCadastrosInternos.AtualizaListaOperacoes;
+var
+  Pos: TBookmark;
+begin
+  Pos := qryUsuariosOperacoesProducao.GetBookmark;
+  qryUsuariosOperacoesProducao.DisableControls;
+  try
+    ListaOperacoesSelecionadas := '';
+    qryUsuariosOperacoesProducao.First;
+    while Not qryUsuariosOperacoesProducao.Eof do
+    begin
+      if qryUsuariosOperacoesProducaooperacao.AsString<>'' then
+      begin
+        ListaOperacoesSelecionadas := ListaOperacoesSelecionadas +
+                                     qryUsuariosOperacoesProducaooperacao.AsString + ',';
+      end;
+      qryUsuariosOperacoesProducao.Next
+    end;
+
+    if ListaOperacoesSelecionadas <> '' then
+      ListaOperacoesSelecionadas := copy(ListaOperacoesSelecionadas,0, Length(ListaOperacoesSelecionadas)-1)
+    else
+      ListaOperacoesSelecionadas := '0';
+
+  finally
+    qryUsuariosOperacoesProducao.GotoBookmark(Pos);
+    qryUsuariosOperacoesProducao.FreeBookmark(Pos);
+    qryUsuariosOperacoesProducao.EnableControls;
+  end
+end;
+
+procedure TdtmCadastrosInternos.qryUsuariosOperacoesProducaoAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  AtualizaListaOperacoes;
+  qryUsuariosOperacoesProducao.First;
+end;
+
+procedure TdtmCadastrosInternos.qryUsuariosOperacoesProducaoAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  EditarUsuarios;
+  AtualizaListaOperacoes;
+end;
+
+procedure TdtmCadastrosInternos.qryUsuariosOperacoesProducaoAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  EditarUsuarios;
+  AtualizaListaOperacoes;
+
+end;
+
+function TdtmCadastrosInternos.SalvarUsuariosOperacoesProducao(gravar: Boolean): boolean;
+begin
+  result := true;
+  if (qryUsuariosOperacoesProducao.State in [dsedit, dsinsert]) then
+  begin
+    if qryUsuariosOperacoesProducao.CheckRequiredFields then
+    begin
+      if gravar then
+        qryUsuariosOperacoesProducao.Post
+    end
+    else
+      result := false;
+  end;
+end;
+
+procedure TdtmCadastrosInternos.qryUsuariosOperacoesProducaoBeforePost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  SalvarUsuariosOperacoesProducao(false);
+end;
+
+procedure TdtmCadastrosInternos.GravarUsuariosOperacaoProducao;
+begin
+  if (qryUsuariosOperacoesProducao.State in [dsedit, dsinsert]) then
+     qryUsuariosOperacoesProducao.Post;
+end;
+
+procedure TdtmCadastrosInternos.qryAliquotasSimplesNacionalAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryFiliais.Edit;
+
+end;
+
+procedure TdtmCadastrosInternos.qryAliquotasSimplesNacionalAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryFiliais.Edit;
+  perpetrar([qryAliquotasSimplesNacional],false);
+end;
+
+procedure TdtmCadastrosInternos.qryAliquotasSimplesNacionalNewRecord(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryAliquotasSimplesNacionalfilial.AsInteger := qryFiliaiscodigo.AsInteger;
+end;
+
+function TdtmCadastrosInternos.VerificarAliquotasSimplesNacional: Boolean;
+var
+  vMesAno, vMesAnoAux : String;
+
+begin
+  vMesAno := qryAliquotasSimplesNacionalmesano.AsString;
+  qryAliquotasSimplesNacional.SortByField('mesano');
+  qryAliquotasSimplesNacional.First;
+  vMesAnoAux := qryAliquotasSimplesNacionalmesano.AsString;
+  while not qryAliquotasSimplesNacional.eof do
+  begin
+   qryAliquotasSimplesNacional.Next;
+   if qryAliquotasSimplesNacionalmesano.AsString=vMesAnoAux then
+   begin
+      MensagemAviso('')
+   end;
+  end;
+
+end;
+
+procedure TdtmCadastrosInternos.qryAliquotasSimplesNacionalmesanoChange(
+  Sender: TField);
+begin
+  inherited;
+  RefazConsultaPorNome(qryAliquotas,['filial','mesano'],[qryFiliaiscodigo.AsVariant,qryAliquotasSimplesNacionalmesano.AsVariant]);
+  if qryAliquotasn.AsInteger > 0 then
+  begin
+    MensagemErro('Aliquota já cadastrada');
+    if qryAliquotasSimplesNacional.State = dsinsert then
+      qryAliquotasSimplesNacionalmesano.clear
+    else
+      qryAliquotasSimplesNacional.cancel
+  end;
+end;
+
+procedure TdtmCadastrosInternos.qryUsuarioscobrancaChange(Sender: TField);
+begin
+  inherited;
+  {
+  if qryUsuarioscobranca.AsBoolean then
+     IncluirComissoesCobranca(False)
+  else
+    qryUsuarioscobranca.AsBoolean := not ExlcuirComisssoesCobranca;
+    }
+end;
+
+procedure TdtmCadastrosInternos.qryUsuariosBeforePost(DataSet: TDataSet);
+begin
+  inherited;
+  qryUsuarioscobrancaanterior.AsBoolean := qryUsuarioscobranca.AsBoolean;
+end;
+
+end.
+

@@ -1,0 +1,785 @@
+unit dmcadastroatendimentos;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  DB,
+  // Terceiros
+  ZQuery, ZPgSqlQuery,
+  // Componentes
+  cpquery, cpdatasource,
+  // Constantes
+  biblio, ctconstantes,
+  // Repositorio
+  dmbasico, dmtecsoft, ZTransact, clparametrossistema, clusuario;
+
+type
+  TdtmCadastroAtendimentos = class(TdtmBasico)
+    qryAtendimentos: TtecQuery;
+    dsrAtendimento: TtecDataSource;
+    qryConsultaTiposAtendimentos: TtecQuery;
+    qryConsultaTiposAtendimentosdescricao: TStringField;
+    qryConsultaTiposAtendimentoscodigo: TIntegerField;
+    qryConsultaTiposAtendimentostipo: TStringField;
+    qryProcuraTiposAtendimentos: TtecQuery;
+    qryProcuraTiposAtendimentoscodigo: TIntegerField;
+    qryProcuraTiposAtendimentosdescricao: TStringField;
+    dsrProcuraTiposAtendimentos: TtecDataSource;
+    qryConsultaClientes: TtecQuery;
+    qryProcuraClientes: TtecQuery;
+    qryProcuraClientescodigo: TIntegerField;
+    qryProcuraClientesnome: TStringField;
+    dsrProcuraClientes: TtecDataSource;
+    spcAtendimentosProximoCodigo: TtecQuery;
+    spcAtendimentosProximoCodigocodigo: TIntegerField;
+    qryConsultaClientesnome: TStringField;
+    qryConsultaClientespessoanumero: TStringField;
+    qryConsultaClientescodigo: TIntegerField;
+    qryExisteAtendimento: TtecQuery;
+    qryExisteAtendimentocodigo: TIntegerField;
+    qryUltimaReclamacao: TtecQuery;
+    qryUltimaReclamacaoinformes: TStringField;
+    dsrUltimaReclamacao: TtecDataSource;
+    qryProcuraClientestipo: TStringField;
+    qryConsultaClientestipo: TStringField;
+    qryConsultaClientestipocliente: TStringField;
+    qryConsultaClientesestado: TStringField;
+    qryConsultaClientesnomecidade: TStringField;
+    qryConsultaAtendimentos: TtecQuery;
+    qryConsultaAtendimentoscodigo: TIntegerField;
+    qryConsultaAtendimentoscliente: TIntegerField;
+    qryConsultaAtendimentosdata: TDateField;
+    qryConsultaAtendimentostipo: TStringField;
+    qryConsultaAtendimentosnome: TStringField;
+    qryConsultaAtendimentostipocliente: TStringField;
+    qryAtendimentoscodigo: TIntegerField;
+    qryAtendimentoscliente: TIntegerField;
+    qryAtendimentostipocliente: TStringField;
+    qryAtendimentosdata: TDateField;
+    qryAtendimentosinformes: TStringField;
+    qryAtendimentoslembrar: TDateField;
+    qryAtendimentossemaviso: TDateField;
+    qryAtendimentossemspc: TDateField;
+    qryAtendimentosconcluido: TBooleanField;
+    qryAtendimentostipo: TStringField;
+    qryAtendimentostipoatendimento: TIntegerField;
+    qryAtendimentosusuario: TIntegerField;
+    qryAtendimentosnomeusuario: TStringField;
+    qryAtualizaCartasCartas: TtecQuery;
+    qryCartaNumero: TtecQuery;
+    qryCartaNumeronumerocarta: TIntegerField;
+    qryCartaNumeroatendimento: TIntegerField;
+    qryCartaNumerosemaviso: TDateField;
+    qryCartaNumerosemspc: TDateField;
+    qryAtendimentospossuicartaatendimento: TBooleanField;
+    qryCartasClientes: TtecQuery;
+    qryCartasClientesconfirmacao: TDateField;
+    qryCartasClientesenviada: TDateTimeField;
+    qryCartasClientesbloqueada: TStringField;
+    qryCartasClientesatendimento: TIntegerField;
+    qryAtendimentosdatainclusao: TDateTimeField;
+    qryocorrencias: TtecQuery;
+    qryocorrenciascodigo: TIntegerField;
+    qryocorrenciasdata: TDateField;
+    qryocorrenciaslembrar: TDateField;
+    qryocorrenciasinformes: TStringField;
+    qryocorrenciastipo: TStringField;
+    qryocorrenciasdescricaotipo: TStringField;
+    dsrOcorrencias: TtecDataSource;
+    qryAtendimentosnaoligar: TBooleanField;
+    qryAtualzarClientes: TtecQuery;
+    qryAtendimentosusuariologado: TIntegerField;
+    qryAtendimentosnomeusuariologado: TStringField;
+    procedure qryProcuraClientesAfterOpen(DataSet: TDataSet);
+    procedure qryProcuraTiposAtendimentosBeforeOpen(DataSet: TDataSet);
+    procedure qryAtendimentosAfterScroll(DataSet: TDataSet);
+    procedure qryAtendimentosAfterClose(DataSet: TDataSet);
+    procedure qryAtendimentosNewRecord(DataSet: TDataSet);
+    procedure dsrAtendimentoDataChange(Sender: TObject; Field: TField);
+    procedure qryocorrenciasCalcFields(DataSet: TDataSet);
+  private
+    function GetDataAtendimento: TDateTime;
+    function GetIncluindoAtendimentos: boolean;
+  protected
+    FProcuraClienteAfterOpen: TNotifyEvent;
+    FTipoAtendimento: TtecTipoAtendimento;
+    FCliente: Integer;
+    FTipoCliente: String;
+    function GetAtendimento: String;
+    function GetDescricaoAtendimento: String;
+    function GetConsultaTiposAtendimentos: TtecQuery;
+    function GetExisteReclamacao: Boolean;
+    function GetTabelaAtendimento: TtecQuery;
+    function GetTabelaConsultaCliente: TtecQuery;
+    function GetTabelaConsultaAtendimentos: TtecQuery;
+    procedure ReFazTabelasAtendimentos;
+  public
+    procedure AbreTabelasConsulta(TipoConsulta: TtecTipoConsultaAtendimento);
+    procedure FecharTabelasAtendimentos;
+    constructor Create(AOwner: TComponent); override;
+    function  ExcluirAtendimentos: Boolean;
+    function  ExisteAtendimentos(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+    function  ExisteClientes(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+    function  ExisteTiposAtendimentos(campo, codigo: string): boolean;
+    procedure FechaTabelasConsulta(TipoConsulta: TtecTipoConsultaAtendimento);
+    function  GravarAtendimentos: Boolean;
+    function  IncluirAtendimentos: Boolean; overload;
+    function  IncluirAtendimentos(Valores: Array of Variant): Boolean; overload;
+    procedure ListarInformes(Inf: TStringList; {Tipo: TtecTipoAtendimento;} MostrarAtendimento: Boolean);
+    procedure Selecionar(TipoConsulta: TtecTipoConsultaAtendimento);
+    procedure SelecionarAtendimento;
+    procedure ValidarTipoAtendimento;
+    function CartaDevolvida(FormOrigem: String): Boolean;
+
+    property  Atendimento: String read GetAtendimento;
+    property  ConsultaTiposAtendimentos: TtecQuery read GetConsultaTiposAtendimentos;
+    property  ExisteReclamacao: Boolean read GetExisteReclamacao;
+    property  TabelaAtendimento: TtecQuery read GetTabelaAtendimento;
+    property  TabelaConsultaCliente: TtecQuery read GetTabelaConsultaCliente;
+    property  TabelaConsultaAtendimentos: TtecQuery read GetTabelaConsultaAtendimentos;
+    property  TipoAtendimento: TtecTipoAtendimento read FTipoAtendimento write FTipoAtendimento;
+    property  ProcuraClienteAfterOpen: TNotifyEvent read FProcuraClienteAfterOpen write FProcuraClienteAfterOpen;
+    property  DescricaoAtendimento: String read GetDescricaoAtendimento;
+    property  DataAtendimento: TDateTime read GetDataAtendimento;
+    property IncluindoAtendimentos: boolean read GetIncluindoAtendimentos;
+  end;
+
+var
+  dtmCadastroAtendimentos: TdtmCadastroAtendimentos;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmCadastroAtendimentos }
+
+procedure TdtmCadastroAtendimentos.AbreTabelasConsulta(TipoConsulta: TtecTipoConsultaAtendimento);
+begin
+  case TipoConsulta of
+    tcaATENDIMENTO    : begin
+                          qryConsultaAtendimentos.Sql[11]:= 'and (a.codigo = 0)';
+                          qryConsultaAtendimentos.Open;
+                        end;
+    tcaCLIENTE        : begin
+                          qryConsultaClientes.Sql[08] := 'where (v.codigo = 0)';
+                          qryConsultaClientes.Open;
+                        end;
+    tcaTIPOATENDIMENTO: begin
+                          qryConsultaTiposAtendimentos.Params[0].AsString:= qryAtendimentostipo.AsString;
+                          qryConsultaTiposAtendimentos.Open;
+                        end;
+  end;
+end;
+
+constructor TdtmCadastroAtendimentos.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryAtendimentos.Tag                   := ctCadastroAtendimentos;
+  qryConsultaClientes.Tag               := ctTabelasConsultaClientes;
+  qryConsultaTiposAtendimentos.Tag      := ctAtendConsultaTiposAtendimentos;
+  qryProcuraClientes.Params[1].AsString := 'C';
+end;
+
+function TdtmCadastroAtendimentos.ExcluirAtendimentos: Boolean;
+begin
+  Result:= False;
+  if (qryAtendimentosdata.AsDateTime = DataServidor) then begin
+    if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o ATENDIMENTO'])) = smbOk then begin
+      qryAtendimentos.Delete;
+      Perpetrar([qryatendimentos]);
+      ReFazTabelasAtendimentos;
+      Result:= True;
+    end;
+  end
+  else MensagemAviso(ctATENDIMENTONAOPODEEXCLUIR);
+end;
+
+function TdtmCadastroAtendimentos.ExisteAtendimentos(Parametro: Integer;
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+  if NomeCampo = 'nome' then
+       NomeCampo:= 'c.nome'
+  else NomeCampo:= 'a.' + NomeCampo;
+  qryConsultaAtendimentos.Sql[11] := 'and (to_ascii(' + NomeCampo + ',''latin1'') ilike to_ascii(''' + Value + '%'',''latin1''))';
+
+  qryConsultaAtendimentos.Open;
+  Result := Not qryConsultaAtendimentos.IsEmpty
+end;
+
+function TdtmCadastroAtendimentos.ExisteClientes(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  if NomeCampo = 'nomecidade' then
+    NomeCampo:= 'c.nome'
+  else if NomeCampo = 'tipocliente' then
+    NomeCampo:= 'v.tipo'
+  else
+    NomeCampo:= 'v.' + NomeCampo;
+  qryConsultaClientes.Sql[08] := 'Where to_ascii(' + NomeCampo + ',''latin1'') ilike to_ascii(''' + Value + '%'',''latin1'')';
+  qryConsultaClientes.Open;
+  Result := Not qryConsultaClientes.IsEmpty
+end;
+
+function TdtmCadastroAtendimentos.ExisteTiposAtendimentos(campo, codigo: string): boolean;
+begin
+  Result := ExisteCodigo(qryConsultaTiposAtendimentos, campo, codigo);
+end;
+
+procedure TdtmCadastroAtendimentos.FecharTabelasAtendimentos;
+begin
+  qryocorrencias.Close;
+  qryUltimaReclamacao.Close;
+end;
+
+procedure TdtmCadastroAtendimentos.FechaTabelasConsulta(TipoConsulta: TtecTipoConsultaAtendimento);
+begin
+  case TipoConsulta of
+    tcaATENDIMENTO    : qryConsultaAtendimentos.Close;
+    tcaCLIENTE        : Fecha(ctTabelasConsultaClientes);
+    tcaTIPOATENDIMENTO: Fecha(ctAtendConsultaTiposAtendimentos);
+  end;
+end;
+
+function TdtmCadastroAtendimentos.GetAtendimento: String;
+begin
+  Result:= qryAtendimentostipo.AsString;
+end;
+
+function TdtmCadastroAtendimentos.GetConsultaTiposAtendimentos: TtecQuery;
+begin
+  Result:= qryConsultaTiposAtendimentos;
+end;
+
+function TdtmCadastroAtendimentos.GetDataAtendimento: TDateTime;
+begin
+  result := qryatendimentosdata.AsDateTime;
+end;
+
+function TdtmCadastroAtendimentos.GetDescricaoAtendimento: String;
+begin
+  if qryAtendimentostipo.AsString = 'C' then
+    Result:= 'Cobrança'
+  else if qryAtendimentostipo.AsString = 'R' then
+    Result:= 'Reclamação'
+  else
+    Result:= 'Visita';
+end;
+
+function TdtmCadastroAtendimentos.GetExisteReclamacao: Boolean;
+begin
+  Result:= not qryUltimaReclamacao.IsEmpty;
+end;
+
+function TdtmCadastroAtendimentos.GetIncluindoAtendimentos: boolean;
+begin
+  result := qryAtendimentos.State in [dsinsert];
+end;
+
+
+function TdtmCadastroAtendimentos.GetTabelaAtendimento: TtecQuery;
+begin
+   Result := qryatendimentos;
+end;
+
+function TdtmCadastroAtendimentos.GetTabelaConsultaAtendimentos: TtecQuery;
+begin
+  Result:= qryConsultaAtendimentos;
+end;
+
+function TdtmCadastroAtendimentos.GetTabelaConsultaCliente: TtecQuery;
+begin
+  Result := qryConsultaClientes;
+end;
+
+function TdtmCadastroAtendimentos.GravarAtendimentos: Boolean;
+var
+  OldInformes: String;
+  UsrAut: TtecUsuarios;
+
+begin
+  Result:= False;
+  qryProcuraClientes.AfterOpen:= Nil;
+
+  if qryAtendimentos.CheckRequiredFields then begin
+    ReFazConsulta(qryExisteAtendimento,[0,1,2],[qryAtendimentoscliente.AsInteger,
+                                                qryAtendimentostipocliente.AsString,
+                                                qryAtendimentostipo.AsString]);
+    Result:= ((qryExisteAtendimento.RecordCount = 0) or
+              ((qryExisteAtendimento.RecordCount > 0) and
+               (qryExisteAtendimentocodigo.AsInteger = qryAtendimentoscodigo.AsInteger)));
+    if not Result then
+      if MensagemConfirmacao(Format(ctCLIENTEJAPOSSUIATENDIMENTO + #10#13 +
+                                    ctINCLUIRINFORMES,[DescricaoAtendimento, qryProcuraClientesnome.AsString])) = smboK then begin
+        OldInformes:= qryAtendimentosinformes.AsString;
+        SelecionarAtendimento;
+        qryAtendimentos.Edit;
+        qryAtendimentosinformes.AsString:= qryAtendimentosinformes.AsString + #10 + OldInformes;
+        Result:= True;
+      end
+      else
+        Result:= False;
+
+    if result then
+    begin
+      if parsistema.Solicitarusuarionocadastrodeatendimentos then
+      begin
+        UsrAut := ObterAutorizacao(taLOGIN, 'Atendimentos', 'responsável pelo cadastro', '');
+        if Assigned(UsrAut) then
+        begin
+          qryAtendimentosusuario.AsInteger := usrAut.CodigoUsuario;
+          qryAtendimentosnomeusuario.AsString := usrAut.NomeUsuario;
+        end
+        else
+          result := False;
+      end;
+    end;
+
+
+    if Result then
+    begin
+      if qryAtendimentos.State = dsInsert then
+      begin
+        spcAtendimentosProximoCodigo.Open;
+        qryAtendimentoscodigo.AsInteger:= spcAtendimentosProximoCodigocodigo.AsInteger;
+        spcAtendimentosProximoCodigo.Close;
+
+        if qryAtendimentosnaoligar.AsBoolean and (qryAtendimentostipocliente.AsString='C') then
+        begin
+          qryAtualzarClientes.ParamByName('naoligar').asboolean := true;
+          qryAtualzarClientes.ParamByName('razaonaoligar').AsString := qryAtendimentosinformes.AsString;
+          qryAtualzarClientes.ParamByName('codigo').AsInteger := qryAtendimentoscliente.AsInteger;
+          qryAtualzarClientes.ExecSql;
+        end;
+      end;
+
+      if qryAtendimentostipocliente.AsString = '' then
+        qryAtendimentostipocliente.AsString:= qryProcuraClientestipo.AsString;
+      if (qryAtendimentostipo.AsString <> 'C') then begin
+        qryAtendimentossemspc.Clear;
+        qryAtendimentossemaviso.Clear;
+      end;
+
+      qryatendimentos.Post;
+      Perpetrar([qryatendimentos, qryAtualzarClientes]);
+      ReFazTabelasAtendimentos;
+    end;
+  end;
+  qryProcuraClientes.AfterOpen:= qryProcuraClientesAfterOpen;
+end;
+
+function TdtmCadastroAtendimentos.IncluirAtendimentos: Boolean;
+begin
+  FecharTabelasAtendimentos;
+  qryAtendimentos.Insert;
+  qryAtendimentostipo.AsString       := 'C';
+  qryAtendimentosdata.AsDateTime     := DataServidor;
+
+  qryAtendimentosusuario.AsInteger   := CodigoUsuario;
+  qryAtendimentosnomeusuario.AsString:= NomeUsuario;
+
+  qryAtendimentosusuariologado.AsInteger   := CodigoUsuario;
+  qryAtendimentosnomeusuariologado.AsString:= NomeUsuario;
+
+  qryAtendimentosconcluido.AsBoolean := False;
+  Result:= True;
+end;
+
+function TdtmCadastroAtendimentos.IncluirAtendimentos(Valores: Array of Variant): Boolean;
+var
+  Valores_CodigoCliente        : integer;   {0}
+  Valores_TipoCliente          : String;      {1}
+  Valores_Atendimentode        : String;      {2}
+  Valores_carta                : integer;   {3}
+  Valores_CartaNumero          : integer;   {4}
+  Valores_TipodeCarta          : integer;   {5}
+  Valores_EmissaoCarta         : String;    {6}
+  Valores_StreAvalista         : String;    {7}
+  Valores_dataAtraso           : String;    {8}
+  Valores_ValorAtraso          : String;    {9}
+  Valores_tipoAtendimentoCarta : integer;   {10}
+  Valores_eAvalista            : boolean;   {11}
+
+  procedure AtribuirInformes;
+  var
+    InformeExistente: String;
+  begin
+    InformeExistente := qryAtendimentosinformes.AsString;
+    qryAtendimentosinformes.AsString :=
+        'Carta: '+inttostr(Valores_carta)+'.'+inttostr(Valores_cartanumero)+
+        '  Tipo de Carta: '+inttostr(Valores_tipodecarta)+' Emissao: '+Valores_EmissaoCarta+#13#10+
+        'Avalista: '+Valores_StreAvalista+#13#10+'Atraso desde: '+Valores_dataatraso+' Valor: '+Valores_valoratraso;
+
+    if InformeExistente<>'' then
+      qryAtendimentosinformes.AsString := qryAtendimentosinformes.AsString+#13#10+#13#10+
+                                          InformeExistente;
+  end;
+
+begin
+  result := true;
+  FecharTabelasAtendimentos;
+
+  {Origem: ligar para clientes tipo: atraso/lembrete}
+  if ((high(Valores))<=2) then
+  begin
+
+    Valores_CodigoCliente        := Valores[0];
+    Valores_TipoCliente          := Valores[1];
+    Valores_Atendimentode        := Valores[2];
+
+    ReFazConsulta(qryExisteAtendimento,[0,1,2],
+                  [Valores_CodigoCliente,Valores_TipoCliente,Valores_Atendimentode]);
+
+    if (qryExisteAtendimento.RecordCount > 0) then
+    begin
+      SelecionarAtendimento;
+      MensagemAviso(Format(ctCLIENTEJAPOSSUIATENDIMENTO,
+                                [DescricaoAtendimento,
+                                 qryProcuraClientesnome.AsString]));
+    end
+    else
+    begin
+      qryAtendimentos.Insert;
+      qryAtendimentoscliente.AsInteger    := Valores_CodigoCliente;
+      qryAtendimentostipocliente.AsString := Valores_TipoCliente;
+      qryAtendimentostipo.AsString        := Valores_Atendimentode;
+
+      qryAtendimentosdata.AsDateTime      := DataServidor;
+
+      qryAtendimentosusuario.AsInteger    := CodigoUsuario;
+      qryAtendimentosnomeusuario.AsString := NomeUsuario;
+
+      qryAtendimentosusuariologado.AsInteger    := CodigoUsuario;
+      qryAtendimentosnomeusuariologado.AsString := NomeUsuario;
+
+      qryAtendimentosconcluido.AsBoolean  := False;
+  //    GravarAtendimentos;
+    end;
+  end
+  else
+  {Origem: ligar para clientes tipo: Avisos}
+  begin
+
+    Valores_CodigoCliente        := Valores[0];
+    Valores_TipoCliente          := Valores[1];
+    Valores_Atendimentode        := Valores[2];
+    Valores_carta                := Valores[3];
+    Valores_CartaNumero          := Valores[4];
+    Valores_TipodeCarta          := Valores[5];
+    Valores_EmissaoCarta         := Valores[6];
+    Valores_StreAvalista         := Valores[7];
+    Valores_dataAtraso           := Valores[8];
+    Valores_ValorAtraso          := Valores[9];
+    Valores_tipoAtendimentoCarta := Valores[10];
+    Valores_eAvalista            := Valores[11];
+
+    ReFazConsulta(qryExisteAtendimento,[0,1,2],
+                  [Valores_CodigoCliente,Valores_TipoCliente,Valores_Atendimentode]);
+
+    if (qryExisteAtendimento.RecordCount > 0) then
+    begin
+      RefazConsultaPorNome(qryCartasClientes,
+                           ['carta','numero'],
+                           [Valores_Carta, Valores_CartaNumero]);
+
+      SelecionarAtendimento;
+      if qryCartasClientesatendimento.AsInteger <> qryExisteAtendimentocodigo.AsInteger then
+        if MensagemSelecionaOpcao(Format(ctCLIENTEJAPOSSUIATENDIMENTO,
+                                   [DescricaoAtendimento,
+                                    qryProcuraClientesnome.AsString])+#10#13+
+                                    'Desejas vincular a este atendimento?') = smbYes then
+        begin
+          qryAtendimentos.Edit;
+          AtribuirInformes;
+        end
+        else
+          Result:= False;
+    end
+    else
+    begin
+
+      qryAtendimentos.Insert;
+      qryAtendimentoscliente.AsInteger    := Valores_CodigoCliente;
+      qryAtendimentostipocliente.AsString := Valores_TipoCliente;
+      qryAtendimentostipo.AsString        := Valores_Atendimentode;
+
+      qryAtendimentosdata.AsDateTime      := DataServidor;
+
+      qryAtendimentosusuario.AsInteger    := CodigoUsuario;
+      qryAtendimentosnomeusuario.AsString := NomeUsuario;
+
+      qryAtendimentosusuariologado.AsInteger    := CodigoUsuario;
+      qryAtendimentosnomeusuariologado.AsString := NomeUsuario;
+
+      qryAtendimentosconcluido.AsBoolean  := False;
+      qryAtendimentoslembrar.AsDateTime := DataServidor;
+      qryAtendimentostipoatendimento.AsInteger := Valores_tipoAtendimentoCarta;
+      AtribuirInformes;
+    end;
+
+    if qryAtendimentos.State in [dsedit, dsinsert] then
+      if GravarAtendimentos then
+      begin
+          qryAtualizaCartasCartas.Params[0].AsInteger := qryAtendimentoscodigo.AsInteger;
+          qryAtualizaCartasCartas.Params[1].AsInteger := Valores_carta;
+          qryAtualizaCartasCartas.Params[2].AsInteger := Valores_CartaNumero;
+          qryAtualizaCartasCartas.ExecSql;
+          Perpetrar([qryatualizaCartasCartas]);
+          qryAtualizaCartasCartas.Close;
+      end;
+
+    qryAtendimentostipo.ReadOnly := true;
+    Result:= True;
+  end;
+end;
+
+procedure TdtmCadastroAtendimentos.ListarInformes(Inf: TStringList; {Tipo: TtecTipoAtendimento;} MostrarAtendimento: Boolean);
+var
+  I: Byte;
+  Pos: TBookmark;
+begin
+  if qryocorrencias.Active then
+  begin
+    qryProcuraClientes.AfterOpen:= Nil;
+    Pos:= qryocorrencias.GetBookmark;
+
+//    qryocorrencias.first;
+    qryocorrencias.DisableControls;
+    try
+      I:= 1;
+      while {I <=10) and} not qryocorrencias.Eof do begin
+        Inf.Add('<< ' + DateToStr(qryocorrenciasdata.AsDateTime) + ' ' + qryocorrenciasdescricaotipo.AsString + ' >>');
+        Inf.Add(qryocorrenciasinformes.AsString);
+        Inf.Add('                                                                                           ');
+        qryocorrencias.Next;
+        Inc(I);
+      end;
+    finally
+      qryocorrencias.GotoBookmark(Pos);
+      qryocorrencias.FreeBookmark(Pos);
+      qryocorrencias.EnableControls;
+      if MostrarAtendimento then
+        ReFazConsulta(qryAtendimentos,[0],[qryocorrenciascodigo.AsInteger]);
+    end;
+  end;
+
+   {
+  end
+  else if Tipo = tpaRECLAMACAO then begin
+    Pos:= qryReclamacoes.GetBookmark;
+    qryReclamacoes.DisableControls;
+    try
+      I:= 1;
+      while (I <=10) and not qryReclamacoes.Eof do begin
+        Inf.Add('<< ' + DateToStr(qryReclamacoesdata.AsDateTime) + ' >>');
+        Inf.Add(qryReclamacoesinformes.AsString);
+        Inf.Add('                                                                                           ');
+        qryReclamacoes.Next;
+        Inc(I);
+      end;
+    finally
+      qryReclamacoes.GotoBookmark(Pos);
+      qryReclamacoes.FreeBookmark(Pos);
+      qryReclamacoes.EnableControls;
+      if MostrarAtendimento then
+        ReFazConsulta(qryAtendimentos,[0],[qryReclamacoescodigo.AsInteger]);
+    end;
+  end
+  else if Tipo = tpaVISITA then begin
+    Pos:= qryVisitas.GetBookmark;
+    qryVisitas.DisableControls;
+    try
+      I:= 1;
+      while (I <=10) and not qryVisitas.Eof do begin
+        Inf.Add('<< ' + DateToStr(qryVisitasdata.AsDateTime) + ' >>');
+        Inf.Add(qryVisitasinformes.AsString);
+        Inf.Add('                                                                                           ');
+        qryVisitas.Next;
+        Inc(I);
+      end;
+    finally
+      qryVisitas.GotoBookmark(Pos);
+      qryVisitas.FreeBookmark(Pos);
+      qryVisitas.EnableControls;
+      if MostrarAtendimento then
+        ReFazConsulta(qryAtendimentos,[0],[qryVisitascodigo.AsInteger]);
+    end;
+  end;
+  }
+  qryProcuraClientes.AfterOpen:= qryProcuraClientesAfterOpen;
+end;
+
+procedure TdtmCadastroAtendimentos.qryProcuraClientesAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  ReFazTabelasAtendimentos;
+  if (qryAtendimentos.State in [dsEdit, dsInsert]) then
+    qryAtendimentostipocliente.AsString := qryProcuraClientestipo.AsString;
+  if (qryAtendimentos.State = dsInsert) then begin
+    ReFazConsulta(qryExisteAtendimento,[0,1,2],[qryProcuraClientescodigo.AsInteger,
+                                                qryProcuraClientestipo.AsString,
+                                                qryAtendimentostipo.AsString]);
+    if not qryExisteAtendimento.IsEmpty then begin
+      MensagemAviso(Format(ctCLIENTEJAPOSSUIATENDIMENTO,[DescricaoAtendimento,qryProcuraClientesnome.AsString]));
+      SelecionarAtendimento;
+    end
+  end;
+  if Assigned(FProcuraClienteAfterOpen) then
+    FProcuraClienteAfterOpen(qryProcuraClientes);
+end;
+
+procedure TdtmCadastroAtendimentos.qryProcuraTiposAtendimentosBeforeOpen(DataSet: TDataSet);
+begin
+  inherited;
+  qryProcuraTiposAtendimentos.Params[1].AsString:= qryAtendimentostipo.AsString;
+end;
+
+procedure TdtmCadastroAtendimentos.ReFazTabelasAtendimentos;
+begin
+  ReFazConsulta(qryocorrencias,[0,1],[qryProcuraClientescodigo.AsInteger,
+                                    qryProcuraClientestipo.AsString]);
+  ReFazConsulta(qryUltimaReclamacao,[0,1],[qryProcuraClientescodigo.AsInteger,
+                                           qryProcuraClientestipo.AsString]);
+end;
+
+procedure TdtmCadastroAtendimentos.Selecionar(TipoConsulta: TtecTipoConsultaAtendimento);
+begin
+  case TipoConsulta of
+    tcaATENDIMENTO    : begin
+                          qryProcuraClientes.Params[1].AsString := qryConsultaAtendimentostipocliente.AsString;
+                          ReFazConsulta(qryAtendimentos,[0],[qryConsultaAtendimentoscodigo.AsInteger]);
+                        end;
+    tcaCLIENTE        : begin
+                          qryProcuraClientes.Params[1].AsString := qryConsultaClientestipo.AsString;
+                          qryAtendimentos.Edit;
+                          qryAtendimentoscliente.AsInteger    := qryConsultaClientescodigo.AsInteger;
+                          qryAtendimentostipocliente.AsString := qryConsultaClientestipo.AsString;
+                        end;
+    tcaTIPOATENDIMENTO: begin
+                          qryAtendimentos.Edit;
+                          qryAtendimentostipoatendimento.AsInteger:= qryConsultaTiposAtendimentoscodigo.AsInteger;
+                        end;
+  end;
+end;
+
+procedure TdtmCadastroAtendimentos.SelecionarAtendimento;
+begin
+  ReFazConsulta(qryAtendimentos,[0],[qryExisteAtendimentocodigo.AsInteger]);
+end;
+
+procedure TdtmCadastroAtendimentos.ValidarTipoAtendimento;
+begin
+  qryAtendimentostipoatendimento.Clear;
+  if (qryAtendimentos.State = dsEdit) then begin
+    ReFazConsulta(qryExisteAtendimento,[0,1,2],[qryProcuraClientescodigo.AsInteger,
+                                                qryProcuraClientestipo.AsString,
+                                                qryAtendimentostipo.AsString]);
+
+    if (qryExisteAtendimento.RecordCount > 0) and
+       (qryExisteAtendimentocodigo.AsInteger <> qryAtendimentoscodigo.AsInteger) then begin
+       MensagemAviso(Format(ctCLIENTEJAPOSSUIATENDIMENTO + #10#13 +
+                            ctCANCELARALTERACOES,[DescricaoAtendimento,qryProcuraClientesnome.AsString]));
+       qryAtendimentos.Cancel;
+    end;
+  end;
+end;
+
+procedure TdtmCadastroAtendimentos.qryAtendimentosAfterScroll(
+  DataSet: TDataSet);
+ procedure ControlarAtendimento(Valor, ControlarDatas: Boolean);
+ var
+ i : integer;
+ begin
+   for i := 0 to qryAtendimentos.FieldCount -1 do
+   begin
+    if ControlarDatas then
+    begin
+       case qryAtendimentos.Fields[i].index of
+       5, // lembrar
+       6, // semaviso
+       7: // semspc
+       begin
+         qryAtendimentos.Fields[i].ReadOnly := qryatendimentos.Fields[i].AsDateTime < DataServidor;
+         if qryAtendimentosdata.AsDateTime = DataServidor then
+           qryAtendimentos.Fields[i].Required := false
+         else
+           qryAtendimentos.Fields[i].Required := qryAtendimentos.Fields[i].AsString <> '';
+       end
+       else
+         qryAtendimentos.Fields[i].ReadOnly := valor;
+       end;
+    end
+    else
+     qryAtendimentos.Fields[i].ReadOnly := Valor;
+   end;
+ end;
+begin
+  inherited;
+//  ReFazTabelasAtendimentos;
+  if ((qryAtendimentosdata.AsDateTime = DataServidor) or
+      (qryAtendimentos.State in [dsinsert])) and
+      not qryAtendimentospossuicartaatendimento.AsBoolean then  //normal mesmo dia
+    ControlarAtendimento(false,false)
+  else
+  if qryAtendimentostipo.AsString <> 'C' then
+    ControlarAtendimento(true,false)   //normal dia anterior
+  else
+    ControlarAtendimento(true,true);  //Cobranca via atendimento
+
+  if qryAtendimentostipo.AsString = 'R' then //Reclamaçao
+    qryAtendimentosinformes.ReadOnly := false;
+
+end;
+
+function TdtmCadastroAtendimentos.CartaDevolvida(FormOrigem: String): Boolean;
+begin
+  Result := ClienteCartaDevolvida(qryProcuraClientescodigo.asInteger, qryProcuraClientestipo.asString,
+                                  qryProcuraClientesnome.AsString, FormOrigem);
+end;
+
+procedure TdtmCadastroAtendimentos.qryAtendimentosAfterClose(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryAtendimentos.IsEmpty then
+    ReFazTabelasAtendimentos;
+end;
+
+procedure TdtmCadastroAtendimentos.qryAtendimentosNewRecord(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryAtendimentostipo.AsString := 'C';
+  qryAtendimentosdatainclusao.AsDateTime := DataHoraServidor;
+  qryAtendimentosnaoligar.AsBoolean := false;
+end;
+
+procedure TdtmCadastroAtendimentos.dsrAtendimentoDataChange(
+  Sender: TObject; Field: TField);
+begin
+  inherited;
+  if field = qryAtendimentostipo then
+  begin
+    if (qryAtendimentos.State in [dsinsert, dsedit]) or
+       (qryAtendimentostipo.OldValue <> qryAtendimentostipo.Value) then
+      ValidarTipoAtendimento;
+  end;
+end;
+
+procedure TdtmCadastroAtendimentos.qryocorrenciasCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryocorrenciastipo.AsString = 'C' then
+    qryocorrenciasdescricaotipo.AsString := 'COBRANÇA'
+  else
+  if qryocorrenciastipo.AsString = 'R' then
+    qryocorrenciasdescricaotipo.AsString := 'RECLAMAÇÃO'
+  else
+  if qryocorrenciastipo.AsString = 'V' then
+    qryocorrenciasdescricaotipo.AsString := 'CONTATO';
+
+end;
+
+end.
+
+

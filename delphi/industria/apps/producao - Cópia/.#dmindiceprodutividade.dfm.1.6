@@ -1,0 +1,915 @@
+inherited dtmIndiceProdutividade: TdtmIndiceProdutividade
+  OldCreateOrder = False
+  Left = 308
+  Top = 238
+  Height = 462
+  Width = 647
+  object qryIndiceProdutividade: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'FiltroPeriodo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroSetoresProducao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroFuncionarios'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'SELECT s3.*'
+      'FROM'
+      '('
+      ' SELECT SetorProducao, DescricaoSetorProducao, Usuario, Nome,'
+      '        CASE WHEN SUM(Tempo) <> 0'
+      
+        '            THEN CAST(100 * SUM((Percentual * Tempo)) / SUM(Temp' +
+        'o) AS NUMERIC(15,2))'
+      '            ELSE 0'
+      '        END AS PercentualSetor'
+      ' FROM'
+      ' ('
+      
+        '  SELECT SetorProducao, DescricaoSetorProducao, Usuario, Nome, T' +
+        'empoPadrao, Quantidade, Tempo,'
+      '         CASE WHEN COALESCE(Tempo, 0) <> 0'
+      '              THEN Tempo / Quantidade'
+      '              ELSE 0'
+      '         END AS Indice,'
+      ''
+      
+        '         CASE WHEN COALESCE(TempoPadrao, 0) <> 0 AND COALESCE(Te' +
+        'mpo, 0) <> 0'
+      '              THEN TempoPadrao / (100 * Tempo / Quantidade)'
+      '              ELSE 0'
+      '         END AS Percentual'
+      '       '
+      '  FROM'
+      '  ('
+      
+        '   SELECT COALESCE(c.SetorProducao, CAST(NULL AS VARCHAR(4))) AS' +
+        ' SetorProducao,'
+      
+        '          COALESCE(sp.Descricao, CAST('#39'DIVERSOS'#39' AS VARCHAR(50))' +
+        ') AS DescricaoSetorProducao,'
+      '          oou.Usuario, u.Nome, o.TempoPadrao,'
+      '       '
+      
+        '          SUM(oou.Quantidade - COALESCE((SELECT SUM(oouf.Quantid' +
+        'adePerda)'
+      
+        '                                         FROM OperacoesOSPUsuari' +
+        'oFalhas oouf'
+      
+        '                                         WHERE oouf.OSP      = o' +
+        'ou.OSP'
+      
+        '                                           AND oouf.Lote     = o' +
+        'ou.Lote'
+      
+        '                                           AND oouf.Operacao = o' +
+        'ou.Operacao'
+      
+        '                                           AND oouf.Usuario  = o' +
+        'ou.Usuario'
+      
+        '                                           AND oouf.Data     = o' +
+        'ou.Data'
+      
+        '                                           AND oouf.Inicio   = o' +
+        'ou.Inicio), 0)) AS Quantidade,'
+      '                    '
+      
+        '          CAST(SUM((EXTRACT(EPOCH FROM CAST(oou.DataTermino || '#39 +
+        ' '#39' || oou.Termino AS TIMESTAMP) - '
+      
+        '                                       CAST(oou.Data        || '#39 +
+        ' '#39' || oou.Inicio  AS TIMESTAMP)) / 60)) AS INTEGER) AS Tempo'
+      '                    '
+      ''
+      '   FROM OperacoesOSPUsuario oou'
+      '        JOIN Operacoes o  ON oou.Operacao = o.Codigo'
+      '        JOIN Usuarios u   ON oou.Usuario  = u.Codigo'
+      '/*      JOIN Maquinas m   ON oou.Maquina  = m.Codigo */'
+      ''
+      '        JOIN OSP'
+      '             JOIN Produtos p'
+      '                  JOIN Caracteristicas c'
+      '                       LEFT JOIN SetoresProducao sp'
+      '                       ON c.SetorProducao = sp.Codigo'
+      '                  ON p.Caracteristica = c.Codigo'
+      '             ON OSP.Produto = p.Codigo'
+      '        ON oou.OSP = OSP.Numero'
+      ''
+      ''
+      '   WHERE NOT COALESCE(o.NaoBloqueiaUsuario,FALSE)'
+      '      AND COALESCE(oou.Quantidade,0) <> 0'
+      '      AND oou.DataTermino IS NOT NULL'
+      '      AND oou.Termino     IS NOT NULL'
+      '/*    AND oou.Maquina     IS NOT NULL */'
+      '  '
+      '      %FiltroPeriodo'
+      '      %FiltroSetoresProducao'
+      '      %FiltroFuncionarios'
+      ''
+      '   GROUP BY COALESCE(c.SetorProducao, CAST(NULL AS VARCHAR(4))),'
+      
+        '            COALESCE(sp.Descricao, CAST('#39'DIVERSOS'#39' AS VARCHAR(50' +
+        '))),'
+      '            oou.Usuario, u.Nome, o.TempoPadrao'
+      '  ) AS s1'
+      ' ) AS s2'
+      ' GROUP BY SetorProducao, DescricaoSetorProducao, Usuario, Nome'
+      ') AS s3'
+      
+        'ORDER BY SetorProducao, DescricaoSetorProducao, PercentualSetor ' +
+        'DESC, Usuario, Nome'
+      ''
+      ''
+      '/* PAR'#194'METROS'
+      ':DataInicial'
+      ':DataFinal'
+      '*/'
+      '')
+    RequestLive = True
+    Left = 96
+    Top = 56
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+      end>
+  end
+  object dsrIndiceProdutividade: TtecDataSource
+    DataSet = qryIndiceProdutividade
+    Left = 152
+    Top = 72
+  end
+  object ExcelExport1: TExcelExport
+    FontTitles.Charset = DEFAULT_CHARSET
+    FontTitles.Color = clWindowText
+    FontTitles.Height = -11
+    FontTitles.Name = 'MS Sans Serif'
+    FontTitles.Style = [fsBold]
+    OrientationTitles = 0
+    FontData.Charset = DEFAULT_CHARSET
+    FontData.Color = clWindowText
+    FontData.Height = -11
+    FontData.Name = 'MS Sans Serif'
+    FontData.Style = []
+    StyleColumnWidth = cwDefault
+    ColumnWidth = 80
+    WorksheetName = 'Indice_Prod_Setor_e_Funcion'#225'rio'
+    Dataset = qryIndiceProdutividade
+    Left = 328
+    Top = 56
+  end
+  object qryEficienciaporOperacaodeOSP: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'FiltroPeriodo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroSetoresProducao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroFuncionarios'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      
+        'SELECT COALESCE(m.SetorProducao, CAST(NULL AS VARCHAR(4))) AS Se' +
+        'torProducao,'
+      ' '
+      
+        '        COALESCE(sp.Descricao, CAST('#39'DIVERSOS'#39' AS VARCHAR(50))) ' +
+        'AS DescricaoSetor,'
+      '        '
+      '        oou.Usuario,'
+      '        u.Nome AS NomeUsuario,'
+      '        oou.OSP, oou.Lote,'
+      '        o.Nome AS NomeOperacao,'
+      '        o.C01,'
+      '        o.C02,'
+      '        o.C03,'
+      '        o.TempoPadrao,'
+      ''
+      '        oou.Quantidade,'
+      ''
+      
+        '        TempoOperacaoUsuario     (oou.OSP, oou.Lote, oou.Operaca' +
+        'o, oou.Usuario, oou.Data, oou.Inicio) AS Tempo,'
+      
+        '        EficienciaOperacaoUsuario(oou.OSP, oou.Lote, oou.Operaca' +
+        'o, oou.Usuario, oou.Data, oou.Inicio) * 100 AS Eficiencia'
+      ''
+      ''
+      ''
+      ' FROM OperacoesOSPUsuario oou'
+      '      JOIN Operacoes o  ON oou.Operacao = o.Codigo'
+      '      JOIN Usuarios u   ON oou.Usuario  = u.Codigo'
+      
+        '      JOIN Maquinas m   ON m.Codigo     = COALESCE(oou.Maquina, ' +
+        '(SELECT om.Maquina FROM OperacoesMaquinas om'
+      
+        '                                                                ' +
+        '    WHERE om.Operacao = oou.Operacao LIMIT 1))'
+      '      JOIN SetoresProducao sp ON sp.Codigo = m.SetorProducao'
+      ''
+      ' WHERE NOT COALESCE(o.NaoBloqueiaUsuario,FALSE)'
+      '   AND COALESCE(oou.Quantidade,0) <> 0'
+      '   AND oou.DataTermino IS NOT NULL'
+      '   AND oou.Termino     IS NOT NULL'
+      ''
+      '/*'
+      ' AND oou.Data BETWEEN '#39'2012-05-17'#39' AND '#39'2012-05-17'#39
+      '   AND oou.Usuario = 656'
+      '   */'
+      ''
+      '       %FiltroPeriodo'
+      '       %FiltroSetoresProducao'
+      '       %FiltroFuncionarios'
+      ''
+      
+        'ORDER BY SetorProducao, DescricaoSetor, oou.Usuario, NomeUsuario' +
+        ', oou.OSP, oou.Lote, NomeOperacao, o.C01, o.C02, o.C03, o.TempoP' +
+        'adrao'
+      ''
+      ''
+      '/* PAR'#194'METROS'
+      ':DataInicial'
+      ':DataFinal'
+      '*/'
+      '')
+    RequestLive = False
+    Left = 96
+    Top = 160
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryPremiacaoFuncionariosSetor: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'FiltroPeriodo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroSetoresProducao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroFuncionarios'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      'select  *, PremioIndividual+PremioSetor as PremioTotal'
+      'from'
+      '('
+      ' select setorproducao, usuario, nomeusuario,'
+      ''
+      '       EficienciaUsuario * 100 as EficienciaUsuario,'
+      ''
+      '       case when EficienciaUsuario < 0.70 then 0'
+      
+        #9'   '#9'      when EficienciaUsuario < 0.80 then EficienciaUsuario ' +
+        '* ValorPremio / 4'
+      
+        '       else                                    EficienciaUsuario' +
+        ' * ValorPremio / 2'
+      #9#9'   end  as PremioIndividual,'
+      ''
+      ''
+      '       EficienciaSetor * 100 as EficienciaSetor,'
+      ''
+      '       case when EficienciaUsuario < 0.70'
+      '            then 0'
+      '            else EficienciaSetor * ValorPremio / 2'
+      #9#9'   end  as PremioSetor'
+      #9#9
+      '   from'
+      ' ('
+      '            '#9#9
+      ''
+      '  SELECT setores.SetorProducao, setores.DescricaoSetor,'
+      ''
+      '         CASE WHEN setores.SomaTempo <> 0'
+      '              THEN setores.EficienciaTempo / setores.SomaTempo'
+      '              ELSE 0'
+      '         END AS EficienciaSetor,'
+      #9#9
+      #9#9' (select spp.valor'
+      #9#9'  from setoresproducaopremiacao spp'
+      #9#9'  where spp.setor = setores.SetorProducao'
+      
+        #9#9'    and spp.mes = to_char(cast(:datainicial as date), '#39'MM/YYYY' +
+        #39')) as ValorPremio,'
+      #9#9
+      ''
+      '         usuarios.usuario,'
+      '         usuarios.nomeusuario,'
+      '         usuarios.EficienciaUsuario'
+      ''
+      '  FROM'
+      '  ('
+      
+        '   SELECT COALESCE(m.SetorProducao, CAST(NULL AS VARCHAR(4))) AS' +
+        ' SetorProducao,'
+      
+        '          COALESCE(sp.Descricao, CAST('#39'DIVERSOS'#39' AS VARCHAR(50))' +
+        ') AS DescricaoSetor,'
+      ''
+      
+        '          SUM(EficienciaOperacaoUsuario(oou.OSP, oou.Lote, oou.O' +
+        'peracao, oou.Usuario, oou.Data, oou.Inicio) *'
+      
+        '              TempoOperacaoUsuario     (oou.OSP, oou.Lote, oou.O' +
+        'peracao, oou.Usuario, oou.Data, oou.Inicio)) AS EficienciaTempo,'
+      ''
+      
+        '          SUM(TempoOperacaoUsuario     (oou.OSP, oou.Lote, oou.O' +
+        'peracao, oou.Usuario, oou.Data, oou.Inicio)) AS SomaTempo'
+      ''
+      '   FROM OperacoesOSPUsuario oou'
+      '        JOIN Operacoes o  ON oou.Operacao = o.Codigo'
+      '        JOIN Usuarios u   ON oou.Usuario  = u.Codigo'
+      
+        '        JOIN Maquinas m   ON m.Codigo     = COALESCE(oou.Maquina' +
+        ', (SELECT om.Maquina FROM OperacoesMaquinas om'
+      
+        '                                                                ' +
+        '      WHERE om.Operacao = oou.Operacao LIMIT 1))'
+      '      JOIN SetoresProducao sp ON sp.Codigo = m.SetorProducao'
+      ''
+      ''
+      '   WHERE NOT COALESCE(o.NaoBloqueiaUsuario,FALSE)'
+      '      AND COALESCE(oou.Quantidade,0) <> 0'
+      '      AND oou.DataTermino IS NOT NULL'
+      '      AND oou.Termino     IS NOT NULL'
+      ''
+      '/*      AND oou.Data BETWEEN '#39'2012-08-01'#39' AND '#39'2012-08-31'#39
+      '     AND oou.Usuario = 656'
+      '     */'
+      ''
+      '      %FiltroPeriodo'
+      '      %FiltroSetoresProducao'
+      '      '
+      ''
+      '   GROUP BY SetorProducao, DescricaoSetor'
+      '  ) AS setores'
+      ''
+      '  join'
+      ''
+      '  ('
+      '  SELECT SetorProducao, DescricaoSetor, Usuario, NomeUsuario,'
+      ''
+      '         CASE WHEN SomaTempo <> 0'
+      '              THEN EficienciaTempo / SomaTempo'
+      '              ELSE 0'
+      '         END AS EficienciaUsuario'
+      ''
+      '  FROM'
+      '  ('
+      
+        '   SELECT COALESCE(m.SetorProducao, CAST(NULL AS VARCHAR(4))) AS' +
+        ' SetorProducao,'
+      
+        '          COALESCE(sp.Descricao, CAST('#39'DIVERSOS'#39' AS VARCHAR(50))' +
+        ') AS DescricaoSetor,'
+      '          oou.Usuario, u.Nome AS NomeUsuario,'
+      ''
+      
+        '          SUM(EficienciaOperacaoUsuario(oou.OSP, oou.Lote, oou.O' +
+        'peracao, oou.Usuario, oou.Data, oou.Inicio) *'
+      
+        '              TempoOperacaoUsuario     (oou.OSP, oou.Lote, oou.O' +
+        'peracao, oou.Usuario, oou.Data, oou.Inicio)) AS EficienciaTempo,'
+      ''
+      
+        '          SUM(TempoOperacaoUsuario     (oou.OSP, oou.Lote, oou.O' +
+        'peracao, oou.Usuario, oou.Data, oou.Inicio)) AS SomaTempo'
+      ''
+      '   FROM OperacoesOSPUsuario oou'
+      '        JOIN Operacoes o  ON oou.Operacao = o.Codigo'
+      '        JOIN Usuarios u   ON oou.Usuario  = u.Codigo'
+      
+        '        JOIN Maquinas m   ON m.Codigo     = COALESCE(oou.Maquina' +
+        ', (SELECT om.Maquina FROM OperacoesMaquinas om'
+      
+        '                                                                ' +
+        '      WHERE om.Operacao = oou.Operacao LIMIT 1))'
+      '      JOIN SetoresProducao sp ON sp.Codigo = m.SetorProducao'
+      ''
+      ''
+      '   WHERE NOT COALESCE(o.NaoBloqueiaUsuario,FALSE)'
+      '      AND COALESCE(oou.Quantidade,0) <> 0'
+      '      AND oou.DataTermino IS NOT NULL'
+      '      AND oou.Termino     IS NOT NULL'
+      ''
+      '/*      AND oou.Data BETWEEN '#39'2012-08-01'#39' AND '#39'2012-08-31'#39
+      '     AND oou.Usuario = 656 */'
+      ''
+      '      %FiltroPeriodo'
+      '      %FiltroSetoresProducao'
+      '      %FiltroFuncionarios'
+      ''
+      
+        '   GROUP BY SetorProducao, DescricaoSetor, oou.Usuario, NomeUsua' +
+        'rio'
+      '  ) AS usuarios'
+      '  ) as usuarios'
+      '  on setores.setorproducao = usuarios.setorproducao'
+      ' ) as premiacao'
+      ') as premiacao'
+      'ORDER BY SetorProducao, Usuario'
+      ''
+      ''
+      ''
+      '/* PAR'#194'METROS'
+      ':DataInicial'
+      ':DataFinal'
+      '*/')
+    RequestLive = False
+    Left = 96
+    Top = 224
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryPremiacaoLideres: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'FiltroPeriodo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroSetoresProducao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      'select setores.usuario,'
+      '       premiacao.*,'
+      '       cast(null as numeric(15,2)) as MediaEficiencia,'
+      '       cast(null as numeric(15,2)) as ValorPremioLider'
+      ''
+      'from'
+      ''
+      '('
+      'select spl.setor, spl.usuario'
+      'from setoresproducaolideres spl'
+      'where spl.datafinallideranca is null'
+      
+        '  and to_char(spl.datainiciallideranca,'#39'MM/YYYY'#39') = to_char(cast' +
+        '(:datainicial as date),'#39'MM/YYYY'#39')'
+      ') as setores'
+      ''
+      '  join'
+      ''
+      '('
+      ' select setorproducao,'
+      '        EficienciaSetor * 100 as EficienciaSetor,'
+      #9'    ValorPremio'
+      '   from'
+      ' ('
+      ''
+      ''
+      '  SELECT setores.SetorProducao, setores.DescricaoSetor,'
+      ''
+      '         CASE WHEN setores.SomaTempo <> 0'
+      '              THEN setores.EficienciaTempo / setores.SomaTempo'
+      '              ELSE 0'
+      '         END AS EficienciaSetor,'
+      ''
+      #9#9' (select spp.valor'
+      #9#9'  from setoresproducaopremiacao spp'
+      #9#9'  where spp.setor = setores.SetorProducao'
+      
+        #9#9'    and spp.mes = to_char(cast(:datainicial as date), '#39'MM/YYYY' +
+        #39')) as ValorPremio'
+      #9#9
+      ''
+      ''
+      '  FROM'
+      '  ('
+      
+        '   SELECT COALESCE(m.SetorProducao, CAST(NULL AS VARCHAR(4))) AS' +
+        ' SetorProducao,'
+      
+        '          COALESCE(sp.Descricao, CAST('#39'DIVERSOS'#39' AS VARCHAR(50))' +
+        ') AS DescricaoSetor,'
+      ''
+      
+        '          SUM(EficienciaOperacaoUsuario(oou.OSP, oou.Lote, oou.O' +
+        'peracao, oou.Usuario, oou.Data, oou.Inicio) *'
+      
+        '              TempoOperacaoUsuario     (oou.OSP, oou.Lote, oou.O' +
+        'peracao, oou.Usuario, oou.Data, oou.Inicio)) AS EficienciaTempo,'
+      ''
+      
+        '          SUM(TempoOperacaoUsuario     (oou.OSP, oou.Lote, oou.O' +
+        'peracao, oou.Usuario, oou.Data, oou.Inicio)) AS SomaTempo'
+      ''
+      '   FROM OperacoesOSPUsuario oou'
+      '        JOIN Operacoes o  ON oou.Operacao = o.Codigo'
+      '        JOIN Usuarios u   ON oou.Usuario  = u.Codigo'
+      
+        '        JOIN Maquinas m   ON m.Codigo     = COALESCE(oou.Maquina' +
+        ', (SELECT om.Maquina FROM OperacoesMaquinas om'
+      
+        '                                                                ' +
+        '      WHERE om.Operacao = oou.Operacao LIMIT 1))'
+      '      JOIN SetoresProducao sp ON sp.Codigo = m.SetorProducao'
+      ''
+      ''
+      '   WHERE NOT COALESCE(o.NaoBloqueiaUsuario,FALSE)'
+      '      AND COALESCE(oou.Quantidade,0) <> 0'
+      '      AND oou.DataTermino IS NOT NULL'
+      '      AND oou.Termino     IS NOT NULL'
+      ''
+      '      %FiltroPeriodo'
+      '      %FiltroSetoresProducao'
+      ''
+      ''
+      '   GROUP BY SetorProducao, DescricaoSetor'
+      '  ) AS setores'
+      ''
+      ' ) as premiacao'
+      ') as premiacao'
+      'on setores.setor = premiacao.setorproducao'
+      ''
+      'order by setores.usuario, setores.setor'
+      ''
+      '/* PAR'#194'METROS'
+      ':DataInicial'
+      ':DataFinal'
+      '*/')
+    RequestLive = False
+    Left = 88
+    Top = 344
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryPremiacaoFuncionariosPonderada: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'FiltroPeriodo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroSetoresProducao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroPeriodo2'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroSetoresProducao2'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroFuncionarios'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      'select  usuario, nomeusuario,'
+      '       case when NSetores > 1 then'
+      '          case when SomaTempoUsuario <> 0 then'
+      '            SomaPremios/SomaTempoUsuario'
+      '          else 0 end'
+      '       else PremioTotal'
+      '       end as PremioTotal'
+      'from'
+      '('
+      ''
+      'select usuario, nomeusuario,'
+      
+        '       sum(EficienciaSetor * SomaTempoUsuario *  PremioTotal) as' +
+        ' SomaPremios,'
+      
+        #9'   sum(SomaTempoUsuario) as SomaTempoUsuario, NSetores, PremioT' +
+        'otal'
+      'from'
+      '('#9
+      'select  *, PremioIndividual+PremioSetor as PremioTotal'
+      'from'
+      '('
+      ' select setorproducao, usuario, nomeusuario,'
+      ''
+      '       EficienciaUsuario, SomaTempoUsuario, NSetores,'
+      ''
+      '       case when EficienciaUsuario < 0.70 then 0'
+      
+        #9'   '#9'      when EficienciaUsuario < 0.80 then EficienciaUsuario ' +
+        '* ValorPremio / 4'
+      
+        '       else                                    EficienciaUsuario' +
+        ' * ValorPremio / 2'
+      #9#9'   end  as PremioIndividual,'
+      ''
+      ''
+      '       EficienciaSetor,'
+      ''
+      '       case when EficienciaUsuario < 0.70'
+      '            then 0'
+      '            else EficienciaSetor * ValorPremio / 2'
+      #9#9'   end  as PremioSetor'
+      #9#9
+      '   from'
+      ' ('
+      '            '#9#9
+      ''
+      '  SELECT setores.SetorProducao, setores.DescricaoSetor,'
+      ''
+      '         CASE WHEN setores.SomaTempo <> 0'
+      '              THEN setores.EficienciaTempo / setores.SomaTempo'
+      '              ELSE 0'
+      '         END AS EficienciaSetor,'
+      #9#9
+      #9#9' (select spp.valor'
+      #9#9'  from setoresproducaopremiacao spp'
+      #9#9'  where spp.setor = setores.SetorProducao'
+      
+        #9#9'    and spp.mes = to_char(cast(:datainicial as date), '#39'MM/YYYY' +
+        #39')) as ValorPremio,'
+      #9#9
+      ''
+      '         usuarios.usuario,'
+      '         usuarios.nomeusuario,'
+      '         usuarios.EficienciaUsuario,'
+      #9#9' usuarios.SomaTempoUsuario,'
+      #9#9' usuarios.NSetores'
+      ''
+      '  FROM'
+      '  ('
+      
+        '   SELECT COALESCE(m.SetorProducao, CAST(NULL AS VARCHAR(4))) AS' +
+        ' SetorProducao,'
+      
+        '          COALESCE(sp.Descricao, CAST('#39'DIVERSOS'#39' AS VARCHAR(50))' +
+        ') AS DescricaoSetor,'
+      ''
+      
+        '          SUM(EficienciaOperacaoUsuario(oou.OSP, oou.Lote, oou.O' +
+        'peracao, oou.Usuario, oou.Data, oou.Inicio) *'
+      
+        '              TempoOperacaoUsuario     (oou.OSP, oou.Lote, oou.O' +
+        'peracao, oou.Usuario, oou.Data, oou.Inicio)) AS EficienciaTempo,'
+      ''
+      
+        '          SUM(TempoOperacaoUsuario     (oou.OSP, oou.Lote, oou.O' +
+        'peracao, oou.Usuario, oou.Data, oou.Inicio)) AS SomaTempo'
+      ''
+      '   FROM OperacoesOSPUsuario oou'
+      '        JOIN Operacoes o  ON oou.Operacao = o.Codigo'
+      '        JOIN Usuarios u   ON oou.Usuario  = u.Codigo'
+      
+        '        JOIN Maquinas m   ON m.Codigo     = COALESCE(oou.Maquina' +
+        ', (SELECT om.Maquina FROM OperacoesMaquinas om'
+      
+        '                                                                ' +
+        '      WHERE om.Operacao = oou.Operacao LIMIT 1))'
+      '      JOIN SetoresProducao sp ON sp.Codigo = m.SetorProducao'
+      ''
+      ''
+      '   WHERE NOT COALESCE(o.NaoBloqueiaUsuario,FALSE)'
+      '      AND COALESCE(oou.Quantidade,0) <> 0'
+      '      AND oou.DataTermino IS NOT NULL'
+      '      AND oou.Termino     IS NOT NULL'
+      ''
+      '      %FiltroPeriodo'
+      '      %FiltroSetoresProducao'
+      ''
+      '   GROUP BY SetorProducao, DescricaoSetor'
+      '  ) AS setores'
+      ''
+      '  join'
+      ''
+      '  ('
+      
+        '  SELECT SetorProducao, DescricaoSetor, Usuario, NomeUsuario, So' +
+        'maTempo as SomaTempoUsuario, NSetores,'
+      ''
+      '         CASE WHEN SomaTempo <> 0'
+      '              THEN EficienciaTempo / SomaTempo'
+      '              ELSE 0'
+      '         END AS EficienciaUsuario'
+      ''
+      '  FROM'
+      '  ('
+      
+        '   SELECT COALESCE(m.SetorProducao, CAST(NULL AS VARCHAR(4))) AS' +
+        ' SetorProducao,'
+      
+        '          COALESCE(sp.Descricao, CAST('#39'DIVERSOS'#39' AS VARCHAR(50))' +
+        ') AS DescricaoSetor,'
+      '          oou.Usuario, u.Nome AS NomeUsuario,'
+      ''
+      
+        '          SUM(EficienciaOperacaoUsuario(oou.OSP, oou.Lote, oou.O' +
+        'peracao, oou.Usuario, oou.Data, oou.Inicio) *'
+      
+        '              TempoOperacaoUsuario     (oou.OSP, oou.Lote, oou.O' +
+        'peracao, oou.Usuario, oou.Data, oou.Inicio)) AS EficienciaTempo,'
+      ''
+      
+        '          SUM(TempoOperacaoUsuario     (oou.OSP, oou.Lote, oou.O' +
+        'peracao, oou.Usuario, oou.Data, oou.Inicio)) AS SomaTempo,'
+      ''
+      ''
+      ''
+      ''
+      '   (select count(*) from'
+      '   ('
+      
+        '   SELECT COALESCE(m2.SetorProducao, CAST(NULL AS VARCHAR(4))) A' +
+        'S SetorProducao,'
+      
+        '          COALESCE(sp2.Descricao, CAST('#39'DIVERSOS'#39' AS VARCHAR(50)' +
+        ')) AS DescricaoSetor,'
+      '          oou2.Usuario, u2.Nome AS NomeUsuario'
+      ''
+      '   FROM OperacoesOSPUsuario oou2'
+      '        JOIN Operacoes o2  ON oou2.Operacao = o2.Codigo'
+      '        JOIN Usuarios u2   ON oou2.Usuario  = u2.Codigo'
+      
+        '        JOIN Maquinas m2   ON m2.Codigo     = COALESCE(oou2.Maqu' +
+        'ina, (SELECT om.Maquina FROM OperacoesMaquinas om'
+      
+        '                                                                ' +
+        '      WHERE om.Operacao = oou2.Operacao LIMIT 1))'
+      '      JOIN SetoresProducao sp2 ON sp2.Codigo = m2.SetorProducao'
+      ''
+      ''
+      '   WHERE NOT COALESCE(o2.NaoBloqueiaUsuario,FALSE)'
+      '      AND COALESCE(oou2.Quantidade,0) <> 0'
+      '      AND oou2.DataTermino IS NOT NULL'
+      '      AND oou2.Termino     IS NOT NULL'
+      '      and oou2.usuario = oou.usuario'
+      ''
+      '      %FiltroPeriodo2'
+      '      %FiltroSetoresProducao2'
+      ''
+      
+        '   GROUP BY SetorProducao, DescricaoSetor, oou2.Usuario, NomeUsu' +
+        'ario'
+      '   ) as usuarios) as NSetores'
+      ''
+      ''
+      '   FROM OperacoesOSPUsuario oou'
+      '        JOIN Operacoes o  ON oou.Operacao = o.Codigo'
+      '        JOIN Usuarios u   ON oou.Usuario  = u.Codigo'
+      
+        '        JOIN Maquinas m   ON m.Codigo     = COALESCE(oou.Maquina' +
+        ', (SELECT om.Maquina FROM OperacoesMaquinas om'
+      
+        '                                                                ' +
+        '      WHERE om.Operacao = oou.Operacao LIMIT 1))'
+      '      JOIN SetoresProducao sp ON sp.Codigo = m.SetorProducao'
+      ''
+      ''
+      '   WHERE NOT COALESCE(o.NaoBloqueiaUsuario,FALSE)'
+      '      AND COALESCE(oou.Quantidade,0) <> 0'
+      '      AND oou.DataTermino IS NOT NULL'
+      '      AND oou.Termino     IS NOT NULL'
+      ''
+      ''
+      '      %FiltroPeriodo'
+      '      %FiltroSetoresProducao'
+      '      %FiltroFuncionarios'
+      ''
+      
+        '   GROUP BY SetorProducao, DescricaoSetor, oou.Usuario, NomeUsua' +
+        'rio'
+      '  ) as usuarios'
+      '  ) as usuarios'
+      '  on setores.setorproducao = usuarios.setorproducao'
+      ' ) as premiacao'
+      ') as premiacao'
+      'ORDER BY SetorProducao, Usuario'
+      ') as premiacao'
+      'group by usuario, nomeusuario, NSetores, PremioTotal'
+      ') as premiacao'
+      'order by  usuario'
+      ''
+      ''
+      ''
+      '/* PAR'#194'METROS'
+      ':DataInicial'
+      ':DataFinal'
+      '*/')
+    RequestLive = False
+    Left = 96
+    Top = 280
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+      end>
+  end
+end

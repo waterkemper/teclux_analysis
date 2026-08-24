@@ -1,0 +1,115 @@
+object fraSelecaoAleatoriaClientes: TfraSelecaoAleatoriaClientes
+  Left = 0
+  Top = 0
+  Width = 593
+  Height = 324
+  TabOrder = 0
+  inline fraSelecaoAleatoriaCliente: TfraSelecaoAleatoria
+    Left = 0
+    Top = 0
+    Width = 593
+    Height = 324
+    HorzScrollBar.Range = 26
+    Align = alClient
+    AutoScroll = False
+    TabOrder = 0
+    inherited dbgSelecaoAleatoria: TtecDBGrid
+      Width = 562
+      Height = 309
+      Font.Height = -12
+      Font.Name = 'Helvetica'
+      Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgCancelOnExit]
+      OnDblClick = fraSelecaoAleatoriaClientesdbgSelecaoAleatoriaDblClick
+      OnKeyDown = fraSelecaoAleatoriaClientedbgSelecaoAleatoriaKeyDown
+      CanDelete = True
+      DefaultRowHeight = 19
+      Columns = <
+        item
+          Expanded = False
+          FieldName = 'codigo'
+          Title.Alignment = taCenter
+          Title.Caption = 'Cliente'
+          Width = 59
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'tipo'
+          Title.Caption = 'T'
+          Width = 14
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'descricao'
+          Title.Alignment = taCenter
+          Title.Caption = 'Nome do Cliente'
+          Width = 208
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'campol'
+          Title.Alignment = taCenter
+          Title.Caption = 'Aplicar a'
+          Width = 70
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'opcomparacaol'
+          Title.Alignment = taCenter
+          Title.Caption = 'Condi'#231#227'o'
+          Width = 106
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'oplogicol'
+          Title.Alignment = taCenter
+          Title.Caption = 'L'#243'gica'
+          Visible = True
+        end>
+    end
+    inherited pnlLabels: TPanel
+      Left = 562
+      Height = 309
+      inherited sbnProcura: TSpeedButton
+        Hint = 'CTRL + F9 - Procurar clientes'
+        OnClick = fraSelecaoAleatoriaClientessbnProcuraClick
+      end
+      inherited sbnExcluir: TSpeedButton
+        Hint = 'Excluir cliente'
+      end
+      inherited sbnExcluirTodos: TSpeedButton
+        Hint = 'Excluir todos os clientes da lista'
+      end
+      inherited sbnIncluirItem: TSpeedButton
+        Hint = 'Incluir clientes na lista'
+      end
+    end
+    inherited pnlAbaixo: TPanel
+      Top = 309
+      Width = 593
+      Font.Pitch = fpVariable
+      inherited lblOrientacao: TLabel
+        Font.Pitch = fpVariable
+      end
+      inherited pnlAbaixoDireita: TPanel
+        Left = 562
+      end
+    end
+    inherited qrySelecaoAleatoria: TtecQuery
+      Options = [doAutoFillDefs]
+      AfterOpen = fraSelecaoAleatoriaClientesqrySelecaoAleatoriaAfterOpen
+      OnNewRecord = fraSelecaoAleatoriaClientesqrySelecaoAleatoriaNewRecord
+      Sql.Strings = (
+        'SELECT  cast(null as char(18)) as codigo,'
+        '            cast(null as char(1)) as tipo,'
+        '            cast(null as varchar(50)) as descricao,'
+        '           ,cast(null as varchar(10)) as campo,'
+        '            cast(null as varchar(20)) as opcomparacao,'
+        '            cast(null as varchar(2)) as oplogico')
+    end
+  end
+end

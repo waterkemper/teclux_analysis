@@ -1,0 +1,2844 @@
+inherited dtmTransferenciaRequisicaoExposicao: TdtmTransferenciaRequisicaoExposicao
+  Left = 376
+  Top = 272
+  Height = 610
+  Width = 969
+  object qryProcuraFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select codigo,'
+      '       nome,'
+      '       cnpj,'
+      '      estado,'
+      
+        '      CASE WHEN tipofilial=''V'' then COALESCE(filial_estoque,codi' +
+        'go) ELSE codigo END as filial_estoque'
+      'From   filiais'
+      'Where (codigo =:codigo) and'
+      '           not (codigo in (:requisitada))')
+    RequestLive = False
+    Left = 74
+    Top = 19
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'codigo'
+        ParamType = ptUnknown
+        Value = '0'
+      end
+      item
+        DataType = ftInteger
+        Name = 'requisitada'
+        ParamType = ptUnknown
+        Value = '0'
+      end>
+    object qryProcuraFiliaiscodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryProcuraFiliaisnome: TStringField
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryProcuraFiliaiscnpj: TStringField
+      FieldName = 'cnpj'
+      Size = 14
+    end
+    object qryProcuraFiliaisestado: TStringField
+      FieldName = 'estado'
+      Size = 2
+    end
+    object qryProcuraFiliaisfilial_estoque: TIntegerField
+      FieldName = 'filial_estoque'
+    end
+  end
+  object dsrProcuraFiliais: TtecDataSource
+    DataSet = qryProcuraFiliais
+    Left = 87
+    Top = 35
+  end
+  object qryConsultaFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select nome,'
+      '           codigo'
+      'From   filiais'
+      'Where not (codigo in (:requisitada))'
+      'Order By UPPER(TO_ASCII(nome,''LATIN1''))')
+    RequestLive = False
+    Left = 100
+    Top = 51
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'requisitada'
+        ParamType = ptUnknown
+      end>
+    object qryConsultaFiliaisnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryConsultaFiliaiscodigo: TIntegerField
+      DisplayLabel = 'Código'
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+  end
+  object qryPedidosFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryPedidosFiliaisAfterOpen
+    BeforeInsert = qryPedidosFiliaisBeforeInsert
+    BeforePost = qryPedidosFiliaisBeforePost
+    AfterPost = qryPedidosFiliaisAfterPost
+    AfterScroll = qryPedidosFiliaisAfterScroll
+    OnFilterRecord = qryPedidosFiliaisFilterRecord
+    Filtered = True
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'Periodo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Requisitante'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Situacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'CurvaABC'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'QtdeConfirmada'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'Select     pf.codigo,'
+      '           pf.produto,'
+      '           pf.requisitante,'
+      '           f1.nome as nomefilialrequisitante,'
+      '           pf.requisitada,'
+      '           pf.qtdepedida,'
+      '           pf.qtderecebida,'
+      '           pf.qtderecebida as qtderecebidaanterior,'
+      '           pf.situacao,'
+      '           pf.observacao,'
+      '           n.numero,'
+      '           n.serie,'
+      '           p.descricao,'
+      '           p.referencia,'
+      
+        '           (select gr.descricao from grades gr, caracteristicas ' +
+        'c where gr.codigo = c.grade1 and c.codigo = p.caracteristica) as' +
+        ' linha,'
+      
+        '           (select gr.descricao from grades gr, caracteristicas ' +
+        'c where gr.codigo = c.grade2 and c.codigo = p.caracteristica) as' +
+        ' coluna,'
+      '           p.valorgrade1,'
+      '           p.valorgrade2,'
+      '           pf.data,'
+      
+        '           cast((''N-'' || cast(n.numero as varchar) || ''  S-'' || ' +
+        'n.serie) as varchar) as nota_serie,'
+      '           (Select e1.emestoque'
+      '            From estoques e1'
+      '            Where (e1.produto = pf.produto)'
+      
+        '            and (e1.filial = pf.requisitante)) as estoquerequisi' +
+        'tante,'
+      ''
+      '           (Select e1.emestoque'
+      '            From estoques e1'
+      '            Where (e1.produto = pf.produto)'
+      
+        '            and (e1.filial = (case when f.tipofilial=''V'' then CO' +
+        'ALESCE(f.filial_estoque,f.codigo) ELSE f.codigo END))) as estoqu' +
+        'erequisitada,'
+      ''
+      '           (Select e1.reservaprevia'
+      '            From estoques e1'
+      '            Where e1.produto=pf.produto'
+      
+        '            and e1.filial= (case when f.tipofilial=''V'' then COAL' +
+        'ESCE(f.filial_estoque,f.codigo) ELSE f.codigo END)) as reservapr' +
+        'eviarequisitada,'
+      '           0.00 as semvalor,'
+      '           p.resultadocurvaabc,'
+      '           pf.lotetransferencia,'
+      '           case when pf.lotetransferencia is not null then true'
+      '           else false end as marcarlotetransferencia,'
+      '           p.codigovisual,'
+      
+        '           case when f.tipofilial=''V'' then COALESCE(f.filial_est' +
+        'oque,f.codigo) ELSE f.codigo END as filial_estoque,'
+      
+        '           case when f1.tipofilial=''V'' then COALESCE(f1.filial_e' +
+        'stoque,f1.codigo) ELSE f1.codigo END as filial_estoque_requisita' +
+        'nte,'
+      
+        '           (select ti.valor from tributosicms ti where ti.codigo' +
+        ' = c.incidencia) as cst_produto,'
+      '           c.csosn as csosn_produto,'
+      '           c.piscst as piscst_produto,'
+      '           c.cofinscst as cofinscst_produto,'
+      '           f1.estado as estadofilialrequisitante,'
+      '    '#9#9'   e.localizacao,'
+      '           false as LoteVerificado'
+      ''
+      'From  pedidosfiliais pf'
+      '         left join notas n'
+      '         on pf.dadofiscal = n.dadofiscal'
+      ''
+      '        join produtos p'
+      '              join caracteristicas c'
+      '              on p.caracteristica = c.codigo'
+      '        on pf.produto = p.codigo'
+      ''
+      '        join filiais f'
+      '        on f.codigo=pf.requisitada'
+      ''
+      '        join filiais f1'
+      '        on f1.codigo=pf.requisitante'
+      ''
+      '        join estoques e'
+      '        on e.produto = pf.produto'
+      '        and e.filial = pf.requisitada'
+      ''
+      'Where pf.requisitada = :requisitada'
+      ''
+      '%Periodo'
+      '%Requisitante'
+      '%Situacao'
+      '%CurvaABC'
+      '%QtdeConfirmada'
+      ''
+      'Order By pf.requisitante, pf.produto')
+    RequestLive = True
+    Left = 218
+    Top = 9
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'requisitada'
+        ParamType = ptUnknown
+        Value = '0'
+      end>
+    object qryPedidosFiliaiscodigo: TIntegerField
+      DisplayLabel = 'Código'
+      FieldName = 'codigo'
+      ReadOnly = True
+      DisplayFormat = '0'
+    end
+    object qryPedidosFiliaisproduto: TLargeintField
+      FieldName = 'produto'
+      ReadOnly = True
+    end
+    object qryPedidosFiliaisrequisitante: TIntegerField
+      FieldName = 'requisitante'
+      ReadOnly = True
+      DisplayFormat = '0'
+    end
+    object qryPedidosFiliaisrequisitada: TIntegerField
+      FieldName = 'requisitada'
+      ReadOnly = True
+      DisplayFormat = '0'
+    end
+    object qryPedidosFiliaisestoquerequisitante: TFloatField
+      FieldName = 'estoquerequisitante'
+      ReadOnly = True
+      DisplayFormat = '0'
+    end
+    object qryPedidosFiliaisestoquerequisitada: TFloatField
+      FieldName = 'estoquerequisitada'
+      ReadOnly = True
+      DisplayFormat = '0'
+    end
+    object qryPedidosFiliaisreservapreviarequisitada: TFloatField
+      FieldName = 'reservapreviarequisitada'
+      ReadOnly = True
+      DisplayFormat = '0'
+    end
+    object qryPedidosFiliaisqtdepedida: TFloatField
+      FieldName = 'qtdepedida'
+      ReadOnly = True
+      DisplayFormat = '0'
+    end
+    object qryPedidosFiliaisqtderecebida: TFloatField
+      FieldName = 'qtderecebida'
+      DisplayFormat = '0'
+    end
+    object qryPedidosFiliaissituacao: TStringField
+      FieldName = 'situacao'
+      Size = 1
+    end
+    object qryPedidosFiliaisobservacao: TStringField
+      FieldName = 'observacao'
+      Size = 150
+    end
+    object qryPedidosFiliaisdescricao: TStringField
+      DisplayWidth = 50
+      FieldName = 'descricao'
+      ReadOnly = True
+      Size = 100
+    end
+    object qryPedidosFiliaisdata: TDateTimeField
+      DisplayLabel = 'DATA e HORA'
+      FieldName = 'data'
+      DisplayFormat = 'dd/mm/yyyy hh:mm'
+    end
+    object qryPedidosFiliaisnota_serie: TStringField
+      FieldName = 'nota_serie'
+      ReadOnly = True
+      Size = 18
+    end
+    object qryPedidosFiliaissemvalor: TFloatField
+      FieldName = 'semvalor'
+      ReadOnly = True
+      DisplayFormat = '0.00'
+    end
+    object qryPedidosFiliaisnumero: TIntegerField
+      FieldName = 'numero'
+      DisplayFormat = '0'
+    end
+    object qryPedidosFiliaisserie: TStringField
+      FieldName = 'serie'
+      Size = 3
+    end
+    object qryPedidosFiliaislinha: TStringField
+      FieldName = 'linha'
+      Size = 50
+    end
+    object qryPedidosFiliaiscoluna: TStringField
+      FieldName = 'coluna'
+      Size = 50
+    end
+    object qryPedidosFiliaisvalorgrade1: TStringField
+      FieldName = 'valorgrade1'
+      Size = 10
+    end
+    object qryPedidosFiliaisvalorgrade2: TStringField
+      FieldName = 'valorgrade2'
+      Size = 10
+    end
+    object qryPedidosFiliaisreferencia: TStringField
+      FieldName = 'referencia'
+      Size = 15
+    end
+    object qryPedidosFiliaisqtderecebidaanterior: TFloatField
+      FieldName = 'qtderecebidaanterior'
+      DisplayFormat = '0.00'
+    end
+    object qryPedidosFiliaisresultadocurvaabc: TStringField
+      FieldName = 'resultadocurvaabc'
+      Size = 1
+    end
+    object qryPedidosFiliaislotetransferencia: TIntegerField
+      FieldName = 'lotetransferencia'
+      DisplayFormat = '0'
+    end
+    object qryPedidosFiliaismarcarlotetransferencia: TBooleanField
+      FieldName = 'marcarlotetransferencia'
+    end
+    object qryPedidosFiliaiscodigovisual: TStringField
+      FieldName = 'codigovisual'
+      Size = 30
+    end
+    object qryPedidosFiliaisfilial_estoque: TIntegerField
+      FieldName = 'filial_estoque'
+    end
+    object qryPedidosFiliaisfilial_estoque_requisitante: TIntegerField
+      FieldName = 'filial_estoque_requisitante'
+    end
+    object qryPedidosFiliaiscst_produto: TStringField
+      FieldName = 'cst_produto'
+      Size = 2
+    end
+    object qryPedidosFiliaiscsosn_produto: TStringField
+      FieldName = 'csosn_produto'
+      Size = 3
+    end
+    object qryPedidosFiliaispiscst_produto: TStringField
+      FieldName = 'piscst_produto'
+      Size = 2
+    end
+    object qryPedidosFiliaiscofinscst_produto: TStringField
+      FieldName = 'cofinscst_produto'
+      Size = 2
+    end
+    object qryPedidosFiliaisestadofilialrequisitante: TStringField
+      FieldName = 'estadofilialrequisitante'
+      Size = 2
+    end
+    object qryPedidosFiliaisnomefilialrequisitante: TStringField
+      FieldName = 'nomefilialrequisitante'
+      Size = 60
+    end
+    object qryPedidosFiliaisloteverificado: TBooleanField
+      FieldName = 'loteverificado'
+    end
+    object qryPedidosFiliaislocalizacao: TStringField
+      FieldName = 'localizacao'
+    end
+  end
+  object dsrPedidosFiliais: TtecDataSource
+    DataSet = qryPedidosFiliais
+    OnDataChange = dsrPedidosFiliaisDataChange
+    Left = 247
+    Top = 21
+  end
+  object qryNotas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select filial,'
+      '           serie,'
+      '           numero,'
+      '           dadofiscal'
+      'From   notas'
+      'Where dadofiscal = 0 ')
+    RequestLive = True
+    Left = 249
+    Top = 268
+    object qryNotasfilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryNotasserie: TStringField
+      FieldName = 'serie'
+      Size = 3
+    end
+    object qryNotasnumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryNotasdadofiscal: TIntegerField
+      FieldName = 'dadofiscal'
+    end
+  end
+  object qryDadosFiscais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnNewRecord = qryDadosFiscaisNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select df.numero,'
+      '       df.data,'
+      '       df.situacao,'
+      '       df.manual,'
+      '       df.filialvenda,'
+      '       df.contrato,'
+      '       df.valortotal,'
+      '       df.valorvista,'
+      '       df.desconto,'
+      '       df.valorfrete,'
+      '       df.seguro,'
+      '       df.codigofiscal,'
+      '       df.codigofiscalservico,'
+      '       df.vendedor,'
+      '       df.agente,'
+      '       df.estadocfo,'
+      '       df.filialemissao,'
+      
+        '       /*(select f.aliquotacreditoicms from filiais f where f.co' +
+        'digo = df.filialemissao) as aliquotacreditoicms,*/'
+      '       df.natureza,'
+      '       df.codigonatureza,'
+      '       df.plano,'
+      '       df.viatransporte,'
+      '       df.datasaida,'
+      '       df.fornecedortransporte,'
+      '       df.frete,'
+      '       df.cliente,'
+      '       df.tipocliente,'
+      
+        '       (select c.nome from clientes c where c.codigo = df.client' +
+        'e) as nomecliente,'
+      '       df.estadoplaca,'
+      '       df.placa,'
+      '       df.nome,'
+      '       df.rua,'
+      '       df.endnumero,'
+      '       df.endcomplemento,'
+      '       df.bairro,'
+      '       df.cidade,'
+      
+        '       (select c.nome from cidades c where (c.estado = df.estado' +
+        ') and (c.codigo = df.cidade)) as cidadenome,'
+      '       df.estado,'
+      '       df.cep,'
+      '       df.pessoatipo,'
+      '       df.pessoanumero,'
+      '       df.inscricaomunicipal,'
+      '       df.fonenumero,'
+      '       df.foneddd,'
+      '       df.documento,'
+      '       df.observacoes,'
+      '       df.valoripi,'
+      '       df.totalbaseicmsproprio,'
+      '       df.totalvaloricmsproprio,'
+      '       df.totalbaseicmssubstituicao,'
+      '       df.totalvaloricmssubstituicao,'
+      '       df.aliquotaicmsproprio,'
+      '       df.anexotres,'
+      '       df.baseicms,'
+      '       df.valoricms,'
+      '       df.valorissqn,'
+      '       df.valorservicos,'
+      '       df.valorprodutos,'
+      '       df.irretido,'
+      '       df.inssretido,'
+      '       df.issretido,'
+      '       df.cofinsretido,'
+      '       df.pisretido,'
+      '       df.csllretido,'
+      '       df.debitar,'
+      '       df.creditar,'
+      '       df.historico,'
+      '       df.observacoesicmssubstituido,'
+      '/*       cast(0 as numeric(11,2)) as valorcreditoicms,*/'
+      '       df.VersaoLayout,'
+      '       df.ModeloDocto,'
+      '       df.NrDocumento,'
+      '       df.CodAleatorio,'
+      '       df.FormaPagto,'
+      '       df.FormatoDANFE,'
+      '       df.FormaEmissao,'
+      '       df.DigChaveAcesso,'
+      '       df.chv_nfe,'
+      '       df.Ambiente,'
+      '       df.Ambientenfs,'
+      '       df.FinalidadeNF,'
+      '       df.ProcEmissao,'
+      '       df.VersaoTECLUX,'
+      '       df.TotalImportacao,'
+      '       df.TotalValorPIS,'
+      '       df.TotalValorCOFINS,'
+      '       df.NomeBairro,'
+      '       df.NomeCidade,'
+      '       df.CidadeIBGE,'
+      '       df.pais,'
+      '       df.NomePais,'
+      '       df.LocalRetirada_CNPJ,'
+      '       df.LocalRetirada_Rua,'
+      '       df.LocalRetirada_Numero,'
+      '       df.LocalRetirada_Complemento,'
+      '       df.LocalRetirada_Bairro,'
+      '       df.LocalRetirada_NomeBairro,'
+      '       df.LocalRetirada_Cidade,'
+      '       df.LocalRetirada_Cep,'
+      '       df.LocalRetirada_NomeCidade,'
+      '       df.LocalRetirada_CidadeIBGE,'
+      '       df.LocalRetirada_estado,'
+      '       df.LocalEntrega_CNPJ,'
+      '       df.LocalEntrega_Rua,'
+      '       df.LocalEntrega_Numero,'
+      '       df.LocalEntrega_Complemento,'
+      '       df.LocalEntrega_Bairro,'
+      '       df.LocalEntrega_NomeBairro,'
+      '       df.LocalEntrega_Cidade,'
+      '       df.LocalEntrega_Cep,'
+      '       df.LocalEntrega_NomeCidade,'
+      '       df.LocalEntrega_CidadeIBGE,'
+      '       df.LocalEntrega_estado,'
+      '       df.Transportadora_CNPJ,'
+      '       df.Transportadora_IE,'
+      '       df.Transportadora_Nome,'
+      '       df.Transportadora_Rua,'
+      '       df.Transportadora_Bairro,'
+      '       df.Transportadora_NomeBairro,'
+      '       df.Transportadora_Cidade,'
+      '       df.Transportadora_NomeCidade,'
+      '       df.Transportadora_CidadeIBGE,'
+      '       df.Transportadora_estado,'
+      '       df.Transportadora_RNTC,'
+      '       df.InfComplementar,'
+      '       df.Exportacoes_UFEmbarque,'
+      '       df.Exportacoes_LocalEmbarque,'
+      '       df.numlotenfe,'
+      '       df.numrecibonfe,'
+      '       df.numprotocolonfe,'
+      '       df.numcancelamentonfe,'
+      '       df.email,'
+      '       df.suframa,'
+      '       df.iesubsttributario,'
+      '       df.despesasacessorias,'
+      '       df.datahoraemissao,'
+      '       df.regimetributario,'
+      '       df.acrescimofinanceiro,'
+      '        coalesce(df.valorprodutos,0) +'
+      '       (coalesce(df.valortotal,0) -'
+      '        coalesce(df.valorvista,0)) -'
+      '       coalesce(df.desconto,0) as totalprodutos,'
+      
+        '       (select sum(pdf.vCredICMSSN) from produtosdadosfiscais pd' +
+        'f where pdf.dadofiscal = df.numero) as vCredICMSSN,'
+      
+        '       (select sum(pdf.vICMSSTRet) from produtosdadosfiscais pdf' +
+        ' where pdf.dadofiscal = df.numero) as vICMSSTRet,'
+      '       df.nosimples,'
+      '       df.dhprocnfe,'
+      '       df.notavinculada,'
+      '       df.hSaiEnt,'
+      
+        '       df.ValorTotalImpostoIBT,       df.valorimpostonacional,df' +
+        '.valorimpostoestadual,df.valorimpostomunicipal,'
+      '       cast(null as numeric(15,4)) as peso,'
+      '       cast(null as integer) as volumes,'
+      '       df.issqnbasecalculo,'
+      '       df.totalvalorpis_servicos,'
+      '       df.totalvalorcofins_servicos,'
+      '       df.notaparcial,'
+      '       df.cfps,'
+      '       df.statusnfe,'
+      '       df.listacasamento,'
+      '       df.vendaconsumidorfinal,'
+      '       df.indpres,'
+      '       df.clientecontribicms,'
+      '       df.vFCPUFDest,'
+      '       df.vICMSUFDest,'
+      '       df.vICMSUFRemet,'
+      '       df.responsaveldifal,'
+      '       df.basedupla,'
+      '       df.hash_paf_registro_j1,'
+      '       (cast(null as Numeric(9,3))) as totalqtdeprodutos,'
+      '       df.contratofrentecaixa,'
+      '       df.vendatransferencia ,'
+      '       df.creditotroca'
+      ''
+      ''
+      'From dadosfiscais df'
+      'Where df.numero = 0')
+    RequestLive = True
+    Left = 250
+    Top = 95
+  end
+  object qryProdutos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select pd.*,'
+      '        0 as codigopedidofilial,'
+      '        false as composto,'
+      '        cast(null as varchar(80)) as descricaonatureza,'
+      '      c.csosn as csosn_produto  '
+      ''
+      'from   produtosdadosfiscais pd'
+      '       join produtos p'
+      '            join caracteristicas c'
+      '            on p.caracteristica = c.codigo'
+      '       on pd.produto = p.codigo'
+      'where pd.dadofiscal = 0')
+    RequestLive = True
+    Left = 250
+    Top = 165
+  end
+  object qrySeriesFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select valor,'
+      '          numeroinicial,'
+      '          numerofinal,'
+      '          modelonota'
+      'from   seriesfiliais'
+      'where (filial = :filial) and'
+      '           (valor = :serie)'
+      'for update')
+    RequestLive = True
+    Left = 458
+    Top = 162
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'serie'
+        ParamType = ptUnknown
+      end>
+    object qrySeriesFiliaisvalor: TStringField
+      FieldName = 'valor'
+      Size = 3
+    end
+    object qrySeriesFiliaisnumeroinicial: TIntegerField
+      FieldName = 'numeroinicial'
+    end
+    object qrySeriesFiliaisnumerofinal: TIntegerField
+      FieldName = 'numerofinal'
+    end
+    object qrySeriesFiliaismodelonota: TIntegerField
+      FieldName = 'modelonota'
+    end
+  end
+  object qryEstoqueBloqueio: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'ProdutoFilial'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'select e.produto,'
+      '          e.filial,'
+      '          e.emestoque,'
+      '          e.reservaprevia'
+      'from   estoques e'
+      'where '
+      '%ProdutoFilial'
+      'for update')
+    RequestLive = True
+    Left = 354
+    Top = 165
+    object qryEstoqueBloqueioproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryEstoqueBloqueiofilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryEstoqueBloqueioemestoque: TFloatField
+      FieldName = 'emestoque'
+      DisplayFormat = '0'
+    end
+    object qryEstoqueBloqueioreservaprevia: TFloatField
+      FieldName = 'reservaprevia'
+      Required = True
+    end
+  end
+  object qryMovimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select m.numero,'
+      '       m.produto,'
+      '       m.filial,'
+      '       m.data,'
+      '       m.tipomovimento,'
+      '       m.quantidade,'
+      '       m.referencia,'
+      '       m.operacao,'
+      '       m.emestoque,'
+      '       m.reservado,'
+      '       m.transito,'
+      '       m.demonstracao,'
+      '       m.conserto,'
+      '       m.futuro,'
+      '       m.danificada,'
+      '       m.financeiro,'
+      '       m.valor,'
+      '       m.trfproduto,'
+      '       m.trffilial,'
+      '       m.cliente,'
+      '       m.tipocliente,'
+      '       m.dadofiscal'
+      'from movimentos m'
+      'where m.numero = 0'
+      '')
+    RequestLive = True
+    Left = 458
+    Top = 266
+    object qryMovimentosnumero: TIntegerField
+      FieldName = 'numero'
+      DisplayFormat = '0'
+    end
+    object qryMovimentosproduto: TLargeintField
+      FieldName = 'produto'
+      DisplayFormat = '0'
+    end
+    object qryMovimentosfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryMovimentostipomovimento: TStringField
+      FieldName = 'tipomovimento'
+      Size = 3
+    end
+    object qryMovimentosquantidade: TFloatField
+      FieldName = 'quantidade'
+      DisplayFormat = '0'
+    end
+    object qryMovimentosreferencia: TStringField
+      FieldName = 'referencia'
+      Size = 60
+    end
+    object qryMovimentosoperacao: TStringField
+      FieldName = 'operacao'
+    end
+    object qryMovimentosemestoque: TFloatField
+      FieldName = 'emestoque'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryMovimentosreservado: TFloatField
+      FieldName = 'reservado'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryMovimentostransito: TFloatField
+      FieldName = 'transito'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryMovimentosdemonstracao: TFloatField
+      FieldName = 'demonstracao'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryMovimentosconserto: TFloatField
+      FieldName = 'conserto'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryMovimentosfuturo: TFloatField
+      FieldName = 'futuro'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryMovimentosdanificada: TFloatField
+      FieldName = 'danificada'
+      DisplayFormat = '0'
+    end
+    object qryMovimentosfinanceiro: TFloatField
+      FieldName = 'financeiro'
+      Required = True
+      DisplayFormat = '0.00'
+    end
+    object qryMovimentosvalor: TFloatField
+      FieldName = 'valor'
+      Required = True
+      DisplayFormat = '0.00'
+    end
+    object qryMovimentosdata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryMovimentostrfproduto: TLargeintField
+      FieldName = 'trfproduto'
+    end
+    object qryMovimentostrffilial: TIntegerField
+      FieldName = 'trffilial'
+      DisplayFormat = '0'
+    end
+    object qryMovimentoscliente: TIntegerField
+      FieldName = 'cliente'
+      DisplayFormat = '0'
+    end
+    object qryMovimentostipocliente: TStringField
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+    object qryMovimentosdadofiscal: TIntegerField
+      FieldName = 'dadofiscal'
+    end
+  end
+  object spcMovimentosProximo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select movimentos_proximonumero() as numero')
+    RequestLive = False
+    Left = 591
+    Top = 207
+    object spcMovimentosProximonumero: TIntegerField
+      FieldName = 'numero'
+    end
+  end
+  object spcDadosFiscaisProximo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select dadosfiscais_proximonumero() as numero')
+    RequestLive = False
+    Left = 590
+    Top = 143
+    object spcDadosFiscaisProximonumero: TIntegerField
+      FieldName = 'numero'
+    end
+  end
+  object qryFilialDestino: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select f.codigo,'
+      '       f.nome,'
+      '       f.razao,'
+      '       f.rua,'
+      '       f.estado,'
+      '       f.bairro,'
+      '       (select b.nome'
+      '        from bairros b'
+      '        where b.estado = f.estado'
+      '          and b.cidade = f.cidade'
+      '          and b.codigo = f.bairro) as nomebairro,'
+      '       f.cidade,'
+      '       (select c.nome'
+      '        from cidades c'
+      '        where c.codigo = f.cidade'
+      '          and c.estado = f.estado) as nomecidade,'
+      '       f.cep,'
+      '       f.cnpj,'
+      '       f.foneddd,'
+      '       f.fonenumero,'
+      '       f.inscricaoestadual,'
+      '       (select c.codigoibge'
+      '        from cidades c'
+      '        where c.codigo = f.cidade'
+      '          and c.estado = f.estado) as codigoibge,'
+      '       f.numero,'
+      '       f.complemento,'
+      '       f.contribicms'
+      ''
+      'From   filiais f'
+      'Where f.codigo = :requisitante'
+      '           ')
+    RequestLive = False
+    Left = 464
+    Top = 218
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'requisitante'
+        ParamType = ptUnknown
+        Value = '0'
+      end>
+    object qryFilialDestinocodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryFilialDestinonome: TStringField
+      FieldName = 'nome'
+      Required = True
+      Size = 40
+    end
+    object qryFilialDestinorua: TStringField
+      FieldName = 'rua'
+      Required = True
+      Size = 100
+    end
+    object qryFilialDestinoestado: TStringField
+      FieldName = 'estado'
+      Required = True
+      Size = 2
+    end
+    object qryFilialDestinobairro: TIntegerField
+      FieldName = 'bairro'
+      Required = True
+    end
+    object qryFilialDestinocidade: TIntegerField
+      FieldName = 'cidade'
+      Required = True
+    end
+    object qryFilialDestinocnpj: TStringField
+      FieldName = 'cnpj'
+      Size = 14
+    end
+    object qryFilialDestinofoneddd: TIntegerField
+      FieldName = 'foneddd'
+    end
+    object qryFilialDestinofonenumero: TIntegerField
+      FieldName = 'fonenumero'
+    end
+    object qryFilialDestinoinscricaoestadual: TStringField
+      FieldName = 'inscricaoestadual'
+    end
+    object qryFilialDestinocep: TIntegerField
+      FieldName = 'cep'
+    end
+    object qryFilialDestinorazao: TStringField
+      FieldName = 'razao'
+      Size = 40
+    end
+    object qryFilialDestinocodigoibge: TIntegerField
+      FieldName = 'codigoibge'
+    end
+    object qryFilialDestinonumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryFilialDestinocomplemento: TStringField
+      FieldName = 'complemento'
+      Size = 100
+    end
+    object qryFilialDestinonomebairro: TStringField
+      FieldName = 'nomebairro'
+      Size = 50
+    end
+    object qryFilialDestinonomecidade: TStringField
+      FieldName = 'nomecidade'
+      Size = 50
+    end
+    object qryFilialDestinocontribicms: TBooleanField
+      FieldName = 'contribicms'
+    end
+  end
+  object qryAtualizarPedidosFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select pf.codigo,'
+      '           pf.produto,'
+      '           pf.requisitante,'
+      '           pf.requisitada,'
+      '           pf.situacao,'
+      '           pf.dadofiscal, pf.lotetransferencia'
+      'From   pedidosfiliais pf'
+      'Where  '
+      '/*               Preenchido em RunTime          */')
+    RequestLive = True
+    Left = 579
+    Top = 10
+    object qryAtualizarPedidosFiliaiscodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+    end
+    object qryAtualizarPedidosFiliaisproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryAtualizarPedidosFiliaissituacao: TStringField
+      FieldName = 'situacao'
+      Size = 1
+    end
+    object qryAtualizarPedidosFiliaisrequisitante: TIntegerField
+      FieldName = 'requisitante'
+    end
+    object qryAtualizarPedidosFiliaisrequisitada: TIntegerField
+      FieldName = 'requisitada'
+    end
+    object qryAtualizarPedidosFiliaisdadofiscal: TIntegerField
+      FieldName = 'dadofiscal'
+    end
+    object qryAtualizarPedidosFiliaislotetransferencia: TIntegerField
+      FieldName = 'lotetransferencia'
+    end
+  end
+  object qryConsultaFornecedorTransporte: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select f.razao,'
+      '           f.pessoanumero,'
+      '           f.codigo,'
+      '           f.estado,'
+      '           c.nome'
+      'from fornecedores f, cidades c'
+      'where (f.tipofornecimento[1] = ''T'') and'
+      '           (f.cidade = c.codigo) and (f.estado = c.estado)'
+      'order by UPPER(TO_ASCII(razao,''LATIN1''))')
+    RequestLive = False
+    Left = 105
+    Top = 133
+    object qryConsultaFornecedorTransporterazao: TStringField
+      FieldName = 'razao'
+      Size = 40
+    end
+    object qryConsultaFornecedorTransportepessoanumero: TStringField
+      DisplayLabel = 'CGC'
+      FieldName = 'pessoanumero'
+      Size = 14
+    end
+    object qryConsultaFornecedorTransportecodigo: TIntegerField
+      FieldName = 'codigo'
+      Visible = False
+      DisplayFormat = '0'
+    end
+    object qryConsultaFornecedorTransportenome: TStringField
+      DisplayLabel = 'Cidade'
+      FieldName = 'nome'
+      Required = True
+      Size = 40
+    end
+    object qryConsultaFornecedorTransporteestado: TStringField
+      DisplayLabel = 'UF'
+      FieldName = 'estado'
+      Size = 2
+    end
+  end
+  object qryConsultaEstados: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select nome,'
+      '       codigo'
+      'from estados'
+      'order by UPPER(TO_ASCII(nome,''LATIN1''))')
+    RequestLive = False
+    Left = 101
+    Top = 218
+    object qryConsultaEstadoscodigo: TStringField
+      FieldName = 'codigo'
+      Size = 2
+    end
+    object qryConsultaEstadosnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Size = 30
+    end
+  end
+  object qryProcuraEstados: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select nome, codigo'
+      'from estados'
+      'where codigo = :codigo')
+    RequestLive = False
+    Left = 80
+    Top = 187
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraEstadosnome: TStringField
+      FieldName = 'nome'
+      Size = 30
+    end
+    object qryProcuraEstadoscodigo: TStringField
+      FieldName = 'codigo'
+      Size = 2
+    end
+  end
+  object dsrProcuraEstados: TtecDataSource
+    DataSet = qryProcuraEstados
+    Left = 91
+    Top = 201
+  end
+  object qryProcuraFornecedorTransporte: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo,'
+      '       razao'
+      'from fornecedores'
+      'where (codigo = :codigo) and '
+      '          (tipofornecimento[1] = ''T'')')
+    RequestLive = False
+    Left = 76
+    Top = 105
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraFornecedorTransportecodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+    end
+    object qryProcuraFornecedorTransporterazao: TStringField
+      FieldName = 'razao'
+      Size = 40
+    end
+  end
+  object dsrProcuraFornecedorTransporte: TtecDataSource
+    DataSet = qryProcuraFornecedorTransporte
+    Left = 92
+    Top = 119
+  end
+  object dsrDadosFiscais: TtecDataSource
+    DataSet = qryDadosFiscais
+    Left = 266
+    Top = 111
+  end
+  object qryEstoques: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select e.produto,'
+      '           e.filial,'
+      '           e.emestoque,'
+      '           e.reservado,'
+      '           e.transito,'
+      '           e.demonstracao,'
+      '           e.conserto,'
+      '           e.futuro,'
+      '           e.danificada,'
+      '           e.estoquefisico'
+      'from estoques e'
+      'where (e.produto =:produto)  ')
+    RequestLive = True
+    Left = 348
+    Top = 94
+    ParamData = <
+      item
+        DataType = ftSmallint
+        Name = 'produto'
+        ParamType = ptUnknown
+        Value = 0
+      end>
+    object qryEstoquesproduto: TLargeintField
+      DisplayLabel = 'Produto'
+      FieldName = 'produto'
+    end
+    object qryEstoquesfilial: TIntegerField
+      DisplayLabel = 'Filial'
+      FieldName = 'filial'
+      Required = True
+      DisplayFormat = '00#'
+    end
+    object qryEstoquesemestoque: TFloatField
+      FieldName = 'emestoque'
+    end
+    object qryEstoquesreservado: TFloatField
+      FieldName = 'reservado'
+    end
+    object qryEstoquestransito: TFloatField
+      FieldName = 'transito'
+    end
+    object qryEstoquesdemonstracao: TFloatField
+      FieldName = 'demonstracao'
+    end
+    object qryEstoquesconserto: TFloatField
+      FieldName = 'conserto'
+    end
+    object qryEstoquesfuturo: TFloatField
+      FieldName = 'futuro'
+    end
+    object qryEstoquesdanificada: TFloatField
+      FieldName = 'danificada'
+    end
+    object qryEstoquesestoquefisico: TFloatField
+      FieldName = 'estoquefisico'
+    end
+  end
+  object dsrEstoques: TtecDataSource
+    DataSet = qryEstoques
+    Left = 367
+    Top = 110
+  end
+  object qryExisteEstoque: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select e.produto,'
+      '           e.filial'
+      'From   estoques e'
+      'Where (e.produto =:produto)'
+      '    and  (e.filial =:filial)')
+    RequestLive = False
+    Left = 356
+    Top = 221
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'produto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object qryExisteEstoqueproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryExisteEstoquefilial: TIntegerField
+      FieldName = 'filial'
+    end
+  end
+  object frpPedidosFiliais: TfrReport
+    Dataset = fdsPedidosFiliais
+    InitialZoom = pzDefault
+    PreviewButtons = [pbZoom, pbLoad, pbSave, pbPrint, pbFind, pbHelp, pbExit]
+    StoreInDFM = True
+    RebuildPrinter = False
+    OnBeforePrint = frpPedidosFiliaisBeforePrint
+    Left = 320
+    Top = 19
+    ReportForm = {
+      190000007C2D000019FFFF00000A0050444643726561746F7200FFFFFFFFFF00
+      000000340800009A0B0000000000001200000000000000120000000100040000
+      FFFFFFFF000000000000000000000000030400466F726D00FEFFFFFFDC000000
+      780000007C0100002C010000040000000200D10000000900666276526F646170
+      6500020100000000B90300002F0400000D000000300003000100000000000000
+      0000FFFFFF1F00000000000000000000000000FFFF0000000000020000000100
+      00000000000001000000C800000014000000010000000000000200710100000B
+      004461646F734D657374726500020100000000800000002F0400000E00000030
+      00050001000000000000000000FFFFFF1F000000001200666473436865717565
+      73456D697469646F730000000003000500626567696E0D13004C494E4841203A
+      3D205B4C494E45235D2020200D0300656E6400FFFF0000000000020000000100
+      00000000000001000000C800000014000000010000000000000200E401000013
+      0043616265E7616C686F44652050E167696E613100020100000000150000002F
+      040000460000003000020001000000000000000000FFFFFF1F00000000000000
+      000000000000FFFF000000000002000000010000000000000001000000C80000
+      0014000000010000000000000000760200000A006D6D6F5A65627261646F0002
+      003000000080000000E90300000C0000004300000001000000FFFFFF1F0000FF
+      FFFF1F2C02000000000000000002000500626567696E0D0300656E6400FFFF00
+      00000000020000000100000000090068656C766574696361000A000000000000
+      000000000000000100020000000000FFFFFF1F00000002000000000000000000
+      0B0300000700666D76486F726100020012000000B9030000580000000B000000
+      43000000F4010000000000000000FFFFFF1F2C020000000000010011005B5449
+      4D4520235468683A6D6D3A73735D00000000FFFF000000000002000000010000
+      0000090068656C76657469636100070000000000000000001000000001000200
+      00000000FFFFFF0000000002000000000000000000B80300001000666D764465
+      73656E766F6C7665646F720002001E020000B9030000D80000000B0000004300
+      0000F4010000000000000000FFFFFF1F2C02000000000001002000746563534F
+      4654202D205465636E6F6C6F67696120656D2053697374656D617300000000FF
+      FF0000000000020000000100000000090068656C766574696361000700000000
+      0000000000110000000100020000000000FFFFFF000000000200000000000000
+      00005804000006004D656D6F3239000200D500000080000000690000000C0000
+      0000000000F4010000000000000000FFFFFF1F2C02000000000001001D005B71
+      727950656469646F7346696C696169732E2270726F6475746F225D00000000FF
+      FF0000000000020000000100000006090068656C766574696361000800000000
+      0000000000110000000100020000000000FFFFFF000000000200000000000000
+      01007D1C000007006670764C6F676F0002003000000015000000730000002700
+      000005000000F4010000000000000000FFFFFF1F2C0200000000000000000000
+      00FFFF000000000002000000010000000601007D1C0000424DCE170000000000
+      0036040000280000008300000026000000010008000000000098130000120B00
+      00120B0000000100000001000000000000E8E5A800AA9E000099990000ADADAD
+      003A3C4100A3970000BFB73700D8D48600FBFAF000A5A5A5001E1D1C00D8D9DA
+      0054575A00D6D6D500E7E8F20012161B00B6AD1900CBC55B008C8D9200BEC0C5
+      00E1E2E40085878A005E606300494C4F00090D12002C2E3300DEDB98007D7F81
+      00EFEDCB00B9BABB00AEA400007C7B7B00C5BE440066666600D1CC6F00CDC981
+      0048484600F7F6E600AFA5080004080D00F9F8ED00B8AF2700DBD68C00999999
+      001B1A1900C6BF5100131312003B3A3A00FFFFFF00EAE8BE00CCCCCC0023262A
+      00E2DEA400F1EFD600B0B1B300D3CD7500B1A81000CCCC660072727200535252
+      004342420001060A00ECE9C3008C8C8B00F5F4DF004A4A4A0057575600B6AC1F
+      00282B3000C7C05C0061615F00F7F7F70088888700DDD89300E3E0A600FDFCF7
+      0021242900070A1000BDB53100C5BE4A00E3E3E200A69C000099999900BABAB9
+      00DEDEDE00525458002A292800D9D58A005F5E5D00C7C595001B1E2300E8E5B6
+      0000000700B5AB1300D5D07B00C6C6C500B2A80B0021202000B9B12400504F4E
+      00666666006B6D7000B5B5BD0084848400E0DC9E00BCB42C00F7EFD6005B5B5A
+      00EFEFEF0087898B00DEDEE6003E3D3C0014181E00C8C25300CCC55F00A8A9AC
+      00BDBDBC00E5E1AC0075767900181B2000E6E6E6000E11170008101900333333
+      00929191002D2C2B00B5B5B40000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000031313131313131313131313131313131313131
+      313131313131313131313131313131313131313131313131543D42470E313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      31313131313131313131313131313131523131313131486D3131316D6D4C3131
+      316D6D313131313131313131316D4831313131313131316D6D3131316D040A6C
+      6C313131313131486D6D4C3131313131316D6D4C313131313131313131313131
+      486D6D6D313131313131486D6D48313131316D483131316D6D31313131313131
+      31313131316D6D6D3131486D6D6D31313131313152313131317F7E6631554225
+      256031603D42647931420C313B7D316D6C3D70403131662C316D593D70683131
+      33646C702531484255312C70643059313131310C2525420E31477431420E4825
+      793131315442433D474C4C640E3120423C300A3131207E2C317F702547484842
+      51512531603C316D59253C620A312C25433068313131313152313131316C2031
+      315959313131317C7D4C4C31487C0E3159683177424C51347531434031203D48
+      7957543130494C7F3D31487C0C310B37317F70313131313C6631313131642C31
+      7C33487E51313131313179602F55317C3331316D793B7031487E143148570431
+      31316D7C55557E311E3031542D4C314340313148790A0B4C3131313152313131
+      31477D313125306C64334C5779313131487C0E31224931422C31314340316C7D
+      313C7D3131594931570C31543D31487C0C3168705930253131313170706C3C0E
+      313C0A313033317C513131310C702570474C4C3033312C7C64300A3148300E31
+      796243432248483051517C31603D316D6464590B2C31547C42301C3131313131
+      52313131314749313166420C5548313D2C484831487C0E48302C311C42485162
+      75316C7D31493D4879627F31256848373031487C0E3131550E20703131313147
+      3C0C554831642C4C7E330C62793131316830796D3131487C3331577D6D6D3131
+      48303331487C49555131487C0C0C7E4C2C703131480C0E7C2C313C476D6D3131
+      3131313152313131040B7E20316D473C6C33310E3D3C6C7931254264646D3148
+      6C42706831316C7D31484742702031310E3D433D6C31484355314043473D0A31
+      313131796C3C6C0E316670597E3C3D20313131310E256C6C7731316C0E312C3D
+      47430431772F3D0A3133424366484825643C7E6C7C74316D225943425531543D
+      59437D3131313131523131316D643B6D3131316D514831313179514C316D5179
+      3131313131796D3131313C40313131796D313131313179794831317F6D316D15
+      154831313131313131795148314879516D796D3131313131313151517931317F
+      6D31316D51516D3151577F6D313131797931316D51516D514831313151515131
+      3131314851516D31313131315231313131400431313131313131313131313131
+      3131313131313131313131313131680431313131313131313131313131314866
+      0F31313131313131313131313131313131313131313131313131313131313131
+      313131220E313131313131313166553131313131313131313131313131313131
+      3131313131313131313131313131313152313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131315C46121212463F31313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131523131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131315F06020202061B313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313131313131313131313131313131313131523131313131310E
+      40173C18183D6E3131313131310C2C666C3C181818181805683131313131316D
+      3768220D0516313131313108021F1F1F52353131313131720707070707070707
+      07070707070750732B3631313131313131313131362B73212112081D31313131
+      313131313123505050504B3131313131313131313F08122E5050500852313131
+      31312C103E191919195D17313131317966713E4E191919191919195D0D313131
+      31312C34282819190017313131313108021F1F1F523531313131311152020202
+      020202020202020202020202022776313131313131313F501F02020202020202
+      075C313131313131316A060202065F313131313131314C120202020202020221
+      523131313175287A78787878784E223131310E1A3E1078787171717171717128
+      1731313131773E7A717171712822313131313108021F1F1F5235313131313144
+      021F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1D31313131310802021F1F1F1F
+      1F1F1F1F02022331313131313107021F1F0208313131313131313A521F1F1F1F
+      1F1F1F5052313131310D4E7878787A7A71282231316D7C4E7878784E4E7A7171
+      71717128173131312C3E7171717119195D22313131313108021F1F1F5269314C
+      4C4C4C631F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F52503131313138521F1F
+      1F0202020202021F1F1F5212313131313107021F1F0208313131313131361F1F
+      1F1F1F0202020221523131316D457A78787A3D370E0E5131313B3E7878787A22
+      74140E0E0E0E0E0E15313115787A787871190D0A145A2A6A6A6A2A5F36363636
+      365044111111113226262626262626262626262626264A1F1F1F1F612631311B
+      521F1F1F02443A08082363021F1F1F525F3131313107021F1F02083131313131
+      311B021F1F1F1F6A2B353532523131310E71717171710C313131313115781078
+      784E683131313131313131313131311C287878787A2C3131310106020202025F
+      31313131315052020202023631313131313131313131313131313144021F1F1F
+      32312639021F1F1F584C31313131311B27021F1F1F3631313107021F1F020831
+      313131313123021F1F1F11093131313152313131337A71717145483131313131
+      2C28787810344C313131313131313131313131057A78784E663131313135021F
+      1F1F025F313131313150021F1F1F1F3631313131313131313131313131314C5E
+      021F1F0276315F521F1F1F4B313131313131313132271F1F527331313107021F
+      1F020831313131313112021F1F0272313131313152313131601978787A7C4C31
+      31313131662878781045166E6E6E6E6E6E6E6E1C0431555B1078717A60313131
+      3135021F1F1F025F313131313150021F1F1F1F36313131313131314C09090909
+      09363A021F1F1F1F3F314F021F02723131313131313131313123021F1F110931
+      3107021F1F02083131313131312E021F1F027331313131315231313160197878
+      7A054C3131313131561978787871282828282828282828005631337A71717134
+      6D313131313552020202025F31313131312106020202023631313131762E635E
+      61616161611F1F1F1F1F1F114C26611F1F0276313131313131313131311D1F1F
+      1F1F1D313107021F1F02083131313131312E021F1F023A313131313152313131
+      601978787A054C31313131311819787878787878787878787878784E17311419
+      78787A454831313131764444444444241551515151464F4F4F4F4F413131313A
+      0202021F1F1F1F1F1F1F1F1F1F1F521B311D1F1F1F1F36313131313131313131
+      3126391F1F1F5C313107021F1F02083131313131312E021F1F023A3131313131
+      52313131601978787A054C31313131315619787878787878787878787878784E
+      1731337A717171346D313131313109090909097D713434347A37313131313131
+      313158521F1F1F1F1F0202020202020202275831311D1F1F1F1F1D3131313131
+      313131313126391F1F1F5C313107021F1F02083131313131312E021F1F023A31
+      3131313152313131601978787A054C3131313131224E787878784E2828282828
+      2828280056310C787171715B0C31313131313131313131133E1010105D743131
+      31313131312939021F1F1F1F3911636363636A50083631313126611F1F024B31
+      3131313131313131313F021F1F1F36313107021F1F02083131313131312E021F
+      1F023A313131313152313131601978787A054C313131313116287878101A2C2C
+      2C2C2C2C2C2C2C7D1E316D1A7A7878197F31313131313131313131134E787878
+      28743131313131313176021F1F1F1F2326313131313131313131313131310702
+      1F02213131313131313131313173021F1F444C313107021F1F02083131313131
+      312E021F1F023A313131313152313131601978787A054C31313131317F197171
+      713448313131313131313131313131561978784E663131313131313131313113
+      4E7878782874313131313131312B521F1F1F6129313131313131313131313131
+      313158521F1F024A31313131313131317602021F522331313107021F1F020831
+      31313131312E021F1F023A313131313152313131331978787A05313131313131
+      6D347A78784E133131313131313131313131317D287878717104313131313131
+      31313113001919190004313131313131312B521F1F1F27413131313131313131
+      3131313131310911021F1F1F232631313131295F1F1F1F1F612931313107021F
+      1F022B3131313131312E021F1F52233131313131520E14602C7A78787A7C1414
+      14140C3131203E78787171660A1E6014141414140E3131155B107878107A567D
+      371E1E1E1E1E1E13566C6C6C182C75757575756D315C021F1F1F1F211B1B1B1B
+      1B1B4A4A4A4A4A3631313176021F1F1F0261502323725E021F1F1F0258762B2B
+      4A44021F1F1F504A4A4A2B1D312E021F1F1F074A4A4A4A5C520D7A7A7A787878
+      78787A7A7A5D1731317945197878784E4E7A7A7A7A7A7A5D6C313131165D7171
+      717119191919191919195D6E313131313166007A7A7A4E1431295E021F1F1F02
+      02020202020202020202062B313131315802021F1F1F020202021F1F1F1F5238
+      4C395252521F1F1F1F1F020202020608312E021F1F1F1F020202022152177171
+      7878787878787171714E22313131335B28717878787871717171714E17313131
+      31173E7A717878787878787878784E6E313131313166287171717A6031314A52
+      1F1F1F1F1F1F1F1F1F1F1F1F1F1F524A31313131316939521F1F1F1F1F1F1F1F
+      020258310911021F1F1F1F1F1F1F1F1F1F1F022B312E021F1F1F1F1F1F1F1F50
+      520D19191978787878781919190017313131310C0D10284E4E19191919191900
+      0D31313131317D1A4E4E4E19191919191919001C313131313166287878781060
+      3131315F0202020202020202020202020202062B313131313131367339020202
+      02020261721D313129615252521F1F1F1F1F020202020608312E021F1F1F1F02
+      02020221527D17173C107878714D1717170D2C3131313131310E0A1C3B221717
+      1717170D7D31313131313148757D77661717171717170D043131313131662878
+      7878106031313131364A3A7272727272727272727272505C3131313131313131
+      264B5F737338354131313131093A7272725E1F1F1F1F4F1212122E5C312E021F
+      1F1F631212121258523131310E1978787A053131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3117003E3E3E5D75313131313131313131313131313131313131313131313131
+      31313131313131313131313131313131313131313107021F1F52583131313131
+      312E021F1F0223313131313152313131601978787A054C313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      31313131317F686E6E6E6E153131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313121021F1F020731
+      31313131312E021F1F023A313131313152313131601978787A054C3131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313131313131313131313131313131313131313131313173021F
+      1F1F1F4F3A233A32312E021F1F023A313131313152313131601978787A054C31
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3169521F1F1F1F0202020608312E021F1F023A31313131315231313160197878
+      7A054C3131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      31313131310963521F1F1F1F1F1F024A312E021F1F023A313131313152313131
+      601971717A054C31313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313131314150611F1F1F1F1F024A3150021F1F023A3131313131
+      523131310C0D17176C774C313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313131313131313131315C3872727272725C31082E2E2E2E1B31
+      313131315200000A1D00000600666D765275610002008D00000014000000D600
+      00000A00000043000000F4010000000000000000FFFFFF1F2C02000000000001
+      000A005275613A205B5275615D00000000FFFF00000000000200000001000000
+      00090068656C7665746963610007000000000000000000100000000100020000
+      000000FFFFFF0000000002000000000000000000991D00000900666D76436964
+      616465000200A90000002A000000DA0000000A00000043000000F40100000000
+      00000000FFFFFF1F2C020000000000010009005B4369646164655D2000000000
+      FFFF0000000000020000000100000000090068656C7665746963610007000000
+      000000000000100000000100020000000000FFFFFF0000000002000000000000
+      000000291E00000700666D76466F6E65000200A900000035000000DA0000000A
+      00000043000000F4010000000000000000FFFFFF1F2C02000000000001000C00
+      466F6E653A205B466F6E655D00000000FFFF0000000000020000000100000000
+      090068656C766574696361000700000000000000000010000000010002000000
+      0000FFFFFF0000000002000000000000000000C71E00000900666D7654697475
+      6C6F0002008E01000015000000D30100001200000043000000F4010000000000
+      000000FFFFFF1F2C020000000000010018005452414E53464552454E43494120
+      4D45524341444F52494100000000FFFF00000000000200000001000000060900
+      68656C766574696361000B000000020000000000020000000000020000000000
+      FFFFFF0000000002000000000000000000651F00000700666D76446174610002
+      006C030000150000005A0000000E00000043000000F4010000000000000000FF
+      FFFF1F2C02000000000001001A0044617461203A205B4441544520234464642F
+      6D6D2F797979795D00000000FFFF000000000002000000010000000609006865
+      6C7665746963610008000000000000000000010000000100020000000000FFFF
+      FF0000000002000000000000000000F81F00000900666D76506167696E610002
+      006D030000270000004A0000000F00000043000000F4010000000000000000FF
+      FFFF1F2C02000000000001000D00506167203A205B50414745235D00000000FF
+      FF0000000000020000000100000000090068656C766574696361000800000000
+      0000000000000000000100020000000000FFFFFF000000000200000000000000
+      00008E2000000900666D764F7574726173000200CE0100002B00000033010000
+      1000000043000000F4010000000000000000FFFFFF1F2C020000000000010010
+      0046494C49414C3A205B4F75747261735D00000000FFFF000000000002000000
+      0100000000090068656C76657469636100090000000000000000000200000001
+      00020000000000FFFFFF00000000020000000000000000001D2100000900666D
+      7642616972726F000200A90000001F000000DA0000000A00000043000000F401
+      0000000000000000FFFFFF1F2C020000000000010009005B42616972726F5D20
+      00000000FFFF0000000000020000000100000000090068656C76657469636100
+      07000000000000000000100000000100020000000000FFFFFF00000000020000
+      000000000000000222000005004D656D6F310002004101000080000000220100
+      000C00000000000000F4010000000000000000FFFFFF1F2C0200000000000100
+      63005B71727950656469646F7346696C696169732E2264657363726963616F22
+      5D205B71727950656469646F7346696C696169732E2276616C6F726772616465
+      31225D205B71727950656469646F7346696C696169732E2276616C6F72677261
+      646532225D00000000FFFF0000000000020000000100000006090068656C7665
+      746963610008000000000000000000100000000100020000000000FFFFFF0000
+      000002000000000000000000A422000005004D656D6F32000200660200008000
+      0000590000000C00000000000000F4010000000000000000FFFFFF1F2C020000
+      000000010020005B71727950656469646F7346696C696169732E227265666572
+      656E636961225D00000000FFFF0000000000020000000100000006090068656C
+      7665746963610008000000000000000000100000000100020000000000FFFFFF
+      00000000020000000000000000004823000005004D656D6F3300020065030000
+      80000000480000000C00000000000000F4010000000000000000FFFFFF1F2C02
+      0000000000010022005B71727950656469646F7346696C696169732E22717464
+      657265636562696461225D00000000FFFF000000000002000000010000000609
+      0068656C76657469636100080000000000000000001100000001000200000000
+      00FFFFFF0000000002000000000000000000C823000005004D656D6F34000200
+      07040000810000000F0000000A00000043000F0001000000000000000000FFFF
+      FF1F2C020000000000000000000000FFFF000000000002000000010000000009
+      0068656C766574696361000A0000000000000000001100000001000200000000
+      00FFFFFF00000000020000000000000000006A24000005004D656D6F39000200
+      1B03000080000000460000000C00000000000000F4010000000000000000FFFF
+      FF1F2C020000000000010020005B71727950656469646F7346696C696169732E
+      2271746465706564696461225D00000000FFFF00000000000200000001000000
+      06090068656C7665746963610008000000000000000000110000000100020000
+      000000FFFFFF0000000002000000000000000000F724000006004D656D6F3130
+      00020065020000480000005B0000001000000043000F00F40100000000000000
+      00FFFFFF1F2C02000000000001000A005245464552CA4E43494100000000FFFF
+      0000000000020000000100000000090068656C76657469636100080000000000
+      00000000020000000100020000000000FFFFFF00000000020000000000000000
+      008425000006004D656D6F313200020064030000480000004A00000010000000
+      43000F00F4010000000000000000FFFFFF1F2C02000000000001000A00434F4E
+      4649524D41444F00000000FFFF0000000000020000000100000000090068656C
+      7665746963610008000000000000000000000000000100020000000000FFFFFF
+      00000000020000000000000000001026000006004D656D6F3133000200400100
+      0048000000250100001000000043000F00F4010000000000000000FFFFFF1F2C
+      02000000000001000900444553435249C7C34F00000000FFFF00000000000200
+      00000100000000090068656C7665746963610008000000000000000000020000
+      000100020000000000FFFFFF0000000002000000000000000000992600000600
+      4D656D6F3134000200D4000000480000006C0000001000000043000F00640000
+      00000000000000FFFFFF1F2C0200000000000100060043D34449474F00000000
+      FFFF0000000000020000000100000000090068656C7665746963610008000000
+      000000000000020000000100020000000000FFFFFF0000000002000000000000
+      0000001E27000006004D656D6F31350002000204000048000000160000001000
+      000043000F00F4010000000000000000FFFFFF1F2C020000000000010002004F
+      4B00000000FFFF0000000000020000000100000000090068656C766574696361
+      0008000000000000000000020000000100020000000000FFFFFF000000000200
+      0000000000000000AB27000006004D656D6F31360002001A030000480000004A
+      0000001000000043000F00F4010000000000000000FFFFFF1F2C020000000000
+      01000A00534F4C4943495441444F00000000FFFF000000000002000000010000
+      0000090068656C76657469636100080000000000000000000200000001000200
+      00000000FFFFFF00000000020000000000000000003F28000005004D656D6F35
+      0002003000000048000000A40000001000000043000F00640000000000000000
+      00FFFFFF1F2C0200000000000100120046494C49414C2052455155534954414E
+      544500000000FFFF0000000000020000000100000000090068656C7665746963
+      610008000000000000000000020000000100020000000000FFFFFF0000000002
+      0000000000000000001629000005004D656D6F360002003100000080000000A0
+      0000000C00000020000000F4010000000000000000FFFFFF1F2C020000000000
+      010055005B71727950656469646F7346696C696169732E227265717569736974
+      616E7465225D205B272D275D205B71727950656469646F7346696C696169732E
+      226E6F6D6566696C69616C7265717569736974616E7465225D00000000FFFF00
+      00000000020000000100000006090068656C7665746963610008000000020000
+      000000100000000100020000000000FFFFFF0000000002000000000000000000
+      A129000005004D656D6F38000200DB020000480000003F000000100000004300
+      0F00F4010000000000000000FFFFFF1F2C020000000000010009004E52BA2E20
+      4C4F544500000000FFFF0000000000020000000100000000090068656C766574
+      6963610008000000000000000000020000000100020000000000FFFFFF000000
+      00020000000000000000007F2A000005004D656D6F37000200DC020000800000
+      003D0000000C00000040000000F4010000000000000000FFFFFF1F2C02000000
+      000001005C005B4946285B71727950656469646F7346696C696169732E226C6F
+      74657472616E73666572656E636961225D3D302C2027272C205B717279506564
+      69646F7346696C696169732E226C6F74657472616E73666572656E636961225D
+      295D00000000FFFF0000000000020000000100000006090068656C7665746963
+      610008000000000000000000110000000100020000000000FFFFFF0000000002
+      000000000000000000052B000006004D656D6F3131000200C002000048000000
+      1B0000001000000043000F00F4010000000000000000FFFFFF1F2C0200000000
+      000100030041424300000000FFFF000000000002000000010000000009006865
+      6C7665746963610008000000000000000000020000000100020000000000FFFF
+      FF0000000002000000000000000000AF2B000006004D656D6F3137000200C102
+      0000800000001A0000000C00000000000000F4010000000000000000FFFFFF1F
+      2C020000000000010027005B71727950656469646F7346696C696169732E2272
+      6573756C7461646F6375727661616263225D00000000FFFF0000000000020000
+      000100000006090068656C766574696361000800000000000000000012000000
+      0100020000000000FFFFFF00000000020000000000000000003D2C000006004D
+      656D6F3138000200AE03000048000000540000001000000043000F00F4010000
+      000000000000FFFFFF1F2C02000000000001000B004C4F43414C495A41C7C34F
+      00000000FFFF0000000000020000000100000000090068656C76657469636100
+      08000000000000000000020000000100020000000000FFFFFF00000000020000
+      00000000000000E12C000006004D656D6F3139000200AE030000800000005900
+      00000C00000000000000F4010000000000000000FFFFFF1F2C02000000000001
+      0021005B71727950656469646F7346696C696169732E226C6F63616C697A6163
+      616F225D00000000FFFF0000000000020000000100000006090068656C766574
+      6963610008000000000000000000100000000100020000000000FFFFFF000000
+      000200000000000000FEFEFF09000000070020546F7461697300000000030052
+      7561000000000600436964616465000000000400466F6E650000000006005469
+      74756C6F0000000006004F757472617300000000060042616972726F00000000
+      0700204F7574726F730000000005004C696E6861000100300000000000000000
+      00FC0000000000000000000000000000000058007E1D386F0F85E340FF2E590A
+      7308E540}
+  end
+  object fdsPedidosFiliais: TfrDBDataSet
+    DataSet = qryPedidosFiliais
+    Left = 336
+    Top = 32
+  end
+  object qryMovimentosCancelamentoReabertura: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select m.numero,'
+      '       m.produto,'
+      '       m.filial,'
+      '       m.data,'
+      '       m.tipomovimento,'
+      '       m.quantidade,'
+      '       m.referencia,'
+      '       m.operacao,'
+      '       m.emestoque,'
+      '       m.reservado,'
+      '       m.transito,'
+      '       m.demonstracao,'
+      '       m.conserto,'
+      '       m.futuro,'
+      '       m.danificada,'
+      '       m.financeiro,'
+      '       m.valor,'
+      '       m.trfproduto,'
+      '       m.trffilial,'
+      '       m.cliente,'
+      '       m.tipocliente'
+      'from movimentos m'
+      'where m.numero = 0'
+      '')
+    RequestLive = True
+    Left = 593
+    Top = 264
+    object qryMovimentosCancelamentoReaberturanumero: TIntegerField
+      FieldName = 'numero'
+      DisplayFormat = '0'
+    end
+    object qryMovimentosCancelamentoReaberturaproduto: TLargeintField
+      FieldName = 'produto'
+      DisplayFormat = '0'
+    end
+    object qryMovimentosCancelamentoReaberturafilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryMovimentosCancelamentoReaberturatipomovimento: TStringField
+      FieldName = 'tipomovimento'
+      Size = 3
+    end
+    object qryMovimentosCancelamentoReaberturaquantidade: TFloatField
+      FieldName = 'quantidade'
+      DisplayFormat = '0'
+    end
+    object qryMovimentosCancelamentoReaberturareferencia: TStringField
+      FieldName = 'referencia'
+      Size = 60
+    end
+    object qryMovimentosCancelamentoReaberturaoperacao: TStringField
+      FieldName = 'operacao'
+    end
+    object qryMovimentosCancelamentoReaberturaemestoque: TFloatField
+      FieldName = 'emestoque'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryMovimentosCancelamentoReaberturareservado: TFloatField
+      FieldName = 'reservado'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryMovimentosCancelamentoReaberturatransito: TFloatField
+      FieldName = 'transito'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryMovimentosCancelamentoReaberturademonstracao: TFloatField
+      FieldName = 'demonstracao'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryMovimentosCancelamentoReaberturaconserto: TFloatField
+      FieldName = 'conserto'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryMovimentosCancelamentoReaberturafuturo: TFloatField
+      FieldName = 'futuro'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryMovimentosCancelamentoReaberturadanificada: TFloatField
+      FieldName = 'danificada'
+      DisplayFormat = '0'
+    end
+    object qryMovimentosCancelamentoReaberturafinanceiro: TFloatField
+      FieldName = 'financeiro'
+      Required = True
+      DisplayFormat = '0.00'
+    end
+    object qryMovimentosCancelamentoReaberturavalor: TFloatField
+      FieldName = 'valor'
+      Required = True
+      DisplayFormat = '0.00'
+    end
+    object qryMovimentosCancelamentoReaberturadata: TDateField
+      FieldName = 'data'
+    end
+    object qryMovimentosCancelamentoReaberturatrfproduto: TLargeintField
+      FieldName = 'trfproduto'
+    end
+    object qryMovimentosCancelamentoReaberturatrffilial: TIntegerField
+      FieldName = 'trffilial'
+    end
+    object qryMovimentosCancelamentoReaberturacliente: TIntegerField
+      FieldName = 'cliente'
+    end
+    object qryMovimentosCancelamentoReaberturatipocliente: TStringField
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+  end
+  object qryVolumesDadosFiscais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select vdf.*'
+      'from volumesdadosfiscais vdf'
+      'where vdf.dadofiscal = :dadofiscal')
+    RequestLive = True
+    Left = 472
+    Top = 96
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'dadofiscal'
+        ParamType = ptUnknown
+      end>
+    object qryVolumesDadosFiscaisdadofiscal: TIntegerField
+      FieldName = 'dadofiscal'
+    end
+    object qryVolumesDadosFiscaiscodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryVolumesDadosFiscaisvolumes: TIntegerField
+      DisplayLabel = 'VOLUMES'
+      FieldName = 'volumes'
+    end
+    object qryVolumesDadosFiscaisnumeracao: TStringField
+      DisplayLabel = 'NUMERAÇÃO'
+      FieldName = 'numeracao'
+      Size = 9
+    end
+    object qryVolumesDadosFiscaismarca: TStringField
+      DisplayLabel = 'MARCA'
+      FieldName = 'marca'
+      Size = 60
+    end
+    object qryVolumesDadosFiscaispesobruto: TFloatField
+      DisplayLabel = 'PESO BRUTO'
+      FieldName = 'pesobruto'
+    end
+    object qryVolumesDadosFiscaispesoliquido: TFloatField
+      DisplayLabel = 'PESO LÍQUIDO'
+      FieldName = 'pesoliquido'
+    end
+    object qryVolumesDadosFiscaisespecietransporte: TStringField
+      DisplayLabel = 'ESPÉCIE TRANSPORTE'
+      FieldName = 'especietransporte'
+      Size = 60
+    end
+  end
+  object dsrVolumesDadosFiscais: TtecDataSource
+    DataSet = qryVolumesDadosFiscais
+    Left = 488
+    Top = 112
+  end
+  object ZMonitor1: TZMonitor
+    OnMonitorEvent = ZMonitor1MonitorEvent
+    Left = 608
+    Top = 88
+  end
+  object qryPedidosFiliaisCodigoBarras: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'Periodo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Requisitante'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Situacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'CurvaABC'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'QtdeConfirmada'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'Select pf.produto,'
+      '       pcb.codigobarras'
+      ''
+      'From   pedidosfiliais pf'
+      '       join produtos p'
+      '            join caracteristicas c'
+      '            on p.caracteristica = c.codigo'
+      '       on pf.produto = p.codigo'
+      '       join produtoscodigobarras pcb'
+      '       on pf.produto = pcb.produto'
+      ''
+      'where pf.requisitada =:requisitada'
+      ''
+      '%Periodo'
+      '%Requisitante'
+      '%Situacao'
+      '%CurvaABC'
+      '%QtdeConfirmada'
+      ''
+      'Order By pf.requisitante, pf.produto')
+    RequestLive = True
+    Left = 242
+    Top = 353
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'requisitada'
+        ParamType = ptUnknown
+      end>
+    object qryPedidosFiliaisCodigoBarrasproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryPedidosFiliaisCodigoBarrascodigobarras: TStringField
+      DisplayLabel = 'Código Barras'
+      DisplayWidth = 18
+      FieldName = 'codigobarras'
+      Required = True
+      Size = 60
+    end
+  end
+  object qryTotaisPedidosFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select 0.00 as qtdepedida,'
+      '       0.00 as qtderecebida'
+      '')
+    RequestLive = True
+    Left = 64
+    Top = 344
+    object qryTotaisPedidosFiliaisqtdepedida: TFloatField
+      FieldName = 'qtdepedida'
+    end
+    object qryTotaisPedidosFiliaisqtderecebida: TFloatField
+      FieldName = 'qtderecebida'
+    end
+  end
+  object dsrTotaisPedidosFiliais: TtecDataSource
+    DataSet = qryTotaisPedidosFiliais
+    Left = 104
+    Top = 360
+  end
+  object qryLotesTransferencia: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select lt.*'
+      'from lotestransferencia lt'
+      'where lt.codigo = :codigo')
+    RequestLive = True
+    Left = 392
+    Top = 344
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryLotesTransferenciacodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryLotesTransferenciausuario: TIntegerField
+      FieldName = 'usuario'
+      Required = True
+    end
+    object qryLotesTransferenciadatahora: TDateTimeField
+      FieldName = 'datahora'
+      Required = True
+    end
+  end
+  object dsrLotesTransferencia: TtecDataSource
+    DataSet = qryLotesTransferencia
+    Left = 432
+    Top = 360
+  end
+  object qryLotesTransferencia_ProximoCodigo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select lotestransferencia_proximocodigo() as codigo')
+    RequestLive = True
+    Left = 576
+    Top = 336
+    object qryLotesTransferencia_ProximoCodigocodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+  end
+  object qryLotesPedidosFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'Periodo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Requisitante'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Situacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'CurvaABC'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'QtdeConfirmada'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      'select * from'
+      '('
+      'select cast(null as char(5)) as lotetransferencia'
+      ''
+      'union all'
+      ''
+      'select * from'
+      '('
+      
+        'Select distinct lpad(cast(pf.lotetransferencia as varchar), 5, ''' +
+        ' '') as lotetransferencia'
+      
+        'From   pedidosfiliais pf left join notas n on (pf.dadofiscal = n' +
+        '.dadofiscal), produtos p, caracteristicas c'
+      'Where (pf.produto = p.codigo) and (p.caracteristica = c.codigo)'
+      '    and (pf.requisitada = :requisitada)'
+      ''
+      '%Periodo'
+      '%Requisitante'
+      '%Situacao'
+      '%CurvaABC'
+      '%QtdeConfirmada'
+      ''
+      'Order By lpad(cast(pf.lotetransferencia as varchar), 5, '' '')'
+      ''
+      ') as temp'
+      'where lotetransferencia is not null'
+      ''
+      ') as temp'
+      '')
+    RequestLive = True
+    Left = 706
+    Top = 25
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'requisitada'
+        ParamType = ptUnknown
+      end>
+    object qryLotesPedidosFiliaislotetransferencia: TStringField
+      FieldName = 'lotetransferencia'
+      Size = 5
+    end
+  end
+  object dsrLotesPedidosFiliais: TtecDataSource
+    DataSet = qryLotesPedidosFiliais
+    OnDataChange = dsrPedidosFiliaisDataChange
+    Left = 735
+    Top = 38
+  end
+  object qryApagarProdutoConferencia: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'delete from produtosconferencia'
+      'where tipo = ''TRF'''
+      '  and codigo = :lotetransferencia'
+      '  and produto = :produto')
+    RequestLive = True
+    Left = 720
+    Top = 160
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'lotetransferencia'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'produto'
+        ParamType = ptUnknown
+      end>
+  end
+  object dsrLotesPedidosFiliais_: TtecDataSource
+    DataSet = qryLotesPedidosFiliais_
+    Left = 752
+    Top = 96
+  end
+  object qryLotesPedidosFiliais_: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'Periodo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Requisitante'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Situacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'CurvaABC'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'QtdeConfirmada'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      'select * from'
+      '('
+      'select cast(null as char(5)) as lotetransferencia'
+      ''
+      'union all'
+      ''
+      'select * from'
+      '('
+      
+        'Select distinct lpad(cast(pf.lotetransferencia as varchar), 5, ''' +
+        ' '') as lotetransferencia'
+      
+        'From   pedidosfiliais pf left join notas n on (pf.dadofiscal = n' +
+        '.dadofiscal), produtos p, caracteristicas c'
+      'Where (pf.produto = p.codigo) and (p.caracteristica = c.codigo)'
+      '    and (pf.requisitada = :requisitada)'
+      ''
+      '%Periodo'
+      '%Requisitante'
+      '%Situacao'
+      '%CurvaABC'
+      '%QtdeConfirmada'
+      ''
+      'Order By lpad(cast(pf.lotetransferencia as varchar), 5, '' '')'
+      ''
+      ') as temp'
+      'where lotetransferencia is not null'
+      ''
+      ') as temp'
+      '')
+    RequestLive = True
+    Left = 714
+    Top = 81
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'requisitada'
+        ParamType = ptUnknown
+      end>
+    object qryLotesPedidosFiliais_lotetransferencia: TStringField
+      FieldName = 'lotetransferencia'
+      Size = 50
+    end
+  end
+  object spcContratosProximo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select contratos_proximonumero() as numero')
+    RequestLive = False
+    Left = 187
+    Top = 224
+    object spcContratosProximonumero: TStringField
+      FieldName = 'numero'
+    end
+  end
+  object qryFuncaoGerarContratoporDadoFiscal: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      
+        'select gerarcontratopordadofiscal(:dadofiscal, cast(:Origem as v' +
+        'archar))')
+    RequestLive = False
+    Left = 136
+    Top = 292
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'dadofiscal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Origem'
+        ParamType = ptUnknown
+      end>
+    object qryFuncaoGerarContratoporDadoFiscalgerarcontratopordadofiscal: TBooleanField
+      FieldName = 'gerarcontratopordadofiscal'
+    end
+  end
+  object qryVenctosDadosFiscais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select vdf.*'
+      'from venctosdadosfiscais vdf'
+      'where false')
+    RequestLive = True
+    Left = 326
+    Top = 277
+    object qryVenctosDadosFiscaisdadofiscal: TIntegerField
+      FieldName = 'dadofiscal'
+    end
+    object qryVenctosDadosFiscaisnumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryVenctosDadosFiscaisdatavencto: TDateField
+      FieldName = 'datavencto'
+    end
+    object qryVenctosDadosFiscaisvalorvencto: TFloatField
+      FieldName = 'valorvencto'
+    end
+    object qryVenctosDadosFiscaistiporecebimento: TIntegerField
+      FieldName = 'tiporecebimento'
+    end
+    object qryVenctosDadosFiscaisformapagamento: TStringField
+      FieldName = 'formapagamento'
+      Size = 1
+    end
+    object qryVenctosDadosFiscaistransacao: TIntegerField
+      FieldName = 'transacao'
+    end
+  end
+  object qryProdutosTrocados: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select *'
+      'from produtostrocados'
+      'where false')
+    RequestLive = True
+    Left = 88
+    Top = 432
+    object qryProdutosTrocadosnumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryProdutosTrocadostipo: TStringField
+      FieldName = 'tipo'
+      Size = 1
+    end
+    object qryProdutosTrocadosdata: TDateTimeField
+      FieldName = 'data'
+    end
+    object qryProdutosTrocadoscliente: TIntegerField
+      FieldName = 'cliente'
+      DisplayFormat = '0'
+    end
+    object qryProdutosTrocadostipocliente: TStringField
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+    object qryProdutosTrocadosfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryProdutosTrocadosvalor: TFloatField
+      FieldName = 'valor'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosTrocadosdefeito: TBooleanField
+      FieldName = 'defeito'
+    end
+    object qryProdutosTrocadossaldo: TFloatField
+      FieldName = 'saldo'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosTrocadosusuario: TIntegerField
+      FieldName = 'usuario'
+      DisplayFormat = '0'
+    end
+    object qryProdutosTrocadosreferencia: TStringField
+      FieldName = 'referencia'
+      Size = 100
+    end
+  end
+  object dsrProdutosTrocados: TtecDataSource
+    DataSet = qryProdutosTrocados
+    Left = 120
+    Top = 448
+  end
+  object qryTiposRecebimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select tr.*'
+      'from tiposrecebimentos tr'
+      'where tr.tiporecebimento = ''T'''
+      'order by codigo limit 1')
+    RequestLive = False
+    Left = 256
+    Top = 448
+    object qryTiposRecebimentoscodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+  end
+  object spcProdutosTrocadosProximo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select produtostrocados_proximocodigo() as numero')
+    RequestLive = False
+    Left = 448
+    Top = 440
+    object spcProdutosTrocadosProximonumero: TIntegerField
+      FieldName = 'numero'
+    end
+  end
+  object qryDadosNotasPag: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select dadosnotaspag.*,'
+      '       0.00 as QtdeDevolvida'
+      'from'
+      '('
+      '  select pnp.codigonota, pnp.numero, np.data,'
+      '         pnp.quantidade - coalesce((select sum(pdf.quantidade)'
+      
+        '                           from produtosdadosfiscais pdf join da' +
+        'dosfiscais df on pdf.dadofiscal = df.numero'
+      '                           where pdf.codigonota = pnp.codigonota'
+      '                             and pdf.produto = pnp.produto'
+      
+        '                             and pdf.numeroprodutotabela = pnp.n' +
+        'umero'
+      
+        '                             and df.situacao = ''N''),0) as quanti' +
+        'dade'
+      ''
+      '  from produtosnotaspag pnp'
+      '       join notaspag np'
+      '       on pnp.codigonota = np.codigo'
+      ''
+      '  where np.fornecedor = :filialdevolucao'
+      '    and np.tipofornecedor = ''L'''
+      '    and np.situacao = ''N'''
+      '    and ehnotafiscalentradacompra(pnp.codigofiscal)'
+      '    and pnp.produto = :produto'
+      ''
+      ') as dadosnotaspag'
+      'where quantidade > 0'
+      'order by data desc, codigonota desc, numero desc')
+    RequestLive = True
+    Left = 600
+    Top = 416
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filialdevolucao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'produto'
+        ParamType = ptUnknown
+      end>
+    object qryDadosNotasPagcodigonota: TIntegerField
+      FieldName = 'codigonota'
+    end
+    object qryDadosNotasPagnumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryDadosNotasPagdata: TDateField
+      FieldName = 'data'
+    end
+    object qryDadosNotasPagquantidade: TFloatField
+      FieldName = 'quantidade'
+    end
+    object qryDadosNotasPagqtdedevolvida: TFloatField
+      FieldName = 'qtdedevolvida'
+    end
+  end
+  object qryNotaEntradaRef: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'SQL'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      '/* produto filial fornecedor tipofornecedor serie numero*/'
+      ''
+      'select np.fornecedor,'
+      '       np.tipofornecedor,'
+      '       np.serie,'
+      '       np.numero,'
+      '       np.codigo,'
+      '       np.data,'
+      '       np.chv_nfe as NumeroNFe,'
+      '       vf.pessoanumero,'
+      '       np.modelodocto,'
+      '       np.numero as NumeroNF,'
+      ''
+      '      (select c.CodigoIBGE'
+      '                 from cidades c'
+      '                 where c.estado = vf.estado'
+      '                   and c.codigo = vf.cidade) as CidadeIBGE'
+      ''
+      
+        'from notaspag np join vfornecedores vf on np.fornecedor = vf.cod' +
+        'igo and np.tipofornecedor = vf.tipo'
+      ''
+      'where true'
+      ''
+      '%SQL')
+    RequestLive = True
+    Left = 760
+    Top = 275
+    object qryNotaEntradaReffornecedor: TIntegerField
+      FieldName = 'fornecedor'
+      DisplayFormat = '0'
+    end
+    object qryNotaEntradaReftipofornecedor: TStringField
+      FieldName = 'tipofornecedor'
+      Size = 1
+    end
+    object qryNotaEntradaRefserie: TStringField
+      DisplayLabel = 'Série da Nota de Entrada'
+      FieldName = 'serie'
+      Required = True
+      Size = 3
+    end
+    object qryNotaEntradaRefnumero: TIntegerField
+      FieldName = 'numero'
+      DisplayFormat = '0'
+    end
+    object qryNotaEntradaRefcodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryNotaEntradaRefdata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryNotaEntradaRefnumeronfe: TStringField
+      DisplayLabel = 'Número NF Eletrônica'
+      FieldName = 'numeronfe'
+      Size = 44
+    end
+    object qryNotaEntradaRefpessoanumero: TStringField
+      FieldName = 'pessoanumero'
+      Size = 14
+    end
+    object qryNotaEntradaRefmodelodocto: TStringField
+      FieldName = 'modelodocto'
+      Size = 2
+    end
+    object qryNotaEntradaRefnumeronf: TIntegerField
+      DisplayLabel = 'Número da Nota de Entrada'
+      FieldName = 'numeronf'
+      Required = True
+    end
+    object qryNotaEntradaRefcidadeibge: TIntegerField
+      FieldName = 'cidadeibge'
+    end
+  end
+  object qryZerarPedidosFiliaisLotes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update pedidosfiliais set lotetransferencia = null'
+      'where lotetransferencia in (:Lotes)'
+      '  and dadofiscal is null'
+      '')
+    RequestLive = True
+    Left = 579
+    Top = 58
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'Lotes'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryPedidosInconsistentes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'ListaLotesProdutos'
+        ParamType = ptUnknown
+        Value = '((0,0))'
+      end>
+    Sql.Strings = (
+      ';'
+      'select selecao.*'
+      'from'
+      '('
+      '  select pf.*,'
+      '         (select pc.lido'
+      '          from produtosconferencia pc'
+      
+        '          where pc.codigo = cast(pf.lotetransferencia as varchar' +
+        ')'
+      '            and pc.tipo = ''TRF'''
+      '            and pc.produto = pf.produto) as lido,'
+      '         p.codigovisual as produtovisual   '
+      ''
+      
+        '  from pedidosfiliais pf join produtos p on pf.produto = p.codig' +
+        'o'
+      
+        '  where (pf.lotetransferencia,pf.produto) in (%ListaLotesProduto' +
+        's)'
+      ') as selecao'
+      'where coalesce(selecao.qtderecebida,0) <>'
+      '      coalesce(selecao.lido,0)'
+      'order by lotetransferencia, produto      ')
+    RequestLive = False
+    Left = 432
+    Top = 24
+    object qryPedidosInconsistenteslotetransferencia: TIntegerField
+      DisplayLabel = 'LOTE'
+      FieldName = 'lotetransferencia'
+    end
+    object qryPedidosInconsistentesprodutovisual: TStringField
+      DisplayLabel = 'PRODUTO'
+      FieldName = 'produtovisual'
+      Size = 30
+    end
+    object qryPedidosInconsistentesdata: TDateTimeField
+      DisplayLabel = 'DATA / HORA'
+      FieldName = 'data'
+    end
+    object qryPedidosInconsistentessituacao: TStringField
+      DisplayLabel = 'SIT'
+      FieldName = 'situacao'
+      Size = 1
+    end
+    object qryPedidosInconsistentesrequisitante: TIntegerField
+      DisplayLabel = 'REQ.'
+      FieldName = 'requisitante'
+    end
+    object qryPedidosInconsistentesrequisitada: TIntegerField
+      DisplayLabel = 'REQTADA'
+      FieldName = 'requisitada'
+    end
+    object qryPedidosInconsistentesqtdepedida: TFloatField
+      DisplayLabel = 'QT PEDIDA'
+      FieldName = 'qtdepedida'
+      DisplayFormat = '###,##0'
+    end
+    object qryPedidosInconsistentesqtderecebida: TFloatField
+      DisplayLabel = 'QT RECEB.'
+      FieldName = 'qtderecebida'
+      DisplayFormat = '###,##0'
+    end
+    object qryPedidosInconsistenteslido: TFloatField
+      DisplayLabel = 'QT LIDO'
+      FieldName = 'lido'
+      DisplayFormat = '###,##0'
+    end
+    object qryPedidosInconsistentesproduto: TLargeintField
+      FieldName = 'produto'
+      Visible = False
+    end
+  end
+  object dsrPedidosInconsistentes: TtecDataSource
+    DataSet = qryPedidosInconsistentes
+    Left = 464
+    Top = 40
+  end
+end

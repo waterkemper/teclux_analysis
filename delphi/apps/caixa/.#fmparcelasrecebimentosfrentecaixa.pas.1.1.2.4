@@ -1,0 +1,253 @@
+unit fmparcelasrecebimentosfrentecaixa;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, Windows,
+  StdCtrls, fmajudabt, ComCtrls, Buttons, ExtCtrls, Grids, DBGrids,
+  cpdbgrid, biblio, ctconstantes,
+  ToolWin, ActnList, clparametrossistema, clecf, cltefdiscado,
+  ACBrTEFDClass, dmfrentecaixa, dmbasico, db, cpnumero;
+
+type
+  TfrmParcelasRecebimentosFrenteCaixa = class(TfrmAjudaBt)
+    pnlFundoJanela: TPanel;
+    gbxRecebimentos: TGroupBox;
+    pnlBottom: TPanel;
+    gbxValorAutenticado: TGroupBox;
+    lblValorAutenticado: TLabel;
+    dbgRecebimentos: TtecDBGrid;
+    gbxValorTotalRecebimentos: TGroupBox;
+    lblValorTotalRecebimentos: TLabel;
+    sbnGravar: TSpeedButton;
+    Bevel1: TBevel;
+    sbnTEF: TSpeedButton;
+    actHabilitar: TActionList;
+    aclHabilitar: TAction;
+    gbxDesconto: TGroupBox;
+    gbxAcrescimo: TGroupBox;
+    rgbTipoDesconto: TRadioGroup;
+    rgbTipoAcrescimo: TRadioGroup;
+    edtDesconto: TEditNumero;
+    edtAcrescimo: TEditNumero;
+    procedure sbnGravarClick(Sender: TObject);
+    procedure dbgRecebimentosColExit(Sender: TObject);
+    procedure dbgRecebimentosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure FormShow(Sender: TObject);
+    procedure aclHabilitarUpdate(Sender: TObject);
+    procedure sbnTEFClick(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure edtDescontoExit(Sender: TObject);
+    procedure edtAcrescimoExit(Sender: TObject);
+  private
+    { Private declarations }
+
+  protected
+    vPermitirFecharJanela : Boolean;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure AfterPostRecebimentos(Sender: TObject);
+  public
+//    procedure setDataModulo(dataModulo: Tdtmfrentecaixa);
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    { Public declarations }
+  end;
+
+var
+  frmParcelasRecebimentosFrenteCaixa: TfrmParcelasRecebimentosFrenteCaixa;
+
+implementation
+
+//uses SysInit;
+
+{$R *.dfm}
+
+{ TfrmParcelasRecebimentosFrenteCaixa }
+
+constructor TfrmParcelasRecebimentosFrenteCaixa.Create(AOwner: TComponent);
+begin
+  inherited;
+  sbnTEF.visible := (ParSistema.TipoTEF = tsDISCADO)
+                    and assigned(tefpadrao)
+                    and TEFPadrao.Inicializado(gpTefDial);
+
+
+end;
+
+destructor TfrmParcelasRecebimentosFrenteCaixa.Destroy;
+begin
+  inherited;
+  frmParcelasRecebimentosFrenteCaixa := nil;
+end;
+
+{
+procedure TfrmParcelasRecebimentosFrenteCaixa.setDataModulo(
+  dataModulo: Tdtmfrentecaixa);
+begin
+  dtmfrentecaixa := DataModulo;
+end;
+}
+
+procedure TfrmParcelasRecebimentosFrenteCaixa.sbnGravarClick(Sender: TObject);
+begin
+  inherited;
+  sbnTEF.Enabled := false;
+  sbnGravar.Enabled := false;
+
+  dtmfrentecaixa.GravarRecebimento;
+  if dtmfrentecaixa.GravarRecebimentos(false) then
+    ModalResult := mrOk
+  else
+  begin
+    if dtmFrenteCaixa.Excecao then
+    begin
+      vPermitirFecharJanela := true;
+      modalresult := mrcancel;
+    end
+    else
+      dbgRecebimentos.SetFocus;
+  end;
+
+  sbnTEF.Enabled := true;
+  sbnGravar.Enabled := true;
+
+end;
+
+procedure TfrmParcelasRecebimentosFrenteCaixa.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  if (activecontrol = dbgRecebimentos)
+     and (key = vk_escape)
+     and (dtmFrenteCaixa.qryRecebimentosTemp.State in [dsedit, dsinsert]) then
+    dtmFrenteCaixa.qryRecebimentosTemp.cancel
+  else
+  {
+  if (activecontrol = dbgRecebimentos)
+     and (dbgRecebimentos.SelectedField = dtmFrenteCaixa.qryRecebimentosTemptiporec) then
+    AbrirLookupTiposRecebimentos 
+  else                                       }
+  begin
+    inherited;
+    if (Key = VK_F5) and sbnGravar.Enabled then
+      sbnGravarClick(nil)
+    else
+    if (Key = VK_F9) and sbnTEF.Enabled then
+      sbnTEFClick(nil);
+  end;
+
+end;
+
+procedure TfrmParcelasRecebimentosFrenteCaixa.AfterPostRecebimentos(Sender: TObject);
+begin
+  lblValorTotalRecebimentos.Caption :=  CurrToStrF(dtmfrentecaixa.TotalRecebimentos,ffCurrency,2);
+end;
+
+procedure TfrmParcelasRecebimentosFrenteCaixa.dbgRecebimentosColExit(Sender: TObject);
+begin
+  inherited;
+//  dtmfrentecaixa.GravarRecebimento;
+end;
+
+procedure TfrmParcelasRecebimentosFrenteCaixa.dbgRecebimentosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if TeclaEnterOuReturn(Key) then
+  begin
+//    dtmfrentecaixa.GravarRecebimento;
+    if dbgRecebimentos.SelectedField = dtmFrenteCaixa.qryRecebimentosTempvalorlancto then
+      dbgRecebimentos.SelectedField := dtmFrenteCaixa.qryRecebimentosTemptiporec
+    else
+    if dbgRecebimentos.SelectedField = dtmFrenteCaixa.qryRecebimentosTemptiporec then
+      AbrirLookup;
+  end;
+end;
+
+procedure TfrmParcelasRecebimentosFrenteCaixa.FormShow(Sender: TObject);
+begin
+  inherited;
+  dtmfrentecaixa.AfterPostRecebimentos := AfterPostRecebimentos;
+  dtmfrentecaixa.MontarRecebimentosParcelasAberto;
+  lblValorAutenticado.Caption := CurrToStrF(dtmfrentecaixa.ValorAReceber,ffCurrency,2);
+  lblValorTotalRecebimentos.Caption :=  CurrToStrF(dtmfrentecaixa.TotalRecebimentos,ffCurrency,2);
+  dtmFrenteCaixa.AfterAlteracaoValores(nil);
+  edtDesconto.SetFocus;
+end;
+
+procedure TfrmParcelasRecebimentosFrenteCaixa.aclHabilitarUpdate(Sender: TObject);
+begin
+  inherited;
+  sbntef.Enabled := dtmfrentecaixa.ExisteRecebimentoDebCred;
+  sbnGravar.Enabled := not dtmfrentecaixa.vJaPossuiPagamentCartaoAprovado;
+end;
+
+procedure TfrmParcelasRecebimentosFrenteCaixa.sbnTEFClick(Sender: TObject);
+begin
+  inherited;
+  dtmfrentecaixa.GravarRecebimento;
+  sbnTEF.Enabled := false;
+  sbnGravar.Enabled := false;
+  if dtmfrentecaixa.GravarRecebimentos(true) then
+    ModalResult := mrOk
+  else
+  begin
+    if dtmFrenteCaixa.Excecao then
+    begin
+      vPermitirFecharJanela := true;
+      modalresult := mrcancel;
+    end
+    else
+      dbgRecebimentos.SetFocus;
+  end;    
+
+  sbnTEF.Enabled := true;
+  sbnGravar.Enabled := true;
+end;
+
+procedure TfrmParcelasRecebimentosFrenteCaixa.FormCloseQuery(Sender: TObject;
+  var CanClose: Boolean);
+begin
+  inherited;
+
+  if not vPermitirFecharJanela then
+  begin
+    CanClose := Truncar(dtmfrentecaixa.vValorPagtoConfirmado, 2) >= truncar(dtmfrentecaixa.ValorAReceber, 2);
+    if not CanClose then
+    begin
+      if MensagemSelecionaOpcao('Os valores dos recebimentos não estão fechando com o total autenticado. Deseja cancelar a operação?') = smbYes then
+      begin
+        dtmfrentecaixa.verificarSituacaoImpressaoECF_e_TEF;
+        Canclose := true;
+      end;
+    end;
+  end
+  else
+    CanClose := true;
+
+  if CanClose then
+    if assigned(TefPadrao) then
+      tefpadrao.totalpago := 0;
+
+  vPermitirFecharJanela := False;
+
+end;
+
+procedure TfrmParcelasRecebimentosFrenteCaixa.edtDescontoExit(
+  Sender: TObject);
+begin
+  inherited;
+  dtmFrenteCaixa.AdicionarDesconto(edtDesconto.ValorSemFormatacao,ifthen(rgbTipoDesconto.ItemIndex=0,'P','V'));
+  lblValorAutenticado.Caption := CurrToStrF(dtmfrentecaixa.ValorAReceber,ffCurrency,2);
+end;
+
+procedure TfrmParcelasRecebimentosFrenteCaixa.edtAcrescimoExit(
+  Sender: TObject);
+begin
+  inherited;
+  dtmFrenteCaixa.AdicionarAcrescimo(edtAcrescimo.ValorSemFormatacao,ifthen(rgbTipoAcrescimo.ItemIndex=0,'P','V'));
+  lblValorAutenticado.Caption := CurrToStrF(dtmfrentecaixa.ValorAReceber,ffCurrency,2);
+end;
+
+
+end.

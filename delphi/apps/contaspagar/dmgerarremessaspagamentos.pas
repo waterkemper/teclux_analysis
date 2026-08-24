@@ -9,7 +9,8 @@ uses
   clparametrossistema,
   Variants, DateUtils, CheckLst,cltextprinter, FR_Desgn, dmimprimeboleto,
   clusuario, fmpreviewpadrao, ACBrBase, ACBrBoleto, ACBrUtil,
-  ZTransact, DBClient, Provider, ACBrPagFor, ACBrPagForConversao;
+  ZTransact, DBClient, Provider, ACBrPagFor, ACBrPagForConversao, frx2xto30,
+  frxClass;
 
 
 type
@@ -126,6 +127,7 @@ type
     qryDuplicatasvaloracrescimo: TFloatField;
     qryDuplicatasvalorapagar: TCurrencyField;
     qryDuplicatasdatapagfor: TDateField;
+    frxReport1: TfrxReport;
 //    qryContasndiasbaixaautomatica: TIntegerField;
     procedure DataModuleDestroy(Sender: TObject);
     procedure qryDuplicatasFilterRecord(DataSet: TDataSet;
@@ -247,7 +249,7 @@ var
 
 implementation
 
-uses dmtecsoft,Math;
+uses dmtecsoft,Math, ACBrPagForClass;
 
 {$R *.dfm}
 
@@ -648,7 +650,6 @@ begin
             begin
               with SegmentoJ.New do
               begin
-
                 CodMovimento := imInclusaoRegistroDetalheLiberado;
                 CodigoBarras := qryDuplicatascbpagamento.asString;
                 NomeCedente := qryDuplicatasnome.asString;
@@ -665,6 +666,39 @@ begin
                 CodigoMoeda := 09;
 
                 TotalLote := TotalLote + ValorPagamento;
+
+                with SegmentoJ52.New do
+                begin
+                  TipoMovimento := tmInclusao;
+                  CodMovimento := imInclusaoRegistroDetalheLiberado;
+                  with Pagador do
+                  begin
+                    Inscricao.Tipo := tiCNPJ;
+                    Inscricao.Numero := qryFiliaiscnpj.asString;
+                    Nome:= qryFiliaisrazao.asString;
+                  end;
+
+                  with Beneficiario do
+                  begin
+                    if length(qryDuplicatascnpjoucpf.asString)>11 then
+                      Inscricao.Tipo := tiCPF
+                    else
+                      Inscricao.Tipo := tiCNPJ;
+                    Inscricao.Numero := qryDuplicatascnpjoucpf.asString;
+                    Nome:= qryDuplicatasnome.asString
+                  end;
+                end;
+
+
+ {
+    property TipoMovimento: TTipoMovimento read FTipoMovimento write FTipoMovimento;
+    property CodMovimento: TInstrucaoMovimento read FCodMovimento write FCodMovimento;
+    property Pagador: TPagador read FPagador write FPagador;
+    property Beneficiario: TBeneficiario read FBeneficiario write FBeneficiario;
+    property SacadorAvalista: TSacadorAvalista read FSacadorAvalista write FSacadorAvalista;
+    property Chave: string read FChave write FChave;
+    property TXID: string read FTXID write FTXID;
+    }
 
               end;
 
@@ -883,8 +917,10 @@ begin
                           qryContasNome.AsString+' - C/C '+
                           qryContasConta.AsString+'-'+qryContasDigito.AsString;
  frVariables['ClienteUsaContrato'] := ParSistema.ClienteUsaContrato;
- 
+
 // frpEspelhoRemessa.DesignReport;
+// frxReport1.DesignReport;
+
  frmPreview := TfrmPreviewPadrao.create(self);
  try
   Relatorio := frmPreview.frCompositeReport;

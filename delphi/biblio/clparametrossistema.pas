@@ -5421,12 +5421,23 @@ begin
   Result := FList[ctLimitedediasparacancelamentodaNFE].Asinteger
 end;
 
-
 procedure TtecParametrosSistema.SetLimitedediasparacancelamentodaNFE(
   const Value: integer);
 begin
   FList[ctLimitedediasparacancelamentodaNFE].Asinteger := Value;
 end;
+
+function TtecParametrosSistema.GetLimitedediasparacancelamentodaNFPSE: integer;
+begin
+  Result := FList[ctLimitedediasparacancelamentodaNFPSE].Asinteger
+end;
+
+procedure TtecParametrosSistema.SetLimitedediasparacancelamentodaNFPSE(
+  const Value: integer);
+begin
+  FList[ctLimitedediasparacancelamentodaNFPSE].Asinteger := Value;
+end;
+
 
 function TtecParametrosSistema.GetPercentualdacomissaoparaprodutosdomonstruario: Real;
 begin
@@ -6064,16 +6075,6 @@ begin
 end;
 
 
-function TtecParametrosSistema.GetLimitedediasparacancelamentodaNFPSE: integer;
-begin
-  Result := FList[ctLimitedediasparacancelamentodaNFPSE].Asinteger
-end;
-
-procedure TtecParametrosSistema.SetLimitedediasparacancelamentodaNFPSE(
-  const Value: integer);
-begin
-  FList[ctLimitedediasparacancelamentodaNFPSE].Asinteger := Value;
-end;
 
 function TtecParametrosSistema.GetNao_permitir_financeiro_zerado_quando_M_ou_m: boolean;
 begin

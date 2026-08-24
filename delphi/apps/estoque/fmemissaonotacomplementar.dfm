@@ -7,7 +7,7 @@ inherited frmEmissaoNotaComplementar: TfrmEmissaoNotaComplementar
   ClientWidth = 804
   Color = clBtnFace
   FormStyle = fsMDIChild
-  Position = poDesktopCenter
+  Position = poScreenCenter
   Visible = True
   PixelsPerInch = 96
   TextHeight = 16

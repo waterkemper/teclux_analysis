@@ -2422,6 +2422,10 @@ begin
 
             if edtLimitedediasparacancelamentodaNFE.modified then
               ParSistema.LimitedediasparacancelamentodaNFE := strtoint(edtLimitedediasparacancelamentodaNFE.text);
+
+            if edtLimitedediasparacancelamentodaNFPSE.modified then
+              ParSistema.LimitedediasparacancelamentodaNFPSE := strtoint(edtLimitedediasparacancelamentodaNFPSE.text);
+
 		  
 			if edtdiasprocessamentoinventario.modified then  
               ParSistema.LimitedeDiasParaProcessamentoInventario := strtoint(edtdiasprocessamentoinventario.text);			  

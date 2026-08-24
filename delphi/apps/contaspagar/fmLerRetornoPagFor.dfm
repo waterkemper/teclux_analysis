@@ -1,6 +1,6 @@
 inherited frmLerRetornoPagFor: TfrmLerRetornoPagFor
-  Left = 116
-  Top = 89
+  Left = 328
+  Top = 126
   Caption = 'frmLerRetornoPagFor'
   ClientHeight = 570
   ClientWidth = 1038

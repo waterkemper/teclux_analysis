@@ -13,7 +13,8 @@ uses
   Biblio, ctConstantes,
   // Repositorio
   dmtecsoft, dmbasico, clfinanceira,
-  clparametrossistema, fmpreviewpadrao, FR_ChBox, FR_Desgn, ZTransact;
+  clparametrossistema, fmpreviewpadrao, FR_ChBox, FR_Desgn, ZTransact,
+  frxClass;
 
 
 type
@@ -173,6 +174,7 @@ type
     qryParcelasExportarcomplementeoresidencia: TStringField;
     qryParcelasExportarresidencia_rua_1: TMemoField;
     qryParcelasExportarresidencia_rua_2: TMemoField;
+    frxReport1: TfrxReport;
     procedure qryFiliaisAfterScroll(DataSet: TDataSet);
     procedure qryParcelasPrestacoesAbertasResumo_CalcFields(
       DataSet: TDataSet);
@@ -726,7 +728,11 @@ begin
  frVariables['Ordenacao']:=FOrdenacao;
 
 // frpPrestacoesAbertas.DesignReport;
- 
+// frxReport1.DesignReport;
+
+//rpPrestacoesAbertasResumo.DesignReport;
+//rxReport1.DesignReport;
+
  ImprimirRelatoriofast(null, null, MPadrao, Resumo, [frpPrestacoesAbertas, frpPrestacoesAbertasResumo], true, self)
 
 end;

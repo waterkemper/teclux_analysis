@@ -1,0 +1,1504 @@
+inherited dtmOperacoesContratos: TdtmOperacoesContratos
+  Left = 534
+  Top = 218
+  Height = 606
+  Width = 891
+  object qryContratos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnProgress = ShowProgress
+    AfterOpen = qryContratosAfterOpen
+    AfterClose = qryContratosAfterClose
+    AfterInsert = qryContratosAfterInsert
+    AfterScroll = qryContratosAfterScroll
+    OnCalcFields = qryContratosCalcFields
+    OnFilterRecord = qryContratosFilterRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'Situacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Vendedor'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ContratosFuturo'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'Select ct.numero, ct.cliente, ct.tipocliente, ct.valorprazo,'
+      '       ct.data,'
+      '       ct.datareservado,'
+      '       ct.faturamento,'
+      '       ct.filialvenda,'
+      '       ct.situacao,'
+      '       ct.analista as analista,'
+      '       ct.primogenito,'
+      ''
+      '       (Select nome'
+      '        From usuarios U'
+      '        Where U.codigo =  ct.analista) as Nomeanalista,'
+      ''
+      '       (Select coalesce(razao,nome)'
+      '        From vfornecedores f'
+      
+        '        Where f.codigo = ct.cliente and f.tipo = ct.tipocliente)' +
+        ' as NomeCliente,'
+      ''
+      '        False as Selecionar,'
+      '        ct.nrpontos,'
+      '        ct.limitecredito,'
+      '        ct.limitedisponivel,'
+      '        ct.limiteparcela,'
+      '        ct.aberto30dias,'
+      '        (select restricoes'
+      '         from conceitos'
+      '         where codigo = ct.conceito) as restricoesconceito,'
+      ''
+      '        false as semcredito,'
+      '        '#39#39' as tiposemcredito,'
+      '        cast(null as char(1)) as situacao_produtos,'
+      '        ct.plano,'
+      '        ct.vendedor,'
+      
+        '        (select u.nome from usuarios u where u.codigo = ct.vende' +
+        'dor) as nomevendedor,'
+      ''
+      
+        '        (select pl.descricao from planos pl where pl.codigo = ct' +
+        '.plano) as DescricaoPlano,'
+      '        ct.quitado,'
+      
+        '        (select true from pedidos_site p_s where p_s.contrato = ' +
+        'ct.numero) as site,'
+      '        '
+      '        (select contrato_atual(ct.numero)) as contrato_atual,'
+      ''
+      '       cast (case when ct.situacao = '#39'O'#39' then '#39'OR'#199'ADO'#39
+      '                        when ct.situacao = '#39'R'#39' then '#39'RESERVADO'#39
+      '                        when ct.situacao = '#39'F'#39' then '#39'FATURADO'#39
+      
+        '                        when ct.situacao = '#39'P'#39' then '#39'NOTA PARCIA' +
+        'L'#39
+      
+        '                        when ct.situacao = '#39'N'#39' then '#39'NOTA FISCAL' +
+        #39
+      '                        when ct.situacao = '#39'C'#39' then '#39'CANCELADO'#39
+      '             end as varchar(20)) as NomeSituacao'
+      ''
+      ''
+      'From    contratos ct'
+      'Where true'
+      ''
+      '        %Situacao'
+      '        %Filial'
+      '        %Vendedor'
+      '        %ContratosFuturo'
+      ''
+      'Order By ct.faturamento,ct.data,cast(ct.numero as bigint)')
+    RequestLive = True
+    Left = 56
+    Top = 24
+    object qryContratosnumero: TStringField
+      FieldName = 'numero'
+      Required = True
+    end
+    object qryContratosvalorprazo: TFloatField
+      FieldName = 'valorprazo'
+      Required = True
+      DisplayFormat = '0.00'
+    end
+    object qryContratosdata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      Required = True
+      EditMask = '99/99/9999;1; '
+    end
+    object qryContratosdatareservado: TDateField
+      FieldName = 'datareservado'
+      ReadOnly = True
+      EditMask = '99/99/9999;1; '
+    end
+    object qryContratosfaturamento: TDateField
+      FieldName = 'faturamento'
+      ReadOnly = True
+      EditMask = '99/99/9999;1; '
+    end
+    object qryContratosnomeanalista: TStringField
+      FieldName = 'nomeanalista'
+      Size = 50
+    end
+    object qryContratosnomecliente: TStringField
+      FieldName = 'nomecliente'
+      Size = 50
+    end
+    object qryContratosselecionar: TBooleanField
+      FieldName = 'selecionar'
+      DisplayValues = 'Sim;N'#227'o'
+    end
+    object qryContratosfilialvenda: TIntegerField
+      FieldName = 'filialvenda'
+      Required = True
+      DisplayFormat = '00#'
+    end
+    object qryContratossituacao: TStringField
+      FieldName = 'situacao'
+      Required = True
+      Size = 1
+    end
+    object qryContratoscliente: TIntegerField
+      FieldName = 'cliente'
+      DisplayFormat = '0'
+    end
+    object qryContratostipocliente: TStringField
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+    object qryContratosanalista: TIntegerField
+      FieldName = 'analista'
+      DisplayFormat = '0'
+    end
+    object qryContratosnrpontos: TIntegerField
+      FieldName = 'nrpontos'
+      DisplayFormat = '0'
+    end
+    object qryContratoslimitecredito: TFloatField
+      FieldName = 'limitecredito'
+      DisplayFormat = '0.00'
+    end
+    object qryContratoslimitedisponivel: TFloatField
+      FieldName = 'limitedisponivel'
+      DisplayFormat = '0.00'
+    end
+    object qryContratoslimiteparcela: TFloatField
+      FieldName = 'limiteparcela'
+      DisplayFormat = '0.00'
+    end
+    object qryContratosaberto30dias: TFloatField
+      FieldName = 'aberto30dias'
+      DisplayFormat = '0.00'
+    end
+    object qryContratossemcredito: TBooleanField
+      FieldName = 'semcredito'
+    end
+    object qryContratostiposemcredito: TStringField
+      FieldName = 'tiposemcredito'
+      Size = 50
+    end
+    object qryContratosrestricoesconceito: TBooleanField
+      FieldName = 'restricoesconceito'
+    end
+    object qryContratossituacao_produtos: TStringField
+      FieldName = 'situacao_produtos'
+      Size = 50
+    end
+    object qryContratosplano: TIntegerField
+      FieldName = 'plano'
+      Required = True
+    end
+    object qryContratosdescricaoplano: TStringField
+      FieldName = 'descricaoplano'
+      Size = 30
+    end
+    object qryContratosvendedor: TIntegerField
+      FieldName = 'vendedor'
+    end
+    object qryContratosnomevendedor: TStringField
+      FieldName = 'nomevendedor'
+      Size = 100
+    end
+    object qryContratosVENDEDOR_E_NOME: TStringField
+      FieldKind = fkCalculated
+      FieldName = 'VENDEDOR_E_NOME'
+      Size = 110
+      Calculated = True
+    end
+    object qryContratosquitado: TBooleanField
+      FieldName = 'quitado'
+    end
+    object qryContratossite: TBooleanField
+      FieldName = 'site'
+    end
+    object qryContratosnomesituacao: TStringField
+      FieldName = 'nomesituacao'
+    end
+    object qryContratoscontrato_atual: TStringField
+      FieldName = 'contrato_atual'
+      Size = 50
+    end
+    object qryContratosprimogenito: TStringField
+      FieldName = 'primogenito'
+    end
+  end
+  object dsContratosAprovar: TtecDataSource
+    DataSet = qryContratos
+    Left = 200
+    Top = 16
+  end
+  object qryFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select codigo,'
+      '              nome'
+      'From    filiais'
+      'Where codigo =:codigo')
+    RequestLive = True
+    Left = 56
+    Top = 72
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'codigo'
+        ParamType = ptUnknown
+        Value = 0
+      end>
+    object qryFiliaiscodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+    end
+    object qryFiliaisnome: TStringField
+      FieldName = 'nome'
+      Required = True
+      Size = 40
+    end
+  end
+  object dsrFiliais: TtecDataSource
+    DataSet = qryFiliais
+    Left = 200
+    Top = 70
+  end
+  object qryConsultaFilial: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select codigo,'
+      '              nome'
+      'From    filiais'
+      'Order By codigo')
+    RequestLive = False
+    Left = 352
+    Top = 71
+    object qryConsultaFilialcodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Required = True
+    end
+    object qryConsultaFilialnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Required = True
+      Size = 40
+    end
+  end
+  object qryUsuarios: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select u.codigo,'
+      '           u.nome'
+      'From usuarios u left join gruposusuarios gu on u.grupo=gu.codigo'
+      'Where u.codigo =:codigo and'
+      
+        ' ((u.inativo is null) or (u.inativo>current_date)) and (u.venda ' +
+        'or gu.vendedor)'
+      '')
+    RequestLive = True
+    Left = 56
+    Top = 136
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'codigo'
+        ParamType = ptUnknown
+        Value = 0
+      end>
+    object qryUsuarioscodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryUsuariosnome: TStringField
+      FieldName = 'nome'
+      Required = True
+      Size = 40
+    end
+  end
+  object dsrUsuarios: TtecDataSource
+    DataSet = qryUsuarios
+    Left = 200
+    Top = 136
+  end
+  object qryConsultaUsuarios: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select u.nome,'
+      '           u.codigo'
+      'From usuarios u left join gruposusuarios gu on u.grupo=gu.codigo'
+      
+        'Where ((u.inativo is null) or (u.inativo>current_date)) and (u.v' +
+        'enda or gu.vendedor)'
+      'Order By UPPER(TO_ASCII(u.nome,'#39'LATIN1'#39'))')
+    RequestLive = True
+    Left = 352
+    Top = 136
+    object qryConsultaUsuariosnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryConsultaUsuarioscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+    end
+  end
+  object qryProdutosEntregar_F_P: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'Filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Vendedor'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ContratosFuturo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Contrato'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';select pc.*, p.descricao,'
+      
+        '        (select u.nome from usuarios u where u.codigo = pc.vende' +
+        'dor) as nomevendedor,'
+      '        cast(null as numeric(9,3)) as emEstoque,'
+      '        cast(null as numeric(9,3)) as Reservado,'
+      '        cast(null as numeric(9,3)) as Futuro,'
+      '        cast(null as numeric(9,3)) as transito,'
+      '        cast(null as numeric(9,3)) as qtdepedida,'
+      ''
+      '        cast(null as numeric(9,3)) as Pendente_Geral,'
+      '        cast(null as char(1)) as situacao_produto,'
+      ''
+      '       p.valorgrade1,'
+      '       p.valorgrade2,'
+      ''
+      
+        '       (select g.descricao from grades g where g.codigo = c.grad' +
+        'e1) as linha,'
+      
+        '       (select g.descricao from grades g where g.codigo = c.grad' +
+        'e2) as coluna,'
+      ''
+      ''
+      ''
+      '       (select t.valor'
+      '        from tributosicms t'
+      '        where t.codigo = c.incidencia) as incidencia,'
+      ''
+      '       c.csosn,'
+      
+        '       (select e.localizacao from estoques e where e.produto = p' +
+        'c.produto and e.filial = pc.filial) as localizacao'
+      ''
+      'from'
+      '('
+      
+        ' select contrato,produto, vendedor, filial, entrega, sum(pendent' +
+        'e_contrato) as pendente_contrato'
+      ' from'
+      ' ('
+      '      ('
+      
+        '         select pc.contrato,pc.produto, pc.vendedor, pc.filial,p' +
+        'c.entrega,'
+      
+        '                pc.pendente_contrato - coalesce(pd.quantidade,0)' +
+        ' as pendente_contrato'
+      '         from'
+      '        ('
+      '          Select pc.contrato,'
+      '                 pc.produto,'
+      '                 pc.vendedor,'
+      '                 pc.filial,'
+      '                 pc.entrega,'
+      
+        '                 sum(pc.quantidade-coalesce(pc.cancelado,0))  as' +
+        ' pendente_contrato'
+      ''
+      '          from (contratos ct'
+      '                join produtoscontratos pc'
+      '                on ct.numero = pc.contrato)'
+      ''
+      '          where ct.numero = pc.contrato'
+      '            and ct.situacao = '#39'P'#39
+      
+        '            and (ct.os IS NULL OR not ct.os) and not exists (sel' +
+        'ect c2.numero from contratos c2 where c2.origem = ct.numero)'
+      '            and pc.quantidade > coalesce(pc.cancelado,0)'
+      ''
+      '            %Filial'
+      '            %Vendedor'
+      '            %ContratosFuturo'
+      ''
+      '            %Contrato'
+      ''
+      
+        '          group by pc.contrato, pc.produto, pc.vendedor, pc.fili' +
+        'al, pc.entrega'
+      '         ) pc left join (select d.contrato,'
+      '                                pd1.produto,'
+      '                                pd1.filial,'
+      
+        '                                sum(pd1.quantidade) as quantidad' +
+        'e'
+      ''
+      '                         from ((dadosfiscais d'
+      
+        '                                join contratos ct on d.contrato ' +
+        '= ct.numero)'
+      '                                join produtosdadosfiscais pd1'
+      
+        '                                     on d.numero = pd1.dadofisca' +
+        'l)'
+      ''
+      '                         where d.contrato = ct.numero'
+      '                           and d.numero = pd1.dadofiscal'
+      '                           and d.situacao = '#39'N'#39
+      '                           and ct.situacao = '#39'P'#39
+      
+        '                           AND (ct.os IS NULL OR not ct.os)  and' +
+        ' not exists (select c2.numero from contratos c2 where c2.origem ' +
+        '= ct.numero)'
+      ''
+      '                                   %Filial'
+      '                                   %Vendedor'
+      '                                   %ContratosFuturo'
+      ''
+      
+        '                         group by d.contrato, pd1.produto, pd1.f' +
+        'ilial) pd'
+      '                      using (contrato,produto,filial)'
+      '         where pc.pendente_contrato > coalesce(pd.quantidade,0)'
+      '     )'
+      ''
+      '      union all'
+      ''
+      '     ('
+      '      Select pc.contrato,'
+      '             pc.produto,'
+      '             pc.vendedor,'
+      '             pc.filial,'
+      '             pc.entrega,'
+      
+        '             sum(pc.quantidade-coalesce(pc.cancelado,0))  as pen' +
+        'dente_contrato'
+      ''
+      '      from (contratos ct'
+      '            join produtoscontratos pc'
+      '            on ct.numero = pc.contrato)'
+      ''
+      '      where ct.numero = pc.contrato'
+      '        and ct.situacao = '#39'F'#39
+      '        and (ct.os IS NULL OR not ct.os)'
+      
+        '        and not exists (select c2.numero from contratos c2 where' +
+        ' c2.origem = ct.numero)'
+      ''
+      '        %Filial'
+      '        %Vendedor'
+      '        %ContratosFuturo'
+      ''
+      '        %Contrato'
+      ''
+      ''
+      
+        '      group by pc.contrato, pc.produto, pc.vendedor, pc.filial, ' +
+        'pc.entrega'
+      ''
+      '     )'
+      ' ) as pc group by contrato, produto, vendedor, filial, entrega'
+      ') pc join produtos p'
+      '          join caracteristicas c'
+      '          on p.caracteristica = c.codigo'
+      '  on pc.produto = p.codigo'
+      ''
+      'order by produto,filial')
+    RequestLive = False
+    Left = 272
+    Top = 248
+  end
+  object updContrato: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    RequestLive = False
+    Left = 264
+    Top = 176
+  end
+  object qryContratoAVista: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select contratos_avista(:contrato) as avista')
+    RequestLive = True
+    Left = 166
+    Top = 206
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'contrato'
+        ParamType = ptUnknown
+        Value = '3895'
+      end>
+    object qryContratoAVistaavista: TBooleanField
+      FieldName = 'avista'
+    end
+  end
+  object qryParcelas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select contrato,'
+      '       numero,'
+      '       valorvencto'
+      'from parcelas'
+      'where (contrato = :contrato)'
+      '')
+    RequestLive = True
+    Left = 315
+    Top = 13
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end>
+    object qryParcelascontrato: TStringField
+      FieldName = 'contrato'
+    end
+    object qryParcelasnumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryParcelasvalorvencto: TFloatField
+      FieldName = 'valorvencto'
+    end
+  end
+  object qryLimitesCredito: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select cast(campo[42] as integer) as TotalPontos,'
+      '       campo[44] as LimiteDisponivel,'
+      '       campo[45] as LimiteTotal,'
+      '       campo[46] as LimitePorParcela,'
+      '       campo[47] as LimiteAberto30Dias'
+      
+        'from (select (credito_calculodolimite(:Cliente,:Tipo,:ValorNota,' +
+        ':Emissao)'
+      '              ) as campo'
+      '      ) as temp;')
+    RequestLive = False
+    Left = 360
+    Top = 192
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Cliente'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Tipo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ValorNota'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Emissao'
+        ParamType = ptUnknown
+      end>
+    object qryLimitesCreditototalpontos: TIntegerField
+      FieldName = 'totalpontos'
+    end
+    object qryLimitesCreditolimitedisponivel: TFloatField
+      FieldName = 'limitedisponivel'
+    end
+    object qryLimitesCreditolimitetotal: TFloatField
+      FieldName = 'limitetotal'
+    end
+    object qryLimitesCreditolimiteporparcela: TFloatField
+      FieldName = 'limiteporparcela'
+    end
+    object qryLimitesCreditolimiteaberto30dias: TFloatField
+      FieldName = 'limiteaberto30dias'
+    end
+  end
+  object dsrProdutosEntregar: TtecDataSource
+    DataSet = qryProdutosEntregar
+    Left = 56
+    Top = 240
+  end
+  object qryProdutosSituacao_R_F_P: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';select pc.produto,'
+      '       pc.filial,'
+      '       pc.qtdade,'
+      '       e.emestoque,'
+      '       e.reservado,'
+      '       e.futuro,'
+      '       e.transito,'
+      
+        '       (select sum(pf.qtdepedida) from pedidosfiliais pf where p' +
+        'f.produto = pc.produto and pf.situacao = '#39'A'#39' and pf.requisitante' +
+        ' = pc.filial) as qtdepedida,'
+      ''
+      '       pc.vendedor,'
+      
+        '       (select u.nome from usuarios u where u.codigo = pc.vended' +
+        'or) as nomevendedor,'
+      ''
+      
+        '       cast(case when (pc.qtdade > e.reservado and e.reservado=0' +
+        ')    then '#39'N'#39
+      '            when (pc.qtdade <= e.reservado)  then '#39'A'#39
+      '            when (e.reservado > 0) and'
+      '                 (qtdade > e.reservado + e.emestoque) then '#39'P'#39
+      '       else '#39'?'#39
+      '       end as char(1)) as situacao_produto,'
+      ''
+      '       p.valorgrade1,'
+      '       p.valorgrade2,'
+      ''
+      
+        '       (select g.descricao from grades g where g.codigo = c.grad' +
+        'e1) as linha,'
+      
+        '       (select g.descricao from grades g where g.codigo = c.grad' +
+        'e2) as coluna,'
+      '       '
+      ''
+      '       (select t.valor'
+      '        from tributosicms t'
+      '        where t.codigo = c.incidencia) as incidencia,'
+      ''
+      '       c.csosn,'
+      '       '
+      '       e.localizacao'
+      ''
+      'from'
+      '('
+      '  select produto ,filial, vendedor, sum(qtdade) as qtdade'
+      '  from'
+      '  ('
+      ''
+      '      ('
+      
+        '       select pc.produto, pc.vendedor, pc.filial, pc.qtdade - co' +
+        'alesce(pd.quantidade,0) as qtdade'
+      '       from'
+      '       ('
+      '         Select pc.produto,'
+      '                pc.vendedor,'
+      '                pc.filial,'
+      
+        '                sum(pc.quantidade-coalesce(pc.cancelado,0))  as ' +
+        'qtdade'
+      '         from (contratos ct'
+      '                join produtoscontratos pc'
+      '                on ct.numero = pc.contrato)'
+      ''
+      '         where ct.numero = pc.contrato'
+      '           and ct.situacao = '#39'P'#39
+      
+        '           and (ct.os IS NULL OR not ct.os)    and not exists (s' +
+        'elect c2.numero from contratos c2 where c2.origem = ct.numero)'
+      '           and pc.quantidade > coalesce(pc.cancelado,0)'
+      ''
+      '         group by pc.produto, pc.filial, pc.vendedor'
+      '       ) as pc'
+      ''
+      '                      left join (select pdf.produto,'
+      '                                        pdf.filial,'
+      
+        '                                        sum(pdf.quantidade) as q' +
+        'uantidade'
+      '                                 from (contratos ct'
+      '                                      join (dadosfiscais df'
+      
+        '                                            join produtosdadosfi' +
+        'scais pdf'
+      
+        '                                            on df.numero = pdf.d' +
+        'adofiscal)'
+      
+        '                                      on ct.numero = df.contrato' +
+        ')'
+      '                                 where ct.numero =df.contrato'
+      
+        '                                   and df.numero = pdf.dadofisca' +
+        'l'
+      '                                   and ct.situacao = '#39'P'#39
+      
+        '                                   and (ct.os IS NULL OR not ct.' +
+        'os)'
+      
+        '                                   and not exists (select c2.num' +
+        'ero from contratos c2 where c2.origem = ct.numero)'
+      '                                   and df.situacao = '#39'N'#39
+      '                                 group by pdf.produto,pdf.filial'
+      
+        '                                ) pd on pc.produto = pd.produto ' +
+        'and pc.filial = pd.filial'
+      '      where pc.qtdade > coalesce(pd.quantidade,0)'
+      ''
+      '      )'
+      ''
+      '      union all'
+      ''
+      '      ('
+      '       Select pc.produto,'
+      '              pc.vendedor,'
+      '              pc.filial,'
+      
+        '              sum(pc.quantidade-coalesce(pc.cancelado,0))  as qt' +
+        'dade'
+      '       from (contratos ct'
+      '             join produtoscontratos pc'
+      '             on ct.numero = pc.contrato)'
+      ''
+      '       where ct.numero = pc.contrato'
+      '         and ct.situacao in ('#39'R'#39','#39'F'#39')'
+      '         and (ct.os IS NULL OR not ct.os)'
+      
+        '         and not exists (select c2.numero from contratos c2 wher' +
+        'e c2.origem = ct.numero)'
+      '         and pc.quantidade > coalesce(pc.cancelado,0)'
+      ''
+      '       group by pc.produto, pc.filial, pc.vendedor'
+      '      )'
+      '  ) pc'
+      '  group by produto, filial, vendedor'
+      ') pc natural join estoques e'
+      ''
+      '  join produtos p'
+      '       join caracteristicas c'
+      '       on p.caracteristica = c.codigo'
+      '  on pc.produto = p.codigo')
+    RequestLive = False
+    Left = 248
+    Top = 360
+  end
+  object qryProdutosEntregar: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkFields = 'numero=contrato'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsContratosAprovar
+    Constraints = <>
+    AfterInsert = qryProdutosEntregarAfterInsert
+    AfterScroll = qryProdutosEntregarAfterScroll
+    OnCalcFields = qryProdutosEntregarCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'Filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Vendedor'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ContratosFuturo'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      'select pc.*, p.descricao,'
+      
+        '        (select u.nome from usuarios u where u.codigo = pc.vende' +
+        'dor) as nomevendedor,'
+      '        cast(null as numeric(9,3)) as emEstoque,'
+      '        cast(null as numeric(9,3)) as Reservado,'
+      '        cast(null as numeric(9,3)) as Futuro,'
+      '        cast(null as numeric(9,3)) as transito,'
+      '        cast(null as numeric(9,3)) as pedidos_estoquepedido,'
+      '        '
+      '        cast(null as numeric(9,3)) as Pendente_Geral,'
+      '        cast(null as char(1)) as situacao_produto'
+      'from'
+      '('
+      
+        ' select contrato,produto, filial, vendedor, sum(pendente_contrat' +
+        'o) as pendente_contrato'
+      ' from'
+      ' ('
+      '     ('
+      '      Select pc.contrato,'
+      '             pc.produto,'
+      '             pc.filial,'
+      '             pc.vendedor,'
+      
+        '             sum(pc.quantidade-coalesce(pc.cancelado,0))-sum(coa' +
+        'lesce(pd.quantidade,0))  as pendente_contrato'
+      ''
+      '      from contratos ct'
+      '            join (produtoscontratos pc'
+      '                  left join (select d.contrato,'
+      '                                    pd1.produto,'
+      '                                    pd1.filial,'
+      
+        '                                    sum(pd1.quantidade) as quant' +
+        'idade'
+      ''
+      '                             from ((dadosfiscais d'
+      
+        '                                   join contratos ct on d.contra' +
+        'to = ct.numero)'
+      '                                   join produtosdadosfiscais pd1'
+      '                                   on d.numero = pd1.dadofiscal)'
+      ''
+      '                             where d.contrato = ct.numero'
+      '                               and d.numero = pd1.dadofiscal'
+      '                               and d.situacao = '#39'N'#39
+      '                               and ct.situacao = '#39'P'#39
+      '                               AND (ct.os IS NULL OR not ct.os)'
+      
+        '                               and not exists (select c2.numero ' +
+        'from contratos c2 where c2.origem = ct.numero)'
+      ''
+      '                               %Filial'
+      '                               %Vendedor'
+      '                               %ContratosFuturo'
+      ''
+      
+        '                             group by d.contrato, pd1.produto, p' +
+        'd1.filial) pd'
+      '                  using (contrato,produto,filial))'
+      '            on ct.numero = pc.contrato'
+      ''
+      '      where ct.numero = pc.contrato and'
+      '        and ct.situacao = '#39'P'#39
+      '        and (ct.os IS NULL OR not ct.os)'
+      
+        '        and not exists (select c2.numero from contratos c2 where' +
+        ' c2.origem = ct.numero)'
+      ''
+      '        %Filial'
+      '        %Vendedor'
+      '        %ContratosFuturo'
+      ''
+      '      group by pc.contrato, pc.produto, pc.vendedor, pc.filial'
+      
+        '      having sum(pc.quantidade-coalesce(pc.cancelado,0)) > sum(c' +
+        'oalesce(pd.quantidade,0))'
+      '     )'
+      ''
+      '      union all'
+      ''
+      '     ('
+      '      Select pc.contrato,'
+      '             pc.produto,'
+      '             pc.filial,'
+      '             pc.vendedor,'
+      
+        '             sum(pc.quantidade-coalesce(pc.cancelado,0))  as pen' +
+        'dente_contrato'
+      ''
+      '      from (contratos ct'
+      '            join produtoscontratos pc'
+      '            on ct.numero = pc.contrato)'
+      ''
+      '      where ct.numero = pc.contrato'
+      '        and ct.situacao = '#39'F'#39
+      '        and (ct.os IS NULL OR not ct.os)'
+      
+        '        and not exists (select c2.numero from contratos c2 where' +
+        ' c2.origem = ct.numero)'
+      ''
+      '        %Filial'
+      '        %Vendedor'
+      '        %ContratosFuturo'
+      ''
+      '      group by pc.contrato, pc.produto, pc.vendedor, pc.filial'
+      ''
+      '     )'
+      ' ) as pc group by contrato, produto, vendedor, filial'
+      ') pc join produtos p on pc.produto = p.codigo'
+      'order by produto,filial'
+      '')
+    RequestLive = True
+    Left = 80
+    Top = 256
+    object qryProdutosEntregarcontrato: TStringField
+      FieldName = 'contrato'
+    end
+    object qryProdutosEntregarproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryProdutosEntregarfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryProdutosEntregardescricao: TStringField
+      DisplayWidth = 50
+      FieldName = 'descricao'
+      Required = True
+      Size = 100
+    end
+    object qryProdutosEntregarpendente_contrato: TFloatField
+      FieldName = 'pendente_contrato'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosEntregarpendente_geral: TFloatField
+      FieldName = 'pendente_geral'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosEntregaremestoque: TFloatField
+      FieldName = 'emestoque'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosEntregarreservado: TFloatField
+      FieldName = 'reservado'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosEntregarfuturo: TFloatField
+      FieldName = 'futuro'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosEntregartransito: TFloatField
+      FieldName = 'transito'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosEntregarqtdepedida: TFloatField
+      FieldName = 'qtdepedida'
+    end
+    object qryProdutosEntregarsituacao_produto: TStringField
+      FieldName = 'situacao_produto'
+      Size = 1
+    end
+    object qryProdutosEntregarentrega: TStringField
+      FieldName = 'entrega'
+      Size = 1
+    end
+    object qryProdutosEntregarvendedor: TIntegerField
+      FieldName = 'vendedor'
+    end
+    object qryProdutosEntregarnomevendedor: TStringField
+      FieldName = 'nomevendedor'
+      Size = 100
+    end
+    object qryProdutosEntregarVENDEDOR_E_NOME: TStringField
+      FieldKind = fkCalculated
+      FieldName = 'VENDEDOR_E_NOME'
+      Size = 110
+      Calculated = True
+    end
+    object qryProdutosEntregarincidencia: TStringField
+      FieldName = 'incidencia'
+      Size = 2
+    end
+    object qryProdutosEntregarcsosn: TStringField
+      FieldName = 'csosn'
+      Size = 3
+    end
+    object qryProdutosEntregarvalorgrade1: TStringField
+      FieldName = 'valorgrade1'
+      Size = 10
+    end
+    object qryProdutosEntregarvalorgrade2: TStringField
+      FieldName = 'valorgrade2'
+      Size = 10
+    end
+    object qryProdutosEntregarlinha: TStringField
+      FieldName = 'linha'
+      Size = 50
+    end
+    object qryProdutosEntregarcoluna: TStringField
+      FieldName = 'coluna'
+      Size = 50
+    end
+    object qryProdutosEntregarlocalizacao: TStringField
+      FieldName = 'localizacao'
+    end
+  end
+  object qryProdutosSituacao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkFields = 'produto=produto;filial=filial'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrProdutosEntregar
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select pc.produto,'
+      '       pc.filial,'
+      '       pc.qtdade,  '
+      '       e.emestoque,'
+      '       e.reservado,'
+      '       e.futuro,'
+      '       e.transito,'
+      
+        '       pedidos_estoquepedido(pc.produto,pc.filial) as pedidos_es' +
+        'toquepedido,'
+      
+        '       cast(case when (pc.qtdade > (e.reservado + e.emestoque)) ' +
+        '  then '#39'N'#39
+      
+        '            when (pc.qtdade <=  (e.reservado + e.emestoque)) the' +
+        'n '#39'A'#39
+      '            when ((e.reservado + e.emestoque) > 0) and'
+      '                 (qtdade > (e.reservado + e.emestoque)) then '#39'P'#39
+      '       else '#39'?'#39
+      '       end as varchar(1)) as situacao_produto    '
+      'from'
+      '('
+      ' Select pc.produto,'
+      '        pc.filial,'
+      
+        '        sum(pc.quantidade-coalesce(pc.cancelado,0))-sum(coalesce' +
+        '(pd.quantidade,0))  as qtdade'
+      ' from (contratos ct '
+      '        join (produtoscontratos pc '
+      '              left join (select pdf.produto,'
+      '                                pdf.filial,'
+      
+        '                                sum(pdf.quantidade) as quantidad' +
+        'e'
+      '                         from (dadosfiscais df '
+      '                               join produtosdadosfiscais pdf '
+      '                               on df.numero = pdf.dadofiscal)'
+      '                         where df.numero = pdf.dadofiscal  '
+      '                           and df.contrato in ( '
+      '                                               select ct.numero'
+      '                                               from contratos ct'
+      
+        '                                               where ct.situacao' +
+        ' in ('#39'R'#39','#39'F'#39','#39'P'#39') '
+      
+        '                                                 and (ct.os IS N' +
+        'ULL OR not ct.os)'
+      
+        '                                                 and not exists ' +
+        '(select c2.numero from contratos c2 where c2.origem = ct.numero)'
+      '                                               order by numero'
+      '                                               )'
+      '                           and df.situacao = '#39'N'#39
+      '                         group by pdf.produto,pdf.filial'
+      
+        '                        ) pd on pc.produto = pd.produto and pc.f' +
+        'ilial = pd.filial)'
+      '        on ct.numero = pc.contrato)'
+      '          '
+      ' where ct.numero = pc.contrato'
+      '   and ct.situacao in ('#39'R'#39','#39'F'#39','#39'P'#39') '
+      
+        '   and (ct.os IS NULL OR not ct.os)  and not exists (select c2.n' +
+        'umero from contratos c2 where c2.origem = ct.numero)'
+      ''
+      ' group by pc.produto, pc.filial'
+      
+        ' having sum(pc.quantidade-coalesce(pc.cancelado,0)) > sum(coales' +
+        'ce(pd.quantidade,0))'
+      ') pc'
+      'natural join estoques e'
+      'order by produto, filial')
+    RequestLive = False
+    Left = 104
+    Top = 328
+    object qryProdutosSituacaoproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryProdutosSituacaofilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryProdutosSituacaoqtdade: TFloatField
+      FieldName = 'qtdade'
+    end
+    object qryProdutosSituacaoemestoque: TFloatField
+      FieldName = 'emestoque'
+    end
+    object qryProdutosSituacaoreservado: TFloatField
+      FieldName = 'reservado'
+    end
+    object qryProdutosSituacaofuturo: TFloatField
+      FieldName = 'futuro'
+    end
+    object qryProdutosSituacaosituacao_produto: TStringField
+      FieldName = 'situacao_produto'
+      Size = 1
+    end
+    object qryProdutosSituacaotransito: TFloatField
+      FieldName = 'transito'
+    end
+    object qryProdutosSituacaoqtdepedida: TFloatField
+      FieldName = 'qtdepedida'
+    end
+  end
+  object dsrProdutosSituacao: TtecDataSource
+    DataSet = qryProdutosSituacao
+    Left = 48
+    Top = 312
+  end
+  object qryProdutosSituacao_O: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';select pc.produto,'
+      '       pc.filial,'
+      '       pc.qtdade,'
+      '       e.emestoque,'
+      '       e.reservado,'
+      '       e.futuro,'
+      '       e.transito,'
+      
+        '       (select sum(pf.qtdepedida) from pedidosfiliais pf where p' +
+        'f.produto = pc.produto and pf.situacao = '#39'A'#39' and pf.requisitante' +
+        ' = pc.filial) as qtdepedida,'
+      '       '
+      ''
+      '       '
+      '       cast(case when (pc.qtdade > (e.emestoque))   then '#39'N'#39
+      '            when (pc.qtdade <=  (e.emestoque)) then '#39'A'#39
+      '            when ((e.reservado) > 0) and'
+      '                 (qtdade > (e.emestoque)) then '#39'P'#39
+      '       else '#39'?'#39
+      '       end as char(1)) as situacao_produto,'
+      
+        '       (select u.nome from usuarios u where u.codigo = pc.vended' +
+        'or) as nomevendedor,'
+      ''
+      '       p.valorgrade1,'
+      '       p.valorgrade2,'
+      ''
+      
+        '       (select g.descricao from grades g where g.codigo = c.grad' +
+        'e1) as linha,'
+      
+        '       (select g.descricao from grades g where g.codigo = c.grad' +
+        'e2) as coluna,'
+      ''
+      ''
+      '       (select t.valor'
+      '        from tributosicms t'
+      '        where t.codigo = c.incidencia) as incidencia,'
+      ''
+      '       c.csosn,'
+      '       e.localizacao'
+      '       '
+      'from'
+      '('
+      ' Select pc.produto,'
+      '        pc.filial,'
+      '        pc.vendedor,'
+      '        sum(pc.quantidade)  as qtdade'
+      ' from (contratos ct'
+      '        join produtoscontratos pc'
+      '        on ct.numero = pc.contrato)'
+      ''
+      ' where ct.numero = pc.contrato'
+      '   and ct.situacao = '#39'O'#39
+      '   and (ct.os IS NULL OR not ct.os)'
+      ''
+      ' group by pc.produto, pc.filial, pc.vendedor'
+      ') pc'
+      'natural join estoques e'
+      ''
+      '  join produtos p'
+      '       join caracteristicas c'
+      '       on p.caracteristica = c.codigo'
+      '  on pc.produto = p.codigo')
+    RequestLive = False
+    Left = 248
+    Top = 408
+  end
+  object qryProdutosEntregar_O_R: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'Situacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Vendedor'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ContratosFuturo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Contrato'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';select pc.*, p.descricao,'
+      
+        '       (select u.nome from usuarios u where u.codigo = pc.vended' +
+        'or) as nomevendedor,'
+      '        cast(null as numeric(9,3)) as emEstoque,'
+      '        cast(null as numeric(9,3)) as Reservado,'
+      '        cast(null as numeric(9,3)) as Futuro,'
+      '        cast(null as numeric(9,3)) as transito,'
+      '        cast(null as numeric(9,3)) as qtdepedida,'
+      '        '
+      '        cast(null as numeric(9,3)) as Pendente_Geral,'
+      '        cast(null as char(1)) as situacao_produto,'
+      '       p.valorgrade1,'
+      '       p.valorgrade2,'
+      ''
+      
+        '       (select g.descricao from grades g where g.codigo = c.grad' +
+        'e1) as linha,'
+      
+        '       (select g.descricao from grades g where g.codigo = c.grad' +
+        'e2) as coluna,'
+      ''
+      '       (select t.valor'
+      '        from tributosicms t'
+      '        where t.codigo = c.incidencia) as incidencia,'
+      '       c.csosn,'
+      '       '
+      
+        '       (select e.localizacao from estoques e where e.produto = p' +
+        'c.produto and e.filial = pc.filial) as localizacao'
+      '        '
+      ''
+      'from'
+      '('
+      ''
+      '  Select pc.contrato,'
+      '         pc.produto,'
+      '         pc.vendedor,'
+      '         pc.filial,'
+      '         pc.entrega,'
+      
+        '         sum(pc.quantidade-coalesce(pc.cancelado,0))  as pendent' +
+        'e_contrato'
+      ''
+      '  from (contratos ct'
+      '        join produtoscontratos pc'
+      '        on ct.numero = pc.contrato)'
+      ''
+      '  where ct.numero = pc.contrato'
+      ''
+      '    %Situacao'
+      '    %Filial'
+      '    %Vendedor'
+      '    %ContratosFuturo'
+      ''
+      '    %Contrato'
+      ''
+      ''
+      
+        '  group by pc.contrato, pc.produto, pc.vendedor, pc.filial, pc.e' +
+        'ntrega'
+      ''
+      ''
+      ') pc join produtos p'
+      '          join caracteristicas c'
+      '          on p.caracteristica = c.codigo'
+      '  on pc.produto = p.codigo'
+      ''
+      'order by produto,filial')
+    RequestLive = False
+    Left = 280
+    Top = 296
+  end
+  object qryQualidade_Venda: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select qv.*'
+      'from qualidade_vendas qv'
+      'where qv.codigo = (select qualidade_venda(:contrato, '#39'C'#39', null))')
+    RequestLive = False
+    Left = 536
+    Top = 96
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end>
+    object qryQualidade_Vendacodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryQualidade_Vendadescricao: TStringField
+      DisplayWidth = 50
+      FieldName = 'descricao'
+      Size = 100
+    end
+    object qryQualidade_Vendamargem_inicial: TFloatField
+      FieldName = 'margem_inicial'
+    end
+    object qryQualidade_Vendamargem_final: TFloatField
+      FieldName = 'margem_final'
+    end
+    object qryQualidade_Vendacor: TStringField
+      FieldName = 'cor'
+      Size = 10
+    end
+    object qryQualidade_Vendasolicitar_senha_analista_credito: TBooleanField
+      FieldName = 'solicitar_senha_analista_credito'
+    end
+  end
+end

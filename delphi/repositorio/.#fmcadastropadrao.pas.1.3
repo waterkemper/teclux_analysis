@@ -1,0 +1,273 @@
+unit fmcadastropadrao;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Classes, Forms, DBCtrls, ExtCtrls, Controls, Buttons, DB, Dialogs,
+  //Terceiros
+  ZQuery, DBGrids, Windows,
+  //Componentes
+  cpdatasource,
+  //Repositorio
+  fmnavcontroles, fmajudabt, ComCtrls, ToolWin;
+
+type
+
+  TfrmCadastroPadrao = class(TfrmAjudaBt)
+    sbnIncluir: TSpeedButton;
+    sbnExcluir: TSpeedButton;
+    sbnSalvar: TSpeedButton;
+    procedure sbnIncluirClick(Sender: TObject);
+    procedure sbnExcluirClick(Sender: TObject);
+    procedure sbnSalvarClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+  protected
+    FTeste: Boolean;
+    FDataSource: TtecDataSource;
+    procedure AlterarEstadoBotoes; overload; virtual;
+    procedure AlterarEstadoBotoes(Valor: Boolean); overload; virtual;
+    function Cancelar: boolean;
+    function  GetDataSet: TZDataSet;
+    function  InternoCancelar: Boolean; virtual;
+    function  InternoExcluir: Boolean; virtual;
+    function  InternoGravar: Boolean; virtual;
+    function  InternoIncluir: Boolean; virtual;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure SetDataSet(const Value: TZDataSet);
+    procedure StateChange(Sender: TObject);
+    function  TabelaDePesquisa: TZDataSet; override;
+  public
+    fx: integer;
+    procedure AlterarEndereco(Rua: String; Bairro, Cidade, CEP: Integer; Estado: String); virtual;
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    property DataSet: TZDataSet read GetDataSet write SetDataSet;
+  end;
+
+implementation
+
+Uses
+  //CLX
+  {Qete,}
+  //Biblio
+  ctconstantes, biblio;
+
+{$R *.dfm}
+
+procedure TfrmCadastroPadrao.AlterarEndereco(Rua: String; Bairro, Cidade,
+  CEP: Integer; Estado: String);
+begin
+end;
+
+procedure TfrmCadastroPadrao.AlterarEstadoBotoes(Valor: Boolean);
+begin
+  sbnIncluir.Enabled  := Valor;
+  sbnProcurar.Enabled := Valor;
+  sbnExcluir.Enabled  := Valor;
+  sbnSalvar.Enabled   := Valor;
+end;
+
+procedure TfrmCadastroPadrao.AlterarEstadoBotoes;
+begin
+  sbnIncluir.Enabled  := DataSet.Active and (Dataset.State = dsBrowse);
+  sbnProcurar.Enabled := sbnIncluir.Enabled;
+  sbnExcluir.Enabled  := DataSet.Active and not DataSet.IsEmpty;
+  sbnSalvar.Enabled   := DataSet.State in [dsEdit, dsInsert];
+end;
+
+function TfrmCadastroPadrao.Cancelar: Boolean;
+begin
+  result := InternoCancelar;
+end;
+
+constructor TfrmCadastroPadrao.Create(AOwner: TComponent);
+begin
+try
+  FDataSource  := TtecDataSource.Create(Self);
+  inherited Create(AOwner);
+  FDataSource.OnStateChange := StateChange;
+{
+  sbnIncluir.Left := 0;
+  sbnSalvar.Left := 100;
+  sbnExcluir.Left := 200;
+  sbnProcurar.Left := 300;
+  tbnDivisor.Left := 400;
+  sbnAjuda.Left := 500;
+}
+  enabled := true;
+
+except
+     on E: Exception do ShowMessage(E.Message);
+end;
+end;
+
+destructor TfrmCadastroPadrao.Destroy;
+begin
+
+
+try
+  try
+    if Assigned(FDataSource.DataSet) then
+      if dataset.State in ([dsedit, dsinsert]) then
+        DataSet.Cancel;
+  except
+  end;
+finally
+  FDataSource.Free;
+end;  
+
+  inherited  Destroy;
+
+end;
+
+function TfrmCadastroPadrao.GetDataSet: TZDataSet;
+begin
+  if Assigned(FDataSource.DataSet) then
+    Result := TZDataset(FDataSource.DataSet)
+  else
+    raise Exception.Create(Format(ctPROPRIEDADENAOIMPLEMENTADO, ['DataSet', ClassName]));
+end;
+
+
+function TfrmCadastroPadrao.InternoCancelar: Boolean;
+begin
+  if DataSet.State in [dsEdit, dsInsert] then begin
+    Result := MensagemConfirmacao(ctINFORMACOESSERAOPERDIDAS) = smbOk;
+    if Result then
+      DataSet.Cancel
+  end else
+    Result := True;
+end;
+
+function TfrmCadastroPadrao.InternoExcluir: Boolean;
+begin
+  SetFocusFindCustom(True);
+  Result := True;
+end;
+
+function TfrmCadastroPadrao.InternoGravar: Boolean;
+begin
+  if self.Visible then
+    SetFocusFindCustom(False);
+    
+  Result:= True;
+end;
+
+function TfrmCadastroPadrao.InternoIncluir: Boolean;
+begin
+  Result:= True;
+end;
+
+procedure TfrmCadastroPadrao.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  if Key = VK_ESCAPE then begin
+    if (Shift <> []) then
+      inherited KeyDown(Key, Shift)
+    else begin
+      if assigned(ActiveControl) and (ActiveControl.ClassName = 'TDBGridInplaceEdit') then
+          inherited KeyDown(Key, Shift)
+      else
+      if assigned(ActiveControl) and (ActiveControl Is TDBGrid) and
+         (TDBGrid(ActiveControl).DataSource.dataset.State in [dsinsert, dsedit]) then
+           TDBGrid(ActiveControl).DataSource.DataSet.Cancel
+      else
+      if DataSet.State in [dsEdit, dsInsert] then begin
+        if InternoCancelar then
+          inherited KeyDown(Key, Shift)
+        else
+          Key := 0;
+      end else
+        inherited KeyDown(Key, Shift)
+    end
+  end else begin
+    case Key of
+      //VK_INSERT,
+      VK_F3: begin
+                CtrlOn := Shift = [ssCtrl];
+                if CtrlOn then
+                  sbnIncluirClick(sbnIncluir)
+                else
+                if sbnIncluir.Enabled then
+                begin
+                  if Shift = [] then
+                    sbnIncluirClick(sbnIncluir);
+                end;
+              end;
+      //VK_Delete,
+      VK_F6: if sbnExcluir.Enabled then begin
+                CtrlOn := Shift = [ssCtrl];
+                if (Shift = []) or (Shift = [ssCtrl]) then
+                  sbnExcluirClick(sbnExcluir);
+              end;
+      VK_F5: if (Shift = []) and sbnSalvar.Enabled and (DataSet.State in [dsEdit, dsInsert]) then
+                sbnSalvarClick(sbnSalvar);
+    end;
+    inherited KeyDown(Key, Shift)
+  end
+end;
+
+procedure TfrmCadastroPadrao.sbnExcluirClick(Sender: TObject);
+begin
+  inherited;
+  InternoExcluir;
+  AlterarEstadoBotoes;
+  CtrlOn := False;
+end;
+                                   
+procedure TfrmCadastroPadrao.sbnIncluirClick(Sender: TObject);
+begin
+  inherited;
+  InternoIncluir;
+  CtrlOn := False;
+end;
+
+procedure TfrmCadastroPadrao.sbnSalvarClick(Sender: TObject);
+begin
+  inherited;
+  InternoGravar;
+  CtrlOn := False;
+end;
+
+procedure TfrmCadastroPadrao.SetDataSet(const Value: TZDataSet);
+begin
+  If Assigned(FDataSource) Then
+    if Value <> FDataSource.DataSet then
+      FDataSource.DataSet := Value;
+end;
+
+procedure TfrmCadastroPadrao.StateChange(Sender: TObject);
+begin
+  if FDataSource = Sender then
+    if Not Assigned(FDataSource.DataSet) then
+      AlterarEstadoBotoes(False)
+    else if FDataSource.DataSet.State = dsInactive then
+      AlterarEstadoBotoes(False)
+    else
+      AlterarEstadoBotoes
+end;
+
+function TfrmCadastroPadrao.TabelaDePesquisa: TZDataSet;
+begin
+  Result := inherited TabelaDePesquisa;
+  if Not Assigned(Result) then
+    Result := DataSet
+end;
+
+procedure TfrmCadastroPadrao.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  inherited;
+  DataSet.Cancel;
+end;
+
+procedure TfrmCadastroPadrao.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+begin
+  canclose := self.Enabled;
+  if canclose then
+    if DataSet.State in [dsEdit, dsInsert] then
+      CanClose := InternoCancelar;
+end;
+
+end.
+

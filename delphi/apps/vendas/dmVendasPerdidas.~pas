@@ -1,0 +1,158 @@
+unit dmVendasPerdidas;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, dmtecsoft, DB, cpdatasource, ZQuery,
+  ZPgSqlQuery, cpquery, ctconstantes, biblio, clusuario;
+
+type
+  TdtmVendasPerdidas = class(TdtmBasico)
+    qryVendasPerdidas: TtecQuery;
+    dsrVendasPerdidas: TtecDataSource;
+    qryVendasPerdidascodigo: TIntegerField;
+    qryVendasPerdidasfilial: TIntegerField;
+    qryVendasPerdidasvendedor: TIntegerField;
+    qryVendasPerdidasgrupo: TStringField;
+    qryVendasPerdidasdata_hora: TDateTimeField;
+    qryVendasPerdidasobservacoes: TStringField;
+    qryVendasPerdidasnomevendedor: TStringField;
+    qryVendasPerdidasnomefilial: TStringField;
+    qryVendasPerdidas_Proximo: TtecQuery;
+    qryVendasPerdidas_Proximocodigo: TLargeintField;
+    qryVendasPerdidasproduto: TLargeintField;
+    qryVendasPerdidasprodutovisual: TStringField;
+    qryVendasPerdidasdescricaoitemproduto: TStringField;
+    qryVendasPerdidasdescricaogrupoproduto: TStringField;
+    procedure qryVendasPerdidasNewRecord(DataSet: TDataSet);
+    procedure qryVendasPerdidasBeforePost(DataSet: TDataSet);
+    procedure dsrVendasPerdidasDataChange(Sender: TObject; Field: TField);
+  private
+    { Private declarations }
+    UsuarioAut: TtecUsuarios;
+    function Autoriazacao: Boolean;
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure Incluir;
+    procedure Gravar;
+    procedure Excluir;
+
+  end;
+
+var
+  dtmVendasPerdidas: TdtmVendasPerdidas;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmVendasPerdidas }
+
+function TdtmVendasPerdidas.Autoriazacao: Boolean;
+begin
+
+//  if not assigned(UsuarioAut) then
+    UsuarioAut := ObterAutorizacao(taLOGIN, 'Registro de venda perdida', '', '');
+
+  if Assigned(UsuarioAut) then
+  begin
+     result := true;
+
+    {
+    Result := UsuarioAut.Vendedor;
+    if Not Result then
+      MensagemAviso(ctUSUARIOSEMPERMISSAO);
+    }  
+  end else
+    Result := False;
+end;
+
+constructor TdtmVendasPerdidas.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryVendasPerdidas.tag := ctTabelas;
+end;
+
+destructor TdtmVendasPerdidas.Destroy;
+begin
+
+  inherited;
+end;
+
+procedure TdtmVendasPerdidas.Excluir;
+begin
+  if MensagemConfirmacao('Confirme a exclusão deste registro?') = smbOk then
+  begin
+    if Autoriazacao then
+    begin
+      qryVendasPerdidas.delete;
+      perpetrar([qryVendasPerdidas]);
+    end;  
+  end;
+end;
+
+procedure TdtmVendasPerdidas.Gravar;
+begin
+  try
+
+    qryVendasPerdidasprodutovisual.Required := (qryVendasPerdidasdescricaoitemproduto.AsString = '');
+    qryVendasPerdidasgrupo.Required := (qryVendasPerdidasdescricaogrupoproduto.AsString = '');
+
+    if qryVendasPerdidas.CheckRequiredFields then
+    begin
+      if Autoriazacao then
+      begin
+        qryVendasPerdidasvendedor.AsInteger := UsuarioAut.CodigoUsuario;
+        qryVendasPerdidasnomevendedor.AsString := UsuarioAut.NomeUsuario;
+        qryVendasPerdidas.Post;
+        perpetrar([qryVendasPerdidas]);
+      end;
+    end;
+
+  finally
+    qryVendasPerdidasprodutovisual.Required := false;
+    qryVendasPerdidasgrupo.Required := false;
+  end;
+
+end;
+
+procedure TdtmVendasPerdidas.Incluir;
+begin
+  qryVendasPerdidas.Append;
+end;
+
+procedure TdtmVendasPerdidas.qryVendasPerdidasNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+  qryVendasPerdidasfilial.asInteger := FilialBase;
+  qryVendasPerdidasnomefilial.asString := NomeFilialBase;
+  qryVendasPerdidasdata_hora.asDateTime := DataHoraServidor;
+
+end;
+
+procedure TdtmVendasPerdidas.qryVendasPerdidasBeforePost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryVendasPerdidascodigo.IsNull then
+  begin
+    qryVendasPerdidas_Proximo.Close;
+    qryVendasPerdidas_Proximo.Open;
+    qryVendasPerdidascodigo.asInteger := qryVendasPerdidas_Proximocodigo.AsInteger;
+  end;
+end;
+
+procedure TdtmVendasPerdidas.dsrVendasPerdidasDataChange(Sender: TObject;
+  Field: TField);
+begin
+  inherited;
+  if field =  qryVendasPerdidasprodutovisual then
+  begin
+    if field.IsNull then
+      qryVendasPerdidasproduto.clear;
+  end;
+end;
+
+end.

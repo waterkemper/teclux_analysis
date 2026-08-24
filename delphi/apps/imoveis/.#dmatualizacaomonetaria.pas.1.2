@@ -1,0 +1,92 @@
+unit dmatualizacaomonetaria;
+
+interface
+
+uses
+  SysUtils, Classes, DB, cpdatasource, ZQuery, ZPgSqlQuery, cpquery, DateUtils,
+  //Biblio
+  Biblio, ctconstantes, clusuario,
+  //Projeto
+  clparametrossistema,
+  //Repositorio
+  dmbasico, ZTransact, dmtecsoft;
+
+type
+  Tdtmatualizacaomonetaria = class(TdtmBasico)
+    qryProcessarCorrecao: TtecQuery;
+    ZMonitor1: TZMonitor;
+    qryProcessarCorrecaoReprocessarCorrecao: TBooleanField;
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+  private
+    FExercicio: Integer;
+    FMes: Integer;
+    FEmpreendimento: Integer;
+
+    { Private declarations }
+  public
+     constructor Create(AOwner: TComponent); override;
+     destructor  Destroy; override;
+     property Mes : Integer read FMes write FMes;
+     property Exercicio : Integer read FExercicio write FExercicio;
+     property Empreendimento : Integer read FEmpreendimento write FEmpreendimento;
+     function GerarAtualizacaoMonetaria: Boolean;
+    { Public declarations }
+  end;
+
+var
+  dtmatualizacaomonetaria: Tdtmatualizacaomonetaria;
+
+implementation
+
+{$R *.dfm}
+
+{ Tdtmatualizacaomonetaria }
+
+constructor Tdtmatualizacaomonetaria.Create(AOwner: TComponent);
+begin
+  inherited;
+  if not parSistema.GerarContabilidade then
+    MensagemAviso('O Sistema não está permitindo a geração de lançamentos contábeis. Verifique nos parâmetros do sistema esta opção');
+end;
+
+destructor Tdtmatualizacaomonetaria.Destroy;
+begin
+  inherited;
+end;
+
+function Tdtmatualizacaomonetaria.GerarAtualizacaoMonetaria: Boolean;
+begin
+  Result:= True;
+  try
+    ShowProcessando('Atualizações Monetárias do mês de '+#13#10+
+                     MesExtenso(FMes)+' de '+inttostr(FExercicio)+' em andamento');
+    Perpetrar([]);
+    qryProcessarCorrecao.ParamByName('Filial').AsInteger:= FilialBase;
+    qryProcessarCorrecao.ParamByName('Exercicio').AsInteger:= FExercicio;
+    qryProcessarCorrecao.ParamByName('Mes').AsInteger:= FMes;
+    qryProcessarCorrecao.Close;
+    qryProcessarCorrecao.Open;
+  finally
+    Perpetrar([]);
+    ShowProcessando;
+  end;
+end;
+
+procedure Tdtmatualizacaomonetaria.ZMonitor1MonitorEvent(Sql,Result: String);
+var
+  Listar : TStringList;
+  Arquivo: String;
+begin
+  inherited;
+  Listar := TStringList.Create;
+  Arquivo := 'C:\Lixo\CorrecaoImoveis.sql';
+  if FileExists(Arquivo) then
+    Listar.LoadFromFile(Arquivo);
+  Listar.Add('');
+  Listar.Add(Sql);
+  Listar.Add(Result);
+  listar.SaveToFile(Arquivo);
+  listar.Free;
+end;
+
+end.

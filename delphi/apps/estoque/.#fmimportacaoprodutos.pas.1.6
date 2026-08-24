@@ -1,0 +1,2545 @@
+unit fmimportacaoprodutos;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmajudabt, ComCtrls, Buttons, ExtCtrls, DB, ZQuery, FileCtrl,
+  ZPgSqlQuery, cpquery, dmbasico, Windows, ZTransact, ctconstantes, IniFiles,
+  ToolWin;
+
+type
+  TfrmImportacaoProdutos = class(TfrmAjudaBt)
+    gbxDiretorioImportacao: TGroupBox;
+    lblDiretorioImportacao: TLabel;
+    proImportacao: TProgressBar;
+    sbnDiretorioImportacao: TSpeedButton;
+    sbnImportarDados: TSpeedButton;
+    qryGrupos: TtecQuery;
+    qryClasses: TtecQuery;
+    qryUnidades: TtecQuery;
+    qryIPI: TtecQuery;
+    qryICMS: TtecQuery;
+    qryMarcas: TtecQuery;
+    qryGrades: TtecQuery;
+    qryPlanoContas: TtecQuery;
+    qryHistoricos: TtecQuery;
+    qryPrecos: TtecQuery;
+    qryColunas: TtecQuery;
+    qryColunasPrecos: TtecQuery;
+    qryCaracteristicas: TtecQuery;
+    qryClassescodigo: TStringField;
+    qryClassesdescricao: TStringField;
+    qryClassescomissao: TFloatField;
+    qryClassestipocomissao: TStringField;
+    qryClassesvendanegativa: TStringField;
+    qryClassesmultiplo: TFloatField;
+    qryClassesinativo: TDateField;
+    qryClassesnaoreplicar: TBooleanField;
+    qryGruposcodigo: TStringField;
+    qryGruposdescricao: TStringField;
+    qryGruposcomissao: TFloatField;
+    qryGrupostipocomissao: TStringField;
+    qryGruposvendanegativa: TStringField;
+    qryGruposmarkup: TFloatField;
+    qryGruposmultiplo: TFloatField;
+    qryGruposinativo: TDateField;
+    qryGruposcalcularpreco: TBooleanField;
+    qryGruposnaoreplicar: TBooleanField;
+    qryGruposplanilhacustos: TBooleanField;
+    qryUnidadescodigo: TStringField;
+    qryUnidadesdescricao: TStringField;
+    qryIPIcodigo: TIntegerField;
+    qryIPIdescricao: TStringField;
+    qryIPIclassificacaofiscal: TStringField;
+    qryIPIaliquota: TFloatField;
+    qryIPIgenero: TIntegerField;
+    qryICMScodigo: TIntegerField;
+    qryICMSdescricao: TStringField;
+    qryICMStipo: TStringField;
+    qryMarcascodigo: TIntegerField;
+    qryMarcasdescricao: TStringField;
+    qryMarcasinativo: TDateField;
+    qryGradescodigo: TIntegerField;
+    qryGradesdescricao: TStringField;
+    qryPlanoContascodigo: TIntegerField;
+    qryPlanoContasclassificacao: TStringField;
+    qryPlanoContasdescricao: TStringField;
+    qryPlanoContastipo: TStringField;
+    qryPlanoContasinativo: TDateField;
+    qryPlanoContasreferencia: TIntegerField;
+    qryPlanoContasnatureza: TStringField;
+    qryPlanoContasdataincalt: TDateField;
+    qryPlanoContasdemosped: TBooleanField;
+    qryHistoricoscodigo: TIntegerField;
+    qryHistoricosdescricao: TStringField;
+    qryHistoricosinativo: TDateField;
+    qryHistoricoscaixa: TBooleanField;
+    qryHistoricospagar: TBooleanField;
+    qryHistoricoscontabil: TBooleanField;
+    qryPrecoscaracteristica: TLargeintField;
+    qryPrecoscodigo: TIntegerField;
+    qryPrecosdescricao: TStringField;
+    qryPrecosavariado: TBooleanField;
+    qryColunascodigo: TIntegerField;
+    qryColunasdescricao: TStringField;
+    qryColunasPrecoscaracteristica: TLargeintField;
+    qryColunasPrecospreco: TIntegerField;
+    qryColunasPrecoscoluna: TIntegerField;
+    qryColunasPrecosvalor: TFloatField;
+    qryColunasPrecosvalidade: TDateField;
+    qryColunasPrecosdata: TDateField;
+    qryColunasPrecosalteracao: TDateField;
+    qryCaracteristicascodigo: TLargeintField;
+    qryCaracteristicascodigovisual: TStringField;
+    qryCaracteristicasdescricao: TStringField;
+    qryCaracteristicascomplemento: TStringField;
+    qryCaracteristicasgrupo: TStringField;
+    qryCaracteristicasclasse: TStringField;
+    qryCaracteristicasunidade: TStringField;
+    qryCaracteristicasipi: TIntegerField;
+    qryCaracteristicasfatorpreco: TStringField;
+    qryCaracteristicassubconta: TIntegerField;
+    qryCaracteristicasvendanegativa: TStringField;
+    qryCaracteristicascomposto: TBooleanField;
+    qryCaracteristicasdiscriminarcomposto: TStringField;
+    qryCaracteristicasdiscriminarpreco: TBooleanField;
+    qryCaracteristicasmontagem: TBooleanField;
+    qryCaracteristicasorigem: TIntegerField;
+    qryCaracteristicasicms: TIntegerField;
+    qryCaracteristicasaliquotapis: TFloatField;
+    qryCaracteristicasaliquotacofins: TFloatField;
+    qryCaracteristicasincidencia: TIntegerField;
+    qryCaracteristicaspercreducaobase: TFloatField;
+    qryCaracteristicasvolumes: TIntegerField;
+    qryCaracteristicasforalinha: TDateField;
+    qryCaracteristicasemitecomplemento: TBooleanField;
+    qryCaracteristicasinativo: TDateField;
+    qryCaracteristicasobslegal: TIntegerField;
+    qryCaracteristicasbrinde: TBooleanField;
+    qryCaracteristicastipocomissao: TStringField;
+    qryCaracteristicascomissao: TFloatField;
+    qryCaracteristicasemiteetiqueta: TBooleanField;
+    qryCaracteristicasmarca: TIntegerField;
+    qryCaracteristicasmarkup: TFloatField;
+    qryCaracteristicasmultiplo: TFloatField;
+    qryCaracteristicasobservacao: TStringField;
+    qryCaracteristicasgrade1: TIntegerField;
+    qryCaracteristicasgrade2: TIntegerField;
+    qryCaracteristicasbaseicms: TFloatField;
+    qryCaracteristicasbonus: TIntegerField;
+    qryCaracteristicasdebitarvendaavista: TIntegerField;
+    qryCaracteristicasdebitarvendaaprazo: TIntegerField;
+    qryCaracteristicasdebitarabatimentos: TIntegerField;
+    qryCaracteristicasdebitardevolucoes: TIntegerField;
+    qryCaracteristicascreditarvendaavista: TIntegerField;
+    qryCaracteristicascreditarvendaaprazo: TIntegerField;
+    qryCaracteristicascreditarabatimentos: TIntegerField;
+    qryCaracteristicascreditardevolucoes: TIntegerField;
+    qryCaracteristicashistoricovendaavista: TIntegerField;
+    qryCaracteristicashistoricovendaaprazo: TIntegerField;
+    qryCaracteristicashistoricoabatimentos: TIntegerField;
+    qryCaracteristicashistoricodevolucoes: TIntegerField;
+    qryCaracteristicasproducaopropria: TBooleanField;
+    qryCaracteristicassubstituicaoipi: TBooleanField;
+    qryCaracteristicasespecial: TBooleanField;
+    qryCaracteristicastipoatividade: TStringField;
+    qryCaracteristicasicmsmodalidade: TIntegerField;
+    qryCaracteristicasicmsmodsubst: TIntegerField;
+    qryCaracteristicasforalinhal: TBooleanField;
+    qryCaracteristicasinativol: TBooleanField;
+    qryCaracteristicaspiscst: TStringField;
+    qryCaracteristicascofinscst: TStringField;
+    qryCaracteristicasipicst: TStringField;
+    qryCaracteristicastipoproduto: TStringField;
+    qryCaracteristicascustoadicionalproduto: TFloatField;
+    qryCaracteristicasdata: TDateField;
+    qryProdutos: TtecQuery;
+    qryProdutoscodigo: TLargeintField;
+    qryProdutoscodigovisual: TStringField;
+    qryProdutosdescricao: TStringField;
+    qryProdutoscaracteristica: TLargeintField;
+    qryProdutospreco: TIntegerField;
+    qryProdutosreferencia: TStringField;
+    qryProdutosvalorgrade1: TStringField;
+    qryProdutosvalorgrade2: TStringField;
+    qryProdutosinativo: TDateField;
+    qryProdutosforalinha: TDateField;
+    qryProdutoscodigorecolha: TLargeintField;
+    qryProdutosdescricaocomplementar: TStringField;
+    qryProdutospalavraschave: TStringField;
+    qryProdutosaparecernosite: TBooleanField;
+    qryProdutosforalinhal: TBooleanField;
+    qryProdutosinativol: TBooleanField;
+    qryProdutosdata: TDateField;
+    qryProdutoscaracteristicas: TStringField;
+    ZMonitor1: TZMonitor;
+    qryEstoques: TtecQuery;
+    qryEstoquesproduto: TLargeintField;
+    qryEstoquesfilial: TIntegerField;
+    qryEstoquesemestoque: TFloatField;
+    qryEstoquesreservado: TFloatField;
+    qryEstoquestransito: TFloatField;
+    qryEstoquesdemonstracao: TFloatField;
+    qryEstoquesconserto: TFloatField;
+    qryEstoquesfuturo: TFloatField;
+    qryEstoquesdanificada: TFloatField;
+    qryEstoquesestoquefisico: TFloatField;
+    qryEstoquesreservaprevia: TFloatField;
+    qryFiliais: TtecQuery;
+    qryFiliaiscodigo: TIntegerField;
+    qryEstados: TtecQuery;
+    qryEstadoscodigo: TStringField;
+    qryEstadosnome: TStringField;
+    qryEstadospontos: TIntegerField;
+    qryEstadoscodigoibge: TIntegerField;
+    qryCidades: TtecQuery;
+    qryCidadesestado: TStringField;
+    qryCidadescodigo: TIntegerField;
+    qryCidadesnome: TStringField;
+    qryCidadespontos: TIntegerField;
+    qryCidadescep: TIntegerField;
+    qryCidadescepinicial: TIntegerField;
+    qryCidadescepfinal: TIntegerField;
+    qryCidadesfoneprestadora: TIntegerField;
+    qryCidadesfoneddd: TIntegerField;
+    qryCidadescodigocorreio: TIntegerField;
+    qryCidadescodigoibge: TIntegerField;
+    qryTabelaFretes: TtecQuery;
+    qryTabelaFretescodigo: TIntegerField;
+    qryTabelaFretesdescricao: TStringField;
+    qryTabelaFretesobservacoes: TStringField;
+    qryTabelaFretesvalorcliente: TFloatField;
+    qryTabelaFretesvalorfornecedor: TFloatField;
+    qryRegioes: TtecQuery;
+    qryRegioescodigo: TStringField;
+    qryRegioesnome: TStringField;
+    qryRegioespontos: TIntegerField;
+    qryRegioesfrete: TIntegerField;
+    qryBairros: TtecQuery;
+    qryBairrosestado: TStringField;
+    qryBairroscidade: TIntegerField;
+    qryBairroscodigo: TIntegerField;
+    qryBairrosnome: TStringField;
+    qryBairrosregiao: TStringField;
+    qryBairrospontos: TIntegerField;
+    qryBairroscep: TIntegerField;
+    qryBairrosfrete: TIntegerField;
+    qryBairroscidadecorreio: TIntegerField;
+    qryBairroscodigocorreio: TIntegerField;
+    qryGruposFornecedores: TtecQuery;
+    qryGruposFornecedorescodigo: TIntegerField;
+    qryGruposFornecedoresnome: TStringField;
+    qryConceitos: TtecQuery;
+    qryConceitoscodigo: TIntegerField;
+    qryConceitosdescricao: TStringField;
+    qryConceitosinativo: TDateField;
+    qryConceitosrestricoes: TBooleanField;
+    qryFornecedores: TtecQuery;
+    qryFornecedorescodigo: TIntegerField;
+    qryFornecedoresnome: TStringField;
+    qryFornecedoresrazao: TStringField;
+    qryFornecedorespessoatipo: TStringField;
+    qryFornecedorespessoanumero: TStringField;
+    qryFornecedoresrua: TStringField;
+    qryFornecedoresbairro: TIntegerField;
+    qryFornecedorescidade: TIntegerField;
+    qryFornecedoresestado: TStringField;
+    qryFornecedoresgrupofornecedor: TIntegerField;
+    qryFornecedorescep: TIntegerField;
+    qryFornecedoresfoneddd: TIntegerField;
+    qryFornecedoresfonenumero: TIntegerField;
+    qryFornecedoresfaxddd: TIntegerField;
+    qryFornecedoresfaxnumero: TIntegerField;
+    qryFornecedoresinscricaoestadual: TStringField;
+    qryFornecedorescontato: TStringField;
+    qryFornecedoresdebito: TIntegerField;
+    qryFornecedorescredito: TIntegerField;
+    qryFornecedoresobservacoes: TStringField;
+    qryFornecedoresemail: TStringField;
+    qryFornecedoresmarkup: TFloatField;
+    qryFornecedoresinativo: TDateField;
+    qryFornecedoresconceito: TIntegerField;
+    qryFornecedoresenderecoalterado: TDateField;
+    qryFornecedoresnosimples: TBooleanField;
+    qryFornecedorescontribicms: TBooleanField;
+    qryFornecedoressuframa: TStringField;
+    qryFornecedoresrntc: TStringField;
+    qryFornecedoresnumero: TIntegerField;
+    qryFornecedorescomplemento: TStringField;
+    qryFornecedoresfornecedorparaiss: TBooleanField;
+    qryFornecedoressite: TStringField;
+    qryFornecedoresadiantamento: TIntegerField;
+    qryFornecedoresdebitoqdocliente: TIntegerField;
+    qryFornecedorescreditoqdocliente: TIntegerField;
+    qryFornecedoreshistoricocontabil: TIntegerField;
+    qryFornecedorestipofornec_produto_p: TStringField;
+    qryFornecedorestipofornec_tranporte_t: TStringField;
+    qryFornecedorestipofornec_montagem_m: TStringField;
+    qryFornecedoresProdutos: TtecQuery;
+    qryFornecedoresProdutosfornecedor: TIntegerField;
+    qryFornecedoresProdutosreferencia: TStringField;
+    qryFornecedoresProdutoscaracteristica: TLargeintField;
+    qryFornecedoresProdutospreco: TFloatField;
+    qryFornecedoresProdutosipi: TFloatField;
+    qryFornecedoresProdutosdata: TDateField;
+    qryFornecedoresProdutosobservacao: TStringField;
+    qryUpdateTipFornecedor: TtecQuery;
+    lblImportacao: TLabel;
+    qryCaracteristicascsosn: TStringField;
+    lblErro: TLabel;
+    procedure sbnDiretorioImportacaoClick(Sender: TObject);
+    procedure sbnImportarDadosClick(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+  private
+    fDirImportacao: String;
+    procedure setDirImportacao(const Value: String);
+  private
+    procedure InicializarProgressBar(Maximo: Integer);
+    function ImportarClasses: Boolean;
+    function ImportarGrupos: Boolean;
+    function ImportarUnidades: Boolean;
+    function ImportarIPI: Boolean;
+    function ImportarICMS: Boolean;
+    function ImportarMarcas: Boolean;
+    function ImportarGrades: Boolean;
+    function ImportarPlanosContas: Boolean;
+    function ImportarHistoricos: Boolean;
+    function ImportarEstados: Boolean;
+    function ImportarCidades: Boolean;
+    function ImportarTabelaFrete: Boolean;
+    function ImportarRegioes: Boolean;
+    function ImportarBairros: Boolean;
+    function ImportarGruposFornecedores: Boolean;
+    function ImportarConceitos: Boolean;
+    function ImportarFornecedores: Boolean;
+    function ImportarProdutos: Boolean;
+    function ImportarPrecos: Boolean;
+    function ImportarColunas: Boolean;
+    function ImportarColunasPrecos: Boolean;
+    function ImportarCaracteristicas: Boolean;
+    function ImportarFornecedoresProdutos: Boolean;
+    property DirImportacao: String read fDirImportacao write setDirImportacao;
+    { Private declarations }
+  public
+    SQLTipoFornecimento: String;
+    constructor Create(AOwner: TComponent); override;
+    { Public declarations }
+  end;
+
+const
+  barra = {$ifdef msQt}'\'{$else}'/'{$endif};
+
+var
+  frmImportacaoProdutos: TfrmImportacaoProdutos;
+  dtmBasico: TdtmBasico;
+implementation
+
+uses
+  biblio, Variants, clparametrossistema;
+
+{$R *.dfm}
+
+constructor TfrmImportacaoProdutos.Create(AOwner: TComponent);
+var
+  ArquivoCFG: TIniFile;
+begin
+  inherited;
+  dtmBasico := TdtmBasico.Create(self);
+  if FileExists(NomeArquivoCFG) then
+  begin
+    ArquivoCFG := TIniFile.Create(NomeArquivoCFG);
+    try
+      lblDiretorioImportacao.Caption := ArquivoCFG.ReadString(ImportacaoProdutosSection, 'DirImportaçãoProdutos'  , '');
+    finally
+      ArquivoCFG.Free
+    end;
+  end;
+  qryFiliais.Open;
+end;
+
+function TfrmImportacaoProdutos.ImportarClasses: Boolean;
+var
+  Lista,
+  Campos: TStringList;
+  i: integer;
+  codigos: String;
+begin
+  Result := True;
+  try
+    if FileExists(fDirImportacao+'Classes.txt') then
+    begin
+      codigos := '';
+      Lista := TStringList.Create;
+      try
+        Lista.LoadFromFile(fDirImportacao+'Classes.txt');
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO CLASSES 1/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            codigos := codigos + QuotedStr(Campos[0]) + ',';
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+        Delete(codigos,length(codigos),1);
+        qryClasses.close;
+        qryClasses.MacroByName('codigos').AsString := 'and codigo in (' + codigos + ')';
+        qryClasses.Open;
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO CLASSES 2/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos        := Explode(';',Lista.Strings[i]);
+          try
+            if qryClasses.Locate('codigo',Campos[0],[]) then
+              qryClasses.Edit
+            else
+            begin
+              qryClasses.Append;
+              qryClassescodigo.AsString      := Campos[0];
+            end;
+            qryClassesdescricao.AsString     := Campos[1];
+            qryClassescomissao.AsString      := Campos[2];
+            qryClassestipocomissao.AsString  := Campos[3];
+            if Campos[4] <> '' then
+              qryClassesvendanegativa.AsString := Campos[4]
+            else
+              qryClassesvendanegativa.Clear;
+            qryClassesmultiplo.AsString      := Campos[5];
+            qryClassesinativo.AsString       := Campos[6];
+            qryClassesnaoreplicar.AsString   := Campos[7];
+            qryClasses.Post;
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+      finally
+        Lista.Free;
+        lblImportacao.caption :=  'IMPORTAÇÃO DAS CLASSES FINALIZADA!';
+        lblImportacao.Refresh;
+        proImportacao.Position := 0;
+        proImportacao.Refresh;
+      end;
+    end;
+  except
+    on e:Exception do
+    begin
+      result := false;
+//      proImportacao.Font.Color := clRed;
+      lblerro.caption :=  e.Message;
+      lblImportacao.Refresh;
+    end;
+  end;
+end;
+
+function TfrmImportacaoProdutos.ImportarColunas: Boolean;
+var
+  Lista,
+  Campos: TStringList;
+  i: integer;
+  codigos: String;
+begin
+  Result := True;
+  try
+    if FileExists(fDirImportacao+'Colunas.txt') then
+    begin
+      codigos := '';
+      Lista := TStringList.Create;
+      try
+        Lista.LoadFromFile(fDirImportacao+'Colunas.txt');
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO COLUNAS 1/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            codigos := codigos + Campos[0] + ',';
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+        Delete(codigos,length(codigos),1);
+        qryColunas.close;
+        qryColunas.MacroByName('codigos').AsString := 'and codigo in (' + codigos + ')';
+        qryColunas.Open;
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO COLUNAS 2/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            if qryColunas.Locate('codigo',Campos[0],[]) then
+              qryColunas.Edit
+            else
+            begin
+              qryColunas.Append;
+              qryColunascodigo.AsString  := Campos[0];
+            end;
+            qryColunasdescricao.AsString := Campos[1];;
+            qryColunas.Post;
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+      finally
+        Lista.Free;
+        lblImportacao.caption :=  'IMPORTAÇÃO DAS COLUNAS FINALIZADA!';
+        lblImportacao.Refresh;
+        proImportacao.Position := 0;
+        proImportacao.Refresh;
+      end;
+    end;
+  except
+    on e:Exception do
+    begin
+      Result := False;
+//      proImportacao.Font.Color := clRed;
+      lblerro.caption :=  e.Message;
+      lblImportacao.Refresh;
+    end;
+  end;
+end;
+
+function TfrmImportacaoProdutos.ImportarColunasPrecos: Boolean;
+var
+  Lista,
+  Campos: TStringList;
+  i: integer;
+  codigos: String;
+begin
+  Result := True;
+  try
+    if FileExists(fDirImportacao+'ColunasPrecos.txt') then
+    begin
+      codigos := '';
+      Lista := TStringList.Create;
+      try
+        Lista.LoadFromFile(fDirImportacao+'ColunasPrecos.txt');
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO COLUNASPREÇOS 1/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            codigos := codigos + '('+Campos[0] + ',' + Campos[1] + ',' + Campos[2] + '),';
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+        Delete(codigos,length(codigos),1);
+        qryColunasPrecos.close;
+        if(length(codigos)>0) then
+          qryColunasPrecos.MacroByName('codigos').AsString := 'and (caracteristica,preco,coluna) in (' + codigos + ')';
+        qryColunasPrecos.Open;
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO COLUNASPREÇOS 2/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos        := Explode(';',Lista.Strings[i]);
+          try
+            if qryColunasPrecos.Locate('caracteristica;preco;coluna', VarArrayOf([Campos[0],Campos[1],Campos[2]]),[]) then
+              qryColunasPrecos.Edit
+            else
+            begin
+              qryColunasPrecos.Append;
+              qryColunasPrecoscaracteristica.AsString := Campos[0];
+              qryColunasPrecospreco.AsString          := Campos[1];
+              qryColunasPrecoscoluna.AsString         := Campos[2];
+            end;
+            qryColunasPrecosvalor.AsString            := Campos[3];
+            qryColunasPrecosvalidade.AsString         := Campos[4];
+            qryColunasPrecosdata.AsString             := Campos[5];
+            qryColunasPrecosalteracao.AsString        := Campos[6];
+            qryColunasPrecos.Post;
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+      finally
+        Lista.Free;
+        lblImportacao.caption :=  'IMPORTAÇÃO DAS COLUNASPREÇOS FINALIZADA!';
+        lblImportacao.Refresh;
+        proImportacao.Position := 0;
+        proImportacao.Refresh;
+      end;
+    end;
+  except
+    on e:Exception do
+    begin
+      Result := False;
+//      proImportacao.Font.Color := clRed;
+      lblerro.caption :=  e.Message;
+      lblImportacao.Refresh;
+    end;
+  end;
+end;
+
+
+function TfrmImportacaoProdutos.ImportarGrades: Boolean;
+var
+  Lista,
+  Campos: TStringList;
+  i: integer;
+  codigos: String;
+begin
+  Result := True;
+  try
+    if FileExists(fDirImportacao+'Grades.txt') then
+    begin
+      codigos := '';
+      Lista := TStringList.Create;
+      try
+        Lista.LoadFromFile(fDirImportacao+'Grades.txt');
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO GRADES 1/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            codigos := codigos + Campos[0] + ',';
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+        Delete(codigos,length(codigos),1);
+        qryGrades.close;
+        qryGrades.MacroByName('codigos').AsString := 'and codigo in (' + codigos + ')';
+        qryGrades.Open;
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO GRADES 2/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos        := Explode(';',Lista.Strings[i]);
+          try
+            if qryGrades.Locate('codigo',Campos[0],[]) then
+              qryGrades.Edit
+            else
+            begin
+              qryGrades.Append;
+              qryGradescodigo.AsString       := Campos[0];
+            end;
+            qryGradesdescricao.AsString      := Campos[1];;
+            qryGrades.Post;
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+      finally
+        Lista.Free;
+        lblImportacao.caption :=  'IMPORTAÇÃO DAS GRADES FINALIZADA!';
+        lblImportacao.Refresh;
+        proImportacao.Position := 0;
+        proImportacao.Refresh;
+      end;
+    end;
+  except
+    on e:Exception do
+    begin
+      Result := False;
+//      proImportacao.Font.Color := clRed;
+      lblerro.caption :=  e.Message;
+      lblImportacao.Refresh;
+    end;
+  end;
+end;
+
+function TfrmImportacaoProdutos.ImportarGrupos: Boolean;
+var
+  Lista,
+  Campos: TStringList;
+  i: integer;
+  codigos: String;
+begin
+  Result := True;
+  try
+    if FileExists(fDirImportacao+'Grupos.txt') then
+    begin
+      codigos := '';
+      Lista := TStringList.Create;
+      try
+        Lista.LoadFromFile(fDirImportacao+'Grupos.txt');
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO GRUPOS 1/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            codigos := codigos + QuotedStr(Campos[0]) + ',';
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+        Delete(codigos,length(codigos),1);
+        qryGrupos.close;
+        qryGrupos.MacroByName('codigos').AsString := 'and codigo in (' + codigos + ')';
+        qryGrupos.Open;
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO GRUPOS 2/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos        := Explode(';',Lista.Strings[i]);
+          try
+            if qryGrupos.Locate('codigo',Campos[0],[]) then
+              qryGrupos.Edit
+            else
+            begin
+              qryGrupos.Append;
+              qryGruposcodigo.AsString       := Campos[0];
+            end;
+            qryGruposdescricao.AsString      := Campos[1];
+//            qryGruposclasse.AsString         := Campos[2];
+            qryGruposcomissao.AsString       := Campos[3];
+            qryGrupostipocomissao.AsString   := Campos[4];
+            if Campos[4] <> '' then
+              qryGruposvendanegativa.AsString := Campos[5]
+            else
+              qryGruposvendanegativa.Clear;
+            qryGruposmarkup.AsString         := Campos[6];
+            qryGruposmultiplo.AsString       := Campos[7];
+            qryGruposinativo.AsString        := Campos[8];
+            qryGruposcalcularpreco.AsString  := Campos[9];
+            qryGruposnaoreplicar.AsString    := Campos[10];
+            qryGruposplanilhacustos.AsString := Campos[11];
+            qryGrupos.Post;
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+      finally
+        Lista.Free;
+        lblImportacao.caption :=  'IMPORTAÇÃO DOS GRUPOS FINALIZADA!';
+        lblImportacao.Refresh;
+        proImportacao.Position := 0;
+        proImportacao.Refresh;
+      end;
+    end;
+  except
+    on e:Exception do
+    begin
+      Result := False;
+//      proImportacao.Font.Color := clRed;
+      lblerro.caption :=  e.Message;
+      lblImportacao.Refresh;
+    end;
+  end;
+end;
+
+function TfrmImportacaoProdutos.ImportarHistoricos: Boolean;
+var
+  Lista,
+  Campos: TStringList;
+  i: integer;
+  codigos: String;
+begin
+  Result := True;
+  try
+    if FileExists(fDirImportacao+'Historicos.txt') then
+    begin
+      codigos := '';
+      Lista := TStringList.Create;
+      try
+        Lista.LoadFromFile(fDirImportacao+'Historicos.txt');
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO HISTÓRICOS 1/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            codigos := codigos + Campos[0] + ',';
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+        Delete(codigos,length(codigos),1);
+        qryHistoricos.close;
+        qryHistoricos.MacroByName('codigos').AsString := 'and codigo in (' + codigos + ')';
+        qryHistoricos.Open;
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO HISTÓRICOS 2/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos        := Explode(';',Lista.Strings[i]);
+          try
+            if qryHistoricos.Locate('codigo',Campos[0],[]) then
+              qryHistoricos.Edit
+            else
+            begin
+              qryHistoricos.Append;
+              qryHistoricoscodigo.AsString  := Campos[0];
+            end;
+            qryHistoricosdescricao.AsString := Campos[1];
+            qryHistoricosinativo.AsString   := Campos[2];
+            qryHistoricoscaixa.AsString     := Campos[3];
+            qryHistoricospagar.AsString     := Campos[4];
+            qryHistoricoscontabil.AsString  := Campos[5];
+            qryHistoricos.Post;
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+      finally
+        Lista.Free;
+        lblImportacao.caption :=  'IMPORTAÇÃO DOS HISTÓRICOS FINALIZADA!';
+        lblImportacao.Refresh;
+        proImportacao.Position := 0;
+        proImportacao.Refresh;
+      end;
+    end;
+  except
+    on e:Exception do
+    begin
+      Result := False;
+//      proImportacao.Font.Color := clRed;
+      lblerro.caption :=  e.Message;
+      lblImportacao.Refresh;
+    end;
+  end;
+end;
+
+function TfrmImportacaoProdutos.ImportarICMS: Boolean;
+var
+  Lista,
+  Campos: TStringList;
+  i: integer;
+  codigos: String;
+begin
+  Result := True;
+  try
+    if FileExists(fDirImportacao+'Icms.txt') then
+    begin
+      codigos := '';
+      Lista := TStringList.Create;
+      try
+        Lista.LoadFromFile(fDirImportacao+'Icms.txt');
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO ICMS 1/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            codigos := codigos + Campos[0] + ',';
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+        Delete(codigos,length(codigos),1);
+        qryICMS.close;
+        qryICMS.MacroByName('codigos').AsString := 'and codigo in (' + codigos + ')';
+        qryICMS.Open;
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO ICMS 2/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos        := Explode(';',Lista.Strings[i]);
+          try
+            if qryICMS.Locate('codigo',Campos[0],[]) then
+              qryICMS.Edit
+            else
+            begin
+              qryICMS.Append;
+              qryICMScodigo.AsString            := Campos[0];
+            end;
+            qryICMSdescricao.AsString           := Campos[1];
+            qryICMStipo.AsString := Campos[2];
+            qryICMS.Post;
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+      finally
+        Lista.Free;
+        lblImportacao.caption :=  'IMPORTAÇÃO DOS ICMSs FINALIZADA!';
+        lblImportacao.Refresh;
+        proImportacao.Position := 0;
+        proImportacao.Refresh;
+      end;
+    end;
+  except
+    on e:Exception do
+    begin
+      Result := False;
+//      proImportacao.Font.Color := clRed;
+      lblerro.caption :=  e.Message;
+      lblImportacao.Refresh;
+    end;
+  end;
+end;
+
+function TfrmImportacaoProdutos.ImportarIPI: Boolean;
+var
+  Lista,
+  Campos: TStringList;
+  i: integer;
+  codigos: String;
+begin
+  Result := True;
+  try
+    if FileExists(fDirImportacao+'Ipi.txt') then
+    begin
+      codigos := '';
+      Lista := TStringList.Create;
+      try
+        Lista.LoadFromFile(fDirImportacao+'Ipi.txt');
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO IPI 1/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            codigos := codigos + Campos[0] + ',';
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+        Delete(codigos,length(codigos),1);
+        qryIPI.close;
+        qryIPI.MacroByName('codigos').AsString := 'and codigo in (' + codigos + ')';
+        qryIPI.Open;
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO IPI 2/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos        := Explode(';',Lista.Strings[i]);
+          try
+            if qryIPI.Locate('codigo',Campos[0],[]) then
+              qryIPI.Edit
+            else
+            begin
+              qryIPI.Append;
+              qryIPIcodigo.AsString            := Campos[0];
+            end;
+            qryIPIdescricao.AsString           := Campos[1];
+            qryIPIclassificacaofiscal.AsString := Campos[2];
+            qryIPIaliquota.AsString            := Campos[3];
+            qryIPIgenero.AsString              := Campos[4];
+            qryIPI.Post;
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+      finally
+        Lista.Free;
+        lblImportacao.caption :=  'IMPORTAÇÃO DOS IPIs FINALIZADA!';
+        lblImportacao.Refresh;
+        proImportacao.Position := 0;
+        proImportacao.Refresh;
+      end;
+    end;
+    except
+    on e:Exception do
+    begin
+      Result := False;
+//      proImportacao.Font.Color := clRed;
+      lblerro.caption :=  e.Message;
+      lblImportacao.Refresh;
+    end;
+  end;
+end;
+
+function TfrmImportacaoProdutos.ImportarMarcas: Boolean;
+var
+  Lista,
+  Campos: TStringList;
+  i: integer;
+  codigos: String;
+begin
+  Result := True;
+  try
+    if FileExists(fDirImportacao+'Marcas.txt') then
+    begin
+      codigos := '';
+      Lista := TStringList.Create;
+      try
+        Lista.LoadFromFile(fDirImportacao+'Marcas.txt');
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO MARCAS 1/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            codigos := codigos + Campos[0] + ',';
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+        Delete(codigos,length(codigos),1);
+        qryMarcas.close;
+        qryMarcas.MacroByName('codigos').AsString := 'and codigo in (' + codigos + ')';
+        qryMarcas.Open;
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO MARCAS 2/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos        := Explode(';',Lista.Strings[i]);
+          try
+            if qryMarcas.Locate('codigo',Campos[0],[]) then
+              qryMarcas.Edit
+            else
+            begin
+              qryMarcas.Append;
+              qryMarcascodigo.AsString  := Campos[0];
+            end;
+            qryMarcasdescricao.AsString := Campos[1];
+            qryMarcasinativo.AsString   := Campos[2];
+            qryMarcas.Post;
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+      finally
+        Lista.Free;
+        lblImportacao.caption :=  'IMPORTAÇÃO DAS MARCAS FINALIZADA!';
+        lblImportacao.Refresh;
+        proImportacao.Position := 0;
+        proImportacao.Refresh;
+      end;
+    end;
+  except
+    on e:Exception do
+    begin
+      Result := False;
+//      proImportacao.Font.Color := clRed;
+      lblerro.caption :=  e.Message;
+      lblImportacao.Refresh;
+    end;
+  end;
+end;
+
+function TfrmImportacaoProdutos.ImportarPlanosContas: Boolean;
+var
+  Lista,
+  Campos: TStringList;
+  i: integer;
+  codigos: String;
+begin
+  Result := True;
+  try
+    if FileExists(fDirImportacao+'PlanosContas.txt') then
+    begin
+      codigos := '';
+      Lista := TStringList.Create;
+      try
+        Lista.LoadFromFile(fDirImportacao+'PlanosContas.txt');
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO PLANOS DE CONTAS 1/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            codigos := codigos + Campos[0] + ',';
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+        Delete(codigos,length(codigos),1);
+        qryPlanoContas.close;
+        qryPlanoContas.MacroByName('codigos').AsString := 'and codigo in (' + codigos + ')';
+        qryPlanoContas.Open;
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO PLANOS DE CONTAS 2/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos        := Explode(';',Lista.Strings[i]);
+          try
+            if qryPlanoContas.Locate('codigo',Campos[0],[]) then
+              qryPlanoContas.Edit
+            else
+            begin
+              qryPlanoContas.Append;
+              qryPlanoContascodigo.AsString      := Campos[0];
+            end;
+            qryPlanoContasclassificacao.AsString := Campos[1];
+            qryPlanoContasdescricao.AsString     := Campos[2];
+            qryPlanoContastipo.AsString          := Campos[3];
+            qryPlanoContasinativo.AsString       := Campos[4];
+            qryPlanoContasreferencia.AsString    := Campos[5];
+            qryPlanoContasnatureza.AsString      := Campos[6];
+            qryPlanoContasdataincalt.AsString    := Campos[7];
+            qryPlanoContasdemosped.AsString      := Campos[8];
+            qryPlanoContas.Post;
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+      finally
+        Lista.Free;
+        lblImportacao.caption :=  'IMPORTAÇÃO DOS PLANOS DE CONTAS FINALIZADA!';
+        lblImportacao.Refresh;
+        proImportacao.Position := 0;
+        proImportacao.Refresh;
+      end;
+    end;
+  except
+    on e:Exception do
+    begin
+      Result := False;
+//      proImportacao.Font.Color := clRed;
+      lblerro.caption :=  e.Message;
+      lblImportacao.Refresh;
+    end;
+  end;
+end;
+
+function TfrmImportacaoProdutos.ImportarPrecos: Boolean;
+var
+  Lista,
+  Campos: TStringList;
+  i: integer;
+  codigos: String;
+begin
+  Result := True;
+  try
+    if FileExists(fDirImportacao+'Precos.txt') then
+    begin
+      codigos := '';
+      Lista := TStringList.Create;
+      try
+        Lista.LoadFromFile(fDirImportacao+'Precos.txt');
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO PREÇOS 1/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            codigos := codigos + '('+Campos[0] + ',' + Campos[1] + '),';
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+        Delete(codigos,length(codigos),1);
+        qryPrecos.close;
+        qryPrecos.MacroByName('codigos').AsString := 'and (caracteristica,codigo) in (' + codigos + ')';
+        qryPrecos.Open;
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO PREÇOS 2/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos        := Explode(';',Lista.Strings[i]);
+          try
+            if qryPrecos.Locate('caracteristica;codigo', VarArrayOf([Campos[0],Campos[1]]),[]) then
+              qryPrecos.Edit
+            else
+            begin
+              qryPrecos.Append;
+              qryPrecoscaracteristica.AsString := Campos[0];
+              qryPrecoscodigo.AsString         := Campos[1];
+            end;
+            qryPrecosdescricao.AsString := Campos[2];
+            qryPrecosavariado.AsString  := Campos[3];
+            qryPrecos.Post;
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+      finally
+        Lista.Free;
+        lblImportacao.caption :=  'IMPORTAÇÃO DOS PREÇOS FINALIZADA!';
+        lblImportacao.Refresh;
+        proImportacao.Position := 0;
+        proImportacao.Refresh;
+      end;
+    end;
+  except
+    on e:Exception do
+    begin
+      Result := False;
+//      proImportacao.Font.Color := clRed;
+      lblerro.caption :=  e.Message;
+      lblImportacao.Refresh;
+    end;
+  end;
+end;
+
+function TfrmImportacaoProdutos.ImportarProdutos: Boolean;
+var
+  Lista,
+  Campos: TStringList;
+  i: integer;
+  codigos: String;
+begin
+  Result := True;
+  try
+    if FileExists(fDirImportacao+'ItensProdutos.txt') then
+    begin
+      codigos := '';
+      Lista := TStringList.Create;
+      try
+        Lista.LoadFromFile(fDirImportacao+'ItensProdutos.txt');
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO ITENS DE PRODUTOS 1/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            codigos := codigos + Campos[0] + ',';
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+        Delete(codigos,length(codigos),1);
+        qryEstoques.Close;
+        qryEstoques.MacroByName('codigos').AsString := 'or produto in (' + codigos + ')';
+        qryestoques.Open;
+
+        qryProdutos.close;
+        qryProdutos.MacroByName('codigos').AsString := 'or codigo in (' + codigos + ')';
+        qryProdutos.Open;
+
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO ITENS DE PRODUTOS 2/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos        := Explode(';',Lista.Strings[i]);
+          try
+
+            if qryProdutos.Locate('codigo',Campos[0],[]) then
+              qryProdutos.Edit
+            else
+            begin
+              qryProdutos.append;
+              qryProdutoscodigo.AsString              := Campos[0];
+            end;
+
+            qryProdutoscodigovisual.AsString          := Campos[1];
+            qryProdutosdescricao.AsString             := Campos[2];
+            qryProdutoscaracteristica.AsString        := Campos[3];
+            //SOH ATUALIZAR SE EXISTIR O ARQUIVO DE COLUNAS DE PRECOS caso contrario nao deve mexer nos precos
+            if FileExists(fDirImportacao+'Colunas.txt') then
+                qryProdutospreco.AsString                 := Campos[4];
+
+            if (Campos[5] <> qryProdutosreferencia.AsString) then
+            begin
+              if Campos[5] <> '' then
+                qryProdutosreferencia.AsString            := Campos[5]
+              else
+                qryProdutosreferencia.clear;
+            end;
+
+            if Campos[6] <> '' then
+              qryProdutosvalorgrade1.AsString           := Campos[6]
+            else
+              qryProdutosvalorgrade1.Clear;
+
+            if Campos[7] <> '' then
+              qryProdutosvalorgrade2.AsString           := Campos[7]
+            else
+              qryProdutosvalorgrade2.Clear;
+
+            qryProdutosinativo.AsString               := Campos[8];
+            qryProdutosforalinha.AsString             := Campos[9];
+            qryProdutoscodigorecolha.AsString         := Campos[10];
+
+            if Campos[11] <> '' then
+              qryProdutosdescricaocomplementar.AsString := Campos[11]
+            else
+              qryProdutosdescricaocomplementar.Clear;
+
+            if Campos[12] <> qryProdutoscaracteristicas.AsString then
+            begin
+              if Campos[12] <> '' then
+                qryProdutoscaracteristicas.AsString       := Campos[12]
+              else
+                qryProdutoscaracteristicas.clear;
+            end;
+
+            if Campos[13] <> '' then
+              qryProdutospalavraschave.AsString         := Campos[13]
+            else
+              qryProdutospalavraschave.Clear;
+            qryProdutosaparecernosite.AsString        := Campos[14];
+            qryProdutosforalinhal.AsString            := Campos[15];
+            qryProdutosinativol.AsString              := Campos[16];
+            qryProdutosdata.AsString                  := Campos[17];
+            qryProdutos.Post;
+
+
+            if not qryestoques.Active then
+              qryEstoques.open;
+
+            qryFiliais.First;
+            while not qryFiliais.Eof do
+            begin
+              if not qryEstoques.Locate('produto;filial',VarArrayof([qryprodutoscodigo.asstring, qryfiliaiscodigo.asstring]),[]) then
+              begin
+                qryEstoques.Append;
+
+                qryEstoquesproduto.AsString := Campos[0];
+                qryEstoquesfilial.AsInteger := qryFiliaiscodigo.AsInteger;
+                qryEstoquesemestoque.AsCurrency := 0;
+                qryEstoquesreservado.AsCurrency := 0;
+                qryEstoquestransito.AsCurrency := 0;
+                qryEstoquesdemonstracao.AsCurrency := 0;
+                qryEstoquesconserto.AsCurrency := 0;
+                qryEstoquesfuturo.AsCurrency := 0;
+                qryEstoquesdanificada.AsCurrency := 0;
+                qryEstoquesestoquefisico.AsCurrency := 0;
+                qryEstoquesreservaprevia.AsCurrency := 0;
+                qryestoques.Post;
+              end;
+
+              qryfiliais.Next;
+            end;
+
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+      finally
+        Lista.Free;
+        lblImportacao.caption :=  'IMPORTAÇÃO DOS ITENS DE PRODUTOS FINALIZADA!';
+        lblImportacao.Refresh;
+        proImportacao.Position := 0;
+        proImportacao.Refresh;
+      end;
+    end;
+  except
+    on e:Exception do
+    begin
+      Result := False;
+//      proImportacao.Font.Color := clRed;
+      lblerro.caption :=  e.Message;
+      lblImportacao.Refresh;
+    end;
+  end;
+end;
+
+function TfrmImportacaoProdutos.ImportarUnidades: Boolean;
+var
+  Lista,
+  Campos: TStringList;
+  i: integer;
+  codigos: String;
+begin
+  Result := True;
+  try
+    if FileExists(fDirImportacao+'Unidades.txt') then
+    begin
+      codigos := '';
+      Lista := TStringList.Create;
+      try
+        Lista.LoadFromFile(fDirImportacao+'Unidades.txt');
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO UNIDADES 1/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            codigos := codigos + QuotedStr(Campos[0]) + ',';
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+        Delete(codigos,length(codigos),1);
+        qryUnidades.close;
+        qryUnidades.MacroByName('codigos').AsString := 'and codigo in (' + codigos + ')';
+        qryUnidades.Open;
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO UNIDADES 2/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos        := Explode(';',Lista.Strings[i]);
+          try
+            if qryUnidades.Locate('codigo',Campos[0],[]) then
+              qryUnidades.Edit
+            else
+            begin
+              qryUnidades.Append;
+              qryUnidadescodigo.AsString       := Campos[0];
+            end;
+            qryUnidadesdescricao.AsString      := Campos[1];
+            qryUnidades.Post;
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+      finally
+        Lista.Free;
+        lblImportacao.caption :=  'IMPORTAÇÃO DAS UNIDADES FINALIZADA!';
+        lblImportacao.Refresh;
+        proImportacao.Position := 0;
+        proImportacao.Refresh;
+      end;
+    end;
+    except
+    on e:Exception do
+    begin
+      Result := False;
+//      proImportacao.Font.Color := clRed;
+      lblerro.caption :=  e.Message;
+      lblImportacao.Refresh;
+    end;
+  end;
+end;
+
+procedure TfrmImportacaoProdutos.InicializarProgressBar(Maximo: Integer);
+begin
+//  proImportacao.Font.Color := clBlack;
+  proImportacao.Min := 0;
+  proImportacao.Max := Maximo;
+end;
+
+procedure TfrmImportacaoProdutos.sbnDiretorioImportacaoClick(
+  Sender: TObject);
+var
+  dir: String;
+begin
+  inherited;
+  if SelectDirectory('Selecionar diretório','',dir) then
+    lblDiretorioImportacao.Caption := dir
+end;
+
+procedure TfrmImportacaoProdutos.sbnImportarDadosClick(Sender: TObject);
+var
+  Resultado : Boolean;
+  ArquivoCFG: TIniFile;
+
+begin
+  inherited;
+  if lblDiretorioImportacao.Caption <> '' then
+  begin
+    DirImportacao := lblDiretorioImportacao.Caption;
+    if not ImportarClasses then exit;
+    if not ImportarGrupos then exit;
+    if not ImportarUnidades then exit;
+    if not ImportarIPI then exit;
+    if not ImportarICMS then exit;
+    if not ImportarMarcas then exit;
+    if not ImportarGrades then exit;
+    if not ImportarPlanosContas then exit;
+    if not ImportarHistoricos then exit;
+    if not ImportarEstados then exit;
+    if not ImportarCidades then exit;
+    if not ImportarTabelaFrete then exit;
+    if not ImportarRegioes then exit;
+    if not ImportarBairros then exit;
+    if not ImportarGruposFornecedores then exit;
+    if not ImportarConceitos then exit;
+    if not importarFornecedores then exit;
+    if not ImportarCaracteristicas then exit;
+    if not ImportarFornecedoresProdutos then exit;
+    if not ImportarPrecos then exit;
+    if not ImportarColunas then exit;
+    if not ImportarColunasPrecos then exit;
+    if not ImportarProdutos then exit;
+
+    try
+      resultado := dtmBasico.Perpetrar([qryClasses,qryGrupos,qryUnidades,qryIPI,qryICMS,
+                           qryMarcas,qryGrades,qryPlanoContas,qryHistoricos,
+                           qryCaracteristicas, qryColunas, qryPrecos,qryColunasPrecos,
+                           qryProdutos, qryestoques, qryEstados, qryCidades, qryTabelaFretes,
+                           qryRegioes, qryBairros, qryGruposFornecedores, qryConceitos,
+                           qryFornecedores, qryFornecedoresProdutos]);
+     if resultado then
+     begin
+        qryUpdateTipFornecedor.Sql.Text := SQLTipoFornecimento;
+        qryUpdateTipFornecedor.ExecSql;
+        dtmBasico.Perpetrar([]);
+     end;
+
+      lblImportacao.caption := 'IMPORTAÇÃO FINALIZADA';
+      lblImportacao.Refresh;
+      proImportacao.Position := 0;
+      proImportacao.Refresh;
+      if resultado then
+      begin
+        if FileExists(NomeArquivoCFG) then
+        begin
+          ArquivoCFG := TIniFile.Create(NomeArquivoCFG);
+          try
+            ArquivoCFG.WriteString(ImportacaoProdutosSection, 'DirImportaçãoProdutos', lblDiretorioImportacao.Caption);
+          finally
+            ArquivoCFG.Free
+          end;
+        end;
+      end;
+    except
+      on e:Exception do
+      begin
+        lblImportacao.Font.Color := clred;
+        lblImportacao.caption := e.message;
+        lblImportacao.Refresh;
+      end;
+    end;
+  end
+  else
+    MensagemAviso('Informe o diretório de importação');
+end;
+
+procedure TfrmImportacaoProdutos.setDirImportacao(const Value: String);
+begin
+  fDirImportacao := Value+IfThen(Value[length(Value)]<>barra,barra);
+end;
+
+procedure TfrmImportacaoProdutos.FormKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case Key of
+    VK_F5 : sbnImportarDados.Click;
+  end;
+end;
+
+function TfrmImportacaoProdutos.ImportarCaracteristicas: Boolean;
+var
+  Lista,
+  Campos: TStringList;
+  i: integer;
+  codigos: String;
+begin
+  Result := True;
+  try
+    if FileExists(fDirImportacao+'Produtos.txt') then
+    begin
+      codigos := '';
+      Lista := TStringList.Create;
+      try
+        Lista.LoadFromFile(fDirImportacao+'Produtos.txt');
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO PRODUTOS 1/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            codigos := codigos + Campos[0] + ',';
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+        Delete(codigos,length(codigos),1);
+        qryCaracteristicas.close;
+        qryCaracteristicas.MacroByName('codigos').AsString := 'and codigo in (' + codigos + ')';
+        qryCaracteristicas.Open;
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO PRODUTOS 2/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos        := Explode(';',Lista.Strings[i]);
+          try
+            if qryCaracteristicas.Locate('codigo',Campos[0],[]) then
+              qryCaracteristicas.Edit
+            else
+            begin
+              qryCaracteristicas.Append;
+              qryCaracteristicascodigo.AsString              := Campos[0];
+            end;
+            qryCaracteristicascodigovisual.AsString          := Campos[1];
+            qryCaracteristicasdescricao.AsString             := Campos[2];
+            if Campos[3] <> '' then
+              qryCaracteristicascomplemento.AsString           := TagControls(Campos[3],2)
+            else
+              qryCaracteristicascomplemento.Clear;
+
+            qryCaracteristicasgrupo.AsString                 := Campos[4];
+            qryCaracteristicasclasse.AsString                := Campos[5];
+            qryCaracteristicasunidade.AsString               := Campos[6];
+            qryCaracteristicasipi.AsString                   := Campos[7];
+
+            if Campos[8] <> '' then
+              qryCaracteristicasfatorpreco.AsString          := Campos[8]
+            else
+              qryCaracteristicasfatorpreco.Clear;
+
+            qryCaracteristicassubconta.AsString              := Campos[9];
+            qryCaracteristicasvendanegativa.AsString         := Campos[10];
+            qryCaracteristicascomposto.AsString              := Campos[11];
+
+            if Campos[12] <> '' then
+              qryCaracteristicasdiscriminarcomposto.AsString   := Campos[12]
+            else
+              qryCaracteristicasdiscriminarcomposto.Clear;
+
+            if Campos[13] <> '' then
+              qryCaracteristicasdiscriminarpreco.AsString      := Campos[13]
+            else
+              qryCaracteristicasdiscriminarpreco.Clear;
+
+            qryCaracteristicasmontagem.AsString              := Campos[14];
+            qryCaracteristicasorigem.AsString                := Campos[15];
+            qryCaracteristicasicms.AsString                  := Campos[16];
+            qryCaracteristicasaliquotapis.AsString           := Campos[17];
+            qryCaracteristicasaliquotacofins.AsString        := Campos[18];
+            qryCaracteristicasincidencia.AsString            := Campos[19];
+            qryCaracteristicaspercreducaobase.AsString       := Campos[20];
+            qryCaracteristicasvolumes.AsString               := Campos[21];
+            qryCaracteristicasforalinha.AsString             := Campos[22];
+            qryCaracteristicasemitecomplemento.AsString      := Campos[23];
+            qryCaracteristicasinativo.AsString               := Campos[24];
+            qryCaracteristicasobslegal.AsString              := Campos[25];
+            qryCaracteristicasbrinde.AsString                := Campos[26];
+            qryCaracteristicastipocomissao.AsString          := Campos[27];
+            qryCaracteristicascomissao.AsString              := Campos[28];
+            qryCaracteristicasemiteetiqueta.AsString         := Campos[29];
+            qryCaracteristicasmarca.AsString                 := Campos[30];
+            qryCaracteristicasmarkup.AsString                := Campos[31];
+            qryCaracteristicasmultiplo.AsString              := Campos[32];
+
+            if Campos[33] <> '' then
+              qryCaracteristicasobservacao.AsString            := TagControls(Campos[33],2)
+            else
+              qryCaracteristicasobservacao.Clear;
+
+            qryCaracteristicasgrade1.AsString                := Campos[34];
+            qryCaracteristicasgrade2.AsString                := Campos[35];
+            qryCaracteristicasbaseicms.AsString              := Campos[36];
+            qryCaracteristicasbonus.AsString                 := Campos[37];
+            qryCaracteristicasdebitarvendaavista.AsString    := Campos[38];
+            qryCaracteristicasdebitarvendaaprazo.AsString    := Campos[39];
+            qryCaracteristicasdebitarabatimentos.AsString    := Campos[40];
+            qryCaracteristicasdebitardevolucoes.AsString     := Campos[41];
+            qryCaracteristicascreditarvendaavista.AsString   := Campos[42];
+            qryCaracteristicascreditarvendaaprazo.AsString   := Campos[43];
+            qryCaracteristicascreditarabatimentos.AsString   := Campos[44];
+            qryCaracteristicascreditardevolucoes.AsString    := Campos[45];
+            qryCaracteristicashistoricovendaavista.AsString  := Campos[46];
+            qryCaracteristicashistoricovendaaprazo.AsString  := Campos[47];
+            qryCaracteristicashistoricoabatimentos.AsString  := Campos[48];
+            qryCaracteristicashistoricodevolucoes.AsString   := Campos[49];
+            qryCaracteristicasproducaopropria.AsString       := Campos[50];
+
+            if (Campos[51] <> qryCaracteristicassubstituicaoipi.AsString) then
+            begin
+              if (Campos[51] <> '') then
+                qryCaracteristicassubstituicaoipi.AsString       := Campos[51]
+              else
+                qryCaracteristicassubstituicaoipi.clear;
+            end;
+
+            qryCaracteristicasespecial.AsString              := Campos[52];
+
+            if (Campos[53] <> qryCaracteristicastipoatividade.AsString) then
+            begin
+              if Campos[53] <> '' then
+                qryCaracteristicastipoatividade.AsString         := Campos[53]
+              else
+                qryCaracteristicastipoatividade.clear;
+            end;
+
+            if (Campos[54] <> qryCaracteristicasicmsmodalidade.AsString) then
+            begin
+              if Campos[54] <> '' then
+                qryCaracteristicasicmsmodalidade.AsString        := Campos[54]
+              else
+                qryCaracteristicasicmsmodalidade.clear;
+            end;
+
+            if (Campos[55] <> qryCaracteristicasicmsmodsubst.AsString) then
+            begin
+              if Campos[55] <> '' then
+                qryCaracteristicasicmsmodsubst.AsString          := Campos[55]
+              else
+                qryCaracteristicasicmsmodsubst.clear;
+            end;
+
+            qryCaracteristicasforalinhal.AsString            := Campos[56];
+            qryCaracteristicasinativol.AsString              := Campos[57];
+
+            if (Campos[58] <> qryCaracteristicaspiscst.AsString) then
+            begin
+              if Campos[58] <> '' then
+                qryCaracteristicaspiscst.AsString              := Campos[58]
+              else
+                qryCaracteristicaspiscst.clear;
+            end;
+
+            if (Campos[59] <> qryCaracteristicascofinscst.AsString) then
+            begin
+              if Campos[59] <> '' then
+                qryCaracteristicascofinscst.AsString           := Campos[59]
+              else
+                qryCaracteristicascofinscst.clear;
+            end;
+
+            if Campos[60] <> qryCaracteristicasipicst.AsString then
+            begin
+              if Campos[60] <> '' then
+                qryCaracteristicasipicst.AsString                := Campos[60]
+              else
+                qryCaracteristicasipicst.clear;
+            end;
+
+            if (Campos[61] <> qryCaracteristicastipoproduto.AsString) then
+            begin
+              if Campos[61] <> '' then
+                qryCaracteristicastipoproduto.AsString           := Campos[61]
+              else
+                qryCaracteristicastipoproduto.clear;
+            end;
+
+            qryCaracteristicascustoadicionalproduto.AsString := Campos[62];
+            qryCaracteristicasdata.AsString                  := Campos[63];
+
+            if Campos[64] <> qryCaracteristicascsosn.AsString then
+            begin
+              if Campos[64] <> '' then
+                qryCaracteristicascsosn.AsString           := Campos[64]
+              else
+                qryCaracteristicascsosn.clear;
+            end;
+
+            qryCaracteristicas.Post;
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+      finally
+        Lista.Free;
+        lblImportacao.caption :=  'IMPORTAÇÃO DOS PRODUTOS FINALIZADA!';
+        lblImportacao.Refresh;
+        proImportacao.Position := 0;
+        proImportacao.Refresh;
+      end;
+    end;
+  except
+    on e:Exception do
+    begin
+      Result := False;
+//      proImportacao.Font.Color := clRed;
+      lblerro.caption :=  e.Message;
+      lblImportacao.Refresh;
+    end;
+  end;
+end;
+
+procedure TfrmImportacaoProdutos.ZMonitor1MonitorEvent(Sql,
+  Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:\teclux\log.sql') then
+    Listar.loadfromfile('c:\teclux\log.sql');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\teclux\log.sql');
+  listar.free;
+end;
+
+function TfrmImportacaoProdutos.ImportarEstados: Boolean;
+var
+  Lista,
+  Campos: TStringList;
+  i: integer;
+  codigos: String;
+begin
+  Result := True;
+  try
+    if FileExists(fDirImportacao+'Estados.txt')  and not (Parsistema.NaoExportarFornecedornaExportacaodeProdutos) then
+    begin
+      codigos := '';
+      Lista := TStringList.Create;
+      try
+        Lista.LoadFromFile(fDirImportacao+'Estados.txt');
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO ESTADOS 1/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            codigos := codigos + quotedstr(Campos[0]) + ',';
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+        Delete(codigos,length(codigos),1);
+        qryEstados.close;
+        qryEstados.MacroByName('codigos').AsString := 'and e.codigo in (' + codigos + ')';
+        qryEstados.Open;
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO ESTADOS 2/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos        := Explode(';',Lista.Strings[i]);
+          try
+            if qryEstados.Locate('codigo',Campos[0],[]) then
+              qryEstados.Edit
+            else
+            begin
+              qryEstados.Append;
+              qryEstadoscodigo.AsString  := Campos[0];
+            end;
+            qryEstadosnome.AsString := Campos[1];
+            qryEstadospontos.AsString   := Campos[2];
+            qryEstadoscodigoibge.AsString     := Campos[3];
+            qryEstados.Post;
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+      finally
+        Lista.Free;
+        lblImportacao.caption :=  'IMPORTAÇÃO DOS ESTADOS FINALIZADA!';
+        lblImportacao.Refresh;
+        proImportacao.Position := 0;
+        proImportacao.Refresh;
+      end;
+    end;
+  except
+    on e:Exception do
+    begin
+      Result := False;
+//      proImportacao.Font.Color := clRed;
+      lblerro.caption :=  e.Message;
+      lblImportacao.Refresh;
+      
+    end;
+  end;
+
+end;
+
+function TfrmImportacaoProdutos.ImportarCidades: Boolean;
+var
+  Lista,
+  Campos: TStringList;
+  i: integer;
+  codigos: String;
+begin
+  Result := True;
+  try
+    if FileExists(fDirImportacao+'Cidades.txt')  and not (Parsistema.NaoExportarFornecedornaExportacaodeProdutos) then
+    begin
+      codigos := '';
+      Lista := TStringList.Create;
+      try
+        Lista.LoadFromFile(fDirImportacao+'Cidades.txt');
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO CIDADES 1/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            codigos := codigos + '(' + quotedstr(Campos[0]) + ',' + Campos[1] + '),';
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+        Delete(codigos,length(codigos),1);
+        qryCidades.close;
+        qryCidades.MacroByName('codigos').AsString := 'and (c.estado,c.codigo) in (' + codigos + ')';
+        qryCidades.Open;
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO CIDADES 2/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos        := Explode(';',Lista.Strings[i]);
+          try
+            if qryCidades.Locate('estado,codigo',VarArrayOf([Campos[0],Campos[1]]),[]) then
+              qrycidades.Edit
+            else
+            begin
+              qryCidades.Append;
+              qryCidadesestado.AsString       := Campos[0];
+              qryCidadescodigo.AsString       := Campos[1];
+            end;
+            qryCidadesnome.AsString           := Campos[2];
+            qryCidadespontos.AsString         := Campos[3];
+            qryCidadescep.AsString            := Campos[4];
+            qryCidadescepinicial.AsString     := Campos[5];
+            qryCidadescepfinal.AsString       := Campos[6];
+            qryCidadesfoneprestadora.AsString := Campos[7];
+            qryCidadesfoneddd.AsString        := Campos[8];
+            qryCidadescodigocorreio.AsString  := Campos[9];
+            qryCidadescodigoibge.AsString     := Campos[10];
+            qrycidades.Post;
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+      finally
+        Lista.Free;
+        lblImportacao.caption :=  'IMPORTAÇÃO DAS CIDADES FINALIZADA!';
+        lblImportacao.Refresh;
+        proImportacao.Position := 0;
+        proImportacao.Refresh;
+      end;
+    end;
+  except
+    on e:Exception do
+    begin
+      Result := False;
+//      proImportacao.Font.Color := clRed;
+      lblerro.caption :=  e.Message;
+      lblImportacao.Refresh;
+    end;
+  end;
+
+end;
+
+function TfrmImportacaoProdutos.ImportarTabelaFrete: Boolean;
+var
+  Lista,
+  Campos: TStringList;
+  i: integer;
+  codigos: String;
+begin
+  Result := True;
+  try
+    if FileExists(fDirImportacao+'TabeladeFretes.txt') and not (Parsistema.NaoExportarFornecedornaExportacaodeProdutos) then
+    begin
+      codigos := '';
+      Lista := TStringList.Create;
+      try
+        Lista.LoadFromFile(fDirImportacao+'TabeladeFretes.txt');
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO TABELA DE FRETES 1/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            codigos := codigos + Campos[0] + ',';
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+        Delete(codigos,length(codigos),1);
+        qryTabelaFretes.close;
+        if(length(codigos)>0) then
+          qryTabelaFretes.MacroByName('codigos').AsString := 'and tf.codigo in (' + codigos + ')';
+        qryTabelaFretes.Open;
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO TABELA DE FRETES 2/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos        := Explode(';',Lista.Strings[i]);
+          try
+            if qryTabelaFretes.Locate('codigo',Campos[0],[]) then
+              qryTabelaFretes.Edit
+            else
+            begin
+              qryTabelaFretes.Append;
+              qryTabelaFretescodigo.AsString  := Campos[0];
+            end;
+            qryTabelaFretesdescricao.AsString := Campos[1];
+            qryTabelaFretesobservacoes.AsString   := TagControls(Campos[2],2);
+            qryTabelaFretesvalorcliente.AsString     := Campos[3];
+            qryTabelaFretesvalorfornecedor.AsString     := Campos[4];
+            qryTabelaFretes.Post;
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+      finally
+        Lista.Free;
+        lblImportacao.caption :=  'IMPORTAÇÃO DAS TABELAS DE FRETESFINALIZADA!';
+        lblImportacao.Refresh;
+        proImportacao.Position := 0;
+        proImportacao.Refresh;
+      end;
+    end;
+  except
+    on e:Exception do
+    begin
+      Result := False;
+//      proImportacao.Font.Color := clRed;
+      lblImportacao.caption:=  e.Message;
+      lblImportacao.Refresh;
+    end;
+  end;
+end;
+
+function TfrmImportacaoProdutos.ImportarRegioes: Boolean;
+var
+  Lista,
+  Campos: TStringList;
+  i: integer;
+  codigos: String;
+begin
+  Result := True;
+  try
+    if FileExists(fDirImportacao+'Regioes.txt')  and not (Parsistema.NaoExportarFornecedornaExportacaodeProdutos) then
+    begin
+      codigos := '';
+      Lista := TStringList.Create;
+      try
+        Lista.LoadFromFile(fDirImportacao+'Regioes.txt');
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO REGIÕES 1/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            codigos := codigos + quotedstr(Campos[0]) + ',';
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+        Delete(codigos,length(codigos),1);
+        qryregioEs.close;
+        if(length(codigos)>0) then
+          qryRegioes.MacroByName('codigos').AsString := 'and r.codigo in (' + codigos + ')';
+        qryRegioes.Open;
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO REGIÕES 2/2';
+        lblImportacao.Refresh;
+        
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos        := Explode(';',Lista.Strings[i]);
+          try
+            if qryRegioes.Locate('codigo',Campos[0],[]) then
+              qryRegioes.Edit
+            else
+            begin
+              qryRegioes.Append;
+              qryRegioescodigo.AsString  := Campos[0];
+            end;
+            qryRegioesnome.AsString      := Campos[1];
+            qryRegioespontos.AsString    := Campos[2];
+            qryRegioesfrete.AsString     := Campos[3];
+            qryRegioes.Post;
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+      finally
+        Lista.Free;
+        lblImportacao.caption :=  'IMPORTAÇÃO DOS REGIÕES FINALIZADA!';
+        lblImportacao.Refresh;
+        proImportacao.Position := 0;
+        proImportacao.Refresh;
+      end;
+    end;
+  except
+    on e:Exception do
+    begin
+      Result := False;
+//      proImportacao.Font.Color := clRed;
+      lblerro.caption :=  e.Message;
+      lblImportacao.Refresh;
+    end;
+  end;
+
+end;
+
+function TfrmImportacaoProdutos.ImportarBairros: Boolean;
+var
+  Lista,
+  Campos: TStringList;
+  i: integer;
+  codigos: String;
+begin
+  Result := True;
+  try
+    if FileExists(fDirImportacao+'Bairros.txt')  and not (Parsistema.NaoExportarFornecedornaExportacaodeProdutos) then
+    begin
+      codigos := '';
+      Lista := TStringList.Create;
+      try
+        Lista.LoadFromFile(fDirImportacao+'Bairros.txt');
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO BAIRROS 1/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            codigos := codigos + '(' + quotedstr(Campos[0]) + ',' + Campos[1] + ',' + Campos[2] +  '),';
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+        Delete(codigos,length(codigos),1);
+        qryBairros.close;
+        qryBairros.MacroByName('codigos').AsString := 'and (b.estado,b.cidade,b.codigo) in (' + codigos + ')';
+        qryBairros.Open;
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO BAIRROS 2/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos        := Explode(';',Lista.Strings[i]);
+          try
+            if qryBairros.Locate('estado,cidade,codigo',VarArrayOf([Campos[0],Campos[1],Campos[2]]),[]) then
+              qryBairros.Edit
+            else
+            begin
+              qryBairros.Append;
+              qryBairrosestado.AsString       := Campos[0];
+              qryBairroscidade.AsString       := Campos[1];
+              qryBairroscodigo.AsString       := Campos[2];
+            end;
+            qryBairrosnome.AsString           := Campos[3];
+            if Campos[4]<>'' then
+              qryBairrosregiao.AsString         := Campos[4]
+            else qryBairrosregiao.clear;
+
+            qryBairrospontos.AsString         := Campos[5];
+            qryBairroscep.AsString            := Campos[6];
+            if Campos[7]<>'' then
+              qryBairrosfrete.AsString          := Campos[7]
+            else qryBairrosfrete.clear;
+
+            qryBairroscidadecorreio.AsString  := Campos[8];
+            qryBairroscodigocorreio.AsString  := Campos[9];
+            qryBairros.Post;
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+      finally
+        Lista.Free;
+        lblImportacao.caption :=  'IMPORTAÇÃO DAS BAIRROS FINALIZADA!';
+        lblImportacao.Refresh;
+        proImportacao.Position := 0;
+        proImportacao.Refresh;
+      end;
+    end;
+  except
+    on e:Exception do
+    begin
+      Result := False;
+//      proImportacao.Font.Color := clRed;
+      lblerro.caption :=  e.Message;
+      lblImportacao.Refresh;
+    end;
+  end;
+
+end;
+
+function TfrmImportacaoProdutos.ImportarGruposFornecedores: Boolean;
+var
+  Lista,
+  Campos: TStringList;
+  i: integer;
+  codigos: String;
+begin
+  Result := True;
+  try
+    if FileExists(fDirImportacao+'GruposFornecedores.txt') and not (Parsistema.NaoExportarFornecedornaExportacaodeProdutos) then
+    begin
+      codigos := '';
+      Lista := TStringList.Create;
+      try
+        Lista.LoadFromFile(fDirImportacao+'GruposFornecedores.txt');
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO GRUPOS DE FORNECEDORES 1/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            codigos := codigos + Campos[0] + ',';
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+        Delete(codigos,length(codigos),1);
+        qryGruposFornecedores.close;
+        if(length(codigos)>0) then
+          qryGruposFornecedores.MacroByName('codigos').AsString := 'and gf.codigo in (' + codigos + ')';
+        qryGruposFornecedores.Open;
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO GRUPOS DE FORNECEDORES 2/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos        := Explode(';',Lista.Strings[i]);
+          try
+            if qryGruposFornecedores.Locate('codigo',Campos[0],[]) then
+              qryGruposFornecedores.Edit
+            else
+            begin
+              qryGruposFornecedores.Append;
+              qryGruposFornecedorescodigo.AsString  := Campos[0];
+            end;
+            qryGruposFornecedoresnome.AsString := Campos[1];
+            qryGruposFornecedores.Post;
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+      finally
+        Lista.Free;
+        lblImportacao.caption :=  'IMPORTAÇÃO DAS GRUPOS DE FORNECEDORES FINALIZADA!';
+        lblImportacao.Refresh;
+        proImportacao.Position := 0;
+        proImportacao.Refresh;
+      end;
+    end;
+  except
+    on e:Exception do
+    begin
+      Result := False;
+//      proImportacao.Font.Color := clRed;
+      lblerro.caption :=  e.Message;
+      lblImportacao.Refresh;
+    end;
+  end;
+end;
+
+function TfrmImportacaoProdutos.ImportarConceitos: Boolean;
+var
+  Lista,
+  Campos: TStringList;
+  i: integer;
+  codigos: String;
+begin
+  Result := True;
+  try
+    if FileExists(fDirImportacao+'Conceitos.txt')  and not (Parsistema.NaoExportarFornecedornaExportacaodeProdutos) then
+    begin
+      codigos := '';
+      Lista := TStringList.Create;
+      try
+        Lista.LoadFromFile(fDirImportacao+'Conceitos.txt');
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO CONCEITOS 1/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            codigos := codigos + Campos[0] + ',';
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+        Delete(codigos,length(codigos),1);
+        qryConceitos.close;
+        if(length(codigos)>0) then
+          qryConceitos.MacroByName('codigos').AsString := 'and c.codigo in (' + codigos + ')';
+        qryConceitos.Open;
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO CONCEITOS 2/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos        := Explode(';',Lista.Strings[i]);
+          try
+            if qryConceitos.Locate('codigo',Campos[0],[]) then
+              qryConceitos.Edit
+            else
+            begin
+              qryConceitos.Append;
+              qryConceitoscodigo.AsString  := Campos[0];
+            end;
+            qryConceitosdescricao.AsString := Campos[1];
+            qryConceitosinativo.AsString := Campos[2];
+            qryConceitosrestricoes.AsString := Campos[3];
+            qryConceitos.Post;
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+      finally
+        Lista.Free;
+        lblImportacao.caption :=  'IMPORTAÇÃO DAS CONCEITOS FINALIZADA!';
+        lblImportacao.Refresh;
+        proImportacao.Position := 0;
+        proImportacao.Refresh;
+      end;
+    end;
+  except
+    on e:Exception do
+    begin
+      Result := False;
+//      proImportacao.Font.Color := clRed;
+      lblerro.caption :=  e.Message;
+      lblImportacao.Refresh;
+    end;
+  end;
+end;
+
+function TfrmImportacaoProdutos.ImportarFornecedores: Boolean;
+var
+  Lista,
+  Campos: TStringList;
+  i: integer;
+  codigos: String;
+begin
+  Result := True;
+  try
+
+    if FileExists(fDirImportacao+'Fornecedores.txt')  and not (Parsistema.NaoExportarFornecedornaExportacaodeProdutos) then
+    begin
+      SQLTipoFornecimento := '';
+      codigos := '';
+      Lista := TStringList.Create;
+      try
+        Lista.LoadFromFile(fDirImportacao+'Fornecedores.txt');
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO FORNECEDORES 1/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            codigos := codigos + Campos[0] + ',';
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+        Delete(codigos,length(codigos),1);
+        qryFornecedores.close;
+        if(length(codigos)>0) then
+          qryFornecedores.MacroByName('codigos').AsString := 'and F.codigo in (' + codigos + ')';
+        qryFornecedores.Open;
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO FORNECEDORES 2/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos        := Explode(';',Lista.Strings[i]);
+          try
+            if qryFornecedores.Locate('codigo',Campos[0],[]) then
+              qryFornecedores.Edit
+            else
+            begin
+              qryFornecedores.Append;
+              qryFornecedorescodigo.AsString  := Campos[0];
+            end;
+            qryFornecedores.fieldbyname('nome').AsString := Campos[1];
+            qryFornecedores.fieldbyname('razao').AsString := Campos[2];
+            qryFornecedores.fieldbyname('pessoatipo').AsString := Campos[3];
+            qryFornecedores.fieldbyname('pessoanumero').AsString := Campos[4];
+            qryFornecedores.fieldbyname('rua').AsString:= TagControls(Campos[5],2);
+            qryFornecedores.fieldbyname('bairro').AsString := Campos[6];
+            qryFornecedores.fieldbyname('cidade').AsString := Campos[7];
+            qryFornecedores.fieldbyname('estado').AsString := Campos[8];
+            if Campos[9]<>'' then
+              qryFornecedores.fieldbyname('grupofornecedor').AsString := Campos[9]
+            else qryFornecedores.fieldbyname('grupofornecedor').clear;
+
+            qryFornecedores.fieldbyname('cep').AsString := Campos[10];
+            qryFornecedores.fieldbyname('foneddd').AsString := Campos[11];
+            qryFornecedores.fieldbyname('fonenumero').AsString := Campos[12];
+            qryFornecedores.fieldbyname('faxddd').AsString := Campos[13];
+            qryFornecedores.fieldbyname('faxnumero').AsString := Campos[14];
+            qryFornecedores.fieldbyname('inscricaoestadual').AsString := Campos[15];
+            qryFornecedores.fieldbyname('contato').AsString := Campos[16];
+            qryFornecedores.fieldbyname('debito').AsString := Campos[17];
+            qryFornecedores.fieldbyname('credito').AsString := Campos[18];
+            qryFornecedores.fieldbyname('observacoes').AsString := TagControls(Campos[19],2);
+            qryFornecedores.fieldbyname('email').AsString := Campos[20];
+            qryFornecedores.fieldbyname('markup').AsString := Campos[21];
+            qryFornecedores.fieldbyname('inativo').AsString := Campos[22];
+            if Campos[23]<>'' then
+              qryFornecedores.fieldbyname('conceito').AsString := Campos[23]
+            else qryFornecedores.fieldbyname('conceito').clear;
+
+            qryFornecedores.fieldbyname('enderecoalterado').AsString := Campos[24];
+            qryFornecedores.fieldbyname('nosimples').AsString := Campos[25];
+            qryFornecedores.fieldbyname('contribicms').AsString := Campos[26];
+            qryFornecedores.fieldbyname('suframa').AsString := Campos[27];
+            qryFornecedores.fieldbyname('rntc').AsString := Campos[28];
+            qryFornecedores.fieldbyname('numero').AsString := Campos[29];
+            qryFornecedores.fieldbyname('complemento').AsString := TagControls(Campos[30],2);
+            qryFornecedores.fieldbyname('fornecedorparaiss').AsString := Campos[31];
+            qryFornecedores.fieldbyname('site').AsString := Campos[32];
+            qryFornecedores.fieldbyname('adiantamento').AsString := Campos[33];
+            qryFornecedores.fieldbyname('debitoqdocliente').AsString := Campos[34];
+            qryFornecedores.fieldbyname('creditoqdocliente').AsString := Campos[35];
+            qryFornecedores.fieldbyname('historicocontabil').AsString := Campos[36];
+            {
+            qryFornecedores.fieldbyname('tipofornec_produto_p').AsString := Campos[37];
+            qryFornecedores.fieldbyname('tipofornec_tranporte_t').AsString := Campos[38];
+            qryFornecedores.fieldbyname('tipofornec_montagem_m').AsString := Campos[39];
+            }
+
+            qryFornecedores.Post;
+
+            {
+            qryUpdateTipFornecedor.Sql.add('update fornecedores set tipofornecimento[0] = '+
+              ifthen(Campos[37]='P','''P''','''''')+' where codigo  = '+qryFornecedorescodigo.AsString+';');
+
+            qryUpdateTipFornecedor.Sql.add('update fornecedores set tipofornecimento[1] = '+
+              ifthen(Campos[38]='T','''T''','''''')+' where codigo  = '+qryFornecedorescodigo.AsString+';');
+
+            qryUpdateTipFornecedor.Sql.add('update fornecedores set tipofornecimento[2] = '+
+              ifthen(Campos[39]='M','''M''','''''')+' where codigo  = '+qryFornecedorescodigo.AsString+';');
+            }
+
+            SQLTipoFornecimento := SQLTipoFornecimento +
+                                   'update fornecedores set tipofornecimento[0] = '+
+                                   ifthen(Campos[37]='P','''P''','''''')+' where codigo  = '+qryFornecedorescodigo.AsString+';'+#13+
+                                   'update fornecedores set tipofornecimento[1] = '+
+                                   ifthen(Campos[38]='T','''T''','''''')+' where codigo  = '+qryFornecedorescodigo.AsString+';'+#13+
+                                   'update fornecedores set tipofornecimento[2] = '+
+                                   ifthen(Campos[39]='M','''M''','''''')+' where codigo  = '+qryFornecedorescodigo.AsString+';'+#13;
+
+
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+      finally
+        Lista.Free;
+        lblImportacao.caption :=  'IMPORTAÇÃO DOS FORNECEDORES FINALIZADA!';
+        lblImportacao.Refresh;
+        proImportacao.Position := 0;
+        proImportacao.Refresh;
+      end;
+    end;
+  except
+    on e:Exception do
+    begin
+      Result := False;
+//      proImportacao.Font.Color := clRed;
+      lblerro.caption :=  e.Message;
+      lblImportacao.Refresh;
+    end;
+  end;
+end;
+
+function TfrmImportacaoProdutos.ImportarFornecedoresProdutos: Boolean;
+var
+  Lista,
+  Campos: TStringList;
+  i: integer;
+  codigos: String;
+begin
+  Result := True;
+  try
+    if FileExists(fDirImportacao+'FornecedoresProdutos.txt')  and not (Parsistema.NaoExportarFornecedornaExportacaodeProdutos) then
+    begin
+      codigos := '';
+      Lista := TStringList.Create;
+      try
+        Lista.LoadFromFile(fDirImportacao+'FornecedoresProdutos.txt');
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO FORNECEDORES PRODUTOS 1/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            codigos := codigos + '(' + Campos[0] + ',' + Campos[1]+'),';
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+        Delete(codigos,length(codigos),1);
+        qryFornecedoresprodutos.close;
+        qryFornecedoresprodutos.MacroByName('codigos').AsString := 'and (fp.caracteristica, fp.fornecedor)in (' + codigos + ')';
+        qryFornecedoresprodutos.Open;
+        InicializarProgressBar(Lista.Count);
+        lblImportacao.caption := 'AGUARDE...IMPORTANDO FORNECEDORES PRODUTOS 2/2';
+        lblImportacao.Refresh;
+        for i:=0 to Lista.Count-1 do
+        begin
+          proImportacao.Position := i;
+          Campos        := Explode(';',Lista.Strings[i]);
+          try
+            if qryFornecedoresprodutos.Locate('caracteristica;fornecedor',VarArrayOf([Campos[0], Campos[1]]),[]) then
+              qryFornecedoresprodutos.Edit
+            else
+            begin
+              qryFornecedoresprodutos.Append;
+              qryFornecedoresProdutoscaracteristica.AsString  := Campos[0];
+              qryFornecedoresProdutosfornecedor.AsString  := Campos[1];
+            end;
+            qryFornecedoresProdutos.fieldbyname('referencia').AsString := Campos[2];
+            qryFornecedoresProdutos.fieldbyname('preco').AsString := Campos[3];
+            qryFornecedoresProdutos.fieldbyname('ipi').AsString := Campos[4];
+            qryFornecedoresProdutos.fieldbyname('data').AsString := Campos[5];
+            qryFornecedoresProdutos.fieldbyname('observacao').AsString := TagControls(Campos[3],2);
+            qryFornecedoresprodutos.Post;
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+      finally
+        Lista.Free;
+        lblImportacao.caption :=  'IMPORTAÇÃO DOS FORNECEDORES PRODUTOS FINALIZADA!';
+        lblImportacao.Refresh;
+        proImportacao.Position := 0;
+        proImportacao.Refresh;
+      end;
+    end;
+  except
+    on e:Exception do
+    begin
+      Result := False;
+//      proImportacao.Font.Color := clRed;
+      lblerro.caption :=  e.Message;
+      lblImportacao.Refresh;
+    end;
+  end;
+end;
+
+end.

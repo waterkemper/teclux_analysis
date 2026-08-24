@@ -11,7 +11,8 @@ uses
   FR_DSet, FR_DBSet, FR_Class, ZQuery, ZPgSqlQuery,
   // Repositorio
   dmtecsoft, dmbasico, clparametrossistema, fmpreviewpadrao,Dialogs,
-  ZTransact, Variants, CheckLst, frxClass, frxDBSet, forms;
+  ZTransact, Variants, CheckLst, frxClass, frxDBSet, forms,
+  frx2xto30;
 
 type
   TdtmRelatorioDuplicatas = class(TdtmBasico)
@@ -146,47 +147,6 @@ type
     qryDuplicatastotalvalorpagto: TFloatField;
     frxResumoDuplicatasporCompetencia: TfrxReport;
     frxReport1: TfrxReport;
-    tecQuery2: TtecQuery;
-    IntegerField10: TIntegerField;
-    IntegerField11: TIntegerField;
-    IntegerField12: TIntegerField;
-    StringField13: TStringField;
-    IntegerField13: TIntegerField;
-    StringField14: TStringField;
-    DateField5: TDateField;
-    FloatField4: TFloatField;
-    FloatField5: TFloatField;
-    DateField6: TDateField;
-    FloatField6: TFloatField;
-    IntegerField14: TIntegerField;
-    BooleanField5: TBooleanField;
-    DateField7: TDateField;
-    StringField15: TStringField;
-    IntegerField15: TIntegerField;
-    StringField16: TStringField;
-    StringField17: TStringField;
-    CurrencyField3: TCurrencyField;
-    CurrencyField4: TCurrencyField;
-    StringField18: TStringField;
-    IntegerField16: TIntegerField;
-    BooleanField6: TBooleanField;
-    IntegerField17: TIntegerField;
-    StringField19: TStringField;
-    StringField20: TStringField;
-    StringField21: TStringField;
-    IntegerField18: TIntegerField;
-    StringField22: TStringField;
-    StringField23: TStringField;
-    StringField24: TStringField;
-    BooleanField7: TBooleanField;
-    BooleanField8: TBooleanField;
-    DateField8: TDateField;
-    MemoField1: TMemoField;
-    FloatField7: TFloatField;
-    BooleanField9: TBooleanField;
-    FloatField8: TFloatField;
-    FloatField9: TFloatField;
-    FloatField10: TFloatField;
     qryDuplicatasqtparcelas: TLargeintField;
     qryDuplicatascomplementoduplicata: TStringField;
     frpDuplicatasPagar: TfrReport;
@@ -544,6 +504,11 @@ begin
 
 
 //  frpDuplicatasPagar.DesignReport;
+//  frxReport1.DesignReport;
+
+//  frpPagamentosEfetuados.DesignReport;
+//  frxReport1.DesignReport;
+
 //  frpResumoDuplicatasPagar.designreport;
 
   case FResumo of

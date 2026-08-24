@@ -1,7 +1,7 @@
 inherited dtmRelatoriosituacaofornecedores: TdtmRelatoriosituacaofornecedores
   OldCreateOrder = False
-  Left = 265
-  Top = 200
+  Left = 312
+  Top = 234
   Height = 434
   Width = 621
   object qryCodigosFiscais: TtecQuery
@@ -1099,7 +1099,7 @@ inherited dtmRelatoriosituacaofornecedores: TdtmRelatoriosituacaofornecedores
       720004005472756500170051756562726172506167696E61466F726E65636564
       6F7200050046616C73650005004C494E4841000100300008004C494E48415355
       4200010030000000000000000000FC0000000000000000000000000000000058
-      0063F69FEA728CE3400DD8E8B77625E540}
+      0063F69FEA728CE34084A2DC873470E640}
   end
   object fdsNotasEntrada: TfrDBDataSet
     DataSet = qryNotasPag
@@ -2108,6 +2108,27 @@ inherited dtmRelatoriosituacaofornecedores: TdtmRelatoriosituacaofornecedores
       736500110041677275706172466F726E656365646F7200040054727565001A00
       51756562726172506167696E61706F72466F726E656365646F72000400547275
       65000000000000000000FC0000000000000000000000000000000058000809A0
-      EA728CE3400DD8E8B77625E540}
+      EA728CE340F2AEDC873470E640}
+  end
+  object frxReport1: TfrxReport
+    Version = '4.0.11'
+    DotMatrixReport = False
+    IniFile = '\Software\Fast Reports'
+    PreviewOptions.Buttons = [pbPrint, pbLoad, pbSave, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbEdit, pbNavigator, pbExportQuick]
+    PreviewOptions.Zoom = 1.000000000000000000
+    PrintOptions.Printer = 'Default'
+    PrintOptions.PrintOnSheet = 0
+    ReportOptions.CreateDate = 45952.386934155090000000
+    ReportOptions.LastChange = 45952.386934155090000000
+    ScriptLanguage = 'PascalScript'
+    ScriptText.Strings = (
+      'begin'
+      ''
+      'end.')
+    Left = 312
+    Top = 280
+    Datasets = <>
+    Variables = <>
+    Style = <>
   end
 end

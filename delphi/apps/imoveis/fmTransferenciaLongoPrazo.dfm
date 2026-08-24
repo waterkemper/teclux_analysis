@@ -10,7 +10,6 @@ inherited frmTransferenciaLongoPrazo: TfrmTransferenciaLongoPrazo
   FormStyle = fsMDIChild
   OldCreateOrder = False
   Visible = True
-  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   inherited pnlBarra: TPanel

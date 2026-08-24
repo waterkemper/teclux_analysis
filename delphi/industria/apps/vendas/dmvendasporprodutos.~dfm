@@ -1,0 +1,1102 @@
+inherited dtmVendasporProdutos: TdtmVendasporProdutos
+  OldCreateOrder = False
+  Left = 658
+  Top = 168
+  Height = 772
+  Width = 989
+  object qryVendasProdutosporGrupos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryVendasProdutosporGruposAfterOpen
+    OnFilterRecord = qryVendasProdutosporGruposFilterRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    RequestLive = True
+    Left = 80
+    Top = 8
+    object qryVendasProdutosporGruposexpandir: TStringField
+      DisplayLabel = ' '
+      FieldName = 'expandir'
+      Size = 1
+    end
+    object qryVendasProdutosporGruposdescricaoproduto: TStringField
+      DisplayLabel = 'Produtos'
+      DisplayWidth = 50
+      FieldName = 'descricaoproduto'
+      Size = 50
+    end
+    object qryVendasProdutosporGrupospn: TStringField
+      DisplayLabel = 'Part Number'
+      FieldName = 'pn'
+      Size = 10
+    end
+    object qryVendasProdutosporGruposproduto: TLargeintField
+      FieldName = 'produto'
+      Visible = False
+    end
+    object qryVendasProdutosporGruposgrupoproduto: TStringField
+      FieldName = 'grupoproduto'
+      Visible = False
+      Size = 50
+    end
+    object qryVendasProdutosporGruposgrupo: TStringField
+      FieldName = 'grupo'
+      Visible = False
+      Size = 50
+    end
+    object qryVendasProdutosporGruposdescricaogrupo: TStringField
+      FieldName = 'descricaogrupo'
+      Visible = False
+      Size = 50
+    end
+    object qryVendasProdutosporGruposvalorperiodo: TFloatField
+      DisplayLabel = 'Vl Período'
+      FieldName = 'valorperiodo'
+    end
+    object qryVendasProdutosporGruposquantidadeperiodo: TFloatField
+      DisplayLabel = 'Qt Período'
+      FieldName = 'quantidadeperiodo'
+    end
+  end
+  object dsrVendasProdutosporGrupos: TtecDataSource
+    DataSet = qryVendasProdutosporGrupos
+    Left = 80
+    Top = 64
+  end
+  object qryVendasporGrupos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    RequestLive = True
+    Left = 80
+    Top = 120
+  end
+  object dsrVendasporGrupos: TtecDataSource
+    DataSet = qryVendasporGrupos
+    Left = 80
+    Top = 176
+  end
+  object qryVendasProdutosporGrupos_AUX: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'meses'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'sqlMoedaSelecionada'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'sqlDataFaturamento_2'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'sqlMoeda'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'sqlDataCotacao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';select vendas.*,'
+      '       produtos.quantidadeperiodo,'
+      '       produtos.valorperiodo'
+      'from'
+      '('
+      'SELECT * FROM crosstab'
+      '('
+      '''select cast(vendas.descricaogrupo||'
+      '             vendas.grupo||'
+      '             vendas.descricaoproduto||'
+      
+        '             cast(vendas.produto as varchar)||vendas.pn as varch' +
+        'ar(100)) as grupoproduto,'
+      ''
+      '             cast(null as varchar(1)) as expandir,'
+      '             vendas.produto,'
+      ''
+      
+        '             cast(''''  ''''||vendas.descricaoproduto as varchar(43)' +
+        ') as descricaoproduto,'
+      ''
+      '             vendas.pn,'
+      ''
+      '             vendas.grupo,'
+      '             vendas.descricaogrupo,'
+      '             vendas.ano_mes,'
+      '             vendas.quantidade_mes'
+      ' from'
+      ' ('
+      
+        '   select grupo, descricaogrupo, produto, descricaoproduto, pn, ' +
+        'ano_mes, sum(quantidade_mes) as quantidade_mes'
+      '   from'
+      '   ('
+      '   select c.grupo,'
+      '          g.descricao as descricaogrupo,'
+      '          pdf.produto,'
+      '          p.descricao as descricaoproduto,'
+      ''
+      '             (select cp.pn'
+      '              from clientesprodutos cp'
+      '              where pdf.produto = cp.produto'
+      '                AND df.Cliente = cp.Cliente'
+      '                and df.tipocliente = ''''C'''''
+      '                and cp.pn is not null limit 1) as pn,'
+      ''
+      '          to_char(df.data, ''''YYYY/MM'''') as ano_mes,'
+      
+        '          cast(sum(case when c.unidade = ''''MIL'''' then 1000*pdf.q' +
+        'uantidade'
+      
+        '                        when c.unidade = ''''CT''''  then 100*pdf.qu' +
+        'antidade'
+      
+        '                                                 else pdf.quanti' +
+        'dade'
+      '                   end'
+      '               ) as numeric(9,0)) as quantidade_mes'
+      '          from (dadosfiscais df'
+      '                join (produtosdadosfiscais pdf'
+      '                      join (produtos p join (caracteristicas c'
+      
+        '                                            join grupos g on c.g' +
+        'rupo = g.codigo)'
+      
+        '                                            on p.caracteristica ' +
+        '= c.codigo)'
+      '                      on pdf.produto = p.codigo)'
+      '                on df.numero = pdf.dadofiscal)'
+      '          where df.situacao = ''''N'''''
+      
+        '            and (mod(df.codigofiscal,1000) between 101 and 125 o' +
+        'r'
+      
+        '                 MOD(df.codigofiscal,1000) BETWEEN 401 and 405 O' +
+        'R'
+      '                 mod(df.codigofiscal,1000) between 501 and 503)'
+      ''
+      
+        '            AND NOT (df.Numero IN (SELECT n.DadoFiscal FROM Nota' +
+        's n WHERE n.EstornadaPorOSP))'
+      ''
+      '            %sqlDataFaturamento_1'
+      ''
+      
+        '          group by  c.grupo, g.descricao, pdf.produto, p.descric' +
+        'ao, ano_mes, df.cliente, df.tipocliente, pn'
+      '   ) as vendas'
+      
+        '     group by grupo, descricaogrupo, produto, descricaoproduto, ' +
+        'pn, ano_mes'
+      ' ) as vendas'
+      ' order by 1'','
+      ' ''select distinct to_char(cast('''''
+      '        %DataInicial_1'
+      
+        '        '''' as date)  + s.a,''''YYYY/MM'''') as mes from generate_ser' +
+        'ies(1,cast('''''
+      '            %DataFinal'
+      '            '''' as date)-cast('''''
+      '              %DataInicial_2'
+      '             '''' as date)) as s(a) order by 1'''
+      ')'
+      'AS'
+      ' ( grupoproduto varchar(100),'
+      ' expandir varchar(1),'
+      ' produto bigint,'
+      ' descricaoproduto varchar(53),'
+      ' pn VARCHAR(5),'
+      ' grupo varchar(4),'
+      ' descricaogrupo varchar(30),'
+      ' %meses'
+      ' )'
+      ') as vendas join'
+      '               ('
+      '                 select produto, pn,'
+      '                        sum(valorperiodo) as valorperiodo,'
+      
+        '                        sum(quantidadeperiodo) as quantidadeperi' +
+        'odo'
+      '                 from'
+      '                 ('
+      '                  select produtos.produto, produtos.pn,'
+      
+        '                        %sqlMoedaSelecionada /*case when true th' +
+        'en*/'
+      '                           case when mc.cotacao is not null then'
+      
+        '                             produtos.valorperiodo/mc.cotacao en' +
+        'd'
+      '                           else'
+      '                             produtos.valorperiodo'
+      '                         end as valorperiodo,'
+      '                         produtos.quantidadeperiodo'
+      '                  from'
+      ' ( '
+      
+        ' select produtos.produto, produtos.pn, produtos.ano_mes, sum(pro' +
+        'dutos.valorperiodo) as valorperiodo, sum(produtos.quantidadeperi' +
+        'odo) as quantidadeperiodo'
+      ' from'
+      ' ('
+      '   select pdf.produto,'
+      ' '
+      '          (select cp.pn'
+      '           from clientesprodutos cp'
+      '           where pdf.produto = cp.produto'
+      '             AND df.Cliente = cp.Cliente'
+      '             and df.tipocliente = ''C'''
+      '             and cp.pn is not null limit 1) as pn,'
+      ''
+      '   to_char(df.data, ''YYYY/MM'') as ano_mes,'
+      ''
+      '   pdf.quantidade*pdf.precovenda as valorperiodo,'
+      '   cast(case when c.unidade = ''MIL'' then 1000*pdf.quantidade'
+      '                 when c.unidade = ''CT'' then 100*pdf.quantidade'
+      '                 else pdf.quantidade'
+      '            end'
+      '            as numeric(9,0)) as quantidadeperiodo'
+      ''
+      ' from dadosfiscais df'
+      ' join produtosdadosfiscais pdf'
+      ' join produtos p'
+      ' join caracteristicas c'
+      ' on p.caracteristica = c.codigo'
+      ' on pdf.produto = p.codigo'
+      ' on df.numero = pdf.dadofiscal'
+      ' where df.situacao = ''N'''
+      ' and (mod(df.codigofiscal,1000) between 101 and 125 or'
+      ' MOD(df.codigofiscal,1000) BETWEEN 401 and 405 OR'
+      ' mod(df.codigofiscal,1000) between 501 and 503)'
+      ''
+      
+        ' AND NOT (df.Numero IN (SELECT n.DadoFiscal FROM Notas n  WHERE ' +
+        'n.EstornadaPorOSP))'
+      ''
+      ' %sqlDataFaturamento_2'
+      ''
+      ' )'
+      ' as produtos'
+      ' group by produto, pn, ano_mes'
+      ' ) as produtos left join'
+      ''
+      '                  (select ano_mes,'
+      '                          avg(mc.cotacao) as cotacao'
+      
+        '                          from (select to_char(mc.data, ''YYYY/MM' +
+        ''') as ano_mes,'
+      '                                       mc.cotacao'
+      '                                from moedascotacoes mc'
+      
+        '                                %sqlMoeda /*where mc.moeda = ''''U' +
+        'S$''''*/'
+      
+        '                                %sqlDataCotacao /* and mc.data b' +
+        'etween(''''2008-01-01'''') and (''''2008-12-31'''')*/'
+      '                                ) as mc'
+      
+        '                  group by ano_mes) as mc on produtos.ano_mes = ' +
+        'mc.ano_mes'
+      '                 ) as produtos'
+      '                 group by produto, pn'
+      
+        '                ) as produtos on vendas.produto = produtos.produ' +
+        'to and vendas.pn = produtos.pn'
+      'order by vendas.grupoproduto'
+      '')
+    RequestLive = False
+    Left = 312
+    Top = 8
+  end
+  object qryVendasporGrupos_AUX: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'meses'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'sqlMoedaSelecionada'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'sqlDataFaturamento_2'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'sqlMoeda'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'sqlDataCotacao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';select vendas.*,'
+      '       produtos.quantidadeperiodo,'
+      '       produtos.valorperiodo'
+      'from'
+      '('
+      'SELECT * FROM crosstab'
+      '('
+      '''select cast(vendas.descricaogrupo||'
+      '             vendas.grupo as varchar(100)) as grupoproduto,'
+      '             cast(''''-'''' as varchar(1)) as expandir,'
+      '             cast(null as bigint) as produto,'
+      
+        '             cast(vendas.descricaogrupo as varchar(40)) as descr' +
+        'icaoproduto,'
+      '             cast(null as integer) as pn,'
+      '             vendas.grupo,'
+      '             vendas.descricaogrupo,'
+      '             vendas.ano_mes,'
+      '             vendas.quantidade_mes'
+      ' from'
+      ' ('
+      '   select c.grupo,'
+      '          g.descricao as descricaogrupo,'
+      '/*          pdf.produto,'
+      '          p.descricao as descricaoproduto,*/'
+      '          to_char(df.data, ''''YYYY/MM'''') as ano_mes,'
+      
+        '          cast(sum(case when c.unidade = ''''MIL'''' then 1000*pdf.q' +
+        'uantidade'
+      
+        '                        when c.unidade = ''''CT''''  then  100*pdf.q' +
+        'uantidade'
+      
+        '                                                 else      pdf.q' +
+        'uantidade'
+      '                   end'
+      '               ) as numeric(9,0)) as quantidade_mes'
+      '          from (dadosfiscais df'
+      '                join (produtosdadosfiscais pdf'
+      '                      join (produtos p join (caracteristicas c'
+      
+        '                                            join grupos g on c.g' +
+        'rupo = g.codigo)'
+      
+        '                                            on p.caracteristica ' +
+        '= c.codigo)'
+      '                      on pdf.produto = p.codigo)'
+      '                on df.numero = pdf.dadofiscal)'
+      '          where df.situacao = ''''N'''''
+      
+        '            and (mod(df.codigofiscal,1000) between 101 and 125 o' +
+        'r'
+      
+        '                 MOD(df.codigofiscal,1000) BETWEEN 401 and 405 O' +
+        'R'
+      '                 mod(df.codigofiscal,1000) between 501 and 503)'
+      ''
+      
+        '            AND NOT (df.Numero IN (SELECT n.DadoFiscal FROM Nota' +
+        's n WHERE n.EstornadaPorOSP))'
+      ''
+      '            %sqlDataFaturamento_1'
+      ''
+      
+        '          group by  c.grupo, g.descricao, /*pdf.produto, p.descr' +
+        'icao,*/ ano_mes'
+      ' ) as vendas'
+      ' order by 1'','
+      ' ''select distinct to_char(cast('''''
+      '        %DataInicial_1'
+      
+        '        '''' as date)  + s.a,''''YYYY/MM'''') as mes from generate_ser' +
+        'ies(1,cast('''''
+      '            %DataFinal'
+      '            '''' as date)-cast('''''
+      '              %DataInicial_2'
+      '             '''' as date)) as s(a) order by 1'''
+      ')'
+      'AS'
+      ' ( grupoproduto varchar(100),'
+      ' expandir varchar(1),'
+      ' produto bigint,'
+      ' descricaoproduto varchar(43),'
+      ' pn integer,'
+      ' grupo varchar(4),'
+      ' descricaogrupo varchar(30),'
+      ' %meses'
+      ' )'
+      ') as vendas join'
+      '               ('
+      '                 select grupo,'
+      '                        sum(valorperiodo) as valorperiodo,'
+      
+        '                        sum(quantidadeperiodo) as quantidadeperi' +
+        'odo'
+      '                 from'
+      '                 ('
+      '                  select produtos.grupo,'
+      
+        '                        %sqlMoedaSelecionada /*case when true th' +
+        'en*/'
+      '                           case when mc.cotacao is not null then'
+      
+        '                             produtos.valorperiodo/mc.cotacao en' +
+        'd'
+      '                           else'
+      '                             produtos.valorperiodo'
+      '                         end as valorperiodo,'
+      '                         produtos.quantidadeperiodo'
+      '                  from'
+      '                   (select c.grupo,'
+      
+        '                           to_char(df.data, ''YYYY/MM'') as ano_me' +
+        's,'
+      
+        '                           sum(pdf.quantidade*pdf.precovenda) as' +
+        ' valorperiodo,'
+      
+        '                           cast(sum(case when c.unidade = ''MIL'' ' +
+        'then 1000*pdf.quantidade'
+      
+        '                                         when c.unidade = ''CT''  ' +
+        'then  100*pdf.quantidade'
+      
+        '                                                                ' +
+        'else      pdf.quantidade'
+      '                                    end'
+      
+        '                               ) as numeric(9,0)) as quantidadep' +
+        'eriodo'
+      '                    from dadosfiscais df'
+      '                          join produtosdadosfiscais pdf'
+      
+        '                                join produtos p join caracterist' +
+        'icas c'
+      
+        '                                                      on p.carac' +
+        'teristica = c.codigo'
+      '                                on pdf.produto = p.codigo'
+      '                          on df.numero = pdf.dadofiscal'
+      ''
+      '                   where df.situacao = ''N'''
+      
+        '                     and (mod(df.codigofiscal,1000) between 101 ' +
+        'and 125 or'
+      
+        '                          MOD(df.codigofiscal,1000) BETWEEN 401 ' +
+        'and 405 OR'
+      
+        '                          mod(df.codigofiscal,1000) between 501 ' +
+        'and 503)'
+      ''
+      
+        '                     AND NOT (df.Numero IN (SELECT n.DadoFiscal ' +
+        'FROM Notas n WHERE n.EstornadaPorOSP))'
+      ''
+      '                     %sqlDataFaturamento_2'
+      ''
+      '                   group by c.grupo, ano_mes)'
+      ''
+      '                     as produtos left join'
+      ''
+      '                  (select ano_mes,'
+      '                          avg(mc.cotacao) as cotacao'
+      
+        '                          from (select to_char(mc.data, ''YYYY/MM' +
+        ''') as ano_mes,'
+      '                                       mc.cotacao'
+      '                                from moedascotacoes mc'
+      
+        '                                %sqlMoeda /*where mc.moeda = ''''U' +
+        'S$''''*/'
+      
+        '                                %sqlDataCotacao /* and mc.data b' +
+        'etween(''''2008-01-01'''') and (''''2008-12-31'''')*/'
+      '                                ) as mc'
+      
+        '                  group by ano_mes) as mc on produtos.ano_mes = ' +
+        'mc.ano_mes'
+      '                 ) as produtos'
+      '                 group by grupo'
+      '                ) as produtos on vendas.grupo = produtos.grupo'
+      'order by vendas.grupoproduto')
+    RequestLive = False
+    Left = 312
+    Top = 128
+  end
+  object qrynMeses: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select distinct to_char(cast('''
+      '        %datainicial_1'
+      
+        '        '' as date)  + s.a,''YYYY/MM'') as mes from generate_series' +
+        '(1,cast('''
+      '            %datafinal'
+      '            '' as date)-cast('''
+      '              %datainicial_2'
+      '             '' as date)) as s(a) order by 1')
+    RequestLive = False
+    Left = 88
+    Top = 456
+  end
+  object qrynmeses_aux: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select distinct to_char(cast('''
+      '        %datainicial_1'
+      
+        '        '' as date)  + s.a,''YYYY/MM'') as mes from generate_series' +
+        '(1,cast('''
+      '            %datafinal'
+      '            '' as date)-cast('''
+      '              %datainicial_2'
+      '             '' as date)) as s(a) order by 1')
+    RequestLive = False
+    Left = 320
+    Top = 456
+  end
+  object ZMonitor1: TZMonitor
+    OnMonitorEvent = ZMonitor1MonitorEvent
+    Left = 552
+    Top = 88
+  end
+  object qryVendas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    RequestLive = True
+    Left = 80
+    Top = 336
+  end
+  object dsrVendas: TtecDataSource
+    DataSet = qryVendas
+    Left = 80
+    Top = 392
+  end
+  object qryVendas_AUX: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'meses'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'sqlMoedaSelecionada'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'sqlDataFaturamento_2'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'sqlMoeda'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'sqlDataCotacao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';select vendas.*,'
+      '       produtos.quantidadeperiodo,'
+      '       produtos.valorperiodo'
+      'from'
+      '('
+      'SELECT * FROM crosstab'
+      '('
+      ''
+      '''select cast(''''TOTAL'''' as varchar(100)) as grupoproduto,'
+      '        cast(''''-'''' as varchar(1)) as expandir,'
+      '        cast(null as bigint) as produto,'
+      '        cast(''''TOTAL'''' as varchar(43)) as descricaoproduto,'
+      '        cast(null as integer) as pn,'
+      '        cast(null as varchar(4)) as grupo,'
+      '        cast(null as varchar(40)) as descricaogrupo,'
+      '        vendas.ano_mes,'
+      '        vendas.quantidade_mes'
+      ' from'
+      ' ('
+      '   select /*c.grupo,'
+      '          g.descricao as descricaogrupo,'
+      '          pdf.produto,'
+      '          p.descricao as descricaoproduto,'
+      '          */'
+      '          to_char(df.data, ''''YYYY/MM'''') as ano_mes,'
+      
+        '          cast(sum(case when c.unidade = ''''MIL'''' then 1000*pdf.q' +
+        'uantidade'
+      
+        '                        when c.unidade = ''''CT''''  then  100*pdf.q' +
+        'uantidade'
+      
+        '                                                 else      pdf.q' +
+        'uantidade'
+      '                   end'
+      '               ) as numeric(9,0)) as quantidade_mes'
+      ''
+      '          from dadosfiscais df'
+      '                join produtosdadosfiscais pdf'
+      '                      join produtos p join caracteristicas c'
+      
+        '                                            join grupos g on c.g' +
+        'rupo = g.codigo'
+      
+        '                                            on p.caracteristica ' +
+        '= c.codigo'
+      '                      on pdf.produto = p.codigo'
+      '                on df.numero = pdf.dadofiscal'
+      '          where df.situacao = ''''N'''''
+      
+        '            and (mod(df.codigofiscal,1000) between 101 and 125 o' +
+        'r'
+      
+        '                 MOD(df.codigofiscal,1000) BETWEEN 401 and 405 O' +
+        'R'
+      '                 mod(df.codigofiscal,1000) between 501 and 503)'
+      ''
+      
+        '            AND NOT (df.Numero IN (SELECT n.DadoFiscal FROM Nota' +
+        's n WHERE n.EstornadaPorOSP))'
+      ''
+      '            %sqlDataFaturamento_1'
+      
+        '          group by  /*c.grupo, g.descricao, pdf.produto, p.descr' +
+        'icao,*/ ano_mes'
+      ' ) as vendas'
+      ' order by 1'','
+      ' ''select distinct to_char(cast('''''
+      '        %DataInicial_1'
+      
+        '        '''' as date)  + s.a,''''YYYY/MM'''') as mes from generate_ser' +
+        'ies(1,cast('''''
+      '            %DataFinal'
+      '            '''' as date)-cast('''''
+      '              %DataInicial_2'
+      '             '''' as date)) as s(a) order by 1'''
+      ')'
+      'AS'
+      ' ( grupoproduto varchar(100),'
+      ' expandir varchar(1),'
+      ' produto bigint,'
+      ' descricaoproduto varchar(43),'
+      ' pn integer,'
+      ' grupo varchar(4),'
+      ' descricaogrupo varchar(30),'
+      ' %meses'
+      ' )'
+      ') as vendas,'
+      '               ('
+      '                 select sum(valorperiodo) as valorperiodo,'
+      
+        '                        sum(quantidadeperiodo) as quantidadeperi' +
+        'odo'
+      '                 from'
+      '                 ('
+      '                  select'
+      
+        '                         %sqlMoedaSelecionada /*case when true t' +
+        'hen*/'
+      '                           case when mc.cotacao is not null then'
+      
+        '                             produtos.valorperiodo/mc.cotacao en' +
+        'd'
+      '                           else'
+      '                             produtos.valorperiodo'
+      '                         end as valorperiodo,'
+      '                         produtos.quantidadeperiodo'
+      '                  from'
+      
+        '                   (select  to_char(df.data, ''YYYY/MM'') as ano_m' +
+        'es,'
+      
+        '                          sum(pdf.quantidade*pdf.precovenda) as ' +
+        'valorperiodo,'
+      
+        '                           cast(sum(case when c.unidade = ''MIL'' ' +
+        'then 1000*pdf.quantidade'
+      
+        '                                         when c.unidade = ''CT''  ' +
+        'then  100*pdf.quantidade'
+      
+        '                                                                ' +
+        'else      pdf.quantidade'
+      '                                    end'
+      
+        '                               ) as numeric(9,0)) as quantidadep' +
+        'eriodo'
+      '                   from dadosfiscais df'
+      '                        join produtosdadosfiscais pdf'
+      '                             join produtos p'
+      '                                   join caracteristicas c'
+      
+        '                                   on p.caracteristica = c.codig' +
+        'o'
+      '                             on pdf.produto = p.codigo'
+      '                        on df.numero = pdf.dadofiscal'
+      '                   where df.situacao = ''N'''
+      
+        '                     and (mod(df.codigofiscal,1000) between 101 ' +
+        'and 125 or'
+      
+        '                          MOD(df.codigofiscal,1000) BETWEEN 401 ' +
+        'and 405 OR'
+      
+        '                          mod(df.codigofiscal,1000) between 501 ' +
+        'and 503)'
+      ''
+      
+        '                     AND NOT (df.Numero IN (SELECT n.DadoFiscal ' +
+        'FROM Notas n WHERE n.EstornadaPorOSP))'
+      ''
+      '                     %sqlDataFaturamento_2'
+      '                   group by ano_mes)'
+      ''
+      '                     as produtos left join'
+      ''
+      '                  (select ano_mes,'
+      '                          avg(mc.cotacao) as cotacao'
+      
+        '                          from (select to_char(mc.data, ''YYYY/MM' +
+        ''') as ano_mes,'
+      '                                       mc.cotacao'
+      '                                from moedascotacoes mc'
+      
+        '                                %sqlMoeda /*where mc.moeda = ''''U' +
+        'S$''''*/'
+      
+        '                                %sqlDataCotacao /* and mc.data b' +
+        'etween(''''2008-01-01'''') and (''''2008-12-31'''')*/'
+      '                                ) as mc'
+      
+        '                  group by ano_mes) as mc on produtos.ano_mes = ' +
+        'mc.ano_mes'
+      '                 ) as produtos'
+      '                ) as produtos'
+      'order by vendas.grupoproduto'
+      ''
+      ''
+      '')
+    RequestLive = False
+    Left = 312
+    Top = 344
+  end
+  object qryVendasporGruposPerc: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    RequestLive = True
+    Left = 80
+    Top = 224
+  end
+  object dsrVendasporProdutosPerc: TtecDataSource
+    DataSet = qryVendasporGruposPerc
+    Left = 80
+    Top = 280
+  end
+  object qryVendasporGruposPerc_AUX: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'meses'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'sqlMoedaSelecionada'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'sqlDataFaturamento_2'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'sqlMoeda'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'sqlDataCotacao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';select vendas.*,'
+      '       produtos.quantidadeperiodo,'
+      '       produtos.valorperiodo'
+      'from'
+      '('
+      'SELECT * FROM crosstab'
+      '('
+      '''select cast(vendas.descricaogrupo||'
+      '             vendas.grupo as varchar(100)) as grupoproduto,'
+      '             cast(''''-'''' as varchar(1)) as expandir,'
+      '             cast(null as bigint) as produto,'
+      '             cast(null as varchar(40)) as descricaoproduto,'
+      '             cast(null as integer) as pn,'
+      '             vendas.grupo,'
+      '             vendas.descricaogrupo,'
+      '             vendas.ano_mes,'
+      '             vendas.quantidade_mes'
+      ' from'
+      ' ('
+      '   select c.grupo,'
+      '          g.descricao as descricaogrupo,'
+      '/*'
+      '          pdf.produto,'
+      '          p.descricao as descricaoproduto,'
+      '*/'
+      '          to_char(df.data, ''''YYYY/MM'''') as ano_mes,'
+      
+        '          cast(sum(case when c.unidade = ''''MIL'''' then 1000*pdf.q' +
+        'uantidade'
+      
+        '                        when c.unidade = ''''CT''''  then  100*pdf.q' +
+        'uantidade'
+      
+        '                                                 else      pdf.q' +
+        'uantidade'
+      '                   end'
+      '               ) as numeric(9,0)) as quantidade_mes'
+      '          from dadosfiscais df'
+      '                join produtosdadosfiscais pdf'
+      '                      join produtos p join caracteristicas c'
+      
+        '                                            join grupos g on c.g' +
+        'rupo = g.codigo'
+      
+        '                                            on p.caracteristica ' +
+        '= c.codigo'
+      '                      on pdf.produto = p.codigo'
+      '                on df.numero = pdf.dadofiscal'
+      '          where df.situacao = ''''N'''''
+      
+        '            and (mod(df.codigofiscal,1000) between 101 and 125 o' +
+        'r'
+      
+        '                 MOD(df.codigofiscal,1000) BETWEEN 401 and 405 O' +
+        'R'
+      '                 mod(df.codigofiscal,1000) between 501 and 503)'
+      ''
+      
+        '            AND NOT (df.Numero IN (SELECT n.DadoFiscal FROM Nota' +
+        's n WHERE n.EstornadaPorOSP))'
+      ''
+      '            %sqlDataFaturamento_1'
+      
+        '          group by  c.grupo, g.descricao, /*pdf.produto, p.descr' +
+        'icao,*/ ano_mes'
+      ' ) as vendas'
+      ' order by 1'','
+      ' ''select distinct to_char(cast('''''
+      '        %DataInicial_1'
+      
+        '        '''' as date)  + s.a,''''YYYY/MM'''') as mes from generate_ser' +
+        'ies(1,cast('''''
+      '            %DataFinal'
+      '            '''' as date)-cast('''''
+      '              %DataInicial_2'
+      '             '''' as date)) as s(a) order by 1'''
+      ')'
+      'AS'
+      ' ( grupoproduto varchar(100),'
+      ' expandir varchar(1),'
+      ' produto bigint,'
+      ' descricaoproduto varchar(43),'
+      ' pn integer,'
+      ' grupo varchar(4),'
+      ' descricaogrupo varchar(30),'
+      ' %meses'
+      ' )'
+      ') as vendas join'
+      '               ('
+      '                 select grupo,'
+      '                        sum(valorperiodo) as valorperiodo,'
+      
+        '                        sum(quantidadeperiodo) as quantidadeperi' +
+        'odo'
+      '                 from'
+      '                 ('
+      '                  select produtos.grupo,'
+      
+        '                        %sqlMoedaSelecionada /*case when true th' +
+        'en*/'
+      '                           case when mc.cotacao is not null then'
+      
+        '                             produtos.valorperiodo/mc.cotacao en' +
+        'd'
+      '                           else'
+      '                             produtos.valorperiodo'
+      '                         end as valorperiodo,'
+      '                         produtos.quantidadeperiodo'
+      '                  from'
+      '                   (select c.grupo,'
+      
+        '                           to_char(df.data, ''YYYY/MM'') as ano_me' +
+        's,'
+      
+        '                           sum(pdf.quantidade*pdf.precovenda) as' +
+        ' valorperiodo,'
+      
+        '                           cast(sum(case when c.unidade = ''MIL'' ' +
+        'then 1000*pdf.quantidade'
+      
+        '                                         when c.unidade = ''CT''  ' +
+        'then  100*pdf.quantidade'
+      
+        '                                                                ' +
+        'else      pdf.quantidade'
+      '                                    end'
+      
+        '                               ) as numeric(9,0)) as quantidadep' +
+        'eriodo'
+      '                    from dadosfiscais df'
+      '                          join produtosdadosfiscais pdf'
+      
+        '                                join produtos p join caracterist' +
+        'icas c'
+      
+        '                                                      on p.carac' +
+        'teristica = c.codigo'
+      '                                on pdf.produto = p.codigo'
+      '                          on df.numero = pdf.dadofiscal'
+      ''
+      '                   where df.situacao = ''N'''
+      
+        '                     and (mod(df.codigofiscal,1000) between 101 ' +
+        'and 125 or'
+      
+        '                          MOD(df.codigofiscal,1000) BETWEEN 401 ' +
+        'and 405 OR'
+      
+        '                          mod(df.codigofiscal,1000) between 501 ' +
+        'and 503)'
+      ''
+      
+        '                     AND NOT (df.Numero IN (SELECT n.DadoFiscal ' +
+        'FROM Notas n WHERE n.EstornadaPorOSP))'
+      ''
+      '                     %sqlDataFaturamento_2'
+      '                   group by c.grupo, ano_mes)'
+      ''
+      '                     as produtos left join'
+      ''
+      '                  (select ano_mes,'
+      '                          avg(mc.cotacao) as cotacao'
+      
+        '                          from (select to_char(mc.data, ''YYYY/MM' +
+        ''') as ano_mes,'
+      '                                       mc.cotacao'
+      '                                from moedascotacoes mc'
+      
+        '                                %sqlMoeda /*where mc.moeda = ''''U' +
+        'S$''''*/'
+      
+        '                                %sqlDataCotacao /* and mc.data b' +
+        'etween(''''2008-01-01'''') and (''''2008-12-31'''')*/'
+      '                                ) as mc'
+      
+        '                  group by ano_mes) as mc on produtos.ano_mes = ' +
+        'mc.ano_mes'
+      '                 ) as produtos'
+      '                 group by grupo'
+      '                ) as produtos on vendas.grupo = produtos.grupo'
+      ''
+      'order by vendas.grupoproduto')
+    RequestLive = False
+    Left = 312
+    Top = 216
+  end
+end

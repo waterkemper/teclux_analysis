@@ -230,6 +230,8 @@ type
     OpenDialog1: TOpenDialog;
     sbnCadastroNota: TSpeedButton;
     AdvSmoothProgressBar1: TAdvSmoothProgressBar;
+    Valorfreteexterno: TtecDBText;
+    edticmsconhecimentofrete: TtecDBText;
     procedure sbnGerarClick(Sender: TObject);
     procedure sbnProcuraFilialClick(Sender: TObject);
     procedure sbnProcuraFornecedorClick(Sender: TObject);

@@ -15,10 +15,10 @@ inherited frmSPC: TfrmSPC
       Width = 4
     end
     object sbnGerar: TSpeedButton
-      Left = 154
+      Left = 80
       Top = 2
       Width = 75
-      Height = 35
+      Height = 39
       Hint = 'Gerar consulta de SPC'
       Caption = 'Gerar F6'
       Flat = True
@@ -79,10 +79,10 @@ inherited frmSPC: TfrmSPC
       OnClick = sbnGerarClick
     end
     object sbnConfirma: TSpeedButton
-      Left = 229
+      Left = 155
       Top = 2
       Width = 75
-      Height = 35
+      Height = 39
       Hint = 'Confirma Retirada do SPC'
       Caption = 'Confirma F5'
       Enabled = False
@@ -697,10 +697,15 @@ inherited frmSPC: TfrmSPC
               CellHeights = 100
               StrippedColor = 16054260
               CanDelete = False
+              CanNotInsertFromGrid = False
               PostOnEnter = False
+              PostOnSetUpDown = False
               DenySort = False
               DefaultRowHeight = 19
               ExibirNumerodaLinha = False
+              NaoAtribuirDadosaTabelaaoDigitar = False
+              ShowWhenFieldInvisible = False
+              CanClickWhenEditing = False
             end
           end
         end
@@ -1051,10 +1056,15 @@ inherited frmSPC: TfrmSPC
           CellHeights = 100
           StrippedColor = 16054260
           CanDelete = False
+          CanNotInsertFromGrid = False
           PostOnEnter = False
+          PostOnSetUpDown = False
           DenySort = False
           DefaultRowHeight = 18
           ExibirNumerodaLinha = False
+          NaoAtribuirDadosaTabelaaoDigitar = False
+          ShowWhenFieldInvisible = False
+          CanClickWhenEditing = False
           Columns = <
             item
               Expanded = False
@@ -1146,10 +1156,15 @@ inherited frmSPC: TfrmSPC
           CellHeights = 100
           StrippedColor = 16054260
           CanDelete = False
+          CanNotInsertFromGrid = False
           PostOnEnter = False
+          PostOnSetUpDown = False
           DenySort = False
           DefaultRowHeight = 18
           ExibirNumerodaLinha = False
+          NaoAtribuirDadosaTabelaaoDigitar = False
+          ShowWhenFieldInvisible = False
+          CanClickWhenEditing = False
           Columns = <
             item
               Expanded = False
@@ -1282,10 +1297,15 @@ inherited frmSPC: TfrmSPC
           CellHeights = 100
           StrippedColor = 16054260
           CanDelete = False
+          CanNotInsertFromGrid = False
           PostOnEnter = False
+          PostOnSetUpDown = False
           DenySort = False
           DefaultRowHeight = 18
           ExibirNumerodaLinha = False
+          NaoAtribuirDadosaTabelaaoDigitar = False
+          ShowWhenFieldInvisible = False
+          CanClickWhenEditing = False
           Columns = <
             item
               Expanded = False
@@ -2263,6 +2283,8 @@ inherited frmSPC: TfrmSPC
               Top = 5
               Width = 433
               Height = 153
+              HorzScrollBar.Visible = False
+              VertScrollBar.Visible = False
               Font.Charset = DEFAULT_CHARSET
               Font.Color = clBlack
               Font.Height = -13

@@ -1,0 +1,1317 @@
+unit fmtrocamercadorias;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls,
+  ExtCtrls, Buttons, DBCtrls, Mask, ComCtrls, Grids, DBGrids,
+  fmcadastropadrao, ActnList, cpnumero, cpdbfindcontrols, cpdbgrid,
+  cpdbmemo, cpdbtext, ToolWin, {Qete,} Windows,
+  // Terceiros
+  ZQuery,
+    // Constantes
+  ctconstantes, biblio, clusuario, clfinanceira, clparametrossistema,
+  // Repositorio
+  fmprincipalbasico, fmconsultaporcampo, fmconsultabasica,
+  // Projeto
+  dmtrocamercadorias, dmcadastrocontratos, DB, ZPgSqlQuery, cpquery, cptexto,
+  cpcep, cpdblookupcombobox, frPesquisaCupomFiscal, cpdbdata, cpdata, DateUtils,
+  frconsultacodigo, TypInfo;
+
+
+type
+  TfrmTrocaMercadorias = class(TfrmCadastroPadrao)
+    pnlFundoJanela: TPanel;
+    gbxDevolucaoMercadoria: TGroupBox;
+    aclDevolucaoMercadorias: TActionList;
+    actHabilitarBotoes: TAction;
+    Bevel1: TBevel;
+    sbnFichaFinanceira: TSpeedButton;
+    pgcTrocaMercadorias: TPageControl;
+    tstPreSelecao: TTabSheet;
+    lblClienteContrato: TLabel;
+    edfCliente: TtecDbEditFind;
+    sbnProcuraCliente: TSpeedButton;
+    dtxNomeCliente: TtecDBText;
+    tstDefinicaodaTroca: TTabSheet;
+    pgcProdutosNotas: TPageControl;
+    tstProdutosEntradaseSaidas: TTabSheet;
+    tstDadosNotasPag: TTabSheet;
+    sbnIncluirProdutoaTrocar: TSpeedButton;
+    sbnExcluirProdutoaTrocar: TSpeedButton;
+    sbnIncluirProduto: TSpeedButton;
+    sbnExcluirProduto: TSpeedButton;
+    gbxEntradaProdutosTrocados: TGroupBox;
+    dbgProdutosaTrocar: TtecDBGrid;
+    gbxSaidaProdutos: TGroupBox;
+    dbgProdutos: TtecDBGrid;
+    lblCreditoparaTroca: TLabel;
+    gbxDadosNotasPag: TGroupBox;
+    edtValorNota: TDBEditNumero;
+    edtValorProduto: TDBEditNumero;
+    edtValorFrete: TDBEditNumero;
+    edtValorSeguro: TDBEditNumero;
+    lblValorNota: TLabel;
+    lblValorProduto: TLabel;
+    lblValorFrete: TLabel;
+    lblValorSeguro: TLabel;
+    lblProdutosNotas: TLabel;
+    lblValorDesconto: TLabel;
+    edtValorDesconto: TDBEditNumero;
+    lblValorAcrescimo: TLabel;
+    edtValorAcrescimo: TDBEditNumero;
+    Shape1: TShape;
+    shpRenegociado: TShape;
+    pgcVendedor: TPageControl;
+    tstVendedor: TTabSheet;
+    gbxVendedor: TGroupBox;
+    lblVendedor: TLabel;
+    dtxVendedor: TtecDBText;
+    dtxDescricaoVendedor: TtecDBText;
+    lblPlano: TLabel;
+    dtxPlano: TtecDBText;
+    dtxDescricaoPlano: TtecDBText;
+    lblEmissao: TLabel;
+    dtxEmissao: TtecDBText;
+    lblSituacao: TLabel;
+    dtxSituacao: TtecDBText;
+    lblFilial: TLabel;
+    dtxFilial: TtecDBText;
+    dtxDescricaoFilial: TtecDBText;
+    lblAgente: TLabel;
+    dtxAgente: TtecDBText;
+    dtxDescricaoAgente: TtecDBText;
+    lblFaturamento: TLabel;
+    edtFaturamento: TtecDBText;
+    tstValoresNovosPagos: TTabSheet;
+    gbxValoresPagos: TGroupBox;
+    lblValorPago: TLabel;
+    dbgValorEmAberto: TDBGrid;
+    edtDevolver: TEditNumero;
+    lblDevolver: TLabel;
+    edtPago: TEditNumero;
+    gbxNovosValores: TGroupBox;
+    lblAVistaNV: TLabel;
+    lblDescontoNV: TLabel;
+    lblFreteSeguroNV: TLabel;
+    lblAcrescimoNV: TLabel;
+    lblTotalNV: TLabel;
+    edtAVista: TEditNumero;
+    edtDesconto: TEditNumero;
+    edtFreteSeguro: TEditNumero;
+    edtAcrescimo: TEditNumero;
+    edtTotal: TEditNumero;
+    tstObservacao: TTabSheet;
+    gbxObservacao: TGroupBox;
+    mmoObservacoes: TtecDBMemo;
+    gbxValoresContratos: TGroupBox;
+    dtxAVistaVC: TtecDBText;
+    lblAVistaVC: TLabel;
+    lblDescontoVC: TLabel;
+    dtxDescontoVC: TtecDBText;
+    lblFreteSeguroVC: TLabel;
+    dtxFreteSeguroVC: TtecDBText;
+    lblAcrescimoVC: TLabel;
+    dtxAcrescimoVC: TtecDBText;
+    lblTotalVC: TLabel;
+    dtxTotalVC: TtecDBText;
+    pgcProdutosParcelas: TPageControl;
+    tstProdutos: TTabSheet;
+    gbxProdutos: TGroupBox;
+    dbgProdutosContratos: TtecDBGrid;
+    gbxContratos: TGroupBox;
+    dbgContratosPorCliente: TtecDBGrid;
+    tstParcelas: TTabSheet;
+    gbxParcelas: TGroupBox;
+    sbnExcluirParcela: TSpeedButton;
+    sbnIncluirParcela: TSpeedButton;
+    sbnReter: TSpeedButton;
+    dbgParcelasContratos: TtecDBGrid;
+    lblDevolvido: TLabel;
+    lblBrinde: TLabel;
+    lblDefeito: TLabel;
+    flkVendedor: TtecDBFindLookup;
+    sbnProcurarVendedor: TSpeedButton;
+    dtxNomeVendedor: TtecDBText;
+    lblProdutos: TLabel;
+    dtxProdutos: TtecDBText;
+    flkCodigoCliente: TtecDBFindLookup;
+    sbnProcurarClientes: TSpeedButton;
+    dtxClientesNome: TtecDBText;
+    dtxProdutosaTrocar: TtecDBText;
+    lblDefeitoTroca: TLabel;
+    lblNota: TLabel;
+    dbgNotasPag: TtecDBGrid;
+    lblSaldoCreditoTroca: TLabel;
+    edtCreditoTroca: TEditNumero;
+    lblcontratoCreditoTroca: TLabel;
+    dtxCreditoTrocaVC: TtecDBText;
+    Label4: TLabel;
+    dtxQtdeProdutos: TtecDBText;
+    Label1: TLabel;
+    tecDBText1: TtecDBText;
+    dbgProdutosNotasPag: TtecDBGrid;
+    dbgImpostosProdutos: TtecDBGrid;
+    dbgServicos: TtecDBGrid;
+    lblValorServicosVC: TLabel;
+    dtxValorServicosVC: TtecDBText;
+    Label2: TLabel;
+    dtxRetencoes: TtecDBText;
+    Label3: TLabel;
+    dtxIPI: TtecDBText;
+    Label5: TLabel;
+    dtxICMSSubst: TtecDBText;
+    lblValorServicos: TLabel;
+    edtValorServicos: TEditNumero;
+    Label6: TLabel;
+    edtValorImpostoRetido: TEditNumero;
+    Label7: TLabel;
+    edtValorIPI: TEditNumero;
+    Label8: TLabel;
+    edticmsvalorst: TEditNumero;
+    Label9: TLabel;
+    Label10: TLabel;
+    edtCreditoDevolver: TEditNumero;
+    edtCredito: TEditNumero;
+    edtBaseICMSNota: TDBEditNumero;
+    Label11: TLabel;
+    Label12: TLabel;
+    DBEditNumero1: TDBEditNumero;
+    Label13: TLabel;
+    Label14: TLabel;
+    DBEditNumero2: TDBEditNumero;
+    DBEditNumero3: TDBEditNumero;
+    ckbDevolverTodos: TCheckBox;
+    pnlCliente: TGroupBox;
+    gbxDadosGerais: TGroupBox;
+    pnlLegendas: TPanel;
+    gbxClienteNovaVenda: TGroupBox;
+    gbxVendedorNovaVenda: TGroupBox;
+    gbxCupomFiscal: TGroupBox;
+    gbxDataCupom: TGroupBox;
+    edtDataCupom: TDBEditData;
+    sbnGerar: TSpeedButton;
+    ckbCuponsdoCliente: TCheckBox;
+    GroupBox1: TGroupBox;
+    edtCuponsaPartirde: TEditData;
+    fraPesquisaCupomFiscal: TfraPesquisaCupomFiscal;
+    GroupBox2: TGroupBox;
+    edtValorCupom: TDBEditNumero;
+    procedure sbnProcuraClienteClick(Sender: TObject);
+    procedure edfClienteFound(Found: Boolean);
+    procedure dbgProdutosContratosDrawColumnCell(Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure mmoObservacoesKeyPress(Sender: TObject; var Key: Char);
+    procedure actHabilitarBotoesUpdate(Sender: TObject);
+    procedure dbgParcelasContratosKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure sbnExcluirParcelaClick(Sender: TObject);
+    procedure sbnFichaFinanceiraClick(Sender: TObject);
+    procedure sbnIncluirParcelaClick(Sender: TObject);
+    procedure dbgParcelasContratosDblClick(Sender: TObject);
+    procedure edfClienteMessage(var Msg: String);
+    procedure sbnReterClick(Sender: TObject);
+    procedure dbgProdutosContratosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnIncluirProdutoClick(Sender: TObject);
+    procedure pgcTrocaMercadoriasChange(Sender: TObject);
+    procedure sbnProcurarClientesClick(Sender: TObject);
+    procedure sbnProcurarVendedorClick(Sender: TObject);
+    procedure sbnExcluirProdutoClick(Sender: TObject);
+    procedure sbnIncluirProdutoaTrocarClick(Sender: TObject);
+    procedure dbgProdutosDblClick(Sender: TObject);
+    procedure dbgProdutosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbgProdutosaTrocarDblClick(Sender: TObject);
+    procedure dbgProdutosaTrocarKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure pgcProdutosNotasChange(Sender: TObject);
+    procedure sbnExcluirProdutoaTrocarClick(Sender: TObject);
+    procedure dbgProdutosaTrocarDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure FormShow(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
+    procedure edfClienteEnter(Sender: TObject);
+    procedure edfClienteExit(Sender: TObject);
+    procedure flkCodigoClienteEnter(Sender: TObject);
+    procedure flkCodigoClienteExit(Sender: TObject);
+    procedure dbgImpostosProdutosDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure dbgServicosDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure dbgServicosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure ckbDevolverTodosClick(Sender: TObject);
+    procedure sbnGerarClick(Sender: TObject);
+    procedure flkCodigoClienteKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+ private
+    procedure AfterScrollLinhaColunaGrade(Sender: TObject);
+    function  IncluirEditarProdutosContrato(Editar: Boolean): Boolean;
+    function  IncluirEditarProdutosaTrocar(Editar: Boolean): Boolean;
+    function  ExcluirProduto: Boolean;
+    function  ExcluirProdutoaTrocar: Boolean;
+    procedure IncluirCliente;
+
+    procedure CondicoesFiliaisEntrada;
+    procedure AtribuirDadosFilialEntrada;
+    function NomeFrameFilialEntrada: String;
+
+
+  protected
+//    dtmTrocaMercadorias: TdtmTrocaMercadorias;
+    Jan: TfrmConsultaPorCampo;
+    Grupos: vString;
+    CodClienteSelecaoAnt: Integer;
+    TipoClienteSelecaoAnt: String;
+    CodClienteAnt: Integer;
+    TipoClienteAnt: String;
+    procedure AcionaCadastroParcelas(Editar: Boolean);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure AfterScrollContratosClientes(Sender: TObject);
+    function  InternoIncluir: Boolean; override;
+//    function InternoCancelar: Boolean; override;
+    function InternoExcluir: Boolean; override;
+    function InternoGravar : Boolean; override;
+    function InternoPesquisar(Titulo:String): Integer; override;
+    function JanelaPesquisa: TfrmConsultaBasica; override;
+    function TabelaDePesquisa: TZDataSet; override;
+    function ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure HabilitarBotoes;
+    procedure ExibirNovosValores(Sender: TObject);
+    function PesquisaHabilitada: Boolean;
+    procedure CondicoesdaConsultaCupomFiscal;
+    procedure AtribuirDAdosCupomFiscal;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+    procedure   ReFazConsultaCliente(Contratos: Array of String);
+    procedure   GravarLinhas;
+    procedure   GravarLinhasProdutosContratos;
+
+
+
+  end;
+
+var
+  frmTrocaMercadorias: TfrmTrocaMercadorias;
+  TipoConsulta: TtecContratoTipoConsulta;
+  NotaOK: Boolean;
+
+implementation
+
+uses fmcadastroparcelasdevolucao, 
+     fmoperacoescontratos, fmvendasavista, fmcadastroprodutoscontratotroca,
+     fmcadastroprodutostroca, fmcadastrocontratos, fmorcamentos;
+{$R *.dfm}
+
+{ TfrmTrocaMercadorias }
+
+procedure TfrmTrocaMercadorias.actHabilitarBotoesUpdate(Sender: TObject);
+begin
+  inherited;
+  HabilitarBotoes;
+//  ExibirNovosValores(nil);
+
+  sbnGerar.enabled := fraPesquisaCupomFiscal.fraConsultaCupomFiscal.qryProcuraCupomFiscal.recordcount <> 0;
+
+  sbnIncluirProdutoaTrocar.enabled := not parsistema.Impedir_a_troca_sem_vincular_a_venda;
+
+end;
+
+procedure TfrmTrocaMercadorias.AfterScrollContratosClientes(Sender: TObject);
+begin
+end;
+
+constructor TfrmTrocaMercadorias.Create(AOwner: TComponent);
+begin
+  dtmTrocaMercadorias:= TdtmTrocaMercadorias.Create(Self);
+  inherited;
+  DataSet:= dtmTrocaMercadorias.TabelaContrato;
+  dtmTrocaMercadorias.Abre(ctVendaTabelaCadastroContrato);
+  pgcTrocaMercadorias.ActivePageIndex := 0;
+  pgcVendedor.ActivePage        := tstVendedor;
+  pgcProdutosParcelas.ActivePage:= tstProdutos;
+  dtmTrocaMercadorias.AfterScrollContratosClientes:= AfterScrollContratosClientes;
+  dtmTrocaMercadorias.OnScrollLinhaColunaGrade := AfterScrollLinhaColunaGrade;
+  dbgProdutosContratos.Columns[2].Visible := ParSistema.UsarGradesProdutos;
+  dbgProdutosContratos.Columns[3].Visible := ParSistema.UsarGradesProdutos;
+
+  pgcTrocaMercadorias.ActivePage := tstPreSelecao;
+
+  flkVendedor.Enabled := Not UsuarioLogin.Vendedor;
+  if UsuarioLogin.Vendedor then begin
+    dtmTrocaMercadorias.VendedorDefault := UsuarioLogin.CodigoUsuario;
+    dtxNomeVendedor.Width := dtxNomeVendedor.Width + dtxNomeVendedor.Left - flkVendedor.Left;
+    dtxNomeVendedor.Left := flkVendedor.Left;
+    dtxNomeVendedor.BringToFront;
+  end;
+
+  dbgProdutos.Columns[1].Visible := Not ParSistema.FiliaisIndependentes;
+  dbgProdutos.Columns[4].Visible := ParSistema.UsarGradesProdutos;
+  dbgProdutos.Columns[5].Visible := ParSistema.UsarGradesProdutos;
+  
+  dbgProdutos.ColumnByName('reserva').Visible := not parsistema.IncluirOrcamentonosItensdaTroca;
+
+  dtmTrocaMercadorias.OnScrollLinhaColunaGrade := AfterScrollLinhaColunaGrade;
+  dbgProdutosContratos.SelectedIndex := 12;
+
+  if dbgProdutosContratos.Columns[7].Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgProdutosContratos.Columns[7].Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgProdutosContratos.Columns[8].Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgProdutosContratos.Columns[8].Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgProdutosContratos.Columns[9].Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgProdutosContratos.Columns[9].Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgProdutosContratos.Columns[11].Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgProdutosContratos.Columns[11].Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgProdutosContratos.Columns[12].Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgProdutosContratos.Columns[12].Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgProdutosaTrocar.Columns[6].Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgProdutosaTrocar.Columns[6].Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgProdutos.ColumnByName('quantidade').Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgProdutos.ColumnByName('quantidade').Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgProdutosNotasPag.Columns[2].Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgProdutosNotasPag.Columns[2].Width := ParSistema.TamanhoMascaraQuantidade;
+
+  pgcProdutosNotas.ActivePage := tstProdutosEntradaseSaidas;
+  dtmTrocaMercadorias.ExibirNovosValores := ExibirNovosValores;
+
+  dbgServicos.visible := parsistema.contratocomservico;
+  self.activecontrol :=  edfCliente;
+
+  fraPesquisaCupomFiscal.fraConsultaCupomFiscal.CondicoesdaConsulta := CondicoesdaConsultaCupomFiscal;
+  fraPesquisaCupomFiscal.fraConsultaCupomFiscal.onfound := AtribuirDadosCupomFiscal;
+
+  dbgProdutosContratos.PesquisaCampo('filialmovimentacao', pesFiliais, self);
+  tfraconsultacodigo(self.FindComponent(NomeFrameFilialEntrada)).CondicoesdaConsulta := CondicoesFiliaisEntrada;
+  tfraconsultacodigo(self.FindComponent(NomeFrameFilialEntrada)).onFound := AtribuirDadosFilialEntrada;
+
+
+end;
+
+procedure TfrmTrocaMercadorias.dbgParcelasContratosKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+{
+  if Shift = [ssCtrl] then begin
+    case Key of
+      TeclaEditarRegistro : if dtmTrocaMercadorias.PodeAlterarParcela then
+                              AcionaCadastroParcelas(True);
+      TeclaInserirRegistro: AcionaCadastroParcelas(False);
+    end;
+  end;
+ G}
+end;
+
+procedure TfrmTrocaMercadorias.dbgProdutosContratosDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  if not TDBGrid(Sender).DataSource.DataSet.IsEmpty then
+  begin
+    if (TDBGrid(Sender).DataSource.DataSet.FieldByName('quantidade').AsCurrency =
+        TDBGrid(Sender).DataSource.DataSet.FieldByName('cancelado').AsCurrency) then
+        TDBGrid(Sender).Canvas.Brush.Color := $FFCB97;
+
+    if TDBGrid(Sender).DataSource.DataSet.FieldByName('brinde').AsBoolean then
+        TDBGrid(Sender).Canvas.Brush.Color := $7DBEFF;
+
+    if (TDBGrid(Sender).DataSource.DataSet.FieldByName('devolver').AsCurrency > 0) then begin
+      TDBGrid(Sender).Canvas.Brush.Color := clInfoBk;
+      if TDBGrid(Sender).DataSource.DataSet.FieldByName('defeito').AsBoolean then
+           TDBGrid(Sender).Canvas.Font.Color := clRed
+      else TDBGrid(Sender).Canvas.Font.Color := clBlack;
+    end;
+    TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end;
+end;
+
+destructor TfrmTrocaMercadorias.Destroy;
+begin
+  dtmTrocaMercadorias:=nil;
+  inherited;
+  frmTrocaMercadorias := nil;
+end;
+
+procedure TfrmTrocaMercadorias.edfClienteFound(Found: Boolean);
+begin
+  inherited;
+  if Found then
+    if not dtmTrocaMercadorias.ReFazConsultaContratosPorCliente then
+    begin
+        if pgcProdutosParcelas.ActivePage = tstParcelas then
+           pgcProdutosParcelas.ActivePage := tstProdutos;
+        dbgContratosPorCliente.SetFocus;
+        case dtmTrocaMercadorias.TipoClienteSelecao[1] of
+         'C': lblClienteContrato.Caption:= 'Cliente';
+         'F': lblClienteContrato.Caption:= 'Fornecedor';
+         'L': lblClienteContrato.Caption:= 'Filial';
+        end;
+    end;
+end;
+
+function TfrmTrocaMercadorias.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  Result := False;
+  if CtrlOn then
+    case TipoConsulta of
+      ctcCLIENTESTROCA : Result:= dtmTrocaMercadorias.ExisteCliente(nomecampo, value);
+      ctcCLIENTES      : Result := dtmTrocaMercadorias.ExisteCliente(NomeCampo, Value);
+      ctcVENDEDOR      : Result := dtmTrocaMercadorias.ExisteVendedores(NomeCampo, Value);
+    end;
+end;
+
+procedure TfrmTrocaMercadorias.HabilitarBotoes;
+begin
+  with dtmTrocaMercadorias do begin
+//    pnlParcelas.Visible       := (pgcProdutosParcelas.ActivePage = tstProdutos);
+    sbnExcluir.Enabled        := (NrContratos > 0);
+    sbnFichaFinanceira.Enabled:= (CodigoCliente > 0);
+//    sbnExcluirParcela.Enabled := PodeAlterarParcela;
+//    sbnReter.Enabled          := PodeReterValor;
+
+    lblDefeito.Visible        := Qtde_A_Devolver > 0;
+    tstDadosNotasPag.TabVisible  := TemProdutoImprimirNotaDevolucao or
+                                    (TemProdutoImprimirNotaCompra and
+                                     not dtmTrocaMercadorias.ProdutoaTrocarIgualTotalProdutos)
+  end;
+end;
+{
+function TfrmTrocaMercadorias.InternoCancelar: Boolean;
+begin
+  inherited internocancelar;
+  pgcProdutosNotas.ActivePageIndex    := 0;
+  pgcTrocaMercadorias.ActivePageIndex := 0;
+  pgcVendedor.ActivePageIndex         := 0;
+  pgcprodutosparcelas.ActivePageIndex := 0;
+  dtmTrocaMercadorias.ReFazConsultaTabelas;
+  Result:= False;
+end;
+}
+function TfrmTrocaMercadorias.InternoExcluir: Boolean;
+begin
+  result := false;
+  if CtrlOn then
+    if dbgProdutos.Focused then
+      Result := ExcluirProduto
+    else
+    if dbgProdutosaTrocar.Focused then
+      Result := ExcluirProdutoaTrocar;
+  CtrlOn:= False;
+end;
+
+function TfrmTrocaMercadorias.InternoGravar: Boolean;
+var
+  Usuario           : TtecUsuarios;
+  Frm: TForm;
+  NroCtr: vString;
+begin
+  Result:= inherited InternoGravar;
+  if result then
+  begin
+    result := dtmTrocaMercadorias.ValidarContrato(true);
+
+    if result then
+    begin
+      dtmTrocaMercadorias.AtribuirCampoVendedor;
+
+      if dtmTrocaMercadorias.ValidarProdutosContratosTroca then
+      begin
+
+        if MensagemConfirmacao(ctCONFIRMADEVOLUCAOMERCADORIA) = smbOK  then
+        begin
+          if UsuarioLogin.TrocaProduto then
+          begin
+            Usuario:= dtmTrocaMercadorias.ObterAutorizacao(taSENHA);
+            dtmTrocaMercadorias.CodigoUsuarioAutorizacao:= Usuario.CodigoUsuario;
+          end
+          else
+          begin
+            Usuario:= dtmTrocaMercadorias.ObterAutorizacao(taLOGIN, ctTROCAPRODUTO, ctAUTORIZADO);
+            dtmTrocaMercadorias.CodigoUsuarioAutorizacao:= Usuario.CodigoUsuario;
+          end;
+          try
+            if Assigned(Usuario) and Usuario.TrocaProduto then
+            begin
+              with dtmTrocaMercadorias do
+              begin
+                result := GravarContrato;
+                if Result then
+                begin
+
+                  result := GravarDevolucaoMercadoria;
+
+                  if result then
+                  begin
+                    if parsistema.IncluirOrcamentonosItensdaTroca then
+                    begin
+
+                      Frm := TfrmOrcamentos.Referencia;
+                      if NumeroContratoouOrcamento<>'' then
+                      begin
+                        if Assigned(Frm) then
+                          TfrmOrcamentos(Frm).SelecionarOrcamento(NumeroContratoouOrcamento)
+                        else
+                          TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado(['Open', NumeroContratoouOrcamento], 'TfrmOrcamentos', True);
+                      end
+
+                    end
+                    else
+                    begin
+                      if (NumeroContratoTroca<>'') then
+                      begin
+                         SetLength(NroCtr, length(NroCtr)+1);
+                         NroCtr[length(NroCtr)-1] := NumeroContratoTroca;
+                      end;
+
+                      if FaturarContrato then
+                        Faturar;
+
+                      Frm := Tfrmcadastrocontratos.Referencia;
+                      if NumeroContratoouOrcamento<>'' then
+                      begin
+                        if Assigned(Frm) then
+                          TfrmCadastroContratos(Frm).SelecionarContrato(NumeroContratoouOrcamento)
+                        else
+                          TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado([NumeroContratoouOrcamento], 'TfrmCadastroContratos', True);
+                      end
+                      else
+                      begin
+                        Frm := Tfrmcadastrocontratos.Referencia;
+                        if Assigned(Frm) then
+                          TfrmCadastroContratos(Frm).SelecionarContrato(NroCtr)
+                      end;
+
+                      Frm := TfrmVendasaVista.Referencia;
+                      if Assigned(Frm) then
+                        TFrmVendasaVista(Frm).ReFazVendaVista(NroCtr);
+                      Frm := TfrmOperacoesContratos.Referencia;
+                      if Assigned(Frm) then
+                        TfrmOperacoesContratos(Frm).RefazConsulta;
+                    end;
+                  end;
+
+                  pgcProdutosNotas.ActivePageIndex    := 0;
+                  if dtmtrocamercadorias.qryProcuraClienteSelecao.recordcount <> 0 then
+                    pgcTrocaMercadorias.ActivePageIndex := 0;
+                    
+                  pgcVendedor.ActivePageIndex         := 0;
+                  pgcprodutosparcelas.ActivePageIndex := 0;
+                end;
+              end;
+            end
+            else
+              MensagemAviso(ctUSUARIOSEMPERMISSAO);
+          finally
+            Usuario.Free;
+          end;
+        end;
+      end
+      else
+        MensagemErro(ctTROCASEMPRODUTO);
+    end;
+  end;
+end;
+
+function TfrmTrocaMercadorias.InternoPesquisar(Titulo: String): Integer;
+var
+ TeclaEnter : word;
+begin
+  Result := mrNone;
+  if CtrlOn then
+  begin
+    if PesquisaHabilitada                   then
+    begin
+      if ActiveControl is TtecFindCustom then
+      begin
+        dtmTrocaMercadorias.AbrirTabelas(TipoConsulta);
+        Result := inherited InternoPesquisar(Titulo);
+        if Result = mrOK then
+        begin
+          dtmTrocaMercadorias.Selecionar(tipoConsulta);
+          if tipoconsulta = ctcCLIENTES then
+          begin
+            TeclaEnter := VK_Return;
+            KeyDown(TeclaEnter,[]);
+          end;
+        end;
+        dtmTrocaMercadorias.FecharTabelas(tipoConsulta);
+      end;
+    end
+
+  end;
+end;
+
+function TfrmTrocaMercadorias.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Jan := TfrmConsultaPorCampo.Create(nil);
+  Jan.ConsultaInterativa := Not (TipoConsulta in [ctcCLIENTES, ctcCLIENTESTROCA]) and CtrlOn;
+  Jan.UsarParametrosDaTabela := false;
+  Result := Jan
+end;
+
+procedure TfrmTrocaMercadorias.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case key of
+    VK_Delete: if dbgImpostosProdutos.Focused then
+                  Key:= MAXWORD
+                else
+                if dbgProdutosaTrocar.Focused then
+                  sbnExcluirProdutoaTrocarClick(self)
+                else
+                if dbgProdutos.Focused then
+                  sbnExcluirProdutoClick(self);
+
+    VK_ESCAPE: begin
+                  pgcProdutosNotas.ActivePageIndex    := 0;
+                  pgcTrocaMercadorias.ActivePageIndex := 0;
+                  pgcVendedor.ActivePageIndex         := 0;
+                  pgcprodutosparcelas.ActivePageIndex := 0;
+                  dtmTrocaMercadorias.ReFazConsultaTabelas;
+                end;//InternoCancelar;
+    VK_D     : if (Shift = [ssCtrl]) then
+                begin
+                  if pgcTrocaMercadorias.ActivePageIndex = 0 then
+                  begin
+                    if lblDefeito.Visible then
+                      dtmTrocaMercadorias.SetarProdutoComDefeito;
+                  end
+                  else
+                    dtmTrocaMercadorias.SetarProdutoComDefeitoTroca;
+                end;
+    VK_R     : if (Shift = [ssCtrl]) and sbnReter.Enabled     then sbnReter.Click;
+    VK_F2    : if (Shift = []) and sbnFichaFinanceira.Enabled then sbnFichaFinanceira.Click;
+//    VK_F7    : if (Shift = []) and sbnExcluirParcial.Enabled  then sbnExcluirParcial.Click; XX-Jander
+  end;
+end;
+
+procedure TfrmTrocaMercadorias.mmoObservacoesKeyPress(Sender: TObject; var Key: Char);
+begin
+  Key:= UpCase(Key);
+end;
+
+procedure TfrmTrocaMercadorias.sbnExcluirParcelaClick(Sender: TObject);
+begin
+  inherited;
+  dtmTrocaMercadorias.ExcluirParcelas;
+  dbgParcelasContratos.SetFocus;
+end;
+
+procedure TfrmTrocaMercadorias.sbnProcuraClienteClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfCliente.SetFocus;
+  InternoPesquisar('');
+end;
+
+function TfrmTrocaMercadorias.TabelaDePesquisa: TZDataSet;
+begin
+  case TipoConsulta of
+    ctcCLIENTESTROCA, ctcCLIENTES : Result := dtmTrocaMercadorias.ConsultaCliente;
+    ctcVENDEDOR: Result := dtmTrocaMercadorias.TabelaConsultaVendedores;
+  else
+    Result := Nil
+  end
+end;
+
+procedure TfrmTrocaMercadorias.ExibirNovosValores;
+begin
+  if pgcVendedor.ActivePage = tstValoresNovosPagos then begin
+    with dtmTrocaMercadorias do begin
+      edtAVista.Text     := FormatarValor(ValorProdutos+ValorDesconto+ValorDescontoItem {ValorVista + ValorDesconto},2);
+
+      edtValorServicos.Text := FormatarValor(ValorServicos, 2);
+      edtValorImpostoRetido.text := FormatarValor(ValorImpostoRetido, 2);
+      edtValorIPI.text := FormatarValor(ValorIPI, 2);
+      edticmsvalorst.text := FormatarValor(valoricmssubstituicao, 2);
+
+      edtDesconto.Text   := FormatarValor(ValorDesconto+ValorDescontoItem,2);
+      edtFreteSeguro.Text:= FormatarValor(ValorFrete + ValorSeguro,2);
+
+      edtAcrescimo.Text  := FormatarValor(ValorAcrescimo,2);
+      edtCreditoTroca.Text := FormatarValor(ValorCreditoTroca,2);
+      edtTotal.Text      := FormatarValor(ValorPrazo,2);
+
+      edtPago.Text       := FormatarValor(PagoVencto,2);
+      edtDevolver.Text   := FormatarValor(Abs(DevolvePagto),2);
+
+(*
+      if ContratoAVista then begin
+        edtPago.Text       := FormatarValor(PagoReal,2);
+        edtDevolver.Text   := FormatarValor(Abs(DevolvePagto),2);
+      end
+      else begin
+        edtPago.Text       := FormatarValor(PagoVencto,2);
+        edtDevolver.Text   := FormatarValor(Abs(DevolveVencto),2);
+      end;
+*)      
+
+      edtcredito.Text       := FormatarValor(PagoCreditoTroca,2);
+      edtCreditoDevolver.Text   := FormatarValor(Abs(DevolveCreditoTroca),2);
+
+(*      if not ContratoAVista then edtPago.Text       := FormatarValor(PagoVencto,2)
+      else                       edtPago.Text       := FormatarValor(PagoReal,2);
+      if not ContratoAVista then edtDevolver.Text   := FormatarValor(Abs(DevolveVencto),2)
+      else                       edtDevolver.Text   := FormatarValor(Abs(DevolvePagto),2)
+*)  end;
+  end;
+end;
+
+procedure TfrmTrocaMercadorias.sbnReterClick(Sender: TObject);
+begin
+  inherited;
+  dtmTrocaMercadorias.ReterValorDevolucao;
+end;
+
+procedure TfrmTrocaMercadorias.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  inherited;
+  dtmTrocaMercadorias.LimparTabelas;
+end;
+
+procedure TfrmTrocaMercadorias.sbnFichaFinanceiraClick(Sender: TObject);
+begin
+  inherited;
+  TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado([dtmTrocaMercadorias.CodigoCliente,
+                                                                   dtmTrocaMercadorias.TipoCliente], 'TfrmFichaFinanceira', True);
+end;
+
+procedure TfrmTrocaMercadorias.sbnIncluirParcelaClick(Sender: TObject);
+begin
+  inherited;
+  AcionaCadastroParcelas(False);
+end;
+
+procedure TfrmTrocaMercadorias.AcionaCadastroParcelas(Editar: Boolean);
+begin
+  if not Assigned (frmCadastroParcelaDevolucao) then
+    frmCadastroParcelaDevolucao:= TfrmCadastroParcelaDevolucao.Create(frmCadastroParcelaDevolucao);
+  with frmCadastroParcelaDevolucao do begin
+//    SetDataModulo(dtmTrocaMercadorias);
+    DataSet:= dtmTrocaMercadorias.TabelaParcela;
+    dtmTrocaMercadorias.IncluirParcelas(Editar);
+    ShowModal;
+    free;
+    dbgParcelasContratos.SetFocus;
+  end
+end;
+
+procedure TfrmTrocaMercadorias.dbgParcelasContratosDblClick(Sender: TObject);
+begin
+  inherited;
+  {
+  if dtmTrocaMercadorias.PodeAlterarParcela then
+    AcionaCadastroParcelas(True);
+    G}
+end;
+
+procedure TfrmTrocaMercadorias.edfClienteMessage(var Msg: String);
+begin
+  inherited;
+  Msg:= Format(ctSEMDEVOLUCAO,[edfCliente.Text]);
+end;
+
+procedure TfrmTrocaMercadorias.ReFazConsultaCliente(Contratos: Array of String);
+begin
+  if dtmTrocaMercadorias.NumeroContratoouOrcamento = Contratos[0] then
+    InternoCancelar
+end;
+
+procedure TfrmTrocaMercadorias.AfterScrollLinhaColunaGrade(
+  Sender: TObject);
+begin
+  dbgProdutosContratos.Columns[2].Title.Caption := dtmTrocaMercadorias.LinhadaGrade;
+  dbgProdutosContratos.Columns[3].Title.Caption := dtmTrocaMercadorias.colunadaGrade;
+end;
+
+procedure TfrmTrocaMercadorias.dbgProdutosContratosKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = VK_Return then
+    if dbgProdutosContratos.SelectedField = dtmTrocaMercadorias.qryProdutosContratosTrocadevolver then
+    begin
+      pgcVendedor.ActivePage := tstValoresNovosPagos;
+//      ExibirNovosValores(nil);
+      
+      dbgProdutosContratos.SetFocus;
+      dbgProdutosContratos.SelectedIndex := 11;
+
+    end;
+end;
+
+function TfrmTrocaMercadorias.PesquisaHabilitada: Boolean;
+begin
+  Result:= False;
+  if (CtrlOn) and ((ActiveControl is TtecDBEditFind) or
+                   (ActiveControl is TtecDBFindLookup))  then
+  begin
+    result := true;
+    if edfCliente.Focused then
+      TipoConsulta := ctcCLIENTESTROCA
+    else if flkCodigoCliente.Focused then
+      Tipoconsulta := ctcCLIENTES
+    else
+    if flkVendedor.Focused then
+      Tipoconsulta := ctcVENDEDOR
+    else
+      result := false
+  end;
+end;
+
+procedure TfrmTrocaMercadorias.sbnIncluirProdutoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  dbgProdutos.SetFocus;
+  InternoIncluir;
+  GravarLinhasProdutosContratos;
+end;
+
+function TfrmTrocaMercadorias.InternoIncluir: Boolean;
+begin
+  Result := inherited InternoIncluir;
+  if CtrlOn then
+   if dbgProdutos.Focused then
+     Result := IncluirEditarProdutosContrato(False)
+   else
+   if dbgProdutosaTrocar.Focused then
+     Result := IncluirEditarProdutosaTrocar(False)
+end;
+
+function TfrmTrocaMercadorias.IncluirEditarProdutosContrato(
+  Editar: Boolean): Boolean;
+begin
+  frmCadastroProdutosContratoTroca := TfrmCadastroProdutosContratoTroca.Create(frmCadastroProdutosContratoTroca);
+
+  if Editar then
+    Result := dtmTrocaMercadorias.EditarProdutosContrato
+  else
+    Result := dtmTrocaMercadorias.IncluirProdutosContrato;
+
+  if Result then
+    Result := frmCadastroProdutosContratoTroca.ShowModal = mrOK;
+
+  frmCadastroProdutosContratoTroca.Free;
+  dtmTrocaMercadorias.CalcularValorTotalProdutos;
+  dtmTrocaMercadorias.CalcularValorAVista;
+  SetFocus;
+end;
+
+procedure TfrmTrocaMercadorias.pgcTrocaMercadoriasChange(Sender: TObject);
+begin
+  inherited;
+  if pgcTrocaMercadorias.ActivePage = tstDefinicaodaTroca then
+  begin
+    flkCodigoCliente.SetFocus;
+    if parsistema.IncluirOrcamentonosItensdaTroca then
+      dtmTrocaMercadorias.IncluirOrcamento
+    else
+      dtmTrocaMercadorias.IncluirContrato;
+
+    dtmTrocaMercadorias.CalcularValorTotalProdutosaTrocar;
+  end;
+end;
+
+procedure TfrmTrocaMercadorias.sbnProcurarClientesClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkCodigoCliente,ctCLIENTES);
+end;
+
+procedure TfrmTrocaMercadorias.sbnProcurarVendedorClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkVendedor, ctVENDEDORES)
+end;
+
+procedure TfrmTrocaMercadorias.sbnExcluirProdutoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  dbgProdutos.SetFocus;
+  InternoExcluir;
+  GravarLinhasProdutosContratos;
+end;
+
+function TfrmTrocaMercadorias.ExcluirProduto: Boolean;
+begin
+  Result := dtmTrocaMercadorias.ExcluirProduto;
+  if Result then begin
+    dtmTrocaMercadorias.CalcularValorTotalProdutos;
+    dtmTrocaMercadorias.CalcularValorAVista;
+  end
+end;
+
+procedure TfrmTrocaMercadorias.sbnIncluirProdutoaTrocarClick(
+  Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  dbgProdutosaTrocar.SetFocus;
+  InternoIncluir;
+  GravarLinhas;
+end;
+
+function TfrmTrocaMercadorias.IncluirEditarProdutosaTrocar(
+  Editar: Boolean): Boolean;
+begin
+  if dtmTrocaMercadorias.dsrContratos.dataset.fieldbyname('cliente').AsString = '' then
+    MensagemAviso(ctCLIENTENAOINFORMADO)
+  else
+  begin
+    if sbnIncluirProdutoaTrocar.enabled then
+    begin
+      frmCadastroProdutosTroca := TfrmCadastroProdutosTroca.Create(frmCadastroProdutostroca);
+      if Editar then
+        Result := dtmTrocaMercadorias.EditarProdutosaTrocar
+      else
+        Result := dtmTrocaMercadorias.IncluirProdutosaTrocar;
+
+      if Result then
+        Result := frmCadastroProdutosTroca.ShowModal = mrOK;
+
+      frmCadastroProdutosTroca.Free;
+      SetFocus;
+    end;
+  end;
+end;
+
+procedure TfrmTrocaMercadorias.dbgProdutosDblClick(Sender: TObject);
+begin
+  inherited;
+  IncluirEditarProdutosContrato(True)
+end;
+
+procedure TfrmTrocaMercadorias.dbgProdutosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (Key = VK_F2) then
+    if (Shift = [ssCtrl]) then
+      IncluirEditarProdutosContrato(True)
+    else if (Shift = [ssCtrl, ssAlt]) then
+      IncluirEditarProdutosContrato(True)
+end;
+
+procedure TfrmTrocaMercadorias.dbgProdutosaTrocarDblClick(Sender: TObject);
+begin
+  inherited;
+  IncluirEditarProdutosaTrocar(True)
+end;
+
+procedure TfrmTrocaMercadorias.dbgProdutosaTrocarKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (Key = VK_F2) then
+    if (Shift = [ssCtrl]) then
+      IncluirEditarProdutosaTrocar(True)
+    else if (Shift = [ssCtrl, ssAlt]) then
+      IncluirEditarProdutosaTrocar(True)
+end;
+
+procedure TfrmTrocaMercadorias.pgcProdutosNotasChange(Sender: TObject);
+begin
+  inherited;
+  if pgcProdutosNotas.ActivePage = tstProdutosEntradaseSaidas then
+    dbgProdutosaTrocar.SetFocus
+  else if pgcProdutosNotas.ActivePageIndex = 1 then
+      dtmTrocaMercadorias.NotasFiscaisDevolucaoContrato;
+end;
+
+procedure TfrmTrocaMercadorias.sbnExcluirProdutoaTrocarClick(
+  Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  dbgProdutosaTrocar.SetFocus;
+  InternoExcluir;
+  GravarLinhas;
+end;
+
+function TfrmTrocaMercadorias.ExcluirProdutoaTrocar: Boolean;
+begin
+  Result := dtmTrocaMercadorias.ExcluirProdutoaTrocar;
+end;
+
+procedure TfrmTrocaMercadorias.dbgProdutosaTrocarDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if not TDBGrid(Sender).DataSource.DataSet.IsEmpty then
+  begin
+   if TDBGrid(Sender).DataSource.DataSet.FieldByName('defeito').AsBoolean then
+     TDBGrid(Sender).Canvas.Font.Color := clRed;
+  end;
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+procedure TfrmTrocaMercadorias.FormShow(Sender: TObject);
+begin
+  inherited;
+  pgcTrocaMercadorias.ActivePageIndex := 0;
+  edfCliente.SetFocus;
+end;
+
+procedure TfrmTrocaMercadorias.SpeedButton1Click(Sender: TObject);
+begin
+  inherited;
+ gbxEntradaProdutosTrocados.Enabled := not gbxEntradaProdutosTrocados.Enabled
+end;
+
+procedure TfrmTrocaMercadorias.edfClienteEnter(Sender: TObject);
+begin
+  inherited;
+  CodClienteSelecaoAnt := dtmTrocaMercadorias.CodigoClienteSelecao;
+  TipoClienteSelecaoAnt := dtmTrocaMercadorias.TipoClienteSelecao;
+end;
+
+procedure TfrmTrocaMercadorias.edfClienteExit(Sender: TObject);
+begin
+  inherited;
+  if ((CodClienteSelecaoAnt <> dtmTrocaMercadorias.CodigoClienteSelecao) or
+      (TipoClienteSelecaoAnt <> dtmTrocaMercadorias.TipoClienteSelecao)) or
+      ((CodClienteSelecaoAnt=0) and (TipoclienteSelecaoAnt='') and
+       (dtmTrocaMercadorias.CodigoClienteSelecao<>0) and
+       (dtmTrocaMercadorias.TipoClienteSelecao<>'')) then
+   dtmTrocaMercadorias.ExibirFichaSelecao(ClassName);
+end;
+procedure TfrmTrocaMercadorias.flkCodigoClienteEnter(Sender: TObject);
+begin
+  inherited;
+  CodClienteAnt := dtmTrocaMercadorias.CodigoCliente;
+  TipoClienteAnt := dtmTrocaMercadorias.TipoCliente;
+end;
+
+procedure TfrmTrocaMercadorias.flkCodigoClienteExit(Sender: TObject);
+begin
+  inherited;
+  if ((CodClienteAnt<>CodClienteSelecaoAnt) and
+      (TipoClienteAnt<>TipoClienteSelecaoAnt)) or
+     ((CodClienteSelecaoAnt=0) and
+      (TipoClienteSelecaoAnt='')) then
+  begin
+    if ((CodClienteAnt <> dtmTrocaMercadorias.Codigocliente) or
+        (TipoClienteAnt <> dtmTrocaMercadorias.Tipocliente)) or
+        ((CodClienteAnt=0) and (TipoclienteAnt='') and
+         (dtmTrocaMercadorias.CodigoCliente<>0) and
+         (dtmTrocaMercadorias.TipoCliente<>'')) then
+    begin
+      dtmTrocaMercadorias.ExibirFicha(classname);
+      flkCodigoCliente.setfocus;
+      flkCodigoCliente.selectall;
+    end;
+  end;
+
+  {
+  if flkCodigoCliente.text <> '' then
+    ckbCuponsdoCliente.checked := true;
+    }
+end;
+
+//-------------------------------- Carlos 18/12/2006 ----------------
+procedure TfrmTrocaMercadorias.GravarLinhas;
+var Contador: Integer;
+begin
+ with dtmTrocaMercadorias do begin
+    qryProdutosTrocados.DisableControls;
+    Contador:= 1;
+    qryProdutosTrocados.First;
+    while Not qryProdutosTrocados.Eof do begin
+      qryProdutosTrocados.Edit;
+      qryProdutosTrocadosNumeracao.AsInteger := Contador;
+      qryProdutosTrocados.Post;
+      Inc(Contador);
+        qryProdutosTrocados.Next;
+    end;
+    qryProdutosTrocados.EnableControls;
+  end;
+end;
+
+
+procedure TfrmTrocaMercadorias.GravarLinhasProdutosContratos;
+var Contador: Integer;
+begin
+ with dtmTrocaMercadorias do begin
+    dsrProdutosContratos.dataset.DisableControls;
+    Contador:= 1;
+    dsrProdutosContratos.dataset.First;
+    while Not dsrProdutosContratos.dataset.Eof do begin
+      dsrProdutosContratos.dataset.Edit;
+      dsrProdutosContratos.dataset.fieldbyname('Numero').AsInteger := Contador;
+      dsrProdutosContratos.dataset.Post;
+      Inc(Contador);
+      dsrProdutosContratos.dataset.Next;
+    end;
+    dsrProdutosContratos.dataset.EnableControls;
+  end;
+end;
+
+procedure TfrmTrocaMercadorias.dbgImpostosProdutosDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  with dtmTrocaMercadorias do begin
+      if (qryCalculosProdutostipo.asstring = 'TOTAL ICMS') or
+         (qryCalculosProdutostipo.asstring = 'TOTAL IPI') or
+         (qryCalculosProdutostipo.asstring = 'TOTAL ISS') then
+      begin
+        TDBGrid(Sender).Canvas.Font.Style := [fsBold];
+        if not (gdSelected in State) then
+          TDBGrid(Sender).Canvas.Brush.Color := TColor(strtoint(parsistema.CorZebradoRelatorio));
+      end
+      else TDBGrid(Sender).Canvas.Font.Style := []
+  end;
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+
+end;
+
+procedure TfrmTrocaMercadorias.dbgServicosDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+
+  if not TDBGrid(Sender).DataSource.DataSet.IsEmpty then
+  begin
+    if (TDBGrid(Sender).DataSource.DataSet.FieldByName('quantidade').AsCurrency =
+        TDBGrid(Sender).DataSource.DataSet.FieldByName('cancelado').AsCurrency) then
+        TDBGrid(Sender).Canvas.Brush.Color := $FFCB97;
+
+    if (TDBGrid(Sender).DataSource.DataSet.FieldByName('devolver').AsCurrency > 0) then
+    begin
+      TDBGrid(Sender).Canvas.Brush.Color := clInfoBk;
+      TDBGrid(Sender).Canvas.Font.Color := clBlack;
+    end;
+    TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end;
+
+end;
+
+procedure TfrmTrocaMercadorias.dbgServicosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = VK_Return then
+    if dbgServicos.SelectedField = dtmTrocaMercadorias.qryServicosContratosdevolver then
+    begin
+      pgcVendedor.ActivePage := tstValoresNovosPagos;
+      ExibirNovosValores(nil);
+    end
+end;
+
+
+procedure TfrmTrocaMercadorias.ckbDevolverTodosClick(Sender: TObject);
+begin
+  inherited;
+  dtmTrocaMercadorias.DevolverTodosProdutos(not ckbDevolverTodos.Checked)
+end;
+
+procedure TfrmTrocaMercadorias.CondicoesdaConsultaCupomFiscal;
+begin
+  with fraPesquisaCupomFiscal.fraConsultaCupomFiscal do
+  begin
+    if ckbCuponsdoCliente.checked then
+    begin
+      if (dtmTrocaMercadorias.qryProcuraClientecodigo.asinteger <> 0) then
+        qryProcuraCupomFiscal.macrobyname('SQL').asString := ' and df.cliente = '+dtmTrocaMercadorias.qryProcuraClientecodigo.asString + ' and df.tipocliente = ''C'''
+      else
+        qryProcuraCupomFiscal.macrobyname('SQL').asString := ' and df.cliente is null ';
+    end
+    else
+      qryProcuraCupomFiscal.macrobyname('SQL').asString := '';
+
+    if edtCuponsaPartirde.text <> '' then
+       qryProcuraCupomFiscal.macrobyname('SQL').asString := qryProcuraCupomFiscal.macrobyname('SQL').asString + ' and df.data >= '+quotedstr(formatdateTime('yyyy-mm-dd', strtodate(edtCuponsaPartirde.text)));
+
+    qryConsultaCupomFiscal.macrobyname('SQL').asString := qryProcuraCupomFiscal.macrobyname('SQL').asString;
+
+    fraPesquisaCupomFiscal.CondicaoConsultaCupomFiscal;
+  end;
+end;
+
+procedure TfrmTrocaMercadorias.sbnGerarClick(Sender: TObject);
+begin
+  inherited;
+  dtmTrocaMercadorias.GerarProdutosEntrada(fraPesquisaCupomFiscal.fraConsultaCupomFiscal.qryProcuraCupomFiscaldadofiscal.asinteger);
+
+end;
+
+procedure TfrmTrocaMercadorias.AtribuirDAdosCupomFiscal;
+begin
+  if not fraPesquisaCupomFiscal.fraConsultaCupomFiscal.qryProcuraCupomFiscalcliente.isnull then
+  begin
+    RefazConsultaPorNome(dtmTrocaMercadorias.qryProcuraCliente, ['codigo','tipo'],
+        [fraPesquisaCupomFiscal.fraConsultaCupomFiscal.qryProcuraCupomFiscalcliente.asString,
+         fraPesquisaCupomFiscal.fraConsultaCupomFiscal.qryProcuraCupomFiscaltipocliente.asString]);
+
+    dtmTrocaMercadorias.dsrContratos.dataset.edit;
+    dtmTrocaMercadorias.dsrContratos.dataset.fieldbyname('tipocliente').asString := fraPesquisaCupomFiscal.fraConsultaCupomFiscal.qryProcuraCupomFiscaltipocliente.asString;
+    dtmTrocaMercadorias.dsrContratos.dataset.fieldbyname('cliente').asinteger := fraPesquisaCupomFiscal.fraConsultaCupomFiscal.qryProcuraCupomFiscalcliente.asinteger;
+    
+  end;
+  fraPesquisaCupomFiscal.AtribuirDAdosCupomFiscal;
+
+end;
+
+procedure TfrmTrocaMercadorias.flkCodigoClienteKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (Key = VK_F3) and (Shift = [ssCtrl]) then
+    IncluirCliente;
+
+end;
+
+procedure TfrmTrocaMercadorias.IncluirCliente;
+begin
+  if dtmTrocaMercadorias.IncluirCliente then
+  begin
+    flkCodigoCliente.Text := dtmTrocaMercadorias.qryContratoscliente.assTring;
+    flkCodigoCliente.exist;
+
+  end;
+  flkCodigoCliente.SetFocus;
+end;
+
+
+procedure TfrmTrocaMercadorias.AtribuirDadosFilialEntrada;
+begin
+  if dtmTrocaMercadorias.qryProdutosContratosTroca.recordcount > 1 then
+    if Mensagemconfirmacao('Atribuir a filial de entrada para todos os produtos com quantidade a devolver não definida?') = smbOK then
+      AtribuirDados(dtmTrocaMercadorias.qryProdutosContratosTroca,
+                    [dtmTrocaMercadorias.qryProdutosContratosTrocafilialmovimentacao],
+                    [dtmTrocaMercadorias.qryProdutosContratosTrocafilialmovimentacao.asVariant],
+                    [dtmTrocaMercadorias.qryProdutosContratosTrocadevolver],
+                    [0], ['=']);
+end;
+
+procedure TfrmTrocaMercadorias.CondicoesFiliaisEntrada;
+begin
+  if assigned(tfraconsultacodigo(self.FindComponent(NomeFrameFilialEntrada))) then
+  begin
+     tfraconsultacodigo(self.FindComponent(NomeFrameFilialEntrada)).qryconsultaFiliais.macrobyname('SQL').asString := ' and tipofilial<>''V'' ';
+     tfraconsultacodigo(self.FindComponent(NomeFrameFilialEntrada)).qryProcuraFiliais.macrobyname('SQL').asString := ' and tipofilial<>''V'' ';
+  end;
+end;
+
+function TfrmTrocaMercadorias.NomeFrameFilialEntrada: String;
+begin
+  result := self.name+'_'+GetEnumName(TypeInfo(TtecPesquisa), integer(pesFiliais))+'_'+dbgprodutoscontratos.DataSource.dataset.name+'_filialmovimentacao';
+end;
+
+end.

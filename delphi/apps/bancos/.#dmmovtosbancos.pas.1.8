@@ -1,0 +1,914 @@
+unit dmmovtosbancos;
+
+interface
+
+uses SysUtils, Classes, dmbasico, dmtecsoft, DB, ZQuery, ZPgSqlQuery, cpquery,
+     cpdatasource, ctconstantes, biblio, Forms, ZTransact, Windows,{Qete,} clParametrosSistema,
+     Variants, dateutils;
+
+Const cmpData        = 1;   PosicaoAtual = 0;
+      cmpSequencia   = 2;   Primeiro     = 1;
+      cmpValor       = 3;   Anterior     = 2;
+      cmpCompensacao = 4;   Proximo      = 3;
+      cmpDocumento   = 5;   Ultimo       = 4;
+{      cmpEvento      = 6;                                               s
+      cmpObservacoes = 7;}
+
+
+type
+  TdtmMovtosBancos = class(TdtmBasico)
+
+    qryMovtosBancos: TtecQuery;
+    dsrMovtosBancos: TtecDataSource;
+
+    qryConsultaContas: TtecQuery;
+    qryConsultaContasBanco: TIntegerField;
+    qryConsultaContasAgencia: TIntegerField;
+    qryConsultaContasConta: TIntegerField;
+    qryConsultaContasDigito: TStringField;
+    qryConsultaContasTitular: TStringField;
+    qryConsultaContasSigla: TStringField;
+    qryConsultaContasNome: TStringField;
+    qryConsultaContasSaldoLancado: TFloatField;
+
+
+    dsrProcuraContas: TtecDataSource;
+    qryProcuraContas: TtecQuery;
+
+    qryProcuraContasBanco: TIntegerField;
+    qryProcuraContasAgencia: TIntegerField;
+    qryProcuraContasConta: TIntegerField;
+    qryProcuraContasDigito: TStringField;
+    qryProcuraContasTitular: TStringField;
+    qryProcuraContasSigla: TStringField;
+    qryProcuraContasNome: TStringField;
+    qryProcuraContasSaldoLancado: TFloatField;
+
+    qryConsultaMovtosBancos: TtecQuery;
+
+    qryUltimoLancto: TtecQuery;
+    dsrUltimoLancto: TtecDataSource;
+
+    qryMovtosBancosConta: TIntegerField;
+    qryMovtosBancosData: TDateField;
+    qryMovtosBancosSequencia: TIntegerField;
+    qryMovtosBancosValor: TFloatField;
+    qryMovtosBancosCompensacao: TDateField;
+    qryMovtosBancosSeqCompensacao: TIntegerField;
+    qryMovtosBancosDocumento: TStringField;
+    qryMovtosBancosTipo: TStringField;
+    qryConsultaMovtosBancosConta: TIntegerField;
+    qryConsultaMovtosBancosData: TDateField;
+    qryConsultaMovtosBancosSequencia: TIntegerField;
+    qryConsultaMovtosBancosValor: TFloatField;
+    qryConsultaMovtosBancosDocumento: TStringField;
+    qryConsultaMovtosBancosEvento: TStringField;
+    qryMovtosBancosOrigem: TStringField;
+    qryConsultaMovtosBancosOrigem: TStringField;
+    qryMovtosBancosOrigemLancto: TStringField;
+    qryUltimoLanctodata: TStringField;
+    qryMovtosBancosEventos: TtecQuery;
+    dsrMovtosBancosEventos: TtecDataSource;
+    qryMovtosBancosEventosconta: TIntegerField;
+    qryMovtosBancosEventosdata: TDateField;
+    qryMovtosBancosEventossequencia: TIntegerField;
+    qryMovtosBancosEventosevento: TIntegerField;
+    qryMovtosBancosEventostipo: TStringField;
+    qryMovtosBancosEventosvalor: TFloatField;
+    qryMovtosBancosEventosdescricaoevento: TStringField;
+    qryMovtosBancosEventoseventovalidado: TBooleanField;
+    qryProximoMovtosBancos: TtecQuery;
+    qryProximoMovtosBancossequencia: TIntegerField;
+    qryMovtosBancosevento: TIntegerField;
+    qryAtualizarLancamentos_: TtecQuery;
+    qryMovtosBancosEventosregistroalterado: TBooleanField;
+    qryProcuraContasfilial: TIntegerField;
+    qryMovtosBancosEventoscontatransf: TIntegerField;
+    qryMovtosBancosEventossigla: TStringField;
+    qryMovtosBancosEventosnomeagencia: TStringField;
+    qryMovtosBancosEventoscontavalidada: TBooleanField;
+    qryMovtosBancosEventosdigito: TStringField;
+    qryMovtosBancosEventosobservacoes: TStringField;
+    qryMovtosBancosobservacoes: TStringField;
+    qryMovtosBancosdatareferencia: TDateField;
+
+    procedure qryMovtosBancosNewRecord(DataSet: TDataSet);
+    procedure qryMovtosBancosAfterScroll(DataSet: TDataSet);
+    procedure qryProcuraContasAfterOpen(DataSet: TDataSet);
+    procedure qryMovtosBancosBeforeOpen(DataSet: TDataSet);
+    procedure qryMovtosBancosAfterOpen(DataSet: TDataSet);
+    procedure qryMovtosBancosAfterClose(DataSet: TDataSet);
+    procedure qryConsultaEventosBeforeOpen(DataSet: TDataSet);
+    procedure qryProcuraEventosBeforeOpen(DataSet: TDataSet);
+    procedure qryMovtosBancosEventosAfterPost(DataSet: TDataSet);
+    procedure qryMovtosBancosEventosAfterDelete(DataSet: TDataSet);
+    procedure qryMovtosBancosEventosAfterEdit(DataSet: TDataSet);
+    procedure qryMovtosBancosEventosBeforePost(DataSet: TDataSet);
+    procedure dsrMovtosBancosEventosDataChange(Sender: TObject;
+      Field: TField);
+    procedure qryMovtosBancosEventosAfterScroll(DataSet: TDataSet);
+  private
+    FOnExibirMovto: TNotifyEvent;
+    FDataInclusao: TDateTime;
+    FOnGravarMovtosBancos: TNotifyEvent;
+    function GetTabelaMovtosBancos:   TZDataset;
+    function GetTabelaConsultaContas: TZDataset;
+    function GetTabelaConsultaMovtos: TZDataset;
+    procedure DefinirCamposObrigatorios;
+    { Private declarations }
+
+
+  public
+    { Public declarations }
+    ListaEventosCadastrados : String;
+    ListaContasCadastradas : String;
+    constructor Create(AOwner:     TComponent); override;
+    property TabelaConsultaContas: TZDataset read GetTabelaConsultaContas;
+    property TabelaConsultaMovtos:  TZDataset read GetTabelaConsultaMovtos;
+    property TabelaMovtosBancos:   TZDataset read GetTabelaMovtosBancos;
+    property OnExibirMovto: TNotifyEvent read FOnExibirMovto write FOnExibirMovto;
+    property OnGravarMovtosBancos: TNotifyEvent read FOnGravarMovtosBancos write FOnGravarMovtosBancos;
+
+    procedure AbrirTabelas(TipoPesquisa: TtecMovtosBancos);
+    function  ContaEstaDefinida:    Boolean;
+    function  ExcluirMovtosBancos:  Boolean;
+    procedure  ExcluirMovtosBancosEventos;
+
+    function  ExisteConta(campo, codigo: string): boolean;
+    function  ExisteMovto(campo, codigo: string): boolean;
+    procedure FecharTabelas(TipoPesquisa: TtecMovtosBancos);
+    function  GravarMovtosBancos:     Boolean;
+    function  IncluirMovtosBancos:    Boolean;
+    function  IncluirMovtosBancosEventos:    Boolean;
+
+    function  Inserindo:              Boolean;
+    function  NumeroContaFoiAlterado: Boolean;
+    function  PercorrerMovtosBancos(Campo: Byte; Key: Word; Shift: TShiftState): Boolean;
+    procedure Selecionar(TipoPesquisa: TtecMovtosBancos);
+    procedure AcessarUltimoMovtosBancos;
+    function  UltimaDataLancamento: Boolean;
+    property DataInclusao: TDateTime read FDataInclusao write FDataInclusao;
+    procedure LimparMovtosBancosEventosEvento;
+    procedure EditarMovtosBancosEventos;
+    procedure EditarMovtosBancos;
+    function RegistrodeMovtosBancosEventosEvento: boolean;
+    procedure CancelarMovtosBancosEventosEvento;
+    procedure AtualizaListaEventosCadastrados;
+    procedure AtualizaListaContasCadastradas;
+
+    procedure LimparMovtosBancosEventosContas;
+    function RegistrodeMovtosBancosEventosContas: boolean;
+
+
+
+  end;
+
+
+var dtmMovtosBancos: TdtmMovtosBancos;
+
+implementation
+
+{$R *.dfm}
+
+procedure TdtmMovtosBancos.AbrirTabelas(TipoPesquisa: TtecMovtosBancos);
+begin
+   Case TipoPesquisa of
+      tmbCONTAS:  Abre(ctConsultaContas);
+      tmbEVENTOS: Abre(ctConsultaEventos);
+      tmbMOVTOS:  RefazConsulta(qryConsultaMovtosBancos, [0, 1, 2],
+                               [qryProcuraContasConta.AsVariant,
+                                ParSistema.BancoDataInicial,
+                                ParSistema.BancoDataFinal]);
+
+  end;
+
+end;
+
+constructor TdtmMovtosBancos.Create(AOwner: TComponent);
+begin
+   inherited;
+   ListaEventosCadastrados := '0';
+   ListaContasCadastradas := '0';
+
+   qryProcuraContas.       Tag:= ctTabelas;
+   qryMovtosBancos.        Tag:= ctTabelas;
+   qryConsultaContas.      Tag:= ctConsultaContas;
+   qryConsultaMovtosBancos.Tag:= ctConsultaMovtosBancos;
+
+   DataInclusao := DataServidor;
+end;
+
+procedure TdtmMovtosBancos.FecharTabelas(TipoPesquisa: TtecMovtosBancos);
+begin
+   Case TipoPesquisa of
+      tmbCONTAS:  Fecha(ctConsultaContas);
+      tmbEVENTOS: Fecha(ctConsultaEventos);
+      tmbMOVTOS:  Fecha(ctConsultaMovtosBancos);
+   end;
+end;
+
+function TdtmMovtosBancos.GetTabelaMovtosBancos: TZDataset;
+begin
+   result:= qryMovtosBancos;
+end;
+
+procedure TdtmMovtosBancos.Selecionar(TipoPesquisa: TtecMovtosBancos);
+begin
+   case TipoPesquisa of
+      tmbCONTAS:  Begin
+                     RefazConsulta(qryProcuraContas, [0],
+                                  [qryConsultaContasConta.AsVariant]);
+{
+                     qryMovtosBancos.MacroByName('Ordenacao').AsString:=
+                                                'ORDER BY Data DESC, Sequencia DESC LIMIT 1';
+                     RefazConsulta(qryMovtosBancos, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+                            [cmpData, Ultimo,
+                                            qryProcuraContasConta.        AsVariant,
+                                            qryMovtosBancosData.          AsVariant,
+                                            qryMovtosBancosSequencia.     AsVariant,
+                                            ParSistema.BancoDataInicial,
+                                            ParSistema.BancoDataFinal,
+                                            qryMovtosBancosValor.    AsVariant,
+                                            qryMovtosBancosCompensacao.   AsVariant,
+                                            qryMovtosBancosSeqCompensacao.AsVariant,
+                                            qryMovtosBancosDocumento.     AsVariant,
+                                            qryMovtosBancosEvento.        AsVariant]);
+}
+
+                  end;
+{
+      tmbEVENTOS: begin
+                    RefazConsulta(qryProcuraEventos, [0],
+                                  [qryConsultaEventosCodigo.AsVariant]);
+                    qryMovtosBancos.Edit;
+                    qryMovtosBancosEvento.AsInteger:= qryProcuraEventoscodigo.AsInteger;
+                  end;
+}
+      tmbMOVTOS:  begin
+                     qryMovtosBancos.MacroByName('Ordenacao').AsString:= '';
+
+                     RefazConsulta(qryMovtosBancos, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                            [cmpData, PosicaoAtual,
+                                            qryConsultaMovtosBancosConta.     AsVariant,
+                                            qryConsultaMovtosBancosData.AsVariant,
+                                            qryConsultaMovtosBancosSequencia.  AsVariant,
+
+                                            ParSistema.BancoDataInicial,
+                                            ParSistema.BancoDataFinal,
+                                            qryMovtosBancosValor.         AsVariant,
+                                            qryMovtosBancosCompensacao.   AsVariant,
+                                            qryMovtosBancosSeqCompensacao.AsVariant,
+                                            qryMovtosBancosDocumento.     AsVariant{,
+                                            qryMovtosBancosEvento.        AsVariant}]);
+                  end;
+  end;
+
+end;
+
+
+function TdtmMovtosBancos.ExisteConta(campo, codigo: string): boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaContas, campo, codigo);
+end;
+
+function TdtmMovtosBancos.GetTabelaConsultaContas: TZDataset;
+begin
+   result:= qryConsultaContas;
+end;
+
+procedure TdtmMovtosBancos.qryMovtosBancosNewRecord(DataSet: TDataSet);
+begin
+   inherited;
+   qryMovtosBancosConta.      AsInteger := qryProcuraContasConta.AsInteger;
+{
+   if not qryMovtosBancos.ParamByName('data').IsNull then
+   begin
+     qryMovtosBancosData.       AsDateTime:= qryMovtosBancos.ParamByName('data').AsDateTime
+   end
+   else
+     qryMovtosBancosData.       AsDateTime:= DataServidor;
+}     
+
+   qryMovtosBancosData.       AsDateTime:= DataInclusao;
+   qryMovtosBancosCompensacao.AsVariant := Null {DataServidor};
+   qryMovtosBancosValor.      AsCurrency:= 0;
+   qryMovtosBancosOrigemLancto.       AsString  := 'B';
+   qryMovtosBancosSequencia.Clear;   
+end;
+
+function TdtmMovtosBancos.IncluirMovtosBancos: Boolean;
+begin
+   qryMovtosBancos.Insert;
+   Result:= True;
+end;
+
+
+
+
+function TdtmMovtosBancos.ExcluirMovtosBancos: Boolean;
+begin
+   Result:= False;
+   if not qryMovtosBancos.IsEmpty then begin
+      if MensagemConfirmacao(Format(ctCONFIRMEEXCLUIR, ['o lançamento'])) = smbok then begin
+{         qryMovtosBancosEventos.First;
+         while not qryMovtosBancosEventos.Eof do
+           qryMovtosBancosEventos.Delete;
+}
+         qryMovtosBancos.Delete;
+         Perpetrar([qryMovtosBancos, qryMovtosBancosEventos]);
+
+         RefazConsulta(qryProcuraContas, [0],                                  {Exibir novo saldo}
+                      [qryProcuraContasConta.  AsVariant]);
+                                                                          {Exibir o último lançto}
+         qryMovtosBancos.MacroByName('Ordenacao').AsString:=
+                                                'ORDER BY Data DESC, Sequencia DESC LIMIT 1';
+         RefazConsulta(qryMovtosBancos, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                        [cmpData, Ultimo,
+                                        qryProcuraContasConta.        AsVariant,
+                                        qryMovtosBancosData.          AsVariant,
+                                        qryMovtosBancosSequencia.     AsVariant,
+                                        ParSistema.BancoDataInicial,
+                                        ParSistema.BancoDataFinal,
+                                        qryMovtosBancosValor.         AsVariant,
+                                        qryMovtosBancosCompensacao.   AsVariant,
+                                        qryMovtosBancosSeqCompensacao.AsVariant,
+                                        qryMovtosBancosDocumento.     AsVariant{,
+                                        qryMovtosBancosEvento.        AsVariant}]);
+         Result:= True;
+      end
+   end;
+end;
+
+function TdtmMovtosBancos.GravarMovtosBancos: Boolean;
+var Insercao: Boolean;
+    NrLancto: Integer;
+    QueData:  String;
+    TotalMovimento: Currency;
+    vObservacoes: String;
+
+begin
+   if qryMovtosBancos.CheckRequiredFields and
+      (qryMovtosBancosEventos.IsEmpty or qryMovtosBancosEventos.CheckRequiredFields ) then
+   begin
+     if qryMovtosBancos.State in [dsEdit, dsInsert] then
+     begin
+        Insercao:= qryMovtosBancos.State = dsInsert;
+        if Insercao then
+        begin
+          RefazConsultaPorNome(qryProximoMovtosBancos,
+           ['conta','data'],
+           [qryMovtosBancosConta.AsVariant,qryMovtosBancosData.AsVariant]);
+          qryMovtosBancosSequencia.AsInteger := qryProximoMovtosBancossequencia.AsInteger;
+        end;
+
+        TotalMovimento := 0;
+        qryMovtosBancosEventos.AfterPost := nil;
+
+        GuardarRegistroAtual(qryMovtosBancosEventos,true);
+
+        vObservacoes := '';
+
+        qryMovtosBancosEventos.First;
+        while not qryMovtosBancosEventos.Eof do
+        begin
+
+          vObservacoes := vObservacoes +
+                          qryMovtosBancosEventosobservacoes.AsString+' ';
+
+          if (qryMovtosBancosEventosconta.AsInteger <> qryMovtosBancosConta.AsInteger) or
+             (qryMovtosBancosEventosdata.AsDateTime <> qryMovtosBancosData.AsDateTime) or
+             (qryMovtosBancosEventossequencia.AsInteger <> qryMovtosBancosSequencia.AsInteger) then
+          begin
+            qryMovtosBancosEventos.Edit;
+            qryMovtosBancosEventosconta.AsInteger     := qryMovtosBancosConta.AsInteger;
+            qryMovtosBancosEventosdata.AsDateTime     := qryMovtosBancosData.AsDateTime;
+            qryMovtosBancosEventossequencia.AsInteger := qryMovtosBancosSequencia.AsInteger;
+            qryMovtosBancosEventos.post;
+          end;
+
+          if ((qryMovtosBancosTipo.AsString = 'S') and
+              (qryMovtosBancosEventosvalor.AsCurrency > 0)) or
+             ((qryMovtosBancosTipo.AsString = 'E') and
+              (qryMovtosBancosEventosvalor.AsCurrency < 0)) then
+          begin
+            qryMovtosBancosEventos.Edit;
+            qryMovtosBancosEventosvalor.AsCurrency    := - qryMovtosBancosEventosvalor.AsCurrency;
+            qryMovtosBancosEventos.post;
+          end;
+
+          {Atualizar o campo complemento nos lancamentos nos registros que não tiveram alterações}
+          {
+          if ParSistema.GerarContabilidade then
+            if not Insercao then
+              if qryMovtosBancosObservacoes.Value <> qryMovtosBancosObservacoes.OldValue then
+                if (not qryMovtosBancosEventosregistroalterado.AsBoolean) and
+                   (qryMovtosBancosEventosevento.AsInteger <> qryMovtosBancosEvento.AsInteger) then
+                begin
+                  with qryAtualizarLancamentos do
+                  begin
+                     ParamByName('observacoes').Value := qryMovtosBancosObservacoes.Value;
+                     ParamByName('Exercicio').AsInteger := YearOf(qryMovtosBancosData.AsDateTime);
+                     ParamByName('Filial').AsInteger := qryProcuraContasfilial.AsInteger;
+                     ParamByName('Data').AsString := FormatDateTime('YYYY-MM-DD',qryMovtosBancosData.AsDateTime);
+                     ParamByName('Conta').Asinteger := qryMovtosBancosConta.AsInteger;
+                     ParamByName('Sequencia').Asinteger := qryMovtosBancosSequencia.AsInteger;
+                     ParamByName('evento').Asinteger := qryMovtosBancosEventosevento.AsInteger;
+                     ExecSql;
+                  end;
+                end;
+          }
+          qryMovtosBancosEventos.BeforePost := nil;
+          qryMovtosBancosEventos.Edit;
+          qryMovtosBancosEventosregistroalterado.AsBoolean := false;
+          qryMovtosBancosEventos.post;
+          qryMovtosBancosEventos.BeforePost := qryMovtosBancosEventosBeforePost;
+
+          TotalMovimento := TotalMovimento + qryMovtosBancosEventosvalor.AsCurrency;
+          qryMovtosBancosEventos.Next;
+        end;
+        VoltarRegistroAtual(qryMovtosBancosEventos);
+
+        qryMovtosBancosEventos.AfterPost := qryMovtosBancosEventosAfterPost;
+
+        qryMovtosBancosValor.AsCurrency := TotalMovimento;
+        qryMovtosBancosobservacoes.AsString := trim(vObservacoes);
+        if qryMovtosBancosEventos.RecordCount = 1 then
+           qryMovtosBancosevento.AsInteger := qryMovtosBancosEventosevento.AsInteger
+        else
+           qryMovtosBancosevento.clear;
+
+        qryMovtosBancos.Post;
+
+{        Perpetrar([qryMovtosBancos, qryMovtosBancosEventos, qryAtualizarLancamentos]);}
+
+        Perpetrar([qryMovtosBancos, qryMovtosBancosEventos]);
+
+        RefazConsulta(qryProcuraContas, [0],                      {Exibir novo saldo}
+                     [qryProcuraContasConta.  AsVariant]);
+
+                                                          {Acessa-se o  último lançto}
+                                                          {para exibição do Nº Lançto}
+        {
+        if Insercao then
+          RefazConsulta(qryMovtosBancos, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                          [cmpSequencia, Ultimo,
+                                         qryMovtosBancosConta.         AsVariant,
+                                         qryMovtosBancosData.          AsVariant,
+                                         qryMovtosBancosSequencia.     AsVariant,
+                                         ParSistema.BancoDataInicial,
+                                         ParSistema.BancoDataFinal,
+                                         qryMovtosBancosValor.         AsVariant,
+                                         qryMovtosBancosCompensacao.   AsVariant,
+                                         qryMovtosBancosSeqCompensacao.AsVariant,
+                                         qryMovtosBancosDocumento.     AsVariant{,
+                                         qryMovtosBancosEvento.        AsVariant]);
+        }
+
+        UltimaDataLancamento;
+     end;
+     Result:= True;
+  end
+  else Result:= False;
+
+  if result then
+    if Assigned(FOnGravarMovtosBancos) then
+       FOnGravarMovtosBancos(qryMovtosBancos);
+end;
+
+function TdtmMovtosBancos.GetTabelaConsultaMovtos: TZDataset;
+begin
+   Result:= qryConsultaMovtosBancos;
+end;
+
+
+function TdtmMovtosBancos.ContaEstaDefinida: Boolean;
+begin
+   Result:= qryProcuraContas.RecordCount > 0;
+end;
+
+procedure TdtmMovtosBancos.qryMovtosBancosAfterScroll(DataSet: TDataSet);
+begin
+   inherited;
+   RefazConsultaPorNome(qryMovtosBancosEventos,
+                        ['Conta', 'Data', 'Sequencia'],
+                        [qryMovtosBancosConta.AsVariant,
+                        FormatDateTime('yyyy-mm-dd',qryMovtosBancosData.AsDatetime),
+                         qryMovtosBancosSequencia.AsVariant]);
+   AtualizaListaEventosCadastrados;
+   AtualizaListaContasCadastradas;
+
+   if Assigned(FOnExibirMovto) then
+      FOnExibirMovto(qryMovtosBancos);
+end;
+
+
+function TdtmMovtosBancos.PercorrerMovtosBancos(Campo: Byte; Key: Word; Shift: TShiftState): Boolean;
+var Operacao: Byte;
+    Conta,     Data,        Sequencia,
+    Valor,     Compensacao, SeqCompensacao,
+    Documento, Evento:      Variant;
+begin
+   with qryMovtosBancos do begin
+      if ssCtrl in Shift
+      then case Key of
+              VK_HOME:     Operacao:= Primeiro;
+              VK_END:      Operacao:= Ultimo;
+           end
+      else case Key of
+              VK_PRIOR:   Operacao:= Anterior;
+              VK_NEXT: Operacao:= Proximo;
+           end;
+
+      case Campo of
+         cmpData,
+         cmpSequencia:    case Operacao of
+                            Primeiro,
+                            Proximo:  MacroByName('Ordenacao').AsString:=
+                                                  'ORDER BY Data, Sequencia LIMIT 1';
+                            Anterior,
+                            Ultimo:   MacroByName('Ordenacao').AsString:=
+                                                  'ORDER BY Data DESC, Sequencia DESC LIMIT 1';
+                         end;
+
+         cmpValor:  case Operacao of
+                            Primeiro,
+                            Proximo:  MacroByName('Ordenacao').AsString:=
+                                                  'ORDER BY Valor, Data, Sequencia LIMIT 1';
+                            Anterior,
+                            Ultimo:   MacroByName('Ordenacao').AsString:=
+                                                  'ORDER BY Valor DESC, Data DESC, Sequencia DESC LIMIT 1';
+                         end;
+
+         cmpCompensacao: case Operacao of
+                            Primeiro,
+                            Proximo:  MacroByName('Ordenacao').AsString:=
+                                                  'ORDER BY Compensacao, SeqCompensacao LIMIT 1';
+                            Anterior,
+                            Ultimo:   MacroByName('Ordenacao').AsString:=
+                                                  'ORDER BY Compensacao DESC, SeqCompensacao DESC LIMIT 1';
+                         end;
+
+         cmpDocumento:   case Operacao of
+                            Primeiro,
+                            Proximo:  MacroByName('Ordenacao').AsString:=
+                                                  'ORDER BY Documento, Data, Sequencia LIMIT 1';
+                            Anterior,
+                            Ultimo:   MacroByName('Ordenacao').AsString:=
+                                                  'ORDER BY Documento DESC, Data DESC, Sequencia DESC LIMIT 1';
+                         end;
+
+{         cmpEvento:      case Operacao of
+                            Primeiro,
+                            Proximo:  MacroByName('Ordenacao').AsString:=
+                                                  'ORDER BY Evento, Data, Sequencia LIMIT 1';
+                            Anterior,
+                            Ultimo:   MacroByName('Ordenacao').AsString:=
+                                                  'ORDER BY Evento DESC, Data DESC, Sequencia DESC LIMIT 1';
+
+                         end;
+}                         
+      end;
+
+      Conta         := qryProcuraContasConta.        AsVariant;
+      Data          := qryMovtosBancosData.          AsVariant;
+      Sequencia     := qryMovtosBancosSequencia.     AsVariant;
+      Valor         := qryMovtosBancosValor.         AsVariant;
+      Compensacao   := qryMovtosBancosCompensacao.   AsVariant;
+      SeqCompensacao:= qryMovtosBancosSeqCompensacao.AsVariant;
+      Documento     := qryMovtosBancosDocumento.     AsVariant;
+//      Evento        := qryMovtosBancosEvento.        AsVariant;
+
+      RefazConsulta(qryMovtosBancos, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                    [Campo, Operacao, qryMovtosBancosConta.         AsVariant,
+                                      qryMovtosBancosData.          AsVariant,
+                                      qryMovtosBancosSequencia.     AsVariant,
+                                      ParSistema.BancoDataInicial,
+                                      ParSistema.BancoDataFinal, Valor,
+                                      //qryMovtosBancosValor.         AsVariant,
+                                      qryMovtosBancosCompensacao.   AsVariant,
+                                      qryMovtosBancosSeqCompensacao.AsVariant,
+                                      qryMovtosBancosDocumento.     AsVariant{,
+                                      qryMovtosBancosEvento.        AsVariant}]);
+
+      if qryMovtosBancos.RecordCount = 0 then begin
+         RefazConsulta(qryMovtosBancos, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                      [CmpData, PosicaoAtual, Conta,     Data,        Sequencia,
+                                              ParSistema.BancoDataInicial,
+                                              ParSistema.BancoDataFinal,
+                                              Valor,     Compensacao, SeqCompensacao,
+                                              Documento {, Evento}]);
+         case Operacao of
+            Anterior: MensagemAviso('Este é o 1º lançamento');
+            Proximo:  MensagemAviso('Este é o último lançamento');
+         end;
+      end;
+   end;
+end;
+
+function TdtmMovtosBancos.Inserindo: Boolean;
+begin
+   Result:= qryMovtosBancos.State = dsInsert;
+end;
+
+function TdtmMovtosBancos.ExisteMovto(campo, codigo: string): boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaMovtosBancos, campo, codigo);
+end;
+
+procedure TdtmMovtosBancos.AcessarUltimoMovtosBancos;
+begin
+//   qryMovtosBancos.BeforeOpen := nil;
+   RefazConsulta(qryProcuraContas, [0],
+                [qryProcuraContasConta.AsVariant]);
+
+   qryMovtosBancos.MacroByName('Ordenacao').AsString:=
+                              'ORDER BY Data DESC, Sequencia DESC LIMIT 1';
+
+   RefazConsulta(qryMovtosBancos, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+          [cmpData, Ultimo,
+                          qryProcuraContasConta.        AsVariant,
+                          qryMovtosBancosData.          AsVariant,
+                          qryMovtosBancosSequencia.     AsVariant,
+                          ParSistema.BancoDataInicial,
+                          ParSistema.BancoDataFinal,
+                          qryMovtosBancosValor.         AsVariant,
+                          qryMovtosBancosCompensacao.   AsVariant,
+                          qryMovtosBancosSeqCompensacao.AsVariant,
+                          qryMovtosBancosDocumento.     AsVariant{,
+                          qryMovtosBancosEvento.        AsVariant}]);
+
+   if qryMovtosBancos.IsEmpty then
+     IncluirMovtosBancos;
+
+//   qryMovtosBancos.BeforeOpen := qryMovtosBancosBeforeOpen;
+end;
+
+function TdtmMovtosBancos.UltimaDataLancamento: Boolean;
+begin
+   if qryUltimoLancto.Active then qryUltimoLancto.Close;
+   qryUltimoLancto.Open;
+   Result:= not qryUltimoLancto.IsEmpty;
+end;
+
+function TdtmMovtosBancos.NumeroContaFoiAlterado: Boolean;
+begin
+   Result:= qryProcuraContasConta.AsInteger <> qryMovtosBancosConta.AsInteger;
+end;
+
+procedure TdtmMovtosBancos.qryProcuraContasAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  {
+  if qryProcuraContas.RecordCount > 0 then
+  begin
+     qryMovtosBancos.MacroByName('Ordenacao').AsString:=
+                                'ORDER BY Data DESC, Sequencia DESC LIMIT 1';
+     RefazConsulta(qryMovtosBancos, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+            [cmpData, Ultimo,
+                            qryProcuraContasConta.        AsVariant,
+                            qryMovtosBancosData.          AsVariant,
+                            qryMovtosBancosSequencia.     AsVariant,
+                            ParSistema.BancoDataInicial,
+                            ParSistema.BancoDataFinal,
+                            qryMovtosBancosValor.    AsVariant,
+                            qryMovtosBancosCompensacao.   AsVariant,
+                            qryMovtosBancosSeqCompensacao.AsVariant,
+                            qryMovtosBancosDocumento.     AsVariant,
+                            qryMovtosBancosEvento.        AsVariant]);
+  end;
+  }
+end;
+
+
+procedure TdtmMovtosBancos.qryMovtosBancosBeforeOpen(DataSet: TDataSet);
+begin
+  inherited;
+//  qryMovtosBancos.ParamByName('Campo').AsInteger := cmpSequencia;
+//  qryMovtosBancos.ParamByName('Operacao').AsInteger := PosicaoAtual;
+//  qryMovtosBancos.ParamByName('Data').AsDateTime := qryMovtosBancosData.AsDateTime;
+end;
+
+procedure TdtmMovtosBancos.qryMovtosBancosAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  if not qryMovtosBancosData.IsNull then
+    qryMovtosBancos.ParamByName('Data').AsDateTime := qryMovtosBancosData.AsDateTime
+end;
+
+procedure TdtmMovtosBancos.qryMovtosBancosAfterClose(DataSet: TDataSet);
+begin
+  inherited;
+  qryMovtosBancos.ParamByName('Campo').AsInteger := cmpSequencia;
+  qryMovtosBancos.ParamByName('Operacao').AsInteger := PosicaoAtual;
+end;
+
+procedure TdtmMovtosBancos.qryConsultaEventosBeforeOpen(DataSet: TDataSet);
+begin
+  inherited;
+{  if ParSistema.GerarContabilidade then
+   begin
+     qryConsultaEventos.ParamByName('codigo').AsInteger :=
+       qryMovtosBancosEvento.AsInteger;
+   end;}
+end;
+
+procedure TdtmMovtosBancos.qryProcuraEventosBeforeOpen(DataSet: TDataSet);
+begin
+  inherited;
+{  if ParSistema.GerarContabilidade then
+   begin
+     qryProcuraEventos.ParamByName('codigo').AsInteger :=
+       qryMovtosBancosEvento.AsInteger;
+   end;}
+end;
+
+
+procedure TdtmMovtosBancos.LimparMovtosBancosEventosEvento;
+begin
+   if not (qryMovtosBancosEventos.State in [dsedit, dsinsert]) then
+     qryMovtosBancosEventos.Edit;
+   qryMovtosBancosEventosevento.Clear;
+   qryMovtosBancosEventosdescricaoevento.Clear;
+   qryMovtosBancosEventostipo.Clear;
+end;
+
+procedure TdtmMovtosBancos.EditarMovtosBancosEventos;
+begin
+  if not (qryMovtosBancosEventos.State in [dsedit, dsinsert]) then
+    qryMovtosBancosEventos.Edit;
+end;
+
+function TdtmMovtosBancos.RegistrodeMovtosBancosEventosEvento: boolean;
+begin
+  result := qryMovtosBancosEventosevento.IsNull or
+            qryMovtosBancosEventosdescricaoevento.IsNull;
+end;
+
+procedure TdtmMovtosBancos.CancelarMovtosBancosEventosEvento;
+begin
+  try
+    GuardarRegistroAtual(qryMovtosBancosEventos,false);
+    qryMovtosBancosEventos.Cancel;
+    qryMovtosBancosEventos.First;
+    while not qryMovtosBancosEventos.Eof do
+    begin
+      if not qryMovtosBancosEventoseventovalidado.AsBoolean or
+         not qryMovtosBancosEventoscontavalidada.AsBoolean then
+        qryMovtosBancosEventos.Delete
+      else
+        qryMovtosBancosEventos.next;
+    end;
+    VoltarRegistroAtual(qryMovtosBancosEventos);
+  except
+  end;
+end;
+
+function TdtmMovtosBancos.IncluirMovtosBancosEventos: Boolean;
+begin
+  qryMovtosBancosEventos.Append;
+  Result:= True;
+end;
+
+procedure TdtmMovtosBancos.ExcluirMovtosBancosEventos;
+begin
+   if not qryMovtosBancosEventos.IsEmpty then
+      if MensagemConfirmacao(Format(ctCONFIRMEEXCLUIR, ['o lançamento no evento'])) = smbok then
+         qryMovtosBancosEventos.Delete;
+end;
+
+procedure TdtmMovtosBancos.qryMovtosBancosEventosAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  AtualizaListaEventosCadastrados;
+  AtualizaListaContasCadastradas;
+  EditarMovtosBancos;
+
+  GravarMovtosBancos;
+end;
+
+procedure TdtmMovtosBancos.AtualizaListaEventosCadastrados;
+begin
+  GuardarRegistroAtual(qryMovtosBancosEventos,true);
+  ListaEventosCadastrados := '';
+  qryMovtosBancosEventos.First;
+  while not qryMovtosBancosEventos.Eof do
+  begin
+    ListaEventosCadastrados := ListaEventosCadastrados + qryMovtosBancosEventosevento.AsString+',';
+    qryMovtosBancosEventos.Next;
+  end;
+
+  if (ListaEventosCadastrados = '') or
+     (ListaEventosCadastrados = ',')  then
+    ListaEventosCadastrados := '0'
+  else
+    Delete(ListaEventosCadastrados,length(ListaEventosCadastrados),1);
+
+  VoltarRegistroAtual(qryMovtosBancosEventos);
+
+end;
+
+procedure TdtmMovtosBancos.qryMovtosBancosEventosAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  AtualizaListaEventosCadastrados;
+  AtualizaListaContasCadastradas;
+  EditarMovtosBancos;
+
+  GravarMovtosBancos;
+end;
+
+procedure TdtmMovtosBancos.EditarMovtosBancos;
+begin
+  if not (qryMovtosBancos.State in [dsedit, dsinsert]) then
+    qryMovtosBancos.Edit;
+end;
+
+procedure TdtmMovtosBancos.qryMovtosBancosEventosAfterEdit(
+  DataSet: TDataSet);
+begin
+  inherited;
+  EditarMovtosBancos;
+end;
+
+procedure TdtmMovtosBancos.qryMovtosBancosEventosBeforePost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryMovtosBancosEventosregistroalterado.AsBoolean := true;
+end;
+
+procedure TdtmMovtosBancos.dsrMovtosBancosEventosDataChange(
+  Sender: TObject; Field: TField);
+begin
+  inherited;
+  if field = qryMovtosBancosEventostipo then
+  begin
+    qryMovtosBancosEventoscontatransf.ReadOnly := not (qryMovtosBancosEventostipo.AsString = 'T');
+    DefinirCamposObrigatorios;
+
+    if qryMovtosBancosEventostipo.AsString <> 'T' then
+    begin
+      qryMovtosBancosEventoscontatransf.Clear;
+      qryMovtosBancosEventossigla.Clear;
+      qryMovtosBancosEventosnomeagencia.Clear;
+      qryMovtosBancosEventosdigito.Clear;
+
+      qryMovtosBancosEventoscontavalidada.AsBoolean := true;
+    end
+    else
+      qryMovtosBancosEventoscontavalidada.AsBoolean := false;
+
+  end;
+end;
+
+procedure TdtmMovtosBancos.AtualizaListaContasCadastradas;
+begin
+  GuardarRegistroAtual(qryMovtosBancosEventos,true);
+  ListaContasCadastradas := qryMovtosBancosConta.AsString+',';
+  qryMovtosBancosEventos.First;
+  while not qryMovtosBancosEventos.Eof do
+  begin
+    if qryMovtosBancosEventoscontatransf.AsString<>'' then
+      ListaContasCadastradas := ListaContasCadastradas + qryMovtosBancosEventoscontatransf.AsString+',';
+    qryMovtosBancosEventos.Next;
+  end;
+
+  Delete(ListaContasCadastradas,length(ListaContasCadastradas),1);
+
+  VoltarRegistroAtual(qryMovtosBancosEventos);
+
+end;
+
+procedure TdtmMovtosBancos.LimparMovtosBancosEventosContas;
+begin
+   if not (qryMovtosBancosEventos.State in [dsedit, dsinsert]) then
+     qryMovtosBancosEventos.Edit;
+   qryMovtosBancosEventoscontatransf.Clear;
+   qryMovtosBancosEventossigla.Clear;
+   qryMovtosBancosEventosnomeagencia.Clear;
+end;
+
+function TdtmMovtosBancos.RegistrodeMovtosBancosEventosContas: boolean;
+begin
+  result := qryMovtosBancosEventoscontatransf.IsNull;
+end;
+
+
+procedure TdtmMovtosBancos.qryMovtosBancosEventosAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  DefinirCamposObrigatorios;
+end;
+
+procedure TdtmMovtosBancos.DefinirCamposObrigatorios;
+begin
+  qryMovtosBancosEventoscontatransf.Required := qryMovtosBancosEventostipo.AsString = 'T';
+  qryMovtosBancosEventossigla.Required       := qryMovtosBancosEventostipo.AsString = 'T';
+  qryMovtosBancosEventosnomeagencia.Required := qryMovtosBancosEventostipo.AsString = 'T';
+  qryMovtosBancosEventosdigito.Required := qryMovtosBancosEventostipo.AsString = 'T';
+end;
+
+end.

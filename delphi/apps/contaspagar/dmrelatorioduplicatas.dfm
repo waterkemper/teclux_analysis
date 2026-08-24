@@ -1664,8 +1664,8 @@ inherited dtmRelatorioDuplicatas: TdtmRelatorioDuplicatas
       6C69616C00050046616C7365000D004167727570617246696C69616C00050046
       616C736500110041677275706172466F726E656365646F7200050046616C7365
       000700204F7574726F730000000005004C696E68610001003000000000000000
-      0000FC000000000000000000000000000000005800E00C74D16F88E340C9E6F9
-      1D0D39E640}
+      0000FC000000000000000000000000000000005800E00C74D16F88E340CEB8BE
+      94D46FE640}
   end
   object frpResumoPagamentosEfetuados: TfrReport
     Dataset = fdsDuplicatasPagar
@@ -2390,7 +2390,7 @@ inherited dtmRelatorioDuplicatas: TdtmRelatorioDuplicatas
       69616C00050046616C736500110041677275706172466F726E656365646F7200
       050046616C7365000700204F7574726F730000000005004C696E686100010030
       000000000000000000FC000000000000000000000000000000005800E00C74D1
-      6F88E340C9E6F91D0D39E640}
+      6F88E340CEB8BE94D46FE640}
   end
   object qryGruposFornecedores: TtecQuery
     Tag = -1
@@ -7813,8 +7813,8 @@ inherited dtmRelatorioDuplicatas: TdtmRelatorioDuplicatas
       ''
       'end.')
     OnGetValue = frxDuplicatasporCompetenciaGetValue
-    Left = 888
-    Top = 464
+    Left = 856
+    Top = 320
     Datasets = <
       item
         DataSet = frxDBDataset1
@@ -9721,389 +9721,6 @@ inherited dtmRelatorioDuplicatas: TdtmRelatorioDuplicatas
       end
     end
   end
-  object tecQuery2: TtecQuery
-    Tag = -1
-    Database = dtmTecSoft.dbaTecSoft
-    Transaction = dtmTecSoft.tstTecSoft
-    CachedUpdates = True
-    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
-    Options = [doAutoFillDefs]
-    LinkOptions = [loAlwaysResync]
-    Constraints = <>
-    BeforeOpen = qryDuplicatasBeforeOpen
-    OnCalcFields = qryDuplicatasCalcFields
-    ExtraOptions = [poTextAsMemo, poOidAsBlob]
-    Macros = <>
-    Sql.Strings = (
-      'SELECT selecao.*,'
-      '       to_char(datalancto, '#39'MM/YYYY'#39') as mesAno,'
-      ''
-      '       (select sum(dp.valorpagto)'
-      '        from duplicatas dp'
-      
-        '        where dp.documentopag = selecao.documentopag) as TotalVa' +
-        'lorPagto,'
-      ''
-      
-        '       (select sum(case when dp.valorpagto>dp.valorvencto then d' +
-        'p.valorpagto-dp.valorvencto else 0.00 end)'
-      '        from duplicatas dp'
-      
-        '        where dp.documentopag = selecao.documentopag) as TotalVa' +
-        'lorJurosPagos,'
-      ''
-      
-        '       (select sum(case when coalesce(dp.valorpagto,0)<>0 and dp' +
-        '.valorpagto<dp.valorvencto then dp.valorvencto-dp.valorpagto els' +
-        'e 0.00 end)'
-      '        from duplicatas dp'
-      
-        '        where dp.documentopag = selecao.documentopag) as TotalVa' +
-        'lorDescReceb'
-      ''
-      ''
-      'FROM ('
-      '        (SELECT t.documentopag,'
-      '                t.numero,'
-      '                d.filialemissao,'
-      '                f.nome AS nomefilialemissao,'
-      '                fgf.grupo AS grupofilialemissao,'
-      '                gf.descricao AS nomegrupofilialemissao,'
-      '                n.numero AS nota,'
-      '                n.serie,'
-      '                d.complemento,'
-      '                d.fornecedor,'
-      '                d.tipofornecedor,'
-      ''
-      '           (SELECT coalesce(v.razao, v.nome) AS nome'
-      '            FROM vfornecedores v'
-      '            WHERE (d.fornecedor = v.codigo)'
-      '              AND (d.tipofornecedor = v.tipo))AS nomefornecedor,'
-      '                d.emissao,'
-      '                CASE'
-      '                    WHEN d.regimedecaixa THEN t.datavencto'
-      '                    ELSE d.datalancto'
-      '                END AS datalancto,'
-      '                d.previsao,'
-      '                t.bancocobranca,'
-      ''
-      '           (SELECT b.sigla'
-      '            FROM bancos b'
-      
-        '            WHERE b.codigo = t.bancocobranca) AS siglabancocobra' +
-        'nca,'
-      '                t.datavencto,'
-      '                t.valorvencto,'
-      '                t.valordesconto,'
-      '                t.datapagto,'
-      '                t.valorpagto,'
-      ''
-      '           (SELECT b.sigla'
-      '            FROM bancos b'
-      '            JOIN contas c ON c.banco = b.codigo'
-      '            WHERE c.conta = t.contapagto) AS siglabancopagto,'
-      '                t.contapagto,'
-      '                t.observacao,'
-      '                FALSE AS adiantamento,'
-      
-        '                         cast(cast(abs(t.datavencto - CURRENT_DA' +
-        'TE)AS varchar) || cast('#39' - D'#39' AS varchar) AS varchar) AS obs,'
-      '                         CASE'
-      '                             WHEN '#39't'#39' THEN TRUE'
-      '                             ELSE FALSE'
-      '                         END AS Diferenciar,'
-      ''
-      '           (SELECT e.codigo'
-      '            FROM eventos e'
-      
-        '            WHERE e.codigo=coalesce(t.evento, d.evento)) AS even' +
-        'to,'
-      ''
-      '           (SELECT e.descricao'
-      '            FROM eventos e'
-      
-        '            WHERE e.codigo=coalesce(t.evento, d.evento)) AS desc' +
-        'ricao_evento,'
-      '                         t.dda,'
-      '                         d.regimedecaixa,'
-      ''
-      '            d.valor'
-      ''
-      '         FROM ((duplicatas t'
-      
-        '                LEFT JOIN notaspag n ON n.documentopag = t.docum' +
-        'entopag)'
-      '               JOIN (documentospag d'
-      '                     JOIN (filiais f'
-      '                           LEFT JOIN (filiaisgruposfiliais fgf'
-      
-        '                                      LEFT JOIN gruposfiliais gf' +
-        ' ON fgf.grupo=gf.codigo) ON f.codigo=fgf.filial) ON d.filialemis' +
-        'sao=f.codigo) ON t.documentopag = d.numero)'
-      '         WHERE '#39't'#39
-      '           AND (CASE'
-      '                    WHEN d.regimedecaixa THEN t.datavencto'
-      '                    ELSE d.datalancto'
-      '                END BETWEEN ('#39'01/01/2019'#39') AND ('#39'05/10/2019'#39')) )'
-      '      UNION ALL'
-      '        (SELECT d.numero AS documentopag,'
-      '                cast(1 AS integer) AS numero,'
-      '                d.filialemissao,'
-      '                f.nome AS nomefilialemissao,'
-      '                fgf.grupo AS grupofilialemissao,'
-      '                gf.descricao AS nomegrupofilialemissao,'
-      '                cast(NULL AS integer) AS nota,'
-      '                cast(NULL AS varchar(3)) AS serie,'
-      '                d.complemento,'
-      '                d.fornecedor,'
-      '                d.tipofornecedor,'
-      ''
-      '           (SELECT coalesce(v.razao, v.nome) AS nome'
-      '            FROM vfornecedores v'
-      '            WHERE (d.fornecedor = v.codigo)'
-      '              AND (d.tipofornecedor = v.tipo))AS nomefornecedor,'
-      '                d.emissao,'
-      '                d.datalancto,'
-      '                d.previsao,'
-      ''
-      '           (SELECT ct.banco'
-      '            FROM contas ct'
-      '            WHERE ct.conta = d.contapagto) AS bancocobranca,'
-      ''
-      '           (SELECT b.sigla'
-      '            FROM bancos b'
-      '            WHERE b.codigo ='
-      '                (SELECT ct.banco'
-      '                 FROM contas ct'
-      
-        '                 WHERE ct.conta = d.contapagto)) AS siglabancoco' +
-        'branca,'
-      '                d.datalancto AS datavencto,'
-      '                d.valor AS valorvencto,'
-      '                0.00 AS valordesconto,'
-      '                d.datalancto AS datapagto,'
-      '                d.valor AS valorpagto,'
-      ''
-      '           (SELECT b.sigla'
-      '            FROM bancos b'
-      '            WHERE b.codigo ='
-      '                (SELECT ct.banco'
-      '                 FROM contas ct'
-      
-        '                 WHERE ct.conta = d.contapagto)) AS siglabancopa' +
-        'gto,'
-      '                d.contapagto,'
-      '                d.referencia AS observacao,'
-      '                TRUE AS adiantamento,'
-      '                        cast(NULL AS varchar) AS obs,'
-      '                        CASE'
-      '                            WHEN '#39't'#39' THEN TRUE'
-      '                            ELSE FALSE'
-      '                        END AS Diferenciar,'
-      ''
-      '           (SELECT e.codigo'
-      '            FROM eventos e'
-      '            WHERE e.codigo=d.evento) AS evento,'
-      ''
-      '           (SELECT e.descricao'
-      '            FROM eventos e'
-      '            WHERE e.codigo=d.evento) AS descricao_evento,'
-      '                        FALSE AS dda,'
-      '                                 d.regimedecaixa, d.valor'
-      '         FROM (documentospag d'
-      '               JOIN (filiais f'
-      '                     LEFT JOIN (filiaisgruposfiliais fgf'
-      
-        '                                LEFT JOIN gruposfiliais gf ON fg' +
-        'f.grupo=gf.codigo) ON f.codigo=fgf.filial) ON d.filialemissao=f.' +
-        'codigo)'
-      '         WHERE coalesce(d.adiantamento, FALSE)'
-      '           AND '#39'f'#39
-      
-        '           AND (d.datalancto BETWEEN ('#39'01/01/2019'#39') AND ('#39'05/10/' +
-        '2019'#39')) )) AS selecao'
-      'ORDER BY datalancto,'
-      '         documentopag,'
-      '         datavencto,'
-      '         nomefornecedor,'
-      '         fornecedor')
-    RequestLive = True
-    Left = 920
-    Top = 441
-    object IntegerField10: TIntegerField
-      FieldName = 'documentopag'
-      Required = True
-      DisplayFormat = '0'
-    end
-    object IntegerField11: TIntegerField
-      FieldName = 'filialemissao'
-      Required = True
-      DisplayFormat = '0'
-    end
-    object IntegerField12: TIntegerField
-      FieldName = 'nota'
-      DisplayFormat = '0'
-    end
-    object StringField13: TStringField
-      FieldName = 'serie'
-      Size = 3
-    end
-    object IntegerField13: TIntegerField
-      FieldName = 'fornecedor'
-      Required = True
-      DisplayFormat = '0'
-    end
-    object StringField14: TStringField
-      FieldName = 'tipofornecedor'
-      Required = True
-      Size = 1
-    end
-    object DateField5: TDateField
-      Alignment = taCenter
-      FieldName = 'datavencto'
-      Required = True
-      EditMask = '99/99/9999;1; '
-    end
-    object FloatField4: TFloatField
-      FieldName = 'valorvencto'
-      Required = True
-      DisplayFormat = '0.00'
-    end
-    object FloatField5: TFloatField
-      FieldName = 'valordesconto'
-      DisplayFormat = '0.00'
-    end
-    object DateField6: TDateField
-      Alignment = taCenter
-      FieldName = 'datapagto'
-      EditMask = '99/99/9999;1; '
-    end
-    object FloatField6: TFloatField
-      FieldName = 'valorpagto'
-      DisplayFormat = '0.00'
-    end
-    object IntegerField14: TIntegerField
-      FieldName = 'numero'
-      Required = True
-      DisplayFormat = '0'
-    end
-    object BooleanField5: TBooleanField
-      FieldName = 'previsao'
-      Required = True
-    end
-    object DateField7: TDateField
-      Alignment = taCenter
-      FieldName = 'emissao'
-      EditMask = '99/99/9999;1; '
-    end
-    object StringField15: TStringField
-      DisplayWidth = 40
-      FieldName = 'nomefilialemissao'
-      Size = 60
-    end
-    object IntegerField15: TIntegerField
-      FieldName = 'grupofilialemissao'
-      DisplayFormat = '0'
-    end
-    object StringField16: TStringField
-      FieldName = 'nomegrupofilialemissao'
-      Size = 30
-    end
-    object StringField17: TStringField
-      DisplayWidth = 32
-      FieldName = 'nomefornecedor'
-      Size = 56
-    end
-    object CurrencyField3: TCurrencyField
-      FieldKind = fkCalculated
-      FieldName = 'ValorJurosPagos'
-      DisplayFormat = '0.00'
-      Calculated = True
-    end
-    object CurrencyField4: TCurrencyField
-      FieldKind = fkCalculated
-      FieldName = 'ValorDescReceb'
-      DisplayFormat = '0.00'
-      Calculated = True
-    end
-    object StringField18: TStringField
-      DisplayWidth = 32
-      FieldName = 'observacao'
-      Size = 148
-    end
-    object IntegerField16: TIntegerField
-      FieldName = 'ContaPagto'
-    end
-    object BooleanField6: TBooleanField
-      FieldName = 'diferenciar'
-    end
-    object IntegerField17: TIntegerField
-      FieldName = 'bancocobranca'
-    end
-    object StringField19: TStringField
-      FieldName = 'siglabancocobranca'
-      Size = 10
-    end
-    object StringField20: TStringField
-      DisplayWidth = 7
-      FieldName = 'siglabancopagto'
-      Size = 10
-    end
-    object StringField21: TStringField
-      FieldName = 'obs'
-      Size = 7
-    end
-    object IntegerField18: TIntegerField
-      FieldName = 'evento'
-    end
-    object StringField22: TStringField
-      FieldName = 'descricao_evento'
-      Size = 30
-    end
-    object StringField23: TStringField
-      FieldName = 'complemento'
-      Size = 15
-    end
-    object StringField24: TStringField
-      FieldKind = fkCalculated
-      FieldName = 'documento'
-      Calculated = True
-    end
-    object BooleanField7: TBooleanField
-      FieldName = 'adiantamento'
-    end
-    object BooleanField8: TBooleanField
-      FieldName = 'dda'
-    end
-    object DateField8: TDateField
-      Alignment = taCenter
-      FieldName = 'datalancto'
-      EditMask = '99/99/9999;1; '
-    end
-    object MemoField1: TMemoField
-      FieldName = 'mesano'
-      BlobType = ftMemo
-    end
-    object FloatField7: TFloatField
-      FieldName = 'valor'
-      DisplayFormat = '0.00'
-    end
-    object BooleanField9: TBooleanField
-      FieldName = 'regimedecaixa'
-    end
-    object FloatField8: TFloatField
-      FieldName = 'totalvalorjurospagos'
-      DisplayFormat = '0.00'
-    end
-    object FloatField9: TFloatField
-      FieldName = 'totalvalordescreceb'
-      DisplayFormat = '0.00'
-    end
-    object FloatField10: TFloatField
-      FieldName = 'totalvalorpagto'
-      DisplayFormat = '0.00'
-    end
-  end
   object frpDuplicatasPagar: TfrReport
     Dataset = fdsDuplicatasPagar
     InitialZoom = pzDefault
@@ -10895,7 +10512,7 @@ inherited dtmRelatorioDuplicatas: TdtmRelatorioDuplicatas
       6E656365646F7200050046616C7365000B004167727570617244617461000500
       46616C736500140041677275706172446F63756D656E746F7350616700050046
       616C7365000700204F7574726F73000000000000000000000000FC0000000000
-      00000000000000000000005800E00C74D16F88E340B61EFA1D0D39E640}
+      00000000000000000000005800E00C74D16F88E340BBF0BE94D46FE640}
   end
   object frpResumoDuplicatasPagar: TfrReport
     Dataset = fdsDuplicatasPagar
@@ -11674,6 +11291,6 @@ inherited dtmRelatorioDuplicatas: TdtmRelatorioDuplicatas
       646F7200050046616C7365000B00416772757061724461746100050046616C73
       6500140041677275706172446F63756D656E746F7350616700050046616C7365
       000700204F7574726F73000000000000000000000000FC000000000000000000
-      000000000000005800E00C74D16F88E340B61EFA1D0D39E640}
+      000000000000005800E00C74D16F88E340BBF0BE94D46FE640}
   end
 end

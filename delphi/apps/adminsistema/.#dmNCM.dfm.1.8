@@ -1,0 +1,481 @@
+inherited dtmNCM: TdtmNCM
+  OldCreateOrder = False
+  Left = 550
+  Top = 215
+  Height = 481
+  Width = 644
+  inherited ZMonitor: TZMonitor
+    Left = 520
+    Top = 176
+  end
+  object dsrSecoes: TtecDataSource
+    DataSet = qrySecoes
+    Left = 140
+    Top = 32
+  end
+  object qrySecoes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qrySecoesAfterScroll
+    OnNewRecord = qrySecoesNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT Secao,'
+      '       Descricao'
+      ''
+      'FROM   NCMTabela'
+      ''
+      
+        'WHERE  CodigoTIPI = TRIM(TO_CHAR(CAST(:Secao AS INTEGER), '#39'0000'#39 +
+        '))'
+      '')
+    RequestLive = True
+    Left = 37
+    Top = 32
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'Secao'
+        ParamType = ptUnknown
+      end>
+    object qrySecoessecao: TIntegerField
+      FieldName = 'secao'
+    end
+    object qrySecoesdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 1024
+    end
+  end
+  object qrySecoesNotas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnNewRecord = qrySecoesNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT Notas'
+      ''
+      'FROM NCMNotas'
+      ''
+      'WHERE Secao = :Secao AND Capitulo = 0;'
+      '       ')
+    RequestLive = False
+    Left = 37
+    Top = 91
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'Secao'
+        ParamType = ptUnknown
+      end>
+    object qrySecoesNotasNotas: TStringField
+      FieldName = 'notas'
+      Size = 16884
+    end
+  end
+  object dsrSecoesNotas: TtecDataSource
+    DataSet = qrySecoesNotas
+    Left = 141
+    Top = 91
+  end
+  object qrySecoesCapitulos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnNewRecord = qrySecoesNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT CodigoTIPI AS Numero,'
+      '       Descricao'
+      ''
+      'FROM   NCMTabela'
+      ''
+      'WHERE  Secao = :Secao AND'
+      '       LENGTH(CodigoTIPI) = 2'
+      ''
+      'ORDER BY Numero')
+    RequestLive = False
+    Left = 37
+    Top = 155
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'Secao'
+        ParamType = ptUnknown
+      end>
+    object qrySecoesCapitulosNumero: TStringField
+      FieldName = 'numero'
+      Size = 8
+    end
+    object qrySecoesCapitulosDescricao: TStringField
+      FieldName = 'descricao'
+      Size = 1024
+    end
+  end
+  object dsrSecoesCapitulos: TtecDataSource
+    DataSet = qrySecoesCapitulos
+    Left = 141
+    Top = 155
+  end
+  object qryCapitulos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryCapitulosAfterScroll
+    OnNewRecord = qrySecoesNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT n1.Secao,'
+      ''
+      '      (SELECT n2.Descricao FROM NCMTabela n2'
+      
+        '          WHERE n2.CodigoTIPI = TRIM(TO_CHAR(n1.Secao, '#39'0000'#39')) ' +
+        'limit 1) AS DescricaoSecao,'
+      ''
+      '       cast(n1.CodigoTIPI as integer) AS Capitulo,'
+      ''
+      '       n1.Descricao AS DescricaoCapitulo'
+      ''
+      'FROM   NCMTabela n1'
+      ''
+      
+        'WHERE  n1.CodigoTIPI = TRIM(TO_CHAR(CAST(:Capitulo AS INTEGER), ' +
+        #39'00'#39'));'
+      '')
+    RequestLive = True
+    Left = 45
+    Top = 264
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'Capitulo'
+        ParamType = ptUnknown
+      end>
+    object qryCapitulossecao: TIntegerField
+      FieldName = 'secao'
+    end
+    object qryCapitulosDescricaoSecao: TStringField
+      FieldName = 'descricaosecao'
+      Size = 1024
+    end
+    object qryCapitulosDescricaoCapitulo: TStringField
+      FieldName = 'descricaocapitulo'
+      Size = 1024
+    end
+    object qryCapituloscapitulo: TIntegerField
+      FieldName = 'capitulo'
+    end
+  end
+  object dsrCapitulos: TtecDataSource
+    DataSet = qryCapitulos
+    Left = 149
+    Top = 267
+  end
+  object qryCapitulosNotas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnNewRecord = qrySecoesNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT Notas'
+      ''
+      'FROM   NCMNotas'
+      ''
+      'WHERE  Capitulo = :Capitulo;'
+      '       ')
+    RequestLive = False
+    Left = 45
+    Top = 318
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'Capitulo'
+        ParamType = ptUnknown
+      end>
+    object qryCapitulosNotasNotas: TStringField
+      FieldName = 'notas'
+      Size = 16884
+    end
+  end
+  object dsrCapitulosNotas: TtecDataSource
+    DataSet = qryCapitulosNotas
+    Left = 149
+    Top = 303
+  end
+  object qryCapitulosNCM: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnNewRecord = qrySecoesNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      
+        'SELECT CASE WHEN ExTIPI <> '#39'00'#39' THEN NULL                     /*' +
+        ' Quando h'#225' EX, o c'#243'digo TIPI fica */'
+      
+        '            ELSE CodigoTIPI                                   /*' +
+        ' em branco para destacar EX       */'
+      '       END AS CodigoTIPI,'
+      ''
+      ''
+      '       CAST(CASE WHEN ExTIPI = '#39'00'#39' THEN NULL'
+      '                 ELSE '#39'Ex.'#39' || ExTIPI'
+      '            END AS VARCHAR(7)) AS ExtIPI,'
+      ''
+      
+        '                          /* Endentando a DESCRI'#199#195'O para real'#231'ar' +
+        ' a hierarquia */'
+      
+        '       CAST(REPEAT('#39' '#39',(CASE WHEN (SUBSTRING(CodigoTipi,1,2) = '#39 +
+        '00'#39' OR LENGTH(CodigoTIPI) = 2) THEN 0'
+      '                             WHEN LENGTH(CodigoTipi) = 4 THEN 2'
+      
+        '                             WHEN LENGTH(CodigoTipi) > 4 THEN LE' +
+        'NGTH(CodigoTipi) - 2'
+      
+        '                        END)) || Descricao AS VARCHAR(100)) AS D' +
+        'escricao,'
+      ''
+      '       Aliquota,'
+      '       NacionalFederal,'
+      '       ImportadosFederal,'
+      '       CargaEstadual,'
+      '       CargaMunicipal,'
+      '       VigenciaInicio,'
+      '       VigenciaFim,'
+      '       ChaveIBPT,'
+      '       FonteDados'
+      ''
+      
+        'FROM (SELECT CAST(CASE WHEN SUBSTRING(CodigoTIPI,1,2) = '#39'00'#39' THE' +
+        'N '#39'SE'#199#195'O '#39'   || TO_CHAR(Secao, '#39'RN'#39')    /* Se'#231#227'o XX - n'#227'o ser'#225' s' +
+        'elecionado */'
+      
+        '                       WHEN CodigoTIPI = '#39'99'#39'                THE' +
+        'N CodigoTIPI || '#39'  NF-e'#39'                /* 99  NF-e - n'#227'o ser'#225' s' +
+        'elecionado */'
+      
+        '                       WHEN LENGTH(CodigoTIPI) = 2           THE' +
+        'N '#39'Cap. '#39'    || CodigoTIPI              /* Cap. 99  - n'#227'o ser'#225' s' +
+        'elecionado */'
+      
+        '                       WHEN LENGTH(CodigoTIPI) = 4           THE' +
+        'N CodigoTIPI                            /* 9999       */'
+      
+        '                       WHEN LENGTH(CodigoTIPI) <= 6          THE' +
+        'N SUBSTRING(CodigoTIPI,1,4) || '#39'.'#39' ||'
+      
+        '                                                                ' +
+        '  SUBSTRING(CodigoTIPI,5,2)             /* 9999.99    */'
+      '                       ELSE SUBSTRING(CodigoTIPI,1,4) || '#39'.'#39' ||'
+      '                            SUBSTRING(CodigoTIPI,5,2) || '#39'.'#39' ||'
+      
+        '                            SUBSTRING(CodigoTIPI,7,2)           ' +
+        '                                        /* 9999.99.99 */'
+      '                  END AS VARCHAR(10)) AS CodigoTIPI,'
+      ''
+      '             CASE WHEN ExTIPI IS NULL THEN '#39'00'#39
+      '                  ELSE ExTIPI'
+      '             END AS ExtIPI,'
+      ''
+      '             Descricao,'
+      ''
+      '             CAST(CASE WHEN SouA  = '#39'A'#39
+      '                        THEN CASE WHEN Aliquota IS NULL'
+      '                                  THEN CAST('#39'NT'#39'     AS VARCHAR)'
+      '                                  ELSE CAST(Aliquota AS VARCHAR)'
+      '                             END'
+      '                        ELSE NULL'
+      '                   END AS VARCHAR(10)) AS Aliquota,'
+      ''
+      '             NacionalFederal,'
+      '             ImportadosFederal,'
+      '             CargaEstadual,'
+      '             CargaMunicipal,'
+      '             VigenciaInicio,'
+      '             VigenciaFim,'
+      '             ChaveIBPT,'
+      '             FonteDados'
+      ''
+      '      FROM  NCMTabela'
+      ''
+      
+        '      WHERE SUBSTRING(CodigoTIPI,1,2) = TRIM(TO_CHAR(CAST(:Capit' +
+        'ulo AS INTEGER), '#39'00'#39'))'
+      '        AND LENGTH(CodigoTIPI) > 2'
+      ''
+      '      ORDER BY CodigoTIPI, ExTIPI'
+      '     ) AS Selecao'
+      '')
+    RequestLive = False
+    Left = 45
+    Top = 374
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'Capitulo'
+        ParamType = ptUnknown
+      end>
+    object qryCapitulosNCMCodigoTIPI: TStringField
+      DisplayWidth = 10
+      FieldName = 'CodigoTIPI'
+      Size = 10
+    end
+    object qryCapitulosNCMexTIPI: TStringField
+      DisplayWidth = 5
+      FieldName = 'exTIPI'
+      Size = 5
+    end
+    object qryCapitulosNCMDescricao: TStringField
+      DisplayWidth = 1024
+      FieldName = 'Descricao'
+      Size = 1024
+    end
+    object qryCapitulosNCMAliquota: TStringField
+      DisplayWidth = 10
+      FieldName = 'Aliquota'
+      Size = 10
+    end
+    object qryCapitulosNCMNacionalFederal: TFloatField
+      FieldName = 'nacionalfederal'
+    end
+    object qryCapitulosNCMImportadosFederal: TFloatField
+      FieldName = 'ImportadosFederal'
+    end
+    object qryCapitulosNCMCargaEstadual: TFloatField
+      FieldName = 'CargaEstadual'
+    end
+    object qryCapitulosNCMCargaMunicipal: TFloatField
+      FieldName = 'CargaMunicipal'
+    end
+    object qryCapitulosNCMVigenciaInicio: TDateField
+      FieldName = 'VigenciaInicio'
+    end
+    object qryCapitulosNCMVigenciaFim: TDateField
+      FieldName = 'VigenciaFim'
+    end
+    object qryCapitulosNCMChaveIBPT: TStringField
+      FieldName = 'ChaveIBPT'
+      Size = 6
+    end
+    object qryCapitulosNCMFonteDados: TStringField
+      FieldName = 'FonteDados'
+      Size = 40
+    end
+  end
+  object dsrCapitulosNCM: TtecDataSource
+    DataSet = qryCapitulosNCM
+    Left = 141
+    Top = 375
+  end
+  object qryImportar: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    RequestLive = False
+    Left = 280
+    Top = 160
+  end
+  object qryNCMInexistentes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT Codigo,'
+      '       Descricao,'
+      '       ClassificacaoFiscal,'
+      '       ExTIPI,'
+      '       Aliquota'
+      ''
+      'FROM ipi'
+      ''
+      'WHERE NOT EXISTS (SELECT Codigo'
+      '                     FROM NCMTabela ncm'
+      
+        '                     WHERE ncm.CodigoTIPI = ipi.ClassificacaoFis' +
+        'cal'
+      
+        '                       AND COALESCE(ncm.ExTIPI,'#39#39') = COALESCE(ip' +
+        'i.ExTIPI,'#39#39'))'
+      'ORDER BY Codigo')
+    RequestLive = False
+    Left = 360
+    Top = 32
+    object qryNCMInexistentesCodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryNCMInexistentesDescricao: TStringField
+      FieldName = 'descricao'
+      Size = 30
+    end
+    object qryNCMInexistentesClassificacaoFiscal: TStringField
+      FieldName = 'classificacaofiscal'
+      Size = 8
+    end
+    object qryNCMInexistentesExTIPI: TStringField
+      FieldName = 'extipi'
+      Size = 3
+    end
+    object qryNCMInexistentesAliquota: TFloatField
+      FieldName = 'aliquota'
+    end
+  end
+  object dsrNCMInexistentes: TtecDataSource
+    DataSet = qryNCMInexistentes
+    Left = 400
+    Top = 48
+  end
+end

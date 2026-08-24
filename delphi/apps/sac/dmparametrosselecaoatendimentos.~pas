@@ -1,0 +1,263 @@
+unit dmparametrosselecaoatendimentos;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, dmbasico, DB, cpdatasource, ZQuery, ZPgSqlQuery, cpquery, ctConstantes,
+  ZUpdateSql, cpupdatesql,dmtecsoft;
+
+type
+  TdtmParametrosSelecaoAtendimentos = class(TdtmBasico)
+    qryConsultaAtendimentos: TtecQuery;
+    qryConsultaAtendimentoscodigo: TIntegerField;
+    qryConsultaAtendimentosnomecliente: TStringField;
+    qryConsultaAtendimentoslembrar: TDateField;
+    qryConsultaAtendimentostipo: TStringField;
+    qryConceito: TtecQuery;
+    qryConsultaConceito: TtecQuery;
+    dsrConceito: TtecDataSource;
+    dsrConsultaConceito: TtecDataSource;
+    qryConsultaConceitodescricao: TStringField;
+    qryConsultaConceitocodigo: TIntegerField;
+    qryConceitocodigo: TIntegerField;
+    qryConceitodescricao: TStringField;
+    qryData: TtecQuery;
+    qryDatadate: TDateField;
+    dsrData: TtecDataSource;
+  private
+    function GetData: string;
+  protected
+    FDataLembreteInicial: String;
+    FDataLembreteFinal: String;
+    FConcluido: TtecSelecao;
+    FTelefones: TtecSelecao;
+    FTipoAtendimento: TtecTipoAtendimento;
+    FAtrasoInicial: string;
+    FAtrasoFinal: string;
+    FConceito: string;
+    FVendedor: Boolean;
+    FOnScrollConsultaAtendimentos: TNotifyEvent;
+    procedure MontaConsultaPorData;
+    procedure MontaConceito;
+    procedure SetDataLembreteFinal(const Value: String);
+    procedure SetDataLembreteInicial(const Value: String);
+    procedure SetConcluido(const Value: TtecSelecao);
+    procedure SetTelefones(const Value: TtecSelecao);
+    function  GetTabelaParamentroLembrete: TtecQuery;
+    procedure SetTipoAtendimento(const Value: TtecTipoAtendimento);
+    procedure SetAtrasoInicial(const Value: string);
+    procedure SetAtrasoFinal(const Value: string);
+    procedure SetConceito(const Value: string);
+    function  GetClienteAtual: Integer; virtual;
+    function  GetNomeClienteAtual: String; virtual;
+//procura conceito
+    function GetCodigoConceito      : integer;
+    function GetConsultaConceito    : TtecQuery;
+  public
+    constructor Create(AOwner: TComponent); override;
+    function  NrRegistrosSelecionados: Integer;
+    property  OnScrollConsultaAtendimentos: TNotifyEvent  read FOnScrollConsultaAtendimentos
+                                                         write FOnScrollConsultaAtendimentos;
+    property DataLembreteInicial: String read FDataLembreteInicial write SetDataLembreteInicial;
+    property DataLembreteFinal: String read FDataLembreteFinal write SetDataLembreteFinal;
+    property Concluido: TtecSelecao read FConcluido write SetConcluido;
+    property TipoAtendimento: TtecTipoAtendimento read FTipoAtendimento write SetTipoAtendimento;
+    property AtrasoInicial  : string read FAtrasoInicial write SetAtrasoInicial;
+    property AtrasoFinal    : string read FAtrasoFinal   write SetAtrasoFinal;
+    property Conceito       : string read FConceito      write SetConceito;
+    property Telefones: TtecSelecao read FTelefones write SetTelefones;
+    property ClienteAtual: Integer read GetClienteAtual;
+    property NomeClienteAtual: String read GetNomeClienteAtual;
+    property TabelaParametroLembrete : TtecQuery read GetTabelaParamentroLembrete;
+//procura conceito
+    procedure RefazConsultaConceito(codConceito:integer);
+    function  ExisteConceito(campo, codigo: string): boolean;
+    property  CodigoConceito    : integer read GetCodigoConceito;
+    property  ConsultaConceito  : TtecQuery read GetConsultaConceito;
+//data
+    property  Data              : string read GetData;
+  end;
+
+{var
+  dtmConsultaAtendimentos: TdtmConsultaAtendimentos;}
+
+implementation
+
+{$R *.dfm}
+
+uses biblio;
+
+const
+  //linhas complementares do SQL.
+  ctWhereBase           = 8;
+  ctDataLembrete        = ctWhereBase + 1;
+  ctTelefone            = ctWhereBase + 2;
+  ctConcluido           = ctWhereBase + 3;
+  ctTipoAtendimento     = ctWhereBase + 4;
+  ctDiasAtrasoInicial   = ctWhereBase + 5;
+  ctDiasAtrasoFinal     = ctWhereBase + 6;
+  ctConceito            = ctWhereBase + 7;
+
+constructor TdtmParametrosSelecaoAtendimentos.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryConsultaAtendimentos.Tag := ctTabelasConsultaAtendimentos;
+  qryConceito.Tag             := ctTabelasConsultaAtendimentosConceito;
+  qryConsultaConceito.Tag     := ctTabelasConsultaAtendimentosConsultaConceito;
+  qryData.Tag                 := ctTabelasConsultaAtendimentosConceito;
+end;
+
+procedure TdtmParametrosSelecaoAtendimentos.MontaConsultaPorData;
+begin
+  if DataEmBranco(DataLembreteFinal) then
+    if DataEmBranco(DataLembreteInicial) then
+      qryConsultaAtendimentos.Sql[ctDataLembrete] := ''
+    else
+      qryConsultaAtendimentos.Sql[ctDataLembrete] := 'and (a.lembrar = ''' + FDataLembreteInicial + ''')'
+  else if DataEmBranco(DataLembreteInicial) then
+    qryConsultaAtendimentos.Sql[ctDataLembrete]   := 'and (a.lembrar = ''' + FDataLembreteFinal   + ''')'
+  else
+    qryConsultaAtendimentos.Sql[ctDataLembrete]   := 'and (a.lembrar between ''' + FDataLembreteInicial +
+                                                  ''' and ''' + FDataLembreteFinal + ''')'
+end;
+
+procedure TdtmParametrosSelecaoAtendimentos.SetConcluido(const Value: TtecSelecao);
+begin
+  if FConcluido <> Value then
+    FConcluido := Value;
+  case FConcluido of
+    slSIM  : qryConsultaAtendimentos.Sql[ctConcluido] := 'and atendimentos_cobrancaconcluido(codigo,a.data)';
+    slNAO  : qryConsultaAtendimentos.Sql[ctConcluido] := 'and not atendimentos_cobrancaconcluido(codigo,a.data)';
+    slAMBOS: qryConsultaAtendimentos.Sql[ctConcluido] := '';
+  end;
+end;
+
+procedure TdtmParametrosSelecaoAtendimentos.SetDataLembreteFinal(const Value: String);
+begin
+  if FDataLembreteFinal <> Value then
+    FDataLembreteFinal := Value;
+  MontaConsultaPorData
+end;
+
+procedure TdtmParametrosSelecaoAtendimentos.SetDataLembreteInicial(const Value: String);
+begin
+  if FDataLembreteInicial <> Value then
+    FDataLembreteInicial := Value;
+  MontaConsultaPorData
+end;
+
+procedure TdtmParametrosSelecaoAtendimentos.SetTelefones(const Value: TtecSelecao);
+begin
+  FTelefones := Value;
+  case FTelefones of
+    slSIM: qryConsultaAtendimentos.Sql[ctTelefone] := 'and ((c.fonenumero     is not null) or ' +
+                                                      '     (c.fone2numero    is not null) or ' +
+                                                      '     (c.empfonenumero  is not null) or ' +
+                                                      '     (c.confonenumero  is not null) or ' +
+                                                      '     (c.reffonenumero  is not null) or ' +
+                                                      '     (c.reffone2numero is not null))';
+    slNAO: qryConsultaAtendimentos.Sql[ctTelefone] := 'and ((c.fonenumero     is null)     and ' +
+                                                      '     (c.fone2numero    is null)     and ' +
+                                                      '     (c.empfonenumero  is null)     and ' +
+                                                      '     (c.confonenumero  is null)     and ' +
+                                                      '     (c.reffonenumero  is null)     and ' +
+                                                      '     (c.reffone2numero is null))';
+    slAMBOS: qryConsultaAtendimentos.Sql[ctTelefone] := '';
+  end;
+end;
+
+function TdtmParametrosSelecaoAtendimentos.GetClienteAtual: Integer;
+begin
+  Result := qryConsultaAtendimentoscodigo.AsInteger
+end;
+
+function TdtmParametrosSelecaoAtendimentos.GetNomeClienteAtual: String;
+begin
+  Result := qryConsultaAtendimentosnomecliente.AsString
+end;
+
+procedure TdtmParametrosSelecaoAtendimentos.SetTipoAtendimento(const Value: TtecTipoAtendimento);
+begin
+  if FTipoAtendimento <> Value then
+     FTipoAtendimento := Value;
+  case FTipoAtendimento of
+    tpaRECLAMACAO : qryConsultaAtendimentos.Sql[ctTipoAtendimento] := 'and (a.tipo = ''R'')';
+    tpaVISITA     : qryConsultaAtendimentos.Sql[ctTipoAtendimento] := 'and (a.tipo = ''V'')';
+    tpaCOBRANCA   : qryConsultaAtendimentos.Sql[ctTipoAtendimento] := 'and (a.tipo = ''C'') and clientes_atrasado(c.codigo)';
+  End;
+end;
+
+function TdtmParametrosSelecaoAtendimentos.NrRegistrosSelecionados: Integer;
+begin
+  Result:= qryConsultaAtendimentos.RecordCount;
+end;
+
+function TdtmParametrosSelecaoAtendimentos.GetTabelaParamentroLembrete: TtecQuery;
+begin
+  Result:= qryConsultaAtendimentos;
+end;
+
+//procura conceito
+
+function TdtmParametrosSelecaoAtendimentos.ExisteConceito(campo,
+  codigo: string): boolean;
+begin
+  Result := ExisteCodigo(qryConsultaConceito, campo, codigo);
+end;
+
+function TdtmParametrosSelecaoAtendimentos.GetCodigoConceito: integer;
+begin
+  Result := qryConsultaConceitocodigo.AsInteger
+end;
+
+function TdtmParametrosSelecaoAtendimentos.GetConsultaConceito: TtecQuery;
+begin
+  Result := qryConsultaConceito
+end;
+
+procedure TdtmParametrosSelecaoAtendimentos.RefazConsultaConceito(
+  codConceito: integer);
+begin
+  RefazConsulta(qryConceito, [0] ,[codConceito]);
+end;
+
+procedure TdtmParametrosSelecaoAtendimentos.SetAtrasoInicial(
+  const Value: string);
+begin
+  if FAtrasoInicial <> Value then
+    FAtrasoInicial := Value;
+  qryConsultaAtendimentos.SQL[ctDiasAtrasoInicial]:='and (clientes_diasatraso(c.codigo) >= '+FAtrasoInicial+')';
+end;
+
+procedure TdtmParametrosSelecaoAtendimentos.SetAtrasoFinal(
+  const Value: string);
+begin
+  if FAtrasoFinal <> Value then
+    FAtrasoFinal := Value;
+  qryConsultaAtendimentos.SQL[ctDiasAtrasoFinal]:='and (clientes_diasatraso(c.codigo) <= '+FAtrasoFinal+')';
+end;
+
+procedure TdtmParametrosSelecaoAtendimentos.SetConceito(
+  const Value: string);
+begin
+  FConceito := Value;
+  if FConceito <> Value then
+    FConceito := Value;
+  MontaConceito;
+end;
+
+procedure TdtmParametrosSelecaoAtendimentos.MontaConceito;
+begin
+  if FConceito = '' then
+      qryConsultaAtendimentos.Sql[ctConceito] := ''
+    else
+      qryConsultaAtendimentos.Sql[ctConceito] := 'and (c.conceito = ' + FConceito + ')'
+end;
+
+function TdtmParametrosSelecaoAtendimentos.GetData: string;
+begin
+  Result:=qryDatadate.AsString;
+end;
+
+end.

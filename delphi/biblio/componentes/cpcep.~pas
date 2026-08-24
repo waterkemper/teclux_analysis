@@ -1,0 +1,183 @@
+unit cpcep;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, Mask, DBCtrls, ctconstantes, windows, biblio, db;
+
+type
+  TDBEditCep = class(TDBEdit)
+  private
+    FDecimais: Boolean;
+    FNegativo: Boolean;
+    FTamanho: Word;
+  protected
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure Change; override;
+    procedure KeyPress(var Key: Char); override;
+    procedure Resize; override;
+    procedure DoEnter; override;
+    procedure DoExit; override;
+    procedure Loaded; override;
+{    procedure ValidateEdit; override;}
+
+  public
+    constructor Create(AOwner: TComponent); override;
+  published
+    property Tamanho:     Word    read FTamanho  write FTamanho;
+    property Decimais:    Boolean read FDecimais write FDecimais;
+    property Negativo:    Boolean read FNegativo write FNegativo;
+  end;
+
+implementation
+
+
+procedure TDBEditCep.Change;
+var NC:    byte;
+    Novo:  string;
+begin
+   inherited;
+   
+
+//   if modified then
+//     text := somentenumero(text);
+   {
+   NC:=1;
+   Novo := '';
+   While NC <= Length(Text) do
+   begin
+   If Text[NC] in ['0'..'9','-','.'] Then
+       Novo := Novo + Text[NC];
+
+     Inc(NC);
+   end;
+
+   if Novo <> Text then
+     Text := Novo;
+   }
+end;
+
+
+constructor TDBEditCep.Create(AOwner: TComponent);
+Begin
+  inherited;
+  MaxLength := 10;
+  Height := 23;
+  Tamanho := 10;
+  self.OnExit := VerificarErro;
+End;
+
+procedure TDBEditCep.DoEnter;
+begin
+  inherited;
+  self.selectall;
+
+  TIntegerField(self.Field).EditFormat := '';
+  TIntegerField(self.Field).DisplayFormat := '00000000';
+  Field.EditMask := '00\.000\-000;0;_';
+  if Focused then
+    Color:= CorFundoControle;
+
+  Tamanho := 10;
+  MaxLength := 10;
+
+end;
+
+procedure TDBEditCep.DoExit;
+begin
+  inherited;
+  Color:= clWindow;
+  TIntegerField(self.Field).DisplayFormat := '00"."000"-"000';
+end;
+
+procedure TDBEditCep.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  if Assigned(Field) then
+  begin
+    if Field.CanModify then
+    begin
+
+      {48..57 = 0..9 }
+      {96..105 = 0..9 lado numérico do teclado)
+      {111 = / }
+      if not (key in [48..57,96..105] + VK_LISTATECLAS) and
+         ((Tamanho > 0) and
+          (Length(text)-SelLength >= Tamanho)) Then
+      Begin
+        Key := 0;
+        MessageBeep(0);
+      End;
+
+      inherited keydown(key, shift);
+
+    end;
+  end;
+end;
+
+procedure TDBEditCep.KeyPress(var Key: Char);
+begin
+                       {
+   if modified then
+     if key = vk_return then
+       text := somentenumero(text);
+       }
+
+  inherited;
+
+end;
+
+procedure TDBEditCep.Loaded;
+begin
+  inherited;
+  if assigned(field) then
+  begin
+    TIntegerField(self.Field).EditFormat := '';
+    TIntegerField(self.Field).EditMask := '';
+    TIntegerField(self.Field).DisplayFormat := '00"."000"-"000';
+  end;
+end;
+
+procedure TDBEditCep.Resize;
+begin
+  if (csDesigning in ComponentState) then
+    Height := 23
+  else
+    inherited;
+end;
+
+(*
+procedure TDBEditCep.ValidateEdit;
+var
+  Str: string;
+  Pos: Integer;
+
+begin
+
+  Str := EditText;
+  if IsMasked and Modified then
+  begin
+    if not Validate(Str, Pos) then
+    begin
+
+//      if not (csDesigning in ComponentState) then
+//      begin
+//        Include(fMaskState, msReEnter);
+//        SetFocus;
+//      end;
+      SetCursor(Pos);
+      MessageBeep(0);
+      MensagemAviso('Valor de entrada inválido. Use a tecla de escape para abandonar as mudanças');
+      self.SetFocus;
+
+
+      ValidateError;
+    end
+    else
+      inherited;
+  end;
+end;
+*)
+
+
+end.

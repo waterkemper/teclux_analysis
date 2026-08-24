@@ -1,6 +1,6 @@
 inherited frmImportacaoConciliacao: TfrmImportacaoConciliacao
-  Left = 48
-  Top = 132
+  Left = 155
+  Top = 56
   BorderIcons = [biSystemMenu, biMinimize, biMaximize]
   Caption = 'Importa'#231#227'o do arquivo OFX'
   ClientHeight = 602
@@ -959,7 +959,7 @@ inherited frmImportacaoConciliacao: TfrmImportacaoConciliacao
       Top = 16
       Width = 495
       Height = 94
-      ActivePage = tstSelecaoPorPeriodo
+      ActivePage = tstImportacaoOFX
       Align = alLeft
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBlack

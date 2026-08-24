@@ -5,7 +5,7 @@ interface
 uses
   SysUtils, Classes, dmbasico, dmtecsoft, DB, cpdatasource, ZQuery,
   ZPgSqlQuery, cpquery, fr_dset, fr_dbset, fr_class, Biblio, fmpreviewpadrao,
-  ZTransact, variants;
+  ZTransact, variants, frx2xto30, frxClass;
 
 type
   Tdtmrelatoriocontasareceber = class(TdtmBasico)
@@ -50,6 +50,7 @@ type
     qryRecebimentosgrupofilialpagto: TIntegerField;
     qryRecebimentosnomegrupofilialpagto: TStringField;
     qryRecebimentosdesconto: TFloatField;
+    frxReport1: TfrxReport;
     procedure frpRecebimentosPISCOFINSBeforePrint(Memo: TStringList; View: TfrView);
     procedure ZMonitorMonitorEvent(Sql, Result: String);
     procedure qryRecebimentosCalcFields(DataSet: TDataSet);
@@ -213,9 +214,16 @@ begin
 //    frpRecebimentos.SHOWREPORT;
 
 //  frpRecebimentos.DesignReport;
+//  frxReport1.DesignReport;
+
 //  frpRecebimentos_resumo.DesignReport;
+//  frxReport1.DesignReport;
+
 //  frpRecebimentosPISCOFINS.DesignReport;
+//  frxReport1.DesignReport;
+
 //  frpRecebimentosPISCOFINS_Resumo.designreport;
+//  frxReport1.DesignReport;
 
   AfterRodapeMestre := false;
 

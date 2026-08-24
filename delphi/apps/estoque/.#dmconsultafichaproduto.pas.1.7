@@ -1,0 +1,442 @@
+unit dmconsultafichaproduto;
+
+interface
+
+uses
+  DateUtils,SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs, DB,
+  // Terceiros
+  ZQuery, ZSqlTypes, ZPgSqlQuery,
+  // Componentes
+  cpquery, cpdatasource,
+  // Constantes
+  ctconstantes, biblio,
+  // Repositorio
+  dmbasico, dmtecsoft, clparametrossistema, clusuario, ZTransact;
+
+type
+  TdtmConsultaFichaProduto = class(TdtmBasico)
+    qryFichaProduto: TtecQuery;
+    dsrFichaProduto: TtecDataSource;
+    qryConsultaFiliais: TtecQuery;
+    qryConsultaFiliaisnome: TStringField;
+    qryConsultaFiliaiscodigo: TIntegerField;
+    qryProcuraFiliais: TtecQuery;
+    dsrProcuraFiliais: TtecDataSource;
+    qryProcuraTiposMovimentos: TtecQuery;
+    dsrProcuraTiposMovimentos: TtecDataSource;
+    qryConsultaTiposMovimentos: TtecQuery;
+    qryConsultaTiposMovimentoscodigo: TStringField;
+    qryFichaProdutodata: TDateField;
+    qryFichaProdutotipomovimento: TStringField;
+    qryFichaProdutoreferencia: TStringField;
+
+    qryFichaProdutoemestoque: TFloatField;
+    qryFichaProdutoquantidade: TFloatField;
+    qryFichaProdutoreservado: TFloatField;
+    qryFichaProdutotransito: TFloatField;
+    qryFichaProdutodemonstracao: TFloatField;
+    qryFichaProdutoconserto: TFloatField;
+    qryFichaProdutofuturo: TFloatField;
+    qryFichaProdutodanificada: TFloatField;
+    qryFichaProdutoestoquefisico: TFloatField;
+    qryFichaProdutoreservaprevia: TFloatField;
+
+    qryFichaProdutovalor: TFloatField;
+    qryFichaProdutofinanceiro: TFloatField;
+    qryFichaProdutofilial: TIntegerField;
+    qryProcuraFiliaiscodigo: TIntegerField;
+    qryProcuraFiliaisnome: TStringField;
+    qryProcuraTiposMovimentoscodigo: TStringField;
+    qryProcuraTiposMovimentosdescricao: TStringField;
+    qryFichaProdutoest: TStringField;
+    qryFichaProdutores: TStringField;
+    qryFichaProdutotra: TStringField;
+    qryFichaProdutodem: TStringField;
+    qryFichaProdutocon: TStringField;
+    qryFichaProdutofut: TStringField;
+    qryFichaProdutodan: TStringField;
+    qryFichaProdutouent: TStringField;
+    qryFichaProdutoucom: TStringField;
+    qryFichaProdutofin: TStringField;
+    qryFichaProdutotven: TStringField;
+    qryFichaProdutotcom: TStringField;
+    qryFichaProdutonumero: TIntegerField;
+    qryConsultaTiposMovimentosdescricao: TStringField;
+    qryFichaProdutofis: TStringField;
+    qryFichaProdutoclientefornecedor: TStringField;
+    qryFichaProdutoprecocomicms: TFloatField;
+    qryFichaProdutoprecosemicms: TFloatField;
+    qryFichaProdutoaliquotaipi: TFloatField;
+    qryFichaProdutoprev: TStringField;
+    qryFichaProduto_Saldo: TtecQuery;
+    qryFichaProduto_Saldonumero: TIntegerField;
+    qryFichaProduto_Saldodata: TDateTimeField;
+    qryFichaProduto_Saldotipomovimento: TStringField;
+    qryFichaProduto_Saldoreferencia: TStringField;
+    qryFichaProduto_Saldofilial: TIntegerField;
+
+    qryFichaProduto_Saldoquantidade: TFloatField;
+    qryFichaProduto_Saldoemestoque: TFloatField;
+    qryFichaProduto_Saldoreservado: TFloatField;
+    qryFichaProduto_Saldotransito: TFloatField;
+    qryFichaProduto_Saldodemonstracao: TFloatField;
+    qryFichaProduto_Saldoconserto: TFloatField;
+    qryFichaProduto_Saldofuturo: TFloatField;
+    qryFichaProduto_Saldodanificada: TFloatField;
+    qryFichaProduto_Saldoestoquefisico: TFloatField;
+    qryFichaProduto_Saldoreservaprevia: TFloatField;
+    
+    qryFichaProduto_Saldoest: TStringField;
+    qryFichaProduto_Saldores: TStringField;
+    qryFichaProduto_Saldotra: TStringField;
+    qryFichaProduto_Saldodem: TStringField;
+    qryFichaProduto_Saldocon: TStringField;
+    qryFichaProduto_Saldofut: TStringField;
+    qryFichaProduto_Saldodan: TStringField;
+    qryFichaProduto_Saldofis: TStringField;
+    qryFichaProduto_Saldoprev: TStringField;
+    qryFichaProduto_Saldouent: TStringField;
+    qryFichaProduto_Saldoucom: TStringField;
+    qryFichaProduto_Saldofin: TStringField;
+    qryFichaProduto_Saldotven: TStringField;
+    qryFichaProduto_Saldotcom: TStringField;
+    qryFichaProduto_Saldovalor: TFloatField;
+    qryFichaProduto_Saldoprecocomicms: TFloatField;
+    qryFichaProduto_Saldoprecosemicms: TFloatField;
+    qryFichaProduto_Saldoaliquotaipi: TFloatField;
+    qryFichaProduto_Saldofinanceiro: TFloatField;
+    qryFichaProduto_Saldoclientefornecedor: TStringField;
+    qryFichaProdutomoeda: TStringField;
+    qryFichaProdutovalormoeda: TFloatField;
+    qryMoedas: TtecQuery;
+    qryMoedascodigo: TStringField;
+    qryFichaProdutomoedaLookup: TStringField;
+    ZMonitor1: TZMonitor;
+    qryFichaProduto_Saldomoeda: TStringField;
+    qryFichaProduto_Saldovalormoeda: TFloatField;
+    qryFichaProduto_Saldonaoprocessartriggers: TBooleanField;
+    qryFichaProdutonaoprocessartriggers: TBooleanField;
+    qryMoedasdescricao: TStringField;
+    qryFichaProdutocustomedio: TFloatField;
+    qryFichaProdutopedcotacao: TFloatField;
+    qryFichaProdutopedaberto: TFloatField;
+    qryFichaProdutousuariologado: TIntegerField;
+    qryFichaProdutonomeusuariologado: TStringField;
+    qryFichaProdutousuarioautorizacao: TIntegerField;
+    qryFichaProdutonomeusuarioautorizacao: TStringField;
+    procedure qryFichaProdutoProgress(Sender: TObject; Stage: TZProgressStage; Proc: TZProgressProc;
+              Position, Max: Integer;  var Cancel: Boolean);
+    procedure qryFichaProdutoBeforePost(DataSet: TDataSet);
+    procedure qryFichaProdutoAfterInsert(DataSet: TDataSet);
+    procedure qryFichaProdutoAfterScroll(DataSet: TDataSet);
+    procedure qryMoedasAfterOpen(DataSet: TDataSet);
+    procedure qryFichaProdutoAfterOpen(DataSet: TDataSet);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+   private
+    FParametroFilial: String;
+    FParametroTipoMovimento: String;
+    FParametroProduto: String;
+    FParametroDataInicial: String;
+    FParametroDataFinal: String;
+    FReferenciaQuantidade: Integer;
+    FGerenteEstoque: Boolean;
+    FFilial: Integer;
+    function GetConsultarFilial: TTecQuery;
+    function GetConsultarTipoMovimento: TTecQuery;
+    function GetCodigoFilial: Integer;
+    function GetCodigoTipoMovimento: String;
+    function GetTabelaFichaProduto: TTecQuery;
+  public
+    constructor Create(AOwner: TComponent); override;
+    function ExisteFilial(Campo, Codigo: String): Boolean;
+    function ExisteTipoMovimento(Campo, Codigo: String): Boolean;
+    procedure Selecionar(Pesquisa: TtecPesquisa);
+    procedure ConsultaFichaProduto;
+    procedure IncluirLinhaSaldo;
+    procedure AbreTabelaPesquisa(TipoPesquisa: TTecPesquisa);
+    procedure FechaTabelaPesquisa(TipoPesquisa: TTecPesquisa);
+    procedure FechaTabelaFichaProdutos;
+    property TabelaFichaProduto: TTecQuery read GetTabelaFichaProduto;
+    property ConsultarFilial: TTecQuery read GetConsultarFilial;
+    property ConsultarTipoMovimento: TTecQuery read GetConsultarTipoMovimento;
+    property CodigoFilial: Integer read GetCodigoFilial;
+    property CodigoTipoMovimento: String read GetCodigoTipoMovimento;
+    property ParametroFilial: String read FParametroFilial write FParametroFilial;
+    property ParametroTipoMovimento: String read FParametroTipoMovimento write FParametroTipoMovimento;
+    property ParametroProduto: String read FParametroProduto write FParametroProduto;
+    property ParametroDataInicial: String read FParametroDataInicial write FParametroDataInicial;
+    property ParametroDataFinal: String read FParametroDataFinal write FParametroDataFinal;
+    property ReferenciaQuantidade: Integer read FReferenciaQuantidade write FReferenciaQuantidade;
+    Property GerenteEstoque: Boolean read FGerenteEstoque write FGerenteEstoque;
+    property Filial: Integer read FFilial write FFilial;
+    function GravarMovimento : boolean;
+end;
+
+var
+  dtmConsultaFichaProduto: TdtmConsultaFichaProduto;
+
+implementation
+
+{$R *.dfm}
+
+function TdtmConsultaFichaProduto.GetTabelaFichaProduto: TTecQuery;
+begin
+  Result := qryFichaProduto;
+end;
+
+
+function TdtmConsultaFichaProduto.GetConsultarFilial: TtecQuery;
+begin
+  Result := qryConsultaFiliais;
+end;
+
+function TdtmConsultaFichaProduto.GetConsultarTipoMovimento: TtecQuery;
+begin
+  Result := qryConsultaTiposMovimentos;
+end;
+
+
+function TdtmConsultaFichaProduto.GetCodigoFilial: Integer;
+begin
+  Result := qryConsultaFiliaiscodigo.AsInteger;
+end;
+
+function TdtmConsultaFichaProduto.GetCodigoTipoMovimento: String;
+begin
+  Result := qryConsultaTiposMovimentoscodigo.AsString;
+end;
+
+function TdtmConsultaFichaProduto.ExisteFilial(Campo,Codigo: String): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaFiliais, campo, Codigo);
+end;
+
+function TdtmConsultaFichaProduto.ExisteTipoMovimento(Campo,Codigo: String): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaTiposMovimentos, campo, Codigo);
+end;
+
+procedure TdtmConsultaFichaProduto.AbreTabelaPesquisa(TipoPesquisa: TTecPesquisa);
+begin
+  case TipoPesquisa of
+      pesFILIAIS      : Abre(ctPesquisaFilial);
+
+    pesTIPOSMOVIMENTOS: Abre(ctPesquisaTiposMovimentos);
+  end;
+
+end;
+
+procedure TdtmConsultaFichaProduto.FechaTabelaPesquisa(TipoPesquisa: TTecPesquisa);
+begin
+  case TipoPesquisa of
+      pesPRODUTOS     : Fecha(ctPesquisaProdutos);
+      pesFILIAIS      : Fecha(ctPesquisaFilial);
+    pesTIPOSMOVIMENTOS: Fecha(ctPesquisaTiposMovimentos);
+  end;
+end;
+
+constructor TdtmConsultaFichaProduto.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryConsultaFiliais.Tag := ctPesquisaFilial;
+  qryConsultaTiposMovimentos.Tag := ctPesquisaTiposMovimentos;
+  qryFichaProduto.Tag := cttabelas;
+  qryProcuraFiliais.Tag := ctTabelas;
+  qryProcuraTiposMovimentos.Tag := ctTabelas;
+  qryMoedas.tag := ctTabelas;
+
+  qryFichaProdutoemestoque.DisplayFormat           := ParSistema.MascaraQuantidadeGrade;
+  qryFichaProdutoquantidade.displayformat          := ParSistema.MascaraQuantidadeGrade;
+  qryFichaProdutoreservado.displayformat           := ParSistema.MascaraQuantidadeGrade;
+  qryFichaProdutotransito.displayformat            := ParSistema.MascaraQuantidadeGrade;
+  qryFichaProdutodemonstracao.displayformat        := ParSistema.MascaraQuantidadeGrade;
+  qryFichaProdutoconserto.displayformat            := ParSistema.MascaraQuantidadeGrade;
+  qryFichaProdutofuturo.displayformat              := ParSistema.MascaraQuantidadeGrade;
+  qryFichaProdutodanificada.displayformat          := ParSistema.MascaraQuantidadeGrade;
+  qryFichaProdutoestoquefisico.displayformat       := ParSistema.MascaraQuantidadeGrade;
+  qryFichaProdutoreservaprevia.displayformat       := ParSistema.MascaraQuantidadeGrade;
+
+  qryFichaProduto_Saldoquantidade.displayformat    := ParSistema.MascaraQuantidadeGrade;
+  qryFichaProduto_Saldoemestoque.displayformat     := ParSistema.MascaraQuantidadeGrade;
+  qryFichaProduto_Saldoreservado.displayformat     := ParSistema.MascaraQuantidadeGrade;
+  qryFichaProduto_Saldotransito.displayformat      := ParSistema.MascaraQuantidadeGrade;
+  qryFichaProduto_Saldodemonstracao.displayformat  := ParSistema.MascaraQuantidadeGrade;
+  qryFichaProduto_Saldoconserto.displayformat      := ParSistema.MascaraQuantidadeGrade;
+  qryFichaProduto_Saldofuturo.displayformat        := ParSistema.MascaraQuantidadeGrade;
+  qryFichaProduto_Saldodanificada.displayformat    := ParSistema.MascaraQuantidadeGrade;
+  qryFichaProduto_Saldoestoquefisico.displayformat := ParSistema.MascaraQuantidadeGrade;
+  qryFichaProduto_Saldoreservaprevia.displayformat := ParSistema.MascaraQuantidadeGrade;
+  FGerenteEstoque:= UsuarioLogin.GerenteEstoque;
+  FFilial:= FilialBase;
+end;
+
+procedure TdtmConsultaFichaProduto.Selecionar(Pesquisa: TtecPesquisa);
+begin
+  case Pesquisa of
+    pesFILIAIS      : RefazConsulta(qryProcuraFiliais,[0],[CodigoFilial]);
+  pesTIPOSMOVIMENTOS: RefazConsulta(qryProcuraTiposMovimentos,[0],[CodigoTipoMovimento]);
+  end;
+end;
+
+procedure TdtmConsultaFichaProduto.ConsultaFichaProduto;
+var
+  Linha : String;
+  i : integer;
+begin
+  Linha := 'and (data >= to_timestamp(''' + FParametroDataInicial +''', ''dd/mm/yyyy''))';
+  Linha := Linha + 'and (data <= to_timestamp(''' + FParametroDataFinal + ' 23:59:59'', ''dd/mm/yyyy hh24:mi:ss''))';
+  if Trim(FParametroFilial) <> '' then
+    Linha := Linha + ' and ( filial = ' + FParametroFilial + ' )';
+  if Trim(FParametroTipoMovimento) <> '' then
+    Linha := Linha + ' and (tipomovimento = ''' + FParametroTipoMovimento + ''')';
+  qryFichaProduto.MacroByName('Linha').AsString := Linha;
+  // Setando o WHERE O CÁLCULO DO SALDO ANTERIOR
+  Linha := '';
+  if Trim(FParametroFilial) <> '' then
+    Linha := ' and ( filial = ' + FParametroFilial + ' )';
+  if Trim(FParametroTipoMovimento) <> '' then
+    Linha := Linha + ' and (tipomovimento = ''' + FParametroTipoMovimento + ''')';
+  qryFichaProduto_Saldo.Sql[48] := Linha;
+  RefazConsulta(qryFichaProduto,[0],[FParametroProduto]);
+  RefazConsulta(qryFichaProduto_Saldo,[0,1],[FParametroProduto,FParametroDataInicial]);
+  IncluirLinhaSaldo;
+end;
+
+procedure TdtmConsultaFichaProduto.qryFichaProdutoProgress(Sender: TObject;
+  Stage: TZProgressStage; Proc: TZProgressProc; Position, Max: Integer; var Cancel: Boolean);
+begin
+  ShowProgress(Sender, Stage, Proc, Position, Max, Cancel);
+end;
+
+procedure TdtmConsultaFichaProduto.FechaTabelaFichaProdutos;
+begin
+  qryFichaProduto.Close;
+//  if not qryFichaProduto.IsEmpty then
+//    ReFazConsulta(qryFichaProduto,[0],[0]);
+end;
+
+procedure TdtmConsultaFichaProduto.qryFichaProdutoBeforePost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryFichaProdutonaoprocessartriggers.AsBoolean := true;
+end;
+
+procedure TdtmConsultaFichaProduto.qryFichaProdutoAfterInsert(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryFichaProduto.Cancel;
+end;
+
+procedure TdtmConsultaFichaProduto.qryFichaProdutoAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryFichaProdutoprecocomicms.ReadOnly := not (GerenteEstoque and
+                                               (qryFichaProdutofin.AsString = '+'));
+
+  qryFichaProdutoprecosemicms.ReadOnly := qryFichaProdutoprecocomicms.ReadOnly;
+  qryFichaProdutomoeda.ReadOnly := qryFichaProdutoprecocomicms.ReadOnly;
+  qryFichaProdutomoedaLookup.ReadOnly := qryFichaProdutoprecocomicms.ReadOnly;
+  qryFichaProdutovalormoeda.ReadOnly := qryFichaProdutoprecocomicms.ReadOnly;
+
+  qryFichaProdutopedcotacao.ReadOnly := qryFichaProdutoprecocomicms.ReadOnly;
+  qryFichaProdutopedaberto.ReadOnly := qryFichaProdutoprecocomicms.ReadOnly;
+
+  if qryFichaProdutomoeda.ReadOnly and (qryfichaproduto.State<>dsinsert) then
+  begin
+    qryFichaProduto.Edit;
+    qryFichaProdutomoeda.Clear;
+    qryFichaProduto.post;
+  end;
+
+end;
+
+procedure TdtmConsultaFichaProduto.qryMoedasAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  qrymoedas.Append;
+  qrymoedas.Post;
+end;
+
+function TdtmConsultaFichaProduto.GravarMovimento: boolean;
+begin
+  GuardarRegistroAtual(qryFichaProduto,true);
+  qryFichaProduto.First;
+  qryFichaProduto.Delete;
+  if qryFichaProduto.State = dsedit then
+    qryFichaProduto.Post;
+  result := Perpetrar([qryFichaProduto]);
+  IncluirLinhaSaldo;
+  VoltarRegistroAtual(qryFichaProduto);
+end;
+
+procedure TdtmConsultaFichaProduto.qryFichaProdutoAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryFichaProduto.IsEmpty then
+  begin
+    qryFichaProduto.AfterInsert := nil;
+    qryFichaProduto.Append;
+    qryFichaProduto.Post;
+    qryFichaProduto.AfterInsert := dtmConsultaFichaProduto.qryFichaProdutoAfterInsert;
+  end;  
+end;
+
+procedure TdtmConsultaFichaProduto.ZMonitor1MonitorEvent(Sql,
+  Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:\ficha20090219.sql') then
+    Listar.loadfromfile('c:\ficha20090219.sql');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\ficha20090219.sql');
+  listar.free;
+end;
+
+procedure TdtmConsultaFichaProduto.IncluirLinhaSaldo;
+var
+  i : integer;
+begin
+  if qryFichaProduto_Saldo.isempty then
+  begin
+   qryFichaProduto.AfterInsert := nil;
+   qryFichaProduto.First;
+   qryFichaProduto.Insert;
+   qryFichaProdutoreferencia.AsString := 'SALDO ANTERIOR';
+   qryFichaProdutomoeda.Clear;
+   qryFichaProdutomoedaLookup.Clear;
+   qryFichaProduto.Post;
+   qryFichaProduto.AfterInsert := qryFichaProdutoAfterInsert;
+  end
+  else
+  begin
+   qryFichaProduto.AfterInsert := nil;
+   qryFichaProduto.First;
+   qryFichaProduto.Insert;
+   for i:=0 to qryFichaProduto_Saldo.FieldCount -1 do
+   begin
+     if qryFichaProduto.Fields[i].FieldName <> 'moeda' then
+       qryFichaProduto.Fields[i].AsVariant := qryFichaProduto_Saldo .Fields[i].asvariant
+     else
+     begin
+       if qryFichaProduto_Saldo .Fields[i].IsNull then
+         qryFichaProduto.Fields[i].AsVariant:= 0;
+     end;
+   end;
+   qryFichaProduto.Post;
+   qryFichaProduto.AfterInsert := qryFichaProdutoAfterInsert;
+  end;
+  qryFichaProdutoAfterScroll(qryFichaProduto);
+end;
+
+end.
+
+

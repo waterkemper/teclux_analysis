@@ -1,0 +1,231 @@
+unit fmRelatorioListasCasamento;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmrelatoriopadrao, ExtCtrls, Buttons, ToolWin, ComCtrls,
+  frintervalodatas, biblio, ctconstantes, StdCtrls, frselecaoaleatoria, db,
+  frConsultaCodigo, cpdbfindcontrols;
+
+type
+  TfrmRelatorioListasCasamento = class(TFrmRelatorioPadrao)
+    fraIntervaloDatas: TfraIntervaloDatas;
+    ckbQuebrarPaginaporListadeCasamento: TCheckBox;
+    gbxListasdeCasamento: TGroupBox;
+    fraSelecaoAleatoriaListadeCasamento: TfraSelecaoAleatoria;
+    procedure fraSelecaoAleatoriaListadeCasamentoqrySelecaoAleatoriaAfterOpen(
+      DataSet: TDataSet);
+    procedure fraSelecaoAleatoriaListadeCasamentosbnProcuraClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaListadeCasamentodbgSelecaoAleatoriaDblClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaListadeCasamentodbgSelecaoAleatoriaKeyDown(
+      Sender: TObject; var Key: Word; Shift: TShiftState);
+  private
+    { Private declarations }
+    function  ValidarCamposSelecao: Boolean;
+
+    procedure AtribuirDadosListadeCasamento;
+    procedure AcionarPesquisaListadeCasamento;
+
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+
+    procedure InternoImpressao; override;
+  end;
+
+var
+  frmRelatorioListasCasamento: TfrmRelatorioListasCasamento;
+
+implementation
+
+uses dmRelatorioListasCasamento, frconsulta;
+
+{$R *.dfm}
+
+{ TfrmRelatorioListasCasamento }
+
+constructor TfrmRelatorioListasCasamento.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmRelatorioListasCasamento := TdtmRelatorioListasCasamento.Create(Self);
+
+
+  fraSelecaoAleatoriaListadeCasamento.CampoParaLista := 'codigo';
+  fraSelecaoAleatoriaListadeCasamento.qrySelecaoAleatoria.Open;
+  with fraSelecaoAleatoriaListadeCasamento do
+  begin
+    ConsultaSelecaoAleatoria := TfraConsultaCodigo.Create(self);
+    ConsultaSelecaoAleatoria.Name := 'fraConsultaSelecaoAleatoriaListadeCasamento';
+    ConsultaSelecaoAleatoria.edfCodigo.MaxLength := 6;
+    ConsultaSelecaoAleatoria.edfCodigo.DataSource := dsrSelecaoAleatoria;
+    ConsultaSelecaoAleatoria.edfCodigo.DataField := 'codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.Operacao := opATRIBUICAO;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupSource := ConsultaSelecaoAleatoria.dsrProcuraListadeCasamento;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupQueryParameter := 'Codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.LookupField := 'Codigo';
+    ConsultaSelecaoAleatoria.AbrirTabelaProcura := false;
+    ConsultaSelecaoAleatoria.naofechartabelapesquisa := true;
+
+    ConsultaSelecaoAleatoria.TipoPesquisa := pesLISTACASAMENTO;
+    ConsultaSelecaoAleatoria.OnFound := AtribuirDadosListadeCasamento;
+  end;
+
+end;
+
+destructor TfrmRelatorioListasCasamento.Destroy;
+begin
+  inherited;
+  frmRelatorioListasCasamento := nil;
+end;
+
+procedure TfrmRelatorioListasCasamento.InternoImpressao;
+begin
+  inherited;
+  if ValidarCamposSelecao then
+    dtmRelatorioListasCasamento.ImprimirRelatorio(fraIntervaloDatas.edtDataInicial.text,
+                                                  fraIntervaloDatas.edtDataFinal.text,
+                                                  fraSelecaoAleatoriaListadeCasamento.StringSelecionada,
+                                                  ckbQuebrarPaginaporListadeCasamento.Checked);
+end;
+
+function TfrmRelatorioListasCasamento.ValidarCamposSelecao: Boolean;
+begin
+  Result := (fraIntervaloDatas.edtDataInicial.DataValida and fraIntervaloDatas.edtDataFinal.DataValida);
+  if Result then
+  begin
+    if (not dataembranco(fraIntervaloDatas.edtDataInicial.text) and not dataembranco(fraIntervaloDatas.edtDataFinal.text)) then
+      Result:=StrToDate(fraIntervaloDatas.edtDataInicial.Text) <= StrToDate(fraIntervaloDatas.edtDataFinal.Text);
+
+    if result then
+    begin
+      Result:=(not dataembranco(fraIntervaloDatas.edtDataInicial.text) or not dataembranco(fraIntervaloDatas.edtDataFinal.text));
+      if not Result then
+      begin
+        MensagemAviso(ctDATAINVALIDA);
+        fraIntervaloDatas.edtDataInicial.SetFocus;
+      end;
+    end
+    else
+    begin
+      MensagemAviso(ctDTINICIALMAIORDTFINAL);
+      fraIntervaloDatas.edtDataInicial.SetFocus;
+    end;
+  end;
+end;
+
+procedure TfrmRelatorioListasCasamento.fraSelecaoAleatoriaListadeCasamentoqrySelecaoAleatoriaAfterOpen(
+  DataSet: TDataSet);
+var nc: integer;
+begin
+  inherited;
+  with fraSelecaoAleatoriaListadeCasamento do
+  begin
+    qrySelecaoAleatoria.FieldByName('codigo').DisplayLabel := 'CÓDIGO';
+    qrySelecaoAleatoria.FieldByName('codigo').ReadOnly := False;
+
+    qrySelecaoAleatoria.FieldByName('nome_noiva').DisplayLabel := 'NOME DA NOIVA';
+    qrySelecaoAleatoria.FieldByName('nome_noiva').ReadOnly := true;
+
+    qrySelecaoAleatoria.FieldByName('nome_noivo').DisplayLabel := 'NOME DO NOIVO';
+    qrySelecaoAleatoria.FieldByName('nome_noivo').ReadOnly := true;
+
+    qrySelecaoAleatoria.Append;
+    qrySelecaoAleatoria.Post;
+
+    with dbgSelecaoAleatoria do
+    for nc:= 0 to 2 do with Columns[nc].Title do
+    begin
+        Alignment:= taCenter;
+        Font.Name:= 'helvetica';
+        Font.Height:= -9;
+    end;
+  end;
+
+end;
+
+procedure TfrmRelatorioListasCasamento.AcionarPesquisaListadeCasamento;
+begin
+
+  with fraSelecaoAleatoriaListadeCasamento do
+  begin
+    dbgSelecaoAleatoria.SetFocus;
+    ConsultaSelecaoAleatoria.CtrlOn := True;
+    ConsultaSelecaoAleatoria.InternoPesquisar('Lista de casamento');
+    dbgSelecaoAleatoria.SetFocus;
+    dbgSelecaoAleatoria.SelectedIndex :=  0;
+  end;
+
+
+end;
+
+procedure TfrmRelatorioListasCasamento.AtribuirDadosListadeCasamento;
+begin
+  with fraSelecaoAleatoriaListadeCasamento do
+  begin
+    qrySelecaoAleatoria.Edit;
+    qrySelecaoAleatoria.FieldByName('codigo').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraListadeCasamentocodigo.AsString;
+
+    qrySelecaoAleatoria.FieldByName('nome_noiva').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraListadeCasamentonome_noiva.AsString;
+
+    qrySelecaoAleatoria.FieldByName('nome_noivo').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraListadeCasamentonome_noivo.AsString;
+
+    qrySelecaoAleatoria.Post;
+  end;
+end;
+
+procedure TfrmRelatorioListasCasamento.fraSelecaoAleatoriaListadeCasamentosbnProcuraClick(
+  Sender: TObject);
+begin
+  inherited;
+   AcionarPesquisaListadeCasamento;
+end;
+
+procedure TfrmRelatorioListasCasamento.fraSelecaoAleatoriaListadeCasamentodbgSelecaoAleatoriaDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarPesquisaListadeCasamento;
+
+end;
+
+procedure TfrmRelatorioListasCasamento.fraSelecaoAleatoriaListadeCasamentodbgSelecaoAleatoriaKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      VK_F9     : begin
+                    fraSelecaoAleatoriaListadeCasamento.ConsultaSelecaoAleatoria.CtrlOn := Shift = [ssCtrl];
+                    if (Shift = []) or fraSelecaoAleatoriaListadeCasamento.ConsultaSelecaoAleatoria.CtrlOn then
+                      AcionarPesquisaListadeCasamento
+                  end;
+    end;
+  end
+  else
+  case Key of
+    VK_Return: if fraSelecaoAleatoriaListadeCasamento.dbgSelecaoAleatoria.SelectedIndex = 0  then
+               begin
+                 fraSelecaoAleatoriaListadeCasamento.ConsultaSelecaoAleatoria.edfCodigo.DoExit;
+                 if not fraSelecaoAleatoriaListadeCasamento.ConsultaSelecaoAleatoria.qryProcuraUsuarios.IsEmpty then
+                    AtribuirDadosListadeCasamento
+                 else
+                 begin
+                   key := 0;
+                   fraSelecaoAleatoriaListadeCasamento.dbgSelecaoAleatoria.SelectedIndex := 0;
+                   fraSelecaoAleatoriaListadeCasamento.dbgSelecaoAleatoria.SetFocus;
+                 end;
+               end;
+  end;
+
+end;
+
+end.

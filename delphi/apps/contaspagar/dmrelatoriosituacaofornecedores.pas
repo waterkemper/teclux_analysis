@@ -13,7 +13,7 @@ uses
   // Repositorio
   dmtecsoft, dmbasico, clparametrossistema, dmimprimetermos,
   // Outros
-  fmpreviewpadrao, ZTransact;
+  fmpreviewpadrao, ZTransact, frxClass, frx2xto30;
 
 type
   TdtmRelatoriosituacaofornecedores = class(TdtmBasico)
@@ -68,6 +68,7 @@ type
     qryNotasPagfornecedor: TIntegerField;
     qryNotasPagnome: TStringField;
     qryNotasPagimpostosretidos: TFloatField;
+    frxReport1: TfrxReport;
     procedure frpLivroEntradaMercadoriasTermosBeforePrint(
       Memo: TStringList; View: TfrView);
     procedure frpLivroEntradaMercadoriasTermosGetValue(
@@ -190,7 +191,11 @@ begin
   frVariables['DataSituacao']:=FormatDateTime('dd/mm/yy',strtodate(DataSituacao));
 
 //  frpNotasEntrada.DesignReport;
+//  frxReport1.designreport;
+
 //  frpNotasEntradaResumo.DesignReport;
+//  frxReport1.designreport;
+  
   frmPreview := TfrmPreviewPadrao.create(self);
   frmPreview.cmbZoom.ItemIndex := 3; //125
   try

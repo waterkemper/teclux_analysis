@@ -1,0 +1,221 @@
+unit cpeditioncontrolvalidation;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Classes, Controls, Spin;
+
+type
+
+  TtecEditionControlItem = Class(TCollectionItem)
+  protected
+    FControl: TWinControl;
+    FPropertyName: String;
+    function GetControl: TWinControl;
+    function GetDisplayName: string; override;
+    procedure SetControl(const Value: TWinControl);
+  public
+  published
+    property Control: TWinControl read GetControl write SetControl;
+
+  end;
+
+  TtecEditonControlCollection = class(TCollection)
+  protected
+    function GetItems(Index: Integer): TtecEditionControlItem;
+    procedure SetItems(Index: Integer; const Value: TtecEditionControlItem);
+  public
+    function IndexOfObject(Ctrl: TWinControl): Integer;
+    property Items[Index: Integer]: TtecEditionControlItem read GetItems write SetItems; default;
+  end;
+
+  TtecEditionControlValidation = class(TComponent)
+  protected
+    FEditionControl: TtecEditonControlCollection;
+    function Exist(Control: TWinControl): Integer;
+    function GetControlCount: Integer;
+    function GetControls(Index: Integer): TWinControl;
+  public
+    procedure Add(Controls: TStringList);
+    constructor Create(AOwner: TComponent); override;
+    function IndexOfObject(Ctrl: TWinControl): Integer;
+    procedure Remove(Controls: TStringList);
+    function Verify(Parent: TWinControl; var Ctrl: TWinControl): Boolean;
+    property Controls[Index: Integer]: TWinControl read GetControls;
+    property ControlCount: Integer read GetControlCount;
+
+  published
+    property EditionControl: TtecEditonControlCollection read FEditionControl write FEditionControl;
+  end;
+
+implementation
+
+Uses
+  //CLX
+  Forms, Types, Graphics, StdCtrls, ComCtrls, Mask,
+  //Biblio
+  biblio,
+  //Componentes
+  cpnumero, cpdata;
+
+{ TtecEditionControlValidation }
+
+procedure TtecEditionControlValidation.Add(Controls: TStringList);
+var
+  a, Idx: Integer;
+  Item: TtecEditionControlItem;
+begin
+  for a := 0 to Controls.Count - 1 do begin
+    Idx := Exist(TWinControl(Controls.Objects[a]));
+    if Idx = -1 then begin
+      Item := TtecEditionControlItem(FEditionControl.Add);
+      Item.Control := TWinControl(Controls.Objects[a])
+    end
+  end
+end;
+
+constructor TtecEditionControlValidation.Create(AOwner: TComponent);
+begin
+  inherited;
+  FEditionControl := TtecEditonControlCollection.Create(TtecEditionControlItem)
+end;
+
+function TtecEditionControlValidation.Exist(Control: TWinControl): Integer;
+var
+  a: Integer;
+begin
+  Result := -1;
+  for a := 0 to FEditionControl.Count - 1 do
+    if FEditionControl[a].Control = Control then begin
+      Result := a;
+      break
+    end
+end;
+
+function TtecEditionControlValidation.GetControlCount: Integer;
+begin
+  Result := FEditionControl.Count
+end;
+
+function TtecEditionControlValidation.GetControls(Index: Integer): TWinControl;
+begin
+  Result := FEditionControl.Items[Index].Control;
+end;
+
+function TtecEditionControlValidation.IndexOfObject(Ctrl: TWinControl): Integer;
+begin
+  Result := EditionControl.IndexOfObject(Ctrl)
+end;
+
+procedure TtecEditionControlValidation.Remove(Controls: TStringList);
+var
+  a, Idx: Integer;
+begin
+  for a := 0 to Controls.Count - 1 do begin
+    Idx := Exist(TWinControl(Controls.Objects[a]));
+    if Idx > -1 then
+      FEditionControl.Delete(Idx)
+  end
+end;
+
+function ControlParent(Parent, Control: TControl): Boolean;
+begin
+  while Assigned(Control) and (Control.Parent <> Parent) do
+    Control := Control.Parent;
+  Result := Assigned(Control);
+end;
+
+function TtecEditionControlValidation.Verify(Parent: TWinControl; var Ctrl: TWinControl): Boolean;
+var
+  a: Integer;
+  Tab: TTabSheet;
+begin
+  Ctrl := nil;
+  Result := False;
+  for a := 0 to EditionControl.Count - 1 do
+    if Not Assigned(Parent) or (Assigned(Parent) and ControlParent(Parent, EditionControl[a].Control)) then
+    begin
+      if EditionControl[a].Control is TEditData then
+        Result := (Not DataEmBranco(TEditData(EditionControl[a].Control).Text)) and  TEditData(EditionControl[a].Control).DataValida
+      else if EditionControl[a].Control is TEditMesAno then
+        Result := (Not DataEmBranco(TEditMesAno(EditionControl[a].Control).Text)) and  TEditMesAno(EditionControl[a].Control).DataValida
+      else if EditionControl[a].Control is TEditNumero then
+        Result := TEditNumero(EditionControl[a].Control).Text <> ''
+      else if EditionControl[a].Control is TCustomMaskEdit then
+        Result := TCustomMaskEdit(EditionControl[a].Control).Text <> ''
+      else if EditionControl[a].Control is TEdit then
+        Result := TEdit(EditionControl[a].Control).Text <> ''
+      else if EditionControl[a].Control is TSpinEdit then
+        Result := TSpinEdit(EditionControl[a].Control).Text <> '';
+
+
+      if Not Result then begin
+        Ctrl := EditionControl[a].Control;
+        if Ctrl.Parent is TTabSheet then begin
+          Tab := TTabSheet(Ctrl.Parent);
+          Tab.PageControl.ActivePage := Tab
+        end;
+        MensagemAviso('Os Controles de edição necessitam'+#10#13+
+                      'ser preenchidos com uma informação válida.');
+        if Ctrl.CanFocus then
+          Ctrl.SetFocus;
+        break
+      end
+    end
+end;
+
+{ TtecEditonControlCollection }
+
+function TtecEditonControlCollection.GetItems(Index: Integer): TtecEditionControlItem;
+begin
+  Result := TtecEditionControlItem(inherited Items[Index])
+end;
+
+function TtecEditonControlCollection.IndexOfObject(Ctrl: TWinControl): Integer;
+var
+  a: Integer;
+begin
+  Result := -1;
+  for a := 0 to Count - 1 do
+    if Items[a].Control = Ctrl then begin
+      Result := a;
+      break
+    end
+end;
+
+procedure TtecEditonControlCollection.SetItems(Index: Integer; const Value: TtecEditionControlItem);
+begin
+  inherited Items[Index].Assign(Value);
+end;
+
+{ TtecEditionControlItem }
+
+function TtecEditionControlItem.GetControl: TWinControl;
+begin
+  Result :=  FControl;
+end;
+
+function TtecEditionControlItem.GetDisplayName: string;
+begin
+  if Assigned(Control) then
+    Result := Control.Name
+  else
+    inherited DisplayName
+end;
+
+procedure TtecEditionControlItem.RemoverControles;
+Var
+  A: Integer;
+begin
+    for A:= self.EditionControl.Count-1 DownTo 0 do
+      self.EditionControl.Delete(A);
+end;
+
+procedure TtecEditionControlItem.SetControl(const Value: TWinControl);
+begin
+  if FControl <> Value then
+    FControl := Value
+end;
+
+end.

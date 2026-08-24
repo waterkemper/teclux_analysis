@@ -1,0 +1,623 @@
+unit dmvendasplanrealizadas;
+
+interface
+
+uses
+  {$IFDEF MSWINDOWS} FileCtrl, {$ENDIF}
+  SysUtils, Classes, DB, cpdatasource, ZQuery, ZPgSqlQuery, cpquery, Forms, DateUtils,
+  dmbasico, biblio, ctconstantes, ZTransact, ComObj, clparametrossistema;
+
+type
+  TdtmVendasPlanRealizadas = class(TdtmBasico)
+    qryPlanRealizadas_AUX: TtecQuery;
+    dsrPlanRealizadas: TtecDataSource;
+    qryPlanRealizadas: TtecQuery;
+    qryPlanRealizadasproduto_ano: TStringField;
+    qryPlanRealizadastipo: TStringField;
+    qryPlanRealizadascliente: TIntegerField;
+    qryPlanRealizadasnome: TStringField;
+    qryPlanRealizadasproduto: TLargeintField;
+    qryPlanRealizadasdescricaoproduto: TStringField;
+    qryPlanRealizadasproduto_cliente: TStringField;
+    qryPlanRealizadasfinalidade: TStringField;
+    qryPlanRealizadasano: TIntegerField;
+    qryPlanRealizadasjan: TFloatField;
+    qryPlanRealizadasfev: TFloatField;
+    qryPlanRealizadasmar: TFloatField;
+    qryPlanRealizadasabr: TFloatField;
+    qryPlanRealizadasmai: TFloatField;
+    qryPlanRealizadasjun: TFloatField;
+    qryPlanRealizadasjul: TFloatField;
+    qryPlanRealizadasago: TFloatField;
+    qryPlanRealizadasset: TFloatField;
+    qryPlanRealizadasout: TFloatField;
+    qryPlanRealizadasnov: TFloatField;
+    qryPlanRealizadasdez: TFloatField;
+    qryPlanRealizadasquantidade_total: TFloatField;
+    qryPlanRealizadasmedia: TFloatField;
+    ZMonitor1: TZMonitor;
+    qryPlanRealizadaspn: TStringField;
+    procedure qryPlanRealizadasAfterOpen(DataSet: TDataSet);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    procedure GerarPlanilha(PeriodoInicial, PeriodoFinal: String);
+    function GerarConsulta(periodoinicial, periodofinal: String): Boolean;
+  end;
+
+var
+  dtmVendasPlanRealizadas: TdtmVendasPlanRealizadas;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmVendasPlanRealizadas }
+
+constructor TdtmVendasPlanRealizadas.Create(AOwner: TComponent);
+begin
+  inherited;
+end;
+
+function TdtmVendasPlanRealizadas.GerarConsulta(periodoinicial,
+  periodofinal: String): Boolean;
+const
+  FiltroDataFiscal_Periodo      = ' (df.data BETWEEN ''%s'' AND ''%s'')';
+  FiltroDataFiscal_AnoAnterior  = ' (df.data between ''%s'' and ''%s'')';
+  FiltroDataFiscal_AnterioreAtual = ' (df.data between ''%s'' and ''%s'')';
+
+  FiltroDatafiscal_TotalPeriodo = ' (df.data BETWEEN   %s   AND   %s)';
+  FiltroDataFiscal_TotalAnoAnterior  = ' (df.data between %s and %s)';
+  FiltroDataFiscal_TotalAnterioreAtual = ' (df.data between %s and %s)';
+
+  FiltroDataEntrega_Periodo      = ' (osp.entrega between ''%s'' and ''%s'')';
+  FiltroDataEntrega_AnoAtual     = ' (osp.entrega between ''%s'' and ''%s'')';
+  FiltroDataEntrega_AnterioreAtual =' (osp.entrega between ''%s'' and ''%s'')';
+
+  FiltroDataEntrega_TotalPeriodo = ' (osp.entrega BETWEEN   %s   AND   %s)';
+  FiltroDataEntrega_TotalAnoAtual = ' (osp.entrega between %s and %s)';
+  FiltroDataEntrega_TotalAnterioreAtual =' (osp.entrega between %s and %s)';
+
+var
+  FiltroVendas,
+  FiltroServicos, mes, meses,teste : String;
+  i,j,posicaomeses :integer;
+
+  DataInicialPeriodo,
+  DatafinalPeriodo,
+  DataInicialAnoAnterior,
+  DataFinalAnoAnterior,
+  DataInicialAnoAtual: String;
+
+begin
+  DataInicialPeriodo := FormatDateTime('dd/mm/yyyy', strtodatetime('01/01/'+periodoinicial));
+  DataFinalPeriodo   := FormatDateTime('dd/mm/yyyy', strtodatetime('31/12/'+periodofinal));
+
+  DataInicialAnoAnterior := FormatDateTime('dd/mm/yyyy', strtodatetime('01/01/'+inttostr(strtoint(periodofinal)-1)));
+  DataFinalAnoAnterior   := FormatDateTime('dd/mm/yyyy', strtodatetime('31/12/'+inttostr(strtoint(periodofinal)-1)));
+
+  DataInicialAnoAtual := FormatDateTime('dd/mm/yyyy', strtodatetime('01/01/'+inttostr(strtoint(periodofinal))));
+
+  qryPlanRealizadas.Close;
+  qryPlanRealizadas.Sql.Text := qryPlanRealizadas_AUX.Sql.Text;
+
+  qryPlanRealizadas.Sql[NumerodalinhanoTexto(qryPlanRealizadas.sql, '%FiltroDataFiscal_Periodo')] :=
+    format(FiltroDataFiscal_Periodo,[quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(DataInicialPeriodo))),
+                       quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(DatafinalPeriodo)))]);
+
+  qryPlanRealizadas.Sql[NumerodalinhanoTexto(qryPlanRealizadas.sql, '%FiltroDataFiscal_AnoAnterior')] :=
+    format(FiltroDataFiscal_AnoAnterior,[quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(DataInicialAnoAnterior))),
+                       quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(DataFinalAnoAnterior)))]);
+
+  qryPlanRealizadas.Sql[NumerodalinhanoTexto(qryPlanRealizadas.sql, '%FiltroDataFiscal_AnterioreAtual')] :=
+    format(FiltroDataFiscal_AnterioreAtual,[quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(DataInicialAnoAnterior))),
+                       quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(DatafinalPeriodo)))]);
+
+  qryPlanRealizadas.Sql[NumerodalinhanoTexto(qryPlanRealizadas.sql, '%FiltroDatafiscal_TotalPeriodo')] :=
+    format(FiltroDatafiscal_TotalPeriodo,[quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(DataInicialPeriodo))),
+                                          quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(DatafinalPeriodo)))]);
+
+  qryPlanRealizadas.Sql[NumerodalinhanoTexto(qryPlanRealizadas.sql, '%FiltroDataFiscal_TotalAnoAnterior')] :=
+    format(FiltroDataFiscal_TotalAnoAnterior,[quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(DataInicialAnoAnterior))),
+                                              quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(DataFinalAnoAnterior)))]);
+
+  qryPlanRealizadas.Sql[NumerodalinhanoTexto(qryPlanRealizadas.sql, '%FiltroDataFiscal_TotalAnterioreAtual')] :=
+    format(FiltroDataFiscal_TotalAnterioreAtual,[quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(DataInicialAnoAnterior))),
+                                              quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(DatafinalPeriodo)))]);
+
+
+  qryPlanRealizadas.Sql[NumerodalinhanoTexto(qryPlanRealizadas.sql, '%FiltroDataEntrega_Periodo')] :=
+    format(FiltroDataEntrega_Periodo,[quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(DataInicialPeriodo))),
+                       quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(DatafinalPeriodo)))]);
+
+  qryPlanRealizadas.Sql[NumerodalinhanoTexto(qryPlanRealizadas.sql, '%FiltroDataEntrega_AnoAtual')] :=
+    format(FiltroDataEntrega_AnoAtual,[quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(DataInicialAnoAtual))),
+                       quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(DatafinalPeriodo)))]);
+
+  qryPlanRealizadas.Sql[NumerodalinhanoTexto(qryPlanRealizadas.sql, '%FiltroDataEntrega_AnterioreAtual')] :=
+    format(FiltroDataEntrega_AnterioreAtual,[quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(DataInicialAnoAnterior))),
+                       quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(DatafinalPeriodo)))]);
+
+  qryPlanRealizadas.Sql[NumerodalinhanoTexto(qryPlanRealizadas.sql, '%FiltroDataEntrega_TotalPeriodo')] :=
+    format(FiltroDataEntrega_TotalPeriodo,[quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(DataInicialPeriodo))),
+                                          quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(DatafinalPeriodo)))]);
+
+  qryPlanRealizadas.Sql[NumerodalinhanoTexto(qryPlanRealizadas.sql, '%FiltroDataEntrega_TotalAnoAtual')] :=
+    format(FiltroDataEntrega_TotalAnoAtual,[quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(DataInicialAnoAtual))),
+                                              quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(DatafinalPeriodo)))]);
+
+  qryPlanRealizadas.Sql[NumerodalinhanoTexto(qryPlanRealizadas.sql, '%FiltroDataEntrega_TotalAnterioreAtual')] :=
+    format(FiltroDataEntrega_TotalAnterioreAtual,[quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(DataInicialAnoAnterior))),
+                                              quotedstr(formatdatetime('yyyy-mm-dd',strtodatetime(DatafinalPeriodo)))]);
+
+  qryPlanRealizadas.ParamByName('AnoAtual').AsString := quotedstr(periodofinal);
+  if periodofinal = FormatDateTime('yyyy', date()) then
+    qryPlanRealizadas.ParamByName('mesAnoAtual').AsInteger := MonthOf(date())
+  else
+    qryPlanRealizadas.ParamByName('mesAnoAtual').AsInteger := 12;
+
+  qryPlanRealizadas.close;
+  qryPlanRealizadas.Open;
+
+  result := not qryPlanRealizadas.IsEmpty;
+end;
+
+procedure TdtmVendasPlanRealizadas.qryPlanRealizadasAfterOpen(
+  DataSet: TDataSet);
+var
+  NomeCliente, produto, descricaoproduto, produtocliente, finalidade, pn: String;
+  CodigoCliente : integer;
+  RegistroCliente1, RegistroCliente2 : TBookmark;
+  FinalArquivo : Boolean;
+begin
+  inherited;
+  {
+  TCurrencyField(qryPlanRealizadas.FieldByName('jan')).DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  TCurrencyField(qryPlanRealizadas.FieldByName('fev')).DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  TCurrencyField(qryPlanRealizadas.FieldByName('mar')).DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  TCurrencyField(qryPlanRealizadas.FieldByName('abr')).DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  TCurrencyField(qryPlanRealizadas.FieldByName('mai')).DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  TCurrencyField(qryPlanRealizadas.FieldByName('jun')).DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  TCurrencyField(qryPlanRealizadas.FieldByName('jul')).DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  TCurrencyField(qryPlanRealizadas.FieldByName('ago')).DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  TCurrencyField(qryPlanRealizadas.FieldByName('set')).DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  TCurrencyField(qryPlanRealizadas.FieldByName('out')).DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  TCurrencyField(qryPlanRealizadas.FieldByName('nov')).DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  TCurrencyField(qryPlanRealizadas.FieldByName('dez')).DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  TCurrencyField(qryPlanRealizadas.FieldByName('quantidade_total')).DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  TCurrencyField(qryPlanRealizadas.FieldByName('media')).DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+}
+
+  TCurrencyField(qryPlanRealizadas.FieldByName('jan')).DisplayFormat := '###,###,###';
+  TCurrencyField(qryPlanRealizadas.FieldByName('fev')).DisplayFormat := '###,###,###';
+  TCurrencyField(qryPlanRealizadas.FieldByName('mar')).DisplayFormat := '###,###,###';
+  TCurrencyField(qryPlanRealizadas.FieldByName('abr')).DisplayFormat := '###,###,###';
+  TCurrencyField(qryPlanRealizadas.FieldByName('mai')).DisplayFormat := '###,###,###';
+  TCurrencyField(qryPlanRealizadas.FieldByName('jun')).DisplayFormat := '###,###,###';
+  TCurrencyField(qryPlanRealizadas.FieldByName('jul')).DisplayFormat := '###,###,###';
+  TCurrencyField(qryPlanRealizadas.FieldByName('ago')).DisplayFormat := '###,###,###';
+  TCurrencyField(qryPlanRealizadas.FieldByName('set')).DisplayFormat := '###,###,###';
+  TCurrencyField(qryPlanRealizadas.FieldByName('out')).DisplayFormat := '###,###,###';
+  TCurrencyField(qryPlanRealizadas.FieldByName('nov')).DisplayFormat := '###,###,###';
+  TCurrencyField(qryPlanRealizadas.FieldByName('dez')).DisplayFormat := '###,###,###';
+  TCurrencyField(qryPlanRealizadas.FieldByName('quantidade_total')).DisplayFormat := '###,###,###';
+  TCurrencyField(qryPlanRealizadas.FieldByName('media')).DisplayFormat := '###,###,###';
+
+  qryPlanRealizadas.DisableControls;
+
+  FinalArquivo := false; 
+  qryPlanRealizadas.First;
+  NomeCliente := qryPlanRealizadasnome.AsString;
+  CodigoCliente := qryPlanRealizadascliente.AsInteger;
+  RegistroCliente1 := qryPlanRealizadas.GetBookmark;
+  while not qryPlanRealizadas.Eof do
+  begin
+    qryPlanRealizadas.Next;
+    if (CodigoCliente <> qryPlanRealizadascliente.AsInteger) or
+       (qryPlanRealizadas.Eof) then
+    begin
+      RegistroCliente2 := qryPlanRealizadas.GetBookmark;
+      qryPlanRealizadas.GotoBookmark(RegistroCliente1);
+
+      while (CodigoCliente = qryPlanRealizadascliente.AsInteger) do
+      begin
+        produto := qryPlanRealizadasproduto.AsString;
+        descricaoproduto := qryPlanRealizadasdescricaoproduto.AsString;
+        pn := qryPlanRealizadaspn.AsString;
+        produtocliente := qryPlanRealizadasproduto_cliente.AsString;
+        finalidade := qryPlanRealizadasfinalidade.AsString;
+
+        try
+          while (produto = qryPlanRealizadasproduto.AsString) and
+                (codigocliente = qryPlanRealizadascliente.AsInteger) do
+          begin
+            if descricaoproduto<>'' then
+            begin
+              qryPlanRealizadas.Edit;
+              qryPlanRealizadasdescricaoproduto.AsString := '  '+descricaoproduto;
+              qryPlanRealizadas.post;
+              descricaoproduto := '';
+            end
+            else
+            if pn <> '' then
+            begin
+              qryPlanRealizadas.Edit;
+              qryPlanRealizadasdescricaoproduto.AsString := '  PN '+pn;
+              qryPlanRealizadas.post;
+              pn := '';
+            end
+            else
+            if produtocliente <> '' then
+            begin
+              qryPlanRealizadas.Edit;
+              qryPlanRealizadasdescricaoproduto.AsString := '     '+produtocliente;
+              qryPlanRealizadas.post;
+              produtocliente := '';
+            end
+            else
+            if finalidade <> '' then
+            begin
+              qryPlanRealizadas.Edit;
+              qryPlanRealizadasdescricaoproduto.AsString := '     '+finalidade;
+              qryPlanRealizadas.post;
+              finalidade := '';
+            end
+            else
+            begin
+              qryPlanRealizadas.Edit;
+              qryPlanRealizadasdescricaoproduto.Clear;
+              qryPlanRealizadas.post;
+            end;
+            qryPlanRealizadas.Next;
+            if qryPlanRealizadas.Eof then
+            begin
+              FinalArquivo := true;
+              break;
+            end;
+          end;
+        finally
+          if not qryPlanRealizadas.Eof then
+            qryPlanRealizadas.prior;
+        end;
+        qryPlanRealizadas.Next;
+        if qryPlanRealizadas.Eof then
+        begin
+          FinalArquivo := true;
+          break;
+        end;
+      end;
+
+      qryPlanRealizadas.GotoBookmark(RegistroCliente1);
+      qryPlanRealizadas.Insert;
+      qryPlanRealizadasdescricaoproduto.AsString := NomeCliente;
+      qryPlanRealizadas.Post;
+      qryPlanRealizadas.FreeBookmark(RegistroCliente1);
+
+      qryPlanRealizadas.GotoBookmark(RegistroCliente2);
+      qryPlanRealizadas.FreeBookmark(RegistroCliente2);
+      NomeCliente := qryPlanRealizadasnome.AsString;
+      CodigoCliente := qryPlanRealizadascliente.AsInteger;
+      RegistroCliente1 := qryPlanRealizadas.GetBookmark;
+    end;
+
+    if FinalArquivo then
+       break;
+  end;
+
+  if assigned(RegistroCliente1) then
+    qryPlanRealizadas.FreeBookmark(RegistroCliente1);
+  qryPlanRealizadas.EnableControls;
+end;
+
+procedure TdtmVendasPlanRealizadas.GerarPlanilha(PeriodoInicial,
+  PeriodoFinal: String);
+const
+ xlCenter = -4108;
+
+var i,coluna,eline: Integer;
+    oXL, oWB, oSheet, oRng, VArray : Variant;
+    NomeArquivo,v: String;
+    cliente,produto: String;
+begin
+  inherited;
+  // Start Excel and get Application Object
+  oXL:= CreateOleObject('Excel.Application');
+  oXL.Visible := true;
+
+  // Get a new workbook
+  oWB := oXL.Workbooks.Add;
+  oSheet := oWB.ActiveSheet;
+
+  // Dataset Header
+
+  eline :=1;
+
+  oSheet.name := 'VENDAS PLANEJADAS E REALIZADAS';
+  oSheet.Cells[eline,2].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,2].Font.size := 14;
+
+  oSheet.Cells[eline,2] := 'VENDAS PLANEJADAS E REALIZADAS '+
+                           ' DE '+PeriodoInicial+
+                           ' ATÉ '+PeriodoFinal;
+  eline := eline + 1;
+
+  oSheet.Cells[eline,3].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,3].Font.size := 14;
+  oSheet.Cells[eline,3] := 'V E R K A U F   P L A N   U N D   V E R S A N D';
+
+  eline := eline + 2;
+
+  coluna:=1;
+
+  //CABECALHO DA PLANILHA
+  oSheet.Cells[eline,coluna].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,coluna] := 'Cliente/Kunde';
+  oSheet.Cells[eline,coluna].HorizontalAlignment := xlCenter;
+
+  inc(coluna);
+
+  oSheet.Cells[eline,coluna].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,coluna] := 'Carro/Wagen';
+  oSheet.Cells[eline,coluna].HorizontalAlignment := xlCenter;
+  inc(coluna);
+
+  oSheet.Cells[eline,coluna].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,coluna] := 'Resistor/Widerstand';
+  oSheet.Cells[eline,coluna].HorizontalAlignment := xlCenter;
+  inc(coluna);
+
+  oSheet.Cells[eline,coluna].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,coluna] := 'Ano/Jahr';
+  oSheet.Cells[eline,coluna].HorizontalAlignment := xlCenter;
+  inc(coluna);
+
+  oSheet.Cells[eline,coluna].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,coluna] := 'JAN';
+  oSheet.Cells[eline,coluna].HorizontalAlignment := xlCenter;
+  inc(coluna);
+
+  oSheet.Cells[eline,coluna].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,coluna] := 'FEB';
+  oSheet.Cells[eline,coluna].HorizontalAlignment := xlCenter;
+  inc(coluna);
+
+  oSheet.Cells[eline,coluna].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,coluna] := 'MAR';
+  oSheet.Cells[eline,coluna].HorizontalAlignment := xlCenter;
+  inc(coluna);
+
+  oSheet.Cells[eline,coluna].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,coluna] := 'ABR';
+  oSheet.Cells[eline,coluna].HorizontalAlignment := xlCenter;
+  inc(coluna);
+
+  oSheet.Cells[eline,coluna].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,coluna] := 'MAI';
+  oSheet.Cells[eline,coluna].HorizontalAlignment := xlCenter;
+  inc(coluna);
+
+  oSheet.Cells[eline,coluna].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,coluna] := 'JUN';
+  oSheet.Cells[eline,coluna].HorizontalAlignment := xlCenter;
+  inc(coluna);
+
+  oSheet.Cells[eline,coluna].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,coluna] := 'JUL';
+  oSheet.Cells[eline,coluna].HorizontalAlignment := xlCenter;
+  inc(coluna);
+
+  oSheet.Cells[eline,coluna].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,coluna] := 'AUG';
+  oSheet.Cells[eline,coluna].HorizontalAlignment := xlCenter;
+  inc(coluna);
+
+  oSheet.Cells[eline,coluna].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,coluna] := 'SEP';
+  oSheet.Cells[eline,coluna].HorizontalAlignment := xlCenter;
+  inc(coluna);
+
+  oSheet.Cells[eline,coluna].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,coluna] := 'OKT';
+  oSheet.Cells[eline,coluna].HorizontalAlignment := xlCenter;
+  inc(coluna);
+
+  oSheet.Cells[eline,coluna].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,coluna] := 'NOV';
+  oSheet.Cells[eline,coluna].HorizontalAlignment := xlCenter;
+  inc(coluna);
+
+  oSheet.Cells[eline,coluna].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,coluna] := 'DEZ';
+  oSheet.Cells[eline,coluna].HorizontalAlignment := xlCenter;
+  inc(coluna);
+
+  oSheet.Cells[eline,coluna].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,coluna] := 'TOTAL';
+  oSheet.Cells[eline,coluna].HorizontalAlignment := xlCenter;
+  inc(coluna);
+
+  oSheet.Cells[eline,coluna].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,coluna] := 'MEDIA';
+  oSheet.Cells[eline,coluna].HorizontalAlignment := xlCenter;
+  inc(coluna);
+
+
+  if qryPlanRealizadas.IsEmpty then
+    Inc(eline);
+
+  qryPlanRealizadas.First;
+  cliente := qryPlanRealizadascliente.AsString;
+  produto := qryPlanRealizadasproduto.AsString;
+  while not qryPlanRealizadas.Eof do // Detail
+  begin
+    if qryPlanRealizadasnome.AsString<>'' then
+    begin
+      Inc(eline); // Add 1 to the line of Sheet
+      coluna :=1;
+      oSheet.Cells[eline,coluna].ColumnWidth := 15;
+      oSheet.Cells[eline,coluna] := qryPlanRealizadasnome.AsString;
+      oSheet.Cells[eline,coluna].Font.size := 8;
+      inc(coluna);
+
+      oSheet.Cells[eline,coluna].ColumnWidth := 13;
+      oSheet.Cells[eline,coluna] := qryPlanRealizadasfinalidade.AsString;
+      oSheet.Cells[eline,coluna].Font.size := 8;
+      inc(coluna);
+
+      while ((cliente = qryPlanRealizadascliente.AsString) and
+             (produto = qryPlanRealizadasproduto.AsString)) and
+             not qryPlanRealizadas.Eof  do
+      begin
+        coluna :=3;
+        if trim(qryPlanRealizadasdescricaoproduto.AsString) <>
+           qryPlanRealizadasfinalidade.AsString then
+        begin
+          oSheet.Cells[eline,coluna] := ' '+trim(qryPlanRealizadasdescricaoproduto.AsString);
+          oSheet.Cells[eline,coluna].ColumnWidth := 23;
+          oSheet.Cells[eline,coluna].Font.size := 8;
+        end;
+        inc(coluna);
+
+        if qryPlanRealizadastipo.AsString = 'P' then
+          oSheet.Cells[eline,coluna] := 'Plan '+qryPlanRealizadasano.AsString
+        else
+        if qryPlanRealizadastipo.AsString = 'R' then
+          oSheet.Cells[eline,coluna] := 'Real '+qryPlanRealizadasano.AsString;
+
+//        oSheet.Cells[eline,coluna].ColumnWidth := 8;
+        oSheet.Cells[eline,coluna].Font.size := 8;
+
+        inc(coluna);
+
+        oSheet.Cells[eline,coluna] := qryPlanRealizadasjan.Value;
+        oSheet.Cells[eline,coluna].Font.size := 8;
+        oSheet.Cells[eline,coluna].numberformat := '###.###.###';
+        inc(coluna);
+
+        oSheet.Cells[eline,coluna] := qryPlanRealizadasfev.Value;
+//        oSheet.Cells[eline,coluna].ColumnWidth := 6;
+        oSheet.Cells[eline,coluna].Font.size := 8;
+        oSheet.Cells[eline,coluna].numberformat := '###.###.###';
+        inc(coluna);
+
+        oSheet.Cells[eline,coluna] := qryPlanRealizadasmar.Value;
+//        oSheet.Cells[eline,coluna].ColumnWidth := 6;
+        oSheet.Cells[eline,coluna].Font.size := 8;
+        oSheet.Cells[eline,coluna].numberformat := '###.###.###';
+        inc(coluna);
+
+        oSheet.Cells[eline,coluna] := qryPlanRealizadasabr.Value;
+//        oSheet.Cells[eline,coluna].ColumnWidth := 6;
+        oSheet.Cells[eline,coluna].Font.size := 8;
+        oSheet.Cells[eline,coluna].numberformat := '###.###.###';
+        inc(coluna);
+
+        oSheet.Cells[eline,coluna] := qryPlanRealizadasmai.Value;
+//        oSheet.Cells[eline,coluna].ColumnWidth := 6;
+        oSheet.Cells[eline,coluna].Font.size := 8;
+        oSheet.Cells[eline,coluna].numberformat := '###.###.###';
+        inc(coluna);
+
+        oSheet.Cells[eline,coluna] := qryPlanRealizadasjun.Value;
+//        oSheet.Cells[eline,coluna].ColumnWidth := 6;
+        oSheet.Cells[eline,coluna].Font.size := 8;
+        oSheet.Cells[eline,coluna].numberformat := '###.###.###';
+        inc(coluna);
+
+        oSheet.Cells[eline,coluna] := qryPlanRealizadasjul.Value;
+//        oSheet.Cells[eline,coluna].ColumnWidth := 6;
+        oSheet.Cells[eline,coluna].Font.size := 8;
+        oSheet.Cells[eline,coluna].numberformat := '###.###.###';
+        inc(coluna);
+
+        oSheet.Cells[eline,coluna] := qryPlanRealizadasago.Value;
+//        oSheet.Cells[eline,coluna].ColumnWidth := 6;
+        oSheet.Cells[eline,coluna].Font.size := 8;
+        oSheet.Cells[eline,coluna].numberformat := '###.###.###';
+        inc(coluna);
+
+        oSheet.Cells[eline,coluna] := qryPlanRealizadasset.Value;
+//        oSheet.Cells[eline,coluna].ColumnWidth := 6;
+        oSheet.Cells[eline,coluna].Font.size := 8;
+        oSheet.Cells[eline,coluna].numberformat := '###.###.###';
+        inc(coluna);
+
+        oSheet.Cells[eline,coluna] := qryPlanRealizadasout.Value;
+//        oSheet.Cells[eline,coluna].ColumnWidth := 6;
+        oSheet.Cells[eline,coluna].Font.size := 8;
+        oSheet.Cells[eline,coluna].numberformat := '###.###.###';
+        inc(coluna);
+
+        oSheet.Cells[eline,coluna] := qryPlanRealizadasnov.Value;
+//        oSheet.Cells[eline,coluna].ColumnWidth := 6;
+        oSheet.Cells[eline,coluna].Font.size := 8;
+        oSheet.Cells[eline,coluna].numberformat := '###.###.###';
+        inc(coluna);
+
+        oSheet.Cells[eline,coluna] := qryPlanRealizadasdez.Value;
+//        oSheet.Cells[eline,coluna].ColumnWidth := 6;
+        oSheet.Cells[eline,coluna].Font.size := 8;
+        oSheet.Cells[eline,coluna].numberformat := '###.###.###';
+        inc(coluna);
+
+        oSheet.Cells[eline,coluna] := qryPlanRealizadasquantidade_total.Value;
+//        oSheet.Cells[eline,coluna].ColumnWidth := 7;
+        oSheet.Cells[eline,coluna].Font.size := 8;
+        oSheet.Cells[eline,coluna].numberformat := '###.###.###';
+        inc(coluna);
+
+        oSheet.Cells[eline,coluna] := qryPlanRealizadasmedia.Value;
+//        oSheet.Cells[eline,coluna].ColumnWidth := 7;
+        oSheet.Cells[eline,coluna].Font.size := 8;
+        oSheet.Cells[eline,coluna].numberformat := '###.###.###';
+
+        qryPlanRealizadas.Next;
+        inc(eline);
+      end;
+    end
+    else
+      qryPlanRealizadas.Next;
+    cliente := qryPlanRealizadascliente.AsString;
+    produto := qryPlanRealizadasproduto.AsString;
+  end;
+
+// Autofit columns A:D
+  oRng := oSheet.Range['D1:R1'];
+  oRng.EntireColumn.AutoFit ;
+  
+  // Save the file
+  NomeArquivo := ExtractFilePath(Application.ExeName) + 'Saidas';
+
+  if not DirectoryExists(NomeArquivo) then
+    if not CreateDir(NomeArquivo) then
+    raise Exception.Create('Impossível criar o diretório '+NomeArquivo);
+
+  NomeArquivo := NomeArquivo+'\VendasPlanejadaseRealizadas_'+
+                 PeriodoInicial+'_a_'+PeriodoFinal;
+  try
+  oWB.SaveAs(NomeArquivo); except end;
+//  oXL.Visible := true;
+//  oXL.Quit;
+end;
+
+
+procedure TdtmVendasPlanRealizadas.ZMonitor1MonitorEvent(Sql,
+  Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:\vendasplanrealizadas.sql') then
+    Listar.loadfromfile('c:\vendasplanrealizadas.sql');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\vendasplanrealizadas.sql');
+  listar.free;
+end;
+
+end.

@@ -1,0 +1,1552 @@
+unit fmtecsoft;
+
+interface
+
+uses
+  //DLL
+  {$IFDEF MSWINDOWS}
+    midaslib,
+  {$ENDIF}
+  //CLX
+  SysUtils, Classes, Variants, Graphics, Controls, Forms, Dialogs, {Qete,}
+  Menus, Types, StdCtrls, ExtCtrls, ComCtrls, Buttons, ActnList, DB,
+  //Repositorio
+  fmajuda, fmcadastropadrao, fmprincipalbasico, dmbasico,{ fmleituramemoriafiscaldata,
+  fmleituramemoriafiscalreducao,} dmacertocupomcancelado, dmgerarmapasecf, ACBrTEFDClass;
+
+type
+   TItensMenu = record
+     TipoMenu   : String;
+     Pos        : Integer;
+     Tag        : Integer;
+     GroupIndex : Integer;
+     Caption    : String;
+     Name       : String;
+     OnClick    : TNotifyEvent;
+   end;
+
+  TfrmTecsoft = class(TfrmPrincipalBasico)
+    mmuTecsoft  : TMainMenu;
+    mitSairSistema: TMenuItem;
+    mitCadastros: TMenuItem;
+    mitCadastroUsuarios: TMenuItem;
+    mitCadastroFiliais: TMenuItem;
+    mitCadastroCheques: TMenuItem;
+    mitRelatorioChequesVencimentos: TMenuItem;
+    mitManutencaoCheques: TMenuItem;
+    mitHelp: TMenuItem;
+    mitSobre: TMenuItem;
+    N2: TMenuItem;
+    mitConteudo: TMenuItem;
+    mitTabelas: TMenuItem;
+    mitCadastroEventos: TMenuItem;
+    mitCadastroHistoricos: TMenuItem;
+    mitFechamentoCaixa: TMenuItem;
+    mitAutenticacoesCaixa: TMenuItem;
+    mitCadastroEnderecos: TMenuItem;
+    mitCadastroCaracteristicas: TMenuItem;
+    mitCadastroFornecedores: TMenuItem;
+    mitCadastroTabelasEstoque: TMenuItem;
+    mitCadastroNotasFiscais: TMenuItem;
+    mitCadastroPedidos: TMenuItem;
+    mitCadastroReservas: TMenuItem;
+    mitLancamentosManuais: TMenuItem;
+    mitManutencaoPreco: TMenuItem;
+    mitConsultaEstoque: TMenuItem;
+    mitConsultaReservas: TMenuItem;
+    mitConsultaFichaProduto: TMenuItem;
+    mitConsultaEntradas: TMenuItem;
+    mitConsultaPedidos: TMenuItem;
+    mitConsultaCompras: TMenuItem;
+    mitEmissaoEtiquetas: TMenuItem;
+    mitEtiquetasReservas: TMenuItem;
+    mitListaPrecos: TMenuItem;
+    mitOperacoesContratos: TMenuItem;
+    mitCadastroGrupoFiliais: TMenuItem;
+    mitCadastroClientes: TMenuItem;
+    mitCadastroTabelasCrediario: TMenuItem;
+    mitFichaFinanceira: TMenuItem;
+    mitDevolucaoNumerario: TMenuItem;
+    mitAviso: TMenuItem;
+    mitSPC: TMenuItem;
+    mitFichaCobranca: TMenuItem;
+    mitRenegociacao: TMenuItem;
+    mitCartas: TMenuItem;
+    mitPrestacoesAbertas: TMenuItem;
+    mitComissaoVendedores: TMenuItem;
+    mitComissaoCobradores: TMenuItem;
+    mitCadastroPlanosPagamentos: TMenuItem;
+    mitCadastroContratos: TMenuItem;
+    mitEmissaoNotasSaidaAvulsas: TMenuItem;
+    mitCadastroBancos: TMenuItem;
+    mitCalculoFinanciamento: TMenuItem;
+    mitCadastroGruposUsuarios: TMenuItem;
+    mitDevolucaoMercadorias: TMenuItem;
+    mitJanelas: TMenuItem;
+    mitAnterior: TMenuItem;
+    mitProxima: TMenuItem;
+    pnlTopoJanela: TPanel;
+    mitTiposMovimentosDoEstoque: TMenuItem;
+    mitListaCasamento: TMenuItem;
+    mitFechar: TMenuItem;
+    mitCancelamentoContratos: TMenuItem;
+    mitCadastroTabelaMontagem: TMenuItem;
+    mitFichaFinanceiraFornecedor: TMenuItem;
+    mitCadastroTabelaFretes: TMenuItem;
+    mitCadastroRomaneio: TMenuItem;
+    mitContasPagar: TMenuItem;
+    mitQuitacaoDuplicatas: TMenuItem;
+    mitCadastroTiposPagamentos: TMenuItem;
+    mitConfiguracoesSistema: TMenuItem;
+    mitComandosECF: TMenuItem;
+    mitReducaoZ: TMenuItem;
+    mitLeituraX: TMenuItem;
+    mitCancelarCupom: TMenuItem;
+    mitQuitacaoRomaneios: TMenuItem;
+    mitCancelamentoQuitacao: TMenuItem;
+    mitRelatorioChequesEmitidos: TMenuItem;
+    mitRelatorioDuplicatas: TMenuItem;
+    mitRelatorioRomaneios: TMenuItem;
+    mitFinalizarCupomVinculado: TMenuItem;
+    mitrelatoriocontratosemitidos: TMenuItem;
+    N3: TMenuItem;
+    mitVendas: TMenuItem;
+    mitCaixa: TMenuItem;
+    mitEstoque: TMenuItem;
+    mitContasaPagar: TMenuItem;
+    mitRelatorioResumodeVendaseRecebimentos: TMenuItem;
+    N1: TMenuItem;
+    mitLogin: TMenuItem;
+    mitrelatoriocustomercadoriasvendidas: TMenuItem;
+    mitCancelamentoReservas: TMenuItem;
+    mitrelatorioresumosinteticofaturamento: TMenuItem;
+    mitConfiguracoes: TMenuItem;
+    mitParametrosSistema: TMenuItem;
+    mitLerParametroSistema: TMenuItem;
+    mitRelatorioContratosPendentes: TMenuItem;
+    mitCadastroAtendimento: TMenuItem;
+    mitCadastroRequisicoesMontagens: TMenuItem;
+    mitRomaneiosdeEntrega: TMenuItem;
+    mitRequisiesdeMontagens: TMenuItem;
+    mitGeracaoRequisicoesMontagens: TMenuItem;
+    mitFechamentoRequisicoesMontagens: TMenuItem;
+    mitQuitacaoRequisicoesMontagens: TMenuItem;
+    mitCadastroTiposAtendimentos: TMenuItem;
+    mitDefinicaoMontador: TMenuItem;
+    mitRelatorioRequisicoesporMontador: TMenuItem;
+    mitRelatorioReimpressaoRequisicoes: TMenuItem;
+    mitTransferenciaAutomatica: TMenuItem;
+    mitLigarClientes: TMenuItem;
+    mitFrenteCaixa: TMenuItem;
+    mitCancelamentoPedidos: TMenuItem;
+    mitCarregarModulos: TMenuItem;
+    mitCadastroCodigosFiscais: TMenuItem;
+    mitCadastroTabelasGIA: TMenuItem;
+    mitAutorizacaoPagamento: TMenuItem;
+    mitLivrosFiscais: TMenuItem;
+    mitQuadrosGIA: TMenuItem;
+    mitRelatorioSituacaoRecebimentos: TMenuItem;
+    mitGerarGIAEmArquivo: TMenuItem;
+    mitLivroEntradaMercadorias: TMenuItem;
+    mitLivroSaidaMercadorias: TMenuItem;
+    mitRelatorioMovimentacaoDiaria: TMenuItem;
+    mitLivroApuracaoIcms: TMenuItem;
+    mitCadastroLogotipos: TMenuItem;
+    mitCadastroCodigosFiscaisServicos: TMenuItem;
+    mitCadastroAtividadesEconomicas: TMenuItem;
+    mitCadastroEquipamentos: TMenuItem;
+    mitCadastroServicos: TMenuItem;
+    mitRelatorioVendas: TMenuItem;
+    mitRelatorioSugestaoCompra: TMenuItem;
+    mitInterLojas: TMenuItem;
+    mitRequisicaoExposicao: TMenuItem;
+    mitConsultaRequisicaoExposicao: TMenuItem;
+    mitConsultaProdutosAdquiridos: TMenuItem;
+    mitTransferenciaRequisicaoExposicao: TMenuItem;
+    mitConfirmarNotasTransferencia: TMenuItem;
+    mitConfirmarNotasTransferenciaPorItem: TMenuItem;
+    mitVendasAVista: TMenuItem;
+    mitAdministracaoTEF: TMenuItem;
+    miCheques: TMenuItem;
+    mitQuitacaoExtraCaixa: TMenuItem;
+    mitUsuarios: TMenuItem;
+    mitManutencaoAcessos: TMenuItem;
+    mitCobrancaESAC: TMenuItem;
+    mitCobrancaSACRelatorios: TMenuItem;
+    mitContasPagarRelatorios: TMenuItem;
+    mitEntrega: TMenuItem;
+    mitCompras: TMenuItem;
+    mitRelatorios: TMenuItem;
+    mitListasPadrao: TMenuItem;
+    mitDefinirCobrador: TMenuItem;
+    mitRelatorioRecebimentosPorCobrador: TMenuItem;
+    mitRelatorioEstoque: TMenuItem;
+    mitLivroDiarioAuxiliarReceitas: TMenuItem;
+    mitDiarioAuxiliarParcelas: TMenuItem;
+    mitQuadrosDIME: TMenuItem;
+    mitOrcamentos: TMenuItem;
+    mitConsultaOrcamentos: TMenuItem;
+    mitProdutosFornecedor: TMenuItem;
+    mitGerarDIMEEmArquivo: TMenuItem;
+    mitRelatorioNotasFuturas: TMenuItem;
+    mitRelatorioProdutosporClienteeVendedor: TMenuItem;
+    mitRelatorioRenegociacao: TMenuItem;
+    mitGerarSintegraEmArquivo: TMenuItem;
+    mitGerarRemessas: TMenuItem;
+    mitLerRetornos: TMenuItem;
+    mitOrdemServico: TMenuItem;
+    mitRelatorioOS: TMenuItem;
+    mitMalaDireta: TMenuItem;
+    mitConsultaContratos: TMenuItem;
+    mitCadastroMercadoriasAnuncio: TMenuItem;
+    mitTrocaMercadorias: TMenuItem;
+    mitRelatorioFaturamentoPorGrupo: TMenuItem;
+    mitRelatorioCaixa: TMenuItem;
+    mitRelatorio: TMenuItem;
+    mitRelatorioNotasEntrada: TMenuItem;
+    mitBancos: TMenuItem;
+    mitMovtosBancos: TMenuItem;
+    mitRelatoriosituacaofornecedores: TMenuItem;
+    mitRelatorioServicos: TMenuItem;
+    mitQuitacaoLote1: TMenuItem;
+    mitConciliacaoBancaria: TMenuItem;
+    mitLivroApuracaoISS: TMenuItem;
+    mitLivroAuxiliarImpostosRetidos: TMenuItem;
+    mitParametrosCredito: TMenuItem;
+    mitMemoriaCredito: TMenuItem;
+    mitRelatorioExtratoConta: TMenuItem;
+    mitExtratoBonus: TMenuItem;
+    mitCadastroCategorias: TMenuItem;
+    mitContabil: TMenuItem;
+    mitPlanoContas: TMenuItem;
+    mitLancamentoContas: TMenuItem;
+    mitRelatoriosContabil: TMenuItem;
+    mitLivroRazao: TMenuItem;
+    mitEmissaoBalancetes: TMenuItem;
+    mitLivroDiario: TMenuItem;
+    mitDiarioAuxiliarFornecedores: TMenuItem;
+    mitEstornoRecebimentos1: TMenuItem;
+    mitRelatorioCurvaABC: TMenuItem;
+    mitConsultaVendas: TMenuItem;
+    mitTransferirSaldosContabeis: TMenuItem;
+    mitEncerramentoExercicio: TMenuItem;
+    mitCobrancaFinanceira: TMenuItem;
+    mitSoacred: TMenuItem;
+    mitGerarRemessasSoacred: TMenuItem;
+    mitLogs: TMenuItem;
+    mitLogProdutos: TMenuItem;
+    mitImpressaoLotes: TMenuItem;
+    mitEmissaoNotasAcrescimoFinanceiro: TMenuItem;
+    tmrAguardando: TTimer;
+    mitEspelhoCarne: TMenuItem;
+    mitPlanilhaCusto: TMenuItem;
+    mitRelatorioFretes: TMenuItem;
+    mitCadastroInventario: TMenuItem;
+    mitControleRecebimentos: TMenuItem;
+    mitExportacaoDados: TMenuItem;
+    mitCadastroMoedas: TMenuItem;
+    mitAberturaGaveta: TMenuItem;
+    mitProducao: TMenuItem;
+    mitCadastroOSP: TMenuItem;
+    mitcadastropedidossaidas: TMenuItem;
+    mitEmissaoNotasVenda: TMenuItem;
+    mitEmissaoNotaComplementar: TMenuItem;
+    mitimprimirduplicatas: TMenuItem;
+    mitbalancetefinanceiro: TMenuItem;
+    mitrelatoriosaldocredito: TMenuItem;
+    mitPlanoContasReferencial: TMenuItem;
+    mitImportacaoFolhaSenior: TMenuItem;
+    mitImoveis: TMenuItem;
+    mitCadastroEmpreendimentos: TMenuItem;
+    mitCadastroUnidades: TMenuItem;
+    mitCadastroImoveis: TMenuItem;
+    mitContratosImoveis: TMenuItem;
+    mitControleNotasFiscaisEletronicas: TMenuItem;
+    mitgerarcobracacef: TMenuItem;
+    mitEFD: TMenuItem;
+    mitMenuFiscal: TMenuItem;
+    mitCadastroServicosLCP116: TMenuItem;
+    mitDevolucaoFornecedores: TMenuItem;
+    mitatualizacaomonetaria: TMenuItem;
+    mitRelatoriosImoveis: TMenuItem;
+    mitRelatorioRecebimentos: TMenuItem;
+    mitrelatoriosaldodevedor: TMenuItem;
+    mitrelatorioatualizacaomonetaria: TMenuItem;
+    mitExportacaoVendasReducoes: TMenuItem;
+    mitImportacaoClientesProdutos: TMenuItem;
+    Contasareceber: TMenuItem;
+    Documento1: TMenuItem;
+    mitQuitacaoLote: TMenuItem;
+    mitEstornoRecebimentos: TMenuItem;
+    mitFichaFinanceira1: TMenuItem;
+    mitRelatoriosContasaReceber: TMenuItem;
+    mitrelatoriocontasareceber: TMenuItem;
+    mitrelatoriofluxodecaixa: TMenuItem;
+    mitrelatoriorecebimentoslongoprazo: TMenuItem;
+    mitrelatoriofluxodecaixa1: TMenuItem;
+    mitRelatorioCupons: TMenuItem;
+    mitrelatorioicmsstarecolher: TMenuItem;
+    mitECD: TMenuItem;
+    mitExportacaoNotasTransferencia: TMenuItem;
+    mitExportacaoProdutos: TMenuItem;
+    mitImportacaoProdutos: TMenuItem;
+    mitImportacaoNotasTransferencia: TMenuItem;
+    mitrelatorioestoqueicmsstarecolher: TMenuItem;
+    mitrelatorioparcelasatraso: TMenuItem;
+    mitCadastrodeBens: TMenuItem;
+    mitDIPJ_IPI: TMenuItem;
+    mitrelatoriocontasareceberportipoderecebimento: TMenuItem;
+    mitrepassecheques: TMenuItem;
+    mitDiarioAuxiliarRecebimentosImoveis: TMenuItem;
+    mitCentrodeCusto: TMenuItem;
+    mitFcont: TMenuItem;
+    mitEPC: TMenuItem;
+    mitLivroApuracaoPisCofins: TMenuItem;
+    mitImportarAlugueis: TMenuItem;
+    mitNCM: TMenuItem;
+    mitUnificarClientes: TMenuItem;
+    mitrelatorioentrega: TMenuItem;
+    mitRelatorioProdutosConferidos: TMenuItem;
+    mitRelatorioListasCasamento: TMenuItem;
+    mitControleESNF: TMenuItem;
+    mitOrdensCarga: TMenuItem;
+    mitCadastroContratosManutencao: TMenuItem;
+    mitGerarContratosPrestacaoServicos: TMenuItem;
+    mitMapaResumoECF: TMenuItem;
+    mitSetoresVenda: TMenuItem;
+    mitRelatorioVendasporSetores: TMenuItem;
+    mitImobilizado: TMenuItem;
+    mitLancamentosDepreciacao: TMenuItem;
+    mitRelatorioDepreciacao: TMenuItem;
+//    mitRazaoAuxiliarFornecedores: TMenuItem;
+//    procedure ConfiguraMenuPorModulo(Sender: TObject);
+    procedure ExecutarItemMenu(Sender: TObject);
+    procedure ExecutarItemMenuMax(Sender: TObject; Maximizado: Boolean);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure mitAdministracaoTEFClick(Sender: TObject);
+    procedure mitAnteriorClick(Sender: TObject);
+    procedure mitAutenticacoesCaixaClick(Sender: TObject);
+    procedure mitCancelarCupomClick(Sender: TObject);
+    procedure mitConfiguraMenuPorModulo(Sender: TObject);
+    procedure mitConteudoClick(Sender: TObject);
+    procedure mitFecharClick(Sender: TObject);
+    procedure mitFrenteCaixaClick(Sender: TObject);
+    procedure mitFinalizarCupomVinculadoClick(Sender: TObject);
+    procedure mitLeituraXClick(Sender: TObject);
+    procedure mitLerParametroSistemaClick(Sender: TObject);
+    procedure mitLoginClick(Sender: TObject);
+    procedure mitProximaClick(Sender: TObject);
+    procedure mitReducaoZClick(Sender: TObject);
+    procedure mitSairSistemaClick(Sender: TObject);
+    procedure mitSobreClick(Sender: TObject);
+    procedure mitLerRetornosClick(Sender: TObject);
+//    procedure mitLeituraMemoriaFiscalDataClick(Sender: TObject);
+//    procedure mitLeituraMemoriaFiscalReducaoClick(Sender: TObject);
+    procedure mitGerarRemessasSoacredClick(Sender: TObject);
+    procedure tmrAguardandoTimer(Sender: TObject);
+    procedure mitAberturaGavetaClick(Sender: TObject);
+    procedure mitFichaFinanceiraClick(Sender: TObject);
+    procedure mitQuitacaoLote1Click(Sender: TObject);
+    procedure mitEstornoRecebimentos1Click(Sender: TObject);
+    procedure mitrelatoriofluxodecaixa1Click(Sender: TObject);
+    procedure mitQuitacaoLoteClick(Sender: TObject);
+    procedure mitEstornoRecebimentosClick(Sender: TObject);
+    procedure mitrelatoriofluxodecaixaClick(Sender: TObject);
+    procedure mitFichaFinanceira1Click(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+//    procedure mitMenuFiscalClick(Sender: TObject);
+  private
+    OpcaomitFrenteCaixaPressionada: Boolean;
+    procedure TrataException(Sender: TObject; E: Exception);
+  protected
+    vOrigemLancamento : String;
+    Inserindo : Boolean;
+    IMenu     : array of TItensMenu;
+    cod: Integer;
+    procedure AbrirCaixa;
+    procedure CarregarPacotes;
+    function  FormRegistrado(MenuItem: TMenuItem): TfrmAjudaClass; overload;
+    function  FormRegistrado(NomeForm: String): TfrmAjudaClass; overload;
+    procedure MostrarSituacaoCaixa;
+    function  NomeForm(MenuItem: TMenuItem): String;
+    procedure CopiarMenu(MenuOrigem: TMainMenu; SoRemoverMenu, RemoverTudo: Boolean);
+    procedure CarregarMenus(Menu: TMainMenu);
+    procedure AbrirQuitacaoLote;
+    procedure AbrirRelatorioFluxodeCaixa;
+    procedure AbrirFichaFinanceira;
+    procedure AbrirEstornosRecebimentos;
+
+  public
+    OpcaoMenuLiberada: Boolean;  // controlar a liberação do ecf
+
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+
+    procedure MostrarFormRegistrado(Value: Array of Variant{Variant}; NomeForm: String; Modal: Boolean; Origem: String = ''); override;
+    procedure OperacaoPadrao(Value: Array of Variant); override;
+    procedure VerificarMenu;
+
+  end;
+
+const
+ MITLOGINCLICK ='mitLoginClick';
+
+var
+  frmTecsoft: TfrmTecsoft;
+//  mmuTecsoftAux : TMainMenu;
+
+implementation
+
+Uses
+  //Biblio
+  ctconstantes, biblio, clusuario, clparametrossistema,
+  //Componentes
+  clecf, fmmensagemtemporizada,
+{$IFDEF MSWINDOWS}
+  cltefdiscado,
+{$ENDIF}
+  //Repositorio
+  fmnavcontroles, fmfichafinanceira, fmestornorecebimentos,
+  fmquitacaolote, fmrelatoriofluxodecaixa,
+  //Projeto
+  fmdescricaoteclux;
+
+{$R *.dfm}
+
+var
+  ConsultarTermino: Boolean = true;
+
+procedure TfrmTecsoft.AbrirCaixa;
+var
+  UsuarioAut: TtecUsuarios;
+  OK: Boolean;
+begin
+  if Not UsuarioLogin.CaixaAberto then
+    if UsuarioLogin.PermiteAbrirCaixa then begin
+      UsuarioLogin.AbrirCaixa;
+      MostrarSituacaoCaixa
+    end else if MensagemConfirmacao(ctCAIXAFECHADONODIA) = smbOK then begin
+      if UsuarioLogin.GerenteCaixa then
+        UsuarioAut := TdtmBasico.ObterAutorizacao(taSENHA, ctREABERTURACAIXA, ctGERENTECAIXA, '')
+      else
+        UsuarioAut := TdtmBasico.ObterAutorizacao(taLOGIN, ctREABERTURACAIXA, ctGERENTECAIXA, '');
+      if Assigned(UsuarioAut) then begin
+        OK := UsuarioAut.GerenteCaixa;
+        if Not OK then
+          MensagemAviso(ctUSUARIOSEMPERMISSAO);
+      end else
+        OK := False;
+      if OK then begin
+        UsuarioLogin.ReAbrirCaixa;
+        MostrarSituacaoCaixa
+      end
+    end
+end;
+
+procedure TfrmTecsoft.CarregarPacotes;
+begin
+  biblio.CarregarModulos([''])
+end;
+
+procedure TfrmTecsoft.mitConfiguraMenuPorModulo(Sender: TObject);
+var
+  a: Integer;
+begin
+  inherited;
+  for a := Screen.FormCount - 1 downto 0 do
+    if (Screen.Forms[a] is TfrmAjuda) and (Screen.Forms[a] <> frmTecsoft) then
+      Screen.Forms[a].Free;
+  //LiberarModulos;
+  //CarregarPacotes;
+  //CopiarMenu(mmuTecsoft, true, False);
+  VerificarMenu;
+  SetFocus
+end;
+
+procedure TfrmTecsoft.CarregarMenus(Menu: TMainMenu);
+var
+  cod,{i,}j,m,Pos: Integer;
+  ItemdeMenu: TMenuItem;
+begin
+  if Menu.Items.Count > 0 then
+    CopiarMenu(Menu, True, False);;
+//  cod:= 0;
+//  i:= 0;
+  j:= 0;
+  m:= 0;
+
+  for cod:= 0 to High(IMenu) do
+    begin
+      ItemdeMenu:= TMenuItem.Create(Self);
+      ItemdeMenu.Caption:= IMenu[cod].Caption;
+      ItemdeMenu.Name:= IMenu[cod].Name;
+      ItemdeMenu.Tag:= IMenu[cod].Tag;
+      ItemdeMenu.GroupIndex:= IMenu[cod].GroupIndex;
+      ItemdeMenu.OnClick:= IMenu[cod].OnClick;
+      Pos:= IMenu[cod].Pos;
+
+      if IMenu[cod].TipoMenu = 'MP' then
+      begin
+        Menu.Items.Add(ItemdeMenu);
+//        inc(i);
+        j:=0;
+      end
+      else if IMenu[cod].TipoMenu = 'SM1' then
+      begin
+        Menu.Items[Pos].Add(ItemdeMenu);
+        inc(j);
+        m:=0;
+      end
+      else if IMenu[cod].TipoMenu = 'SM2' then
+      begin
+        Menu.Items[Pos].Items[j-1].Add(ItemdeMenu);
+        inc(m);
+      end
+      else if IMenu[cod].TipoMenu = 'SM3' then
+        Menu.Items[Pos].Items[j-1].Items[m-1].Add(ItemdeMenu);
+    end;
+end;
+
+procedure TfrmTecsoft.CopiarMenu(MenuOrigem: TMainMenu; SoRemoverMenu, RemoverTudo: Boolean);
+var
+ i,j,k,h,a{,b,c,d}: integer;
+// ItemMenu : TMenuItem;
+ {Metodo, NomeItem, }MenuOrdem: String;
+
+ procedure AtribuirItemMenu;
+ begin
+   if High(IMenu) = -1 then
+      SetLength(IMenu, 1)
+    else
+      SetLength(IMenu, High(IMenu) + 2);
+   if MenuOrdem = 'MP' then
+   begin
+     IMenu[cod].TipoMenu    :=  MenuOrdem;
+     IMenu[cod].Pos         :=  a;
+     IMenu[cod].Caption     :=  MenuOrigem.Items[i].Caption;
+     IMenu[cod].Tag         :=  MenuOrigem.Items[i].Tag;
+     IMenu[cod].GroupIndex  :=  MenuOrigem.Items[i].GroupIndex;
+     IMenu[cod].Name        :=  MenuOrigem.Items[i].Name;
+   end
+   else if MenuOrdem = 'SM1' then
+   begin
+     IMenu[cod].TipoMenu    :=  MenuOrdem;
+     IMenu[cod].Pos         :=  a-1;
+     IMenu[cod].Caption     :=  MenuOrigem.Items[i].Items[j].Caption;
+     IMenu[cod].Tag         :=  MenuOrigem.Items[i].Items[j].Tag;
+     IMenu[cod].GroupIndex  :=  MenuOrigem.Items[i].Items[j].GroupIndex;
+     IMenu[cod].Name        :=  MenuOrigem.Items[i].Items[j].Name;
+     IMenu[cod].OnClick     :=  MenuOrigem.Items[i].Items[j].OnClick;
+   end
+   else if MenuOrdem = 'SM2' then
+   begin
+     IMenu[cod].TipoMenu    :=  MenuOrdem;
+     IMenu[cod].Pos         :=  a-1;
+     IMenu[cod].Caption     :=  MenuOrigem.Items[i].Items[j].Items[k].Caption;
+     IMenu[cod].Tag         :=  MenuOrigem.Items[i].Items[j].Items[k].Tag;
+     IMenu[cod].GroupIndex  :=  MenuOrigem.Items[i].Items[j].Items[k].GroupIndex;
+     IMenu[cod].Name        :=  MenuOrigem.Items[i].Items[j].Items[k].Name;
+     IMenu[cod].OnClick     :=  MenuOrigem.Items[i].Items[j].Items[k].OnClick;
+   end
+   else if MenuOrdem = 'SM3' then
+   begin
+     IMenu[cod].TipoMenu    :=  MenuOrdem;
+     IMenu[cod].Pos         :=  a-1;
+     IMenu[cod].Caption     :=  MenuOrigem.Items[i].Items[j].Items[k].Items[h].Caption;
+     IMenu[cod].Tag         :=  MenuOrigem.Items[i].Items[j].Items[k].Items[h].Tag;
+     IMenu[cod].GroupIndex  :=  MenuOrigem.Items[i].Items[j].Items[k].Items[h].GroupIndex;
+     IMenu[cod].Name        :=  MenuOrigem.Items[i].Items[j].Items[k].Items[h].Name;
+     IMenu[cod].OnClick     :=  MenuOrigem.Items[i].Items[j].Items[k].Items[h].OnClick;
+   end;
+ end;
+ procedure RemoverTodosItens(ItensMenu: array of TItensMenu);
+ var
+   a: integer;
+ begin
+   if High(ItensMenu) > 0 then
+     for a:= 0 to High(ItensMenu) do
+     begin
+       IMenu[a].TipoMenu    :=  '';
+       IMenu[a].Pos         :=  0;
+       IMenu[a].Caption     :=  '';
+       IMenu[a].Tag         :=  0;
+       IMenu[a].GroupIndex  :=  0;
+       IMenu[a].Name        :=  '';
+     end;
+ end;
+
+ procedure RemoverTodosMenus(ItemMenu :TmenuItem);
+ var
+   a:integer;
+ begin
+   for a := ItemMenu.Count -1 downto 0 do
+     RemoverTodosMenus(ItemMenu.Items[a]);
+   ItemMenu.Free;
+ end;
+
+begin
+  if SoRemoverMenu then
+  begin
+    for i:=mmuTecsoft.Items.Count - 1 downto 0 do
+    RemoverTodosMenus(MenuOrigem.Items[i]);
+    //MenuOrigem.Destroy;
+  end
+  else if RemoverTudo then
+  begin
+    RemoverTodosItens(IMenu);
+    for i:=mmuTecsoft.Items.Count - 1 downto 0 do
+    RemoverTodosMenus(MenuOrigem.Items[i]);
+  end
+  else
+  begin
+    a:= 0;
+    cod:=0;
+    for i:= 0 to MenuOrigem.Items.Count-1 do
+    begin
+      MenuOrdem:= 'MP';
+      AtribuirItemMenu;
+      Inc(a);
+      inc(cod);
+
+//      b:= 0;
+      for j:=0 to MenuOrigem.Items[i].Count-1 do
+      begin
+        MenuOrdem:= 'SM1';
+        AtribuirItemMenu;
+//        Inc(b);
+        inc(cod);
+
+//        c:= 0;
+        for k:=0 to MenuOrigem.Items[i].items[j].Count-1 do
+        begin
+          MenuOrdem:= 'SM2';
+          AtribuirItemMenu;
+//          Inc(c);
+          inc(cod);
+
+          for h:= 0 to MenuOrigem.Items[i].Items[j].Items[k].Count-1 do
+          begin
+            MenuOrdem:= 'SM3';
+            AtribuirItemMenu;
+//            Inc(d);
+            inc(cod);
+          end;
+        end;
+      end;
+    end;
+  end;
+end;
+
+
+destructor  TfrmTecsoft.Destroy;
+begin
+  DestruirFormulario(self);
+  inherited destroy;
+end;
+
+constructor TfrmTecsoft.Create(AOwner: TComponent);
+//var Usuario : String;
+begin
+  inherited;
+  OpcaoMenuLiberada := false;
+  Caption := Application.Title;
+  if dmbasico.ComUsuario then
+    if UsuarioLogin.Caixa then
+      OnFechamentoCaixa := MostrarSituacaoCaixa;
+  CarregarPacotes;
+  mitSobre.Caption := mitSobre.Caption + ' ' +Application.Title;
+  //mmuTecsoftAux := TMainMenu.Create(self);
+  //mmuTecSoftAux.Name := 'mmuTecSoftAux';
+  CopiarMenu(mmuTecsoft, false, false);
+//  VerificarMenu;
+  WindowState := wsMaximized;
+  Inserindo := false;
+  Application.OnException := TrataException;
+  visible := true;
+
+
+
+end;
+
+procedure TfrmTecsoft.ExecutarItemMenu(Sender: TObject);
+var
+  frmAjuda: TfrmAjuda;
+  frmAjudaClass: TfrmAjudaClass;
+  vProsseguir : Boolean;
+begin
+
+  vProsseguir := true;
+  if (vOrigemLancamento <> 'Contábil') and
+     (NomeForm(TMenuItem(Sender)) ='TfrmLancamentoContas') then
+  begin
+    if (FormExists(NomeForm(TMenuItem(Sender)))<>nil) then
+    begin
+      MensagemAviso('O formulário de lançamento contábil já esta aberto pelo módulo '''+vOrigemLancamento + '''');
+      vProsseguir := false;
+    end
+    else
+    begin
+      vOrigemLancamento := 'Contábil';
+      vProsseguir := true;
+    end;
+  end;
+
+  if vprosseguir then
+  begin
+
+    if not Assigned(FormExists(NomeForm(TMenuItem(Sender)))) then
+    begin
+      frmAjudaClass := FormRegistrado(TMenuItem(Sender));
+      if Assigned(frmAjudaClass) then
+      begin
+        frmAjuda := frmAjudaClass.Create(Application);
+        if Assigned(frmAjuda) then
+        begin
+          if frmAjuda.FormStyle = fsMDIChild then
+          begin
+            frmAjuda.SetFocus;
+            if frmAjuda.WindowState = wsMinimized then
+              frmAjuda.WindowState := wsNormal
+          end;
+          if frmAjuda.FormStyle = fsNormal then
+          begin
+            frmAjuda.ShowModal;
+            frmAjuda.Free;
+          end;
+        end;
+      end
+      else
+      begin
+        MensagemErro(Format(ctCLASSENAOREGISTRADA, [NomeForm(TMenuItem(Sender))]));
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmTecsoft.ExecutarItemMenuMax(Sender: TObject; Maximizado: Boolean);
+var
+  frmAjuda: TfrmAjuda;
+  frmAjudaClass: TfrmAjudaClass;
+begin
+  if not Assigned(FormExists(NomeForm(TMenuItem(Sender)))) then
+  begin
+    frmAjudaClass := FormRegistrado(TMenuItem(Sender));
+    if Assigned(frmAjudaClass) then
+    begin
+      frmAjuda := frmAjudaClass.Create(Application);
+      if Assigned(frmAjuda) then
+      begin
+        if frmAjuda.FormStyle = fsMDIChild then
+        begin
+          frmAjuda.SetFocus;
+          if frmAjuda.WindowState = wsMinimized then
+            frmAjuda.WindowState := wsNormal;
+          if Maximizado then
+            frmAjuda.WindowState := wsMaximized;
+        end;
+        if frmAjuda.FormStyle = fsNormal then
+        begin
+          frmAjuda.ShowModal;
+	  frmAjuda.free;
+        end;
+      end;
+    end
+    else
+    begin
+      MensagemErro(Format(ctCLASSENAOREGISTRADA, [NomeForm(TMenuItem(Sender))]));
+    end;
+  end;
+end;
+
+procedure TfrmTecsoft.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+
+  function CadastroAberto: Boolean;
+  var
+    cnt: Integer;
+  begin
+    Result := False;
+    for cnt := 0 to Screen.FormCount - 1 do begin
+      if Screen.Forms[cnt] is TfrmCadastroPadrao then
+        if (Screen.Forms[cnt] as TfrmCadastroPadrao).DataSet.State in [dsEdit] then begin
+          MensagemAviso(Format(ctCADASTROABERTO,[ANSIUpperCase(Screen.Forms[cnt].Caption)]));
+          Result := True;
+          Break;
+        end;
+    end;
+  end;
+
+var
+  F: TForm;
+begin
+  inherited;
+  if Assigned(Menu) and UsuarioLogin.Caixa and UsuarioLogin.CaixaAberto then
+    MensagemAviso(ctCAIXAABERTO);
+  if ConsultarTermino then begin
+    F := Screen.ActiveForm;
+    CanClose := not CadastroAberto;
+    if CanClose then
+      CanClose := MensagemConfirmacao(Format(ctCONFIRMESAIR, [Application.Title])) = smbOk;
+    if not CanClose then
+      FindForm(F);
+  end else
+    CanClose := True;
+end;
+
+function TfrmTecsoft.FormRegistrado(MenuItem: TMenuItem): TfrmAjudaClass;
+var
+  Nome: String;
+begin
+  Nome := NomeForm(MenuItem);
+  Result := FormRegistrado(Nome)
+end;
+
+function TfrmTecsoft.FormRegistrado(NomeForm: String): TfrmAjudaClass;
+var
+  Pers: TPersistentClass;
+begin
+  Pers := ActivateClassGroup(TControl);
+  Result := TfrmAjudaClass(GetClass(NomeForm));
+  ActivateClassGroup(Pers);
+end;
+
+procedure TfrmTecsoft.AbrirQuitacaoLote;
+begin
+  if not Assigned(frmQuitacaoLote) then
+    frmQuitacaoLote:= TfrmQuitacaoLote.Create(Self)
+  else
+  begin
+    frmQuitacaoLote.BringToFront;
+    frmQuitacaoLote.SetFocus;
+  end;
+end;
+
+procedure TfrmTecsoft.AbrirRelatorioFluxodeCaixa;
+begin
+  if not Assigned(frmrelatoriofluxodecaixa) then
+    frmrelatoriofluxodecaixa:= Tfrmrelatoriofluxodecaixa.Create(Self)
+  else
+  begin
+    frmrelatoriofluxodecaixa.BringToFront;
+    frmrelatoriofluxodecaixa.SetFocus;
+  end;
+end;
+
+procedure TfrmTecsoft.AbrirFichaFinanceira;
+begin
+  if not Assigned(frmFichaFinanceira) then
+    frmFichaFinanceira:= TfrmFichaFinanceira.Create(Self)
+  else
+  begin
+    frmFichaFinanceira.BringToFront;
+    frmFichaFinanceira.SetFocus;
+  end
+end;
+
+procedure TfrmTecsoft.AbrirEstornosRecebimentos;
+begin
+  if not Assigned(frmEstornoRecebimentos) then
+    frmEstornoRecebimentos:= TfrmEstornoRecebimentos.Create(Self)
+  else
+  begin
+    frmEstornoRecebimentos.BringToFront;
+    frmEstornoRecebimentos.SetFocus;
+  end;
+end;
+procedure TfrmTecsoft.mitAdministracaoTEFClick(Sender: TObject);
+{$IFDEF LINUX}
+begin
+
+{$ELSE}
+var
+//  tecTEFDiscado: TtecTEFDiscado;
+
+  CupomEmitido: Boolean;
+begin
+  inherited;
+  if Assigned(ECFPadrao) and ECFPadrao.CupomAberto then begin
+    SetFocus;
+    MensagemAviso(ctCUPOMFISCALABERTO);
+    SetFocus;
+  end else if ParSistema.TipoTEF = tsDISCADO then
+  begin
+    //tecTEFDiscado := TtecTEFDiscado.Create(tecTEFDiscado);
+    try
+//      if tecTEFDiscado.GerenciadorAtivo(False) then begin
+      if assigned(tefpadrao) then
+        if TEFPadrao.Inicializado(gpTefDial) then
+        begin
+          CupomEmitido := False;
+//          if tecTEFDiscado.ExecutarOperacao(sopADMIN, 0) then
+          if tefpadrao.ADM(gpTefDial) then
+//            tecTEFDiscado.ImprimirCupom(CupomEmitido, 0, '', '', 0)
+             TEFPadrao.ImprimirCupom(CupomEmitido, 0, '', '', 0)
+        end else begin
+          SetFocus;
+          MensagemErro(ctTEFTEGERENCIADORINATIVO);
+          SetFocus;
+        end
+    finally
+//      tecTEFDiscado.Free
+    end;
+  end else if ParSistema.TipoTEF = tsDEDICADO then
+    ExecutarItemMenu(mitAdministracaoTEF);
+{$ENDIF}
+end;
+
+procedure TfrmTecsoft.mitAnteriorClick(Sender: TObject);
+begin
+  inherited;
+  if Screen.FormCount > 3 then
+    Previous
+end;
+
+procedure TfrmTecsoft.mitAutenticacoesCaixaClick(Sender: TObject);
+begin
+  inherited;
+  AbrirCaixa;
+  if UsuarioLogin.CaixaAberto then
+    ExecutarItemMenu(mitAutenticacoesCaixa);
+end;
+
+procedure TfrmTecsoft.mitCancelarCupomClick(Sender: TObject);
+var
+  UsuarioAut: TtecUsuarios;
+  OK, Acerto: Boolean;
+  frmAjuda: TForm;
+  Cupom: Integer;
+begin
+  inherited;
+  if UsuarioLogin.GerenteCaixa then
+    UsuarioAut := TdtmBasico.ObterAutorizacao(taSENHA, ctCANCELAMENTOCUPOM, ctGERENTECAIXA, '')
+  else
+    UsuarioAut := TdtmBasico.ObterAutorizacao(taLOGIN, ctCANCELAMENTOCUPOM, ctGERENTECAIXA, '');
+  if Assigned(UsuarioAut) then begin
+    OK := UsuarioAut.GerenteCaixa;
+    if Not OK then
+      MensagemAviso(ctUSUARIOSEMPERMISSAO);
+  end else
+    OK := False;
+  if OK then begin
+    Cupom := StrToInt(ECFPadrao.Cupom);
+    ECFPadrao.CancelarCupom;
+
+    if ECFPadrao.Erro then
+      MensagemErro(ECFPadrao.Mensagem)
+    else
+    begin
+      dtmAcertoCupomCancelado := TdtmAcertoCupomCancelado.Create(Self);
+      acerto := dtmAcertoCupomCancelado.AcertaMovimentacoes(StrToInt(ECFPadrao.NumeroMaquina),StrToInt(ECFPadrao.Intervencao),Cupom);
+      dtmAcertoCupomCancelado.Free;
+      if Acerto then
+      begin
+        frmAjuda := FormExists('TfrmCadastroContratos');
+        if Assigned(frmAjuda) then
+          TfrmAjuda(frmAjuda).OperacaoPadrao([]);
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmTecsoft.mitConteudoClick(Sender: TObject);
+begin
+  MostraContextoAjuda;
+end;
+
+procedure TfrmTecsoft.mitFecharClick(Sender: TObject);
+begin
+  inherited;
+  if Assigned(ActiveMDIChild) then
+    ActiveMDIChild.Close;
+end;
+
+procedure TfrmTecsoft.mitFinalizarCupomVinculadoClick(Sender: TObject);
+begin
+  inherited;
+  ECFPadrao.FinalizarVinculado;
+  if ECFPadrao.Erro then
+    MensagemErro(ECFPadrao.Mensagem)
+end;
+
+procedure TfrmTecsoft.mitFrenteCaixaClick(Sender: TObject);
+begin
+  inherited;
+  OpcaomitFrenteCaixaPressionada := True;
+  if OpcaoMenuLiberada then
+  begin
+    OpcaomitFrenteCaixaPressionada := False;
+    AbrirCaixa;
+    frmMsg := TfrmMensagemTemporizada.Create(Screen.ActiveForm, 'Ativando ECF - Baud '+FVelocidadePorta);
+    frmMsg.Show;
+    if ECFPadrao.AtivarECF(NomeArquivoECFs, ECFPadrao.PortaSerial, ECFPadrao.Codigo) and
+       ECFPadrao.VerificarGT(NomeArquivoECFs) then
+      if UsuarioLogin.CaixaAberto then
+        ExecutarItemMenu(mitFrenteCaixa);
+    FreeAndNil(frmMsg);
+  end;
+end;
+
+procedure TfrmTecsoft.mitLeituraXClick(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao(ctCONFIRMALEITURAX) = smbOK then
+  begin
+    ECFPadrao.LeituraX;
+    if ECFPadrao.Erro then
+      MensagemErro(ECFPadrao.Mensagem)
+  end;
+end;
+
+procedure TfrmTecsoft.mitLerParametroSistemaClick(Sender: TObject);
+begin
+  inherited;
+  ParSistema.Ler;
+end;
+
+procedure TfrmTecsoft.mitLoginClick(Sender: TObject);
+begin
+  inherited;
+  while Screen.FormCount > 3 do
+    if Screen.Forms[0] is TfrmNavControles then
+      Screen.Forms[0].Free;
+  if LerConfiguracaoSistema(nil, False) then begin
+    CarregarMenus(mmuTecsoft);
+    //CopiarMenu(mmuTecsoft, true, false);
+    //LiberarModulos;
+    //CarregarPacotes;
+    VerificarMenu;
+    frmTecsoft.SetFocus;
+    frmTecsoft.mitCadastros.InitiateAction;
+    end else begin
+    ConsultarTermino := False;
+    Close;
+  end;
+end;
+
+procedure TfrmTecsoft.mitProximaClick(Sender: TObject);
+begin
+  inherited;
+  if Screen.FormCount > 3 then
+    Next
+end;
+
+procedure TfrmTecsoft.mitReducaoZClick(Sender: TObject);
+var
+  ctipo : String;
+begin
+  inherited;
+  ctipo := 'c';
+  if MensagemConfirmacao(ctCONFIRMAREDUCAOZ) = smbOK then
+  begin
+    ECFPadrao.ReducaoZ;
+    if ECFPadrao.Erro then
+      MensagemErro(ECFPadrao.Mensagem)
+    else
+    begin
+
+  {$IFDEF MSWINDOWS}
+
+      if ECFPadrao.ClassName = 'TtecECFBematech' then
+        if ECFPadrao.LeituraMemoriaFiscalSerialDataMFD(pchar(datetostr(DataLocal)),
+                       pchar(datetostr(DataLocal)), pchar(ctipo)) then
+        begin
+          dtmGerarMapasECF := tdtmGerarMapasECF.Create(self);
+          dtmGerarMapasECF.GravarMapa(ECFPadrao.GerarMapaArquivoRetorno);
+          dtmGerarMapasECF := nil
+        end;
+  {$ENDIF}
+
+    end;
+  end
+end;
+
+procedure TfrmTecsoft.mitSairSistemaClick(Sender: TObject);
+begin
+  Close;
+end;
+
+procedure TfrmTecsoft.mitSobreClick(Sender: TObject);
+var
+  F: TForm;
+  frmDescricaoTecLUX: TfrmDescricaoTecLUX;
+begin
+  F := Screen.ActiveForm;
+  frmDescricaoTecLUX := TfrmDescricaoTecLUX.Create(Self);
+  frmDescricaoTecLUX.ShowModal;
+  frmDescricaoTecLUX.Free;
+  FindForm(F);
+end;
+
+procedure TfrmTecsoft.MostrarFormRegistrado(Value: Array of Variant; NomeForm: String; Modal: Boolean; Origem: String = '');
+var
+  frmAjuda: TfrmAjuda;
+  frmAjudaClass: TfrmAjudaClass;
+  vProsseguir: Boolean;
+
+begin
+  inherited;
+  vProsseguir := True;
+  if NomeForm = 'TfrmLancamentoContas' then
+  begin
+    if (vOrigemLancamento <> Origem) and
+       (FormExists(NomeForm)<>nil) then
+    begin
+      MensagemAviso('O formulário de lançamento contábil já esta aberto pelo formulário '' '+vOrigemLancamento+'''');
+      vProsseguir := false;
+    end
+    else
+    begin
+      vOrigemLancamento := Origem;
+      vProsseguir := true;
+    end;
+  end;
+
+  if vprosseguir then
+  begin
+    frmAjuda := TfrmAjuda(FormExists(NomeForm));
+    if Assigned(frmAjuda) then
+      frmAjuda.OperacaoPadrao(Value)
+    else begin
+      frmAjudaClass := FormRegistrado(NomeForm);
+      if Assigned(frmAjudaClass) then begin
+        frmAjuda := frmAjudaClass.Create(Self);
+        if Assigned(frmAjuda) then begin
+          frmAjuda.OperacaoPadrao(Value);
+          frmAjuda.SetFocus;
+          if frmAjuda.WindowState = wsMinimized then
+            frmAjuda.WindowState := wsNormal
+        end
+      end else
+        MensagemErro(Format(ctCLASSENAOREGISTRADA, [NomeForm]))
+    end;
+  end;  
+
+end;
+
+procedure TfrmTecsoft.MostrarSituacaoCaixa;
+var
+  Str, SituacaoUsuario: String;
+begin
+  stbPrincipal.Panels[1].Text := ctfilialbase+': '+TdtmBasico.DescricaoFilial;
+  if UsuarioLogin.Caixa then begin
+    if UsuarioLogin.CaixaAberto then
+      Str := ctAberto + ' (' + DateTimeToStr(UsuarioLogin.DataAberturaCaixa) + ')'
+    else
+      Str := ctFechado;
+    SituacaoUsuario := NomeUsuario + ' - ' + ctCAIXA + ' %s';
+    stbPrincipal.Panels[1].Text := Format(SituacaoUsuario, [Str]) + ' - '+stbPrincipal.Panels[1].Text;
+  end else
+    stbPrincipal.Panels[1].Text := NomeUsuario + ' - ' + stbPrincipal.Panels[1].Text
+end;
+
+function TfrmTecsoft.NomeForm(MenuItem: TMenuItem): String;
+begin
+  Result := 'Tfrm' + Copy(MenuItem.Name, 4, Length(MenuItem.Name));
+end;
+
+procedure TfrmTecsoft.OperacaoPadrao(Value: Array of Variant);
+begin
+  if Assigned(Menu) then
+    Menu := nil
+  else
+    Menu := mmuTecsoft
+end;
+
+procedure TfrmTecsoft.VerificarMenu;
+
+  procedure HabilitarTodosMenus;
+  var
+    a: Integer;
+
+    procedure HabilitarTodosSubMenus(ItemMenu: TMenuItem);
+    var
+      a: Integer;
+    begin
+      for a := 0 to ItemMenu.Count - 1 do
+        HabilitarTodosSubMenus(ItemMenu[a]);
+      ItemMenu.Visible := true;
+    end;
+
+  begin
+    for a := 0 to mmuTecsoft.Items.Count - 1 do
+      HabilitarTodosSubMenus(mmuTecsoft.Items[a]);
+  end;
+
+  function EsconderItemsMenu(ItemMenu: TMenuItem): Boolean;
+  var
+    a: Integer;
+    Esconder: Boolean;
+  begin
+    Esconder := True;
+    for a := 0 to ItemMenu.Count - 1 do
+      if Not EsconderItemsMenu(ItemMenu[a]) then
+        Esconder := False;
+    if ItemMenu.Count = 0 then
+      Result := Not ItemMenu.Visible
+    else
+    begin
+      ItemMenu.Visible := Not Esconder and ItemMenu.visible;
+      Result := Not ItemMenu.visible;
+    end
+  end;
+
+  procedure VerificarTodosMenus;
+  var
+    a: Integer;
+
+    procedure VerificarTodosSubMenus(ItemMenu: TMenuItem);
+    var
+      b,index: Integer;
+      visivel: boolean;
+    begin
+      for b := 0 to ItemMenu.Count - 1 do
+        VerificarTodosSubMenus(ItemMenu[b]);
+
+      visivel :=(Assigned(FormRegistrado(ItemMenu)) and
+                                       (UsuarioLogin.Suporte or
+                                        UsuarioLogin.Administrador or
+             (usuariologin.AcessosUsuarios.Find(ItemMenu.name,index)))
+                             or (ItemMenu.Tag = 1));
+
+       if itemMenu.Visible <> visivel then
+          ItemMenu.Enabled := visivel;
+    end;
+
+  begin
+    for a := 0 to mmuTecsoft.Items.Count - 1 do
+      VerificarTodosSubMenus(mmuTecsoft.Items[a]);
+  end;
+
+  procedure ApagarTodosMenusDesligados;
+  var
+    a: Integer;
+    temsubmenu : boolean;
+    procedure ApagarTodosSubMenusDesligados(ItemMenu: TMenuItem);
+    var
+      i: Integer;
+    begin
+      for i := ItemMenu.count -1 downto 0 do
+      begin
+        if (itemMenu[i].Count > 0) and not temsubmenu then
+         temsubmenu := true;
+        ApagarTodosSubMenusDesligados(ItemMenu[i]);
+        if (temsubmenu) and (itemmenu.count = 0) then
+          itemMenu.Enabled := false;
+      end;
+      if (not itemMenu.Enabled) then
+        ItemMenu.Free;
+    end;
+  begin
+    for a := mmuTecsoft.Items.Count - 1 downto 0 do
+    begin
+      temsubmenu := false;
+      ApagarTodosSubMenusDesligados(mmuTecsoft.Items[a]);
+      if (mmutecsoft.Items[a].Count = 0) and
+         (mmutecsoft.Items[a] <> mitMenuFiscal) then
+        mmutecsoft.Items[a].free;
+    end;
+  end;
+
+  function PermitirConfiguracoes: boolean;
+  var i: Integer;
+  begin
+    for i:=0 to UsuarioLogin.AcessosUsuarios.Count-1 do
+    begin
+      if UsuarioLogin.AcessosUsuarios[i] = 'mitConfiguracoesSistema' then
+      begin
+        Result:= True;
+        break;
+      end
+      else
+        Result:= False;
+    end;
+  end;
+
+var indice: integer;
+begin
+  OpcaoMenuLiberada := false;
+  Notificar(NotificacaoSplash, ctDEFININDOACESSOS);
+  VerificarTodosMenus;
+//  mitFrenteCaixa.enabled          := ModuloEmUSo('caixa') and (usuariologin.Caixa or usuariologin.Suporte or UsuarioLogin.Administrador);
+
+  if not (UsuarioLogin.Suporte or UsuarioLogin.Administrador) then
+    if UsuarioLogin.AcessosUsuarios.Count > 0 then
+    begin
+      if ParSistema.AcessoConfiguracoesLocais and (PermitirConfiguracoes) then
+      begin
+        mitConfiguracoesSistema.enabled := True;
+        mitLerParametroSistema.Enabled  := False;
+        mitCarregarModulos.Enabled      := False;
+        mitExportacaoDados.Enabled      := False;
+      end
+      else
+        mitConfiguracoesSistema.enabled := False;
+    end;
+
+  mitParametrosSistema.enabled    := UsuarioLogin.Suporte or UsuarioLogin.Administrador or
+                                     mitParametrosSistema.enabled;
+
+  mitConfiguracoesSistema.enabled := UsuarioLogin.Suporte or UsuarioLogin.Administrador or
+                                     mitConfiguracoesSistema.enabled;
+
+  mitComandosECF.Enabled := False;
+  if (Assigned(ECFPadrao)) and ((UsuarioLogin.GerenteCaixa) or (UsuarioLogin.Caixa)) then
+//  begin
+    mitComandosECF.Enabled := True;
+//    mitLeituraMemriaFiscal.Enabled := True;
+//    mitLeituraMemoriaFiscalData.Enabled := True;
+//  end;
+
+  mitMenuFiscal.Enabled  := true ;{Assigned(ECFPadrao);}
+//  mitFrenteCaixa.Enabled := Assigned(ECFPadrao);
+
+  Application.ProcessMessages;
+
+  //Formulários que foram carregados pelo Repositório
+  //e estão disponíveis em dois menus
+  //Eventos de chamadas devem ser feitos fora do ExecutarItemMenu
+  mitFichaFinanceira.Enabled  := (ModuloDisponivel('vendas') and
+                                 (UsuarioLogin.Suporte or
+                                  UsuarioLogin.Administrador or
+                                 (usuariologin.AcessosUsuarios.Find('mitFichaFinanceira',indice)))or
+                                 (mitFichaFinanceira.Tag = 1));
+  mitFichaFinanceira1.Enabled :=  (ModuloDisponivel('contasareceber') and
+                                  (UsuarioLogin.Suporte or
+                                   UsuarioLogin.Administrador or
+                                  (usuariologin.AcessosUsuarios.Find('mitFichaFinanceira1',indice)))or
+                                  (mitFichaFinanceira1.Tag = 1));
+
+  mitEstornoRecebimentos1.Enabled:= (ModuloDisponivel('caixa')  and
+                                    (UsuarioLogin.Suporte or
+                                     UsuarioLogin.Administrador or
+                                    (usuariologin.AcessosUsuarios.Find('mitEstornoRecebimentos1',indice)))or
+                                    (mitEstornoRecebimentos1.Tag = 1));
+  mitEstornoRecebimentos.Enabled := (ModuloDisponivel('contasareceber') and
+                                    (UsuarioLogin.Suporte or
+                                     UsuarioLogin.Administrador or
+                                    (usuariologin.AcessosUsuarios.Find('mitEstornoRecebimentos',indice)))or
+                                    (mitEstornoRecebimentos.Tag = 1));
+
+  mitQuitacaoLote1.Enabled       := (ModuloDisponivel('caixa') and
+                                    (UsuarioLogin.Suporte or
+                                     UsuarioLogin.Administrador or
+                                    (usuariologin.AcessosUsuarios.Find('mitQuitacaoLote1',indice)))or
+                                    (mitQuitacaoLote1.Tag = 1));
+  mitQuitacaoLote.Enabled        := (ModuloDisponivel('contasareceber') and
+                                    (UsuarioLogin.Suporte or
+                                     UsuarioLogin.Administrador or
+                                    (usuariologin.AcessosUsuarios.Find('mitQuitacaoLote',indice)))or
+                                    (mitQuitacaoLote.Tag = 1));
+
+  mitrelatoriofluxodecaixa1.Enabled := (ModuloDisponivel('contaspagar') and
+                                       (UsuarioLogin.Suporte or
+                                        UsuarioLogin.Administrador or
+                                       (usuariologin.AcessosUsuarios.Find('mitrelatoriofluxodecaixa1',indice)))or
+                                       (mitrelatoriofluxodecaixa1.Tag = 1));
+  mitrelatoriofluxodecaixa.Enabled:= (ModuloDisponivel('contasareceber') and
+                                     (UsuarioLogin.Suporte or
+                                      UsuarioLogin.Administrador or
+                                     (usuariologin.AcessosUsuarios.Find('mitrelatoriofluxodecaixa',indice)))or
+                                     (mitrelatoriofluxodecaixa.Tag = 1));
+  if assigned(mitAdministracaoTEF) then
+    mitAdministracaoTEF.Enabled := (ParSistema.TipoTEF <> tsSEMTEF) and UsuarioLogin.Caixa;
+
+  MostrarSituacaoCaixa;
+  if FrenteCaixa and UsuarioLogin.Caixa then
+  begin
+    Menu := nil;
+    AbrirCaixa;
+    if UsuarioLogin.CaixaAberto then
+      ExecutarItemMenuMax(mitFrenteCaixa, True);
+//    mitFrenteCaixaClick(mitFrenteCaixa);
+  end;
+  mitFrenteCaixa.Enabled := Assigned(ECFPadrao);
+  OpcaoMenuLiberada := true;
+  ApagarTodosMenusDesligados;
+
+
+
+end;
+
+procedure TfrmTecsoft.mitLerRetornosClick(Sender: TObject);
+begin
+  inherited;
+  MensagemAviso('Modulo não terminado');
+end;
+(*
+procedure TfrmTecsoft.mitLeituraMemoriaFiscalDataClick(Sender: TObject);
+var
+  ctipo : String;
+begin
+  inherited;
+  ctipo := 'c';
+  with TfrmLeituraMemoriaFiscalData.Create(Self) do
+  begin
+    try
+      edtDataInicial.SetFocus;
+      if ShowModal = mrOk then
+      begin
+        ECFPadrao.LeituraMemoriaFiscalData(DataInicial, DataFinal);
+
+  {$IFDEF MSWINDOWS}
+
+        if ECFPadrao.ClassName = 'TtecECFBematech' then
+          if UsuarioLogin.Administrador then
+          begin
+            if strtodate(DataFinal) = DataLocal then
+              if MensagemConfirmacao(ctATUALIZARMAPASECF) = smbOK then
+                if ECFPadrao.LeituraMemoriaFiscalSerialDataMFD(pchar(DataInicial),
+                               pchar(DataFinal), pchar(ctipo)) then
+                begin
+                  dtmGerarMapasECF := tdtmGerarMapasECF.Create(self);
+                  dtmGerarMapasECF.GravarMapa(ECFPadrao.GerarMapaArquivoRetorno);
+                  dtmGerarMapasECF := nil
+                end;
+          end;
+  {$ENDIF}
+
+      end;
+    finally
+      Free;
+    end;
+  end;
+end;
+
+procedure TfrmTecsoft.mitLeituraMemoriaFiscalReducaoClick(Sender: TObject);
+begin
+  with TfrmLeituraMemoriaFiscalReducao.Create(Self) do
+    try
+      edtReducaoInicial.SetFocus;
+      if ShowModal = mrOk then
+        ECFPadrao.LeituraMemoriaFiscalReducao(ReducaoInicial, ReducaoFinal);
+    finally
+      Free;
+    end;
+end;
+*)
+procedure TfrmTecsoft.mitGerarRemessasSoacredClick(Sender: TObject);
+begin
+  inherited;
+{$IFDEF MSWINDOWS}
+  ExecutarItemMenu(Sender);
+{$ELSE}
+  MensagemAviso('Módulo disponível somente para a versão Windows do sistema tecLUX');
+{$ENDIF}
+end;
+
+procedure TfrmTecsoft.tmrAguardandoTimer(Sender: TObject);
+begin
+  inherited;
+  if InsertLigado <> Inserindo then
+  begin
+    Inserindo := InsertLigado;
+    if inserindo then
+     stbPrincipal.Panels[0].Text := 'INS'
+    else
+     stbPrincipal.Panels[0].Text := '';
+  end;
+
+  if OpcaomitFrenteCaixaPressionada then
+    mitFrenteCaixaClick(self);
+end;
+
+procedure TfrmTecsoft.mitAberturaGavetaClick(Sender: TObject);
+var
+  UsuarioAut: TtecUsuarios;
+  OK: Boolean;
+begin
+  inherited;
+  UsuarioAut := TdtmBasico.ObterAutorizacao(taLOGIN, ctABERTURAGAVETA, ctCAIXA, '');
+  if Assigned(UsuarioAut) then
+  begin
+    OK := UsuarioAut.Caixa;
+    if Not OK then
+      MensagemAviso(ctUSUARIOSEMPERMISSAO);
+  end
+  else
+    OK := False;
+  if OK then
+    ECFPadrao.AbrirGaveta;
+end;
+
+procedure TfrmTecsoft.TrataException(Sender: TObject; E: Exception);
+begin
+  MensagemErro(E.Message)
+end;
+
+{
+procedure TfrmTecsoft.mitMenuFiscalClick(Sender: TObject);
+begin
+  inherited;
+  with TfrmMenuFiscal.Create(Self) do
+  try
+    ShowModal;
+  finally
+    Free;
+  end;
+end;
+}
+procedure TfrmTecsoft.mitFichaFinanceiraClick(Sender: TObject);
+begin
+  inherited;
+  AbrirFichaFinanceira;
+end;
+
+procedure TfrmTecsoft.mitQuitacaoLote1Click(Sender: TObject);
+begin
+  inherited;
+  AbrirQuitacaoLote;
+end;
+
+procedure TfrmTecsoft.mitEstornoRecebimentos1Click(Sender: TObject);
+begin
+  inherited;
+  AbrirEstornosRecebimentos
+end;
+
+procedure TfrmTecsoft.mitrelatoriofluxodecaixa1Click(Sender: TObject);
+begin
+  inherited;
+  AbrirRelatorioFluxodeCaixa;
+end;
+
+procedure TfrmTecsoft.mitQuitacaoLoteClick(Sender: TObject);
+begin
+  inherited;
+  AbrirQuitacaoLote
+end;
+
+procedure TfrmTecsoft.mitEstornoRecebimentosClick(Sender: TObject);
+begin
+  inherited;
+  AbrirEstornosRecebimentos;
+end;
+
+procedure TfrmTecsoft.mitrelatoriofluxodecaixaClick(Sender: TObject);
+begin
+  inherited;
+  AbrirRelatorioFluxodeCaixa;
+end;
+
+procedure TfrmTecsoft.mitFichaFinanceira1Click(Sender: TObject);
+begin
+  inherited;
+  AbrirFichaFinanceira;
+end;
+
+procedure TfrmTecsoft.FormShow(Sender: TObject);
+begin
+  inherited;
+  if FileExists(ExtractFilePath(Application.ExeName)+'Anexo_X.txt') then
+    if assigned(ecfpadrao) then
+    begin
+      frmMsg := TfrmMensagemTemporizada.Create(Screen.ActiveForm,
+                        'O arquivo do Anexo X do PAF ECF foi gerado em: '+CHR(13)+
+                        ExtractFilePath(Application.ExeName)+'Anexo_X.txt');
+      frmMsg.Show;
+      Application.ProcessMessages;
+      Sleep(4000);
+      FreeAndNil(frmMsg);
+    end;
+end;
+
+end.

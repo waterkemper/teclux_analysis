@@ -4,7 +4,8 @@ interface
 
 uses
   SysUtils, Classes, dmbasico, ZTransact, DB, ZQuery, ZPgSqlQuery, cpquery, dmtecsoft,
-  fr_class, fr_dset, fr_dbset, fmPreviewPadrao, variants;
+  fr_class, fr_dset, fr_dbset, fmPreviewPadrao, variants, frx2xto30,
+  frxClass;
 
 type
   TdtmRelatorioProdutosConferidos = class(TdtmBasico)
@@ -29,6 +30,7 @@ type
     qrySelecaoConferenciafilial: TIntegerField;
     qrySelecaoConferenciadatahora_alteracao: TDateTimeField;
     qrySelecaoConferenciaprodutovisual: TStringField;
+    frxReport1: TfrxReport;
     procedure qrySelecaoConferenciaCalcFields(DataSet: TDataSet);
     procedure qrySelecaoConferenciaFilterRecord(DataSet: TDataSet;
       var Accept: Boolean);
@@ -258,6 +260,7 @@ begin
                           ' E '+FormatDateTime('DD/MM/YYYY',strtodate(DataFinal));
 
 //  frpRelatorioProdutosConferidos.DesignReport;
+//  frxReport1.DesignReport;
 
   ImprimirRelatoriofast(null, null, MSimples, 0, [frpRelatorioProdutosConferidos], true, self);
 

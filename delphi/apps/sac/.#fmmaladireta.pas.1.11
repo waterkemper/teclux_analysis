@@ -1,0 +1,473 @@
+unit fmmaladireta;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmrelatoriopadrao, ExtCtrls, Buttons, ComCtrls,
+  cppagecontrol, cpdbdata, Mask, cpdbfindcontrols, DBCtrls, cpdbtext,
+  cpnumero, cpdata,dmmaladireta,{Qete,} Windows, 
+  //Biblio
+  ctConstantes, biblio,cpquery, clparametrossistema,
+  //Terceiros
+  ZQuery,
+  //Repositorio
+  fmajudabt, fmconsultabasica, fmconsultaporcampo, cptexto, Grids,
+  DBGrids, cpdbgrid, CheckLst, ToolWin, frmultiplaselecaoaleatoria,
+  DBMaplistCombobox, TypInfo;
+
+
+type
+  TfrmMalaDireta = class(TfrmRelatorioPadrao)
+    pgcAgentesaExcluir: TtecPageControl;
+    sbnMarcarCampos: TSpeedButton;
+    sbnDesmarcarCampos: TSpeedButton;
+    clbCampos: TCheckListBox;
+    rgpOrdenacao: TRadioGroup;
+    tstFiltro: TTabSheet;
+    cmbSPC: TComboBox;
+    cmbEnviarDevolvidas: TComboBox;
+    lblANascto: TLabel;
+    cmbSexo: TComboBox;
+    cmbEstadoCivil: TComboBox;
+    lblASalarios: TLabel;
+    lblAUltimaCompra: TLabel;
+    lblAAniversario: TLabel;
+    edtNasctoInicial: TEditData;
+    edtNasctoFinal: TEditData;
+    edtUltimaCompraInicial: TEditData;
+    edtUltimaCompraFinal: TEditData;
+    edtSalarioInicial: TEditNumero;
+    edtSalarioFinal: TEditNumero;
+    edfConceito: TtecDbEditFind;
+    dtxDescricaoConceito: TtecDBText;
+    sbnConceito: TSpeedButton;
+    edfCargo: TtecDbEditFind;
+    sbnCargos: TSpeedButton;
+    dtxDescricaoCargo: TtecDBText;
+    edfCidade: TtecDbEditFind;
+    sbnCidade: TSpeedButton;
+    dtxNomeCidade: TtecDBText;
+    edfRegiao: TtecDbEditFind;
+    sbnRegiao: TSpeedButton;
+    dtxNomeRegiao: TtecDBText;
+    edfAniversarioInicial: TEditDiaMes;
+    edfAniversarioFinal: TEditDiaMes;
+    sbnGerar: TSpeedButton;
+    sbnArquivo: TSpeedButton;
+    dlgArquivoaExportar: TSaveDialog;
+    edtArquivoaExportar: TEdit;
+    lblCampos: TLabel;
+    edtEtiqueta: TEdit;
+    edfFilialCadastro: TtecDbEditFind;
+    sbnFilialCadastro: TSpeedButton;
+    dtxFilialCadastro: TtecDBText;
+    lblAVendaFinal: TLabel;
+    edtVendaInicial: TEditData;
+    edtVendaFinal: TEditData;
+    lblAVenctoFinal: TLabel;
+    edtVenctoInicial: TEditData;
+    edtVenctoFinal: TEditData;
+    sbnFilialVenda: TSpeedButton;
+    edfFilialVenda: TtecDbEditFind;
+    dtxFilialVenda: TtecDBText;
+    rgpDependentes: TRadioGroup;
+    dtxVendedor: TtecDBText;
+    sbnVendedor: TSpeedButton;
+    edfVendedor: TtecDbEditFind;
+    gbkNaoSelecionar: TGroupBox;
+    ckbEmAtraso: TCheckBox;
+    ckbSemTelefones: TCheckBox;
+    gbxConceito: TGroupBox;
+    gbxFilialCadastro: TGroupBox;
+    gbxUltimaCompra: TGroupBox;
+    gbxRegiao: TGroupBox;
+    gbxCidade: TGroupBox;
+    gbxUltimoVendedor: TGroupBox;
+    gbxFilialVenda: TGroupBox;
+    gbxDataNascto: TGroupBox;
+    gbxAniversario: TGroupBox;
+    gbxSexo: TGroupBox;
+    gbxEstadoCivil: TGroupBox;
+    gbxCargo: TGroupBox;
+    gbxSPC: TGroupBox;
+    gbxEnvDevolvidas: TGroupBox;
+    gbxSalarios: TGroupBox;
+    gbxVencimentos: TGroupBox;
+    gbxPeriodoVendas: TGroupBox;
+    gbxArquivoTexto: TGroupBox;
+    gbxArquivoEtiquetas: TGroupBox;
+    gbxDataCadastro: TGroupBox;
+    Label1: TLabel;
+    edtDataCadastroInicial: TEditData;
+    edtDataCadastroFinal: TEditData;
+    GroupBox1: TGroupBox;
+    Label2: TLabel;
+    edtValorComprasInicial: TEditNumero;
+    edtValorComprasFinal: TEditNumero;
+    ckbContratosQuitados: TCheckBox;
+    rgpClientesSite: TRadioGroup;
+    tstFiltroProdutos: TTabSheet;
+    fraMultiplaSelecaoAleatoria: TfraMultiplaSelecaoAleatoria;
+    Timer1: TTimer;
+    lblDependentes: TStaticText;
+    StaticText2: TStaticText;
+    StaticText3: TStaticText;
+    gbxEmailMarketing: TGroupBox;
+    cbbEmailMarketing: TComboBox;
+    procedure sbnConceitoClick(Sender: TObject);
+    procedure sbnCargosClick(Sender: TObject);
+    procedure sbnCidadeClick(Sender: TObject);
+    procedure sbnRegiaoClick(Sender: TObject);
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure sbnArquivoClick(Sender: TObject);
+    procedure sbnGerarClick(Sender: TObject);
+    procedure sbnFilialCadastroClick(Sender: TObject);
+    procedure sbnFilialVendaClick(Sender: TObject);
+    procedure edtNasctoInicialExit(Sender: TObject);
+    procedure sbnVendedorClick(Sender: TObject);
+    procedure sbnMarcarCamposClick(Sender: TObject);
+    procedure sbnDesmarcarCamposClick(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
+  private
+    { Private declarations }
+    function VerificaCamposMarcados: TStringList;
+  protected
+    function  PermitirPesquisa: Boolean;
+    function  TituloPesquisa: string;
+    function  InternoPesquisar(Titulo: string): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: string; Value: Variant): Boolean; Override;
+    function  TabelaDePesquisa: TZdataSet; override;
+    procedure GerarArquivo(Relatorio: Boolean);
+    procedure InternoImpressao; override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+  end;
+
+var
+  frmMalaDireta: TfrmMalaDireta;
+  TipoPesquisa: TtecPesquisa;
+
+implementation
+
+{$R *.dfm}
+
+constructor TfrmMalaDireta.Create(AOwner: TComponent);
+begin
+  dtmMalaDireta:= TdtmMalaDireta.Create(Self);
+  inherited;
+  cmbSPC.ItemIndex:=0;
+  cmbEnviarDevolvidas.ItemIndex:=1;
+  rgpClientesSite.ItemIndex:=1;
+  cmbSexo.ItemIndex:=0;
+  cmbEstadoCivil.ItemIndex:=0;
+  rgpOrdenacao.ItemIndex:=0;
+  clbCampos.Items := dtmMalaDireta.campos;
+//  clbCampos.Rows :=25;
+
+  CarregarConfiguracoesFormulario; {carregar uma segunda vez}
+
+  rgpDependentes.Visible := ParSistema.ClienteComDependentes;
+  lblDependentes.Visible := ParSistema.ClienteComDependentes;
+  if edfConceito.canfocus then
+    edfConceito.SetFocus;
+
+end;
+
+destructor TfrmMalaDireta.Destroy;
+begin
+  inherited;
+  frmMalaDireta:= nil;
+end;
+
+function TfrmMalaDireta.InternoPesquisar(Titulo: String): Integer;
+begin
+  Result:= mrNone;
+  if PermitirPesquisa then
+  begin
+    dtmMalaDireta.AbreTabelaConsulta(TipoPesquisa);
+    Result := inherited InternoPesquisar(TituloPesquisa);
+    if Result = mrOK then
+      dtmMalaDireta.Selecionar(TipoPesquisa);
+    dtmMalaDireta.FechaTabelaConsulta(TipoPesquisa);
+  end;
+end;
+
+function TfrmMalaDireta.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  case TipoPesquisa of
+    pesCONCEITOS       : Result := dtmMalaDireta.ExisteConceito(NomeCampo,Value);
+    pesCARGOS           : Result := dtmMalaDireta.ExisteCargo(NomeCampo,Value);
+    pesCIDADES          : Result := dtmMalaDireta.ExisteCidade(NomeCampo,Value);
+    pesREGIOES          : Result := dtmMalaDireta.ExisteRegiao(NomeCampo,Value);
+    pesFILIAIS,
+    pesNENHUMA          : Result := dtmMalaDireta.ExisteFilial(NomeCampo,Value);
+    pesVENDEDORES       : Result := dtmMalaDireta.ExisteVendedor(NomeCampo, Value);
+    else              Result := False;
+  end;
+end;
+
+function TfrmMalaDireta.TabelaDePesquisa: TZdataSet;
+begin
+  case TipoPesquisa of
+    pesCONCEITOS        : Result := dtmMalaDireta.ConsultarConceito;
+    pesCARGOS           : Result := dtmMalaDireta.ConsultarCargo;
+    pesCIDADES          : Result := dtmMalaDireta.ConsultarCidade;
+    pesREGIOES          : Result := dtmMalaDireta.ConsultarRegiao;
+    pesFILIAIS,
+    pesNENHUMA          : Result := dtmMalaDireta.ConsultarFilial;
+    pesVENDEDORES       : Result := dtmMalaDireta.ConsultarVendedor;
+    else              Result := nil;
+  end;
+end;
+
+function TfrmMalaDireta.PermitirPesquisa: Boolean;
+begin
+  Result := False;
+  if CtrlOn then
+  begin
+    if ActiveControl is TtecFindCustom then
+    begin
+      if edfConceito.Focused  then
+        TipoPesquisa:= pesCONCEITOS
+      else if edfCargo.Focused then
+        TipoPesquisa:= pesCARGOS
+      else if edfCidade.Focused then
+        TipoPesquisa:= pesCIDADES
+      else if edfRegiao.Focused then
+        TipoPesquisa:= pesREGIOES
+      else if edfFilialCadastro.Focused then
+        TipoPesquisa := pesFILIAIS
+      else if edfFilialVenda.Focused then
+        TipoPesquisa := pesNENHUMA
+      else if edfVendedor.Focused then
+        TipoPesquisa := pesVENDEDORES;
+      Result:= True;
+    end;
+  end;
+end;
+
+function TfrmMalaDireta.TituloPesquisa: string;
+begin
+  case TipoPesquisa of
+    pesCONCEITOS        : Result := 'Conceitos';
+    pesCARGOS           : Result := 'Cargos';
+    pesCIDADES          : Result := 'Cidades';
+    pesREGIOES          : Result := 'Regiões';
+    pesFILIAIS,
+    pesNENHUMA          : Result := 'Filiais';
+    pesVENDEDORES       : Result := 'Vendedores';
+  end;
+end;
+
+function TfrmMalaDireta.JanelaPesquisa;
+begin
+  Result:= TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(result).ConsultaInterativa := True;
+end;
+
+procedure TfrmMalaDireta.sbnConceitoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfConceito.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmMalaDireta.sbnCargosClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfCargo.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmMalaDireta.sbnCidadeClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfCidade.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmMalaDireta.sbnRegiaoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfRegiao.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmMalaDireta.sbnFilialCadastroClick(Sender: TObject);
+begin
+  CtrlOn:= True;
+  edfFilialCadastro.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmMalaDireta.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  case Key of
+       VK_F6: if not CtrlOn and sbngerar.Enabled then
+                  sbngerar.click;
+  end;
+  inherited;
+end;
+
+procedure TfrmMalaDireta.sbnArquivoClick(Sender: TObject);
+begin
+  inherited;
+  if dlgArquivoaExportar.Execute then
+  begin
+   edtArquivoaExportar.Text:=trim(dlgArquivoaExportar.FileName);
+   edtEtiqueta.Text:=Copy(edtArquivoaExportar.Text,0,length(edtArquivoaExportar.Text)-3) + 'etq.txt';
+  end;
+end;
+
+procedure TfrmMalaDireta.sbnGerarClick(Sender: TObject);
+begin
+  inherited;
+  if edtArquivoaExportar.Text <> '' then
+    GerarArquivo(False)
+  else
+    MensagemAviso('Indique o arquivo para exportação dos dados!');
+end;
+
+procedure TfrmMalaDireta.GerarArquivo(Relatorio: Boolean);
+begin
+  with dtmMalaDireta do begin
+       NascimentoInicial   := edtNasctoInicial.Text;
+       NascimentoFinal     := edtNasctoFinal.Text;
+       AniversarioInicial  := edfAniversarioInicial.Text;
+       AniversarioFinal    := edfAniversarioFinal.Text;
+       Sexo                := IntToStr(cmbSexo.ItemIndex);
+       EstadoCivil         := IntToStr(cmbEstadoCivil.ItemIndex);
+
+       if edtSalarioInicial.text <> '' then
+         SalarioInicial      := edtSalarioInicial.ValorSemFormatacao
+       else
+         SalarioInicial      := '';
+
+       if edtSalarioFinal.text <> '' then
+         SalarioFinal        := edtSalarioFinal.ValorSemFormatacao
+       else
+         SalarioFinal        := '';
+
+       if edtValorComprasInicial.text <> '' then
+         ValorComprasInicial := edtValorComprasInicial.ValorSemFormatacao
+       else
+         ValorComprasInicial := '';
+
+       ValorComprasFinal   := ifthen(edtValorComprasFinal.text<>'',edtValorComprasFinal.ValorSemFormatacao,'');
+
+       UltimaCompraInicial := edtUltimaCompraInicial.Text;
+       UltimaCompraFinal   := edtUltimaCompraFinal.Text;
+
+       SPC                 := IntToStr(cmbSPC.ItemIndex);
+       EnviarDevolvidas    := IntToStr(cmbEnviarDevolvidas.ItemIndex);
+       camposmarcados      := VerificaCamposMarcados;
+       Ordenacao           := IntToStr(rgpOrdenacao.ItemIndex);
+       VendaInicial        := edtVendaInicial.Text;
+       VendaFinal          := edtVendaFinal.Text;
+       VenctoInicial       := edtVenctoInicial.Text;
+       VenctoFinal         := edtVenctoFinal.Text;
+       DataCadastroInicial := edtDataCadastroInicial.Text;
+       DataCadastroFinal   := edtDataCadastroFinal.Text;
+       if rgpDependentes.Enabled and rgpDependentes.Visible then
+         Dependentes       := rgpDependentes.ItemIndex
+       else
+         Dependentes       := 0;
+       ClientesSite        := rgpClientesSite.ItemIndex;
+       EmAtraso            := ckbEmAtraso.Checked;
+       SemTelefones        := ckbSemTelefones.Checked;
+       ContratosQuitados   := ckbContratosQuitados.Checked;
+       EmailMarketing :=   TtecSelecao2(cbbEmailMarketing.itemindex);
+
+       ListaItemProdutos := fraMultiplaSelecaoAleatoria.fraSelecaoAleatoriaItemdeProdutos.ListaCondicional;
+       ListaProdutos     := fraMultiplaSelecaoAleatoria.fraSelecaoAleatoriaprodutos.ListaCondicional;
+       ListaGrupos       := fraMultiplaSelecaoAleatoria.fraSelecaoaleatoriagruposprodutos.ListaCondicional;
+       ListaClasses      := fraMultiplaSelecaoAleatoria.fraSelecaoaleatoriaclassesprodutos.ListaCondicional;
+       ListaMarcas       := fraMultiplaSelecaoAleatoria.fraSelecaoAleatoriamarcasProdutos.ListaCondicional;
+       ListaCondicionalPromocoes := fraMultiplaSelecaoAleatoria.fraSelecaoaleatoriapromocoes.ListaCondicional;
+
+
+       if GerarClientes(relatorio) then
+       begin
+          if not Relatorio then
+          begin
+             GerarArquivo(edtArquivoaExportar.Text,edtEtiqueta.Text);
+             MensagemAviso(format(ctARQUIVOGERADOSUCESSO,[edtArquivoaExportar.Text]));
+          end else
+             ImprimirRelatorioClientes;
+       end
+       else
+          MensagemAviso(ctCONSULTAVAZIA);
+  end;
+end;
+
+function TfrmMalaDireta.VerificaCamposMarcados: TStringList;
+var
+ i: integer;
+ lista : tstringlist;
+begin
+ lista := tstringlist.Create;
+ for i:=0 to clbCampos.Items.Count -1 do
+   if clbCampos.Checked[i] then
+    lista.Add(dtmMalaDireta.relacaoCampos.Strings[i]);
+ result := lista;
+end; 
+
+procedure TfrmMalaDireta.InternoImpressao;
+begin
+  inherited;
+  GerarArquivo(True);
+end;
+
+procedure TfrmMalaDireta.sbnFilialVendaClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfFilialVenda.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmMalaDireta.edtNasctoInicialExit(Sender: TObject);
+begin
+  inherited;
+  rgpDependentes.Enabled := ((edtNasctoInicial.Text <> '') and (edtNasctoFinal.Text   <> '')) or
+                            ((edfAniversarioInicial.Text <> '  /  ') and (edfAniversarioFinal.Text   <> '  /  '));
+end;
+
+procedure TfrmMalaDireta.sbnVendedorClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfVendedor.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmMalaDireta.sbnMarcarCamposClick(Sender: TObject);
+begin
+  inherited;
+   MarcarLista(clbCampos,True);
+end;
+
+procedure TfrmMalaDireta.sbnDesmarcarCamposClick(Sender: TObject);
+begin
+  inherited;
+   MarcarLista(clbCampos,False);
+end;
+
+procedure TfrmMalaDireta.Timer1Timer(Sender: TObject);
+begin
+  inherited;
+  tstFiltroProdutos.Highlighted := fraMultiplaSelecaoAleatoria.tstItemdeProduto.Highlighted or
+                                   fraMultiplaSelecaoAleatoria.tstProduto.Highlighted or
+                                   fraMultiplaSelecaoAleatoria.tstSelecaoAleatoriaGrupoProduto.Highlighted or
+                                   fraMultiplaSelecaoAleatoria.tstSelecaoAleatoriaClasseProduto.Highlighted or
+                                   fraMultiplaSelecaoAleatoria.tstSelecaoAleatoriaMarcaProduto.Highlighted;
+end;
+
+end.

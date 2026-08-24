@@ -1,6 +1,6 @@
 inherited frmTransferenciaRequisicaoExposicao: TfrmTransferenciaRequisicaoExposicao
-  Left = 351
-  Top = 75
+  Left = 229
+  Top = 74
   Action = actHabilitarBotoes
   ActiveControl = dbgProdutosFiliais
   BorderIcons = [biSystemMenu, biMinimize, biMaximize]

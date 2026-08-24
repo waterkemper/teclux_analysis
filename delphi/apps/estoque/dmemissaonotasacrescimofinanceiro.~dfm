@@ -1,0 +1,886 @@
+inherited dtmEmissaoNotasAcrescimoFinanceiro: TdtmEmissaoNotasAcrescimoFinanceiro
+  OldCreateOrder = False
+  Left = 423
+  Top = 125
+  Height = 631
+  Width = 759
+  object qryECFsData: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkFields = 'data=data;filial=filial'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrDatas
+    Constraints = <>
+    OnCalcFields = qryECFsDataCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select selecao.data,'
+      '       selecao.filial,'
+      '       selecao.maquina,'
+      '       selecao.intervensao,'
+      '       sum(selecao.acrescimo) as acrescimo,'
+      '       sum(selecao.acrescimo) as excluido,'
+      '       sum(selecao.valoricms) as valoricms'
+      ''
+      'from'
+      '('
+      ' SELECT df.data,'
+      '         c.maquina,'
+      '         c.intervensao,'
+      '         c.filial,'
+      '         c.numero,'
+      '       '
+      '       (SELECT COUNT(*)'
+      '        FROM parcelas p'
+      '        WHERE p.contrato = df.contrato'
+      '          AND p.datavencto > ct.faturamento'
+      '        ) as qtdeparcelas_f,'
+      '        '
+      '       coalesce(CASE WHEN (SELECT COUNT(*)'
+      '                   FROM parcelas p'
+      '                   WHERE (p.contrato = df.contrato)'
+      
+        '                     AND (p.datavencto > ct.faturamento)) = 0 TH' +
+        'EN 0.00'
+      '             ELSE (SELECT sum(p.valorvencto)'
+      '                   FROM parcelas p'
+      '                   WHERE (p.contrato = df.contrato)'
+      '                     AND (p.datavencto <= ct.faturamento))'
+      '        END, 0.0) AS entrada,'
+      '        '
+      '       (CASE WHEN (SELECT COUNT(*)'
+      '                   FROM parcelas p'
+      '                   WHERE (p.contrato = df.contrato)'
+      
+        '                     AND (p.datavencto > ct.faturamento)) = 0 TH' +
+        'EN 0.00'
+      '             ELSE (SELECT sum(p.valorvencto)'
+      '                   FROM parcelas p'
+      '                   WHERE (p.contrato = df.contrato)'
+      '                     AND (p.datavencto > ct.faturamento))'
+      '        END) AS financiado,'
+      ''
+      '       sum(((pdf.quantidade * pdf.precovenda) +'
+      '         coalesce(pdf.frete,0) +'
+      
+        '         coalesce(pdf.seguro,0)) / (df.valorvista + df.desconto)' +
+        ' *'
+      
+        '         (df.valortotal - df.valorvista) * pdf.aliquotaicms/100)' +
+        ' as  valoricms,'
+      '         '
+      '        (df.valortotal - df.valorvista) AS acrescimo,'
+      '        df.valorvista,'
+      '        df.valortotal'
+      ''
+      '  FROM produtosdadosfiscais pdf'
+      '     join dadosfiscais df'
+      '          join cupons c'
+      '          on df.numero = c.dadofiscal'
+      '          join contratos ct'
+      '          on df.contrato = ct.numero'
+      '     on pdf.dadofiscal = df.numero'
+      '     '
+      '  WHERE df.data BETWEEN :datainicial AND :datafinal'
+      '    and c.filial = :filial'
+      '    AND not c.icmsestornado'
+      '    AND df.situacao = '#39'N'#39
+      '    AND (df.valortotal - df.valorvista) > 0'
+      '    and (select sum(cdf.valor)'
+      '         from calculosdadosfiscais cdf'
+      '         where cdf.dadofiscal = df.numero'
+      '          and cdf.tipo='#39'M'#39')<>0'
+      
+        '  group by pdf.dadofiscal, df.contrato, ct.faturamento, df.valor' +
+        'total, df.valorvista, df.data, c.maquina, c.intervensao, c.filia' +
+        'l, c.numero'
+      ') as selecao'
+      
+        'group by selecao.data, selecao.filial, selecao.maquina, selecao.' +
+        'intervensao'
+      
+        'order by selecao.data, selecao.filial, selecao.maquina, selecao.' +
+        'intervensao')
+    RequestLive = True
+    Left = 51
+    Top = 84
+    ParamData = <
+      item
+        DataType = ftDateTime
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftDateTime
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object qryECFsDatadata: TDateField
+      FieldName = 'data'
+    end
+    object qryECFsDatafilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryECFsDatamaquina: TIntegerField
+      FieldName = 'maquina'
+    end
+    object qryECFsDataintervensao: TIntegerField
+      FieldName = 'intervensao'
+    end
+    object qryECFsDataacrescimo: TFloatField
+      FieldName = 'acrescimo'
+    end
+    object qryECFsDatavaloricms: TFloatField
+      FieldName = 'valoricms'
+    end
+    object qryECFsDataexcluido: TFloatField
+      FieldName = 'excluido'
+    end
+    object qryECFsDatapercentual: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'percentual'
+      Calculated = True
+    end
+  end
+  object dsrECFsData: TtecDataSource
+    DataSet = qryECFsData
+    Left = 136
+    Top = 85
+  end
+  object qryCupons: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkFields = 'data=data;filial=filial;maquina=maquina;intervensao=intervensao'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrECFsData
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      '  SELECT df.data,'
+      '         pdf.dadofiscal,'
+      '         c.maquina,'
+      '         c.intervensao,'
+      '         c.numero,'
+      '         c.filial,'
+      '       '
+      '       (SELECT COUNT(*)'
+      '        FROM parcelas p'
+      '        WHERE p.contrato = df.contrato'
+      '          AND p.datavencto > ct.faturamento'
+      '        ) as qtdeparcelas_f,'
+      '        '
+      '       coalesce(CASE WHEN (SELECT COUNT(*)'
+      '                   FROM parcelas p'
+      '                   WHERE (p.contrato = df.contrato)'
+      
+        '                     AND (p.datavencto > ct.faturamento)) = 0 TH' +
+        'EN 0.00'
+      '             ELSE (SELECT sum(p.valorvencto)'
+      '                   FROM parcelas p'
+      '                   WHERE (p.contrato = df.contrato)'
+      '                     AND (p.datavencto <= ct.faturamento))'
+      '        END, 0.0) AS entrada,'
+      '        '
+      '       (CASE WHEN (SELECT COUNT(*)'
+      '                   FROM parcelas p'
+      '                   WHERE (p.contrato = df.contrato)'
+      
+        '                     AND (p.datavencto > ct.faturamento)) = 0 TH' +
+        'EN 0.00'
+      '             ELSE (SELECT sum(p.valorvencto)'
+      '                   FROM parcelas p'
+      '                   WHERE (p.contrato = df.contrato)'
+      '                     AND (p.datavencto > ct.faturamento))'
+      '        END) AS financiado,'
+      ''
+      '       sum(((pdf.quantidade * pdf.precovenda) +'
+      '         coalesce(pdf.frete,0) +'
+      
+        '         coalesce(pdf.seguro,0)) / (df.valorvista + df.desconto)' +
+        ' *'
+      
+        '         (df.valortotal - df.valorvista) * pdf.aliquotaicms/100)' +
+        ' as icms,'
+      '         '
+      '        (df.valortotal - df.valorvista) AS acrescimo,'
+      '        df.valorvista,'
+      '        df.valortotal'
+      ''
+      'FROM produtosdadosfiscais pdf'
+      '     join dadosfiscais df'
+      '          join cupons c'
+      '          on df.numero = c.dadofiscal'
+      '          join contratos ct'
+      '          on df.contrato = ct.numero'
+      '     on pdf.dadofiscal = df.numero'
+      '     '
+      'WHERE df.data BETWEEN :datainicial AND :datafinal'
+      '  and c.filial = :filial'
+      '  AND not c.icmsestornado'
+      '  AND df.situacao = '#39'N'#39
+      '  AND (df.valortotal - df.valorvista) > 0'
+      '  and (select sum(cdf.valor)'
+      '       from calculosdadosfiscais cdf'
+      '       where cdf.dadofiscal = df.numero'
+      '        and cdf.tipo='#39'M'#39')<>0'
+      ''
+      
+        'group by pdf.dadofiscal, df.contrato, ct.faturamento, df.valorto' +
+        'tal, df.valorvista, df.data, c.maquina, c.intervensao, c.filial,' +
+        ' c.numero'
+      
+        'order by pdf.dadofiscal, df.contrato, ct.faturamento, df.valorto' +
+        'tal, df.valorvista, df.data, c.maquina, c.intervensao, c.filial,' +
+        ' c.numero'
+      '')
+    RequestLive = True
+    Left = 52
+    Top = 141
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object qryCuponsdata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryCuponsmaquina: TIntegerField
+      FieldName = 'maquina'
+      DisplayFormat = '0'
+    end
+    object qryCuponsintervensao: TIntegerField
+      FieldName = 'intervensao'
+      DisplayFormat = '0'
+    end
+    object qryCuponsnumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryCuponsfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryCuponsqtdeparcelas_f: TLargeintField
+      FieldName = 'qtdeparcelas_f'
+    end
+    object qryCuponsentrada: TFloatField
+      FieldName = 'entrada'
+      DisplayFormat = '0.00'
+    end
+    object qryCuponsfinanciado: TFloatField
+      FieldName = 'financiado'
+      DisplayFormat = '0.00'
+    end
+    object qryCuponsicms: TFloatField
+      FieldName = 'icms'
+      DisplayFormat = '0.00'
+    end
+    object qryCuponsacrescimo: TFloatField
+      FieldName = 'acrescimo'
+      DisplayFormat = '0.00'
+    end
+    object qryCuponsvalorvista: TFloatField
+      FieldName = 'valorvista'
+      DisplayFormat = '0.00'
+    end
+    object qryCuponsvalortotal: TFloatField
+      FieldName = 'valortotal'
+      DisplayFormat = '0.00'
+    end
+  end
+  object dsrCupons: TtecDataSource
+    DataSet = qryCupons
+    Left = 138
+    Top = 142
+  end
+  object qryLimitesAcrescimoFinanceiro: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT pla.jurosmaximo'
+      
+        'FROM limitesacrescimofinanceiro laf JOIN parcelaslimitesacrescim' +
+        'o pla'
+      '                                      ON laf.codigo = pla.limite'
+      'WHERE laf.validade <= :data'
+      '  AND pla.nrparcelas = :nrparcelas'
+      'ORDER BY laf.validade desc'
+      'LIMIT 1')
+    RequestLive = False
+    Left = 80
+    Top = 272
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'nrparcelas'
+        ParamType = ptUnknown
+      end>
+    object qryLimitesAcrescimoFinanceirojurosmaximo: TFloatField
+      FieldName = 'jurosmaximo'
+    end
+  end
+  object qryAtualizarCupons: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'ListaCuponsFiscais'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'UPDATE cupons SET'
+      '       icmsestornado = TRUE'
+      'WHERE not icmsestornado'
+      
+        '  and (filial, maquina, intervensao, numero) in (%ListaCuponsFis' +
+        'cais)')
+    RequestLive = False
+    Left = 312
+    Top = 264
+  end
+  object qryNotasPag: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnNewRecord = qryNotasPagNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select np.*,'
+      ''
+      '       0.00 as totalbaseicmssubstituicao,'
+      '       0.00 as totalvaloricmssubstituicao,'
+      ''
+      '      (select sum(pnp.quantidade * pnp.precounitario)'
+      '       from produtosnotaspag pnp'
+      '       where pnp.codigonota = np.codigo) as valorprodutos,'
+      ''
+      '      (select sum(pnp.quantidade * pnp.precounitario)'
+      '       from produtosnotaspag pnp'
+      
+        '       where pnp.codigonota = np.codigo) - coalesce(np.desconto,' +
+        '0) + coalesce(np.acrescimo,0) as totalprodutos,'
+      ''
+      '      0.00 as valorvista,'
+      
+        '      (select sum(pnp.vCredICMSSN) from produtosnotaspag pnp whe' +
+        're pnp.codigonota = np.codigo) as vCredICMSSN,'
+      
+        '      (select sum(pnp.vICMSSTRet) from produtosnotaspag pnp wher' +
+        'e pnp.codigonota = np.codigo) as vICMSSTRet'
+      ''
+      ''
+      'from notaspag np'
+      'where np.codigo = :codigo')
+    RequestLive = True
+    Left = 64
+    Top = 408
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+  end
+  object dsrNotasPag: TtecDataSource
+    DataSet = qryNotasPag
+    Left = 104
+    Top = 424
+  end
+  object qryProdutosNotasPag: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkFields = 'codigo = codigonota'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrNotasPag
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select pnp.*'
+      'from produtosnotaspag pnp'
+      'where pnp.codigonota = :codigonota')
+    RequestLive = True
+    Left = 64
+    Top = 472
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigonota'
+        ParamType = ptUnknown
+      end>
+  end
+  object dsrProdutosNotasPag: TtecDataSource
+    DataSet = qryProdutosNotasPag
+    Left = 104
+    Top = 488
+  end
+  object spcNotasPagProximoCodigo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select notaspag_proximocodigo() as codigo')
+    RequestLive = False
+    Left = 291
+    Top = 412
+    object spcNotasPagProximoCodigocodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+  end
+  object qryDatas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnCalcFields = qryDatasCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select selecao.data,'
+      '       selecao.filial,'
+      '       sum(selecao.acrescimo) as acrescimo,'
+      '       sum(selecao.acrescimo) as excluido,'
+      '       sum(selecao.valoricms) as valoricms'
+      ''
+      'from'
+      '('
+      ' SELECT df.data,'
+      '         c.maquina,'
+      '         c.intervensao,'
+      '         c.filial,'
+      '         c.numero,'
+      ''
+      '       (SELECT COUNT(*)'
+      '        FROM parcelas p'
+      '        WHERE p.contrato = df.contrato'
+      '          AND p.datavencto > ct.faturamento'
+      '        ) as qtdeparcelas_f,'
+      ''
+      '       coalesce(CASE WHEN (SELECT COUNT(*)'
+      '                   FROM parcelas p'
+      '                   WHERE (p.contrato = df.contrato)'
+      
+        '                     AND (p.datavencto > ct.faturamento)) = 0 TH' +
+        'EN 0.00'
+      '             ELSE (SELECT sum(p.valorvencto)'
+      '                   FROM parcelas p'
+      '                   WHERE (p.contrato = df.contrato)'
+      '                     AND (p.datavencto <= ct.faturamento))'
+      '        END, 0.0) AS entrada,'
+      ''
+      '       (CASE WHEN (SELECT COUNT(*)'
+      '                   FROM parcelas p'
+      '                   WHERE (p.contrato = df.contrato)'
+      
+        '                     AND (p.datavencto > ct.faturamento)) = 0 TH' +
+        'EN 0.00'
+      '             ELSE (SELECT sum(p.valorvencto)'
+      '                   FROM parcelas p'
+      '                   WHERE (p.contrato = df.contrato)'
+      '                     AND (p.datavencto > ct.faturamento))'
+      '        END) AS financiado,'
+      ''
+      '       sum(((pdf.quantidade * pdf.precovenda) +'
+      '         coalesce(pdf.frete,0) +'
+      
+        '         coalesce(pdf.seguro,0)) / (df.valorvista + df.desconto)' +
+        ' *'
+      
+        '         (df.valortotal - df.valorvista) * pdf.aliquotaicms/100)' +
+        ' as  valoricms,'
+      ''
+      '        (df.valortotal - df.valorvista) AS acrescimo,'
+      '        df.valorvista,'
+      '        df.valortotal'
+      ''
+      '  FROM produtosdadosfiscais pdf'
+      '     join dadosfiscais df'
+      '          join cupons c'
+      '          on df.numero = c.dadofiscal'
+      '          join contratos ct'
+      '          on df.contrato = ct.numero'
+      '     on pdf.dadofiscal = df.numero'
+      ''
+      '  WHERE df.data BETWEEN :datainicial AND :datafinal'
+      '    and c.filial = :filial'
+      '    AND not c.icmsestornado'
+      '    AND df.situacao = '#39'N'#39
+      '    AND (df.valortotal - df.valorvista) > 0'
+      '    and (select sum(cdf.valor)'
+      '         from calculosdadosfiscais cdf'
+      '         where cdf.dadofiscal = df.numero'
+      '          and cdf.tipo='#39'M'#39')<>0'
+      
+        '  group by pdf.dadofiscal, df.contrato, ct.faturamento, df.valor' +
+        'total, df.valorvista, df.data, c.maquina, c.intervensao, c.filia' +
+        'l, c.numero'
+      ') as selecao'
+      'group by selecao.data, selecao.filial'
+      'order by selecao.data, selecao.filial')
+    RequestLive = True
+    Left = 51
+    Top = 20
+    ParamData = <
+      item
+        DataType = ftDateTime
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftDateTime
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object qryDatasdata: TDateField
+      FieldName = 'data'
+    end
+    object qryDatasfilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryDatasacrescimo: TFloatField
+      FieldName = 'acrescimo'
+    end
+    object qryDatasexcluido: TFloatField
+      FieldName = 'excluido'
+    end
+    object qryDatasvaloricms: TFloatField
+      FieldName = 'valoricms'
+    end
+    object qryDataspercentual: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'percentual'
+      Calculated = True
+    end
+  end
+  object dsrDatas: TtecDataSource
+    DataSet = qryDatas
+    Left = 136
+    Top = 21
+  end
+  object qryProdutos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select p.*'
+      'from produtos p'
+      'where p.descricao = :descricao')
+    RequestLive = False
+    Left = 456
+    Top = 360
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'descricao'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryCaracteristicas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select c.*'
+      'from caracteristicas c'
+      'where c.descricao = :descricao')
+    RequestLive = False
+    Left = 456
+    Top = 304
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'descricao'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryNaturezasPadrao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select np.*,'
+      '          n.codigofiscal,'
+      '          n.descricao as descricaonatureza,'
+      '          n.piscst,'
+      '          n.cofinscst,'
+      '          n.ipicst,'
+      '          n.icmscst,'
+      '          n.naogerarcreditoicms,'
+      '          n.naogerarcreditoipi,'
+      '          n.naocalcularipisobrefrete'
+      ''
+      
+        'from naturezaspadrao np join naturezas n on np.natureza = n.codi' +
+        'go'
+      'order by np.descricao')
+    RequestLive = False
+    Left = 284
+    Top = 480
+    object qryNaturezasPadraodescricao: TStringField
+      FieldName = 'descricao'
+      Size = 50
+    end
+    object qryNaturezasPadraonatureza: TIntegerField
+      FieldName = 'natureza'
+      DisplayFormat = '0'
+    end
+    object qryNaturezasPadraocodigofiscal: TIntegerField
+      FieldName = 'codigofiscal'
+      DisplayFormat = '0'
+    end
+    object qryNaturezasPadraodescricaonatureza: TStringField
+      FieldName = 'descricaonatureza'
+      Size = 70
+    end
+    object qryNaturezasPadraopiscst: TStringField
+      FieldName = 'piscst'
+      Size = 2
+    end
+    object qryNaturezasPadraocofinscst: TStringField
+      FieldName = 'cofinscst'
+      Size = 2
+    end
+    object qryNaturezasPadraoipicst: TStringField
+      FieldName = 'ipicst'
+      Size = 2
+    end
+    object qryNaturezasPadraoicmscst: TStringField
+      FieldName = 'icmscst'
+      Size = 2
+    end
+    object qryNaturezasPadraonaogerarcreditoicms: TBooleanField
+      FieldName = 'naogerarcreditoicms'
+    end
+    object qryNaturezasPadraonaogerarcreditoipi: TBooleanField
+      FieldName = 'naogerarcreditoipi'
+    end
+    object qryNaturezasPadraonaocalcularipisobrefrete: TBooleanField
+      FieldName = 'naocalcularipisobrefrete'
+    end
+  end
+  object qryNumeroNota: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select   numeroinicial,'
+      '             modelonota'
+      'From     seriesfiliais'
+      'Where  (filial =:filial) and (valor =:valor)'
+      'For Update')
+    RequestLive = True
+    Left = 463
+    Top = 449
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'filial'
+        ParamType = ptUnknown
+        Value = 0
+      end
+      item
+        DataType = ftString
+        Name = 'valor'
+        ParamType = ptUnknown
+        Value = '0'
+      end>
+    object qryNumeroNotanumeroinicial: TIntegerField
+      FieldName = 'numeroinicial'
+    end
+    object qryNumeroNotamodelonota: TIntegerField
+      FieldName = 'modelonota'
+    end
+  end
+  object qryCuponsFiscais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkFields = 'data=data;filial=filial;maquina=maquina;intervensao=intervensao'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrECFsData
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT c.*,'
+      '       df.data'
+      ''
+      'FROM cupons c'
+      '     join dadosfiscais df'
+      '          join contratos ct'
+      '          on df.contrato = ct.numero'
+      '     on df.numero = c.dadofiscal'
+      ''
+      ''
+      'WHERE df.data BETWEEN :datainicial AND :datafinal'
+      '  and c.filial = :filial'
+      '  AND not c.icmsestornado'
+      '  AND df.situacao = '#39'N'#39
+      '  AND (df.valortotal - df.valorvista) > 0'
+      '  and (select sum(cdf.valor)'
+      '       from calculosdadosfiscais cdf'
+      '       where cdf.dadofiscal = df.numero'
+      '        and cdf.tipo='#39'M'#39')<>0'
+      '')
+    RequestLive = True
+    Left = 76
+    Top = 197
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object qryCuponsFiscaisdata: TDateField
+      FieldName = 'data'
+    end
+    object qryCuponsFiscaisfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryCuponsFiscaismaquina: TIntegerField
+      FieldName = 'maquina'
+      DisplayFormat = '0'
+    end
+    object qryCuponsFiscaisintervensao: TIntegerField
+      FieldName = 'intervensao'
+      DisplayFormat = '0'
+    end
+    object qryCuponsFiscaisnumero: TIntegerField
+      FieldName = 'numero'
+      DisplayFormat = '0'
+    end
+    object qryCuponsFiscaisdadofiscal: TIntegerField
+      FieldName = 'dadofiscal'
+      DisplayFormat = '0'
+    end
+    object qryCuponsFiscaisicmsestornado: TBooleanField
+      FieldName = 'icmsestornado'
+    end
+    object qryCuponsFiscaisnumeroserie: TStringField
+      FieldName = 'numeroserie'
+    end
+    object qryCuponsFiscaiscodigonota: TIntegerField
+      FieldName = 'codigonota'
+      DisplayFormat = '0'
+    end
+  end
+end

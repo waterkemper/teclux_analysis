@@ -1,0 +1,319 @@
+unit dmtecsoft;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Classes, DB,
+  //Terceiros
+  ZQuery, ZConnect, ZPgSqlCon, ZTransact, ZPgSqlTr, ZPgSqlQuery,
+  //Componentes
+  cpquery, cptransact, cpdatabase, cpdatasource, clusuario, ExtCtrls,
+  SqlTimSt, windows;
+
+type
+  TdtmTecSoft = class(TDataModule)
+    dbaTecSoft: TtecDatabase;
+    tstTecSoft: TtecTransact;
+    Timer1: TTimer;
+    ZMonitor1: TZMonitor;
+    procedure dbaTecSoftAfterConnect(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
+    procedure tstTecSoftAfterConnect(Sender: TObject);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+  private
+    FSenhaNova: String;
+  protected
+    FDataServidor: TDateTime;
+    FHoraServidor: TDateTime;
+    FDataHoraServidor: TDateTime;
+
+    function GetConectado: Boolean;
+    function GetDatabase: TtecDatabase;  virtual;
+    function GetDataServidor: TDateTime;
+    function GetHoraServidor: TDateTime;
+    function GetDataHoraServidor: TDateTime;
+
+    function Login(var Usr, Pwd: string; LoginReduzido: boolean = false): Boolean;
+  public
+    Tentativa: Integer;
+    function  Conectar(UsuarioPadrao, SenhaPadrao: String; LoginReduzido: boolean = false): Boolean;
+    function  RenovarSenha: Boolean;
+    class procedure ConfigurarConexao(Host, Banco, Porta: String);
+    constructor Create(AOwner: TComponent); override;
+    procedure CancelarTransacao;
+    procedure Desconectar;
+    procedure TerminarTransacao;
+    property Conectado: Boolean read GetConectado;
+    property Database: TtecDatabase read GetDatabase;
+    property DataServidor: TDateTime read GetDataServidor;
+    property HoraServidor: TDateTime read GetHoraServidor;
+    property DataHoraServidor: TDateTime read GetDataHoraServidor;
+    property SenhaNova: String read FSenhaNova write FSenhaNova;
+  end;
+
+var
+  dtmTecSoft: TdtmTecSoft;
+  qryDataServidor: TtecQuery;
+  SenhaLogin: String;
+  vLogHabilitado : boolean;
+
+
+implementation
+
+{$R *.dfm}
+
+uses
+  //CLX
+  Forms, Controls,
+  //Biblio
+  ctconstantes, biblio,
+  //Repositorio
+  fmlogin, fmsplash, fmrenovarsenha, DateUtils;
+
+var
+  FHost,
+  FBanco,
+  FPorta: String;
+
+{ TdtmTecSoft }
+
+procedure TdtmTecSoft.CancelarTransacao;
+begin
+  tstTecSoft.Rollback
+end;
+
+function TdtmTecSoft.Conectar(UsuarioPadrao, SenhaPadrao: String; LoginReduzido: boolean = false): Boolean;
+var
+  Usuario, Senha: String;
+begin
+  Result := False;
+  while not dbaTecSoft.Connected do
+    try
+      Usuario := UsuarioPadrao;
+      Senha   := SenhaPadrao;
+      if ((Usuario <> '') and (Senha <> '')) or Login(Usuario, Senha, LoginReduzido) then begin
+        dbaTecSoft.Login := Usuario;
+        dbaTecSoft.Password := Senha;
+        dbaTecSoft.LoginPrompt := False;
+        try
+          if not dbaTecSoft.Connected then
+            dbaTecSoft.Connected := True;
+        except
+          on E:EDatabaseError do begin
+            if (Pos('password authentication failed for user', E.Message) = 0) and
+               (Pos('no password supplied', E.Message) = 0) then
+              raise
+          end else
+            raise;
+        end;
+        Result := dbaTecSoft.Connected;
+        if Result then
+        begin
+          if Abs(DataServidor - Date) > 0 then
+          begin
+            MensagemAviso('A data deste computador não esta sincronizada com a data do servidor');
+            Result := False
+          end;
+        end else begin
+          Inc(Tentativa);
+          if Tentativa < LimiteTentativasLogin then
+            MensagemErro(ctLOGININVALIDO)
+          else begin
+            MensagemErro(Format(ctENCERRAR,[Application.Title]));
+            Break;
+          end;
+        end
+      end else
+        Break;
+    except
+      on E:Exception do begin
+        MensagemErro(E.Message);
+        Break;
+      end;
+    end;
+end;
+
+class procedure TdtmTecSoft.ConfigurarConexao(Host, Banco, Porta: String);
+begin
+  FHost  := Host;
+  FBanco := Banco;
+  FPorta := Trim(Porta);
+end;
+
+constructor TdtmTecSoft.Create(AOwner: TComponent);
+begin
+  inherited;
+  dbaTecSoft.Host                 := FHost;
+  dbaTecSoft.Database             := FBanco;
+  dbaTecSoft.Connected            := False;
+  if FPorta <> '' then
+    dbaTecSoft.Port               := FPorta;
+  tstTecSoft.TransactSafe         := True;
+  tstTecSoft.AutoRecovery         := True;
+  tstTecSoft.NewStyleTransactions := False;
+  Tentativa := 0;
+end;
+
+procedure TdtmTecSoft.dbaTecSoftAfterConnect(Sender: TObject);
+const
+  SQL = 'select cast(timeofday() as date), cast(timeofday() as timestamptz)';
+
+//var
+//  qryDataServidor: TtecQuery;
+begin
+  inherited;
+  if not assigned(qryDataServidor) and  assigned(tstTecSoft) then
+  begin
+    qryDataServidor := TtecQuery.Create(nil);
+    qryDataServidor.Database := Database;
+    qryDataServidor.Transaction := tstTecSoft;
+  end;
+
+  if assigned(qryDataServidor) and  assigned(tstTecSoft) then
+  begin
+    qryDataServidor.sql.Clear;
+    qryDataServidor.Sql.append(SQL);
+    qryDataServidor.Open;
+    FDataServidor := qryDataServidor.Fields[0].AsDateTime;
+    FHoraServidor := StrToTime(FormatDateTime('HH:MM:SS',qryDataServidor.Fields[1].AsDateTime));
+    FDataHoraServidor := qryDataServidor.Fields[1].AsDateTime;
+    Timer1.Interval := MilliSecondsBetween(FDataHoraServidor, FdataServidor + 1);
+
+  end;
+
+end;
+
+procedure TdtmTecSoft.Desconectar;
+begin
+  dbaTecSoft.Connected := False;
+end;
+
+function TdtmTecSoft.GetConectado: Boolean;
+begin
+  Result := dbaTecSoft.Connected
+end;
+
+function TdtmTecSoft.GetDatabase: TtecDatabase;
+begin
+  Result := dbaTecSoft;
+end;
+
+function TdtmTecSoft.GetDataHoraServidor: TDateTime;
+begin
+  dbaTecSoftAfterConnect(self);
+  Result := FDataHoraServidor;
+end;
+
+function TdtmTecSoft.GetDataServidor: TDateTime;
+begin
+//  dbaTecSoftAfterConnect(self);
+  Result := FDataServidor;
+end;
+
+function TdtmTecSoft.GetHoraServidor: TDateTime;
+begin
+  dbaTecSoftAfterConnect(self);
+  Result := FHoraServidor;
+end;
+
+function TdtmTecSoft.Login(var Usr, Pwd: string; LoginReduzido: boolean = false): Boolean;
+begin
+  with TfrmLogin.Create(Application) do
+    try
+     if LoginReduzido then
+       LoginReduzido_;
+
+//      edtUsuario.SetFocus;
+      if ShowModal = mrOk then
+      begin
+        Usr := edtUsuario.Text;
+        Pwd := edtSenha.Text;
+        SenhaLogin := pwd;
+        Result := True;
+      end
+      else
+        Result := False;
+    finally
+      Free;
+    end;
+end;
+
+function TdtmTecSoft.RenovarSenha: Boolean;
+var
+  resultmodal: Integer;
+begin
+  with TfrmRenovarSenha.Create(Self) do
+    try
+      repeat
+        resultmodal := ShowModal;
+        if resultmodal = mrOk then
+        begin
+          Result := NovaSenha = ConfirmacaoNovaSenha;
+          FSenhaNova := NovaSenha;
+        end
+        else
+          Result := False;
+      until
+         result or (resultmodal = mrAbort);
+    finally
+      Free;
+    end;
+end;
+
+procedure TdtmTecSoft.TerminarTransacao;
+begin
+  tstTecSoft.Commit;
+end;
+
+procedure TdtmTecSoft.Timer1Timer(Sender: TObject);
+begin
+  dbaTecSoftAfterConnect(self);
+end;
+
+procedure TdtmTecSoft.tstTecSoftAfterConnect(Sender: TObject);
+begin
+    PIDOriginal := tstTecSoft.PID;
+end;
+
+procedure TdtmTecSoft.ZMonitor1MonitorEvent(Sql, Result: String);
+var
+ Listar : TStringList;
+ arquivo : String;
+ vValorSQLAnterior, vValorSQLAtual : String;
+begin
+  if vLogHabilitado then
+  begin
+    arquivo := ExtractFilePath(application.ExeName)+'log';
+    if not DirectoryExists(arquivo) then
+      if not CreateDir(arquivo) then
+      raise Exception.Create('Impossível criar o diretório ' + arquivo);
+
+    Listar := tStringlist.create;
+    arquivo := arquivo+'\log.sql';
+
+    if fileexists(arquivo) then
+      Listar.loadfromfile(arquivo);
+
+    vValorSQLAnterior := '';
+
+    if listar.count <> 0 then
+    begin
+      vValorSQLAnterior := Listar.Strings[listar.count-2];
+      vValorSQLAnterior := StringReplace(vValorSQLAnterior, #13#10, ' ', [rfReplaceAll])
+    end;
+
+    vValorSQLAtual := StringReplace(SQL, #13#10, ' ', [rfReplaceAll]);
+
+    if (vValorSQLAnterior <> vValorSQLAtual) then
+    begin
+//      Listar.add('');
+      Listar.add(vValorsqlAtual);
+      Listar.add(result);
+      Listar.savetofile(arquivo);
+    end;
+    Listar.free;
+  end;
+end;
+
+end.

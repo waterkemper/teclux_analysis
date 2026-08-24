@@ -1,0 +1,187 @@
+unit fmprodutosadevolver;
+
+interface
+                                     
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, Windows,
+  StdCtrls, fmajudabt, Grids, DBGrids, cpdbgrid, ComCtrls, Buttons,
+  ExtCtrls, {Qete,} DB, ZQuery, ctconstantes, dmcadastrocontratos, cpnumero,
+  Biblio, fmcadastropadrao, ToolWin;
+
+type
+  Tfrmprodutosadevolver = class(TfrmCadastroPadrao)
+    pnlPesquisa: TPanel;
+    pnlStatus: TPanel;
+    pnlProdutos: TPanel;
+    dbgProdutos: TtecDBGrid;
+    gbxProduto: TGroupBox;
+    edtPesquisaProduto: TEditNumero;
+    ckbMarcartotodos: TCheckBox;
+    procedure edtPesquisaProdutoExit(Sender: TObject);
+    procedure ckbMarcartotodosClick(Sender: TObject);
+    procedure dbgProdutosDblClick(Sender: TObject);
+    procedure dbgProdutosDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure dbgProdutosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+  private
+    { Private declarations }
+    procedure  SetDataModulo (Dtm: TdtmCadastroContratos);
+
+  protected
+    function  InternoGravar: Boolean; override;
+    dtmCadastroContratos : tdtmCadastroContratos;
+    
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent; dtm: TdtmCadastroContratos); reintroduce;
+    destructor  Destroy; override;
+  end;
+
+var
+  frmprodutosadevolver: Tfrmprodutosadevolver;
+
+implementation
+
+{$R *.dfm}
+
+procedure Tfrmprodutosadevolver.edtPesquisaProdutoExit(Sender: TObject);
+begin
+  inherited;
+  with dtmCadastroContratos do
+  begin
+    if edtPesquisaProduto.Text <> '' then
+    begin
+      if qryProdutosContratos.Locate('produto',strtoint(edtPesquisaProduto.Text),[]) then
+      begin
+        qryProdutosContratos.edit;
+        if not ((qryProdutosContratosadevolver.AsFloat + 1) <= qryProdutosContratosquantidade.AsFloat) then
+        begin
+          MensagemAviso(ctERROQUANTIDADEADEVOLVER);
+          qryProdutosContratosadevolver.AsFloat:= qryProdutosContratosquantidade.ASfloat;
+        end
+        else
+        begin
+          qryProdutosContratosselecionar.AsBoolean:= True;
+          qryProdutosContratosadevolver.AsFloat:= qryProdutosContratosadevolver.AsFloat + 1;
+        end;
+        edtPesquisaProduto.Clear;
+        edtPesquisaProduto.SetFocus;
+        {dbgProdutos.SetFocus;
+        dbgProdutos.Fields[4].FocusControl;    }
+      end;
+    end;
+  end;
+end;
+
+procedure Tfrmprodutosadevolver.ckbMarcartotodosClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroContratos.SelecionarProdutosContratosaDevolver(ckbMarcartotodos.Checked, True);
+end;
+
+procedure Tfrmprodutosadevolver.dbgProdutosDblClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroContratos.SelecionarProdutosContratosaDevolver(False,False);
+end;
+
+procedure Tfrmprodutosadevolver.dbgProdutosDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if not (gdFocused in State) then
+  begin
+    if dbgProdutos.DataSource.DataSet.FieldByName('selecionar').AsBoolean then  begin
+      TDBGrid(Sender).Canvas.Brush.Color := clInfoBk;
+      TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+    end;
+  end;
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+procedure Tfrmprodutosadevolver.dbgProdutosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (dtmCadastroContratos.qryProdutosContratos.State = dsedit) then
+    if ((Key = VK_UP) or (Key = VK_DOWN)) then
+      Key:= MAXWORD;
+  if TeclaEnterOuReturn(Key) then
+  begin
+    with dtmCadastroContratos do
+    begin
+      qryProdutosContratos.Edit;
+      edtPesquisaProduto.Clear;
+      edtPesquisaProduto.SetFocus;
+    end;
+  end;
+end;
+
+function Tfrmprodutosadevolver.InternoGravar: Boolean;
+var Diferenca: Currency;
+MensagemErro: String;
+begin
+  with dtmCadastroContratos do
+  begin
+    qryProdutosContratos.First;
+    while not qryProdutosContratos.Eof do
+    begin
+      if (qryProdutosContratosselecionar.AsBoolean = true) then
+      begin
+        Diferenca:= qryProdutosContratosquantidade.AsFloat - qryProdutosContratosadevolver.AsFloat;
+        if not (qryProdutosContratos.State = dsedit) then
+          qryProdutosContratos.Edit;
+        if Diferenca > 0 then
+        begin
+          qryProdutosContratosquantidade.AsFloat:=  Diferenca;
+          qryProdutosContratosadevolver.asfloat:=   Diferenca;
+          qryProdutosContratos.Post;
+
+        end
+        else if Diferenca < 0 then
+        begin
+          MensagemAviso(ctQUANTIDADEADEVOLVERMAIOR);
+          qryProdutosContratosadevolver.asFloat:= qryProdutosContratosQuantidade.Asfloat;
+          qryprodutosContratosselecionar.asboolean:= False;
+        end
+        else
+        begin
+          MensagemErro:= Format(ctCONFIRMEEXCLUIRPRODUTO,[qryProdutosContratosproduto.asInteger,
+                                                          qryProdutosContratosdescricaoproduto.asString]);
+          if (MensagemConfirmacao(MensagemErro) = smbOk) then
+            dtmCadastroContratos.ExcluirProduto
+        end;
+      end;
+      qryProdutosContratos.Next;
+    end;
+    qryContratos.Edit;
+    PrecisaRecalcularParcelas := true;
+  end;
+  Result:= true;
+  SetFocus;
+end;
+
+destructor Tfrmprodutosadevolver.Destroy;
+begin
+  inherited;
+  frmprodutosadevolver := nil;
+
+end;
+
+constructor Tfrmprodutosadevolver.Create(AOwner: TComponent;
+  dtm: TdtmCadastroContratos);
+begin
+  inherited Create(AOwner);
+  SetDataModulo(dtm);
+
+end;
+
+procedure Tfrmprodutosadevolver.SetDataModulo(Dtm: TdtmCadastroContratos);
+begin
+  dtmCadastroContratos := Dtm;
+  dbgProdutos.DataSource := dtmCadastroContratos.dsrProdutosContratos;
+end;
+
+end.

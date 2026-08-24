@@ -1,0 +1,965 @@
+unit fmmanutencaopreco;
+
+interface
+
+uses
+  SysUtils, Qtypes, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, Mask, Grids, DBGrids, ComCtrls, Windows, DBCtrls, ExtCtrls, Buttons,
+  // Terceiros
+  ZQuery,
+  // Repositorio
+  fmconsultaporcampo, fmconsultabasica, fmajudabt,
+  // Biblio
+  ctconstantes, biblio, clparametrossistema,
+  // Componentes
+  cptexto, cpdbfindcontrols, cpdbgrid, cpdbtext, cppagecontrol, cpdata,
+  // Projeto
+  dmmanutencaopreco, ActnList, cpnumero, DB, ZPgSqlQuery, cpquery, ToolWin,
+  frconsulta, frconsultacodigo, frmultiplaselecaoaleatoria;
+        
+type
+  TfrmManutencaoPreco = class(TfrmAjudaBt)
+    gbxInformar: TGroupBox;
+    pnlFundoJanela: TPanel;
+    sbnGerar: TSpeedButton;
+    sbnAlterar: TSpeedButton;
+    sbnCopiar: TSpeedButton;
+    aclHabilitar: TActionList;
+    actEvento: TAction;
+    pgcManutencaoPreco: TtecPageControl;
+    tstParametros: TTabSheet;
+    tstSelecionados: TTabSheet;
+    gbxSelecionar: TGroupBox;
+    GroupBox1: TGroupBox;
+    gbxColuna: TGroupBox;
+    sbnColuna: TSpeedButton;
+    edfColuna: TtecDbEditFind;
+    dtxColuna: TtecDBText;
+    gbxFornecedores: TGroupBox;
+    sbnFornecedores: TSpeedButton;
+    edfFornecedores: TtecDbEditFind;
+    dtxFornecedores: TtecDBText;
+    rgbOrdenacao: TRadioGroup;
+    gbxPrecos: TGroupBox;
+    rgbPrecos: TRadioGroup;
+    ckbPrecosDiferenciados: TCheckBox;
+    edfFilial: TtecDbEditFind;
+    sbnProcuraFilial: TSpeedButton;
+    dtxFilial: TtecDBText;
+    rgbProdutos: TRadioGroup;
+    pnlColunas: TPanel;
+    gbxCopiar: TGroupBox;
+    lblColunaOrigem: TLabel;
+    cmbOrigem: TComboBox;
+    lblColunaDestino: TLabel;
+    cmbDestino: TComboBox;
+    gbxExcluir: TGroupBox;
+    cmbExcluir: TComboBox;
+    gbxPercentualValidade: TGroupBox;
+    edtPercentual: TEditNumero;
+    lblPercentual: TLabel;
+    sbnAplicar: TBitBtn;
+    edtValidade: TEditData;
+    pnlRodape: TPanel;
+    lblExibirTotal: TLabel;
+    lblTotalRegistros: TLabel;
+    pnlGrid: TPanel;
+    gbxPeriodo: TGroupBox;
+    lblDataInicial: TLabel;
+    edtDataInicial: TEditData;
+    lblDataFinal: TLabel;
+    edtDataFinal: TEditData;
+    tecPageControl1: TtecPageControl;
+    TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
+    gbxTipoMovimento: TGroupBox;
+    sbnProcurarTipoMovto: TSpeedButton;
+    edfTipoMovimento: TtecDbEditFind;
+    dtxdescricaotipoMovto: TtecDBText;
+    gbxFilialMovto: TGroupBox;
+    sbnFilialMovto: TSpeedButton;
+    edfFilialMovto: TtecDbEditFind;
+    dtxfilialMovto: TtecDBText;
+    gbxIntervalo: TGroupBox;
+    lblEmissaoInicial: TLabel;
+    edtIntervaloInicial: TEditData;
+    lblEmissaoFinal: TLabel;
+    edtIntervaloFinal: TEditData;
+    gbxFornecedor: TGroupBox;
+    sbnProcuraFornecedorNota: TSpeedButton;
+    dtxNotasFornecedor: TtecDBText;
+    edfFornecedorNota: TtecDbEditFind;
+    gbxNota: TGroupBox;
+    sbnProcuraSerie: TSpeedButton;
+    sbnProcuraNota: TSpeedButton;
+    lblNotaSerie: TLabel;
+    lblNotaNumero: TLabel;
+    edfSerie: TtecDbEditFind;
+    edfNota: TtecDbEditFind;
+    GroupBox2: TGroupBox;
+    Label1: TLabel;
+    edtIntervaloNotaInicial: TEditData;
+    Label2: TLabel;
+    edtIntervaloNotaFinal: TEditData;
+    dbgColunasPrecos: TtecDBGrid;
+    dbgPrecos: TtecDBGrid;
+    lblLegenda: TLabel;
+    ckbMarcarTodos: TCheckBox;
+    lblTotalRegistrosMarcados: TLabel;
+    lblExibirTotalMarcados: TLabel;
+    gbxColunaPromocao: TGroupBox;
+    cmbColunaPromocao: TComboBox;
+    fraMultiplaSelecaoAleatoria1: TfraMultiplaSelecaoAleatoria;
+    Splitter1: TSplitter;
+    procedure actEventoUpdate(Sender: TObject);
+    procedure cmbDestinoChange(Sender: TObject);
+    procedure cmbExcluirSelect(Sender: TObject);
+    procedure cmbOrigemChange(Sender: TObject);
+    procedure sbnAlterarClick(Sender: TObject);
+    procedure sbnColunaClick(Sender: TObject);
+    procedure sbnCopiarClick(Sender: TObject);
+    procedure sbnGerarClick(Sender: TObject);
+    procedure pgcConsultaChange(Sender: TObject);
+    procedure sbnAplicarClick(Sender: TObject);
+    procedure sbnFornecedoresClick(Sender: TObject);
+    procedure ckbPrecosDiferenciadosClick(Sender: TObject);
+    procedure sbnProcuraFilialClick(Sender: TObject);
+    procedure sbnProcuraFornecedorNotaClick(Sender: TObject);
+    procedure sbnProcuraSerieClick(Sender: TObject);
+    procedure sbnProcuraNotaClick(Sender: TObject);
+    procedure sbnFilialMovtoClick(Sender: TObject);
+    procedure sbnProcurarTipoMovtoClick(Sender: TObject);
+    procedure dbgPrecosDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure dbgColunasPrecosDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure ckbMarcarTodosClick(Sender: TObject);
+    procedure dbgPrecosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbgPrecosDblClick(Sender: TObject);
+    procedure cmbColunaPromocaoChange(Sender: TObject);
+  protected
+//    vLimiteCampoAlteravel : integer;
+    FColunaOrigem : integer;
+    FColunaDestino: integer;
+    fColunaExcluir: integer;
+
+    dtmManutencaoPreco: TdtmManutencaoPreco;
+    function  ValidarCampos: Boolean;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    function  TabelaDePesquisa: TZDataSet; override;
+
+  public
+    FCodigosAlteracoes:array of Integer;
+    procedure CorColunasPadrao;
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure MontarTituloColunas;
+    procedure LimpaTabelas;
+  end;
+
+var
+  frmManutencaoPreco: TfrmManutencaoPreco;
+  TipoPesquisa: TtecPesquisa;
+
+implementation
+
+uses fmprogresso;
+
+{$R *.dfm}
+
+procedure TfrmManutencaoPreco.actEventoUpdate(Sender: TObject);
+begin
+  inherited;
+  gbxCopiar.Enabled  := (dtmManutencaoPreco.NumeroRegistro > 0) and
+                        (dbgPrecos.Columns.Count > 5)           and
+//                        (edfColuna.Text = '')                   and
+                        (cmbExcluir.ItemIndex = 0);
+  gbxPercentualValidade.Enabled:= gbxCopiar.Enabled;
+//     ((edfColuna.Text <> '') or gbxCopiar.Enabled) and (cmbExcluir.itemIndex = 0);
+  gbxExcluir.Enabled := (dtmManutencaoPreco.NumeroRegistro > 0) and (dbgPrecos.Columns.Count > 5) and
+                        (cmbOrigem.itemindex = 0) and (cmbdestino.ItemIndex = 0);
+
+  sbnCopiar.Enabled  := (cmbOrigem.itemIndex > 0)  and
+                        (cmbDestino.itemIndex > 0) and
+                        (pgcManutencaoPreco.ActivePageIndex = 1);
+
+  sbnAlterar.Enabled := (dtmManutencaoPreco.Editando or (cmbExcluir.itemIndex > 0)) and
+                        (pgcManutencaoPreco.ActivePageIndex = 1);
+  sbnAplicar.Enabled := (dtmManutencaoPreco.NumeroRegistro > 0) and
+//                        (edfColuna.Text <> '')                  and
+                        ((edtPercentual.Text <> '') or (edtValidade.Text <> ''));
+  sbnGerar.Enabled   := (pgcManutencaoPreco.ActivePageIndex = 0);
+end;
+
+procedure TfrmManutencaoPreco.cmbDestinoChange(Sender: TObject);
+var
+  Ind: Integer;
+begin
+  inherited;
+  if (cmbDestino.itemIndex <> cmbOrigem.itemIndex) or (cmbDestino.itemIndex = 0) then
+  begin
+
+    if FColunaDestino <> 0 then
+    begin
+
+      Ind:= vLimiteCampoAlteravel + (FColunaDestino*2);
+      if (FColunaDestino > 0) then
+      begin
+        if FColunaDestino = 1 then
+          dbgColunasPrecos.Columns[Ind-1].Color   := clWindow;
+
+        dbgColunasPrecos.Columns[Ind].Color := clWindow;
+        dbgColunasPrecos.Columns[Ind+1].Color := clWindow;
+      end;
+      if FColunaDestino = 1 then
+        CorColunasPadrao;
+
+    end;
+
+    FColunaDestino := cmbDestino.ItemIndex;
+    Ind:= vLimiteCampoAlteravel + (FColunaDestino*2);
+
+    if (FColunaDestino > 0) then
+    begin
+      if FColunaDestino = 1 then
+        dbgColunasPrecos.Columns[Ind-1].Color   := $D0FFFF;
+        
+      dbgColunasPrecos.Columns[Ind].Color := $D0FFFF;
+      dbgColunasPrecos.Columns[Ind+1].Color := $D0FFFF;
+
+      cmbExcluir.ItemIndex:= 0;
+      cmbExcluirSelect(nil);
+
+    end;
+
+  end
+  else
+  begin
+    cmbDestino.ItemIndex:= 0;
+    cmbDestinoChange(nil);
+  end;
+end;
+
+procedure TfrmManutencaoPreco.cmbExcluirSelect(Sender: TObject);
+var
+  Ind: Integer;
+begin
+  inherited;
+
+  if fColunaExcluir <> 0 then
+  begin
+    Ind:=  vLimiteCampoAlteravel + (fColunaExcluir*2);
+
+    if (FColunaExcluir > 0) then
+    begin
+      if FColunaExcluir = 1 then
+        dbgColunasPrecos.Columns[Ind-1].Color   := clWindow;
+
+      dbgColunasPrecos.Columns[Ind].Color := clWindow;
+      dbgColunasPrecos.Columns[Ind+1].Color := clWindow;
+    end;
+
+    if fColunaExcluir <> 0 then
+      CorColunasPadrao;
+  end;
+
+  fColunaExcluir := cmbExcluir.ItemIndex;
+
+  Ind:=  vLimiteCampoAlteravel + (cmbExcluir.itemIndex*2);
+  if (cmbExcluir.ItemIndex > 0) then
+  begin
+
+    if (FColunaExcluir > 0) then
+    begin
+      if FColunaExcluir = 1 then
+        dbgColunasPrecos.Columns[Ind-1].Color   := $7D7DFF;
+
+      dbgColunasPrecos.Columns[Ind].Color := $7D7DFF;
+      dbgColunasPrecos.Columns[Ind+1].Color := $7D7DFF;
+    end;
+
+    cmbOrigem.ItemIndex := 0;
+    cmbOrigemChange(nil);
+
+    cmbDestino.ItemIndex:= 0;
+    cmbDestinoChange(nil);
+
+  end;
+end;
+
+procedure TfrmManutencaoPreco.cmbOrigemChange(Sender: TObject);
+var
+  Ind: Integer;
+begin
+  if (cmbOrigem.ItemIndex <> cmbDestino.itemIndex) or (cmbOrigem.itemIndex = 0) then
+  begin
+
+    if FColunaOrigem <> 0 then
+    begin
+      Ind:= vLimiteCampoAlteravel + (FColunaOrigem*2);
+
+      if (FColunaOrigem > 0) then
+      begin
+        if FColunaOrigem = 1 then
+          dbgColunasPrecos.Columns[Ind-1].Color   := clWindow;
+
+        dbgColunasPrecos.Columns[Ind].Color := clWindow;
+        dbgColunasPrecos.Columns[Ind+1].Color := clWindow;
+      end;
+
+      if FColunaOrigem = 1 then
+        CorColunasPadrao;
+    end;
+
+    FColunaOrigem := cmbOrigem.ItemIndex;
+
+    Ind:= vLimiteCampoAlteravel + (FColunaOrigem*2);
+
+    if (FColunaOrigem > 0) then
+    begin
+      if FColunaOrigem = 1 then
+        dbgColunasPrecos.Columns[Ind-1].Color   := $D0FFFF;
+
+      dbgColunasPrecos.Columns[Ind].Color := $D0FFFF;
+      dbgColunasPrecos.Columns[Ind+1].Color := $D0FFFF
+    end;
+
+  end
+  else
+  begin
+    cmbOrigem.ItemIndex := 0;
+    cmbOrigemChange(nil);
+  end;
+end;
+
+procedure TfrmManutencaoPreco.CorColunasPadrao;
+var
+  Ind, IndOP, IndDP, Col: Integer;
+begin
+  dbgColunasPrecos.Columns[vLimiteCampoAlteravel+1].Color   := $00E5E8E2;
+  dbgColunasPrecos.Columns[vLimiteCampoAlteravel+2].Color   := $00E5E8E2;
+  dbgColunasPrecos.Columns[vLimiteCampoAlteravel+3].Color   := $00E5E8E2;
+
+
+  Ind:= vLimiteCampoAlteravel + (cmbColunaPromocao.itemIndex*2);
+  if (cmbColunaPromocao.ItemIndex > 0) then
+  begin
+    if cmbColunaPromocao.ItemIndex = 1 then
+      dbgColunasPrecos.Columns[Ind-1].Color   := $00EAECE8;
+
+    dbgColunasPrecos.Columns[Ind].Color   := $00EAECE8;
+    dbgColunasPrecos.Columns[Ind+1].Color := $00EAECE8;
+  end;
+
+  if dtmManutencaoPreco.ColunaPromocao <> cmbColunaPromocao.ItemIndex then
+  begin
+    if dtmManutencaoPreco.ColunaPromocao > 1 then
+    begin
+      Ind:= vLimiteCampoAlteravel + (dtmManutencaoPreco.ColunaPromocao*2);
+      if dtmManutencaoPreco.ColunaPromocao = 1 then
+        dbgColunasPrecos.Columns[Ind-1].Color   := clWindow;
+
+      dbgColunasPrecos.Columns[Ind].Color   := clWindow;
+      dbgColunasPrecos.Columns[Ind+1].Color := clWindow;
+    end;
+    dtmManutencaoPreco.ColunaPromocao := cmbColunaPromocao.ItemIndex;
+  end;
+
+
+
+
+  (*
+  ?????????????????????
+  IndOP:= (6+((cmbOrigem.itemIndex-1)*2));
+  IndDP:= (7+((cmbDestino.itemIndex-1)*2));
+  Col:= 0;
+  while Col <= (dbgcolunasPrecos.Columns.Count - 1) do
+  begin
+//    dbgColunasPrecos.Columns[Col].Color := clWindow;
+
+    if {not} (Col in [IndOP, (IndOP+1), IndDP, (IndDP+1)]) then
+    begin
+      if (Col > 5) and ((Col-1) mod 5 = 0) then
+      begin
+        dbgColunasPrecos.Columns[Col].Color   := $00E5E8E2;
+//        if ((dbgColunasPrecos.Columns.Count - 1)>= (Col+1)) then
+        dbgColunasPrecos.Columns[Col+1].Color := $00E5E8E2;
+        Inc(Col);
+      end;
+    end;
+    Inc(Col);
+  end;
+  *)
+end;
+
+constructor TfrmManutencaoPreco.Create(AOwner: TComponent);
+begin
+  dtmManutencaoPreco := TdtmManutencaoPreco.Create(Self);
+  inherited;
+//  dtmManutencaoPreco.PreencherComboBox(cmbOrigem);
+//  dtmManutencaoPreco.PreencherComboBox(cmbDestino);
+  edfFilial.ReadOnly:= True;
+  pgcManutencaoPreco.ActivePageIndex:= 0;
+
+//  vLimiteCampoAlteravel := 15; // Numero de colunas visíveis em dbgPrecos ou n campos acima;
+
+  gbxColunaPromocao.Visible := parsistema.PrecosporCargo;
+
+
+
+end;
+
+destructor TfrmManutencaoPreco.Destroy;
+begin
+  dtmManutencaoPreco:=nil;
+  inherited;
+  frmManutencaoPreco := nil;
+end;
+
+function TfrmManutencaoPreco.ExisteInformacao(Parametro: Integer;NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmManutencaoPreco do begin
+    case TipoPesquisa of
+              pesCOLUNAS : Result := ExisteColunas(NomeCampo, Value);
+         pesFORNECEDORES : Result := ExisteFornecedores(NomeCampo, Value);
+    pesFORNECEDORESNOTAS : Result := ExisteFornecedorNota(NomeCampo, Value);
+      pesTIPOSMOVIMENTOS : Result := ExisteTipoMovto(NomeCampo, Value);
+   pesSERIESFORNECEDORES : Result := ExisteSerieNota(NomeCampo, Value);
+                pesNOTAS : Result := ExisteNota(NomeCampo, Value);
+              pesFILIAIS : if not dtmManutencaoPreco.Fornecedores then
+                             Result := ExisteFiliais(NomeCampo, Value)
+                           else
+                             Result:= ExisteFilialFornec(NomeCampo, Value);
+      else                 Result := False;
+    end;
+  end;
+end;
+
+function TfrmManutencaoPreco.InternoPesquisar(Titulo:String): Integer;
+begin
+  Result:= mrNone;
+  if ActiveControl is TtecFindCustom then begin
+    if CtrlOn then
+    begin
+      if ActiveControl = edfFornecedores then begin
+        TipoPesquisa:= pesFORNECEDORES;
+        Titulo      := 'Fornecedores';
+      end
+      else if (ActiveControl = edfFilial) and not edfFilial.ReadOnly then begin
+        TipoPesquisa:= pesFILIAIS;
+        Titulo      := 'Filiais';
+      end
+      else if (ActiveControl = edfFilialMovto) and not edfFilialMovto.ReadOnly then begin
+        TipoPesquisa:= pesFILIAIS;
+        Titulo      := 'Filiais';
+      end
+      else if (ActiveControl = edfTipoMovimento) and not edfTipoMovimento.ReadOnly then begin
+        TipoPesquisa:= pesTIPOSMOVIMENTOS;
+        Titulo      := 'Tipos de Movimentos';
+      end
+      else if (ActiveControl = edfFornecedorNota) and not edfFornecedorNota.ReadOnly then begin
+        TipoPesquisa:= pesFORNECEDORESNOTAS;
+        Titulo      := 'Fornecedores';
+      end
+      else if (ActiveControl = edfSerie) and not edfSerie.ReadOnly then begin
+        TipoPesquisa:= pesSERIESFORNECEDORES;
+        Titulo      := 'Séries';
+      end
+      else if (ActiveControl = edfNota) and not edfNota.ReadOnly then begin
+        TipoPesquisa:= pesNOTAS;
+        Titulo      := 'Notas de Entrada';
+      end
+      else TipoPesquisa:= pesNENHUMA;
+
+      if TipoPesquisa <> pesNENHUMA then begin
+        with dtmManutencaoPreco do begin
+          AbreTabelaPesquisa(TipoPesquisa);
+          Result := inherited InternoPesquisar(Titulo);
+          if Result = mrOK then
+            Selecionar(TipoPesquisa);
+          FechaTabelaPesquisa(TipoPesquisa);
+        end;
+      end;
+    end;
+  end;
+end;
+
+function TfrmManutencaoPreco.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  if (TipoPesquisa = pesCARACTERISTICAS) then
+       TfrmConsultaPorCampo(Result).ConsultaInterativa := False
+  else TfrmConsultaPorCampo(Result).ConsultaInterativa := True;
+
+  TfrmConsultaPorCampo(Result).UsarParametrosDaTabela:= False;
+end;
+
+procedure TfrmManutencaoPreco.KeyDown(var Key: Word; Shift: TShiftState);
+var
+  Ok: Boolean;
+begin
+  case Key of
+    VK_Escape : begin
+                   Ok:= not sbnAlterar.Enabled;
+                   if not Ok then
+                     Ok:= MensagemConfirmacao(ctINFORMACOESSERAOPERDIDAS) = smbOk;
+                   if Ok then begin
+                     LimpaTabelas;
+                     dtmManutencaoPreco.Editando:= False;
+                     edtValidade.Clear;
+                     edtPercentual.Clear;
+                     cmbOrigem.ItemIndex := 0;
+                     cmbOrigemChange(nil);
+
+                     cmbDestino.ItemIndex:= 0;
+                     cmbDestinoChange(nil);
+
+                     cmbExcluir.ItemIndex:= 0;
+                     cmbExcluirSelect(nil);
+                   end
+                   else
+                     dbgPrecos.SetFocus;
+                 end;
+        VK_F6 : if (Shift = []) and sbnGerar.Enabled then sbnGerar.Click;
+        VK_F7 : if (Shift = []) and sbnCopiar.Enabled then sbnCopiar.Click;
+        VK_F5 : if (Shift = []) and sbnAlterar.Enabled then sbnAlterar.Click;
+  end;
+  inherited;
+end;
+
+procedure TfrmManutencaoPreco.MontarTituloColunas;
+var
+  Item, Col, I: Integer;
+begin
+   for i := 0 to dbgPrecos.Columns.count-1 do
+     dbgPrecos.Columns[I].Title.Alignment := taCenter;
+
+   dbgPrecos.ColumnByName('caracteristica').Visible := false;
+   dbgPrecos.ColumnByName('caracteristicavisual').Visible := true;
+   dbgPrecos.ColumnByName('caracteristicavisual').Width := 67;
+   dbgPrecos.ColumnByName('caracteristicavisual').Title.Caption := 'Produto';
+
+   dbgPrecos.ColumnByName('produto').Visible := false;
+
+   dbgPrecos.ColumnByName('produtovisual').Visible := true;
+   dbgPrecos.ColumnByName('produtovisual').Width := 77;
+   dbgPrecos.ColumnByName('produtovisual').Title.Caption := 'Ítem';
+
+{   dbgPrecos.ColumnByName('produtovisual').Visible := true;
+   dbgPrecos.ColumnByName('produtovisual').Width := 77;
+   dbgPrecos.ColumnByName('produtovisual').Title.Caption := 'Código';}
+
+   dbgPrecos.ColumnByName('descproduto').Visible := true;
+   dbgPrecos.ColumnByName('descproduto').Width := 175;
+   dbgPrecos.ColumnByName('descproduto').Title.Caption := 'Descrição Ítem';
+
+   dbgPrecos.ColumnByName('referencia').Visible := true;
+   dbgPrecos.ColumnByName('referencia').Width := 66;
+   dbgPrecos.ColumnByName('referencia').Title.Caption := 'Referência';
+
+   dbgPrecos.ColumnByName('resultadocurvaabc').Visible := true;
+   dbgPrecos.ColumnByName('resultadocurvaabc').Width := 15;
+   dbgPrecos.ColumnByName('resultadocurvaabc').Title.Caption := 'ABC';
+
+   dbgPrecos.ColumnByName('preco').Visible := true;
+   dbgPrecos.ColumnByName('preco').Width := 38;
+   dbgPrecos.ColumnByName('preco').Title.Caption := 'Preço';
+
+   dbgPrecos.ColumnByName('descpreco').Visible := true;
+   dbgPrecos.ColumnByName('descpreco').Width := 72;
+   dbgPrecos.ColumnByName('descpreco').Title.Caption := 'Descrição';
+
+   dbgPrecos.ColumnByName('cst_produto').Visible := true;
+   dbgPrecos.ColumnByName('cst_produto').Width := 23;
+   dbgPrecos.ColumnByName('cst_produto').Title.Caption := 'Cst';
+
+   dbgPrecos.ColumnByName('csosn_produto').Visible := true;
+   dbgPrecos.ColumnByName('csosn_produto').Width := 30;
+   dbgPrecos.ColumnByName('csosn_produto').Title.Caption := 'Csosn';
+
+   dbgPrecos.ColumnByName('ultimacompra').Visible := true;
+   dbgPrecos.ColumnByName('ultimacompra').Width := 68;
+   dbgPrecos.ColumnByName('ultimacompra').Title.Caption := 'Últ.Compra';
+
+   dbgPrecos.ColumnByName('ultimacompra_com_icms').Visible := true;
+   dbgPrecos.ColumnByName('ultimacompra_com_icms').Width := 68;
+   dbgPrecos.ColumnByName('ultimacompra_com_icms').Title.Caption := 'Últ.Comp+ICMS';
+
+   dbgPrecos.ColumnByName('alterar').Visible := true;
+   dbgPrecos.ColumnByName('alterado').Visible := false;
+
+   dbgPrecos.ColumnByName('markup').Visible := true;
+   dbgPrecos.ColumnByName('markup').Width := 55;
+   dbgPrecos.ColumnByName('markup').Title.Caption := 'Markup';
+
+   dbgPrecos.ColumnByName('precocomicms').Visible := true;
+   dbgPrecos.ColumnByName('precocomicms').Width := 66;
+   dbgPrecos.ColumnByName('precocomicms').Title.Caption := 'Com ICMS';
+
+   dbgPrecos.ColumnByName('precosemicms').Visible := true;
+   dbgPrecos.ColumnByName('precosemicms').Width := 66;
+   dbgPrecos.ColumnByName('precosemicms').Title.Caption := 'Sem ICMS';
+
+   dbgPrecos.ColumnByName('precovendaantesimpostos').Visible := true;
+   dbgPrecos.ColumnByName('precovendaantesimpostos').Width := 66;
+   dbgPrecos.ColumnByName('precovendaantesimpostos').Title.Caption := 'Pr.Vend.Ant.Imp';
+
+
+   dtmManutencaoPreco.PreencherComboBox(cmbOrigem);
+   dtmManutencaoPreco.PreencherComboBox(cmbDestino);
+
+
+   for i := 0 to vLimiteCampoAlteravel {dbgPrecos.Columns.Count-1} do
+     dbgPrecos.Columns[I].Title.Font.Size := 9;
+
+//   dbgPrecos.Columnbyname('cst_produto').Title.font.size := 7;
+//   dbgPrecos.Columnbyname('csosn_produto').Title.font.size := 7;
+
+
+   for i := vLimiteCampoAlteravel+1 to dbgprecos.Columns.Count-1 do
+     dbgPrecos.Columns[I].Visible := false;
+
+   for i := vLimiteCampoAlteravel+1 to dbgColunasPrecos.Columns.Count-1 do
+   begin
+     dbgColunasPrecos.Columns[I].Title.Font.Size := 9;
+     dbgColunasPrecos.Columns[I].Width := 65;
+   end;
+
+   for i:= 0 to vLimiteCampoAlteravel do
+     dbgColunasPrecos.Columns[I].visible := false;
+
+   Item := 1;
+   Col  := vLimiteCampoAlteravel+1;
+   while Col < dbgColunasPrecos.Columns.Count do
+   begin
+     dbgColunasPrecos.Columns[Col].Title.Alignment:= taCenter;
+//     dbgColunasPrecos.Columns[Col].Width := 68;
+     if cmbOrigem.Items[Item]<>'' then
+     begin
+       dbgColunasPrecos.Columns[Col].Title.Caption  := cmbOrigem.Items[Item];
+//       dbgColunasPrecos.Columns[Col].Width := 68;
+
+       if Item = 1 then
+       begin
+         Inc(Col);
+         dbgColunasPrecos.Columns[Col].Title.Alignment:= taCenter;
+         dbgColunasPrecos.Columns[Col].Title.Caption := 'Margem';
+         dbgColunasPrecos.Columns[Col].Width := 60;
+       end;
+
+       Inc(Col);
+       dbgColunasPrecos.Columns[Col].Title.Alignment:= taCenter;
+       dbgColunasPrecos.Columns[Col].Title.Caption := 'Validade';
+       dbgColunasPrecos.Columns[Col].Width := 60;
+       Inc(Item);
+     end
+     else
+     begin
+       if copy(dbgColunasPrecos.Columns[Col].FieldName, 1,5) = 'cargo' then
+       begin
+         dtmManutencaoPreco.qryProdutosCargos.locate('cargo', SomenteNumero(dbgColunasPrecos.Columns[Col].FieldName), []);
+         dbgColunasPrecos.Columns[Col].Title.Caption := PrimeiraMaiuscula(LowerCase(dtmManutencaoPreco.qryProdutosCargosdescricao.asString));
+//         dbgColunasPrecos.Columns[Col].Width := 68;
+       end
+     end;
+     Inc(Col);
+   end;
+
+end;
+
+procedure TfrmManutencaoPreco.pgcConsultaChange(Sender: TObject);
+begin
+  LimpaTabelas;
+end;
+
+procedure TfrmManutencaoPreco.sbnAlterarClick(Sender: TObject);
+begin
+  inherited;
+  if (cmbExcluir.ItemIndex > 0) then begin
+    if MensagemConfirmacao(Format(ctEXCLUIRVALORESCOLUNA,[cmbExcluir.Items[cmbExcluir.itemIndex]])) = smbOk then
+      dtmManutencaoPreco.ExcluirColunaPreco(cmbExcluir.itemIndex);
+  end;
+  dtmManutencaoPreco.AlterarColunasPrecosProdutos;
+  cmbOrigem.ItemIndex := 0;
+  cmbOrigemChange(nil);
+
+  cmbDestino.ItemIndex:= 0;
+  cmbDestinoChange(nil);
+
+  cmbExcluir.ItemIndex:= 0;
+  cmbExcluirSelect(nil);
+
+end;
+
+procedure TfrmManutencaoPreco.sbnAplicarClick(Sender: TObject);
+begin
+  inherited;
+  if (cmbOrigem.itemIndex = 0) then
+    MensagemAviso('Nenhuma COLUNA ORIGEM foi definida.')
+  else begin
+    if edtValidade.DataValida then begin
+      if MensagemConfirmacao('Confirma a alteração dos valores (preço/validade) da coluna ' +
+                              cmbOrigem.Items[cmbOrigem.itemIndex] + '?') = smbOk then
+        dtmManutencaoPreco.AplicarPercentualEValidade(cmbOrigem.itemIndex, edtPercentual.Text, edtValidade.Text)
+    end
+    else edtValidade.SetFocus;
+  end;
+end;
+
+
+procedure TfrmManutencaoPreco.sbnColunaClick(Sender: TObject);
+begin
+  CtrlOn:= True;
+  edfColuna.SetFocus;
+  InternoPesquisar('');
+end;
+
+
+procedure TfrmManutencaoPreco.sbnFornecedoresClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfFornecedores.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmManutencaoPreco.sbnProcuraFilialClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfFilial.SetFocus;
+  dtmManutencaoPreco.Fornecedores:= False;
+  InternoPesquisar('');
+end;
+
+procedure TfrmManutencaoPreco.sbnCopiarClick(Sender: TObject);
+begin
+  if (cmbOrigem.itemIndex <> 0) and (cmbDestino.itemIndex <> 0) then
+       dtmManutencaoPreco.CopiarColunaPreco(cmbOrigem.itemIndex,
+                                            cmbDestino.itemIndex,
+                                            edtValidade.Text,
+                                            edtPercentual.Text)
+  else MensagemAviso(ctAVISOMANUTENCAOPRECOS);
+end;
+
+procedure TfrmManutencaoPreco.sbnGerarClick(Sender: TObject);
+begin
+  AtualizandoPrecos := true;
+  if ckbPrecosDiferenciados.Checked and (edfFilial.Text = '') then begin
+    MensagemAviso('O campo Filial deve ser informado.');
+    edfFilial.SetFocus;
+  end
+  else begin
+    with dtmManutencaoPreco do begin
+      if ValidarCampos then begin
+        Produtos  := rgbProdutos.ItemIndex;
+        Precos    := rgbPrecos.ItemIndex;
+        Ordenacao := rgbOrdenacao.ItemIndex;
+        PrecosDiferenciados:= ckbPrecosDiferenciados.Checked;
+        DataInicial         := edtDataInicial.Text;
+        DataFinal           := edtDataFinal.Text;
+        DataMovtoInicial    := edtIntervaloInicial.Text;
+        DataMovtoFinal      := edtIntervaloFinal.Text;
+        DataNotaInicial     := edtIntervaloNotaInicial.Text;
+        DataNotaFinal       := edtIntervaloNotaFinal.Text;
+
+        MontarSQLManutencaoPreco(fraMultiplaSelecaoAleatoria1.fraSelecaoAleatoriaprodutos.ListaCondicional,
+                                 fraMultiplaSelecaoAleatoria1.fraSelecaoAleatoriaItemdeProdutos.ListaCondicional,
+                                 fraMultiplaSelecaoAleatoria1.fraSelecaoAleatoriamarcasProdutos.ListaCondicional,
+                                 fraMultiplaSelecaoAleatoria1.fraSelecaoaleatoriagruposprodutos.ListaCondicional,
+                                 fraMultiplaSelecaoAleatoria1.fraSelecaoaleatoriaclassesprodutos.ListaCondicional);
+                                 
+        if NumeroRegistro > 0 then
+        begin
+//          if edfColuna.Text <> '' then begin
+//          dtmManutencaoPreco.PreencherComboBox(cmbExcluir);
+//            cmbExcluir.Items.Clear;
+//            cmbExcluir.Items.Add('Nenhuma');
+//            cmbExcluir.Items.Add(dtmManutencaoPreco.DescricaoColuna);
+//          end
+//          else
+
+          dtmManutencaoPreco.PreencherComboBox(cmbOrigem);
+          dtmManutencaoPreco.PreencherComboBox(cmbDestino);
+          dtmManutencaoPreco.PreencherComboBox(cmbExcluir);
+          dtmManutencaoPreco.PreencherComboBox(cmbDestino);
+          dtmManutencaoPreco.PreencherComboBox(cmbColunaPromocao, true);
+
+          CorColunasPadrao;
+          MontarTituloColunas;
+          lblExibirTotal.Caption:= IntToStr(NumeroRegistro);
+          lblExibirTotalMarcados.Caption:= IntToStr(NumeroRegistro);
+          dtmManutencaoPreco.QtdeMarcados := NumeroRegistro;
+          pgcManutencaoPreco.ActivePageIndex:= 1;
+          dbgColunasPrecos.SetFocus;
+          dbgColunasPrecos.SelectedIndex:= 0;
+        end
+        else begin
+          lblExibirTotal.Caption:= '0';
+          lblExibirTotalMarcados.Caption:= '0';
+          dtmManutencaoPreco.QtdeMarcados := 0;
+
+          dtmManutencaoPreco.Fecha(ctManutencaoPreco);
+          MensagemAviso(Format(ctNENHUMREGISTROSELECIONADO,['registro']));
+          pgcManutencaoPreco.ActivePageIndex:= 0;
+        end;
+      end;
+    end;
+  end;
+  AtualizandoPrecos := false;
+end;
+
+
+function TfrmManutencaoPreco.TabelaDePesquisa: TZDataSet;
+begin
+  with dtmManutencaoPreco do begin
+    case TipoPesquisa of
+              pesCOLUNAS : Result := ConsultarColunas;
+         pesFORNECEDORES : Result := ConsultarFornecedores;
+    pesFORNECEDORESNOTAS : Result := qryConsultaFornecedorNFentrada;
+      pesTIPOSMOVIMENTOS : Result := qryConsultaTipoMovimentos;
+   pesSERIESFORNECEDORES : Result := qryConsultaSerieNfEntrada;
+                pesNOTAS : Result := qryConsultaNfEntrada;
+              pesFILIAIS : if not dtmManutencaoPreco.Fornecedores then
+                             Result := ConsultaFiliais
+                           else
+                             Result := qryConsultaFiliaisMovimentos;
+      else                 Result := nil;
+    end;
+  end;
+end;
+
+function TfrmManutencaoPreco.ValidarCampos: Boolean;
+begin
+  Result:= OperadorTernario(edfColuna.Text  <> '', edfColuna.Exist,  True) and
+           OperadorTernario(edfFilial.Text  <> '', edfFilial.Exist,  True);
+end;
+
+
+procedure TfrmManutencaoPreco.ckbPrecosDiferenciadosClick(Sender: TObject);
+begin
+  inherited;
+  if ckbPrecosDiferenciados.Checked then
+    edfFilial.ReadOnly:= False
+  else begin
+    edfFilial.ReadOnly:= True;
+    dtmManutencaoPreco.ReFazConsultaFiliais;
+  end;
+end;
+
+procedure TfrmManutencaoPreco.sbnProcuraFornecedorNotaClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfFornecedorNota.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmManutencaoPreco.sbnProcuraSerieClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfSerie.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmManutencaoPreco.sbnProcuraNotaClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfNota.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmManutencaoPreco.sbnFilialMovtoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfFilialMovto.SetFocus;
+  dtmManutencaoPreco.Fornecedores:= True;
+  InternoPesquisar('');
+end;
+
+procedure TfrmManutencaoPreco.sbnProcurarTipoMovtoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfTipoMovimento.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmManutencaoPreco.LimpaTabelas;
+begin
+  dtmManutencaoPreco.LimpaTabelas;
+end;
+
+procedure TfrmManutencaoPreco.dbgPrecosDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+
+  if TDBGrid(Sender).DataSource.DataSet.FieldByName('alterado').AsBoolean then
+    TDBGrid(Sender).Canvas.Font.Style := [fsBold]
+  else
+    TDBGrid(Sender).Canvas.Font.Style := [];
+
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+procedure TfrmManutencaoPreco.dbgColunasPrecosDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if TDBGrid(Sender).DataSource.DataSet.FieldByName('alterado').AsBoolean then
+    TDBGrid(Sender).Canvas.Font.Style := [fsBold]
+  else
+    TDBGrid(Sender).Canvas.Font.Style := [];
+
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);  
+end;
+
+procedure TfrmManutencaoPreco.ckbMarcarTodosClick(Sender: TObject);
+begin
+  inherited;
+  dtmManutencaoPreco.MarcarRegistrosManutencaoPrecosAtualizar(ckbMarcarTodos.checked, true);
+  lblExibirTotalMarcados.Caption := inttostr(dtmManutencaoPreco.QtdeMarcados);
+end;
+
+procedure TfrmManutencaoPreco.dbgPrecosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if CtrlOn and (Key = VK_Space) then
+    dtmManutencaoPreco.MarcarRegistrosManutencaoPrecosAtualizar(false, false);
+  lblExibirTotalMarcados.Caption := inttostr(dtmManutencaoPreco.QtdeMarcados);
+
+end;
+
+procedure TfrmManutencaoPreco.dbgPrecosDblClick(Sender: TObject);
+begin
+  inherited;
+  dtmManutencaoPreco.MarcarRegistrosManutencaoPrecosAtualizar(false, false);
+  lblExibirTotalMarcados.Caption := inttostr(dtmManutencaoPreco.QtdeMarcados);
+
+end;
+
+procedure TfrmManutencaoPreco.cmbColunaPromocaoChange(Sender: TObject);
+begin
+  inherited;
+
+
+  CorColunasPadrao;
+
+end;
+
+end.
+
+
+

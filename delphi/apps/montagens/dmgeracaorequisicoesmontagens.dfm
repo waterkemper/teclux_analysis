@@ -1,6 +1,6 @@
 inherited dtmGeracaoRequisicoesMontagens: TdtmGeracaoRequisicoesMontagens
-  Left = 513
-  Top = 95
+  Left = 228
+  Top = 202
   Height = 708
   Width = 1024
   object qryFilialMontagem: TtecQuery

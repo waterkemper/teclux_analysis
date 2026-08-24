@@ -1,0 +1,1144 @@
+unit fmajuda;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Classes, Graphics, Controls, Forms, Dialogs, Windows,
+  //Repositorio
+  fmhelpviewer, dmbasico, biblio, cpdbfindcontrols, ctconstantes,
+  StdCtrls, cpdata, cpnumero, ExtCtrls, CheckLst, clusuario, inifiles, fmpreviewpadrao,
+  frordenacao_cr, variants, db, cpdbradiogroup, cppagecontrol, ComCtrls, frlistafiliais,
+  frlistagruposfiliais, cpquery, AdvSpin, ClipBrd, Messages;
+
+type
+  TfrmAjudaClass = class of TfrmAjuda;
+  TfrmAjuda = class(TForm)
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    function FormHelp(HelpType: THelpType; HelpContext: THelpContext;
+      const HelpKeyword, HelpFile: String; var Handled: Boolean): Boolean;
+    procedure FormShow(Sender: TObject);
+    procedure FormMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure FormCreate(Sender: TObject);
+  private
+    FFormOrigemBloqueio: String;
+    fSalvarPropriedadesFormulario: boolean;
+    fChave: String;
+    function  ExisteRelatorioAberto: boolean;
+
+
+    procedure SetChave(const Value: String);
+
+    procedure PrintScreenDetect(Sender: TObject; var Result: Boolean);
+    procedure ClipBoardChanged(var Message: TMessage); message WM_DRAWCLIPBOARD;
+
+  protected
+    procedure CriarDataModulo; virtual;
+    procedure DestruirDataModulo; virtual;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState;
+      X, Y: Integer); override;
+
+    function VerificarComponentesdePesquisa: boolean;
+
+
+  public
+    LogCtrlOn: Boolean;
+    LogShiftOn: Boolean;
+    LogAltOn: boolean;
+  
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+//    function  FormRegistrado(NomeForm: String): TfrmAjudaClass; virtual;
+    procedure OperacaoPadrao(Value: Array of Variant); virtual;
+    class function Referencia: TForm; virtual;
+    procedure MostraContextoAjuda;
+    procedure BloquearFormularios(FormNaoBloquear: String);
+    procedure DesbloquearFormularios;
+    property FormOrigemBloqueio: String read FFormOrigemBloqueio write FFormOrigemBloqueio;
+    property SalvarPropriedadesFormulario: boolean read fSalvarPropriedadesFormulario write fSalvarPropriedadesFormulario;
+{    procedure SalvarConfiguracoesFormulario__; }
+    procedure SalvarConfiguracoesFormulario(objetivo: String = '');
+{    procedure CarregarConfiguracoesFormulario__; }
+    procedure CarregarConfiguracoesFormulario;
+    property Chave: String read fChave write SetChave;
+    function  FecharRelatorioAberto: boolean;
+
+
+
+  end;
+
+implementation
+
+{$R *.dfm}
+
+uses frmultiplaselecaoaleatoria, frselecaoaleatoria, frselecaoaleatoriaitemdeprodutos, frselecaoaleatoriaprodutos, frselecaoaleatoriaclassesprodutos,
+     frselecaoaleatoriagruposprodutos, frselecaoaleatoriamarcasprodutos, frselecaoaleatoriaclientes,
+     frselecaoaleatoriatiporecebimento, frSelecaoaleatoriaplanorecebimento,
+     frselecaoaleatoriagruposfornecedores, dmtecsoft, frconsultacodigo, frselecaoaleatorialistaspadronizadas,
+     frselecaoaleatoriapromocoes, frselecaoaleatoriavendedores;
+
+type
+  TtecApplication = class(TApplication);
+
+{ TfrmAjuda }
+
+constructor TfrmAjuda.Create(AOwner: TComponent);
+var
+  n: integer;
+begin
+try
+  CriarDataModulo;
+  inherited;
+  if (WindowState = wsNormal) and (Not (csDesigning in ComponentState)) and (Self.Tag = 0) then
+    Dimensionar(Self, poMainFormCenter);
+
+except
+     on E: Exception do ShowMessage(E.Message);
+end;
+
+
+   CarregarConfiguracoesFormulario;
+
+{
+   if (WindowState = wsNormal) then
+   begin
+     n := Length(ListFormsOut);
+     SetLength(ListFormsOut, n+1);
+     ListFormsOut[n] := self.Handle;
+   end;
+   }
+
+end;
+
+procedure TfrmAjuda.CriarDataModulo;
+begin
+end;
+
+destructor TfrmAjuda.Destroy;
+var
+  Par: TForm;
+begin
+
+  if self.FormStyle <>  fsNormal then
+    IF SELF.TAG = 1000 THEN
+       DestruirFormulario(self);   {estava travando no momento da alteração do valor de um calculo de financiamento via contrato}
+
+
+  if Screen.FormCount > 1 then
+    Par := Screen.Forms[1];
+    {
+  else
+    Par := nil;}
+
+
+  DestruirDataModulo;
+
+  inherited destroy;
+
+  if Assigned(Par) and (Par.FormStyle = fsMDIChild) and Par.CanFocus then
+//    Par.SetFocus
+  else
+  if Assigned(Application.MainForm) then
+    Application.MainForm.SetFocus;
+end;
+
+procedure TfrmAjuda.DestruirDataModulo;
+begin
+  SalvarConfiguracoesFormulario;
+end;
+
+procedure TfrmAjuda.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  inherited;
+  if Not (fsModal in FormState) then
+    Action := caFree
+end;
+
+function TfrmAjuda.FormHelp(HelpType: THelpType; HelpContext: THelpContext;
+  const HelpKeyword, HelpFile: String; var Handled: Boolean): Boolean;
+begin
+  Result := True;
+  Handled := True;
+  if Assigned(ActiveControl) then
+    if Trim(ActiveControl.HelpKeyword) <> '' then
+      Exit
+    else
+      ActiveControl.HelpKeyword := GetArquivoAjuda
+{
+  else
+    Application.KeywordHelp(GetArquivoAjuda);
+    }
+end;
+{
+function TfrmAjuda.FormRegistrado(NomeForm: String): TfrmAjudaClass;
+var
+  Pers: TPersistentClass;
+begin
+  Pers := ActivateClassGroup(TControl);
+  Result := TfrmAjudaClass(GetClass(NomeForm));
+  ActivateClassGroup(Pers);
+end;
+ }
+procedure TfrmAjuda.MostraContextoAjuda;
+begin
+{
+  RegisterHelpViewer;
+  if HelpKeyword <> '' then
+       Application.KeywordHelp(HelpKeyword)
+  else Application.HelpFile:= ExtractFilePath(Application.ExeName) + 'teclux.html';
+  }
+end;
+
+procedure TfrmAjuda.OperacaoPadrao(Value: Array of Variant);
+begin
+//self.setfocus;
+end;
+
+class function TfrmAjuda.Referencia: TForm;
+var
+  cnt: Integer;
+begin
+  Result := nil;
+  for cnt := 0 to Screen.FormCount - 1 do
+    if Screen.Forms[cnt].ClassName = ClassName then begin
+      Result := Screen.Forms[cnt];
+      Break;
+    end;
+end;
+
+procedure TfrmAjuda.FormShow(Sender: TObject);
+begin
+   // // // // // QWidget_setActiveWindow(Handle);
+end;
+
+procedure TfrmAjuda.BloquearFormularios(FormNaoBloquear: String);
+var
+  cnt: Integer;
+  form : Tform;
+begin
+  for cnt := 0 to Screen.FormCount - 1 do
+  begin
+    form := Screen.Forms[cnt];
+    if (form.Name <> 'frmAjuda') and
+       (form.Name <> 'frmCadastroPadrao') and
+       (form.Name <> 'frmAjudaBt') and
+       (form.Name <> 'frmNavControles') and
+       (form.Name <> 'frmTecsoft') and
+       (form.Name <> FormNaoBloquear) then
+      form.Enabled := false
+  end;
+end;
+
+procedure TfrmAjuda.DesbloquearFormularios;
+var
+  cnt: Integer;
+begin
+  for cnt := 0 to Screen.FormCount - 1 do
+  begin
+    Screen.Forms[cnt].Enabled := true;
+    if Screen.Forms[cnt].name = FormOrigemBloqueio then
+      if FormOrigemBloqueio <> '' then
+        Screen.Forms[cnt].SetFocus;
+  end;
+end;
+
+procedure TfrmAjuda.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  Case Key of
+    VK_INSERT :
+    begin
+      if InsertLigado then
+        InsertLigado := false
+      else
+        InsertLigado := true;
+    end;
+  end;
+
+end;
+
+procedure TfrmAjuda.MouseDown(Button: TMouseButton; Shift: TShiftState; X,
+  Y: Integer);
+begin
+  inherited;
+
+end;
+
+function TfrmAjuda.VerificarComponentesdePesquisa: boolean;
+var
+  a: integer;
+begin
+  result := true;
+  for a:= ComponentCount - 1 downto 0 do
+    if (Components[a] is TtecFindCustom)  then
+    begin
+      if (TtecFindCustom(Components[a]).text<>'') {and
+         not TtecFindCustom(Components[a]).ActiveSetControls} then
+      begin
+        result := TtecFindCustom(Components[a]).Exist;
+        if not result then
+          break;
+        self.refresh;
+      end;
+    end
+end;
+
+procedure TfrmAjuda.FormMouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+;
+end;
+
+(*
+procedure TfrmAjuda.SalvarConfiguracoesFormulario__;
+var
+ i, j: integer;
+ v_strFile : TFileStream;
+ v_NomeArquivo, v_NomeArquivoAux : String;
+ v_lista : TStringList;
+
+begin
+  if SalvarPropriedadesFormulario then
+  begin
+    v_NomeArquivo := ExtractFilePath(Application.ExeName) + 'PARAMETROS';
+
+    if not DirectoryExists(v_NomeArquivo) then
+      if not CreateDir(v_NomeArquivo) then
+        raise Exception.Create('Impossível criar o diretório '+v_NomeArquivo);
+
+    for i := 0 to self.ComponentCount -1 do
+    begin
+      if (Components[i] is TCheckBox) or
+         (Components[i] is TEditData) or
+         (Components[i] is TEditNumero) or
+         (Components[i] is TRadioGroup) or
+         (Components[i] is TCheckListBox) or
+         (Components[i] is TTecDbeditFind)
+          then
+      begin
+        v_strFile := TFileStream.Create(v_NomeArquivo+'\'+self.Name+'_'+self.Components[i].Name+'.DAT', fmCreate);
+        v_strFile.WriteComponent(self.Components[i]);
+        v_strFile.Free;
+
+        if (Components[i] is TCheckListBox) then
+        begin
+          v_strFile := TFileStream.Create(v_NomeArquivo+'\'+self.Name+'_'+self.Components[i].Name+'ItemsChecked.DAT', fmCreate);
+          v_lista := TStringList.Create;
+
+          for j := 0 to TCheckListBox(Components[i]).Count -1 do
+          begin
+            if TCheckListBox(Components[i]).Checked[j] then
+              v_Lista.Append(TCheckListBox(Components[i]).Items[j]);
+          end;
+          v_lista.SaveToStream(v_strFile);
+          v_lista.Free;
+          v_strFile.Free;
+        end;
+
+      end;
+    end;
+  end;
+end;
+
+
+
+procedure TfrmAjuda.CarregarConfiguracoesFormulario__;
+var
+ i, j, k: integer;
+ v_strFile : TFileStream;
+ v_NomeArquivo, v_NomeArquivoComponente : String;
+ v_Lista: TStringList;
+
+begin
+  if SalvarPropriedadesFormulario then
+  begin
+    v_NomeArquivo := ExtractFilePath(Application.ExeName) + 'PARAMETROS';
+
+    if not DirectoryExists(v_NomeArquivo) then
+      if not CreateDir(v_NomeArquivo) then
+        raise Exception.Create('Impossível criar o diretório '+v_NomeArquivo);
+
+    for i := 0 to self.ComponentCount -1 do
+    begin
+      if (Components[i] is TCheckBox) or   //ok
+         (Components[i] is TEditData) or   //ok
+         (Components[i] is TEditNumero) or  //ok
+         (Components[i] is TRadioGroup) or   //ok
+         (Components[i] is TCheckListBox) {  //ok
+         (Components[i] is TTecDbeditFind)}
+          then
+      begin
+        v_NomeArquivoComponente := v_NomeArquivo+'\'+self.Name+'_'+self.Components[i].Name+'.DAT';
+
+        if FileExists(v_NomeArquivoComponente) then
+        begin
+          if (Components[i] is TCheckBox) then
+            TCheckBox(Components[i]).Checked := false;
+
+          v_strFile := TFileStream.Create(v_NomeArquivoComponente, fmOpenRead);
+          v_strFile.ReadComponent(Components[i]);
+          v_strFile.Free;
+
+          if (Components[i] is TCheckListBox) then
+          begin
+            v_Lista := tStringList.create;
+            v_NomeArquivoComponente := v_NomeArquivo+'\'+self.Name+'_'+self.Components[i].Name+'ItemsChecked.DAT';
+            v_strFile := TFileStream.Create(v_NomeArquivoComponente, fmOpenRead);
+            v_Lista.LoadFromStream(v_strFile);
+
+            for j:= 0 to v_lista.Count - 1 do
+            begin
+              for k:=0 to TCheckListBox(Components[i]).Items.Count-1 do
+                if v_lista[j] = TCheckListBox(Components[i]).Items[k] then
+
+                  TCheckListBox(Components[i]).Checked[k] := true;
+            end;
+            v_Lista.free;
+            v_strFile.free;
+
+          end;
+        end;
+      end;
+    end;
+  end;
+end;
+
+*)
+
+procedure TfrmAjuda.SalvarConfiguracoesFormulario(objetivo: String);
+var
+{ v_NomeArquivoIni: TIniFile;}
+ v_NomeArquivoIni: TMemIniFile;
+ vConteudo : TStringList;
+ i, j, k, l: integer;
+ v_NomeArquivo, vSecao : String;
+ qryParametrosFormularios: TtecQuery;
+
+begin
+  if SalvarPropriedadesFormulario then
+  begin
+    v_NomeArquivo := ExtractFilePath(Application.ExeName) + 'PARAMETROS';
+
+    if not DirectoryExists(v_NomeArquivo) then
+      if not CreateDir(v_NomeArquivo) then
+        raise Exception.Create('Impossível criar o diretório '+v_NomeArquivo);
+
+    v_NomeArquivo := v_NomeArquivo + '\' + UsuarioLogin.LoginUsuario;
+
+    if not DirectoryExists(v_NomeArquivo) then
+      if not CreateDir(v_NomeArquivo) then
+        raise Exception.Create('Impossível criar o diretório '+v_NomeArquivo);
+
+    v_NomeArquivo := v_NomeArquivo + '\' + self.Name + '.ini';
+
+    if FileExists(v_NomeArquivo) then
+      DeleteFile(pchar(v_NomeArquivo));
+
+{    v_NomeArquivoIni := TIniFile.Create(v_NomeArquivo);}
+    v_NomeArquivoIni :=TMemIniFile.Create(v_NomeArquivo);
+
+
+    for i := 0 to self.ComponentCount -1 do
+    begin
+      if Components[i].tag <> -1 then
+      begin
+        if (Components[i] is TtecPageControl) then
+        begin
+          v_NomeArquivoIni.EraseSection(self.Components[i].Name);
+          v_NomeArquivoIni.WriteInteger(self.Components[i].Name, 'TabIndex', TtecPageControl(self.Components[i]).TabIndex);
+        end
+        else
+        if (Components[i] is TAdvSpinEdit) then
+        begin
+          v_NomeArquivoIni.EraseSection(self.Components[i].Name);
+          v_NomeArquivoIni.WriteInteger(self.Components[i].Name, 'Value', TAdvSpinEdit(self.Components[i]).value);
+        end
+        else
+        if (Components[i] is TStaticText) then
+        begin
+          v_NomeArquivoIni.EraseSection(self.Components[i].Name);
+          v_NomeArquivoIni.WriteString(self.Components[i].Name, 'Caption',TStaticText(self.Components[i]).Caption);
+        end
+        else
+        if (Components[i] is TCheckBox) then
+        begin
+          v_NomeArquivoIni.EraseSection(self.Components[i].Name);
+          v_NomeArquivoIni.WriteBool(self.Components[i].Name, 'Checked', TCheckBox(self.Components[i]).Checked);
+        end
+        else
+        if (Components[i] is TtecRadioButton) then
+        begin
+          v_NomeArquivoIni.EraseSection(self.Components[i].Name);
+          v_NomeArquivoIni.WriteBool(self.Components[i].Name, 'Checked', TtecRadioButton(self.Components[i]).Checked);
+        end
+        else
+        if (Components[i] is TEditData) then
+        begin
+          v_NomeArquivoIni.EraseSection(self.Components[i].Name);
+          v_NomeArquivoIni.WriteString(self.Components[i].Name, 'Text', TEditData(self.Components[i]).text);
+        end
+        else
+        if (Components[i] is TEditNumero) and not TEditNumero(Components[i]).ReadOnly  then
+        begin
+          v_NomeArquivoIni.EraseSection(self.Components[i].Name);
+          v_NomeArquivoIni.WriteString(self.Components[i].Name, 'Text', TEditNumero(self.Components[i]).Text);
+        end
+        else
+        if (Components[i] is TtecDbEditFind) then
+        begin
+          if TtecDbEditFind(self.Components[i]).tag = 0 then
+          begin
+            v_NomeArquivoIni.EraseSection(self.Components[i].Name);
+            v_NomeArquivoIni.WriteString(self.Components[i].Name, 'Text', TtecDbEditFind(self.Components[i]).Text);
+          end;
+        end
+        else
+        if (Components[i] is TtecDbFindLookup) then
+        begin
+          if TtecDbFindLookup(self.Components[i]).tag = 0 then
+          begin
+            v_NomeArquivoIni.EraseSection(self.Components[i].Name);
+            v_NomeArquivoIni.WriteString(self.Components[i].Name, 'Text', TtecDbFindLookup(self.Components[i]).Text);
+          end;  
+        end
+        else
+        if (Components[i] is TRadioGroup) then
+        begin
+          v_NomeArquivoIni.EraseSection(self.Components[i].Name);
+          v_NomeArquivoIni.WriteInteger(self.Components[i].Name, 'ItemIndex',TRadioGroup(self.Components[i]).ItemIndex);
+        end
+        else
+        if (Components[i] is TCheckListBox) then
+        begin
+          for j := 0 to TCheckListBox(Components[i]).items.Count -1 do
+          begin
+            v_NomeArquivoIni.EraseSection(self.Components[i].Name+'_'+inttostr(j));
+            v_NomeArquivoIni.WriteBool(self.Components[i].Name+'_'+inttostr(j), 'Checked', TCheckListBox(self.Components[i]).Checked[j]);
+          end;
+        end
+        else
+        if (Components[i] is TfraListaFiliais) or
+           (Components[i] is TfraListaGruposFiliais) then
+        begin
+          for j := 0 to TfraListaFiliais(Components[i]).componentcount -1 do
+          begin
+            if (TfraListaFiliais(Components[i]).components[j] is TCheckListBox) then
+            begin
+              for k := 0 to TCheckListBox(TfraListaFiliais(Components[i]).components[j]).items.Count -1 do
+              begin
+                v_NomeArquivoIni.EraseSection(self.Components[i].Name+'_'+inttostr(j)+'_'+TfraListaFiliais(Components[i]).components[j].name+'_'+inttostr(k));
+                v_NomeArquivoIni.WriteBool(self.Components[i].Name+'_'+inttostr(j)+'_'+TfraListaFiliais(Components[i]).components[j].name+'_'+inttostr(k), 'Checked',
+                    TCheckListBox(TfraListaFiliais(Components[i]).components[j]).checked[k]);
+              end;
+            end;
+          end;
+        end
+        else
+        if (Components[i] is TFraOrdenacao_cr) then
+        begin
+          TFraOrdenacao_cr(Components[i]).qryLista.first;
+          while not TFraOrdenacao_cr(Components[i]).qryLista.Eof do
+          begin
+            for j := 0 to TFraOrdenacao_cr(Components[i]).qryLista.FieldCount -1 do
+            begin
+
+              v_NomeArquivoIni.EraseSection(self.Components[i].Name + '_' +
+              inttostr(TFraOrdenacao_cr(Components[i]).qryLista.recno) + '_' +
+              TFraOrdenacao_cr(Components[i]).qryLista.fields[j].fieldname);
+
+              if TFraOrdenacao_cr(Components[i]).qryLista.fields[j].datatype = ftBoolean then
+                v_NomeArquivoIni.WriteBool(self.Components[i].Name + '_' +
+                inttostr(TFraOrdenacao_cr(Components[i]).qryLista.recno) + '_' +
+                TFraOrdenacao_cr(Components[i]).qryLista.fields[j].fieldname,
+
+                'Valor do Campo',
+
+                TFraOrdenacao_cr(Components[i]).qryLista.fields[j].asboolean  )
+              else
+                v_NomeArquivoIni.WriteString(self.Components[i].Name + '_' +
+                inttostr(TFraOrdenacao_cr(Components[i]).qryLista.recno) + '_' +
+                TFraOrdenacao_cr(Components[i]).qryLista.fields[j].fieldname,
+
+                'Valor do Campo',
+
+                TFraOrdenacao_cr(Components[i]).qryLista.fields[j].asString  );
+
+            end;
+            TFraOrdenacao_cr(Components[i]).qryLista.next;
+          end
+        end
+        else
+        {Verificar a possibilidade de recursividade em relação a outros componentes pois o frame no form é somente um objeto,
+         detalhes dentro do frame não participam da verificação acima}
+        if (Components[i] is TfraMultiplaSelecaoAleatoria) then
+        begin
+          for k := 0 to TfraMultiplaSelecaoAleatoria(Components[i]).ComponentCount -1 do
+          begin
+            if (TfraMultiplaSelecaoAleatoria(Components[i]).Components[k] is tfraSelecaoAleatoriaItemdeProdutos) or
+               (TfraMultiplaSelecaoAleatoria(Components[i]).Components[k] is  TfraSelecaoAleatoriaprodutos) or
+               (TfraMultiplaSelecaoAleatoria(Components[i]).Components[k] is  tfraSelecaoaleatoriagruposprodutos) or
+               (TfraMultiplaSelecaoAleatoria(Components[i]).Components[k] is  tfraSelecaoaleatoriaclassesprodutos) or
+               (TfraMultiplaSelecaoAleatoria(Components[i]).Components[k] is  tfraSelecaoAleatoriamarcasProdutos) or
+               (TfraMultiplaSelecaoAleatoria(Components[i]).Components[k] is  tfraSelecaoAleatoriaPromocoes) then
+            begin
+              for l := 0 to TfraMultiplaSelecaoAleatoria(Components[i]).Components[k].ComponentCount -1 do
+              begin
+                if (TfraMultiplaSelecaoAleatoria(Components[i]).Components[k].Components[l] is tfraSelecaoAleatoria) then
+                begin
+
+                  TFraSelecaoAleatoria(TfraMultiplaSelecaoAleatoria(Components[i]).Components[k].Components[l]).qrySelecaoAleatoria.first;
+                  while not TFraSelecaoAleatoria(TfraMultiplaSelecaoAleatoria(Components[i]).Components[k].Components[l]).qrySelecaoAleatoria.Eof do
+                  begin
+                    vSecao :=  TfraMultiplaSelecaoAleatoria(Components[i]).Name + '_' + TfraMultiplaSelecaoAleatoria(Components[i]).Components[k].Name + '_' +
+                      inttostr(TFraSelecaoAleatoria(TfraMultiplaSelecaoAleatoria(Components[i]).Components[k].Components[l]).qrySelecaoAleatoria.recno);
+
+                    v_NomeArquivoIni.EraseSection(vSecao);
+
+                    for j := 0 to TFraSelecaoAleatoria(TfraMultiplaSelecaoAleatoria(Components[i]).Components[k].Components[l]).qrySelecaoAleatoria.FieldCount -1 do
+                    begin
+                      if TFraSelecaoAleatoria(TfraMultiplaSelecaoAleatoria(Components[i]).Components[k].Components[l]).qrySelecaoAleatoria.fields[j].datatype = ftBoolean then
+                        v_NomeArquivoIni.WriteBool(vSecao,
+                        TFraSelecaoAleatoria(TfraMultiplaSelecaoAleatoria(Components[i]).Components[k].Components[l]).qrySelecaoAleatoria.fields[j].fieldname,
+                        TFraSelecaoAleatoria(TfraMultiplaSelecaoAleatoria(Components[i]).Components[k].Components[l]).qrySelecaoAleatoria.fields[j].asboolean  )
+                      else
+                        v_NomeArquivoIni.WriteString(vSecao,
+                        TFraSelecaoAleatoria(TfraMultiplaSelecaoAleatoria(Components[i]).Components[k].Components[l]).qrySelecaoAleatoria.fields[j].fieldname,
+                        TFraSelecaoAleatoria(TfraMultiplaSelecaoAleatoria(Components[i]).Components[k].Components[l]).qrySelecaoAleatoria.fields[j].asString  );
+
+                    end;
+
+                    TFraSelecaoAleatoria(TfraMultiplaSelecaoAleatoria(Components[i]).Components[k].Components[l]).qrySelecaoAleatoria.next;
+                  end;
+                end;
+              end;
+            end;
+          end;
+        end
+        else
+        if (Components[i] is TfraSelecaoAleatoriaClientes) or
+           (Components[i] is TfraSelecaoaleatoriatiporecebimento) or
+           (Components[i] is TfraSelecaoaleatoriaplanorecebimento) or
+           (Components[i] is TfraSelecaoaleatoriagruposfornecedores) or
+           (Components[i] is TfraSelecaoaleatorialistaspadronizadas) or
+           (Components[i] is TfraSelecaoaleatoriavendedores) then
+
+        begin
+          for j := 0 to Components[i].ComponentCount -1 do
+          begin
+            if Components[i].components[j] is tfraSelecaoAleatoria then
+            begin
+
+              TFraSelecaoAleatoria(Components[i].Components[j]).qrySelecaoAleatoria.first;
+              while not TFraSelecaoAleatoria(Components[i].Components[j]).qrySelecaoAleatoria.Eof do
+              begin
+                vSecao :=  Components[i].Name + '_' + Components[i].Components[j].Name + '_' +
+                  inttostr(TFraSelecaoAleatoria(Components[i].Components[j]).qrySelecaoAleatoria.recno);
+
+                v_NomeArquivoIni.EraseSection(vSecao);
+
+                for l := 0 to TFraSelecaoAleatoria(Components[i].Components[j]).qrySelecaoAleatoria.FieldCount -1 do
+                begin
+                  if TFraSelecaoAleatoria(Components[i].Components[j]).qrySelecaoAleatoria.fields[l].datatype = ftBoolean then
+                    v_NomeArquivoIni.WriteBool(vSecao,
+                    TFraSelecaoAleatoria(Components[i].Components[j]).qrySelecaoAleatoria.fields[l].fieldname,
+                    TFraSelecaoAleatoria(Components[i].Components[j]).qrySelecaoAleatoria.fields[l].asboolean  )
+                  else
+                    v_NomeArquivoIni.WriteString(vSecao,
+                    TFraSelecaoAleatoria(Components[i].Components[j]).qrySelecaoAleatoria.fields[l].fieldname,
+                    TFraSelecaoAleatoria(Components[i].Components[j]).qrySelecaoAleatoria.fields[l].asString);
+                end;
+
+                TFraSelecaoAleatoria(Components[i].Components[j]).qrySelecaoAleatoria.next;
+              end;
+            end;
+          end;
+        end
+        else
+        if (Components[i] is TfraConsultaCodigo) then
+        begin
+          if TfraConsultaCodigo(self.Components[i]).edfCodigo.tag = 0 then
+          begin
+            v_NomeArquivoIni.EraseSection(self.Components[i].Name);
+            v_NomeArquivoIni.WriteString(self.Components[i].Name, 'edfCodigo.text', TfraConsultaCodigo(self.Components[i]).edfCodigo.text);
+          end;
+        end;
+      end;
+    end;
+
+    if chave='' then
+      v_NomeArquivoIni.UpdateFile;
+
+    qryParametrosFormularios := TtecQuery.Create(nil);
+    qryParametrosFormularios.Database := dtmTecSoft.Database;
+
+    if objetivo = '' then
+    begin
+
+      if Chave = '' then
+        qryParametrosFormularios.Sql.Text := 'delete from parametrosformularios where nomeformulario = '+quotedstr(ExtractFileName(v_NomeArquivo)) +
+                                             ' and usename = '+quotedstr(UsuarioLogin.LoginUsuario) + ' and coalesce(chave,'''')='''' and objetivo is null'
+      else
+        qryParametrosFormularios.Sql.Text := 'delete from parametrosformularios where nomeformulario = '+quotedstr(ExtractFileName(v_NomeArquivo)) +
+                                             ' and chave = ' + quotedstr(Chave) + ' and objetivo is null';
+      qryParametrosFormularios.execsql;
+    end;
+
+    vConteudo := TStringList.create;
+    v_NomeArquivoIni.GetStrings(vConteudo);
+
+    if objetivo = '' then
+      qryParametrosFormularios.Sql.Text := 'insert into parametrosformularios (nomeformulario, usename, chave, conteudo) values ('+
+                                            quotedstr(ExtractFileName(v_NomeArquivo)) + ', ' +
+                                            quotedstr(UsuarioLogin.LoginUsuario) + ', ' +
+                                            quotedstr(Chave) + ', ' +
+                                            quotedstr(vConteudo.Text) + ')'
+    else
+      qryParametrosFormularios.Sql.Text := 'insert into parametrosformularios (nomeformulario, usename, chave, conteudo, objetivo) values ('+
+                                            quotedstr(ExtractFileName(v_NomeArquivo)) + ', ' +
+                                            quotedstr(UsuarioLogin.LoginUsuario) + ', ' +
+                                            quotedstr(Chave) + ', ' +
+                                            quotedstr(vConteudo.Text) + ', ' +
+                                            quotedstr(objetivo) + ')';
+
+    qryParametrosFormularios.execsql;
+    dtmTecSoft.tstTecSoft.Commit;
+
+    v_NomeArquivoIni.Free;
+  end;
+end;
+
+procedure TfrmAjuda.CarregarConfiguracoesFormulario;
+var
+ i, j, k, l, m, n: integer;
+ v_NomeArquivoIni: TMemIniFile;
+ v_NomeArquivo : String;
+ vValor : String;
+ vvalor2 : String;
+ vvalor_1, vvalor_2, vvalor_3, vSecao : String;
+ vExiste : Boolean;
+ qryParametrosFormularios: TtecQuery;
+ vConteudo : TStringList;
+ 
+
+begin
+  try
+    if SalvarPropriedadesFormulario then
+    begin
+      v_NomeArquivo := ExtractFilePath(Application.ExeName) + 'PARAMETROS';
+      v_NomeArquivo := v_NomeArquivo + '\' + UsuarioLogin.LoginUsuario;
+      v_NomeArquivo := v_NomeArquivo + '\' + self.Name + '.ini';
+
+      v_NomeArquivoIni := TMemIniFile.Create(v_NomeArquivo);
+
+      vExiste := FileExists(v_NomeArquivo);
+
+      if not vExiste or (Chave <> '') then
+      begin
+        qryParametrosFormularios := TtecQuery.Create(nil);
+        qryParametrosFormularios.Database := dtmTecSoft.Database;
+        if Chave = '' then
+          qryParametrosFormularios.Sql.Text := 'select conteudo from parametrosformularios where nomeformulario = '+quotedstr(ExtractFileName(v_NomeArquivo)) +
+                                               ' and usename = '+quotedstr(UsuarioLogin.LoginUsuario) + ' and chave = '''''
+        else
+          qryParametrosFormularios.Sql.Text := 'select conteudo from parametrosformularios where nomeformulario = '+quotedstr(ExtractFileName(v_NomeArquivo)) +
+                                               ' and chave = ' + quotedstr(Chave);
+
+        qryParametrosFormularios.open;
+        if qryParametrosFormularios.recordcount <> 0 then
+        begin
+          vExiste := true;
+          vConteudo := TStringList.create;
+          vConteudo.assign(tMemoField(qryParametrosFormularios.fieldbyname('conteudo')));
+          v_NomeArquivoIni.SetStrings(vConteudo);
+        end;
+      end;
+
+//      if vExiste then
+      begin
+
+        for i := 0 to self.ComponentCount -1 do
+        begin
+          if (Components[i].tag <> -1) then
+          begin
+
+            if (Components[i] is TtecPageControl) then
+            begin
+              if v_NomeArquivoIni.SectionExists(self.Components[i].Name) then
+                TtecPageControl(self.Components[i]).TabIndex := v_NomeArquivoIni.ReadInteger(self.Components[i].Name, 'TabIndex', 0)
+            end
+            else
+            if (Components[i] is TCheckBox) then
+            begin
+              if v_NomeArquivoIni.SectionExists(self.Components[i].Name) then
+                TCheckBox(self.Components[i]).Checked := v_NomeArquivoIni.ReadBool(self.Components[i].Name, 'Checked', false)
+            end
+            else
+
+
+
+
+            if (Components[i] is TAdvSpinEdit) then
+            begin
+              if v_NomeArquivoIni.SectionExists(self.Components[i].Name) then
+                TAdvSpinEdit(self.Components[i]).value := v_NomeArquivoIni.ReadInteger(self.Components[i].Name, 'Value', 60)
+            end
+            else
+            if (Components[i] is TStaticText) then
+            begin
+              if v_NomeArquivoIni.SectionExists(self.Components[i].Name) then
+                TStaticText(self.Components[i]).Caption := v_NomeArquivoIni.ReadString(self.Components[i].Name, 'Caption', '')
+            end
+            else
+            if (Components[i] is TtecRadioButton) then
+            begin
+              if v_NomeArquivoIni.SectionExists(self.Components[i].Name) then
+                if v_NomeArquivoIni.ReadBool(self.Components[i].Name, 'Checked', false) then
+                  TtecRadioButton(self.Components[i]).checked := true;
+            end
+            else
+            if (Components[i] is TEditData) then
+            begin
+              if v_NomeArquivoIni.SectionExists(self.Components[i].Name) then
+                TEditData(self.Components[i]).text := v_NomeArquivoIni.ReadString(self.Components[i].Name, 'Text', '')
+            end
+            else
+            if (Components[i] is TEditNumero) then
+            begin
+              if v_NomeArquivoIni.SectionExists(self.Components[i].Name) then
+                TEditNumero(self.Components[i]).Text := v_NomeArquivoIni.ReadString(self.Components[i].Name, 'Text', '')
+            end
+            else
+            if (Components[i] is TFraConsultaCodigo) then
+            begin
+              if v_NomeArquivoIni.SectionExists(self.Components[i].Name) then
+              begin
+                if TfraConsultaCodigo(self.Components[i]).edfCodigo.Tag = 0 then
+                  if v_NomeArquivoIni.ReadString(self.Components[i].Name, 'edfCodigo.text', '') <> '' then
+                  begin
+                    TfraConsultaCodigo(self.Components[i]).edfCodigo.text := v_NomeArquivoIni.ReadString(self.Components[i].Name, 'edfCodigo.text', '');
+                    TfraConsultaCodigo(self.Components[i]).edfCodigo.Exist;
+                  end;
+              end;
+            end
+            else
+            if (Components[i] is TtecDbEditFind) then
+            begin
+              if v_NomeArquivoIni.SectionExists(self.Components[i].Name) then
+              begin
+                if TtecDbEditFind(self.Components[i]).tag = 0 then
+                  if v_NomeArquivoIni.ReadString(self.Components[i].Name, 'Text', '') <> '' then
+                  begin
+                    TtecDbEditFind(self.Components[i]).Text := v_NomeArquivoIni.ReadString(self.Components[i].Name, 'Text', '');
+                    TtecDbEditFind(self.Components[i]).Exist;
+                  end;
+              end;
+            end
+            else
+            if (Components[i] is TtecDbFindLookup) then
+            begin
+              if v_NomeArquivoIni.SectionExists(self.Components[i].Name) then
+              begin
+                if TtecDbFindLookup(self.Components[i]).tag = 0 then
+                  if v_NomeArquivoIni.ReadString(self.Components[i].Name, 'Text', '') <> '' then
+                  begin
+                    TtecDbFindLookup(self.Components[i]).Text := v_NomeArquivoIni.ReadString(self.Components[i].Name, 'Text', '');
+                    TtecDbFindLookup(self.Components[i]).Exist;
+                  end;
+              end;
+            end
+            else
+            if (Components[i] is TRadioGroup) then
+            begin
+              if v_NomeArquivoIni.SectionExists(self.Components[i].Name) then
+                TRadioGroup(self.Components[i]).ItemIndex := v_NomeArquivoIni.ReadInteger(self.Components[i].Name, 'ItemIndex',0);
+            end
+            else
+            if (Components[i] is TCheckListBox) then
+            begin
+              for j := 0 to TCheckListBox(Components[i]).Items.Count -1 do
+              begin
+                if v_NomeArquivoIni.SectionExists(self.Components[i].Name+'_'+inttostr(j)) then
+                begin
+                  TCheckListBox(self.Components[i]).Checked[j] := v_NomeArquivoIni.ReadBool(self.Components[i].Name+'_'+inttostr(j), 'Checked', false);
+                  if TCheckListBox(self.Components[i]).Checked[j] then
+                  begin
+                    if Components[i].GetParentComponent is TTabSheet then
+                      TTabSheet(Components[i].GetParentComponent).highLighted := true;
+                  end;
+                end
+              end
+            end
+            else
+            if (Components[i] is TfraListaFiliais) or
+               (Components[i] is TfraListaGruposFiliais) then
+            begin
+              for j := 0 to TfraListaFiliais(Components[i]).componentcount -1 do
+              begin
+                if (TfraListaFiliais(Components[i]).components[j] is TCheckListBox) then
+                begin
+                  for k := 0 to TCheckListBox(TfraListaFiliais(Components[i]).components[j]).items.Count -1 do
+                  begin
+                    if v_NomeArquivoIni.SectionExists(self.Components[i].Name+'_'+inttostr(j)+'_'+TfraListaFiliais(Components[i]).components[j].name+'_'+inttostr(k)) then
+                      TCheckListBox(TfraListaFiliais(Components[i]).components[j]).checked[k] :=
+                          v_NomeArquivoIni.ReadBool(self.Components[i].Name+'_'+inttostr(j)+'_'+TfraListaFiliais(Components[i]).components[j].name+'_'+inttostr(k), 'Checked', false);
+                  end;
+                end;
+              end;
+            end
+            else
+            {
+
+                  vvalor_1 := self.Components[i].Name;
+                  vvalor_2 := inttostr(TFraOrdenacao_cr(Components[i]).qryLista.recno);
+                  vvalor_3 := TFraOrdenacao_cr(Components[i]).qryLista.fields[j].fieldname;
+
+
+                  vValor := v_NomeArquivoIni.ReadString(
+
+                  self.Components[i].Name + '_' +
+                  inttostr(TFraOrdenacao_cr(Components[i]).qryLista.recno) + '_' +
+                  TFraOrdenacao_cr(Components[i]).qryLista.fields[j].fieldname, 'Valor do Campo', '');
+
+            }
+            if (Components[i] is TFraOrdenacao_cr) then
+            begin
+              TFraOrdenacao_cr(Components[i]).qryLista.first;
+              while not TFraOrdenacao_cr(Components[i]).qryLista.Eof do
+              begin
+                for j := 0 to TFraOrdenacao_cr(Components[i]).qryLista.FieldCount -1 do
+                begin
+                  vSecao := self.Components[i].Name + '_' +
+                            inttostr(TFraOrdenacao_cr(Components[i]).qryLista.recno) + '_' +
+                            TFraOrdenacao_cr(Components[i]).qryLista.fields[j].fieldname;
+
+                  if v_NomeArquivoIni.SectionExists(vSecao) then
+                  begin
+                    TFraOrdenacao_cr(Components[i]).qryLista.edit;
+
+                    if TFraOrdenacao_cr(Components[i]).qryLista.fields[j].datatype = ftboolean then
+                      TFraOrdenacao_cr(Components[i]).qryLista.fields[j].asBoolean := v_NomeArquivoIni.ReadBool(vSecao, 'Valor do Campo', true)
+                    else
+                      TFraOrdenacao_cr(Components[i]).qryLista.fields[j].asString := v_NomeArquivoIni.ReadString(vSecao, 'Valor do Campo', '');
+                  end;
+
+                end;
+                TFraOrdenacao_cr(Components[i]).qryLista.next;
+              end;
+            end
+            else
+            {Verificar a possibilidade de recursividade em relação a outros componentes pois o frame no form é somente um objeto,
+             detalhes dentro do frame não participam da verificação acima}
+            if (Components[i] is TfraMultiplaSelecaoAleatoria) then
+            begin
+
+              for k := 0 to TfraMultiplaSelecaoAleatoria(Components[i]).ComponentCount -1 do
+              begin
+                if (TfraMultiplaSelecaoAleatoria(Components[i]).Components[k] is tfraSelecaoAleatoriaItemdeProdutos) or
+                   (TfraMultiplaSelecaoAleatoria(Components[i]).Components[k] is TfraSelecaoAleatoriaprodutos) or
+                   (TfraMultiplaSelecaoAleatoria(Components[i]).Components[k] is tfraSelecaoaleatoriagruposprodutos) or
+                   (TfraMultiplaSelecaoAleatoria(Components[i]).Components[k] is tfraSelecaoaleatoriaclassesprodutos) or
+                   (TfraMultiplaSelecaoAleatoria(Components[i]).Components[k] is tfraSelecaoAleatoriamarcasProdutos) or
+                   (TfraMultiplaSelecaoAleatoria(Components[i]).Components[k] is tfraSelecaoAleatoriaPromocoes) then
+                begin
+
+                  for l := 0 to TfraMultiplaSelecaoAleatoria(Components[i]).Components[k].ComponentCount -1 do
+                  begin
+                    if (TfraMultiplaSelecaoAleatoria(Components[i]).Components[k].Components[l] is tfraSelecaoAleatoria) then
+                    begin
+                      LimparTabela(TFraSelecaoAleatoria(TfraMultiplaSelecaoAleatoria(Components[i]).Components[k].Components[l]).qrySelecaoAleatoria);
+                      m := 1;
+                      while true do
+                      begin
+                        vSecao :=  TfraMultiplaSelecaoAleatoria(Components[i]).Name + '_' + TfraMultiplaSelecaoAleatoria(Components[i]).Components[k].Name + '_' + inttostr(m);
+                        if v_NomeArquivoIni.SectionExists(vsecao) then
+                        begin
+                          TFraSelecaoAleatoria(TfraMultiplaSelecaoAleatoria(Components[i]).Components[k].Components[l]).qrySelecaoAleatoria.Append;
+                          for n:=0 to TFraSelecaoAleatoria(TfraMultiplaSelecaoAleatoria(Components[i]).Components[k].Components[l]).qrySelecaoAleatoria.FieldCount - 1 do
+                          begin
+                            case TFraSelecaoAleatoria(TfraMultiplaSelecaoAleatoria(Components[i]).Components[k].Components[l]).qrySelecaoAleatoria.Fields[n].DataType of
+                              ftBoolean : TBooleanField(TFraSelecaoAleatoria(TfraMultiplaSelecaoAleatoria(Components[i]).Components[k].Components[l]).qrySelecaoAleatoria.Fields[n]).AsBoolean :=
+                                 v_NomeArquivoIni.ReadBool(vSecao, TFraSelecaoAleatoria(TfraMultiplaSelecaoAleatoria(Components[i]).Components[k].Components[l]).qrySelecaoAleatoria.Fields[n].FieldName, false)
+                            else
+                              if v_NomeArquivoIni.ReadString(vSecao, TFraSelecaoAleatoria(TfraMultiplaSelecaoAleatoria(Components[i]).Components[k].Components[l]).qrySelecaoAleatoria.Fields[n].FieldName, '') = '' then
+                                TFraSelecaoAleatoria(TfraMultiplaSelecaoAleatoria(Components[i]).Components[k].Components[l]).qrySelecaoAleatoria.Fields[n].AsVariant := null
+                              else
+                                TFraSelecaoAleatoria(TfraMultiplaSelecaoAleatoria(Components[i]).Components[k].Components[l]).qrySelecaoAleatoria.Fields[n].AsVariant :=
+                                  v_NomeArquivoIni.ReadString(vSecao, TFraSelecaoAleatoria(TfraMultiplaSelecaoAleatoria(Components[i]).Components[k].Components[l]).qrySelecaoAleatoria.Fields[n].FieldName, '');
+
+                            end;
+                          end;
+                          TFraSelecaoAleatoria(TfraMultiplaSelecaoAleatoria(Components[i]).Components[k].Components[l]).qrySelecaoAleatoria.post;
+
+                        end
+                        else
+                          break;
+
+                        inc(m);
+                      end;
+                    end;
+                  end;
+
+                end;
+              end;
+
+
+            end
+            else
+            if (Components[i] is TfraSelecaoAleatoriaClientes) or
+               (Components[i] is TfraSelecaoaleatoriatiporecebimento) or
+               (Components[i] is TfraSelecaoaleatoriaplanorecebimento) or
+               (Components[i] is TfraSelecaoaleatoriagruposfornecedores) or
+               (Components[i] is TfraSelecaoaleatorialistaspadronizadas) or
+               (Components[i] is TfraSelecaoaleatoriavendedores) then
+            begin
+              for l := 0 to Components[i].ComponentCount -1 do
+              begin
+                if (Components[i].Components[l] is tfraSelecaoAleatoria) then
+                begin
+                  LimparTabela(TFraSelecaoAleatoria(Components[i].Components[l]).qrySelecaoAleatoria);
+                  m := 1;
+                  while true do
+                  begin
+                    vSecao :=  Components[i].Name + '_' + Components[i].Components[l].Name + '_' + inttostr(m);
+                    if v_NomeArquivoIni.SectionExists(vsecao) then
+                    begin
+                      TFraSelecaoAleatoria(Components[i].Components[l]).qrySelecaoAleatoria.Append;
+                      for n:=0 to TFraSelecaoAleatoria(Components[i].Components[l]).qrySelecaoAleatoria.FieldCount - 1 do
+                      begin
+                        case TFraSelecaoAleatoria(Components[i].Components[l]).qrySelecaoAleatoria.Fields[n].DataType of
+                          ftBoolean : TBooleanField(TFraSelecaoAleatoria(Components[i].Components[l]).qrySelecaoAleatoria.Fields[n]).AsBoolean :=
+                             v_NomeArquivoIni.ReadBool(vSecao, TFraSelecaoAleatoria(Components[i].Components[l]).qrySelecaoAleatoria.Fields[n].FieldName, false)
+                        else
+                          if v_NomeArquivoIni.ReadString(vSecao, TFraSelecaoAleatoria(Components[i].Components[l]).qrySelecaoAleatoria.Fields[n].FieldName, '') = '' then
+                            TFraSelecaoAleatoria(Components[i].Components[l]).qrySelecaoAleatoria.Fields[n].AsVariant := null
+                          else
+                            TFraSelecaoAleatoria(Components[i].Components[l]).qrySelecaoAleatoria.Fields[n].AsVariant :=
+                               v_NomeArquivoIni.ReadString(vSecao, TFraSelecaoAleatoria(Components[i].Components[l]).qrySelecaoAleatoria.Fields[n].FieldName, '');
+                        end;
+                      end;
+                      TFraSelecaoAleatoria(Components[i].Components[l]).qrySelecaoAleatoria.post;
+                    end
+                    else
+                      break;
+
+                    inc(m);
+                  end;
+                end;
+              end;
+            end;
+          end;
+        end;
+      end;
+    end;
+  except
+  end;
+end;
+
+procedure TfrmAjuda.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+begin
+     {
+  if ExisteRelatorioAberto then
+  begin
+    MensagemAviso('Existem relatórios abertos vinculados a este formulário.');
+    Canclose := false
+  end
+  else
+    Canclose :=  true;
+    }
+
+  FecharRelatorioAberto;
+  Canclose := true;
+  inherited;
+end;
+
+function TfrmAjuda.ExisteRelatorioAberto: boolean;
+var
+  i,j: integer;
+begin
+  result := false;
+
+  for i := self.ComponentCount-1 downto 0  do
+  begin
+    if Components[i] is TdtmBasico then
+    begin
+      for j := Components[i].ComponentCount-1 downto 0  do
+      begin
+        if Components[i].Components[j] is TfrmPreviewPadrao then
+        begin
+          result := true;
+          break;
+        end;
+      end;
+    end;
+  end;
+  
+end;
+
+procedure TfrmAjuda.SetChave(const Value: String);
+begin
+  if fChave <> Value then
+  begin
+    fChave := Value;
+    CarregarConfiguracoesFormulario;
+  end;
+end;
+
+function TfrmAjuda.FecharRelatorioAberto: boolean;
+var
+  cnt, j: Integer;
+  v_frmPreviewPadrao : TfrmPreviewPadrao;
+begin
+  for cnt :=self.ComponentCount-1 downto 0 do
+  begin
+    if Components[cnt] is TfrmPreviewPadrao then
+    begin
+      v_frmPreviewPadrao := TfrmPreviewPadrao(Components[cnt]);
+      v_frmPreviewPadrao.ModalResult := mrOK;
+    end;
+
+    if Components[cnt] is TdtmBasico then
+    begin
+      for j := Components[cnt].ComponentCount-1 downto 0  do
+      begin
+        if Components[cnt].Components[j] is TfrmPreviewPadrao then
+        begin
+          v_frmPreviewPadrao := TfrmPreviewPadrao(Components[cnt].Components[j]);
+          v_frmPreviewPadrao.ModalResult := mrOK;
+        end;
+      end;
+    end;
+  end;
+end;
+
+
+procedure TfrmAjuda.PrintScreenDetect(Sender: TObject;
+  var Result: Boolean);
+begin
+  if GetAsyncKeyState(VK_SNAPSHOT)<>0 then
+  begin
+    if Clipboard.HasFormat(CF_BITMAP) then
+      SalvarImagemSistema(Clipboard);
+
+  end;
+
+end;
+
+procedure TfrmAjuda.FormCreate(Sender: TObject);
+begin
+  Application.OnIdle := PrintScreenDetect;
+  SetClipboardViewer(Handle);
+end;
+
+procedure TfrmAjuda.ClipBoardChanged(var Message: TMessage);
+begin
+  if GetAsyncKeyState(VK_SNAPSHOT)<>0 then
+  begin
+    if Clipboard.HasFormat(CF_BITMAP) then
+      SalvarImagemSistema(Clipboard);
+  end;
+end;
+
+end.

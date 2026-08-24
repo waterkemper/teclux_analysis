@@ -94,7 +94,7 @@ inherited frmAnaliseestoques: TfrmAnaliseestoques
     Top = 40
     Width = 1083
     Height = 611
-    ActivePage = tstParametros
+    ActivePage = tstDados
     Align = alClient
     TabOrder = 2
     object tstParametros: TTabSheet
@@ -180,21 +180,21 @@ inherited frmAnaliseestoques: TfrmAnaliseestoques
                     Height = 305
                     inherited fraSelecaoAleatoriaItemdeProduto: TfraSelecaoAleatoria
                       Width = 821
-                      Height = 281
+                      Height = 285
                       inherited Splitter1: TSplitter
-                        Left = 789
-                        Height = 267
+                        Left = 786
+                        Height = 271
                       end
                       inherited dbgSelecaoAleatoria: TtecDBGrid
-                        Width = 789
-                        Height = 267
+                        Width = 786
+                        Height = 271
                       end
                       inherited pnlLabels: TPanel
-                        Left = 792
-                        Height = 267
+                        Left = 789
+                        Height = 271
                       end
                       inherited pnlAbaixo: TPanel
-                        Top = 267
+                        Top = 271
                         Width = 821
                         Font.Pitch = fpVariable
                         inherited lblOrientacao: TLabel
@@ -207,10 +207,13 @@ inherited frmAnaliseestoques: TfrmAnaliseestoques
                       end
                     end
                     inherited pnlParametros: TPanel
-                      Top = 281
+                      Top = 285
                       Width = 821
                       Font.Pitch = fpVariable
                       inherited ckbProdutosComAgendamento: TCheckBox
+                        Font.Pitch = fpVariable
+                      end
+                      inherited ckbIncluirSimilaresnaLista: TCheckBox
                         Font.Pitch = fpVariable
                       end
                     end
@@ -404,23 +407,8 @@ inherited frmAnaliseestoques: TfrmAnaliseestoques
                 end
                 inherited tstSelecaoAleatoriaMarketPlace: TTabSheet
                   inherited fraSelecaoaleatoriamarketplace1: TfraSelecaoaleatoriamarketplace
-                    Width = 821
-                    Height = 305
                     inherited fraSelecaoAleatoriamarketplace: TfraSelecaoAleatoria
-                      Width = 821
-                      Height = 305
-                      inherited Splitter1: TSplitter
-                        Height = 290
-                      end
-                      inherited dbgSelecaoAleatoria: TtecDBGrid
-                        Height = 290
-                      end
-                      inherited pnlLabels: TPanel
-                        Height = 290
-                      end
                       inherited pnlAbaixo: TPanel
-                        Top = 290
-                        Width = 821
                         Font.Pitch = fpVariable
                         inherited lblOrientacao: TLabel
                           Font.Pitch = fpVariable
@@ -741,7 +729,7 @@ inherited frmAnaliseestoques: TfrmAnaliseestoques
             PrintFont.Name = 'MS Sans Serif'
             PrintFont.Pitch = fpVariable
             PrintFont.Style = []
-            Width = 1033
+            Width = 1050
           end>
         DataSource = dtmAnaliseestoques.dsrAnaliseEstoques
         PageMode = False
@@ -777,7 +765,7 @@ inherited frmAnaliseestoques: TfrmAnaliseestoques
         PostOnEnter = False
         ColWidths = (
           20
-          1033)
+          1050)
       end
       object Panel1: TPanel
         Left = 0

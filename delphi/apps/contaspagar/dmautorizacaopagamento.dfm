@@ -1,8 +1,8 @@
 inherited dtmAutorizacaoPagamento: TdtmAutorizacaoPagamento
   OldCreateOrder = False
   OnDestroy = DataModuleDestroy
-  Left = 189
-  Top = 222
+  Left = 222
+  Top = 260
   Height = 368
   Width = 568
   object qryFilial: TtecQuery

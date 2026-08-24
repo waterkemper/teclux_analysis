@@ -1,0 +1,803 @@
+unit fmconsultabasica;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, Buttons,
+  ExtCtrls, Grids, DBGrids, {Qete,} DB, Windows,
+  //Biblio
+  ctconstantes, clparametrossistema,
+  //Terceiros
+  ZQuery,
+  //Componentes
+  cpdbgrid, cpdatasource, cptexto,
+  //Repositorio
+  fmajuda, ComCtrls;
+
+
+type
+
+  TfrmConsultaBasica = class(TfrmAjuda)
+    dbgConsulta: TtecDBGrid;
+    Source: TtecDataSource;
+    pnlCabecalho: TPanel;
+    sptConsulta: TSplitter;
+    sbxItensConsulta: TScrollBox;
+    pnlBotoes: TPanel;
+    bbnCancelar: TBitBtn;
+    bbnOK: TBitBtn;
+    stbMensagem: TStatusBar;
+    ckbOpcional1: TCheckBox;
+    ckbOpcional2: TCheckBox;
+    cbbOpcao: TComboBox;
+    gbxSelecionar: TGroupBox;
+    procedure dbgConsultaColumnMoved(Sender: TObject; FromIndex, ToIndex: Integer);
+    procedure dbgConsultaDblClick(Sender: TObject);
+    procedure dbgConsultaExit(Sender: TObject);
+    procedure ckbOpcional1Click(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure dbgConsultaTitleClick(Column: TColumn);
+    procedure ckbOpcional2Click(Sender: TObject);
+    procedure cbbOpcaoKeyPress(Sender: TObject; var Key: Char);
+    procedure cbbOpcaoSelect(Sender: TObject);
+    procedure cbbOpcaoKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+  private
+    FOntecClose: TtecProcedure;
+    FExibirUltimoParametro: Boolean;
+    FPesquisaIniciada: Boolean;
+    FManterParametros: Boolean;
+    tecla :  Word;
+  protected
+    FClicadoTitulo: Boolean;
+    FLarguraDefault: Integer;
+    FDbgColumnsIndex: Integer;
+    FConsultaInterativa: Boolean;
+    FDataSetPrincipal: TZDataSet;
+    FExisteCodigo: TtecVerificaInformacaoNaTabela;
+    FMsg: string;
+    FFieldName: String;
+    FOnControleEnter: TtecProcParametroInteger;
+    FPosicionarTabelaDoParametro: TtecInformacaoPorIndice;
+    FProximoControle: TtecProcParametroInteger;
+    FTabelaParametro: TtecTabelaPorIndice;
+    FUsarParametrosDaTabela: Boolean;
+    IdxEditorAtual,
+    ParametroAtual: Integer;
+    Lbo: TLabel;
+    function  GetControleProcura: TEditTexto;
+    function  ControleEdicaoParametroAtual: TEditTexto; virtual;
+//    function  MontaCamposPesquisaveis(ds: TDataSet): String;
+    procedure MontaCamposPesquisaveis(ds: TDataSet);
+    function  Pesquisavel(Field: TField): Boolean;
+    function  GetControle(Index: Integer): TEditTexto;
+    function  GetControleAtual: TEditTexto;
+    function  GetDataSet: TZDataSet;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure DimensionaFormularioConsulta;
+    procedure CriarEditoresDeParametros;
+    procedure OrdenePor(NomeCampo: String);
+    procedure ProcurarEditor(Sender: TObject);
+    procedure SetDataSet(const Value: TZDataSet);
+    procedure VerificaCodigo;
+    procedure ParametroKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure ParametroEnter(Sender: TObject);
+    procedure ParametroExit(Sender: TObject);
+    procedure ParametroChange(Sender: TObject);
+    procedure ProcuraEnter(Sender: TObject);
+    procedure ProcuraExit(Sender: TObject);
+    procedure ProcuraChange(Sender: TObject);
+    procedure AlteraTituloGrid;
+
+    property  Controle[Index: Integer]: TEditTexto read GetControle;
+    property  ControleAtual: TEditTexto read GetControleAtual;
+  public
+    ReabrirFormulario: Boolean;
+    constructor Create(AOwner: TComponent); override;
+    destructor destroy; override;
+    function  ShowModal(Titulo:String): Integer; reintroduce;
+    property  DataSet: TZDataSet read GetDataSet write SetDataSet;
+    property  ExisteCodigo: TtecVerificaInformacaoNaTabela read FExisteCodigo write FExisteCodigo;
+    property  FieldName: String read FFieldName;
+    property  TabelaParametro: TtecTabelaPorIndice read FTabelaParametro write FTabelaParametro;
+    property  UsarParametrosDaTabela: Boolean read FUsarParametrosDaTabela write FUsarParametrosDaTabela;
+    property  ExibirUltimoParametro: Boolean read FExibirUltimoParametro write FExibirUltimoParametro;
+    property  PosicionarTabelaDoParametro: TtecInformacaoPorIndice read FPosicionarTabelaDoParametro write FPosicionarTabelaDoParametro;
+    property  OnControleEnter: TtecProcParametroInteger read FOnControleEnter write FOnControleEnter;
+    property  ProximoControle: TtecProcParametroInteger read FProximoControle write FProximoControle;
+    property  ConsultaInterativa: Boolean read FConsultaInterativa write FConsultaInterativa;
+    property  Msg: string read FMsg write FMsg;
+    property  OntecClose: TtecProcedure read FOntecClose write FOntecClose;
+    property PesquisaIniciada: Boolean read FPesquisaIniciada write FPesquisaIniciada;
+    property ManterParametros: Boolean read FManterParametros write FManterParametros;
+
+  end;
+
+  TfrmConsultaBasicaClass = class of TfrmConsultaBasica;
+
+implementation
+
+uses
+  //Biblio
+  biblio;
+
+{$R *.dfm}
+
+procedure TfrmConsultaBasica.AlteraTituloGrid;
+var
+ i: integer;
+
+begin
+  for i:=0 to dbgConsulta.Columns.Count-1 do
+    dbgConsulta.columns[i].Title.Font.Style := [];
+
+  if (dbgConsulta.Columns.Count > 0) then begin
+    if FDbgColumnsIndex >= dbgConsulta.Columns.Count then
+      FDbgColumnsIndex := dbgConsulta.Columns.Count - 1;
+    dbgConsulta.Columns[FDbgColumnsIndex].Title.Font.Style:= [fsBold];
+    dbgConsulta.Columns[FDbgColumnsIndex].Title.Alignment := taCenter;
+    if Assigned(Lbo) then
+      Lbo.Caption:= dbgConsulta.Columns[FDbgColumnsIndex].Title.Caption;
+  end;
+end;
+
+function TfrmConsultaBasica.ControleEdicaoParametroAtual: TEditTexto;
+begin
+  if IdxEditorAtual = -1 then
+    Result := nil
+  else
+    Result := TEditTexto(sbxItensConsulta.Controls[IdxEditorAtual])
+end;
+
+constructor TfrmConsultaBasica.Create(AOwner: TComponent);
+begin
+  inherited;
+  FDbgColumnsIndex := 0;
+  ParametroAtual   := -1;
+  IdxEditorAtual   := -1;
+  UsarParametrosDaTabela := True;
+  FLarguraDefault:= 540;
+end;
+
+procedure TfrmConsultaBasica.CriarEditoresDeParametros;
+var
+  a, i, cont: Integer;
+  ed: TEditTexto;
+  lb: TLabel;
+begin
+  if Assigned(DataSet) then
+  begin
+    if UsarParametrosDaTabela then
+    begin
+
+      cont := DataSet.ParamCount;
+
+      pnlCabecalho.Height := cont * 27 + 50;
+      
+      for a := 0 to cont - 1 do
+      begin
+        lb          := TLabel.Create(Self);
+        lb.Parent := pnlCabecalho;
+//        lb.Alignment:=taLeftJustify;
+        lb.Left     := 10;
+        lb.Width    := 71;
+        lb.Top      := (a * 27) + 12;
+        lb.Caption  := PrimeiraMaiuscula(DataSet.Params[a].DisplayName);
+//        lb.Name := 'l' + IntToStr(a);
+
+        ed := TEditTexto.Create(Self);
+        ed.Parent := pnlCabecalho;
+//        ed.MaxLength := 100;
+        ed.Left      := 110;//88;
+        ed.Top       := (a * 27) + 10;
+        ed.Width     := 200;
+        ed.OnEnter   := ParametroEnter;
+        ed.OnExit    := ParametroExit;
+        ed.OnChange  := ParametroChange;
+        ed.OnKeyDown := ParametroKeyDown;
+        ed.Anchors   := [akLeft, akBottom];
+//        ed.Name      := 'e' + IntToStr(a);
+
+        sbxItensConsulta.InsertControl(lb);
+        sbxItensConsulta.InsertControl(ed);
+        ed.TabOrder := a;
+      end;
+
+
+    end else
+      cont := 0;
+
+    lb          := TLabel.Create(Self);
+    lb.Parent := pnlCabecalho;
+    lb.Alignment:= taLeftJustify;
+    lb.Left     := 10;
+    lb.Width    := 71;
+    lb.Top      := (cont * 27) + 10;
+    lb.Caption  := 'Procura por';
+
+    lbo          := TLabel.Create(Self);
+    lbo.Parent := pnlCabecalho;
+    lbo.Alignment:= taLeftJustify;
+    lbo.Left     := 10;
+    lbo.Width    := 71;
+    lbo.Top      := (cont * 27) + 26;
+
+    ed := TEditTexto.Create(self);
+    ed.Parent := pnlCabecalho;
+//    ed.MaxLength := 100;
+
+    ed.Name := 'edtProcura';
+    ed.Left      := 110; //88;
+    ed.Top       := (cont * 27) + 10;
+    ed.Width     := 200;
+    ed.Text      := '';
+
+
+
+    if ExibirUltimoParametro then
+    begin
+     if (dataset.params.Count) > 0 then
+     begin
+      ed.text := DataSet.Params[0].AsString;
+      for I:=0 to dbgConsulta.Columns.Count -1 do
+       if dbgconsulta.Columns[i].DisplayName = dataset.Params[0].DisplayName then
+       FDbgColumnsIndex := I;
+     end
+    end;
+
+    ed.OnEnter   := ProcuraEnter;
+    ed.OnExit    := ProcuraExit;
+    ed.OnChange  := ProcuraChange;
+    ed.OnKeyDown := ParametroKeyDown;
+    ed.Anchors   := [akLeft, akBottom];
+
+    sbxItensConsulta.InsertControl(lb);
+    sbxItensConsulta.InsertControl(lbo);
+    sbxItensConsulta.InsertControl(ed);
+    ed.TabOrder := cont;
+  end
+  else
+    sbxItensConsulta.DestroyComponents;
+
+end;
+
+procedure TfrmConsultaBasica.dbgConsultaColumnMoved(Sender: TObject; FromIndex, ToIndex: Integer);
+begin
+  inherited;
+  if (ToIndex = 0) or (FromIndex = 0) then begin
+    OrdenePor(dbgConsulta.Columns.Items[0].Field.FieldName);
+    FDbgColumnsIndex := 0;
+  end;
+end;
+
+
+
+procedure TfrmConsultaBasica.dbgConsultaDblClick(Sender: TObject);
+var
+ i: integer;
+begin
+  inherited;
+  if bbnOK.Enabled then
+    ModalResult := mrOk
+  else
+  begin
+    tecla := VK_Return;
+    KeyDown(tecla,[]);
+  end;
+end;
+
+procedure TfrmConsultaBasica.dbgConsultaExit(Sender: TObject);
+begin
+  inherited;
+  if Not bbnOK.Enabled then
+    ParametroExit(nil);
+end;
+
+procedure TfrmConsultaBasica.DimensionaFormularioConsulta;
+var
+  Largura, cnt :integer;
+begin
+  with Constraints do begin
+    MaxHeight := 0;
+    MinHeight := 0;
+    MaxWidth  := 0;
+    MinWidth  := 0;
+  end;
+  Largura:= 50;
+  for cnt:= 0 to dbgConsulta.Columns.Count - 1 do
+    Largura:= Largura + (dbgConsulta.Columns[cnt].Width);
+  Width:= Largura;
+  if Width < FLarguraDefault then
+    Width:= FLarguraDefault;
+  with Constraints do begin
+    MaxHeight := Height;
+    MinHeight := Height;
+    MaxWidth  := Width;
+    MinWidth  := Width;
+  end;
+  Left := (Screen.Width div 2) - (Width div 2);
+  Top := (Screen.Height div 2) - (Height div 2);
+  AlteraTituloGrid;
+  stbMensagem.Panels[0].Width:= stbMensagem.Width - 128;
+  stbMensagem.Panels[1].Text:= ' Registros:  ' + Format('%7.7d',[DataSet.RecordCount]);
+end;
+
+function TfrmConsultaBasica.GetControle(Index: Integer): TEditTexto;
+var
+  a: Integer;
+begin
+  Result := nil;
+  for a := 0 to sbxItensConsulta.ControlCount - 1 do
+    if sbxItensConsulta.Controls[a] is TEditTexto then
+      if TEditTexto(sbxItensConsulta.Controls[a]).TabOrder = Index then begin
+        Result := TEditTexto(sbxItensConsulta.Controls[a]);
+        break
+      end
+end;
+
+function TfrmConsultaBasica.GetControleAtual: TEditTexto;
+begin
+  Result := ControleEdicaoParametroAtual;
+end;
+
+function TfrmConsultaBasica.GetDataSet: TZDataSet;
+begin
+  Result := TZDataSet(Source.DataSet)
+end;
+
+type
+   TtecScrollBox = class(TScrollBox);
+
+procedure TfrmConsultaBasica.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  if assigned(controleAtual) then
+    controleatual.SetFocus;
+
+  if TeclaEnterOuReturn(Key) then
+  begin
+    if ssShift in Shift then
+      TtecScrollBox(sbxItensConsulta).SelectNext(ActiveControl, False, True)
+    else
+    if Shift = [] then
+    begin
+      if ConsultaInterativa then
+        TtecScrollBox(sbxItensConsulta).SelectNext(ActiveControl, True, True)
+      else
+      if TEditTexto(ActiveControl).Modified then
+      begin
+        TEditTexto(ActiveControl).Modified := False;
+        VerificaCodigo;
+      end else
+        TtecScrollBox(sbxItensConsulta).SelectNext(ActiveControl, True, True);
+      inherited
+    end
+  end
+  else if (Key = VK_F11) and (dbgConsulta.Columns.Count > 0) then
+  begin
+    if (Shift = [ssShift]) then Dec(FDbgColumnsIndex)
+    else                        Inc(FDbgColumnsIndex);
+    if (FDbgColumnsIndex > (dbgConsulta.Columns.Count - 1)) then
+      FDbgColumnsIndex:= 0
+    else if (FDbgColumnsIndex < 0) then
+      FDbgColumnsIndex:= (dbgConsulta.Columns.Count - 1);
+    OrdenePor(dbgConsulta.Columns.Items[FDbgColumnsIndex].Field.FieldName);
+    AlteraTituloGrid;
+  end
+  else
+    inherited;
+end;
+
+procedure TfrmConsultaBasica.MontaCamposPesquisaveis(ds: TDataSet);
+var
+  a: Integer;
+begin
+//  Result := '';
+  if Assigned(ds) then
+  begin
+    if ExibirUltimoParametro then
+        FFieldName := dbgConsulta.Columns.Items[FDbgColumnsIndex].Field.FieldName
+    else
+    begin
+      if FClicadoTitulo then
+        FFieldName := dbgConsulta.Columns.Items[FDbgColumnsIndex].Field.FieldName
+      else
+      begin
+        for a := 0 to ds.FieldCount - 1 do
+          if Pesquisavel(ds.Fields[a]) then
+          begin
+            FFieldName:= ds.Fields[a].FieldName;
+            Break;
+          end;
+      end;
+
+  {        if ParSistema.ExibirReferenciaProduto then begin
+            Result := ds.Fields[0].FieldName;
+            if ds.Fields[a].Tag = 1 then begin
+              Result := ds.Fields[a].FieldName;
+              break;
+            end
+          end
+          else begin
+            Result := ds.Fields[a].FieldName; // Jander
+            break; // Jander
+          end;
+        end;
+   }
+      for a := 0 to ds.FieldCount - 1 do
+        if Not Pesquisavel(ds.Fields[a]) then
+          ds.Fields[a].Visible := False;
+
+  {    if ParSistema.ExibirReferenciaProduto then begin
+        for a := 0 to ds.FieldCount - 1 do
+          if (Pesquisavel(ds.Fields[a])and ds.Fields[a].Visible) then
+            if ds.Fields[a].Tag = 1 then begin
+              ds.Fields[a].Index:= 0;
+              break;
+            end;
+      end;}
+    end;
+ end;
+end;
+
+procedure TfrmConsultaBasica.OrdenePor(NomeCampo: String);
+var
+  a, Idx: Integer;
+begin
+{
+  Idx := -1;
+  if Assigned(ControleAtual) then
+    ControleAtual.Text := '';
+  for a := DataSet.Sql.Count - 1 downto 0 do
+  begin
+    Idx := Pos('ORDER', ANSIUpperCase(DataSet.Sql[a]));
+    if Idx > 0 then begin
+     DataSet.Close;
+      case dataset.FieldByName(NomeCampo).DataType of
+       ftString : DataSet.Sql[a]  := 'order by Maiusculo(' + (NomeCampo)+')';
+      else
+        DataSet.Sql[a]  := 'order by ' + (NomeCampo)
+      end;
+
+      FFieldName := NomeCampo;
+      break
+    end
+  end;
+
+  if Idx = 0 then begin
+
+    DataSet.Close;
+    case dataset.FieldByName(NomeCampo).DataType of
+      ftString : DataSet.Sql.Append('order by Maiusculo(' + (NomeCampo)+')');
+    else
+      DataSet.Sql.Append('order by ' + (NomeCampo));
+    end;
+
+    FFieldName := NomeCampo;
+  end;
+
+
+  try
+    DataSet.Open;
+  except
+    if Idx = 0 then
+       dataset.Sql[dataset.sql.Count-1] := 'order by ' + (NomeCampo)
+    else
+       DataSet.Sql[a]  := 'order by ' + (NomeCampo);
+    Dataset.Open;
+  end;
+}
+
+  FFieldName := NomeCampo;
+  dataset.SortByField(NomeCampo);
+  stbMensagem.Panels[1].Text:= 'Registros:  ' + Format('%7.7d',[DataSet.RecordCount]);
+end;
+
+function TfrmConsultaBasica.Pesquisavel(Field: TField): Boolean;
+begin
+  Result := (Field.DataType in [ftString, ftSmallint, ftInteger, ftWord, ftFloat,
+                               ftCurrency, ftBCD, ftDate, ftTime, ftDateTime,
+                               ftWideString, ftLargeint]) and Field.Visible;
+end;
+
+procedure TfrmConsultaBasica.ProcurarEditor(Sender: TObject);
+var
+  a: Integer;
+
+begin
+  for a := 0 to sbxItensConsulta.ControlCount - 1 do
+    if Sender = sbxItensConsulta.Controls[a] then begin
+      IdxEditorAtual := a;
+      ParametroAtual := TEditTexto(sbxItensConsulta.Controls[IdxEditorAtual]).TabOrder;
+      break
+    end
+end;
+
+procedure TfrmConsultaBasica.SetDataSet(const Value: TZDataSet);
+begin
+  if Assigned(Value) then begin
+    Source.DataSet := nil;
+    Source.DataSet := Value;
+    FDataSetPrincipal := Value;
+  end else
+    Source.DataSet := nil;
+  if not PesquisaIniciada then
+    CriarEditoresDeParametros;
+end;
+
+function TfrmConsultaBasica.ShowModal(Titulo:String): Integer;
+var
+  a: Integer;
+  edt: TEditTexto;
+  Continuar: Boolean;
+  ds: TZDataSet;
+begin
+  if Titulo <> '' then
+    Caption:= '< ' + Titulo + ' >';
+
+  if Assigned(PosicionarTabelaDoParametro) then begin
+    Continuar := True;
+    ds := DataSet;
+    for a := 0 to ds.ParamCount - 1 do begin
+      edt := Controle[a];
+      if Assigned(edt) then begin
+        ParametroEnter(edt);
+        PosicionarTabelaDoParametro(a, Continuar);
+        if Continuar then begin
+          edt.Text := dbgConsulta.Columns[0].Field.AsString;
+          if a = ds.ParamCount - 1 then begin
+            ParametroExit(nil);
+            IdxEditorAtual := -1;
+          end
+        end else
+          break;
+      end;
+    end;
+  end;
+
+  if ExibirUltimoParametro then
+  begin
+    edt := Controle[0];
+    edt.text := DataSet.Params[0].AsString;
+    edt.Modified := false;
+    edt.SelectAll;
+  end;
+
+  if not ConsultaInterativa then
+  begin
+    DataSet.Active := false;
+    DataSet.Active := true;
+    if ExibirUltimoParametro then
+      ProcuraEnter(nil);
+//    VerificaCodigo;
+  end;
+
+  if DataSet.Active then begin
+    DimensionaFormularioConsulta;
+    FFieldName := dbgConsulta.Columns.Items[FDbgColumnsIndex].Field.FieldName
+//    FFieldName := dbgConsulta.Columns.Items[0].Field.FieldName AQUI
+  end;
+
+
+  if ConsultaInterativa and (DataSet.RecordCount = 0) then begin
+    MensagemAviso(Format(ctNENHUMREGISTROENCONTRADO,['registro']));
+    Result := mrNONE
+  end else
+    Result := inherited ShowModal;
+end;
+
+procedure TfrmConsultaBasica.VerificaCodigo;
+var
+  valorcampo: String;
+begin
+  if Assigned(ControleAtual) then begin
+    valorcampo := ControleAtual.Text;
+    if (valorcampo <> '') then
+    begin
+      if not ExisteCodigo(ParametroAtual, dbgConsulta.Columns[FDbgColumnsIndex].FieldName, valorcampo) then
+      begin
+        if not ConsultaInterativa {and ExibirUltimoParametro} then
+        begin
+          if FMsg <> '' then
+               MensagemAviso(FMsg)
+          else MensagemAviso(Format(ctNENHUMREGISTROENCONTRADO,['registro']));
+
+          AlteraTituloGrid;
+        end;
+      end
+      else
+      if not ConsultaInterativa then
+      begin
+        bbnOK.Enabled := (ControleEdicaoParametroAtual.Name = 'edtProcura') or ExibirUltimoParametro ;
+        DimensionaFormularioConsulta;
+      end;
+    end;
+  end
+end;
+
+procedure TfrmConsultaBasica.ParametroKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  case Key of
+    VK_UP:       DataSet.Prior;
+    VK_DOWN:     DataSet.Next;
+    VK_PRIOR:   DataSet.MoveBy(-dbgConsulta.VisibleRowCount);
+    VK_NEXT: DataSet.MoveBy(dbgConsulta.VisibleRowCount);
+    VK_HOME:     DataSet.First;
+    VK_END:      DataSet.Last;
+  end;
+end;
+
+procedure TfrmConsultaBasica.ParametroEnter(Sender: TObject);
+begin
+  FClicadoTitulo := False;
+  FDbgColumnsIndex := 0;
+  ProcurarEditor(Sender);
+  bbnOK.Enabled := IdxEditorAtual = -1;
+  Source.DataSet := TabelaParametro(ParametroAtual);
+  MontaCamposPesquisaveis(DataSet);
+  AlteraTituloGrid;
+  if DataSet.Active then
+    DimensionaFormularioConsulta;
+  if Assigned(OnControleEnter) then
+    OnControleEnter(ParametroAtual);
+end;
+
+procedure TfrmConsultaBasica.ParametroExit(Sender: TObject);
+begin
+  if Assigned(ControleAtual) then begin
+    if Not ConsultaInterativa and TEditTexto(ControleAtual).Modified  then
+      VerificaCodigo;
+    if Assigned(dbgConsulta.Columns[FDbgColumnsIndex].Field) then
+      ControleAtual.Text := dbgConsulta.Columns[FDbgColumnsIndex].Field.AsString;
+    if Assigned(ProximoControle) then
+      ProximoControle(ParametroAtual);
+
+    FClicadoTitulo := False;
+    FDbgColumnsIndex := 0;
+  end
+
+end;
+
+procedure TfrmConsultaBasica.ParametroChange(Sender: TObject);
+begin
+  if ConsultaInterativa then
+    VerificaCodigo;
+end;
+
+procedure TfrmConsultaBasica.ProcuraChange(Sender: TObject);
+begin
+  inherited;
+  try
+    if ConsultaInterativa then
+      ExisteCodigo(-1, FieldName, ANSIUpperCase(GetControleProcura.Text))
+    else if (DataSet.RecordCount > 0) and (GetControleProcura.Text = '') then
+      bbnOK.Enabled:= True
+    else
+      bbnOK.Enabled:= False;
+  except
+  end
+end;
+
+procedure TfrmConsultaBasica.ProcuraEnter(Sender: TObject);
+begin
+  inherited;
+  IdxEditorAtual := -1;
+  Source.DataSet := FDataSetPrincipal;
+  if Assigned(DataSet) then begin
+    MontaCamposPesquisaveis(DataSet);
+    AlteraTituloGrid;
+    bbnOK.Enabled := Not DataSet.IsEmpty;
+    DimensionaFormularioConsulta;
+    if Assigned(OnControleEnter) then
+      OnControleEnter(-1);
+  end else
+    bbnOK.Enabled := False;
+end;
+
+procedure TfrmConsultaBasica.ProcuraExit(Sender: TObject);
+begin
+  inherited;
+  bbnOK.Enabled := IdxEditorAtual = -1;
+  ProximoControle(-1);
+  FClicadoTitulo := False;
+  if not ManterParametros then
+    FDbgColumnsIndex := 0;
+end;
+
+function TfrmConsultaBasica.GetControleProcura: TEditTexto;
+var
+  cnt: Integer;
+begin
+  Result := nil;
+  for cnt := 0 to sbxItensConsulta.ControlCount - 1 do
+    if sbxItensConsulta.Controls[cnt].Name = 'edtProcura' then
+      Result := TEditTexto(sbxItensConsulta.Controls[cnt]);
+end;
+
+procedure TfrmConsultaBasica.ckbOpcional1Click(Sender: TObject);
+begin
+  inherited;
+  if ckbOpcional1.Checked then
+    if ckbOpcional2.Checked then
+    begin
+      ckbOpcional2.OnClick := nil;
+      ckbOpcional2.Checked := false;
+      ckbOpcional2.OnClick := ckbOpcional2Click;
+    end;
+  ReabrirFormulario := true;
+  OntecClose;
+  ModalResult := mrcancel;
+end;
+
+procedure TfrmConsultaBasica.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  if assigned(OntecClose) then
+  begin
+    ReabrirFormulario := False;
+    OntecClose;
+  end;
+  inherited;
+end;
+
+procedure TfrmConsultaBasica.dbgConsultaTitleClick(Column: TColumn);
+begin
+  inherited;
+  FClicadoTitulo := true;
+  FDbgColumnsIndex:= column.Index;
+  OrdenePor(dbgConsulta.Columns.Items[FDbgColumnsIndex].Field.FieldName);
+  AlteraTituloGrid;
+end;
+
+destructor TfrmConsultaBasica.destroy;
+begin
+  inherited;
+  self := nil;
+end;
+
+procedure TfrmConsultaBasica.ckbOpcional2Click(Sender: TObject);
+begin
+  inherited;
+  if ckbOpcional2.Checked then
+    if ckbOpcional1.Checked then
+    begin
+      ckbOpcional1.OnClick := nil;
+      ckbOpcional1.Checked := false;
+      ckbOpcional1.OnClick := ckbOpcional1Click;
+    end;
+  ReabrirFormulario := true;
+  OntecClose;
+  ModalResult := mrcancel;
+end;
+
+procedure TfrmConsultaBasica.cbbOpcaoKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (key <> VK_UP) and
+     (key <> VK_DOWN) then
+    Key := 0;
+end;
+
+procedure TfrmConsultaBasica.cbbOpcaoKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+  inherited;
+  if (key <> '') and
+     (key <> '') then
+    key := chr(13)
+end;
+
+procedure TfrmConsultaBasica.cbbOpcaoSelect(Sender: TObject);
+var
+  vAccept: Boolean;
+begin
+  inherited;
+  DataSet.Filtered := true;
+  if cbbOpcao.Text = 'ATIVOS' then
+    vAccept := DataSet.FieldByName('inativo').IsNull;
+
+//  DataSet.OnFilterRecord(Dataset, vAccept);
+end;
+
+end.

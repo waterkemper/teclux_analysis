@@ -246,7 +246,7 @@ inherited dtmImprimeDAV: TdtmImprimeDAV
       000E00434E504A46494C49414C4241534500000000080050524F4455544F5300
       00000008005345525649434F53000000000B00434F4D504C454D454E544F0001
       0030000000000000000000FC00000000000000000000000000000000580071C1
-      2C5F3291E34086C7B9AF7008E540}
+      2C5F3291E3404B24AA853759E540}
   end
   object fdsServicosOrcamentos: TfrDBDataSet
     DataSet = qryServicosOrcamentos
@@ -274,7 +274,7 @@ inherited dtmImprimeDAV: TdtmImprimeDAV
     Transaction = dtmTecSoft.tstTecSoft
     CachedUpdates = True
     ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
-    Options = []
+    Options = [doAutoFillDefs]
     LinkOptions = [loAlwaysResync]
     Constraints = <>
     ExtraOptions = [poTextAsMemo, poOidAsBlob]
@@ -302,8 +302,9 @@ inherited dtmImprimeDAV: TdtmImprimeDAV
       DisplayFormat = '0'
     end
     object qryOrcamentosnome: TStringField
+      DisplayWidth = 40
       FieldName = 'nome'
-      Size = 40
+      Size = 60
     end
     object qryOrcamentospessoatipo: TStringField
       FieldName = 'pessoatipo'
@@ -320,7 +321,7 @@ inherited dtmImprimeDAV: TdtmImprimeDAV
     Transaction = dtmTecSoft.tstTecSoft
     CachedUpdates = True
     ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
-    Options = []
+    Options = [doAutoFillDefs]
     LinkOptions = [loAlwaysResync]
     Constraints = <>
     ExtraOptions = [poTextAsMemo, poOidAsBlob]
@@ -383,7 +384,7 @@ inherited dtmImprimeDAV: TdtmImprimeDAV
     Transaction = dtmTecSoft.tstTecSoft
     CachedUpdates = True
     ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
-    Options = []
+    Options = [doAutoFillDefs]
     LinkOptions = [loAlwaysResync]
     Constraints = <>
     ExtraOptions = [poTextAsMemo, poOidAsBlob]
@@ -418,8 +419,9 @@ inherited dtmImprimeDAV: TdtmImprimeDAV
       DisplayFormat = '0'
     end
     object qryServicosOrcamentosdescricaoservico: TStringField
+      DisplayWidth = 50
       FieldName = 'descricaoservico'
-      Size = 50
+      Size = 70
     end
     object qryServicosOrcamentosquantidade: TIntegerField
       FieldName = 'quantidade'

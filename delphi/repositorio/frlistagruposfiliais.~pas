@@ -1,0 +1,130 @@
+unit frlistagruposfiliais;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, CheckLst, Buttons, dmbasico, biblio, clparametrossistema;
+type
+  TfraListaGruposFiliais = class(TFrame)
+    gbxGrupodeFiliais: TGroupBox;
+    sbnmarcarGrupodeFiliais: TSpeedButton;
+    sbnDesmarcarGrupodeFiliais: TSpeedButton;
+    clbGrupodeFiliais: TCheckListBox;
+    procedure sbnmarcarGrupodeFiliaisClick(Sender: TObject);
+    procedure sbnDesmarcarGrupodeFiliaisClick(Sender: TObject);
+  private
+    FTodosMarcados: Boolean;
+    FListaSelecionada: String;
+    FListaSelecionada2: String;
+    FListaSelecionada_Int: String;
+    function GetListaSelecionada: String;
+    function GetTodosMarcados: Boolean;
+    function GetListaSelecionada2: String;
+    function GetListaSelecionada_Int: String;
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(Aowner:Tcomponent);override;
+    procedure ObterLista(Origem: TStrings; Destino: TCheckListBox);
+    property TodosMarcados: Boolean read GetTodosMarcados write FTodosMarcados;
+    property ListaSelecionada: String read GetListaSelecionada write FListaSelecionada;
+    property ListaSelecionada2: String read GetListaSelecionada2 write FListaSelecionada2;
+    property ListaSelecionada_Int: String read GetListaSelecionada_Int write FListaSelecionada_Int; 
+
+  end;
+
+implementation
+
+{$R *.dfm}
+
+{ TfraListaGruposFiliais }
+
+constructor TfraListaGruposFiliais.Create(Aowner: Tcomponent);
+begin
+  inherited;
+  ObterLista(ListaGrupoFiliais, clbGrupodeFiliais);
+end;
+
+procedure TfraListaGruposFiliais.ObterLista(Origem: TStrings;
+  Destino: TCheckListBox);
+begin
+  Destino.Items.AddStrings(Origem);
+end;
+
+procedure TfraListaGruposFiliais.sbnmarcarGrupodeFiliaisClick(
+  Sender: TObject);
+begin
+  MarcarLista(clbGrupodeFiliais, True);
+end;
+
+procedure TfraListaGruposFiliais.sbnDesmarcarGrupodeFiliaisClick(
+  Sender: TObject);
+begin
+  MarcarLista(clbGrupodeFiliais, False);
+end;
+
+function TfraListaGruposFiliais.GetListaSelecionada: String;
+var
+ i: integer;
+begin
+  FListaSelecionada := '';
+  for i:=0 to clbGrupodeFiliais.Items.Count -1 do
+    if clbGrupodeFiliais.Checked[i] then
+      FListaSelecionada := FListaSelecionada + '''' + IntToStr(Integer(ListaGrupoFiliais.Objects[i])) + ''',';
+
+  if FListaSelecionada<>'' then
+    FListaSelecionada := copy(FListaSelecionada,1,length(FListaSelecionada)-1);
+
+  Result := FListaSelecionada;
+end;
+
+function TfraListaGruposFiliais.GetTodosMarcados: Boolean;
+var
+ i: integer;
+ Desmarcados : Boolean;
+begin
+  Desmarcados := true;
+  FTodosMarcados := True;
+
+  for i:=0 to clbGrupodeFiliais.Items.Count -1 do
+    if not (clbGrupodeFiliais.Checked[i]) then
+      FTodosMarcados := False
+    else
+    if Desmarcados then
+      Desmarcados := false;
+
+  Result := FTodosMarcados or Desmarcados;
+end;
+
+function TfraListaGruposFiliais.GetListaSelecionada2: String;
+var
+ i: integer;
+begin
+  FListaSelecionada2 := '';
+  for i:=0 to clbGrupodeFiliais.Items.Count -1 do
+    if clbGrupodeFiliais.Checked[i] then
+      FListaSelecionada2 := FListaSelecionada2 + '''' + IntToStr(Integer(ListaGrupoFiliais.Objects[i])) + ''''',''';
+
+  if FListaSelecionada2<>'' then
+    FListaSelecionada2 := copy(FListaSelecionada2,1,length(FListaSelecionada2)-1);
+
+  Result := FListaSelecionada2;
+end;
+
+function TfraListaGruposFiliais.GetListaSelecionada_Int: String;
+var
+ i: integer;
+begin
+  FListaSelecionada_int := '';
+  for i:=0 to clbGrupodeFiliais.Items.Count -1 do
+    if clbGrupodeFiliais.Checked[i] then
+      FListaSelecionada_int := FListaSelecionada_int + IntToStr(Integer(ListaGrupoFiliais.Objects[i])) + ',';
+
+  if FListaSelecionada_int<>'' then
+    FListaSelecionada_int := copy(FListaSelecionada_int,1,length(FListaSelecionada_int)-1);
+
+  Result := FListaSelecionada_int;
+end;
+
+end.

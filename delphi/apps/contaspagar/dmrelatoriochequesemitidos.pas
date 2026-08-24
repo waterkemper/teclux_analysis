@@ -11,7 +11,8 @@ uses
   // Constantes
   ctconstantes, biblio,
   // Repositorio
-  dmbasico, clparametrossistema, fmpreviewpadrao, FR_Desgn, ZTransact;
+  dmbasico, clparametrossistema, fmpreviewpadrao, FR_Desgn, ZTransact,
+  frx2xto30, frxClass;
 
 type
   TdtmRelatorioChequesEmitidos = class(TdtmBasico)
@@ -70,6 +71,7 @@ type
     qryChequesEmitidosnometitular: TStringField;
     frpResumoChequesEmitidos: TfrReport;
     qryChequesEmitidoscomplemento: TStringField;
+    frxReport1: TfrxReport;
     procedure frpChequesEmitidosBeforePrint(Memo: TStringList;
       View: TfrView);
     procedure frpCopiaChequeBeforePrint(Memo: TStringList; View: TfrView);
@@ -230,8 +232,16 @@ begin
   frVariables['AgruparFilial']    := AgruparFilial;
   frmPreview := TfrmPreviewPadrao.create(self);
   frmPreview.cmbZoom.ItemIndex := 3; //125%
-//  frpChequesEmitidos.DesignReport;
-//  frpCopiaCheque.DesignReport;
+
+  frpResumoChequesEmitidos.DesignReport;
+  frxReport1.designreport;
+  
+  frpChequesEmitidos.DesignReport;
+  frxReport1.designreport;
+
+  frpCopiaCheque.DesignReport;
+  frxReport1.designreport;
+
   try
    Relatorio := frmPreview.frCompositeReport;
    frmPreview.frCompositeReport.Reports.Clear;

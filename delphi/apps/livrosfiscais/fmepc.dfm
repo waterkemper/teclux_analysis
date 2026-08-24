@@ -29,7 +29,7 @@ inherited frmEPC: TfrmEPC
       Top = 0
       Width = 981
       Height = 650
-      ActivePage = tstRegistro_110
+      ActivePage = tstPISCOFINS
       Align = alClient
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBlack

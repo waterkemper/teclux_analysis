@@ -1,0 +1,415 @@
+unit fmcadastrofalha;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmcadastropadrao, ComCtrls, Buttons, ExtCtrls, cpnumero,
+  DBCtrls, cpdbtext, Mask, cpdbfindcontrols,  dmcadastrofalha, frconsulta,
+  frconsultacodigo, ctconstantes, cptexto, Windows, ToolWin, Grids,
+  DBGrids, cpdbgrid, db, cpdbradiogroup, frRegistroOperacoes, ActnList;
+
+type
+  TfrmCadastroFalhas = class(TfrmCadastroPadrao)
+    gbxCodigoFalha: TGroupBox;
+    gbxDescricaoFalha: TGroupBox;
+    gbxCustoFalha: TGroupBox;
+    edfCodigoFalha: TtecDbEditFind;
+    edtCustoFalha: TDBEditNumero;
+    edtDescricaoFalha: TDBEditTexto;
+    gbxOperacoes: TGroupBox;
+    Bevel1: TBevel;
+    dbgOperacoes: TtecDBGrid;
+    pnlOperacoes: TPanel;
+    rgbTipodeFalha: TtecDBRadioGroup;
+    rbnPerdaTotal: TtecRadioButton;
+    rbnRetrabalho: TtecRadioButton;
+    rbnInerente: TtecRadioButton;
+    sbnIncluirOperacao: TSpeedButton;
+    sbnExcluirOperacao: TSpeedButton;
+    PageControl1: TPageControl;
+    tstCadastro: TTabSheet;
+    tstLog: TTabSheet;
+    fraRegistroOperacoes1: TfraRegistroOperacoes;
+    sbnImprimir: TSpeedButton;
+    gbxOperacaoOriginal: TGroupBox;
+    fraConsultaOperacoes: TfraConsultaCodigo;
+    gbxC1Original: TGroupBox;
+    edfCopiaC1: TtecDBFindLookup;
+    gbxC2Original: TGroupBox;
+    edfCopiaC2: TtecDBFindLookup;
+    gbxC3Original: TGroupBox;
+    edfCopiaC3: TtecDBFindLookup;
+    gbxNaoInfluiNaPremiacao: TGroupBox;
+    gbxFalhaOriginal: TGroupBox;
+    fraConsultaFalhasOriginal: TfraConsultaCodigo;
+    actAbilitar: TActionList;
+    aclHabilitar: TAction;
+    ckbNaoInfluiPremiacao: TDBCheckBox;
+    gbxAtribuirFalhaOriginal: TGroupBox;
+    procedure sbnProcurarClick(Sender: TObject);
+    procedure dbgOperacoesDblClick(Sender: TObject);
+    procedure dbgOperacoesKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnIncluirOperacaoClick(Sender: TObject);
+    procedure sbnExcluirOperacaoClick(Sender: TObject);
+    procedure sbnImprimirClick(Sender: TObject);
+    procedure edfCopiaC3Exit(Sender: TObject);
+    procedure fraConsultaOperacoesedfCodigoFound(Found: Boolean);
+    procedure aclHabilitarUpdate(Sender: TObject);
+  private
+    { Private declarations }
+    function VerificarOperacoes: boolean;
+
+  protected
+    ConsultaFalhas,
+    ConsultaOperacoes: TfraConsultaCodigo;
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoIncluir: Boolean; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure AbrirFalhas;
+    procedure AcionarPesquisaGradeOperacao;
+    procedure CondicoesFalhasOperacoes;
+    procedure CondicoesFalhasOperacoesOriginal;
+    procedure AtribuirDadosFalhasOperacoes;
+    procedure AtribuirDadosFalhaOriginal;
+
+    procedure AtribuirDadosOperacoes;
+
+
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+
+    { Public declarations }
+  end;
+
+var
+  frmCadastroFalhas: TfrmCadastroFalhas;
+
+implementation
+
+uses biblio, fmImprimirfalhas;
+{$R *.dfm}
+
+{ TfrmCadastroFalha }
+
+procedure TfrmCadastroFalhas.AbrirFalhas;
+begin
+  edfCodigoFalha.Text := ConsultaFalhas.ValorSelecionado;
+  dtmCadastroFalha.refazconsulta(dtmCadastroFalha.qryFalhas,[0],
+             [ConsultaFalhas.ValorSelecionado]);
+end;
+
+constructor TfrmCadastroFalhas.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmCadastroFalha := TdtmCadastroFalha.Create(Self);
+  DataSet := dtmCadastroFalha.qryFalhas;
+
+  ConsultaFalhas := TfraConsultaCodigo.Create(self);
+  ConsultaFalhas.edfCodigo.DataSource := dtmCadastroFalha.dsrFalhas;
+  ConsultaFalhas.edfCodigo.DataField := 'codigo';
+  ConsultaFalhas.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaFalhas.AbrirTabelaProcura := false;
+  ConsultaFalhas.TipoPesquisa := pesFALHAS;
+  ConsultaFalhas.OnFound := AbrirFalhas;
+  ConsultaFalhas.Name := 'fraConsultaFalhas';
+
+  ConsultaOperacoes := TfraConsultaCodigo.Create(self);
+  ConsultaOperacoes.Name := 'ConsultaOperacoes';
+  ConsultaOperacoes.edfCodigo.MaxLength := 3;
+  ConsultaOperacoes.edfCodigo.DataSource := dtmCadastroFalha.dsrFalhasOperacoes;
+  ConsultaOperacoes.edfCodigo.DataField := 'operacao';
+  ConsultaOperacoes.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaOperacoes.edfCodigo.LookupSource := ConsultaOperacoes.dsrProcuraOperacaoes;
+  ConsultaOperacoes.edfCodigo.LookupQueryParameter := 'Codigo';
+  ConsultaOperacoes.edfCodigo.LookupField := 'Codigo';
+  ConsultaOperacoes.AbrirTabelaProcura := false;
+  ConsultaOperacoes.CondicoesdaConsulta := CondicoesFalhasOperacoes;
+  ConsultaOperacoes.TipoPesquisa := pesOPERACOES;
+  ConsultaOperacoes.OnFound := AtribuirDadosFalhasOperacoes;
+
+//  fraConsultaSetorProducao.TipoPesquisa := pesSETORESPRODUCAO;
+
+  fraConsultaOperacoes.TipoPesquisa := pesOPERACOES;
+  fraConsultaOperacoes.CondicoesdaConsulta :=  CondicoesFalhasOperacoesOriginal;
+  fraConsultaOperacoes.OnFound := AtribuirDadosOperacoes;
+
+  dbgOperacoes.OnDelete := dtmCadastroFalha.ExcluirFalhasOperacoes;
+
+  fraConsultaOperacoes.edfCodigo.readonly := true;
+  edfCopiaC1.readonly := true;
+  edfCopiaC2.readonly := true;
+  edfCopiaC3.readonly := true;
+  fraConsultaOperacoes.AbrirPesquisaQuandoReadOnly := true;
+
+  fraConsultaFalhasOriginal.tipopesquisa := pesFALHAS;
+  fraConsultaFalhasOriginal.OnFound := AtribuirDadosFalhaOriginal;
+
+end;
+
+destructor TfrmCadastroFalhas.Destroy;
+begin
+  dtmCadastroFalha.qryFalhas.close;
+//  dtmCadastroFalha.qryOperacoes.close;
+  dtmCadastroFalha := nil;
+  inherited;
+end;
+
+function TfrmCadastroFalhas.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then begin
+    if not CtrlOn then
+      Result := dtmCadastroFalha.ExcluirFalha;
+  end;
+end;
+
+function TfrmCadastroFalhas.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if Result then
+    Result := dtmCadastroFalha.GravarFalha;
+end;
+
+function TfrmCadastroFalhas.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then begin
+    if not CtrlOn then
+      if dtmCadastroFalha.IncluirFalha then
+        edtDescricaoFalha.SetFocus;
+  end;
+end;
+
+procedure TfrmCadastroFalhas.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if not CtrlOn then
+  begin
+    if (key =VK_F9) then
+      if sbnProcurar.Enabled then
+        if ConsultaFalhas.InternoPesquisar('') = mrOK then
+          edfCodigoFalha.SetFocus;
+    if (key =VK_F7) then
+      sbnImprimirClick(frmImprimirfalhas);
+  end;
+end;
+
+procedure TfrmCadastroFalhas.sbnProcurarClick(Sender: TObject);
+begin
+  inherited;
+  ConsultaFalhas.InternoPesquisar('');
+end;
+
+procedure TfrmCadastroFalhas.dbgOperacoesDblClick(Sender: TObject);
+begin
+  inherited;
+  if dbgOperacoes.SelectedIndex in [0..3] then
+    AcionarPesquisaGradeOperacao;
+end;
+
+procedure TfrmCadastroFalhas.AcionarPesquisaGradeOperacao;
+begin
+  dbgOperacoes.SetFocus;
+  ConsultaOperacoes.CtrlOn := True;
+  ConsultaOperacoes.InternoPesquisar(ctOPERACOES);
+  dbgOperacoes.SetFocus;
+  dbgOperacoes.SelectedIndex :=  1;
+
+end;
+
+procedure TfrmCadastroFalhas.CondicoesFalhasOperacoes;
+const
+  SQL = 'and (codigo not in (%s) or codigo = %s)';
+var
+  codigoproduto : String;
+begin
+  codigoproduto := inttostr(dtmCadastroFalha.qryFalhasOperacoesoperacao.Asinteger);
+  if (dtmCadastroFalha.qryFalhasOperacoes.State = dsInsert){ or
+     (dtmCadastroFalha.qryFalhasOperacoesdescricao.AsString='')} then
+    codigoproduto := '0';
+
+  ConsultaOperacoes.qryProcuraOperacoes.MacroByName('SQLOperacoesJaSelecionadas').AsString :=
+    format(SQL,[dtmCadastroFalha.ListaOperacoesSelecionadas, codigoproduto]);
+
+  ConsultaOperacoes.qryConsultaOperacoes.MacroByName('SQLOperacoesJaSelecionadas').AsString :=
+    format(SQL,[dtmCadastroFalha.ListaOperacoesSelecionadas, codigoproduto]);
+end;
+
+procedure TfrmCadastroFalhas.AtribuirDadosFalhasOperacoes;
+begin
+  with dtmCadastroFalha do
+  begin
+    EditarFalhasOperacoes;
+    qryFalhasOperacoesoperacao.AsString := ConsultaOperacoes.qryProcuraOperacoescodigo.AsString;
+    qryFalhasOperacoesnome.AsString := ConsultaOperacoes.qryProcuraOperacoesnome.AsString;
+    qryFalhasOperacoesc01.AsString := ConsultaOperacoes.qryProcuraOperacoesc01.AsString;
+    qryFalhasOperacoesc02.AsString := ConsultaOperacoes.qryProcuraOperacoesc02.AsString;
+    qryFalhasOperacoesc03.AsString := ConsultaOperacoes.qryProcuraOperacoesc03.AsString;
+    qryFalhasOperacoesdescricao.AsString := ConsultaOperacoes.qryProcuraOperacoesdescricao.AsString;
+    qryFalhasOperacoes.Post;
+  end;
+end;
+
+procedure TfrmCadastroFalhas.dbgOperacoesKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+     VK_F9     : begin
+                     if dbgOperacoes.SelectedIndex in [0..3] then
+                     begin
+                       ConsultaOperacoes.CtrlOn := Shift = [ssCtrl];
+                       if (Shift = []) or ConsultaOperacoes.CtrlOn then
+                         AcionarPesquisaGradeOperacao
+                     end;
+                   end;
+    end;
+  end
+  else if Shift = [] then
+  case Key of
+   VK_Return: begin
+                  if dbgOperacoes.SelectedIndex = 3 then
+                  begin
+                    if VerificarOperacoes then
+                     dbgOperacoes.SelectedIndex := dbgOperacoes.SelectedIndex + 1
+                    else
+                      key := 0;
+                  end
+                  else
+                  if dbgOperacoes.SelectedIndex = 4 then
+                       dtmCadastroFalha.GravarFalhasOperacoes
+                  else
+                  if (dbgOperacoes.SelectedIndex <> 3) then
+                     dbgOperacoes.SelectedIndex := dbgOperacoes.SelectedIndex + 1;
+                end;
+  end;
+  inherited;
+
+end;
+
+function TfrmCadastroFalhas.VerificarOperacoes: boolean;
+begin
+  result := true;
+//  ConsultaOperacoes.edfCodigo.DoExit;
+  ConsultaOperacoes.qryProcuraOperacoes.ParamByName('codigo').asinteger := 0;
+  ConsultaOperacoes.qryProcuraOperacoes.ParamByName('nome').AsString :=
+    dtmCadastroFalha.qryFalhasOperacoesnome.AsString;
+  ConsultaOperacoes.qryProcuraOperacoes.ParamByName('c01').AsString :=
+    dtmCadastroFalha.qryFalhasOperacoesc01.AsString;
+  ConsultaOperacoes.qryProcuraOperacoes.ParamByName('c02').AsString :=
+    dtmCadastroFalha.qryFalhasOperacoesc02.AsString;
+  ConsultaOperacoes.qryProcuraOperacoes.ParamByName('c03').AsString :=
+    dtmCadastroFalha.qryFalhasOperacoesc03.AsString;
+
+  ConsultaOperacoes.qryProcuraOperacoes.Close;
+  ConsultaOperacoes.qryProcuraOperacoes.open;
+
+  if not ConsultaOperacoes.qryProcuraOperacoes.IsEmpty then
+    AtribuirDadosFalhasOperacoes
+  else
+  begin
+    ShowMessage(Format(ctCODIGOINEXISTENTE, ['['+
+    dtmCadastroFalha.qryFalhasOperacoesnome.AsString +', '+
+    dtmCadastroFalha.qryFalhasOperacoesc01.AsString  +', '+
+    dtmCadastroFalha.qryFalhasOperacoesc02.AsString  +', '+
+    dtmCadastroFalha.qryFalhasOperacoesc03.AsString  +']']));
+    result := false;
+    dbgOperacoes.SetFocus;
+  end;
+
+end;
+
+procedure TfrmCadastroFalhas.sbnIncluirOperacaoClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroFalha.IncluirOperacao;
+
+end;
+
+procedure TfrmCadastroFalhas.sbnExcluirOperacaoClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroFalha.ExcluirFalhasOperacoes;
+end;
+
+procedure TfrmCadastroFalhas.sbnImprimirClick(Sender: TObject);
+begin
+  inherited;
+  frmImprimirfalhas := TfrmImprimirfalhas.Create(frmImprimirfalhas);
+  frmImprimirfalhas.ShowModal;
+  frmImprimirfalhas.Free;
+end;
+
+procedure TfrmCadastroFalhas.AtribuirDadosOperacoes;
+begin
+  with dtmCadastroFalha do
+  begin
+    qryFalhasoperacaoorigemfalha.AsString := fraConsultaOperacoes.qryProcuraOperacoescodigo.AsString;
+    qryFalhasnome.AsString := fraConsultaOperacoes.qryProcuraOperacoesnome.AsString;
+    qryFalhasc01.AsString := fraConsultaOperacoes.qryProcuraOperacoesc01.AsString;
+    qryFalhasc02.AsString := fraConsultaOperacoes.qryProcuraOperacoesc02.AsString;
+    qryFalhasc03.AsString := fraConsultaOperacoes.qryProcuraOperacoesc03.AsString;
+    qryFalhasdescricaooperacao.AsString := fraConsultaOperacoes.qryProcuraOperacoesdescricao.AsString;
+    EditarFalhas;
+  end;
+
+end;
+
+procedure TfrmCadastroFalhas.edfCopiaC3Exit(Sender: TObject);
+begin
+  inherited;
+  if fraConsultaOperacoes.edfCodigo.Exist then
+    AtribuirDadosOperacoes
+
+end;
+
+procedure TfrmCadastroFalhas.fraConsultaOperacoesedfCodigoFound(
+  Found: Boolean);
+begin
+  inherited;
+  if found then
+    AtribuirDadosOperacoes;
+end;
+
+procedure TfrmCadastroFalhas.AtribuirDadosFalhaOriginal;
+begin
+  with dtmCadastroFalha do
+  begin
+    EditarFalhasOperacoes;
+    qryFalhastipofalha.AsString := fraConsultaFalhasOriginal.qryProcuraFalhastipofalha.AsString;
+  end;
+end;
+
+procedure TfrmCadastroFalhas.CondicoesFalhasOperacoesOriginal;
+const
+  SQL = 'and (codigo in (select fo.operacao from falhasoperacoes fo where fo.falha = %s) or codigo = %s)';
+var
+  vcodigooperacao : String;
+begin
+  vcodigooperacao := inttostr(dtmCadastroFalha.qryFalhasoperacaoorigemfalha.Asinteger);
+  if (dtmCadastroFalha.qryFalhasOperacoes.State = dsInsert) then
+    vcodigooperacao := '0';
+
+  fraConsultaOperacoes.qryProcuraOperacoes.MacroByName('SQLOperacoesJaSelecionadas').AsString :=
+    format(SQL,[inttostr(dtmCadastroFalha.qryFalhasFalhaOperacaoOrigem.AsInteger), vcodigooperacao]);
+
+  fraConsultaOperacoes.qryConsultaOperacoes.MacroByName('SQLOperacoesJaSelecionadas').AsString :=
+    format(SQL,[inttostr(dtmCadastroFalha.qryFalhasFalhaOperacaoOrigem.AsInteger), vcodigooperacao]);
+end;
+
+procedure TfrmCadastroFalhas.aclHabilitarUpdate(Sender: TObject);
+begin
+  inherited;
+  rgbTipodeFalha.Enabled := not dtmCadastroFalha.qryFalhastipofalha.ReadOnly;
+  rbnInerente.   Enabled := rgbTipodeFalha.Enabled;
+  rbnPerdaTotal. Enabled := rgbTipodeFalha.Enabled;
+  rbnRetrabalho. Enabled := rgbTipodeFalha.Enabled;
+  gbxAtribuirFalhaOriginal.Enabled := ckbNaoInfluiPremiacao.Checked;
+end;
+
+end.

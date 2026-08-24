@@ -1,0 +1,352 @@
+inherited dtmAnaliseFalhasMaquinasSetores: TdtmAnaliseFalhasMaquinasSetores
+  OldCreateOrder = False
+  Left = 581
+  Top = 241
+  Height = 355
+  Width = 652
+  inherited ZMonitor: TZMonitor
+    Left = 192
+    Top = 8
+  end
+  object qryAnaliseFalhas_Maquinas_x_Falhas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'FiltroPeriodo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroSetores'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroMaquinas'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroFalhas'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      'SELECT SetorProducao,'
+      '       maquina,'
+      '       descricaomaquina,'
+      
+        '       Falha, Descricaofalha, SUM(QuantidadePerda) AS Quantidade' +
+        ', ROUND(SUM(QuantidadePerda * COALESCE(CustoFalha)),2) AS TotalC' +
+        'usto,'
+      '       TipoFalha'
+      'FROM'
+      ''
+      '('
+      
+        ' SELECT oouf.Falha,  f.descricao as descricaofalha, oouf.Quantid' +
+        'adePerda, f.CustoFalha, m.SetorProducao, oou.Maquina, m.descrica' +
+        'o as descricaomaquina,'
+      ''
+      '        CAST(CASE WHEN f.TipoFalha = '#39'I'#39' THEN '#39'INERENTE'#39
+      '                  WHEN f.TipoFalha = '#39'R'#39' THEN '#39'RETRABALHO'#39
+      '                  WHEN f.TipoFalha = '#39'P'#39' THEN '#39'PERDA TOTAL'#39
+      '                                         ELSE '#39#39
+      '             END AS VARCHAR) AS TipoFalha,'
+      ''
+      '       (SELECT cp.PN'
+      '           FROM ClientesProdutos cp'
+      '           WHERE cp.Cliente     = osp.Cliente     AND'
+      '                 cp.TipoCliente = osp.TipoCliente AND'
+      '                 cp.Produto     = osp.Produto LIMIT 1) AS PN'
+      ''
+      ' FROM OperacoesOSPUsuario oou'
+      
+        '         JOIN ((select * from OperacoesOSPUsuarioFalhas_(cast(:D' +
+        'ataInicial as date), cast(:DataFinal as date), cast(null as char' +
+        '))) oouf'
+      '                    JOIN Falhas f ON oouf.Falha = f.Codigo)'
+      ''
+      
+        '              ON oou.OSP  = oouf.OSP  AND oou.Operacao = oouf.Op' +
+        'eracao AND oou.Data   = oouf.Data AND'
+      
+        '                 oou.Lote = oouf.Lote AND oou.Usuario  = oouf.Us' +
+        'uario  AND oou.Inicio = oouf.Inicio'
+      ''
+      '         JOIN OSP ON osp.Numero = oou.OSP'
+      ''
+      '       JOIN Maquinas m'
+      '           JOIN SetoresProducao sp'
+      '             ON sp.Codigo = m.SetorProducao'
+      ''
+      
+        '      ON m.Codigo = COALESCE(oou.Maquina, (SELECT om.Maquina FRO' +
+        'M OperacoesMaquinas om'
+      
+        '                                              WHERE om.Operacao ' +
+        '= oou.Operacao LIMIT 1))'
+      ''
+      ''
+      ' WHERE TRUE'
+      '       %FiltroPeriodo'
+      '       %FiltroSetores'
+      '       %FiltroMaquinas'
+      '       %FiltroFalhas'
+      ''
+      ''
+      ') AS selecao'
+      ''
+      
+        'GROUP BY SetorProducao, maquina, descricaomaquina, Falha, Descri' +
+        'caofalha, TipoFalha'
+      
+        'order BY SetorProducao, maquina, descricaomaquina, Falha, Descri' +
+        'caofalha, TipoFalha'
+      ''
+      '/* PAR'#194'METROS'
+      ':DataInicial'
+      ':DataFinal'
+      '*/'
+      ''
+      '')
+    RequestLive = False
+    Left = 88
+    Top = 80
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end>
+    object qryAnaliseFalhas_Maquinas_x_Falhassetorproducao: TStringField
+      DisplayLabel = 'SETOR'
+      FieldName = 'setorproducao'
+      Size = 4
+    end
+    object qryAnaliseFalhas_Maquinas_x_Falhasmaquina: TIntegerField
+      DisplayLabel = 'M'#193'QUINA'
+      FieldName = 'maquina'
+    end
+    object qryAnaliseFalhas_Maquinas_x_Falhasdescricaomaquina: TStringField
+      DisplayLabel = 'DESCRI'#199#195'O DA MAQUINA'
+      FieldName = 'descricaomaquina'
+      Size = 30
+    end
+    object qryAnaliseFalhas_Maquinas_x_Falhasfalha: TIntegerField
+      DisplayLabel = 'FALHA'
+      FieldName = 'falha'
+    end
+    object qryAnaliseFalhas_Maquinas_x_Falhasdescricaofalha: TStringField
+      DisplayLabel = 'DESCRI'#199#195'O DA FALHA'
+      FieldName = 'descricaofalha'
+      Size = 300
+    end
+    object qryAnaliseFalhas_Maquinas_x_Falhasquantidade: TLargeintField
+      DisplayLabel = 'QUANTIDADE'
+      FieldName = 'quantidade'
+    end
+    object qryAnaliseFalhas_Maquinas_x_Falhastotalcusto: TFloatField
+      DisplayLabel = 'TOTAL CUSTO'
+      FieldName = 'totalcusto'
+    end
+    object qryAnaliseFalhas_Maquinas_x_Falhastipofalha: TStringField
+      DisplayLabel = 'TIPO DA FALHA'
+      FieldName = 'tipofalha'
+      Size = 50
+    end
+  end
+  object dsrAnaliseFalhas: TtecDataSource
+    DataSet = qryAnaliseFalhas_Maquinas_x_Falhas
+    Left = 288
+    Top = 80
+  end
+  object ExcelExport1: TExcelExport
+    FontTitles.Charset = DEFAULT_CHARSET
+    FontTitles.Color = clWindowText
+    FontTitles.Height = -11
+    FontTitles.Name = 'MS Sans Serif'
+    FontTitles.Style = [fsBold]
+    OrientationTitles = 0
+    FontData.Charset = DEFAULT_CHARSET
+    FontData.Color = clWindowText
+    FontData.Height = -11
+    FontData.Name = 'MS Sans Serif'
+    FontData.Style = []
+    StyleColumnWidth = cwAutoFit
+    ColumnWidth = 80
+    WorksheetName = 'AnaliseFalhas_Maquinas_x_Falhas'
+    Dataset = qryAnaliseFalhas_Maquinas_x_Falhas
+    Left = 360
+    Top = 8
+  end
+  object qryAnaliseFalhas_Setores_x_Falhas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'FiltroPeriodo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroSetores'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroMaquinas'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroFalhas'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      'SELECT SetorProducao, descricaosetor,'
+      
+        '       Falha, Descricaofalha, SUM(QuantidadePerda) AS Quantidade' +
+        ', ROUND(SUM(QuantidadePerda * COALESCE(CustoFalha)),2) AS TotalC' +
+        'usto,'
+      '       TipoFalha'
+      'FROM'
+      ''
+      '('
+      
+        ' SELECT oouf.Falha,  f.descricao as descricaofalha, oouf.Quantid' +
+        'adePerda, f.CustoFalha, m.SetorProducao, sp.descricao as descric' +
+        'aosetor, oou.Maquina, m.descricao as descricaomaquina,'
+      ''
+      '        CAST(CASE WHEN f.TipoFalha = '#39'I'#39' THEN '#39'INERENTE'#39
+      '                  WHEN f.TipoFalha = '#39'R'#39' THEN '#39'RETRABALHO'#39
+      '                  WHEN f.TipoFalha = '#39'P'#39' THEN '#39'PERDA TOTAL'#39
+      '                                         ELSE '#39#39
+      '             END AS VARCHAR) AS TipoFalha,'
+      ''
+      '       (SELECT cp.PN'
+      '           FROM ClientesProdutos cp'
+      '           WHERE cp.Cliente     = osp.Cliente     AND'
+      '                 cp.TipoCliente = osp.TipoCliente AND'
+      '                 cp.Produto     = osp.Produto LIMIT 1) AS PN'
+      ''
+      ' FROM OperacoesOSPUsuario oou'
+      
+        '         JOIN ((select * from OperacoesOSPUsuarioFalhas_(cast(:D' +
+        'ataInicial as date), cast(:DataFinal as date), cast(null as char' +
+        '))) oouf'
+      '                    JOIN Falhas f ON oouf.Falha = f.Codigo)'
+      ''
+      
+        '              ON oou.OSP  = oouf.OSP  AND oou.Operacao = oouf.Op' +
+        'eracao AND oou.Data   = oouf.Data AND'
+      
+        '                 oou.Lote = oouf.Lote AND oou.Usuario  = oouf.Us' +
+        'uario  AND oou.Inicio = oouf.Inicio'
+      ''
+      '         JOIN OSP ON osp.Numero = oou.OSP'
+      ''
+      '       JOIN Maquinas m'
+      '           JOIN SetoresProducao sp'
+      '             ON sp.Codigo = m.SetorProducao'
+      ''
+      
+        '      ON m.Codigo = COALESCE(oou.Maquina, (SELECT om.Maquina FRO' +
+        'M OperacoesMaquinas om'
+      
+        '                                              WHERE om.Operacao ' +
+        '= oou.Operacao LIMIT 1))'
+      ''
+      ''
+      ' WHERE TRUE'
+      '       %FiltroPeriodo'
+      '       %FiltroSetores'
+      '       %FiltroMaquinas'
+      '       %FiltroFalhas'
+      ''
+      ') AS selecao'
+      ''
+      
+        'GROUP BY SetorProducao, descricaosetor, Falha, Descricaofalha, T' +
+        'ipoFalha'
+      
+        'order BY SetorProducao, descricaosetor, Falha, Descricaofalha, T' +
+        'ipoFalha'
+      ''
+      '/* PAR'#194'METROS'
+      ':DataInicial'
+      ':DataFinal'
+      '*/'
+      ''
+      '')
+    RequestLive = False
+    Left = 88
+    Top = 144
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end>
+    object qryAnaliseFalhas_Setores_x_Falhassetorproducao: TStringField
+      DisplayLabel = 'SETOR'
+      FieldName = 'setorproducao'
+      Size = 4
+    end
+    object qryAnaliseFalhas_Setores_x_Falhasdescricaosetor: TStringField
+      DisplayLabel = 'DESCRI'#199#195'O'
+      FieldName = 'descricaosetor'
+      Size = 50
+    end
+    object qryAnaliseFalhas_Setores_x_Falhasfalha: TIntegerField
+      DisplayLabel = 'FALHA'
+      FieldName = 'falha'
+    end
+    object qryAnaliseFalhas_Setores_x_Falhasdescricaofalha: TStringField
+      DisplayLabel = 'DESCRI'#199#195'O'
+      FieldName = 'descricaofalha'
+      Size = 300
+    end
+    object qryAnaliseFalhas_Setores_x_Falhasquantidade: TLargeintField
+      DisplayLabel = 'QUANTIDADE'
+      FieldName = 'quantidade'
+    end
+    object qryAnaliseFalhas_Setores_x_Falhastotalcusto: TFloatField
+      DisplayLabel = 'TOTAL CUSTO'
+      FieldName = 'totalcusto'
+    end
+    object qryAnaliseFalhas_Setores_x_Falhastipofalha: TStringField
+      DisplayLabel = 'TIPO DE FALHA'
+      FieldName = 'tipofalha'
+      Size = 50
+    end
+  end
+end

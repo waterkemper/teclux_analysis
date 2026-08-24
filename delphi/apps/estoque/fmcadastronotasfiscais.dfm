@@ -1,7 +1,7 @@
 inherited frmCadastroNotasFiscais: TfrmCadastroNotasFiscais
-  Left = 520
-  Top = 77
-  ActiveControl = pgcDetalhes
+  Left = 369
+  Top = 78
+  ActiveControl = edfDeclaracao
   BorderIcons = [biSystemMenu, biMinimize, biMaximize]
   Caption = 'Cadastro de Nota Fiscal de Entrada'
   ClientHeight = 693
@@ -734,7 +734,7 @@ inherited frmCadastroNotasFiscais: TfrmCadastroNotasFiscais
       Top = 124
       Width = 1056
       Height = 507
-      ActivePage = tstDadosNota
+      ActivePage = tstImportacao
       Align = alClient
       TabOrder = 1
       OnChange = pgcNotasPagChange
@@ -1633,7 +1633,7 @@ inherited frmCadastroNotasFiscais: TfrmCadastroNotasFiscais
                     Opcional = True
                     ParentFont = False
                     TabOrder = 0
-                    PermitirZero = True
+                    PermitirZero = False
                     PermitirNulo = False
                     Operacao = opATRIBUICAO
                     LookupField = 'serie'
@@ -6351,7 +6351,7 @@ inherited frmCadastroNotasFiscais: TfrmCadastroNotasFiscais
                   Left = 80
                   Top = 11
                   Width = 81
-                  Height = 24
+                  Height = 23
                   MaxLength = -1
                   TabOrder = 0
                   CharCasenoDefault = False
@@ -6391,7 +6391,7 @@ inherited frmCadastroNotasFiscais: TfrmCadastroNotasFiscais
                   Left = 80
                   Top = 35
                   Width = 73
-                  Height = 24
+                  Height = 23
                   MaxLength = -1
                   TabOrder = 3
                   CharCasenoDefault = False
@@ -7783,7 +7783,7 @@ inherited frmCadastroNotasFiscais: TfrmCadastroNotasFiscais
           object Bevel2: TBevel
             Left = 2
             Top = 14
-            Width = 1009
+            Width = 1044
             Height = 8
             Align = alTop
             Shape = bsSpacer
@@ -7791,7 +7791,7 @@ inherited frmCadastroNotasFiscais: TfrmCadastroNotasFiscais
           object mmoObsDuplicatas: TtecDBMemo
             Left = 2
             Top = 22
-            Width = 1009
+            Width = 1044
             Height = 81
             Align = alClient
             DataField = 'observacao'
@@ -9996,7 +9996,7 @@ inherited frmCadastroNotasFiscais: TfrmCadastroNotasFiscais
         object dbgConsultaPedidos: TDBAdvGrid
           Left = 0
           Top = 0
-          Width = 1013
+          Width = 1048
           Height = 476
           Cursor = crDefault
           Align = alClient
@@ -10219,7 +10219,7 @@ inherited frmCadastroNotasFiscais: TfrmCadastroNotasFiscais
               PrintFont.Pitch = fpVariable
               PrintFont.Style = []
               ShowBands = True
-              Width = 799
+              Width = 834
             end>
           DataSource = dtmCadastroNotasFiscais.dsrConsultaPedidos
           PageMode = False
@@ -10256,7 +10256,7 @@ inherited frmCadastroNotasFiscais: TfrmCadastroNotasFiscais
             20
             93
             96
-            799)
+            834)
         end
       end
     end

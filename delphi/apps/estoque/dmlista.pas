@@ -14,7 +14,7 @@ uses
   // Repositorio
   dmbasico, ZPgSqlQuery,
   clparametrossistema,
-  fmpreviewpadrao, biblio, ZTransact, ExcelExport;
+  fmpreviewpadrao, biblio, ZTransact, ExcelExport, frx2xto30, frxClass;
 
 type
   TdtmListaPrecos = class(TdtmBasico)
@@ -66,6 +66,7 @@ type
     ExcelExportListaPrecos: TExcelExport;
     qryListaPrecoscodigobarras: TStringField;
     qryListaPrecoscodigovisual: TStringField;
+    frxReport1: TfrxReport;
     procedure qryListaPrecosvalorGetText(Sender: TField; var Text: String; DisplayText: Boolean);
     procedure frpListaPrecosBeforePrint(Memo: TStringList; View: TfrView);
     procedure qryListaPrecosCalcFields(DataSet: TDataSet);
@@ -445,7 +446,9 @@ begin
         frVariables['AgruparFornecedor']:= AgruparFornecedor;
 //        frVariables['ImprimirCodigoDeBarras']:=ImprimirCodigoDeBarras;
 
-      //  frpListaPrecos.DesignReport;
+//        frpListaPrecos.DesignReport;
+//        frxReport1.DesignReport;
+        
         frmPreview := TfrmPreviewPadrao.create(self);
         try
           Relatorio := frmPreview.frCompositeReport;

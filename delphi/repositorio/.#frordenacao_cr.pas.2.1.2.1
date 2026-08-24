@@ -1,0 +1,198 @@
+unit frordenacao_cr;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, Windows,
+  Buttons, ExtCtrls, ComCtrls, StdCtrls, {Qete,} DB, ZQuery,
+  ZPgSqlQuery, cpquery, cpdatasource, Grids, DBGrids, cpdbgrid, dmbasico;
+
+type
+  TipoMovimento = (ParaCima, ParaBaixo);
+
+type
+  TfraOrdenacao_cr = class(TFrame)
+    gbxOrdenacao: TGroupBox;
+    HeaderControl1: THeaderControl;
+    pnlDireito: TPanel;
+    sbnAcima: TSpeedButton;
+    sbnAbaixo: TSpeedButton;
+    dbgSelecao: TtecDBGrid;
+    dsrLista: TtecDataSource;
+    qryLista: TtecQuery;
+    qryListacampo: TStringField;
+    qryListatipo: TStringField;
+    qryListacampodescricao: TStringField;
+    qryListacabecalho: TBooleanField;
+    qryListarodape: TBooleanField;
+    procedure lstOrdenacaoKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure qryListaAfterInsert(DataSet: TDataSet);
+    procedure sbnAbaixoClick(Sender: TObject);
+    procedure sbnAcimaClick(Sender: TObject);
+    procedure dbgSelecaoKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+  private
+    FListaOrdenacao: String;
+    { Private declarations }
+    procedure MoverCampos(Movimento : TipoMovimento);
+    function GetListaOrdenacao: String;
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    property ListaOrdenacao: String read GetListaOrdenacao write FListaOrdenacao;
+  end;
+
+implementation
+
+{$R *.dfm}
+
+constructor TfraOrdenacao_cr.Create(AOwner: TComponent);
+begin
+  inherited;
+end;
+
+procedure TfraOrdenacao_cr.lstOrdenacaoKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+   if Shift = [ssCtrl] then
+   begin
+     case key of
+       VK_UP  : begin
+//                   Sobe;
+                   key := 0;
+                 end;
+       VK_DOWN: begin
+   //                Desce;
+                   key := 0;
+                 end;
+     end;
+   end;
+end;
+
+
+procedure TfraOrdenacao_cr.sbnAbaixoClick(Sender: TObject);
+begin
+  MoverCampos(ParaBaixo);
+end;
+
+procedure TfraOrdenacao_cr.sbnAcimaClick(Sender: TObject);
+begin
+  MoverCampos(ParaCima);
+end;
+
+procedure TfraOrdenacao_cr.qryListaAfterInsert(DataSet: TDataSet);
+begin
+  qryLista.Cancel;
+end;
+
+procedure TfraOrdenacao_cr.MoverCampos(Movimento: TipoMovimento);
+var
+  RegistroAtual_1, RegistroAtual_2: TBookMark;
+  campodescricao,campo,tipo: String;
+
+  procedure AdicionarCampos;
+  begin
+    qryListacampodescricao.AsString := campodescricao;
+    qryListacampo.AsString := campo;
+    qryListatipo.AsString := tipo;
+  end;
+
+begin
+  if qryLista.RecordCount > 1 then
+  begin
+
+    qryLista.AfterInsert := nil;
+    campodescricao := qryListacampodescricao.AsString;
+    campo := qryListacampo.AsString;
+    tipo := qryListatipo.AsString;
+
+    case Movimento of
+      ParaCima :
+      begin
+        if qryLista.RecNo <> 1 then
+        begin
+          RegistroAtual_1 := qryLista.GetBookmark;
+          qryLista.Prior;
+          qryLista.Insert;
+          AdicionarCampos;
+          qryLista.Post;
+          RegistroAtual_2 := qryLista.GetBookmark;
+          qryLista.GotoBookmark(RegistroAtual_1);
+          qryLista.Delete;
+          qryLista.GotoBookmark(RegistroAtual_2);
+          qryLista.FreeBookmark(RegistroAtual_2);
+        end;
+      end;
+      ParaBaixo:
+      begin
+        if qryLista.RecNo <>
+           qryLista.RecordCount then
+        begin
+          RegistroAtual_1 := qryLista.GetBookmark;
+          qryLista.next;
+          qryLista.next;
+          if qryLista.Eof then
+            qryLista.Append
+          else
+            qryLista.Insert;
+          AdicionarCampos;
+          qryLista.Post;
+          RegistroAtual_2 := qryLista.GetBookmark;
+          qryLista.GotoBookmark(RegistroAtual_1);
+          qryLista.Delete;
+          qryLista.GotoBookmark(RegistroAtual_2);
+          qryLista.FreeBookmark(RegistroAtual_2);
+        end;
+      end;
+    end;
+    qryLista.AfterInsert := qryListaAfterInsert;
+  end;
+end;
+
+
+procedure TfraOrdenacao_cr.dbgSelecaoKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+   if Shift = [ssCtrl] then
+   begin
+     case key of
+       VK_UP  : begin
+                   MoverCampos(ParaCima);
+                   key := 0;
+                 end;
+       VK_DOWN: begin
+                   MoverCampos(ParaBaixo);
+                   key := 0;
+                 end;
+     end;
+   end;
+end;
+
+function TfraOrdenacao_cr.GetListaOrdenacao: String;
+var
+  RegistroAtual: TBookMark;
+begin
+  fListaOrdenacao := '';
+  RegistroAtual := qryLista.GetBookmark;
+  qryLista.DisableControls;
+  qryLista.First;
+  while not qryLista.Eof do
+  begin
+    fListaOrdenacao := fListaOrdenacao +
+                       qryListacampo.AsString + ' ' +
+                       qryListatipo.AsString + ',';
+    qryLista.Next;
+  end;
+
+  if fListaOrdenacao<>'' then
+    Delete(fListaOrdenacao,length(fListaOrdenacao),1);
+
+  qrylista.GotoBookmark(RegistroAtual);
+  qrylista.FreeBookmark(RegistroAtual);
+  qrylista.EnableControls;
+
+  result := FListaOrdenacao;
+end;
+
+end.

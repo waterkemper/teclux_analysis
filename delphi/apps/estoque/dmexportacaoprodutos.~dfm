@@ -1,0 +1,944 @@
+inherited dtmExportacaoProdutos: TdtmExportacaoProdutos
+  OldCreateOrder = False
+  Left = 929
+  Top = 76
+  Height = 552
+  Width = 579
+  object qryProdutos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'select distinct'
+      '       cast(p.codigo                as bigint)      as codigo,'
+      
+        '       cast(p.descricao             as varchar(100)) as descricao' +
+        ','
+      
+        '       cast(p.caracteristica        as bigint)      as caracteri' +
+        'stica,'
+      '       cast(p.preco                 as integer)     as preco,'
+      
+        '       cast(p.referencia            as char(15))    as referenci' +
+        'a,'
+      
+        '       cast(p.valorgrade1           as varchar(10)) as valorgrad' +
+        'e1,'
+      
+        '       cast(p.valorgrade2           as varchar(10)) as valorgrad' +
+        'e2,'
+      '       cast(p.inativo               as date)        as inativo,'
+      
+        '       cast(p.foralinha             as date)        as foralinha' +
+        ','
+      
+        '       cast(p.codigorecolha         as bigint)      as codigorec' +
+        'olha,'
+      
+        '       cast(p.descricaocomplementar as varchar(40)) as descricao' +
+        'complementar,'
+
+        '       cast(p.caracteristicas       as varchar)     as caracteri' +
+        'sticas,'
+      '       cast(p.palavraschave as varchar(200))as palavraschave,'
+      
+        '       cast(p.aparecernosite        as boolean)     as aparecern' +
+        'osite,'
+      
+        '       cast(p.codigovisual          as varchar(30)) as codigovis' +
+        'ual,'
+      
+        '       cast(p.foralinhal            as boolean)     as foralinha' +
+        'l,'
+      '       cast(p.inativol              as boolean)     as inativol,'
+      '       cast(p.data                  as date)        as data'
+      'from produtos p'
+      'where p.codigo is not null'
+      ''
+      '%data'
+      ''
+      'order by'
+      ''
+      '       cast(p.data                  as date),'
+      '       cast(p.codigo                as bigint),'
+      '       cast(p.descricao             as varchar(100)),'
+      '       cast(p.caracteristica        as bigint),'
+      '       cast(p.preco                 as integer),'
+      '       cast(p.referencia            as char(15)),'
+      '       cast(p.valorgrade1           as varchar(10)),'
+      '       cast(p.valorgrade2           as varchar(10)),'
+      '       cast(p.inativo               as date),'
+      '       cast(p.foralinha             as date),'
+      '       cast(p.codigorecolha         as bigint),'
+      '       cast(p.descricaocomplementar as varchar(40)),'
+      '       cast(p.caracteristicas       as varchar),'
+      '       cast(p.palavraschave as varchar(200)),'
+      '       cast(p.aparecernosite        as boolean),'
+      '       cast(p.codigovisual          as varchar(30)),'
+      '       cast(p.foralinhal            as boolean),'
+      '       cast(p.inativol              as boolean)'
+      ''
+      '')
+    RequestLive = False
+    Left = 128
+    Top = 16
+  end
+  object qryCaracteristicas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'select distinct'
+      '       cast(c.codigo as bigint) as codigo,'
+      '       cast(c.descricao as varchar(100)) as descricao,'
+      '       cast(c.complemento as varchar(360)) as complemento,'
+      '       cast(c.grupo as char(4)) as grupo,'
+      '       cast(g.descricao as varchar(30)) as grupo_descricao,'
+      '       cast(c.classe as char(2)) as grupo_classe,'
+      '       cast(g.comissao as numeric(8,2)) as grupo_comissao,'
+      '       cast(g.tipocomissao as char(1)) as grupo_tipocomissao,'
+      
+        '       cast(coalesce(g.vendanegativa,''N'') as char(1)) as grupo_v' +
+        'endanegativa,'
+      '       cast(g.markup as numeric(5,2)) as grupo_markup,'
+      '       cast(g.multiplo as numeric(5,2)) as grupo_multiplo,'
+      '       cast(g.inativo as date) as grupo_inativo,'
+      '       cast(g.calcularpreco as boolean) as grupo_calcularpreco,'
+      '       cast(g.naoreplicar as boolean) as grupo_naoreplicar,'
+      
+        '       cast(g.planilhacustos as boolean) as grupo_planilhacustos' +
+        ','
+      ''
+      '       cast(c.classe as char(2)) as classe,'
+      '       cast(cl.descricao as varchar(30)) as classe_descricao,'
+      '       cast(cl.comissao as numeric(8,2)) as classe_comissao,'
+      '       cast(cl.tipocomissao as char(1)) as classe_tipocomissao,'
+      
+        '       cast(coalesce(cl.vendanegativa,''N'') as char(1)) as classe' +
+        '_vendanegativa,'
+      '       cast(cl.multiplo as numeric(5,2)) as classe_multiplo,'
+      '       cast(cl.inativo as date) as classe_inativo,'
+      '       cast(cl.naoreplicar as boolean) as classe_naoreplicar,'
+      ''
+      '       cast(c.unidade as char(8)) as unidade,'
+      
+        '       cast((select u.descricao from unidades u where u.codigo =' +
+        ' c.unidade) as varchar(30)) as unidade_descricao,'
+      ''
+      '       cast(c.ipi as integer) as ipi,'
+      '       cast(ipi.descricao as varchar(30)) as ipi_descricao,'
+      
+        '       cast(ipi.classificacaofiscal as varchar(8)) as ipi_classi' +
+        'ficacaofiscal,'
+      '       cast(ipi.aliquota as numeric(5,2)) as ipi_aliquota,'
+      '       cast(ipi.genero as integer) as ipi_genero,'
+      '       cast(ipi.extipi as varchar(3)) as ipi_extipi,'
+      ''
+      '       cast(c.fatorpreco as char(4)) as fatorpreco,'
+      '       cast(c.subconta as integer) as subconta,'
+      
+        '       cast(coalesce(c.vendanegativa,''N'') as char(1)) as vendane' +
+        'gativa,'
+      '       cast(c.montagem as boolean) as montagem,'
+      '       cast(c.origem as integer) as origem,'
+      '       cast(c.icms as integer) as icms,'
+      '       cast(icms.descricao as varchar(30)) as icms_descricao,'
+      '       cast(icms.tipo as char(1)) as icms_tipo,'
+      ''
+      '       cast(c.aliquotapis as numeric(5,2)) as aliquotapis,'
+      '       cast(c.aliquotacofins as numeric(5,2)) as aliquotacofins,'
+      '       cast(c.incidencia as integer) as incidencia,'
+      
+        '       cast(c.percreducaobase as numeric(5,2)) as percreducaobas' +
+        'e,'
+      '       cast(c.volumes as integer) as volumes,'
+      '       cast(c.foralinha as date) as foralinha,'
+      '       cast(c.emitecomplemento as boolean) as emitecomplemento,'
+      '       cast(c.inativo as date) as inativo,'
+      '       cast(c.obslegal as integer) as obslegal,'
+      
+        '       cast((select o.descricao from obslegais o where o.codigo ' +
+        '= c.obslegal) as varchar(700)) as obslegal_descricao,'
+      '       cast(c.brinde as boolean) as brinde,'
+      '       cast(c.tipocomissao as char(1)) as tipocomissao,'
+      '       cast(c.comissao as numeric(8,2)) as comissao,'
+      '       cast(c.emiteetiqueta as boolean) as emiteetiqueta,'
+      '       cast(c.marca as integer) as marca,'
+      '       cast(m.descricao as varchar(15)) as marca_descricao,'
+      '       cast(m.inativo as date) as marca_inativo,'
+      ''
+      '       cast(c.markup as numeric(5,2)) as markup,'
+      '       cast(c.multiplo as numeric(5,2)) as multiplo,'
+      '       cast(c.observacao as varchar(5000)) as observacao,'
+      '       cast(c.grade1 as integer) as grade1,'
+      
+        '       cast((select g.descricao from grades g where g.codigo = c' +
+        '.grade1) as varchar(40)) as grade1_descricao,'
+      '       cast(c.grade2 as integer) as grade2,'
+      
+        '       cast((select g.descricao from grades g where g.codigo = c' +
+        '.grade2) as varchar(40)) as grade2_descricao,'
+      ''
+      '       cast(c.composto as boolean) as composto,'
+      '       cast(c.baseicms as numeric(11,2)) as baseicms,'
+      '       cast(c.bonus as integer) as bonus,'
+      
+        '       cast(c.discriminarcomposto as char(1)) as discriminarcomp' +
+        'osto,'
+      '       cast(c.discriminarpreco as boolean) as discriminarpreco,'
+      ''
+      
+        '       cast(c.debitarvendaavista as integer) as debitarvendaavis' +
+        'ta,'
+      
+        '       cast((select pc.classificacao from planocontas pc where p' +
+        'c.codigo = c.debitarvendaavista) as varchar(20)) as debitarvenda' +
+        'avista_classificacao,'
+      
+        '       cast((select pc.descricao     from planocontas pc where p' +
+        'c.codigo = c.debitarvendaavista) as varchar(50)) as debitarvenda' +
+        'avista_descricao,'
+      
+        '       cast((select pc.tipo          from planocontas pc where p' +
+        'c.codigo = c.debitarvendaavista) as char(1))     as debitarvenda' +
+        'avista_tipo,'
+      
+        '       cast((select pc.inativo       from planocontas pc where p' +
+        'c.codigo = c.debitarvendaavista) as date)        as debitarvenda' +
+        'avista_inativo,'
+      
+        '       cast((select pc.referencia    from planocontas pc where p' +
+        'c.codigo = c.debitarvendaavista) as integer)     as debitarvenda' +
+        'avista_referencia,'
+      
+        '       cast((select pc.natureza      from planocontas pc where p' +
+        'c.codigo = c.debitarvendaavista) as char(1))     as debitarvenda' +
+        'avista_natureza,'
+      
+        '       cast((select pc.dataincalt    from planocontas pc where p' +
+        'c.codigo = c.debitarvendaavista) as date)        as debitarvenda' +
+        'avista_dataincalt,'
+      
+        '       cast((select pc.demosped      from planocontas pc where p' +
+        'c.codigo = c.debitarvendaavista) as boolean)     as debitarvenda' +
+        'avista_demosped,'
+      
+        '       cast(c.debitarvendaaprazo as integer) as debitarvendaapra' +
+        'zo,'
+      
+        '       cast((select pc.classificacao from planocontas pc where p' +
+        'c.codigo = c.debitarvendaaprazo) as varchar(20)) as debitarvenda' +
+        'aprazo_classificacao,'
+      
+        '       cast((select pc.descricao     from planocontas pc where p' +
+        'c.codigo = c.debitarvendaaprazo) as varchar(50)) as debitarvenda' +
+        'aprazo_descricao,'
+      
+        '       cast((select pc.tipo          from planocontas pc where p' +
+        'c.codigo = c.debitarvendaaprazo) as char(1))     as debitarvenda' +
+        'aprazo_tipo,'
+      
+        '       cast((select pc.inativo       from planocontas pc where p' +
+        'c.codigo = c.debitarvendaaprazo) as date)        as debitarvenda' +
+        'aprazo_inativo,'
+      
+        '       cast((select pc.referencia    from planocontas pc where p' +
+        'c.codigo = c.debitarvendaaprazo) as integer)     as debitarvenda' +
+        'aprazo_referencia,'
+      
+        '       cast((select pc.natureza      from planocontas pc where p' +
+        'c.codigo = c.debitarvendaaprazo) as char(1))     as debitarvenda' +
+        'aprazo_natureza,'
+      
+        '       cast((select pc.dataincalt    from planocontas pc where p' +
+        'c.codigo = c.debitarvendaaprazo) as date)        as debitarvenda' +
+        'aprazo_dataincalt,'
+      
+        '       cast((select pc.demosped      from planocontas pc where p' +
+        'c.codigo = c.debitarvendaaprazo) as boolean)     as debitarvenda' +
+        'aprazo_demosped,'
+      
+        '       cast(c.debitarabatimentos as integer) as debitarabatiment' +
+        'os,'
+      
+        '       cast((select pc.classificacao from planocontas pc where p' +
+        'c.codigo = c.debitarabatimentos) as varchar(20)) as debitarabati' +
+        'mentos_classificacao,'
+      
+        '       cast((select pc.descricao     from planocontas pc where p' +
+        'c.codigo = c.debitarabatimentos) as varchar(50)) as debitarabati' +
+        'mentos_descricao,'
+      
+        '       cast((select pc.tipo          from planocontas pc where p' +
+        'c.codigo = c.debitarabatimentos) as char(1))     as debitarabati' +
+        'mentos_tipo,'
+      
+        '       cast((select pc.inativo       from planocontas pc where p' +
+        'c.codigo = c.debitarabatimentos) as date)        as debitarabati' +
+        'mentos_inativo,'
+      
+        '       cast((select pc.referencia    from planocontas pc where p' +
+        'c.codigo = c.debitarabatimentos) as integer)     as debitarabati' +
+        'mentos_referencia,'
+      
+        '       cast((select pc.natureza      from planocontas pc where p' +
+        'c.codigo = c.debitarabatimentos) as char(1))     as debitarabati' +
+        'mentos_natureza,'
+      
+        '       cast((select pc.dataincalt    from planocontas pc where p' +
+        'c.codigo = c.debitarabatimentos) as date)        as debitarabati' +
+        'mentos_dataincalt,'
+      
+        '       cast((select pc.demosped      from planocontas pc where p' +
+        'c.codigo = c.debitarabatimentos) as boolean)     as debitarabati' +
+        'mentos_demosped,'
+      
+        '       cast(c.debitardevolucoes as integer) as debitardevolucoes' +
+        ','
+      
+        '       cast((select pc.classificacao from planocontas pc where p' +
+        'c.codigo = c.debitardevolucoes) as varchar(20)) as debitardevolu' +
+        'coes_classificacao,'
+      
+        '       cast((select pc.descricao     from planocontas pc where p' +
+        'c.codigo = c.debitardevolucoes) as varchar(50)) as debitardevolu' +
+        'coes_descricao,'
+      
+        '       cast((select pc.tipo          from planocontas pc where p' +
+        'c.codigo = c.debitardevolucoes) as char(1))     as debitardevolu' +
+        'coes_tipo,'
+      
+        '       cast((select pc.inativo       from planocontas pc where p' +
+        'c.codigo = c.debitardevolucoes) as date)        as debitardevolu' +
+        'coes_inativo,'
+      
+        '       cast((select pc.referencia    from planocontas pc where p' +
+        'c.codigo = c.debitardevolucoes) as integer)     as debitardevolu' +
+        'coes_referencia,'
+      
+        '       cast((select pc.natureza      from planocontas pc where p' +
+        'c.codigo = c.debitardevolucoes) as char(1))     as debitardevolu' +
+        'coes_natureza,'
+      
+        '       cast((select pc.dataincalt    from planocontas pc where p' +
+        'c.codigo = c.debitardevolucoes) as date)        as debitardevolu' +
+        'coes_dataincalt,'
+      
+        '       cast((select pc.demosped      from planocontas pc where p' +
+        'c.codigo = c.debitardevolucoes) as boolean)     as debitardevolu' +
+        'coes_demosped,'
+      
+        '       cast(c.creditarvendaavista as integer) as creditarvendaav' +
+        'ista,'
+      
+        '       cast((select pc.classificacao from planocontas pc where p' +
+        'c.codigo = c.creditarvendaavista) as varchar(20)) as creditarven' +
+        'daavista_classificacao,'
+      
+        '       cast((select pc.descricao     from planocontas pc where p' +
+        'c.codigo = c.creditarvendaavista) as varchar(50)) as creditarven' +
+        'daavista_descricao,'
+      
+        '       cast((select pc.tipo          from planocontas pc where p' +
+        'c.codigo = c.creditarvendaavista) as char(1))     as creditarven' +
+        'daavista_tipo,'
+      
+        '       cast((select pc.inativo       from planocontas pc where p' +
+        'c.codigo = c.creditarvendaavista) as date)        as creditarven' +
+        'daavista_inativo,'
+      
+        '       cast((select pc.referencia    from planocontas pc where p' +
+        'c.codigo = c.creditarvendaavista) as integer)     as creditarven' +
+        'daavista_referencia,'
+      
+        '       cast((select pc.natureza      from planocontas pc where p' +
+        'c.codigo = c.creditarvendaavista) as char(1))     as creditarven' +
+        'daavista_natureza,'
+      
+        '       cast((select pc.dataincalt    from planocontas pc where p' +
+        'c.codigo = c.creditarvendaavista) as date)        as creditarven' +
+        'daavista_dataincalt,'
+      
+        '       cast((select pc.demosped      from planocontas pc where p' +
+        'c.codigo = c.creditarvendaavista) as boolean)     as creditarven' +
+        'daavista_demosped,'
+      
+        '       cast(c.creditarvendaaprazo as integer) as creditarvendaap' +
+        'razo,'
+      
+        '       cast((select pc.classificacao from planocontas pc where p' +
+        'c.codigo = c.creditarvendaaprazo) as varchar(20)) as creditarven' +
+        'daaprazo_classificacao,'
+      
+        '       cast((select pc.descricao     from planocontas pc where p' +
+        'c.codigo = c.creditarvendaaprazo) as varchar(50)) as creditarven' +
+        'daaprazo_descricao,'
+      
+        '       cast((select pc.tipo          from planocontas pc where p' +
+        'c.codigo = c.creditarvendaaprazo) as char(1))     as creditarven' +
+        'daaprazo_tipo,'
+      
+        '       cast((select pc.inativo       from planocontas pc where p' +
+        'c.codigo = c.creditarvendaaprazo) as date)        as creditarven' +
+        'daaprazo_inativo,'
+      
+        '       cast((select pc.referencia    from planocontas pc where p' +
+        'c.codigo = c.creditarvendaaprazo) as integer)     as creditarven' +
+        'daaprazo_referencia,'
+      
+        '       cast((select pc.natureza      from planocontas pc where p' +
+        'c.codigo = c.creditarvendaaprazo) as char(1))     as creditarven' +
+        'daaprazo_natureza,'
+      
+        '       cast((select pc.dataincalt    from planocontas pc where p' +
+        'c.codigo = c.creditarvendaaprazo) as date)        as creditarven' +
+        'daaprazo_dataincalt,'
+      
+        '       cast((select pc.demosped      from planocontas pc where p' +
+        'c.codigo = c.creditarvendaaprazo) as boolean)     as creditarven' +
+        'daaprazo_demosped,'
+      
+        '       cast(c.creditarabatimentos as integer) as creditarabatime' +
+        'ntos,'
+      
+        '       cast((select pc.classificacao from planocontas pc where p' +
+        'c.codigo = c.creditarabatimentos) as varchar(20)) as creditaraba' +
+        'timentos_classificacao,'
+      
+        '       cast((select pc.descricao     from planocontas pc where p' +
+        'c.codigo = c.creditarabatimentos) as varchar(50)) as creditaraba' +
+        'timentos_descricao,'
+      
+        '       cast((select pc.tipo          from planocontas pc where p' +
+        'c.codigo = c.creditarabatimentos) as char(1))     as creditaraba' +
+        'timentos_tipo,'
+      
+        '       cast((select pc.inativo       from planocontas pc where p' +
+        'c.codigo = c.creditarabatimentos) as date)        as creditaraba' +
+        'timentos_inativo,'
+      
+        '       cast((select pc.referencia    from planocontas pc where p' +
+        'c.codigo = c.creditarabatimentos) as integer)     as creditaraba' +
+        'timentos_referencia,'
+      
+        '       cast((select pc.natureza      from planocontas pc where p' +
+        'c.codigo = c.creditarabatimentos) as char(1))     as creditaraba' +
+        'timentos_natureza,'
+      
+        '       cast((select pc.dataincalt    from planocontas pc where p' +
+        'c.codigo = c.creditarabatimentos) as date)        as creditaraba' +
+        'timentos_dataincalt,'
+      
+        '       cast((select pc.demosped      from planocontas pc where p' +
+        'c.codigo = c.creditarabatimentos) as boolean)     as creditaraba' +
+        'timentos_demosped,'
+      
+        '       cast(c.creditardevolucoes as integer) as creditardevoluco' +
+        'es,'
+      
+        '       cast((select pc.classificacao from planocontas pc where p' +
+        'c.codigo = c.creditardevolucoes) as varchar(20)) as creditardevo' +
+        'lucoes_classificacao,'
+      
+        '       cast((select pc.descricao     from planocontas pc where p' +
+        'c.codigo = c.creditardevolucoes) as varchar(50)) as creditardevo' +
+        'lucoes_descricao,'
+      
+        '       cast((select pc.tipo          from planocontas pc where p' +
+        'c.codigo = c.creditardevolucoes) as char(1))     as creditardevo' +
+        'lucoes_tipo,'
+      
+        '       cast((select pc.inativo       from planocontas pc where p' +
+        'c.codigo = c.creditardevolucoes) as date)        as creditardevo' +
+        'lucoes_inativo,'
+      
+        '       cast((select pc.referencia    from planocontas pc where p' +
+        'c.codigo = c.creditardevolucoes) as integer)     as creditardevo' +
+        'lucoes_referencia,'
+      
+        '       cast((select pc.natureza      from planocontas pc where p' +
+        'c.codigo = c.creditardevolucoes) as char(1))     as creditardevo' +
+        'lucoes_natureza,'
+      
+        '       cast((select pc.dataincalt    from planocontas pc where p' +
+        'c.codigo = c.creditardevolucoes) as date)        as creditardevo' +
+        'lucoes_dataincalt,'
+      
+        '       cast((select pc.demosped      from planocontas pc where p' +
+        'c.codigo = c.creditardevolucoes) as boolean)     as creditardevo' +
+        'lucoes_demosped,'
+      ''
+      
+        '       cast(c.historicovendaavista as integer) as historicovenda' +
+        'avista,'
+      
+        '       cast((select h.descricao from historicos h where h.codigo' +
+        ' = c.historicovendaavista) as varchar(50)) as historicovendaavis' +
+        'ta_descricao,'
+      
+        '       cast((select h.inativo   from historicos h where h.codigo' +
+        ' = c.historicovendaavista) as date)        as historicovendaavis' +
+        'ta_historico,'
+      
+        '       cast((select h.caixa     from historicos h where h.codigo' +
+        ' = c.historicovendaavista) as boolean)     as historicovendaavis' +
+        'ta_caixa,'
+      
+        '       cast((select h.pagar     from historicos h where h.codigo' +
+        ' = c.historicovendaavista) as boolean)     as historicovendaavis' +
+        'ta_pagar,'
+      
+        '       cast((select h.contabil  from historicos h where h.codigo' +
+        ' = c.historicovendaavista) as boolean)     as historicovendaavis' +
+        'ta_contabil,'
+      
+        '       cast(c.historicovendaaprazo as integer) as historicovenda' +
+        'aprazo,'
+      
+        '       cast((select h.descricao from historicos h where h.codigo' +
+        ' = c.historicovendaaprazo) as varchar(50)) as historicovendaapra' +
+        'zo_descricao,'
+      
+        '       cast((select h.inativo   from historicos h where h.codigo' +
+        ' = c.historicovendaaprazo) as date)        as historicovendaapra' +
+        'zo_historico,'
+      
+        '       cast((select h.caixa     from historicos h where h.codigo' +
+        ' = c.historicovendaaprazo) as boolean)     as historicovendaapra' +
+        'zo_caixa,'
+      
+        '       cast((select h.pagar     from historicos h where h.codigo' +
+        ' = c.historicovendaaprazo) as boolean)     as historicovendaapra' +
+        'zo_pagar,'
+      
+        '       cast((select h.contabil  from historicos h where h.codigo' +
+        ' = c.historicovendaaprazo) as boolean)     as historicovendaapra' +
+        'zo_contabil,'
+      
+        '       cast(c.historicoabatimentos as integer) as historicoabati' +
+        'mentos,'
+      
+        '       cast((select h.descricao from historicos h where h.codigo' +
+        ' = c.historicoabatimentos) as varchar(50)) as historicoabatiment' +
+        'os_descricao,'
+      
+        '       cast((select h.inativo   from historicos h where h.codigo' +
+        ' = c.historicoabatimentos) as date)        as historicoabatiment' +
+        'os_historico,'
+      
+        '       cast((select h.caixa     from historicos h where h.codigo' +
+        ' = c.historicoabatimentos) as boolean)     as historicoabatiment' +
+        'os_caixa,'
+      
+        '       cast((select h.pagar     from historicos h where h.codigo' +
+        ' = c.historicoabatimentos) as boolean)     as historicoabatiment' +
+        'os_pagar,'
+      
+        '       cast((select h.contabil  from historicos h where h.codigo' +
+        ' = c.historicoabatimentos) as boolean)     as historicoabatiment' +
+        'os_contabil,'
+      
+        '       cast(c.historicodevolucoes as integer) as historicodevolu' +
+        'coes,'
+      
+        '       cast((select h.descricao from historicos h where h.codigo' +
+        ' = c.historicodevolucoes) as varchar(50)) as historicodevolucoes' +
+        '_descricao,'
+      
+        '       cast((select h.inativo   from historicos h where h.codigo' +
+        ' = c.historicodevolucoes) as date)        as historicodevolucoes' +
+        '_historico,'
+      
+        '       cast((select h.caixa     from historicos h where h.codigo' +
+        ' = c.historicodevolucoes) as boolean)     as historicodevolucoes' +
+        '_caixa,'
+      
+        '       cast((select h.pagar     from historicos h where h.codigo' +
+        ' = c.historicodevolucoes) as boolean)     as historicodevolucoes' +
+        '_pagar,'
+      
+        '       cast((select h.contabil  from historicos h where h.codigo' +
+        ' = c.historicodevolucoes) as boolean)     as historicodevolucoes' +
+        '_contabil,'
+      ''
+      '       cast(c.producaopropria as boolean) as producaopropria,'
+      '       cast(c.codigovisual as varchar(30)) as codigovisual,'
+      ''
+      '       cast(c.substituicaoipi as boolean) as substituicaoipi,'
+      '       cast(c.especial as boolean) as especial,'
+      '       cast(c.icmsmodalidade as integer) as icmsmodalidade,'
+      '       cast(c.icmsmodsubst as integer) as icmsmodsubst,'
+      '       cast(c.piscst as char(2)) as piscst,'
+      '       cast(c.cofinscst as char(2)) as cofinscst,'
+      '       cast(c.ipicst  as char(2)) as ipicst,'
+      '       cast(c.tipoatividade as varchar(2)) as tipoatividade,'
+      '       cast(c.tipoproduto  as char(2)) as tipoproduto,'
+      '       cast(c.foralinhal as boolean) as foralinhal,'
+      '       cast(c.inativol as boolean) as inativol,'
+      
+        '       cast(c.custoadicionalproduto as numeric(11,2)) as custoad' +
+        'icionalproduto,'
+      '       cast(c.data as date) as data,'
+      '       cast(c.csosn as varchar) as csosn'
+      
+        'from (((((caracteristicas c left join classes cl on c.classe = c' +
+        'l.codigo)'
+      '     left join grupos g on c.grupo = g.codigo)'
+      '     left join ipi on ipi.codigo = c.ipi)'
+      '     left join icms on icms.codigo = c.icms)'
+      '     left join marcas m on m.codigo = c.marca)'
+      'where c.codigo is not null'
+      '%data'
+      'order by c.data,c.codigo')
+    RequestLive = False
+    Left = 48
+    Top = 16
+  end
+  object qryColunasPrecos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      
+        'select cast(cp.caracteristica as bigint)        as caracteristic' +
+        'a,'
+      '       cast(cp.preco          as integer)       as preco,'
+      '       cast(cp.coluna         as integer)       as coluna,'
+      
+        '       cast(c.descricao       as varchar(15))   as coluna_descri' +
+        'cao,'
+      '       cast(cp.valor          as numeric(11,2)) as valor,'
+      '       cast(cp.validade       as date)          as validade,'
+      '       cast(cp.data           as date)          as data,'
+      '       cast(cp.alteracao      as date)          as alteracao'
+      'from colunasprecos cp join colunas c on cp.coluna = c.codigo'
+      'where true'
+      '%data'
+      'order by cp.data,cp.alteracao,cp.caracteristica')
+    RequestLive = False
+    Left = 48
+    Top = 120
+  end
+  object qryFornecedores: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'listafornecedores'
+        ParamType = ptUnknown
+        Value = '0'
+      end>
+    Sql.Strings = (
+      'select distinct'
+      '       f.*,'
+      '       f.tipofornecimento[0] as tipofornec_produto_P,'
+      '       f.tipofornecimento[1] as tipofornec_tranporte_T,'
+      '       f.tipofornecimento[2] as tipofornec_montagem_M'
+      'from fornecedores f'
+      'where f.codigo in ('
+      ' %listafornecedores'
+      ')')
+    RequestLive = False
+    Left = 48
+    Top = 224
+  end
+  object qryFornecedoresProdutos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'listacaracteristicas'
+        ParamType = ptUnknown
+        Value = '0'
+      end>
+    Sql.Strings = (
+      'select distinct fp.*'
+      'from fornecedoresprodutos fp'
+      'where fp.caracteristica in ('
+      ' %listacaracteristicas'
+      ')')
+    RequestLive = False
+    Left = 48
+    Top = 176
+  end
+  object qryGruposFornecedores: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'ListaGruposFornecedores'
+        ParamType = ptUnknown
+        Value = '0'
+      end>
+    Sql.Strings = (
+      'select gf.*'
+      'from gruposfornecedores gf'
+      'where gf.codigo in ('
+      '%ListaGruposFornecedores'
+      ')')
+    RequestLive = False
+    Left = 88
+    Top = 240
+  end
+  object qryBairros: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'ListaBairros'
+        ParamType = ptUnknown
+        Value = '(0,0,0)'
+      end>
+    Sql.Strings = (
+      'select DISTINCT b.*'
+      'from bairros b'
+      'where (estado, cidade, codigo) in ('
+      '%ListaBairros'
+      ')')
+    RequestLive = False
+    Left = 176
+    Top = 240
+  end
+  object qryRegioes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'ListaRegioes'
+        ParamType = ptUnknown
+        Value = '0'
+      end>
+    Sql.Strings = (
+      'select DISTINCT r.*'
+      'from regioes r'
+      'where r.codigo in ('
+      '%ListaRegioes'
+      ')')
+    RequestLive = False
+    Left = 208
+    Top = 256
+  end
+  object qryTabelaFretes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'ListaTabelaFretes'
+        ParamType = ptUnknown
+        Value = '0'
+      end>
+    Sql.Strings = (
+      'select DISTINCT tf.*'
+      'from tabeladefretes tf'
+      'where tf.codigo in ('
+      '%ListaTabelaFretes'
+      ')')
+    RequestLive = False
+    Left = 208
+    Top = 304
+  end
+  object qrycidades: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'ListaCidades'
+        ParamType = ptUnknown
+        Value = '('''',0)'
+      end>
+    Sql.Strings = (
+      'select DISTINCT c.*'
+      'from cidades c'
+      'where (estado, codigo) in ('
+      '%ListaCidades'
+      ')')
+    RequestLive = False
+    Left = 208
+    Top = 352
+  end
+  object qryEstados: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'ListaEstados'
+        ParamType = ptUnknown
+        Value = '0'
+      end>
+    Sql.Strings = (
+      'select DISTINCT  e.*'
+      'from estados e'
+      'where e.codigo in ('
+      '%ListaEstados'
+      ')')
+    RequestLive = False
+    Left = 208
+    Top = 400
+  end
+  object qryConceitos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'ListaConceitos'
+        ParamType = ptUnknown
+        Value = '0'
+      end>
+    Sql.Strings = (
+      'select  DISTINCT c.*'
+      'from conceitos c'
+      'where c.codigo in ('
+      '%ListaConceitos'
+      ')')
+    RequestLive = False
+    Left = 304
+    Top = 248
+  end
+  object qryPrecos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+
+        'select cast(pr.caracteristica       as bigint)      as caracteri' +
+        'stica,'
+      '       cast(pr.codigo               as integer)     as codigo,'
+
+        '       cast(pr.descricao            as varchar(30)) as preco_des' +
+        'cricao,'
+
+        '       cast(pr.avariado             as boolean)     as preco_ava' +
+        'riado'
+      ''
+      'from caracteristicas c'
+      '     join precos pr'
+      '     on c.codigo = pr.caracteristica'
+      ''
+      'where c.codigo is not null'
+      '%data'
+      'order by c.data,c.codigo')
+    RequestLive = False
+    Left = 48
+    Top = 72
+  end
+end

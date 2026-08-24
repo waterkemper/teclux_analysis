@@ -1,6 +1,6 @@
 inherited dtmEmissaoNotaAvulsas: TdtmEmissaoNotaAvulsas
-  Left = 336
-  Top = 280
+  Left = 546
+  Top = 172
   Height = 745
   Width = 1268
   object qryNotas: TtecQuery
@@ -177,7 +177,16 @@ inherited dtmEmissaoNotaAvulsas: TdtmEmissaoNotaAvulsas
       '        and pnp.dadofiscal = df.numero)=0'
       '     else false end as Estornada,'
       ''
-      '     f.contribicms as contribicmsemitente'
+      '     f.contribicms as contribicmsemitente,'
+      ''
+      ''
+      '    (select a.caixa'
+      '     from autenticacoes a'
+      '     where a.transacao in  (select distinct vdf.transacao'
+      '                            from venctosdadosfiscais vdf'
+      '                            where vdf.dadofiscal = df.numero)'
+      '     limit 1) as UsuarioCaixa'
+      ''
       ''
       'from dadosfiscais df, notas n, filiais f'
       ''
@@ -1075,6 +1084,9 @@ inherited dtmEmissaoNotaAvulsas: TdtmEmissaoNotaAvulsas
     object qryDadosFiscaislocalretirada_pessoatipo: TStringField
       FieldName = 'localretirada_pessoatipo'
       Size = 1
+    end
+    object qryDadosFiscaisusuariocaixa: TIntegerField
+      FieldName = 'usuariocaixa'
     end
   end
   object dsrNota: TtecDataSource

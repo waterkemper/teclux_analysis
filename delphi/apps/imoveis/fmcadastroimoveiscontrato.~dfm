@@ -1,0 +1,646 @@
+inherited frmCadastroImoveisContrato: TfrmCadastroImoveisContrato
+  Left = 615
+  Top = 162
+  ActiveControl = fraConsultaEmpreendimento.edfCodigo
+  Caption = 'Cadastro de Im'#243'veis no Contrato'
+  ClientHeight = 402
+  ClientWidth = 638
+  OnActivate = FormActivate
+  PixelsPerInch = 96
+  TextHeight = 16
+  inherited pnlTopMenu: TPanel
+    Width = 638
+    inherited tblBarra: TToolBar
+      Width = 413
+    end
+  end
+  object gbxDados: TGroupBox
+    Left = 0
+    Top = 40
+    Width = 638
+    Height = 362
+    Align = alClient
+    Ctl3D = True
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -11
+    Font.Name = 'Arial'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentCtl3D = False
+    ParentFont = False
+    TabOrder = 2
+    object gbxEmpreendimentos: TGroupBox
+      Left = 54
+      Top = 10
+      Width = 418
+      Height = 36
+      Caption = 'EMPREENDIMENTO'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      inline fraConsultaEmpreendimento: TfraConsultaCodigo
+        Left = 2
+        Top = 10
+        Width = 460
+        Height = 23
+        HorzScrollBar.Range = 460
+        VertScrollBar.Range = 23
+        AutoScroll = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        inherited dtxDescricao: TtecDBText
+          Width = 324
+          DataField = 'nome'
+          DataSource = fraConsultaEmpreendimento.dsrProcuraEmpreendimentos
+        end
+        inherited edfCodigo: TtecDBFindLookup
+          DataField = 'codigoempreendimento'
+          DataSource = dtmContratosImoveis.dsrImoveisVendidos
+          Group = 'Empreendimentos'
+          MaxLength = 6
+          OnEnter = fraConsultaEmpreendimentoedfCodigoEnter
+          OnFound = fraConsultaEmpreendimentoedfCodigoFound
+          LookupField = 'codigo'
+          LookupSource = fraConsultaEmpreendimento.dsrProcuraEmpreendimentos
+          LookupQueryParameter = 'Codigo'
+          Parameter = ' '
+          ActiveSetControls = True
+          DenyInsert = True
+          NoSetControls = <
+            item
+              Control = fraConsultaEmpreendimento.sbnProcura
+            end>
+          SetControls = <
+            item
+              Control = gbxBlocos
+            end
+            item
+              Control = gbxTipodeUnidade
+            end
+            item
+              Control = gbxNumero
+            end
+            item
+              Control = gbxObsContrato
+            end
+            item
+              Control = gbxareas
+            end
+            item
+              Control = gbxPavimento
+            end
+            item
+              Control = gbxObservacoes
+            end>
+          LookupParameter = 'Codigo'
+        end
+        inherited qryProcuraEmpreendimentos: TtecQuery
+          inherited qryProcuraEmpreendimentosnumero: TIntegerField
+            DisplayFormat = '0'
+          end
+          inherited qryProcuraEmpreendimentoscidade: TIntegerField
+            DisplayFormat = '0'
+          end
+          inherited qryProcuraEmpreendimentosbairro: TIntegerField
+            DisplayFormat = '0'
+          end
+          inherited qryProcuraEmpreendimentoscep: TIntegerField
+            DisplayFormat = '0'
+          end
+          inherited qryProcuraEmpreendimentosavptaxadesconto: TFloatField
+            DisplayFormat = '0.00'
+          end
+        end
+      end
+    end
+    object gbxBlocos: TGroupBox
+      Left = 10
+      Top = 53
+      Width = 300
+      Height = 37
+      Caption = 'BLOCO'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+      object clxBlocos: TTecDBLookupComboBox
+        Left = 2
+        Top = 10
+        Width = 295
+        Height = 23
+        DataField = 'bloco'
+        DataSource = dtmContratosImoveis.dsrImoveisVendidos
+        DropDownRows = 10
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        KeyField = 'codigo'
+        ListField = 'descricao'
+        ListSource = dtmContratosImoveis.dsrConsultaBlocos
+        ParentFont = False
+        TabOrder = 0
+        OnCloseUp = clxBlocosCloseUp
+        OnEnter = clxBlocosEnter
+        OnExit = clxBlocosExit
+      end
+    end
+    object gbxNumero: TGroupBox
+      Left = 161
+      Top = 93
+      Width = 147
+      Height = 37
+      Caption = 'N'#218'MERO'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 3
+      object clxImoveis: TTecDBLookupComboBox
+        Left = 2
+        Top = 10
+        Width = 142
+        Height = 23
+        DataField = 'numero'
+        DataSource = dtmContratosImoveis.dsrImoveisVendidos
+        DropDownRows = 10
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        KeyField = 'imovel'
+        ListField = 'imovel'
+        ListSource = dtmContratosImoveis.dsrConsultaImoveis
+        ParentFont = False
+        TabOrder = 0
+        OnCloseUp = clxImoveisCloseUp
+        OnEnter = clxImoveisEnter
+        OnExit = clxImoveisExit
+      end
+    end
+    object gbxPavimento: TGroupBox
+      Left = 319
+      Top = 53
+      Width = 110
+      Height = 36
+      Caption = 'PAVIMENTO'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 4
+      object dtxpavimento: TtecDBText
+        Left = 2
+        Top = 10
+        Width = 105
+        Height = 23
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'pavimento'
+        DataSource = dtmContratosImoveis.dsrImoveisVendidos
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Arial'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 0
+        Alignment = taCenter
+      end
+    end
+    object gbxareas: TGroupBox
+      Left = 9
+      Top = 213
+      Width = 417
+      Height = 50
+      Caption = #193'REAS'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 6
+      object lblMais: TLabel
+        Left = 97
+        Top = 24
+        Width = 13
+        Height = 18
+        Alignment = taCenter
+        AutoSize = False
+        Caption = '+'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -16
+        Font.Name = 'Arial'
+        Font.Pitch = fpVariable
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object lblIgual: TLabel
+        Left = 203
+        Top = 24
+        Width = 19
+        Height = 18
+        Alignment = taCenter
+        AutoSize = False
+        Caption = '='
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -16
+        Font.Name = 'Arial'
+        Font.Pitch = fpVariable
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object gbxPrivativa: TGroupBox
+        Left = 5
+        Top = 14
+        Width = 90
+        Height = 36
+        Caption = 'PRIVATIVA'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'Arial'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        object dtxPrivativa: TtecDBText
+          Left = 2
+          Top = 10
+          Width = 85
+          Height = 23
+          TabStop = False
+          Color = clBtnFace
+          DataField = 'areaprivativa'
+          DataSource = dtmContratosImoveis.dsrImoveisVendidos
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'Arial'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          ReadOnly = True
+          TabOrder = 0
+          Alignment = taLeftJustify
+        end
+      end
+      object gbxComum: TGroupBox
+        Left = 112
+        Top = 14
+        Width = 90
+        Height = 36
+        Caption = 'COMUM'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'Arial'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 1
+        object dtxComum: TtecDBText
+          Left = 2
+          Top = 10
+          Width = 85
+          Height = 23
+          TabStop = False
+          Color = clBtnFace
+          DataField = 'areacomum'
+          DataSource = dtmContratosImoveis.dsrImoveisVendidos
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'Arial'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          ReadOnly = True
+          TabOrder = 0
+          Alignment = taLeftJustify
+        end
+      end
+      object gbxTotal: TGroupBox
+        Left = 222
+        Top = 14
+        Width = 90
+        Height = 36
+        Caption = 'TOTAL'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'Arial'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 2
+        object dtxtotal: TtecDBText
+          Left = 2
+          Top = 10
+          Width = 85
+          Height = 23
+          TabStop = False
+          Color = clBtnFace
+          DataField = 'AreaTotal'
+          DataSource = dtmContratosImoveis.dsrImoveisVendidos
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'Arial'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          ReadOnly = True
+          TabOrder = 0
+          Alignment = taLeftJustify
+        end
+      end
+      object gbxFracaoIdeal: TGroupBox
+        Left = 323
+        Top = 14
+        Width = 90
+        Height = 36
+        Caption = 'FRA'#199#195'O IDEAL'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'Arial'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 3
+        object dtxFracaoideal: TtecDBText
+          Left = 2
+          Top = 10
+          Width = 85
+          Height = 23
+          TabStop = False
+          Color = clBtnFace
+          DataField = 'fracaoideal'
+          DataSource = dtmContratosImoveis.dsrImoveisVendidos
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'Arial'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          ReadOnly = True
+          TabOrder = 0
+          Alignment = taLeftJustify
+        end
+      end
+    end
+    object gbxObservacoes: TGroupBox
+      Left = 9
+      Top = 269
+      Width = 466
+      Height = 81
+      Caption = 'OBSERVA'#199#213'ES DO IM'#211'VEL'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 7
+      object mmoObservacoes: TtecDBMemo
+        Left = 2
+        Top = 14
+        Width = 462
+        Height = 65
+        Align = alClient
+        Color = clBtnFace
+        DataField = 'observacoes'
+        DataSource = dtmContratosImoveis.dsrImoveisVendidos
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Arial'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 0
+      end
+    end
+    object gbxPrecoVenda: TGroupBox
+      Left = 326
+      Top = 154
+      Width = 145
+      Height = 49
+      Caption = 'PRE'#199'O DE VENDA'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 5
+      TabStop = True
+      object edtPrecoVenda: TDBEditNumero
+        Left = 2
+        Top = 10
+        Width = 140
+        Height = 36
+        AutoSize = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -16
+        Font.Name = 'Arial'
+        Font.Pitch = fpVariable
+        Font.Style = [fsBold]
+        MaxLength = -1
+        ParentFont = False
+        TabOrder = 0
+        Text = 'edtPrecoVenda'
+        Mascara = True
+        Alignment = taLeftJustify
+        TipoMascara = tmGERAL
+        NrDecimal = 2
+        Decimais = True
+        Negativo = False
+        Tamanho = 9
+        DataField = 'precovenda'
+        DataSource = dtmContratosImoveis.dsrImoveisVendidos
+      end
+    end
+    object gbxObsContrato: TGroupBox
+      Left = 9
+      Top = 135
+      Width = 463
+      Height = 73
+      Caption = 'OBSERVA'#199#213'ES DO EMPREENDIMENTO'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 8
+      object mmoObsContrato: TtecDBMemo
+        Left = 2
+        Top = 14
+        Width = 459
+        Height = 57
+        TabStop = False
+        Align = alClient
+        DataField = 'observacoes'
+        DataSource = fraConsultaEmpreendimento.dsrProcuraEmpreendimentos
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentColor = True
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 0
+      end
+    end
+    object gbxTipodeUnidade: TGroupBox
+      Left = 9
+      Top = 93
+      Width = 147
+      Height = 37
+      Caption = 'TIPO DE UNIDADE'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 2
+      object cbxTipodeUnidade: TTecDBLookupComboBox
+        Left = 2
+        Top = 10
+        Width = 142
+        Height = 23
+        DataField = 'unidade'
+        DataSource = dtmContratosImoveis.dsrImoveisVendidos
+        DropDownRows = 10
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        KeyField = 'codigo'
+        ListField = 'nome'
+        ListSource = dtmContratosImoveis.dsrConsultaTiposUnidades
+        ParentFont = False
+        TabOrder = 0
+        OnCloseUp = cbxTipodeUnidadeCloseUp
+        OnEnter = cbxTipodeUnidadeEnter
+        OnExit = cbxTipodeUnidadeExit
+      end
+    end
+    object gbxPrecoImovel: TGroupBox
+      Left = 319
+      Top = 93
+      Width = 110
+      Height = 36
+      Caption = 'PRE'#199'O DO IM'#211'VEL'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 9
+      object dtxPrevoImovel: TtecDBText
+        Left = 2
+        Top = 10
+        Width = 105
+        Height = 23
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'precovenda'
+        DataSource = dtmContratosImoveis.dsrImoveisVendidos
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Arial'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 0
+        Alignment = taLeftJustify
+      end
+    end
+    object gbxNrImovel: TGroupBox
+      Left = 10
+      Top = 10
+      Width = 35
+      Height = 36
+      Caption = ' N'#186' '
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'Arial'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 10
+      object dtxNrOrdemImovel: TtecDBText
+        Left = 2
+        Top = 10
+        Width = 30
+        Height = 23
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'ordem'
+        DataSource = dtmContratosImoveis.dsrImoveisVendidos
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'Arial'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 0
+        Alignment = taCenter
+      end
+    end
+  end
+end

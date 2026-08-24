@@ -1,0 +1,848 @@
+unit dmimprimecarne;
+interface
+
+uses
+ //CLX
+ {$IFNDEF LINUX} Windows, Printers,{$ELSE} Libc, QPrinters,{$ENDIF}
+
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs, DB,
+  //Terceiros
+  ZQuery, ZPgSqlQuery,
+  //Biblio
+  biblio, ctconstantes, clparametrossistema, clecf,
+  //Repositorio
+  dmbasico, dmtecsoft,
+  //Componentes
+  cpquery, fr_dset, fr_dbset, fr_class, ZTransact, frxClass, frxDBSet;
+
+type
+  TdtmImprimeCarne = class(TdtmBasico)
+    qryParcelas: TtecQuery;
+    qryModeloCarne: TtecQuery;
+
+    qryParcelascontrato: TStringField;
+    qryParcelasnumero: TIntegerField;
+    qryParcelasdatavencto: TDateField;
+    qryParcelasvalorvencto: TFloatField;
+    qryParcelasdatapagto: TDateField;
+    qryParcelasvalorpagto: TFloatField;
+    qryParcelasnome: TStringField;
+    qryParcelasfilial: TIntegerField;
+    qryParcelasrazaocarne: TStringField;
+    qryParcelasdata: TDateField;
+    qryParcelascliente: TIntegerField;
+    qryParcelasjurodesconto: TFloatField;
+    qryParcelasdiasatraso: TIntegerField;
+    qryParcelasjurosdias: TFloatField;
+    qryParcelasparcelaorigem: TStringField;
+    qryModeloCarnecodigo: TIntegerField;
+    qryModeloCarneconfigurar: TStringField;
+    qryModeloCarnecabecalho: TStringField;
+    qryModeloCarnecomatraso: TStringField;
+    qryModeloCarnesematraso: TStringField;
+    qryModeloCarnerodape: TStringField;
+    qryModeloCarneimprimirlayout: TBooleanField;
+    qryModeloCarneemaberto: TStringField;
+    qryModeloCarnelinha01: TStringField;
+    qryModeloCarnelinha02: TStringField;
+    qryModeloCarnelinha03: TStringField;
+    qryModeloCarnelinha04: TStringField;
+    qryModeloCarnelinha05: TStringField;
+    qryModeloCarnelinha06: TStringField;
+    qryModeloCarnelinha07: TStringField;
+    qryModeloCarnelinha08: TStringField;
+    qryModeloCarnelinha09: TStringField;
+    qryModeloCarnelinha10: TStringField;
+    qryModeloCarnelinha11: TStringField;
+    qryModeloCarnelinha12: TStringField;
+    qryModeloCarnelinha13: TStringField;
+    qryModeloCarnelinha14: TStringField;
+    qryModeloCarnelinha15: TStringField;
+    qryModeloCarnelinha16: TStringField;
+    qryModeloCarnelinha17: TStringField;
+    qryModeloCarnelinha18: TStringField;
+    qryModeloCarnelinha19: TStringField;
+    qryModeloCarnelinha20: TStringField;
+    qryParcelasvalorextenso1: TStringField;
+    qryParcelasvalorextenso2: TStringField;
+    qryParcelasvalorextenso3: TStringField;
+    qryParcelasvalorextenso4: TStringField;
+    qryParcelasjurosmora: TFloatField;
+    qryParcelasnumerofilial: TStringField;
+    qryParcelasinscricaoestadualfilial: TStringField;
+    qryParcelasinscricaomunicipalfilial: TStringField;
+    qryParcelascidadeestadofilial: TStringField;
+    qryParcelasruabairrofilial: TStringField;
+    qryParcelascepfilial: TStringField;
+    qryParcelasfonefilial: TStringField;
+    qryParcelasvalorprazo: TFloatField;
+    qryParcelasnumeronota: TIntegerField;
+    qryParcelasempcep: TStringField;
+    qryParcelasECF: TtecQuery;
+    qryParcelasECFdatavencto: TDateField;
+    qryParcelasECFvalorvencto: TFloatField;
+    qryParcelasECFnome: TStringField;
+    qryParcelasECFiddocumento: TStringField;
+    qryParcelasECFpessoanumero: TStringField;
+    qryParcelasECFvendedor: TStringField;
+    qryParcelasECFcliente: TIntegerField;
+    qryParcelasECFcontrato: TStringField;
+    qryParcelasECFdata: TDateField;
+    qryParcelasECFnumero: TIntegerField;
+    qryParcelasECFvalorpagto: TFloatField;
+    qryParcelasECFdatapagto: TMemoField;
+    qryParcelasECFsituacao: TStringField;
+    qryParcelasECFacrescimo: TFloatField;
+    qryParcelasECFdesconto: TFloatField;
+    qryParcelasECFpracapagto: TMemoField;
+    qryParcelasbairrofilial: TStringField;
+    qryParcelasnumeroparcela: TStringField;
+    qryParcelasnumeroparcelaletra: TStringField;
+    qryParcelaspracapagto: TMemoField;
+    frpCarne: TfrReport;
+    fdsCarne: TfrDBDataSet;
+    qryModeloCarnearquivofast: TStringField;
+    qryParcelasrazaofilial: TStringField;
+    qryParcelasnomefilial: TStringField;
+    frpCarne_fast_4: TfrxReport;
+    frxDBParcelas: TfrxDBDataset;
+    qryParcelasdescricaoplano: TStringField;
+    qryParcelaschaveparcelas: TIntegerField;
+    frxReport1: TfrxReport;
+    procedure qryParcelasCalcFields(DataSet: TDataSet);
+
+
+  protected
+    LinhaE: T_Extenso;
+    function  ImprimirCarne(SomenteAbertas: Boolean; NumeroParcelas: vString; IniciarFinalizarDocumento: Boolean = True): Boolean;
+    function  ImprimirCarneECF: Boolean;
+    function  ObterParcelas(Contrato: String): Boolean; overload;
+    function  ObterParcelas(Contrato: String; NumeroParcelas: vString): Boolean; overload;
+    procedure AtribuirPercentualAtrasoJuros;
+
+    function  ObterParcelasECF(Contrato: String): Boolean;
+    procedure ValorExtenso(Valor: Real);
+    procedure DefinirTamanhoExtenso;
+  public
+    function  ImprimirCarnesContrato(Contrato: String; SomenteAbertas: Boolean): Boolean; overload;
+    function  ImprimirCarnesContrato(Contrato: String; NumeroParcelas: vString;
+                                     IniciarFinalizarDocumento: Boolean = True): Boolean; overload;
+
+    procedure ValidarParcelasimpressao(Contrato: String; Numero: Integer; Pos: Integer);
+    function AbrirModeloCarne: Boolean;
+    procedure InicializarDocumento;
+    procedure FinalizarDocumento;
+
+  end;
+
+var
+  dtmImprimeCarne: TdtmImprimeCarne;
+
+implementation
+
+Uses
+  //Componentes
+  cltextprinter, fmconfirmarimpressaonocontrato;
+
+{$R *.dfm}
+
+{ TdtmImprimeNota }
+
+function TdtmImprimeCarne.ObterParcelas(Contrato: String): Boolean;
+begin
+  qryParcelas.MacroByName('WhereNumeroParcelas').AsString := '';
+  RefazConsulta(qryParcelas,[0],[Contrato]);
+  qryParcelas.First;
+  AtribuirPercentualAtrasoJuros;
+  Result:= (qryParcelas.RecordCount > 0);
+end;
+
+function TdtmImprimeCarne.ObterParcelas(Contrato: String; NumeroParcelas: vString): Boolean;
+const
+  SQLParcelas= 'and (p.numero in (%s))';
+var
+  i: Integer;
+  parcelas: String;
+begin
+  if Numeroparcelas<>nil then
+  begin
+    for i:=0 to length(numeroparcelas)-1 do
+      parcelas := parcelas+NumeroParcelas[i]+',';
+
+    delete(parcelas,length(parcelas),1);
+    qryParcelas.MacroByName('WhereNumeroParcelas').AsString := format(SQLParcelas,[parcelas]);
+  end
+  else
+    qryParcelas.MacroByName('WhereNumeroParcelas').AsString := format(SQLParcelas,['0']);
+
+  RefazConsulta(qryParcelas,[0],[Contrato]);
+  qryParcelas.First;
+  AtribuirPercentualAtrasoJuros;
+  Result:= (qryParcelas.RecordCount > 0);
+
+end;
+
+
+function TdtmImprimeCarne.ImprimirCarnesContrato(Contrato: String; SomenteAbertas: Boolean): Boolean;
+begin
+//  Result := False;
+  if ParSistema.ImpressaoCarneECF and ObterParcelasECF(Contrato) then
+    try
+      Result := ImprimirCarneECF;
+    except
+      raise
+    end
+  else
+  begin
+    result := AbrirModeloCarne;
+    if result then
+      if ObterParcelas(Contrato) then
+        try
+          Result := ImprimirCarne(SomenteAbertas,nil);
+        except
+          raise
+        end;
+  end;
+end;
+
+function TdtmImprimeCarne.ImprimirCarnesContrato(Contrato: String;
+  NumeroParcelas: vString; IniciarFinalizarDocumento: Boolean = True): Boolean;
+begin
+//  Result := False;
+  if ParSistema.ImpressaoCarneECF and ObterParcelasECF(Contrato) then
+    try
+      Result := ImprimirCarneECF;
+    except
+      raise
+    end
+  else
+  begin
+    if IniciarFinalizarDocumento then
+      result := AbrirModeloCarne
+    else
+      result := true;
+
+    if result then
+      if ObterParcelas(Contrato,NumeroParcelas) then
+        try
+          Result := ImprimirCarne(false, NumeroParcelas, IniciarFinalizarDocumento);
+        except
+          raise
+        end;
+  end;
+end;
+
+function TdtmImprimeCarne.ImprimirCarne(SomenteAbertas: Boolean;
+  NumeroParcelas: vString; IniciarFinalizarDocumento: Boolean = True): Boolean;
+var Esquerdo: Boolean;
+    Cabecalho:      Array [01..02] of String;
+    Nome:           Array [01..02] of String;
+    ComAtraso:      Array [01..02] of String;
+    SemAtraso:      Array [01..02] of String;
+    EmAberto:       Array [01..02] of String;
+    Juros:          Array [01..02] of String;
+    TotalAtraso:    Array [01..02] of String;
+    TotalSemAtraso: Array [01..02] of String;
+    Rodape:         Array [01..02] of String;
+
+    a: integer;
+   {$IFNDEF LINUX}
+    vNewIndex : integer;
+    vPrinter : TPrinter;
+   {$ENDIF}
+
+begin
+  Result := True;
+  try
+    if NumeroParcelas = nil then
+    begin
+      a:=0;
+      NumeroParcelas := nil;
+      SetLength(NumeroParcelas, qryparcelas.RecordCount);
+      qryParcelas.First;
+      while not qryparcelas.Eof do
+      begin
+        NumeroParcelas[a] := qryParcelasnumero.AsString;
+        inc(a);
+        qryparcelas.next;
+      end;
+    end;
+
+    NomeImpressoraEscolhida:=  parsistema.NomeImpressoraCarne;
+    if qryModeloCarnearquivofast.AsString <> '' then
+    begin
+      if not FileExists(qryModeloCarnearquivofast.AsString) then
+        mensagemErro('Arquivo '+qryModeloCarnearquivofast.AsString+ ' não encontrado!')
+      else
+      begin
+        frpCarne_fast_4.LoadFromFile(qryModeloCarnearquivofast.AsString);
+        frpCarne_fast_4.PrepareReport;
+//        frpCarne_fast_4.DesignReport;
+
+
+        if parsistema.NomeImpressoraCarne<>'' then
+        begin
+          frpCarne_fast_4.PrintOptions.Printer := parsistema.NomeImpressoraCarne;
+          frpCarne_fast_4.SelectPrinter;
+          frpCarne_fast_4.PrepareReport;
+          frpCarne_fast_4.Print;
+        end
+        else
+          frpCarne_fast_4.ShowReport(true);
+      end;
+    end
+    else
+    begin
+      with TextPrinter do begin
+        if IniciarFinalizarDocumento then
+          BeginDoc(qryModeloCarneconfigurar.AsString);
+
+        if ColCarne = 1 then begin  //------------ Carne com uma (1) coluna -----------------------
+          for a:=0 to length(NumeroParcelas)-1 do
+          begin
+            if qryparcelas.Locate('numero',Numeroparcelas[a],[]) then
+            begin
+              if (qryParcelasvalorpagto.AsCurrency = 0) or not SomenteAbertas then begin
+                BandString := qryModeloCarnecabecalho.AsString;
+                BreakToLine;
+                WriteBand(qryParcelas.Fields);
+
+                if (qryParcelasvalorpagto.AsCurrency > 0) then begin
+                  if not SomenteAbertas then begin
+                    if (qryParcelasvalorpagto.AsCurrency > qryParcelasvalorvencto.AsCurrency) then begin
+                      BandString:= qryModeloCarneComAtraso.AsString;
+                      BreakToLine;
+                      WriteBand(qryParcelas.Fields);
+                    end
+                    else begin
+                      BandString:= qryModeloCarneSemAtraso.AsString;
+                      BreakToLine;
+                      WriteBand(qryParcelas.Fields);
+                    end;
+                  end;
+                end
+                else begin
+                  BandString:= qryModeloCarneemaberto.AsString;
+                  BreakToLine;
+                  WriteBand(qryParcelas.Fields);
+                end;
+                if qryModeloCarneimprimirlayout.AsBoolean and not SomenteAbertas then begin
+                   if qryModeloCarneRodape.AsString <> '' then begin
+                      BandString:= qryModeloCarnerodape.AsString;
+                      BreakToLine;
+                      WriteBand(qryParcelas.Fields);
+                   end;
+                end;
+                {$IFDEF LINUX}
+                   FormFeedCarneLinux;
+                {$ELSE}
+                   FormFeed;
+                {$ENDIF}
+              end;
+            end;
+          end;
+    //    EndDoc('TecLUX - Carnê');
+        end  //---- Carne com duas (2) colunas (João Fretta & Cia) -----------------
+        else if ColCarne = 2 then begin
+             Esquerdo := True;
+             FillChar(Cabecalho,SizeOf(Cabecalho),0);
+             FillChar(Nome,SizeOf(Nome),0);
+             FillChar(ComAtraso,SizeOf(ComAtraso),0);
+             FillChar(SemAtraso,SizeOf(SemAtraso),0);
+             FillChar(EmAberto,SizeOf(EmAberto),0);
+             FillChar(Juros,SizeOf(Juros),0);
+             FillChar(TotalAtraso,SizeOf(TotalAtraso),0);
+             FillChar(TotalSemAtraso,SizeOf(TotalSemAtraso),0);
+             FillChar(Rodape,SizeOf(Rodape),0);
+
+             qryParcelas.First;
+             while not qryParcelas.Eof do begin
+                if (qryParcelasvalorpagto.AsCurrency = 0) or not SomenteAbertas then begin
+                   //--------------- Cabecalho ------------------------------------------------------
+                   if Esquerdo then Cabecalho[01] := qryModeloCarneCABECALHO.AsString
+                               else Cabecalho[02] := qryModeloCarneLINHA01.AsString;
+
+                   //--------------- Linha01 --------------------------------------------------------
+                   if Esquerdo then Nome[01] := qryModeloCarneLINHA02.AsString
+                               else Nome[02] := qryModeloCarneLINHA03.AsString;
+
+                   //--------------------------------------------------------------------------------
+                   if (qryParcelasvalorpagto.AsCurrency > 0) then begin
+                     if not SomenteAbertas then begin
+                       if (qryParcelasVALORPAGTO.AsCurrency > qryParcelasVALORVENCTO.AsCurrency) then begin
+                          //--------------- ComAtraso ------------------------------------------------------
+                          if Esquerdo then ComAtraso[01] := qryModeloCarneCOMATRASO.AsString
+                                      else ComAtraso[02] := qryModeloCarneLINHA05.AsString;
+
+                          //--------------- Linha07 Linha08 (Juros) -----------------------------------------
+                          if Esquerdo then Juros[01] := qryModeloCarneLINHA07.AsString
+                                      else Juros[02] := qryModeloCarneLINHA08.AsString;
+
+                          //--------------- Linha09 Linha10 (Total Pago) ------------------------------------
+                          if Esquerdo then TotalAtraso[01] := qryModeloCarneLINHA09.AsString
+                                      else TotalAtraso[02] := qryModeloCarneLINHA10.AsString;
+                       end
+                       else begin
+                         //--------------- SemAtraso --------------------------------------------------------
+                          if Esquerdo then SemAtraso[01] := qryModeloCarneSEMATRASO.AsString
+                                      else SemAtraso[02] := qryModeloCarneLINHA06.AsString;
+
+                         //--------------- Linha11 Linha12 (Total Pago)--------------------------------------
+                         if Esquerdo then TotalSemAtraso[01] := qryModeloCarneLINHA11.AsString
+                                     else TotalSemAtraso[02] := qryModeloCarneLINHA12.AsString;
+                      end;
+                    end;
+                   end
+                   else begin
+                     //--------------- EmAberto ---------------------------------------------------------
+                     if Esquerdo then EmAberto[01] := qryModeloCarneEMABERTO.AsString {8}
+                                 else EmAberto[02] := qryModeloCarneLinha04.AsString;
+                  end;
+                  //--------------- Rodape ---------------------------------------------------------
+                  if Esquerdo then Rodape[01] := qryModeloCarneRODAPE.AsString
+                              else Rodape[02] := qryModeloCarneLINHA13.AsString;
+
+
+                  if not Esquerdo then begin
+                     qryParcelas.Prior;
+                     if Cabecalho[1] <> '' then begin
+                        BandString := Cabecalho[1];    //--- Cabecalho Esquerdo
+                        BreakToLine;
+                        WriteBand(qryParcelas.Fields);
+                     end;
+                     qryParcelas.Next;
+                     if Cabecalho[2] <> '' then begin
+                        BandString := Cabecalho[2];    //--- Cabecalho Direito
+                        BreakToLine;
+                        WriteBand(qryParcelas.Fields);
+                     end;
+                     //--------------------------------------------------------------------
+                     qryParcelas.Prior;
+                     if Nome[1] <> '' then begin
+                        BandString := Nome[1];    //--- Linha01 Esquerdo (nome)
+                        BreakToLine;
+                        WriteBand(qryParcelas.Fields);
+                     end;
+                     qryParcelas.Next;
+                     if Nome[2] <> '' then begin
+                        BandString := Nome[2];    //--- Linha01 Direito (nome)
+                        BreakToLine;
+                        WriteBand(qryParcelas.Fields);
+                     end;
+
+                     //--------------------------------------------------------------------
+                     qryParcelas.Prior;
+                     if ComAtraso[1] <> '' then begin
+                        BandString := ComAtraso[1];    //--- Com Atraso Esquerdo
+                        BreakToLine;
+                        WriteBand(qryParcelas.Fields);
+                     end
+                     else
+                     if SemAtraso[1] <> '' then begin
+                        BandString := SemAtraso[1];    //--- Sem Atraso Esquerdo
+                        BreakToLine;
+                        WriteBand(qryParcelas.Fields);
+                     end else
+                     if EmAberto[1] <> '' then begin
+                        BandString := EmAberto[1];    //--- Em Aberto Esquerdo
+                        BreakToLine;
+                        WriteBand(qryParcelas.Fields);
+                     end;
+
+                     qryParcelas.Next;
+                     if ComAtraso[2] <> '' then begin
+                        BandString := ComAtraso[2];    //--- Com Atraso Direito
+                        BreakToLine;
+                        WriteBand(qryParcelas.Fields);
+                     end else
+                     if SemAtraso[2] <> '' then begin
+                        BandString := SemAtraso[2];    //--- Sem Atraso Direito
+                        BreakToLine;
+                        WriteBand(qryParcelas.Fields);
+                     end else
+                     if EmAberto[2] <> '' then begin
+                        BandString := EmAberto[2];    //--- Em Aberto Direito
+                        BreakToLine;
+                        WriteBand(qryParcelas.Fields);
+                     end;
+
+                     qryParcelas.Prior;
+                     if Juros[1] <> '' then begin
+                        BandString := Juros[1];    //--- Juros Esquerdo
+                        BreakToLine;
+                        WriteBand(qryParcelas.Fields);
+                     end;
+                     qryParcelas.Next;
+                     if Juros[2] <> '' then begin
+                        if Juros[1] = '' then
+                           Juros[2] := '<sp>(74L)</sp>' + Juros[2];
+
+                        BandString := Juros[2];    //--- Juros Direito
+                        BreakToLine;
+                        WriteBand(qryParcelas.Fields);
+                     end;
+
+                     //--------------------------------------------------------------------
+                     qryParcelas.Prior;
+                     if TotalAtraso[1] <> '' then begin
+                        BandString := TotalAtraso[1];    //--- Total Com Atraso Esquerdo
+                        BreakToLine;
+                        WriteBand(qryParcelas.Fields);
+                     end else
+                     if TotalSemAtraso[1] <> '' then begin
+                        BandString := TotalSemAtraso[1];    //--- Total Sem Atraso Esquerdo
+                        BreakToLine;
+                        WriteBand(qryParcelas.Fields);
+                     end;
+
+                     qryParcelas.Next;
+                     if TotalAtraso[2] <> '' then begin
+                        if (TotalAtraso[1] = '') and (TotalSemAtraso[1] = '') then
+                           TotalAtraso[2] := '<sp>(69L)</sp>' + TotalAtraso[2];
+
+                        BandString := TotalAtraso[2];    //--- Total Com Atraso Direito
+                        BreakToLine;
+                        WriteBand(qryParcelas.Fields);
+                     end else
+                     if TotalSemAtraso[2] <> '' then begin
+                        if (TotalSemAtraso[1] = '') and (TotalAtraso[1] = '')  then
+                           TotalSemAtraso[2] := '<sp>(69L)</sp>' + TotalSemAtraso[2];
+
+                        BandString := TotalSemAtraso[2];    //--- Total Sem Atraso Direito
+                        BreakToLine;
+                        WriteBand(qryParcelas.Fields);
+                     end;
+
+                     //--------------------------------------------------------------------
+                     qryParcelas.Prior;
+                     if Rodape[1] <> '' then begin
+                        BandString := Rodape[1];    //--- Rodape Esquerdo (nome cliente abaixo)
+                        BreakToLine;
+                        WriteBand(qryParcelas.Fields);
+                     end;
+                     qryParcelas.Next;
+                     if Rodape[2] <> '' then begin
+                        BandString := Rodape[2];    //--- Rodape Diereito (nome cliente abaixo)
+                        BreakToLine;
+                        WriteBand(qryParcelas.Fields);
+                     end;
+
+    (*               BandString := qryModeloCarneLinha14.AsString;   //-- Salto de página
+                     BreakToLine;
+                     WriteBand(qryParcelas.Fields);
+    *)
+                     {$IFDEF LINUX}
+                       FormFeedCarneLinux;
+                     {$ELSE}
+                       FormFeed;
+                     {$ENDIF}
+
+                     FillChar(Cabecalho,SizeOf(Cabecalho),0);
+                     FillChar(NOme,SizeOf(Nome),0);
+                     FillChar(ComAtraso,SizeOf(ComAtraso),0);
+                     FillChar(SemAtraso,SizeOf(SemAtraso),0);
+                     FillChar(EmAberto,SizeOf(EmAberto),0);
+                     FillChar(Juros,SizeOf(Juros),0);
+                     FillChar(TotalAtraso,SizeOf(TotalAtraso),0);
+                     FillChar(TotalSemAtraso,SizeOf(TotalSemAtraso),0);
+                     FillChar(Rodape,SizeOf(Rodape),0);
+                  end;
+                  Esquerdo:= not Esquerdo;
+                  qryParcelas.Next;
+                end;
+             end;
+
+             if not Esquerdo then begin
+                if Cabecalho[1] <> '' then begin
+                   BandString := Cabecalho[1];    //--- Cabecalho Esquerdo
+                   BreakToLine;
+                   WriteBand(qryParcelas.Fields);
+                end;
+                if Nome[1] <> '' then begin
+                   BandString := Nome[1];    //--- Linha01 Esquerdo (nome)
+                   BreakToLine;
+                   WriteBand(qryParcelas.Fields);
+                end;
+                if ComAtraso[1] <> '' then begin
+                   BandString := ComAtraso[1];    //--- Com Atraso Esquerdo
+                   BreakToLine;
+                   WriteBand(qryParcelas.Fields);
+                end;
+                if SemAtraso[1] <> '' then begin
+                   BandString := SemAtraso[1];    //--- Com Sem Atraso Esquerdo
+                   BreakToLine;
+                   WriteBand(qryParcelas.Fields);
+                end;
+                if EmAberto[1] <> '' then begin
+                   BandString := EmAberto[1];    //--- Em Aberto Esquerdo
+                   BreakToLine;
+                   WriteBand(qryParcelas.Fields);
+                end;
+                if Juros[1] <> '' then begin
+                   BandString := Juros[1];    //--- Juros Esquerdo
+                   BreakToLine;
+                   WriteBand(qryParcelas.Fields);
+                end;
+                if TotalAtraso[1] <> '' then begin
+                   BandString := TotalAtraso[1];    //--- Total Atraso Esquerdo
+                   BreakToLine;
+                   WriteBand(qryParcelas.Fields);
+                end;
+                if TotalSemAtraso[1] <> '' then begin
+                   BandString := TotalSemAtraso[1];    //--- Total Sem Atraso Esquerdo
+                   BreakToLine;
+                   WriteBand(qryParcelas.Fields);
+                end;
+                if Rodape[1] <> '' then begin
+                   BandString := Rodape[1];    //--- Rodape Esquerdo (nome cliente abaixo)
+                   BreakToLine;
+                   WriteBand(qryParcelas.Fields);
+                end;
+
+         (*       BandString := qryModeloCarneLinha14.AsString;
+                BreakToLine;
+                WriteBand(qryParcelas.Fields); *)
+
+               {$IFDEF LINUX}
+                 FormFeedCarneLinux;
+               {$ELSE}
+                 FormFeed;
+               {$ENDIF}
+             end;
+             FillChar(Cabecalho,SizeOf(Cabecalho),0);
+             FillChar(NOme,SizeOf(Nome),0);
+             FillChar(ComAtraso,SizeOf(ComAtraso),0);
+             FillChar(SemAtraso,SizeOf(SemAtraso),0);
+             FillChar(EmAberto,SizeOf(EmAberto),0);
+             FillChar(Juros,SizeOf(Juros),0);
+             FillChar(TotalAtraso,SizeOf(TotalAtraso),0);
+             FillChar(TotalSemAtraso,SizeOf(TotalSemAtraso),0);
+             FillChar(Rodape,SizeOf(Rodape),0);
+        end;
+        if IniciarFinalizarDocumento then
+          EndDoc('TecLUX - Carnê');
+      end;
+    end;
+  except
+    result := false;
+  end;
+end;
+
+procedure TdtmImprimeCarne.ValorExtenso(Valor: Real);
+begin
+  Extenso(Valor,$92,'REAL','REAIS','CENTAVO','CENTAVOS','*', LinhaE);
+  qryParcelasvalorextenso1.AsString := LinhaE.ExtLinha[1];
+  qryParcelasvalorextenso2.AsString := LinhaE.ExtLinha[2];
+  qryParcelasvalorextenso3.AsString := LinhaE.ExtLinha[3];
+  qryParcelasvalorextenso4.AsString := LinhaE.ExtLinha[4];
+end;
+
+function TdtmImprimeCarne.ImprimirCarneECF: Boolean;
+var
+ titulo, valoresparcelas, textolivre, nomecliente, rg_cpf, vendedor, cidade_data, cod_con_data,
+ cod_con_data2, demonstracao, ultimaparcelapaga, codigobarras: String;
+ a: Integer;
+ sair:boolean;
+
+begin
+  if not ErroECF then
+  begin
+    titulo := qryParcelasrazaocarne.AsString;
+    nomecliente := 'CLIENTE: ' + qryParcelasECFnome.AsString{ + #13#10};
+    rg_cpf := 'CPF: ' + qryParcelasECFpessoanumero.AsString{ + #13#10};
+    Vendedor := 'VENDEDOR: ' + qryParcelasECFvendedor.AsString{ + #13#10};
+    cidade_data := CidadeFilialBase + ', ' + DataExtenso(DataServidor){ + #13#10};
+    cod_con_data := 'CÓD.CLIENTE        CONTRATO        DATA COMPRA'{ + #13#10};
+    cod_con_data2 := Format('%-11s', [qryParcelasECFcliente.AsString])  +
+                     Format('%16s', [qryParcelasECFcontrato.AsString]) + '         ' +
+                     preencheString(FormatDateTime('dd/mm/yyyy',qryParcelasECFdata.AsDateTime), ' ', 11) + #13#10{#13#10};
+    qryParcelasECF.First;
+    ultimaparcelapaga := '';
+    codigobarras := '';
+    while not qryParcelasECF.Eof do
+    begin
+      if qryParcelasECFdatapagto.AsString = ' ' then
+        break
+      else
+        ultimaparcelapaga := Format('%3.3d', [qryParcelasECFnumero.AsInteger]) + ' ' +
+                             Format('%8s',[qryParcelasECFdatapagto.AsString]) + ' ' +
+                             Format('%8s',[trim(Trocar(Trocar(Format('%8.2m',[qryParcelasECFvalorvencto.AsFloat]),'R',''),'$',''))]) +  '  ' +
+                             Format('%7s',[trim(Trocar(Trocar(Format('%7.2m',[qryParcelasECFacrescimo.AsFloat]),'R',''),'$',''))]) +  '  ' +
+                             Format('%5s',[trim(Trocar(Trocar(Format('%5.2m',[qryParcelasECFdesconto.AsFloat]),'R',''),'$',''))]) +  '  ' +
+                             Format('%7s',[trim(Trocar(Trocar(Format('%7.2m',[qryParcelasECFvalorpagto.AsFloat]),'R',''),'$',''))]) + #13#10#13#10;
+      qryParcelasECF.Next;
+    end;
+    qryParcelasECF.First;
+    while not qryParcelasECF.Eof do
+    begin
+      if qryParcelasECFdatapagto.AsString = ' ' then
+      begin
+        codigobarras := qryParcelasECFcontrato.AsString + Format('%3.3d', [qryParcelasECFnumero.AsInteger]);
+        break;
+      end;
+      qryParcelasECF.Next;
+    end;
+    if ultimaparcelapaga <> '' then
+      demonstracao := 'DEMONSTRATIVO DO ÚLTIMO PAGTO DESSE CONTRATO' + #13#10 +
+                      'PAR DT.PAGTO VL.PARC.  ACRÉSC.  DESC.  VL.PAGO'{ + #13#10}
+    else
+      demonstracao := '';
+
+    textolivre := '              VENCIMENTOS DO CARNÊ' + #13#10 +
+                  'PAR   DT.VENCTO   PARCELA   DT.PAGTO    SITUAÇÃO';
+
+    Sair := True;
+    valoresparcelas := '';
+    try
+      try
+        if not ECFPadrao.Erro then
+        begin
+          repeat
+            a := 0;
+            qryParcelasECF.First;
+            while not qryParcelasECF.Eof do
+            begin
+              Inc(a);
+              if a mod 10 = 0 then
+              begin
+                valoresparcelas := valoresparcelas + Format('%-7.3d', [qryParcelasECFnumero.AsInteger]) +// '    ' +
+                         preencheString(FormatDateTime('dd/mm/yy',qryParcelasECFdatavencto.AsDateTime), ' ', 8) + '   ' +
+                         Format('%7s',[trim(Trocar(Trocar(Format('%7.2m',[qryParcelasECFvalorvencto.AsFloat]),'R',''),'$',''))]) +//  '   ' +
+                         Format('%11s',[qryParcelasECFdatapagto.AsString]) +// '     ' +
+                         Format('%10s',[qryParcelasECFsituacao.AsString]);// + #13#10;
+                ECFPadrao.RelatorioGerencial([valoresparcelas],1);
+                valoresparcelas := '';
+              end
+              else
+              begin
+                valoresparcelas := valoresparcelas + Format('%-7.3d', [qryParcelasECFnumero.AsInteger]) +// '    ' +
+                         preencheString(FormatDateTime('dd/mm/yy',qryParcelasECFdatavencto.AsDateTime), ' ', 8) + '   ' +
+                         Format('%7s',[trim(Trocar(Trocar(Format('%7.2m',[qryParcelasECFvalorvencto.AsFloat]),'R',''),'$',''))]) +//  '   ' +
+                         Format('%11s',[qryParcelasECFdatapagto.AsString]) +// '     ' +
+                         Format('%10s',[qryParcelasECFsituacao.AsString]) + #13#10;
+              end;
+              qryParcelasECF.Next;
+            end;
+            if (not ECFPadrao.Erro) and (valoresparcelas <> '') then
+            begin
+              ECFPadrao.RelatorioGerencial([titulo, nomecliente, rg_cpf, vendedor,cidade_data, cod_con_data, cod_con_data2,demonstracao,ultimaparcelapaga,textolivre,valoresparcelas],1);
+//              ECFPadrao.RelatorioGerencial([textolivre,valoresparcelas],1);
+              valoresparcelas := '';
+            end;
+            if ECFPadrao.Erro then
+              Sair := biblio.MensagemConfirmacao(ECFPadrao.Mensagem + #13#10 + ctTEFIMPRIMIRNOVAMENTE) <> smbOK;
+          until Sair or (Not ECFPadrao.Erro);
+        end;
+        if (not ECFPadrao.Erro) and (codigobarras <> '') then
+        begin
+          repeat
+            ECFPadrao.CodigoBarrasEAN13MFD(codigobarras);
+            if ECFPadrao.Erro then
+              Sair := biblio.MensagemConfirmacao(ECFPadrao.Mensagem + #13#10 + ctTEFIMPRIMIRNOVAMENTE) <> smbOK;
+          until Sair or (Not ECFPadrao.Erro);
+        end
+      except
+        raise;
+      end;
+    finally
+      ECFPadrao.FecharRelatorioGerencial;
+      Result := Sair;
+    end;
+  end
+  else
+    Result := false;
+end;
+
+function TdtmImprimeCarne.ObterParcelasECF(Contrato: String): Boolean;
+begin
+  ReFazConsulta(qryParcelasECF,[0],[Contrato]);
+  Result := qryParcelasECF.RecordCount >= 1;
+  if not Result then
+    MensagemErro('Ocorreram problemas durante a impressão do carnê!'+ #13#10 +
+                 'Entre em contato com o suporte.')
+end;
+
+
+procedure TdtmImprimeCarne.ValidarParcelasimpressao(Contrato: String;
+  Numero, Pos: Integer);
+begin
+  ReFazConsulta(qryParcelas, [0], [Contrato]);
+  qryParcelas.First;
+end;
+
+
+
+
+procedure TdtmImprimeCarne.AtribuirPercentualAtrasoJuros;
+begin
+  qryParcelas.First;
+  while not qryParcelas.Eof do begin
+    qryParcelas.Edit;
+    qryParcelasjurosmora.AsFloat := StrToFloat(Format('%5.2f',[ParSistema.PercentualAtrasoJuros1/30]));
+    ValorExtenso(qryParcelasvalorvencto.AsFloat);
+    qryParcelas.Post;
+    qryParcelas.Next;
+  end;
+
+end;
+
+function TdtmImprimeCarne.AbrirModeloCarne: Boolean;
+begin
+  result := true;
+  ReFazConsulta(qryModeloCarne,   [0],[ParSistema.ModeloCarne]);
+  if qryModeloCarne.IsEmpty then
+  begin
+     MensagemAviso(ctMODELOCARNENAODEFINIDO);
+     Result := False;
+  end
+  else
+    DefinirTamanhoExtenso;
+end;
+
+procedure TdtmImprimeCarne.InicializarDocumento;
+begin
+  TextPrinter.BeginDoc(qryModeloCarneconfigurar.AsString);
+end;
+
+procedure TdtmImprimeCarne.FinalizarDocumento;
+begin
+  TextPrinter.EndDoc('TecLUX - Carnê');
+end;
+
+procedure TdtmImprimeCarne.qryParcelasCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  qryParcelasnumeroparcelaletra.AsString := chr(qryParcelasnumeroparcela.AsInteger+64);
+end;
+
+procedure TdtmImprimeCarne.DefinirTamanhoExtenso;
+var
+  i: integer;
+  TamLinha: String;
+
+begin
+  for i:=1 to 4 do
+  begin
+    TamLinha := somentenumero(copy(qryModeloCarnecabecalho.AsString,
+                            pos('fvalorextenso'+inttostr(i),qryModeloCarnecabecalho.AsString)+15,
+                            10));
+    if PossuiNumero(TamLInha) then
+      LinhaE.ExtTamLinha[i]:= strtoint(TamLinha)
+    else
+      LinhaE.ExtTamLinha[i]:= 45;
+  end;
+  {
+  qryParcelasvalorextenso1.Size := LinhaE.ExtTamLinha[1];
+  qryParcelasvalorextenso2.Size := LinhaE.ExtTamLinha[2];
+  qryParcelasvalorextenso3.Size := LinhaE.ExtTamLinha[3];
+  qryParcelasvalorextenso4.Size := LinhaE.ExtTamLinha[4];
+  }
+
+  qryParcelasvalorextenso1.DisplayWidth := LinhaE.ExtTamLinha[1];
+  qryParcelasvalorextenso2.DisplayWidth := LinhaE.ExtTamLinha[2];
+  qryParcelasvalorextenso3.DisplayWidth := LinhaE.ExtTamLinha[3];
+  qryParcelasvalorextenso4.DisplayWidth := LinhaE.ExtTamLinha[4];
+
+end;
+
+end.

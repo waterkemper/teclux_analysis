@@ -1,0 +1,126 @@
+unit fmcadastroadicoes;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmcadastropadraonavegacao, ComCtrls, Buttons, ExtCtrls,
+  frconsulta, frconsultacodigo, cpnumero, DBCtrls, cpdbtext, Mask, ToolWin,
+  dmcadastronotasfiscais;
+
+type
+  TfrmCadastroAdicoes = class(TfrmCadastroPadraoNav)
+    gbxFabricanteAdicao: TGroupBox;
+    fraConsultaCodigoFabricante: TfraConsultaCodigo;
+    gbxNumeroAdicao: TGroupBox;
+    gbxMercadoria: TGroupBox;
+    edtMercadoria: TDBEditNumero;
+    gbxPIS: TGroupBox;
+    edtPIS: TDBEditNumero;
+    gbxCOFINS: TGroupBox;
+    edtCOFINS: TDBEditNumero;
+    gbxSISCOMEX: TGroupBox;
+    edtSISCOMEX: TDBEditNumero;
+    gbxBaseICMS: TGroupBox;
+    edtBaseICMS: TDBEditNumero;
+    gbxValorICMS: TGroupBox;
+    edtValorICMS: TDBEditNumero;
+    gbxFrete: TGroupBox;
+    edtFrete: TDBEditNumero;
+    gbxEmbalagem: TGroupBox;
+    edtEmbalagem: TDBEditNumero;
+    gbxTHC: TGroupBox;
+    edtTHC: TDBEditNumero;
+    gbxII: TGroupBox;
+    edtII: TDBEditNumero;
+    gbxIPI: TGroupBox;
+    edtIPI: TDBEditNumero;
+    dtxNumeroAdicao: TtecDBText;
+    gbxAliquotaICMS: TGroupBox;
+    DBEditNumero1: TDBEditNumero;
+  private
+    { Private declarations }
+    procedure  SetDataModulo (Dtm: TdtmCadastroNotasFiscais);
+  protected
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    function  InternoIncluir: Boolean; override;
+  public
+    constructor Create(AOwner: TComponent; dtm: TdtmCadastroNotasFiscais);  reintroduce;
+    destructor Destroy; override;
+
+    { Public declarations }
+  end;
+
+var
+  frmCadastroAdicoes: TfrmCadastroAdicoes;
+
+implementation
+  uses ctconstantes;
+{$R *.dfm}
+
+{ TfrmCadastroAdicoes }
+
+constructor TfrmCadastroAdicoes.Create(AOwner: TComponent; dtm: TdtmCadastroNotasFiscais);
+begin
+  inherited create(AOwner);
+  SetDataModulo(dtm);
+
+  fraConsultaCodigoFabricante.TipoCliente     := 'F';
+  fraConsultaCodigoFabricante.Tipovfornecedor := 'F';
+  fraConsultaCodigoFabricante.TipoPesquisa    := pesFORNECEDORES;
+end;
+
+destructor TfrmCadastroAdicoes.Destroy;
+begin
+  inherited;
+  frmCadastroAdicoes := nil;
+end;
+
+function TfrmCadastroAdicoes.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then
+    dtmCadastroNotasFiscais.ExcluirAdicao;
+end;
+
+function TfrmCadastroAdicoes.InternoGravar: Boolean;
+begin
+  Result := inherited InternoGravar;
+  if Result then
+    dtmCadastroNotasFiscais.GravarAdicao;
+end;
+
+function TfrmCadastroAdicoes.InternoIncluir: Boolean;
+begin
+  Result := inherited InternoIncluir;
+  if Result then
+  begin
+    dtmCadastroNotasFiscais.IncluirAdicao(False);
+    fraConsultaCodigoFabricante.edfCodigo.Exist;
+    edtMercadoria.SetFocus;
+  end;
+end;
+
+procedure TfrmCadastroAdicoes.SetDataModulo(Dtm: TdtmCadastroNotasFiscais);
+begin
+  dtmCadastroNotasFiscais := Dtm;
+
+  fraConsultaCodigoFabricante.edfCodigo.DataSource := dtmCadastroNotasFiscais.dsrAdicoesImportacao;
+  dtxNumeroAdicao.DataSource := dtmCadastroNotasFiscais.dsrAdicoesImportacao;
+  edtMercadoria.DataSource := dtmCadastroNotasFiscais.dsrAdicoesImportacao;
+  edtPIS.DataSource := dtmCadastroNotasFiscais.dsrAdicoesImportacao;
+  edtCOFINS.DataSource := dtmCadastroNotasFiscais.dsrAdicoesImportacao;
+  edtSISCOMEX.DataSource := dtmCadastroNotasFiscais.dsrAdicoesImportacao;
+  edtBaseICMS.DataSource := dtmCadastroNotasFiscais.dsrAdicoesImportacao;
+  edtValorICMS.DataSource := dtmCadastroNotasFiscais.dsrAdicoesImportacao;
+  edtFrete.DataSource := dtmCadastroNotasFiscais.dsrAdicoesImportacao;
+  edtEmbalagem.DataSource := dtmCadastroNotasFiscais.dsrAdicoesImportacao;
+  edtTHC.DataSource := dtmCadastroNotasFiscais.dsrAdicoesImportacao;
+  edtII.DataSource := dtmCadastroNotasFiscais.dsrAdicoesImportacao;
+  edtIPI.DataSource := dtmCadastroNotasFiscais.dsrAdicoesImportacao;
+  DBEditNumero1.DataSource := dtmCadastroNotasFiscais.dsrAdicoesImportacao;
+
+end;
+
+end.

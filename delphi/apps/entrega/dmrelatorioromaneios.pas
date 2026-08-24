@@ -5,7 +5,7 @@ interface
 uses
   SysUtils, Classes, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery,
   cpdatasource, ctconstantes, FR_DSet, FR_DBSet, FR_Class, biblio,
-  clparametrossistema, fmpreviewpadrao, ZTransact;
+  clparametrossistema, fmpreviewpadrao, ZTransact, frx2xto30, frxClass;
 
 type
   Tdtmrelatorioromaneios = class(TdtmBasico)
@@ -30,6 +30,7 @@ type
     qryRomaneiosvalorentregue: TFloatField;
     qryRomaneiosvaloraentregar: TFloatField;
     qryRomaneiosvalorvencimento: TFloatField;
+    frxReport1: TfrxReport;
     procedure frpRomaneiosBeforePrint(Memo: TStringList; View: TfrView);
     procedure qryRomaneiosCalcFields(DataSet: TDataSet);
 
@@ -139,6 +140,8 @@ begin
    Relatorio := frmPreview.frCompositeReport;
    frmPreview.frCompositeReport.Reports.Clear;
 //   frpRomaneios.DesignReport;
+//   frxReport1.DesignReport;
+
    frmPreview.frCompositeReport.Reports.Add(frpRomaneios);
    Relatorio.Preview := frmPreview.frPreviewPadrao;
    Relatorio.ShowReport;

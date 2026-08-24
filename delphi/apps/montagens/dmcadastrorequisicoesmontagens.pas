@@ -5,7 +5,7 @@ interface
 uses
   SysUtils, Classes, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery, dmtecsoft,
   cpdatasource, ctconstantes, biblio, Forms, FR_DSet, FR_DBSet, FR_Class,
-  FR_E_HTM, FR_E_CSV, FR_E_TXT, FR_E_RTF,
+  FR_E_HTM, FR_E_CSV, FR_E_TXT, FR_E_RTF, frx2xto30, frxClass,
   clparametrossistema,
   fmpreviewpadrao, ZTransact;
 
@@ -268,6 +268,7 @@ type
     qryConsultaRequisicoesnomecliente: TStringField;
     qryRequisicoesendnumero: TIntegerField;
     qryRequisicoesendcomplemento: TStringField;
+    frxReport1: TfrxReport;
     procedure qryRequisicoesAfterOpen(DataSet: TDataSet);
     procedure dsrRequisicoesItensDataChange(Sender: TObject;
       Field: TField);
@@ -1396,7 +1397,10 @@ begin
   frVariables['Fone']  := FoneFilialBase;
   frVariables['Outras']:= RazaoFilialBase;
   frVariables['titulo']:='REQUISIÇÃO DE MONTAGEM';
-//  frpRequisicao.DesignReport;
+  frpRequisicao.DesignReport;
+  frxReport1.DesignReport;
+
+
   frmPreview := TfrmPreviewPadrao.create(self);
   try
    Relatorio := frmPreview.frCompositeReport;

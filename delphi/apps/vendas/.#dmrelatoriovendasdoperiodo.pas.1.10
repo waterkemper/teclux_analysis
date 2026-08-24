@@ -1,0 +1,2841 @@
+unit dmrelatoriovendasdoperiodo;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery, CheckLst,
+  cpdatasource, ctconstantes, dmtecsoft, FR_DSet, FR_DBSet, FR_Class, biblio,
+  clparametrossistema, fmpreviewpadrao, FR_Desgn, StdCtrls, Variants, Graphics,
+  ZTransact;
+
+
+type
+  Tdtmrelatoriovendasdoperiodo = class(TdtmBasico)
+    frpImprimirVendas: TfrReport;
+    fdsImprimirContratos: TfrDBDataSet;
+    frpImprimirVendasResumo: TfrReport;
+    qryAgentes: TtecQuery;
+    qryConceitos: TtecQuery;
+    qryAgentescodigo: TIntegerField;
+    qryAgentesdescricao: TStringField;
+    qryConceitoscodigo: TIntegerField;
+    qryConceitosdescricao: TStringField;
+    qryImprimirNotasCupons: TtecQuery;
+    fdsImprimirNotasCupons: TfrDBDataSet;
+    frpImprimirNotasCupons: TfrReport;
+    frpImprimirNotasCuponsResumo: TfrReport;
+    qryImprimirContratos: TtecQuery;
+    fdsImprimirDadosFiscais: TfrDBDataSet;
+    dsrImprimirContratos: TtecDataSource;
+    qryClienteInicial: TtecQuery;
+    dsrClienteInicial: TtecDataSource;
+    qryConsultaClientes: TtecQuery;
+    qryClienteInicialcodigo: TIntegerField;
+    qryClienteInicialnome: TStringField;
+    qryClienteInicialtipo: TStringField;
+    qryConsultaClientesnome: TStringField;
+    qryConsultaClientescodigo: TIntegerField;
+    qryConsultaClientespessoanumero: TStringField;
+    qryConsultaClientestipo: TStringField;
+    qryConsultaClientestipoorig: TStringField;
+    qryConsultaClientesnomecidade: TStringField;
+    qryConsultaClientesestado: TStringField;
+    qryClienteFinal: TtecQuery;
+    dsrClienteFinal: TtecDataSource;
+    qryClienteFinalcodigo: TIntegerField;
+    qryClienteFinalnome: TStringField;
+    qryClienteFinaltipo: TStringField;
+    qryImprimirContratosncontrato: TStringField;
+    qryImprimirContratosfilialvenda: TIntegerField;
+    qryImprimirContratosnomefilialvenda: TStringField;
+    qryImprimirContratosgrupofilialvenda: TIntegerField;
+    qryImprimirContratosnomegrupofilialvenda: TStringField;
+    qryImprimirContratoscliente: TIntegerField;
+    qryImprimirContratostipocliente: TStringField;
+    qryImprimirContratosnomecliente: TStringField;
+    qryImprimirContratosdatavenda: TDateField;
+    qryImprimirContratosvalorvista: TFloatField;
+    qryImprimirContratosvalortotal: TFloatField;
+    qryImprimirContratosvendamercadorias: TFloatField;
+    qryImprimirContratosvendaservicos: TFloatField;
+    qryImprimirContratosentradas: TFloatField;
+    qryImprimirContratosqtparcelas: TIntegerField;
+    qryImprimirContratosavista: TFloatField;
+    qryImprimirContratosaprazo: TFloatField;
+    qryImprimirContratosefinanceiro: TFloatField;
+    qryImprimirContratostipo: TStringField;
+    qryNotasVendas: TtecQuery;
+    qryNotasDevolucoes: TtecQuery;
+    qryImprimirNotasCuponsncontrato: TStringField;
+    qryImprimirNotasCuponsfilialvenda: TIntegerField;
+    qryImprimirNotasCuponsnomefilialvenda: TStringField;
+    qryImprimirNotasCuponsgrupofilialvenda: TIntegerField;
+    qryImprimirNotasCuponsnomegrupofilialvenda: TStringField;
+    qryImprimirNotasCuponscliente: TIntegerField;
+    qryImprimirNotasCuponstipocliente: TStringField;
+    qryImprimirNotasCuponsnomecliente: TStringField;
+    qryImprimirNotasCuponsdatavenda: TDateField;
+    qryImprimirNotasCuponsvalorvista: TFloatField;
+    qryImprimirNotasCuponsvalorfrete: TFloatField;
+    qryImprimirNotasCuponsseguro: TFloatField;
+    qryImprimirNotasCuponsdespesasacessorias: TFloatField;
+    qryImprimirNotasCuponsvalortotal: TFloatField;
+    qryImprimirNotasCuponsvendamercadorias: TFloatField;
+    qryImprimirNotasCuponsvendaservicos: TFloatField;
+    qryImprimirNotasCuponsoutras: TFloatField;
+    qryImprimirNotasCuponsefinanceiro: TFloatField;
+    qryImprimirNotasCuponsserie: TStringField;
+    qryImprimirNotasCuponsnotafiscal: TIntegerField;
+    qryImprimirNotasCuponsmaquina: TIntegerField;
+    qryImprimirNotasCuponsintervensao: TIntegerField;
+    qryImprimirNotasCuponscupomfiscal: TIntegerField;
+    qryImprimirNotasCuponstipo: TStringField;
+    qryContratosVendas: TtecQuery;
+    qryContratosDevolucoes: TtecQuery;
+    qryImprimirDadosFiscais: TtecQuery;
+    qryGravarContratos: TtecQuery;
+    qryGravarContratosAux: TtecQuery;
+    qryDropTable: TtecQuery;
+    qryContratosDevNumerario: TtecQuery;
+    qryTotalizacao: TtecQuery;
+    qryTotalizacaogrupofilial: TIntegerField;
+    qryTotalizacaofilial: TIntegerField;
+    qryTotalizacaotregistros_v: TIntegerField;
+    qryTotalizacaotregistros_c: TIntegerField;
+    qryTotalizacaotmercadorias_v: TFloatField;
+    qryTotalizacaotmercadorias_c: TFloatField;
+    qryTotalizacaotservicos_v: TFloatField;
+    qryTotalizacaotservicos_c: TFloatField;
+    qryTotalizacaotvlrpresente_v: TFloatField;
+    qryTotalizacaotvlrpresente_c: TFloatField;
+    qryTotalizacaotefinanc_v: TFloatField;
+    qryTotalizacaotefinanc_c: TFloatField;
+    qryTotalizacaotvalortotal_v: TFloatField;
+    qryTotalizacaotvalortotal_c: TFloatField;
+    qryTotalizacaotrecebido_v: TFloatField;
+    qryTotalizacaotrecebido_c: TFloatField;
+    qryTotalizacaotaprazo_v: TFloatField;
+    qryTotalizacaotaprazo_c: TFloatField;
+    qryTotalizacaotavista_v: TFloatField;
+    qryTotalizacaotavista_c: TFloatField;
+    qryTotalizacaotentradas_v: TFloatField;
+    qryTotalizacaotentradas_c: TFloatField;
+    qryImprimirContratostotalizado: TBooleanField;
+    qryImprimirDadosFiscaiscontrato: TStringField;
+    qryImprimirDadosFiscaisserie: TStringField;
+    qryImprimirDadosFiscaisnumeronf: TIntegerField;
+    qryImprimirDadosFiscaismaquina: TIntegerField;
+    qryImprimirDadosFiscaisintervensao: TIntegerField;
+    qryImprimirDadosFiscaisnumerocupom: TIntegerField;
+    qryImprimirDadosFiscaistipo: TStringField;
+    qryImprimirNotasCuponstotalizado: TBooleanField;
+    qryTotalizacaoNotas: TtecQuery;
+    qryTotalizacaoNotasgrupofilial: TIntegerField;
+    qryTotalizacaoNotasfilial: TIntegerField;
+    qryTotalizacaoNotastregistros_v: TIntegerField;
+    qryTotalizacaoNotastregistros_c: TIntegerField;
+    qryTotalizacaoNotastvendamercadorias_v: TFloatField;
+    qryTotalizacaoNotastvendamercadorias_c: TFloatField;
+    qryTotalizacaoNotastvendaservicos_v: TFloatField;
+    qryTotalizacaoNotastvendaservicos_c: TFloatField;
+    qryTotalizacaoNotastvalorvista_v: TFloatField;
+    qryTotalizacaoNotastvalorvista_c: TFloatField;
+    qryTotalizacaoNotastoutras_v: TFloatField;
+    qryTotalizacaoNotastoutras_c: TFloatField;
+    qryTotalizacaoNotastefinanceiro_v: TFloatField;
+    qryTotalizacaoNotastefinanceiro_c: TFloatField;
+    qryTotalizacaoNotastvalortotal_v: TFloatField;
+    qryTotalizacaoNotastvalortotal_c: TFloatField;
+    qryTotalizacaojatotalizado: TStringField;
+    qryTotalizacaoNotasjatotalizado: TStringField;
+    qryImprimirContratosfrete_seguro: TFloatField;
+    qryTotalizacaotfrete_seguro_v: TFloatField;
+    qryTotalizacaotfrete_seguro_c: TFloatField;
+    qryImprimirContratosResumoVendas: TtecQuery;
+    qryImprimirContratosVendas: TtecQuery;
+    qryImprimirContratostregistros: TIntegerField;
+    qryImprimirNotasCuponsResumo: TtecQuery;
+    qryImprimirNotasCuponstregistros: TIntegerField;
+    qryImprimirContratoscontratoavista: TBooleanField;
+    qryImprimirContratosNVendaDevolucao: TStringField;
+    qryTotalizacaovendasdevolucoes: TStringField;
+    qryImprimirNotasCuponscontratoavista: TBooleanField;
+    qryImprimirNotasCuponsNVendaDevolucao: TStringField;
+    qryTotalizacaoNotasvendasdevolucoes: TStringField;
+    qryImprimirContratoscreditotroca: TFloatField;
+    qryTotalizacaotcreditooudebito_v: TFloatField;
+    qryTotalizacaotcreditooudebito_c: TFloatField;
+    qryImprimirContratosdesconto: TFloatField;
+    qryTotalizacaotdesconto_v: TFloatField;
+    qryTotalizacaotdesconto_c: TFloatField;
+    qryImprimirNotasCuponsdesconto: TFloatField;
+    qryTotalizacaoNotastdesconto_v: TFloatField;
+    qryTotalizacaoNotastdesconto_c: TFloatField;
+    qryImprimirContratostipoa: TStringField;
+    qryImprimirNotasCuponstipoa: TStringField;
+    qryTotalizacaoNotasdata: TStringField;
+    qryTotalizacaodata: TStringField;
+    qryImprimirContratosValoricmssubstituicao: TCurrencyField;
+    qryTotalizacaotvaloricmssubstituicao_v: TFloatField;
+    qryTotalizacaotvaloricmssubstituicao_c: TFloatField;
+    qryImprimirNotasCuponsvaloricmssubstituicao: TFloatField;
+    qryTotalizacaoNotastvaloricmssubstituicao_v: TFloatField;
+    qryTotalizacaoNotastvaloricmssubstituicao_c: TFloatField;
+    ZMonitor1: TZMonitor;
+    procedure frpImprimirVendasBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure qryImprimirNotasCuponsCalcFields(DataSet: TDataSet);
+    procedure qryImprimirContratosAfterScroll(DataSet: TDataSet);
+    procedure frpImprimirVendasBeginDoc;
+    procedure frpImprimirVendasEndDoc;
+    procedure frpImprimirVendasGetValue(const ParName: String;
+      var ParValue: Variant);
+    procedure frpImprimirVendasBeginBand(Band: TfrBand);
+    procedure frpImprimirNotasCuponsGetValue(const ParName: String;
+      var ParValue: Variant);
+    procedure qryImprimirNotasCuponsAfterScroll(DataSet: TDataSet);
+    procedure qryImprimirContratosCalcFields(DataSet: TDataSet);
+    procedure frpImprimirNotasCuponsBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure ZMonitor2MonitorEvent(Sql, Result: String);
+  private
+    FBandaImpressa: String;
+    FTipoAgrupamento: Integer;
+    FDevolucoesPeriodoAnterior: Boolean;
+    FDevolucoesPeriodoSelecionado: Boolean;
+    FSepararVendas: Boolean;
+    FSepararDevolucoes: Boolean;
+    FExibirTotaisVendaseDevolucoes: Boolean;
+    FVendasDevolucoes: String;
+    FFiliais: String;
+    FGrupoFiliais: String;
+    fListadeRegioes: String;
+    fListadeVendedores: String;
+    procedure SetDevolucoesPeriodoAnterior(const Value: Boolean);
+    procedure SetListadeRegioes(const Value: String);
+    procedure SetListadeVendedores(const Value: String);
+  private
+    FImprimindoRelatorio: Boolean;
+    FListaFiliais: TStringList;
+    FListaGruposFiliais: TStringList;
+    FListaAgentes: TStringList;
+    FListaConceitos: TStringList;
+    FDataInicial: String;
+    FDataFinal: String;
+    FResumo: Integer;
+    FParametroCabecalho: String;
+    FAgruparFilial: boolean;
+    FAgruparDataVenda: boolean;
+    FAgruparGrupoFilial: boolean;
+    FVendaaPrazo: Boolean;
+    FVendaaVista: Boolean;
+    FOpcaoRelatorio: Integer;
+    FParametroClienteInicial: String;
+    FParametroClienteFinal: String;
+    FParametroSelecao: Integer;
+    FMaioresVendasdoPeriodo: Boolean;
+    FQuantidadeMaioresVendas: String;
+    FMaioresClientesdoPeriodo: Boolean;
+    FFilial: integer;
+    FGrupoFilial: integer;
+    FData: String;
+    procedure SetAgentes(const Value: String);
+    procedure SetConceitos(const Value: String);
+    procedure SetDataFinal(const Value: String);
+    procedure SetDataInicial(const Value: String);
+    procedure SetFiliais(const Value: String);
+    procedure SetGrupoFiliais(const Value: String);
+    procedure SetResumo(const Value: Integer);
+    function GetListaAgentes: TStrings;
+    function GetListaConceitos: TStrings;
+    procedure SetVendaaPrazo(const Value: Boolean);
+    procedure SetParametroClienteFinal(const Value: String);
+    function GetNomeClienteFinal: String;
+    function GetNomeClienteInicial: String;
+    function GetConsultaClientes: TZDataSet;
+    procedure TotalizarRelatorio;
+    procedure TotalizarRelatorioNotas;
+    function CalcularTotal(Campo:TField): Currency;
+    function CalcularTotalNotas(Campo:TField): Currency;
+
+    property BandaImpressa: String read FBandaImpressa write FBandaImpressa;
+    procedure VerificarAgrupamentoContratos;
+    procedure VerificarAgrupamentoNotas;
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    property ParametroSelecao: Integer read FParametroSelecao write FParametroSelecao;
+    property DataInicial: String read FDataInicial write SetDataInicial;
+    property DataFinal: String read FDataFinal write SetDataFinal;
+    property ParametroClienteInicial: String read FParametroClienteInicial write FParametroClienteInicial;
+    property ParametroClienteFinal: String read FParametroClienteFinal write SetParametroClienteFinal;
+    property Agentes: String write SetAgentes;
+    property Conceitos: String write SetConceitos;
+    property ListadeRegioes: String read fListadeRegioes write SetListadeRegioes;
+    property ListadeVendedores: String read fListadeVendedores write SetListadeVendedores; 
+    property Filiais: String read FFiliais write SetFiliais;
+    property GrupoFiliais: String read FGrupoFiliais write SetGrupoFiliais;
+    procedure ImprimirRelatorio;
+    procedure ApagarTabelaTemporaria;
+    property Resumo: Integer read FResumo write SetResumo;
+    property VendaaVista: Boolean read FVendaaVista write FVendaaVista;
+    property VendaaPrazo: Boolean read FVendaaPrazo write SetVendaaPrazo;
+    property ListaAgentes: TStrings read GetListaAgentes;
+    property ListaConceitos: TStrings read GetListaConceitos;
+    property ParametroCabecalho: String read FParametroCabecalho write FParametroCabecalho;
+    property AgruparGrupoFilial: boolean read FAgruparGrupoFilial write FAgruparGrupoFilial;
+    property AgruparFilial: boolean read FAgruparFilial write FAgruparFilial;
+    property AgruparDataVenda: boolean read FAgruparDataVenda write FAgruparDataVenda;
+    property OpcaoRelatorio: Integer read FOpcaoRelatorio write FOpcaoRelatorio;
+    property TipoAgrupamento: Integer read FTipoAgrupamento write FtipoAgrupamento;
+    property NomeClienteInicial: String read GetNomeClienteInicial;
+    property NomeClienteFinal: String read GetNomeClienteFinal;
+    procedure MontarFiltroAgentes(Usar: TCheckListBox);
+    procedure MontarFiltroConceitos(Usar: TCheckListBox);
+    procedure MontarOrdenacao;
+    procedure AbreTabelaPesquisa(TipoPesquisa: TtecRelatorioVendas);
+    procedure FechaTabelaPesquisa(TipoPesquisa: TtecRelatorioVendas);
+    procedure Selecionar(Pesquisa: TtecRelatorioVendas);
+    function ExisteCliente(NomeCampo: String; Value: Variant): Boolean;
+    property ConsultaClientes: TZDataSet read GetConsultaClientes;
+    procedure AbreConsultaCliente;
+    property MaioresVendasdoPeriodo: Boolean read FMaioresVendasdoPeriodo write FMaioresVendasdoPeriodo;
+    property MaioresClientesdoPeriodo: Boolean read FMaioresClientesdoPeriodo write FMaioresClientesdoPeriodo;
+    property QuantidadeMaioresVendas: String read FQuantidadeMaioresVendas write FQuantidadeMaioresVendas;
+    procedure MontarConsultaImpressao;
+    procedure MontaDatas;
+    function AbrirConsultasRelatorio: boolean;
+    property GrupoFilial: integer read FGrupoFilial write FGrupoFilial;
+    property Filial: integer read FFilial write FFilial;
+    property Data: String read FData write FData;
+    property VendasDevolucoes: String read FVendasDevolucoes write FVendasDevolucoes;
+    property DevolucoesPeriodoSelecionado: Boolean read FDevolucoesPeriodoSelecionado write FDevolucoesPeriodoSelecionado;
+    property DevolucoesPeriodoAnterior: Boolean read FDevolucoesPeriodoAnterior write fDevolucoesPeriodoAnterior;
+    property SepararVendas: Boolean read FSepararVendas write FSepararVendas;
+    property SepararDevolucoes: Boolean read FSepararDevolucoes write FSepararDevolucoes;
+    property ExibirTotaisVendaseDevolucoes: Boolean read FExibirTotaisVendaseDevolucoes write FExibirTotaisVendaseDevolucoes;
+  end;
+
+var
+  dtmrelatoriovendasdoperiodo: Tdtmrelatoriovendasdoperiodo;
+implementation
+
+ // Filtros
+ const
+  FiltroFilial_contratos      = ' AND ( ct.filialvenda IN (%s)) ' +#13#10;
+  FiltroGrupoFilial_contratos = ' AND ( ct.filialvenda IN (SELECT filial '+#13#10+
+                                         'FROM filiaisgruposfiliais fgf '+#13#10+
+                                         'WHERE fgf.grupo IN (%s))) ';
+  FiltroGruposFiliais = ' and gf.codigo in (%s) ';
+
+  FiltroFilial_notas      = ' AND ( df.filialvenda IN (%s)) ' +#13#10;
+  FiltroGrupoFilial_notas = ' AND ( df.filialvenda IN (SELECT filial '+#13#10+
+                                         'FROM filiaisgruposfiliais fgf '+#13#10+
+                                         'WHERE fgf.grupo IN (%s))) ';
+
+  FiltroFilial_devolucoes      = ' AND ( np.filial IN (%s)) ' +#13#10;
+  FiltroGrupoFilial_devolucoes = ' AND ( np.filial IN (SELECT filial '+#13#10+
+                                         'FROM filiaisgruposfiliais fgf '+#13#10+
+                                         'WHERE fgf.grupo IN (%s))) ';
+
+  FiltroConceito    = ' AND ( conceito IN (%s)) ' +#13#10;
+  FiltroAgente      = ' AND ( agente IN (%s)) ' +#13#10;
+
+{$R *.dfm}
+
+{ TdtmRelatorioVendasdoPeriodo }
+
+constructor Tdtmrelatoriovendasdoperiodo.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryClienteInicial.Tag   := ctTabelas;
+  qryClienteFinal.Tag   := ctTabelas;
+  qryConsultaClientes.Tag := ctPesquisaClientes;
+  qryClienteInicial.Params[1].AsString := 'C';
+  qryClienteFinal.Params[1].AsString := 'C';
+
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.ImprimirRelatorio;
+begin
+  frVariables['Outras']:= FParametroCabecalho;
+  frVariables['AgruparGrupoFilial']:=FAgruparGrupoFilial;
+  frVariables['AgruparFilial']:=FAgruparFilial;
+  frVariables['AgruparDataVenda']:=FAgruparDataVenda;
+  frVariables['SepararVendas']:=FSepararVendas;
+  frVariables['SepararDevolucoes']:=FSepararDevolucoes;
+  frVariables['ExibirTotaisVendasDevolucoes']:= FExibirTotaisVendaseDevolucoes;
+
+  frVariables['ContratoComServico']:=ParSistema.ContratoComServico;
+  case fOpcaoRelatorio of
+   0: begin
+       ReFazConsulta(qryTotalizacao, [],[]);
+       qryTotalizacao.Delete;
+       frVariables['Titulo']:= 'VENDAS DO PERÍODO POR CONTRATOS';
+       frVariables['VendaaVista']:=FVendaaVista;
+       frVariables['VendaaPrazo']:=FVendaaPrazo;
+      end;
+   1: begin
+       ReFazConsulta(qryTotalizacaoNotas, [],[]);
+       qryTotalizacaoNotas.Delete;
+       frVariables['Titulo']:= 'VENDAS DO PERÍODO POR NOTAS/CUPONS';
+      end;
+  end;
+ //frpImprimirVendas.ShowReport;
+
+  case FOpcaoRelatorio of
+    0 : ImprimirRelatoriofast(null, null, MPadrao, FResumo, [frpImprimirVendas, frpImprimirVendasResumo]);
+    1 : ImprimirRelatoriofast(null, null, MPadrao, FResumo, [frpImprimirNotasCupons, frpImprimirNotasCuponsResumo]);
+  end;
+
+  case FOpcaoRelatorio of
+
+    0 : begin
+         qryImprimirDadosFiscais.Close;
+         qryImprimirContratos.Close;
+         ApagarTabelaTemporaria;
+        end;
+
+    1 : qryImprimirNotasCupons.Close;
+    end;
+
+end;
+
+
+procedure Tdtmrelatoriovendasdoperiodo.MontaDatas;
+begin
+  case FOpcaoRelatorio of
+  0 : begin
+       qryGravarContratos.ParamByName('DataInicial').AsString := FDataInicial;
+       qryGravarContratos.ParamByName('DataFinal').AsString := FDataFinal;
+      end;
+  1 : begin
+       qryImprimirNotasCupons.ParamByName('DataInicial').AsString := FDataInicial;
+       qryImprimirNotasCupons.ParamByName('DataFinal').AsString := FDataFinal;
+      end;
+  end;
+  FParametroCabecalho:='Entre: '+FDataInicial+' e '+FDataFinal;
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.SetAgentes(const Value: String);
+begin
+  if (Value <> '') then
+  begin
+   case FOpcaoRelatorio of
+   0: qryGravarContratos    .MacroByName('WhereAgentes').AsString := Format(FiltroAgente,[Value]);
+   1: qryImprimirNotasCupons.MacroByName('WhereAgentes').AsString := Format(FiltroAgente,[Value]);
+   end;
+  end
+  else
+  begin
+   case FOpcaoRelatorio of
+   0: qryGravarContratos    .MacroByName('WhereAgentes').AsString := '';
+   1: qryImprimirNotasCupons.MacroByName('WhereAgentes').AsString := '';
+   end;
+  end;
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.SetConceitos(const Value: String);
+begin
+  if (Value <> '') then
+  begin
+   case FOpcaoRelatorio of
+   0: qryGravarContratos.MacroByName('WhereConceito').AsString := Format(FiltroConceito,[Value]);
+   1: qryImprimirNotasCupons.MacroByName('WhereConceito').AsString := Format(FiltroConceito,[Value]);
+   end;
+  end
+  else
+  begin
+   case FOpcaoRelatorio of
+   0: qryGravarContratos.MacroByName('WhereConceito').AsString := '';
+   1: qryImprimirNotasCupons.MacroByName('WhereConceito').AsString := '';
+   end;
+  end
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.SetDataFinal(const Value: String);
+begin
+  if not DataEmBranco(Value) then
+  begin
+    FDataFinal := Value;
+    if DataEmBranco(FDataInicial) then
+      FDataInicial:=FDataFinal;
+  end
+  else
+   FDataFinal := FDataInicial;
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.SetDataInicial(const Value: String);
+begin
+  if not DataEmBranco(Value) then
+    FDataInicial := Value;
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.SetFiliais(const Value: String);
+begin
+  FFiliais := Value;
+  if (Value <> '') then
+  begin
+   case FOpcaoRelatorio of
+    0: qryGravarContratos    .MacroByName('WhereFiliais').AsString := Format(FiltroFilial_contratos,[Value]);
+    1: begin
+         qryImprimirNotasCupons.MacroByName('WhereFiliais_notas').AsString := Format(FiltroFilial_notas,[Value]);
+         if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+           qryImprimirNotasCupons.MacroByName('WhereFiliais_devolucoes').AsString  := Format(FiltroFilial_devolucoes,[Value]);
+       end;
+    end;
+  end
+  else
+  begin
+   case FOpcaoRelatorio of
+    0: qryGravarContratos    .MacroByName('WhereFiliais').AsString := '';
+    1: begin
+         qryImprimirNotasCupons.MacroByName('WhereFiliais_notas').AsString  := '';
+         if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+           qryImprimirNotasCupons.MacroByName('WhereFiliais_devolucoes').AsString  := '';
+       end;
+   end;
+  end;
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.SetGrupoFiliais(
+  const Value: String);
+begin
+  FGrupoFiliais := Value;
+  if (Value <> '') then
+  begin
+   if ParSistema.RelatorioSomenteFiliaisAutorizadas then
+   begin
+     case FOpcaoRelatorio of
+      0: begin
+           qryGravarContratos.MacroByName('WhereFiliais').AsString := qryGravarContratos.MacroByName('WhereFiliais').AsString + Format(FiltroGrupoFilial_contratos,[Value]);
+           qryGravarContratos.MacroByName('WhereGruposFiliais').AsString := Format(FiltroGruposFiliais,[Value]);
+         end;
+      1: begin
+           qryImprimirNotasCupons.MacroByName('WhereFiliais_notas').AsString :=
+             qryImprimirNotasCupons.MacroByName('WhereFiliais_notas').AsString +
+             Format(FiltroGrupoFilial_notas,[Value]);
+
+           if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+             qryImprimirNotasCupons.MacroByName('WhereFiliais_devolucoes').AsString :=
+               qryImprimirNotasCupons.MacroByName('WhereFiliais_devolucoes').AsString +
+               Format(FiltroGrupoFilial_devolucoes,[Value]);
+
+           qryImprimirNotasCupons.MacroByName('WhereGruposFiliais').AsString := Format(FiltroGruposFiliais,[Value]);
+
+
+         end;
+     end;
+   end
+   else
+   begin
+     case FOpcaoRelatorio of
+      0: begin
+           qryGravarContratos.MacroByName('WhereFiliais').AsString := Format(FiltroGrupoFilial_contratos,[Value]);
+           qryGravarContratos.MacroByName('WhereGruposFiliais').AsString := Format(FiltroGruposFiliais,[Value]);
+         end;
+      1: begin
+           qryImprimirNotasCupons.MacroByName('WhereFiliais_notas').AsString := Format(FiltroGrupoFilial_notas,[Value]);
+           
+           if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+             qryImprimirNotasCupons.MacroByName('WhereFiliais_devolucoes').AsString := Format(FiltroGrupoFilial_devolucoes,[Value]);
+
+           qryImprimirNotasCupons.MacroByName('WhereGruposFiliais').AsString := Format(FiltroGruposFiliais,[Value]);
+         end;
+     end;
+   end;
+  end;
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.SetResumo(const Value: Integer);
+begin
+  FResumo := Value;
+  case FResumo of
+  0,1: begin
+        qryImprimirContratos.Sql.Text := qryImprimirContratosVendas.Sql.Text;
+        qryImprimirNotasCupons.Sql.Clear;
+       end;
+  2  : begin
+        qryimprimircontratos.Sql.Text := qryImprimirContratosResumoVendas.Sql.Text;
+        qryImprimirNotasCupons.Sql.Text := qryImprimirNotasCuponsResumo.Sql.Text;
+       end;
+  end
+end;
+
+function Tdtmrelatoriovendasdoperiodo.GetListaAgentes: TStrings;
+begin
+  FListaAgentes:= TStringList.Create;
+  qryAgentes.Open;
+  while not qryAgentes.Eof do
+  begin
+    FListaAgentes.AddObject(format('%3s',[qryAgentescodigo.AsString])+'.'+qryAgentesdescricao.AsString, Pointer(qryAgentescodigo.AsInteger));
+    qryAgentes.Next;
+  end;
+  qryAgentes.Close;
+  Result := FListaAgentes;
+end;
+
+function Tdtmrelatoriovendasdoperiodo.GetListaConceitos: TStrings;
+begin
+  FListaConceitos:= TStringList.Create;
+  qryConceitos.Open;
+  while not qryConceitos.Eof do
+  begin
+    FListaConceitos.AddObject(format('%2s',[qryConceitoscodigo.AsString])+'.'+qryConceitosdescricao.AsString, Pointer(qryConceitoscodigo.AsInteger));
+    qryConceitos.Next;
+  end;
+  qryConceitos.Close;
+  Result := FListaConceitos;
+end;
+
+destructor Tdtmrelatoriovendasdoperiodo.Destroy;
+begin
+  FListaAgentes.Free;
+  FListaConceitos.Free;
+  inherited;
+end;
+
+
+procedure Tdtmrelatoriovendasdoperiodo.SetVendaaPrazo(
+  const Value: Boolean);
+const
+ VendaaVista =' where contratoavista ';
+ VendaaPrazo =' Where not contratoavista ';
+{
+ VendaaVistaNotas = ' and not exists (select p.numero from parcelas p where '+
+                    'p.contrato = ct.numero and '+
+
+                    'p.datavencto > ct.faturamento)';
+
+ VendaaPrazoNotas = ' and exists (select p.numero from parcelas p where '+
+
+                    'p.contrato = ct.numero and '+
+
+                    'p.datavencto > ct.faturamento)';
+
+                    }
+
+begin
+  FVendaaPrazo := Value;
+if (FVendaaVista and FVendaaPrazo) or
+   (not FVendaaVista and not FVendaaPrazo) then
+begin
+  case FOpcaoRelatorio of
+  0: qryGravarContratos    .MacroByName('whereTipodeVenda').AsString := '';
+  1: qryImprimirNotasCupons.MacroByName('whereTipodeVenda').AsString  := '';
+  end;
+end
+else
+ if FVendaaVista then
+ begin
+  case FOpcaoRelatorio of
+   0: qryGravarContratos    .MacroByName('whereTipodeVenda').AsString := VendaaVista;
+   1: qryImprimirNotasCupons.MacroByName('whereTipodeVenda').AsString  := VendaaVista;
+  end;
+  FParametroCabecalho:=FParametroCabecalho+' Tipo de Venda: a vista';
+ end
+ else
+  if FVendaaPrazo then
+  begin
+   case FOpcaoRelatorio of
+   0: qryGravarContratos    .MacroByName('whereTipodeVenda').AsString := VendaaPrazo;
+   1: qryImprimirNotasCupons.MacroByName('whereTipodeVenda').AsString  := VendaaPrazo;
+   end;
+   FParametroCabecalho:=FParametroCabecalho+' Tipo de Venda: a Prazo';
+  end;
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.MontarFiltroAgentes(
+  Usar: TCheckListBox);
+var
+  STRAgentes: String;
+  TodosAgentes: Boolean;
+  cnt: Integer;
+begin
+  TodosAgentes := True;
+  STRAgentes := '';
+  for cnt := 0 to FListaAgentes.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRAgentes := STRAgentes + '''' + IntToStr(Integer(FListaAgentes.Objects[cnt])) + ''','
+    else
+      TodosAgentes := False;
+
+  STRAgentes := Copy(STRAgentes, 0, Length(STrAgentes) - 1);
+  Agentes:=STRAgentes;
+  if Trim(STRAgentes) <> '' then
+   if not TodosAgentes then
+    FParametroCabecalho:=FParametroCabecalho+' Agentes: '+STRAgentes
+   else
+    Agentes:='';
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.MontarFiltroConceitos(
+  Usar: TCheckListBox);
+var
+  STRConceitos: String;
+  TodosConceitos : Boolean;
+  cnt: Integer;
+begin
+  TodosConceitos := True;
+  STRConceitos := '';
+  for cnt := 0 to FListaConceitos.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRConceitos := STRConceitos + '''' + IntToStr(Integer(FListaConceitos.Objects[cnt])) + ''','
+    else
+      TodosConceitos:=false;
+  STRConceitos := Copy(STRConceitos, 0, Length(STRConceitos) - 1);
+  Conceitos := STRConceitos ;
+  if Trim(STRConceitos) <> '' then
+   if not TodosConceitos then
+    FParametroCabecalho:=FParametroCabecalho+' Conceitos: '+STRConceitos
+   else
+    Conceitos := '';
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.MontarOrdenacao;
+var
+Ordenacao, Ordenacao_contratos, Ordenacao_notascupons: String;
+begin
+  Ordenacao:='';
+  if FAgruparGrupoFilial then
+    Ordenacao:=Ordenacao+', nomegrupofilialvenda, grupofilialvenda ';
+  if FAgruparFilial then
+    Ordenacao:=Ordenacao+', nomefilialvenda, filialvenda ';
+  if FAgruparDataVenda then
+    Ordenacao:=Ordenacao+', datavenda ';
+
+  if SepararVendas and SepararDevolucoes then
+    Ordenacao := Ordenacao+', tipo, contratoavista '
+  else
+   if SepararVendas then
+     Ordenacao := Ordenacao+', contratoavista '
+   else
+    if SepararDevolucoes then
+      Ordenacao := Ordenacao+', tipo ';
+
+
+  case TipoAgrupamento of
+  0: Ordenacao := Ordenacao+', nomecliente, cliente, tipocliente, datavenda ';
+  1: Ordenacao := Ordenacao+', datavenda, nomecliente, cliente, tipocliente ';
+  2: Ordenacao := Ordenacao+', ncontrato ';
+  3: Ordenacao := Ordenacao+', notafiscal, cupomfiscal ';
+  4: Ordenacao := Ordenacao+', valortotal desc, nomecliente, cliente ';
+  end;
+
+  if FMaioresVendasdoPeriodo or FMaioresClientesdoPeriodo then
+  begin
+   Ordenacao_contratos:=Ordenacao+', tipo desc, valortotalabs desc, ncontrato ';
+   Ordenacao_notascupons:=Ordenacao+', tipo desc, valortotalabs desc, notafiscal, cupomfiscal ';
+  end
+  else
+  begin
+   Ordenacao_contratos:=Ordenacao+', ncontrato, Tipo ';
+   Ordenacao_notascupons:=Ordenacao+', notafiscal, cupomfiscal, Tipo ';
+  end;
+
+  case resumo of
+   2 : begin
+        qryImprimirContratos.ParamByName('AgruparFilial').AsBoolean := AgruparFilial;
+        qryImprimirContratos.ParamByName('AgruparGrupoFilial').AsBoolean := AgruparGrupoFilial;
+        qryImprimirContratos.ParamByName('AgruparDataVenda').AsBoolean := AgruparDataVenda;
+        qryImprimirNotasCupons.ParamByName('AgruparFilial').AsBoolean := AgruparFilial;
+        qryImprimirNotasCupons.ParamByName('AgruparGrupoFilial').AsBoolean := AgruparGrupoFilial;
+        qryImprimirNotasCupons.ParamByName('AgruparDataVenda').AsBoolean := AgruparDataVenda;
+        qryImprimirNotasCupons.Sql.Append(') as temp');
+        qryImprimirNotasCupons.Sql.Append('group by filialvenda, nomefilialvenda, grupofilialvenda, nomegrupofilialvenda, datavenda, tipo, contratoavista, tipoA, totalizado');
+       end;
+  end;
+
+  qryImprimirContratos.sql.Append('Order by '+copy(Ordenacao_contratos,2,length(Ordenacao_contratos)-1));
+  qryImprimirNotasCupons.sql.Append('Order by '+copy(Ordenacao_notascupons,2,length(Ordenacao_notascupons)-1));
+
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.frpImprimirVendasBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  if (View.Name = 'fpvLogo') then
+  begin
+   if FileExists(LogotipoFilialBase) then
+    try TfrPictureView(View).Picture.LoadFromFile(LogotipoFilialBase) except end;
+  end
+  else
+  if TColor(strtoint(parsistema.CorZebradoRelatorio))<>TColor(clnone) then
+   if (View.Name = 'mmoZebrado') then
+    if (frpImprimirVendas.Dictionary.Variables.Variable['LINHA'] MOD 2)=0 then
+      frpImprimirVendas.FindObject('mmoZebrado').FillColor := TColor(strtoint(parsistema.CorZebradoRelatorio))
+    else
+      frpImprimirVendas.FindObject('mmoZebrado').FillColor := clnone;
+
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.qryImprimirNotasCuponsCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if not (dataset.State in [dsedit]) then
+  begin
+  qryImprimirNotasCuponsOutras.AsFloat:=
+     (qryImprimirNotasCuponsvalorfrete.AsFloat)+
+     (qryImprimirNotasCuponsseguro.AsFloat)+
+     (qryImprimirNotasCuponsdespesasacessorias.AsFloat);
+  qryImprimirNotasCuponseFinanceiro.AsFloat:=
+    (qryImprimirNotasCuponsvalortotal.AsFloat)-
+    ((qryImprimirNotasCuponsvalorvista.AsFloat)+
+     (qryImprimirNotasCuponsOutras.asfloat));
+
+  if ExibirTotaisVendaseDevolucoes then
+   if SepararDevolucoes and SepararVendas then
+   begin
+     if (qryImprimirNotasCuponstipo.asstring='Cancelamentos') then
+      qryImprimirNotasCuponsNVendaDevolucao.AsString := 'Devoluções - '
+     else
+      qryImprimirNotasCuponsNVendaDevolucao.AsString := 'Vendas - ';
+
+     if qryImprimirNotasCuponscontratoavista.asboolean then
+       qryImprimirNotasCuponsNVendaDevolucao.AsString :=
+        qryImprimirNotasCuponsNVendaDevolucao.AsString + 'a Vista'
+     else
+       qryImprimirNotasCuponsNVendaDevolucao.AsString :=
+        qryImprimirNotasCuponsNVendaDevolucao.AsString + 'a Prazo';
+   end
+   else
+   if SepararDevolucoes then
+   begin
+     if (qryImprimirNotasCuponstipo.asstring='Cancelamentos') then
+      qryImprimirNotasCuponsNVendaDevolucao.AsString := 'Devoluções'
+     else
+      qryImprimirNotasCuponsNVendaDevolucao.AsString := 'Vendas';
+   end
+   else
+   if SepararVendas then
+   begin
+     if qryImprimirNotasCuponscontratoavista.asboolean then
+       qryImprimirNotasCuponsNVendaDevolucao.AsString :='a Vista'
+     else
+       qryImprimirNotasCuponsNVendaDevolucao.AsString :='a Prazo';
+   end;
+  end;
+end;
+
+
+procedure Tdtmrelatoriovendasdoperiodo.qryImprimirContratosAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if FImprimindoRelatorio and not qryImprimirContratos.Eof then
+  begin
+   VerificarAgrupamentoContratos;
+   if not qryImprimirContratostotalizado.AsBoolean then
+     TotalizarRelatorio;
+  end;
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.SetParametroClienteFinal(
+  const Value: String);
+const
+ SQLCliente_Contratos =
+  ' and ((ct.cliente '+
+  ' in (Select vf.codigo '+
+  ' from vfornecedores vf '+
+  ' where (%s))) '+
+  ' and (lpad(cast(ct.cliente as varchar)||cast(ct.tipocliente as varchar),11,''0'') '+
+        ' in (Select lpad(cast(vf.codigo as varchar)||cast(vf.tipo as varchar),11,''0'')'+
+
+            ' from vfornecedores vf '+
+
+            ' where (%s))))';
+
+ SQLCliente_Notas =
+  ' and ((df.cliente '+
+  ' in (Select vf.codigo '+
+  ' from vfornecedores vf '+
+  ' where (%s)))'+
+  ' and (lpad(cast(df.cliente as varchar)||cast(df.tipocliente as varchar),11,''0'') '+
+        ' in (Select lpad(cast(vf.codigo as varchar)||cast(vf.tipo as varchar),11,''0'')'+
+
+            ' from vfornecedores vf '+
+
+            ' where (%s))))';
+
+ SQLCliente_NotasDevolvidas =
+  ' and ((np.fornecedor '+
+  ' in (Select vf.codigo '+
+  ' from vfornecedores vf '+
+  ' where (%s)))'+
+  ' and (lpad(cast(np.fornecedor as varchar)||cast(np.tipofornecedor as varchar),11,''0'') '+
+        ' in (Select lpad(cast(vf.codigo as varchar)||cast(vf.tipo as varchar),11,''0'')'+
+
+            ' from vfornecedores vf '+
+
+            ' where (%s))))';
+
+begin
+ FParametroClienteFinal := Value;
+ case FParametroSelecao of
+  0: begin
+      if (FParametroClienteInicial<>'') and
+       (FParametroClienteFinal<>'') then
+      begin
+       case FOpcaoRelatorio of
+       0:  qryGravarContratos.MacroByName('WhereClientes').AsString :=
+            format(SQLCliente_Contratos,[
+               ' vf.codigo between ('+FParametroClienteInicial+
+               ') and ('+FParametroClienteFinal+')',
+               ' lpad(cast(vf.codigo as varchar)||cast(vf.tipo as varchar),11,''0'') between lpad('+quotedstr(FParametroClienteInicial+qryClienteInicialtipo.AsString)+
+               ' ,11, ''0'') and lpad('+quotedstr(FParametroClienteFinal+qryClienteFinaltipo.AsString)+',11,''0'')']);
+
+       1: begin
+
+           qryImprimirNotasCupons.MacroByName('WhereClientes_notas').AsString :=
+             format(SQLCliente_Notas,[
+                   ' vf.codigo between ('+FParametroClienteInicial+
+                   ') and ('+FParametroClienteFinal+')',
+                   ' lpad(cast(vf.codigo as varchar)||cast(vf.tipo as varchar),11,''0'') between lpad('+quotedstr(FParametroClienteInicial+qryClienteInicialtipo.AsString)+
+                   ' ,11, ''0'') and lpad('+quotedstr(FParametroClienteFinal+qryClienteFinaltipo.AsString)+',11,''0'')']);
+
+          if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+            qryImprimirNotasCupons.MacroByName('WhereClientes_devolucoes').AsString :=
+              format(SQLCliente_NotasDevolvidas,[
+                   ' vf.codigo between ('+FParametroClienteInicial+
+                   ') and ('+FParametroClienteFinal+')',
+                   ' lpad(cast(vf.codigo as varchar)||cast(vf.tipo as varchar),11,''0'') between lpad('+quotedstr(FParametroClienteInicial+qryClienteInicialtipo.AsString)+
+                   ' ,11, ''0'') and lpad('+quotedstr(FParametroClienteFinal+qryClienteFinaltipo.AsString)+',11,''0'')']);
+
+           end
+
+       end;
+
+       FParametroCabecalho:=FParametroCabecalho+
+               ' Cliente Inicial: '+qryClienteInicialtipo.AsString+FParametroClienteInicial+
+               ' Final: '+qryClienteFinaltipo.AsString+FParametroClienteFinal;
+      end
+      else
+       if (FParametroClienteInicial<>'') and
+         (FParametroClienteFinal='') then
+       begin
+         case FOpcaoRelatorio of
+         0: qryGravarContratos.MacroByName('WhereClientes').AsString :=
+             format(SQLCliente_Contratos,[
+               ' vf.codigo >= '+FParametroClienteInicial,
+               ' lpad(cast(vf.codigo as varchar)||cast(vf.tipo as varchar),11,''0'') >= lpad('+quotedstr(FParametroClienteInicial+qryClienteInicialtipo.AsString)+',11,''0'')']);
+         1: begin
+              qryImprimirNotasCupons.MacroByName('WhereClientes_notas').AsString := format(SQLCliente_Notas,[
+                   ' vf.codigo >= '+FParametroClienteInicial,
+                   ' lpad(cast(vf.codigo as varchar)||cast(vf.tipo as varchar),11,''0'') >= lpad('+quotedstr(FParametroClienteInicial+qryClienteInicialtipo.AsString)+',11,''0'')']);
+
+              if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+                qryImprimirNotasCupons.MacroByName('WhereClientes_devolucoes').AsString:= format(SQLCliente_NotasDevolvidas,[
+                     ' vf.codigo >= '+FParametroClienteInicial,
+                     ' lpad(cast(vf.codigo as varchar)||cast(vf.tipo as varchar),11,''0'') >= lpad('+quotedstr(FParametroClienteInicial+qryClienteInicialtipo.AsString)+',11,''0'')']);
+            end;
+         end;
+         FParametroCabecalho:=FParametroCabecalho+
+         ' Cliente Inicial: '+qryClienteInicialtipo.AsString+FParametroClienteInicial;
+       end
+       else
+        if (FParametroClienteInicial='') and
+           (FParametroClienteFinal<>'') then
+        begin
+          case FOpcaoRelatorio of
+          0: qryGravarContratos.MacroByName('WhereClientes').AsString :=
+             format(SQLCliente_Contratos,[
+               ' vf.codigo <= '+FParametroClienteFinal,
+               ' lpad(cast(vf.codigo as varchar)||cast(vf.tipo as varchar),11,''0'') <= lpad('+quotedstr(FParametroClienteFinal+qryClienteFinaltipo.AsString)+',11,''0'')']);
+          1: begin
+               qryImprimirNotasCupons.MacroByName('WhereClientes_notas').AsString := format(SQLCliente_Notas,[
+                   ' vf.codigo <= '+FParametroClienteFinal,
+                   ' lpad(cast(vf.codigo as varchar)||cast(vf.tipo as varchar),11,''0'') <= lpad('+quotedstr(FParametroClienteFinal+qryClienteFinaltipo.AsString)+',11,''0'')']);
+
+               if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+                 qryImprimirNotasCupons.MacroByName('WhereClientes_devolucoes').AsString := format(SQLCliente_NotasDevolvidas,[
+                     ' vf.codigo <= '+FParametroClienteFinal,
+                     ' lpad(cast(vf.codigo as varchar)||cast(vf.tipo as varchar),11,''0'') <= lpad('+quotedstr(FParametroClienteFinal+qryClienteFinaltipo.AsString)+',11,''0'')']);
+             end;
+           end;
+           FParametroCabecalho:=FParametroCabecalho+
+           ' Cliente Final: '+qryClienteFinaltipo.AsString+FParametroClienteFinal;
+        end
+        else
+        begin
+           case FOpcaoRelatorio of
+             0: qryGravarContratos.MacroByName('WhereClientes').AsString := '';
+             1: begin
+                 qryImprimirNotasCupons.MacroByName('WhereClientes_notas').AsString := '';
+
+                 if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+                   qryImprimirNotasCupons.MacroByName('WhereClientes_devolucoes').AsString := '';
+
+                end;
+           end;
+        end;
+     end;
+  1: begin
+      if (NomeClienteInicial<>'') and
+         (NomeclienteFinal<>'') then
+      begin
+       case FOpcaoRelatorio of
+       0: qryGravarContratos.MacroByName('WhereClientes').AsString:=
+               format(SQLCliente_Contratos,[
+               ' vf.nome between ('+quotedstr(NomeClienteInicial)+
+               ') and ('+quotedstr(NomeClienteFinal)+')',
+               ' cast(vf.nome as varchar)||cast(vf.tipo as varchar) between '+quotedstr(NomeClienteInicial+qryClienteInicialtipo.AsString)+
+               ' and '+quotedstr(NomeClienteFinal+qryClienteFinaltipo.AsString)]);
+       1: begin
+            qryImprimirNotasCupons.MacroByName('WhereClientes_notas').AsString := format(SQLCliente_Notas,[
+                   ' vf.nome between ('+quotedstr(NomeClienteInicial)+
+                   ') and ('+quotedstr(NomeClienteFinal)+')',
+                   ' cast(vf.nome as varchar)||cast(vf.tipo as varchar) between '+quotedstr(NomeClienteInicial+qryClienteInicialtipo.AsString)+
+                   ' and '+quotedstr(NomeClienteFinal+qryClienteFinaltipo.AsString)]);
+
+            if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+              qryImprimirNotasCupons.MacroByName('WhereClientes_devolucoes').AsString := format(SQLCliente_NotasDevolvidas,[
+                     ' vf.nome between ('+quotedstr(NomeClienteInicial)+
+                     ') and ('+quotedstr(NomeClienteFinal)+')',
+                     ' cast(vf.nome as varchar)||cast(vf.tipo as varchar) between '+quotedstr(NomeClienteInicial+qryClienteInicialtipo.AsString)+
+                     ' and '+quotedstr(NomeClienteFinal+qryClienteFinaltipo.AsString)]);
+          end;
+       end;
+       FParametroCabecalho:=FParametroCabecalho+
+       ' Cliente Inicial: '+qryClienteInicialtipo.AsString+FParametroClienteInicial+
+       ' Final: '+qryClienteFinaltipo.AsString+FParametroClienteFinal;
+      end
+      else
+       if (NomeClienteInicial<>'') and
+         (NomeClienteFinal='') then
+         begin
+          case FOpcaoRelatorio of
+          0: qryGravarContratos.MacroByName('WhereClientes').AsString:=
+             format(SQLCliente_Contratos,[
+             ' vf.nome >= '+quotedstr(NomeClienteInicial),
+             ' cast(vf.nome as varchar)||cast(vf.tipo as varchar) >= '+quotedstr(NomeClienteInicial+qryClienteInicialtipo.AsString)]);
+          1: begin
+                qryImprimirNotasCupons.MacroByName('WhereClientes_notas').AsString := format(SQLCliente_Notas,[
+                     ' vf.nome >= '+quotedstr(NomeClienteInicial),
+                     ' cast(vf.nome as varchar)||cast(vf.tipo as varchar) >= '+quotedstr(NomeClienteInicial+qryClienteInicialtipo.AsString)]);
+                     
+                if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+                  qryImprimirNotasCupons.MacroByName('WhereClientes_devolucoes').AsString := format(SQLCliente_NotasDevolvidas,[
+                       ' vf.nome >= '+quotedstr(NomeClienteInicial),
+                       ' cast(vf.nome as varchar)||cast(vf.tipo as varchar) >= '+quotedstr(NomeClienteInicial+qryClienteInicialtipo.AsString)]);
+              end;
+          end;
+          FParametroCabecalho:=FParametroCabecalho+
+          ' Cliente Inicial: '+qryClienteInicialtipo.AsString+FParametroClienteInicial;
+         end
+       else
+        if (NomeClienteInicial='') and
+           (NomeClienteFinal<>'') then
+        begin
+          case FOpcaoRelatorio of
+          0: qryGravarContratos.MacroByName('WhereClientes').AsString :=
+             format(SQLCliente_Contratos,[
+             ' vf.nome <= '+quotedstr(NomeClienteFinal),
+             ' cast(vf.nome as varchar)||cast(vf.tipo as varchar) <= '+quotedstr(NomeClienteFinal+qryClienteFinaltipo.AsString)]);
+          1: begin
+               qryImprimirNotasCupons.MacroByName('WhereClientes_notas').AsString := format(SQLCliente_Notas,[
+                   ' vf.nome <= '+quotedstr(NomeClienteFinal),
+                   ' cast(vf.nome as varchar)||cast(vf.tipo as varchar) <= '+quotedstr(NomeClienteFinal+qryClienteFinaltipo.AsString)]);
+                   
+               if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+                 qryImprimirNotasCupons.MacroByName('WhereClientes_devolucoes').AsString:= format(SQLCliente_NotasDevolvidas,[
+                     ' vf.nome <= '+quotedstr(NomeClienteFinal),
+                     ' cast(vf.nome as varchar)||cast(vf.tipo as varchar) <= '+quotedstr(NomeClienteFinal+qryClienteFinaltipo.AsString)]);
+             end;
+           end;
+           FParametroCabecalho:=FParametroCabecalho+
+           ' Cliente Final: '+qryClienteFinaltipo.AsString+FParametroClienteFinal;
+        end
+        else
+        begin
+         case FOpcaoRelatorio of
+         0: qryGravarContratos.MacroByName('WhereClientes').AsString :='';
+         1: begin
+             qryImprimirNotasCupons.MacroByName('WhereClientes_notas').AsString:='';
+
+             if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+               qryImprimirNotasCupons.MacroByName('WhereClientes_devolucoes').AsString:='';
+               
+            end;
+         end;
+        end;
+     end;
+ end;
+end;
+
+function Tdtmrelatoriovendasdoperiodo.GetNomeClienteFinal: String;
+begin
+ result := qryClienteFinalnome.AsString
+end;
+
+function Tdtmrelatoriovendasdoperiodo.GetNomeClienteInicial: String;
+begin
+ result := qryClienteInicialnome.AsString
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.AbreTabelaPesquisa(
+  TipoPesquisa: TtecRelatorioVendas);
+begin
+  case TipoPesquisa of
+    rvCLIENTESINICIAL,
+    rvCLIENTESFINAL     : AbreConsultaCliente;
+  end;
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.FechaTabelaPesquisa(
+  TipoPesquisa: TtecRelatorioVendas);
+begin
+  case TipoPesquisa of
+    rvCLIENTESINICIAL,
+    rvCLIENTESFINAL     : Fecha(ctPesquisaClientes);
+  end;
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.Selecionar(Pesquisa: TtecRelatorioVendas);
+begin
+  case Pesquisa of
+    rvCLIENTESINICIAL : RefazConsulta(qryClienteInicial,[0,1],[qryConsultaClientescodigo.AsVariant, qryConsultaClientestipo.AsVariant]);
+    rvCLIENTESFINAL   : RefazConsulta(qryClienteFinal,[0,1],[qryConsultaClientescodigo.AsVariant, qryConsultaClientestipo.AsVariant]);
+  end;
+end;
+
+function Tdtmrelatoriovendasdoperiodo.ExisteCliente(NomeCampo: String;
+  Value: Variant): Boolean;
+const
+  SQL = 'Where (to_ascii(%s,''latin1'') ilike to_ascii(''%s%s'',''latin1''))';
+
+begin
+
+  qryConsultaClientes.Sql[24] := Format(SQL, [NomeCampo, ANSIUpperCase(Value), '%']);
+
+  qryConsultaClientes.Open;
+
+  Result := qryConsultaClientes.RecordCount > 0
+
+end;
+
+function Tdtmrelatoriovendasdoperiodo.GetConsultaClientes: TZDataSet;
+begin
+ result := qryConsultaClientes;
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.AbreConsultaCliente;
+begin
+ ExisteCliente('nome', '0')
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.MontarConsultaImpressao;
+begin
+  case FOpcaoRelatorio of
+  0 : begin
+       qryContratosVendas.Sql[NumerodalinhanoTexto(qrycontratosvendas.sql,'%WhereOrdenacao_Vendas')+1] := '';
+       qryContratosDevolucoes.Sql[NumerodalinhanoTexto(qrycontratosdevolucoes.sql,'%WhereOrdenacao_Devolucoes')+1] := '';
+       qryContratosDevNumerario.Sql[NumerodaLinhanoTexto(qryContratosDevNumerario.Sql,'%WhereOrdenacao_Cancelamentos')+1] := '';
+       qryGravarContratos.Sql.Clear;
+       qryGravarContratos.Sql.Text := qryGravarContratosAux.Sql.Text;
+       if FMaioresVendasdoPeriodo then
+       begin
+        if FQuantidadeMaioresVendas<>'' then
+        begin
+         qryContratosVendas.Sql[NumerodalinhanoTexto(qrycontratosVendas.sql,'%WhereOrdenacao_Vendas')+1] :=
+           'order by valortotal desc limit '+FQuantidadeMaioresVendas;
+
+         qryContratosDevolucoes.Sql[NumerodalinhanoTexto(qrycontratosdevolucoes.sql,'%WhereOrdenacao_Devolucoes')+1] :=
+           'order by @valortotal desc limit '+FQuantidadeMaioresVendas;
+
+         qryContratosDevNumerario.Sql[NumerodaLinhanoTexto(qryContratosDevNumerario.Sql,'%WhereOrdenacao_Cancelamentos')+1] :=
+           'order by @valortotal desc limit '+FQuantidadeMaioresVendas;
+
+         qryGravarContratos.Sql.Text := qryGravarContratos.Sql.Text+
+                                        qryContratosVendas.Sql.Text;
+
+         if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+         begin
+           qryGravarContratos.Sql.Append('union all');
+           qryGravarContratos.Sql.Text := qryGravarContratos.Sql.Text+
+                                          qryContratosDevolucoes.Sql.Text;
+           qryGravarContratos.Sql.Append('union all');
+           qryGravarContratos.Sql.Text := qryGravarContratos.Sql.Text+
+                                          qryContratosDevNumerario.Sql.Text;
+         end;
+
+         qryContratosVendas.Sql[NumerodalinhanoTexto(qrycontratosvendas.sql,'%WhereOrdenacao_Vendas')+1] :=
+         'order by valortotal desc offset '+FQuantidadeMaioresVendas;
+
+         qryContratosVendas.sql[NumerodalinhanoTexto(qrycontratosvendas.sql,'%InicioSomatorio')+1] := '';
+         qryContratosVendas.sql[NumerodalinhanoTexto(qrycontratosvendas.sql,'%FimSomatorio')+1] := '';
+         qryContratosVendas.sql[NumerodalinhanoTexto(qrycontratosvendas.sql,'%InicioAgrupamentoSomatorio')+1] := '';
+         qryContratosVendas.sql[NumerodalinhanoTexto(qrycontratosvendas.sql,'%FimAgrupamentoSomatorio')+1] := '';
+
+         qryGravarContratos.Sql.Append('union all');
+
+         qryGravarContratos.Sql.Text := qryGravarContratos.Sql.Text+
+                                        qryContratosVendas.Sql.Text;
+
+         qryContratosVendas.Sql[NumerodalinhanoTexto(qryContratosVendas.sql,'%InicioSomatorio')+1] := '/*';
+         qryContratosVendas.sql[NumerodalinhanoTexto(qryContratosVendas.sql,'%FimSomatorio')+1] := '*/';
+         qryContratosVendas.sql[NumerodalinhanoTexto(qryContratosVendas.sql,'%InicioAgrupamentoSomatorio')+1] := '/*';
+         qryContratosVendas.sql[NumerodalinhanoTexto(qryContratosVendas.sql,'%FimAgrupamentoSomatorio')+1] := '*/';
+
+         qryContratosDevolucoes.Sql[NumerodalinhanoTexto(qrycontratosdevolucoes.sql,'%WhereOrdenacao_Devolucoes')+1] :=
+           'order by @valortotal desc offset '+FQuantidadeMaioresVendas;
+
+         qryContratosDevolucoes.Sql[1+NumerodalinhanoTexto(qryContratosDevolucoes.sql,'%InicioSomatorio')] := '';
+         qryContratosDevolucoes.Sql[1+NumerodalinhanoTexto(qryContratosDevolucoes.sql,'%FimSomatorio')] := '';
+         qryContratosDevolucoes.Sql[1+NumerodalinhanoTexto(qryContratosDevolucoes.sql,'%InicioAgrupamentoSomatorio')] := '';
+         qryContratosDevolucoes.Sql[1+NumerodalinhanoTexto(qryContratosDevolucoes.sql,'%FimAgrupamentoSomatorio')] := '';
+         if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+         begin
+           qryGravarContratos.Sql.Append('union all');
+           qryGravarContratos.Sql.Text := qryGravarContratos.Sql.Text+
+                                          qryContratosDevolucoes.Sql.Text;
+         end;
+         qryContratosDevolucoes.Sql[1+NumerodalinhanoTexto(qryContratosDevolucoes.sql,'%InicioSomatorio')] := '/*';
+         qryContratosDevolucoes.Sql[1+NumerodalinhanoTexto(qryContratosDevolucoes.sql,'%FimSomatorio')] := '*/';
+         qryContratosDevolucoes.Sql[1+NumerodalinhanoTexto(qryContratosDevolucoes.sql,'%InicioAgrupamentoSomatorio')] := '/*';
+         qryContratosDevolucoes.Sql[1+NumerodalinhanoTexto(qryContratosDevolucoes.sql,'%FimAgrupamentoSomatorio')] := '*/';
+
+         qryContratosDevNumerario.Sql[NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%WhereOrdenacao_Cancelamentos')+1]:=
+           'order by @valortotal desc offset '+FQuantidadeMaioresVendas;
+
+         qryContratosDevNumerario.Sql[1+NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%InicioSomatorio')] := '';
+         qryContratosDevNumerario.Sql[1+NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%FimSomatorio')] := '';
+         qryContratosDevNumerario.Sql[1+NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%InicioAgrupamentoSomatorio')] := '';
+         qryContratosDevNumerario.Sql[1+NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%FimAgrupamentoSomatorio')] := '';
+
+         if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+         begin
+           qryGravarContratos.Sql.Append('union all');
+           qryGravarContratos.Sql.Text := qryGravarContratos.Sql.Text+
+                                        qryContratosDevNumerario.Sql.Text;
+         end;
+         qryContratosDevNumerario.Sql[1+NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%InicioSomatorio')] := '/*';
+         qryContratosDevNumerario.Sql[1+NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%FimSomatorio')] := '*/';
+         qryContratosDevNumerario.Sql[1+NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%InicioAgrupamentoSomatorio')] := '/*';
+         qryContratosDevNumerario.Sql[1+NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%FimAgrupamentoSomatorio')] := '*/';
+
+
+         qryGravarContratos.Sql.Append(') as temp');
+         qryGravarContratos.ParamByName('AgruparFilial').AsBoolean := FAgruparFilial;
+         qryGravarContratos.ParamByName('AgruparGrupoFilial').AsBoolean := FAgruparGrupoFilial;
+         qryGravarContratos.ParamByName('MaioresClientes').AsBoolean := FMaioresClientesdoPeriodo;
+        end
+        else
+        begin
+         qryGravarContratos.Sql.Text := qryGravarContratos.Sql.Text+
+                                        qryContratosVendas.Sql.Text;
+         if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+         begin
+           qryGravarContratos.Sql.Append('union all');
+           qryGravarContratos.Sql.Text := qryGravarContratos.Sql.Text+
+                                          qryContratosDevolucoes.Sql.Text;
+           qryGravarContratos.Sql.Append('union all');
+           qryGravarContratos.Sql.Text := qryGravarContratos.Sql.Text+
+                                          qryContratosDevNumerario.Sql.Text;
+         end;
+         qryGravarContratos.Sql.Append(') as temp');
+        end;
+       end
+       else
+        if FMaioresClientesdoPeriodo then
+        begin
+          if FQuantidadeMaioresVendas<>'' then
+          begin
+           qryContratosVendas.sql[NumerodalinhanoTexto(qrycontratosvendas.sql,'%InicioSomatorio')+1] := '';
+           qryContratosVendas.sql[NumerodalinhanoTexto(qrycontratosvendas.sql,'%FimSomatorio')+1] := '';
+           qryContratosVendas.sql[NumerodalinhanoTexto(qrycontratosvendas.sql,'%InicioAgrupamentoSomatorio')+1] := '';
+           qryContratosVendas.sql[NumerodalinhanoTexto(qrycontratosvendas.sql,'%FimAgrupamentoSomatorio')+1] := '';
+
+           qryContratosVendas.Sql[Numerodalinhanotexto(qryContratosVendas.Sql,'%WhereOrdenacao_Total_Vendas')+1]:=
+            'order by valortotal desc limit '+FQuantidadeMaioresVendas;
+
+           qryGravarContratos.Sql.Text := qryGravarContratos.Sql.Text+
+                                        qryContratosVendas.Sql.Text;
+           qryContratosVendas.Sql[Numerodalinhanotexto(qryContratosVendas.Sql,'%WhereOrdenacao_Total_Vendas')+1]:=
+            'order by valortotal desc offset '+FQuantidadeMaioresVendas;
+
+           qryContratosVendas.Sql[NumerodalinhanoTexto(qrycontratosvendas.sql,'%cliente')+1] := 'cast(null as integer) as cliente,';
+           qryContratosVendas.Sql[Numerodalinhanotexto(qrycontratosvendas.sql,'%tipocliente')+1] := 'cast(null as varchar) as tipocliente,';
+
+           qryContratosVendas.Sql[Numerodalinhanotexto(qrycontratosvendas.sql,'%nomecliente')+1] := 'cast(''OUTROS'' as varchar) as nomecliente,';
+
+
+
+           qryGravarContratos.Sql.Append('union all');
+
+           qryGravarContratos.Sql.Text := qryGravarContratos.Sql.Text+
+
+                                        qryContratosVendas.Sql.Text;
+
+           qryContratosVendas.sql[NumerodalinhanoTexto(qrycontratosvendas.sql,'%InicioSomatorio')+1] := '/*';
+           qryContratosVendas.sql[NumerodalinhanoTexto(qrycontratosvendas.sql,'%FimSomatorio')+1] := '*/';
+           qryContratosVendas.sql[NumerodalinhanoTexto(qrycontratosvendas.sql,'%InicioAgrupamentoSomatorio')+1] := '/*';
+           qryContratosVendas.sql[NumerodalinhanoTexto(qrycontratosvendas.sql,'%FimAgrupamentoSomatorio')+1] := '*/';
+
+           qryContratosVendas.Sql[NumerodalinhanoTexto(qrycontratosvendas.sql,'%cliente')+1] := 'cast(cliente as integer) as cliente,';;
+           qryContratosVendas.Sql[Numerodalinhanotexto(qrycontratosvendas.sql,'%tipocliente')+1] := 'cast(tipocliente as varchar) as tipocliente,';
+
+           qryContratosVendas.Sql[Numerodalinhanotexto(qrycontratosvendas.sql,'%nomecliente')+1] := 'cast(nomecliente as varchar) as nomecliente,';
+
+
+
+           qryContratosVendas.Sql[Numerodalinhanotexto(qryContratosVendas.Sql,'%WhereOrdenacao_Total_Vendas')+1]:= '';
+
+
+           qryContratosDevolucoes.sql[NumerodalinhanoTexto(qryContratosDevolucoes.sql,'%InicioSomatorio')+1] := '';
+
+           qryContratosDevolucoes.sql[NumerodalinhanoTexto(qryContratosDevolucoes.sql,'%FimSomatorio')+1] := '';
+           qryContratosDevolucoes.sql[NumerodalinhanoTexto(qryContratosDevolucoes.sql,'%InicioAgrupamentoSomatorio')+1] := '';
+           qryContratosDevolucoes.sql[NumerodalinhanoTexto(qryContratosDevolucoes.sql,'%FimAgrupamentoSomatorio')+1] := '';
+           qryContratosDevolucoes.Sql[NumerodalinhanoTexto(qrycontratosdevolucoes.sql,'%WhereOrdenacao_Total_Vendas')+1] :=
+             'order by @valortotal desc limit '+FQuantidadeMaioresVendas;
+
+           if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+           begin
+             qryGravarContratos.Sql.Append('union all');
+             qryGravarContratos.Sql.Text := qryGravarContratos.Sql.Text+
+                                          qryContratosDevolucoes.Sql.Text;
+           end;
+           qryContratosDevolucoes.Sql[NumerodalinhanoTexto(qrycontratosdevolucoes.sql,'%WhereOrdenacao_Total_Vendas')+1] :=
+             'order by @valortotal desc offset '+FQuantidadeMaioresVendas;
+
+           qryContratosDevolucoes.Sql[NumerodalinhanoTexto(qryContratosDevolucoes.sql,'%cliente')+1] := 'cast(null as integer) as cliente,';
+           qryContratosDevolucoes.Sql[Numerodalinhanotexto(qryContratosDevolucoes.sql,'%tipocliente')+1] := 'cast(null as varchar) as tipocliente,';
+
+           qryContratosDevolucoes.Sql[Numerodalinhanotexto(qryContratosDevolucoes.sql,'%nomecliente')+1] := 'cast(''OUTROS'' as varchar) as nomecliente,';
+
+
+           if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+           begin
+
+             qryGravarContratos.Sql.Append('union all');
+
+             qryGravarContratos.Sql.Text := qryGravarContratos.Sql.Text+
+
+                                          qryContratosDevolucoes.Sql.Text;
+           end;
+           qryContratosDevolucoes.sql[NumerodalinhanoTexto(qryContratosDevolucoes.sql,'%InicioSomatorio')+1] := '/*';
+           qryContratosDevolucoes.sql[NumerodalinhanoTexto(qryContratosDevolucoes.sql,'%FimSomatorio')+1] := '*/';
+           qryContratosDevolucoes.sql[NumerodalinhanoTexto(qryContratosDevolucoes.sql,'%InicioAgrupamentoSomatorio')+1] := '/*';
+           qryContratosDevolucoes.sql[NumerodalinhanoTexto(qryContratosDevolucoes.sql,'%FimAgrupamentoSomatorio')+1] := '*/';
+
+           qryContratosDevolucoes.Sql[NumerodalinhanoTexto(qryContratosDevolucoes.sql,'%cliente')+1] := 'cast(cliente as integer) as cliente,';
+           qryContratosDevolucoes.Sql[Numerodalinhanotexto(qryContratosDevolucoes.sql,'%tipocliente')+1] := 'cast(tipocliente as varchar) as tipocliente,';
+
+           qryContratosDevolucoes.Sql[Numerodalinhanotexto(qryContratosDevolucoes.sql,'%nomecliente')+1] := 'cast(nomecliente as varchar) as nomecliente,';
+
+
+           qryContratosDevolucoes.Sql[NumerodalinhanoTexto(qrycontratosdevolucoes.sql,'%WhereOrdenacao_Total_Vendas')+1] := '';
+
+           qryContratosDevNumerario.sql[NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%InicioSomatorio')+1] := '';
+           qryContratosDevNumerario.sql[NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%FimSomatorio')+1] := '';
+           qryContratosDevNumerario.sql[NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%InicioAgrupamentoSomatorio')+1] := '';
+           qryContratosDevNumerario.sql[NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%FimAgrupamentoSomatorio')+1] := '';
+           qryContratosDevNumerario.Sql[NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%WhereOrdenacao_Total_Vendas')+1] :=
+             'order by @valortotal desc limit '+FQuantidadeMaioresVendas;
+
+           if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+
+           begin
+             qryGravarContratos.Sql.Append('union all');
+             qryGravarContratos.Sql.Text := qryGravarContratos.Sql.Text+
+                                          qryContratosDevNumerario.Sql.Text;
+           end;
+
+           qryContratosDevNumerario.Sql[NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%WhereOrdenacao_Total_Vendas')+1] :=
+              'order by @valortotal desc offset '+FQuantidadeMaioresVendas;
+
+           qryContratosDevNumerario.Sql[NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%cliente')+1] := 'cast(null as integer) as cliente,';
+           qryContratosDevNumerario.Sql[Numerodalinhanotexto(qryContratosDevNumerario.sql,'%tipocliente')+1] := 'cast(null as varchar) as tipocliente,';
+
+           qryContratosDevNumerario.Sql[Numerodalinhanotexto(qryContratosDevNumerario.sql,'%nomecliente')+1] := 'cast(''OUTROS'' as varchar) as nomecliente,';
+
+
+           if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+           begin
+
+             qryGravarContratos.Sql.Append('union all');
+
+             qryGravarContratos.Sql.Text := qryGravarContratos.Sql.Text+
+
+                                          qryContratosDevNumerario.Sql.Text;
+           end;
+
+           qryContratosDevNumerario.sql[NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%InicioSomatorio')+1] := '/*';
+           qryContratosDevNumerario.sql[NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%FimSomatorio')+1] := '*/';
+           qryContratosDevNumerario.sql[NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%InicioAgrupamentoSomatorio')+1] := '/*';
+           qryContratosDevNumerario.sql[NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%FimAgrupamentoSomatorio')+1] := '*/';
+
+           qryContratosDevNumerario.Sql[NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%cliente')+1] := 'cast(cliente as integer) as cliente,';
+           qryContratosDevNumerario.Sql[Numerodalinhanotexto(qryContratosDevNumerario.sql,'%tipocliente')+1] := 'cast(tipocliente as varchar) as tipocliente,';
+
+           qryContratosDevNumerario.Sql[Numerodalinhanotexto(qryContratosDevNumerario.sql,'%nomecliente')+1] := 'cast(nomecliente as varchar) as nomecliente,';
+
+
+           qryContratosDevNumerario.Sql[NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%WhereOrdenacao_Total_Vendas')+1] := '';
+
+
+           qryGravarContratos.Sql.Append(') as temp');
+
+           qryGravarContratos.ParamByName('AgruparFilial').AsBoolean := FAgruparFilial;
+           qryGravarContratos.ParamByName('AgruparGrupoFilial').AsBoolean := FAgruparGrupoFilial;
+           qryGravarContratos.ParamByName('MaioresClientes').AsBoolean := FMaioresClientesdoPeriodo;
+
+          end
+
+          else
+          begin
+           qryContratosVendas.sql[NumerodalinhanoTexto(qrycontratosvendas.sql,'%InicioSomatorio')+1] := '';
+           qryContratosVendas.sql[NumerodalinhanoTexto(qrycontratosvendas.sql,'%FimSomatorio')+1] := '';
+           qryContratosVendas.sql[NumerodalinhanoTexto(qrycontratosvendas.sql,'%InicioAgrupamentoSomatorio')+1] := '';
+           qryContratosVendas.sql[NumerodalinhanoTexto(qrycontratosvendas.sql,'%FimAgrupamentoSomatorio')+1] := '';
+
+           qryGravarContratos.Sql.Text := qryGravarContratos.Sql.Text+
+                                        qryContratosVendas.Sql.Text;
+
+           qryContratosVendas.sql[NumerodalinhanoTexto(qrycontratosvendas.sql,'%InicioSomatorio')+1] := '/*';
+           qryContratosVendas.sql[NumerodalinhanoTexto(qrycontratosvendas.sql,'%FimSomatorio')+1] := '*/';
+           qryContratosVendas.sql[NumerodalinhanoTexto(qrycontratosvendas.sql,'%InicioAgrupamentoSomatorio')+1] := '/*';
+           qryContratosVendas.sql[NumerodalinhanoTexto(qrycontratosvendas.sql,'%FimAgrupamentoSomatorio')+1] := '*/';
+
+           qryContratosDevolucoes.sql[NumerodalinhanoTexto(qryContratosDevolucoes.sql,'%InicioSomatorio')+1] := '';
+           qryContratosDevolucoes.sql[NumerodalinhanoTexto(qryContratosDevolucoes.sql,'%FimSomatorio')+1] := '';
+           qryContratosDevolucoes.sql[NumerodalinhanoTexto(qryContratosDevolucoes.sql,'%InicioAgrupamentoSomatorio')+1] := '';
+           qryContratosDevolucoes.sql[NumerodalinhanoTexto(qryContratosDevolucoes.sql,'%FimAgrupamentoSomatorio')+1] := '';
+
+           if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+           begin
+             qryGravarContratos.Sql.Append('union all');
+             qryGravarContratos.Sql.Text := qryGravarContratos.Sql.Text +
+                                              qryContratosDevolucoes.Sql.Text;
+           end;
+           qryContratosDevolucoes.sql[NumerodalinhanoTexto(qryContratosDevolucoes.sql,'%InicioSomatorio')+1] := '/*';
+           qryContratosDevolucoes.sql[NumerodalinhanoTexto(qryContratosDevolucoes.sql,'%FimSomatorio')+1] := '*/';
+           qryContratosDevolucoes.sql[NumerodalinhanoTexto(qryContratosDevolucoes.sql,'%InicioAgrupamentoSomatorio')+1] := '/*';
+           qryContratosDevolucoes.sql[NumerodalinhanoTexto(qryContratosDevolucoes.sql,'%FimAgrupamentoSomatorio')+1] := '*/';
+
+           qryContratosDevNumerario.sql[NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%InicioSomatorio')+1] := '';
+           qryContratosDevNumerario.sql[NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%FimSomatorio')+1] := '';
+           qryContratosDevNumerario.sql[NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%InicioAgrupamentoSomatorio')+1] := '';
+           qryContratosDevNumerario.sql[NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%FimAgrupamentoSomatorio')+1] := '';
+
+           if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+           begin
+             qryGravarContratos.Sql.Append('union all');
+             qryGravarContratos.Sql.Text := qryGravarContratos.Sql.Text +
+                                              qryContratosDevNumerario.Sql.Text;
+           end;
+           qryContratosDevNumerario.sql[NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%InicioSomatorio')+1] := '/*';
+           qryContratosDevNumerario.sql[NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%FimSomatorio')+1] := '*/';
+           qryContratosDevNumerario.sql[NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%InicioAgrupamentoSomatorio')+1] := '/*';
+           qryContratosDevNumerario.sql[NumerodalinhanoTexto(qryContratosDevNumerario.sql,'%FimAgrupamentoSomatorio')+1] := '*/';
+
+           qryGravarContratos.Sql.Append(') as temp');
+
+           qryGravarContratos.ParamByName('AgruparFilial').AsBoolean := FAgruparFilial;
+           qryGravarContratos.ParamByName('AgruparGrupoFilial').AsBoolean := FAgruparGrupoFilial;
+           qryGravarContratos.ParamByName('MaioresClientes').AsBoolean := FMaioresClientesdoPeriodo;
+
+//           qryImprimirContratos.Sql.insert(0,';');
+          end;
+         end
+         else
+          begin
+           qryGravarContratos.Sql.Text :=  qryGravarContratos.Sql.Text+
+                                           qryContratosVendas.Sql.Text;
+           if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+           begin
+             qryGravarContratos.Sql.Append('union all');
+             qryGravarContratos.Sql.Text :=  qryGravarContratos.Sql.Text+
+                                             qryContratosDevolucoes.Sql.Text;
+             qryGravarContratos.Sql.Append('union all');
+             qryGravarContratos.Sql.Text :=  qryGravarContratos.Sql.Text+
+                                             qryContratosDevNumerario.Sql.Text;
+           end;
+           qryGravarContratos.Sql.Append(') as temp');
+          end;
+//        qryImprimirContratos.ParamByName('DataFinal').AsString:=FDataFinal;
+      end;
+  1 : begin
+       qryNotasVendas.Sql[NumerodalinhanoTexto(qryNotasvendas.sql,'%WhereOrdenacao_notas')+1]:= '';
+       if FMaioresVendasdoPeriodo then
+       begin
+        if FQuantidadeMaioresVendas<>'' then
+        begin
+         qryNotasVendas.Sql[NumerodalinhanoTexto(qryNotasvendas.sql,'%WhereOrdenacao_notas')+1]:=
+           'order by dadosfiscais.valortotal desc limit '+FQuantidadeMaioresVendas;
+         qryNotasDevolucoes.Sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'WhereOrdenacao_Devolucoes')+1]:=
+           'order by @valortotal desc limit '+FQuantidadeMaioresVendas;
+
+         qryImprimirNotasCupons.Sql.Text := qryImprimirNotasCupons.Sql.Text +
+                                            qryNotasVendas.Sql.Text;
+
+         if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+         begin
+           qryImprimirNotasCupons.Sql.Append('union all');
+           qryImprimirNotasCupons.Sql.Text := qryImprimirNotasCupons.Sql.Text +
+                                              qryNotasDevolucoes.Sql.Text;
+         end;
+         qryNotasVendas.Sql[NumerodalinhanoTexto(qryNotasvendas.sql,'%WhereOrdenacao_notas')+1] :=
+           'order by dadosfiscais.valortotal desc offset '+FQuantidadeMaioresVendas;
+
+         qryNotasVendas.sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%InicioSomatorio')+1] := '';
+         qryNotasVendas.sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%FimSomatorio')+1] := '';
+         qryNotasVendas.sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%InicioAgrupamentoSomatorio')+1] := '';
+         qryNotasVendas.sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%FimAgrupamentoSomatorio')+1] := '';
+
+         qryImprimirNotasCupons.Sql.Append('union all');
+         qryImprimirNotasCupons.Sql.Text := qryImprimirNotasCupons.Sql.Text +
+                                            qryNotasVendas.Sql.Text;
+
+         qryNotasVendas.sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%InicioSomatorio')+1] := '/*';
+         qryNotasVendas.sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%FimSomatorio')+1] := '*/';
+         qryNotasVendas.sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%InicioAgrupamentoSomatorio')+1] := '/*';
+         qryNotasVendas.sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%FimAgrupamentoSomatorio')+1] := '*/';
+
+         qryNotasDevolucoes.Sql[1+NumerodalinhanoTexto(qrynotasdevolucoes.sql,'%WhereOrdenacao_Devolucoes')]:=
+           'order by @valortotal desc offset '+FQuantidadeMaioresVendas;
+
+         qryNotasDevolucoes.sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%InicioSomatorio')+1] := '';
+         qryNotasDevolucoes.sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%FimSomatorio')+1] := '';
+         qryNotasDevolucoes.sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%InicioAgrupamentoSomatorio')+1] := '';
+         qryNotasDevolucoes.sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%FimAgrupamentoSomatorio')+1] := '';
+
+         if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+         begin
+          qryImprimirNotasCupons.Sql.Append('union all');
+          qryImprimirNotasCupons.Sql.Text := qryImprimirNotasCupons.Sql.Text +
+                                             qryNotasDevolucoes.Sql.Text;
+         end;
+         qryNotasDevolucoes.sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%InicioSomatorio')+1] := '/*';
+         qryNotasDevolucoes.sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%FimSomatorio')+1] := '*/';
+         qryNotasDevolucoes.sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%InicioAgrupamentoSomatorio')+1] := '/*';
+         qryNotasDevolucoes.sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%FimAgrupamentoSomatorio')+1] := '*/';
+
+         qryImprimirNotasCupons.ParamByName('AgruparFilial').AsBoolean := FAgruparFilial;
+         qryImprimirNotasCupons.ParamByName('AgruparGrupoFilial').AsBoolean := FAgruparGrupoFilial;
+         qryImprimirNotasCupons.ParamByName('MaioresClientes').AsBoolean := FMaioresClientesdoPeriodo;
+        end
+        else
+        begin
+         qryImprimirNotasCupons.Sql.Text := qryImprimirNotasCupons.Sql.Text+
+                                            qryNotasVendas.Sql.Text;
+         if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+         begin
+          qryImprimirNotasCupons.Sql.Append('union all');
+          qryImprimirNotasCupons.Sql.Text := qryImprimirNotasCupons.Sql.Text +
+                                             qryNotasDevolucoes.Sql.Text;
+         end;
+        end;
+       end
+       else
+        if FMaioresClientesdoPeriodo then
+        begin
+          if FQuantidadeMaioresVendas<>'' then
+          begin
+           qryNotasVendas.sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%InicioSomatorio')+1] := '';
+           qryNotasVendas.sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%FimSomatorio')+1] := '';
+           qryNotasVendas.sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%InicioAgrupamentoSomatorio')+1] := '';
+           qryNotasVendas.sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%FimAgrupamentoSomatorio')+1] := '';
+           qryNotasVendas.Sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%WhereOrdenacao_Total_Vendas')+1]:=
+             'order by valortotal desc limit '+FQuantidadeMaioresVendas;
+           qryImprimirNotasCupons.Sql.Text := qryImprimirNotasCupons.Sql.Text+
+                                              qryNotasVendas.Sql.Text;
+           qryNotasVendas.Sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%WhereOrdenacao_Total_Vendas')+1]:=
+             'order by valortotal desc offset '+FQuantidadeMaioresVendas;
+
+           qryNotasVendas.Sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%cliente')+1] := 'cast(null as integer) as cliente,';
+           qryNotasVendas.Sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%tipocliente')+1] := 'cast(null as varchar) as tipocliente,';
+
+           qryNotasVendas.Sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%nomecliente')+1] := 'cast(''OUTROS'' as varchar) as nomecliente,';
+
+
+
+           qryImprimirNotasCupons.Sql.Append('union all');
+
+           qryImprimirNotasCupons.Sql.Text := qryImprimirNotasCupons.Sql.Text+
+
+                                              qryNotasVendas.Sql.Text;
+
+
+
+           qryNotasVendas.sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%InicioSomatorio')+1] := '/*';
+
+           qryNotasVendas.sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%FimSomatorio')+1] := '*/';
+           qryNotasVendas.sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%InicioAgrupamentoSomatorio')+1] := '/*';
+           qryNotasVendas.sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%FimAgrupamentoSomatorio')+1] := '*/';
+
+
+           qryNotasVendas.Sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%cliente')+1] := 'cast(cliente as integer) as cliente,';
+
+           qryNotasVendas.Sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%tipocliente')+1] := 'cast(tipocliente as varchar) as tipocliente,';
+
+           qryNotasVendas.Sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%nomecliente')+1] := 'cast(nomecliente as varchar) as nomecliente,';
+
+
+
+           qryNotasVendas.Sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%WhereOrdenacao_Total_Vendas')+1]:='';
+
+
+
+           qryNotasDevolucoes.Sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%InicioSomatorio')+1] := '';
+
+           qryNotasDevolucoes.Sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%FimSomatorio')+1] := '';
+           qryNotasDevolucoes.Sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%InicioAgrupamentoSomatorio')+1] := '';
+           qryNotasDevolucoes.Sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%FimAgrupamentoSomatorio')+1] := '';
+           qryNotasDevolucoes.Sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%WhereOrdenacao_Total_Vendas')+1] :=
+             'order by @valortotal desc limit '+FQuantidadeMaioresVendas;
+
+           if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+           begin
+            qryImprimirNotasCupons.Sql.Append('union all');
+            qryImprimirNotasCupons.Sql.Text := qryImprimirNotasCupons.Sql.Text +
+                                               qryNotasDevolucoes.Sql.Text;
+           end;
+           qryNotasDevolucoes.Sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%WhereOrdenacao_Total_Vendas')+1] :=
+            'order by @valortotal desc offset '+FQuantidadeMaioresVendas;
+           qryNotasDevolucoes.Sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%cliente')+1] := 'cast(null as integer) as cliente,';
+           qryNotasDevolucoes.Sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%tipocliente')+1] := 'cast(null as varchar) as tipocliente,';
+
+           qryNotasDevolucoes.Sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%nomecliente')+1] := 'cast(''OUTROS'' as varchar) as nomecliente,';
+
+           if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+           begin
+             qryImprimirNotasCupons.Sql.Append('union all');
+             qryImprimirNotasCupons.Sql.Text := qryImprimirNotasCupons.Sql.Text+
+                                              qryNotasDevolucoes.Sql.Text;
+           end;
+
+           qryNotasDevolucoes.Sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%InicioSomatorio')+1] := '/*';
+
+           qryNotasDevolucoes.Sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%FimSomatorio')+1] := '*/';
+           qryNotasDevolucoes.Sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%InicioAgrupamentoSomatorio')+1] := '/*';
+           qryNotasDevolucoes.Sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%FimAgrupamentoSomatorio')+1] := '*/';
+
+           qryNotasDevolucoes.Sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%cliente')+1] := 'cast(cliente as integer) as cliente,';
+           qryNotasDevolucoes.Sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%tipocliente')+1] := 'cast(tipocliente as varchar) as tipocliente,';
+
+           qryNotasDevolucoes.Sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%nomecliente')+1] := 'cast(nomecliente as varchar) as nomecliente,';
+
+           qryNotasDevolucoes.Sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%WhereOrdenacao_Total_Vendas')+1]:='';
+
+
+           qryImprimirNotasCupons.ParamByName('AgruparFilial').AsBoolean := FAgruparFilial;
+           qryImprimirNotasCupons.ParamByName('AgruparGrupoFilial').AsBoolean := FAgruparGrupoFilial;
+           qryImprimirNotasCupons.ParamByName('MaioresClientes').AsBoolean := FMaioresClientesdoPeriodo;
+          end
+          else
+          begin
+           qryNotasVendas.sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%InicioSomatorio')+1] := '';
+           qryNotasVendas.sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%FimSomatorio')+1] := '';
+           qryNotasVendas.sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%InicioAgrupamentoSomatorio')+1] := '';
+           qryNotasVendas.sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%FimAgrupamentoSomatorio')+1] := '';
+
+           qryImprimirNotasCupons.Sql.Text := qryImprimirNotasCupons.Sql.Text +
+                                            qryNotasVendas.Sql.Text;
+
+           qryNotasVendas.sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%InicioSomatorio')+1] := '/*';
+           qryNotasVendas.sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%FimSomatorio')+1] := '*/';
+           qryNotasVendas.sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%InicioAgrupamentoSomatorio')+1] := '/*';
+           qryNotasVendas.sql[NumerodalinhanoTexto(qryNotasVendas.sql,'%FimAgrupamentoSomatorio')+1] := '*/';
+
+           qryNotasDevolucoes.Sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%InicioSomatorio')+1] := '';
+           qryNotasDevolucoes.Sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%FimSomatorio')+1] := '';
+           qryNotasDevolucoes.Sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%InicioAgrupamentoSomatorio')+1] := '';
+           qryNotasDevolucoes.Sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%FimAgrupamentoSomatorio')+1] := '';
+
+           if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+           begin
+            qryImprimirNotasCupons.Sql.Append('union all');
+            qryImprimirNotasCupons.Sql.Text := qryImprimirNotasCupons.Sql.Text +
+                                               qryNotasDevolucoes.Sql.Text;
+           end;
+           qryNotasDevolucoes.Sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%InicioSomatorio')+1] := '/*';
+           qryNotasDevolucoes.Sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%FimSomatorio')+1] := '*/';
+           qryNotasDevolucoes.Sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%InicioAgrupamentoSomatorio')+1] := '/*';
+           qryNotasDevolucoes.Sql[NumerodalinhanoTexto(qryNotasDevolucoes.sql,'%FimAgrupamentoSomatorio')+1] := '*/';
+
+           qryImprimirNotasCupons.ParamByName('AgruparFilial').AsBoolean := FAgruparFilial;
+           qryImprimirNotasCupons.ParamByName('AgruparGrupoFilial').AsBoolean := FAgruparGrupoFilial;
+           qryImprimirNotasCupons.ParamByName('MaioresClientes').AsBoolean := FMaioresClientesdoPeriodo;
+//           qryImprimirNotasCupons.Sql.insert(0,';');
+          end;
+        end
+        else
+         begin
+           qryImprimirNotasCupons.Sql.Text := qryImprimirNotasCupons.Sql.Text+
+                                              qryNotasVendas.Sql.Text;
+                                              
+           if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+           begin
+            qryImprimirNotasCupons.Sql.Append('union all');
+            qryImprimirNotasCupons.Sql.Text := qryImprimirNotasCupons.Sql.Text +
+                                               qryNotasDevolucoes.Sql.Text;
+           end;
+         end;
+      end;
+  end;
+  SetDevolucoesPeriodoAnterior(FDevolucoesPeriodoAnterior);
+end;
+
+function Tdtmrelatoriovendasdoperiodo.AbrirConsultasRelatorio: boolean;
+begin
+ case OpcaoRelatorio of
+  0: begin
+      qryGravarContratos.Open;
+      qryImprimirContratos.Open;
+      qryImprimirDadosFiscais.Open;
+      if qryImprimirDadosFiscais.IsEmpty then
+      begin
+       qryImprimirDadosFiscais.Insert;
+       qryImprimirDadosFiscais.post;
+      end;
+     end;
+  1: qryImprimirNotasCupons.Open;
+ end;
+ result := not (qryImprimirContratos.IsEmpty and qryImprimirNotasCupons.IsEmpty)
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.ApagarTabelaTemporaria;
+begin
+ try
+  qryDropTable.ExecSql;
+
+ except end;
+
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.frpImprimirVendasBeginDoc;
+begin
+  inherited;
+  FImprimindoRelatorio := True;
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.frpImprimirVendasEndDoc;
+begin
+  inherited;
+  FImprimindoRelatorio := False;
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.TotalizarRelatorio;
+begin
+
+ qryImprimirContratos.Edit;
+ qryImprimirContratostotalizado.AsBoolean := True;
+ qryImprimirContratos.post;
+
+ if not qryTotalizacao.Locate('GrupoFilial;Filial;Data;VendasDevolucoes;JaTotalizado',VarArrayof([FGrupoFilial,FFilial,FData,FVendasdevolucoes,'N']),[]) then
+ begin
+   qryTotalizacao.Append;
+   qryTotalizacao.Post;
+ end;
+
+ if qryImprimirContratostipo.AsString='V' then
+ begin
+  qryTotalizacao.Edit;
+  qryTotalizacaogrupofilial.AsInteger := FGrupoFilial;
+  qryTotalizacaofilial.AsInteger := FFilial;
+  qryTotalizacaodata.Asstring := FData;
+  qryTotalizacaovendasdevolucoes.AsString := FVendasDevolucoes;
+
+  qryTotalizacaoTRegistros_V.AsInteger := qryTotalizacaoTRegistros_V.AsInteger+qryImprimirContratostregistros.AsInteger;
+  qryTotalizacaoTMercadorias_V.AsCurrency := qryTotalizacaoTMercadorias_V.AsCurrency+qryImprimirContratosvendamercadorias.AsCurrency;
+  qryTotalizacaoTservicos_V.AsCurrency := qryTotalizacaoTservicos_V.AsCurrency+qryImprimirContratosvendaservicos.AsCurrency;
+  qryTotalizacaoTVlrPresente_V.AsCurrency := qryTotalizacaoTVlrPresente_V.AsCurrency+qryImprimirContratosvalorvista.AsCurrency;
+  qryTotalizacaotfrete_seguro_v.AsCurrency := qryTotalizacaotfrete_seguro_v.AsCurrency+qryImprimirContratosfrete_seguro.AsCurrency;
+  qryTotalizacaotdesconto_v.AsCurrency := qryTotalizacaotdesconto_v.AsCurrency+qryImprimirContratosdesconto.AsCurrency;
+  qryTotalizacaotcreditooudebito_v.AsCurrency := qryTotalizacaotcreditooudebito_v.AsCurrency+qryImprimirContratoscreditotroca.AsCurrency;
+  qryTotalizacaotvaloricmssubstituicao_v.AsCurrency := qryTotalizacaotvaloricmssubstituicao_v.AsCurrency+qryImprimirContratosValoricmssubstituicao.AsCurrency;
+  qryTotalizacaoTEfinanc_V.AsCurrency := qryTotalizacaoTEfinanc_V.AsCurrency+qryImprimirContratosefinanceiro.AsCurrency;
+  qryTotalizacaoTValorTotal_V.AsCurrency := qryTotalizacaoTValorTotal_V.AsCurrency+qryImprimirContratosvalortotal.AsCurrency;
+  qryTotalizacaoTRecebido_V.AsCurrency := qryTotalizacaoTRecebido_V.AsCurrency+qryImprimirContratosavista.AsCurrency+qryImprimirContratosentradas.AsCurrency;
+  qryTotalizacaoTAprazo_V.AsCurrency := qryTotalizacaoTAprazo_V.AsCurrency+qryImprimirContratosaprazo.AsCurrency;
+  qryTotalizacaoTAvista_V.AsCurrency := qryTotalizacaoTAvista_V.AsCurrency+qryImprimirContratosavista.AsCurrency;
+  qryTotalizacaoTEntradas_V.AsCurrency := qryTotalizacaoTEntradas_V.AsCurrency+qryImprimirContratosentradas.AsCurrency;
+  qryTotalizacaojatotalizado.AsString := 'N';
+
+  qrytotalizacao.Post;
+
+ end
+ else
+ begin
+  qryTotalizacao.Edit;
+  qryTotalizacaogrupofilial.AsInteger := FGrupoFilial;
+  qryTotalizacaofilial.AsInteger := FFilial;
+  qryTotalizacaodata.Asstring := FData;
+  qryTotalizacaovendasdevolucoes.AsString := FVendasDevolucoes;
+
+  qryTotalizacaoTRegistros_C.AsInteger := qryTotalizacaoTRegistros_C.AsInteger-qryImprimirContratostregistros.AsInteger;
+  qryTotalizacaoTMercadorias_C.AsCurrency := qryTotalizacaoTMercadorias_C.AsCurrency+qryImprimirContratosvendamercadorias.AsCurrency;
+  qryTotalizacaoTservicos_C.AsCurrency := qryTotalizacaoTservicos_C.AsCurrency+qryImprimirContratosvendaservicos.AsCurrency;
+  qryTotalizacaotfrete_seguro_c.AsCurrency := qryTotalizacaotfrete_seguro_c.AsCurrency+qryImprimirContratosfrete_seguro.AsCurrency;
+  qryTotalizacaotdesconto_c.AsCurrency := qryTotalizacaotdesconto_c.AsCurrency+qryImprimirContratosdesconto.AsCurrency;
+  qryTotalizacaotcreditooudebito_c.AsCurrency := qryTotalizacaotcreditooudebito_c.AsCurrency+qryImprimirContratoscreditotroca.AsCurrency;
+  qryTotalizacaotvaloricmssubstituicao_c.AsCurrency := qryTotalizacaotvaloricmssubstituicao_c.AsCurrency+qryImprimirContratosValoricmssubstituicao.AsCurrency;
+  qryTotalizacaoTVlrPresente_C.AsCurrency := qryTotalizacaoTVlrPresente_C.AsCurrency+qryImprimirContratosvalorvista.AsCurrency;
+  qryTotalizacaoTEfinanc_C.AsCurrency := qryTotalizacaoTEfinanc_C.AsCurrency+qryImprimirContratosefinanceiro.AsCurrency;
+  qryTotalizacaoTValorTotal_C.AsCurrency := qryTotalizacaoTValorTotal_C.AsCurrency+qryImprimirContratosvalortotal.AsCurrency;
+  qryTotalizacaoTRecebido_C.AsCurrency := qryTotalizacaoTRecebido_C.AsCurrency+qryImprimirContratosavista.AsCurrency+qryImprimirContratosentradas.AsCurrency;
+  qryTotalizacaoTAprazo_C.AsCurrency := qryTotalizacaoTAprazo_C.AsCurrency+qryImprimirContratosaprazo.AsCurrency;
+  qryTotalizacaoTAvista_C.AsCurrency := qryTotalizacaoTAvista_C.AsCurrency+qryImprimirContratosavista.AsCurrency;
+  qryTotalizacaoTEntradas_C.AsCurrency := qryTotalizacaoTEntradas_C.AsCurrency+qryImprimirContratosentradas.AsFloat;
+  qryTotalizacaojatotalizado.AsString := 'N';
+
+  qryTotalizacao.Post;
+ end;
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.frpImprimirVendasGetValue(
+  const ParName: String; var ParValue: Variant);
+begin
+  inherited;
+  if ANSIUpperCase(parname) = 'NOMEGRUPOFILIALVENDA' then
+   ParValue := qryImprimirContratosnomegrupofilialvenda.AsString
+  else if ANSIUpperCase(parname) = 'GRUPOFILIALVENDA' then
+   ParValue := qryImprimirContratosgrupofilialvenda.AsString
+  else if ANSIUpperCase(parname) = 'NOMEFILIALVENDA' then
+   ParValue := qryImprimirContratosnomefilialvenda.AsString
+  else if ANSIUpperCase(parname) = 'FILIALVENDA' then
+   ParValue := qryImprimirContratosfilialvenda.AsString
+  else if ANSIUpperCase(parname) = 'NOMECLIENTE' then
+   ParValue := qryImprimirContratosnomecliente.AsString
+  else if ANSIUpperCase(parname) = 'DATAVENDA' then
+  begin
+   if qryImprimirContratosdatavenda.AsString<>'' then
+    if qryImprimirContratosdatavenda.AsDateTime<>strtodate('01/01/1900') then
+      ParValue := formatdatetime('dd/mm/yy',qryImprimirContratosdatavenda.AsDateTime)
+    else ParValue := ''
+   else  ParValue := '';
+  end
+  else if ANSIUpperCase(ParName) = 'NCONTRATO' then
+   ParValue := qryImprimirContratosncontrato.AsString
+  else if ANSIUpperCase(ParName) = 'VENDAMERCADORIAS' then
+  begin
+   if (qryImprimirContratosvendamercadorias.AsFloat<>0) then
+     ParValue := formatarvalor(qryImprimirContratosvendamercadorias.AsFloat,2)
+   else  ParValue := '';
+  end
+  else if ANSIUpperCase(ParName) = 'VENDASERVICOS' then
+  begin
+   if (qryImprimirContratosvendaservicos.AsFloat<>0) then
+    ParValue := formatarvalor(qryImprimirContratosvendaservicos.AsFloat,2)
+   else ParValue :='';
+  end
+  else if ANSIUpperCase(ParName) = 'FRETE_SEGURO' then
+  begin
+   if (qryImprimirContratosfrete_seguro.AsFloat<>0) then
+    ParValue := formatarvalor(qryImprimirContratosfrete_seguro.AsFloat,2)
+   else ParValue := '';
+  end
+  else if ANSIUpperCase(ParName) = 'DESCONTO' then
+  begin
+   if (qryImprimirContratosdesconto.AsFloat<>0) then
+    ParValue := formatarvalor(qryImprimirContratosdesconto.AsFloat,2)
+   else ParValue := '';
+  end
+  else if ANSIUpperCase(ParName) = 'CABECALHODEBCREDOUICMS' then
+  begin
+   if ParSistema.utilizarcreditotrocacontrato then
+     ParValue := 'Déb./Créd. do Cliente'
+   else
+     ParValue := 'ICMS Substituição';
+  end
+  else if ANSIUpperCase(ParName) = 'CREDITOOUDEBITO' then
+  begin
+   if ParSistema.utilizarcreditotrocacontrato then
+   begin
+     if (qryImprimirContratoscreditotroca.AsFloat<>0) then
+      ParValue := formatarvalor(qryImprimirContratoscreditotroca.AsFloat,2)
+     else ParValue := '';
+   end
+   else
+   begin
+     if (qryImprimirContratosValoricmssubstituicao.AsFloat<>0) then
+      ParValue := formatarvalor(qryImprimirContratosValoricmssubstituicao.AsFloat,2)
+     else ParValue := '';
+   end;
+  end
+  else if ANSIUpperCase(ParName) = 'RODAPEVALORTOTAL_DEBCREDICMS' then
+  begin
+   if ParSistema.utilizarcreditotrocacontrato then
+     ParValue := 'Valor Total - Deb./Cred. do Cliente'
+   else
+     ParValue := 'Valor Total - ICMS Substituição';
+  end
+  else if ANSIUpperCase(ParName) = 'VALORVISTA' then
+  begin
+   if (qryImprimirContratosvalorvista.AsFloat<>0) then
+    ParValue := formatarvalor(qryImprimirContratosvalorvista.AsFloat,2)
+   else ParValue := '';
+  end
+  else if ANSIUpperCase(ParName) = 'EFINANCEIRO' then
+  begin
+   if (qryImprimirContratosefinanceiro.AsFloat<>0) then
+    ParValue := formatarvalor(qryImprimirContratosefinanceiro.AsFloat,2)
+   else ParValue := ''
+  end
+  else if ANSIUpperCase(ParName) = 'VALORTOTAL' then
+  begin
+   if (qryImprimirContratosvalortotal.AsFloat<>0) then
+    ParValue := formatarvalor(qryImprimirContratosvalortotal.AsFloat,2)
+   else ParValue := ''
+  end
+  else if ANSIUpperCase(ParName) = 'RECEBIDO' then
+  begin
+   if ((qryImprimirContratosavista.AsFloat+qryImprimirContratosentradas.AsFloat)<>0) then
+    ParValue := formatarvalor((qryImprimirContratosavista.AsFloat+qryImprimirContratosentradas.AsFloat),2)
+   else ParValue := ''
+  end
+  else if ANSIUpperCase(ParName) = 'APRAZO' then
+  begin
+   if (qryImprimirContratosaprazo.AsFloat<>0) then
+    ParValue := formatarvalor(qryImprimirContratosaprazo.AsFloat,2)
+   else ParValue := ''
+  end
+  else if ANSIUpperCase(ParName) = 'QTPARCELAS' then
+  begin
+   if (qryImprimirContratosqtparcelas.AsInteger<>0) then
+    ParValue := qryImprimirContratosqtparcelas.AsString
+   else ParValue := ''
+  end
+  else if ANSIUpperCase(ParName) = 'AVISTA' then
+  begin
+   if (qryImprimirContratosavista.AsFloat<>0) then
+    ParValue := formatarvalor(qryImprimirContratosavista.AsFloat,2)
+   else ParValue :=''
+  end
+  else if ANSIUpperCase(ParName) = 'ENTRADAS' then
+  begin
+   if (qryImprimirContratosentradas.AsFloat<>0) then
+    ParValue := formatarvalor(qryImprimirContratosentradas.AsFloat,2)
+   else ParValue := '';
+  end
+  else if ANSIUpperCase(ParName) = 'SERIE' then
+    ParValue := qryImprimirDadosFiscaisserie.AsString
+  else if ANSIUpperCase(ParName) = 'NUMERONF' then
+    ParValue := qryImprimirDadosFiscaisnumeronf.AsString
+  else if ANSIUpperCase(ParName) = 'MAQUINA' then
+    ParValue := qryImprimirDadosFiscaismaquina.AsString
+  else if ANSIUpperCase(ParName) = 'INTERVENSAO' then
+    ParValue := qryImprimirDadosFiscaisintervensao.AsString
+  else if ANSIUpperCase(ParName) = 'NUMEROCUPOM' then
+    ParValue := qryImprimirDadosFiscaisnumerocupom.AsString
+  else if ANSIUpperCase(ParName) = 'TREGISTROS_V' then
+   ParValue := CalcularTotal(qryTotalizacaoTRegistros_V)
+  else if ANSIUpperCase(ParName) = 'TREGISTROS_C' then
+   ParValue := CalcularTotal(qryTotalizacaoTRegistros_C)
+  else if ANSIUpperCase(ParName) = 'TMERCADORIAS_V' then
+   ParValue := CalcularTotal(qryTotalizacaoTMercadorias_V)
+  else if ANSIUpperCase(ParName) = 'TMERCADORIAS_C' then
+   ParValue := CalcularTotal(qryTotalizacaoTMercadorias_C)
+  else if ANSIUpperCase(ParName) = 'TSERVICOS_V' then
+   ParValue := CalcularTotal(qryTotalizacaoTservicos_V)
+  else if ANSIUpperCase(ParName) = 'TSERVICOS_C' then
+   ParValue := CalcularTotal(qryTotalizacaoTservicos_C)
+  else if ParName = 'TVLRPRESENTE_V' then
+   ParValue := CalcularTotal(qryTotalizacaoTVlrPresente_V)
+  else if ParName = 'TVLRPRESENTE_C' then
+   ParValue := CalcularTotal(qryTotalizacaoTVlrPresente_C)
+  else if ParName = 'TFRETE_SEGURO_V' then
+   ParValue := CalcularTotal(qryTotalizacaotfrete_seguro_v)
+  else if ParName = 'TFRETE_SEGURO_C' then
+   ParValue := CalcularTotal(qryTotalizacaotfrete_seguro_c)
+  else if ParName = 'TDESCONTO_V' then
+   ParValue := CalcularTotal(qryTotalizacaotdesconto_v)
+  else if ParName = 'TDESCONTO_C' then
+   ParValue := CalcularTotal(qryTotalizacaotdesconto_c)
+  else if ParName = 'TCREDITOOUDEBITO_V' then
+  begin
+    if ParSistema.utilizarcreditotrocacontrato then
+      ParValue := CalcularTotal(qryTotalizacaotcreditooudebito_v)
+    else
+      ParValue := CalcularTotal(qryTotalizacaotvaloricmssubstituicao_v);
+  end
+  else if ParName = 'TCREDITOOUDEBITO_C' then
+  begin
+    if ParSistema.utilizarcreditotrocacontrato then
+      ParValue := CalcularTotal(qryTotalizacaotcreditooudebito_c)
+    else
+      ParValue := CalcularTotal(qryTotalizacaotvaloricmssubstituicao_c);
+  end
+  else if ParName = 'TEFINANC_V' then
+   ParValue := CalcularTotal(qryTotalizacaoTEfinanc_V)
+  else if ParName = 'TEFINANC_C' then
+   ParValue := CalcularTotal(qryTotalizacaoTEfinanc_C)
+  else if ParName = 'TVALORTOTAL_V' then
+   ParValue := CalcularTotal(qryTotalizacaoTValorTotal_V)
+  else if ParName = 'TVALORTOTAL_C' then
+   ParValue := CalcularTotal(qryTotalizacaoTValorTotal_C)
+  else if ParName = 'TRECEBIDO_V' then
+   ParValue := CalcularTotal(qryTotalizacaoTRecebido_V)
+  else if ParName = 'TRECEBIDO_C' then
+   ParValue := CalcularTotal(qryTotalizacaoTRecebido_C)
+  else if ParName = 'TAPRAZO_V' then
+   ParValue := CalcularTotal(qryTotalizacaoTAprazo_V)
+  else if ParName = 'TAPRAZO_C' then
+   ParValue := CalcularTotal(qryTotalizacaoTAprazo_C)
+  else if ParName = 'TAVISTA_V' then
+   ParValue := CalcularTotal(qryTotalizacaoTAvista_V)
+  else if ParName = 'TAVISTA_C' then
+   ParValue := CalcularTotal(qryTotalizacaoTAvista_C)
+  else if ParName = 'TENTRADAS_V' then
+   ParValue := CalcularTotal(qryTotalizacaoTEntradas_V)
+  else if ParName = 'TENTRADAS_C' then
+   ParValue := CalcularTotal(qryTotalizacaoTEntradas_C);
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.frpImprimirVendasBeginBand(
+  Band: TfrBand);
+begin
+  inherited;
+  BandaImpressa := Band.Name;
+end;
+
+function Tdtmrelatoriovendasdoperiodo.CalcularTotal(Campo: TField): Currency;
+var
+ TRegistros_V, TRegistros_C : Integer;
+ Valor,
+ TMercadorias_V,Tservicos_V,TVlrPresente_V,TFrete_Seguro_V, TDesconto_V, TCreditoouDebito_V, TEfinanc_V,
+ TValorTotal_V,TRecebido_V,TAprazo_V,TAvista_V,TEntradas_V,
+ TMercadorias_C,Tservicos_C,TVlrPresente_C, TFrete_Seguro_C, TDesconto_C, TCreditoouDebito_C, TEfinanc_C,
+ TValorTotal_C,TRecebido_C,TAprazo_C,TAvista_C,TEntradas_C,
+ TValorICMSSubstituicao_V, TValorICMSSubstituicao_C : Currency;
+
+ procedure Adicionar;
+ begin
+   Valor          := Valor + Campo.AsFloat;
+
+   TRegistros_V   := TRegistros_V + qryTotalizacaoTRegistros_V.AsInteger;
+   TMercadorias_V := TMercadorias_V + qryTotalizacaoTMercadorias_V.AsCurrency;
+   Tservicos_V    := Tservicos_V + qryTotalizacaoTservicos_V.AsCurrency;
+   TVlrPresente_V := TVlrPresente_V + qryTotalizacaoTVlrPresente_V.AsCurrency;
+   TFrete_Seguro_V := TFrete_Seguro_V + qryTotalizacaotfrete_seguro_v.AsCurrency;
+   TDesconto_V := TDesconto_V + qryTotalizacaotdesconto_v.AsCurrency;
+   TCreditoouDebito_V := TCreditoouDebito_V + qryTotalizacaotcreditooudebito_v.AsCurrency;
+   TValorICMSSubstituicao_V := TValorICMSSubstituicao_V + qryTotalizacaotvaloricmssubstituicao_v.AsCurrency;
+
+   TEfinanc_V     := TEfinanc_V + qryTotalizacaoTEfinanc_V.AsCurrency;
+   TValorTotal_V  := TValorTotal_V + qryTotalizacaoTValorTotal_V.AsCurrency;
+   TRecebido_V    := TRecebido_V + qryTotalizacaoTRecebido_V.AsCurrency;
+   TAprazo_V      := TAprazo_V + qryTotalizacaoTAprazo_V.AsCurrency;
+   TAvista_V      := TAvista_V + qryTotalizacaoTAvista_V.AsCurrency;
+   TEntradas_V    := TEntradas_V + qryTotalizacaoTEntradas_V.AsCurrency;
+
+   TRegistros_C   := TRegistros_C + qryTotalizacaoTRegistros_C.AsInteger;
+   TMercadorias_C := TMercadorias_C + qryTotalizacaoTMercadorias_C.AsCurrency;
+   Tservicos_C    := Tservicos_C + qryTotalizacaoTservicos_C.AsCurrency;
+   TVlrPresente_C := TVlrPresente_C + qryTotalizacaoTVlrPresente_C.AsCurrency;
+   TFrete_Seguro_C := TFrete_Seguro_C + qryTotalizacaotfrete_seguro_C.AsCurrency;
+   TDesconto_C := TDesconto_C + qryTotalizacaotdesconto_c.AsCurrency;
+   TCreditoouDebito_C := TCreditoouDebito_C + qryTotalizacaotcreditooudebito_c.AsCurrency;
+   TValorICMSSubstituicao_C := TValorICMSSubstituicao_C + qryTotalizacaotvaloricmssubstituicao_c.AsCurrency;
+
+   TEfinanc_C     := TEfinanc_C + qryTotalizacaoTEfinanc_C.AsCurrency;
+   TValorTotal_C  := TValorTotal_C + qryTotalizacaoTValorTotal_C.AsCurrency;
+   TRecebido_C    := TRecebido_C + qryTotalizacaoTRecebido_C.AsCurrency;
+   TAprazo_C      := TAprazo_C + qryTotalizacaoTAprazo_C.AsCurrency;
+   TAvista_C      := TAvista_C + qryTotalizacaoTAvista_C.AsCurrency;
+   TEntradas_C    := TEntradas_C + qryTotalizacaoTEntradas_C.AsCurrency;
+
+ end;
+
+ procedure AdicionarJaTotalizado(VGrupoFilial, VFilial: integer; VData: String);
+ begin
+  qryTotalizacao.Append;
+  qryTotalizacaogrupofilial.AsInteger := VGrupoFilial;
+  qryTotalizacaofilial.AsInteger := VFilial;
+  qryTotalizacaodata.AsString := Vdata;
+
+  qryTotalizacaoTRegistros_V.AsInteger := TRegistros_V;
+  qryTotalizacaoTMercadorias_V.AsCurrency := TMercadorias_V;
+  qryTotalizacaoTservicos_V.AsCurrency := Tservicos_V;
+  qryTotalizacaoTVlrPresente_V.AsCurrency := TVlrPresente_V;
+  qryTotalizacaotfrete_seguro_v.AsCurrency := TFrete_Seguro_V;
+  qryTotalizacaotdesconto_v.AsCurrency := TDesconto_V;
+  qryTotalizacaotcreditooudebito_v.AsCurrency := TCreditoouDebito_V;
+  qryTotalizacaotvaloricmssubstituicao_v.AsCurrency := TValorICMSSubstituicao_V;
+
+  qryTotalizacaoTEfinanc_V.AsCurrency := TEfinanc_V;
+  qryTotalizacaoTValorTotal_V.AsCurrency := TValorTotal_V;
+  qryTotalizacaoTRecebido_V.AsCurrency := TRecebido_V;
+  qryTotalizacaoTAprazo_V.AsCurrency := TAprazo_V;
+  qryTotalizacaoTAvista_V.AsCurrency := TAvista_V;
+  qryTotalizacaoTEntradas_V.AsCurrency := TEntradas_V;
+
+  qryTotalizacaoTRegistros_C.AsInteger := TRegistros_C;
+  qryTotalizacaoTMercadorias_C.AsCurrency := TMercadorias_C;
+  qryTotalizacaoTservicos_C.AsCurrency := Tservicos_C;
+  qryTotalizacaoTVlrPresente_C.AsCurrency := TVlrPresente_C;
+  qryTotalizacaotfrete_seguro_c.AsCurrency := TFrete_Seguro_C;
+  qryTotalizacaotdesconto_c.AsCurrency := TDesconto_C;
+  qryTotalizacaotcreditooudebito_c.AsCurrency := TCreditoouDebito_C;
+  qryTotalizacaotvaloricmssubstituicao_c.AsCurrency := TValorICMSSubstituicao_C;
+
+  qryTotalizacaoTEfinanc_C.AsCurrency := TEfinanc_C;
+  qryTotalizacaoTValorTotal_C.AsCurrency := TValorTotal_C;
+  qryTotalizacaoTRecebido_C.AsCurrency := TRecebido_C;
+  qryTotalizacaoTAprazo_C.AsCurrency := TAprazo_C;
+  qryTotalizacaoTAvista_C.AsCurrency := TAvista_C;
+  qryTotalizacaoTEntradas_C.AsCurrency := TEntradas_C;
+
+  qryTotalizacaojatotalizado.AsString := 'S';
+
+  qrytotalizacao.Post;
+ end;
+
+
+begin
+
+ Valor          := 0;
+ TRegistros_V   := 0;
+ TMercadorias_V := 0;
+ Tservicos_V    := 0;
+ TVlrPresente_V := 0;
+ TEfinanc_V     := 0;
+ TValorTotal_V  := 0;
+ TRecebido_V    := 0;
+ TAprazo_V      := 0;
+ TAvista_V      := 0;
+ TEntradas_V    := 0;
+
+ TRegistros_C   := 0;
+ TMercadorias_C := 0;
+ Tservicos_C    := 0;
+ TVlrPresente_C := 0;
+ TEfinanc_C     := 0;
+ TValorTotal_C  := 0;
+ TRecebido_C    := 0;
+ TAprazo_C      := 0;
+ TAvista_C      := 0;
+ TEntradas_C    := 0;
+
+ if (BandaImpressa = 'RodapeVendasDevolucoes') and FExibirTotaisVendaseDevolucoes then
+ begin
+ {
+  if FAgruparDataVenda then
+  begin
+   if qryTotalizacao.Locate('GrupoFilial;Filial;Data;VendasDevolucoes',VarArrayof([FGrupoFilial,FFilial,FData,FVendasDevolucoes]),[]) then
+     Valor := Campo.AsFloat;
+  end
+  else
+  if qryTotalizacao.Locate('GrupoFilial;Filial;VendasDevolucoes',VarArrayof([FGrupoFilial,FFilial,FVendasDevolucoes]),[]) then
+    Valor := Campo.AsFloat;
+    }
+   if qryTotalizacao.Locate('GrupoFilial;Filial;Data;VendasDevolucoes',VarArrayof([FGrupoFilial,FFilial,FData,FVendasDevolucoes]),[]) then
+     Valor := Campo.AsFloat;
+ end
+
+ else
+
+ if (BandaImpressa = 'RodapeDataVenda') and FAgruparDataVenda then
+ begin
+  if qryTotalizacao.Locate('GrupoFilial;Filial;Data;JaTotalizado',VarArrayof([FGrupoFilial,FFilial,FData,'S']),[]) then
+   Valor := valor + Campo.AsFloat
+  else
+  begin
+   if qryTotalizacao.Locate('GrupoFilial;Filial;Data;JaTotalizado',VarArrayof([FGrupoFilial,FFilial,FData,'N']),[]) then
+   begin
+    while not qryTotalizacao.Eof do
+    begin
+     if (qryTotalizacaogrupofilial.AsInteger = FGrupoFilial) and
+          (qryTotalizacaofilial.AsInteger = FFilial) and
+          (qryTotalizacaodata.AsString = fdata) and
+          (qryTotalizacaojatotalizado.AsString='N')then
+      Adicionar;
+     qryTotalizacao.Next;
+    end;
+    AdicionarJaTotalizado(FGrupoFilial, FFilial, FData);
+   end;
+  end;
+ end
+
+
+ else
+
+ if (BandaImpressa = 'RodapeFilial') and FAgruparFilial then
+ begin
+  if qryTotalizacao.Locate('GrupoFilial;Filial;Data;JaTotalizado',VarArrayof([FGrupoFilial,FFilial,'','S']),[]) then
+   Valor := Valor + Campo.AsFloat
+  else
+  begin
+   if qryTotalizacao.Locate('GrupoFilial;Filial;JaTotalizado',VarArrayof([FGrupoFilial,FFilial, 'N']),[]) then
+   begin
+    while not qryTotalizacao.Eof do
+    begin
+     if (qryTotalizacaogrupofilial.AsInteger = FGrupoFilial) and
+          (qryTotalizacaofilial.AsInteger = FFilial) and
+          (qryTotalizacaojatotalizado.AsString='N')then
+      Adicionar;
+     qryTotalizacao.Next;
+    end;
+    AdicionarJaTotalizado(FGrupoFilial, FFilial,'');
+   end;
+  end;
+ end
+
+ else
+
+ if (BandaImpressa = 'RodapeGrupoFilial') and FAgruparGrupoFilial then
+ begin
+  if qryTotalizacao.Locate('GrupoFilial;Filial;Data;JaTotalizado',VarArrayof([FGrupoFilial,0,'','S']),[]) then
+   Valor := Valor + Campo.AsFloat
+  else
+   if qryTotalizacao.Locate('GrupoFilial,JaTotalizado',VarArrayof([FGrupoFilial,'N']),[]) then
+   begin
+    while not qryTotalizacao.Eof do
+    begin
+     if (qryTotalizacaogrupofilial.AsInteger = FGrupoFilial) and
+        (qryTotalizacaojatotalizado.AsString='N') then
+      Adicionar;
+     qryTotalizacao.Next;
+    end;
+    AdicionarJaTotalizado(FGrupoFilial,0,'');
+   end;
+ end
+
+ else
+
+ if BandaImpressa = 'SumarioTotal' then
+ begin
+  if qryTotalizacao.Locate('GrupoFilial;Filial;Data;JaTotalizado',VarArrayof([0,0,'','S']),[]) then
+   Valor := Valor + Campo.AsFloat
+  else
+   begin
+      qryTotalizacao.First;
+      while not qryTotalizacao.Eof do
+      begin
+       if (qryTotalizacaojatotalizado.AsString='N') then
+        Adicionar;
+       qryTotalizacao.Next;
+      end;
+      AdicionarJaTotalizado(0,0,'');
+   end;
+ end;
+
+ result := valor;
+
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.VerificarAgrupamentoContratos;
+begin
+  FGrupoFilial := 0;
+  FFilial := 0;
+  FData := '';
+  FVendasDevolucoes := '';
+  if AgruparGrupoFilial then
+    FGrupoFilial := qryImprimirContratosgrupofilialvenda.AsInteger;
+  if AgruparFilial then
+    FFilial := qryImprimirContratosfilialvenda.AsInteger;
+  if AgruparDataVenda then
+    FData := qryImprimirContratosdatavenda.AsString;
+  if ExibirTotaisVendaseDevolucoes then
+  begin
+    if SepararVendas and SepararDevolucoes then
+      FVendasDevolucoes := qryImprimirContratostipo.AsString + qryImprimirContratoscontratoavista.AsString
+    else
+    if SepararVendas then
+      FVendasDevolucoes := qryImprimirContratoscontratoavista.AsString
+    else
+    if SepararDevolucoes then
+      FVendasDevolucoes := qryImprimirContratostipo.AsString;
+  end;
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.frpImprimirNotasCuponsGetValue(
+  const ParName: String; var ParValue: Variant);
+begin
+  inherited;
+  if ANSIUpperCase(parname) = 'NOMEGRUPOFILIALVENDA' then
+   ParValue := qryImprimirNotasCuponsnomegrupofilialvenda.AsString
+  else if ANSIUpperCase(parname) = 'GRUPOFILIALVENDA' then
+   ParValue := qryImprimirNotasCuponsgrupofilialvenda.AsString
+  else if ANSIUpperCase(parname) = 'NOMEFILIALVENDA' then
+   ParValue := qryImprimirNotasCuponsnomefilialvenda.AsString
+  else if ANSIUpperCase(parname) = 'FILIALVENDA' then
+   ParValue := qryImprimirNotasCuponsfilialvenda.AsString
+  else if ANSIUpperCase(parname) = 'NOMECLIENTE' then
+   ParValue := qryImprimirNotasCuponsnomecliente.AsString
+  else if ANSIUpperCase(parname) = 'TIPOCLIENTE' then
+   if qryImprimirNotasCuponstipocliente.AsString='F' then
+    ParValue := qryImprimirNotasCuponstipocliente.AsString
+   else ParValue := ''
+  else if ANSIUpperCase(parname) = 'DATAVENDA' then
+  begin
+   if qryImprimirNotasCuponsdatavenda.AsString<>'' then
+    if (qryImprimirNotasCuponsdatavenda.AsDateTime<>strtodate('01/01/1900')) then
+      ParValue := formatdatetime('dd/mm/yy',qryImprimirNotasCuponsdatavenda.AsDateTime)
+    else
+      ParValue := ''
+   else
+   ParValue := '';
+  end
+  else if ANSIUpperCase(ParName) = 'NCONTRATO' then
+   ParValue := qryImprimirNotasCuponsncontrato.AsString
+  else if ANSIUpperCase(ParName) = 'VENDAMERCADORIAS' then
+  begin
+   if (qryImprimirNotasCuponsvendamercadorias.AsFloat<>0) then
+     ParValue := formatarvalor(qryImprimirNotasCuponsvendamercadorias.AsFloat,2)
+   else  ParValue := '';
+  end
+  else if ANSIUpperCase(ParName) = 'DESCONTO' then
+  begin
+   if (qryImprimirNotasCuponsdesconto.AsFloat<>0) then
+     ParValue := formatarvalor(qryImprimirNotasCuponsdesconto.AsFloat,2)
+   else  ParValue := '';
+  end
+  else if ANSIUpperCase(ParName) = 'VENDASERVICOS' then
+  begin
+   if (qryImprimirNotasCuponsvendaservicos.AsFloat<>0) then
+    ParValue := formatarvalor(qryImprimirNotasCuponsvendaservicos.AsFloat,2)
+   else ParValue :='';
+  end
+  else if ANSIUpperCase(ParName) = 'VALORVISTA' then
+  begin
+   if (qryImprimirNotasCuponsvalorvista.AsFloat<>0) then
+    ParValue := formatarvalor(qryImprimirNotasCuponsvalorvista.AsFloat,2)
+   else ParValue := '';
+  end
+  else if ANSIUpperCase(ParName) = 'OUTROS' then
+  begin
+   if (qryImprimirNotasCuponsoutras.AsFloat<>0) then
+    ParValue := formatarvalor(qryImprimirNotasCuponsoutras.AsFloat,2)
+   else ParValue := ''
+  end
+  else if ANSIUpperCase(ParName) = 'EFINANCEIRO' then
+  begin
+   if (qryImprimirNotasCuponsefinanceiro.AsFloat<>0) then
+    ParValue := formatarvalor(qryImprimirNotasCuponsefinanceiro.AsFloat,2)
+   else ParValue := ''
+  end
+  else if ANSIUpperCase(ParName) = 'VALORTOTAL' then
+  begin
+   if (qryImprimirNotasCuponsvalortotal.AsFloat<>0) then
+    ParValue := formatarvalor(qryImprimirNotasCuponsvalortotal.AsFloat,2)
+   else ParValue := ''
+  end
+  else if ANSIUpperCase(ParName) = 'VALORICMSSUBSTITUICAO' then
+  begin
+   if (qryImprimirNotasCuponsvaloricmssubstituicao.AsFloat<>0) then
+    ParValue := formatarvalor(qryImprimirNotasCuponsvaloricmssubstituicao.AsFloat,2)
+   else ParValue := ''
+  end
+  else if ANSIUpperCase(ParName) = 'SERIE' then
+    ParValue := qryImprimirNotasCuponsserie.AsString
+  else if ANSIUpperCase(ParName) = 'NOTAFISCAL' then
+    ParValue := qryImprimirNotasCuponsnotafiscal.AsString
+  else if ANSIUpperCase(ParName) = 'MAQUINA' then
+    ParValue := qryImprimirNotasCuponsmaquina.AsString
+  else if ANSIUpperCase(ParName) = 'INTERVENSAO' then
+    ParValue := qryImprimirNotasCuponsintervensao.AsString
+  else if ANSIUpperCase(ParName) = 'CUPOMFISCAL' then
+    ParValue := qryImprimirNotasCuponscupomfiscal.AsString
+  else if ANSIUpperCase(ParName) = 'TREGISTROS_V' then
+   ParValue := CalcularTotalNotas(qryTotalizacaoNotastregistros_v)
+  else if ANSIUpperCase(ParName) = 'TREGISTROS_C' then
+   ParValue := CalcularTotalNotas(qryTotalizacaoNotasTRegistros_C)
+  else if ANSIUpperCase(ParName) = 'TVENDAMERCADORIAS_V' then
+   ParValue := CalcularTotalNotas(qryTotalizacaoNotasTVendaMercadorias_V)
+  else if ANSIUpperCase(ParName) = 'TVENDAMERCADORIAS_C' then
+   ParValue := CalcularTotalNotas(qryTotalizacaoNotastvendamercadorias_c)
+  else if ANSIUpperCase(ParName) = 'TDESCONTO_V' then
+   ParValue := CalcularTotalNotas(qryTotalizacaoNotastdesconto_v)
+  else if ANSIUpperCase(ParName) = 'TDESCONTO_C' then
+   ParValue := CalcularTotalNotas(qryTotalizacaoNotastdesconto_c)
+  else if ANSIUpperCase(ParName) = 'TVENDASERVICOS_V' then
+   ParValue := CalcularTotalNotas(qryTotalizacaoNotasTVendaservicos_V)
+  else if ANSIUpperCase(ParName) = 'TVENDASERVICOS_C' then
+   ParValue := CalcularTotalNotas(qryTotalizacaoNotastvendaservicos_c)
+  else if ParName = 'TVALORVISTA_V' then
+   ParValue := CalcularTotalNotas(qryTotalizacaoNotastvalorvista_v)
+  else if ParName = 'TVALORVISTA_C' then
+   ParValue := CalcularTotalNotas(qryTotalizacaoNotastvalorvista_c)
+  else if ParName = 'TEFINANCEIRO_V' then
+   ParValue := CalcularTotalNotas(qryTotalizacaoNotastefinanceiro_v)
+  else if ParName = 'TEFINANCEIRO_C' then
+   ParValue := CalcularTotalNotas(qryTotalizacaoNotastefinanceiro_c)
+  else if ParName = 'TVALORTOTAL_V' then
+   ParValue := CalcularTotalNotas(qryTotalizacaoNotastvalortotal_v)
+  else if ParName = 'TVALORTOTAL_C' then
+   ParValue := CalcularTotalNotas(qryTotalizacaoNotastvalortotal_c)
+  else if ParName = 'TVALORICMSSUBSTITUICAO_V' then
+   ParValue := CalcularTotalNotas(qryTotalizacaoNotastvaloricmssubstituicao_v)
+  else if ParName = 'TVALORICMSSUBSTITUICAO_C' then
+   ParValue := CalcularTotalNotas(qryTotalizacaoNotastvaloricmssubstituicao_c)
+  else if ParName = 'TOUTRAS_V' then
+   ParValue := CalcularTotalNotas(qryTotalizacaoNotastoutras_v)
+  else if ParName = 'TOUTRAS_C' then
+   ParValue := CalcularTotalNotas(qryTotalizacaoNotastoutras_c);
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.qryImprimirNotasCuponsAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if FImprimindoRelatorio and not qryImprimirNotasCupons.Eof then
+  begin
+   VerificarAgrupamentoNotas;
+   if not qryImprimirNotasCuponstotalizado.AsBoolean then
+     TotalizarRelatorioNotas;
+  end;
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.VerificarAgrupamentoNotas;
+begin
+  FGrupoFilial := 0;
+  FFilial := 0;
+  FData := '';
+  FVendasDevolucoes := '';
+  if AgruparGrupoFilial then
+    FGrupoFilial := qryImprimirNotasCuponsgrupofilialvenda.AsInteger;
+  if AgruparFilial then
+    FFilial := qryImprimirNotasCuponsfilialvenda.AsInteger;
+  if AgruparDataVenda then
+    FData := qryImprimirNotasCuponsdatavenda.AsString;
+  if ExibirTotaisVendaseDevolucoes then
+  begin
+    if SepararVendas and SepararDevolucoes then
+      FVendasDevolucoes := qryImprimirNotasCuponstipo.AsString + qryImprimirNotasCuponscontratoavista.AsString
+    else
+    if SepararVendas then
+      FVendasDevolucoes := qryImprimirNotasCuponscontratoavista.AsString
+    else
+    if SepararDevolucoes then
+      FVendasDevolucoes := qryImprimirNotasCuponstipo.AsString;
+  end;
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.TotalizarRelatorioNotas;
+begin
+
+ qryImprimirNotasCupons.Edit;
+ qryImprimirNotasCuponstotalizado.AsBoolean := True;
+ qryImprimirNotasCupons.post;
+
+ if not qryTotalizacaoNotas.Locate('GrupoFilial;Filial;Data;VendasDevolucoes;JaTotalizado',VarArrayof([FGrupoFilial,FFilial,FData,FVendasdevolucoes,'N']),[]) then
+ begin
+    qryTotalizacaoNotas.Append;
+    qryTotalizacaoNotas.Post;
+ end;
+
+ if qryImprimirNotasCuponstipo.AsString='Vendas' then
+ begin
+  qryTotalizacaoNotas.Edit;
+  qryTotalizacaoNotasgrupofilial.AsInteger := FGrupoFilial;
+  qryTotalizacaoNotasfilial.AsInteger := FFilial;
+  qryTotalizacaoNotasdata.Asstring := FData;
+  qryTotalizacaoNotasvendasdevolucoes.AsString := FVendasDevolucoes;
+
+  qryTotalizacaoNotasTRegistros_V.AsInteger         := qryTotalizacaoNotastregistros_v.AsInteger+qryImprimirNotasCuponstregistros.AsInteger;
+  qryTotalizacaoNotastvendamercadorias_v.AsCurrency := qryTotalizacaoNotastvendamercadorias_v.AsCurrency+qryImprimirNotasCuponsvendamercadorias.AsCurrency;
+  qryTotalizacaoNotastdesconto_v.AsCurrency         := qryTotalizacaoNotastdesconto_v.AsCurrency+qryImprimirNotasCuponsdesconto.AsCurrency;
+  qryTotalizacaoNotastvendaservicos_v.AsCurrency    := qryTotalizacaoNotastvendaservicos_v.AsCurrency+qryImprimirNotasCuponsvendaservicos.AsCurrency;
+  qryTotalizacaoNotastvalorvista_v.AsCurrency       := qryTotalizacaoNotastvalorvista_v.AsCurrency+qryImprimirNotasCuponsvalorvista.AsCurrency;
+  qryTotalizacaoNotastoutras_v.AsCurrency           := qryTotalizacaoNotastoutras_v.AsCurrency+qryImprimirNotasCuponsoutras.AsCurrency;
+  qryTotalizacaoNotastefinanceiro_v.AsCurrency      := qryTotalizacaoNotastefinanceiro_v.AsCurrency+qryImprimirNotasCuponsefinanceiro.AsCurrency;
+  qryTotalizacaoNotastvalortotal_v.AsCurrency       := qryTotalizacaoNotastvalortotal_v.AsCurrency+qryImprimirNotasCuponsvalortotal.AsCurrency;
+  qryTotalizacaoNotastvaloricmssubstituicao_v.AsCurrency := qryTotalizacaoNotastvaloricmssubstituicao_v.AsCurrency+qryImprimirNotasCuponsvaloricmssubstituicao.AsCurrency;
+
+  qryTotalizacaoNotasjatotalizado.AsString := 'N';
+  qrytotalizacaonotas.Post;
+
+ end
+ else
+ begin
+  qryTotalizacaoNotas.Edit;
+  qryTotalizacaoNotasgrupofilial.AsInteger := FGrupoFilial;
+  qryTotalizacaoNotasfilial.AsInteger := FFilial;
+  qryTotalizacaoNotasdata.Asstring := FData;
+  qryTotalizacaoNotasvendasdevolucoes.AsString := FVendasDevolucoes;
+
+  qryTotalizacaoNotasTRegistros_C.AsInteger         := qryTotalizacaoNotastregistros_C.AsInteger-qryImprimirNotasCuponstregistros.AsInteger;
+  qryTotalizacaoNotastvendamercadorias_C.AsCurrency := qryTotalizacaoNotastvendamercadorias_C.AsCurrency+qryImprimirNotasCuponsvendamercadorias.AsCurrency;
+  qryTotalizacaoNotastdesconto_C.AsCurrency         := qryTotalizacaoNotastdesconto_C.AsCurrency+qryImprimirNotasCuponsdesconto.AsCurrency;
+  qryTotalizacaoNotastvendaservicos_C.AsCurrency    := qryTotalizacaoNotastvendaservicos_C.AsCurrency+qryImprimirNotasCuponsvendaservicos.AsCurrency;
+  qryTotalizacaoNotastvalorvista_C.AsCurrency       := qryTotalizacaoNotastvalorvista_C.AsCurrency+qryImprimirNotasCuponsvalorvista.AsCurrency;
+  qryTotalizacaoNotastoutras_C.AsCurrency           := qryTotalizacaoNotastoutras_C.AsCurrency+qryImprimirNotasCuponsoutras.AsCurrency;
+  qryTotalizacaoNotastefinanceiro_C.AsCurrency      := qryTotalizacaoNotastefinanceiro_C.AsCurrency+qryImprimirNotasCuponsefinanceiro.AsCurrency;
+  qryTotalizacaoNotastvalortotal_C.AsCurrency       := qryTotalizacaoNotastvalortotal_C.AsCurrency+qryImprimirNotasCuponsvalortotal.AsCurrency;
+  qryTotalizacaoNotastvaloricmssubstituicao_c.AsCurrency := qryTotalizacaoNotastvaloricmssubstituicao_c.AsCurrency+qryImprimirNotasCuponsvaloricmssubstituicao.AsCurrency;
+
+  qryTotalizacaoNotasjatotalizado.AsString := 'N';
+  qrytotalizacaonotas.Post;
+
+ end;
+end;
+
+function Tdtmrelatoriovendasdoperiodo.CalcularTotalNotas(
+  Campo: TField): Currency;
+var
+ TRegistros_V, TRegistros_C : Integer;
+ Valor,
+ TVendaMercadorias_V, TDesconto_V, TVendaservicos_V,TValorVista_V,TEfinanceiro_V,
+ TValorTotal_V,TOutras_V,
+ TVendaMercadorias_C, TDesconto_C, TVendaservicos_C,TValorVista_C,TEfinanceiro_C,
+ TValorTotal_C,TOutras_C,
+ TValorICMSSubstituicao_V,TValorICMSSubstituicao_C : Currency;
+
+ procedure Adicionar;
+ begin
+   Valor               := Valor + Campo.AsFloat;
+
+   TRegistros_V        := TRegistros_V + qryTotalizacaoNotasTRegistros_V.AsInteger;
+   TVendaMercadorias_V := TVendaMercadorias_V + qryTotalizacaoNotastvendamercadorias_v.AsCurrency;
+   TDesconto_V         := TDesconto_V + qryTotalizacaoNotastdesconto_v.AsCurrency;
+   TVendaservicos_V    := TVendaservicos_V + qryTotalizacaoNotastvendaservicos_v.AsCurrency;
+   TValorVista_V       := TValorVista_V + qryTotalizacaoNotastvalorvista_v.AsCurrency;
+   TEfinanceiro_V      := TEfinanceiro_V + qryTotalizacaoNotastefinanceiro_v.AsCurrency;
+   TValorTotal_V       := TValorTotal_V + qryTotalizacaoNotasTValorTotal_V.AsCurrency;
+   TValorICMSSubstituicao_V := TValorICMSSubstituicao_V + qryTotalizacaoNotastvaloricmssubstituicao_v.AsCurrency;
+   TOutras_V           := TOutras_V + qryTotalizacaoNotastoutras_v.AsCurrency;
+
+   TRegistros_C        := TRegistros_C + qryTotalizacaoNotasTRegistros_C.AsInteger;
+   TVendaMercadorias_C := TVendaMercadorias_C + qryTotalizacaoNotastvendamercadorias_C.AsCurrency;
+   TDesconto_C         := TDesconto_C + qryTotalizacaoNotastdesconto_c.AsCurrency;
+   TVendaservicos_C    := TVendaservicos_C + qryTotalizacaoNotastvendaservicos_C.AsCurrency;
+   TValorVista_C       := TValorVista_C + qryTotalizacaoNotastvalorvista_C.AsCurrency;
+   TEfinanceiro_C      := TEfinanceiro_C + qryTotalizacaoNotastefinanceiro_C.AsCurrency;
+   TValorTotal_C       := TValorTotal_C + qryTotalizacaoNotasTValorTotal_C.AsCurrency;
+   TValorICMSSubstituicao_C := TValorICMSSubstituicao_C + qryTotalizacaoNotastvaloricmssubstituicao_c.AsCurrency;
+   TOutras_C           := TOutras_C + qryTotalizacaoNotastoutras_C.AsCurrency;
+
+ end;
+
+ procedure AdicionarJaTotalizado(VGrupoFilial, VFilial: integer; VData: String);
+ begin
+  qryTotalizacaonotas.Append;
+  qryTotalizacaoNotasgrupofilial.AsInteger := VGrupoFilial;
+  qryTotalizacaoNotasfilial.AsInteger := VFilial;
+  qryTotalizacaoNotasdata.AsString := VData;
+
+  qryTotalizacaoNotasTRegistros_V.AsInteger := TRegistros_V;
+  qryTotalizacaoNotastvendamercadorias_v.AsCurrency := TVendaMercadorias_V;
+  qryTotalizacaoNotastdesconto_v.AsCurrency := TDesconto_V;
+  qryTotalizacaoNotastvendaservicos_v.AsCurrency := TVendaservicos_V;
+  qryTotalizacaoNotastvalorvista_v.AsCurrency := TValorVista_V;
+  qryTotalizacaoNotastefinanceiro_v.AsCurrency := TEfinanceiro_V;
+  qryTotalizacaoNotastvalortotal_v.AsCurrency := TValorTotal_V;
+  qryTotalizacaoNotastvaloricmssubstituicao_v.AsCurrency := TValorICMSSubstituicao_V;
+  qryTotalizacaoNotastoutras_v.AsCurrency := TOutras_V;
+
+  qryTotalizacaoNotasTRegistros_C.AsInteger := TRegistros_C;
+  qryTotalizacaoNotastvendamercadorias_C.AsCurrency := TVendaMercadorias_C;
+  qryTotalizacaoNotastdesconto_c.AsCurrency := TDesconto_C;
+  qryTotalizacaoNotastvendaservicos_C.AsCurrency := TVendaservicos_C;
+  qryTotalizacaoNotastvalorvista_C.AsCurrency := TValorVista_C;
+  qryTotalizacaoNotastefinanceiro_C.AsCurrency := TEfinanceiro_C;
+  qryTotalizacaoNotastvalortotal_C.AsCurrency := TValorTotal_C;
+  qryTotalizacaoNotastvaloricmssubstituicao_c.AsCurrency := TValorICMSSubstituicao_C;
+  qryTotalizacaoNotastoutras_C.AsCurrency := TOutras_C;
+
+  qryTotalizacaoNotasjatotalizado.AsString := 'S';
+
+  qryTotalizacaoNotas.Post;
+ end;
+
+
+begin
+
+ Valor               := 0;
+ TRegistros_V        := 0;
+ TVendaMercadorias_V := 0;
+ TDesconto_V         := 0;
+ TVendaservicos_V    := 0;
+ TValorVista_V       := 0;
+ TEfinanceiro_V      := 0;
+ TValorTotal_V       := 0;
+ TOutras_V           := 0;
+ TRegistros_C        := 0;
+ TVendaMercadorias_C := 0;
+ TDesconto_C         := 0;
+ TVendaservicos_C    := 0;
+ TValorVista_C       := 0;
+ TEfinanceiro_C      := 0;
+ TValorTotal_C       := 0;
+ TOutras_C           := 0;
+
+ if (BandaImpressa = 'RodapeVendasDevolucoes') and FExibirTotaisVendaseDevolucoes then
+ begin
+  if qryTotalizacaoNotas.Locate('GrupoFilial;Filial;Data;VendasDevolucoes',VarArrayof([FGrupoFilial,FFilial,FData,FVendasDevolucoes]),[]) then
+    Valor := Campo.AsFloat;
+ end
+
+ else
+
+ if (BandaImpressa = 'RodapeDataVenda') and FAgruparDataVenda then
+ begin
+  if qryTotalizacaoNotas.Locate('GrupoFilial;Filial;Data;JaTotalizado',VarArrayof([FGrupoFilial,FFilial,FData,'S']),[]) then
+   Valor := valor + Campo.AsFloat
+  else
+  begin
+   if qryTotalizacaoNotas.Locate('GrupoFilial;Filial;Data;JaTotalizado',VarArrayof([FGrupoFilial,FFilial,FData,'N']),[]) then
+   begin
+    while not qryTotalizacaoNotas.Eof do
+    begin
+     if (qryTotalizacaoNotasgrupofilial.AsInteger = FGrupoFilial) and
+          (qryTotalizacaoNotasfilial.AsInteger = FFilial) and
+          (qryTotalizacaoNotasdata.AsString = fdata) and
+          (qryTotalizacaoNotasjatotalizado.AsString='N')then
+      Adicionar;
+     qryTotalizacaoNotas.Next;
+    end;
+    AdicionarJaTotalizado(FGrupoFilial, FFilial, FData);
+   end;
+  end;
+ end
+
+ else
+
+ if (BandaImpressa = 'RodapeFilial') and FAgruparFilial then
+ begin
+  if qryTotalizacaoNotas.Locate('GrupoFilial;Filial;Data;JaTotalizado',VarArrayof([FGrupoFilial,FFilial,'','S']),[]) then
+   Valor := Valor + Campo.AsFloat
+  else
+  begin
+   if qryTotalizacaoNotas.Locate('GrupoFilial;Filial;JaTotalizado',VarArrayof([FGrupoFilial,FFilial, 'N']),[]) then
+   begin
+    while not qryTotalizacaoNotas.Eof do
+    begin
+     if (qryTotalizacaoNotasgrupofilial.AsInteger = FGrupoFilial) and
+          (qryTotalizacaoNotasfilial.AsInteger = FFilial) and
+          (qryTotalizacaoNotasjatotalizado.AsString='N')then
+      Adicionar;
+     qryTotalizacaoNotas.Next;
+    end;
+    AdicionarJaTotalizado(FGrupoFilial, FFilial, '');
+   end;
+  end;
+ end
+
+ else
+
+ if (BandaImpressa = 'RodapeGrupoFilial') and FAgruparGrupoFilial then
+ begin
+  if qryTotalizacaoNotas.Locate('GrupoFilial;Filial;Data;JaTotalizado',VarArrayof([FGrupoFilial,0,'','S']),[]) then
+   Valor := Valor + Campo.AsFloat
+  else
+   if qryTotalizacaoNotas.Locate('GrupoFilial,JaTotalizado',VarArrayof([FGrupoFilial,'N']),[]) then
+   begin
+    while not qryTotalizacaoNotas.Eof do
+    begin
+     if (qryTotalizacaoNotasgrupofilial.AsInteger = FGrupoFilial) and
+        (qryTotalizacaoNotasjatotalizado.AsString='N') then
+      Adicionar;
+     qryTotalizacaoNotas.Next;
+    end;
+    AdicionarJaTotalizado(FGrupoFilial,0,'');
+   end;
+ end
+
+ else
+
+ if BandaImpressa = 'SumarioTotal' then
+ begin
+  if qryTotalizacaoNotas.Locate('GrupoFilial;Filial;Data;JaTotalizado',VarArrayof([0,0,'','S']),[]) then
+   Valor := Valor + Campo.AsFloat
+  else
+    begin
+      qryTotalizacaoNotas.First;
+      while not qryTotalizacaoNotas.Eof do
+      begin
+       if(qryTotalizacaoNotasjatotalizado.AsString='N') then
+         Adicionar;
+       qryTotalizacaoNotas.Next;
+      end;
+      AdicionarJaTotalizado(0,0,'');
+    end;
+ end;
+
+ result := valor;
+
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.SetDevolucoesPeriodoAnterior(
+  const Value: Boolean);
+const
+ SQLDevolucoesPeriodoAnterior = 'and ct.faturamento < :DataInicial';
+ SQLDevolucoesPeriodoSelecionado = 'and ct.faturamento between (:DataInicial) and (:DataFinal)';
+begin
+  FDevolucoesPeriodoAnterior := Value;
+  if FDevolucoesPeriodoAnterior and FDevolucoesPeriodoSelecionado then
+  begin
+    case FOpcaoRelatorio of
+    0: qryGravarContratos.MacroByName('WhereDevolucoes').AsString := '';
+    1: qryImprimirNotasCupons.MacroByName('WhereDevolucoes').AsString := '';
+    end;
+  end
+  else
+   if FDevolucoesPeriodoAnterior then
+   begin
+    case FOpcaoRelatorio of
+    0: qryGravarContratos.MacroByName('WhereDevolucoes').AsString := SQLDevolucoesPeriodoAnterior;
+    1: qryImprimirNotasCupons.MacroByName('WhereDevolucoes').AsString := SQLDevolucoesPeriodoAnterior;
+    end;
+   end
+   else
+   if FDevolucoesPeriodoSelecionado then
+   begin
+    case FOpcaoRelatorio of
+    0: qryGravarContratos.MacroByName('WhereDevolucoes').AsString := SQLDevolucoesPeriodoSelecionado;
+    1: qryImprimirNotasCupons.MacroByName('WhereDevolucoes').AsString := SQLDevolucoesPeriodoSelecionado;
+    end;
+   end;
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.qryImprimirContratosCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if ExibirTotaisVendaseDevolucoes then
+   if SepararDevolucoes and SepararVendas then
+   begin
+     if (qryImprimirContratostipo.asstring='C') then
+      qryImprimirContratosNVendaDevolucao.AsString := 'Devoluções - '
+     else
+      qryImprimirContratosNVendaDevolucao.AsString := 'Vendas - ';
+
+     if qryImprimirContratoscontratoavista.asboolean then
+       qryImprimirContratosNVendaDevolucao.AsString :=
+        qryImprimirContratosNVendaDevolucao.AsString + 'a Vista'
+     else
+       qryImprimirContratosNVendaDevolucao.AsString :=
+        qryImprimirContratosNVendaDevolucao.AsString + 'a Prazo';
+   end
+   else
+   if SepararDevolucoes then
+   begin
+     if (qryImprimirContratostipo.asstring='C') then
+      qryImprimirContratosNVendaDevolucao.AsString := 'Devoluções'
+     else
+      qryImprimirContratosNVendaDevolucao.AsString := 'Vendas';
+   end
+   else
+   if SepararVendas then
+   begin
+     if qryImprimirContratoscontratoavista.asboolean then
+       qryImprimirContratosNVendaDevolucao.AsString :='a Vista'
+     else
+       qryImprimirContratosNVendaDevolucao.AsString :='a Prazo';
+   end;
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.frpImprimirNotasCuponsBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  if (View.Name = 'fpvLogo') then
+  begin
+   if FileExists(LogotipoFilialBase) then
+    try TfrPictureView(View).Picture.LoadFromFile(LogotipoFilialBase) except end;
+  end
+  else
+  if TColor(strtoint(parsistema.CorZebradoRelatorio))<>TColor(clnone) then
+   if (View.Name = 'mmoZebrado') then
+    if (frpImprimirNotasCupons.Dictionary.Variables.Variable['LINHA'] MOD 2)=0 then
+      frpImprimirNotasCupons.FindObject('mmoZebrado').FillColor := TColor(strtoint(parsistema.CorZebradoRelatorio))
+    else
+      frpImprimirNotasCupons.FindObject('mmoZebrado').FillColor := clnone;
+
+
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.ZMonitor2MonitorEvent(Sql,
+  Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:\log.sql') then
+    Listar.loadfromfile('c:\log.sql');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\log.sql');
+  listar.free;
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.SetListadeRegioes(
+  const Value: String);
+begin
+
+  fListadeRegioes := Value;
+  if (Value <> '') then
+  begin
+   FParametroCabecalho:=FParametroCabecalho+' Regioes: '+Value;
+   case FOpcaoRelatorio of
+
+   0: qryGravarContratos.MacroByName('WhereRegioes_ct').AsString :=
+      'and (((SELECT regiao FROM bairros WHERE (estado,cidade,codigo)=(ct.estado,ct.cidade,ct.bairro)) in ('+ListadeRegioes+')) or '+
+           '((SELECT regiao FROM cidades WHERE (estado,codigo)=(ct.estado,ct.cidade)) in ('+ListadeRegioes+')))';
+
+   1: begin
+
+        if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+          qryImprimirNotasCupons.MacroByName('WhereRegioes_ct').AsString :=
+            'and (((SELECT regiao FROM bairros WHERE (estado,cidade,codigo)=(ct.estado,ct.cidade,ct.bairro)) in ('+ListadeRegioes+')) or '+
+                 '((SELECT regiao FROM cidades WHERE (estado,codigo)=(ct.estado,ct.cidade)) in ('+ListadeRegioes+')))';
+
+        qryImprimirNotasCupons.MacroByName('WhereRegioes_df').AsString :=
+          'and (((SELECT regiao FROM bairros WHERE (estado,cidade,codigo)=(df.estado,df.cidade,df.bairro)) in ('+ListadeRegioes+')) or '+
+               '((SELECT regiao FROM cidades WHERE (estado,codigo)=(df.estado,df.cidade)) in ('+ListadeRegioes+')))';
+
+
+      end;
+   end;
+  end
+  else
+  begin
+   case FOpcaoRelatorio of
+   0: qryGravarContratos.MacroByName('WhereRegioes_ct').AsString := '';
+   1: begin
+        if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+          qryImprimirNotasCupons.MacroByName('WhereRegioes_ct').AsString := '';
+
+        qryImprimirNotasCupons.MacroByName('WhereRegioes_df').AsString := '';
+      end;
+   end;
+  end;
+
+end;
+
+procedure Tdtmrelatoriovendasdoperiodo.SetListadeVendedores(
+  const Value: String);
+begin
+  fListadeVendedores := Value;
+
+  if (Value <> '') then
+  begin
+
+    FParametroCabecalho:=FParametroCabecalho+' Vendedores: '+Value;
+
+    case FOpcaoRelatorio of
+     0: qryGravarContratos.MacroByName('WhereVendedores_ct').AsString := ' and (' + ListadeVendedores + ')';
+
+     1: begin
+          if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+            qryImprimirNotasCupons.MacroByName('WhereVendedores_ct').AsString := ' and (' + ListadeVendedores + ')';
+
+          qryImprimirNotasCupons.MacroByName('WhereVendedores_df').AsString := ' and (' + ListadeVendedores + ')' ;
+        end;
+    end;
+
+  end
+  else
+  begin
+    case FOpcaoRelatorio of
+    0: qryGravarContratos.MacroByName('WhereVendedores_ct').AsString := '';
+    1: begin
+         if FDevolucoesPeriodoAnterior or FDevolucoesPeriodoSelecionado then
+           qryImprimirNotasCupons.MacroByName('WhereVendedores_ct').AsString := '';
+
+         qryImprimirNotasCupons.MacroByName('WhereVendedores_df').AsString := '';
+       end;
+    end;
+  end;
+
+end;
+
+end.

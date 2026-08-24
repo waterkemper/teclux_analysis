@@ -1284,6 +1284,7 @@ type
     qryDadosFiscaisestrangeiro: TBooleanField;
     qryProcuraClienteestrangeiro: TBooleanField;
     qryProcuraContratoestrangeiro: TBooleanField;
+    qryDadosFiscaisusuariocaixa: TIntegerField;
     procedure dsrDadosFiscaisDataChange(Sender: TObject; Field: TField);
     procedure dsrProdutosDataChange(Sender: TObject; Field: TField);
     procedure qryConsultaProdutosAfterOpen(DataSet: TDataSet);
@@ -2811,11 +2812,11 @@ begin
                                    
                                    and not (parsistema.EmissorNfPSe and
                                             (qryServicosDadosFiscais.recordcount <> 0) and
-                                            (ftipoemissaonfeservico in [Florianopolis_SoftPlan, Eletronica_AmbNacional, Palhoca_IPM]))) or
+                                            (ftipoemissaonfeservico in [Eletronica_Betha_Sistemas, Florianopolis_SoftPlan, Eletronica_AmbNacional, Palhoca_IPM]))) or
                                             
                                            (parsistema.EmissorNfPSe and
                                             (qryServicosDadosFiscais.recordcount <> 0) and
-                                            (ftipoemissaonfeservico in [Florianopolis_SoftPlan, Eletronica_AmbNacional, Palhoca_IPM]))
+                                            (ftipoemissaonfeservico in [Eletronica_Betha_Sistemas, Florianopolis_SoftPlan, Eletronica_AmbNacional, Palhoca_IPM]))
                                              
                                    
                                    
@@ -3769,7 +3770,7 @@ begin
                     end;
 
                     if result then
-                      result := CalcularImpostosSaidas(qryDadosFiscaisnumero.asinteger);
+                      result := CalcularImpostos(qryDadosFiscaisnumero.asinteger, 'S');
 
                     if result then
                     begin
@@ -4466,6 +4467,21 @@ begin
           result := false;
           MensagemAviso( 'A data para o cancelamento da NFPSE expirou em '+FormatDateTime('dd/mm/yyyy hh:mm:ss', (vdatahora+parsistema.LimitedediasparacancelamentodaNFPSE)));
         end;
+      end
+      else
+      if (qryDadosFiscaismodelodocto.AsString = '65') and
+          (not qryDadosFiscaiscontratofrentecaixa.IsNull or
+          qryDadosFiscaiscliente.IsNull) and
+          (qryDadosFiscaisusuariocaixa.asinteger<>0) then
+      begin
+        if qryDadosFiscaisusuariocaixa.asinteger <> usuariologin.codigousuario then
+        begin
+          result := false;
+           vMensagem := vMensagem +
+             'O documento trata-se de uma NFCe a ser inutilizada e deve ser feita com o login do'+chr(13)+
+              'usuário/caixa que fez a emissão da mesma';
+            MensagemAviso(vMensagem);
+        end
       end;
     end;
 
@@ -7218,9 +7234,20 @@ function TdtmEmissaoNotaAvulsas.PerpetrarExclusao(Cancelar: Boolean):boolean;
   begin
     result := not qryDadosFiscaisnumcancelamentonfe.isnull or
               not qryDadosFiscaisnuminutilizacaonfe.isnull OR
+              (qryDadosFiscaisstatusnfse.AsInteger in [1,3]);
+
+                                                      (*
             ((qryDadosFiscaisstatusnfse.AsInteger in [1,3]) and (ftipoemissaonfeservico in [Florianopolis_SoftPlan])) or
             ((qryDadosFiscaisstatusnfse.AsInteger in [1,3]) and (ftipoemissaonfeservico in [Eletronica_AmbNacional])) or
-            ((qryDadosFiscaisstatusnfse.AsInteger in [2,3]) and (ftipoemissaonfeservico = Palhoca_IPM));
+            ((qryDadosFiscaisstatusnfse.AsInteger in [2,3]) and (ftipoemissaonfeservico = Palhoca_IPM))
+
+			or
+			{ o ambiente nacional virou o padrão a partir de 2026-01-01, as informações são dos xmls dele }
+			(qryDadosFiscaisdata.asdate >= strtodate('2026/01/01') and (qryDadosFiscaisstatusnfse.AsInteger in [1,3]) and (ftipoemissaonfeservico in [Florianopolis_SoftPlan, Palhoca_IPM, Eletronica_AmbNacional]))
+      *)
+
+
+
 
 
             {STATUS 3 NFSE é de uso interno}
@@ -7272,6 +7299,10 @@ function TdtmEmissaoNotaAvulsas.PerpetrarExclusao(Cancelar: Boolean):boolean;
 
                 if not result then
                 begin
+
+                  result := (qryDadosFiscaisstatusnfse.Asinteger in [1]);
+
+                  (*
                   if ftipoemissaonfeservico = Palhoca_IPM then
                     result := (qryDadosFiscaisstatusnfse.Asinteger in [2])  //1 - Cancelado SoftPlan 2 - Cancelado IPM 3 - Cancelado nem enviado
                   else
@@ -7280,6 +7311,7 @@ function TdtmEmissaoNotaAvulsas.PerpetrarExclusao(Cancelar: Boolean):boolean;
                   else
                   if (ftipoemissaonfeservico in [Eletronica_AmbNacional]) then
                     result := (qryDadosFiscaisstatusnfse.Asinteger in [1]);  //1 - Cancelado SoftPlan 2 - Cancelado IPM 3 - Cancelado nem enviado  //?? - Cancelado Amb. Naciona
+                    *)
 
 
                 end;
@@ -8357,8 +8389,13 @@ begin
     if not qryDadosFiscaisnumcancelamentonfe.isnull or
        not qryDadosFiscaisnuminutilizacaonfe.isnull or
        not CondicaoEmissorNFE or  {???}
-       (((qryDadosFiscaisStatusNFSe.AsInteger in [1,3]) and (ftipoemissaonfeservico in [Florianopolis_SoftPlan, Eletronica_AmbNacional])) or
-        ((qryDadosFiscaisStatusNFSe.AsInteger in [2,3]) and (ftipoemissaonfeservico = Palhoca_IPM))) then
+       (qryDadosFiscaisStatusNFSe.AsInteger in [1,3])
+
+                                                     (*
+       (((qryDadosFiscaisStatusNFSe.AsInteger in [1,3]) and (ftipoemissaonfeservico in [Florianopolis_SoftPlan])) or
+        ((qryDadosFiscaisStatusNFSe.AsInteger in [1,3]) and (ftipoemissaonfeservico in [Eletronica_AmbNacional])) or
+        ((qryDadosFiscaisStatusNFSe.AsInteger in [2,3]) and (ftipoemissaonfeservico = Palhoca_IPM))) *) then
+
     begin
       qryDadosFiscais.Edit;
       qryDadosFiscaissituacao.AsString := 'C';
@@ -8417,7 +8454,7 @@ begin
                             (parsistema.EmissorNfPSe and
                              (qryDadosFiscaismodelodocto.AsString = '99') and
                              (qryServicosDadosFiscais.recordcount <> 0) and
-                             (ftipoemissaonfeservico in [Florianopolis_SoftPlan, Eletronica_AmbNacional, Palhoca_IPM]))
+                             (ftipoemissaonfeservico in [Eletronica_Betha_Sistemas, Florianopolis_SoftPlan, Eletronica_AmbNacional, Palhoca_IPM]))
 
 
   else
@@ -8431,7 +8468,7 @@ begin
                            (parsistema.EmissorNfPSe and
                             (ModeloDoctoFiscalServico = '99') and
                             (qryServicosDadosFiscais.recordcount <> 0) and
-                            (ftipoemissaonfeservico in [Florianopolis_SoftPlan, Eletronica_AmbNacional, Palhoca_IPM]));
+                            (ftipoemissaonfeservico in [Eletronica_Betha_Sistemas, Florianopolis_SoftPlan, Eletronica_AmbNacional, Palhoca_IPM]));
 
   Result := fCondicaoEmissorNFE;
 end;
@@ -9388,9 +9425,17 @@ begin
           qryDadosFiscais.ReadOnly := vDadosFiscaisReadOnly;
         end;
 
+        if (((qryDadosFiscaisstatusnfse.AsString  = '100') or
+             (qryDadosFiscaisstatusnfse.AsString  = '')) and (qryDadosFiscais_.FieldByName('statusnfse').asString<>'100') {and (ftipoemissaonfeservico in [Eletronica_AmbNacional])}) then
+
+             (*
         if ((qryDadosFiscaisstatusnfse.AsString  = '0') and (qryDadosFiscais_.FieldByName('statusnfse').asString<>'0') and (ftipoemissaonfeservico in [Florianopolis_SoftPlan])) or
-           ((qryDadosFiscaisstatusnfse.AsString  = '100') and (qryDadosFiscais_.FieldByName('statusnfse').asString<>'100') and (ftipoemissaonfeservico in [Eletronica_AmbNacional])) or
+           (((qryDadosFiscaisstatusnfse.AsString  = '100') or
+             (qryDadosFiscaisstatusnfse.AsString  = '')) and (qryDadosFiscais_.FieldByName('statusnfse').asString<>'100') and (ftipoemissaonfeservico in [Eletronica_AmbNacional])) or
+
            ((qryDadosFiscaisstatusnfse.Asinteger = 1) and (qryDadosFiscais_.FieldByName('statusnfse').asinteger<>1) and (ftipoemissaonfeservico = Palhoca_IPM)) then
+           *)
+
         begin
           vDadosFiscaisReadOnly := qryDadosFiscais.ReadOnly;
           qryDadosFiscais.ReadOnly := False;
@@ -9400,9 +9445,15 @@ begin
           qryDadosFiscais.ReadOnly := vDadosFiscaisReadOnly;
         end;
 
+        result := (qryDadosFiscaisstatusnfse.Asinteger in [1,3]);
+
+        (*
+
         result := ((qryDadosFiscaisstatusnfse.Asinteger in [1,3]) and (ftipoemissaonfeservico in [Florianopolis_SoftPlan])) or
                   ((qryDadosFiscaisstatusnfse.Asinteger in [1,3]) and (ftipoemissaonfeservico in [Eletronica_AmbNacional])) or {status qdo cancelada ??? 1 controle interno pois não ha mudança de status}
                   ((qryDadosFiscaisstatusnfse.Asinteger in [2,3]) and (ftipoemissaonfeservico = Palhoca_IPM));
+
+                  *)
 
 
       end
@@ -9531,8 +9582,11 @@ begin
         begin
 
           if qryDadosFiscais_.FieldByName('nfpse').AsBoolean then
+            result := (dtmEmissaoNotaAvulsas.qryDadosFiscais.FieldByName('statusnfse').Asinteger in [1,3])
+                                                                                                          (*
             result := ((dtmEmissaoNotaAvulsas.qryDadosFiscais.FieldByName('statusnfse').Asinteger in [1,3]) and (ftipoemissaonfeservico in [Florianopolis_SoftPlan, Eletronica_AmbNacional])) or
                       ((dtmEmissaoNotaAvulsas.qryDadosFiscais.FieldByName('statusnfse').Asinteger in [2,3]) and (ftipoemissaonfeservico = Palhoca_IPM))
+                      *)
           else
             result := not dtmEmissaoNotaAvulsas.qryDadosFiscais.FieldByName('numcancelamentonfe').isnull or
                       not dtmEmissaoNotaAvulsas.qryDadosFiscais.FieldByName('numinutilizacaonfe').isnull;

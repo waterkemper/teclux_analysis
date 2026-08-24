@@ -1,0 +1,90 @@
+unit fmrelatorioatualizacaomonetaria;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, DateUtils,
+  StdCtrls, dmrelatorioatualizacaomonetaria, fmrelatoriopadrao, ComCtrls,
+  QComCtrls, frconsulta, frconsultacodigo, ExtCtrls, Buttons, ctconstantes, Biblio,
+  Spin, ToolWin;
+
+type
+  Tfrmrelatorioatualizacaomonetaria = class(TfrmRelatorioPadrao)
+    gbxPeriodo: TGroupBox;
+    gbxEmpreendimento: TGroupBox;
+    fraConsultaEmprendimento: TfraConsultaCodigo;
+    gbxCliente: TGroupBox;
+    fraConsultaCliente: TfraConsultaCodigo;
+    spnExercicio: TSpinEdit;
+    ckbResumo: TCheckBox;
+  private
+    { Private declarations }
+  protected
+    procedure InternoImpressao; override;
+    function  VerificarExercicio: Boolean;
+
+  public
+    constructor Create(Aowner:Tcomponent);override;
+    destructor  Destroy; override;
+    { Public declarations }
+  end;
+
+var
+  frmrelatorioatualizacaomonetaria: Tfrmrelatorioatualizacaomonetaria;
+
+implementation
+
+uses dmbasico;
+
+{$R *.dfm}
+
+{ Tfrmrelatorioatualizacaomonetaria }
+
+constructor Tfrmrelatorioatualizacaomonetaria.Create(Aowner: Tcomponent);
+begin
+  inherited;
+  dtmRelatorioAtualizacaoMonetaria:= TdtmRelatorioAtualizacaoMonetaria.Create(Self);
+  fraConsultaEmprendimento.TipoPesquisa:= pesEMPREENDIMENTOS;
+  fraConsultaCliente.TipoPesquisa      := pesCLIENTES;
+  spnExercicio.Value:= YearOf(DataLocal)-1;
+end;
+
+destructor Tfrmrelatorioatualizacaomonetaria.Destroy;
+begin
+  dtmRelatorioAtualizacaoMonetaria:= nil;
+  inherited;
+  frmrelatorioatualizacaomonetaria:= nil;
+end;
+
+procedure Tfrmrelatorioatualizacaomonetaria.InternoImpressao;
+begin
+  inherited;
+  with dtmRelatorioAtualizacaoMonetaria do
+  begin
+    Resumo           := ckbResumo.Checked;
+    Exercicio        := inttostr(spnExercicio.Value);
+    if fraConsultaEmprendimento.edfCodigo.Text <> '' then
+      Empreendimento := strtoint(fraConsultaEmprendimento.edfCodigo.Text)
+    ELSE
+      Empreendimento := 0;
+    if fraConsultaCliente.edfCodigo.Text <> '' then
+      Cliente        := strtoint(fraConsultaCliente.edfCodigo.Text)
+    else
+      Cliente        := 0;
+    if VerificarExercicio then
+        ImprimirRelatorio;
+  end;
+end;
+
+function Tfrmrelatorioatualizacaomonetaria.VerificarExercicio: Boolean;
+begin
+  Result:= False;
+  if spnExercicio.Value > 0 then
+    Result:= True
+  else
+  begin
+    MensagemAviso('Exercício inválido');
+  end;
+end;
+
+end.

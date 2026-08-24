@@ -1,0 +1,1311 @@
+unit fmoperacoesosp;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmcadastropadrao, ComCtrls, Buttons, ExtCtrls, dmoperacoesosp,
+  Grids, DBGrids, cpdbgrid, Mask, cpdbfindcontrols, frconsulta, frconsultacodigo,
+  ctconstantes, Windows, DB, DBCtrls, cpdbtext, cpnumero, cptexto,
+  cpdblookupcombobox, ActnList, dateutils, ToolWin;
+
+type
+  TfrmOperacoesOSP = class(TfrmCadastroPadrao)
+    gbxNumero: TGroupBox;
+    edfOSP: TtecDBFindLookup;
+    dbgOPeracoesOSP: TtecDBGrid;
+    gbxOperacoesOSP: TGroupBox;
+    Bevel1: TBevel;
+    Bevel2: TBevel;
+    dbgOPeracoesOSPUsuarioFalhas: TtecDBGrid;
+    dbgOPeracoesOSPUsuario: TtecDBGrid;
+    pnlRodape: TPanel;
+    shNotaImpressa: TShape;
+    lblOperacaoAtual: TLabel;
+    gbxComplemento: TGroupBox;
+    gbxProdutonoCliente: TGroupBox;
+    gbxProdutoCliente: TGroupBox;
+    edtProdutoCliente: TDBEditTexto;
+    gbxFinalidade: TGroupBox;
+    edtFinalidade: TDBEditTexto;
+    gbxOrigem: TGroupBox;
+    edtOrigem: TDBEditTexto;
+    gbxPN: TGroupBox;
+    edtPN: TDBEditNumero;
+    gbxQuantidadeProduto: TGroupBox;
+    gbxPedida: TGroupBox;
+    edtQuantidade: TDBEditNumero;
+    dtxUnidade: TtecDBText;
+    gbxEntregue: TGroupBox;
+    dtxEntregue: TtecDBText;
+    gbxSaldo: TGroupBox;
+    dtxSaldo: TtecDBText;
+    gbxProduto: TGroupBox;
+    gbxCodigoProduto: TGroupBox;
+    dtxProduto: TtecDBText;
+    dtxComplemento: TtecDBText;
+    pnlOperacoesOSP: TPanel;
+    pnlOperacoesOSPUsuarios: TPanel;
+    pnlOperacoesOSPUsuariosFalhas: TPanel;
+    Label1: TLabel;
+    Shape1: TShape;
+    aclHabilitar: TActionList;
+    actHabilitar: TAction;
+    gbxTamLoteProducao: TGroupBox;
+    edtLoteProducao: TDBEditNumero;
+    gbxQtdadeExcedente: TGroupBox;
+    edtExcedentePermitido: TDBEditNumero;
+    lblDefinirAlternativas: TLabel;
+    Label2: TLabel;
+    Bevel4: TBevel;
+    lblProduzido: TLabel;
+    DBEditNumero1: TDBEditNumero;
+    Label3: TLabel;
+    DBEditNumero3: TDBEditNumero;
+    Shape2: TShape;
+    Label4: TLabel;
+    edfLote: TtecDBFindLookup;
+    Label5: TLabel;
+    lblLote: TLabel;
+    GroupBox1: TGroupBox;
+    Timer1: TTimer;
+    DBEditNumero4: TDBEditNumero;
+    Label6: TLabel;
+    dbgOPeracoesOSPUsuarioParadas: TtecDBGrid;
+    pnldbgOPeracoesOSPUsuario: TPanel;
+    Bevel3: TBevel;
+    Label7: TLabel;
+    Label8: TLabel;
+    procedure sbnProcurarClick(Sender: TObject);
+    procedure dbgOPeracoesOSPUsuarioKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbgOPeracoesOSPUsuarioDblClick(Sender: TObject);
+    procedure dbgOPeracoesOSPDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure FormShow(Sender: TObject);
+    procedure FocarGradeUsuario;
+    procedure dbgOPeracoesOSPUsuarioFalhasDblClick(Sender: TObject);
+    procedure dbgOPeracoesOSPUsuarioFalhasKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure edfOSPKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edfOSPFound(Found: Boolean);
+    procedure actHabilitarUpdate(Sender: TObject);
+    procedure dbgOPeracoesOSPKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edfLoteKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure Timer1Timer(Sender: TObject);
+    procedure dbgOPeracoesOSPUsuarioParadasDblClick(Sender: TObject);
+    procedure dbgOPeracoesOSPUsuarioParadasKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+  protected
+    ConsultaOSP : TfraConsultaCodigo;
+    ConsultaUsuarios : TfraConsultaCodigo;
+    ConsultaUsuariosSetup : TfraConsultaCodigo;
+    ConsultaUsuariosFechamento : TfraConsultaCodigo;
+
+    ConsultaFalhas : TfraConsultaCodigo;
+    ConsultaParadas : TfraConsultaCodigo;
+
+    function  InternoExcluir: Boolean; override;
+    procedure Percorrer(Campo: Byte; var Key: Word; Shift: TShiftState);
+    function  InternoIncluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    procedure SelecionarCampoQuantidade(Sender: TObject);
+    procedure SelecionarCampoUsuario(Sender: TObject);
+    procedure SelecionarCampoOSP(Sender: TObject);
+    procedure SelecionarGradeFalhas(Sender: TObject);
+    procedure SetarParametrosGrade(Sender: TObject);
+
+
+
+  private
+    { Private declarations }
+    procedure AbrirOSP;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure CondicoesOperacoesOSPUsuario;
+    procedure CondicoesOperacoesOSPUsuarioSetup;
+    procedure CondicoesOperacoesOSPUsuarioFechamento;
+
+
+    procedure CondicoesOperacoesOSPUsuarioFalhas;
+    procedure CondicoesOperacoesOSPUsuarioParadas;
+
+    procedure AtribuirDadosUsuarios;
+    procedure AtribuirDadosUsuariosSetup;
+    procedure AtribuirDadosUsuariosFechamento;
+
+
+    procedure AtribuirDadosFalhas;
+    procedure AtribuirDadosParadas;
+
+    procedure AcionarPesquisaGradeUsuarios;
+    procedure AcionarPesquisaGradeFalhas;
+    procedure AcionarPesquisaGradeParadas;
+
+
+
+  public
+    { Public declarations }
+
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+  end;
+
+var
+  frmOperacoesOSP: TfrmOperacoesOSP;
+
+implementation
+
+uses biblio;
+
+{$R *.dfm}
+
+{ TfrmOperacoesOSP }
+
+procedure TfrmOperacoesOSP.AbrirOSP;
+begin
+  edfOSP.Text := ConsultaOSP.qryProcuraOSPNumero.AsString;
+  edfLote.Text := '1';
+  dtmOperacoesOSP.
+        refazconsulta(dtmOperacoesOSP.qryOSPLotes,[0,1,2,3],
+             [0,0,ConsultaOSP.qryprocuraOSPNumero.asvariant,1]);
+             
+  if dtmOperacoesOSP.qryOSPLotes.IsEmpty then
+    MensagemAviso('Esta OSP não possui lotes de produção definidos.');
+
+  sbnIncluir.Enabled := dtmOperacoesOSP.qryOSPLotes.RecordCount <> 0;
+
+end;
+
+constructor TfrmOperacoesOSP.Create(AOwner: TComponent);
+begin
+  dtmOperacoesOSP := TdtmOperacoesOSP.Create(Self);
+  inherited;
+  DataSet := dtmOperacoesOSP.qryOSPLotes;
+
+  ConsultaOSP := TfraConsultaCodigo.Create(self);
+  ConsultaOSP.edfCodigo.DataSource := dtmOperacoesOSP.dsrOSPLotes;
+  ConsultaOSP.edfCodigo.DataField := 'numero';
+  ConsultaOSP.edfCodigo.Operacao := opPESQUISA;
+  ConsultaOSP.AbrirTabelaProcura := False;
+  ConsultaOSP.TipoCliente := 'C';
+  ConsultaOSP.Tipovfornecedor := 'C';
+  ConsultaOSP.TipoPesquisa := pesOSP;
+  ConsultaOSP.OnFound := AbrirOSP;
+  ConsultaOSP.Name := 'fraConsultaOSP';
+
+  ConsultaUsuarios := TfraConsultaCodigo.Create(self);
+  ConsultaUsuarios.Name := 'fraConsultaUsuario';
+  ConsultaUsuarios.edfCodigo.MaxLength := 3;
+  ConsultaUsuarios.edfCodigo.DataSource := dtmOperacoesOSP.dsrOperacoesOSPUsuario;
+  ConsultaUsuarios.edfCodigo.DataField := 'usuario';
+  ConsultaUsuarios.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaUsuarios.edfCodigo.LookupSource := ConsultaUsuarios.dsrProcuraUsuarios;
+  ConsultaUsuarios.edfCodigo.LookupQueryParameter := 'Codigo';
+  ConsultaUsuarios.edfCodigo.LookupField := 'Codigo';
+  ConsultaUsuarios.AbrirTabelaProcura := false;
+  ConsultaUsuarios.CondicoesdaConsulta := CondicoesOperacoesOSPUsuario;
+  ConsultaUsuarios.TipoPesquisa := pesUSUARIOS;
+  ConsultaUsuarios.OnFound := AtribuirDadosUsuarios;
+
+  ConsultaUsuariosSetup := TfraConsultaCodigo.Create(self);
+  ConsultaUsuariosSetup.Name := 'fraConsultaUsuarioSetup';
+  ConsultaUsuariosSetup.edfCodigo.MaxLength := 3;
+  ConsultaUsuariosSetup.edfCodigo.DataSource := dtmOperacoesOSP.dsrOperacoesOSPUsuario;
+  ConsultaUsuariosSetup.edfCodigo.DataField := 'usuariosetup';
+  ConsultaUsuariosSetup.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaUsuariosSetup.edfCodigo.LookupSource := ConsultaUsuariosSetup.dsrProcuraUsuarios;
+  ConsultaUsuariosSetup.edfCodigo.LookupQueryParameter := 'Codigo';
+  ConsultaUsuariosSetup.edfCodigo.LookupField := 'Codigo';
+  ConsultaUsuariosSetup.AbrirTabelaProcura := false;
+  ConsultaUsuariosSetup.CondicoesdaConsulta := CondicoesOperacoesOSPUsuarioSetup;
+  ConsultaUsuariosSetup.TipoPesquisa := pesUSUARIOS;
+//ConsultaUsuariosSetup.OnFound := AtribuirDadosUsuariosSetup;
+
+
+  ConsultaUsuariosFechamento := TfraConsultaCodigo.Create(self);
+  ConsultaUsuariosFechamento.Name := 'fraConsultaUsuarioFechamento';
+  ConsultaUsuariosFechamento.edfCodigo.MaxLength := 3;
+  ConsultaUsuariosFechamento.edfCodigo.DataSource := dtmOperacoesOSP.dsrOperacoesOSPUsuario;
+  ConsultaUsuariosFechamento.edfCodigo.DataField := 'usuariotermino';
+  ConsultaUsuariosFechamento.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaUsuariosFechamento.edfCodigo.LookupSource := ConsultaUsuariosFechamento.dsrProcuraUsuarios;
+  ConsultaUsuariosFechamento.edfCodigo.LookupQueryParameter := 'Codigo';
+  ConsultaUsuariosFechamento.edfCodigo.LookupField := 'Codigo';
+  ConsultaUsuariosFechamento.AbrirTabelaProcura := false;
+  ConsultaUsuariosFechamento.CondicoesdaConsulta := CondicoesOperacoesOSPUsuarioFechamento;
+  ConsultaUsuariosFechamento.TipoPesquisa := pesUSUARIOS;
+//  ConsultaUsuariosFechamento.OnFound := AtribuirDadosUsuarios;
+
+
+
+  ConsultaFalhas := TfraConsultaCodigo.Create(self);
+  ConsultaFalhas.Name := 'fraConsultaFalhas';
+  ConsultaFalhas.edfCodigo.MaxLength := 3;
+  ConsultaFalhas.edfCodigo.DataSource := dtmOperacoesOSP.dsrOperacoesOSPUsuarioFalhas;
+  ConsultaFalhas.edfCodigo.DataField := 'falha';
+  ConsultaFalhas.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaFalhas.edfCodigo.LookupSource := ConsultaFalhas.dsrProcuraFalhas;
+  ConsultaFalhas.edfCodigo.LookupQueryParameter := 'Codigo';
+  ConsultaFalhas.edfCodigo.LookupField := 'Codigo';
+  ConsultaFalhas.AbrirTabelaProcura := false;
+  ConsultaFalhas.CondicoesdaConsulta := CondicoesOperacoesOSPUsuarioFalhas;
+  ConsultaFalhas.TipoPesquisa := pesFALHAS;
+  ConsultaFalhas.OnFound := AtribuirDadosFalhas;
+
+
+  ConsultaParadas := TfraConsultaCodigo.Create(self);
+  ConsultaParadas.Name := 'fraConsultaParadas';
+  ConsultaParadas.edfCodigo.MaxLength := 3;
+  ConsultaParadas.edfCodigo.DataSource := dtmOperacoesOSP.dsrOperacoesOSPUsuarioParadas;
+  ConsultaParadas.edfCodigo.DataField := 'codigoparada';
+  ConsultaParadas.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaParadas.edfCodigo.LookupSource := ConsultaParadas.dsrProcuraMotivosParadas;
+  ConsultaParadas.edfCodigo.LookupQueryParameter := 'Codigo';
+  ConsultaParadas.edfCodigo.LookupField := 'Codigo';
+  ConsultaParadas.AbrirTabelaProcura := false;
+  ConsultaParadas.CondicoesdaConsulta := CondicoesOperacoesOSPUsuarioParadas;
+  ConsultaParadas.TipoPesquisa := pesMOTIVOSPARADAS;
+  ConsultaParadas.OnFound := AtribuirDadosParadas;
+
+
+{
+  if dtmOperacoesOSP.UltimaOSP<>0 then
+  begin
+    edfOSP.Text := inttostr(dtmOperacoesOSP.UltimaOSP);
+    edfosp.Exist;
+  end;
+}
+
+  dbgOPeracoesOSPUsuario.OnDelete := dtmOperacoesOSP.ExcluirOperacoesOSPUsuario;
+  dbgOPeracoesOSPUsuario.OnPost := dtmOperacoesOSP.GravarOperacoesOSPUsuario;
+
+  dbgOPeracoesOSPUsuarioFalhas.OnDelete := dtmOperacoesOSP.ExcluirOperacoesOSPUsuarioFalhas;
+  dbgOPeracoesOSPUsuarioFalhas.onPost := dtmOperacoesOSP.GravarOperacoesOSPUsuarioFalhas;
+
+  dbgOPeracoesOSPUsuarioParadas.OnDelete := dtmOperacoesOSP.ExcluirOperacoesOSPUsuarioParadas;
+  dbgOPeracoesOSPUsuarioParadas.onPost := dtmOperacoesOSP.GravarOperacoesOSPUsuarioParadas;
+
+  dtmOperacoesOSP.SelecionarCampoQuantidade := SelecionarCampoQuantidade;
+  dtmOperacoesOSP.SelecionarCampoUsuario := SelecionarCampoUsuario;
+  dtmOperacoesOSP.SelecionarCampoOSP := SelecionarCampoOSP;
+  dtmOperacoesOSP.SelecionarGradeFalhas := SelecionarGradeFalhas;
+  dtmOperacoesOSP.SetarParametrosGrade := SetarParametrosGrade;
+
+  dtmOperacoesOSP.TempoAbrirJanela := now()+20;
+
+  self.WindowState := wsMaximized;
+end;
+
+destructor TfrmOperacoesOSP.Destroy;
+begin
+
+  inherited;
+end;
+
+procedure TfrmOperacoesOSP.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if not CtrlOn then
+  begin
+    if (key =VK_F9) then
+    begin
+      if sbnProcurar.Enabled then
+      begin
+        dtmOperacoesOSP.incluindocodigousuario := true;
+        ConsultaOSP.InternoPesquisar('OSP');
+         dtmOperacoesOSP.incluindocodigousuario := false;
+        self.SetFocus;
+      end
+    end
+  end;
+  dtmOperacoesOSP.TempoAbrirJanela := now();
+end;
+
+procedure TfrmOperacoesOSP.sbnProcurarClick(Sender: TObject);
+begin
+  inherited;
+  ConsultaOSP.InternoPesquisar(ctOSP);
+  self.SetFocus;
+end;
+
+procedure TfrmOperacoesOSP.dbgOPeracoesOSPUsuarioKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+
+  Procedure VerificarUsuarios;
+  begin
+    if (dtmOperacoesOSP.qryOperacoesOSPUsuario.State in [dsedit,dsinsert]) or
+       not (dtmOperacoesOSP.qryOperacoesOSPUsuario.IsEmpty) then
+       begin
+//          dtmOperacoesOSP.GravarOperacoesOSPUsuario;
+          ConsultaUsuarios.edfCodigo.DoExit;
+          if ConsultaUsuarios.qryProcuraUsuarios.IsEmpty then
+          begin
+            dtmOperacoesOSP.LimparOperacoesOSPUsuario;
+            dbgOPeracoesOSPUsuario.SetFocus;
+            dbgOPeracoesOSPUsuario.SelectedIndex := 0;
+          end
+          else
+          begin
+            dtmOperacoesOSP.qryOperacoesOSPUsuariousuariovalidado.AsBoolean := true;
+            AtribuirDadosUsuarios;
+            dbgOPeracoesOSPUsuario.SetFocus;
+            dbgOPeracoesOSPUsuario.SelectedIndex := 0;
+          end;
+       end;
+  end;
+
+  Procedure VerificarUsuariosSetup;
+  begin
+    if (dtmOperacoesOSP.qryOperacoesOSPUsuario.State in [dsedit,dsinsert]) or
+       not (dtmOperacoesOSP.qryOperacoesOSPUsuario.IsEmpty) then
+       begin
+//          dtmOperacoesOSP.GravarOperacoesOSPUsuario;
+          ConsultaUsuariosSetup.edfCodigo.DoExit;
+          if ConsultaUsuariosSetup.qryProcuraUsuarios.IsEmpty then
+          begin
+            dtmOperacoesOSP.LimparOperacoesOSPUsuarioSetup;
+            dbgOPeracoesOSPUsuario.SetFocus;
+            dbgOPeracoesOSPUsuario.SelectedIndex := 2;
+          end
+          else
+          begin
+            dtmOperacoesOSP.qryOperacoesOSPUsuariousuariosetupvalidado.AsBoolean := true;
+            AtribuirDadosUsuariosSetup;
+            dbgOPeracoesOSPUsuario.SetFocus;
+            dbgOPeracoesOSPUsuario.SelectedIndex := 2;
+          end;
+       end;
+  end;
+
+  Procedure VerificarUsuariosFechamento;
+  begin
+    if (dtmOperacoesOSP.qryOperacoesOSPUsuario.State in [dsedit,dsinsert]) or
+       not (dtmOperacoesOSP.qryOperacoesOSPUsuario.IsEmpty) then
+       begin
+//          dtmOperacoesOSP.GravarOperacoesOSPUsuario;
+          ConsultaUsuariosFechamento.edfCodigo.DoExit;
+          if ConsultaUsuariosFechamento.qryProcuraUsuarios.IsEmpty then
+          begin
+            dtmOperacoesOSP.LimparOperacoesOSPUsuarioFechamento;
+            dbgOPeracoesOSPUsuario.SetFocus;
+            dbgOPeracoesOSPUsuario.SelectedIndex := 5;
+          end
+          else
+          begin
+            dtmOperacoesOSP.qryOperacoesOSPUsuariousuariofechamentovalidado.AsBoolean := true;
+            AtribuirDadosUsuariosFechamento;
+            dbgOPeracoesOSPUsuario.SetFocus;
+            dbgOPeracoesOSPUsuario.SelectedIndex := 5;
+          end;
+       end;
+  end;
+
+begin
+  inherited;
+  case dbgOPeracoesOSPUsuario.SelectedIndex of
+  0,
+  1 : begin
+        if dtmOperacoesOSP.tipologin = gerenteProducao then
+        begin
+          if Shift = [ssCtrl] then
+          begin
+            case Key of
+             VK_F9     : begin
+                             ConsultaUsuarios.CtrlOn := Shift = [ssCtrl];
+                             if (Shift = []) or ConsultaUsuarios.CtrlOn then
+                               AcionarPesquisaGradeUsuarios
+                           end;
+            end;
+          end
+          else
+          case Key of
+           VK_Return: VerificarUsuarios;
+
+           VK_Up,
+           VK_Down,
+           VK_PRIOR,
+           VK_next: begin
+                            if dtmOperacoesOSP.RegistrodeOperacoesOSPUsuario then
+                            begin
+                              dtmOperacoesOSP.EditarOperacoesOSPUsuario;
+                              dtmOperacoesOSP.qryOperacoesOSPUsuario.CheckRequiredFields;
+                              key := 0;
+                            end;
+                          end;
+
+           VK_Escape : begin
+                           dtmOperacoesOSP.CancelarOperacoesOSPUsuario;
+                           if dbgOPeracoesOSPUsuario.Focused then
+                           begin
+                             dbgOPeracoesOSPUsuario.SetFocus;
+                             dbgOPeracoesOSPUsuario.SelectedIndex := 0;
+                           end;
+                         end;
+          end;
+        end;
+      end;
+
+  2 : begin
+        if dtmOperacoesOSP.tipologin = gerenteProducao then
+        begin
+          if Shift = [ssCtrl] then
+          begin
+            case Key of
+             VK_F9     : begin
+                             ConsultaUsuariosSetup.CtrlOn := Shift = [ssCtrl];
+                             if (Shift = []) or ConsultaUsuariosSetup.CtrlOn then
+                               AcionarPesquisaGradeUsuarios
+                           end;
+            end;
+          end
+          else
+          case Key of
+           VK_Return: VerificarUsuariosSetup;
+
+           VK_Up,
+           VK_Down,
+           VK_PRIOR,
+           VK_next: begin
+                            if dtmOperacoesOSP.RegistrodeOperacoesOSPUsuarioSetup then
+                            begin
+                              dtmOperacoesOSP.EditarOperacoesOSPUsuario;
+                              dtmOperacoesOSP.qryOperacoesOSPUsuario.CheckRequiredFields;
+                              key := 0;
+                            end;
+                          end;
+
+           VK_Escape : begin
+                           dtmOperacoesOSP.CancelarOperacoesOSPUsuarioSetup;
+                           if dbgOPeracoesOSPUsuario.Focused then
+                           begin
+                             dbgOPeracoesOSPUsuario.SetFocus;
+                             dbgOPeracoesOSPUsuario.SelectedIndex := 2;
+                           end;
+                         end;
+          end;
+        end;
+      end;
+
+  5 : begin
+        if dtmOperacoesOSP.tipologin = gerenteProducao then
+        begin
+          if Shift = [ssCtrl] then
+          begin
+            case Key of
+             VK_F9     : begin
+                             ConsultaUsuariosFechamento.CtrlOn := Shift = [ssCtrl];
+                             if (Shift = []) or ConsultaUsuariosFechamento.CtrlOn then
+                               AcionarPesquisaGradeUsuarios
+                           end;
+            end;
+          end
+          else
+          case Key of
+           VK_Return: VerificarUsuariosSetup;
+
+           VK_Up,
+           VK_Down,
+           VK_PRIOR,
+           VK_next: begin
+                            if dtmOperacoesOSP.RegistrodeOperacoesOSPUsuarioSetup then
+                            begin
+                              dtmOperacoesOSP.EditarOperacoesOSPUsuario;
+                              dtmOperacoesOSP.qryOperacoesOSPUsuario.CheckRequiredFields;
+                              key := 0;
+                            end;
+                          end;
+
+           VK_Escape : begin
+                           dtmOperacoesOSP.CancelarOperacoesOSPUsuarioFechamento;
+                           if dbgOPeracoesOSPUsuario.Focused then
+                           begin
+                             dbgOPeracoesOSPUsuario.SetFocus;
+                             dbgOPeracoesOSPUsuario.SelectedIndex := 5;
+                           end;
+                         end;
+          end;
+        end;
+      end;
+
+{
+  8 : begin
+        if (dtmOperacoesOSP.TipoLogin = Operador) and
+           (dtmOperacoesOSP.StatusCadastro = FinalizandoOperacao) and
+           (dtmOperacoesOSP.qryOperacoesOSPUsuarioquantidade.AsInteger <> 0) then
+          case Key of
+           VK_Return : begin
+                           if dtmOperacoesOSP.GravarOperacoesOSPUsuario then
+                           begin
+                             actHabilitarUpdate(nil);
+                             SelecionarGradeFalhas(nil);
+                           end;
+                         end;
+          end;
+      end;
+}
+  end;
+end;
+
+procedure TfrmOperacoesOSP.CondicoesOperacoesOSPUsuario;
+const
+  SQL = ' and (codigo not in (%s) or codigo = %s) ';
+{  SQLOperacao = ' and codigo in (select nsu.usuario '+
+                               ' from niveissalariaisusuarios nsu '+
+                                    ' join operacoesniveissalariais ons '+
+                                    ' on nsu.nivelsalarial = ons.nivelsalarial '+
+                               ' where ons.operacao = %s) ';}
+
+  SQLOperacao = ' and codigo in (select uop.usuario '+
+                               ' from usuariosoperacoesproducao uop '+
+                               ' where uop.operacao = %s) '+
+                ' and codigo not in (select oou.usuario '+
+                                   ' from operacoesospusuario oou '+
+                                        ' join operacoes o on oou.operacao = o.codigo '+
+                                   ' where oou.termino is null '+
+                                     ' and not coalesce(o.naobloqueiausuario,false)) ';
+
+
+begin
+  if (dtmOperacoesOSP.qryOperacoesOSPUsuariousuario.AsString<>'') and
+     not (dtmOperacoesOSP.qryOperacoesOSPUsuario.state = dsinsert) then
+  begin
+    ConsultaUsuarios.qryProcuraUsuarios.MacroByName('SQLUsuariosJaSelecionados').AsString :=
+      format(SQL,[dtmOperacoesOSP.ListaUsuariosTerminoAberto,
+                  inttostr(dtmOperacoesOSP.qryOperacoesOSPUsuarioUsuario.asinteger)]) +
+      format(SQLOperacao, [inttostr(dtmOperacoesOSP.qryOperacoesOSPoperacao.asinteger)]);
+
+    ConsultaUsuarios.qryConsultaUsuarios.MacroByName('SQLUsuariosJaSelecionados').AsString :=
+      format(SQL,[dtmOperacoesOSP.ListaUsuariosTerminoAberto,
+                  inttostr(dtmOperacoesOSP.qryOperacoesOSPUsuarioUsuario.asinteger)]) +
+      format(SQLOperacao, [inttostr(dtmOperacoesOSP.qryOperacoesOSPoperacao.asinteger)]);
+  end
+  else
+  begin
+    ConsultaUsuarios.qryProcuraUsuarios.MacroByName('SQLUsuariosJaSelecionados').AsString :=
+      format(SQL,[dtmOperacoesOSP.ListaUsuariosTerminoAberto,
+                  inttostr(0)]) +
+      format(SQLOperacao, [inttostr(dtmOperacoesOSP.qryOperacoesOSPoperacao.asinteger)]);
+
+    ConsultaUsuarios.qryConsultaUsuarios.MacroByName('SQLUsuariosJaSelecionados').AsString :=
+      format(SQL,[dtmOperacoesOSP.ListaUsuariosTerminoAberto,
+                  inttostr(0)]) +
+      format(SQLOperacao, [inttostr(dtmOperacoesOSP.qryOperacoesOSPoperacao.asinteger)]);
+  end;
+end;
+
+procedure TfrmOperacoesOSP.AtribuirDadosUsuarios;
+begin
+  with dtmOperacoesOSP do
+  begin
+    if (qryOperacoesOSPUsuarionome.AsString <> ConsultaUsuarios.qryProcuraUsuariosnome.AsString) or
+       (qryOperacoesOSPUsuariousuario.AsString <> ConsultaUsuarios.qryProcuraUsuarioscodigo.AsString) then
+    begin
+      EditarOperacoesOSPUsuario;
+      qryOperacoesOSPUsuarionome.AsString := ConsultaUsuarios.qryProcuraUsuariosnome.AsString;
+      qryOperacoesOSPUsuariousuario.AsString := ConsultaUsuarios.qryProcuraUsuarioscodigo.AsString;
+      qryOperacoesOSPUsuariousuariovalidado.AsBoolean := true;
+    end;
+  end;
+end;
+
+procedure TfrmOperacoesOSP.AcionarPesquisaGradeUsuarios;
+begin
+   if not dtmOperacoesOSP.qryOperacoesOSPUsuario.ReadOnly and
+      (dtmOperacoesOSP.TipoLogin = GerenteProducao) then
+   begin
+     dbgOPeracoesOSPUsuario.SetFocus;
+     case dbgOPeracoesOSPUsuario.SelectedIndex of
+     0,1 : // usuario abertura
+     begin
+       ConsultaUsuarios.CtrlOn := True;
+       ConsultaUsuarios.InternoPesquisar(ctUSUARIOS);
+       dbgOPeracoesOSPUsuario.SetFocus;
+       dbgOPeracoesOSPUsuario.SelectedIndex :=  0;
+     end;
+     2:   // usuario setup
+     begin
+       ConsultaUsuariosSetup.CtrlOn := True;
+       ConsultaUsuariosSetup.InternoPesquisar(ctUSUARIOS);
+       dbgOPeracoesOSPUsuario.SetFocus;
+       dbgOPeracoesOSPUsuario.SelectedIndex :=  2;
+     end;
+     5: // usuario fechamento
+     begin
+       ConsultaUsuariosFechamento.CtrlOn := True;
+       ConsultaUsuariosFechamento.InternoPesquisar(ctUSUARIOS);
+       dbgOPeracoesOSPUsuario.SetFocus;
+       dbgOPeracoesOSPUsuario.SelectedIndex :=  5;
+     end;
+     end;
+   end;
+end;
+
+procedure TfrmOperacoesOSP.dbgOPeracoesOSPUsuarioDblClick(Sender: TObject);
+begin
+  inherited;
+  AcionarPesquisaGradeUsuarios;
+end;
+
+procedure TfrmOperacoesOSP.dbgOPeracoesOSPDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if dtmOperacoesOSP.qryOperacoesOSPoperacaoemandamento.AsBoolean then
+  begin
+//    TDBGrid(Sender).Canvas.Brush.Color := $001C1CFF;
+//    TDBGrid(Sender).Canvas.Brush.Style := bsclear;
+
+    TDBGrid(Sender).Canvas.Font.Color := clRed;
+    TDBGrid(Sender).Canvas.Font.Style := [fsBold];
+  end
+  else
+{  if not (dtmOperacoesOSP.qryOperacoesOSPSaldoFaltanteGeral.AsInteger > 0)  then}
+  if dtmOperacoesOSP.qryOperacoesOSPSaldoFaltanteGeral.AsInteger = 0  then
+  begin
+    TDBGrid(Sender).Canvas.Font.Color := clBlue;
+    TDBGrid(Sender).Canvas.Font.Style := [fsBold];
+  end
+  else
+   TDBGrid(Sender).Canvas.Font.Style := [];
+
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+
+  if column = dbgOPeracoesOSP.Columns[0] then
+  begin
+    if dtmOperacoesOSP.qryOperacoesOSPoperacaoliberada.AsBoolean then
+    begin
+      TDBGrid(Sender).Canvas.Font.Color := clWhite;
+      TDBGrid(Sender).Canvas.Brush.Color := clGreen;
+
+//      if not (dtmOperacoesOSP.qryOperacoesOSPSaldoFaltante.AsInteger > 0)  then
+//        TDBGrid(Sender).Canvas.Font.Color := clBlack;
+//    else
+//      TDBGrid(Sender).Canvas.Font.Color := clWhite;
+
+      TDBGrid(Sender).Canvas.Font.Style := [fsBold];
+    end;
+    {
+    else
+     TDBGrid(Sender).Canvas.Font.Style := [];
+     }
+
+    TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+
+  end;
+end;
+
+procedure TfrmOperacoesOSP.FormShow(Sender: TObject);
+begin
+  inherited;
+  edfOSP.SetFocus;
+  edfosp.SelectAll
+{
+  focarGradeUsuario;}
+end;
+
+function TfrmOperacoesOSP.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then begin
+    if not CtrlOn then
+    begin
+      result := dtmOperacoesOSP.ExcluirOperacoesOSP;
+      if result then
+        edfOSP.Clear;
+    end
+  end;
+end;
+
+procedure TfrmOperacoesOSP.FocarGradeUsuario;
+begin
+  dbgOPeracoesOSPUsuario.SetFocus;
+  if dtmOperacoesOSP.qryOperacoesOSPUsuario.IsEmpty then
+    dbgOPeracoesOSPUsuario.SelectedIndex := 0
+  else
+    dbgOPeracoesOSPUsuario.SelectedIndex := 6;
+end;
+
+procedure TfrmOperacoesOSP.dbgOPeracoesOSPUsuarioFalhasDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarPesquisaGradeFalhas;
+end;
+
+procedure TfrmOperacoesOSP.AcionarPesquisaGradeFalhas;
+begin
+  if not (dtmOperacoesOSP.qryOperacoesOSPUsuarioFalhas.ReadOnly) then
+  begin
+    dbgOPeracoesOSPUsuarioFalhas.SetFocus;
+    ConsultaFalhas.CtrlOn := True;
+    ConsultaFalhas.InternoPesquisar('FALHAS');
+    dbgOPeracoesOSPUsuarioFalhas.SetFocus;
+    dbgOPeracoesOSPUsuarioFalhas.SelectedIndex :=  0;
+  end;
+end;
+
+procedure TfrmOperacoesOSP.AtribuirDadosFalhas;
+begin
+  with dtmOperacoesOSP do
+  begin
+    EditarOperacoesOSPUsuarioFalhas;
+    qryOperacoesOSPUsuarioFalhasfalha.AsString := ConsultaFalhas.qryProcuraFalhascodigo.AsString;
+    qryOperacoesOSPUsuarioFalhasdescricao.AsString := ConsultaFalhas.qryProcuraFalhasdescricao.AsString;
+    qryOperacoesOSPUsuarioFalhasperdatotal.AsBoolean := ConsultaFalhas.qryProcuraFalhasperdatotal.AsBoolean;
+
+    qryOperacoesOSPUsuarioFalhasFalhavalidada.AsBoolean := true;
+  end;
+end;
+
+procedure TfrmOperacoesOSP.CondicoesOperacoesOSPUsuarioFalhas;
+const
+  SQL = ' and (codigo not in (%s) or codigo = %s) ';
+  SQLOperacao = 'and (codigo in (select fo.falha from falhasoperacoes fo where fo.operacao = %s)) ';
+begin
+  if (dtmOperacoesOSP.qryOperacoesOSPUsuarioFalhasfalha.AsString<>'') and
+     not (dtmOperacoesOSP.qryOperacoesOSPUsuarioFalhas.state = dsinsert) then
+  begin
+    ConsultaFalhas.qryProcuraFalhas.MacroByName('SQLFalhasJaSelecionadas').AsString :=
+      format(SQL,[dtmOperacoesOSP.ListaFalhas,
+                  inttostr(dtmOperacoesOSP.qryOperacoesOSPUsuarioFalhasfalha.asinteger)]);
+
+    ConsultaFalhas.qryConsultaFalhas.MacroByName('SQLFalhasJaSelecionadas').AsString :=
+      format(SQL,[dtmOperacoesOSP.ListaFalhas,
+                  inttostr(dtmOperacoesOSP.qryOperacoesOSPUsuarioFalhasfalha.asinteger)]);
+  end
+  else
+  begin
+    ConsultaFalhas.qryProcuraFalhas.MacroByName('SQLFalhasJaSelecionadas').AsString :=
+      format(SQL,[dtmOperacoesOSP.ListaFalhas, inttostr(0)]);
+
+    ConsultaFalhas.qryConsultaFalhas.MacroByName('SQLFalhasJaSelecionadas').AsString :=
+      format(SQL,[dtmOperacoesOSP.ListaFalhas, inttostr(0)]);
+  end;
+
+  if dtmOperacoesOSP.qryOperacoesOSPoperacao.AsString <> '' then
+  begin
+    ConsultaFalhas.qryProcuraFalhas.MacroByName('SQLOperacoes').AsString :=
+    format(SQLOperacao,[dtmOperacoesOSP.qryOperacoesOSPoperacao.AsString]);
+
+    ConsultaFalhas.qryConsultaFalhas.MacroByName('SQLOperacoes').AsString :=
+    format(SQLOperacao,[dtmOperacoesOSP.qryOperacoesOSPoperacao.AsString]);
+  end
+  else
+  begin
+    ConsultaFalhas.qryProcuraFalhas.MacroByName('SQLOperacoes').AsString :=
+    format(SQLOperacao,['0']);
+
+    ConsultaFalhas.qryConsultaFalhas.MacroByName('SQLOperacoes').AsString :=
+    format(SQLOperacao,['0']);
+  end;
+
+
+end;
+
+
+procedure TfrmOperacoesOSP.CondicoesOperacoesOSPUsuarioParadas;
+const
+  SQL = ' and (codigo not in (%s) or codigo = %s) ';
+
+begin
+  if (dtmOperacoesOSP.qryOperacoesOSPUsuarioParadascodigoparada.AsString<>'') and
+     not (dtmOperacoesOSP.qryOperacoesOSPUsuarioParadas.state = dsinsert) then
+  begin
+    ConsultaParadas.qryProcuraMotivosParadas.MacroByName('SQLParadasJaSelecionadas').AsString :=
+      format(SQL,[dtmOperacoesOSP.ListaParadas,
+                  inttostr(dtmOperacoesOSP.qryOperacoesOSPUsuarioParadascodigoparada.asinteger)]);
+
+    ConsultaParadas.qryConsultaMotivosParadas.MacroByName('SQLParadasJaSelecionadas').AsString :=
+      format(SQL,[dtmOperacoesOSP.ListaParadas,
+                  inttostr(dtmOperacoesOSP.qryOperacoesOSPUsuarioParadascodigoparada.asinteger)]);
+  end
+  else
+  begin
+    ConsultaParadas.qryProcuraMotivosParadas.MacroByName('SQLParadasJaSelecionadas').AsString :=
+      format(SQL,[dtmOperacoesOSP.ListaParadas, inttostr(0)]);
+
+    ConsultaParadas.qryConsultaMotivosParadas.MacroByName('SQLParadasJaSelecionadas').AsString :=
+      format(SQL,[dtmOperacoesOSP.ListaParadas, inttostr(0)]);
+  end;
+end;
+
+
+procedure TfrmOperacoesOSP.dbgOPeracoesOSPUsuarioFalhasKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+  Procedure VerificarFalhas;
+  begin
+    if (dtmOperacoesOSP.qryOperacoesOSPUsuarioFalhas.State in [dsedit,dsinsert]) or
+       not (dtmOperacoesOSP.qryOperacoesOSPUsuarioFalhas.IsEmpty) then
+       begin
+          ConsultaFalhas.edfCodigo.DoExit;
+          if ConsultaFalhas.qryProcuraFalhas.IsEmpty then
+          begin
+            dtmOperacoesOSP.LimparOperacoesOSPUsuarioFalhas;
+            dbgOPeracoesOSPUsuarioFalhas.SetFocus;
+            dbgOPeracoesOSPUsuarioFalhas.SelectedIndex := 0;
+          end
+          else
+          begin
+            dtmOperacoesOSP.qryOperacoesOSPUsuarioFalhasfalhavalidada.AsBoolean := true;
+            AtribuirDadosFalhas;
+            dbgOPeracoesOSPUsuarioFalhas.SetFocus;
+            dbgOPeracoesOSPUsuarioFalhas.SelectedIndex := 0;
+          end;
+       end;
+  end;
+
+begin
+  inherited;
+  case dbgOPeracoesOSPUsuarioFalhas.SelectedIndex of
+  0 :
+    begin
+      if Shift = [ssCtrl] then
+      begin
+        case Key of
+         VK_F9     : begin
+                         ConsultaFalhas.CtrlOn := Shift = [ssCtrl];
+                         if (Shift = []) or ConsultaFalhas.CtrlOn then
+                           AcionarPesquisaGradeFalhas
+                       end;
+        end;
+      end
+      else
+      case Key of
+       VK_Return: VerificarFalhas;
+
+       VK_Up,
+       VK_Down,
+       VK_PRIOR,
+       VK_next: begin
+                        if dtmOperacoesOSP.RegistrodeOperacoesOSPUsuarioFalhas then
+                        begin
+                          dtmOperacoesOSP.EditarOperacoesOSPUsuarioFalhas;
+                          dtmOperacoesOSP.qryOperacoesOSPUsuarioFalhas.CheckRequiredFields;
+                          key := 0;
+                        end;
+                      end;
+
+       VK_Escape : begin
+                       dtmOperacoesOSP.CancelarOperacoesOSPUsuarioFalhas;
+                       if dbgOPeracoesOSPUsuarioFalhas.Focused then
+                       begin
+                         dbgOPeracoesOSPUsuarioFalhas.SetFocus;
+                         dbgOPeracoesOSPUsuarioFalhas.SelectedIndex := 0;
+                       end;
+                     end;
+      end;
+    end;
+  1 :
+    begin
+      if dtmOperacoesOSP.tipologin = operador then
+         dtmOperacoesOSP.GravarOperacoesOSPUsuarioFalhas
+    end;
+  end;
+end;
+
+procedure TfrmOperacoesOSP.edfOSPKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  Percorrer(cmposp, Key, Shift);
+end;
+
+procedure TfrmOperacoesOSP.Percorrer(Campo: Byte; var Key: Word;
+  Shift: TShiftState);
+begin
+   if (Key =VK_next) or
+      (Key =VK_PRIOR)   or
+     ((ssCtrl in Shift) and ((Key =VK_Home) or (Key =VK_End))) then
+   begin
+     dtmOperacoesOSP.Percorrer(Campo, Key, Shift);
+//     edfCodigo.Text := dtmPlanoContas.qryPlanoContascodigo.AsString;
+//     edfcodigo.Exist;
+     case campo of
+      cmposp : begin
+                 edfOSP.SetFocus;
+                 edfOSP.SelectAll;
+               end;
+      cmplote: begin
+                 edfLote.SetFocus;
+                 edfLote.SelectAll;
+               end;
+     end;
+
+     SelecionarCampoOSP(self);
+
+     if dtmOperacoesOSP.qryOSPLotes.RecordCount<>0 then
+     begin
+//       edfOSP.Exist;
+       edfOSP.SetControl(true);
+//       edfOSPFound(true);
+     end;
+
+   end;
+
+end;
+
+function TfrmOperacoesOSP.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then
+     dtmOperacoesOSP.IncluirOperacoesOSP;
+end;
+
+procedure TfrmOperacoesOSP.edfOSPFound(Found: Boolean);
+begin
+  inherited;
+  sbnIncluir.Enabled := found;
+end;
+
+procedure TfrmOperacoesOSP.SelecionarCampoQuantidade(Sender: TObject);
+begin
+//  pnlOperacoesOSP.Enabled := false;
+//  pnlOperacoesOSPUsuariosFalhas.Enabled := false;
+  dbgOPeracoesOSPUsuario.SetFocus;
+  dbgOPeracoesOSPUsuario.SelectedIndex := 6;
+end;
+
+function TfrmOperacoesOSP.InternoGravar: Boolean;
+begin
+  if dtmOperacoesOSP.Gravardados then
+  begin
+    SelecionarCampoOSP(nil);
+    dtmOperacoesOSP.MarcarOperacaoemAndamento;
+  end;
+end;
+
+procedure TfrmOperacoesOSP.SelecionarCampoUsuario(Sender: TObject);
+begin
+//  pnlOperacoesOSP.Enabled := false;
+//  pnlOperacoesOSPUsuariosFalhas.Enabled := false;
+  dbgOPeracoesOSPUsuario.SetFocus;
+  dbgOPeracoesOSPUsuario.SelectedIndex := 0;
+end;
+
+procedure TfrmOperacoesOSP.SelecionarCampoOSP(Sender: TObject);
+begin
+  dtmOperacoesOSP.TipoLogin := NaoInformado;
+  dtmOperacoesOSP.StatusCadastro := Nenhum;
+  dtmOperacoesOSP.qryOperacoesOSPUsuario.RequestLive := false;
+  dtmOperacoesOSP.qryOperacoesOSPUsuarioFalhas.RequestLive := false;
+end;
+
+procedure TfrmOperacoesOSP.SelecionarGradeFalhas(Sender: TObject);
+begin
+  dbgOPeracoesOSPUsuarioFalhas.SetFocus;
+  dbgOPeracoesOSPUsuarioFalhas.SelectedIndex := 0;
+end;
+
+procedure TfrmOperacoesOSP.actHabilitarUpdate(Sender: TObject);
+begin
+  inherited;
+  if (dtmOperacoesOSP.qryOperacoesOSPUsuario.State in [dsedit,dsinsert]) or
+     (dtmOperacoesOSP.qryOperacoesOSPUsuarioFalhas.State in [dsedit,dsinsert]) then
+  begin
+    pnlOperacoesOSP.Enabled := false;
+
+    if (dtmOperacoesOSP.qryOperacoesOSPUsuario.State in [dsedit,dsinsert]) then
+       pnlOperacoesOSPUsuariosFalhas.Enabled := false;
+
+    if (dtmOperacoesOSP.qryOperacoesOSPUsuarioFalhas.State in [dsedit,dsinsert]) then
+       pnldbgOPeracoesOSPUsuario.Enabled := false;
+  end
+  else
+  begin
+    pnlOperacoesOSP.Enabled := true;
+    pnldbgOPeracoesOSPUsuario.Enabled := true;
+    pnlOperacoesOSPUsuariosFalhas.Enabled := true;
+  end;
+
+  sbnExcluir.Enabled := dtmOperacoesOSP.TipoLogin = GerenteProducao;
+end;
+
+procedure TfrmOperacoesOSP.SetarParametrosGrade(Sender: TObject);
+begin
+  case dtmOperacoesOSP.TipoLogin of
+  Operador: begin
+              dbgOPeracoesOSPUsuario.PostOnEnter := false;
+              dbgOPeracoesOSPUsuarioFalhas.PostOnEnter := false;
+
+              dbgOPeracoesOSPUsuario.CanDelete := false;
+              dbgOPeracoesOSPUsuarioFalhas.CanDelete := false;
+            end;
+  gerenteProducao:
+            begin
+              dbgOPeracoesOSPUsuario.PostOnEnter := true;
+              dbgOPeracoesOSPUsuarioFalhas.PostOnEnter := true;
+
+              dbgOPeracoesOSPUsuario.CanDelete := true;
+              dbgOPeracoesOSPUsuarioFalhas.CanDelete := true;
+            end;
+  end;
+
+end;
+
+procedure TfrmOperacoesOSP.dbgOPeracoesOSPKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  If CtrlOn then
+  begin
+    if key =VK_A then
+      dtmOperacoesOSP.DefinirAlternativas;
+
+    if key =VK_C then
+      dtmOperacoesOSP.DefinirComplementar;
+
+  end;
+end;
+
+procedure TfrmOperacoesOSP.edfLoteKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  Percorrer(cmplote, Key, Shift);
+
+  if key =VK_return then
+  begin
+    if dtmOperacoesOSP.qryOSPLotes.RecordCount<>0 then
+    begin
+//      if not Assigned(dtmOperacoesosp.UsuarioAut) then
+      begin
+        focarGradeUsuario;
+        InternoIncluir;
+      end;
+    end;
+  end;
+
+end;
+
+
+procedure TfrmOperacoesOSP.Timer1Timer(Sender: TObject);
+begin
+  inherited;
+  if (strtotime(formatdatetime('HH:MM:SS', (now() -dtmOperacoesOSP.TempoAbrirJanela)) ) >= strtotime('00:00:20')) and
+    not dtmOperacoesOSP.incluindocodigousuario then
+  begin
+    if Screen.ActiveForm.Name = 'frmOperacoesOSP' then
+      InternoIncluir;
+    dtmOperacoesOSP.TempoAbrirJanela := now();
+  end;
+end;
+
+procedure TfrmOperacoesOSP.dbgOPeracoesOSPUsuarioParadasDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarPesquisaGradeParadas;
+end;
+
+procedure TfrmOperacoesOSP.AcionarPesquisaGradeParadas;
+begin
+  if not (dtmOperacoesOSP.qryOperacoesOSPUsuarioParadas.ReadOnly) then
+  begin
+    dbgOPeracoesOSPUsuarioParadas.SetFocus;
+    ConsultaParadas.CtrlOn := True;
+    ConsultaParadas.InternoPesquisar('MOTIVO DAS PARADAS');
+    dbgOPeracoesOSPUsuarioParadas.SetFocus;
+    dbgOPeracoesOSPUsuarioParadas.SelectedIndex :=  0;
+  end;
+
+end;
+
+procedure TfrmOperacoesOSP.AtribuirDadosParadas;
+begin
+  with dtmOperacoesOSP do
+  begin
+    EditarOperacoesOSPUsuarioParadas;
+    qryOperacoesOSPUsuarioParadascodigoParada.AsString := ConsultaParadas.qryProcuraMotivosParadascodigo.AsString;
+    qryOperacoesOSPUsuarioParadasdescricao.AsString := ConsultaParadas.qryProcuraMotivosParadasdescricao.AsString;
+    qryOperacoesOSPUsuarioParadasparadavalidada.AsBoolean := true;
+  end;
+end;
+
+procedure TfrmOperacoesOSP.dbgOPeracoesOSPUsuarioParadasKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+
+  Procedure VerificarParadas;
+  begin
+    if (dtmOperacoesOSP.qryOperacoesOSPUsuarioParadas.State in [dsedit,dsinsert]) or
+       not (dtmOperacoesOSP.qryOperacoesOSPUsuarioParadas.IsEmpty) then
+       begin
+          ConsultaParadas.edfCodigo.DoExit;
+          if ConsultaParadas.qryProcuraMotivosParadas.IsEmpty then
+          begin
+            dtmOperacoesOSP.LimparOperacoesOSPUsuarioParadas;
+            dbgOPeracoesOSPUsuarioParadas.SetFocus;
+            dbgOPeracoesOSPUsuarioParadas.SelectedIndex := 0;
+          end
+          else
+          begin
+            dtmOperacoesOSP.qryOperacoesOSPUsuarioParadasparadavalidada.AsBoolean := true;
+            AtribuirDadosParadas;
+            dbgOPeracoesOSPUsuarioParadas.SetFocus;
+            dbgOPeracoesOSPUsuarioParadas.SelectedIndex := 0;
+          end;
+       end;
+  end;
+
+begin
+  inherited;
+  case dbgOPeracoesOSPUsuarioParadas.SelectedIndex of
+  0 :
+    begin
+      if Shift = [ssCtrl] then
+      begin
+        case Key of
+         VK_F9     : begin
+                         ConsultaParadas.CtrlOn := Shift = [ssCtrl];
+                         if (Shift = []) or ConsultaParadas.CtrlOn then
+                           AcionarPesquisaGradeParadas
+                       end;
+        end;
+      end
+      else
+      case Key of
+       VK_Return: VerificarParadas;
+
+       VK_Up,
+       VK_Down,
+       VK_PRIOR,
+       VK_next: begin
+                        if dtmOperacoesOSP.RegistrodeOperacoesOSPUsuarioParadas then
+                        begin
+                          dtmOperacoesOSP.EditarOperacoesOSPUsuarioParadas;
+                          dtmOperacoesOSP.qryOperacoesOSPUsuarioParadas.CheckRequiredFields;
+                          key := 0;
+                        end;
+                      end;
+
+       VK_Escape : begin
+                       dtmOperacoesOSP.CancelarOperacoesOSPUsuarioParadas;
+                       if dbgOPeracoesOSPUsuarioParadas.Focused then
+                       begin
+                         dbgOPeracoesOSPUsuarioParadas.SetFocus;
+                         dbgOPeracoesOSPUsuarioParadas.SelectedIndex := 0;
+                       end;
+                     end;
+      end;
+    end;
+  1 :
+    begin
+      if dtmOperacoesOSP.tipologin = operador then
+         dtmOperacoesOSP.GravarOperacoesOSPUsuarioParadas
+    end;
+  end;
+end;
+
+procedure TfrmOperacoesOSP.CondicoesOperacoesOSPUsuarioSetup;
+const
+  SQL = ' and (codigo not in (%s) or codigo = %s) ';
+{  SQLOperacao = ' and codigo in (select nsu.usuario '+
+                               ' from niveissalariaisusuarios nsu '+
+                                    ' join operacoesniveissalariais ons '+
+                                    ' on nsu.nivelsalarial = ons.nivelsalarial '+
+                               ' where ons.operacao = %s) ';}
+
+  SQLOperacao = ' and codigo in (select uop.usuario '+
+                               ' from usuariosoperacoesproducao uop '+
+                               ' where uop.habilitadosetup '+
+                               ' and uop.operacao = %s) ';
+begin
+  if (dtmOperacoesOSP.qryOperacoesOSPUsuariousuariosetup.AsString<>'') and
+     not (dtmOperacoesOSP.qryOperacoesOSPUsuario.state = dsinsert) then
+  begin
+    ConsultaUsuariosSetup.qryProcuraUsuarios.MacroByName('SQLUsuariosJaSelecionados').AsString :=
+      format(SQL,[{dtmOperacoesOSP.ListaUsuariosTerminoAberto,} '0',
+                  inttostr(dtmOperacoesOSP.qryOperacoesOSPUsuariousuariosetup.asinteger)]) +
+      format(SQLOperacao, [inttostr(dtmOperacoesOSP.qryOperacoesOSPoperacao.asinteger)]);
+
+    ConsultaUsuariosSetup.qryConsultaUsuarios.MacroByName('SQLUsuariosJaSelecionados').AsString :=
+      format(SQL,[{dtmOperacoesOSP.ListaUsuariosTerminoAberto,} '0',
+                  inttostr(dtmOperacoesOSP.qryOperacoesOSPUsuariousuariosetup.asinteger)]) +
+      format(SQLOperacao, [inttostr(dtmOperacoesOSP.qryOperacoesOSPoperacao.asinteger)]);
+  end
+  else
+  begin
+    ConsultaUsuariosSetup.qryProcuraUsuarios.MacroByName('SQLUsuariosJaSelecionados').AsString :=
+      format(SQL,[{dtmOperacoesOSP.ListaUsuariosTerminoAberto,} '0',
+                  inttostr(0)]) +
+      format(SQLOperacao, [inttostr(dtmOperacoesOSP.qryOperacoesOSPoperacao.asinteger)]);
+
+    ConsultaUsuariosSetup.qryConsultaUsuarios.MacroByName('SQLUsuariosJaSelecionados').AsString :=
+      format(SQL,[{dtmOperacoesOSP.ListaUsuariosTerminoAberto,} '0',
+                  inttostr(0)]) +
+      format(SQLOperacao, [inttostr(dtmOperacoesOSP.qryOperacoesOSPoperacao.asinteger)]);
+  end;
+end;
+
+procedure TfrmOperacoesOSP.CondicoesOperacoesOSPUsuarioFechamento;
+const
+  SQL = ' and (codigo not in (%s) or codigo = %s) ';
+{  SQLOperacao = ' and codigo in (select nsu.usuario '+
+                               ' from niveissalariaisusuarios nsu '+
+                                    ' join operacoesniveissalariais ons '+
+                                    ' on nsu.nivelsalarial = ons.nivelsalarial '+
+                               ' where ons.operacao = %s) ';}
+
+  SQLOperacao = ' and codigo in (select uop.usuario '+
+                               ' from usuariosoperacoesproducao uop '+
+                               ' where uop.operacao = %s) ';
+begin
+  if (dtmOperacoesOSP.qryOperacoesOSPUsuariousuariotermino.AsString<>'') and
+     not (dtmOperacoesOSP.qryOperacoesOSPUsuario.state = dsinsert) then
+  begin
+    ConsultaUsuariosFechamento.qryProcuraUsuarios.MacroByName('SQLUsuariosJaSelecionados').AsString :=
+      format(SQL,[{dtmOperacoesOSP.ListaUsuariosTerminoAberto,} '0',
+                  inttostr(dtmOperacoesOSP.qryOperacoesOSPUsuariousuariotermino.asinteger)]) +
+      format(SQLOperacao, [inttostr(dtmOperacoesOSP.qryOperacoesOSPoperacao.asinteger)]);
+
+    ConsultaUsuariosFechamento.qryConsultaUsuarios.MacroByName('SQLUsuariosJaSelecionados').AsString :=
+      format(SQL,[{dtmOperacoesOSP.ListaUsuariosTerminoAberto,} '0',
+                  inttostr(dtmOperacoesOSP.qryOperacoesOSPUsuariousuariotermino.asinteger)]) +
+      format(SQLOperacao, [inttostr(dtmOperacoesOSP.qryOperacoesOSPoperacao.asinteger)]);
+  end
+  else
+  begin
+    ConsultaUsuariosFechamento.qryProcuraUsuarios.MacroByName('SQLUsuariosJaSelecionados').AsString :=
+      format(SQL,[{dtmOperacoesOSP.ListaUsuariosTerminoAberto,} '0',
+                  inttostr(0)]) +
+      format(SQLOperacao, [inttostr(dtmOperacoesOSP.qryOperacoesOSPoperacao.asinteger)]);
+
+    ConsultaUsuariosFechamento.qryConsultaUsuarios.MacroByName('SQLUsuariosJaSelecionados').AsString :=
+      format(SQL,[{dtmOperacoesOSP.ListaUsuariosTerminoAberto,} '0',
+                  inttostr(0)]) +
+      format(SQLOperacao, [inttostr(dtmOperacoesOSP.qryOperacoesOSPoperacao.asinteger)]);
+  end;
+end;
+
+procedure TfrmOperacoesOSP.AtribuirDadosUsuariosSetup;
+begin
+  with dtmOperacoesOSP do
+  begin
+    if (qryOperacoesOSPUsuariousuariosetup.AsString <> ConsultaUsuariossetup.qryProcuraUsuarioscodigo.AsString) then
+    begin
+      EditarOperacoesOSPUsuario;
+      qryOperacoesOSPUsuariousuariosetup.AsString := ConsultaUsuariossetup.qryProcuraUsuarioscodigo.AsString;
+      qryOperacoesOSPUsuariousuariosetupvalidado.AsBoolean := true;
+    end;
+  end;
+end;
+
+procedure TfrmOperacoesOSP.AtribuirDadosUsuariosFechamento;
+begin
+  with dtmOperacoesOSP do
+  begin
+    if (qryOperacoesOSPUsuariousuariotermino.AsString <> ConsultaUsuariosFechamento.qryProcuraUsuarioscodigo.AsString) then
+    begin
+      EditarOperacoesOSPUsuario;
+      qryOperacoesOSPUsuariousuariotermino.AsString := ConsultaUsuariosFechamento.qryProcuraUsuarioscodigo.AsString;
+      qryOperacoesOSPUsuariousuariofechamentovalidado.AsBoolean := true;
+    end;
+  end;
+end;
+
+end.
+

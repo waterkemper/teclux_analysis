@@ -1,0 +1,549 @@
+unit dmrequisicaoexposicao;
+
+interface
+
+uses
+  SysUtils, Classes, DateUtils, Forms, dmtecsoft, dmbasico, DB, ZQuery, Variants,
+  ZPgSqlQuery, cpquery, cpdatasource, biblio, ctconstantes, clparametrossistema,
+  ZTransact;
+
+type
+  TdtmRequisicaoExposicao = class(TdtmBasico)
+    qryPedidosFiliais: TtecQuery;
+    dsrPedidosFiliais: TtecDataSource;
+    qryPedidosFiliaiscodigo: TIntegerField;
+    qryPedidosFiliaisproduto: TLargeintField;
+    qryPedidosFiliaisqtdepedida: TFloatField;
+    qryPedidosFiliaisqtderecebida: TFloatField;
+    qryPedidosFiliaisobservacao: TStringField;
+    qryProcuraProdutos: TtecQuery;
+    dsrProcuraProdutos: TtecDataSource;
+    qryConsultaProdutos: TtecQuery;
+    qryConsultaFiliais: TtecQuery;
+    qryConsultaFiliaisnome: TStringField;
+    qryConsultaFiliaiscodigo: TIntegerField;
+    qryProcuraFiliaisDestino: TtecQuery;
+    qryProcuraFiliaisDestinocodigo: TIntegerField;
+    qryProcuraFiliaisDestinonome: TStringField;
+    dsrProcuraFiliaisDestino: TtecDataSource;
+    spcPedidosTransferenciaProximoCodigo: TtecQuery;
+    spcPedidosTransferenciaProximoCodigonumero: TIntegerField;
+    qryConsultaPedidosFiliais: TtecQuery;
+    qryConsultaPedidosFiliaisdescricao: TStringField;
+    qryConsultaPedidosFiliaiscodigo: TIntegerField;
+    qryPedidosFiliaisnome: TStringField;
+    qryPedidosFiliaissituacao: TStringField;
+    qryPedidosFiliaisdata: TDateTimeField;
+    qryProdutoJaRequisitado: TtecQuery;
+    qryProdutoJaRequisitadocodigo: TIntegerField;
+    qryProdutoJaRequisitadoproduto: TLargeintField;
+    qryProcuraProdutosproduto: TLargeintField;
+    qryProcuraProdutosfilial: TIntegerField;
+    qryProcuraProdutosdescricao: TStringField;
+    qryConsultaProdutosdescricao: TStringField;
+    qryConsultaProdutosproduto: TLargeintField;
+    qryConsultaProdutosfilial: TIntegerField;
+    qryConsultaProdutosemestoque: TFloatField;
+    qryPedidosFiliaisdescsituacao: TStringField;
+    qryPedidosFiliaisrequisitante: TIntegerField;
+    qryPedidosFiliaisrequisitada: TIntegerField;
+    qryConsultaPedidosFiliaisrequisitada: TIntegerField;
+    qryProcuraProdutosestoquerequisitante: TFloatField;
+    qryProcuraProdutosestoquerequisitada: TFloatField;
+    qryPedidosFiliaisdadofiscal: TIntegerField;
+    qryPedidosFiliaisnumero: TIntegerField;
+    qryPedidosFiliaisserie: TStringField;
+    qryConsultaPedidosFiliaisdata: TStringField;
+    qryProdutoJaRequisitadodata: TDateTimeField;
+    qryConsultaPedidosFiliaisvalorgrade1: TStringField;
+    qryConsultaPedidosFiliaisvalorgrade2: TStringField;
+    qryConsultaProdutosvalorgrade1: TStringField;
+    qryConsultaProdutosvalorgrade2: TStringField;
+    qryEstoqueBloqueio: TtecQuery;
+    qryEstoqueBloqueioproduto: TLargeintField;
+    qryEstoqueBloqueiofilial: TIntegerField;
+    qryEstoqueBloqueioemestoque: TFloatField;
+    qryMovimentos: TtecQuery;
+    qryMovimentosnumero: TIntegerField;
+    qryMovimentosproduto: TLargeintField;
+    qryMovimentosfilial: TIntegerField;
+    qryMovimentostipomovimento: TStringField;
+    qryMovimentosquantidade: TFloatField;
+    qryMovimentosreferencia: TStringField;
+    qryMovimentosoperacao: TStringField;
+    qryMovimentosemestoque: TFloatField;
+    qryMovimentosreservado: TFloatField;
+    qryMovimentostransito: TFloatField;
+    qryMovimentosdemonstracao: TFloatField;
+    qryMovimentosconserto: TFloatField;
+    qryMovimentosfuturo: TFloatField;
+    qryMovimentosdanificada: TFloatField;
+    qryMovimentosfinanceiro: TFloatField;
+    qryMovimentosvalor: TFloatField;
+    qryMovimentosdata: TDateField;
+    qryMovimentostrfproduto: TLargeintField;
+    qryMovimentostrffilial: TIntegerField;
+    qryMovimentoscliente: TIntegerField;
+    qryMovimentostipocliente: TStringField;
+    spcMovimentosProximo: TtecQuery;
+    spcMovimentosProximonumero: TIntegerField;
+    qryConsultaPedidosFiliaisproduto: TLargeintField;
+    qryConsultaPedidosFiliaisreferencia: TStringField;
+    qryConsultaProdutosreferencia: TStringField;
+    ZMonitor1: TZMonitor;
+    qryProcuraProdutosunidade: TStringField;
+    qryConsultaProdutosunidade: TStringField;
+    qryPedidosFiliaisfilial_estoque: TIntegerField;
+    qryProcuraProdutosfilial_estoque: TIntegerField;
+    qryProcuraFiliaisDestinofilial_estoque: TIntegerField;
+    qryConsultaFiliaisfilial_estoque: TIntegerField;
+    procedure qryPedidosFiliaisNewRecord(DataSet: TDataSet);
+    procedure qryPedidosFiliaisAfterScroll(DataSet: TDataSet);
+    procedure dsrPedidosFiliaisDataChange(Sender: TObject; Field: TField);
+    procedure qryProcuraFiliaisDestinoAfterOpen(DataSet: TDataSet);
+    procedure qryPedidosFiliaisBeforeOpen(DataSet: TDataSet);
+    procedure qryConsultaPedidosFiliaisAfterOpen(DataSet: TDataSet);
+    procedure qryConsultaProdutosAfterOpen(DataSet: TDataSet);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+  protected
+    function GetTabelaPedidosTransferencia: TtecQuery;
+    function GetConsultaFiliais: TtecQuery;
+    function GetConsultaPedidosTransferencia: TtecQuery;
+    function GetConsultaProdutos: TtecQuery;
+    function GetEntregue: Boolean;
+    procedure ReservaPreviaProduto(Cancelando: Boolean = False);
+    procedure BloquearEstoque;
+  public
+    constructor create(AOwner: TComponent); override;
+    function  ExcluirPedidosTransferencia: Boolean;
+    function  IncluirPedidosTransferencia: Boolean;
+    function  GravarPedidosTransferencia: Boolean;
+    function  ExistePedidosTranferencia(Campo, Codigo: String): boolean;
+    function  ExisteFiliais(Campo, Codigo: String): Boolean;
+    function  ExisteProdutos(Campo, Codigo: String): Boolean;
+    procedure AbrirTabelas(TipoPesquisa: TtecPedidosTransferencia);
+    procedure FecharTabelas(TipoPesquisa: TtecPedidosTransferencia);
+    procedure Selecionar(TipoPesquisa: TtecPedidosTransferencia);
+
+    property ConsultaPedidosTransferencia: TtecQuery  read GetConsultaPedidosTransferencia;
+    property ConsultaFiliais: TtecQuery  read GetConsultaFiliais;
+    property ConsultaProdutos: TtecQuery read GetConsultaProdutos;
+    property TabelaPedidosTransferencia: TtecQuery read GetTabelaPedidosTransferencia;
+    property Entregue: Boolean read GetEntregue;
+  end;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmPedidosTransferenciaEstoques }
+
+procedure TdtmRequisicaoExposicao.AbrirTabelas(TipoPesquisa: TtecPedidosTransferencia);
+begin
+  case TipoPesquisa of
+    tptPEDIDOS: Abre(ctLOJTabelaConsultaPedidosTransferencia);
+    tptFILIAIS: Abre(ctLOJTabelaConsultaFiliais);
+   tptPRODUTOS: begin
+                  qryConsultaProdutos.Close;
+                  qryConsultaProdutos.macrobyname('SQL').asstring := 'and (e.produto = 0)';
+                  qryConsultaProdutos.Open;
+                end;
+  end;
+end;
+
+constructor TdtmRequisicaoExposicao.create(AOwner: TComponent);
+begin
+  inherited;
+  qryPedidosFiliais.Tag        := ctTabelas;
+  qryProcuraProdutos.Tag       := ctTabelas;
+  qryProcuraFiliaisDestino.Tag := ctTabelas;
+
+  qryConsultaPedidosFiliais.Tag:= ctLOJTabelaConsultaPedidosTransferencia;
+  qryConsultaFiliais.Tag       := ctLOJTabelaConsultaFiliais;
+  qryConsultaProdutos.Tag      := ctLOJTabelaConsultaProdutos;
+
+  qryProcuraFiliaisDestino.Params[1].AsInteger  := FilialBase;
+  qryConsultaFiliais.Params[0].AsInteger        := FilialBase;
+  qryConsultaPedidosFiliais.Params[0].AsInteger := FilialBase;
+end;
+
+function TdtmRequisicaoExposicao.ExcluirPedidosTransferencia: Boolean;
+begin
+  Result:= False;
+  if not qryPedidosFiliais.IsEmpty then
+    if not Entregue then begin
+      if MensagemConfirmacao(Format(ctCONFIRMEEXCLUIR, ['a REQUISIÇÃO DO PRODUTO'])) = smbOK then
+      begin
+        if ParSistema.RequisicaoSubtraiEstoque then
+          ReservaPreviaProduto(True);
+        qryPedidosFiliais.Delete;
+        qryPedidosFiliais.ReadOnly:=false;
+        if (ParSistema.RequisicaoSubtraiEstoque) then
+          Perpetrar([qryPedidosFiliais,qryMovimentos])
+        else
+          Perpetrar([qryPedidosFiliais]);
+
+        Result:= True;
+      end
+    end
+    else MensagemAviso(Format(ctREQUISICAONAOPODEEXCLUIR,['excluída']));
+end;
+
+function TdtmRequisicaoExposicao.ExisteFiliais(Campo, Codigo: String): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaFiliais, campo, codigo);
+end;
+
+function TdtmRequisicaoExposicao.ExistePedidosTranferencia(Campo, Codigo: String): boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaPedidosFiliais, campo, codigo);
+end;
+
+function TdtmRequisicaoExposicao.ExisteProdutos(Campo, Codigo: String): Boolean;
+const
+  SQL = 'and (to_ascii(%s,''latin1'') ilike to_ascii(''%s%s'',''latin1''))';
+var
+  vTabela : String;
+begin
+  if (Campo = 'descricao') or
+     (Campo = 'valorgrade1') or
+     (Campo = 'valorgrade2') or
+     (Campo = 'referencia') then   vTabela := 'p.'
+  else if (Campo = 'unidade') then vTabela := 'c.'
+  else if (campo = 'produto') or
+          (Campo = 'filial') or
+          (Campo = 'emestoque') then vTabela := 'e.';
+
+  qryConsultaProdutos.close;        
+  qryConsultaProdutos.macrobyname('SQL').asstring := Format(SQL, [vTabela+Campo, Codigo, '%']);
+  qryConsultaProdutos.Open;
+  Result := (qryConsultaProdutos.RecordCount > 0);
+end;
+
+procedure TdtmRequisicaoExposicao.FecharTabelas(TipoPesquisa: TtecPedidosTransferencia);
+begin
+  case TipoPesquisa of
+    tptPEDIDOS: Fecha(ctLOJTabelaConsultaPedidosTransferencia);
+    tptFILIAIS: Fecha(ctLOJTabelaConsultaFiliais);
+   tptPRODUTOS: Fecha(ctLOJTabelaConsultaProdutos);
+  end;
+end;
+
+function TdtmRequisicaoExposicao.GetConsultaFiliais: TtecQuery;
+begin
+  Result:= qryConsultaFiliais;
+end;
+
+function TdtmRequisicaoExposicao.GetConsultaPedidosTransferencia: TtecQuery;
+begin
+  Result:= qryConsultaPedidosFiliais;
+end;
+
+function TdtmRequisicaoExposicao.GetConsultaProdutos: TtecQuery;
+begin
+  Result:= qryConsultaProdutos;
+end;
+
+function TdtmRequisicaoExposicao.GravarPedidosTransferencia: Boolean;
+var
+  QuantidadePedidaAntigo : currency;
+begin
+  Result:= False;
+
+{  if ParSistema.RequisicaoSubtraiEstoque and (qryPedidosFiliaisproduto.AsVariant <> qryPedidosFiliaisproduto.OldValue) then
+  begin
+    qryMovimentos.Append;
+    spcMovimentosProximo.Open;
+    qryMovimentosnumero.AsInteger := spcMovimentosProximonumero.AsInteger;
+    spcMovimentosProximo.Close;
+    qryMovimentosproduto.AsLargeInt   := Produto;
+    qryMovimentosfilial.AsInteger     := Filial;
+    qryMovimentosreferencia.AsString:='REQUISICAO ' + qryPedidosFiliaiscodigo.AsString;
+
+
+
+  end;
+ }
+  ReFazConsulta(qryProdutoJaRequisitado,[0,1,2],[qryPedidosFiliaisproduto.AsLargeInt,
+                                                 qryPedidosFiliaisrequisitada.AsInteger,
+                                                 qryPedidosFiliaisrequisitante.AsInteger]);
+  if not qryProdutoJaRequisitado.IsEmpty and (qryPedidosFiliaiscodigo.AsInteger = 0) then
+  begin
+    if MensagemConfirmacao(Format(ctPRODUTOJAREQUISITADO + ctALTERARQUANTIDADE,[qryPedidosFiliaisproduto.AsString,
+                                                                                qryPedidosFiliaisrequisitada.AsString,
+                                                                                DateToStr(DateOf(qryProdutoJaRequisitadoData.AsDateTime))])) = smbOk then
+    begin
+      ReFazConsulta(qryPedidosFiliais,[0,1],[FilialBase,qryProdutoJaRequisitadocodigo.AsInteger]);
+      if ParSistema.RequisicaoSubtraiEstoque then
+      begin
+        qryMovimentos.Close;
+        qryMovimentos.Open;
+      end;
+    end;
+  end
+  else
+  begin
+    if qryPedidosFiliais.CheckRequiredFields then
+    begin
+      if (qryPedidosFiliais.State = dsInsert) or
+         ((qryPedidosFiliaisrequisitada.AsVariant = qryPedidosFiliaisrequisitada.OldValue) and
+          (qryPedidosFiliaisproduto.AsVariant = qryPedidosFiliaisproduto.OldValue)) then
+      begin
+        if qryPedidosFiliais.State = dsInsert then
+          QuantidadePedidaAntigo:=0
+        else
+          QuantidadePedidaAntigo:=qryPedidosFiliaisqtdepedida.OldValue;
+        if (qryProcuraProdutosestoquerequisitada.AsCurrency < (qryPedidosFiliaisqtdepedida.AsCurrency-QuantidadePedidaAntigo)-
+                                                              qryPedidosFiliaisqtderecebida.AsCurrency)
+           and (ParSistema.RequisicaoSubtraiEstoque) then
+          MensagemAviso('A quantidade solicitada é maior do que o estoque da filial requisitada.')
+        else
+        begin
+          if (qryPedidosFiliais.State = dsInsert) then
+          begin
+            spcPedidosTransferenciaProximoCodigo.Open;
+            qryPedidosFiliaiscodigo.AsInteger:= spcPedidosTransferenciaProximoCodigonumero.AsInteger;
+            spcPedidosTransferenciaProximoCodigo.Close;
+          end;
+          if (ParSistema.RequisicaoSubtraiEstoque) then
+          begin
+            BloquearEstoque;
+            ReservaPreviaProduto;
+            qryPedidosFiliais.Post;
+            Perpetrar([qryPedidosFiliais,qryMovimentos]);
+          end
+          else
+          begin
+            qryPedidosFiliais.Post;
+            Perpetrar([qryPedidosFiliais]);
+          end;
+          RefazConsulta(qryProcuraProdutos,[0,1,2],[qryPedidosFiliaisrequisitante.AsInteger,qryPedidosFiliaisproduto.AsLargeInt,
+                                                    qryPedidosFiliaisrequisitada.AsInteger]);
+          Result:= True;
+        end;
+      end
+      else
+      begin
+        if (ParSistema.RequisicaoSubtraiEstoque) then
+        begin
+          qryEstoqueBloqueio.Sql[05] := '((e.produto = ' + VarToStr(qryPedidosFiliaisproduto.OldValue) + ')and' +
+                                        '(e.filial = '   + VarToStr(qryPedidosFiliaisfilial_estoque.OldValue)  + '))';
+          qryEstoqueBloqueio.Open;
+
+          if not qryMovimentos.Active then
+            qryMovimentos.Open;
+          qryMovimentos.Append;
+          spcMovimentosProximo.Open;
+          qryMovimentosnumero.AsInteger := spcMovimentosProximonumero.AsInteger;
+          spcMovimentosProximo.Close;
+          qryMovimentosproduto.AsLargeInt   := qryPedidosFiliaisproduto.OldValue;
+          qryMovimentosfilial.AsVariant    := qryPedidosFiliaisfilial_estoque.OldValue;
+          qryMovimentosreferencia.AsString :='REQUISICAO ' + qryPedidosFiliaiscodigo.AsString;
+          qryMovimentostipomovimento.AsString:='TPE';
+          qryMovimentosquantidade.Ascurrency := qryPedidosFiliaisqtdepedida.OldValue;
+          qryMovimentos.Post;
+
+          BloquearEstoque;
+          qryMovimentos.Append;
+          spcMovimentosProximo.Open;
+          qryMovimentosnumero.AsInteger := spcMovimentosProximonumero.AsInteger;
+          spcMovimentosProximo.Close;
+          qryMovimentosproduto.AsLargeInt   := qryPedidosFiliaisproduto.AsLargeInt;
+          qryMovimentosfilial.AsVariant    := qryPedidosFiliaisfilial_estoque.AsVariant;
+          qryMovimentosreferencia.AsString :='REQUISIÇÃO ' + qryPedidosFiliaiscodigo.AsString;
+          qryMovimentosquantidade.Ascurrency := qryPedidosFiliaisqtdepedida.AsVariant;
+          qryMovimentostipomovimento.AsString:='TEP';
+          qryMovimentos.Post;
+
+          qryPedidosFiliais.Post;
+          Perpetrar([qryPedidosFiliais,qryMovimentos]);
+        end
+        else
+        begin
+          qryPedidosFiliais.Post;
+          Perpetrar([qryPedidosFiliais]);
+        end;
+      end;
+    end;
+  end;
+end;
+
+function TdtmRequisicaoExposicao.IncluirPedidosTransferencia: Boolean;
+begin
+  Result:= True;
+  if not qryPedidosFiliais.Active then
+    qryPedidosFiliais.Open;
+  if qryPedidosFiliais.ReadOnly then
+    qryPedidosFiliais.ReadOnly:= False;
+  qryPedidosFiliais.Insert;
+end;
+
+procedure TdtmRequisicaoExposicao.Selecionar(TipoPesquisa: TtecPedidosTransferencia);
+begin
+  case TipoPesquisa of
+    tptPEDIDOS: ReFazConsulta(qryPedidosFiliais,[0,1],[FilialBase,qryConsultaPedidosFiliaiscodigo.AsInteger]);
+    tptFILIAIS: begin
+                  qryPedidosFiliais.Edit;
+                  qryPedidosFiliaisrequisitada.AsInteger:= qryConsultaFiliaiscodigo.AsInteger;
+                  qryPedidosFiliaisfilial_estoque.AsInteger:= qryConsultaFiliaisfilial_estoque.AsInteger;
+                end;
+   tptPRODUTOS: begin
+                  qryPedidosFiliais.Edit;
+                  qryPedidosFiliaisproduto.AsLargeInt:= qryConsultaProdutosproduto.AsLargeInt;
+                end;
+  end;
+end;
+
+procedure TdtmRequisicaoExposicao.qryPedidosFiliaisNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+  qryPedidosFiliaisdata.AsDateTime        := DataHoraLocal;
+  qryPedidosFiliaisrequisitante.AsInteger := FilialBase;
+  qryPedidosFiliaisnome.AsString          := NomeFilialBase;
+  qryPedidosFiliaissituacao.AsString      := 'A';
+  qryPedidosFiliaisdescsituacao.AsString  := 'ABERTO';
+  qryProcuraProdutos.Params[0].AsInteger  := FilialBase;
+  qryProcuraProdutos.Params[2].Clear;
+  qryConsultaProdutos.Params[0].Clear;;
+end;
+
+function TdtmRequisicaoExposicao.GetTabelaPedidosTransferencia: TtecQuery;
+begin
+  Result:= qryPedidosFiliais;
+end;
+
+procedure TdtmRequisicaoExposicao.qryPedidosFiliaisAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  qryPedidosFiliais.ReadOnly:= (qryPedidosFiliaissituacao.AsString <> 'A');
+end;
+
+function TdtmRequisicaoExposicao.GetEntregue: Boolean;
+begin
+  Result:= (qryPedidosFiliaissituacao.AsString <> 'A');
+end;
+
+procedure TdtmRequisicaoExposicao.dsrPedidosFiliaisDataChange(Sender: TObject; Field: TField);
+begin
+  inherited;
+  dsrPedidosfiliais.OnDataChange:= nil;
+  if Field = qryPedidosFiliaisrequisitada then begin
+    if qryPedidosFiliais.State in [dsEdit, dsInsert] then begin
+      if qryPedidosFiliaisproduto.AsLargeInt > 0 then begin
+        qryPedidosFiliaisproduto.Clear;
+        qryPedidosFiliaisqtdepedida.Clear;
+      end;
+      qryProcuraProdutos.Params[2].AsInteger  := qryPedidosFiliaisrequisitada.AsInteger;
+      qryConsultaProdutos.Params[0].AsInteger := qryPedidosFiliaisrequisitada.AsInteger;
+    end;
+  end
+  else if Field = qryPedidosFiliaisproduto then begin
+    if (qryPedidosFiliais.State in [dsEdit, dsInsert]) then
+      qryPedidosFiliaisqtdepedida.Clear;
+  end;
+  dsrPedidosFiliais.OnDataChange:= dsrPedidosFiliaisDataChange;
+end;
+
+procedure TdtmRequisicaoExposicao.qryProcuraFiliaisDestinoAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  if (qryPedidosFiliaisrequisitada.AsInteger > 0) then begin
+    qryProcuraProdutos.Params[2].AsInteger  := qryPedidosFiliaisrequisitada.AsInteger;
+    qryConsultaProdutos.Params[0].AsInteger := qryPedidosFiliaisrequisitada.AsInteger;
+  end;
+  qryPedidosFiliaisfilial_estoque.AsInteger:=qryProcuraFiliaisDestinofilial_estoque.AsInteger;
+end;
+
+procedure TdtmRequisicaoExposicao.qryPedidosFiliaisBeforeOpen(DataSet: TDataSet);
+begin
+  inherited;
+  qryPedidosFiliais.Params[0].AsInteger := FilialBase;
+end;
+
+procedure TdtmRequisicaoExposicao.qryConsultaPedidosFiliaisAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryConsultaPedidosFiliaisvalorgrade1.Visible := ParSistema.UsarGradesProdutos;
+  qryConsultaPedidosFiliaisvalorgrade2.Visible := ParSistema.UsarGradesProdutos;
+end;
+
+procedure TdtmRequisicaoExposicao.qryConsultaProdutosAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryConsultaProdutosvalorgrade1.Visible := ParSistema.UsarGradesProdutos;
+  qryConsultaProdutosvalorgrade2.Visible := ParSistema.UsarGradesProdutos;
+end;
+
+procedure TdtmRequisicaoExposicao.ReservaPreviaProduto(Cancelando:Boolean = False);
+
+procedure NovoMovimento(Produto: int64; Filial: Integer);
+begin
+  qryMovimentos.Append;
+  spcMovimentosProximo.Open;
+  qryMovimentosnumero.AsInteger := spcMovimentosProximonumero.AsInteger;
+  spcMovimentosProximo.Close;
+  qryMovimentosproduto.AsLargeInt   := Produto;
+  qryMovimentosfilial.AsInteger     := Filial;
+  qryMovimentosreferencia.AsString:='REQUISICAO ' + qryPedidosFiliaiscodigo.AsString;
+end;
+
+begin
+  if qryMovimentos.State = dsInactive then
+    qryMovimentos.Open;
+  //SE ESTA INSERINDO UMA REQUISIÇÃO ENTÃO GRAVA NOVO MOVIMENTO SE NÃO, SOMENTE ALTERA A QUANTIDADE
+  if qryPedidosFiliais.State = dsInsert then
+  begin
+     NovoMovimento(qryPedidosFiliaisproduto.AsLargeInt,qryPedidosFiliaisfilial_estoque.AsInteger);
+     qryMovimentostipomovimento.AsString:='TEP';
+     qryMovimentosquantidade.Ascurrency:=qryPedidosFiliaisqtdepedida.AsCurrency;
+     //Gravar em movimentos o codigo da requisição?
+     qryMovimentos.Post;
+  end
+  else if qryPedidosFiliais.State = dsEdit then
+  begin
+    if qryPedidosFiliaisqtdepedida.AsCurrency<>qryPedidosFiliaisqtdepedida.OldValue then
+    begin
+      NovoMovimento(qryPedidosFiliaisproduto.AsLargeInt,qryPedidosFiliaisfilial_estoque.AsInteger);
+      if qryPedidosFiliaisqtdepedida.AsCurrency < qryPedidosFiliaisqtdepedida.OldValue then
+        qryMovimentostipomovimento.AsString:='TPE'
+      else
+        qryMovimentostipomovimento.AsString:='TEP';
+      qryMovimentosquantidade.Ascurrency:=qryPedidosFiliaisqtdepedida.AsCurrency - qryPedidosFiliaisqtdepedida.OldValue;
+      qryMovimentos.Post;
+    end;
+  end
+  else if Cancelando then
+  begin
+    NovoMovimento(qryPedidosFiliaisproduto.AsLargeInt,qryPedidosFiliaisfilial_estoque.AsInteger);
+    qryMovimentostipomovimento.AsString:='TPE';
+    qryMovimentosreferencia.AsString:='EXCLUSAO REQUISICAO ' + qryPedidosFiliaiscodigo.AsString;
+    qryMovimentosquantidade.Ascurrency:=qryPedidosFiliaisqtdepedida.AsCurrency { - qryPedidosFiliaisqtderecebida.AsCurrency};
+    qryMovimentos.Post;
+  end;
+end;
+procedure TdtmRequisicaoExposicao.BloquearEstoque;
+begin
+  qryEstoqueBloqueio.Sql[05] := '((e.produto = ' + qryPedidosFiliaisproduto.AsString + ')and' +
+                                '(e.filial = '   + qryPedidosFiliaisfilial_estoque.AsString  + '))';
+  qryEstoqueBloqueio.Open;
+end;
+
+procedure TdtmRequisicaoExposicao.ZMonitor1MonitorEvent(Sql,
+  Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:\log.sql') then
+    Listar.loadfromfile('c:\log.sql');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\log.sql');
+  listar.free;
+end;
+
+end.

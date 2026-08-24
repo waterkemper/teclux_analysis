@@ -6,7 +6,7 @@ uses
   SysUtils, Classes, dmbasico, DB, cpdatasource, ZQuery, ZPgSqlQuery,
   cpquery, biblio, ctconstantes, Windows, Forms, clparametrossistema, ZTransact,
   clusuario, FR_DSet, FR_DBSet, FR_Class, fmpreviewpadrao, dmtecsoft, frconsulta,
-  variants, cpdbgrid, Provider, DBClient, frxClass, frxDBSet;
+  variants, cpdbgrid, Provider, DBClient, frxClass, frxDBSet, frx2xto30;
 
 type
   TdtmCadastroInventario = class(TdtmBasico)
@@ -243,10 +243,8 @@ type
     qryInventarioProdutoLotesTotaisreservaprevia: TFloatField;
     qryInventarioProdutoLotesTotaisdanificada: TFloatField;
     fdsProdutosInventarioLotes: TfrDBDataSet;
-    frxDBDataset1: TfrxDBDataset;
-    frxDBDataset2: TfrxDBDataset;
-    frxDBDataset3: TfrxDBDataset;
     qryInventarioProdutoLotesinicio: TDateField;
+    frxReport1: TfrxReport;
     procedure qryInventarioAfterOpen(DataSet: TDataSet);
     procedure qryInventarioAfterInsert(DataSet: TDataSet);
     procedure qryInventarioNewRecord(DataSet: TDataSet);
@@ -1619,7 +1617,8 @@ begin
   try
 
     frVariables['titulo']:= 'LEVANTAMENTO DE INVENTÁRIO';
-  //  frpInventario.DesignReport;
+    frpInventario.DesignReport;
+    frxReport1.DesignReport;
     frmPreview := TfrmPreviewPadrao.create(self);
 
     ReFazConsultaporNome(qryInventarioProduto,['filial','data','MovimentoProcessado','processamento','inventario'], [qryInventariofilial.Asinteger,

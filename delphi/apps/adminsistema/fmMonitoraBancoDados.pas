@@ -108,8 +108,8 @@ procedure TfrmMonitoraBancoDados.Timer1Timer(Sender: TObject);
 begin
   inherited;
 
-  dtmTecSoft.dbaTecSoft.Disconnect;
-  dtmTecSoft.dbaTecSoft.Connect;
+//  dtmTecSoft.dbaTecSoft.Disconnect;
+//  dtmTecSoft.dbaTecSoft.Connect;
 
   qryMonitora.close;
   qryMonitora.open;

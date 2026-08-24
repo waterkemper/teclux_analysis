@@ -1,0 +1,157 @@
+unit frlistaseriesfiliais;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  ExtCtrls, Buttons, StdCtrls, CheckLst, biblio, dmtecsoft, DB,
+  ZQuery, ZPgSqlQuery, cpquery, ctconstantes;
+
+type
+  TfraListaSeriesFiliais = class(TFrame)
+    gbx: TGroupBox;
+    clbSeriesFiliais: TCheckListBox;
+    pnldireito: TPanel;
+    sbnDesmarcar: TSpeedButton;
+    sbnMarcar: TSpeedButton;
+    Bevel1: TBevel;
+    qrySeriesFiliais: TtecQuery;
+    qrySeriesFiliaisserie: TStringField;
+    procedure sbnMarcarClick(Sender: TObject);
+    procedure sbnDesmarcarClick(Sender: TObject);
+  private
+    FTodosMarcados: Boolean;
+    FListaSelecionada: String;
+    FPlanilhaCustos: boolean;
+    function GetLista: TLista;
+    function GetListaSelecionada: String;
+    function GetTodosMarcados: Boolean;
+  private
+    { Private declarations }
+    property Lista: TLista read GetLista;
+
+  public
+    { Public declarations }
+    constructor Create(Aowner:Tcomponent);override;
+    property TodosMarcados: Boolean read GetTodosMarcados write FTodosMarcados;
+    property ListaSelecionada: String read GetListaSelecionada write FListaSelecionada;
+    procedure MarcarListaArmazenada(Lista: String);
+  end;
+
+implementation
+
+var
+FLista  : TLista;
+
+
+{$R *.dfm}
+
+{ TfraListaSeriesNotasFiscais }
+
+constructor TfraListaSeriesFiliais.Create(Aowner: Tcomponent);
+begin
+  inherited;
+  qrySeriesFiliais.DataBase := dtmtecsoft.dbatecsoft;
+  qrySeriesFiliais.Transaction := dtmtecsoft.tstTecSoft;
+  ObterLista(Lista, clbSeriesFiliais);
+end;
+
+function TfraListaSeriesFiliais.GetLista: TLista;
+Var
+  Ind: Integer;
+begin
+  FillChar(FLista,SizeOf(FLista),0);
+  qrySeriesFiliais.Open;
+  SetLength(FLista, qrySeriesFiliais.RecordCount);
+  Ind:= 0;
+  while not qrySeriesFiliais.Eof do begin
+    FLista[Ind].codigo   := qrySeriesFiliaisserie.AsString;
+    FLista[Ind].descricao:= ''{qrySeriesFiliaisserie.AsString};
+    Inc(Ind);
+    qrySeriesFiliais.Next;
+  end;
+  qrySeriesFiliais.Close;
+  Result := FLista;
+end;
+
+procedure TfraListaSeriesFiliais.sbnMarcarClick(Sender: TObject);
+begin
+  MarcarLista(clbSeriesFiliais, True);
+end;
+
+procedure TfraListaSeriesFiliais.sbnDesmarcarClick(Sender: TObject);
+begin
+  MarcarLista(clbSeriesFiliais, False);
+end;
+
+function TfraListaSeriesFiliais.GetListaSelecionada: String;
+var
+ i: integer;
+begin
+  FListaSelecionada := '';
+  for i:=0 to clbSeriesFiliais.Items.Count -1 do
+    if clbSeriesFiliais.Checked[i] then
+      FListaSelecionada := FListaSelecionada + quotedstr(flista[i].codigo)+',';
+
+  if FListaSelecionada<>'' then
+    FListaSelecionada := copy(FListaSelecionada,1,length(FListaSelecionada)-1);
+
+  Result := FListaSelecionada;
+end;
+
+function TfraListaSeriesFiliais.GetTodosMarcados: Boolean;
+var
+ i: integer;
+ Desmarcados : Boolean;
+begin
+  Desmarcados := true;
+  FTodosMarcados := True;
+
+  for i:=0 to clbSeriesFiliais.Items.Count -1 do
+    if not (clbSeriesFiliais.Checked[i]) then
+      FTodosMarcados := False
+    else
+    if Desmarcados then
+      Desmarcados := false;
+
+  Result := FTodosMarcados or Desmarcados;
+end;
+
+procedure TfraListaSeriesFiliais.MarcarListaArmazenada(Lista: String);
+var
+ serie: String;
+ i: integer;
+
+ procedure Selecionar;
+ var
+   ind : integer;
+ begin
+    for Ind:= 0 to (Length(flista) - 1) do
+      if serie = flista[ind].codigo then
+      begin
+        clbseriesfiliais.Checked[ind] := true;
+        break;
+      end
+ end;
+
+begin
+ MarcarLista(clbseriesfiliais, False);
+ if lista<>'' then
+ begin
+   for i:=1 to length(lista) do
+   begin
+     if lista[i]=',' then
+     begin
+       selecionar;
+       serie := '';
+     end
+     else
+       if lista[i]<>'''' then
+         serie := serie + lista[i];
+   end;
+   if serie<>'' then
+     selecionar;
+ end;
+end;
+
+end.

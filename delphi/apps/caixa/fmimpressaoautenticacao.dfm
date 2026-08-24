@@ -6,7 +6,7 @@ inherited frmimpressaoautenticacao: Tfrmimpressaoautenticacao
   Caption = 'Impress'#227'o da Autenticac'#227'o'
   ClientHeight = 536
   ClientWidth = 476
-  Position = poDesktopCenter
+  Position = poScreenCenter
   PixelsPerInch = 96
   TextHeight = 16
   inherited pnlBarra: TPanel

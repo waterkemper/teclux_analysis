@@ -66,23 +66,25 @@ inherited dtmConsultaLicitacoes: TdtmConsultaLicitacoes
       
         '       (produtos_licitacoes_entregues(lc.licitacao, lc.produto, ' +
         'lc.numero) * lc.preco) +'
-      '       '
+      ''
+      '       case when coalesce(lc.quantidade,0)=0 then 0 else'
       #9'   ((coalesce(lc.valoripi,0)/lc.quantidade) *'
       
         '         produtos_licitacoes_entregues(lc.licitacao, lc.produto,' +
         ' lc.numero)'
       '        ) -'
-      #9#9
+      ''
       #9'   ((coalesce(lc.valordesconto,0)/lc.quantidade) *'
       
         '         produtos_licitacoes_entregues(lc.licitacao, lc.produto,' +
         ' lc.numero)'
-      '        ) as TotalProdutoEntregue,'
+      '        ) end as TotalProdutoEntregue,'
       ''
       
         '       lc.quantidade - produtos_licitacoes_entregues(lc.licitaca' +
         'o, lc.produto, lc.numero) as QuantidadePendente,'
       ''
+      '       case when coalesce(lc.quantidade,0)=0 then 0 else'
       
         '       ((lc.quantidade - produtos_licitacoes_entregues(lc.licita' +
         'cao, lc.produto, lc.numero)) * lc.preco) +'
@@ -91,12 +93,12 @@ inherited dtmConsultaLicitacoes: TdtmConsultaLicitacoes
         '         (lc.quantidade - produtos_licitacoes_entregues(lc.licit' +
         'acao, lc.produto, lc.numero))'
       '        ) -'
-      #9#9
+      ''
       '       ((coalesce(lc.valordesconto,0)/lc.quantidade) *'
       
         '         (lc.quantidade - produtos_licitacoes_entregues(lc.licit' +
         'acao, lc.produto, lc.numero))'
-      '        ) as TotalProdutoPendente,'
+      '        ) end as TotalProdutoPendente,'
       ''
       '       situacao_licitacao(l.numero) as situacao_licitacao'
       ''
@@ -104,7 +106,7 @@ inherited dtmConsultaLicitacoes: TdtmConsultaLicitacoes
       'from licitacoes l'
       '     join clientes cl'
       '     on l.cliente = cl.codigo'
-      '     '
+      ''
       '     join usuarios u'
       '     on l.vendedor = u.codigo'
       '     '

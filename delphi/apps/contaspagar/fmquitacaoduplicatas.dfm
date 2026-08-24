@@ -2,7 +2,7 @@ inherited frmQuitacaoDuplicatas: TfrmQuitacaoDuplicatas
   Left = 304
   Top = 71
   Action = actHabilitar
-  ActiveControl = edtVenctoInicial
+  ActiveControl = ckbSelecionarTodos
   Caption = 'Quita'#231#227'o de Duplicatas'
   ClientHeight = 581
   ClientWidth = 1103
@@ -189,7 +189,7 @@ inherited frmQuitacaoDuplicatas: TfrmQuitacaoDuplicatas
       Top = 3
       Width = 1097
       Height = 530
-      ActivePage = tstParametros
+      ActivePage = tstSelecionados
       Align = alClient
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBlack
@@ -310,7 +310,7 @@ inherited frmQuitacaoDuplicatas: TfrmQuitacaoDuplicatas
             Left = 2
             Top = 10
             Width = 60
-            Height = 23
+            Height = 24
             Alignment = taLeftJustify
             DataField = 'codigo'
             DataSource = dtmQuitacaoDuplicatas.dsrBanco
@@ -692,7 +692,7 @@ inherited frmQuitacaoDuplicatas: TfrmQuitacaoDuplicatas
             Left = 3
             Top = 10
             Width = 60
-            Height = 23
+            Height = 24
             Alignment = taLeftJustify
             DataField = 'codigo'
             DataSource = dtmQuitacaoDuplicatas.dsrFornecedores

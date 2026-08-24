@@ -4,7 +4,8 @@ interface
 
 uses
   SysUtils, Classes, dmbasico, ZTransact, DB, ZQuery, ZPgSqlQuery, cpquery, biblio,
-  dmtecsoft, fr_dset, fr_dbset, fr_class, fmpreviewpadrao, ctconstantes;
+  dmtecsoft, fr_dset, fr_dbset, fr_class, fmpreviewpadrao, ctconstantes, frx2xto30,
+  frxClass;
 
 type
   TdtmControleESNF = class(TDtmBasico)
@@ -434,6 +435,7 @@ type
     qryConsignacao_OrigemEmpresa_AgrupamentoEmpresacodigofiscal: TIntegerField;
     qryConsignacao_OrigemEmpresa_AgrupamentoEmpresasaldoempresa: TFloatField;
     qryConsignacao_OrigemEmpresa_AgrupamentoEmpresasaldo_a_devolver_para_o_cliente: TBooleanField;
+    frxReport1: TfrxReport;
     procedure frpConserto_OrigemCliente_AgrupamentoClienteBeforePrint(
       Memo: TStringList; View: TfrView);
     procedure frpConserto_OrigemCliente_AgrupamentoFornecedorBeforePrint(
@@ -505,6 +507,67 @@ begin
   FormatDateTime('dd/mm/yy', strtodate(datainicial))+
   ' E '+FormatDateTime('dd/mm/yy', strtodate(DataFinal));
   frmPreview := TfrmPreviewPadrao.create(self);
+
+
+  frpConserto_OrigemCliente_AgrupamentoCliente.SaveToFile('n:\gedovar\fastreport\frpConserto_OrigemCliente_AgrupamentoCliente.frf');
+  frxReport1.LoadFromFile('n:\gedovar\fastreport\frpConserto_OrigemCliente_AgrupamentoCliente.frf');
+  frxReport1.SaveToFile('n:\gedovar\fastreport\frpConserto_OrigemCliente_AgrupamentoCliente.fr3');
+
+  frpConserto_OrigemCliente_AgrupamentoFornecedor.SaveToFR3File('n:\gedovar\fastreport\frpConserto_OrigemCliente_AgrupamentoFornecedor.frf');
+  frxReport1.LoadFromFile('n:\gedovar\fastreport\frpConserto_OrigemCliente_AgrupamentoFornecedor.frf');
+  frxReport1.SaveToFile('n:\gedovar\fastreport\frpConserto_OrigemCliente_AgrupamentoFornecedor.fr3');
+
+  frpConserto_OrigemEmpresa_AgrupamentoEmpresa.SaveToFR3File('n:\gedovar\fastreport\frpConserto_OrigemEmpresa_AgrupamentoEmpresa.frf');
+  frxReport1.LoadFromFile('n:\gedovar\fastreport\frpConserto_OrigemEmpresa_AgrupamentoEmpresa.frf');
+  frxReport1.SaveToFile('n:\gedovar\fastreport\frpConserto_OrigemEmpresa_AgrupamentoEmpresa.fr3');
+
+  frpConserto_OrigemEmpresa_AgrupamentoFornecedor.SaveToFR3File('n:\gedovar\fastreport\frpConserto_OrigemEmpresa_AgrupamentoFornecedor.frf');
+  frxReport1.LoadFromFile('n:\gedovar\fastreport\frpConserto_OrigemEmpresa_AgrupamentoFornecedor.frf');
+  frxReport1.SaveToFile('n:\gedovar\fastreport\frpConserto_OrigemEmpresa_AgrupamentoFornecedor.fr3');
+
+  frpDemons_OrigemFornecedor_AgrupamentoFornecedor.SaveToFR3File('n:\gedovar\fastreport\frpDemons_OrigemFornecedor_AgrupamentoFornecedor.frf');
+  frxReport1.LoadFromFile('n:\gedovar\fastreport\frpDemons_OrigemFornecedor_AgrupamentoFornecedor.frf');
+  frxReport1.SaveToFile('n:\gedovar\fastreport\frpDemons_OrigemFornecedor_AgrupamentoFornecedor.fr3');
+
+  frpDemons_OrigemFornecedor_AgrupamentoEmpresa.SaveToFR3File('n:\gedovar\fastreport\frpDemons_OrigemFornecedor_AgrupamentoEmpresa.frf');
+  frxReport1.LoadFromFile('n:\gedovar\fastreport\frpDemons_OrigemFornecedor_AgrupamentoEmpresa.frf');
+  frxReport1.SaveToFile('n:\gedovar\fastreport\frpDemons_OrigemFornecedor_AgrupamentoEmpresa.fr3');
+
+  frpDemons_OrigemEmpresa_AgrupamentoCliente.SaveToFR3File('n:\gedovar\fastreport\frpDemons_OrigemEmpresa_AgrupamentoCliente.frf');
+  frxReport1.LoadFromFile('n:\gedovar\fastreport\frpDemons_OrigemEmpresa_AgrupamentoCliente.frf');
+  frxReport1.SaveToFile('n:\gedovar\fastreport\frpDemons_OrigemEmpresa_AgrupamentoCliente.fr3');
+
+  frpDemons_OrigemEmpresa_AgrupamentoEmpresa.SaveToFR3File('n:\gedovar\fastreport\frpDemons_OrigemEmpresa_AgrupamentoEmpresa.frf');
+  frxReport1.LoadFromFile('n:\gedovar\fastreport\frpDemons_OrigemEmpresa_AgrupamentoEmpresa.frf');
+  frxReport1.SaveToFile('n:\gedovar\fastreport\frpDemons_OrigemEmpresa_AgrupamentoEmpresa.fr3');
+
+  frpTroca_OrigemEmpresa_AgrupamentoFornecedor.SaveToFR3File('n:\gedovar\fastreport\frpTroca_OrigemEmpresa_AgrupamentoFornecedor.frf');
+  frxReport1.LoadFromFile('n:\gedovar\fastreport\frpTroca_OrigemEmpresa_AgrupamentoFornecedor.frf');
+  frxReport1.SaveToFile('n:\gedovar\fastreport\frpTroca_OrigemEmpresa_AgrupamentoFornecedor.fr3');
+
+  frpTroca_OrigemEmpresa_AgrupamentoFilial.SaveToFR3File('n:\gedovar\fastreport\frpTroca_OrigemEmpresa_AgrupamentoFilial.frf');
+  frxReport1.LoadFromFile('n:\gedovar\fastreport\frpTroca_OrigemEmpresa_AgrupamentoFilial.frf');
+  frxReport1.SaveToFile('n:\gedovar\fastreport\frpTroca_OrigemEmpresa_AgrupamentoFilial.fr3');
+
+  frpConsignacao_OrigemFornecedor_AgrupamentoFornecedor.SaveToFR3File('n:\gedovar\fastreport\frpConsignacao_OrigemFornecedor_AgrupamentoFornecedor.frf');
+  frxReport1.LoadFromFile('n:\gedovar\fastreport\frpConsignacao_OrigemFornecedor_AgrupamentoFornecedor.frf');
+  frxReport1.SaveToFile('n:\gedovar\fastreport\frpConsignacao_OrigemFornecedor_AgrupamentoFornecedor.fr3');
+
+  frpConsignacao_OrigemFornecedor_AgrupamentoEmpresa.SaveToFR3File('n:\gedovar\fastreport\frpConsignacao_OrigemFornecedor_AgrupamentoEmpresa.frf');
+  frxReport1.LoadFromFile('n:\gedovar\fastreport\frpConsignacao_OrigemFornecedor_AgrupamentoEmpresa.frf');
+  frxReport1.SaveToFile('n:\gedovar\fastreport\frpConsignacao_OrigemFornecedor_AgrupamentoEmpresa.fr3');
+
+  frpConsignacao_OrigemEmpresa_AgrupamentoCliente.SaveToFR3File('n:\gedovar\fastreport\frpConsignacao_OrigemEmpresa_AgrupamentoCliente.frf');
+  frxReport1.LoadFromFile('n:\gedovar\fastreport\frpConsignacao_OrigemEmpresa_AgrupamentoCliente.frf');
+  frxReport1.SaveToFile('n:\gedovar\fastreport\frpConsignacao_OrigemEmpresa_AgrupamentoCliente.fr3');
+
+  frpConsignacao_OrigemEmpresa_AgrupamentoEmpresa.SaveToFR3File('n:\gedovar\fastreport\frpConsignacao_OrigemEmpresa_AgrupamentoEmpresa.frf');
+  frxReport1.LoadFromFile('n:\gedovar\fastreport\frpConsignacao_OrigemEmpresa_AgrupamentoEmpresa.frf');
+  frxReport1.SaveToFile('n:\gedovar\fastreport\frpConsignacao_OrigemEmpresa_AgrupamentoEmpresa.fr3');
+
+
+
+
 
   try
    Relatorio := frmPreview.frCompositeReport;

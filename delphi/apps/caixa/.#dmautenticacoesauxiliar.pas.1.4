@@ -1,0 +1,1278 @@
+unit dmautenticacoesauxiliar;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  DB,
+  //Terceiros
+  ZQuery, ZPgSqlQuery,
+  //Repositorio
+  dmbasico, dmtecsoft,
+  //Biblio
+  ctconstantes, biblio, clparametrossistema,
+  //Componentes
+  cpquery, ZTransact;
+
+type
+
+  TtecParcelaFormaPagto = array of record
+    Numero: Integer;
+    FormaPagto: String
+  end;
+
+  Tdtmautenticacoesauxiliar = class(TdtmBasico)
+    qryTaxas: TtecQuery;
+    qryTaxasjuros: TFloatField;
+    qryTaxasdesconto: TFloatField;
+    spcAutenticacaoProximo: TtecQuery;
+    spcAutenticacaoProximonumero: TIntegerField;
+    spcParcelasProximo: TtecQuery;
+    spcParcelasProximonumero: TIntegerField;
+    qryAutenticar: TtecQuery;
+    qryCadastroCheque: TtecQuery;
+    qryVerificaCheque: TtecQuery;
+    qryVerificaChequechequevalido: TBooleanField;
+    qryAtualizarParcelaParcial: TtecQuery;
+    qryParcelasDevolucao: TtecQuery;
+    qryParcelasDevolucaocontrato: TStringField;
+    qryParcelasDevolucaonumero: TIntegerField;
+    qryParcelasDevolucaodatavencto: TDateField;
+    qryParcelasDevolucaovalorvencto: TFloatField;
+    qryParcelasDevolucaodatapagto: TDateField;
+    qryParcelasDevolucaovalorpagto: TFloatField;
+    qryParcelasDevolucaofilialpagto: TIntegerField;
+    qryParcelasDevolucaotipopagto: TStringField;
+    qryParcelasDevolucaodeventrada: TDateField;
+    qryParcelasDevolucaodevcaixa: TDateField;
+    qryParcelasDevolucaodevfilial: TIntegerField;
+    qryInserirParcelaDevolucao: TtecQuery;
+    qryAtualizarParcelaDevolucao: TtecQuery;
+    spcParcelasChequesProximo: TtecQuery;
+    spcParcelasChequesProximonumero: TIntegerField;
+    qryAtualizarDuplicata: TtecQuery;
+    qryCancelarAutenticacao: TtecQuery;
+    qryQuitarParcelasPerda: TtecQuery;
+    qryAtualizarParcela: TtecQuery;
+    qryInserirParcelaParcial: TtecQuery;
+    qryAtualizarParcelaResgateParcial: TtecQuery;
+    qryAtualizarParcelaResgate: TtecQuery;
+    qryInserirParcelaResgateParcial: TtecQuery;
+    qryAtualizarAutenticacaoTransferencia: TtecQuery;
+    qryDadosConfirmacaoTransferencia: TtecQuery;
+    qryDadosConfirmacaoTransferencianumero: TIntegerField;
+    qryDadosConfirmacaoTransferenciacaixa: TIntegerField;
+    qryDadosConfirmacaoTransferenciavalor: TFloatField;
+    qryAutenticacoes: TtecQuery;
+    qryAutenticacoesnumero: TIntegerField;
+    qryAutenticacoesdata: TDateField;
+    qryAutenticacoesfilial: TIntegerField;
+    qryAutenticacoescaixa: TIntegerField;
+    qryAutenticacoesautenticacao: TIntegerField;
+    qryAutenticacoesbanco: TIntegerField;
+    qryAutenticacoescheque: TStringField;
+    qryAutenticacoescontrato: TStringField;
+    qryAutenticacoesdatadocumento: TDateField;
+    qryAutenticacoesevento: TIntegerField;
+    qryAutenticacoeshistorico: TIntegerField;
+    qryAutenticacoeshora: TTimeField;
+    qryAutenticacoesmotivo: TIntegerField;
+    qryAutenticacoesnota: TIntegerField;
+    qryAutenticacoesparametros: TStringField;
+    qryAutenticacoescontratoparcela: TStringField;
+    qryAutenticacoesparcela: TIntegerField;
+    qryAutenticacoessaldo: TFloatField;
+    qryAutenticacoessituacao: TBooleanField;
+    qryAutenticacoestipo: TStringField;
+    qryAutenticacoestransferencia: TIntegerField;
+    qryAutenticacoesentradapendente: TBooleanField;
+    qryAutenticacoesconfirmacao: TBooleanField;
+    qryAutenticacoesvalor: TFloatField;
+    qrySomaValorDevolucao: TtecQuery;
+    qryAtualizarDevolucaoCancelamento: TtecQuery;
+    qrySomaValorDevolucaovalordevolucao: TFloatField;
+    qrySituacaoCheque: TtecQuery;
+    qryRemoverCheque: TtecQuery;
+    qrySomaParcelasPerda: TtecQuery;
+    qryAtualizarParcelasPerda: TtecQuery;
+    qrySomaParcelasPerdatotalperda: TFloatField;
+    qrySituacaoChequechequeinalterado: TBooleanField;
+    qryAtualizarParcelaResgateCancelar: TtecQuery;
+    qryAtualizarCheque: TtecQuery;
+    qryAutenticacoesvenctoduplicata: TDateField;
+    qryAutenticacoesdocumentopag: TIntegerField;
+    qryAtualizarSituacaoCheque: TtecQuery;
+    qryParcelasPrestacao: TtecQuery;
+    qryParcelasPrestacaocontrato: TStringField;
+    qryParcelasPrestacaonumero: TIntegerField;
+    qryParcelasPrestacaoformapagamento: TStringField;
+    qryParcelasPrestacaovalorpagto: TFloatField;
+    qryParcelasDevolucaoparcelaorigem: TStringField;
+    qryParcelasDevolucaocopiapagto: TIntegerField;
+    qryCancelarParcela: TtecQuery;
+    qryParcelasTEF: TtecQuery;
+    qryParcelasTEFnumeronsu: TStringField;
+    qryParcelasTEFdatansu: TDateField;
+    qryParcelasTEFhoransu: TTimeField;
+    qryParcelasTEFnomeredensu: TStringField;
+    qryParcelasTEFparcela: TIntegerField;
+    qryParcelasTEFcontrato: TStringField;
+    qryParcelasTEFvalor: TFloatField;
+    qryParcelasTEFautenticacao: TIntegerField;
+    qryParcelasTEFvalorautenticacao: TFloatField;
+    spcProdutosTrocadosProximo: TtecQuery;
+    spcProdutosTrocadosProximonumero: TIntegerField;
+    qryProdutosTrocados: TtecQuery;
+    qryProdutosTrocadosnumero: TIntegerField;
+    qryProdutosTrocadostipo: TStringField;
+    qryProdutosTrocadosdata: TDateTimeField;
+    qryProdutosTrocadoscliente: TIntegerField;
+    qryProdutosTrocadostipocliente: TStringField;
+    qryProdutosTrocadosfilial: TIntegerField;
+    qryProdutosTrocadosusuario: TIntegerField;
+    qryProdutosTrocadosvalor: TFloatField;
+    qryProdutosTrocadosreferencia: TStringField;
+    qryAutenticacoescliente: TIntegerField;
+    qryAutenticacoestipocliente: TStringField;
+    qryParcelaParcialGerada: TtecQuery;
+    qryParcelaParcialGeradanumero: TIntegerField;
+    qryParcelaParcialGeradavalorvencto: TFloatField;
+    qryAtualizarParcelaCancelamento: TtecQuery;
+    qryApagarParcelaParcial: TtecQuery;
+    qryParcelaParcialGeradaparcelaoriginal: TIntegerField;
+    qryParcelaParcialOriginal: TtecQuery;
+    qryParcelaParcialOriginalcontrato: TStringField;
+    qryParcelaParcialOriginalnumero: TIntegerField;
+    qryParcelaParcialOriginalvalorvencto: TFloatField;
+    qryCancelarRecebimentos: TtecQuery;
+    qryAtualizarTEF: TtecQuery;
+    qryInserirParcelaResgate: TtecQuery;
+    qryAutenticarObservacoes: TtecQuery;
+  protected
+    procedure atualizarParcelaDevolucao(contrato: string; numero: integer; devcaixa: string; devfilial: integer; tipopagto: string);
+    function  desfazAutenticacaoDevolucao(contrato: string; data: TDateTime; valor: real): integer;
+    function  DesfazAutenticacaoDevolucaoSaldo(autenticacao: integer; valor: Real): Integer;
+    function  desfazAutenticacaoPerda(contrato: string; valor: real): integer;
+    function  desfazerOperacoesAutenticacao(autenticacao: Integer): integer;
+    function  getProximoNumeroAutenticacao: integer;
+//    function  getTaxaDesconto: real;
+    function  getTaxaJuros   : real;
+    procedure LimparParametrosAutenticacao;
+    procedure AtualizarProdutosTrocados(Referencia: String);
+    function  quitarParcelasDevolucao(contrato: string): integer;
+    function  quitarParcelasPerda(contrato: string): integer;
+    function  atualizarSaldoTroca(tipo: String; codigoCliente: Integer; tipoCliente: String; valor: Real): Integer;
+    function  CancelamentoParcelaParcial(contrato: String; nroparcela: integer): Boolean;
+    function  ExisteParcialQuitada(contrato: String; nroparcela: integer): Boolean;
+    procedure AcertaPrestacoesCancelamentoParcelaParcial(contrato: String; nroparcela: integer);
+    procedure AtualizarTEF(Contrato: String; Parcela: Integer);
+  public
+    FNumeroAutenticacao : integer;
+    FNumeroProdutoTrocado : integer;
+    function atualizarAutenticacaoTransferencia(numero: integer; confirmacao, entradapendente: boolean): integer;
+    function atualizarDuplicata(DocumentoPag: integer; DataVencto: TDatetime): integer; overload;
+    function atualizarDuplicata(DocumentoPag: integer; DataVencto: TDatetime; vlPagto: real): integer; overload;
+    function atualizarParcelaContrato(contrato: string; nroparcela: integer): integer; overload;
+    function atualizarParcelaContrato(contrato: string; nroparcela: integer; vlpagto: real; FormaPagto: String; transacao: Integer = 0): integer; overload;
+    function atualizarParcelaContrato(contrato: string; nroparcela: integer; vlvencto, vlpagto: real; FormaPagto: String): integer; overload;
+    function atualizarParcelaResgate(Autenticacao: integer): integer; overload;
+    function atualizarParcelaResgate(cheque: string; nroparcela, Autenticacao: integer; vlpagto: real): integer; overload;
+    function atualizarParcelaResgate(cheque: string; nroparcela, Autenticacao: integer; vlpagto, vlvencto: real): integer; overload;
+    function atualizarSituacaoCheque(Cheque, Situacao: String):integer;
+    function autenticarPrestacao(contrato: string; nroparcela: integer; vlpagto: real; PagtoCartao: Boolean; Transacao: Integer = 0): integer; overload;
+    function autenticarPrestacao(contrato: string; Parcelas: TtecParcelaFormaPagto; Transacao: Integer = 0): integer; overload;
+    function autenticarDevolucao(contrato: string; motivo: integer; valor: real): integer;
+    function autenticarDevolucaoSaldo(codigoCliente: integer; tipoCliente: String; valor: Real): Integer;
+    function autenticarDocumento(evento, historico: integer; parametros, data: string; valor: real): integer;
+    function autenticarCancelamento(autenticacao: integer; motivo: integer; valor: real; Contrato: String): integer;
+    function autenticarCheque(cheque: string; valor: real): integer;
+    function autenticarConfirmacaoTransferencia(numero: integer; tipotransferencia: TtecAutenticacaoTransferencia): integer;
+    function autenticarDeposito(banco: integer; valor: real): integer;
+    function autenticarDuplicata(DocumentoPag, Evento, NumeroDuplicata: integer; DataVencto: TDateTime; vlPagto: real): integer;
+    function autenticarPerda(contrato: string; motivo: integer; valor: real): integer;
+    function autenticarResgateCheque(var nroautenticacao: integer; cheque: string; vlpagto: real): integer;
+    function autenticarTransferencia(caixa: integer; valor: real): integer;
+    function autenticarTransferenciaAutomatica(caixa: integer; valor: real): integer;
+    function cadastrarCheque(cheque, titular, cliente, TipoCliente, vencto: string;
+                             valor: real; Atualizar: Boolean; obs: String): integer;
+    function cancelarAutenticacao(autenticacao: integer): integer;
+    function cancelarRecebimentos(transacao: integer): integer;
+    function chequeValido(numero: string): boolean;
+    function ConfirmarAutenticacaoResgateCheque: integer;
+    function inserirParcelaContratoParcial(contrato: string; dtvencto: string; vlvencto: real; parcelaorigem: String; Quitar: Boolean; parcelaoriginal: Integer; var NroParcela: Integer): integer;
+    function inserirParcelaResgate(cheque: String; nroautenticacao: integer; dtvencto, dtpagto: string; vlvencto, vlpagto: real; Resgate: String): integer;
+    function inserirParcelaResgateParcial(cheque: String; nroautenticacao: integer; dtvencto: string; vlvencto: real; Resgate: String): integer;
+
+    function proximoNumeroParcela(contrato: string): integer;
+    function proximoNumeroParcelaCheque(cheque: string): integer;
+    function desfazAutenticacaoCheque(cheque: string): integer;
+    property numeroAutenticacao       : integer   read FNumeroAutenticacao;
+    property proximoNumeroAutenticacao: integer   read getProximoNumeroAutenticacao;
+//    property taxaDesconto             : real      read getTaxaDesconto;
+    property taxaJuros                : real      read getTaxaJuros;
+    property produtoTrocado           : integer   read FNumeroProdutoTrocado;
+  end;
+
+implementation
+                   
+Uses
+  //Biblio
+ {$IFDEF MSWINDOWS} clbackuptefdiscado,{$ENDIF}
+  dmautenticacoes, clecf;
+
+{$R *.dfm}
+
+{ Tdtmautenticacoesauxiliar }
+
+procedure Tdtmautenticacoesauxiliar.AcertaPrestacoesCancelamentoParcelaParcial(contrato: String; nroparcela: integer);
+begin
+  ReFazConsulta(qryParcelaParcialOriginal,[0,1],[contrato,nroparcela]);
+  qryAtualizarParcelaCancelamento.ParamByName('valorvencto').Value      := qryParcelaParcialGeradavalorvencto.AsFloat + qryParcelaParcialOriginalvalorvencto.asFloat;
+  qryAtualizarParcelaCancelamento.ParamByName('contrato').Value         := contrato;
+  qryAtualizarParcelaCancelamento.ParamByName('parcela').Value          := nroparcela;
+  qryAtualizarParcelaCancelamento.ExecSql;
+  qryApagarParcelaParcial.ParamByName('contrato').Value := contrato;
+  qryApagarParcelaParcial.ParamByName('parcela').Value  := qryParcelaParcialGeradanumero.AsInteger;
+  qryApagarParcelaParcial.ExecSql;
+end;
+
+function Tdtmautenticacoesauxiliar.atualizarAutenticacaoTransferencia(
+  numero: integer; confirmacao, entradapendente: boolean): integer;
+begin
+  qryAtualizarAutenticacaoTransferencia.ParamByName('confirmacao').Value    := confirmacao;
+  qryAtualizarAutenticacaoTransferencia.ParamByName('entradapendente').Value:= entradapendente;
+  qryAtualizarAutenticacaoTransferencia.ParamByName('numero').Value         := numero;
+
+  qryAtualizarAutenticacaoTransferencia.ExecSql;
+  result := mrOK;
+end;
+
+function Tdtmautenticacoesauxiliar.atualizarDuplicata(DocumentoPag: integer; DataVencto: TDatetime): integer;
+begin
+  qryAtualizarDuplicata.ParamByName('valorpago').Value    := null;
+  qryAtualizarDuplicata.ParamByName('datapago').Value     := null;
+  qryAtualizarDuplicata.ParamByName('filialpagto').Value  := null;
+  qryAtualizarDuplicata.ParamByName('DocumentoPag').Value := DocumentoPag;
+  qryAtualizarDuplicata.ParamByName('DataVencto').Value   := DataVencto;
+
+  qryAtualizarDuplicata.ExecSQL;
+  result := mrOK;
+end;
+
+function Tdtmautenticacoesauxiliar.atualizarDuplicata(DocumentoPag: integer; DataVencto: TDatetime; vlPagto: real): integer;
+begin
+  qryAtualizarDuplicata.ParamByName('valorpago').Value    := vlPagto;
+  qryAtualizarDuplicata.ParamByName('datapago').Value     := DataLocal;
+  qryAtualizarDuplicata.ParamByName('filialpagto').Value  := FilialBase;
+  qryAtualizarDuplicata.ParamByName('DocumentoPag').Value := DocumentoPag;
+  qryAtualizarDuplicata.ParamByName('DataVencto').Value   := DataVencto;
+
+  qryAtualizarDuplicata.ExecSql;
+  result := mrOK;
+end;
+
+function Tdtmautenticacoesauxiliar.atualizarParcelaContrato(contrato: string; nroparcela: integer): integer;
+begin
+  if not ExisteParcialQuitada(contrato, nroparcela) then begin
+    if CancelamentoParcelaParcial(contrato, nroparcela) then
+      AcertaPrestacoesCancelamentoParcelaParcial(contrato, nroparcela);
+    qryCancelarParcela.ParamByName('valorpagto').Value  := null;
+    qryCancelarParcela.ParamByName('datapagto').Value   := null;
+    qryCancelarParcela.ParamByName('filial').Value      := null;
+    qryCancelarParcela.ParamByName('contrato').Value    := contrato;
+    qryCancelarParcela.ParamByName('numero').Value      := nroparcela;
+    qryCancelarParcela.ExecSql;
+    result := mrOK;
+  end
+  else result := mrNone;
+end;
+
+function Tdtmautenticacoesauxiliar.atualizarParcelaContrato(
+  contrato: string; nroparcela: integer; vlpagto: real; FormaPagto: String; transacao: Integer): integer;
+begin
+  if vlpagto = 0 then
+  begin
+    result := mrCancel;
+    MensagemErro(format('O contrato %s e parcela %s esta com o valor de pagamento zerado. Entre em contato com o suporte.',
+             [contrato, inttostr(nroparcela)]));
+  end
+  else
+  begin
+    qryAtualizarParcela.ParamByName('valorpagto').Value  := vlpagto;
+    qryAtualizarParcela.ParamByName('datapagto').Value   := DataLocal;
+    qryAtualizarParcela.ParamByName('filial').Value      := FilialBase;
+    qryAtualizarParcela.ParamByName('formapagto').Value  := FormaPagto;
+    qryAtualizarParcela.ParamByName('contrato').Value    := contrato;
+    qryAtualizarParcela.ParamByName('numero').Value      := nroparcela;
+    if transacao <> 0 then
+      qryAtualizarParcela.ParamByName('transacao').Value   := transacao;
+    qryAtualizarParcela.ExecSql;
+    perpetrar([]);
+    result := mrOK;
+  end;
+end;
+
+function Tdtmautenticacoesauxiliar.atualizarParcelaContrato(
+  contrato: string; nroparcela: integer; vlvencto, vlpagto: real; FormaPagto: String): integer;
+begin
+  if vlpagto = 0 then
+  begin
+    result := mrCancel;
+    MensagemErro(format('O contrato %s e parcela %s esta com o valor de pagamento zerado. Entre em contato com o suporte.',
+             [contrato, inttostr(nroparcela)]));
+  end
+  else
+  begin
+    qryAtualizarParcelaParcial.ParamByName('valorvencto').Value := vlvencto;
+    qryAtualizarParcelaParcial.ParamByName('valorpagto').Value  := vlpagto;
+    qryAtualizarParcelaParcial.ParamByName('datapagto').Value   := DataLocal;
+    qryAtualizarParcelaParcial.ParamByName('filial').Value      := FilialBase;
+    qryAtualizarParcelaParcial.ParamByName('formapagto').Value  := FormaPagto;
+    qryAtualizarParcelaParcial.ParamByName('contrato').Value    := contrato;
+    qryAtualizarParcelaParcial.ParamByName('numero').Value      := nroparcela;
+    qryAtualizarParcelaParcial.ExecSql;
+    result := mrOK;
+  end;
+end;
+
+procedure Tdtmautenticacoesauxiliar.atualizarParcelaDevolucao(
+  contrato: string; numero: integer; devcaixa: string; devfilial: integer; tipopagto: string);
+begin
+  qryAtualizarParcelaDevolucao.ParamByName('devcaixa').Value   := devcaixa;
+  qryAtualizarParcelaDevolucao.ParamByName('devfilial').Value  := devfilial;
+  qryAtualizarParcelaDevolucao.ParamByName('tipopagto').Value  := tipopagto;
+  qryAtualizarParcelaDevolucao.ParamByName('contrato').Value   := contrato;
+  qryAtualizarParcelaDevolucao.ParamByName('numero').Value     := numero;
+
+  qryAtualizarParcelaDevolucao.ExecSql;
+end;
+
+function Tdtmautenticacoesauxiliar.atualizarParcelaResgate(Autenticacao: integer): integer;
+begin
+   qryAtualizarParcelaResgateCancelar.ParamByName('valorpagto').Value   := null;
+   qryAtualizarParcelaResgateCancelar.ParamByName('datapagto').Value    := null;
+   qryAtualizarParcelaResgateCancelar.ParamByName('filialpagto').Value  := null;
+   qryAtualizarParcelaResgateCancelar.ParamByName('autenticacao').Value := autenticacao;
+   qryAtualizarParcelaResgateCancelar.ExecSql;
+   qryAtualizarParcelaResgateCancelar.Close;
+  result := mrOK;
+end;
+
+function Tdtmautenticacoesauxiliar.atualizarParcelaResgate(cheque: string;
+         nroparcela, Autenticacao: integer; vlpagto: real): integer;
+begin
+  qryAtualizarParcelaResgate.ParamByName('valorpagto').Value   := vlpagto;
+  qryAtualizarParcelaResgate.ParamByName('datapagto').Value    := DataLocal;
+  qryAtualizarParcelaResgate.ParamByName('filialpagto').Value  := FilialBase;
+  qryAtualizarParcelaResgate.ParamByName('autenticacao').Value := autenticacao;
+  qryAtualizarParcelaResgate.ParamByName('cheque').Value       := cheque;
+  qryAtualizarParcelaResgate.ParamByName('numero').Value       := nroparcela;
+  qryAtualizarParcelaResgate.ExecSql;
+  result := mrOK;
+end;
+
+function Tdtmautenticacoesauxiliar.atualizarParcelaResgate(cheque: string;
+  nroparcela, Autenticacao: integer; vlpagto, vlvencto: real): integer;
+begin
+  qryAtualizarParcelaResgateParcial.ParamByName('autenticacao').Value := autenticacao;
+  qryAtualizarParcelaResgateParcial.ParamByName('valorvencto').Value := vlvencto;
+  qryAtualizarParcelaResgateParcial.ParamByName('valorpagto').Value  := vlpagto;
+  qryAtualizarParcelaResgateParcial.ParamByName('datapagto').Value   := DataLocal;
+  qryAtualizarParcelaResgateParcial.ParamByName('filialpagto').Value := FilialBase;
+  qryAtualizarParcelaResgateParcial.ParamByName('cheque').Value      := cheque;
+  qryAtualizarParcelaResgateParcial.ParamByName('numero').Value      := nroparcela;
+
+  qryAtualizarParcelaResgateParcial.ExecSql;
+  result := mrOK;
+end;
+
+procedure Tdtmautenticacoesauxiliar.AtualizarProdutosTrocados(
+  Referencia: String);
+begin
+  qryProdutosTrocados.Edit;
+  qryProdutosTrocadosreferencia.AsString := Referencia;
+  qryProdutosTrocados.Post;
+end;
+
+function Tdtmautenticacoesauxiliar.atualizarSaldoTroca(tipo: String;
+  codigoCliente: Integer; tipoCliente: String; valor: Real): Integer;
+begin
+   ReFazConsulta(qryProdutosTrocados,[],[]);
+   qryprodutostrocados.Insert;
+   spcProdutosTrocadosProximo.Open;
+   qryProdutosTrocadosnumero.AsInteger := spcProdutosTrocadosProximonumero.AsInteger;
+   spcProdutosTrocadosProximo.close;
+   qryProdutosTrocadostipo.AsString := tipo;
+   qryProdutosTrocadosdata.AsDateTime := now();
+   qryProdutosTrocadoscliente.AsInteger := codigoCliente;
+   qryProdutosTrocadostipocliente.AsString := tipoCliente;
+   qryProdutosTrocadosusuario.AsInteger := CodigoUsuario;
+   qryProdutosTrocadosvalor.AsFloat := valor;
+   qryprodutostrocados.post;
+   FNumeroAutenticacao := qryProdutosTrocadosnumero.AsInteger;
+   Result := mrOK;
+end;
+
+function Tdtmautenticacoesauxiliar.atualizarSituacaoCheque(Cheque, Situacao: String): integer;
+begin
+  qryAtualizarSituacaoCheque.Params[0].AsString := Situacao;
+  qryAtualizarSituacaoCheque.Params[1].AsString := Cheque;
+  qryAtualizarSituacaoCheque.ExecSql;
+  Result := mrOK;
+end;
+
+procedure Tdtmautenticacoesauxiliar.AtualizarTEF(Contrato: String;
+  Parcela: Integer);
+begin
+  qryAtualizarTEF.ParamByName('contrato').AsString := Contrato;
+  qryAtualizarTEF.ParamByName('parcela').AsInteger := Parcela;
+  qryAtualizarTEF.ExecSql;
+end;
+
+function Tdtmautenticacoesauxiliar.autenticarCancelamento(autenticacao: integer; motivo: integer; valor: real; Contrato: String): integer;
+var
+  nroautenticacao: integer;
+{IFDEF MSWINDOWS
+  NSUAnt: String;
+  lstAutCanc: TList;
+ENDIF}
+
+  function CancelamentoAutenticacao(Autenticacao: Integer; valor: real): Integer;
+  begin
+    result := cancelarAutenticacao(autenticacao);
+    if result = mrOK then begin
+      LimparParametrosAutenticacao;
+      nroautenticacao := ProximoNumeroAutenticacao;
+      if qryAutenticacoestipo.AsString = 'A' then
+        AtualizarProdutosTrocados(IntToStr(nroAutenticacao));
+
+      if qryAutenticacoestipo.AsString = 'S' then
+       qryAutenticar.ParamByName('transferencia').Value := qryAutenticacoestransferencia.AsInteger;
+
+      if qryAutenticacoestipo.AsString = 'T' then
+        AtualizarTef(qryAutenticacoescontratoparcela.AsString, qryAutenticacoesparcela.AsInteger);
+
+      qryAutenticar.ParamByName('caixa').Value        := CodigoUsuario;  //c¢digo do caixa que efetuou a autentica‡Æo
+      qryAutenticar.ParamByName('autenticacao').Value := autenticacao;   //n£mero da autentica‡Æo cancelada
+      qryAutenticar.ParamByName('filial').Value       := FilialBase;     //n£mero da filial onde foi efetuada a autentica‡Æo
+      qryAutenticar.ParamByName('motivo').Value       := motivo;         //c¢digo do motivo do cancelamento
+      qryAutenticar.ParamByName('numero').Value       := nroautenticacao;//n£mero sequencial da autentica‡Æo
+      qryAutenticar.ParamByName('situacao').Value     := true;           //define a situacao da autentica‡Æo
+      qryAutenticar.ParamByName('tipo').Value         := 'C';            //define o tipo de autentica‡Æo, neste caso cancelamento
+      qryAutenticar.ParamByName('valor').Value        := valor;          //valor da autentica‡Æo cancelada
+
+      qryAutenticar.ExecSql;
+
+    end
+  end;
+
+begin
+{IFDEF MSWINDOWS
+  ReFazConsulta(qryParcelasTEF, [0], [Contrato]);
+  if qryParcelasTEF.RecordCount > 0 then begin
+    result := mrNONE;
+    NSUAnt := '';
+    a      := 1;
+    lstAutCanc := TList.Create;
+    try
+      try
+        while qryParcelasTEF.RecordCount > 0 do begin
+          if NSUAnt <> qryParcelasTEFnumeronsu.AsString then begin
+            BackupTEFDiscado.Incluir(qryParcelasTEFnomeredensu.AsString,
+                                     qryParcelasTEFnumeronsu.AsString,
+                                     qryParcelasTEFdatansu.AsString,
+                                     qryParcelasTEFhoransu.AsString,
+                                     qryParcelasTEFvalor.AsCurrency,
+                                     a);
+            Inc(a);
+            NSUAnt := qryParcelasTEFnumeronsu.AsString
+          end;
+          if lstAutCanc.IndexOf(Pointer(qryParcelasTEFautenticacao.AsInteger)) = -1 then begin
+            result := CancelamentoAutenticacao(qryParcelasTEFautenticacao.AsInteger, qryParcelasTEFvalorautenticacao.AsCurrency);
+            lstAutCanc.Add(Pointer(qryParcelasTEFautenticacao.AsInteger));
+          end;
+          qryParcelasTEF.Delete;
+        end;
+        BackupTEFDiscado.ExecutarBackup;
+        perpetrar([qryParcelasTEF]);
+      except
+        BackupTEFDiscado.ApagarArquivo;
+        raise;
+      end
+    finally
+      lstAutCanc.Free
+    end
+  end else begin
+$ENDIF}
+    result := CancelamentoAutenticacao(autenticacao, valor);
+    if qryAutenticacoestipo.AsString = 'A' then
+      Perpetrar([qryProdutosTrocados])
+    else perpetrar([]);
+    FNumeroAutenticacao := nroautenticacao;
+
+    if (result = mrOK) and (dtmautenticacoes.ObservacoesAutenticacoes<>'') then
+    begin
+      qryAutenticarObservacoes.ParamByName('observacoes').AsMemo := dtmautenticacoes.ObservacoesAutenticacoes;
+      qryAutenticarObservacoes.ParamByName('numero').value := nroautenticacao;
+      qryAutenticarObservacoes.ExecSql;
+      perpetrar([]);
+    end;
+{IFDEF MSWINDOWS
+  end
+ENDIF}
+end;
+
+function Tdtmautenticacoesauxiliar.autenticarCheque(cheque: string; valor: real): integer;
+var nroautenticacao: integer;
+begin
+  result := mrOK;
+  LimparParametrosAutenticacao;
+  nroautenticacao := ProximoNumeroAutenticacao;
+  qryAutenticar.ParamByName('caixa').Value   := CodigoUsuario;  //c¢digo do caixa que efetuou a autentica‡Æo
+  qryAutenticar.ParamByName('cheque').Value  := cheque;         //n£mero do cheque
+  qryAutenticar.ParamByName('filial').Value  := FilialBase;     //n£mero da filial onde foi efetuada a autentica‡Æo
+  qryAutenticar.ParamByName('numero').Value  := nroautenticacao;//n£mero sequencial da autentica‡Æo
+  qryAutenticar.ParamByName('situacao').Value:= true;           //define a situacao da autentica‡Æo
+  qryAutenticar.ParamByName('tipo').Value    := 'H';            //define o tipo de autentica‡Æo, neste caso cheques
+  qryAutenticar.ParamByName('valor').Value   := valor;          //valor do cheque autenticado
+  qryAutenticar.ExecSql;
+  perpetrar([]);
+  FNumeroAutenticacao := nroautenticacao;
+
+  if (result = mrOK) and (dtmautenticacoes.ObservacoesAutenticacoes<>'') then
+  begin
+    qryAutenticarObservacoes.ParamByName('observacoes').AsMemo := dtmautenticacoes.ObservacoesAutenticacoes;
+    qryAutenticarObservacoes.ParamByName('numero').value := nroautenticacao;
+    qryAutenticarObservacoes.ExecSql;
+    perpetrar([]);
+  end;
+
+end;
+
+function Tdtmautenticacoesauxiliar.autenticarConfirmacaoTransferencia(numero: integer;
+  tipotransferencia: TtecAutenticacaoTransferencia): integer;
+var nroautenticacao: integer;
+begin
+  result := mrNone;
+  case tipotransferencia of
+    atTransferenciaNaoConfirmada: begin
+      result := atualizarAutenticacaoTransferencia(numero, false, true);
+      if result = mrOK then begin
+        perpetrar([]);
+        result := mrOK;
+      end
+    end;//end case naoConfirmada
+
+    atTransferenciaRetornada,
+    atTransferenciaConfirmada   : begin
+      if tipotransferencia = atTransferenciaRetornada then
+        result := atualizarAutenticacaoTransferencia(numero, false, false)
+      else
+        result := atualizarAutenticacaoTransferencia(numero, true, false);
+
+      if result = mrOK then
+      begin
+        ReFazConsulta(qryDadosConfirmacaoTransferencia, [0], [numero]);
+        LimparParametrosAutenticacao;
+        nroautenticacao := ProximoNumeroAutenticacao;
+
+        qryAutenticar.ParamByName('autenticacao').Value       := numero;         //n£mero da autentica‡Æo da transferˆncia
+        qryAutenticar.ParamByName('caixa').Value              := CodigoUsuario;  //c¢digo do caixa que efetuou a autentica‡Æo
+        qryAutenticar.ParamByName('filial').Value             := FilialBase;     //n£mero da filial onde foi efetuada a autentica‡Æo
+        qryAutenticar.ParamByName('numero').Value             := nroautenticacao;//n£mero sequencial da autentica‡Æo
+        qryAutenticar.ParamByName('situacao').Value           := true;           //define a situacao da autentica‡Æo
+        qryAutenticar.ParamByName('tipo').Value               := 'E';            //define o tipo de autentica‡Æo, neste caso transferˆncia entrada
+        qryAutenticar.ParamByName('transferencia').Value      := qryDadosConfirmacaoTransferenciacaixa.asInteger;//c¢digo do caixa o qual efetuou a transferˆncia
+        qryAutenticar.ParamByName('valor').Value              := qryDadosConfirmacaoTransferenciavalor.asFloat;  //valor da transferˆncia autenticado
+        if assigned(ECFPadrao) then
+          qryAutenticar.ParamByName('ecf').Value                := ECFPadrao.Codigo;//codigo do ecf utilizado
+        qryAutenticar.ExecSql;
+        perpetrar([]);
+
+        result := mrOK;
+        FNumeroAutenticacao := nroautenticacao;
+
+        if (result = mrOK) and (dtmautenticacoes.ObservacoesAutenticacoes<>'') then
+        begin
+          qryAutenticarObservacoes.ParamByName('observacoes').AsMemo := dtmautenticacoes.ObservacoesAutenticacoes;
+          qryAutenticarObservacoes.ParamByName('numero').value := nroautenticacao;
+          qryAutenticarObservacoes.ExecSql;
+          perpetrar([]);
+        end;
+
+      end;
+    end;
+  end;
+end;
+
+function Tdtmautenticacoesauxiliar.autenticarDeposito(banco: integer;
+  valor: real): integer;
+var nroautenticacao: integer;
+begin
+  LimparParametrosAutenticacao;
+  nroautenticacao := ProximoNumeroAutenticacao;
+  qryAutenticar.ParamByName('caixa').Value              := CodigoUsuario;  //c¢digo do caixa que efetuou a autentica‡Æo
+  qryAutenticar.ParamByName('banco').Value              := banco;          //c¢digo do banco do dep¢sito
+  qryAutenticar.ParamByName('filial').Value             := FilialBase;     //n£mero da filial onde foi efetuada a autentica‡Æo
+  qryAutenticar.ParamByName('numero').Value             := nroautenticacao;//n£mero sequencial da autentica‡Æo
+  qryAutenticar.ParamByName('situacao').Value           := true;           //define a situacao da autentica‡Æo
+  qryAutenticar.ParamByName('tipo').Value               := 'B';            //define o tipo de autentica‡Æo, neste caso dep¢sito
+  qryAutenticar.ParamByName('valor').Value              := valor;          //valor do dep¢sito autenticado
+  if assigned(ECFPadrao) then
+    qryAutenticar.ParamByName('ecf').Value                := ECFPadrao.Codigo;//codigo do ecf utilizado
+  qryAutenticar.ExecSql;
+  perpetrar([]);
+  FNumeroAutenticacao := nroautenticacao;
+  result := mrOK;
+  if (result = mrOK) and (dtmautenticacoes.ObservacoesAutenticacoes<>'') then
+  begin
+    qryAutenticarObservacoes.ParamByName('observacoes').AsMemo := dtmautenticacoes.ObservacoesAutenticacoes;
+    qryAutenticarObservacoes.ParamByName('numero').value := nroautenticacao;
+    qryAutenticarObservacoes.ExecSql;
+    perpetrar([]);
+  end;
+end;
+
+function Tdtmautenticacoesauxiliar.autenticarDevolucao(contrato: string;
+  motivo: integer; valor: real): integer;
+var nroautenticacao: integer;
+begin
+  result := quitarParcelasDevolucao(contrato);
+  if result = mrOK then
+  begin
+    LimparParametrosAutenticacao;
+    nroautenticacao := ProximoNumeroAutenticacao;
+    qryAutenticar.ParamByName('caixa').Value   := CodigoUsuario;  //c¢digo do caixa que efetuou a autentica‡Æo
+    qryAutenticar.ParamByName('contrato').Value:= contrato;       //n£mero do contrato
+    qryAutenticar.ParamByName('filial').Value  := FilialBase;     //n£mero da filial onde foi efetuada a autentica‡Æo
+    qryAutenticar.ParamByName('motivo').Value  := motivo;         //c¢digo do motivo da devolu‡Æo
+    qryAutenticar.ParamByName('numero').Value  := nroautenticacao;//n£mero sequencial da autentica‡Æo
+    qryAutenticar.ParamByName('situacao').Value:= true;           //define a situacao da autentica‡Æo
+    qryAutenticar.ParamByName('tipo').Value    := 'N';            //define o tipo de autentica‡Æo, no caso devolu‡Æo
+    qryAutenticar.ParamByName('valor').Value   := valor;          //valor da autentica‡Æo
+    if assigned(ECFPadrao) then
+      qryAutenticar.ParamByName('ecf').Value     := ECFPadrao.Codigo;//codigo do ecf utilizado
+    qryAutenticar.ExecSql;
+    perpetrar([]);
+    FNumeroAutenticacao := nroautenticacao;
+
+    if (result = mrOK) and (dtmautenticacoes.ObservacoesAutenticacoes<>'') then
+    begin
+      qryAutenticarObservacoes.ParamByName('observacoes').AsMemo := dtmautenticacoes.ObservacoesAutenticacoes;
+      qryAutenticarObservacoes.ParamByName('numero').value := nroautenticacao;
+      qryAutenticarObservacoes.ExecSql;
+      perpetrar([]);
+    end;
+
+  end;//end if
+end;
+
+function Tdtmautenticacoesauxiliar.autenticarDevolucaoSaldo(codigoCliente: Integer; tipoCliente: String; valor: Real): Integer;
+var
+  nroAutenticacao: Integer;
+begin
+  result := atualizarSaldoTroca('S', codigoCliente, tipoCliente, valor);
+  if result > 0 then begin
+    LimparParametrosAutenticacao;
+    nroautenticacao := ProximoNumeroAutenticacao;
+    AtualizarProdutosTrocados('DEVOLVIDO - CAIXA ' + IntToStr(CodigoUsuario) + ' FILIAL ' +
+                              IntToStr(FilialBase) + ' AUTENTICACAO ' + IntToStr(nroAutenticacao));
+    qryAutenticar.ParamByName('caixa').Value   := CodigoUsuario;  //c¢digo do caixa que efetuou a autentica‡Æo
+    qryAutenticar.ParamByName('filial').Value  := FilialBase;     //n£mero da filial onde foi efetuada a autentica‡Æo
+    qryAutenticar.ParamByName('numero').Value  := nroautenticacao;//n£mero sequencial da autentica‡Æo
+    qryAutenticar.ParamByName('situacao').Value:= true;           //define a situacao da autentica‡Æo
+    qryAutenticar.ParamByName('tipo').Value    := 'A';            //define o tipo de autentica‡Æo, no caso devolu‡Æo
+    qryAutenticar.ParamByName('valor').Value   := valor;          //valor da autentica‡Æo
+    qryAutenticar.ParamByName('clientedev').Value := codigoCliente;  //identificacao do cliente
+    qryAutenticar.ParamByName('tipoclientedev').Value:= tipoCliente; //tipo do cliente
+    qryAutenticar.ExecSql;
+    perpetrar([qryProdutosTrocados]);
+    FNumeroAutenticacao := nroautenticacao;
+
+    if (result = mrOK) and (dtmautenticacoes.ObservacoesAutenticacoes<>'') then
+    begin
+      qryAutenticarObservacoes.ParamByName('observacoes').AsMemo := dtmautenticacoes.ObservacoesAutenticacoes;
+      qryAutenticarObservacoes.ParamByName('numero').value := nroautenticacao;
+      qryAutenticarObservacoes.ExecSql;
+      perpetrar([]);
+    end;
+    
+  end;
+end;
+
+function Tdtmautenticacoesauxiliar.autenticarDocumento(evento, historico: integer; parametros, data: string;
+  valor: real): integer;
+var nroautenticacao: integer;
+begin
+  result := mrOK;
+  LimparParametrosAutenticacao;
+  nroautenticacao := ProximoNumeroAutenticacao;
+  qryAutenticar.ParamByName('caixa').Value        := CodigoUsuario;  //c¢digo do caixa que efetuou a autentica‡Æo
+  qryAutenticar.ParamByName('datadocumento').Value:= data;           //data do contrato
+  qryAutenticar.ParamByName('evento').Value       := evento;         //c¢digo do evento
+  qryAutenticar.ParamByName('filial').Value       := FilialBase;     //n£mero da filial onde foi efetuada a autentica‡Æo
+
+  if (dtmautenticacoes.NroRegistrosHistoricosEvento > 0) then
+    qryAutenticar.ParamByName('historico').Value:= historico;      //c¢digo do hist¢rico do evento
+
+  qryAutenticar.ParamByName('numero').Value       := nroautenticacao;//n£mero sequencial da autentica‡Æo
+  qryAutenticar.ParamByName('parametros').Value   := parametros;     //parƒmetros do hist¢rico
+  qryAutenticar.ParamByName('situacao').Value     := true;           //define a situacao da autentica‡Æo
+  qryAutenticar.ParamByName('tipo').Value         := 'D';            //define o tipo de autentica‡Æo, no caso documentos
+  qryAutenticar.ParamByName('valor').Value        := valor;          //valor da autentica‡Æo
+  if assigned(ECFPadrao) then
+    qryAutenticar.ParamByName('ecf').Value          := ECFPadrao.Codigo;//codigo do ecf utilizado
+  qryAutenticar.ExecSql;
+  perpetrar([]);
+  FNumeroAutenticacao := nroautenticacao;
+
+  if (result = mrOK) and (dtmautenticacoes.ObservacoesAutenticacoes<>'') then
+  begin
+    qryAutenticarObservacoes.ParamByName('observacoes').AsMemo := dtmautenticacoes.ObservacoesAutenticacoes;
+    qryAutenticarObservacoes.ParamByName('numero').value := nroautenticacao;
+    qryAutenticarObservacoes.ExecSql;
+    perpetrar([]);
+  end;
+
+end;
+
+function Tdtmautenticacoesauxiliar.autenticarDuplicata(DocumentoPag, Evento,NumeroDuplicata: integer; DataVencto: TDatetime; vlPagto: real): integer;
+var nroautenticacao: integer;
+begin
+  result := atualizarDuplicata(DocumentoPag, DataVencto, vlPagto);
+  LimparParametrosAutenticacao;
+  nroautenticacao := ProximoNumeroAutenticacao;
+  qryAutenticar.ParamByName('caixa').Value           := CodigoUsuario;//c¢digo do caixa que efetuou a autentica‡Æo
+  qryAutenticar.ParamByName('documentopag').Value    := DocumentoPag; //c¢digo do Documento de pagamento da duplicata
+  qryAutenticar.ParamByName('numeroduplicata').Value := NumeroDuplicata; //sequencial da duplicata
+  qryAutenticar.ParamByName('venctoduplicata').Value := DataVencto;   //data de vencimento da duplicata
+  qryAutenticar.ParamByName('filial').Value          := FilialBase;     //n£mero da filial onde foi efetuada a autentica‡Æo
+  qryAutenticar.ParamByName('numero').Value          := nroautenticacao;//n£mero sequencial da autentica‡Æo
+  qryAutenticar.ParamByName('situacao').Value        := true;           //define a situacao da autentica‡Æo
+  qryAutenticar.ParamByName('tipo').Value            := 'G';            //define o tipo de autentica‡Æo, neste caso duplicatas
+  qryAutenticar.ParamByName('valor').Value           := vlPagto;        //valor do dep¢sito autenticado
+  qryAutenticar.ParamByName('evento').Value          := evento;
+  if assigned(ECFPadrao) then
+    qryAutenticar.ParamByName('ecf').Value             := ECFPadrao.Codigo;//codigo do ecf utilizado
+  qryAutenticar.ExecSql;
+  perpetrar([]);
+  FNumeroAutenticacao := nroautenticacao;
+
+  if (result = mrOK) and (dtmautenticacoes.ObservacoesAutenticacoes<>'') then
+  begin
+    qryAutenticarObservacoes.ParamByName('observacoes').AsMemo := dtmautenticacoes.ObservacoesAutenticacoes;
+    qryAutenticarObservacoes.ParamByName('numero').value := nroautenticacao;
+    qryAutenticarObservacoes.ExecSql;
+    perpetrar([]);
+  end;
+  
+end;
+
+function Tdtmautenticacoesauxiliar.autenticarPerda(contrato: string; motivo: integer; valor: real): integer;
+var
+  nroautenticacao: integer;
+begin
+  result := quitarParcelasPerda(contrato);
+  if result = mrOK then begin
+    LimparParametrosAutenticacao;
+    nroautenticacao := ProximoNumeroAutenticacao;
+    qryAutenticar.ParamByName('caixa').Value      := CodigoUsuario;  //c¢digo do caixa que efetuou a autentica‡Æo
+    qryAutenticar.ParamByName('filial').Value     := FilialBase;     //n£mero da filial onde foi efetuada a autentica‡Æo
+    qryAutenticar.ParamByName('contrato').Value   := contrato;       //n£mero do contrato da perda
+    qryAutenticar.ParamByName('motivo').Value     := motivo;         //c¢digo do motivo do cancelamento
+    qryAutenticar.ParamByName('numero').Value     := nroautenticacao;//n£mero sequencial da autentica‡Æo
+    qryAutenticar.ParamByName('situacao').Value   := true;           //define a situacao da autentica‡Æo
+    qryAutenticar.ParamByName('tipo').Value       := 'J';            //define o tipo de autentica‡Æo, neste caso perda
+    qryAutenticar.ParamByName('valor').Value      := valor;          //valor do dep¢sito autenticado
+    qryAutenticar.ExecSql;
+    perpetrar([]);
+    FNumeroAutenticacao := nroautenticacao;
+
+    if (result = mrOK) and (dtmautenticacoes.ObservacoesAutenticacoes<>'') then
+    begin
+      qryAutenticarObservacoes.ParamByName('observacoes').AsMemo := dtmautenticacoes.ObservacoesAutenticacoes;
+      qryAutenticarObservacoes.ParamByName('numero').value := nroautenticacao;
+      qryAutenticarObservacoes.ExecSql;
+      perpetrar([]);
+    end;
+
+  end;
+end;
+
+function Tdtmautenticacoesauxiliar.autenticarPrestacao(contrato: string; nroparcela: integer; vlpagto: real; PagtoCartao: Boolean; Transacao: Integer = 0): integer;
+var nroautenticacao: integer;
+begin
+  result := mrOK;
+  if (vlpagto = 0) and not PagtoCartao  then
+  begin
+    MensagemErro(format('O contrato %s e parcela %s esta com o valor de pagamento zerado. Entre em contato com o suporte.',
+                 [contrato, inttostr(nroparcela)]));
+    result := mrCancel;
+  end;
+
+  if result = mrOK then
+  begin
+
+    LimparParametrosAutenticacao;
+    nroautenticacao := ProximoNumeroAutenticacao;
+    qryAutenticar.ParamByName('caixa').Value          := CodigoUsuario;  //c¢digo do caixa que efetuou a autentica‡Æo
+    qryAutenticar.ParamByName('contratoparcela').Value:= contrato;       //n£mero do contrato da parcela
+    qryAutenticar.ParamByName('filial').Value         := FilialBase;     //n£mero da filial onde foi efetuada a autentica‡Æo
+    qryAutenticar.ParamByName('numero').Value         := nroautenticacao;//n£mero sequencial da autentica‡Æo
+    qryAutenticar.ParamByName('parcela').Value        := nroparcela;     //n£mero da parcela do contrato
+    qryAutenticar.ParamByName('situacao').Value       := true;           //define a situacao da autentica‡Æo
+    if PagtoCartao then
+      qryAutenticar.ParamByName('tipo').Value         := 'T'            //define o tipo de autentica‡Æo, neste caso presta‡Æo
+    else
+      qryAutenticar.ParamByName('tipo').Value         := 'P';            //define o tipo de autentica‡Æo, neste caso presta‡Æo
+
+
+
+    qryAutenticar.ParamByName('valor').Value          := vlpagto;        //valor do cheque autenticado
+    if Transacao > 0 then
+      qryAutenticar.ParamByName('transacao').Value    := transacao;      //define a transacao da autenticao
+    qryAutenticar.ExecSql;
+    perpetrar([]);
+    FNumeroAutenticacao := nroautenticacao;
+
+    if (result = mrOK) and (dtmautenticacoes.ObservacoesAutenticacoes<>'') then
+    begin
+      qryAutenticarObservacoes.ParamByName('observacoes').AsMemo := dtmautenticacoes.ObservacoesAutenticacoes;
+      qryAutenticarObservacoes.ParamByName('numero').value := nroautenticacao;
+      qryAutenticarObservacoes.ExecSql;
+      perpetrar([]);
+    end;
+  end;
+
+end;
+
+function Tdtmautenticacoesauxiliar.autenticarPrestacao(contrato: string; Parcelas: TtecParcelaFormaPagto; Transacao: Integer = 0): integer;
+var
+  a, nroautenticacao: integer;
+begin
+  result := mrOK;
+  ReFazConsulta(qryParcelasPrestacao, [0], [contrato]);
+  for a := 0 to High(Parcelas) do
+    if qryParcelasPrestacao.Locate('numero', Parcelas[a].numero, []) then
+    begin
+      if (qryParcelasPrestacaovalorpagto.AsFloat = 0) and (Parcelas[a].FormaPagto = 'D') then
+      begin
+        MensagemErro(format('O contrato %s e parcela %s esta com o valor de pagamento zerado. Entre em contato com o suporte.',
+                     [qryParcelasPrestacaocontrato.AsString, qryParcelasPrestacaonumero.AsString]));
+        result := mrCancel;
+        break;
+      end;
+    end;
+
+  if result = mrOK then
+  begin
+    for a := 0 to High(Parcelas) do
+      if qryParcelasPrestacao.Locate('numero', Parcelas[a].numero, []) then
+      begin
+        LimparParametrosAutenticacao;
+        nroautenticacao := ProximoNumeroAutenticacao;
+        qryAutenticar.ParamByName('caixa').Value          := CodigoUsuario;
+        qryAutenticar.ParamByName('contratoparcela').Value:= contrato;
+        qryAutenticar.ParamByName('filial').Value         := FilialBase;
+        qryAutenticar.ParamByName('numero').Value         := nroautenticacao;
+        qryAutenticar.ParamByName('parcela').Value        := qryParcelasPrestacaonumero.AsInteger;
+        qryAutenticar.ParamByName('situacao').Value       := true;
+        qryAutenticar.ParamByName('valor').Value          := qryParcelasPrestacaovalorpagto.AsFloat;
+        if Parcelas[a].FormaPagto = 'D' then
+          qryAutenticar.ParamByName('tipo').Value         := 'P'
+        else
+          qryAutenticar.ParamByName('tipo').Value         := 'T';
+
+
+        if Transacao > 0 then
+          qryAutenticar.ParamByName('transacao').Value    := Transacao;
+        qryAutenticar.ExecSql;
+        perpetrar([]);
+
+        if (result = mrOK) and (dtmautenticacoes.ObservacoesAutenticacoes<>'') then
+        begin
+          qryAutenticarObservacoes.ParamByName('observacoes').AsMemo := dtmautenticacoes.ObservacoesAutenticacoes;
+          qryAutenticarObservacoes.ParamByName('numero').value := nroautenticacao;
+          qryAutenticarObservacoes.ExecSql;
+          perpetrar([]);
+        end;
+
+      end;
+
+    qryParcelasPrestacao.Params[0].Clear;
+    qryParcelasPrestacao.Close
+  end;
+end;
+
+function Tdtmautenticacoesauxiliar.autenticarResgateCheque(var nroautenticacao: integer; cheque: string; vlpagto: real): integer;
+begin
+  result := mrOK;
+  LimparParametrosAutenticacao;
+  nroautenticacao := ProximoNumeroAutenticacao;
+  qryAutenticar.ParamByName('caixa').Value              := CodigoUsuario;  //c¢digo do caixa que efetuou a autentica‡Æo
+  qryAutenticar.ParamByName('filial').Value             := FilialBase;     //n£mero da filial onde foi efetuada a autentica‡Æo
+  qryAutenticar.ParamByName('numero').Value             := nroautenticacao;//n£mero sequencial da autentica‡Æo
+  qryAutenticar.ParamByName('cheque').Value             := cheque;         //n£mero do cheque
+  qryAutenticar.ParamByName('situacao').Value           := true;           //define a situacao da autentica‡Æo
+  qryAutenticar.ParamByName('tipo').Value               := 'R';            //define o tipo de autentica‡Æo, neste caso resgate de cheque
+  qryAutenticar.ParamByName('valor').Value              := vlpagto;        //valor do cheque autenticado
+  if assigned(ECFPadrao) then
+    qryAutenticar.ParamByName('ecf').Value                := ECFPadrao.Codigo;//codigo do ecf utilizado
+  qryAutenticar.ExecSql;
+
+  if (result = mrOK) and (dtmautenticacoes.ObservacoesAutenticacoes<>'') then
+  begin
+    qryAutenticarObservacoes.ParamByName('observacoes').AsMemo := dtmautenticacoes.ObservacoesAutenticacoes;
+    qryAutenticarObservacoes.ParamByName('numero').value := nroautenticacao;
+    qryAutenticarObservacoes.ExecSql;
+    perpetrar([]);
+  end;
+
+end;
+
+function Tdtmautenticacoesauxiliar.autenticarTransferencia(caixa: integer; valor: real): integer;
+var nroautenticacao: integer;
+begin
+  result := mrOK;
+  LimparParametrosAutenticacao;
+  nroautenticacao := ProximoNumeroAutenticacao;
+  qryAutenticar.ParamByName('caixa').Value              := CodigoUsuario;  //c¢digo do caixa que efetuou a autentica‡Æo
+  qryAutenticar.ParamByName('filial').Value             := FilialBase;     //n£mero da filial onde foi efetuada a autentica‡Æo
+  qryAutenticar.ParamByName('numero').Value             := nroautenticacao;//n£mero sequencial da autentica‡Æo
+  qryAutenticar.ParamByName('situacao').Value           := true;           //define a situacao da autentica‡Æo
+  qryAutenticar.ParamByName('tipo').Value               := 'S';            //define o tipo de autentica‡Æo, neste caso transferˆncia
+  qryAutenticar.ParamByName('transferencia').Value      := caixa;          //c¢digo do caixa para o qual foi efetuada a transferˆncia
+  qryAutenticar.ParamByName('valor').Value              := valor;          //valor do dep¢sito autenticado
+  if assigned(ECFPadrao) then
+    qryAutenticar.ParamByName('ecf').Value                := ECFPadrao.Codigo;//codigo do ecf utilizado
+  qryAutenticar.ExecSql;
+  perpetrar([]);
+  FNumeroAutenticacao := nroautenticacao;
+
+  if (result = mrOK) and (dtmautenticacoes.ObservacoesAutenticacoes<>'') then
+  begin
+    qryAutenticarObservacoes.ParamByName('observacoes').AsMemo := dtmautenticacoes.ObservacoesAutenticacoes;
+    qryAutenticarObservacoes.ParamByName('numero').value := nroautenticacao;
+    qryAutenticarObservacoes.ExecSql;
+    perpetrar([]);
+  end;
+end;
+
+function Tdtmautenticacoesauxiliar.autenticarTransferenciaAutomatica(
+  caixa: integer; valor: real): integer;
+var nroautenticacao: integer;
+begin
+  result := mrOK;
+  LimparParametrosAutenticacao;
+  nroautenticacao := ProximoNumeroAutenticacao;
+  qryAutenticar.ParamByName('caixa').Value              := CodigoUsuario;  //c¢digo do caixa que efetuou a autentica‡Æo
+  qryAutenticar.ParamByName('filial').Value             := FilialBase;     //n£mero da filial onde foi efetuada a autentica‡Æo
+  qryAutenticar.ParamByName('numero').Value             := nroautenticacao;//n£mero sequencial da autentica‡Æo
+  qryAutenticar.ParamByName('situacao').Value           := true;           //define a situacao da autentica‡Æo
+  qryAutenticar.ParamByName('tipo').Value               := 'S';            //define o tipo de autentica‡Æo, neste caso transferˆncia
+  qryAutenticar.ParamByName('transferencia').Value      := caixa;          //c¢digo do caixa para o qual foi efetuada a transferˆncia
+  qryAutenticar.ParamByName('valor').Value              := valor;          //valor do dep¢sito autenticado
+  qryAutenticar.ParamByName('diferencatransferencia').Value := True;       //valor confirmado difere do transferido anteriormente
+  qryAutenticar.ExecSql;
+  perpetrar([]);
+  FNumeroAutenticacao := nroautenticacao;
+
+  if (result = mrOK) and (dtmautenticacoes.ObservacoesAutenticacoes<>'') then
+  begin
+    qryAutenticarObservacoes.ParamByName('observacoes').AsMemo := dtmautenticacoes.ObservacoesAutenticacoes;
+    qryAutenticarObservacoes.ParamByName('numero').value := nroautenticacao;
+    qryAutenticarObservacoes.ExecSql;
+    perpetrar([]);
+  end;
+end;
+
+function Tdtmautenticacoesauxiliar.cadastrarCheque(cheque, titular, cliente, TipoCliente,
+  vencto: string; valor: real; Atualizar: Boolean; obs: String): integer;
+var i: integer;
+begin
+   result := mrOK;
+   if Atualizar then begin
+    if qryAtualizarCheque.Active then
+      qryAtualizarCheque.Close;
+    for i := 0 to qryAtualizarCheque.ParamCount - 1 do
+      qryAtualizarCheque.Params[i].clear;
+    qryAtualizarCheque.ParamByName('numero').Value    := cheque;           //n£mero do cheque
+    qryAtualizarCheque.ParamByName('data').Value      := DataLocal;        //data do cadastro do cheque
+    qryAtualizarCheque.ParamByName('vencto').Value    := vencto;           //data de vencimento do cheque
+    qryAtualizarCheque.ParamByName('valor').Value     := valor;            //valor do cheque
+    if (cliente <> '') then begin
+      qryAtualizarCheque.ParamByName('cliente').Value := strToInt(cliente);//caso exista valor, define o c¢digo do cliente
+      qryAtualizarCheque.ParamByName('tipocliente').Value := TipoCliente;
+    end;
+    qryAtualizarCheque.ParamByName('titular').Value   := titular;          //nome completo do titular do cheque
+    qryAtualizarCheque.ParamByName('situacao').Value  := 'N';              //Situação normal do cheque quando cadastrado
+    qryAtualizarCheque.ParamByName('filial').Value    := FilialBase;       //filial onde foi cadastrado o cheque
+    qryAtualizarCheque.ParamByName('observacao').Value:= obs;
+    qryAtualizarCheque.ExecSql;
+    qryAtualizarCheque.Close;
+   end else begin
+    if qryCadastroCheque.Active then
+      qryCadastroCheque.Close;
+    for i := 0 to qryCadastroCheque.ParamCount - 1 do
+      qryCadastroCheque.Params[i].clear;
+    qryCadastroCheque.ParamByName('numero').Value    := cheque;           //n£mero do cheque
+    qryCadastroCheque.ParamByName('data').Value      := DataLocal;        //data do cadastro do cheque
+    qryCadastroCheque.ParamByName('vencto').Value    := vencto;           //data de vencimento do cheque
+    qryCadastroCheque.ParamByName('valor').Value     := valor;            //valor do cheque
+    if (cliente <> '') then begin
+      qryCadastroCheque.ParamByName('cliente').Value := strToInt(cliente);//caso exista valor, define o c¢digo do cliente
+      qryCadastroCheque.ParamByName('tipocliente').Value := TipoCliente;
+    end;
+    qryCadastroCheque.ParamByName('titular').Value   := titular;          //nome completo do titular do cheque
+    qryCadastroCheque.ParamByName('situacao').Value  := 'N';              //Situação normal do cheque quando cadastrado
+    qryCadastroCheque.ParamByName('filial').Value    := FilialBase;       //filial onde foi cadastrado o cheque
+    qryCadastroCheque.ParamByName('observacao').Value:= obs;
+    qryCadastroCheque.ExecSql;
+    qryCadastroCheque.Close;
+   end;
+end;
+
+function Tdtmautenticacoesauxiliar.CancelamentoParcelaParcial(
+  contrato: String; nroparcela: integer): Boolean;
+begin
+  Result := False;
+  qryParcelaParcialGerada.MacroByName('null').Value := 'and valorpagto is null';
+  ReFazConsulta(qryParcelaParcialGerada,[0,1],[contrato,nroparcela]);
+  if qryParcelaParcialGerada.RecordCount > 0 then
+    Result := True;
+end;
+
+function Tdtmautenticacoesauxiliar.cancelarAutenticacao(autenticacao: integer): integer;
+begin
+  result := desfazerOperacoesAutenticacao(autenticacao);
+{  if result = mrOK then begin
+    qryCancelarAutenticacao.ParamByName('autenticacao').Value := autenticacao;
+    qryCancelarAutenticacao.ExecSql;
+    qryCancelarAutenticacao.Close;
+  end;}
+end;
+
+function Tdtmautenticacoesauxiliar.cancelarRecebimentos(
+  transacao: integer): integer;
+begin
+  if qryCancelarRecebimentos.Active then
+    qryCancelarRecebimentos.Close;
+  qryCancelarRecebimentos.ParamByName('transacao').Value := transacao;
+  qryCancelarRecebimentos.ExecSql;
+  Perpetrar([]);
+  Result := mrOK;
+end;
+
+function Tdtmautenticacoesauxiliar.chequeValido(numero: string): boolean;
+begin
+  RefazConsulta(qryVerificaCheque,[0],[numero]);
+  result := qryVerificaChequechequevalido.asBoolean;
+end;
+
+function Tdtmautenticacoesauxiliar.ConfirmarAutenticacaoResgateCheque: integer;
+begin
+  Perpetrar([]);
+  Result := mrOk;
+end;
+
+function Tdtmautenticacoesauxiliar.DesFazAutenticacaoCheque(cheque: string): integer;
+begin
+  if qryRemoverCheque.Active then
+    qryRemoverCheque.Close;
+  qryRemoverCheque.Params[0].AsString:= Cheque;
+  qryRemoverCheque.ExecSql;
+  Perpetrar([]);
+  Result := mrOK;
+end;
+
+function Tdtmautenticacoesauxiliar.desfazAutenticacaoDevolucao(contrato: string; data: TDateTime; valor: real): integer;
+begin
+  result := mrOK;
+    refazConsulta(qrySomaValorDevolucao, [0,1],[contrato, data]);
+    if (qrySomaValorDevolucaovalordevolucao.asFloat <> valor) then
+      result := ctErroValoresDiferentesDevolucaoCancelamento
+    else begin
+      qryAtualizarDevolucaoCancelamento.ParamByName('contrato').value := contrato;
+      qryAtualizarDevolucaoCancelamento.ParamByName('devcaixa').value := data;
+      qryAtualizarDevolucaoCancelamento.ExecSql;
+      qryAtualizarDevolucaoCancelamento.Close;
+    end;
+end;
+
+function Tdtmautenticacoesauxiliar.DesfazAutenticacaoDevolucaoSaldo(
+  autenticacao: integer; valor: Real): Integer;
+begin
+  RefazConsulta(qryProdutosTrocados, [0,1], [valor, autenticacao]);
+  result := atualizarSaldoTroca('E', qryProdutosTrocadoscliente.AsInteger,
+                                qryProdutosTrocadostipocliente.asString, valor);
+end;
+
+function Tdtmautenticacoesauxiliar.desfazAutenticacaoPerda(contrato: string;
+  valor: real): integer;
+begin
+  result := mrOK;
+    refazConsulta(qrySomaParcelasPerda, [0], [contrato]);
+    if qrySomaParcelasPerdatotalperda.asFloat <> valor then
+      result := ctErroValoresDiferentesPerdaCancelamento
+    else begin
+      qryAtualizarParcelasPerda.ParamByName('contrato').asString := contrato;
+
+      qryAtualizarParcelasPerda.ExecSQL;
+      qryAtualizarParcelasPerda.Close;
+    end;
+end;
+
+function Tdtmautenticacoesauxiliar.DesfazerOperacoesAutenticacao(autenticacao: integer): integer;
+begin
+  result := mrOK;
+  ReFazConsulta(qryAutenticacoes,[0],[autenticacao]);
+  if (qryAutenticacoestipo.AsString = 'P') or (qryAutenticacoestipo.AsString = 'T') then
+    Result := AtualizarParcelaContrato(qryAutenticacoescontratoparcela.AsString, qryAutenticacoesparcela.AsInteger)
+  else if qryAutenticacoestipo.AsString = 'N' then
+    Result := DesFazAutenticacaoDevolucao(qryAutenticacoescontrato.asString, qryAutenticacoesdata.asDateTime, qryAutenticacoesvalor.asFloat)
+  else if qryAutenticacoestipo.AsString = 'J' then
+    Result := DesFazAutenticacaoPerda(qryAutenticacoescontrato.asString, qryAutenticacoesvalor.asFloat)
+  else if qryAutenticacoestipo.AsString = 'H' then
+    Result := DesFazAutenticacaoCheque(qryAutenticacoescheque.asString)
+  else if qryAutenticacoestipo.AsString = 'G' then
+    Result := AtualizarDuplicata(qryAutenticacoesdocumentopag.asInteger, qryAutenticacoesvenctoduplicata.AsDatetime)
+  else if qryAutenticacoestipo.AsString = 'R' then
+    Result := AtualizarParcelaResgate(Autenticacao)
+  else if qryAutenticacoestipo.AsString = 'A' then
+    Result := DesfazAutenticacaoDevolucaoSaldo(qryAutenticacoesnumero.AsInteger, qryAutenticacoesvalor.asFloat);
+//   else if (qryAutenticacoestipo.AsString = 'B') or (qryAutenticacoestipo.AsString = 'D') then
+//    result := mrOK
+//  else
+end;
+
+function Tdtmautenticacoesauxiliar.ExisteParcialQuitada(contrato: String;
+  nroparcela: integer): Boolean;
+begin
+  Result := False;
+  qryParcelaParcialGerada.MacroByName('null').Value := 'and valorpagto is not null';
+  RefazConsulta(qryParcelaParcialGerada,[0,1],[contrato,nroparcela]);
+  if qryParcelaParcialGerada.RecordCount > 0 then
+    Result := True;
+end;
+
+function Tdtmautenticacoesauxiliar.getProximoNumeroAutenticacao: integer;
+begin
+  spcAutenticacaoProximo.Open;
+  result := spcAutenticacaoProximonumero.AsInteger;
+  spcAutenticacaoProximo.Close;
+end;
+
+(*function Tdtmautenticacoesauxiliar.getTaxaDesconto: real;
+begin
+  Result := ParSistema.DescontoPagAntecipado
+end; *)
+
+function Tdtmautenticacoesauxiliar.getTaxaJuros: real;
+begin
+  Result := ParSistema.TaxaJuros;
+end;
+
+function Tdtmautenticacoesauxiliar.inserirParcelaContratoParcial(contrato, dtvencto: string;
+  vlvencto: real; parcelaorigem: String; Quitar: Boolean; parcelaoriginal: integer;
+  var NroParcela: Integer): integer;
+begin
+  result := mrOK;
+  qryInserirParcelaParcial.ParamByName('contrato').Value      := contrato;
+  qryInserirParcelaParcial.ParamByName('numero').Value        := proximoNumeroParcela(contrato);
+  qryInserirParcelaParcial.ParamByName('datavencto').Value    := dtvencto;
+  qryInserirParcelaParcial.ParamByName('valorvencto').Value   := vlvencto;
+  if Quitar then begin
+    qryInserirParcelaParcial.ParamByName('datapagto').Value   := DataServidor;
+    qryInserirParcelaParcial.ParamByName('valorpagto').Value  := vlvencto;
+  end;
+  qryInserirParcelaParcial.ParamByName('parcelaorigem').Value := parcelaorigem;
+  qryInserirParcelaParcial.ParamByName('parcelaoriginal').Value:= parcelaoriginal;
+  qryInserirParcelaParcial.ExecSql;
+  NroParcela := qryInserirParcelaParcial.ParamByName('numero').Value;
+end;
+
+function Tdtmautenticacoesauxiliar.inserirParcelaResgate(cheque: String;
+  nroautenticacao: integer; dtvencto, dtpagto: string; vlvencto,
+  vlpagto: real; Resgate: String): integer;
+begin
+  result := mrOK;
+  qryInserirParcelaResgate.ParamByName('cheque').Value       := cheque;
+  qryInserirParcelaResgate.ParamByName('numero').Value       := 1;
+  qryInserirParcelaResgate.ParamByName('datavencto').Value   := dtvencto;
+  qryInserirParcelaResgate.ParamByName('valorvencto').Value  := vlvencto;
+  qryInserirParcelaResgate.ParamByName('Autenticacao').Value := nroautenticacao;
+  qryInserirParcelaResgate.ParamByName('resgate').value      := Resgate;
+  qryInserirParcelaResgate.ParamByName('datapagto').Value   := dtpagto;
+  qryInserirParcelaResgate.ParamByName('valorpagto').Value  := vlpagto;
+  qryInserirParcelaResgate.ExecSql;
+end;
+
+function Tdtmautenticacoesauxiliar.inserirParcelaResgateParcial(cheque: String; nroautenticacao: integer;
+         dtvencto: string; vlvencto: real; Resgate: String): integer;
+begin
+  result := mrOK;
+  qryInserirParcelaResgateParcial.ParamByName('cheque').Value       := cheque;
+  qryInserirParcelaResgateParcial.ParamByName('numero').Value       := proximoNumeroParcelaCheque(cheque);
+  qryInserirParcelaResgateParcial.ParamByName('datavencto').Value   := dtvencto;
+  qryInserirParcelaResgateParcial.ParamByName('valorvencto').Value  := vlvencto;
+  qryInserirParcelaResgateParcial.ParamByName('Autenticacao').Value := nroautenticacao;
+  qryInserirParcelaResgateParcial.ParamByName('resgate').value      := Resgate;
+  qryInserirParcelaResgateParcial.ExecSql;
+end;
+
+procedure Tdtmautenticacoesauxiliar.LimparParametrosAutenticacao;
+var
+  a: Integer;
+begin
+  for a := 0 to qryAutenticar.ParamCount - 1 do
+    qryAutenticar.Params[a].Clear
+end;
+
+function Tdtmautenticacoesauxiliar.proximoNumeroParcela(contrato: string): integer;
+begin
+  spcParcelasProximo.ParamByName('contrato').asString := contrato;
+  spcParcelasProximo.Open;
+  result := spcParcelasProximonumero.asInteger;
+  spcParcelasProximo.Close;
+end;
+
+function Tdtmautenticacoesauxiliar.proximoNumeroParcelaCheque(
+  cheque: string): integer;
+begin
+  spcParcelasChequesProximo.Params[0].asString := cheque;
+  spcParcelasChequesProximo.Open;
+  result := spcParcelasChequesProximonumero.asInteger;
+  spcParcelasChequesProximo.Close;
+end;
+
+function Tdtmautenticacoesauxiliar.quitarParcelasDevolucao(contrato: string): integer;
+var
+  tpPagto       : string;
+begin
+  result := mrOK;
+  refazConsulta(qryParcelasDevolucao,[0],[contrato]);
+  qryParcelasDevolucao.first;
+  while Not qryParcelasDevolucao.Eof do begin
+    if qryParcelasDevolucaotipopagto.asString = 'D' then
+      tpPagto := 'C'
+    else
+      tpPagto := 'X';
+    atualizarParcelaDevolucao(qryParcelasDevolucaocontrato.asString,
+                              qryParcelasDevolucaonumero.asInteger,
+                              dateToStr(DataLocal),
+                              FilialBase,
+                              tpPagto);
+    qryParcelasDevolucao.next;
+  end;
+end;
+
+function Tdtmautenticacoesauxiliar.quitarParcelasPerda(contrato: string): integer;
+begin
+  result := mrOK;
+   qryQuitarParcelasPerda.ParamByName('filial').Value   := FilialBase;
+   qryQuitarParcelasPerda.ParamByName('contrato').Value := contrato;
+   qryQuitarParcelasPerda.ExecSql;
+end;
+
+end.

@@ -1,0 +1,429 @@
+unit frCartaCorrecaoEletronica;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, Grids, DBGrids, cpdbgrid, Buttons, ToolWin, ComCtrls, StdCtrls,
+  DBCtrls, cpdbmemo, DB, cpdatasource, ZQuery, ZPgSqlQuery, cpquery,
+  dmbasico, dmtecsoft, ctconstantes, clnfe, biblio, clparametrossistema, clusuario,
+  ActnList, ExtCtrls, dateutils, cpdatabase, fmenviaremail;
+
+type
+  TfraCartaCorrecaoEletronica = class(TFrame)
+    tblBarraCadastro: TToolBar;
+    sbnIncluir: TSpeedButton;
+    sbnSalvar: TSpeedButton;
+    sbnImprmirNota: TSpeedButton;
+    dbgCartaCorrecao: TtecDBGrid;
+    mmoXCorrecao: TtecDBMemo;
+    spcCartasCorrecaoProximoCodigo: TtecQuery;
+    spcCartasCorrecaoProximoCodigocodigo: TLargeintField;
+    spcCartasCorrecaoProximaSequencia: TtecQuery;
+    spcCartasCorrecaoProximaSequenciasequencia: TStringField;
+    qryCartasCorrecao: TtecQuery;
+    qryCartasCorrecaocodigo: TIntegerField;
+    qryCartasCorrecaotiponota: TStringField;
+    qryCartasCorrecaocodigonota: TIntegerField;
+    qryCartasCorrecaochv_nfe: TStringField;
+    qryCartasCorrecaoambiente: TIntegerField;
+    qryCartasCorrecaodhevento: TDateTimeField;
+    qryCartasCorrecaotpevento: TIntegerField;
+    qryCartasCorrecaonseqevento: TIntegerField;
+    qryCartasCorrecaoverevento: TStringField;
+    qryCartasCorrecaonumprotocolonfe: TStringField;
+    dsrCartasCorrecao: TtecDataSource;
+    qryUltimaCartaCorrecao: TtecQuery;
+    qryUltimaCartaCorrecaocodigo: TIntegerField;
+    qryUltimaCartaCorrecaotiponota: TStringField;
+    qryUltimaCartaCorrecaocodigonota: TIntegerField;
+    qryUltimaCartaCorrecaochv_nfe: TStringField;
+    qryUltimaCartaCorrecaotexto: TStringField;
+    qryUltimaCartaCorrecaoambiente: TIntegerField;
+    qryUltimaCartaCorrecaodhevento: TDateTimeField;
+    qryUltimaCartaCorrecaotpevento: TIntegerField;
+    qryUltimaCartaCorrecaonseqevento: TIntegerField;
+    qryUltimaCartaCorrecaoverevento: TStringField;
+    qryUltimaCartaCorrecaonumprotocolonfe: TStringField;
+    ActionList1: TActionList;
+    Action1: TAction;
+    gbxCorrecao: TGroupBox;
+    StaticText1: TStaticText;
+    qryCartasCorrecaotexto: TStringField;
+    pnlCartaCorrecao: TPanel;
+    pnlFundo: TPanel;
+    sbnAux: TSpeedButton;
+    sbnEnviarNfe: TSpeedButton;
+    qryUltimaCartaCorrecaonome: TStringField;
+    qryUltimaCartaCorrecaoemail: TStringField;
+    qryUltimaCartaCorrecaonrdocumento: TIntegerField;
+    qryUltimaCartaCorrecaoserie: TStringField;
+    qryUltimaCartaCorrecaofilial: TIntegerField;
+    qryUltimaCartaCorrecaovalor: TFloatField;
+    procedure sbnIncluirClick(Sender: TObject);
+    procedure sbnSalvarClick(Sender: TObject);
+    procedure Action1Update(Sender: TObject);
+    procedure qryCartasCorrecaoAfterInsert(DataSet: TDataSet);
+    procedure sbnImprmirNotaClick(Sender: TObject);
+    procedure mmoXCorrecaoKeyPress(Sender: TObject; var Key: Char);
+    procedure sbnEnviarNfeClick(Sender: TObject);
+  private
+    fchave_nfe: TTecStringRetorno;
+    ftiponota: String;
+    fcodigonota: TTecIntegerRetorno;
+    femail: TTecStringRetorno;
+    ffilial: TTecStringRetorno;
+    fNumeroNota: TTecStringRetorno;
+    fDataNota: TtecDataRetorno;
+    fEmailNotaVinculada: TTecStringRetorno;
+    fSerieNota: TTecStringRetorno;
+    fCondicaoCartaDevolucao: TTecBooleanRetorno;
+  private
+    { Private declarations }
+  protected
+    dmbasico : TdtmBasico;
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    procedure NovaCartaCorrecao;
+    function GravarCartaCorrecao: Boolean;
+    procedure ImprimirCartaCorrecao;
+
+    property chave_nfe: TTecStringRetorno read fchave_nfe write fchave_nfe;
+    property tiponota: String read ftiponota write ftiponota;
+    property codigonota: TTecIntegerRetorno read fcodigonota write fcodigonota;
+    property email: TTecStringRetorno read femail write femail;
+    property filial: TTecStringRetorno read ffilial write ffilial;
+    property NumeroNota: TTecStringRetorno read fNumeroNota write fNumeroNota;
+    property SerieNota: TTecStringRetorno read fSerieNota write fSerieNota;
+    property DataNota: TtecDataRetorno read fDataNota write fDataNota;
+    property EmailNotaVinculada: TTecStringRetorno read fEmailNotaVinculada write fEmailNotaVinculada;
+    property CondicaoCartaDevolucao: TTecBooleanRetorno read fCondicaoCartaDevolucao write fCondicaoCartaDevolucao;
+
+  end;
+
+implementation
+
+{$R *.dfm}
+
+{ TfraCartaCorrecaoEletronica }
+
+constructor TfraCartaCorrecaoEletronica.Create(AOwner: TComponent);
+begin
+  inherited;
+  dmbasico := TdtmBasico.Create(self);
+
+end;
+
+function TfraCartaCorrecaoEletronica.GravarCartaCorrecao: Boolean;
+var
+//  NFe : TTecNotaFiscalEletronica;
+  Protocolo,DataHoraProcessamento,ChaveAcesso,NSeq: String;
+begin
+  qryCartasCorrecaotexto.AsString := mmoXCorrecao.Text;
+  if length(qryCartasCorrecaotexto.AsString) < 15 then
+  begin
+    MensagemAviso('O Texto da carta de correção deve ter no mínimo 15 caracteres.');
+    mmoXCorrecao.SetFocus;
+  end
+  else
+  begin
+
+//    qryCartasCorrecao.post;
+ //   qryCartasCorrecao.edit;
+
+    NFe := TTecNotaFiscalEletronica.Create;
+    
+{    NFe.DiretorioEnvio       := fNFeDirEnvio;
+    NFe.DiretorioEnviado     := fNFeDirEnviados;
+    NFe.DiretorioRetorno     := fNFeDirRetorno;
+    NFe.DiretorioCompartilha := fNfeDirCompartilha;
+    NFe.Executavel           := fNFeExecNFe;
+}
+
+    try
+    try
+      dmbasico.ShowProcessando('Gerando Carta de Correção da NF-e!');
+      Result:=true;
+      if Result then
+      begin
+        if dmbasico.NFeTipoEmissao in [1,3] then
+        begin
+          dmbasico.ShowProcessando;
+          dmbasico.ShowProcessando('Verificando status do serviço NF-e!');
+          Sleep(500);
+          Result := NFe.VerificarStatusServico(IntToStr(dmbasico.NFeAmbiente));
+          if Result then
+          begin
+            dmbasico.ShowProcessando;
+            dmbasico.ShowProcessando('Processando o envio da Carta de Correção da NF-e!');
+            Sleep(500);
+            NSeq:=preencheString(qryCartasCorrecaonseqevento.AsString,'0',2,False);
+            DataHoraProcessamento:=dmbasico.DataHoraProcessamentoNfe;
+            {
+            if MensagemConfirmacao(DataHoraProcessamento)=smbOk then
+              result := true
+            else
+              result := false;
+              }
+
+            {Gravar...pois caso aja algum problema e o protocolo não seja capturado o próximo não dá erro de sequencia no sefaz}
+//            Result := dmbasico.perpetrar([qryCartasCorrecao], SomenteGravacao);
+            Result := dmbasico.perpetrar([qryCartasCorrecao]);
+
+            if result then
+              Result := NFe.GerarCartaCorrecao(chave_nfe,qryCartasCorrecaonseqevento.AsString,qryCartasCorrecaotexto.AsString,dmbasico.EstadoFilialBaseIBGE,IntToStr(dmbasico.nfeambiente),dmbasico.CNPJFilialBase,codigonota,Protocolo,DataHoraProcessamento);
+
+            if Result then
+            begin
+              qryCartasCorrecao.edit;
+              qryCartasCorrecaonumprotocolonfe.AsString:=Protocolo;
+              qryCartasCorrecaodhevento.AsDateTime:=FormatarTimeStamp(DataHoraProcessamento);
+              qryCartasCorrecao.Post;
+//              Result := dmbasico.perpetrar([qryCartasCorrecao], SomenteGravacao);
+              Result := dmbasico.perpetrar([qryCartasCorrecao]);
+              dmbasico.ShowProcessando;
+              if Result then
+              begin
+
+                dmbasico.SalvarConteudoxml('S', qryCartasCorrecaoCodigo.asString, false, true);
+
+                if not dmbasico.NFeVisualizarDANFE then
+                  MensagemAviso('Impressão da Carta de Correção será iniciada.');
+
+                NFe.ImprimirCartaCorrecao(chave_nfe,
+                                          NSeq,
+                                          email,
+                                          IntToStr(dmbasico.NFeNVias),
+                                          dmbasico.NFeLogotipoDANFE,
+                                          ParSistema.NomeImpressoraNotaMercadorias,
+                                          filial,
+                                          SerieNota,
+                                          NumeroNota,
+                                          dmbasico.NFeVisualizarDANFE,
+                                          qryCartasCorrecaodhevento.AsDateTime,
+                                          DataNota,
+                                          dmbasico.NFeExecDANFE,
+                                          TtecDatabase(qryCartasCorrecao.DataBase));
+
+                try
+                  if not NFe.EnviarEmailCarta(UsuarioLogin.Email, EmailNotaVinculada,
+                                         NumeroNota, SerieNota, IntToStr(FilialBase),
+                                         dmbasico.NomeFilialBase, dmbasico.RazaoFilialBase, dmbasico.CNPJFilialBase, dmbasico.DDDFilialBase, dmbasico.FoneFilialBase,
+                                         dmbasico.DDDFaxFilialBase, dmbasico.FaxFilialBase, UsuarioLogin.NomeUsuario, UsuarioLogin.PortaSMTP,
+                                         UsuarioLogin.HostSMTP,UsuarioLogin.UsuarioEmail,
+                                         UsuarioLogin.SenhaEmail,chave_nfe,NSeq,qryCartasCorrecaodhevento.AsDateTime,
+                                         UsuarioLogin.AutenticarSMTP) then
+                 MensagemAviso('Ocorreu um erro inesperado no envio do email')
+              finally
+                dmbasico.ShowProcessando;
+              end;
+
+              end;
+            end
+            else
+              dmbasico.ShowProcessando;
+          end;
+        end;
+      end;
+    except
+      Result := False;
+    end
+    finally
+      FreeAndNil(NFe);
+    end;
+  end;
+end;
+
+procedure TfraCartaCorrecaoEletronica.ImprimirCartaCorrecao;
+//var
+//  NFe : TTecNotaFiscalEletronica;
+begin
+  NFe := TTecNotaFiscalEletronica.Create;
+
+  {
+  NFe.DiretorioEnvio       := dmbasico.NFeDirEnvio;
+  NFe.DiretorioEnviado     := dmbasico.NFeDirEnviados;
+  NFe.DiretorioRetorno     := dmbasico.NFeDirRetorno;
+  NFe.DiretorioCompartilha := dmbasico.NfeDirCompartilha;
+  NFe.Executavel           := dmbasico.NFeExecNFe;
+  }
+
+  if not dmbasico.NFeVisualizarDANFE then
+    MensagemAviso('Impressão da Carta de Correção será iniciada.');
+
+  dmbasico.ReFazConsulta(qryUltimaCartaCorrecao,[0],[chave_nfe]);
+
+  NFe.ImprimirCartaCorrecao(chave_nfe,
+                            preencheString(qryUltimaCartaCorrecaonseqevento.AsString,'0',2,false),
+                            email,
+                            IntToStr(dmbasico.NFeNVias),
+                            dmbasico.NFeLogotipoDANFE,
+                            ParSistema.NomeImpressoraNotaMercadorias,
+
+                            qryUltimaCartaCorrecaofilial.asString,
+                            qryUltimaCartaCorrecaoserie.asString,
+                            qryUltimaCartaCorrecaonrdocumento.asString,
+                            
+                            dmbasico.NFeVisualizarDANFE,
+                            qryUltimaCartaCorrecaodhevento.AsDateTime,
+                            DataNota,
+                            dmbasico.NFeExecDANFE,
+                            TtecDatabase(qryCartasCorrecao.DataBase)
+                            );
+
+end;
+
+procedure TfraCartaCorrecaoEletronica.NovaCartaCorrecao;
+begin
+
+   //PEGA TEXTO DA ULTIMA CARTA DE CORRECAO, QUE DEVE SEMPRE ESTAR CONTIDO NA NOVA
+   dmbasico.ReFazConsulta(qryUltimaCartaCorrecao,[0],[chave_nfe]);
+   dmbasico.RefazConsulta(spcCartasCorrecaoProximaSequencia,[0],[chave_nfe]);
+
+   dmbasico.RefazConsulta(spcCartasCorrecaoProximoCodigo,[],[]);
+
+   qryCartasCorrecao.Open;
+
+   qryCartasCorrecao.AfterInsert := nil;
+   qryCartasCorrecao.first;
+   qryCartasCorrecao.insert;
+   qryCartasCorrecao.AfterInsert := qryCartasCorrecaoAfterInsert;
+
+   qryCartasCorrecaocodigo.AsInteger:=spcCartasCorrecaoProximoCodigocodigo.AsInteger;
+   qryCartasCorrecaonseqevento.AsInteger:=spcCartasCorrecaoProximaSequenciasequencia.AsInteger;
+
+   if(qryUltimaCartaCorrecaotexto.AsString<>'') then
+     qryCartasCorrecaotexto.AsString:=qryUltimaCartaCorrecaotexto.AsString + #13 + #10 + #13+#10;
+
+   qryCartasCorrecaotiponota.AsString := tiponota;
+
+   qryCartasCorrecaocodigonota.AsInteger := codigonota;
+   qryCartasCorrecaochv_nfe.AsString:=chave_nfe;
+   qryCartasCorrecaoambiente.AsInteger:= dmbasico.NFeAmbiente;
+   qryCartasCorrecaotpevento.AsInteger:=110110;
+   qryCartasCorrecaoverevento.AsString:='1.00';
+   mmoXCorrecao.SetFocus;
+
+end;
+
+procedure TfraCartaCorrecaoEletronica.sbnIncluirClick(Sender: TObject);
+begin
+  NovaCartaCorrecao;
+end;
+
+procedure TfraCartaCorrecaoEletronica.sbnSalvarClick(Sender: TObject);
+begin
+  GravarCartaCorrecao;
+end;
+
+procedure TfraCartaCorrecaoEletronica.Action1Update(Sender: TObject);
+begin
+  if CondicaoCartaDevolucao then
+  begin
+    if qryCartasCorrecao.Params[0].AsString <> chave_nfe then
+       dmbasico.ReFazConsulta(qryCartasCorrecao,[0],[chave_nfe]);
+
+    sbnIncluir.Enabled := not (qryCartasCorrecao.state in [dsinsert]);
+    sbnSalvar.Enabled := qryCartasCorrecao.state in [dsinsert];
+    sbnImprmirNota.Enabled := (qryCartasCorrecao.recordcount <> 0) and not (qryCartasCorrecao.state in [dsinsert]);
+    sbnEnviarNfe.Enabled := sbnImprmirNota.Enabled;
+    mmoXCorrecao.ReadOnly := not (qryCartasCorrecao.state in [dsinsert]);
+    pnlCartaCorrecao.Enabled := not (qryCartasCorrecao.state in [dsinsert]);
+  end
+  else
+  begin
+    sbnIncluir.Enabled := false;
+    sbnSalvar.Enabled := false;
+    sbnImprmirNota.Enabled := false;
+    sbnEnviarNfe.Enabled := false;
+    mmoXCorrecao.ReadOnly := true;
+    qryCartasCorrecao.Close;
+    qryCartasCorrecao.Params[0].clear;
+    pnlCartaCorrecao.Enabled := false;
+  end;
+
+end;
+
+procedure TfraCartaCorrecaoEletronica.qryCartasCorrecaoAfterInsert(
+  DataSet: TDataSet);
+begin
+  qryCartasCorrecao.cancel;
+end;
+
+procedure TfraCartaCorrecaoEletronica.sbnImprmirNotaClick(Sender: TObject);
+begin
+  ImprimirCartaCorrecao
+end;
+
+procedure TfraCartaCorrecaoEletronica.mmoXCorrecaoKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+  if  (key = #27) and (qryCartasCorrecao.state in [dsinsert]) then
+    qryCartasCorrecao.cancel;
+
+end;
+
+procedure TfraCartaCorrecaoEletronica.sbnEnviarNfeClick(Sender: TObject);
+begin
+
+
+  dmbasico.ReFazConsulta(qryUltimaCartaCorrecao,[0],[chave_nfe]);
+
+  frmEnviarEmail := TfrmEnviarEmail.Create(frmEnviarEmail,UsuarioLogin.HostSmtp,
+                     qryUltimaCartaCorrecaoemail.asString,
+                     qryUltimaCartaCorrecaonome.asString,
+                     'Carta de Correção', 'Carta de Correção', EnvioNFeEmail);
+  try
+    with frmEnviarEmail do
+    begin
+      Data        := dmbasico.DataServidor;
+      Empresa     := dmbasico.NomeFilialBase;
+      ShowModal;
+      if frmEnviarEmail.modalresult = mrOk then
+      begin
+
+        NFe := TTecNotaFiscalEletronica.Create;
+        {
+        NFe.DiretorioEnvio       := dmbasico.NFeDirEnvio;
+        NFe.DiretorioEnviado     := dmbasico.NFeDirEnviados;
+        NFe.DiretorioRetorno     := dmbasico.NFeDirRetorno;
+        NFe.DiretorioCompartilha := dmbasico.NfeDirCompartilha;
+        NFe.Executavel           := dmbasico.NFeExecNFe;
+        }
+
+        if (edtEmail.lines.text <> '')      and
+           (UsuarioLogin.PortaSmtp               <> '')      and
+           (UsuarioLogin.HostSmtp                <> '')      and
+           (UsuarioLogin.Email                   <> '')      and
+           (UsuarioLogin.SenhaEmail              <> '')     { and
+           EmailValido(edtEmail.lines.text, false) }then
+        begin
+          ShowProcessando('Enviando email para o cliente');
+          sleep(500);
+          try
+            if not NFe.EnviarEmailCarta(UsuarioLogin.Email, vListaEmailValidos,
+                                   NumeroNota, SerieNota, IntToStr(FilialBase),
+                                   dmbasico.NomeFilialBase, dmbasico.RazaoFilialBase, dmbasico.CNPJFilialBase, dmbasico.DDDFilialBase, dmbasico.FoneFilialBase,
+                                   dmbasico.DDDFaxFilialBase, dmbasico.FaxFilialBase, UsuarioLogin.NomeUsuario, UsuarioLogin.PortaSMTP,
+                                   UsuarioLogin.HostSMTP, UsuarioLogin.UsuarioEmail,
+                                   UsuarioLogin.SenhaEmail,
+                                   chave_nfe, preencheString(qryUltimaCartaCorrecaonseqevento.asString, '0',2,false),
+                                   qryUltimaCartaCorrecaodhevento.AsDateTime,
+                                   UsuarioLogin.AutenticarSMTP) then
+             MensagemAviso('Ocorreu um erro inesperado no envio do email')
+          finally
+            dmbasico.ShowProcessando;
+          end;
+        end;
+        NFe.free;
+      end;
+
+    end;
+  finally
+    frmEnviarEmail.Free;
+  end;
+
+end;
+
+end.

@@ -1,0 +1,224 @@
+unit fmcomplementarnotafiscalsaida;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, Windows,
+  StdCtrls, ExtCtrls, Buttons, DBCtrls, Mask, {Qete,}
+  //Terceiros
+  ZQuery,
+  //Biblio
+  ctconstantes, 
+  //Repositorio
+  fmnavcontroles, fmconsultabasica,
+  //Componentes
+  cpnumero, cpdbfindcontrols, cptexto, cpdbtext, cpdbradiogroup,
+  // Projeto
+  dmcadastrocontratos, cpdbmemo;
+
+type
+  TfrmComplementarNotaFiscalSaida = class(TfrmNavControles)
+    flkFornecedorTransporte: TtecDBFindLookup;
+    edtPesoBruto: TDBEditNumero;
+    edtPesoLiquido: TDBEditNumero;
+    edtVolume: TDBEditNumero;
+    lblFornecedorTransporte: TLabel;
+    lblPesoBruto: TLabel;
+    lblPesoLiguido: TLabel;
+    lblVolumes: TLabel;
+    lblNumeracao: TLabel;
+    lblEspecieTransporte: TLabel;
+    lblPlaca: TLabel;
+    edtNumeracao: TDBEditTexto;
+    lblMarca: TLabel;
+    edtMarca: TDBEditTexto;
+    edtEspecie: TDBEditTexto;
+    edtPlaca: TDBEditTexto;
+    pnlFundoJanela: TPanel;
+    gbxFundoJanela: TGroupBox;
+    sbnProcurarFornecedorTransporte: TSpeedButton;
+    dtxNomeFornecedorTransporte: TtecDBText;
+    bbnOK: TBitBtn;
+    bbnCancelar: TBitBtn;
+    rgpPagamentoFrete: TtecDBRadioGroup;
+    rbnEmitente: TtecRadioButton;
+    rbnDestinatario: TtecRadioButton;
+    rgpViaTransporte: TtecDBRadioGroup;
+    rbnRodoviario: TtecRadioButton;
+    rbnAereo: TtecRadioButton;
+    rbnMaritimo: TtecRadioButton;
+    lblContrato: TLabel;
+    dtxContrato: TtecDBText;
+    lblEstadoPlaca: TLabel;
+    flkEstadoPlaca: TtecDBFindLookup;
+    sbnConsultaEstado: TSpeedButton;
+    dtxEstadoPlaca: TtecDBText;
+    mmoObservacoes: TtecDBMemo;
+    lblObs: TLabel;
+    procedure sbnProcurarFornecedorTransporteClick(Sender: TObject);
+    procedure bbnOKClick(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure sbnConsultaEstadoClick(Sender: TObject);
+    procedure edtPlacaKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+  protected
+    FdtmContratos: TdtmCadastroContratos;
+    TipoConsulta: TtecConsultaComplementoNota;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    function  TabelaDePesquisa: TZDataSet; override;
+    procedure setdtmContratos(Value: TdtmCadastroContratos);
+  public
+    property dtmContratos: TdtmCadastroContratos write setdtmContratos;
+    destructor  Destroy; override;
+  end;
+
+var
+  frmComplementarNotaFiscalSaida: TfrmComplementarNotaFiscalSaida;
+
+implementation
+
+uses
+  //Biblio
+  biblio,
+  //Repositorio
+  fmconsultaporcampo;
+
+{$R *.dfm}
+
+{ TfrmComplementarNotaFiscalSaida }
+
+procedure TfrmComplementarNotaFiscalSaida.bbnOKClick(Sender: TObject);
+begin
+  inherited;
+  FdtmContratos.GravarInformacoesFornecedorTransporte;
+end;
+
+function TfrmComplementarNotaFiscalSaida.ExisteInformacao(Parametro: Integer;
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+  if TipoConsulta = ccnFORNECEDORESTRANSPORTE then
+    Result := FdtmContratos.ExisteFornecedorTransporte(NomeCampo, Value)
+  else if TipoConsulta = CCNESTADOPLACA then
+    Result := FdtmContratos.ExisteEstado(NomeCampo, Value)
+  else
+    Result := False;
+end;
+
+procedure TfrmComplementarNotaFiscalSaida.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+var
+  PesoLiquido, PesoBruto: Real;
+begin
+  inherited;
+  try
+    PesoLiquido := StrToFloat(edtPesoLiquido.ValorSemFormatacao);
+  except
+    PesoLiquido := 0
+  end;
+  try
+    PesoBruto := StrToFloat(edtPesoBruto.ValorSemFormatacao);
+  except
+    PesoBruto := 0
+  end;
+  if (PesoLiquido > PesoBruto) and (PesoLiquido > 0) and (PesoBruto > 0) then begin
+    MensagemAviso(ctPESOBRUTOMAIORPESOLIQUIDO);
+    CanClose := False
+  end
+end;
+
+function TfrmComplementarNotaFiscalSaida.InternoPesquisar(Titulo: String): Integer;
+var
+  Tabela: Integer;
+begin
+  if CtrlOn then begin
+    if flkFornecedorTransporte.Focused then begin
+      TipoConsulta := ccnFORNECEDORESTRANSPORTE;
+      Tabela := ctVendaTabelaConsultaFornecedor;
+      Titulo := ctFORNECEDORES + ' (' + ctTRANSPORTE +')';
+    end else if flkEstadoPlaca.Focused then begin
+      TipoConsulta := CCNESTADOPLACA;
+      Tabela := ctVendaTabelaConsultaEstados;
+      Titulo := ctESTADO;
+    end else
+      Tabela := -1;
+    if Tabela = -1 then
+      Result := mrNONE
+    else begin
+      FdtmContratos.Abre(Tabela);
+      Result := inherited InternoPesquisar(Titulo);
+      if Result = mrOK then
+        if TipoConsulta = ccnFORNECEDORESTRANSPORTE then
+          FdtmContratos.SelecionarFornecedorTransporte
+        else if TipoConsulta = CCNESTADOPLACA then
+          FdtmContratos.SelecionarEstadoPlaca;
+      FdtmContratos.Fecha(Tabela);
+    end
+  end else
+    Result := mrNone
+end;
+
+function TfrmComplementarNotaFiscalSaida.JanelaPesquisa: TfrmConsultaBasica;
+var
+  Jan: TfrmConsultaPorCampo;
+begin
+  Jan := TfrmConsultaPorCampo.Create(nil);
+  Jan.ConsultaInterativa := True;
+  Result := Jan
+end;
+
+procedure TfrmComplementarNotaFiscalSaida.sbnConsultaEstadoClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkEstadoPlaca, 'Estado')
+end;
+
+procedure TfrmComplementarNotaFiscalSaida.sbnProcurarFornecedorTransporteClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkFornecedorTransporte, 'Fornecedores (Transporte)')
+end;
+
+procedure TfrmComplementarNotaFiscalSaida.setdtmContratos(Value: TdtmCadastroContratos);
+begin
+  FdtmContratos := Value;
+  dtxContrato.DataSource               := FdtmContratos.dsrContratos;
+  flkFornecedorTransporte.LookupSource := FdtmContratos.dsrProcuraFornecedorTransporte;
+  flkFornecedorTransporte.DataSource   := FdtmContratos.dsrDadosFiscais;
+  flkEstadoPlaca.LookupSource          := FdtmContratos.dsrProcuraEstadoPlaca;
+  flkEstadoPlaca.DataSource            := FdtmContratos.dsrDadosFiscais;
+end;
+
+function TfrmComplementarNotaFiscalSaida.TabelaDePesquisa: TZDataSet;
+begin
+  if TipoConsulta = ccnFORNECEDORESTRANSPORTE then
+    Result := FdtmContratos.TabelaConsultaFornecedorTransporte
+  else if TipoConsulta = CCNESTADOPLACA then
+    Result := FdtmContratos.TabelaConsultaEstados
+  else
+    Result := nil;
+end;
+
+procedure TfrmComplementarNotaFiscalSaida.edtPlacaKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+
+  if key = VK_Delete then
+  begin
+    dtmCadastroContratos.qryDadosFiscaisplaca.Clear;
+    edtplaca.Clear;
+    edtplaca.SelectAll;
+  end;
+
+end;
+
+destructor TfrmComplementarNotaFiscalSaida.Destroy;
+begin
+  inherited;
+  frmComplementarNotaFiscalSaida := nil;
+end;
+
+end.
+

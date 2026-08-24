@@ -1,0 +1,184 @@
+Select
+          p.codigo
+        , p.codigovisual
+        , 0.00                                                     as valorparcela
+        , 0                                                        as qtdeparcelas
+        , 0.00                                                     as totalparcelas
+        , CAST(UPPER(TO_ASCII(p.descricao, 'LATIN_1')) AS VARCHAR) as descricaoproduto
+        , (
+                 select
+                        gr.descricao
+                 from
+                        grades gr
+                 where
+                        gr.codigo = c.grade1
+          )
+          as linha
+        , (
+                 select
+                        gr.descricao
+                 from
+                        grades gr
+                 where
+                        gr.codigo = c.grade1
+          )
+          as coluna
+        , p.valorgrade1
+        , p.valorgrade2
+        , m.descricao as descricaomarca
+        , p.referencia
+        , p.resultadocurvaabc
+        , c.fatorpreco
+        , c.unidade
+        , cast('' as varchar) as produtocliente
+        , pn.filial           as filial
+        , case
+                    when pn.lote is not null
+                              and coalesce(c.gerenciarloteevalidade,false)
+                              then cast(CodigoBarras(p.Codigo)
+                                        ||cast('L' as     varchar(1))
+                                        ||cast(pn.lote as varchar) as varchar(100))
+                              else CodigoBarras(p.Codigo)
+          end                                       AS CodigoBarras
+        , pn.qtdeestoque                            as quantidadeproduto
+        , estoques_colunapreco(p.codigo, pn.filial) as preco
+        , estoques_preco(p.codigo,pn.filial)        as precoreal
+        , estoques_preconormal(p.codigo,pn.filial)  as preconormal
+        , (
+                 select
+                        e.ultimaentrada
+                 from
+                        estoques e
+                 where
+                        e.produto    = pn.produto
+                        and e.filial = pn.filial
+          )
+               as ultimaentrada
+        , true as marcar
+        , (
+                   select
+                            f.codigo
+                   from
+                            fornecedores         f
+                          , fornecedoresprodutos fp
+                   where
+                            (
+                                     fp.caracteristica = c.codigo
+                            )
+                            and
+                            (
+                                     f.codigo = fp.fornecedor
+                            )
+                   order by
+                            data desc limit 1
+          )
+               as codigofornecedor
+        , 0    as entrada
+        , 0.00 as total
+        , (
+                   select
+                            f.nome
+                   from
+                            fornecedores         f
+                          , fornecedoresprodutos fp
+                   where
+                            (
+                                     fp.caracteristica = c.codigo
+                            )
+                            and
+                            (
+                                     f.codigo = fp.fornecedor
+                            )
+                   order by
+                            data desc limit 1
+          )
+          as nomefornecedor
+        , (
+                 select
+                        localizacao
+                 from
+                        estoques e
+                 where
+                        e.produto   =pn.produto
+                        and e.filial=pn.filial
+          )
+                                as localizacao
+        , cast(null as integer) as ListaPadrao
+        , c.Peso
+        , p.peso_entrega
+        , g.descricao           as descricaogrupo
+        , cast(null as integer) as dadofiscal
+        , (
+                 select
+                        coalesce(
+                                  (
+                                           select
+                                                    pp_s.codigovisual as similarvisual
+                                           from
+                                                    produtos_similares p_s
+                                                    join
+                                                             produtos pp_s
+                                                             on
+                                                                      p_s.similar = pp_s.codigo
+                                           where
+                                                    p_s.produto = p.codigo
+                                           order by
+                                                    pp_s.codigo desc limit 1
+                                 )
+                                 , (
+                                          select
+                                                   p_s.codigovisual as similarvisual
+                                          from
+                                                   similares s
+                                                   join
+                                                            caracteristicas c_s
+                                                   join
+                                                            produtos p_s
+                                                            on
+                                                                     c_s.codigo = p_s.caracteristica
+                                                                     on
+                                                                              s.similar = c_s.codigo
+                                                   where
+                                                            s.caracteristica = c.codigo
+                                                   order by
+                                                            p_s.codigo desc limit 1
+                                 )
+                                 )
+          )
+                                                  as similarvisual
+        , estoques_produtoempromocao(p.codigo, 1) as estoques_produtoempromocao
+From
+          notaspag n
+        , (produtosnotaspag pn
+          left join
+                    lotes l
+                    on
+                              pn.lote = l.lote)
+        , produtos        p
+        , caracteristicas c
+        , grupos          g
+        , marcas          m
+Where
+          n.fornecedor        = '1'
+          and n.situacao      ='N'
+          and n.serie         = '92970'
+          and n.numero        = NULL
+          and n.codigo        = pn.codigonota
+          and p.codigo        = pn.produto
+          and c.codigo        = p.caracteristica
+          and c.grupo         = g.codigo
+          and m.codigo        = c.marca
+          and p.inativo is null
+          /*Run Time*/
+          /*Order BY pn.numero, p.codigo,UPPER(TO_ASCII(p.descricao,'LATIN1')),p.valorgrade1, p.valorgrade1, UPPER(TO_ASCII(m.descricao,'LATIN1')), c.volumes, pn.quantidade, pn.filial */
+Order BY
+          pn.numero
+        , p.codigo
+        , UPPER(TO_ASCII(p.Descricao,'LATIN1'))
+        , p.valorgrade1
+        , p.valorgrade1
+        , UPPER(TO_ASCII(m.Descricao,'LATIN1'))
+        , c.volumes
+        , pn.quantidade
+        , pn.filial
+;

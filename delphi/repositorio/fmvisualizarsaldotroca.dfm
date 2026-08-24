@@ -5,7 +5,7 @@ inherited frmVisualizarSaldoTroca: TfrmVisualizarSaldoTroca
   Caption = 'Visualiza'#231#227'o do saldo da troca de mercadorias'
   ClientHeight = 264
   ClientWidth = 644
-  Position = poDesktopCenter
+  Position = poScreenCenter
   PixelsPerInch = 96
   TextHeight = 16
   object lblSaldoAtual: TLabel

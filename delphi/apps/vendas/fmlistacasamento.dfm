@@ -7,7 +7,7 @@ inherited frmListaCasamento: TfrmListaCasamento
   ClientHeight = 722
   ClientWidth = 1061
   FormStyle = fsMDIChild
-  Position = poDesktopCenter
+  Position = poScreenCenter
   PixelsPerInch = 96
   TextHeight = 16
   inherited pnlTopMenu: TPanel

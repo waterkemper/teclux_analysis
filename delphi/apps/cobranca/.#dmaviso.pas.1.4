@@ -1,0 +1,1955 @@
+unit dmaviso;
+
+interface
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  dmbasico, DB, DateUtils,fmpreviewpadrao, CheckLst, cltextprinter,
+  // Terceiros
+  ZQuery, ZPgSqlQuery,
+  // Componentes
+  cpdatasource, cpquery,
+  // Biblio
+  biblio,
+  // Constantes
+  ctconstantes,
+  // Parametros
+  clparametrossistema, FR_DSet, FR_DBSet, FR_Class, FR_Desgn, ZTransact;
+
+const
+  TipoAviso = 1;
+  Carta     = 2;
+  Numero    = 3;
+  CartaNumero = 4;
+  Imprimir  = 5;
+
+type
+  TdtmAviso = class(TdtmBasico)
+    dsrAvisos: TtecDataSource;
+    qryFiliais: TtecQuery;
+    qryGrupoFiliais: TtecQuery;
+    qryGerarCartas_Clientes_Anterior: TtecQuery;
+    qryAvisos: TtecQuery;
+    qryFiliaisnome: TStringField;
+    qryFiliaiscodigo: TIntegerField;
+    qryGrupoFiliaisdescricao: TStringField;
+    qryGrupoFiliaiscodigo: TIntegerField;
+    qryAvisoscodigo: TIntegerField;
+    qryAvisosprecedente: TIntegerField;
+    qryAvisosdescricao: TStringField;
+    qryAvisostipo: TStringField;
+    qryAvisosarquivo: TStringField;
+    qryAvisosexportar: TStringField;
+    qryAvisosatraso: TIntegerField;
+    qryAvisosenderecoincompleto: TBooleanField;
+    qryAvisoscartadevolvida: TBooleanField;
+    qryAvisoscampos: TStringField;
+    qryAvisoscarencia: TIntegerField;
+    qryAvisosinativo: TDateField;
+    qryAvisosmarcar: TBooleanField;
+    qryAvisosvalor: TFloatField;
+    qryCartas_ParcelasCartas_Clientes: TtecQuery;
+    frpAvisoCobranca_1: TfrReport;
+    fdsCartas: TfrDBDataSet;
+    frpAvisoCobranca_2: TfrReport;
+    frpAvisoCobranca_SPC: TfrReport;
+    qryAvisosetiqueta: TStringField;
+    qryGerarCartas_Avalistas_Anterior: TtecQuery;
+    dsrParcelasCartas: TtecDataSource;
+    qryCartas: TtecQuery;
+    dsrCartas: TtecDataSource;
+    qryAvisosCartas: TtecQuery;
+    qryAvisosCartascodigo: TIntegerField;
+    qryAvisosCartasdescricao: TStringField;
+    qryAvisosCartastipo: TStringField;
+    qryAvisosCartasarquivo: TStringField;
+    qryAvisosCartasexportar: TStringField;
+    qryAvisosCartasetiqueta: TStringField;
+    qryAvisosCartascampos: TStringField;
+    qryProcuraTiposCartas: TtecQuery;
+    qryProcuraTiposCartascodigo: TIntegerField;
+    qryProcuraTiposCartasdescricao: TStringField;
+    dsrProcuraTiposCartas: TtecDataSource;
+    qryConsultaTiposCartas: TtecQuery;
+    qryConsultaTiposCartasdescricao: TStringField;
+    qryConsultaTiposCartascodigo: TIntegerField;
+    EtiquetaAvisoCobranca: TfrReport;
+    qryCartasDetalheEtiquetas: TtecQuery;
+    fdsEtiquetas: TfrDBDataSet;
+    qryAtualizarParcelas_Clientes_Anterior: TtecQuery;
+    qryCartastipocarta: TIntegerField;
+    qryCartastipocliente: TStringField;
+    qryCartascliente: TIntegerField;
+    qryCartasavalista: TIntegerField;
+    qryCartasvoltou: TDateField;
+    qryCartasconfirmacao: TDateField;
+    qryCartasdata: TDateTimeField;
+    qryCartaseavalista: TBooleanField;
+    qryCartasmarcar: TBooleanField;
+    qryCartasvalor: TFloatField;
+    qryCartasnomecliente: TStringField;
+    qryCartasnomeavalista: TStringField;
+    frpAvisoCobranca: TfrReport;
+    qryCartasenviada: TDateTimeField;
+    qryCartastotalematraso: TFloatField;
+    qryCartasqtdeematraso: TLargeintField;
+    qryCartasNBloqueada: TStringField;
+    qryCartasTipoEndereco: TStringField;
+    qryCartas_Parcelas_Clientes: TtecQuery;
+    qryParcelasCartas: TtecQuery;
+    qryParcelasCartasenviada: TDateTimeField;
+    qryParcelasCartaseavalista: TBooleanField;
+    qryParcelasCartasobsoleta: TBooleanField;
+    qryParcelasCartascontratoparcela: TStringField;
+    qryParcelasCartasdatavencto: TDateField;
+    qryParcelasCartasvalorvencto: TFloatField;
+    qryParcelasCartasparcela: TStringField;
+    qryCartasobsoleta: TBooleanField;
+    qryCartasrua: TStringField;
+    qryCartasestado: TStringField;
+    qryCartascep: TIntegerField;
+    qryCartascodigocidade: TIntegerField;
+    qryCartascodigobairro: TIntegerField;
+    qryCartassexo: TStringField;
+    qryCartascidade: TStringField;
+    qryCartasbairro: TStringField;
+    qryCartassituacao: TStringField;
+    qryCartasDetalhe: TtecQuery;
+    qryCartasDetalhetipocarta: TIntegerField;
+    qryCartasDetalhecliente: TIntegerField;
+    qryCartasDetalhetipocliente: TStringField;
+    qryCartasDetalheavalista: TIntegerField;
+    qryCartasDetalheenviada: TDateTimeField;
+    qryCartasDetalheeavalista: TBooleanField;
+    qryCartasDetalhefaturamento: TDateField;
+    qryCartasDetalhenomecliente: TStringField;
+    qryCartasDetalhedatavencto: TDateField;
+    qryCartasDetalhevalorvencto: TFloatField;
+    qryCartasDetalherua: TStringField;
+    qryCartasDetalheestado: TStringField;
+    qryCartasDetalhecep: TIntegerField;
+    qryCartasDetalhecodigocidade: TIntegerField;
+    qryCartasDetalhecodigobairro: TIntegerField;
+    qryCartasDetalhenomeavalista: TStringField;
+    qryCartasDetalhesexo: TStringField;
+    qryCartasDetalhecidade: TStringField;
+    qryCartasDetalhebairro: TStringField;
+    qryCartasDetalheEtiquetassexo: TStringField;
+    qryCartasDetalheEtiquetaseavalista: TBooleanField;
+    qryCartasDetalheEtiquetascliente: TIntegerField;
+    qryCartasDetalheEtiquetastipocliente: TStringField;
+    qryCartasDetalheEtiquetasnomecliente: TStringField;
+    qryCartasDetalheEtiquetasavalista: TIntegerField;
+    qryCartasDetalheEtiquetasnomeavalista: TStringField;
+    qryCartasDetalheEtiquetasrua: TStringField;
+    qryCartasDetalheEtiquetasbairro: TStringField;
+    qryCartasDetalheEtiquetascep: TIntegerField;
+    qryCartasDetalheEtiquetascidade: TStringField;
+    qryCartasDetalheEtiquetasestado: TStringField;
+    qryCartasDetalheMes_Atual: TStringField;
+    qryCartasDetalhecontratoparcela: TStringField;
+    qryUpdateCartasImpressas: TtecQuery;
+    IntegerField1: TIntegerField;
+    IntegerField2: TIntegerField;
+    StringField1: TStringField;
+    IntegerField3: TIntegerField;
+    IntegerField4: TIntegerField;
+    DateField1: TDateField;
+    DateField2: TDateField;
+    DateTimeField1: TDateTimeField;
+    BooleanField1: TBooleanField;
+    BooleanField2: TBooleanField;
+    FloatField1: TFloatField;
+    StringField2: TStringField;
+    StringField3: TStringField;
+    DateTimeField2: TDateTimeField;
+    FloatField2: TFloatField;
+    LargeintField2: TLargeintField;
+    BooleanField3: TBooleanField;
+    StringField4: TStringField;
+    StringField5: TStringField;
+    BooleanField4: TBooleanField;
+    StringField6: TStringField;
+    StringField7: TStringField;
+    IntegerField5: TIntegerField;
+    IntegerField6: TIntegerField;
+    IntegerField7: TIntegerField;
+    StringField8: TStringField;
+    StringField9: TStringField;
+    StringField10: TStringField;
+    BooleanField5: TBooleanField;
+    BooleanField6: TBooleanField;
+    DateField3: TDateField;
+    StringField11: TStringField;
+    qryDeleteCartas: TtecQuery;
+    IntegerField8: TIntegerField;
+    IntegerField9: TIntegerField;
+    StringField12: TStringField;
+    IntegerField10: TIntegerField;
+    IntegerField11: TIntegerField;
+    DateField4: TDateField;
+    DateField5: TDateField;
+    DateTimeField3: TDateTimeField;
+    BooleanField7: TBooleanField;
+    BooleanField8: TBooleanField;
+    FloatField3: TFloatField;
+    StringField13: TStringField;
+    StringField14: TStringField;
+    DateTimeField4: TDateTimeField;
+    FloatField4: TFloatField;
+    LargeintField3: TLargeintField;
+    BooleanField9: TBooleanField;
+    StringField15: TStringField;
+    StringField16: TStringField;
+    BooleanField10: TBooleanField;
+    StringField17: TStringField;
+    StringField18: TStringField;
+    IntegerField12: TIntegerField;
+    IntegerField13: TIntegerField;
+    IntegerField14: TIntegerField;
+    StringField19: TStringField;
+    StringField20: TStringField;
+    StringField21: TStringField;
+    BooleanField11: TBooleanField;
+    BooleanField12: TBooleanField;
+    DateField6: TDateField;
+    StringField22: TStringField;
+    qryCartasDetalheparcela: TStringField;
+    qryUpdateCartasAlteradas: TtecQuery;
+    IntegerField15: TIntegerField;
+    IntegerField16: TIntegerField;
+    StringField23: TStringField;
+    IntegerField17: TIntegerField;
+    IntegerField18: TIntegerField;
+    DateField7: TDateField;
+    DateField8: TDateField;
+    DateTimeField5: TDateTimeField;
+    BooleanField13: TBooleanField;
+    BooleanField14: TBooleanField;
+    FloatField5: TFloatField;
+    StringField24: TStringField;
+    StringField25: TStringField;
+    DateTimeField6: TDateTimeField;
+    FloatField6: TFloatField;
+    LargeintField4: TLargeintField;
+    BooleanField15: TBooleanField;
+    StringField26: TStringField;
+    StringField27: TStringField;
+    BooleanField16: TBooleanField;
+    StringField28: TStringField;
+    StringField29: TStringField;
+    IntegerField19: TIntegerField;
+    IntegerField20: TIntegerField;
+    IntegerField21: TIntegerField;
+    StringField30: TStringField;
+    StringField31: TStringField;
+    StringField32: TStringField;
+    BooleanField17: TBooleanField;
+    BooleanField18: TBooleanField;
+    DateField9: TDateField;
+    StringField33: TStringField;
+    qryAtualizarParcelas_Avalistas_Anterior: TtecQuery;
+    qryCartas_Parcelas_Avalistas: TtecQuery;
+    qryParcelasCartasnomecausa: TStringField;
+    qryParcelasCartascausa: TIntegerField;
+    qryIniciarGravacao: TtecQuery;
+    qryFinalizarGravacao: TtecQuery;
+    qryDesfazerGravacao: TtecQuery;
+    qryCartascarta: TIntegerField;
+    qryCartasnumero: TIntegerField;
+    qryCartasDetalhecarta: TIntegerField;
+    qryCartasCartaNumero: TStringField;
+    qryCartasDetalheCartaNumero: TStringField;
+    qryCartasDetalhenumero: TIntegerField;
+    qryCartasDetalheEtiquetascarta: TIntegerField;
+    qryCartasDetalheEtiquetasnumero: TIntegerField;
+    qryCartasDetalheEtiquetascartanumero: TStringField;
+    qryCartas_ParcelasCartas_Avalistas: TtecQuery;
+    qryCartasOcorrencia: TtecQuery;
+    qryCartasOcorrenciasemaviso: TDateField;
+    qryCartasbloqueada: TStringField;
+    qryConsultaClientes: TtecQuery;
+    qryConsultaClientesnome: TStringField;
+    qryConsultaClientescodigo: TIntegerField;
+    qryConsultaClientespessoanumero: TStringField;
+    qryConsultaClientestipo: TStringField;
+    qryConsultaClientestipoorig: TStringField;
+    qryConsultaClientesnomecidade: TStringField;
+    qryConsultaClientesestado: TStringField;
+    qryProcuraClientes: TtecQuery;
+    qryProcuraClientescodigo: TIntegerField;
+    qryProcuraClientesnome: TStringField;
+    qryProcuraClientestipo: TStringField;
+    dsrProcuraClientes: TtecDataSource;
+    qryProcuraModelosEtiquetas: TtecQuery;
+    qryProcuraModelosEtiquetascodigo: TIntegerField;
+    qryProcuraModelosEtiquetasdescricao: TStringField;
+    qryProcuraModelosEtiquetasconfigurar: TStringField;
+    qryProcuraModelosEtiquetasmodelo: TStringField;
+    qryProcuraModelosEtiquetascoluna: TIntegerField;
+    dsrProcuraModelosEtiquetas: TtecDataSource;
+    qryConsultaModelosEtiquetas: TtecQuery;
+    qryConsultaModelosEtiquetascodigo: TIntegerField;
+    qryConsultaModelosEtiquetasdescricao: TStringField;
+    qryGerarCartas_Clientes: TtecQuery;
+    qryGerarCartas_Avalistas: TtecQuery;
+    qryAtualizarParcelas_Clientes: TtecQuery;
+    qryAtualizarParcelas_Avalistas: TtecQuery;
+    qryCartaspessoatipo: TStringField;
+    qryCartaspessoanumero: TStringField;
+    qryAtualizarParcelasCartasBloqueadas_Clientes: TtecQuery;
+    qryAtualizarCartasBloqueadas_Clientes: TtecQuery;
+    qryAtualizarParcelasCartasBloqueadas_Avalistas: TtecQuery;
+    qryAtualizarParcelasCartasBloqueadas_Clientesquantidade: TIntegerField;
+    qryAtualizarParcelasCartasBloqueadas_Avalistasquantidade: TIntegerField;
+    qryAtualizarCartasBloqueadas_Avalistas: TtecQuery;
+    qryAtualizarCartasBloqueadas_Clientesquantidade: TIntegerField;
+    qryAtualizarCartasBloqueadas_Avalistasquantidade: TIntegerField;
+    qryAtualizarParcelas_Clientesquantidade: TIntegerField;
+    qryAtualizarParcelas_Avalistasquantidade: TIntegerField;
+    qryAtualizarSituacao: TtecQuery;
+    qryCartasnumero_rua: TIntegerField;
+    qryCartascomplemento: TStringField;
+    qryTemp_listaconta: TtecQuery;
+    qryTemp_listacontacodigo: TIntegerField;
+    procedure qryCartasAfterScroll(DataSet: TDataSet);
+    procedure frpAvisoCobrancaBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure qryCartasCalcFields(DataSet: TDataSet);
+    procedure qryCartasDetalheCalcFields(DataSet: TDataSet);
+    procedure qryCartasBeforeDelete(DataSet: TDataSet);
+    procedure qryCartasmarcarChange(Sender: TField);
+    procedure qryParcelasCartasCalcFields(DataSet: TDataSet);
+    procedure qryCartasDetalheEtiquetasCalcFields(DataSet: TDataSet);
+    procedure dsrCartasDataChange(Sender: TObject; Field: TField);
+  private
+    FTexto: String;
+    FListaFiliais: TStringList;
+    FListaGruposFiliais: TStringList;
+    FDataHoraGravacao: String;
+    FOpcaoAvisosCartas: Integer;
+    FCartaNaoImpressa: Boolean;
+    FFiliais: String;
+    FNCopiasEtiquetaTexto: integer;
+    FCartaEnviadaNaoConfirmada: Boolean;
+    FCartaBloqueada: Boolean;
+    FCartaEnviada: String;
+    FAvisos: String;
+    function GetListaFiliais: TStrings;
+    function GetListaGruposFiliais: TStrings;
+    function GetAvisosMarcar: Boolean;
+    procedure SetFiliais(const Value: String);
+    procedure SetGrupoFiliais(const Value: String);
+    procedure setDataHoraGravacao(const Value: String);
+    function GetConsultarTiposCartas: TZDataSet;
+    function GetTabelaCartas: TZDataSet;
+    function GetCartaDevolvida: Boolean;
+    function GetTotalRegistros: Integer;
+    function GetCartaPodeEditar: Boolean;
+    function GetTabelaCartasVazia: Boolean;
+    procedure SetAvisos(const Value: String);
+    function GetConsultaClientes: TZDataSet;
+    procedure GuardarEtiquetas;
+    procedure Etiquetas_Modelo_B;
+    procedure Etiquetas_Modelo_E;
+    function GetConsultaModelosEtiquetas: TZDataSet;
+    function GetCartaEnviada: String;
+
+  protected
+   AvisosCartasSelecionadas: array [1..5] of TStringList;
+   function  GetTabelaAvisos: TZDataSet;
+   function  GetAvisosArquivo: String;
+   function  GetAvisosCodigo: SmallInt;
+   function  GetAvisosPrecedente: SmallInt;
+   function  GetAvisosCampos: String;
+   procedure ComporCabecalho;
+   procedure ComporAviso;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property TabelaAvisos: TZDataSet read GetTabelaAvisos;
+    property AvisosCodigo: SmallInt read GetAvisosCodigo;
+    property AvisosPrecedente: SmallInt read GetAvisosPrecedente;
+    property AvisosMarcar: Boolean read GetAvisosMarcar;
+    property ListaFiliais: TStrings read GetListaFiliais;
+    property ListaGruposFiliais: TStrings read GetListaGruposFiliais;
+    procedure MarcarTipoCartaSelecionados(Marcando, Todos: Boolean);
+    procedure MarcarCartasSelecionadas(Marcando, Todos: Boolean);
+    function VerificarExistenciadeArquivos: Boolean;
+    procedure ImprimirCartas;
+    procedure ImprimirEtiquetas;
+    procedure ImprimirEtiquetasTexto(Impressora:String);
+    procedure ExportarArquivo;
+    procedure GravaCartaEnviada;
+    procedure MontarFiltroFiliais(Usar: TCheckListBox);
+    procedure MontarFiltroGrupoFiliais(Usar: TCheckListBox);
+    procedure MontarFiltroAviso;
+    property Filiais: String read FFiliais write SetFiliais;
+    property GrupoFiliais: String write SetGrupoFiliais;
+    property Avisos: String read FAvisos write SetAvisos;
+    property DataHoraGravacao: String read FDataHoraGravacao write setDataHoraGravacao;
+    property OpcaoAvisosCartas: Integer read FOpcaoAvisosCartas write FOpcaoAvisosCartas;
+    function ListaNumeroCarta(CodigoAviso: String):String;
+    function ListaNumeroAviso:String;
+    function GerarConsultaCartas(CodigoCliente, TipoCarta, DataInicial, DataFinal: String;
+     CartasValidas,
+     CartasNaoEnviadas,
+     CartasBloqueadas,
+     CartasEnviadasNaoConfirmadas: Boolean): Boolean;
+    procedure Selecionar(TipoPesquisa: TTecPesquisa);
+    property ConsultarTiposCartas: TZDataSet read GetConsultarTiposCartas;
+    function ExisteTipoCarta(campo, codigo: string): Boolean;
+    function ExisteModeloEtiqueta(campo, codigo: string): Boolean;
+
+    property TabelaCartas: TZDataSet read GetTabelaCartas;
+    property CartaDevolvida: Boolean read GetCartaDevolvida;
+    property CartaPodeEditar: Boolean read GetCartaPodeEditar;
+    function GravarAlteracoesCarta(ConfirmarTodas:Boolean): Boolean;
+    property TotalRegistros: Integer read GetTotalRegistros;
+    function ExcluirCartasMarcadas: Boolean;
+    property TabelaCartasVazia: Boolean read GetTabelaCartasVazia;
+    property CartaNaoImpressa: Boolean read FCartaNaoImpressa write FCartaNaoImpressa;
+    property CartaEnviadaNaoConfirmada: Boolean read FCartaEnviadaNaoConfirmada write FCartaEnviadaNaoConfirmada;
+    property CartaBloqueada: Boolean read FCartaBloqueada write FCartaBloqueada;
+    function GerarCartas: Boolean;
+    procedure OrdernarListaNumeroCarta;
+    procedure AbreTabelaPesquisa(TipoPesquisa: TTecPesquisa);
+    procedure FechaTabelaPesquisa(TipoPesquisa: TTecPesquisa);
+    procedure AbreConsultaCliente;
+    function ExisteCliente(NomeCampo: String; Value: Variant): Boolean;
+    property ConsultaClientes: TZDataSet read GetConsultaClientes;
+    property ConsultaModelosEtiquetas: TZDataSet read GetConsultaModelosEtiquetas;
+    property NCopiasEtiquetaTexto: integer read FNCopiasEtiquetaTexto write FNCopiasEtiquetaTexto;
+    property Cartaenviada: String read GetCartaEnviada write FCartaEnviada;
+  end;
+
+var
+  dtmAviso: TdtmAviso;
+  Mala: TStringList;
+
+implementation
+uses dmtecsoft, Math;
+
+const
+  FiltroFilial      = ' AND ( contratos.filialvenda IN (%s)) ';
+  FiltroFilial2     = ' WHERE ( contratos.filialvenda IN (%s)) ';
+  FiltroGrupoFilial = ' AND ( contratos.filialvenda IN (SELECT filial '+#13#10+
+                                         'FROM filiaisgruposfiliais fgf '+#13#10+
+                                         'WHERE fgf.grupo IN (%s))) ';
+  FiltroGrupoFilial2 = ' WHERE ( contratos.filialvenda IN (SELECT filial '+#13#10+
+                       'FROM filiaisgruposfiliais fgf '+#13#10+
+                       'WHERE fgf.grupo IN (%s))) ';
+
+  FiltroAviso      = ' AND ( tipocartadefinida IN (%s)) ';
+  FiltroAvisoSelecionado = ' AND ( codigo IN (%s)) ';
+  FiltroAvisoBloqueados = ' AND ( c.tipocarta IN (%s)) ';
+
+  CamposAviso: array[1..22] of String =
+ ('CÓDIGO CLIENTE',
+  'TIPO CLIENTE',
+  'CLIENTE',
+  'SEXO CLIENTE',
+  'CÓDIGO AVALISTA',
+  'AVALISTA',
+  'EAVALISTA',
+  'NÚMERO CARTA',
+  'TIPO DE CARTA',
+  'ENVIO',
+  'MÊS',
+  'RUA',
+  'ESTADO',
+  'CIDADE',
+  'BAIRRO',
+  'CEP',
+  'CONTRATO',
+  'PARCELA',
+  'FATURAMENTO',
+  'VENCIMENTO',
+  'VALOR',
+  'VALOR (Ext.)');
+
+{$R *.dfm}
+
+
+function TdtmAviso.GetTabelaAvisos: TZDataSet;
+begin
+  Result:= qryAvisos;
+end;
+
+function TdtmAviso.GetAvisosArquivo: String;
+begin
+  Result:= qryAvisosArquivo.AsString;
+end;
+
+function TdtmAviso.GetAvisosCodigo: SmallInt;
+begin
+  Result:= qryAvisosCodigo.AsInteger;
+end;
+
+function TdtmAviso.GetAvisosPrecedente: SmallInt;
+begin
+  Result:= qryAvisosPrecedente.AsInteger;
+end;
+
+function TdtmAviso.GetAvisosCampos: String;
+begin
+  Result:= qryAvisosCampos.AsString;
+end;
+
+constructor TdtmAviso.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryAvisos.Tag:= ctTabelas;
+  qryFiliais.tag:= ctTabelas;
+  qryProcuraClientes.Tag   := ctTabelas;
+  qryGrupoFiliais.tag:= ctTabelas;
+  qryProcuraTiposCartas.tag:= ctTabelas;
+  qryProcuraModelosEtiquetas.Tag:= ctTabelas;
+  qryConsultaTiposCartas.Tag := ctPesquisaTiposCartas;
+  qryConsultaClientes.Tag := ctPesquisaClientes;
+  qryConsultaModelosEtiquetas.Tag:= ctPesquisaModeloEtiqueta;
+  qryProcuraClientes.Params[1].AsString := 'C';
+  AvisosCartasSelecionadas[TipoAviso] := TStringList.Create;
+  AvisosCartasSelecionadas[Carta] := TStringList.Create;
+  AvisosCartasSelecionadas[Numero] := TStringList.Create;
+  AvisosCartasSelecionadas[CartaNumero] := TStringList.Create;
+  AvisosCartasSelecionadas[Imprimir] := TStringList.Create;
+end;
+
+function TdtmAviso.GetListaFiliais: TStrings;
+begin
+  FListaFiliais:= TStringList.Create;
+  qryFiliais.First;
+  while not qryFiliais.Eof do
+  begin
+    FListaFiliais.AddObject(qryFiliaisnome.AsString, Pointer(qryFiliaiscodigo.AsInteger));
+    qryFiliais.Next;
+  end;
+  Result := FListaFiliais;
+end;
+
+function TdtmAviso.GetListaGruposFiliais: TStrings;
+begin
+  FListaGruposFiliais:= TStringList.Create;
+  qryGrupoFiliais.First;
+  while not qryGrupoFiliais.Eof do
+  begin
+    FListaGruposFiliais.AddObject(qryGrupoFiliaisdescricao.AsString, Pointer(qryGrupoFiliaiscodigo.AsInteger));
+    qryGrupoFiliais.Next;
+  end;
+  Result := FListaGruposFiliais;
+end;
+
+
+procedure TdtmAviso.MarcarTipoCartaSelecionados(Marcando, Todos: Boolean);
+var
+  Pos      : TBookmark;
+  I        : Integer;
+begin
+  if not qryavisos.IsEmpty then begin
+    if not Todos then begin
+      qryavisos.Edit;
+      qryavisosMarcar.AsBoolean:= not qryavisosMarcar.AsBoolean;
+      qryavisos.Post;
+    end
+    else begin
+      Pos:= qryavisos.GetBookmark;
+      try
+        qryavisos.DisableControls;
+        qryavisos.First;
+        for I:= 1 to qryavisos.RecordCount do begin
+          qryavisos.Edit;
+          if Marcando then begin
+            if not qryavisosMarcar.AsBoolean then begin
+              qryavisosMarcar.AsBoolean := True;
+            end
+          end
+          else begin
+            if qryavisosMarcar.AsBoolean then begin
+              qryavisosMarcar.AsBoolean:= False;
+            end;
+          end;
+          qryavisos.Post;
+          qryavisos.Next;
+        end;
+        finally
+          qryavisos.GotoBookmark(Pos);
+          qryavisos.FreeBookmark(Pos);
+          qryavisos.EnableControls;
+        end;
+    end;
+  end;
+end;
+
+function TdtmAviso.GetAvisosMarcar: Boolean;
+begin
+ result := qryAvisosmarcar.AsBoolean;
+end;
+
+procedure TdtmAviso.ImprimirCartas;
+var
+ Relatorio : TfrReport;
+ frmPreview: TfrmPreviewPadrao;
+ ListadeCartas, ListadeAvisos : String;
+begin
+ frVariables['titulo']   := 'AVISO de COBRANÇA';
+ DataHoraGravacao := datetimetostr(DataHoraLocal);
+ ListadeAvisos := ListaNumeroAviso;
+ if ListadeAvisos<>'' then
+ begin
+  qryAvisosCartas.sql[9]:='and codigo in ('+ListadeAvisos+')';
+  ReFazConsulta(qryAvisosCartas,[],[]);
+  if VerificarExistenciadeArquivos then
+  begin
+    if not FCartaNaoImpressa then
+      GravaCartaEnviada;
+    frVariables['Rua']   := RuaFilialBase;
+    frVariables['Bairro']:= BairroFilialBase + ' - CEP: ' + CEPFilialBase;
+    frVariables['Cidade']:= CidadeFilialBase + ' - ' + EstadoFilialBase;
+    frVariables['Fone']  := FoneFilialBase;
+    frVariables['Empresa']  := RazaoFilialBase;
+    frVariables['Emissor']  := 'Gerente de Cobranca';
+    frmPreview := TfrmPreviewPadrao.create(self);
+    try
+     Relatorio := frmPreview.frCompositeReport;
+     with frmPreview do
+     begin
+      frCompositeReport.Reports.Clear;
+      qryAvisosCartas.First;
+      while not qryAvisosCartas.Eof do
+      begin
+       ListadeCartas:= ListaNumerocarta(qryAvisosCartascodigo.AsString);
+       qryUpdateCartasImpressas.ParamByName('enviada').AsString := FDataHoraGravacao;
+       qryUpdateCartasImpressas.Sql[1] := 'Where (carta,numero) in ('+ListadeCartas+')';
+       qryUpdateCartasImpressas.ExecSql;
+       perpetrar([qryUpdateCartasImpressas]);
+       qrycartasDetalhe.Sql[45] := ' and c.tipocarta = '+quotedstr(qryAvisosCartascodigo.AsString)+
+                                   ' and (c.numero,cc.numero) in ('+ListadeCartas+')';
+       qrycartasDetalhe.Sql[70] := qrycartasDetalhe.Sql[45];
+       frpAvisoCobranca.LoadFromFile(qryAvisosCartasarquivo.AsString);
+       frCompositeReport.Reports.Clear;
+
+       frCompositeReport.Reports.Add(frpAvisoCobranca);
+       Relatorio.Preview := frmPreview.frPreviewPadrao;
+
+       Relatorio.ShowReport;
+       frmPreview.ShowModal;
+       qryavisoscartas.Next;
+      end;
+     end;
+    finally
+     frmPreview.Free;
+     if FCartaNaoImpressa then
+     begin
+       ReFazConsulta(qrycartas,[],[]);
+       qryCartasAfterScroll(qrycartas);
+       FQtdeMarcados := 0;
+
+       AvisosCartasSelecionadas[TipoAviso].Clear;
+       AvisosCartasSelecionadas[Carta].Clear;
+       AvisosCartasSelecionadas[Numero].Clear;       
+       AvisosCartasSelecionadas[CartaNumero].Clear;
+       AvisosCartasSelecionadas[Imprimir].Clear;
+
+     end;
+    end;
+  end;
+ end
+ else
+  MensagemAviso(ctCARTAOBSOLETANAOIMPRESSA);
+end;
+
+function TdtmAviso.VerificarExistenciadeArquivos: Boolean;
+var
+ AvisoMarcado : Boolean;
+begin
+ AvisoMarcado := False;
+ Result := True;
+ qryAvisosCartas.First;
+ while not qryavisosCartas.Eof do
+ begin
+  AvisoMarcado := True;
+  case OpcaoAvisosCartas of
+   0 : begin
+        Result := qryAvisosCartasarquivo.AsString<>'';
+        if not Result then
+        begin
+         MensagemErro(format(ctARQUIVONAOENCONTRADO,[ctMODELOCARTA+' '+ctTIPOSDECARTA+': '+qryAvisosCartasTipo.asstring+' '+ctCODIGO+': '+qryAvisoscodigo.asstring]));
+         break;
+        end
+        else
+        begin
+         Result := FileExists(ExtractFilePath(Application.ExeName) + qryAvisosCartasarquivo.AsString);
+         if not Result then
+         begin
+          MensagemErro(format(ctARQUIVONAOENCONTRADO, [qryavisosCartasarquivo.asString]));
+          break;
+         end;
+        end;
+       end;
+   1 : begin
+        Result := qryAvisosCartasetiqueta.AsString<>'';
+        if not Result then
+        begin
+         MensagemErro(format(ctARQUIVONAOENCONTRADO,[ctMODELOETIQUETA+' '+ctTIPOSDECARTA+': '+qryAvisosCartasTipo.asstring+' '+ctCODIGO+': '+qryAvisoscodigo.asstring]));
+         break;
+        end
+        else
+        begin
+         Result := FileExists(ExtractFilePath(Application.ExeName) + qryAvisosCartasetiqueta.AsString);
+         if not Result then
+         begin
+          MensagemErro(format(ctARQUIVONAOENCONTRADO, [qryavisosCartasetiqueta.asString]));
+          break;
+         end;
+        end;
+       end;
+   2 : begin
+        Result := (qryAvisosCartascampos.AsString<>'') and
+                  (qryAvisosCartascampos.AsString<>'0000000000000000000000');
+        if not Result then
+        begin
+         MensagemErro(ctERRORMALADIRETAGERACAO);
+         break;
+        end
+        else
+        begin
+         Result := qryAvisosCartasexportar.AsString<>'';
+         if not Result then
+         begin
+          MensagemErro(format(ctARQUIVONAOENCONTRADO,[ctEXPORTACAO+' '+ctTIPOSDECARTA+': '+qryAvisosCartasTipo.asstring+' '+ctCODIGO+': '+qryAvisoscodigo.asstring]));
+          break;
+         end
+         else
+         begin
+          Result :=  DirectoryExists(ExtractFilePath(qryAvisosCartasexportar.AsString));
+          if not Result then
+          begin
+           MensagemErro(format(ctDIRETORIONAOENCONTRADO, [ExtractFilePath(qryavisosCartasexportar.asstring)]));
+           break;
+          end;
+         end;
+        end;
+       end;
+  end;
+  qryavisosCartas.Next;
+ end;
+ if Result then
+  Result := AvisoMarcado;
+ if not AvisoMarcado then
+  MensagemAviso(ctCARTAOBSOLETANAOIMPRESSA);
+end;
+
+procedure TdtmAviso.MontarFiltroFiliais(Usar: TCheckListBox);
+var
+  STRFiliais: String;
+  TodasFiliais: Boolean;
+  cnt: Integer;
+begin
+  TodasFiliais := True;
+  STRFiliais := '';
+  for cnt := 0 to FListaFiliais.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRFiliais := STRFiliais + '''' + IntToStr(Integer(FListaFiliais.Objects[cnt])) + ''','
+    else
+      TodasFiliais := False;
+
+  STRFiliais := Copy(STRFiliais, 0, Length(STrFiliais) - 1);
+  Filiais := STRFiliais;
+  if Trim(STRFiliais) <> '' then
+    if TodasFiliais then
+      Filiais := '';
+end;
+
+procedure TdtmAviso.MontarFiltroGrupoFiliais(Usar: TCheckListBox);
+var
+  STRGruposFiliais: String;
+  TodosGrupos: Boolean;
+  cnt: Integer;
+begin
+  STRGruposFiliais := '';
+  TodosGrupos := True;
+  for cnt := 0 to FListaGruposFiliais.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRGruposFiliais := STRGruposFiliais + '''' + IntToStr(Integer(FListaGruposFiliais.Objects[cnt])) + ''','
+    else
+      TodosGrupos := False;
+
+  STRGruposFiliais := Copy(STRGruposFiliais, 0, Length(STrGruposFiliais) - 1);
+  GrupoFiliais:=STRGruposFiliais;
+  if Trim(STRGruposFiliais) <> '' then
+   if TodosGrupos then
+    GrupoFiliais:='';
+end;
+
+procedure TdtmAviso.SetFiliais(const Value: String);
+begin
+  FFiliais := Value;
+  if (Value <> '') then
+  begin
+   qryGerarCartas_Clientes.MacroByName('filiais').AsString := Format(FiltroFilial,[Value]);
+   qryGerarCartas_Avalistas.MacroByName('filiais').AsString := Format(FiltroFilial,[Value]);
+  end
+  else
+  begin
+   qryGerarCartas_Clientes.MacroByName('filiais').AsString := '';
+   qryGerarCartas_Avalistas.MacroByName('filiais').AsString := '';
+  end;
+end;
+
+procedure TdtmAviso.SetGrupoFiliais(const Value: String);
+begin
+  if (Value <> '') then
+  begin
+   qryGerarCartas_Clientes.MacroByName('filiais').AsString := Format(FiltroGrupoFilial,[Value]);
+   qryGerarCartas_Avalistas.MacroByName('filiais').AsString := Format(FiltroGrupoFilial,[Value]);
+  end
+end;
+
+procedure TdtmAviso.setDataHoraGravacao(const Value: String);
+begin
+  if (Value <> '') then
+  begin
+   FDataHoraGravacao := Value;
+   qryGerarCartas_Clientes.ParamByName('datahora').AsString := Value;
+   qryGerarCartas_Avalistas.ParamByName('datahora').AsString := Value;
+  end;
+end;
+
+procedure TdtmAviso.qryCartasAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+   if not qryCartas.IsEmpty then
+   begin
+    qryParcelasCartas.Sql.Clear;
+    if qryCartaseavalista.AsBoolean then
+    begin
+     qryParcelasCartas.Sql.Text := qryCartas_ParcelasCartas_Avalistas.Sql.Text;
+     qryParcelasCartas.Sql.Append('union all');
+     qryParcelasCartas.Sql.Text := qryParcelasCartas.Sql.Text + qryCartas_Parcelas_Avalistas.Sql.Text
+    end
+    else
+    begin
+     qryParcelasCartas.Sql.Text := qryCartas_ParcelasCartas_Clientes.Sql.Text;
+     qryParcelasCartas.Sql.Append('union all');
+     qryParcelasCartas.Sql.Text := qryParcelasCartas.Sql.Text + qryCartas_Parcelas_Clientes.Sql.Text;
+    end;
+    qryParcelasCartas.Sql.Append('order by contratoparcela, parcela');
+    ReFazConsulta(qryparcelascartas,[0,1], [qryCartascarta.asvariant, qrycartasnumero.asvariant]);
+   end
+   else
+    if (qryparcelascartas.Sql.Count > 0) then
+      qryParcelasCartas.Close;
+end;
+
+procedure TdtmAviso.GravaCartaEnviada;
+var
+ RegistroAtual : TBookMark;
+ I : integer;
+
+begin
+ RegistroAtual := qryCartas.GetBookmark;
+ qrycartas.DisableControls;
+ qryCartas.AfterScroll := nil;
+ for I:=0 to AvisosCartasSelecionadas[carta].Count-1 do
+ begin
+  if AvisosCartasSelecionadas[Imprimir].Strings[I]='S' then
+    if qrycartas.Locate('carta;numero', vararrayof([
+    AvisosCartasSelecionadas[Carta].Strings[I],
+    AvisosCartasSelecionadas[Numero].Strings[I]]),[]) then
+    begin
+     if not qryCartasobsoleta.AsBoolean and
+      (qryCartasSituacao.AsString='') then
+      case OpcaoAvisosCartas of
+      0,2 : begin
+             if FCartaNaoImpressa then
+               QtdeMarcados  := QtdeMarcados -1;
+             qryCartas.Edit;
+             qryCartasenviada.AsString := FDataHoraGravacao;
+             qryCartas.Post;
+            end;
+      end;
+    end;
+ end;
+ qrycartas.enableControls;
+ qryCartas.GotoBookmark(RegistroAtual);
+ qryCartas.FreeBookmark(RegistroAtual);
+ qryCartas.AfterScroll := qryCartasAfterScroll;
+ qryCartasAfterScroll(qrycartas);
+
+end;
+
+function TdtmAviso.ListaNumeroCarta(CodigoAviso: String): String;
+var
+Aviso : Integer;
+ListaCarta : String;
+begin
+ ListaCarta := '';
+ OrdernarListaNumeroCarta;
+ Aviso := AvisosCartasSelecionadas[TipoAviso].IndexOf(CodigoAviso);
+ While (Aviso <= (AvisosCartasSelecionadas[TipoAviso].Count-1)) and
+       (AvisosCartasSelecionadas[TipoAviso].Strings[Aviso]=CodigoAviso) do
+ begin
+  if (AvisosCartasSelecionadas[Imprimir].Strings[Aviso]='S') then
+   ListaCarta := ListaCarta+'('+AvisosCartasSelecionadas[Carta].Strings[Aviso]+','+
+                                AvisosCartasSelecionadas[Numero].Strings[Aviso]+'),';
+  Aviso := Aviso + 1;
+ end;
+ if (ListaCarta<>'') then
+  ListaCarta := Copy(ListaCarta, 0, Length(ListaCarta) - 1);
+ result := ListaCarta;
+end;
+
+function TdtmAviso.GerarConsultaCartas(Codigocliente, TipoCarta,
+ DataInicial, DataFinal: String;
+ CartasValidas,
+ CartasNaoEnviadas,
+ CartasBloqueadas,
+ CartasEnviadasNaoConfirmadas: Boolean): Boolean;
+var
+ STRSQL : String;
+Const
+ WhereCartas = 'and %s ';
+ WhereCartasFililavenda =
+ ' and (exists (select p.cartacliente '+
+              'from parcelas p join contratos on p.contrato = contratos.numero '+
+              'where p.cartacliente = cc.carta and '+
+                    ' p.cartanumerocliente = cc.numero and '+
+                    ' contratos.filialvenda in (%s)) '+
+       ' or exists (select p.cartaavalista '+
+              'from parcelas p join contratos on p.contrato = contratos.numero  '+
+              'where p.cartaavalista = cc.carta and '+
+                    ' p.cartanumeroavalista = cc.numero and '+
+                    ' contratos.filialvenda in (%s)) '+
+       ' or exists (select pc.carta '+
+              'from (parcelascartas pc join (parcelas p join contratos on p.contrato = contratos.numero) '+
+                                                      ' on pc.contratoparcela = p.contrato and '+
+                                                      ' pc.parcela = p.numero) '+
+              'where pc.carta = cc.carta and '+
+                    ' pc.cartanumero = cc.numero and '+
+                    ' contratos.filialvenda in (%s)) ) ';
+
+ WhereCartasValidas =
+ ' (exists (select p.cartacliente '+
+              'from parcelas p '+
+              'where p.cartacliente = cc.carta and '+
+                    ' p.cartanumerocliente = cc.numero) '+
+       ' or exists (select p.cartaavalista '+
+              'from parcelas p '+
+              'where p.cartaavalista = cc.carta and '+
+                    ' p.cartanumeroavalista = cc.numero) ) ';
+
+ WhereCartasNaoEnviadas =
+ ' cc.enviada is null ';
+
+ WhereCartasEnviadasnaoConfirmadas =
+ ' cc.enviada is not null and cc.confirmacao is null ';
+
+ WhereCartasBloqueadas =
+ ' (coalesce(cc.bloqueada,'''')<>'''' and '+
+ '  (position(''1'' in cc.bloqueada)<>0) or '+
+ '  (position(''2'' in cc.bloqueada)<>0) or '+
+ '  ((position(''3'' in cc.bloqueada)<>0) and '+
+ '    exists (SELECT semaviso '+
+ '            FROM atendimentos '+
+ '            WHERE semaviso >= current_date AND '+
+ '                  tipo = ''C'' AND '+
+ '                  NOT concluido AND '+
+ '                 ((atendimentos.cliente = cr.cliente AND '+
+ '                   atendimentos.tipocliente = cr.tipocliente) OR '+
+ '                  (Atendimentos.cliente = coalesce(cr.avalista,0) AND '+
+ '                   atendimentos.tipocliente = ''C'')) '+
+ '               ORDER BY data DESC LIMIT 1 )'+
+ '  ) '+
+ ' ) '  ;
+
+ WhereCartasNaoBloqueadas =
+ ' (coalesce(cc.bloqueada,'''')='''' or '+
+ '  ((cc.bloqueada=''3'') and '+
+ '    not exists (SELECT semaviso '+
+ '                FROM atendimentos '+
+ '                WHERE semaviso >= current_date AND '+
+ '                      tipo = ''C'' AND '+
+ '                      NOT concluido AND '+
+ '                ((atendimentos.cliente = cr.cliente AND atendimentos.tipocliente = cr.tipocliente) OR '+
+ '                 (Atendimentos.cliente = coalesce(cr.avalista,0) AND atendimentos.tipocliente = ''C'')) '+
+ '                ORDER BY data DESC LIMIT 1 )'+
+ '  ) '+
+ ' ) ';
+begin
+  STRSQL := '';
+
+  if (DataInicial <> '') and (DataFinal <> '') then
+   STRSQL := 'cast(cc.data as date) between ('+quotedstr(DataInicial)+') and ('
+                                     +quotedstr(DataFinal)+')'
+  else if (DataInicial <> '') and (DataFinal = '') then
+          STRSQL := 'cast(cc.data as date) = '+quotedstr(DataInicial)
+  else if (DataInicial = '') and (DataFinal <> '') then
+          STRSQL := 'cast(cc.data as date) = '+quotedstr(DataFinal);
+
+  if TipoCarta <> '' then
+   if STRSQL = '' then
+     STRSQL := 'cr.TipoCarta = '+TipoCarta
+   else STRSQL := STRSQL+' and cr.TipoCarta = '+TipoCarta;
+
+  if CodigoCliente <> '' then
+   if STRSQL = '' then
+     STRSQL := ' and cr.cliente = :cliente and cr.tipocliente = :tipocliente'
+   else STRSQL := STRSQL+' and cr.cliente = :cliente and cr.tipocliente = :tipocliente';
+
+  if CartasValidas then
+    if STRSQL = '' then
+      STRSQL := WhereCartasValidas
+    else STRSQL := STRSQL+' and '+WhereCartasValidas;
+
+  if CartasNaoEnviadas then
+   if CartasBloqueadas then
+   begin
+    if STRSQL = '' then
+      STRSQL := WhereCartasNaoEnviadas
+    else STRSQL := STRSQL+' and '+WhereCartasNaoEnviadas;
+   end
+   else
+   begin
+    if STRSQL = '' then
+      STRSQL := WhereCartasNaoEnviadas+' and '+WhereCartasNaoBloqueadas
+    else STRSQL := STRSQL+' and '+WhereCartasNaoEnviadas+' and '+WhereCartasNaoBloqueadas;
+   end;
+
+  if CartasEnviadasNaoConfirmadas then
+   if CartasBloqueadas then
+   begin
+    if STRSQL = '' then
+      STRSQL := WhereCartasEnviadasnaoConfirmadas
+    else STRSQL := STRSQL+' and '+WhereCartasEnviadasnaoConfirmadas;
+   end
+   else
+   begin
+    if STRSQL = '' then
+      STRSQL := WhereCartasEnviadasnaoConfirmadas+' and '+WhereCartasNaoBloqueadas
+    else STRSQL := STRSQL+' and '+WhereCartasEnviadasnaoConfirmadas+' and '+WhereCartasNaoBloqueadas;
+   end;
+
+  if CartasBloqueadas and
+     not CartasNaoEnviadas and not CartaEnviadaNaoConfirmada then
+    if STRSQL = '' then
+      STRSQL := WhereCartasBloqueadas
+    else STRSQL := STRSQL+' and '+WhereCartasBloqueadas;
+
+  if (FFiliais<>'') then
+  begin
+   if STRSQL = '' then
+      STRSQL := format(WhereCartasFililavenda,[FFiliais,FFiliais,FFiliais])
+   else STRSQL := STRSQL+format(WhereCartasFililavenda,[FFiliais,FFiliais,FFiliais]);
+  end;
+
+  qryCartas.Sql[83] := format(WhereCartas, [STRSQL]);
+
+  if (CodigoCliente<>'') then
+  begin
+    qryCartas.ParamByName('cliente').AsString := CodigoCliente;
+    qryCartas.ParamByName('tipocliente').AsString := qryProcuraClientestipo.AsString;
+  end;
+
+  FQtdeMarcados := 0;
+
+  qryCartas.AfterScroll := nil;
+
+  ReFazConsulta(qryCartas,[],[]);
+  qryCartas.AfterScroll := qryCartasAfterScroll;
+  qryCartasAfterScroll(qrycartas);
+
+  result := not qryCartas.isempty;
+  AvisosCartasSelecionadas[TipoAviso].Clear;
+  AvisosCartasSelecionadas[Carta].Clear;
+  AvisosCartasSelecionadas[Numero].Clear;
+  AvisosCartasSelecionadas[CartaNumero].Clear;
+  AvisosCartasSelecionadas[Imprimir].Clear;
+end;
+
+function TdtmAviso.GetConsultarTiposCartas: TZDataSet;
+begin
+  Result := qryConsultaTiposCartas;
+end;
+
+function TdtmAviso.ExisteTipoCarta(campo, codigo: string): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaTiposCartas, campo, codigo);
+end;
+
+function TdtmAviso.GetTabelaCartas: TZDataSet;
+begin
+  Result := qryCartas;
+end;
+
+function TdtmAviso.GetCartaDevolvida: Boolean;
+begin
+  Result := (qryCartasvoltou.AsDateTime <> 0);
+end;
+
+function TdtmAviso.GravarAlteracoesCarta(ConfirmarTodas:Boolean): Boolean;
+Var
+ DataConfirmacao : String;
+ RegistroAtual : TBookmark;
+begin
+  {$ifndef LINUX}
+   qryCartas.Post;
+  {$else}
+   RegistroAtual := qryCartas.GetBookmark;
+   qryCartas.Post;
+   qrycartas.GotoBookmark(RegistroAtual);
+   qryCartas.FreeBookmark(RegistroAtual);
+  {$endif}
+
+  DataConfirmacao := qryCartasconfirmacao.AsString;
+  RegistroAtual := qryCartas.GetBookmark;
+
+  if qryCartasvoltou.AsString<>'' then
+   qryUpdateCartasAlteradas.sql[1] := 'voltou = '+quotedstr(qryCartasvoltou.AsString)+','
+  else
+   qryUpdateCartasAlteradas.sql[1] := 'voltou = null,';
+
+  if qryCartasconfirmacao.AsString<>'' then
+   qryUpdateCartasAlteradas.sql[2] := 'confirmacao = '+quotedstr(qryCartasconfirmacao.AsString)
+  else
+   qryUpdateCartasAlteradas.sql[2] := 'confirmacao = null';
+
+  qryUpdateCartasAlteradas.ParamByName('carta').AsString := qryCartascarta.AsString;
+  qryUpdateCartasAlteradas.ParamByName('numero').AsString := qryCartasnumero.AsString;
+  qryUpdateCartasAlteradas.ExecSql;
+  if ConfirmarTodas then
+  begin
+   qryCartas.AfterScroll := nil;
+   qryCartas.OnCalcFields := nil;
+   if DataConfirmacao<>'' then
+   begin
+    qryUpdateCartasAlteradas.sql[1] := '';
+    qryUpdateCartasAlteradas.sql[2] := 'confirmacao = '+quotedstr(DataConfirmacao);
+
+    qryCartas.DisableControls;
+    qryCartas.First;
+    while not qryCartas.Eof do
+    begin
+     if (qryCartasconfirmacao.AsString = '') and
+        (qryCartasenviada.AsString <> '') then
+     begin
+      if strtodate(DataConfirmacao)>=strtodate(copy(qrycartasenviada.AsString,1,10)) then
+      begin
+        qryCartas.Edit;
+        qryCartasconfirmacao.AsString := DataConfirmacao;
+        qryCartas.Post;
+        qryUpdateCartasAlteradas.ParamByName('carta').AsString := qryCartascarta.AsString;
+        qryUpdateCartasAlteradas.ParamByName('numero').AsString := qryCartasnumero.AsString;
+        qryUpdateCartasAlteradas.ExecSql;
+      end;
+     end;
+     qryCartas.Next;
+    end;
+    qrycartas.GotoBookmark(RegistroAtual);
+    qryCartas.FreeBookmark(RegistroAtual);
+    qryCartas.EnableControls;
+   end;
+   qryCartas.AfterScroll := qryCartasAfterScroll;
+   qryCartas.OnCalcFields := qryCartasCalcFields;
+  end;
+
+  Perpetrar([qryUpdateCartasAlteradas]);
+  Result := True;
+end;
+
+procedure TdtmAviso.MarcarCartasSelecionadas(Marcando, Todos: Boolean);
+var
+ RegistroAtual : TBookMark;
+begin
+ RegistroAtual := qryCartas.GetBookmark;
+ qryCartas.AfterScroll := nil;
+ MarcarRegistros(qryCartas,
+                qryCartasmarcar,
+                qryCartasValor,
+                Marcando,
+                Todos);
+ qryCartas.GotoBookmark(RegistroAtual);
+ qryCartas.FreeBookmark(RegistroAtual);
+ qryCartas.AfterScroll := qryCartasAfterScroll;
+end;
+
+function TdtmAviso.GetTotalRegistros: Integer;
+begin
+result := qryCartas.RecordCount;
+end;
+
+function TdtmAviso.GetCartaPodeEditar: Boolean;
+begin
+  Result := (qryCartasenviada.AsString<>'') and
+            ((qryCartasbloqueada.AsString='') or
+             ((qryCartasbloqueada.AsString='3') and
+               qryCartasOcorrencia.IsEmpty))
+end;
+
+function TdtmAviso.ExcluirCartasMarcadas: Boolean;
+var
+ RegistroAtual: String;
+ I : integer;
+begin
+ RegistroAtual := qryCartasnumero.AsString;
+ if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['as CARTAS marcadas, obsoletas e não devolvidas'])) = smbok then
+ begin
+  qrycartas.DisableControls;
+  qryCartas.AfterScroll := nil;
+  for I:=0 to AvisosCartasSelecionadas[carta].Count-1 do
+  begin
+  if qrycartas.Locate('carta;numero', vararrayof([
+     AvisosCartasSelecionadas[Carta].Strings[I],
+     AvisosCartasSelecionadas[Numero].Strings[I]]),[]) then
+   begin
+    if qryCartasobsoleta.AsBoolean and (qryCartasbloqueada.AsString='') and
+       (qryCartasvoltou.AsString = '') then
+    begin
+      qryCartas.Delete;
+      QtdeMarcados := QtdeMarcados -1;
+    end;
+   end;
+  end;
+  qrycartas.enableControls;
+  qrycartas.Locate('numero',RegistroAtual,[loPartialKey]);
+  qryCartas.AfterScroll := qryCartasAfterScroll;
+  qryCartasAfterScroll(qrycartas);
+  Result:= True;
+ end
+ else
+  Result:= False;
+end;
+
+function TdtmAviso.GetTabelaCartasVazia: Boolean;
+begin
+ result := qrycartas.IsEmpty;
+end;
+
+procedure TdtmAviso.ImprimirEtiquetas;
+var
+ aviso, Relatorio : TfrReport;
+ frmPreview: TfrmPreviewPadrao;
+ ListadeAvisos : String;
+begin
+ ListadeAvisos := ListaNumeroAviso;
+ if ListadeAvisos<>'' then
+ begin
+   qryAvisosCartas.sql[9]:='and codigo in ('+ListadeAvisos+')';
+   ReFazConsulta(qryAvisosCartas,[],[]);
+   if VerificarExistenciadeArquivos then
+   begin
+    aviso := TFrReport.Create(self);
+    frmPreview := TfrmPreviewPadrao.create(self);
+    try
+     Relatorio := frmPreview.frCompositeReport;
+     with frmPreview do
+     begin
+      qryAvisosCartas.First;
+      while not qryAvisosCartas.Eof do
+      begin
+       qryCartasDetalheEtiquetas.Sql[61] := ' and c.tipocarta = '+quotedstr(qryAvisosCartascodigo.AsString)+
+                                            ' and (c.numero,cc.numero) in ('+ListaNumerocarta(qryAvisosCartascodigo.AsString)+')';
+       qryCartasDetalheEtiquetas.Sql[86] := qryCartasDetalheEtiquetas.Sql[61];
+//       qryCartasDetalheEtiquetas.Close;
+//       qryCartasDetalheEtiquetas.open;
+       aviso.LoadFromFile(qryAvisosCartasetiqueta.AsString);
+//       aviso.DesignReport;
+       frCompositeReport.Reports.Clear;
+       frCompositeReport.Reports.Add(aviso);
+       Relatorio.Preview := frmPreview.frPreviewPadrao;
+       Relatorio.ShowReport;
+       frmPreview.ShowModal;
+       qryavisoscartas.Next;
+      end;
+     end;
+    finally
+     frmPreview.Free;
+     aviso.Free;
+    end;
+   end;
+ end
+ else
+  MensagemAviso(ctCARTAOBSOLETANAOIMPRESSA);
+end;
+
+
+procedure TdtmAviso.ExportarArquivo;
+var
+ arquivos: String;
+ ListadeCartas, ListadeAvisos : String;
+begin
+ DataHoraGravacao := datetimetostr(DataHoraLocal);
+ ListadeAvisos := ListaNumeroAviso;
+ if ListadeAvisos<>'' then
+ begin
+   qryAvisosCartas.sql[9]:='and codigo in ('+ListadeAvisos+')';
+   ReFazConsulta(qryAvisosCartas,[],[]);
+   if VerificarExistenciadeArquivos then
+   begin
+    if not FCartaNaoImpressa then
+      GravaCartaEnviada;
+    qryAvisosCartas.First;
+    while not qryAvisosCartas.Eof do
+    begin
+     ListadeCartas := ListaNumerocarta(qryAvisosCartascodigo.AsString);
+     qryUpdateCartasImpressas.ParamByName('enviada').AsString := FDataHoraGravacao;
+     qryUpdateCartasImpressas.Sql[1] := 'Where (carta,numero) in ('+ListadeCartas+')';
+     qryUpdateCartasImpressas.ExecSql;
+     perpetrar([qryUpdateCartasImpressas]);
+     qrycartasDetalhe.Sql[45] := ' and c.tipocarta = '+quotedstr(qryAvisosCartascodigo.AsString)+
+                                 ' and (c.numero,cc.numero) in ('+ListadeCartas+')';
+     qrycartasDetalhe.Sql[70] := qrycartasDetalhe.Sql[45];
+     ReFazConsulta(qryCartasDetalhe,[],[]);
+     Mala := TStringList.Create;
+     ComporCabecalho;
+     qrycartasdetalhe.First;
+     while not qrycartasdetalhe.Eof do
+     begin
+      ComporAviso;
+      qrycartasdetalhe.next;
+     end;
+     Mala.SaveToFile(qryAvisosCartasexportar.AsString);
+     arquivos := arquivos+qryAvisosCartasexportar.AsString+#10#13;
+     Mala.Free;
+     qryavisoscartas.Next;
+    end;
+    if FCartaNaoImpressa then
+    begin
+     ReFazConsulta(qrycartas,[],[]);
+     qryCartasAfterScroll(qrycartas);
+     QtdeMarcados := 0;
+    end;
+    MensagemAviso(format(ctARQUIVOSEXPORTADOSSUCESSO,[arquivos]));
+   end;
+ end
+ else
+  MensagemAviso(ctCARTAOBSOLETANAOIMPRESSA);
+end;
+
+procedure TdtmAviso.ComporCabecalho;
+const
+  Cota = '"';
+var
+  Cabecalho, Campos: String;
+  cnt: Integer;
+begin
+ Campos:= qryAvisosCartascampos.AsString;
+ for cnt:= 1 to Length(Campos) do
+ if Campos[cnt] = '1' then
+  Cabecalho:= Cabecalho + AnsiQuotedStr(CamposAviso[cnt], Cota) + ';';
+ if Cabecalho[Length(Cabecalho)] = ';' then
+  Delete(Cabecalho, Length(Cabecalho), 1);
+ Mala.Add(Cabecalho);
+end;
+
+procedure TdtmAviso.ComporAviso;
+const
+  Cota = '"';
+var
+  Registro, Campos: String;
+  cnt: Integer;
+  LinhaE: T_Extenso;
+begin
+ Campos:= qryAvisosCartascampos.AsString;
+ Registro:= '';
+ for cnt:= 1 to Length(Campos) do
+ begin
+  if Campos[cnt] = '1' then
+  case cnt of
+   01: Registro:= Registro + AnsiQuotedStr(qryCartasDetalhecliente.asstring, Cota) + ';';
+   02: Registro:= Registro + AnsiQuotedStr(qryCartasDetalhetipocliente.asstring, Cota) + ';';
+   03: Registro:= Registro + AnsiQuotedStr(qryCartasDetalhenomecliente.asstring, Cota) + ';';
+   04: Registro:= Registro + AnsiQuotedStr(qryCartasDetalhesexo.AsString, Cota) + ';';
+   05: Registro:= Registro + AnsiQuotedStr(qryCartasDetalheavalista.AsString, Cota) + ';';
+   06: Registro:= Registro + AnsiQuotedStr(qryCartasDetalhenomeavalista.AsString, Cota) + ';';
+   07: Registro:= Registro + AnsiQuotedStr(qryCartasDetalheeavalista.AsString, Cota) + ';';
+   08: Registro:= Registro + AnsiQuotedStr(qryCartasDetalhecartanumero.AsString, Cota) + ';';
+   09: Registro:= Registro + AnsiQuotedStr(qryCartasDetalhetipocarta.AsString, Cota) + ';';
+   10: Registro:= Registro + AnsiQuotedStr(qryCartasDetalheenviada.AsString, Cota) + ';';
+   11: Registro:= Registro + AnsiQuotedStr(qryCartasDetalheMes_atual.AsString, Cota) + ';';
+   12: Registro:= Registro + AnsiQuotedStr(qryCartasDetalherua.asstring, Cota) + ';';
+   13: Registro:= Registro + AnsiQuotedStr(qryCartasDetalheestado.AsString, Cota) + ';';
+   14: Registro:= Registro + AnsiQuotedStr(qryCartasDetalhecidade.AsString, Cota) + ';';
+   15: Registro:= Registro + AnsiQuotedStr(qryCartasDetalhebairro.AsString, Cota) + ';';
+   16: Registro:= Registro + AnsiQuotedStr(qryCartasDetalhecep.AsString, Cota) + ';';
+   17: Registro:= Registro + AnsiQuotedStr(qryCartasDetalhecontratoparcela.AsString, Cota) + ';';
+   18: Registro:= Registro + AnsiQuotedStr(qryCartasDetalheparcela.AsString, Cota) + ';';
+   19: Registro:= Registro + AnsiQuotedStr(qryCartasDetalhefaturamento.AsString, Cota) + ';';
+   20: Registro:= Registro + AnsiQuotedStr(qryCartasDetalhedatavencto.AsString, Cota) + ';';
+   21: Registro:= Registro + AnsiQuotedStr(qryCartasDetalhevalorvencto.AsString, Cota) + ';';
+   22: begin
+        LinhaE.ExtTamLinha[1]:= 200;
+        Extenso(qryCartasDetalhevalorvencto.AsFloat,$92,'','','','',' ', LinhaE);
+        Registro:= Registro + AnsiQuotedStr(trim(LinhaE.ExtLinha[1]), Cota) + ';';
+       end;
+  end;
+ end;
+ if Registro[Length(Registro)] = ';' then
+   Delete(Registro, Length(Registro), 1);
+ Mala.Add(Registro);
+end;
+
+procedure TdtmAviso.MontarFiltroAviso;
+var
+  STRAvisos: String;
+  TodosAvisos: Boolean;
+
+  procedure ApagarAvisosTemp;
+  begin
+    qryTemp_listaconta.First;
+    while not qryTemp_listaconta.Eof do
+      qryTemp_listaconta.Delete;
+  end;
+
+begin
+  ReFazConsulta(qryTemp_listaconta,[],[]);
+  ApagarAvisosTemp;
+  TodosAvisos := True;
+  STRAvisos := '';
+  qryAvisos.First;
+  while not qryAvisos.eof do
+  begin
+   if qryAvisosmarcar.AsBoolean then
+   begin
+     STRAvisos := STRAvisos + '''' + qryAvisoscodigo.AsString + ''',';
+     qryTemp_listaconta.Append;
+     qryTemp_listacontacodigo.AsInteger := qryAvisoscodigo.AsInteger;
+     qryTemp_listaconta.Post;
+   end
+   else
+      TodosAvisos := False;
+   qryAvisos.Next;
+  end;
+
+  STRAvisos := Copy(STRAvisos, 0, Length(STrAvisos) - 1);
+  Avisos := STRAvisos;
+  if Trim(STRAvisos) <> '' then
+    if TodosAvisos then
+    begin
+      Avisos := '';
+      ApagarAvisosTemp;
+    end;
+  Perpetrar([qryTemp_listaconta]);
+end;
+
+procedure TdtmAviso.SetAvisos(const Value: String);
+begin
+  FAvisos := Value;
+  if (Value <> '') then
+  begin
+   qryGerarCartas_Clientes.macrobyname('TipoCarta').asstring := Format(FiltroAviso,[Value]);
+   qryGerarCartas_Avalistas.macrobyname('TipoCarta').asstring := Format(FiltroAviso,[Value]);
+
+   qryGerarCartas_Clientes.macrobyname('TipoCartaSelecionado').asstring := Format(FiltroAvisoSelecionado,[Value]);
+   qryGerarCartas_Avalistas.macrobyname('TipoCartaSelecionado').asstring := Format(FiltroAvisoSelecionado,[Value]);
+
+  end
+  else
+  begin
+   qryGerarCartas_Clientes.macrobyname('TipoCarta').asstring := '';
+   qryGerarCartas_Avalistas.macrobyname('TipoCarta').asstring := '';
+   qryGerarCartas_Clientes.macrobyname('TipoCartaSelecionado').asstring := '';
+   qryGerarCartas_Avalistas.macrobyname('TipoCartaSelecionado').asstring := '';
+
+  end;
+end;
+
+procedure TdtmAviso.frpAvisoCobrancaBeforePrint(Memo: TStringList;
+  View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpAvisoCobranca_1, view);
+end;
+
+procedure TdtmAviso.qryCartasCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  qryCartasCartaNumero.AsString := qryCartascarta.AsString+'.'+qryCartasnumero.AsString;
+  qryCartassituacao.AsString := '';
+
+  if (pos('1',qryCartasbloqueada.AsString)<>0) then
+    qryCartasSituacao.AsString := ctENDERECOINCOMPLETO;
+
+  if (pos('2',qryCartasbloqueada.AsString)<>0) then
+  begin
+   if (qryCartasSituacao.AsString<>'') then
+     qryCartasSituacao.AsString := qryCartasSituacao.AsString+', '+ctCARTADEVOLVIDA
+   else qryCartasSituacao.AsString := ctCARTADEVOLVIDA;
+  end;
+
+  if (pos('3',qryCartasbloqueada.AsString)<>0) then
+  begin
+   ReFazConsulta(qryCartasOcorrencia,[0,1,2,3], [DataHoraLocal,
+                                                 qryCartascliente.AsVariant,
+                                                 qryCartastipocliente.AsVariant,
+                                                 qryCartasavalista.AsVariant]);
+   if not qryCartasOcorrencia.IsEmpty then
+   begin
+     if (qryCartassituacao.AsString<>'') then
+      qryCartasSituacao.AsString := qryCartasSituacao.AsString+', '+format(ctSEMAVISOATE, [FormatDateTime('dd/mm/yy', qryCartasOcorrenciasemaviso.AsDateTime)])
+     else
+      qryCartasSituacao.AsString := format(ctSEMAVISOATE, [FormatDateTime('dd/mm/yy', qryCartasOcorrenciasemaviso.AsDateTime)]);
+   end;
+  end;
+
+  if (qryCartassituacao.AsString<>'') then
+    qryCartasNbloqueada.AsString := ANSIuppercase(ctBLOQUEADA)
+  else qryCartasNbloqueada.AsString :='';
+
+  if qryCartaseavalista.AsBoolean then
+    qryCartasTipoEndereco.AsString := ctENDERECOSCARTASAVALISTA
+  else qryCartasTipoEndereco.AsString := ctENDERECOSCARTASCLIENTE;
+end;
+
+procedure TdtmAviso.qryCartasDetalheCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  qryCartasDetalheCartaNumero.AsString := qryCartasDetalhecarta.AsString+'.'+qryCartasDetalhenumero.AsString;
+  qryCartasDetalheMes_Atual.AsString := NomeMeses[monthof(qryCartasDetalheenviada.AsDateTime)];
+end;
+
+procedure TdtmAviso.qryCartasBeforeDelete(DataSet: TDataSet);
+begin
+  inherited;
+  qryDeleteCartas.ParamByName('numero').AsString := qryCartascarta.AsString;
+  qryDeleteCartas.ExecSql;
+  perpetrar([qrydeleteCartas]);
+end;
+
+procedure TdtmAviso.qryCartasmarcarChange(Sender: TField);
+var
+ index : integer;
+begin
+  inherited;
+  if not qrycartas.IsEmpty then
+  begin
+   if qryCartasmarcar.AsBoolean then
+   begin
+     AvisosCartasSelecionadas[TipoAviso].Add(qryCartastipocarta.AsString);
+     AvisosCartasSelecionadas[Carta].add(qryCartascarta.AsString);
+     AvisosCartasSelecionadas[Numero].add(qryCartasnumero.AsString);
+     AvisosCartasSelecionadas[CartaNumero].add(qryCartascarta.AsString+qryCartasnumero.AsString);
+     if  (not qryCartasobsoleta.AsBoolean) and
+         (
+          (qryCartasbloqueada.AsString='') or
+          (
+           (qryCartasbloqueada.AsString='3') and
+            qryCartasOcorrencia.IsEmpty
+          )
+         ) and (qryCartasconfirmacao.IsNull) and (qryCartasvoltou.IsNull) then
+       AvisosCartasSelecionadas[Imprimir].add('S')
+     else
+       AvisosCartasSelecionadas[Imprimir].add('N');
+   end
+   else
+   begin
+    index := AvisosCartasSelecionadas[CartaNumero].IndexOf(qryCartascarta.asstring+qryCartasnumero.asstring);
+    AvisosCartasSelecionadas[Carta].Delete(index);
+    AvisosCartasSelecionadas[Numero].Delete(index);
+    AvisosCartasSelecionadas[CartaNumero].Delete(index);
+    AvisosCartasSelecionadas[TipoAviso].Delete(index);
+    AvisosCartasSelecionadas[Imprimir].Delete(index);
+   end;
+  end;
+end;
+
+function TdtmAviso.ListaNumeroAviso: String;
+var
+  I : Integer;
+  Aviso, ListaAviso : String;
+begin
+  ListaAviso := '';
+  Aviso := '';
+  for I:=0 to AvisosCartasSelecionadas[TipoAviso].Count-1 do begin
+    if AvisosCartasSelecionadas[Imprimir].Strings[I]='S' then begin
+      if Aviso <> AvisosCartasSelecionadas[TipoAviso].Strings[I] then begin
+        Aviso := AvisosCartasSelecionadas[TipoAviso].Strings[I];
+        ListaAviso := ListaAviso+AvisosCartasSelecionadas[TipoAviso].Strings[I]+',';
+      end;
+    end;
+  end;
+  if ListaAviso<>'' then
+    ListaAviso := Copy(ListaAviso, 0, Length(ListaAviso) - 1);
+  result := ListaAviso;
+end;
+
+procedure TdtmAviso.OrdernarListaNumeroCarta;
+var
+  A, B : integer;
+begin
+  for A := 1 to AvisosCartasSelecionadas[TipoAviso].Count - 1 do begin
+    B := A;
+    While strtoint(AvisosCartasSelecionadas[TipoAviso].Strings[B])<
+          strtoint(AvisosCartasSelecionadas[TipoAviso].Strings[B-1]) do
+    begin
+      AvisosCartasSelecionadas[TipoAviso].Move(B,B-1);
+      AvisosCartasSelecionadas[Carta].Move(B,B-1);
+      AvisosCartasSelecionadas[Numero].Move(B,B-1);      
+      AvisosCartasSelecionadas[CartaNumero].Move(B,B-1);
+      AvisosCartasSelecionadas[Imprimir].Move(B,B-1);
+      if B=1 then
+        break
+      else
+        B := B-1;
+    end;
+  end;
+end;
+
+procedure TdtmAviso.qryParcelasCartasCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  case qryParcelasCartascausa.AsInteger of
+    1: qryParcelasCartasnomecausa.AsString := ctNOVACARTA;
+    2: qryParcelasCartasnomecausa.AsString := ctQUITACAO;
+    3: qryParcelasCartasnomecausa.AsString := ctRENEGOCIACAO;
+    4: qryParcelasCartasnomecausa.AsString := ctAUTORIAZACAO;
+  end
+end;
+
+procedure TdtmAviso.qryCartasDetalheEtiquetasCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  qryCartasDetalheEtiquetascartanumero.AsString := qryCartasDetalheEtiquetascarta.AsString+'.'+qryCartasDetalheEtiquetasnumero.AsString;
+end;
+
+
+procedure TdtmAviso.AbreTabelaPesquisa(TipoPesquisa: TTecPesquisa);
+begin
+  case TipoPesquisa of
+    pesCLIENTES : AbreConsultaCliente;
+    pesTIPOCARTAS  : Abre(ctPesquisaTiposCartas);
+    pesMODELOETIQUETA : Abre(ctPesquisaModeloEtiqueta);
+  end;
+end;
+
+procedure TdtmAviso.FechaTabelaPesquisa(TipoPesquisa: TTecPesquisa);
+begin
+  case TipoPesquisa of
+    pesCLIENTES : Fecha(ctPesquisaClientes);
+    pesTIPOCARTAS : Fecha(ctFilialRegistroSPC);
+    pesMODELOETIQUETA : Fecha(ctPesquisaModeloEtiqueta);
+  end;
+end;
+
+procedure TdtmAviso.AbreConsultaCliente;
+begin
+ ExisteCliente('nome', '0')
+end;
+
+function TdtmAviso.ExisteCliente(NomeCampo: String;
+  Value: Variant): Boolean;
+const
+  SQL = 'Where (to_ascii(%s,''latin1'') ilike to_ascii(''%s%s'',''latin1''))';
+begin
+  qryConsultaClientes.Sql[24] := Format(SQL, [NomeCampo, ANSIUpperCase(Value), '%']);
+  qryConsultaClientes.Open;
+  Result := qryConsultaClientes.RecordCount > 0
+end;
+
+function TdtmAviso.GetConsultaClientes: TZDataSet;
+begin
+ result := qryConsultaClientes
+end;
+
+procedure TdtmAviso.Selecionar(TipoPesquisa: TTecPesquisa);
+begin
+  case TipoPesquisa of
+    pesCLIENTES : RefazConsulta(qryProcuraClientes,[0,1],[qryConsultaClientescodigo.AsVariant,
+                                                          qryConsultaClientestipo.AsVariant]);
+    pesTIPOCARTAS : ReFazConsulta(qryProcuraTiposCartas,[0],[qryConsultaTiposCartasCodigo.AsInteger]);
+    pesMODELOETIQUETA : ReFazConsulta(qryProcuraModelosEtiquetas,[0],[qryConsultaModelosEtiquetascodigo.AsInteger]);
+  end;
+end;
+
+procedure TdtmAviso.ImprimirEtiquetasTexto(Impressora:String);
+var
+ ListadeAvisos : String;
+begin
+  NomeImpressoraEscolhida := Impressora;
+  ListadeAvisos := ListaNumeroAviso;
+  if qryProcuraModelosEtiquetas.RecordCount > 0 then
+  begin
+   if ListadeAvisos<>'' then
+   begin
+     qryAvisosCartas.sql[9]:='and codigo in ('+ListadeAvisos+')';
+     ReFazConsulta(qryAvisosCartas,[],[]);
+     qryAvisosCartas.First;
+     while not qryAvisosCartas.Eof do
+     begin
+       qryCartasDetalheEtiquetas.Sql[61] := ' and c.tipocarta = '+quotedstr(qryAvisosCartascodigo.AsString)+
+                                            ' and (c.numero,cc.numero) in ('+ListaNumerocarta(qryAvisosCartascodigo.AsString)+')';
+       qryCartasDetalheEtiquetas.Sql[86] := qryCartasDetalheEtiquetas.Sql[61];
+       qryCartasDetalheEtiquetas.Close;
+       qryCartasDetalheEtiquetas.open;
+
+       FTexto:= '';
+       with TextPrinter do
+       begin
+         BeginDoc(qryProcuraModelosEtiquetasconfigurar.AsString);
+         GuardarEtiquetas;
+         BandString := FTexto;
+         WriteBand(Nil);
+         EndDoc('TecLUX - Impressao Etiqueta');
+       end;
+       qryavisoscartas.Next;
+     end;
+   end;
+  end;
+end;
+
+procedure TdtmAviso.GuardarEtiquetas;
+var
+  Modelo: String;
+begin
+  Modelo:= qryProcuraModelosEtiquetasmodelo.AsString;
+  case Modelo[1] of
+    'B' : Etiquetas_Modelo_B;
+    'E' : Etiquetas_Modelo_B;
+  end;
+end;
+
+procedure TdtmAviso.Etiquetas_Modelo_B;
+const
+  MaxCampo = 5;
+
+type
+  T_Etiquetas = Array of Record
+    Tratamento : String;
+    Nr         : String;
+    Nome       : String;
+    Endereco   : String;
+    Bairro     : String;
+    Cep        : String;
+    Cidade     : String;
+    UF         : String;
+  end;
+
+var
+  Cont, NC, Colunas : Integer;
+  ETiquetas: T_Etiquetas;
+
+  procedure Imprimir;
+  Var
+    ETQ, NrC: Integer;
+
+  begin
+    with TextPrinter do begin
+      NrC:= 1;
+      while (NrC <= MaxCampo) do begin
+        case NrC of
+          1: begin
+               for ETQ:= 1 to Colunas do begin
+                 if ETiquetas[ETQ-1].Tratamento <> '' then
+                   FTexto:= FTexto + '<sp>(3L)</sp><cd><e>' + ETiquetas[ETQ-1].Tratamento + '(40L)</e>'+
+                   '<e>' + ETiquetas[ETQ-1].Nr + '(22R)</e></cd><sp>(2L)</sp>';
+               end;
+               FTexto:= FTexto + '<sbl>';
+               Inc(NrC);
+             end;
+          2: begin
+               for ETQ:= 1 to Colunas do begin
+                 if ETiquetas[ETQ-1].Nome <> '' then
+                   FTexto:= FTexto + '<sp>(3L)</sp><b><cd><e>' + ETiquetas[ETQ-1].Nome + '(62L)</e></cd></b><sp>(02L)</sp>';
+               end;
+               FTexto:= FTexto + '<sbl>';
+               Inc(NrC);
+             end;
+          3: begin
+               for ETQ:= 1 to Colunas do begin
+                 if ETiquetas[ETQ-1].Endereco <> '' then
+                   FTexto:= FTexto + '<sp>(3L)</sp><cd><e>' + ETiquetas[ETQ-1].Endereco + '(62L)</e></cd><sp>(02L)</sp>';
+               end;
+               FTexto:= FTexto + '<sbl>';
+               Inc(NrC);
+             end;
+          4: begin
+               for ETQ:= 1 to Colunas do begin
+                 if ETiquetas[ETQ-1].Bairro <> '' then
+                   FTexto:= FTexto + '<sp>(3L)</sp><cd><e>' + ETiquetas[ETQ-1].Bairro + '(62L)</e></cd><sp>(02L)</sp>';
+               end;
+               FTexto:= FTexto + '<sbl>';
+               Inc(NrC);
+             end;
+          5: begin
+               for ETQ:= 1 to Colunas do begin
+                 if ETiquetas[ETQ-1].Cep <> '' then
+                   FTexto:= FTexto + '<sp>(3L)</sp><cd><e>' + ETiquetas[ETQ-1].Cep + '(11L)</e>'
+                                   + '<e>' + ETiquetas[ETQ-1].Cidade + '(49L)</e>'
+                                   + '<e>' + ETiquetas[ETQ-1].UF + '(02L)</e></cd><sp>(02L)</sp>';
+
+               end;
+               FTexto:= FTexto + '<sbl><sbl><sbl><sbl>';
+               Inc(NrC);
+             end;
+
+        end;
+      end;
+      FillChar(Etiquetas,SizeOf(Etiquetas),0);
+      SetLength(Etiquetas,Colunas);
+      NC:= 1;
+    end;
+  end;
+
+begin
+  Colunas := qryProcuraModelosEtiquetascoluna.AsInteger;
+  Cont:= 1; NC:= 1;
+  SetLength(Etiquetas,Colunas);
+  qryCartasDetalheEtiquetas.First;
+  while not qryCartasDetalheEtiquetas.Eof do
+  begin
+    while (Cont <= NCopiasEtiquetaTexto) do
+    begin
+      if (NC > Colunas) then
+        Imprimir
+      else
+      begin
+        if qryCartasDetalheEtiquetassexo.AsString = 'M' then
+          ETiquetas[NC-1].Tratamento  := 'A/C Sr.'
+        else
+        if qryCartasDetalheEtiquetassexo.AsString = 'F' then
+          ETiquetas[NC-1].Tratamento  := 'A/C Sra.'
+        else
+          ETiquetas[NC-1].Tratamento  := 'A/C A Empresa'+
+                         qryCartasDetalheEtiquetascarta.asstring+'.'+
+                         qryCartasDetalheEtiquetasnumero.asstring;
+
+        ETiquetas[NC-1].Nr := 'Carta N.: '+qryCartasDetalheEtiquetascarta.asstring+'.'+
+                                           qryCartasDetalheEtiquetasnumero.asstring;
+        if (qryCartasDetalheEtiquetaseavalista.AsBoolean) then
+         ETiquetas[NC-1].Nome := RetiraCaracteresEspeciais(qryCartasDetalheEtiquetasnomeavalista.AsString)
+        else
+         ETiquetas[NC-1].Nome := RetiraCaracteresEspeciais(qryCartasDetalheEtiquetasnomecliente.AsString);
+        ETiquetas[NC-1].Endereco := RetiraCaracteresEspeciais(qryCartasDetalheEtiquetasrua.AsString);
+        ETiquetas[NC-1].Bairro := qryCartasDetalheEtiquetasbairro.AsString;
+        ETiquetas[NC-1].Cep := FormatarCEP(qryCartasDetalheEtiquetascep.AsString);
+        ETiquetas[NC-1].Cidade := qryCartasDetalheEtiquetascidade.AsString;
+        ETiquetas[NC-1].UF := qryCartasDetalheEtiquetasestado.AsString;
+        Inc(NC);
+        Inc(Cont);
+      end;
+    end;
+    Cont:= 1;
+    qryCartasDetalheEtiquetas.Next;
+  end;
+  Imprimir;
+end;
+
+function TdtmAviso.GetConsultaModelosEtiquetas: TZDataSet;
+begin
+ result := qryConsultaModelosEtiquetas
+end;
+
+function TdtmAviso.ExisteModeloEtiqueta(campo, codigo: string): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaModelosEtiquetas, campo, codigo);
+end;
+
+procedure TdtmAviso.Etiquetas_Modelo_E;
+begin
+
+end;
+
+function TdtmAviso.GerarCartas: Boolean;
+var
+  i: integer;
+begin
+ qryGerarCartas_Clientes.ParamByName('vaicartasefoianterior').AsBoolean := ParSistema.VaiCartasefoiAnterior;
+ qryGerarCartas_Clientes.ParamByName('inscreverpessoajuridicaspc').AsBoolean := ParSistema.InscreverPessoaJuridicaSPC;
+
+ qryGerarCartas_Avalistas.ParamByName('vaicartasefoianterior').AsBoolean := ParSistema.VaiCartasefoiAnterior;
+ qryGerarCartas_Avalistas.ParamByName('inscreverpessoajuridicaspc').AsBoolean := ParSistema.InscreverPessoaJuridicaSPC;
+
+ //rever as parcelas com cartas bloqueadas para ver se outras
+ //parcelas não entrem na situação da já selecionada na geração anterior
+ //na situaçao de não existir mais bloqueios (novos vencimentos incorporados)
+ qryIniciarGravacao.Open;
+ ReFazConsulta(qryAtualizarParcelasCartasBloqueadas_Clientes, [0,1],[FAvisos, FFiliais]);
+ qryFinalizarGravacao.Open;
+
+ qryIniciarGravacao.Open;
+ ReFazConsulta(qryAtualizarParcelasCartasBloqueadas_Avalistas, [0,1],[FAvisos, FFiliais]);
+ qryFinalizarGravacao.Open;
+
+ // Reatualizar a data e a nova situação dos bloqueios dos alterados
+ qryIniciarGravacao.Open;
+ ReFazConsulta(qryAtualizarCartasBloqueadas_Clientes, [0,1,2],[FAvisos, FFiliais, FDataHoraGravacao]);
+ qryFinalizarGravacao.Open;
+
+ qryIniciarGravacao.Open;
+ ReFazConsulta(qryAtualizarCartasBloqueadas_Avalistas, [0,1,2],[FAvisos, FFiliais, FDataHoraGravacao]);
+ qryFinalizarGravacao.Open;
+
+ // gerar as cartas
+ // incluir as cartas de clientes de acordo com os vencimentos
+ try
+  qryIniciarGravacao.Open;
+  qryGerarCartas_Clientes.ExecSql;
+ // Atualizar os vinculos entre parcelas e cartas de clientes geradas.
+  ReFazConsulta(qryAtualizarParcelas_Clientes, [0,1,2],[FAvisos, FFiliais, FDataHoraGravacao]);
+
+  qryFinalizarGravacao.Open;
+ except
+  qryDesfazerGravacao.Open;
+  qryDesfazerGravacao.close;
+  MensagemAviso(format(ctERROPROCESSAMENTO,['gerando cartas de clientes']));
+ end;
+
+ qryIniciarGravacao.close;
+ qryFinalizarGravacao.close;
+
+ // incluir as cartas de avalistas de acordo com os vencimentos
+
+{ AQUI E AGORA}
+ try
+  qryIniciarGravacao.Open;
+  qryGerarCartas_Avalistas.ExecSql;
+ // Atualizar os vinculos entre parcelas e cartas de avalistas geradas.
+  ReFazConsulta(qryAtualizarParcelas_Avalistas, [0,1,2],[FAvisos, FFiliais, FDataHoraGravacao]);
+
+  qryFinalizarGravacao.Open;
+ except
+  qryDesfazerGravacao.Open;
+  qryDesfazerGravacao.close;
+  MensagemAviso(format(ctERROPROCESSAMENTO,['gerando cartas de avalistas']));
+ end;
+
+{ AQUI E AGORA}
+
+ // Transferir parcelas para parcelascartas de possível falha na trigger
+ qryIniciarGravacao.Open;
+ ReFazConsulta(qryAtualizarSituacao, [],[]);
+ qryFinalizarGravacao.Open;
+
+ qryIniciarGravacao.close;
+ qryFinalizarGravacao.close;
+ result := (qryGerarCartas_Clientes.RowsAffected<>0) or
+           (qryGerarCartas_Avalistas.RowsAffected<>0) or
+           (qryAtualizarParcelasCartasBloqueadas_Clientesquantidade.asinteger<>0) or
+           (qryAtualizarParcelasCartasBloqueadas_Avalistasquantidade.asinteger<>0) or
+           (qryAtualizarCartasBloqueadas_Clientesquantidade.AsInteger<>0) or
+           (qryAtualizarCartasBloqueadas_Avalistasquantidade.AsInteger<>0) or
+           (qryAtualizarParcelas_Clientesquantidade.AsInteger<>0) or
+           (qryAtualizarParcelas_Avalistasquantidade.AsInteger<>0)
+
+end;
+
+function TdtmAviso.GetCartaEnviada: String;
+begin
+  FCartaEnviada := qryCartasenviada.AsString;
+  Result := FCartaEnviada;
+end;
+
+procedure TdtmAviso.dsrCartasDataChange(Sender: TObject; Field: TField);
+begin
+  inherited;
+  {
+  if field = qryCartaspessoatipo then
+    if field.value <> field.OldValue then
+    begin
+      field.value := field.OldValue;
+      if qrycartas.State = dsedit then
+        qrycartas.cancel;
+    end;
+    }
+end;
+
+end.
+

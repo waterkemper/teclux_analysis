@@ -1,7 +1,7 @@
 inherited frmNCM: TfrmNCM
-  Left = 190
-  Top = 0
-  ActiveControl = mmoDescricaoCapitulo
+  Left = 229
+  Top = 62
+  ActiveControl = edtDescricaoProtocolo
   BorderIcons = [biSystemMenu, biMinimize, biMaximize]
   BorderWidth = 0
   Caption = 'Tabela de IPI - NCM (Nomenclatura Comum do MERCOSUL)'
@@ -106,7 +106,7 @@ inherited frmNCM: TfrmNCM
     Top = 45
     Width = 1254
     Height = 669
-    ActivePage = tstCapitulos
+    ActivePage = tstMVA
     Align = alClient
     TabOrder = 2
     OnChange = pgcTabelaNCMChange
@@ -131,7 +131,7 @@ inherited frmNCM: TfrmNCM
           Left = 2
           Top = 14
           Width = 1242
-          Height = 200
+          Height = 195
           Align = alClient
           Color = clBtnFace
           DataField = 'notas'
@@ -432,7 +432,6 @@ inherited frmNCM: TfrmNCM
               FieldName = 'exTIPI'
               Title.Alignment = taCenter
               Title.Caption = 'EX'
-              Width = 64
               Visible = True
             end
             item
@@ -1729,7 +1728,6 @@ inherited frmNCM: TfrmNCM
                       FieldName = 'exTIPI'
                       Title.Alignment = taCenter
                       Title.Caption = 'EX'
-                      Width = 64
                       Visible = True
                     end
                     item
@@ -1800,7 +1798,7 @@ inherited frmNCM: TfrmNCM
                   Left = 0
                   Top = 0
                   Width = 77
-                  Height = 156
+                  Height = 151
                   Align = alLeft
                   BevelOuter = bvNone
                   TabOrder = 0
@@ -1824,7 +1822,7 @@ inherited frmNCM: TfrmNCM
                   Left = 77
                   Top = 0
                   Width = 1153
-                  Height = 156
+                  Height = 151
                   Align = alClient
                   Caption = ' DESCRI'#199#195'O '
                   Font.Charset = DEFAULT_CHARSET
@@ -1839,7 +1837,7 @@ inherited frmNCM: TfrmNCM
                     Left = 2
                     Top = 14
                     Width = 1149
-                    Height = 140
+                    Height = 135
                     Align = alClient
                     Color = clBtnFace
                     DataField = 'descricaocapitulo'
@@ -2276,7 +2274,6 @@ inherited frmNCM: TfrmNCM
             FieldName = 'Aliquota'
             Title.Alignment = taCenter
             Title.Caption = 'AL'#205'QUOTA'
-            Width = 64
             Visible = True
           end>
       end

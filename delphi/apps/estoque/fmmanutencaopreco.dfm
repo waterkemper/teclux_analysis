@@ -1,6 +1,6 @@
 inherited frmManutencaoPreco: TfrmManutencaoPreco
-  Left = 408
-  Top = 75
+  Left = 228
+  Top = 88
   Action = actEvento
   ActiveControl = dbgMarketPlace
   Caption = 'Manuten'#231'ao de Pre'#231'o'

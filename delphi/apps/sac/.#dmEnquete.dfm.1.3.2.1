@@ -1,0 +1,370 @@
+inherited dtmEnquete: TdtmEnquete
+  OldCreateOrder = False
+  Left = 524
+  Top = 225
+  Height = 322
+  Width = 548
+  object qryClientes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select vf.codigo,'
+      '       vf.tipo,'
+      '       vf.nome,'
+      '       cast(null as varchar(1000)) as texto,'
+      '       cast(null as integer) as respostaunica'
+      ''
+      'from vfornecedores vf'
+      'where vf.codigo = :cliente'
+      '  and vf.tipo = :tipocliente'
+      ''
+      '  and case when vf.tipo = '#39'C'#39' then'
+      
+        '        (select not coalesce(cl.naoresponderquestionarios,false)' +
+        ' from clientes cl where cl.codigo = :cliente)'
+      '      else'
+      '        true'
+      '      end'
+      ''
+      '  and'
+      ''
+      
+        '      case when coalesce((select coalesce(q.respondermaisdeumave' +
+        'z,false) from questionarios q where q.codigo = :questionario),fa' +
+        'lse) then'
+      ''
+      '        not exists'
+      '                    ('
+      '                        select rc.codigo'
+      '                        from respostas_clientes rc'
+      '                             join respostas r'
+      '                                  join perguntas p'
+      '                                  on r.pergunta = p.codigo'
+      '                             on rc.resposta = r.codigo'
+      '                        where p.questionario = :questionario'
+      '                          and rc.cliente = :cliente'
+      '                          and rc.tipocliente = :tipocliente'
+      '                          and (rc.orcamento = :orcamento or'
+      '                               rc.contrato = :contrato or'
+      
+        '                               rc.orcamento = (select o.codigo f' +
+        'rom orcamentos o where o.contrato = :contrato))'
+      '                        limit 1'
+      '                    )'
+      ''
+      ''
+      '      else'
+      ''
+      '        not exists'
+      '                    ('
+      '                        select rc.codigo'
+      '                        from respostas_clientes rc'
+      '                             join respostas r'
+      '                                  join perguntas p'
+      '                                  on r.pergunta = p.codigo'
+      '                             on rc.resposta = r.codigo'
+      '                        where p.questionario = :questionario'
+      '                          and rc.cliente = :cliente'
+      '                          and rc.tipocliente = :tipocliente'
+      '                        limit 1'
+      '                    )'
+      '      end')
+    RequestLive = True
+    Left = 56
+    Top = 32
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'cliente'
+        ParamType = ptUnknown
+        Value = '44101'
+      end
+      item
+        DataType = ftString
+        Name = 'tipocliente'
+        ParamType = ptUnknown
+        Value = 'C'
+      end
+      item
+        DataType = ftUnknown
+        Name = 'questionario'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'orcamento'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end>
+    object qryClientescodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryClientestipo: TStringField
+      FieldName = 'tipo'
+      Size = 1
+    end
+    object qryClientesnome: TStringField
+      FieldName = 'nome'
+      Size = 50
+    end
+    object qryClientestexto: TStringField
+      FieldName = 'texto'
+      Size = 512
+    end
+    object qryClientesrespostaunica: TIntegerField
+      FieldName = 'respostaunica'
+    end
+  end
+  object dsrClientes: TtecDataSource
+    DataSet = qryClientes
+    Left = 96
+    Top = 40
+  end
+  object qryQuestionario: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryQuestionarioAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select q.*'
+      'from questionarios q'
+      
+        'where cast(q.codigo as varchar) = (SELECT Parametros_Valor('#39'QUES' +
+        'TIONARIO ATUAL'#39',:filialbase))'
+      '  and q.disponivel'
+      
+        '  and (q.data_inativo is null or q.data_inativo >= CURRENT_TIMES' +
+        'TAMP)'
+      
+        '  and (q.data_inicio <= CURRENT_TIMESTAMP and q.data_fim >= CURR' +
+        'ENT_TIMESTAMP)')
+    RequestLive = False
+    Left = 56
+    Top = 88
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filialbase'
+        ParamType = ptUnknown
+      end>
+    object qryQuestionariocodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+    end
+    object qryQuestionariodescricao: TStringField
+      FieldName = 'descricao'
+      Size = 255
+    end
+    object qryQuestionariodata_inicio: TDateTimeField
+      FieldName = 'data_inicio'
+    end
+    object qryQuestionariodata_fim: TDateTimeField
+      FieldName = 'data_fim'
+    end
+    object qryQuestionariodisponivel: TBooleanField
+      FieldName = 'disponivel'
+    end
+    object qryQuestionariodata_inativo: TDateTimeField
+      FieldName = 'data_inativo'
+    end
+    object qryQuestionariodescricao_text: TStringField
+      FieldName = 'descricao_text'
+      Size = 512
+    end
+    object qryQuestionariorespondermaisdeumavez: TBooleanField
+      FieldName = 'respondermaisdeumavez'
+    end
+  end
+  object dsrQuestionario: TtecDataSource
+    DataSet = qryQuestionario
+    Left = 96
+    Top = 96
+  end
+  object qryPerguntas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeScroll = qryPerguntasBeforeScroll
+    AfterScroll = qryPerguntasAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select p.*'
+      'from perguntas p'
+      'where p.questionario = :questionario'
+      'order by p.codigo')
+    RequestLive = False
+    Left = 56
+    Top = 146
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'questionario'
+        ParamType = ptUnknown
+        Value = '1'
+      end>
+    object qryPerguntascodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryPerguntasquestionario: TIntegerField
+      FieldName = 'questionario'
+    end
+    object qryPerguntasdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 512
+    end
+    object qryPerguntastipo: TStringField
+      FieldName = 'tipo'
+      Size = 50
+    end
+    object qryPerguntasjustificativa: TBooleanField
+      FieldName = 'justificativa'
+    end
+  end
+  object dsrPerguntas: TtecDataSource
+    DataSet = qryPerguntas
+    Left = 96
+    Top = 154
+  end
+  object qryRespostas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkFields = 'codigo=pergunta'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrPerguntas
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select r.*,'
+      '       false as multipla,'
+      '       false as unica'
+      'from respostas r'
+      '     join perguntas p on r.pergunta = p.codigo'
+      ''
+      'where p.questionario = :questionario'
+      'order by r.codigo')
+    RequestLive = False
+    Left = 192
+    Top = 154
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'questionario'
+        ParamType = ptUnknown
+        Value = '1'
+      end>
+    object qryRespostascodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+    end
+    object qryRespostaspergunta: TIntegerField
+      FieldName = 'pergunta'
+      Required = True
+    end
+    object qryRespostasresposta: TStringField
+      FieldName = 'resposta'
+      Required = True
+      Size = 255
+    end
+  end
+  object dsrRespostas: TtecDataSource
+    DataSet = qryRespostas
+    Left = 232
+    Top = 162
+  end
+  object qryrespostas_clientes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select rc.*'
+      'from respostas_clientes rc'
+      '     join respostas r'
+      '          join perguntas p'
+      '          on r.pergunta = p.codigo'
+      '     on rc.resposta = r.codigo'
+      'where p.questionario = :questionario'
+      '  and rc.cliente     = :cliente'
+      '  and rc.tipocliente = :tipocliente')
+    RequestLive = True
+    Left = 208
+    Top = 40
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'questionario'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'cliente'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'tipocliente'
+        ParamType = ptUnknown
+      end>
+    object qryrespostas_clientesresposta: TIntegerField
+      FieldName = 'resposta'
+    end
+    object qryrespostas_clientescliente: TIntegerField
+      FieldName = 'cliente'
+    end
+    object qryrespostas_clientestipocliente: TStringField
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+    object qryrespostas_clientestexto: TStringField
+      FieldName = 'texto'
+      Size = 512
+    end
+    object qryrespostas_clientesorcamento: TIntegerField
+      FieldName = 'orcamento'
+    end
+    object qryrespostas_clientescontrato: TStringField
+      FieldName = 'contrato'
+    end
+  end
+  object dsrrespostas_clientes: TtecDataSource
+    DataSet = qryrespostas_clientes
+    Left = 240
+    Top = 56
+  end
+end

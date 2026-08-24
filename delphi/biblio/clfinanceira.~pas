@@ -1,0 +1,352 @@
+unit clfinanceira;
+
+interface
+
+uses
+  SysUtils, DateUtils, Math, DB, cpQuery, cpquery, biblio, clparametrossistema;
+
+type
+  TtecFinanceira = class
+  private
+    FPercentualMultas1: Real;
+    FPercentualMultas2: Real;
+    FTaxaJuros1: Real;
+    FTaxaJuros2: Real;
+    FJuros: Real;
+    FTolerancia: Integer;
+    FDiasAtraso1: Integer;
+    FDiasAtraso2: Integer;
+    FJurosSimples: Boolean;
+    FDescontos: Real;
+    function Fator(Taxa: Real; Dias: Integer; JurosSimples: Boolean):Real;
+    procedure SetPercentualMultas1(const Value: Real);
+    procedure SetPercentualMultas2(const Value: Real);
+    procedure SetTaxaJuros1(const Value: Real);
+    procedure SetTaxaJuros2(const Value: Real);
+    procedure SetJuros(const Value: Real);
+    procedure SetTolerancia(const Value: Integer);
+    procedure SetDiasAtraso1(const Value: Integer);
+    procedure SetDiasAtraso2(const Value: Integer);
+    procedure SetJurosSimples(const Value: Boolean);
+    procedure SetDescontos(const Value: Real);
+  public
+    Procedure LerParametros;
+    procedure ArredondaValores(TabCalculo    : TtecQuery;
+                               NP            : TIntegerField;
+                               ValorVencto   : TFloatField;
+                               Arredondamento: Real;
+                               Percorrer     : Boolean = True);
+    function TaxaDiaria(TaxaJuros:Real): Real;
+    function TaxaAcumulada(DataVencto :TDateTime;
+                           DataCalculo:TDateTime;
+                           NP         :Integer;
+                           Intervalo  :Integer;
+                           Juros      :Real;
+                           TaxaInicial: Real = 0):Real;
+
+    function ValorPresente(DataCalculo :TDateTime;
+                           NP          :Integer;
+                           DataVencto  :TDateTime;
+                           ValorVencto :Real;
+                           Intervalo   :Integer;
+                           TaxaJuros   :Real;
+                           ValorInicial:Real = 0): Real;
+
+    function CalcularDesctos(ValorVencto: Currency; DataVencto, DataPagto: TDateTime): Currency;
+    function CalcularJuros(ValorVencto: Currency; DataVencto, DataPagto: TDateTime; FilialVenda: integer): Real;
+    property PercentualMultas1: Real read FPercentualMultas1 write SetPercentualMultas1;
+    property PercentualMultas2: Real read FPercentualMultas2 write SetPercentualMultas2;
+    property TaxaJuros1       : Real read FTaxaJuros1        write SetTaxaJuros1;
+    property TaxaJuros2       : Real read FTaxaJuros2        write SetTaxaJuros2;
+    property Juros            : Real read FJuros             write SetJuros;
+    property Descontos        : Real read FDescontos         write SetDescontos;
+    property Tolerancia       : Integer read FTolerancia     write SetTolerancia;
+    property DiasAtraso1      : Integer read FDiasAtraso1  write SetDiasAtraso1;
+    property DiasAtraso2      : Integer read FDiasAtraso2  write SetDiasAtraso2;
+    property JurosSimples     : Boolean read FJurosSimples   write SetJurosSimples;
+  end;
+
+var
+  tecFinanceira : TtecFinanceira;
+  CalcularJurosBanco: function (valorVencto: Currency; DataVencto, DataPagto: TDateTime; FilialVenda: Integer): Currency;
+
+implementation
+
+{ TtecFinanceira }
+
+
+function TtecFinanceira.Fator(Taxa: Real; Dias: Integer; JurosSimples: Boolean): Real;
+                                       {Retorna  o fator de  juros a ser multiplicado}
+                                       {pelo valor de prestacoes em atraso           }
+var FatorMes: Real;
+begin
+   Taxa:= Taxa / 100;
+
+   if JurosSimples
+   then FatorMes:= 1 + (Dias div 30) * Taxa         {Juros Simples}
+   else FatorMes:= Power(1 + Taxa, Dias div 30);    {Juros Compostos}
+
+   Fator:= 100 * (FatorMes + ((Dias mod 30) * Taxa / 30));
+End;
+
+function TtecFinanceira.CalcularDesctos(ValorVencto: Currency; DataVencto, DataPagto: TDateTime): Currency;
+var
+  Taxa    : Real;
+begin
+  Taxa := Power(1 + (Descontos / 100), 1/30);
+  CalcularDesctos:= (ValorVencto / Power(Taxa, DaysBetween(DataVencto,DataPagto))) -
+                     ValorVencto;
+end;
+
+function TtecFinanceira.CalcularJuros(ValorVencto: currency; DataVencto, DataPagto: TDateTime; FilialVenda: integer): Real;
+{
+Var Atraso:     integer;
+    Taxa:       real;
+    ValorJuros: currency;
+    ValorMulta: currency;
+}
+begin
+   if (DataPagto <> 0) and (DataPagto > DataVencto) then
+      Result := CalcularJurosBanco(ValorVencto, DataVencto, DataPagto, FilialVenda)
+   else
+      Result := 0;   
+
+(*
+   ValorMulta:= 0;
+   ValorJuros:= 0;
+
+   if (DataPagto <> 0) and (DataPagto > DataVencto) then
+   begin
+
+      Atraso := DaysBetween(DataPagto, DataVencto);
+
+      IF (DataPagto <= PrimeiroDiaUtil(FilialVenda,DataVencto + Tolerancia ,'R')) THEN
+        Atraso := 0;
+      else
+        Atraso := DaysBetween(DataPagto, DataVencto);
+      END IF;
+
+      if Atraso > Tolerancia then
+      begin
+
+         {---------------------------------------------- Multa por atraso}
+         if (DiasAtraso2 <> 0) and (Atraso > DiasAtraso2)
+           then ValorMulta:= (ValorVencto * PercentualMultas2) / 100
+           else if Atraso > DiasAtraso1
+                then ValorMulta:= (ValorVencto * PercentualMultas1) / 100;
+
+         {---------------------------------------------- Juros por atraso}
+         if (DiasAtraso2 <> 0) and (Atraso > DiasAtraso2)
+         then Taxa:= TaxaJuros2
+         else if Atraso > DiasAtraso1
+              then Taxa:= TaxaJuros1
+              else Taxa:= 0;
+
+         ValorJuros:= ValorVencto * (Fator(Taxa, Atraso, JurosSimples)/100 - 1);
+      end;
+   end;
+   Result:= ValorMulta + ValorJuros;
+*)
+
+end;
+
+procedure TtecFinanceira.SetPercentualMultas1(const Value: Real);
+begin
+  if FPercentualMultas1 <> Value then
+    FPercentualMultas1:= Value;
+end;
+
+procedure TtecFinanceira.SetPercentualMultas2(const Value: Real);
+begin
+  if FPercentualMultas2 <> Value then
+    FPercentualMultas2:= Value;
+end;
+
+procedure TtecFinanceira.SetTaxaJuros1(const Value: Real);
+begin
+  if FTaxaJuros1 <> Value then
+    FTaxaJuros1:= Value;
+end;
+
+procedure TtecFinanceira.SetTaxaJuros2(const Value: Real);
+begin
+  if FTaxaJuros2 <> Value then
+    FTaxaJuros2:= Value;
+end;
+
+procedure TtecFinanceira.SetJuros(const Value: Real);
+begin
+  if FJuros <> Value then
+    FJuros:= Value;
+end;
+
+procedure TtecFinanceira.SetTolerancia(const Value: Integer);
+begin
+  if FTolerancia <> Value then
+    FTolerancia:= Value;
+end;
+
+procedure TtecFinanceira.SetDiasAtraso1(const Value: Integer);
+begin
+  if FDiasAtraso1 <> Value then
+    FDiasAtraso1:= Value;
+end;
+
+procedure TtecFinanceira.SetDiasAtraso2(const Value: Integer);
+begin
+  if FDiasAtraso2 <> Value then
+    FDiasAtraso2:= Value;
+end;
+
+procedure TtecFinanceira.SetJurosSimples(const Value: Boolean);
+begin
+  if FJurosSimples <> Value then
+    FJurosSimples:= Value;
+end;
+
+procedure TtecFinanceira.SetDescontos(const Value: Real);
+begin
+  if FDescontos <> Value then
+    FDescontos:= Value;
+end;
+
+function TtecFinanceira.TaxaDiaria(TaxaJuros:Real): Real;
+begin
+  TaxaDiaria:= Power(1 + (TaxaJuros / 100), (1 / 30));
+end;
+
+function TtecFinanceira.TaxaAcumulada(DataVencto  :TDateTime;
+                                      DataCalculo :TDateTime;
+                                      NP          :Integer;
+                                      Intervalo   :Integer;
+                                      Juros       :Real;
+                                      TaxaInicial: Real = 0):Real;
+// DataCalculo: Data base para o calculo do financiamneto.
+// DataVencto : Data vencimento da primeira parcela da ocorrência.
+// NP         : Numero de Parcelas em determinada ocorrência.
+// Intervalo  : Intervalo entre as parcelas.
+// TaxaJuros  : Taxa de juros cobrado no plano de pagamento.
+var
+  DataAux: TDateTime;
+  I    : Integer;
+begin
+  Result:= TaxaInicial;
+  for I:= 1 to NP do begin
+    DataAux:= SomarDia(DataVencto,Intervalo * (I-1),'S');
+    Result := Result + 1/(Power(TaxaDiaria(Juros),DaysBetween(DataAux,DataCalculo)));
+  end;
+end;
+
+function TtecFinanceira.ValorPresente(DataCalculo :TDateTime;
+                                      NP          :Integer;
+                                      DataVencto  :TDateTime;
+                                      ValorVencto :Real;
+                                      Intervalo   :Integer;
+                                      TaxaJuros   :Real;
+                                      ValorInicial:Real = 0):Real;
+// DataCalculo: Data base para o calculo do financiamneto.
+// NP         : Numero de Parcelas em determinada ocorrência.
+// DataVencto : Data vencimento da primeira parcela da ocorrência.
+// ValorVencto: Dalor vencimento da parcela em questão.
+// Intervalo  : Intervalo entre as parcelas.
+// TaxaJuros  : Taxa de juros cobrado no plano de pagamento.
+var
+  Valor      : Real;
+  J,NrDias : Integer;
+
+begin
+  Valor:= ValorInicial;
+  for J:= 1 to NP do begin
+    NrDias:= DaysBetween(SomarDia(DataVencto, Intervalo * (J-1),'S'), DataCalculo);
+    Valor:= Valor + RoundTo(ValorVencto / Power(TaxaDiaria(TaxaJuros),NrDias),-2);
+  end;
+  Result:= RoundTo(Valor,-2);
+end;
+
+
+procedure TtecFinanceira.ArredondaValores(TabCalculo     :TtecQuery;
+                                          NP             :TIntegerField;
+                                          ValorVencto    :TFloatField;
+                                          Arredondamento :Real;
+                                          Percorrer      :Boolean = True);
+// TabCalculo     : Tabela referente ao calculo Financiamento.
+// NP             : Numero de Parcelas em determinada ocorrência.
+// ValorVencto    : Dalor vencimento da parcela em questão.
+// Arredondamento : Numero de casas a ser arredondado.
+// Percorrer      : False quando usado todos os planos.
+Var
+  I,J             : Integer;
+  Pos             : TBookmark;
+  ValorArredondado: Real;
+  begin
+  ValorArredondado:= 0;
+  if Percorrer then begin
+    Pos:= TabCalculo.GetBookmark;
+//    TabCalculo.DisableControls;
+    try
+      TabCalculo.First;
+      for I:= 1 to TabCalculo.RecordCount do begin
+        ValorArredondado:= ValorVencto.AsFloat;
+//        if (not DiaFixo or (I > 1)) then
+          for J:= 1 to NP.AsInteger do 
+            if (Arredondamento <> 0) then begin
+               ValorArredondado:= Multiplo(ValorVencto.AsFloat,Arredondamento);
+//               ValorArredondado:= (Int((ValorVencto.AsFloat * 100) / Power(10,Arredondamento) + 0.99999)
+//                                        * Power(10,Arredondamento)) / 100;
+//               Break;
+            end;
+//        end;
+        if (ValorArredondado > 0) then begin
+          TabCalculo.Edit;
+          ValorVencto.AsFloat:= ValorArredondado;
+          TabCalculo.Post;
+        end;
+        TabCalculo.Next;
+      end;
+    finally
+      TabCalculo.GotoBookmark(Pos);
+      TabCalculo.FreeBookmark(Pos);
+//      TabCalculo.EnableControls;
+    end;
+  end
+  else begin
+    for J:= 1 to NP.AsInteger do begin
+      if (Arredondamento <> 0) then begin
+        ValorArredondado:= Multiplo(ValorVencto.AsFloat,Arredondamento);
+//        ValorArredondado:= Int(ValorVencto.AsFloat / Power(0.1,Arredondamento) + 0.99999)
+//                               * Power(0.1,Arredondamento);
+        Break;
+      end;
+    end;
+    if (ValorArredondado > 0) then begin
+      TabCalculo.Edit;
+      ValorVencto.AsFloat:= ValorArredondado;
+      TabCalculo.Post;
+    end;
+  end;
+end;
+
+procedure TtecFinanceira.LerParametros;
+begin
+    DiasAtraso1       := ParSistema.DiasAtraso1;
+    DiasAtraso2       := ParSistema.DiasAtraso2;
+    PercentualMultas1 := ParSistema.PercentualAtrasoMultas1;
+    PercentualMultas2 := ParSistema.PercentualAtrasoMultas2;
+    TaxaJuros1        := ParSistema.PercentualAtrasoJuros1;
+    TaxaJuros2        := ParSistema.PercentualAtrasoJuros2;
+    Juros             := ParSistema.TaxaJuros;
+    JurosSimples      := ParSistema.UtilizarJurosSimples;
+    Descontos         := ParSistema.DescontoPagAntecipado;
+end;
+
+initialization
+  tecFinanceira   := TtecFinanceira.Create;
+
+finalization
+  tecFinanceira.Free
+
+end.
+
+
+
+

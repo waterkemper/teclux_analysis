@@ -1,0 +1,146 @@
+unit frPesquisaNotaFiscal;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls,
+  frconsulta, frconsultacodigo, ctconstantes, dmbasico, cpnumero, DB,
+  cpdatasource;
+
+type
+  TfraPesquisaNotaFiscal = class(TFrame)
+    gbxFilial: TGroupBox;
+    fraConsultaFilial: TfraConsultaCodigo;
+    gbxSerie: TGroupBox;
+    fraConsultaSerie: TfraConsultaCodigo;
+    fraConsultaNotaFiscal: TfraConsultaCodigo;
+    gbxNumeroCupom: TGroupBox;
+    dsrProcuraNFSaida: TtecDataSource;
+  private
+    { Private declarations }
+    Procedure CondicaoConsultaFilial;
+    procedure CondicaoConsultaSeries;
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure CondicaoConsultaNotaFiscal;
+    procedure AtribuirDadosNotafiscal;
+
+
+
+  end;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmPesquisaNotaFiscal }
+
+procedure TfraPesquisaNotaFiscal.AtribuirDadosNotafiscal;
+begin
+//  fraConsultaFilial.edfcodigo.Group := 'FILIAL';
+  fraConsultaFilial.qryProcuraFiliais.parambyname('codigo').asinteger := fraConsultaNotaFiscal.qryProcuraNFSaidafilial.asinteger;
+  fraConsultaFilial.qryProcuraFiliais.close;
+  fraConsultaFilial.qryProcuraFiliais.open;
+
+//  fraConsultaSerie.edfcodigo.Group := 'serie';
+  fraConsultaSerie.qryProcuraSerie.parambyname('filial').asinteger := fraConsultaNotaFiscal.qryProcuraNFSaidafilial.asinteger;
+  fraConsultaSerie.qryProcuraSerie.parambyname('serie').asString := fraConsultaNotaFiscal.qryProcuraNFSaidaserie.asString;
+  fraConsultaSerie.qryProcuraSerie.close;
+  fraConsultaSerie.qryProcuraSerie.open;
+
+//  fraConsultaNotaFiscal.edfcodigo.Group := 'nota';
+
+
+end;
+
+procedure TfraPesquisaNotaFiscal.CondicaoConsultaNotaFiscal;
+begin
+  with fraConsultaNotaFiscal do
+  begin
+
+    qryProcuraNFSaida.parambyname('filial').asinteger := fraconsultafilial.qryProcuraFiliais.FieldByName('codigo').asinteger;
+    qryConsultaNfSaida.parambyname('filial').asinteger := fraconsultafilial.qryProcuraFiliais.FieldByName('codigo').asinteger;
+
+    if fraConsultaSerie.qryProcuraSerieserie.asString<>'' then
+    begin
+      qryProcuraNFSaida.parambyname('serie').asString := fraConsultaSerie.qryProcuraSerieserie.asString;
+      qryConsultaNfSaida.parambyname('serie').asString := fraConsultaSerie.qryProcuraSerieserie.asString;
+    end
+    else
+    begin
+      qryProcuraNFSaida.parambyname('serie').asString := '';
+      qryConsultaNfSaida.parambyname('serie').asString := '';
+    end;
+  end;
+
+end;
+
+procedure TfraPesquisaNotaFiscal.CondicaoConsultaFilial;
+begin
+//  fraConsultaFilial.qryProcuraFiliais.MacroByName('SQL').AsString := 'and codigo in (' + ListaEstoquesFiliais + ')';
+//  fraConsultaFilial.qryConsultaFiliais.MacroByName('SQL').AsString :='and codigo in (' + ListaEstoquesFiliais + ')';
+end;
+
+procedure TfraPesquisaNotaFiscal.CondicaoConsultaSeries;
+begin
+  with fraConsultaSerie do
+  begin
+    qryProcuraSerie.parambyname('filial').asinteger := fraconsultafilial.qryProcuraFiliais.FieldByName('codigo').asinteger;
+    qryConsultaSerie.parambyname('filial').asinteger := fraconsultafilial.qryProcuraFiliais.FieldByName('codigo').asinteger;
+  end;
+end;
+
+constructor TfraPesquisaNotaFiscal.Create(AOwner: TComponent);
+begin
+  inherited;
+  
+  fraConsultaFilial.edfcodigo.Group := 'FilialNFSaida';
+  fraConsultaSerie.edfcodigo.Group := 'SerieNfSaida';
+  fraConsultaNotaFiscal.edfcodigo.Group := 'NumeroNfSaida'; 
+  
+  fraconsultafilial.qryProcuraFiliais.BeforeOpen := fraconsultafilial.qryProcuraFiliaisBeforeOpen;
+  fraconsultafilial.qryConsultaFiliais.BeforeOpen := fraconsultafilial.qryConsultaFiliaisBeforeOpen;
+  fraconsultafilial.CondicoesdaConsulta := CondicaoConsultaFilial;
+  fraConsultaFilial.AbrirTipoPesquisa :=  True;
+  fraConsultaFilial.qryProcuraFiliais.parambyname('codigo').asinteger := filialbase;
+  fraConsultaFilial.TipoPesquisa := pesFILIAIS;
+
+  {
+  fraConsultaFilial.qryProcuraFiliais.close;
+  fraConsultaFilial.qryProcuraFiliais.open;
+  }
+
+  fraConsultaSerie.CondicoesdaConsulta := CondicaoConsultaSeries;
+//  fraConsultaSerie.AbrirTipoPesquisa := True;
+  fraConsultaSerie.TipoPesquisa := pesSERIES;
+  fraConsultaSerie.qryProcuraSerie.ParamByName('filial').asinteger := filialbase;
+  {
+  fraConsultaSerie.qryProcuraSerie.close;
+  fraConsultaSerie.qryProcuraSerie.open;
+  }
+
+  fraConsultaNotaFiscal.CondicoesdaConsulta := CondicaoConsultaNotaFiscal;
+  fraConsultaNotaFiscal.OnFound := AtribuirDadosNotafiscal;
+//  fraConsultaNotaFiscal.AbrirTipoPesquisa := True;
+  fraConsultaNotaFiscal.TipoPesquisa := pesNOTASNUMERO;
+
+  {
+  fraConsultaNotaFiscal.qryProcuraNFSaida.Close;
+  fraConsultaNotaFiscal.qryProcuraNFSaida.open;
+  }
+  
+
+
+
+end;
+
+destructor TfraPesquisaNotaFiscal.Destroy;
+begin
+  inherited;
+end;
+
+end.

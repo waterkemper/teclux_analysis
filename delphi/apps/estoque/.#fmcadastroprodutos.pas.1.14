@@ -1,0 +1,363 @@
+unit fmcadastroprodutos;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, Mask, ExtCtrls, Buttons, DBCtrls, DB,
+  //Terceiros
+  ZQuery,
+  //Componentes
+  cpdata, cpdbdata, cptexto, cpnumero, cpdbfindcontrols, cpdbtext,
+  //Biblio
+  biblio, ctconstantes, clparametrossistema,
+  //Projeto
+  dmcadastroprodutos,
+  //Repositorio
+  fmconsultabasica, fmconsultaporcampo, fmcadastropadrao, ComCtrls, clusuario,
+  ActnList, cpdbcombobox, cpdblookupcombobox, frconsulta, frconsultacodigo,
+  ToolWin;
+
+type
+
+  TfrmCadastroProdutos = class(TfrmCadastroPadrao)
+    edtProdutoDescricao: TDBEditTexto;
+    flkPreco: TtecDBFindLookup;
+    sbnProcurarPreco: TSpeedButton;
+    dtxPreco: TtecDBText;
+    edtForaLinha: TDBEditData;
+    edtInativo: TDBEditData;
+    ckbRecolhido: TDBCheckBox;
+    pnlFundoJanela: TPanel;
+    edtReferencia: TDBEditTexto;
+    aclHabilitar: TActionList;
+    actHabilitar: TAction;
+    pnlGrade: TPanel;
+    dtxLinhaGrade: TtecDBText;
+    dtxColunaGrade: TtecDBText;
+    dbcElementoLinhaGrade: TTecDBLookupComboBox;
+    dbcElementoColunaGrade: TTecDBLookupComboBox;
+    edtCodigo: TDBEditTexto;
+    gbxCodigo: TGroupBox;
+    gbxDescricao: TGroupBox;
+    gbxPreco: TGroupBox;
+    gbxReferencia: TGroupBox;
+    gbxInativo: TGroupBox;
+    gbxForaLinha: TGroupBox;
+    gbxLinhaGrade: TGroupBox;
+    gbxColunadaGrade: TGroupBox;
+    gbxDescricaoPlanilhaCusto: TGroupBox;
+    DBEditTexto1: TDBEditTexto;
+    gbxDataCadastroCaracteristica: TGroupBox;
+    dtxDataCadastroCaracteristica: TtecDBText;
+    gbxDataAtualizado: TGroupBox;
+    edtDataAtualizado: TtecDBText;
+    fbxNrLote: TGroupBox;
+    edtNrLote: TDBEditTexto;
+    gbxValidade: TGroupBox;
+    DBEditData1: TDBEditData;
+    pnlLote: TPanel;
+    gbxPromocao: TGroupBox;
+    fraConsultaPromocao: TfraConsultaCodigo;
+    gbxValidadePromocao: TGroupBox;
+    DBEditData2: TDBEditData;
+    procedure sbnProcurarPrecoClick(Sender: TObject);
+    procedure flkPrecoMessage(var Msg: String);
+    procedure edtInativoExit(Sender: TObject);
+    procedure edtForaLinhaExit(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure actHabilitarUpdate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+  protected
+    {dtmCadastroProdutos: TdtmCadastroProdutos;}
+    function InternoIncluir: Boolean; override;
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoPesquisar(Titulo: String): Integer; override;
+    function JanelaPesquisa: TfrmConsultaBasica; override;
+    function TabelaDePesquisa: TZDataSet; override;
+    function TabelaDoParametro(Parametro: Integer): TZDataSet; override;
+    function ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    procedure AtribuirDadosPromocao;
+
+  public
+    TipoPesquisa: TipoProcuraProdutosEstoque;
+    constructor create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    function PesquisaHabilitada: Boolean;
+//    procedure SetDataModulo(Dtm: TdtmCadastroProdutos);
+    function GetTitulo: String;
+    procedure AtualizaElementosGrade(Linha,Coluna:String);
+
+  end;
+
+var
+  frmCadastroProdutos: TfrmCadastroProdutos;
+
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmCadastroProdutos.actHabilitarUpdate(Sender: TObject);
+begin
+  inherited;
+  if not ParSistema.GerarCodigoProdutoAutomatico and dtmCadastroProdutos.InserindoProduto then
+       edtCodigo.ReadOnly:= False
+  else edtCodigo.ReadOnly:= True;
+end;
+
+constructor TfrmCadastroProdutos.create(AOwner: TComponent);
+begin
+  inherited;
+
+  gbxDescricaoPlanilhaCusto.Visible := parsistema.ControlesVoltadosparaIndustria;
+  if not gbxDescricaoPlanilhaCusto.Visible then
+  begin
+    gbxInativo.top    := gbxReferencia.top;
+    gbxForaLinha.top  := gbxReferencia.top;
+    ckbRecolhido.top  := gbxReferencia.top;
+
+    gbxReferencia.top := gbxPromocao.top;
+
+    gbxPromocao.top := gbxPreco.top;
+    gbxValidadePromocao.top := gbxPreco.top;
+    
+    gbxPreco.top      := gbxDescricaoPlanilhaCusto.top;
+
+    self.Constraints.MaxHeight := self.Height - gbxDescricaoPlanilhaCusto.Height;
+  end;
+
+  fraConsultaPromocao.TipoPesquisa := pesPROMOCOES;
+  fraConsultaPromocao.onFound := AtribuirDadosPromocao;
+
+end;
+
+destructor TfrmCadastroProdutos.Destroy;
+begin
+  inherited;
+  frmCadastroProdutos := nil;
+end;
+
+procedure TfrmCadastroProdutos.sbnProcurarPrecoClick(Sender: TObject);
+begin
+  InternoPesquisar(flkPreco);
+end;
+
+function TfrmCadastroProdutos.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then
+  begin
+    if not CtrlOn then
+      Result := dtmCadastroProdutos.ExcluirProduto;
+  end;
+end;
+
+function TfrmCadastroProdutos.InternoGravar: Boolean;
+begin
+  Result := True;
+  if (dbcElementoLinhaGrade.Visible and
+     (dbcElementoLinhaGrade.Text='')) or
+     (dbcElementoColunaGrade.Visible and
+     (dbcElementoColunaGrade.Text='')) then
+   MensagemAviso(ctLINHACOLUNAGRADEINEXISTENTE)
+  else
+  begin
+    if ActiveControl is TtecFindCustom then
+      Result:= TtecFindCustom(ActiveControl).Exist;
+    if Result then begin
+      if not ParSistema.GerarCodigoProdutoAutomatico  then
+        if (edtCodigo.Text = '') then begin
+          MensagemAviso(ctCODIGONECESSARIO +#13#10 + 'O Campo Código não está preenchido com uma informação válida.');
+          Result:= False;
+          edtCodigo.SetFocus;
+        end;
+      if Result then
+        Result:=  dtmCadastroProdutos.ItemProdutoPodeInserir(edtCodigo.Text,
+                                                             edtProdutoDescricao.Text);
+      if Result then
+        Result:= dtmCadastroProdutos.GravarProduto;
+      if Result then edtCodigo.SetFocus;
+    end;
+  end;
+end;
+
+function TfrmCadastroProdutos.InternoIncluir: Boolean;
+begin
+  Result := inherited InternoIncluir;
+  if Result then begin
+    if not CtrlOn then
+      Result := dtmCadastroProdutos.IncluirProduto(False);
+      if not result then
+        MensagemAviso(ctCOMBINACOESINEXISTENTES);
+  end;
+end;
+
+function TfrmCadastroProdutos.InternoPesquisar(Titulo:string): Integer;
+begin
+  Result := mrOK;
+
+  if ActiveControl =  flkPreco then
+
+    with dtmCadastroProdutos do
+      if PesquisaHabilitada then
+      begin
+        AbreTabelasConsulta(TipoPesquisa);
+        Result := inherited InternoPesquisar(GetTitulo);
+        if Result = mrOK then
+          Selecionar(TipoPesquisa);
+        FechaTabelasConsulta(TipoPesquisa);
+      end;
+end;
+
+function TfrmCadastroProdutos.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa := True;
+  TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := False;
+end;
+
+{
+procedure TfrmCadastroProdutos.SetDataModulo(Dtm: TdtmCadastroProdutos);
+begin
+  dtmCadastroProdutos := Dtm;
+end;
+}
+
+function TfrmCadastroProdutos.PesquisaHabilitada: boolean;
+begin
+  Result := False;
+  if CtrlOn then begin
+    if ActiveControl.ClassType = TtecDBFindLookup then
+    begin
+      if flkPreco.Focused then
+        TipoPesquisa := tpPrecosProdutos;
+      Result := True;
+    end;
+  end
+end;
+
+function TfrmCadastroProdutos.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmCadastroProdutos do
+     case TipoPesquisa of
+        tpPrecosProdutos : Result := ExistePreco(NomeCampo, Value);
+      else
+        Result := False;
+    end;
+end;
+
+function TfrmCadastroProdutos.TabelaDePesquisa: TZDataSet;
+begin
+  case TipoPesquisa of
+   tpPrecosProdutos :  Result := dtmCadastroProdutos.ConsultarPreco;
+  else
+        Result := nil;
+  end;
+end;
+
+function TfrmCadastroProdutos.TabelaDoParametro(Parametro: Integer): TZDataSet;
+begin
+  Result := dtmCadastroProdutos.ConsultarPreco;
+end;
+
+procedure TfrmCadastroProdutos.flkPrecoMessage(var Msg: String);
+begin
+  inherited;
+  Msg:= Format(ctREGISTROINCLUIDO, [flkPreco.Text,'na característica']);
+end;
+
+procedure TfrmCadastroProdutos.edtInativoExit(Sender: TObject);
+begin
+  inherited;
+  if not DataEmBranco(edtInativo.Text) and edtInativo.Criticar(false) then
+    if StrToDate(edtInativo.Text) > dtmCadastroProdutos.DataServidor then
+      if MensagemConfirmacao(ctDATASUPERIORAATUAL) = smbCancel then
+        edtInativo.SetFocus;
+end;
+
+procedure TfrmCadastroProdutos.edtForaLinhaExit(Sender: TObject);
+begin
+  inherited;
+  if not DataEmBranco(edtForaLinha.Text) and edtForaLinha.Criticar(false) then
+    if StrToDate(edtForaLinha.Text) > dtmCadastroProdutos.DataServidor then
+      if MensagemConfirmacao(ctDATASUPERIORAATUAL) = smbCancel then
+        edtInativo.SetFocus;
+end;
+
+procedure TfrmCadastroProdutos.FormShow(Sender: TObject);
+begin
+  inherited;
+  with dtmCadastroProdutos do begin
+    if(qryCaracteristicasforalinha.AsDateTime > 0) and (qryCaracteristicasforalinha.AsDateTime <= DataServidor) then
+       edtForaLinha.ReadOnly := True
+    else
+      edtForaLinha.ReadOnly  := False;
+
+    if (qryCaracteristicasinativo.AsDateTime > 0) and (qryCaracteristicasinativo.AsDateTime <= DataServidor) then
+        edtInativo.ReadOnly := True
+    else
+        edtInativo.ReadOnly := False;
+  end;
+
+//  edtForaLinha.ReadOnly:= dtmCadastroProdutos.ProdutoForaLinha;
+//  edtInativo.ReadOnly  := dtmCadastroProdutos.ProdutoInativo;
+end;
+
+function TfrmCadastroProdutos.GetTitulo: String;
+begin
+  case TipoPesquisa of
+      tpPrecosProdutos  : Result := 'Preços';
+         else           Result := '';
+  end;
+end;
+
+procedure TfrmCadastroProdutos.AtualizaElementosGrade(Linha,Coluna:String);
+begin
+{
+  dbcElementoLinhaGrade.items.Clear;
+  dbcElementoColunaGrade.items.Clear;
+  dbcElementoLinhaGrade.Hideitems.Clear;
+  dbcElementoColunaGrade.Hideitems.Clear;
+}
+{
+  dbcElementoLinhaGrade.Items.Assign(dtmCadastroProdutos.ElementosLinhaGrade);
+  dbcElementoColunaGrade.Items.Assign(dtmCadastroProdutos.ElementosColunaGrade);
+  dbcElementoLinhaGrade.HideItems.Assign(dtmCadastroProdutos.ElementosLinhaGrade);
+  dbcElementoColunaGrade.HideItems.Assign(dtmCadastroProdutos.ElementosColunaGrade);
+
+  I := dbcElementoLinhaGrade.Items.IndexOf(Linha);
+  if I=-1 then
+    dbcElementoLinhaGrade.text := ''
+  else
+   dbcElementoLinhaGrade.ItemIndex := I;
+
+  I := dbcElementoColunaGrade.Items.IndexOf(Coluna);
+  if I = -1 then
+   dbcElementoColunaGrade.text := ''
+  else
+   dbcElementoColunaGrade.ItemIndex := I;
+}
+end;
+
+
+procedure TfrmCadastroProdutos.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  inherited;
+  DataSet.Cancel;
+end;
+
+procedure TfrmCadastroProdutos.AtribuirDadosPromocao;
+begin
+  with dtmCadastroProdutos do
+  begin
+    qryProdutosdescricaopromocao.asString := fraConsultaPromocao.qryProcuraPromocoesdescricao.asString;
+    qryProdutosvalidadepromocao.Value := fraConsultaPromocao.qryProcuraPromocoesvalidade.value;
+  end;
+
+end;
+
+end.

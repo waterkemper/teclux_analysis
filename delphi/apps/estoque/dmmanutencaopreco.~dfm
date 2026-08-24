@@ -1,0 +1,2645 @@
+inherited dtmManutencaoPreco: TdtmManutencaoPreco
+  OnDestroy = DataModuleDestroy
+  Left = 304
+  Top = 98
+  Height = 658
+  Width = 926
+  object qryColuna: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'SQL'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      'select colunas.*'
+      'from'
+      '('
+      'Select codigo,'
+      '       descricao,'
+      '      (codigo = :PNormal) as normal,'
+      '      (codigo = :PPromocao) as promocao'
+      'From   colunas'
+      'Where True'
+      '%SQL'
+      ')  as colunas'
+      
+        'Order By normal desc, promocao desc, codigo  /*A COLUNA NORMAL V' +
+        'EM EM PRIMEIRO e PROMO'#199#195'O EM SEGUNDO*/')
+    RequestLive = False
+    Left = 64
+    Top = 84
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'PNormal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'PPromocao'
+        ParamType = ptUnknown
+      end>
+    object qryColunacodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryColunadescricao: TStringField
+      FieldName = 'descricao'
+      Size = 15
+    end
+    object qryColunanormal: TBooleanField
+      FieldName = 'normal'
+    end
+    object qryColunapromocao: TBooleanField
+      FieldName = 'promocao'
+    end
+  end
+  object qryManutencaoPreco: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId, doRefreshAfterPost]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryManutencaoPrecoAfterOpen
+    BeforeClose = qryManutencaoPrecoBeforeClose
+    AfterInsert = qryManutencaoPrecoAfterInsert
+    AfterEdit = qryManutencaoPrecoAfterEdit
+    AfterScroll = qryManutencaoPrecoAfterScroll
+    OnFilterRecord = qryManutencaoPrecoFilterRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    RequestLive = True
+    Left = 64
+    Top = 17
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'filial'
+        ParamType = ptUnknown
+        Value = 0
+      end>
+  end
+  object dsrManutencaoPreco: TtecDataSource
+    DataSet = qryManutencaoPreco
+    OnDataChange = dsrManutencaoPrecoDataChange
+    Left = 96
+    Top = 33
+  end
+  object qryExisteColunaPreco: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select *'
+      'From   ColunasPrecos'
+      'where (caracteristica = :caracteristica) and'
+      '           (preco = :preco) and'
+      '           (coluna = :coluna)')
+    RequestLive = True
+    Left = 349
+    Top = 382
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'caracteristica'
+        ParamType = ptUnknown
+        Value = 0
+      end
+      item
+        DataType = ftInteger
+        Name = 'preco'
+        ParamType = ptUnknown
+        Value = 0
+      end
+      item
+        DataType = ftInteger
+        Name = 'coluna'
+        ParamType = ptUnknown
+        Value = 0
+      end>
+    object qryExisteColunaPrecocaracteristica: TLargeintField
+      FieldName = 'caracteristica'
+    end
+    object qryExisteColunaPrecopreco: TIntegerField
+      FieldName = 'preco'
+    end
+    object qryExisteColunaPrecocoluna: TIntegerField
+      FieldName = 'coluna'
+    end
+    object qryExisteColunaPrecovalor: TFloatField
+      FieldName = 'valor'
+    end
+    object qryExisteColunaPrecovalidade: TDateField
+      FieldName = 'validade'
+    end
+    object qryExisteColunaPrecodata: TDateField
+      FieldName = 'data'
+    end
+  end
+  object qryColunasPrecos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      '/* Preenchda em RunTime */')
+    RequestLive = True
+    Left = 370
+    Top = 398
+  end
+  object qryProcuraColunas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryProcuraColunasBeforeOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select   codigo,'
+      '             descricao'
+      'From     colunas'
+      'Where  codigo =:codigo')
+    RequestLive = False
+    Left = 222
+    Top = 148
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraColunascodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryProcuraColunasdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 15
+    end
+  end
+  object dsrProcuraColunas: TtecDataSource
+    DataSet = qryProcuraColunas
+    Left = 242
+    Top = 164
+  end
+  object qryConsultaColunas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select   descricao,'
+      '             codigo'
+      'From     colunas'
+      'Order By UPPER(TO_ASCII(descricao,'#39'latin1'#39'))')
+    RequestLive = False
+    Left = 512
+    Top = 132
+    object qryConsultaColunasdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 15
+    end
+    object qryConsultaColunascodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Required = True
+    end
+  end
+  object qryColunasFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select f.preconormal,'
+      '           f.precopromocao'
+      'From   filiais f'
+      'Where (f.codigo =:codigo)')
+    RequestLive = False
+    Left = 64
+    Top = 141
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryColunasFiliaispreconormal: TIntegerField
+      FieldName = 'preconormal'
+    end
+    object qryColunasFiliaisprecopromocao: TIntegerField
+      FieldName = 'precopromocao'
+    end
+  end
+  object qryProcuraFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select codigo,'
+      '           nome'
+      'From   filiais'
+      'Where codigo =:codigo')
+    RequestLive = False
+    Left = 221
+    Top = 406
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraFiliaiscodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryProcuraFiliaisnome: TStringField
+      FieldName = 'nome'
+      Size = 40
+    end
+  end
+  object dsrProcuraFiliais: TtecDataSource
+    DataSet = qryProcuraFiliais
+    Left = 245
+    Top = 416
+  end
+  object qryConsultaFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select nome,'
+      '           codigo'
+      'From   filiais'
+      'Order By UPPER(TO_ASCII(nome,'#39'latin1'#39'))')
+    RequestLive = False
+    Left = 515
+    Top = 370
+    object qryConsultaFiliaisnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryConsultaFiliaiscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+    end
+  end
+  object qryMultiplosProduto: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select c.multiplo as multiplo_produto,'
+      '           g.multiplo as multiplo_grupo,'
+      '           cl.multiplo as multiplo_classe'
+      'From   produtos p, caracteristicas c, grupos g, classes cl'
+      'Where (p.codigo =:codigo) and'
+      '           (p.caracteristica = c.codigo) and'
+      '           (c.grupo = g.codigo) and'
+      '           (c.classe = cl.codigo)')
+    RequestLive = False
+    Left = 65
+    Top = 194
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryMultiplosProdutomultiplo_produto: TFloatField
+      FieldName = 'multiplo_produto'
+    end
+    object qryMultiplosProdutomultiplo_grupo: TFloatField
+      FieldName = 'multiplo_grupo'
+    end
+    object qryMultiplosProdutomultiplo_classe: TFloatField
+      FieldName = 'multiplo_classe'
+    end
+  end
+  object qryConsultaFiliaisMovimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select nome,'
+      '           codigo'
+      'From   filiais'
+      'Order By UPPER(TO_ASCII(nome,'#39'latin1'#39'))')
+    RequestLive = False
+    Left = 512
+    Top = 424
+    object qryConsultaFiliaisMovimentosnome: TStringField
+      FieldName = 'nome'
+      Size = 60
+    end
+    object qryConsultaFiliaisMovimentoscodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+  end
+  object qryProcuraFilialMovimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT codigo, nome'
+      'FROM filiais'
+      'WHERE codigo = :codigo')
+    RequestLive = False
+    Left = 368
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraFilialMovimentoscodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryProcuraFilialMovimentosnome: TStringField
+      FieldName = 'nome'
+      Size = 60
+    end
+  end
+  object dsrProcuraFilialMovimentos: TtecDataSource
+    DataSet = qryProcuraFilialMovimentos
+    Left = 392
+    Top = 32
+  end
+  object qryConsultaTipoMovimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select codigo,'
+      '           descricao'
+      'From   tiposmovimentos'
+      'Order By UPPER(TO_ASCII(descricao,'#39'latin1'#39'))')
+    RequestLive = False
+    Left = 656
+    Top = 16
+    object qryConsultaTipoMovimentoscodigo: TStringField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Size = 3
+    end
+    object qryConsultaTipoMovimentosdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      DisplayWidth = 70
+      FieldName = 'descricao'
+      Size = 70
+    end
+  end
+  object qryConsultaSerieNfEntrada: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryProcuraFornecedorNFEntradaAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'SQLCondicao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';select fornecedor, serie'
+      'from'
+      '('
+      '  select sf.fornecedor,'
+      '           sf.serie'
+      '  from seriesfornecedores sf'
+      '  where (sf.fornecedor = :fornecedor) and'
+      '           ('#39'F'#39' = :tipo)'
+      '  union'
+      '  select  sc.cliente as fornecedor,'
+      '            sc.serie'
+      '  from seriesclientes sc'
+      '  where  (sc.cliente =:fornecedor) and'
+      '             ('#39'C'#39' =:tipo)'
+      '  union'
+      '  select sf.filial  as fornecedor,'
+      '           sf.valor as serie'
+      '  from seriesfiliais sf'
+      '  where (sf.filial = :FilialBase) and'
+      '            ('#39'C'#39' = :tipo) and'
+      '            ((select count(*)'
+      '               from seriesclientes'
+      '               where cliente = :fornecedor) = 0)'
+      '  union'
+      '  select sf.filial  as fornecedor,'
+      '           sf.valor as serie'
+      '  from seriesfiliais sf'
+      '  where (sf.filial = :fornecedor) and'
+      '            ('#39'L'#39' = :tipo)'
+      ') as selecao'
+      'where true'
+      '%SQLCondicao'
+      'ORDER BY serie')
+    RequestLive = False
+    Left = 488
+    Top = 216
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'fornecedor'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'tipo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FilialBase'
+        ParamType = ptUnknown
+      end>
+    object qryConsultaSerieNfEntradaserie: TStringField
+      DisplayLabel = 'S'#233'rie'
+      DisplayWidth = 10
+      FieldName = 'serie'
+      Size = 3
+    end
+  end
+  object qryConsultaNfEntrada: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryProcuraFornecedorNFEntradaAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT numero'
+      'FROM notaspag'
+      'WHERE fornecedor = :fornecedor'
+      '  and tipofornecedor = :tipofornecedor'
+      '  AND serie = :serie'
+      '  and situacao<>'#39'P'#39
+      'ORDER BY numero')
+    RequestLive = False
+    Left = 496
+    Top = 296
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'fornecedor'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'tipofornecedor'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'serie'
+        ParamType = ptUnknown
+      end>
+    object qryConsultaNfEntradanumero: TIntegerField
+      DisplayLabel = 'N'#218'MERO'
+      FieldName = 'numero'
+    end
+  end
+  object qryProcuraTipoMovimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select codigo,'
+      '           descricao'
+      'From   tiposmovimentos'
+      'Where codigo =:codigo')
+    RequestLive = False
+    Left = 368
+    Top = 80
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraTipoMovimentoscodigo: TStringField
+      FieldName = 'codigo'
+      Size = 3
+    end
+    object qryProcuraTipoMovimentosdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 70
+    end
+  end
+  object dsrProcuraTipoMovimentos: TtecDataSource
+    DataSet = qryProcuraTipoMovimentos
+    Left = 392
+    Top = 96
+  end
+  object qryProcuraSerieNFEntrada: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryProcuraFornecedorNFEntradaAfterScroll
+    AfterScroll = qryProcuraSerieNFEntradaAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'SQLCondicao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';select fornecedor, serie'
+      'from'
+      '('
+      '  SELECT sf.fornecedor,'
+      '                sf.serie'
+      '  FROM     seriesfornecedores sf'
+      '  WHERE (sf.fornecedor = :fornecedor) and'
+      '                (sf.serie = :serie) and'
+      '                 ('#39'F'#39' = :tipo)'
+      '  UNION'
+      '  SELECT sc.cliente as fornecedor,'
+      '                sc.serie'
+      '  FROM    seriesclientes sc'
+      '  WHERE (sc.cliente =:fornecedor) and'
+      '               (sc.serie =:serie) and'
+      '               ('#39'C'#39' =:tipo)'
+      '  union'
+      '  select sf.filial as fornecedor,'
+      '           sf.valor as serie'
+      '  from seriesfiliais sf'
+      '  where (sf.filial = :FilialBase) and'
+      '             (sf.valor = :serie) and'
+      '            ('#39'C'#39' = :tipo) and'
+      '            ((select count(*)'
+      '               from seriesclientes'
+      '               where cliente = :fornecedor) = 0)'
+      '  UNION'
+      '  SELECT sf.filial  as fornecedor,'
+      '               sf.valor as serie'
+      '  FROM    seriesfiliais sf'
+      '  WHERE (sf.filial = :fornecedor) and'
+      '               (sf.valor = :serie) and'
+      '               ('#39'L'#39' = :tipo)'
+      ') as selecao'
+      'where true'
+      '%SQLCondicao'
+      'ORDER BY serie'
+      ''
+      '')
+    RequestLive = False
+    Left = 368
+    Top = 224
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'fornecedor'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'serie'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'tipo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FilialBase'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraSerieNFEntradaserie: TStringField
+      FieldName = 'serie'
+      Size = 3
+    end
+  end
+  object qryProcuraNFEntrada: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryProcuraFornecedorNFEntradaAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT numero'
+      'FROM notaspag'
+      'WHERE fornecedor = :fornecedor'
+      '  and tipofornecedor = :tipofornecedor'
+      '  AND serie = :serie'
+      '  AND numero = :numero'
+      '  and situacao<>'#39'P'#39)
+    RequestLive = False
+    Left = 368
+    Top = 296
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'fornecedor'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'tipofornecedor'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'serie'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraNFEntradanumero: TIntegerField
+      FieldName = 'numero'
+    end
+  end
+  object dsrProcuraSerieNFEntrada: TtecDataSource
+    DataSet = qryProcuraSerieNFEntrada
+    Left = 392
+    Top = 240
+  end
+  object dsrProcuraNFEntrada: TtecDataSource
+    DataSet = qryProcuraNFEntrada
+    Left = 384
+    Top = 312
+  end
+  object qryProdutosCargos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'SQLCondicao'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'select distinct pca.cargo,'
+      '                ca.descricao'
+      ''
+      'from produtoscargos pca'
+      ''
+      '     join cargos ca'
+      '     on pca.cargo = ca.codigo'
+      ''
+      
+        '     join (((produtos p left join promocoes pro on p.promocao = ' +
+        'pro.codigo)'
+      '           join (((((caracteristicas c'
+      '                join marcas m on c.marca = m.codigo)'
+      '                join grupos g on c.grupo = g.codigo)'
+      #9#9#9#9#9#9#9#9'join classes cl on c.classe = cl.codigo)'
+      ''
+      ''
+      
+        '                join tributosicms ti on ti.codigo = c.incidencia' +
+        ')'
+      '                left join csosn on csosn.codigo = c.csosn)'
+      ''
+      ''
+      ''
+      '           on p.caracteristica = c.codigo)'
+      ''
+      '           join precos pr'
+      '           on c.codigo  = pr.caracteristica'
+      '           and p.preco = pr.codigo)'
+      ''
+      '     on pca.produto = p.codigo'
+      ''
+      'where pca.cargo = ca.codigo'
+      '  and p.caracteristica = c.codigo'
+      '  and c.codigo  = pr.caracteristica'
+      '  and p.preco = pr.codigo'
+      '  and pca.produto = p.codigo'
+      '  and coalesce(ca.inativo,current_date) >= current_date'
+      ''
+      '%SQLCondicao'
+      ''
+      'order by ca.descricao, pca.cargo')
+    RequestLive = False
+    Left = 64
+    Top = 264
+    object qryProdutosCargoscargo: TIntegerField
+      FieldName = 'cargo'
+    end
+    object qryProdutosCargosdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 30
+    end
+  end
+  object qryManutencao_preco: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      
+        'select * from formacaoprecovenda(cast(:produto as bigint), :Fili' +
+        'al, '#39#39', '#39#39', :ValorUltimaCompra, 0, :markup, 0, 0, :PrecoVenda);')
+    RequestLive = False
+    Left = 40
+    Top = 312
+    ParamData = <
+      item
+        DataType = ftLargeint
+        Name = 'produto'
+        ParamType = ptUnknown
+        Value = '0'
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftCurrency
+        Name = 'ValorUltimaCompra'
+        ParamType = ptUnknown
+        Value = 0c
+      end
+      item
+        DataType = ftCurrency
+        Name = 'markup'
+        ParamType = ptUnknown
+        Value = 0c
+      end
+      item
+        DataType = ftUnknown
+        Name = 'PrecoVenda'
+        ParamType = ptUnknown
+      end>
+    object qryManutencao_precoprecovenda: TFloatField
+      FieldName = 'precovenda'
+    end
+    object qryManutencao_precoprecovendaantesimpostos: TFloatField
+      FieldName = 'precovendaantesimpostos'
+    end
+    object qryManutencao_precomarkup_inverso: TFloatField
+      FieldName = 'markup_inverso'
+    end
+  end
+  object qryManutencao_precocargo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      
+        'select manutencao_precocargo(cast(:produto as bigint), :cargo, :' +
+        'ValorPrecoNormal, :ValorPrecoPromocao, :DataValidadePromocao, :M' +
+        'arkupCargo) as valor')
+    RequestLive = False
+    Left = 104
+    Top = 360
+    ParamData = <
+      item
+        DataType = ftLargeint
+        Name = 'produto'
+        ParamType = ptUnknown
+        Value = '0'
+      end
+      item
+        DataType = ftInteger
+        Name = 'cargo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftCurrency
+        Name = 'ValorPrecoNormal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftCurrency
+        Name = 'ValorPrecoPromocao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftString
+        Name = 'DataValidadePromocao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'MarkupCargo'
+        ParamType = ptUnknown
+      end>
+    object qryManutencao_precocargovalor: TFloatField
+      FieldName = 'valor'
+    end
+  end
+  object qryCaracteristicas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo, markup, grupo, classe, marca, precotabelado'
+      'from caracteristicas'
+      'where codigo = :codigo')
+    RequestLive = False
+    Left = 648
+    Top = 296
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryCaracteristicascodigo: TLargeintField
+      FieldName = 'codigo'
+    end
+    object qryCaracteristicasmarkup: TFloatField
+      FieldName = 'markup'
+      DisplayFormat = '0.00'
+    end
+    object qryCaracteristicasgrupo: TStringField
+      FieldName = 'grupo'
+      Size = 4
+    end
+    object qryCaracteristicasclasse: TStringField
+      FieldName = 'classe'
+      Size = 2
+    end
+    object qryCaracteristicasmarca: TIntegerField
+      FieldName = 'marca'
+    end
+    object qryCaracteristicasprecotabelado: TBooleanField
+      FieldName = 'precotabelado'
+    end
+  end
+  object qryAtualizarCaracteristicas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update caracteristicas set markup = :markup,'
+      '                           grupo  = :grupo,'
+      '                           classe = :classe,'
+      '                           marca  = :marca,'
+      '                           precotabelado = :precotabelado'
+      'where codigo = :codigo')
+    RequestLive = True
+    Left = 680
+    Top = 320
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'markup'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'grupo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'classe'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'marca'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'precotabelado'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryExisteProdutoCargo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select *'
+      'From   produtoscargos'
+      'where produto = :produto'
+      'and   cargo = :cargo')
+    RequestLive = True
+    Left = 349
+    Top = 454
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'produto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'cargo'
+        ParamType = ptUnknown
+      end>
+    object qryExisteProdutoCargoproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryExisteProdutoCargocargo: TIntegerField
+      FieldName = 'cargo'
+    end
+    object qryExisteProdutoCargomarkup: TFloatField
+      FieldName = 'markup'
+    end
+    object qryExisteProdutoCargoprodutodigitado: TStringField
+      FieldName = 'produtodigitado'
+      Size = 30
+    end
+  end
+  object qryAtualizarProdutosCargos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      '/* Preenchda em RunTime */')
+    RequestLive = True
+    Left = 370
+    Top = 486
+  end
+  object qryPrecos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryPrecosBeforeOpen
+    AfterScroll = qryPrecosAfterScroll
+    OnNewRecord = qryPrecosNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select pr.*,'
+      '       true as Cadastrado'
+      'from precos pr'
+      'where pr.caracteristica = :caracteristica'
+      'order by pr.codigo')
+    RequestLive = True
+    Left = 192
+    Top = 224
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'caracteristica'
+        ParamType = ptUnknown
+      end>
+    object qryPrecoscaracteristica: TLargeintField
+      FieldName = 'caracteristica'
+      ReadOnly = True
+      Visible = False
+    end
+    object qryPrecoscodigo: TIntegerField
+      DisplayLabel = 'Pre'#231'o'
+      FieldName = 'codigo'
+      ReadOnly = True
+    end
+    object qryPrecosdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 30
+    end
+    object qryPrecoscadastrado: TBooleanField
+      FieldName = 'cadastrado'
+      ReadOnly = True
+      Visible = False
+    end
+    object qryPrecosavariado: TBooleanField
+      FieldName = 'avariado'
+      Visible = False
+    end
+  end
+  object spcPrecoProximo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select precos_proximocodigo(:caracteristica) as codigo'
+      'from caracteristicas'
+      'where caracteristicas.codigo = :caracteristica '
+      'for update')
+    RequestLive = False
+    Left = 104
+    Top = 464
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'caracteristica'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryManutencaoPrecoAux: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId, doRefreshAfterPost]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    RequestLive = True
+    Left = 224
+    Top = 17
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'filial'
+        ParamType = ptUnknown
+        Value = 0
+      end>
+  end
+  object qryProdutosPreco: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select codigo, preco, promocao'
+      'From produtos'
+      'where codigo = :produto')
+    RequestLive = True
+    Left = 509
+    Top = 502
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'produto'
+        ParamType = ptUnknown
+      end>
+    object qryProdutosPrecocodigo: TLargeintField
+      FieldName = 'codigo'
+      Required = True
+    end
+    object qryProdutosPrecopreco: TIntegerField
+      FieldName = 'preco'
+      DisplayFormat = '0'
+    end
+    object qryProdutosPrecopromocao: TIntegerField
+      FieldName = 'promocao'
+    end
+  end
+  object dsrColuna: TtecDataSource
+    DataSet = qryColuna
+    Left = 96
+    Top = 96
+  end
+  object qryPrecosPromocoes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select pre.*'
+      'from precos pre'
+      'where pre.caracteristica = :caracteristica'
+      '   and pre.codigo = :preco')
+    RequestLive = True
+    Left = 208
+    Top = 280
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'caracteristica'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'preco'
+        ParamType = ptUnknown
+      end>
+    object qryPrecosPromocoescaracteristica: TLargeintField
+      FieldName = 'caracteristica'
+    end
+    object qryPrecosPromocoescodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryPrecosPromocoesdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 30
+    end
+    object qryPrecosPromocoesavariado: TBooleanField
+      FieldName = 'avariado'
+    end
+    object qryPrecosPromocoespromocao: TIntegerField
+      FieldName = 'promocao'
+    end
+  end
+  object dsrMarketplace: TtecDataSource
+    DataSet = cdsMarketplace
+    OnDataChange = dsrMarketplaceDataChange
+    Left = 696
+    Top = 80
+  end
+  object cdsMarketplace: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = cdsMarketplaceBeforeOpen
+    AfterOpen = cdsMarketplaceAfterOpen
+    AfterEdit = cdsMarketplaceAfterEdit
+    OnCalcFields = cdsMarketplaceCalcFields
+    OnFilterRecord = cdsMarketplaceFilterRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'SQL'
+        ParamType = ptUnknown
+        Value = 'false'
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQLMarketPlace'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'select sel.*,'
+      ''
+      ''
+      
+        '           case when coalesce(sel.novo_preco_desejado,0) > 0 the' +
+        'n'
+      '             ((sel.novo_preco_desejado -'
+      '               sel.comissao -'
+      '               sel.custo_frete -'
+      '               sel.custo_produto -'
+      '               sel.ValorImposto) / sel.novo_preco_desejado)*100'
+      ''
+      '           else'
+      '             cast(null as numeric(6,2))'
+      '           end as margem,'
+      ''
+      
+        '          case when coalesce(sel.PrecoVendaComDesconto,0) <> 0 t' +
+        'hen'
+      ''
+      '                (((sel.PrecoVendaComDesconto +'
+      '                   sel.ValorDevDescInformado) -'
+      ''
+      '                   sel.ComissPrecoVendaComDesc -'
+      '                   sel.ValorComissaoDevDes -'
+      '                   sel.custo_frete -'
+      '                   sel.custo_produto -'
+      '                   sel.NovoValorImposto) /'
+      ''
+      '                   sel.PrecoVendaComDesconto) * 100'
+      '           else'
+      '             cast(null as numeric(6,2))'
+      '           end as novamargem,'
+      ''
+      '       false as alterado,'
+      '       true as alterar,'
+      '       0.00 as CampoCalculado,'
+      '       Cast(null as Varchar(50)) as NomeCampoCalculado,'
+      '       row_number() OVER (PARTITION by 0) as _seq'
+      ''
+      'from'
+      '('
+      ''
+      'select sel.*,'
+      
+        '      comissao_manutencao_preco(vendedor,Novo_Preco_Desejado) as' +
+        ' comissao,'
+      ''
+      '      comissao_manutencao_preco(sel.PercComissao,'
+      '                                sel.PrecoVendaComDesconto,'
+      
+        '                                sel.descricaomarketplace) as Com' +
+        'issPrecoVendaComDesc,'
+      ''
+      '      comissao_manutencao_preco(sel.PercComissao,'
+      '                                sel.ValorDevDescInformado,'
+      
+        '                                sel.descricaomarketplace) as Val' +
+        'orComissaoDevDes,'
+      ''
+      
+        '      sel.PrecoVendaComDesconto * sel.Aliq_icms / 100 as NovoVal' +
+        'orImposto'
+      ''
+      'from'
+      '('
+      'select *,'
+      
+        '       sel.novo_preco_desejado - sel.ValorDescontoInformado as P' +
+        'recoVendaComDesconto,'
+      
+        '       sel.ValorDescontoInformado * sel.PercentualDevDescontoInf' +
+        'ormado / 100 as ValorDevDescInformado'
+      ''
+      ''
+      ''
+      'from'
+      '('
+      ' select *,'
+      
+        '        (sel.novo_preco_desejado * sel.PercentualDescontoInforma' +
+        'do / 100) as ValorDescontoInformado,'
+      
+        '        sel.novo_preco_desejado * sel.Aliq_icms / 100 as ValorIm' +
+        'posto'
+      ''
+      'from'
+      '('
+      'select *,'
+      ''
+      '       case when sel.precotabelado then'
+      ''
+      '          sel.precovendacargo'
+      ''
+      '       else'
+      ''
+      
+        '         (custo_produto + custo_frete+case when position('#39'MAGALU' +
+        #39' in descricaomarketplace)<>0 then 5 else 0 end) /'
+      
+        '             (1 - coalesce(margem_final_desejada_pm,margem_final' +
+        '_desejada_mk)/100 -'
+      '              (perccomissao/100) + (aliq_icms/100))'
+      ''
+      '       end as Novo_Preco_Desejado'
+      ''
+      'from'
+      '('
+      'select *,'
+      ''
+      
+        '/*     custo_frete(produto, tabela_frete, precovendacargo_m_p_f ' +
+        ') as custo_frete,*/'
+      
+        '       custo_frete(produto, tabela_frete, precovendacargo) as cu' +
+        'sto_frete'
+      ''
+      'from'
+      '('
+      'select *,'
+      
+        '/*        precovendacargo * coalesce(FatorMarkProduto,0)/100 as ' +
+        'ValorMarkProduto,*/'
+      
+        '/*        precovendacargo + (precovendacargo * coalesce(FatorMar' +
+        'kProduto,0)/100) as precovendacargo_m_p_f, */'
+      ''
+      '       case when sel.regimetributario = 1 then'
+      
+        '            case when sel.csosn not in ('#39'101'#39','#39'102'#39','#39'900'#39') then ' +
+        '(sel.PercentualICMSSimples * 66.5)/100 else sel.PercentualICMSSi' +
+        'mples end'
+      '       else'
+      
+        #9'     case when sel.cst in ('#39'00'#39','#39'20'#39') then sel.PercentualICMSNo' +
+        'rmal else cast(0 as numeric(6,2)) end'
+      '       end as Aliq_icms,'
+      ''
+      '       sel.perccomissao as perccomissao_recalculada'
+      ''
+      'from'
+      '('
+      ''
+      '    select mk.codigo,'
+      '           pm.codigo as codigo_produto_marketplace,'
+      
+        '           CAST(cast(mk.codigo as varchar) || '#39'-'#39'||u.nome AS var' +
+        'char(130)) as descricaomarketplace,'
+      '           pm.marketplace,'
+      
+        '           cast(cast(cg.codigo as varchar)|| '#39'-'#39'||cg.descricao a' +
+        's varchar(60)) as tabela,'
+      '           pc.cargo,'
+      '           p.codigo as produto,'
+      '           P.codigovisual as produtovisual,'
+      ''
+      '           c.codigo as caracteristica,'
+      '           cp.coluna,'
+      '           cp.validade,'
+      '           p.preco,'
+      ''
+      '           c.codigovisual as caracteristicavisual,'
+      
+        '           cast(trim(p.descricao||'#39' '#39'||coalesce(p.valorgrade1,'#39#39 +
+        ')||'#39' '#39'||coalesce(p.valorgrade2,'#39#39')) as varchar(202)) as descrica' +
+        'o,'
+      '           p.valorgrade1,'
+      '           p.valorgrade2,'
+      '           c.grupo,'
+      '           c.classe,'
+      '           c.marca,'
+      '           p.resultadocurvaabc,'
+      '           c.csosn,'
+      ''
+      ''
+      ''
+      ''
+      
+        '           case when customedio(p.codigo,e.filial)>0 then custom' +
+        'edio(p.codigo,e.filial) else e.valorultimacompra end as custo_pr' +
+        'oduto,'
+      '           p.peso_entrega,'
+      ''
+      '           pc.markup as desconto_cargo,'
+      
+        '           (case when cast(mk.cargo_preco as varchar)=parametros' +
+        '_valor('#39'Cargo Tabela Preco Internet'#39') THEN'
+      
+        '                        estoques_preco(cast(pm.produto as bigint' +
+        '),'
+      
+        '                                       cast(mk.filial as integer' +
+        '),'
+      
+        '                                       cast(pc.markup as numeric' +
+        ') )'
+      '                ELSE'
+      
+        '                        estoques_precoporcargonormal(pm.produto,' +
+        'mk.filial,pc.markup)'
+      '                END) as precovendacargo,'
+      ''
+      '           CASE WHEN estoques_preco(cast(p.codigo as bigint),'
+      
+        '                                    cast(mk.filial_estoque as in' +
+        'teger),'
+      
+        '                                    cast(pc.markup as numeric) )' +
+        '  = 0 then 0   else'
+      
+        '                                          (1 -  e.valorultimacom' +
+        'pra'
+      
+        '                                                  /estoques_prec' +
+        'o(cast(p.codigo as bigint),'
+      
+        '                                                                ' +
+        '  cast(mk.filial_estoque as integer),'
+      
+        '                                                                ' +
+        '  cast(pc.markup as numeric))) * 100  end as margem_cargo,'
+      ''
+      '/*           m_p_f.fator as FatorMarkProduto,*/'
+      ''
+      '          coalesce( (select g_m_c.comissao'
+      '                      from grupo_marketplace_comissao g_m_c'
+      '                      where g_m_c.grupo_codigo = g.codigo'
+      
+        '                        and g_m_c.marketplace_codigo = mk.codigo' +
+        '),'
+      ''
+      '                   (select cu.percprazo'
+      '                    from comissoesusuarios cu'
+      '                    where cu.usuario = u.codigo limit 1)'
+      ''
+      '           ) as perccomissao,'
+      ''
+      ''
+      ''
+      '           mk.vendedor,'
+      ''
+      '           ti.valor as cst,'
+      ''
+      '           fm.regimetributario,'
+      
+        '           case when fm.regimetributario = 1 then cast('#39'SIMPLES'#39 +
+        ' as varchar(10)) else cast('#39'NORMAL'#39' as varchar(10)) end as descr' +
+        'icaoregimetributario,'
+      ''
+      '           c.markup,'
+      ''
+      '           mk.filial_estoque,'
+      '           mk.filial,'
+      ''
+      '           e.valorultimacompra as ultimacompra,'
+      ''
+      '           (select markup_inverso'
+      '            from formacaoprecovenda(p.codigo, '
+      '                                    mk.filial_estoque, '
+      '                                    '#39#39', '#39#39','
+      '                                    e.valorultimacompra,'
+      '                                    0,'
+      '                                    c.markup, '
+      '                                    0, '
+      '                                    0,'
+      
+        '                                    estoques_preconormal(p.codig' +
+        'o,  mk.filial_estoque) )) as markupinverso,'
+      ''
+      '           (select precovenda'
+      '            from formacaoprecovenda(p.codigo, '
+      '                                    mk.filial_estoque, '
+      '                                    '#39#39', '#39#39', '
+      '                                    e.valorultimacompra,'
+      '                                    0,'
+      '                                    c.markup,'
+      '                                    0, '
+      '                                    0 )) as precovenda,'
+      ''
+      
+        '           estoques_preconormal(p.codigo, mk.filial_estoque) as ' +
+        'preconormal,'
+      ''
+      '           pr.promocao,'
+      '           pro.descricao as descricaopromocao,'
+      '           mk.tabela_frete,'
+      ''
+      '           mk.margem_final_desejada as margem_final_desejada_mk,'
+      '           pm.margem_final_desejada as margem_final_desejada_pm,'
+      ''
+      '           (select ei.valor'
+      #9'    from estadosicms ei'
+      #9'    where ei.icms = c.icms'
+      #9'      and ei.estado = fm.estado) as PercentualICMSNormal,'
+      ''
+      
+        '            cast(:PercentualICMSSimples as numeric(6,2)) as Perc' +
+        'entualICMSSimples,'
+      
+        '            cast(:PercentualDescontoInformado as numeric(6,2)) a' +
+        's PercentualDescontoInformado,'
+      
+        '            cast(:PercentualDevDescontoInformado as numeric(6,2)' +
+        ') as PercentualDevDescontoInformado,'
+      ''
+      '           c.precotabelado'
+      ''
+      '    from produtos p'
+      '         join produto_marketplace pm'
+      '              join marketplace mk'
+      ''
+      '                   join cargos cg'
+      '                   on cg.codigo=mk.cargo_preco'
+      ''
+      '                   join usuarios u'
+      '                   on u.codigo=mk.vendedor'
+      ''
+      '                   join filiais fm'
+      '                   on mk.filial = fm.codigo'
+      ''
+      '              on mk.codigo=pm.marketplace'
+      '         on p.codigo=pm.produto'
+      ''
+      '         join produtoscargos pc'
+      '         on p.codigo = pc.produto'
+      '         and pc.cargo = mk.cargo_preco'
+      ''
+      '         join caracteristicas c'
+      '              join grupos g'
+      '              on g.codigo=c.grupo'
+      ''
+      '              join classes cl'
+      '              on cl.codigo=c.classe'
+      ''
+      '              join marcas m'
+      '              on m.codigo=c.marca'
+      ''
+      '              join tributosicms ti'
+      '              on ti.codigo = c.incidencia'
+      ''
+      '              left join csosn'
+      '              on csosn.codigo = c.csosn'
+      ''
+      '         on c.codigo=p.caracteristica'
+      ''
+      '         join estoques e'
+      '         on e.produto=p.codigo'
+      '         and e.filial =  mk.filial_estoque'
+      ''
+      '         join (precos pr'
+      '               left join promocoes pro'
+      '               on pr.promocao = pro.codigo)'
+      '         on pr.caracteristica = c.codigo'
+      '         and pr.codigo =  p.preco'
+      ''
+      ''
+      '         join colunasprecos cp'
+      '         on cp.caracteristica = p.caracteristica'
+      '         and cp.preco = pr.codigo'
+      '         and cp.coluna =  fm.preconormal'
+      ''
+      '         /*'
+      '         left join marketplace_produtos_fator m_p_f'
+      '         on m_p_f.produto = p.codigo'
+      '         and m_p_f.marketplace = mk.codigo'
+      '         */'
+      #9#9' '
+      ''
+      '    where'
+      ''
+      '      %SQL'
+      '      %SQLMarketPlace'
+      '           /*'
+      '      and mk.descricao='#39'SKYHUB'#39
+      '      and e.filial=7'
+      '      and not p.inativol'
+      '      and pm.ativo'
+      '      */'
+      ''
+      '    order by p.codigo,mk.codigo'
+      ''
+      ') as sel'
+      ''
+      ') as sel'
+      ''
+      ') as sel'
+      ''
+      ') as sel'
+      ''
+      ') as sel'
+      ''
+      ') as sel'
+      ''
+      ') as sel')
+    RequestLive = True
+    Left = 624
+    Top = 144
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'PercentualICMSSimples'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'PercentualDescontoInformado'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'PercentualDevDescontoInformado'
+        ParamType = ptUnknown
+      end>
+    object cdsMarketplacecodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object cdsMarketplacecodigo_produto_marketplace: TIntegerField
+      FieldName = 'codigo_produto_marketplace'
+    end
+    object cdsMarketplace_seq: TLargeintField
+      DisplayLabel = 'Sequencia'
+      DisplayWidth = 5
+      FieldName = '_seq'
+      Visible = False
+    end
+    object cdsMarketplacemarketplace: TIntegerField
+      DisplayWidth = 5
+      FieldName = 'marketplace'
+      Visible = False
+    end
+    object cdsMarketplacedescricaomarketplace: TStringField
+      DisplayLabel = 'Marketplace'
+      DisplayWidth = 25
+      FieldName = 'descricaomarketplace'
+      Size = 130
+    end
+    object cdsMarketplacetabela_frete: TIntegerField
+      DisplayLabel = 'Tab.Frete'
+      DisplayWidth = 5
+      FieldName = 'tabela_frete'
+    end
+    object cdsMarketplacetabela: TStringField
+      DisplayLabel = 'Tabela cargo'
+      DisplayWidth = 20
+      FieldName = 'tabela'
+      Size = 60
+    end
+    object cdsMarketplacecargo: TIntegerField
+      DisplayWidth = 5
+      FieldName = 'cargo'
+      Visible = False
+    end
+    object cdsMarketplacefilial_estoque: TIntegerField
+      DisplayLabel = 'Filial Estoque'
+      DisplayWidth = 5
+      FieldName = 'filial_estoque'
+    end
+    object cdsMarketplacefilial: TIntegerField
+      DisplayLabel = 'Filial Venda'
+      DisplayWidth = 5
+      FieldName = 'filial'
+    end
+    object cdsMarketplaceproduto: TLargeintField
+      FieldName = 'produto'
+      Visible = False
+    end
+    object cdsMarketplacecaracteristica: TLargeintField
+      DisplayLabel = 'Produto'
+      FieldName = 'caracteristica'
+      Visible = False
+    end
+    object cdsMarketplacecaracteristicavisual: TStringField
+      DisplayLabel = 'Produto'
+      DisplayWidth = 15
+      FieldName = 'caracteristicavisual'
+      Size = 30
+    end
+    object cdsMarketplacepromocao: TIntegerField
+      DisplayLabel = 'Promo'#231#227'o'
+      DisplayWidth = 3
+      FieldName = 'promocao'
+    end
+    object cdsMarketplaceprodutovisual: TStringField
+      DisplayLabel = 'Item'
+      DisplayWidth = 15
+      FieldName = 'produtovisual'
+      Size = 30
+    end
+    object cdsMarketplacedescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      DisplayWidth = 30
+      FieldName = 'descricao'
+      Size = 202
+    end
+    object cdsMarketplacevalorgrade1: TStringField
+      DisplayLabel = 'Linha'
+      DisplayWidth = 15
+      FieldName = 'valorgrade1'
+      Size = 50
+    end
+    object cdsMarketplacevalorgrade2: TStringField
+      DisplayLabel = 'Coluna'
+      DisplayWidth = 15
+      FieldName = 'valorgrade2'
+      Size = 50
+    end
+    object cdsMarketplacegrupo: TStringField
+      DisplayWidth = 7
+      FieldName = 'grupo'
+      Size = 4
+    end
+    object cdsMarketplaceclasse: TStringField
+      DisplayWidth = 5
+      FieldName = 'classe'
+      Size = 2
+    end
+    object cdsMarketplacemarca: TIntegerField
+      DisplayWidth = 5
+      FieldName = 'marca'
+    end
+    object cdsMarketplaceresultadocurvaabc: TStringField
+      DisplayLabel = 'ABC'
+      DisplayWidth = 2
+      FieldName = 'resultadocurvaabc'
+      Size = 1
+    end
+    object cdsMarketplacedescricaopromocao: TStringField
+      DisplayLabel = 'Descri'#231#227'o Promo'#231#227'o'
+      DisplayWidth = 10
+      FieldName = 'descricaopromocao'
+      Size = 100
+    end
+    object cdsMarketplaceregimetributario: TIntegerField
+      FieldName = 'regimetributario'
+      Visible = False
+    end
+    object cdsMarketplacedescricaoregimetributario: TStringField
+      DisplayLabel = 'Regime'
+      DisplayWidth = 8
+      FieldName = 'descricaoregimetributario'
+      Size = 10
+    end
+    object cdsMarketplacecsosn: TStringField
+      DisplayLabel = 'CSOSN'
+      DisplayWidth = 5
+      FieldName = 'csosn'
+      Size = 3
+    end
+    object cdsMarketplacecst: TStringField
+      DisplayLabel = 'CST'
+      DisplayWidth = 4
+      FieldName = 'cst'
+      Size = 2
+    end
+    object cdsMarketplaceultimacompra: TFloatField
+      DisplayLabel = #218'ltima Compra'
+      DisplayWidth = 8
+      FieldName = 'ultimacompra'
+      DisplayFormat = '###,##0.00'
+    end
+    object cdsMarketplacecoluna: TIntegerField
+      DisplayLabel = 'Coluna'
+      DisplayWidth = 5
+      FieldName = 'coluna'
+    end
+    object cdsMarketplacepreco: TIntegerField
+      DisplayLabel = 'Pre'#231'o'
+      DisplayWidth = 5
+      FieldName = 'preco'
+    end
+    object cdsMarketplacecusto_produto: TFloatField
+      DisplayLabel = 'Custo Produto'
+      DisplayWidth = 8
+      FieldName = 'custo_produto'
+      DisplayFormat = '###,##0.00'
+    end
+    object cdsMarketplacepeso_entrega: TFloatField
+      DisplayLabel = 'Peso Entrega'
+      DisplayWidth = 7
+      FieldName = 'peso_entrega'
+      DisplayFormat = '0.00'
+    end
+    object cdsMarketplacemarkup: TFloatField
+      DisplayLabel = 'Markup'
+      DisplayWidth = 5
+      FieldName = 'markup'
+      DisplayFormat = '0.00'
+    end
+    object cdsMarketplacemarkupinverso: TFloatField
+      DisplayLabel = 'Markup Calc.'
+      DisplayWidth = 5
+      FieldName = 'markupinverso'
+      DisplayFormat = '0.00'
+    end
+    object cdsMarketplaceprecovenda: TFloatField
+      DisplayLabel = 'Pre'#231'o'
+      DisplayWidth = 8
+      FieldName = 'precovenda'
+      DisplayFormat = '###,##0.00'
+    end
+    object cdsMarketplacealterado: TBooleanField
+      FieldName = 'alterado'
+    end
+    object cdsMarketplacealterar: TBooleanField
+      DisplayWidth = 5
+      FieldName = 'alterar'
+    end
+    object cdsMarketplacepreconormal: TFloatField
+      DisplayLabel = 'Normal'
+      DisplayWidth = 8
+      FieldName = 'preconormal'
+      DisplayFormat = '0.00'
+    end
+    object cdsMarketplacevalidade: TDateField
+      Alignment = taCenter
+      DisplayLabel = 'Validade'
+      DisplayWidth = 8
+      FieldName = 'validade'
+      EditMask = '99/99/9999;1; '
+    end
+    object cdsMarketplacedesconto_cargo: TFloatField
+      DisplayLabel = 'Desconto'
+      DisplayWidth = 8
+      FieldName = 'desconto_cargo'
+      DisplayFormat = '###,##0.00'
+    end
+    object cdsMarketplaceprecovendacargo: TFloatField
+      DisplayLabel = 'Pre'#231'o Cargo'
+      DisplayWidth = 8
+      FieldName = 'precovendacargo'
+      DisplayFormat = '###,##0.00'
+    end
+    object cdsMarketplacemargem_cargo: TFloatField
+      DisplayLabel = 'Margem'
+      DisplayWidth = 5
+      FieldName = 'margem_cargo'
+      DisplayFormat = '###,##0.00'
+    end
+    object cdsMarketplacecusto_frete: TFloatField
+      DisplayLabel = 'Custo Frete'
+      DisplayWidth = 8
+      FieldName = 'custo_frete'
+      DisplayFormat = '###,##0.00'
+    end
+    object cdsMarketplacenovo_preco_desejado: TCurrencyField
+      DisplayLabel = 'Pre'#231'o Venda Final'
+      FieldKind = fkCalculated
+      FieldName = 'novo_preco_desejado'
+      Calculated = True
+    end
+    object cdsMarketplaceperccomissao: TFloatField
+      DisplayLabel = '%Comiss'#227'o'
+      DisplayWidth = 5
+      FieldName = 'perccomissao'
+      DisplayFormat = '0.00'
+    end
+    object cdsMarketplaceperccomissao_recalculado: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'perccomissao_recalculado'
+      Calculated = True
+    end
+    object cdsMarketplacecomissao: TFloatField
+      DisplayLabel = 'Comiss'#227'o'
+      DisplayWidth = 8
+      FieldKind = fkCalculated
+      FieldName = 'comissao'
+      DisplayFormat = '###,##0.00'
+      currency = True
+      Calculated = True
+    end
+    object cdsMarketplaceValorImposto: TCurrencyField
+      DisplayLabel = 'Valor Imposto'
+      DisplayWidth = 8
+      FieldKind = fkCalculated
+      FieldName = 'ValorImposto'
+      DisplayFormat = '###,##0.00'
+      Calculated = True
+    end
+    object cdsMarketplacemargem: TCurrencyField
+      DisplayLabel = 'Margem'
+      DisplayWidth = 8
+      FieldKind = fkCalculated
+      FieldName = 'margem'
+      DisplayFormat = '###,##0.00'
+      Calculated = True
+    end
+    object cdsMarketplacePercentualDescontoInformado: TCurrencyField
+      DisplayLabel = '% Desc. Informado'
+      DisplayWidth = 8
+      FieldName = 'PercentualDescontoInformado'
+      DisplayFormat = '##0.00%'
+    end
+    object cdsMarketplaceValorDescontoInformado: TCurrencyField
+      DisplayLabel = 'Vlr. Desconto'
+      DisplayWidth = 8
+      FieldName = 'ValorDescontoInformado'
+      DisplayFormat = '###,##0.00'
+    end
+    object cdsMarketplacePrecoVendaComDesconto: TCurrencyField
+      DisplayLabel = 'Pre'#231'o Venda com Desc.'
+      DisplayWidth = 8
+      FieldKind = fkCalculated
+      FieldName = 'PrecoVendaComDesconto'
+      DisplayFormat = '###,##0.00'
+      Calculated = True
+    end
+    object cdsMarketplaceComissPrecoVendaComDesc: TCurrencyField
+      DisplayLabel = 'Comiss.Pr.Venda com Desc.'
+      DisplayWidth = 8
+      FieldKind = fkCalculated
+      FieldName = 'ComissPrecoVendaComDesc'
+      DisplayFormat = '###,##0.00'
+      Calculated = True
+    end
+    object cdsMarketplacePercentualDevDescontoInformado: TCurrencyField
+      DisplayLabel = '% Dev. Desc. Informado'
+      DisplayWidth = 7
+      FieldName = 'PercentualDevDescontoInformado'
+      DisplayFormat = '##0.00%'
+    end
+    object cdsMarketplaceValorDevDescInformado: TCurrencyField
+      DisplayLabel = 'Vlr. Dev. Desconto'
+      DisplayWidth = 8
+      FieldName = 'ValorDevDescInformado'
+      DisplayFormat = '###,##0.00'
+    end
+    object cdsMarketplaceValorComissaoDevDes: TCurrencyField
+      DisplayLabel = 'Vlr Comissao Dev.Desc.'
+      DisplayWidth = 8
+      FieldName = 'ValorComissaoDevDes'
+      DisplayFormat = '###,##0.00'
+    end
+    object cdsMarketplaceNovoValorImposto: TCurrencyField
+      DisplayLabel = 'Novo Valor Imposto'
+      DisplayWidth = 8
+      FieldKind = fkCalculated
+      FieldName = 'NovoValorImposto'
+      DisplayFormat = '###,##0.00'
+      Calculated = True
+    end
+    object cdsMarketplaceNovaMargem: TCurrencyField
+      DisplayLabel = 'Nova Margem'
+      DisplayWidth = 8
+      FieldKind = fkCalculated
+      FieldName = 'NovaMargem'
+      DisplayFormat = '###,##0.00'
+      Calculated = True
+    end
+    object cdsMarketplacecampocalculado: TFloatField
+      FieldName = 'campocalculado'
+      Visible = False
+      DisplayFormat = '0.00'
+    end
+    object cdsMarketplacenomecampocalculado: TStringField
+      FieldName = 'nomecampocalculado'
+      Visible = False
+      Size = 50
+    end
+    object cdsMarketplacemargem_final_desejada_mk: TCurrencyField
+      DisplayLabel = 'MPlace MF Desejada '
+      FieldName = 'margem_final_desejada_mk'
+    end
+    object cdsMarketplacemargem_final_desejada_pm: TCurrencyField
+      DisplayLabel = 'MPlace Prod. MF Desejada '
+      FieldName = 'margem_final_desejada_pm'
+    end
+    object cdsMarketplacealiq_icms: TCurrencyField
+      DisplayLabel = 'Al'#237'quota ICMS'
+      FieldName = 'aliq_icms'
+    end
+    object cdsMarketplacePercentualICMSNormal: TCurrencyField
+      FieldName = 'PercentualICMSNormal'
+    end
+    object cdsMarketplacePercentualICMSSimples: TCurrencyField
+      FieldName = 'PercentualICMSSimples'
+    end
+    object cdsMarketplaceprecotabelado: TBooleanField
+      DisplayLabel = 'Pre'#231'o Tabelado'
+      FieldName = 'precotabelado'
+    end
+    object cdsMarketplacevendedor: TIntegerField
+      FieldName = 'vendedor'
+    end
+  end
+  object qryExistemarketplace_produtos_fator: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select *'
+      'From   marketplace_produtos_fator'
+      'where produto = :produto'
+      'and   marketplace = :marketplace')
+    RequestLive = True
+    Left = 693
+    Top = 422
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'produto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'marketplace'
+        ParamType = ptUnknown
+      end>
+    object qryExistemarketplace_produtos_fatorproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryExistemarketplace_produtos_fatormarketplace: TIntegerField
+      FieldName = 'marketplace'
+      Required = True
+    end
+    object qryExistemarketplace_produtos_fatorfator: TFloatField
+      FieldName = 'fator'
+    end
+  end
+  object qryAtualizarmarketplace_produtos_fator: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      '/* Preenchda em RunTime */')
+    RequestLive = True
+    Left = 698
+    Top = 486
+  end
+  object qryTabelaMarketplace: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select mk.*'
+      'from marketplace mk limit 1')
+    RequestLive = False
+    Left = 576
+    Top = 72
+  end
+  object qryProcuraMarketPlace: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'SQL'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'select mk.codigo,'
+      '       mk.descricao'
+      ''
+      'from marketplace mk'
+      'where mk.codigo = :codigo'
+      '%SQL'
+      'order by mk.codigo')
+    RequestLive = False
+    Left = 648
+    Top = 208
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraMarketPlacecodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryProcuraMarketPlacedescricao: TStringField
+      FieldName = 'descricao'
+      Size = 100
+    end
+  end
+  object dsrProcuraMarketPlace: TtecDataSource
+    DataSet = qryProcuraMarketPlace
+    Left = 680
+    Top = 224
+  end
+  object qryConsultaMarketPlace: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'SQL'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'select mk.codigo,'
+      '       mk.descricao'
+      ''
+      'from marketplace mk'
+      'where true'
+      '%SQL'
+      'order by mk.codigo'
+      '')
+    RequestLive = False
+    Left = 720
+    Top = 240
+    object qryConsultaMarketPlacesublocalizacao: TStringField
+      DisplayLabel = 'Sub Localiza'#231#227'o'
+      FieldName = 'sublocalizacao'
+    end
+  end
+  object qrycomissao_manutencao_preco: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select comissao_manutencao_preco('
+      ''
+      '  :pPercComissao,'
+      '  :pvalorBaseComissao,'
+      '  :pNomeVendedor'
+      ''
+      ') as comissao')
+    RequestLive = False
+    Left = 768
+    Top = 168
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'pPercComissao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'pvalorbasecomissao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'pNomeVendedor'
+        ParamType = ptUnknown
+      end>
+    object qrycomissao_manutencao_precocomissao: TFloatField
+      FieldName = 'comissao'
+    end
+  end
+  object cdsMarketplace_copia: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'SQL'
+        ParamType = ptUnknown
+        Value = 'false'
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQLMarketPlace'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'select sel.*,'
+      
+        '       precovendacargo_m_p_f + custo_frete as precovendacomfrete' +
+        ','
+      
+        '       comissao_manutencao_preco(vendedor,(precovendacargo_m_p_f' +
+        ' + custo_frete)) as comissao,'
+      '       false as alterado,'
+      '       true as alterar,'
+      '       0.00 as CampoCalculado,'
+      '       Cast(null as Varchar(50)) as NomeCampoCalculado,'
+      '       row_number() OVER (PARTITION by 0) as _seq'
+      ''
+      'from'
+      '('
+      'select *,'
+      
+        '        custo_frete(produto, tabela_frete, precovendacargo_m_p_f' +
+        ' ) as custo_frete'
+      'from        '
+      '('
+      'select *,'
+      
+        '        precovendacargo * coalesce(FatorMarkProduto,0)/100 as Va' +
+        'lorMarkProduto,'
+      
+        '        precovendacargo + (precovendacargo * coalesce(FatorMarkP' +
+        'roduto,0)/100) as precovendacargo_m_p_f'
+      ''
+      
+        '        /* ValorMarkProduto, recovendacargo_m_p_f n'#227'o ser'#227'o mais' +
+        ' utilizados  */'
+      ''
+      ''
+      'from'
+      '('
+      ''
+      
+        '    select CAST(cast(mk.codigo as varchar) || '#39'-'#39'||u.nome AS var' +
+        'char(130)) as descricaomarketplace,'
+      '           pm.marketplace,'
+      
+        '           cast(cast(cg.codigo as varchar)|| '#39'-'#39'||cg.descricao a' +
+        's varchar(60)) as tabela,'
+      '           pc.cargo,'
+      '           p.codigo as produto,'
+      '           P.codigovisual as produtovisual,'
+      ''
+      '           c.codigo as caracteristica,'
+      '           cp.coluna,'
+      '           cp.validade,'
+      '           p.preco,'
+      ''
+      '           c.codigovisual as caracteristicavisual,'
+      
+        '           cast(trim(p.descricao||'#39' '#39'||coalesce(p.valorgrade1,'#39#39 +
+        ')||'#39' '#39'||coalesce(p.valorgrade2,'#39#39')) as varchar(202)) as descrica' +
+        'o,'
+      '           p.valorgrade1,'
+      '           p.valorgrade2,'
+      '           c.grupo,'
+      '           c.classe,'
+      '           c.marca,'
+      '           p.resultadocurvaabc,'
+      '           c.csosn,'
+      ''
+      ''
+      ''
+      ''
+      
+        '           case when customedio(p.codigo,e.filial)>0 then custom' +
+        'edio(p.codigo,e.filial) else e.valorultimacompra end as custo_pr' +
+        'oduto,'
+      '           p.peso_entrega,'
+      ''
+      '           pc.markup as desconto_cargo,'
+      
+        '           (case when cast(mk.cargo_preco as varchar)=parametros' +
+        '_valor('#39'Cargo Tabela Preco Internet'#39') THEN'
+      
+        #9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9'estoques_preco(pm.produto,mk.filial' +
+        ',pc.markup)'
+      #9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9'ELSE'
+      
+        #9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9'estoques_precoporcargonormal(pm.pro' +
+        'duto,mk.filial,pc.markup)'
+      #9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9'END) as precovendacargo,'
+      ''
+      
+        '           CASE WHEN estoques_preco(p.codigo, mk.filial_estoque ' +
+        ', pc.markup)  = 0 then 0   else'
+      
+        '                                          (1 -  e.valorultimacom' +
+        'pra'
+      
+        '                                                  /estoques_prec' +
+        'o(p.codigo, mk.filial_estoque, pc.markup)) * 100  end as margem_' +
+        'cargo,'
+      ''
+      '           m_p_f.fator as FatorMarkProduto,'
+      ''
+      
+        '           (select cu.percprazo from comissoesusuarios cu where ' +
+        'cu.usuario = u.codigo limit 1) as perccomissao,'
+      '           mk.vendedor,'
+      ''
+      '           ti.valor as cst,'
+      ''
+      '           fm.regimetributario,'
+      
+        '           case when fm.regimetributario = 1 then cast('#39'SIMPLES'#39 +
+        ' as varchar(10)) else cast('#39'NORMAL'#39' as varchar(10)) end as descr' +
+        'icaoregimetributario,'
+      ''
+      '           c.markup,'
+      ''
+      '           mk.filial_estoque,'
+      '           mk.filial,'
+      ''
+      '           e.valorultimacompra as ultimacompra,'
+      ''
+      '           (select markup_inverso'
+      '            from formacaoprecovenda(p.codigo, '
+      '                                    mk.filial_estoque, '
+      '                                    '#39#39', '#39#39','
+      '                                    e.valorultimacompra,'
+      '                                    0,'
+      '                                    c.markup, '
+      '                                    0, '
+      '                                    0,'
+      
+        '                                    estoques_preconormal(p.codig' +
+        'o,  mk.filial_estoque) )) as markupinverso,'
+      ''
+      '           (select precovenda'
+      '            from formacaoprecovenda(p.codigo, '
+      '                                    mk.filial_estoque, '
+      '                                    '#39#39', '#39#39', '
+      '                                    e.valorultimacompra,'
+      '                                    0,'
+      '                                    c.markup,'
+      '                                    0, '
+      '                                    0 )) as precovenda,'
+      ''
+      
+        '           estoques_preconormal(p.codigo, mk.filial_estoque) as ' +
+        'preconormal,'
+      ''
+      '           pr.promocao,'
+      '           pro.descricao as descricaopromocao,'
+      '           mk.tabela_frete,'
+      
+        '           /*coalesce(pm.margem_final_desejada, mk.margem_final_' +
+        'desejada)*/'
+      '           cast(20 as numeric(6,2)) as margem_final_desejada'
+      ''
+      ''
+      ''
+      ''
+      '    from produtos p'
+      '         join produto_marketplace pm'
+      '              join marketplace mk'
+      ''
+      '                   join cargos cg'
+      '                   on cg.codigo=mk.cargo_preco'
+      ''
+      '                   join usuarios u'
+      '                   on u.codigo=mk.vendedor'
+      ''
+      '                   join filiais fm'
+      '                   on mk.filial = fm.codigo'
+      ''
+      '              on mk.codigo=pm.marketplace'
+      '         on p.codigo=pm.produto'
+      ''
+      '         join produtoscargos pc'
+      '         on p.codigo = pc.produto'
+      '         and pc.cargo = mk.cargo_preco'
+      ''
+      '         join caracteristicas c'
+      '              join grupos g'
+      '              on g.codigo=c.grupo'
+      ''
+      '              join classes cl'
+      '              on cl.codigo=c.classe'
+      ''
+      '              join marcas m'
+      '              on m.codigo=c.marca'
+      ''
+      '              join tributosicms ti'
+      '              on ti.codigo = c.incidencia'
+      ''
+      '              left join csosn'
+      '              on csosn.codigo = c.csosn'
+      ''
+      '         on c.codigo=p.caracteristica'
+      ''
+      '         join estoques e'
+      '         on e.produto=p.codigo'
+      '         and e.filial =  mk.filial_estoque'
+      ''
+      '         join (precos pr'
+      '               left join promocoes pro'
+      '               on pr.promocao = pro.codigo)'
+      '         on pr.caracteristica = c.codigo'
+      '         and pr.codigo =  p.preco'
+      ''
+      ''
+      '         join colunasprecos cp'
+      '         on cp.caracteristica = p.caracteristica'
+      '         and cp.preco = pr.codigo'
+      '         and cp.coluna =  fm.preconormal'
+      ''
+      '         left join marketplace_produtos_fator m_p_f'
+      '         on m_p_f.produto = p.codigo'
+      '         and m_p_f.marketplace = mk.codigo'
+      ''
+      ''
+      '    where'
+      ''
+      '      %SQL'
+      '      %SQLMarketPlace'
+      '           /*'
+      '      and mk.descricao='#39'SKYHUB'#39
+      '      and e.filial=7'
+      '      and not p.inativol'
+      '      and pm.ativo'
+      '      */'
+      ''
+      '    order by p.codigo,mk.codigo'
+      ''
+      ') as sel'
+      ''
+      ') as sel'
+      ''
+      ')as sel')
+    RequestLive = True
+    Left = 752
+    Top = 560
+  end
+  object qryMarketPlace: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select mk.*'
+      'from marketplace mk'
+      'where mk.codigo = :codigo')
+    RequestLive = True
+    Left = 776
+    Top = 304
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryproduto_marketplace: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select pmk.*'
+      'from produto_marketplace pmk'
+      'where pmk.codigo = :codigo')
+    RequestLive = True
+    Left = 776
+    Top = 360
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+  end
+end

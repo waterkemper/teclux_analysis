@@ -1,0 +1,150 @@
+unit fmVendasPerdidas;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmcadastropadrao, ComCtrls, Buttons, ToolWin, ExtCtrls,
+  StdCtrls, Mask, cpdbfindcontrols, DBCtrls, cpdbtext, AdvMemo, DBAdvMemo,
+  frconsulta, frconsultacodigo, ctconstantes, BIBLIO;
+
+type
+  TfrmVendasPerdidas = class(TFrmCadastroPadrao)
+    stxNumero: TStaticText;
+    edfVendaPerdida: TtecDbEditFind;
+    stxVendedor: TStaticText;
+    dtxCodigoVendedor: TtecDBText;
+    dtxNomeVendedor: TtecDBText;
+    stxDataHora: TStaticText;
+    dtxDataHora: TtecDBText;
+    stxFilial: TStaticText;
+    dtxFilial: TtecDBText;
+    dtxDescricaoFilial: TtecDBText;
+    StaticText2: TStaticText;
+    StaticText3: TStaticText;
+    StaticText1: TStaticText;
+    stxGrupo: TStaticText;
+    gbxObservacoes: TGroupBox;
+    dbadvmmoObservacoes: TDBAdvMemo;
+    fraConsultaGrupo: TfraConsultaCodigo;
+    stxItemProduto: TStaticText;
+    fraConsultaItemProduto: TfraConsultaCodigo;
+    stxItem: TStaticText;
+  private
+    { Private declarations }
+    procedure AtribuirDadosVendasPerdidas;
+    procedure AtribuirDadosItemProdutos;
+  protected
+    fraConsultaVendasPerdidas: TfraConsultaCodigo;
+  public
+    { Public declarations }
+    procedure OperacaoPadrao(Value: Array of Variant); override;
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+
+    function InternoIncluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoExcluir: Boolean; override;
+
+    function InternoPesquisar(Titulo:String): Integer; override;
+
+  end;
+
+var
+  frmVendasPerdidas: TfrmVendasPerdidas;
+
+implementation
+
+uses dmVendasPerdidas;
+
+
+{$R *.dfm}
+
+{ TfrmVendasPerdidas }
+
+procedure TfrmVendasPerdidas.AtribuirDadosItemProdutos;
+begin
+  dtmVendasPerdidas.qryVendasPerdidas.edit;
+  dtmVendasPerdidas.qryVendasPerdidasproduto.AsString := fraConsultaItemProduto.qryProcuraItemProdutoscodigo.AsString;
+
+  if dtmVendasPerdidas.qryVendasPerdidasgrupo.IsNull then
+  begin
+    dtmVendasPerdidas.qryVendasPerdidasgrupo.AsString := fraConsultaItemProduto.qryProcuraItemProdutosgrupo.AsString;
+    fraConsultaGrupo.edfCodigo.Exist;
+  end;  
+end;
+
+procedure TfrmVendasPerdidas.AtribuirDadosVendasPerdidas;
+begin
+  with dtmVendasPerdidas do
+  begin
+    qryVendasPerdidas.parambyname('codigo').asstring := fraConsultaVendasPerdidas.qryConsultaVendasPerdidascodigo.asString;
+    qryVendasPerdidas.close;
+    qryVendasPerdidas.open;
+  end;
+end;
+
+constructor TfrmVendasPerdidas.Create(AOwner: TComponent);
+begin
+  dtmVendasPerdidas := TdtmVendasPerdidas.create(self);
+  inherited;
+  DataSet := dtmVendasPerdidas.qryVendasPerdidas;
+  fraConsultaGrupo.TipoPesquisa := pesGRUPOS;
+
+  fraConsultaVendasPerdidas := TfraConsultaCodigo.Create(self);
+  fraConsultaVendasPerdidas.Name := 'fraConsultaVendasPerdidas';
+//  fraConsultaVendasPerdidas.edfCodigo.MaxLength := 20;
+//  fraConsultaVendasPerdidas.edfCodigo.DataSource := fraConsultaVendasPerdidas.dsrProcuraVendasPerdidas;
+//  fraConsultaVendasPerdidas.edfCodigo.DataField := 'numero';
+  fraConsultaVendasPerdidas.edfCodigo.Operacao := opPESQUISA;
+  fraConsultaVendasPerdidas.AbrirTabelaProcura := false;
+//  fraConsultaVendasPerdidas.CondicoesdaConsulta := CondicoesdaConsultaVendasPerdidas;
+  fraConsultaVendasPerdidas.TipoPesquisa := pesVendasPerdidas;
+  fraConsultaVendasPerdidas.OnFound := AtribuirDadosVendasPerdidas;
+
+  fraConsultaItemProduto.TipoPesquisa := pesItemProdutos;
+  fraConsultaItemProduto.onFound := AtribuirDadosItemProdutos;
+
+end;
+
+destructor TfrmVendasPerdidas.Destroy;
+begin
+
+  inherited;
+end;
+
+function TfrmVendasPerdidas.InternoExcluir: Boolean;
+begin
+  dtmVendasPerdidas.Excluir;
+end;
+
+function TfrmVendasPerdidas.InternoGravar: Boolean;
+begin
+  dtmVendasPerdidas.Gravar;
+end;
+
+function TfrmVendasPerdidas.InternoIncluir: Boolean;
+begin
+  dtmVendasPerdidas.Incluir;
+end;
+
+function TfrmVendasPerdidas.InternoPesquisar(Titulo: String): Integer;
+begin
+  if not CtrlOn then
+     fraConsultaVendasPerdidas.InternoPesquisar('Vendas Perdidas')
+     {
+  else
+  if ActiveControl = fraConsultaItemProduto.edfCodigo then
+    fraConsultaItemProduto.InternoPesquisar('Item de Produto')
+    }
+
+end;
+
+procedure TfrmVendasPerdidas.OperacaoPadrao(Value: array of Variant);
+begin
+  inherited;
+  if Value[0]='Incluir' then
+    internoincluir;
+end;
+
+end.

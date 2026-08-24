@@ -1,0 +1,197 @@
+unit dmindiceprodutividade;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, cpdatasource, ZQuery, ZPgSqlQuery,
+  cpquery, dmtecsoft, biblio, ctconstantes, ExcelExport, ZTransact;
+
+type
+
+
+  TpConsultaProdutividade = (tpEFICIENCIA_POR_OPERACAO_DE_OSP,
+  tpPREMIACAO_DE_FUNCIONARIOS_POR_SETOR,
+  tpPREMIACAO_DE_FUNCIONARIOS_PONDERADA,
+  tpPREMIACAO_DE_LIDERES);
+
+
+type
+  TdtmIndiceProdutividade = class(TdtmBasico)
+    qryIndiceProdutividade: TtecQuery;
+    dsrIndiceProdutividade: TtecDataSource;
+    ExcelExport1: TExcelExport;
+    qryEficienciaporOperacaodeOSP: TtecQuery;
+    qryPremiacaoFuncionariosSetor: TtecQuery;
+    qryPremiacaoLideres: TtecQuery;
+    qryPremiacaoFuncionariosPonderada: TtecQuery;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    function AbrirConsulta(DataInicial, DataFinal, ListaSetoresProducao, ListaFuncionarios: String;
+             TipoConsultaProdutividade: TpConsultaProdutividade ): boolean;
+    procedure ExportarExcell;
+  end;
+
+var
+  dtmIndiceProdutividade: TdtmIndiceProdutividade;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmIndiceProdutividade }
+
+function TdtmIndiceProdutividade.AbrirConsulta(DataInicial, DataFinal,
+  ListaSetoresProducao, ListaFuncionarios: String; TipoConsultaProdutividade: TpConsultaProdutividade): boolean;
+var
+ vLider : string;
+ vMediaEficiencia : Currency;
+ vMaiorValorPremio : Currency;
+ vNumero: integer;
+ vFinalArquivo : Boolean;
+
+begin
+  case TipoConsultaProdutividade of
+    tpEFICIENCIA_POR_OPERACAO_DE_OSP       : qryIndiceProdutividade.sql.Text := qryEficienciaporOperacaodeOSP.sql.text;
+    tpPREMIACAO_DE_FUNCIONARIOS_POR_SETOR  : qryIndiceProdutividade.sql.Text := qryPremiacaoFuncionariosSetor.sql.text;
+    tpPREMIACAO_DE_FUNCIONARIOS_PONDERADA  : qryIndiceProdutividade.sql.Text := qryPremiacaoFuncionariosPonderada.sql.text;
+    tpPREMIACAO_DE_LIDERES                 : qryIndiceProdutividade.sql.Text := qryPremiacaoLideres.sql.text;
+  end;
+
+  if (DataInicial<>'') and (DataFinal<>'') then
+  begin
+    qryIndiceProdutividade.MacroByName('FiltroPeriodo').AsString := 'and oou.data between :datainicial and :datafinal';
+    if TipoConsultaProdutividade = tpPREMIACAO_DE_FUNCIONARIOS_PONDERADA then
+      qryIndiceProdutividade.MacroByName('FiltroPeriodo2').AsString := 'and oou2.data between :datainicial and :datafinal';
+    qryIndiceProdutividade.ParamByName('datainicial').AsDateTime := StrToDateTime(datainicial);
+    qryIndiceProdutividade.ParamByName('datafinal').  AsDateTime := StrToDateTime(DataFinal);
+  end
+  else
+  if (DataInicial<>'') and (DataFinal='') then
+  begin
+    qryIndiceProdutividade.MacroByName('FiltroPeriodo').AsString := 'and oou.data >= :datainicial';
+    if TipoConsultaProdutividade = tpPREMIACAO_DE_FUNCIONARIOS_PONDERADA then
+      qryIndiceProdutividade.MacroByName('FiltroPeriodo2').AsString := 'and oou2.data >= :datainicial';
+
+    qryIndiceProdutividade.ParamByName('datainicial').asdatetime := StrToDateTime(datainicial);
+  end
+  else
+  if (DataInicial='') and (DataFinal<>'') then
+  begin
+    qryIndiceProdutividade.MacroByName('FiltroPeriodo').AsString := 'and oou.data <= :datafinal';
+    if TipoConsultaProdutividade = tpPREMIACAO_DE_FUNCIONARIOS_PONDERADA then
+      qryIndiceProdutividade.MacroByName('FiltroPeriodo2').AsString := 'and oou2.data <= :datafinal';
+
+    qryIndiceProdutividade.ParamByName('datafinal').asdatetime := StrToDateTime(DataFinal);
+  end
+  else
+  if (DataInicial='') and (DataFinal='') then
+  begin
+    qryIndiceProdutividade.MacroByName('FiltroPeriodo').AsString := '';
+    if TipoConsultaProdutividade = tpPREMIACAO_DE_FUNCIONARIOS_PONDERADA then
+      qryIndiceProdutividade.MacroByName('FiltroPeriodo2').AsString := '';
+
+  end;
+
+  if ListaSetoresProducao <> '' then
+  begin
+    qryIndiceProdutividade.MacroByName('FiltroSetoresProducao').AsString := 'and m.setorproducao in ('+ListaSetoresProducao+')';
+    if TipoConsultaProdutividade = tpPREMIACAO_DE_FUNCIONARIOS_PONDERADA then
+      qryIndiceProdutividade.MacroByName('FiltroSetoresProducao2').AsString := 'and m2.setorproducao in ('+ListaSetoresProducao+')'
+
+  end
+  else
+  begin
+    qryIndiceProdutividade.MacroByName('FiltroSetoresProducao').AsString := '';
+    if TipoConsultaProdutividade = tpPREMIACAO_DE_FUNCIONARIOS_PONDERADA then
+      qryIndiceProdutividade.MacroByName('FiltroSetoresProducao2').AsString := '';
+  end;
+
+  if ListaFuncionarios <> '' then
+  begin
+    if TipoConsultaProdutividade <> tpPREMIACAO_DE_LIDERES then
+      qryIndiceProdutividade.MacroByName('FiltroFuncionarios').AsString := 'and oou.usuario in ('+ListaFuncionarios+')';
+  end
+  else
+  begin
+    if TipoConsultaProdutividade <> tpPREMIACAO_DE_LIDERES then
+      qryIndiceProdutividade.MacroByName('FiltroFuncionarios').AsString := '';
+
+  end;
+
+  qryIndiceProdutividade.Close;
+  qryIndiceProdutividade.Open;
+
+  if TipoConsultaProdutividade = tpPREMIACAO_DE_LIDERES then
+  begin
+    qryIndiceProdutividade.first;
+    vlider := qryIndiceProdutividade.fieldbyname('usuario').asstring;
+    vnumero := 0;
+    vMaiorValorPremio := 0;
+    if qryIndiceProdutividade.recordcount<>0 then
+    begin
+      while true do
+      begin
+        if (vlider <> qryIndiceProdutividade.fieldbyname('usuario').asstring) or
+           qryIndiceProdutividade.Eof then
+        begin
+          vfinalArquivo := qryIndiceProdutividade.Eof;
+          guardarRegistroAtual(qryIndiceProdutividade,true);
+
+          qryIndiceProdutividade.first;
+          while not qryIndiceProdutividade.eof do
+          begin
+            if vlider = qryIndiceProdutividade.fieldbyname('usuario').asstring then
+            begin
+              qryIndiceProdutividade.edit;
+              qryIndiceProdutividade.fieldbyname('mediaeficiencia').ascurrency :=  vMediaEficiencia / vnumero;
+              qryIndiceProdutividade.fieldbyname('valorpremiolider').ascurrency := vMaiorValorPremio * qryIndiceProdutividade.fieldbyname('mediaeficiencia').ascurrency/100;
+              qryIndiceProdutividade.post;
+            end;
+            qryIndiceProdutividade.next;
+          end;
+
+          voltarRegistroAtual(qryIndiceProdutividade);
+          if vFinalArquivo then
+            break
+          else
+          begin
+            vlider := qryIndiceProdutividade.fieldbyname('usuario').asstring;
+            vnumero := 0;
+            vMaiorValorPremio := 0;
+            vMediaEficiencia := 0;
+          end;
+        end
+        else
+        begin
+          if qryIndiceProdutividade.fieldbyname('valorpremio').ascurrency > vMaiorValorPremio then
+            vMaiorValorPremio := qryIndiceProdutividade.fieldbyname('valorpremio').ascurrency;
+
+          vMediaEficiencia := vMediaEficiencia + qryIndiceProdutividade.fieldbyname('eficienciasetor').ascurrency;
+          inc(vnumero);
+          qryIndiceProdutividade.next;
+        end;
+      end;  
+    end;
+  end;
+
+  
+
+  if qryIndiceProdutividade.IsEmpty then
+  begin
+    result := false;
+    MensagemAviso(Format(ctNENHUMREGISTROENCONTRADO,['Registro']));
+  end
+  else
+    result := true
+end;
+
+procedure TdtmIndiceProdutividade.ExportarExcell;
+begin
+  GuardarRegistroAtual(qryIndiceProdutividade,true);
+  ExcelExport1.ExportDataset;
+  VoltarRegistroAtual(qryIndiceProdutividade);
+end;
+
+end.

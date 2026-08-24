@@ -1581,6 +1581,8 @@ inherited dtmordemservico: Tdtmordemservico
       '         s.cofinscst,'
       '         s.cofinsaliquota,'
       '         S.codigolcp116,'
+      '         s.nbs,'
+      '         sc.cindop,'
       '         s.cnae,'
       '         s.cstissqn,'
       '         sc.produto,'
@@ -1795,6 +1797,13 @@ inherited dtmordemservico: Tdtmordemservico
     end
     object qryServicosOrdemServicoproduto: TLargeintField
       FieldName = 'produto'
+    end
+    object qryServicosOrdemServiconbs: TStringField
+      FieldName = 'nbs'
+    end
+    object qryServicosOrdemServicocindop: TStringField
+      FieldName = 'cindop'
+      Size = 6
     end
   end
   object dsrOrdemServico: TtecDataSource
@@ -2636,9 +2645,11 @@ inherited dtmordemservico: Tdtmordemservico
       '          s.cofinscst,'
       '          s.cofinsaliquota,'
       '          s.codigolcp116,'
+      '          s.nbs,'
       '          ae.codigoatividade,'
       '          s.cstissqn,'
       '          s.cnae,'
+      '          s.cindop,'
       ''
       '         (select saem.codigoatividademunicipio'
       '          from servicosatividadeseconomicasmunicipios saem'
@@ -2739,6 +2750,13 @@ inherited dtmordemservico: Tdtmordemservico
     end
     object qryProcuraServicocodigoatividademunicipio: TIntegerField
       FieldName = 'codigoatividademunicipio'
+    end
+    object qryProcuraServiconbs: TStringField
+      FieldName = 'nbs'
+    end
+    object qryProcuraServicocindop: TStringField
+      FieldName = 'cindop'
+      Size = 6
     end
   end
   object dsrProcuraServico: TtecDataSource
@@ -6479,7 +6497,7 @@ inherited dtmordemservico: Tdtmordemservico
       0000090068656C766574696361000A0000000000000000000200000001000200
       00000000FFFFFF00040074727565000200000000000000FEFEFF000000000000
       000000000000FC0000000000000000000000000000000058007FE9EEEF4B87E3
-      40619EA8F72B15E640}
+      40F9ED121F4E89E640}
   end
   object qryProdutosCompostos: TtecQuery
     Tag = -1

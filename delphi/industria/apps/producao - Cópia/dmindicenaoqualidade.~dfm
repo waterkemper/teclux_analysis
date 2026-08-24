@@ -1,0 +1,719 @@
+inherited dtmindicenaoqualidade: Tdtmindicenaoqualidade
+  OldCreateOrder = False
+  Left = 765
+  Top = 216
+  Height = 462
+  Width = 647
+  object qryindicenaoqualidade: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryIndiceNaoQualidadeAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      '')
+    RequestLive = True
+    Left = 96
+    Top = 56
+  end
+  object dsrindicenaoqualidade: TtecDataSource
+    DataSet = qryindicenaoqualidade
+    Left = 152
+    Top = 72
+  end
+  object ExcelExport1: TExcelExport
+    FontTitles.Charset = DEFAULT_CHARSET
+    FontTitles.Color = clWindowText
+    FontTitles.Height = -11
+    FontTitles.Name = 'MS Sans Serif'
+    FontTitles.Style = [fsBold]
+    OrientationTitles = 0
+    FontData.Charset = DEFAULT_CHARSET
+    FontData.Color = clWindowText
+    FontData.Height = -11
+    FontData.Name = 'MS Sans Serif'
+    FontData.Style = []
+    StyleColumnWidth = cwAutoFit
+    ColumnWidth = 80
+    WorksheetName = 'indices'
+    Dataset = qryindicenaoqualidade
+    Left = 328
+    Top = 56
+  end
+  object qryCustoNaoQualidade: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'FiltroPeriodo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroSetoresProducao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroFuncionarios'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      
+        'SELECT Falha, Descricao, SUM(QuantidadePerda) AS Quantidade, ROU' +
+        'ND(SUM(QuantidadePerda * COALESCE(CustoFalha)),2) AS TotalCusto,'
+      '       TipoFalha, SetorProducao /*, Maquina, PN */'
+      'FROM'
+      ''
+      '('
+      
+        ' SELECT oouf.Falha,  f.Descricao, oouf.QuantidadePerda, f.CustoF' +
+        'alha, m.SetorProducao, oou.Maquina,'
+      ''
+      '        CAST(CASE WHEN f.TipoFalha = '#39'I'#39' THEN '#39'INERENTE'#39
+      '                  WHEN f.TipoFalha = '#39'R'#39' THEN '#39'RETRABALHO'#39
+      '                  WHEN f.TipoFalha = '#39'P'#39' THEN '#39'PERDA TOTAL'#39
+      '                                         ELSE '#39#39
+      '             END AS VARCHAR) AS TipoFalha,'
+      ''
+      '       (SELECT cp.PN'
+      '           FROM ClientesProdutos cp'
+      '           WHERE cp.Cliente     = osp.Cliente     AND'
+      '                 cp.TipoCliente = osp.TipoCliente AND'
+      '                 cp.Produto     = osp.Produto LIMIT 1) AS PN'
+      ''
+      ' FROM OperacoesOSPUsuario oou'
+      
+        '         JOIN ((select * from OperacoesOSPUsuarioFalhas_(cast(:D' +
+        'ataInicial as date), cast(:DataFinal as date))) oouf'
+      '                    JOIN Falhas f ON oouf.Falha = f.Codigo)'
+      ''
+      
+        '              ON oou.OSP  = oouf.OSP  AND oou.Operacao = oouf.Op' +
+        'eracao AND oou.Data   = oouf.Data AND'
+      
+        '                 oou.Lote = oouf.Lote AND oou.Usuario  = oouf.Us' +
+        'uario  AND oou.Inicio = oouf.Inicio'
+      ''
+      '         JOIN OSP ON osp.Numero = oou.OSP'
+      ''
+      '       JOIN Maquinas m'
+      '           JOIN SetoresProducao sp'
+      '             ON sp.Codigo = m.SetorProducao'
+      ''
+      
+        '      ON m.Codigo = COALESCE(oou.Maquina, (SELECT om.Maquina FRO' +
+        'M OperacoesMaquinas om'
+      
+        '                                              WHERE om.Operacao ' +
+        '= oou.Operacao LIMIT 1))'
+      ''
+      ''
+      ' WHERE TRUE'
+      ''
+      '       %FiltroPeriodo'
+      '       %FiltroSetoresProducao'
+      '       %FiltroFuncionarios'
+      ''
+      ''
+      ' ORDER BY oouf.Falha'
+      ') AS selecao'
+      ''
+      
+        'GROUP BY Falha, Descricao, TipoFalha, SetorProducao /*, Maquina,' +
+        ' PN*/'
+      'ORDER BY Falha'
+      ''
+      '/* PAR'#194'METROS'
+      ':DataInicial'
+      ':DataFinal'
+      '*/'
+      ''
+      '')
+    RequestLive = False
+    Left = 80
+    Top = 152
+    ParamData = <
+      item
+        DataType = ftDate
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftDate
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+      end>
+    object qryCustoNaoQualidadefalha: TIntegerField
+      Alignment = taCenter
+      DisplayLabel = 'FALHA'
+      FieldName = 'falha'
+      DisplayFormat = '0'
+    end
+    object qryCustoNaoQualidadedescricao: TStringField
+      DisplayLabel = 'DESCRI'#199#195'O'
+      DisplayWidth = 100
+      FieldName = 'descricao'
+      Size = 300
+    end
+    object qryCustoNaoQualidadequantidade: TLargeintField
+      DisplayLabel = 'QUANTIDADE'
+      FieldName = 'quantidade'
+      DisplayFormat = '###,###,###'
+    end
+    object qryCustoNaoQualidadetotalcusto: TFloatField
+      DisplayLabel = 'CUSTO TOTAL'
+      FieldName = 'totalcusto'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryCustoNaoQualidadetipofalha: TStringField
+      Alignment = taCenter
+      DisplayLabel = 'TIPO DA FALHA'
+      DisplayWidth = 20
+      FieldName = 'tipofalha'
+      Size = 11
+    end
+    object qryCustoNaoQualidadesetorproducao: TStringField
+      Alignment = taCenter
+      DisplayLabel = 'SETOR'
+      FieldName = 'setorproducao'
+      Size = 5
+    end
+  end
+  object qryPPM: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'FiltroPeriodo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroSetoresProducao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroFuncionarios'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      
+        'SELECT Nome, C01, C02, C03, PPM, QtdePerdaRetrabalho, QtdePerdaI' +
+        'nerente, QtdePerdaTotal,'
+      
+        '       (QtdePerdaInerente + QtdePerdaTotal) AS QtdeTotalPerda, Q' +
+        'uantidade,'
+      
+        '      ((1000000 * (QtdePerdaInerente + QtdePerdaTotal)) / Quanti' +
+        'dade) AS PPM_Periodo'
+      'FROM'
+      ''
+      '('
+      ' SELECT oou.Operacao, o.Nome, o.C01, o.C02, o.C03, o.PPM,'
+      ''
+      '        SUM(CASE WHEN f.TipoFalha = '#39'I'#39
+      '                 THEN COALESCE(oouf.QuantidadePerda,0)'
+      '                 ELSE 0'
+      '            END) AS QtdePerdaInerente,'
+      ''
+      '        SUM(CASE WHEN f.TipoFalha = '#39'R'#39
+      '                 THEN COALESCE(oouf.QuantidadePerda,0)'
+      '                 ELSE 0'
+      '            END) AS QtdePerdaRetrabalho,'
+      ''
+      '        SUM(CASE WHEN f.TipoFalha = '#39'P'#39
+      '                 THEN COALESCE(oouf.QuantidadePerda,0)'
+      '                 ELSE 0'
+      '            END) AS QtdePerdaTotal,'
+      ''
+      '        SUM(oou.Quantidade) AS Quantidade'
+      ''
+      ''
+      ' FROM OperacoesOSPUsuario oou'
+      
+        '         JOIN ((select * from OperacoesOSPUsuarioFalhas_(cast(:D' +
+        'ataInicial as date), cast(:DataFinal as date))) oouf'
+      '                    JOIN Falhas f ON oouf.Falha = f.Codigo)'
+      ''
+      
+        '              ON oou.OSP  = oouf.OSP  AND oou.Operacao = oouf.Op' +
+        'eracao AND oou.Data   = oouf.Data AND'
+      
+        '                 oou.Lote = oouf.Lote AND oou.Usuario  = oouf.Us' +
+        'uario  AND oou.Inicio = oouf.Inicio'
+      ''
+      '         JOIN Operacoes o ON oou.Operacao = o.Codigo'
+      ''
+      '         JOIN Maquinas m'
+      
+        '         ON m.Codigo = COALESCE(oou.Maquina, (SELECT om.Maquina ' +
+        'FROM OperacoesMaquinas om'
+      
+        '                                              WHERE om.Operacao ' +
+        '= oou.Operacao LIMIT 1))'
+      ''
+      ''
+      ' WHERE TRUE'
+      ''
+      '       %FiltroPeriodo'
+      '       %FiltroSetoresProducao'
+      '       %FiltroFuncionarios'
+      ''
+      ' GROUP BY oou.Operacao, o.Nome, o.C01, o.C02, o.C03, o.PPM'
+      ' ORDER BY oou.Operacao'
+      ''
+      ') AS selecao'
+      'ORDER BY Nome, C01, C02, C03'
+      ''
+      '/* PAR'#194'METROS'
+      ':DataInicial'
+      ':DataFinal'
+      '*/'
+      ''
+      '')
+    RequestLive = False
+    Left = 224
+    Top = 152
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+      end>
+    object qryPPMNome: TStringField
+      DisplayLabel = 'NOME'
+      FieldName = 'nome'
+      Size = 15
+    end
+    object qryPPMc01: TStringField
+      Alignment = taCenter
+      DisplayLabel = 'C1'
+      FieldName = 'c01'
+      Size = 3
+    end
+    object qryPPMc02: TStringField
+      Alignment = taCenter
+      DisplayLabel = 'C2'
+      FieldName = 'c02'
+      Size = 3
+    end
+    object qryPPMc03: TStringField
+      Alignment = taCenter
+      DisplayLabel = 'C3'
+      FieldName = 'c03'
+      Size = 3
+    end
+    object qryPPMppm: TIntegerField
+      DisplayLabel = 'PPM'
+      FieldName = 'ppm'
+      DisplayFormat = '###,###,###'
+    end
+    object qryPPMQtdePerdaRetrabalho: TLargeintField
+      DisplayLabel = 'QTDE RETRABALHO'
+      FieldName = 'qtdeperdaretrabalho'
+      DisplayFormat = '###,###,###'
+    end
+    object qryPPMQtdePerdaInerente: TLargeintField
+      DisplayLabel = 'PERDAS INERENTES'
+      FieldName = 'qtdeperdainerente'
+      DisplayFormat = '###,###,###'
+    end
+    object qryPPMQtdePerdaTotal: TLargeintField
+      DisplayLabel = 'PERDA TOTAL'
+      FieldName = 'qtdeperdatotal'
+      DisplayFormat = '###,###,###'
+    end
+    object qryPPMQtdeTotalPerda: TLargeintField
+      DisplayLabel = 'TOTAL DAS PERDAS'
+      FieldName = 'qtdetotalperda'
+      DisplayFormat = '###,###,###'
+    end
+    object qryPPMQuantidade: TLargeintField
+      DisplayLabel = 'QTDE PRODUZIDA'
+      FieldName = 'quantidade'
+      DisplayFormat = '###,###,###'
+    end
+    object qryPPMppm_Periodo: TLargeintField
+      DisplayLabel = 'PPM DO PER'#205'ODO'
+      FieldName = 'ppm_periodo'
+      DisplayFormat = '###,###,###'
+    end
+  end
+  object qryPN_PPM_Custos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryIndiceNaoQualidadeAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'FiltroPeriodo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroSetoresProducao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroFuncionarios'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      'SELECT PN, Nome, C01, C02, C03, '
+      '       QtdeProduzida,'
+      '      (QtdePerdaInerente + QtdePerdaTotal) AS QtdeTotalPerda,'
+      
+        '       ROUND((QtdePerdaInerente + QtdePerdaTotal) * COALESCE(Cus' +
+        'toFalha), 2) AS CustoNaoQualidade,'
+      ''
+      '       PPM,'
+      
+        '      ((1000000 * (QtdePerdaInerente + QtdePerdaTotal)) / QtdePr' +
+        'oduzida) AS PPM_Periodo'
+      'FROM'
+      ''
+      '('
+      ' SELECT o.Nome, o.C01, o.C02, o.C03, o.PPM, f.CustoFalha,'
+      ''
+      '       (SELECT cp.PN'
+      '           FROM ClientesProdutos cp'
+      '           WHERE cp.Cliente     = OSP.Cliente     AND'
+      '                 cp.TipoCliente = OSP.TipoCliente AND'
+      '                 cp.Produto     = OSP.Produto LIMIT 1) AS PN,'
+      ''
+      '        SUM(CASE WHEN f.TipoFalha = '#39'I'#39
+      '                 THEN COALESCE(oouf.QuantidadePerda,0)'
+      '                 ELSE 0'
+      '            END) AS QtdePerdaInerente,'
+      ''
+      '        SUM(CASE WHEN f.TipoFalha = '#39'P'#39
+      '                 THEN COALESCE(oouf.QuantidadePerda,0)'
+      '                 ELSE 0'
+      '            END) AS QtdePerdaTotal,'
+      ''
+      '        SUM(oou.Quantidade) AS QtdeProduzida'
+      ''
+      ''
+      ' FROM ((OperacoesOSPUsuario oou'
+      
+        '        JOIN ( (select * from OperacoesOSPUsuarioFalhas_(cast(:D' +
+        'ataInicial as date), cast(:DataFinal as date))) oouf'
+      
+        '                   JOIN Falhas f ON oouf.Falha = f.Codigo AND f.' +
+        'TipoFalha IN ('#39'I'#39',  /* [I]nerente ao processo */'
+      
+        '                                                                ' +
+        '              '#39'P'#39')) /* [P]erda Total          */'
+      ''
+      
+        '                   ON oou.OSP  = oouf.OSP  AND oou.Operacao = oo' +
+        'uf.Operacao AND oou.Data   = oouf.Data AND'
+      
+        '                      oou.Lote = oouf.Lote AND oou.Usuario  = oo' +
+        'uf.Usuario  AND oou.Inicio = oouf.Inicio )'
+      ''
+      '             JOIN OSP         ON OSP.Numero   = oou.OSP'
+      '             JOIN Operacoes o ON oou.Operacao = o.Codigo)'
+      ''
+      ''
+      ''
+      ''
+      ' FROM OperacoesOSPUsuario oou'
+      
+        '         JOIN ((select * from OperacoesOSPUsuarioFalhas_(cast(:D' +
+        'ataInicial as date), cast(:DataFinal as date))) oouf'
+      '                    JOIN Falhas f ON oouf.Falha = f.Codigo)'
+      ''
+      
+        '              ON oou.OSP  = oouf.OSP  AND oou.Operacao = oouf.Op' +
+        'eracao AND oou.Data   = oouf.Data AND'
+      
+        '                 oou.Lote = oouf.Lote AND oou.Usuario  = oouf.Us' +
+        'uario  AND oou.Inicio = oouf.Inicio'
+      ''
+      '         JOIN OSP ON osp.Numero = oou.OSP'
+      '         JOIN Operacoes o ON oou.Operacao = o.Codigo'
+      ''
+      '         JOIN Maquinas m'
+      
+        '         ON m.Codigo = COALESCE(oou.Maquina, (SELECT om.Maquina ' +
+        'FROM OperacoesMaquinas om'
+      
+        '                                              WHERE om.Operacao ' +
+        '= oou.Operacao LIMIT 1))'
+      ''
+      ''
+      ' WHERE TRUE'
+      ''
+      '       %FiltroPeriodo'
+      '       %FiltroSetoresProducao'
+      '       %FiltroFuncionarios'
+      ''
+      ' GROUP BY PN, Nome, C01, C02, C03, o.PPM, f.CustoFalha'
+      ' ) AS Selecao'
+      'ORDER BY PN'
+      ''
+      '/* PAR'#194'METROS'
+      ':DataInicial'
+      ':DataFinal'
+      '*/'
+      '')
+    RequestLive = True
+    Left = 72
+    Top = 216
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+      end>
+    object qryPN_PPM_Custospn: TStringField
+      Alignment = taCenter
+      DisplayLabel = 'PN'
+      FieldName = 'pn'
+      Size = 10
+    end
+    object qryPN_PPM_Custosnome: TStringField
+      DisplayLabel = 'OPERA'#199#195'O'
+      FieldName = 'nome'
+      Size = 15
+    end
+    object qryPN_PPM_Custosc01: TStringField
+      Alignment = taCenter
+      DisplayLabel = 'C1'
+      FieldName = 'c01'
+      Size = 3
+    end
+    object qryPN_PPM_Custosc02: TStringField
+      Alignment = taCenter
+      DisplayLabel = 'C2'
+      FieldName = 'c02'
+      Size = 3
+    end
+    object qryPN_PPM_Custosc03: TStringField
+      Alignment = taCenter
+      DisplayLabel = 'C3'
+      FieldName = 'c03'
+      Size = 3
+    end
+    object qryPN_PPM_Custosqtdeproduzida: TLargeintField
+      DisplayLabel = 'QTDE PRODUZIDA'
+      FieldName = 'qtdeproduzida'
+    end
+    object qryPN_PPM_Custosqtdetotalperda: TLargeintField
+      DisplayLabel = 'TOTAL DAS PERDAS'
+      FieldName = 'qtdetotalperda'
+    end
+    object qryPN_PPM_Custoscustonaoqualidade: TFloatField
+      DisplayLabel = 'CUSTO N'#195'O QUALIDADE'
+      FieldName = 'custonaoqualidade'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryPN_PPM_Custosppm: TIntegerField
+      DisplayLabel = 'PPM'
+      FieldName = 'ppm'
+      DisplayFormat = '###,##0.'
+    end
+    object qryPN_PPM_Custosppm_periodo: TLargeintField
+      DisplayLabel = 'PPM PER'#205'ODO'
+      FieldName = 'ppm_periodo'
+      DisplayFormat = '###,##0.'
+    end
+  end
+  object qryTemposMotivosParadas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryIndiceNaoQualidadeAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'FiltroPeriodo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroSetoresProducao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroFuncionarios'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      
+        'SELECT SetorProducao, Maquina, MaquinaDescricao, Operador, Opera' +
+        'dorNome, Parada, ParadaDescricao, TempoParada, PN'
+      'FROM'
+      ''
+      '('
+      ' SELECT  m.SetorProducao,'
+      '         m.Codigo AS Maquina, m.Descricao AS MaquinaDescricao,'
+      ''
+      '         oou.Usuario AS Operador,'
+      ''
+      '        (SELECT u.Nome'
+      '            FROM Usuarios u'
+      '            WHERE u.Codigo = oou.Usuario) AS OperadorNome,'
+      ''
+      '         mp.Codigo AS Parada, mp.Descricao AS ParadaDescricao,'
+      ''
+      '         ooup.TempoParada,'
+      ''
+      '        (SELECT cp.PN'
+      '           FROM ClientesProdutos cp'
+      '           WHERE cp.Cliente     = OSP.Cliente     AND'
+      '                 cp.TipoCliente = OSP.TipoCliente AND'
+      '                 cp.Produto     = OSP.Produto LIMIT 1) AS PN'
+      ''
+      ' FROM OperacoesOSPUsuario oou'
+      '        JOIN (OperacoesOSPUsuarioParadas ooup'
+      
+        '                   JOIN MotivosParadas mp ON ooup.CodigoParada =' +
+        ' mp.Codigo)'
+      ''
+      
+        '                   ON oou.OSP  = ooup.OSP  AND oou.Operacao = oo' +
+        'up.Operacao AND oou.Data   = ooup.Data AND'
+      
+        '                      oou.Lote = ooup.Lote AND oou.Usuario  = oo' +
+        'up.Usuario  AND oou.Inicio = ooup.Inicio'
+      ''
+      '             JOIN OSP         ON OSP.Numero   = oou.OSP'
+      '             JOIN Maquinas m'
+      
+        '             ON m.Codigo =  COALESCE(oou.Maquina, (SELECT om.Maq' +
+        'uina FROM OperacoesMaquinas om'
+      
+        '                                              WHERE om.Operacao ' +
+        '= oou.Operacao LIMIT 1))'
+      ''
+      ''
+      ' WHERE ooup.TempoParada IS NOT NULL'
+      ''
+      '       %FiltroPeriodo'
+      '       %FiltroSetoresProducao'
+      '       %FiltroFuncionarios'
+      ''
+      ''
+      ' ) AS S'
+      'ORDER BY SetorProducao, Maquina, Operador'
+      ''
+      '/* PAR'#194'METROS'
+      ':DataInicial'
+      ':DataFinal'
+      '*/'
+      '')
+    RequestLive = True
+    Left = 224
+    Top = 216
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataFinal'
+        ParamType = ptUnknown
+      end>
+    object qryTemposMotivosParadassetor: TStringField
+      DisplayLabel = 'SETOR'
+      FieldName = 'setor'
+      Size = 5
+    end
+    object qryTemposMotivosParadasmaquina: TIntegerField
+      DisplayLabel = 'M'#193'QUINA'
+      FieldName = 'maquina'
+    end
+    object qryTemposMotivosParadasmaquinadescricao: TStringField
+      DisplayLabel = 'DESCRI'#199#195'O'
+      FieldName = 'maquinadescricao'
+      Size = 30
+    end
+    object qryTemposMotivosParadasoperador: TIntegerField
+      Alignment = taCenter
+      DisplayLabel = 'OPERADOR'
+      FieldName = 'operador'
+    end
+    object qryTemposMotivosParadasoperadornome: TStringField
+      DisplayLabel = 'NOME DO OPERADOR'
+      FieldName = 'operadornome'
+      Size = 35
+    end
+    object qryTemposMotivosParadasparada: TIntegerField
+      Alignment = taCenter
+      DisplayLabel = 'PARADA'
+      FieldName = 'parada'
+    end
+    object qryTemposMotivosParadasparadadescricao: TStringField
+      DisplayLabel = 'DESCRI'#199#195'O'
+      FieldName = 'paradadescricao'
+      Size = 50
+    end
+    object qryTemposMotivosParadastempoparada: TIntegerField
+      DisplayLabel = 'TEMPO'
+      FieldName = 'tempoparada'
+    end
+    object qryTemposMotivosParadaspn: TStringField
+      Alignment = taCenter
+      DisplayLabel = 'PN'
+      FieldName = 'pn'
+      Size = 10
+    end
+  end
+end

@@ -1,6 +1,6 @@
 inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
-  Left = 321
-  Top = 88
+  Left = 285
+  Top = 37
   ActiveControl = edfCodigo
   BorderIcons = [biSystemMenu, biMinimize, biMaximize]
   Caption = 'Cadastro de Produtos'
@@ -406,7 +406,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           NameOfMonths.UseIntlNames = True
           StartDay = 7
           TodayFormat = '"Today" DDD/mm, YYYY'
-          Day = 29
+          Day = 24
           Month = 12
           Year = 1899
           TabOrder = 0
@@ -546,8 +546,8 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
       Left = 0
       Top = 157
       Width = 1026
-      Height = 341
-      ActivePage = tstParametros
+      Height = 290
+      ActivePage = tstInformacoesFiscais
       Align = alTop
       MultiLine = True
       TabOrder = 1
@@ -910,7 +910,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           TabOrder = 10
           object rgpDiscriminarComposto: TtecDBRadioGroup
             Left = 2
-            Top = 56
+            Top = 54
             Width = 411
             Height = 33
             Caption = ' DISCRIMINA'#199#195'O '
@@ -2368,7 +2368,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 0
           Top = 0
           Width = 1018
-          Height = 310
+          Height = 259
           ActivePage = tstParametrosFiscais
           Align = alClient
           TabOrder = 0
@@ -2379,16 +2379,15 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
               Left = 0
               Top = 0
               Width = 506
-              Height = 279
+              Height = 228
               Align = alLeft
               BevelOuter = bvNone
               TabOrder = 0
               object gbxCSOSN: TGroupBox
                 Left = 0
-                Top = 34
+                Top = 31
                 Width = 506
                 Height = 33
-                Align = alTop
                 Caption = 'CSOSN - COD. SIT. OP. SIMPLES NACIONAL'
                 Font.Charset = DEFAULT_CHARSET
                 Font.Color = clBlack
@@ -2512,10 +2511,9 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
               end
               object gbxICMSCST: TGroupBox
                 Left = 0
-                Top = 0
+                Top = -2
                 Width = 506
                 Height = 34
-                Align = alTop
                 Caption = 'ICMS - C'#211'D. SITUA'#199#195'O TRIBUT'#193'RIA'
                 Font.Charset = DEFAULT_CHARSET
                 Font.Color = clBlack
@@ -2656,10 +2654,9 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
               end
               object gbxICMSBC: TGroupBox
                 Left = 0
-                Top = 67
+                Top = 63
                 Width = 506
                 Height = 33
-                Align = alTop
                 Caption = 'ICMS - MODALIDADE DA BASE DE C'#193'LCULO'
                 Font.Charset = DEFAULT_CHARSET
                 Font.Color = clBlack
@@ -2776,10 +2773,9 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
               end
               object gbxAliquotaICMS: TGroupBox
                 Left = 0
-                Top = 100
+                Top = 95
                 Width = 506
                 Height = 35
-                Align = alTop
                 Caption = 'ICMS - AL'#205'QUOTA'
                 Font.Charset = DEFAULT_CHARSET
                 Font.Color = clBlack
@@ -2952,10 +2948,9 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
               end
               object gbxICMSBCST: TGroupBox
                 Left = 0
-                Top = 135
+                Top = 129
                 Width = 506
                 Height = 33
-                Align = alTop
                 Caption = 'ICMS - MODALIDADE BASE DE C'#193'LCULO NA SUBSTITUI'#199#195'O TRIBUT'#193'RIA'
                 Font.Charset = DEFAULT_CHARSET
                 Font.Color = clBlack
@@ -3075,12 +3070,202 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
                   end
                 end
               end
+              object gbxIBSCBS: TGroupBox
+                Left = 0
+                Top = 250
+                Width = 506
+                Height = 82
+                Caption = 'IBS/CBS'
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -9
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                ParentFont = False
+                TabOrder = 6
+                Visible = False
+                object gbxtributos_cst_ibscbs: TGroupBox
+                  Left = 2
+                  Top = 11
+                  Width = 501
+                  Height = 35
+                  Caption = 'Tributos CST IBS/CBS'
+                  Font.Charset = DEFAULT_CHARSET
+                  Font.Color = clBlack
+                  Font.Height = -9
+                  Font.Name = 'helvetica'
+                  Font.Pitch = fpVariable
+                  Font.Style = []
+                  ParentFont = False
+                  TabOrder = 0
+                  inline fraConsultatributos_cst_ibscbs: TfraConsultaCodigo
+                    Left = 3
+                    Top = 11
+                    Width = 495
+                    Height = 21
+                    HorzScrollBar.Range = 354
+                    HorzScrollBar.Visible = False
+                    VertScrollBar.Range = 23
+                    VertScrollBar.Visible = False
+                    AutoScroll = False
+                    Constraints.MaxHeight = 21
+                    Font.Charset = DEFAULT_CHARSET
+                    Font.Color = clBlack
+                    Font.Height = -11
+                    Font.Name = 'helvetica'
+                    Font.Pitch = fpVariable
+                    Font.Style = []
+                    ParentFont = False
+                    TabOrder = 0
+                    inherited sbnProcura: TSpeedButton
+                      Left = 32
+                      Height = 21
+                      Constraints.MaxHeight = 21
+                    end
+                    inherited dtxDescricao: TtecDBText
+                      Left = 56
+                      Width = 438
+                      Height = 21
+                      Constraints.MaxHeight = 21
+                      DataField = 'descricao'
+                      DataSource = fraConsultatributos_cst_ibscbs.dsrProcuraTributos_cst_ibscbs
+                    end
+                    inherited edfCodigo: TtecDBFindLookup
+                      Width = 30
+                      Height = 21
+                      Constraints.MaxHeight = 21
+                      MaxLength = 3
+                      ReadOnly = True
+                      PermitirZero = True
+                      LookupField = 'cst_ibscbs'
+                      LookupSource = fraConsultatributos_cst_ibscbs.dsrProcuraTributos_cst_ibscbs
+                      LookupQueryParameter = 'cst_ibscbs'
+                      Parameter = ' '
+                      ActiveSetControls = False
+                      DenyInsert = True
+                      NoSetControls = <>
+                      SetControls = <>
+                      LookupParameter = 'cst_ibscbs'
+                    end
+                    inherited qryProcuratributospis: TtecQuery
+                      Options = [doAutoFillDefs]
+                    end
+                  end
+                end
+                object gbxtributos_is: TGroupBox
+                  Left = 3
+                  Top = 13
+                  Width = 501
+                  Height = 35
+                  Caption = 'Tributos IS'
+                  Font.Charset = DEFAULT_CHARSET
+                  Font.Color = clBlack
+                  Font.Height = -9
+                  Font.Name = 'helvetica'
+                  Font.Pitch = fpVariable
+                  Font.Style = []
+                  ParentFont = False
+                  TabOrder = 1
+                  inline fraConsultatributos_is: TfraConsultaCodigo
+                    Left = 3
+                    Top = 11
+                    Width = 454
+                    Height = 21
+                    HorzScrollBar.Range = 354
+                    HorzScrollBar.Visible = False
+                    VertScrollBar.Range = 23
+                    VertScrollBar.Visible = False
+                    AutoScroll = False
+                    Constraints.MaxHeight = 21
+                    Font.Charset = DEFAULT_CHARSET
+                    Font.Color = clBlack
+                    Font.Height = -11
+                    Font.Name = 'helvetica'
+                    Font.Pitch = fpVariable
+                    Font.Style = []
+                    ParentFont = False
+                    TabOrder = 0
+                    inherited sbnProcura: TSpeedButton
+                      Left = 32
+                      Height = 21
+                      Constraints.MaxHeight = 21
+                    end
+                    inherited dtxDescricao: TtecDBText
+                      Left = 56
+                      Width = 393
+                      Height = 21
+                      Constraints.MaxHeight = 21
+                      DataField = 'descricao'
+                      DataSource = fraConsultatributos_is.dsrProcuraTributos_is
+                    end
+                    inherited edfCodigo: TtecDBFindLookup
+                      Width = 30
+                      Height = 21
+                      Constraints.MaxHeight = 21
+                      MaxLength = 1
+                      ReadOnly = True
+                      PermitirZero = True
+                      LookupField = 'codigo'
+                      LookupSource = fraConsultatributos_is.dsrProcuraTributos_is
+                      LookupQueryParameter = 'codigo'
+                      Parameter = ' '
+                      ActiveSetControls = False
+                      DenyInsert = True
+                      NoSetControls = <>
+                      SetControls = <>
+                      LookupParameter = 'codigo'
+                    end
+                    inherited qryProcuratributospis: TtecQuery
+                      Options = [doAutoFillDefs]
+                    end
+                  end
+                  object gbxIBSCBSAliquota: TGroupBox
+                    Left = 454
+                    Top = 0
+                    Width = 45
+                    Height = 35
+                    Caption = '% IS'
+                    Font.Charset = DEFAULT_CHARSET
+                    Font.Color = clBlack
+                    Font.Height = -9
+                    Font.Name = 'helvetica'
+                    Font.Pitch = fpVariable
+                    Font.Style = []
+                    ParentFont = False
+                    TabOrder = 1
+                    object edtIBSCBSAliquota: TDBEditNumero
+                      Left = 2
+                      Top = 10
+                      Width = 42
+                      Height = 21
+                      Constraints.MaxHeight = 21
+                      Font.Charset = DEFAULT_CHARSET
+                      Font.Color = clBlack
+                      Font.Height = -12
+                      Font.Name = 'helvetica'
+                      Font.Pitch = fpVariable
+                      Font.Style = []
+                      MaxLength = -1
+                      ParentFont = False
+                      TabOrder = 0
+                      Text = 'edtAliquotaPIS'
+                      Mascara = True
+                      Alignment = taLeftJustify
+                      TipoMascara = tmGERAL
+                      NrDecimal = 2
+                      Decimais = True
+                      Negativo = False
+                      Tamanho = 2
+                    end
+                  end
+                end
+              end
               object gbxOrigem: TGroupBox
                 Left = 0
-                Top = 168
+                Top = 161
                 Width = 506
                 Height = 35
-                Align = alTop
                 Caption = ' ORIGEM '
                 Font.Charset = DEFAULT_CHARSET
                 Font.Color = clBlack
@@ -3211,202 +3396,6 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
                   NoSetControls = <>
                   SetControls = <>
                   LookupParameter = 'codigo'
-                end
-              end
-              object gbxIBSCBS: TGroupBox
-                Left = 0
-                Top = 203
-                Width = 506
-                Height = 82
-                Align = alTop
-                Caption = 'IBS/CBS'
-                Font.Charset = DEFAULT_CHARSET
-                Font.Color = clBlack
-                Font.Height = -9
-                Font.Name = 'helvetica'
-                Font.Pitch = fpVariable
-                Font.Style = []
-                ParentFont = False
-                TabOrder = 6
-                Visible = False
-                object gbxtributos_cst_ibscbs: TGroupBox
-                  Left = 2
-                  Top = 11
-                  Width = 501
-                  Height = 35
-                  Caption = 'Tributos CST IBS/CBS'
-                  Font.Charset = DEFAULT_CHARSET
-                  Font.Color = clBlack
-                  Font.Height = -9
-                  Font.Name = 'helvetica'
-                  Font.Pitch = fpVariable
-                  Font.Style = []
-                  ParentFont = False
-                  TabOrder = 0
-                  inline fraConsultatributos_cst_ibscbs: TfraConsultaCodigo
-                    Left = 3
-                    Top = 11
-                    Width = 495
-                    Height = 21
-                    HorzScrollBar.Range = 354
-                    HorzScrollBar.Visible = False
-                    VertScrollBar.Range = 23
-                    VertScrollBar.Visible = False
-                    AutoScroll = False
-                    Constraints.MaxHeight = 21
-                    Font.Charset = DEFAULT_CHARSET
-                    Font.Color = clBlack
-                    Font.Height = -11
-                    Font.Name = 'helvetica'
-                    Font.Pitch = fpVariable
-                    Font.Style = []
-                    ParentFont = False
-                    TabOrder = 0
-                    inherited sbnProcura: TSpeedButton
-                      Left = 32
-                      Height = 21
-                      Constraints.MaxHeight = 21
-                    end
-                    inherited dtxDescricao: TtecDBText
-                      Left = 56
-                      Width = 438
-                      Height = 21
-                      Constraints.MaxHeight = 21
-                      DataField = 'descricao'
-                      DataSource = fraConsultatributos_cst_ibscbs.dsrProcuraTributos_cst_ibscbs
-                    end
-                    inherited edfCodigo: TtecDBFindLookup
-                      Width = 30
-                      Height = 21
-                      Constraints.MaxHeight = 21
-                      DataField = 'ibscbs_cod'
-                      DataSource = dtmCadastroProdutos.dsrCaracteristicas
-                      MaxLength = 3
-                      PermitirZero = True
-                      LookupField = 'cst_ibscbs'
-                      LookupSource = fraConsultatributos_cst_ibscbs.dsrProcuraTributos_cst_ibscbs
-                      LookupQueryParameter = 'cst_ibscbs'
-                      Parameter = ' '
-                      ActiveSetControls = False
-                      DenyInsert = True
-                      NoSetControls = <>
-                      SetControls = <>
-                      LookupParameter = 'cst_ibscbs'
-                    end
-                    inherited qryProcuratributospis: TtecQuery
-                      Options = [doAutoFillDefs]
-                    end
-                  end
-                end
-                object gbxtributos_is: TGroupBox
-                  Left = 3
-                  Top = 45
-                  Width = 501
-                  Height = 35
-                  Caption = 'Tributos IS'
-                  Font.Charset = DEFAULT_CHARSET
-                  Font.Color = clBlack
-                  Font.Height = -9
-                  Font.Name = 'helvetica'
-                  Font.Pitch = fpVariable
-                  Font.Style = []
-                  ParentFont = False
-                  TabOrder = 1
-                  inline fraConsultatributos_is: TfraConsultaCodigo
-                    Left = 3
-                    Top = 11
-                    Width = 454
-                    Height = 21
-                    HorzScrollBar.Range = 354
-                    HorzScrollBar.Visible = False
-                    VertScrollBar.Range = 23
-                    VertScrollBar.Visible = False
-                    AutoScroll = False
-                    Constraints.MaxHeight = 21
-                    Font.Charset = DEFAULT_CHARSET
-                    Font.Color = clBlack
-                    Font.Height = -11
-                    Font.Name = 'helvetica'
-                    Font.Pitch = fpVariable
-                    Font.Style = []
-                    ParentFont = False
-                    TabOrder = 0
-                    inherited sbnProcura: TSpeedButton
-                      Left = 32
-                      Height = 21
-                      Constraints.MaxHeight = 21
-                    end
-                    inherited dtxDescricao: TtecDBText
-                      Left = 56
-                      Width = 393
-                      Height = 21
-                      Constraints.MaxHeight = 21
-                      DataField = 'descricao'
-                      DataSource = fraConsultatributos_is.dsrProcuraTributos_is
-                    end
-                    inherited edfCodigo: TtecDBFindLookup
-                      Width = 30
-                      Height = 21
-                      Constraints.MaxHeight = 21
-                      DataField = 'is_cod'
-                      DataSource = dtmCadastroProdutos.dsrCaracteristicas
-                      MaxLength = 1
-                      PermitirZero = True
-                      LookupField = 'codigo'
-                      LookupSource = fraConsultatributos_is.dsrProcuraTributos_is
-                      LookupQueryParameter = 'codigo'
-                      Parameter = ' '
-                      ActiveSetControls = False
-                      DenyInsert = True
-                      NoSetControls = <>
-                      SetControls = <>
-                      LookupParameter = 'codigo'
-                    end
-                    inherited qryProcuratributospis: TtecQuery
-                      Options = [doAutoFillDefs]
-                    end
-                  end
-                  object gbxIBSCBSAliquota: TGroupBox
-                    Left = 454
-                    Top = 0
-                    Width = 45
-                    Height = 35
-                    Caption = '% IS'
-                    Font.Charset = DEFAULT_CHARSET
-                    Font.Color = clBlack
-                    Font.Height = -9
-                    Font.Name = 'helvetica'
-                    Font.Pitch = fpVariable
-                    Font.Style = []
-                    ParentFont = False
-                    TabOrder = 1
-                    object edtIBSCBSAliquota: TDBEditNumero
-                      Left = 2
-                      Top = 10
-                      Width = 42
-                      Height = 21
-                      Constraints.MaxHeight = 21
-                      Font.Charset = DEFAULT_CHARSET
-                      Font.Color = clBlack
-                      Font.Height = -12
-                      Font.Name = 'helvetica'
-                      Font.Pitch = fpVariable
-                      Font.Style = []
-                      MaxLength = -1
-                      ParentFont = False
-                      TabOrder = 0
-                      Text = 'edtAliquotaPIS'
-                      Mascara = True
-                      Alignment = taLeftJustify
-                      TipoMascara = tmGERAL
-                      NrDecimal = 2
-                      Decimais = True
-                      Negativo = False
-                      Tamanho = 2
-                      DataField = 'is_aliquota'
-                      DataSource = dtmCadastroProdutos.dsrCaracteristicas
-                    end
-                  end
                 end
               end
             end
@@ -4227,9 +4216,9 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
               end
             end
             object gbxAnvisa: TGroupBox
-              Left = 513
-              Top = 216
-              Width = 160
+              Left = 1
+              Top = 195
+              Width = 168
               Height = 36
               Caption = 'N'#176' ANVISA'
               Font.Charset = DEFAULT_CHARSET
@@ -4243,7 +4232,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
               object edtAnvisa: TDBEditTexto
                 Left = 2
                 Top = 10
-                Width = 156
+                Width = 165
                 Height = 23
                 DataField = 'anvisa'
                 DataSource = dtmCadastroProdutos.dsrCaracteristicas
@@ -4261,9 +4250,9 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
               end
             end
             object gbxInmetro: TGroupBox
-              Left = 675
-              Top = 216
-              Width = 160
+              Left = 171
+              Top = 195
+              Width = 174
               Height = 36
               Caption = 'INMETRO'
               Font.Charset = DEFAULT_CHARSET
@@ -4277,7 +4266,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
               object edtinmetro: TDBEditTexto
                 Left = 2
                 Top = 10
-                Width = 156
+                Width = 168
                 Height = 23
                 DataField = 'inmetro'
                 DataSource = dtmCadastroProdutos.dsrCaracteristicas
@@ -4295,8 +4284,8 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
               end
             end
             object gbxCertAprov: TGroupBox
-              Left = 837
-              Top = 216
+              Left = 346
+              Top = 195
               Width = 159
               Height = 36
               Caption = 'INMETRO'
@@ -4336,7 +4325,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
               Left = 0
               Top = 0
               Width = 273
-              Height = 279
+              Height = 228
               Align = alLeft
               DataSource = dtmCadastroProdutos.dsrEstadosProdutos
               Font.Charset = DEFAULT_CHARSET
@@ -4396,7 +4385,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
               Left = 0
               Top = 0
               Width = 980
-              Height = 249
+              Height = 228
               Cursor = crDefault
               Align = alClient
               ColCount = 5
@@ -4701,7 +4690,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
               Left = 980
               Top = 0
               Width = 30
-              Height = 249
+              Height = 228
               Align = alRight
               TabOrder = 1
               object sbnExcluircaracteristicas_cbenef: TSpeedButton
@@ -4835,7 +4824,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 0
           Top = 0
           Width = 1018
-          Height = 310
+          Height = 259
           Align = alClient
           TabOrder = 0
           object sbnInverterLinhaColuna: TSpeedButton
@@ -4906,7 +4895,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           end
           object pnlGradeProduto: TPanel
             Left = 2
-            Top = 126
+            Top = 75
             Width = 1014
             Height = 182
             Align = alBottom
@@ -5318,7 +5307,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
         object gbxObservaocoesProdutosGerais: TGroupBox
           Left = 0
           Top = 0
-          Width = 1023
+          Width = 1018
           Height = 129
           Align = alTop
           Caption = ' OBSERVA'#199#212'ES GERAIS '
@@ -5333,7 +5322,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           object mmoObservacaoProdutosGerais: TtecDBMemo
             Left = 2
             Top = 16
-            Width = 1019
+            Width = 1014
             Height = 111
             Align = alClient
             DataField = 'observacao'
@@ -5351,8 +5340,8 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
         object gbxObservaocoesProdutosVendas: TGroupBox
           Left = 0
           Top = 129
-          Width = 1023
-          Height = 141
+          Width = 1018
+          Height = 130
           Align = alClient
           Caption = ' OBSERVA'#199#212'ES VENDAS '
           Font.Charset = DEFAULT_CHARSET
@@ -5366,8 +5355,8 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           object mmoObservacaoProdutosVendas: TtecDBMemo
             Left = 2
             Top = 16
-            Width = 1019
-            Height = 123
+            Width = 1014
+            Height = 112
             Align = alClient
             DataField = 'observacoesvenda'
             DataSource = dtmCadastroProdutos.dsrCaracteristicas
@@ -5389,7 +5378,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 0
           Top = 0
           Width = 1018
-          Height = 310
+          Height = 259
           Align = alClient
           TabOrder = 0
           object sbnIncluirFornecedor: TSpeedButton
@@ -5516,7 +5505,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
             Left = 2
             Top = 18
             Width = 911
-            Height = 290
+            Height = 239
             Align = alLeft
             DataSource = dtmCadastroProdutos.dsrFornecedoresProdutos
             Font.Charset = DEFAULT_CHARSET
@@ -5718,7 +5707,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 0
           Top = 0
           Width = 1018
-          Height = 310
+          Height = 259
           Align = alClient
           TabOrder = 0
           object sbnExcluirSimilar: TSpeedButton
@@ -6146,7 +6135,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 0
           Top = 0
           Width = 265
-          Height = 310
+          Height = 259
           Align = alLeft
           Caption = ' PRE'#199'OS '
           Font.Charset = DEFAULT_CHARSET
@@ -6159,7 +6148,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           TabOrder = 0
           object sbnIncluirPreco: TSpeedButton
             Left = 4
-            Top = 243
+            Top = 235
             Width = 23
             Height = 22
             Hint = 'Incluir Pre'#231'o'
@@ -6219,7 +6208,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           end
           object sbnExcluirPreco: TSpeedButton
             Left = 28
-            Top = 243
+            Top = 235
             Width = 23
             Height = 22
             Hint = 'Excluir Pre'#231'o'
@@ -6281,7 +6270,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
             Left = 2
             Top = 16
             Width = 261
-            Height = 226
+            Height = 217
             Align = alTop
             DataSource = dtmCadastroProdutos.dsrPrecos
             Font.Charset = DEFAULT_CHARSET
@@ -6353,7 +6342,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 265
           Top = 0
           Width = 472
-          Height = 310
+          Height = 259
           Align = alClient
           Caption = ' COLUNAS DE PRE'#199'OS '
           Font.Charset = DEFAULT_CHARSET
@@ -6366,7 +6355,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           TabOrder = 1
           object sbnIncluirColunaPreco: TSpeedButton
             Left = 7
-            Top = 244
+            Top = 236
             Width = 23
             Height = 22
             Hint = 'Incluir Coluna Pre'#231'o'
@@ -6426,7 +6415,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           end
           object sbnExcluirColunaPreco: TSpeedButton
             Left = 31
-            Top = 244
+            Top = 236
             Width = 23
             Height = 22
             Hint = 'Excluir Coluna Pre'#231'o'
@@ -6488,7 +6477,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
             Left = 2
             Top = 16
             Width = 468
-            Height = 225
+            Height = 217
             Align = alTop
             DataSource = dtmCadastroProdutos.dsrColunasPrecos
             Font.Charset = DEFAULT_CHARSET
@@ -6589,7 +6578,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 737
           Top = 0
           Width = 281
-          Height = 310
+          Height = 259
           Align = alRight
           Caption = ' MODELOS '
           Font.Charset = DEFAULT_CHARSET
@@ -6602,7 +6591,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           TabOrder = 2
           object mmoObservacaoModelo: TtecDBMemo
             Left = 2
-            Top = 259
+            Top = 208
             Width = 277
             Height = 49
             Align = alBottom
@@ -6622,7 +6611,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
             Left = 2
             Top = 16
             Width = 277
-            Height = 243
+            Height = 192
             Hint = 
               'Pressione CTRL+F9 ou Duplo clique para selecionar modelos de uma' +
               ' lista | Ctrl+Delete para remover'
@@ -6701,7 +6690,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 0
           Top = 0
           Width = 1018
-          Height = 310
+          Height = 259
           ActivePage = tstaVista
           Align = alClient
           TabHeight = 20
@@ -8511,7 +8500,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 0
           Top = 0
           Width = 989
-          Height = 310
+          Height = 259
           Hint = 
             'Pressione CTRL+F9 ou Duplo Clique para selecionar cargos de uma ' +
             'lista'
@@ -8588,7 +8577,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 989
           Top = 0
           Width = 29
-          Height = 310
+          Height = 259
           Align = alRight
           BevelOuter = bvNone
           TabOrder = 1
@@ -8839,7 +8828,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 0
           Top = 36
           Width = 1018
-          Height = 274
+          Height = 223
           Cursor = crDefault
           Align = alClient
           ColCount = 5
@@ -9809,10 +9798,10 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
     end
     object pgcItensProdutoEstoque: TtecPageControl
       Left = 0
-      Top = 498
+      Top = 447
       Width = 1026
-      Height = 155
-      ActivePage = tstItensProdutos
+      Height = 206
+      ActivePage = tstProdutosFornecedores
       Align = alClient
       TabOrder = 2
       OnChange = pgcItensProdutoEstoqueChange
@@ -9822,7 +9811,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 983
           Top = 0
           Width = 35
-          Height = 124
+          Height = 175
           Align = alRight
           TabOrder = 0
           object sbnExcluirProduto: TSpeedButton
@@ -10051,7 +10040,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 0
           Top = 0
           Width = 983
-          Height = 124
+          Height = 175
           Align = alClient
           DataSource = dtmCadastroProdutos.dsrProdutos
           Font.Charset = DEFAULT_CHARSET
@@ -11046,7 +11035,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 649
           Top = 0
           Width = 254
-          Height = 124
+          Height = 175
           Align = alLeft
           DataSource = dtmCadastroProdutos.dsrEstoques
           Font.Charset = DEFAULT_CHARSET
@@ -11117,7 +11106,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 0
           Top = 0
           Width = 649
-          Height = 124
+          Height = 175
           Align = alLeft
           DataSource = dtmCadastroProdutos.dsrProdutos
           Font.Charset = DEFAULT_CHARSET
@@ -11212,7 +11201,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 985
           Top = 0
           Width = 33
-          Height = 124
+          Height = 175
           Align = alRight
           TabOrder = 2
           object sbnIncluirEstoque: TSpeedButton
@@ -11344,7 +11333,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 0
           Top = 0
           Width = 229
-          Height = 124
+          Height = 175
           Align = alLeft
           DataSource = dtmCadastroProdutos.dsrProdutos
           Font.Charset = DEFAULT_CHARSET
@@ -11399,7 +11388,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 229
           Top = 0
           Width = 760
-          Height = 124
+          Height = 175
           Align = alClient
           DataSource = dtmCadastroProdutos.dsrProdutosAgendamentos
           Font.Charset = DEFAULT_CHARSET
@@ -11467,7 +11456,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 989
           Top = 0
           Width = 29
-          Height = 124
+          Height = 175
           Align = alRight
           BevelOuter = bvNone
           TabOrder = 2
@@ -11540,7 +11529,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 0
           Top = 0
           Width = 809
-          Height = 124
+          Height = 175
           Align = alClient
           DataSource = dtmCadastroProdutos.dsrProdutos
           Font.Charset = DEFAULT_CHARSET
@@ -11635,7 +11624,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 809
           Top = 0
           Width = 177
-          Height = 124
+          Height = 175
           Align = alRight
           DataSource = dtmCadastroProdutos.dsrCodigoBarrasProduto
           Font.Charset = DEFAULT_CHARSET
@@ -11690,7 +11679,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 986
           Top = 0
           Width = 32
-          Height = 124
+          Height = 175
           Align = alRight
           TabOrder = 2
           object sbnExcluirCodigoBarras: TSpeedButton
@@ -11942,7 +11931,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 0
           Top = 0
           Width = 175
-          Height = 124
+          Height = 175
           Align = alLeft
           DataSource = dtmCadastroProdutos.dsrProdutos
           Font.Charset = DEFAULT_CHARSET
@@ -11997,7 +11986,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 175
           Top = 0
           Width = 581
-          Height = 124
+          Height = 175
           Align = alLeft
           DataSource = dtmCadastroProdutos.dsrClientesProdutos
           Font.Charset = DEFAULT_CHARSET
@@ -12085,7 +12074,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 0
           Top = 0
           Width = 1018
-          Height = 124
+          Height = 175
           ActivePage = tstProdutosNoFornecedor
           Align = alClient
           TabOrder = 0
@@ -12096,7 +12085,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
               Left = 0
               Top = 0
               Width = 981
-              Height = 37
+              Height = 88
               Align = alClient
               DataSource = dtmCadastroProdutos.dsrProdutosFornecedores
               Font.Charset = DEFAULT_CHARSET
@@ -12187,7 +12176,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
               Left = 981
               Top = 0
               Width = 29
-              Height = 37
+              Height = 88
               Align = alRight
               BevelOuter = bvNone
               TabOrder = 1
@@ -12254,7 +12243,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
             end
             object gbxObservacoesAdicionais: TGroupBox
               Left = 0
-              Top = 37
+              Top = 88
               Width = 1010
               Height = 56
               Align = alBottom
@@ -12280,7 +12269,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
               Left = 0
               Top = 0
               Width = 981
-              Height = 93
+              Height = 144
               Align = alClient
               DataSource = dtmCadastroProdutos.dsrProdutosFornecedoresUndades
               Font.Charset = DEFAULT_CHARSET
@@ -12367,7 +12356,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
               Left = 981
               Top = 0
               Width = 29
-              Height = 93
+              Height = 144
               Align = alRight
               BevelOuter = bvNone
               TabOrder = 1
@@ -12753,7 +12742,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 935
           Top = 0
           Width = 83
-          Height = 124
+          Height = 175
           Align = alRight
           BevelOuter = bvNone
           TabOrder = 0
@@ -13068,7 +13057,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           end
           object gbxTotalComposto: TGroupBox
             Left = 0
-            Top = 158
+            Top = 142
             Width = 83
             Height = 33
             Align = alBottom
@@ -13115,14 +13104,14 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 0
           Top = 0
           Width = 209
-          Height = 124
+          Height = 175
           Align = alLeft
           TabOrder = 3
           object DBGridProdutosCompostos: TtecDBGrid
             Left = 1
             Top = 1
             Width = 209
-            Height = 122
+            Height = 173
             Align = alLeft
             DataSource = dtmCadastroProdutos.dsrProdutos
             Font.Charset = DEFAULT_CHARSET
@@ -13182,7 +13171,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 229
           Top = 0
           Width = 760
-          Height = 124
+          Height = 175
           Align = alClient
           DataSource = dtmCadastroProdutos.dsrProdutoCompostoFios
           Font.Charset = DEFAULT_CHARSET
@@ -13338,7 +13327,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 989
           Top = 0
           Width = 29
-          Height = 124
+          Height = 175
           Align = alRight
           BevelOuter = bvNone
           TabOrder = 1
@@ -13657,7 +13646,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 0
           Top = 0
           Width = 229
-          Height = 124
+          Height = 175
           Align = alLeft
           DataSource = dtmCadastroProdutos.dsrProdutos
           Font.Charset = DEFAULT_CHARSET
@@ -13716,7 +13705,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 0
           Top = 0
           Width = 229
-          Height = 124
+          Height = 175
           Align = alLeft
           DataSource = dtmCadastroProdutos.dsrProdutos
           Font.Charset = DEFAULT_CHARSET
@@ -13771,7 +13760,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 229
           Top = 0
           Width = 760
-          Height = 124
+          Height = 175
           Align = alClient
           DataSource = dtmCadastroProdutos.dsrProdutoCompostoFitas
           Font.Charset = DEFAULT_CHARSET
@@ -13912,7 +13901,7 @@ inherited frmCadastroCaracteristicas: TfrmCadastroCaracteristicas
           Left = 989
           Top = 0
           Width = 29
-          Height = 124
+          Height = 175
           Align = alRight
           BevelOuter = bvNone
           TabOrder = 2

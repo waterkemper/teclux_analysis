@@ -1,0 +1,153 @@
+inherited dtmCadastroContratosManutencao: TdtmCadastroContratosManutencao
+  OldCreateOrder = False
+  Left = 465
+  Top = 201
+  Height = 358
+  Width = 719
+  inherited ZMonitor: TZMonitor
+    Left = 200
+    Top = 16
+  end
+  object qryContratosManutencao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryContratosManutencaoAfterScroll
+    OnNewRecord = qryContratosManutencaoNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cm.*,'
+      '          (select sum(scm.quantidade * scm.valor)'
+      '           from  servicoscontratosmanutencao scm'
+      '           where scm.contrato = cm.numero) as valor'
+      'from contratosmanutencao cm'
+      'where cm.numero = :numero')
+    RequestLive = True
+    Left = 72
+    Top = 24
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end>
+    object qryContratosManutencaonumero: TIntegerField
+      AutoGenerateValue = arAutoInc
+      FieldName = 'numero'
+    end
+    object qryContratosManutencaocliente: TIntegerField
+      FieldName = 'cliente'
+      Required = True
+    end
+    object qryContratosManutencaotipocliente: TStringField
+      DisplayLabel = 'tipo cliente'
+      FieldName = 'tipocliente'
+      Required = True
+      Size = 1
+    end
+    object qryContratosManutencaodiavencimento: TIntegerField
+      DisplayLabel = 'dia do vencimento'
+      FieldName = 'diavencimento'
+      Required = True
+    end
+    object qryContratosManutencaoassinatura: TDateField
+      FieldName = 'assinatura'
+    end
+    object qryContratosManutencaovigencia: TDateField
+      FieldName = 'vigencia'
+    end
+    object qryContratosManutencaovalor: TFloatField
+      FieldName = 'valor'
+    end
+    object qryContratosManutencaoobservacoesnf: TStringField
+      FieldName = 'observacoesnf'
+      Size = 200
+    end
+  end
+  object spcContratosManutencao_ProximoNumero: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select contratosmanutencao_proximonumero() as numero')
+    RequestLive = False
+    Left = 336
+    Top = 32
+    object spcContratosManutencao_ProximoNumeronumero: TIntegerField
+      FieldName = 'numero'
+    end
+  end
+  object dsrContratosManutencao: TtecDataSource
+    DataSet = qryContratosManutencao
+    OnDataChange = dsrContratosManutencaoDataChange
+    Left = 104
+    Top = 40
+  end
+  object qryServicosContratosManutencao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryServicosContratosManutencaoAfterPost
+    AfterDelete = qryServicosContratosManutencaoAfterDelete
+    OnNewRecord = qryServicosContratosManutencaoNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select scm.*,'
+      '       s.descricao as descricaoservico'
+      'from servicoscontratosmanutencao scm, servicos s'
+      'where scm.contrato = :contrato'
+      '  and scm.servico = s.codigo')
+    RequestLive = True
+    Left = 64
+    Top = 120
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end>
+    object qryServicosContratosManutencaocontrato: TIntegerField
+      FieldName = 'contrato'
+      Required = True
+    end
+    object qryServicosContratosManutencaoservico: TIntegerField
+      FieldName = 'servico'
+      Required = True
+    end
+    object qryServicosContratosManutencaodescricaoservico: TStringField
+      FieldName = 'descricaoservico'
+      Size = 70
+    end
+    object qryServicosContratosManutencaoquantidade: TIntegerField
+      FieldName = 'quantidade'
+    end
+    object qryServicosContratosManutencaovalor: TFloatField
+      FieldName = 'valor'
+    end
+  end
+  object dsrServicosContratosManutencao: TtecDataSource
+    DataSet = qryServicosContratosManutencao
+    OnDataChange = dsrServicosContratosManutencaoDataChange
+    Left = 96
+    Top = 136
+  end
+end

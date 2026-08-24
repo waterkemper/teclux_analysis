@@ -1,0 +1,455 @@
+unit abcdbgrf;
+ 
+(*------------------------------------------------------------------------------ 
+ 
+Advanced Business Components 
+ABC for Delphi 
+Version 6 
+
+Copyright © 1995, 2001 Objective Software Technology Pty Limited ACN 068 640 353 
+Functionality derived from Delphi VCL Source Code 
+is Copyright © 1995, 2001 Borland Software Corporation 
+ 
+------------------------------------------------------------------------------*) 
+ 
+//{$I abcdefs.inc} 
+ 
+interface 
+ 
+uses 
+  Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, 
+  Dialogs, StdCtrls, ExtCtrls, DB, DBGrids, DBCtrls, 
+  Mask, Buttons, abcexctl, abcdbctl, Grids, Menus; 
+ 
+type 
+ 
+  { TabcCustomDBFixedGrid } 
+ 
+  TabcFixedColInt = 0..Maxint; 
+ 
+  TabcCustomDBFixedGrid = class(TCustomDBGrid) 
+  private 
+    FFixedCols: TabcFixedColInt; 
+    procedure SetFixedCols(Value: TabcFixedColInt); 
+    procedure SetFixedColTabs; 
+  protected 
+    { Protected declarations } 
+    procedure DrawCell(ACol, ARow: Longint; ARect: TRect; AState: TGridDrawState); override; 
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override; 
+    procedure LayoutChanged; override; 
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; 
+      X, Y: Integer); override; 
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; 
+      X, Y: Integer); override; 
+    property FixedCols: TabcFixedColInt read FFixedCols write SetFixedCols; 
+  public 
+    constructor Create(AOwner: TComponent); override; 
+    destructor Destroy; override; 
+  end; 
+ 
+  {TabcDBFixedGrid} 
+ 
+  TabcDBFixedGrid = class(TabcCustomDBFixedGrid) 
+  public 
+    property Canvas; 
+      property SelectedRows; 
+  published 
+    property Align; 
+    property Anchors; 
+    property BiDiMode; 
+    property Constraints; 
+    property DragKind; 
+    property ParentBiDiMode; 
+    property BorderStyle; 
+    property Color; 
+    property Ctl3D; 
+    property DataSource; 
+    property DefaultDrawing; 
+    property DragCursor; 
+    property DragMode; 
+    property Enabled; 
+    property FixedColor; 
+    property FixedCols; 
+    property Font; 
+    property Options; 
+    property ParentColor; 
+    property ParentCtl3D; 
+    property ParentFont; 
+    property ParentShowHint; 
+    property PopupMenu; 
+    property ReadOnly; 
+    property ShowHint; 
+    property TabOrder; 
+    property TabStop; 
+    property TitleFont; 
+    property Visible; 
+    property OnColEnter; 
+    property OnColExit; 
+    property OnDrawDataCell; 
+    property OnDblClick; 
+    property OnDragDrop; 
+    property OnDragOver; 
+    property OnEndDrag; 
+    property OnEnter; 
+    property OnExit; 
+    property OnKeyDown; 
+    property OnKeyPress; 
+    property OnKeyUp; 
+    property OnMouseDown; 
+    property OnMouseMove; 
+    property OnMouseUp; 
+    property Columns; 
+    property OnColumnMoved; 
+    property OnDrawColumnCell; 
+    property OnEditButtonClick; 
+    property OnStartDrag; 
+    property OnEndDock; 
+    property OnStartDock; 
+  end; 
+ 
+var 
+  gABCGridMouseUpDesignEvent: TNotifyEvent; 
+ 
+implementation 
+ 
+uses Math, Clipbrd, DBConsts; 
+ 
+{Utility} 
+ 
+function Min(X, Y: Integer): Integer; 
+begin 
+  Result := X; 
+  if X > Y then Result := Y; 
+end; 
+ 
+var 
+  DrawBitmap: TBitmap; 
+  UserCount: Integer; 
+ 
+procedure UsesBitmap; 
+begin 
+  if UserCount = 0 then 
+    DrawBitmap := TBitmap.Create; 
+  Inc(UserCount); 
+end; 
+ 
+procedure ReleaseBitmap; 
+begin 
+  Dec(UserCount); 
+  if UserCount = 0 then DrawBitmap.Free; 
+end; 
+ 
+procedure WriteText(ACanvas: TCanvas; ARect: TRect; DX, DY: Integer; 
+  const Text: string; Alignment: TAlignment; ARightToLeft: Boolean); 
+const 
+  AlignFlags : array [TAlignment] of Integer = 
+    ( DT_LEFT or DT_WORDBREAK or DT_EXPANDTABS or DT_NOPREFIX, 
+      DT_RIGHT or DT_WORDBREAK or DT_EXPANDTABS or DT_NOPREFIX, 
+      DT_CENTER or DT_WORDBREAK or DT_EXPANDTABS or DT_NOPREFIX ); 
+  RTL: array [Boolean] of Integer = (0, DT_RTLREADING); 
+var 
+  B, R: TRect; 
+  Hold, Left: Integer; 
+  I: TColorRef; 
+begin 
+  I := ColorToRGB(ACanvas.Brush.Color); 
+  if GetNearestColor(ACanvas.Handle, I) = I then 
+  begin                       { Use ExtTextOut for solid colors } 
+    { In BiDi, because we changed the window origin, the text that does not 
+      change alignment, actually gets its alignment changed. } 
+    if (ACanvas.CanvasOrientation = coRightToLeft) and (not ARightToLeft) then 
+      ChangeBiDiModeAlignment(Alignment); 
+    case Alignment of 
+      taLeftJustify: 
+        Left := ARect.Left + DX; 
+      taRightJustify: 
+        Left := ARect.Right - ACanvas.TextWidth(Text) - 3; 
+    else { taCenter } 
+      Left := ARect.Left + (ARect.Right - ARect.Left) shr 1 
+        - (ACanvas.TextWidth(Text) shr 1); 
+    end; 
+    ACanvas.TextRect(ARect, Left, ARect.Top + DY, Text); 
+  end 
+  else begin                  { Use FillRect and Drawtext for dithered colors } 
+    DrawBitmap.Canvas.Lock; 
+    try 
+      with DrawBitmap, ARect do { Use offscreen bitmap to eliminate flicker and } 
+      begin                     { brush origin tics in painting / scrolling.    } 
+        Width := Max(Width, Right - Left); 
+        Height := Max(Height, Bottom - Top); 
+        R := Rect(DX, DY, Right - Left - 1, Bottom - Top - 1); 
+        B := Rect(0, 0, Right - Left, Bottom - Top); 
+      end; 
+      with DrawBitmap.Canvas do 
+      begin 
+        Font := ACanvas.Font; 
+        Font.Color := ACanvas.Font.Color; 
+        Brush := ACanvas.Brush; 
+        Brush.Style := bsSolid; 
+        FillRect(B); 
+        SetBkMode(Handle, TRANSPARENT); 
+        if (ACanvas.CanvasOrientation = coRightToLeft) then 
+          ChangeBiDiModeAlignment(Alignment); 
+        DrawText(Handle, PChar(Text), Length(Text), R, 
+          AlignFlags[Alignment] or RTL[ARightToLeft]); 
+      end; 
+      if (ACanvas.CanvasOrientation = coRightToLeft) then 
+      begin 
+        Hold := ARect.Left; 
+        ARect.Left := ARect.Right; 
+        ARect.Right := Hold; 
+      end; 
+      ACanvas.CopyRect(ARect, DrawBitmap.Canvas, B); 
+    finally 
+      DrawBitmap.Canvas.Unlock; 
+    end; 
+  end; 
+end; 
+ 
+{ TabcCustomDBFixedGrid } 
+ 
+constructor TabcCustomDBFixedGrid.Create(AOwner: TComponent); 
+begin 
+  inherited; 
+  UsesBitmap; 
+end; 
+ 
+destructor TabcCustomDBFixedGrid.Destroy; 
+begin 
+  ReleaseBitmap; 
+  inherited; 
+end; 
+ 
+procedure TabcCustomDBFixedGrid.KeyDown(var Key: Word; Shift: TShiftState); 
+begin 
+  if (Key <> VK_LEFT) and (Key <> VK_HOME) then 
+    inherited KeyDown(Key, Shift) 
+  else begin 
+    if Key = VK_LEFT then begin 
+      if ssCtrl in Shift then 
+        SelectedIndex := FFixedCols 
+      else 
+        if SelectedIndex > FFixedCols then 
+          SelectedIndex := SelectedIndex - 1; 
+    end 
+    else {VK_HOME} 
+      if ssCtrl in Shift then 
+        Datalink.DataSet.First 
+      else 
+        SelectedIndex := FFixedCols; 
+  end; 
+end; 
+ 
+procedure TabcCustomDBFixedGrid.LayoutChanged; 
+begin 
+  inherited LayoutChanged; 
+  SetFixedCols(FFixedCols); 
+end; 
+ 
+procedure TabcCustomDBFixedGrid.MouseDown(Button: TMouseButton; Shift: TShiftState; 
+  X, Y: Integer); 
+var 
+  Cell: TGridCoord; 
+  FixedIndex: Integer; 
+begin 
+  Cell := MouseCoord(X,Y); 
+  FixedIndex := Min(FFixedCols, ColCount - 1); 
+  if (Cell.X >= FixedIndex + IndicatorOffset) then 
+    inherited MouseDown(Button, Shift, X, Y) 
+  else 
+    if (dgIndicator in Options) then inherited MouseDown(Button, Shift, 0, Y); 
+end; 
+ 
+{following proc stops IDE selection of the grid subcomponent} 
+procedure TabcCustomDBFixedGrid.MouseUp(Button: TMouseButton; Shift: TShiftState; 
+  X, Y: Integer); 
+begin 
+  inherited MouseUp(Button, Shift, X, Y); 
+{$IFDEF DELPHI5} 
+  if (csDesigning in ComponentState) and not ((Owner is TForm) or (Owner is TFrame)) then 
+{$ELSE} 
+  if (csDesigning in ComponentState) and not (Owner is TForm) then 
+{$ENDIF} 
+    if Assigned(gABCGridMouseUpDesignEvent) then 
+      gABCGridMouseUpDesignEvent(Self); 
+end; 
+ 
+procedure TabcCustomDBFixedGrid.SetFixedColTabs; 
+var 
+  I, LastCol: Integer; 
+begin 
+  SetColumnAttributes; 
+  LastCol := Min(FFixedCols + IndicatorOffset, ColCount); 
+  for I := 0 to LastCol - 1 do TabStops[I] := False; 
+end; 
+ 
+procedure TabcCustomDBFixedGrid.SetFixedCols(Value: TabcFixedColInt); 
+var 
+  ARow: Longint; 
+  NewValue: TabcFixedColInt; 
+begin 
+  ARow := Row; 
+  FFixedCols := Value; 
+  if csLoading in ComponentState then Exit; 
+  if DataSource <> nil then 
+    if Datasource.State <> dsInactive then begin 
+      NewValue := Min(Value, ColCount - Ord(dgIndicator in Options) - 1); 
+      inherited FixedCols := NewValue + Ord(dgIndicator in Options); 
+      if not (csDesigning in ComponentState) then begin 
+        Col := Min(NewValue + Ord(dgIndicator in Options), ColCount - 1); 
+        Row := ARow; 
+      end; 
+    end; 
+  SetFixedColTabs; 
+  if (csDesigning in ComponentState) then Invalidate; 
+end; 
+ 
+procedure TabcCustomDBFixedGrid.DrawCell(ACol, ARow: Longint; ARect: TRect; AState: TGridDrawState); 
+var 
+  FrameOffs: Byte; 
+ 
+  function CalcTitleRect(Col: TColumn; ARow: Integer; var MasterCol: TColumn): TRect; 
+  var 
+    I,J: Integer; 
+    InBiDiMode: Boolean; 
+    DrawInfo: TGridDrawInfo; 
+  begin 
+    MasterCol := ColumnAtDepth(Col, ARow); 
+    if MasterCol = nil then Exit; 
+ 
+    I := DataToRawColumn(MasterCol.Index); 
+    if I >= LeftCol then 
+      J := MasterCol.Depth 
+    else 
+    begin 
+  //    I := LeftCol;  doesn't work with fixed cols 
+      if Col.Depth > ARow then 
+        J := ARow 
+      else 
+        J := Col.Depth; 
+    end; 
+ 
+    Result := CellRect(I, J); 
+ 
+    InBiDiMode := UseRightToLeftAlignment and 
+                  (Canvas.CanvasOrientation = coLeftToRight); 
+ 
+    for I := Col.Index to Columns.Count-1 do 
+    begin 
+      if ColumnAtDepth(Columns[I], ARow) <> MasterCol then Break; 
+      if not InBiDiMode then 
+      begin 
+        J := CellRect(DataToRawColumn(I), ARow).Right; 
+        if J = 0 then Break; 
+        Result.Right := Max(Result.Right, J); 
+      end 
+      else 
+      begin 
+        J := CellRect(DataToRawColumn(I), ARow).Left; 
+        if J >= ClientWidth then Break; 
+        Result.Left := J; 
+      end; 
+    end; 
+    J := Col.Depth; 
+    if (J <= ARow) and (J < FixedRows-1) then 
+    begin 
+      CalcFixedInfo(DrawInfo); 
+      Result.Bottom := DrawInfo.Vert.FixedBoundary - DrawInfo.Vert.EffectiveLineWidth; 
+    end; 
+  end; 
+ 
+  procedure DrawTitleCell(ACol, ARow: Integer; Column: TColumn; var AState: TGridDrawState); 
+  const 
+    ScrollArrows: array [Boolean, Boolean] of Integer = 
+      ((DFCS_SCROLLRIGHT, DFCS_SCROLLLEFT), (DFCS_SCROLLLEFT, DFCS_SCROLLRIGHT)); 
+  var 
+    MasterCol: TColumn; 
+    TitleRect, TextRect, ButtonRect: TRect; 
+    I: Integer; 
+    InBiDiMode: Boolean; 
+  begin 
+    TitleRect := CalcTitleRect(Column, ARow, MasterCol); 
+ 
+    if MasterCol = nil then 
+    begin 
+      Canvas.FillRect(ARect); 
+      Exit; 
+    end; 
+ 
+    Canvas.Font := MasterCol.Title.Font; 
+    Canvas.Brush.Color := MasterCol.Title.Color; 
+    if [dgRowLines, dgColLines] * Options = [dgRowLines, dgColLines] then 
+      InflateRect(TitleRect, -1, -1); 
+    TextRect := TitleRect; 
+    I := GetSystemMetrics(SM_CXHSCROLL); 
+    if ((TextRect.Right - TextRect.Left) > I) and MasterCol.Expandable then 
+    begin 
+      Dec(TextRect.Right, I); 
+      ButtonRect := TitleRect; 
+      ButtonRect.Left := TextRect.Right; 
+      I := SaveDC(Canvas.Handle); 
+      try 
+        Canvas.FillRect(ButtonRect); 
+        InflateRect(ButtonRect, -1, -1); 
+        IntersectClipRect(Canvas.Handle, ButtonRect.Left, 
+          ButtonRect.Top, ButtonRect.Right, ButtonRect.Bottom); 
+        InflateRect(ButtonRect, 1, 1); 
+        { DrawFrameControl doesn't draw properly when orienatation has changed. 
+          It draws as ExtTextOut does. } 
+        InBiDiMode := Canvas.CanvasOrientation = coRightToLeft; 
+        if InBiDiMode then { stretch the arrows box } 
+          Inc(ButtonRect.Right, GetSystemMetrics(SM_CXHSCROLL) + 4); 
+        DrawFrameControl(Canvas.Handle, ButtonRect, DFC_SCROLL, 
+          ScrollArrows[InBiDiMode, MasterCol.Expanded] or DFCS_FLAT); 
+      finally 
+        RestoreDC(Canvas.Handle, I); 
+      end; 
+    end; 
+    with MasterCol.Title do 
+      WriteText(Canvas, TextRect, FrameOffs, FrameOffs, Caption, Alignment, 
+        IsRightToLeft); 
+    if [dgRowLines, dgColLines] * Options = [dgRowLines, dgColLines] then 
+    begin 
+      InflateRect(TitleRect, 1, 1); 
+      DrawEdge(Canvas.Handle, TitleRect, BDR_RAISEDINNER, BF_BOTTOMRIGHT); 
+      DrawEdge(Canvas.Handle, TitleRect, BDR_RAISEDINNER, BF_TOPLEFT); 
+    end; 
+  end; 
+ 
+var 
+  DrawColumn: TColumn; 
+  ColOffset, RowOffset: integer; 
+begin 
+  RowOffset := Ord(dgTitles in Options); 
+  ColOffset := Ord(dgIndicator in Options); 
+ 
+  if (RowOffset = 1) and (ARow = 0) then 
+  begin 
+    Dec(ARow, RowOffset); 
+    Dec(ACol, ColOffset); 
+    if (gdFixed in AState) and (ACol < 0) then 
+      inherited 
+    else 
+    begin 
+      if (gdFixed in AState) and ([dgRowLines, dgColLines] * Options = 
+        [dgRowLines, dgColLines]) then 
+      begin 
+        InflateRect(ARect, -1, -1); 
+        FrameOffs := 1; 
+      end 
+      else 
+        FrameOffs := 2; 
+      DrawColumn := Columns[ACol]; 
+      if not DrawColumn.Showing then Exit; 
+      DrawTitleCell(ACol, ARow + 1, DrawColumn, AState); 
+    end; 
+  end 
+  else 
+  begin 
+    if (gdFixed in AState) and (ACol = ColOffset) then 
+      Canvas.Font := Self.Font; 
+    inherited; 
+  end; 
+end; 
+ 
+end.

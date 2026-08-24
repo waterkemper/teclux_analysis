@@ -1,0 +1,83 @@
+unit fmcadastroprecos;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Qtypes, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, Mask, ExtCtrls, Buttons, DBCtrls, DB, ComCtrls,
+  //Terceiros
+  ZQuery,
+  //Componentes
+  cpdata, cptexto, cpnumero,
+  //Biblio
+  biblio,ctconstantes,
+  //Projeto
+  dmcadastroprodutos,
+  //Repositorio
+  fmconsultabasica, fmconsultaporcampo, fmcadastropadrao, cpdbtext, ToolWin;
+
+
+type
+  TfrmCadastroPrecos = class(TfrmCadastroPadrao)
+    gbxPrecos: TGroupBox;
+    lblCaracteristica: TLabel;
+    dtxCaracteristica: TtecDBText;
+    lblDescricao: TLabel;
+    edtPreco: TDBEditTexto;
+    pnlFundoJanela: TPanel;
+  protected
+    {dtmCadastroProdutos: TdtmCadastroProdutos;}
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    function  InternoIncluir: Boolean; override;
+  public
+    procedure  SetDataModulo(Dtm: TdtmCadastroProdutos);
+    destructor Destroy; override;
+  end;
+
+var
+  frmCadastroPrecos: TfrmCadastroPrecos;
+
+implementation
+
+{$R *.dfm}
+
+
+destructor TfrmCadastroPrecos.Destroy;
+begin
+  inherited;
+  frmCadastroPrecos := nil;
+end;
+
+function TfrmCadastroPrecos.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then
+    if not CtrlOn then
+      Result:= dtmCadastroProdutos.ExcluirPreco;
+end;
+
+function TfrmCadastroPrecos.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if Result then begin
+    Result := dtmCadastroProdutos.GravarPreco;
+    edtPreco.SetFocus;
+  end;
+end;
+
+function TfrmCadastroPrecos.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then
+    if not CtrlOn then
+      Result:= dtmCadastroProdutos.IncluirPreco(False);
+end;
+
+procedure TfrmCadastroPrecos.SetDataModulo(Dtm: TdtmCadastroProdutos);
+begin
+  dtmCadastroProdutos := Dtm;
+end;
+
+end.

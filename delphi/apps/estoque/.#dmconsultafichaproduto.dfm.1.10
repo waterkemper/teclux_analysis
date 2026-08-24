@@ -1,0 +1,764 @@
+inherited dtmConsultaFichaProduto: TdtmConsultaFichaProduto
+  Left = 254
+  Top = 199
+  Height = 492
+  Width = 721
+  object qryFichaProduto: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnProgress = qryFichaProdutoProgress
+    AfterOpen = qryFichaProdutoAfterOpen
+    AfterInsert = qryFichaProdutoAfterInsert
+    BeforePost = qryFichaProdutoBeforePost
+    AfterScroll = qryFichaProdutoAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'Linha'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'Select numero, lancto,'
+      '       data,'
+      '       tipomovimento,'
+      '       referencia,'
+      '       quantidade,'
+      '       filial,'
+      '       emestoque,'
+      '       reservado,'
+      '       transito,'
+      '       demonstracao,'
+      '       conserto,'
+      '       futuro,'
+      '       danificada,'
+      '       estoquefisico,'
+      '       reservaprevia,'
+      '       cast(substr(operacao,1,1) as varchar)  as est,'
+      '       cast(substr(operacao,2,1) as varchar)  as res,'
+      '       cast(substr(operacao,3,1) as varchar)  as tra,'
+      '       cast(substr(operacao,4,1) as varchar)  as dem,'
+      '       cast(substr(operacao,5,1) as varchar)  as con,'
+      '       cast(substr(operacao,6,1) as varchar)  as fut,'
+      '       cast(substr(operacao,7,1) as varchar)  as dan,'
+      '       cast(substr(operacao,8,1) as varchar)  as fis,'
+      '       cast(substr(operacao,9,1) as varchar)  as prev,'
+      '       cast(substr(operacao,10,1) as varchar) as uent,'
+      '       cast(substr(operacao,11,1) as varchar) as ucom,'
+      '       cast(substr(operacao,12,1) as varchar) as fin,'
+      '       cast(substr(operacao,13,1) as varchar) as tven,'
+      '       cast(substr(operacao,14,1) as varchar) as tcom,'
+      '       valor,'
+      '       precocomicms,'
+      '       precosemicms,'
+      '       aliquotaipi,'
+      '       financeiro,'
+      '       usuariologado,'
+      
+        '       (select u.nome from usuarios  u where u.codigo = usuariol' +
+        'ogado) as nomeusuariologado,'
+      '       usuarioautorizacao,'
+      
+        '       (select u.nome from usuarios  u where u.codigo = usuarioa' +
+        'utorizacao) as nomeusuarioautorizacao,'
+      ''
+      
+        '       case when (emestoque+reservado+reservaprevia+transito+dem' +
+        'onstracao+conserto+danificada) = 0  then 0'
+      
+        #9#9'else round(financeiro / (emestoque+reservado+reservaprevia+tra' +
+        'nsito+demonstracao+conserto+danificada), 2)'
+      '       end as customedio,'
+      ''
+      '       case when codigonota is null'
+      '         then (select coalesce(v.razao,v.nome) as nome'
+      '               from vfornecedores v'
+      
+        '               where (v.codigo = cliente) and (v.tipo = tipoclie' +
+        'nte)'
+      '              )'
+      '         else'
+      '              (select coalesce(v.razao,v.nome) as nome'
+      '               from vfornecedores v'
+      
+        '               where (v.codigo, v.tipo) in (select n.fornecedor,' +
+        'n.tipofornecedor'
+      '                                            from notaspag n'
+      
+        '                                             where n.codigo = co' +
+        'digonota))'
+      
+        '        end as clientefornecedor, naoprocessartriggers, moeda, v' +
+        'alormoeda, pedcotacao, pedaberto'
+      ''
+      'From   movimentos'
+      'Where   (produto =:produto)'
+      '%Linha'
+      'Order By filial,cast(data as date), Lancto')
+    RequestLive = True
+    Left = 86
+    Top = 17
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'produto'
+        ParamType = ptUnknown
+        Value = '0'
+      end>
+    object qryFichaProdutonumero: TIntegerField
+      FieldName = 'numero'
+      ReadOnly = True
+      DisplayFormat = '0'
+    end
+    object qryFichaProdutodata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      ReadOnly = True
+      Required = True
+      EditMask = '99/99/9999;1; '
+    end
+    object qryFichaProdutotipomovimento: TStringField
+      FieldName = 'tipomovimento'
+      ReadOnly = True
+      Required = True
+      Size = 3
+    end
+    object qryFichaProdutoreferencia: TStringField
+      FieldName = 'referencia'
+      ReadOnly = True
+      Size = 60
+    end
+    object qryFichaProdutoquantidade: TFloatField
+      FieldName = 'quantidade'
+      ReadOnly = True
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryFichaProdutofilial: TIntegerField
+      FieldName = 'filial'
+      ReadOnly = True
+      Required = True
+      DisplayFormat = '00#'
+    end
+    object qryFichaProdutoemestoque: TFloatField
+      FieldName = 'emestoque'
+      ReadOnly = True
+      DisplayFormat = '0'
+    end
+    object qryFichaProdutoreservado: TFloatField
+      FieldName = 'reservado'
+      ReadOnly = True
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryFichaProdutotransito: TFloatField
+      FieldName = 'transito'
+      ReadOnly = True
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryFichaProdutodemonstracao: TFloatField
+      FieldName = 'demonstracao'
+      ReadOnly = True
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryFichaProdutoconserto: TFloatField
+      FieldName = 'conserto'
+      ReadOnly = True
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryFichaProdutofuturo: TFloatField
+      FieldName = 'futuro'
+      ReadOnly = True
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryFichaProdutodanificada: TFloatField
+      FieldName = 'danificada'
+      ReadOnly = True
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryFichaProdutoestoquefisico: TFloatField
+      FieldName = 'estoquefisico'
+      ReadOnly = True
+      DisplayFormat = '0'
+    end
+    object qryFichaProdutoreservaprevia: TFloatField
+      FieldName = 'reservaprevia'
+      ReadOnly = True
+    end
+    object qryFichaProdutoest: TStringField
+      Alignment = taCenter
+      FieldName = 'est'
+      ReadOnly = True
+      Size = 1
+    end
+    object qryFichaProdutores: TStringField
+      Alignment = taCenter
+      FieldName = 'res'
+      ReadOnly = True
+      Size = 1
+    end
+    object qryFichaProdutotra: TStringField
+      Alignment = taCenter
+      FieldName = 'tra'
+      ReadOnly = True
+      Size = 1
+    end
+    object qryFichaProdutodem: TStringField
+      Alignment = taCenter
+      FieldName = 'dem'
+      ReadOnly = True
+      Size = 1
+    end
+    object qryFichaProdutocon: TStringField
+      Alignment = taCenter
+      FieldName = 'con'
+      ReadOnly = True
+      Size = 1
+    end
+    object qryFichaProdutofut: TStringField
+      Alignment = taCenter
+      FieldName = 'fut'
+      ReadOnly = True
+      Size = 1
+    end
+    object qryFichaProdutodan: TStringField
+      Alignment = taCenter
+      FieldName = 'dan'
+      ReadOnly = True
+      Size = 1
+    end
+    object qryFichaProdutofis: TStringField
+      Alignment = taCenter
+      FieldName = 'fis'
+      ReadOnly = True
+      Size = 1
+    end
+    object qryFichaProdutoprev: TStringField
+      FieldName = 'prev'
+      ReadOnly = True
+      Size = 1
+    end
+    object qryFichaProdutouent: TStringField
+      Alignment = taCenter
+      FieldName = 'uent'
+      ReadOnly = True
+      Size = 1
+    end
+    object qryFichaProdutoucom: TStringField
+      Alignment = taCenter
+      FieldName = 'ucom'
+      ReadOnly = True
+      Size = 1
+    end
+    object qryFichaProdutofin: TStringField
+      Alignment = taCenter
+      FieldName = 'fin'
+      ReadOnly = True
+      Size = 1
+    end
+    object qryFichaProdutotven: TStringField
+      Alignment = taCenter
+      FieldName = 'tven'
+      ReadOnly = True
+      Size = 1
+    end
+    object qryFichaProdutotcom: TStringField
+      Alignment = taCenter
+      FieldName = 'tcom'
+      ReadOnly = True
+      Size = 1
+    end
+    object qryFichaProdutovalor: TFloatField
+      FieldName = 'valor'
+      ReadOnly = True
+      Required = True
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryFichaProdutoprecocomicms: TFloatField
+      FieldName = 'precocomicms'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryFichaProdutoprecosemicms: TFloatField
+      FieldName = 'precosemicms'
+      DisplayFormat = '###,###,##0.00'
+      EditFormat = '###,###,##0.00'
+    end
+    object qryFichaProdutoaliquotaipi: TFloatField
+      FieldName = 'aliquotaipi'
+      ReadOnly = True
+      DisplayFormat = '0.00'
+    end
+    object qryFichaProdutofinanceiro: TFloatField
+      FieldName = 'financeiro'
+      ReadOnly = True
+      Required = True
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryFichaProdutoclientefornecedor: TStringField
+      FieldName = 'clientefornecedor'
+      ReadOnly = True
+      Size = 60
+    end
+    object qryFichaProdutomoeda: TStringField
+      FieldName = 'moeda'
+      Size = 10
+    end
+    object qryFichaProdutovalormoeda: TFloatField
+      FieldName = 'valormoeda'
+      DisplayFormat = '###,##0.000000'
+      EditFormat = '###,##0.000000'
+    end
+    object qryFichaProdutomoedaLookup: TStringField
+      FieldKind = fkLookup
+      FieldName = 'moedaLookup'
+      LookupDataSet = qryMoedas
+      LookupKeyFields = 'codigo'
+      LookupResultField = 'descricao'
+      KeyFields = 'moeda'
+      Lookup = True
+    end
+    object qryFichaProdutonaoprocessartriggers: TBooleanField
+      FieldName = 'naoprocessartriggers'
+    end
+    object qryFichaProdutocustomedio: TFloatField
+      FieldName = 'customedio'
+      ReadOnly = True
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryFichaProdutopedcotacao: TFloatField
+      DisplayLabel = 'COTA'#199#195'O'
+      FieldName = 'pedcotacao'
+      DisplayFormat = '###,##0.00'
+      EditFormat = '###,##0.00'
+    end
+    object qryFichaProdutopedaberto: TFloatField
+      DisplayLabel = 'EM ABERTO'
+      FieldName = 'pedaberto'
+      DisplayFormat = '###,##0.000'
+      EditFormat = '###,##0.000'
+    end
+    object qryFichaProdutousuariologado: TIntegerField
+      FieldName = 'usuariologado'
+    end
+    object qryFichaProdutonomeusuariologado: TStringField
+      FieldName = 'nomeusuariologado'
+      Size = 50
+    end
+    object qryFichaProdutousuarioautorizacao: TIntegerField
+      FieldName = 'usuarioautorizacao'
+    end
+    object qryFichaProdutonomeusuarioautorizacao: TStringField
+      FieldName = 'nomeusuarioautorizacao'
+      Size = 50
+    end
+  end
+  object dsrFichaProduto: TtecDataSource
+    DataSet = qryFichaProduto
+    Left = 86
+    Top = 72
+  end
+  object qryConsultaFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT nome, codigo'
+      'FROM filiais'
+      'ORDER BY UPPER(TO_ASCII(nome,'#39'latin1'#39'))')
+    RequestLive = False
+    Left = 86
+    Top = 285
+    object qryConsultaFiliaisnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryConsultaFiliaiscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+    end
+  end
+  object qryProcuraFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT codigo, nome'
+      'FROM filiais'
+      'WHERE codigo = :codigo')
+    RequestLive = False
+    Left = 238
+    Top = 135
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraFiliaiscodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryProcuraFiliaisnome: TStringField
+      FieldName = 'nome'
+      Size = 40
+    end
+  end
+  object dsrProcuraFiliais: TtecDataSource
+    DataSet = qryProcuraFiliais
+    Left = 238
+    Top = 189
+  end
+  object qryProcuraTiposMovimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT codigo, descricao'
+      'FROM tiposmovimentos'
+      'WHERE codigo = :codigo')
+    RequestLive = False
+    Left = 406
+    Top = 17
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraTiposMovimentoscodigo: TStringField
+      FieldName = 'codigo'
+      Size = 3
+    end
+    object qryProcuraTiposMovimentosdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 30
+    end
+  end
+  object dsrProcuraTiposMovimentos: TtecDataSource
+    DataSet = qryProcuraTiposMovimentos
+    Left = 406
+    Top = 72
+  end
+  object qryConsultaTiposMovimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT descricao, codigo'
+      'FROM tiposmovimentos'
+      'ORDER BY UPPER(TO_ASCII(descricao,'#39'latin1'#39'))')
+    RequestLive = False
+    Left = 86
+    Top = 344
+    object qryConsultaTiposMovimentosdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 70
+    end
+    object qryConsultaTiposMovimentoscodigo: TStringField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Size = 3
+    end
+  end
+  object qryFichaProduto_Saldo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select numero,'
+      '       cast(null as timestamp) as data,movimentos.data as data1,'
+      '       cast(null as varchar) as tipomovimento,'
+      '       cast('#39'SALDO ANTERIOR'#39' as varchar(60)) as referencia,'
+      '       quantidade,'
+      '       cast(null as integer) as filial,'
+      '       emestoque,'
+      '       reservado,'
+      '       transito,'
+      '       demonstracao,'
+      '       conserto,'
+      '       futuro,'
+      '       danificada,'
+      '       estoquefisico,'
+      '       reservaprevia,'
+      '       cast(substr(operacao,1,1) as varchar)  as est,'
+      '       cast(substr(operacao,2,1) as varchar)  as res,'
+      '       cast(substr(operacao,3,1) as varchar)  as tra,'
+      '       cast(substr(operacao,4,1) as varchar)  as dem,'
+      '       cast(substr(operacao,5,1) as varchar)  as con,'
+      '       cast(substr(operacao,6,1) as varchar)  as fut,'
+      '       cast(substr(operacao,7,1) as varchar)  as dan,'
+      '       cast(substr(operacao,8,1) as varchar)  as fis,'
+      '       cast(substr(operacao,9,1) as varchar)  as prev,'
+      '       cast(substr(operacao,10,1) as varchar) as uent,'
+      '       cast(substr(operacao,11,1) as varchar) as ucom,'
+      '       cast(substr(operacao,12,1) as varchar) as fin,'
+      '       cast(substr(operacao,13,1) as varchar) as tven,'
+      '       cast(substr(operacao,14,1) as varchar) as tcom,'
+      '       valor,'
+      '       precocomicms,'
+      '       precosemicms,'
+      '       aliquotaipi,'
+      '       financeiro,'
+      '       case when codigonota is null'
+      '         then (select coalesce(v.razao,v.nome) as nome '
+      '               from vfornecedores v'
+      
+        '               where (v.codigo = cliente) and (v.tipo = tipoclie' +
+        'nte)'
+      '              )'
+      '         else'
+      '              (select coalesce(v.razao,v.nome) as nome '
+      '               from vfornecedores v'
+      
+        '               where (v.codigo, v.tipo) in (select n.fornecedor,' +
+        'n.tipofornecedor'
+      '                                            from notaspag n'
+      
+        '                                             where n.codigo = co' +
+        'digonota))'
+      
+        '       end as clientefornecedor, naoprocessartriggers, moeda, va' +
+        'lormoeda'
+      'From   movimentos'
+      
+        'Where   (produto =:produto) and cast(data as date) < :datainicia' +
+        'l'
+      '     /* RUNTIME */'
+      'order by data1 desc limit 1')
+    RequestLive = False
+    Left = 88
+    Top = 129
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'produto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end>
+    object qryFichaProduto_Saldonumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryFichaProduto_Saldodata: TDateTimeField
+      FieldName = 'data'
+    end
+    object qryFichaProduto_Saldotipomovimento: TStringField
+      FieldName = 'tipomovimento'
+      Size = 50
+    end
+    object qryFichaProduto_Saldoreferencia: TStringField
+      FieldName = 'referencia'
+      Size = 60
+    end
+    object qryFichaProduto_Saldoquantidade: TFloatField
+      FieldName = 'quantidade'
+    end
+    object qryFichaProduto_Saldofilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryFichaProduto_Saldoemestoque: TFloatField
+      FieldName = 'emestoque'
+    end
+    object qryFichaProduto_Saldoreservado: TFloatField
+      FieldName = 'reservado'
+    end
+    object qryFichaProduto_Saldotransito: TFloatField
+      FieldName = 'transito'
+    end
+    object qryFichaProduto_Saldodemonstracao: TFloatField
+      FieldName = 'demonstracao'
+    end
+    object qryFichaProduto_Saldoconserto: TFloatField
+      FieldName = 'conserto'
+    end
+    object qryFichaProduto_Saldofuturo: TFloatField
+      FieldName = 'futuro'
+    end
+    object qryFichaProduto_Saldodanificada: TFloatField
+      FieldName = 'danificada'
+    end
+    object qryFichaProduto_Saldoestoquefisico: TFloatField
+      FieldName = 'estoquefisico'
+    end
+    object qryFichaProduto_Saldoreservaprevia: TFloatField
+      FieldName = 'reservaprevia'
+    end
+    object qryFichaProduto_Saldoest: TStringField
+      FieldName = 'est'
+      Size = 50
+    end
+    object qryFichaProduto_Saldores: TStringField
+      FieldName = 'res'
+      Size = 50
+    end
+    object qryFichaProduto_Saldotra: TStringField
+      FieldName = 'tra'
+      Size = 50
+    end
+    object qryFichaProduto_Saldodem: TStringField
+      FieldName = 'dem'
+      Size = 50
+    end
+    object qryFichaProduto_Saldocon: TStringField
+      FieldName = 'con'
+      Size = 50
+    end
+    object qryFichaProduto_Saldofut: TStringField
+      FieldName = 'fut'
+      Size = 50
+    end
+    object qryFichaProduto_Saldodan: TStringField
+      FieldName = 'dan'
+      Size = 50
+    end
+    object qryFichaProduto_Saldofis: TStringField
+      FieldName = 'fis'
+      Size = 50
+    end
+    object qryFichaProduto_Saldoprev: TStringField
+      FieldName = 'prev'
+      Size = 50
+    end
+    object qryFichaProduto_Saldouent: TStringField
+      FieldName = 'uent'
+      Size = 50
+    end
+    object qryFichaProduto_Saldoucom: TStringField
+      FieldName = 'ucom'
+      Size = 50
+    end
+    object qryFichaProduto_Saldofin: TStringField
+      FieldName = 'fin'
+      Size = 50
+    end
+    object qryFichaProduto_Saldotven: TStringField
+      FieldName = 'tven'
+      Size = 50
+    end
+    object qryFichaProduto_Saldotcom: TStringField
+      FieldName = 'tcom'
+      Size = 50
+    end
+    object qryFichaProduto_Saldovalor: TFloatField
+      FieldName = 'valor'
+    end
+    object qryFichaProduto_Saldoprecocomicms: TFloatField
+      FieldName = 'precocomicms'
+    end
+    object qryFichaProduto_Saldoprecosemicms: TFloatField
+      FieldName = 'precosemicms'
+    end
+    object qryFichaProduto_Saldoaliquotaipi: TFloatField
+      FieldName = 'aliquotaipi'
+    end
+    object qryFichaProduto_Saldofinanceiro: TFloatField
+      FieldName = 'financeiro'
+    end
+    object qryFichaProduto_Saldoclientefornecedor: TStringField
+      FieldName = 'clientefornecedor'
+      Size = 50
+    end
+    object qryFichaProduto_Saldonaoprocessartriggers: TBooleanField
+      FieldName = 'naoprocessartriggers'
+    end
+    object qryFichaProduto_Saldomoeda: TStringField
+      FieldName = 'moeda'
+      Size = 10
+    end
+    object qryFichaProduto_Saldovalormoeda: TFloatField
+      FieldName = 'valormoeda'
+    end
+  end
+  object qryMoedas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryMoedasAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select cast(null as varchar(10)) as codigo,'
+      '           cast(null as varchar(30)) as descricao'
+      ''
+      '         '
+      ''
+      'union all'
+      ''
+      'select codigo,descricao'
+      'from moedas'
+      'order by codigo')
+    RequestLive = True
+    Left = 240
+    Top = 256
+    object qryMoedascodigo: TStringField
+      FieldName = 'codigo'
+      Size = 10
+    end
+    object qryMoedasdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 30
+    end
+  end
+  object ZMonitor1: TZMonitor
+    OnMonitorEvent = ZMonitor1MonitorEvent
+    Left = 408
+    Top = 128
+  end
+end

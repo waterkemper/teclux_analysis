@@ -1,0 +1,653 @@
+unit dmImpostos;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, dmTecsoft, DB, ZQuery, ZPgSqlQuery, cpquery,
+  cpdatasource, biblio, ctconstantes;
+
+type
+  TdtmImpostos = class(TdtmBasico)
+    dsrTrib_Imposto: TtecDataSource;
+    qryTrib_Imposto: TtecQuery;
+    qryTrib_Impostoid_imposto: TIntegerField;
+    qryTrib_Impostocodigo: TStringField;
+    qryTrib_Impostodescricao: TStringField;
+    qryTrib_Impostoesfera: TStringField;
+    dsrtrib_imposto_situacao: TtecDataSource;
+    qrytrib_imposto_situacao: TtecQuery;
+    qrytrib_imposto_situacaoid_situacao: TLargeintField;
+    qrytrib_imposto_situacaoid_imposto: TIntegerField;
+    qrytrib_imposto_situacaocodigo: TStringField;
+    qrytrib_imposto_situacaodescricao: TStringField;
+    qrytrib_imposto_situacaogera_debito: TBooleanField;
+    qrytrib_imposto_situacaogera_credito: TBooleanField;
+    qrytrib_imposto_situacaotipo_tratamento: TStringField;
+    qrytrib_imposto_situacaoaliquota_forcada: TFloatField;
+    qrytrib_imposto_situacaopermite_reducao_bc: TBooleanField;
+    qrytrib_imposto_situacaoativo: TBooleanField;
+    qrytrib_imposto_situacaoind_gibscbs: TBooleanField;
+    qrytrib_imposto_situacaoind_gibscbsmono: TBooleanField;
+    qrytrib_imposto_situacaoind_gred: TBooleanField;
+    qrytrib_imposto_situacaoind_gdif: TBooleanField;
+    qrytrib_imposto_situacaoind_gtransfcred: TBooleanField;
+    qrytrib_imposto_situacaoind_gcredpresibszfm: TBooleanField;
+    qrytrib_imposto_situacaoind_gajustecompet: TBooleanField;
+    qrytrib_imposto_situacaoind_redutorbc: TBooleanField;
+    dsrtrib_imposto_classtrib: TtecDataSource;
+    qrytrib_imposto_classtrib: TtecQuery;
+    qrytrib_imposto_classtribid_classtrib: TLargeintField;
+    qrytrib_imposto_classtribid_imposto: TIntegerField;
+    qrytrib_imposto_classtribcodigo_cst: TStringField;
+    qrytrib_imposto_classtribcclasstrib: TStringField;
+    qrytrib_imposto_classtribativo: TBooleanField;
+    qrytrib_imposto_classtribis_default: TBooleanField;
+    qryTrib_Regra: TtecQuery;
+    dsrTrib_Regra: TtecDataSource;
+    qryTrib_Regraid_regra: TLargeintField;
+    qryTrib_Regracontexto: TStringField;
+    qryTrib_Regraid_imposto: TIntegerField;
+    qryTrib_Regravigencia_inicio: TDateField;
+    qryTrib_Regravigencia_fim: TDateField;
+    qryTrib_Regraprioridade: TIntegerField;
+    qryTrib_Regraativo: TBooleanField;
+    qryTrib_Regraid_situacao: TLargeintField;
+    qryTrib_Regramodo_calculo: TStringField;
+    qryTrib_Regraaliquota: TFloatField;
+    qryTrib_Regrareducao_bc: TFloatField;
+    qryTrib_Regracclasstrib: TStringField;
+    qryTrib_Regraobservacao: TStringField;
+    qryTrib_Regraaliquota_ibsuf: TFloatField;
+    qryTrib_Regraaliquota_ibsmun: TFloatField;
+    qrynfe_natureza_operacao: TtecQuery;
+    dsrnfe_natureza_operacao: TtecDataSource;
+    qrynfe_natureza_operacaoid_natureza: TIntegerField;
+    qrynfe_natureza_operacaocodigo: TStringField;
+    qrynfe_natureza_operacaodescricao: TStringField;
+    qrynfe_natureza_operacaocontexto: TStringField;
+    qrynfe_natureza_operacaoselecionado: TBooleanField;
+    qrytrib_grupo_ncm: TtecQuery;
+    dsrtrib_grupo_ncm: TtecDataSource;
+    qrytrib_grupo_ncmid_grupo: TIntegerField;
+    qrytrib_grupo_ncmcodigo: TStringField;
+    qrytrib_grupo_ncmdescricao: TStringField;
+    qrytrib_grupo_ncmselecionado: TBooleanField;
+    qrytrib_grupo_ncm_itens: TtecQuery;
+    dsrtrib_grupo_ncm_itens: TtecDataSource;
+    qrytrib_grupo_ncm_itensid_grupo: TIntegerField;
+    qrytrib_grupo_ncm_itensncm: TStringField;
+    qryEstadosDestino: TtecQuery;
+    dsrEstadosDestino: TtecDataSource;
+    qryEstadosDestinocodigo: TStringField;
+    qryEstadosDestinonome: TStringField;
+    qryEstadosDestinoselecionado: TBooleanField;
+    qryCodigosFiscais: TtecQuery;
+    dsrCodigosFiscais: TtecDataSource;
+    qryCodigosFiscaiscodigo: TIntegerField;
+    qryCodigosFiscaisdescricao: TStringField;
+    qryCodigosFiscaisid_natureza: TIntegerField;
+    qryCodigosFiscaisselecionado: TBooleanField;
+    qryTrib_FinalidadeNFe: TtecQuery;
+    dsrTrib_FinalidadeNFe: TtecDataSource;
+    qryTrib_FinalidadeNFecodigo: TIntegerField;
+    qryTrib_FinalidadeNFedescricao: TStringField;
+    qryTrib_FinalidadeNFeselecionado: TBooleanField;
+    qryTrib_Regime_Emissor: TtecQuery;
+    dsrTrib_Regime_Emissor: TtecDataSource;
+    qryTrib_Regime_Emissorcodigo: TIntegerField;
+    qryTrib_Regime_Emissordescricao: TStringField;
+    qryTrib_Regime_Emissorselecionado: TBooleanField;
+    qryOrigemMercadorias: TtecQuery;
+    dsrOrigemMercadorias: TtecDataSource;
+    qryOrigemMercadoriascodigo: TIntegerField;
+    qryOrigemMercadoriasdescricao: TStringField;
+    qryOrigemMercadoriasselecionado: TBooleanField;
+    qrymodalidadebc_icms: TtecQuery;
+    dsrmodalidadebc_icms: TtecDataSource;
+    qrymodalidadebc_icmscodigo: TIntegerField;
+    qrymodalidadebc_icmsdescricao: TStringField;
+    qrymodalidadebc_icmsselecionado: TBooleanField;
+    qrymodalidadebc_icms_st: TtecQuery;
+    IntegerField1: TIntegerField;
+    StringField1: TStringField;
+    BooleanField1: TBooleanField;
+    dsrmodalidadebc_icms_st: TtecDataSource;
+    qrytrib_tipodocumento: TtecQuery;
+    dsrtrib_tipodocumento: TtecDataSource;
+    qrytrib_tipodocumentocodigo: TIntegerField;
+    qrytrib_tipodocumentodescricao: TStringField;
+    qrytrib_tipodocumentoselecionado: TBooleanField;
+    qryTrib_Regradescricao: TStringField;
+    qrytrib_modo_calculo: TtecQuery;
+    dsrtrib_modo_calculo: TtecDataSource;
+    qrytrib_modo_calculomodo: TStringField;
+    qrytrib_modo_calculodescricao: TStringField;
+    qryTrib_Regramodo_calculolookup: TStringField;
+    qrytrib_regra_id_regra_seq: TtecQuery;
+    qrytrib_regra_id_regra_seqid_regra: TLargeintField;
+    qrytrib_grupo_ncm_id_grupo_seq: TtecQuery;
+    qrytrib_grupo_ncm_id_grupo_seqid_grupo: TLargeintField;
+    qryUpdateTrib_Regra_criterio: TtecQuery;
+    qryTrib_Regrackbsimdesstinatariocontribicms: TBooleanField;
+    qryTrib_Regrackbnaodesstinatariocontribicms: TBooleanField;
+    qryTrib_Regrackbsimdestinatarioorgaopublico: TBooleanField;
+    qryTrib_Regrackbnaodestinatarioorgaopublico: TBooleanField;
+    qryTrib_Regrackbsimdestinatarioconsumidorfinal: TBooleanField;
+    qryTrib_Regrackbnaodestinatarioconsumidorfinal: TBooleanField;
+    qrytrib_imposto_classtribdescricao_cst_ibs_cbs: TMemoField;
+    qrytrib_imposto_classtribdescricao_cclass_trib: TMemoField;
+    qrytrib_imposto_classtriblc_redacao: TMemoField;
+    qrytrib_imposto_classtriblc_214_25: TMemoField;
+    qrytrib_imposto_classtribpred_ibs: TFloatField;
+    qrytrib_imposto_classtribpred_cbs: TFloatField;
+    qrytrib_imposto_classtribind_gtribregular: TIntegerField;
+    qrytrib_imposto_classtribind_gcredpresoper: TIntegerField;
+    qrytrib_imposto_classtribind_gmonopadrao: TIntegerField;
+    qrytrib_imposto_classtribind_gmonoreten: TIntegerField;
+    qrytrib_imposto_classtribind_gmonoret: TIntegerField;
+    qrytrib_imposto_classtribind_gmonodif: TIntegerField;
+    qrytrib_imposto_classtribind_gestornocred: TIntegerField;
+    qrytrib_imposto_classtribdinivig: TDateField;
+    qrytrib_imposto_classtribdfimvig: TDateField;
+    qrytrib_imposto_classtribdata_atualizacao: TDateField;
+    qrytrib_imposto_classtribindnfeabi: TIntegerField;
+    qrytrib_imposto_classtribindnfe: TIntegerField;
+    qrytrib_imposto_classtribindnfce: TIntegerField;
+    qrytrib_imposto_classtribindcte: TIntegerField;
+    qrytrib_imposto_classtribindcteos: TIntegerField;
+    qrytrib_imposto_classtribindbpe: TIntegerField;
+    qrytrib_imposto_classtribindbpeta: TIntegerField;
+    qrytrib_imposto_classtribindbpetm: TIntegerField;
+    qrytrib_imposto_classtribindnf3e: TIntegerField;
+    qrytrib_imposto_classtribindnfse: TIntegerField;
+    qrytrib_imposto_classtribindnfse_via: TMemoField;
+    qrytrib_imposto_classtribindnfcom: TIntegerField;
+    qrytrib_imposto_classtribindnfag: TIntegerField;
+    qrytrib_imposto_classtribindnfgas: TIntegerField;
+    qrytrib_imposto_classtribinddere: TIntegerField;
+    qrytrib_imposto_classtribanexo: TMemoField;
+    qrytrib_imposto_classtriblink: TMemoField;
+    qrytrib_imposto_classtribnome_cclass_trib: TStringField;
+    qryTrib_Impostocodigo_cst_default: TStringField;
+    qryTrib_Impostocclasstrib_default: TStringField;
+    qryUpdateTrib_Regra_CBSIBS: TtecQuery;
+    qryTrib_Regraid_regra_origem: TLargeintField;
+    qryTrib_Impostoagrupamento: TStringField;
+    qryEvento_Fiscal: TtecQuery;
+    dsrEvento_Fiscal: TtecDataSource;
+    qryEvento_Fiscalcodigo: TStringField;
+    qryEvento_Fiscaldescricao: TStringField;
+    qryEvento_Fiscalselecionado: TBooleanField;
+    qryEstadosOrigem: TtecQuery;
+    qryEstadosOrigemcodigo: TStringField;
+    qryEstadosOrigemnome: TStringField;
+    qryEstadosOrigemselecionado: TBooleanField;
+    dsrEstadosOrigem: TtecDataSource;
+    qryTrib_Regime_Destinatario: TtecQuery;
+    IntegerField2: TIntegerField;
+    StringField2: TStringField;
+    BooleanField2: TBooleanField;
+    dsrTrib_Regime_Destinatario: TtecDataSource;
+    qrytrib_imposto_classtribtipo_aliquota: TStringField;
+    procedure qryTrib_RegraAfterScroll(DataSet: TDataSet);
+    procedure qryTrib_RegraAfterInsert(DataSet: TDataSet);
+    procedure qryTrib_RegraNewRecord(DataSet: TDataSet);
+    procedure qryTrib_RegraAfterEdit(DataSet: TDataSet);
+    procedure qryTrib_RegraAfterDelete(DataSet: TDataSet);
+    procedure qrytrib_tipodocumentoAfterPost(DataSet: TDataSet);
+    procedure qrytrib_grupo_ncmNewRecord(DataSet: TDataSet);
+    procedure qrytrib_grupo_ncm_itensNewRecord(DataSet: TDataSet);
+    procedure qrytrib_imposto_classtribis_defaultChange(Sender: TField);
+    procedure qrynfe_natureza_operacaoAfterPost(DataSet: TDataSet);
+    procedure qryTrib_FinalidadeNFeAfterPost(DataSet: TDataSet);
+    procedure qryTrib_Regime_EmissorAfterPost(DataSet: TDataSet);
+    procedure qryOrigemMercadoriasAfterPost(DataSet: TDataSet);
+    procedure qrymodalidadebc_icmsAfterPost(DataSet: TDataSet);
+    procedure qrymodalidadebc_icms_stAfterPost(DataSet: TDataSet);
+    procedure qryEstadosDestinoAfterPost(DataSet: TDataSet);
+    procedure qrytrib_grupo_ncm_itensAfterPost(DataSet: TDataSet);
+    procedure qrytrib_grupo_ncmAfterPost(DataSet: TDataSet);
+    procedure qryCodigosFiscaisAfterPost(DataSet: TDataSet);
+    procedure qryEvento_FiscalAfterPost(DataSet: TDataSet);
+    procedure qrytrib_imposto_classtribAfterPost(DataSet: TDataSet);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    function GravarRegra(
+      CKBsIMDesstinatarioContribICMS,
+      ckbNaoDesstinatarioContribICMS,
+      ckbSimDestinatarioOrgaoPublico,
+      ckbNaoDestinatarioOrgaoPublico,
+      ckbSimDestinatarioConsumidorFinal,
+      ckbNaoDestinatarioConsumidorFinal: Boolean
+    ): Boolean;
+
+    procedure Setartrib_imposto_ClassTrib;
+  end;
+
+var
+  dtmImpostos: TdtmImpostos;
+
+implementation
+
+{$R *.dfm}
+
+procedure TdtmImpostos.qryTrib_RegraAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+
+  RefazConsultaPorNome(qryEvento_Fiscal,
+     ['id_regra','id_imposto'],
+     [qryTrib_Regraid_regra.asinteger, qryTrib_Regraid_imposto.asinteger]);
+
+  RefazConsultaPorNome(qryTrib_FinalidadeNFe,
+     ['id_regra'],
+     [qryTrib_Regraid_regra.asinteger]);
+
+  RefazConsultaPorNome(qrymodalidadebc_icms,
+     ['id_regra'],
+     [qryTrib_Regraid_regra.asinteger]);
+
+  RefazConsultaPorNome(qrymodalidadebc_icms_st,
+     ['id_regra'],
+     [qryTrib_Regraid_regra.asinteger]);
+
+  RefazConsultaPorNome(qrytrib_tipodocumento,
+     ['id_regra'],
+     [qryTrib_Regraid_regra.asinteger]);
+
+  RefazConsultaPorNome(qryTrib_Regime_Emissor,
+     ['id_regra'],
+     [qryTrib_Regraid_regra.asinteger]);
+
+  RefazConsultaPorNome(qryTrib_Regime_Destinatario,
+     ['id_regra'],
+     [qryTrib_Regraid_regra.asinteger]);
+                             
+  RefazConsultaPorNome(qryOrigemMercadorias,
+     ['id_regra'],
+     [qryTrib_Regraid_regra.asinteger]);
+
+  RefazConsultaPorNome(qrynfe_natureza_operacao,
+     ['id_regra','contexto'],
+     [qryTrib_Regraid_regra.asinteger,
+      qryTrib_Regracontexto.asString]);
+
+  RefazConsultaPorNome(qryCodigosFiscais,
+     ['id_regra'],
+     [qryTrib_Regraid_regra.asinteger]);
+
+  RefazConsultaPorNome(qrytrib_grupo_ncm,
+     ['id_regra'],
+     [qryTrib_Regraid_regra.asinteger]);
+
+  qrytrib_grupo_ncm_itens.close;
+  qrytrib_grupo_ncm_itens.open;
+
+  RefazConsultaPorNome(qryEstadosOrigem,
+     ['id_regra'],
+     [qryTrib_Regraid_regra.asinteger]);
+
+  RefazConsultaPorNome(qryEstadosDestino,
+     ['id_regra'],
+     [qryTrib_Regraid_regra.asinteger]);
+
+
+
+
+
+end;
+
+constructor TdtmImpostos.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryTrib_Imposto.tag := ctTabelas;
+  qryTrib_Regra.tag := ctTabelas;
+  qrytrib_imposto_situacao.tag := ctTabelas;
+  qrytrib_imposto_classtrib.tag := ctTabelas;
+
+end;
+
+procedure TdtmImpostos.qryTrib_RegraAfterInsert(DataSet: TDataSet);
+begin
+  inherited;
+  qryTrib_Imposto.edit;
+end;
+
+procedure TdtmImpostos.qryTrib_RegraNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+  qryTrib_Regraid_imposto.asinteger := qryTrib_Impostoid_imposto.asinteger;
+  qryTrib_Regracontexto.asString := 'ENTRADA';
+
+  qryTrib_Regraprioridade.asinteger := 0;
+
+  if qryTrib_Impostocodigo.asString = 'CB/IBS' then
+    qryTrib_Regramodo_calculo.asString := 'PADRAO_IVA';
+
+  qrytrib_regra_id_regra_seq.close;
+  qrytrib_regra_id_regra_seq.Open;
+  qryTrib_Regraid_regra.asinteger := qrytrib_regra_id_regra_seqid_regra.asinteger;
+
+end;
+
+procedure TdtmImpostos.qryTrib_RegraAfterEdit(DataSet: TDataSet);
+begin
+  inherited;
+  qryTrib_Imposto.edit;
+end;
+
+procedure TdtmImpostos.qryTrib_RegraAfterDelete(DataSet: TDataSet);
+begin
+  inherited;
+  qryTrib_Imposto.edit;
+end;
+
+procedure TdtmImpostos.qrytrib_tipodocumentoAfterPost(DataSet: TDataSet);
+begin
+  inherited;
+  qryTrib_Imposto.edit;
+end;
+
+procedure TdtmImpostos.qrytrib_grupo_ncmNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+  qrytrib_grupo_ncm_id_grupo_seq.Close;
+  qrytrib_grupo_ncm_id_grupo_seq.open;
+  qrytrib_grupo_ncmid_grupo.asinteger := qrytrib_grupo_ncm_id_grupo_seqid_grupo.asinteger;
+end;
+
+procedure TdtmImpostos.qrytrib_grupo_ncm_itensNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+  qrytrib_grupo_ncm_itensid_grupo.asinteger := qrytrib_grupo_ncmid_grupo.asinteger;
+end;
+
+function TdtmImpostos.GravarRegra(
+
+      CKBsIMDesstinatarioContribICMS,
+      ckbNaoDesstinatarioContribICMS,
+      ckbSimDestinatarioOrgaoPublico,
+      ckbNaoDestinatarioOrgaoPublico,
+      ckbSimDestinatarioConsumidorFinal,
+      ckbNaoDestinatarioConsumidorFinal: Boolean
+
+)
+: Boolean;
+var
+ Criterio: string;
+
+begin
+  result := qrytrib_grupo_ncm.CheckRequiredFields(true, false, true, self.Owner, true, false);
+
+  if result then
+  begin
+    Criterio := '';
+
+    Criterio := MergeJsonObjects(Criterio,
+      BuildBoolChoiceCriterioJson('contribuinteIcms', CKBsIMDesstinatarioContribICMS, ckbNaoDesstinatarioContribICMS));
+
+    Criterio := MergeJsonObjects(Criterio,
+      BuildBoolChoiceCriterioJson('orgaoPublico', ckbSimDestinatarioOrgaoPublico, ckbNaoDestinatarioOrgaoPublico));
+
+    Criterio := MergeJsonObjects(Criterio,
+      BuildBoolChoiceCriterioJson('consumidorFinal', ckbSimDestinatarioConsumidorFinal, ckbNaoDestinatarioConsumidorFinal));
+
+
+    Criterio := MergeJsonObjects(Criterio,
+      BuildCriterioJsonFromDataSet('trib_tipodocumento', qrytrib_tipodocumento, 'codigo', 'selecionado', jvkInt));
+
+    Criterio := MergeJsonObjects(Criterio,
+      BuildCriterioJsonFromDataSet('trib_finalidadenfe', qryTrib_FinalidadeNFe, 'codigo', 'selecionado', jvkInt));
+
+    Criterio := MergeJsonObjects(Criterio,
+      BuildCriterioJsonFromDataSet('regime_emissor', qryTrib_Regime_Emissor, 'codigo', 'selecionado', jvkInt));
+
+    Criterio := MergeJsonObjects(Criterio,
+      BuildCriterioJsonFromDataSet('regime_destinatario', qryTrib_Regime_destinatario, 'codigo', 'selecionado', jvkInt));
+
+    Criterio := MergeJsonObjects(Criterio,
+      BuildCriterioJsonFromDataSet('origemmercadorias', qryOrigemMercadorias, 'codigo', 'selecionado', jvkInt));
+                                    
+    Criterio := MergeJsonObjects(Criterio,
+      BuildCriterioJsonFromDataSet('modalidadebc_icms', qrymodalidadebc_icms, 'codigo', 'selecionado', jvkInt));
+
+    Criterio := MergeJsonObjects(Criterio,
+      BuildCriterioJsonFromDataSet('modalidadebc_icms_st', qrymodalidadebc_icms_st, 'codigo', 'selecionado', jvkInt));
+
+    Criterio := MergeJsonObjects(Criterio,
+      BuildCriterioJsonFromDataSet('estados_origem', qryEstadosOrigem, 'codigo', 'selecionado', jvkString));
+
+    Criterio := MergeJsonObjects(Criterio,
+      BuildCriterioJsonFromDataSet('estados_destino', qryEstadosDestino, 'codigo', 'selecionado', jvkString));
+
+    Criterio := MergeJsonObjects(Criterio,
+      BuildCriterioJsonFromDataSet('evento_fiscal', qryEvento_Fiscal, 'codigo', 'selecionado', jvkString));
+
+    Criterio := MergeJsonObjects(Criterio,
+      BuildCriterioJsonFromTwoDataSet(
+          qrynfe_natureza_operacao,   // dsNatureza
+          qryCodigosFiscais,     // dsCodigos
+
+          'operacao_cf',         // KeyName
+          'id_natureza',
+          'id_natureza',         // FieldIdNaturezaNat
+
+          'codigo',
+          'codigo',            // FieldOperacaoNat  (VENDA_MERCADORIA)
+          'selecionado',         // FieldSelecionadoNat
+
+          'codigosfiscais',
+
+          'id_natureza',         // FieldIdNaturezaCod
+          'codigo',                // FieldCodigoFiscal (ou CODIGO)
+          'selecionado',         // FieldSelecionadoCod
+
+          jvkInt                 // CFOP inteiro
+        ));
+
+    Criterio := MergeJsonObjects(Criterio,
+      BuildCriterioJsonFromTwoDataSet(
+          qrytrib_grupo_ncm,   // dsNatureza
+          qrytrib_grupo_ncm_itens,     // dsCodigos
+
+          'grupo_ncm_itens',         // KeyName
+          'id_grupo',
+          'id_grupo',         // FieldIdNaturezaNat
+          'codigo',
+          'codigo',            // FieldOperacaoNat  (VENDA_MERCADORIA)
+          'selecionado',         // FieldSelecionadoNat
+
+          'ncm_itens',
+
+          'id_grupo',         // FieldIdNaturezaCod
+          'ncm',                // FieldCodigoFiscal (ou CODIGO)
+          '',         // FieldSelecionadoCod
+
+          jvkInt                 // CFOP inteiro
+        ));
+
+
+    result := perpetrar([qryTrib_Regra, qrytrib_grupo_ncm, qrytrib_grupo_ncm_itens]);
+
+    if result then
+    begin
+      qryUpdateTrib_Regra_criterio.ParamByName('id_regra').asinteger :=
+        qryTrib_Regraid_regra.asinteger;
+      qryUpdateTrib_Regra_criterio.ParamByName('criterio_text').asString :=
+        Criterio;
+      qryUpdateTrib_Regra_criterio.ExecSql;
+
+      perpetrar([]);
+
+      qryTrib_Imposto.post;
+    end;
+
+
+    if result then
+    begin
+      if not qryTrib_Impostoagrupamento.IsNull then
+      begin
+        qryUpdateTrib_Regra_CBSIBS.ParamByName('p_id_regra_origem').AsInteger :=
+          qryTrib_Regraid_regra.AsInteger;
+        qryUpdateTrib_Regra_CBSIBS.ParamByName('p_aliquota_ibusuf').AsCurrency :=
+         qryTrib_Regraaliquota_ibsuf.AsCurrency;
+        qryUpdateTrib_Regra_CBSIBS.ParamByName('p_aliquota_ibsmun').AsCurrency :=
+         qryTrib_Regraaliquota_ibsmun.AsCurrency;
+        qryUpdateTrib_Regra_CBSIBS.execsql;
+        perpetrar([]);
+      end;
+    end;
+
+  end;
+
+end;
+
+
+procedure TdtmImpostos.qrytrib_imposto_classtribis_defaultChange(
+  Sender: TField);
+  procedure Setartrib_imposto(valor: Boolean);
+  begin
+    qrytrib_imposto.edit;
+    if valor then
+    begin
+      qryTrib_Impostocodigo_cst_default.AsString := qrytrib_imposto_classtribcodigo_cst.asString;
+      qryTrib_Impostocclasstrib_default.AsString := qrytrib_imposto_classtribcclasstrib.AsString;
+    end
+    else
+    begin
+      qryTrib_Impostocodigo_cst_default.clear;
+      qryTrib_Impostocclasstrib_default.clear;
+    end;
+    qrytrib_imposto.post;
+  end;
+
+begin
+  inherited;
+//  Setartrib_imposto(qrytrib_imposto_classtribis_default.asBoolean);
+//  qrytrib_imposto_classtrib.edit;
+end;
+
+procedure TdtmImpostos.Setartrib_imposto_ClassTrib;
+begin
+  if (qryTrib_Regraid_situacao.AsLargeInt <>
+      qrytrib_imposto_situacaoid_situacao.AsLargeInt) or
+
+      (qryTrib_Regracclasstrib.AsString <>
+       qrytrib_imposto_classtribcclasstrib.AsString) then
+
+  begin
+    qryTrib_Regra.edit;
+    qryTrib_Regraid_situacao.AsLargeInt :=
+      qrytrib_imposto_situacaoid_situacao.AsLargeInt;
+
+
+    qryTrib_Regra.edit;
+    qryTrib_Regracclasstrib.AsString :=
+      qrytrib_imposto_classtribcclasstrib.AsString;
+    qryTrib_Regra.post;
+
+  end
+  else
+  begin
+    qryTrib_Regra.edit;
+    qryTrib_Regraid_situacao.clear;
+    qryTrib_Regra.edit;
+    qryTrib_Regracclasstrib.clear;
+    qryTrib_Regra.post;
+  end;
+
+
+
+end;
+
+procedure TdtmImpostos.qrynfe_natureza_operacaoAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryTrib_Imposto.edit;
+
+end;
+
+procedure TdtmImpostos.qryTrib_FinalidadeNFeAfterPost(DataSet: TDataSet);
+begin
+  inherited;
+  qryTrib_Imposto.edit;
+
+end;
+
+procedure TdtmImpostos.qryTrib_Regime_EmissorAfterPost(DataSet: TDataSet);
+begin
+  inherited;
+  qryTrib_Imposto.edit;
+
+end;
+
+procedure TdtmImpostos.qryOrigemMercadoriasAfterPost(DataSet: TDataSet);
+begin
+  inherited;
+  qryTrib_Imposto.edit;
+
+end;
+
+procedure TdtmImpostos.qrymodalidadebc_icmsAfterPost(DataSet: TDataSet);
+begin
+  inherited;
+  qryTrib_Imposto.edit;
+
+end;
+
+procedure TdtmImpostos.qrymodalidadebc_icms_stAfterPost(DataSet: TDataSet);
+begin
+  inherited;
+  qryTrib_Imposto.edit;
+
+end;
+
+procedure TdtmImpostos.qryEstadosDestinoAfterPost(DataSet: TDataSet);
+begin
+  inherited;
+  qryTrib_Imposto.edit;
+
+end;
+
+procedure TdtmImpostos.qrytrib_grupo_ncm_itensAfterPost(DataSet: TDataSet);
+begin
+  inherited;
+  qryTrib_Imposto.edit;
+
+end;
+
+procedure TdtmImpostos.qrytrib_grupo_ncmAfterPost(DataSet: TDataSet);
+begin
+  inherited;
+  qryTrib_Imposto.edit;
+
+end;
+
+procedure TdtmImpostos.qryCodigosFiscaisAfterPost(DataSet: TDataSet);
+begin
+  inherited;
+  qryTrib_Imposto.edit;
+
+end;
+
+procedure TdtmImpostos.qryEvento_FiscalAfterPost(DataSet: TDataSet);
+begin
+  inherited;
+  qryTrib_Imposto.edit;
+
+end;
+
+procedure TdtmImpostos.qrytrib_imposto_classtribAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryTrib_Imposto.edit;
+
+end;
+
+end.
+

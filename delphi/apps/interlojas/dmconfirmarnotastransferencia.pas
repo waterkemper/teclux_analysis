@@ -688,11 +688,14 @@ begin
 end;
 
 procedure TdtmConfirmarNotasTransferencia.IncluirProdutos;
+var
+ vValorTeste: String;
 begin
+
   qryProdutosDadosFiscais.First;
   while not qryProdutosDadosFiscais.Eof do
   begin
-    qryProdutosNotasPag.Insert;
+    qryProdutosNotasPag.append;
     qryProdutosNotasPag.FieldByName('codigonota').AsInteger          := qryNotasPag.FieldByName('codigo').AsInteger;
     qryProdutosNotasPag.FieldByName('numero').AsInteger              := qryProdutosDadosFiscaisnumero.AsInteger;
     qryProdutosNotasPag.FieldByName('filial').AsInteger              := FilialBase;
@@ -704,8 +707,13 @@ begin
     if qryDadosFiscaisvendatransferencia.AsBoolean then
       AtribuirDadosCalculosImpostos(qryNotasPag, nil, nil, qryProdutosNotasPag, TrasnferenciaEntrada, true,  )
       }
-      
+
     AtribuirDadosProdutos(qryProdutosNotasPag, qryNotasPag, nil, false, TransferenciaEntrada, EstadoFilialBase, );
+
+    vValorTeste := qryProdutosNotasPag.fieldbyname('csosn_nf').AsString;
+    if vValorTeste = '' then
+      mensagemaviso('Erro');
+      
 
 //    qryProdutosNotasPag.FieldByName('precounitario').AsCurrency := qryProdutosDadosFiscaisprecovenda.AsCurrency;
 //    qryProdutosNotasPag.FiledByNmae('quantidade').ascurrency    := qryProdutosDadosFiscaisquantidade.Ascurrency;
@@ -794,6 +802,7 @@ begin
 //  qryProdutosNotasPagqtdeestoque.ascurrency    := qryProdutosDadosFiscaisquantidade.Ascurrency;
 
     qryProdutosNotasPag.post;
+    
     qryProdutosDadosFiscais.Next;
   end;
 end;

@@ -1,0 +1,691 @@
+inherited frmCadastroChequeFrenteCaixa: TfrmCadastroChequeFrenteCaixa
+  Left = 526
+  Top = 169
+  Width = 532
+  Height = 633
+  HorzScrollBar.Range = 514
+  HorzScrollBar.Visible = False
+  VertScrollBar.Range = 467
+  VertScrollBar.Visible = False
+  ActiveControl = edfCodigoCliente
+  BorderIcons = [biSystemMenu, biMinimize, biMaximize]
+  Caption = 'Cheque do Clientes no Frente de Caixa'
+  OnKeyDown = FormKeyDown
+  PixelsPerInch = 96
+  TextHeight = 16
+  inherited pnlBarra: TPanel
+    Top = 410
+    TabOrder = 9
+  end
+  inherited pnlTopMenu: TPanel
+    Width = 520
+    TabOrder = 10
+    inherited tblBarra: TToolBar
+      Width = 295
+      DesignSize = (
+        293
+        36)
+    end
+  end
+  inline fraEnderecoEditor: TfraEnderecoEditor
+    Left = 10
+    Top = 359
+    Width = 500
+    Height = 151
+    HorzScrollBar.Visible = False
+    VertScrollBar.Visible = False
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 4
+    inherited gbxEndereco: TGroupBox
+      Width = 500
+      Height = 151
+      inherited pnlNumero: TPanel
+        Width = 496
+        inherited edtNumero: TDBEditTexto
+          DataField = 'numero'
+          DataSource = dtmFrenteCaixa.dsrCliente
+          MaxLength = 9
+        end
+        inherited edtComplemento: TDBEditTexto
+          DataField = 'complemento'
+          DataSource = dtmFrenteCaixa.dsrCliente
+        end
+      end
+      inherited pnlBairro: TPanel
+        Width = 496
+        inherited edtBairro: TtecDoubleDBEdit
+          LookupField = 'nomebairro'
+          LookupSource = dtmFrenteCaixa.dsrCliente
+          DataField = 'bairro'
+          DataSource = dtmFrenteCaixa.dsrCliente
+          MaxLength = -1
+        end
+      end
+      inherited pnlCidade: TPanel
+        Width = 496
+        inherited edtEstado: TDBEditTexto
+          DataField = 'estado'
+          DataSource = dtmFrenteCaixa.dsrCliente
+          MaxLength = 9
+        end
+        inherited edtCidade: TtecDoubleDBEdit
+          LookupField = 'nomecidade'
+          LookupSource = dtmFrenteCaixa.dsrCliente
+          DataField = 'cidade'
+          DataSource = dtmFrenteCaixa.dsrCliente
+          MaxLength = 9
+        end
+        inherited edtCEP: TDBEditCep
+          DataField = 'cep'
+          DataSource = dtmFrenteCaixa.dsrCliente
+          MaxLength = 9
+        end
+      end
+      inherited pnlRua: TPanel
+        Width = 496
+        inherited sbnRua: TSpeedButton
+          OnClick = fraEnderecoEditorsbnRuaClick
+        end
+        inherited mmoRua: TtecDBMemo
+          DataField = 'rua'
+          DataSource = dtmFrenteCaixa.dsrCliente
+        end
+      end
+      inherited pnllblCidade: TPanel
+        Width = 496
+      end
+      inherited pnllblBairro: TPanel
+        Width = 496
+      end
+      inherited pnllblNumero: TPanel
+        Width = 496
+      end
+    end
+  end
+  inline fraFone: TfraTelefone
+    Left = 10
+    Top = 547
+    Width = 151
+    Height = 50
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 7
+    inherited gbxFone: TGroupBox
+      Width = 151
+      Height = 50
+      inherited edtDDD: TDBEditNumero
+        DataField = 'foneddd'
+        DataSource = dtmFrenteCaixa.dsrCliente
+      end
+      inherited edtNumero: TDBEditFone
+        DataField = 'fonenumero'
+        DataSource = dtmFrenteCaixa.dsrCliente
+      end
+    end
+  end
+  inline fracgcoucpf: Tfracgcoucpf
+    Left = 10
+    Top = 307
+    Width = 288
+    Height = 49
+    HorzScrollBar.Visible = False
+    VertScrollBar.Visible = False
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 1
+    inherited gbxCPGouCGC: TGroupBox
+      Width = 288
+      Height = 49
+      inherited rgbTipoPessoa: TtecDBRadioGroup
+        Top = 13
+        Width = 141
+        Height = 29
+        DataField = 'pessoatipo'
+        DataSource = dtmFrenteCaixa.dsrCliente
+        OnChange = fracgcoucpfrgbTipoPessoaChange
+        inherited rbnFisica: TtecRadioButton
+          Left = 8
+          Top = 9
+        end
+        inherited rbnJuridica: TtecRadioButton
+          Left = 72
+          Top = 9
+        end
+      end
+      inherited gbxCPF_CNPJ: TGroupBox
+        Left = 152
+        Top = 8
+        inherited edtCPFCNPJ: TDBEditCPFCNPJ
+          DataField = 'pessoanumero'
+          DataSource = dtmFrenteCaixa.dsrCliente
+          Font.Height = -12
+          OnExit = fracgcoucpfedtCPFCNPJExit
+        end
+      end
+    end
+  end
+  object gbxCliente: TGroupBox
+    Left = 18
+    Top = 214
+    Width = 500
+    Height = 36
+    Caption = 'CLIENTE'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -9
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 0
+    object edfCodigoCliente: TtecDbEditFind
+      Left = 4
+      Top = 10
+      Width = 93
+      Height = 23
+      Alignment = taLeftJustify
+      DataField = 'codigo'
+      DataSource = dtmFrenteCaixa.dsrCliente
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      Group = 'ClienteFrentedeCaixa'
+      MaxLength = 7
+      Maximo = 0
+      Minimo = 37353
+      Adicional = 0
+      Opcional = True
+      OnEnter = edfCodigoClienteEnter
+      OnExit = edfCodigoClienteExit
+      OnKeyDown = edfCodigoClienteKeyDown
+      ParentFont = False
+      TabOrder = 0
+      PermitirZero = False
+      PermitirNulo = False
+      Operacao = opPESQUISA
+      Parameter = 'codigo'
+      ActiveSetControls = True
+      DenyInsert = True
+      NoSetControls = <>
+      SetControls = <>
+    end
+    object edtCliente: TDBEditTexto
+      Left = 100
+      Top = 10
+      Width = 396
+      Height = 23
+      DataField = 'nome'
+      DataSource = dtmFrenteCaixa.dsrCliente
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      MaxLength = -1
+      ParentFont = False
+      TabOrder = 1
+      CharCasenoDefault = False
+      Alignment = taLeftJustify
+    end
+  end
+  object gbxIdNumero: TGroupBox
+    Left = 306
+    Top = 307
+    Width = 108
+    Height = 36
+    Caption = 'RG'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -9
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 2
+    object edtDocumento: TDBEditDocumento
+      Left = 2
+      Top = 10
+      Width = 103
+      Height = 23
+      DataField = 'iddocumento'
+      DataSource = dtmFrenteCaixa.dsrCliente
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      MaxLength = 12
+      ParentFont = False
+      TabOrder = 0
+      CharCasenoDefault = False
+      Alignment = taLeftJustify
+      Tipo = Identidade
+    end
+  end
+  inline fraCelular: TfraTelefone
+    Left = 165
+    Top = 547
+    Width = 151
+    Height = 50
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 8
+    inherited gbxFone: TGroupBox
+      Width = 151
+      Height = 50
+      Caption = 'CELULAR'
+      inherited edtDDD: TDBEditNumero
+        DataField = 'fone2ddd'
+        DataSource = dtmFrenteCaixa.dsrCliente
+      end
+      inherited edtNumero: TDBEditFone
+        DataField = 'fone2numero'
+        DataSource = dtmFrenteCaixa.dsrCliente
+      end
+    end
+  end
+  object gbxEmail: TGroupBox
+    Left = 10
+    Top = 510
+    Width = 249
+    Height = 36
+    Caption = 'E-MAIL'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -9
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 5
+    object edtemail: TDBEditTexto
+      Left = 2
+      Top = 10
+      Width = 244
+      Height = 23
+      CharCase = ecLowerCase
+      DataField = 'email'
+      DataSource = dtmFrenteCaixa.dsrCliente
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      MaxLength = -1
+      ParentFont = False
+      TabOrder = 0
+      CharCasenoDefault = True
+      Alignment = taLeftJustify
+    end
+  end
+  object gbxSite: TGroupBox
+    Left = 261
+    Top = 510
+    Width = 249
+    Height = 37
+    Caption = 'SITE'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -9
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 6
+    object edtsite: TDBEditTexto
+      Left = 2
+      Top = 10
+      Width = 244
+      Height = 23
+      CharCase = ecLowerCase
+      DataField = 'site'
+      DataSource = dtmFrenteCaixa.dsrCliente
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      MaxLength = -1
+      ParentFont = False
+      TabOrder = 0
+      CharCasenoDefault = True
+      Alignment = taLeftJustify
+    end
+  end
+  object gbxNascto: TGroupBox
+    Left = 424
+    Top = 307
+    Width = 85
+    Height = 36
+    Caption = 'NASCIMENTO'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -9
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 3
+    object edtdatanascto: TDBEditData
+      Left = 2
+      Top = 10
+      Width = 80
+      Height = 23
+      Alignment = taLeftJustify
+      DataField = 'nascto'
+      DataSource = dtmFrenteCaixa.dsrCliente
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      Maximo = 0
+      Minimo = 37353
+      Adicional = 0
+      ParentFont = False
+      TabOrder = 0
+      Opcional = True
+    end
+  end
+  object Panel1: TPanel
+    Left = 32
+    Top = 186
+    Width = 389
+    Height = 36
+    TabOrder = 11
+    Visible = False
+    object Bevel1: TBevel
+      Left = 307
+      Top = 3
+      Width = 3
+      Height = 34
+    end
+  end
+  object gbxValorCheque: TGroupBox
+    Left = 293
+    Top = 180
+    Width = 125
+    Height = 36
+    Caption = 'VALOR CHEQUE'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -9
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 15
+    object edtValorCheque: TEditNumero
+      Left = 2
+      Top = 10
+      Width = 120
+      Height = 23
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      MaxLength = 9
+      ParentFont = False
+      TabOrder = 0
+      Mascara = True
+      TipoMascara = tmGERAL
+      NrDecimal = 2
+      Decimais = True
+      Negativo = False
+      Tamanho = 9
+    end
+  end
+  inline fraCMC7: TfraCMC7
+    Left = 10
+    Top = 56
+    Width = 502
+    Height = 243
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -11
+    Font.Name = 'Helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 13
+    inherited gbxCMC7: TGroupBox
+      Width = 502
+      Height = 243
+      inherited gbxLeitura: TGroupBox
+        Left = 94
+        Top = 49
+        inherited edtCMC7: TEdit
+          OnExit = fraCMC7edtCMC7Exit
+        end
+      end
+      inherited gbxBanco: TGroupBox
+        Left = 94
+      end
+      inherited gbxLeituraManual: TGroupBox
+        Left = 94
+        Top = 87
+        inherited edtManual1: TEdit
+          OnExit = fraCMC7edtManual1Exit
+        end
+        inherited edtManual2: TEdit
+          OnExit = fraCMC7edtManual2Exit
+        end
+        inherited edtManual3: TEdit
+          OnExit = fraCMC7edtManual3Exit
+        end
+      end
+      inherited gbxAgencia: TGroupBox
+        Left = 155
+      end
+      inherited gbxNrCheque: TGroupBox
+        Left = 341
+      end
+      inherited gbxConta: TGroupBox
+        Left = 230
+      end
+    end
+  end
+  object gbxDataVencto: TGroupBox
+    Left = 104
+    Top = 180
+    Width = 106
+    Height = 36
+    Caption = 'DATA VENCTO'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -9
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 14
+    object edtDataVencimento: TEditData
+      Left = 2
+      Top = 10
+      Width = 101
+      Height = 23
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      Minimo = 0
+      Maximo = 37353
+    end
+  end
+  object GroupBox1: TGroupBox
+    Left = 17
+    Top = 218
+    Width = 490
+    Height = 36
+    Caption = 'CLIENTE'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -9
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 12
+    object tecDbEditFind1: TtecDbEditFind
+      Left = 2
+      Top = 10
+      Width = 93
+      Height = 23
+      Alignment = taLeftJustify
+      DataField = 'codigo'
+      DataSource = dtmFrenteCaixa.dsrCliente
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      Group = 'ClienteFrentedeCaixa'
+      MaxLength = 7
+      Maximo = 0
+      Minimo = 37353
+      Adicional = 0
+      Opcional = True
+      OnEnter = edfCodigoClienteEnter
+      OnExit = edfCodigoClienteExit
+      OnKeyDown = edfCodigoClienteKeyDown
+      ParentFont = False
+      TabOrder = 0
+      PermitirZero = False
+      PermitirNulo = False
+      Operacao = opPESQUISA
+      Parameter = 'codigo'
+    end
+    object DBEditTexto1: TDBEditTexto
+      Left = 98
+      Top = 10
+      Width = 389
+      Height = 23
+      DataField = 'nome'
+      DataSource = dtmFrenteCaixa.dsrCliente
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      MaxLength = -1
+      ParentFont = False
+      TabOrder = 1
+      CharCasenoDefault = False
+      Alignment = taLeftJustify
+    end
+  end
+  object gbxTitular: TGroupBox
+    Left = 17
+    Top = 257
+    Width = 490
+    Height = 36
+    Caption = 'TITULAR'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -9
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 16
+    object edtTitularCheque: TEdit
+      Left = 2
+      Top = 10
+      Width = 485
+      Height = 23
+      CharCase = ecUpperCase
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      MaxLength = 40
+      ParentFont = False
+      TabOrder = 0
+    end
+  end
+  object ecvSalvar: TtecEditionControlValidation
+    EditionControl = <
+      item
+        Control = fracgcoucpf.edtCPFCNPJ
+      end
+      item
+        Control = DBEditTexto1
+      end
+      item
+        Control = fraEnderecoEditor.mmoRua
+      end
+      item
+        Control = fraCMC7.edtAgencia
+      end
+      item
+        Control = fraCMC7.edtBanco
+      end
+      item
+        Control = fraCMC7.edtCheque
+      end
+      item
+        Control = fraCMC7.edtConta
+      end
+      item
+        Control = edtDataVencimento
+      end
+      item
+        Control = edtValorCheque
+      end>
+    Left = 455
+    Top = 30
+  end
+  object ecvImprimirCheque: TtecEditionControlValidation
+    EditionControl = <
+      item
+        Control = fraCMC7.edtBanco
+      end
+      item
+        Control = edtDataVencimento
+      end
+      item
+        Control = edtValorCheque
+      end>
+    Left = 430
+    Top = 20
+  end
+end

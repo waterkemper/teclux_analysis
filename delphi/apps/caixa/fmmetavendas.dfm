@@ -5,7 +5,7 @@ inherited frmMetaVendas: TfrmMetaVendas
   Caption = 'Meta de Vendas'
   ClientHeight = 270
   ClientWidth = 313
-  Position = poDesktopCenter
+  Position = poScreenCenter
   PixelsPerInch = 96
   TextHeight = 16
   inherited pnlTopMenu: TPanel

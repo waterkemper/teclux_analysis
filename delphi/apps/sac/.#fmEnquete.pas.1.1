@@ -1,0 +1,375 @@
+unit fmEnquete;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmcadastropadrao, ComCtrls, Buttons, ToolWin, ExtCtrls,
+  StdCtrls, Mask, DBCtrls, cpdbtext, dmEnquete, AdvMemo, DBAdvMemo,
+  AdvEdit, DBAdvEd, dbcgrids, DBTabControl, AdvOfficeButtons,
+  DBAdvOfficeButtons, AdvGroupBox, biblio, CheckLst, cpdbmemo, cpmemo;
+
+type
+  TfrmEnquete = class(TFrmCadastroPadrao)
+    pnlIdentificacaoCliente: TPanel;
+    lblCliente: TStaticText;
+    dtxCliente: TtecDBText;
+    dtxNomeCliente: TtecDBText;
+    pnlQuestionario: TPanel;
+    gbxEnquete: TGroupBox;
+    DBAdvMemo1: TDBAdvMemo;
+    DBTabControl1: TDBTabControl;
+    rgpUnica: TRadioGroup;
+    DBAdvMemo3: TDBAdvMemo;
+    gbxrespostas_clientestexto: TGroupBox;
+    ckbMultipla: TCheckListBox;
+    gbxMultiplos: TGroupBox;
+    mmoTexto: TtecMemo;
+    pnlUnico: TPanel;
+    btnProximo: TButton;
+    procedure DBAdvOfficeCheckGroup1_Click(Sender: TObject);
+    procedure rgpUnicaClick(Sender: TObject);
+    procedure ckbMultiplaClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure DBAdvOfficeCheckGroup1KeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure DBAdvMemo3Enter(Sender: TObject);
+    procedure DBAdvMemo2KeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure mmoTextoChange(Sender: TObject);
+    procedure btnProximoClick(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+  private
+    { Private declarations }
+    vkey : byte;
+    procedure PerguntasAfterScroll(Sender: TObject);
+  protected
+    function InternoGravar: Boolean; Override;
+    function ValidarRegistros: Boolean;
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure OperacaoPadrao(Value: Array of Variant); override;
+  end;
+
+var
+  frmEnquete: TfrmEnquete;
+  AcionarTelaEnquete: procedure (cliente: integer; tipocliente: String);
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmEnquete }
+
+constructor TfrmEnquete.Create(AOwner: TComponent);
+begin
+  dtmEnquete:= TdtmEnquete.Create(Self);
+  inherited;
+  DataSet := dtmEnquete.qryrespostas_clientes;
+  dtmEnquete.PerguntasAfterScroll := PerguntasAfterScroll;
+  ckbMultipla.items.Clear;
+  rgpUnica.Items.Clear;
+  mmoTexto.Clear;
+
+  
+
+end;
+
+destructor TfrmEnquete.Destroy;
+begin
+  inherited;
+  frmEnquete := nil;
+end;
+
+procedure TfrmEnquete.PerguntasAfterScroll(Sender: TObject);
+begin
+  if dtmEnquete.qryPerguntastipo.AsString = 'múltipla' then
+  begin
+    if ckbMultipla.Items.count = 0 then
+      ckbMultipla.Items :=
+         RetornarListaTString(dtmEnquete.qryRespostas,
+                              dtmEnquete.qryRespostasresposta);
+
+    pnlUnico.visible := false;
+    gbxrespostas_clientestexto.visible := false;
+
+    gbxMultiplos.visible := true;
+//    DBAdvOfficeCheckGroup1.top := 56;
+
+    gbxMultiplos.Height := dtmEnquete.qryRespostas.RecordCount * 30;
+//    gbxMultiplos.BringToFront;
+
+    ckbMultipla.SetFocus;
+
+  end
+  else
+  if dtmEnquete.qryPerguntastipo.AsString = 'única' then
+  begin
+
+    if rgpUnica.Items.Count = 0 then
+    begin
+      rgpUnica.Items :=
+         RetornarListaTString(dtmEnquete.qryRespostas,
+                              dtmEnquete.qryRespostasresposta);
+
+      rgpUnica.ItemIndex := 0;
+    end;
+
+    gbxMultiplos.visible := false;
+    gbxrespostas_clientestexto.visible := false;
+
+    pnlUnico.visible := true;
+//    DBAdvOfficeRadioGroup1.top := 56;
+    pnlUnico.Height := dtmEnquete.qryRespostas.RecordCount * 30;
+//    DBAdvOfficeRadioGroup1.BringToFront;
+    rgpUnica.setfocus;
+
+  end
+  else
+  if dtmEnquete.qryPerguntastipo.AsString = 'texto' then
+  begin
+
+    gbxMultiplos.visible := false;
+    pnlUnico.visible := false;
+    gbxrespostas_clientestexto.visible := true;
+//    gbxrespostas_clientestexto.top := 56;
+//    DBAdvMemo2.BringToFront;
+    mmoTexto.SetFocus;
+
+  end;
+
+  if (dtmEnquete.qryPerguntas.RecordCount = dtmEnquete.qryPerguntas.Recno) then
+    btnProximo.Caption := 'Concluir'
+  else
+    btnProximo.Caption := 'Próximo';
+
+
+end;
+
+procedure TfrmEnquete.DBAdvOfficeCheckGroup1_Click(Sender: TObject);
+begin
+  inherited;
+  dtmEnquete.qryClientes.Edit;
+end;
+
+procedure TfrmEnquete.rgpUnicaClick(Sender: TObject);
+begin
+  inherited;
+//  dtmEnquete.qryClientes.Edit;
+end;
+
+procedure TfrmEnquete.ckbMultiplaClick(Sender: TObject);
+begin
+  inherited;
+//  dtmEnquete.qryClientes.Edit;
+end;
+
+procedure TfrmEnquete.FormShow(Sender: TObject);
+begin
+  inherited;
+  dtmEnquete.qryPerguntas.First;
+  PerguntasAfterScroll(nil);
+end;
+
+procedure TfrmEnquete.DBAdvOfficeCheckGroup1KeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  if key = vk_return then
+//    if DBAdvOfficeCheckGroup1.ItemIndex = DBAdvOfficeCheckGroup1.Items.Count-1 then
+    begin
+       DBTabControl1.DataSource.DataSet.Next;
+       if DBTabControl1.DataSource.DataSet.eof then
+          DBTabControl1.DataSource.DataSet.first;
+    end;
+  inherited;
+
+end;
+
+procedure TfrmEnquete.DBAdvMemo3Enter(Sender: TObject);
+begin
+  inherited;
+//  PerguntasAfterScroll(nil);
+end;
+
+function TfrmEnquete.InternoGravar: Boolean;
+begin
+//  dtmEnquete.SalvarEnquete;
+end;
+
+procedure TfrmEnquete.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  vkey := key;
+end;
+
+procedure TfrmEnquete.DBAdvMemo2KeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if vkey = vk_return then
+  begin
+    DBTabControl1.DataSource.DataSet.Next;
+    if DBTabControl1.DataSource.DataSet.eof then
+       DBTabControl1.DataSource.DataSet.first;
+    vkey := 0;   
+  end;
+
+end;
+
+procedure TfrmEnquete.mmoTextoChange(Sender: TObject);
+begin
+  inherited;
+//  dtmEnquete.qryClientes.Edit;
+end;
+
+procedure TfrmEnquete.btnProximoClick(Sender: TObject);
+begin
+  inherited;
+  if btnProximo.Caption = 'Concluir' then
+  begin
+    if ValidarRegistros then
+      if dtmEnquete.SalvarEnquete(ckbMultipla, rgpUnica.Items[rgpUnica.itemindex], mmoTexto.text) then
+      begin
+         dtmEnquete.vCanClose := true;
+         close;
+      end
+      else
+        dtmEnquete.vCanClose := false;
+
+  end
+  else
+    dtmEnquete.qryPerguntas.Next;
+
+end;
+
+function TfrmEnquete.ValidarRegistros: Boolean;
+var
+ i: integer;
+begin
+
+   result := false;
+
+   with dtmEnquete do
+   begin
+     qryPerguntas.First;
+     while not qryPerguntas.eof do
+     begin
+
+       if qryPerguntastipo.asString = 'múltipla' then
+       begin
+         for i:=0 to ckbMultipla.Count -1 do
+           if ckbMultipla.Checked[i] then
+           begin
+             result := true;
+             break;
+           end;
+       end
+       else
+       if qryPerguntastipo.asString = 'única' then
+         result := rgpUnica.ItemIndex <> -1
+       else
+       if qryPerguntastipo.asString = 'texto' then
+         result := mmoTexto.Text <> '';
+
+       if not result then
+       begin
+         MensagemAviso('Preencha as opções solicitadas.');
+         break;
+       end
+       else
+         qryPerguntas.next;
+     end;
+  end;
+end;
+
+procedure TfrmEnquete.OperacaoPadrao(Value: array of Variant);
+begin
+  inherited;
+
+  if dtmEnquete.qryQuestionario.RecordCount <> 0 then
+  begin
+    dtmEnquete.qryClientes.ParamByName('cliente').AsInteger := Value[0];
+    dtmEnquete.qryClientes.ParamByName('tipocliente').AsString := Value[1];
+
+    dtmEnquete.qryClientes.ParamByName('questionario').AsInteger := dtmEnquete.qryQuestionariocodigo.AsInteger;
+
+    dtmEnquete.qryClientes.Close;
+    dtmEnquete.qryClientes.open;
+
+    if dtmEnquete.qryClientes.recordcount = 0 then
+    begin
+      dtmEnquete.vCanClose := true;
+      close;
+    end
+    else
+      showmodal;
+
+  end
+  else
+  begin
+    dtmEnquete.vCanClose := true;
+    close;
+  end;
+
+end;
+
+procedure TfrmEnquete.FormCloseQuery(Sender: TObject;
+  var CanClose: Boolean);
+begin
+  inherited;
+
+  CanClose := dtmEnquete.vCanClose;
+
+end;
+
+
+procedure AcionarTelaEnquete_(Cliente: integer; TipoCliente: String);
+begin
+  if not assigned(frmEnquete) then
+    frmEnquete := TfrmEnquete.create(frmEnquete);
+
+   frmEnquete.ckbMultipla.items.Clear;
+   frmEnquete.rgpUnica.Items.Clear;
+   frmEnquete.mmoTexto.Clear;
+   dtmEnquete.vCanClose := false;
+
+
+  if dtmEnquete.qryQuestionario.RecordCount <> 0 then
+  begin
+    dtmEnquete.qryClientes.ParamByName('cliente').AsInteger := Cliente;
+    dtmEnquete.qryClientes.ParamByName('tipocliente').AsString := TipoCliente;
+
+    dtmEnquete.qryClientes.ParamByName('questionario').AsInteger := dtmEnquete.qryQuestionariocodigo.AsInteger;
+
+    dtmEnquete.qryClientes.Close;
+    dtmEnquete.qryClientes.open;
+
+    if dtmEnquete.qryClientes.recordcount = 0 then
+    begin
+      dtmEnquete.vCanClose := true;
+      frmEnquete.close;
+    end
+    else
+    begin
+      frmEnquete.showmodal;
+    end;
+
+  end
+  else
+  begin
+    dtmEnquete.vCanClose := true;
+    frmEnquete.close;
+  end;
+
+
+
+end;
+
+initialization
+   AcionarTelaEnquete :=  AcionarTelaEnquete_;
+
+
+end.

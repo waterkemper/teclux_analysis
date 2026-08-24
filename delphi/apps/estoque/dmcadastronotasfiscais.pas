@@ -2,7 +2,7 @@ unit dmcadastronotasfiscais;
 
 interface
 
-uses
+uses                                                                        
   //CLX
   Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, DB,
   //Terceiros
@@ -4862,6 +4862,7 @@ begin
 
               result := ValidarValoresDigitados;
 
+1
               if not result and qryProcuraNaturezasdiferenciada.AsBoolean then
                 Result := MensagemConfirmacao('Esta é uma nota fiscal diferenciada. Deseja continuar a gravação dos dados?' ) = smbOK;
             end
@@ -5288,10 +5289,11 @@ begin
                         if result then
                           AtualizacoesAposGravacao;
                       end;
-
-
-
                     end;
+
+                    if result and qryNotaFiscalpermitirimprimir.asBoolean then
+                      result := CalcularImpostos(qryNotaFiscalcodigo.asinteger, 'E');
+
 
                     if (qrynotafiscalmodelodocto.asstring='57') then
                     begin
@@ -5824,6 +5826,9 @@ begin
 end;
 *)
 
+
+
+(*
 function TdtmCadastroNotasFiscais.GerarProdutosImportacao: Boolean;
 var
   UltimoProduto_ComIPI : String;
@@ -6241,6 +6246,463 @@ begin
 //    CalcularValorTotalProdutos;
   end;
 end;
+*)
+
+
+function TdtmCadastroNotasFiscais.GerarProdutosImportacao: Boolean;
+var
+  UltimoProduto_ComIPI : String;
+
+  NPA,          //NUMERO DE PRODUTOS DA ADICAO
+  NPI,          //NUMERO DE PRODUTOS INCLUIDOS POR ADICAO
+  i: Integer;
+  SomaOriginal_comIPI, //SOMATORIO VALOR ORIGINAL DOS PRODUTOS DA ADICAO
+  SomaOriginal_semIPI,
+  PT,           //PRODUTO TOTAL
+  BaseICMSDistribuido,
+  ValorICMSDistribuido,
+  IPIdistribuido,
+  IIdistribuido, //VALOR DO IMPOSTO DE IMPORTACAO JÁ ATRIBUIDO
+  MercadoriaDistribuida,
+  FreteDistribuido,
+  DespesasAcessoriasDistribuida,
+  TotalFrete,
+  TotalBaseICMS,
+  TotalValorICMS,
+  TotalPIS,
+  TotalCOFINS,
+  TotalIPI,
+  TotalII,
+  TotalProd,
+  embalagemdistribuida,
+  thcdistribuida,
+  TotalMercadorias,
+  TotalIPICalculado,
+  TotalFechamentoIPI,
+  TotalDiferencaFechamentoIPI,
+  TotalDiferencaFechamentoIPIDistribuida,
+  TotalFinalAdicao,
+  TotalDespesasAcessoriasAdicao,
+  TotalDespesasAcessorias,
+  TotalValorFinalNota : Currency;
+begin
+  fGerandoProdutos := true;
+  result := false;
+
+  TotalFrete := 0;    TotalPIS := 0;       TotalCOFINS := 0;  TotalII   := 0;
+  TotalBaseICMS := 0; TotalValorICMS := 0; TotalIPI    := 0;  TotalProd := 0;
+  TotalDespesasAcessorias := 0;
+  TotalValorFinalNota := 0;
+
+  dsrNotaFiscal.OnDataChange := nil;
+  qryNotaFiscalndi.AsString                  := qryDadosImportacoesnumero.AsString;
+  dsrNotaFiscal.OnDataChange := dsrNotaFiscalDataChange;
+
+
+  qryProdutosNotaFiscal.Close;
+  qryProdutosNotaFiscal.Open;
+
+  try
+
+    DesabilitarControles(true);
+
+    qryProdutosNotaFiscal.First;
+    while not qryprodutosnotafiscal.Eof do
+      qryprodutosnotafiscal.Delete;
+  finally
+    DesabilitarControles(false);
+  end;
+
+
+//  qryAdicoesImportacao.DisableControls;
+  qryAdicoesImportacao.AfterScroll  := nil;
+  qryprodutosnotafiscal.AfterInsert := nil;
+
+
+  qryAdicoesImportacao.First;
+  try
+
+    GuardarRegistroAtual(qryProdutosImportados,True);
+    while not qryAdicoesImportacao.Eof do
+    begin
+      SomaOriginal_comIPI := 0;
+      SomaOriginal_semIPI := 0;
+      TotalFinalAdicao := 0;
+      TotalDespesasAcessoriasAdicao := 0;
+      UltimoProduto_ComIPI := '';
+      NPA := 0;
+
+      IPIdistribuido := 0; NPI := 0;
+      IIdistribuido  := 0;
+      FreteDistribuido := 0;
+      MercadoriaDistribuida := 0;
+      embalagemdistribuida := 0;
+      thcdistribuida := 0;
+      TotalIPICalculado := 0;
+      TotalFechamentoIPI := 0;
+      TotalDiferencaFechamentoIPI := 0;
+
+      DespesasAcessoriasDistribuida := 0;
+
+      BaseICMSDistribuido := 0;
+      ValorICMSDistribuido := 0;
+
+{      if not qryAdicoesImportacaototais.AsBoolean then
+      begin                                            }
+
+      qryProdutosImportados.First;
+      while not qryProdutosImportados.Eof do
+      begin
+        if qryProdutosImportadosnumeroadicao.AsInteger = qryAdicoesImportacaonumero.AsInteger then
+        begin
+          TotalFinalAdicao := TotalFinalAdicao +
+                              qryProdutosImportadosvalor.AsCurrency;
+
+          if qryProdutosImportadosaliquotaipi.AsCurrency > 0 then
+          begin
+            SomaOriginal_comIPI := SomaOriginal_comIPI +
+                                   qryProdutosImportadosvalor.AsCurrency;
+            UltimoProduto_ComIPI := qryProdutosImportadosproduto.AsString;
+          end
+          else
+            SomaOriginal_semIPI := SomaOriginal_semIPI +
+                                   qryProdutosImportadosvalor.AsCurrency;
+
+          Inc(NPA);
+        end;
+        qryProdutosImportados.Next;
+      end;
+
+      TotalMercadorias := ((SomaOriginal_comIPI + SomaOriginal_semIPI) *
+                             qryDadosImportacoestaxacambio.AsCurrency);
+
+      { O campo produtosimportados.valor contém o valor final/original
+        mostrado na aba Produtos. A despesa acessória da adição é a
+        diferença entre esse total final e a base de ICMS da adição. }
+      TotalDespesasAcessoriasAdicao :=
+        RoundTo(
+          TotalFinalAdicao -
+          qryAdicoesImportacaobaseicms.AsCurrency,
+          -2
+        );
+
+      TotalDespesasAcessorias :=
+        TotalDespesasAcessorias + TotalDespesasAcessoriasAdicao;
+
+      TotalValorFinalNota :=
+        TotalValorFinalNota + TotalFinalAdicao;
+
+{      if TotalMercadorias <> qryAdicoesImportacaomercadoria.AsCurrency then
+        MensagemAviso(format('O total dos produtos: %f não esta fechando com o total das mercadorias: %f da adição n° %s. A diferença será rateada.',
+                   [TotalMercadorias, qryAdicoesImportacaomercadoria.AsCurrency, qryadicoesimportacaonumero.asstring]));
+ }
+
+      qryProdutosImportados.First;
+      while not qryProdutosImportados.Eof do
+      begin
+        if qryProdutosImportadosnumeroadicao.AsInteger = qryAdicoesImportacaonumero.AsInteger then
+        begin
+          Inc(NPI);
+
+          RefazConsultaPorNome(qryProcuraProdutoNotaFiscal, ['produtovisual','caracteristica','valorgrade1','valorgrade2'],
+                               [qryProdutosImportadosprodutovisual.AsString,
+                                null, null, null]);
+
+          dsrProdutosNotaFiscal.OnDataChange := nil;
+          qryProdutosNotaFiscal.Append;
+          qryProdutosNotaFiscalprodutook.AsBoolean := true;
+
+          qryProdutosNotaFiscalnatureza.AsInteger           := qryNotaFiscalcodigonatureza.Asinteger;
+          qryProdutosNotaFiscalcodigofiscal.AsInteger           := qryNotaFiscalcodigofiscal.Asinteger;
+
+          qryProcuraNaturezasProduto.ParamByName('codigofiscal').asinteger := qryNotaFiscalcodigofiscal.Asinteger;
+          qryProcuraNaturezasProduto.close;
+          qryProcuraNaturezasProduto.open;
+
+          qryProdutosNotaFiscalnumero.AsInteger        := qryProdutosImportados.RecNo;
+          qryProdutosNotaFiscalproduto.AsLargeInt      := qryProdutosImportadosproduto.AsLargeInt;
+          qryProdutosNotaFiscalquantidade.AsFloat   := qryProdutosImportadosquantidade.AsFloat;
+          qryProdutosNotaFiscalqtdeestoque.AsFloat   := qryProdutosNotaFiscalquantidade.AsFloat * qryProdutosNotaFiscalfatorconversao.AsFloat;
+
+
+          qryProdutosNotaFiscalaliquotaipi.AsCurrency  := qryProdutosImportadosaliquotaipi.AsCurrency;
+          qryProdutosNotaFiscalaliquotaicms.AsCurrency := {qryProdutosImportadosicms.AsCurrency;} qryAdicoesImportacaoaliquotaicms.AsCurrency;
+
+          qryProdutosNotaFiscaladicao.AsInteger        := qryAdicoesImportacaonumero.AsInteger;
+          qryProdutosNotaFiscalnseqadicao.AsInteger    := NPI;
+
+
+          if NPI <> NPA then
+          begin
+            qryProdutosNotaFiscalprodutototal.AsCurrency :=  roundto((qryProdutosImportadosvalor.AsFloat *
+                                                                qryDadosImportacoestaxacambio.AsFloat) *
+                                                              qryAdicoesImportacaomercadoria.AsCurrency /
+                                                              TotalMercadorias, -2);
+            MercadoriaDistribuida := MercadoriaDistribuida + qryProdutosNotaFiscalprodutototal.AsFloat;
+
+            qryProdutosNotaFiscalicmsbasecalculo.AsCurrency :=  roundto((qryProdutosImportadosvalor.AsFloat *
+                                                                qryDadosImportacoestaxacambio.AsFloat) *
+                                                              qryAdicoesImportacaobaseicms.AsCurrency /
+                                                              TotalMercadorias, -2);
+            BaseICMSDistribuido := BaseICMSDistribuido + qryProdutosNotaFiscalicmsbasecalculo.AsCurrency;
+
+            qryProdutosNotaFiscalicmsvalor.AsCurrency :=  roundto((qryProdutosImportadosvalor.AsFloat *
+                                                                qryDadosImportacoestaxacambio.AsFloat) *
+                                                              qryAdicoesImportacaovaloricms.AsCurrency /
+                                                              TotalMercadorias, -2);
+            ValorICMSDistribuido := ValorICMSDistribuido + qryProdutosNotaFiscalicmsvalor.AsCurrency;
+
+            qryProdutosNotaFiscalfrete.asfloat  := roundto(qryProdutosNotaFiscalprodutototal.AsFloat *
+                                                      qryAdicoesImportacaofrete.AsCurrency/
+                                                      qryAdicoesImportacaomercadoria.AsFloat, -2);
+
+            FreteDistribuido := FreteDistribuido + qryProdutosNotaFiscalfrete.asfloat;
+
+            qryProdutosNotaFiscalembalagem.asfloat := roundto(qryProdutosNotaFiscalprodutototal.asfloat *
+                                                      qryAdicoesImportacaoembalagem.AsCurrency/
+                                                      qryAdicoesImportacaomercadoria.AsCurrency,-2);
+            embalagemdistribuida := embalagemdistribuida + qryProdutosNotaFiscalembalagem.asfloat;
+
+
+            qryProdutosNotaFiscalthc.asfloat := roundto(qryProdutosNotaFiscalprodutototal.asfloat *
+                                                      qryAdicoesImportacaothc.AsCurrency/
+                                                      qryAdicoesImportacaomercadoria.AsCurrency,-2);
+            thcdistribuida := thcdistribuida + qryProdutosNotaFiscalthc.asfloat;
+
+
+            qryProdutosNotaFiscaliivalor.asfloat  := roundto(qryProdutosNotaFiscalprodutototal.asfloat *
+                                                      qryAdicoesImportacaoii.AsCurrency/
+                                                      qryAdicoesImportacaomercadoria.AsCurrency,-2);
+
+            IIdistribuido := IIdistribuido + qryProdutosNotaFiscaliivalor.asfloat;
+
+{
+            qryProdutosNotaFiscaldespesasacessorias.asfloat := roundto(qryProdutosNotaFiscalprodutototal.asfloat *
+                                                                (qryAdicoesImportacaopis.AsCurrency +
+                                                                 qryAdicoesImportacaocofins.AsCurrency +
+                                                                 qryAdicoesImportacaosiscomex.AsCurrency +
+                                                                 qryAdicoesImportacaoembalagem.AsCurrency +
+                                                                 qryAdicoesImportacaothc.AsCurrency) /
+                                                                qryAdicoesImportacaomercadoria.AsCurrency,-2);
+}
+{
+    {desp. acess.: pis + cofins + siscomex + embalagem + thc ou
+     desp. acess.: TotalBaseICMS - TotalProd - TotalFrete - TotalIPI - TotalValorICMS
+
+     optar pela segunda opção pois nem sempre o valor é fechado c/ o total
+}
+
+            if qryAdicoesImportacaomercadoria.AsCurrency <> 0 then
+              qryProdutosNotaFiscaldespesasacessorias.AsCurrency :=
+                RoundTo(
+                  qryProdutosNotaFiscalprodutototal.AsCurrency *
+                  TotalDespesasAcessoriasAdicao /
+                  qryAdicoesImportacaomercadoria.AsCurrency,
+                  -2
+                )
+            else
+              qryProdutosNotaFiscaldespesasacessorias.AsCurrency := 0;
+
+
+            DespesasAcessoriasDistribuida := DespesasAcessoriasDistribuida + qryProdutosNotaFiscaldespesasacessorias.asfloat;
+
+          end
+          else
+          begin
+            qryProdutosNotaFiscalprodutototal.AsCurrency := qryAdicoesImportacaomercadoria.AsCurrency - MercadoriaDistribuida;
+            qryProdutosNotaFiscalicmsbasecalculo.AsCurrency :=  qryAdicoesImportacaobaseicms.AsCurrency - BaseICMSDistribuido;
+            qryProdutosNotaFiscalicmsvalor.AsCurrency := qryAdicoesImportacaovaloricms.AsCurrency - ValorICMSDistribuido;
+
+            qryProdutosNotaFiscalfrete.asfloat  := qryAdicoesImportacaofrete.ascurrency - FreteDistribuido;
+            qryProdutosNotaFiscalembalagem.asfloat  := qryAdicoesImportacaoembalagem.ascurrency - embalagemdistribuida;
+            qryProdutosNotaFiscalthc.asfloat  := qryAdicoesImportacaothc.ascurrency - thcdistribuida;
+            qryProdutosNotaFiscaliivalor.asfloat  := qryAdicoesImportacaoii.ascurrency - IIdistribuido;
+            qryProdutosNotaFiscaldespesasacessorias.AsCurrency :=
+              RoundTo(
+                TotalDespesasAcessoriasAdicao -
+                DespesasAcessoriasDistribuida,
+                -2
+              );
+          end;
+
+
+          qryProdutosNotaFiscaliidespaduaneira.asfloat  := qryProdutosNotaFiscalprodutototal.asfloat +
+                                                              qryProdutosNotaFiscalfrete.asfloat +
+                                                              qryProdutosNotaFiscalthc.asfloat +
+                                                              qryProdutosNotaFiscalembalagem.asfloat;
+
+          qryProdutosNotaFiscalprecounitario.AsFloat := {roundto(}(qryProdutosNotaFiscalprodutototal.AsFloat / qryProdutosNotaFiscalquantidade.AsFloat){, -ParSistema.PrecoUnitarioCasasDecimais)};
+//          qryProdutosNotaFiscaltribunitario.AsFloat          := qryProdutosNotaFiscalprecounitario.asFloat;
+
+          qryProdutosNotaFiscalipibasecalculo.asfloat  := qryProdutosNotaFiscaliidespaduaneira.asfloat +
+                                                             qryProdutosNotaFiscaliivalor.asfloat;
+
+          qryProdutosNotaFiscaliibasecalculo.asfloat   := qryProdutosNotaFiscaliidespaduaneira.asfloat;
+
+          if (qryAdicoesImportacaoipi.AsCurrency > 0) and (qryProdutosImportadosaliquotaipi.asfloat > 0) then
+             qryProdutosNotaFiscalvaloripi.asfloat := roundto(qryProdutosNotaFiscalipibasecalculo.asfloat * qryProdutosNotaFiscalaliquotaipi.asfloat / 100, -2)
+          else
+             qryProdutosNotaFiscalvaloripi.asfloat      := 0;
+
+          TotalIPICalculado := TotalIPICalculado + qryProdutosNotaFiscalvaloripi.AsCurrency;
+
+          TotalProd := TotalProd + qryProdutosNotaFiscalprodutototal.AsCurrency;
+          PostProdutosNotaFiscal;
+
+
+          dsrProdutosNotaFiscal.OnDataChange := dsrProdutosNotaFiscalDataChange;
+        end;
+
+        qryProdutosImportados.Next;
+      end;
+
+      TotalIPICalculado := RoundTo(TotalIPICalculado, -2);
+      if TotalIPICalculado <> qryAdicoesImportacaoipi.AsCurrency then
+      begin
+
+         if TotalIPICalculado = 0 then
+           MensagemErro(format('A adição n° %s possui um total de ipi de: %f e nenhum dos produtos possui alíquota de IPI.',
+             [qryadicoesimportacaonumero.asstring, qryAdicoesImportacaoipi.asfloat ]))
+         else
+         begin
+         {
+           if abs(TotalIPICalculado - qryAdicoesImportacaoipi.AsCurrency) > 0.01 then
+             MensagemAviso(format('O total do IPI calculado: %f não esta fechando com o total do ipi: %f da adição n° %s. A diferença será rateada.',
+                [TotalIPICalculado, qryAdicoesImportacaoipi.asfloat, qryadicoesimportacaonumero.asstring]));
+          }
+           try
+             DesabilitarControles(true);
+             qryProdutosNotaFiscal.First;
+             IPIdistribuido := 0;
+             dsrProdutosNotaFiscal.OnDataChange := nil;
+             while not qryprodutosnotafiscal.Eof do
+             begin
+               if qryProdutosNotaFiscaladicao.AsInteger = qryAdicoesImportacaonumero.AsInteger then
+               begin
+                 if UltimoProduto_ComIPI <> qryProdutosNotaFiscalproduto.AsString then
+                 begin
+                   qryprodutosnotafiscal.Edit;
+                   qryProdutosNotaFiscalvaloripi.asfloat := roundto(qryProdutosNotaFiscalvaloripi.asfloat * qryAdicoesImportacaoipi.AsCurrency / TotalIPICalculado, -2);
+                   PostProdutosNotaFiscal;
+                   IPIdistribuido := IPIdistribuido + qryProdutosNotaFiscalvaloripi.asfloat;
+                 end
+                 else
+                 begin
+                   qryprodutosnotafiscal.Edit;
+                   qryProdutosNotaFiscalvaloripi.asfloat := qryAdicoesImportacaoipi.AsCurrency - IPIdistribuido;
+                   PostProdutosNotaFiscal;
+                end;
+               end;
+               qryprodutosnotafiscal.next;
+             end;
+
+           finally
+             dsrProdutosNotaFiscal.OnDataChange := dsrProdutosNotaFiscalDataChange;
+             DesabilitarControles(false);
+           end;
+         end;
+      end;
+
+      try
+
+        DesabilitarControles(true);
+
+        qryProdutosNotaFiscal.First;
+        TotalFechamentoIPI := 0;
+        while not qryprodutosnotafiscal.Eof do
+        begin
+          if qryProdutosNotaFiscaladicao.AsInteger = qryAdicoesImportacaonumero.AsInteger then
+            TotalFechamentoIPI := TotalFechamentoIPI + qryProdutosNotaFiscalipibasecalculo.AsCurrency +
+                                                       qryProdutosNotaFiscalvaloripi.AsCurrency +
+                                                       qryProdutosNotaFiscalicmsvalor.AsCurrency +
+                                                       qryProdutosNotaFiscaldespesasacessorias.AsCurrency -
+                                                       qryProdutosNotaFiscalembalagem.AsCurrency -
+                                                       qryProdutosNotaFiscalthc.AsCurrency;
+          qryprodutosnotafiscal.next;
+        end;
+
+        TotalDiferencaFechamentoIPI := qryAdicoesImportacaobaseicms.AsCurrency - TotalFechamentoIPI;
+        if TotalDiferencaFechamentoIPI <> 0 then
+        begin
+          qryProdutosNotaFiscal.First;
+          TotalDiferencaFechamentoIPIDistribuida  := 0;
+          dsrProdutosNotaFiscal.OnDataChange := nil;
+          while not qryprodutosnotafiscal.Eof do
+          begin
+           if qryProdutosNotaFiscaladicao.AsInteger = qryAdicoesImportacaonumero.AsInteger then
+           begin
+             if UltimoProduto_ComIPI <> qryProdutosNotaFiscalproduto.AsString then
+             begin
+               qryprodutosnotafiscal.Edit;
+               IPIdistribuido := RoundTo((qryProdutosNotaFiscalipibasecalculo.asfloat * TotalDiferencaFechamentoIPI / TotalFechamentoIPI), -2);
+               qryProdutosNotaFiscalipibasecalculo.asfloat := roundto(qryProdutosNotaFiscalipibasecalculo.asfloat + IPIdistribuido, -2);
+               PostProdutosNotaFiscal;
+               TotalDiferencaFechamentoIPIDistribuida := TotalDiferencaFechamentoIPIDistribuida + IPIdistribuido;
+             end
+             else
+             begin
+               qryprodutosnotafiscal.Edit;
+               qryProdutosNotaFiscalipibasecalculo.asfloat := roundto(qryProdutosNotaFiscalipibasecalculo.asfloat +
+                                                              (TotalDiferencaFechamentoIPI - abs(TotalDiferencaFechamentoIPIDistribuida)),-2);
+               PostProdutosNotaFiscal;
+            end;
+           end;
+           qryprodutosnotafiscal.next;
+          end;
+          dsrProdutosNotaFiscal.OnDataChange := dsrProdutosNotaFiscalDataChange;
+        end;
+      finally
+        DesabilitarControles(false);
+      end;
+
+      TotalFrete     := TotalFrete     + qryAdicoesImportacaofrete.AsCurrency;
+      TotalII        := TotalII        + qryAdicoesImportacaoii.AsCurrency;
+      TotalIPI       := TotalIPI       + qryAdicoesImportacaoipi.AsCurrency;
+
+      TotalPIS       := TotalPIS       + qryAdicoesImportacaopis.AsCurrency;
+      TotalCOFINS    := TotalCOFINS    + qryAdicoesImportacaocofins.AsCurrency;
+
+      TotalBaseICMS  := TotalBaseICMS  + qryAdicoesImportacaobaseicms.AsCurrency;
+      TotalValorICMS := TotalValorICMS + qryAdicoesImportacaovaloricms.AsCurrency;
+
+
+      qryAdicoesImportacao.Next;
+    end;
+
+
+    //CalcularImpostos;
+
+    dsrNotaFiscal.OnDataChange := nil;
+
+    qryNotaFiscalndi.AsString                  := qryDadosImportacoesnumero.AsString;
+    qryNotaFiscalfreteinterno.AsCurrency       := TotalFrete;
+    qryNotaFiscaldespesasacessorias.AsCurrency :=
+      RoundTo(TotalDespesasAcessorias, -2);
+
+
+    qryNotaFiscaltotalvalorpis.AsCurrency      := TotalPIS;
+    qryNotaFiscaltotalvalorcofins.AsCurrency   := TotalCOFINS;
+    qryNotaFiscaltotalimportacao.AsCurrency    := TotalII;
+    qryNotaFiscalbaseicms.AsCurrency           := TotalBaseICMS;
+    qryNotaFiscalvaloricms.AsCurrency          := TotalValorICMS;
+    qryNotaFiscalvalornota.AsCurrency          := RoundTo(TotalValorFinalNota, -2);
+    qryNotaFiscalvaloripi.AsCurrency           := TotalIPI;
+
+    dsrNotaFiscal.OnDataChange := dsrNotaFiscalDataChange;
+
+  finally
+    VoltarRegistroAtual(qryProdutosImportados);
+//    qryAdicoesImportacao.EnableControls;
+    qryAdicoesImportacao.AfterScroll  := qryAdicoesImportacaoAfterScroll;
+    qryprodutosnotafiscal.AfterInsert := qryProdutosNotaFiscalAfterInsert;
+    fGerandoProdutos := false;
+    CalcularImpostos;
+//    CalcularValorTotalProdutos;
+  end;
+end;
+
+
+
 
 procedure TdtmCadastroNotasFiscais.PreencherDuplicatas(Pedido: Integer);
 var i: Integer ;

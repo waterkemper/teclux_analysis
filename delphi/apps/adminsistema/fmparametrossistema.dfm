@@ -1,7 +1,7 @@
 inherited frmParametrosSistema: TfrmParametrosSistema
-  Left = 168
-  Top = 238
-  ActiveControl = tecPageControl1
+  Left = 154
+  Top = 82
+  ActiveControl = pgcGeral
   Caption = 'Par'#226'metros do Sistema'
   ClientHeight = 729
   ClientWidth = 1312
@@ -31,7 +31,7 @@ inherited frmParametrosSistema: TfrmParametrosSistema
         Top = 2
         Width = 1078
         Height = 725
-        ActivePage = stsFCaixa
+        ActivePage = tstGeral
         Align = alClient
         TabOrder = 0
         OnChange = pgcParametrosChange
@@ -43,7 +43,7 @@ inherited frmParametrosSistema: TfrmParametrosSistema
             Top = 0
             Width = 1070
             Height = 694
-            ActivePage = tstNotas
+            ActivePage = tstGeral2
             Align = alClient
             TabOrder = 0
             object tstGeral2: TTabSheet
@@ -1194,6 +1194,7 @@ inherited frmParametrosSistema: TfrmParametrosSistema
                         Title.Font.Name = 'helvetica'
                         Title.Font.Pitch = fpVariable
                         Title.Font.Style = []
+                        Width = 64
                         Visible = True
                       end>
                   end
@@ -7032,6 +7033,7 @@ inherited frmParametrosSistema: TfrmParametrosSistema
                       Title.Font.Name = 'helvetica'
                       Title.Font.Pitch = fpVariable
                       Title.Font.Style = []
+                      Width = 64
                       Visible = True
                     end
                     item
@@ -8194,6 +8196,7 @@ inherited frmParametrosSistema: TfrmParametrosSistema
                         Expanded = False
                         FieldName = 'descricaoecf'
                         Title.Caption = 'MEIO DE PAGAMENTO NA ECF'
+                        Width = 64
                         Visible = True
                       end>
                   end
@@ -8751,6 +8754,7 @@ inherited frmParametrosSistema: TfrmParametrosSistema
                     Title.Font.Name = 'helvetica'
                     Title.Font.Pitch = fpVariable
                     Title.Font.Style = []
+                    Width = 64
                     Visible = True
                   end
                   item

@@ -1,7 +1,7 @@
 inherited frmCadastroTabelasEstoque: TfrmCadastroTabelasEstoque
   Left = 619
   Top = 87
-  ActiveControl = dbgICMSINTER
+  ActiveControl = edfIPI
   Caption = 'Cadastro Tabelas do Estoque'
   ClientHeight = 526
   ClientWidth = 861
@@ -32,7 +32,7 @@ inherited frmCadastroTabelasEstoque: TfrmCadastroTabelasEstoque
       Top = 0
       Width = 861
       Height = 481
-      ActivePage = tstICMS
+      ActivePage = tstIPI
       Align = alClient
       MultiLine = True
       PopupMenu = AdvPopupMenu1
@@ -5431,7 +5431,7 @@ inherited frmCadastroTabelasEstoque: TfrmCadastroTabelasEstoque
               AllowNullValue = False
               ReturnIsTab = True
               Value = 0
-              DateValue = 45807.736699502310000000
+              DateValue = 46027.719610868060000000
               HexValue = 0
               Font.Charset = DEFAULT_CHARSET
               Font.Color = clBlack
@@ -5820,7 +5820,7 @@ inherited frmCadastroTabelasEstoque: TfrmCadastroTabelasEstoque
               AllowNullValue = False
               ReturnIsTab = True
               Value = 0
-              DateValue = 45807.736699756950000000
+              DateValue = 46027.719611111110000000
               HexValue = 0
               Font.Charset = DEFAULT_CHARSET
               Font.Color = clBlack

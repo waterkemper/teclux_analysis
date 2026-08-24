@@ -1,6 +1,6 @@
 inherited frmMemoriaCredito: TfrmMemoriaCredito
-  Left = 594
-  Top = 131
+  Left = 300
+  Top = 78
   ActiveControl = edfCodigoCliente
   Caption = 'Mem'#243'ria de C'#225'lculo de Limite de Cr'#233'dito'
   ClientHeight = 557
@@ -13,7 +13,7 @@ inherited frmMemoriaCredito: TfrmMemoriaCredito
     Width = 163
     Align = alNone
     inherited tblBarra: TToolBar
-      Width = 162
+      Width = 88
       Align = alNone
       Visible = False
       inherited sbnProcurar: TSpeedButton
@@ -21,9 +21,6 @@ inherited frmMemoriaCredito: TfrmMemoriaCredito
       end
       inherited tbnDivisor: TToolButton
         Width = 10
-      end
-      inherited sbnAjuda: TSpeedButton
-        Left = 85
       end
     end
   end
@@ -240,9 +237,9 @@ inherited frmMemoriaCredito: TfrmMemoriaCredito
         ParentFont = False
       end
       object lblAtrasoTotal: TLabel
-        Left = 55
+        Left = 56
         Top = 106
-        Width = 38
+        Width = 37
         Height = 15
         Hint = 'Sal'#225'rio do cliente, limitido pela tabela de cargos'
         Alignment = taRightJustify
@@ -256,9 +253,9 @@ inherited frmMemoriaCredito: TfrmMemoriaCredito
         ParentFont = False
       end
       object lblDebitoTotal: TLabel
-        Left = 21
+        Left = 23
         Top = 147
-        Width = 151
+        Width = 149
         Height = 15
         Hint = 'Sal'#225'rio do cliente, limitido pela tabela de cargos'
         Alignment = taRightJustify
@@ -561,9 +558,9 @@ inherited frmMemoriaCredito: TfrmMemoriaCredito
         Caption = '%'
       end
       object Label30: TLabel
-        Left = 59
+        Left = 60
         Top = 67
-        Width = 77
+        Width = 76
         Height = 15
         Alignment = taRightJustify
         Caption = 'LIMITE TOTAL'
@@ -591,9 +588,9 @@ inherited frmMemoriaCredito: TfrmMemoriaCredito
         ParentFont = False
       end
       object Label31: TLabel
-        Left = 51
+        Left = 52
         Top = 133
-        Width = 84
+        Width = 83
         Height = 15
         Alignment = taRightJustify
         Caption = 'POR PARCELA'
@@ -1275,9 +1272,9 @@ inherited frmMemoriaCredito: TfrmMemoriaCredito
         ParentFont = False
       end
       object Label14: TLabel
-        Left = 63
+        Left = 64
         Top = 67
-        Width = 48
+        Width = 47
         Height = 15
         Alignment = taRightJustify
         Caption = 'Telefone'
@@ -1335,9 +1332,9 @@ inherited frmMemoriaCredito: TfrmMemoriaCredito
         ParentFont = False
       end
       object Label19: TLabel
-        Left = 13
+        Left = 14
         Top = 187
-        Width = 98
+        Width = 97
         Height = 15
         Alignment = taRightJustify
         Caption = 'Tempo de servi'#231'o'
@@ -1410,9 +1407,9 @@ inherited frmMemoriaCredito: TfrmMemoriaCredito
         ParentFont = False
       end
       object Label35: TLabel
-        Left = 11
+        Left = 12
         Top = 116
-        Width = 100
+        Width = 99
         Height = 15
         Alignment = taRightJustify
         Caption = 'Tempo resid'#234'ncia'
@@ -1507,9 +1504,9 @@ inherited frmMemoriaCredito: TfrmMemoriaCredito
         ParentFont = False
       end
       object Label27: TLabel
-        Left = 98
+        Left = 99
         Top = 115
-        Width = 38
+        Width = 37
         Height = 15
         Hint = 
           'Total da renda do cliente considerada para o c'#225'lculo dos limites' +

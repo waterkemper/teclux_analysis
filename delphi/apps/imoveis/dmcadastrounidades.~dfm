@@ -1,0 +1,112 @@
+inherited dtmCadastroUnidades: TdtmCadastroUnidades
+  Left = 843
+  Top = 290
+  Height = 241
+  Width = 438
+  object qryConsultaTiposUnidades: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select tu.Codigo,'
+      '       tu.sigla,'
+      '       tu.Nome,'
+      '       tu.inativo'
+      'from TiposUnidades tu'
+      'Order By UPPER(TO_ASCII(tu.Nome,'#39'LATIN1'#39')) ')
+    RequestLive = False
+    Left = 72
+    Top = 96
+    object qryConsultaTiposUnidadescodigo: TIntegerField
+      DisplayLabel = 'UNIDADE'
+      DisplayWidth = 8
+      FieldName = 'codigo'
+      Required = True
+      Visible = False
+    end
+    object qryConsultaTiposUnidadesnome: TStringField
+      DisplayLabel = 'Tipos de Unidades'
+      DisplayWidth = 50
+      FieldName = 'nome'
+      Required = True
+      Size = 50
+    end
+  end
+  object qryTiposUnidades: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT tu.Codigo,'
+      '       tu.Sigla,'
+      '       tu.Inativo,'
+      '       tu.Nome'
+      'FROM tiposunidades tu'
+      'WHERE tu.Codigo =:Codigo')
+    RequestLive = True
+    Left = 64
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Codigo'
+        ParamType = ptUnknown
+      end>
+    object qryTiposUnidadesCodigo: TIntegerField
+      FieldName = 'Codigo'
+      DisplayFormat = '0'
+    end
+    object qryTiposUnidadesSigla: TStringField
+      FieldName = 'Sigla'
+      Size = 2
+    end
+    object qryTiposUnidadesNome: TStringField
+      FieldName = 'Nome'
+      Size = 15
+    end
+    object qryTiposUnidadesInativo: TDateField
+      Alignment = taCenter
+      FieldName = 'Inativo'
+      EditMask = '99/99/9999;1; '
+    end
+  end
+  object dsrTiposUnidades: TtecDataSource
+    DataSet = qryTiposUnidades
+    Left = 88
+    Top = 40
+  end
+  object spcTiposUnidadesproximoNumero: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select tiposunidades_proximocodigo() as codigo')
+    RequestLive = True
+    Left = 224
+    Top = 16
+    object spcTiposUnidadesproximoNumerocodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+  end
+end

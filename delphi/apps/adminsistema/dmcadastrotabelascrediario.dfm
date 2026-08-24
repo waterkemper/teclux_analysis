@@ -1,6 +1,6 @@
 inherited dtmCadastroTabelasCrediario: TdtmCadastroTabelasCrediario
-  Left = 333
-  Top = 170
+  Left = 238
+  Top = 65
   Height = 855
   Width = 1175
   object qryAgentes: TtecQuery
@@ -873,29 +873,10 @@ inherited dtmCadastroTabelasCrediario: TdtmCadastroTabelasCrediario
       FieldName = 'infcomplementar'
       Size = 512
     end
-    object qryNaturezascst_ibscbs: TIntegerField
-      FieldName = 'cst_ibscbs'
-    end
-    object qryNaturezasis_cod: TIntegerField
-      FieldName = 'is_cod'
-    end
-    object qryNaturezasnaogerarcreditoibs: TBooleanField
-      FieldName = 'naogerarcreditoibs'
-    end
-    object qryNaturezasnaogerardebitoibs: TBooleanField
-      FieldName = 'naogerardebitoibs'
-    end
-    object qryNaturezasnaogerarcreditocbs: TBooleanField
-      FieldName = 'naogerarcreditocbs'
-    end
-    object qryNaturezasnaogerardebitocbs: TBooleanField
-      FieldName = 'naogerardebitocbs'
-    end
-    object qryNaturezasnaogerarcreditois: TBooleanField
-      FieldName = 'naogerarcreditois'
-    end
-    object qryNaturezasnaogerardebitois: TBooleanField
-      FieldName = 'naogerardebitois'
+    object qryNaturezasid_natureza: TIntegerField
+      DisplayLabel = 'Natureza da opera'#231#227'o'
+      FieldName = 'id_natureza'
+      Required = True
     end
   end
   object dsrNaturezas: TtecDataSource

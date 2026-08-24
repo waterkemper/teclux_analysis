@@ -647,6 +647,7 @@ type
     qryNotasSaidasnomecliente: TStringField;
     qryNotasSaidasmarca: TStringField;
     qryNotasSaidasespecietransporte: TStringField;
+    A45col_38Larg_21Alt_1S_1I: TfrxReport;
     procedure qryEtiquetasFilterRecord(DataSet: TDataSet; var Accept: Boolean);
     procedure qryEtiquetasAfterInsert(DataSet: TDataSet);
     procedure qryProcuraFiliaisAfterOpen(DataSet: TDataSet);
@@ -855,6 +856,7 @@ type
 
     function CondicaoDadoFiscal : boolean;
     function Quantidade: integer;
+    procedure eh_pac(texto: String; objeto: TfrxReportComponent);
   public
     Tipo_: String;
     fDataFabricacao, fDataValidade : String;
@@ -5997,25 +5999,51 @@ begin
       tfrxpictureview(sender).Picture.LoadFromFile(ExtractFilePath(Application.ExeName)+'\imagens\entrega_shoptime.bmp');
   end
   else
-  
+
   if sender.Name = 'imgencomenda' then
+    eh_pac(qryplpb2w_itemscodigoawb.AsString, Sender);
+
+    (*
   begin
+
   {
     if (pos('pac', lowercase(qryplpb2wnomeservico.AsString))<>0) or
        (pos('qd', lowercase(qryplpb2wnomeservico.AsString))<>0) then
   }
+
     if (copy(qryplpb2w_itemscodigoawb.AsString,1,1)='P') or
        (copy(qryplpb2w_itemscodigoawb.AsString,1,2)='OL') or
-	   (copy(qryplpb2w_itemscodigoawb.AsString,1,2)='QE') or
-	   (copy(qryplpb2w_itemscodigoawb.AsString,1,2)='QF') or
-	   (copy(qryplpb2w_itemscodigoawb.AsString,1,2)='QG') or
-	   (copy(qryplpb2w_itemscodigoawb.AsString,1,2)='QH') or
+       (copy(qryplpb2w_itemscodigoawb.AsString,1,2)='QE') or
+       (copy(qryplpb2w_itemscodigoawb.AsString,1,2)='QF') or
+       (copy(qryplpb2w_itemscodigoawb.AsString,1,2)='QG') or
+       (copy(qryplpb2w_itemscodigoawb.AsString,1,2)='QH') or
        (copy(qryplpb2w_itemscodigoawb.AsString,1,2)='QD') then
       tfrxpictureview(sender).Picture.LoadFromFile(ExtractFilePath(Application.ExeName)+'\imagens\encomenda_pac.bmp')
     else
       tfrxpictureview(sender).Picture.LoadFromFile(ExtractFilePath(Application.ExeName)+'\imagens\encomenda_sedex.bmp');
   end;
+  *)
+
 end;
+
+procedure TdtmEmissaoEtiquetas.eh_pac(texto: String; objeto: TfrxReportComponent);
+begin
+   if (copy(texto,1,1)='P') or
+      (copy(texto,1,2)='OL') or
+      (copy(texto,1,2)='QE') or
+      (copy(texto,1,2)='QF') or
+      (copy(texto,1,2)='QG') or
+      (copy(texto,1,2)='QH') or
+      (copy(texto,1,2)='QD') then
+
+
+      tfrxpictureview(objeto).Picture.LoadFromFile(ExtractFilePath(Application.ExeName)+'\imagens\encomenda_pac.bmp')
+    else
+      tfrxpictureview(objeto).Picture.LoadFromFile(ExtractFilePath(Application.ExeName)+'\imagens\encomenda_sedex.bmp');
+end;
+
+
+
 
 procedure TdtmEmissaoEtiquetas.frpEtiquetasMariah_SAGetValue(
   const VarName: String; var Value: Variant);
@@ -6188,8 +6216,12 @@ begin
   Delete(Lista_Pedidos_Site, length(Lista_Pedidos_Site)-1, 2);
 
 
-    if dadosfiscais = '' then
-      dadosfiscais := '0';
+  if dadosfiscais = '' then
+    dadosfiscais := '0';
+
+  if Lista_Pedidos_Site = '' then
+    Lista_Pedidos_Site := '0';
+
 
 {    qryEtiquetas.ParamByName('cliente').AsInteger    := qryProcuraClientesCodigo.AsInteger;
     qryEtiquetas.ParamByName('tipocliente').AsString := qryProcuraClientestipo.AsString;
@@ -6340,6 +6372,11 @@ begin
 
 
         Delete(Lista_Pedidos_Site, length(Lista_Pedidos_Site)-1, 2);
+
+        if Lista_Pedidos_Site = '' then
+           Lista_Pedidos_Site := '0';
+
+
         qry_Update_Etiquetas_Magalu.MacroByname('Lista_Pedidos_Site').asString := Lista_Pedidos_Site;
         qry_Update_Etiquetas_Magalu.execSQL;
         perpetrar([qry_Update_Etiquetas_Magalu]);
@@ -6418,19 +6455,23 @@ begin
   end
   else
   if sender.Name = 'imgencomenda' then
-  begin
+//  begin
+    eh_pac(qryEtiquetasMagalucodigo_rastreamento.AsString, Sender);
+    (*
+
 //    if copy(qryEtiquetasMagalucodigo_rastreamento.AsString,1,2)='PW' then
     if (copy(qryEtiquetasMagalucodigo_rastreamento.AsString,1,1)='P') or
        (copy(qryEtiquetasMagalucodigo_rastreamento.AsString,1,2)='OL') or
-	   (copy(qryEtiquetasMagalucodigo_rastreamento.AsString,1,2)='QE') or
-	   (copy(qryEtiquetasMagalucodigo_rastreamento.AsString,1,2)='QF') or
-	   (copy(qryEtiquetasMagalucodigo_rastreamento.AsString,1,2)='QG') or
-	   (copy(qryEtiquetasMagalucodigo_rastreamento.AsString,1,2)='QH') or
+       (copy(qryEtiquetasMagalucodigo_rastreamento.AsString,1,2)='QE') or
+       (copy(qryEtiquetasMagalucodigo_rastreamento.AsString,1,2)='QF') or
+       (copy(qryEtiquetasMagalucodigo_rastreamento.AsString,1,2)='QG') or
+       (copy(qryEtiquetasMagalucodigo_rastreamento.AsString,1,2)='QH') or
        (copy(qryEtiquetasMagalucodigo_rastreamento.AsString,1,2)='QD')then
       tfrxpictureview(sender).Picture.LoadFromFile(ExtractFilePath(Application.ExeName)+'\imagens\encomenda_pac.bmp')
     else
       tfrxpictureview(sender).Picture.LoadFromFile(ExtractFilePath(Application.ExeName)+'\imagens\encomenda_sedex.bmp');
-  end;
+     *)
+//  end;
 
 end;
 
@@ -6444,10 +6485,10 @@ begin
 //  if copy(qryEtiquetasMagalucodigo_rastreamento.AsString,1,2)='PW' then
   if (copy(qryEtiquetasMagalucodigo_rastreamento.AsString,1,1)='P') or
      (copy(qryEtiquetasMagalucodigo_rastreamento.AsString,1,2)='OL') or
-	 (copy(qryEtiquetasMagalucodigo_rastreamento.AsString,1,2)='QE') or
-	 (copy(qryEtiquetasMagalucodigo_rastreamento.AsString,1,2)='QF') or
-	 (copy(qryEtiquetasMagalucodigo_rastreamento.AsString,1,2)='QG') or
-	 (copy(qryEtiquetasMagalucodigo_rastreamento.AsString,1,2)='QH') or
+     (copy(qryEtiquetasMagalucodigo_rastreamento.AsString,1,2)='QE') or
+     (copy(qryEtiquetasMagalucodigo_rastreamento.AsString,1,2)='QF') or
+     (copy(qryEtiquetasMagalucodigo_rastreamento.AsString,1,2)='QG') or
+     (copy(qryEtiquetasMagalucodigo_rastreamento.AsString,1,2)='QH') or
      (copy(qryEtiquetasMagalucodigo_rastreamento.AsString,1,2)='QD')then
     qryEtiquetasMagaluTipoEncomenda.asString := 'PAC'
   else
@@ -6586,8 +6627,12 @@ begin
   Delete(Lista_Pedidos_Site, length(Lista_Pedidos_Site)-1, 2);
 
 
-    if dadosfiscais = '' then
-      dadosfiscais := '0';
+  if dadosfiscais = '' then
+    dadosfiscais := '0';
+
+  if Lista_Pedidos_Site = '' then
+    Lista_Pedidos_Site := '0';
+
 
 {    qryEtiquetas.ParamByName('cliente').AsInteger    := qryProcuraClientesCodigo.AsInteger;
     qryEtiquetas.ParamByName('tipocliente').AsString := qryProcuraClientestipo.AsString;
@@ -6731,7 +6776,12 @@ begin
       finally
 
 
+
         Delete(Lista_Pedidos_Site, length(Lista_Pedidos_Site)-1, 2);
+
+        if Lista_Pedidos_Site = '' then
+           Lista_Pedidos_Site := '0';
+
         qry_Update_Etiquetas_Magalu.MacroByname('Lista_Pedidos_Site').asString := Lista_Pedidos_Site;
         qry_Update_Etiquetas_Magalu.execSQL;
         perpetrar([qry_Update_Etiquetas_Magalu]);
@@ -6873,6 +6923,9 @@ begin
   end
   else
   if sender.Name = 'imgencomenda' then
+     eh_pac(qryEtiquetasCorreioscodigo_rastreamento.AsString, Sender);
+
+     (*
   begin
 //    if copy(qryEtiquetasCorreioscodigo_rastreamento.AsString,1,2)='PW' then
     if (copy(qryEtiquetasCorreioscodigo_rastreamento.AsString,1,1)='P') or
@@ -6887,6 +6940,7 @@ begin
     else
       tfrxpictureview(sender).Picture.LoadFromFile(ExtractFilePath(Application.ExeName)+'\imagens\encomenda_sedex.bmp');
   end;
+  *)
 
 end;
 
@@ -7200,6 +7254,9 @@ begin
   end
   else
   if sender.Name = 'imgencomenda' then
+    eh_pac(qryEtiquetasMercadoLivrecodigo_rastreamento.AsString, Sender);
+
+    (*
   begin
 //    if copy(qryEtiquetasMercadoLivrecodigo_rastreamento.AsString,1,2)='PW' then
     if (copy(qryEtiquetasMercadoLivrecodigo_rastreamento.AsString,1,1)='P') or
@@ -7213,6 +7270,7 @@ begin
     else
       tfrxpictureview(sender).Picture.LoadFromFile(ExtractFilePath(Application.ExeName)+'\imagens\encomenda_sedex.bmp');
   end;
+  *)
 
 end;
 
@@ -7276,6 +7334,10 @@ begin
 
     if dadosfiscais = '' then
       dadosfiscais := '0';
+
+    if Lista_Pedidos_Site = '' then
+       Lista_Pedidos_Site := '0';
+
 
 {    qryEtiquetas.ParamByName('cliente').AsInteger    := qryProcuraClientesCodigo.AsInteger;
     qryEtiquetas.ParamByName('tipocliente').AsString := qryProcuraClientestipo.AsString;
@@ -7418,8 +7480,11 @@ begin
         frxEtiquetasMercadoLivre.ShowReport(true);
       finally
 
-
         Delete(Lista_Pedidos_Site, length(Lista_Pedidos_Site)-1, 2);
+
+        if Lista_Pedidos_Site = '' then
+           Lista_Pedidos_Site := '0';
+
         qry_Update_Etiquetas_Magalu.MacroByname('Lista_Pedidos_Site').asString := Lista_Pedidos_Site;
         qry_Update_Etiquetas_Magalu.execSQL;
         perpetrar([qry_Update_Etiquetas_Magalu]);

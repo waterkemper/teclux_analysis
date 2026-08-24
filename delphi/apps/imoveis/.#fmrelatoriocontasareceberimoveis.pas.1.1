@@ -1,0 +1,155 @@
+unit fmrelatoriocontasareceberimoveis;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, DB,
+  StdCtrls, frconsulta, frconsultacodigo, cpdata, cpnumero, cpdbtext,
+  ExtCtrls, Buttons, dmRelatorioContasaReceberImoveis, ctconstantes, biblio,
+  ZQuery, ZPgSqlQuery, cpquery,  cpeditioncontrolvalidation, DBCtrls,
+  fmrelatoriopadrao, QCheckLst, fmconsultabasica, fmconsultaporcampo, Mask,
+  ToolWin, ComCtrls;
+
+type
+  TfrmRelatorioContasaReceberImoveis = class(TfrmRelatorioPadrao)
+    gbxContrato: TGroupBox;
+    ckbVendidos: TCheckBox;
+    ckbRescindidos: TCheckBox;
+    gbxPeriodo: TGroupBox;
+    edtDataInicial: TEditData;
+    edtDataFinal: TEditData;
+    gbxEmpreendimento: TGroupBox;
+    gbxCliente: TGroupBox;
+    ckbRenegociados: TCheckBox;
+    fraConsultaEmprendimento: TfraConsultaCodigo;
+    fraConsultaCliente: TfraConsultaCodigo;
+    lblA: TLabel;
+    ckbTransferidos: TCheckBox;
+    gbxSituacaoEm: TGroupBox;
+    edtDataSituacao: TEditData;
+    rgbOrdenacao: TRadioGroup;
+    gbxAgrupamento: TGroupBox;
+    ckbAgruparEmpreendimento: TCheckBox;
+    rgpRelatorio: TRadioGroup;
+    procedure rgpRelatorioClick(Sender: TObject);
+  private
+    { Private declarations }
+  protected
+    procedure InternoImpressao; override;
+    function  VerificarDatas: Boolean;
+
+  public
+    constructor Create(Aowner:Tcomponent);override;
+    destructor  Destroy; override;
+
+    { Public declarations }
+  end;
+
+var
+  frmRelatorioContasaReceberImoveis: TfrmRelatorioContasaReceberImoveis;
+
+implementation
+
+uses dmbasico;
+
+{$R *.dfm}
+
+{ TForm1 }
+
+constructor TfrmRelatorioContasaReceberImoveis.Create(Aowner: Tcomponent);
+begin
+  inherited;
+  dtmRelatorioContasaReceberImoveis:= TdtmRelatorioContasaReceberImoveis.Create(Self);
+  fraConsultaEmprendimento.TipoPesquisa:= pesEMPREENDIMENTOS;
+  fraConsultaCliente.TipoPesquisa      := pesCLIENTES;
+  edtDataSituacao.Text := formatdatetime('dd/mm/yyyy', dtmRelatorioContasaReceberImoveis.dataservidor);
+end;
+
+destructor TfrmRelatorioContasaReceberImoveis.Destroy;
+begin
+  dtmRelatorioContasaReceberImoveis:= nil;
+  inherited;
+  frmRelatorioContasaReceberImoveis:= nil;
+end;
+
+procedure TfrmRelatorioContasaReceberImoveis.InternoImpressao;
+begin
+  inherited;
+  with dtmRelatorioContasaReceberImoveis do
+  begin
+    DataInicial     := strtodate(edtDataInicial.Text);
+    DataFinal       := strtodate(edtDataFinal.Text);
+    Datasituacaoem  := strtodate(edtDataSituacao.text);
+
+    if fraConsultaEmprendimento.edfCodigo.Text <> '' then
+      Empreendimento  := strtoint(fraConsultaEmprendimento.edfCodigo.Text)
+    else
+      Empreendimento:= 0;
+
+    if fraConsultaCliente.edfCodigo.Text <> '' then
+      Cliente         := strtoint(fraConsultaCliente.edfCodigo.Text)
+    else
+      Cliente         := 0;
+
+    Vendidos     := ckbVendidos.checked;
+    Transferidos := ckbTransferidos.Checked;
+    Rescindidos  := ckbRescindidos.Checked;
+    Renegociados := ckbRenegociados.Checked;
+
+    TipoRelatorio := TTecTipoRelatorioContasaReceberImoveis(rgpRelatorio.itemindex);
+
+    if ckbAgruparEmpreendimento.enabled then
+      AgruparEmpreendimento := ckbAgruparEmpreendimento.checked
+    else
+      AgruparEmpreendimento := false;
+
+    Ordenacao    := rgbOrdenacao.ItemIndex;
+
+    IF VerificarDatas THEN
+      ImprimirRelatorio
+    ELSE
+      MensagemAviso('Período não informado')
+  end;
+end;
+
+function TfrmRelatorioContasaReceberImoveis.VerificarDatas: Boolean;
+begin
+   Result:= True;
+   with dtmRelatorioContasaReceberImoveis do
+   begin
+     if DataInicial > DataFinal then
+     begin
+       MensagemAviso(Format(ctDATAMENOR,['Data Final', 'Data Inicial']));
+       Result:= False;
+     end
+     else if not (DataInicial >= 0) then
+     begin
+       MensagemAviso('Database inicial em branco');
+       Result:= False;
+     end
+     else if not (DataFinal >= 0) then
+     begin
+       MensagemAviso('Database final em branco');
+       Result:= False;
+     end;
+
+     {
+     else
+     if DataSituacaoEm < DataFinal then
+     begin
+       MensagemAviso('Data da situação inferior a data final');
+       Result:= False;
+     end;
+     }
+   end;
+end;
+
+procedure TfrmRelatorioContasaReceberImoveis.rgpRelatorioClick(
+  Sender: TObject);
+begin
+  inherited;
+  ckbAgruparEmpreendimento.Enabled := (rgpRelatorio.ItemIndex <> 1);
+  rgbOrdenacao.enabled := (rgpRelatorio.ItemIndex = 0);
+end;
+
+end.

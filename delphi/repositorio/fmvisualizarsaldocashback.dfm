@@ -4,7 +4,7 @@ inherited frmVisualizarSaldocashback: TfrmVisualizarSaldocashback
   Caption = 'Visualiza'#231#227'o do saldo de CashBack'
   ClientHeight = 234
   ClientWidth = 786
-  Position = poDesktopCenter
+  Position = poScreenCenter
   PixelsPerInch = 96
   TextHeight = 16
   object bbnOK: TBitBtn

@@ -1,0 +1,291 @@
+inherited dtmAnaliseParadasMaquinasSetores: TdtmAnaliseParadasMaquinasSetores
+  OldCreateOrder = False
+  Left = 581
+  Top = 241
+  Height = 355
+  Width = 652
+  inherited ZMonitor: TZMonitor
+    Left = 192
+    Top = 8
+  end
+  object qryAnaliseParadas_Maquinas_x_Paradas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'FiltroPeriodo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroSetores'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroMaquinas'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroParadas'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      'SELECT SetorProducao,'
+      '       maquina,'
+      '       descricaomaquina,'
+      
+        '       codigoparada, Descricaoparada, SUM(tempoparada) AS TempoP' +
+        'arada'
+      'FROM'
+      ''
+      '('
+      
+        ' SELECT ooup.codigoparada,  mp.descricao as descricaoparada, oou' +
+        'p.tempoparada, m.SetorProducao, oou.Maquina, m.descricao as desc' +
+        'ricaomaquina'
+      ' FROM OperacoesOSPUsuario oou'
+      '         JOIN operacoesospusuarioparadas ooup'
+      
+        '               JOIN motivosParadas mp ON ooup.codigoparada = mp.' +
+        'Codigo'
+      ''
+      '         ON oou.numero = ooup.numero_operacoesospusuario'
+      ''
+      '         JOIN OSP ON osp.Numero = oou.OSP'
+      ''
+      '       JOIN Maquinas m'
+      '           JOIN SetoresProducao sp'
+      '             ON sp.Codigo = m.SetorProducao'
+      ''
+      
+        '      ON m.Codigo = COALESCE(oou.Maquina, (SELECT om.Maquina FRO' +
+        'M OperacoesMaquinas om'
+      
+        '                                              WHERE om.Operacao ' +
+        '= oou.Operacao LIMIT 1))'
+      ''
+      ' WHERE TRUE'
+      '       %FiltroPeriodo'
+      '       %FiltroSetores'
+      '       %FiltroMaquinas'
+      '       %FiltroParadas'
+      ''
+      ''
+      ') AS selecao'
+      ''
+      
+        'GROUP BY SetorProducao, maquina, descricaomaquina, codigoparada,' +
+        ' Descricaoparada'
+      
+        'order BY SetorProducao, maquina, descricaomaquina, codigoparada,' +
+        ' Descricaoparada'
+      ''
+      '/* PAR'#194'METROS'
+      ':DataInicial'
+      ':DataFinal'
+      '*/'
+      ''
+      '')
+    RequestLive = False
+    Left = 88
+    Top = 80
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end>
+    object qryAnaliseParadas_Maquinas_x_Paradassetorproducao: TStringField
+      DisplayLabel = 'SETOR'
+      FieldName = 'setorproducao'
+      Size = 4
+    end
+    object qryAnaliseParadas_Maquinas_x_Paradasmaquina: TIntegerField
+      DisplayLabel = 'M'#193'QUINA'
+      FieldName = 'maquina'
+    end
+    object qryAnaliseParadas_Maquinas_x_Paradasdescricaomaquina: TStringField
+      DisplayLabel = 'DESCRI'#199#195'O'
+      FieldName = 'descricaomaquina'
+      Size = 30
+    end
+    object qryAnaliseParadas_Maquinas_x_Paradascodigoparada: TIntegerField
+      DisplayLabel = 'PARADA'
+      FieldName = 'codigoparada'
+    end
+    object qryAnaliseParadas_Maquinas_x_Paradasdescricaoparada: TStringField
+      DisplayLabel = 'DESCRI'#199#195'O'
+      FieldName = 'descricaoparada'
+      Size = 50
+    end
+    object qryAnaliseParadas_Maquinas_x_Paradastempoparada: TLargeintField
+      DisplayLabel = 'TEMPO'
+      FieldName = 'tempoparada'
+    end
+  end
+  object dsrAnaliseParadas: TtecDataSource
+    DataSet = qryAnaliseParadas_Maquinas_x_Paradas
+    Left = 288
+    Top = 80
+  end
+  object ExcelExport1: TExcelExport
+    FontTitles.Charset = DEFAULT_CHARSET
+    FontTitles.Color = clWindowText
+    FontTitles.Height = -11
+    FontTitles.Name = 'MS Sans Serif'
+    FontTitles.Style = [fsBold]
+    OrientationTitles = 0
+    FontData.Charset = DEFAULT_CHARSET
+    FontData.Color = clWindowText
+    FontData.Height = -11
+    FontData.Name = 'MS Sans Serif'
+    FontData.Style = []
+    StyleColumnWidth = cwAutoFit
+    ColumnWidth = 80
+    WorksheetName = 'AnaliseParadas_Maquinas_x_Paradas'
+    Dataset = qryAnaliseParadas_Maquinas_x_Paradas
+    Left = 360
+    Top = 8
+  end
+  object qryAnaliseParadas_Setores_x_Paradas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'FiltroPeriodo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroSetores'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroMaquinas'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroParadas'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      'SELECT SetorProducao, descricaosetor,'
+      
+        '       codigoparada, Descricaoparada, SUM(tempoparada) AS TempoP' +
+        'arada'
+      'FROM'
+      ''
+      '('
+      
+        ' SELECT ooup.codigoparada,  mp.descricao as descricaoparada, oou' +
+        'p.tempoparada, m.SetorProducao, sp.descricao as descricaosetor'
+      ' FROM OperacoesOSPUsuario oou'
+      '         JOIN operacoesospusuarioparadas ooup'
+      
+        '               JOIN motivosParadas mp ON ooup.codigoparada = mp.' +
+        'Codigo'
+      ''
+      '         ON oou.numero = ooup.numero_operacoesospusuario'
+      ''
+      '         JOIN OSP ON osp.Numero = oou.OSP'
+      ''
+      '       JOIN Maquinas m'
+      '           JOIN SetoresProducao sp'
+      '             ON sp.Codigo = m.SetorProducao'
+      ''
+      
+        '      ON m.Codigo = COALESCE(oou.Maquina, (SELECT om.Maquina FRO' +
+        'M OperacoesMaquinas om'
+      
+        '                                              WHERE om.Operacao ' +
+        '= oou.Operacao LIMIT 1))'
+      ''
+      ' WHERE TRUE'
+      ''
+      '       %FiltroPeriodo'
+      '       %FiltroSetores'
+      '       %FiltroMaquinas'
+      '       %FiltroParadas'
+      ''
+      ''
+      ') AS selecao'
+      ''
+      
+        'GROUP BY SetorProducao, descricaosetor, codigoparada, Descricaop' +
+        'arada'
+      
+        'order BY SetorProducao, descricaosetor, codigoparada, Descricaop' +
+        'arada'
+      ''
+      '/* PAR'#194'METROS'
+      ':DataInicial'
+      ':DataFinal'
+      '*/'
+      ''
+      '')
+    RequestLive = False
+    Left = 88
+    Top = 144
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end>
+    object qryAnaliseParadas_Setores_x_Paradassetorproducao: TStringField
+      DisplayLabel = 'SETOR'
+      FieldName = 'setorproducao'
+      Size = 4
+    end
+    object qryAnaliseParadas_Setores_x_Paradasdescricaosetor: TStringField
+      DisplayLabel = 'DESCRI'#199#195'O'
+      FieldName = 'descricaosetor'
+      Size = 50
+    end
+    object qryAnaliseParadas_Setores_x_Paradascodigoparada: TIntegerField
+      DisplayLabel = 'PARADA'
+      FieldName = 'codigoparada'
+    end
+    object qryAnaliseParadas_Setores_x_Paradasdescricaoparada: TStringField
+      DisplayLabel = 'DESCRI'#199#195'O'
+      FieldName = 'descricaoparada'
+      Size = 50
+    end
+    object qryAnaliseParadas_Setores_x_Paradastempoparada: TLargeintField
+      DisplayLabel = 'TEMPO'
+      FieldName = 'tempoparada'
+    end
+  end
+end

@@ -1,0 +1,1036 @@
+unit dmcadastroeventos;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms,
+  Dialogs, DB, Windows,{Qete,}
+  //Terceiros
+  ZQuery, ZPgSqlQuery,
+  //Componentes
+  cpquery, cpdatasource, clparametrossistema,
+  //Repositorio
+  dmbasico, ctConstantes, ZTransact;
+
+Const cmpcodigo        = 1;   PosicaoAtual = 0;
+
+      cmpClassificacao = 2;   Primeiro     = 1;
+      cmpDescricao     = 3;   Anterior     = 2;
+      cmpDataInativo   = 4;   Proximo      = 3;
+                              Ultimo       = 4;
+
+type
+  TdtmCadastroEventos = class(TdtmBasico)
+    qryEventos: TtecQuery;
+    dsrEventos: TtecDataSource;
+    qryHistoricosEventos: TtecQuery;
+    dsrHistoricosEventos: TtecDataSource;
+    qryHistoricos: TtecQuery;
+    dsrHistoricos: TtecDataSource;
+    qryHistoricoscodigo: TIntegerField;
+    qryHistoricosdescricao: TStringField;
+    spcEventosProximo: TtecQuery;
+    qryConsultaHistoricos: TtecQuery;
+    qryConsultaHistoricosdescricao: TStringField;
+    qryConsultaHistoricoscodigo: TIntegerField;
+    qryHistoricosEventoshistorico: TIntegerField;
+    qryHistoricosEventosdescricao: TStringField;
+    qryHistoricosEventosevento: TIntegerField;
+    qryHistoricosEventosmenu: TStringField;
+    spcEventosProximocodigo: TIntegerField;
+    qryEventosCodigo: TIntegerField;
+    qryEventosDescricao: TStringField;
+    qryEventosCentroCusto: TBooleanField;
+    qryEventosRecibo: TBooleanField;
+    qryEventosSaldoCliente: TBooleanField;
+    qryEventosInativo: TDateField;
+    qryEventosConta: TIntegerField;
+    dsrEventosVinculado_Sinteticas: TtecDataSource;
+    qryEventosClassificacao: TStringField;
+    qryEventosTipo: TStringField;
+    qryEventosVinculado_Sinteticas: TtecQuery;
+    qryEventosVinculado_Sinteticasdescricao: TStringField;
+    qryEventosVinculado_Sinteticasclassificacao: TStringField;
+    qryEventosVinculado_Sinteticascodigo: TIntegerField;
+    qryEventosVinculado_Sinteticastipo: TStringField;
+    qryEventosVinculado_Sinteticasnsinteticasultima: TLargeintField;
+    qryContaVinculada: TtecQuery;
+    qryContaVinculadavinculadas: TLargeintField;
+    qryExisteLancto: TtecQuery;
+    qryExisteLanctoexiste: TBooleanField;
+    qryEventosVinculado_Sinteticasnanaliticasultima: TLargeintField;
+    qryEventosPlanilhaCustos: TBooleanField;
+    qryEventosTipoMovimentacao: TStringField;
+    qryEventosHistoricoContabil: TIntegerField;
+    qryEventosContasContabeis: TtecQuery;
+    dsrEventosContasContabeis: TtecDataSource;
+    qryEventosContasContabeiscontacontabil: TIntegerField;
+    qryEventosContasContabeishistoricocontabil: TIntegerField;
+    qryEventosContasContabeispercentual: TFloatField;
+    qryEventosContasContabeisdescricaoplanocontas: TStringField;
+    qryEventosContasContabeisdescricaohistorico: TStringField;
+    qryEventosContasContabeisevento: TIntegerField;
+    qryEventosIncluirNaDRE: TBooleanField;
+    qryEventosincluirnobf: TBooleanField;
+    procedure qryEventosAfterScroll(DataSet: TDataSet);
+    procedure qryEventosNewRecord(DataSet: TDataSet);
+    procedure qryEventosAfterCancel(DataSet: TDataSet);
+    procedure qryHistoricosEventosAfterDelete(DataSet: TDataSet);
+    procedure dsrHistoricosEventosDataChange(Sender: TObject;
+      Field: TField);
+    procedure qryEventosAfterOpen(DataSet: TDataSet);
+    procedure qryEventosBeforeInsert(DataSet: TDataSet);
+    procedure qryEventosContasContabeisAfterDelete(DataSet: TDataSet);
+    procedure qryEventosContasContabeisAfterPost(DataSet: TDataSet);
+    procedure qryHistoricosEventosAfterPost(DataSet: TDataSet);
+    procedure dsrEventosContasContabeisDataChange(Sender: TObject;
+      Field: TField);
+    procedure qryEventosContasContabeisAfterOpen(DataSet: TDataSet);
+    procedure qryEventosContasContabeisNewRecord(DataSet: TDataSet);
+    procedure qryEventosAfterClose(DataSet: TDataSet);
+
+  private
+    TotalPercentual : Currency;
+    fultimaclassificacao: String;
+    FVinculados: String;
+    fpenultimaclassificacao: String;
+    FEventosVinculado_SinteticasAfterOpen: TNotifyEvent;
+    function getTabelaConsultaContaContabil: TZDataset;
+    procedure CalcularTotalPercentual;
+
+  protected
+    function GetConsultarHistorico: TTecQuery;
+    function GetHistoricosEventosVazio:boolean;
+    function GetTabelaEventos: TTecQuery;
+    function GetTabelaHistoricoEventos: TtecQuery;
+    procedure MontarSQLConsultaHistoricosEvento(Editando: Boolean);
+    function ExisteContaVinculada: Boolean;
+    function existeLancamento: Boolean;
+    
+  public
+    PercorrendoPlanoContas : Boolean;
+    NivelMascara: byte;
+    UltimoNivel: byte;
+    PermitirExcluir: Boolean;
+  
+    destructor  Destroy; override;
+    property TabelaConsultaContaContabil: TZDataset read getTabelaConsultaContaContabil;
+    procedure AbrirTabelas(TipoPesquisa: TtecEventos);
+    procedure AbreConsultaHistoricosEvento;
+    procedure AtribuirHistoricosNoEvento;
+    constructor Create(AOwner: TComponent); override;
+    function  EditandoEventos: Boolean;
+    function  ExcluirEventos: Boolean;
+    function  ExcluirHistoricosEventos: Boolean;
+    
+    function  ExisteHistorico(Campo, Codigo: String): Boolean;
+    procedure FecharTabelas(TipoPesquisa: TtecEventos);
+    function  GravarEvento: Boolean;
+    function  GravarHistoricosEventos: Boolean;
+    function  IncluirEventos: Boolean;
+    function  IncluirHistoricosEventos(Editar: Boolean): Boolean;
+    property  ConsultarHistorico: TtecQuery read GetConsultarHistorico;
+    property  TabelaEventos: TtecQuery read GetTabelaEventos;
+    property  TabelaHistoricoEventos: TtecQuery read GetTabelaHistoricoEventos;
+    property  HistoricosEventosVazio: boolean read GetHistoricosEventosVazio ;
+    procedure VerificarMascaraClassificacao(classificacao: String);
+    Function SelecionarVinculados(Classificacao:String): String;
+    property ultimaclassificacao: String read fultimaclassificacao write fultimaclassificacao;
+    property vinculados: String read FVinculados write FVinculados;
+    property penultimaclassificacao: String read fpenultimaclassificacao write fpenultimaclassificacao;
+    function VerificarClassificacao: Boolean;
+    function ValidarContas(ExibirMsg: Boolean): Boolean;
+    property EventosVinculado_SinteticasAfterOpen: TNotifyEvent
+             read FEventosVinculado_SinteticasAfterOpen
+             write FEventosVinculado_SinteticasAfterOpen;
+    function AbilitarAnalitica: Boolean;
+    function AbilitarSintetica: Boolean;
+    function  Inserindo:  Boolean;
+    procedure  PercorrerPlanoContas(Campo: Byte; Key: Word; Shift: TShiftState);
+
+  end;
+
+var
+  dtmCadastroEventos: TdtmCadastroEventos;
+
+const
+  CondicaoClassificacao_Sintetica = 'and btrim(btrim(e.classificacao,''. '')) in (%s)';
+
+implementation
+
+Uses
+  //Biblio
+  biblio, fmcadastroeventos;
+
+{$R *.dfm}
+
+procedure TdtmCadastroEventos.AbreConsultaHistoricosEvento;
+begin
+  Abre(ctConsultaHistoricos);
+end;
+
+procedure TdtmCadastroEventos.AbrirTabelas(TipoPesquisa: TtecEventos);
+begin
+   Case TipoPesquisa of
+      tevEVENTOS:    Abre(ctConsultaEventos);
+      tevCONTACONTABIL: Abre(ctConsultaContaContabil);
+  end;
+end;
+
+procedure TdtmCadastroEventos.AtribuirHistoricosNoEvento;
+begin
+  qryHistoricosEventoshistorico.AsInteger := qryConsultaHistoricoscodigo.AsInteger;
+  qryHistoricosEventosdescricao.AsString  := qryConsultaHistoricosdescricao.AsString;
+end;
+
+constructor TdtmCadastroEventos.Create(AOwner: TComponent);
+begin
+  inherited;
+  refazconsulta(qryEventos,[0,1,2], [0,0,0]);
+  qryHistoricosEventos.Tag:= ctCaixaConsultaAgencia;
+  qryHistoricos.tag := cttabelas;
+  qryConsultaHistoricos.Tag:= ctConsultaHistoricos;
+  PercorrendoPlanoContas := True;
+
+ 
+end;
+
+destructor TdtmCadastroEventos.Destroy;
+begin
+  try
+        inherited;
+  except
+         on E: Exception do ShowMessage(E.Message);
+  end;
+end;
+
+function TdtmCadastroEventos.EditandoEventos: Boolean;
+begin
+  Result:= (qryEventos.State in [dsInsert,dsEdit]);
+end;
+
+function TdtmCadastroEventos.ExcluirEventos: Boolean;
+var
+  str: String;
+begin
+  Result:= False;
+  if not qryEventos.IsEmpty then
+  begin
+    str := ctOEVENTO + qryEventoscodigo.AsString;
+    if MensagemConfirmacao(Format(ctCONFIRMEEXCLUIR, [str])) = smbOK then
+    begin
+      result := true;
+      if qryEventostipo.AsString = 'S' then
+      begin
+        ReFazConsulta(qryContaVinculada,[0],[
+         qryEventosclassificacao.AsString]);
+        if qryContaVinculadavinculadas.AsInteger<>1 then
+        begin
+          result := false;
+          MensagemAviso(ctCONTANAOPODESEREXCLUIDA);
+        end;
+      end;
+
+      if result then
+      begin
+        qryEventos.Delete;
+        Perpetrar([qryEventos]);
+        Result:= True;
+      end;
+    end;
+  end;
+end;
+
+function TdtmCadastroEventos.ExcluirHistoricosEventos: Boolean;
+begin
+  Result:= False;
+  if not qryHistoricosEventos.IsEmpty then begin
+    if MensagemConfirmacao(Format(ctCONFIRMEEXCLUIR, ['o HISTÓRICO'])) = smbOK then begin
+      qryHistoricosEventos.Delete;
+      Result:= True
+    end
+  end
+end;
+
+
+function TdtmCadastroEventos.ExisteHistorico(Campo, Codigo: String): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaHistoricos, campo, codigo);
+end;
+
+procedure TdtmCadastroEventos.FecharTabelas(TipoPesquisa: TtecEventos);
+begin
+   case TipoPesquisa of
+      tevEVENTOS:    Fecha(ctConsultaEventos);
+      tevCONTACONTABIL: fecha(ctConsultaContaContabil);
+   end;
+
+end;
+
+
+function TdtmCadastroEventos.GetConsultarHistorico: TTecQuery;
+begin
+  Result := qryConsultaHistoricos;
+end;
+
+
+function TdtmCadastroEventos.GetHistoricosEventosVazio: boolean;
+begin
+  if qryHistoricosEventos.RecordCount > 0 then
+     if EditandoEventos then
+        Result := True
+     else Result := False
+  else
+     Result := False;
+end;
+
+
+function TdtmCadastroEventos.getTabelaConsultaContaContabil: TZDataset;
+begin
+end;
+
+function TdtmCadastroEventos.GetTabelaEventos: TTecQuery;
+begin
+  Result:= qryEventos;
+end;
+
+function TdtmCadastroEventos.GetTabelaHistoricoEventos: TtecQuery;
+begin
+  Result:= qryHistoricosEventos;
+end;
+
+function TdtmCadastroEventos.GravarEvento: Boolean;
+Var
+  i: Integer;
+Begin
+  if qryEventos.CheckRequiredFields then
+  begin
+    if false {qryHistoricosEventos.RecordCount = 0 }then
+      MensagemAviso(ctUMHISTORICONOEVENTO)
+    else begin
+      if qryEventos.State in [dsInsert] then begin
+         spcEventosProximo.Open;
+         qryEventoscodigo.AsInteger := spcEventosProximocodigo.AsInteger;
+         spcEventosProximo.Close;
+      end;
+
+      if qryEventos.State in [dsEdit,dsInsert] then
+      begin
+        qryeventosclassificacao.AsString := trim(Trocar(qryeventosclassificacao.AsString,'. ',''));
+
+        qryHistoricosEventos.First;
+        for i:= 1 To qryHistoricosEventos.RecordCount do begin
+          qryHistoricosEventos.Edit;
+          qryHistoricosEventosevento.asInteger:= qryEventoscodigo.AsInteger;
+          qryHistoricosEventos.Post;
+          qryHistoricosEventos.Next;
+        end;
+
+
+        if parsistema.GerarContabilidade and
+           (qryEventosContasContabeis.RecordCount > 0) then
+        begin
+          AtribuirChave(qryEventosContasContabeis,[qryEventosContasContabeisevento], [qryEventoscodigo]);
+
+          result := VerificarCamposRequeridos(qryEventosContasContabeis);
+
+          if result then
+          begin
+            result := SomarValores(qryEventosContasContabeis,[qryEventosContasContabeispercentual],[],[],[])=100;
+            if not result then
+              MensagemErro('O somatório do percentual das contas contábeis deve ser igual a 100.')
+          end;
+        end
+        else
+          result := true;
+
+
+        if result then
+        begin
+          qryEventosContasContabeis.First;
+          if not qryEventosContasContabeis.IsEmpty then
+          begin
+            qryEventosConta.AsInteger := qryEventosContasContabeiscontacontabil.AsInteger;
+            if qryEventosContasContabeishistoricocontabil.AsInteger<>0 then
+              qryEventoshistoricocontabil.AsInteger :=  qryEventosContasContabeishistoricocontabil.AsInteger;
+          end;
+          qryEventos.Post;
+          
+          result := Perpetrar([qryEventos, qryHistoricosEventos, qryEventosContasContabeis]);
+        end;
+
+      end
+    end;
+    Result := True;
+  end else
+    Result := False
+end;
+
+function TdtmCadastroEventos.GravarHistoricosEventos: Boolean;
+begin
+  Result := False;
+  if qryHistoricosEventos.CheckRequiredFields then begin
+    qryHistoricosEventosdescricao.AsString  := qryHistoricosDescricao.AsString;
+    qryHistoricosEventos.Post;
+    qryEventos.Edit;
+    Result := True
+  end;
+end;
+
+function TdtmCadastroEventos.IncluirEventos: Boolean;
+begin
+  qryeventosclassificacao.ReadOnly := false;
+  qryEventos.Insert;
+  vinculados := '';
+  Result:= True;
+end;
+
+function TdtmCadastroEventos.IncluirHistoricosEventos(Editar: Boolean): Boolean;
+begin
+  MontarSQLConsultaHistoricosEvento(Editar);
+  if qryHistoricosEventos.IsEmpty or not Editar then
+    qryHistoricosEventos.Append;
+  Result:= True;
+end;
+
+procedure TdtmCadastroEventos.MontarSQLConsultaHistoricosEvento(Editando: Boolean);
+var
+  pos: TBookmark;
+  Historicos: String;
+  Cod: Integer;
+begin
+  Cod := qryHistoricosEventoshistorico.AsInteger;
+  pos := qryHistoricosEventos.GetBookmark;
+  qryHistoricosEventos.DisableControls;
+  try
+    qryHistoricosEventos.First;
+    while Not qryHistoricosEventos.Eof do begin
+      if Editando then begin
+        if (Cod <> qryHistoricosEventoshistorico.AsInteger) then
+          Historicos := Historicos + qryHistoricosEventosHistorico.AsString + ','
+      end else
+        Historicos := Historicos + qryHistoricosEventosHistorico.AsString + ',';
+      qryHistoricosEventos.Next;
+    end;
+    if (Historicos <> '') and (Historicos <> ',')then begin       //Retirar a vírgula caso exista na última posiçao da String.
+      Historicos := Copy(Historicos, 1, Length(Historicos) - 1);
+      qryConsultaHistoricos.Sql[3] := 'Where not (H.Codigo in ('+ Historicos +'))';
+      qryHistoricos.Sql[4]   := 'and not (H.Codigo in ('+ Historicos +'))'
+    end else begin
+      qryConsultaHistoricos.Sql[3] := '';
+      qryHistoricos.Sql[4]   := ''
+    end
+  finally
+    qryHistoricosEventos.EnableControls;
+    qryHistoricosEventos.GotoBookmark(pos);
+    qryHistoricosEventos.FreeBookmark(pos);
+  end;
+end;
+
+procedure TdtmCadastroEventos.qryEventosAfterCancel(DataSet: TDataSet);
+begin
+  inherited;
+  ReFazConsulta(qryHistoricosEventos,[0],[qryEventosCodigo.AsInteger]);
+  VerificarMascaraClassificacao(qryEventosclassificacao.AsString);
+end;
+
+procedure TdtmCadastroEventos.qryEventosAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  ReFazConsulta(qryHistoricosEventos,[0],[qryEventosCodigo.AsInteger]);
+  ReFazConsulta(qryEventosContasContabeis,[0],[qryEventosCodigo.AsInteger]);
+
+end;
+
+procedure TdtmCadastroEventos.qryEventosNewRecord(DataSet: TDataSet);
+begin
+   inherited;
+   qryEventostipomovimentacao.AsString := 'S';
+   qryEventosrecibo.      AsBoolean:= False;
+   qryEventoscentrocusto. AsBoolean:= False;
+   qryEventossaldocliente.AsBoolean:= False;
+   qryEventosplanilhacustos.AsBoolean := false;
+   qryEventosincluirnobf.AsBoolean := False;
+   qryEventosIncluirNaDRE.AsBoolean := False;
+
+   qryEventostipo.AsString := 'A';
+end;
+
+procedure TdtmCadastroEventos.qryHistoricosEventosAfterDelete(DataSet: TDataSet);
+begin
+  inherited;
+  if qryEventos.State = dsBrowse then
+    qryEventos.Edit;
+end;
+
+procedure TdtmCadastroEventos.dsrHistoricosEventosDataChange(
+  Sender: TObject; Field: TField);
+begin
+  inherited;
+  if field = qryHistoricosEventoshistorico then
+    qryHistoricosEventosdescricao.AsString := qryHistoricosdescricao.AsString;
+end;
+
+procedure TdtmCadastroEventos.VerificarMascaraClassificacao(
+  classificacao: String);
+var
+ vvinculados: String;
+
+  function ClassificacaoNaoExistente: Boolean;
+  begin
+    result := true;
+    qryEventosVinculado_Sinteticas.First;
+    if qryEventos.State = dsinsert then
+    begin
+      while not qryEventosVinculado_Sinteticas.Eof do
+      begin
+        if (qryEventosVinculado_Sinteticasclassificacao.AsString = ultimaClassificacao) then
+        begin
+          result := false;
+          break;
+        end;
+        qryEventosVinculado_Sinteticas.Next;
+      end;
+    end
+    else
+    begin
+      while not qryEventosVinculado_Sinteticas.Eof do
+      begin
+        if ((qryEventosVinculado_Sinteticasclassificacao.AsString = penultimaClassificacao) and
+            (qryEventostipo.AsString = 'A')) or
+           ((qryEventosVinculado_Sinteticasclassificacao.AsString = ultimaClassificacao) and
+            (qryEventostipo.AsString = 'S')) then
+        begin
+          result := false;
+          break;
+        end;
+        qryEventosVinculado_Sinteticas.Next;
+      end;
+    end
+  end;
+
+begin
+  if PossuiNumero(classificacao) then
+  begin
+    vvinculados := SelecionarVinculados(classificacao);
+    if ((Vinculados <> vvinculados) and
+        (vvinculados <> '0')) or (qryEventosVinculado_Sinteticas.recordcount=0) then
+    begin
+      Vinculados := vvinculados;
+
+      if (qryEventosclassificacao.Value <> qryEventosclassificacao.OldValue) then
+         qryEventosVinculado_Sinteticas.params[1].Asinteger := qryEventoscodigo.AsInteger
+      else
+         qryEventosVinculado_Sinteticas.params[1].Asinteger := 0;
+
+      if qryEventos.State = dsinsert then
+        qryEventosVinculado_Sinteticas.params[0].AsString := ultimaclassificacao
+      else
+      if qryEventostipo.AsString = 'A' then
+        qryEventosVinculado_Sinteticas.params[0].AsString := penultimaclassificacao
+      else
+        qryEventosVinculado_Sinteticas.params[0].AsString := ultimaclassificacao;
+
+      qryEventosVinculado_Sinteticas.MacroByName('WhereClassificacao').AsString :=
+        format(CondicaoClassificacao_Sintetica, [vinculados]);
+
+      ReFazConsulta(qryEventosVinculado_Sinteticas,[],[]);
+
+      if (not (qryEventosVinculado_Sinteticas.IsEmpty)) and
+        (qryeventos.State=dsinsert) then
+        NivelMascara := NivelMascara + 1;
+
+      if (( (not (ClassificacaonaoExistente)) or
+             qryEventosVinculado_Sinteticas.IsEmpty)
+            and Inserindo) or
+          ((not (ClassificacaonaoExistente)) and
+            not Inserindo) then
+      begin
+        if Assigned(FEventosVinculado_SinteticasAfterOpen) then
+          FEventosVinculado_SinteticasAfterOpen(qryEventosVinculado_Sinteticas);
+      end;
+
+      if VerificarClassificacao then
+        if not PercorrendoPlanoContas then
+          if ClassificacaonaoExistente then
+            qryEventosDescricao.FocusControl;
+    end;
+  end
+  else
+  begin
+    qryEventosVinculado_Sinteticas.MacroByName('WhereClassificacao').AsString := 'and false';
+    ReFazConsulta(qryEventosVinculado_Sinteticas,[],[]);
+  end;
+end;
+
+function TdtmCadastroEventos.SelecionarVinculados(
+  Classificacao: String): String;
+var
+ i,j, nivel, tamanho: integer;
+ vretorno, vmascara : String;
+ aclassificacao: array of string[20];
+begin
+  j := 0;
+  vretorno := '';
+  Nivel := parsistema.mascarabancos[1].indexof(copy(classificacao,1,1));
+//  Tamanho := length(ParSistema.mascarabancos[2].Strings[nivel]);
+  vmascara := copy(ParSistema.mascarabancos[2].Strings[nivel],
+              1,length(ParSistema.mascarabancos[2].Strings[nivel])-4);
+
+    for i:=0 to length(vmascara)+1 do
+      if (copy(vmascara, i, 1) = '.') then
+         UltimoNivel := UltimoNivel + 1;
+{
+  if (length(classificacao)<>tamanho) and
+     (qryEventostipo.AsString = 'A') then
+    classificacao := classificacao+'.';
+
+}
+    classificacao := classificacao+'.';
+
+
+  FOR i:=0 to length(Classificacao)+1 do
+  begin
+    if (copy(classificacao, i, 1) = ' ') then
+      break;
+
+    if (copy(classificacao, i, 1) = '.') then
+    begin
+      vretorno :=  vretorno + quotedstr(copy(classificacao, 1, i-1))+',';
+      ultimaclassificacao := copy(classificacao, 1, i-1);
+      j:=j+1;
+      SetLength(aclassificacao,j);
+      aclassificacao[j-1] := ultimaclassificacao;
+    end;
+  end;
+
+  NivelMascara := J;
+
+  if Length(classificacao)=1 then
+    if PossuiNumero(Classificacao) then
+    begin
+      vretorno := classificacao+',';
+      ultimaclassificacao :=classificacao;
+      vinculados := '';
+    end;
+
+  if vretorno<>'' then
+    vretorno := copy(vretorno,1,length(vretorno)-1)
+  else
+  begin
+    vretorno := '0';
+    ultimaclassificacao := vretorno;
+  end;
+
+  if j>1 then
+    penultimaclassificacao := aclassificacao[j-2]
+  else
+    penultimaclassificacao := ultimaclassificacao;
+
+  result := vretorno;
+end;
+
+
+function TdtmCadastroEventos.VerificarClassificacao: Boolean;
+begin
+  result := true;
+  if qryEventosVinculado_Sinteticas.Active then
+  begin
+    qryEventosVinculado_Sinteticas.first;
+    while not qryEventosVinculado_Sinteticas.Eof do
+    begin
+      if qryEventos.State = dsinsert then
+      begin
+        if qryEventostipo.AsString = 'S' then
+          result :=(penultimaclassificacao =
+                     qryEventosVinculado_Sinteticasclassificacao.AsString) or
+                   (qryEventosVinculado_Sinteticas.RecordCount=0);
+      end
+      else
+      begin
+        if qryEventostipo.AsString = 'A' then
+          result :=(penultimaclassificacao =
+                     qryEventosVinculado_Sinteticasclassificacao.AsString) or
+                   (qryEventosVinculado_Sinteticas.RecordCount=0);
+      end;
+      if result then
+        break;
+      qryEventosVinculado_Sinteticas.Next;
+    end;
+
+    if not result then
+      MensagemErro(format(ctCLASSIFICACAONAOCADASTRADA,[penultimaclassificacao]));
+  end;
+end;
+
+function TdtmCadastroEventos.ValidarContas(ExibirMsg: Boolean): Boolean;
+begin
+  result := true;
+  if (trim(trocar(qryEventosclassificacao.Value,'. ','')) <>
+     qryEventosclassificacao.OldValue) then
+    if qryEventosVinculado_Sinteticas.Active then
+    begin
+      qryEventosVinculado_Sinteticas.last;
+      if (trim(trocar(qryEventosclassificacao.AsString,'. ','')) =
+          qryEventosVinculado_Sinteticasclassificacao.AsString) then
+      begin
+        result := false;
+        if not result then
+        begin
+          if ExibirMsg then
+            MensagemAviso(ctCLASSIFICACAOCADASTRADA);
+          qryEventosclassificacao.FocusControl;
+        end;
+      end;
+    end;
+end;
+
+function TdtmCadastroEventos.ExisteContaVinculada: Boolean;
+begin
+  if qryEventosclassificacao.AsString<>'' then
+    ReFazConsulta(qryContaVinculada,[0],[qryEventosclassificacao.AsString])
+  else
+    ReFazConsulta(qryContaVinculada,[0],[0]);
+
+  result := qryContaVinculadavinculadas.AsInteger<>0;
+
+end;
+
+function TdtmCadastroEventos.existeLancamento: Boolean;
+begin
+  ReFazConsulta(qryExisteLancto,[0], [qryEventoscodigo.AsVariant]);
+  result := qryExisteLanctoexiste.AsBoolean;
+end;
+
+procedure TdtmCadastroEventos.qryEventosAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  VerificarMascaraClassificacao(qryEventosclassificacao.AsString);
+end;
+
+procedure TdtmCadastroEventos.qryEventosBeforeInsert(DataSet: TDataSet);
+begin
+  inherited;
+  qryEventos.ParamByName('Operacao').AsInteger := PosicaoAtual;
+  qryEventosVinculado_Sinteticas.close;
+end;
+
+
+function TdtmCadastroEventos.AbilitarAnalitica: Boolean;
+begin
+  qryEventosclassificacao.ReadOnly := false;
+  qryEventostipo.ReadOnly := false;
+  if (qryEventostipo.AsString = 'A') and
+     (qryEventos.State = dsedit) and
+     (qryEventosclassificacao.Value <> qryEventosclassificacao.OldValue) and
+     (existeLancamento) then
+    qryEventostipo.ReadOnly := true;
+
+  PermitirExcluir := true;
+  if (qryEventos.State = dsinsert) or
+     (qryEventosclassificacao.Value <> qryEventosclassificacao.OldValue) then
+  begin
+    if NivelMascara > 1 then
+    begin
+      if NivelMascara = UltimoNivel then
+        result := true
+      else
+      begin
+        if (qryEventosVinculado_Sinteticasnsinteticasultima.AsInteger > 0) then
+          result := false
+        else
+          result := true;
+      end;
+    end
+    else
+      result := false;
+
+    if not result then
+    begin
+      if qryEventostipo.ReadOnly then
+        result := true
+      else
+      if qryEventostipo.AsString <> 'S' then
+        qryEventostipo.AsString := 'S'
+    end;
+  end
+  else
+  begin
+    if NivelMascara > 1 then
+    begin
+      if (NivelMascara = UltimoNivel) then
+        result := true
+      else
+      begin
+        if (qryEventosVinculado_Sinteticasnsinteticasultima.AsInteger > 0) then
+          result := false
+        else
+        if ((qryEventosVinculado_Sinteticasnsinteticasultima.AsInteger = 0) and
+            (qryEventosVinculado_Sinteticasnanaliticasultima.AsInteger > 0)) and
+            (qryEventostipo.asstring = 'S') then
+          result := false
+        else
+          result := true;
+      end;
+    end
+    else
+      result := false;
+
+    if qryEventosclassificacao.Value = qryEventosclassificacao.OldValue then
+      if qryEventostipo.AsString = 'S' then
+        if (qryEventosVinculado_Sinteticasnsinteticasultima.AsInteger > 0)or
+           (qryEventosVinculado_Sinteticasnanaliticasultima.AsInteger > 0) then
+        begin
+          qryEventosclassificacao.ReadOnly := true;
+          PermitirExcluir := false;
+        end
+  end;
+end;
+
+function TdtmCadastroEventos.AbilitarSintetica: Boolean;
+begin
+  if (qryEventos.State = dsinsert) or
+     (qryEventosclassificacao.Value <> qryEventosclassificacao.OldValue) then
+  begin
+    if NivelMascara > 1 then
+    begin
+      if NivelMascara = UltimoNivel then
+        result := false
+      else
+      begin
+       if (qryEventosVinculado_Sinteticasnanaliticasultima.AsInteger > 0) then
+         result := false
+       else
+         result := true;
+      end;
+    end
+    else
+      result := true;
+
+    if qryEventostipo.ReadOnly then
+      result := false;
+
+    if not result then
+      if qryEventostipo.AsString <> 'A' then
+        qryEventostipo.AsString := 'A'
+
+  end
+  else
+  begin
+    if NivelMascara > 1 then
+    begin
+      if NivelMascara = UltimoNivel then
+        result := false
+      else
+      begin
+        if (qryEventosVinculado_Sinteticasnsinteticasultima.AsInteger > 0) then
+          result := true
+        else
+        if (qryEventosVinculado_Sinteticasnsinteticasultima.AsInteger = 0) and
+           (qryEventosVinculado_Sinteticasnanaliticasultima.AsInteger = 0) then
+          result := true
+        else
+        if (qryEventosVinculado_Sinteticasnsinteticasultima.AsInteger = 0) and
+           (qryEventosVinculado_Sinteticasnanaliticasultima.AsInteger = 1) and
+           (qryEventostipo.AsString = 'A') and
+           (not existeLancamento) then
+          result := true
+        else
+          result := false;
+      end;
+    end
+    else
+      result := false;
+
+    if qryEventostipo.ReadOnly then
+      result := false;
+
+  end;
+
+end;
+
+function TdtmCadastroEventos.Inserindo: Boolean;
+begin
+  result := qryeventos.State = dsinsert;
+end;
+
+procedure TdtmCadastroEventos.PercorrerPlanoContas(Campo: Byte; Key: Word;
+  Shift: TShiftState);
+var Operacao: Byte;
+    codigo: Integer;
+    classificacao, descricao, DataInativo:      String;
+begin
+   Operacao := 0;
+   with qryEventos do begin
+      if ssCtrl in Shift
+      then case Key of
+              VK_HOME:     Operacao:= Primeiro;
+              VK_END:      Operacao:= Ultimo;
+           end
+      else case Key of
+              VK_PRIOR:   Operacao:= Anterior;
+              VK_NEXT: Operacao:= Proximo;
+           end;
+
+      case Campo of
+         cmpcodigo: case Operacao of
+                            Primeiro,
+                            Proximo:  MacroByName('Ordenacao').AsString:=
+                                                  'ORDER BY codigo LIMIT 1';
+                            Anterior,
+                            Ultimo:   MacroByName('Ordenacao').AsString:=
+                                                  'ORDER BY codigo DESC LIMIT 1';
+                   end;
+
+         cmpClassificacao:  case Operacao of
+                              Primeiro,
+                              Proximo:  MacroByName('Ordenacao').AsString:=
+                                                  'ORDER BY classificacao, UPPER(TO_ASCII(Descricao,''LATIN1'')), codigo LIMIT 1';
+                              Anterior,
+                              Ultimo:   MacroByName('Ordenacao').AsString:=
+                                                  'ORDER BY classificacao DESC, UPPER(TO_ASCII(Descricao,''LATIN1'')) DESC, codigo DESC LIMIT 1';
+                            end;
+
+         cmpDescricao: case Operacao of
+                            Primeiro,
+                            Proximo:  MacroByName('Ordenacao').AsString:=
+                                                  'ORDER BY UPPER(TO_ASCII(Descricao,''LATIN1'')), classificacao, codigo LIMIT 1';
+                            Anterior,
+                            Ultimo:   MacroByName('Ordenacao').AsString:=
+                                                  'ORDER BY UPPER(TO_ASCII(Descricao,''LATIN1'')) DESC, classificacao DESC, codigo DESC LIMIT 1';
+                         end;
+         cmpDataInativo: case Operacao of
+                            Primeiro,
+                            Proximo:  MacroByName('Ordenacao').AsString:=
+                                                  'ORDER BY inativo, classificacao, UPPER(TO_ASCII(Descricao,''LATIN1'')), codigo LIMIT 1';
+                            Anterior,
+                            Ultimo:   MacroByName('Ordenacao').AsString:=
+                                                  'ORDER BY inativo DESC, classificacao DESC, UPPER(TO_ASCII(Descricao,''LATIN1'')) DESC, codigo DESC LIMIT 1';
+                         end;
+
+      end;
+
+      codigo         := qryEventoscodigo.         AsInteger;
+      classificacao  := qryEventosclassificacao.  AsString;
+      descricao      := qryEventosdescricao.      AsString;
+      DataInativo    := qryEventosinativo.        AsString;
+      if DataInativo = '' then
+        DataInativo := '30/12/1899';
+
+      RefazConsulta(qryEventos, [0,1, 2, 3, 4, 5],
+                    [Campo, Operacao, qryEventoscodigo.         AsInteger,
+                                      qryEventosclassificacao.  AsString,
+                                      qryEventosdescricao.      AsString,
+                                      DataInativo]);
+
+      if qryEventos.RecordCount = 0 then
+      begin
+         if (campo = cmpDataInativo) and (DataInativo = '30/12/1899') then
+           MensagemAviso('Não Existem contas inativas');
+         RefazConsulta(qryEventos, [0,1, 2, 3, 4, 5],
+                      [PosicaoAtual, PosicaoAtual, codigo, classificacao, descricao, DataInativo]);
+         case Operacao of
+            Anterior,Primeiro: case Campo of
+                                 cmpDataInativo : if (DataInativo<>'30/12/1899') then
+                                                    MensagemAviso('Esta é a 1ª conta inativa');
+                               else
+                                 MensagemAviso('Esta é a 1ª conta')
+                               end;
+            Proximo, Ultimo  : case Campo of
+                                 cmpDataInativo : if (DataInativo<>'30/12/1899') then
+                                                    MensagemAviso('Esta é a última conta inativa');
+                               else
+                                 MensagemAviso('Esta é a última conta')
+                               end;
+         end;
+         case campo of
+          1 : qryEventoscodigo.FocusControl;
+          2 : qryEventosclassificacao.FocusControl;
+          3 : qryEventosdescricao.FocusControl;
+          4 : qryEventosinativo.FocusControl;
+         end;
+      end;
+  //   EnableControls;
+   end;
+end;
+
+procedure TdtmCadastroEventos.qryEventosContasContabeisAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryEventos.State = dsBrowse then
+    qryEventos.Edit;
+
+  CalcularTotalPercentual;
+
+end;
+
+procedure TdtmCadastroEventos.qryEventosContasContabeisAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryEventos.State = dsBrowse then
+    qryEventos.Edit;
+
+  CalcularTotalPercentual;
+
+end;
+
+procedure TdtmCadastroEventos.qryHistoricosEventosAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryEventos.State = dsBrowse then
+    qryEventos.Edit;
+
+end;
+
+procedure TdtmCadastroEventos.dsrEventosContasContabeisDataChange(
+  Sender: TObject; Field: TField);
+begin
+  inherited;
+  if field = qryEventosContasContabeispercentual then
+  begin
+    if field.value > 100 then
+    begin
+      MensagemErro(ctIntervaloZeroaCem);
+      field.Clear;
+    end
+  end;
+end;
+
+procedure TdtmCadastroEventos.CalcularTotalPercentual;
+begin
+  TotalPercentual := 0;
+  GuardarRegistroAtual(qryEventosContasContabeis,true);
+  qryEventosContasContabeis.first;
+  while not qryEventosContasContabeis.eof do
+  begin
+    TotalPercentual := TotalPercentual + qryEventosContasContabeispercentual.AsCurrency;
+    qryEventosContasContabeis.next;
+  end;
+  VoltarRegistroAtual(qryEventosContasContabeis);
+end;
+
+procedure TdtmCadastroEventos.qryEventosContasContabeisAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  CalcularTotalPercentual;
+end;
+
+procedure TdtmCadastroEventos.qryEventosContasContabeisNewRecord(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryEventosContasContabeispercentual.AsCurrency := 100 - TotalPercentual;
+end;
+
+procedure TdtmCadastroEventos.qryEventosAfterClose(DataSet: TDataSet);
+begin
+  inherited;
+  VerificarMascaraClassificacao(qryEventosclassificacao.AsString);
+end;
+
+end.

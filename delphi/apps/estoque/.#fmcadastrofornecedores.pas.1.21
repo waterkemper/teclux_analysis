@@ -1,0 +1,826 @@
+unit fmcadastrofornecedores;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, Mask, ExtCtrls, Windows, Buttons, DBCtrls, Grids, DBGrids,
+  //Componentes
+  cptexto, cpnumero, cpfone, cpdata, frtelefone, ComCtrls,
+  cpdocumento, cpdbfindcontrols, cpdbdata, cppagecontrol,
+  //Terceiros
+  ZQuery,
+  //Projeto
+  dmconsultaenderecos, dmcadastrofornecedores, clparametrossistema,
+  //Biblio
+  ctconstantes, biblio,
+  //Repositorio
+  fmconsultabasica, frcgcoucpf, fmcadastropadrao, frendereco, frenderecoeditor,
+  fmconsultaporcampo, cpdbgrid, cpdbtext, cpdbmemo, cpdbradiogroup,
+  ActnList, frconsulta, frconsultacodigo, friesubsttributario, db,
+  frconsultacontabil, frconsultacodigocontabil, ToolWin, AdvObj, BaseGrid,
+  AdvGrid, DBAdvGrid, frmctrllink, cpquery, PCheck, PDBCheck;
+
+type
+  TfrmCadastroFornecedores = class(TfrmCadastroPadrao)
+    pgcFornecedores: TtecPageControl;
+    tstEndereco: TTabSheet;
+    tstInformacoes: TTabSheet;
+    edtContato: TDBEditTexto;
+    tstObservacoes: TTabSheet;
+    mmoObsrvacoes: TtecDBMemo;
+    edtDocumento: TDBEditDocumento;
+    fraEnderecoFornecedor: TfraEnderecoEditor;
+    fraFone: TfraTelefone;
+    fraFax: TfraTelefone;
+    edtEmail: TDBEditTexto;
+    gbxFornecedor: TGroupBox;
+    edtRazaoSocial: TDBEditTexto;
+    edtNomeFantasia: TDBEditTexto;
+    edfCodigo: TtecDbEditFind;
+    pnlFundoJanela: TPanel;
+    dbgSerieFornecedor: TtecDBGrid;
+    flkGrupo: TtecDBFindLookup;
+    sbnGrupoFornecedor: TSpeedButton;
+    dtxGruposFornecedores: TtecDBText;
+    fracgcoucpf1: Tfracgcoucpf;
+    edtMarkup: TDBEditNumero;
+    lblPorcentagem: TLabel;
+    aclAbilitar: TActionList;
+    actAbilitar: TAction;
+    tstGrupos: TTabSheet;
+    dbgGrupos: TtecDBGrid;
+    sbnIncluirGrupos: TSpeedButton;
+    sbnExcluirGrupos: TSpeedButton;
+    tstContabilidade: TTabSheet;
+    gbxDebitar: TGroupBox;
+    dtxDebitarClassificacao: TtecDBText;
+    gbxCreditar: TGroupBox;
+    dtxCreditarClassificacao: TtecDBText;
+    gbxCodigo: TGroupBox;
+    gbxFantasia: TGroupBox;
+    gbxRazaoSocial: TGroupBox;
+    gbxGrupoFornecedor: TGroupBox;
+    gbxMarkup: TGroupBox;
+    gbxEnderecoAlterado: TGroupBox;
+    dtxEnderecoAlterado: TtecDBText;
+    fraConsultaDebitar: TfraConsultaCodigoContabil;
+    fraConsultaCreditar: TfraConsultaCodigoContabil;
+    rgpNoSimples: TtecDBRadioGroup;
+    rbnNoSimplesNao: TtecRadioButton;
+    rbnNoSimplesSim: TtecRadioButton;
+    tstContatos: TTabSheet;
+    dbgContatos: TtecDBGrid;
+    sbnExcluirContato: TSpeedButton;
+    sbnIncluirContato: TSpeedButton;
+    tdtxcargo: TtecDBText;
+    dtxobservacoes: TtecDBMemo;
+    gbxCargo: TGroupBox;
+    gbxObservacoes: TGroupBox;
+    ckbContribuinteICMS: TDBCheckBox;
+    gbxRNTC: TGroupBox;
+    edtRNTC: TDBEditTexto;
+    gbxSUFRAMA: TGroupBox;
+    DBEditTexto1: TDBEditTexto;
+    gbxIESubstTributaria: TGroupBox;
+    fraIESubstTributario1: TfraIESubstTributario;
+    gbxIE: TGroupBox;
+    gbxContato: TGroupBox;
+    gbxEmail: TGroupBox;
+    ckbFornecedorParaISS: TDBCheckBox;
+    gbxSite: TGroupBox;
+    edtSite: TDBEditTexto;
+    gbxAdiantamento: TGroupBox;
+    dtxAdiantamentoClassificacao: TtecDBText;
+    fraConsultaAdiantamento: TfraConsultaCodigoContabil;
+    gbxInfNotaFiscal: TGroupBox;
+    GroupBox2: TGroupBox;
+    fraConsultaHistorico: TfraConsultaCodigoContabil;
+    gbxTipoFornecimento: TGroupBox;
+    ckbTipoFornec_Produto: TDBCheckBox;
+    ckbTipoFornec_Transporte: TDBCheckBox;
+    ckbTipoFornec_Montagem: TDBCheckBox;
+    ckbNaoSubstitutoTributario: TDBCheckBox;
+    ckbDistribuidor: TDBCheckBox;
+    gbxInscMunicipal: TGroupBox;
+    edtInscricaoMunicipal: TDBEditDocumento;
+    rbnRegimeTributarioNFE: TtecDBRadioGroup;
+    ckbSimpleNacional: TtecRadioButton;
+    ckbSimpleNacionalExcesso: TtecRadioButton;
+    ckbRegimeNormal: TtecRadioButton;
+    GroupBox1: TGroupBox;
+    fraConsultaHistoricoPagtoDuplicata: TfraConsultaCodigoContabil;
+    gbxAlertaFicha: TGroupBox;
+    mmoFichaAlerta: TtecDBMemo;
+    ckbTipoFornec_MaodeObra: TDBCheckBox;
+    tstReinf: TTabSheet;
+    gbxObras_Fornecedores: TGroupBox;
+    gbxinfoProcRetPr: TGroupBox;
+    gbxinfoProcRetAd: TGroupBox;
+    dbgfornecedor_infoProcRetPr: TDBAdvGrid;
+    pnlfornecedor_infoProcRetPr: TPanel;
+    btnIncluirfornecedor_infoProcRetPr: TSpeedButton;
+    btnExcluirfornecedor_infoProcRetPr: TSpeedButton;
+    fraConsultaProcessoJudicialReinf: TfraConsultaCodigoContabil;
+    fcelConsultaProcessoJudicialReinf: TFormControlEditLink;
+    fraConsultaSuspensaoExibilidadeTributos: TfraConsultaCodigoContabil;
+    fcelConsultaSuspensaoExibilidadeTributos: TFormControlEditLink;
+    dbgfornecedor_infoProcRetPrAd: TDBAdvGrid;
+    pnlfornecedor_infoProcRetPrAd: TPanel;
+    btnIncluirfornecedor_infoProcRetPrAd: TSpeedButton;
+    btnExcluirfornecedor_infoProcRetPrAd: TSpeedButton;
+    fraConsultaProcessoJudicialReinf_Ad: TfraConsultaCodigoContabil;
+    fraConsultaSuspensaoExibilidadeTributos_Ad: TfraConsultaCodigoContabil;
+    fcelConsultaProcessoJudicialReinf_Ad: TFormControlEditLink;
+    fcelConsultaSuspensaoExibilidadeTributos_Ad: TFormControlEditLink;
+    pnlOpcoesObras_Fornecedoes: TPanel;
+    btnIncluirObras_Fornecedores: TSpeedButton;
+    btnExcluirObras_Fornecedores: TSpeedButton;
+    dbgObras_Fornecedores: TDBAdvGrid;
+    RGBindCPRB: TtecDBRadioGroup;
+    RBNindCPRB_cONTRIB: TtecRadioButton;
+    RBNindCPRB_NaoContrib: TtecRadioButton;
+    gbxObservacoesFornecedor: TGroupBox;
+    mmoObservacoes_: TtecDBMemo;
+    ckbDDA__: TPDBCheck;
+    gbxAlertaAtendimento: TGroupBox;
+    mmoAlertaAtendimentos: TtecDBMemo;
+    GroupBox3: TGroupBox;
+    dtxdatahoraconferenciacadastro: TtecDBText;
+    GroupBox4: TGroupBox;
+    dtxultimaalteracao: TtecDBText;
+    procedure sbnExcluirOpcoesClick(Sender: TObject);
+    procedure edtEmailExit(Sender: TObject);
+    procedure dbgSerieFornecedorKeyPress(Sender: TObject; var Key: Char);
+    procedure edtDocumentoExit(Sender: TObject);
+    procedure sbnGrupoFornecedorClick(Sender: TObject);
+    procedure fracgcoucpf1rgbTipoPessoaChange(Sender: TObject);
+    procedure fracgcoucpf1edtCPFCNPJExit(Sender: TObject);
+    procedure actAbilitarUpdate(Sender: TObject);
+    procedure sbnIncluirGruposClick(Sender: TObject);
+    procedure sbnExcluirGruposClick(Sender: TObject);
+    procedure dbgGruposKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure dbgGruposDblClick(Sender: TObject);
+    procedure sbnExcluirContatoClick(Sender: TObject);
+    procedure dbgContatosDblClick(Sender: TObject);
+    procedure dbgContatosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure rgpTipoFornecimentoChange(Sender: TObject);
+    procedure dbgSerieFornecedorKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure fracgcoucpf1rbnFisicaClick(Sender: TObject);
+    procedure sbnIncluirContatoClick(Sender: TObject);
+    procedure btnIncluirObras_FornecedoresClick(Sender: TObject);
+    procedure btnExcluirObras_FornecedoresClick(Sender: TObject);
+    procedure btnIncluirfornecedor_infoProcRetPrClick(Sender: TObject);
+    procedure btnExcluirfornecedor_infoProcRetPrClick(Sender: TObject);
+    procedure dbgObras_Fornecedores_CanAddRow(Sender: TObject;
+      var CanAdd: Boolean);
+    procedure dbgfornecedor_infoProcRetPrCanAddRow(Sender: TObject;
+      var CanAdd: Boolean);
+    procedure fcelConsultaSuspensaoExibilidadeTributosSetEditorFocus(Sender: TObject;
+      Grid: TAdvStringGrid; AControl: TWinControl);
+    procedure fcelConsultaProcessoJudicialReinfSetEditorFocus(Sender: TObject;
+      Grid: TAdvStringGrid; AControl: TWinControl);
+    procedure btnIncluirfornecedor_infoProcRetPrAdClick(Sender: TObject);
+    procedure btnExcluirfornecedor_infoProcRetPrAdClick(Sender: TObject);
+    procedure fcelConsultaProcessoJudicialReinf_AdSetEditorFocus(
+      Sender: TObject; Grid: TAdvStringGrid; AControl: TWinControl);
+    procedure fcelConsultaSuspensaoExibilidadeTributos_AdSetEditorFocus(
+      Sender: TObject; Grid: TAdvStringGrid; AControl: TWinControl);
+    procedure dbgfornecedor_infoProcRetPrKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure dbgObras_FornecedoresCanAddRow(Sender: TObject;
+      var CanAdd: Boolean);
+    procedure dbgfornecedor_infoProcRetPrAdCanAddRow(Sender: TObject;
+      var CanAdd: Boolean);
+    procedure ckbDDA__Click(Sender: TObject);
+  protected
+    dtmconsultaenderecos: Tdtmconsultaenderecos;
+    fraConsultaModeloDocto : TfraConsultaCodigoContabil;
+    fraConsultaFornecedores: TfraConsultaCodigo;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure AcionaCadastroGrupos(Editando: Boolean);
+    procedure AcionaCadastroContatos(editando: Boolean);
+    function InternoIncluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoExcluir: Boolean; override;
+
+    function InternoPesquisar(Titulo: String): Integer; override;
+    function JanelaPesquisa: TfrmConsultaBasica; override;
+    function ExisteInformacao(Parametro: Integer; NomeCampo: String; value: variant): Boolean; override;
+    function TabelaDePesquisa: TZDataset; override;
+
+    procedure AcionaPesquisaGrade;
+    procedure AtribuirDadosSuspensaoExibilidadeTributos_pr;
+    procedure AtribuirDadosSuspensaoExibilidadeTributos_ad;
+
+
+  public
+    procedure OperacaoPadrao(Value: Array of Variant); override;
+    procedure ReFazConsultaFornecedor(Value: Array of Variant);
+    constructor Create(AOwner: TComponent);override;
+    destructor Destroy; override;
+  end;
+
+var
+  frmCadastroFornecedores: TfrmCadastroFornecedores;
+  JaTestouEmail: Boolean;
+  Procura: TtecPesquisa;
+
+implementation
+
+uses fmnavcontroles, fmcadastrofornecedoresgrupos, fmcadastrocontatos;
+
+{$R *.dfm}
+
+constructor TfrmCadastroFornecedores.Create(AOwner: TComponent);
+begin
+  dtmCadastroFornecedores := TdtmCadastroFornecedores.Create(Self);
+  inherited;
+  dtmConsultaEnderecos := TdtmConsultaEnderecos.Create(Self);
+  DataSet := dtmCadastroFornecedores.TabelaFornecedor;
+//  dtmCadastroFornecedores.Abre(ctTabelasFornecedores);
+  pgcFornecedores.ActivePage:= tstEndereco;
+  JaTestouEmail:= False;
+  Procura:= pesNENHUMA;
+  tstContabilidade.TabVisible := ParSistema.GerarContabilidade;
+
+  fraConsultaDebitar.TipoContaContabilConsultaSelecionavel := 'A';
+  fraConsultaDebitar.TipoContaContabilDebitoSelecionavel   := 'A';
+  fraConsultaDebitar.TipoPesquisa:= pesCONTADEBITO;
+
+  fraConsultaCreditar.TipoContaContabilConsultaSelecionavel := 'A';
+  fraConsultaCreditar.TipoContaContabilCreditoSelecionavel  := 'A';
+  fraConsultaCreditar.TipoPesquisa:= pesCONTACREDITO;
+
+  fraConsultaAdiantamento.TipoContaContabilConsultaSelecionavel := 'A';
+  fraConsultaAdiantamento.TipoContaContabilCreditoSelecionavel  := 'A';
+  fraConsultaAdiantamento.TipoPesquisa:= pesCONTACREDITO;
+
+  fraConsultaModeloDocto := TfraConsultaCodigoContabil.Create(self);
+  fraConsultaModeloDocto.Name := 'ConsultaModeloDocto';
+  fraConsultaModeloDocto.edfCodigo.MaxLength := 2;
+  fraConsultaModeloDocto.edfCodigo.DataSource := dtmCadastroFornecedores.dsrSeriesFornecedores;
+  fraConsultaModeloDocto.edfCodigo.DataField := 'modelodoctofiscal';
+  fraConsultaModeloDocto.edfCodigo.Operacao := opATRIBUICAO;
+  fraConsultaModeloDocto.edfCodigo.LookupSource := fraConsultaModeloDocto.dsrProcuraModeloDoctosFiscais;
+  fraConsultaModeloDocto.edfCodigo.LookupField := 'codigo';
+  fraConsultaModeloDocto.edfCodigo.LookupQueryParameter := 'codigo';
+  fraConsultaModeloDocto.AbrirTabelaProcura := false;
+  fraConsultaModeloDocto.TipoPesquisa := pesMODELODOCTOSFISCAIS;
+
+  dbgSerieFornecedor.OnDelete := dtmCadastroFornecedores.ExcluirSeriesFornecedores;
+
+  fraConsultaHistorico.TipoPesquisa:= pesHISTORICOCONTABIL;
+  fraConsultaHistoricoPagtoDuplicata.TipoPesquisa:= pesHISTORICOCONTABIL;
+
+  if not Assigned(fraConsultaFornecedores) then
+    fraConsultaFornecedores := TfraConsultaCodigo.Create(self);
+  fraConsultaFornecedores.edfCodigo.ActiveSetControls := false;
+  fraConsultaFornecedores.edfCodigo.DataSource := dtmCadastroFornecedores.dsrFornecedores;
+  fraConsultaFornecedores.edfCodigo.DataField := 'codigo';
+  fraConsultaFornecedores.edfCodigo.Operacao := opATRIBUICAO;
+  fraConsultaFornecedores.AbrirTabelaProcura := false;
+  fraConsultaFornecedores.TipoPesquisa := pesFORNECEDORES;
+  fraConsultaFornecedores.TipoCliente:= 'F';
+  fraConsultaFornecedores.Tipovfornecedor:= 'F';
+
+  fraConsultaProcessoJudicialReinf.TipoPesquisa := pesProcessoJudicialReinf;
+  fraConsultaSuspensaoExibilidadeTributos.TipoPesquisa := pesSuspensaoExibilidadeTributos;
+  fraConsultaSuspensaoExibilidadeTributos.OnFound := AtribuirDadosSuspensaoExibilidadeTributos_pr;
+
+
+  fraConsultaProcessoJudicialReinf_Ad.TipoPesquisa := pesProcessoJudicialReinf;
+  fraConsultaSuspensaoExibilidadeTributos_Ad.TipoPesquisa := pesSuspensaoExibilidadeTributos;
+
+  fraConsultaSuspensaoExibilidadeTributos_Ad.OnFound := AtribuirDadosSuspensaoExibilidadeTributos_ad;
+
+end;
+
+destructor TfrmCadastroFornecedores.Destroy;
+begin
+  dtmCadastroFornecedores := nil;
+  inherited;
+  frmCadastroFornecedores := nil;
+end;
+
+function TfrmCadastroFornecedores.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  case Procura of
+    pesGRUPOSFORNECEDORES : Result:= dtmCadastroFornecedores.ExisteGrupoFornecedore(NomeCampo, Value);
+    else                    Result:= False;
+  end;
+end;
+
+function TfrmCadastroFornecedores.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then  begin
+    if not CtrlOn then begin
+      dtmCadastroFornecedores.ExcluirFornecedor;
+      pgcFornecedores.ActivePage:= tstEndereco;
+    end
+  end
+end;
+
+function TfrmCadastroFornecedores.InternoGravar: Boolean;
+begin
+  Result:= True;
+  edtDocumento.Estado:= dtmCadastroFornecedores.EstadoFornecedor;
+  if  edtDocumento.Criticar then
+  begin
+    Result:= inherited InternoGravar;
+    if Result then
+    begin
+      if JaTestouEmail or EmailValido(edtEmail.Text) then
+      begin
+        if fracgcoucpf1.edtCPFCNPJ.Criticar(ActiveControl <>
+           fracgcoucpf1.edtCPFCNPJ) then
+          dtmCadastroFornecedores.GravarFornecedor
+      end
+      else
+      begin
+        if not (pgcFornecedores.ActivePage = tstInformacoes) then
+           pgcFornecedores.ActivePage := tstInformacoes;
+        edtEmail.SetFocus;
+        JaTestouEmail:= False;
+        Result:= False;
+      end;
+    end;
+  end;
+end;
+
+function TfrmCadastroFornecedores.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then
+    if not CtrlOn then
+    begin
+      dtmCadastroFornecedores.IncluirFornecedor;
+      pgcFornecedores.ActivePage:= tstEndereco;
+    end
+  else
+    Result:= False;
+end;
+
+procedure TfrmCadastroFornecedores.sbnExcluirOpcoesClick(Sender: TObject);
+begin
+  dtmCadastroFornecedores.ExcluirSeriesFornecedores;
+end;
+
+function TfrmCadastroFornecedores.InternoPesquisar(Titulo: String): Integer;
+begin
+
+  if CtrlOn then
+  begin
+    if flkGrupo.Focused then Procura := pesGRUPOSFORNECEDORES;
+  end
+  else
+  begin
+    Procura := pesNENHUMA;
+    if fraConsultaFornecedores.InternoPesquisar(ctFornecedores) = mrOK then
+    begin
+      edfCodigo.text := fraConsultaFornecedores.ValorSelecionado;
+      with dtmCadastroFornecedores do
+         ReFazConsulta(qryFornecedores,[0], [fraConsultaFornecedores.ValorSelecionado]);
+    end;
+    self.SetFocus;
+
+  end;
+
+  if Procura <> pesNENHUMA then
+  begin
+    dtmCadastroFornecedores.AbrirTabelasConsulta(Procura);
+    Result:= inherited InternoPesquisar(Titulo);
+    if Result = mrOk then
+      dtmCadastroFornecedores.PosicionarTabelas(Procura);
+    dtmCadastroFornecedores.FecharTabelasConsulta(Procura);
+    Procura := pesNENHUMA;
+  end;
+
+end;
+
+function TfrmCadastroFornecedores.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result:= TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(result).ConsultaInterativa:= True;
+  TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := False;
+end;
+
+procedure TfrmCadastroFornecedores.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  case Key of
+    VK_RETURN: if (Shift = []) then
+    begin
+       if (ActiveControl = fraFax.edtNumero) then
+       begin
+         pgcFornecedores.ActivePage := tstInformacoes;
+         Key:= 0;
+       end
+       else if (ActiveControl = mmoObsrvacoes) then
+       begin
+         pgcFornecedores.ActivePage:= tstEndereco;
+         edtRazaoSocial.SetFocus;
+         Key:= 0;
+       End;
+     end
+     else if (Shift = [ssCtrl]) then
+     begin
+       if (ActiveControl = dbgGrupos) then
+       begin
+         pgcFornecedores.ActivePage:= tstObservacoes;
+         mmoObsrvacoes.SetFocus;
+         Key:= 0;
+       end
+     end;
+  end;
+  inherited;
+end;
+
+function TfrmCadastroFornecedores.TabelaDePesquisa: TZDataSet;
+begin
+  case Procura of
+    pesGRUPOSFORNECEDORES : Result := dtmCadastroFornecedores.ConsultaGruposFornecedores;
+    else                    Result:= Nil;
+  end;
+end;
+
+procedure TfrmCadastroFornecedores.edtEmailExit(Sender: TObject);
+begin
+  if not EmailValido(edtEmail.Text) then begin
+       edtEmail.SetFocus;
+       JaTestouEmail:= True;
+  end
+  else inherited;
+end;
+
+procedure TfrmCadastroFornecedores.dbgSerieFornecedorKeyPress(Sender: TObject; var Key: Char);
+begin
+  inherited;
+  if Key in ['a'..'z'] then
+    Key:= UpCase(Key);
+end;
+
+
+procedure TfrmCadastroFornecedores.edtDocumentoExit(Sender: TObject);
+begin
+  edtDocumento.Estado:= dtmCadastroFornecedores.EstadoFornecedor;
+  edtDocumento.Criticar;
+end;
+
+procedure TfrmCadastroFornecedores.sbnGrupoFornecedorClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkGrupo, ctGRUPODEFORNECEDOR);
+end;
+
+procedure TfrmCadastroFornecedores.fracgcoucpf1rgbTipoPessoaChange(Sender: TObject);
+begin
+  inherited;
+  if Assigned(fracgcoucpf1) then
+    fracgcoucpf1.edtCPFCNPJ.Tipo:= dtmCadastroFornecedores.TipoPessoa;
+end;
+
+procedure TfrmCadastroFornecedores.fracgcoucpf1edtCPFCNPJExit(Sender: TObject);
+begin
+  inherited;
+  if dtmCadastroFornecedores.FornecedorJaCadastrado(fracgcoucpf1.edtCPFCNPJ.Text) then
+    if fracgcoucpf1.edtCPFCNPJ.CanFocus then
+      fracgcoucpf1.edtCPFCNPJ.SetFocus;
+end;
+
+
+procedure TfrmCadastroFornecedores.actAbilitarUpdate(Sender: TObject);
+begin
+  inherited;
+  tstGrupos.TabVisible     := not dtmCadastroFornecedores.Inserindo and
+                              not dtmCadastroFornecedores.TabelaFornecedorVazia;
+
+  tstReinf.TabVisible :=   dtmCadastroFornecedores.qryFornecedorestipofornec_maoobra_l.AsBoolean or ckbTipoFornec_MaodeObra.Checked;
+
+end;
+
+procedure TfrmCadastroFornecedores.AcionaCadastroGrupos(Editando: Boolean);
+begin
+  frmCadastroFornecedoresGrupos := TfrmCadastroFornecedoresGrupos.Create(frmCadastroFornecedoresGrupos);
+  try
+    dtmCadastroFornecedores.IncluirFornecedoresGrupos(Editando);
+    frmCadastroFornecedoresGrupos.ShowModal
+  finally
+    frmCadastroFornecedoresGrupos.Free;
+  end
+end;
+
+procedure TfrmCadastroFornecedores.sbnIncluirGruposClick(Sender: TObject);
+begin
+  inherited;
+  AcionaCadastroGrupos(False);
+end;
+
+procedure TfrmCadastroFornecedores.sbnExcluirGruposClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroFornecedores.ExcluirFornecedoresGrupos;
+end;
+
+procedure TfrmCadastroFornecedores.dbgGruposKeyDown(Sender: TObject;
+          var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+    case Key of
+      TeclaInserirRegistro: AcionaCadastroGrupos(False);
+      TeclaEditarRegistro : AcionaCadastroGrupos(True);
+    end;
+end;
+
+procedure TfrmCadastroFornecedores.dbgGruposDblClick(Sender: TObject);
+begin
+  inherited;
+  AcionaCadastroGrupos(True);
+end;
+
+procedure TfrmCadastroFornecedores.OperacaoPadrao(Value: array of Variant);
+begin
+  inherited;
+  edfCodigo.SetFocus;
+  edfCodigo.Text := Value[0];
+  dtmCadastroFornecedores.ReFazConsultaFornecedor(Value[0]);
+end;
+
+
+procedure TfrmCadastroFornecedores.sbnExcluirContatoClick(Sender: TObject);
+begin
+  inherited;
+        dtmCadastroFornecedores.ExcluirFornecedoresContatos;
+end;
+
+procedure TfrmCadastroFornecedores.AcionaCadastroContatos(Editando: Boolean);
+begin
+  frmcadastrocontatos := Tfrmcadastrocontatos.Create(frmcadastrocontatos);
+  try
+    frmcadastrocontatos.DataSet := dtmCadastroFornecedores.qryContatosFornecedores;
+    frmcadastrocontatos.dsrContatos.DataSet := dtmCadastroFornecedores.qryContatosFornecedores;
+    if not editando then
+      frmcadastrocontatos.dsrContatos.DataSet.Append;
+      frmcadastrocontatos.ShowModal
+  finally
+    frmcadastrocontatos.Free;
+    edfCodigo.SetFocus;
+  end
+end;
+
+procedure TfrmCadastroFornecedores.dbgContatosDblClick(Sender: TObject);
+begin
+  inherited;
+    AcionaCadastroContatos(True);
+end;
+
+procedure TfrmCadastroFornecedores.dbgContatosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+    case Key of
+      TeclaInserirRegistro: AcionaCadastroContatos(False);
+      TeclaEditarRegistro : AcionaCadastroContatos(True);
+    end;
+end;
+
+procedure TfrmCadastroFornecedores.rgpTipoFornecimentoChange(
+  Sender: TObject);
+begin
+  inherited;
+  gbxRNTC.Visible          := ckbTipoFornec_Transporte.Checked;
+end;
+
+procedure TfrmCadastroFornecedores.dbgSerieFornecedorKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if CtrlOn then
+  begin
+    case Key of
+      VK_F9 : AcionaPesquisaGrade
+    end;
+  end
+  else
+  begin
+    case key of
+      VK_RETURN :
+      begin
+        case dbgSerieFornecedor.SelectedIndex of
+        1 : begin
+              if not fraConsultaModeloDocto.edfCodigo.Exist then
+                dbgSerieFornecedor.DataSource.DataSet.FieldByName('modelodoctofiscal').Clear;
+              dbgSerieFornecedor.SelectedIndex := 1;
+              dbgSerieFornecedor.SetFocus;
+            end;
+        end;
+        if dtmCadastroFornecedores.qrySeriesFornecedores.State in [dsedit, dsinsert] then
+           dtmCadastroFornecedores.qrySeriesFornecedores.Post;
+      end;
+    end;
+  end;
+
+end;
+
+procedure TfrmCadastroFornecedores.AcionaPesquisaGrade;
+begin
+  fraConsultaModeloDocto.CtrlOn := True;
+  dbgSerieFornecedor.SetFocus;
+  fraConsultaModeloDocto.InternoPesquisar('Modelo do Documento Fiscal');
+  dbgSerieFornecedor.SelectedIndex :=  1;
+end;
+
+procedure TfrmCadastroFornecedores.fracgcoucpf1rbnFisicaClick(
+  Sender: TObject);
+begin
+  inherited;
+  fracgcoucpf1.rbnFisicaClick(Sender);
+
+end;
+
+procedure TfrmCadastroFornecedores.sbnIncluirContatoClick(Sender: TObject);
+begin
+  inherited;
+    AcionaCadastroContatos(False);
+end;
+
+procedure TfrmCadastroFornecedores.btnIncluirObras_FornecedoresClick(
+  Sender: TObject);
+begin
+  inherited;
+  dbgObras_Fornecedores.DataSource.DataSet.Append;
+end;
+
+procedure TfrmCadastroFornecedores.btnExcluirObras_FornecedoresClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not dbgObras_Fornecedores.DataSource.DataSet.isempty then
+    dbgObras_Fornecedores.DataSource.DataSet.delete;
+
+end;
+
+procedure TfrmCadastroFornecedores.btnIncluirfornecedor_infoProcRetPrClick(
+  Sender: TObject);
+begin
+  inherited;
+  dbgfornecedor_infoProcRetPr.DataSource.DataSet.Append;
+end;
+
+procedure TfrmCadastroFornecedores.btnExcluirfornecedor_infoProcRetPrClick(
+  Sender: TObject);
+begin
+  inherited;
+
+  if (dbgfornecedor_infoProcRetPr.DataSource.DataSet.RecordCount<>0) then
+    dbgfornecedor_infoProcRetPr.DataSource.DataSet.Delete;
+
+end;
+
+procedure TfrmCadastroFornecedores.dbgObras_Fornecedores_CanAddRow(
+  Sender: TObject; var CanAdd: Boolean);
+begin
+  inherited;
+  CanAdd := dtmCadastroFornecedores.qryObras_Fornecedores.CheckRequiredFields;
+end;
+
+procedure TfrmCadastroFornecedores.dbgfornecedor_infoProcRetPrCanAddRow(
+  Sender: TObject; var CanAdd: Boolean);
+begin
+  inherited;
+  CanAdd := TtecQuery(dbgfornecedor_infoProcRetPr.DataSource.DataSet).CheckRequiredFields;
+end;
+
+procedure TfrmCadastroFornecedores.fcelConsultaSuspensaoExibilidadeTributosSetEditorFocus(
+  Sender: TObject; Grid: TAdvStringGrid; AControl: TWinControl);
+begin
+  inherited;
+  fraConsultaSuspensaoExibilidadeTributos.edfCodigo.SetFocus;
+end;
+
+procedure TfrmCadastroFornecedores.fcelConsultaProcessoJudicialReinfSetEditorFocus(
+  Sender: TObject; Grid: TAdvStringGrid; AControl: TWinControl);
+begin
+  inherited;
+  fraConsultaProcessoJudicialReinf.edfCodigo.SetFocus;
+end;
+
+procedure TfrmCadastroFornecedores.AtribuirDadosSuspensaoExibilidadeTributos_pr;
+begin
+  dtmCadastroFornecedores.AtribuirDadosSuspensaoExibilidadeTributos_pr(fraConsultaSuspensaoExibilidadeTributos.qryProcuraSuspensaoExibilidadeTributos)
+end;
+
+procedure TfrmCadastroFornecedores.AtribuirDadosSuspensaoExibilidadeTributos_ad;
+begin
+  dtmCadastroFornecedores.AtribuirDadosSuspensaoExibilidadeTributos_ad(fraConsultaSuspensaoExibilidadeTributos.qryProcuraSuspensaoExibilidadeTributos)
+end;
+
+procedure TfrmCadastroFornecedores.btnIncluirfornecedor_infoProcRetPrAdClick(
+  Sender: TObject);
+begin
+  inherited;
+  dbgfornecedor_infoProcRetPrAd.DataSource.DataSet.Append;
+end;
+
+procedure TfrmCadastroFornecedores.btnExcluirfornecedor_infoProcRetPrAdClick(
+  Sender: TObject);
+begin
+  inherited;
+
+
+  if (dbgfornecedor_infoProcRetPrAd.DataSource.DataSet.RecordCount<>0) then
+    dbgfornecedor_infoProcRetPrAd.DataSource.DataSet.delete;
+
+end;
+
+procedure TfrmCadastroFornecedores.fcelConsultaProcessoJudicialReinf_AdSetEditorFocus(
+  Sender: TObject; Grid: TAdvStringGrid; AControl: TWinControl);
+begin
+  inherited;
+  fraConsultaProcessoJudicialReinf_Ad.edfCodigo.SetFocus;
+end;
+
+procedure TfrmCadastroFornecedores.fcelConsultaSuspensaoExibilidadeTributos_AdSetEditorFocus(
+  Sender: TObject; Grid: TAdvStringGrid; AControl: TWinControl);
+begin
+  inherited;
+  fraConsultaSuspensaoExibilidadeTributos_Ad.edfCodigo.SetFocus;
+end;
+
+procedure TfrmCadastroFornecedores.dbgfornecedor_infoProcRetPrKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+;
+end;
+
+procedure TfrmCadastroFornecedores.dbgObras_FornecedoresCanAddRow(
+  Sender: TObject; var CanAdd: Boolean);
+begin
+  inherited;
+  CanAdd := TtecQuery(dbgObras_Fornecedores.DataSource.DataSet).CheckRequiredFields;
+end;
+
+procedure TfrmCadastroFornecedores.dbgfornecedor_infoProcRetPrAdCanAddRow(
+  Sender: TObject; var CanAdd: Boolean);
+begin
+  inherited;
+  CanAdd := TtecQuery(dbgfornecedor_infoProcRetPrAd.DataSource.DataSet).CheckRequiredFields;
+end;
+
+procedure TfrmCadastroFornecedores.ckbDDA__Click(Sender: TObject);
+begin
+
+  ckbDDA__.Checked := not dtmCadastroFornecedores.qryFornecedoresdda.AsBoolean;
+  inherited;
+
+  with dtmCadastroFornecedores do
+  begin
+    if (dtmCadastroFornecedores.qryfornecedores.state in [dsBrowse, dsedit]) then
+    begin
+      if ckbDDA__.Checked then
+      begin
+        case  MensagemSelecionaOpcao('Deseja setar todas as duplicatas em aberto para este fornecedor como "dda"?') of
+          smbYES     : qryFornecedoresconfirmacaodda.asBoolean := true;
+          smbNo      : qryFornecedoresconfirmacaodda.asBoolean := false;
+          smbCancel  : begin
+                          ckbDDA__.onClick := nil;
+                          ckbDDA__.Checked := not ckbDDA__.Checked;
+                          ckbDDA__.onClick := ckbDDA__Click;
+                        end;
+        end;
+      end
+      else
+      begin
+        case  MensagemSelecionaOpcao('Deseja desmarcar o "dda" de todas as duplicatas em aberto para este fornecedor?') of
+          smbYES     : qryFornecedoresconfirmacaodda.asBoolean := true;
+          smbNo      : qryFornecedoresconfirmacaodda.asBoolean := false;
+          smbCancel  : begin
+                          ckbDDA__.onClick := nil;
+                          ckbDDA__.Checked := not ckbDDA__.Checked;
+                          ckbDDA__.onClick := ckbDDA__Click;
+                        end;
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmCadastroFornecedores.ReFazConsultaFornecedor(
+  Value: array of Variant);
+begin
+  if dtmCadastroFornecedores.qryFornecedorescodigo.asinteger = Value[0] then
+  begin
+    self.BringToFront;
+    InternoCancelar(false);
+    edfCodigo.Exist;
+  end;
+
+end;
+
+end.
+

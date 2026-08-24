@@ -1,0 +1,1589 @@
+unit cpquery;
+
+interface
+
+uses
+  //CLX
+  Classes, DB,
+  //Componentes
+  constants,
+  //Terceiros
+  ZQuery, ZPgSqlQuery, forms,  TypInfo, cppagecontrol,ComCtrls, cpdbtext,
+  ZSqlTypes, ZSqlItems, variants, ctconstantes, DBAdvGrid, SysUtils,
+  DBClient, Contnrs, AdvPageControl, jsons;
+
+type
+
+  T_MD5  = class
+  private
+    fValorMD5: String;
+    fidentifier: String;
+    fListFieldNames: String ;
+    fAllRecords: Boolean;
+    fkey: String;
+  protected
+  public
+    constructor Create;
+    property identifier : String read fidentifier write fidentifier;
+    property ValorMD5 : String read fValorMD5 write fValorMD5;
+    property ListFieldNames : String read fListFieldNames write fListFieldNames;
+    property key: String read fkey write fkey;
+    property AllRecords : Boolean read fAllRecords write fAllRecords;
+  end;
+
+  T_MD5Itens = class(TObjectList)
+  private
+    function GetItem(Index: integer): T_MD5;
+    procedure SetItem(Index: integer; const Value: T_MD5);
+  public
+//    procedure Insert(Index: integer; AObject: T_MD5);
+ //   function Add(AObject: T_MD5): integer;
+    function New: T_MD5;
+    property Items[Index: integer]: T_MD5 read GetItem write SetItem;  default;
+  end;
+
+  TListBookmarksItems = ^TBookMark;
+
+  TtecQuery = class;
+
+  TtecQuery = class(TZPgSqlQuery)
+  private
+    ListBookmarks : array of pointer;
+    FAfter_Open: TNotifyEvent;
+
+    //FBefore_Edit: TtecProcedure;
+
+    FAfter_Post: TtecProcedure;
+    fBloquearOrdenacao: boolean;
+    fRegistroAtual_: TBookMark;
+    FQtdeMarcados: Integer;
+    FTotalMarcados: Real;
+    fJson: tjson;
+//    fMD5Itens: T_MD5Itens;
+
+//    fFocarObjeto: TtecNotifyCheckValue;
+    procedure SetText(Sender: TField; const Text:   String);
+    procedure GetTextFloat(Sender: TField;
+      var Text: String; DisplayText: Boolean);
+    function GetQtdeMarcados: Integer;
+    function GetTotalMarcados: Real;
+    function GetRegistroAtual_: TBookMark;
+//    procedure SetMD5Itens(const Value: T_MD5Itens);
+
+
+  protected
+    md5 : String;
+    qryMD5: TtecQuery;
+    FPrivilege: TtecSetPrivilege;
+    TArrayBookMarks : array of TListBookmarksItems;
+    procedure DoAfterOpen; override;
+    procedure DoBeforeOpen; override;
+//    procedure DoBeforeEdit; override;
+    procedure DoAfterPost; override;
+    procedure InternalDelete; override;
+    procedure InternalEdit; override;
+    procedure InternalInsert; override;
+    procedure InternalPost; override;
+    procedure OpenCursor(InfoQuery: Boolean = False); override;
+
+    procedure CheckFieldCompatibility(Field: TField; FieldDef: TFieldDef); override;
+    function PSGetUpdateException(E: Exception; Prev: EUpdateError): EUpdateError; override;
+//    function IsSequenced: Boolean; override;
+    procedure SalvarValorMD5(pIdentifier, pListFieldNames, pkey, pValorMD5: String; pallrecords: Boolean);
+    procedure AbrirMD5(pIdentifier, pkey: String);
+  public
+    v_ordenacao : String;
+    vstAscending : Boolean;
+
+
+
+    procedure PosicionarCursor(objeto: tcomponent; nomefield: String; nomeDataSet: String; pPosicionarCursor: Boolean);
+
+    function CheckRequiredFields(Todos: Boolean = false; VerificarTabelaVazia: Boolean = false; ExibirMensagem: Boolean = true;
+             pOwner: TComponent = nil;
+             pPosicionarCursor: Boolean = true): Boolean;
+
+    procedure OcultarColunasGrid;
+
+    constructor Create(AOwner: TComponent); override;
+    property Privilege: TtecSetPrivilege read FPrivilege write FPrivilege;
+    property After_Open: TNotifyEvent read FAfter_Open write FAfter_Open;
+    procedure SaveToFile(FileName: string; AcrescentaraoArquivo: Boolean; SomenteVisiveis: Boolean; CamposEspecificos: String;
+                               Separador: String = '"'; Delimitador: String = ';'; incluirCabecalho: boolean = true;
+                               NuloQuandoNULL: Boolean = false; BooleanExtenso: boolean = false; FalseQuandoBooleanNULL : boolean = false;
+                               ContratolarCaracteresEspeciais: boolean = false;
+                               DelimitadornoUltimoCampo: boolean = false;
+                               DecimalehVirgual: boolean = false;
+                               FormatoData: String = 'yyyy-mm-dd'); reintroduce;
+
+//    property Before_Edit: TtecProcedure read FBefore_Edit write FBefore_Edit;
+    property After_Post: TtecProcedure read FAfter_Post write FAfter_Post;
+    property BloquearOrdenacao: boolean read fBloquearOrdenacao write fBloquearOrdenacao;
+
+    procedure DesativarOrdenacao;
+    procedure AtivarOrdenacao;
+    procedure GuardarRegistroAtual(DesligarControles: Boolean; LigarControles: Boolean = False);
+    procedure VoltarRegistro;
+    property RegistroAtual_: TBookMark read GetRegistroAtual_ write fRegistroAtual_;
+
+    property QtdeMarcados:   Integer read GetQtdeMarcados  write FQtdeMarcados;
+    property TotalMarcados:  Real    read GetTotalMarcados write FTotalMarcados;
+
+
+    procedure MarcarRegistros(DS: TClientDataSet;
+                              CampoMarcar: TBooleanField;
+                              Marcando:    Boolean;
+                              MarcarTodos: Boolean;
+                              DesabilitarControles: Boolean = true); overload;
+
+    procedure MarcarRegistros(DS: TtecQuery;
+                              CampoMarcar: TBooleanField;
+                              Marcando:    Boolean;
+                              MarcarTodos: Boolean;
+                              DesabilitarControles: Boolean = true); overload;
+
+
+    procedure CalcularMD5(pIdentifier: String; pListFieldNames: String;
+                  pKey: String;
+                  pAllRecords: Boolean; Salvar: Boolean = True);
+
+//    property MD5Itens: T_MD5Itens read fMD5Itens write fMD5Itens;
+
+    Function ExisteDiferencaMD5(pIdentifier, pkey: String): Boolean;
+
+    property Json: tjson read fJson write fJson;
+
+    function ToJSON: String; overload;
+    function toJSON(Nome, Valor, Tipo: String; CampoBooleanMesclar: String = ''): String; overload;
+
+
+//    property FocarObjeto: TtecNotifyCheckValue read fFocarObjeto write fFocarObjeto;
+
+  end;
+
+
+implementation
+
+uses
+  //CLX
+
+  //biblio
+  biblio,
+  cpdbgrid,
+  clparametrossistema;
+
+  { TtecQuery }
+//(Fields[I].DataType = ftString) and (Fields[I].AsString = '')
+
+
+
+procedure TtecQuery.PosicionarCursor(objeto: tcomponent; nomefield: String; nomeDataSet: String; pPosicionarCursor: Boolean);
+var
+  j: Integer;
+  PropInfo: PPropInfo;
+  comp, compparent : tcomponent;
+  vobjeto : tcomponent;
+
+  procedure PosicionarPage;
+  begin
+    compparent  := comp;
+    repeat
+      compparent := compparent.GetParentComponent;
+      if (compparent is TTabSheet) then
+      begin
+        if TTabSheet(compparent).TabVisible then
+        begin
+          if compparent.GetParentComponent is ttecpagecontrol then
+            ttecpagecontrol(compparent.GetParentComponent).ActivePage := TTabSheet(compparent)
+          else
+            tpagecontrol(compparent.GetParentComponent).ActivePage := TTabSheet(compparent);
+        end;
+      end
+      else
+      if (compparent is TAdvTabSheet) then
+      begin
+        if TAdvTabSheet(compparent).TabVisible then
+          tAdvPageControl(compparent.GetParentComponent).ActivePage := TAdvTabSheet(compparent);
+      end
+
+
+    until (Compparent is TForm) or (compparent = nil);
+  end;
+
+begin
+  vobjeto := objeto;
+  for J := vobjeto.ComponentCount-1 downto 0 do
+  begin
+    comp := vobjeto.components[j];
+
+    if comp is TDBAdvGrid then
+    begin
+      
+      if TDBAdvGrid(comp).DataSource <> nil then
+        if TDBAdvGrid(comp).DataSource.DataSet <> nil then
+          if TDBAdvGrid(comp).DataSource.DataSet.Name = nomeDataSet then
+          begin
+            PosicionarPage;
+            TDBAdvGrid(comp).SetFocus;
+
+            if TDBAdvGrid(comp).ColumnByFieldName[nomefield] <> nil then
+            begin
+              TDBAdvGrid(comp).col := TDBAdvGrid(comp).ColumnByFieldName[nomefield].Index;
+              TDBAdvGrid(comp).Row := self.RecNo;
+              TDBAdvGrid(comp).repaint;
+//                Application.ProcessMessages;
+            end;
+
+            break;
+          end;
+
+    end;
+
+    if pPosicionarCursor then
+    begin
+
+      if (comp.InheritsFrom(TFrame))  then
+        PosicionarCursor(comp, nomefield, nomeDataSet, pPosicionarCursor);
+
+      PropInfo := GetPropInfo(comp.ClassInfo, 'DataField');
+
+      if PropInfo <> nil then
+      begin
+        if (GetPropValue(comp, 'DataField') = nomefield) then
+          if (TDataSource(Integer(GetPropValue(Comp, 'DataSource'))).DataSet.Name = nomeDataSet)  then
+          begin
+            PosicionarPage;
+
+//            if (GetPropValue(comp, 'Enabled') = True) then
+              break;
+
+          end;
+      end;
+
+
+
+    end;
+
+  end;
+
+  if pPosicionarCursor then
+    self.fieldbyname(nomefield).FocusControl;
+end;
+
+
+function TtecQuery.CheckRequiredFields(Todos: Boolean = false;
+           VerificarTabelaVazia: Boolean = false;
+           ExibirMensagem: Boolean = true;
+           pOwner: TComponent = nil;
+           pPosicionarCursor: Boolean = true): Boolean;
+var
+ k: integer;
+
+
+  function inValidField(Campo: Integer): Boolean;
+  var
+    vConteudoCampo, vConteudoExpressao : String;
+  begin
+    case Fields[Campo].DataType of
+      ftString  :
+      begin
+        vConteudoCampo := Fields[Campo].AsString;
+        vConteudoExpressao := Fields[Campo].DefaultExpression;
+
+        Result := (Trim(vConteudoCampo) = '') and not (vConteudoExpressao=quotedstr(''));
+      end
+      else        Result:= False;
+    end
+  end;
+
+
+  function Verificar: boolean;
+  var
+   I: Integer;
+
+  begin
+    Result := True;
+
+{
+    if self.active and
+       (not self.IsEmpty or (self.IsEmpty and VerificarTabelaVazia)) then
+
+       }
+
+    if self.active and
+       ((self.recordcount<>0) or ((self.recordcount=0) and VerificarTabelaVazia)) then
+
+    begin
+
+      if State in dsEditModes then
+        UpdateRecord;
+
+      for I := 0 to Fields.Count - 1 do
+        if Fields[I].Required and not Fields[I].ReadOnly and (Fields[I].FieldKind = fkData) and
+          (Fields[I].IsNull or inValidField(I)) then
+          begin
+
+            if pPosicionarCursor then
+            begin
+              if Assigned(pOwner) then
+                PosicionarCursor(powner, Fields[i].FieldName, self.name, pPosicionarCursor )
+              else
+              if assigned(self.owner.owner) then
+                PosicionarCursor(self.owner.owner, Fields[i].FieldName, self.name, pPosicionarCursor );
+
+              Fields[I].FocusControl;
+            end;
+
+
+            if Fields[I].tag = 0 then  //Somente campos com Tag 0 impedem a grava~ção
+            begin
+              if ExibirMensagem then
+                MensagemAviso(ctCODIGONECESSARIO + ' e o campo "' + Fields[I].DisplayLabel + #13#10 + '" não está preenchido com uma informação válida.');
+              Result := False;
+              break;
+            end
+            else
+            begin
+              if ExibirMensagem then
+                MensagemAviso( 'O campo "' + Fields[I].DisplayLabel + #13#10 + '" não está preenchido.');
+
+              result := true;
+            end;
+        end;
+    end;
+  end;
+
+  function VerificarTabela: boolean;
+  begin
+    if VerificarTabelaVazia and (self.recordcount = 0) then
+      result := Verificar
+    else
+    begin
+      first;
+      while not eof do
+      begin
+        if result then
+        begin
+          result := Verificar;
+          if not result then
+            break;
+        end
+        else
+          break;
+        next;
+      end;
+    end;
+  end;
+
+begin
+  result := true;
+  if self.active then
+  begin
+
+    if todos then
+    begin
+      if self.MasterSource <> nil then
+      begin
+        self.MasterSource.DataSet.first;
+        while not self.MasterSource.DataSet.eof do
+        begin
+          if result then
+          begin
+            result := VerificarTabela;
+            if not result then
+              break;
+          end
+          else
+            break;
+          self.MasterSource.DataSet.next;
+        end;
+      end
+      else
+        result := VerificarTabela;
+    end
+    else
+    begin
+      if result then
+        result := Verificar;
+    end;
+  end;
+end;
+
+constructor TtecQuery.Create(AOwner: TComponent);
+begin
+  inherited;
+  Tag := -1;
+  self.Options := [{doHourGlass,} doAutoFillDefs];
+//  MD5Itens := T_MD5Itens.Create(True);
+end;
+
+procedure TtecQuery.SetText(Sender: TField;
+                      const Text:   String);
+begin
+   If DataEmBranco(Text) Then
+      Sender.AsString := ''
+   Else
+      Sender.AsString := Text
+end;
+
+procedure TtecQuery.DoAfterOpen;
+var NN: Integer;
+begin
+   inherited;
+
+   TArrayBookMarks := nil;
+
+   self.Options := [doAutoFillDefs];
+
+   For NN:=0 to FieldList.Count-1 do
+   begin
+     case FieldList[NN].DataType of
+     {ftInteger,} ftWord,ftCurrency,ftFloat:
+     begin
+
+       If (TNumericField(FieldList[NN]).DisplayFormat = '') Then
+       begin
+          FieldList[NN].Alignment := taRightJustify;
+          Case FieldList[NN].DataType of
+            ftInteger,
+            ftWord,
+            ftSmallInt: TNumericField(FieldList[NN]).DisplayFormat := '0';
+
+            ftCurrency,
+            ftFloat:    TFloatField(FieldList[NN]).DisplayFormat := '0.00';
+          end;
+       end;
+
+       Case FieldList[NN].DataType of
+         ftFloat: begin
+                    if (pos('.',TFloatField(FieldList[NN]).DisplayFormat)= 0) and
+                       (TFloatField(FieldList[NN]).DisplayFormat = parsistema.mascaraquantidade) then
+                      TFloatField(FieldList[NN]).OnGetText := GetTextFloat;
+                  end;
+       end;
+
+     end;
+     ftDate:
+       If (TDateField(FieldList[NN]).EditMask = '') Then begin
+          FieldList[NN].Alignment := taCenter;
+          TDateField(FieldList[NN]).EditMask := '99/99/9999;1; ';
+          TDateField(FieldList[NN]).OnSetText := SetText;
+       end;
+     ftTime:
+       If (TTimeField(FieldList[NN]).EditMask = '') Then begin
+          FieldList[NN].Alignment := taCenter;
+          TTimeField(FieldList[NN]).EditMask := '99:99;1; ';
+          TTimeField(FieldList[NN]).OnSetText := SetText;
+       end;
+     ftDateTime:
+       If (TTimeField(FieldList[NN]).EditMask = '') Then begin
+          FieldList[NN].Alignment := taCenter;
+          TTimeField(FieldList[NN]).EditMask := '99/99/99 99:99;1; ';
+          TTimeField(FieldList[NN]).DisplayFormat := 'dd/MM/yy hh:mm';
+
+          TTimeField(FieldList[NN]).OnSetText := SetText;
+       end;
+
+     end;
+   end;
+
+   if assigned(FAfter_Open) then
+     FAfter_Open(self);
+end;
+
+procedure TtecQuery.InternalDelete;
+begin
+//  if pvDELETE in Privilege then
+    inherited InternalDelete;
+end;
+
+procedure TtecQuery.InternalEdit;
+begin
+//  if pvUPDATE in Privilege then
+    inherited InternalEdit;
+end;
+
+procedure TtecQuery.InternalInsert;
+var
+  a: Integer;
+begin
+//  if pvINSERT in Privilege then
+  inherited InternalInsert;
+  for a := 0 to Fields.Count - 1 do 
+    Fields[a].Clear
+end;
+
+procedure TtecQuery.InternalPost;
+begin
+(*  if CheckRequiredFields then
+    inherited InternalPost
+  else
+    Abort;
+*) inherited InternalPost;
+end;
+
+procedure TtecQuery.OpenCursor(InfoQuery: Boolean);
+begin
+  if InfoQuery then
+    inherited
+  else //if pvSELECT in Privilege then
+    inherited;
+end;
+
+procedure TtecQuery.SaveToFile(FileName: string; AcrescentaraoArquivo: Boolean; SomenteVisiveis: Boolean; CamposEspecificos: String;
+                               Separador: String = '"'; Delimitador: String = ';'; incluirCabecalho: boolean = true;
+                               NuloQuandoNULL: Boolean = false; BooleanExtenso: boolean = false; FalseQuandoBooleanNULL : boolean = false;
+                               ContratolarCaracteresEspeciais: boolean = false;
+                               DelimitadornoUltimoCampo: boolean = false;
+                               DecimalehVirgual: boolean = false;
+                               FormatoData: String = 'yyyy-mm-dd');
+{ CamposEspecificos : formato  '"nomedocampo1","nomedocampo2"'}
+var
+  I, J, k: Integer;
+  Buffer : string;
+  RecordData: PRecordData;
+  FieldDesc: PFieldDesc;
+  Stream: TFileStream;
+  ValordoCampo : Variant;
+  ListadeCampos: TStringList;
+  vNomedoCampo: String;
+
+begin
+  QueryRecords(True);
+
+// itSDS Feldnamen als Überschrift ausgeben !!
+
+  if CamposEspecificos <> '' then
+  begin
+    ListadeCampos := TStringList.Create;
+    vNomedoCampo := '';
+    for i:=1 to length(CamposEspecificos) do
+    begin
+      if (CamposEspecificos[i] <> '"') and
+         (CamposEspecificos[i] <> ';') then
+        vNomedoCampo := vNomedoCampo + CamposEspecificos[i];
+
+      if (CamposEspecificos[i] = ';') or (i = length(CamposEspecificos)-1) then
+      begin
+        ListadeCampos.Append(vnomedocampo);
+        vNomedoCampo := '';
+      end;
+    end;
+  end;
+
+  self.Options := [{doHourGlass,} doQueryAllRecords, doAutoFillDefs];
+
+  try
+
+    if not AcrescentaraoArquivo then
+    begin
+      DeleteFile(FileName);
+      Stream := TFileStream.Create(FileName, fmCreate);
+    end
+    else
+    begin
+      if fileexists(Filename) then
+        Stream := TFileStream.Create(FileName, fmOpenWrite)
+      else
+        Stream := TFileStream.Create(FileName, fmCreate);
+    end;
+
+    if self.SqlBuffer.Count > 0 then
+    begin
+      if incluirCabecalho then
+      begin
+        if CamposEspecificos<>'' then
+        begin
+          Buffer := '';
+          for i := 0 to ListadeCampos.count-1 do
+          begin
+            if i > 0 then
+              Buffer := Buffer + Delimitador;
+
+            for J := 0 to self.FieldCount-1 do
+            begin
+              if (uppercase(self.Fields[j].FieldName) = uppercase(ListadeCampos[i])) then
+              begin
+                Buffer := Buffer + separador + self.Fields[J].FieldName + separador;
+                break;
+              end;
+            end;
+          end;
+
+          if DelimitadornoUltimoCampo then
+            Buffer := Buffer + Delimitador;
+
+          Buffer := Buffer + #13#10;
+
+          Stream.Write(PChar(Buffer)^, Length(Buffer));
+        end
+        else
+        begin
+
+          Buffer := '';
+          for J := 0 to self.FieldCount-1 do begin
+            if (self.Fields[j].visible and SomenteVisiveis) or not SomenteVisiveis  then
+            begin
+              if J > 0 then
+                Buffer := Buffer + Delimitador;
+              Buffer := Buffer + separador + self.Fields[J].FieldName + separador;
+            end;
+          end;
+
+          if DelimitadornoUltimoCampo then
+            Buffer := Buffer + Delimitador;
+
+          Buffer := Buffer + #13#10;
+          Stream.Write(PChar(Buffer)^, Length(Buffer));
+        end;
+      end;
+    end;
+
+
+    for I := 0 to self.SqlBuffer.Count-1 do
+    begin
+      if CamposEspecificos <> '' then
+      begin
+        Buffer := '';
+        RecordData := self.SqlBuffer[I];
+        if I > 0 then Buffer := Buffer + #13#10;
+
+        for k := 0 to ListadeCampos.count-1 do
+        begin
+          if k > 0 then
+            Buffer := Buffer + Delimitador;
+
+          for J := 0 to self.SqlBuffer.SqlFields.Count-1 do
+          begin
+            FieldDesc := self.SqlBuffer.SqlFields[J];
+            if (uppercase(FieldDesc.FieldObj.FieldName) = uppercase(ListadeCampos[k])) then
+            begin
+
+              Valordocampo := '';
+              if not (FieldDesc.FieldType in [ftInteger, ftSmallInt, ftFloat, ftAutoInc, ftCurrency{$IFNDEF VER100}, ftLargeInt{$ENDIF}, ftBCD])
+                 and not self.SqlBuffer.GetFieldNull(FieldDesc, RecordData) then
+              begin
+                Valordocampo := ZSqlTypes.StringToSql(self.SqlBuffer.GetField(FieldDesc, RecordData));
+
+                if BooleanExtenso and (FieldDesc.FieldType in [ftboolean])  then
+                begin
+                  if ValordoCampo = 'f' then
+                    ValordoCampo := 'False'
+                  else
+                    ValordoCampo := 'True';
+                end;
+
+                if (FormatoData <> 'yyyy-mm-dd') and (FieldDesc.FieldType in [ftdate, ftdatetime])  then
+                begin
+                  if (ValordoCampo <> '') and (valordoCampo <> 'NULL') then
+                    ValordoCampo := formatdatetime(formatodata, strtodate(copy(Valordocampo,9,2)+'/'+copy(ValordoCampo,6,2)+'/'+copy(ValordoCampo,1,4)));
+                end;
+
+                if ContratolarCaracteresEspeciais and  (FieldDesc.FieldType in [ftString])  then
+                  ValordoCampo := TagControls(ValordoCampo);
+
+              end
+              else
+              begin
+                Valordocampo :=  self.SqlBuffer.GetField(FieldDesc, RecordData);
+
+                if DecimalehVirgual and (FieldDesc.FieldType in [ftFloat, ftCurrency]) then
+                  ValordoCampo := trocar(Valordocampo,'.',',');
+
+                if FalseQuandoBooleanNULL and (FieldDesc.FieldType in [ftBoolean]) and (ValordoCampo='NULL') then
+                  ValordoCampo := 'False';
+              end;
+
+              if (ValordoCampo = 'NULL') and NuloQuandoNULL and self.SqlBuffer.GetFieldNull(FieldDesc, RecordData) then
+                Valordocampo := '';
+
+              Buffer := Buffer + Separador + ValordoCampo + Separador;
+              break;
+            end;
+          end;
+        end;
+      end
+      else
+      begin
+
+        Buffer := '';
+        RecordData := self.SqlBuffer[I];
+        if I > 0 then Buffer := Buffer + #13#10;
+
+        for J := 0 to self.SqlBuffer.SqlFields.Count-1 do
+        begin
+          FieldDesc := self.SqlBuffer.SqlFields[J];
+          if (FieldDesc.FieldObj.visible and SomenteVisiveis) or not SomenteVisiveis then
+          begin
+
+            if J > 0 then
+              Buffer := Buffer + Delimitador;
+
+            Valordocampo := '';
+
+            if not (FieldDesc.FieldType in [ftInteger, ftSmallInt, ftFloat, ftAutoInc, ftCurrency{$IFNDEF VER100}, ftLargeInt{$ENDIF}, ftBCD])
+               and not self.SqlBuffer.GetFieldNull(FieldDesc, RecordData) then
+            begin
+              Valordocampo := ZSqlTypes.StringToSql(self.SqlBuffer.GetField(FieldDesc, RecordData));
+
+              if BooleanExtenso and (FieldDesc.FieldType in [ftboolean])  then
+              begin
+                if ValordoCampo = 'f' then
+                  ValordoCampo := 'False'
+                else
+                  ValordoCampo := 'True';
+              end;
+
+              if (FormatoData <> 'yyyy-mm-dd') and (FieldDesc.FieldType in [ftdate, ftdatetime])  then
+              begin
+                if (ValordoCampo <> '') and (valordoCampo <> 'NULL') then
+                  ValordoCampo := formatdatetime(formatodata, strtodate(copy(Valordocampo,9,2)+'/'+copy(ValordoCampo,6,2)+'/'+copy(ValordoCampo,1,4)));
+              end;
+
+            end
+            else
+              Valordocampo :=  self.SqlBuffer.GetField(FieldDesc, RecordData);
+
+            if (ValordoCampo = 'NULL') and NuloQuandoNULL and self.SqlBuffer.GetFieldNull(FieldDesc, RecordData) then
+              Valordocampo := '';
+
+            Buffer := Buffer + Separador + ValordoCampo + Separador;
+          end;
+        end;
+
+      end;
+
+      if DelimitadornoUltimoCampo then
+        Buffer := Buffer + Delimitador;
+
+      Stream.Write(PChar(Buffer)^, Length(Buffer));
+    end;
+
+  finally
+
+    stream.free;
+    self.Options := [doAutoFillDefs];
+
+  end;
+end;
+
+
+
+procedure TtecQuery.DoBeforeOpen;
+begin
+  inherited;
+  self.Options := [doHourGlass, doAutoFillDefs];
+end;
+
+
+
+procedure TtecQuery.DoAfterPost;
+begin
+  inherited;
+  try
+    if assigned(FAfter_Post) then
+      if not BloquearOrdenacao and not ControlsDisabled then
+          FAfter_Post;
+  except
+  end;      
+
+end;
+
+
+{
+procedure TtecQuery.DoBeforeEdit;
+begin
+  inherited;
+
+  if assigned(FBefore_Edit) then
+    FBefore_Edit;
+end;
+
+}
+
+{
+function TtecQuery.IsSequenced: Boolean;
+begin
+  result := false;
+end;
+}
+
+
+
+procedure TtecQuery.OcultarColunasGrid;
+  var
+  i,j,k: Integer;
+  PropInfo: PPropInfo;
+  comp, compparent : tcomponent;
+  vobjeto : tcomponent;
+  visivel : Boolean;
+  vNomeCAmpo : String;
+
+begin
+
+  vObjeto := self.owner.owner;
+  for J := vobjeto.ComponentCount - 1 downto 0 do
+  begin
+    comp := vobjeto.components[j];
+    if (comp is TtecDBGrid) then
+    begin
+      if (TtecDBGrid(comp).datasource.dataset.name = self.name) and
+         TtecDBGrid(comp).ShowWhenFieldInvisible AND
+         (TtecDBGrid(comp).datasource.dataset.recordcount<>0) then
+      begin
+        for i:=0 to TtecDBGrid(comp).columns.count -1 do
+        begin
+//          vNomeCampo := TtecDBGrid(comp).columns[i].fieldname;
+//          for k:=0 to self.datasource.dataset.fieldcount
+          visivel := self.fieldbyname(TtecDBGrid(comp).columns[i].fieldname).visible;
+          TtecDBGrid(comp).columns[i].visible := visivel;
+        end;
+      end;
+    end;
+  end;
+
+end;
+
+procedure TtecQuery.AtivarOrdenacao;
+begin
+  if v_ordenacao <> '' then
+  begin
+    if vstAscending then
+      self.sortbyfield(v_ordenacao)
+    else
+      self.SortDescByField(v_ordenacao);
+  end;
+end;
+
+procedure TtecQuery.DesativarOrdenacao;
+var
+i: integer;
+begin
+
+  v_ordenacao := '';
+  for i:=0 to TZDataset(self).SqlBuffer.SortFieldCount - 1 do
+    v_ordenacao := v_ordenacao + TZDataset(self).fields[TZDataset(self).SqlBuffer.SortFields[i]].FieldName + ',';
+
+  if v_ordenacao <> '' then
+  begin
+    if (Copy(v_ordenacao,length(v_ordenacao),1)=',') then
+      system.delete(v_ordenacao, length(v_ordenacao),1);
+
+    vstAscending := self.SQLBuffer.SortType = stAscending;
+
+    self.SortClear;
+    self.SqlBuffer.SortFieldCount := 0;
+
+  end;
+
+
+end;
+
+procedure TtecQuery.GuardarRegistroAtual(DesligarControles: Boolean; LigarControles: Boolean = False);
+var
+  vTam : integer;
+begin
+ fRegistroAtual_ := self.GetBookmark;
+ if fRegistroAtual_ <> nil then
+ begin
+   vTam := length(TArrayBookMarks)+1;
+   SetLength(TArrayBookMarks,vTam);
+   TArrayBookMarks[vTam-1] := fRegistroAtual_;
+ end;
+
+ if DesligarControles then
+   self.DisableControls;
+
+ if LigarControles then
+   self.EnableControls;
+
+
+end;
+
+procedure TtecQuery.VoltarRegistro;
+begin
+  if self.Bookmarkvalid(RegistroAtual_) then
+  begin
+    self.GotoBookmark(fRegistroAtual_);
+    self.FreeBookmark(fRegistroAtual_);
+  end;
+
+  self.EnableControls;
+end;
+
+
+{
+const
+  CheckTypeSizesSmaller = [ftString, ftFixedChar, ftWideString];
+begin
+  with Field do
+  begin
+    if ((DataType in CheckTypeSizesSmaller) and (Size <> FieldDef.Size) and not ReadOnly) then
+      Size := FieldDef.Size;
+  end;
+end;
+}
+
+procedure TtecQuery.CheckFieldCompatibility(Field: TField;
+  FieldDef: TFieldDef);
+var
+  vDisplayWidth: integer;
+
+const
+  CheckTypeSizesSmaller = [ftString, ftFixedChar, ftWideString];
+
+begin
+  inherited;
+
+  with Field do
+  begin
+    if ((DataType in CheckTypeSizesSmaller) and (Size <> FieldDef.Size) and not ReadOnly) then
+    begin
+      vDisplayWidth :=  DisplayWidth;
+      Size := FieldDef.Size;
+      DisplayWidth := vDisplayWidth;
+    end;
+  end;
+
+end;
+
+function TtecQuery.PSGetUpdateException(E: Exception;
+  Prev: EUpdateError): EUpdateError;
+begin
+;
+end;
+
+procedure TtecQuery.GetTextFloat(Sender: TField; var Text: String;
+  DisplayText: Boolean);
+begin
+  text := FormatarQuantidade(truncar(TFloatField(sender).value,0));
+end;
+
+procedure TtecQuery.MarcarRegistros(
+  DS: TClientDataSet;
+  CampoMarcar: TBooleanField;
+  Marcando, MarcarTodos, DesabilitarControles: Boolean);
+
+  var Pos: TBookmark;
+    I, J:   Integer;
+
+begin
+
+   if not DS.IsEmpty then
+   begin
+
+      if not MarcarTodos then
+      begin
+        if DesabilitarControles then
+          DS.DisableControls;
+
+        DS.Edit;
+        CampoMarcar.AsBoolean:= not CampoMarcar.AsBoolean;
+        DS.Post;
+
+        if CampoMarcar.AsBoolean then
+          Inc(FQtdeMarcados)
+        else Dec(FQtdeMarcados);
+
+        if DesabilitarControles then
+          DS.EnableControls;
+
+      end
+      else
+      begin
+         FQtdeMarcados:= 0;
+         Pos := DS.GetBookmark;
+         try
+            if DesabilitarControles then
+              DS.DisableControls;
+            DS.First;
+            for I:= 1 to DS.RecordCount do
+            begin
+                if     (Marcando and not CampoMarcar.AsBoolean) or
+                   (not Marcando and     CampoMarcar.AsBoolean) then
+                begin
+                   DS.Edit;
+                   CampoMarcar.AsBoolean:= Marcando;
+                   DS.Post;
+                end;
+
+                if CampoMarcar.AsBoolean then Inc(FQtdeMarcados);
+                DS.Next;
+
+            end;
+         finally
+            DS.GotoBookmark(Pos);
+            DS.FreeBookmark(Pos);
+            if DesabilitarControles then
+              DS.EnableControls;
+         end;
+      end;
+   end;
+
+end;
+
+
+procedure TtecQuery.MarcarRegistros(
+  DS: TtecQuery;
+  CampoMarcar: TBooleanField;
+  Marcando, MarcarTodos, DesabilitarControles: Boolean);
+
+  var Pos: TBookmark;
+    I, J:   Integer;
+
+begin
+
+   if not DS.IsEmpty then
+   begin
+
+      if not MarcarTodos then
+      begin
+        if DesabilitarControles then
+          DS.DisableControls;
+
+        DS.Edit;
+        CampoMarcar.AsBoolean:= not CampoMarcar.AsBoolean;
+        DS.Post;
+
+        if CampoMarcar.AsBoolean then
+          Inc(FQtdeMarcados)
+        else Dec(FQtdeMarcados);
+
+        if DesabilitarControles then
+          DS.EnableControls;
+
+      end
+      else
+      begin
+         FQtdeMarcados:= 0;
+         Pos := DS.GetBookmark;
+         try
+            if DesabilitarControles then
+              DS.DisableControls;
+            DS.First;
+            for I:= 1 to DS.RecordCount do
+            begin
+                if     (Marcando and not CampoMarcar.AsBoolean) or
+                   (not Marcando and     CampoMarcar.AsBoolean) then
+                begin
+                   DS.Edit;
+                   CampoMarcar.AsBoolean:= Marcando;
+                   DS.Post;
+                end;
+
+                if CampoMarcar.AsBoolean then Inc(FQtdeMarcados);
+                DS.Next;
+
+            end;
+         finally
+            DS.GotoBookmark(Pos);
+            DS.FreeBookmark(Pos);
+            if DesabilitarControles then
+              DS.EnableControls;
+         end;
+      end;
+   end;
+
+end;
+
+
+function TtecQuery.GetQtdeMarcados: Integer;
+begin
+  Result := FQtdeMarcados;
+end;
+
+function TtecQuery.GetTotalMarcados: Real;
+begin
+  Result := FTotalMarcados;
+end;
+
+procedure TtecQuery.CalcularMD5(pIdentifier: String;
+  pListFieldNames: String; pKey: String;
+  pAllRecords: Boolean; Salvar: Boolean);
+var
+  I, J, k: Integer;
+  Buffer : string;
+  RecordData: PRecordData;
+  FieldDesc: PFieldDesc;
+  Stream: TFileStream;
+  ValordoCampo : Variant;
+  ListadeCampos: TStringList;
+  vNomedoCampo: String;
+  sListFieldNames : TStringList;
+//  vExist : Boolean;
+
+//  tempT_MD5 : T_MD5;
+
+begin
+
+  sListFieldNames := tStringlist.create;
+  sListFieldNames.Delimiter := ',';
+
+  ExtractStrings([','], [','], pchar(pListFieldNames), sListFieldNames);
+
+
+  Buffer:='';
+  if not pAllRecords then
+  begin
+    for i := 0 to sListFieldNames.count-1 do
+      Buffer := Buffer + self.fieldbyname(sListFieldNames[i]).asString;
+  end
+  else
+  begin
+    for I := 0 to self.SqlBuffer.Count-1 do
+    begin
+
+      if I > 0 then
+        Buffer := Buffer + #13#10;
+
+      RecordData := self.SqlBuffer[I];
+
+      for k := 0 to sListFieldNames.count-1 do
+      begin
+        for J := 0 to self.SqlBuffer.SqlFields.Count-1 do
+        begin
+          FieldDesc := self.SqlBuffer.SqlFields[J];
+          if (uppercase(FieldDesc.FieldObj.FieldName) = uppercase(sListFieldNames[k])) then
+          begin
+            Valordocampo := '';
+
+            if not (FieldDesc.FieldType in [ftInteger, ftSmallInt, ftFloat, ftAutoInc, ftCurrency{$IFNDEF VER100}, ftLargeInt{$ENDIF}, ftBCD])
+               and not self.SqlBuffer.GetFieldNull(FieldDesc, RecordData) then
+              Valordocampo := ZSqlTypes.StringToSql(self.SqlBuffer.GetField(FieldDesc, RecordData))
+            else
+              Valordocampo :=  self.SqlBuffer.GetField(FieldDesc, RecordData);
+
+            Buffer := Buffer + ValordoCampo;
+            break;
+          end;
+
+        end;
+      end;
+    end;
+  end;
+
+//  vExist := False;
+  md5 := md5_(buffer);
+
+                {
+  if MD5Itens.Count <> 0 then
+  begin
+    for i :=0 to MD5Itens.Count-1 do
+    begin
+      if MD5Itens.Items[i].identifier = pIdentifier then
+      begin
+        MD5Itens.Items[i].ValorMD5 := buffer;
+        vExist := true;
+      end;
+    end;
+  end;
+
+  if not vExist then
+  begin
+
+    with MD5Itens.New do
+    begin
+      identifier := pIdentifier ;
+      ListFieldNames := pListFieldNames;
+      key := pkey;
+      AllRecords := pAllRecords;
+      ValorMD5   := buffer;
+    end;
+
+  end;
+  }
+
+  if Salvar then
+    SalvarValorMD5(pIdentifier, pListFieldNames, pkey, md5, pallrecords);
+
+end;
+
+
+
+{ T_MD5 }
+
+constructor T_MD5.Create;
+begin
+  inherited Create;
+end;
+
+{ T_MD5Itens }
+
+
+{
+function T_MD5Itens.Add(AObject: T_MD5): integer;
+begin
+  Result := inherited Add(AObject);
+end;
+}
+
+function T_MD5Itens.GetItem(Index: integer): T_MD5;
+begin
+  Result := (inherited GetItem(index) as T_MD5);
+
+end;
+
+{
+procedure T_MD5Itens.Insert(Index: integer; AObject: T_MD5);
+begin
+  inherited Insert(index, AObject);
+end;
+}
+
+function T_MD5Itens.New: T_MD5;
+begin
+  Result := T_MD5.Create;
+  Add(Result);
+end;
+
+procedure T_MD5Itens.SetItem(Index: integer; const Value: T_MD5);
+begin
+  inherited SetItem(index, Value);
+end;
+
+
+{
+procedure TtecQuery.SetMD5Itens(const Value: T_MD5Itens);
+begin
+  FMD5Itens.Assign(Value);
+end;
+}
+
+
+function TtecQuery.ExisteDiferencaMD5(pIdentifier, pkey: String): Boolean;
+var
+i: integer;
+vMD5 : String;
+vExist : Boolean;
+tmd5 : T_MD5;
+
+begin
+  result := false;
+
+  AbrirMD5(pIdentifier, pkey);
+  if qryMD5.RecordCount = 1 then
+  begin
+    CalcularMD5(pIdentifier,
+                qryMD5.fieldbyname('listadecampos').asString,
+                pkey,
+                qryMD5.fieldbyname('todos').asBoolean, false);
+    result := md5 <> qryMD5.fieldbyname('valormd5').asString;
+  end;
+
+end;
+
+procedure TtecQuery.SalvarValorMD5(pIdentifier, pListFieldNames, pkey, pValorMD5: String; pallrecords: Boolean);
+{var
+  qryMD5: TtecQuery;}
+begin
+  AbrirMD5(pIdentifier, pkey);
+  if qryMD5.RecordCount = 1 then
+  begin
+    qryMD5.edit;
+    qrymd5.fieldbyname('valormd5').asString := pValorMD5;
+    qrymd5.post;
+  end
+  else
+  begin
+    qryMD5.append;
+    qryMD5.fieldbyname('chave').asString := pkey;
+    qryMD5.fieldbyname('identificador').asString := pidentifier;
+    qrymd5.fieldbyname('valormd5').asString := pvalormd5;
+    qrymd5.fieldbyname('listadecampos').asString := pListFieldNames;
+    qrymd5.fieldbyname('todos').asBoolean := pAllRecords;
+    qrymd5.post;
+  end
+end;
+
+procedure TtecQuery.AbrirMD5(pIdentifier, pkey: String);
+begin
+  if not assigned (qryMD5) then
+  begin
+    qryMD5 := TtecQuery.Create(self);
+    qryMD5.Database := self.Database;
+    qryMD5.Transaction := self.Transaction;
+    qryMD5.requestlive := true;
+    qryMD5.cachedupdates := false;
+    qryMD5.Sql.Text := 'select md5.* from md5 where md5.chave = :chave and md5.identificador = :identificador ';
+  end;
+
+  qryMD5.close;
+  qryMD5.parambyname('chave').asString := pkey;
+  qryMD5.parambyname('identificador').asString := pIdentifier;
+  qryMD5.Open;
+end;
+
+{ TListBookmarksItems }
+
+
+
+function TtecQuery.GetRegistroAtual_: TBookMark;
+var
+  vTam : integer;
+begin
+  vTam := length(TArrayBookMarks)-1;
+  if vTam >= 0 then
+  begin
+    fRegistroAtual_ := TArrayBookMarks[vTam];
+    Result := fRegistroAtual_;
+    SetLength(TArrayBookMarks,vTam);
+  end
+  else
+    result := nil;  
+
+end;
+
+function TtecQuery.ToJSON: String;
+var
+//  Json: TJson;
+  i: integer;
+begin
+  Json := TJson.Create();
+
+  try
+
+
+  (*
+
+  try
+
+    Json.Put('null-field', null);
+    Json.Put('boolean-field-true', True);
+
+    Json['boolean-field-false'].AsBoolean := not Json.Get('boolean-field-true').AsBoolean;
+    Json['number-field'].AsNumber := 3.1415926535;
+    Json['number-field-integer'].AsInteger := Json['number-field'].AsInteger;
+    Json['string-field'].AsString := 'Hello world';
+
+    with Json.Put('array-field', empty).AsArray do
+    begin
+      Put(empty);
+      Put(null);
+      Put(False);
+      Put(True);
+      Put(299792458);
+      Put(2.7182818284);
+      Put('The magic words are squeamish ossifrage');
+      with Put(empty).AsObject do
+      begin
+        Put('array-object-field-1', null);
+        Put('array-object-field-2', 'json4delphi');
+      end;
+    end;
+    with Json.Put('object-field', empty).AsObject do
+    begin
+      Put('object-field-1', True);
+      Put('object-field-2', 6.6260755e-34);
+    end;
+    result := Json.Stringify;
+//    Writeln(Str);
+    Json.Clear;
+    Json.Parse(RESULT);
+  finally
+//    Json.Free;
+  end;
+  *)
+
+  self.GuardarRegistroAtual(true,false);
+  self.first;
+
+//  with Json.Put(empty).AsArray do
+
+  while not self.eof do
+  begin
+    with Json.Put(empty).AsObject do
+    for i:=0 to self.fieldcount-1 do
+      Put(self.fields[i].fieldname, self.fields[i].asString);
+
+
+{      with Json[self.fields[i].fieldname].AsArray do
+      begin
+        Put(self.fields[i].fieldname);
+        Put(self.fields[i].asString);
+      end;}
+
+
+    self.next;
+
+  end;
+
+  finally
+   self.VoltarRegistro;
+
+  end;
+
+
+  result := json.Decode(Json.Stringify);
+  json.Parse(result);
+
+  Json.free;
+
+
+end;
+
+function TtecQuery.ToJSON(Nome, Valor, Tipo: String; CampoBooleanMesclar: String): String;
+var
+//  Json: TJson;
+  i: integer;
+begin
+
+
+  (*
+
+  try
+
+    Json.Put('null-field', null);
+    Json.Put('boolean-field-true', True);
+
+    Json['boolean-field-false'].AsBoolean := not Json.Get('boolean-field-true').AsBoolean;
+    Json['number-field'].AsNumber := 3.1415926535;
+    Json['number-field-integer'].AsInteger := Json['number-field'].AsInteger;
+    Json['string-field'].AsString := 'Hello world';
+
+    with Json.Put('array-field', empty).AsArray do
+    begin
+      Put(empty);
+      Put(null);
+      Put(False);
+      Put(True);
+      Put(299792458);
+      Put(2.7182818284);
+      Put('The magic words are squeamish ossifrage');
+      with Put(empty).AsObject do
+      begin
+        Put('array-object-field-1', null);
+        Put('array-object-field-2', 'json4delphi');
+      end;
+    end;
+    with Json.Put('object-field', empty).AsObject do
+    begin
+      Put('object-field-1', True);
+      Put('object-field-2', 6.6260755e-34);
+    end;
+    result := Json.Stringify;
+//    Writeln(Str);
+    Json.Clear;
+    Json.Parse(RESULT);
+  finally
+//    Json.Free;
+  end;
+  *)
+
+
+//  with Json.Put(empty).AsArray do
+
+
+  if self.findfield(nome)=nil then
+  begin
+    MensagemErro(format('O nome do campo %s não existe na tabela %s', [nome, self.tablename]));
+    exit;
+  end
+  else
+  if self.findfield(valor)=nil then
+  begin
+    MensagemErro(format('O nome do campo %s não existe na tabela %s', [valor, self.tablename]));
+    exit;
+  end
+  else
+  if self.findfield(tipo)=nil then
+  begin
+    MensagemErro(format('O nome do campo %s não existe na tabela %s', [tipo, self.tablename]));
+    exit;
+  end
+  else
+  if (CampoBooleanMesclar<>'') and (self.findfield(CampoBooleanMesclar)=nil) then
+  begin
+    MensagemErro(format('O nome do campo %s não existe na tabela %s', [CampoBooleanMesclar, self.tablename]));
+    exit;
+  end;
+
+
+
+{
+Texto
+Numérico
+Inteiro
+Data
+Sim/Não
+}
+
+  Json := TJson.Create();
+
+  try
+
+    self.GuardarRegistroAtual(true,false);
+    self.first;
+
+    while not self.eof do
+    begin
+      if (CampoBooleanMesclar='') or
+         ((CampoBooleanMesclar<>'') and self.fieldbyname(CampoBooleanMesclar).asBoolean) then
+      begin
+
+        if self.fieldbyname(tipo).asString = 'Texto' then
+        begin
+          if self.fieldbyname(valor).isNull then
+            Json.Put(self.fieldbyname(nome).asString, null)
+          else
+            Json[self.fieldbyname(nome).asString].AsString := self.fieldbyname(valor).asString;
+        end
+        else
+        if self.fieldbyname(tipo).asString = 'Numérico' then
+        begin
+          if self.fieldbyname(valor).isNull then
+            Json.Put(self.fieldbyname(nome).asString, null)
+          else
+            Json[self.fieldbyname(nome).asString].AsNumber := self.fieldbyname(valor).asfloat;
+        end
+        else
+        if self.fieldbyname(tipo).asString = 'Inteiro' then
+        begin
+          if self.fieldbyname(valor).isNull then
+            Json.Put(self.fieldbyname(nome).asString, null)
+          else
+            Json[self.fieldbyname(nome).asString].AsInteger := self.fieldbyname(valor).asInteger;
+        end
+        else
+        if self.fieldbyname(tipo).asString = 'Data' then
+        begin
+          if self.fieldbyname(valor).isNull then
+            Json.Put(self.fieldbyname(nome).asString, null)
+          else
+            Json[self.fieldbyname(nome).asString].AsString := self.fieldbyname(valor).asString
+        end
+        else
+        if self.fieldbyname(tipo).asString = 'Sim/Não' then
+        begin
+          if self.fieldbyname(valor).isNull then
+            Json.Put(self.fieldbyname(nome).asString, null)
+          else
+          begin
+            if self.fieldbyname(valor).asString = 'Sim' then
+              Json[self.fieldbyname(nome).asString].AsBoolean := True
+            else
+              Json[self.fieldbyname(nome).asString].AsBoolean := False;
+          end;
+        end;
+      end;
+
+      self.next;
+
+    end;
+
+  finally
+   self.VoltarRegistro;
+
+  end;
+
+
+  result := json.Decode(Json.Stringify);
+
+//  Json.free;
+
+
+end;
+
+end.
+
+
+

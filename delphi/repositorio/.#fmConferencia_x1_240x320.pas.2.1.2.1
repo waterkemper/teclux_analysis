@@ -1,0 +1,997 @@
+unit fmConferencia_x1_240x320;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, Menus, ComCtrls, ExtCtrls, fmajuda, Grids, DBGrids,
+  cpdbgrid, DB, cpdatasource, ZQuery, ZPgSqlQuery, cpquery, ctconstantes,
+  dmtecsoft, cpdata, Mask, cpdbfindcontrols, cptexto, Buttons,
+  fmprincipalbasico, fmConferenciaProdutos, biblio;
+
+type
+  TfrmConferenciacoletor_x1_240x320 = class(TfrmPrincipalBasico)
+    pgcOperacao: TPageControl;
+    tstContrato: TTabSheet;
+    lblContrato: TStaticText;
+    tstInterlojas: TTabSheet;
+    lblNomeClenteContrato: TStaticText;
+    lblDataContrato: TStaticText;
+    dbgContrato: TtecDBGrid;
+    qryProcuraContratos: TtecQuery;
+    dsrProcuraContratos: TtecDataSource;
+    dsrContratos: TtecDataSource;
+    qryContratos: TtecQuery;
+    pnlOpColetor: TPanel;
+    btnContrato: TButton;
+    btnInterlojas: TButton;
+    btnListaPadrao: TButton;
+    btnNFSaida: TButton;
+    btnNFEntrada: TButton;
+    btnSair: TButton;
+    edfContrato: TtecDbEditFind;
+    edtDataContrato: TEditData;
+    edtNomeContrato: TEditTexto;
+    pnlOperacao: TPanel;
+    pnlBottomOperacaoes: TPanel;
+    pnlTopContrato: TPanel;
+    sbnConferir: TBitBtn;
+    Timer1: TTimer;
+    qryProcuraContratosnumero: TStringField;
+    qryProdutosContratos: TtecQuery;
+    tstNFSaida: TTabSheet;
+    pgcNFSaida: TPageControl;
+    tstParametrosNfsAIDA: TTabSheet;
+    tstSelecaoNFSaida: TTabSheet;
+    StaticText1: TStaticText;
+    edtDataInicial: TEditData;
+    StaticText2: TStaticText;
+    edtDataFinal: TEditData;
+    StaticText3: TStaticText;
+    edfchv_nfesaida: TtecDbEditFind;
+    StaticText4: TStaticText;
+    edfNFSaida: TtecDbEditFind;
+    StaticText5: TStaticText;
+    edtNomeNFSaida: TEditTexto;
+    pgcContrato: TPageControl;
+    tstParametrosContrato: TTabSheet;
+    tstSelecaoContrato: TTabSheet;
+    sbnGerar: TBitBtn;
+    qryProcuraNFSaida: TtecQuery;
+    dsrProcuraNFSaida: TtecDataSource;
+    qryProcuraNFSaidanumero: TIntegerField;
+    dbgNFSaida: TtecDBGrid;
+    qryDadosFiscais: TtecQuery;
+    dsrDadosFiscais: TtecDataSource;
+    qryProdutosDadosFiscais: TtecQuery;
+    qryProcuraNFeSaida: TtecQuery;
+    qryProcuraNFeSaidachv_nfe: TStringField;
+    dsrProcuraNFeSaida: TtecDataSource;
+    tstListasPadrao: TTabSheet;
+    tstNFEntrada: TTabSheet;
+    pgcNFEntrada: TPageControl;
+    tstParametrosNfEntrada: TTabSheet;
+    StaticText6: TStaticText;
+    edtDataInicialNFe: TEditData;
+    StaticText7: TStaticText;
+    edtDataFinalNFe: TEditData;
+    StaticText8: TStaticText;
+    edfchv_nfeEntrada: TtecDbEditFind;
+    StaticText9: TStaticText;
+    edfNFEntrada: TtecDbEditFind;
+    StaticText10: TStaticText;
+    edtNomeNFEntrada: TEditTexto;
+    tstSelecaoNFEntrada: TTabSheet;
+    dbgNFEntrada: TtecDBGrid;
+    qryProcuraNFeEntrada: TtecQuery;
+    qryProcuraNFeEntradachv_nfe: TStringField;
+    dsrProcuraNFeEntrada: TtecDataSource;
+    qryProcuraNFEntrada: TtecQuery;
+    qryProcuraNFEntradanumero: TIntegerField;
+    dsrProcuraNFEntrada: TtecDataSource;
+    qryNotasPag: TtecQuery;
+    dsrNotasPag: TtecDataSource;
+    qryProdutosNotasPag: TtecQuery;
+    qryContratosnumero: TStringField;
+    qryContratosdata: TDateField;
+    qryContratosnome: TStringField;
+    qryContratosvalorprazo: TFloatField;
+    qryNotasPagfornecedor: TIntegerField;
+    qryNotasPagserie: TStringField;
+    qryNotasPagnumero: TIntegerField;
+    qryNotasPagdata: TDateField;
+    qryNotasPagnome: TStringField;
+    qryNotasPagvalornota: TFloatField;
+    qryDadosFiscaisfilial: TIntegerField;
+    qryDadosFiscaisserie: TStringField;
+    qryDadosFiscaisnumero: TIntegerField;
+    qryDadosFiscaisnumero_1: TIntegerField;
+    qryDadosFiscaisdata: TDateField;
+    qryDadosFiscaisnome: TStringField;
+    qryDadosFiscaisvalortotal: TFloatField;
+    qryNotasPagcodigo: TIntegerField;
+    procedure Button1Click(Sender: TObject);
+    procedure btnContratoClick(Sender: TObject);
+    procedure btnInterlojasClick(Sender: TObject);
+    procedure btnSairClick(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
+    procedure edfContratoKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edtDataContratoKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edtNomeContratoKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbgContratoKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnConferirKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnConferirClick(Sender: TObject);
+    procedure sbnGerarClick(Sender: TObject);
+    procedure pgcContratoChange(Sender: TObject);
+    procedure pgcNFSaidaChange(Sender: TObject);
+    procedure edtDataInicialKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edtDataFinalKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edfchv_nfesaidaKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edfNFSaidaKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edtNomeNFSaidaKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure btnNFSaidaClick(Sender: TObject);
+    procedure edfNFSaidaFound(Found: Boolean);
+    procedure btnListaPadraoClick(Sender: TObject);
+    procedure btnNFEntradaClick(Sender: TObject);
+    procedure edfContratoFound(Found: Boolean);
+    procedure pgcNFEntradaChange(Sender: TObject);
+    procedure edtDataInicialNFeKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edtDataFinalNFeKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edfchv_nfeEntradaKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edfNFEntradaFound(Found: Boolean);
+    procedure edfNFEntradaKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edtNomeNFEntradaKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edfchv_nfeEntradaFound(Found: Boolean);
+    procedure edfchv_nfesaidaFound(Found: Boolean);
+  protected
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+
+  private
+    { Private declarations }
+    function MontarConsultaCondicaoContrato: Boolean;
+    function MontarConsultaCondicaoNFSaida: Boolean;
+    function MontarConsultaCondicaoNFEntrada: Boolean;
+
+  public
+    { Public declarations }
+    constructor create(AOwner: TComponent); override;
+
+  end;
+
+var
+  frmConferenciacoletor_x1_240x320: TfrmConferenciacoletor_x1_240x320;
+
+implementation
+
+{$R *.dfm}
+
+constructor TfrmConferenciacoletor_x1_240x320.create(AOwner: TComponent);
+begin
+  inherited;
+  pnlOpColetor.visible := true;
+  pnlOperacao.visible := false;
+//  btnContrato.setfocus;
+  pnlOpColetor.Align := alClient;
+  self.Width := 240;
+  self.Height := 320;
+  pgcOperacao.TabHeight := 1;
+  pgcOperacao.TabWidth := 1;
+
+
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_escape then
+  begin
+    if pnlOpColetor.Visible then
+      close
+    else
+    if pnlOperacao.Visible then
+    begin
+      if pgcOperacao.activepage = tstContrato then
+      begin
+        if pgcContrato.ActivePage = tstSelecaoContrato then
+        begin
+          pgcContrato.ActivePage := tstParametrosContrato;
+          pgcContratoChange(nil);
+          edfContrato.setfocus;
+        end
+        else
+        begin
+          pnlOpColetor.Visible := true;
+          pnlOpColetor.SetFocus;
+          pnlOperacao.Visible := false;
+        end;
+      end
+      else
+      if pgcOperacao.activepage = tstInterlojas then
+      begin
+
+      end
+      else
+      if pgcOperacao.activepage = tstNFSaida then
+      begin
+        if pgcNFSaida.ActivePage = tstSelecaoNFSaida then
+        begin
+          pgcNFSaida.ActivePage := tstParametrosNfsAIDA;
+          pgcNFSaidaChange(nil);
+          edfchv_nfesaida.SetFocus;
+        end
+        else
+        begin
+          pnlOpColetor.Visible := true;
+          pnlOpColetor.SetFocus;
+          pnlOperacao.Visible := false;
+        end;
+      end
+      else
+      if pgcOperacao.activepage = tstNFEntrada then
+      begin
+        if pgcNFEntrada.ActivePage = tstSelecaoNFEntrada then
+        begin
+          pgcNFEntrada.ActivePage := tstParametrosNfEntrada;
+          pgcNFEntradaChange(nil);
+          edfchv_nfeEntrada.SetFocus;
+        end
+        else
+        begin
+          pnlOpColetor.Visible := true;
+          pnlOpColetor.SetFocus;
+          pnlOperacao.Visible := false;
+        end;
+      end;
+
+    end;
+  end
+  else
+  if (key in [vk_1,97]) and pnlOpColetor.Visible then
+    btnContratoClick(nil)
+  else
+  if (key in [vk_2, 98]) and pnlOpColetor.Visible then
+    btnInterlojasClick(nil)
+  else
+  if (key in [vk_3, 99]) and pnlOpColetor.Visible then
+    btnListaPadraoClick(nil)
+  else
+  if (key in [vk_4, 100]) and pnlOpColetor.Visible then
+    btnNFEntradaClick(nil)
+  else
+  if (key in [vk_5, 101]) and pnlOpColetor.Visible then
+    btnNFSaidaClick(nil);
+
+end;
+
+
+procedure TfrmConferenciacoletor_x1_240x320.Button1Click(Sender: TObject);
+begin
+  inherited;
+  pnlOperacao.Visible := false;
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.btnContratoClick(
+  Sender: TObject);
+begin
+  inherited;
+
+  qryProcuraContratos.Close;
+  qryProcuraContratos.Open;
+
+  sbnGerar.visible := true;
+  sbnConferir.Visible := False;
+
+  pnlOpColetor.Visible := false;
+  pnlOperacao.Visible := true;
+  pnlOperacao.Align := alClient;
+  pgcOperacao.ActivePage := tstContrato;
+  pgcContrato.ActivePage := tstParametrosContrato;
+
+  edfContrato.SetFocus;
+  edfContrato.SelectAll;
+
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.btnInterlojasClick(
+  Sender: TObject);
+begin
+  inherited;
+  pnlOpColetor.Visible := false;
+  pnlOperacao.Visible := true;
+  pnlOperacao.Align := alClient;
+  pgcOperacao.ActivePage := tstInterlojas
+
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.btnSairClick(Sender: TObject);
+begin
+  inherited;
+  close;
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.Timer1Timer(Sender: TObject);
+begin
+  inherited;
+  if pnlOperacao.Visible then
+  begin
+    sbnConferir.enabled := ((pgcOperacao.ActivePage = tstContrato) and
+                            (qryContratos.recordcount <> 0)) or
+
+                           ((pgcOperacao.ActivePage = tstNFSaida) and
+                            (qryDadosFiscais.recordcount <> 0)) or
+
+                           ((pgcOperacao.ActivePage = tstNFEntrada) and
+                            (qryNotasPag.recordcount <> 0));
+
+
+  end;
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.edfContratoKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+    edtDataContrato.setfocus;
+
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.edtDataContratoKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+    edtNomeContrato.setfocus;
+
+end;
+
+function TfrmConferenciacoletor_x1_240x320.MontarConsultaCondicaoContrato: Boolean;
+var
+  vParametroSetado : boolean;
+
+begin
+  result := false;
+  vParametroSetado := false;
+
+  if edfcontrato.modified or
+     edtDataContrato.Modified or
+     edtNomeContrato.Modified then
+  begin
+
+
+    if edtDataContrato.DataValida and
+      (edtDataContrato.Text <> '') then
+    begin
+      qryContratos.MacroByName('CondicaoDataContrato').asString := ' AND ct.data = '+quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(edtDataContrato.Text)));
+      vParametroSetado := true;
+    end
+    else
+      qryContratos.MacroByName('CondicaoDataContrato').asString := '';
+
+    if (edtNomeContrato.Text <> '') then
+    begin
+      qryContratos.MacroByName('CondicaoNomeContrato').asString := format(' AND (to_ascii(ct.nome,''latin1'') ilike to_ascii(''%s%s'',''latin1''))', [edtNomeContrato.Text, '%']);
+      vParametroSetado := true;
+    end
+    else
+      qryContratos.MacroByName('CondicaoNomeContrato').asString := '';
+
+
+    if (edfcontrato.Text <> '') then
+    begin
+      qryContratos.MacroByName('CondicaoNumeroContrato').asString := ' and ct.numero = '+quotedstr(edfcontrato.Text);
+      qryContratos.MacroByName('CondicaoDataContrato').asString := '';
+      qryContratos.MacroByName('CondicaoNomeContrato').asString := '';
+
+      edtDataContrato.clear;
+      edtNomeContrato.clear;
+
+      vParametroSetado := true;
+    end
+    else
+      qryContratos.MacroByName('CondicaoNumeroContrato').asString := '';
+
+
+    if not vParametroSetado  then
+      qryContratos.MacroByName('CondicaoNumeroContrato').asString := ' and false ';
+
+    qryContratos.close;
+    qryContratos.open;
+
+    result := qryContratos.recordcount <> 0;
+
+  end;
+
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.edtNomeContratoKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+    sbnGerar.setfocus;
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.dbgContratoKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (key = vk_return) and sbnConferir.enabled then
+    sbnConferir.setfocus;
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.sbnConferirKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+    
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.sbnConferirClick(
+  Sender: TObject);
+begin
+  inherited;
+
+
+  if pgcOperacao.ActivePage = tstContrato then
+  begin
+
+    qryProdutosContratos.ParamByName('contrato').asString := qryContratos.fieldbyname('numero').asString;
+    qryProdutosContratos.close;
+    qryProdutosContratos.open;
+
+    ConferirProdutos(qryProdutosContratos,
+     qryProdutosContratos.fieldbyname('produto').fieldname,
+     qryProdutosContratos.fieldbyname('produto').FieldName,
+     qryProdutosContratos.fieldbyname('descricaoproduto').FieldName,
+     qryProdutosContratos.fieldbyname('quantidade').FieldName, 'CTR',
+
+     ifthen(qryContratos.fieldbyname('primogenito').asstring<>'',
+            qryContratos.fieldbyname('primogenito').asstring,
+            qryContratos.fieldbyname('numero').asString),
+
+     qryProdutosContratos.fieldbyname('valorgrade1').FieldName,
+     qryProdutosContratos.fieldbyname('valorgrade2').FieldName,
+     qryProdutosContratos.fieldbyname('linha').FieldName,
+     qryProdutosContratos.fieldbyname('coluna').FieldName, 240, 320, self);
+
+     dbgContrato.SetFocus;
+
+
+
+  end
+  else
+  if pgcOperacao.ActivePage = tstNFSaida then
+  begin
+
+    qryProdutosDadosFiscais.ParamByName('dadofiscal').asString := qrydadosfiscais.fieldbyname('numero_1').asString;
+    qryProdutosDadosFiscais.close;
+    qryProdutosDadosFiscais.open;
+
+    ConferirProdutos(qryProdutosDadosFiscais,
+     qryProdutosDadosFiscais.fieldbyname('produto').fieldname,
+     qryProdutosDadosFiscais.fieldbyname('codigovisual').FieldName,
+     qryProdutosDadosFiscais.fieldbyname('descricaoproduto').FieldName,
+     qryProdutosDadosFiscais.fieldbyname('quantidade').FieldName, 'NFS',
+     qryProdutosDadosFiscais.fieldbyname('dadofiscal').asstring,
+     qryProdutosDadosFiscais.fieldbyname('valorgrade1').FieldName,
+     qryProdutosDadosFiscais.fieldbyname('valorgrade2').FieldName,
+     qryProdutosDadosFiscais.fieldbyname('linha').FieldName,
+     qryProdutosDadosFiscais.fieldbyname('coluna').FieldName, 240, 320, self);
+
+     dbgNFSaida.setfocus;
+
+  end
+  else
+  if pgcOperacao.ActivePage = tstNFEntrada then
+  begin
+
+    qryProdutosNotasPag.ParamByName('codigonota').asString := qryNotasPag.fieldbyname('codigo').asString;
+    qryProdutosNotasPag.close;
+    qryProdutosNotasPag.open;
+
+    ConferirProdutos(qryProdutosNotasPag,
+     qryProdutosNotasPag.fieldbyname('produto').fieldname,
+     qryProdutosNotasPag.fieldbyname('codigovisual').FieldName,
+     qryProdutosNotasPag.fieldbyname('descricaoproduto').FieldName,
+     qryProdutosNotasPag.fieldbyname('quantidade').FieldName, 'NFE',
+     qryProdutosNotasPag.fieldbyname('codigonota').asstring,
+     qryProdutosNotasPag.fieldbyname('valorgrade1').FieldName,
+     qryProdutosNotasPag.fieldbyname('valorgrade2').FieldName,
+     qryProdutosNotasPag.fieldbyname('linha').FieldName,
+     qryProdutosNotasPag.fieldbyname('coluna').FieldName, 240, 320, self);
+
+     dbgNFEntrada.setfocus;
+
+  end;
+
+
+
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.sbnGerarClick(Sender: TObject);
+begin
+  inherited;
+
+  if pgcOperacao.ActivePage = tstContrato then
+  begin
+
+    if MontarConsultaCondicaoContrato then
+    begin
+      pgcContrato.ActivePage := tstSelecaoContrato;
+      pgcContratoChange(NIL);
+      dbgContrato.SetFocus;
+    end
+    else
+      edfContrato.SetFocus;
+  end
+  else
+  if pgcOperacao.ActivePage = tstNFSaida then
+  begin
+
+    if MontarConsultaCondicaoNFSaida then
+    begin
+      pgcNFSaida.ActivePage := tstSelecaoNFSaida;
+
+      pgcNFSaidaChange(NIL);
+      dbgNFSaida.SetFocus;
+    end
+    else
+      edfchv_nfesaida.SetFocus;
+
+  end
+  else
+  if pgcOperacao.ActivePage = tstNFEntrada then
+  begin
+
+    if MontarConsultaCondicaoNFEntrada then
+    begin
+      pgcNFEntrada.ActivePage := tstSelecaoNFEntrada;
+
+      pgcNFEntradaChange(NIL);
+      dbgNFEntrada.SetFocus;
+    end
+    else
+      edfchv_nfeEntrada.SetFocus;
+
+  end;
+
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.pgcContratoChange(
+  Sender: TObject);
+begin
+  inherited;
+  sbnGerar.visible := (pgcContrato.ActivePage = tstParametrosContrato);
+  sbnConferir.Visible := (pgcContrato.ActivePage = tstSelecaoContrato);
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.pgcNFSaidaChange(
+  Sender: TObject);
+begin
+  inherited;
+  sbnGerar.visible := (pgcNFSaida.ActivePage = tstParametrosNfsAIDA);
+  sbnConferir.Visible := (pgcNFSaida.ActivePage = tstSelecaoNFSaida);
+end;
+
+function TfrmConferenciacoletor_x1_240x320.MontarConsultaCondicaoNFSaida: Boolean;
+var
+  vParametroSetado : boolean;
+
+begin
+  result := false;
+
+  vParametroSetado := false;
+
+  if (edtDataInicial.Modified or edtDataFinal.Modified) or
+     edfchv_nfesaida.Modified or
+     edfNFSaida.Modified or
+     edtNomeNFSaida.Modified then
+
+  begin
+
+    if edtDataInicial.DataValida and
+      (edtDataInicial.Text <> '') and
+       edtDataFinal.DataValida and
+      (edtDataFinal.Text <> '') then
+    begin
+
+      qryDadosFiscais.MacroByName('CondicaoIntervaloDataNFSaida').asString := format(' and df.data between %s and %s',
+                 [quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(edtDataInicial.Text))),
+                  quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(edtDataFinal.Text)))] );
+      vParametroSetado := true;
+
+    end
+    else
+
+    if edtDataInicial.DataValida and
+      (edtDataInicial.Text <> '') then
+    begin
+
+      qryDadosFiscais.MacroByName('CondicaoIntervaloDataNFSaida').asString := format(' and df.data >= %s',
+                 [quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(edtDataInicial.Text)))]);
+      vParametroSetado := true;
+
+    end
+    else
+    if edtDataFinal.DataValida and
+      (edtDataFinal.Text <> '') then
+    begin
+      qryDadosFiscais.MacroByName('CondicaoIntervaloDataNFSaida').asString := format(' and df.data <= %s ',
+                 [quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(edtDataFinal.Text)))]);
+      vParametroSetado := true;
+    end
+    else
+      qryDadosFiscais.MacroByName('CondicaoIntervaloDataNFSaida').asString := '';
+
+
+
+    if (edfNFSaida.Text <> '') then
+    begin
+      qryDadosFiscais.MacroByName('CondicaoNumeroNFSaida').asString := ' and n.numero = '+edfNFSaida.Text;
+      vParametroSetado := true;
+    end
+    else
+      qryDadosFiscais.MacroByName('CondicaoNumeroNFSaida').asString := '';
+
+
+    if (edtNomeNFSaida.Text <> '') then
+    begin
+      qryDadosFiscais.MacroByName('CondicaoNomeNFSaida').asString := format(' and (to_ascii(df.nome,''latin1'') ilike to_ascii(''%s%s'',''latin1''))', [edtNomeNFSaida.Text, '%']);
+      vParametroSetado := true;
+    end
+    else
+      qryDadosFiscais.MacroByName('CondicaoNomeNFSaida').asString := '';
+
+
+    if (edfchv_nfesaida.Text <> '') then
+    begin
+
+      qryDadosFiscais.MacroByName('CondicaoChv_NFeSaida').asString := ' and df.chv_nfe = '+quotedstr(somentenumero(edfchv_nfesaida.Text));
+      qryDadosFiscais.MacroByName('CondicaoIntervaloDataNFSaida').asString := '';
+      qryDadosFiscais.MacroByName('CondicaoNumeroNFSaida').asString := '';
+      qryDadosFiscais.MacroByName('CondicaoNomeNFSaida').asString := '';
+
+      edtDataInicial.clear;
+      edtDataFinal.clear;
+      edfNFSaida.clear;
+      edtNomeNFSaida.clear;
+
+      vParametroSetado := true;
+    end
+    else
+      qryDadosFiscais.MacroByName('CondicaoChv_NFeSaida').asString := '';
+
+
+    if not vParametroSetado then
+       qryDadosFiscais.MacroByName('CondicaoNumeroNFSaida').asString := ' and false ';
+
+    qryDadosFiscais.close;
+    qryDadosFiscais.open;
+
+    result := qryDadosFiscais.recordcount <> 0;
+
+  end;
+
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.edtDataInicialKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+    edtDataFinal.setfocus;
+
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.edtDataFinalKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+    edfNFSaida.SetFocus;
+    
+
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.edfchv_nfesaidaKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+    if pgcNFSaida.ActivePage = tstParametrosNfsAIDA then
+      edtDataInicial.setfocus;
+    
+
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.edfNFSaidaKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+    edtNomeNFSaida.SetFocus;
+
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.edtNomeNFSaidaKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+    sbnGerar.SetFocus;
+
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.btnNFSaidaClick(
+  Sender: TObject);
+begin
+  inherited;
+
+  qryProcuraNFSaida.Close;
+  qryProcuraNFSaida.Open;
+
+  qryProcuraNFeSaida.Close;
+  qryProcuraNFeSaida.Open;
+
+
+  sbnGerar.visible := true;
+  sbnConferir.Visible := False;
+
+  pnlOpColetor.Visible := false;
+  pnlOperacao.Visible := true;
+  pnlOperacao.Align := alClient;
+  pgcOperacao.ActivePage := tstNFSaida;
+  pgcNFSaida.ActivePage := tstParametrosNfsAIDA;
+
+  edfchv_nfesaida.SetFocus;
+  edfchv_nfesaida.SelectAll;
+
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.edfNFSaidaFound(
+  Found: Boolean);
+begin
+  inherited;
+  edfNFSaida.Modified := found;
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.btnListaPadraoClick(
+  Sender: TObject);
+begin
+  inherited;
+;
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.btnNFEntradaClick(
+  Sender: TObject);
+begin
+  inherited;
+  qryProcuraNFEntrada.Close;
+  qryProcuraNFEntrada.Open;
+
+  qryProcuraNFeEntrada.Close;
+  qryProcuraNFeEntrada.Open;
+
+  sbnGerar.visible := true;
+  sbnConferir.Visible := False;
+
+  pnlOpColetor.Visible := false;
+  pnlOperacao.Visible := true;
+  pnlOperacao.Align := alClient;
+  pgcOperacao.ActivePage := tstNFEntrada;
+  pgcNFEntrada.ActivePage := tstParametrosNfEntrada;
+
+  edfchv_nfeEntrada.SetFocus;
+  edfchv_nfeEntrada.SelectAll;
+
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.edfContratoFound(
+  Found: Boolean);
+begin
+  inherited;
+  if found then
+    edfContrato.Modified := True;
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.pgcNFEntradaChange(
+  Sender: TObject);
+begin
+  inherited;
+  sbnGerar.visible := (pgcNFEntrada.ActivePage = tstParametrosNfEntrada);
+  sbnConferir.Visible := (pgcNFEntrada.ActivePage = tstSelecaoNFEntrada);
+end;
+
+function TfrmConferenciacoletor_x1_240x320.MontarConsultaCondicaoNFEntrada: Boolean;
+var
+  vParametroSetado : boolean;
+
+begin
+  result := false;
+
+  vParametroSetado := false;
+
+  if (edtDataInicialNFe.Modified or edtDataFinalNFe.Modified) or
+     edfchv_nfeEntrada.Modified or
+     edfNFEntrada.Modified or
+     edtNomeNFEntrada.Modified then
+
+  begin
+
+    if edtDataInicialNFe.DataValida and
+      (edtDataInicialNFe.Text <> '') and
+       edtDataFinalNFe.DataValida and
+      (edtDataFinalNFe.Text <> '') then
+    begin
+
+      qryNotasPag.MacroByName('CondicaoIntervaloDataNFEntrada').asString := format(' and np.data between %s and %s',
+                 [quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(edtDataInicialNFe.Text))),
+                  quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(edtDataFinalNFe.Text)))] );
+      vParametroSetado := true;
+
+    end
+    else
+
+    if edtDataInicialNFe.DataValida and
+      (edtDataInicialNFe.Text <> '') then
+    begin
+
+      qryNotasPag.MacroByName('CondicaoIntervaloDataNFEntrada').asString := format(' and np.data >= %s',
+                 [quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(edtDataInicialNFe.Text)))]);
+      vParametroSetado := true;
+
+    end
+    else
+    if edtDataFinalNFe.DataValida and
+      (edtDataFinalNFe.Text <> '') then
+    begin
+      qryNotasPag.MacroByName('CondicaoIntervaloDataNFEntrada').asString := format(' and np.data <= %s ',
+                 [quotedstr(FormatDateTime('yyyy-mm-dd',strtodate(edtDataFinalNFe.Text)))]);
+      vParametroSetado := true;
+    end
+    else
+      qryNotasPag.MacroByName('CondicaoIntervaloDataNFEntrada').asString := '';
+
+
+    if (edfNFEntrada.Text <> '') then
+    begin
+      qryNotasPag.MacroByName('CondicaoNumeroNFEntrada').asString := ' and np.numero = '+edfNFEntrada.Text;
+      vParametroSetado := true;
+    end
+    else
+      qryNotasPag.MacroByName('CondicaoNumeroNFEntrada').asString := '';
+
+
+    if (edtNomeNFEntrada.Text <> '') then
+    begin
+      qryNotasPag.MacroByName('CondicaoNomeNFEntrada').asString := format(' and (to_ascii(np.nome,''latin1'') ilike to_ascii(''%s%s'',''latin1''))', [edtNomeNFEntrada.Text, '%']);
+      vParametroSetado := true;
+    end
+    else
+      qryNotasPag.MacroByName('CondicaoNomeNFEntrada').asString := '';
+
+
+    if (edfchv_nfeEntrada.Text <> '') then
+    begin
+      qryNotasPag.MacroByName('CondicaoChv_NFeEntrada').asString := ' and np.chv_nfe = '+quotedstr(somentenumero(edfchv_nfeEntrada.Text));
+      qryNotasPag.MacroByName('CondicaoIntervaloDataNFEntrada').asString := '';
+      qryNotasPag.MacroByName('CondicaoNumeroNFEntrada').asString := '';
+      qryNotasPag.MacroByName('CondicaoNomeNFEntrada').asString := '';
+
+      edtDataInicialNFe.clear;
+      edtDataFinalNFe.clear;
+      edfNFEntrada.clear;
+      edtNomeNFEntrada.clear;
+
+      vParametroSetado := true;
+    end
+    else
+      qryNotasPag.MacroByName('CondicaoChv_NFeEntrada').asString := '';
+
+
+    if not vParametroSetado then
+       qryNotasPag.MacroByName('CondicaoNumeroNFEntrada').asString := ' and false ';
+
+    qryNotasPag.close;
+    qryNotasPag.open;
+
+    result := qryNotasPag.recordcount <> 0;
+
+  end;
+
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.edtDataInicialNFeKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+    edtDataFinalNFe.setfocus;
+
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.edtDataFinalNFeKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+    edfNFEntrada.SetFocus;
+
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.edfchv_nfeEntradaKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+    if pgcNFEntrada.ActivePage = tstParametrosNfEntrada then
+      edtDataInicialNFe.setfocus;
+
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.edfNFEntradaFound(
+  Found: Boolean);
+begin
+  inherited;
+  edfNFEntrada.Modified := found;
+
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.edfNFEntradaKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+    edtNomeNFEntrada.SetFocus;
+
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.edtNomeNFEntradaKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+    sbnGerar.SetFocus;
+
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.edfchv_nfeEntradaFound(
+  Found: Boolean);
+begin
+  inherited;
+  edfchv_nfeEntrada.Modified := found;
+  if found then
+    sbnGerarClick(nil);
+
+end;
+
+procedure TfrmConferenciacoletor_x1_240x320.edfchv_nfesaidaFound(
+  Found: Boolean);
+begin
+  inherited;
+  edfchv_nfesaida.modified := found;
+
+  if found then
+    sbnGerarClick(nil);
+
+end;
+
+end.

@@ -1,0 +1,307 @@
+unit fmlivrodiarioauxiliarreceitas;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, ExtCtrls, cpdata, DBCtrls, cpdbtext,
+  Mask, cpdbfindcontrols, ComCtrls, cppagecontrol, Buttons,
+  ctconstantes, biblio, DB, ZQuery, ZPgSqlQuery, cpquery,
+  cpeditioncontrolvalidation, fmrelatoriopadrao, fmconsultabasica,
+  fmconsultaporcampo, cpnumero, clparametrossistema, CheckLst, ToolWin;
+
+type
+  TfrmLivroDiarioAuxiliarReceitas = class(TfrmRelatorioPadrao)
+    gbxRecebimentosdoPeriodo: TGroupBox;
+    gbxPeriodo: TGroupBox;
+    lblDataInicial: TLabel;
+    edtDataInicial: TEditData;
+    lblDataFinal: TLabel;
+    edtDataFinal: TEditData;
+    rgpResumo: TRadioGroup;
+    gbxAgentes: TGroupBox;
+    sbnMarcarAgentes: TSpeedButton;
+    sbnDesmarcarAgentes: TSpeedButton;
+    clbAgentes: TCheckListBox;
+    gbxAgrupamento: TGroupBox;
+    ckbAgruparGrupoFilial: TCheckBox;
+    ckbAgruparFilial: TCheckBox;
+    ckbDataPagto: TCheckBox;
+    gbxNumeracao: TGroupBox;
+    edtLivro: TEditNumero;
+    lblLivro: TLabel;
+    lblPagina: TLabel;
+    lblMaximo: TLabel;
+    edtPagina: TEditNumero;
+    edtMaximo: TEditNumero;
+    rgpRelatorio: TRadioGroup;
+    pgcFilialGrupoFilial: TtecPageControl;
+    tstFilial: TTabSheet;
+    sbnProcurarFilial: TSpeedButton;
+    edfFilial: TtecDbEditFind;
+    dtxFilial: TtecDBText;
+    tstGrupoFilial: TTabSheet;
+    sbnProcuraGrupoFilial: TSpeedButton;
+    edfGrupoFilial: TtecDbEditFind;
+    dtxGrupoFilial: TtecDBText;
+    ecvValida: TtecEditionControlValidation;
+    procedure sbnMarcarAgentesClick(Sender: TObject);
+    procedure sbnDesmarcarAgentesClick(Sender: TObject);
+    procedure sbnProcurarFilialClick(Sender: TObject);
+    procedure sbnProcuraGrupoFilialClick(Sender: TObject);
+    procedure pgcFilialGrupoFilialChange(Sender: TObject);
+  protected
+    function InternoPesquisar(Titulo: String): Integer; override;
+    function JanelaPesquisa: TfrmConsultaBasica; override;
+    function ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function TabelaDePesquisa: TZDataSet; override;
+    procedure InternoImpressao; override;
+    function PesquisaHabilitada: Boolean;
+    function  ValidarCamposSelecao: Boolean;
+    procedure ObterLista(Origem: TStrings; Destino: TCheckListBox);
+    function TituloPesquisa: String;
+
+  public
+    { Public declarations }
+    constructor Create(Aowner:Tcomponent);override;
+    destructor  Destroy; override;
+  end;
+
+var
+  frmLivroDiarioAuxiliarReceitas: TfrmLivroDiarioAuxiliarReceitas;
+  TipoPesquisa: TTecPesquisa;
+  ControleValido: TWinControl;
+
+
+implementation
+
+{$R *.dfm}
+
+{ Tfrmlivrodiarioauxiliarreceitas }
+
+uses dmlivrodiarioauxiliarreceitas;
+
+constructor TfrmLivroDiarioAuxiliarReceitas.Create(Aowner: Tcomponent);
+begin
+  dtmlivrodiarioauxiliarreceitas := Tdtmlivrodiarioauxiliarreceitas.Create(Self);
+  inherited;
+  with dtmlivrodiarioauxiliarreceitas do
+   Abre(ctTabelas);
+  ObterLista(dtmlivrodiarioauxiliarreceitas.ListaAgentes, clbAgentes);
+  edtDataInicial.Text := DateToStr(UltimoDiaMesPassado(1));
+  edtDataFinal.Text := DateToStr(DataLocal);
+  edtpagina.Text:='2';
+  edtMaximo.Text:='9999';
+  if ParSistema.LivrosFiscaisFolhaouPagina = 0 then
+    lblPagina.Caption := ctFOLHA;
+end;
+
+destructor TfrmLivroDiarioAuxiliarReceitas.Destroy;
+begin
+  dtmlivrodiarioauxiliarreceitas:=nil;
+  inherited;
+  frmlivrodiarioauxiliarreceitas:= nil;
+end;
+
+function TfrmLivroDiarioAuxiliarReceitas.ValidarCamposSelecao: Boolean;
+begin
+  result:=ecvValida.Verify(gbxNumeracao, ControleValido);
+   if Result then
+   begin
+    Result := (edtDataInicial.DataValida and edtDataFinal.DataValida);
+    if Result then
+    begin
+     if (not dataembranco(edtDataInicial.text) and not dataembranco(edtDataFinal.text)) then
+       Result:=StrToDate(edtDataInicial.Text) <= StrToDate(edtDataFinal.Text);
+     if result then
+     begin
+      Result:=(not dataembranco(edtDataInicial.text) or not dataembranco(edtDataFinal.text));
+      if Result then
+      begin
+       Result := OperadorTernario((Trim(edffilial.Text) <> ''),edffilial.Exist, True) and
+                 OperadorTernario((Trim(edfgrupofilial.Text) <> ''), edfgrupofilial.Exist, True);
+       if Result then
+       begin
+         if edtLivro.Text<>'' then
+         begin
+           if ((edfFilial.Text='') and (edfGrupoFilial.Text='')) or not EPrimeiroeUltimodiadoMes(edtDataInicial.Text, edtDataFinal.Text) then
+           begin
+             Result:=False;
+             MensagemAviso(ctINFORMACAOLIVROFILIAL);
+             edtDataInicial.SetFocus;
+           end
+           else
+            Result:=True;
+         end
+         else
+         begin
+          if (rgpRelatorio.ItemIndex=1) and (edtLivro.Text='') then
+          begin
+             Result:=False;
+             MensagemAviso(ctPARAMETROSINEXISTENTES);
+             edtLivro.SetFocus;
+          end
+          else
+           Result:=True;
+         end;
+       end;
+      end
+      else
+      begin
+       MensagemAviso(ctDATAINVALIDA);
+       edtDataInicial.SetFocus;
+      end;
+     end
+     else
+     begin
+       MensagemAviso(ctDTINICIALMAIORDTFINAL);
+       edtDataInicial.SetFocus;
+     end;
+    end;
+   end;
+end;
+
+procedure TfrmLivroDiarioAuxiliarReceitas.InternoImpressao;
+begin
+  inherited;
+  if ValidarCamposSelecao then begin
+    with dtmlivrodiarioauxiliarreceitas do
+    begin
+      ParametroCabecalho :='';
+      ParametroFilial:=edfFilial.Text;
+      ParametroGrupoFiliais:=edfGrupoFilial.Text;
+      MontarFiltroAgentes(clbAgentes);
+      DataInicial        := edtDataInicial.Text;
+      DataFinal          := edtDataFinal.Text;
+      ParametroLivro     := edtlivro.ValorSemFormatacao;
+      ParametroPagina    := edtpagina.ValorSemFormatacao;
+      ParametroMaximo    := edtMaximo.ValorSemFormatacao;
+      ParametroRelatorio := rgpRelatorio.ItemIndex;
+      AgruparGrupoFilial := ckbAgruparGrupoFilial.Checked;
+      AgruparFilial      := ckbAgruparFilial.Checked;
+      AgruparDataPagto   := ckbDataPagto.Checked;
+      MontarOrdenacao;
+      Resumo        := rgpResumo.ItemIndex;
+      if (ParametroRelatorio=1) or AbrirTabelasRecebimentos then
+        ImprimirRelatorio
+      else
+        MensagemAviso(Format(ctNENHUMREGISTROENCONTRADO,['Registro']));
+    end;
+  end;
+
+end;
+
+procedure TfrmLivroDiarioAuxiliarReceitas.ObterLista(Origem: TStrings;
+  Destino: TCheckListBox);
+begin
+  Destino.Items.AddStrings(Origem);
+end;
+
+procedure TfrmLivroDiarioAuxiliarReceitas.sbnMarcarAgentesClick(
+  Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbAgentes, True);
+end;
+
+procedure TfrmLivroDiarioAuxiliarReceitas.sbnDesmarcarAgentesClick(
+  Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbAgentes, False);
+end;
+
+function TfrmLivroDiarioAuxiliarReceitas.ExisteInformacao(
+  Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmlivrodiarioauxiliarreceitas do
+    case TipoPesquisa of
+      pesFILIAIS      : Result := ExisteFilial(NomeCampo, Value);
+      pesGRUPOSFILIAIS: Result := ExisteGrupoFilial(Nomecampo,Value);
+    else  Result:= False;
+    end;
+end;
+
+function TfrmLivroDiarioAuxiliarReceitas.InternoPesquisar(
+  Titulo: String): Integer;
+begin
+  if PesquisaHabilitada then
+    with dtmlivrodiarioauxiliarreceitas do
+    begin
+      AbreTabelaPesquisa(TipoPesquisa);
+      Result := inherited InternoPesquisar(TituloPesquisa);
+      if Result = mrOK then
+        Selecionar(TipoPesquisa);
+      FechaTabelaPesquisa(TipoPesquisa);
+    end
+  else
+    Result := 0;
+end;
+
+function TfrmLivroDiarioAuxiliarReceitas.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa:= True;
+end;
+
+function TfrmLivroDiarioAuxiliarReceitas.TabelaDePesquisa: TZDataSet;
+begin
+  with dtmlivrodiarioauxiliarreceitas do
+    case TipoPesquisa of
+      pesFILIAIS      : Result := ConsultarFilial;
+      pesGRUPOSFILIAIS: Result := ConsultarGrupoFilial;
+    else  Result:= nil;
+    end;
+end;
+
+function TfrmLivroDiarioAuxiliarReceitas.PesquisaHabilitada: Boolean;
+begin
+  Result:= False;
+  if (CtrlOn) and (ActiveControl is TtecDBEditFind) then
+  begin
+    if edfFilial.Focused then
+      TipoPesquisa := pesFILIAIS
+    else
+    if edfGrupoFilial.Focused then
+      TipoPesquisa := pesGRUPOSFILIAIS;
+    Result:= True;
+  end;
+end;
+
+function TfrmLivroDiarioAuxiliarReceitas.TituloPesquisa: String;
+begin
+  case TipoPesquisa of
+    pesFILIAIS      : Result := ctFILIAIS;
+    pesGRUPOSFILIAIS: Result := ctGRUPOFILIAIS;
+  end;
+end;
+
+procedure TfrmLivroDiarioAuxiliarReceitas.sbnProcurarFilialClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfFilial, ctFILIAIS);
+end;
+
+procedure TfrmLivroDiarioAuxiliarReceitas.sbnProcuraGrupoFilialClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfGrupoFilial, ctGRUPOFILIAIS);
+end;
+
+procedure TfrmLivroDiarioAuxiliarReceitas.pgcFilialGrupoFilialChange(
+  Sender: TObject);
+begin
+  inherited;
+  if pgcFilialGrupoFilial.ActivePage = tstFilial then begin
+    edfGrupoFilial.Clear;
+    edfFilial.setFocus;
+  end
+  else begin
+    edfFilial.Clear;
+    edfGrupoFilial.setFocus;
+  end;
+end;
+
+end.

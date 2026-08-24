@@ -1,0 +1,2144 @@
+unit dmrelatorioestoque;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery,
+  cpdatasource, CheckLst,
+  //Biblio
+  ctconstantes, clparametrossistema, FR_DSet, FR_DBSet, FR_Class,
+  fmpreviewpadrao, biblio, FR_Desgn, Graphics, ZTransact, dmtecsoft,
+  frxClass, frxDBSet, frxExportRTF, frxExportHTML, frxExportPDF,
+  frxExportXML, frxExportXLS, frxDesgn, frxExportCSV, frxExportText,
+  frxExportImage, frxExportODF, frxExportTXT, frxExportMail, ACBrBase,
+  ACBrDFe, ACBrNFSe, variants, DBClient, Provider, forms, frx2xto30;
+
+type
+  TdtmRelatorioEstoque = class(TdtmBasico)
+    qryEstoques: TtecQuery;
+    qryFiliais: TtecQuery;
+    qryFiliaiscodigo: TIntegerField;
+    qryFiliaisnome: TStringField;
+    qryGrupoFiliais: TtecQuery;
+    qryGrupoFiliaiscodigo: TIntegerField;
+    qryGrupoFiliaisdescricao: TStringField;
+    qryItemProdutosInicial: TtecQuery;
+    qryItemProdutosInicialdescricao: TStringField;
+    qryItemProdutosInicialvalorgrade1: TStringField;
+    qryItemProdutosInicialvalorgrade2: TStringField;
+    qryItemProdutosInicialdescricaolc: TStringField;
+    dsrItemProdutosInicial: TtecDataSource;
+    qryItemProdutosFinal: TtecQuery;
+    qryItemProdutosFinaldescricao: TStringField;
+    qryItemProdutosFinalvalorgrade1: TStringField;
+    qryItemProdutosFinalvalorgrade2: TStringField;
+    qryItemProdutosFinaldescricaolc: TStringField;
+    dsrItemProdutosFinal: TtecDataSource;
+    qryProdutosInicial: TtecQuery;
+    qryProdutosInicialdescricao: TStringField;
+    dsrProdutosInicial: TtecDataSource;
+    qryProdutosFinal: TtecQuery;
+    qryProdutosFinaldescricao: TStringField;
+    dsrProdutosFinal: TtecDataSource;
+    qryGrupoProdutosInicial: TtecQuery;
+    qryGrupoProdutosInicialcodigo: TStringField;
+    qryGrupoProdutosInicialdescricao: TStringField;
+    dsrGrupoProdutosInicial: TtecDataSource;
+    qryGrupoProdutosFinal: TtecQuery;
+    qryGrupoProdutosFinalcodigo: TStringField;
+    qryGrupoProdutosFinaldescricao: TStringField;
+    dsrGrupoProdutosFinal: TtecDataSource;
+    qryConsultaItemProdutos: TtecQuery;
+    qryConsultaItemProdutosdescricao: TStringField;
+    qryConsultaItemProdutosvalorgrade1: TStringField;
+    qryConsultaItemProdutosvalorgrade2: TStringField;
+    qryConsultaProdutos: TtecQuery;
+    qryConsultaProdutosdescricao: TStringField;
+    qryConsultaGrupoProdutos: TtecQuery;
+    qryConsultaGrupoProdutoscodigo: TStringField;
+    qryConsultaGrupoProdutosdescricao: TStringField;
+    qryClassesInicial: TtecQuery;
+    qryClassesInicialcodigo: TStringField;
+    qryClassesInicialdescricao: TStringField;
+    dsrClassesInicial: TtecDataSource;
+    qryClassesFinal: TtecQuery;
+    qryClassesFinalcodigo: TStringField;
+    qryClassesFinaldescricao: TStringField;
+    dsrClassesFinal: TtecDataSource;
+    qryConsultaClasses: TtecQuery;
+    qryConsultaClassescodigo: TStringField;
+    qryConsultaClassesdescricao: TStringField;
+    qryConsultaMarcas: TtecQuery;
+    qryConsultaMarcasdescricao: TStringField;
+    qryConsultaMarcascodigo: TIntegerField;
+    qryMarcaInicial: TtecQuery;
+    qryMarcaInicialcodigo: TIntegerField;
+    qryMarcaInicialdescricao: TStringField;
+    dsrMarcaInicial: TtecDataSource;
+    qryMarcaFinal: TtecQuery;
+    qryMarcaFinalcodigo: TIntegerField;
+    qryMarcaFinaldescricao: TStringField;
+    dsrMarcaFinal: TtecDataSource;
+    qryEstoquesnomegrupofilial: TStringField;
+    qryEstoquescodigogrupofilial: TIntegerField;
+    qryEstoquesnomefilial: TStringField;
+    qryEstoquescodigofilial: TIntegerField;
+    qryEstoquescodigoclasse: TStringField;
+    qryEstoquesgrupoproduto: TStringField;
+    qryEstoquescodigogrupo: TStringField;
+    qryEstoquesproduto: TStringField;
+    qryEstoquescodigoproduto: TLargeintField;
+    qryEstoquesitem: TStringField;
+    qryEstoquescodigoitem: TLargeintField;
+    qryEstoquesmarca: TStringField;
+    qryEstoquesunidade: TStringField;
+    qryEstoquesemestoque: TFloatField;
+    qryEstoquesreservado: TFloatField;
+    qryEstoquestransito: TFloatField;
+    qryEstoquesdemonstracao: TFloatField;
+    qryEstoquesconserto: TFloatField;
+    qryEstoquesdanificada: TFloatField;
+    qryEstoquesfuturo: TFloatField;
+    qryEstoquescusto_medio: TFloatField;
+    frpRelatorioEstoque: TfrReport;
+    fdsRelatorioEstoque: TfrDBDataSet;
+    qryEstoquesreferencia: TStringField;
+    qryEstoquespedido: TFloatField;
+    qryEstoqueslocalizacao: TStringField;
+    qryEstoquesclasseproduto: TStringField;
+    frpRelatorioEstoque_comFinanceiro: TfrReport;
+    qryEstoquesoutros: TFloatField;
+    qryEstoquesQtdeEstoque: TFloatField;
+    qryEstoquesprecocomicms: TFloatField;
+    qryEstoquesfornecedor: TIntegerField;
+    qryEstoquesnomefornecedor: TStringField;
+    qryEstoquesResumo: TtecQuery;
+    frpRelatorioEstoque_comFinanceiroResumo: TfrReport;
+    qryEstoquesResumocodigogrupofilial: TIntegerField;
+    qryEstoquesResumonomegrupofilial: TStringField;
+    qryEstoquesResumocodigofilial: TIntegerField;
+    qryEstoquesResumonomefilial: TStringField;
+    qryEstoquesResumofornecedor: TIntegerField;
+    qryEstoquesResumonomefornecedor: TStringField;
+    qryEstoquesResumocodigoclasse: TStringField;
+    qryEstoquesResumoclasseproduto: TStringField;
+    qryEstoquesResumocodigogrupo: TStringField;
+    qryEstoquesResumogrupoproduto: TStringField;
+    qryEstoquesResumocodigoproduto: TLargeintField;
+    qryEstoquesResumoproduto: TStringField;
+    qryEstoquesResumototal: TFloatField;
+    fdsRelatorioEstoque_comFinanceiroResumo: TfrDBDataSet;
+    frpRelatorioEstoque_comPrecodeVenda: TfrReport;
+    qryEstoquesprecodevenda: TFloatField;
+    frpRelatorioEstoque_comPrecodeVendaResumo: TfrReport;
+    qryEstoquesResumoprecodevenda: TFloatField;
+    qryEstoquesResumomargem: TFloatField;
+    qryEstoquesreservaprevia: TFloatField;
+    qryEstoquesultimavendadias: TIntegerField;
+    qryEstoques_Anterior: TtecQuery;
+    qryEstoques_Atual: TtecQuery;
+    qryEstoquesprecosemicms: TFloatField;
+    qryEstoquesResumo_Totais: TtecQuery;
+    qryEstoquesestoquefisico: TFloatField;
+    qryEstoquesResumolocalizacao: TStringField;
+    qryCodigoBarras: TtecQuery;
+    qryCodigoBarrascodigobarras: TStringField;
+    frpRelatorioEstoque_comFinanceiroCB: TfrReport;
+    fdsCodigoBarras: TfrDBDataSet;
+    qryEstoquesacabados: TFloatField;
+    qryEstoquessemiacabados: TFloatField;
+    frpRelatorioEstoque_SemiAcabados: TfrReport;
+    frpRelatorioEstoque_SemiAcabadosResumo: TfrReport;
+    qryItemProdutosInicialcodigovisual: TStringField;
+    qryItemProdutosFinalcodigovisual: TStringField;
+    qryProdutosInicialcodigovisual: TStringField;
+    qryProdutosFinalcodigovisual: TStringField;
+    qryEstoquescodigoitemvisual: TStringField;
+    qryEstoquescodigoprodutovisual: TStringField;
+    qryEstoquesResumocodigoprodutovisual: TStringField;
+    qryEstoquesvalorgrade1: TStringField;
+    qryEstoquesvalorgrade2: TStringField;
+    qryEstoquesfinanceiro: TFloatField;
+    dsrEstoques: TtecDataSource;
+    frxDBEstoque: TfrxDBDataset;
+    frxDBEstoqueGrade: TfrxDBDataset;
+    frxRelatorioEstoqueGrade: TfrxReport;
+    qryEstoquesGrade: TtecQuery;
+    qryEstoquesGradevalorgrade_Coluna: TStringField;
+    qryEstoquesColunasGrupo_Aux: TtecQuery;
+    frxXLSExport1: TfrxXLSExport;
+    frxXMLExport1: TfrxXMLExport;
+    frxMailExport1: TfrxMailExport;
+    frxTXTExport1: TfrxTXTExport;
+    frxODSExport1: TfrxODSExport;
+    frxODTExport1: TfrxODTExport;
+    frxPDFExport1: TfrxPDFExport;
+    frxHTMLExport1: TfrxHTMLExport;
+    frxRTFExport1: TfrxRTFExport;
+    frxBMPExport1: TfrxBMPExport;
+    frxJPEGExport1: TfrxJPEGExport;
+    frxTIFFExport1: TfrxTIFFExport;
+    frxGIFExport1: TfrxGIFExport;
+    frxSimpleTextExport1: TfrxSimpleTextExport;
+    frxCSVExport1: TfrxCSVExport;
+    frxDBEstoque_: TfrxDBDataset;
+    qryConsultaItemProdutoscodigovisual: TStringField;
+    qryConsultaProdutoscodigovisual: TStringField;
+    qryEstoquesResumoemestoque: TFloatField;
+    qryEstoquesResumoreservado: TFloatField;
+    qryEstoquesResumoreservaprevia: TFloatField;
+    qryEstoquesResumotransito: TFloatField;
+    qryEstoquesResumodemonstracao: TFloatField;
+    qryEstoquesResumoconserto: TFloatField;
+    qryEstoquesResumodanificada: TFloatField;
+    qryEstoquesResumoQtdeEstoque: TFloatField;
+    qryEstoquesResumoestoquefisico: TFloatField;
+    qryEstoquesValorGrade_Linha: TStringField;
+    qryEstoquesValorGrade_Coluna: TStringField;
+    qryEstoquesGrade_Aux_Produto: TtecQuery;
+    frxRelatorioEstoqueGradeGrupo: TfrxReport;
+    qryEstoquesGradeporGrupos: TtecQuery;
+    dsrEstoquesGradeporGrupos: TtecDataSource;
+    qryEstoquesColunasGrupos: TtecQuery;
+    qryEstoquesGradeporGruposnomegrupofilial: TStringField;
+    qryEstoquesGradeporGruposcodigogrupofilial: TIntegerField;
+    qryEstoquesGradeporGruposnomefilial: TStringField;
+    qryEstoquesGradeporGruposcodigofilial: TIntegerField;
+    qryEstoquesGradeporGruposclasseproduto: TStringField;
+    qryEstoquesGradeporGruposcodigoclasse: TStringField;
+    qryEstoquesGradeporGruposcodigogrupo: TStringField;
+    qryEstoquesGradeporGruposgrupoproduto: TStringField;
+    qryEstoquesGradeporGruposvalorgrade1: TStringField;
+    qryEstoquesGradeporGruposvalorgrade2: TStringField;
+    qryEstoquesGradeporGruposemestoque: TFloatField;
+    qryEstoquesGradeporGruposacabados: TFloatField;
+    qryEstoquesGradeporGrupossemiacabados: TFloatField;
+    qryEstoquesGradeporGruposestoquefisico: TFloatField;
+    qryEstoquesGradeporGruposreservado: TFloatField;
+    qryEstoquesGradeporGrupostransito: TFloatField;
+    qryEstoquesGradeporGruposdemonstracao: TFloatField;
+    qryEstoquesGradeporGruposconserto: TFloatField;
+    qryEstoquesGradeporGruposdanificada: TFloatField;
+    qryEstoquesGradeporGruposreservaprevia: TFloatField;
+    qryEstoquesGradeporGruposcusto_medio: TFloatField;
+    qryEstoquesGradeporGruposValorGrade_Linha: TStringField;
+    qryEstoquesGradeporGruposValorGrade_Coluna: TStringField;
+    qryEstoquesGradeporGruposQtdeEstoque: TFloatField;
+    qryEstoquesGradeporGrupos_Aux: TtecQuery;
+    frxDBEstoquesColunasGrupos: TfrxDBDataset;
+    frxDBEstoquesGradeporGrupos: TfrxDBDataset;
+    frxDBEstoquesGradeporGrupos_: TfrxDBDataset;
+    qryEstoquesColunasGruposcodigogrupo: TStringField;
+    qryEstoquesColunasGruposgrupoproduto: TStringField;
+    qryEstoquesColunasGruposvalorgrade_Coluna: TStringField;
+    qryEstoquesGradecodigogrupo: TStringField;
+    qryEstoquesGradegrupoproduto: TStringField;
+    qryEstoquesquantidade_linha: TLargeintField;
+    frxRelatorioEstoqueGradeGrupoResumo: TfrxReport;
+    qryEstoquesmax_quantidade_coluna: TLargeintField;
+    frxReport1: TfrxReport;
+    procedure qryItemProdutosInicialCalcFields(DataSet: TDataSet);
+    procedure qryItemProdutosFinalCalcFields(DataSet: TDataSet);
+    procedure qryConsultaItemProdutosAfterOpen(DataSet: TDataSet);
+    procedure qryEstoquesCalcFields(DataSet: TDataSet);
+    procedure frpRelatorioEstoqueBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure qryEstoquesAfterOpen(DataSet: TDataSet);
+    procedure frpRelatorioEstoque_comFinanceiroBeforePrint(
+      Memo: TStringList; View: TfrView);
+    procedure frpRelatorioEstoque_comPrecodeVendaBeforePrint(
+      Memo: TStringList; View: TfrView);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure qryEstoquesAfterScroll(DataSet: TDataSet);
+    procedure frpRelatorioEstoque_comFinanceiroCBBeforePrint(
+      Memo: TStringList; View: TfrView);
+    procedure frpRelatorioEstoque_SemiAcabadosBeforePrint(
+      Memo: TStringList; View: TfrView);
+    procedure frxDBEstoqueGradeCheckEOF(Sender: TObject; var Eof: Boolean);
+    procedure frxRelatorioEstoqueGradeGetValue(const VarName: String;
+      var Value: Variant);
+    procedure qryEstoquesResumoCalcFields(DataSet: TDataSet);
+    procedure qryEstoquesGradeBeforeOpen(DataSet: TDataSet);
+    procedure qryEstoquesGradeporGruposCalcFields(DataSet: TDataSet);
+    procedure qryEstoquesGradeporGruposAfterScroll(DataSet: TDataSet);
+    procedure qryEstoquesColunasGruposBeforeOpen(DataSet: TDataSet);
+    procedure qryEstoquesBeforeOpen(DataSet: TDataSet);
+    procedure qryEstoquesResumoBeforeOpen(DataSet: TDataSet);
+    //procedure ZMonitor1MonitorEvent(Sql, Result: String);
+  private
+//    Consulta : TtecInterrupt;
+    FListaFiliais: TStringList;
+    FListaGruposFiliais: TStringList;
+    FDataSituacao: String;
+    FParametroCabecalho: String;
+    FParametroFornecedor: String;
+    FprodutoEmLinha: Boolean;
+    FProdutoNaoBrinde: Boolean;
+    FProdutoBrinde: Boolean;
+    FProdutoSemMontagem: Boolean;
+    FprodutoForadeLinha: Boolean;
+    FProdutoComMontagem: Boolean;
+    FFilial: String;
+    FGrupoFilial: String;
+    FParametroGrupoFinal: String;
+    FParametroMarcaInicial: String;
+    FParametroGrupoInicial: String;
+//    FParametroCodigoInicial: String;
+    FParametroCodigoFinal: String;
+//    FParametroItemInicial: String;
+//    FParametroItemFinal: String;
+    FParametroClasseFinal: String;
+    FParametroMarcaFinal: String;
+    FParametroClasseInicial: String;
+    FemEstoque_Inicial: String;
+    FemEstoque_Final: String;
+    FAvariado_Inicial: String;
+    FAvariado_Final: String;
+    FemConserto_Inicial: String;
+    FPedido_Final: String;
+    FemDemonstracao_Inicial: String;
+    FemDemonstracao_Final: String;
+    FPedido_Inicial: String;
+    FReservado_Final: String;
+    FemTransito_Inicial: String;
+    FemTransito_Final: String;
+    FReservado_Inicial: String;
+    FemConserto_Final: String;
+    FFuturo_Inicial: String;
+    FFuturo_Final: String;
+    FResumo: Integer;
+    FAgruparFilial: Boolean;
+    FAgruparClasseProduto: Boolean;
+    FAgruparGrupoFilial: Boolean;
+    FAgruparGrupoProduto: Boolean;
+    FAgruparProduto: Boolean;
+    FParametroOrdenacao: Integer;
+    FComValorFinanceiro: Boolean;
+    FComPrecodeVenda: Boolean;
+    FComQuantidades: Boolean;
+    FSemEstoqueZero: Boolean;
+    FPrecoComICMS: Boolean;
+    FNaoVendidosHaNDias: String;
+    FAgruparFornecedor: Boolean;
+    FPrecoSemICMS: Boolean;
+    FSomenteEstoqueFisico: Boolean;
+    FprodutoInativo: Boolean;
+    FprodutoAtivo: Boolean;
+    FAgruparLocalizacao: Boolean;
+    FParametroLocalizacao: String;
+    FParametroTituloLocalizacao: String;
+    FComCodigodeBarras: Boolean;
+    FAcabadosSemiAcabados: Boolean;
+    fImpressaoemGrade: boolean;
+    fGradecomElementos: boolean;
+    fDisponivelnoSite: Boolean;
+    fNaoDisponivelnoSite: Boolean;
+    fCompostos: byte;
+    fListaGruposFornecedores: String;
+    FReservaPrevia_Final: String;
+    FReservaPrevia_Inicial: String;
+    fInverterLinhaColuna: Boolean;
+    fSomenteResumoporColuna: Boolean;
+    function GetListaFiliais: TStrings;
+    function GetListaGruposFiliais: TStrings;
+    function GetCodigoClasse: String;
+    function GetCodigoGrupo: String;
+    function GetCodigoItemProduto: String;
+    function GetCodigoMarca: Integer;
+    function GetCodigoProduto: String;
+    function GetConsultarClasse: TtecQuery;
+    function GetConsultarGrupo: TtecQuery;
+    function GetConsultarItemProduto: TTecQuery;
+    function GetConsultarMarca: TTecQuery;
+    function GetConsultarProduto: TtecQuery;
+    procedure SetParametroFornecedor(const Value: String);
+    procedure SetemEstoque_Inicial(const Value: String);
+    procedure SetemEstoque_Final(const Value: String);
+    procedure SetReservado_Inicial(const Value: String);
+    procedure SetReservado_Final(const Value: String);
+    procedure SetemTransito_Inicial(const Value: String);
+    procedure SetemTransito_Final(const Value: String);
+    procedure SetemDemonstracao_Inicial(const Value: String);
+    procedure SetemDemonstracao_Final(const Value: String);
+    procedure SetemConserto_Inicial(const Value: String);
+    procedure SetemConserto_Final(const Value: String);
+    procedure SetFuturo_Inicial(const Value: String);
+    procedure SetFuturo_Final(const Value: String);
+    procedure SetAvariado_Inicial(const Value: String);
+    procedure SetAvariado_Final(const Value: String);
+    procedure SetPedido_Inicial(const Value: String);
+    procedure SetPedido_Final(const Value: String);
+    procedure SetParametroData(const Value: String);
+    procedure SetSomenteEstoqueFisico(const Value: Boolean);
+    procedure SetListaGruposFornecedores(const Value: String);
+    procedure SetReservaPrevia_Final(const Value: String);
+    procedure SetReservaPrevia_Inicial(const Value: String);
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    procedure AbreTabelaPesquisa(TipoPesquisa: TtecPesquisa);
+    procedure FechaTabelaPesquisa(TipoPesquisa: TtecPesquisa);
+    procedure Selecionar(TipoPesquisa: TTecPesquisa);
+
+    property ListaFiliais: TStrings read GetListaFiliais;
+    property ListaGruposFiliais: TStrings read GetListaGruposFiliais;
+
+    function ExisteItemProduto(Campo, Codigo: string): Boolean;
+    function ExisteProduto(Campo, Codigo: string): Boolean;
+    function ExisteGrupo(Campo, Codigo: string): Boolean;
+    function ExisteClasse(Campo, Codigo: string): Boolean;
+    function ExisteMarca(Campo, Codigo: String): Boolean;
+
+    property CodigoItemProduto: String read GetCodigoItemProduto;
+    property CodigoProduto: String read GetCodigoProduto;
+    property CodigoGrupo: String read GetCodigoGrupo;
+    property CodigoClasse: String read GetCodigoClasse;
+    property CodigoMarca: Integer read GetCodigoMarca;
+
+    property ConsultarItemProduto: TTecQuery read GetConsultarItemProduto;
+    property ConsultarProduto: TtecQuery read GetConsultarProduto;
+    property ConsultarGrupo: TtecQuery read GetConsultarGrupo;
+    property ConsultarClasse: TtecQuery read GetConsultarClasse;
+    property ConsultarMarca: TTecQuery read GetConsultarMarca;
+
+    property DataSituacao: String read FDataSituacao write SetParametroData;
+    property ParametroCabecalho: String read FParametroCabecalho write FParametroCabecalho;
+    property ParametroFornecedor: String read FParametroFornecedor write SetParametroFornecedor;
+    property ListaGruposFornecedores: String read fListaGruposFornecedores write SetListaGruposFornecedores;
+
+
+    property ProdutoEmLinha: Boolean read FprodutoEmLinha write FProdutoEmLinha;
+    property ProdutoForadeLinha: Boolean read FprodutoForadeLinha write FProdutoForadeLinha;
+    property ProdutoAtivo: Boolean read FprodutoAtivo write FProdutoAtivo;
+    property ProdutoInativo: Boolean read FprodutoInativo write FProdutoInativo;
+    property ProdutoComMontagem: Boolean read FProdutoComMontagem write FProdutoComMontagem;
+    property ProdutoSemMontagem: Boolean read FProdutoSemMontagem write FProdutoSemMontagem;
+    property ProdutoBrinde: Boolean read FProdutoBrinde write FProdutoBrinde;
+    property ProdutoNaoBrinde: Boolean read FProdutoNaoBrinde write FProdutoNaoBrinde;
+    property DisponivelnoSite: Boolean read fDisponivelnoSite write fDisponivelnoSite;
+
+
+
+    
+    procedure MontarFiltroFiliais(Usar: TCheckListBox);
+    procedure MontarFiltroGrupoFiliais(Usar: TCheckListBox);
+
+    property Filial: String read FFilial write  FFilial;
+    property GrupoFilial: String read FGrupoFilial write FGrupoFilial;
+
+//    property ParametroItemInicial: String read FParametroItemInicial write FParametroItemInicial;
+//    property ParametroItemFinal: String read FParametroItemFinal write FParametroItemFinal;
+
+//    property ParametroCodigoInicial: String read FParametroCodigoInicial write FParametroCodigoInicial;
+    property ParametroCodigoFinal: String read FParametroCodigoFinal write FParametroCodigoFinal;
+
+    property ParametroGrupoInicial: String read FParametroGrupoInicial write FParametroGrupoInicial;
+    property ParametroGrupoFinal: String read FParametroGrupoFinal write FParametroGrupoFinal;
+    property ParametroClasseInicial: String read FParametroClasseInicial write FParametroClasseInicial;
+    property ParametroClasseFinal: String read FParametroClasseFinal write FParametroClasseFinal;
+    property ParametroMarcaInicial: String read FParametroMarcaInicial write FParametroMarcaInicial;
+    property ParametroMarcaFinal: String read FParametroMarcaFinal write FParametroMarcaFinal;
+    property ParametroLocalizacao: String read FParametroLocalizacao write FParametroLocalizacao;
+    property ParametroTituloLocalizacao: String read FParametroTituloLocalizacao write FParametroTituloLocalizacao;
+
+    procedure AbreConsultaEstoques    (
+                                        Condicao_ItemdeProdutos,
+                                        Condicao_produtos,
+                                        Condicao_gruposprodutos,
+                                        Condicao_classesprodutos,
+                                        Condicao_marcasProdutos,
+                                        Condicao_MarketPlace,
+                                        Condicao_Promocoes
+                                         : String
+                                      );
+
+    function MontarParametroLocalizacao: String;
+
+    property emEstoque_Inicial: String read FemEstoque_Inicial write SetemEstoque_Inicial;
+    property emEstoque_Final: String read FemEstoque_Final write SetemEstoque_Final;
+    property Reservado_Inicial: String read FReservado_Inicial write SetReservado_Inicial;
+    property Reservado_Final: String read FReservado_Final write SetReservado_Final;
+
+    property ReservaPrevia_Inicial: String read FReservaPrevia_Inicial write SetReservaPrevia_Inicial;
+    property ReservaPrevia_Final: String read FReservaPrevia_Final write SetReservaPrevia_Final;
+
+
+    property emTransito_Inicial: String read FemTransito_Inicial write SetemTransito_Inicial;
+    property emTransito_Final: String read FemTransito_Final write SetemTransito_Final;
+    property emDemonstracao_Inicial: String read FemDemonstracao_Inicial write SetemDemonstracao_Inicial;
+    property emDemonstracao_Final: String read FemDemonstracao_Final write SetemDemonstracao_Final;
+    property emConserto_Inicial: String read FemConserto_Inicial write SetemConserto_Inicial;
+    property emConserto_Final: String read FemConserto_Final write SetemConserto_Final;
+    property Futuro_Inicial: String read FFuturo_Inicial write SetFuturo_Inicial;
+    property Futuro_Final: String read FFuturo_Final write SetFuturo_Final;
+    property Avariado_Inicial: String read FAvariado_Inicial write SetAvariado_Inicial;
+    property Avariado_Final: String read FAvariado_Final write SetAvariado_Final;
+    property Pedido_Inicial: String read FPedido_Inicial write SetPedido_Inicial;
+    property Pedido_Final: String read FPedido_Final write SetPedido_Final;
+    property Resumo: Integer read FResumo write FResumo;
+    property ComValorFinanceiro: Boolean read FComValorFinanceiro write FComValorFinanceiro;
+    property ComCodigodeBarras: Boolean read FComCodigodeBarras write FComCodigodeBarras;
+    property ComPrecodeVenda: Boolean read FComPrecodeVenda write FComPrecodeVenda;
+    property ComQuantidades: Boolean read FComQuantidades write FComQuantidades;
+    property SemEstoqueZero: Boolean read FSemEstoqueZero write FSemEstoqueZero;
+    property PrecoComICMS: Boolean read FPrecoComICMS write FPrecoComICMS;
+    property PrecoSemICMS: Boolean read FPrecoSemICMS write FPrecoSemICMS;
+    property NaoVendidosHaNDias: String read FNaoVendidosHaNDias write FNaoVendidosHaNDias;
+    property AgruparProduto: Boolean read FAgruparProduto write FAgruparProduto;
+    property AgruparGrupoProduto: Boolean read FAgruparGrupoProduto write FAgruparGrupoProduto;
+    property AgruparClasseProduto: Boolean read FAgruparClasseProduto write FAgruparClasseProduto;
+    property AgruparGrupoFilial: Boolean read FAgruparGrupoFilial write FAgruparGrupoFilial;
+    property AgruparFilial: Boolean read FAgruparFilial write FAgruparFilial;
+    property AgruparFornecedor: Boolean read FAgruparFornecedor write FAgruparFornecedor;
+    property AgruparLocalizacao: Boolean read FAgruparLocalizacao write FAgruparLocalizacao;
+    procedure DefineOrdenacao;
+    property ParametroOrdenacao: Integer read FParametroOrdenacao write FParametroOrdenacao;
+    procedure ImprimirRelatorio;
+    procedure CancelarRelatorio;
+    property SomenteEstoqueFisico: Boolean read FSomenteEstoqueFisico write SetSomenteEstoqueFisico;
+    property AcabadosSemiAcabados: Boolean read FAcabadosSemiAcabados write FAcabadosSemiAcabados;
+
+
+    property NaoDisponivelnoSite: Boolean read fNaoDisponivelnoSite write fNaoDisponivelnoSite;
+    property ImpressaoemGrade: boolean read fImpressaoemGrade write fImpressaoemGrade;
+    property InverterLinhaColuna: Boolean read fInverterLinhaColuna write fInverterLinhaColuna;
+    property GradecomElementos: boolean read fGradecomElementos write fGradecomElementos;
+    property Compostos : byte read fCompostos write fCompostos;
+
+    property SomenteResumoporColuna: Boolean read fSomenteResumoporColuna write fSomenteResumoporColuna;
+
+  end;
+
+var
+  dtmRelatorioEstoque: TdtmRelatorioEstoque;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmRelatorioEstoque }
+
+constructor TdtmRelatorioEstoque.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryItemProdutosInicial.Tag    := ctTabelas;
+  qryItemProdutosFinal.Tag      := ctTabelas;
+  qryprodutosInicial.Tag        := ctTabelas;
+  qryprodutosFinal.Tag          := ctTabelas;
+  qryGrupoProdutosInicial.Tag   := ctTabelas;
+  qryGrupoProdutosFinal.Tag     := ctTabelas;
+  qryClassesInicial.Tag         := ctTabelas;
+  qryClassesFinal.Tag           := ctTabelas;
+  qryMarcaInicial.tag           := ctTabelas;
+  qryMarcaFinal.Tag             := ctTabelas;
+
+  qryConsultaItemProdutos.Tag   := ctPesquisaItemProdutos;
+  qryConsultaProdutos.Tag       := ctPesquisaProdutos;
+  qryconsultaGrupoProdutos.Tag  := ctPesquisaGrupo;
+  qryConsultaClasses.Tag        := ctPesquisaClasse;
+  qryConsultaMarcas.Tag         := ctPesquisaMarca;
+  frxRelatorioEstoqueGrade.AddFunction('CordoZebrado: Tcolor', 'TecSoft', 'CordoZebrado');
+  frxRelatorioEstoqueGradeGrupo.AddFunction('CordoZebrado: Tcolor', 'TecSoft', 'CordoZebrado');
+
+
+end;
+
+function TdtmRelatorioEstoque.GetListaFiliais: TStrings;
+begin
+  FListaFiliais:= TStringList.Create;
+  qryFiliais.Open;
+  while not qryFiliais.Eof do
+  begin
+    FListaFiliais.AddObject(format('%3s',[qryFiliaiscodigo.AsString])+'.'+qryFiliaisnome.AsString, Pointer(qryFiliaiscodigo.AsInteger));
+    qryFiliais.Next;
+  end;
+  qryFiliais.Close;
+  Result := FListaFiliais;
+end;
+
+function TdtmRelatorioEstoque.GetListaGruposFiliais: TStrings;
+begin
+  FListaGruposFiliais:= TStringList.Create;
+  qryGrupoFiliais.Open;
+  while not qryGrupoFiliais.Eof do
+  begin
+    FListaGruposFiliais.AddObject(format('%2s',[qryGrupoFiliaiscodigo.asstring])+'.'+qryGrupoFiliaisdescricao.AsString, Pointer(qryGrupoFiliaiscodigo.AsInteger));
+    qryGrupoFiliais.Next;
+  end;
+  qryGrupoFiliais.Close;
+  Result := FListaGruposFiliais;
+end;
+
+function TdtmRelatorioEstoque.ExisteClasse(Campo, Codigo: string): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaClasses, campo, codigo);
+end;
+
+function TdtmRelatorioEstoque.ExisteGrupo(Campo, Codigo: string): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaGrupoProdutos, campo, codigo);
+end;
+
+function TdtmRelatorioEstoque.ExisteItemProduto(Campo,
+  Codigo: string): Boolean;
+const
+  SQL = 'Where (to_ascii(p.%s,''latin1'') ilike to_ascii(''%s%s'',''latin1''))';
+begin
+  qryConsultaItemProdutos.Sql[03]:= Format(SQL, [Campo, Codigo, '%']);
+  qryConsultaItemProdutos.Open;
+  Result := (qryConsultaItemProdutos.RecordCount > 0);
+end;
+
+function TdtmRelatorioEstoque.ExisteProduto(Campo, Codigo: string): Boolean;
+const
+  SQL = 'Where (to_ascii(c.%s,''latin1'') ilike to_ascii(''%s%s'',''latin1''))';
+begin
+  qryConsultaProdutos.Sql[03]:= Format(SQL, [Campo, Codigo, '%']);
+  qryConsultaProdutos.Open;
+  Result := (qryConsultaProdutos.RecordCount > 0);
+end;
+
+function TdtmRelatorioEstoque.ExisteMarca(campo, codigo: String): boolean;
+begin
+  Result := ExisteCodigo(qryConsultaMarcas, campo, codigo);
+end;
+
+
+
+procedure TdtmRelatorioEstoque.AbreTabelaPesquisa(
+  TipoPesquisa: TtecPesquisa);
+begin
+  case TipoPesquisa of
+     pesITEMPRODUTOSINICIAL,
+     pesITEMPRODUTOSFINAL : begin
+                             qryConsultaItemProdutos.Sql[03]:= 'Where (p.codigo = 0)';
+                             Abre(ctPesquisaItemProdutos);
+                            end;
+     pesPRODUTOSINICIAL,
+     pesPRODUTOSFINAL     : begin
+                             qryConsultaProdutos.Sql[03]:= 'Where (c.codigo = 0)';
+                             Abre(ctPesquisaProdutos);
+                           end;
+     pesGRUPOSINICIAL,
+     pesGRUPOSFINAL       : Abre(ctPesquisaGrupo);
+     pesCLASSESINICIAL,
+     pesCLASSESFINAL      : Abre(ctPesquisaClasse);
+     pesMARCASINICIAL,
+     pesMARCASFINAL       : Abre(ctPesquisaMarca);
+  end;
+end;
+
+procedure TdtmRelatorioEstoque.FechaTabelaPesquisa(
+  TipoPesquisa: TtecPesquisa);
+begin
+  case TipoPesquisa of
+     pesITEMPRODUTOSINICIAL,
+     pesITEMPRODUTOSFINAL : fecha(ctPesquisaItemProdutos);
+     pesPRODUTOSINICIAL,
+     pesPRODUTOSFINAL     : fecha(ctPesquisaProdutos);
+     pesGRUPOSINICIAL,
+     pesGRUPOSFINAL       : fecha(ctPesquisaGrupo);
+     pesCLASSESINICIAL,
+     pesCLASSESFINAL      : fecha(ctPesquisaClasse);
+     pesMARCASINICIAL,
+     pesMARCASFINAL       : fecha(ctPesquisaMarca);
+  end;
+end;
+
+procedure TdtmRelatorioEstoque.Selecionar(TipoPesquisa: TTecPesquisa);
+begin
+  case TipoPesquisa of
+    pesITEMPRODUTOSINICIAL : RefazConsulta(qryitemProdutosInicial,[0],[CodigoItemProduto]);
+    pesITEMPRODUTOSFINAL   : RefazConsulta(qryitemProdutosFinal,[0],[CodigoItemProduto]);
+    pesPRODUTOSINICIAL     : RefazConsulta(qryProdutosInicial,[0],[CodigoProduto]);
+    pesPRODUTOSFINAL       : RefazConsulta(qryProdutosFinal,[0],[CodigoProduto]);
+    pesGRUPOSINICIAL       : RefazConsulta(qryGrupoProdutosInicial,[0],[CodigoGrupo]);
+    pesGRUPOSFINAL         : RefazConsulta(qryGrupoProdutosFinal,[0],[CodigoGrupo]);
+    pesCLASSESINICIAL      : RefazConsulta(qryClassesInicial,[0],[CodigoClasse]);
+    pesCLASSESFINAL        : RefazConsulta(qryClassesFinal,[0],[CodigoClasse]);
+    pesMARCASINICIAL       : RefazConsulta(qryMarcaInicial, [0], [CodigoMarca]);
+    pesMARCASFINAL         : RefazConsulta(qryMarcaFinal, [0], [CodigoMarca]);
+  end;
+end;
+
+function TdtmRelatorioEstoque.GetCodigoProduto: String;
+begin
+ result := qryConsultaProdutoscodigovisual.AsString;
+end;
+
+function TdtmRelatorioEstoque.GetCodigoGrupo: String;
+begin
+ result := qryConsultaGrupoProdutoscodigo.Asstring;
+end;
+
+function TdtmRelatorioEstoque.GetCodigoClasse: String;
+begin
+ result := qryConsultaClassescodigo.AsString;
+end;
+
+function TdtmRelatorioEstoque.GetCodigoItemProduto: String;
+begin
+ result := qryConsultaItemProdutoscodigovisual.asstring;
+end;
+
+function TdtmRelatorioEstoque.GetCodigoMarca: Integer;
+begin
+  Result := qryConsultaMarcascodigo.AsInteger;
+end;
+
+function TdtmRelatorioEstoque.GetConsultarClasse: TtecQuery;
+begin
+ result := qryConsultaClasses;
+end;
+
+function TdtmRelatorioEstoque.GetConsultarGrupo: TtecQuery;
+begin
+ result := qryConsultaGrupoProdutos;
+end;
+
+function TdtmRelatorioEstoque.GetConsultarItemProduto: TTecQuery;
+begin
+ result := qryConsultaItemProdutos;
+end;
+
+function TdtmRelatorioEstoque.GetConsultarProduto: TtecQuery;
+begin
+ result := qryConsultaProdutos;
+end;
+
+function TdtmRelatorioEstoque.GetConsultarMarca: TtecQuery;
+begin
+  Result := qryConsultaMarcas;
+end;
+
+
+procedure TdtmRelatorioEstoque.qryItemProdutosInicialCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryItemProdutosInicialdescricaolc.AsString :=
+    qryItemProdutosInicialdescricao.AsString+' '+
+    qryItemProdutosInicialvalorgrade1.AsString+' '+
+    qryItemProdutosInicialvalorgrade2.AsString;
+
+end;
+
+procedure TdtmRelatorioEstoque.qryItemProdutosFinalCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryItemProdutosFinaldescricaolc.AsString :=
+    qryItemProdutosFinaldescricao.AsString+' '+
+    qryItemProdutosFinalvalorgrade1.AsString+' '+
+    qryItemProdutosFinalvalorgrade2.AsString;
+
+end;
+
+procedure TdtmRelatorioEstoque.qryConsultaItemProdutosAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryConsultaItemProdutosvalorgrade1.Visible := ParSistema.UsarGradesProdutos;
+  qryConsultaItemProdutosvalorgrade2.Visible := ParSistema.UsarGradesProdutos;
+
+end;
+
+procedure TdtmRelatorioEstoque.ImprimirRelatorio;
+var
+//  Relatorio: TfrReport;
+//  frmPreview: TfrmPreviewPadrao;
+  PV: TfrxComponent;
+  arquivofast : String;
+
+  procedure AtribuirLogo;
+  begin
+    if FileExists(LogotipoFilialBase) then
+    begin
+      PV := frxRelatorioEstoqueGrade.FindObject('fpvLogo');
+      if (PV is TfrxPictureView) then
+        TfrxPictureView(PV).picture.LoadFromFile(LogotipoFilialBase);
+    end;
+
+    if FileExists(LogotipoFilialBase) then
+    begin
+      PV := frxRelatorioEstoqueGradeGrupo.FindObject('fpvLogo');
+      if (PV is TfrxPictureView) then
+        TfrxPictureView(PV).picture.LoadFromFile(LogotipoFilialBase);
+    end;
+
+
+  end;
+
+begin
+
+
+  if ImpressaoemGrade then
+  begin
+
+  frxRelatorioEstoqueGrade.designreport;
+//  frxRelatorioEstoqueGradeGrupo.designreport;
+//  frxRelatorioEstoqueGradeGrupoResumo.designreport;
+
+  frxRelatorioEstoqueGrade.Clear;
+
+  frxRelatorioEstoqueGrade.OldStyleProgress:=True;
+  frxRelatorioEstoqueGrade.ShowProgress:=True;
+
+  frxRelatorioEstoqueGrade.EngineOptions.DoublePass:=True;
+  frxRelatorioEstoqueGrade.EngineOptions.TempDir:=ExtractFilePath(Application.ExeName);
+  frxRelatorioEstoqueGrade.EngineOptions.MaxMemSize:= 200; {tried from 100 to 1000 in every compilation}
+  frxRelatorioEstoqueGrade.EngineOptions.UseFileCache:=True;
+
+
+   case resumo of
+   0: begin
+
+        arquivofast := ExtractFilePath(Application.ExeName) + 'frxRelatorioEstoqueGrade.fr3';
+        if not FileExists(arquivofast) then
+          MensagemErro(format('O arquivo %s não encontrado na pasta do executável!',[arquivofast]))
+        else
+        begin
+          frxRelatorioEstoqueGrade.LoadFromFile(arquivofast);
+          AtribuirLogo;
+          frxRelatorioEstoqueGrade.PrepareReport(true);
+        end;
+
+        if not SomenteResumoporColuna then
+        begin
+          arquivofast := ExtractFilePath(Application.ExeName) + 'frxRelatorioEstoqueGradeGrupo.fr3';
+          if not FileExists(arquivofast) then
+            MensagemErro(format('O arquivo %s não encontrado na pasta do executável!',[arquivofast]))
+          else
+          begin
+            frxRelatorioEstoqueGrade.LoadFromFile(arquivofast);
+            AtribuirLogo;
+            frxRelatorioEstoqueGrade.PrepareReport(false);
+          end;
+        end;
+
+        arquivofast := ExtractFilePath(Application.ExeName) + 'frxRelatorioEstoqueGradeGrupoResumo.fr3';
+        if not FileExists(arquivofast) then
+          MensagemErro(format('O arquivo %s não encontrado na pasta do executável!',[arquivofast]))
+        else
+        begin
+          frxRelatorioEstoqueGrade.LoadFromFile(arquivofast);
+          AtribuirLogo;
+          frxRelatorioEstoqueGrade.PrepareReport(false);
+        end;
+
+//        frxRelatorioEstoqueGrade.designreport;
+        frxRelatorioEstoqueGrade.ShowPreparedReport;
+      end;
+   1: begin
+
+        arquivofast := ExtractFilePath(Application.ExeName) + 'frxRelatorioEstoqueGrade.fr3';
+        if not FileExists(arquivofast) then
+          MensagemErro(format('O arquivo %s não encontrado na pasta do executável!',[arquivofast]))
+        else
+        begin
+          frxRelatorioEstoqueGrade.LoadFromFile(arquivofast);
+          AtribuirLogo;
+          frxRelatorioEstoqueGrade.PrepareReport(true);
+        end;
+//        frxRelatorioEstoqueGrade.designreport;
+        frxRelatorioEstoqueGrade.ShowPreparedReport;
+
+      end;
+   2: begin
+
+        if not SomenteResumoporColuna then
+        begin
+          arquivofast := ExtractFilePath(Application.ExeName) + 'frxRelatorioEstoqueGradeGrupo.fr3';
+          if not FileExists(arquivofast) then
+            MensagemErro(format('O arquivo %s não encontrado na pasta do executável!',[arquivofast]))
+          else
+          begin
+            frxRelatorioEstoqueGrade.LoadFromFile(arquivofast);
+            AtribuirLogo;
+            frxRelatorioEstoqueGrade.PrepareReport(true);
+          end;
+        end;
+
+        arquivofast := ExtractFilePath(Application.ExeName) + 'frxRelatorioEstoqueGradeGrupoResumo.fr3';
+        if not FileExists(arquivofast) then
+          MensagemErro(format('O arquivo %s não encontrado na pasta do executável!',[arquivofast]))
+        else
+        begin
+          frxRelatorioEstoqueGrade.LoadFromFile(arquivofast);
+          AtribuirLogo;
+          frxRelatorioEstoqueGrade.PrepareReport(false);
+        end;
+
+        frxRelatorioEstoqueGrade.ShowPreparedReport;
+
+      end;
+   end
+
+  end
+  else
+  begin
+
+    frVariables['RAZAOFILIALBASE']  := RazaoFilialBase;
+    frVariables['ENDERECO_BAIRRO']   := RuaFilialBase+ ' - '+BairroFilialBase;
+    frVariables['CEP_CIDADE_UF']:= FormatarCEP(CEPFilialBase)+'  '+CidadeFilialBase+ '  '+ EstadoFilialBase;
+    frVariables['Outras']:= FParametroCabecalho;
+    frVariables['EmLinha']:=FprodutoEmLinha;
+    frVariables['ForadeLinha']:=FprodutoForadeLinha;
+    frVariables['Ativo']:=FProdutoAtivo;
+    frVariables['Inativo']:=FProdutoInativo;
+    frVariables['ComMontagem']:=FProdutoComMontagem;
+    frVariables['SemMontagem']:=FProdutoSemMontagem;
+    frVariables['Brinde']:=FProdutoBrinde;
+    frVariables['NaoBrinde']:=FProdutoNaoBrinde;
+    frVariables['AgruparGrupoFilial']:=AgruparGrupoFilial;
+    frVariables['AgruparFilial']:=AgruparFilial;
+    frVariables['AgruparFornecedor']:=AgruparFornecedor;
+    frvariables['AgruparLocalizacao']:=AgruparLocalizacao;
+    frVariables['AgruparClasseProduto']:=AgruparClasseProduto;
+    frVariables['AgruparGrupoProduto']:=AgruparGrupoProduto;
+    frVariables['AgruparProduto']:=AgruparProduto;
+    frVariables['DataSituacao']:= ANSIUpperCase(ctSITUACAOEM+' '+DataExtenso(strtodate(FDataSituacao)));
+    frVariables['ComQuantidades']:= FComQuantidades;
+    frVariables['PrecoComICMS']:= FPrecoComICMS;
+    frVariables['PrecoSemICMS']:= FPrecoSemICMS;
+
+                         {
+    frpRelatorioEstoque_SemiAcabados.DesignReport;
+    frxReport1.DesignReport;
+    frpRelatorioEstoque_SemiAcabadosResumo.DesignReport;
+    frxReport1.DesignReport;
+    frpRelatorioEstoque_comFinanceiroCB.DesignReport;
+    frxReport1.DesignReport;
+    frpRelatorioEstoque_comFinanceiroResumo.DesignReport;
+    frxReport1.DesignReport;
+    frpRelatorioEstoque_comFinanceiro.DesignReport;
+    frxReport1.DesignReport;
+    frpRelatorioEstoque_comPrecodeVenda.DesignReport;
+    frxReport1.DesignReport;
+    frpRelatorioEstoque_comPrecodeVendaResumo.DesignReport;
+    frxReport1.DesignReport;
+    frpRelatorioEstoque.DesignReport;
+    frxReport1.DesignReport;
+    }
+
+    //frpRelatorioEstoque.DesignReport;
+//    frmPreview := TfrmPreviewPadrao.create(self);
+    try
+//     Relatorio := frmPreview.frCompositeReport;
+//     with frmPreview do
+//     begin
+//      frCompositeReport.Reports.Clear;
+      case FResumo of
+       0 : if FComValorFinanceiro then
+           begin
+             if AcabadosSemiAcabados then
+             begin
+               ImprimirRelatoriofast(null, null, MPadrao, Resumo, [frpRelatorioEstoque_SemiAcabados, frpRelatorioEstoque_SemiAcabadosResumo], true, self)
+{
+               frCompositeReport.Reports.Add(frpRelatorioEstoque_SemiAcabados);
+               frCompositeReport.Reports.Add(frpRelatorioEstoque_SemiAcabadosResumo);
+               }
+             end
+             else
+             begin
+
+               if ComCodigodeBarras then
+                 ImprimirRelatoriofast(null, null, MPadrao, Resumo, [frpRelatorioEstoque_comFinanceiroCB, frpRelatorioEstoque_comFinanceiroResumo], true, self)
+//                 frCompositeReport.Reports.Add(frpRelatorioEstoque_comFinanceiroCB);
+               else
+                 ImprimirRelatoriofast(null, null, MPadrao, Resumo, [frpRelatorioEstoque_comFinanceiro, frpRelatorioEstoque_comFinanceiroResumo], true, self);
+
+//                 frCompositeReport.Reports.Add(frpRelatorioEstoque_comFinanceiro);
+
+//               frCompositeReport.Reports.Add(frpRelatorioEstoque_comFinanceiroResumo);
+             end;
+           end
+           else
+           if FComPrecodeVenda then
+           begin
+             ImprimirRelatoriofast(null, null, MPadrao, Resumo, [frpRelatorioEstoque_comPrecodeVenda, frpRelatorioEstoque_comPrecodeVendaResumo], true, self)
+
+//             frCompositeReport.Reports.Add(frpRelatorioEstoque_comPrecodeVenda);
+//             frCompositeReport.Reports.Add(frpRelatorioEstoque_comPrecodeVendaResumo);
+           end
+           else
+             ImprimirRelatoriofast(null, null, MSimples, 0, [frpRelatorioEstoque], true, self);
+//             frCompositeReport.Reports.Add(frpRelatorioEstoque);
+
+
+       1 : if FComValorFinanceiro then
+           begin
+             if AcabadosSemiAcabados then
+               ImprimirRelatoriofast(null, null, MSimples, 0, [frpRelatorioEstoque_SemiAcabados], true, self)
+//               frCompositeReport.Reports.Add(frpRelatorioEstoque_SemiAcabados)
+             else
+             begin
+               if ComCodigodeBarras then
+                 ImprimirRelatoriofast(null, null, MSimples, 0, [frpRelatorioEstoque_comFinanceiroCB], true, self)
+//                 frCompositeReport.Reports.Add(frpRelatorioEstoque_comFinanceiroCB)
+               else
+                 ImprimirRelatoriofast(null, null, MSimples, 0, [frpRelatorioEstoque_comFinanceiro], true, self)
+//                 frCompositeReport.Reports.Add(frpRelatorioEstoque_comFinanceiro);
+             end;
+           end
+           else if FComPrecodeVenda then
+              ImprimirRelatoriofast(null, null, MSimples, 0, [frpRelatorioEstoque_comPrecodeVenda], true, self)
+//              frCompositeReport.Reports.Add(frpRelatorioEstoque_comPrecodeVenda)
+           else ImprimirRelatoriofast(null, null, MSimples, 0, [frpRelatorioEstoque], true, self);
+               // frCompositeReport.Reports.Add(frpRelatorioEstoque);
+
+       2 : if FComValorFinanceiro then
+           begin
+             if AcabadosSemiAcabados then
+               ImprimirRelatoriofast(null, null, MSimples, 0, [frpRelatorioEstoque_SemiAcabadosResumo], true, self)
+//               frCompositeReport.Reports.Add(frpRelatorioEstoque_SemiAcabadosResumo)
+             else
+              ImprimirRelatoriofast(null, null, MSimples, 0, [frpRelatorioEstoque_comFinanceiroResumo], true, self)
+//              frCompositeReport.Reports.Add(frpRelatorioEstoque_comFinanceiroResumo)
+           end
+           else if FComPrecodeVenda then
+              ImprimirRelatoriofast(null, null, MSimples, 0, [frpRelatorioEstoque_comPrecodeVendaResumo], true, self)
+//              frCompositeReport.Reports.Add(frpRelatorioEstoque_comPrecodeVendaResumo)
+           else  ImprimirRelatoriofast(null, null, MSimples, 0, [frpRelatorioEstoque], true, self);
+//           frCompositeReport.Reports.Add(frpRelatorioEstoque);
+      end;
+//     end;
+//     Relatorio.Preview := frmPreview.frPreviewPadrao;
+//     Relatorio.ShowReport;
+
+//     frmPreview.ShowModal;
+
+    finally
+
+//     frmPreview.Free
+
+    end;
+  end;
+end;
+
+
+procedure TdtmRelatorioEstoque.SetParametroFornecedor(const Value: String);
+begin
+  FParametroFornecedor := Value;
+  if (value <>'') then
+    ParametroCabecalho := ParametroCabecalho+' Fornec.: '+value;
+end;
+
+procedure TdtmRelatorioEstoque.MontarFiltroFiliais(Usar: TCheckListBox);
+var
+  STRFiliais: String;
+  TodasFiliais: Boolean;
+  cnt: Integer;
+begin
+  TodasFiliais := True;
+  STRFiliais := '';
+  for cnt := 0 to FListaFiliais.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRFiliais := STRFiliais + '''' + IntToStr(Integer(FListaFiliais.Objects[cnt])) + ''','
+    else
+      TodasFiliais := False;
+
+  STRFiliais := Copy(STRFiliais, 0, Length(STrFiliais) - 1);
+  Filial:=STRFiliais;
+  if Trim(STRFiliais) <> '' then
+    if not TodasFiliais then
+      FParametroCabecalho:=FParametroCabecalho+' Filiais: '+STRFiliais
+    else Filial:='';
+end;
+
+procedure TdtmRelatorioEstoque.MontarFiltroGrupoFiliais(
+  Usar: TCheckListBox);
+var
+  STRGruposFiliais: String;
+  TodosGrupos: Boolean;
+  cnt: Integer;
+begin
+  STRGruposFiliais := '';
+  TodosGrupos := True;
+  for cnt := 0 to FListaGruposFiliais.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRGruposFiliais := STRGruposFiliais + '''' + IntToStr(Integer(FListaGruposFiliais.Objects[cnt])) + ''','
+    else
+      TodosGrupos := False;
+
+  STRGruposFiliais := Copy(STRGruposFiliais, 0, Length(STrGruposFiliais) - 1);
+  GrupoFilial:=STRGruposFiliais;
+  if Trim(STRGruposFiliais) <> '' then
+    if not TodosGrupos then
+     FParametroCabecalho:=FParametroCabecalho+' Grupo de Filiais: '+STRGruposFiliais
+    else
+     GrupoFilial:='';
+end;
+
+procedure TdtmRelatorioEstoque.AbreConsultaEstoques (
+                                                      Condicao_ItemdeProdutos,
+                                                      Condicao_produtos,
+                                                      Condicao_gruposprodutos,
+                                                      Condicao_classesprodutos,
+                                                      Condicao_marcasProdutos,
+                                                      Condicao_MarketPlace,
+                                                      Condicao_Promocoes
+                                                       : String
+                                                    );
+const
+ FiltroFornecedor =
+  ' (e.produto in (Select p.codigo '+
+               ' from (produtos p join (caracteristicas c'+
+               ' join (fornecedoresprodutos fp JOIN vfornecedores vf on fp.fornecedor = vf.codigo and vf.tipo = ''F'') on c.codigo = fp.caracteristica)'+
+               ' on p.caracteristica=c.codigo) '+
+               ' where %s ))';
+
+
+ FiltroGruposFornecedores = ' (e.produto in (Select p.codigo '+
+                            ' from produtos p where p.caracteristica in '+
+                            ' (select fp.caracteristica from fornecedoresprodutos fp where fp.fornecedor in (select f.codigo from fornecedores f join gruposfornecedores gf on f.grupofornecedor = gf.codigo where %s))))';
+
+ FiltroFilial      = ' ( e.filial IN (%s)) ';
+ FiltroGrupoFilial = ' ( e.filial IN (SELECT filial ' +
+                                    'FROM filiaisgruposfiliais fgf '+
+                                    'WHERE fgf.grupo IN (%s))) ';
+ AgrupamentoResumo = ') as totais ) as totais group by nomegrupofilial, codigogrupofilial, nomefilial, codigofilial, localizacao, fornecedor, nomefornecedor, classeproduto, codigoclasse, grupoproduto, codigogrupo, produto, codigoproduto, codigoprodutovisual';
+ SQLGradecomElementos = ' (p.valorgrade1 is not null or p.valorgrade2 is not null)';
+
+ SQLEstoqueCondicaoGrade =  ' join produtos p on e.produto = p.codigo '+
+                            '      join caracteristicas c on p.caracteristica = c.codigo '+
+                            ' and c.codigo = g1.codigoproduto and e.filial = g1.codigofilial';
+
+ SQLEstoqueCondicaoGradeGrupo =  ' join produtos p on e.produto = p.codigo '+
+                            '      join caracteristicas c on p.caracteristica = c.codigo '+
+                            ' and c.grupo = g1.codigogrupo';
+
+
+ SQLCondicao_MarketPlace = ' and e.produto in (select pm.produto '+
+                                             ' from produto_marketplace pm '+
+                                             '      join marketplace mk '+
+                                             '      on mk.codigo=pm.marketplace '+
+                                             ' where true and %s )';
+
+
+
+
+var
+ SQLEstoque, SQLMovimento, SQLSituacaoProdutos, SQLQuantidades,SoAtivos,SoForaLinha : String;
+begin
+  SQLEstoque  := '';
+  SQLMovimento := '';
+  SQLSituacaoProdutos := '';
+  SQLQuantidades := '';
+
+  if SemEstoqueZero then
+  begin
+    if (StrToDate(FDataSituacao)<>DataLocal) then
+    begin
+      if not FSomenteEstoqueFisico then
+        SQLMovimento := ' Where (quantidadetotaldoestoque(m1.numero)<>0) '//' Where (m1.financeiro <> 0) '
+      else
+        SQLMovimento := ' Where (m1.estoquefisico<>0) ';
+    end
+    else
+    begin
+      if not FSomenteEstoqueFisico then
+        SqlEstoque   := ' (quantidadetotaldoestoque(e.produto,e.filial) <> 0) '
+      else
+        SqlEstoque   := ' (e.estoquefisico <> 0) '
+    end;
+  end;
+
+  if (NaoVendidosHaNDias<>'0') then
+  begin
+    if length(SQLEstoque)<>0 then
+      SQLEstoque := SQLEstoque + ' AND ' + '(e.ultimavenda <= (current_date - ' + NaoVendidosHaNDias+'))'
+    else
+      SQLEstoque := ' (e.ultimavenda <= (current_date - ' + NaoVendidosHaNDias+')) ';
+  end;
+
+  if (FFilial<>'') then
+   if length(SQLEstoque)<>0 then
+    SQLEstoque := SQLEstoque + ' and '+ format(FiltroFilial,[FFilial])
+   else
+    SQLEstoque := format(FiltroFilial,[FFilial]);
+
+  if (FGrupoFilial<>'') then
+   if length(SQLEstoque)<>0 then
+    SQLEstoque := SQLEstoque + ' and (' + format(FiltroGrupoFilial,[FGrupoFilial]) + ' )'
+   else
+    SQLEstoque := format(FiltroGrupoFilial,[FGrupoFilial]);
+
+  if Condicao_ItemdeProdutos<>'' then
+    qryEstoques.MacroByName('Condicao_ItemdeProdutos').AsString := ' and (' + Condicao_ItemdeProdutos + ' )'
+  else
+    qryEstoques.MacroByName('Condicao_ItemdeProdutos').AsString := '';
+
+  if Condicao_produtos<>'' then
+    qryEstoques.MacroByName('Condicao_produtos').AsString := ' and (' + Condicao_produtos + ' )'
+  else
+    qryEstoques.MacroByName('Condicao_produtos').AsString := '';
+
+  if Condicao_gruposprodutos<>'' then
+    qryEstoques.MacroByName('Condicao_gruposprodutos').AsString := ' and (' + Condicao_gruposprodutos + ' )'
+  else
+    qryEstoques.MacroByName('Condicao_gruposprodutos').AsString := '';
+
+  if Condicao_classesprodutos<>'' then
+    qryEstoques.MacroByName('Condicao_classesprodutos').AsString := ' and (' + Condicao_classesprodutos + ' )'
+  else
+    qryEstoques.MacroByName('Condicao_classesprodutos').AsString := '';
+
+  if Condicao_marcasProdutos<>'' then
+    qryEstoques.MacroByName('Condicao_marcasProdutos').AsString := ' and (' + Condicao_marcasProdutos + ' )'
+  else
+    qryEstoques.MacroByName('Condicao_marcasProdutos').AsString := '';
+
+  if Condicao_MarketPlace<>'' then
+    qryEstoques.MacroByName('Condicao_MarketPlace').AsString :=  format(SQLCondicao_MarketPlace,[Condicao_MarketPlace])
+  else
+    qryEstoques.MacroByName('Condicao_MarketPlace').AsString := '';
+
+  if Condicao_Promocoes<>'' then
+  begin
+    qryEstoques.MacroByName('Condicao_Promocoes_join').asString := ' join promocoes pro on p.promocao = pro.codigo ';
+    qryEstoques.MacroByName('Condicao_Promocoes').AsString :=  ' and ( ' + Condicao_Promocoes + ' )';
+  end
+  else
+  begin
+    qryEstoques.MacroByName('Condicao_Promocoes_join').asString := '';
+    qryEstoques.MacroByName('Condicao_Promocoes').AsString := '';
+  end;
+
+
+   if (FParametroLocalizacao <> '') then
+     if Length(SQLEstoque) <> 0 then
+       SQLEstoque := SQLEstoque+' and '+MontarParametroLocalizacao
+     else
+       SQLEstoque := MontarParametroLocalizacao;
+
+  if (FParametroFornecedor<>'') then
+   if Length(SQLEstoque)<>0 then
+     SQLEstoque := SQLEstoque+' and '+format(FiltroFornecedor, [trocar(FParametroFornecedor,'codigo','vf.codigo')])
+   else
+     SQLEstoque := format(FiltroFornecedor, [trocar(FParametroFornecedor,'codigo','vf.codigo')]) ;
+
+
+  if ListaGruposFornecedores<>'' then
+  begin
+   if length(SQLEstoque)<>0 then
+     SQLEstoque := SQLEstoque +  ' and ' + format(FiltroGruposFornecedores, [trocar(ListaGruposFornecedores,'codigo','gf.codigo')])
+   else
+     SQLEstoque := format(FiltroGruposFornecedores, [trocar(ListaGruposFornecedores,'codigo','gf.codigo')]);
+  end;
+
+
+  if (length(SQLEstoque)<>0) then
+    insert('and ', SQLEstoque, 0);
+
+  if StrToDate(FDataSituacao)<>DataLocal then
+        SoForaLinha:= 'or (p.foralinha>'''+FDataSituacao+''')'
+  else
+        SoForaLinha:='';
+
+  if FProdutoEmLinha and not FprodutoForadeLinha then
+    SQLSituacaoProdutos := SQLSituacaoProdutos +
+                            ' and  (not (p.foralinhal) '+SoForaLinha+') and (not c.foralinhal)'
+  else
+  if FprodutoForadeLinha and not Fprodutoemlinha then
+    SQLSituacaoProdutos := SQLSituacaoProdutos +
+                           ' and  (p.foralinhal or c.foralinhal)';
+
+  if StrToDate(FDataSituacao)<>DataLocal then
+    SoAtivos:= 'or (p.inativo>'''+FDataSituacao+''')'
+  else
+    SoAtivos:='';
+
+  if FProdutoAtivo and not FprodutoInativo then
+     SQLSituacaoProdutos := SQLSituacaoProdutos + ' and  (not (p.inativo is not null) '+ SoAtivos+ ')'
+  else
+  if FprodutoInativo and not FprodutoAtivo then
+     SQLSituacaoProdutos := SQLSituacaoProdutos + ' and  (p.inativo is not null)';
+
+  if FProdutoComMontagem and not FProdutoSemMontagem then
+     SQLSituacaoProdutos := SQLSituacaoProdutos + ' and (c.montagem)'
+  else
+  if FProdutoSemMontagem and not FProdutoComMontagem then
+     SQLSituacaoProdutos := SQLSituacaoProdutos + ' and not (c.montagem)';
+
+  if FProdutoBrinde and not FProdutoNaoBrinde then
+     SQLSituacaoProdutos := SQLSituacaoProdutos + ' and (c.brinde)'
+  else
+  if FProdutoNaoBrinde and not FProdutoBrinde then
+     SQLSituacaoProdutos := SQLSituacaoProdutos + ' and not (c.brinde)';
+
+  if FDisponivelnoSite and not FNaoDisponivelnoSite then
+     SQLSituacaoProdutos := SQLSituacaoProdutos + ' and (p.aparecernosite)'
+  else
+  if FNaoDisponivelnoSite and not FDisponivelnoSite then
+     SQLSituacaoProdutos := SQLSituacaoProdutos + ' and not (p.aparecernosite)';
+
+//  if (length(SQLSituacaoProdutos)<>0) then
+//    insert('Where ', SQLSituacaoProdutos, 0);
+
+  if (emEstoque_Inicial<>'-999999999') or (emEstoque_Final<>'999999999') then
+  begin
+    SQLQuantidades := SQLQuantidades+' emEstoque between ('+emEstoque_Inicial+') and ('+emEstoque_Final+')';
+    FParametroCabecalho := FParametroCabecalho+' em Estoque entre: '+trim(emEstoque_Inicial)+' a '+trim(emEstoque_Final);
+  end;
+
+  if (Reservado_Inicial<>'-999999999') or (Reservado_Final<>'999999999') then
+  begin
+    if Length(SQLQuantidades)>0 then
+     SQLQuantidades := SQLQuantidades+' and reservado between ('+Reservado_Inicial+') and ('+Reservado_Final+')'
+    else SQLQuantidades := SQLQuantidades+' reservado between ('+Reservado_Inicial+') and ('+Reservado_Final+')';
+    FParametroCabecalho := FParametroCabecalho+' Reservado entre: '+trim(Reservado_Inicial)+' a '+trim(Reservado_Final);
+  end;
+
+  if (ReservaPrevia_Inicial<>'-999999999') or (ReservaPrevia_Final<>'999999999') then
+  begin
+    if Length(SQLQuantidades)>0 then
+     SQLQuantidades := SQLQuantidades+' and reservaprevia between ('+ReservaPrevia_Inicial+') and ('+ReservaPrevia_Final+')'
+    else SQLQuantidades := SQLQuantidades+' reservaprevia between ('+reservaprevia_Inicial+') and ('+reservaprevia_Final+')';
+    FParametroCabecalho := FParametroCabecalho+' Reserva Previa entre: '+trim(reservaprevia_Inicial)+' a '+trim(reservaprevia_Final);
+  end;
+
+  if (emTransito_Inicial<>'-999999999') or (emTransito_Final<>'999999999') then
+  begin
+    if Length(SQLQuantidades)>0 then
+     SQLQuantidades := SQLQuantidades+' and Transito between ('+emTransito_Inicial+') and ('+emTransito_Final+')'
+    else SQLQuantidades := SQLQuantidades+' Transito between ('+emTransito_Inicial+') and ('+emTransito_Final+')';
+    FParametroCabecalho := FParametroCabecalho+' em Transito entre: '+trim(emTransito_Inicial)+' a '+trim(emTransito_Final);
+  end;
+
+  if (emDemonstracao_Inicial<>'-999999999') or (emDemonstracao_Final<>'999999999') then
+  begin
+    if Length(SQLQuantidades)>0 then
+     SQLQuantidades := SQLQuantidades+' and demonstracao between ('+emDemonstracao_Inicial+') and ('+emDemonstracao_Final+')'
+    else SQLQuantidades := SQLQuantidades+' demonstracao between ('+emDemonstracao_Inicial+') and ('+emDemonstracao_Final+')';
+    FParametroCabecalho := FParametroCabecalho+' em Demonstr. entre: '+trim(emDemonstracao_Inicial)+' a '+trim(emDemonstracao_Final);
+  end;
+
+  if (emConserto_Inicial<>'-999999999') or (emConserto_Final<>'999999999') then
+  begin
+    if Length(SQLQuantidades)>0 then
+     SQLQuantidades := SQLQuantidades+' and Conserto between ('+emConserto_Inicial+') and ('+emConserto_Final+')'
+    else SQLQuantidades := SQLQuantidades+' Conserto between ('+emConserto_Inicial+') and ('+emConserto_Final+')';
+    FParametroCabecalho := FParametroCabecalho+' em Conserto entre: '+trim(emConserto_Inicial)+' a '+trim(emConserto_Final);
+  end;
+
+  if (Futuro_Inicial<>'-999999999') or (Futuro_Final<>'999999999') then
+  begin
+    if Length(SQLQuantidades)>0 then
+     SQLQuantidades := SQLQuantidades+' and Futuro between ('+Futuro_Inicial+') and ('+Futuro_Final+')'
+    else SQLQuantidades := SQLQuantidades+' Futuro between ('+Futuro_Inicial+') and ('+Futuro_Final+')';
+    FParametroCabecalho := FParametroCabecalho+' Futuro entre: '+trim(futuro_Inicial)+' a '+trim(futuro_Final);
+  end;
+
+  if (Avariado_Inicial<>'-999999999') or (Avariado_Final<>'999999999') then
+  begin
+    if Length(SQLQuantidades)>0 then
+     SQLQuantidades := SQLQuantidades+' and danificada between ('+Avariado_Inicial+') and ('+Avariado_Final+')'
+    else SQLQuantidades := SQLQuantidades+' danificada between ('+Avariado_Inicial+') and ('+Avariado_Final+')';
+    FParametroCabecalho := FParametroCabecalho+' Avariado entre: '+trim(Avariado_Inicial)+' a '+trim(Avariado_Final);
+  end;
+
+  if (Pedido_Inicial<>'-999999999') or (Pedido_Final<>'999999999') then
+  begin
+    if Length(SQLQuantidades)>0 then
+     SQLQuantidades := SQLQuantidades+' and Pedido between ('+Pedido_Inicial+') and ('+Pedido_Final+')'
+    else SQLQuantidades := SQLQuantidades+' Pedido between ('+Pedido_Inicial+') and ('+Pedido_Final+')';
+    FParametroCabecalho := FParametroCabecalho+' Pedido entre: '+trim(Pedido_Inicial)+' a '+trim(Pedido_Final);
+  end;
+
+  if Length(SQLQuantidades)>0 then
+    Insert('Where ', SQLQuantidades, 0);
+
+  qryEstoques.MacroByName('estoque').AsString:=SQLEstoque;
+  qryEstoques.MacroByName('produtos').AsString:=SQLSituacaoProdutos;
+  if STRTODATE(FDataSituacao)<>DataLocal then
+    qryEstoques.MacroByName('movimento').AsString:=SQLMovimento;
+  qryEstoques.MacroByName('quantidades').AsString:=SQLQuantidades;
+  qryEstoques.ParamByName('somenteestoquefisico').AsBoolean:=FSomenteEstoqueFisico;
+
+
+  case compostos of
+  0: begin
+       qryEstoques.MacroByName('FiltroComposto').AsString:= '';
+
+     end;
+
+  1: begin
+       qryEstoques.MacroByName('FiltroComposto').AsString:= ' and not (coalesce(c.composto,false))';
+       FParametroCabecalho := FParametroCabecalho + 'Sem compostos';
+     end;
+
+  2: begin
+       qryEstoques.MacroByName('FiltroComposto').AsString:= ' and (coalesce(c.composto,false))';
+       FParametroCabecalho := FParametroCabecalho + 'Somente compostos';
+     end;
+  end;
+
+  if ImpressaoemGrade and GradecomElementos then
+  begin
+    if (SQLSituacaoProdutos <> '') or (qryEstoques.MacroByName('FiltroComposto').AsString<>'') then
+      qryEstoques.MacroByName('GradecomElementos').AsString := ' and ' + SQLGradecomElementos;
+
+  end
+  else
+   qryEstoques.MacroByName('GradecomElementos').AsString := '';
+
+
+{  case Resumo of
+  0,2: begin}
+            qryEstoquesResumo.Sql.Clear;
+            //tirando o ; do incio de qryEstoques.Sql
+//            qryEstoquesResumo.Sql.Text :=  qryEstoquesResumo_Totais.sql.Text+Copy(qryEstoques.Sql.Text,2,Length(qryEstoques.Sql.Text));
+            qryEstoquesResumo.Sql.Text :=  qryEstoquesResumo_Totais.sql.Text+qryEstoques.Sql.Text;
+            qryEstoquesResumo.Sql.Add(AgrupamentoResumo);
+
+            qryEstoquesResumo.Params := qryEstoques.params;
+            qryEstoquesResumo.Macros := qryEstoques.Macros;
+
+{       end;
+  end;}
+
+  qryEstoques.parambyname('somenteestoquefisico').asBoolean := FSomenteEstoqueFisico;
+  qryEstoques.parambyname('data').asString := Datasituacao;
+
+  qryEstoquesResumo.ParamByName('AgruparGrupoFilial').AsBoolean := AgruparGrupoFilial;
+  qryEstoquesResumo.ParamByName('AgruparFilial').AsBoolean := AgruparFilial;
+  qryEstoquesResumo.ParamByName('AgruparFornecedor').AsBoolean := AgruparFornecedor;
+  qryEstoquesResumo.ParamByName('AgruparLocalizacao').AsBoolean := AgruparLocalizacao;
+  qryEstoquesResumo.ParamByName('AgruparClasseproduto').AsBoolean := AgruparClasseproduto;
+  qryEstoquesResumo.ParamByName('AgruparGrupoProduto').AsBoolean := AgruparGrupoProduto;
+  qryEstoquesResumo.ParamByName('AgruparProduto').AsBoolean := AgruparProduto;
+  qryEstoquesResumo.ParamByName('PrecoComICMS').AsBoolean := PrecoComICMS;
+  qryEstoquesResumo.ParamByName('PrecoSemICMS').AsBoolean := PrecoSemICMS;
+  qryEstoquesResumo.parambyname('somenteestoquefisico').asBoolean := FSomenteEstoqueFisico;
+  qryEstoquesResumo.parambyname('data').asString := Datasituacao;
+
+  qryEstoquesGrade.Sql.Text := qryEstoquesGrade_Aux_Produto.Sql.Text;
+  qryEstoquesGrade.Sql.Insert(NumerodalinhanoTexto(qryEstoquesGrade.Sql, '%SQLEstoques_Linha_1'), trocar(qryEstoques.Sql.Text,';',''));
+  qryEstoquesGrade.Sql.Insert(NumerodalinhanoTexto(qryEstoquesGrade.Sql, '%SQLEstoques_Linha_2'), trocar(qryEstoques.Sql.Text,';',''));
+  qryEstoquesGrade.Params := qryEstoques.Params;
+  qryEstoquesGrade.Macros := qryEstoques.Macros;
+
+  qryEstoquesGradeporGrupos.sql.text := qryEstoquesGradeporGrupos_aux.sql.text;
+  qryEstoquesGradeporGrupos.Sql.Insert(NumerodalinhanoTexto(qryEstoquesGradeporGrupos.Sql, '%SQLEstoques_Linha'), trocar(qryEstoques.Sql.Text,';',''));
+  qryEstoquesGradeporGrupos.Params := qryEstoques.Params;
+  qryEstoquesGradeporGrupos.Macros := qryEstoques.Macros;
+
+  qryEstoquesColunasGrupos.Sql.Text := qryEstoquesColunasGrupo_Aux.Sql.Text;
+  qryEstoquesColunasGrupos.Sql.Insert(NumerodalinhanoTexto(qryEstoquesColunasGrupos.Sql, '%SQLEstoques_Linha_1'), trocar(qryEstoques.Sql.Text,';',''));
+  qryEstoquesColunasGrupos.Sql.Insert(NumerodalinhanoTexto(qryEstoquesColunasGrupos.Sql, '%SQLEstoques_Linha_2'), trocar(qryEstoques.Sql.Text,';',''));
+  qryEstoquesColunasGrupos.Params := qryEstoques.Params;
+  qryEstoquesColunasGrupos.Macros := qryEstoques.Macros;
+
+  if ImpressaoemGrade then
+  begin
+
+    case resumo of
+    0: begin
+        RefazConsulta(qryEstoques,[],[]);
+        RefazConsulta(qryEstoquesGrade,[],[]);
+
+        RefazConsulta(qryEstoquesGradeporGrupos,[],[]);
+        RefazConsulta(qryEstoquesColunasGrupos,[],[]);
+
+       end;
+
+
+    1: begin
+        RefazConsulta(qryEstoques,[],[]);
+        RefazConsulta(qryEstoquesGrade,[],[]);
+       end;
+    2: begin
+         RefazConsulta(qryEstoquesGradeporGrupos,[],[]);
+         RefazConsulta(qryEstoquesColunasGrupos,[],[]);
+       end;
+    end;
+  end
+  else
+  begin
+    case Resumo of
+      0: begin
+          RefazConsulta(qryEstoques,[],[]);
+          RefazConsulta(qryEstoquesResumo,[],[]);
+         end;
+
+      1: RefazConsulta(qryEstoques,[],[]);
+
+      2: RefazConsulta(qryEstoquesResumo,[],[]);
+    end;
+  end;
+end;
+
+
+
+procedure TdtmRelatorioEstoque.SetemEstoque_Inicial(const Value: String);
+begin
+  FemEstoque_Inicial := Value;
+  if Value = '0' then
+   FemEstoque_Inicial := '-999999999'
+end;
+
+procedure TdtmRelatorioEstoque.SetemEstoque_Final(const Value: String);
+begin
+  FemEstoque_Final := Value;
+  if value = '0' then
+   FemEstoque_Final := '999999999';
+end;
+
+procedure TdtmRelatorioEstoque.SetReservado_Inicial(const Value: String);
+begin
+  FReservado_Inicial := Value;
+  if Value = '0' then
+   FReservado_Inicial := '-999999999'
+end;
+
+procedure TdtmRelatorioEstoque.SetReservado_Final(const Value: String);
+begin
+  FReservado_Final := Value;
+  if Value = '0' then
+    FReservado_Final := '999999999';
+end;
+
+procedure TdtmRelatorioEstoque.SetemTransito_Inicial(const Value: String);
+begin
+  FemTransito_Inicial := Value;
+  if value = '0' then
+   FemTransito_Inicial := '-999999999';
+end;
+
+procedure TdtmRelatorioEstoque.SetemTransito_Final(const Value: String);
+begin
+  FemTransito_Final := Value;
+  if Value = '0' then
+   FemTransito_Final := '999999999';
+end;
+
+procedure TdtmRelatorioEstoque.SetemDemonstracao_Inicial(
+  const Value: String);
+begin
+  FemDemonstracao_Inicial := Value;
+  if Value = '0' then
+   FemDemonstracao_Inicial := '-999999999';
+end;
+
+procedure TdtmRelatorioEstoque.SetemDemonstracao_Final(
+  const Value: String);
+begin
+  FemDemonstracao_Final := Value;
+  if value = '0' then
+   FemDemonstracao_Final := '999999999';
+end;
+
+procedure TdtmRelatorioEstoque.SetemConserto_Inicial(const Value: String);
+begin
+  FemConserto_Inicial := Value;
+  if value = '0' then
+   FemConserto_Inicial := '-999999999';
+end;
+
+procedure TdtmRelatorioEstoque.SetemConserto_Final(const Value: String);
+begin
+  FemConserto_Final := Value;
+  if value = '0' then
+   femConserto_Final := '999999999';
+end;
+
+procedure TdtmRelatorioEstoque.SetFuturo_Inicial(const Value: String);
+begin
+  FFuturo_Inicial := Value;
+  if value = '0' then
+   FFuturo_Inicial := '-999999999';
+end;
+
+procedure TdtmRelatorioEstoque.SetFuturo_Final(const Value: String);
+begin
+  FFuturo_Final := Value;
+  if value = '0' then
+   FFuturo_Final := '999999999';
+end;
+
+procedure TdtmRelatorioEstoque.SetAvariado_Inicial(const Value: String);
+begin
+  FAvariado_Inicial := Value;
+  if value = '0' then
+   FAvariado_Inicial := '-999999999';
+end;
+
+procedure TdtmRelatorioEstoque.SetAvariado_Final(const Value: String);
+begin
+  FAvariado_Final := Value;
+  if value = '0' then
+   FAvariado_Final := '999999999';
+end;
+
+procedure TdtmRelatorioEstoque.SetPedido_Inicial(const Value: String);
+begin
+  FPedido_Inicial := Value;
+  if value = '0' then
+   FPedido_Inicial := '-999999999';
+end;
+
+procedure TdtmRelatorioEstoque.SetPedido_Final(const Value: String);
+begin
+  FPedido_Final := Value;
+  if value = '0' then
+   FPedido_Final := '999999999';
+end;
+
+procedure TdtmRelatorioEstoque.DefineOrdenacao;
+var
+ Ordenacao, Ordenacao_EstoquesGradeporGrupos : String;
+begin
+  Ordenacao_EstoquesGradeporGrupos := '';
+  ordenacao := '';
+
+  if AgruparGrupoFilial then
+  begin
+    Ordenacao:=Ordenacao+', nomegrupofilial, codigogrupofilial ';
+    Ordenacao_EstoquesGradeporGrupos:=Ordenacao_EstoquesGradeporGrupos+', nomegrupofilial, codigogrupofilial ';
+  end;
+
+  if AgruparFilial then
+  begin
+    Ordenacao:=Ordenacao+', nomefilial, codigofilial ';
+    Ordenacao_EstoquesGradeporGrupos:=Ordenacao_EstoquesGradeporGrupos+', nomefilial, codigofilial ';
+  end;
+
+  if AgruparFornecedor then
+    Ordenacao:=Ordenacao+', nomefornecedor, fornecedor ';
+
+  if AgruparLocalizacao then
+    Ordenacao:= Ordenacao+', localizacao';
+
+  if AgruparClasseProduto then
+  begin
+    Ordenacao:=Ordenacao+', classeProduto, codigoclasse';
+    Ordenacao_EstoquesGradeporGrupos:=Ordenacao_EstoquesGradeporGrupos+', classeProduto, codigoclasse';
+
+  end;
+
+  if AgruparGrupoProduto then
+  begin
+    Ordenacao:=Ordenacao+', GrupoProduto, CodigoGrupo';
+    Ordenacao_EstoquesGradeporGrupos:=Ordenacao_EstoquesGradeporGrupos+', GrupoProduto, CodigoGrupo';
+  end;
+
+  if AgruparProduto then
+    Ordenacao:=Ordenacao+', Produto, CodigoProduto';
+
+  if ImpressaoemGrade then
+  begin
+
+    if not AgruparProduto then
+    begin
+      if (ParametroOrdenacao = 0) then
+        Ordenacao:=Ordenacao+', CodigoProduto, Produto'
+      else
+        Ordenacao:=Ordenacao+', Produto, CodigoProduto';
+    end;
+
+    if InverterLinhaColuna then
+    begin
+      Ordenacao:= Ordenacao+ ', valorgrade2, valorgrade1';
+      Ordenacao_EstoquesGradeporGrupos:=Ordenacao_EstoquesGradeporGrupos+', valorgrade2, valorgrade1'
+    end
+    else
+    begin
+      Ordenacao:= Ordenacao+ ', valorgrade1, valorgrade2';
+      Ordenacao_EstoquesGradeporGrupos:=Ordenacao_EstoquesGradeporGrupos+', valorgrade1, valorgrade2'
+    end;
+  end;
+
+  case ParametroOrdenacao of
+  0: Ordenacao:=Ordenacao+', codigoitem, item';
+  1: Ordenacao:=Ordenacao+', item, codigoitem';
+  2: Ordenacao:=Ordenacao+', codigofilial, item, codigoitem';
+  3: Ordenacao:=Ordenacao+', localizacao, item, codigoitem';
+  4: Ordenacao:=Ordenacao+', ultimavendadias, item, codigoitem';
+  end;
+
+  qryEstoques.MacroByName('ordenacao').AsString:='Order by '+copy(Ordenacao,2,length(Ordenacao)-1);
+  qryEstoques.MacroByName('Ordenacao_EstoquesGradeporGrupos').AsString:='Order by '+copy( Ordenacao_EstoquesGradeporGrupos,2,length( Ordenacao_EstoquesGradeporGrupos)-1);
+
+end;
+
+procedure TdtmRelatorioEstoque.qryEstoquesCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+   if InverterLinhaColuna then
+   begin
+     qryEstoquesValorGrade_Linha.asString := qryEstoquesvalorgrade2.asString;
+     qryEstoquesValorGrade_Coluna.asString := qryEstoquesvalorgrade1.asString;
+   end
+   else
+   begin
+     qryEstoquesValorGrade_Linha.asString := qryEstoquesvalorgrade1.asString;
+     qryEstoquesValorGrade_Coluna.asString := qryEstoquesvalorgrade2.asString;
+   end;
+
+   qryEstoquesoutros.AsCurrency :=
+   qryEstoquesreservado.AsCurrency +
+   qryEstoquestransito.AsCurrency +
+   qryEstoquesdemonstracao.AsCurrency +
+   qryEstoquesdanificada.AsCurrency +
+   qryEstoquesreservaprevia.AsCurrency+
+   qryEstoquesfuturo.AsCurrency;
+
+   if AcabadosSemiAcabados then
+   begin
+     qryEstoquesQtdeEstoque.asCurrency :=
+     qryEstoquesemestoque.asCurrency { +
+     qryEstoquesacabados.asCurrency +
+     qryEstoquessemiacabados.asCurrency};
+   end
+   else
+   begin
+     if FSomenteEstoqueFisico then
+       qryEstoquesQtdeEstoque.AsCurrency:=qryEstoquesestoquefisico.AsCurrency
+     else
+       qryEstoquesQtdeEstoque.asCurrency :=
+       qryEstoquesemestoque.asCurrency +
+       qryEstoquesreservado.asCurrency +
+       qryEstoquestransito.asCurrency +
+       qryEstoquesdemonstracao.asCurrency +
+       qryEstoquesconserto.asCurrency +
+       qryEstoquesdanificada.asCurrency +
+       qryEstoquesreservaprevia.asCurrency;
+   end;
+
+end;
+
+procedure TdtmRelatorioEstoque.frpRelatorioEstoqueBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  if (View.Name = 'fpvLogo') or
+     (View.Name = 'fpvLogo2')then
+  begin
+   if FileExists(LogotipoFilialBase) then
+    try TfrPictureView(View).Picture.LoadFromFile(LogotipoFilialBase) except end;
+  end
+  else
+  if TColor(strtoint(parsistema.CorZebradoRelatorio))<>TColor(clnone) then
+   if (View.Name = 'mmoZebrado') then
+    if (frpRelatorioEstoque.Dictionary.Variables.Variable['LINHA'] MOD 2)=0 then
+      frpRelatorioEstoque.FindObject('mmoZebrado').FillColor := TColor(strtoint(parsistema.CorZebradoRelatorio))
+    else
+      frpRelatorioEstoque.FindObject('mmoZebrado').FillColor := clnone;
+end;
+
+procedure TdtmRelatorioEstoque.qryEstoquesAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+//  consulta.CancelarSQL;
+//  ImprimirRelatorio;
+end;
+
+procedure TdtmRelatorioEstoque.CancelarRelatorio;
+begin
+// consulta.CancelarSQL;
+// MensagemAviso('cancelou');
+end;
+
+procedure TdtmRelatorioEstoque.frpRelatorioEstoque_comFinanceiroBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+inherited;
+  if (View.Name = 'fpvLogo') or
+     (View.Name = 'fpvLogo2')then
+  begin
+   if FileExists(LogotipoFilialBase) then
+    try TfrPictureView(View).Picture.LoadFromFile(LogotipoFilialBase) except end;
+  end
+  else
+  if TColor(strtoint(parsistema.CorZebradoRelatorio))<>TColor(clnone) then
+   if (View.Name = 'mmoZebrado') then
+    if (frpRelatorioEstoque_comFinanceiro.Dictionary.Variables.Variable['LINHA'] MOD 2)=0 then
+      frpRelatorioEstoque_comFinanceiro.FindObject('mmoZebrado').FillColor := TColor(strtoint(parsistema.CorZebradoRelatorio))
+    else
+      frpRelatorioEstoque_comFinanceiro.FindObject('mmoZebrado').FillColor := clnone;
+end;
+
+procedure TdtmRelatorioEstoque.frpRelatorioEstoque_comPrecodeVendaBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  if (View.Name = 'fpvLogo') or
+     (View.Name = 'fpvLogo2')then
+  begin
+   if FileExists(LogotipoFilialBase) then
+    try TfrPictureView(View).Picture.LoadFromFile(LogotipoFilialBase) except end;
+  end
+  else
+  if TColor(strtoint(parsistema.CorZebradoRelatorio))<>TColor(clnone) then
+   if (View.Name = 'mmoZebrado') then
+    if (frpRelatorioEstoque_comPrecodeVenda.Dictionary.Variables.Variable['LINHA'] MOD 2)=0 then
+      frpRelatorioEstoque_comPrecodeVenda.FindObject('mmoZebrado').FillColor := TColor(strtoint(parsistema.CorZebradoRelatorio))
+    else
+      frpRelatorioEstoque_comPrecodeVenda.FindObject('mmoZebrado').FillColor := clnone;
+end;
+
+procedure TdtmRelatorioEstoque.SetParametroData(const Value: String);
+begin
+  FDataSituacao := Value;
+  if strtodate(FDataSituacao)=DataLocal then
+  begin
+    qryEstoques.Sql.Text := qryEstoques_Atual.Sql.Text;
+    qryEstoques.ParamByName('data').AsString:=FDataSituacao;
+  end
+  else
+  begin
+   qryEstoques.Sql.Text := qryEstoques_Anterior.Sql.Text;
+   qryEstoques.ParamByName('data').AsString:=FDataSituacao;
+  end;
+end;
+
+{procedure TdtmRelatorioEstoque.ZMonitor1MonitorEvent(Sql, Result: String);
+var
+ Listar : TStringList;
+ arquivo: String;
+begin
+  inherited;
+  arquivo:='/mnt/servidor/Anderson.txt';
+  Listar := tStringlist.create;
+  if fileexists(arquivo) then
+    Listar.loadfromfile(arquivo);
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile(arquivo);
+  listar.free;
+end;
+ }
+procedure TdtmRelatorioEstoque.SetSomenteEstoqueFisico(
+  const Value: Boolean);
+begin
+  FSomenteEstoqueFisico := Value;
+  qryEstoques.ParamByName('somenteestoquefisico').AsBoolean:=FSomenteEstoqueFisico;
+end;
+
+function TdtmRelatorioEstoque.MontarParametroLocalizacao: String;
+const
+ SQLLocalizacao =  ' e.localizacao %s';
+var
+ SQL : String;
+begin
+  SQL := '';
+
+  if (FParametroLocalizacao <>'') then
+  begin
+    SQL := format(SQLLocalizacao,['ilike '+quotedstr(FParametroLocalizacao+'%')]);
+    FParametroCabecalho:= FParametroCabecalho+' Localização: '+FParametroTituloLocalizacao;
+  end;
+
+  result := SQL;
+end;
+procedure TdtmRelatorioEstoque.ZMonitor1MonitorEvent(Sql, Result: String);
+var
+ Listar : TStringList;
+ Arquivo: String;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  Arquivo := 'c:\teclux\estoque.sql';
+  if fileexists(Arquivo) then
+    Listar.loadfromfile(Arquivo);
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile(Arquivo);
+  listar.free;
+end;
+
+procedure TdtmRelatorioEstoque.qryEstoquesAfterScroll(DataSet: TDataSet);
+var
+ i,nreg, vnElementosValorGrade_Coluna, vquantidadelinhas: integer;
+begin
+  inherited;
+  if ComCodigodeBarras then
+    if qryEstoquescodigoitem.AsString<>'' then
+      RefazConsultaPorNome(qryCodigoBarras,['produto'],[qryEstoquescodigoitem.AsString])
+    else
+      RefazConsultaPorNome(qryCodigoBarras,['produto'],['0']);
+
+      (*
+  if ImpressaoemGrade and qryEstoquesGrade.active then
+  begin
+    nreg := qryEstoquesGrade.RecordCount;
+    {
+    if qryEstoquesGradenElementosValorGrade_Coluna.AsInteger > 0 then
+      vnElementosValorGrade_Coluna := qryEstoquesGradenElementosValorGrade_Coluna.AsInteger
+    else
+      vnElementosValorGrade_Coluna := 1;
+      }
+
+    if qryEstoquesGradequantidadelinhas.AsInteger > 0 then
+      vquantidadelinhas := qryEstoquesGradequantidadelinhas.AsInteger
+    else
+      vquantidadelinhas := 1;
+
+
+    if nreg < 15 then
+    begin
+      for i:= nreg to 15 do
+      begin
+        qryEstoquesGrade.append;
+//        qryEstoquesGradecodigofilial.asinteger := qryEstoquescodigofilial.AsInteger;
+//        qryEstoquesGradecodigoproduto.asString := qryEstoquescodigoproduto.AsString;
+//        qryEstoquesGradeproduto.asString := qryEstoquesproduto.AsString;
+
+        qryEstoquesGradecodigogrupo.asString := qryEstoquescodigogrupo.asString;
+        qryEstoquesGradegrupoproduto.asString := qryEstoquesgrupoproduto.asString;
+
+        qryEstoquesGradevalorgrade_Linha.clear;
+//        qryEstoquesGradenElementosValorGrade_Coluna.AsInteger := vnElementosValorGrade_Coluna;
+        qryEstoquesGradequantidadelinhas.AsInteger := vquantidadelinhas;
+
+        qryEstoquesGrade.post;
+      end;
+    end;
+
+  end;
+  *)
+end;
+
+procedure TdtmRelatorioEstoque.frpRelatorioEstoque_comFinanceiroCBBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpRelatorioEstoque_comFinanceiroCB, View);
+end;
+
+procedure TdtmRelatorioEstoque.frpRelatorioEstoque_SemiAcabadosBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpRelatorioEstoque_SemiAcabados, view);
+end;
+
+procedure TdtmRelatorioEstoque.frxDBEstoqueGradeCheckEOF(Sender: TObject;
+  var Eof: Boolean);
+  var i: integer;
+begin
+  inherited;
+end;
+
+procedure TdtmRelatorioEstoque.frxRelatorioEstoqueGradeGetValue(
+  const VarName: String; var Value: Variant);
+begin
+  inherited;
+  if VarName = 'TITULO' then
+    Value :=  'RELATÓRIO DE ESTOQUES POR GRADE'
+  else if VarName = 'RAZAOFILIALBASE' then
+    Value := RazaoFilialBase
+  else if VarName = 'ENDERECO_BAIRRO' then
+    Value :=  RuaFilialBase+ ' - '+BairroFilialBase
+  else if VarName = 'CEP_CIDADE_UF' then
+    Value :=  FormatarCEP(CEPFilialBase)+'  '+CidadeFilialBase+ '  '+ EstadoFilialBase
+  else if VarName = 'OUTRAS' then
+    Value :=  FParametroCabecalho
+  else if VarName = 'DATA' then
+    Value :=  FormatDateTime('DD/MM/YYYY',date())
+  else if VarName = 'DATASITUACAO' then
+    Value :=  ANSIUpperCase(ctSITUACAOEM+' '+DataExtenso(strtodate(FDataSituacao)))
+  else if VarName = 'CordoZebrado' then
+    Value :=  strtoint(parsistema.CorZebradoRelatorio)
+  else if VarName = 'AgruparGrupoFilial' then
+    Value :=  AgruparGrupoFilial
+  else if VarName = 'AgruparFilial' then
+    Value :=  AgruparFilial
+  else if VarName = 'AgruparFornecedor' then
+    Value :=  AgruparFornecedor
+  else if VarName = 'AgruparLocalizacao' then
+    Value :=  AgruparLocalizacao
+  else if VarName = 'AgruparClasseProduto' then
+    Value :=  AgruparClasseProduto
+  else if VarName = 'AgruparGrupoProduto' then
+    Value :=  AgruparGrupoProduto;
+
+end;
+
+procedure TdtmRelatorioEstoque.SetListaGruposFornecedores(
+  const Value: String);
+begin
+  fListaGruposFornecedores := Value;
+  if (value <>'') then
+    ParametroCabecalho := ParametroCabecalho+' Grupo de Fornecedores: '+value;
+end;
+
+procedure TdtmRelatorioEstoque.SetReservaPrevia_Final(const Value: String);
+begin
+  FReservaPrevia_Final := Value;
+  if Value = '0' then
+    FReservaPrevia_Final := '999999999';
+end;
+
+procedure TdtmRelatorioEstoque.SetReservaPrevia_Inicial(
+  const Value: String);
+begin
+  FReservaPrevia_Inicial := Value;
+  if Value = '0' then
+   FReservaPrevia_Inicial := '-999999999'
+
+end;
+
+procedure TdtmRelatorioEstoque.qryEstoquesResumoCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  {
+   qryEstoquesoutros.AsCurrency :=
+   qryEstoquesreservado.AsCurrency +
+   qryEstoquestransito.AsCurrency +
+   qryEstoquesdemonstracao.AsCurrency +
+   qryEstoquesdanificada.AsCurrency +
+   qryEstoquesreservaprevia.AsCurrency+
+   qryEstoquesfuturo.AsCurrency;
+   }
+
+   if AcabadosSemiAcabados then
+   begin
+     qryEstoquesResumoQtdeEstoque.asCurrency :=
+     qryEstoquesResumoemestoque.asCurrency { +
+     qryEstoquesacabados.asCurrency +
+     qryEstoquessemiacabados.asCurrency};
+   end
+   else
+   begin
+     if FSomenteEstoqueFisico then
+       qryEstoquesResumoQtdeEstoque.AsCurrency:=qryEstoquesResumoestoquefisico.AsCurrency
+     else
+       qryEstoquesResumoQtdeEstoque.asCurrency :=
+       qryEstoquesResumoemestoque.asCurrency +
+       qryEstoquesResumoreservado.asCurrency +
+       qryEstoquesResumotransito.asCurrency +
+       qryEstoquesResumodemonstracao.asCurrency +
+       qryEstoquesResumoconserto.asCurrency +
+       qryEstoquesResumodanificada.asCurrency +
+       qryEstoquesResumoreservaprevia.asCurrency;
+   end;
+
+end;
+
+procedure TdtmRelatorioEstoque.qryEstoquesGradeBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryEstoquesGrade.ParamByName('InverterLinhaColuna').asBoolean := InverterLinhaColuna;
+
+end;
+
+procedure TdtmRelatorioEstoque.qryEstoquesGradeporGruposCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+   if InverterLinhaColuna then
+   begin
+     qryEstoquesGradeporGruposValorGrade_Linha.asString := qryEstoquesGradeporGruposvalorgrade2.asString;
+     qryEstoquesGradeporGruposValorGrade_Coluna.asString := qryEstoquesGradeporGruposvalorgrade1.asString;
+   end
+   else
+   begin
+     qryEstoquesGradeporGruposValorGrade_Linha.asString := qryEstoquesGradeporGruposvalorgrade1.asString;
+     qryEstoquesGradeporGruposValorGrade_Coluna.asString := qryEstoquesGradeporGruposvalorgrade2.asString;
+   end;
+                                  {
+   qryEstoquesGradeporGruposoutros.AsCurrency :=
+   qryEstoquesGradeporGruposreservado.AsCurrency +
+   qryEstoquesGradeporGrupostransito.AsCurrency +
+   qryEstoquesGradeporGruposdemonstracao.AsCurrency +
+   qryEstoquesGradeporGruposdanificada.AsCurrency +
+   qryEstoquesGradeporGruposreservaprevia.AsCurrency+
+   qryEstoquesGradeporGruposfuturo.AsCurrency;
+   }
+
+   if AcabadosSemiAcabados then
+   begin
+     qryEstoquesGradeporGruposQtdeEstoque.asCurrency :=
+     qryEstoquesGradeporGruposemestoque.asCurrency { +
+     qryEstoquesGradeporGruposacabados.asCurrency +
+     qryEstoquesGradeporGrupossemiacabados.asCurrency};
+   end
+   else
+   begin
+     if FSomenteEstoqueFisico then
+       qryEstoquesGradeporGruposQtdeEstoque.AsCurrency:=qryEstoquesGradeporGruposestoquefisico.AsCurrency
+     else
+       qryEstoquesGradeporGruposQtdeEstoque.asCurrency :=
+       qryEstoquesGradeporGruposemestoque.asCurrency +
+       qryEstoquesGradeporGruposreservado.asCurrency +
+       qryEstoquesGradeporGrupostransito.asCurrency +
+       qryEstoquesGradeporGruposdemonstracao.asCurrency +
+       qryEstoquesGradeporGruposconserto.asCurrency +
+       qryEstoquesGradeporGruposdanificada.asCurrency +
+       qryEstoquesGradeporGruposreservaprevia.asCurrency;
+   end;
+
+end;
+
+procedure TdtmRelatorioEstoque.qryEstoquesGradeporGruposAfterScroll(
+  DataSet: TDataSet);
+var
+ i,nreg, vnElementosValorGrade_Coluna, vquantidadelinhas: integer;
+begin
+  inherited;
+  {
+
+  if ComCodigodeBarras then
+    if qryEstoquescodigoitem.AsString<>'' then
+      RefazConsultaPorNome(qryCodigoBarras,['produto'],[qryEstoquescodigoitem.AsString])
+    else
+      RefazConsultaPorNome(qryCodigoBarras,['produto'],['0']);
+
+  }
+
+  (*
+  if ImpressaoemGrade  and qryEstoquesColunasGrupos.active then
+  begin
+    nreg := qryEstoquesColunasGrupos.RecordCount;
+    if qryEstoquesColunasGruposquantidadelinhas.AsInteger > 0 then
+      vquantidadelinhas := qryEstoquesColunasGruposquantidadelinhas.AsInteger
+    else
+      vquantidadelinhas := 1;
+
+    if nreg < 20 then
+    begin
+      for i:= nreg to 20 do
+      begin
+        qryEstoquesColunasGrupos.append;
+//        qryEstoquesColunasGruposcodigofilial.asinteger := qryEstoquesGradeporGrupos codigofilial.AsInteger;
+        qryEstoquesColunasGruposcodigogrupo.asString := qryEstoquesGradeporGruposcodigogrupo.asString;
+        qryEstoquesColunasGruposgrupoproduto.asString := qryEstoquesGradeporGruposgrupoproduto.asString;
+        qryEstoquesColunasGruposvalorgrade_Linha.clear;
+        qryEstoquesColunasGruposquantidadelinhas.AsInteger := vquantidadelinhas;
+
+        qryEstoquesColunasGrupos.post;
+      end;
+    end;
+
+  end;
+  *)
+end;
+
+procedure TdtmRelatorioEstoque.qryEstoquesColunasGruposBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryEstoquesColunasGrupos.ParamByName('InverterLinhaColuna').asBoolean := InverterLinhaColuna;
+end;
+
+procedure TdtmRelatorioEstoque.qryEstoquesBeforeOpen(DataSet: TDataSet);
+begin
+  inherited;
+  qryEstoques.ParamByName('InverterLinhaColuna').asBoolean := InverterLinhaColuna;
+end;
+
+procedure TdtmRelatorioEstoque.qryEstoquesResumoBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryEstoquesResumo.ParamByName('InverterLinhaColuna').asBoolean := InverterLinhaColuna;
+end;
+
+end.

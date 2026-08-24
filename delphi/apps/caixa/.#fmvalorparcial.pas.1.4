@@ -1,0 +1,433 @@
+unit fmvalorparcial;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, Mask, DBCtrls, Buttons, ExtCtrls, Windows,
+  //Biblio
+  biblio, ctconstantes,
+  //Projeto
+  dmautenticacoes,
+  //Repositorio
+  fmnavcontroles, clparametrossistema,
+  //Componentes
+  cpdbtext, cpnumero, cpdbdata, cpdata, ComCtrls, ToolWin;
+
+type
+
+  TfrmValorParcial = class(TfrmNavControles)
+    lblDataVencto: TLabel;
+    lblValorVencto: TLabel;
+    lblValorDebito: TLabel;
+    lblValorPagar: TLabel;
+    dtxValorVencto: TtecDBText;
+    dtxDataVencto: TtecDBText;
+    dtxValorDebito: TtecDBText;
+    edtValorPagtoParcial: TEditNumero;
+    pnlFundoJanela: TPanel;
+    gbxFundoJanela: TGroupBox;
+    lblDataDebito: TLabel;
+    edtDataDebito: TEditData;
+    lblTotalAutenticadoValor: TLabel;
+    edtTotalPagar: TEditNumero;
+    Label1: TLabel;
+    Label2: TLabel;
+    tblBarra: TToolBar;
+    sbnAjuda: TSpeedButton;
+    sbnCancelar: TSpeedButton;
+    sbnOK: TSpeedButton;
+    tbnDivisor: TToolButton;
+    procedure FormShow(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure edtDataDebitoKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edtTotalPagarExit(Sender: TObject);
+    procedure edtValorPagtoParcialExit(Sender: TObject);
+    procedure sbnOKClick(Sender: TObject);
+    procedure sbnCancelarClick(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+  private
+    FOldValueEdtValorPagtoParcial : String;
+    FResgateParc: Boolean;
+    FTotalAutenticado: real;
+    FEmAlteracao: Boolean;
+    FAlteracaoOK: Boolean;
+    procedure setResgateParc(const Value: Boolean);
+  protected
+    dtmautenticacoes: Tdtmautenticacoes;
+    FTipoPagamentoParcial: TtecPagamentoParcial;
+    function ValorValido: boolean;
+  public
+    destructor Destroy; override;
+    procedure  setDataModuloAutenticacoes (dtm: TdtmAutenticacoes);
+    procedure  setTipoPagamentoParcial(const TipoPagamento: TtecPagamentoParcial);
+    property   ResgateParc: Boolean read FResgateParc write setResgateParc;
+    property TotalAutenticado: real read FTotalAutenticado write FTotalAutenticado;
+    property EmAlteracao : Boolean read FEmAlteracao write FEmAlteracao Default False;
+    property AlteracaoOK : Boolean read FAlteracaoOK write FAlteracaoOK Default True;
+  end;
+
+var
+  frmValorParcial: TfrmValorParcial;
+
+implementation
+
+Uses
+  //Biblio
+  clusuario, DB;
+
+{$R *.dfm}
+
+{ Tfrmvalorparcial }
+
+destructor TfrmValorParcial.Destroy;
+begin
+  inherited;
+  frmvalorparcial := nil;
+end;
+
+procedure TfrmValorParcial.FormClose(Sender: TObject; var Action: TCloseAction);
+var
+  Valor,
+  NovoValor: Currency;
+begin
+  inherited;
+  if ModalResult = mrOK then
+    case FTipoPagamentoParcial of
+      ppALTERARPARCELAS: begin
+                           dtmautenticacoes.PrestacaoValorPagto := StrToFloat(edtValorPagtoParcial.ValorSemFormatacao);
+                           dtmautenticacoes.PrestacaoParcial    := FTipoPagamentoParcial = ppPARCELAS;
+                         end;
+      ppPARCELAS       : begin
+                           if valorValido then begin
+                             dtmautenticacoes.PrestacaoValorPagto := StrToFloat(edtValorPagtoParcial.ValorSemFormatacao);
+                             dtmautenticacoes.PrestacaoParcial    := FTipoPagamentoParcial = ppPARCELAS;
+                           end
+                         end;
+      ppPARCELASSEMJUROS : begin
+                             if valorvalido then begin
+                               dtmautenticacoes.PrestacaoValorPagto := StrToFloat(edtValorPagtoParcial.ValorSemFormatacao);
+                               dtmautenticacoes.PrestacaoParcial := FTipoPagamentoParcial = ppPARCELASSEMJUROS;
+                             end
+                           end;
+      ppPARCELASCHEQUES: begin
+                           if valorValido then begin
+                             Valor := StrToFloat(Trocar(dtmautenticacoes.ValorVenctoParcelaOriginal,'.',''));
+                             NovoValor := StrToFloat(edtValorPagtoParcial.ValorSemFormatacao);
+                             dtmautenticacoes.ResgateValorPagto := StrToFloat(edtValorPagtoParcial.ValorSemFormatacao);
+                             if (NovoValor < Valor) then begin
+                               if MensagemConfirmacao('O Valor a ser pago é menor que o Valor do vencimento.' + #10#13 +
+                                                      'A operação a ser realizada, refere-se a um Pagamento'  + #10#13 +
+                                                      'Parcial. Confirma?') = smbOK then
+                                    dtmautenticacoes.ResgateParcial := True
+                               else dtmautenticacoes.ResgateParcial := False;
+                             end
+                             else
+                               dtmautenticacoes.ResgateParcial := False
+                           end
+                         end;
+      ppALTERARPARCELASABERTO: begin
+                                 if ValorValido then
+                                 begin
+                                   dtmautenticacoes.ParcelasAbertoValorPagtoAposAlterar(StrToFloat(edtTotalPagar.ValorSemFormatacao) - TotalAutenticado);
+                                   dtmautenticacoes.ParcelasAbertoParcial    := FTipoPagamentoParcial = ppPARCELASABERTO;
+                                 end;
+                               end;
+      ppPARCELASABERTO : begin
+                           if ValorValido then
+                           begin
+                             dtmautenticacoes.ParcelasAbertoValorPagto := StrToFloat(edtValorPagtoParcial.ValorSemFormatacao);
+                             dtmautenticacoes.ParcelasAbertoParcial    := FTipoPagamentoParcial = ppPARCELASABERTO;
+                           end;
+                         end;
+      ppPARCELASABERTOSEMJUROS: begin
+                                  if ValorValido then
+                                  begin
+                                    dtmautenticacoes.ParcelasAbertoValorPagto := StrToFloat(edtValorPagtoParcial.ValorSemFormatacao);
+                                    dtmautenticacoes.ParcelasAbertoParcial := FTipoPagamentoParcial = ppPARCELASABERTOSEMJUROS;
+                                    dtmautenticacoes.ParcelasAbertoParcialSemJuros := FTipoPagamentoParcial = ppPARCELASABERTOSEMJUROS;
+                                  end;
+                                end;
+    end
+end;
+
+procedure TfrmValorParcial.FormShow(Sender: TObject);
+begin
+  inherited;
+  case FTipoPagamentoParcial of
+    ppPARCELAS,
+    //ppALTERARPARCELAS: edtValorPagtoParcial.Text := dtmautenticacoes.ValorVenctoParcelaPrestacao;
+    //ppPARCELASSEMJUROS : edtValorPagtoParcial.Text:= dtxValorVencto.Field.AsString;
+    ppALTERARPARCELAS: edtValorPagtoParcial.Text := dtmautenticacoes.ValorPagtoParcelaPrestacao;
+    ppPARCELASSEMJUROS,
+    ppPARCELASABERTOSEMJUROS : edtValorPagtoParcial.Text:= dtxValorVencto.Field.AsString;
+    ppPARCELASCHEQUES: edtValorPagtoParcial.Text := dtmautenticacoes.ValorVenctoParcelaCheque;
+    ppPARCELASABERTO,
+    ppALTERARPARCELASABERTO: edtValorPagtoParcial.Text := FloatToStrF(dtmautenticacoes.ParcelasAbertoValorPagto,ffFixed,18,2);
+
+  end;
+  //TotalAutenticado := StrToFloat(limpaFloat(dtmautenticacoes.ValorVenctoParcelaPrestacao))+TotalAutenticado;
+  if (FTipoPagamentoParcial in [ppPARCELAS, ppPARCELASSEMJUROS, ppALTERARPARCELAS, ppPARCELASCHEQUES]) then
+    TotalAutenticado := StrToFloat(limpaFloat(dtmautenticacoes.ValorPagtoParcelaPrestacao))+TotalAutenticado
+  else if FTipoPagamentoParcial in [ppPARCELASABERTO, ppPARCELASABERTOSEMJUROS] then
+    TotalAutenticado := dtmautenticacoes.ParcelasAbertoValorPagto + TotalAutenticado;
+  lblTotalAutenticadoValor.Caption := FloatToStrF(TotalAutenticado, ffFixed, 18,2);
+  edtDataDebito.Text:= DateToStr(dtmautenticacoes.DataServidor);
+  edtValorPagtoParcial.SetFocus;
+  edtValorPagtoParcial.SelectAll;
+  edtDataDebito.ReadOnly:= not (FTipoPagamentoParcial in [ppALTERARPARCELAS, ppALTERARPARCELASABERTO]);
+  FOldValueEdtValorPagtoParcial := '0';
+  if FEmAlteracao then
+  begin
+
+  {
+    ClientHeight := 194;
+    ClientWidth := 370;
+    Height := 194;
+    Width  := 370;
+    }
+    lblTotalAutenticadoValor.Visible := True;
+    edtTotalPagar.Text := FloatToStrF(TotalAutenticado, ffFixed, 18,2);
+    Label1.Visible := True;
+    Label2.Visible := True;
+    edtTotalPagar.Visible := True;
+    Repaint;
+    edtTotalPagar.SetFocus;
+    edtTotalPagar.SelectAll;
+  end;
+end;
+
+procedure TfrmValorParcial.setDataModuloAutenticacoes(dtm: TdtmAutenticacoes);
+begin
+  dtmautenticacoes := dtm;
+end;
+
+procedure TfrmValorParcial.setResgateParc(const Value: Boolean);
+begin
+  FResgateParc := Value;
+end;
+
+procedure TfrmValorParcial.setTipoPagamentoParcial(const TipoPagamento: TtecPagamentoParcial);
+begin
+  FTipoPagamentoParcial := TipoPagamento;
+  case TipoPagamento of
+    ppPARCELAS,
+    ppPARCELASSEMJUROS,
+    ppALTERARPARCELAS: begin
+                         dtxValorVencto.DataSource := dtmautenticacoes.dsrParcelasPrestacao;
+                         dtxDataVencto.DataSource  := dtmautenticacoes.dsrParcelasPrestacao;
+                         dtxValorDebito.DataSource := dtmautenticacoes.dsrParcelasPrestacao;
+                       end;
+    ppPARCELASCHEQUES: begin
+                         dtxValorVencto.DataSource := dtmautenticacoes.dsrParcelasResgate;
+                         dtxDataVencto.DataSource  := dtmautenticacoes.dsrParcelasResgate;
+                         dtxValorDebito.DataSource := dtmautenticacoes.dsrParcelasResgate;
+                       end;
+    ppPARCELASABERTO,
+    ppPARCELASABERTOSEMJUROS,
+    ppALTERARPARCELASABERTO: begin
+                               dtxValorVencto.DataSource := dtmautenticacoes.dsrParcelasAberto;
+                               dtxDataVencto.DataSource  := dtmautenticacoes.dsrParcelasAberto;
+                               dtxValorDebito.DataSource := dtmautenticacoes.dsrParcelasAberto;
+                             end;
+  end;
+end;
+
+function Tfrmvalorparcial.ValorValido: boolean;
+var
+  Valor: Currency;
+  Usuario: TtecUsuarios;
+begin
+  Result := True;
+  try
+    Valor := StrToFloat(edtValorPagtoParcial.ValorSemFormatacao);
+    if (FTipoPagamentoParcial in [ppPARCELAS, ppPARCELASABERTO]) then
+    begin
+      if (Valor - dtxValorDebito.Field.AsCurrency) > 0 then
+      begin
+        MensagemErro(ctERRORVALORSUPERIORAODEBITO);
+        Result := False;
+      end
+    end
+    else if (FTipoPagamentoParcial in [ppPARCELASSEMJUROS, ppPARCELASABERTOSEMJUROS]) then
+    begin
+      if (Valor - dtxValorVencto.Field.AsCurrency) > 0 then
+      begin
+        MensagemErro(ctERRORVALORSUPERIORAOVENCTO);
+        Result := False;
+      end;
+    end
+    else
+    begin
+      if (FTipoPagamentoParcial in [ppALTERARPARCELAS, ppALTERARPARCELASABERTO]) then
+      begin
+        if Valor < (Trunc(dtxValorDebito.Field.AsCurrency*100))/100 then
+        begin
+          if ParSistema.ValorMaxDescontoAlteracaoParcela = 0 then
+          begin
+            if ParSistema.exigeSenhaDescontoAlteracaoParcela then
+            begin
+              Usuario:= TtecUsuarios.Create(dtmautenticacoes.dtmTecSoft.Database);
+              try
+                if UsuarioLogin.DescontoExtra then
+                  Usuario:= dtmautenticacoes.ObterAutorizacao(taSENHA)
+                else
+                  Usuario:= dtmautenticacoes.ObterAutorizacao(taLOGIN, ctALTERARVALORPRESTACAO, ctPERFILDESCONTOEXTRA);
+                Result := Assigned(Usuario) and Usuario.DescontoExtra;
+                if Not Result then
+                  MensagemAviso(format(ctUSUARIONAOAUTORIZADO,['autorizar a alteração da parcela.']));
+              finally
+                Usuario.Free;
+              end;
+            end;
+          end;
+        end;
+      end;
+    end;
+  except
+    MensagemErro(ctERRORVALORINVALIDO);
+    Result := False;
+  end;
+end;
+
+procedure TfrmValorParcial.edtDataDebitoKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  if (Key = VK_Return) or (Key = VK_Return) then
+    if not DataEmBranco(edtDataDebito.Text) then begin
+      if edtDataDebito.Criticar(False) then begin
+        dtmautenticacoes.RecalcularValorParcela(edtDataDebito.Text,FTipoPagamentoParcial);
+        case FTipoPagamentoParcial of
+          ppPARCELAS,
+          //ppPARCELASSEMJUROS,
+          //ppALTERARPARCELAS : edtValorPagtoParcial.Text := dtmautenticacoes.ValorVenctoParcelaPrestacao;
+          ppPARCELASSEMJUROS: edtValorPagtoParcial.Text := dtmautenticacoes.ValorVenctoParcelaPrestacao;
+          ppALTERARPARCELAS : edtValorPagtoParcial.Text := dtmautenticacoes.ValorPagtoParcelaPrestacao;
+          ppPARCELASCHEQUES : edtValorPagtoParcial.Text := dtmautenticacoes.ValorVenctoParcelaCheque;
+
+          ppPARCELASABERTO,
+          ppPARCELASABERTOSEMJUROS: edtValorPagtoParcial.Text := FloatToStrF(dtmautenticacoes.ParcelasAbertoValorVencto,ffFixed,18,2);
+          ppALTERARPARCELASABERTO : edtValorPagtoParcial.Text := FloatToStrF(dtmautenticacoes.ParcelasAbertoValorPagto,ffFixed,18,2);
+        end;
+      end else
+        edtDataDebito.SetFocus;
+    end;
+    inherited;
+end;
+
+procedure TfrmValorParcial.edtTotalPagarExit(Sender: TObject);
+var
+  valor : Real;
+begin
+  inherited;
+  AlteracaoOK:=true;
+  valor := edtTotalPagar.ValorSemFormatacao;
+  if not(TotalAutenticado-valor > ParSistema.ValorMaxDescontoAlteracaoParcela) or (ParSistema.ValorMaxDescontoAlteracaoParcela = 0) then
+  begin
+    valor := TotalAutenticado-valor;
+    if edtTotalPagar.ValorSemFormatacao > TotalAutenticado  then
+    begin
+      if (FTipoPagamentoParcial in [ppPARCELASSEMJUROS, ppPARCELASABERTOSEMJUROS]) then
+        edtValorPagtoParcial.Text := FloatToStrF(dtxValorVencto.Field.AsFloat+(valor*-1), ffFixed, 18,2)
+      else
+         edtValorPagtoParcial.Text := FloatToStrF(dtxValorDebito.Field.AsFloat+(valor*-1), ffFixed, 18,2)
+    end
+    else
+    begin
+      if dtxValorDebito.Field.AsFloat-valor > 0 then
+      begin
+        if (FTipoPagamentoParcial in [ppPARCELASSEMJUROS, ppPARCELASABERTOSEMJUROS]) then
+          edtValorPagtoParcial.Text := FloatToStrF(dtxValorVencto.Field.AsFloat-valor,ffFixed, 18,2)
+        else
+          edtValorPagtoParcial.Text := FloatToStrF(dtxValorDebito.Field.AsFloat-valor,ffFixed, 18,2)
+      end
+      else
+      begin
+        MensagemAviso('O valor de desconto não pode ser maior que o valor da parcela.');
+        AlteracaoOK:=false;
+        edtTotalPagar.SetFocus;
+        edtTotalPagar.SelectAll;
+      end;
+    end;
+  end
+  else
+  begin
+    MensagemAviso('Valor do desconto não pode ser maior que '+FloatToStrF(ParSistema.ValorMaxDescontoAlteracaoParcela, ffCurrency, 18,2)+'.');
+    AlteracaoOK:=false;
+    edtTotalPagar.SetFocus;
+    edtTotalPagar.SelectAll;
+  end;
+end;
+
+procedure TfrmValorParcial.edtValorPagtoParcialExit(Sender: TObject);
+var
+  valor : Real;
+  valorTotalPagar : Real;
+  valorAlteradoTotal : Real;
+  valorAlteradoParcela : Real;
+begin
+  inherited;
+  AlteracaoOK:=true;
+  if EmAlteracao then
+  begin
+    valorTotalPagar      := edtTotalPagar.ValorSemFormatacao;
+    valorAlteradoTotal   := edtTotalPagar.ValorSemFormatacao - TotalAutenticado;
+ //   valorAlteradoParcela := edtValorPagtoParcial.ValorSemFormatacao - dtxValorDebito.Field.Value;
+    valorAlteradoParcela := edtValorPagtoParcial.ValorSemFormatacao - dtxValorDebito.Field.Value;
+    valorAlteradoTotal   := valorAlteradoTotal - valorAlteradoParcela;
+    valor := valorTotalPagar - valorAlteradoTotal;
+    if not(TotalAutenticado-valor > ParSistema.ValorMaxDescontoAlteracaoParcela) or (ParSistema.ValorMaxDescontoAlteracaoParcela = 0) then
+    begin
+      //edtTotalPagar.Text := FloatToStr(valor);
+      edtTotalPagar.Text:=FloatToStrF(valor, ffFixed, 18,2);
+    end
+    else
+    begin
+      MensagemAviso('Valor do desconto não pode ser maior que '+FloatToStrF(ParSistema.ValorMaxDescontoAlteracaoParcela, ffCurrency, 18,2)+'.');
+      //edtValorPagtoParcial.Text:= FloatToStr(dtmautenticacoes.PrestacaoValorPagto);
+      AlteracaoOK:=false;
+      edtValorPagtoParcial.SetFocus;
+      edtValorPagtoParcial.SelectAll;
+    end;
+  end;
+end;
+
+procedure TfrmValorParcial.sbnOKClick(Sender: TObject);
+begin
+  inherited;
+  if Not ValorValido then
+    edtValorPagtoParcial.SetFocus
+  else if (AlteracaoOK) then
+  begin
+    Close;
+    ModalResult := mrOk;
+  end;
+end;
+
+procedure TfrmValorParcial.sbnCancelarClick(Sender: TObject);
+begin
+  inherited;
+  ModalResult := mrCancel;
+end;
+
+procedure TfrmValorParcial.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  case Key of
+    VK_F5: begin
+              if EmAlteracao then
+              begin
+                edtValorPagtoParcial.SetFocus;
+                edtTotalPagar.SetFocus;
+              end;
+              edtDataDebito.SetFocus;
+              sbnOKClick(Self);
+            end;
+    VK_F6: sbnCancelarClick(Self);
+  end
+end;
+
+end.

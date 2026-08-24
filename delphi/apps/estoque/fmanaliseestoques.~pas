@@ -1,0 +1,162 @@
+unit fmanaliseestoques;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmrelatoriopadrao, ExtCtrls, Buttons, ToolWin, ComCtrls,
+  frintervalodatas, frselecaoaleatoriagruposfornecedores,
+  frselecaoaleatoriaclientes, StdCtrls, frmultiplaselecaoaleatoria,
+  frlistafiliais, dmanaliseestoques, cpeditioncontrolvalidation, Grids,
+  AdvObj, BaseGrid, AdvGrid, DBAdvGrid, ctconstantes, biblio, Menus,
+  AdvMenus, tmsAdvGridExcel, AsgFindDialog;
+
+type
+  TfrmAnaliseestoques = class(TfrmRelatorioPadrao)
+    fraIntervaloDatas: TfraIntervaloDatas;
+    fraListaFiliais: TfraListaFiliais;
+    fraMultiplaSelecaoAleatoriAProdutos: TfraMultiplaSelecaoAleatoria;
+    gbxSelecoesAleatorias: TGroupBox;
+    pgcMultiplasSelecoes: TPageControl;
+    tstMultiplasSelecoesProdutos: TTabSheet;
+    tstMultiplasSelecoesFornecedores: TTabSheet;
+    fraSelecaoAleatoriaFornecedores: TfraSelecaoAleatoriaClientes;
+    tstMultiplasSelecoesGrupoFornecedores: TTabSheet;
+    fraSelecaoAleatoriagruposfornecedores: TfraSelecaoAleatoriagruposfornecedores;
+    ecvValida: TtecEditionControlValidation;
+    Timer1: TTimer;
+    pgcAnaliseEstoques: TPageControl;
+    tstParametros: TTabSheet;
+    tstDados: TTabSheet;
+    DBAdvGrid1: TDBAdvGrid;
+    sbnGerar: TSpeedButton;
+    AdvGridFindDialog1: TAdvGridFindDialog;
+    AdvGridExcelIO1: TAdvGridExcelIO;
+    AdvPopupMenu1: TAdvPopupMenu;
+    Pesquizar1: TMenuItem;
+    ExportarExcel1: TMenuItem;
+    Panel1: TPanel;
+    gbxCompostos: TGroupBox;
+    cbbCompostos: TComboBox;
+    procedure Timer1Timer(Sender: TObject);
+    procedure sbnGerarClick(Sender: TObject);
+    procedure Pesquizar1Click(Sender: TObject);
+    procedure ExportarExcel1Click(Sender: TObject);
+  private
+    { Private declarations }
+    procedure InternoImpressao; override;
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState);override;
+
+  end;
+
+var
+  frmAnaliseestoques: TfrmAnaliseestoques;
+  
+  ControleValido : TWinControl;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmAnaliseestoques }
+
+constructor TfrmAnaliseestoques.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmAnaliseestoques := TdtmAnaliseestoques.Create(Self);
+  fraIntervaloDatas.edtDataInicial.text := datetimetostr(incMonth(dtmAnaliseestoques.DataServidor, -4));
+  fraIntervaloDatas.edtDataFinal.text := datetimetostr(dtmAnaliseestoques.DataServidor);
+
+  fraSelecaoAleatoriaFornecedores.fraSelecaoAleatoriaCliente.ConsultaSelecaoAleatoria.TipoCliente := 'F';
+
+  pgcAnaliseEstoques.tabindex := 0;
+
+end;
+
+destructor TfrmAnaliseestoques.Destroy;
+begin
+  dtmAnaliseestoques := nil;
+  inherited;
+  frmAnaliseestoques := nil;
+end;
+
+procedure TfrmAnaliseestoques.InternoImpressao;
+begin
+  inherited;
+end;
+
+procedure TfrmAnaliseestoques.Timer1Timer(Sender: TObject);
+begin
+  inherited;
+  tstMultiplasSelecoesProdutos.Highlighted := fraMultiplaSelecaoAleatoriaProdutos.tstItemdeProduto.Highlighted or
+                                              fraMultiplaSelecaoAleatoriaProdutos.tstProduto.Highlighted or
+                                              fraMultiplaSelecaoAleatoriaProdutos.tstSelecaoAleatoriaGrupoProduto.Highlighted or
+                                              fraMultiplaSelecaoAleatoriaProdutos.tstSelecaoAleatoriaClasseProduto.Highlighted or
+                                              fraMultiplaSelecaoAleatoriaProdutos.tstSelecaoAleatoriaMarcaProduto.Highlighted or
+                                              fraMultiplaSelecaoAleatoriaProdutos.tstSelecaoAleatoriaPromocoes.Highlighted;
+
+  tstMultiplasSelecoesFornecedores.Highlighted := (fraSelecaoAleatoriaFornecedores.fraSelecaoAleatoriaCliente.qryselecaoaleatoria.recordcount <> 0);
+  tstMultiplasSelecoesGrupoFornecedores.Highlighted := (fraSelecaoAleatoriagruposfornecedores.fraSelecaoAleatoriaGruposFornecedores.qryselecaoaleatoria.recordcount <> 0);
+
+
+
+end;
+
+procedure TfrmAnaliseestoques.sbnGerarClick(Sender: TObject);
+begin
+  inherited;
+  if ecvValida.Verify(fraIntervaloDatas.gbxPeriodo, ControleValido) then
+  begin
+    dtmAnaliseestoques.ImprimirRelatorio(strtodatetime(fraIntervaloDatas.edtDataInicial.text),
+                                                 strtodatetime(fraIntervaloDatas.edtDataFinal.text),
+             fraListaFiliais.ListaSelecionada,
+             fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoAleatoriaItemdeProdutos.ListaCondicional,
+             fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoAleatoriaprodutos.ListaCondicional,
+             fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoaleatoriagruposprodutos.ListaCondicional,
+             fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoaleatoriaclassesprodutos.ListaCondicional,
+             fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoAleatoriamarcasProdutos.ListaCondicional,
+             fraSelecaoAleatoriaFornecedores.ListaCondicional,
+             fraSelecaoAleatoriaGruposFornecedores.ListaCondicional,
+             fraMultiplaSelecaoAleatoriAProdutos.fraSelecaoaleatoriapromocoes.ListaCondicional,
+             cbbCompostos.itemIndex);
+
+    if dtmAnaliseestoques.qryAnaliseEstoques.isempty then
+      mensagemaviso(format(ctNENHUMREGISTROENCONTRADO, ['registro']))
+    else
+      pgcAnaliseEstoques.ActivePage := tstdados;
+  end;
+
+end;
+
+procedure TfrmAnaliseestoques.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  case Key of
+       VK_F6 : if sbnGerar.Enabled then sbnGerarClick(Self);
+//   VK_Escape : LimpaControles;
+       VK_F7 : if sbnImprimir.Enabled then sbnImprimirClick(Self);
+  end;
+  inherited;
+
+end;
+
+procedure TfrmAnaliseestoques.Pesquizar1Click(Sender: TObject);
+begin
+  inherited;
+  AdvGridFindDialog1.Execute;
+end;
+
+procedure TfrmAnaliseestoques.ExportarExcel1Click(Sender: TObject);
+var
+  vNomeArquivo : String;
+begin
+  inherited;
+  vNomeArquivo := ExtractFilePath(Application.ExeName) + 'Saidas\AnaliseEstoques'+
+  formatdatetime('yyyy-mm-dd_hh-MM', dtmAnaliseestoques.datahoraservidor)+'.xls';
+  AdvGridExcelIO1.XLSExport(vNomeArquivo, 'AnaliseEstoques');
+end;
+
+end.

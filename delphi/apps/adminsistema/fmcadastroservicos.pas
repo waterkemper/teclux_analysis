@@ -116,6 +116,11 @@ type
     lblOrientacao: TLabel;
     gbxSituacoesTributarias: TGroupBox;
     dtxDenominacao: TtecDBText;
+    GroupBox1: TGroupBox;
+    fraConsultaNBS: TfraConsultaCodigo;
+    mmoDescricaoNBS: TtecDBMemo;
+    GroupBox2: TGroupBox;
+    fraConsultaCIndOp: TfraConsultaCodigo;
     procedure sbnProcuraCNAEClick(Sender: TObject);
     procedure sbnConsultaDebitarVendaVistaClick(Sender: TObject);
     procedure sbnConsultaCreditarVendaVistaClick(Sender: TObject);
@@ -171,14 +176,21 @@ begin
   fraConsultaEFD.TipoPesquisa := pesSERVICOSLCP116;
   fraConsultaCOFINSCST.TipoPesquisa := pesTRIBUTOSCOFINS;
   fraConsultaPISCST.TipoPesquisa    := pesTRIBUTOSPIS;
-
+  fraConsultaNBS.TipoPesquisa := pesNBS;
+  fraConsultaCIndOp.TipoPesquisa := pesIndOperNFSe;
+                  {
   if not pgcContasContabeis.Visible then
   begin
-    Constraints.MaxHeight := 580;
-    constraints.MinHeight := 580;
-//    constraints.MaxWidth  := 810;
-//    constraints.MinWidth  := 810;
+    Constraints.MaxHeight := 747;
+    constraints.MinHeight := 747;
+  end
+  else
+  begin
+    Constraints.MaxHeight := 647;
+    constraints.MinHeight := 647;
   end;
+  }
+
   fraConsultaISSQNST.TipoPesquisa := pesTRIBUTOSISSQN;
 end;
 

@@ -7203,4 +7203,794 @@ inherited dtmDREGerencial: TdtmDREGerencial
     Left = 296
     Top = 32
   end
+  object tecQuery1: TtecQuery
+    Tag = -1
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Estoques as ('
+      '  with periodo as ('
+      '    select'
+      '      to_char(mon_last, '#39'yyyy-MM'#39') as ano_mes,'
+      '      mon_last'
+      '    from ('
+      '      select'
+      
+        '        (date_trunc('#39'month'#39', d)::date + interval '#39'1 month - 1 da' +
+        'y'#39')::date as mon_last'
+      '      from generate_series('
+      '        date '#39'2026-01-01'#39','
+      '        date '#39'2026-12-31'#39','
+      '        interval '#39'1 month'#39
+      '      ) d'
+      '    ) p'
+      '  ),'
+      ''
+      '  produtos_filiais as ('
+      '    select'
+      '      e.produto,'
+      '      e.filial'
+      '    from estoques e'
+      '    join produtos p'
+      '      on p.codigo = e.produto'
+      '    join caracteristicas c'
+      '      on c.codigo = p.caracteristica'
+      '    where c.tipoproduto in ('#39'00'#39')'
+      '  ),'
+      ''
+      '  ultimo_movimento as ('
+      '    select'
+      '      p.ano_mes,'
+      '      p.mon_last,'
+      '      pf.produto as codigoitem,'
+      '      pf.filial as codigofilial,'
+      '      m.numero,'
+      '      m.data,'
+      '      m.lancto,'
+      '      m.emestoque,'
+      '      m.reservado,'
+      '      m.transito,'
+      '      m.demonstracao,'
+      '      m.conserto,'
+      '      m.danificada,'
+      '      m.reservaprevia,'
+      '      m.estoquefisico,'
+      '      m.financeiro'
+      '    from periodo p'
+      '    join produtos_filiais pf on true'
+      '    join lateral ('
+      '      select'
+      '        m.*'
+      '      from movimentos m'
+      '      where m.produto = pf.produto'
+      '        and m.filial = pf.filial'
+      '        and m.data <= p.mon_last'
+      '      order by'
+      '        m.data desc,'
+      '        m.lancto desc'
+      '      limit 1'
+      '    ) m on true'
+      '    where m.financeiro <> 0'
+      '  ),'
+      ''
+      '  estoque_base as ('
+      '    select'
+      '      um.*,'
+      '      ('
+      '        um.emestoque +'
+      '        um.reservado +'
+      '        um.transito +'
+      '        um.demonstracao +'
+      '        um.conserto +'
+      '        um.danificada +'
+      '        um.reservaprevia'
+      '      ) as qtdestoque'
+      '    from ultimo_movimento um'
+      '  ),'
+      ''
+      '  estoque_com_ultima_entrada as ('
+      '    select'
+      '      eb.*,'
+      '      me.valor,'
+      '      me.quantidade as qtdultimaentrada'
+      '    from estoque_base eb'
+      '    left join lateral ('
+      '      select'
+      '        m.valor,'
+      '        m.quantidade'
+      '      from movimentos m'
+      '      where m.produto = eb.codigoitem'
+      '        and m.filial = eb.codigofilial'
+      '        and m.data <= eb.mon_last'
+      '        and substring(m.operacao from 12 for 1) = '#39'+'#39
+      '      order by'
+      '        m.data desc,'
+      '        m.lancto desc'
+      '      limit 1'
+      '    ) me on true'
+      '    where eb.qtdestoque > 0'
+      '  )'
+      ''
+      '  select'
+      '    ano_mes,'
+      '    cast('#39'C'#39' as char(3)) as tipoconta,'
+      '    false as totalizar,'
+      '    cast('#39'Estoque'#39' as varchar(100)) as conta,'
+      '    cast(69 as smallint) as ordem,'
+      '    round('
+      '      sum('
+      '        case'
+      '          when coalesce(qtdultimaentrada, 0) <> 0 then'
+      '            qtdestoque * (valor / qtdultimaentrada)'
+      '          else'
+      '            null::numeric'
+      '        end'
+      '      ),'
+      '      2'
+      '    ) as total'
+      '  from estoque_com_ultima_entrada'
+      '  group by ano_mes'
+      '  order by ano_mes'
+      ')'
+      ''
+      ''
+      ''
+      ''
+      ''
+      ''
+      ''
+      ''
+      ''
+      ''
+      '    Estoques as '
+      '    ('
+      '    '
+      ''
+      '      select ano_mes,'
+      #9'       cast('#39#39'C'#39#39' as char(3)) as tipoconta,'
+      '               False as totalizar,'
+      '           CAST('#39#39'Estoque'#39#39' as varchar(100)) as conta,'
+      '           cast(69 as smallint) as ordem,'
+      '           round(sum(Total), 2)      as Total'
+      '      from'
+      '         ('
+      ''
+      ''
+      '            select'
+      '            /*'
+      '               case'
+      '                  When '#39#39'f'#39#39
+      '                     then codigogrupofilial'
+      '                     else cast(null as integer)'
+      '               end as codigogrupofilial'
+      '             , case'
+      '                  When '#39#39'f'#39#39
+      '                     then nomegrupofilial'
+      '                     else cast(null as varchar)'
+      '               end as nomegrupofilial'
+      '             , case'
+      '                  When '#39#39't'#39#39
+      '                     then codigofilial'
+      '                     else cast(null as integer)'
+      '               end as codigofilial'
+      '             , case'
+      '                  When '#39#39't'#39#39
+      '                     then nomefilial'
+      '                     else cast(null as varchar)'
+      '               end as nomefilial'
+      '             , case'
+      '                  When '#39#39'f'#39#39
+      '                     then localizacao'
+      '                     else cast(null as varchar)'
+      '               end as localizacao'
+      '             , case'
+      '                  When '#39#39'f'#39#39
+      '                     then codigoclasse'
+      '                     else cast(null as varchar)'
+      '               end as codigoclasse'
+      '             , case'
+      '                  When '#39#39'f'#39#39
+      '                     then classeproduto'
+      '                     else cast(null as varchar)'
+      '               end as classeproduto'
+      '             , case'
+      '                  When '#39#39'f'#39#39
+      '                     then codigogrupo'
+      '                     else cast(null as varchar)'
+      '               end as codigogrupo'
+      '             , case'
+      '                  When '#39#39'f'#39#39
+      '                     then grupoproduto'
+      '                     else cast(null as varchar)'
+      '               end as grupoproduto'
+      '             , case'
+      '                  When '#39#39'f'#39#39
+      '                     then codigoproduto'
+      '                     else cast(null as bigint)'
+      '               end as codigoproduto'
+      '             , case'
+      '                  When '#39#39'f'#39#39
+      '                     then codigoprodutovisual'
+      '                     else cast(null as varchar(30))'
+      '               end as codigoprodutovisual'
+      '             , case'
+      '                  When '#39#39'f'#39#39
+      '                     then produto'
+      '                     else cast(null as varchar)'
+      '               end as produto'
+      '               '
+      '             , */ case'
+      '                  When '#39#39'f'#39#39
+      '                     then financeiro'
+      '                     else'
+      '                        ('
+      '                           case'
+      
+        '                              when coalesce(qtdultimaentrada,0)<' +
+        '>0'
+      
+        '                                 then (qtdestoque*(custo_ultimae' +
+        'ntrada/qtdultimaentrada))'
+      '                                 else cast(null as numeric)'
+      '                           end'
+      '                        )'
+      '               end as Total, ano_mes'
+      '      /*       , qtdestoque*/'
+      '            from'
+      '               ('
+      ''
+      '                  SELECT'
+      '                     ep.*'
+      
+        '                   , estoques_preco(ep.codigoitem,ep.codigofilia' +
+        'l) as precovenda'
+      
+        '                   , financeiro/qtdestoque                      ' +
+        '   as custo_medio'
+      '                   , case'
+      '                        when '#39#39'f'#39#39
+      
+        '                           then custoestoquefisico(ep.codigoitem' +
+        ',ep.codigofilial,'
+      ''
+      '                           '#39#39':Data_Final'#39#39
+      ''
+      '                           )'
+      '                           else ep.valor'
+      '                     end as Custo_ultimaEntrada'
+      '                  from'
+      '                     ('
+      ''
+      '                        SELECT'
+      '                           ep.*'
+      '                        from'
+      '                           ('
+      ''
+      '                              SELECT'
+      '                                 ep.*'
+      
+        '                               , (ep.emestoque+ep.reservado+ep.t' +
+        'ransito+ep.demonstracao+ep.conserto+ep.danificada+ep.reservaprev' +
+        'ia/*+ep.estoquefisico*/) AS qtdestoque'
+      
+        '                               , f.nome                         ' +
+        '                                                                ' +
+        '                     AS nomefilial'
+      
+        '                               , gf.descricao                   ' +
+        '                                                                ' +
+        '                     as nomegrupofilial'
+      
+        '                               , gf.codigo                      ' +
+        '                                                                ' +
+        '                     as codigogrupofilial'
+      '                              FROM'
+      '                                 ('
+      ''
+      '                                    select'
+      '                                       ep.*'
+      '                                       /*'
+      '                                     , ('
+      '                                          select'
+      
+        '                                             i.classificacaofisc' +
+        'al'
+      '                                          from'
+      '                                             ipi i'
+      '                                          where'
+      '                                             i.codigo = c.ipi'
+      '                                       )'
+      
+        '                                                      as classif' +
+        'icacaofiscal'
+      
+        '                                     , cl.descricao   AS classep' +
+        'roduto'
+      
+        '                                     , cl.codigo      AS codigoc' +
+        'lasse'
+      
+        '                                     , g.descricao    AS grupopr' +
+        'oduto'
+      
+        '                                     , g.codigo       AS codigog' +
+        'rupo'
+      '                                     , c.descricao    AS produto'
+      
+        '                                     , c.codigo       AS codigop' +
+        'roduto'
+      
+        '                                     , c.codigovisual as codigop' +
+        'rodutovisual'
+      '                                     , cast(p.descricao'
+      '                                          ||'#39#39' '#39#39
+      
+        '                                          ||coalesce(p.valorgrad' +
+        'e1,'#39#39#39#39')'
+      '                                          ||'#39#39' '#39#39
+      
+        '                                          ||coalesce(p.valorgrad' +
+        'e2,'#39#39#39#39') as varchar) AS item'
+      
+        '                                     , ma.descricao             ' +
+        '                   AS marca'
+      '                                     , p.referencia'
+      
+        '                                     , p.codigovisual as codigoi' +
+        'temvisual'
+      '                                     , c.unidade'
+      '                                     , c.subconta'
+      '                                     */'
+      '                                    from'
+      '                                       ('
+      ''
+      '                                          select'
+      '                                             ep.*'
+      '                                           , m2.valor'
+      
+        '                                           , m2.quantidade as qt' +
+        'dUltimaEntrada'
+      '                                          from'
+      '                                             ('
+      ''
+      
+        '                                                select ano_mes, ' +
+        'mon_last'
+      
+        '                                                 , e.codigofilia' +
+        'l'
+      '                                                 , e.codigoitem'
+      '                                                 , e.localizacao'
+      
+        '                                                 , e.precocomicm' +
+        's'
+      '                                                 ,'
+      
+        '                                                   /*,estoques_p' +
+        'reco(e.produto,e.filial) as precovenda*/'
+      '                                                   m.emestoque'
+      '                                                 , m.reservado'
+      '                                                 , m.transito'
+      
+        '                                                 , m.demonstraca' +
+        'o'
+      '                                                 , m.conserto'
+      '                                                 , m.danificada'
+      
+        '                                                 , m.reservaprev' +
+        'ia'
+      
+        '                                                 , m.estoquefisi' +
+        'co'
+      '                                                 , m.financeiro'
+      '                                                from'
+      '                                                   ('
+      ''
+      
+        '                                                      select ano' +
+        '_mes, mon_last'
+      
+        '                                                       ,  m.nume' +
+        'ro'
+      
+        '                                                       , e.filia' +
+        'l  as codigofilial'
+      
+        '                                                       , e.produ' +
+        'to as codigoitem'
+      
+        '                                                       , e.local' +
+        'izacao'
+      
+        '                                                       , e.preco' +
+        'comicms'
+      '                                                      from'
+      '                                                         ('
+      ''
+      
+        '                                                            sele' +
+        'ct ano_mes, mon_last'
+      
+        '                                                             , m' +
+        '2.numero'
+      
+        '                                                             , m' +
+        '1.produto'
+      
+        '                                                             , m' +
+        '1.filial'
+      '                                                            from'
+      '                                                               ('
+      ''
+      
+        '                                                                ' +
+        '  select ano_mes, mon_last'
+      
+        '                                                                ' +
+        '   , m1.data'
+      
+        '                                                                ' +
+        '   , m1.produto'
+      
+        '                                                                ' +
+        '   , m1.filial'
+      
+        '                                                                ' +
+        '   , ('
+      
+        '                                                                ' +
+        '        select'
+      
+        '                                                                ' +
+        '           max(m2.lancto)'
+      
+        '                                                                ' +
+        '        from'
+      
+        '                                                                ' +
+        '           movimentos m2'
+      
+        '                                                                ' +
+        '        where'
+      
+        '                                                                ' +
+        '           m2.produto    = m1.produto'
+      
+        '                                                                ' +
+        '           and m2.filial = m1.filial'
+      
+        '                                                                ' +
+        '           and m2.data   = m1.data'
+      
+        '                                                                ' +
+        '     )'
+      
+        '                                                                ' +
+        '     as lancto'
+      
+        '                                                                ' +
+        '  from'
+      
+        '                                                                ' +
+        '     ('
+      ''
+      
+        '                                                                ' +
+        '        select'
+      
+        '                                                                ' +
+        '           TO_char(periodo.mon_last, '#39#39'yyyy-MM'#39#39') as ano_mes, pe' +
+        'riodo.mon_last,'
+      
+        '                                                                ' +
+        '           max(m1.data) as data'
+      
+        '                                                                ' +
+        '         , m1.produto'
+      
+        '                                                                ' +
+        '         , m1.filial'
+      
+        '                                                                ' +
+        '        from'
+      
+        '                                                                ' +
+        '           movimentos m1,'
+      
+        '                                                                ' +
+        '           '
+      
+        '                                                                ' +
+        '          ('
+      
+        '                                                                ' +
+        '            select min(cast(d as date)) as mon_first,'
+      
+        '                                                                ' +
+        '                   max(cast(d as date)) as mon_last'
+      
+        '                                                                ' +
+        '            FROM   generate_series(date'
+      ''
+      
+        '                                                                ' +
+        '            '#39#39':Data_Inicial'#39#39
+      ''
+      
+        '                                                                ' +
+        '            ,'
+      
+        '                                                                ' +
+        '            date'
+      ''
+      
+        '                                                                ' +
+        '            '#39#39':Data_Final'#39#39
+      ''
+      
+        '                                                                ' +
+        '            , interval '#39#39'1 day'#39#39') d'
+      
+        '                                                                ' +
+        '            group by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      
+        '                                                                ' +
+        '            order by to_char(d, '#39#39'YYYY/MM'#39#39')'
+      
+        '                                                                ' +
+        '            ) as periodo'
+      
+        '                                                                ' +
+        '          '
+      
+        '                                                                ' +
+        '        where'
+      
+        '                                                                ' +
+        '           m1.data <= periodo.mon_last '
+      
+        '                                                                ' +
+        '           /* and m1.produto = 55 */'
+      
+        '                                                                ' +
+        '        group by'
+      
+        '                                                                ' +
+        '           TO_char(periodo.mon_last, '#39#39'yyyy-MM'#39#39'), periodo.mon_l' +
+        'ast'
+      
+        '                                                                ' +
+        '         ,  m1.produto'
+      
+        '                                                                ' +
+        '         , m1.filial'
+      
+        '                                                                ' +
+        '        order by'
+      
+        '                                                                ' +
+        '          TO_char(periodo.mon_last, '#39#39'yyyy-MM'#39#39')'
+      
+        '                                                                ' +
+        '         ,  m1.produto'
+      
+        '                                                                ' +
+        '         , m1.filial                                            ' +
+        '                       '
+      
+        '                                                                ' +
+        '     )'
+      
+        '                                                                ' +
+        '     as m1                                                      ' +
+        '         '
+      '                                                               )'
+      
+        '                                                               a' +
+        's m1'
+      
+        '                                                               j' +
+        'oin'
+      
+        '                                                                ' +
+        '  movimentos m2'
+      
+        '                                                                ' +
+        '  on'
+      
+        '                                                                ' +
+        '     m1.data        = m2.data'
+      
+        '                                                                ' +
+        '     and m1.lancto  = m2.lancto'
+      
+        '                                                                ' +
+        '     and m1.produto = m2.produto'
+      
+        '                                                                ' +
+        '     and m1.filial  = m2.filial'
+      '                                                         )'
+      '                                                         as m'
+      '                                                         join'
+      
+        '                                                            esto' +
+        'ques e'
+      '                                                            on'
+      
+        '                                                               m' +
+        '.produto    = e.produto'
+      
+        '                                                               a' +
+        'nd m.filial = e.filial'
+      '                                                   )'
+      '                                                   as e'
+      '                                                   join'
+      
+        '                                                      movimentos' +
+        ' m'
+      '                                                      on'
+      
+        '                                                         e.numer' +
+        'o         = m.numero'
+      
+        '                                                         and m.f' +
+        'inanceiro<>0'
+      '                                                         '
+      '                                             )'
+      '                                             as ep'
+      '                                             LEFT JOIN'
+      '                                                movimentos m2'
+      '                                                ON'
+      
+        '                                                   m2.produto   ' +
+        ' = ep.codigoitem'
+      
+        '                                                   AND m2.filial' +
+        ' = ep.codigofilial'
+      
+        '                                                   and m2.numero' +
+        ' ='
+      '                                                   ('
+      '                                                      SELECT'
+      
+        '                                                         m.numer' +
+        'o'
+      
+        '                                                         /*max(m' +
+        '.numero)*/'
+      '                                                      from'
+      
+        '                                                         movimen' +
+        'tos m'
+      '                                                      where'
+      
+        '                                                         m.produ' +
+        'to                              =ep.codigoitem'
+      
+        '                                                         and m.f' +
+        'ilial                           =ep.codigofilial'
+      
+        '                                                         and m.d' +
+        'ata <=  mon_last                           '
+      
+        '                                                         and sub' +
+        'string(m.operacao from 12 for 1)='#39#39'+'#39#39
+      '                                                      order by'
+      
+        '                                                         m.data ' +
+        'desc'
+      
+        '                                                       , m.lanct' +
+        'o desc limit 1'
+      '                                                   )'
+      '                                       )'
+      '                                       as ep'
+      
+        '                                       /*trocado para kilar, fic' +
+        'a bem mais rapido*/'
+      '                                       JOIN'
+      '                                          produtos p'
+      '                                          on'
+      
+        '                                             p.codigo=ep.codigoi' +
+        'tem'
+      '                                       JOIN'
+      '                                          caracteristicas c'
+      '                                          on'
+      
+        '                                             c.codigo=p.caracter' +
+        'istica'
+      '                                             /*'
+      '                                       JOIN'
+      '                                          grupos g'
+      '                                          on'
+      '                                             g.codigo=c.grupo'
+      '                                       JOIN'
+      '                                          classes cl'
+      '                                          on'
+      '                                             cl.codigo=c.classe'
+      '                                       JOIN'
+      '                                          marcas ma'
+      '                                          on'
+      '                                             ma.codigo=c.marca'
+      '                                             */'
+      
+        '                                       /*  muito lento na kilar ' +
+        '- 02-01-2013 - banco 8.4  JOIN ( produtos p  JOIN (((caracterist' +
+        'icas c  JOIN grupos g  ON c.grupo = g.codigo)  JOIN classes cl  ' +
+        'ON c.classe=cl.codigo)  JOIN marcas ma  ON c.marca=ma.codigo)  O' +
+        'N p.caracteristica=c.codigo)  ON p.codigo = ep.codigoitem */'
+      '                                    where'
+      '                                       TRUE'
+      
+        '                                       /* ((not (c.inativo is no' +
+        't null)) or (c.inativo>'#39#39'30/06/2024'#39#39')) Comentado em 13/09/2019 ' +
+        'por L'#218'CIO WATERKEMPER */'
+      
+        '                                       and c.tipoproduto in ('#39#39'0' +
+        '0'#39#39')'
+      '                                       '
+      '                                 )'
+      '                                 as ep'
+      '                                 JOIN'
+      '                                    (filiais f'
+      '                                    left join'
+      '                                       (filiaisgruposfiliais fgf'
+      '                                       join'
+      '                                          gruposfiliais gf'
+      '                                          on'
+      
+        '                                             fgf.grupo = gf.codi' +
+        'go)'
+      '                                       on'
+      '                                          fgf.filial = f.codigo)'
+      '                                    ON'
+      
+        '                                       f.codigo = ep.codigofilia' +
+        'l'
+      '                              Order by'
+      '                                 nomefilial'
+      '                               , codigofilial'
+      '      /*                         , codigoitemvisual*/'
+      '                               , codigoitem'
+      '      /*                         , item*/'
+      ''
+      '                           )'
+      '                           as ep'
+      '                        WHERE'
+      '                           qtdestoque>0'
+      '                     )'
+      '                     as ep'
+      '               )'
+      '               as temp'
+      '         )'
+      '         as temp'
+      '         group by ano_mes order by ano_mes'
+      '    ),'
+      '')
+    RequestLive = False
+    Left = 328
+    Top = 104
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = ':'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Data_Final'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Data_Inicial'
+        ParamType = ptUnknown
+      end>
+  end
 end

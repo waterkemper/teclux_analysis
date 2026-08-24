@@ -1,0 +1,852 @@
+object frmFreteTransportadoras: TfrmFreteTransportadoras
+  Left = 540
+  Top = 180
+  Width = 813
+  Height = 299
+  Caption = 'Frete transportadoras'
+  Color = clBtnFace
+  Constraints.MaxHeight = 600
+  Constraints.MaxWidth = 813
+  Constraints.MinWidth = 813
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Font.Style = []
+  OldCreateOrder = False
+  OnCloseQuery = FormCloseQuery
+  PixelsPerInch = 96
+  TextHeight = 13
+  object DBAdvCotacao: TDBAdvGrid
+    Left = 0
+    Top = 0
+    Width = 797
+    Height = 186
+    Cursor = crDefault
+    Align = alClient
+    ColCount = 9
+    RowCount = 2
+    FixedRows = 1
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goColMoving]
+    ParentFont = False
+    ScrollBars = ssBoth
+    TabOrder = 0
+    ActiveRowShow = True
+    ActiveCellShow = True
+    ActiveCellFont.Charset = DEFAULT_CHARSET
+    ActiveCellFont.Color = clWindowText
+    ActiveCellFont.Height = -11
+    ActiveCellFont.Name = 'Tahoma'
+    ActiveCellFont.Style = [fsBold]
+    ControlLook.FixedGradientHoverFrom = clGray
+    ControlLook.FixedGradientHoverTo = clWhite
+    ControlLook.FixedGradientDownFrom = clGray
+    ControlLook.FixedGradientDownTo = clSilver
+    ControlLook.DropDownHeader.Font.Charset = DEFAULT_CHARSET
+    ControlLook.DropDownHeader.Font.Color = clWindowText
+    ControlLook.DropDownHeader.Font.Height = -11
+    ControlLook.DropDownHeader.Font.Name = 'Tahoma'
+    ControlLook.DropDownHeader.Font.Style = []
+    ControlLook.DropDownHeader.Visible = True
+    ControlLook.DropDownHeader.Buttons = <>
+    ControlLook.DropDownFooter.Font.Charset = DEFAULT_CHARSET
+    ControlLook.DropDownFooter.Font.Color = clWindowText
+    ControlLook.DropDownFooter.Font.Height = -11
+    ControlLook.DropDownFooter.Font.Name = 'MS Sans Serif'
+    ControlLook.DropDownFooter.Font.Style = []
+    ControlLook.DropDownFooter.Visible = True
+    ControlLook.DropDownFooter.Buttons = <>
+    Filter = <>
+    FilterDropDown.Font.Charset = DEFAULT_CHARSET
+    FilterDropDown.Font.Color = clWindowText
+    FilterDropDown.Font.Height = -11
+    FilterDropDown.Font.Name = 'MS Sans Serif'
+    FilterDropDown.Font.Style = []
+    FilterDropDownClear = '(All)'
+    FixedColWidth = 20
+    FixedRowHeight = 32
+    FixedFont.Charset = DEFAULT_CHARSET
+    FixedFont.Color = clWindowText
+    FixedFont.Height = -11
+    FixedFont.Name = 'Tahoma'
+    FixedFont.Style = [fsBold]
+    FloatFormat = '%.2f'
+    PrintSettings.DateFormat = 'dd/mm/yyyy'
+    PrintSettings.Font.Charset = DEFAULT_CHARSET
+    PrintSettings.Font.Color = clWindowText
+    PrintSettings.Font.Height = -11
+    PrintSettings.Font.Name = 'MS Sans Serif'
+    PrintSettings.Font.Style = []
+    PrintSettings.FixedFont.Charset = DEFAULT_CHARSET
+    PrintSettings.FixedFont.Color = clWindowText
+    PrintSettings.FixedFont.Height = -11
+    PrintSettings.FixedFont.Name = 'MS Sans Serif'
+    PrintSettings.FixedFont.Style = []
+    PrintSettings.HeaderFont.Charset = DEFAULT_CHARSET
+    PrintSettings.HeaderFont.Color = clWindowText
+    PrintSettings.HeaderFont.Height = -11
+    PrintSettings.HeaderFont.Name = 'MS Sans Serif'
+    PrintSettings.HeaderFont.Style = []
+    PrintSettings.FooterFont.Charset = DEFAULT_CHARSET
+    PrintSettings.FooterFont.Color = clWindowText
+    PrintSettings.FooterFont.Height = -11
+    PrintSettings.FooterFont.Name = 'MS Sans Serif'
+    PrintSettings.FooterFont.Style = []
+    PrintSettings.PageNumSep = '/'
+    SearchFooter.FindNextCaption = 'Find &next'
+    SearchFooter.FindPrevCaption = 'Find &previous'
+    SearchFooter.Font.Charset = DEFAULT_CHARSET
+    SearchFooter.Font.Color = clWindowText
+    SearchFooter.Font.Height = -11
+    SearchFooter.Font.Name = 'MS Sans Serif'
+    SearchFooter.Font.Style = []
+    SearchFooter.HighLightCaption = 'Highlight'
+    SearchFooter.HintClose = 'Close'
+    SearchFooter.HintFindNext = 'Find next occurrence'
+    SearchFooter.HintFindPrev = 'Find previous occurrence'
+    SearchFooter.HintHighlight = 'Highlight occurrences'
+    SearchFooter.MatchCaseCaption = 'Match case'
+    Version = '2.3.2.2'
+    AutoCreateColumns = False
+    AutoRemoveColumns = False
+    Columns = <
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'MS Sans Serif'
+        HeaderFont.Style = []
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'MS Sans Serif'
+        PrintFont.Style = []
+        Width = 20
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'CodigoTransportador'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        Header = 'C'#243'd. Transp.'
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'MS Sans Serif'
+        HeaderFont.Style = []
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'MS Sans Serif'
+        PrintFont.Style = []
+        Width = 53
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'Transportador'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        Header = 'Nome Transportador'
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Style = []
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Style = []
+        Width = 126
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'PrazoEntrega'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        Header = 'Prazo de Entrega'
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Style = []
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Style = []
+        Width = 67
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'CodigoServico'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        Header = 'C'#243'digo Servi'#231'o'
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Style = []
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Style = []
+        Width = 44
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'DescricaoServico'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        Header = 'Descri'#231#227'o do Servi'#231'o'
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Style = []
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Style = []
+        Width = 108
+      end
+      item
+        Alignment = taRightJustify
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'Valor'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        Header = 'Valor'
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Style = []
+        HeaderAlignment = taCenter
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Style = []
+        Width = 62
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'Mensagem'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        Header = 'Mensagem'
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Style = []
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Style = []
+        Width = 134
+      end
+      item
+        Borders = []
+        BorderPen.Color = clSilver
+        CheckFalse = 'N'
+        CheckTrue = 'Y'
+        Color = clWindow
+        FieldName = 'origem'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Style = []
+        PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+        PrintFont.Charset = DEFAULT_CHARSET
+        PrintFont.Color = clWindowText
+        PrintFont.Height = -11
+        PrintFont.Name = 'Tahoma'
+        PrintFont.Style = []
+        Width = 161
+      end>
+    DataSource = dsrCotacao
+    InvalidPicture.Data = {
+      055449636F6E0000010001002020040000000000E80200001600000028000000
+      2000000040000000010004000000000000020000000000000000000000000000
+      0000000000000000000080000080000000808000800000008000800080800000
+      80808000C0C0C0000000FF0000FF000000FFFF00FF000000FF00FF00FFFF0000
+      FFFFFF000000000000777777777777000000000000000000777788FFFF887777
+      000000000000007778F8887117788F877700000000000778F87111111111178F
+      877000000000778871111111111999178877000000077F811111111111199999
+      18F7700000778811111111111119999991887700007881111111111111119199
+      99188700077F711111811111111198719997F7700788111118FF111111118FF7
+      1991887077F71111888FF1111118FFFF19997F77778111118888FF1111888FF8
+      911918777881111118888FF1188888811111188778811111118888FF88888811
+      111117877F7111111118888888888111111117F77F7999111111888888881111
+      111111F77F7999991111788888F71111111111F77F7999999917888888FF7111
+      111117F778879999917FFF88888FF111111117877887999997FFFFF88888FF11
+      11111887778799997FFFFFF798888FF11111187777F87997FFFFFF71178F88FF
+      71117F7707887997FFFFF7999978F88871118870077F87997FFF799999978F87
+      1117F77000788879978799999999787111188700007788879999999999999999
+      1188770000077F88799999999999999778F77000000077888879999999999778
+      8877000000000778F88877799777788F877000000000007778F8888878888F87
+      7700000000000000777788FFFF88777700000000000000000077777777777700
+      00000000FFC003FFFF0000FFFC00003FF800001FF000000FE0000007C0000003
+      C000000380000001800000010000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000080000001
+      80000001C0000003C0000003E0000007F000000FF800001FFC00003FFF0000FF
+      FFC003FF}
+    ShowUnicode = False
+    PostOnEnter = False
+    ColWidths = (
+      20
+      53
+      126
+      67
+      44
+      108
+      62
+      134
+      161)
+    RowHeights = (
+      32
+      22)
+  end
+  object mRetFrenet: TMemo
+    Left = 0
+    Top = 186
+    Width = 797
+    Height = 40
+    Align = alBottom
+    Lines.Strings = (
+      '')
+    TabOrder = 1
+  end
+  object pnlBottom: TPanel
+    Left = 0
+    Top = 226
+    Width = 797
+    Height = 35
+    Align = alBottom
+    TabOrder = 2
+    object bbnOK: TBitBtn
+      Left = 352
+      Top = 5
+      Width = 81
+      Height = 25
+      Caption = 'OK'
+      TabOrder = 0
+      OnClick = bbnOKClick
+      Glyph.Data = {
+        DE010000424DDE01000000000000760000002800000024000000120000000100
+        04000000000068010000120B0000120B00001000000010000000000000000000
+        80000080000000808000800000008000800080800000C0C0C000808080000000
+        FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
+        3333333333333333333333330000333333333333333333333333F33333333333
+        00003333344333333333333333388F3333333333000033334224333333333333
+        338338F3333333330000333422224333333333333833338F3333333300003342
+        222224333333333383333338F3333333000034222A22224333333338F338F333
+        8F33333300003222A3A2224333333338F3838F338F33333300003A2A333A2224
+        33333338F83338F338F33333000033A33333A222433333338333338F338F3333
+        0000333333333A222433333333333338F338F33300003333333333A222433333
+        333333338F338F33000033333333333A222433333333333338F338F300003333
+        33333333A222433333333333338F338F00003333333333333A22433333333333
+        3338F38F000033333333333333A223333333333333338F830000333333333333
+        333A333333333333333338330000333333333333333333333333333333333333
+        0000}
+      NumGlyphs = 2
+    end
+    object bbnCancelar: TBitBtn
+      Left = 456
+      Top = 5
+      Width = 81
+      Height = 25
+      Caption = 'Cancelar'
+      TabOrder = 1
+      Kind = bkCancel
+    end
+  end
+  object cdsCotacao: TClientDataSet
+    Aggregates = <>
+    FieldDefs = <
+      item
+        Name = 'CodigoTransportador'
+        DataType = ftString
+        Size = 20
+      end
+      item
+        Name = 'Transportador'
+        DataType = ftString
+        Size = 30
+      end
+      item
+        Name = 'PrazoEntrega'
+        DataType = ftInteger
+      end
+      item
+        Name = 'CodigoServico'
+        DataType = ftString
+        Size = 30
+      end
+      item
+        Name = 'DescricaoServico'
+        DataType = ftString
+        Size = 50
+      end
+      item
+        Name = 'Valor'
+        DataType = ftCurrency
+      end
+      item
+        Name = 'Mensagem'
+        DataType = ftString
+        Size = 200
+      end
+      item
+        Name = 'Erro'
+        DataType = ftString
+        Size = 200
+      end
+      item
+        Name = 'PrazoEntregaOriginal'
+        DataType = ftInteger
+      end
+      item
+        Name = 'ValorOriginal'
+        DataType = ftCurrency
+      end
+      item
+        Name = 'TempoResposta'
+        DataType = ftFloat
+      end
+      item
+        Name = 'Origem'
+        DataType = ftString
+        Size = 20
+      end
+      item
+        Name = 'codigofretes_isencao'
+        DataType = ftInteger
+      end
+      item
+        Name = 'codigotabela_frete'
+        DataType = ftInteger
+      end
+      item
+        Name = 'fornecedorfrete'
+        DataType = ftInteger
+      end>
+    IndexDefs = <>
+    Params = <>
+    StoreDefs = True
+    Left = 632
+    Top = 80
+  end
+  object dsrCotacao: TDataSource
+    Left = 680
+    Top = 78
+  end
+  object Frenet: TACBrFrenet
+    ProxyPort = '8080'
+    IsUTF8 = True
+    PaisDestino = 'BR'
+    Left = 608
+    Top = 16
+  end
+  object qryTabela_Frete: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select tf.*'
+      'from  tabela_frete tf'
+      'where tf.codigo_servico = :codigo_servico'
+      ' and tf.nome_transportador = :nome_transportador'
+      ' and tf.fornecedor is not null'
+      '')
+    RequestLive = False
+    Left = 632
+    Top = 120
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo_servico'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'nome_transportador'
+        ParamType = ptUnknown
+      end>
+    object qryTabela_Fretecodigo: TLargeintField
+      FieldName = 'codigo'
+    end
+    object qryTabela_Fretedescricao: TStringField
+      FieldName = 'descricao'
+      Size = 100
+    end
+    object qryTabela_Freteativa: TBooleanField
+      FieldName = 'ativa'
+    end
+    object qryTabela_Fretecubagem: TFloatField
+      FieldName = 'cubagem'
+    end
+    object qryTabela_Fretecodigo_servico: TStringField
+      FieldName = 'codigo_servico'
+      Size = 100
+    end
+    object qryTabela_Fretenome_site: TStringField
+      FieldName = 'nome_site'
+      Size = 100
+    end
+    object qryTabela_Fretefornecedor: TIntegerField
+      FieldName = 'fornecedor'
+    end
+    object qryTabela_Fretedescricao_servico: TStringField
+      FieldName = 'descricao_servico'
+      Size = 100
+    end
+    object qryTabela_Fretenome_transportador: TStringField
+      FieldName = 'nome_transportador'
+      Size = 200
+    end
+    object qryTabela_Fretefilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryTabela_Fretevalor_para_frete_gratis: TFloatField
+      FieldName = 'valor_para_frete_gratis'
+    end
+    object qryTabela_Fretepeso_maximo_frete_gratis: TFloatField
+      FieldName = 'peso_maximo_frete_gratis'
+    end
+    object qryTabela_Fretevalor_frete_fixo: TFloatField
+      FieldName = 'valor_frete_fixo'
+    end
+    object qryTabela_Fretevalor_peso_cubado_minimo: TFloatField
+      FieldName = 'valor_peso_cubado_minimo'
+    end
+    object qryTabela_Freteprazo_expedicao: TIntegerField
+      FieldName = 'prazo_expedicao'
+    end
+  end
+  object qryFretes_Isencao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'ListaProdutos'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      'select'
+      '       sel.*,'
+      ''
+      
+        '         case when coalesce(sel.valor_para_frete_gratis,0) < :to' +
+        'talprodutos then'
+      '           0.00'
+      '         /*'
+      
+        '           case when sel.peso_frete <= sel.peso_maximo_frete_gra' +
+        'tis then'
+      '             0.00 else sel.valor_frete end'
+      '             */'
+      '         else sel.valor_frete end as valor_frete_2'
+      ''
+      ''
+      'from'
+      '('
+      ''
+      '  select t_f.codigo as codigotabela_frete,'
+      '         f_i.codigo as codigofretes_isencao,'
+      '         cast(null as varchar(20)) as CodigoTransportador,'
+      '         t_f.nome_transportador as transportador,'
+      
+        '         t_f.prazo_expedicao as prazo_entrega, /* f_i.prazo_entr' +
+        'ega, */'
+      
+        '         cast(nullif(t_f.codigo_servico,'#39'0'#39') as varchar(20)) as ' +
+        'codigoservico,'
+      
+        '         coalesce(t_f.descricao_servico, t_f.descricao) as descr' +
+        'icaoservico,'
+      '         t_f.fornecedor,'
+      '         cast('#39'FRETE PR'#211'PRIO'#39' as VARCHAR(20)) as origem,'
+      ''
+      '         GREATEST(sum(p.peso_entrega),'
+      
+        '          sum(((((p.comprimento/100) * (p.altura/100) * (p.largu' +
+        'ra/100))) * t_f.cubagem))) as peso_frete,'
+      ''
+      
+        '         coalesce(f_i.valor, 0.00 /*t_f.valor_para_frete_gratis*' +
+        '/) as valor_para_frete_gratis,'
+      ''
+      '         f_i.valor_frete,'
+      ''
+      ''
+      ''
+      '         f_i.peso_inicial,'
+      '         f_i.peso_final,'
+      '         t_f.peso_maximo_frete_gratis,'
+      '         f_i.cep_inicial'
+      '         '
+      '         '
+      '                '
+      '  from produtos p,'
+      '       tabela_frete t_f'
+      '       join fretes_isencao f_i'
+      '       on t_f.codigo = f_i.tabela_frete'
+      '       '
+      '  where p.codigo in (%ListaProdutos)'
+      
+        '    and :cepdestino between cast(f_i.cep_inicial as INTEGER) and' +
+        ' cast(f_i.cep_final as integer)'
+      '    and t_f.codigo = 1'
+      '/*    and t_f.filial = :filial */'
+      ''
+      '  group by t_f.codigo, f_i.codigo'
+      '  order by t_f.codigo, f_i.codigo'
+      ''
+      ''
+      ''
+      ') as sel'
+      ''
+      'where sel.peso_frete between coalesce(sel.peso_inicial,0) and'
+      
+        '                             coalesce(sel.peso_final,9999999.999' +
+        ')'
+      ''
+      'order by sel.cep_inicial limit 1                             '
+      ''
+      '')
+    RequestLive = False
+    Left = 480
+    Top = 88
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'totalprodutos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'cepdestino'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object qryFretes_Isencaocodigotabela_frete: TLargeintField
+      FieldName = 'codigotabela_frete'
+    end
+    object qryFretes_Isencaocodigofretes_isencao: TIntegerField
+      FieldName = 'codigofretes_isencao'
+    end
+    object qryFretes_Isencaocodigotransportador: TStringField
+      FieldName = 'codigotransportador'
+    end
+    object qryFretes_Isencaotransportador: TStringField
+      FieldName = 'transportador'
+      Size = 200
+    end
+    object qryFretes_Isencaoprazo_entrega: TIntegerField
+      FieldName = 'prazo_entrega'
+    end
+    object qryFretes_Isencaocodigoservico: TStringField
+      FieldName = 'codigoservico'
+    end
+    object qryFretes_Isencaodescricaoservico: TStringField
+      FieldName = 'descricaoservico'
+      Size = 100
+    end
+    object qryFretes_Isencaofornecedor: TIntegerField
+      FieldName = 'fornecedor'
+    end
+    object qryFretes_Isencaoorigem: TStringField
+      FieldName = 'origem'
+    end
+    object qryFretes_Isencaopeso_frete: TFloatField
+      FieldName = 'peso_frete'
+    end
+    object qryFretes_Isencaovalor_para_frete_gratis: TFloatField
+      FieldName = 'valor_para_frete_gratis'
+    end
+    object qryFretes_Isencaovalor_frete: TFloatField
+      FieldName = 'valor_frete'
+    end
+    object qryFretes_Isencaopeso_inicial: TFloatField
+      FieldName = 'peso_inicial'
+    end
+    object qryFretes_Isencaopeso_final: TFloatField
+      FieldName = 'peso_final'
+    end
+    object qryFretes_Isencaopeso_maximo_frete_gratis: TFloatField
+      FieldName = 'peso_maximo_frete_gratis'
+    end
+    object qryFretes_Isencaovalor_frete_2: TFloatField
+      FieldName = 'valor_frete_2'
+    end
+  end
+  object qryRestricoesVigilancia: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'ListadeProdutos'
+        ParamType = ptUnknown
+        Value = '0'
+      end>
+    Sql.Strings = (
+      '        SELECT tf.nome_transportador'
+      '        FROM tabela_frete tf'
+      
+        '        INNER JOIN restricoes_vigilancia_sanitaria rv ON tf.forn' +
+        'ecedor = rv.codigo_fornecedor'
+      ''
+      
+        '/*        WHERE lower(tf.nome_transportador) IN ('#39'correio'#39', '#39'tot' +
+        'alexpress'#39', '#39'arlete'#39', '#39'braspress'#39', '#39'propria'#39', '#39'loja'#39') */'
+      ''
+      
+        '        WHERE /*lower(tf.nome_transportador) IN ('#39'Correios'#39', '#39'To' +
+        'tal Express'#39', '#39'Arlete'#39', '#39'Braspress'#39', '#39'propria'#39', '#39'loja'#39') */'
+      ''
+      ''
+      '/*'
+      ''
+      '         Fora da lista'
+      '         '#39'Jadlog'#39', '#39'Transportadora ASAPLog'#39
+      ''
+      '*/'
+      ''
+      
+        '/*        AND */ rv.codigo_classificacao IN (SELECT DISTINCT cv.' +
+        'codigo'
+      #9'   '#9#9#9'        FROM produtos p'
+      #9#9#9#9#9'JOIN caracteristicas c ON p.caracteristica = c.codigo'
+      #9#9#9#9#9'JOIN grupos g ON c.grupo = g.codigo'
+      
+        #9#9#9#9#9'JOIN classificacao_vigilancia_sanitaria cv ON g.classificac' +
+        'ao_vigilancia_sanitaria = cv.codigo'
+      ''
+      '                                        where p.codigo IN ('
+      ''
+      '                                        %ListadeProdutos'
+      ''
+      '                                        ))'
+      '')
+    RequestLive = False
+    Left = 560
+    Top = 112
+    object qryRestricoesVigilancianome_transportador: TStringField
+      FieldName = 'nome_transportador'
+      Size = 200
+    end
+  end
+end

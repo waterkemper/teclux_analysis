@@ -1,0 +1,63 @@
+{
+  "module": "entregas.relatorio-entregas",
+  "status": "authoritative",
+  "authority": "PostgreSQL snapshot captured from the authorized target database",
+  "snapshot": {
+    "file": "schema/postgresql-authoritative-2026-08-19.json",
+    "sha256": "4A87BD3DFAF52E869505E4B13A7C3DFB2A3AC126B82F2E2284B708780B5751B7",
+    "collectedAt": "2026-08-19 10:19:15 -03:00",
+    "database": "andra",
+    "databaseUser": "tecsoft",
+    "schema": "public",
+    "serverVersion": "9.5.25",
+    "serverEncoding": "SQL_ASCII",
+    "clientEncoding": "SQL_ASCII",
+    "timezone": "America/Araguaina",
+    "collectionMode": "BEGIN; SET TRANSACTION READ ONLY; pg_catalog; ROLLBACK"
+  },
+  "functionArtifact": {
+    "file": "schema/functions-2026-08-19.sql",
+    "sha256": "010AC72A22FCD69D952E7C4BE2A1636A1D8E5225DFB6DCA2A2808849AB688B57"
+  },
+  "requiredRelations": [
+    "contratos",
+    "produtoscontratos",
+    "produtos",
+    "vfornecedores",
+    "bairros",
+    "cidades",
+    "dadosfiscais",
+    "produtosdadosfiscais",
+    "romaneiosnotas",
+    "romaneios",
+    "regioes"
+  ],
+  "requiredFunctions": [
+    "diadasemana(date) returns character varying"
+  ],
+  "confirmedFacts": [
+    "produtoscontratos is a physical table in public",
+    "produtoscontratos primary key is (contrato, produto, filial)",
+    "contrato, produto and filial in produtoscontratos are NOT NULL",
+    "produtoscontratos.dataentrega is nullable",
+    "diadasemana(date) exists as public plpgsql and returns character varying",
+    "all required relations and functions were found in this snapshot"
+  ],
+  "knownSemanticRequirements": [
+    "pc.Entrega = 'S'",
+    "ct.Situacao IN ('F', 'N', 'P')",
+    "open means quantidade - quantidadeentregue > 0",
+    "delivered means quantidadeentregue > 0"
+  ],
+  "remainingValidation": [
+    "Run EXPLAIN and performance validation in the target deployment environment",
+    "Choose INNER versus LEFT JOIN from this snapshot plus the report's absence semantics; NOT NULL mandatory paths are INNER JOIN",
+    "Treat reltuples as estimates, not as exact production cardinalities"
+  ],
+  "doNotUseAsSchemaAuthority": false,
+  "runtimeRules": [
+    "Do not use hasTable, Schema::has*, information_schema or pg_catalog in request/business paths",
+    "Do not use a conditional driver test as schema validation",
+    "If a required object is absent from this snapshot, block SQL and capture a new dated snapshot"
+  ]
+}

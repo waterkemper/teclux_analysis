@@ -11,6 +11,7 @@ type
     dsrDREGerencial: TtecDataSource;
     qryDREGerencial: TtecQuery;
     qryDREGerencial_Aux: TtecQuery;
+    tecQuery1: TtecQuery;
     procedure qryDREGerencialAfterOpen(DataSet: TDataSet);
   private
     { Private declarations }

@@ -30,6 +30,7 @@ inherited frmCalculoFinanciamento: TfrmCalculoFinanciamento
     end
     inherited tblBarraCadastro: TToolBar
       Width = 300
+      Height = 45
       AutoSize = False
       ButtonHeight = 39
       object sbnAlterar: TSpeedButton

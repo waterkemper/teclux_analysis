@@ -1,0 +1,256 @@
+unit dmreinf;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, ACBrBase, ACBrDFe, DB, cpdatasource, ZQuery,
+  ZPgSqlQuery, cpquery, dmtecsoft, ctconstantes, biblio, clparametrossistema, StrUtils;
+
+type
+  TdtmReinf = class(TdtmBasico)
+    qryReinf: TtecQuery;
+    dsrReinf: TtecDataSource;
+    qryReinffilial: TIntegerField;
+    qryReinfperapur: TStringField;
+    qryReinftpamb: TIntegerField;
+    qryReinfprocemi: TIntegerField;
+    qryReinfverproc: TStringField;
+    qryReinfdatahoraexclusao: TDateTimeField;
+    qryReinfdatahoraalteracao: TDateTimeField;
+    qry1000_Contribuinte: TtecQuery;
+    qry1000_Contribuintetpinsc: TIntegerField;
+    qry1000_Contribuintenrinsc: TStringField;
+    qry1000_Contribuinteinivalid: TStringField;
+    qry1000_Contribuintefimvalid: TStringField;
+    qry1000_Contribuinteclasstrib: TStringField;
+    qry1000_Contribuinteindescrituracao: TIntegerField;
+    qry1000_Contribuinteinddesoneracao: TIntegerField;
+    qry1000_Contribuinteindacordoisenmulta: TIntegerField;
+    qry1000_Contribuinteindsitpj: TIntegerField;
+    qry1000_Contribuintenmctt: TStringField;
+    qry1000_Contribuintecpfctt: TStringField;
+    qry1000_Contribuintefonefixo: TStringField;
+    qry1000_Contribuintefonecel: TStringField;
+    qry1000_Contribuinteemail: TStringField;
+    qry1000_Contribuintedatahoraexclusaoreinf: TDateTimeField;
+    qry1000_Contribuintedatahoraalteracaoreinf: TDateTimeField;
+    qry1000_Contribuintenumeroreinf: TIntegerField;
+    dsr1000_Contribuinte: TtecDataSource;
+    qry1000_Contribuinteoperacao: TStringField;
+    qryEnvio_Reinf: TtecQuery;
+    dsrEnvio_Reinf: TtecDataSource;
+    qryEnvio_Reinfnumero: TIntegerField;
+    qryEnvio_Reinffilial: TIntegerField;
+    qryEnvio_Reinfperapur: TStringField;
+    qryEnvio_Reinftpamb: TIntegerField;
+    qryEnvio_Reinfprocemi: TIntegerField;
+    qryEnvio_Reinfverproc: TStringField;
+    qryEnvio_Reinfdatahoraexclusao: TDateTimeField;
+    qryEnvio_Reinfdatahoraalteracao: TDateTimeField;
+    qryEnvio_Reinfdatahoraprocessamento: TDateTimeField;
+    qryEnvio1000_Contribuinte: TtecQuery;
+    dsrEnvio1000_Contribuinte: TtecDataSource;
+    qryEnvio1000_Contribuintenumeroreinf: TIntegerField;
+    qryEnvio1000_Contribuinteoperacao: TStringField;
+    qryEnvio1000_Contribuintetpinsc: TIntegerField;
+    qryEnvio1000_Contribuintenrinsc: TStringField;
+    qryEnvio1000_Contribuinteinivalid: TStringField;
+    qryEnvio1000_Contribuintefimvalid: TStringField;
+    qryEnvio1000_Contribuinteclasstrib: TStringField;
+    qryEnvio1000_Contribuinteindescrituracao: TIntegerField;
+    qryEnvio1000_Contribuinteinddesoneracao: TIntegerField;
+    qryEnvio1000_Contribuinteindacordoisenmulta: TIntegerField;
+    qryEnvio1000_Contribuinteindsitpj: TIntegerField;
+    qryEnvio1000_Contribuintenmctt: TStringField;
+    qryEnvio1000_Contribuintecpfctt: TStringField;
+    qryEnvio1000_Contribuintefonefixo: TStringField;
+    qryEnvio1000_Contribuintefonecel: TStringField;
+    qryEnvio1000_Contribuinteemail: TStringField;
+    qryEnvio1000_Contribuintedatahoraexclusaoreinf: TDateTimeField;
+    qryEnvio1000_Contribuintedatahoraalteracaoreinf: TDateTimeField;
+    qryEnvio1070_ProcessoJudicialReinf: TtecQuery;
+    qryEnvio1070_ProcessoJudicialReinfnumero: TIntegerField;
+    qryEnvio1070_ProcessoJudicialReinfoperacao: TStringField;
+    qryEnvio1070_ProcessoJudicialReinftpproc: TIntegerField;
+    qryEnvio1070_ProcessoJudicialReinfnrproc: TStringField;
+    qryEnvio1070_ProcessoJudicialReinfinivalid: TStringField;
+    qryEnvio1070_ProcessoJudicialReinffimvalid: TStringField;
+    qryEnvio1070_ProcessoJudicialReinfindautoria: TIntegerField;
+    qryEnvio1070_ProcessoJudicialReinfdatahoraexclusao: TDateTimeField;
+    qryEnvio1070_ProcessoJudicialReinfdatahoraalteracao: TDateTimeField;
+    qryEnvio1070_ProcessoJudicialReinfs_tpproc: TStringField;
+    qryEnvio1070_ProcessoJudicialReinfs_indautoria: TStringField;
+    qryEnvio1070_ProcessoJudicialReinfs_operacao: TStringField;
+    qryEnvio1070_ProcessoJudicialReinfnumeroreinf: TIntegerField;
+    qryEnvio1070_ProcessoJudicialReinfnrrecarqbase: TStringField;
+    dsrEnvio1070_ProcessoJudicialReinf: TtecDataSource;
+    qryEnvio1070_SuspensaoExibilidadeTributos: TtecQuery;
+    dsrEnvio1070_SuspensaoExibilidadeTributos: TtecDataSource;
+    qry1070_ProcessoJudicialReinf: TtecQuery;
+    dsr1070_ProcessoJudicialReinf: TtecDataSource;
+    qry1070_ProcessoJudicialReinfnumero: TIntegerField;
+    qry1070_ProcessoJudicialReinftpproc: TIntegerField;
+    qry1070_ProcessoJudicialReinfnrproc: TStringField;
+    qry1070_ProcessoJudicialReinfinivalid: TStringField;
+    qry1070_ProcessoJudicialReinffimvalid: TStringField;
+    qry1070_ProcessoJudicialReinfindautoria: TIntegerField;
+    qry1070_ProcessoJudicialReinfdatahoraexclusao: TDateTimeField;
+    qry1070_ProcessoJudicialReinfdatahoraalteracao: TDateTimeField;
+    qry1070_ProcessoJudicialReinfs_tpproc: TStringField;
+    qry1070_ProcessoJudicialReinfs_indautoria: TStringField;
+    qry1070_ProcessoJudicialReinfnumeroreinf: TIntegerField;
+    qry1000_Contribuinteinivalid_anterior: TStringField;
+    qry1000_Contribuintefimvalid_anterior: TStringField;
+    qryEnvio1000_Contribuintes_operacao: TStringField;
+    qry1000_Contribuintes_operacao: TStringField;
+    qry1070_ProcessoJudicialReinfoperacao: TStringField;
+    qry1070_ProcessoJudicialReinfs_operacao: TStringField;
+    qry1070_ProcessoJudicialReinfinivalid_anterior: TStringField;
+    qry1070_ProcessoJudicialReinffimvalid_anterior: TStringField;
+    qry1070_SuspensaoExibilidadeTributos: TtecQuery;
+    dsr1070_SuspensaoExibilidadeTributos: TtecDataSource;
+    qry1070_SuspensaoExibilidadeTributosprocessojudicial: TIntegerField;
+    qry1070_SuspensaoExibilidadeTributosnumero: TIntegerField;
+    qry1070_SuspensaoExibilidadeTributoscodsusp: TStringField;
+    qry1070_SuspensaoExibilidadeTributosindsusp: TStringField;
+    qry1070_SuspensaoExibilidadeTributosdtdecisao: TDateField;
+    qry1070_SuspensaoExibilidadeTributosinddeposito: TStringField;
+    qry1070_SuspensaoExibilidadeTributosufvara: TStringField;
+    qry1070_SuspensaoExibilidadeTributoscodmunic: TIntegerField;
+    qry1070_SuspensaoExibilidadeTributosidvara: TStringField;
+    qry1070_SuspensaoExibilidadeTributosdatahoraexclusao: TDateTimeField;
+    qry1070_SuspensaoExibilidadeTributoss_indsusp: TStringField;
+    qry1070_SuspensaoExibilidadeTributosnomecidade: TStringField;
+    qryEnvio1070_SuspensaoExibilidadeTributosprocessojudicial: TIntegerField;
+    qryEnvio1070_SuspensaoExibilidadeTributosnumeroreinf: TIntegerField;
+    qryEnvio1070_SuspensaoExibilidadeTributosnumero: TIntegerField;
+    qryEnvio1070_SuspensaoExibilidadeTributoscodsusp: TStringField;
+    qryEnvio1070_SuspensaoExibilidadeTributosindsusp: TStringField;
+    qryEnvio1070_SuspensaoExibilidadeTributosdtdecisao: TDateField;
+    qryEnvio1070_SuspensaoExibilidadeTributosinddeposito: TStringField;
+    qryEnvio1070_SuspensaoExibilidadeTributosufvara: TStringField;
+    qryEnvio1070_SuspensaoExibilidadeTributoscodmunic: TIntegerField;
+    qryEnvio1070_SuspensaoExibilidadeTributosidvara: TStringField;
+    qryEnvio1070_SuspensaoExibilidadeTributosdatahoraexclusao: TDateTimeField;
+    qryEnvio1070_SuspensaoExibilidadeTributoss_indsusp: TStringField;
+    qryEnvio1070_SuspensaoExibilidadeTributosnomecidade: TStringField;
+    qry2010_ServicosTomados: TtecQuery;
+    qry2010_ServicosTomadosdocumentopag: TIntegerField;
+    qry2010_ServicosTomadosfornecedor: TIntegerField;
+    qry2010_ServicosTomadosfilial: TIntegerField;
+    qry2010_ServicosTomadostpinscestab: TIntegerField;
+    qry2010_ServicosTomadosnrinscestab: TStringField;
+    qry2010_ServicosTomadosindobra: TIntegerField;
+    qry2010_ServicosTomadoscnpjprestador: TStringField;
+    qry2010_ServicosTomadosindcprb: TIntegerField;
+    qry2010_ServicosTomadosdatahoraalteracaodadosreinf: TDateTimeField;
+    qry2010_ServicosTomadosdatahoraexclusaodadosreinf: TDateTimeField;
+    qry2010_ServicosTomadosstpinscestab: TStringField;
+    qry2010_ServicosTomadossindobra: TStringField;
+    qry2010_ServicosTomadostipofornecedor: TStringField;
+    qry2010_ServicosTomadostipofilial: TStringField;
+    dsr2010_ServicosTomados: TtecDataSource;
+    qry2010_ServicosTomadosvlrtotalbruto: TFloatField;
+    qry2010_ServicosTomadosvlrtotalbaseret: TFloatField;
+    qry2010_ServicosTomadosvlrtotalretprinc: TFloatField;
+    qry2010_ServicosTomadosvlrtotalretadic: TFloatField;
+    qry2010_ServicosTomadosvlrtotalnretprinc: TFloatField;
+    qry2010_ServicosTomadosvlrtotalnretadic: TFloatField;
+    procedure qryReinfNewRecord(DataSet: TDataSet);
+    procedure qryReinfAfterScroll(DataSet: TDataSet);
+    procedure qry1000_ContribuinteBeforeOpen(DataSet: TDataSet);
+    procedure qry1070_ProcessoJudicialReinfAfterOpen(DataSet: TDataSet);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    function  Incluir: Boolean;
+
+  end;
+
+var
+  dtmReinf: TdtmReinf;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmReinf }
+
+constructor TdtmReinf.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryReinf.Tag := ctTabelas;
+end;
+
+function TdtmReinf.Incluir: Boolean;
+begin
+//  qryepc.Params[0].Clear;
+  qryReinf.append;
+  Result := True;
+
+end;
+
+procedure TdtmReinf.qryReinfNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+  qryReinftpamb.AsInteger := FReinfAmbiente;
+  qryReinfprocemi.asinteger := 1;
+  qryReinfverproc.asString := 'TECLUX';
+end;
+
+procedure TdtmReinf.qryReinfAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+
+  RefazConsultaPorNome(qry1000_Contribuinte,
+    ['filial'],[qryReinffilial.asInteger]);
+
+  qry1070_ProcessoJudicialReinf.Close;
+  qry1070_ProcessoJudicialReinf.Open;
+
+  RefazConsultaPorNome(qryEnvio_Reinf,
+    ['filial','perApur'],
+    [qryReinffilial.asInteger, qryReinfperapur.AsString]);
+
+  RefazConsultaPorNome(qryEnvio1000_Contribuinte,
+    ['filial','perApur'],
+    [qryReinffilial.asInteger, qryReinfperapur.AsString]);
+
+  RefazConsultaPorNome(qryEnvio1070_ProcessoJudicialReinf,
+    ['filial','perApur'],
+    [qryReinffilial.asInteger, qryReinfperapur.AsString]);
+
+  RefazConsultaPorNome(qryEnvio_SuspensaoExibilidadeTributos,
+    ['filial','perApur'],
+    [qryReinffilial.asInteger, qryReinfperapur.AsString]);
+
+end;
+
+procedure TdtmReinf.qry1000_ContribuinteBeforeOpen(DataSet: TDataSet);
+begin
+  inherited;
+  qry1000_Contribuinte.parambyname('nmCtt').asString := ParSistema.NomeContador;
+  qry1000_Contribuinte.parambyname('cpfCtt').asString := ParSistema.CPFContador;
+  qry1000_Contribuinte.parambyname('foneFixo').asString := inttostr(ParSistema.DDDContador) + inttostr(ParSistema.TelefoneContador);
+  qry1000_Contribuinte.parambyname('foneCel').asString := inttostr(ParSistema.DDDCelContador) + inttostr(ParSistema.TelefoneCelContador);
+  qry1000_Contribuinte.parambyname('email').asString := ParSistema.EmailContador;
+
+end;
+
+procedure TdtmReinf.qry1070_ProcessoJudicialReinfAfterOpen(
+  DataSet: TDataSet);
+var
+  vLista : String;
+begin
+  inherited;
+  vLista := RetornarLista(qry1070_ProcessoJudicialReinf, qry1070_ProcessoJudicialReinfnumero);
+  qry1070_SuspensaoExibilidadeTributos.ParamByName('ListaProcessoJudicial').AsString := vLista;
+  qry1070_SuspensaoExibilidadeTributos.close;
+  qry1070_SuspensaoExibilidadeTributos.open;
+
+
+end;
+
+end.

@@ -1,0 +1,822 @@
+unit dmrelatorioresumosinteticofaturamento;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery, dmtecsoft,
+  FR_Class, FR_DSet, FR_DBSet, ctconstantes, biblio, cpdatasource,
+  clparametrossistema, fmpreviewpadrao, FR_Desgn, ZTransact;
+
+type
+  Tdtmrelatorioresumosinteticofaturamento = class(TdtmBasico)
+    qryFiliaisTipodePlano: TtecQuery;
+    fdsFiliaisTipodePlano: TfrDBDataSet;
+    frpRes_SinteticoFiliais: TfrReport;
+    qryFiliaisClasseProdutos: TtecQuery;
+    fdsFiliaisClasseProdutos: TfrDBDataSet;
+    fdsFiliaisVendedores: TfrDBDataSet;
+    qryFiliaisVendedores: TtecQuery;
+    qryRes_SinteticoFiliais: TtecQuery;
+    fdsRes_SinteticoFiliais: TfrDBDataSet;
+    qryRes_SinteticoFiliaisfilialvenda: TIntegerField;
+    qryRes_SinteticoFiliaisnomefilialvenda: TStringField;
+    qryFiliaisTipodePlanotipoplano: TIntegerField;
+    qryFiliaisTipodePlanonometipoplano: TStringField;
+    qryFiliaisTipodePlanofretes: TFloatField;
+    qryFiliaisTipodePlanoseguro: TFloatField;
+    qryFiliaisTipodePlanoavista: TFloatField;
+    qryFiliaisTipodePlanoentradas: TFloatField;
+    qryFiliaisTipodePlanoparcelas: TFloatField;
+    qryRes_SinteticoFiliaisgrupofilialvenda: TIntegerField;
+    qryRes_SinteticoFiliaisnomegrupofilialvenda: TStringField;
+    qryRes_SinteticoFiliaisvendedor: TIntegerField;
+    qryRes_SinteticoFiliaisnomevendedor: TStringField;
+    qryFiliaisClasseProdutosclasse: TStringField;
+    qryFiliaisClasseProdutosnomeclasse: TStringField;
+    qryFiliaisClasseProdutosvalorliquidoproduto: TFloatField;
+    qryFiliaisVendedoresvendedor: TIntegerField;
+    qryFiliaisVendedoresnomevendedor: TStringField;
+    qryFiliaisVendedoresvalormercadoria: TFloatField;
+    qryFiliaisVendedorespercdesconto: TFloatField;
+    qryFiliaisVendedoresdesconto: TFloatField;
+    qryFiliaisVendedoresvalorliquidovendedor: TFloatField;
+    qryFiliaisVendedoresnotas: TLargeintField;
+    qryFiliaisVendedoresprodutos: TFloatField;
+    qryFiliaisClasseProdutosquantidade: TFloatField;
+    qryFiliaisClasseProdutostipo: TMemoField;
+    qryFiliaisVendedoresvalortotal: TFloatField;
+    qryFiliaisVendedorestipo: TMemoField;
+    qryFiliaisTipodePlanopercentual: TFloatField;
+    qryFiliaisClasseProdutosvalorbrutodoproduto: TFloatField;
+    qryFiliaisClasseProdutosvalordescontodoproduto: TFloatField;
+    qryFiliaisClasseProdutospercdescontodoproduto: TFloatField;
+    qryFiliaisClasseProdutosvaloravistadoproduto: TFloatField;
+    qryFiliaisClasseProdutosvaloraprazodoproduto: TFloatField;
+    qryFiliaisClasseProdutospercentual: TFloatField;
+    qryFiliaisVendedoresvalorvista: TFloatField;
+    qryFiliaisVendedoresvalorprazo: TFloatField;
+    qryFiliaisVendedorespercentual: TFloatField;
+    qryFiliaisClasseProdutosvaloracrescproduto: TFloatField;
+    qryFiliaisVendedoresefinanceiro: TFloatField;
+    qryFiliaisTipodePlanocreditotroca: TFloatField;
+    qryFiliaisClasseProdutoscreditotrocaclasse: TFloatField;
+    qryFiliaisClasseProdutostotalliquidoprodutos: TFloatField;
+    qryFiliaisVendedorescreditotroca: TFloatField;
+    qryFiliaisVendedoresvalortotalgeral: TFloatField;
+    qryFiliaisTipodePlanotipo: TStringField;
+    procedure qryRes_SinteticoFiliaisAfterScroll(DataSet: TDataSet);
+    procedure frpRes_SinteticoFiliaisBeforePrint(Memo: TStringList;
+      View: TfrView);
+//    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+  private
+    FDataInicial: String;
+    FDataFinal: String;
+    FListar: Integer;
+    FAgruparFilial: boolean;
+    FAgruparGrupoFilial: boolean;
+    FAgruparVendedor: Boolean;
+    FParametroCabecalho: String;
+    FDevolucoesPeriodoAnterior: Boolean;
+    FDevolucoesPeriodoSelecionado: Boolean;
+    FSaltarPagina: Boolean;
+    FRecebimentosporContrato: Boolean;
+    FRecebimentosporFrenteCaixa: Boolean;
+    fFiliais: String;
+    fGrupoFiliais: String;
+    fCondicaoClientes: String;
+    procedure SetDataFinal(const Value: String);
+    procedure SetFiliais(const Value: String);
+    procedure SetGrupoFiliais(const Value: String);
+    procedure SetItemProdutos(const Value: String);
+    procedure SetGrupoProdutos(const Value: String);
+    procedure SetProdutos(const Value: String);
+    procedure SetClasseProdutos(const Value: String);
+    procedure SetVendedores(const Value: String);
+    procedure SetListar(const Value: Integer);
+    procedure SetAgruparFilial(const Value: boolean);
+    procedure SetAgruparGrupoFilial(const Value: boolean);
+    procedure SetAgruparVendedor(const Value: Boolean);
+    procedure SetDevolucoesPeriodoAnterior(const Value: Boolean);
+    procedure SetRecebimentosporContrato(const Value: Boolean);
+    procedure SetRecebimentosporFrenteCaixa(const Value: Boolean);
+    procedure SetCondicaoClientes(const Value: String);
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+
+    procedure ImprimirRelatorio(tipo: String);
+    property DataInicial: String read FDataInicial write FDataInicial;
+    property DataFinal: String read FDataFinal write SetDataFinal;
+    property Filiais: String read fFiliais write SetFiliais;
+    property CondicaoClientes: String read fCondicaoClientes write SetCondicaoClientes; 
+    property GrupoFiliais: String read fGrupoFiliais write SetGrupoFiliais;
+    property ItemProdutos: String write SetItemProdutos;
+    property Produtos: String write SetProdutos;
+    property GrupoProdutos: String write SetGrupoProdutos;
+    property ClasseProdutos: String write SetClasseProdutos;
+    property Vendedores: String write SetVendedores;
+    property Listar: Integer read FListar write SetListar;
+    property AgruparGrupoFilial: boolean read FAgruparGrupoFilial write SetAgruparGrupoFilial;
+    property AgruparFilial: boolean read FAgruparFilial write SetAgruparFilial;
+    property AgruparVendedor: Boolean read FAgruparVendedor write SetAgruparVendedor;
+    procedure MontarOrdenacao;
+    property ParametroCabecalho: String read FParametroCabecalho write FParametroCabecalho;
+    property DevolucoesPeriodoSelecionado: Boolean read FDevolucoesPeriodoSelecionado write FDevolucoesPeriodoSelecionado;
+    property DevolucoesPeriodoAnterior: Boolean read FDevolucoesPeriodoAnterior write SetDevolucoesPeriodoAnterior;
+    property SaltarPagina: Boolean read FSaltarPagina write FSaltarPagina;
+    property RecebimentosporContrato: Boolean read FRecebimentosporContrato Write SetRecebimentosporContrato;
+    property RecebimentosporFrenteCaixa: Boolean read FRecebimentosporFrenteCaixa Write SetRecebimentosporFrenteCaixa;
+    function AbrirRelatorio: Boolean;    
+  end;
+
+var
+  dtmrelatorioresumosinteticofaturamento: Tdtmrelatorioresumosinteticofaturamento;
+
+implementation
+
+{$R *.dfm}
+
+{ Tdtmrelatorioresumosinteticofaturamento }
+
+constructor Tdtmrelatorioresumosinteticofaturamento.Create(AOwner: TComponent);
+begin
+  inherited;
+end;
+
+procedure Tdtmrelatorioresumosinteticofaturamento.ImprimirRelatorio(
+  tipo: String);
+begin
+  frVariables['AgruparGrupoFilial']:= FAgruparGrupoFilial;
+  frVariables['AgruparFilial']     := FAgruparFilial;
+  frVariables['AgruparVendedor']   := FAgruparVendedor;
+  frVariables['SaltarPagina']      := FSaltarPagina;
+  if FListar<>1 then
+    frVariables['ListarVendedores']:=True
+  else
+    frVariables['ListarVendedores']:=False;
+  ImprimirRelatoriofast(Tipo, FParametroCabecalho, MSimples, 0, [frpRes_SinteticoFiliais]);
+end;
+
+
+procedure Tdtmrelatorioresumosinteticofaturamento.SetProdutos(
+  const Value: String);
+var
+CondicaoProduto_v,
+CondicaoProdutoContrato_v,
+CondicaoProdutoContratoDevolvido_v,
+CondicaoServico_v,
+CondicaoProdutoVendedorContrato_v,
+CondicaoProdutoVendedorDadoFiscal_v,
+CondicaoProdutoVendedor_d : String;
+begin
+  CondicaoProduto_v:=
+  ' and (produto in (Select p.codigo from produtos p join caracteristicas c'+
+  ' on p.caracteristica=c.codigo and c.codigo = '+quotedstr(Value)+'))';
+
+  CondicaoProdutoContrato_v:=
+  ' and (pc.produto in (Select p.codigo from produtos p join caracteristicas c'+
+  ' on p.caracteristica=c.codigo and c.codigo = '+quotedstr(Value)+'))';
+
+  CondicaoProdutoContratoDevolvido_v:=
+  ' and (cd.produto in (Select p.codigo from produtos p join caracteristicas c'+
+  ' on p.caracteristica=c.codigo and c.codigo = '+quotedstr(Value)+'))';
+
+  CondicaoProduto_v:=
+  ' and (produto in (Select p.codigo from produtos p join caracteristicas c'+
+  ' on p.caracteristica=c.codigo and c.codigo = '+quotedstr(Value)+'))';
+
+  CondicaoServico_v:= 'and servico is null';
+
+  CondicaoProdutoVendedorContrato_v:=
+  ' and exists (select pc.produto '+
+               'from produtoscontratos pc '+
+               'where pc.contrato=ct.numero and '+
+               'pc.produto in (Select p.codigo '+
+                              'from produtos p join caracteristicas c '+
+                               ' on p.caracteristica=c.codigo and c.codigo = '+quotedstr(Value)+'))';
+  CondicaoProdutoVendedorDadoFiscal_v:=
+  ' and exists (select pdf.produto '+
+               'from produtosdadosfiscais pdf '+
+               'where pdf.dadofiscal=df.numero and '+
+               'pdf.produto in (Select p.codigo '+
+                              'from produtos p join caracteristicas c '+
+                               ' on p.caracteristica=c.codigo and c.codigo = '+quotedstr(Value)+'))';
+
+  CondicaoProdutoVendedor_d:=
+  ' and (cd.produto in (Select p.codigo from produtos p join caracteristicas c'+
+  ' on p.caracteristica=c.codigo and c.codigo = '+quotedstr(Value)+'))';
+
+  if (value <> '') then
+  begin
+   qryFiliaisClasseProdutos.MacroByName('Produtos').AsString := CondicaoProduto_v;
+   qryFiliaisClasseProdutos.MacroByName('ProdutosContratos').AsString := CondicaoProdutoContrato_v;
+   qryFiliaisClasseProdutos.MacroByName('ProdutosContratosDevolvidos').AsString := CondicaoProdutoContratoDevolvido_v;
+   qryFiliaisClasseProdutos.MacroByName('Servicos').AsString := CondicaoServico_v;
+
+   qryFiliaisVendedores.MacroByName('ProdutoseServicosContratos').AsString := CondicaoProdutoVendedorContrato_v;
+   qryFiliaisVendedores.MacroByName('ProdutoseServicosDadosFiscais').AsString := CondicaoProdutoVendedorDadoFiscal_v;
+   qryFiliaisVendedores.MacroByName('ProdutosDevolucoes').AsString := CondicaoProdutoVendedor_d;
+
+   FParametroCabecalho:=FParametroCabecalho+' Produtos: '+Value;
+  end;
+end;
+
+procedure Tdtmrelatorioresumosinteticofaturamento.SetClasseProdutos(
+  const Value: String);
+var
+CondicaoClasseProduto_v,
+CondicaoClasseProdutoContrato_v,
+CondicaoClasseProdutoContratoDevolvido_v,
+CondicaoClasseServico_v,
+CondicaoClasseProdutoVendedorDadoFiscal_v,
+CondicaoClasseProdutoVendedorContrato_v,
+CondicaoClasseProdutoVendedor_d : String;
+begin
+  CondicaoClasseProduto_v:=
+  ' and (produto in (Select p.codigo '+
+  '                     from produtos p, caracteristicas c '+
+  '                     where p.caracteristica = c.codigo '+
+  '                           and c.classe = '+quotedstr(Value)+'))';
+
+  CondicaoClasseProdutoContrato_v:=
+  ' and (pc.produto in (Select p.codigo '+
+  '                     from produtos p, caracteristicas c '+
+  '                     where p.caracteristica = c.codigo '+
+  '                           and c.classe = '+quotedstr(Value)+'))';
+
+  CondicaoClasseProdutoContratoDevolvido_v:=
+  ' and (cd.produto in (Select p.codigo '+
+  '                     from produtos p, caracteristicas c '+
+  '                     where p.caracteristica = c.codigo '+
+  '                           and c.classe = '+quotedstr(Value)+'))';
+
+  CondicaoClasseServico_v:= 'and servico is null';
+
+  CondicaoClasseProdutoVendedorContrato_v:=
+  ' and exists (select pc.produto '+
+               'from produtoscontratos pc '+
+               'where pc.contrato=ct.numero and '+
+               '      pc.produto in (Select p.codigo '+
+               '                     from produtos p, caracteristicas c '+
+               '                     where p.caracteristica=c.codigo '+
+               '                           and c.classe = '+quotedstr(Value)+'))';
+
+  CondicaoClasseProdutoVendedorDadoFiscal_v:=
+  ' and exists (select pdf.produto '+
+               'from produtosdadosfiscais pdf '+
+               'where pdf.dadofiscal = df.numero and '+
+               '      pdf.produto in (Select p.codigo '+
+               '                     from produtos p, caracteristicas c '+
+               '                     where p.caracteristica=c.codigo '+
+               '                           and c.classe = '+quotedstr(Value)+'))';
+
+  CondicaoClasseProdutoVendedor_d:=
+  ' and (cd.produto in (Select p.codigo '+
+  '                     from produtos p, caracteristicas c '+
+  '                     where p.caracteristica=c.codigo '+
+  '                           and c.classe = '+quotedstr(Value)+'))';
+
+  if (value <> '') then
+  begin
+   qryFiliaisClasseProdutos.MacroByName('Produtos').AsString := CondicaoClasseProduto_v;
+   qryFiliaisClasseProdutos.MacroByName('ProdutosContratos').AsString := CondicaoClasseProdutoContrato_v;
+   qryFiliaisClasseProdutos.MacroByName('ProdutosContratosDevolvidos').AsString := CondicaoClasseProdutoContratoDevolvido_v;
+   qryFiliaisClasseProdutos.MacroByName('Servicos').AsString := CondicaoClasseServico_v;
+
+   qryFiliaisVendedores.MacroByName('ProdutoseServicosContratos').AsString := CondicaoClasseProdutoVendedorContrato_v;
+   qryFiliaisVendedores.MacroByName('ProdutoseServicosDadosFiscais').AsString := CondicaoClasseProdutoVendedorDadoFiscal_v;
+   qryFiliaisVendedores.MacroByName('ProdutosDevolucoes').AsString := CondicaoClasseProdutoVendedor_d;
+   FParametroCabecalho:=FParametroCabecalho+' Classe de Produtos: '+Value;
+  end;
+end;
+
+procedure Tdtmrelatorioresumosinteticofaturamento.SetDataFinal(
+  const Value: String);
+begin
+  if Value<>'' then
+  begin
+    FDataFinal := Value;
+    if FDataInicial='' then
+      FDataInicial:=FDataFinal;
+  end
+  else
+    FDataFinal := FDataInicial;
+
+  qryRes_SinteticoFiliais.ParamByName('DataInicial').AsString:=FDataInicial;
+  qryFiliaisTipodePlano.ParamByName('DataInicial').AsString:=FDataInicial;
+  qryFiliaisClasseProdutos.ParamByName('DataInicial').AsString:=FDataInicial;
+  qryFiliaisVendedores.ParamByName('DataInicial').AsString:=FDataInicial;
+
+  qryRes_SinteticoFiliais.ParamByName('DataFinal').AsString:=FDataFinal;
+  qryFiliaisTipodePlano.ParamByName('DataFinal').AsString:=FDataFinal;
+  qryFiliaisClasseProdutos.ParamByName('DataFinal').AsString:=FDataFinal;
+  qryFiliaisVendedores.ParamByName('DataFinal').AsString:=FDataFinal;
+
+  FParametroCabecalho:=FParametroCabecalho+'Entre: '+FDataInicial+' e '+FDataFinal;
+
+end;
+
+procedure Tdtmrelatorioresumosinteticofaturamento.SetFiliais(
+  const Value: String);
+Var
+CondicaoFilial: String;
+begin
+ fFiliais := Value;
+ if (Value <> '') then
+   CondicaoFilial:=' and (filialvenda in (' + Value + '))'
+ else
+   CondicaoFilial:='';
+
+ qryRes_SinteticoFiliais.MacroByName('Filiais').AsString := CondicaoFilial;
+ qryFiliaisTipodePlano.MacroByName('Filiais').AsString := CondicaoFilial;
+ qryFiliaisClasseProdutos.MacroByName('Filiais').AsString := CondicaoFilial;
+ qryFiliaisVendedores.MacroByName('Filiais').AsString := CondicaoFilial;
+end;
+
+procedure Tdtmrelatorioresumosinteticofaturamento.SetGrupoFiliais(
+  const Value: String);
+var
+CondicaoGrupoFilial: String;
+begin
+ fGrupoFiliais := value;
+ CondicaoGrupoFilial:=
+ ' and (filialvenda in (Select filial From filiaisgruposfiliais '+
+ 'Where grupo =' + Value + '))';
+ if (Value <> '') then
+ begin
+   if ParSistema.RelatorioSomenteFiliaisAutorizadas then
+   begin
+     qryRes_SinteticoFiliais.MacroByName('Filiais').AsString :=
+       qryRes_SinteticoFiliais.MacroByName('Filiais').AsString + ' and ' +
+       CondicaoGrupoFilial;
+     qryFiliaisTipodePlano.MacroByName('Filiais').AsString :=
+       qryFiliaisTipodePlano.MacroByName('Filiais').AsString + ' and ' +
+       CondicaoGrupoFilial;
+     qryFiliaisClasseProdutos.MacroByName('Filiais').AsString :=
+       qryFiliaisClasseProdutos.MacroByName('Filiais').AsString + ' and ' +
+       CondicaoGrupoFilial;
+     qryFiliaisVendedores.MacroByName('Filiais').AsString :=
+       qryFiliaisVendedores.MacroByName('Filiais').AsString + ' and ' +
+       CondicaoGrupoFilial;
+   end
+   else
+   begin
+     qryRes_SinteticoFiliais.MacroByName('Filiais').AsString := CondicaoGrupoFilial;
+     qryFiliaisTipodePlano.MacroByName('Filiais').AsString := CondicaoGrupoFilial;
+     qryFiliaisClasseProdutos.MacroByName('Filiais').AsString := CondicaoGrupoFilial;
+     qryFiliaisVendedores.MacroByName('Filiais').AsString := CondicaoGrupoFilial;
+   end;
+ end;
+end;
+
+procedure Tdtmrelatorioresumosinteticofaturamento.SetGrupoProdutos(
+  const Value: String);
+Var
+CondicaoGrupoProduto_v,
+CondicaoGrupoProdutoContrato_v,
+CondicaoGrupoProdutoContratoDevolvido_v,
+CondicaoGrupoServico_v,
+CondicaoGrupoProdutoContratoVendedor_v,
+CondicaoGrupoProdutoDadoFiscalVendedor_v,
+CondicaoGrupoProdutoVendedor_d: String;
+begin
+  CondicaoGrupoProduto_v :=
+  ' and (produto in (Select p.codigo from produtos p join caracteristicas c'+
+  ' on p.caracteristica=c.codigo and c.grupo = '+quotedstr(Value)+'))';
+
+  CondicaoGrupoProdutoContrato_v :=
+  ' and (pc.produto in (Select p.codigo from produtos p join caracteristicas c'+
+  ' on p.caracteristica=c.codigo and c.grupo = '+quotedstr(Value)+'))';
+
+  CondicaoGrupoProdutoContratoDevolvido_v :=
+  ' and (cd.produto in (Select p.codigo from produtos p join caracteristicas c'+
+  ' on p.caracteristica=c.codigo and c.grupo = '+quotedstr(Value)+'))';
+
+  CondicaoGrupoServico_v := 'and servico is null';
+
+  CondicaoGrupoProdutoContratoVendedor_v:=
+  ' and exists (select pc.produto '+
+               'from produtoscontratos pc '+
+               'where pc.contrato=ct.numero and '+
+               'pc.produto in (Select p.codigo '+
+                              'from (produtos p join caracteristicas c '+
+                              'on p.caracteristica=c.codigo and c.grupo = '+quotedstr(Value)+')))';
+
+  CondicaoGrupoProdutoDadoFiscalVendedor_v:=
+  ' and exists (select pdf.produto '+
+               'from produtosdadosfiscais pdf '+
+               'where pdf.dadofiscal=df.numero and '+
+               'pdf.produto in (Select p.codigo '+
+                              'from (produtos p join caracteristicas c '+
+                              'on p.caracteristica=c.codigo and c.grupo = '+quotedstr(Value)+')))';
+
+  CondicaoGrupoProdutoVendedor_d :=
+  ' and (cd.produto in (Select p.codigo from produtos p join caracteristicas c'+
+  ' on p.caracteristica=c.codigo and c.grupo = '+quotedstr(Value)+'))';
+
+  if (value <> '') then
+  begin
+   qryFiliaisClasseProdutos.MacroByName('Produtos').AsString := CondicaoGrupoProduto_v;
+   qryFiliaisClasseProdutos.MacroByName('ProdutosContratos').AsString := CondicaoGrupoProdutoContrato_v;
+   qryFiliaisClasseProdutos.MacroByName('ProdutosContratosDevolvidos').AsString := CondicaoGrupoProdutoContratoDevolvido_v;
+   qryFiliaisClasseProdutos.MacroByName('Servicos').AsString := CondicaoGrupoServico_v;
+   qryFiliaisVendedores.MacroByName('ProdutoseServicosContratos').AsString := CondicaoGrupoProdutoContratoVendedor_v;
+   qryFiliaisVendedores.MacroByName('ProdutoseServicosDadosFiscais').AsString := CondicaoGrupoProdutoDadoFiscalVendedor_v;
+   qryFiliaisVendedores.MacroByName('ProdutosDevolucoes').AsString := CondicaoGrupoProdutoVendedor_d;
+   FParametroCabecalho:=FParametroCabecalho+' Grupo de Produtos: '+Value;
+  end;
+end;
+
+procedure Tdtmrelatorioresumosinteticofaturamento.SetListar(
+  const Value: Integer);
+begin
+  FListar := Value;
+end;
+
+procedure Tdtmrelatorioresumosinteticofaturamento.SetItemProdutos(
+  const Value: String);
+var
+CondicaoItemProduto_v, CondicaoItemServico_v,
+CondicaoItemProdutoeServicoContratoVendedor_v,
+CondicaoItemProdutoeServicoDadoFiscalVendedor_v,
+CondicaoItemProdutoVendedor_d : String;
+
+begin
+ CondicaoItemProduto_v:='';
+ CondicaoItemServico_v:='';
+ CondicaoItemProdutoeServicoContratoVendedor_v:='';
+ CondicaoItemProdutoeServicoDadoFiscalVendedor_v:='';
+ CondicaoItemProdutoVendedor_d:='';
+ if (Value <> '') then
+ begin
+   CondicaoItemProduto_v:=' and (produto = ' + Value + ')';
+   CondicaoItemServico_v:=' and (servico = ' + Value + ')';
+   CondicaoItemProdutoeServicoContratoVendedor_v:=' and exists ((select pc.produto '+
+                                               'from produtoscontratos pc '+
+                                               'where pc.produto = ' + Value +')'+
+                                               ' union all '+
+                                               '(select sc.servico '+
+                                               'from servicoscontratos sc '+
+                                               'where sc.servico = ' + Value +'))';
+
+   CondicaoItemProdutoeServicoDadoFiscalVendedor_v:=' and exists ((select pdf.produto '+
+                                               'from produtosdadosfiscais pdf '+
+                                               'where pdf.produto = ' + Value + ')'+
+                                               ' union all '+
+                                               '(select sdf.servico '+
+                                               'from servicosdadosfiscais sdf '+
+                                               'where sdf.servico = ' + Value +'))';
+
+   CondicaoItemProdutoVendedor_d:=' and (cd.produto = ' + Value + ')';
+   FParametroCabecalho:=FParametroCabecalho+' Item: '+Value;
+ end;
+
+ qryFiliaisClasseProdutos.MacroByName('Produtos').AsString := CondicaoItemProduto_v;
+ qryFiliaisClasseProdutos.MacroByName('Servicos').AsString := CondicaoItemServico_v;
+ qryFiliaisVendedores.MacroByName('ProdutoseServicosContratos').AsString := CondicaoItemProdutoeServicoContratoVendedor_v;
+ qryFiliaisVendedores.MacroByName('ProdutoseServicosDadosFiscais').AsString := CondicaoItemProdutoeServicoDadoFiscalVendedor_v;
+ qryFiliaisVendedores.MacroByName('ProdutosDevolucoes').AsString := CondicaoItemProdutoVendedor_d;
+
+end;
+
+procedure Tdtmrelatorioresumosinteticofaturamento.SetVendedores(
+  const Value: String);
+var
+CondicaoVendedor: String;
+CondicaoClasseVendedorContratosProdutos: String;
+CondicaoClasseVendedorContratosServicos: String;
+CondicaoClasseVendedorDadosFiscaisProdutos: String;
+CondicaoClasseVendedorDadosFiscaisServicos: String;
+CondicaoClasseVendedorContratosDevolvidos: String;
+
+begin
+ if (Value <> '') then
+ begin
+   CondicaoVendedor:=' and (vendedor = ' + Value + ')';
+   CondicaoClasseVendedorContratosProdutos:=' and (pc.vendedor = ' + Value + ')';
+   CondicaoClasseVendedorContratosServicos:=' and (sc.servico is null) ';
+   CondicaoClasseVendedorDadosFiscaisProdutos:=' and (pdf.vendedor = ' + Value + ')';
+   CondicaoClasseVendedorDadosFiscaisServicos:=' and (sdf.servico is null)';
+   CondicaoClasseVendedorContratosDevolvidos := ' and ((select pc.vendedor '+
+                                                '       from produtoscontratos pc '+
+                                                '       where pc.contrato = cd.contrato and '+
+                                                '             pc.produto = cd.produto and '+
+                                                '             pc.filial = cd.filial) = '+value+')';
+   FParametroCabecalho:=FParametroCabecalho+' Vendedor: '+Value;
+ end
+ else
+ begin
+   CondicaoVendedor:='';
+   CondicaoClasseVendedorContratosProdutos:='';
+   CondicaoClasseVendedorContratosServicos:='';
+   CondicaoClasseVendedorDadosFiscaisProdutos:='';
+   CondicaoClasseVendedorDadosFiscaisServicos:='';
+   CondicaoClasseVendedorContratosDevolvidos:='';
+ end;
+
+ qryRes_SinteticoFiliais.MacroByName('Vendedores').AsString  := CondicaoVendedor;
+ qryFiliaisTipodePlano.MacroByName('Vendedores').AsString    := CondicaoVendedor;
+
+ qryFiliaisClasseProdutos.MacroByName('VendedoresContratosProdutos').AsString := CondicaoClasseVendedorContratosProdutos;
+ qryFiliaisClasseProdutos.MacroByName('VendedoresContratosServicos').AsString := CondicaoClasseVendedorContratosServicos;
+ qryFiliaisClasseProdutos.MacroByName('VendedoresDadosFiscaisProdutos').AsString := CondicaoClasseVendedorDadosFiscaisProdutos;
+ qryFiliaisClasseProdutos.MacroByName('VendedoresDadosFiscaisServicos').AsString := CondicaoClasseVendedorDadosFiscaisServicos;
+ qryFiliaisClasseProdutos.MacroByName('VendedoresContratosDevolvidos').AsString := CondicaoClasseVendedorContratosDevolvidos;
+
+ qryFiliaisVendedores.MacroByName('Vendedores').AsString     := CondicaoVendedor;
+end;
+
+procedure Tdtmrelatorioresumosinteticofaturamento.qryRes_SinteticoFiliaisAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  MontarOrdenacao;
+  RefazConsulta(qryFiliaisTipodePlano,[], []);
+  RefazConsulta(qryFiliaisClasseProdutos,[], []);
+  RefazConsulta(qryFiliaisVendedores,[], []);
+end;
+
+procedure Tdtmrelatorioresumosinteticofaturamento.MontarOrdenacao;
+var
+CondicaoAgrupamento: String;
+AgrupamentoContratosProdutos: String;
+AgrupamentoContratosServicos: String;
+AgrupamentoDadosFiscaisProdutos : String;
+AgrupamentoDadosFiscaisServicos : String;
+AgrupamentoContratosDevolvidos : String;
+
+begin
+  CondicaoAgrupamento:='';
+  AgrupamentoContratosProdutos :='';
+  AgrupamentoContratosServicos :='';
+  AgrupamentoDadosFiscaisProdutos :='';
+  AgrupamentoDadosFiscaisServicos :='';
+  AgrupamentoContratosDevolvidos :='';
+
+  if FAgruparGrupoFilial then
+    CondicaoAgrupamento:=CondicaoAgrupamento+
+    ' and (filialvenda in (Select filial From filiaisgruposfiliais '+
+    'Where grupo = '+qryRes_SinteticoFiliaisgrupofilialvenda.Asstring+
+    '))';
+
+  if FAgruparFilial then
+    CondicaoAgrupamento:=CondicaoAgrupamento+' and filialvenda = '+
+    qryRes_SinteticoFiliaisfilialvenda.Asstring;
+
+
+
+
+  if FAgruparVendedor then
+  begin
+    AgrupamentoContratosProdutos := CondicaoAgrupamento+' and pc.vendedor = '+qryRes_SinteticoFiliaisvendedor.Asstring;
+    AgrupamentoContratosServicos := CondicaoAgrupamento+' and ct.vendedor = '+qryRes_SinteticoFiliaisvendedor.Asstring;
+    AgrupamentoDadosFiscaisProdutos := CondicaoAgrupamento+ ' and pdf.vendedor = '+qryRes_SinteticoFiliaisvendedor.Asstring;
+    AgrupamentoDadosFiscaisServicos := CondicaoAgrupamento+ ' and df.vendedor = '+qryRes_SinteticoFiliaisvendedor.Asstring;
+    AgrupamentoContratosDevolvidos := CondicaoAgrupamento+ ' and ((select pc.vendedor '+
+                                                           '      from produtoscontratos pc '+
+                                                           '      where pc.contrato = cd.contrato and '+
+                                                           '            pc.produto = cd.produto and '+
+                                                           '            pc.filial = cd.filial) = '+qryRes_SinteticoFiliaisvendedor.Asstring+')';
+    CondicaoAgrupamento:=CondicaoAgrupamento+' and vendedor = '+qryRes_SinteticoFiliaisvendedor.Asstring;
+  end
+  else
+  begin
+    AgrupamentoContratosProdutos := CondicaoAgrupamento;
+    AgrupamentoContratosServicos := CondicaoAgrupamento;
+    AgrupamentoDadosFiscaisProdutos := CondicaoAgrupamento;
+    AgrupamentoDadosFiscaisServicos := CondicaoAgrupamento;
+    AgrupamentoContratosDevolvidos := CondicaoAgrupamento;
+  end;
+
+  qryFiliaisTipodePlano.MacroByName('Agrupamento').asstring := CondicaoAgrupamento;
+
+  qryFiliaisClasseProdutos.MacroByName('AgrupamentoContratosProdutos').asstring := AgrupamentoContratosProdutos;
+  qryFiliaisClasseProdutos.MacroByName('AgrupamentoContratosServicos').asstring := AgrupamentoContratosServicos;
+  qryFiliaisClasseProdutos.MacroByName('AgrupamentoDadosFiscaisProdutos').asstring := AgrupamentoDadosFiscaisProdutos;
+  qryFiliaisClasseProdutos.MacroByName('AgrupamentoDadosFiscaisServicos').asstring := AgrupamentoDadosFiscaisServicos;
+  qryFiliaisClasseProdutos.MacroByName('AgrupamentoContratosDevolvidos').asstring := AgrupamentoContratosDevolvidos;
+
+  qryFiliaisVendedores.MacroByName('Agrupamento').asstring := CondicaoAgrupamento;
+end;
+
+procedure Tdtmrelatorioresumosinteticofaturamento.SetAgruparVendedor(
+  const Value: Boolean);
+begin
+  FAgruparVendedor := Value;
+  qryRes_SinteticoFiliais.ParamByName('AgruparVendedor').AsBoolean:=FAgruparVendedor;
+end;
+
+procedure Tdtmrelatorioresumosinteticofaturamento.frpRes_SinteticoFiliaisBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  if (View.Name = 'fpvLogo') then
+   if FileExists(LogotipoFilialBase) then
+    try TfrPictureView(View).Picture.LoadFromFile(LogotipoFilialBase) except end;
+end;
+
+procedure Tdtmrelatorioresumosinteticofaturamento.SetAgruparFilial(
+  const Value: boolean);
+begin
+  FAgruparFilial := Value;
+  qryRes_SinteticoFiliais.ParamByName('AgruparFilial').AsBoolean:=FAgruparFilial;
+end;
+
+procedure Tdtmrelatorioresumosinteticofaturamento.SetAgruparGrupoFilial(
+  const Value: boolean);
+begin
+  FAgruparGrupoFilial := Value;
+  qryRes_SinteticoFiliais.ParamByName('AgruparGrupoFilial').AsBoolean:=FAgruparGrupoFilial;
+end;
+
+procedure Tdtmrelatorioresumosinteticofaturamento.SetDevolucoesPeriodoAnterior(
+  const Value: Boolean);
+const
+ SQLDevolucoesPeriodoAnterior = 'and ct.faturamento < :DataInicial';
+ SQLDevolucoesPeriodoSelecionado = 'and ct.faturamento between (:DataInicial) and (:DataFinal)';
+
+begin
+  FDevolucoesPeriodoAnterior := Value;
+  qryRes_SinteticoFiliais.MacroByName('Inicio_Devolucoes_Contratos').AsString := '/* inicio Devolucoes */';
+  qryRes_SinteticoFiliais.MacroByName('Final_Devolucoes_Contratos').AsString := '/* final devolucoes */';
+  qryFiliaisTipodePlano.MacroByName('Inicio_Devolucoes_Contratos').AsString := '/* inicio Devolucoes */';
+  qryFiliaisTipodePlano.MacroByName('Final_Devolucoes_Contratos').AsString := '/* final devolucoes */';
+  qryFiliaisClasseProdutos.MacroByName('Inicio_Devolucoes_Contratos').AsString := '/* inicio Devolucoes */';
+  qryFiliaisClasseProdutos.MacroByName('Final_Devolucoes_Contratos').AsString := '/* final devolucoes */';
+  qryFiliaisVendedores.MacroByName('Inicio_Devolucoes_Contratos').AsString := '/* inicio Devolucoes */';
+  qryFiliaisVendedores.MacroByName('Final_Devolucoes_Contratos').AsString := '/* final devolucoes */';
+
+  if FDevolucoesPeriodoAnterior and FDevolucoesPeriodoSelecionado then
+  begin
+    qryFiliaisTipodePlano.MacroByName('Devolucoes').AsString := '';
+    qryFiliaisClasseProdutos.MacroByName('Devolucoes').AsString := '';
+    qryFiliaisVendedores.MacroByName('Devolucoes').AsString := '';
+  end
+  else
+   if FDevolucoesPeriodoAnterior then
+   begin
+     qryFiliaisTipodePlano.MacroByName('Devolucoes').AsString := SQLDevolucoesPeriodoAnterior;
+     qryFiliaisClasseProdutos.MacroByName('Devolucoes').AsString := SQLDevolucoesPeriodoAnterior;
+     qryFiliaisVendedores.MacroByName('Devolucoes').AsString := SQLDevolucoesPeriodoAnterior;
+   end
+   else
+   if FDevolucoesPeriodoSelecionado then
+   begin
+     qryFiliaisTipodePlano.MacroByName('Devolucoes').AsString := SQLDevolucoesPeriodoSelecionado;
+     qryFiliaisClasseProdutos.MacroByName('Devolucoes').AsString := SQLDevolucoesPeriodoSelecionado;
+     qryFiliaisVendedores.MacroByName('Devolucoes').AsString := SQLDevolucoesPeriodoSelecionado;
+   end
+   else
+   begin
+    qryRes_SinteticoFiliais.MacroByName('Inicio_Devolucoes_Contratos').AsString := '/* inicio Devolucoes ';
+    qryRes_SinteticoFiliais.MacroByName('Final_Devolucoes_Contratos').AsString := ' final devolucoes */';
+    qryFiliaisTipodePlano.MacroByName('Inicio_Devolucoes_Contratos').AsString := '/* inicio Devolucoes ';
+    qryFiliaisTipodePlano.MacroByName('Final_Devolucoes_Contratos').AsString := ' final devolucoes */';
+    qryFiliaisClasseProdutos.MacroByName('Inicio_Devolucoes_Contratos').AsString := '/* inicio Devolucoes ';
+    qryFiliaisClasseProdutos.MacroByName('Final_Devolucoes_Contratos').AsString := ' final devolucoes */';
+    qryFiliaisVendedores.MacroByName('Inicio_Devolucoes_Contratos').AsString := '/* inicio Devolucoes ';
+    qryFiliaisVendedores.MacroByName('Final_Devolucoes_Contratos').AsString := ' final devolucoes */';
+   end;
+end;
+
+procedure Tdtmrelatorioresumosinteticofaturamento.SetRecebimentosporContrato(
+  const Value: Boolean);
+begin
+  FRecebimentosporContrato := Value;
+  if value then begin
+    qryRes_SinteticoFiliais.MacroByName('Inicio_Vendas_Contratos').AsString := '/* inicio vendas por contrato */';
+    qryRes_SinteticoFiliais.MacroByName('Final_Vendas_Contratos').AsString := '/* final vendas por contrato */';
+    qryFiliaisTipodePlano.MacroByName('Inicio_Vendas_Contratos_1').AsString := '/* inicio vendas por contrato */';
+    qryFiliaisTipodePlano.MacroByName('Final_Vendas_Contratos_1').AsString := '/* final vendas por contrato */';
+    qryFiliaisClasseProdutos.MacroByName('Inicio_Vendas_Contratos_1').AsString := '/* inicio vendas por contrato */';
+    qryFiliaisClasseProdutos.MacroByName('Final_Vendas_Contratos_1').AsString := '/* final vendas por contrato */';
+    qryFiliaisVendedores.MacroByName('Inicio_Vendas_Contratos_1').AsString := '/* inicio vendas por contrato */';
+    qryFiliaisVendedores.MacroByName('Final_Vendas_Contratos_1').AsString := '/* final vendas por contrato */';
+    qryFiliaisTipodePlano.MacroByName('Inicio_Vendas_Contratos_2').AsString := '/* inicio vendas por contrato */';
+    qryFiliaisTipodePlano.MacroByName('Final_Vendas_Contratos_2').AsString := '/* final vendas por contrato */';
+    qryFiliaisClasseProdutos.MacroByName('Inicio_Vendas_Contratos_2').AsString := '/* inicio vendas por contrato */';
+    qryFiliaisClasseProdutos.MacroByName('Final_Vendas_Contratos_2').AsString := '/* final vendas por contrato */';
+    qryFiliaisVendedores.MacroByName('Inicio_Vendas_Contratos_2').AsString := '/* inicio vendas por contrato */';
+    qryFiliaisVendedores.MacroByName('Final_Vendas_Contratos_2').AsString := '/* final vendas por contrato */';
+  end
+  else begin
+    qryRes_SinteticoFiliais.MacroByName('Inicio_Vendas_Contratos').AsString := '/* inicio vendas por contrato ';
+    qryRes_SinteticoFiliais.MacroByName('Final_Vendas_Contratos').AsString := ' final vendas por contrato */';
+    qryFiliaisTipodePlano.MacroByName('Inicio_Vendas_Contratos_1').AsString := '/* inicio vendas por contrato ';
+    qryFiliaisTipodePlano.MacroByName('Final_Vendas_Contratos_1').AsString := ' final vendas por contrato */';
+    qryFiliaisClasseProdutos.MacroByName('Inicio_Vendas_Contratos_1').AsString := '/* inicio vendas por contrato ';
+    qryFiliaisClasseProdutos.MacroByName('Final_Vendas_Contratos_1').AsString := ' final vendas por contrato */';
+    qryFiliaisVendedores.MacroByName('Inicio_Vendas_Contratos_1').AsString := '/* inicio vendas por contrato ';
+    qryFiliaisVendedores.MacroByName('Final_Vendas_Contratos_1').AsString := ' final vendas por contrato */';
+    qryFiliaisTipodePlano.MacroByName('Inicio_Vendas_Contratos_2').AsString := '/* inicio vendas por contrato ';
+    qryFiliaisTipodePlano.MacroByName('Final_Vendas_Contratos_2').AsString := ' final vendas por contrato */';
+    qryFiliaisClasseProdutos.MacroByName('Inicio_Vendas_Contratos_2').AsString := '/* inicio vendas por contrato ';
+    qryFiliaisClasseProdutos.MacroByName('Final_Vendas_Contratos_2').AsString := ' final vendas por contrato */';
+    qryFiliaisVendedores.MacroByName('Inicio_Vendas_Contratos_2').AsString := '/* inicio vendas por contrato ';
+    qryFiliaisVendedores.MacroByName('Final_Vendas_Contratos_2').AsString := ' final vendas por contrato */';
+  end;
+end;
+
+procedure Tdtmrelatorioresumosinteticofaturamento.SetRecebimentosporFrenteCaixa(
+  const Value: Boolean);
+begin
+  FRecebimentosporFrenteCaixa := Value;
+  if value then
+  begin
+    if FRecebimentosporContrato then
+    begin
+      qryRes_SinteticoFiliais.Sql[NumerodalinhanoTexto(qryRes_SinteticoFiliais.Sql,'%Final_Vendas_Contratos')+1] := 'union';
+      qryFiliaisTipodePlano.Sql[NumerodalinhanoTexto(qryFiliaisTipodePlano.Sql,'%Final_Vendas_Contratos_1')+1] := 'union all';
+      qryFiliaisTipodePlano.Sql[NumerodalinhanoTexto(qryFiliaisTipodePlano.Sql,'%Final_Vendas_Contratos_2')+1] := 'union all';
+      qryFiliaisClasseProdutos.Sql[NumerodalinhanoTexto(qryFiliaisClasseProdutos.Sql,'%Final_Vendas_Contratos_1')+1] := 'union all';
+      qryFiliaisClasseProdutos.Sql[NumerodalinhanoTexto(qryFiliaisClasseProdutos.Sql,'%Final_Vendas_Contratos_2')+1] := 'union all';
+      qryFiliaisVendedores.Sql[NumerodalinhanoTexto(qryFiliaisVendedores.Sql,'%Final_Vendas_Contratos_1')+1] := 'union all';
+      qryFiliaisVendedores.Sql[NumerodalinhanoTexto(qryFiliaisVendedores.Sql,'%Final_Vendas_Contratos_2')+1] := 'union all';
+    end
+    else
+    begin
+      qryRes_SinteticoFiliais.Sql[NumerodalinhanoTexto(qryRes_SinteticoFiliais.Sql,'%Final_Vendas_Contratos')+1] := '';
+      qryFiliaisTipodePlano.Sql[NumerodalinhanoTexto(qryFiliaisTipodePlano.Sql,'%Final_Vendas_Contratos_1')+1] := '';
+      qryFiliaisTipodePlano.Sql[NumerodalinhanoTexto(qryFiliaisTipodePlano.Sql,'%Final_Vendas_Contratos_2')+1] := '';
+      qryFiliaisClasseProdutos.Sql[NumerodalinhanoTexto(qryFiliaisClasseProdutos.Sql,'%Final_Vendas_Contratos_1')+1] := '';
+      qryFiliaisClasseProdutos.Sql[NumerodalinhanoTexto(qryFiliaisClasseProdutos.Sql,'%Final_Vendas_Contratos_2')+1] := '';
+      qryFiliaisVendedores.Sql[NumerodalinhanoTexto(qryFiliaisVendedores.Sql,'%Final_Vendas_Contratos_1')+1] := '';
+      qryFiliaisVendedores.Sql[NumerodalinhanoTexto(qryFiliaisVendedores.Sql,'%Final_Vendas_Contratos_2')+1] := '';
+    end;
+    qryRes_SinteticoFiliais.MacroByName('Inicio_Vendas_Frente_de_Caixa').AsString := '/* inicio vendas frente de caixa */';
+    qryRes_SinteticoFiliais.MacroByName('Final_Vendas_Frente_de_Caixa').AsString := '/* final vendas frente de caixa */';
+    qryFiliaisTipodePlano.MacroByName('Inicio_Vendas_Frente_de_Caixa_1').AsString := '/* inicio vendas frente de caixa */';
+    qryFiliaisTipodePlano.MacroByName('Final_Vendas_Frente_de_Caixa_1').AsString := '/* final vendas frente de caixa */';
+    qryFiliaisClasseProdutos.MacroByName('Inicio_Vendas_Frente_de_Caixa_1').AsString := '/* inicio vendas frente de caixa */';
+    qryFiliaisClasseProdutos.MacroByName('Final_Vendas_Frente_de_Caixa_1').AsString := '/* final vendas frente de caixa */';
+    qryFiliaisVendedores.MacroByName('Inicio_Vendas_Frente_de_Caixa_1').AsString := '/* inicio vendas frente de caixa */';
+    qryFiliaisVendedores.MacroByName('Final_Vendas_Frente_de_Caixa_1').AsString := '/* final vendas frente de caixa */';
+    qryFiliaisTipodePlano.MacroByName('Inicio_Vendas_Frente_de_Caixa_2').AsString := '/* inicio vendas frente de caixa */';
+    qryFiliaisTipodePlano.MacroByName('Final_Vendas_Frente_de_Caixa_2').AsString := '/* final vendas frente de caixa */';
+    qryFiliaisClasseProdutos.MacroByName('Inicio_Vendas_Frente_de_Caixa_2').AsString := '/* inicio vendas frente de caixa */';
+    qryFiliaisClasseProdutos.MacroByName('Final_Vendas_Frente_de_Caixa_2').AsString := '/* final vendas frente de caixa */';
+    qryFiliaisVendedores.MacroByName('Inicio_Vendas_Frente_de_Caixa_2').AsString := '/* inicio vendas frente de caixa */';
+    qryFiliaisVendedores.MacroByName('Final_Vendas_Frente_de_Caixa_2').AsString := '/* final vendas frente de caixa */';
+  end
+  else
+  begin
+    qryRes_SinteticoFiliais.Sql[NumerodalinhanoTexto(qryRes_SinteticoFiliais.Sql,'%Final_Vendas_Contratos')+1] := '';
+    qryFiliaisTipodePlano.Sql[NumerodalinhanoTexto(qryFiliaisTipodePlano.Sql,'%Final_Vendas_Contratos_1')+1] := '';
+    qryFiliaisTipodePlano.Sql[NumerodalinhanoTexto(qryFiliaisTipodePlano.Sql,'%Final_Vendas_Contratos_2')+1] := '';
+    qryFiliaisClasseProdutos.Sql[NumerodalinhanoTexto(qryFiliaisClasseProdutos.Sql,'%Final_Vendas_Contratos_1')+1] := '';
+    qryFiliaisClasseProdutos.Sql[NumerodalinhanoTexto(qryFiliaisClasseProdutos.Sql,'%Final_Vendas_Contratos_2')+1] := '';
+    qryFiliaisVendedores.Sql[NumerodalinhanoTexto(qryFiliaisVendedores.Sql,'%Final_Vendas_Contratos_1')+1] := '';
+    qryFiliaisVendedores.Sql[NumerodalinhanoTexto(qryFiliaisVendedores.Sql,'%Final_Vendas_Contratos_2')+1] := '';
+
+    qryRes_SinteticoFiliais.MacroByName('Inicio_Vendas_Frente_de_Caixa').AsString := '/* inicio vendas frente de caixa ';
+    qryRes_SinteticoFiliais.MacroByName('Final_Vendas_Frente_de_Caixa').AsString := ' final vendas frente de caixa */';
+    qryFiliaisTipodePlano.MacroByName('Inicio_Vendas_Frente_de_Caixa_1').AsString := '/* inicio vendas frente de caixa ';
+    qryFiliaisTipodePlano.MacroByName('Final_Vendas_Frente_de_Caixa_1').AsString := ' final vendas frente de caixa */';
+    qryFiliaisClasseProdutos.MacroByName('Inicio_Vendas_Frente_de_Caixa_1').AsString := '/* inicio vendas frente de caixa ';
+    qryFiliaisClasseProdutos.MacroByName('Final_Vendas_Frente_de_Caixa_1').AsString := ' final vendas frente de caixa */';
+    qryFiliaisVendedores.MacroByName('Inicio_Vendas_Frente_de_Caixa_1').AsString := '/* inicio vendas frente de caixa ';
+    qryFiliaisVendedores.MacroByName('Final_Vendas_Frente_de_Caixa_1').AsString := ' final vendas frente de caixa */';
+    qryFiliaisTipodePlano.MacroByName('Inicio_Vendas_Frente_de_Caixa_2').AsString := '/* inicio vendas frente de caixa ';
+    qryFiliaisTipodePlano.MacroByName('Final_Vendas_Frente_de_Caixa_2').AsString := ' final vendas frente de caixa */';
+    qryFiliaisClasseProdutos.MacroByName('Inicio_Vendas_Frente_de_Caixa_2').AsString := '/* inicio vendas frente de caixa ';
+    qryFiliaisClasseProdutos.MacroByName('Final_Vendas_Frente_de_Caixa_2').AsString := ' final vendas frente de caixa */';
+    qryFiliaisVendedores.MacroByName('Inicio_Vendas_Frente_de_Caixa_2').AsString := '/* inicio vendas frente de caixa ';
+    qryFiliaisVendedores.MacroByName('Final_Vendas_Frente_de_Caixa_2').AsString := ' final vendas frente de caixa */';
+  end;
+end;
+
+function Tdtmrelatorioresumosinteticofaturamento.AbrirRelatorio: Boolean;
+begin
+  refazconsulta(qryRes_SinteticoFiliais,[],[]);
+  result := not qryRes_SinteticoFiliais.isempty;
+end;
+
+{procedure Tdtmrelatorioresumosinteticofaturamento.ZMonitor1MonitorEvent(
+  Sql, Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('/tmp/log.txt') then
+    Listar.loadfromfile('/tmp/log.txt');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('/tmp/log.txt');
+  listar.free;
+end;}
+
+
+procedure Tdtmrelatorioresumosinteticofaturamento.SetCondicaoClientes(
+  const Value: String);
+begin
+  fCondicaoClientes := Value;
+  qryRes_SinteticoFiliais.MacroByName('Clientes').AsString := ' and (' + fCondicaoClientes + ')';
+  qryFiliaisTipodePlano.MacroByName('Clientes').AsString := ' and (' + fCondicaoClientes + ')';
+  qryFiliaisClasseProdutos.MacroByName('Clientes').AsString := ' and (' + fCondicaoClientes + ')';
+  qryFiliaisVendedores.MacroByName('Clientes').AsString := ' and (' + fCondicaoClientes + ')';
+end;
+
+end.

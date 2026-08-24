@@ -1,0 +1,100 @@
+object fraConsultaFilialGrupoFilial: TfraConsultaFilialGrupoFilial
+  Left = 0
+  Top = 0
+  Width = 531
+  Height = 58
+  Color = clBtnFace
+  ParentColor = False
+  TabOrder = 0
+  object pgcFiliaisGruposFiliais: TPageControl
+    Left = 0
+    Top = 0
+    Width = 531
+    Height = 58
+    ActivePage = tstFilial
+    Align = alClient
+    TabIndex = 0
+    TabOrder = 0
+    OnChange = pgcFiliaisGruposFiliaisChange
+    object tstFilial: TTabSheet
+      Caption = '      &Filial      '
+      inline fraConsultaFilial: TfraConsultaCodigo
+        Left = 1
+        Top = 1
+        Width = 503
+        Height = 38
+        HorzScrollBar.Range = 497
+        VertScrollBar.Range = 23
+        AutoScroll = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'helvetica'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        inherited dtxDescricao: TtecDBText
+          DataField = 'nome'
+          DataSource = fraConsultaFilial.dsrProcuraFiliais
+        end
+        inherited edfCodigo: TtecDBFindLookup
+          DataField = 'codigo'
+          DataSource = fraConsultaFilial.dsrProcuraFiliais
+          Group = 'Filial'
+          MaxLength = 3
+          OnExit = fraConsultaFilialedfCodigoExit
+          OnFound = nil
+          Operacao = opPESQUISA
+          Parameter = 'codigo'
+          ActiveSetControls = False
+          DenyInsert = True
+          NoSetControls = <>
+          SetControls = <>
+        end
+      end
+    end
+    object tstGrupodeFilial: TTabSheet
+      Caption = ' &Grupo de Filial '
+      ImageIndex = 1
+      inline fraConsultaGrupoFilial: TfraConsultaCodigo
+        Left = 2
+        Top = 1
+        Width = 503
+        Height = 38
+        HorzScrollBar.Range = 496
+        VertScrollBar.Range = 23
+        AutoScroll = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'helvetica'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        inherited sbnProcura: TSpeedButton
+          Left = 63
+        end
+        inherited dtxDescricao: TtecDBText
+          Left = 87
+          DataField = 'descricao'
+          DataSource = fraConsultaGrupoFilial.dsrProcuraGrupoFiliais
+        end
+        inherited edfCodigo: TtecDBFindLookup
+          Left = -1
+          DataField = 'codigo'
+          DataSource = fraConsultaGrupoFilial.dsrProcuraGrupoFiliais
+          Group = 'GrupoFilial'
+          MaxLength = 3
+          OnExit = fraConsultaGrupoFilialedfCodigoExit
+          OnFound = nil
+          Operacao = opPESQUISA
+          Parameter = 'codigo'
+          ActiveSetControls = False
+          DenyInsert = True
+          NoSetControls = <>
+          SetControls = <>
+        end
+      end
+    end
+  end
+end

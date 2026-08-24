@@ -1,0 +1,269 @@
+unit dmoperacoesimoveis;
+
+interface
+
+uses
+  SysUtils, Classes, DB, ZQuery, ZPgSqlQuery, cpquery, cpdatasource,
+  //Repositório
+  dmbasico, dmtecsoft,
+  //Biblio
+  Biblio, clparametrossistema, ctconstantes;
+
+type
+  TdtmOperacoesImoveis = class(TdtmBasico)
+    qryParcelasImoveis: TtecQuery;
+    qryImoveisContrato: TtecQuery;
+    qryImoveis: TtecQuery;
+    qryEmpreendimentos: TtecQuery;
+    qryContratosImoveis: TtecQuery;
+    qryContratosImoveiscontrato: TIntegerField;
+    qryContratosImoveisdata: TDateField;
+    qryContratosImoveishabite_se: TDateField;
+    qryContratosImoveisdatachaves: TDateField;
+    qryContratosImoveissituacao: TStringField;
+    qryContratosImoveisnomesituacao: TStringField;
+    qryContratosImoveisvendedor: TIntegerField;
+    qryContratosImoveisvalortotal: TFloatField;
+    qryContratosImoveisindexadoratehabitese: TStringField;
+    qryContratosImoveisindexadoraposhabitese: TStringField;
+    qryContratosImoveisdatabase: TDateField;
+    qryContratosImoveisjuroscompostos: TBooleanField;
+    qryContratosImoveisjuros: TFloatField;
+    qryContratosImoveisatrasomulta: TFloatField;
+    qryContratosImoveisatrasojuros: TFloatField;
+    qryContratosImoveisdebitovenda: TIntegerField;
+    qryContratosImoveisobservacoes: TStringField;
+    qryParcelasImoveiscontrato: TIntegerField;
+    qryParcelasImoveistipo: TStringField;
+    qryParcelasImoveisorigem: TStringField;
+    qryParcelasImoveisnumero: TIntegerField;
+    qryParcelasImoveisnrpagto: TIntegerField;
+    qryParcelasImoveisdatavencto: TDateField;
+    qryParcelasImoveisvalorhistorico: TFloatField;
+    qryParcelasImoveisvalorcontratado: TFloatField;
+    qryParcelasImoveisdatapagto: TDateField;
+    qryParcelasImoveisvalorpagto: TFloatField;
+    qryParcelasImoveismoeda: TStringField;
+    qryParcelasImoveisdescricaomoeda: TStringField;
+    qryParcelasImoveisdatabase: TDateField;
+    qryParcelasImoveistaxajuros: TFloatField;
+    qryParcelasImoveisjuroscompostos: TBooleanField;
+    qryParcelasImoveispromissoria: TBooleanField;
+    qryParcelasImoveisbanco: TIntegerField;
+    qryParcelasImoveisnomebanco: TStringField;
+    qryParcelasImoveisdocumento: TStringField;
+    qryParcelasImoveisobservacoes: TStringField;
+    qryParcelasImoveistipopagto: TStringField;
+    qryValoresParcelas: TtecQuery;
+    qryValoresParcelasvalordevido: TFloatField;
+    qryValoresParcelasvalorcorrigido: TFloatField;
+    qryValoresParcelasjuros: TFloatField;
+    qryValoresParcelascorrecao: TFloatField;
+    qryValoresParcelasdiferenca: TFloatField;
+    dsrValoresParcelas: TtecDataSource;
+    qryImoveisContratocontrato: TIntegerField;
+    qryImoveisContratocodigoempreendimento: TIntegerField;
+    qryImoveisContratonomeempreendimento: TStringField;
+    qryImoveisContratodatahabitese: TDateField;
+    qryImoveisContratobloco: TIntegerField;
+    qryImoveisContratonomebloco: TStringField;
+    qryImoveisContratonumero: TStringField;
+    qryImoveisContratounidade: TIntegerField;
+    qryImoveisContratotipounidade: TStringField;
+    qryImoveisContratopavimento: TStringField;
+    qryImoveisContratosituacao: TStringField;
+    qryImoveisContratoareaprivativa: TFloatField;
+    qryImoveisContratoareacomum: TFloatField;
+    qryImoveisContratoareatotal: TFloatField;
+    qryImoveisContratofracaoideal: TFloatField;
+    qryImoveisContratovalor: TFloatField;
+    qryImoveisContratoprecovendido: TFloatField;
+    qryImoveisContratoobservacoes: TStringField;
+    qryEmpreendimentoscodigo: TIntegerField;
+    qryEmpreendimentosnome: TStringField;
+    qryEmpreendimentossigla: TStringField;
+    qryEmpreendimentosrua: TStringField;
+    qryEmpreendimentosnumero: TIntegerField;
+    qryEmpreendimentoscomplemento: TStringField;
+    qryEmpreendimentosestado: TStringField;
+    qryEmpreendimentoscidade: TIntegerField;
+    qryEmpreendimentosbairro: TIntegerField;
+    qryEmpreendimentoscep: TIntegerField;
+    qryEmpreendimentosdatahabitese: TDateField;
+    qryEmpreendimentosobservacoes: TStringField;
+    qryEmpreendimentoscontavenda: TIntegerField;
+    qryEmpreendimentoscontacofins: TIntegerField;
+    qryEmpreendimentoscontacsll: TIntegerField;
+    qryEmpreendimentoscontairpj: TIntegerField;
+    qryEmpreendimentoscontapis: TIntegerField;
+    qryEmpreendimentosdebitocustos: TIntegerField;
+    qryEmpreendimentoscreditocustos: TIntegerField;
+    qryEmpreendimentosdebitovendachaves: TIntegerField;
+    qryEmpreendimentoscreditovendachaves: TIntegerField;
+    qryEmpreendimentosdebitocustochaves: TIntegerField;
+    qryEmpreendimentoscreditoatualizacaomonetaria: TIntegerField;
+    qryImoveisbloco: TIntegerField;
+    qryImoveisnumero: TStringField;
+    qryImoveissituacao: TStringField;
+    qryImoveispavimento: TStringField;
+    qryImoveisvalor: TFloatField;
+    qryImoveisobservacoes: TStringField;
+    qryContratosEmpreendimento: TtecQuery;
+    dsrContratosEmpreendimento: TtecDataSource;
+    qryContratosEmpreendimentocontrato: TIntegerField;
+    qryValorCorrecao: TtecQuery;
+    qryValorCorrecaovalor: TFloatField;
+    qryParcelasImoveisindexadoraposhabitese: TStringField;
+    qryParcelasImoveisjurosaposhabitese: TFloatField;
+    procedure qryEmpreendimentosAfterOpen(DataSet: TDataSet);
+  private
+    FNumeroContratos: String;
+    FDataHabitese: TDateTime;
+    function GetDataContabil: TDateTime;
+    { Private declarations }
+
+  protected
+    property DataContabil : TDateTime read GetDataContabil;
+
+  public
+    constructor Create(AOwner: TComponent; Contrato: String); reintroduce;
+    destructor  Destroy; override;
+    //Fun~ções para Operações com Empreendimentos
+    function ContratosEmpreendimentos(Empreendimento: Integer): String;
+    function VerificarDataHabiteseValida: Boolean;
+    procedure AjustarParcelas(Contrato, Numero, NrPagto: Integer; Tipo: String; Data: TDateTime);
+    //Funções para Operações com Contratos
+    function ExisteParcelasPagas(Contrato: String): Boolean;
+
+
+    //Funções para Operações com Imóveis
+
+    property NumeroContratos: String read FNumeroContratos write FNumeroContratos;
+    property DataHabitese   : TDateTime read FDataHabitese write FDataHabitese;
+    { Public declarations }
+  end;
+
+var
+  dtmOperacoesImoveis: TdtmOperacoesImoveis;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmOperacoesImoveis }
+
+constructor TdtmOperacoesImoveis.Create(AOwner: TComponent; Contrato: String);
+begin
+  inherited Create(AOwner);
+  RefazConsultaPorNome(qryContratosImoveis,['Contrato'],[Contrato]);
+end;
+
+destructor TdtmOperacoesImoveis.Destroy;
+begin
+  dtmOperacoesImoveis.Free;
+  inherited;
+end;
+
+function TdtmOperacoesImoveis.ExisteParcelasPagas(Contrato: String): Boolean;
+begin
+  Result:= False;
+  qryParcelasImoveis.Close;
+  qryParcelasImoveis.MacroByName('Contrato').AsString:= 'pi.Contrato = '+Contrato;
+  qryParcelasImoveis.Open;
+  if qryParcelasImoveis.RecordCount > 0 then
+  begin
+    GuardarRegistroAtual(qryParcelasImoveis, True);
+    qryParcelasImoveis.First;
+    while not qryParcelasImoveis.Eof do
+    begin
+      if ((qryParcelasImoveisdatapagto.AsString <> '') and
+          (qryParcelasImoveisvalorpagto.AsCurrency > 0)) then
+      begin
+        Result:= True;
+        Break;
+      end;
+      qryParcelasImoveis.Next;
+    end;
+    VoltarRegistroAtual(qryParcelasImoveis);
+  end;
+end;
+
+function TdtmOperacoesImoveis.GetDataContabil: TDateTime;
+begin
+  Result:= ParSistema.DataContabil;
+end;
+
+function TdtmOperacoesImoveis.ContratosEmpreendimentos(Empreendimento: Integer): String;
+var Contratos: String;
+begin
+  Contratos:= '';
+  RefazConsultaPorNome(qryContratosEmpreendimento,['Empreendimento'],[Empreendimento]);
+  qryContratosEmpreendimento.First;
+  while not qryContratosEmpreendimento.Eof do
+  begin
+    Contratos:= Contratos + qryContratosEmpreendimentocontrato.AsString + ',';
+    qryContratosEmpreendimento.Next;
+  end;
+  Delete(Contratos,length(COntratos)-1,1);
+  Result:= Contratos;
+  FNumeroContratos:= Contratos;
+end;
+
+procedure TdtmOperacoesImoveis.qryEmpreendimentosAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  ContratosEmpreendimentos(qryEmpreendimentoscodigo.AsInteger);
+end;
+
+function TdtmOperacoesImoveis.VerificarDataHabiteseValida: Boolean;
+begin
+  Result:= True;
+  if dataContabil >= DataHabitese then
+  begin
+    qryParcelasImoveis.Close;
+    qryParcelasImoveis.MacroByName('Contrato').AsString:= 'in ('+FNumeroContratos+')';
+    qryParcelasImoveis.Open;
+
+    qryParcelasImoveis.First;
+    while not qryParcelasImoveis.Eof do
+    begin
+      if qryParcelasImoveisdatapagto.AsString <> '' then
+       if DataHabitese <= qryParcelasImoveisdatapagto.AsDateTime then
+        begin
+         Break;
+         MensagemAviso('O Contrato '+qryParcelasImoveiscontrato.AsString+' possui parcelas pagas com data de pagamento'+#13#10+
+                       'maior ou igual a data do Habite-se('+datetostr(DataHabitese)+')');
+         Result:= False;
+        end
+        else
+        begin
+          AjustarParcelas(qryParcelasImoveiscontrato.AsInteger,
+                          qryParcelasImoveisnumero.AsInteger,
+                          qryParcelasImoveisnrpagto.AsInteger,
+                          qryParcelasImoveistipo.AsString,
+                          DataLocal);
+        end;
+      qryParcelasImoveis.Next;
+    end
+  end
+  else
+  begin
+    MensagemAviso(Format(ctDATACONTABILMAIORDATALANCTO,['contábil',datetostr(DataContabil),'do habite-se',datetostr(DataHabitese)]));
+    Result:= False;
+  end;
+end;
+
+procedure TdtmOperacoesImoveis.AjustarParcelas(Contrato, Numero, NrPagto: Integer; Tipo: String; Data: TDateTime);
+begin
+  RefazConsultaPorNome(qryValorCorrecao,['Contrato','TipoParcela','NumeroParcela','NrPagtoParcela','Data'],
+                                        [Contrato, Tipo, Numero, NrPagto, Data]);
+  if not (qryParcelasImoveis.State = dsedit) then
+    qryParcelasImoveis.Edit;
+  qryParcelasImoveisvalorcontratado.AsCurrency := qryValorCorrecaovalor.AsCurrency;
+  qryParcelasImoveismoeda.AsString             := qryParcelasImoveisindexadoraposhabitese.AsString;
+  qryParcelasImoveisdatabase.AsDateTime        := DataHabitese;
+  qryParcelasImoveistaxajuros.AsCurrency       := qryParcelasImoveisjurosaposhabitese.AsCurrency;
+  qryParcelasImoveis.Post;
+end;
+
+end.

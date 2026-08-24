@@ -1,0 +1,858 @@
+unit fmcadastronotasfiscaisgrade;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  fmajuda, Grids, DBGrids, cpdbgrid, db, biblio, ctconstantes, zquery,
+  // projeto
+  dmcadastronotasfiscais, Buttons, fmcadastropadrao, ComCtrls, ExtCtrls,
+  StdCtrls, DBCtrls, cpdbtext, Windows, cpnumero, Mask, cpdbfindcontrols,
+  // Repositorio
+  fmconsultaporcampo, fmconsultabasica, fmcadastropadraonavegacao, ToolWin,
+  Menus, frselecaoaleatoriaprodutos, cpdbdata, DBIntCheckBox, frconsulta, frconsultacodigo;
+
+
+type
+  TfrmCadastroNotasFiscaisGrade = class(TfrmCadastroPadraoNav)
+    pnlSituacaoProdutos: TPanel;
+    lblPreco: TLabel;
+    lblICMS: TLabel;
+    lblIPI: TLabel;
+    lblReducaoBase: TLabel;
+    dbgGrades: TtecDBGrid;
+    edtReducaoBase: TEditNumero;
+    edtIPI: TEditNumero;
+    edtICMS: TEditNumero;
+    edtPreco: TEditNumero;
+    ckbValoresPadrao: TCheckBox;
+    sbnTrocarLInhaColuna: TSpeedButton;
+    lblTotalProdutos: TLabel;
+    dtxValorProdutos: TtecDBText;
+    lblTotalIPI: TLabel;
+    dtxTotalIPI: TtecDBText;
+    lblTotalProdutoIPI: TLabel;
+    dtxTotalProdutos: TtecDBText;
+    PopupMenu: TPopupMenu;
+    pnlSelecaoProduto: TPanel;
+    dbSelecionarProdutosDesde: TDBIntCheckBox;
+    edtSelecionarProdutosDesde: TDBEditData;
+    gbxCaracteristicasNotasFiscais: TPanel;
+    dbgCaracteristicasNotasFiscais: TtecDBGrid;
+    pnlLabels: TPanel;
+    sbnProcura: TSpeedButton;
+    sbnExcluirProduto: TSpeedButton;
+    sbnIncluirItem: TSpeedButton;
+    Timer1: TTimer;
+    lblCaracteristicasNotasFiscais: TStaticText;
+    lblGrades: TStaticText;
+    procedure dbgGradesDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure dbgGradesDblClick(Sender: TObject);
+    procedure dbgGradesKeyPress(Sender: TObject; var Key: Char);
+    procedure dbgGradesKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnTrocarLInhaColunaClick(Sender: TObject);
+    procedure sbnProcuraCaracteristicaClick(Sender: TObject);
+    procedure ckbValoresPadraoClick(Sender: TObject);
+    procedure PopupMenuPopup(Sender: TObject);
+    procedure dbgCaracteristicasNotasFiscaisDblClick(Sender: TObject);
+    procedure sbnProcuraClick(Sender: TObject);
+    procedure sbnIncluirItemClick(Sender: TObject);
+    procedure dbgCaracteristicasNotasFiscaisKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure sbnExcluirClick(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
+    procedure sbnExcluirProdutoClick(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
+  private
+    fncolunasgrade: integer;
+    fraConsultaProduto: TfraConsultaCodigo;
+
+    function getncolunasgrade: integer;
+    procedure AcionarPesquisaGrade;
+
+    procedure onPosicionarLinhaColunaNaGrade(Sender: TObject);
+    procedure GradeAfterOpen(Sender: TObject);
+
+    procedure  SetDataModulo (Dtm: TdtmCadastroNotasFiscais);
+
+    { Private declarations }
+  protected
+//    function ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    dtmCadastroNotasFiscais : tdtmCadastroNotasFiscais;
+    procedure AlterarEstadoBotoes; override;
+    function InternoIncluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function  InternoCancelar: Boolean; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+//    function AcionaCadastroProdutosNotasFiscais: Boolean;
+//    function AbrirGrade: Boolean;
+    procedure AtualizarValores;
+    property ncolunasgrade: integer read getncolunasgrade write fncolunasgrade;
+
+    procedure CondicoesProduto;
+    procedure AtribuirDadosProdutos;
+
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent; dtm: TdtmCadastroNotasFiscais);  reintroduce;
+    destructor Destroy; override;
+{    procedure  SetDataModulo (Dtm: TdtmCadastroNotasFiscais);}
+    procedure PosicionarLinhaColunaNaGrade;
+  end;
+
+var
+  frmCadastroNotasFiscaisGrade: TfrmCadastroNotasFiscaisGrade;
+
+implementation
+
+uses fmcadastroprodutosnotafiscal, fmadicionarlinhagrade, fmListaItensnfe;
+
+{$R *.dfm}
+
+{ TfrmCadastronotasfiscaisGrade }
+
+procedure TfrmCadastroNotasFiscaisGrade.AlterarEstadoBotoes;
+begin
+  if (not (sbnSalvar.Enabled)) and
+     (dtmCadastroNotasFiscais.TabelaGrade.State<>dsinsert) and
+     (not dtmCadastroNotasFiscais.PodeInserirnaGrade) then
+    inherited;
+  sbnIncluir.Enabled := (not (dtmCadastroNotasFiscais.SomenteLeitura));
+end;
+
+constructor TfrmCadastroNotasFiscaisGrade.Create(AOwner: TComponent; dtm: TdtmCadastroNotasFiscais);
+begin
+  inherited create(AOwner);
+  SetDataModulo(dtm);
+
+  DataSet:= dtmCadastroNotasFiscais.qryCaracteristicasNotaFiscal;
+
+  with dtmCadastroNotasFiscais do
+  begin
+    dtmCadastroNotasFiscais.PosicionarLinhaColunaNaGrade := onPosicionarLinhaColunaNaGrade;
+    dtmCadastroNotasFiscais.GradeAfterOpen := GradeAfterOpen;
+  end;
+
+  fraConsultaProduto := TfraConsultaCodigo.Create(self);
+  fraConsultaProduto.Name := 'fraConsultaProduto';
+  fraConsultaProduto.edfCodigo.MaxLength := 30;
+  fraConsultaProduto.edfCodigo.DataSource := dtmCadastroNotasFiscais.dsrCaracteristicasNotaFiscal;
+  fraConsultaProduto.edfCodigo.DataField := 'codigovisual';
+  fraConsultaProduto.edfCodigo.Operacao := opATRIBUICAO;
+  fraConsultaProduto.edfCodigo.LookupSource := fraConsultaProduto.dsrProcuraProdutos;
+  fraConsultaProduto.edfCodigo.LookupQueryParameter := 'caracteristicavisual';
+  fraConsultaProduto.edfCodigo.LookupField := 'codigovisual';
+//  ConsultaProduto.edfCodigo.LocateParameters := 'produtovisual';
+  fraConsultaProduto.AbrirTabelaProcura := false;
+  fraConsultaProduto.CondicoesdaConsulta := CondicoesProduto;
+  fraConsultaProduto.TipoPesquisa := pesPRODUTOS;
+  fraConsultaProduto.OnFound := AtribuirDadosProdutos;
+  self.visible := false;
+end;
+
+destructor TfrmCadastroNotasFiscaisGrade.Destroy;
+begin
+  inherited;
+  frmCadastroNotasFiscaisGrade := nil;
+end;
+
+function TfrmCadastroNotasFiscaisGrade.InternoGravar: Boolean;
+
+begin
+{
+  result := true;
+
+  if dtmCadastroNotasFiscais.ExistePrecoemBranco then
+    result := MensagemConfirmacao(ctPRECOEMBRANCOSERAODESCONSIDERADOS) = smbOK;
+
+  if result then
+  begin
+   dtmCadastroNotasFiscais.GravarCopiaProdutosNotasFiscais;
+   sbnSalvar.Enabled := false;
+   edfCaracteristica.SetFocus;
+  end;
+  }
+end;
+
+procedure TfrmCadastroNotasFiscaisGrade.PosicionarLinhaColunaNaGrade;
+var
+  vNomedocampo: String;
+begin
+ //dbggrades.SetFocus;
+ with  dtmCadastroNotasFiscais do
+ begin
+
+  if not qryProdutosNotaFiscal.IsEmpty then
+  begin
+
+    if dbggrades.canfocus then
+      dbggrades.setfocus;
+
+    case tipoGrade of
+     tpLINHA : begin
+
+                 if nomedocampoposicionar = '' then
+                    vnomedocampo := CopiaProdutoColunaGrade
+                 else
+                    vnomedocampo := nomedocampoposicionar;
+
+                 if dbggrades.SelectedIndex <> Colunas.IndexOf(vnomedocampo)+1 then
+                   dbggrades.SelectedIndex := Colunas.IndexOf(vnomedocampo)+1;
+
+                 if trim(dtmCadastroNotasFiscais.qryGrade.fieldbyname('valorlinha').asString) <> CopiaProdutoLinhaGrade then
+                 begin
+                   dtmCadastroNotasFiscais.qryGrade.first;
+                   while not dtmCadastroNotasFiscais.qryGrade.eof do
+                   begin
+                     if trim(dtmCadastroNotasFiscais.qryGrade.fieldbyname('valorlinha').asString) = CopiaProdutoLinhaGrade then
+                       break
+                     else
+                       dtmCadastroNotasFiscais.qryGrade.next;
+                   end;
+                 end;
+
+               end;
+     tpCOLUNA: begin
+
+                 if nomedocampoposicionar='' then
+                    vnomedocampo := CopiaProdutoLinhaGrade
+                 else
+                    vnomedocampo := nomedocampoposicionar;
+ 
+                 if dbggrades.SelectedIndex <> Colunas.IndexOf(vnomedocampo)+1 then
+                   dbggrades.SelectedIndex := Colunas.IndexOf(vnomedocampo)+1;
+
+                 if trim(dtmCadastroNotasFiscais.qryGrade.fieldbyname('valorlinha').asString) <> CopiaProdutoColunaGrade then
+                 begin
+                   dtmCadastroNotasFiscais.qryGrade.first;
+                   while not dtmCadastroNotasFiscais.qryGrade.eof do
+                   begin
+                     if trim(dtmCadastroNotasFiscais.qryGrade.fieldbyname('valorlinha').asString) = CopiaProdutoColunaGrade then
+                       break
+                     else
+                       dtmCadastroNotasFiscais.qryGrade.next;
+                   end;
+                 end;
+               end;
+    end;
+    nomedocampoposicionar := '';
+
+  end;
+ end;
+end;
+
+{
+procedure TfrmCadastroNotasFiscaisGrade.SetDataModulo(Dtm: TdtmCadastroNotasFiscais);
+begin
+  dtmCadastroNotasFiscais := Dtm;
+end;
+}
+
+procedure TfrmCadastroNotasFiscaisGrade.dbgGradesDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  With dtmCadastroNotasFiscais do
+  begin
+    if (column.Index <> 0) and
+       (column.Index < (ncolunasgrade-6))  then
+    begin
+
+//     dtmCadastroNotasFiscais.ColunaAtual := trim(dbggrades.Columns[dbgGrades.SelectedIndex].Title.caption);
+     dtmCadastroNotasFiscais.PosicionarLinhaColunanoProdutoNotaFiscalCopia(trim(dbggrades.Columns[dbgGrades.SelectedIndex].Title.caption));
+//     PosicionarLinhaColunanoProduto(trim(column.Title.Caption));
+//      if not PosicionarLinhaColunanoProduto(trim(column.Title.Caption)) then
+//        TDBGrid(Sender).Canvas.Brush.Color := clBtnFace;
+//      TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+    end;
+
+    if (column.Index = (ncolunasgrade-2))  then
+    begin
+      if Gradereducaobasediferente then
+        TDBGrid(Sender).Canvas.font.Color := clred;
+      TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+    end;
+
+    if (column.Index = (ncolunasgrade-3))  then
+    begin
+      if Gradeipidiferente then
+        TDBGrid(Sender).Canvas.font.Color := clred;
+      TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+    end;
+
+    if (column.Index = (ncolunasgrade-4))  then
+    begin
+      if Gradeicmsdiferente then
+        TDBGrid(Sender).Canvas.font.Color := clred;
+      TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+    end;
+
+    if (column.Index = (ncolunasgrade-5))  then
+    begin
+      if Gradeprecodiferente then
+        TDBGrid(Sender).Canvas.Font.Color := clred;
+      TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+    end;
+  end;
+end;
+
+procedure TfrmCadastroNotasFiscaisGrade.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  inherited;
+//  PosicionarLinhaColunaNaGrade(field)
+  dtmCadastroNotasFiscais.PosicionarLinhaColunanoProdutoNotaFiscal(
+     trim(dbggrades.Columns[dbgGrades.SelectedIndex].Title.caption));
+end;
+
+procedure TfrmCadastroNotasFiscaisGrade.dbgGradesDblClick(Sender: TObject);
+begin
+  inherited;
+  PopupMenuPopup(Sender); 
+  {
+  if ((dbgGrades.SelectedIndex<>0) and
+     (dbggrades.SelectedIndex < (ncolunasgrade-6))) then
+     AcionaCadastroProdutosNotasFiscais
+     }
+end;
+
+(*
+function TfrmCadastroNotasFiscaisGrade.AcionaCadastroProdutosNotasFiscais: Boolean;
+begin
+//  Result := dtmCadastroNotasFiscais.IncluirProdutoNotaFiscalcopia(trim(dbggrades.Columns[dbgGrades.SelectedIndex].Title.caption));
+  if result then
+  begin
+    dtmCadastroNotasFiscais.dsrProdutosNotaFiscal.dataset := dtmCadastroNotasFiscais.qryProdutosNotaFiscal;
+    Result := False;
+    if not Assigned (frmCadastroProdutosNotaFiscal) then
+      frmCadastroProdutosNotaFiscal:= TfrmCadastroProdutosNotaFiscal.Create(frmCadastroProdutosNotaFiscal);
+
+    with frmCadastroProdutosNotaFiscal do
+    begin
+//      SetDataModulo(dtmCadastroNotasFiscais);
+      DataSet  := dtmCadastroNotasFiscais.qryProdutosNotaFiscal;
+//      if not dtmCadastroNotasFiscais.TabelaCopiaProdutosNotaFiscal.ReadOnly then
+//      dtmCadastroNotasFiscais.TabelaCopiaProdutosNotaFiscal.Edit;
+//      dtmCadastroNotasFiscais.TabelaCopiaProdutosNotaFiscal.cancel;
+
+      flkCodigoProduto.Exist;
+
+      if (dtmCadastroNotasFiscais.RegimeTributario = 1)  then
+        fraConsultaCST_OU_CSOSN_EMPRESA.edfCodigo.text := dtmCadastroNotasFiscais.qryProdutosNotaFiscalcsosn.AsString
+      else
+        fraConsultaCST_OU_CSOSN_EMPRESA.edfCodigo.text := dtmCadastroNotasFiscais.qryProdutosNotaFiscalincidencia.AsString;
+
+      fraConsultaCST_OU_CSOSN_EMPRESA.edfCodigo.exist;
+
+      if dtmCadastroNotasFiscais.CondicaoCSOSN  then
+        fraConsultaCSOSN_OU_CST_NF.edfcodigo.text := dtmCadastroNotasFiscais.qryProdutosNotaFiscalcsosn_nf.AsString
+      else
+        fraConsultaCSOSN_OU_CST_NF.edfcodigo.text := dtmCadastroNotasFiscais.qryProdutosNotaFiscalcst_nf.AsString;
+      fraConsultaCSOSN_OU_CST_NF.edfcodigo.exist;
+
+      sbnIncluir.Visible := false;
+      gbxSelecionar.Enabled := false;
+      gbxProdutos.Enabled := false;
+//      edtQtdade.SetFocus;
+//      fraConsultaCSOSN_OU_CST_NF.edfCodigo.DataSource := dtmCadastroNotasFiscaisauxiliar.dsrProdutosNotaFiscal;
+
+      ShowModal;
+      Free;
+    end;
+    dtmCadastroNotasFiscais.dsrProdutosNotaFiscal.DataSet := dtmCadastroNotasFiscais.TabelaProdutosNotaFiscal;
+//    frmCadastroNotasFiscaisGrade.SetFocus;
+  end;
+end;
+*)
+
+procedure TfrmCadastroNotasFiscaisGrade.dbgGradesKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+  inherited;
+  with dtmCadastroNotasFiscais do
+  begin
+    if (dbgGrades.SelectedIndex <= (ncolunasgrade-7)) then
+    begin
+      if key = '0' then
+      begin
+        dtmCadastroNotasFiscais.ApagarProdutosNotasPagGrade(trim(dbggrades.Columns[dbgGrades.SelectedIndex].Title.caption), dbgGrades.SelectedField.FieldName );
+        dbgGrades.Ordenacao := 'valorlinha';
+        dbgGrades.refresh;
+
+      end;
+    end
+    else
+    if (dbgGrades.SelectedIndex = (ncolunasgrade-5)) then
+    begin
+        if Gradeprecodiferente then
+          MensagemAviso(format(ctCAMPONAOPODESERALTERADO, [ANSIUpperCase(ctPRECO)]));
+    end
+    else
+    if (dbgGrades.SelectedIndex = (ncolunasgrade-4)) then
+    begin
+        if Gradeicmsdiferente then
+          MensagemAviso(format(ctCAMPONAOPODESERALTERADO, [ANSIUpperCase(ctICMS)]));
+    end
+    else
+    if (dbgGrades.SelectedIndex = (ncolunasgrade-3)) then
+    begin
+        if Gradeipidiferente then
+          MensagemAviso(format(ctCAMPONAOPODESERALTERADO, [ANSIUpperCase(ctIPI)]));
+    end
+    else
+    if (dbgGrades.SelectedIndex = (ncolunasgrade-2)) then
+    begin
+        if GradeReducaoBaseDiferente then
+          MensagemAviso(format(ctCAMPONAOPODESERALTERADO, [ANSIUpperCase(ctREDBASE)]));
+    end;
+
+  end;
+end;
+
+procedure TfrmCadastroNotasFiscaisGrade.dbgGradesKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  {
+  if Shift = [ssCtrl] then
+  begin
+   if ((dbgGrades.SelectedIndex<>0) and
+      (dbggrades.SelectedIndex < (ncolunasgrade-6))) then
+    case key of
+      TeclaEditarRegistro,
+      TeclaInserirRegistro: AcionaCadastroProdutosNotasFiscais;
+    end;
+  end
+  else
+  }
+  if key = VK_F9 then
+    PopupMenuPopup(Sender)
+end;
+
+procedure TfrmCadastroNotasFiscaisGrade.sbnTrocarLInhaColunaClick(
+  Sender: TObject);
+var
+ GradeEdicao : Boolean;
+begin
+  inherited;
+  GradeEdicao := sbnSalvar.Enabled;
+  dtmCadastroNotasFiscais.PosicionarLinhaColunanoProdutoNotaFiscalCopia(trim(dbggrades.Columns[dbgGrades.SelectedIndex].Title.caption));
+  case tipograde of
+   tpLINHA : tipograde := tpCOLUNA;
+   tpCOLUNA : tipograde := tpLINHA;
+  end;
+  dtmCadastroNotasFiscais.GerarTabelaGrade;
+  DataSet:= dtmCadastroNotasFiscais.TabelaGrade;
+  dtmCadastroNotasFiscais.EditarGrade(GradeEdicao);
+  PosicionarLinhaColunanaGrade;
+end;
+
+procedure TfrmCadastroNotasFiscaisGrade.sbnProcuraCaracteristicaClick(
+  Sender: TObject);
+begin
+  inherited;
+end;
+
+{
+function TfrmCadastroNotasFiscaisGrade.ExisteInformacao(Parametro: Integer;
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+ Result := dtmCadastroNotasFiscais.ExisteCaracteristica(NomeCampo, Value);
+end;
+}
+
+
+procedure TfrmCadastroNotasFiscaisGrade.ckbValoresPadraoClick(
+  Sender: TObject);
+begin
+  inherited;
+  with dtmCadastroNotasFiscais do
+  begin
+   UtilizarValoresPadrao      := ckbValoresPadrao.Checked;
+   ValorPadraoprecounitario   := edtPreco.ValorSemFormatacao;
+   ValorPadraoaliquotaicms    := edtICMS.ValorSemFormatacao;
+   ValorPadraoaliquotaipi     := edtIPI.ValorSemFormatacao;
+   ValorPadraovalorreducaobase:= edtReducaoBase.ValorSemFormatacao;
+  end;
+end;
+
+{
+function TfrmCadastroNotasFiscaisGrade.AbrirGrade: Boolean;
+begin
+  if (dtmCadastroNotasFiscais.UltimaGradeCaracteristica<>
+      edfCaracteristica.Text) and
+      (dtmCadastroNotasFiscais.UltimaGradeCaracteristica<>'') and
+      sbnSalvar.Enabled then
+  begin
+    if MensagemConfirmacao(ctINFORMACOESSERAOPERDIDAS) = smbOK then
+    begin
+      dtmCadastroNotasFiscais.EliminarCalculosIncluidos;
+      result := true;
+    end
+    else
+    begin
+      result := false;
+      edfCaracteristica.Text :=  dtmCadastroNotasFiscais.UltimaGradeCaracteristica;
+      edfCaracteristica.Exist;
+    end;
+  end
+  else
+   result := dtmCadastroNotasFiscais.UltimaGradeCaracteristica<>
+             edfCaracteristica.Text;
+
+  if result then
+  begin
+    dtmCadastroNotasFiscais.TabelaGrade.Close;
+    tipograde := tpLINHA;
+    dtmCadastroNotasFiscais.GerarTabelaGrade;
+    DataSet:= dtmCadastroNotasFiscais.TabelaGrade;
+    sbnTrocarLInhaColuna.Enabled := dtmCadastroNotasFiscais.PodeTrocarVisualizacaoGrade;
+  end;
+
+end;
+}
+
+function TfrmCadastroNotasFiscaisGrade.InternoIncluir: Boolean;
+begin
+  Result := true;
+  dtmCadastroNotasFiscais.AbrirElementosNaoCadastrados;
+  if not Assigned (frmAdicionarLinhaGrade) then
+    frmAdicionarLinhaGrade:= TfrmAdicionarLinhaGrade.Create(frmAdicionarLinhaGrade, dtmCadastroNotasFiscais);
+  with frmAdicionarLinhaGrade do
+  begin
+    ShowModal;
+    if frmAdicionarLinhaGrade.ModalResult = mrok then
+      dtmCadastroNotasFiscais.GerarTabelaGrade;
+    Free;
+  end;
+  dbggrades.Refresh;
+  frmCadastroNotasFiscaisGrade.SetFocus;
+end;
+
+procedure TfrmCadastroNotasFiscaisGrade.AtualizarValores;
+begin
+ with dtmCadastroNotasFiscais do
+ begin
+//  edtpreco.Text := CaracteristicaNotaFiscalpreco;
+//  edtICMS.text := CaracteristicaNotaFiscalicms;
+//  edtIPI.Text := CaracteristicaNotaFiscalipi;
+ end;
+end;
+
+procedure TfrmCadastroNotasFiscaisGrade.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  case Key of
+    VK_F3: begin
+              if (Shift = []) and sbnIncluir.Enabled then
+                sbnIncluirClick(sbnIncluir);
+            end;
+    VK_F5: begin
+              if (Shift = []) and sbnSalvar.Enabled then
+                sbnSalvarClick(sbnSalvar);
+            end;
+    VK_G: begin
+             if Shift = [ssCtrl] then
+              if sbnTrocarLInhaColuna.Visible then
+               sbnTrocarLInhaColunaClick(sbnTrocarLInhaColuna);
+           end;
+  else
+
+  if self.ActiveControl = dbgGrades then
+  begin
+    case key of
+     VK_PRIOR,
+     VK_NEXT :
+     begin
+       BloquerAcaoBotes_Prior_Next := true;
+       inherited KeyDown(Key, Shift);
+       BloquerAcaoBotes_Prior_Next := false;
+
+     end;
+    end;
+  end
+  else
+    inherited KeyDown(Key, Shift);
+  end;
+end;
+
+function TfrmCadastroNotasFiscaisGrade.getncolunasgrade: integer;
+begin
+  fncolunasgrade := dbggrades.columns.count;
+  Result := fncolunasgrade;
+end;
+
+
+function TfrmCadastroNotasFiscaisGrade.InternoCancelar: Boolean;
+begin
+  dtmCadastroNotasFiscais.EliminarCalculosIncluidos;
+end;
+
+procedure TfrmCadastroNotasFiscaisGrade.onPosicionarLinhaColunaNaGrade(
+  Sender: TObject);
+begin
+  posicionarLinhaColunanaGrade;
+end;
+
+procedure TfrmCadastroNotasFiscaisGrade.PopupMenuPopup(Sender: TObject);
+begin
+  inherited;
+  if (dbgGrades.SelectedIndex <> 0) and
+     (dbgGrades.SelectedIndex <= dbgGrades.Columns.Count - 7) and
+     (dbgGrades.datasource.DataSet.recordcount <> 0) then
+  begin
+
+    dtmCadastroNotasFiscais.VisualizandoProdutosdaNFE := true;
+    dtmCadastroNotasFiscais.VisualizandoProdutosdaNFELC := true;
+
+    dtmCadastroNotasFiscais.qryProdutosNotasPagNFE.AfterScroll := nil;
+    dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItems.AfterScroll := nil;
+
+
+    frmListaItensnfe := TfrmListaItensnfe.create(self, dtmCadastroNotasFiscais);
+    frmListaItensnfe.ckbVisualizarComSaldosQuantidadeNFe.Checked := dtmCadastroNotasFiscais.VisualizarComSaldosQuantidadeNFe;
+
+    {
+    frmListaItensnfe.edtLinha.Text := dtmCadastroNotasFiscais.qrygrade.fieldbyname('valorlinha').asstring;
+    frmListaItensnfe.edtColuna.Text := dtmCadastroNotasFiscais.Colunas.Strings[dbgGrades.SelectedIndex-1];
+    }
+
+    dtmCadastroNotasFiscais.qryCaracteristicasNotaFiscal.edit;
+    dtmCadastroNotasFiscais.qryCaracteristicasNotaFiscalvalorgrade1.asString := dtmCadastroNotasFiscais.qrygrade.fieldbyname('valorlinha').asstring;
+    dtmCadastroNotasFiscais.qryCaracteristicasNotaFiscalvalorgrade2.asString := dtmCadastroNotasFiscais.Colunas.Strings[dbgGrades.SelectedIndex-1];
+    dtmCadastroNotasFiscais.qryCaracteristicasNotaFiscal.post;
+
+
+    frmListaItensnfe.vValorLinha :=  dtmCadastroNotasFiscais.qrygrade.fieldbyname('valorlinha').asstring;
+    frmListaItensnfe.vValorColuna := dtmCadastroNotasFiscais.Colunas.Strings[dbgGrades.SelectedIndex-1];
+
+    frmListaItensnfe.dtxProdutoDescricao.text := dtmCadastroNotasFiscais.qryCaracteristicasNotaFiscaldescricao.asString+
+                                                 dtmCadastroNotasFiscais.qrygrade.fieldbyname('valorlinha').asstring+
+                                                 dtmCadastroNotasFiscais.Colunas.Strings[dbgGrades.SelectedIndex-1];
+
+    dtmCadastroNotasFiscais.qryProdutosNotasPagNFE.filtered := false;
+
+    frmListaItensnfe.VerificarVisualizacoes;
+
+    dtmCadastroNotasFiscais.qryProdutosNotasPagNFE.filtered :=
+      dtmCadastroNotasFiscais.aplicarfiltroProdutosNotasPagNFE;
+
+    frmListaItensnfe.showmodal;
+    if frmListaItensnfe.modalresult = mrOk then
+    begin
+      dtmCadastroNotasFiscais.ColunaAtual := dtmCadastroNotasFiscais.Colunas.Strings[dbgGrades.SelectedIndex-1];;
+      dtmCadastroNotasFiscais.NomeCampoColunaAtual := dbgGrades.SelectedField.FieldName;
+      dtmCadastroNotasFiscais.AtualizarItensgradenfe;
+    end;
+    frmListaItensnfe.free;
+
+    dtmCadastroNotasFiscais.VisualizandoProdutosdaNFE := false;
+    dtmCadastroNotasFiscais.VisualizandoProdutosdaNFELC := false;
+    dtmCadastroNotasFiscais.qryProdutosNotasPagNFE.filtered := false;
+
+
+    dtmCadastroNotasFiscais.qryProdutosNotasPagNFE.AfterScroll := dtmCadastroNotasFiscais.qryProdutosNotasPagNFEAfterScroll;
+    dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItems.AfterScroll := dtmCadastroNotasFiscais.qryProdutosNotasPagNFEItemsAfterScroll;
+
+  end
+  else
+
+  if dbgGrades.datasource.DataSet.recordcount = 0 then
+    InternoIncluir;
+end;
+
+procedure TfrmCadastroNotasFiscaisGrade.CondicoesProduto;
+var
+  vCondicaoGrade: String;
+  vCondicaoDesde: String;
+
+begin
+  vCondicaoGrade := ' and c.grade1 is not null and c.grade2 is not null ';
+
+  if dbSelecionarProdutosDesde.Checked then
+    vCondicaoDesde := ' and c.datacadastro >= '+quotedstr(FormatDateTime('yyyy-mm-dd',dtmCadastroNotasFiscais.qryNotaFiscaldataselecaoprodutosgrade.Asdatetime));
+
+//  fraConsultaProduto.qryConsultaProdutos.close;
+
+  fraConsultaProduto.qryConsultaProdutos.MacroByName('CondicaoGrade').asString := vCondicaoGrade;
+  fraConsultaProduto.qryProcuraProdutos.MacroByName('CondicaoGrade').asString := vCondicaoGrade;
+
+  fraConsultaProduto.qryConsultaProdutos.MacroByName('SelecionarProdutosDesde').asString := vCondicaoDesde;
+
+end;
+
+procedure TfrmCadastroNotasFiscaisGrade.AtribuirDadosProdutos;
+begin
+  with dtmCadastroNotasFiscais do
+  begin
+    qryCaracteristicasNotaFiscaldescricao.AsString := fraConsultaProduto.qryProcuraProdutos.FieldByName('descricao').AsString;
+    qryCaracteristicasNotaFiscalcaracteristica.asString := fraConsultaProduto.qryProcuraProdutos.FieldByName('codigo').AsString;
+    qryCaracteristicasNotaFiscalcodigovisual.asString := fraConsultaProduto.qryProcuraProdutos.FieldByName('codigo').AsString;
+    qryCaracteristicasNotaFiscalgrade1.asInteger := fraConsultaProduto.qryProcuraProdutos.FieldByName('grade1').AsInteger;
+    qryCaracteristicasNotaFiscalgrade2.asInteger := fraConsultaProduto.qryProcuraProdutos.FieldByName('grade2').AsInteger;
+    qryCaracteristicasNotaFiscallinha.asString := fraConsultaProduto.qryProcuraProdutos.FieldByName('linha').AsString;
+    qryCaracteristicasNotaFiscalcoluna.asString := fraConsultaProduto.qryProcuraProdutos.FieldByName('coluna').AsString;
+
+    qryCaracteristicasNotaFiscal.Post;
+
+    GerarTabelaGrade;
+  end;
+
+end;
+
+procedure TfrmCadastroNotasFiscaisGrade.dbgCaracteristicasNotasFiscaisDblClick(
+  Sender: TObject);
+begin
+  inherited;
+//  acionarPesquisaGrade;
+
+end;
+
+procedure TfrmCadastroNotasFiscaisGrade.AcionarPesquisaGrade;
+begin
+  if (dtmCadastroNotasFiscais.qryProdutosNotaFiscal.RecordCount = 0) or
+     (dtmCadastroNotasFiscais.qryCaracteristicasNotaFiscal.state in [dsinsert, dsedit]) then
+    with fraConsultaProduto do
+    begin
+      dbgCaracteristicasNotasFiscais.SetFocus;
+      fraConsultaProduto.CtrlOn := True;
+      fraConsultaProduto.InternoPesquisar('Item de Produto');
+      dbgCaracteristicasNotasFiscais.SetFocus;
+      dbgCaracteristicasNotasFiscais.SelectedIndex :=  0;
+    end;
+end;
+
+procedure TfrmCadastroNotasFiscaisGrade.sbnProcuraClick(Sender: TObject);
+begin
+  inherited;
+  AcionarPesquisaGrade;
+end;
+
+procedure TfrmCadastroNotasFiscaisGrade.sbnIncluirItemClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroNotasFiscais.qryCaracteristicasNotaFiscal.Append;
+  dbgCaracteristicasNotasFiscais.SelectedIndex :=  0;
+end;
+
+procedure TfrmCadastroNotasFiscaisGrade.dbgCaracteristicasNotasFiscaisKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      VK_F3    : begin
+                   if sbnIncluirItem.enabled then
+                      sbnIncluirItemClick(nil);
+                 end;
+
+      VK_Delete : begin
+                    if sbnExcluirProduto.enabled then
+                       sbnExcluirProdutoClick(nil);
+                  end;
+
+      VK_F9    : begin
+
+                   if  (dbgCaracteristicasNotasFiscais.SelectedField = dtmCadastroNotasFiscais.qryCaracteristicasNotaFiscalcodigovisual) or
+                       (dbgCaracteristicasNotasFiscais.SelectedField = dtmCadastroNotasFiscais.qryCaracteristicasNotaFiscaldescricao) then
+                   begin
+                     fraConsultaProduto.CtrlOn := Shift = [ssCtrl];
+                     if (Shift = []) or fraConsultaProduto.CtrlOn then
+                       AcionarPesquisaGrade
+                   end;
+
+                 end;
+    end;
+  end
+  else
+  case Key of
+    VK_Return: if (dbgCaracteristicasNotasFiscais.SelectedField = dtmCadastroNotasFiscais.qryCaracteristicasNotaFiscalcodigovisual) then
+                begin
+                  if not dtmCadastroNotasFiscais.qryCaracteristicasNotaFiscalcodigovisual.readonly then
+                  begin
+
+                    fraConsultaProduto.edfCodigo.text := dtmCadastroNotasFiscais.qryCaracteristicasNotaFiscalcodigovisual.asString;
+                    fraConsultaProduto.edfCodigo.exist;
+
+                    if not fraConsultaProduto.qryProcuraProdutos.IsEmpty then
+                      AtribuirDadosProdutos
+                    else
+                    begin
+                      key := 0;
+                      dbgCaracteristicasNotasFiscais.SelectedIndex :=  0;
+                      dbgCaracteristicasNotasFiscais.SetFocus;
+                    end;
+
+                  end;
+                end;
+  end;
+
+end;
+
+procedure TfrmCadastroNotasFiscaisGrade.sbnExcluirClick(Sender: TObject);
+begin
+  inherited;
+  if (dtmCadastroNotasFiscais.qryProdutosNotaFiscal.RecordCount = 0) or
+     (dtmCadastroNotasFiscais.qryCaracteristicasNotaFiscal.state in [dsinsert, dsedit]) then
+    dtmCadastroNotasFiscais.qryCaracteristicasNotaFiscal.delete;
+
+end;
+
+procedure TfrmCadastroNotasFiscaisGrade.Timer1Timer(Sender: TObject);
+begin
+  inherited;
+  sbnIncluir.enabled := not ((dtmCadastroNotasFiscais.qryCaracteristicasNotaFiscal.RecordCount = 0) or
+                             (dtmCadastroNotasFiscais.qryCaracteristicasNotaFiscal.state in [dsinsert, dsedit]));
+
+  sbnProcura.enabled :=  (dtmCadastroNotasFiscais.qryProdutosNotaFiscal.RecordCount = 0) {or
+                         (dtmCadastroNotasFiscais.qryCaracteristicasNotaFiscal.state in [dsinsert, dsedit])};
+
+  sbnExcluirproduto.enabled := (dtmCadastroNotasFiscais.qryProdutosNotaFiscal.RecordCount = 0);
+
+  if sbnExcluirproduto.enabled then
+    lblCaracteristicasNotasFiscais.Caption :=
+     'Ctrl+F9 - Procurar  |  Ctrl+Del - Excluir  |  Ctrl+F2 - Incluir';
+
+end;
+
+procedure TfrmCadastroNotasFiscaisGrade.sbnExcluirProdutoClick(
+  Sender: TObject);
+begin
+  inherited;
+  if (dtmCadastroNotasFiscais.qryProdutosNotaFiscal.RecordCount = 0) or
+     (dtmCadastroNotasFiscais.qryCaracteristicasNotaFiscal.state in [dsinsert, dsedit]) then
+    dtmCadastroNotasFiscais.qryCaracteristicasNotaFiscal.delete;
+
+end;
+
+procedure TfrmCadastroNotasFiscaisGrade.SpeedButton1Click(Sender: TObject);
+begin
+  inherited;
+  dbgCaracteristicasNotasFiscais.Refresh;
+end;
+
+procedure TfrmCadastroNotasFiscaisGrade.GradeAfterOpen(Sender: TObject);
+begin
+ dbgGrades.Ordenacao := 'valorlinha';
+end;
+
+procedure TfrmCadastroNotasFiscaisGrade.SetDataModulo(
+  Dtm: TdtmCadastroNotasFiscais);
+begin
+  dtmCadastroNotasFiscais := dtm;
+  dtxValorProdutos.DataSource := dtmCadastroNotasFiscais.dsrNotaFiscal;
+  dtxTotalIPI.DataSource := dtmCadastroNotasFiscais.dsrNotaFiscal;
+  dtxTotalProdutos.DataSource := dtmCadastroNotasFiscais.dsrNotaFiscal;
+  edtSelecionarProdutosDesde.DataSource := dtmCadastroNotasFiscais.dsrNotaFiscal;
+  dbgCaracteristicasNotasFiscais.DataSource := dtmCadastroNotasFiscais.dsrCaracteristicasNotaFiscal;
+  dbgGrades.DataSource := dtmCadastroNotasFiscais.dsrGrade;
+end;
+
+end.

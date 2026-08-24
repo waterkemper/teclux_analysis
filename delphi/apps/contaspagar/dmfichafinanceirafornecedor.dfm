@@ -1,7 +1,7 @@
 inherited dtmFichaFinanceiraFornecedor: TdtmFichaFinanceiraFornecedor
   OldCreateOrder = False
-  Left = 576
-  Top = 86
+  Left = 678
+  Top = 101
   Height = 553
   Width = 672
   object qryFilial: TtecQuery

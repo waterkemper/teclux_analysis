@@ -1,0 +1,109 @@
+unit dmindiceprodutividade;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, cpdatasource, ZQuery, ZPgSqlQuery,
+  cpquery, dmtecsoft, biblio, ctconstantes, ExcelExport, ZTransact;
+
+type
+  TdtmIndiceProdutividade = class(TdtmBasico)
+    qryIndiceProdutividade: TtecQuery;
+    dsrIndiceProdutividade: TtecDataSource;
+    ExcelExport1: TExcelExport;
+    qryIndiceProdutividadesetorproducao: TStringField;
+    qryIndiceProdutividadedescricaosetorproducao: TStringField;
+    qryIndiceProdutividadeusuario: TIntegerField;
+    qryIndiceProdutividadenome: TStringField;
+    qryIndiceProdutividadepercentualsetor: TFloatField;
+    qryIndiceProdutividade_OSP: TtecQuery;
+    dsrIndiceProdutividade_OSP: TtecDataSource;
+    qryIndiceProdutividade_OSPsetorproducao: TStringField;
+    qryIndiceProdutividade_OSPdescricaosetor: TStringField;
+    qryIndiceProdutividade_OSPusuario: TIntegerField;
+    qryIndiceProdutividade_OSPosp: TIntegerField;
+    qryIndiceProdutividade_OSPlote: TIntegerField;
+    qryIndiceProdutividade_OSPnomeoperacao: TStringField;
+    qryIndiceProdutividade_OSPc01: TStringField;
+    qryIndiceProdutividade_OSPc02: TStringField;
+    qryIndiceProdutividade_OSPc03: TStringField;
+    qryIndiceProdutividade_OSPtempopadrao: TFloatField;
+    qryIndiceProdutividade_OSPquantidade: TIntegerField;
+    qryIndiceProdutividade_OSPtempo: TIntegerField;
+    qryIndiceProdutividade_OSPindice: TFloatField;
+    qryIndiceProdutividade_OSPeficiencia: TFloatField;
+    qryIndiceProdutividade_OSPnomeusuario: TStringField;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    function AbrirConsulta(DataInicial, DataFinal, ListaSetoresProducao, ListaFuncionarios: String): boolean;
+    procedure ExportarExcell;
+  end;
+
+var
+  dtmIndiceProdutividade: TdtmIndiceProdutividade;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmIndiceProdutividade }
+
+function TdtmIndiceProdutividade.AbrirConsulta(DataInicial, DataFinal,
+  ListaSetoresProducao, ListaFuncionarios: String): boolean;
+
+begin
+
+  if (DataInicial<>'') and (DataFinal<>'') then
+  begin
+    qryIndiceProdutividade.MacroByName('FiltroPeriodo').AsString := 'and oou.data between :datainicial and :datafinal';
+    qryIndiceProdutividade.parambyname('datainicial').asdatetime := StrToDateTime(datainicial);
+    qryIndiceProdutividade.parambyname('datafinal').asdatetime := StrToDateTime(DataFinal);
+  end
+  else
+  if (DataInicial<>'') and (DataFinal='') then
+  begin
+    qryIndiceProdutividade.MacroByName('FiltroPeriodo').AsString := 'and oou.data >= :datainicial';
+    qryIndiceProdutividade.parambyname('datainicial').asdatetime := StrToDateTime(datainicial);
+  end
+  else
+  if (DataInicial='') and (DataFinal<>'') then
+  begin
+    qryIndiceProdutividade.MacroByName('FiltroPeriodo').AsString := 'and oou.data <= :datafinal';
+    qryIndiceProdutividade.parambyname('datafinal').asdatetime := StrToDateTime(DataFinal);
+  end  
+  else
+  if (DataInicial='') and (DataFinal='') then
+    qryIndiceProdutividade.MacroByName('FiltroPeriodo').AsString := '';
+
+  if ListaSetoresProducao <> '' then
+    qryIndiceProdutividade.MacroByName('FiltroSetoresProducao').AsString := 'and c.setorproducao in ('+ListaSetoresProducao+')'
+  else
+    qryIndiceProdutividade.MacroByName('FiltroSetoresProducao').AsString := '';
+
+  if ListaFuncionarios <> '' then
+    qryIndiceProdutividade.MacroByName('FiltroFuncionarios').AsString := 'and oou.usuario in ('+ListaFuncionarios+')'
+  else
+    qryIndiceProdutividade.MacroByName('FiltroFuncionarios').AsString := '';
+
+  qryIndiceProdutividade.Close;
+  qryIndiceProdutividade.Open;
+
+  if qryIndiceProdutividade.IsEmpty then
+  begin
+    result := false;
+    MensagemAviso(Format(ctNENHUMREGISTROENCONTRADO,['Registro']));
+  end
+  else
+    result := true
+end;
+
+procedure TdtmIndiceProdutividade.ExportarExcell;
+begin
+  GuardarRegistroAtual(qryIndiceProdutividade,true);
+  ExcelExport1.ExportDataset;
+  VoltarRegistroAtual(qryIndiceProdutividade);
+end;
+
+end.

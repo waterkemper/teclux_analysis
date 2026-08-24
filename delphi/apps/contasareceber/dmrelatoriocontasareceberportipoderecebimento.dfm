@@ -1816,7 +1816,7 @@ inherited dtmrelatoriocontasareceberportipoderecebimento: Tdtmrelatoriocontasare
       6E6465646F7200050046616C7365001800416772757061725469706F64655265
       636562696D656E746F00050046616C7365000700204F7574726F730000000000
       00000000000000FC000000000000000000000000000000005800E00C74D16F88
-      E340DE87E543AB5CE640}
+      E340F1C7B31E0C6EE640}
   end
   object fdsRecebimentos: TfrDBDataSet
     DataSet = qryRecebimentos
@@ -2901,7 +2901,7 @@ inherited dtmrelatoriocontasareceberportipoderecebimento: Tdtmrelatoriocontasare
       190041677275706172466F726D6164655265636562696D656E746F0005004661
       6C73650012004167727570617244617461456D697373616F00050046616C7365
       000700204F7574726F73000000000000000000000000FC000000000000000000
-      000000000000005800E00C74D16F88E340158EE543AB5CE640}
+      000000000000005800E00C74D16F88E34028CEB31E0C6EE640}
   end
   object frpRecebimentos: TfrReport
     Dataset = fdsRecebimentos
@@ -3988,7 +3988,7 @@ inherited dtmrelatoriocontasareceberportipoderecebimento: Tdtmrelatoriocontasare
       75706172466F726D6164655265636562696D656E746F00050046616C73650012
       004167727570617244617461456D697373616F00050066616C7365000700204F
       7574726F73000000000000000000000000FC0000000000000000000000000000
-      00005800E00C74D16F88E3404C94E543AB5CE640}
+      00005800E00C74D16F88E3405FD4B31E0C6EE640}
   end
   object frpRecebimentosResumoPISCOFINS: TfrReport
     Dataset = fdsRecebimentos
@@ -5006,6 +5006,27 @@ inherited dtmrelatoriocontasareceberportipoderecebimento: Tdtmrelatoriocontasare
       6E6465646F7200050046616C7365001800416772757061725469706F64655265
       636562696D656E746F00050046616C7365000700204F7574726F730000000000
       00000000000000FC000000000000000000000000000000005800E00C74D16F88
-      E3404C94E543AB5CE640}
+      E3405FD4B31E0C6EE640}
+  end
+  object frxReport1: TfrxReport
+    Version = '4.0.11'
+    DotMatrixReport = False
+    IniFile = '\Software\Fast Reports'
+    PreviewOptions.Buttons = [pbPrint, pbLoad, pbSave, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbEdit, pbNavigator, pbExportQuick]
+    PreviewOptions.Zoom = 1.000000000000000000
+    PrintOptions.Printer = 'Default'
+    PrintOptions.PrintOnSheet = 0
+    ReportOptions.CreateDate = 45936.378370821760000000
+    ReportOptions.LastChange = 45936.378370821760000000
+    ScriptLanguage = 'PascalScript'
+    ScriptText.Strings = (
+      'begin'
+      ''
+      'end.')
+    Left = 296
+    Top = 224
+    Datasets = <>
+    Variables = <>
+    Style = <>
   end
 end

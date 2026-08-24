@@ -1,0 +1,75 @@
+unit frProdutosNotasFiscaisAnteriores;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
+  Dialogs, Buttons, ExtCtrls, DB, ZQuery, ZPgSqlQuery, cpquery,
+  cpdatasource, Grids, DBGrids, cpdbgrid, fmFormacaoPrecoVenda, ctconstantes, biblio, dmbasico;
+
+type
+  TfraProdutosNotasFiscaisAnteriores = class(TFrame)
+    dbgProdutosNotaFiscalAnteriores: TtecDBGrid;
+    dsrProdutosNotaFiscalAnteriores: TtecDataSource;
+    qryProdutosNotaFiscalAnteriores: TtecQuery;
+    pnlOpcoesProdutosBottom: TPanel;
+    sbnAcionarTelaFormacaoPrecoVenda2: TSpeedButton;
+    procedure dbgProdutosNotaFiscalAnterioresKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure sbnAcionarTelaFormacaoPrecoVenda2Click(Sender: TObject);
+  protected
+
+    dmbasico : TdtmBasico;
+    
+  private
+    fCodigoNOta: TTecLargeIntRetorno;
+    FProduto: TTecStringRetorno;
+    { Private declarations }
+  public
+    { Public declarations }
+
+    property CodigoNota: TTecLargeIntRetorno read fCodigoNOta write fCodigoNota;
+    property Produto: TTecStringRetorno read FProduto write FProduto;
+    procedure AbrirqryProdutosNotaFiscalAnteriores;
+
+
+  end;
+
+implementation
+
+{$R *.dfm}
+
+{
+procedure TfraProdutosNotasFiscaisAnteriores.sbnAcionarTelaFormacaoPrecoVenda2Click(
+  Sender: TObject);
+begin
+  AcionarTelaFormacaoPrecoVenda(qryProdutosNotaFiscalAnteriores.fieldbyname('CodigoNota').asInteger,
+                                qryProdutosNotaFiscalAnteriores.fieldbyname('numeroproduto').asInteger);
+end;
+}
+
+procedure TfraProdutosNotasFiscaisAnteriores.AbrirqryProdutosNotaFiscalAnteriores;
+begin
+  if produto <> '' then
+    dmbasico.refazConsultaporNome(qryProdutosNotaFiscalAnteriores, ['codigonota','produto'], [CodigoNota, Produto])
+  else
+    qryProdutosNotaFiscalAnteriores.close;
+end;
+
+procedure TfraProdutosNotasFiscaisAnteriores.dbgProdutosNotaFiscalAnterioresKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if key = vk_f11 then
+    sbnAcionarTelaFormacaoPrecoVenda2Click(nil);
+
+end;
+
+procedure TfraProdutosNotasFiscaisAnteriores.sbnAcionarTelaFormacaoPrecoVenda2Click(
+  Sender: TObject);
+begin
+  AcionarTelaFormacaoPrecoVenda(qryProdutosNotaFiscalAnteriores.fieldbyname('CodigoNota').asInteger,
+                                qryProdutosNotaFiscalAnteriores.fieldbyname('numeroproduto').asInteger,
+                                qryProdutosNotaFiscalAnteriores.fieldbyname('produto').asString);
+end;
+
+end.

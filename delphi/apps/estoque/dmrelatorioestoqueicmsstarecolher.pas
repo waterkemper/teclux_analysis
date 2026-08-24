@@ -5,7 +5,7 @@ interface
 uses
   SysUtils, Classes, dmbasico, dmtecsoft, DB, cpdatasource, ZQuery,
   ZPgSqlQuery, cpquery, fr_class, fr_dset, fr_dbset, Biblio, fmpreviewpadrao,
-  ZTransact, Forms, ctconstantes, clparametrossistema;
+  ZTransact, Forms, ctconstantes, clparametrossistema, frxClass, frx2xto30;
 
 type
   Tdtmrelatorioestoqueicmsstarecolher = class(TDtmBasico)
@@ -56,6 +56,7 @@ type
     fdsProdutosSTaRecolher: TfrDBDataSet;
     qryProdutosSTaRecolherproduto: TLargeintField;
     qryProdutosSTaRecolherfilial: TIntegerField;
+    frxReport1: TfrxReport;
     procedure ZMonitor1MonitorEvent(Sql, Result: String);
     procedure ZmonitorMonitorEvent(Sql, Result: String);
     procedure qryProdutosSTaRecolherCalcFields(DataSet: TDataSet);
@@ -253,9 +254,11 @@ begin
 //  qryProdutosSTaRecolher.MasterSource := dsrEstoque;
 //  qryProdutosSTaRecolher.LinkFields := 'codigoitem=produto,filial=filial';
 
+  qryEstoque.Filtered := false;
   qryEstoque.Filtered := true;
   qryEstoque.Filter := 'filial = '+inttostr(Filial);
 
+  qryProdutosSTaRecolher.Filtered := false;
   qryProdutosSTaRecolher.Filtered := true;
   qryProdutosSTaRecolher.Filter := 'filial = '+inttostr(Filial);
 
@@ -278,7 +281,9 @@ begin
      begin
        frCompositeReport.Reports.Clear;
 //       frCompositeReport.DoublePass:= True;
-//      frpEstoqueICMSSTaRecolher.DesignReport;
+//       frpEstoqueICMSSTaRecolher.DesignReport;
+//       frxReport1.DesignReport;
+
        frCompositeReport.Reports.Add(frpEstoqueICMSSTaRecolher);
      end;
      Relatorio.Preview := frmPreview.frPreviewPadrao;

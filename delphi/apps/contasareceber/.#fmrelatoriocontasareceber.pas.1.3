@@ -1,0 +1,113 @@
+unit fmrelatoriocontasareceber;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls,
+  fmrelatoriopadrao, ExtCtrls, Buttons, frconsulta, frconsultacodigo, DateUtils,
+  cpdbradiogroup, cpdata, dmrelatoriocontasareceber, Biblio, ComCtrls,
+  cppagecontrol, ctconstantes, ToolWin;
+
+type
+  Tfrmrelatoriocontasareceber = class(TfrmRelatorioPadrao)
+    rgbTipoRelatorio: TRadioGroup;
+    gbxPeriodo: TGroupBox;
+    gbxDeData: TGroupBox;
+    edtDataInicial: TEditData;
+    gbxAteData: TGroupBox;
+    edtDataFinal: TEditData;
+    rgbResumo: TtecDBRadioGroup;
+    rbnComresumo: TtecRadioButton;
+    rbnSemResumo: TtecRadioButton;
+    rbnSoResumo: TtecRadioButton;
+    gbxAgrupamento: TGroupBox;
+    ckbAgruparGrupoFilial: TCheckBox;
+    ckbAgruparFilial: TCheckBox;
+    ckbAgruparClientes: TCheckBox;
+    ckbAgruparData: TCheckBox;
+    pgcFilialGrupoFilial: TtecPageControl;
+    tstFilial: TTabSheet;
+    tstGrupoFilial: TTabSheet;
+    gbxBanco: TGroupBox;
+    gbxClientes: TGroupBox;
+    fraConsultaClientes: TfraConsultaCodigo;
+    fraConsultaBancos: TfraConsultaCodigo;
+    fraConsultaFilial: TfraConsultaCodigo;
+    fraConsultaGrupoFilial: TfraConsultaCodigo;
+    grxTipoRecebimento: TGroupBox;
+    fraConsultaTipoRecebimentos: TfraConsultaCodigo;
+    gbxTipoRelatorio: TGroupBox;
+  private
+    { Private declarations }
+  protected
+    procedure internoimpressao; override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    { Public declarations }
+  end;
+
+var
+  frmrelatoriocontasareceber: Tfrmrelatoriocontasareceber;
+
+implementation
+
+{$R *.dfm}
+
+{ Tfrmrelatoriocontasareceber }
+
+constructor Tfrmrelatoriocontasareceber.Create(AOwner: TComponent);
+begin
+  dtmrelatoriocontasareceber:= Tdtmrelatoriocontasareceber.Create(Self);
+  inherited;
+  edtDataInicial.Text := DateToStr(DataLocal);
+  edtDataFinal.Text   := DateToStr(DataLocal);
+  fraConsultaClientes.TipoPesquisa    := pesCLIENTES;
+  fraConsultaBancos.TipoPesquisa      := pesBANCOS;
+  fraConsultaFilial.TipoPesquisa      := pesFILIAIS;
+  fraConsultaGrupoFilial.TipoPesquisa := pesGRUPOSFILIAIS;
+  fraConsultaTipoRecebimentos.TipoPesquisa := pesTIPORECEBIMENTO;
+end;
+
+destructor Tfrmrelatoriocontasareceber.Destroy;
+begin
+  dtmrelatoriocontasareceber:= nil;
+  inherited;
+  frmrelatoriocontasareceber:= nil;
+end;
+
+procedure Tfrmrelatoriocontasareceber.internoimpressao;
+begin
+  inherited;
+  with dtmrelatoriocontasareceber do
+  begin
+    ParametroCabecalho:= '';
+    Filial := fraConsultaFilial.edfCodigo.Text;
+    GrupoFiliais := fraConsultaGrupoFilial.edfCodigo.Text;
+    Cliente := fraConsultaClientes.edfCodigo.Text;
+    TipoCliente := fraConsultaClientes.qryProcuraClientetipo.AsString;
+    Banco := fraConsultaBancos.edfCodigo.Text;
+    TipoRecebimento:= fraConsultaTipoRecebimentos.edfCodigo.Text;
+    AgruparGrupoFilial:= ckbAgruparGrupoFilial.Checked;
+    AgruparFilial := ckbAgruparFilial.Checked;
+    AgruparCliente := ckbAgruparClientes.Checked;
+    AgruparData := ckbAgruparData.Checked;
+    TipoRelatorio:= rgbTipoRelatorio.ItemIndex;
+    PeriodoInicial:= edtDataInicial.Text;
+    PeriodoFinal  := edtDataFinal.Text;
+    FOrdenacao:= 'D';
+    if ckbAgruparClientes.Checked then
+      FOrdenacao:= 'N';
+    DefineOrdenacao;
+    Resumo := rgbResumo.ItemIndex;
+    if GerarRelatorio then
+    begin
+      MensagemAviso(Format(ctNENHUMREGISTROSELECIONADO,['registro']));
+      edtDataInicial.SetFocus;
+    end
+    else
+      ImprimirRelatorio;
+  end;
+end;
+
+end.

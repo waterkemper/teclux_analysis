@@ -1,7 +1,7 @@
 inherited dtmCadastroRomaneios: TdtmCadastroRomaneios
   OldCreateOrder = False
-  Left = 266
-  Top = 172
+  Left = 213
+  Top = 211
   Height = 724
   Width = 1147
   object qryRomaneios: TtecQuery
@@ -2445,8 +2445,8 @@ inherited dtmCadastroRomaneios: TdtmCadastroRomaneios
       6F00010030000A00546F74616C4A75726F730001003000030052756100000000
       0600436964616465000000000400466F6E65000000000600546974756C6F0000
       000006004F757472617300000000060042616972726F00000000000000000000
-      0000FC000000000000000000000000000000005800EE16BD9A2CE2E340C52579
-      891424E640}
+      0000FC000000000000000000000000000000005800EE16BD9A2CE2E34005B4FD
+      D24E70E640}
   end
   object fdsImprimirRomaneio: TfrDBDataSet
     DataSet = qryItensRomaneio
@@ -2962,7 +2962,7 @@ inherited dtmCadastroRomaneios: TdtmCadastroRomaneios
       466F6E65000000000600546974756C6F0000000006004F757472617300000000
       060042616972726F0000000011005155414E54494441444550524F4455544F00
       010030000000000000000000FC000000000000000000000000000000005800EE
-      16BD9A2CE2E340C52579891424E640}
+      16BD9A2CE2E34005B4FDD24E70E640}
   end
   object qryProdutosDadosFiscais: TtecQuery
     Tag = -1
@@ -3530,7 +3530,7 @@ inherited dtmCadastroRomaneios: TdtmCadastroRomaneios
     Macros = <>
     Sql.Strings = (
       
-        'update dadosfiscias set data_hora_recebimento         = :data_ho' +
+        'update dadosfiscais set data_hora_recebimento         = :data_ho' +
         'ra_recebimento,'
       
         '                        usuario_data_hora_recebimento = :usuario' +
@@ -3927,5 +3927,26 @@ inherited dtmCadastroRomaneios: TdtmCadastroRomaneios
       DisplayFormat = '####'
       Expression = 'SUM(volumes)'
     end
+  end
+  object frxReport1: TfrxReport
+    Version = '4.0.11'
+    DotMatrixReport = False
+    IniFile = '\Software\Fast Reports'
+    PreviewOptions.Buttons = [pbPrint, pbLoad, pbSave, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbEdit, pbNavigator, pbExportQuick]
+    PreviewOptions.Zoom = 1.000000000000000000
+    PrintOptions.Printer = 'Default'
+    PrintOptions.PrintOnSheet = 0
+    ReportOptions.CreateDate = 45748.551355312500000000
+    ReportOptions.LastChange = 45748.551355312500000000
+    ScriptLanguage = 'PascalScript'
+    ScriptText.Strings = (
+      'begin'
+      ''
+      'end.')
+    Left = 904
+    Top = 176
+    Datasets = <>
+    Variables = <>
+    Style = <>
   end
 end

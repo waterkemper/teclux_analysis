@@ -102,7 +102,7 @@ inherited frmMonitoraBancoDados: TfrmMonitoraBancoDados
       Cursor = crDefault
       Align = alClient
       ColCount = 13
-      RowCount = 4
+      RowCount = 2
       FixedRows = 1
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -1359,11 +1359,13 @@ inherited frmMonitoraBancoDados: TfrmMonitoraBancoDados
           Width = 64
         end
         item
+          Alignment = taCenter
           Borders = []
           BorderPen.Color = clSilver
           CheckFalse = 'N'
           CheckTrue = 'Y'
           Color = clWindow
+          EditMask = '99/99/99 99:99;1; '
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -1386,11 +1388,13 @@ inherited frmMonitoraBancoDados: TfrmMonitoraBancoDados
           Width = 64
         end
         item
+          Alignment = taCenter
           Borders = []
           BorderPen.Color = clSilver
           CheckFalse = 'N'
           CheckTrue = 'Y'
           Color = clWindow
+          EditMask = '99/99/99 99:99;1; '
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -1413,11 +1417,13 @@ inherited frmMonitoraBancoDados: TfrmMonitoraBancoDados
           Width = 64
         end
         item
+          Alignment = taCenter
           Borders = []
           BorderPen.Color = clSilver
           CheckFalse = 'N'
           CheckTrue = 'Y'
           Color = clWindow
+          EditMask = '99/99/99 99:99;1; '
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -1440,11 +1446,13 @@ inherited frmMonitoraBancoDados: TfrmMonitoraBancoDados
           Width = 64
         end
         item
+          Alignment = taCenter
           Borders = []
           BorderPen.Color = clSilver
           CheckFalse = 'N'
           CheckTrue = 'Y'
           Color = clWindow
+          EditMask = '99/99/99 99:99;1; '
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -1693,8 +1701,9 @@ inherited frmMonitoraBancoDados: TfrmMonitoraBancoDados
     Top = 72
     object qryMonitoradatname: TStringField
       DisplayLabel = 'DataBase'
+      DisplayWidth = 7
       FieldName = 'datname'
-      Size = 8
+      Size = 13
     end
     object qryMonitorapid: TIntegerField
       DisplayLabel = 'PID'

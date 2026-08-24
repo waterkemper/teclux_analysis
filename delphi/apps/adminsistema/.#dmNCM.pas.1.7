@@ -1,0 +1,120 @@
+unit dmNCM;
+
+interface
+
+uses
+  SysUtils, Classes, Forms, dmbasico, DB, ZQuery, ZPgSqlQuery, Math, cpquery,
+  dmtecsoft, cpdatasource, ctconstantes, biblio, ZTransact;
+
+type
+  TdtmNCM = class(Tdtmbasico)
+
+    qrySecoes: TtecQuery;
+    dsrSecoes: TtecDataSource;
+
+    qrySecoesNotas: TtecQuery;
+    dsrSecoesNotas: TtecDataSource;
+    qrySecoesNotasNotas: TStringField;
+
+    qrySecoesCapitulos: TtecQuery;
+    dsrSecoesCapitulos: TtecDataSource;
+    qrySecoesCapitulosNumero: TStringField;
+    qrySecoesCapitulosDescricao: TStringField;
+
+    qryCapitulos: TtecQuery;
+    dsrCapitulos: TtecDataSource;
+    qryCapitulosDescricaoSecao: TStringField;
+    qryCapitulosDescricaoCapitulo: TStringField;
+
+    qryCapitulosNotas: TtecQuery;
+    dsrCapitulosNotas: TtecDataSource;
+    qryCapitulosNotasNotas: TStringField;
+
+    qryCapitulosNCM: TtecQuery;
+    dsrCapitulosNCM: TtecDataSource;
+    qryCapitulosNCMCodigoTIPI: TStringField;
+    qryCapitulosNCMexTIPI: TStringField;
+    qryCapitulosNCMDescricao: TStringField;
+    qryCapitulosNCMAliquota: TStringField;
+    qrySecoesdescricao: TStringField;
+    qrySecoessecao: TIntegerField;
+    qryCapitulossecao: TIntegerField;
+    qryCapituloscapitulo: TIntegerField;
+    qryImportar: TtecQuery;
+    qryNCMInexistentes: TtecQuery;
+    dsrNCMInexistentes: TtecDataSource;
+    qryNCMInexistentesCodigo: TIntegerField;
+    qryNCMInexistentesDescricao: TStringField;
+    qryNCMInexistentesClassificacaoFiscal: TStringField;
+    qryNCMInexistentesExTIPI: TStringField;
+    qryNCMInexistentesAliquota: TFloatField;
+    qryCapitulosNCMNacionalFederal: TFloatField;
+    qryCapitulosNCMImportadosFederal: TFloatField;
+    qryCapitulosNCMCargaEstadual: TFloatField;
+    qryCapitulosNCMCargaMunicipal: TFloatField;
+    qryCapitulosNCMVigenciaInicio: TDateField;
+    qryCapitulosNCMVigenciaFim: TDateField;
+    qryCapitulosNCMChaveIBPT: TStringField;
+    qryCapitulosNCMFonteDados: TStringField;
+
+    procedure qrySecoesNewRecord(DataSet: TDataSet);
+    procedure qrySecoesAfterScroll(DataSet: TDataSet);
+    procedure qryCapitulosAfterScroll(DataSet: TDataSet);
+  private
+    { Private declarations }
+  protected
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+  end;
+
+var
+  dtmNCM: TdtmNCM;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmNCM }
+
+constructor TdtmNCM.Create(AOwner: TComponent);
+begin
+  inherited;
+  qrySecoes.Open;
+  qrySecoesNotas.Open;
+  qrySecoesCapitulos.Open;
+
+  qryCapitulos.Open;
+  qryCapitulosNotas.Open;
+  qryCapitulosNCM.Open;
+end;
+
+
+
+
+procedure TdtmNCM.qrySecoesNewRecord(
+  DataSet: TDataSet);
+begin
+  inherited;
+//  qryTiposPagamentossaidadocaixa.Value:=false;
+end;
+
+
+
+procedure TdtmNCM.qrySecoesAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  RefazConsultaPorNome(qrySecoesNotas,['Secao'], [qrySecoessecao.AsString]);
+  RefazConsultaPorNome(qrySecoesCapitulos,['Secao'], [qrySecoessecao.AsString]);
+
+end;
+
+procedure TdtmNCM.qryCapitulosAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  refazconsultapornome(qryCapitulosNotas, ['capitulo'], [qryCapitulosCapitulo.AsString]);
+  refazconsultapornome(qryCapitulosNCM, ['capitulo'], [qryCapitulosCapitulo.AsString]);
+end;
+
+end.
+

@@ -1,0 +1,620 @@
+unit dmcadastroInstrucoes;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, ZTransact, cpdatasource, ZQuery,
+  ZPgSqlQuery, cpquery, biblio, ctconstantes, Forms, fmpreviewpadrao,
+  dmtecsoft, fr_dset, fr_dbset, fr_class;
+
+type
+  TdtmCadastroInstrucoes = class(TdtmBasico)
+    qryInstrucoes: TtecQuery;
+    dsrInstrucoes: TtecDataSource;
+    qryInstrucoesProximo: TtecQuery;
+    ZMonitor1: TZMonitor;
+    qryInstrucoesTrabalhoOperacoes: TtecQuery;
+    dsrInstrucoesTrabalhoOperacoes: TtecDataSource;
+    qryInstrucoescodigo: TIntegerField;
+    qryInstrucoesdescricao: TStringField;
+    qryInstrucoesProximocodigo: TIntegerField;
+    qryInstrucoesTrabalhoOperacoesoperacao: TIntegerField;
+    qryInstrucoesTrabalhoOperacoesnome: TStringField;
+    qryInstrucoesTrabalhoOperacoesc01: TStringField;
+    qryRegistrodasOperacoes: TtecQuery;
+    qryRegistrodasOperacoesusuarioinclusao: TStringField;
+    qryRegistrodasOperacoesdatainclusao: TStringField;
+    qryRegistrodasOperacoesusuarioalteracao: TStringField;
+    qryRegistrodasOperacoesdataalteracao: TStringField;
+    qryRegistrodasOperacoesoperacao: TStringField;
+    qryRegistrodasOperacoestabela: TStringField;
+    qryRegistrodasOperacoesnomeusuarioinclusao: TStringField;
+    qryRegistrodasOperacoesnomeusuarioalteracao: TStringField;
+    fdsImprimirInstrucoes: TfrDBDataSet;
+    qryImprimirInstrucoes: TtecQuery;
+    qryImprimirInstrucoescodigo: TIntegerField;
+    qryImprimirInstrucoesdescricao: TStringField;
+    qryImprimirInstrucoesusuarioinclusao: TStringField;
+    qryImprimirInstrucoesdatahorainclusao: TDateTimeField;
+    qryImprimirInstrucoesusuarioalteracao: TStringField;
+    qryImprimirInstrucoesdatahoraalteracao: TStringField;
+    qryImprimirInstrucoesoperacao: TStringField;
+    qryImprimirInstrucoestabela: TStringField;
+    qryImprimirInstrucoescodigooperacao: TIntegerField;
+    qryImprimirInstrucoesnome: TStringField;
+    qryImprimirInstrucoesc01: TStringField;
+    qryImprimirInstrucoesc02: TStringField;
+    qryImprimirInstrucoesc03: TStringField;
+    qryImprimirInstrucoessetup: TBooleanField;
+    qryImprimirInstrucoesplanocontrole: TBooleanField;
+    qryImprimirInstrucoesdescricaooperacao: TStringField;
+    qryImprimirInstrucoesTempoPadrao: TFloatField;
+    frpImprimirInstrucoes: TfrReport;
+    qryImprimirInstrucoessequencia: TStringField;
+    qryInstrucoesTrabalhoOperacoesinstrucaotrabalho: TIntegerField;
+    qryInstrucoesTrabalhoOperacoesc02: TStringField;
+    qryInstrucoesTrabalhoOperacoesc03: TStringField;
+    qryInstrucoesTrabalhoOperacoesdescricao: TStringField;
+    qryInstrucoesinstrucao: TStringField;
+    qryInstrucoesTrabalhoOperacoestempopadrao: TFloatField;
+    qryInstrucoesinativo: TDateField;
+    qryInstrucoesInatividadeMaxima: TIntegerField;
+    procedure qryInstrucoesTrabalhoOperacoesAfterOpen(DataSet: TDataSet);
+    procedure qryInstrucoesTrabalhoOperacoesAfterPost(DataSet: TDataSet);
+    procedure qryInstrucoesTrabalhoOperacoesAfterDelete(DataSet: TDataSet);
+    procedure qryInstrucoesTrabalhoOperacoesNewRecord(DataSet: TDataSet);
+    procedure qryInstrucoesAfterScroll(DataSet: TDataSet);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure qryInstrucoesTrabalhoOperacoesAfterEdit(DataSet: TDataSet);
+    procedure qryInstrucoesTrabalhoOperacoesAfterClose(DataSet: TDataSet);
+    procedure qryInstrucoesTrabalhoOperacoesBeforeDelete(DataSet: TDataSet);
+    procedure dsrInstrucoesTrabalhoOperacoesDataChange(Sender: TObject;
+      Field: TField);
+    procedure frpImprimirInstrucoesBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure qryInstrucoesNewRecord(DataSet: TDataSet);
+    private
+    FonInstrucoesOperacoesNewRecord: TNotifyEvent;
+    FListaOperacoesSelecionadas: String;
+    ListaTempoPadraoOriginal: array[1..2] of TStringList;
+    { Private declarations }
+    function ProximoCodigo: Integer;
+    procedure AtualizaListaOperacoes;
+
+  public
+    { Public declarations }
+
+    constructor Create(AOwner: TComponent);override;
+
+    procedure ExcluirInstrucao;
+    procedure IncluirInstrucao;
+    function GravarInstrucao: boolean;
+    function SalvarInstrucaoperacoes: boolean;
+    procedure EditarInstrucoes;
+    procedure EditarInstrucoesOperacoes;
+    property onInstrucoesOperacoesNewRecord : TNotifyEvent read FonInstrucoesOperacoesNewRecord write FonInstrucoesOperacoesNewRecord;
+    property ListaOperacoesSelecionadas: String read FListaOperacoesSelecionadas write FListaOperacoesSelecionadas;
+
+    procedure ExcluirInstrucaoOperacoes;
+    procedure GravarInstrucaoOperacoes;
+    procedure IncluirOperacao;
+    procedure IncluirOperacaoAlternativa;
+    procedure imprimir(dataInicialInclusao, dataFinalInclusao, dataInicialAlteracao, dataFinalAlteracao: String;
+                       ordenacao: integer);
+
+
+  end;
+
+const
+  Operacao = 1;
+  Tempo    = 2;
+
+var
+  dtmCadastroInstrucoes: TdtmCadastroInstrucoes;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmCadastroInstrucoes }
+
+procedure TdtmCadastroInstrucoes.AtualizaListaOperacoes;
+var
+  Pos: TBookmark;
+  i,j : integer;
+  vOperacaoAnterior : String;
+begin
+  Pos := qryInstrucoesTrabalhoOperacoes.GetBookmark;
+  qryInstrucoesTrabalhoOperacoes.DisableControls;
+  i := 0;
+  j := 0;
+
+  try
+    ListaOperacoesSelecionadas := '';
+
+    qryInstrucoesTrabalhoOperacoes.AfterEdit := nil;
+    qryInstrucoesTrabalhoOperacoes.AfterPost := nil;
+    vOperacaoAnterior := '';
+    qryInstrucoesTrabalhoOperacoes.First;
+    while Not qryInstrucoesTrabalhoOperacoes.Eof do
+    begin
+      if qryInstrucoesTrabalhoOperacoesoperacao.AsString<>'' then
+        if ListaOperacoesSelecionadas <> '' then
+          ListaOperacoesSelecionadas := ListaOperacoesSelecionadas + ', '+
+                                       qryInstrucoesTrabalhoOperacoesoperacao.AsString
+        else
+          ListaOperacoesSelecionadas := qryInstrucoesTrabalhoOperacoesoperacao.AsString;
+
+      {if (qryInstrucoesTrabalhoOperacoestipooperacao.AsString = 'N') then
+      begin
+        i := i + 1;
+        j := 0;
+
+        if qryInstrucoesTrabalhoOperacoessequencia.AsString <> inttostr(i) then
+        begin
+          qryInstrucoesTrabalhoOperacoes.Edit;
+          qryInstrucoesTrabalhoOperacoessequencia.AsString := inttostr(i);
+        end;
+
+        vOperacaoAnterior := qryInstrucoesTrabalhoOperacoesoperacao.AsString;
+      end
+      else
+      if (qryInstrucoesTrabalhoOperacoesorigemoperacaoalternativa.AsString = vOperacaoAnterior) then
+      begin
+        j := j + 1;
+        if  qryInstrucoesTrabalhoOperacoessequencia.AsString <> inttostr(i)+'.'+inttostr(j) then
+        begin
+          qryInstrucoesTrabalhoOperacoes.Edit;
+          qryInstrucoesTrabalhoOperacoessequencia.AsString := inttostr(i)+'.'+
+                                                       inttostr(j);
+        end;
+      end; }
+
+      qryInstrucoesTrabalhoOperacoes.Next;
+
+    end;
+
+
+  finally
+
+  if ListaOperacoesSelecionadas = ''
+  then ListaOperacoesSelecionadas := '0';
+
+
+    qryInstrucoesTrabalhoOperacoes.AfterEdit := qryInstrucoesTrabalhoOperacoesAfterEdit;
+    qryInstrucoesTrabalhoOperacoes.AfterPost := qryInstrucoesTrabalhoOperacoesAfterPost;
+
+    qryInstrucoesTrabalhoOperacoes.GotoBookmark(Pos);
+    qryInstrucoesTrabalhoOperacoes.FreeBookmark(Pos);
+
+
+    qryInstrucoesTrabalhoOperacoes.EnableControls;
+  end;
+end;
+
+
+procedure TdtmCadastroInstrucoes.EditarInstrucoesOperacoes;
+begin
+  if not (qryInstrucoesTrabalhoOperacoes.State in [dsedit, dsinsert]) then
+    qryInstrucoesTrabalhoOperacoes.Edit;
+end;
+
+procedure TdtmCadastroInstrucoes.ExcluirInstrucao;
+begin
+  if not qryInstrucoes.IsEmpty then
+    if (MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o Instrucao'])) = smbOk) then
+    begin
+       qryInstrucoes.Delete;
+       Perpetrar([qryInstrucoes]);
+       RefazConsultaPorNome(qryRegistrodasOperacoes,['Instrucao'],[qryInstrucoescodigo.AsVariant]);
+    end;
+end;
+
+function TdtmCadastroInstrucoes.GravarInstrucao: boolean;
+var
+  CodigoInstrucaoGerado,
+  i: integer;
+  ListaTempoPadrao: array[1..2] of TStringList;
+
+  function AtribuirCodigo: boolean;
+  var
+    j:integer;
+  begin
+    result := true;
+//    i:=1;
+    ListaTempoPadrao[Operacao] := TStringList.Create;
+    ListaTempoPadrao[Tempo]    := TStringList.Create;
+    GuardarRegistroAtual(qryInstrucoesTrabalhoOperacoes,true);
+    qryInstrucoesTrabalhoOperacoes.First;
+    while not qryInstrucoesTrabalhoOperacoes.Eof do
+    begin
+      if qryInstrucoesTrabalhoOperacoesInstrucaotrabalho.AsInteger = CodigoInstrucaoGerado then
+      begin
+        qryInstrucoesTrabalhoOperacoes.Edit;
+        if qryInstrucoesTrabalhoOperacoesinstrucaotrabalho.AsInteger <> qryInstrucoescodigo.AsInteger then
+          qryInstrucoesTrabalhoOperacoesinstrucaotrabalho.AsInteger := qryInstrucoescodigo.AsInteger;
+        qryInstrucoesTrabalhoOperacoes.Post;
+      end;
+      (* COMPARA O VALOR DO TEMPO PADRAO COM O ORIGINAL E GUARDA EM "LISTATEMPOPADRAO" P/ GERAR O UPDATE *)
+      for j:=0 to ListaTempoPadraoOriginal[operacao].Count-1 do
+      begin
+        if (ListaTempoPadraoOriginal[operacao].Strings[j] = qryInstrucoesTrabalhoOperacoesoperacao.AsString) and
+           (ListaTempoPadraoOriginal[tempo].Strings[j] <> qryInstrucoesTrabalhoOperacoestempopadrao.AsString) then
+        begin
+          ListaTempoPadrao[Operacao].Append(qryInstrucoesTrabalhoOperacoesoperacao.AsString);
+          ListaTempoPadrao[Tempo].Append(qryInstrucoesTrabalhoOperacoestempopadrao.AsString);
+          break;
+        end;
+      end;
+
+      result := qryInstrucoesTrabalhoOperacoes.CheckRequiredFields;
+      if not result then
+        break
+      else
+        Inc(i);
+      qryInstrucoesTrabalhoOperacoes.Next;
+    end;
+    VoltarRegistroAtual(qryInstrucoesTrabalhoOperacoes);
+  end;
+
+begin
+  result := false;
+  if (qryInstrucoes.CheckRequiredFields) then
+  begin
+    if SalvarInstrucaoperacoes then
+    begin
+      CodigoInstrucaoGerado := qryInstrucoescodigo.AsInteger;
+      if qryInstrucoes.State = dsinsert then
+          qryInstrucoescodigo.AsInteger := ProximoCodigo;
+
+      if AtribuirCodigo then
+      begin
+        qryInstrucoes.Post;
+        result := Perpetrar([qryInstrucoes,
+                             qryInstrucoesTrabalhoOperacoes]);
+
+        {if Result then
+          for i := 0 to ListaTempoPadrao[Operacao].Count - 1 do
+          begin
+            updOperacoes.Close;
+            updOperacoes.ParamByName('tempo').AsCurrency   := StrToCurr(ListaTempoPadrao[Tempo].Strings[i]);
+            updOperacoes.ParamByName('operacao').AsInteger := StrToInt(ListaTempoPadrao[Operacao].Strings[i]);
+            updOperacoes.ExecSql;
+          end;   }
+        RefazConsultaPorNome(qryRegistrodasOperacoes,['Instrucao'],[qryInstrucoescodigo.AsVariant]);
+      end;
+    end;
+  end;
+end;
+
+procedure TdtmCadastroInstrucoes.IncluirInstrucao;
+begin
+  qryInstrucoes.Insert;
+  qryInstrucoescodigo.AsInteger := ProximoCodigo;
+end;
+
+function TdtmCadastroInstrucoes.ProximoCodigo: Integer;
+begin
+ qryInstrucoesProximo.Open;
+ result := qryInstrucoesProximocodigo.AsInteger;
+ qryInstrucoesProximo.Close;
+end;
+
+function TdtmCadastroInstrucoes.SalvarInstrucaoperacoes: boolean;
+begin
+  result := true;
+  if (qryInstrucoesTrabalhoOperacoes.State in [dsedit, dsinsert]) then
+  begin
+    if qryInstrucoesTrabalhoOperacoes.CheckRequiredFields then
+      qryInstrucoesTrabalhoOperacoes.Post
+    else
+      result := false;
+  end;
+
+end;
+
+procedure TdtmCadastroInstrucoes.qryInstrucoesTrabalhoOperacoesAfterOpen(
+  DataSet: TDataSet);
+begin
+  AtualizaListaOperacoes;
+
+  ListaTempoPadraoOriginal[operacao] := TStringList.Create;    // Guarda os valores originais de tempo padrao
+  ListaTempoPadraoOriginal[tempo]    := TStringList.Create;    // para posterior update
+
+  while Not qryInstrucoesTrabalhoOperacoes.Eof do
+  begin
+    ListaTempoPadraoOriginal[operacao].Append(qryInstrucoesTrabalhoOperacoesoperacao.AsString);
+    ListaTempoPadraoOriginal[tempo].Append(qryInstrucoesTrabalhoOperacoestempopadrao.AsString);
+    qryInstrucoesTrabalhoOperacoes.Next;
+  end;
+  qryInstrucoesTrabalhoOperacoes.First;
+
+  inherited;
+  
+end;
+
+procedure TdtmCadastroInstrucoes.qryInstrucoesTrabalhoOperacoesAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  EditarInstrucoes;
+  AtualizaListaOperacoes;
+end;
+
+procedure TdtmCadastroInstrucoes.qryInstrucoesTrabalhoOperacoesAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  EditarInstrucoes;
+  AtualizaListaOperacoes;
+end;
+
+procedure TdtmCadastroInstrucoes.qryInstrucoesTrabalhoOperacoesNewRecord(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryInstrucoesTrabalhoOperacoesinstrucaotrabalho.AsInteger := qryInstrucoescodigo.AsInteger;
+//  qryInstrucoesTrabalhoOperacoestipooperacao.AsString := 'N';
+
+end;
+
+procedure TdtmCadastroInstrucoes.qryInstrucoesAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  ReFazConsulta(qryInstrucoesTrabalhoOperacoes,[0], [qryInstrucoescodigo.AsVariant]);
+  RefazConsultaPorNome(qryRegistrodasOperacoes,['Instrucao'],[qryInstrucoescodigo.AsVariant]);
+end;
+
+procedure TdtmCadastroInstrucoes.ExcluirInstrucaoOperacoes;
+begin
+  if not qryInstrucoesTrabalhoOperacoes.IsEmpty then
+    if not qryInstrucoesTrabalhoOperacoes.ReadOnly then
+      if (MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['a OPERAÇÃO deste Instrucao'])) = smbOk) then
+         qryInstrucoesTrabalhoOperacoes.Delete;
+end;
+
+procedure TdtmCadastroInstrucoes.GravarInstrucaoOperacoes;
+begin
+  if (qryInstrucoesTrabalhoOperacoes.State in [dsedit, dsinsert]) then
+     qryInstrucoesTrabalhoOperacoes.Post;
+end;
+
+constructor TdtmCadastroInstrucoes.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryInstrucoes.Tag := ctTabelas;
+//  qryInstrucoesTrabalhoOperacoes.Tag := ctTabelas;
+  FListaOperacoesSelecionadas := '0';
+end;
+
+procedure TdtmCadastroInstrucoes.EditarInstrucoes;
+begin
+  if not (qryInstrucoes.State in [dsedit, dsinsert]) then
+    qryInstrucoes.Edit;
+end;
+
+procedure TdtmCadastroInstrucoes.ZMonitor1MonitorEvent(Sql,
+  Result: String);
+var
+ Listar : TStringList;
+ Arquivo: String;
+begin
+  inherited;
+  Arquivo := 'c:\fluxo.sql';
+  Listar := tStringlist.create;
+  if fileexists(arquivo) then
+    Listar.loadfromfile(arquivo);
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile(arquivo);
+  listar.free;
+end;
+
+procedure TdtmCadastroInstrucoes.qryInstrucoesTrabalhoOperacoesAfterEdit(
+  DataSet: TDataSet);
+begin
+  inherited;
+  EditarInstrucoes;
+end;
+
+procedure TdtmCadastroInstrucoes.qryInstrucoesTrabalhoOperacoesAfterClose(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if Assigned(ListaTempoPadraoOriginal[operacao]) then
+    ListaTempoPadraoOriginal[operacao].Free;
+  if Assigned(ListaTempoPadraoOriginal[tempo]) then
+    ListaTempoPadraoOriginal[tempo].Free;
+end;
+
+procedure TdtmCadastroInstrucoes.IncluirOperacao;
+begin
+  qryInstrucoesTrabalhoOperacoes.Insert;
+end;
+
+procedure TdtmCadastroInstrucoes.qryInstrucoesTrabalhoOperacoesBeforeDelete(
+  DataSet: TDataSet);
+var
+  i:integer;
+begin
+  inherited;
+  for i:=0 to ListaTempoPadraoOriginal[operacao].Count-1 do
+  begin
+    if qryInstrucoesTrabalhoOperacoesoperacao.AsString = ListaTempoPadraoOriginal[operacao].Strings[i] then
+    begin
+      ListaTempoPadraoOriginal[operacao].Delete(i);
+      ListaTempoPadraoOriginal[tempo].Delete(i);
+      break;
+    end;
+  end;      
+end;
+
+procedure TdtmCadastroInstrucoes.dsrInstrucoesTrabalhoOperacoesDataChange(
+  Sender: TObject; Field: TField);
+begin
+  inherited;
+  if (Field = qryInstrucoesTrabalhoOperacoestempopadrao) and
+     (qryInstrucoesTrabalhoOperacoes.State = dsInsert) then
+  begin
+    ListaTempoPadraoOriginal[operacao].Append(qryInstrucoesTrabalhoOperacoesoperacao.AsString);
+    ListaTempoPadraoOriginal[tempo].Append(qryInstrucoesTrabalhoOperacoestempopadrao.AsString);
+  end
+  {else
+  if field = qryInstrucoesTrabalhoOperacoestipooperacao then
+  begin
+    if field.Value = 'N' then
+    begin
+      dsrInstrucoesTrabalhoOperacoes.OnDataChange := nil;
+      qryInstrucoesTrabalhoOperacoesorigemoperacaoalternativa.Clear;
+      dsrInstrucoesTrabalhoOperacoes.OnDataChange := dsrInstrucoesTrabalhoOperacoesDataChange;
+    end;
+  end;}
+end;
+
+procedure TdtmCadastroInstrucoes.IncluirOperacaoAlternativa;
+var
+  vOperacaoAnterior: String;
+begin
+  vOperacaoAnterior := qryInstrucoesTrabalhoOperacoesoperacao.AsString;
+  qryInstrucoesTrabalhoOperacoes.Next;
+  while not qryInstrucoesTrabalhoOperacoes.Eof do
+ { begin
+    if qryInstrucoesTrabalhoOperacoestipooperacao.AsString = 'N' then
+      break;
+    qryInstrucoesTrabalhoOperacoes.Next;
+  end;}
+
+  if qryInstrucoesTrabalhoOperacoes.Eof then
+    qryInstrucoesTrabalhoOperacoes.Append
+  else
+    qryInstrucoesTrabalhoOperacoes.Insert;
+
+
+//  qryInstrucoesTrabalhoOperacoestipooperacao.AsString := 'A';
+// qryInstrucoesTrabalhoOperacoesorigemoperacaoalternativa.AsString := vOperacaoAnterior;
+end;
+
+
+procedure TdtmCadastroInstrucoes.imprimir(dataInicialInclusao,
+  dataFinalInclusao, dataInicialAlteracao, dataFinalAlteracao: String;
+  ordenacao: integer);
+const
+  SQLDataInicial = 'and cast(trigger_changed as date) between :datainicialalteracao and :datafinalalteracao';
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+  if (dataInicialInclusao<>'') and (dataFinalInclusao<>'') then
+  begin
+    qryImprimirInstrucoes.MacroByName('datainclusao').asstring := 'and cast(trigger_changed as date) between :datainicialinclusao and :datafinalinclusao';
+    qryImprimirInstrucoes.MacroByName('InclusaoInstrucoes').asstring := 'and cast(datahorainclusao as date) between :datainicialinclusao and :datafinalinclusao';
+
+    qryImprimirInstrucoes.paramByName('datainicialinclusao').AsDateTime := strtodatetime(dataInicialinclusao);
+    qryImprimirInstrucoes.paramByName('datafinalinclusao').AsDateTime := strtodatetime(dataFinalinclusao);
+
+  end
+   else
+  if (dataInicialinclusao<>'') and (dataFinalinclusao='') then
+  begin
+    qryImprimirInstrucoes.MacroByName('datainclusao').asstring := 'and cast(trigger_changed as date) >= :datainicialinclusao';
+    qryImprimirInstrucoes.MacroByName('InclusaoInstrucoes').asstring := 'and cast(datahorainclusao as date) >= :datainicialinclusao';
+    qryImprimirInstrucoes.paramByName('datainicialinclusao').AsDateTime := strtodatetime(dataInicialinclusao);
+    qryImprimirInstrucoes.paramByName('datafinalinclusao').clear;
+  end
+  else
+  if (dataInicialinclusao='') and (dataFinalinclusao<>'') then
+  begin
+    qryImprimirInstrucoes.MacroByName('datainclusao').asstring := 'and cast(trigger_changed as date) <= :datafinalinclusao';
+    qryImprimirInstrucoes.MacroByName('InclusaoInstrucoes').asstring := 'and cast(datahorainclusao as date) <= :datafinalinclusao';
+    qryImprimirInstrucoes.paramByName('datainicialinclusao').clear;
+    qryImprimirInstrucoes.paramByName('datafinalinclusao').AsDateTime := strtodatetime(dataFinalinclusao);
+  end
+  else
+  if (dataInicialinclusao='') and (dataFinalinclusao='') then
+  begin
+    qryImprimirInstrucoes.MacroByName('datainclusao').asstring := '';
+    qryImprimirInstrucoes.MacroByName('InclusaoInstrucoes').asstring := '';
+    qryImprimirInstrucoes.paramByName('datainicialinclusao').clear;
+    qryImprimirInstrucoes.paramByName('datafinalinclusao').clear;
+  end;
+
+
+
+  if (dataInicialalteracao<>'') and (dataFinalalteracao<>'') then
+  begin
+    qryImprimirInstrucoes.MacroByName('dataalteracao').asstring := 'and cast(trigger_changed as date) between :datainicialalteracao and :datafinalalteracao';
+    qryImprimirInstrucoes.MacroByName('AlteracaoInstrucoes').asstring := 'and cast(datahoraalteracao as date) between :datainicialalteracao and :datafinalalteracao';
+    qryImprimirInstrucoes.paramByName('datainicialalteracao').AsDateTime := strtodatetime(dataInicialAlteracao);
+    qryImprimirInstrucoes.paramByName('datafinalalteracao').AsDateTime := strtodatetime(dataFinalAlteracao);
+  end
+  else
+  if (dataInicialalteracao<>'') and (dataFinalalteracao='') then
+  begin
+    qryImprimirInstrucoes.MacroByName('dataalteracao').asstring := 'and cast(trigger_changed as date) >= :datainicialalteracao';
+    qryImprimirInstrucoes.MacroByName('AlteracaoInstrucoes').asstring := 'and cast(datahoraalteracao as date) >= :datainicialalteracao';
+    qryImprimirInstrucoes.paramByName('datainicialalteracao').AsDateTime := strtodatetime(dataInicialAlteracao);
+    qryImprimirInstrucoes.paramByName('datafinalalteracao').clear;
+  end
+  else
+  if (dataInicialalteracao='') and (dataFinalalteracao<>'') then
+  begin
+    qryImprimirInstrucoes.MacroByName('dataalteracao').asstring := 'and cast(trigger_changed as date) <= :datafinalalteracao';
+    qryImprimirInstrucoes.MacroByName('AlteracaoInstrucoes').asstring := 'and cast(datahoraalteracao as date) <= :datafinalalteracao';
+    qryImprimirInstrucoes.paramByName('datainicialalteracao').clear;
+    qryImprimirInstrucoes.paramByName('datafinalalteracao').AsDateTime := strtodatetime(dataFinalAlteracao);
+  end
+  else
+  if (dataInicialalteracao='') and (dataFinalalteracao='') then
+  begin
+    qryImprimirInstrucoes.MacroByName('dataalteracao').asstring := '';
+    qryImprimirInstrucoes.MacroByName('AlteracaoInstrucoes').asstring := '';
+    qryImprimirInstrucoes.paramByName('datainicialalteracao').clear;
+    qryImprimirInstrucoes.paramByName('datafinalalteracao').clear;
+  end;
+
+  case ordenacao of
+  0: begin
+       qryImprimirInstrucoes.MacroByName('Ordenacao').asstring := 'order by f.codigo';
+     end;
+  1: begin
+       qryImprimirInstrucoes.MacroByName('Ordenacao').asstring := 'order by f.descricao';
+     end;
+  end;
+
+
+  frmPreview := TfrmPreviewPadrao.create(self);
+  frmPreview.cmbZoom.ItemIndex := 3; //125%
+  try
+   Relatorio := frmPreview.frCompositeReport;
+   with frmPreview do
+   begin
+     frCompositeReport.Reports.Clear;
+     frCompositeReport.DoublePass:= True;
+     frVariables['TITULO'] := 'CADASTRO DE Instrucoes';
+     frVariables['SUBTITULO'] := '';
+     frCompositeReport.Reports.Add(frpImprimirInstrucoes);
+     Relatorio.Preview := frmPreview.frPreviewPadrao;
+     Relatorio.ShowReport;
+     frmPreview.ShowModal;
+   end;
+  finally
+   frmPreview.Free
+  end; 
+
+end;
+
+procedure TdtmCadastroInstrucoes.frpImprimirInstrucoesBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+   ZebrarLinhaRelatorio(frpImprimirInstrucoes,View);
+end;
+
+procedure TdtmCadastroInstrucoes.qryInstrucoesNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+  qryInstrucoesInatividadeMaxima.AsInteger:= 6; {meses}
+end;
+
+end.

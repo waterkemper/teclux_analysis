@@ -1,0 +1,882 @@
+inherited dtmcadastroempreendimentos: Tdtmcadastroempreendimentos
+  Left = 973
+  Top = 255
+  Height = 627
+  Width = 686
+  object qryEmpreendimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryEmpreendimentosAfterOpen
+    AfterClose = qryEmpreendimentosAfterClose
+    AfterInsert = qryEmpreendimentosAfterInsert
+    AfterPost = qryEmpreendimentosAfterPost
+    AfterCancel = qryEmpreendimentosAfterCancel
+    AfterScroll = qryEmpreendimentosAfterScroll
+    OnNewRecord = qryEmpreendimentosNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select em.*,'
+      '       (Select cd.nome From cidades cd'
+      
+        '                       Where (cd.estado = em.estado) and (cd.cod' +
+        'igo = em.cidade)) as nomecidadecliente,'
+      '       (Select ba.nome From bairros ba'
+      
+        '                       Where (ba.estado = em.estado) and (ba.cid' +
+        'ade = em.cidade) and (ba.codigo = em.bairro)) as nomebairroclien' +
+        'te'
+      'from empreendimentos em'
+      'where em.codigo = :Numero')
+    RequestLive = True
+    Left = 48
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Numero'
+        ParamType = ptUnknown
+      end>
+    object qryEmpreendimentoscodigo: TIntegerField
+      AutoGenerateValue = arAutoInc
+      FieldName = 'codigo'
+    end
+    object qryEmpreendimentosnome: TStringField
+      FieldName = 'nome'
+      Size = 60
+    end
+    object qryEmpreendimentossigla: TStringField
+      FieldName = 'sigla'
+      Size = 10
+    end
+    object qryEmpreendimentosrua: TStringField
+      FieldName = 'rua'
+      Size = 100
+    end
+    object qryEmpreendimentosnumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryEmpreendimentoscomplemento: TStringField
+      FieldName = 'complemento'
+      Size = 100
+    end
+    object qryEmpreendimentosestado: TStringField
+      FieldName = 'estado'
+      Size = 2
+    end
+    object qryEmpreendimentoscidade: TIntegerField
+      FieldName = 'cidade'
+    end
+    object qryEmpreendimentosbairro: TIntegerField
+      FieldName = 'bairro'
+    end
+    object qryEmpreendimentoscep: TIntegerField
+      FieldName = 'cep'
+    end
+    object qryEmpreendimentosdatahabitese: TDateField
+      FieldName = 'datahabitese'
+    end
+    object qryEmpreendimentosobservacoes: TStringField
+      FieldName = 'observacoes'
+      Size = 512
+    end
+    object qryEmpreendimentoscontavenda: TIntegerField
+      FieldName = 'contavenda'
+    end
+    object qryEmpreendimentoscontacofins: TIntegerField
+      FieldName = 'contacofins'
+    end
+    object qryEmpreendimentoscontacsll: TIntegerField
+      FieldName = 'contacsll'
+    end
+    object qryEmpreendimentoscontairpj: TIntegerField
+      FieldName = 'contairpj'
+    end
+    object qryEmpreendimentoscontapis: TIntegerField
+      FieldName = 'contapis'
+    end
+    object qryEmpreendimentosdebitocustos: TIntegerField
+      FieldName = 'debitocustos'
+    end
+    object qryEmpreendimentoscreditocustos: TIntegerField
+      FieldName = 'creditocustos'
+    end
+    object qryEmpreendimentoscreditovendachaves: TIntegerField
+      FieldName = 'creditovendachaves'
+    end
+    object qryEmpreendimentosdebitocustochaves: TIntegerField
+      FieldName = 'debitocustochaves'
+    end
+    object qryEmpreendimentoscreditoatualizacaomonetaria: TIntegerField
+      FieldName = 'creditoatualizacaomonetaria'
+    end
+    object qryEmpreendimentosdebitodescontorecebimento: TIntegerField
+      FieldName = 'debitodescontorecebimento'
+    end
+    object qryEmpreendimentosareaterreno: TFloatField
+      FieldName = 'areaterreno'
+    end
+    object qryEmpreendimentosdebitodescontoconcedidos: TIntegerField
+      FieldName = 'debitodescontoconcedidos'
+    end
+    object qryEmpreendimentosnomecidadecliente: TStringField
+      FieldName = 'nomecidadecliente'
+      Size = 50
+    end
+    object qryEmpreendimentosnomebairrocliente: TStringField
+      FieldName = 'nomebairrocliente'
+      Size = 50
+    end
+    object qryEmpreendimentoscreditodespesasvenda: TIntegerField
+      FieldName = 'creditodespesasvenda'
+    end
+    object qryEmpreendimentosunid_imob: TStringField
+      FieldName = 'unid_imob'
+      Size = 2
+    end
+    object qryEmpreendimentosind_nat_emp: TStringField
+      FieldName = 'ind_nat_emp'
+      Size = 1
+    end
+  end
+  object dsrEmpreendimentos: TtecDataSource
+    DataSet = qryEmpreendimentos
+    Left = 72
+    Top = 40
+  end
+  object spcEmpreendimentos_ProximoCodigo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT Empreendimentos_ProximoCodigo() AS Codigo'
+      '')
+    RequestLive = True
+    Left = 312
+    Top = 16
+    object spcEmpreendimentos_ProximoCodigocodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+  end
+  object qryBlocos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforePost = qryBlocosBeforePost
+    AfterPost = qryBlocosAfterPost
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select b.codigo,'
+      '       b.empreendimento,'
+      '       b.descricao'
+      'from blocos b'
+      'where b.empreendimento = :Empreendimento   '
+      'Order By UPPER(TO_ASCII(b.descricao,'#39'LATIN1'#39')) ')
+    RequestLive = True
+    Left = 48
+    Top = 96
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Empreendimento'
+        ParamType = ptUnknown
+      end>
+    object qryBlocoscodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryBlocosempreendimento: TIntegerField
+      FieldName = 'empreendimento'
+      DisplayFormat = '0'
+    end
+    object qryBlocosdescricao: TStringField
+      DisplayWidth = 25
+      FieldName = 'descricao'
+      Required = True
+      Size = 25
+    end
+  end
+  object dsrBlocos: TtecDataSource
+    DataSet = qryBlocos
+    Left = 72
+    Top = 120
+  end
+  object qryConsultaEmpreendimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'Codigo'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'SELECT e.Codigo,'
+      '       e.Nome,'
+      '       e.Sigla,'
+      '       e.Cidade,'
+      '       e.Estado,'
+      '       c.Nome as NomeCidade'
+      'FROM Empreendimentos e, Cidades c'
+      'WHERE (e.Estado = c.Estado) AND (e.Cidade = c.Codigo)'
+      '%Codigo'
+      'ORDER BY UPPER(TO_ASCII(e.Sigla,'#39'LATIN1'#39')),'
+      '         UPPER(TO_ASCII(e.Nome, '#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 312
+    Top = 120
+    object qryConsultaEmpreendimentossigla: TStringField
+      DisplayLabel = 'Sigla'
+      FieldName = 'sigla'
+      Size = 10
+    end
+    object qryConsultaEmpreendimentosnome: TStringField
+      DisplayLabel = 'Nome do Emprendimento'
+      DisplayWidth = 40
+      FieldName = 'nome'
+      Size = 60
+    end
+    object qryConsultaEmpreendimentosnomecidade: TStringField
+      DisplayLabel = 'Cidade'
+      DisplayWidth = 25
+      FieldName = 'nomecidade'
+      Size = 40
+    end
+    object qryConsultaEmpreendimentoscidade: TIntegerField
+      DisplayLabel = 'Cidade'
+      FieldName = 'cidade'
+      Visible = False
+      DisplayFormat = '0'
+    end
+    object qryConsultaEmpreendimentosestado: TStringField
+      DisplayLabel = 'UF'
+      FieldName = 'estado'
+      Size = 2
+    end
+    object qryConsultaEmpreendimentoscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      DisplayWidth = 6
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+  end
+  object spcBlocos_ProximoCodigo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT Blocos_ProximoCodigo() AS Codigo')
+    RequestLive = True
+    Left = 312
+    Top = 64
+    object spcBlocos_ProximoCodigocodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+  end
+  object qryImoveis: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT SUM(i.AreaPrivativa) AS AreaPrivativa,'
+      '       SUM(i.AreaComum)     AS AreaComum,'
+      '       SUM(i.FracaoIdeal)   AS FracaoIdeal,'
+      '        '
+      '       CAST((SUM(i.AreaPrivativa) +'
+      '            (SUM(i.AreaComum))) AS NUMERIC(15,8)) AS AreaTotal'
+      '            '
+      'FROM Imoveis i JOIN Blocos b ON i.Bloco = b.Codigo AND'
+      
+        '                                b.Empreendimento = :Empreendimen' +
+        'to'
+      '')
+    RequestLive = False
+    Left = 48
+    Top = 176
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Empreendimento'
+        ParamType = ptUnknown
+      end>
+    object qryImoveisAreaPrivativa: TFloatField
+      FieldName = 'AreaPrivativa'
+      DisplayFormat = '###,##0.0000'
+    end
+    object qryImoveisAreaComum: TFloatField
+      FieldName = 'AreaComum'
+      DisplayFormat = '###,##0.0000'
+    end
+    object qryImoveisAreaTotal: TFloatField
+      FieldName = 'AreaTotal'
+      DisplayFormat = '###,##0.0000'
+    end
+    object qryImoveisFracaoIdeal: TFloatField
+      DisplayWidth = 12
+      FieldName = 'FracaoIdeal'
+      DisplayFormat = '##0.0000'
+    end
+  end
+  object dsrImoveis: TtecDataSource
+    DataSet = qryImoveis
+    Left = 72
+    Top = 200
+  end
+  object qryAtualizarContratos_SetarDataHabitese: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update vendasimoveis set habite_se  = :DataHabitese,'
+      
+        '                         datachaves = case when data <= :DataHab' +
+        'itese then :DataHabitese else data end'
+      'where contrato in ('
+      ''
+      'select vi.contrato'
+      
+        '  from vendasimoveis vi left join vendasimoveis vitg on vi.contr' +
+        'ato = vitg.contrato_origem'
+      '  where vi.empreendimento = :Empreendimento'
+      '  and ((vi.situacao = '#39'V'#39
+      '  and exists (  select l.exercicio, l.nrlancto, l.filial'
+      '                from lancamentos l'
+      '                where l.origem = '#39'V'#39
+      '                  and l.filial = vi.filial'
+      
+        '                  and l.nrorigem = CAST(100000000 AS BIGINT) * C' +
+        'AST(vi.Contrato AS BIGINT) + CAST(10000000 AS BIGINT)'
+      '              )) or'
+      
+        '      (vi.situacao in ('#39'F'#39','#39'D'#39','#39'Q'#39') and vi.data <= :DataHabitese' +
+        ') or'
+      
+        '      (vi.situacao = '#39'S'#39' and vi.data <= :DataHabitese and vi.dat' +
+        'aalteracao > :DataHabitese ) or'
+      '      (vi.situacao in ('#39'T'#39','#39'G'#39') and vi.data < :DataHabitese and'
+      
+        '       not coalesce(((vitg.situacao in ('#39'F'#39','#39'D'#39','#39'Q'#39') and vitg.da' +
+        'ta <= :DataHabitese) or'
+      
+        '                     (vitg.situacao = '#39'S'#39' and vitg.dataalteracao' +
+        ' > :DataHabitese and vitg.data <= :DataHabitese)),false)))'
+      ''
+      ''
+      ')'
+      '   ')
+    RequestLive = True
+    Left = 240
+    Top = 328
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'DataHabitese'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Empreendimento'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryVendasImoveis: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'Contratos'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'Select vi.*'
+      'from vendasimoveis vi'
+      '%Contratos')
+    RequestLive = True
+    Left = 312
+    Top = 248
+  end
+  object dsrVendasImoveis: TtecDataSource
+    DataSet = qryVendasImoveis
+    Left = 336
+    Top = 272
+  end
+  object qryParcelasImoveis: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select pi.contrato,'
+      '       pi.origem'
+      
+        'from parcelasimoveis pi join vendasimoveis vi on pi.contrato = v' +
+        'i.contrato'
+      'where pi.contrato = vi.contrato'
+      '  and pi.datapagto > :dataHabitese'
+      '  and vi.empreendimento = :empreendimento'
+      'order by pi.datapagto desc  '
+      'limit 1')
+    RequestLive = False
+    Left = 40
+    Top = 280
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'dataHabitese'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'empreendimento'
+        ParamType = ptUnknown
+      end>
+    object qryParcelasImoveiscontrato: TIntegerField
+      FieldName = 'contrato'
+    end
+    object qryParcelasImoveisorigem: TStringField
+      FieldName = 'origem'
+      Size = 8
+    end
+  end
+  object qryAtualizarDatadoHabitese: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'UPDATE ParcelasImoveis'
+      '   SET ValorContratadoAteHabitese = ValorContratado,'
+      '       MoedaAteHabitese           = Moeda,'
+      '       TaxaJurosAteHabiteSe       = TaxaJuros,'
+      '       TipoJurosAteHabiteSe       = Juroscompostos,'
+      '       DataBaseAteHabiteSe        = DataBase,'
+      ''
+      
+        '       DataBase                   = CASE WHEN DataBase > :DataHa' +
+        'biteSe'
+      '                                         THEN DataBase'
+      '                                         ELSE :DataHabiteSe'
+      '                                    END,'
+      '       Moeda                      = sel.IndexadorAposHabiteSe,'
+      '       TaxaJuros                  = sel.Juros,'
+      
+        '       ValorContratado            = ValorCorrigido(sel.Contrato,' +
+        ' sel.Tipo, sel.Numero, sel.NrPagto, :DataHabiteSe, FALSE)'
+      ''
+      'FROM (SELECT pi.Contrato,   pi.Tipo,   pi.Numero, pi.NrPagto,'
+      '             vi.IndexadorAposHabitese, vi.Juros'
+      ''
+      '      FROM (ParcelasImoveis pi'
+      '            JOIN (VendasImoveis vi'
+      '                  LEFT JOIN VendasImoveis vitg'
+      '                       ON vi.Contrato = vitg.Contrato_Origem)'
+      '            ON pi.Contrato = vi.Contrato)'
+      ''
+      '      WHERE vi.Empreendimento = :Empreendimento  AND'
+      '            pi.DataPagto IS NULL                 AND'
+      '            pi.Moeda <> '#39'FIXA'#39'                   AND'
+      '            vi.IndexadorAposHabiteSe IS NOT NULL AND'
+      ''
+      '            ((vi.Situacao = '#39'V'#39' AND'
+      '              EXISTS (SELECT l.Exercicio, l.NrLancto, l.Filial'
+      '                         FROM Lancamentos l'
+      '                         WHERE l.Origem   = '#39'V'#39'       AND'
+      '                               l.Filial   = vi.Filial AND'
+      
+        '                               l.NrOrigem = CAST(100000000 AS BI' +
+        'GINT) * CAST(vi.Contrato AS BIGINT) + CAST(10000000 AS BIGINT)))'
+      ''
+      
+        '          OR (vi.Situacao IN ('#39'F'#39', '#39'D'#39', '#39'Q'#39') AND vi.Data <= :Dat' +
+        'aHabiteSe)'
+      
+        '          OR (vi.Situacao IN ('#39'S'#39')           AND vi.Data <= :Dat' +
+        'aHabiteSe AND vi.DataAlteracao > :DataHabitese)'
+      
+        '          OR (vi.Situacao IN ('#39'T'#39', '#39'G'#39')      AND vi.Data < :Data' +
+        'HabiteSe  AND'
+      
+        '                NOT COALESCE(((vitg.Situacao IN ('#39'F'#39', '#39'D'#39', '#39'Q'#39') ' +
+        'AND vitg.Data <= :DataHabiteSe) OR'
+      
+        '                              (vitg.Situacao IN ('#39'S'#39') AND vitg.D' +
+        'ataAlteracao > :DataHabitesS AND vitg.Data <= :DataHabiteSe)), F' +
+        'ALSE)))'
+      '     ) AS sel'
+      ''
+      'WHERE ParcelasImoveis.Contrato = sel.Contrato AND'
+      '      ParcelasImoveis.Tipo     = sel.Tipo     AND'
+      '      ParcelasImoveis.Numero   = sel.Numero   AND'
+      '      ParcelasImoveis.NrPagto  = sel.NrPagto')
+    RequestLive = True
+    Left = 328
+    Top = 360
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'DataHabitese'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Empreendimento'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataHabitesS'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryReverterDatadoHabitese: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'UPDATE ParcelasImoveis'
+      '   SET ValorContratado = ValorContratadoAteHabiteSe,'
+      '       Moeda           = MoedaAteHabiteSe,'
+      '       TaxaJuros       = TaxaJurosAteHabiteSe,'
+      '       Juroscompostos  = TipoJurosAteHabiteSe,'
+      '       DataBase        = DataBaseAteHabiteSe,'
+      ''
+      '       ValorContratadoAteHabiteSe = NULL,'
+      '       MoedaAteHabiteSe           = NULL,'
+      '       TaxaJurosAteHabiteSe       = NULL,'
+      '       DataBaseAteHabiteSe        = NULL,'
+      '       TipoJurosAteHabiteSe       = NULL'
+      ''
+      'FROM (SELECT pi.Contrato, pi.Tipo, pi.Numero, pi.NrPagto'
+      ''
+      '      FROM (ParcelasImoveis pi'
+      '            JOIN (VendasImoveis vi'
+      '                  LEFT JOIN VendasImoveis vitg'
+      '                       ON vi.Contrato = vitg.Contrato_Origem)'
+      '            ON pi.Contrato = vi.Contrato)'
+      ''
+      '      WHERE vi.Empreendimento = :Empreendimento  AND'
+      '            vi.DataChaves IS NOT NULL            AND'
+      '            pi.Contrato = vi.Contrato            AND'
+      '            pi.DataPagto IS NULL                 AND'
+      '            pi.Moeda <> '#39'FIXA'#39'                   AND'
+      '            vi.IndexadorAposHabiteSe IS NOT NULL AND'
+      ''
+      '          ((vi.Situacao IN ('#39'V'#39'))'
+      
+        '        OR (vi.Situacao IN ('#39'F'#39', '#39'D'#39', '#39'Q'#39') AND vi.Data <= :DataH' +
+        'abiteSe)'
+      
+        '        OR (vi.Situacao IN ('#39'S'#39')           AND vi.Data <= :DataH' +
+        'abiteSe AND vi.DataAlteracao > :DataHabiteSe )'
+      
+        '        OR (vi.Situacao IN ('#39'T'#39', '#39'G'#39')      AND vi.Data < :DataHa' +
+        'biteSe AND'
+      
+        '               NOT COALESCE(((vitg.Situacao IN ('#39'F'#39', '#39'D'#39', '#39'Q'#39') A' +
+        'ND vitg.Data <= :DataHabiteSe)'
+      
+        '                          OR (vitg.Situacao IN ('#39'S'#39')  AND vitg.D' +
+        'ataAlteracao > :DataHabiteSe AND vitg.Data <= :DataHabiteSe)), F' +
+        'ALSE)))'
+      '     ) AS pi'
+      ''
+      'WHERE ParcelasImoveis.Contrato = pi.Contrato AND'
+      '      ParcelasImoveis.Tipo     = pi.Tipo     AND'
+      '      ParcelasImoveis.Numero   = pi.Numero   AND'
+      '      ParcelasImoveis.NrPagto  = pi.NrPagto'
+      '')
+    RequestLive = True
+    Left = 392
+    Top = 376
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Empreendimento'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataHabitese'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryParametrosContasImoveis: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select pci.*,'
+      
+        '       (select pl.descricao from planocontas pl where pl.codigo ' +
+        '= pci.debitardespesasvenda) as descricaoplanocontasdebitardespes' +
+        'asvendas,'
+      
+        '       (select pl.classificacao from planocontas pl where pl.cod' +
+        'igo = pci.debitardespesasvenda) as classificacaoplanocontasdebit' +
+        'ardespesasvendas'
+      'from parametroscontasimoveis pci')
+    RequestLive = True
+    Left = 72
+    Top = 384
+    object qryParametrosContasImoveisdebitardespesasvenda: TIntegerField
+      FieldName = 'debitardespesasvenda'
+    end
+    object qryParametrosContasImoveisdescricaoplanocontasdebitardespesasvendas: TStringField
+      FieldName = 'descricaoplanocontasdebitardespesasvendas'
+      Size = 9
+    end
+    object qryParametrosContasImoveisclassificacaoplanocontasdebitardespesasvendas: TStringField
+      FieldName = 'classificacaoplanocontasdebitardespesasvendas'
+      Size = 17
+    end
+  end
+  object dsrParametrosContasImoveis: TtecDataSource
+    DataSet = qryParametrosContasImoveis
+    Left = 96
+    Top = 408
+  end
+  object qryGerarLancamentosHabitese: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select ContabilizarEntregaChaves(Filial, Contrato)'
+      'from'
+      '( select vi.filial,'
+      '         vi.contrato'
+      
+        '  from vendasimoveis vi left join vendasimoveis vitg on vi.contr' +
+        'ato = vitg.contrato_origem'
+      '  where vi.empreendimento = :Empreendimento'
+      '  and ((vi.situacao = '#39'V'#39
+      '  and exists (  select l.exercicio, l.nrlancto, l.filial'
+      '                from lancamentos l'
+      '                where l.origem = '#39'V'#39
+      '                  and l.filial = vi.filial'
+      
+        '                  and l.nrorigem = CAST(100000000 AS BIGINT) * C' +
+        'AST(vi.Contrato AS BIGINT) + CAST(10000000 AS BIGINT)'
+      '              )) or'
+      
+        '      (vi.situacao in ('#39'F'#39','#39'D'#39','#39'Q'#39') and vi.data <= :DataHabitese' +
+        ') or'
+      
+        '      (vi.situacao = '#39'S'#39' and vi.data <= :DataHabitese and vi.dat' +
+        'aalteracao > :DataHabitese ) or'
+      '      (vi.situacao in ('#39'T'#39','#39'G'#39') and vi.data < :DataHabitese and'
+      
+        '       not coalesce(((vitg.situacao in ('#39'F'#39','#39'D'#39','#39'Q'#39') and vitg.da' +
+        'ta <= :DataHabitese) or'
+      
+        '                     (vitg.situacao = '#39'S'#39' and vitg.dataalteracao' +
+        ' > :DataHabitese and vitg.data <= :DataHabitese)),false)))'
+      ') as sel'
+      '')
+    RequestLive = True
+    Left = 504
+    Top = 336
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Empreendimento'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataHabitese'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryApagarLancamentosHabitese: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'delete from lancamentos where (exercicio, nrlancto, filial) in'
+      '('
+      '  select exercicio, nrlancto, filial'
+      '  from lancamentos'
+      '  where origem = '#39'H'#39
+      '    and (filial,nrorigem) in ( select vi.filial,'
+      
+        '                                      CAST(100000000 AS BIGINT) ' +
+        '* CAST(vi.Contrato AS BIGINT) +'
+      
+        '                                      CAST( 20000000 AS BIGINT) ' +
+        'as contrato'
+      
+        '                               from vendasimoveis vi  left join ' +
+        'vendasimoveis vitg on vi.contrato = vitg.contrato_origem'
+      
+        '                               where vi.empreendimento = :Empree' +
+        'ndimento'
+      '                                and ((vi.situacao = '#39'V'#39') or'
+      
+        '                                    (vi.situacao in ('#39'F'#39','#39'D'#39','#39'Q'#39 +
+        ') and vi.data <= :DataHabitese) or'
+      
+        '                                    (vi.situacao = '#39'S'#39' and vi.da' +
+        'ta <= :DataHabitese and vi.dataalteracao > :DataHabitese ) or'
+      
+        '                                    (vi.situacao in ('#39'T'#39','#39'G'#39') an' +
+        'd vi.data < :DataHabitese and'
+      
+        '                                     not coalesce(((vitg.situaca' +
+        'o in ('#39'F'#39','#39'D'#39','#39'Q'#39') and vitg.data <= :DataHabitese) or'
+      
+        '                                                   (vitg.situaca' +
+        'o = '#39'S'#39' and vitg.dataalteracao > :DataHabitese and vitg.data <= ' +
+        ':DataHabitese)),false)))'
+      '                              )'
+      ')')
+    RequestLive = True
+    Left = 504
+    Top = 392
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Empreendimento'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataHabitese'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryAtualizarContratos_LimparDataHabitese: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update vendasimoveis set habite_se  = null,'
+      '                         datachaves = null'
+      'where contrato in ('
+      ''
+      'select vi.contrato'
+      
+        '  from vendasimoveis vi left join vendasimoveis vitg on vi.contr' +
+        'ato = vitg.contrato_origem'
+      '  where vi.empreendimento = :Empreendimento'
+      '    and (vi.datachaves is not null or'
+      '         vi.habite_se is not null)'
+      '    '
+      ')'
+      '')
+    RequestLive = True
+    Left = 280
+    Top = 448
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Empreendimento'
+        ParamType = ptUnknown
+      end>
+  end
+end

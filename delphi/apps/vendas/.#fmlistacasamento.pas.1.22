@@ -1,0 +1,1106 @@
+unit fmlistacasamento;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, Windows,
+  StdCtrls, ComCtrls, Buttons, ExtCtrls, Mask, DBCtrls, DateUtils,
+  Grids,  DBGrids, DB, {Qete,}
+  //Biblio
+  ctconstantes, biblio, clparametrossistema, clTextPrinter,
+  //Terceiros
+  ZQuery,
+  //Repositorio
+  fmconsultabasica, fmconsultaporcampo, fmcadastropadrao,
+  fmnavcontroles, frendereco, frenderecoeditor,
+  // Componentes
+  cpdbfindcontrols, cpdbtext, cpdbgrid, cpdbdata, cpdbmemo, ActnList,
+  cppagecontrol, ZPgSqlQuery, cpquery, cpfone, cpnumero, ToolWin, IniFiles,
+  cpdata, cpdbradiogroup, frconsulta, frconsultacodigo, cptexto;
+
+type
+  TfrmListaCasamento = class(TfrmCadastroPadrao)
+    pnlFundoJanela: TPanel;
+    gbxLista: TPanel;
+    aclHabilitar: TActionList;
+    actHabilitarBotao: TAction;
+    pgcLista: TtecPageControl;
+    tstProdutos: TTabSheet;
+    dbgProdutos: TtecDBGrid;
+    sbnImprimir: TSpeedButton;
+    pgcListaCasamento: TPageControl;
+    tstLista: TTabSheet;
+    tstProdutosNotas: TTabSheet;
+    tstProdutosEtiquestas: TTabSheet;
+    dbgSaldosProdutosSimplesRemessa: TtecDBGrid;
+    dbgProdutosEtiquetas: TtecDBGrid;
+    tstContratos: TTabSheet;
+    dbgContratos: TtecDBGrid;
+    pnlOpcoesProdutos: TPanel;
+    sbnSelecionarProdutosListaPadrao: TSpeedButton;
+    sbnExcluirProduto: TSpeedButton;
+    sbnIncluirProduto: TSpeedButton;
+    Bevel1: TBevel;
+    pnlListaCasamento: TPanel;
+    mmoObservacao: TtecDBMemo;
+    gbxDataCasamento: TGroupBox;
+    edtCasamento: TDBEditData;
+    gbxNoivo: TGroupBox;
+    sbnProcuraNoivo: TSpeedButton;
+    flkNoivo: TtecDBFindLookup;
+    dtxNoivo: TtecDBText;
+    gbxNoiva: TGroupBox;
+    sbnProcurarNoiva: TSpeedButton;
+    flkNoiva: TtecDBFindLookup;
+    dtxNoiva: TtecDBText;
+    gbxNumero: TGroupBox;
+    edfLista: TtecDbEditFind;
+    fraEnderecoEditor1: TfraEnderecoEditor;
+    pnlLegenda: TPanel;
+    shpReservado: TShape;
+    Shape1: TShape;
+    lblReservado: TLabel;
+    Label1: TLabel;
+    ckbDisponivelSite: TDBCheckBox;
+    GroupBox1: TGroupBox;
+    tecDBText1: TtecDBText;
+    GroupBox2: TGroupBox;
+    dtxEmailCliente: TtecDBText;
+    GroupBox3: TGroupBox;
+    dtxNomeCliente: TtecDBText;
+    Label2: TLabel;
+    GroupBox4: TGroupBox;
+    Label3: TLabel;
+    edtDDD: TDBEditNumero;
+    edtNumero: TDBEditFone;
+    dbgNotasSaida: TtecDBGrid;
+    dbgNotasListaCasamento: TtecDBGrid;
+    tecDBGrid1: TtecDBGrid;
+    pgcCadastroLista: TPageControl;
+    tstListaCasamento: TTabSheet;
+    tstNotasSimplesRemessa: TTabSheet;
+    dbgNotasSimplesRemessa: TtecDBGrid;
+    dbgProdutosNotaSimplesRemessa: TtecDBGrid;
+    pnlNotasSimplesRemessa: TPanel;
+    gbxObservacoesNotaSimplesRemessa: TGroupBox;
+    mmoObservacoesNotaSimplesRemessa: TtecDBMemo;
+    Bevel2: TBevel;
+    gbxArquivo: TGroupBox;
+    lblArquivo: TLabel;
+    sbnArquivo: TSpeedButton;
+    dlgArquivoaImportar: TSaveDialog;
+    sbnProcessarArquivoImportacao: TSpeedButton;
+    tstEtiquetas: TTabSheet;
+    gbxModeloEtiqueta: TGroupBox;
+    pgcNotasProdutos: TPageControl;
+    TabSheet1: TTabSheet;
+    dbgEmissaoEtiquetas: TtecDBGrid;
+    TabSheet2: TTabSheet;
+    pgcNotasProdutos2: TtecPageControl;
+    tstNotas: TTabSheet;
+    dbgNotasSaidas: TtecDBGrid;
+    TabSheet3: TTabSheet;
+    dbgProdutosNotas: TtecDBGrid;
+    gbxFilial: TGroupBox;
+    ckbSelecionarTodos: TCheckBox;
+    chkNaoImpressas: TCheckBox;
+    rgpImpressora: TtecDBRadioGroup;
+    lblTipoImpressora: TLabel;
+    lblImpressoras: TLabel;
+    fraConsultaFilial: TfraConsultaCodigo;
+    fraConsultaModeloEtiqueta: TfraConsultaCodigo;
+    pgcSelecionarNotasCupons: TtecPageControl;
+    tstNotasFiscais: TTabSheet;
+    gbxSerie: TGroupBox;
+    edtSerie: TEdit;
+    gbxNrNota: TGroupBox;
+    edfNota: TEditNumero;
+    tstCuponsFiscais: TTabSheet;
+    gbxECF: TGroupBox;
+    edtECF: TEditNumero;
+    gbxNrCupom: TGroupBox;
+    edtCupon: TEditNumero;
+    sbnGerar: TSpeedButton;
+    gbxIntervencao: TGroupBox;
+    edtIntervencao: TEditNumero;
+    Shape2: TShape;
+    Label4: TLabel;
+    Panel1: TPanel;
+    sbnExcluirProdutoContrato: TSpeedButton;
+    sbnIncluirProdutoContrato: TSpeedButton;
+    pnlProdutodoContrato: TPanel;
+    gbxProdutoContrato: TGroupBox;
+    dtxProdutoContrato: TtecDBText;
+    gbxDescricaoProdutoContrato: TGroupBox;
+    dtxDescricaoProdutoContrato: TtecDBText;
+    gbxData_de_Criacao: TGroupBox;
+    dtxData_de_criacao: TtecDBText;
+    GroupBox5: TGroupBox;
+    dtxUsuaarioCriacao: TtecDBText;
+    GroupBox6: TGroupBox;
+    dtxOrigemdaCriacao: TtecDBText;
+    btnAjustar: TButton;
+    tstContratoEtiquetas: TTabSheet;
+    gbxNumeroContrato: TGroupBox;
+    fraConsultaContratoEtiquetas: TfraConsultaCodigo;
+    gbxLocalCerimonia: TGroupBox;
+    gbxLocaldaRecepcao: TGroupBox;
+    edtlocalCerimonia: TDBEditTexto;
+    edtLocalRecepcao: TDBEditTexto;
+    procedure sbnProcurarNoivaClick(Sender: TObject);
+    procedure sbnProcuraNoivoClick(Sender: TObject);
+    procedure sbnIncluirProdutoClick(Sender: TObject);
+    procedure sbnExcluirProdutoClick(Sender: TObject);
+    procedure dbgProdutosDblClick(Sender: TObject);
+    procedure dbgProdutosKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure dbgProdutosDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure edtCasamentoEnter(Sender: TObject);
+    procedure sbnImprimirClick(Sender: TObject);
+    procedure dbgSaldosProdutosSimplesRemessaDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure dbgProdutosEtiquetasDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure dbgSaldosProdutosSimplesRemessaKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbgSaldosProdutosSimplesRemessaDblClick(Sender: TObject);
+    procedure dbgProdutosEtiquetasKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbgProdutosEtiquetasDblClick(Sender: TObject);
+    procedure flkNoivaExit(Sender: TObject);
+    procedure flkNoivoExit(Sender: TObject);
+    procedure sbnSelecionarProdutosListaPadraoClick(Sender: TObject);
+    procedure pgcCadastroListaChange(Sender: TObject);
+    procedure sbnArquivoClick(Sender: TObject);
+    procedure sbnProcessarArquivoImportacaoClick(Sender: TObject);
+    procedure sbnGerarClick(Sender: TObject);
+    procedure dbgEmissaoEtiquetasKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure ckbSelecionarTodosClick(Sender: TObject);
+    procedure dbgContratosDblClick(Sender: TObject);
+    procedure dbgContratosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnExcluirProdutoContratoClick(Sender: TObject);
+    procedure sbnIncluirProdutoContratoClick(Sender: TObject);
+    procedure btnAjustarClick(Sender: TObject);
+    procedure pgcSelecionarNotasCuponsChange(Sender: TObject);
+    procedure fraConsultaContratoEtiquetasedfCodigoKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure edfNotaKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edtCuponKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure FormCreate(Sender: TObject);
+    procedure actHabilitarBotaoUpdate(Sender: TObject);
+  private
+    procedure AfterScrollLinhaColunaGrade(Sender: TObject);
+    procedure AfterScrollLinhaColunaGradeNotas(Sender: TObject);
+    procedure AfterScrollLinhaColunaGradeEtiquetas(Sender: TObject);
+    procedure LerArquivoImportacao;
+    procedure SalvarArquivoImportacao;
+    procedure VisualizarColunasEtiquetas;
+
+
+  protected
+    fraConsultaContrato : TfraConsultaCodigo;
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    function  InternoIncluir: Boolean; override;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    function  TabelaDePesquisa: TZDataSet; override;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function  AcionaCadastroProdutosLista(Editar: Boolean): Boolean;
+    procedure AcionaSelecionarProdutosListaPadrao;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure ImprimirEtiquetas;
+    procedure ImprimirNotasSimplesRemessa;
+    procedure AtribuirDadosContratos;
+    procedure AcionaPesquisaGrade;
+    procedure CondicoesdaConsultaContrato;
+
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure CondicoesdaConsultaModeloEtiqueta;
+  end;
+
+var
+  frmListaCasamento: TfrmListaCasamento;
+  TipoPesquisa: TtecListaCasamento;
+
+implementation
+
+uses dmlistacasamento, fmprodutoslistacasamento, dmbasico,
+     fmreservarprodutoslistacasamento, fmselecionarprodutoslistapadrao,
+     fmconfirmarimpressalistacasamento;
+
+{$R *.dfm}
+
+
+constructor TfrmListaCasamento.Create(AOwner: TComponent);
+begin
+  dtmListaCasamento := TdtmListaCasamento.Create(Self);
+  inherited;
+  DataSet:= dtmListaCasamento.TabelaListasCasamento;
+
+  dbgprodutos.ColumnByName('valorgrade1').Visible := ParSistema.UsarGradesProdutos;
+  dbgprodutos.ColumnByName('valorgrade2').Visible := ParSistema.UsarGradesProdutos;
+  dtmListaCasamento.OnScrollLinhaColunaGrade := AfterScrollLinhaColunaGrade;
+
+  dbgSaldosProdutosSimplesRemessa.ColumnByName('valorgrade1').Visible := ParSistema.UsarGradesProdutos;
+  dbgSaldosProdutosSimplesRemessa.ColumnByName('valorgrade2').Visible := ParSistema.UsarGradesProdutos;
+  dtmListaCasamento.OnScrollLinhaColunaGradeNotas := AfterScrollLinhaColunaGradeNotas;
+
+  dbgProdutosEtiquetas.ColumnByName('valorgrade1').Visible := ParSistema.UsarGradesProdutos;
+  dbgProdutosEtiquetas.ColumnByName('valorgrade2').Visible := ParSistema.UsarGradesProdutos;
+  dtmListaCasamento.OnScrollLinhaColunaGradeEtiquetas := AfterScrollLinhaColunaGradeEtiquetas;
+
+  if dbgProdutos.Columnbyname('quantidade').Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgProdutos.Columnbyname('quantidade').Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgProdutos.Columnbyname('qtdevendida').Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgProdutos.Columnbyname('qtdevendida').Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgProdutos.ColumnByName('reservado').Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgProdutos.ColumnByName('reservado').Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgProdutos.ColumnByName('reservado').Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgProdutos.ColumnByName('reservado').Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgSaldosProdutosSimplesRemessa.ColumnByName('quantidadenotafiscalsimplesremessa').Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgSaldosProdutosSimplesRemessa.ColumnByName('quantidadenotafiscalsimplesremessa').Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgSaldosProdutosSimplesRemessa.Columns[6].Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgSaldosProdutosSimplesRemessa.Columns[6].Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgSaldosProdutosSimplesRemessa.Columns[7].Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgSaldosProdutosSimplesRemessa.Columns[7].Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgSaldosProdutosSimplesRemessa.Columns[8].Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgSaldosProdutosSimplesRemessa.Columns[8].Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgSaldosProdutosSimplesRemessa.Columns[9].Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgSaldosProdutosSimplesRemessa.Columns[9].Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgProdutosEtiquetas.Columns[6].Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgProdutosEtiquetas.Columns[6].Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgProdutosNotaSimplesRemessa.Columns[5].Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgProdutosNotaSimplesRemessa.Columns[5].Width := ParSistema.TamanhoMascaraQuantidade;
+
+       if ParSistema.TipoImpressoraEtiqueta = ctRABBIT    then lblTipoImpressora.Caption := 'R A B B I T'
+  else if ParSistema.TipoImpressoraEtiqueta = ctZEBRA     then lblTipoImpressora.Caption := 'Z E B R A'
+  else if ParSistema.TipoImpressoraEtiqueta = ctARGOX     then lblTipoImpressora.Caption := 'A R G O X'
+  else if ParSistema.TipoImpressoraEtiqueta = ctMATRICIAL then lblTipoImpressora.Caption := 'M A T R I C I A L'
+  else if ParSistema.TipoImpressoraEtiqueta = ctJATO      then lblTipoImpressora.Caption := 'J A T O   T I N T A';
+
+  fraConsultaFilial.TipoPesquisa := pesFILIAIS;
+  fraConsultaFilial.edfCodigo.Text := inttostr(dtmListaCasamento.filialbase);
+  fraconsultafilial.edfCodigo.Exist;
+
+  fraConsultamodeloetiqueta.CondicoesdaConsulta := CondicoesdaConsultaModeloEtiqueta;
+  fraConsultamodeloetiqueta.TipoPesquisa := pesmodeloetiqueta;
+//  fraConsultamodeloetiqueta.edfCodigo.Text := ;
+//  fraconsultamodeloetiqueta.edfCodigo.Exist;
+
+
+  fraConsultaContrato := TfraConsultaCodigo.Create(self);
+  fraConsultaContrato.Name := 'fraConsultaContrato';
+  fraConsultaContrato.edfCodigo.MaxLength := 20;
+  fraConsultaContrato.edfCodigo.DataSource := dtmListaCasamento.dsrContratosListaCasamento;
+  fraConsultaContrato.edfCodigo.DataField := 'contrato';
+  fraConsultaContrato.edfCodigo.Operacao := opATRIBUICAO;
+  fraConsultaContrato.edfCodigo.LookupSource := fraConsultaContrato.dsrProcuraContrato;
+  fraConsultaContrato.edfCodigo.LookupQueryParameter := 'numero';
+  fraConsultaContrato.edfCodigo.LookupField := 'numero';
+  fraConsultaContrato.AbrirTabelaProcura := false;
+  fraConsultaContrato.TipoPesquisa := pesCONTRATOS;
+  fraConsultaContrato.CondicoesdaConsulta := CondicoesdaConsultaContrato;
+  fraConsultaContrato.OnFound := AtribuirDadosContratos;
+
+  pgcCadastroLista.ActivePage := tstListaCasamento;
+  pgcListaCasamento.ActivePage := tstlista;
+
+  self.activecontrol := edfLista;
+
+  LerArquivoImportacao;
+
+  dbgContratos.OnDelete := dtmListaCasamento.ExcluirContratosLista;
+
+  fraConsultaContratoEtiquetas.TipoPesquisa := pesCONTRATOS;
+  pgcSelecionarNotasCupons.ActivePage := tstContratoEtiquetas;
+
+
+end;
+
+destructor TfrmListaCasamento.Destroy;
+begin
+  dtmListaCasamento:=nil;
+  inherited;
+  frmListaCasamento := nil;
+end;
+
+function TfrmListaCasamento.InternoExcluir: Boolean;
+begin
+  Result := Inherited InternoExcluir;
+  if Result and not CtrlOn then
+    dtmListaCasamento.ExcluirListaCasamento;
+end;
+
+function TfrmListaCasamento.InternoGravar: Boolean;
+begin
+  Result := Inherited InternoGravar;
+  if Result and not CtrlOn then
+    if dtmListaCasamento.ValidarListaCasamento then
+         flkNoiva.SetFocus
+    else dtmListaCasamento.GravarListaCasamento;
+end;
+
+function TfrmListaCasamento.InternoIncluir: Boolean;
+begin
+  Result := inherited InternoIncluir;
+  if Result then begin
+    if not CtrlOn then 
+      dtmListaCasamento.IncluirListaCasamento;
+  end;
+end;
+
+function TfrmListaCasamento.InternoPesquisar(Titulo: String): Integer;
+begin
+  Result:= mrNone;
+  with dtmListaCasamento do begin
+    if CtrlOn then begin
+      if ActiveControl = flkNoiva then begin
+        TipoPesquisa:= tlcNOIVA;
+        Titulo      := 'Nome Noiva';
+      end
+      else if ActiveControl = flkNoivo then begin
+        TipoPesquisa:= tlcNOIVO;
+        Titulo      := 'Nome Noivo';
+      end
+      else
+        TipoPesquisa:= tlcNENHUM;
+    end
+    else begin
+      TipoPesquisa:= tlcLISTAS;
+      Titulo      := 'Listas de Casamento';
+    end;
+    if (TipoPesquisa <> tlcNENHUM) then begin
+      AbreTabelaPesquisa(TipoPesquisa);
+      Result:= inherited InternoPesquisar(Titulo);
+      if Result = mrOK then
+        Selecionar(TipoPesquisa);
+      FechaTabelaPesquisa(TipoPesquisa);
+    end
+  end;
+end;
+
+function TfrmListaCasamento.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result:= TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa    := not (TipoPesquisa in [tlcNOIVA,tlcNOIVO]);
+  TfrmConsultaPorCampo(Result).UsarParametrosDaTabela:= not (TipoPesquisa in [tlcNOIVA,tlcNOIVO]);
+end;
+
+function TfrmListaCasamento.TabelaDePesquisa: TZDataSet;
+begin
+  with dtmListaCasamento do
+    case TipoPesquisa of
+      tlcLISTAS: Result := ConsultarListas;
+       tlcNOIVA,
+       tlcNOIVO: Result := ConsultarClientes;
+      else       Result := nil;
+    end;
+end;
+
+function TfrmListaCasamento.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmListaCasamento do
+    case TipoPesquisa of
+      tlcLISTAS: Result := ExisteLista(NomeCampo, Value);
+       tlcNOIVA,
+       tlcNOIVO: Result := ExisteCliente(NomeCampo, Value);
+       else      Result := False;
+     end;
+end;
+
+function TfrmListaCasamento.AcionaCadastroProdutosLista(Editar: Boolean): Boolean;
+begin
+  if not Assigned (frmProdutosListaCasamento ) then
+    frmProdutosListaCasamento:= TfrmProdutosListaCasamento.Create(frmProdutosListaCasamento);
+  with frmProdutosListaCasamento do begin
+    SetDataModulo(dtmListaCasamento);
+    DataSet:= dtmListaCasamento.TabelaProdutosLista;
+    Result := dtmListaCasamento.IncluirProdutosLista(Editar);
+    ShowModal;
+    free;
+    dbgProdutos.SetFocus;
+    CtrlOn:= False;
+  end;
+end;
+
+procedure TfrmListaCasamento.sbnProcurarNoivaClick(Sender: TObject);
+begin
+  CtrlOn:= True;
+  flkNoiva.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmListaCasamento.sbnProcuraNoivoClick(Sender: TObject);
+begin
+  CtrlOn:= True;
+  flkNoivo.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmListaCasamento.sbnIncluirProdutoClick(Sender: TObject);
+begin
+  AcionaCadastroProdutosLista(False);
+end;
+
+procedure TfrmListaCasamento.sbnExcluirProdutoClick(Sender: TObject);
+begin
+  dtmListaCasamento.ExcluirProdutosLista;
+  dbgProdutos.SetFocus;
+end;
+
+procedure TfrmListaCasamento.dbgProdutosDblClick(Sender: TObject);
+begin
+  AcionaCadastroProdutosLista(True);
+end;
+
+procedure TfrmListaCasamento.dbgProdutosKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Shift = [ssCtrl] then
+    case Key of
+      TeclaEditarRegistro : AcionaCadastroProdutosLista(True);
+      TeclaInserirRegistro: AcionaCadastroProdutosLista(False);
+    end;
+end;
+
+procedure TfrmListaCasamento.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case key of
+ VK_ESCAPE: if (pgcListaCasamento.ActivePage = tstProdutosNotas) or
+                (pgcListaCasamento.ActivePage = tstProdutosEtiquestas) then begin
+                 pgcListaCasamento.ActivePage := tstLista;
+                 edfLista.SetFocus;
+             end;
+      VK_S: if (Shift = [ssCtrl]) then
+               sbnSelecionarProdutosListaPadrao.Click;
+    VK_F6: begin
+             if sbnExcluir.visible and
+                sbnexcluir.Enabled then sbnExcluir.Click
+             else
+             if sbnGerar.visible and
+                sbnGerar.Enabled then sbnGerar.Click
+           end;     
+
+    VK_F7: if sbnImprimir.Enabled then sbnImprimir.Click;
+
+//    VK_F12: if sbnImprimirEtiqueta.Enabled then sbnImprimirEtiqueta.Click;
+  end;
+end;
+
+procedure TfrmListaCasamento.sbnImprimirClick(Sender: TObject);
+begin
+   if pgcCadastroLista.ActivePage = tstEtiquetas then
+     imprimiretiquetas
+   else
+   begin
+     frmConfirmarImpressaoListaCasamento := TfrmConfirmarImpressaoListaCasamento.Create(frmConfirmarImpressaoListaCasamento, True, True, True);
+     try
+       if pgcListaCasamento.ActivePage = tstLista then begin
+         if frmConfirmarImpressaoListaCasamento.ShowModal = mrOK then begin
+          if frmConfirmarImpressaoListaCasamento.ListaCasamento then
+            dtmListaCasamento.ImprimirListaCasamento(frmConfirmarImpressaoListaCasamento.ckbImprimirPrecoProdutoListaCasamento.checked,
+                                                     frmConfirmarImpressaoListaCasamento.ckbSepararProdutosVendidos.checked,
+                                                     frmConfirmarImpressaoListaCasamento.rgbOrdenacao.ItemIndex);
+
+          if frmConfirmarImpressaoListaCasamento.NotaSimplesRemessa then
+            ImprimirNotasSimplesRemessa;
+            {
+          if frmConfirmarImpressaoListaCasamento.Etiqueta then
+            ImprimirEtiquetas;
+            }
+         end
+       end
+       else if pgcListaCasamento.ActivePage = tstProdutosNotas then
+         ImprimirNotasSimplesRemessa
+       else if pgcListaCasamento.ActivePage = tstEtiquetas then
+         ImprimirEtiquetas;
+     finally
+       frmConfirmarImpressaoListaCasamento.Free;
+     end
+   end;
+end;
+
+procedure TfrmListaCasamento.dbgProdutosDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn; State: TGridDrawState);
+begin
+  inherited;
+  if (dbgProdutos.DataSource.DataSet.RecordCount > 0) then
+  begin
+    if (dtmListaCasamento.qryProdutosListaCasamentoquantidadenotafiscalsimplesremessa.ascurrency >= dtmListaCasamento.QtdeEntregue) and
+       (dtmListaCasamento.qryProdutosListaCasamentoquantidadenotafiscalsimplesremessa.ascurrency <> 0) then
+    begin
+      TDBGrid(Sender).Canvas.Brush.Color := clYellow;
+      TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+    end
+    else
+    if (dtmListaCasamento.QtdeEntregue >= dtmListaCasamento.QtdeSolicitada) then
+    begin
+      TDBGrid(Sender).Canvas.Brush.Color := $00FFD9A4;
+      TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+    end;
+
+    if dtmListaCasamento.ProdutoIncluidoDepois then
+    begin
+      TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+      TDBGrid(Sender).Canvas.Brush.Color := $0000AA00;
+    end;
+    {if TDBGrid(Sender).SelectedRows.CurrentRowSelected then
+      TDBGrid(Sender).Canvas.Font.Color  := clWhite
+    else
+      TDBGrid(Sender).Canvas.Font.Color  := clBlack;}
+  end;
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+procedure TfrmListaCasamento.edtCasamentoEnter(Sender: TObject);
+begin
+  inherited;
+  if not DataEmBranco(edtCasamento.Text) and (StrToDate(edtCasamento.Text) < dtmListaCasamento.DataServidor) then
+    edtCasamento.Minimo:= DaysBetween(dtmListaCasamento.DataServidor + 1,StrToDate(edtCasamento.Text));
+end;
+
+procedure TfrmListaCasamento.dbgSaldosProdutosSimplesRemessaDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if dbgSaldosProdutosSimplesRemessa.DataSource.DataSet.FieldByName('quantidadeaentregar').AsCurrency <> 0 then
+  begin
+    TDBGrid(Sender).Canvas.Brush.Color := clInfoBk;
+    TDBGrid(Sender).Canvas.Font.Color := clBlack;
+    TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end;
+end;
+
+procedure TfrmListaCasamento.dbgProdutosEtiquetasDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if dbgProdutosEtiquetas.DataSource.DataSet.FieldByName('imprimir').AsBoolean then  begin
+    TDBGrid(Sender).Canvas.Brush.Color := clInfoBk;
+    TDBGrid(Sender).Canvas.Font.Color := clBlack;
+    TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end;
+end;
+
+procedure TfrmListaCasamento.dbgSaldosProdutosSimplesRemessaKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Key = VK_SPACE then
+    if Shift = [ssCtrl] then
+      dtmListaCasamento.MarcarNotasImprimir;
+end;
+
+procedure TfrmListaCasamento.dbgSaldosProdutosSimplesRemessaDblClick(Sender: TObject);
+begin
+  inherited;
+  dtmListaCasamento.MarcarNotasImprimir;
+end;
+
+procedure TfrmListaCasamento.dbgProdutosEtiquetasKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Key = VK_SPACE then
+    if Shift = [ssCtrl] then
+      dtmListaCasamento.MarcarEtiquetaImprimir;
+end;
+
+procedure TfrmListaCasamento.dbgProdutosEtiquetasDblClick(Sender: TObject);
+begin
+  inherited;
+  dtmListaCasamento.MarcarEtiquetaImprimir;
+end;
+
+procedure TfrmListaCasamento.flkNoivaExit(Sender: TObject);
+begin
+  inherited;
+  if (flkNoivo.Text <> '') then
+    dtmListaCasamento.ValidarListaCasamento;
+end;
+
+procedure TfrmListaCasamento.flkNoivoExit(Sender: TObject);
+begin
+  inherited;
+  if (flkNoiva.Text <> '') then
+    dtmListaCasamento.ValidarListaCasamento;
+end;
+
+procedure TfrmListaCasamento.AcionaSelecionarProdutosListaPadrao;
+begin
+  if not Assigned (frmSelecionarProdutosListaPadrao) then
+    frmSelecionarProdutosListaPadrao:= TfrmSelecionarProdutosListaPadrao.Create(frmSelecionarProdutosListaPadrao);
+  with frmSelecionarProdutosListaPadrao do begin
+    SetDataModulo(dtmListaCasamento);
+    ShowModal;
+  end;
+  frmSelecionarProdutosListaPadrao.Free;
+  dtmListaCasamento.FecharTabelasListaPadrao;
+
+  dbgProdutos.SetFocus
+end;
+
+procedure TfrmListaCasamento.sbnSelecionarProdutosListaPadraoClick(Sender: TObject);
+begin
+  inherited;
+  AcionaSelecionarProdutosListaPadrao;
+end;
+
+procedure TfrmListaCasamento.ImprimirEtiquetas;
+begin
+   with fraConsultaModeloEtiqueta do begin
+      if pgcCadastroLista.ActivePage = tstEtiquetas
+      then if MensagemConfirmacao('Confirma a impressão das etiquetas?') = smbOk
+           then if ParSistema.TipoImpressoraEtiqueta = ctZEBRA
+                then dtmListaCasamento.ImprimirEtiquetasZebraTLP2844(qryProcuraModelosEtiquetasTipo.  AsString,
+                                                                     qryProcuraModelosEtiquetasModelo.AsString,
+                                                                     qryProcuraModelosEtiquetasColuna.AsInteger,
+                                                                      TtecTipoPesquisaEtiquetas(pgcSelecionarNotasCupons.tabindex));
+   end;
+end;
+
+procedure TfrmListaCasamento.ImprimirNotasSimplesRemessa;
+begin
+  if pgcListaCasamento.ActivePage = tstLista then begin
+    if dtmListaCasamento.SelecionarProdutosImprimir then begin
+      MensagemAviso(format(ctNENHUMREGISTROSELECIONADO,['registro']));
+      pgcListaCasamento.ActivePage:= tstLista;
+      edfLista.SetFocus;
+    end
+    else begin
+      pgcListaCasamento.ActivePage:= tstProdutosNotas;
+      dbgSaldosProdutosSimplesRemessa.SetFocus;
+    end;
+  end
+  else if pgcListaCasamento.ActivePage = tstProdutosNotas then begin
+    if MensagemConfirmacao('Confirma a Impressão da Nota de Simples Remessa?') = smbOk then begin
+      dtmListaCasamento.NotaFiscalSimplesRemessa;
+      pgcListaCasamento.ActivePage:= tstLista;
+    end
+    else dbgSaldosProdutosSimplesRemessa.SetFocus;
+  end;
+end;
+
+procedure TfrmListaCasamento.AfterScrollLinhaColunaGrade(Sender: TObject);
+begin
+ dbgProdutos.Columns[2].Title.Caption := dtmListaCasamento.LinhadaGrade;
+ dbgProdutos.Columns[3].Title.Caption := dtmListaCasamento.ColunadaGrade;
+end;
+
+procedure TfrmListaCasamento.AfterScrollLinhaColunaGradeNotas(
+  Sender: TObject);
+begin
+ dbgSaldosProdutosSimplesRemessa.Columns[3].Title.Caption := dtmListaCasamento.LinhadaGradeNotas;
+ dbgSaldosProdutosSimplesRemessa.Columns[4].Title.Caption := dtmListaCasamento.ColunadaGradeNotas;
+end;
+
+procedure TfrmListaCasamento.AfterScrollLinhaColunaGradeEtiquetas(
+  Sender: TObject);
+begin
+ dbgProdutosEtiquetas.Columns[4].Title.Caption := dtmListaCasamento.LinhadaGradeEtiquetas;
+ dbgProdutosEtiquetas.Columns[5].Title.Caption := dtmListaCasamento.ColunadaGradeEtiquetas;
+end;
+
+procedure TfrmListaCasamento.pgcCadastroListaChange(Sender: TObject);
+begin
+  inherited;
+  if pgcCadastroLista.ActivePage = tstNotasSimplesRemessa then
+    dtmListaCasamento.AbrirNotasSimplesRemessa;
+end;
+
+procedure TfrmListaCasamento.sbnArquivoClick(Sender: TObject);
+var
+  vNomeArquivo : String;
+begin
+  inherited;
+  if dlgArquivoaImportar.Execute then
+  begin
+   lblarquivo.Caption := trim(dlgArquivoaImportar.FileName);
+   if dtmListaCasamento.ProcessarArquivoImportacao(lblarquivo.Caption) then
+   begin
+     SalvarArquivoImportacao;
+     MensagemAviso(format(ctARQUIVOIMPORTADOSUCESSO,[lblarquivo.Caption]));
+     vNomeArquivo := ChangeFileExt(lblarquivo.Caption,'.old');
+     if not (RenameFile(lblarquivo.Caption, vNomeArquivo)) then
+       raise Exception.Create('Não foi possível renomear o arquivo para a extensão ''.old''');
+
+   end;
+  end;
+end;
+
+procedure TfrmListaCasamento.sbnProcessarArquivoImportacaoClick(
+  Sender: TObject);
+begin
+  inherited;
+  if FileExists(lblarquivo.Caption) then
+  begin
+   if dtmListaCasamento.ProcessarArquivoImportacao(lblarquivo.Caption) then
+     MensagemAviso(format(ctARQUIVOIMPORTADOSUCESSO,[lblarquivo.Caption]));
+  end
+  else
+    MensagemErro(ctARQUIVOINEXISTENTE);
+
+end;
+
+procedure TfrmListaCasamento.LerArquivoImportacao;
+var
+  ArquivoCFG: TIniFile;
+begin
+  if FileExists(NomeArquivoCFG) then
+  begin
+    ArquivoCFG := TIniFile.Create(NomeArquivoCFG);
+    try
+      if ArquivoCFG.SectionExists('Outros') then begin
+        lblArquivo.Caption := ArquivoCFG.ReadString('Outros', 'CaminhoArquivoImportacao', '');
+      end;
+    finally
+      ArquivoCFG.Free;
+    end;
+  end;
+end;
+
+procedure TfrmListaCasamento.SalvarArquivoImportacao;
+var
+  ArquivoCFG: TIniFile;
+begin
+  if FileExists(NomeArquivoCFG) then
+  begin
+    ArquivoCFG := TIniFile.Create(NomeArquivoCFG);
+    try
+        ArquivoCFG.WriteString('Outros', 'CaminhoArquivoImportacao',lblArquivo.Caption);
+    finally
+      ArquivoCFG.UpdateFile;
+      ArquivoCFG.Free;
+    end;
+  end;
+end;
+
+procedure TfrmListaCasamento.CondicoesdaConsultaModeloEtiqueta;
+begin
+  fraConsultamodeloetiqueta.qryProcuraModelosEtiquetas.MacroByName('SQLCondicao').asstring := 'or (modelo = ''L'' and tipo = ''FH'')';
+end;
+
+procedure TfrmListaCasamento.sbnGerarClick(Sender: TObject);
+begin
+  inherited;
+  dtmListaCasamento.AbrirConsultaEtiquetas(fraConsultaFilial.qryProcuraFiliaiscodigo.AsInteger,
+                                           edtSerie.Text, edfNota.ValorSemFormatacao,
+                                           edtECF.ValorSemFormatacao, edtIntervencao.text, edtCupon.ValorSemFormatacao,
+                                           fraConsultaContratoEtiquetas.edfCodigo.Text,
+                                           chkNaoImpressas.Checked, ckbSelecionarTodos.checked, TtecTipoPesquisaEtiquetas(pgcSelecionarNotasCupons.tabindex));
+  VisualizarColunasEtiquetas;                                         
+end;
+
+procedure TfrmListaCasamento.dbgEmissaoEtiquetasKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case Key of
+     VK_SPACE: if Shift = [ssCtrl] then
+                 dtmListaCasamento.MarcarSelecionados(ckbSelecionarTodos.Checked, False);
+  end;
+
+end;
+
+procedure TfrmListaCasamento.ckbSelecionarTodosClick(Sender: TObject);
+begin
+  inherited;
+  dtmListaCasamento.MarcarSelecionados(ckbSelecionarTodos.Checked,True);
+
+end;
+
+procedure TfrmListaCasamento.AtribuirDadosContratos;
+var
+  vProduto, vContrato : String;
+begin
+  with dtmListaCasamento do
+  begin
+    if fraConsultaContrato.qryProcuraContrato.recordcount <> 0 then
+    begin
+      if qryContratosListaCasamento.state = dsinsert then
+      begin
+        qryUpdateProdutosContratos.ParamByName('listacasamento').asinteger := qryProdutosListaCasamentolista.AsInteger;
+        qryUpdateProdutosContratos.ParamByName('contrato').asstring := fraConsultaContrato.qryProcuraContratonumero.asstring;
+        qryUpdateProdutosContratos.ParamByName('produto').asstring := qryProdutosListaCasamentoproduto.AsString;
+        qryUpdateProdutosContratos.ExecSql;
+        vProduto := qryProdutosListaCasamentoproduto.AsString;
+        vcontrato := fraConsultaContrato.qryProcuraContratonumero.asstring;
+        perpetrar([qryUpdateProdutosContratos]);
+        qryListaCasamentoAfterScroll(qryListaCasamento);
+        qryProdutosListaCasamento.Locate('produto', vproduto, []);
+        qryContratosListaCasamento.Locate('contrato', vContrato, []);
+      end
+      else
+      begin
+        if qryContratosListaCasamentocontratoanterior.asstring <> fraConsultaContrato.qryProcuraContratonumero.asstring then
+        begin
+          qryUpdateProdutosContratos.ParamByName('listacasamento').clear;
+          qryUpdateProdutosContratos.ParamByName('contrato').asstring := qryContratosListaCasamentocontratoanterior.asstring;
+          qryUpdateProdutosContratos.ParamByName('produto').asstring := qryProdutosListaCasamentoproduto.AsString;
+          qryUpdateProdutosContratos.ExecSql;
+          perpetrar([qryUpdateProdutosContratos]);
+
+          qryUpdateProdutosContratos.ParamByName('listacasamento').asinteger := qryProdutosListaCasamentolista.AsInteger;
+          qryUpdateProdutosContratos.ParamByName('contrato').asstring := fraConsultaContrato.qryProcuraContratonumero.asstring;
+          qryUpdateProdutosContratos.ParamByName('produto').asstring := qryProdutosListaCasamentoproduto.AsString;
+          qryUpdateProdutosContratos.ExecSql;
+          perpetrar([qryUpdateProdutosContratos]);
+          vProduto := qryProdutosListaCasamentoproduto.AsString;
+          vcontrato := fraConsultaContrato.qryProcuraContratonumero.asstring;
+
+          qryListaCasamentoAfterScroll(qryListaCasamento);
+
+          qryProdutosListaCasamento.Locate('produto', vproduto, []);
+          qryContratosListaCasamento.Locate('contrato', vContrato, []);
+
+        end;
+      end;
+    end;
+
+
+    {
+    qryContratosListaCasamentocontrato.asstring := fraConsultaContrato.qryProcuraContratonumero.asstring;
+    qryContratosListaCasamentocliente.AsInteger := fraConsultaContrato.qryProcuraContratocliente.AsInteger;
+    qryContratosListaCasamentonome.AsString          := fraConsultaContrato.qryProcuraContratonome.asstring;;
+    qryContratosListaCasamentodata.AsDateTime          := fraConsultaContrato.qryProcuraContratodata.AsDateTime;
+    qryContratosListaCasamentodatareservado.asdatetime := fraConsultaContrato.qryProcuraContratodatareservado.asDatetime;
+    qryContratosListaCasamentofaturamento.AsDateTime   := fraConsultaContrato.qryProcuraContratofaturamento.AsDateTime;;
+    qryContratosListaCasamentonomesituacao.asstring  := fraConsultaContrato.qryProcuraContratonomesituacao.AsString;
+    qryContratosListaCasamentotipocliente.AsString   := fraConsultaContrato.qryProcuraContratotipocliente.AsString;
+    }
+  end;
+end;
+
+procedure TfrmListaCasamento.dbgContratosDblClick(Sender: TObject);
+var vKey: Word;
+begin
+  inherited;
+  ShiftOn := False;
+  CtrlOn := true;
+  vKey := VK_F9;
+  dbgContratosKeyDown(dbgContratos, vKey, [ssctrl]);
+end;
+
+procedure TfrmListaCasamento.dbgContratosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (dbgContratos.SelectedField = dtmListaCasamento.qryContratosListaCasamentocontrato) then
+  begin
+    if (key = VK_F9) and CtrlOn then
+      AcionaPesquisaGrade
+    else
+    if (key = VK_RETURN) then
+    begin
+       fraConsultaContrato.edfCodigo.Modified := true;
+      fraConsultaContrato.edfCodigo.DoExit;
+      if not fraConsultaContrato.edfCodigo.Exist then
+        dtmListaCasamento.qryContratosListaCasamento.Cancel;
+    end;
+  end;
+end;
+
+procedure TfrmListaCasamento.AcionaPesquisaGrade;
+begin
+  if dbgContratos.Focused then
+  begin
+    fraConsultaContrato.CtrlOn := True;
+    fraConsultaContrato.InternoPesquisar('CONTRATO');
+    dbgContratos.SetFocus;
+    dbgContratos.SelectedIndex :=  0;
+  end;
+end;
+
+procedure TfrmListaCasamento.sbnExcluirProdutoContratoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmListaCasamento.ExcluirContratosLista;
+  dbgContratos.SetFocus;
+end;
+
+procedure TfrmListaCasamento.sbnIncluirProdutoContratoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmListaCasamento.qryContratosListaCasamento.Append;
+  dbgContratos.SelectedField := dtmListaCasamento.qryContratosListaCasamentocontrato;
+end;
+
+procedure TfrmListaCasamento.CondicoesdaConsultaContrato;
+begin
+  if dtmListaCasamento.qryContratosListaCasamento.State = dsinsert then
+  begin
+    fraConsultaContrato.qryProcuraContrato.MacroByName('CondicaodaConsulta').asstring := ' and (c.numero not in '+
+                                                                                                ' (select distinct pc.contrato ' +
+                                                                                                 ' from produtoscontratos pc ' +
+                                                                                                 ' where pc.listacasamento = ' + dtmListaCasamento.qryprodutoslistacasamentolista.asstring +
+                                                                                                 ' and pc.produto = ' + dtmlistacasamento.qryProdutosListaCasamentoproduto.AsString + ')) ' +
+                                                                                          ' and (c.numero in '+
+                                                                                                ' (select distinct pc.contrato ' +
+                                                                                                 ' from produtoscontratos pc ' +
+                                                                                                 ' where pc.produto = ' + dtmlistacasamento.qryProdutosListaCasamentoproduto.AsString + ')) ' +
+                                                                                          ' and c.situacao in (''F'',''N'',''P'')';
+
+    fraConsultaContrato.qryConsultaContrato.MacroByName('CondicaodaConsulta').asstring := ' and (c.numero not in '+
+                                                                                                ' (select distinct pc.contrato ' +
+                                                                                                 ' from produtoscontratos pc ' +
+                                                                                                 ' where pc.listacasamento = ' + dtmListaCasamento.qryprodutoslistacasamentolista.asstring +
+                                                                                                 ' and pc.produto = ' + dtmlistacasamento.qryProdutosListaCasamentoproduto.AsString + ')) ' +
+                                                                                          ' and (c.numero in '+
+                                                                                                ' (select distinct pc.contrato ' +
+                                                                                                 ' from produtoscontratos pc ' +
+                                                                                                 ' where pc.produto = ' + dtmlistacasamento.qryProdutosListaCasamentoproduto.AsString + ')) ' +
+                                                                                          ' and c.situacao in (''F'',''N'',''P'')';
+
+  end
+  else
+  begin
+    fraConsultaContrato.qryProcuraContrato.MacroByName('CondicaodaConsulta').asstring := ' and (c.numero not in '+
+                                                                                                ' (select distinct pc.contrato ' +
+                                                                                                 ' from produtoscontratos pc ' +
+                                                                                                 ' where pc.listacasamento = ' + dtmListaCasamento.qryprodutoslistacasamentolista.asstring +
+                                                                                                 ' and pc.produto = ' + dtmlistacasamento.qryProdutosListaCasamentoproduto.AsString +
+                                                                                                 ' and pc.contrato <> ' + quotedstr(dtmlistacasamento.qryContratosListaCasamentocontrato.AsString) + ')) ' +
+                                                                                          ' and (c.numero in '+
+                                                                                                ' (select distinct pc.contrato ' +
+                                                                                                 ' from produtoscontratos pc ' +
+                                                                                                 ' where pc.produto = ' + dtmlistacasamento.qryProdutosListaCasamentoproduto.AsString + ')) ' +
+                                                                                          ' and c.situacao in (''F'',''N'',''P'')';
+
+    fraConsultaContrato.qryConsultaContrato.MacroByName('CondicaodaConsulta').asstring := ' and (c.numero not in '+
+                                                                                                ' (select distinct pc.contrato ' +
+                                                                                                 ' from produtoscontratos pc ' +
+                                                                                                 ' where pc.listacasamento = ' + dtmListaCasamento.qryprodutoslistacasamentolista.asstring +
+                                                                                                 ' and pc.produto = ' + dtmlistacasamento.qryProdutosListaCasamentoproduto.AsString +
+                                                                                                 ' and pc.contrato <> ' + quotedstr(dtmlistacasamento.qryContratosListaCasamentocontrato.AsString) + ')) ' +
+                                                                                          ' and (c.numero in '+
+                                                                                                ' (select distinct pc.contrato ' +
+                                                                                                 ' from produtoscontratos pc ' +
+                                                                                                 ' where pc.produto = ' + dtmlistacasamento.qryProdutosListaCasamentoproduto.AsString + ')) ' +
+                                                                                          ' and c.situacao in (''F'',''N'',''P'')';
+  end;
+end;
+
+procedure TfrmListaCasamento.btnAjustarClick(Sender: TObject);
+begin
+   with TextPrinter do begin
+      BeginDoc('', False);
+         WriteTextLn('^default',0);
+      EndDoc('TecLUX - Imprimindo Etiqueta ZEBRA TLP 2844');
+   end;
+end;
+
+procedure TfrmListaCasamento.pgcSelecionarNotasCuponsChange(
+  Sender: TObject);
+begin
+  inherited;
+  if dtmListaCasamento.qryEtiquetas.IsEmpty then
+    VisualizarColunasEtiquetas;
+end;
+
+procedure TfrmListaCasamento.VisualizarColunasEtiquetas;
+begin
+  dbgEmissaoEtiquetas.ColumnByName('nrnota').Visible := (pgcSelecionarNotasCupons.ActivePage = tstNotasFiscais) or (pgcSelecionarNotasCupons.ActivePage = tstCuponsFiscais);
+  dbgEmissaoEtiquetas.ColumnByName('NrCupom').Visible := (pgcSelecionarNotasCupons.ActivePage = tstNotasFiscais) or (pgcSelecionarNotasCupons.ActivePage = tstCuponsFiscais);
+  dbgEmissaoEtiquetas.ColumnByName('contrato').Visible := (pgcSelecionarNotasCupons.ActivePage = tstContratoEtiquetas);
+end;
+
+procedure TfrmListaCasamento.fraConsultaContratoEtiquetasedfCodigoKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  fraConsultaContratoEtiquetas.edfCodigoKeyDown(Sender, Key, Shift);
+  if key = vk_return then
+    sbnGerarClick(self);
+
+end;
+
+procedure TfrmListaCasamento.edfNotaKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+    sbnGerarClick(self);
+
+end;
+
+procedure TfrmListaCasamento.edtCuponKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+    sbnGerarClick(self);
+
+end;
+
+procedure TfrmListaCasamento.FormCreate(Sender: TObject);
+begin
+  inherited;
+  frmListaCasamento := self;
+end;
+
+procedure TfrmListaCasamento.actHabilitarBotaoUpdate(Sender: TObject);
+begin
+  inherited;
+  if pgcCadastroLista.ActivePage = tstEtiquetas then
+  begin
+   sbnImprimir.Caption:= 'Imprimir F7';
+   sbnImprimir.Hint   := 'Imprimir as etiquetas selecionadas';
+   sbnImprimir.Enabled := (dtmListaCasamento.qryEtiquetas.recordcount<>0) and (dtmListaCasamento.QtdeMarcados <> 0)
+
+  end
+  else
+  begin
+    if pgcListaCasamento.ActivePage = tstLista then
+    begin
+      sbnImprimir.Caption:= 'Imprimir F7';
+      sbnImprimir.Hint   := 'Imprimir a lista de casamento';
+    end
+    else if pgcListaCasamento.ActivePage = tstProdutosNotas then begin
+      sbnImprimir.Caption:= 'Nota F7';
+      sbnImprimir.Hint   := 'Imprimir NF de simples remessa';
+    end;
+     {
+     else if pgcListaCasamento.ActivePage = tstProdutosEtiquestas then begin
+       sbnImprimir.Caption:= 'Etiqueta F7';
+       sbnImprimir.Hint   := 'Imprimir Lista Casamento';
+     end;
+     }
+    sbnImprimir.Enabled := dtmListaCasamento.PodeImprimir;
+  end;
+
+  if pgcCadastroLista.ActivePage = tstListaCasamento then
+    sbnExcluir.Visible := true
+  else
+    sbnExcluir.Visible := false;
+
+  if pgcCadastroLista.ActivePage = tstEtiquetas then
+    sbnGerar.Visible := true
+  else
+    sbnGerar.Visible := false;
+
+end;
+
+end.

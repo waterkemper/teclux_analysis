@@ -10,10 +10,13 @@ inventar codigo Delphi.
 1. 01-organizacao-menus-rotas.md
 2. 02-acesso-modulos-por-usuario.md
 3. 03-credenciais-no-cadastro-usuarios.md
+4. 04-ajustes-pos-revisao.md
 
 O primeiro prompt estabelece o catalogo canonico e as folhas concediveis. O
 segundo reutiliza esse catalogo para a tela administrativa de grants. O
 terceiro consolida o Cadastro de Usuarios e remove o fluxo Artisan paralelo.
+O quarto corrige as lacunas encontradas na revisao dos tres lotes: endpoints
+auxiliares do relatorio, fingerprint, auditoria de credenciais e testes.
 
 ## Decisoes funcionais fechadas
 
@@ -102,4 +105,3 @@ sem alterar codigo durante a etapa de especificacao. A saida deve conter:
 - criterios de aceite verificaveis;
 - arquivos existentes a reutilizar e arquivos novos propostos;
 - duvidas e bloqueios acionaveis, sem pedir acesso ao Delphi.
-

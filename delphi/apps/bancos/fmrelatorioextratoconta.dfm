@@ -1,7 +1,7 @@
 inherited frmRelatorioExtratoConta: TfrmRelatorioExtratoConta
   Left = 316
   Top = 44
-  Caption = 'Relat'#243'rio de extrato de contas'
+  Caption = 'Relatório de extrato de contas'
   ClientHeight = 549
   ClientWidth = 839
   FormStyle = fsMDIChild
@@ -36,7 +36,7 @@ inherited frmRelatorioExtratoConta: TfrmRelatorioExtratoConta
         Top = 15
         Width = 78
         Height = 16
-        Caption = 'Cr'#233'ditos'
+        Caption = 'Créditos'
         Checked = True
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlack
@@ -54,7 +54,7 @@ inherited frmRelatorioExtratoConta: TfrmRelatorioExtratoConta
         Top = 35
         Width = 78
         Height = 16
-        Caption = 'D'#233'bitos'
+        Caption = 'Débitos'
         Checked = True
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlack
@@ -73,7 +73,7 @@ inherited frmRelatorioExtratoConta: TfrmRelatorioExtratoConta
       Top = 198
       Width = 161
       Height = 36
-      Caption = 'PER'#205'ODO'
+      Caption = 'PERÍODO'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBlack
       Font.Height = -9
@@ -138,7 +138,7 @@ inherited frmRelatorioExtratoConta: TfrmRelatorioExtratoConta
       Top = 198
       Width = 118
       Height = 60
-      Caption = ' ORDENA'#199#195'O '
+      Caption = ' ORDENAÇÃO '
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBlack
       Font.Height = -9
@@ -153,7 +153,7 @@ inherited frmRelatorioExtratoConta: TfrmRelatorioExtratoConta
         Top = 15
         Width = 107
         Height = 17
-        Caption = 'Lan'#231'amento'
+        Caption = 'Lançamento'
         Checked = True
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlack
@@ -170,7 +170,7 @@ inherited frmRelatorioExtratoConta: TfrmRelatorioExtratoConta
         Top = 35
         Width = 107
         Height = 17
-        Caption = 'Compensa'#231#227'o'
+        Caption = 'Compensação'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlack
         Font.Height = -12
@@ -186,7 +186,7 @@ inherited frmRelatorioExtratoConta: TfrmRelatorioExtratoConta
       Top = 198
       Width = 127
       Height = 60
-      Caption = ' OBSERVA'#199#213'ES '
+      Caption = ' OBSERVAÇÕES '
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBlack
       Font.Height = -9
@@ -201,7 +201,7 @@ inherited frmRelatorioExtratoConta: TfrmRelatorioExtratoConta
         Top = 15
         Width = 114
         Height = 16
-        Caption = 'S'#243' a 1'#170' linha '
+        Caption = 'Só a 1ª linha '
         Checked = True
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlack
@@ -258,7 +258,7 @@ inherited frmRelatorioExtratoConta: TfrmRelatorioExtratoConta
               Expanded = False
               FieldName = 'descricao'
               Title.Alignment = taCenter
-              Title.Caption = 'Descri'#231#227'o'
+              Title.Caption = 'Descrição'
               Width = 335
               Visible = True
             end
@@ -283,12 +283,12 @@ inherited frmRelatorioExtratoConta: TfrmRelatorioExtratoConta
                 '<= Menor ou Igual a'
                 '> Maior que'
                 '< Menor que'
-                'Cont'#233'm'
-                'N'#227'o Cont'#233'm'
+                'Contém'
+                'Não Contém'
                 'Contido na Lista'
-                'n'#227'o Contido na Lista')
+                'não Contido na Lista')
               Title.Alignment = taCenter
-              Title.Caption = 'Condi'#231#227'o'
+              Title.Caption = 'Condição'
               Width = 131
               Visible = True
             end
@@ -299,7 +299,7 @@ inherited frmRelatorioExtratoConta: TfrmRelatorioExtratoConta
                 'e'
                 'ou')
               Title.Alignment = taCenter
-              Title.Caption = 'L'#243'gica'
+              Title.Caption = 'Lógica'
               Width = 53
               Visible = True
             end>
@@ -368,7 +368,7 @@ inherited frmRelatorioExtratoConta: TfrmRelatorioExtratoConta
               Expanded = False
               FieldName = 'agencia'
               Title.Alignment = taCenter
-              Title.Caption = 'Ag'#234'ncia'
+              Title.Caption = 'Agência'
               Width = 139
               Visible = True
             end
@@ -401,12 +401,12 @@ inherited frmRelatorioExtratoConta: TfrmRelatorioExtratoConta
                 '<= Menor ou Igual a'
                 '> Maior que'
                 '< Menor que'
-                'Cont'#233'm'
-                'N'#227'o Cont'#233'm'
+                'Contém'
+                'Não Contém'
                 'Contido na Lista'
-                'n'#227'o Contido na Lista')
+                'não Contido na Lista')
               Title.Alignment = taCenter
-              Title.Caption = 'Condi'#231#227'o'
+              Title.Caption = 'Condição'
               Width = 115
               Visible = True
             end
@@ -417,7 +417,7 @@ inherited frmRelatorioExtratoConta: TfrmRelatorioExtratoConta
                 'e'
                 'ou')
               Title.Alignment = taCenter
-              Title.Caption = 'L'#243'gica'
+              Title.Caption = 'Lógica'
               Width = 41
               Visible = True
             end>

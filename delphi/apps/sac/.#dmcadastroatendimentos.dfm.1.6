@@ -1,0 +1,792 @@
+inherited dtmCadastroAtendimentos: TdtmCadastroAtendimentos
+  Left = 728
+  Top = 242
+  Height = 524
+  Width = 746
+  object qryAtendimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterClose = qryAtendimentosAfterClose
+    AfterScroll = qryAtendimentosAfterScroll
+    OnNewRecord = qryAtendimentosNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select a.codigo,'
+      '          a.cliente,'
+      '          a.tipocliente,'
+      '          a.data,'
+      '          a.informes,'
+      '          a.lembrar,'
+      '          a.semaviso,'
+      '          a.semspc,'
+      '          a.concluido,'
+      '          a.tipo,'
+      '          a.tipoatendimento,'
+      '          a.usuario,'
+      
+        '          (select u.nome from usuarios u where u.codigo = a.usua' +
+        'rio) as nomeusuario,'
+      '          a.usuariologado,'
+      
+        '          (select u.nome from usuarios u where u.codigo = a.usua' +
+        'riologado) as nomeusuariologado,'
+      '          coalesce((select true'
+      '                    from cartasclientes cc'
+      
+        '                    where cc.atendimento = a.codigo limit 1),fal' +
+        'se) as PossuiCartaAtendimento,'
+      '          a.datainclusao,'
+      '          a.naoligar'
+      'From atendimentos a'
+      'Where a.codigo =:codigo')
+    RequestLive = True
+    Left = 104
+    Top = 15
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryAtendimentoscodigo: TIntegerField
+      AutoGenerateValue = arAutoInc
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryAtendimentoscliente: TIntegerField
+      DisplayLabel = 'Cliente'
+      FieldName = 'cliente'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryAtendimentostipocliente: TStringField
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+    object qryAtendimentosdata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryAtendimentosinformes: TStringField
+      DisplayLabel = 'Informes'
+      FieldName = 'informes'
+      Required = True
+      Size = 760
+    end
+    object qryAtendimentoslembrar: TDateField
+      Alignment = taCenter
+      DisplayLabel = 'Lembrar'
+      FieldName = 'lembrar'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryAtendimentossemaviso: TDateField
+      Alignment = taCenter
+      FieldName = 'semaviso'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryAtendimentossemspc: TDateField
+      Alignment = taCenter
+      FieldName = 'semspc'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryAtendimentosconcluido: TBooleanField
+      FieldName = 'concluido'
+    end
+    object qryAtendimentostipo: TStringField
+      FieldName = 'tipo'
+      Size = 1
+    end
+    object qryAtendimentostipoatendimento: TIntegerField
+      DisplayLabel = 'Tipo Atendimento'
+      FieldName = 'tipoatendimento'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryAtendimentosusuario: TIntegerField
+      FieldName = 'usuario'
+      DisplayFormat = '0'
+    end
+    object qryAtendimentosnomeusuario: TStringField
+      FieldName = 'nomeusuario'
+      Size = 40
+    end
+    object qryAtendimentospossuicartaatendimento: TBooleanField
+      FieldName = 'possuicartaatendimento'
+    end
+    object qryAtendimentosdatainclusao: TDateTimeField
+      FieldName = 'datainclusao'
+      DisplayFormat = 'dd/mm/yy hh:mm'
+    end
+    object qryAtendimentosnaoligar: TBooleanField
+      FieldName = 'naoligar'
+    end
+    object qryAtendimentosusuariologado: TIntegerField
+      FieldName = 'usuariologado'
+    end
+    object qryAtendimentosnomeusuariologado: TStringField
+      FieldName = 'nomeusuariologado'
+      Size = 50
+    end
+  end
+  object dsrAtendimento: TtecDataSource
+    DataSet = qryAtendimentos
+    OnDataChange = dsrAtendimentoDataChange
+    Left = 305
+    Top = 15
+  end
+  object qryConsultaTiposAtendimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select descricao, '
+      '           codigo,'
+      '           tipo       '
+      'from    tiposatendimentos'
+      'where (tipo =:Tipo)'
+      '        ')
+    RequestLive = False
+    Left = 520
+    Top = 144
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'Tipo'
+        ParamType = ptUnknown
+      end>
+    object qryConsultaTiposAtendimentosdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Required = True
+      Size = 30
+    end
+    object qryConsultaTiposAtendimentoscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryConsultaTiposAtendimentostipo: TStringField
+      DisplayLabel = 'Tipo'
+      FieldName = 'tipo'
+      Required = True
+      Size = 1
+    end
+  end
+  object qryProcuraTiposAtendimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryProcuraTiposAtendimentosBeforeOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo,'
+      '         descricao'
+      'from tiposatendimentos'
+      'where (codigo = :codigo) and'
+      '           (tipo = :tipo)')
+    RequestLive = True
+    Left = 104
+    Top = 146
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'tipo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraTiposAtendimentoscodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryProcuraTiposAtendimentosdescricao: TStringField
+      FieldName = 'descricao'
+      Required = True
+      Size = 30
+    end
+  end
+  object dsrProcuraTiposAtendimentos: TtecDataSource
+    DataSet = qryProcuraTiposAtendimentos
+    Left = 305
+    Top = 146
+  end
+  object qryConsultaClientes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select v.codigo,'
+      '           coalesce(v.razao,v.nome) as nome,'
+      
+        '           formatar_cpf_cnpj(v.pessoanumero) as pessoanumero,   ' +
+        '       '
+      '           v.tipo,'
+      '           descricao_tipocliente(v.tipo) as tipocliente,'
+      '           v.estado,'
+      '           c.nome as nomecidade'
+      'From    vfornecedores v, cidades c'
+      '/* Preenchido em runtime. N'#227'o apague */'
+      '  and (v.estado = c.estado)'
+      '  and (v.cidade = c.codigo)'
+      'Order By UPPER(TO_ASCII(coalesce(v.razao,v.nome),'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 520
+    Top = 80
+    object qryConsultaClientesnome: TStringField
+      DisplayLabel = 'Nome'
+      DisplayWidth = 40
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryConsultaClientespessoanumero: TStringField
+      DisplayLabel = 'CPF/CNPJ'
+      FieldName = 'pessoanumero'
+      Size = 18
+    end
+    object qryConsultaClientesnomecidade: TStringField
+      DisplayLabel = 'Cidade'
+      FieldName = 'nomecidade'
+      Size = 30
+    end
+    object qryConsultaClientesestado: TStringField
+      DisplayLabel = 'UF'
+      FieldName = 'estado'
+      Size = 2
+    end
+    object qryConsultaClientescodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+    end
+    object qryConsultaClientestipocliente: TStringField
+      DisplayLabel = 'Tipo cliente'
+      FieldName = 'tipocliente'
+      Size = 14
+    end
+    object qryConsultaClientestipo: TStringField
+      FieldName = 'tipo'
+      Visible = False
+      Size = 1
+    end
+  end
+  object qryProcuraClientes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryProcuraClientesAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo,'
+      '         tipo,'
+      '         nome'
+      'from vfornecedores'
+      'where codigo =:codigo and'
+      '          tipo     =:tipocliente')
+    RequestLive = False
+    Left = 104
+    Top = 82
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'tipocliente'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraClientescodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryProcuraClientesnome: TStringField
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryProcuraClientestipo: TStringField
+      FieldName = 'tipo'
+      Size = 50
+    end
+  end
+  object dsrProcuraClientes: TtecDataSource
+    DataSet = qryProcuraClientes
+    Left = 305
+    Top = 82
+  end
+  object spcAtendimentosProximoCodigo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select atendimentos_proximocodigo() as codigo')
+    RequestLive = False
+    Left = 520
+    Top = 210
+    object spcAtendimentosProximoCodigocodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+  end
+  object qryExisteAtendimento: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select  codigo'
+      'From    atendimentos'
+      'Where  (cliente =:cliente) and'
+      '            (tipocliente = :tipocliente) and'
+      '            (tipo =:tipo) and'
+      '            (data = current_date)')
+    RequestLive = False
+    Left = 520
+    Top = 274
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'cliente'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'tipocliente'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'tipo'
+        ParamType = ptUnknown
+      end>
+    object qryExisteAtendimentocodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+    end
+  end
+  object qryUltimaReclamacao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select  informes'
+      'From   atendimentos'
+      'Where (cliente =:cliente) and'
+      '          (tipocliente =:tipocliente) and'
+      '          (tipo = '#39'R'#39')'
+      'Order By data desc'
+      'Limit 1')
+    RequestLive = False
+    Left = 453
+    Top = 338
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'cliente'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftString
+        Name = 'tipocliente'
+        ParamType = ptUnknown
+      end>
+    object qryUltimaReclamacaoinformes: TStringField
+      FieldName = 'informes'
+      Required = True
+      Size = 512
+    end
+  end
+  object dsrUltimaReclamacao: TtecDataSource
+    DataSet = qryUltimaReclamacao
+    Left = 601
+    Top = 338
+  end
+  object qryConsultaAtendimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select a.codigo,'
+      '           a.cliente,'
+      '           a.tipocliente,'
+      '           a.data,'
+      '           cast(case when a.tipo = '#39'C'#39' then '#39'C - Cobran'#231'a'#39
+      
+        '                           when a.tipo = '#39'R'#39' then '#39'R - Reclama'#231#227 +
+        'o'#39
+      '                           when a.tipo = '#39'V'#39' then '#39'V - Visita'#39
+      '                   end as varchar) as tipo,'
+      '           c.nome'
+      'From   atendimentos a, clientes c'
+      'Where (a.cliente = c.codigo) '
+      '/* Preenchido em runtime. N'#227'o apague */'
+      
+        'Order By UPPER(TO_ASCII(c.nome,'#39'LATIN1'#39')), a.data desc, a.tipo  ' +
+        '         ')
+    RequestLive = False
+    Left = 488
+    Top = 8
+    object qryConsultaAtendimentosnome: TStringField
+      DisplayLabel = 'Cliente'
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryConsultaAtendimentosdata: TDateField
+      DisplayLabel = 'Data'
+      FieldName = 'data'
+    end
+    object qryConsultaAtendimentostipo: TStringField
+      DisplayLabel = 'Tipo'
+      FieldName = 'tipo'
+      Size = 15
+    end
+    object qryConsultaAtendimentoscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+    end
+    object qryConsultaAtendimentoscliente: TIntegerField
+      FieldName = 'cliente'
+      Visible = False
+    end
+    object qryConsultaAtendimentostipocliente: TStringField
+      FieldName = 'tipocliente'
+      Visible = False
+      Size = 1
+    end
+  end
+  object qryAtualizaCartasCartas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update cartasclientes set atendimento = :atendimento,'
+      '                          enviada = now(),'
+      '                          confirmacao = CURRENT_DATE,'
+      
+        '                          bloqueada = btrim(coalesce(bloqueada,'#39 +
+        #39'), '#39'3'#39')'
+      'where carta = :carta and'
+      '          numero = :numero')
+    RequestLive = True
+    Left = 112
+    Top = 400
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'atendimento'
+        ParamType = ptUnknown
+        Value = '21374'
+      end
+      item
+        DataType = ftString
+        Name = 'carta'
+        ParamType = ptUnknown
+        Value = '15255'
+      end
+      item
+        DataType = ftString
+        Name = 'numero'
+        ParamType = ptUnknown
+        Value = '2'
+      end>
+  end
+  object qryCartaNumero: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select CartaAtendimento.*,'
+      '       (select semaviso'
+      '        from atendimentos'
+      
+        '        where codigo = CartaAtendimento.atendimento) as semaviso' +
+        ','
+      ''
+      '       (select semspc'
+      '        from atendimentos'
+      '        where codigo = CartaAtendimento.atendimento) as semspc'
+      ''
+      'from'
+      '('
+      ''
+      'select atendimento,'
+      '       numero as Numerocarta'
+      'from cartasclientes'
+      'where carta = :carta'
+      '  and numero = (select max(cc.numero) as NumeroCarta'
+      '                from cartasclientes cc'
+      '                where cc.carta = :carta'
+      '                  and cc.eavalista <> :eAvalista'
+      '                  and cast(cc.data as date) = :data)'
+      ''
+      ') as CartaAtendimento')
+    RequestLive = False
+    Left = 316
+    Top = 398
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'carta'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftBoolean
+        Name = 'eAvalista'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end>
+    object qryCartaNumeronumerocarta: TIntegerField
+      FieldName = 'numerocarta'
+      DisplayFormat = '0'
+    end
+    object qryCartaNumeroatendimento: TIntegerField
+      FieldName = 'atendimento'
+      DisplayFormat = '0'
+    end
+    object qryCartaNumerosemaviso: TDateField
+      Alignment = taCenter
+      FieldName = 'semaviso'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryCartaNumerosemspc: TDateField
+      Alignment = taCenter
+      FieldName = 'semspc'
+      EditMask = '99/99/9999;1; '
+    end
+  end
+  object qryCartasClientes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cc.confirmacao  ,'
+      '       cc.enviada      ,'
+      '       cc.bloqueada    ,'
+      '       cc.atendimento  '
+      'from cartasclientes cc'
+      'where cc.carta = :carta'
+      '  and cc.numero = :numero'
+      '')
+    RequestLive = False
+    Left = 220
+    Top = 406
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'carta'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end>
+    object qryCartasClientesconfirmacao: TDateField
+      FieldName = 'confirmacao'
+    end
+    object qryCartasClientesenviada: TDateTimeField
+      FieldName = 'enviada'
+    end
+    object qryCartasClientesbloqueada: TStringField
+      FieldName = 'bloqueada'
+      Size = 3
+    end
+    object qryCartasClientesatendimento: TIntegerField
+      FieldName = 'atendimento'
+    end
+  end
+  object qryocorrencias: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnCalcFields = qryocorrenciasCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select a.codigo,'
+      '       a.data,'
+      '       a.lembrar,'
+      '       a.informes,'
+      '       a.tipo'
+      '       '
+      'From   atendimentos a'
+      'Where (a.cliente =:cliente) and'
+      '           (a.tipocliente =:tipocliente)'
+      'Order by a.datainclusao desc, a.data desc'
+      '          ')
+    RequestLive = False
+    Left = 312
+    Top = 239
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'cliente'
+        ParamType = ptUnknown
+        Value = 0
+      end
+      item
+        DataType = ftString
+        Name = 'tipocliente'
+        ParamType = ptUnknown
+      end>
+    object qryocorrenciascodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryocorrenciasdata: TDateField
+      FieldName = 'data'
+    end
+    object qryocorrenciaslembrar: TDateField
+      FieldName = 'lembrar'
+    end
+    object qryocorrenciasinformes: TStringField
+      FieldName = 'informes'
+      Size = 512
+    end
+    object qryocorrenciastipo: TStringField
+      FieldName = 'tipo'
+      Size = 1
+    end
+    object qryocorrenciasdescricaotipo: TStringField
+      FieldKind = fkCalculated
+      FieldName = 'descricaotipo'
+      Size = 10
+      Calculated = True
+    end
+  end
+  object dsrOcorrencias: TtecDataSource
+    DataSet = qryocorrencias
+    Left = 354
+    Top = 258
+  end
+  object qryAtualzarClientes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update clientes set naoligar = :naoligar,'
+      '                    razaonaoligar = :razaonaoligar'
+      'where codigo = :codigo')
+    RequestLive = True
+    Left = 112
+    Top = 224
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'naoligar'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'razaonaoligar'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+  end
+end

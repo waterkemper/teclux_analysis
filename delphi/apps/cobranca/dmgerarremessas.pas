@@ -9,7 +9,8 @@ uses
   clparametrossistema,
   Variants, DateUtils, CheckLst,cltextprinter, FR_Desgn, dmimprimeboleto,
   clusuario, fmpreviewpadrao, ACBrBase, ACBrBoleto, ACBrUtil,
-  ZTransact, DBClient, Provider, ACBrBoletoConversao;
+  ZTransact, DBClient, Provider, ACBrBoletoConversao, frxClass,
+  frx2xto30;
 
 
 type
@@ -138,6 +139,7 @@ type
     qryParcelasContasAgrupadasfilial: TIntegerField;
     qryParcelasContasAgrupadasqtdemarcadas: TIntegerField;
     qryContasfilial: TIntegerField;
+    frxReport1: TfrxReport;
 //    qryContasndiasbaixaautomatica: TIntegerField;
     procedure DataModuleDestroy(Sender: TObject);
     procedure qryParcelasFilterRecord(DataSet: TDataSet;
@@ -2697,7 +2699,11 @@ begin
                           qryContasNome.AsString+' - C/C '+
                           qryContasConta.AsString+'-'+qryContasDigito.AsString;
  frVariables['ClienteUsaContrato'] := ParSistema.ClienteUsaContrato;
+
 // frpEspelhoRemessa.DesignReport;
+// frxReport1.DesignReport;
+
+
  frmPreview := TfrmPreviewPadrao.create(self);
  try
   Relatorio := frmPreview.frCompositeReport;

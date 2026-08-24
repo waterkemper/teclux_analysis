@@ -1,0 +1,204 @@
+unit cpcnpj;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, Mask, DBCtrls, biblio, ctconstantes;
+
+type
+  TDBEditCNPJ = class(TDBEdit)
+  private
+    FDecimais: Boolean;
+    FNegativo: Boolean;
+    FTamanho: Word;
+    function LimparCNPJ(const ATexto: string): string;
+    function ValorCaracterCNPJ(const AChar: Char): Integer;
+  protected
+    procedure DoExit; override;
+    procedure KeyPress(var Key: Char); override;
+    procedure Change; override;
+    procedure DoEnter; override;
+    procedure Resize; override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    function Criticar: Boolean;
+  published
+    property Tamanho: Word read FTamanho write FTamanho;
+    property Decimais: Boolean read FDecimais write FDecimais;
+    property Negativo: Boolean read FNegativo write FNegativo;
+  end;
+
+implementation
+
+constructor TDBEditCNPJ.Create(AOwner: TComponent);
+begin
+  inherited;
+  MaxLength := 14;
+  Height := 23;
+end;
+
+function TDBEditCNPJ.LimparCNPJ(const ATexto: string): string;
+var
+  I: Integer;
+  C: Char;
+begin
+  Result := '';
+
+  for I := 1 to Length(ATexto) do
+  begin
+    C := UpCase(ATexto[I]);
+
+    if C in ['0'..'9', 'A'..'Z'] then
+      Result := Result + C;
+  end;
+end;
+
+function TDBEditCNPJ.ValorCaracterCNPJ(const AChar: Char): Integer;
+begin
+  Result := Ord(UpCase(AChar)) - 48;
+end;
+
+procedure TDBEditCNPJ.DoExit;
+begin
+  inherited;
+
+  Color := clWindow;
+
+  if (Text <> '') and not Criticar then
+    if CanFocus then
+      SetFocus;
+end;
+
+function TDBEditCNPJ.Criticar: Boolean;
+const
+  Peso1: array[1..12] of Integer = (5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2);
+  Peso2: array[1..13] of Integer = (6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2);
+var
+  CNPJ: string;
+  I: Integer;
+  Soma: Integer;
+  Resto: Integer;
+  Digito1: Integer;
+  Digito2: Integer;
+begin
+  Result := False;
+
+  CNPJ := LimparCNPJ(Text);
+
+  if Length(CNPJ) <> 14 then
+  begin
+    MensagemAviso('CNPJ Inválido !');
+    Exit;
+  end;
+
+  // As 12 primeiras posições podem ser letras ou números.
+  // Os dois últimos caracteres continuam sendo os dígitos verificadores numéricos.
+  if not (CNPJ[13] in ['0'..'9']) or not (CNPJ[14] in ['0'..'9']) then
+  begin
+    MensagemAviso('CNPJ Inválido !');
+    Exit;
+  end;
+
+  Soma := 0;
+  for I := 1 to 12 do
+    Soma := Soma + ValorCaracterCNPJ(CNPJ[I]) * Peso1[I];
+
+  Resto := Soma mod 11;
+
+  if Resto in [0, 1] then
+    Digito1 := 0
+  else
+    Digito1 := 11 - Resto;
+
+  if Digito1 <> StrToInt(CNPJ[13]) then
+  begin
+    MensagemAviso('CNPJ Inválido !');
+    Exit;
+  end;
+
+  Soma := 0;
+  for I := 1 to 13 do
+    Soma := Soma + ValorCaracterCNPJ(CNPJ[I]) * Peso2[I];
+
+  Resto := Soma mod 11;
+
+  if Resto in [0, 1] then
+    Digito2 := 0
+  else
+    Digito2 := 11 - Resto;
+
+  if Digito2 <> StrToInt(CNPJ[14]) then
+  begin
+    MensagemAviso('CNPJ Inválido !');
+    Exit;
+  end;
+
+  Result := True;
+end;
+
+procedure TDBEditCNPJ.Change;
+var
+  Novo: string;
+  Posicao: Integer;
+begin
+  inherited;
+
+  Novo := LimparCNPJ(Text);
+
+  if Novo <> Text then
+  begin
+    Posicao := SelStart;
+    Text := Novo;
+
+    if Posicao > Length(Text) then
+      Posicao := Length(Text);
+
+    SelStart := Posicao;
+  end;
+end;
+
+procedure TDBEditCNPJ.DoEnter;
+begin
+  inherited;
+
+  if Focused then
+    Color := CorFundoControle;
+
+  if Tamanho = 0 then
+    Tamanho := Byte(MaxLength);
+end;
+
+procedure TDBEditCNPJ.KeyPress(var Key: Char);
+begin
+  inherited;
+
+  Key := UpCase(Key);
+
+  if Key = #8 then
+    Exit;
+
+  if not (Key in ['0'..'9', 'A'..'Z']) then
+  begin
+    Key := #0;
+    Beep;
+    Exit;
+  end;
+
+  if (Tamanho > 0) and (Length(Text) - SelLength >= Tamanho) then
+  begin
+    Key := #0;
+    Beep;
+    Exit;
+  end;
+end;
+
+procedure TDBEditCNPJ.Resize;
+begin
+  if csDesigning in ComponentState then
+    Height := 23
+  else
+    inherited;
+end;
+
+end.

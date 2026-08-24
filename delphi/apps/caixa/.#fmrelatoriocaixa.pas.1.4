@@ -1,0 +1,232 @@
+unit fmrelatoriocaixa;
+
+interface
+
+uses     
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  fmrelatoriopadrao, ExtCtrls, Buttons, StdCtrls, CheckLst, cpdata,
+  dmrelatoriocaixa, biblio, ctconstantes, Mask, DBCtrls, cpcpfcnpj2,
+  ToolWin, ComCtrls;
+
+type
+  Tfrmrelatoriocaixa = class(TfrmRelatorioPadrao)
+    gbxRelatorioCaixa: TGroupBox;
+    gbxPeriodo: TGroupBox;
+    edtPeriodoInicial: TEditData;
+    edtPeriodoFinal: TEditData;
+    lblPeriodoInicial: TLabel;
+    lblPeriodoFinal: TLabel;
+    gbxFiliais: TGroupBox;
+    clbFiliais: TCheckListBox;
+    gbxGruposFiliais: TGroupBox;
+    clbGrupodeFiliais: TCheckListBox;
+    sbnMarcarFiliais: TSpeedButton;
+    sbnDesmarcarFiliais: TSpeedButton;
+    sbnMarcarGruposFiliais: TSpeedButton;
+    sbnDesmarcarGruposFiliais: TSpeedButton;
+    gbxEventos: TGroupBox;
+    sbnMarcarEventos: TSpeedButton;
+    sbnDesmarcarEventos: TSpeedButton;
+    clbEventos: TCheckListBox;
+    gbxCaixa: TGroupBox;
+    clbCaixas: TCheckListBox;
+    sbnMarcarCaixas: TSpeedButton;
+    sbnDesmarcarCaixas: TSpeedButton;
+    gbxAutenticacoes: TGroupBox;
+    clbAutenticacoes: TCheckListBox;
+    sbnMarcarAutenticacoes: TSpeedButton;
+    sbnDesmarcarAutenticacoes: TSpeedButton;
+    gbxAgrupamento: TGroupBox;
+    ckbAgruparTipoAutenticacao: TCheckBox;
+    procedure sbnMarcarFiliaisClick(Sender: TObject);
+    procedure sbnDesmarcarFiliaisClick(Sender: TObject);
+    procedure sbnMarcarGruposFiliaisClick(Sender: TObject);
+    procedure sbnDesmarcarGruposFiliaisClick(Sender: TObject);
+    procedure sbnMarcarEventosClick(Sender: TObject);
+    procedure sbnDesmarcarEventosClick(Sender: TObject);
+    procedure clbFiliaisClickCheck(Sender: TObject);
+    procedure clbGrupodeFiliaisClickCheck(Sender: TObject);
+    procedure sbnMarcarCaixasClick(Sender: TObject);
+    procedure sbnDesmarcarCaixasClick(Sender: TObject);
+    procedure sbnMarcarAutenticacoesClick(Sender: TObject);
+    procedure sbnDesmarcarAutenticacoesClick(Sender: TObject);
+  private
+    { Private declarations }
+  protected
+    procedure InternoImpressao; override;
+  public
+    { Public declarations }
+    constructor Create(Aowner:Tcomponent);override;
+    destructor  Destroy; override;
+    procedure   ObterLista(Origem: TStrings; Destino: TCheckListBox);
+    procedure   MontaPesquisa;
+    function    ValidarCamposSelecao: Boolean;
+  end;
+
+var
+  frmrelatoriocaixa: Tfrmrelatoriocaixa;
+
+implementation
+
+{$R *.dfm}
+
+{ Tfrmrelatoriocaixa }
+
+constructor Tfrmrelatoriocaixa.Create(Aowner: Tcomponent);
+begin
+  dtmrelatoriocaixa := Tdtmrelatoriocaixa.Create(self);
+  inherited;
+  dtmrelatoriocaixa.Abre(ctTabelas);
+  ObterLista(dtmrelatoriocaixa.ListaFiliais,clbFiliais);
+  ObterLista(dtmrelatoriocaixa.ListaGruposFiliais,clbGrupodeFiliais);
+  ObterLista(dtmrelatoriocaixa.ListaCaixas,clbCaixas);
+  ObterLista(dtmrelatoriocaixa.ListaEventos,clbEventos);
+  ObterLista(dtmrelatoriocaixa.ListaAutenticacoes,clbAutenticacoes);
+  edtPeriodoInicial.Text := DateToStr(UltimoDiaMesPassado(1));
+  edtPeriodoFinal.Text := DateToStr(DataLocal);
+end;
+
+destructor Tfrmrelatoriocaixa.Destroy;
+begin
+  dtmrelatoriocaixa:=nil;
+  inherited;
+  frmrelatoriocaixa := nil;
+end;
+
+procedure Tfrmrelatoriocaixa.ObterLista(Origem: TStrings;
+  Destino: TCheckListBox);
+begin
+  Destino.Items.AddStrings(Origem);
+end;
+
+procedure Tfrmrelatoriocaixa.sbnMarcarFiliaisClick(Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbFiliais,True);
+  MarcarLista(clbGrupodeFiliais,False);
+end;
+
+procedure Tfrmrelatoriocaixa.sbnDesmarcarFiliaisClick(Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbFiliais,False);
+end;
+
+procedure Tfrmrelatoriocaixa.sbnMarcarGruposFiliaisClick(Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbGrupodeFiliais,True);
+  MarcarLista(clbFiliais,False);
+end;
+
+procedure Tfrmrelatoriocaixa.sbnDesmarcarGruposFiliaisClick(
+  Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbGrupodeFiliais,False);
+end;
+
+procedure Tfrmrelatoriocaixa.sbnMarcarEventosClick(Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbEventos,True);
+end;
+
+procedure Tfrmrelatoriocaixa.sbnDesmarcarEventosClick(Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbEventos,False);
+end;
+
+procedure Tfrmrelatoriocaixa.clbFiliaisClickCheck(Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbGrupodeFiliais,False);
+end;
+
+procedure Tfrmrelatoriocaixa.clbGrupodeFiliaisClickCheck(Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbFiliais,False);
+end;
+
+function Tfrmrelatoriocaixa.ValidarCamposSelecao: Boolean;
+begin
+  Result := (edtPeriodoInicial.DataValida and edtPeriodoFinal.DataValida);
+  if Result then
+   begin
+    if (not dataembranco(edtPeriodoInicial.text) and not dataembranco(edtPeriodoFinal.text)) then
+      Result:=StrToDate(edtPeriodoInicial.Text) <= StrToDate(edtPeriodoFinal.Text);
+    if result then
+    begin
+      Result:=(not dataembranco(edtPeriodoInicial.text) or not dataembranco(edtPeriodoFinal.text));
+      if not Result then
+      begin
+       MensagemAviso(ctDATAINVALIDA);
+       edtPeriodoInicial.SetFocus;
+      end;
+    end
+    else
+    begin
+      MensagemAviso(ctDTINICIALMAIORDTFINAL);
+      edtPeriodoInicial.SetFocus;
+    end;
+   end;
+end;
+
+procedure Tfrmrelatoriocaixa.InternoImpressao;
+begin
+  inherited;
+  MontaPesquisa;
+end;
+
+procedure Tfrmrelatoriocaixa.MontaPesquisa;
+begin
+  if ValidarCamposSelecao then begin
+    with dtmrelatoriocaixa do begin
+      ParametroCabecalho := '';
+      DataInicial := edtPeriodoInicial.Text;
+      DataFinal   := edtPeriodoFinal.Text;
+      MontarFiltroFiliais(clbFiliais);
+      MontarFiltroGrupoFiliais(clbGrupodeFiliais);
+      MontarFiltroCaixas(clbCaixas);
+      MontarFiltroEventos(clbEventos);
+      MontarFiltroAutenticacoes(clbAutenticacoes);
+      AgruparAutenticacao := ckbAgruparTipoAutenticacao.Checked;
+
+      qryImprimirRelatorio.Open;
+      if not qryImprimirRelatorio.IsEmpty then
+        ImprimirRelatorio
+      else
+        MensagemAviso(Format(ctNENHUMREGISTROENCONTRADO,['Registro']));
+        qryImprimirRelatorio.Close;
+    end;
+  end;
+end;
+
+procedure Tfrmrelatoriocaixa.sbnMarcarCaixasClick(Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbCaixas,True);
+end;
+
+procedure Tfrmrelatoriocaixa.sbnDesmarcarCaixasClick(Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbCaixas,False);
+end;
+
+procedure Tfrmrelatoriocaixa.sbnMarcarAutenticacoesClick(Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbAutenticacoes,True);
+end;
+
+procedure Tfrmrelatoriocaixa.sbnDesmarcarAutenticacoesClick(
+  Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbAutenticacoes,False);
+end;
+
+end.

@@ -1,6 +1,6 @@
 inherited frmConfirmarNotasTransferencia: TfrmConfirmarNotasTransferencia
-  Left = 344
-  Top = 242
+  Left = 284
+  Top = 186
   Action = actHabilitarBotoes
   ActiveControl = dbgNotas
   Caption = 'Confirma'#231#227'o de Notas de Transfer'#234'ncia'

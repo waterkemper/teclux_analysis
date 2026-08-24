@@ -1,0 +1,295 @@
+unit fmFCI;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmrelatoriopadrao, ExtCtrls, Buttons, ToolWin, ComCtrls,
+  frselecaoaleatoria, StdCtrls, dmFCI, frconsultacodigo, frconsulta,
+  ctconstantes, cpdbfindcontrols, biblio, Grids, DBGrids, cpdbgrid, DB,
+  ActnList, fmajudabt, cptexto, fmlerTexto;
+
+type
+  TfrmFCI = class(TFrmAjudaBT)
+    gbxPNs: TGroupBox;
+    fraSelecaoAleatoriaPN: TfraSelecaoAleatoria;
+    gbxArquivo: TGroupBox;
+    lblArquivo: TLabel;
+    sbnArquivo: TSpeedButton;
+    dlgArquivoaExportar: TSaveDialog;
+    aclHabilitar: TActionList;
+    actHabilitar: TAction;
+    sbnGerar: TSpeedButton;
+    sbnExportar: TSpeedButton;
+    gbxDados: TGroupBox;
+    dbgfciRemessa: TtecDBGrid;
+    ckbMarcarTodos: TCheckBox;
+    pnlEsquerda: TPanel;
+    rgpOperacao: TRadioGroup;
+    dbgfciRetorno: TtecDBGrid;
+    procedure sbnGerarClick(Sender: TObject);
+    procedure sbnArquivoClick(Sender: TObject);
+    procedure dbgfciRemessaDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure actHabilitarUpdate(Sender: TObject);
+    procedure sbnExportarClick(Sender: TObject);
+    procedure ckbMarcarTodosClick(Sender: TObject);
+    procedure rgpOperacaoClick(Sender: TObject);
+  private
+    { Private declarations }
+    procedure AtribuirDadosPN;
+    procedure AtualizarlblArquivo;
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+
+
+  end;
+
+var
+  frmFCI: TfrmFCI;
+
+implementation
+
+uses dmbasico;
+
+{$R *.dfm}
+
+{ TfrmFCI }
+
+procedure TfrmFCI.AtribuirDadosPN;
+begin
+  with fraSelecaoAleatoriaPN do
+  begin
+    qrySelecaoAleatoria.Edit;
+    qrySelecaoAleatoria.FieldByName('codigo').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraItemProdutoscodigo.AsString;
+
+    qrySelecaoAleatoria.FieldByName('descricao').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraItemProdutosdescricaolc.AsString;
+
+    qrySelecaoAleatoria.Post;
+
+  end;
+end;
+
+constructor TfrmFCI.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmFCI := TdtmFCI.Create(Self);
+
+  fraSelecaoAleatoriaPN.qrySelecaoAleatoria.Sql.Text :=
+//     'SELECT  Codigo, descricao FROM produtos WHERE false';
+     'SELECT  cast(null as char(10)) as Codigo, cast(null as varchar(50)) as descricao';
+
+  fraSelecaoAleatoriaPN.CampoParaLista := 'codigo';
+  fraSelecaoAleatoriaPN.qrySelecaoAleatoria.Open;
+  fraSelecaoAleatoriaPN.qrySelecaoAleatoria.delete;
+
+(*
+  with fraSelecaoAleatoriaPN do
+  begin
+    ConsultaSelecaoAleatoria := TfraConsultaCodigo.Create(self);
+    ConsultaSelecaoAleatoria.Name := 'fraConsultaSelecaoAleatoria';
+    ConsultaSelecaoAleatoria.edfCodigo.MaxLength := 10;
+    ConsultaSelecaoAleatoria.edfCodigo.DataSource := dsrSelecaoAleatoria;
+    ConsultaSelecaoAleatoria.edfCodigo.DataField := 'codigo';
+
+    ConsultaSelecaoAleatoria.edfCodigo.Operacao := opATRIBUICAO;
+//    ConsultaSelecaoAleatoria.edfCodigo.LookupSource := ConsultaSelecaoAleatoria.dsrProcuraPN;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupQueryParameter := 'Codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.LookupField := 'Codigo';
+    ConsultaSelecaoAleatoria.AbrirTabelaProcura := false;
+//    ConsultaSelecaoAleatoria.CondicoesdaConsulta := CondicoesFluxoGramasOperacoes;
+//    ConsultaSelecaoAleatoria.TipoPesquisa := pesPN;
+//    ConsultaSelecaoAleatoria.OnFound := AtribuirDadosItemProduto;
+  end;
+*)
+  AtualizarlblArquivo;
+  
+end;
+
+destructor TfrmFCI.Destroy;
+begin
+  dtmFCI := nil;
+  inherited;
+  frmFCI := nil;
+end;
+
+
+procedure TfrmFCI.sbnArquivoClick(Sender: TObject);
+begin
+  inherited;
+  if dlgArquivoaExportar.Execute then
+  begin
+   lblarquivo.Caption:=trim(dlgArquivoaExportar.FileName);
+   if dtmFCI.ProcessarRetorno(dlgArquivoaExportar.FileName) then
+     MensagemAviso(format(ctARQUIVOIMPORTADOSUCESSO,[dlgArquivoaExportar.FileName]));
+  end;
+end;
+
+procedure TfrmFCI.dbgfciRemessaDrawColumnCell(Sender: TObject; const Rect: TRect;
+  DataCol: Integer; Column: TColumn; State: TGridDrawState);
+begin
+  inherited;
+  if column.FieldName = 'precovenda' then
+  begin
+    if (dbgFCIRemessa.DataSource.DataSet.FieldByName('precovenda').isnull) or
+       (dbgFCIRemessa.DataSource.DataSet.FieldByName('precovenda').value = 0) or
+
+       ((dbgFCIRemessa.DataSource.DataSet.FieldByName('precovenda').value <> 0) and
+        (dbgFCIRemessa.DataSource.DataSet.FieldByName('valorimportacao').value <> 0) and
+        (dbgFCIRemessa.DataSource.DataSet.FieldByName('precovenda').ascurrency <
+         dbgFCIRemessa.DataSource.DataSet.FieldByName('valorimportacao').ascurrency)) then
+
+      dbgFCIRemessa.Canvas.Brush.Color := clRed
+    else
+      dbgFCIRemessa.Canvas.Brush.Color:= clWindow;
+
+    dbgFCIRemessa.Canvas.FillRect(Rect);
+    dbgFCIRemessa.DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end
+  else
+  if column.FieldName = 'valorimportacao' then
+  begin
+    if (dbgFCIRemessa.DataSource.DataSet.FieldByName('valorimportacao').isnull) or
+       (dbgFCIRemessa.DataSource.DataSet.FieldByName('valorimportacao').value = 0) or
+
+       ((dbgFCIRemessa.DataSource.DataSet.FieldByName('precovenda').value <> 0) and
+        (dbgFCIRemessa.DataSource.DataSet.FieldByName('valorimportacao').value <> 0) and
+        (dbgFCIRemessa.DataSource.DataSet.FieldByName('precovenda').ascurrency <
+         dbgFCIRemessa.DataSource.DataSet.FieldByName('valorimportacao').ascurrency)) then
+
+      dbgFCIRemessa.Canvas.Brush.Color := clRed
+    else
+      dbgFCIRemessa.Canvas.Brush.Color:= clWindow;
+
+    dbgFCIRemessa.Canvas.FillRect(Rect);
+    dbgFCIRemessa.DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end
+  else
+  if column.FieldName = 'percimportacao' then
+  begin
+    if (dbgFCIRemessa.DataSource.DataSet.FieldByName('percimportacao').isnull) or
+       (dbgFCIRemessa.DataSource.DataSet.FieldByName('percimportacao').value = 0) then
+      dbgFCIRemessa.Canvas.Brush.Color := clRed
+    else
+      dbgFCIRemessa.Canvas.Brush.Color:= clWindow;
+
+    dbgFCIRemessa.Canvas.FillRect(Rect);
+    dbgFCIRemessa.DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end
+  else
+  if column.FieldName = 'ncm' then
+  begin
+    if (dbgFCIRemessa.DataSource.DataSet.FieldByName('ncm').isnull) or
+       (length(trim(dbgFCIRemessa.DataSource.DataSet.FieldByName('ncm').asstring))<>8) then
+      dbgFCIRemessa.Canvas.Brush.Color := clRed
+    else
+      dbgFCIRemessa.Canvas.Brush.Color:= clWindow;
+
+    dbgFCIRemessa.Canvas.FillRect(Rect);
+    dbgFCIRemessa.DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end
+
+
+end;
+
+procedure TfrmFCI.actHabilitarUpdate(Sender: TObject);
+begin
+  inherited;
+  sbnExportar.Enabled := dtmFCI.QtdeMarcados <> 0;
+  sbnArquivo.Visible := rgpOperacao.ItemIndex = 1;
+  if ckbMarcarTodos.visible then
+    ckbMarcarTodos.Enabled := dtmFCI.qryDadosFCI.RecordCount <> 0;
+end;
+
+procedure TfrmFCI.sbnGerarClick(Sender: TObject);
+begin
+  inherited;
+  with dtmFCI do
+  begin
+   ParametroCabecalho:='';
+   ListadePNsSelecionadasAleatoriamente := fraSelecaoAleatoriaPN.StringSelecionada;
+   if not AbrirConsultas then
+     MensagemAviso(format(ctNENHUMREGISTROSELECIONADO, ['registro']));
+  end;
+
+end;
+
+procedure TfrmFCI.sbnExportarClick(Sender: TObject);
+begin
+  inherited;
+  if (Sender = nil) or dtmFCI.GerarArquivo(lblArquivo.Caption) then
+  begin
+   frmLerTexto := TfrmLerTexto.Create(frmLerTexto, 'Número do Protocolo');
+   frmLerTexto.lblTitulo.Visible := true;
+   frmLerTexto.lblTitulo.Caption := 'Arquivo FCI gerado com sucesso!';
+
+   frmLerTexto.lblTexto.Visible := true;
+   frmLerTexto.lblTexto.Caption := 'Informe o Nº do protocolo obtido na opção ''recibo'' após a transmissão no validador FCI';
+
+   frmLerTexto.gbxTexto.Caption := 'PROTOCOLO';
+
+   if frmLerTexto.ShowModal = mrok then
+    if dtmFCI.GuardarNumeroProtocolo(frmLerTexto.edtTexto.text) then
+    begin
+       AtualizarlblArquivo;
+       frmLerTexto.free;
+       AtualizarlblArquivo;
+    end
+    else
+    begin
+      frmLerTexto.free;
+      sbnExportarClick(nil);
+    end;
+  end;
+end;
+
+procedure TfrmFCI.ckbMarcarTodosClick(Sender: TObject);
+begin
+  inherited;
+  dtmFCI.MarcarRegistrosFCI(ckbMarcarTodos.checked, true);
+end;
+
+procedure TfrmFCI.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case key of
+    VK_F7: if sbngerar.enabled and sbngerar.Visible then  sbnGerarClick(self);
+    VK_F8: if sbnExportar.enabled and sbnExportar.visible then sbnExportarClick(self);
+  end;
+end;
+
+procedure TfrmFCI.AtualizarlblArquivo;
+begin
+  lblArquivo.Caption := 'FCI_'+FormatDateTime('DDMMYYYY',dtmFCI.dataservidor)+'_'+inttostr(dtmFCI.NumeroFCI)+'.TXT';
+end;
+
+procedure TfrmFCI.rgpOperacaoClick(Sender: TObject);
+begin
+  inherited;
+  case rgpOperacao.ItemIndex of
+  0: begin
+       gbxArquivo.Caption := 'ARQUIVO DE REMESSA';
+       AtualizarlblArquivo;
+       dbgfciRemessa.BringToFront;
+       sbnGerar.Visible := true;
+       sbnExportar.Visible := true;
+       ckbMarcarTodos.visible := true;
+     end;
+  1: begin
+       gbxArquivo.Caption := 'ARQUIVO DE RETORNO';
+       lblArquivo.Caption := '';
+       dbgfciRetorno.BringToFront;
+       sbnGerar.Visible := false;
+       sbnExportar.Visible := false;
+       ckbMarcarTodos.visible := false;       
+     end;
+  end;
+end;
+
+end.

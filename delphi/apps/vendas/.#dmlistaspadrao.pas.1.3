@@ -1,0 +1,338 @@
+unit dmlistaspadrao;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, Forms, DB, cpdatasource, ZQuery, ZPgSqlQuery,
+  cpquery, dmtecsoft, ctconstantes, biblio, FR_DSet, FR_DBSet, FR_Class,
+  fmpreviewpadrao;
+
+type
+  TdtmListasPadrao = class(TdtmBasico)
+    qryListasPadrao: TtecQuery;
+    dsrListasPadrao: TtecDataSource;
+    qryConsultaListasPadrao: TtecQuery;
+    qryConsultaListasPadraodescricao: TStringField;
+    qryConsultaListasPadraocodigo: TIntegerField;
+    qryListasPadraocodigo: TIntegerField;
+    qryListasPadraodescricao: TStringField;
+    spcListaPadrao: TtecQuery;
+    spcListaPadraocodigo: TIntegerField;
+    qryProdutosListasPadrao: TtecQuery;
+    dsrProdutosListasPadrao: TtecDataSource;
+    qryProdutosListasPadraolistapadrao: TIntegerField;
+    qryProdutosListasPadraoproduto: TLargeintField;
+    qryProcurarProduto: TtecQuery;
+    qryProcurarProdutocodigo: TLargeintField;
+    qryProcurarProdutodescricao: TStringField;
+    dsrProcurarProdutos: TtecDataSource;
+    qryConsultaProdutos: TtecQuery;
+    qryConsultaProdutosdescricao: TStringField;
+    qryConsultaProdutosreferencia: TStringField;
+    qryConsultaProdutoscodigo: TLargeintField;
+    qryProdutosListasPadraodescricao: TStringField;
+    qryProdutosListasPadraoreferencia: TStringField;
+    qryProcurarProdutoreferencia: TStringField;
+    qryProdutosListasPadraogrupo: TStringField;
+    frpListaPadrao: TfrReport;
+    fdsListaPadrao: TfrDBDataSet;
+    qryProcurarProdutogrupo: TStringField;
+    qryConsultaProdutosgrupo: TStringField;
+    procedure dsrProdutosListasPadraoDataChange(Sender: TObject;
+      Field: TField);
+    procedure qryListasPadraoAfterScroll(DataSet: TDataSet);
+    procedure qryProdutosListasPadraoAfterDelete(DataSet: TDataSet);
+    procedure qryListasPadraoAfterClose(DataSet: TDataSet);
+    function GetQuantidadeProdutos: Integer;
+  protected
+    function GetTabelaListasPadrao: TtecQuery;
+    function GetTabelaConsultaListas: TtecQuery;
+    function GetTabelaProdutosLista: TtecQuery;
+    function GetTabelaConsultaProdutos: TtecQuery;
+  public
+    constructor Create(AOwner: TComponent); override;
+    procedure AbreTabelaPesquisa(TipoPesquisa: TtecListaPadrao);
+    procedure FechaTabelaPesquisa(TipoPesquisa: TtecListaPadrao);
+    procedure SelecionaTabelaPesquisa(TipoPesquisa: TtecListaPadrao);
+    procedure ImprimirListaPadrao;
+    function  IncluirListasPadrao: Boolean;
+    function  IncluirProdutosLista(Editando: Boolean): Boolean;
+    function  ExcluirListasPadrao: Boolean;
+    function  ExcluirProdutosListas: Boolean;
+    function  GravarListasPadrao: Boolean;
+    function  GravarProdutosListas: Boolean;
+    function  ExisteListaPadrao(Campo, Codigo: string): Boolean;
+    function  ExisteProduto(Campo, Codigo: string): Boolean;
+    property  TabelaListasPadrao: TtecQuery read GetTabelaListasPadrao;
+    property  TabelaProdutosLista: TtecQuery read GetTabelaProdutosLista;
+    property  TabelaConsultaListas: TtecQuery read GetTabelaConsultaListas;
+    property  TabelaConsultaProdutos: TtecQuery read GetTabelaConsultaProdutos;
+    property  QuantidadeProdutos: Integer read GetQuantidadeProdutos;
+  end;
+
+var
+  dtmListasPadrao: TdtmListasPadrao;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmListasPadrao }
+
+procedure TdtmListasPadrao.AbreTabelaPesquisa(TipoPesquisa: TtecListaPadrao);
+begin
+  case TipoPesquisa of
+      tlpLISTAS: qryConsultaListasPadrao.Open;
+    tlpPRODUTOS: begin
+                   qryConsultaProdutos.Sql[06]:= 'and (p.codigo = 0)';
+                   qryConsultaProdutos.Open;
+                 end;
+  end;
+end;
+
+constructor TdtmListasPadrao.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryListasPadrao.Tag := ctTabelas;
+end;
+
+function TdtmListasPadrao.ExcluirListasPadrao: Boolean;
+begin
+  Result := MensagemConfirmacao(Format(ctCONFIRMEEXCLUIR, ['a LISTA PADRÃO'])) = smbOk;
+  if Result then begin
+    if not qryListasPadrao.IsEmpty then begin
+      qryListasPadrao.Delete;
+      Perpetrar([qryProdutosListasPadrao, qryListasPadrao]);
+    end;
+  end;
+end;
+
+function TdtmListasPadrao.ExisteListaPadrao(Campo, Codigo: string): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaListasPadrao, Campo, Codigo);
+end;
+
+procedure TdtmListasPadrao.FechaTabelaPesquisa(TipoPesquisa: TtecListaPadrao);
+begin
+  case TipoPesquisa of
+      tlpLISTAS: qryConsultaListasPadrao.Close;
+    tlpPRODUTOS: qryConsultaProdutos.Close;
+  end;
+end;
+
+function TdtmListasPadrao.GetTabelaConsultaListas: TtecQuery;
+begin
+  Result:= qryConsultaListasPadrao;
+end;
+
+function TdtmListasPadrao.GetTabelaListasPadrao: TtecQuery;
+begin
+  Result:= qryListasPadrao;
+end;
+
+function TdtmListasPadrao.GravarListasPadrao: Boolean;
+begin
+  Result := False;
+  if qryListasPadrao.CheckRequiredFields then begin
+    if qryProdutosListasPadrao.IsEmpty then
+      MensagemAviso(Format(ctNENHUMPRODUTONALISTA,['padrão']))
+    else begin
+      if qryListasPadrao.State = dsInsert then begin
+        spcListaPadrao.Open;
+        qryListasPadraocodigo.AsInteger := spcListaPadraocodigo.AsInteger;
+        spcListaPadrao.Close;
+      end;
+
+      qryProdutosListasPadrao.DisableControls;
+      try
+        qryProdutosListasPadrao.First;
+        while not qryProdutosListasPadrao.Eof do begin
+          if (qryProdutosListasPadraolistapadrao.AsInteger = 0) then begin
+            qryProdutosListasPadrao.Edit;
+            qryProdutosListasPadraolistapadrao.AsInteger := qryListasPadraocodigo.AsInteger;
+            qryProdutosListasPadrao.Post;
+          end;
+          qryProdutosListasPadrao.Next;
+        end;
+      finally
+        qryProdutosListasPadrao.EnableControls;
+      end;
+      Perpetrar([qryListasPadrao, qryProdutosListasPadrao]);
+      ReFazConsulta(qryProdutosListasPadrao,[0],[qryListasPadraocodigo.AsInteger]);
+      Result:= True;
+    end;
+  end;
+end;
+
+function TdtmListasPadrao.IncluirListasPadrao: Boolean;
+begin
+  Result:= True;
+  qryListasPadrao.Insert;
+end;
+
+procedure TdtmListasPadrao.SelecionaTabelaPesquisa(TipoPesquisa: TtecListaPadrao);
+begin
+  case TipoPesquisa of
+      tlpLISTAS: ReFazConsulta(qryListasPadrao,[0],[qryConsultaListasPadraocodigo.AsInteger]);
+    tlpPRODUTOS: begin
+                   if not (qryProdutosListasPadrao.State in [dsEdit, dsInsert]) then
+                     qryProdutosListasPadrao.Edit;
+                   qryProdutosListasPadraoproduto.AsLargeInt := qryConsultaProdutoscodigo.AsLargeInt;
+                   qryProdutosListasPadraodescricao.AsString := qryConsultaProdutosdescricao.AsString;
+                   qryProdutosListasPadraoreferencia.AsString:= qryConsultaProdutosreferencia.AsString;
+                   qryProdutosListasPadraoreferencia.AsString:= qryConsultaProdutosgrupo.AsString;
+                 end;
+  end;
+end;
+
+function TdtmListasPadrao.GetTabelaProdutosLista: TtecQuery;
+begin
+  Result:= qryProdutosListasPadrao;
+end;
+
+function TdtmListasPadrao.IncluirProdutosLista(Editando: Boolean): Boolean;
+
+  procedure Produtos;
+  var
+    Campos : String;
+    Produto: Int64;
+    Pos    : TBookmark;
+  begin
+    Campos := '';
+    Produto:= qryProdutosListasPadraoproduto.AsLargeInt;
+    qryProdutosListasPadrao.DisableControls;
+    Pos:= qryProdutosListasPadrao.GetBookmark;
+    qryProdutosListasPadrao.First;
+    try
+      while not qryProdutosListasPadrao.Eof do begin
+        if (qryProdutosListasPadraoproduto.AsLargeInt > 0) then begin
+          if not Editando then
+            Campos := Campos + '' + qryProdutosListasPadraoproduto.AsString + ','
+          else if (qryProdutosListasPadraoproduto.AsLargeInt <> Produto) then
+            Campos := Campos + '' + qryProdutosListasPadraoproduto.AsString + ',';
+        end;
+        qryProdutosListasPadrao.Next;
+      end;
+    finally
+      qryProdutosListasPadrao.GotoBookmark(Pos);
+      qryProdutosListasPadrao.FreeBookmark(Pos);
+      qryProdutosListasPadrao.EnableControls;
+      Delete(Campos,Length(Campos),1);
+      if Campos = '' then Campos:= '0';
+    end;
+    qryProcurarProduto.Sql[07] := Format('and not (p.codigo in (%s))', [Campos]);
+    qryConsultaProdutos.Sql[07]:= Format('and not (p.codigo in (%s))', [Campos]);
+  end;
+
+begin
+  Produtos;
+  if Editando and not qryProdutosListasPadrao.IsEmpty then begin
+    qryProdutosListasPadrao.Params[0].AsInteger:= qryListasPadraocodigo.AsInteger;
+    qryProdutosListasPadrao.DisableControls;
+    qryProdutosListasPadrao.Edit;
+    qryProdutosListasPadrao.Cancel;
+    qryProdutosListasPadrao.EnableControls;
+  end
+  else begin
+    qryProdutosListasPadrao.Params[0].Clear;
+    qryProdutosListasPadrao.Append;
+  end;
+  Result:= True;
+end;
+
+function TdtmListasPadrao.GetTabelaConsultaProdutos: TtecQuery;
+begin
+  Result:= qryConsultaProdutos;
+end;
+
+function TdtmListasPadrao.GravarProdutosListas: Boolean;
+begin
+  Result:= False;
+  if qryProdutosListasPadrao.CheckRequiredFields then begin
+    Result:= True;
+    qryProdutosListasPadrao.Post;
+    if not (qryListasPadrao.State in[dsEdit, dsInsert]) then
+      qryListasPadrao.Edit;
+  end;
+end;
+
+function TdtmListasPadrao.ExcluirProdutosListas: Boolean;
+begin
+  Result := MensagemConfirmacao(Format(ctCONFIRMEEXCLUIR, ['o PRODUTO DA LISTA PADRÃO'])) = smbOk;
+  if Result then begin
+    if not qryProdutosListasPadrao.IsEmpty then begin
+      qryProdutosListasPadrao.Delete;
+      if not (qryListasPadrao.State in[dsEdit, dsInsert]) then
+        qryListasPadrao.Edit;
+    end;
+  end;
+end;
+
+function TdtmListasPadrao.ExisteProduto(Campo, Codigo: string): Boolean;
+const
+  SQL = 'and (to_ascii(p.%s,''latin1'') ilike to_ascii(''%s%s'',''latin1''))';
+begin
+  qryConsultaProdutos.Sql[06]:= Format(SQL, [Campo, Codigo, '%']);
+  qryConsultaProdutos.Open;
+  Result := (qryConsultaProdutos.RecordCount > 0);
+end;
+
+procedure TdtmListasPadrao.dsrProdutosListasPadraoDataChange(Sender: TObject; Field: TField);
+begin
+  inherited;
+  if Field = qryProdutosListasPadraoproduto then begin
+    qryProdutosListasPadraodescricao.AsString := qryProcurarProdutodescricao.AsString;
+    qryProdutosListasPadraoreferencia.AsString:= qryProcurarProdutoreferencia.AsString;
+    qryProdutosListasPadraogrupo.AsString     := qryProcurarProdutogrupo.AsString;
+  end;
+end;
+
+procedure TdtmListasPadrao.qryListasPadraoAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  ReFazConsulta(qryProdutosListasPadrao,[0],[qryListasPadraocodigo.AsInteger]);
+end;
+
+procedure TdtmListasPadrao.qryProdutosListasPadraoAfterDelete(DataSet: TDataSet);
+begin
+  inherited;
+  if not (qryListasPadrao.State in[dsEdit, dsInsert]) then
+    qryListasPadrao.Edit;
+end;
+
+procedure TdtmListasPadrao.qryListasPadraoAfterClose(DataSet: TDataSet);
+begin
+  inherited;
+  qryProdutosListasPadrao.Close;
+end;
+
+procedure TdtmListasPadrao.ImprimirListaPadrao;
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+  frVariables['Rua']   := RuaFilialBase;
+  frVariables['Bairro']:= BairroFilialBase + ' - CEP: ' + CEPFilialBase;
+  frVariables['Cidade']:= CidadeFilialBase + ' - ' + EstadoFilialBase;
+  frVariables['Fone']  := FoneFilialBase;
+  frmPreview := TfrmPreviewPadrao.create(self);
+  try
+    Relatorio := frmPreview.frCompositeReport;
+    with frmPreview do begin
+      frCompositeReport.Reports.Clear;
+      frCompositeReport.Reports.Add(frpListaPadrao);
+    end;
+    Relatorio.Preview := frmPreview.frPreviewPadrao;
+    Relatorio.ShowReport;
+    frmPreview.ShowModal;
+  finally
+    frmPreview.Free
+  end;
+end;
+
+function TdtmListasPadrao.GetQuantidadeProdutos: Integer;
+begin
+  Result:= qryProdutosListasPadrao.RecordCount;
+end;
+
+end.

@@ -33,7 +33,7 @@ inherited frmCadastroEnderecos: TfrmCadastroEnderecos
     Top = 45
     Width = 563
     Height = 375
-    ActivePage = tstRegioes
+    ActivePage = tstCidades
     Align = alClient
     TabOrder = 1
     OnChange = pgcEnderecosChange
@@ -895,6 +895,40 @@ inherited frmCadastroEnderecos: TfrmCadastroEnderecos
           ParentFont = False
           ReadOnly = True
           TabOrder = 1
+          Alignment = taLeftJustify
+        end
+      end
+      object gbxSerieNFSe: TGroupBox
+        Left = 429
+        Top = 97
+        Width = 71
+        Height = 36
+        Caption = 'S'#201'RIE NFSE'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 9
+        object edtSerieNFSe: TDBEditTexto
+          Left = 2
+          Top = 10
+          Width = 66
+          Height = 23
+          DataField = 'serienfse'
+          DataSource = dtmCadastroEnderecos.dsrCidades
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          MaxLength = -1
+          ParentFont = False
+          TabOrder = 0
+          CharCasenoDefault = False
           Alignment = taLeftJustify
         end
       end

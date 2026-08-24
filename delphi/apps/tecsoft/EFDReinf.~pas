@@ -1,0 +1,93 @@
+// ************************************************************************ //
+// The types declared in this file were generated from data read from the
+// WSDL File described below:
+// WSDL     : C:\Unimake\UniNFe\nfe\wsdl\Homologacao\AN\EFDReinf.wsdl
+// Encoding : utf-8
+// Version  : 1.0
+// (11/07/2018 11:22:51 - 1.33.2.5)
+// ************************************************************************ //
+
+unit EFDReinf;
+
+interface
+
+uses InvokeRegistry, SOAPHTTPClient, Types, XSBuiltIns;
+
+type
+
+  // ************************************************************************ //
+  // The following types, referred to in the WSDL document are not being represented
+  // in this file. They are either aliases[@] of other types represented or were referred
+  // to but never[!] declared in the document. The types from the latter category
+  // typically map to predefined/known XML or Borland types; however, they could also 
+  // indicate incorrect WSDL documents that failed to declare or import a schema type.
+  // ************************************************************************ //
+  // !:string          - "http://www.w3.org/2001/XMLSchema"
+
+
+  loteEventos     =  type WideString;      { "http://sped.fazenda.gov.br/" }
+  ReceberLoteEventosResult =  type WideString;      { "http://sped.fazenda.gov.br/" }
+
+  // ************************************************************************ //
+  // Namespace : http://sped.fazenda.gov.br/
+  // soapAction: http://sped.fazenda.gov.br/RecepcaoLoteReinf/ReceberLoteEventos
+  // transport : http://schemas.xmlsoap.org/soap/http
+  // binding   : BasicHttpBinding_RecepcaoLoteReinf
+  // service   : RecepcaoLoteReinf
+  // port      : BasicHttpBinding_RecepcaoLoteReinf
+  // URL       : https://preprodefdreinf.receita.fazenda.gov.br/WsREINF/RecepcaoLoteReinf.svc
+  // ************************************************************************ //
+  RecepcaoLoteReinf = interface(IInvokable)
+  ['{21009408-D374-FF91-423D-9467A5645652}']
+    function  ReceberLoteEventos(const loteEventos: loteEventos): ReceberLoteEventosResult; stdcall;
+  end;
+
+function GetRecepcaoLoteReinf(UseWSDL: Boolean=System.False; Addr: string=''; HTTPRIO: THTTPRIO = nil): RecepcaoLoteReinf;
+
+
+implementation
+
+function GetRecepcaoLoteReinf(UseWSDL: Boolean; Addr: string; HTTPRIO: THTTPRIO): RecepcaoLoteReinf;
+const
+  defWSDL = 'C:\Unimake\UniNFe\nfe\wsdl\Homologacao\AN\EFDReinf.wsdl';
+  defURL  = 'https://preprodefdreinf.receita.fazenda.gov.br/WsREINF/RecepcaoLoteReinf.svc';
+  defSvc  = 'RecepcaoLoteReinf';
+  defPrt  = 'BasicHttpBinding_RecepcaoLoteReinf';
+var
+  RIO: THTTPRIO;
+begin
+  Result := nil;
+  if (Addr = '') then
+  begin
+    if UseWSDL then
+      Addr := defWSDL
+    else
+      Addr := defURL;
+  end;
+  if HTTPRIO = nil then
+    RIO := THTTPRIO.Create(nil)
+  else
+    RIO := HTTPRIO;
+  try
+    Result := (RIO as RecepcaoLoteReinf);
+    if UseWSDL then
+    begin
+      RIO.WSDLLocation := Addr;
+      RIO.Service := defSvc;
+      RIO.Port := defPrt;
+    end else
+      RIO.URL := Addr;
+  finally
+    if (Result = nil) and (HTTPRIO = nil) then
+      RIO.Free;
+  end;
+end;
+
+
+initialization
+  InvRegistry.RegisterInterface(TypeInfo(RecepcaoLoteReinf), 'http://sped.fazenda.gov.br/', 'utf-8');
+  InvRegistry.RegisterDefaultSOAPAction(TypeInfo(RecepcaoLoteReinf), 'http://sped.fazenda.gov.br/RecepcaoLoteReinf/ReceberLoteEventos');
+  RemClassRegistry.RegisterXSInfo(TypeInfo(loteEventos), 'http://sped.fazenda.gov.br/', 'loteEventos');
+  RemClassRegistry.RegisterXSInfo(TypeInfo(ReceberLoteEventosResult), 'http://sped.fazenda.gov.br/', 'ReceberLoteEventosResult');
+
+end. 

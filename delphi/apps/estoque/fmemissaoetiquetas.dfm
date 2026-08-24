@@ -202,7 +202,7 @@ inherited frmEmissaoEtiquetas: TfrmEmissaoEtiquetas
       Top = 0
       Width = 1074
       Height = 393
-      ActivePage = tstEtiquetaNota
+      ActivePage = tstMagalu
       Align = alTop
       Constraints.MinHeight = 253
       TabOrder = 0
@@ -3460,9 +3460,11 @@ inherited frmEmissaoEtiquetas: TfrmEmissaoEtiquetas
                         Font.Name = 'Helvetica'
                         Font.Pitch = fpVariable
                         inherited ckbProdutosComAgendamento: TCheckBox
-                          Top = 0
                           Font.Height = -12
                           Font.Name = 'Helvetica'
+                          Font.Pitch = fpVariable
+                        end
+                        inherited ckbIncluirSimilaresnaLista: TCheckBox
                           Font.Pitch = fpVariable
                         end
                       end

@@ -1,0 +1,343 @@
+{------------------------------------------------------------------------------}
+{ Copyright             : © Copyright 1995 by Y. Rochat                        }
+{ Date de creation      : 20/10/1995                                           }
+{ Last Update           : 08/11/1995                                           }
+{ Version Number        : 1.10                                                 }
+{ Langage Programmation : DELPHI 1.01                                          }
+{------------------------------------------------------------------------------}
+{ YRCHRONO.PAS 					: A CHRONOMETER COMPONENT for DELPHI that let you      }
+{                         calculate the time elapsed between two events even   }
+{                         if they do not happen the same day.                  }
+{                                                                              }
+{ HOW TO USE IT : 1) Put a TYRChronometre (by ex. MyChrono) in you Delphi form }
+{                 2) Make a call to MyChrono.Reset to reset the chronometer    }
+{                 3) Make a call to MyChrono.Start to start the chronometer    }
+{                 4) Make a call to MyChrono.Stop to stop the chronometer      }
+{                 5) Make a call to MyChrono.TimeElapsed to calculate the time }
+{                    elapsed between the last call to MyChrono.Start           }
+{                 6) Make a call to MyChrono.TotalTimeElapsed to calculate the }
+{                    time elapsed between all call to MyChrono Start and Stop  }
+{                 7) Make a call to MyChrono.Time2Str to display a formated    }
+{                    string (HHHHH:MM:SS.CC) of TimeElapsed or TotalTimeElapsed}
+{                 8) A call to MyChrono.Jours_Ecoule let you calculate the nb. }
+{                    of days which separate date D1 from date D2 (Di:TDateTime)}
+{------------------------------------------------------------------------------}
+{                               IMPORTANT                                      }
+{                                                                              }
+{ You can use this code as is and you are FREE to copy/distribute provided that}
+{ this notice is not modified and included in the distrubution pack.           }
+{ I'll be more than happy to hear from you for your comments about a real-life }
+{ use of this code. Please send your comments to " rochat@dma.epfl.ch " with   }
+{ subject field starting with the words 'TYRCHRONO'.                           }
+{------------------------------------------------------------------------------}
+{:DISCLAIMER:                                                                  }
+{------------                                                                  }
+{  THIS SOURCE CODE IS DELIVERED AS IS. THERE IS NO REASON TO THINK THAT IT    }
+{  SHOULD NOT WORK AS CLAIMED. BUT JUST IN CASE, LET ME DISCLAIM THAT YVES     }
+{  ROCHAT CAN NOT BE HELD LIABLE IF YOU LOOSE TIME OR MONEY USING THIS CODE.   }
+{------------------------------------------------------------------------------}
+
+UNIT YRChrono ;
+
+{---------------------------------------------------------------------------}
+{                                                                           }
+{         PARTIE INTERFACE : SECTION PUBLIQUE OU VISIBLE DE L'UNITE         }
+{                                                                           }
+{---------------------------------------------------------------------------}
+
+INTERFACE
+
+USES
+  WinTypes, WinProcs, Messages, Classes, Graphics,
+	Controls, Forms, Dialogs, SysUtils ;
+
+TYPE
+  ChronoStr				= String[14] ;
+
+	TYRChronometre	= class(TComponent)
+  private
+  	FTimeStart	: TDateTime ;
+    FDateStart	: TDateTime ;
+    FTimeStop		: TDateTime ;
+    FDateStop		: TDateTime ;
+    FTimeTotal	: TDateTime ;
+    FChronoOn		: Boolean ;
+	protected
+  	{ Protected declaration }
+  public
+    constructor	Create(AOwner: TComponent); override;
+    destructor	Destroy; override;
+    procedure		Reset ;
+    procedure		Start ;
+    procedure		Stop  ;
+		function		Jours_Ecoule(D1,D2 : TDateTime) : WORD ;
+    function		TimeElapsed : TDateTime ;
+    function		TotalTimeElapsed : TDateTime ;
+    function		Time2Str(Le_Time : TDateTime) : ChronoStr ;
+	published
+  	{ Published declaration }
+	end;
+
+procedure Register;
+
+{---------------------------------------------------------------------------}
+{                                                                           }
+{        PARTIE IMPLEMENTATION : SECTION PRIVEE OU CACHEE DE L'UNITE        }
+{                                                                           }
+{---------------------------------------------------------------------------}
+
+IMPLEMENTATION
+
+procedure Register;
+begin
+  RegisterComponents('TecSoft', [TYRChronometre]);
+end;
+
+{------------------------------------------------------------------------------}
+{-                        Création de de l'objet                              -}
+{------------------------------------------------------------------------------}
+constructor	TYRChronometre.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  Reset ;
+end;
+
+{------------------------------------------------------------------------------}
+{-                      Destruction de de l'objet                             -}
+{------------------------------------------------------------------------------}
+destructor	TYRChronometre.Destroy;
+begin
+  inherited Destroy;
+end;
+
+{------------------------------------------------------------------------------}
+{-  Cette procedure reinitialise le chronometre. Elle doit etre appelee au    -}
+{-  moins une fois avant l'appel des autres methodes de l'objet.              -}
+{------------------------------------------------------------------------------}
+procedure	TYRChronometre.Reset ;
+begin
+  FTimeStart	:= 0.0 ;
+  FDateStart	:= 0.0 ;
+  FTimeStop		:= 0.0 ;
+  FDateStop		:= 0.0 ;
+	FTimeTotal	:= 0.0 ;
+  FChronoOn		:= False ;
+end ;
+
+{------------------------------------------------------------------------------}
+{-  Cette procedure active le chronometre si c'est la premiere fois qu'elle   -}
+{-  est appelee ou bien reactive celui-ci apres un appel a la methode Stop.   -}
+{-  Si le chonometre est en marche, alors cette procedure ne fait rien.       -}
+{------------------------------------------------------------------------------}
+procedure TYRChronometre.Start ;
+begin
+	If FChronoOn
+		then Exit ;
+  FDateStart	:= Date ;
+  FTimeStart	:= Time ;
+  FChronoOn		:= True ;
+  FTimeStop		:= 0.0 ;
+  FDateStop		:= 0.0 ;
+end;
+
+{------------------------------------------------------------------------------}
+{-    Cette procedure calcule le nombre de jours qui separe Date1 de Date2    -}
+{-    Il faut noter qu'une annee AAAA est bissextile si AAAA MOD 4 = 0. Les   -}
+{-    exceptions sont les annees multiplent de 100 qui ne sont pas divisibles -}
+{-    par 400. (Exemple 1900. Le prochain siecle bissextile est l'an 2000)    -}
+{------------------------------------------------------------------------------}
+function	TYRChronometre.Jours_Ecoule(D1,D2 : TDateTime) : WORD ;
+{
+Var
+  Y,YY,
+  M,MM,
+  J,JJ,
+	DY,DM,
+  JE,I	: WORD ;
+
+	FUNCTION Jour_Mois(AD,MD : WORD) : WORD ;
+  BEGIN
+    Case MD of
+    	1,3,5,7,8,10,12 : Jour_Mois := 31 ;
+			4,6,9,11				: Jour_Mois := 30 ;
+      2								: If (AD MOD 4) <> 0
+													then	Jour_Mois := 28
+													else  Begin
+																	If (AD MOD 100) <> 0
+																		then	Jour_Mois := 29
+																		else  Begin
+            				                  			If (AD MOD 400) = 0
+                    				          				then	Jour_Mois := 29
+                            				    			else	Jour_Mois := 28 ;
+																					End ;
+                  	      			End ;
+    End ;
+  END ;
+
+  FUNCTION Jour_Annee(AD : WORD) : WORD ;
+  BEGIN
+    If (AD MOD 4) <> 0
+			then	Jour_Annee := 365
+			else  Begin
+							If (AD MOD 100) <> 0
+								then	Jour_Annee := 366
+								else  Begin
+            						If (AD MOD 400) = 0
+                    			then	Jour_Annee := 366
+													else	Jour_Annee := 365 ;
+											End ;
+      			End ;
+  END ;
+}
+begin
+  {
+  JE := 0 ;
+  DecodeDate(D2,YY,MM,JJ) ;
+  DecodeDate(D1,Y,M,J) ;
+  DY := YY - Y ;
+	If DY = 0
+  	then	BEGIN
+						DM := MM - M ;
+						If DM = 0
+  						then	JE := JJ - J
+    					else	BEGIN
+            					JE := Jour_Mois(Y,M) - J + JJ ;
+											If DM > 1
+												then	For I := M+1 to MM-1 do
+              									JE := JE + Jour_Mois(Y,I) ;
+    								END ;
+    			END
+    else	BEGIN
+            JE := Jour_Mois(Y,M) - J ;
+						For I := M+1 to 12 do
+            	JE := JE + Jour_Mois(Y,I) ;
+            If DY > 1
+							then	For I := Y+1 to YY-1 do
+            					JE := JE + Jour_Annee(I) ;
+            For I := 1 to MM-1 do
+            	JE := JE + Jour_Mois(YY,I) ;
+            JE := JE + JJ ;
+    			END ;
+  Jours_Ecoule := JE ;
+  }
+  Jours_Ecoule	:= Round(D2 - D1) ;
+end ;
+
+{------------------------------------------------------------------------------}
+{- Cette procedure arrete le chronometre, ajoute le temps passe depuis l'appel-}
+{- de la methode Start au temps total. Si le chronometre est arrete, alors la -}
+{- la methode ne fait rien.                                                   -}
+{------------------------------------------------------------------------------}
+procedure TYRChronometre.Stop ;
+
+var JoursEcoule : WORD ;
+
+begin
+  If not FChronoOn
+		then Exit ;
+  FDateStop	:= Date ;
+  FTimeStop := Time ;
+  FChronoOn := False ;
+  { Calcul du temps ecoule depuis l'appel de la methode Start }
+  JoursEcoule := Jours_Ecoule(FDateStart,FDateStop) ;
+  FTimeTotal	:= FTimeTotal + (24*3600*(FTimeStop - FTimeStart)) ;
+  If JoursEcoule > 0      { Chrono. arrete un jour different du jour de départ }
+  	then  FTimeTotal := FTimeTotal + (24*3600*JoursEcoule) ;
+end ;
+
+{------------------------------------------------------------------------------}
+{- Cette procedure retourne le temps ecoule depuis l'appel de la methode Start-}
+{- Si le chronometre est arrete alors la methode retourne le temps ecoule     -}
+{- entre les deux appels des methodes Start et Stop.                          -}
+{------------------------------------------------------------------------------}
+function  TYRChronometre.TimeElapsed : TDateTime ;
+
+var	DateStopTmp : TDateTime ;
+		TimeStopTmp,
+		TEcoule		 	: Real ;
+  	JoursEcoule : Word ;
+
+begin
+  If FChronoOn
+  	then	begin
+      			TimeStopTmp	:= Time ;
+  					DateStopTmp	:= Date ;
+    			end
+  	else  begin
+      			DateStopTmp := FDateStop ;
+      			TimeStopTmp := FTimeStop ;
+    			end ;
+  { Calcul du temps ecoule depuis l'appel de la methode Start }
+  TEcoule			:= 24*3600*(TimeStopTmp - FTimeStart) ;
+  JoursEcoule := Jours_Ecoule(FDateStart,DateStopTmp) ;
+  If JoursEcoule > 0      { Chrono. arrete un jour different du jour de départ }
+  	then	TEcoule := TEcoule + (24*3600*JoursEcoule) ;
+  TimeElapsed := TEcoule ;
+end ;
+
+{------------------------------------------------------------------------------}
+{-  Cette procedure retourne le temps qui s'est ecoule depuis le moment ou    -}
+{-  le chronometre a ete active pour la premiere fois par la methode Start.   -}
+{-  Le temps retourne est celui ou le chronometre a ete en marche. Les moments-}
+{-  ou le chronometre est arrete ne sont pas calcules.                        -}
+{------------------------------------------------------------------------------}
+function  TYRChronometre.TotalTimeElapsed : TDateTime ;
+
+var	DateStopTmp : TDateTime ;
+  	TimeStopTmp	: Real ;
+  	JoursEcoule : Word ;
+
+begin
+  If FChronoOn	then
+  begin
+		TimeStopTmp	:= Time ;
+  	DateStopTmp	:= Date ;
+    { Calcul du temps ecoule depuis le debut }
+    JoursEcoule				:= Jours_Ecoule(FDateStart,DateStopTmp) ;
+  	TotalTimeElapsed	:= FTimeTotal + (24*3600*(TimeStopTmp - FTimeStart)) ;
+    If JoursEcoule > 0    { Chrono. arrete un jour different du jour de départ }
+			then  TotalTimeElapsed :=	TotalTimeElapsed + (24*3600*JoursEcoule) ;
+  end else
+  TotalTimeElapsed := FTimeTotal ;
+end ;
+
+{------------------------------------------------------------------------------}
+{-   Cette procedure convertit le parametre Le_Time en un String prenant la   -}
+{-   forme suivante : HHHHH:MM:SS.CC (Heure:Minute:Seconde.Centieme).         -}
+{------------------------------------------------------------------------------}
+function TYRChronometre.Time2Str (Le_Time : TDateTime) : ChronoStr ;
+
+VAR Hour				: STRING[5] ;
+		Minute,
+    Sec,Sec100  : STRING[2] ;
+  	Vow_Hour,
+  	Vow_Minute,
+  	Vow_Second,
+  	Vow_Sec100  : WORD ;
+
+BEGIN
+  Vow_Sec100	:= Round(Frac(Le_Time) * 100) ;
+  Le_Time			:= Int(Le_Time) ;
+  Vow_Hour		:= Round(Int(Le_Time / 3600)) ;
+  Le_Time			:= Le_Time - (LongInt(Vow_Hour) * 3600) ;
+  Vow_Minute 	:= Round(Int(Le_Time / 60)) ;
+  Le_Time   	:= Le_Time - (LongInt(Vow_Minute) * 60) ;
+  Vow_Second 	:= Round(Int(Le_Time)) ;
+
+  Time2Str := '' ;
+  Str(Vow_Hour,Hour) ;
+	If Length(Hour) = 1
+  	then Hour := '0' + Hour ;
+  Str(Vow_Minute,Minute) ;
+	If Length(Minute) = 1
+  	then Minute := '0' + Minute ;
+  Str(Vow_Second,Sec) ;
+  If Length(Sec) = 1
+  	then Sec := '0' + Sec ;
+  Str(Vow_Sec100,Sec100) ;
+  If Length(Sec100) = 1
+  	then Sec100 := '0' + Sec100 ;
+	Time2Str	:= Hour + ':' + Minute + ':' + Sec + '.' + Sec100 ;
+END ;
+
+END.   { FIN DE LA LIBRAIRIE YRCHRONO }

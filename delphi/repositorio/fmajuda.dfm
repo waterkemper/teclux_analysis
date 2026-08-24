@@ -1,6 +1,6 @@
 object frmAjuda: TfrmAjuda
-  Left = 916
-  Top = 749
+  Left = 1319
+  Top = 931
   Width = 160
   Height = 109
   BorderWidth = 2

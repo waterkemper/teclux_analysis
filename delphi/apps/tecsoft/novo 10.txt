@@ -1,0 +1,213 @@
+/* qryComprasGruposFiliais */
+;
+select *
+     , case
+              when sugestao1 <= 0
+                     then 0
+                     else (cast(ROUND( ( cast((total_vendido) as float) / periodo) * NULL ) as float) - total_estoque - total_pedido + futuro)
+       end as sugestao
+     , cast
+              (
+                     case
+                            when coalesce(total_vendido,0)<>0
+                                   then ((total_estoque +
+                                   case
+                                          when true
+                                                 then 0
+                                                 else total_pedido
+                                   end)/ (Total_vendido / Periodo))
+                                   else cast(999999.99 as numeric(11,2))
+                     end as numeric(12,2)
+              )
+       as diasestoque
+     , cast
+              (
+                     case
+                            when coalesce(total_vendido,0)<>0
+                                   then ((total_estoque +
+                                   case
+                                          when false
+                                                 then 0
+                                                 else total_pedido
+                                   end)/ (Total_vendido / Periodo))
+                                   else cast(999999.99 as numeric(11,2))
+                     end as numeric(12,2)
+              )
+                          as diasestoquecompedidosdecompra
+     , cast(0 as integer) as filial
+from
+       (
+                SELECT *
+                       , (cast(ROUND( ( cast(total_vendido as float)/ periodo) * NULL) as float) - total_estoque - total_pedido + futuro) AS sugestao1
+                       , cast(100 as numeric(6,2))                                                                                        as PercEstoque
+                FROM
+                         (
+                                  SELECT
+                                           fgf.grupo
+                                         , g.mnemonico
+                                         , s.produto
+                                         , s.periodo
+                                         , max(s.datacompra)                   as datacompra
+                                         , SUM ( s.estoque )                   AS total_estoque
+                                         , SUM ( s.emestoque )                 AS emestoque
+                                         , SUM ( s.transito )                  AS total_transito
+                                         , SUM ( s.pedido + s.pedidos_filiais) AS total_pedido
+                                         , SUM ( s.pedido)                     AS total_pedidos_fornecedores
+                                         , SUM ( s.pedidos_filiais)            AS total_pedidos_filiais
+                                         , SUM ( s.vendido )                   AS total_vendido
+                                         , CAST(SUM (s.reservado) as     float)    as reservado
+                                         , CAST(SUM (s.reservaprevia) as float)    as reservaprevia
+                                         , CAST(SUM(s.minimo) as         float)    as minimo
+                                         , CAST
+                                                    (
+                                                             case
+                                                                      when SUM(s.minimo - s.saldo)<0
+                                                                               then 0
+                                                                               else SUM(s.minimo-s.saldo)
+                                                             end as float
+                                                    )
+                                                                         as sugestaominimo
+                                         , CAST(SUM (s.maximo) as float) as maximo
+                                         , CAST
+                                                    (
+                                                             case
+                                                                      when SUM(s.maximo - s.saldo)<0
+                                                                               then 0
+                                                                               ELSE sum(s.maximo-s.saldo)
+                                                             end as float
+                                                    )
+                                                                        as sugestaomaximo
+                                         , cast(sum(s.futuro) as float) as futuro
+                                  FROM
+                                           (
+                                                  select
+                                                         e.*
+                                                       , coalesce(pedidos_estoquepedido,0) + produtospedidos_recebido_semnotaparcial AS pedido
+                                                       , e.estoque                         + pedidos_estoquepedido - e.futuro        as saldo
+                                                       , case
+                                                                when e.datacadastro between NULL and NULL
+                                                                       then
+                                                                       case
+                                                                              when NULL = e.datacadastro
+                                                                                     then 1
+                                                                                     else NULL - e.datacadastro
+                                                                       end
+                                                                       else NULL
+                                                         end as periodo
+                                                  from
+                                                         (
+                                                                select
+                                                                       e.*
+                                                                     , case
+                                                                              when 'f'
+                                                                                     then 0
+                                                                                     else produtospedidos_recebido_semnotaparcial(e.produto,e.filial)
+                                                                       end as produtospedidos_recebido_semnotaparcial
+                                                                FROM
+                                                                       (
+                                                                              select
+                                                                                     e.*
+                                                                                   , case
+                                                                                            when 'f'
+                                                                                                   then 0
+                                                                                                   else pedidos_estoquepedido(e.produto,e.filial)
+                                                                                     end as pedidos_estoquepedido
+                                                                              from
+                                                                                     (
+                                                                                            select
+                                                                                                   e.*
+                                                                                                 , case
+                                                                                                          when NULL =''
+                                                                                                                 then movimentos_vendido(NULL,NULL, e.produto, e.filial)
+                                                                                                                 else movimentos_vendido_porconceito(NULL,NULL, e.produto, e.filial, NULL)
+                                                                                                   end as vendido
+                                                                                            from
+                                                                                                   (
+                                                                                                          select
+                                                                                                                 e.*
+                                                                                                               , case
+                                                                                                                        when not 't'
+                                                                                                                               then 0
+                                                                                                                               else coalesce(
+                                                                                                                                              (
+                                                                                                                                                     select
+                                                                                                                                                            sum
+                                                                                                                                                                   (
+                                                                                                                                                                          case
+                                                                                                                                                                                 when pf.situacao = 'A'
+                                                                                                                                                                                        then pf.qtdepedida
+                                                                                                                                                                                 when pf.situacao = 'F'
+                                                                                                                                                                                        then 0
+                                                                                                                                                                          end
+                                                                                                                                                                   )
+                                                                                                                                                     from
+                                                                                                                                                            pedidosfiliais pf
+                                                                                                                                                     where
+                                                                                                                                                            pf.produto          = e.produto
+                                                                                                                                                            and pf.requisitante = e.filial
+                                                                                                                                                            and pf.situacao in ('A'
+                                                                                                                                                                              ,'F')
+                                                                                                                                             )
+                                                                                                                                             ,0)
+                                                                                                                               /*+ e.transito*/
+                                                                                                                 end as pedidos_filiais
+                                                                                                          from
+                                                                                                                 (
+                                                                                                                        select
+                                                                                                                               e.produto
+                                                                                                                             , p.datacadastro
+                                                                                                                             , e.filial
+                                                                                                                             , e.datacompra
+                                                                                                                             , e.emEstoque + e.transito - e.futuro as estoque
+                                                                                                                             , e.emestoque
+                                                                                                                             , e.futuro
+                                                                                                                             , e.transito
+                                                                                                                             , e.reservado
+                                                                                                                             , e.reservaprevia
+                                                                                                                             , coalesce(e.minimo,0) as minimo
+                                                                                                                             , coalesce(e.maximo,0) as maximo
+                                                                                                                        from
+                                                                                                                               estoques e
+                                                                                                                               join
+                                                                                                                                      produtos p
+                                                                                                                                      on
+                                                                                                                                             e.produto = p.codigo
+                                                                                                                        where
+                                                                                                                               p.codigo in (1136700
+                                                                                                                                          , 1951700
+                                                                                                                                          , 1951800)
+                                                                                                                               and p.codigo in (1136700)
+                                                                                                                 )
+                                                                                                                 as e
+                                                                                                   )
+                                                                                                   as e
+                                                                                     )
+                                                                                     as e
+                                                                       )
+                                                                       as e
+                                                         )
+                                                         as e
+                                           )
+                                           AS s
+                                           JOIN
+                                                    (filiaisgruposfiliais fgf
+                                                    join
+                                                             gruposfiliais g
+                                                             on
+                                                                      fgf.grupo = g.codigo)
+                                                    on
+                                                             s.filial = fgf.filial
+                                  GROUP BY
+                                           s.produto
+                                         , fgf.grupo
+                                         , g.mnemonico
+                                         , s.periodo
+                         )
+                         AS selecionados
+                         /*where (total_estoque<>0) or (total_pedido<>0) or (total_vendido<>0)*/
+                ORDER BY
+                         produto
+                       , grupo
+       )
+       as selecionados
+;

@@ -1,6 +1,6 @@
 inherited frmCadastroRomaneio: TfrmCadastroRomaneio
-  Left = 255
-  Top = 100
+  Left = 334
+  Top = 223
   BorderIcons = [biSystemMenu, biMinimize, biMaximize]
   Caption = 'Cadastro de Romaneios'
   ClientHeight = 624
@@ -1362,6 +1362,7 @@ inherited frmCadastroRomaneio: TfrmCadastroRomaneio
           TabOrder = 6
           Visible = False
           OnChange = AdvDBDateTimePicker1Change
+          OnUserInput = AdvDBDateTimePicker1UserInput
           BorderStyle = bsSingle
           Ctl3D = True
           DateTime = 44865.694166666670000000

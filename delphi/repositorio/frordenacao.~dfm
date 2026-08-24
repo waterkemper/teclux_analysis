@@ -1,0 +1,163 @@
+object fraOrdenacao: TfraOrdenacao
+  Left = 0
+  Top = 0
+  Width = 232
+  Height = 125
+  TabOrder = 0
+  object gbxOrdenacao: TGroupBox
+    Left = 0
+    Top = 0
+    Width = 232
+    Height = 125
+    Align = alClient
+    Caption = 'Ordena'#231#227'o'
+    TabOrder = 0
+    object HeaderControl1: THeaderControl
+      Left = 2
+      Top = 15
+      Width = 228
+      Height = 2
+      DragReorder = False
+      Sections = <>
+    end
+    object pnlDireito: TPanel
+      Left = 206
+      Top = 17
+      Width = 24
+      Height = 106
+      Align = alRight
+      BevelOuter = bvNone
+      TabOrder = 1
+      object sbnAcima: TSpeedButton
+        Left = 0
+        Top = 0
+        Width = 23
+        Height = 22
+        Hint = 'Um n'#237'vel acima'
+        Glyph.Data = {
+          6E000000424D6E000000000000003E000000280000000C0000000C0000000100
+          01000000000030000000120B0000120B00000200000002000000FFFFFF000000
+          0000000FFFFF000FFFFF070FFFFF070FFFFF070FFFFF1FCFFFFF0F8FFFFF070F
+          FFFF020FFFFF000FFFFF000FFFFF000FFFFF}
+        ParentShowHint = False
+        ShowHint = True
+        OnClick = sbnAcimaClick
+      end
+      object sbnAbaixo: TSpeedButton
+        Left = 0
+        Top = 24
+        Width = 23
+        Height = 22
+        Hint = 'Um n'#237'vel abaixo'
+        Glyph.Data = {
+          6E000000424D6E000000000000003E000000280000000C0000000C0000000100
+          01000000000030000000120B0000120B00000200000002000000FFFFFF000000
+          0000000FFFFF000FFFFF000FFFFF020FFFFF070FFFFF0F8FFFFF1FCFFFFF070F
+          FFFF070FFFFF070FFFFF000FFFFF000FFFFF}
+        ParentShowHint = False
+        ShowHint = True
+        OnClick = sbnAbaixoClick
+      end
+    end
+    object dbgSelecao: TtecDBGrid
+      Left = 2
+      Top = 17
+      Width = 204
+      Height = 106
+      Align = alClient
+      BorderStyle = bsNone
+      Color = clBtnFace
+      DataSource = dsrLista
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      Options = [dgEditing, dgColLines, dgRowLines]
+      ParentFont = False
+      TabOrder = 2
+      TitleFont.Charset = DEFAULT_CHARSET
+      TitleFont.Color = clBlack
+      TitleFont.Height = -11
+      TitleFont.Name = 'MS Shell Dlg'
+      TitleFont.Pitch = fpVariable
+      TitleFont.Style = []
+      OnKeyDown = dbgSelecaoKeyDown
+      RowWrap = 60
+      Large = False
+      DoubleRowColor = False
+      TitleMinHeight = 100
+      CellHeights = 100
+      StrippedColor = 16054260
+      CanDelete = False
+      PostOnEnter = False
+      DenySort = False
+      Columns = <
+        item
+          Expanded = False
+          FieldName = 'campodescricao'
+          ReadOnly = True
+          Width = 130
+          Visible = True
+        end
+        item
+          DropDownRows = 2
+          Expanded = False
+          FieldName = 'tipo'
+          PickList.Strings = (
+            'ASC'
+            'DESC')
+          Width = 60
+          Visible = True
+        end>
+    end
+  end
+  object dsrLista: TtecDataSource
+    DataSet = qryLista
+    Left = 8
+    Top = 16
+  end
+  object qryLista: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterInsert = qryListaAfterInsert
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      
+        'select cast('#39'CAMPODESCRICAO_1'#39' as varchar(50)) as CAMPODESCRICAO' +
+        ', '
+      '           cast('#39'CAMPO_1'#39' as varchar(50)) as CAMPO,'
+      '          cast('#39'ASC'#39' as varchar) as TIPO'
+      'UNION ALL'
+      
+        'select cast('#39'CAMPODESCRICAO_2'#39' as varchar(50)) as CAMPODESCRICAO' +
+        ','
+      '           cast('#39'CAMPO_2'#39' as varchar(50)) as CAMPO,'
+      '          cast('#39'ASC'#39' as varchar) as TIPO')
+    RequestLive = True
+    Left = 40
+    Top = 16
+    object qryListacampo: TStringField
+      DisplayWidth = 20
+      FieldName = 'campo'
+      Size = 50
+    end
+    object qryListatipo: TStringField
+      FieldName = 'tipo'
+      Size = 5
+    end
+    object qryListacampodescricao: TStringField
+      FieldName = 'campodescricao'
+      Visible = False
+      Size = 50
+    end
+  end
+end

@@ -1,0 +1,186 @@
+object fraPesquisaNotaFiscal: TfraPesquisaNotaFiscal
+  Left = 0
+  Top = 0
+  Width = 560
+  Height = 41
+  TabOrder = 0
+  object gbxFilial: TGroupBox
+    Left = 4
+    Top = 0
+    Width = 386
+    Height = 39
+    Caption = 'FILIAL'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -9
+    Font.Name = 'helvetica'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 0
+    inline fraConsultaFilial: TfraConsultaCodigo
+      Left = 4
+      Top = 12
+      Width = 379
+      Height = 23
+      HorzScrollBar.Range = 497
+      HorzScrollBar.Visible = False
+      VertScrollBar.Range = 23
+      VertScrollBar.Visible = False
+      AutoScroll = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'helvetica'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      inherited sbnProcura: TSpeedButton
+        Left = 32
+      end
+      inherited dtxDescricao: TtecDBText
+        Left = 56
+        Width = 321
+        DataField = 'nome'
+        DataSource = fraConsultaFilial.dsrProcuraFiliais
+      end
+      inherited edfCodigo: TtecDBFindLookup
+        Width = 33
+        DataaFieldInterno = 'codigo'
+        DataaFieldVisual = 'codigo'
+        DataField = 'codigo'
+        DataSource = fraConsultaFilial.dsrProcuraFiliais
+        MaxLength = 3
+        OnFound = nil
+        Operacao = opPESQUISA
+        Parameter = 'codigo'
+        ActiveSetControls = False
+        DenyInsert = True
+        NoSetControls = <>
+        SetControls = <>
+      end
+      inherited qryProcuraCobrador: TtecQuery
+        Left = 400
+      end
+    end
+  end
+  object gbxSerie: TGroupBox
+    Left = 392
+    Top = 1
+    Width = 64
+    Height = 39
+    Caption = 'S'#201'RIE'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -9
+    Font.Name = 'helvetica'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 1
+    inline fraConsultaSerie: TfraConsultaCodigo
+      Left = 4
+      Top = 12
+      Width = 58
+      Height = 23
+      HorzScrollBar.Range = 497
+      HorzScrollBar.Visible = False
+      VertScrollBar.Range = 23
+      VertScrollBar.Visible = False
+      AutoScroll = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'helvetica'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      inherited sbnProcura: TSpeedButton
+        Left = 32
+      end
+      inherited dtxDescricao: TtecDBText
+        Left = 56
+        Width = 0
+        DataField = 'nome'
+        DataSource = fraConsultaFilial.dsrProcuraFiliais
+      end
+      inherited edfCodigo: TtecDBFindLookup
+        Width = 33
+        DataaFieldInterno = 'serie'
+        DataaFieldVisual = 'serie'
+        DataField = 'serie'
+        DataSource = fraConsultaSerie.dsrProcuraSerie
+        MaxLength = 3
+        OnFound = nil
+        Operacao = opPESQUISA
+        Parameter = 'serie'
+        ActiveSetControls = False
+        DenyInsert = True
+        NoSetControls = <>
+        SetControls = <>
+      end
+      inherited qryProcuraCobrador: TtecQuery
+        Left = 400
+      end
+    end
+  end
+  object gbxNumeroCupom: TGroupBox
+    Left = 460
+    Top = 0
+    Width = 96
+    Height = 39
+    Caption = 'N'#218'MERO'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -9
+    Font.Name = 'helvetica'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 2
+    inline fraConsultaNotaFiscal: TfraConsultaCodigo
+      Left = 4
+      Top = 12
+      Width = 89
+      Height = 23
+      HorzScrollBar.Range = 497
+      HorzScrollBar.Visible = False
+      VertScrollBar.Range = 23
+      VertScrollBar.Visible = False
+      AutoScroll = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'helvetica'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      inherited dtxDescricao: TtecDBText
+        Left = 56
+        Width = 0
+        DataField = 'nome'
+        DataSource = fraConsultaFilial.dsrProcuraFiliais
+      end
+      inherited edfCodigo: TtecDBFindLookup
+        Width = 63
+        DataaFieldInterno = 'numero'
+        DataaFieldVisual = 'numero'
+        DataField = 'numero'
+        DataSource = fraConsultaNotaFiscal.dsrProcuraNfSaida
+        MaxLength = 9
+        OnFound = nil
+        Operacao = opPESQUISA
+        Parameter = 'numero'
+        ActiveSetControls = False
+        DenyInsert = True
+        NoSetControls = <>
+        SetControls = <>
+      end
+      inherited qryProcuraCobrador: TtecQuery
+        Left = 400
+      end
+    end
+  end
+  object dsrProcuraNFSaida: TtecDataSource
+    DataSet = fraConsultaNotaFiscal.qryProcuraNFSaida
+    Left = 496
+    Top = 8
+  end
+end

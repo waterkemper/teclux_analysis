@@ -4,7 +4,7 @@ interface
 
 Uses
   //CLX
-  windows, Tlhelp32, ShellApi,Graphics, IdGlobalProtocols, IdGlobal,
+  windows, Tlhelp32, ShellApi,Graphics, IdGlobalProtocols, IdGlobal, 
   inifiles,
   SysUtils, Classes, Dialogs, {Qete,} Forms, DateUtils, Math, DBGrids, clusuario,
   Consts, ComCtrls, cppagecontrol, DB, Controls, CheckLst,  idPOP3,
@@ -28,6 +28,7 @@ Uses
   ACBrDelphiZXingQRCode, StdCtrls, ClipBrd, AdvGrid, DBAdvGrid, ZSqlItems,
   pcteConversaoCTe, MPlayer, synautil, uS3Storage, DBTables, DBClient, ACBrBarCode,
   AJBarcode, IdMessageBuilder, ACBrTEFDClass, WebPGraphic,
+
   Jsons; // do ACBr
 
 
@@ -71,6 +72,9 @@ const
   'Sergipe',
   'São Paulo',
   'Tocantins');
+
+type
+  TJsonValueKind = (jvkInt, jvkNumeric, jvkString);
 
 
 type TTempo_Thread = class(TThread)
@@ -159,6 +163,8 @@ function MensagemSimNaoOpcaoCancelarmmo(mensagem, NomeOpcaoExtra: String;
 function MensagemSimNaoOpcaoCancelarmmoXML(mensagem: String;
                                      arquivoxml: String): TModalResult ;
 
+
+procedure ActivateMDIChild(AChild: TForm);
 
 
 function TeclaEnterOuReturn(tecla: Word):Boolean;
@@ -607,6 +613,50 @@ function SortClientDataSet(ClientDataSet: TClientDataSet;
   Descending: Boolean
   ): Boolean;
 
+function JsonEscape(const S: string): string;
+function FloatToJson(const V: Double): string;
+function BuildCriterioJsonFromDataSet(
+  const AKey: string;
+  ADataSet: TDataSet;
+  const AValueField: string;
+  const ACheckedField: string;
+  AKind: TJsonValueKind
+): string;
+function MergeJsonObjects(const A, B: string): string;
+
+function BuildCriterioJsonFromTwoDataSet(
+  dsNatureza: TDataSet;
+  dsCodigos: TDataSet;
+
+  const KeyName: string;              // ex: 'operacao_cf'
+  const KeyFieldIdNaturezaNat: string;
+  const FieldIdNaturezaNat: string;   // ex: 'ID_NATUREZA'
+
+  const keyFieldOperacaoNat: string;     // ex: 'OPERACAO' (VENDA_MERCADORIA)
+  const FieldOperacaoNat: string;     // ex: 'OPERACAO' (VENDA_MERCADORIA)
+  const FieldSelecionadoNat: string;  // ex: 'SELECIONADO'
+
+  const Keycf: string;
+  const FieldIdNaturezaCod: string;   // ex: 'ID_NATUREZA'
+  const FieldCodigoFiscal: string;    // ex: 'CFOP' ou 'CODIGO'
+  const FieldSelecionadoCod: string;  // ex: 'SELECIONADO'
+
+  CodigoKind: TJsonValueKind          // normalmente jvkInt
+): string;
+
+function BuildCriterioJsonSecondbyFirstDataSet(
+  dsCodigos: TDataSet;
+  const FieldIdNaturezaCod: string;   // ex: 'ID_NATUREZA'
+  const FieldCodigoFiscal: string;    // ex: 'CFOP' ou 'CODIGO'
+  const FieldSelecionadoCod: string;  // ex: 'SELECIONADO'
+  IdNatureza: Integer;
+  CodigoKind: TJsonValueKind          // normalmente jvkInt
+): string;
+
+
+function BuildBoolChoiceCriterioJson(const AKey: string; ACheckedSim, ACheckedNao: Boolean): string;
+
+
 
 //Procedure ImprimeTextFile(Filename: String; DocName: String = 'Imprimindo ..');
 
@@ -696,7 +746,9 @@ var
   furlprocessamento_normal,
   }
   fnaturezajuridica,
-  ind_ativ : String;
+  ind_ativ,
+  fserienfse : String;
+
   regimecontabil : integer;
 
   fautenticarsmtp_filialbase,
@@ -2044,6 +2096,26 @@ begin
   frmMensagemSimNaoOpcaoCancelammoxml.Free;
 
 end;
+
+procedure ActivateMDIChild(AChild: TForm);
+var
+  MDIClient: HWND;
+begin
+  if (AChild = nil) or (Application.MainForm = nil) then Exit;
+
+  // restaura antes
+  if AChild.WindowState = wsMinimized then
+    AChild.WindowState := wsNormal;
+
+  AChild.Show;        // garante criado/visível
+  AChild.BringToFront;
+
+  // ativa via MDI (mais confiável no D7)
+  MDIClient := Application.MainForm.ClientHandle;
+  if MDIClient <> 0 then
+    SendMessage(MDIClient, WM_MDIACTIVATE, AChild.Handle, 0);
+end;
+
 
 
 
@@ -4093,7 +4165,7 @@ end;
 
 function DescricaoTipodeFrete(codigo: variant): String;
 begin
-  if codigo = null then result := ''
+  if codigo = Variants.null then result := ''
   else
   if codigo = 0    then result := '0 - Normal'
   else
@@ -6128,8 +6200,8 @@ var
     result := true;
     for a := 0 to High(ListadeCampos) do
     begin
-//      if ListadeCampos[a].asvariant = null then    {Alguma fator desconhecido funciona ora não}
-      if ListadeCampos[a].IsNull then
+      if ListadeCampos[a].asvariant = Variants.null then    {Alguma fator desconhecido funciona ora não}
+//      if ListadeCampos[a].IsNull then
       begin
         result := false;
         break;
@@ -6932,6 +7004,36 @@ begin
 end;
 
 
+
+procedure HttpGetToStream(const Url: string; Stream: TStream);
+var
+  Http: TIdHTTP;
+  SSL: TIdSSLIOHandlerSocketOpenSSL;
+begin
+  Http := TIdHTTP.Create(nil);
+  SSL  := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
+  try
+    Http.IOHandler := SSL;
+
+    // TLS 1.2 (requires OpenSSL 1.0.2+)
+    SSL.SSLOptions.Method := sslvTLSv1_2;
+    SSL.SSLOptions.SSLVersions := [sslvTLSv1_2];
+
+    Http.HandleRedirects := True;
+    Http.ReadTimeout := 30000;
+    Http.ConnectTimeout := 15000;
+
+    Stream.Position := 0;
+    Http.Get(Url, Stream);
+    Stream.Position := 0;
+  finally
+    Http.Free;
+    SSL.Free;
+  end;
+end;
+
+
+
 procedure DownloadImagem(url:string; im:TImage; ConverterParaBMP: Boolean);
 var
 {  strStream : String;}
@@ -7146,12 +7248,16 @@ begin
       end;
 *)      
 
-      idhttp1.Get(Trim(url), memStream);
+      //idhttp1.Get(Trim(url), memStream);
+      HttpGetToStream(url, memStream)
 
 
     except
-      //ShowMessage('Image was not found');
-      Exit;
+      on E: Exception do
+      begin
+        ShowMessage(E.Message);
+        Exit;
+      end;  
     end;
 
    {
@@ -7450,7 +7556,7 @@ end;
 
 function ValorObjetoArquivoIni(Conteudo: TMemoField; Secao, parametro: String; DataType:  TFieldType; manter: boolean): variant;
 begin
-  result := null;
+  result := Variants.null;
   if (secao<>'') and (parametro<>'') then
   begin
 
@@ -7523,8 +7629,6 @@ var
   ControlesJaDesabilitados : Boolean;
   vContinuar : Boolean;
 
-
-
   function ExisteDiferencadeChave: boolean;
   var
     a: Integer;
@@ -7545,7 +7649,8 @@ var
       else
       begin
 
-        if (Chaves[a].Value<>null) then
+        if (Chaves[a].Value<>Variants.null) then
+//        if not (Chaves[a].IsNull) then
         begin
           if VarToStr(Chaves[a].Value) <> Valores[a] then
           begin
@@ -7663,7 +7768,8 @@ begin
           case Chaves[a].dataType of
             ftlargeint, ftString :
             begin
-              if Valores[a] = null then
+              if Valores[a] = Variants.null then
+//              if Valores[a].isnull then
                 Chaves[a].clear
               else
                 Chaves[a].AsSTring := Valores[a];
@@ -7738,7 +7844,8 @@ var
       else
       begin
 
-        if (Chaves[a].Value<>null) then
+        if (Chaves[a].Value<>Variants.null) then
+//        if not (Chaves[a].IsNull) then
         begin
           if VarToStr(Chaves[a].Value) <> Valores[a] then
           begin
@@ -7856,7 +7963,8 @@ begin
           case Chaves[a].dataType of
             ftlargeint, ftString :
             begin
-              if Valores[a] = null then
+              if Valores[a] = Variants.null then
+//              if Valores[a].isnull then
                 Chaves[a].clear
               else
                 Chaves[a].AsSTring := Valores[a];
@@ -8059,6 +8167,16 @@ begin
   begin
     if qryDadosFilial_.locate('codigo', codigofilial, []) then
        result := qryDadosFilial_.fieldbyname(nomedocampo).asvariant;
+
+       {
+    if result = null then
+    begin
+      if qryDadosFilial_.fieldbyname(nomedocampo).datatype = ftString then
+        result :=
+    end;
+    }
+
+
   end;
 end;
 
@@ -8191,7 +8309,8 @@ begin
             case Chaves[a].dataType of
               ftlargeint, ftString :
               begin
-                if Valores[a] = null then
+                if Valores[a] = Variants.null then
+//                if Valores[a].isnull then
                  Chaves[a].clear
                 else
                  Chaves[a].AsSTring := Valores[a];
@@ -8274,7 +8393,8 @@ begin
             case Chaves[a].dataType of
               ftlargeint, ftString :
               begin
-                if Valores[a] = null then
+                if Valores[a] = Variants.null then
+//                if Valores[a].isnull then
                  Chaves[a].clear
                 else
                  Chaves[a].AsSTring := Valores[a];
@@ -8960,6 +9080,315 @@ begin
   finally
     FormXML.Free;
   end;
+end;
+
+
+function JsonEscape(const S: string): string;
+var
+  i: Integer;
+  ch: Char;
+begin
+  Result := '';
+  for i := 1 to Length(S) do
+  begin
+    ch := S[i];
+    case ch of
+      '"':  Result := Result + '\"';
+      '\':  Result := Result + '\\';
+      #8:   Result := Result + '\b';
+      #9:   Result := Result + '\t';
+      #10:  Result := Result + '\n';
+      #12:  Result := Result + '\f';
+      #13:  Result := Result + '\r';
+    else
+      if Ord(ch) < 32 then
+        Result := Result + '\u' + IntToHex(Ord(ch), 4)
+      else
+        Result := Result + ch;
+    end;
+  end;
+end;
+
+{
+function FloatToJson(const V: Double): string;
+var
+  fs: TFormatSettings;
+begin
+  fs := TFormatSettings.Create;
+  fs.DecimalSeparator := '.';
+  Result := FloatToStr(V, fs);
+end;
+}
+function FloatToJson(const V: Double): string;
+var
+  s: string;
+begin
+  s := FloatToStr(V);
+  Result := StringReplace(s, ',', '.', [rfReplaceAll]);
+end;
+
+// Retorna: {"<Key>":[...]}
+function BuildCriterioJsonFromDataSet(
+  const AKey: string;
+  ADataSet: TDataSet;
+  const AValueField: string;
+  const ACheckedField: string;
+  AKind: TJsonValueKind
+): string;
+var
+  bm: TBookmark;
+  first: Boolean;
+  vStr: string;
+  vInt: Integer;
+  vNum: Double;
+begin
+  Result := '{"' + JsonEscape(AKey) + '":[';
+
+  if (ADataSet = nil) or (not ADataSet.Active) then
+  begin
+    Result := Result + ']}';
+    Exit;
+  end;
+
+  bm := ADataSet.GetBookmark;
+  try
+    ADataSet.DisableControls;
+    try
+      ADataSet.First;
+      first := True;
+
+      while not ADataSet.Eof do
+      begin
+        if ADataSet.FieldByName(ACheckedField).AsBoolean then
+        begin
+          if not first then
+            Result := Result + ','
+          else
+            first := False;
+
+          case AKind of
+            jvkInt:
+              begin
+                vInt := ADataSet.FieldByName(AValueField).AsInteger;
+                Result := Result + IntToStr(vInt);
+              end;
+
+            jvkNumeric:
+              begin
+                vNum := ADataSet.FieldByName(AValueField).AsFloat;
+                Result := Result + FloatToJson(vNum);
+              end;
+
+            jvkString:
+              begin
+                vStr := ADataSet.FieldByName(AValueField).AsString;
+                Result := Result + '"' + JsonEscape(vStr) + '"';
+              end;
+          end;
+        end;
+
+        ADataSet.Next;
+      end;
+
+    finally
+      ADataSet.GotoBookmark(bm);
+      ADataSet.FreeBookmark(bm);
+      ADataSet.EnableControls;
+    end;
+  except
+    // Se dataset não suportar bookmark ou der erro, ainda fecha JSON corretamente
+    Result := Result + ']}';
+    raise;
+  end;
+
+  Result := Result + ']}';
+end;
+
+
+function MergeJsonObjects(const A, B: string): string;
+begin
+  // A e B são objetos JSON do tipo {"x":[...]}.
+  // Junta em {"x":[...],"y":[...]}.
+  result := '';
+  if (A = '') then
+  begin
+    Result := B;
+    Exit;
+  end;
+
+  if (B = '') then
+  begin
+    Result := A;
+    Exit;
+  end;
+
+  if (A<>'') and (B<>'') then
+    Result := Copy(A, 1, Length(A)-1) + ',' + Copy(B, 2, MaxInt);
+end;
+
+
+
+function BuildCriterioJsonFromTwoDataSet(
+  dsNatureza: TDataSet;
+  dsCodigos: TDataSet;
+
+  const KeyName: string;              // ex: 'operacao_cf'
+  const KeyFieldIdNaturezaNat: string;
+  const FieldIdNaturezaNat: string;   // ex: 'ID_NATUREZA'
+
+  const keyFieldOperacaoNat: string;     // ex: 'OPERACAO' (VENDA_MERCADORIA)
+  const FieldOperacaoNat: string;     // ex: 'OPERACAO' (VENDA_MERCADORIA)
+  const FieldSelecionadoNat: string;  // ex: 'SELECIONADO'
+
+  const Keycf: string;
+  const FieldIdNaturezaCod: string;   // ex: 'ID_NATUREZA'
+  const FieldCodigoFiscal: string;    // ex: 'CFOP' ou 'CODIGO'
+  const FieldSelecionadoCod: string;  // ex: 'SELECIONADO'
+
+  CodigoKind: TJsonValueKind          // normalmente jvkInt
+): string;
+var
+  bm: TBookmark;
+  first: Boolean;
+  idNat: Integer;
+  op: string;
+  arrCod: string;
+begin
+  Result := '{"' + JsonEscape(KeyName) + '":[';
+
+  if (dsNatureza = nil) or (not dsNatureza.Active) then
+  begin
+    Result := Result + ']}';
+    Exit;
+  end;
+
+  bm := dsNatureza.GetBookmark;
+//  dsNatureza.DisableControls;
+  try
+    dsNatureza.First;
+    first := True;
+
+    while not dsNatureza.Eof do
+    begin
+      if dsNatureza.FieldByName(FieldSelecionadoNat).AsBoolean then
+      begin
+        idNat := dsNatureza.FieldByName(FieldIdNaturezaNat).AsInteger;
+        op    := dsNatureza.FieldByName(FieldOperacaoNat).AsString;
+
+        arrCod := BuildCriterioJsonSecondbyFirstDataSet(
+          dsCodigos,
+          FieldIdNaturezaCod,
+          FieldCodigoFiscal,
+          FieldSelecionadoCod,
+          idNat,
+          CodigoKind
+        );
+
+        if not first then
+          Result := Result + ','
+        else
+          first := False;
+
+        Result := Result
+          + '{'
+          + '"'+KeyFieldIdNaturezaNat+'":' + IntToStr(idNat) + ','
+          + '"'+KeyFieldOperacaoNat+'":"' + JsonEscape(op) + '",'
+          + '"'+Keycf+'":' + arrCod
+          + '}'
+
+      end;
+
+      dsNatureza.Next;
+    end;
+
+  finally
+    dsNatureza.GotoBookmark(bm);
+    dsNatureza.FreeBookmark(bm);
+//    dsNatureza.EnableControls;
+  end;
+
+  Result := Result + ']}';
+end;
+
+
+
+function BuildCriterioJsonSecondbyFirstDataSet(
+  dsCodigos: TDataSet;
+  const FieldIdNaturezaCod: string;   // ex: 'ID_NATUREZA'
+  const FieldCodigoFiscal: string;    // ex: 'CFOP' ou 'CODIGO'
+  const FieldSelecionadoCod: string;  // ex: 'SELECIONADO'
+  IdNatureza: Integer;
+  CodigoKind: TJsonValueKind          // normalmente jvkInt
+): string;
+var
+  bm: TBookmark;
+  first: Boolean;
+  vId: Integer;
+begin
+  Result := '[';
+
+  if (dsCodigos = nil) or (not dsCodigos.Active) then
+  begin
+    Result := Result + ']';
+    Exit;
+  end;
+
+  bm := dsCodigos.GetBookmark;
+//  dsCodigos.DisableControls;
+  try
+    dsCodigos.First;
+    first := True;
+
+    while not dsCodigos.Eof do
+    begin
+      vId := dsCodigos.FieldByName(FieldIdNaturezaCod).AsInteger;
+
+      if (vId = IdNatureza) and ((FieldSelecionadoCod='') or ((FieldSelecionadoCod<>'') and dsCodigos.FieldByName(FieldSelecionadoCod).AsBoolean)) then
+      begin
+        if not first then
+          Result := Result + ','
+        else
+          first := False;
+
+        case CodigoKind of
+          jvkInt:
+            Result := Result + IntToStr(dsCodigos.FieldByName(FieldCodigoFiscal).AsInteger);
+
+          jvkNumeric:
+            Result := Result + FloatToJson(dsCodigos.FieldByName(FieldCodigoFiscal).AsFloat);
+
+          jvkString:
+            Result := Result + '"' + JsonEscape(dsCodigos.FieldByName(FieldCodigoFiscal).AsString) + '"';
+        end;
+      end;
+
+      dsCodigos.Next;
+    end;
+
+  finally
+    dsCodigos.GotoBookmark(bm);
+    dsCodigos.FreeBookmark(bm);
+//    dsCodigos.EnableControls;
+  end;
+
+  Result := Result + ']';
+end;
+
+
+function BuildBoolChoiceCriterioJson(const AKey: string; ACheckedSim, ACheckedNao: Boolean): string;
+begin
+  // qualquer caso que não restringe, retorna objeto vazio
+  if (ACheckedSim and ACheckedNao) or ((not ACheckedSim) and (not ACheckedNao)) then
+  begin
+//    Result := '{}';
+    Result := '';
+    Exit;
+  end;
+
+  if ACheckedSim then
+    Result := '{"' + AKey + '":[true]}'
+  else
+    Result := '{"' + AKey + '":[false]}';
 end;
 
 

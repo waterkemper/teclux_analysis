@@ -1,0 +1,306 @@
+unit fmcadastroniveissalariais;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmcadastropadrao, ComCtrls, Buttons, ExtCtrls,
+  dmcadastroniveissalariais, Grids, DBGrids, cpdbgrid, DBCtrls, cptexto,
+  Mask, cpdbfindcontrols, frconsultacodigo, ctconstantes, db, Windows,
+  ToolWin;
+
+type
+  TfrmCadastroNiveisSalariais = class(TfrmCadastroPadrao)
+    gbxCodigoNivelSalarial: TGroupBox;
+    gbxDescricaoNivelSalarial: TGroupBox;
+    edfCodigo: TtecDbEditFind;
+    edtDescricao: TDBEditTexto;
+    gbxFuncionarios: TGroupBox;
+    dbgFuncionarios: TtecDBGrid;
+    pnlOpcoesFuncionarios: TPanel;
+    sbnExcluirFuncionarios: TSpeedButton;
+    procedure dbgFuncionariosDblClick(Sender: TObject);
+    procedure dbgFuncionariosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnProcurarClick(Sender: TObject);
+    procedure sbnExcluirFuncionariosClick(Sender: TObject);
+  private
+    { Private declarations }
+    procedure NiveisSalariaisUsuariosNewRecord(Sender: TObject);
+    procedure CondicoesNiveisSalariaisUsuarios;
+
+  protected
+    ConsultaNiveisSalariais : TfraConsultaCodigo;
+    ConsultaUsuarios : TfraConsultaCodigo;
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoIncluir: Boolean; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure AbrirNivelSalarial;
+    procedure AtribuirDadosUsuarios;
+    procedure AcionarPesquisaGrade;
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+  end;
+
+var
+  frmCadastroNiveisSalariais: TfrmCadastroNiveisSalariais;
+
+implementation
+
+uses frconsulta,biblio;
+
+{$R *.dfm}
+
+{ TfrmCadastroNiveisSalariais }
+
+procedure TfrmCadastroNiveisSalariais.AbrirNivelSalarial;
+begin
+  edfCodigo.Text := ConsultaNiveisSalariais.ValorSelecionado;
+  dtmCadastroNiveisSalariais.
+        refazconsulta(dtmCadastroNiveisSalariais.qryNiveisSalariais,[0],
+             [ConsultaNiveisSalariais.ValorSelecionado]);
+end;
+
+procedure TfrmCadastroNiveisSalariais.AtribuirDadosUsuarios;
+begin
+  with dtmCadastroNiveisSalariais do
+  begin
+    EditarNiveisSalariaisUsuarios;
+    qryNiveisSalariaisUsuariosnome.AsString := ConsultaUsuarios.qryProcuraUsuariosnome.AsString;
+    qryNiveisSalariaisUsuariosusuario.AsString := ConsultaUsuarios.qryProcuraUsuarioscodigo.AsString;
+  end;
+end;
+
+procedure TfrmCadastroNiveisSalariais.CondicoesNiveisSalariaisUsuarios;
+const
+  SQL = 'and (codigo not in (%s) or codigo = %s)';
+begin
+  if dtmCadastroNiveisSalariais.qryNiveisSalariaisUsuariosnome.AsString<>'' then
+  begin
+    ConsultaUsuarios.qryProcuraUsuarios.MacroByName('SQLUsuariosJaSelecionados').AsString :=
+      format(SQL,[dtmCadastroNiveisSalariais.ListaUsuariosSelecionados,
+                  inttostr(dtmCadastroNiveisSalariais.qryNiveisSalariaisUsuariosusuario.asinteger)]);
+
+    ConsultaUsuarios.qryConsultaUsuarios.MacroByName('SQLUsuariosJaSelecionados').AsString :=
+      format(SQL,[dtmCadastroNiveisSalariais.ListaUsuariosSelecionados,
+                  inttostr(dtmCadastroNiveisSalariais.qryNiveisSalariaisUsuariosusuario.asinteger)]);
+  end
+  else
+  begin
+    ConsultaUsuarios.qryProcuraUsuarios.MacroByName('SQLUsuariosJaSelecionados').AsString :=
+      format(SQL,[dtmCadastroNiveisSalariais.ListaUsuariosSelecionados,
+                  inttostr(0)]);
+
+    ConsultaUsuarios.qryConsultaUsuarios.MacroByName('SQLUsuariosJaSelecionados').AsString :=
+      format(SQL,[dtmCadastroNiveisSalariais.ListaUsuariosSelecionados,
+                  inttostr(0)]);
+  end;
+end;
+
+constructor TfrmCadastroNiveisSalariais.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmCadastroNiveisSalariais := TdtmCadastroNiveisSalariais.Create(Self);
+  DataSet := dtmCadastroNiveisSalariais.qryNiveisSalariais;
+
+  ConsultaNiveisSalariais := TfraConsultaCodigo.Create(self);
+  ConsultaNiveisSalariais.edfCodigo.DataSource := dtmCadastroNiveisSalariais.dsrNiveisSalariais;
+  ConsultaNiveisSalariais.edfCodigo.DataField := 'codigo';
+  ConsultaNiveisSalariais.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaNiveisSalariais.AbrirTabelaProcura := false;
+  ConsultaNiveisSalariais.TipoPesquisa := pesNIVELSALARIAL;
+  ConsultaNiveisSalariais.OnFound := AbrirNivelSalarial;
+  ConsultaNiveisSalariais.Name := 'fraConsultaNivelSalarial';
+
+  ConsultaUsuarios := TfraConsultaCodigo.Create(self);
+  ConsultaUsuarios.Name := 'fraConsultaUsuario';
+  ConsultaUsuarios.edfCodigo.MaxLength := 3;
+  ConsultaUsuarios.edfCodigo.DataSource := dtmCadastroNiveisSalariais.dsrNiveisSalariaisUsuarios;
+  ConsultaUsuarios.edfCodigo.DataField := 'usuario';
+  ConsultaUsuarios.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaUsuarios.edfCodigo.LookupSource := ConsultaUsuarios.dsrProcuraUsuarios;
+  ConsultaUsuarios.edfCodigo.LookupQueryParameter := 'Codigo';
+  ConsultaUsuarios.edfCodigo.LookupField := 'Codigo';
+  ConsultaUsuarios.AbrirTabelaProcura := false;
+  ConsultaUsuarios.CondicoesdaConsulta := CondicoesNiveisSalariaisUsuarios;
+  ConsultaUsuarios.TipoPesquisa := pesUSUARIOS;
+  ConsultaUsuarios.OnFound := AtribuirDadosUsuarios;
+
+  dtmCadastroNiveisSalariais.onNiveisSalariaisUsuariosNewRecord := NiveisSalariaisUsuariosNewRecord;
+  dbgFuncionarios.OnDelete := dtmCadastroNiveisSalariais.ExcluirNiveisSalariaisUsuarios;
+end;
+
+destructor TfrmCadastroNiveisSalariais.Destroy;
+begin
+  dtmCadastroNiveisSalariais.qryNiveisSalariais.close;
+  dtmCadastroNiveisSalariais.qryNiveisSalariaisUsuarios.close;
+  dtmCadastroNiveisSalariais := nil;
+  inherited;
+  frmCadastroNiveisSalariais := nil;
+end;
+
+function TfrmCadastroNiveisSalariais.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then begin
+    if not CtrlOn then
+       dtmCadastroNiveisSalariais.ExcluirNiveisSalariais;
+  end;
+end;
+
+function TfrmCadastroNiveisSalariais.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if Result then
+    dtmCadastroNiveisSalariais.GravarNiveisSalariais;
+end;
+
+function TfrmCadastroNiveisSalariais.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then begin
+    if not CtrlOn then
+      dtmCadastroNiveisSalariais.IncluirNiveisSalariais;
+  end;
+end;
+
+procedure TfrmCadastroNiveisSalariais.KeyDown(var Key: Word;
+  Shift: TShiftState);
+  var tecla_escape: word;
+begin
+  tecla_escape :=VK_escape;
+  if key =VK_escape then
+  begin
+    {mesmo o foco estando no grid activecontrol fica nulo}
+    if ActiveControl = edfCodigo then
+      dtmCadastroNiveisSalariais.Fecha(cttabelas);
+    if (dtmCadastroNiveisSalariais.qryNiveisSalariaisUsuarios.State in [dsedit, dsinsert]) then
+    begin
+      ActiveControl := dbgFuncionarios;
+      dbgFuncionariosKeyDown(dbgFuncionarios,tecla_escape,[ssShift]);
+    end
+    else
+     inherited;
+  end
+  else
+   inherited;
+
+  if not CtrlOn then
+  begin
+    if (key =VK_F9) then
+    begin
+      if sbnProcurar.Enabled then
+      begin
+        ConsultaNiveisSalariais.InternoPesquisar(ctNIVELSALARIAL);
+        self.SetFocus;
+      end
+    end;
+  end;
+
+end;
+
+procedure TfrmCadastroNiveisSalariais.NiveisSalariaisUsuariosNewRecord(
+  Sender: TObject);
+begin
+  dbgFuncionarios.SelectedIndex := 0;
+end;
+
+procedure TfrmCadastroNiveisSalariais.dbgFuncionariosDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  acionarPesquisaGrade;
+end;
+
+procedure TfrmCadastroNiveisSalariais.AcionarPesquisaGrade;
+begin
+   dbgFuncionarios.SetFocus;
+   ConsultaUsuarios.CtrlOn := True;
+   ConsultaUsuarios.InternoPesquisar(ctUSUARIOS);
+   dbgFuncionarios.SetFocus;
+   dbgFuncionarios.SelectedIndex :=  0;
+end;
+
+procedure TfrmCadastroNiveisSalariais.dbgFuncionariosKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+  Procedure VerificarUsuarios;
+  begin
+    if (dtmCadastroNiveisSalariais.qryNiveisSalariaisUsuarios.State in [dsedit,dsinsert]) or
+       not (dtmCadastroNiveisSalariais.qryNiveisSalariaisUsuarios.IsEmpty) then
+       begin
+          dtmCadastroNiveisSalariais.GravarNiveisSalariaisUsuarios;
+          ConsultaUsuarios.edfCodigo.DoExit;
+          if ConsultaUsuarios.qryProcuraUsuarios.IsEmpty then
+          begin
+            dtmCadastroNiveisSalariais.LimparNiveisSalariaisUsuarios;
+            dbgFuncionarios.SetFocus;
+            dbgFuncionarios.SelectedIndex := 0;
+          end
+          else
+          begin
+            dtmCadastroNiveisSalariais.qryNiveisSalariaisUsuariosusuariovalidado.AsBoolean := true;
+            AtribuirDadosUsuarios;
+            dbgFuncionarios.SetFocus;
+            dbgFuncionarios.SelectedIndex := 0;
+          end;
+       end;
+  end;
+
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+     VK_F9     : begin
+                     ConsultaUsuarios.CtrlOn := Shift = [ssCtrl];
+                     if (Shift = []) or ConsultaUsuarios.CtrlOn then
+                       AcionarPesquisaGrade
+                   end;
+    end;
+  end
+  else
+  case Key of
+   VK_Return: VerificarUsuarios;
+
+   VK_Up,
+   VK_Down,
+   VK_PRIOR,
+   VK_next: begin
+                    if dtmCadastroNiveisSalariais.RegistrodeNiveisSalariaisUsuarios then
+                    begin
+                      dtmCadastroNiveisSalariais.EditarNiveisSalariaisUsuarios;
+                      dtmCadastroNiveisSalariais.qryNiveisSalariaisUsuarios.CheckRequiredFields;
+                      key := 0;
+                    end;
+                  end;
+
+   VK_Escape : begin
+                   dtmCadastroNiveisSalariais.CancelarNiveisSalariaisUsuarios;
+                   if dbgFuncionarios.Focused then
+                   begin
+                     dbgFuncionarios.SetFocus;
+                     dbgFuncionarios.SelectedIndex := 0;
+                   end;
+                 end;
+  end;
+end;
+
+procedure TfrmCadastroNiveisSalariais.sbnProcurarClick(Sender: TObject);
+begin
+  inherited;
+  ConsultaNiveisSalariais.InternoPesquisar(ctNIVELSALARIAL);
+  self.SetFocus;
+end;
+
+procedure TfrmCadastroNiveisSalariais.sbnExcluirFuncionariosClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroNiveisSalariais.ExcluirNiveisSalariaisUsuarios;
+end;
+
+end.

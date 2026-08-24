@@ -1,0 +1,363 @@
+unit dmconsultamodulopedidos;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  DB,
+  // Repositorio
+  dmbasico, dmtecsoft,
+  // Terceiros
+  ZQuery, ZPgSqlQuery,
+  // Componentes
+  cpdatasource, cpquery,
+  // Biblio
+  ctconstantes, biblio, clparametrossistema, ZTransact, Provider, DBClient;
+
+type
+  TdtmConsultaPedidos = class(TdtmBasico)
+    qryPedidos: TtecQuery;
+    dsrPedidos: TtecDataSource;
+    qryConsultaProdutos: TtecQuery;
+    qryProcuraProdutos: TtecQuery;
+    dsrProcuraProdutos: TtecDataSource;
+    qryConsultaProdutosdescricao: TStringField;
+    qryConsultaProdutoscodigo: TLargeintField;
+    qryProcuraProdutoscodigo: TLargeintField;
+    qryProcuraProdutosdescricao: TStringField;
+    qryProcuraFornecedores: TtecQuery;
+    dsrProcuraFornecedores: TtecDataSource;
+    qryProcuraFornecedorescodigo: TIntegerField;
+    qryProcuraFornecedoresnome: TStringField;
+    qryConsultaFornecedores: TtecQuery;
+    qryConsultaFornecedorescodigo: TIntegerField;
+    qryConsultaFornecedoresnome: TStringField;
+    qryPedidosnumero: TIntegerField;
+    qryPedidosemissao: TDateField;
+    qryPedidosentrega: TDateField;
+    qryPedidosfornecedor: TIntegerField;
+    qryPedidosquantidade: TFloatField;
+    qryPedidosrecebido: TFloatField;
+
+    qryPedidosproduto: TLargeintField;
+    qryPedidosdescricaoproduto: TStringField;
+    qryPedidosnomefornecedor: TStringField;
+
+    qryPedidossituacao: TStringField;
+    qryConsultaFornecedorespessoanumero: TStringField;
+    qryConsultaFornecedoresestado: TStringField;
+    qryConsultaFornecedoresnomecidade: TStringField;
+    qryNotasPag: TtecQuery;
+    qryNotasPagcodigo: TIntegerField;
+    qryNotasPagfornecedor: TIntegerField;
+    qryNotasPagtipofornecedor: TStringField;
+    qryNotasPagserie: TStringField;
+    qryNotasPagnumero: TIntegerField;
+    qryNotasPagdata: TDateField;
+    dsrNotasPag: TtecDataSource;
+    qryPedidoslinha: TStringField;
+    qryPedidoscoluna: TStringField;
+    qryPedidosvalorgrade1: TStringField;
+    qryPedidosvalorgrade2: TStringField;
+    qryConsultaProdutosvalorgrade1: TStringField;
+    qryConsultaProdutosvalorgrade2: TStringField;
+    qryPedidoscancelado: TDateField;
+    qryPedidossituacaoproduto: TStringField;
+    qryProcuraProdutoscodigovisual: TStringField;
+    qryPedidosprodutovisual: TStringField;
+    qryConsultaProdutoscodigovisual: TStringField;
+    qryPedidosdias_em_estoque: TIntegerField;
+    qryPedidosTotalProduto: TCurrencyField;
+    qryPedidosconcluido: TDateField;
+    qryPedidospreco: TFloatField;
+    qryPedidosdesconto: TFloatField;
+    ClientDataSet1: TClientDataSet;
+    DataSetProvider1: TDataSetProvider;
+    ClientDataSet1Total: TAggregateField;
+    tecDataSource1: TtecDataSource;
+    procedure qryPedidosAfterScroll(DataSet: TDataSet);
+    procedure qryConsultaProdutosAfterOpen(DataSet: TDataSet);
+    procedure qryPedidosCalcFields(DataSet: TDataSet);
+    procedure ZMonitor2MonitorEvent(Sql, Result: String);
+    procedure qryPedidosAfterOpen(DataSet: TDataSet);
+  private
+    FDataFinal: String;
+    FFornecedor: String;
+    FProduto: String;
+    FDataInicial: String;
+    FSituacao: Integer;
+    FOrdenacao: Integer;
+    FOnScrollLinhaColunaGrade: TNotifyEvent;
+    procedure SetFornecedor(const Value: String);
+    procedure SetProduto(const Value: String);
+    procedure SetSituacao(const Value: Integer);
+    procedure SetDataFinal(const Value: String);
+    procedure SetDataInicial(const Value: String);
+    procedure SetOrdenacao(const Value: Integer);
+    function GetColunadaGrade: String;
+    function GetLinhadaGrade: String;
+    function GetSituacaoProduto: String;
+  protected
+    function GetConsultarFornecedor: TtecQuery;
+    function GetConsultarCaracteristica: TTecQuery;
+    procedure MontaIntervaloEmissao;
+  public
+    constructor Create(AOwner: TComponent); override;
+    function  ExisteCaracteristica(campo, codigo: String): Boolean;
+    function  ExisteFornecedor(campo, codigo: String): Boolean;
+    procedure AbrirTabelas(TipoPesquisa: TtecConsultaPedidos);
+    procedure FecharTabelas(TipoPesquisa: TtecConsultaPedidos);
+    procedure Selecionar(TipoPesquisa: TtecConsultaPedidos);
+    function  ConsultarPedido: Boolean;
+    procedure FecharTabelaConsulta;
+    property ConsultarCaracteristica: TTecQuery read GetConsultarCaracteristica;
+    property ConsultarFornecedor: TtecQuery read GetConsultarFornecedor;
+    property Produto: String read FProduto write SetProduto;
+    property Fornecedor: String read FFornecedor write SetFornecedor;
+    property DataInicial: String read FDataInicial write SetDataInicial;
+    property DataFinal: String read FDataFinal write SetDataFinal;
+    property Situacao: Integer read FSituacao write SetSituacao;
+    property Ordenacao: Integer read FOrdenacao write SetOrdenacao;
+    property  OnScrollLinhaColunaGrade    : TNotifyEvent read FOnScrollLinhaColunaGrade write FOnScrollLinhaColunaGrade;
+    property LinhadaGrade: String read GetLinhadaGrade;
+    property ColunadaGrade: String read GetColunadaGrade;
+    property  SituacaoProduto: String read GetSituacaoProduto;
+  end;
+
+var
+  dtmConsultaPedidos: TdtmConsultaPedidos;
+
+implementation
+
+{$R *.dfm}
+
+constructor TdtmConsultaPedidos.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryPedidos.Tag      := ctTabelas;
+  qryProcuraProdutos.Tag      := ctTabelas;
+  qryProcuraFornecedores.Tag  := ctTabelas;
+  qryConsultaProdutos.Tag     := ctPesquisaCaracteristica;
+  qryConsultaFornecedores.Tag := ctPesquisaFornecedor;
+  qryPedidosquantidade.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryPedidosrecebido.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+end;
+
+procedure TdtmConsultaPedidos.Selecionar(TipoPesquisa: TtecConsultaPedidos);
+begin
+  case TipoPesquisa of
+       tpcFORNECEDOR: ReFazConsulta(qryProcuraFornecedores,[0],[qryConsultaFornecedorescodigo.AsInteger]);
+   tpcCARACTERISTICA: RefazConsulta(qryProcuraProdutos,[0],[qryConsultaProdutoscodigo.AsLargeInt]);
+  end;
+end;
+
+function TdtmConsultaPedidos.ExisteCaracteristica(campo, codigo: String): Boolean;
+const
+  SQL = 'Where (to_ascii(%s,''latin1'') ilike to_ascii(''%s%s'',''latin1''))';
+begin
+  qryConsultaProdutos.Sql[03]:= Format(SQL, [Campo, Codigo, '%']);
+  qryConsultaProdutos.Open;
+  Result := (qryConsultaProdutos.RecordCount > 0);
+end;
+
+function TdtmConsultaPedidos.ExisteFornecedor(campo, codigo: String): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaFornecedores, campo, codigo);
+end;
+
+function TdtmConsultaPedidos.GetConsultarCaracteristica: TtecQuery;
+begin
+  Result := qryConsultaProdutos;
+end;
+
+function TdtmConsultaPedidos.ConsultarPedido: Boolean;
+begin
+  qryPedidos.Close;
+  qryPedidos.ParamByName('ndias').AsInteger := ParSistema.DiasBasePrevisaoEstoque;
+  qryPedidos.Open;
+  Result:= qryPedidos.IsEmpty;
+end;
+
+function TdtmConsultaPedidos.GetConsultarFornecedor: TtecQuery;
+begin
+  Result:= qryConsultaFornecedores;
+end;
+
+procedure TdtmConsultaPedidos.AbrirTabelas(TipoPesquisa: TtecConsultaPedidos);
+begin
+  Case TipoPesquisa of
+        tpcFORNECEDOR: Abre(ctPesquisaFornecedor);
+    tpcCARACTERISTICA: begin
+                         qryConsultaProdutos.Sql[03]:= 'Where (codigo = 0)';
+                         qryConsultaProdutos.Open;
+                       end;
+  end;
+end;
+
+procedure TdtmConsultaPedidos.FecharTabelas(TipoPesquisa: TtecConsultaPedidos);
+begin
+  Case TipoPesquisa of
+        tpcFORNECEDOR: Fecha(ctPesquisaFornecedor);
+    tpcCARACTERISTICA: Fecha(ctPesquisaCaracteristica);
+  end;
+end;
+
+procedure TdtmConsultaPedidos.SetFornecedor(const Value: String);
+begin
+  if FFornecedor <> Value then
+       qryPedidos.MacroByName('Fornecedor').AsString := 'and (p.fornecedor = ' + Value + ')'
+  else qryPedidos.MacroByName('Fornecedor').AsString := '';
+end;
+
+procedure TdtmConsultaPedidos.SetProduto(const Value: String);
+begin
+  if Value <> '' then
+       qryPedidos.MacroByName('Produto').AsString := 'and (pp.produto = ' + Value + ')'
+  else qryPedidos.MacroByName('Produto').AsString := '';
+end;
+
+procedure TdtmConsultaPedidos.SetSituacao(const Value: Integer);
+begin
+  if FSituacao <> Value then
+     FSituacao := Value;
+  Case FSituacao of
+    0: qryPedidos.MacroByName('Situacao').AsString:= 'and (p.situacao = ' + QuotedStr('A') + ')';
+    1: qryPedidos.MacroByName('Situacao').AsString:= 'and (p.situacao = ' + QuotedStr('P') + ')';
+    2: qryPedidos.MacroByName('Situacao').AsString:= 'and (p.situacao = ' + QuotedStr('Q') + ')';
+    3: qryPedidos.MacroByName('Situacao').AsString:= 'and (p.situacao = ' + QuotedStr('L') + ')';
+    4: qryPedidos.MacroByName('Situacao').AsString:= 'and (p.situacao = ' + QuotedStr('C') + ')';
+    5: qryPedidos.MacroByName('Situacao').AsString:= '';
+  end;
+end;
+
+procedure TdtmConsultaPedidos.MontaIntervaloEmissao;
+const
+  Data_1 = '(p.emissao = ';
+  Data_2 = '(p.emissao between (';
+begin
+  if not DataEmBranco(FDataInicial) then begin
+    if DataEmBranco(FDataFinal) then
+         qryPedidos.MacroByName('Emissao').AsString:= Data_1 + '''' + FDataInicial + ''')'
+    else qryPedidos.MacroByName('Emissao').AsString:= Data_2 + '''' + FDataInicial + ''') and (''' + FDataFinal + '''))';
+  end
+  else begin
+    if not DataEmBranco(FDataFinal) then
+         qryPedidos.MacroByName('Emissao').AsString:= Data_1 + '''' + FDataFinal + ''')'
+    else qryPedidos.MacroByName('Emissao').AsString:= '';
+  end;
+end;
+
+procedure TdtmConsultaPedidos.FecharTabelaConsulta;
+begin
+  qryPedidos.Close;
+end;
+
+procedure TdtmConsultaPedidos.SetDataFinal(const Value: String);
+begin
+  if FDataFinal <> Value then
+    FDataFinal:= Value;
+  MontaIntervaloEmissao;
+end;
+
+procedure TdtmConsultaPedidos.SetDataInicial(const Value: String);
+begin
+  if FDataInicial <> Value then
+    FDataInicial:= Value;
+  MontaIntervaloEmissao;
+end;
+
+procedure TdtmConsultaPedidos.SetOrdenacao(const Value: Integer);
+begin
+  if FOrdenacao <> Value then
+    FOrdenacao:= Value;
+  case FOrdenacao of
+    0: qryPedidos.MacroByName('Ordenacao').AsString:= 'Order By p.numero';
+    1: qryPedidos.MacroByName('Ordenacao').AsString:= 'Order By UPPER(TO_ASCII(pd.Descricao,''LATIN1'')), p.emissao';
+    2: qryPedidos.MacroByName('Ordenacao').AsString:= 'Order By UPPER(TO_ASCII(f.nome,''LATIN1'')), p.emissao';
+    3: qryPedidos.MacroByName('Ordenacao').AsString:= 'Order By p.emissao';
+    4: qryPedidos.MacroByName('Ordenacao').AsString:= 'Order By UPPER(TO_ASCII(p.situacao,''LATIN1''))';
+  end;
+end;
+
+procedure TdtmConsultaPedidos.qryPedidosAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  if ((qryPedidossituacao.AsString = 'L') or (qryPedidossituacao.AsString = 'P')) then
+    ReFazConsulta(qryNotasPag,[0],[qryPedidosnumero.AsInteger]);
+  if Assigned(FOnScrollLinhaColunaGrade) then
+    FOnScrollLinhaColunaGrade(DataSet);
+
+end;
+
+function TdtmConsultaPedidos.GetColunadaGrade: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryPedidoscoluna.AsString)
+end;
+
+function TdtmConsultaPedidos.GetLinhadaGrade: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryPedidoslinha.AsString)
+end;
+
+procedure TdtmConsultaPedidos.qryConsultaProdutosAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryConsultaProdutosvalorgrade1.Visible := ParSistema.UsarGradesProdutos;
+  qryConsultaProdutosvalorgrade2.Visible := ParSistema.UsarGradesProdutos;
+end;
+
+procedure TdtmConsultaPedidos.qryPedidosCalcFields(DataSet: TDataSet);
+begin
+   inherited;
+   if ((qryPedidosRecebido.AsCurrency >= qryPedidosQuantidade.AsCurrency) AND (qryPedidosSituacao.AsString<>'C')) then
+      qryPedidosSituacaoProduto.AsString := 'L'
+   else if (qryPedidosRecebido.AsCurrency = 0) and ((qryPedidosSituacao.AsString='A') or (qryPedidosSituacao.AsString='P')) then
+      qryPedidosSituacaoProduto.AsString := 'A'
+   else if (qryPedidosRecebido.AsCurrency = 0) and ((qryPedidosSituacao.AsString='L') or (qryPedidosSituacao.AsString='C')) then
+      qryPedidosSituacaoProduto.AsString := 'C'
+   else if (qryPedidosQuantidade.AsCurrency > qryPedidosRecebido.AsCurrency) and (qryPedidosRecebido.AsCurrency>0) then
+   begin
+      if qryPedidossituacao.AsString='Q' then
+        qryPedidosSituacaoProduto.AsString:='Q'
+      else
+        qryPedidosSituacaoProduto.AsString := 'P';
+   end
+   else
+       qryPedidosSituacaoProduto.AsString := 'C';
+
+   qryPedidosTotalProduto.asCurrency := (qryPedidosquantidade.asCurrency * qryPedidospreco.asCurrency) - qryPedidosdesconto.asCurrency;
+end;
+
+function TdtmConsultaPedidos.GetSituacaoProduto: String;
+begin
+  Result:=qryPedidossituacaoproduto.AsString;
+end;
+
+
+procedure TdtmConsultaPedidos.ZMonitor2MonitorEvent(Sql, Result: String);
+var
+ Listar : TStringList;
+ begin
+  inherited;
+   Listar := tStringlist.create;
+  if fileexists('c:\consulta.sql') then
+    Listar.loadfromfile('c:\consulta.sql');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\consulta.sql');
+  listar.free;
+end;
+
+procedure TdtmConsultaPedidos.qryPedidosAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  ClientDataSet1.close;
+  ClientDataSet1.open;
+
+end;
+
+end.
+
+

@@ -1,0 +1,206 @@
+unit dmimprimeorcamento;
+
+interface
+
+uses
+  SysUtils, Classes, DB, cpdatasource, ZQuery, ZPgSqlQuery, cpquery,
+  //Repositorio
+  dmbasico, dmtecsoft, fmpreviewpadrao, FR_Class, FR_DSet, FR_DBSet,
+  ZTransact, clparametrossistema, variants, frxClass, frxDBSet, Provider,
+  DBClient, biblio, {QGraphics,} forms;
+
+type
+  TdtmImprimeOrcamento = class(TdtmBasico)
+    qryOrcamentos: TtecQuery;
+    dsrOrcamentos: TtecDataSource;
+    qryProdutosOrcamentos: TtecQuery;
+    dsrProdutosOrcamentos: TtecDataSource;
+    qryParcelasPlanosOrcamentos: TtecQuery;
+    dsrParcelasPlanosOrcamentos: TtecDataSource;
+    qryOrcamentoscodigo: TIntegerField;
+    qryOrcamentoscliente: TIntegerField;
+    qryOrcamentosnome: TStringField;
+    qryOrcamentosvalidade: TDateField;
+    qryOrcamentosfone: TStringField;
+    qryOrcamentosfone2: TStringField;
+    qryProdutosOrcamentosproduto: TLargeintField;
+    qryProdutosOrcamentosfilial: TIntegerField;
+    qryProdutosOrcamentosquantidade: TFloatField;
+    qryProdutosOrcamentosprecovenda: TFloatField;
+    qryProdutosOrcamentostotal: TFloatField;
+    qryProdutosOrcamentosvendido: TFloatField;
+    qryParcelasPlanosOrcamentosdata: TDateField;
+    qryParcelasPlanosOrcamentosvalor: TFloatField;
+    qryOrcamentosfrete: TFloatField;
+    qryOrcamentosseguro: TFloatField;
+    qryOrcamentostotalprodutos: TFloatField;
+    frpOrcamento: TfrReport;
+    fdbOrcamento: TfrDBDataSet;
+    fdbProdutosOrcamentos: TfrDBDataSet;
+    fdbPlanosOrcamento: TfrDBDataSet;
+    fdbParcelasPlanosOrcamentos: TfrDBDataSet;
+    qryOrcamentosrua: TStringField;
+    qryOrcamentosnomebairro: TStringField;
+    qryOrcamentosnomecidade: TStringField;
+    qryOrcamentosestado: TStringField;
+    qryOrcamentoscep: TIntegerField;
+    qryParcelasPlanosOrcamentosdescricao: TStringField;
+    qryParcelasPlanosOrcamentosplano: TIntegerField;
+    qryParcelasPlanosOrcamentosdesconto: TFloatField;
+    qryOrcamentosobservacao: TStringField;
+    qryParcelasPlanosOrcamentosvalorvista: TFloatField;
+    qryOrcamentosnomevendedor: TStringField;
+    qryServicosOrcamento: TtecQuery;
+    dsrServicosOrcamento: TtecDataSource;
+    fdbServicosOrcamento: TfrDBDataSet;
+    qryServicosOrcamentoorcamento: TIntegerField;
+    qryServicosOrcamentoservico: TIntegerField;
+    qryServicosOrcamentoquantidade: TIntegerField;
+    qryServicosOrcamentoaliquotaissqn: TFloatField;
+    qryServicosOrcamentovalorservico: TFloatField;
+    qryServicosOrcamentocomplementoservico: TStringField;
+    qryServicosOrcamentoproduto: TLargeintField;
+    qryServicosOrcamentofilialproduto: TIntegerField;
+    qryServicosOrcamentodescricaoservico: TStringField;
+    qryOrcamentostotalservicos: TFloatField;
+    qryProdutosOrcamentosprevisao: TDateField;
+    qryServicosOrcamentoequipamento: TStringField;
+    qryOrcamentoscontrato: TStringField;
+    qryProdutosOrcamentosvalorgrade1: TStringField;
+    qryProdutosOrcamentosvalorgrade2: TStringField;
+    qryProdutosOrcamentosdescricaolc: TStringField;
+    qryProdutosOrcamentosdescricao: TStringField;
+    qryProdutosOrcamentossituacao_produto: TStringField;
+    qryProdutosOrcamentoscomplemento: TStringField;
+    qryProdutosOrcamentosanvisa: TStringField;
+    qryOrcamentosemissao: TDateTimeField;
+    qryOrcamentospessoatipo: TStringField;
+    qryOrcamentospessoanumero: TStringField;
+    qryProdutosOrcamentosprodutovisual: TStringField;
+    qryOrcamentosnumero: TIntegerField;
+    qryOrcamentoscomplemento: TStringField;
+    qryProdutosOrcamentosnomefoto: TStringField;
+    frpOrcamento_ComFotonosProdutos: TfrReport;
+    frpOrcamento_SemFotonosProdutos: TfrReport;
+    qryProdutosOrcamentosdesconto: TFloatField;
+    qryOrcamentostotaldescontoprodutos: TFloatField;
+    procedure qryOrcamentosAfterScroll(DataSet: TDataSet);
+    procedure frpOrcamentoBeforePrint(Memo: TStringList; View: TfrView);
+    procedure qryProdutosOrcamentosCalcFields(DataSet: TDataSet);
+    procedure fdbProdutosOrcamentosNext(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    procedure ImprimirOrcamento(Orcamentos: String);
+  end;
+
+var
+  dtmImprimeOrcamento: TdtmImprimeOrcamento;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmImprimeOrcamento }
+
+procedure TdtmImprimeOrcamento.fdbProdutosOrcamentosNext(Sender: TObject);
+begin
+  inherited;
+  ;
+end;
+
+
+procedure TdtmImprimeOrcamento.ImprimirOrcamento(Orcamentos: String);
+var
+  arquivofast : String;
+begin
+  qryOrcamentos.macrobyname('sql').asString := '(o.codigo in (' + Orcamentos + '))';
+
+  qryOrcamentos.close;
+  qryOrcamentos.Open;
+
+  if not qryOrcamentos.IsEmpty then
+  begin
+    frVariables['Rua']   := RuaFilialBase;
+    frVariables['Bairro']:= BairroFilialBase + ' - CEP: ' + CEPFilialBase;
+    frVariables['Cidade']:= CidadeFilialBase + ' - ' + EstadoFilialBase;
+    frVariables['Fone']  := FoneFilialBase;
+
+    arquivofast := ExtractFilePath(Application.ExeName) + 'frpOrcamento.frf';
+    if FileExists(arquivofast) then
+      frpOrcamento.LoadFromFile(arquivofast);
+
+//    frpOrcamento.designreport;
+
+    ImprimirRelatoriofast(null, null, MSimples, 0, [frpOrcamento], false, self);
+  end;end;
+
+procedure TdtmImprimeOrcamento.qryOrcamentosAfterScroll(DataSet: TDataSet);
+begin
+  ReFazConsulta(qryProdutosOrcamentos,      [0,1],[ParSistema.VisualizarSituacaoProdutos,
+                                                   qryOrcamentoscodigo.AsInteger]);
+  ReFazConsulta(qryServicosOrcamento,       [0],[qryOrcamentoscodigo.AsInteger]);
+  ReFazConsulta(qryParcelasPlanosOrcamentos,[0],[qryOrcamentoscodigo.AsInteger]);
+end;
+
+procedure TdtmImprimeOrcamento.frpOrcamentoBeforePrint(Memo: TStringList;
+  View: TfrView);
+{  var
+  vnomearquivo : String;}
+begin
+  inherited;
+  if (View.Name = 'fpvLogo') then
+  begin
+    if FileExists(LogotipoFilialBase) then
+//      try
+        TfrPictureView(View).Picture.LoadFromFile(LogotipoFilialBase)
+//      except
+//      end;
+  end
+  else
+  if (View.Name = 'ProductPicture') then
+  begin
+  {
+    if qryProdutosOrcamentos.recno = 1 then
+       TfrPictureView(View).Picture.LoadFromFile('n:\imagens\113670017012014102909.bmp')
+    else
+    if qryProdutosOrcamentos.recno = 2 then
+       TfrPictureView(View).Picture.LoadFromFile('n:\imagens\40006102011021038.bmp');
+       }
+                              {
+    vnomearquivo := trocar(qryProdutosOrcamentosnomefoto.asString, 'http://', '');
+    vnomearquivo := trocar(vnomearquivo, '/', '\');
+    vnomearquivo := extractfilename(vnomearquivo);
+    vnomearquivo := trocar(vnomearquivo, extractfileext(vnomearquivo), '.bmp');
+    vnomearquivo := 'n:\imagens\'+vnomearquivo;
+
+    DownloadIMGStream(qryProdutosOrcamentosnomefoto.asString, true);
+
+    TfrPictureView(View).Picture.LoadFromFile(vnomearquivo);
+                              }
+    if qryProdutosOrcamentosnomefoto.asString<>'' then
+    begin
+      TfrPictureView(View).visible := true;
+      TfrPictureView(View).Picture.Bitmap.LoadFromStream(DownloadIMGStream(qryProdutosOrcamentosnomefoto.asString, true));
+    end
+    else
+      TfrPictureView(View).visible := false;
+
+  end
+
+end;
+
+procedure TdtmImprimeOrcamento.qryProdutosOrcamentosCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryProdutosOrcamentosdescricaolc.asString := trim(qryProdutosOrcamentosdescricao.asString + ' ' +
+                                                    qryProdutosOrcamentosvalorgrade1.asString + ' ' +
+                                                    qryProdutosOrcamentosvalorgrade2.asString);
+  if not qryProdutosOrcamentosanvisa.isnull then
+    qryProdutosOrcamentosdescricaolc.asString := qryProdutosOrcamentosdescricaolc.asString + ' MS - ' +
+                                                 qryProdutosOrcamentosanvisa.asString;
+end;
+
+
+end.

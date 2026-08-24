@@ -1,0 +1,96 @@
+unit MainForm;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ECXMLParser, XMLVisualizer, ExtCtrls, ComCtrls, ToolWin,
+  StdCtrls;
+
+type
+  TForm1 = class(TForm)
+    XML: TECXMLParser;
+    ToolBar1: TToolBar;
+    ToolButton1: TToolButton;
+    OpenDialog1: TOpenDialog;
+    xmlDrawingColors: TECXMLParser;
+    Vis: TXMLVisualizer;
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
+    sbXML: TScrollBox;
+    pbXML: TPaintBox;
+    ScrollBox1: TScrollBox;
+    imgXML: TImage;
+    procedure FormCreate(Sender: TObject);
+    procedure ToolButton1Click(Sender: TObject);
+    procedure VisSwap(Sender: TObject);
+    procedure VisBeforeDrawItem(XMLItem: TXMLItem;
+      XMLItemPositionInfo: TXMLVisualItemData; var ColorSet: String);
+    procedure pbXMLMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
+    procedure pbXMLMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form1: TForm1;
+
+implementation
+
+{$R *.dfm}
+
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  xmlDrawingColors.LoadFromFile('DrawingColors.xml');
+end;
+
+procedure TForm1.ToolButton1Click(Sender: TObject);
+begin
+  if OpenDialog1.Execute then
+    begin
+      XML.LoadFromFile(OpenDialog1.FileName);
+      Vis.SelectedItem := XML.Root;
+    end;
+end;
+
+procedure TForm1.VisSwap(Sender: TObject);
+begin
+  imgXML.AutoSize := true;
+  imgXML.Picture.Assign(Vis.BackBuffer);
+end;
+
+procedure TForm1.VisBeforeDrawItem(XMLItem: TXMLItem;
+  XMLItemPositionInfo: TXMLVisualItemData; var ColorSet: String);
+begin
+  if ColorSet <> Vis.SelectedColorSet then
+    case XMLItemPositionInfo.Level of
+      0 : ColorSet := 'Processor';
+      1 : ColorSet := 'Interrupts';
+    end;
+end;
+
+procedure TForm1.pbXMLMouseMove(Sender: TObject; Shift: TShiftState; X,
+  Y: Integer);
+begin
+  if Vis.ItemAtXY(X, Y) <> nil then
+    pbXML.Cursor := crHandPoint
+  else
+    pbXML.Cursor := crDefault;
+end;
+
+procedure TForm1.pbXMLMouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+var
+  p : Pointer;
+begin
+  p := Vis.ItemAtXY(X, Y);
+  if p <> nil then
+    Vis.SelectedItem := p;
+end;
+
+end.

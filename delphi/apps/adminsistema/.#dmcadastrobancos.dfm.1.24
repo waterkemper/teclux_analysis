@@ -1,0 +1,646 @@
+inherited dtmcadastrobancos: Tdtmcadastrobancos
+  Left = 593
+  Top = 277
+  Height = 394
+  Width = 453
+  object qryBancos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryBancosAfterScroll
+    OnDeleteError = PostError
+    OnEditError = PostError
+    OnPostError = PostError
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select codigo,'
+      '           nome,'
+      '           sigla,'
+      '           inativo,'
+      '           modelocheque,'
+      '           diasuteisremessa,'
+      '           valorlimitecheque,'
+      '           qtdechequevista,'
+      '           qtdechequeprazo'
+      'From   bancos'
+      'Where codigo=:codigo')
+    RequestLive = True
+    Left = 45
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryBancoscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Required = True
+      DisplayFormat = '000'
+    end
+    object qryBancosnome: TStringField
+      DisplayLabel = 'Nome'
+      DisplayWidth = 50
+      FieldName = 'nome'
+      Required = True
+      Size = 50
+    end
+    object qryBancossigla: TStringField
+      DisplayLabel = 'Sigla'
+      FieldName = 'sigla'
+      Required = True
+      Size = 10
+    end
+    object qryBancosinativo: TDateField
+      Alignment = taCenter
+      DisplayLabel = 'Inativo'
+      FieldName = 'inativo'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryBancosmodelocheque: TIntegerField
+      FieldName = 'modelocheque'
+      DisplayFormat = '0'
+    end
+    object qryBancosdiasuteisremessa: TIntegerField
+      FieldName = 'diasuteisremessa'
+      DisplayFormat = '0'
+    end
+    object qryBancosvalorlimitecheque: TFloatField
+      FieldName = 'valorlimitecheque'
+      DisplayFormat = '0.00'
+    end
+    object qryBancosqtdechequevista: TIntegerField
+      FieldName = 'qtdechequevista'
+      DisplayFormat = '0'
+    end
+    object qryBancosqtdechequeprazo: TIntegerField
+      FieldName = 'qtdechequeprazo'
+      DisplayFormat = '0'
+    end
+  end
+  object dsrBancos: TtecDataSource
+    DataSet = qryBancos
+    Left = 217
+    Top = 15
+  end
+  object qryConsultaBancos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT b.Sigla,'
+      '       b.Nome,'
+      '       b.Codigo'
+      ''
+      'FROM   bancos b'
+      ''
+      'WHERE  b.Inativo IS NULL'
+      ''
+      'ORDER BY UPPER(TO_ASCII(b.sigla,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 287
+    Top = 15
+    object qryConsultaBancosSigla: TStringField
+      DisplayWidth = 15
+      FieldName = 'Sigla'
+      Size = 15
+    end
+    object qryConsultaBancosNome: TStringField
+      FieldName = 'Nome'
+      Size = 50
+    end
+    object qryConsultaBancosCodigo: TIntegerField
+      Alignment = taCenter
+      DisplayLabel = 'C'#243'digo'
+      DisplayWidth = 6
+      FieldName = 'Codigo'
+      DisplayFormat = '000'
+    end
+  end
+  object dsrAgencias: TtecDataSource
+    DataSet = qryAgencias
+    Left = 33
+    Top = 72
+  end
+  object qryAgencias: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterDelete = qryAgenciasAfterDelete
+    AfterScroll = qryAgenciasAfterScroll
+    OnDeleteError = PostError
+    OnEditError = PostError
+    OnPostError = PostError
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select a.*,'
+      '       (Select c.nome From cidades c Where (c.estado = a.estado)'
+      
+        '                                       and (c.codigo = a.cidade)' +
+        ') as nomecidade,'
+      '       (Select b.nome From bairros b Where (b.estado = a.estado)'
+      
+        '                                        and (b.cidade = a.cidade' +
+        ')'
+      
+        '                                        and (b.codigo = a.bairro' +
+        ')) as nomebairro'
+      'From agencias a'
+      'Where a.banco = :banco'
+      'order by a.codigo')
+    RequestLive = True
+    Left = 69
+    Top = 88
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'banco'
+        ParamType = ptUnknown
+      end>
+    object qryAgenciasbanco: TIntegerField
+      DisplayWidth = 10
+      FieldName = 'banco'
+      DisplayFormat = '000'
+    end
+    object qryAgenciascodigo: TIntegerField
+      DisplayWidth = 10
+      FieldName = 'codigo'
+      Required = True
+      DisplayFormat = '0000'
+    end
+    object qryAgenciasnome: TStringField
+      FieldName = 'nome'
+      Required = True
+      Size = 30
+    end
+    object qryAgenciasrua: TStringField
+      FieldName = 'rua'
+      Size = 100
+    end
+    object qryAgenciasbairro: TIntegerField
+      FieldName = 'bairro'
+      DisplayFormat = '0'
+    end
+    object qryAgenciascidade: TIntegerField
+      FieldName = 'cidade'
+      DisplayFormat = '0'
+    end
+    object qryAgenciascep: TIntegerField
+      FieldName = 'cep'
+      DisplayFormat = '0'
+      EditFormat = '#####-###'
+    end
+    object qryAgenciasestado: TStringField
+      Alignment = taCenter
+      FieldName = 'estado'
+      Size = 2
+    end
+    object qryAgenciascgc: TStringField
+      FieldName = 'cgc'
+      EditMask = '99.999.999/9999-99;0;_'
+      Size = 14
+    end
+    object qryAgenciasfaxddd: TIntegerField
+      FieldName = 'faxddd'
+      DisplayFormat = '0'
+    end
+    object qryAgenciasfaxnumero: TIntegerField
+      FieldName = 'faxnumero'
+      DisplayFormat = '0'
+    end
+    object qryAgenciasfoneddd: TIntegerField
+      FieldName = 'foneddd'
+      DisplayFormat = '0'
+    end
+    object qryAgenciasfonenumero: TIntegerField
+      FieldName = 'fonenumero'
+      DisplayFormat = '0'
+    end
+    object qryAgenciasemail: TStringField
+      FieldName = 'email'
+      Size = 128
+    end
+    object qryAgenciasnomecidade: TStringField
+      FieldName = 'nomecidade'
+      Size = 50
+    end
+    object qryAgenciasnomebairro: TStringField
+      FieldName = 'nomebairro'
+      Size = 50
+    end
+    object qryAgenciasgerente: TStringField
+      FieldName = 'gerente'
+      Size = 40
+    end
+    object qryAgenciasrefnumero: TIntegerField
+      FieldName = 'refnumero'
+      DisplayFormat = '0'
+    end
+    object qryAgenciasrefcomplemento: TStringField
+      FieldName = 'refcomplemento'
+      Size = 100
+    end
+    object qryAgenciasdigito: TStringField
+      FieldName = 'digito'
+      Size = 2
+    end
+  end
+  object qryModelosCheque: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT m.Codigo,'
+      '       m.Descricao'
+      ''
+      'FROM   modelosnotasfiscais m'
+      ''
+      'WHERE  Codigo = :Codigo AND'
+      '       Tipo   = '#39'H'#39
+      '       ')
+    RequestLive = False
+    Left = 45
+    Top = 218
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryModelosChequecodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryModelosChequedescricao: TStringField
+      FieldName = 'descricao'
+      Size = 50
+    end
+  end
+  object qryConsultaModelos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select  descricao,'
+      '            codigo'
+      'From    modelosnotasfiscais'
+      'Where  (tipo = '#39'H'#39')'
+      'Order By UPPER(TO_ASCII(descricao,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 178
+    Top = 234
+    object qryConsultaModelosdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 50
+    end
+    object qryConsultaModeloscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+    end
+  end
+  object dsrModelosCheque: TtecDataSource
+    DataSet = qryModelosCheque
+    Left = 145
+    Top = 234
+  end
+  object qryContas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkFields = 'banco=banco;codigo=agencia'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrAgencias
+    Constraints = <>
+    AfterDelete = qryContasAfterDelete
+    OnNewRecord = qryContasNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT c.Banco,'
+      '       c.Agencia,'
+      '       c.Conta,'
+      '       c.Digito,'
+      '       c.Convenio,'
+      '       c.Titular,'
+      '       c.ContaContabil,'
+      '       c.Cedente,'
+      '       c.LocalPagamento,'
+      '       C.LocalPagamento2,'
+      '       c.InstrucoesBoleto,'
+      '       c.Carteira,'
+      '       c.UsoDoBanco,'
+      '       c.FluxoCaixa,'
+      '       c.Filial,'
+      '       c.NrViasBoleto,'
+      '       c.Taxa_Boleto,'
+      '       c.Contrato,'
+      '       c.Variacao_Carteira,'
+      '       c.Formatacao_Convenio,'
+      '       c.Formatacao_Nosso_Numero,'
+      '       c.Valor_Isencao_Taxa,'
+      '       c.BancoReferencia,'
+      '       c.AgenciaReferencia,'
+      '       c.CNPJ_Agencia_Referencia,'
+      '       c.Codigo_Singular,'
+      '       c.Cedente_Nome,'
+      '       c.TipoRecebimento,'
+      '       c.IncluirInstrucoesArquivoBanco,'
+      '       c.PadraoCNAB,'
+      '       c.EspecieDocto,'
+      '       c.CodigoProtesto,'
+      '       c.NrDiasProtesto,'
+      '       c.EmailNoArquivoBanco,'
+      '       c.ndiasbaixaautomatica,'
+      '       c.codigomora,'
+      ''
+      '       c.rua_endcedente,'
+      '       c.estado_endcedente,'
+      '       c.cidade_endcedente,'
+      ''
+      '       c.bairro_endcedente,'
+      '       c.chave_fixa_sicredi,'
+      ''
+      '      (Select ba.nome From bairros ba'
+      '       Where ba.estado = c.estado_endcedente'
+      '         and ba.cidade = c.cidade_endcedente'
+      
+        '         and ba.codigo = c.bairro_endcedente) as nomebairro_endc' +
+        'edente,'
+      ''
+      '       c.cep_endcedente,'
+      '       c.numero_endcedente,'
+      '       c.complemento_endcedente,'
+      ''
+      '     (Select cd.nome'
+      '      From cidades cd'
+      '      Where cd.estado = c.estado_endcedente'
+      
+        '        and cd.codigo = c.cidade_endcedente) as nomecidade_endce' +
+        'dente,'
+      ''
+      '     c.sequencial,'
+      '     c.reiniciarsequencialnovadata'
+      ''
+      ''
+      ''
+      'FROM   contas c'
+      'WHERE  Banco   = :Banco AND'
+      '       Agencia = :Agencia'
+      'ORDER BY Conta'
+      ''
+      '')
+    RequestLive = True
+    Left = 45
+    Top = 152
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'banco'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'agencia'
+        ParamType = ptUnknown
+      end>
+    object qryContasbanco: TIntegerField
+      FieldName = 'banco'
+      Required = True
+      DisplayFormat = '000'
+    end
+    object qryContasagencia: TIntegerField
+      FieldName = 'agencia'
+      Required = True
+      DisplayFormat = '0000'
+    end
+    object qryContasConta: TIntegerField
+      DisplayLabel = 'Conta'
+      FieldName = 'conta'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryContasdigito: TStringField
+      FieldName = 'digito'
+      Required = True
+      Size = 2
+    end
+    object qryContasconvenio: TLargeintField
+      FieldName = 'convenio'
+    end
+    object qryContastitular: TStringField
+      FieldName = 'titular'
+      Size = 50
+    end
+    object qryContascontacontabil: TIntegerField
+      FieldName = 'contacontabil'
+      DisplayFormat = '0'
+    end
+    object qryContaslocalpagamento: TStringField
+      FieldName = 'localpagamento'
+      Size = 100
+    end
+    object qryContasinstrucoesboleto: TStringField
+      FieldName = 'instrucoesboleto'
+      Size = 300
+    end
+    object qryContasusodobanco: TStringField
+      FieldName = 'usodobanco'
+      Size = 15
+    end
+    object qryContasFluxoCaixa: TBooleanField
+      FieldName = 'FluxoCaixa'
+      Required = True
+    end
+    object qryContasfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryContascarteira: TStringField
+      FieldName = 'carteira'
+    end
+    object qryContasNrViasBoleto: TIntegerField
+      FieldName = 'NrViasBoleto'
+      DisplayFormat = '0'
+    end
+    object qryContaslocalpagamento2: TStringField
+      FieldName = 'localpagamento2'
+      Size = 100
+    end
+    object qryContastaxa_boleto: TFloatField
+      FieldName = 'taxa_boleto'
+      DisplayFormat = '0.00'
+    end
+    object qryContascontrato: TStringField
+      FieldName = 'contrato'
+      Size = 50
+    end
+    object qryContasvariacao_carteira: TStringField
+      FieldName = 'variacao_carteira'
+      Size = 50
+    end
+    object qryContasformatacao_convenio: TStringField
+      FieldName = 'formatacao_convenio'
+      Size = 50
+    end
+    object qryContasformatacao_nosso_numero: TStringField
+      FieldName = 'formatacao_nosso_numero'
+      Size = 50
+    end
+    object qryContasvalor_isencao_taxa: TFloatField
+      FieldName = 'valor_isencao_taxa'
+      DisplayFormat = '0.00'
+    end
+    object qryContasbancoreferencia: TStringField
+      DisplayLabel = 'Banco referencial'
+      FieldName = 'bancoreferencia'
+      Required = True
+      EditMask = '000'
+      Size = 3
+    end
+    object qryContasagenciareferencia: TIntegerField
+      FieldName = 'agenciareferencia'
+      DisplayFormat = '0'
+    end
+    object qryContascedente: TStringField
+      FieldName = 'cedente'
+      Size = 100
+    end
+    object qryContascnpj_agencia_referencia: TStringField
+      FieldName = 'cnpj_agencia_referencia'
+      Size = 14
+    end
+    object qryContascedente_nome: TStringField
+      FieldName = 'cedente_nome'
+      Size = 100
+    end
+    object qryContascodigo_singular: TLargeintField
+      FieldName = 'codigo_singular'
+    end
+    object qryContastiporecebimento: TIntegerField
+      DisplayLabel = 'Tipo de Recebimento'
+      FieldName = 'tiporecebimento'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryContasIncluirInstrucoesArquivoBanco: TBooleanField
+      FieldName = 'incluirinstrucoesarquivobanco'
+    end
+    object qryContasPadraoCNAB: TStringField
+      FieldName = 'PadraoCNAB'
+      Size = 1
+    end
+    object qryContaseEspecieDocto: TStringField
+      FieldName = 'EspecieDocto'
+      Size = 2
+    end
+    object qryContasCodigoProtesto: TStringField
+      FieldName = 'CodigoProtesto'
+      Size = 1
+    end
+    object qryContasNrDiasProtesto: TIntegerField
+      FieldName = 'NrDiasProtesto'
+      DisplayFormat = '0'
+    end
+    object qryContasEmailNoArquivoBanco: TBooleanField
+      FieldName = 'EmailNoArquivoBanco'
+    end
+    object qryContasndiasbaixaautomatica: TIntegerField
+      DisplayLabel = 'N. Dias Baixa Automatica'
+      FieldName = 'ndiasbaixaautomatica'
+    end
+    object qryContascodigomora: TStringField
+      FieldName = 'codigomora'
+      Size = 3
+    end
+    object qryContasrua_endcedente: TStringField
+      FieldName = 'rua_endcedente'
+      Size = 100
+    end
+    object qryContasestado_endcedente: TStringField
+      FieldName = 'estado_endcedente'
+      Size = 2
+    end
+    object qryContascidade_endcedente: TIntegerField
+      FieldName = 'cidade_endcedente'
+    end
+    object qryContasbairro_endcedente: TIntegerField
+      FieldName = 'bairro_endcedente'
+    end
+    object qryContascep_endcedente: TIntegerField
+      FieldName = 'cep_endcedente'
+    end
+    object qryContasnumero_endcedente: TIntegerField
+      FieldName = 'numero_endcedente'
+    end
+    object qryContascomplemento_endcedente: TStringField
+      FieldName = 'complemento_endcedente'
+      Size = 100
+    end
+    object qryContasnomebairro_endcedente: TStringField
+      FieldName = 'nomebairro_endcedente'
+      Size = 80
+    end
+    object qryContasnomecidade_endcedente: TStringField
+      FieldName = 'nomecidade_endcedente'
+      Size = 72
+    end
+    object qryContaschave_fixa_sicredi: TStringField
+      FieldName = 'chave_fixa_sicredi'
+      Size = 100
+    end
+    object qryContassequencial: TIntegerField
+      FieldName = 'sequencial'
+    end
+    object qryContasreiniciarsequencialnovadata: TBooleanField
+      FieldName = 'reiniciarsequencialnovadata'
+    end
+  end
+  object dsrProcuraContas: TtecDataSource
+    Left = 262
+    Top = 104
+  end
+  object dsrContas: TtecDataSource
+    DataSet = qryContas
+    Left = 96
+    Top = 168
+  end
+end

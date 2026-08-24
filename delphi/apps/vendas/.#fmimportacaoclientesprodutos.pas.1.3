@@ -1,0 +1,405 @@
+unit fmimportacaoclientesprodutos;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmajudabt, ExtCtrls, ComCtrls, Buttons, biblio, dmbasico,
+  DB, ZQuery, ZPgSqlQuery, cpquery, IniFiles, ctconstantes, ZTransact,
+  ToolWin;
+
+type                                                               
+  TfrmImportacaoClientesProdutos = class(TfrmAjudaBt)
+    gbxArquivoClientes: TGroupBox;
+    sbnImportarDados: TSpeedButton;
+    sbnArquivoClientes: TSpeedButton;
+    proImportacao: TProgressBar;
+    OpenDialog1: TOpenDialog;
+    lblArquivoClientes: TLabel;
+    qryCaracteristicas: TtecQuery;
+    qryPrecos: TtecQuery;
+    qryColunasPrecos: TtecQuery;
+    qryProdutos: TtecQuery;
+    qryCodigoBarras: TtecQuery;
+    qryEstoques: TtecQuery;
+    qryClientes: TtecQuery;
+    qryEstoquesImplantacao: TtecQuery;
+    gbxArquivoEstoque: TGroupBox;
+    sbnArquivoEstoques: TSpeedButton;
+    lblArquivoEstoques: TLabel;
+    gbxArquivoProdutos: TGroupBox;
+    sbnArquivoProdutos: TSpeedButton;
+    lblArquivoProdutos: TLabel;
+    procedure sbnArquivoClientesClick(Sender: TObject);
+    procedure sbnImportarDadosClick(Sender: TObject);
+    procedure sbnArquivoProdutosClick(Sender: TObject);
+    procedure sbnArquivoEstoquesClick(Sender: TObject);
+  private
+    fClientes: String;
+    fProdutos: String;
+    fEstoques: String;
+    procedure InicializarProgressBar(Maximo: Integer);
+    function ImportarClientes(Lista: TStringList): Boolean;
+    function ImportarProdutos(Lista: TStringList): Boolean;
+    function ImportarEstoques(Lista: TStringList): Boolean;
+    { Private declarations }
+  public
+    constructor Create(AOnwer: TComponent); override;
+    { Public declarations }
+  end;
+
+const
+  barra = {$ifdef mswindows}'\'{$else}'/'{$endif};
+
+var
+  frmImportacaoClientesProdutos: TfrmImportacaoClientesProdutos;
+  dtmBasico: TdtmBasico;
+
+implementation
+
+{$R *.dfm}
+
+constructor TfrmImportacaoClientesProdutos.Create(AOnwer: TComponent);
+var
+  arqINI: TIniFile;
+begin
+  inherited;
+  dtmBasico := TdtmBasico.Create(self);
+  arqINI := TIniFile.Create(NomeArquivoCFG);
+  try
+    fClientes := arqINI.ReadString('Importacao', 'Clientes', '');
+    fProdutos := arqINI.ReadString('Importacao', 'Produtos', '');
+    fEstoques := arqINI.ReadString('Importacao', 'Estoques', '');
+    lblArquivoClientes.Caption := fClientes;
+    lblArquivoProdutos.Caption := fProdutos;
+    lblArquivoEstoques.Caption  := fEstoques;
+  finally
+    arqINI.Free;
+  end;
+end;
+
+function TfrmImportacaoClientesProdutos.ImportarClientes(
+  Lista: TStringList): Boolean;
+var
+  i: Integer;
+  Campos: TStringList;
+  codigo, nome, pessoa, cpf,
+  ie, exped, orgao, rua,
+  bairro, cep, cidade, uf: String;
+begin
+  try
+    try
+{CLX_TO_VCL      proImportacao.Caption := 'AGUARDE...IMPORTANDO CLIENTES'; }
+      for i := 0 to Lista.Count - 1 do
+      begin
+        proImportacao.Position := i;
+        Campos := Explode(';', Lista.Strings[i]);
+        try
+          codigo := Campos[0];
+          nome   := UpperCase(trim(Campos[1]));
+          pessoa := UpperCase(trim(Campos[2]));
+          cpf    := trim(trocar(trocar(trocar(trocar(Campos[3],',',''),'.',''),'/',''),'-',''));
+          ie     := trim(trocar(trocar(trocar(trocar(Campos[4],',',''),'.',''),'/',''),'-',''));
+          exped  := trim(Campos[5]);
+          orgao  := UpperCase(trim(Campos[6]));
+          rua    := UpperCase(trim(Campos[7]));
+          bairro := UpperCase(trim(Campos[8]));
+          cep    := trim(Campos[9]);
+          cidade := UpperCase(trim(Campos[10]));
+          uf     := UpperCase(trim(Campos[11]));
+
+          qryClientes.ParamByName('filial').AsInteger   := FilialBase;
+          qryClientes.ParamByName('codigo').AsString    := codigo;
+          qryClientes.ParamByName('nome').AsString      := nome;
+          qryClientes.ParamByName('pessoa').AsString    := pessoa;
+          qryClientes.ParamByName('cpf').AsString       := cpf;
+          qryClientes.ParamByName('documento').AsString := ie;
+          qryClientes.ParamByName('orgao').AsString     := orgao;
+          if (exped = '') or (exped = '00000000') then
+            qryClientes.ParamByName('exped').AsDate     := DataAtual
+          else
+          begin
+            Insert('/',exped,3); Insert('/',exped,6);
+            qryClientes.ParamByName('exped').AsString   := exped;
+          end;
+          if (uf = '') or (uf = '0') then
+            qryClientes.ParamByName('estado').AsString    := dtmBasico.EstadoFilialBase
+          else
+            qryClientes.ParamByName('estado').AsString    := uf;
+          qryClientes.ParamByName('cidade').AsString    := cidade;
+          qryClientes.ParamByName('bairro').AsString    := bairro;
+          qryClientes.ParamByName('cep').AsString       := cep;
+          qryClientes.ParamByName('rua').AsString       := rua;
+          qryClientes.ExecSql;
+        finally
+          FreeAndNil(Campos);
+        end;
+      end;
+      result := dtmBasico.Perpetrar([]);
+      if Result then
+      begin
+{CLX_TO_VCL        proImportacao.Caption :=  'IMPORTAÇÃO DOS CLIENTES FINALIZADA!'; }
+        proImportacao.Position := 0;
+        proImportacao.Refresh;
+      end;
+    except
+      Result := False;
+      dtmBasico.Rollback([]);
+      raise
+    end;
+  finally
+    qryClientes.Close;
+  end;
+end;
+
+function TfrmImportacaoClientesProdutos.ImportarEstoques(
+  Lista: TStringList): Boolean;
+var
+  i: Integer;
+  Campos: TStringList;
+begin
+  try
+    try
+{CLX_TO_VCL      proImportacao.Caption := 'AGUARDE...IMPORTANDO ESTOQUE'; }
+      for i := 0 to Lista.Count - 1 do
+      begin
+        proImportacao.Position := i;
+        Campos := Explode(';', Lista.Strings[i]);
+        try
+          qryEstoquesImplantacao.ParamByName('filial').AsString     := trim(Campos[0]);
+          qryEstoquesImplantacao.ParamByName('produto').AsString    := trim(Campos[1]);
+          qryEstoquesImplantacao.ParamByName('quantidade').AsString := trocar(trim(Campos[2]),',','.');
+          qryEstoquesImplantacao.ExecSql;
+        finally
+          Campos.Free;
+        end;
+      end;
+      result := dtmBasico.Perpetrar([]);
+      if result then
+      begin
+{CLX_TO_VCL        proImportacao.Caption := 'IMPORTAÇÃO DO ESTOQUE FINALIZADA!';}
+        proImportacao.Position := 0;
+        proImportacao.Refresh;
+      end;
+    except
+      Result := False;
+      dtmBasico.Rollback([]);
+      raise
+    end;
+  finally
+    qryEstoquesImplantacao.Close;
+  end;
+end;
+
+function TfrmImportacaoClientesProdutos.ImportarProdutos(
+  Lista: TStringList): Boolean;
+var
+  Campos: TStringList;
+  i: Integer;
+  codigo,descricao,codbarras,
+  icms,origem,incidencia,valor,
+  preco: String;
+begin
+  try
+    try
+{CLX_TO_VCL      proImportacao.Caption := 'AGUARDE...IMPORTANDO PRODUTOS';}
+      for i := 0 to Lista.Count - 1 do
+      begin
+        proImportacao.Position := i;
+        Campos := Explode(';', Lista.Strings[i]);
+        try
+          codigo     := trim(Campos[0]);
+          descricao  := UpperCase(trim(Campos[1]));
+          codbarras  := trim(Campos[2]);
+          icms       := trocar(trim(Campos[3]),',','.');
+          origem     := trim(Campos[4]);
+          incidencia := trim(Campos[5]);
+          valor      := trocar(trim(Campos[6]),',','.');
+          preco      := copy(codigo,length(codigo)-2,3);
+
+          qryCaracteristicas.ParamByName('codigo').AsString := codigo;
+          qryCaracteristicas.ParamByName('descricao').AsString := descricao;
+          qryCaracteristicas.ParamByName('incidencia').AsString := incidencia;
+          qryCaracteristicas.ExecSql;
+
+          qryPrecos.ParamByName('codigo').AsString := codigo;
+          qryPrecos.ParamByName('preco').AsString := preco;
+          qryPrecos.ExecSql;
+
+          qryColunasPrecos.ParamByName('preco').AsString := preco;
+          qryColunasPrecos.ParamByName('valor').AsString := valor;
+          qryColunasPrecos.ParamByName('caracteristica').AsString := codigo;
+          qryColunasPrecos.ParamByName('data').AsDate := DataAtual;
+          qryColunasPrecos.ExecSql;
+
+          qryProdutos.ParamByName('codigo').AsString := codigo;
+          qryProdutos.ParamByName('descricao').AsString := descricao;
+          qryProdutos.ParamByName('caracteristica').AsString := codigo;
+          qryProdutos.ParamByName('preco').AsString := preco;
+          qryProdutos.ParamByName('codigovisual').AsString := codigo;
+          qryProdutos.ExecSql;
+
+          if codbarras <> '' then
+          begin
+            qryCodigoBarras.ParamByName('produto').AsString := codigo;
+            qryCodigoBarras.ParamByName('codbarras').AsString := codbarras;
+            qryCodigoBarras.ExecSql;
+          end;
+
+          qryEstoques.ParamByName('produto').AsString := codigo;
+          qryEstoques.ParamByName('filial').AsInteger := FilialBase;
+          qryEstoques.ExecSql;
+
+        finally
+          FreeAndNil(Campos);
+        end;
+      end;
+      Result := dtmBasico.Perpetrar([]);
+      if Result then
+      begin
+{CLX_TO_VCL        proImportacao.Caption := 'IMPORTAÇÃO DOS PRODUTOS FINALIZADA!';}
+        proImportacao.Position := 0;
+        proImportacao.Refresh;
+      end;
+    except
+      Result := False;
+      dtmBasico.Rollback([]);
+      raise
+    end;
+  finally
+    qryCaracteristicas.Close;
+    qryPrecos.Close;
+    qryColunasPrecos.Close;
+    qryProdutos.Close;
+    qryCodigoBarras.Close;
+    qryEstoques.Close;
+  end;
+end;
+
+procedure TfrmImportacaoClientesProdutos.InicializarProgressBar(Maximo: Integer);
+begin
+  proImportacao.Min := 0;
+  proImportacao.Max := Maximo;
+end;
+
+procedure TfrmImportacaoClientesProdutos.sbnArquivoClientesClick(
+  Sender: TObject);
+var
+  arqINI: TIniFile;
+begin
+  inherited;
+  OpenDialog1.Title := 'Arquivo para Importação';
+  OpenDialog1.DefaultExt := '*.txt';
+  OpenDialog1.Filter := 'Arquivos TXT (*.txt)|' +
+                        'Arquivos SQL (*.sql)|' +
+                        'Todos os Arquivos (*.*)';
+  OpenDialog1.InitialDir := ExtractFileDir(application.ExeName);
+  if OpenDialog1.Execute then
+  begin
+    lblArquivoClientes.Caption := OpenDialog1.FileName;
+    arqINI := TIniFile.Create(NomeArquivoCFG);
+    try
+      arqINI.WriteString('Importacao', 'Clientes', OpenDialog1.FileName);
+      arqINI.UpdateFile;
+    finally
+      arqINI.Free;
+    end;
+  end;
+end;
+
+procedure TfrmImportacaoClientesProdutos.sbnImportarDadosClick(
+  Sender: TObject);
+var
+  lista: TStringList;
+begin
+  inherited;
+  if (trim(fClientes) <> '') and
+     FileExists(fClientes) then
+  begin
+    lista := TStringList.Create;
+    try
+      lista.LoadFromFile(fClientes);
+      InicializarProgressBar(lista.Count);
+      ImportarClientes(lista);
+    finally
+      lista.Free;
+    end;
+  end;
+  if (trim(fProdutos) <> '') and
+     FileExists(fProdutos) then
+  begin
+    lista := TStringList.Create;
+    try
+      lista.LoadFromFile(fProdutos);
+      InicializarProgressBar(lista.Count);
+      ImportarProdutos(lista);
+    finally
+      lista.Free;
+    end;
+  end;
+  if (trim(fEstoques) <> '') and
+     FileExists(fEstoques) then
+  begin
+    lista := TStringList.Create;
+    try
+      lista.LoadFromFile(fEstoques);
+      InicializarProgressBar(lista.Count);
+      ImportarEstoques(lista);
+    finally
+      lista.Free;
+    end;
+  end;
+{CLX_TO_VCL  proImportacao.Caption := '';}
+end;
+
+procedure TfrmImportacaoClientesProdutos.sbnArquivoProdutosClick(
+  Sender: TObject);
+var
+  arqINI: TIniFile;
+begin
+  inherited;
+  OpenDialog1.Title := 'Arquivo para Importação';
+  OpenDialog1.DefaultExt := '*.txt';
+  OpenDialog1.Filter := 'Arquivos TXT (*.txt)|' +
+                        'Arquivos SQL (*.sql)|' +
+                        'Todos os Arquivos (*.*)';
+  OpenDialog1.InitialDir := ExtractFileDir(application.ExeName);
+  if OpenDialog1.Execute then
+  begin
+    lblArquivoProdutos.Caption := OpenDialog1.FileName;
+    arqINI := TIniFile.Create(NomeArquivoCFG);
+    try
+      arqINI.WriteString('Importacao', 'Produtos', OpenDialog1.FileName);
+      arqINI.UpdateFile;
+    finally
+      arqINI.Free;
+    end;
+  end;
+end;
+
+procedure TfrmImportacaoClientesProdutos.sbnArquivoEstoquesClick(
+  Sender: TObject);
+var
+  arqINI: TIniFile;
+begin
+  inherited;
+  OpenDialog1.Title := 'Arquivo para Importação';
+  OpenDialog1.DefaultExt := '*.txt';
+  OpenDialog1.Filter := 'Arquivos TXT (*.txt)|' +
+                        'Arquivos SQL (*.sql)|' +
+                        'Todos os Arquivos (*.*)';
+  OpenDialog1.InitialDir := ExtractFileDir(application.ExeName);
+  if OpenDialog1.Execute then
+  begin
+    lblArquivoEstoques.Caption := OpenDialog1.FileName;
+    arqINI := TIniFile.Create(NomeArquivoCFG);
+    try
+      arqINI.WriteString('Importacao', 'Estoques', OpenDialog1.FileName);
+      arqINI.UpdateFile;
+    finally
+      arqINI.Free;
+    end;
+  end;
+end;
+
+end.

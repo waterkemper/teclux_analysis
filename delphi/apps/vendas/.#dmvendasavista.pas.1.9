@@ -1,0 +1,3116 @@
+unit dmvendasavista;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Classes, DB, Variants, Forms, math,
+  //Repositorio
+  dmbasico,
+  //Terceiros
+  ZQuery, ZPgSqlQuery, ZSqlTypes,
+  //Biblio
+  ctconstantes, cpquery, cpdatasource, biblio, clusuario, clparametrossistema,
+  dmimprimecarne, dmvisualizarsaldotroca, ZTransact;
+
+type
+  TdtmVendasAVista = class(TdtmBasico)
+    qryProcuraCliente: TtecQuery;
+    qryConsultaVendedores: TtecQuery;
+    qryConsultaVendedoresnome: TStringField;
+    qryConsultaVendedorescodigo: TIntegerField;
+    qryProcuraVendedor: TtecQuery;
+    qryProcuraVendedorcodigo: TIntegerField;
+    qryProcuraVendedornome: TStringField;
+    qryConsultaClientes: TtecQuery;
+    qryConsultaClientesnome: TStringField;
+    qryConsultaClientespessoanumero: TStringField;
+    qryConsultaClientescodigo: TIntegerField;
+    dsrProcuraListaCasamento: TtecDataSource;
+    qryProcuraListaCasamento: TtecQuery;
+    qryProcuraListaCasamentocodigo: TIntegerField;
+    qryProcuraListaCasamentonomenoiva: TStringField;
+    qryProcuraListaCasamentonomenoivo: TStringField;
+    dsrProcuraVendedor: TtecDataSource;
+    qryConsultaListaCasamento: TtecQuery;
+    qryConsultaListaCasamentonomenoiva: TStringField;
+    qryConsultaListaCasamentonomenoivo: TStringField;
+    qryConsultaListaCasamentodata: TStringField;
+    qryConsultaListaCasamentocodigo: TIntegerField;
+    dsrProcuraCliente: TtecDataSource;
+    qryConsultaVendas: TtecQuery;
+    qryProcuraClientenome: TStringField;
+    qryProcuraClientepessoatipo: TStringField;
+    qryProcuraClientepessoanumero: TStringField;
+    qryProcuraClientecodigo: TIntegerField;
+    qryProcuraClientecivil: TStringField;
+    qryProcuraClienterua: TStringField;
+    qryProcuraClientebairro: TIntegerField;
+    qryProcuraClientecidade: TIntegerField;
+    qryProcuraClienteestado: TStringField;
+    qryProcuraClientecep: TIntegerField;
+    qryProcuraClientetipoorig: TStringField;
+    qryProcuraClientenomebairro: TStringField;
+    qryProcuraClientenomecidade: TStringField;
+    qryConsultaClientestipocliente: TStringField;
+    qryConsultaClientestipo: TStringField;
+    qryConsultaProdutos: TtecQuery;
+    qryConsultaProdutosdescricao: TStringField;
+    qryConsultaProdutoscodigo: TLargeintField;
+    qryConsultaProdutosfilial: TIntegerField;
+    qryConsultaProdutosemestoque: TFloatField;
+    qryConsultaProdutosreservado: TFloatField;
+    qryConsultaProdutosunidade: TStringField;
+    qryConsultaProdutosbrinde: TBooleanField;
+    qryConsultaFilialProduto: TtecQuery;
+    qryConsultaFilialProdutonome: TStringField;
+    qryConsultaFilialProdutocodigo: TIntegerField;
+    qryConsultaReservasProduto: TtecQuery;
+    qryConsultaReservasProdutonumero: TIntegerField;
+    qryConsultaReservasProdutodata: TDateTimeField;
+    qryConsultaReservasProdutocliente: TStringField;
+    qryConsultaReservasProdutodescricao: TStringField;
+    qryConsultaReservasProdutoquantidade: TFloatField;
+    qryProdutosListaCasamento: TtecQuery;
+    qryProdutosListaCasamentolista: TIntegerField;
+    qryProdutosListaCasamentoproduto: TLargeintField;
+    qryProdutosListaCasamentoquantidade: TFloatField;
+    qryProdutosListaCasamentomaxqtde: TFloatField;
+    qryProcuraReservaProduto: TtecQuery;
+    qryProcuraReservaProdutonumero: TIntegerField;
+    qryProcuraReservaProdutoquantidade: TFloatField;
+    qryProcuraReservaProdutodescricao: TStringField;
+    dsrProcuraReservaProduto: TtecDataSource;
+    qryProcuraFilialProduto: TtecQuery;
+    qryProcuraFilialProdutonome: TStringField;
+    qryProcuraFilialProdutocodigo: TIntegerField;
+    dsrProcuraFilialProduto: TtecDataSource;
+    qryProcuraProduto: TtecQuery;
+    qryProcuraProdutodescricao: TStringField;
+    qryProcuraProdutocodigo: TLargeintField;
+    qryProcuraProdutofilial: TIntegerField;
+    qryProcuraProdutoaliquotaicms: TFloatField;
+    qryProcuraProdutoicms: TIntegerField;
+    qryProcuraProdutomontagem: TBooleanField;
+    qryProcuraProdutobrinde: TBooleanField;
+    qryProcuraProdutovendasemestoque: TStringField;
+    dsrProcuraProduto: TtecDataSource;
+    qryProcuraVendedorProduto: TtecQuery;
+    qryProcuraVendedorProdutocodigo: TIntegerField;
+    qryProcuraVendedorProdutonome: TStringField;
+    dsrProcuraVendedorProduto: TtecDataSource;
+    qryProdutoEstoque: TtecQuery;
+    qryProdutoEstoqueemestoque: TFloatField;
+    qryProdutoEstoquepreco: TFloatField;
+    qryProdutoEstoquereservado: TFloatField;
+    qryProdutoEstoquefuturo: TFloatField;
+    qryProdutosSimilares: TtecQuery;
+    qryProdutosSimilarescodigo: TLargeintField;
+    qryProdutosSimilaresfilial: TIntegerField;
+    dsrProdutoEstoque: TtecDataSource;
+    qryProcuraProdutoorigem: TIntegerField;
+    qryProcuraProdutoincidencia: TStringField;
+    qryProcuraProdutotransfautomatica: TBooleanField;
+    qryProcuraProdutopercreducaobase: TFloatField;
+    qryEstoqueBloqueio: TtecQuery;
+    qryEstoqueBloqueioproduto: TLargeintField;
+    qryEstoqueBloqueiofilial: TIntegerField;
+    qryEstoqueBloqueioemestoque: TFloatField;
+    qryEstoqueBloqueioreservado: TFloatField;
+    qryEstoqueBloqueiofuturo: TFloatField;
+    qryEstoqueBloqueiocustomedio: TFloatField;
+    qryMovimentos: TtecQuery;
+    qryMovimentosnumero: TIntegerField;
+    qryMovimentosproduto: TLargeintField;
+    qryMovimentosfilial: TIntegerField;
+    qryMovimentostipomovimento: TStringField;
+    qryMovimentosquantidade: TFloatField;
+    qryMovimentosreferencia: TStringField;
+    qryReservasListaCasamento: TtecQuery;
+    qryReservasListaCasamentolista: TIntegerField;
+    qryReservasListaCasamentoproduto: TLargeintField;
+    qryReservasListaCasamentoquantidade: TFloatField;
+    spcMovimentosProximo: TtecQuery;
+    spcMovimentosProximonumero: TIntegerField;
+    qryProcuraFilialMontagem: TtecQuery;
+    qryProcuraFilialMontagemnome: TStringField;
+    qryProcuraFilialMontagemmnemonico: TStringField;
+    qryProcuraFilialMontagemcodigo: TIntegerField;
+    dsrProcuraFilialMontagem: TtecDataSource;
+    qryConsultaFiliais: TtecQuery;
+    qryConsultaFiliaisnome: TStringField;
+    qryConsultaFiliaiscodigo: TIntegerField;
+    spcContratoProximo: TtecQuery;
+    qryProdutosReservas: TtecQuery;
+    qryProdutosReservasreserva: TIntegerField;
+    qryProdutosReservasproduto: TLargeintField;
+    qryProdutosReservasfilial: TIntegerField;
+    qryProdutosReservasquantidade: TFloatField;
+    qryProdutosReservasbaixado: TFloatField;
+    qryProdutosReservasmovimento: TIntegerField;
+    qryContratos: TtecQuery;
+    qryContratosnumero: TStringField;
+    qryContratosdata: TDateField;
+    qryContratosfaturamento: TDateField;
+    qryContratoscliente: TIntegerField;
+    qryContratostipocliente: TStringField;
+    qryContratosvendedor: TIntegerField;
+    qryContratosfilialvenda: TIntegerField;
+    qryContratosvalorvista: TFloatField;
+    qryContratosvalorprazo: TFloatField;
+    qryContratosdesconto: TFloatField;
+    qryContratosfrete: TFloatField;
+    qryContratosseguro: TFloatField;
+    qryContratosmontagemfilial: TIntegerField;
+    qryContratossituacao: TStringField;
+    qryContratosnome: TStringField;
+    qryContratospessoatipo: TStringField;
+    qryContratospessoanumero: TStringField;
+    qryContratossexo: TStringField;
+    qryContratosrua: TStringField;
+    qryContratosbairro: TIntegerField;
+    qryContratoscidade: TIntegerField;
+    qryContratosestado: TStringField;
+    qryContratoscep: TIntegerField;
+    qryContratosobservacoes: TStringField;
+    qryContratosnomebairro: TStringField;
+    qryContratosnomecidade: TStringField;
+    dsrContratos: TtecDataSource;
+    qryProdutosContratos: TtecQuery;
+    dsrProdutosContratos: TtecDataSource;
+    qryParcelas: TtecQuery;
+    dsrParcelas: TtecDataSource;
+    qryProdutosContratoscontrato: TStringField;
+    qryProdutosContratosproduto: TLargeintField;
+    qryProdutosContratosfilial: TIntegerField;
+    qryProdutosContratosnumero: TIntegerField;
+    qryProdutosContratosquantidade: TFloatField;
+    qryProdutosContratosprecovenda: TFloatField;
+    qryProdutosContratosprecotabela: TFloatField;
+    qryProdutosContratosdescricaoprecovenda: TStringField;
+    qryProdutosContratosmontagem: TStringField;
+    qryProdutosContratosentrega: TStringField;
+    qryProdutosContratosprodutolista: TBooleanField;
+    qryProdutosContratoscancelado: TFloatField;
+    qryProdutosContratosdescricao: TStringField;
+    qryProdutosContratosreserva: TIntegerField;
+    qryProdutosContratosbrinde: TBooleanField;
+    qryProdutosContratosvendedor: TIntegerField;
+    qryProdutosContratosincluirnalistacasamento: TBooleanField;
+    qryParcelascontrato: TStringField;
+    qryParcelasnumero: TIntegerField;
+    qryParcelasdatavencto: TDateField;
+    qryParcelasvalorvencto: TFloatField;
+    spcContratoProximonumero: TStringField;
+    qryContratoscivil: TStringField;
+    qryContratosfonetipo: TStringField;
+    qryContratosrestipo: TStringField;
+    qryContratosreftipo: TStringField;
+    qryContratosagente: TIntegerField;
+    qryContratosplano: TIntegerField;
+    spcClientesProximoCodigo: TtecQuery;
+    spcClientesProximoCodigocodigo: TIntegerField;
+    qryContratosempcomprovado: TBooleanField;
+    qryContratosautomovel: TBooleanField;
+    qryContratoscartaocredito: TBooleanField;
+    qryContratoscartaoloja: TBooleanField;
+    qryContratoscheque: TBooleanField;
+    qryContratoschequeespecial: TBooleanField;
+    qryConsultaClientesrua: TStringField;
+    qryConsultaVendasnome: TStringField;
+    qryConsultaVendaspessoanumero: TStringField;
+    qryConsultaVendasnumero: TStringField;
+    qryConsultaVendasdata: TDateField;
+    qryBloquearContrato: TtecQuery;
+    qryBloquearContratolock: TIntegerField;
+    qryDesbloquearContrato: TtecQuery;
+    qryDesbloquearContratolock: TIntegerField;
+    qryClientes: TtecQuery;
+    qryClientescodigo: TIntegerField;
+    qryClientesnome: TStringField;
+    qryClientespessoatipo: TStringField;
+    qryClientespessoanumero: TStringField;
+    qryClientessexo: TStringField;
+    qryClientescivil: TStringField;
+    qryClientesrua: TStringField;
+    qryClientesbairro: TIntegerField;
+    qryClientescidade: TIntegerField;
+    qryClientesestado: TStringField;
+    qryClientescep: TIntegerField;
+    qryClientesrestipo: TStringField;
+    qryClientesreftipo: TStringField;
+    qryClientesfonetipo: TStringField;
+    qryClientesempcomprovado: TBooleanField;
+    qryClientesautomovel: TBooleanField;
+    qryClientescartaocredito: TBooleanField;
+    qryClientescartaoloja: TBooleanField;
+    qryClientescheque: TBooleanField;
+    qryClienteschequeespecial: TBooleanField;
+    qryConsultaClientesestado: TStringField;
+    qryConsultaClientesnomecidade: TStringField;
+    qryEstoqueDepositos: TtecQuery;
+    qryEstoqueDepositosfilial: TIntegerField;
+    qryEstoqueDepositosemestoque: TFloatField;
+    dsrEstoqueDepositos: TtecDataSource;
+    qryProcuraProdutopromocao: TBooleanField;
+    qryAgentePlano: TtecQuery;
+    qryAgentePlanoagente: TIntegerField;
+    qryParcelasformapagamento: TStringField;
+    qryAgentePlanotaxamensaljuros: TFloatField;
+    qryContratostaxajuros: TFloatField;
+    qryParcelasparcelaorigem: TStringField;
+    qryParcelasparcelaadicional: TBooleanField;
+    qryParcelaspagamentoextracaixa: TBooleanField;
+    qryContratosconsideracoes: TStringField;
+    qryContratosmontagemobs: TStringField;
+    qryContratosfoneddd: TIntegerField;
+    qryContratosfonenumero: TIntegerField;
+    qryContratosfoneramal: TStringField;
+    qryContratosfone2ddd: TIntegerField;
+    qryContratosfone2numero: TIntegerField;
+    qryContratosfone2ramal: TStringField;
+    qryProcuraClientefoneddd: TIntegerField;
+    qryProcuraClientefonenumero: TIntegerField;
+    qryProcuraClientefoneramal: TStringField;
+    qryClientesfoneddd: TIntegerField;
+    qryClientesfonenumero: TIntegerField;
+    qryClientesfoneramal: TStringField;
+    qryClientesfone2ddd: TIntegerField;
+    qryClientesfone2numero: TIntegerField;
+    qryClientesfone2ramal: TStringField;
+    qryContratostotalprodutos: TFloatField;
+    qryConsultaProdutosvalorgrade1: TStringField;
+    qryConsultaProdutosvalorgrade2: TStringField;
+    qryProdutosContratoslinha: TStringField;
+    qryProdutosContratoscoluna: TStringField;
+    qryProdutosContratosvalorgrade1: TStringField;
+    qryProdutosContratosvalorgrade2: TStringField;
+    qryProcuraProdutolinha: TStringField;
+    qryProcuraProdutocoluna: TStringField;
+    qryProcuraProdutovalorgrade1: TStringField;
+    qryProcuraProdutovalorgrade2: TStringField;
+    qryProcuraProdutodescricaolc: TStringField;
+    qryConsultaReservasProdutovalorgrade1: TStringField;
+    qryConsultaReservasProdutovalorgrade2: TStringField;
+    qryClienteCadastrado: TtecQuery;
+    qryClienteCadastradocodigo: TIntegerField;
+    qryClienteCadastradonome: TStringField;
+    qryAgentePlanodescontomaximo: TFloatField;
+    qryProdutosContratospromocao: TBooleanField;
+    qryContratospercentualdesconto: TFloatField;
+    qryParcelasQuitadas: TtecQuery;
+    qryParcelasQuitadasquantidade: TLargeintField;
+    qryProcuraClientefone2ddd: TIntegerField;
+    qryProcuraClientefone2numero: TIntegerField;
+    qryProcuraClientefone2ramal: TStringField;
+    qryContratoscreditotroca: TFloatField;
+    qryProdutosTrocados: TtecQuery;
+    qryProdutosTrocadosnumero: TIntegerField;
+    qryProdutosTrocadostipo: TStringField;
+    qryProdutosTrocadosdata: TDateTimeField;
+    qryProdutosTrocadoscliente: TIntegerField;
+    qryProdutosTrocadostipocliente: TStringField;
+    qryProdutosTrocadoscontrato: TStringField;
+    qryProdutosTrocadosfilial: TIntegerField;
+    qryProdutosTrocadosusuario: TIntegerField;
+    qryProdutosTrocadosvalor: TFloatField;
+    spcProdutosTrocadosProximo: TtecQuery;
+    spcProdutosTrocadosProximonumero: TIntegerField;
+    qryParcelasdatapagto: TDateField;
+    qryParcelasvalorpagto: TFloatField;
+    qryParcelasfilialpagto: TIntegerField;
+    qryContratostotalqtdeprodutos: TFloatField;
+    qryContratosiddocumento: TStringField;
+    qryProcuraClienteinscricaoestadual: TStringField;
+    qryClientesiddocumento: TStringField;
+    qryClientesfilialcadastro: TIntegerField;
+    qryProcuraClientedescricaoconceito: TStringField;
+    qryClientesenderecoalterado: TDateField;
+    qryProdutosContratoscomposto: TBooleanField;
+    qryProcuraProdutocomposto: TBooleanField;
+    qryFornecedores: TtecQuery;
+    qryFornecedorescodigo: TIntegerField;
+    qryFornecedoresnome: TStringField;
+    qryFornecedorespessoatipo: TStringField;
+    qryFornecedorespessoanumero: TStringField;
+    qryFornecedoresrua: TStringField;
+    qryFornecedoresbairro: TIntegerField;
+    qryFornecedorescidade: TIntegerField;
+    qryFornecedoresestado: TStringField;
+    qryFornecedorescep: TIntegerField;
+    qryFornecedoresfoneddd: TIntegerField;
+    qryFornecedoresfonenumero: TIntegerField;
+    qryFornecedoresinscricaoestadual: TStringField;
+    qryFornecedoresenderecoalterado: TDateField;
+    qryProcuraClientesexo: TStringField;
+    qryProcuraClientenaoexibirfichafinanceira: TBooleanField;
+    qryLimitesCredito: TtecQuery;
+    qryLimitesCreditototalpontos: TIntegerField;
+    qryLimitesCreditolimitedisponivel: TFloatField;
+    qryLimitesCreditolimitetotal: TFloatField;
+    qryLimitesCreditolimiteporparcela: TFloatField;
+    qryLimitesCreditolimiteaberto30dias: TFloatField;
+    qryContratosnrpontos: TIntegerField;
+    qryContratoslimitecredito: TFloatField;
+    qryContratoslimitedisponivel: TFloatField;
+    qryContratoslimiteparcela: TFloatField;
+    qryContratosaberto30dias: TFloatField;
+    qryProcuraClienterestricoesconceito: TBooleanField;
+    qryProdutosContratosacrescimo: TFloatField;
+    qryProdutosContratosdesconto: TFloatField;
+    qryProdutosContratosfrete: TFloatField;
+    qryProdutosContratosseguro: TFloatField;
+    qryContratosendnumero: TIntegerField;
+    qryContratosendcomplemento: TStringField;
+    qryProcuraClientenumero: TIntegerField;
+    qryProcuraClientecomplemento: TStringField;
+    qryClientesnumero: TIntegerField;
+    qryClientescomplemento: TStringField;
+    qryFornecedoresnumero: TIntegerField;
+    qryFornecedorescomplemento: TStringField;
+    qryClientesobservacoes: TStringField;
+    qryProcuraProdutocodigobarras: TStringField;
+    qryProdutosContratoscodigobarras: TStringField;
+    qryProdutosContratoslistacasamento: TIntegerField;
+    qryProdutosListaCasamentoincluidodepois: TBooleanField;
+    qryProdutosListaCasamentomensagemexibida: TBooleanField;
+    procedure dsrContratosDataChange(Sender: TObject; Field: TField);
+    procedure dsrProdutosContratosDataChange(Sender: TObject; Field: TField);
+    procedure qryContratosAfterOpen(DataSet: TDataSet);
+    procedure qryContratosAfterClose(DataSet: TDataSet);
+    procedure qryContratosBeforeClose(DataSet: TDataSet);
+    procedure qryContratosBeforeOpen(DataSet: TDataSet);
+    procedure qryProdutosContratosNewRecord(DataSet: TDataSet);
+    procedure qryParcelasAfterOpen(DataSet: TDataSet);
+    procedure qryContratosAfterCancel(DataSet: TDataSet);
+    procedure qryProcuraClienteAfterOpen(DataSet: TDataSet);
+    procedure qryConsultaProdutosAfterOpen(DataSet: TDataSet);
+    procedure qryProdutosContratosAfterScroll(DataSet: TDataSet);
+    procedure qryProcuraProdutoCalcFields(DataSet: TDataSet);
+    procedure qryProdutosContratosAfterDelete(DataSet: TDataSet);
+    procedure qryProdutosContratosAfterPost(DataSet: TDataSet);
+    procedure qryContratosNewRecord(DataSet: TDataSet);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure qryProdutosContratosAfterOpen(DataSet: TDataSet);
+  private
+    dtmVisualizarSaldoTroca: TdtmVisualizarSaldoTroca;
+    FOnScrollLinhaColunaGrade: TNotifyEvent;
+    FExistePromocao: Boolean;
+    FCreditoTrocaAnt: Currency;
+    FSaldoCreditoOriginal: Currency;
+    FTotalContrato: Currency;
+    fIncluindoSimilares: boolean;
+    function GetColunadaGrade: String;
+    function GetLinhadaGrade: String;
+    function GetProdutoContratoemPromocao: Boolean;
+    function GetExisteQuitacaoParcelas: Boolean;
+    function GetContratoSomenteLeitura: Boolean;
+    function GetCreditoTroca: Currency;
+    procedure SetCreditoTroca(const Value: Currency);
+    function GetSaldoCreditoAtual: Currency;
+    function GetTotalProdutos: Currency;
+    function GetSituacaoContrato: TtecSituacaoContrato;
+    function GetTabelaSaldoCredito: TZDataset;
+    function GetTabelaSaldoCreditoAtual: TZDataset;
+    function GetTotalContrato: Currency;
+    function GetProdutoConsulta: String;
+  protected
+    FContratoBloqueado: String;
+    FVendedorDefault: Integer;
+    FExisteMontagem: Boolean;
+    FExisteEntrega: Boolean;
+    FBloqueado: Boolean;
+    FAtribuindoCliente: Boolean;
+    FFormaPagamento: Integer;
+    FParcelasAfterOpen: TNotifyEvent;
+    function  BloquearContrato(Numero: String): Boolean;
+    function  ClienteJaCadastrado(Numero: String): Boolean;
+    function  EnderecoCompleto: Boolean;
+    function  GetCodigoCliente: Integer;
+    function  GetComLista: Boolean;
+    function  GetNomeCliente: String;
+    function  GetProdutoMontavel: Boolean;
+    function  GetQtdadeProdutos: Integer;
+    function  GetTabelaConsultaClientes: TZDataset;
+    function  GetTabelaConsultaFilialMontagem: TZDataset;
+    function  GetTabelaConsultaFilialProduto: TZDataset;
+    function  GetTabelaConsultaListaCasamento: TZDataset;
+    function  GetTabelaConsultaProdutos: TZDataset;
+    function  GetTabelaConsultaReservas: TZDataset;
+    function  GetTabelaConsultaVendas: TZDataset;
+    function  GetTabelaConsultaVendedores: TZDataset;
+    function  GetTabelaProdutosVendaVista: TtecQuery;
+    function  GetTabelaVenda: TZDataset;
+    function  GetTipoCliente: String;
+    function  GetTipoPessoa: String;
+    procedure IncluirProdutosListaCasamento;
+    procedure MontarProdutosReservas;
+    function  ReservarVendaVista: Boolean;
+    procedure SetVendedorDefault(const Value: Integer);
+    function  SomenteBrindes: Boolean;
+    function  IncluirCliente: Boolean;
+    function  GetNumeroContrato: String;
+    function  GetProdutoEmPromocao: Boolean;
+    function  GetParcelaFormaPagto: String;
+    procedure SetFormaPagamento(const Value: Integer);
+    procedure AbrirProdutosListaCasamento(Todos: boolean = false);
+    property IncluindoSimilares: boolean read fIncluindoSimilares write fIncluindoSimilares;
+
+  public
+    FOpeningQuery: Boolean;
+    procedure GravaRamalCliente(sCodigoCliente,FoneDDD,FoneNumero,FoneRamal,FoneDDD1,FoneNumero1,FoneRamal1:String);
+    procedure AbreTabelasVendaVista(TipoConsulta: TtecVendasTipoConsulta);
+{   procedure AtualizarQtdePresentesListas(Cancelar: Boolean);}
+    procedure BloquearEstoque;
+    procedure CalcularValorVenda;
+    procedure CalcularValorTotalProdutos;
+    procedure CancelarContratoReservado;
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+    procedure DesbloquearContrato; overload;
+    procedure DesbloquearContrato(Numero: String); overload;
+    function  ExcluirProdutoVendaVista: Boolean;
+    function  ExcluirVendaVista: Boolean;
+    function  EditarProdutosVendaVista(Similar: Boolean): Boolean;
+    function  ExisteCliente(NomeCampo: String; inf: Variant): Boolean;
+    function  ExisteFilialMontagem(NomeCampo: String; Value: Variant): Boolean;
+    function  ExisteFilialProduto(NomeCampo: String; Value: Variant): Boolean;
+    function  ExisteListaCasamento(NomeCampo: String; inf: Variant): Boolean;
+    function  ExisteProduto(NomeCampo: String; Value: Variant): Boolean;
+    function  ExisteReserva(NomeCampo: String; Value: Variant): Boolean;
+    function  ExisteVenda(NomeCampo: String; inf: Variant): Boolean;
+    function  ExisteVendedor(NomeCampo: String; inf: Variant): Boolean;
+    procedure FechaTabelasConsulta(TipoConsulta: TtecVendasTipoConsulta);
+    procedure FecharTabelasVendaVista;
+    procedure FiltrarProdutosEFiliaisContratos;
+    function  GravarProdutoVendaVista: Boolean;
+    function  GravarVendaVista: Boolean;
+    function  IncluirProdutosVendaVista: Boolean;
+    function  IncluirVendaVista: Boolean;
+    procedure LerProdutosFiliaisIncluidos(Incluindo: Boolean);
+    procedure LimparClienteDoContrato;
+    function  LerProdutosSimilares: Boolean;
+//    procedure SomenteLeitura(Valor: Boolean);
+    procedure NovoMovimento(Produto: int64; Filial: Integer);
+    procedure PreencherCliente;
+    procedure SelecionaTabelasVendaVista(TipoConsulta: TtecVendasTipoConsulta);
+    procedure SelecionarProdutosListaCasamento(Incluindo, SoLista: Boolean);
+    procedure ReFazConsultaProdutosParcelas;
+    property  Bloqueado: Boolean read FBloqueado;
+    property  CodigoCliente: Integer read GetCodigoCliente;
+    property  ComLista: Boolean read GetComLista;
+    property  ExisteEntrega: Boolean read FExisteEntrega;
+    property  ExisteMontagem: Boolean read FExisteMontagem;
+    property  NomeCliente: String read GetNomeCliente;
+    property  NumeroContrato: String read GetNumeroContrato;
+    property  ProdutoMontavel: Boolean read GetProdutoMontavel;
+    property  QtdadeProdutos: Integer read GetQtdadeProdutos;
+    property  TabelaConsultaClientes: TZDataset read GetTabelaConsultaClientes;
+    property  TabelaConsultaFilialMontagem: TZDataset read GetTabelaConsultaFilialMontagem;
+    property  TabelaConsultaFilialProduto: TZDataset read GetTabelaConsultaFilialProduto;
+    property  TabelaConsultaListaCasamento: TZDataset read GetTabelaConsultaListaCasamento;
+    property  TabelaConsultaProdutos: TZDataset read GetTabelaConsultaProdutos;
+    property  TabelaConsultaReservas: TZDataset read GetTabelaConsultaReservas;
+    property  TabelaConsultaVendas: TZDataset read GetTabelaConsultaVendas;
+    property  TabelaConsultaVendedores: TZDataset read GetTabelaConsultaVendedores;
+    property  TabelaProdutosVendaVista: TtecQuery read GetTabelaProdutosVendaVista;
+    property  TabelaSaldoCredito: TZDataset read GetTabelaSaldoCredito;
+    property  TabelaSaldoCreditoAtual: TZDataset read GetTabelaSaldoCreditoAtual;
+    property  TabelaVenda: TZDataset read GetTabelaVenda;
+    property  TipoCliente: String read GetTipoCliente;
+    property  TipoPessoa: String read GetTipoPessoa;
+    property  ProdutoEmPromocao: Boolean read GetProdutoEmPromocao;
+    property  VendedorDefault: Integer read FVendedorDefault write SetVendedorDefault;
+    property  FormaPagamento: Integer read FFormaPagamento write SetFormaPagamento;
+    property  ParcelaFormaPagto: String read GetParcelaFormaPagto;
+    property  ParcelasAfterOpen: TNotifyEvent read FParcelasAfterOpen write FParcelasAfterOpen;
+    property  OnScrollLinhaColunaGrade    : TNotifyEvent read FOnScrollLinhaColunaGrade write FOnScrollLinhaColunaGrade;
+    property LinhadaGrade: String read GetLinhadaGrade;
+    property ColunadaGrade: String read GetColunadaGrade;
+    procedure  ValidarDesconto;
+    property  ExistePromocao: Boolean read FExistePromocao;
+    procedure CalcularDesconto(percentual: real);
+    procedure CalcularPercentualDesconto(desconto: real);
+    property ProdutocontratoemPromocao: Boolean read GetProdutoContratoemPromocao;
+    property ExisteQuitacaoParcelas: Boolean read GetExisteQuitacaoParcelas;
+    property ContratoSomenteLeitura: Boolean read GetContratoSomenteLeitura;
+    function SugerirCreditoTroca(Perguntar, Atribuir: Boolean): Boolean;
+    property  CreditoTroca: Currency Read GetCreditoTroca write SetCreditoTroca;
+    property CreditoTrocaAnt: Currency read FCreditoTrocaAnt write FCreditoTrocaAnt;
+    property SaldoCreditoAtual: Currency read GetSaldoCreditoAtual;
+    property SaldoCreditoOriginal: Currency read FSaldoCreditoOriginal write FSaldoCreditoOriginal;
+    function ValidarCreditoTroca: Boolean;
+    procedure AbrirDadosCreditoCliente;
+    property  TotalProdutos: Currency Read GetTotalProdutos;
+    property  SituacaoContrato: TtecSituacaoContrato read GetSituacaoContrato;
+    function AtualizarSaldoCreditoCliente(tipo: String): Boolean;
+    property TotalContrato: Currency read GetTotalContrato write FTotalContrato;
+    Function ExibirFicha(FormOrigem: String): boolean;
+    function CartaDevolvida(FormOrigem: String): Boolean;
+    property ProdutoConsulta: String Read GetProdutoConsulta;
+    function  VerificarLimitesCredito(Msg: String): Boolean;
+    procedure VerificarSaldoProdutoListaCasamento(DesligarControles: Boolean = true);
+    procedure AbreConsultaProdutos;
+
+
+  end;
+
+var
+  dtmVendasAVista: TdtmVendasAVista;
+  tipodesconto : ttectipodesconto;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmVendasAVista }
+
+var
+  aProdFilial: array of record
+    Prod,
+    Filial: String
+  end;
+
+procedure TdtmVendasAVista.AbreTabelasVendaVista(TipoConsulta: TtecVendasTipoConsulta);
+begin
+  case TipoConsulta of
+          vtcVENDAS: begin
+                       qryConsultaVendas.Sql[10] := ' and (c.tipocliente = ''' + qryConsultaClientestipo.AsString + ''')';
+                       ReFazConsulta(qryConsultaVendas,[0],[qryConsultaClientescodigo.AsInteger]);
+                     end;
+        vtcCLIENTES: begin
+//                       qryConsultaClientes.Sql[09]:= 'Where (v.codigo = 0) ';
+                       qryConsultaClientes.Open;
+                     end;
+ vtcVENDEDORPRODUTO,
+        vtcVENDEDOR: Abre(ctVendaTabelaConsultaVendedores);
+  vtcLISTACASAMENTO: Abre(ctVendaTabelaConsultaListaCasamento);
+         vtcPRODUTO: AbreConsultaProdutos;
+  vtcFILIALMONTAGEM: Abre(ctVendaTabelaConsultaFiliais);
+          vtcFILIAL: Abre(ctVendaTabelaConsultaFilialProduto);
+         vtcRESERVA: Abre(ctVendaTabelaConsultaReservas);
+  end;
+end;
+
+{
+procedure TdtmVendasAVista.AtualizarQtdePresentesListas(Cancelar: Boolean);
+var
+  Qtde: Real;
+  RecordTypesAnt: TZUpdateRecordTypes;
+begin
+  ReFazConsulta(qryProdutosListaCasamento,[0],[qryContratoslistacasamento.AsInteger]);
+  ReFazConsulta(qryReservasListaCasamento,[0,1],[qryContratoslistacasamento.AsInteger,
+                                                 CodigoUsuario]);
+  RecordTypesAnt:= qryProdutosContratos.ShowRecordTypes;
+  if not qryProdutosListaCasamento.IsEmpty then begin
+    try
+      if qryContratossituacao.AsString = qryContratossituacao.OldValue then
+        qryProdutosContratos.ShowRecordTypes := [ztModified, ztInserted, ztDeleted]
+      else
+        qryProdutosContratos.ShowRecordTypes := [ztModified, ztInserted, ztUnmodified];
+
+      qryProdutosContratos.First;
+      while not qryProdutosContratos.Eof do begin
+        if qryProdutosContratosprodutolista.AsBoolean then begin
+          if qryProdutosListaCasamento.Locate('produto',qryProdutosContratosproduto.AsString,[]) then begin
+            qryProdutosListaCasamento.Edit;
+            if Cancelar then begin
+               qryProdutosListaCasamentoqtdevendida.AsCurrency:= qryProdutosListaCasamentoqtdevendida.AsCurrency -
+                                                                qryProdutosContratosquantidade.AsCurrency;
+            end
+            else begin
+              if qryProdutosContratos.UpdateStatus = usDeleted then begin
+                qryProdutosListaCasamentoqtdevendida.AsCurrency:= qryProdutosListaCasamentoqtdevendida.AsCurrency -
+                                                                 qryProdutosContratosquantidade.AsCurrency;
+              end
+              else if qryProdutosContratos.UpdateStatus = usInserted then begin
+                qryProdutosListaCasamentoqtdevendida.AsCurrency:= qryProdutosListaCasamentoqtdevendida.AsCurrency +
+                                                                 qryProdutosContratosquantidade.AsCurrency;
+              end
+              else if qryProdutosContratos.UpdateStatus = usModified then begin
+                Qtde:= qryProdutosContratosquantidade.AsCurrency - qryProdutosContratosquantidade.OldValue;
+                if Qtde >= 0 then
+                  qryProdutosListaCasamentoqtdevendida.AsCurrency:= qryProdutosListaCasamentoqtdevendida.AsCurrency +
+                                                                   qryProdutosContratosquantidade.AsCurrency
+                else
+                  qryProdutosListaCasamentoqtdevendida.AsCurrency:= qryProdutosListaCasamentoqtdevendida.AsCurrency -
+                                                                   qryProdutosContratosquantidade.AsCurrency;
+              end
+              else begin
+                qryProdutosListaCasamentoqtdevendida.AsCurrency:= qryProdutosListaCasamentoqtdevendida.AsCurrency +
+                                                                 qryProdutosContratosquantidade.AsCurrency;
+              end;
+            end;
+            if qryProdutosListaCasamentoqtdevendida.AsCurrency = 0 then
+              qryProdutosListaCasamentoqtdevendida.Clear;
+            qryProdutosListaCasamento.Post;
+
+            if not Cancelar then
+              if qryReservasListaCasamento.Locate('produto',qryProdutosContratosproduto.AsString,[]) then begin
+                if (qryReservasListaCasamentoquantidade.AsCurrency = qryProdutosContratosquantidade.AsCurrency) then
+                  qryReservasListaCasamento.Delete
+                else begin
+                  qryReservasListaCasamento.Edit;
+                  qryReservasListaCasamentoquantidade.AsCurrency:= qryReservasListaCasamentoquantidade.AsCurrency -
+                                                                  qryProdutosContratosquantidade.AsCurrency;
+                  qryReservasListaCasamento.Post;
+                end;
+              end;
+          end;
+        end;
+        qryProdutosContratos.Next;
+      end;
+    finally
+      qryProdutosContratos.ShowRecordTypes:= RecordTypesAnt;
+    end;
+  end;
+end;
+}
+
+
+(*
+procedure TdtmVendasAVista.AtualizarQtdePresentesListas(Cancelar: Boolean);
+var
+  Qtde: Real;
+  RecordTypesAnt: TZUpdateRecordTypes;
+begin
+  if ParSistema.UtilizarListaCasamento
+     {and (SituacaoContrato >= scFATURADO)} then
+  begin
+    RecordTypesAnt:= qryProdutosContratos.ShowRecordTypes;
+    if not qryProdutosListaCasamento.IsEmpty then begin
+      try
+        if (qryContratossituacao.AsString = qryContratossituacao.OldValue)
+           and (qryContratossituacao.AsString <> 'F') then
+          qryProdutosContratos.ShowRecordTypes := [ztModified, ztInserted, ztDeleted]
+        else
+          qryProdutosContratos.ShowRecordTypes := [ztModified, ztInserted, ztUnmodified];
+
+        qryProdutosContratos.First;
+        while not qryProdutosContratos.Eof do begin
+          if qryProdutosContratoslistacasamento.AsInteger<>0 then begin
+            if qryProdutosListaCasamento.Locate('lista;produto',
+                 VarArrayof([qryProdutosContratoslistacasamento.AsString,
+                             qryProdutosContratosproduto.AsString]),[]) then begin
+              qryProdutosListaCasamento.Edit;
+              if Cancelar then begin
+                 qryProdutosListaCasamentoqtdevendida.AsCurrency:= qryProdutosListaCasamentoqtdevendida.AsCurrency -
+                                                                  qryProdutosContratosquantidade.AsCurrency;
+              end
+              else begin
+                if qryProdutosContratos.UpdateStatus = usDeleted then begin
+                  qryProdutosListaCasamentoqtdevendida.AsCurrency:= qryProdutosListaCasamentoqtdevendida.AsCurrency -
+                                                                   qryProdutosContratosquantidade.AsCurrency;
+                end
+                else if qryProdutosContratos.UpdateStatus = usInserted then begin
+                  qryProdutosListaCasamentoqtdevendida.AsCurrency:= qryProdutosListaCasamentoqtdevendida.AsCurrency +
+                                                                   qryProdutosContratosquantidade.AsCurrency;
+                end
+                else if qryProdutosContratos.UpdateStatus = usModified then begin
+                  Qtde:= qryProdutosContratosquantidade.AsCurrency - qryProdutosContratosquantidade.OldValue;
+                  if Qtde >= 0 then
+                    qryProdutosListaCasamentoqtdevendida.AsCurrency:= qryProdutosListaCasamentoqtdevendida.AsCurrency +
+                                                                     qryProdutosContratosquantidade.AsCurrency
+                  else
+                    qryProdutosListaCasamentoqtdevendida.AsCurrency:= qryProdutosListaCasamentoqtdevendida.AsCurrency -
+                                                                     qryProdutosContratosquantidade.AsCurrency;
+                end
+                else begin
+                  qryProdutosListaCasamentoqtdevendida.AsCurrency:= qryProdutosListaCasamentoqtdevendida.AsCurrency +
+                                                                   qryProdutosContratosquantidade.AsInteger;
+                end;
+              end;
+              if qryProdutosListaCasamentoqtdevendida.AsCurrency = 0 then
+                qryProdutosListaCasamentoqtdevendida.Clear;
+              qryProdutosListaCasamento.Post;
+
+            end;
+          end;
+          qryProdutosContratos.Next;
+        end;
+      finally
+        qryProdutosContratos.ShowRecordTypes:= RecordTypesAnt;
+      end;
+    end;
+  end;
+end;
+*)
+
+
+procedure TdtmVendasAVista.BloquearEstoque;
+var
+  WhereSQL: String;
+begin
+  qryProdutosContratos.DisableControls;
+  try
+    if qryProdutosContratos.RecordCount = 0 then
+      WhereSQL := 'false'
+    else begin
+      WhereSQL := '';
+      qryProdutosContratos.First;
+      while Not qryProdutosContratos.Eof do begin
+        WhereSQL := WhereSQL +
+        '((e.produto = ' + qryProdutosContratosproduto.AsString + ')and' +
+        '(e.filial = '   + qryProdutosContratosfilial.AsString  + '))or';
+        if (qryProdutosContratosproduto.AsLargeInt <> qryProdutosContratosproduto.OldValue) or
+           (qryProdutosContratosfilial.AsInteger   <> qryProdutosContratosfilial.OldValue) then
+          WhereSQL := WhereSQL +
+          '((e.produto = ' + VarToStr(qryProdutosContratosproduto.OldValue) + ')and' +
+          '(e.filial = '   + VarToStr(qryProdutosContratosfilial.OldValue)  + '))or';
+        qryProdutosContratos.Next
+      end;
+      Delete(WhereSQL, Length(WhereSQL) - 1, 2);
+    end
+  finally
+    qryProdutosContratos.EnableControls
+  end;
+  qryEstoqueBloqueio.Sql[72] := WhereSQL;
+  qryEstoqueBloqueio.Open;
+end;
+
+procedure TdtmVendasAVista.CalcularValorVenda;
+begin
+  qryContratosvalorprazo.AsFloat := qryContratostotalprodutos.AsFloat +
+                                    qryContratosfrete.AsFloat +
+                                    qryContratosseguro.AsFloat -
+                                    qryContratosdesconto.AsFloat;
+
+{
+  if ParSistema.utilizarcreditotrocacontrato then
+   if qryContratoscreditotroca.AsCurrency < 0 then
+    qryContratosvalorprazo.AsFloat := qryContratosvalorprazo.AsFloat -
+                                    qryContratoscreditotroca.AsFloat;
+}
+  qryContratosvalorvista.AsCurrency := qryContratosvalorprazo.AsCurrency;
+
+
+end;
+
+procedure TdtmVendasAVista.CalcularValorTotalProdutos;
+var
+  Pos: TBookmark;
+  QtdadeTotal,
+  Preco,
+  Produto,
+  TotQtdeProdutos : Real;
+begin
+  Produto:= 0;  TotQtdeProdutos := 0;
+  if qryProdutosContratos.Active then begin
+    Pos := qryProdutosContratos.GetBookmark;
+    qryProdutosContratos.DisableControls;
+    FExisteMontagem := False;
+    FExisteEntrega  := False;
+    FExistePromocao := False;
+    try
+      qryProdutosContratos.First;
+      while Not qryProdutosContratos.Eof do begin
+        if Not qryProdutosContratosbrinde.AsBoolean then begin
+          Preco    := qryProdutosContratosprecovenda.AsCurrency;
+          QtdadeTotal := qryProdutosContratosquantidade.AsCurrency;
+          TotQtdeProdutos := TotQtdeProdutos + qryProdutosContratosquantidade.AsCurrency;
+          Produto := Produto + (QtdadeTotal * Preco);
+        end;
+        if qryProdutosContratosmontagem.AsString = 'S' then
+          FExisteMontagem := True;
+        if qryProdutosContratosentrega.AsString = 'S' then
+          FExisteEntrega := True;
+        if qryProdutosContratospromocao.AsBoolean then
+          FExistePromocao := true;
+        qryProdutosContratos.Next
+      end;
+      if Not FExisteMontagem then
+        qryContratosmontagemfilial.Clear;
+    finally
+      qryContratostotalprodutos.AsCurrency := Produto;
+      qryContratosTotalQtdeProdutos.AsCurrency := TotQtdeProdutos;
+      if (qryContratosdesconto.AsString<>'') then
+        CalcularPercentualDesconto(qryContratosdesconto.AsFloat);
+      qryProdutosContratos.GotoBookmark(Pos);
+      qryProdutosContratos.FreeBookmark(Pos);
+      qryProdutosContratos.EnableControls;
+    end;
+  end;
+end;
+
+procedure TdtmVendasAVista.CancelarContratoReservado;
+var
+  Pos: TBookmark;
+  SituacaoProduto : TtecComposicao;
+begin
+  BloquearEstoque;
+  if qryMovimentos.State = dsInactive then
+    qryMovimentos.Open;
+  qryProdutosContratos.DisableControls;
+  Pos := qryProdutosContratos.GetBookmark;
+  try
+    for SituacaoProduto:=stNAOCOMPOSTO to stCOMPOSTO do
+    begin
+      qryProdutosContratos.First;
+      while Not qryProdutosContratos.Eof do begin
+        if FiltrarComposto(qryProdutosContratoscomposto.AsBoolean, SituacaoProduto) then
+        begin
+          NovoMovimento(qryProdutosContratosproduto.AsLargeInt, qryProdutosContratosfilial.AsInteger);
+          qryMovimentosquantidade.AsCurrency := qryProdutosContratosquantidade.AsCurrency;
+          qryMovimentostipomovimento.AsString := 'TRE';
+          qryMovimentosreferencia.AsString    := 'CT ' + qryContratosnumero.AsString + ' CANCELADO - VV';
+          qryMovimentos.Post;
+        end;
+        qryProdutosContratos.Next;
+      end
+    end;
+  finally
+    qryProdutosContratos.GotoBookmark(Pos);
+    qryProdutosContratos.FreeBookmark(Pos);
+    qryProdutosContratos.EnableControls
+  end;
+end;
+
+constructor TdtmVendasAVista.Create(AOwner: TComponent);
+begin
+  inherited;
+  FVendedorDefault:= 0;
+  qryContratos.Tag                    := ctTabelas;
+  qryProdutosContratos.Tag            := ctTabelas;
+  qryParcelas.Tag                     := ctTabelas;
+//  qryProcuraCliente.Tag               := ctTabelas;
+//  qryProcuraVendedor.Tag              := ctTabelas;
+//  qryProcuraListaCasamento.Tag        := ctTabelas;
+//  qryProcuraProduto.Tag               := ctTabelas;
+//  qryProcuraReservaProduto.Tag        := ctTabelas;
+//  qryProcuraFilialProduto.Tag         := ctTabelas;
+//  qryProcuraFilialMontagem.Tag        := ctTabelas;
+//  qryProcuraVendedorProduto.Tag       := ctTabelas;
+  qryConsultaVendas.Tag               := ctVendaTabelaConsultaVendas;
+  qryConsultaClientes.Tag             := ctVendaTabelaConsultaClientes;
+  qryConsultaVendedores.Tag           := ctVendaTabelaConsultaVendedores;
+  qryConsultaListaCasamento.Tag       := ctVendaTabelaConsultaListaCasamento;
+  qryConsultaProdutos.Tag             := ctVendaTabelaConsultaProdutos;
+  qryConsultaFilialProduto.Tag        := ctVendaTabelaConsultaFilialProduto;
+  qryConsultaFiliais.Tag              := ctVendaTabelaConsultaFiliais;
+  qryConsultaReservasProduto.Tag      := ctVendaTabelaConsultaReservas;
+  qryContratos.Sql[58]           := '(c.plano = ' + IntToStr(ParSistema.PlanoVendaVista) + ') and ';
+
+  if ParSistema.FaturarVendaVista then
+     qryContratos.Sql[59]      := '(c.situacao = ''F'') and'
+  else
+     qryContratos.Sql[59]      := '(c.situacao = ''R'') and';
+
+  qryConsultaVendas.Sql[11]      := 'and (c.plano = ' + IntToStr(ParSistema.PlanoVendaVista) + ')';
+  
+  if ParSistema.FaturarVendaVista then
+     qryConsultaVendas.Sql[12] := 'and (c.situacao = ''F'')'
+
+  else qryConsultaVendas.Sql[12] := 'and (c.situacao = ''R'')';
+  qryProcuraCliente.Params[1].AsString := 'C';
+  qryProcuraProduto.Params[1].AsString := EstadoFilialBase;
+  qryProcuraProduto.Params[2].AsString := IntToStr(FilialBase);
+  if UsuarioLogin.Vendedor then begin
+    qryProcuraReservaProduto.Params[0].AsInteger   := CodigoUsuario;
+    qryConsultaReservasProduto.Params[0].AsInteger := CodigoUsuario;
+  end;
+  FOpeningQuery:= True;
+
+  if (ParSistema.FiliaisIndependentes) then
+  begin
+    qryConsultaProdutos.MacroByName('FilialIndependente').AsString := 'and (e.filial = ' + IntToStr(FilialBase) + ')';
+    qryConsultaFilialProduto.Sql[8]    := 'and (f.codigo = ' + IntToStr(FilialBase) + ')';
+    qryProcuraFilialProduto.Sql[10]    := 'and (f.codigo = ' + IntToStr(FilialBase) + ')';
+    qryConsultaProdutosfilial.Visible  := Not (ParSistema.FiliaisIndependentes);
+    qryProdutosContratosfilial.Visible := Not (ParSistema.FiliaisIndependentes);
+  end
+  else
+    if (ParSistema.PesquisaSomenteEstoqueFilialBasevendas) then
+    begin
+      qryConsultaProdutos.MacroByName('FilialIndependente').AsString := 'and (e.filial in (' + ListaEstoquesFiliais + '))';
+      qryConsultaFilialProduto.Sql[8]    := 'and (f.codigo in (' + ListaEstoquesFiliais + '))';
+      qryProcuraFilialProduto.Sql[10]    := 'and (f.codigo in (' + ListaEstoquesFiliais + '))';
+    end
+    else
+    begin
+      qryConsultaProdutos.MacroByName('FilialIndependente').AsString := '';
+      qryConsultaFilialProduto.Sql[8]    := '';
+      qryProcuraFilialProduto.Sql[10]    := '';
+    end;
+
+  qryContratostotalqtdeprodutos.DisplayFormat  := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosContratosquantidade.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosContratoscancelado.DisplayFormat  := ParSistema.MascaraQuantidadeGrade;
+  qryProdutoEstoqueemestoque.DisplayFormat     := ParSistema.MascaraQuantidadeGrade;
+  qryEstoqueDepositosemestoque.DisplayFormat   := ParSistema.MascaraQuantidadeGrade;
+end;
+
+procedure TdtmVendasAVista.DesbloquearContrato;
+begin
+  DesbloquearContrato(qryContratosnumero.AsString)
+end;
+
+procedure TdtmVendasAVista.DesbloquearContrato(Numero: String);
+begin
+  ReFazConsulta(qryDesbloquearContrato,[0],[Numero]);
+  FBloqueado := False
+end;
+
+procedure TdtmVendasAVista.dsrContratosDataChange(Sender: TObject; Field: TField);
+begin
+  inherited;
+  if (Field = qryContratoscliente) then
+  begin
+    if not FAtribuindoCliente then
+    begin
+      if (qryContratoscliente.AsInteger > 0) then
+      begin
+//        SomenteLeitura(True);
+        PreencherCliente;
+      end
+      else
+      begin
+//        SomenteLeitura(False);
+        LimparClienteDoContrato;
+      end;
+    end;
+    if ParSistema.utilizarcreditotrocacontrato then
+       AbrirDadosCreditoCliente;
+  end
+  else if (Field = qryContratosdesconto) or
+          (Field = qryContratosseguro) or
+          (Field = qryContratosfrete) then
+  begin
+    CalcularValorTotalProdutos;
+    CalcularValorVenda;
+  end;
+end;
+
+procedure TdtmVendasAVista.dsrProdutosContratosDataChange(Sender: TObject; Field: TField);
+begin
+  inherited;
+  if Field = qryProdutosContratosfilial then begin
+    if (qryProdutosContratosfilial.AsInteger = 0) or (ParSistema.FiliaisIndependentes) then
+      qryProcuraProduto.Params[4].AsString := IntToStr(FilialBase)
+    else
+      qryProcuraProduto.Params[4].AsString := qryProdutosContratosfilial.AsString;
+    ReFazConsulta(qryProcuraReservaProduto,[2,3],[IntToStr(qryProdutosContratosproduto.AsLargeint),
+                                                  qryProdutosContratosfilial.AsInteger]);
+    ReFazConsulta(qryConsultaReservasProduto,[1,2], [IntToStr(qryProdutosContratosproduto.AsLargeint),
+                                                     qryProdutosContratosfilial.AsInteger]);
+    RefazConsulta(qryProdutoEstoque,[0,1],[IntToStr(qryProdutosContratosproduto.AsLargeInt),
+                                           qryProdutosContratosfilial.AsInteger]);
+    qryProdutosContratosprecovenda.AsFloat  := qryProdutoEstoquepreco.AsFloat;
+    qryProdutosContratosprecotabela.AsFloat := qryProdutoEstoquepreco.AsFloat;
+    if qryProcuraReservaProduto.RecordCount = 0 then
+      qryProdutosContratosreserva.Clear
+  end else if Field = qryProdutosContratosproduto then begin
+    RefazConsulta(qryEstoqueDepositos,[0],[IntToStr(qryProdutosContratosproduto.AsLargeInt)]);
+    qryConsultaFilialProduto.Params[0].AsString := IntToStr(qryProdutosContratosproduto.AsLargeInt);
+    qryProcuraFilialProduto.Params[1].AsString  := IntToStr(qryProdutosContratosproduto.AsLargeInt);
+    if qryProcuraProdutomontagem.AsBoolean then
+         qryProdutosContratosmontagem.AsString := 'S'
+    else qryProdutosContratosmontagem.AsString := 'N';
+    if UsuarioLogin.Vendedor then
+      qryProdutosContratosvendedor.AsInteger:= CodigoUsuario;
+    qryProdutosContratospromocao.AsBoolean:= qryProcuraProdutopromocao.AsBoolean;
+    qryProdutosContratosdescricao.AsString  := qryProcuraProdutodescricao.AsString;
+    qryProdutosContratoslinha.AsString := qryProcuraProdutolinha.AsString;
+    qryProdutosContratoscoluna.AsString := qryProcuraProdutocoluna.AsString;
+    qryProdutosContratosvalorgrade1.AsString := qryProcuraProdutovalorgrade1.AsString;
+    qryProdutosContratosvalorgrade2.AsString := qryProcuraProdutovalorgrade2.AsString;
+    qryProdutosContratosfilial.AsInteger    := qryProcuraProdutofilial.AsInteger;
+    qryProdutosContratosbrinde.AsBoolean    := qryProcuraProdutobrinde.AsBoolean;
+    RefazConsulta(qryProdutoEstoque,[0,1],[IntToStr(qryProdutosContratosproduto.AsLargeInt),
+                                           qryProdutosContratosfilial.AsInteger]);
+    qryProdutosContratosprecovenda.AsFloat  := qryProdutoEstoquepreco.AsFloat;
+    qryProdutosContratosprecotabela.AsFloat := qryProdutoEstoquepreco.AsFloat;
+    qryProdutosContratoscomposto.AsBoolean := qryProcuraProdutocomposto.AsBoolean;    
+  end else if Field = qryProdutosContratosListaCasamento then
+  begin
+    qryProdutosContratosprodutolista.AsBoolean := qryProdutosContratosListaCasamento.AsInteger <> 0;
+    if qryProdutosContratosprodutolista.AsBoolean then
+      SelecionarProdutosListaCasamento(qryprodutoscontratos.State=dsinsert, true);
+
+    AbrirProdutosListaCasamento;
+
+  end
+
+
+
+end;
+
+function TdtmVendasAVista.EditarProdutosVendaVista(Similar: Boolean): Boolean;
+var
+ RegistroAtual: TBookMark;
+begin
+
+  IncluindoSimilares := Similar;
+
+  if qryProdutosContratos.IsEmpty then begin
+    IncluirProdutosVendaVista;
+    Result:= True;
+  end
+  else begin
+    RefazConsulta(qryEstoqueDepositos,[0],[IntToStr(qryProdutosContratosproduto.AsLargeInt)]);
+    if (ParSistema.FiliaisIndependentes) then
+      qryProcuraProduto.Params[4].AsInteger := FilialBase
+    else
+      qryProcuraProduto.Params[4].AsString := qryProdutosContratosfilial.AsString;
+    if Similar then begin
+      Result := LerProdutosSimilares;
+      RefazConsulta(qryProdutoEstoque,[0,1],[IntToStr(qryProdutosContratosproduto.AsLargeInt),
+                                             qryProdutosContratosfilial.AsInteger]);
+    end
+    else begin
+      if qryProdutosContratos.RecordCount = 0 then begin
+        LerProdutosFiliaisIncluidos(True);
+        qryProdutosContratos.Append;
+      end else begin
+        RegistroAtual := qryProdutosContratos.GetBookmark;
+        LerProdutosFiliaisIncluidos(False);
+        qryProdutosContratos.GotoBookmark(RegistroAtual);
+        qryprodutoscontratos.FreeBookmark(RegistroAtual);
+      end;
+      RefazConsulta(qryProdutoEstoque, [0,1], [IntToStr(qryProdutosContratosproduto.AsLargeInt),
+                                               qryProdutosContratosfilial.AsInteger]);
+      Result := True
+    end;
+  end;
+end;
+
+function TdtmVendasAVista.EnderecoCompleto: Boolean;
+begin
+  Result := Not (qryContratosrua.IsNull or
+                 qryContratosendnumero.IsNull or
+                 qryContratosbairro.IsNull or
+                 qryContratoscidade.IsNull or
+                 qryContratosestado.IsNull or
+                 qryContratoscep.IsNull)
+end;
+
+Function TdtmVendasAVista.ExcluirProdutoVendaVista: Boolean;
+begin
+  Result := True;
+  if qryProdutosContratos.RecordCount > 0 then begin
+    if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o PRODUTO DA VENDA VISTA'])) = smbOk then begin
+      if qryProdutosContratos.State = dsInsert then
+           qryProdutosContratos.Cancel
+      else begin
+        qryProdutosContratos.Delete;
+        {
+        RefazConsulta(qryEstoqueDepositos,[0],[IntToStr(qryProdutosContratosproduto.AsLargeInt)]);
+        LerProdutosFiliaisIncluidos(False);
+        qryProdutosContratos.Edit;
+        qryProdutosContratos.Cancel;
+        CalcularValorTotalProdutos;
+        CalcularValorVenda;
+   }
+      end;
+   //  qryContratos.Edit;
+    end;
+  end;
+end;
+
+function TdtmVendasAVista.ExcluirVendaVista: Boolean;
+begin
+  Result := True;
+  if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['a VENDA VISTA'])) = smbOk then begin
+    if not qryContratos.IsEmpty then begin
+      if not (qrycontratos.State in [dsinsert]) then
+      begin
+        qrycontratos.Edit;
+        qryContratoscreditotroca.AsCurrency:=0;
+        qrycontratos.Post;
+        AtualizarSaldoCreditoCliente('S');
+      end;
+//      AtualizarQtdePresentesListas(True);
+      CancelarContratoReservado;
+
+      qryProdutosContratos.First;
+      while qryProdutosContratos.RecordCount > 0 do
+        qryProdutosContratos.Delete;
+
+      qryParcelas.First;
+      while qryParcelas.RecordCount > 0 do
+        qryParcelas.Delete;
+
+      qryContratos.Delete;
+      Perpetrar([qryParcelas, qryProdutosContratos, qryprodutostrocados, qryContratos,
+                 qryMovimentos, {qryProdutosListaCasamento,} qryReservasListaCasamento]);
+      Result := True;
+    end;
+  end;
+end;
+
+function TdtmVendasAVista.ExisteCliente(NomeCampo: String; Inf: Variant): Boolean;
+const
+  SQL = ' Where (upper(to_ascii(%s,''latin1'')) ilike upper(to_ascii(''%s%s'',''latin1'')))';
+
+var
+  vNomeCampo : String;
+
+begin
+ vNomeCampo := NomeCampo;
+
+  if NomeCampo = 'nomecidade' then
+    vNomeCampo:= 'c.nome'
+  else
+  if NomeCampo = 'tipocliente' then
+    vNomeCampo:= 'v.tipo'
+  else  
+  if NomeCampo = 'nome' then
+    vNomeCampo := 'v.razao'
+  else
+    NomeCampo:= 'v.' + NomeCampo;
+  //qryConsultaClientes.Sql[09]:= 'Where (Maiusculo(' + NomeCampo + ') ilike Maiusculo(''' + Inf + '%'')) ';
+   qryConsultaClientes.Sql[09]:= Format(SQL, [vNomeCampo, ANSIUpperCase(Inf), '%']);
+  qryConsultaClientes.Open;
+  Result := qryConsultaClientes.RecordCount > 0
+end;
+
+function TdtmVendasAVista.ExisteFilialMontagem(NomeCampo: String;
+         Value: Variant): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaFiliais, NomeCampo, Value)
+end;
+
+function TdtmVendasAVista.ExisteFilialProduto(NomeCampo: String;
+  Value: Variant): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaFilialProduto, NomeCampo, Value)
+end;
+
+function TdtmVendasAVista.ExisteListaCasamento(NomeCampo: String; inf: Variant): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaListaCasamento, NomeCampo, inf);
+end;
+
+function TdtmVendasAVista.ExisteProduto(NomeCampo: String;
+  Value: Variant): Boolean;
+begin
+  if Value = '' then
+    qryConsultaProdutos.MacroByName('Produto').ASString := ''
+  else
+    qryConsultaProdutos.MacroByName('Produto').ASString := ' and (Maiusculo(' + NomeCampo + ') ilike Maiusculo(''' + Value + '%''))';
+
+  qryConsultaProdutos.close;
+  qryConsultaProdutos.Open;
+  Result := qryConsultaProdutos.RecordCount > 0;
+end;
+
+function TdtmVendasAVista.ExisteReserva(NomeCampo: String;
+  Value: Variant): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaReservasProduto, NomeCampo, Value)
+end;
+
+function TdtmVendasAVista.ExisteVenda(NomeCampo: String; inf: Variant): Boolean;
+begin
+  Result:= False;
+end;
+
+function TdtmVendasAVista.ExisteVendedor(NomeCampo: String; inf: Variant): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaVendedores, NomeCampo, Inf);
+end;
+
+procedure TdtmVendasAVista.FecharTabelasVendaVista;
+begin
+  ReFazConsulta(qryContratos,[],[]);
+end;
+
+procedure TdtmVendasAVista.FechaTabelasConsulta(TipoConsulta: TtecVendasTipoConsulta);
+begin
+  case TipoConsulta of
+          vtcVENDAS: Fecha(ctVendaTabelaConsultaVendas);
+        vtcCLIENTES: Fecha(ctVendaTabelaConsultaClientes);
+ vtcVENDEDORPRODUTO,
+        vtcVENDEDOR: Fecha(ctVendaTabelaConsultaVendedores);
+  vtcLISTACASAMENTO: Fecha(ctVendaTabelaConsultaListaCasamento);
+         vtcPRODUTO: Fecha(ctVendaTabelaConsultaProdutos);
+  vtcFILIALMONTAGEM: Fecha(ctVendaTabelaConsultaFiliais);
+          vtcFILIAL: Fecha(ctVendaTabelaConsultaFilialProduto);
+         vtcRESERVA: Fecha(ctVendaTabelaConsultaReservas);
+  end;
+end;
+
+procedure TdtmVendasAVista.FiltrarProdutosEFiliaisContratos;
+const
+  SQLStr = ' and (%s)';
+var
+  SQLP, SQLF: String;
+  a: Integer;
+begin
+  inherited;
+  for a := 0 to High(aProdFilial) do
+  begin
+    SQLP := SQLP +
+    '((p.codigo <> ' + aProdFilial[a].Prod +') or ' +
+    '(e.filial <> ' + aProdFilial[a].Filial + ')) and ';
+
+    SQLF := SQLF +
+    '((e.produto <> ' + aProdFilial[a].Prod +') or ' +
+    '(e.filial <> ' + aProdFilial[a].Filial + ')) and ';
+  end;
+
+  if SQLP = '' then begin
+    qryProcuraProduto.MacroByName('FiltrarProdutosEFiliaisContratos').AsString := '';
+    qryConsultaProdutos.MacroByName('ProdutosFiliaisContratos').AsString     := '';
+  end else begin
+    Delete(SQLP, Length(SQLP)-4, 5);
+    qryProcuraProduto.MacroByName('FiltrarProdutosEFiliaisContratos').AsString := Format(SQLStr, [SQLP]);
+    qryConsultaProdutos.MacroByName('ProdutosFiliaisContratos').AsString       := Format(SQLStr, [SQLP]);
+  end;
+  if SQLF = '' then begin
+    qryConsultaFilialProduto.Sql[6] := '';
+    qryProcuraFilialProduto.Sql[7]  := '';
+  end else begin
+    Delete(SQLF, Length(SQLF)-4, 5);
+    qryConsultaFilialProduto.Sql[6] := Format(SQLStr, [SQLF]);;
+    qryProcuraFilialProduto.Sql[7]  := Format(SQLStr, [SQLF]);
+  end;
+end;
+
+function TdtmVendasAVista.GetComLista: Boolean;
+begin
+  Result:= (qryProdutosContratoslistacasamento.AsInteger > 0);
+end;
+
+function TdtmVendasAVista.GetNumeroContrato: String;
+begin
+  Result:= qryContratosnumero.AsString;
+end;
+
+function TdtmVendasAVista.GetProdutoMontavel: Boolean;
+begin
+  Result:= qryProdutosContratosmontagem.AsString = 'S';
+end;
+
+function TdtmVendasAVista.GetQtdadeProdutos: Integer;
+begin
+  Result := qryProdutosContratos.RecordCount
+end;
+
+function TdtmVendasAVista.GetTabelaConsultaClientes: TZDataset;
+begin
+  Result := qryConsultaClientes
+end;
+
+function TdtmVendasAVista.GetTabelaConsultaFilialMontagem: TZDataset;
+begin
+  Result:= qryConsultaFiliais;
+end;
+
+function TdtmVendasAVista.GetTabelaConsultaFilialProduto: TZDataset;
+begin
+  Result:= qryConsultaFilialProduto;
+end;
+
+function TdtmVendasAVista.GetTabelaConsultaListaCasamento: TZDataset;
+begin
+  Result := qryConsultaListaCasamento
+end;
+
+function TdtmVendasAVista.GetTabelaConsultaProdutos: TZDataset;
+begin
+  Result := qryConsultaProdutos
+end;
+
+function TdtmVendasAVista.GetTabelaConsultaReservas: TZDataset;
+begin
+  Result:= qryConsultaReservasProduto;
+end;
+
+function TdtmVendasAVista.GetTabelaConsultaVendas: TZDataset;
+begin
+  Result := qryConsultaVendas
+end;
+
+function TdtmVendasAVista.GetTabelaConsultaVendedores: TZDataset;
+begin
+  Result := qryConsultaVendedores
+end;
+
+function TdtmVendasAVista.GetTabelaProdutosVendaVista: TtecQuery;
+begin
+  Result:= qryProdutosContratos;
+end;
+
+function TdtmVendasAVista.GetTabelaVenda: TZDataset;
+begin
+  Result := qryContratos;
+end;
+
+function TdtmVendasAVista.GetTipoPessoa: String;
+begin
+  if Assigned(qryContratos) then begin
+    if qryContratospessoatipo.AsString <> '' then
+         Result:= qryContratospessoatipo.AsString
+    else Result:= '';
+  end;   
+end;
+
+function TdtmVendasAVista.GravarProdutoVendaVista: Boolean;
+var
+  quantidade : Currency;
+begin
+  quantidade := 0.00;
+  if qryProdutosContratos.CheckRequiredFields then begin
+    {
+    if (qryContratoslistacasamento.AsInteger > 0)                                    and
+      qryProdutosListaCasamento.Locate('produto',qryProdutosContratosproduto.AsString,[])      and
+      qryProdutosContratosprodutolista.AsBoolean                                               and
+      (qryProdutosContratosquantidade.AsCurrency > qryProdutosListaCasamentomaxqtde.AsCurrency)  then begin
+         MensagemAviso(ctQTDEMAIORLISTACASAMENTO);
+         Result:= False;
+    end else} if (qryProdutosContratosquantidade.AsCurrency > qryProdutoEstoqueemestoque.AsCurrency) then begin
+      if (qryprodutoscontratosquantidade.OldValue = null) or
+         ((qryProdutosContratos.State = dsedit) and
+          (qryProdutosContratosproduto.OldValue <> qryProdutosContratosproduto.AsString)) then
+        quantidade := qryProdutoEstoqueemestoque.AsCurrency
+      else
+        quantidade := qryProdutoEstoqueemestoque.AsCurrency + qryprodutoscontratosquantidade.OldValue;
+      if (qryProdutosContratosquantidade.AsCurrency > quantidade) then
+      begin
+        MensagemAviso('Quantidade informada é maior que quantidade em estoque.');
+        Result:= False;
+      end;
+    end
+    else if (qryProdutosContratosprecovenda.AsCurrency <= 0) then begin
+      MensagemAviso(ctPRECOZERO);
+      Result := False
+    end else begin
+      qryContratos.Edit;
+      qryProdutosContratos.Post;
+      Result := True
+    end
+  end
+  else Result:= False;
+
+  if result then
+    VerificarSaldoProdutoListaCasamento;
+
+end;
+
+function TdtmVendasAVista.GravarVendaVista: Boolean;
+
+  procedure FecharQuerys;
+  begin
+    if qryMovimentos.State <> dsInactive then
+      qryMovimentos.Close;
+    if qryEstoqueBloqueio.State <> dsInactive then
+      qryEstoqueBloqueio.Close;
+    if qryProdutosReservas.State <> dsInactive then
+      qryProdutosReservas.Close;
+    if qryClientes.State <> dsInactive then
+      qryClientes.Close;
+    if qryProdutosListaCasamento.State <> dsInactive then
+      qryProdutosListaCasamento.Close;
+    if qryReservasListaCasamento.State <> dsInactive then
+      qryReservasListaCasamento.Close;
+    if qryProdutosTrocados.State <> dsinactive then
+      qryProdutosTrocados.Close;
+  end;
+
+  Procedure AtribuirNumeroProdutosVendaVista;
+  var
+    Cont: Integer;
+  begin
+    Cont:= 1;
+    qryProdutosContratos.First;
+    while Not qryProdutosContratos.Eof do begin
+      qryProdutosContratos.Edit;
+      qryProdutosContratoscontrato.AsString:= qryContratosnumero.AsString;
+      qryProdutosContratosnumero.AsInteger := Cont;
+      qryProdutosContratos.Post;
+      Inc(Cont);
+      qryProdutosContratos.Next;
+    end;
+  end;
+
+  procedure RatearValoresProdutosContratos;
+  var
+    i, t: Integer;
+    FreteRateado,
+    DescontoRateado,
+    SeguroRateado,
+    AcrescimoRateado,
+    Total: Currency;
+  begin
+    if (qryContratosfrete.AsCurrency > 0) or
+       (qryContratosdesconto.AsCurrency > 0) or
+       (qryContratosseguro.AsCurrency > 0) or
+       (qryContratosvalorprazo.AsCurrency > qryContratosvalorvista.AsCurrency) then
+    begin
+      FreteRateado     := qryContratosfrete.AsCurrency;
+      DescontoRateado  := qryContratosdesconto.AsCurrency;
+      SeguroRateado    := qryContratosseguro.AsCurrency;
+      AcrescimoRateado := qryContratosvalorprazo.AsCurrency - qryContratosvalorvista.AsCurrency;
+      Total            := qryContratostotalprodutos.AsCurrency;
+      try
+        GuardarRegistroAtual(qryProdutosContratos,true);
+        t:= qryProdutosContratos.RecordCount;
+        qryProdutosContratos.First;
+        for i := 1 to T do
+        begin
+          if not qryProdutosContratosbrinde.AsBoolean then
+          begin
+            qryProdutosContratos.Edit;
+            if FreteRateado > 0 then
+            begin
+              if i = t then
+                qryProdutosContratosfrete.AsCurrency := FreteRateado
+              else
+              begin
+                qryProdutosContratosfrete.AsCurrency := Truncar(qryProdutosContratosprecovenda.AsCurrency * qryProdutosContratosquantidade.AsCurrency * qryContratosfrete.AsCurrency / Total,2);
+                FreteRateado := FreteRateado - qryProdutosContratosfrete.AsCurrency;
+              end;
+            end;
+            if SeguroRateado > 0 then
+            begin
+              if i = t then
+                qryProdutosContratosseguro.AsCurrency := SeguroRateado
+              else
+              begin
+                qryProdutosContratosseguro.AsCurrency := Truncar(qryProdutosContratosprecovenda.AsCurrency * qryProdutosContratosquantidade.AsCurrency * qryContratosseguro.AsCurrency / Total,2);
+                SeguroRateado := SeguroRateado - qryProdutosContratosseguro.AsCurrency;
+              end;
+            end;
+            if AcrescimoRateado > 0 then
+            begin
+              if i = t then
+                qryProdutosContratosacrescimo.AsCurrency := AcrescimoRateado
+              else
+              begin
+                qryProdutosContratosacrescimo.AsCurrency := Truncar(qryProdutosContratosprecovenda.AsCurrency * qryProdutosContratosquantidade.AsCurrency * (qryContratosvalorprazo.AsCurrency - qryContratosvalorvista.AsCurrency) / Total,2);
+                AcrescimoRateado := AcrescimoRateado - qryProdutosContratosacrescimo.AsCurrency;
+              end;
+            end;
+            if DescontoRateado > 0 then
+            begin
+              if i = t then
+                qryProdutosContratosdesconto.AsCurrency := DescontoRateado
+              else
+              begin
+                qryProdutosContratosdesconto.AsCurrency := Truncar((qryProdutosContratosprecovenda.AsCurrency +
+                                                                    qryProdutosContratosfrete.AsCurrency +
+                                                                    qryProdutosContratosseguro.AsCurrency) *
+                                                                    qryProdutosContratosquantidade.AsCurrency *
+                                                                    qryContratosdesconto.AsCurrency / Total,2);
+                DescontoRateado := DescontoRateado - qryProdutosContratosdesconto.AsCurrency;
+              end;
+            end;
+            qryProdutosContratos.Post;
+          end;
+          qryProdutosContratos.Next;
+        end;
+      finally
+        VoltarRegistroAtual(qryProdutosContratos);
+      end;
+    end;
+  end;
+
+  procedure GerarVencimentos;
+  begin
+    if not qryParcelas.IsEmpty then begin
+      qryParcelas.First;
+      while not qryParcelas.Eof do
+        qryParcelas.Delete;
+    end;
+    if qryContratoscreditotroca.AsCurrency>0 then
+    begin
+      qryParcelas.Insert;
+      qryParcelascontrato.AsString             := qryContratosnumero.AsString;
+      qryParcelasnumero.AsInteger              := 01;
+      qryParcelasdatavencto.AsDateTime         := DataServidor;
+      qryParcelasvalorvencto.AsCurrency        := qryContratoscreditotroca.AsCurrency;
+      qryParcelasparcelaorigem.AsString        := '1/1';
+      qryParcelasparcelaadicional.AsBoolean    := False;
+      qryParcelaspagamentoextracaixa.AsBoolean := False;
+      qryParcelasformapagamento.AsString:= 'T';
+      if situacaocontrato > scRESERVADO then
+      begin
+        qryParcelasdatapagto.AsDateTime := qryParcelasdatavencto.AsDateTime;
+        qryParcelasvalorpagto.Ascurrency := qryParcelasvalorvencto.AsCurrency;
+        qryParcelasfilialpagto.AsInteger := FilialBase;
+      end;
+      qryparcelas.Post;
+
+      if qryContratoscreditotroca.AsCurrency<>qryContratosvalorprazo.AsCurrency then
+      begin
+        qryParcelas.Insert;
+        qryParcelascontrato.AsString             := qryContratosnumero.AsString;
+        qryParcelasnumero.AsInteger              := 02;
+        qryParcelasdatavencto.AsDateTime         := DataServidor;
+        qryParcelasvalorvencto.AsCurrency        := qryContratosvalorprazo.AsCurrency - qryContratoscreditotroca.AsCurrency;
+        qryParcelasparcelaorigem.AsString        := '1/1';
+        qryParcelasparcelaadicional.AsBoolean    := False;
+        qryParcelaspagamentoextracaixa.AsBoolean := False;
+        case FFormaPagamento of
+          0: qryParcelasformapagamento.AsString:= 'D';
+          1: qryParcelasformapagamento.AsString:= 'C';
+          2: qryParcelasformapagamento.AsString:= 'B';
+        end;
+        qryParcelas.Post;
+      end;
+
+    end
+    else
+    begin
+      qryParcelas.Insert;
+      qryParcelascontrato.AsString             := qryContratosnumero.AsString;
+      qryParcelasnumero.AsInteger              := 01;
+      qryParcelasdatavencto.AsDateTime         := DataServidor;
+      qryParcelasvalorvencto.AsCurrency        := qryContratosvalorprazo.AsCurrency;
+      qryParcelasparcelaorigem.AsString        := '1/1';
+      qryParcelasparcelaadicional.AsBoolean    := False;
+      qryParcelaspagamentoextracaixa.AsBoolean := False;
+      case FFormaPagamento of
+        0: qryParcelasformapagamento.AsString:= 'D';
+        1: qryParcelasformapagamento.AsString:= 'C';
+        2: qryParcelasformapagamento.AsString:= 'B';
+      end;
+      qryParcelas.Post;
+    end;
+  end;
+
+  procedure ImprimirCarne;
+  var
+    dtmImprimeCarne: TdtmImprimeCarne;
+  begin
+    dtmImprimeCarne := TdtmImprimeCarne.Create(Self);
+    try
+      dtmImprimeCarne.ImprimirCarnesContrato(qryContratosnumero.AsString, false)
+    finally
+      dtmImprimeCarne.Free
+    end
+  end;
+
+  procedure AtualizarDadosCliente;
+  var
+    a: Integer;
+  begin
+    if qryContratostipocliente.AsString = 'C' then
+    begin
+      if not qryClientes.Active then
+        ReFazConsulta(qryClientes,[0],[qryProcuraClientecodigo.AsInteger]);
+      qryClientes.Edit;
+      for a := 1 to qryClientes.Fields.Count - 6 do
+        if qryClientes.Fields[a].Value <> qryContratos.Fields[a + 12].Value then
+          qryClientes.Fields[a].Value := qryContratos.Fields[a + 12].Value;
+
+      if (qryclientesRua.AsString <> qryClientesrua.OldValue) or
+
+         (qryClientesnumero.AsString <> qryClientesnumero.OldValue) or
+         (qryClientescomplemento.AsString <> qryClientescomplemento.OldValue) or
+
+         (qryclientesbairro.AsInteger <> qryClientesbairro.OldValue) or
+         (qryclientescidade.AsInteger <> qryClientescidade.OldValue) or
+         (qryClientesestado.AsString <> qryClientesestado.OldValue) or
+         (qryClientescep.AsInteger <> qryClientescep.OldValue)
+      then
+        qryClientesenderecoalterado.AsDateTime := DataHoraLocal;
+      qryClientes.Post;
+    end
+    else
+    begin
+      if not qryFornecedores.Active then
+        RefazConsulta(qryFornecedores,[0],[qryProcuraClientecodigo.asInteger]);
+      qryFornecedores.Edit;
+      qryFornecedoresnome.AsString := qryContratosnome.AsString;
+      qryFornecedorespessoatipo.AsString := qryContratospessoatipo.AsString;
+      qryFornecedorespessoanumero.AsString := qryContratospessoanumero.AsString;
+      qryFornecedoresrua.AsString := qryContratosrua.AsString;
+
+      qryFornecedoresnumero.AsString := qryContratosendnumero.AsString;
+      qryFornecedorescomplemento.AsString := qryContratosendcomplemento.AsString;
+
+      qryFornecedoresbairro.AsInteger := qryContratosbairro.AsInteger;
+      qryFornecedorescidade.AsInteger := qryContratoscidade.AsInteger;
+      qryFornecedoresestado.AsString := qryContratosestado.AsString;
+      qryFornecedorescep.AsInteger := qryContratoscep.AsInteger;
+      qryFornecedoresfoneddd.AsInteger := qryContratosfoneddd.AsInteger;
+      qryFornecedoresfonenumero.AsInteger := qryContratosfonenumero.AsInteger;
+      qryFornecedoresinscricaoestadual.AsString := qryContratosiddocumento.AsString;
+      if ((qryFornecedoresrua.AsString <> qryFornecedoresrua.OldValue) or
+
+          (qryFornecedoresnumero.AsString <> qryFornecedoresnumero.OldValue) or
+          (qryFornecedorescomplemento.AsString <> qryFornecedorescomplemento.OldValue) or
+
+          (qryFornecedoresbairro.AsInteger <> qryFornecedoresbairro.OldValue) or
+          (qryFornecedorescidade.AsInteger <> qryFornecedorescidade.OldValue) or
+          (qryFornecedoresestado.AsString <> qryFornecedoresestado.OldValue) or
+          (qryFornecedorescep.AsInteger <> qryFornecedorescep.OldValue)) then
+        qryFornecedoresenderecoalterado.AsDateTime := DataHoraLocal;
+      qryFornecedores.Post;
+    end;
+  end;
+
+begin
+  Result := False;
+  if qryContratos.CheckRequiredFields then begin
+    if (qryProdutosContratos.RecordCount = 0) then begin
+      MensagemAviso(ctVENDAVISTASEMPRODUTO);
+      Result := False
+    end else if SomenteBrindes then begin
+      MensagemAviso(ctSOMENTEBRINDENAVENDAVISTA);
+      Result := False
+    end else if FExisteEntrega and Not EnderecoCompleto then begin
+      MensagemAviso(ctENDERECOIMCOMPLETO);
+      Result := False
+    end else if FExisteMontagem and qryContratosmontagemfilial.IsNull then begin
+      MensagemAviso(ctFILIALMONTAGEMNULAVENDAVISTA);
+      Result := False
+    end else begin
+      Result := True;
+      if (qryContratoscliente.AsInteger = 0) then begin
+        FAtribuindoCliente:= True;
+        Result:= IncluirCliente;
+        if Result then
+          qryContratoscliente.AsInteger := qryClientescodigo.AsInteger;
+        FAtribuindoCliente:= False;
+      end;
+
+      if Result then begin
+        if qryContratos.State = dsInsert then begin
+          spcContratoProximo.Open;
+          qryContratosnumero.AsString := spcContratoProximonumero.AsString;
+          spcContratoProximo.Close;
+        end;
+
+        if (qryContratospessoatipo.AsString = 'J') then begin
+          qryContratossexo.AsString := 'E';
+          qryContratoscivil.AsString:= 'O';
+        end;
+
+        if (qryContratossituacao.AsString = 'O') then
+          if ParSistema.FaturarVendaVista then
+             qryContratossituacao.AsString := 'F'
+          else
+            qryContratossituacao.AsString := 'R';
+
+        if qryContratossituacao.AsString = 'F' then
+        begin
+          if ParSistema.utilizarcreditotrocacontrato then
+            result := AtualizarSaldoCreditoCliente('S');
+          AtualizarDadosCliente;
+        end;
+
+        if result then
+        begin
+          try
+            GerarVencimentos;
+            ReservarVendaVista;
+            AtribuirNumeroProdutosVendaVista;
+            RatearValoresProdutosContratos;
+            //if (qryContratoslistacasamento.AsInteger > 0) then
+            //begin
+              IncluirProdutosListaCasamento;
+//              AtualizarQtdePresentesListas(False);
+            //end;
+            qryContratos.Post;
+            Perpetrar([qryClientes, qryFornecedores, qryContratos, qryProdutosContratos, qryParcelas,
+                       qryMovimentos, qryProdutosListaCasamento, qryReservasListaCasamento,
+                       qryProdutosTrocados]);
+            if ParSistema.utilizarcreditotrocacontrato then
+              AbrirDadosCreditoCliente;
+          finally
+            if ((ParSistema.FaturarVendaVista) and (ParSistema.ImprimirCarneAoFaturar)
+                 and (ParSistema.ImpCarneVendaVista)) then
+                 ImprimirCarne;
+
+            FecharQuerys;
+          end
+        end;
+
+      end;
+    end;
+  end;
+end;
+
+function TdtmVendasAVista.IncluirCliente: Boolean;
+begin
+  Result:= False;
+  if ((qryContratospessoanumero.AsString = '') or
+      (not ClienteJaCadastrado(qryContratospessoanumero.AsString))) then
+  begin
+    if qryClientes.State = dsInactive then
+      qryClientes.Open;
+    qryClientes.Insert;
+    spcClientesProximoCodigo.Open;
+    qryClientescodigo.AsInteger:= spcClientesProximoCodigocodigo.AsInteger;
+    spcClientesProximoCodigo.Close;
+    qryClientesnome.AsString           := qryContratosnome.AsString;
+    qryClientespessoatipo.AsString     := qryContratospessoatipo.AsString;
+    qryClientespessoanumero.AsString   := qryContratospessoanumero.AsString;
+    qryClientesiddocumento.AsString    := qryContratosiddocumento.AsString;
+    qryClientessexo.AsString           := qryContratossexo.AsString;
+    qryClientescivil.AsString          := qryContratoscivil.AsString;
+    qryClientesrua.AsString            := qryContratosrua.AsString;
+
+    qryClientesnumero.AsString            := qryContratosendnumero.AsString;
+    qryClientescomplemento.AsString            := qryContratosendcomplemento.AsString;
+
+    qryClientesbairro.AsInteger        := qryContratosbairro.AsInteger;
+    qryClientescidade.AsInteger        := qryContratoscidade.AsInteger;
+    qryClientesestado.AsString         := qryContratosestado.AsString;
+    qryClientescep.AsInteger           := qryContratoscep.AsInteger;
+    qryClientesfoneddd.AsInteger       := qryContratosfoneddd.AsInteger;
+    qryClientesfonenumero.AsInteger    := qryContratosfonenumero.AsInteger;
+    qryClientesfoneramal.AsString      := qryContratosfoneramal.AsString;
+    qryClientesfone2ddd.AsInteger      := qryContratosfone2ddd.AsInteger;
+    qryClientesfone2numero.AsInteger   := qryContratosfone2numero.AsInteger;
+    qryClientesfone2ramal.AsString     := qryContratosfone2ramal.AsString;
+    qryClientesrestipo.AsString        := qryContratosrestipo.AsString;
+    qryClientesreftipo.AsString        := qryContratosreftipo.AsString;
+    qryClientesfonetipo.AsString       := qryContratosfonetipo.AsString;
+    qryClientesempcomprovado.AsBoolean := qryContratosempcomprovado.AsBoolean;
+    qryClientesautomovel.AsBoolean     := qryContratosautomovel.AsBoolean;
+    qryClientescartaocredito.AsBoolean := qryContratoscartaocredito.AsBoolean;
+    qryClientescartaoloja.AsBoolean    := qryContratoscartaoloja.AsBoolean;
+    qryClientescheque.AsBoolean        := qryContratoscheque.AsBoolean;
+    qryClienteschequeespecial.AsBoolean:= qryContratoschequeespecial.AsBoolean;
+    qryClientesfonetipo.AsString       := 'P';
+    qryClientesfoneddd.AsString        := qryContratosfoneddd.AsString;
+    qryClientesfonenumero.AsString     := qryContratosfonenumero.AsString;
+    qryClientesfoneramal.AsString      := qryContratosfoneramal.AsString;
+    qryClientesfone2ddd.AsString       := qryContratosfone2ddd.AsString;
+    qryClientesfone2numero.AsString    := qryContratosfone2numero.AsString;
+    qryClientesfone2ramal.AsString     := qryContratosfone2ramal.AsString;
+    qryClientesiddocumento.AsString    := qryContratosiddocumento.AsString;
+    qryClientesobservacoes.AsString    := 'As informações do Cliente, foram oriundas de uma Venda a Vista';
+    qryClientesfilialcadastro.AsInteger:= FilialBase;
+    qryClientes.Post;
+    Result:= True;
+  end;
+end;
+
+{
+procedure TdtmVendasAVista.IncluirProdutosListaCasamento;
+var
+  Pos: TBookmark;
+begin
+  Pos:= spcContratoProximo.GetBookmark;
+  qryProdutosContratos.DisableControls;
+  qryProdutosContratos.First;
+  try
+    while not qryProdutosContratos.Eof do begin
+      if qryProdutosContratosincluirnalistacasamento.AsBoolean then begin
+        qryProdutosListaCasamento.Append;
+        qryProdutosListaCasamentolista.AsInteger       := qryContratoslistacasamento.AsInteger;
+        qryProdutosListaCasamentoproduto.AsLargeInt    := qryProdutosContratosproduto.AsLargeInt;
+        qryProdutosListaCasamentoquantidade.AsCurrency := qryProdutosContratosquantidade.AsCurrency;
+        qryProdutosListaCasamento.Post;
+        if (qryProdutosContratos.State = dsBrowse) then begin
+          qryProdutosContratos.Edit;
+          qryProdutosContratosprodutolista.AsBoolean:= True;
+          qryProdutosContratos.Post;
+        end;
+      end;
+      qryProdutosContratos.Next;
+    end;
+  finally
+    qryProdutosContratos.GotoBookmark(Pos);
+    qryProdutosContratos.FreeBookmark(Pos);
+    qryProdutosContratos.EnableControls;
+  end;
+end;
+}
+
+
+procedure TdtmVendasAVista.IncluirProdutosListaCasamento;
+var
+  Pos: TBookmark;
+begin
+  AbrirProdutosListaCasamento(true);
+  Pos:= qryProdutosContratos.GetBookmark;
+  qryProdutosContratos.DisableControls;
+  qryProdutosContratos.First;
+  try
+    while not qryProdutosContratos.Eof do
+    begin
+      if qryProdutosContratoslistacasamento.AsInteger<>0 then
+      begin
+        if  not qryProdutosListaCasamento.Locate('lista;produto',
+             VarArrayof([qryProdutosContratoslistacasamento.AsString,
+                         qryProdutosContratosproduto.AsString]),[]) then
+        begin
+          qryProdutosListaCasamento.Append;
+          qryProdutosListaCasamentolista.AsInteger          := qryProdutosContratoslistacasamento.AsInteger;
+          qryProdutosListaCasamentoproduto.AsLargeInt       := qryProdutosContratosproduto.AsLargeInt;
+          qryProdutosListaCasamentoquantidade.AsCurrency    := qryProdutosContratosquantidade.AsCurrency;
+          qryProdutosListaCasamentoincluidodepois.AsBoolean := True;
+          qryProdutosListaCasamento.Post;
+
+          if not (qryProdutosContratos.State in [dsEdit, dsInsert]) then
+            qryProdutosContratos.Edit;
+
+          qryProdutosContratosprodutolista.AsBoolean:= True;
+          qryprodutosContratos.Post;
+        end;
+      end;
+      qryProdutosContratos.Next;
+    end;
+  finally
+    qryProdutosContratos.GotoBookmark(Pos);
+    qryProdutosContratos.FreeBookmark(Pos);
+    qryProdutosContratos.EnableControls;
+  end;
+end;
+
+
+function TdtmVendasAVista.IncluirProdutosVendaVista: Boolean;
+begin
+  LerProdutosFiliaisIncluidos(True);
+  qryProdutosContratos.Append;
+  qryProdutosContratosentrega.AsString      := 'N';
+  qryProdutosContratosmontagem.AsString     := 'N';
+  qryProdutosContratosprodutolista.AsBoolean:= False;
+  qryProdutosContratosincluirnalistacasamento.AsBoolean:= False;
+  if VendedorDefault > 0 then
+    qryProdutosContratosvendedor.AsInteger := VendedorDefault;
+  Result := True
+end;
+
+function TdtmVendasAVista.IncluirVendaVista: Boolean;
+begin
+  if (ParSistema.PlanoVendaVista = 0) then begin
+    MensagemAviso(ctNENHUMPLANOVENDAAVISTA);
+    qryContratos.Cancel;
+    Result:= False;
+  end
+  else begin
+    qrycontratos.ReadOnly := false;
+    DesbloquearContrato(qryContratosnumero.AsString);
+    ReFazConsulta(qryProdutosContratos,[0],['']);
+    ReFazConsulta(qryAgentePlano,[0],[ParSistema.PlanoVendaVista]);
+    FAtribuindoCliente:= False;
+    qryContratos.Insert;
+    qryContratostipocliente.AsString     := 'C';
+    qryContratossituacao.AsString        := 'O';
+    qryContratosvendedor.AsInteger       := VendedorDefault;
+    qryContratospessoatipo.AsString      := 'F';
+    qryContratossexo.AsString            := 'M';
+    qryContratosagente.AsInteger         := qryAgentePlanoagente.AsInteger;
+    qryContratosplano.AsInteger          := ParSistema.PlanoVendaVista;
+    qryContratosdata.AsDateTime          := DataServidor;
+    qryContratosfaturamento.AsDateTime   := DataServidor;
+    qryContratosfilialvenda.AsInteger    := FilialBase;
+    qryContratoscivil.AsString           := 'S';
+    qryContratosfonetipo.AsString        := 'P';
+    qryContratosrestipo.AsString         := 'P';
+    qryContratosreftipo.AsString         := 'P';
+    qryContratosempcomprovado.AsBoolean  := False;
+    qryContratosautomovel.AsBoolean      := False;
+    qryContratoscartaocredito.AsBoolean  := False;
+    qryContratoscartaoloja.AsBoolean     := False;
+    qryContratoscheque.AsBoolean         := False;
+    qryContratoschequeespecial.AsBoolean := False;
+    qryContratosvalorvista.AsCurrency    := 0;
+    qryContratosvalorprazo.AsCurrency    := 0;
+    qryContratosdesconto.AsCurrency      := 0;
+    qryContratosfrete.AsCurrency         := 0;
+    qryContratosseguro.AsCurrency        := 0;
+    qryContratostaxajuros.AsFloat        := qryAgentePlanotaxamensaljuros.AsFloat;
+    FExisteMontagem:= False;
+    FExisteEntrega := False;
+    Result:= True;
+    // As query PARCELAS deve ser aberta apos a insercao do novo contrato.
+    ReFazConsulta(qryParcelas,[0],['']);
+//    qryAgentePlano.Close;
+  end;
+end;
+
+procedure TdtmVendasAVista.LerProdutosFiliaisIncluidos(Incluindo: Boolean);
+var
+  Pos: TBookmark;
+  a, Filial: Integer;
+  Prod: Int64;
+begin
+  inherited;
+  SelecionarProdutosListaCasamento(Incluindo, qryProdutosContratosprodutolista.AsBoolean);
+  if Not UsuarioLogin.Vendedor then begin
+    qryProcuraReservaProduto.Params[0].AsInteger   := qryProcuraVendedorcodigo.AsInteger;
+    qryConsultaReservasProduto.Params[0].AsInteger := qryProcuraVendedorcodigo.AsInteger;
+  end;
+  if Incluindo then begin
+    qryConsultaFilialProduto.Params[0].AsInteger := 0;
+    qryProcuraFilialProduto.Params[1].AsInteger  := 0;
+  end else begin
+    qryConsultaFilialProduto.Params[0].AsString := inttostr(qryProdutosContratosproduto.AsLargeInt);
+    qryProcuraFilialProduto.Params[1].AsString  := inttostr(qryProdutosContratosproduto.AsLargeInt);
+  end;
+  if Incluindo or qryProdutosContratosreserva.IsNull then begin
+    qryProcuraReservaProduto.Sql[13]   := '';
+    qryConsultaReservasProduto.Sql[13] := '';
+  end else begin
+    qryProcuraReservaProduto.Sql[13]   := 'or (r.numero = '+ qryProdutosContratosreserva.AsString + ')';
+    qryConsultaReservasProduto.Sql[13] := 'or (r.numero = '+ qryProdutosContratosreserva.AsString + ')';
+    qryProcuraReservaProduto.Params[2].AsString    := IntToStr(qryProdutosContratosproduto.AsLargeInt);
+    qryProcuraReservaProduto.Params[3].AsInteger   := qryProdutosContratosfilial.AsInteger;
+    qryConsultaReservasProduto.Params[1].AsString  := IntToStr(qryProdutosContratosproduto.AsLargeInt);
+    qryConsultaReservasProduto.Params[2].AsInteger := qryProdutosContratosfilial.AsInteger;
+  end;
+  Pos := qryProdutosContratos.GetBookmark;
+  qryProdutosContratos.DisableControls;
+  try
+    a := 0;
+    aProdFilial := nil;
+    Prod   := qryProdutosContratosproduto.AsLargeInt;
+    Filial := qryProdutosContratosfilial.AsInteger;
+    qryProdutosContratos.First;
+    while Not qryProdutosContratos.Eof do begin
+      if Incluindo or ((Prod <> qryProdutosContratosproduto.AsLargeInt) or
+                       (Filial <> qryProdutosContratosfilial.AsInteger))
+      then begin
+        SetLength(aProdFilial, a + 1);
+        aProdFilial[a].Prod   := qryProdutosContratosproduto.AsString;
+        aProdFilial[a].Filial := qryProdutosContratosfilial.AsString;
+        Inc(a);
+      end;
+      qryProdutosContratos.Next;
+    end;
+  finally
+    qryProdutosContratos.GotoBookmark(Pos);
+    qryProdutosContratos.FreeBookmark(Pos);
+    qryProdutosContratos.EnableControls;
+  end;
+  FiltrarProdutosEFiliaisContratos;
+end;
+
+function TdtmVendasAVista.LerProdutosSimilares: Boolean;
+const
+  SQLStr = ' and (%s)';
+var
+  WhereSQL,
+  SQLP{, SQLF}: String;
+  a, Fil: Integer;
+  Prod: Int64;
+  Pos: TBookmark;
+begin
+  Pos:= qryProdutosContratos.GetBookmark;
+  qryProdutosContratos.DisableControls;
+  try
+    WhereSQL:= '';
+    qryProdutosContratos.First;
+    while not qryProdutosContratos.Eof do begin
+      WhereSQL := WhereSQL +
+                 '((e.produto <> ' + qryProdutosContratosproduto.AsString + ')or' +
+                 '(e.filial <> '  + qryProdutosContratosfilial.AsString  + '))and';
+      qryProdutosContratos.Next
+    end;
+  finally
+    qryProdutosContratos.GotoBookmark(Pos);
+    qryProdutosContratos.FreeBookmark(Pos);
+    qryProdutosContratos.EnableControls;
+  end;
+  Delete(WhereSQL,Length(WhereSQL)-2,3);
+  qryProdutosSimilares.Sql[10]:= WhereSQL + ' and';
+
+  a := 0;
+  ReFazConsulta(qryProdutosSimilares,[0],[IntToStr(qryProdutosContratosproduto.AsLargeInt)]);
+  if qryProdutosSimilares.RecordCount = 0 then
+    Result := False
+  else begin
+    SetLength(aProdFilial, qryProdutosSimilares.RecordCount);
+    qryProdutosSimilares.First;
+    Prod := qryProdutosSimilarescodigo.AsLargeInt;
+    fil  := qryProdutosSimilaresfilial.AsInteger;
+    while Not qryProdutosSimilares.Eof do begin
+      aProdFilial[a].Prod   := qryProdutosSimilarescodigo.AsString;
+      aProdFilial[a].Filial := qryProdutosSimilaresfilial.AsString;
+      qryProdutosSimilares.Next;
+      Inc(a);
+    end;
+    if qryProdutosSimilares.Locate('filial',FilialBase,[]) or (ParSistema.FiliaisIndependentes) then begin
+      qryProcuraProduto.Params[4].AsString := IntToStr(FilialBase);
+      Fil:= FilialBase;
+    end else
+      qryProcuraProduto.Params[4].AsString := IntToStr(Fil);
+    qryProdutosSimilares.Close;
+
+    for a := 0 to High(aProdFilial) do
+      SQLP := SQLP + '((e.produto = ' + aProdFilial[a].Prod +') and (e.filial = ' + aProdFilial[a].Filial + ')) or ';
+    if SQLP = '' then begin
+      qryProcuraProduto.MacroByName('FiltrarProdutosEFiliaisContratos').AsString := 'and False';
+      qryConsultaProdutos.MacroByName('ProdutosFiliaisContratos').AsString     := 'and False';
+    end else begin
+      Delete(SQLP, Length(SQLP) - 3, 4);
+      qryProcuraProduto.MacroByName('FiltrarProdutosEFiliaisContratos').AsString := Format(SQLStr, [SQLP]);
+      qryConsultaProdutos.MacroByName('ProdutosFiliaisContratos').AsString       := Format(SQLStr, [SQLP]);
+    end;
+    qryProdutosContratos.Edit;
+    qryProdutosContratosproduto.AsLargeInt := Prod;
+    qryProdutosContratosfilial.AsInteger   := Fil;
+    Result := True
+  end
+end;
+
+procedure TdtmVendasAVista.LimparClienteDoContrato;
+begin
+  qryContratosnome.Clear;
+  qryContratostipocliente.Clear;
+  qryContratospessoatipo.Clear;
+  qryContratospessoanumero.Clear;
+  qryContratosiddocumento.Clear;
+  qryContratosrua.Clear;
+
+  qryContratosendnumero.Clear;
+  qryContratosendcomplemento.Clear;
+
+  qryContratosbairro.Clear;
+  qryContratoscidade.Clear;
+  qryContratosestado.Clear;
+  qryContratoscep.Clear;
+  qryContratosnomebairro.Clear;
+  qryContratosnomecidade.Clear;
+end;
+
+procedure TdtmVendasAVista.MontarProdutosReservas;
+const
+  where = 'where ';
+var
+  SQLReserva: String;
+begin
+  SQLReserva := where;
+  qryProdutosContratos.First;
+  while Not qryProdutosContratos.Eof do begin
+    if qryProdutosContratosreserva.AsInteger <> 0 then begin
+      SQLReserva := SQLReserva +
+      '((reserva = ' + qryProdutosContratosreserva.AsString + ')and' +
+      ' (produto = ' + qryProdutosContratosproduto.AsString + ')and' +
+      ' (filial  = ' + qryProdutosContratosfilial.AsString  + '))or'
+    end;
+    qryProdutosContratos.Next
+  end;
+  qryProdutosReservas.Close;
+  if SQLReserva = where then
+    SQLReserva := SQLReserva + 'false'
+  else
+    Delete(SQLReserva, Length(SQLReserva) - 1, 2);
+  qryProdutosReservas.Sql[7] := SQLReserva;
+  qryProdutosReservas.Open;
+end;
+
+procedure TdtmVendasAVista.NovoMovimento(Produto: int64; Filial: Integer);
+begin
+  qryMovimentos.Append;
+  spcMovimentosProximo.Open;
+  qryMovimentosnumero.AsInteger := spcMovimentosProximonumero.AsInteger;
+  spcMovimentosProximo.Close;
+  qryMovimentosproduto.AsLargeInt := Produto;
+  qryMovimentosfilial.AsInteger   := Filial;
+end;
+
+procedure TdtmVendasAVista.PreencherCliente;
+begin
+  qryContratosnome.AsString         := qryProcuraClientenome.AsString;
+  qryContratostipocliente.AsString  := qryProcuraClientetipoorig.AsString;
+  qryContratospessoatipo.AsString   := qryProcuraClientepessoatipo.AsString;
+  qryContratospessoanumero.AsString := qryProcuraClientepessoanumero.AsString;
+  qryContratosrua.AsString          := qryProcuraClienterua.AsString;
+
+  qryContratosendnumero.AsString          := qryProcuraClientenumero.AsString;
+  qryContratosendcomplemento.AsString          := qryProcuraClientecomplemento.AsString;
+
+  qryContratosbairro.AsInteger      := qryProcuraClientebairro.AsInteger;
+  qryContratoscidade.AsInteger      := qryProcuraClientecidade.AsInteger;
+  qryContratosestado.AsString       := qryProcuraClienteestado.AsString;
+  qryContratoscep.AsInteger         := qryProcuraClientecep.AsInteger;
+  qryContratosnomebairro.AsString   := qryProcuraClientenomebairro.AsString;
+  qryContratosnomecidade.AsString   := qryProcuraClientenomecidade.AsString;
+  qryContratosfoneddd.AsInteger     := qryProcuraClientefoneddd.AsInteger;
+  qryContratosfonenumero.AsInteger  := qryProcuraClientefonenumero.AsInteger;
+  qryContratosfoneramal.AsString    := qryProcuraClientefoneramal.AsString;
+  qryContratosfone2ddd.AsString     := qryProcuraClientefone2ddd.AsString;
+  qryContratosfone2numero.AsString  := qryProcuraClientefone2numero.AsString;
+  qryContratosfone2ramal.AsString   := qryProcuraClientefone2ramal.AsString;
+  qryContratosiddocumento.AsString  := qryProcuraClienteinscricaoestadual.AsString;
+  qryContratossexo.AsString         := qryProcuraClientesexo.AsString;
+  qryContratoscivil.AsString        := qryProcuraClientecivil.AsString;
+end;
+
+procedure TdtmVendasAVista.qryContratosAfterClose(DataSet: TDataSet);
+begin
+  inherited;
+  DesbloquearContrato(FContratoBloqueado);
+//  ReFazConsulta(qryDesbloquearContrato,[0],[FContratoBloqueado]);
+  qryProdutosContratos.Close;
+  qryParcelas.Close;
+end;
+
+procedure TdtmVendasAVista.qryContratosAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  ReFazConsulta(qryAgentePlano,[0],[qryContratosplano.AsVariant]);
+  ReFazConsulta(qryParcelasQuitadas,[0],[qryContratosnumero.AsVariant]);
+  qrycontratos.ReadOnly := Existequitacaoparcelas;
+  ReFazConsultaProdutosParcelas;
+  CalcularValorTotalProdutos;
+  CalcularValorVenda;
+  if ParSistema.utilizarcreditotrocacontrato then
+    if qryContratoscliente.AsInteger<>0 then
+    begin
+      AbrirDadosCreditoCliente;
+      if SituacaoContrato < scFATURADO then
+        ValidarCreditoTroca;
+    end;
+  SaldoCreditoOriginal := qryContratoscreditotroca.AsCurrency;
+end;
+
+procedure TdtmVendasAVista.qryContratosBeforeClose(DataSet: TDataSet);
+begin
+  inherited;
+  FContratoBloqueado := qryContratosnumero.AsString
+end;
+
+procedure TdtmVendasAVista.qryContratosBeforeOpen(DataSet: TDataSet);
+begin
+  inherited;
+  FOpeningQuery:= True;
+  if Trim(qryContratos.Params[0].AsString) <> '' then begin
+    if Not BloquearContrato(qryContratos.Params[0].AsString) then
+{    ReFazConsulta(qryBloquearContrato, [0], [qryContratos.Params[0].AsString]);
+    if (qryBloquearContrato.RecordCount > 0) and (qryBloquearContratolock.AsInteger = 0) then begin
+ }     MensagemAviso(ctINFORMACAOSENDOEDITADA);
+{      FBloqueado := True;
+    end else
+      FBloqueado := False}
+  end;
+end;
+
+procedure TdtmVendasAVista.ReFazConsultaProdutosParcelas;
+begin
+  ReFazConsulta(qryProdutosContratos,[0],[qryContratosnumero.AsString]);
+  ReFazConsulta(qryParcelas,[0],[qryContratosnumero.AsString]);
+  FAtribuindoCliente:= False;
+  if not qrycontratos.readonly then
+    qryContratos.ReadOnly:= FBloqueado;
+  qryProdutosContratos.ReadOnly:= FBloqueado;
+end;
+
+function TdtmVendasAVista.ReservarVendaVista: Boolean;
+var
+  SituacaoProduto : TtecComposicao;
+  Referencia: String;
+  EmEstoque,
+  Qtdade: Real;
+  PosProd: TBookmark;
+  Existe: Boolean;
+  RecordTypesAnt: TZUpdateRecordTypes;
+  Prod: int64;
+  Fil: Integer;
+  Movimentar: Boolean;
+
+begin
+  Result := True;
+  if qryMovimentos.State = dsInactive then
+    qryMovimentos.Open;
+  PosProd := qryProdutosContratos.GetBookmark;
+//O método UpdateStatus não funciona após a execução do método DisableControls
+
+  RecordTypesAnt := qryProdutosContratos.ShowRecordTypes;
+  try
+    if qryContratossituacao.AsString = qryContratossituacao.OldValue then
+         qryProdutosContratos.ShowRecordTypes := [ztModified, ztInserted, ztDeleted]
+    else qryProdutosContratos.ShowRecordTypes := [ztModified, ztInserted, ztUnmodified];
+    BloquearEstoque;
+    MontarProdutosReservas;
+    for SituacaoProduto := stNAOCOMPOSTO to stCOMPOSTO do
+    begin
+      qryProdutosContratos.First;
+      while Not qryProdutosContratos.eof do begin
+        if FiltrarComposto(qryprodutoscontratoscomposto.asboolean, SituacaoProduto) then
+        begin
+          Existe := qryMovimentos.Locate('produto;filial', VarArrayOf([
+                                          qryProdutosContratosproduto.AsString,
+                                          qryProdutosContratosfilial.AsInteger]), []);
+          if Not Existe then
+               NovoMovimento(qryProdutosContratosproduto.AsLargeInt, qryProdutosContratosfilial.AsInteger)
+          else qryMovimentos.Edit;
+          if qryProdutosContratos.UpdateStatus = usDeleted then
+            qryMovimentosquantidade.AsCurrency := qryMovimentosquantidade.AsCurrency - qryProdutosContratosquantidade.AsCurrency
+          else if qryProdutosContratos.UpdateStatus = usInserted then
+            qryMovimentosquantidade.AsCurrency := qryMovimentosquantidade.AsCurrency + qryProdutosContratosquantidade.AsCurrency
+          else if qryProdutosContratos.UpdateStatus = usModified then begin
+            if (qryProdutosContratosproduto.AsLargeInt <> qryProdutosContratosproduto.OldValue) or
+               (qryProdutosContratosfilial.AsInteger <> qryProdutosContratosfilial.OldValue)
+            then begin
+              qryMovimentosquantidade.AsCurrency := qryMovimentosquantidade.AsCurrency +
+                                                   qryProdutosContratosquantidade.AsCurrency;
+              if qryContratossituacao.AsString = qryContratossituacao.OldValue then begin
+                qryMovimentos.Post;
+                if qryProdutosContratosquantidade.AsCurrency = qryProdutosContratosquantidade.OldValue then
+                  Qtdade := qryProdutosContratosquantidade.AsCurrency
+                else
+                  Qtdade := qryProdutosContratosquantidade.OldValue;
+                if qryProdutosContratosproduto.AsLargeInt = qryProdutosContratosproduto.OldValue then
+                  Prod := qryProdutosContratosproduto.AsLargeInt
+                else
+                  Prod := qryProdutosContratosproduto.OldValue;
+                if qryProdutosContratosfilial.AsInteger = qryProdutosContratosfilial.OldValue then
+                  Fil := qryProdutosContratosfilial.AsInteger
+                else
+                  Fil := qryProdutosContratosfilial.OldValue;
+                Existe := qryMovimentos.Locate('produto;filial', VarArrayOf([IntToStr(Prod), Fil]), []);
+                if not Existe then
+                  NovoMovimento(Prod, Fil);
+                qryMovimentosquantidade.AsCurrency := qryMovimentosquantidade.AsCurrency - Qtdade;
+              end
+            end else if qryProdutosContratosquantidade.AsCurrency <> qryProdutosContratosquantidade.OldValue then begin
+              if qryContratossituacao.AsString = qryContratossituacao.OldValue then
+                Qtdade := qryProdutosContratosquantidade.AsCurrency - qryProdutosContratosquantidade.OldValue
+              else
+                Qtdade := qryProdutosContratosquantidade.AsCurrency;
+              qryMovimentosquantidade.AsCurrency := qryMovimentosquantidade.AsCurrency + Qtdade
+            end
+          end else
+            qryMovimentosquantidade.AsCurrency := qryMovimentosquantidade.AsCurrency +
+                                                 qryProdutosContratosquantidade.AsCurrency;
+          if qryMovimentos.State in [dsEdit, dsInsert] then
+            qryMovimentos.Post;
+        end;
+        qryProdutosContratos.next;
+      end;
+    end;
+
+    qryMovimentos.First;
+    while Not qryMovimentos.Eof do begin
+      if qryMovimentosquantidade.AsCurrency = 0 then
+        qryMovimentos.Delete
+      else begin
+        Movimentar:= True;
+        if qryEstoqueBloqueio.Locate('produto;filial', VarArrayOf([qryMovimentosproduto.AsString,
+                                                                   qryMovimentosfilial.AsInteger]), []) then
+             EmEstoque := qryEstoqueBloqueioemestoque.AsCurrency
+        else EmEstoque := 0;
+        if (EmEstoque < qryMovimentosquantidade.AsCurrency) then begin
+          MensagemAviso(Format(ctSEMESTOQUESEMVENDA, [qryMovimentosproduto.AsString, qryMovimentosfilial.AsString]));
+          Result := False;
+          break
+        end
+        else begin
+          qryProdutosContratos.Locate('produto;filial', VarArrayOf([
+                                      qryMovimentosproduto.AsString,
+                                      qryMovimentosfilial.AsInteger]), []);
+          qryProdutosReservas.Locate('produto;reserva;filial', VarArrayOf([
+                                      qryProdutosContratosproduto.AsString,
+                                      qryProdutosContratosreserva.AsInteger,
+                                      qryProdutosContratosfilial.AsInteger]), []);
+          Referencia := 'CT ' + qryContratosnumero.AsString + ' VV';
+          qryMovimentos.Edit;
+          if qryProdutosContratosreserva.AsInteger <> 0 then
+            Referencia := Referencia + ' RS ' + qryProdutosContratosreserva.AsString;
+          qryMovimentosreferencia.AsString := Referencia;
+          if qryMovimentosquantidade.AsCurrency < 0 then begin
+            qryMovimentosquantidade.AsCurrency := qryMovimentosquantidade.AsCurrency * -1;
+            qryMovimentostipomovimento.AsString := 'TRE';
+          end else begin
+            if qryProdutosContratosreserva.AsInteger = 0 then
+              qryMovimentostipomovimento.AsString := 'TER'
+            else begin
+              if qryMovimentosquantidade.AsCurrency = qryProdutosReservasquantidade.AsCurrency then begin
+                Movimentar:= False;
+                Qtdade := qryMovimentosquantidade.AsCurrency;
+                qryMovimentos.Delete;
+              end else if qryMovimentosquantidade.AsCurrency < qryProdutosReservasquantidade.AsCurrency then begin
+                qryMovimentostipomovimento.AsString := 'TRE';
+                qryMovimentosquantidade.AsCurrency   := qryProdutosReservasquantidade.AsCurrency - qryMovimentosquantidade.AsCurrency;
+                Qtdade := qryProdutosReservasquantidade.AsCurrency
+              end else begin
+                Qtdade := qryMovimentosquantidade.AsCurrency - qryProdutosReservasquantidade.AsCurrency;
+                qryMovimentostipomovimento.AsString  := 'TER';
+                qryMovimentosquantidade.AsCurrency   := Qtdade;
+                Qtdade := qryProdutosReservasquantidade.AsCurrency
+              end;
+              if qryProdutosReservasquantidade.AsCurrency > 0 then begin
+                qryProdutosReservas.Edit;
+                qryProdutosReservasbaixado.AsCurrency := Qtdade;
+                qryProdutosReservas.Post
+              end
+            end
+          end;
+        end;
+        if qryMovimentos.State = dsEdit then
+          qryMovimentos.Post;
+        if Movimentar then
+          qryMovimentos.Next;
+      end
+    end;
+  finally
+    qryProdutosContratos.ShowRecordTypes := RecordTypesAnt;
+    qryProdutosContratos.GotoBookmark(PosProd);
+    qryProdutosContratos.FreeBookmark(PosProd);
+  end
+end;
+
+procedure TdtmVendasAVista.SelecionarProdutosListaCasamento(Incluindo, SoLista: Boolean);
+
+const
+{
+  SQL1 = 'and (p.codigo in (Select pl.produto From produtoslistacasamento pl Where (pl.lista = ';
+  SQL2 = ') and (((pl.quantidade - coalesce(pl.qtdevendida,0)) > ' +
+         '(Select coalesce(sum(rs.quantidade),0) From reservaslistacasamento rs Where (rs.lista = pl.lista) and ' +
+         '(rs.produto = pl.produto))) or (0 < (Select count(*) From reservaslistacasamento rs Where ' +
+         '(rs.lista = pl.lista) and (rs.produto = pl.produto) and (rs.usuario = ';
+begin
+  if (Incluindo or SoLista) and (qryContratoslistacasamento.AsInteger > 0) then begin
+    qryProcuraProduto.Sql[37]  := SQL1 + IntToStr(qryContratoslistacasamento.AsInteger) +
+                                  SQL2 + IntToStr(CodigoUsuario) + '))))))';
+    qryConsultaProdutos.Sql[46]:= SQL1 + IntToStr(qryContratoslistacasamento.AsInteger) +
+                                  SQL2 + IntToStr(CodigoUsuario) + '))))))';
+  end
+  else begin
+    qryProcuraProduto.Sql[37]  := '';
+    qryConsultaProdutos.Sql[46]:= '';
+  end;
+  qryProcuraProduto.Open;
+
+  if (qryContratoslistacasamento.AsInteger > 0) then
+    ReFazConsulta(qryProdutosListaCasamento,[0],[qryContratoslistacasamento.AsInteger]);
+end;
+}
+
+  SQLProcura = 'and p.codigo in ((Select pl.produto From produtoslistacasamento pl Where pl.lista = %s) union all (select :codigo))';
+  SQLConsulta = 'and p.codigo in (Select pl.produto From produtoslistacasamento pl Where pl.lista = %s)';
+
+  SQL2 = ') and (((pl.quantidade - coalesce(pl.qtdevendida,0)) > ' +
+         '(Select coalesce(sum(rs.quantidade),0) From reservaslistacasamento rs Where (rs.lista = pl.lista) and ' +
+         '(rs.produto = pl.produto))) or (0 < (Select count(*) From reservaslistacasamento rs Where ' +
+         '(rs.lista = pl.lista) and (rs.produto = pl.produto) and (rs.usuario = ';
+begin
+  if (Incluindo or SoLista) and (qryProdutosContratoslistacasamento.AsInteger > 0) then
+  begin
+    qryProcuraProduto.MacroByName('SelecionarProdutosListaCasamento').asstring := format(SQLProcura, [IntToStr(qryProdutosContratoslistacasamento.AsInteger)]);
+//                                  SQL2 + IntToStr(CodigoUsuario) + '))))))';
+    qryConsultaProdutos.MacroByName('ListadeCasamento').AsString:= format(SQLConsulta, [IntToStr(qryProdutosContratoslistacasamento.AsInteger)]);
+//                                  SQL2 + IntToStr(CodigoUsuario) + '))))))';
+  end
+  else
+  begin
+    qryProcuraProduto.MacroByName('SelecionarProdutosListaCasamento').asstring := '';
+    qryConsultaProdutos.MacroByName('ListadeCasamento').AsString:= '';
+  end;
+//  qryProcuraProduto.Open;
+  if (qryProdutosContratoslistacasamento.AsInteger > 0) then
+    AbrirProdutosListaCasamento;
+end;
+
+
+procedure TdtmVendasAVista.SelecionaTabelasVendaVista(TipoConsulta: TtecVendasTipoConsulta);
+begin
+  case TipoConsulta of
+          vtcVENDAS: ReFazConsulta(qryContratos,[0],[qryConsultaVendasnumero.AsString]);
+        vtcCLIENTES: begin
+                       qryProcuraCliente.Params[1].AsString:= qryConsultaClientestipo.AsString;
+                       qryContratoscliente.AsInteger := qryConsultaClientescodigo.AsInteger;
+                     end;
+        vtcVENDEDOR: begin
+                       if qryContratos.State = dsBrowse then
+                         qryContratos.Edit;
+                       qryContratosvendedor.AsInteger := qryConsultaVendedorescodigo.AsInteger
+                     end;
+  vtcLISTACASAMENTO: begin
+
+                       if qryContratos.State = dsBrowse then
+                         qryContratos.Edit;
+                       qryProdutosContratoslistacasamento.AsInteger         := qryConsultaListaCasamentocodigo.AsInteger;
+                       qryProcuraListaCasamentonomenoiva.AsString   := qryConsultaListaCasamentonomenoiva.AsString;
+                       qryProcuraListaCasamentonomenoivo.AsString   := qryConsultaListaCasamentonomenoivo.AsString;
+
+                       if qryContratos.State = dsBrowse then
+                         qryContratos.Edit;
+//                       qryContratoslistacasamento.AsInteger:= qryConsultaListaCasamentocodigo.AsInteger;
+                     end;
+         vtcPRODUTO: begin
+                       if qryProdutosContratos.State = dsBrowse then
+                         if (ParSistema.FiliaisIndependentes) then
+                           qryProcuraProduto.Params[4].AsInteger := FilialBase
+                         else
+                           qryProcuraProduto.Params[4].AsString   := qryConsultaProdutosfilial.AsString;
+                         qryProdutosContratos.Edit;
+                         qryProdutosContratosproduto.AsLargeInt := qryConsultaProdutoscodigo.AsLargeInt;
+                         qryProdutosContratosfilial.AsInteger   := qryConsultaProdutosfilial.AsInteger;
+                         RefazConsulta(qryEstoqueDepositos,[0],[IntToStr(qryConsultaProdutoscodigo.AsLargeInt)]); // Jander
+                     end;
+  vtcFILIALMONTAGEM: begin
+                       if qryProdutosContratos.State = dsBrowse then
+                         qryProdutosContratos.Edit;
+                       qryContratosmontagemfilial.AsInteger:= qryConsultaFiliaiscodigo.AsInteger;
+                     end;
+          vtcFILIAL: begin
+                       if qryProdutosContratos.State = dsBrowse then
+                         qryProdutosContratos.Edit;
+                         qryProdutosContratosfilial.AsInteger:= qryConsultaFilialProdutocodigo.AsInteger;
+                     end;
+ vtcVENDEDORPRODUTO: begin
+                       if qryProdutosContratos.State = dsBrowse then
+                         qryProdutosContratos.Edit;
+                       qryProdutosContratosvendedor.AsInteger:= qryConsultaVendedorescodigo.AsInteger
+                     end;
+         vtcRESERVA: begin
+                       if qryProdutosContratos.State = dsBrowse then
+                         qryProdutosContratos.Edit;
+                       qryProdutosContratosreserva.AsInteger:= qryConsultaReservasProdutonumero.AsInteger;
+                     end;
+  end;
+end;
+
+procedure TdtmVendasAVista.SetVendedorDefault(const Value: Integer);
+begin
+  if FVendedorDefault <> Value then
+    FVendedorDefault:= Value;
+end;
+
+function TdtmVendasAVista.SomenteBrindes: Boolean;
+var
+  Pos: TBookmark;
+begin
+  Pos := qryProdutosContratos.GetBookmark;
+  qryProdutosContratos.DisableControls;
+  Result := True;
+  try
+    qryProdutosContratos.First;
+    while Not qryProdutosContratos.Eof do begin
+      if Not qryProdutosContratosbrinde.AsBoolean then begin
+        Result := False;
+        break
+      end;
+      qryProdutosContratos.Next
+    end
+  finally
+    qryProdutosContratos.GotoBookmark(Pos);
+    qryProdutosContratos.FreeBookmark(Pos);
+    qryProdutosContratos.EnableControls
+  end
+end;
+
+procedure TdtmVendasAVista.qryProdutosContratosNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+  if VendedorDefault > 0 then
+    qryProdutosContratosvendedor.AsInteger := VendedorDefault
+  else
+    qryProdutosContratosvendedor.AsInteger := qryContratosvendedor.AsInteger;
+  qryEstoqueDepositos.Close;
+  qryProcuraProduto.Params[4].AsString := IntToStr(FilialBase);
+  if ParSistema.ValordaQuantidade>0 then
+    qryProdutosContratosquantidade.AsCurrency := ParSistema.ValordaQuantidade;
+
+  qryProdutosContratosfilial.AsInteger := FilialBase;  
+end;
+
+function TdtmVendasAVista.GetProdutoEmPromocao: Boolean;
+begin
+ // if qryProdutosContratos.State = dsInsert then
+    Result:= qryProcuraProdutopromocao.AsBoolean
+//  else
+//  Result:= False;
+end;
+
+procedure TdtmVendasAVista.qryParcelasAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  if not (qryContratos.State in [dsInsert]) then
+    if Assigned(FParcelasAfterOpen) then
+      FParcelasAfterOpen(qryParcelas);
+end;
+
+function TdtmVendasAVista.GetParcelaFormaPagto: String;
+begin
+  if qryParcelasformapagamento.AsString <> '' then
+       Result:= qryParcelasformapagamento.AsString
+  else Result:= 'D';
+end;
+
+procedure TdtmVendasAVista.SetFormaPagamento(const Value: Integer);
+begin
+  FFormaPagamento:= Value;
+  if not FOpeningQuery then
+    qryContratos.Edit;
+//  if FOpeningQuery then
+//    FOpeningQuery:= False;
+end;
+
+procedure TdtmVendasAVista.qryContratosAfterCancel(DataSet: TDataSet);
+begin
+  inherited;
+  FOpeningQuery:= True;
+  ReFazConsultaProdutosParcelas;
+end;
+
+function TdtmVendasAVista.BloquearContrato(Numero: String): Boolean;
+begin
+  ReFazConsulta(qryBloquearContrato, [0], [Numero]);
+  Result := (qryBloquearContrato.RecordCount > 0) and (qryBloquearContratolock.AsInteger = 1);
+  FBloqueado := Not Result;
+end;
+{
+procedure TdtmVendasAVista.SomenteLeitura(Valor: Boolean);
+begin
+//  qryContratosrua.ReadOnly         := Valor;
+//  qryContratoscep.ReadOnly         := Valor;
+//  qryContratosfoneddd.ReadOnly     := Valor;
+//  qryContratosfonenumero.ReadOnly  := Valor;
+//  qryContratosfoneramal.ReadOnly   := Valor;
+//  qryContratosfone2ddd.ReadOnly    := Valor;
+//  qryContratosfone2numero.ReadOnly := Valor;
+//  qryContratosfone2ramal.ReadOnly  := Valor;
+end;
+}
+procedure TdtmVendasAVista.qryProcuraClienteAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  if qryProcuraClientecodigo.AsInteger > 0 then
+//    SomenteLeitura(True);
+end;
+
+procedure TdtmVendasAVista.qryConsultaProdutosAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  qryConsultaProdutosvalorgrade1.Visible := ParSistema.UsarGradesProdutos;
+  qryConsultaProdutosvalorgrade2.Visible := ParSistema.UsarGradesProdutos;
+end;
+
+procedure TdtmVendasAVista.qryProdutosContratosAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if Assigned(OnScrollLinhaColunaGrade) then
+    OnScrollLinhaColunaGrade(qryProdutosContratos);
+end;
+
+function TdtmVendasAVista.GetColunadaGrade: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryProdutosContratoscoluna.AsString)
+end;
+
+function TdtmVendasAVista.GetLinhadaGrade: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryProdutosContratoslinha.AsString)
+end;
+
+procedure TdtmVendasAVista.qryProcuraProdutoCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  qryProcuraProdutodescricaolc.AsString :=
+    qryProcuraProdutodescricao.AsString+' '+
+    qryProcuraProdutovalorgrade1.AsString+' '+
+    qryProcuraProdutovalorgrade2.AsString;
+end;
+
+function TdtmVendasAVista.ClienteJaCadastrado(Numero: String): Boolean;
+begin
+  qryClienteCadastrado.Sql[03]:= 'Where (pessoanumero = ' + '''' + Numero + '''' + ')';
+  qryClienteCadastrado.Open;
+  Result:= not qryClienteCadastrado.IsEmpty;
+  if Result then
+    MensagemAviso(format(ctCPFCGCJACADASTRADO,[qryClienteCadastradoNome.AsString, qryClienteCadastradocodigo.AsString]));
+end;
+
+procedure TdtmVendasAVista.GravaRamalCliente(sCodigoCliente, FoneDDD,
+  FoneNumero, FoneRamal,FoneDDD1,FoneNumero1,FoneRamal1: String);
+begin
+
+end;
+
+procedure TdtmVendasAVista.qryProdutosContratosAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+        RefazConsulta(qryEstoqueDepositos,[0],[IntToStr(qryProdutosContratosproduto.AsLargeInt)]);
+        LerProdutosFiliaisIncluidos(False);
+        qryProdutosContratos.Edit;
+        qryProdutosContratos.Cancel;
+        if not (qrycontratos.State in [dsinsert, dsedit]) then
+          qrycontratos.Edit;
+        CalcularValorTotalProdutos;
+        CalcularValorVenda;
+end;
+
+procedure  TdtmVendasAVista.ValidarDesconto;
+begin
+  tipodesconto := ctNENHUM;
+  if (qryContratospercentualdesconto.AsFloat > 0) and FExistePromocao then
+    tipodesconto := ctSEMPERMISSAO
+  else
+    if (round(qryContratospercentualdesconto.AsFloat*100) > round(qryAgentePlanodescontomaximo.AsFloat*100)) then
+      tipodesconto := ctDESCONTOEXCEDIDO;
+end;
+
+procedure TdtmVendasAVista.CalcularDesconto(percentual: real);
+begin
+ qryContratosdesconto.AsFloat :=
+      ValorDoPercentualSobreTotal(qryContratostotalprodutos.AsFloat, percentual);
+end;
+
+procedure TdtmVendasAVista.CalcularPercentualDesconto(desconto: real);
+begin
+    qryContratospercentualdesconto.AsFloat :=
+      PercentualDoValorSobreTotal(qryContratostotalprodutos.AsFloat, desconto);
+end;
+
+function TdtmVendasAVista.GetProdutoContratoemPromocao: Boolean;
+begin
+  result := qryProdutosContratospromocao.AsBoolean;
+end;
+
+procedure TdtmVendasAVista.qryProdutosContratosAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  CalcularValorTotalProdutos;
+  CalcularValorVenda;
+end;
+
+function TdtmVendasAVista.GetExisteQuitacaoParcelas: Boolean;
+begin
+ result := (qryParcelasQuitadasquantidade.asinteger > 0);
+end;
+
+procedure TdtmVendasAVista.qryContratosNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+  qrycontratos.ReadOnly := false;
+  qryContratoscreditotroca.AsCurrency := 0;
+end;
+
+function TdtmVendasAVista.GetContratoSomenteLeitura: Boolean;
+begin
+  result := qrycontratos.ReadOnly;
+end;
+
+function TdtmVendasAVista.GetCodigoCliente: Integer;
+begin
+  Result := qryContratoscliente.AsInteger
+end;
+
+function TdtmVendasAVista.GetNomeCliente: String;
+begin
+  Result := qryContratosnome.AsString
+end;
+
+function TdtmVendasAVista.GetTipoCliente: String;
+begin
+  Result := qryContratostipocliente.AsString
+end;
+
+function TdtmVendasAVista.SugerirCreditoTroca(Perguntar, Atribuir: Boolean): Boolean;
+var
+  msg : String;
+begin
+  result := false;
+  if ParSistema.utilizarcreditotrocacontrato then
+  begin
+    if SaldoCreditoAtual <> 0 then
+    begin
+      if saldoCreditoAtual >0 then
+        msg:= 'crédito'
+      {else
+        msg:= 'débito'};
+      if not Perguntar or
+         (MensagemConfirmacao(format(ctCLIENTEPOSSUIDEBITOCREDITO,[msg,saldocreditoatual])) = smbOK) then
+      begin
+        qryContratoscreditotroca.AsCurrency := 0;
+        if Atribuir or not Perguntar then
+          if SaldoCreditoAtual > 0 then
+          begin
+            if (qryContratostotalprodutos.AsCurrency - qryContratosdesconto.ascurrency) >= SaldoCreditoAtual then
+              qryContratoscreditotroca.AsCurrency := SaldoCreditoAtual
+            else
+              qryContratoscreditotroca.AsCurrency := qryContratostotalprodutos.AsCurrency - qryContratosdesconto.ascurrency;
+          end
+{       else
+        if SaldoCreditoAtual < 0 then
+          qryContratoscreditotroca.AsCurrency := SaldoCreditoAtual};
+        if not (qryContratos.State in [dsedit,dsinsert]) then
+          qrycontratos.Edit;
+        result := true;
+      end;
+    end;
+  end;
+end;
+
+function TdtmVendasAVista.GetCreditoTroca: Currency;
+begin
+  result := qryContratoscreditotroca.AsCurrency;
+end;
+
+procedure TdtmVendasAVista.SetCreditoTroca(const Value: Currency);
+begin
+  qryContratoscreditotroca.AsCurrency := Value;
+end;
+
+function TdtmVendasAVista.GetSaldoCreditoAtual: Currency;
+begin
+  result := dtmVisualizarSaldoTroca.SaldoAtual;
+end;
+
+function TdtmVendasAVista.ValidarCreditoTroca: Boolean;
+begin
+  result := true;
+  {
+  if SaldoCreditoAtual < 0 then
+  begin
+    if creditotroca < 0 then
+    begin
+      if creditotroca < SaldoCreditoAtual then
+      begin
+         MensagemErro(format(ctVALORCREDITOFORAINTERVALO,[creditotroca,SaldoCreditoAtual]));
+         result := false;
+      end;
+    end
+    else
+    if creditotroca > 0 then
+    begin
+      if creditotroca > SaldoCreditoAtual then
+      begin
+         MensagemErro(format(ctVALORCREDITOFORAINTERVALO,[creditotroca,SaldoCreditoAtual]));
+         result := false;
+      end
+      else
+      begin
+        if creditotroca > TotalContrato then
+        begin
+          MensagemErro(format(ctVALORCREDITOMAIORPRODUTOS,[creditotroca,totalcontrato]));
+          result := false;
+        end;
+      end;
+    end
+  end
+  else
+  begin
+    if creditotroca < 0 then
+    begin
+       MensagemErro(format(ctVALORCREDITOFORAINTERVALO,[creditotroca,SaldoCreditoAtual]));
+       result := false;
+    end
+    else
+    }
+    if creditotroca > 0 then
+    begin
+      if creditotroca > SaldoCreditoAtual then
+      begin
+         MensagemErro(format(ctVALORCREDITOFORAINTERVALO,[creditotroca,SaldoCreditoAtual]));
+         result := false;
+      end
+      else
+      begin
+        if creditotroca > TotalContrato then
+        begin
+          MensagemErro(format(ctVALORCREDITOMAIORPRODUTOS,[creditotroca,TotalContrato]));
+          result := false;
+        end;
+      end;
+    end;
+//  end;
+end;
+
+procedure TdtmVendasAVista.AbrirDadosCreditoCliente;
+begin
+  if not assigned(dtmVisualizarSaldoTroca) then
+     dtmVisualizarSaldoTroca := TdtmVisualizarSaldoTroca.Create(Self);
+  if qrycontratosnumero.AsString<>'' then
+    dtmVisualizarSaldoTroca.AbrirDadosCliente(CodigoCliente,TipoCliente,qrycontratosnumero.asstring)
+  else
+    dtmVisualizarSaldoTroca.AbrirDadosCliente(CodigoCliente,TipoCliente);
+end;
+
+destructor TdtmVendasAVista.Destroy;
+begin
+  if ParSistema.utilizarcreditotrocacontrato then
+    dtmVisualizarSaldoTroca.Free;
+  inherited;
+  dtmVisualizarSaldoTroca := nil;
+end;
+
+function TdtmVendasAVista.GetTotalProdutos: Currency;
+begin
+  Result := qryContratostotalprodutos.AsFloat
+end;
+
+function TdtmVendasAVista.GetSituacaoContrato: TtecSituacaoContrato;
+begin
+  if qryContratossituacao.AsString = 'F' then
+    Result := scFATURADO
+  else if qryContratossituacao.AsString = 'C' then
+    Result := scCANCELADO
+  else if ((qryContratossituacao.AsString = 'N') or (qryContratossituacao.AsString = 'P')) then
+   { if not qryContratosorigem.IsNull or
+       ((qryProdutosEntregar.RecordCount = 0) and
+       (qryServicosContratos.RecordCount = qryServicosDadosFiscais.RecordCount))
+    then}
+      Result := scNOTAFISCAL
+   { else
+      Result := scNOTAPARCIAL}
+  else if qryContratossituacao.AsString = 'O' then
+    Result := scORCADO
+  else if qryContratossituacao.AsString = 'R' then
+    Result := scRESERVADO
+  else
+    Result := scNENHUM
+end;
+
+function TdtmVendasAVista.AtualizarSaldoCreditoCliente(tipo: String): Boolean;
+  const
+    SQL = 'where (pt.tipo=''S'' and pt.contrato=:contrato)';
+
+  procedure incluirCreditoTroca;
+  begin
+     qryProdutosTrocados.sql[10] := 'Where false';
+     ReFazConsulta(qryProdutosTrocados,[],[]);
+     qryprodutostrocados.Insert;
+     spcProdutosTrocadosProximo.Open;
+     qryProdutosTrocadosnumero.AsInteger := spcProdutosTrocadosProximonumero.AsInteger;
+     spcProdutosTrocadosProximo.close;
+     qryProdutosTrocadostipo.AsString := tipo;
+     qryProdutosTrocadosdata.AsDateTime := now();
+     qryProdutosTrocadoscliente.AsInteger := qryContratoscliente.AsInteger;
+     qryProdutosTrocadostipocliente.AsString := qryContratostipocliente.AsString;
+     qryProdutosTrocadoscontrato.AsString := qryContratosnumero.AsString;
+     qryProdutosTrocadosfilial.Asinteger := FilialBase;
+     qryProdutosTrocadosusuario.AsInteger := CodigoUsuario;
+     qryProdutosTrocadosvalor.AsCurrency := qryContratoscreditotroca.AsCurrency;
+     qryprodutostrocados.post;
+  end;
+
+begin
+ result := true;
+ if qryContratos.State = dsInsert then
+ begin
+   if qryContratoscreditotroca.AsCurrency <> 0 then
+     incluirCreditoTroca;
+ end
+ else
+ begin
+   qryProdutosTrocados.sql[10] := SQL;
+   ReFazConsulta(qryProdutosTrocados,[0],[qrycontratosnumero.asstring]);
+   if qryprodutostrocados.RecordCount = 1 then
+   begin
+     if qryContratoscreditotroca.AsCurrency=0 then
+       qryprodutostrocados.Delete
+     else
+     begin
+       qryprodutostrocados.Edit;
+       qryProdutosTrocadosvalor.AsCurrency := qryContratoscreditotroca.AsCurrency;
+       qryprodutostrocados.Post;
+     end;
+   end
+   else
+    if qryprodutostrocados.RecordCount = 0  then
+    begin
+      if qryContratoscreditotroca.AsCurrency<>0 then
+        incluirCreditoTroca;
+    end
+    else
+    if qryprodutostrocados.RecordCount > 1  then
+       result := false;
+ end;
+end;
+
+function TdtmVendasAVista.GetTabelaSaldoCredito: Tzdataset;
+begin
+  result := dtmVisualizarSaldoTroca.qrySaldoTroca;
+end;
+
+function TdtmVendasAVista.GetTabelaSaldoCreditoAtual: TZDataset;
+begin
+  result := dtmVisualizarSaldoTroca.qrySaldoAtual;
+end;
+
+function TdtmVendasAVista.GetTotalContrato: Currency;
+begin
+  FTotalContrato := qryContratostotalprodutos.AsCurrency +
+                    qryContratosfrete.AsCurrency +
+                    qryContratosseguro.AsCurrency;
+  Result := FTotalContrato;
+end;
+
+function TdtmVendasAVista.ExibirFicha(FormOrigem: String): Boolean;
+begin
+  if not qryProcuraClientenaoexibirfichafinanceira.AsBoolean then
+    result := ExibirFichacliente(qryProcuraClientecodigo.AsInteger,
+                                 qryProcuraClientetipoorig.AsString,
+                                 qryProcuraClientenome.AsString, FormOrigem);
+end;
+
+function TdtmVendasAVista.CartaDevolvida(FormOrigem: String): Boolean;
+begin
+  Result := ClienteCartaDevolvida(CodigoCliente, TipoCliente,
+                                  NomeCliente, FormOrigem);
+end;
+
+function TdtmVendasAVista.GetProdutoConsulta: String;
+begin
+  result := qryConsultaProdutoscodigo.AsString;
+end;
+
+function TdtmVendasAVista.VerificarLimitesCredito(Msg: String): Boolean;
+begin
+  if qryProcuraClienterestricoesconceito.AsBoolean then
+  begin
+    RefazConsulta(qryLimitesCredito,[0,1,2,3],[qryContratoscliente.AsInteger,
+                                               qryContratostipocliente.AsString,
+                                               qryContratosvalorprazo.AsFloat,
+                                               DataServidor]);
+
+    qryContratosnrpontos.AsInteger       := qryLimitesCreditoTotalPontos.AsInteger;
+    qryContratoslimitecredito.AsFloat    := qryLimitesCreditoLimiteTotal.AsFloat;
+    qryContratoslimitedisponivel.AsFloat := qryLimitesCreditoLimiteDisponivel.AsFloat;
+    qryContratoslimiteparcela.AsFloat    := qryLimitesCreditoLimitePorParcela.AsFloat;
+    qryContratosaberto30dias.AsFloat     := qryLimitesCreditoLimiteAberto30Dias.AsFloat;
+
+    result := qryContratosvalorprazo.AsFloat < qryLimitesCreditolimitedisponivel.AsFloat;
+  end
+  else
+    Result := True;
+end;
+
+
+
+procedure TdtmVendasAVista.VerificarSaldoProdutoListaCasamento(DesligarControles: Boolean = true);
+var
+  vQuantidadeProduto : Currency;
+  vRegistroAtual : TBookMark;
+  vProduto : String;
+  vLista : String;
+begin
+  if qryProdutosContratoslistacasamento.AsInteger <> 0 then
+  begin
+    vProduto := qryProdutosContratosproduto.AsString;
+    vLista := qryProdutosContratoslistacasamento.AsString;
+    vRegistroAtual := qryprodutoscontratos.GetBookmark;
+
+    if DesligarControles then
+      qryprodutoscontratos.DisableControls;
+
+    qryprodutoscontratos.first;
+    vQuantidadeProduto := 0;
+    while not qryprodutoscontratos.Eof do
+    begin
+      if (qryProdutosContratoslistacasamento.AsInteger > 0)  and
+         (qryProdutosContratosproduto.AsString = vproduto) and
+         (qryProdutosContratoslistacasamento.AsString = vLista) then
+        vQuantidadeProduto := vQuantidadeProduto + qryProdutosContratosquantidade.AsCurrency;
+      qryprodutoscontratos.Next;
+    end;
+
+    qryprodutoscontratos.GotoBookmark(vRegistroAtual);
+    qryprodutoscontratos.FreeBookmark(vRegistroAtual);
+
+    if DesligarControles then
+      qryprodutoscontratos.enableControls;
+
+    if  qryProdutosListaCasamento.Locate('lista;produto',
+           VarArrayof([qryProdutosContratoslistacasamento.AsString,
+                       qryProdutosContratosproduto.AsString]),[]) then
+    begin
+      if  (vQuantidadeProduto > qryProdutosListaCasamentomaxqtde.AsCurrency) then
+      begin
+        if not qryProdutosListaCasamentoMensagemExibida.AsBoolean then
+        begin
+//          MensagemAviso(format(ctQTDEMAIORLISTACASAMENTO,[FormatarQuantidade(qryProdutosListaCasamentomaxqtde.AsCurrency),
+//                                                          FormatarQuantidade(vQuantidadeProduto)]));
+
+          MensagemAviso('A quantidade informada está maior que a solicitada na lista de casamento.');
+
+          qryProdutosListaCasamento.Edit;
+          qryProdutosListaCasamentoMensagemExibida.AsBoolean := true;
+          qryProdutosListaCasamento.Post;
+        end;
+      end
+      else
+      begin
+        if  qryProdutosListaCasamentoMensagemExibida.AsBoolean then
+        begin
+          qryProdutosListaCasamento.Edit;
+          qryProdutosListaCasamentoMensagemExibida.AsBoolean := false;
+          qryProdutosListaCasamento.Post;
+        end;
+      end;
+    end
+    else
+      MensagemAviso('O produto '+qryProdutosContratosproduto.AsString+
+                   ' não foi encontrado na lista de casamento e será incluido.');
+  end;
+end;
+
+
+
+
+procedure TdtmVendasAVista.AbrirProdutosListaCasamento(Todos: boolean = false);
+var
+  vListaCasamento: String;
+  vRegistroAtual : TBookMark;
+
+  Procedure GuardarListaCasamento;
+  begin
+    if qryProdutosContratosListaCasamento.asinteger <> 0 then
+    begin
+      if pos(qryProdutosContratosListaCasamento.Asstring,vListaCasamento)=0 then
+        vListaCasamento := vListaCasamento + qryProdutosContratosListaCasamento.Asstring + ','
+    end;
+  end;
+
+begin
+  if ParSistema.UtilizarListaCasamento then
+  begin
+    vListaCasamento := '';
+
+    if Todos then
+    begin
+      vRegistroAtual := qryProdutosContratos.GetBookmark;
+      qryprodutoscontratos.First;
+      while not qryprodutoscontratos.Eof do
+      begin
+        GuardarListaCasamento;
+        qryprodutoscontratos.Next;
+      end;
+    end
+    else
+      GuardarListaCasamento;
+
+    if vListaCasamento <> '' then
+      delete(vListaCasamento,length(vListaCasamento),1)
+    else
+      vListaCasamento := '0';
+
+    qryProdutosListaCasamento.MacroByName('ListasCasamento').AsString := vListaCasamento;
+
+    qryProdutosListaCasamento.close;
+    qryprodutoslistacasamento.open;
+  end;
+end;
+
+
+procedure TdtmVendasAVista.ZMonitor1MonitorEvent(Sql, Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:\logvendaavista.sql') then
+    Listar.loadfromfile('c:\logvendaavista.sql');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\logvendaavista.sql');
+  listar.free;
+end;
+
+procedure TdtmVendasAVista.AbreConsultaProdutos;
+begin
+  qryConsultaProdutos.MacroByName('Produto').ASString:= ' and false';
+  if qryProdutosContratosprodutolista.AsBoolean or IncluindoSimilares then
+       qryConsultaProdutos.MacroByName('Produto').ASString:= ''
+  else
+  begin
+    if ParSistema.UsarConsultaInterativa then
+      qryConsultaProdutos.MacroByName('Produto').ASString:= ''
+  end;
+  Abre(ctVendaTabelaConsultaProdutos);
+end;
+
+procedure TdtmVendasAVista.qryProdutosContratosAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  AbrirProdutosListaCasamento(true);
+end;
+
+end.

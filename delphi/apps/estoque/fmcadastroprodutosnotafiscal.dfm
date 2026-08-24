@@ -1,6 +1,6 @@
 inherited frmCadastroProdutosNotaFiscal: TfrmCadastroProdutosNotaFiscal
-  Left = 387
-  Top = 14
+  Left = 301
+  Top = 22
   ActiveControl = ckbFiltrarProdutosPorFornecedor
   Caption = 'Cadastro de Itens da Nota Fiscal'
   ClientHeight = 743

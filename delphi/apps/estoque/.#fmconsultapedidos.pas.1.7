@@ -1,0 +1,347 @@
+unit fmconsultapedidos;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, Grids, DBGrids, Buttons, Mask, DBCtrls, ExtCtrls, Windows,
+  DateUtils,
+  // Repositorio
+  fmajudabt, fmconsultaporcampo, fmconsultabasica,
+  // Constantes
+  ctconstantes, biblio,
+  // Terceiros
+  ZQuery, clparametrossistema,
+  // Componentes
+  cpnumero, cpdbfindcontrols, cpdbgrid, cpdbtext, cpdata,
+  cpeditioncontrolvalidation, ComCtrls, cpdbradiogroup, ToolWin;
+
+type
+  TfrmConsultaPedidos = class(TfrmAjudaBt)
+    sbnGerar: TSpeedButton;
+    ecvValida: TtecEditionControlValidation;
+    Shape2: TShape;
+    pnlFundoJanela: TPanel;
+    gbxPedidos: TGroupBox;
+    sbnPesquisarProdutos: TSpeedButton;
+    sbnFornecedor: TSpeedButton;
+    lblProdutos: TLabel;
+    edfProdutos: TtecDbEditFind;
+    dtxProdutos: TtecDBText;
+    gbxPeriodo: TGroupBox;
+    lblDataInicial: TLabel;
+    edtDataInicial: TEditData;
+    lblDataFinal: TLabel;
+    edtDataFinal: TEditData;
+    lblFornecedor: TLabel;
+    edfFornecedor: TtecDbEditFind;
+    dtxFornecedor: TtecDBText;
+    rgbSituacao: TtecDBRadioGroup;
+    ckbAberto: TtecRadioButton;
+    ckbConclido: TtecRadioButton;
+    ckbParcial: TtecRadioButton;
+    ckbCancelado: TtecRadioButton;
+    ckbAmbos: TtecRadioButton;
+    rgbOrdenar: TtecDBRadioGroup;
+    ckbPedido: TtecRadioButton;
+    cknFornecedor: TtecRadioButton;
+    ckbProduto: TtecRadioButton;
+    ckbEmissao: TtecRadioButton;
+    ckbSituacao: TtecRadioButton;
+    dbgPedidos: TtecDBGrid;
+    dbgNotasPag: TtecDBGrid;
+    gbxSituacoes: TGroupBox;
+    shpPromocao: TShape;
+    lblLegendaPromocao: TLabel;
+    Shape3: TShape;
+    lblForaLinhaIntaivo: TLabel;
+    Shape4: TShape;
+    Label3: TLabel;
+    Shape1: TShape;
+    Label1: TLabel;
+    gbxNotasEntrada: TGroupBox;
+    Label11: TLabel;
+    Shape6: TShape;
+    ckbParcialLiquidado: TtecRadioButton;
+    pnlBottom: TPanel;
+    sttTotal: TStaticText;
+    DBText1: TDBText;
+    procedure sbnPesquisarProdutosClick(Sender: TObject);
+    procedure sbnGerarClick(Sender: TObject);
+    procedure edfProdutosEnter(Sender: TObject);
+    procedure dbgPedidosTitleClick(Column: TColumn);
+    procedure edtDataFinalEnter(Sender: TObject);
+    procedure sbnFornecedorClick(Sender: TObject);
+    procedure dbgPedidosDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+  private
+    procedure AfterScrollLinhaColunaGrade(Sender: TObject);
+  protected
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; value: variant): Boolean; override;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    function  TabelaDePesquisa: TZDataSet; override;
+    function  ValidarControles: Boolean;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+  end;
+
+var
+  frmConsultaPedidos: TfrmConsultaPedidos;
+  ControleValido: TWinControl;
+  TipoPesquisa: TtecConsultaPedidos;
+  Ctr1, Ctr2: Integer;
+
+implementation
+
+uses dmconsultamodulopedidos, dmconsultaestoque, dmconsultacompras;
+
+{$R *.dfm}
+
+constructor TfrmConsultaPedidos.Create(AOwner: TComponent);
+begin
+  dtmConsultaPedidos := TdtmConsultaPedidos.Create(Self);
+  inherited;
+  edtDataInicial.Text := DateToStr(SemanaPassada(Date));
+  edtDataFinal.Text   := DateToStr(Date);
+  Ctr1:= 1;
+  Ctr2:= 1;
+  dbgPedidos.Columns[6].Visible := ParSistema.UsarGradesProdutos;
+  dbgPedidos.Columns[7].Visible := ParSistema.UsarGradesProdutos;
+  dtmConsultaPedidos.OnScrollLinhaColunaGrade := AfterScrollLinhaColunaGrade;
+  dbgPedidos.Columns[8].Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if ParSistema.PermitirProdutoAlfanumerico then begin
+     edfProdutos.DataField     := 'codigovisual';
+     edfProdutos.QueryParameter:= 'codigovisual';
+     edfProdutos.Width := 200;
+     sbnPesquisarProdutos.Left := 280;
+     dtxProdutos.Left := 304;
+     dtxProdutos.Width := 280;
+     dbgPedidos.Columns[4].Width := 160;
+     dbgPedidos.Columns[5].Width := 160;
+  end
+  else begin
+     edfProdutos.DataField     := 'codigo';
+     edfProdutos.QueryParameter:= 'codigo';
+     edfProdutos.Width := 135;
+     sbnPesquisarProdutos.Left := 215;
+     dtxProdutos.Left := 239;
+     dtxProdutos.Width := 345;
+     dbgPedidos.Columns[4].Width := 95;
+     dbgPedidos.Columns[5].Width := 235;
+  end;
+
+end;
+
+destructor TfrmConsultaPedidos.Destroy;
+begin
+  dtmConsultaPedidos:=nil;
+  inherited;
+  frmConsultaPedidos := nil;
+end;
+
+procedure TfrmConsultaPedidos.sbnPesquisarProdutosClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  ActiveControl := edfProdutos;
+  InternoPesquisar('');
+end;
+
+function TfrmConsultaPedidos.InternoPesquisar(Titulo:String): Integer;
+begin
+  Result:= mrNone;
+  with dtmConsultaPedidos do begin
+    if CtrlOn then begin
+      if ActiveControl = edfProdutos then begin
+        TipoPesquisa:= tpcCARACTERISTICA;
+        Titulo:= 'Produtos';
+      end
+      else if ActiveControl = edfFornecedor then begin
+        TipoPesquisa:= tpcFORNECEDOR;
+        Titulo:= 'Fornecedores';
+      end
+      else
+        TipoPesquisa:= tpcNENHUM;
+    end;
+    if TipoPesquisa <> tpcNENHUM then begin
+      AbrirTabelas(TipoPesquisa);
+      Result := inherited InternoPesquisar(Titulo);
+      if Result = mrOK then
+        Selecionar(TipoPesquisa);
+      FecharTabelas(TipoPesquisa);
+    end;
+  end
+end;
+
+function TfrmConsultaPedidos.JanelaPesquisa;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  if TipoPesquisa = tpcCARACTERISTICA then
+       TfrmConsultaPorCampo(Result).ConsultaInterativa := False
+  else TfrmConsultaPorCampo(Result).ConsultaInterativa := True;
+end;
+
+function TfrmConsultaPedidos.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  case TipoPesquisa of
+     tpcCARACTERISTICA: Result:= dtmConsultaPedidos.ExisteCaracteristica(NomeCampo, Value);
+         tpcFORNECEDOR: Result:= dtmConsultaPedidos.ExisteFornecedor(NomeCampo, Value);
+         else           Result:= False;
+  end;
+end;
+
+function TfrmConsultaPedidos.TabelaDePesquisa: TZDataSet;
+begin
+  case TipoPesquisa of
+     tpcCARACTERISTICA: Result:= dtmConsultaPedidos.ConsultarCaracteristica;
+         tpcFORNECEDOR: Result:= dtmConsultaPedidos.ConsultarFornecedor;
+         else           Result:= Nil;
+  end;
+end;
+
+function TfrmConsultaPedidos.ValidarControles: Boolean;
+begin
+  Result := False;
+  if ecvValida.Verify(gbxPedidos,ControleValido) then begin
+    Result:= OperadorTernario(edfProdutos.Text <> '',edfProdutos.Exist, True) and
+             OperadorTernario(edfFornecedor.Text <> '', edfFornecedor.Exist, True)
+  end;
+end;
+
+procedure TfrmConsultaPedidos.sbnGerarClick(Sender: TObject);
+begin
+  if ValidarControles then with dtmConsultaPedidos do begin
+    Fornecedor := edfFornecedor.Text;
+    Produto    := qryProcuraProdutoscodigo.AsString;
+    DataInicial:= edtDataInicial.Text;
+    DataFinal  := edtDataFinal.Text;
+    Situacao   := rgbSituacao.ItemIndex;
+    Ordenacao  := rgbOrdenar.ItemIndex;
+    if ConsultarPedido then begin
+      MensagemAviso(Format(ctNENHUMREGISTROSELECIONADO,['registro']));
+      edfFornecedor.SetFocus;
+    end
+    else
+      dbgPedidos.SetFocus;
+  end;
+end;
+
+procedure TfrmConsultaPedidos.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  case Key of
+       VK_F6: sbnGerar.Click;
+   VK_Escape: begin
+                 dtmConsultaPedidos.FecharTabelaConsulta;
+                 edfFornecedor.SetFocus;
+               end;
+  end;
+  inherited;
+end;
+
+procedure TfrmConsultaPedidos.edfProdutosEnter(Sender: TObject);
+begin
+  if Assigned(dtmConsultaPedidos)then
+    dtmConsultaPedidos.Fecha(ctConsultaPedidos);
+end;
+
+procedure TfrmConsultaPedidos.dbgPedidosTitleClick(Column: TColumn);
+begin
+  inherited;
+  if AltOn then
+  begin
+    if Column.Index = 1 then begin
+      if Ctr1 = 1 then
+           Inc(Ctr1)
+      else Ctr1:= 1;
+      case Ctr1 of
+        1: begin
+             dbgPedidos.Columns[1].Title.Caption:= 'Emissão...';
+             dbgPedidos.Columns[1].FieldName    := 'emissao';
+           end;
+        2: begin
+             dbgPedidos.Columns[1].Title.Caption:= 'Entrega...';
+             dbgPedidos.Columns[1].FieldName    := 'entrega';
+           end;
+      end
+    end
+    else if Column.Index = 7 then begin
+      if Ctr2 = 1 then
+           Inc(Ctr2)
+      else Ctr2:= 1;
+      case Ctr2 of
+        1: begin
+             dbgPedidos.Columns[8].Title.Caption:= 'Qtde...';
+             dbgPedidos.Columns[8].FieldName    := 'quantidade';
+           end;
+        2: begin
+             dbgPedidos.Columns[8].Title.Caption:= 'Rec...';
+             dbgPedidos.Columns[8].FieldName    := 'recebido';
+           end;
+      end
+    end;
+  end;
+
+end;
+
+procedure TfrmConsultaPedidos.edtDataFinalEnter(Sender: TObject);
+begin
+  inherited;
+  if edtDataInicial.Text <> '' then
+    edtDataFinal.Minimo:= DaysBetween(dtmConsultaPedidos.DataServidor,StrToDate(edtDataInicial.Text))
+end;
+
+procedure TfrmConsultaPedidos.sbnFornecedorClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  ActiveControl := edfFornecedor;
+  InternoPesquisar('');
+end;
+
+procedure TfrmConsultaPedidos.AfterScrollLinhaColunaGrade(Sender: TObject);
+begin
+  dbgPedidos.Columns[6].Title.Caption := dtmConsultaPedidos.LinhadaGrade;
+  dbgPedidos.Columns[7].Title.Caption := dtmConsultaPedidos.ColunadaGrade;
+end;
+
+procedure TfrmConsultaPedidos.dbgPedidosDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  with dtmConsultaPedidos do
+  begin
+    if SituacaoProduto = 'A' then
+    begin
+      TDBGrid(Sender).Canvas.Brush.Color := clWhite;
+      TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+    end
+    else if SituacaoProduto = 'P' then
+    begin
+     TDBGrid(Sender).Canvas.Brush.Color := clAqua;
+     TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+    end
+    else if SituacaoProduto = 'L' then
+    begin
+     TDBGrid(Sender).Canvas.Brush.Color := $007FAA55;
+     TDBGrid(Sender).Canvas.Font.Color  := clBlack
+    end
+    else if SituacaoProduto = 'C' then
+    begin
+     TDBGrid(Sender).Canvas.Brush.Color := clYellow;
+     TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+    end
+    else if SituacaoProduto = 'Q' then
+    begin
+     TDBGrid(Sender).Canvas.Brush.Color := clGray;
+     TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+    end;
+
+    TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end;
+end;
+end.

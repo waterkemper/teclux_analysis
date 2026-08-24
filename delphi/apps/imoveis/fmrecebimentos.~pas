@@ -1,0 +1,686 @@
+unit fmrecebimentos;
+
+interface
+
+uses
+  SysUtils, Windows, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, {Qete,} DB,
+  //Projeto
+  dmcontratosimoveis, fmcadastropadrao, DBCtrls, cptexto, cpdbdata, Mask,
+  cpdbfindcontrols, ComCtrls, Buttons, ExtCtrls, cpnumero, cpdata,
+  //Repositorio
+  frlancamentocontabilidade, dmlancamentocontabilidade, fmAjudaBt,
+  //Biblio
+  ctconstantes, Biblio, cpdbtext, frconsulta, frconsultacodigo, clparametrossistema,
+  ToolWin;
+type
+  Tfrmrecebimentos = class(TfrmAjudaBt)
+    pnlDados: TPanel;
+    gbxDataPagto: TGroupBox;
+    gbxTotalaPagar: TGroupBox;
+    edtDataPagto: TEditData;
+    edtTotal: TEditNumero;
+    sbnSalvar: TSpeedButton;
+    gbxMulta: TGroupBox;
+    gbxJuros: TGroupBox;
+    edtMulta: TEditNumero;
+    edtJurosMora: TEditNumero;
+    gbxValorContratado: TGroupBox;
+    edtValorContratado: TEditNumero;
+    gbxJurosContratuais: TGroupBox;
+    edtJurosContratuais: TEditNumero;
+    gbxCorrecao: TGroupBox;
+    edtCorrecao: TEditNumero;
+    gbxValorDevido: TGroupBox;
+    edtValorDevido: TEditNumero;
+    gbxBancoCheque: TGroupBox;
+    gbxEmitente: TGroupBox;
+    edtEmitente: TEditTexto;
+    cbxLiberarJuros: TCheckBox;
+    pnlContaBanco: TPanel;
+    gbxValorRecebido: TGroupBox;
+    edtValorRecebido: TEditNumero;
+    gbxConta: TGroupBox;
+    lbltraco: TLabel;
+    gbxSiglaBanco: TGroupBox;
+    dtxSigla: TtecDBText;
+    gbxNomeAgencia: TGroupBox;
+    dtxNomeAgencia: TtecDBText;
+    fraConsultaContas: TfraConsultaCodigo;
+    gbxValoresContratuais: TGroupBox;
+    gbxPagtoCheque: TGroupBox;
+    gbxNrChequePagto: TGroupBox;
+    edtnrCheque: TEditNumero;
+    gbxAgenciaCheque: TGroupBox;
+    edtagencia: TEditNumero;
+    fraConsultaBancos: TfraConsultaCodigo;
+    pgcParcelas: TPageControl;
+    tstUnicaParcela: TTabSheet;
+    tstVariasParcelas: TTabSheet;
+    gbxParcela: TGroupBox;
+    gbxTipo: TGroupBox;
+    edtTipoParcela: TEditTexto;
+    gbxNrPagto: TGroupBox;
+    edtNrPagto: TEditNumero;
+    gbxNrParcela: TGroupBox;
+    edtParcela: TEditTexto;
+    gbxVencimento: TGroupBox;
+    edtVencimento: TEditData;
+    gbxParcelas: TGroupBox;
+    LBLsAIDA: TLabel;
+    sbnCancelar: TSpeedButton;
+    GroupBox1: TGroupBox;
+    edtValorHistorico: TEditNumero;
+    procedure sbnSalvarClick(Sender: TObject);
+    procedure cbxLiberarJurosClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure edtDataPagtoExit(Sender: TObject);
+    procedure fraConsultaContasedfCodigoExit(Sender: TObject);
+    procedure edtValorRecebidoExit(Sender: TObject);
+    procedure edtnrChequeExit(Sender: TObject);
+    procedure fraConsultaBancosedfCodigoExit(Sender: TObject);
+    procedure edtagenciaExit(Sender: TObject);
+    procedure edtEmitenteExit(Sender: TObject);
+    procedure sbnCancelarClick(Sender: TObject);
+  private
+    { Private declarations }
+    FQuitacaoLote: Boolean;
+    FPagtoAnt: TDateTime;
+    FValorAnt: Currency;
+  protected
+    procedure InicializarCampos;
+    procedure PreencherCampos;
+    function GerarLancamentosContabeis: Boolean;
+    procedure GerarMovimentacaoBancaria;
+    procedure ApagarMovimentacaoBancaria(Data: TDateTime);
+    function  VerificarCamposObrigatorios: Boolean;
+    procedure OnChangeCampos(Atual, Anterior: String);
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+    property QuitacaoLote : Boolean read FQuitacaoLote write FQuitacaoLote;
+    property PagtoAnt : TDateTime read FPagtoAnt write FPagtoAnt;
+    property ValorAnt : Currency  read FValorAnt write FValorAnt;
+  end;
+
+var
+  frmrecebimentos: Tfrmrecebimentos;
+  RecebimentosInt: TRecebimentos;
+implementation
+
+uses dmbasico;
+
+{$R *.dfm}
+
+{ Tfrmrecebimentos }
+
+
+
+destructor Tfrmrecebimentos.Destroy;
+begin
+  FreeAndNil(RecebimentosInt);
+  inherited;
+  frmrecebimentos := nil;
+end;
+
+procedure Tfrmrecebimentos.InicializarCampos;
+begin
+  if not dtmContratosImoveis.QuitarDiversas then
+  begin
+    VarRecebimentos := TRecebimentos.Create(False);
+    RecebimentosInt := VarRecebimentos;
+    RecebimentosInt.ParcelasRecibo(RecebimentosInt.qryparcelas.FieldByname('recibopagto').AsInteger);
+    PreencherCampos;
+  end
+  else
+  begin
+    RecebimentosInt := VarRecebimentos;
+    PreencherCampos;
+  end;
+end;
+
+procedure Tfrmrecebimentos.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Key = VK_F5 then
+    sbnSalvarClick(Self);
+end;
+
+procedure Tfrmrecebimentos.PreencherCampos;
+begin
+  edtTipoParcela.Text      := RecebimentosInt.Tipo;
+  edtParcela.Text          := RecebimentosInt.Parcela;
+  edtNrPagto.Text          := IntToStr(RecebimentosInt.NrPagto);
+  edtValorContratado.Text  := FloatToStr(RecebimentosInt.ValorContratado);
+  edtValorHistorico.Text   := FloatToStr(RecebimentosInt.ValorHistorico);
+  if RecebimentosInt.Conta > 0 then
+  begin
+    fraConsultaContas.edfCodigo.Text:= IntToStr(RecebimentosInt.Conta);
+    fraConsultaContas.edfCodigo.Exist;
+  end;
+  if RecebimentosInt.NroCheque <> '' then
+    edtnrCheque.Text         := RecebimentosInt.NroCheque;
+  if RecebimentosInt.BancoCheque > 0 then
+  begin
+    fraConsultaBancos.edfCodigo.Text := inttostr(RecebimentosInt.BancoCheque);
+    fraConsultaBancos.edfCodigo.Exist;
+    if RecebimentosInt.Agencia > 0 then
+      edtagencia.Text:= IntToStr(RecebimentosInt.Agencia);
+    edtEmitente.Text:= RecebimentosInt.Emitente;
+  end;
+  edtJurosContratuais.Text := FloatToStr(RecebimentosInt.JurosContratuais);
+  edtCorrecao.Text         := CurrToStrF(RecebimentosInt.CorrecaoContabil,ffNumber,2);
+  edtValorDevido.Text      := FloatToStr(RecebimentosInt.ValorDevido);
+  edtMulta.Text            := FloatToStr(RecebimentosInt.ValorMulta);
+  edtJurosMora.Text        := FloatToStr(RecebimentosInt.ValorJuros);
+  edtTotal.Text            := FloatToStr(RecebimentosInt.ValorTotal);
+  edtValorRecebido.Text    := FloatToStr(RecebimentosInt.ValorRecebido);
+  edtDataPagto.Text        := datetostr(RecebimentosInt.Pagamento);
+  edtVencimento.Text       := datetostr(RecebimentosInt.Vencimento);
+  edtTotal.Text            := FloatToStr(RecebimentosInt.ValorTotal);
+end;
+
+procedure Tfrmrecebimentos.sbnSalvarClick(Sender: TObject);
+var Concluido: Boolean;
+begin
+  inherited;
+  Concluido:= True;
+  if RecebimentosInt.ValidarDatasPagamentos then
+  begin
+    If VerificarCamposObrigatorios then
+    begin
+      if RecebimentosInt.Pagamento > ParSistema.DataContabil then
+      begin
+        if dtmContratosImoveis.VerificarCotacaoMoeda(dtmContratosImoveis.qryParcelasContratomoeda.AsString,
+                                 datetostr(RecebimentosInt.Pagamento)) then
+        begin
+          try
+            RecebimentosInt.DescricaoParcelasPagas;
+            RecebimentosInt.ValorRecebido:= edtValorRecebido.ValorSemFormatacao;
+            RecebimentosInt.LiberarJuroseMulta:= cbxLiberarJuros.Checked;
+            RecebimentosInt.JurosContratuais := edtJurosContratuais.ValorSemFormatacao;
+            RecebimentosInt.ContaContabil   := fraConsultaContas.qryProcuraContascontacontabil.AsInteger;
+            if edtNrCheque.Text <> '' then
+              RecebimentosInt.NroCheque    := edtNrCheque.ValorSemFormatacao;
+            RecebimentosInt.Evento       := RecebimentosInt.GetEventoRecebimento;
+            if fraConsultaContas.edfCodigo.Text <> '' then
+              RecebimentosInt.Conta      := strtoint(fraConsultaContas.edfCodigo.Text);
+            if fraConsultaBancos.edfCodigo.Text <> '' then
+              RecebimentosInt.BancoCheque:= strtoint(fraConsultaBancos.edfCodigo.Text);
+            if edtagencia.Text <> '' then
+              RecebimentosInt.Agencia    := strtoint(edtagencia.Text);
+            if edtNrCheque.Text <> '' then
+              if edtEmitente.Text = '' then
+              begin
+                dtmContratosImoveis.qryCompradores.First;
+                RecebimentosInt.Emitente   := dtmContratosImoveis.qryCompradoresnomecliente.AsString;
+              end
+              else
+                RecebimentosInt.Emitente   := edtEmitente.Text;
+
+            if RecebimentosInt.ValidarValorRecebido then
+            begin
+              if RecebimentosInt.AlterandoParcela then
+                if ((FPagtoAnt = 0) or (FPagtoAnt = RecebimentosInt.Pagamento)) then
+                  ApagarMovimentacaoBancaria(RecebimentosInt.Pagamento)
+                else
+                  ApagarMovimentacaoBancaria(FPagtoAnt);
+              GerarMovimentacaoBancaria;
+              //Perpetra Tudo
+              if RecebimentosInt.GravarModificacoes then
+              begin
+                if GerarLancamentosContabeis then
+                  RecebimentosInt.Perpetrar_
+                else
+                begin
+                  RecebimentosInt.Rollback_;
+                  Concluido:= False;
+                  modalresult := mrCancel;
+                  close;
+                end;
+
+              end;
+              //Emissão Recibo
+
+            end;
+          finally
+            If Concluido then
+            begin
+              dtmContratosImoveis.ContaRecebimentos:= RecebimentosInt.Conta;
+              sbnSalvar.Enabled:= False;
+              sbnCancelar.Enabled:= not sbnSalvar.Enabled;
+              if MensagemConfirmacao('Deseja Imprimir o Recibo?') = smbOk then
+              begin
+//                dtmContratosImoveis.RefazConsultaContrato(dtmContratosImoveis.qryContratoscontrato.asString);
+                dtmContratosImoveis.OrigemReciboRecebimentos:= True;
+                dtmContratosImoveis.ImprimirRecibo;
+              end;
+            end
+            else
+              MensagemAviso('Operação Abortada');
+          end;
+        end
+        else
+          MensagemAviso('Não existe cotação da moeda ' + dtmContratosImoveis.qryParcelasContratomoeda.AsString + #10#13 +
+                        'na data ' + datetostr(RecebimentosInt.Pagamento));
+      end
+      else
+        MensagemAviso(Format(ctDATACONTABILMAIORDATALANCTO,['de lançamento',
+                                                            datetostr(RecebimentosInt.Pagamento),
+                                                            'contábil',
+                                                            Parsistema.DataContabilString]));
+    end
+    else
+    begin
+      MensagemAviso(ctVALIDARCONTROLES);
+      fraConsultaContas.edfCodigo.SetFocus;
+    end;
+  end
+  else
+    MensagemErro('Há parcela parcial com parcela anterior paga com data posterior')
+end;
+
+procedure Tfrmrecebimentos.cbxLiberarJurosClick(Sender: TObject);
+begin
+  inherited;
+  if RecebimentosInt.VerificarParcelaPosterior then
+  begin
+    if cbxLiberarJuros.Checked then
+    begin
+      RecebimentosInt.LiberarMulta(False);
+      edtJurosMora.Text     := '0,00';
+      edtMulta.Text         := '0,00';
+      edtTotal.Text         := FloatToStr(RecebimentosInt.ValorTotal);
+      edtValorRecebido.Text := FloatToStr(RecebimentosInt.ValorTotal);
+      RecebimentosInt.LiberarJuroseMulta:= True;
+    end
+    else
+    begin
+      RecebimentosInt.LiberarMulta(True);
+      edtJurosMora.Text     := FloatToStr(RecebimentosInt.ValorJuros);
+      edtMulta.Text         := FloatToStr(RecebimentosInt.ValorMulta);
+      edtTotal.Text         := FloatToStr(RecebimentosInt.ValorTotal);
+      edtValorRecebido.Text := FloatToStr(RecebimentosInt.ValorTotal);
+      RecebimentosInt.LiberarJuroseMulta:= False;
+    end;
+    if sbnSalvar.Enabled = False then
+      sbnSalvar.Enabled:= True;
+  end;
+end;
+
+constructor Tfrmrecebimentos.Create(AOwner: TComponent);
+begin
+  inherited;
+  fraConsultaContas.TipoPesquisa   := pesCONTAS;
+  fraConsultaBancos.TipoPesquisa   := pesBANCOS;
+  InicializarCampos;
+
+ { with LancamentosContabeis do
+  begin
+    FilialDocumento            := dtmContratosImoveis.getFilial;
+    DesMenorJuros              := RecebimentosInt.GetdescontoMenorJuros;
+    //Contas e Valores Recebidos
+    ContaDebitoRecebimentos    := RecebimentosInt.GetContaDebitoRecebimento;
+    ContaCreditoRecebimentos   := RecebimentosInt.GetContaCreditoRecebimento;
+    ContaAtualizacaoMonetariaClientes := RecebimentosInt.GetContaAtualizacaoMonetaria;
+    ValorPrincipalRecebimentos := RecebimentosInt.GetValorPrincipalRecebido;
+    ValorDevidoParcelaRecebida := RecebimentosInt.GetValorDevidoParcelaRecebida;
+    ValorTotalRecebimentos     := RecebimentosInt.GetValorTotalRecebido;
+    ValorTotalParcela          := RecebimentosInt.GetValorTotal;
+    ValorJurosRecebimentos     := RecebimentosInt.GetValorJurosRecebido;
+    ValorAMRecebimentos        := RecebimentosInt.GetValorAMRecebido;
+    // Contas e Valores paraDescontos
+    ContaDebitoDescontosReceb    := RecebimentosInt.GetContaDebitoDescontoReceb;
+    ContaDebitoDescontosConReceb := RecebimentosInt.GetContaDebitoDescontoReceb;
+    ContaCreditoDescontosReceb   := RecebimentosInt.GetContaCreditoDescontoReceb;
+    ValorDescontoRecebimentos    := RecebimentosInt.GetValorDescontoRecebimento;
+    // Contas e Valores de Juros e Multa
+    ContaCreditoMultaeJurosReceb := RecebimentosInt.GetContaCreditoMultaJurosReceb;
+    ContaDebitoMultaeJurosReceb  := RecebimentosInt.GetContaDebitoMultaJurosReceb;
+    ValorMultaeJurosReceb        := RecebimentosInt.GetValorMultaJurosReceb;
+    // Contas e Valores e Impostos sobre os Recebimentos
+      //CSLL
+    ContaDebitoCSLLRecebimentos  := RecebimentosInt.GetContaDebitoCSLLReceb;
+    ContaCreditoCSLLRecebimentos := RecebimentosInt.GetContaCreditoCSLLReceb;
+    ValorCSLLRecebimento         := RecebimentosInt.GetValorCSLLReceb;
+    ValorCSLLEstornoDesconto     := RecebimentosInt.GetValorCSLLEstornoDesconto;
+      //IRPJ
+    ContaDebitoIRPJRecebimentos  := RecebimentosInt.GetContaDebitoIRPJReceb;
+    ContaCreditoIRPJRecebimentos := RecebimentosInt.GetContaCreditoIRPJReceb;
+    ValorIRPJRecebimento         := RecebimentosInt.GetValorIRPJReceb;
+    ValorIRPJEstornoDesconto     := RecebimentosInt.GetValorIRPJEstornoDesconto;
+      //PIS
+    ContaDebitoPISRecebimentos   := RecebimentosInt.GetContaDebitoPISReceb;
+    ContaCreditoPISRecebimentos  := RecebimentosInt.GetContaCreditoPISReceb;
+    ValorPISRecebimento          := RecebimentosInt.GetValorPISReceb;
+    ValorPISEstornoDesconto      := RecebimentosInt.GetValorPisEstornoDesconto;
+      //COFINS
+    ContaDebitoCOFINSRecebimentos  := RecebimentosInt.GetContaDebitoCOFINSReceb;
+    ContaCreditoCOFINSRecebimentos := RecebimentosInt.GetContaCreditoCOFINSReceb;
+    ValorCOFINSRecebimento         := RecebimentosInt.GetValorCOFINSReceb;
+    ValorCOFINSEstornoDesconto     := RecebimentosInt.GetValorCOFINSEstornoDesconto;
+      //Contas Reversão Impostos Apropriados quando concedido desconto
+        //CSLL
+    ContaCreditoCSLLRetido         := dtmContratosImoveis.GetContaCreditoCSLLRetido;
+    ContaDebitoCSLLRetido          := dtmContratosImoveis.GetContaDebitoCSLLRetido;
+        //IRPJ
+    ContaCreditoIRRetido           := dtmContratosImoveis.GetContaCreditoIRRetido;
+    ContaDebitoIRRetido            := dtmContratosImoveis.GetContaDebitoIRRetido;
+        //PIS
+    ContaCreditoPISRetido          := dtmContratosImoveis.GetContaCreditoPISRetido;
+    ContaDebitoPISRetido           := dtmContratosImoveis.GetContaDebitoPISRetido;
+        //COFINS
+    ContaCreditoCofinsRetido       := dtmContratosImoveis.GetContaCreditoCofinsRetido;
+    ContaDebitoCofinsRetido        := dtmContratosImoveis.GetContaDebitoCofinsRetido;
+    //Historicos Lançamentos de recebimentos
+    historicorecebcaixabanco          := dtmContratosImoveis.Gethistoricorecebcaixabanco;
+    historicorecebprincipal           := dtmContratosImoveis.Gethistoricorecebprincipal;
+    historicorecebatualizacaomonetaria:= dtmContratosImoveis.Gethistoricorecebatualizacaomonetaria;
+    historicorecebdescontos           := dtmContratosImoveis.Gethistoricorecebdescontos;
+    historicorecebjuros               := dtmContratosImoveis.Gethistoricorecebjuros;
+
+    CodigoDocumento          := RecebimentosInt.getNrOrigem;
+    DataDocumento            := RecebimentosInt.GetDataLancto;
+    DescricaoHistorico       := RecebimentosInt.GetDescricaoHistorico;
+    EditarDocumento          := RecebimentosInt.EditarParcela;
+    SomenteLeituraContabilidade := RecebimentosInt.GetSomenteLeituraContabilidade;
+    ImovelEntregue           := RecebimentosInt.GetImovelEntregue;
+    Origem                   := 'T';
+    OrigemFormulario         := 'T';
+    dtmContratosImoveis.NrOrigem:= Origem;
+    NomeOrigemFormulario     := self.name;
+  end;
+ }dtmContratosImoveis.NrOrigem:= 'T';
+  
+end;
+
+procedure Tfrmrecebimentos.FormShow(Sender: TObject);
+begin
+  inherited;
+  edtValorRecebido.SetFocus;
+  if dtmContratosImoveis.QuitarDiversas then
+  begin
+    pgcParcelas.ActivePage:= tstVariasParcelas;
+    lblSaida.Caption:= RecebimentosInt.DescricaoParcelas;
+  end
+  else
+    pgcParcelas.ActivePage:= tstUnicaParcela;
+
+  if (dtmContratosImoveis.ContaRecebimentos = 0) then
+    if RecebimentosInt.Conta = 0 then
+      fraConsultaContas.edfCodigo.SetFocus
+    else
+      edtValorRecebido.SetFocus
+  else
+  begin
+    if RecebimentosInt.Conta = 0 then
+      fraConsultaContas.edfCodigo.Text:= inttostr(dtmContratosImoveis.ContaRecebimentos)
+    else
+        fraConsultaContas.edfCodigo.Text:= inttostr(RecebimentosInt.Conta);
+    fraConsultaContas.edfCodigo.Exist;
+    edtValorRecebido.SetFocus;
+  end;
+  if not RecebimentosInt.AlterandoParcela then
+  begin
+    cbxLiberarJuros.Checked:= True;
+    cbxLiberarJurosClick(Self);
+  end;
+
+  if RecebimentosInt.AlterandoParcela then
+    RecebimentosInt.Pagamento:= RecebimentosInt.qryParcelas.FieldbyName('datapagto').AsDateTime;
+
+  if RecebimentosInt.AlterandoParcela then
+  begin
+    sbnSalvar.Enabled:= False;
+    if not RecebimentosInt.VerificarParcelaPosterior then
+      sbnCancelar.Enabled:= False
+    else
+      sbnCancelar.Enabled:= not sbnSalvar.Enabled;
+  end;
+end;
+
+function Tfrmrecebimentos.VerificarCamposObrigatorios: Boolean;
+begin
+  result:= true;
+  if ((fraConsultaContas.edfCodigo.Text = '') or
+      ((edtValorRecebido.Text = '') or (edtValorRecebido.ValorSemFormatacao = 0))) then
+    Result:= False;
+end;
+
+function Tfrmrecebimentos.GerarLancamentosContabeis: Boolean;
+begin
+  //Result:= False;
+  //if not dtmContratosImoveis.QuitarDiversas then
+  //begin
+    with dtmContratosImoveis do
+    begin
+//      Perpetrar([]);
+      Result:= true;
+      try
+        RefazConsultaPorNome(qryProcessarRecebimentos,['Filial','Recibo'],
+                                                      [FilialBase,RecebimentosInt.Recibo]);
+      except
+        on E: Exception do
+        begin
+          result := false;
+          ShowMessage(E.Message);
+        end;
+      end;
+//      perpetrar([]);
+    end;
+ { end
+  else
+  begin
+    with LancamentosContabeis do
+    begin
+      with RecebimentosInt do
+      begin
+        if not GetDescontoMenorJuros then
+          if (ValorRecebido > ValorContratado) and not QuitacaoLote then
+          begin
+            ParcelaPagaMenor(ValorTotal, False);
+          end;
+      end;
+    end;
+
+    with LancamentosContabeis do
+    begin
+      dtmContratosImoveis.NrOrigem:= 'T';
+      AbrirLancamentos('T', CodigoDocumento, not(RecebimentosInt.AlterandoParcela));
+    end;
+
+    dtmContratosImoveis.NrOrigem:= 'T';
+    LancamentosContabeis.sbnGerarLancamentoClick(Self);
+    dtmContratosImoveis.NrOrigem:= 'T';
+    if LancamentosContabeis.VerificarLancamentosContabeis then
+    begin
+      Result:= True;
+      RecebimentosInt.GravarLancamentosContabeis;
+
+      dtmContratosImoveis.Perpetrar([dtmLancamentoContabilidade.qrylancamentosDocumentos]);
+    end;
+  end;    }
+end;
+
+procedure Tfrmrecebimentos.GerarMovimentacaoBancaria;
+Var Sequencia: Integer;
+  procedure InserirMovto;
+  begin
+    with dtmContratosImoveis do
+    begin
+      RefazConsulta(qryMovtosBancos,[],[]);
+      qryMovtosBancos.Append;
+      qryMovtosBancosconta.AsInteger        := RecebimentosInt.Conta;
+      qryMovtosBancosdata.AsDateTime        := RecebimentosInt.Pagamento;
+      qryMovtosBancossequencia.AsInteger    := RecebimentosInt.Sequencia;
+      qryMovtosBancoscompensacao.AsDateTime := RecebimentosInt.Pagamento;
+      qryMovtosBancosevento.AsInteger       := RecebimentosInt.Evento;
+      qryMovtosBancosorigemlancto.AsString  := 'T';
+      qryMovtosBancosdocumento.AsString     := RecebimentosInt.NroCheque;
+      qryMovtosBancosobservacoes.AsString   := RecebimentosInt.DescricaoParcelas;
+      qryMovtosBancosvalor.AsFloat        := RecebimentosInt.ValorRecebido;
+      qryMovtosBancos.Post;
+
+      qryMovtosBancosEventos.Open;
+      qryMovtosBancosEventos.Append;
+      qryMovtosBancosEventosconta.AsInteger        := RecebimentosInt.Conta;
+      qryMovtosBancosEventosdata.AsDateTime        := RecebimentosInt.Pagamento;
+      qryMovtosBancosEventossequencia.AsInteger    := RecebimentosInt.Sequencia;
+      qryMovtosBancosEventosevento.AsInteger       := RecebimentosInt.Evento;
+      qryMovtosBancosEventosvalor.AsFloat          := RecebimentosInt.ValorRecebido;
+      qryMovtosBancosEventos.Post;
+    end;
+  end;
+
+begin
+  with dtmContratosImoveis do
+  begin
+    RecebimentosInt.DescricaoParcelasPagas;
+    if RecebimentosInt.AlterandoParcela then
+    begin
+      RefazConsultaPorNome(qryMovtosBancos,['ContaPagto','DataPagto','Sequencia'],
+                                           [RecebimentosInt.Conta,
+                                            RecebimentosInt.Pagamento,
+                                            RecebimentosInt.Sequencia]);
+      if qryMovtosBancos.RecordCount > 0 then
+      begin
+        if not (qryMovtosBancos.State = dsedit) then
+          qryMovtosBancos.Edit;
+        qryMovtosBancosdocumento.AsString   := RecebimentosInt.NroCheque;
+        qryMovtosBancosobservacoes.AsString := RecebimentosInt.DescricaoParcelas;
+        qryMovtosBancosvalor.AsFloat        := RecebimentosInt.ValorRecebido;
+        qryMovtosBancos.Post;
+      end
+      else
+      begin
+        RefazConsultaPorNome(qrySequencia,['ContaPagto','DataPagto'],[RecebimentosInt.Conta,
+                                                                      RecebimentosInt.Pagamento]);
+        RecebimentosInt.Sequencia:= qrySequenciasequencia.AsInteger + 1;
+        InserirMovto;
+      end;
+    end
+    else
+    begin
+      RefazConsultaPorNome(qrySequencia,['ContaPagto','DataPagto'],[RecebimentosInt.Conta,
+                                                                      RecebimentosInt.Pagamento]);
+      RecebimentosInt.Sequencia:= qrySequenciasequencia.AsInteger + 1;
+      InserirMovto;
+    end;
+  end;
+end;
+
+procedure Tfrmrecebimentos.edtDataPagtoExit(Sender: TObject);
+begin
+  inherited;
+  if RecebimentosInt.VerificarParcelaPosterior then
+  begin
+     FPagtoAnt:= RecebimentosInt.Pagamento;
+     if (strtodate(edtDataPagto.Text) <> RecebimentosInt.Pagamento) then
+     begin
+       RecebimentosInt.Pagamento:= strtodate(edtDataPagto.Text);
+       RecebimentosInt.RecalcularValores;
+       PreencherCampos;
+       if sbnSalvar.Enabled = False then
+         sbnSalvar.Enabled:= True;
+       sbnCancelar.Enabled:= not sbnSalvar.Enabled;
+     end;
+  end;
+end;
+
+procedure Tfrmrecebimentos.OnChangeCampos(Atual, Anterior: String);
+begin
+  if RecebimentosInt.VerificarParcelaPosterior then
+  begin
+     if Atual <> Anterior then
+       if sbnSalvar.Enabled = False then
+         sbnSalvar.Enabled:= True;
+     sbnCancelar.Enabled:= not sbnSalvar.Enabled;
+  end;
+end;
+
+procedure Tfrmrecebimentos.fraConsultaContasedfCodigoExit(Sender: TObject);
+begin
+  inherited;
+  fraConsultaContas.edfCodigoExit(Sender);
+  OnChangeCampos(fraConsultaContas.edfCodigo.Text, inttostr(RecebimentosInt.Conta));
+end;
+
+procedure Tfrmrecebimentos.edtValorRecebidoExit(Sender: TObject);
+var Multa, JurosMora: Real;
+begin
+  inherited;
+  OnChangeCampos(edtValorRecebido.Text, currtostr(RecebimentosInt.ValorRecebido));
+end;
+
+procedure Tfrmrecebimentos.edtnrChequeExit(Sender: TObject);
+begin
+  inherited;
+  OnChangeCampos(edtnrCheque.Text, RecebimentosInt.NroCheque);
+end;
+
+procedure Tfrmrecebimentos.fraConsultaBancosedfCodigoExit(Sender: TObject);
+begin
+  inherited;
+  fraConsultaBancos.edfCodigoExit(Sender);
+  OnChangeCampos(fraConsultaBancos.edfCodigo.Text, inttostr(RecebimentosInt.BancoCheque));
+end;
+
+procedure Tfrmrecebimentos.edtagenciaExit(Sender: TObject);
+begin
+  inherited;
+  OnChangeCampos(edtagencia.Text, IntToStr(RecebimentosInt.Agencia));
+end;
+
+procedure Tfrmrecebimentos.edtEmitenteExit(Sender: TObject);
+begin
+  inherited;
+  OnChangeCampos(edtEmitente.Text, RecebimentosInt.Emitente);
+end;
+
+procedure Tfrmrecebimentos.sbnCancelarClick(Sender: TObject);
+var Estado, Concluido, ReadOnlyTabela: Boolean;
+begin
+  inherited;
+  Concluido:= False;
+  if MensagemConfirmacao(Format(ctCANCELARQUITACAO,[RecebimentosInt.Tipo + '-'+
+                                                    RecebimentosInt.Parcela])) = smbOk then
+  begin
+    try
+      dtmContratosImoveis.CancelarRecebimento:= True;
+      dtmContratosImoveis.ApagarLancamentosContabeis('T',RecebimentosInt.NumeroOrigem, true);
+      RecebimentosInt.GravarModificacoes;
+      if dtmContratosImoveis.Gravado then
+      begin
+        ApagarMovimentacaoBancaria(RecebimentosInt.Pagamento);
+        Concluido:= True;
+      end;
+    finally
+      if Concluido then
+        frmrecebimentos.Close;
+      dtmContratosImoveis.CancelarRecebimento:= False;
+      dtmContratosImoveis.Perpetrar([])
+    end;
+  end;
+end;
+
+procedure Tfrmrecebimentos.ApagarMovimentacaoBancaria(Data: TDateTime);
+begin
+  with dtmContratosImoveis do
+  begin
+    RefazConsultaPorNome(qryMovtosBancos,['ContaPagto','DataPagto','Sequencia'],
+                                         [RecebimentosInt.Conta,
+                                          Data,
+                                          RecebimentosInt.Sequencia]);
+    if qryMovtosBancos.RecordCount > 0 then
+    begin
+      qryMovtosBancos.Delete;
+      Perpetrar([qryMovtosBancos]);
+    end;
+  end;
+
+end;
+
+end.
+

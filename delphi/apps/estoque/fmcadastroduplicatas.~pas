@@ -1,0 +1,162 @@
+unit fmcadastroduplicatas;
+
+interface
+
+uses
+  //CLX
+  Classes, Controls, Forms, Dialogs, StdCtrls, ExtCtrls, Buttons, DBCtrls,
+  Mask,Windows,
+  // Constantes
+  biblio,
+  //Componentes
+  cpnumero, cpdbdata, cpdbtext,
+  //Repositorio
+  fmcadastropadrao, ComCtrls, cpdbradiogroup, cpdbmemo, cpdbfindcontrols,
+  frconsulta, frconsultacodigo, ctconstantes, ToolWin, dmcadastronotasfiscais;
+
+type
+  TfrmCadastroDuplicatas = class(TfrmCadastroPadrao)
+    gbxDuplicatas: TGroupBox;
+    edtDescontoDuplicata: TDBEditNumero;
+    edtValorDuplicata: TDBEditNumero;
+    edtDataDuplicata: TDBEditData;
+    pnlFundoJanela: TPanel;
+    gbxJuros: TGroupBox;
+    lblJuros: TLabel;
+    rgbTipoJuros: TtecDBRadioGroup;
+    ckbPorcentagemJuros: TtecRadioButton;
+    ckbValorJuros: TtecRadioButton;
+    edtJuros: TDBEditNumero;
+    gbxMulta: TGroupBox;
+    lblMulta: TLabel;
+    rgbTipoMulta: TtecDBRadioGroup;
+    ckbPorcentagemMulta: TtecRadioButton;
+    ckbValorMulta: TtecRadioButton;
+    edtMulta: TDBEditNumero;
+    gbxObs: TGroupBox;
+    mmoObsDuplicatas: TtecDBMemo;
+    gbxDataVencto: TGroupBox;
+    gbxValorVecnto: TGroupBox;
+    gbxDesctoDuplicata: TGroupBox;
+    gbxValorPagar: TGroupBox;
+    dtxValoraPagar: TtecDBText;
+    gbxBancoCobranca: TGroupBox;
+    fraConsultaBanco: TfraConsultaCodigo;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+  protected
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    function  InternoIncluir: Boolean; override;
+    procedure setDataMinima(const Value: TDatetime);
+    procedure ExibirMensagemPadronizada;
+  private
+    procedure  SetDataModulo (Dtm: TdtmCadastroNotasFiscais);
+  public
+    constructor Create(AOwner: TComponent; dtm: TdtmCadastroNotasFiscais); reintroduce;
+    destructor  Destroy; override;
+    property DataMinima: TDatetime write setDataMinima;
+  end;
+
+var
+  frmCadastroDuplicatas: TfrmCadastroDuplicatas;
+
+implementation
+
+uses
+  //CLX
+  SysUtils, DateUtils;
+
+{$R *.dfm}
+
+{ TfrmCadastroDuplicatas }
+
+constructor TfrmCadastroDuplicatas.Create(AOwner: TComponent; dtm: TdtmCadastroNotasFiscais);
+begin
+  inherited create(AOwner);
+  SetDataModulo(dtm);
+
+  DataSet := dtmCadastroNotasFiscais.TabelaDuplicata;
+  fraConsultaBanco.TipoPesquisa := pesBANCOS;
+  edtDataDuplicata.MensagemPadronizada := ExibirMensagemPadronizada;
+end;
+
+destructor TfrmCadastroDuplicatas.Destroy;
+begin
+  inherited;
+  frmCadastroDuplicatas := nil
+end;
+
+procedure TfrmCadastroDuplicatas.ExibirMensagemPadronizada;
+begin
+  MensagemAviso(format(ctDATACONTABILMAIOROUIGUALDATALANCTO, ['de vencimento',
+               edtDataDuplicata.Text, 'emissão', dtmcadastronotasfiscais.qrynotafiscalemissao.asstring]))
+end;
+
+function TfrmCadastroDuplicatas.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then
+    dtmCadastroNotasFiscais.ExcluirDuplicataNotaFiscal
+end;
+
+function TfrmCadastroDuplicatas.InternoGravar: Boolean;
+//var
+//  Editando: Boolean;
+begin
+  if edtDataDuplicata.DataValida then begin
+//    Editando := dtmCadastroNotasFiscais.EditandoTabelaDuplicatasNota;
+    Result  := dtmCadastroNotasFiscais.GravarDuplicataNotaFiscal;
+//    if Result then
+//      if Editando then
+//         Close
+//      else
+//        InternoIncluir
+  end else
+    Result := False
+end;
+
+function TfrmCadastroDuplicatas.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then begin
+    dtmCadastroNotasFiscais.IncluirDuplicataNotaFiscal(False);
+    edtDataDuplicata.SetFocus;
+  end;
+end;
+
+procedure TfrmCadastroDuplicatas.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+ case key of
+
+    VK_RETURN: if Shift = [] then
+                 if (ActiveControl = mmoObsDuplicatas) then
+                   InternoGravar;
+ end;
+
+end;
+
+procedure TfrmCadastroDuplicatas.setDataMinima(const Value: TDatetime);
+begin
+  edtDataDuplicata.Minimo := DaysBetween(Date, Value)
+end;
+
+procedure TfrmCadastroDuplicatas.SetDataModulo(
+  Dtm: TdtmCadastroNotasFiscais);
+begin
+ dtmCadastroNotasFiscais := dtm;
+ edtDataDuplicata.datasource := dtmCadastroNotasFiscais.dsrDuplicatas;
+ edtValorDuplicata.datasource := dtmCadastroNotasFiscais.dsrDuplicatas;
+ edtDescontoDuplicata.datasource := dtmCadastroNotasFiscais.dsrDuplicatas;
+ rgbTipoMulta.datasource := dtmCadastroNotasFiscais.dsrDuplicatas;
+ edtMulta.datasource := dtmCadastroNotasFiscais.dsrDuplicatas;
+ rgbTipoJuros.datasource := dtmCadastroNotasFiscais.dsrDuplicatas;
+ edtJuros.datasource := dtmCadastroNotasFiscais.dsrDuplicatas;
+ fraConsultaBanco.edfcodigo.datasource := dtmCadastroNotasFiscais.dsrDuplicatas;
+ mmoObsDuplicatas.datasource := dtmCadastroNotasFiscais.dsrDuplicatas;
+ dtxValoraPagar.datasource := dtmCadastroNotasFiscais.dsrDuplicatas;
+
+end;
+
+end.

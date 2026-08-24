@@ -4471,7 +4471,7 @@ begin
                                    qryCupons, qrySeriesFiliais, qryOrcamentos, qryProdutosOrcamentos, qryContratos, qryProdutosTrocados, qryAtualizarAtendimentoOrcamentoParaContrato]);
 
             if result then
-              result := CalcularImpostosSaidas(qryDadosFiscaisnumero.asinteger);
+              result := CalcularImpostos(qryDadosFiscaisnumero.asinteger,'S');
 
 
             if result then

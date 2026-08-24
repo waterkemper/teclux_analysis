@@ -863,11 +863,14 @@ type
     qryCaracteristicasexistemovimentacaocomlotes: TBooleanField;
     qrycaracteristicas_cbenefnatureza: TIntegerField;
     qrycaracteristicas_cbenefdescricaonatureza: TStringField;
-    qryCaracteristicasibscbs_cod: TIntegerField;
-    qryCaracteristicasis_cod: TIntegerField;
-    qryCaracteristicasis_aliquota: TFloatField;
     qryCaracteristicasinmetro: TStringField;
     qryCaracteristicascertificado_aprovacao: TStringField;
+    qryPrecos_a_Transferir: TtecQuery;
+    qryPrecos_a_Transferircaracteristica: TLargeintField;
+    qryPrecos_a_Transferircodigo: TIntegerField;
+    qryPrecos_a_Transferirdescricao: TStringField;
+    qryPrecos_a_Transferiravariado: TBooleanField;
+    qryPrecos_a_Transferirpromocao: TIntegerField;
     procedure qryPrecosAfterScroll(DataSet: TDataSet);
     procedure qryFornecedoresProdutosfornecedorChange(Sender: TField);
     procedure qrySimilaressimilarChange(Sender: TField);
@@ -1539,8 +1542,8 @@ begin
 
   //  qryCaracteristicasipi.Required := parsistema.EmissorNfe or Sped_pis_cofins or sped_fiscal;
 
-    qryCaracteristicaspiscst.Required := ParSistema.EmissorNfe or Sped_pis_cofins;
-    qryCaracteristicascofinscst.Required := ParSistema.EmissorNfe or Sped_pis_cofins;
+//    qryCaracteristicaspiscst.Required := ParSistema.EmissorNfe or Sped_pis_cofins;
+//    qryCaracteristicascofinscst.Required := ParSistema.EmissorNfe or Sped_pis_cofins;
 
     if qryCaracteristicas.CheckRequiredFields then
 //      if qryProdutosLotes.CheckRequiredFields then
@@ -1808,7 +1811,7 @@ begin
 
                tpPRODUTOSFIOS : begin
                                RefazConsultaPorNome(qryProcuraProdutosCompostosFios,['codigo','codigovisual','composto','componente'],
-                                  [qryConsultaProdutosCompostosFioscodigo.AsVariant, null, qryProdutosCodigo.AsVariant, null]);
+                                  [qryConsultaProdutosCompostosFioscodigo.AsVariant, Variants.null, qryProdutosCodigo.AsVariant, Variants.null]);
 
                                qryProdutoCompostoFios.Edit;
                                qryProdutoCompostoFioscomponente.AsString := qryProcuraProdutosCompostosFioscodigovisual.AsString;
@@ -1816,7 +1819,7 @@ begin
 
                tpPRODUTOSFITAS : begin
                                RefazConsultaPorNome(qryProcuraProdutosCompostosFitas,['codigo','codigovisual','composto','componente'],
-                                  [qryConsultaProdutosCompostosFitascodigo.AsVariant, null, qryProdutosCodigo.AsVariant, null]);
+                                  [qryConsultaProdutosCompostosFitascodigo.AsVariant, Variants.null, qryProdutosCodigo.AsVariant, Variants.null]);
 
                                qryProdutoCompostoFitas.Edit;
                                qryProdutoCompostoFitascomponente.AsString := qryProcuraProdutosCompostosFitascodigovisual.AsString;
@@ -3817,7 +3820,7 @@ end;
 procedure TdtmCadastroProdutos.ReFazConsultaProdutos;
 begin
   if (qryCaracteristicascodigo.AsLargeInt > 0) then
-    ReFazConsultapornome(qryProdutos,['caracteristica'],[qryCaracteristicascodigo.AsString], true);
+    ReFazConsultapornome(qryProdutos,['caracteristica'],[qryCaracteristicascodigo.AsString], false);
 
 
 end;
@@ -4607,7 +4610,7 @@ begin
           qryProdutosvalorgrade2.OldValue) then
       begin
         qryGrade.Edit;
-        qrygrade.Fields[Colunas.IndexOf(qryProdutosvalorgrade2.oldvalue)+1].Asvariant := null;
+        qrygrade.Fields[Colunas.IndexOf(qryProdutosvalorgrade2.oldvalue)+1].Asvariant := Variants.null;
         qrygrade.Post;
       end;
       qryGrade.Edit;
@@ -4723,7 +4726,6 @@ begin
           end
           else
           begin
-
             RefazConsultaporNome(qryColunasPrecos_a_Transferir,
                                  ['caracteristica_produto_a_transferir',
                                   'preco_caracteristica_produto_a_transferir'
@@ -4755,8 +4757,33 @@ begin
               qryExisteItemProdutopreco.asinteger := qryPrecoscodigo.asinteger;
               qryexisteItemProduto.Post;
 
-            end;
+            end
+            else
+            begin
+              RefazConsultaporNome(qryPrecos_a_Transferir,
+                                   ['caracteristica_produto_a_transferir',
+                                    'preco_caracteristica_produto_a_transferir',
+                                    'caracteristica_produto_a_receber'
 
+                                   ],
+                                   [qryExisteItemProdutocaracteristica.AsVariant,
+                                    qryExisteItemProdutopreco.asVariant,
+                                    qryCaracteristicascodigo.AsVariant
+                                    ]);
+
+              if qryPrecos_a_Transferir.recordcount <> 0 then
+              begin
+                IncluirPreco(false);
+                qryPrecosdescricao.asString := qryPrecos_a_Transferirdescricao.asString + ' '+ inttostr(qryPrecos.recordcount + 1);
+                GravarPreco;
+                qryPrecos.last;
+
+                qryExisteItemProduto.Edit;
+                qryExisteItemProdutopreco.asinteger := qryPrecoscodigo.asinteger;
+                qryexisteItemProduto.Post;
+
+              end;
+            end;
           end;
 
           qryExisteItemProduto.Edit;

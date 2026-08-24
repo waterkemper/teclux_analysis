@@ -1,0 +1,354 @@
+unit fmtempousuariosetor;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmrelatoriopadrao, ExtCtrls, Buttons, ToolWin, ComCtrls,
+  StdCtrls, cpdata, frselecaoaleatoria, dmtempousuariosetor, ctconstantes,
+  frconsulta, frconsultacodigo, cpdbfindcontrols, DB, OleServer, ExcelXP,
+  Grids, DBGrids, cpdbgrid, cpdbradiogroup;
+
+type
+  Tfrmtempousuariosetor = class(TfrmRelatorioPadrao)
+    gbxPeriodo: TGroupBox;
+    lblA: TLabel;
+    edtdatainicial: TEditData;
+    edtdatafinal: TEditData;
+    gbxCobrador: TGroupBox;
+    fraSelecaoAleatoriaSetoresdeProducao: TfraSelecaoAleatoria;
+    GroupBox1: TGroupBox;
+    fraSelecaoAleatoriaFuncionarios: TfraSelecaoAleatoria;
+    pgctempousuariosetor: TPageControl;
+    tstSelecao: TTabSheet;
+    tstDados: TTabSheet;
+    dbgtempousuariosetor: TtecDBGrid;
+    sbnGerar: TSpeedButton;
+    procedure fraSelecaoAleatoriaSetoresdeProducaoqrySelecaoAleatoriaAfterOpen(
+      DataSet: TDataSet);
+    procedure fraSelecaoAleatoriaFuncionariosqrySelecaoAleatoriaAfterOpen(
+      DataSet: TDataSet);
+    procedure fraSelecaoAleatoriaSetoresdeProducaosbnProcuraClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaFuncionariossbnProcuraClick(
+      Sender: TObject);
+    procedure sbnGerarClick(Sender: TObject);
+    procedure fraSelecaoAleatoriaSetoresdeProducaodbgSelecaoAleatoriaDblClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaSetoresdeProducaodbgSelecaoAleatoriaKeyDown(
+      Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure fraSelecaoAleatoriaFuncionariosdbgSelecaoAleatoriaDblClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaFuncionariosdbgSelecaoAleatoriaKeyDown(
+      Sender: TObject; var Key: Word; Shift: TShiftState);
+  private
+  protected
+      procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+  private
+    { Private declarations }
+    procedure AtribuirDadosSetoresProducao;
+    procedure AcionarPesquisaGradeSetoresProducao;
+
+    procedure AtribuirDadosFuncionarios;
+    procedure AcionarPesquisaFuncionarios;
+    procedure InternoImpressao; override;
+
+
+  public
+    { Public declarations }
+    constructor Create(Aowner:Tcomponent);override;
+    destructor  Destroy; override;
+
+
+  end;
+
+var
+  frmtempousuariosetor: Tfrmtempousuariosetor;
+
+implementation
+
+{$R *.dfm}
+
+{ Tfrmtempousuariosetor }
+
+procedure Tfrmtempousuariosetor.AcionarPesquisaFuncionarios;
+begin
+  with fraSelecaoAleatoriaFuncionarios do
+  begin
+    dbgSelecaoAleatoria.SetFocus;
+    ConsultaSelecaoAleatoria.CtrlOn := True;
+    ConsultaSelecaoAleatoria.InternoPesquisar(ctUSUARIOS);
+    dbgSelecaoAleatoria.SetFocus;
+    dbgSelecaoAleatoria.SelectedIndex :=  0;
+  end;
+end;
+
+procedure Tfrmtempousuariosetor.AcionarPesquisaGradeSetoresProducao;
+begin
+  with fraSelecaoAleatoriaSetoresdeProducao do
+  begin
+    dbgSelecaoAleatoria.SetFocus;
+    ConsultaSelecaoAleatoria.CtrlOn := True;
+    ConsultaSelecaoAleatoria.InternoPesquisar('Setores de Produção');
+    dbgSelecaoAleatoria.SetFocus;
+    dbgSelecaoAleatoria.SelectedIndex :=  0;
+  end;
+end;
+
+procedure Tfrmtempousuariosetor.AtribuirDadosFuncionarios;
+begin
+  with fraSelecaoAleatoriaFuncionarios do
+  begin
+    qrySelecaoAleatoria.Edit;
+    qrySelecaoAleatoria.FieldByName('codigo').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraUsuarioscodigo.AsString;
+
+    qrySelecaoAleatoria.FieldByName('nome').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraUsuariosnome.AsString;
+
+    qrySelecaoAleatoria.Post;
+  end;
+end;
+
+procedure Tfrmtempousuariosetor.AtribuirDadosSetoresProducao;
+begin
+  with fraSelecaoAleatoriaSetoresdeProducao do
+  begin
+    qrySelecaoAleatoria.Edit;
+    qrySelecaoAleatoria.FieldByName('codigo').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraSetoresProducaocodigo.AsString;
+
+    qrySelecaoAleatoria.FieldByName('descricao').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraSetoresProducaodescricao.AsString;
+
+    qrySelecaoAleatoria.Post;
+  end;
+end;
+
+constructor Tfrmtempousuariosetor.Create(Aowner: Tcomponent);
+var
+  Dia, Mes, Ano: Word;
+  NData: TDateTime;
+begin
+  dtmtempousuariosetor := Tdtmtempousuariosetor.Create(Self);
+  inherited;
+
+  fraSelecaoAleatoriaSetoresdeProducao.CampoParaLista := 'codigo';
+  fraSelecaoAleatoriaSetoresdeProducao.qrySelecaoAleatoria.Open;
+  with fraSelecaoAleatoriaSetoresdeProducao do
+  begin
+    ConsultaSelecaoAleatoria := TfraConsultaCodigo.Create(self);
+    ConsultaSelecaoAleatoria.Name := 'fraConsultaSelecaoAleatoriaSetoresProducao';
+    ConsultaSelecaoAleatoria.edfCodigo.MaxLength := 4;
+    ConsultaSelecaoAleatoria.edfCodigo.DataSource := dsrSelecaoAleatoria;
+    ConsultaSelecaoAleatoria.edfCodigo.DataField := 'codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.Operacao := opATRIBUICAO;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupSource := ConsultaSelecaoAleatoria.dsrProcuraSetoresProducao;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupQueryParameter := 'Codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.LookupField := 'Codigo';
+    ConsultaSelecaoAleatoria.AbrirTabelaProcura := false;
+//    ConsultaSelecaoAleatoria.CondicoesdaConsulta := CondicoesFluxoGramasOperacoes;
+    ConsultaSelecaoAleatoria.TipoPesquisa := pesSETORESPRODUCAO;
+    ConsultaSelecaoAleatoria.OnFound := AtribuirDadosSetoresProducao;
+  end;
+
+  fraSelecaoAleatoriaFuncionarios.CampoParaLista := 'codigo';
+  fraSelecaoAleatoriaFuncionarios.qrySelecaoAleatoria.Open;
+  with fraSelecaoAleatoriaFuncionarios do
+  begin
+    ConsultaSelecaoAleatoria := TfraConsultaCodigo.Create(self);
+    ConsultaSelecaoAleatoria.Name := 'fraConsultaSelecaoAleatoriaFuncionarios';
+    ConsultaSelecaoAleatoria.edfCodigo.MaxLength := 6;
+    ConsultaSelecaoAleatoria.edfCodigo.DataSource := dsrSelecaoAleatoria;
+    ConsultaSelecaoAleatoria.edfCodigo.DataField := 'codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.Operacao := opATRIBUICAO;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupSource := ConsultaSelecaoAleatoria.dsrProcuraUsuarios;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupQueryParameter := 'Codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.LookupField := 'Codigo';
+    ConsultaSelecaoAleatoria.AbrirTabelaProcura := false;
+//    ConsultaSelecaoAleatoria.CondicoesdaConsulta := CondicoesFluxoGramasOperacoes;
+    ConsultaSelecaoAleatoria.TipoPesquisa := pesUSUARIOS;
+    ConsultaSelecaoAleatoria.OnFound := AtribuirDadosFuncionarios;
+  end;
+
+
+end;
+
+destructor Tfrmtempousuariosetor.Destroy;
+begin
+  dtmtempousuariosetor:= nil;
+  inherited;
+  frmtempousuariosetor:= nil;
+end;
+
+procedure Tfrmtempousuariosetor.fraSelecaoAleatoriaSetoresdeProducaoqrySelecaoAleatoriaAfterOpen(DataSet: TDataSet);
+var nc: integer;
+begin
+  inherited;
+  with fraSelecaoAleatoriaSetoresdeProducao do begin
+     qrySelecaoAleatoria.FieldByName('codigo').DisplayLabel := 'CÓDIGO';
+     qrySelecaoAleatoria.FieldByName('codigo').ReadOnly := False;
+
+     qrySelecaoAleatoria.FieldByName('descricao').DisplayLabel := 'DESCRIÇÃO';
+     qrySelecaoAleatoria.FieldByName('descricao').ReadOnly := true;
+
+     qrySelecaoAleatoria.FieldByName('numeropedidoosp').visible := false;
+
+     qrySelecaoAleatoria.Append;
+     qrySelecaoAleatoria.Post;
+
+     with dbgSelecaoAleatoria do
+          for nc:= 0 to 1 do with Columns[nc].Title do begin
+              Alignment:= taCenter;
+              Font.Name:= 'helvetica';
+              Font.Height:= -9;
+         end;
+  end;
+end;
+
+procedure Tfrmtempousuariosetor.fraSelecaoAleatoriaFuncionariosqrySelecaoAleatoriaAfterOpen(DataSet: TDataSet);
+var nc: integer;
+begin
+  inherited;
+  with fraSelecaoAleatoriaFuncionarios do begin
+     qrySelecaoAleatoria.FieldByName('codigo').DisplayLabel := 'CÓDIGO';
+     qrySelecaoAleatoria.FieldByName('codigo').ReadOnly := False;
+
+     qrySelecaoAleatoria.FieldByName('nome').DisplayLabel := 'NOME DO OPERADOR';
+     qrySelecaoAleatoria.FieldByName('nome').ReadOnly := true;
+
+     qrySelecaoAleatoria.Append;
+     qrySelecaoAleatoria.Post;
+
+     with dbgSelecaoAleatoria do
+          for nc:= 0 to 1 do with Columns[nc].Title do begin
+              Alignment:= taCenter;
+              Font.Name:= 'helvetica';
+              Font.Height:= -9;
+         end;
+  end;
+end;
+
+procedure Tfrmtempousuariosetor.fraSelecaoAleatoriaSetoresdeProducaosbnProcuraClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarPesquisaGradeSetoresProducao;
+
+end;
+
+procedure Tfrmtempousuariosetor.fraSelecaoAleatoriaFuncionariossbnProcuraClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarPesquisaFuncionarios;
+end;
+
+procedure Tfrmtempousuariosetor.sbnGerarClick(Sender: TObject);
+begin
+  inherited;
+  if dtmtempousuariosetor.AbrirConsulta(edtdatainicial.Text, edtdatafinal.Text,
+                                          fraSelecaoAleatoriaSetoresdeProducao.StringSelecionada,
+                                          fraSelecaoAleatoriaFuncionarios.StringSelecionada,
+                                          fraSelecaoAleatoriaSetoresdeProducao.StringSelecionada2,
+                                          fraSelecaoAleatoriaFuncionarios.StringSelecionada2
+
+                                          ) then
+    pgctempousuariosetor.ActivePage := tstDados
+
+end;
+
+procedure Tfrmtempousuariosetor.fraSelecaoAleatoriaSetoresdeProducaodbgSelecaoAleatoriaDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarPesquisaGradeSetoresProducao;
+
+end;
+
+procedure Tfrmtempousuariosetor.fraSelecaoAleatoriaSetoresdeProducaodbgSelecaoAleatoriaKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      VK_F9     : begin
+                     fraSelecaoAleatoriaSetoresdeProducao.ConsultaSelecaoAleatoria.CtrlOn := Shift = [ssCtrl];
+                     if (Shift = []) or fraSelecaoAleatoriaSetoresdeProducao.ConsultaSelecaoAleatoria.CtrlOn then
+                       AcionarPesquisaGradeSetoresProducao
+                   end;
+    end;
+  end
+  else
+  case Key of
+    VK_Return: if fraSelecaoAleatoriaSetoresdeProducao.dbgSelecaoAleatoria.SelectedIndex = 0  then
+                begin
+                  fraSelecaoAleatoriaSetoresdeProducao.ConsultaSelecaoAleatoria.edfCodigo.DoExit;
+                  if not fraSelecaoAleatoriaSetoresdeProducao.ConsultaSelecaoAleatoria.qryProcuraSetoresProducao.IsEmpty then
+                    AtribuirDadosSetoresProducao
+                  else
+                  begin
+                    key := 0;
+                    fraSelecaoAleatoriaSetoresdeProducao.dbgSelecaoAleatoria.SelectedIndex := 0;
+                    fraSelecaoAleatoriaSetoresdeProducao.dbgSelecaoAleatoria.SetFocus;
+                  end;
+                end;
+  end;
+  inherited;
+end;
+
+procedure Tfrmtempousuariosetor.fraSelecaoAleatoriaFuncionariosdbgSelecaoAleatoriaDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarPesquisaFuncionarios;
+end;
+
+procedure Tfrmtempousuariosetor.fraSelecaoAleatoriaFuncionariosdbgSelecaoAleatoriaKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      VK_F9     : begin
+                    fraSelecaoAleatoriaFuncionarios.ConsultaSelecaoAleatoria.CtrlOn := Shift = [ssCtrl];
+                    if (Shift = []) or fraSelecaoAleatoriaFuncionarios.ConsultaSelecaoAleatoria.CtrlOn then
+                      AcionarPesquisaFuncionarios
+                  end;
+    end;
+  end
+  else
+  case Key of
+    VK_Return: if fraSelecaoAleatoriaFuncionarios.dbgSelecaoAleatoria.SelectedIndex = 0  then
+               begin
+                 fraSelecaoAleatoriaFuncionarios.ConsultaSelecaoAleatoria.edfCodigo.DoExit;
+                 if not fraSelecaoAleatoriaFuncionarios.ConsultaSelecaoAleatoria.qryProcuraUsuarios.IsEmpty then
+                    AtribuirDadosFuncionarios
+                 else
+                 begin
+                   key := 0;
+                   fraSelecaoAleatoriaFuncionarios.dbgSelecaoAleatoria.SelectedIndex := 0;
+                   fraSelecaoAleatoriaFuncionarios.dbgSelecaoAleatoria.SetFocus;
+                 end;
+               end;
+  end;
+  inherited;
+end;
+
+procedure Tfrmtempousuariosetor.InternoImpressao;
+begin
+  inherited;
+  dtmtempousuariosetor.exportarExcell;
+
+end;
+
+procedure Tfrmtempousuariosetor.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  case key of
+    vk_F6 : sbnGerarClick(self);
+  end;   
+end;
+
+end.

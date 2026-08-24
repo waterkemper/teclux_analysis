@@ -9,10 +9,14 @@ Uses
   classes,
   //Projeto
   fmmovtosbancos, fmconciliacaobancaria, fmImportacaoConciliacao,
+  fmImportacaoDDA,
   fmrelatorioextratoconta, fmbalancetefinanceiro;
 
 initialization
-  RegisterClasses([TfrmMovtosBancos, TfrmConciliacaoBancaria,
-                   tfrmImportacaoConciliacao, TfrmRelatorioExtratoConta,
+  RegisterClasses([TfrmMovtosBancos,
+                   TfrmConciliacaoBancaria,
+                   TfrmImportacaoDDA,
+                   tfrmImportacaoConciliacao,
+                   TfrmRelatorioExtratoConta,
                    Tfrmbalancetefinanceiro]);
 end.

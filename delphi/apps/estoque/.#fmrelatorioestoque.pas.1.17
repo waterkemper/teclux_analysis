@@ -1,0 +1,1003 @@
+unit fmrelatorioestoque;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  fmrelatoriopadrao, ExtCtrls, Buttons, StdCtrls, cpdata, DBCtrls,
+  cpdbtext, Mask, cpdbfindcontrols, CheckLst, ComCtrls, cppagecontrol,
+  cpnumero, Windows,
+  // Repositorio
+  fmajudabt, fmconsultaporcampo, fmconsultabasica,
+  // Terceiros
+  ZQuery,
+  // Constantes
+  ctconstantes, biblio, cpeditioncontrolvalidation, cptexto, ToolWin, clparametrossistema,
+  cpdbradiogroup, frselecaoaleatoriagruposfornecedores, frconsulta,
+  frconsultacodigo;
+
+type
+  TfrmRelatorioEstoque = class(TFrmRelatorioPadrao)
+    pgcFilialGrupoFilial: TtecPageControl;
+    tstFilial: TTabSheet;
+    sbnMarcarFiliais: TSpeedButton;
+    sbnDesmarcarFiliais: TSpeedButton;
+    clbFiliais: TCheckListBox;
+    tstGrupoFilial: TTabSheet;
+    sbnmarcarGrupodeFiliais: TSpeedButton;
+    sbnDesmarcarGrupodeFiliais: TSpeedButton;
+    clbGrupodeFiliais: TCheckListBox;
+    pgcProdutos: TtecPageControl;
+    tstItemProduto: TTabSheet;
+    sbnConsultaItemProdutoInicial: TSpeedButton;
+    sbnConsultaItemProdutoFinal: TSpeedButton;
+    edfItemProdutoInicial: TtecDbEditFind;
+    dtxItemProdutoInicial: TtecDBText;
+    lblItemProdutoInicial: TLabel;
+    lblItemProdutoFinal: TLabel;
+    edfItemProdutoFinal: TtecDbEditFind;
+    dtxItemProdutoFinal: TtecDBText;
+    tstProdutos: TTabSheet;
+    sbnConsultaProdutosInicial: TSpeedButton;
+    sbnConsultaProdutosFinal: TSpeedButton;
+    edfProdutoInicial: TtecDbEditFind;
+    dtxProdutoInicial: TtecDBText;
+    lblProdutoFinal: TLabel;
+    edfProdutoFinal: TtecDbEditFind;
+    dtxProdutoFinal: TtecDBText;
+    lblProdutoInicial: TLabel;
+    tstGrupodeProdutos: TTabSheet;
+    sbnConsultaGrupoProdutoInicial: TSpeedButton;
+    sbnConsultaGrupoProdutoFinal: TSpeedButton;
+    edfGrupoProdutoInicial: TtecDbEditFind;
+    dtxGrupoProdutoInicial: TtecDBText;
+    lblGrupoProdutoInicial: TLabel;
+    lblGrupoProdutoFinal: TLabel;
+    edfGrupoProdutoFinal: TtecDbEditFind;
+    dtxGrupoProdutoFinal: TtecDBText;
+    tstClasses: TTabSheet;
+    sbnConsultaClasseInicial: TSpeedButton;
+    sbnConsultaClasseFinal: TSpeedButton;
+    edfClasseInicial: TtecDbEditFind;
+    dtxClasseInicial: TtecDBText;
+    lblClasseProdutoInicial: TLabel;
+    lblClasseProdutoFinal: TLabel;
+    edfClasseFinal: TtecDbEditFind;
+    dtxClasseFinal: TtecDBText;
+    tstMarcas: TTabSheet;
+    sbnProcuraMarcaInicial: TSpeedButton;
+    sbnProcuraMarcaFinal: TSpeedButton;
+    lblMarcaInicial: TLabel;
+    lblMarcaFinal: TLabel;
+    edfMarcaInicial: TtecDbEditFind;
+    dtxMarcaInicial: TtecDBText;
+    edfMarcaFinal: TtecDbEditFind;
+    dtxMarcaFinal: TtecDBText;
+    rgpSelecaoProduto: TRadioGroup;
+    gbxData: TGroupBox;
+    edtData: TEditData;
+    gbxAgrupamento: TGroupBox;
+    ckbAgruparGrupoFilial: TCheckBox;
+    ckbAgruparFilial: TCheckBox;
+    ckbAgruparClasseProduto: TCheckBox;
+    ckbAgruparGrupoProduto: TCheckBox;
+    ckbAgruparProduto: TCheckBox;
+    rgpResumo: TRadioGroup;
+    gbxOpcoes: TGroupBox;
+    ckbValorFinanceiro: TCheckBox;
+    ckbComQuantidades: TCheckBox;
+    ckbSemEstoqueZero: TCheckBox;
+    ckbProdSimples: TCheckBox;
+    ckbProdComposto: TCheckBox;
+    ckbPrecoComIcms: TCheckBox;
+    gbxQuantidades: TGroupBox;
+    lblEmEstoque: TLabel;
+    lblReservado: TLabel;
+    lblEmTransito: TLabel;
+    lblDemonstracao: TLabel;
+    lblConserto: TLabel;
+    lblFuturo: TLabel;
+    lblAvariado: TLabel;
+    lblPedido: TLabel;
+    edtEmEstoque_Inicial: TEditNumero;
+    edtReservado_Inicial: TEditNumero;
+    edtEmTransito_Inicial: TEditNumero;
+    edtEmDemonstracao_Inicial: TEditNumero;
+    edtConserto_Inicial: TEditNumero;
+    edtFuturo_Inicial: TEditNumero;
+    edtAvariado_Inicial: TEditNumero;
+    edtPedido_Inicial: TEditNumero;
+    lblEmEstoque_a: TLabel;
+    lblReservado_a: TLabel;
+    lblEmTransito_a: TLabel;
+    lblDemonstracao_a: TLabel;
+    lblConserto_a: TLabel;
+    lblFuturo_a: TLabel;
+    lblAvariado_a: TLabel;
+    lblLocacao_a: TLabel;
+    edtEmEstoque_Final: TEditNumero;
+    edtReservado_Final: TEditNumero;
+    edtEmTransito_Final: TEditNumero;
+    edtEmDemonstracao_Final: TEditNumero;
+    edtConserto_Final: TEditNumero;
+    edtFuturo_Final: TEditNumero;
+    edtAvariado_Final: TEditNumero;
+    edtPedido_Final: TEditNumero;
+    gbxFornecedor: TGroupBox;
+    Bevel1: TBevel;
+    gbxProdutos: TGroupBox;
+    ckbProdutoEmLinha: TCheckBox;
+    ckbProdutoForadeLinha: TCheckBox;
+    ckbProdutoComMontagem: TCheckBox;
+    ckbProdutoSemMontagem: TCheckBox;
+    ckbProdutoNaoBrinde: TCheckBox;
+    ckbProdutoBrinde: TCheckBox;
+    ecvValida: TtecEditionControlValidation;
+    edtNDiasNaoVendidos: TEditNumero;
+    lblNaoVendidoHa: TLabel;
+    ckbAgruparFornecedor: TCheckBox;
+    ckbPrecodeVenda: TCheckBox;
+    ckbPrecoSemIcms: TCheckBox;
+    gbxGrupos: TGroupBox;
+    sbnMarcarColunas: TSpeedButton;
+    sbnDesmarcarColunas: TSpeedButton;
+    clbColunas: TCheckListBox;
+    ckbProdutoInativo: TCheckBox;
+    ckbProdutoAtivo: TCheckBox;
+    ckbAgruparLocalizacao: TCheckBox;
+    tstLocalizacao: TTabSheet;
+    edtLocalizacao: TEditTexto;
+    ckbCodigodeBarras: TCheckBox;
+    ckbAcabadosouSemiAcabados: TCheckBox;
+    ckbRelatorioemGrades: TCheckBox;
+    ckbGradecomElementos: TCheckBox;
+    rgpOrdenacao: TtecDBRadioGroup;
+    rbnOdenacaoCodigoProduto: TtecRadioButton;
+    rbnOdenacaoDescricaoProduto: TtecRadioButton;
+    rbnOdenacaoFilial: TtecRadioButton;
+    rbnOdenacaoLocalizacao: TtecRadioButton;
+    rbnOdenacaoUltimaVenda: TtecRadioButton;
+    ckbDisponivelnoSite: TCheckBox;
+    ckbNaoDisponivelnoSite: TCheckBox;
+    gbxCompostos: TGroupBox;
+    cbbCompostos: TComboBox;
+    gbxGrupoFornecedores: TGroupBox;
+    fraSelecaoAleatoriagruposfornecedores1: TfraSelecaoAleatoriagruposfornecedores;
+    lblREservaPrevia: TLabel;
+    edtReservaPrevia_Inicial: TEditNumero;
+    lblReservaPrevia_a: TLabel;
+    edtReservaPrevia_Final: TEditNumero;
+    fraConsultaFornecedor: TfraConsultaCodigo;
+    procedure pgcProdutosChange(Sender: TObject);
+    procedure clbFiliaisClickCheck(Sender: TObject);
+    procedure sbnMarcarFiliaisClick(Sender: TObject);
+    procedure sbnDesmarcarFiliaisClick(Sender: TObject);
+    procedure clbGrupodeFiliaisClickCheck(Sender: TObject);
+    procedure sbnmarcarGrupodeFiliaisClick(Sender: TObject);
+    procedure sbnDesmarcarGrupodeFiliaisClick(Sender: TObject);
+    procedure sbnConsultaItemProdutoInicialClick(Sender: TObject);
+    procedure sbnConsultaItemProdutoFinalClick(Sender: TObject);
+    procedure sbnConsultaProdutosInicialClick(Sender: TObject);
+    procedure sbnConsultaProdutosFinalClick(Sender: TObject);
+    procedure sbnConsultaGrupoProdutoInicialClick(Sender: TObject);
+    procedure sbnConsultaGrupoProdutoFinalClick(Sender: TObject);
+    procedure sbnConsultaClasseInicialClick(Sender: TObject);
+    procedure sbnConsultaClasseFinalClick(Sender: TObject);
+    procedure sbnProcuraMarcaInicialClick(Sender: TObject);
+    procedure sbnProcuraMarcaFinalClick(Sender: TObject);
+    procedure edfMarcaFinalFound(Found: Boolean);
+    procedure edfMarcaInicialFound(Found: Boolean);
+    procedure edfClasseInicialFound(Found: Boolean);
+    procedure edfClasseFinalFound(Found: Boolean);
+    procedure edfGrupoProdutoInicialFound(Found: Boolean);
+    procedure edfGrupoProdutoFinalFound(Found: Boolean);
+    procedure edfProdutoInicialFound(Found: Boolean);
+    procedure edfProdutoFinalFound(Found: Boolean);
+    procedure edfItemProdutoInicialFound(Found: Boolean);
+    procedure edfItemProdutoFinalFound(Found: Boolean);
+    procedure ckbProdSimplesClick(Sender: TObject);
+    procedure ckbProdCompostoClick(Sender: TObject);
+    procedure ckbValorFinanceiroClick(Sender: TObject);
+    procedure ckbPrecodeVendaClick(Sender: TObject);
+    procedure ckbPrecoComIcmsClick(Sender: TObject);
+    procedure ckbPrecoSemIcmsClick(Sender: TObject);
+    procedure sbnMarcarColunasClick(Sender: TObject);
+    procedure sbnDesmarcarColunasClick(Sender: TObject);
+    procedure ckbProdutoAtivoClick(Sender: TObject);
+    procedure ckbProdutoInativoClick(Sender: TObject);
+    procedure ckbAcabadosouSemiAcabadosClick(Sender: TObject);
+    procedure ckbRelatorioemGradesClick(Sender: TObject);
+    procedure ckbDisponivelnoSiteClick(Sender: TObject);
+    procedure ckbNaoDisponivelnoSiteClick(Sender: TObject);
+  private
+    { Private declarations }
+    procedure ObterLista(Origem: TStrings; Destino: TCheckListBox);
+    function PesquisaHabilitada: Boolean;
+    function TituloPesquisa: String;
+    function ValidarCamposSelecao: Boolean;
+
+  protected
+    function InternoPesquisar(Titulo: String): Integer; override;
+    function JanelaPesquisa: TfrmConsultaBasica; override;
+    function ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function TabelaDePesquisa: TZDataSet; override;
+    procedure InternoImpressao; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    function SomenteFisico:Boolean;
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+  end;
+
+var
+  frmRelatorioEstoque: TfrmRelatorioEstoque;
+  TipoPesquisa: TTecPesquisa;
+  ControleValido : TWinControl;
+
+implementation
+{$R *.dfm}
+uses dmrelatorioestoque;
+
+{ TfrmRelatorioEstoque }
+
+constructor TfrmRelatorioEstoque.Create(AOwner: TComponent);
+begin
+  dtmRelatorioEstoque := TdtmRelatorioEstoque.Create(Self);
+  inherited;
+  edtData.Text := DateToStr(DataLocal);
+  pgcFilialGrupoFilial.ActivePage := tstFilial;
+  pgcProdutos.ActivePage := tstItemProduto;
+  ObterLista(dtmRelatorioEstoque.ListaFiliais, clbFiliais);
+  ObterLista(dtmRelatorioEstoque.ListaGruposFiliais, clbGrupodeFiliais);
+  MarcarLista(clbColunas,True);
+  clbColunas.Checked[7]:=False;
+  ckbAcabadosouSemiAcabados.visible := parsistema.controlesvoltadosparaindustria;
+
+  if ParSistema.PermitirProdutoAlfanumerico then
+  begin
+     edfItemProdutoInicial.DataField      := 'codigovisual';
+     edfItemProdutoInicial.QueryParameter := 'codigovisual';
+
+     edfItemProdutoFinal.DataField      := 'codigovisual';
+     edfItemProdutoFinal.QueryParameter := 'codigovisual';
+
+     edfProdutoInicial.DataField      := 'codigovisual';
+     edfProdutoInicial.QueryParameter := 'codigovisual';
+
+     edfProdutoFinal.DataField      := 'codigovisual';
+     edfProdutoFinal.QueryParameter := 'codigovisual';
+  end
+  else
+  begin
+     edfItemProdutoInicial.DataField      := 'codigo';
+     edfItemProdutoInicial.QueryParameter := 'codigo';
+
+     edfItemProdutoFinal.DataField      := 'codigo';
+     edfItemProdutoFinal.QueryParameter := 'codigo';
+
+     edfProdutoInicial.DataField     := 'codigo';
+     edfProdutoInicial.QueryParameter := 'codigo';
+
+     edfProdutoFinal.DataField      := 'codigo';
+     edfProdutoFinal.QueryParameter := 'codigo';
+
+  end;
+
+  fraConsultaFornecedor.qryProcuraCliente.ParamByName('NaoConsiderarTipoCliente').asBoolean := false;
+  fraConsultaFornecedor.TipoPesquisa := pesFORNECEDORES;
+  fraConsultaFornecedor.TipoCliente := 'F';
+  fraConsultaFornecedor.Tipovfornecedor := 'F';
+  
+  //ckbRelatorioemGrades.Checked := parsistema.UsarGradesProdutos;
+
+end;
+
+destructor TfrmRelatorioEstoque.Destroy;
+begin
+  dtmRelatorioEstoque:=nil;
+  inherited;
+  frmRelatorioEstoque := nil;
+end;
+
+function TfrmRelatorioEstoque.ExisteInformacao(Parametro: Integer;
+  NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmRelatorioEstoque do
+  case TipoPesquisa of
+    pesitemPRODUTOSINICIAL,
+    pesitemPRODUTOSFINAL     : Result := ExisteitemProduto(NomeCampo, Value);
+    pesPRODUTOSINICIAL,
+    pesPRODUTOSFINAL     : Result := ExisteProduto(NomeCampo, Value);
+    pesGRUPOSINICIAL,
+    pesGRUPOSFINAL       : Result := ExisteGrupo(NomeCampo, Value);
+    pesCLASSESINICIAL,
+    pesCLASSESFINAL      : Result := ExisteClasse(NomeCampo, Value);
+    pesMARCASINICIAL,
+    pesMARCASFINAL       : Result := ExisteMarca(NomeCampo, Value);
+  else
+    Result := False;
+  end;
+end;
+
+function TfrmRelatorioEstoque.InternoPesquisar(Titulo: String): Integer;
+begin
+  if PesquisaHabilitada then
+    with dtmRelatorioEstoque do
+    begin
+      AbreTabelaPesquisa(TipoPesquisa);
+      Result := inherited InternoPesquisar(TituloPesquisa);
+      if Result = mrOK then
+        Selecionar(TipoPesquisa);
+      FechaTabelaPesquisa(TipoPesquisa);
+    end
+  else
+  Result := 0;
+end;
+
+function TfrmRelatorioEstoque.JanelaPesquisa: TfrmConsultaBasica;
+var
+  Jan: TfrmConsultaPorCampo;
+
+begin
+  Jan := TfrmConsultaPorCampo.Create(nil);
+  Jan.ConsultaInterativa := Not (TipoPesquisa in [pesPRODUTOSINICIAL, pesPRODUTOSFINAL,
+
+                                                  pesITEMPRODUTOSINICIAL, pesITEMPRODUTOSFINAL]) and CtrlOn;
+
+  Jan.UsarParametrosDaTabela := False;
+
+  Result := Jan
+
+end;
+
+
+procedure TfrmRelatorioEstoque.ObterLista(Origem: TStrings; Destino: TCheckListBox);
+begin
+  Destino.Items.AddStrings(Origem);
+end;
+
+function TfrmRelatorioEstoque.PesquisaHabilitada: Boolean;
+begin
+  Result:= False;
+  if CtrlOn and (ActiveControl is TtecDBEditFind) then
+  begin
+    if edfItemProdutoInicial.Focused then
+      Tipopesquisa := pesITEMPRODUTOSINICIAL
+    else
+    if edfItemProdutoFinal.Focused then
+      Tipopesquisa := pesITEMPRODUTOSFINAL
+    else
+    if edfProdutoInicial.Focused then
+      TipoPesquisa := pesPRODUTOSINICIAL
+    else
+    if edfProdutoFinal.Focused then
+      TipoPesquisa := pesPRODUTOSFINAL
+    else
+    if edfGrupoProdutoInicial.Focused then
+      TipoPesquisa := pesGRUPOSINICIAL
+    else
+    if edfGrupoProdutoFinal.Focused then
+      TipoPesquisa := pesGRUPOSFINAL
+    else
+    if edfClasseInicial.Focused then
+      TipoPesquisa := pesCLASSESINICIAL
+    else
+    if edfClasseFinal.Focused then
+      TipoPesquisa := pesCLASSESFINAL
+    else
+    if edfMarcaInicial.Focused then
+      TipoPesquisa := pesMARCASINICIAL
+    else
+    if edfMarcaFinal.Focused then
+      TipoPesquisa := pesMARCASFINAL;
+    Result := True;
+  end;
+end;
+
+function TfrmRelatorioEstoque.TabelaDePesquisa: TZDataSet;
+begin
+  with dtmRelatorioEstoque do
+    case TipoPesquisa of
+      pesITEMPRODUTOSINICIAL,
+      pesITEMPRODUTOSFINAL     : Result := ConsultarItemProduto;
+      pesPRODUTOSINICIAL,
+      pesPRODUTOSFINAL         : Result := ConsultarProduto;
+      pesGRUPOSINICIAL,
+      pesGRUPOSFINAL           : Result := ConsultarGrupo;
+      pesCLASSESINICIAL,
+      pesCLASSESFINAL          : Result := ConsultarClasse;
+      pesMARCASINICIAL,
+      pesMARCASFINAL           : Result := ConsultarMarca;
+    else  Result:= nil;
+    end;
+
+end;
+
+function TfrmRelatorioEstoque.TituloPesquisa: String;
+begin
+  case TipoPesquisa of
+    pesITEMPRODUTOSINICIAL,
+    pesITEMPRODUTOSFINAL     : Result := ctITEMPRODUTO;
+    pesPRODUTOSINICIAL,
+    pesPRODUTOSFINAL     : Result := ctPRODUTO;
+    pesGRUPOSINICIAL,
+    pesGRUPOSFINAL       : Result := ctGRUPOS;
+    pesCLASSESINICIAL,
+    pesCLASSESFINAL      : Result := ctCLASSES;
+    pesMARCASINICIAL,
+    pesMARCASFINAL  : Result := ctMARCAS;
+  end;
+end;
+
+procedure TfrmRelatorioEstoque.pgcProdutosChange(Sender: TObject);
+begin
+  inherited;
+  if pgcProdutos.ActivePage = tstItemProduto then
+  begin
+   edfProdutoInicial.Clear;
+   edfProdutoFinal.Clear;
+   edfGrupoProdutoInicial.Clear;
+   edfGrupoProdutoFinal.Clear;
+   edfClasseInicial.Clear;
+   edfClasseFinal.Clear;
+   edfMarcaInicial.Clear;
+   edfMarcaFinal.Clear;
+   edfItemProdutoInicial.setFocus;
+  end
+  else if pgcProdutos.ActivePage = tstProdutos then
+  begin
+   edfItemProdutoInicial.Clear;
+   edfItemProdutoFinal.Clear;
+   edfGrupoProdutoInicial.Clear;
+   edfGrupoProdutoFinal.Clear;
+   edfClasseInicial.Clear;
+   edfClasseFinal.Clear;
+   edfMarcaInicial.Clear;
+   edfMarcaFinal.Clear;
+   edfProdutoInicial.SetFocus;
+  end
+  else if pgcProdutos.ActivePage = tstGrupodeProdutos then
+  begin
+   edfItemProdutoInicial.Clear;
+   edfItemProdutoFinal.Clear;
+   edfProdutoInicial.Clear;
+   edfProdutoFinal.Clear;
+   edfClasseInicial.Clear;
+   edfClasseFinal.Clear;
+   edfMarcaInicial.Clear;
+   edfMarcaFinal.Clear;
+   edfGrupoProdutoInicial.SetFocus;
+  end
+  else if pgcProdutos.ActivePage = tstClasses then
+  begin
+   edfItemProdutoInicial.Clear;
+   edfItemProdutoFinal.Clear;
+   edfProdutoInicial.Clear;
+   edfProdutoFinal.Clear;
+   edfGrupoProdutoInicial.Clear;
+   edfGrupoProdutoFinal.Clear;
+   edfMarcaInicial.Clear;
+   edfMarcaFinal.Clear;
+   edfClasseInicial.SetFocus;
+  end
+  else if pgcProdutos.ActivePage = tstMarcas then
+  begin
+   edfItemProdutoInicial.Clear;
+   edfItemProdutoFinal.Clear;
+   edfProdutoInicial.Clear;
+   edfProdutoFinal.Clear;
+   edfGrupoProdutoInicial.Clear;
+   edfGrupoProdutoFinal.Clear;
+   edfClasseInicial.Clear;
+   edfClasseFinal.Clear;
+   edfMarcaInicial.SetFocus;
+  end
+  else if pgcProdutos.ActivePage = tstLocalizacao then
+  begin
+    edtLocalizacao.Clear;
+    edtLocalizacao.Setfocus;
+  end;
+end;
+
+procedure TfrmRelatorioEstoque.clbFiliaisClickCheck(Sender: TObject);
+begin
+  inherited;
+   MarcarLista(clbGrupodeFiliais, False);
+
+end;
+
+procedure TfrmRelatorioEstoque.sbnMarcarFiliaisClick(Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbFiliais, True);
+  MarcarLista(clbGrupodeFiliais, False);
+
+end;
+
+procedure TfrmRelatorioEstoque.sbnDesmarcarFiliaisClick(Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbFiliais, False);
+
+end;
+
+procedure TfrmRelatorioEstoque.clbGrupodeFiliaisClickCheck(
+  Sender: TObject);
+begin
+  inherited;
+   MarcarLista(clbFiliais, False);
+
+end;
+
+procedure TfrmRelatorioEstoque.sbnmarcarGrupodeFiliaisClick(
+  Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbGrupodeFiliais, True);
+  MarcarLista(clbFiliais, False);
+
+end;
+
+procedure TfrmRelatorioEstoque.sbnDesmarcarGrupodeFiliaisClick(
+  Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbGrupodeFiliais, False);
+
+end;
+
+procedure TfrmRelatorioEstoque.sbnConsultaItemProdutoInicialClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfItemProdutoInicial, ctITEMPRODUTO);
+
+end;
+
+procedure TfrmRelatorioEstoque.sbnConsultaItemProdutoFinalClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfItemProdutoFinal, ctITEMPRODUTO);
+
+end;
+
+procedure TfrmRelatorioEstoque.sbnConsultaProdutosInicialClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfProdutoInicial, ctPRODUTO);
+
+end;
+
+procedure TfrmRelatorioEstoque.sbnConsultaProdutosFinalClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfProdutoFinal, ctPRODUTO);
+
+end;
+
+procedure TfrmRelatorioEstoque.sbnConsultaGrupoProdutoInicialClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfGrupoProdutoInicial, ctGRUPO);
+
+end;
+
+procedure TfrmRelatorioEstoque.sbnConsultaGrupoProdutoFinalClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfGrupoProdutoFinal, ctGRUPO);
+
+end;
+
+procedure TfrmRelatorioEstoque.sbnConsultaClasseInicialClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfClasseInicial, ctCLASSES);
+
+end;
+
+procedure TfrmRelatorioEstoque.sbnConsultaClasseFinalClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfClasseFinal, ctCLASSES);
+
+end;
+
+procedure TfrmRelatorioEstoque.sbnProcuraMarcaInicialClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfMarcaInicial, ctMARCAS);
+
+end;
+
+procedure TfrmRelatorioEstoque.sbnProcuraMarcaFinalClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfMarcaFinal, ctMARCAS);
+
+end;
+
+procedure TfrmRelatorioEstoque.edfMarcaFinalFound(Found: Boolean);
+begin
+  inherited;
+  if not Found then
+    edfmarcafinal.Clear;
+
+end;
+
+procedure TfrmRelatorioEstoque.edfMarcaInicialFound(Found: Boolean);
+begin
+  inherited;
+  if not Found then
+    edfMarcaInicial.Clear;
+
+end;
+
+procedure TfrmRelatorioEstoque.edfClasseInicialFound(Found: Boolean);
+begin
+  inherited;
+  if not Found then
+    edfClasseInicial.Clear;
+end;
+
+procedure TfrmRelatorioEstoque.edfClasseFinalFound(Found: Boolean);
+begin
+  inherited;
+  if not Found then
+    edfClasseFinal.Clear;
+end;
+
+procedure TfrmRelatorioEstoque.edfGrupoProdutoInicialFound(Found: Boolean);
+begin
+  inherited;
+  if not Found then
+    edfGrupoprodutoInicial.Clear;
+
+end;
+
+procedure TfrmRelatorioEstoque.edfGrupoProdutoFinalFound(Found: Boolean);
+begin
+  inherited;
+  if not Found then
+    edfGrupoProdutoFinal.Clear;
+
+end;
+
+procedure TfrmRelatorioEstoque.edfProdutoInicialFound(Found: Boolean);
+begin
+  inherited;
+  if not Found then
+    edfprodutoInicial.Clear;
+
+end;
+
+procedure TfrmRelatorioEstoque.edfProdutoFinalFound(Found: Boolean);
+begin
+  inherited;
+  if not Found then
+    edfProdutoFinal.Clear;
+
+end;
+
+procedure TfrmRelatorioEstoque.edfItemProdutoInicialFound(Found: Boolean);
+begin
+  inherited;
+  if not Found then
+    edfItemProdutoInicial.Clear;
+
+end;
+
+procedure TfrmRelatorioEstoque.edfItemProdutoFinalFound(Found: Boolean);
+begin
+  inherited;
+  if not Found then
+    edfItemProdutoFinal.Clear;
+
+end;
+
+procedure TfrmRelatorioEstoque.InternoImpressao;
+begin
+  inherited;
+  if ValidarCamposSelecao then
+    with dtmRelatorioEstoque do
+    begin
+     DataSituacao := edtData.Text;
+     ParametroCabecalho := '';
+     SomenteEstoqueFisico:=SomenteFisico;
+     ProdutoEmLinha     := ckbProdutoEmLinha.checked;
+     ProdutoForadeLinha := ckbProdutoForadeLinha.checked;
+     ProdutoAtivo       := ckbProdutoAtivo.checked;
+     ProdutoInativo     := ckbProdutoInativo.checked;
+     ProdutoComMontagem := ckbProdutoComMontagem.Checked;
+     ProdutoSemMontagem := ckbProdutoSemMontagem.Checked;
+     ProdutoBrinde      := ckbProdutoBrinde.Checked;
+     ProdutoNaoBrinde   := ckbProdutoNaoBrinde.Checked;
+     DisponivelnoSite := ckbDisponivelnoSite.checked;
+     NaoDisponivelnoSite := ckbNaoDisponivelnoSite.checked;
+
+
+     MontarFiltroFiliais(clbFiliais);
+     MontarFiltroGrupoFiliais(clbGrupodeFiliais);
+     ParametroItemInicial := edfItemProdutoInicial.Text;
+     ParametroItemFinal := edfItemProdutoFinal.Text;
+     ParametroCodigoInicial := edfProdutoInicial.Text;
+     ParametroCodigoFinal := edfProdutoFinal.Text;
+     ParametroGrupoInicial := edfGrupoProdutoInicial.Text;
+     ParametroGrupoFinal := edfGrupoProdutoFinal.Text;
+     ParametroClasseInicial := edfClasseInicial.Text;
+     ParametroClasseFinal := edfClasseFinal.Text;
+     ParametroMarcaInicial := edfMarcaInicial.Text;
+     ParametroMarcaFinal := edfMarcaFinal.Text;
+     ParametroFornecedor := fraConsultaFornecedor.edfCodigo.text;
+
+     ListaGruposFornecedores := fraSelecaoAleatoriagruposfornecedores1.ListaCondicional;
+     ParametroLocalizacao:= edtLocalizacao.Text;
+     ParametroTituloLocalizacao:= edtLocalizacao.Text;
+     ImpressaoemGrade := ckbRelatorioemGrades.Checked;
+     GradecomElementos := ckbGradecomElementos.checked;
+
+
+     emEstoque_Inicial     := Trocar(edtEmEstoque_Inicial.     ValorSemFormatacao, ',', '.');
+     emEstoque_Final       := Trocar(edtEmEstoque_Final.       ValorSemFormatacao, ',', '.');
+     Reservado_Inicial     := Trocar(edtReservado_Inicial.     ValorSemFormatacao, ',', '.');
+     Reservado_Final       := Trocar(edtReservado_Final.       ValorSemFormatacao, ',', '.');
+
+     ReservaPrevia_Inicial     := Trocar(edtReservaPrevia_Inicial.     ValorSemFormatacao, ',', '.');
+     ReservaPrevia_Final       := Trocar(edtReservaPrevia_Final.       ValorSemFormatacao, ',', '.');
+
+     emTransito_Inicial    := Trocar(edtEmTransito_Inicial.    ValorSemFormatacao, ',', '.');
+     emTransito_Final      := Trocar(edtEmTransito_Final.      ValorSemFormatacao, ',', '.');
+     emDemonstracao_Inicial:= Trocar(edtEmDemonstracao_Inicial.ValorSemFormatacao, ',', '.');
+     emDemonstracao_Final  := Trocar(edtEmDemonstracao_Final.  ValorSemFormatacao, ',', '.');
+     emConserto_Inicial    := Trocar(edtConserto_Inicial.      ValorSemFormatacao, ',', '.');
+     emConserto_Final      := Trocar(edtConserto_Final.        ValorSemFormatacao, ',', '.');
+     Futuro_Inicial        := Trocar(edtFuturo_Inicial.        ValorSemFormatacao, ',', '.');
+     Futuro_Final          := Trocar(edtFuturo_Final.          ValorSemFormatacao, ',', '.');
+     Avariado_Inicial      := Trocar(edtAvariado_Inicial.      ValorSemFormatacao, ',', '.');
+     Avariado_Final        := Trocar(edtAvariado_Final.        ValorSemFormatacao, ',', '.');
+     Pedido_Inicial        := Trocar(edtPedido_Inicial.        ValorSemFormatacao, ',', '.');
+     Pedido_Final          := Trocar(edtPedido_Final.          ValorSemFormatacao, ',', '.');
+
+     ParametroSelecaoProdutos := rgpSelecaoProduto.ItemIndex;
+     AgruparGrupoFilial:=ckbAgruparGrupoFilial.Checked;
+     AgruparFilial:=ckbAgruparFilial.Checked;
+     AgruparFornecedor := ckbAgruparFornecedor.Checked;
+     AgruparLocalizacao:= ckbAgruparLocalizacao.Checked;
+     AgruparClasseProduto:=ckbAgruparClasseProduto.Checked;
+     AgruparGrupoProduto:=ckbAgruparGrupoProduto.Checked;
+     AgruparProduto:=ckbAgruparProduto.Checked;
+     ParametroOrdenacao:=rgpOrdenacao.ItemIndex;
+     SemEstoqueZero := ckbSemEstoqueZero.Checked;
+     NaoVendidosHaNDias := edtNDiasNaoVendidos.ValorSemFormatacao;
+     Resumo := rgpResumo.ItemIndex;
+     DefineOrdenacao ;
+
+     ComValorFinanceiro := ckbValorFinanceiro.Checked;
+     ComPrecodeVenda:= ckbPrecodeVenda.Checked;
+     ComQuantidades := ckbComQuantidades.Checked;
+     PrecoComICMS := ckbPrecoComIcms.Checked;
+     PrecoSemICMS := ckbPrecoSemIcms.Checked;
+     ComCodigodeBarras := ckbCodigodeBarras.Checked;
+     AcabadosSemiAcabados := ckbAcabadosouSemiAcabados.Checked;
+     Compostos := cbbCompostos.itemIndex;
+
+     //MontarFiltroColunas(clbColunas);
+     AbreConsultaEstoques;
+     ImprimirRelatorio;
+    end;
+end;
+
+function TfrmRelatorioEstoque.ValidarCamposSelecao: Boolean;
+begin
+  Result:=ecvValida.Verify(pnlFundoJanela, ControleValido);
+  if result then
+  begin
+   result := edtData.DataValida;
+   if result then
+   Result := OperadorTernario((Trim(edfItemProdutoInicial.Text) <> ''), edfItemProdutoInicial.Exist, True) and
+             OperadorTernario((Trim(edfItemProdutoFinal.Text) <> ''), edfItemProdutoFinal.Exist, True) and
+             OperadorTernario((Trim(edfProdutoInicial.Text) <> ''), edfProdutoInicial.Exist, True) and
+             OperadorTernario((Trim(edfProdutoFinal.Text) <> ''), edfProdutoFinal.Exist, True) and
+             OperadorTernario((Trim(edfGrupoProdutoInicial.Text) <> ''), edfGrupoProdutoInicial.Exist, True) and
+             OperadorTernario((Trim(edfGrupoProdutoInicial.Text) <> ''), edfGrupoProdutoInicial.Exist, True) and
+             OperadorTernario((Trim(edfClasseInicial.Text) <> ''), edfClasseInicial.Exist, True) and
+             OperadorTernario((Trim(edfClasseFinal.Text) <> ''), edfClasseFinal.Exist, True) and
+             OperadorTernario((Trim(edfMarcaInicial.Text) <> ''), edfMarcaInicial.Exist, True) and
+             OperadorTernario((Trim(edfMarcaFinal.Text) <> ''), edfMarcaFinal.Exist, True) and
+             OperadorTernario((Trim(fraConsultaFornecedor.edfcodigo.Text) <> ''), fraConsultaFornecedor.edfcodigo.Exist, True);
+  end;
+end;
+
+procedure TfrmRelatorioEstoque.ckbProdSimplesClick(Sender: TObject);
+begin
+  inherited;
+  if ckbProdSimples.Checked then
+   ckbProdComposto.Checked := false;
+end;
+
+procedure TfrmRelatorioEstoque.ckbProdCompostoClick(Sender: TObject);
+begin
+  inherited;
+  if ckbProdComposto.Checked then
+   ckbProdSimples.Checked := false;
+end;
+
+procedure TfrmRelatorioEstoque.ckbValorFinanceiroClick(Sender: TObject);
+begin
+  inherited;
+  if ckbValorFinanceiro.Checked then
+    ckbPrecodeVenda.Checked := false;
+
+  rgpResumo.Enabled := ckbValorFinanceiro.Checked;
+
+  if not (ckbPrecodeVenda.Checked  or ckbValorFinanceiro.Checked) then
+  begin
+    ckbPrecoComIcms.Enabled := false;
+    ckbPrecoSemIcms.Enabled := false;
+  end
+  else
+  begin
+    ckbPrecoComIcms.Enabled := true;
+    ckbPrecoSemIcms.Enabled := true;
+  end;
+
+  if not ckbValorFinanceiro.Checked then
+  begin
+    ckbCodigodeBarras.Enabled := false;
+    ckbAcabadosouSemiAcabados.Checked := false;
+  end
+  else
+    ckbCodigodeBarras.Enabled := true;
+end;
+
+procedure TfrmRelatorioEstoque.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+//  if key = VK_Escape then
+//    dtmRelatorioEstoque.CancelarRelatorio;
+end;
+
+procedure TfrmRelatorioEstoque.ckbPrecodeVendaClick(Sender: TObject);
+begin
+  inherited;
+  if ckbPrecodeVenda.Checked then
+  begin
+    ckbValorFinanceiro.Checked:= false;
+    ckbAcabadosouSemiAcabados.Checked:= false;
+    ckbCodigodeBarras.Checked:= false;
+  end;
+
+  rgpResumo.Enabled := ckbPrecodeVenda.Checked;
+  clbColunas.Enabled:=ckbPrecodeVenda.Checked;
+  if not (ckbPrecodeVenda.Checked  or ckbValorFinanceiro.Checked) then
+  begin
+    ckbPrecoComIcms.Enabled := false;
+    ckbPrecoSemIcms.Enabled := false;
+  end
+  else
+  begin
+    ckbPrecoComIcms.Enabled := true;
+    ckbPrecoSemIcms.Enabled := true;
+  end;
+end;
+
+procedure TfrmRelatorioEstoque.ckbPrecoComIcmsClick(Sender: TObject);
+begin
+  inherited;
+  ckbPrecoSemIcms.Checked:=False;
+end;
+
+procedure TfrmRelatorioEstoque.ckbPrecoSemIcmsClick(Sender: TObject);
+begin
+  inherited;
+  ckbPrecoComIcms.Checked := False;
+end;
+
+procedure TfrmRelatorioEstoque.sbnMarcarColunasClick(Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbColunas,True);
+end;
+
+procedure TfrmRelatorioEstoque.sbnDesmarcarColunasClick(Sender: TObject);
+begin
+  inherited;
+  MarcarLista(clbColunas,False);
+end;
+
+function TfrmRelatorioEstoque.SomenteFisico: Boolean;
+var
+I: integer;
+ret: boolean;
+begin
+   ret:=clbColunas.Checked[7];
+   for i:=0 to clbColunas.Items.Count do
+   begin
+     if (i < 7) and (clbColunas.Checked[i]) then
+       ret:=false;
+   end;
+   result:=ret;
+end;
+
+procedure TfrmRelatorioEstoque.ckbProdutoAtivoClick(Sender: TObject);
+begin
+  inherited;
+  if not ckbProdutoInativo.Checked and
+     not ckbProdutoAtivo.Checked then
+     ckbProdutoInAtivo.Checked := True;
+end;
+
+procedure TfrmRelatorioEstoque.ckbProdutoInativoClick(Sender: TObject);
+begin
+  inherited;
+  if not ckbProdutoInativo.Checked and
+     not ckbProdutoAtivo.Checked then
+     ckbProdutoAtivo.Checked := True;
+end;
+
+procedure TfrmRelatorioEstoque.ckbAcabadosouSemiAcabadosClick(
+  Sender: TObject);
+begin
+  inherited;
+  if ckbAcabadosouSemiAcabados.checked and not ckbValorFinanceiro.checked then
+    ckbValorFinanceiro.checked := true;
+
+end;
+
+procedure TfrmRelatorioEstoque.ckbRelatorioemGradesClick(Sender: TObject);
+begin
+  inherited;
+  ckbGradecomElementos.Enabled := ckbRelatorioemGrades.Checked;
+
+  if ckbRelatorioemGrades.Checked then
+  begin
+    rgpResumo.ItemIndex := 1;
+    rgpresumo.Enabled := false;
+    ckbValorFinanceiro.Enabled := false;
+    ckbPrecodeVenda.Enabled := false;
+    ckbPrecoComIcms.Enabled := false;
+    ckbPrecoSemIcms.Enabled := false;
+    ckbCodigodeBarras.Enabled := false;
+  end
+  else
+  begin
+    rgpresumo.Enabled := True;
+    ckbValorFinanceiro.Enabled := True;
+    ckbPrecodeVenda.Enabled := True;
+    ckbPrecoComIcms.Enabled := True;
+    ckbPrecoSemIcms.Enabled := True;
+    ckbCodigodeBarras.Enabled := True;
+  end;
+
+
+end;
+
+procedure TfrmRelatorioEstoque.ckbDisponivelnoSiteClick(Sender: TObject);
+begin
+  inherited;
+  if not ckbNaoDisponivelnoSite.Checked and
+     not ckbDisponivelnoSite.Checked then
+     ckbNaoDisponivelnoSite.Checked := True;
+
+end;
+
+procedure TfrmRelatorioEstoque.ckbNaoDisponivelnoSiteClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not ckbNaoDisponivelnoSite.Checked and
+     not ckbDisponivelnoSite.Checked then
+     ckbDisponivelnoSite.Checked := True;
+
+end;
+
+end.

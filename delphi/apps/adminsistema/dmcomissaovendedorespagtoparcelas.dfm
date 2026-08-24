@@ -1,7 +1,7 @@
 inherited dtmcomissaovendedorespagtoparcelas: Tdtmcomissaovendedorespagtoparcelas
   OldCreateOrder = False
-  Left = 608
-  Top = 204
+  Left = 612
+  Top = 211
   Height = 540
   Width = 725
   object qryComissoesRecebimentos: TtecQuery

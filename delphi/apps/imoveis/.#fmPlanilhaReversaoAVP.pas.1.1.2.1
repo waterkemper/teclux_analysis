@@ -1,0 +1,113 @@
+unit fmPlanilhaReversaoAVP;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, DB,
+  StdCtrls, frconsulta, frconsultacodigo, cpdata, cpnumero, cpdbtext,
+  ExtCtrls, Buttons, dmPlanilhaReversaoAVP, ctconstantes, biblio,
+  ZQuery, ZPgSqlQuery, cpquery,  cpeditioncontrolvalidation, DBCtrls,
+  fmrelatoriopadrao, QCheckLst, fmconsultabasica, fmconsultaporcampo, Mask,
+  ToolWin, ComCtrls;
+
+type
+  TfrmPlanilhaReversaoAVP = class(TfrmRelatorioPadrao)
+    gbxEmpreendimento: TGroupBox;
+    gbxCliente: TGroupBox;
+    fraConsultaEmprendimento: TfraConsultaCodigo;
+    fraConsultaCliente: TfraConsultaCodigo;
+    GroupBox1: TGroupBox;
+    Label1: TLabel;
+    EditMesAnoInicial: TEditMesAno;
+    EditMesAnoFinal: TEditMesAno;
+  private
+    { Private declarations }
+    function ValidaCampos: Boolean;
+
+  protected
+    procedure InternoImpressao; override;
+
+  public
+    constructor Create(Aowner:Tcomponent);override;
+    destructor  Destroy; override;
+
+    { Public declarations }
+  end;
+
+var
+  frmPlanilhaReversaoAVP: TfrmPlanilhaReversaoAVP;
+
+implementation
+
+uses dmbasico;
+
+{$R *.dfm}
+
+{ TForm1 }
+
+constructor TfrmPlanilhaReversaoAVP.Create(Aowner: Tcomponent);
+begin
+  inherited;
+  dtmPlanilhaReversaoAVP:= TdtmPlanilhaReversaoAVP.Create(Self);
+  fraConsultaEmprendimento.TipoPesquisa:= pesEMPREENDIMENTOS;
+  fraConsultaCliente.TipoPesquisa      := pesCLIENTES;
+end;
+
+destructor TfrmPlanilhaReversaoAVP.Destroy;
+begin
+  dtmPlanilhaReversaoAVP:= nil;
+  inherited;
+  frmPlanilhaReversaoAVP:= nil;
+end;
+
+procedure TfrmPlanilhaReversaoAVP.InternoImpressao;
+begin
+  inherited;
+  with dtmPlanilhaReversaoAVP do
+  begin
+    DataInicial     := strtodate('01/'+EditMesAnoInicial.Text);
+    DataFinal       := UltimoDiaMes(strtodate('01/'+EditMesAnoFinal.Text));
+    if fraConsultaEmprendimento.edfCodigo.Text <> '' then
+      Empreendimento  := strtoint(fraConsultaEmprendimento.edfCodigo.Text)
+    else
+      Empreendimento:= 0;
+    if fraConsultaCliente.edfCodigo.Text <> '' then
+      Cliente         := strtoint(fraConsultaCliente.edfCodigo.Text)
+    else
+      Cliente         := 0;
+
+    IF ValidaCampos THEN
+      ImprimirRelatorio
+    ELSE
+      MensagemAviso('Período não informado')
+  end;
+end;
+
+function TfrmPlanilhaReversaoAVP.ValidaCampos: Boolean;
+begin
+   result := (not MesAnoEmBranco(EditMesAnoInicial.text) and not MesAnoEmBranco(EditMesAnoFinal.text));
+   if result then begin
+      result := EditMesAnoFinal.DataValida and EditMesAnoFinal.DataValida;
+      if result then
+      begin
+         Result:=StrToDate('01/'+EditMesAnoFinal.Text) <= StrToDate('01/'+EditMesAnoFinal.Text);
+         if not result then
+         begin
+           MensagemAviso('A data inicial tem que ser anterior ou igual à data final');
+           EditMesAnoFinal.SetFocus;
+         end;
+      end
+      else
+      begin
+         MensagemAviso(ctDATAINVALIDA);
+         EditMesAnoFinal.SetFocus;
+      end;
+   end
+   else begin
+      MensagemAviso(ctDATAEMBRACO);
+      EditMesAnoFinal.SetFocus;
+   end;
+
+end;
+
+end.

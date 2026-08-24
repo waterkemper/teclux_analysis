@@ -1,0 +1,1981 @@
+unit dmlerretornos;
+
+interface
+
+uses
+  SysUtils, Classes, DB, cpdatasource, ZQuery, ZPgSqlQuery, cpquery,
+  dmbasico,
+
+  Types, Graphics, Controls, Forms, Dialogs,
+  StdCtrls,
+  biblio,ctConstantes, FR_DSet, FR_DBSet, FR_Class,
+  clparametrossistema,
+  Variants, DateUtils, QCheckLst,cltextprinter, FR_Desgn, ZTransact,ACBrBoleto,ACBrBase;
+
+type
+  tstContrato = (OUTROS,ORCADO);
+
+type
+  TdtmLerRetornos = class(TdtmBasico)
+    dsrParcelas: TtecDataSource;
+    qryParcelas: TtecQuery;
+    qryParcelascontrato: TStringField;
+    qryParcelasnumero: TIntegerField;
+    qryParcelasdatavencto: TDateField;
+    qryParcelasvalorvencto: TFloatField;
+    qryParcelasdatapagto: TDateField;
+    qryParcelasvalorpagto: TFloatField;
+    qryParcelasremessa: TStringField;
+    qryParcelascliente: TIntegerField;
+    qryParcelasnome: TStringField;
+    qryParcelasfilialvenda: TIntegerField;
+    qryParcelasfaturamento: TDateField;
+    qryParcelaspessoatipo: TStringField;
+    qryParcelasdocumento: TStringField;
+    qryParcelasrua: TStringField;
+    qryParcelasinscricao: TStringField;
+    qryParcelascep: TIntegerField;
+    qryParcelasnomefilial: TStringField;
+    qryFiliais: TtecQuery;
+    qryFiliaiscodigo: TIntegerField;
+    qryFiliaisnome: TStringField;
+    qryFiliaisinscricaoestadual: TStringField;
+    dsrFiliais: TtecDataSource;
+    qryConsultaFiliais: TtecQuery;
+    qryConsultaFiliaisnome: TStringField;
+    qryConsultaFiliaiscodigo: TIntegerField;
+    qryParcelasmotivo: TStringField;
+    qryParcelasformapagamento: TStringField;
+    qryContas: TtecQuery;
+    qryContasBanco: TIntegerField;
+    qryContasAgencia: TIntegerField;
+    qryContasConta: TIntegerField;
+    qryContasDigito: TStringField;
+    qryContasTitular: TStringField;
+    qryContasSigla: TStringField;
+    qryContasNome: TStringField;
+    qryContasModeloCheque: TIntegerField;
+    dsrContas: TtecDataSource;
+    qryConsultaContas: TtecQuery;
+    qryConsultaContasSigla: TStringField;
+    qryConsultaContasNome: TStringField;
+    qryConsultaContasConta: TIntegerField;
+    qryConsultaContasDigito: TStringField;
+    qryConsultaContasTitular: TStringField;
+    qryConsultaContasAgencia: TIntegerField;
+    qryConsultaContasBanco: TIntegerField;
+    qryParcelas_CLIENTE_USA_CONTRATO: TtecQuery;
+    qryParcelas_CLIENTE_NFE_NAO_USA_CONTRATO: TtecQuery;
+    qryParcelasnrdocumento: TIntegerField;
+    qryContasbancoreferencia: TStringField;
+    qryContasconvenio: TIntegerField;
+    qryParcelassituacaocontrato: TStringField;
+    qryContasvariacao_carteira: TStringField;
+    qryContasformatacao_convenio: TStringField;
+    qryContasformatacao_nosso_numero: TStringField;
+    qryContasvalor_isencao_taxa: TFloatField;
+    qryContasagenciareferencia: TIntegerField;
+    qryContascnpj_agencia_referencia: TStringField;
+    qryContascedente_nome: TStringField;
+    qryContascodigo_singular: TLargeintField;
+    qryFiliaiscnpj: TStringField;
+    ACBrBoleto1: TACBrBoleto;
+    qryParcelasnossonumero: TLargeintField;
+    qryContastiporecebimento: TIntegerField;
+    spcTransacaoProximo: TtecQuery;
+    spcTransacaoProximotransacao: TIntegerField;
+    spcRecebimentosProximo: TtecQuery;
+    spcRecebimentosProximocodigo: TIntegerField;
+    qryRecebimentos: TtecQuery;
+    qryRecebimentoscodigo: TIntegerField;
+    qryRecebimentostiporecebimento: TIntegerField;
+    qryRecebimentostransacao: TIntegerField;
+    qryRecebimentosvalorlancto: TFloatField;
+    qryRecebimentosdatalancto: TDateField;
+    qryRecebimentoscheque: TStringField;
+    qryRecebimentossituacao: TStringField;
+    qryRecebimentosfilial: TIntegerField;
+    qryRecebimentosdatavencto: TDateField;
+    qryRecebimentoscontrole: TIntegerField;
+    qryRecebimentostef: TIntegerField;
+    qryParcelastransacao: TIntegerField;
+    qryParcelasfilialpagto: TIntegerField;
+    qryParcelastiporecebimento: TIntegerField;
+    qryInserirParcelaParcial: TtecQuery;
+    spcParcelasProximo: TtecQuery;
+    spcParcelasProximonumero: TIntegerField;
+    qryParcelasparcelaorigem: TStringField;
+    qryParcelasparcelaoriginal: TIntegerField;
+    qryParcelasdesmembrada: TBooleanField;
+    qryParcelaspagamentoextracaixa: TBooleanField;
+    qryParcelasjaverificada: TBooleanField;
+    qryParcelasevento: TIntegerField;
+    qryParcelascontaboleto: TIntegerField;
+  private
+  protected
+    FFiliais: String;
+    FContas:  String;
+    DtmCadCtr : TDataModule;
+
+    vPagamentosViaSite: TStringList;
+    vTotalRegistroViaSite: Integer;
+    vTotalValorRecebidoViaSite: Currency; 
+
+
+
+    Function  GetConsultarFiliais:  TTecQuery;
+    Function  GetConsultarContas:   TTecQuery;
+
+  public
+    constructor Create(AOwner: TComponent); Override;
+    procedure Selecionar(TipoPesquisa: TtecGerarRemessas);
+    procedure AbreTabelaConsulta(TipoPesquisa: TtecGerarRemessas);
+    procedure FechaTabelaConsulta(TipoPesquisa: TtecGerarRemessas);
+
+    Function  ExisteFiliais(NomeCampo, Codigo: string): Boolean;
+    Function  ExisteConta  (NomeCampo, Codigo: String): boolean;
+
+    property  ConsultarFiliais:  TTecQuery read GetConsultarFiliais;
+    property  ConsultarContas:   TTecQuery read GetConsultarContas;
+    procedure SetFiliais(const Value: string);
+    procedure SetContas(const Value: String);
+    function  AbrirParcelas: Boolean;
+    property  Filiais: string read fFiliais write SetFiliais;
+    property  Contas: String read FContas write FContas;
+//-------- LER RETORNO BRADESCO ----------------------------
+    function AtualizarParcelasBradesco (NomeArquivo: String): boolean;
+
+    function AtualizarParcelasBradescoACBR (NomeArquivo: String): boolean;
+
+    procedure LerHeaderRetornoBradesco  (NomeArquivo: String);
+    procedure LerDetalheRetornoBradesco (NomeArquivo: String);
+    procedure LerTraillerRetornoBradesco(NomeArquivo: String);
+//---------- LER RETORNO B. BRASIL --------------------------
+    function AtualizarParcelasBBrasil (NomeArquivo: String): Boolean;
+    procedure LerHeaderBBrasil(NomeArquivo: String);
+    function LerHeaderLoteBBrasil(NomeArquivo: String): boolean;
+    function LerDetalheSegmento_TU_BBrasil(NomeArquivo: String): boolean;
+    function LerTraillerLoteBBrasil(NomeArquivo: String): boolean;
+    procedure LerTraillerBBrasil(NomeArquivo: String);
+//---------- LER RETORNO ITAU --------------------------
+    function AtualizarParcelasItau (NomeArquivo: String): boolean;
+    procedure LerHeaderItau(NomeArquivo: String);
+    procedure LerHeaderLoteItau(NomeArquivo: String);
+    procedure LerDetalheSegmento_TU_Itau(NomeArquivo: String);
+    procedure LerTraillerLoteItau(NomeArquivo: String);
+    procedure LerTraillerItau(NomeArquivo: String);
+
+    function proximoNumeroParcela(contrato: string): integer;
+    procedure QuitarParcelas(ValorPagamento: Currency; Datapagamento: tDatetime; Comentario: String; ViaSite: boolean = false);
+    procedure EnviarEmailQuitacaoViaSite;
+
+
+  end;
+
+
+//------------------------------- RETORNO BRADESCO -------------------------------------------------
+Type  T_HeaderBradesco = Record
+        H_TipoRegistro      :Array[001..001] of Char;  { 0        }
+        H_IdentArquivo      :Array[002..002] of Char;  { 2        }
+        H_LiteralRemessa    :Array[003..009] of Char;  { RETORNO  }
+        H_CodigoServico     :Array[010..011] of Char;  { 01       }
+        H_LiteralServico    :Array[012..026] of Char;  { COBRANCA }
+        H_CodigoEmpresa     :Array[027..046] of Char;  {Fonecido pelo Bradesco}
+        H_NomeEmpresa       :Array[047..076] of Char;  { Nome da Empresa}
+        H_NumeroBradesco    :Array[077..079] of Char;  { 237      }
+        H_NomeBanco         :Array[080..094] of Char;  { BRADESCO }
+        H_DataGravacao      :Array[095..100] of Char;  { DDMMAA   }
+        H_Brancos01         :Array[101..108] of Char;  { BRANCOS  }
+        H_NrAvisoBancario   :Array[109..113] of Char;  { MX       }
+        H_Brancos02         :Array[114..379] of Char;  { BRANCOS  }
+        H_DataCredito       :Array[380..385] of Char;  { DDMMAA   }
+        H_Brancos03         :Array[386..394] of Char;  { BRANCOS  }
+        H_SequencialReg     :Array[395..400] of Char;  { 000001   }
+        H_CrLf              :Array[401..401] of Char;
+      End;
+
+Type  T_DetalheBradesco = Record
+        D_TipoRegistro            :Array[001..001] of Char;   { 1            }
+        D_TipoInscricao           :Array[002..003] of Char;   {01= CPF, 02= CGC, 03= PIS / PASEP, 98= NÃO TEM, 99= OUTROS.Ver nota explicativa 1 }
+        D_NumeroInscricao         :Array[004..017] of Char;   { Conforme item acima }
+        D_IndentEmpresa           :Array[018..037] of Char;   { Ver Obs 3      }
+        D_ControleDoParticipante  :Array[038..062] of Char;   { Idem Remessa   }
+        D_Zeros01                 :Array[063..070] of Char;   { 00000000       }
+        D_IdentTitulo             :Array[071..082] of Char;   { Nosso Numero   }
+        D_Zeros02                 :Array[083..107] of Char;   { 000000000000   }
+        D_CodigoCarteira          :Array[108..108] of Char;   { BRANCOS        }
+        D_IdentOcorrencia         :Array[109..110] of Char;   { O QUE OCORREU COM O TITULO VER TABELA }
+        D_DataOcorrenciaBradesco  :Array[111..116] of Char;   { DDMMAA         }
+        D_NrDuplicata             :Array[117..126] of Char;   { Numero Duplicata }
+        D_IdentTituloBradesco     :Array[127..146] of Char;   { Ident. do Titulo no Bradesco }
+        D_DataVenctoTitulo        :Array[147..152] of Char;   { DDMMAA  }
+        D_ValorTitulo             :Array[153..165] of Char;   { Valor Titutulo }
+        D_BancoCobrador           :Array[166..168] of Char;   { Codigo do Bando Cobrador    }
+        D_AgenciCobradora         :Array[169..173] of Char;   { Codigo da Agencia Cobradora }
+        D_EspecieTitulo           :Array[174..175] of Char;   { 1(Duplicata) ou Brancos }
+        D_Zeros03                 :Array[176..253] of Char;   { Zeros }
+        D_ValorPago               :Array[254..266] of Char;   { Valor Pago }
+        D_Zzeros04                :Array[267..292] of Char;   { Endereco  }
+        D_Brancos01               :Array[293..318] of Char;   { BRANCOS   }
+        D_CodigoOcorrencias       :Array[319..320] of Char;   { Ver Tabela de Motivos }
+        D_Zezros05                :Array[321..328] of Char;   { Zeros }
+        D_Brancos02               :Array[329..394] of Char;   { BRANCOS   }
+        D_SequencialReg           :Array[395..400] of Char;   { Sequencial}
+        D_CrLf                    :Array[401..401] of Char;
+      End;
+
+Type  T_TraillerBradesco = Record
+        T_TipoRegistro            :Array[001..001] of Char; { 9 }
+        T_IdentRetorno            :Array[002..002] of Char; { 2 }
+        T_IdentTipoRegisgitro     :Array[003..003] of Char; { 1 }
+        T_CodigoBradesco          :Array[005..007] of Char; { 237 }
+        T_Brancos01               :Array[008..017] of Char; { Brancos }
+        T_QtdeTitEmCobranca       :Array[018..025] of Char; { Qtde de Titulos em Cobrança }
+        T_ValorTotalEmCobranca    :Array[026..039] of Char; { Qtde de Titulos em Cobraçca }
+        T_NumeroAvisoBancario     :Array[040..047] of Char; { Número do Aviso Bancário    }
+        T_Brancos02               :Array[048..057] of Char; { Brancos }
+        T_QtdeTitConfirmados      :Array[058..062] of Char; { Titulos Aceito ocorrência 2 }
+        T_ValorTitConfirmados     :Array[063..074] of Char; { Total Titulos Confirmados   }
+        T_ValorTitCreditados      :Array[075..086] of Char; { Total dos Titulos Creditados}
+        T_QtdeTitLiquidados       :Array[087..091] of Char; { Ocorrencia 6 - Liquidação Normal}
+        T_ValorTotalBaixados      :Array[092..103] of Char; { Valor Total dos Titulos Baixados }
+        T_QtdeTitBaixadosAPedido  :Array[104..108] of Char; { Ocorrencia 9/10 Baixados a pedido da Empresa }
+        T_ValorTitBaixadosPedido  :Array[109..120] of Char; { Ocorrencia 9/10 Valor Baixados a pedido pela Empresa}
+        T_QtdeTitAbatimCancelado  :Array[121..125] of Char; { Ocorrencia 13 - Abatimento Cancelado }
+        T_VAlorTitAbatimCancelado :Array[126..137] of Char; { Ocorrencia 13 - Valor Titulos Abatimento Cancelado }
+        T_QtdeTitVenctoAlterado   :Array[138..142] of Char; { Ocorrencia 14 - Qtde Titulos Vencto Alterado }
+        T_ValorTitVenctoAlterado  :Array[143..154] of Char; { Ocorrencia 14 - Valor Titulos Vencto Alterado }
+        T_QtdeTitAbatimConcedido  :Array[155..159] of Char; { Ocorrencia 12 - Qtde Titullos Abatimento Concedido }
+        T_ValorTitAbatimConcedido :Array[160..171] of Char; { Ocorrencia 12 - Valor Titulos Abatimento Concecido }
+        T_QtdeTitProtesto         :Array[172..176] of Char; { Ocorrencia 19 - Qtde Titulos Confirmação de Protesto }
+        T_ValorTitProtesto        :Array[177..188] of Char; { Ocorrencia 19 - Valor Titulos Confirmação de Protesto }
+        T_Brancos3                :Array[189..362] of Char; { Brancos }
+        T_Zeros01                 :Array[363..385] of Char; { Zeros   }
+        T_Brancos4                :Array[386..394] of Char; { Brancos }
+        T_SequencialReg           :Array[395..400] of Char; { Sequencial do Registro }
+        T_CrLf                    :Array[401..401] of Char;
+      End;
+
+
+
+//----------------- RETORNO BANCO DO BRASIL ---------------------------------------------------------------------------------
+
+Type  T_HeaderBBrasil = Record
+
+        H_CODIGO_BANCO_COMPENSACAO :Array[001..003] of Char;  {003 colocar 001}
+        H_LOTE_DE_SERVICO          :Array[004..007] of Char;  {0001     }
+        H_REGISTRO_HEADER_ARQUIVO  :Array[008..008] of Char;  {2        }
+        H_USO_FEBRABAN             :Array[009..017] of Char;  {Brancos  }
+        H_TIPO_INSCRICAO_EMPRESA   :Array[018..018] of Char;  { 2-Cgc    }
+        H_NR_INSCRICAO_EMPRESA     :Array[019..032] of Char;  {14- Cgc   }
+        H_CODIGO_CONVENIO_BANCO    :Array[033..052] of Char;  {20-obs:6/7}
+        H_AGENCIA_MANTENEDORA_CONTA:Array[053..057] of Char;  {05-Obs 6/8}
+        H_DIGITO_VERIF_AGENCIA     :Array[058..058] of Char;  {01-Obs 6/8}
+        H_NUMERO_CONTA_CORRENTE    :Array[059..070] of Char;  {12-Obs 6/8}
+        H_DIGITO_VERIF_CONTA       :Array[071..071] of Char;  {01-Obs 6/8}
+        H_DIGITOVERIF_AG_CONTA     :Array[072..072] of Char;  {01-Obs 6/8}
+        H_NOME_EMPRESA             :Array[073..102] of Char;  {30        }
+        H_NOME_BANCO               :Array[103..132] of Char;  {30        }
+        H_USO_FEBRABAN1            :Array[133..142] of Char;  {10-Brancos}
+        H_CODIGO_REMESSA_RETORNO   :Array[143..143] of Char;  {01-1-REM / 2-RET}
+        H_DATA_GERACAO_ARQUIVO     :Array[144..151] of Char;  {08-DDMMAAA}
+        H_HORA_GERACAO_ARQUIVO     :Array[152..157] of Char;  {06-HHMMSS}
+        H_NR_SEQUENCIAL_ARQUIVO    :Array[158..163] of Char;  {06-Obs 17 Incrementar a cada Header}
+        H_NR_VERSAO_LAYOUT_ARQUIVO :Array[164..166] of Char;  {03 Obs 9 - 030}
+        H_DENSIDADE_GRAVACAO       :Array[167..171] of Char;  {05}
+        H_USO_ESERVADO_BANCO       :Array[172..191] of Char;  {20- Brancos}
+        H_USO_RESERVADO_EMPRESA    :Array[192..211] of Char;  {20        }
+        H_USO_FEBRABAN2            :Array[212..222] of Char;  {11- Brancos  }
+        H_IDENT_COBRANCA_EMPAPEL   :Array[223..225] of Char;  {03-CSP}
+        H_USO_DAS_VANS             :Array[226..228] of Char;  {03    }
+        H_TIPO_DE_SERVICO          :Array[229..230] of Char;  {02-Obs 52 - 02 Cobrança Sem Papel}
+        H_CODIGOS_DAS_OCORRENCIAS  :Array[231..240] of Char;  {10-Obs 53}
+        H_CrLf                     :Array[241..241] of Char;
+      End;
+
+Type  T_HeaderLoteBBrasil = Record
+        HL_CODIGO_BANCO_COMPENSACAO :Array[001..003] of Char;  {03}
+        HL_LOTE_DE_SERVICO          :Array[004..007] of Char;  {04 oBS 1 }
+        HL_REGISTRO_HEADERDE_LOTE   :Array[008..008] of Char;  {1 - Obs 2 colocar 1}
+        HL_TIPO_OPERACAO            :Array[009..009] of Char;  {1- Colocar "C"-Credito }
+        HL_TIPO_SERVICO             :Array[010..011] of Char;  {3 - Obs 4 - colocar 01}
+        HL_FORMA_DE_LANCAMENTO      :Array[012..013] of Char;  {02- Obs 5 colocar 30->liquidação de titulso do proprio banco}
+        HL_NR_VERSAO_LAYOUT_LOTE    :Array[014..016] of Char;  {03-obs: 45 - Colocar 020}
+        HL_USO_FEBRABAN             :Array[017..017] of Char;  {01- Brancos}
+        HL_TIPO_INSCRICAO_EMPRESA   :Array[018..018] of Char;  {01-Obs 6 - 1=Cpf 2=Cgc}
+        HL_NR_INSCRICAO_EMPRESA     :Array[019..033] of Char;  {14-Obs 6}
+        HL_CODIGO_CONVENIO_BANCO    :Array[034..053] of Char;  {20-Obs 6/7}
+        HL_AGENCIA_MANTENEDORA_CONTA:Array[054..058] of Char;  {05-Obs 6/8}
+        HL_DIGITO_AGENCIA           :Array[059..059] of Char;  {01 - Obs 6/8}
+        HL_NR_CONTA_CORRENTE        :Array[060..071] of Char;  {12 - Obs 6/8}
+        HL_DIGITO_CONTA             :Array[072..072] of Char;  {01- obs 6/8}
+        HL_DIGITO_VERIF_AG_CONTA    :Array[073..073] of Char;  {01- Obs 6/8}
+        HL_NOME_EMPRESA             :Array[074..103] of Char;  {30}
+        HL_MENSAGEM1                :Array[104..143] of Char;  {40 - Obs 19}
+        HL_MENSAGEM2                :Array[144..183] of Char;  {40 - Obs 19}
+        HL_NR_REMESSA_RETORNO       :Array[184..191] of Char;  {08 - Obs 19}
+        HL_DATA_GRAVACAO_REM_RET    :Array[192..199] of Char;  {08 - DDMMAAAA}
+        HL_DATA_CREDITO             :Array[200..207] of Char;  {08 - DDMMAAA}
+        HL_USO_FEBRABAN1            :Array[208..240] of Char;  {08- Brancos}
+        HL_CrLf                     :Array[241..241] of Char;
+      End;
+
+type T_DT_IDENT_TIT_NO_BANCO = record
+   convenio :Array[001..007] of char;
+   contrato :Array[008..015] of char;
+   parcela  :Array[016..017] of char;
+   controle :array[018..020] of char;
+end ;
+
+Type  T_DetalheSegmento_T_BBrasil = Record                           //--                    NOTAS
+
+        DT_CODIGO_BANCO_COMPENSACAO       :Array[001..003] of Char;  //-- 03  -  NUMERICO
+        DT_LOTE_DE_SERVICO                :Array[004..007] of Char;  //-- 04  -  NUMERICO
+        DT_REGISTRO_DETALHE               :Array[008..008] of Char;  //-- 01! -  3
+        DT_NR_SEQUENCIAL_REG              :Array[009..013] of Char;  //-- 05! -  NUMERICO
+        DT_COD_SEGMENTO                   :Array[014..014] of Char;  //-- 01! -  T            !11 !
+        DT_USOFEBRABAN                    :Array[015..015] of Char;  //-- 01! -  BRANCOS
+        DT_CODIGO_MOVIMENTO               :Array[016..017] of Char;  //-- 02! -  NUMERICO     !40 !
+        DT_AGENCIA_MANTENEDORA_CONTA      :Array[018..022] of Char;  //-- 05! -  NUMERICO     ! 8 !
+        DT_DIGITO_AGENCIA                 :Array[023..023] of Char;  //-- 01! -  NUMERICO     ! 8 !
+        DT_NR_CONTA_CORRENTE              :Array[024..035] of Char;  //-- 12  -  NUMERICO     ! 8 !
+        DT_DIGITO_CONTA                   :Array[036..036] of Char;  //-- 01! -  NUMERICO     ! 8 !
+        DT_DIGITO_AG_CONTA                :Array[037..037] of Char;  //-- 01! -  NUMERICO     ! 8 !
+{        DT_IDENT_TIT_NO_BANCO             :Array[038..057] of Char;  //-- 20  -  ALFANUMERICO !   !}
+
+        DT_IDENT_TIT_NO_BANCO             :T_DT_IDENT_TIT_NO_BANCO;
+
+        DT_CODIGO_CARTEIRA                :Array[058..058] of Char;  //-- 01  _  NUMERICO     !22 !
+        DT_NR_DUPLICATA                   :Array[059..073] of Char;  //-- 15  _  ALFANUMERICO !24 !
+        DT_DATA_VENCTO_TITULO             :Array[074..081] of Char;  //-- 08  _  NUMERICO
+        DT_VALOR_NOMINAL_TITULO           :Array[082..096] of Char;  //-- 13 02  NUMERICO
+        DT_NR_BANCO                       :Array[097..099] of Char;  //-- 03  -  NUMERICO     !43 !
+        DT_AGENCIA_COBR_RECEBEDORA        :Array[100..104] of Char;  //-- 05  -  NUMERICO     !43 !
+        DT_DIGITO_AGENCIA_COBR_RECPTORA   :Array[105..105] of Char;  //-- 01  -  NUMERICO
+        DT_NR_CONTRATO                    :Array[106..130] of Char;  //-- 25  -  ALFANUMERICO
+        DT_CODIGO_MOEDA                   :Array[131..132] of Char;  //-- 02  -  NUMERICO     !29 !
+        DT_TIPO_INSCRICAO                 :Array[133..133] of Char;  //-- 01  -  NUMERICO     !30 !
+        DT_NUMERO_INSCRICAO               :Array[134..148] of Char;  //-- 15  -  NUMERICO     !30 !
+        DT_NOME                           :Array[149..188] of Char;  //-- 40  -  ALFANUMERICO
+        DT_NR_CONTR_OPER_CRED             :Array[189..198] of Char;  //-- 10  -  NUMERICO
+        DT_VALOR_TARIFA_CUSTAS            :Array[199..213] of Char;  //-- 13 02  NUMERICO
+        DT_IDENT_REJEICOES                :Array[214..223] of Char;  //-- 10 -   NUMERICO     !42 !
+        DT_USO_FEBRABAN                   :Array[224..240] of Char;  //-- 17 -   NUMERICO     !55 !
+        DT_CrLf                           :Array[241..241] of Char;
+      end;
+
+Type  T_DetalheSegmento_U_BBrasil = Record                           //--                    NOTAS
+        DU_CODIGO_BANCO_COMPENSACAO       :Array [001..003] of Char; //-- 03 - !NUMERICO     !   !
+        DU_LOTE_DE_SERVICO                :Array [004..007] of Char; //-- 04 - !NUMERICO     !   !
+        DU_REGISTRO_DETALHE               :Array [008..008] of Char; //-- 01 - ! 3           !   !
+        DU_NR_SEQUENCIAL_REG              :Array [009..013] of Char; //-- 05 - !NUMERICO     !   !
+        DU_COD_SEGMENTO                   :Array [014..014] of Char; //-- 01 - ! U           !11 !
+        DU_USO_FEBRABAN                   :Array [015..015] of Char; //-- 01 - !BRANCOS      !   !
+        DU_CODIGO_MOVIMENTO               :Array [016..017] of Char; //-- 02 - !NUMERICO     !40 !
+        DU_JUROS_MULTA_ENCARGOS           :Array [018..032] of Char; //-- 13 2 !NUMERICO     !   !
+        DU_VALOR_DESCONTO                 :Array [033..047] of Char; //-- 13 2 !NUMERICO     !   !
+        DU_VALOR_ABAT_CONC_CANCELADO      :Array [048..062] of Char; //-- 13 2 !NUMERICO     !   !
+        DU_VALOR_IOF_RECOLHIDO            :Array [063..077] of Char; //-- 13 2 !NUMERICO     !   !
+        DU_VALOR_PAGO_PELO_SACADO         :Array [078..092] of Char; //-- 13 2 !NUMERICO     !   !
+        DU_VALOR_LIQUIDO_SER_CREDITADO    :Array [093..107] of Char; //-- 13 2 !NUMERICO     !   !
+        DU_VALOR_OUTRAS_DESPESAS          :Array [108..122] of Char; //-- 13 2 !NUMERICO     !   !
+        DU_VALOR_OUTROS_CREDITOS          :Array [123..137] of Char; //-- 13 2 !NUMERICO     !   !
+        DU_DATA_OCORRENCIA                :Array [138..145] of Char; //-- 08 - !NUMERICO     !   !
+        DU_DATA_EFETIVACAO_CREDITO        :Array [146..153] of Char; //-- 08 - !NUMERICO     !   !
+        DU_COD_OCORRENCIA_SACADO          :Array [154..157] of Char; //-- 04 - !ALFANUMERICO !44 !
+        DU_DATA_OCORRENCIA_SACADO         :Array [158..165] of Char; //-- 08 - !ALFANUMERICO !44 !
+        DU_VALOR_OCORRENCIA_SACADO        :Array [166..180] of Char; //-- 13 2 !NUMERICO     !44 !
+        DU_COMPLEM_OCORRENCIA_SACADO      :Array [181..210] of Char; //-- 30 - !ALFANUMERICO !44 !
+        DU_COD_BCO_CORRESP_COMPENS        :Array [211..213] of Char; //-- 03 - !NUMERICO     !32 !
+        DU_NOSSO_NUMERO                   :Array [214..233] of Char; //-- 20 - !NUMERICO     !32 !
+        DU_USO_FEBRABAN1                  :Array [234..240] of Char; //-- 07 - !BRANCOS      !   !
+        DU_CrLf                           :Array [241..241] of Char;
+      end;
+
+
+Type  T_TraillerLoteBBrasil = Record
+
+        TL_CODIGO_BANCO_COMPENSACAO  :Array[001..003] of Char;  {03}
+        TL_LOTE_DE_SERVICO           :Array[004..007] of Char;  {04 oBS 1 }
+        TL_REGISTRO_TRAILLER_LOTE    :Array[008..008] of Char;  {1 - Obs 2 colocar 5}
+        TL_USO_FEBRABAN              :Array[009..017] of Char;  {9- Brancos}
+        TL_QTDE_REG_DO_LOTE          :Array[018..023] of Char;  {6-oBS 38}
+        TL_QTDE_TIT_EM_COBRANCA      :Array[024..029] of Char;  {06- Obs 41}
+        TL_VALOR_TOT_TIT_EM_CARTEIRA :Array[030..046] of Char;  {15- OBS 41}
+        TL_QTDE_TIT_EM_COBRANCA1     :Array[047..052] of Char;  {06-OBS 41}
+        TL_VALOR_TOT_TIT_CARTEIRAS   :Array[053..069] of Char;  {15-OBS 41}
+        TL_QTDE_TIT_COBRANCA         :Array[070..075] of Char;  {06-OBS 41}
+        TL_VALOR_TOT_TIT_CARTEIRAS1  :Array[076..092] of Char;  {15-OBS 41}
+        TL_QTDE_TIT_COBRANCA1        :Array[093..098] of Char;  {06-OBS 41}
+        TL_VALOR_TOT_TIT_CARTEIRAS2  :Array[099..115] of Char;  {15-OBS 41}
+        TL_NUMERO_AVISO_LANCAMENTO   :Array[116..123] of Char;  {08-OBS 41}
+        TL_USO_FEBRABAN1             :Array[124..240] of Char;  {117- Brancos}
+        TL_CrLf                      :Array[241..241] of Char;
+      End;
+
+Type  T_TraillerBBrasil = Record
+        T_CODIGO_BANCO_COMPENSACAO  :Array[001..003] of Char;  {03}
+        T_LOTE_DE_SERVICO           :Array[004..007] of Char;  {4 oBS 1 Colocar 9999}
+        T_REGISTRO_TRAILLER_LOTE    :Array[008..008] of Char;  {1 - Obs 2 Colocar 9}
+        T_USO_FEBRABAN              :Array[009..017] of Char;  {9- Brancos}
+        T_QTDE_LOTES_NO_ARQUIVO     :Array[018..023] of Char;  {6- Tipos 1}
+        T_QTDE_REG_NO_ARQUIVO       :Array[024..029] of Char;  {6- Tipos 0+1+3+5+9}
+        T_QTDE_CONTAS_CONC_LOTES    :Array[030..035] of Char;  {6- Obs E - Tipo 1 - Oper "E"}
+        T_USO_FEBRABAN1             :Array[036..240] of Char;  {205- Brancos}
+        T_CrLf                      :Array[241..241] of Char;
+      End;
+
+//------------------------------- RETORNO ITAU ---------------------------------
+
+Type  T_HeaderItau = Record
+        H_CODIGO_BANCO_COMPENSACAO :Array[001..003] of Char;
+        H_LOTE_DE_SERVICO          :Array[004..007] of Char;
+        H_REGISTRO_HEADER_ARQUIVO  :Array[008..008] of Char;
+        H_BRANCOS_1                :Array[009..017] of Char;
+        H_TIPO_INSCRICAO_EMPRESA   :Array[018..018] of Char;
+        H_NR_INSCRICAO_EMPRESA     :Array[019..032] of Char;
+        H_BRANCOS_2                :Array[033..052] of Char;
+        H_ZEROS_1                  :Array[053..053] of Char;
+        H_AGENCIA_MANTENEDORA_CONTA:Array[054..057] of Char;
+        H_BRANCOS_3                :Array[058..058] of Char;
+        H_ZEROS_2                  :Array[059..065] of Char;
+        H_NUMERO_CONTA_CORRENTE    :Array[066..070] of Char;
+        H_BRANCOS_4                :Array[071..071] of Char;
+        H_DIGITOVERIF_AG_CONTA     :Array[072..072] of Char;
+        H_NOME_EMPRESA             :Array[073..102] of Char;
+        H_NOME_BANCO               :Array[103..132] of Char;
+        H_BRANCOS_5                :Array[133..142] of Char;
+        H_CODIGO_REMESSA_RETORNO   :Array[143..143] of Char;
+        H_DATA_GERACAO_ARQUIVO     :Array[144..151] of Char;
+        H_HORA_GERACAO_ARQUIVO     :Array[152..157] of Char;
+        H_NR_SEQUENCIAL_ARQUIVO    :Array[158..163] of Char;
+        H_NR_VERSAO_LAYOUT_ARQUIVO :Array[164..166] of Char;
+        H_ZEROS_3                  :Array[167..171] of Char;
+        H_BRANCOS_6                :Array[172..225] of Char;
+        H_ZEROS_4                  :Array[226..228] of Char;
+        H_BRANCOS_7                :Array[229..240] of Char;
+        H_CrLf                     :Array[241..241] of Char;
+      End;
+
+Type  T_HeaderLoteItau = Record
+        HL_CODIGO_BANCO_COMPENSACAO :Array[001..003] of Char;
+        HL_LOTE_DE_SERVICO          :Array[004..007] of Char;
+        HL_REGISTRO_HEADERDE_LOTE   :Array[008..008] of Char;
+        HL_TIPO_OPERACAO            :Array[009..009] of Char;
+        HL_TIPO_SERVICO             :Array[010..011] of Char;
+        HL_ZEROS_1                  :Array[012..013] of Char;
+        HL_NR_VERSAO_LAYOUT_LOTE    :Array[014..016] of Char;
+        HL_BRANCOS_1                :Array[017..017] of Char;
+        HL_TIPO_INSCRICAO_EMPRESA   :Array[018..018] of Char;
+        HL_NR_INSCRICAO_EMPRESA     :Array[019..033] of Char;
+        HL_BRANCOS_2                :Array[034..053] of Char;
+        HL_ZEROS_2                  :Array[054..054] of Char;
+        HL_DIGITO_AGENCIA           :Array[055..058] of Char;
+        HL_BRANCOS_3                :Array[059..059] of Char;
+        HL_ZEROS_3                  :Array[060..066] of Char;
+        HL_NR_CONTA_CORRENTE        :Array[067..071] of Char;
+        HL_BRANCOS_4                :Array[072..072] of Char;
+        HL_DIGITO_VERIF_AG_CONTA    :Array[073..073] of Char;
+        HL_NOME_EMPRESA             :Array[074..103] of Char;
+        HL_BRANCOS_5                :Array[104..183] of Char;
+        HL_NR_REMESSA_RETORNO       :Array[184..191] of Char;
+        HL_DATA_GRAVACAO_REM_RET    :Array[192..199] of Char;
+        HL_DATA_CREDITO             :Array[200..207] of Char;
+        HL_BRANCOS_6                :Array[208..240] of Char;
+        HL_CrLf                     :Array[241..241] of Char;
+      End;
+
+
+Type  T_DetalheSegmento_T_Itau = Record
+        DT_CODIGO_BANCO_COMPENSACAO       :Array[001..003] of Char;
+        DT_LOTE_DE_SERVICO                :Array[004..007] of Char;
+        DT_REGISTRO_DETALHE               :Array[008..008] of Char;
+        DT_NR_SEQUENCIAL_REG              :Array[009..013] of Char;
+        DT_COD_SEGMENTO                   :Array[014..014] of Char;
+        DT_BRANCOS_1                      :Array[015..015] of Char;
+        DT_CODIGO_OCORRENCIA              :Array[016..017] of Char;
+        DT_ZEROS_1                        :Array[018..018] of Char;
+        DT_AGENCIA_MANTENEDORA_CONTA      :Array[019..022] of Char;
+        DT_ZEROS_2                        :Array[023..030] of Char;
+        DT_NR_CONTA_CORRENTE              :Array[031..035] of Char;
+        DT_ZEROS_3                        :Array[036..036] of Char;
+        DT_DIGITO_AG_CONTA                :Array[037..037] of Char;
+        DT_CODIGO_CARTEIRA                :Array[038..040] of Char;
+        DT_IDENT_TIT_NO_BANCO             :Array[041..048] of Char;
+        DT_DAC_NOSSO_NUMERO               :Array[049..049] of Char;
+        DT_BRANCOS_3                      :Array[050..057] of Char;
+        DT_ZEROS_4                        :Array[058..058] of Char;
+        DT_NR_DUPLICATA                   :Array[059..068] of Char;
+        DT_BRANCOS_4                      :Array[069..073] of Char;
+        DT_DATA_VENCTO_TITULO             :Array[074..081] of Char;
+        DT_VALOR_NOMINAL_TITULO           :Array[082..096] of Char;
+        DT_ZEROS_5                        :Array[097..099] of Char;
+        DT_AGENCIA_COBR_RECEBEDORA        :Array[100..104] of Char;
+        DT_DIGITO_AGENCIA_COBR_RECPTORA   :Array[105..105] of Char;
+        DT_IDENT_TIT_NA_EMPRESA           :Array[106..130] of Char;
+        DT_ZEROS_6                        :Array[131..132] of Char;
+        DT_TIPO_INSCRICAO                 :Array[133..133] of Char;
+        DT_NUMERO_INSCRICAO               :Array[134..148] of Char;
+        DT_NOME                           :Array[149..178] of Char;
+        DT_BRANCOS_5                      :Array[179..188] of Char;
+        DT_ZEROS_7                        :Array[189..198] of Char;
+        DT_VALOR_DESPESAS                 :Array[199..213] of Char;
+        DT_IDENT_REJEICOES                :Array[214..221] of Char;
+        DT_MEIO_LIQUIDACAO                :Array[222..223] of Char;
+        DT_BRANCOS_6                      :Array[224..240] of Char;
+        DT_CrLf                           :Array[241..241] of Char;
+      end;
+
+Type  T_DetalheSegmento_U_Itau = Record
+        DU_CODIGO_BANCO_COMPENSACAO       :Array [001..003] of Char;
+        DU_LOTE_DE_SERVICO                :Array [004..007] of Char;
+        DU_REGISTRO_DETALHE               :Array [008..008] of Char;
+        DU_NR_SEQUENCIAL_REG              :Array [009..013] of Char;
+        DU_COD_SEGMENTO                   :Array [014..014] of Char;
+        DU_BRANCOS_1                      :Array [015..015] of Char;
+        DU_CODIGO_OCORRENCIA              :Array [016..017] of Char;
+        DU_JUROS_MULTA                    :Array [018..032] of Char;
+        DU_VALOR_DESCONTO                 :Array [033..047] of Char;
+        DU_VALOR_ABATIMENTO_CONCEDIDO     :Array [048..062] of Char;
+        DU_VALOR_IOF_RECOLHIDO            :Array [063..077] of Char;
+        DU_VALOR_LANCADO_CONTA            :Array [078..092] of Char;
+        DU_VALOR_LANCADO_CONTA_2          :Array [093..107] of Char;
+        DU_ZEROS_1                        :Array [108..137] of Char;
+        DU_DATA_OCORRENCIA                :Array [138..145] of Char;
+        DU_DATA_EFETIVACAO_CREDITO        :Array [146..153] of Char;
+        DU_COD_OCORRENCIA_SACADO          :Array [154..157] of Char;
+        DU_DATA_OCORRENCIA_SACADO         :Array [158..165] of Char;
+        DU_VALOR_OCORRENCIA_SACADO        :Array [166..180] of Char;
+        DU_BRANCOS_2                      :Array [181..210] of Char;
+        DU_ZEROS_2                        :Array [211..233] of Char;
+        DU_BRANCOS_3                      :Array [234..240] of Char;
+        DU_CrLf                           :Array [241..241] of Char;
+      end;
+
+
+Type  T_TraillerLoteItau = Record
+        TL_CODIGO_BANCO_COMPENSACAO  :Array[001..003] of Char;
+        TL_LOTE_DE_SERVICO           :Array[004..007] of Char;
+        TL_REGISTRO_TRAILLER_LOTE    :Array[008..008] of Char;
+        TL_BRANCOS_1                 :Array[009..017] of Char;
+        TL_QTDE_REG_DO_LOTE          :Array[018..023] of Char;
+        TL_QTDE_TIT_COBR_SIMPLES     :Array[024..029] of Char;
+        TL_VALOR_TIT_COBR_SIMPLES    :Array[030..046] of Char;
+        TL_QTDE_TIT_COBR_VINCULADA   :Array[047..052] of Char;
+        TL_VALOR_TIT_COBR_VINCULADA  :Array[053..069] of Char;
+        TL_ZEROS_1                   :Array[070..115] of Char;
+        TL_REF_AVISO_BANCARIO        :Array[116..123] of Char;
+        TL_BRANCOS_2                 :Array[124..240] of Char;
+        TL_CrLf                      :Array[241..241] of Char;
+      End;
+
+Type  T_TraillerItau = Record
+        T_CODIGO_BANCO_COMPENSACAO  :Array[001..003] of Char;
+        T_LOTE_DE_SERVICO           :Array[004..007] of Char;
+        T_REGISTRO_TRAILLER         :Array[008..008] of Char;
+        T_BRANCOS_1                 :Array[009..017] of Char;
+        T_QTDE_LOTES_NO_ARQUIVO     :Array[018..023] of Char;
+        T_QTDE_REG_NO_ARQUIVO       :Array[024..029] of Char;
+        T_ZEROS_1                   :Array[030..035] of Char;
+        T_USO_FEBRABAN1             :Array[036..240] of Char;
+        T_CrLf                      :Array[241..241] of Char;
+      End;
+
+//---------------------------------------------------------------------------------------------------------------------------
+var
+  dtmLerRetornos: TdtmLerRetornos;
+//------------ Bradesco ------------------
+  HeaderBradesco  : T_HeaderBradesco;
+  DetalhesBradesco: T_DetalheBradesco;
+  TraillerBradesco: T_TraillerBradesco;
+//------------Banco Brasil ---------------
+  HeaderBBrasil            : T_HeaderBBrasil;
+  HeaderLoteBBrasil        : T_HeaderLoteBBrasil;
+  DetalheSegmento_T_BBrasil: T_DetalheSegmento_T_BBrasil;
+//  DT_IDENT_TIT_NO_BANCO    : T_DT_IDENT_TIT_NO_BANCO;
+
+  DetalheSegmento_U_BBrasil: T_DetalheSegmento_U_BBrasil;
+  TraillerLoteBBrasil      : T_TraillerLoteBBrasil;
+  TraillerBBrasil          : T_TraillerBBrasil;
+//------ Itau ---------
+  HeaderItau      : T_HeaderItau;
+  HeaderLoteItau  : T_HeaderLoteItau;
+  Detalhes_T_Itau : T_DetalheSegmento_T_Itau;
+  Detalhes_U_Itau : T_DetalheSegmento_U_Itau;
+  TraillerLoteItau: T_TraillerLoteItau;
+  TraillerItau    : T_TraillerItau;
+
+  Arquivo: File;
+  NrLidos, NrRegOK: Integer;
+  ContratosParcelas: String;
+  Erro: Boolean;
+
+implementation
+
+uses dmtecsoft,Math;
+
+{$R *.dfm}
+
+
+procedure Tdtmlerretornos.AbreTabelaConsulta(TipoPesquisa: TtecGerarRemessas);
+begin
+  case TipoPesquisa of
+    grsFILIAIS: Abre(ctConsultaFiliais);
+    grsCONTAS:  Abre(ctConsultaContas);
+  end;
+end;
+
+constructor Tdtmlerretornos.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryFiliais.Tag:= ctTabelas;
+  qryContas. Tag:= ctTabelas;
+
+  qryConsultaFiliais.Tag:= ctConsultaFiliais;
+  qryConsultaContas. Tag:= ctConsultaContas;
+end;
+
+Function Tdtmlerretornos.ExisteFiliais(NomeCampo, Codigo: string): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaFiliais,NomeCampo,Codigo);
+end;
+
+Function Tdtmlerretornos.ExisteConta(NomeCampo, Codigo: string): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaContas,NomeCampo,Codigo);
+end;
+
+procedure Tdtmlerretornos.FechaTabelaConsulta(TipoPesquisa: TtecGerarRemessas);
+begin
+  case TipoPesquisa of
+    grsFILIAIS: Fecha(ctConsultaFiliais);
+    grsCONTAS:  Fecha(ctConsultaContas);
+  end;
+end;
+
+Function Tdtmlerretornos.GetConsultarFiliais: TTecQuery;
+begin
+  Result:= qryConsultaFiliais;
+end;
+
+Function Tdtmlerretornos.GetConsultarContas: TTecQuery;
+begin
+  Result:= qryConsultaContas;
+end;
+
+procedure Tdtmlerretornos.Selecionar(TipoPesquisa: TtecGerarRemessas);
+begin
+   case TipoPesquisa of
+      grsFILIAIS: RefazConsulta(qryFiliais, [0], [qryConsultaFiliaisCodigo.AsInteger]);
+      grsCONTAS:  RefazConsulta(qryContas,  [0], [qryConsultaContasConta.  AsInteger]);
+   end;
+end;
+
+procedure Tdtmlerretornos.SetFiliais(const Value: string);
+begin
+  FFiliais := Value;
+{colocado em comentario - JR 18/03 - FILIAL DE PAGAMENTO SERA A INFORMADA NO FILTRO)}
+{  if (Value <> '') then
+    qryParcelas.MacroByName('filial').AsString := 'and (ct.filialvenda = ' + Value + ')'
+  else
+    qryParcelas.MacroByName('filial').AsString := ''}
+end;
+
+procedure Tdtmlerretornos.SetContas(const Value: string);
+begin
+  FContas:= Value;
+end;
+
+Function Tdtmlerretornos.AbrirParcelas: Boolean;
+begin
+  ReFazConsulta(qryparcelas,[],[]);
+  Result := not qryParcelas.IsEmpty;
+end;
+
+//========================= LER RETORNO BRADESCO ===========================================================
+{function Tdtmlerretornos.AtualizarParcelasBradesco(NomeArquivo: String): boolean;
+
+var DetalhesBradesco: T_DetalheBradesco;
+    Contrato: String;
+    Parcela: integer;
+    ACBrBoleto1: TACBrBoleto;
+    titulo: TACBrTitulo;
+
+begin
+  result := false;
+  Erro := False;
+
+  qryParcelas.Close;
+  if not FileExists(NomeArquivo) then
+     raise exception.create(ctARQUIVOINEXISTENTE +', deve ter sido renomeado para '+ NomeArquivo + '.OLD : ' + NomeArquivo);
+
+
+
+ ACBrBoleto1 := TACBrBoleto.Create(Self);
+ ACbrBoleto1.Banco.Numero:=237;
+ ACbrBoleto1.Banco.TipoCobranca:=cobBradesco;
+ ACBrBoleto1.LayoutRemessa:=c400;
+ ACBrBoleto1.DirArqRetorno := ExtractFileDir(NomeArquivo);
+ ACBrBoleto1.NomeArqRetorno := ExtractFileName(NomeArquivo);
+ if(qryContascnpj_agencia_referencia.AsString<>'') then
+   ACBrBoleto1.Cedente.CNPJCPF := qryContascnpj_agencia_referencia.AsString
+ else
+   ACBrBoleto1.Cedente.CNPJCPF := qryFiliaiscnpj.AsString;
+ ACBrBoleto1.Cedente.Agencia  := qryContasAgencia.AsString;
+ ACBrBoleto1.Cedente.Conta    := qryContasConta.AsString;
+ ACBrBoleto1.LerRetorno;
+
+
+  {
+  Contrato := '';  Parcela := 0;
+  while not Eof(Arquivo) do begin
+    with DetalhesBradesco do begin
+       BlockRead(Arquivo,DetalhesBradesco,1);
+       if D_TipoRegistro = '1' then begin
+          Contrato:= Trim(D_ControleDoParticipante);
+          delete(contrato, length(contrato)-3, 3);
+          Parcela := strtoint(Trim(D_NrDuplicata));
+
+          if (Contrato <> '') and (Parcela <> 0) then
+          begin
+            if ParSistema.ClienteUsaContrato then
+              ContratosParcelas := ContratosParcelas +
+              '(p.contrato = ' +QuotedStr(Contrato)+  ' and p.numero = ' +inttostr(Parcela)+ ') or '
+            else
+              ContratosParcelas := ContratosParcelas +
+              '(n.numero = ' +Contrato+  ' and p.numero = ' +inttostr(Parcela)+ ') or ';
+          end
+       end;
+    end;
+  end;
+  Close(Arquivo);
+  if ContratosParcelas = '' then begin
+     MensagemAviso(ctNAOFOISELECIONADOPARCELAS);
+     Exit;
+  end;
+
+  Delete(ContratosParcelas, Length(ContratosParcelas)-3, 4);
+
+  if ContratosParcelas <> ''  then begin
+     ContratosParcelas := 'and (' + ContratosParcelas + ')';
+     qryParcelas.MacroByName('contratosparcelas').AsString := ContratosParcelas;
+  end;
+
+  if qryParcelas.Active then
+     qryParcelas.Close;
+  qryParcelas.Open;
+
+  if qryParcelas.IsEmpty then begin
+     MensagemAviso(ctNAOFOISELECIONADOPARCELAS);
+     exit;
+  end;
+
+  if Erro then
+     Exit
+  else
+    result := true;
+
+  LerHeaderRetornoBradesco(NomeArquivo);
+  LerDetalheRetornoBradesco(NomeArquivo);
+  LerTraillerRetornoBradesco(NomeArquivo);
+
+
+end;
+}
+
+function Tdtmlerretornos.AtualizarParcelasBradesco(NomeArquivo: String): boolean;
+
+var DetalhesBradesco: T_DetalheBradesco;
+    Contrato: String;
+    Parcela: integer;
+
+begin
+  result := false;
+  Erro := False;
+
+  qryParcelas.Close;
+  if not FileExists(NomeArquivo) then
+     raise exception.create(ctARQUIVOINEXISTENTE +', deve ter sido renomeado para '+ NomeArquivo + '.OLD : ' + NomeArquivo);
+
+  Try
+    AssignFile(Arquivo, NomeArquivo);
+    Reset(Arquivo,SizeOf(DetalhesBradesco));
+    ContratosParcelas := '';
+  except
+    Close(Arquivo);
+    Erro := True;
+    raise exception.create(ctERROABERTURAARQUIVOTEXTO +  NomeArquivo);
+  end;
+
+  Contrato := '';  Parcela := 0;
+  while not Eof(Arquivo) do begin
+    with DetalhesBradesco do begin
+       BlockRead(Arquivo,DetalhesBradesco,1);
+       if D_TipoRegistro = '1' then begin
+          Contrato:= Trim(D_ControleDoParticipante);
+          delete(contrato, length(contrato)-3, 3);
+          Parcela := strtoint(Trim(D_NrDuplicata));
+
+          if (Contrato <> '') and (Parcela <> 0) then
+          begin
+            if ParSistema.ClienteUsaContrato then
+              ContratosParcelas := ContratosParcelas +
+              '(p.contrato = ' +QuotedStr(Contrato)+  ' and p.numero = ' +inttostr(Parcela)+ ') or '
+            else
+              ContratosParcelas := ContratosParcelas +
+              '(n.numero = ' +Contrato+  ' and p.numero = ' +inttostr(Parcela)+ ') or ';
+          end
+       end;
+    end;
+  end;
+  Close(Arquivo);
+  if ContratosParcelas = '' then begin
+     MensagemAviso(ctNAOFOISELECIONADOPARCELAS);
+     Exit;
+  end;
+
+  Delete(ContratosParcelas, Length(ContratosParcelas)-3, 4);
+
+  if ContratosParcelas <> ''  then begin
+     ContratosParcelas := 'and (' + ContratosParcelas + ')';
+     qryParcelas.MacroByName('contratosparcelas').AsString := ContratosParcelas;
+  end;
+
+  if qryParcelas.Active then
+     qryParcelas.Close;
+  qryParcelas.Open;
+
+  if qryParcelas.IsEmpty then begin
+     MensagemAviso(ctNAOFOISELECIONADOPARCELAS);
+     exit;
+  end;
+
+  if Erro then
+     Exit
+  else
+    result := true;
+
+  LerHeaderRetornoBradesco(NomeArquivo);
+  LerDetalheRetornoBradesco(NomeArquivo);
+  LerTraillerRetornoBradesco(NomeArquivo);
+end;
+
+procedure Tdtmlerretornos.LerHeaderRetornoBradesco(NomeArquivo: String);
+var  HeaderBradesco : T_HeaderBradesco;
+Begin
+   if Erro then
+      Exit;
+
+   With HeaderBradesco do Begin
+     AssignFile(Arquivo, NomeArquivo);
+     Reset(Arquivo,SizeOf(HeaderBradesco));
+     BlockRead(Arquivo,HeaderBradesco,1);
+     NrLidos:= 1;   NrRegOK:= 0;
+
+     if StrToInt(H_NumeroBradesco) <> qryContasbancoreferencia.AsInteger then begin
+        Close(Arquivo);
+        Erro := True;
+        raise exception.Create(ctHEADERNAOCONFERE + H_NumeroBradesco);
+     end;
+     if H_TipoRegistro <> '0' then begin
+        Close(Arquivo);
+        Erro := True;
+        raise exception.Create(ctARQNAOTEMHEADER);
+     end;
+     if (H_IdentArquivo <> '2') or (ANSIUpperCase(H_LiteralRemessa) <> 'RETORNO') then begin
+        Erro := True;
+        Close(Arquivo);
+        raise exception.Create(ctARQNAOERETORNO);
+     end;
+     if (H_CodigoServico <> '01') or (Trim(ANSIUpperCase(H_LiteralServico)) <> 'COBRANCA') then begin
+        Close(arquivo);
+        Erro := True;
+        raise exception.Create(ctARQNAOEDECOBRANCA);
+     end;
+     if H_NumeroBradesco <> '237' then begin
+        Close(Arquivo);
+        Erro := True;
+        raise exception.Create(ctBANCODOARQTEXTO + H_NumeroBradesco);
+     end;
+   End;
+End;
+
+procedure Tdtmlerretornos.LerDetalheRetornoBradesco(NomeArquivo: String);
+
+var   DetalhesBradesco: T_DetalheBradesco;
+      ControleParticipante, condicao: String;
+      NrDuplicata: Integer;
+      ValorPago: String[14];    DataOcorr, Obs: String;
+Begin
+   if Erro then
+      Exit;
+
+   while not Eof(Arquivo) do begin
+      with DetalhesBradesco do begin
+         BlockRead(Arquivo,DetalhesBradesco,1);
+         Inc(NrLidos);
+         If D_TipoRegistro = '9' then begin   {Leu o trailer}
+            Perpetrar([qryParcelas]);
+            Exit;
+         end;
+
+         Obs := '';
+         case StrToInt(D_IdentOcorrencia) of
+           02: Obs := 'A ENTRADA FOI CONFIRMADA';
+           03: Obs := 'A ENTRADA FOI REJEITADA';
+           06: Obs := 'A LIQUIDAÇÃO FOI NORMAL';
+           09: Obs := 'BAIXA AUTOMÁTICA';
+           10: Obs := 'BAIXA CFE INSTRUÇÕES AGÊNCIA';
+           11: Obs := 'TÍTULOS EM SER (Título Pendente)';
+           12: Obs := 'O ABATIMENTO FOI CONCEDIDO';
+           13: Obs := 'O ABATIMENTO FOI CANCELADO';
+           14: Obs := 'A DATA DE VENCTO FOI PRORROGADA';
+           15: Obs := 'PAGAMENTO FOI FEITO EM CARTÓRIO (Em Dinheiro';
+           17: Obs := 'LIQUIDAÇÃO APÓS BAIXA';
+           18: Obs := 'ACERTO DE DEPOSITÁRIA';
+           19: Obs := 'CONFIRMAÇÃO RECEB. INST. PROTESTO';
+           20: Obs := 'CONFIRMAÇÃO RECEB. INST. SUST.PROTESTO';
+           21: Obs := 'ACERTO CONT. PARTICIPANTE';
+           23: Obs := 'ENTRADA DE TÍTULO EM CARTÓRIO';
+           24: Obs := 'ENTRADA REJEITADA - CEP INVÁLIDO';
+           27: Obs := 'BAIXA REJEITADA';
+           30: Obs := 'ALTERAÇÃO DE DADOS REJEITADOS';
+           32: Obs := 'INSTRUÇÃO REJEITADA';
+           33: Obs := 'CONFIRMAÇÃO ALTERAÇÃO DADOS';
+           34: Obs := 'RETIRADO CARTÓRIO E PENDENTE';
+           35: Obs := 'CANCELAMENTO DE DÉBITO AUTOMÁTICO';
+           else
+               Obs := 'IDENT. DE OCORRÊNCIA DESCONHECIDA: ' + D_IdentOcorrencia;
+         end;
+
+         if D_ValorPago <> '0000000000000' then begin
+            ControleParticipante := Trim(D_ControleDoParticipante);
+            delete(ControleParticipante, length(ControleParticipante)-3, 3);
+            NrDuplicata          := strtoint(Trim(D_NrDuplicata));
+            if ParSistema.ClienteUsaContrato then
+              condicao := 'contrato;numero'
+            else
+              condicao := 'nrdocumento;numero';
+
+            if qryParcelas.Locate(condicao, VarArrayOf([ControleParticipante, NrDuplicata]), []) then begin
+               if qryParcelasValorPagto.AsCurrency <> 0 then begin
+                  qryParcelas.Edit;
+                  qryParcelasMOTIVO.AsString := 'Parcela já estava paga, não foi atualizado';
+                  qryParcelas.Post;
+               end
+               else begin
+
+                  ValorPago := D_ValorPago;
+                  Insert(',',ValorPago,12);
+                  DataOcorr := Copy(D_DataOcorrenciaBradesco,1,2) + '/' + Copy(D_DataOcorrenciaBradesco,3,2) + '/' + Copy(D_DataOcorrenciaBradesco,5,2);
+
+                  QuitarParcelas(StrToFloat(ValorPago),StrToDate(DataOcorr),obs);
+               end
+            end else
+               MensagemAviso('Documento/Parcela não cadastrada ou já quitada: Documento: ' + ControleParticipante + ' Parcela: ' + inttostr(NrDuplicata))
+         end else begin
+            qryParcelas.Edit;
+            qryParcelasMOTIVO.AsString := Obs;
+            qryParcelas.Post;
+         end;
+      end;
+   end;
+End;
+
+
+procedure Tdtmlerretornos.LerTraillerRetornoBradesco(NomeArquivo: String);
+Var Posicao: LongInt;
+    TraillerBradesco: T_TraillerBradesco;
+Begin
+   if Erro then
+      Exit;
+
+   Posicao:= FilePos(Arquivo) - 1;
+   Seek(Arquivo,Posicao);
+   BlockRead(Arquivo,TraillerBradesco,1);
+
+   If TraillerBradesco.T_TipoRegistro <> '9' then begin
+      Close(Arquivo);
+      raise exception.create(ctFALTOUTRAILLER);
+   end;
+
+   Close(Arquivo);
+end; {LerTrailerRetornoBradesco}
+
+
+//========================= LER RETORNO BANCO DO BRASIL =========================================
+
+function Tdtmlerretornos.AtualizarParcelasBBrasil(NomeArquivo: String): boolean;
+var Contrato, v: String;
+    Parcela: integer;
+    I: integer;
+
+begin
+  result := false;
+  Erro := False;
+
+  qryParcelas.Close;
+  if not FileExists(NomeArquivo) then
+     raise exception.create(ctARQUIVOINEXISTENTE +', deve ter sido renomeado para '+ NomeArquivo + '.OLD : ' + NomeArquivo);
+
+
+  Try
+
+
+    AssignFile(Arquivo, NomeArquivo);
+    Reset(Arquivo,SizeOf(DetalheSegmento_T_BBrasil));
+    ContratosParcelas := '';
+  except
+    Close(Arquivo);
+    Erro := True;
+    raise exception.create(ctERROABERTURAARQUIVOTEXTO +': ' +  NomeArquivo);
+  end;
+
+  I:= 1;
+  Contrato := '';  Parcela := 0;
+
+  while not Eof(Arquivo) do
+  begin
+    with DetalheSegmento_T_BBrasil do
+    begin
+      BlockRead(Arquivo,DetalheSegmento_T_BBrasil,I);
+      if DT_Cod_Segmento = 'T' then
+      begin
+        {  Visto que foi definido uma estrutura para o DT_IDENT_TIT_NO_BANCO basta fazer a referencia abaixo
+
+           Parcela :=  strtoint(copy(contrato, length(qryContasconvenio.asstring)+8+1, 2));
+           Contrato := RetiraZeroaEsquerda(copy(contrato, length(qryContasconvenio.asstring)+1, 8));}
+
+          Contrato := RetiraZeroaEsquerda(Trim(DT_IDENT_TIT_NO_BANCO.Contrato));
+          Parcela  := strtoint(DT_IDENT_TIT_NO_BANCO.parcela);
+
+
+          if (Contrato <> '') and (Parcela <> 0) then
+          begin
+            if ParSistema.ClienteUsaContrato then
+              ContratosParcelas := ContratosParcelas +
+              '(p.contrato = ' +QuotedStr(Contrato)+  ' and p.numero = ' +inttostr(Parcela)+ ') or '
+            else
+              ContratosParcelas := ContratosParcelas +
+              '(n.numero = ' +Contrato+  ' and p.numero = ' +inttostr(Parcela)+ ') or ';
+          end;
+       end;
+    end;
+  end;
+  Close(Arquivo);
+
+  if ContratosParcelas = '' then begin
+     MensagemAviso(ctNAOFOISELECIONADOPARCELAS);
+     Exit;
+  end;
+
+  Delete(ContratosParcelas, Length(ContratosParcelas)-3, 4);
+
+  if ContratosParcelas <> ''  then begin
+     ContratosParcelas := 'and (' + ContratosParcelas + ')';
+     qryParcelas.MacroByName('contratosparcelas').asstring  := ContratosParcelas;
+  end;
+
+  if qryParcelas.Active then
+     qryParcelas.Close;
+  qryParcelas.Open;
+
+  if qryParcelas.IsEmpty then
+  begin
+     MensagemAviso(ctNAOFOISELECIONADOPARCELAS);
+     result := false;
+     exit;
+  end;
+
+  if Erro then
+     Exit
+  else
+    result:= true;
+
+  LerHeaderBBrasil(NomeArquivo);
+  if LerHeaderLoteBBrasil(NomeArquivo) then
+    if LerDetalheSegmento_TU_BBrasil(NomeArquivo) then
+      if LerTraillerLoteBBrasil(NomeArquivo) then
+         LerTraillerBBrasil(NomeArquivo) 
+end;
+
+procedure Tdtmlerretornos.LerHeaderBBrasil(NomeArquivo: String);
+Begin
+   if Erro then
+      Exit;
+
+   With HeaderBBrasil do Begin
+     AssignFile(Arquivo, NomeArquivo);
+     Reset(Arquivo,SizeOf(HeaderBBrasil));
+     BlockRead(Arquivo,HeaderBBrasil,1);
+     NrLidos:= 1;   NrRegOK:= 0;
+
+     if StrToInt(H_CODIGO_BANCO_COMPENSACAO) <> qryContasBancoreferencia.AsInteger then begin
+        Close(Arquivo);
+        Erro := True;
+        raise exception.Create(ctHEADERNAOCONFERE + H_CODIGO_BANCO_COMPENSACAO);
+     end;
+     if H_LOTE_DE_SERVICO <> '0000' then begin
+        Close(Arquivo);
+        Erro := True;
+        raise exception.Create(ctARQNAOTEMHEADER);
+     end;
+     if (H_REGISTRO_HEADER_ARQUIVO <> '0') or (H_CODIGO_REMESSA_RETORNO <> '2') then begin
+        Erro := True;
+        Close(Arquivo);
+        raise exception.Create(ctARQNAOERETORNO);
+     end;
+     if (H_NR_VERSAO_LAYOUT_ARQUIVO <> '030') then begin
+        Close(arquivo);
+        Erro := True;
+        raise exception.Create(ctVERSAONAOE030);
+     end;
+     if H_CODIGO_BANCO_COMPENSACAO <> '001' then begin
+        Close(Arquivo);
+        Erro := True;
+        raise exception.Create(ctBANCODOARQTEXTO + H_CODIGO_BANCO_COMPENSACAO);
+     end;
+   End;
+End;
+
+function Tdtmlerretornos.LerHeaderLoteBBrasil(NomeArquivo: String): boolean;
+Begin
+   result := false;
+   if Erro then
+      Exit;
+
+   With HeaderLoteBBrasil do Begin
+     BlockRead(Arquivo,HeaderLoteBBrasil,1);
+     NrLidos:= 1;   NrRegOK:= 0;
+
+     if StrToInt(HL_CODIGO_BANCO_COMPENSACAO) <> qryContasbancoreferencia.AsInteger then begin
+        Close(Arquivo);
+        Erro := True;
+        raise exception.Create(ctHEADERNAOCONFERE + HL_CODIGO_BANCO_COMPENSACAO);
+     end;
+     if HL_LOTE_DE_SERVICO <> '0001' then begin
+        Close(Arquivo);
+        Erro := True;
+        raise exception.Create(ctARQNAOTEMHEADERLOTE);
+     end;
+     if (HL_REGISTRO_HEADERDE_LOTE <> '1') then begin
+        Erro := True;
+        Close(Arquivo);
+        raise exception.Create(ctARQNAOERETORNO);
+     end;
+     if HL_NR_VERSAO_LAYOUT_LOTE <> '020' then begin
+        Close(arquivo);
+        Erro := True;
+        raise exception.Create(ctVERSAONAOE020);
+     end;
+     if HL_CODIGO_BANCO_COMPENSACAO <> '001' then begin
+        Close(Arquivo);
+        Erro := True;
+        raise exception.Create(ctBANCODOARQTEXTO + HL_CODIGO_BANCO_COMPENSACAO);
+     end;
+   End;
+   result := not erro;
+
+End;
+
+function Tdtmlerretornos.LerDetalheSegmento_TU_BBrasil(NomeArquivo: String): boolean;
+Const SQL = 'and (%s) ';
+var   Contrato, condicao: String;
+      NrDuplicata: integer;
+      ValorPago: String[16]; DataOcorr: String;
+      Obs: String;
+      vtstContrato : tstContrato;
+
+Begin
+   result := true;
+
+   if Erro then
+      Exit;
+
+   for vtstContrato := OUTROS to ORCADO do
+   begin
+     while not Eof(Arquivo) do
+     begin
+        with DetalheSegmento_T_BBrasil, DetalheSegmento_U_BBrasil do begin
+           BlockRead(Arquivo,DetalheSegmento_T_BBrasil,1);
+           Inc(NrLidos);
+
+           If (DT_REGISTRO_DETALHE = '5') or (DT_REGISTRO_DETALHE = '9') then   {Leu o trailer Lote ou trailler header}
+             break;
+
+           Obs:= '';
+           case StrToInt(DT_CODIGO_MOVIMENTO) of
+             02: Obs := 'A ENTRADA FOI CONFIRMADA';
+             03: Obs := 'A ENTRADA FOI REJEITADA';
+             04: Obs := 'TRANFERÊNCIA DE CARTEIRA/ENTRADA';
+             05: Obs := 'TRANFERÊNCIA DE CARTEIRA/BAIXA';
+             06: Obs := 'LIQUIDAÇÃO';
+             07: Obs := 'CONFIRMAÇÃO DO RECEB. DA INSTRUÇÃO DE DESCONTO';
+             09: Obs := 'BAIXA';
+             11: Obs := 'TITULOS EM CARTEIRA / EM SER';
+             12: Obs := 'CONFIRMAÇÃO RECEB. INSTRUÇÃO DE ABATIMENTO';
+             13: Obs := 'O ABATIMENTO FOI CANCELADO';
+             14: Obs := 'A DATA DE VENCTO FOI PRORROGADA';
+             15: Obs := 'FRANCO DE PAGAMENTO';
+             17: Obs := 'LIQUIDAÇÃO APÓS BAIXA OU TITULO NÃO REGISTRADO';
+             19: Obs := 'CONFIRMAÇÃO RECEB. INST. PROTESTO';
+             20: Obs := 'CONFIRMAÇÃO RECEB. INST. SUST. PROTESTO';
+             23: Obs := 'ENTRADA DE TÍTULO EM CARTÓRIO';
+             24: Obs := 'RETIRADA DE CARTÓRIO E MANUTENÇÃO EM CARTEIRA';
+             25: Obs := 'PROTESTADO E BAIXADO/BAIXA P/ TER SIDO PROTESTADO';
+             26: Obs := 'INSTRUÇÃO REJEITADA';
+             27: Obs := 'CONFIRMAÇÃO DO PEDIDO DE ALTERAÇÃO DE OUTROS DADOS';
+             28: Obs := 'DÉBITO DE TARIFAS/CUSTAS';
+             29: Obs := 'OCORRENCIAS DO SACADO';
+             30: Obs := 'ALTERAÇÃO DE DADOS REJEITADOS';
+             else
+                 Obs := 'IDENT. DE OCORRÊNCIA DESCONHECIDA: ' + DT_CODIGO_MOVIMENTO;
+           end;
+
+           BlockRead(Arquivo,DetalheSegmento_U_BBrasil,1);
+           Inc(NrLidos);
+
+
+           if DU_VALOR_PAGO_PELO_SACADO <> '000000000000000' then
+           begin
+
+              Contrato := RetiraZeroaEsquerda(Trim(DT_IDENT_TIT_NO_BANCO.Contrato));
+              NrDuplicata  := strtoint(DT_IDENT_TIT_NO_BANCO.parcela);
+
+              {
+              Contrato    := Trim(DT_Nr_Contrato);
+              delete(contrato, length(contrato)-3,3);
+              NrDuplicata := strtoint(Trim(DT_Nr_Duplicata));
+              }
+
+              if ParSistema.ClienteUsaContrato then
+                condicao := 'contrato;numero'
+              else
+                condicao := 'nrdocumento;numero';
+
+              if qryParcelas.Locate(condicao, VarArrayOf([Contrato, NrDuplicata]), []) then
+              begin
+                if (qryParcelasValorPagto.AsCurrency <> 0) and not qryParcelasjaverificada.AsBoolean then
+                begin
+                  qryParcelas.Edit;
+                  qryParcelasMOTIVO.AsString := 'Parcela já estava paga, não foi atualizado';
+                  qryParcelas.Post;
+                end
+                else
+                begin
+                  ValorPago := DU_VALOR_PAGO_PELO_SACADO;
+                  Insert(',',ValorPago,14);
+                  DataOcorr := Copy(DU_DATA_OCORRENCIA,1,2) + '/' + Copy(DU_DATA_OCORRENCIA,3,2) + '/' +
+                               Copy(DU_DATA_OCORRENCIA,5,4);
+                  if (qryParcelassituacaocontrato.AsString <> 'O') and (vtstContrato = OUTROS) then
+                    QuitarParcelas(StrToFloat(ValorPago), StrToDate(DataOcorr), Obs);
+
+                  if (qryParcelassituacaocontrato.AsString = 'O') and (vtstContrato = ORCADO) then
+                    if GravarContratoViaSite(DtmCadCtr, qryParcelascontrato.asstring, tOGCVendasViaSite, StrToDate(DataOcorr), StrToFloat(ValorPago), Contrato, NrDuplicata, qryContastiporecebimento.asinteger, strtoint(Filiais), qrycontasconta.asinteger) then
+                      QuitarParcelas(StrToFloat(ValorPago), StrToDate(DataOcorr), Obs, true);
+                end
+              end
+              else
+                MensagemAviso('Documento/Parcela não cadastrada ou já quitada: Documento: ' + Contrato +' Parcela: ' + inttostr(NrDuplicata));
+           end
+           else
+           begin
+                 qryParcelas.Edit;
+                 qryParcelasMOTIVO.AsString := Obs;
+                 qryParcelas.Post;
+           end;
+        end;
+     end;
+
+     if vtstContrato = ORCADO then
+       EnviarEmailQuitacaoViaSite;
+   end;
+End;
+
+function Tdtmlerretornos.LerTraillerLoteBBrasil(NomeArquivo: String): boolean;
+Var Posicao: LongInt;
+Begin
+   if Erro then
+      Exit;
+
+   Posicao:= FilePos(Arquivo) - 1;
+   Seek(Arquivo,Posicao);
+   BlockRead(Arquivo,TraillerLoteBBrasil,1);
+
+   with TraillerLoteBBrasil do begin
+     If (TL_REGISTRO_TRAILLER_LOTE <> '5') then begin
+        Close(Arquivo);
+        Erro := True;
+        raise exception.create(ctFALTOUTRAILLERLOTE);
+     end;
+   end;
+
+   result := not erro;   
+end;
+
+procedure Tdtmlerretornos.LerTraillerBBrasil(NomeArquivo: String);
+Begin
+   if Erro then
+      Exit;
+
+   BlockRead(Arquivo,TraillerBBrasil,1);
+
+    with TraillerBBrasil do begin
+      If (T_REGISTRO_TRAILLER_LOTE <> '9') or (T_LOTE_DE_SERVICO <> '9999')  then begin
+         Close(Arquivo);
+         raise exception.create(ctFALTOUTRAILLER);
+      end;
+    end;
+   Close(Arquivo);
+   MensagemAviso(ctFIMDEATUALIZACAO);
+end;
+//================================== END B. BRASIL  ===============================================
+
+//================================= LER RETORNO ITAU =========================================
+
+function TdtmLerRetornos.AtualizarParcelasItau(NomeArquivo: String): boolean;
+var Contrato: String;
+    Parcela: integer;
+begin
+  result := False;
+  Erro := False;
+
+  qryParcelas.Close;
+  if not FileExists(NomeArquivo) then
+     raise exception.create(ctARQUIVOINEXISTENTE +', deve ter sido renomeado para '+ NomeArquivo + '.OLD : ' + NomeArquivo);
+
+
+  Try
+
+    AssignFile(Arquivo, NomeArquivo);
+    Reset(Arquivo,SizeOf(Detalhes_T_Itau));
+    ContratosParcelas := '';
+  except
+    Close(Arquivo);
+    Erro := True;
+    raise exception.create(ctERROABERTURAARQUIVOTEXTO +': ' +  NomeArquivo);
+  end;
+
+  Contrato := '';  Parcela := 0;
+  while not Eof(Arquivo) do begin
+    with Detalhes_T_Itau do begin
+       BlockRead(Arquivo,Detalhes_T_Itau,1);
+       if DT_COD_SEGMENTO = 'T' then begin
+          Contrato:= Trim(DT_IDENT_TIT_NA_EMPRESA);
+          Contrato := somentenumero(Contrato);
+          Parcela := strtoint(Trim(copy(DT_IDENT_TIT_NO_BANCO,7,2)));
+
+
+          if (Contrato <> '') and (Parcela <> 0) then
+          begin
+            if ParSistema.ClienteUsaContrato then
+              ContratosParcelas := ContratosParcelas +
+              '(p.contrato = ' +QuotedStr(Contrato)+  ' and p.numero = ' +inttostr(Parcela)+ ') or '
+            else
+              ContratosParcelas := ContratosParcelas +
+              '(n.numero = ' +Contrato+  ' and p.numero = ' +inttostr(Parcela)+ ') or ';
+          end;
+       end;
+    end;
+  end;
+  Close(Arquivo);
+
+  if ContratosParcelas = '' then begin
+     MensagemAviso(ctNAOFOISELECIONADOPARCELAS);
+     Exit;
+  end;
+
+  Delete(ContratosParcelas, Length(ContratosParcelas)-3, 4);
+
+  if ContratosParcelas <> ''  then begin
+     ContratosParcelas := 'and (' + ContratosParcelas + ')';
+     qryParcelas.MacroByName('contratosparcelas').asstring  := ContratosParcelas;
+  end;
+
+  if qryParcelas.Active then
+     qryParcelas.Close;
+  qryParcelas.Open;
+
+  if qryParcelas.IsEmpty then begin
+     MensagemAviso(ctNAOFOISELECIONADOPARCELAS);
+     exit;
+  end;
+
+  if Erro then
+     Exit
+  else
+    result := true;
+
+  LerHeaderItau(NomeArquivo);
+  LerHeaderLoteItau(NomeArquivo);
+  LerDetalheSegmento_TU_Itau(NomeArquivo);
+  LerTraillerLoteItau(NomeArquivo);
+  LerTraillerItau(NomeArquivo);
+
+  if not erro then
+    erro := Perpetrar([qryparcelas]);
+
+end;
+
+procedure TdtmLerRetornos.LerDetalheSegmento_TU_Itau(NomeArquivo: String);
+Const SQL = 'and (%s) ';
+var   Contrato, condicao: String;
+      NrDuplicata: integer;
+      ValorPago, ValorDespesas: String[16]; DataOcorr: String;
+      Obs: String;
+begin
+   if Erro then
+      Exit;
+
+   while not Eof(Arquivo) do begin
+      with Detalhes_T_Itau, Detalhes_U_Itau do begin
+         BlockRead(Arquivo,Detalhes_T_Itau,1);
+         Inc(NrLidos);
+
+         If (DT_REGISTRO_DETALHE <> '3') then
+            Exit;
+
+         Obs:= '';
+         if DT_VALOR_DESPESAS <> '000000000000000' then
+         begin
+           ValorDespesas := DT_VALOR_DESPESAS;
+           Insert(',',ValorDespesas,14);
+           while ValorDespesas[0] = '0' do
+             Delete(ValorDespesas,0,1);
+         end;
+         case StrToInt(DT_CODIGO_OCORRENCIA) of
+           02 : Obs := 'ENTRADA CONFIRMADA';
+           03 : Obs := 'ENTRADA REJEITADA';
+           04 : Obs := 'ALTERAÇÃO DE DADOS – NOVA ENTRADA';
+           05 : Obs := 'ALTERAÇÃO DE DADOS – BAIXA';
+           06 : Obs := 'LIQUIDAÇÃO NORMAL';
+           08 : Obs := 'LIQUIDAÇÃO EM CARTÓRIO';
+           09 : Obs := 'BAIXA SIMPLES';
+           10 : Obs := 'BAIXA POR TER SIDO LIQUIDADO';
+           11 : Obs := 'EM SER (SÓ NO RETORNO MENSAL)';
+           12 : Obs := 'ABATIMENTO CONCEDIDO';
+           13 : Obs := 'ABATIMENTO CANCELADO';
+           14 : Obs := 'VENCIMENTO ALTERADO';
+           15 : Obs := 'BAIXAS REJEITADAS';
+           16 : Obs := 'INSTRUÇÕES REJEITADAS';
+           17 : Obs := 'ALTERAÇÃO DE DADOS REJEITADA';
+           18 : Obs := 'COBRANÇA CONTRATUAL – INSTRUÇÕES/ALTERAÇÕES REJEITADAS/PENDENTES';
+           19 : Obs := 'CONFIRMAÇÃO RECEBIMENTO DE INSTRUÇÃO DE PROTESTO';
+           20 : Obs := 'CONFIRMAÇÃO RECEBIMENTO DE INSTRUÇÃO DE SUSTAÇÃO DE PROTESTO /TARIFA';
+           21 : Obs := 'CONFIRMAÇÃO RECEBIMENTO DE INSTRUÇÃO DE NÃO PROTESTAR';
+           23 : Obs := 'PROTESTO ENVIADO A CARTÓRIO/TARIFA';
+           24 : Obs := 'INSTRUÇÃO DE PROTESTO SUSTADA';
+           25 : Obs := 'ALEGAÇÕES DO SACADO';
+           26 : Obs := 'TARIFA DE AVISO DE COBRANÇA - R$ ' + ValorDespesas;
+           27 : Obs := 'TARIFA DE EXTRATO POSIÇÃO (B40X) - R$ ' + ValorDespesas;
+           28 : Obs := 'TARIFA DE RELAÇÃO DAS LIQUIDAÇÕES - R$ ' + ValorDespesas;
+           29 : Obs := 'TARIFA DE MANUTENÇÃO DE TÍTULOS VENCIDOS - R$ ' + ValorDespesas;
+           30 : Obs := 'DÉBITO MENSAL DE TARIFAS (PARA ENTRADAS E BAIXAS) - R$ ' + ValorDespesas;
+           32 : Obs := 'BAIXA POR TER SIDO PROTESTADO';
+           33 : Obs := 'CUSTAS DE PROTESTO - R$ ' + ValorDespesas;
+           34 : Obs := 'CUSTAS DE SUSTAÇÃO - R$ ' + ValorDespesas;
+           35 : Obs := 'CUSTAS DE CARTÓRIO DISTRIBUIDOR - R$ ' + ValorDespesas;
+           36 : Obs := 'CUSTAS DE EDITAL - R$ ' + ValorDespesas;
+           37 : Obs := 'TARIFA DE EMISSÃO DE BOLETO/TARIFA DE ENVIO DE DUPLICATA - R$ ' + ValorDespesas;
+           38 : Obs := 'TARIFA DE INSTRUÇÃO - R$ ' + ValorDespesas;
+           39 : Obs := 'TARIFA DE OCORRÊNCIAS - R$ ' + ValorDespesas;
+           40 : Obs := 'TARIFA MENSAL DE EMISSÃO DE BOLETO/TARIFA MENSAL DE ENVIO DE DUPLICATA - R$ ' + ValorDespesas;
+           41 : Obs := 'DÉBITO MENSAL DE TARIFAS – EXTRATO DE POSIÇÃO (B4EP/B4OX) - R$ ' + ValorDespesas;
+           42 : Obs := 'DÉBITO MENSAL DE TARIFAS – OUTRAS INSTRUÇÕES - R$ ' + ValorDespesas;
+           43 : Obs := 'DÉBITO MENSAL DE TARIFAS – MANUTENÇÃO DE TÍTULOS VENCIDOS - R$ ' + ValorDespesas;
+           44 : Obs := 'DÉBITO MENSAL DE TARIFAS – OUTRAS OCORRÊNCIAS - R$ ' + ValorDespesas;
+           45 : Obs := 'DÉBITO MENSAL DE TARIFAS – PROTESTO - R$ ' + ValorDespesas;
+           46 : Obs := 'DÉBITO MENSAL DE TARIFAS – SUSTAÇÃO DE PROTESTO - R$ ' + ValorDespesas;
+           47 : Obs := 'BAIXA COM TRANSFERÊNCIA PARA DESCONTO - R$ ' + ValorDespesas;
+           48 : Obs := 'CUSTAS DE SUSTAÇÃO JUDICIAL - R$ ' + ValorDespesas;
+           51 : Obs := 'TARIFA MENSAL REFERENTE A ENTRADAS BANCOS CORRESPONDENTES NA CARTEIRA - R$ ' + ValorDespesas;
+           52 : Obs := 'TARIFA MENSAL BAIXAS NA CARTEIRA - R$ ' + ValorDespesas;
+           53 : Obs := 'TARIFA MENSAL BAIXAS EM BANCOS CORRESPONDENTES NA CARTEIRA - R$ ' + ValorDespesas;
+           54 : Obs := 'TARIFA MENSAL  DE LIQUIDAÇÕES NA CARTEIRA - R$ ' + ValorDespesas;
+           55 : Obs := 'TARIFA MENSAL DE LIQUIDAÇÕES EM BANCOS CORRESPONDENTES NA CARTEIRA - R$ ' + ValorDespesas;
+           56 : Obs := 'CUSTAS DE IRREGULARIDADE - R$ ' + ValorDespesas;
+           else
+               Obs := 'IDENT. DE OCORRÊNCIA DESCONHECIDA: ' + DT_CODIGO_OCORRENCIA;
+         end;
+
+         BlockRead(Arquivo,Detalhes_U_Itau,1);
+         Inc(NrLidos);
+
+         {
+         if (DU_REGISTRO_DETALHE = '3') then
+         begin
+            Perpetrar([qryParcelas]);
+            Exit;
+         end;
+         }
+
+
+         Contrato    := somentenumero(Trim(DT_IDENT_TIT_NA_EMPRESA));
+         NrDuplicata := strtoint(Trim(copy(DT_IDENT_TIT_NO_BANCO,7,2)));
+
+         if ParSistema.ClienteUsaContrato then
+           condicao := 'contrato;numero'
+         else
+           condicao := 'nrdocumento;numero';
+
+         if qryParcelas.Locate(condicao, VarArrayOf([Contrato, NrDuplicata]), []) then begin
+
+           if DU_VALOR_LANCADO_CONTA <> '000000000000000' then begin
+
+              if qryParcelasValorPagto.AsCurrency <> 0 then begin
+                 qryParcelas.Edit;
+                 qryParcelasMOTIVO.AsString := 'Parcela já estava paga, não foi atualizado';
+                 qryParcelas.Post;
+              end
+              else begin
+                 ValorPago := DU_VALOR_LANCADO_CONTA;
+                 Insert(',',ValorPago,14);
+                 DataOcorr := Copy(DU_DATA_OCORRENCIA,1,2) + '/' + Copy(DU_DATA_OCORRENCIA,3,2) + '/' + Copy(DU_DATA_OCORRENCIA,5,4);
+
+                 QuitarParcelas(StrToFloat(ValorPago),StrToDate(DataOcorr),obs);
+              end;
+           end
+           else begin
+                 qryParcelas.Edit;
+                 qryParcelasMOTIVO.AsString := Obs;
+                 qryParcelas.Post;
+           end;
+
+         end else
+            MensagemAviso('Documento/Parcela não cadastrada ou já quitada: Documento: ' + Contrato +' Parcela: ' + inttostr(NrDuplicata));
+      end;
+   end;
+end;
+
+procedure TdtmLerRetornos.LerHeaderItau(NomeArquivo: String);
+begin
+   if Erro then
+      Exit;
+
+   With HeaderItau do Begin
+     AssignFile(Arquivo, NomeArquivo);
+     Reset(Arquivo,SizeOf(HeaderItau));
+     BlockRead(Arquivo,HeaderItau,1);
+     NrLidos:= 1;   NrRegOK:= 0;
+
+     if StrToInt(H_CODIGO_BANCO_COMPENSACAO) <> qryContasbancoreferencia.AsInteger then begin
+        Close(Arquivo);
+        Erro := True;
+        raise exception.Create(ctHEADERNAOCONFERE + H_CODIGO_BANCO_COMPENSACAO);
+     end;
+     if H_LOTE_DE_SERVICO <> '0000' then begin
+        Close(Arquivo);
+        Erro := True;
+        raise exception.Create(ctARQNAOTEMHEADER);
+     end;
+     if (H_REGISTRO_HEADER_ARQUIVO <> '0') or (H_CODIGO_REMESSA_RETORNO <> '2') then begin
+        Erro := True;
+        Close(Arquivo);
+        raise exception.Create(ctARQNAOERETORNO);
+     end;
+     if (H_NR_VERSAO_LAYOUT_ARQUIVO <> '040') then begin
+        Close(arquivo);
+        Erro := True;
+        raise exception.Create(ctVERSAONAOE040);
+     end;
+     if H_CODIGO_BANCO_COMPENSACAO <> '341' then begin
+        Close(Arquivo);
+        Erro := True;
+        raise exception.Create(ctBANCODOARQTEXTO + H_CODIGO_BANCO_COMPENSACAO);
+     end;
+   end;
+end;
+
+procedure TdtmLerRetornos.LerHeaderLoteItau(NomeArquivo: String);
+begin
+   if Erro then
+      Exit;
+
+   With HeaderLoteItau do Begin
+     BlockRead(Arquivo,HeaderLoteItau,1);
+     NrLidos:= 1;   NrRegOK:= 0;
+
+     if StrToInt(HL_CODIGO_BANCO_COMPENSACAO) <> qryContasbancoreferencia.AsInteger then begin
+        Close(Arquivo);
+        Erro := True;
+        raise exception.Create(ctHEADERNAOCONFERE + HL_CODIGO_BANCO_COMPENSACAO);
+     end;
+     if HL_LOTE_DE_SERVICO <> '0001' then begin
+        Close(Arquivo);
+        Erro := True;
+        raise exception.Create(ctARQNAOTEMHEADERLOTE);
+     end;
+     if (HL_REGISTRO_HEADERDE_LOTE <> '1') then begin
+        Erro := True;
+        Close(Arquivo);
+        raise exception.Create(ctARQNAOERETORNO);
+     end;
+     if HL_NR_VERSAO_LAYOUT_LOTE <> '030' then begin
+        Close(arquivo);
+        Erro := True;
+        raise exception.Create(ctVERSAONAOE030);
+     end;
+     if HL_CODIGO_BANCO_COMPENSACAO <> '341' then begin
+        Close(Arquivo);
+        Erro := True;
+        raise exception.Create(ctBANCODOARQTEXTO + HL_CODIGO_BANCO_COMPENSACAO);
+     end;
+   End;
+end;
+
+procedure TdtmLerRetornos.LerTraillerItau(NomeArquivo: String);
+begin
+   if Erro then
+      Exit;
+
+   BlockRead(Arquivo,TraillerItau,1);
+
+    with TraillerItau do begin
+      If (T_REGISTRO_TRAILLER <> '9') or (T_LOTE_DE_SERVICO <> '9999')  then begin
+         Close(Arquivo);
+         raise exception.create(ctFALTOUTRAILLER);
+      end;
+    end;
+   Close(Arquivo);
+   MensagemAviso(ctFIMDEATUALIZACAO);
+end;
+
+procedure TdtmLerRetornos.LerTraillerLoteItau(NomeArquivo: String);
+var Posicao: LongInt;
+begin
+   if Erro then
+      Exit;
+
+   Posicao:= FilePos(Arquivo) - 1;
+   Seek(Arquivo,Posicao);
+   BlockRead(Arquivo,TraillerLoteItau,1);
+
+   with TraillerLoteItau do begin
+     if (TL_REGISTRO_TRAILLER_LOTE <> '5') then
+     begin
+       Close(Arquivo);
+       Erro := True;
+       raise exception.create(ctFALTOUTRAILLERLOTE);
+     end;
+   end;
+end;
+
+//================================== END ITAU  ===============================================
+
+function TdtmLerRetornos.AtualizarParcelasBradescoACBR(
+  NomeArquivo: String): boolean;
+var
+  vDir: String;
+  i: integer;
+  vNossoNumero: String;
+  vtstContrato : tstContrato;
+
+
+begin
+  result := false;
+  Erro := False;
+
+  with ACBrBoleto1 do
+  begin
+    NomeArqRetorno := ExtractFileName(NomeArquivo);
+    vdir := ExtractFilePath(NomeArquivo);
+    delete(vdir,length(vdir),1);
+    DirArqRetorno := vdir;
+    with Banco do
+    begin
+      case qryContasBanco.AsInteger of
+        001 : TipoCobranca := cobBancoDoBrasil;     {001}
+        021 : TipoCobranca := cobBanestes;          {021}
+        033,353,088 : TipoCobranca := cobSantander; {033,353,008}
+        041 : TipoCobranca := cobBanrisul;          {041}
+        104 : TipoCobranca := cobCaixaEconomica;    {104}
+//              104 : TipoCobranca := cobCaixaSicob ;       {104}
+        237 : TipoCobranca := cobBradesco;          {237}
+        341 : TipoCobranca := cobItau;              {341}
+        389 : TipoCobranca := cobBancoMercantil;    {389}
+        748 : TipoCobranca := cobSicred;            {748}
+        756 : TipoCobranca := cobBancoob;           {756}
+        399 : TipoCobranca := cobHSBC;              {399}
+      end;
+    end;
+
+    with Cedente do
+    begin
+
+    {
+      Nome              :=
+      CodigoCedente     :=
+      CodigoTransmissao :=
+      }
+      Agencia           := qryContasAgencia.AsString;
+
+//      AgenciaDigito     := qryContasAgencia.AsString;
+      Conta             := qryContasConta.AsString;
+      ContaDigito       := qryContasDigito.AsString;
+      {
+      Modalidade        :=
+      Convenio          :=
+      ResponEmissao     :=
+      CaracTitulo       :=
+    }
+      CNPJCPF           := somentenumero(qryContascnpj_agencia_referencia.asstring);
+    {
+      TipoInscricao     :=
+      Logradouro        :=
+      NumeroRes         :=
+      Complemento       :=
+      Bairro            :=
+      Cidade            :=
+      UF                :=
+      CEP               :=
+    }
+    end;
+    LerRetorno;
+
+    ContratosParcelas := '';
+
+    for i:=0 to ListadeBoletos.Count-1 do
+    begin
+      vNossoNumero := copy(ListadeBoletos.Objects[i].NossoNumero, length(ListadeBoletos.Objects[i].NossoNumero)-5,6);
+
+      if (vNossoNumero <> '') then
+        ContratosParcelas := ContratosParcelas + '(p.nossonumero = ' + RetiraZeroaEsquerda(vNossoNumero) + ') or ';
+    end;
+  end;
+
+  if ContratosParcelas = '' then
+  begin
+   MensagemAviso(ctNAOFOISELECIONADOPARCELAS);
+   Exit;
+  end;
+
+  Delete(ContratosParcelas, Length(ContratosParcelas)-3, 4);
+
+  if ContratosParcelas <> ''  then begin
+     ContratosParcelas := 'and (' + ContratosParcelas + ')';
+     qryParcelas.MacroByName('contratosparcelas').asstring  := ContratosParcelas;
+  end;
+
+  if qryParcelas.Active then
+     qryParcelas.Close;
+  qryParcelas.Open;
+
+
+  if qryParcelas.IsEmpty then
+  begin
+    //MensagemAviso(ctNAOFOISELECIONADOPARCELAS);
+    //exit;
+    Erro := true;
+    result := false;
+  end;
+
+  vTotalRegistroViaSite := 0;
+  vTotalValorRecebidoViaSite := 0;
+
+
+ //comentario jr 20/05 - estava passando 2x pelo arquivo e deixando as parcelas todas como ja quitadas, nao entendi o pq deste for.
+
+ //Necessário devido ao fato de que a quitação qdo via site se dá pelo contrato, executando o perpetrar lá mesmo, inclusive qdo o pagamento for parcial,
+ //neste caso poderia perpetrar duas vezes incluindo duas parcelas, por isso a quitação é feita em duas partes.
+
+  for vtstContrato := OUTROS TO ORCADO  do
+  begin
+    for i:=0 to  ACBrBoleto1.ListadeBoletos.Count-1 do
+    begin
+      vNossoNumero :=  copy(acbrboleto1.ListadeBoletos.Objects[i].NossoNumero, length(acbrboleto1.ListadeBoletos.Objects[i].NossoNumero)-5,6);
+      if not qryparcelas.Locate('nossonumero',strtoint(vNossoNumero),[]) then
+      begin
+        if MensagemConfirmacao(format('O registro com o campo ''NOSSO NÚMERO:'' %s não foi encontrado',[vNossoNumero])) <> smbOk then
+        begin
+          Erro := true;
+          result := false;
+          break;
+        end;
+      end
+      else
+      begin
+        if (qryParcelasValorPagto.AsCurrency <> 0) and not qryParcelasjaverificada.AsBoolean then
+        begin
+          qryParcelas.Edit;
+          qryParcelasMOTIVO.AsString := 'Parcela já estava paga, não foi atualizado';
+          qryParcelas.Post;
+        end
+        else
+        begin
+          if (qryParcelassituacaocontrato.AsString <> 'O') and (vtstContrato = OUTROS) then
+            QuitarParcelas(acbrboleto1.ListadeBoletos.Objects[i].ValorRecebido,
+                           acbrboleto1.ListadeBoletos.Objects[i].DataOcorrencia,
+                           ACBrBoleto1.ListadeBoletos.Objects[i].DescricaoMotivoRejeicaoComando[0]);
+
+          if (qryParcelassituacaocontrato.AsString = 'O') and (vtstContrato = ORCADO) then
+          begin
+            if GravarContratoViaSite(DtmCadCtr, qryParcelascontrato.asstring, tOGCVendasViaSite,
+                                     acbrboleto1.ListadeBoletos.Objects[i].DataOcorrencia, acbrboleto1.ListadeBoletos.Objects[i].ValorRecebido, qryParcelascontrato.asstring, qryParcelasnumero.asinteger, qryContastiporecebimento.asinteger, strtoint(Filiais), qryContasConta.AsInteger) then
+              QuitarParcelas(acbrboleto1.ListadeBoletos.Objects[i].ValorRecebido,
+                             acbrboleto1.ListadeBoletos.Objects[i].DataOcorrencia,
+                             ACBrBoleto1.ListadeBoletos.Objects[i].DescricaoMotivoRejeicaoComando[0], True);
+          end;
+        end;
+      end;
+    end;
+  end;
+
+  if Erro then
+     Exit
+  else
+  begin
+    EnviarEmailQuitacaoViaSite;
+
+    if Assigned(dtmCadCtr) then
+      dtmCadCtr.free;
+
+    result:= true;
+  end;
+
+end;
+
+function TdtmLerRetornos.proximoNumeroParcela(contrato: string): integer;
+begin
+  spcParcelasProximo.ParamByName('contrato').asString := contrato;
+  spcParcelasProximo.Open;
+  result := spcParcelasProximonumero.asInteger;
+  spcParcelasProximo.Close;
+end;
+
+procedure TdtmLerRetornos.QuitarParcelas(ValorPagamento: Currency;
+  Datapagamento: tDatetime; Comentario: String; ViaSite: boolean);
+var
+  vSaldoParcela : Currency;
+  vNossoNumero: integer;
+begin
+  spcTransacaoProximo.Open;
+
+  vSaldoParcela := 0;
+  vNossoNumero := qryParcelasnossonumero.AsInteger;
+
+  if qryParcelasvalorvencto.Asfloat > ValorPagamento then
+    vSaldoParcela := qryParcelasvalorvencto.Asfloat - ValorPagamento;
+
+  qryParcelas.Edit;
+  qryParcelasDataPagto.AsDateTime  := Datapagamento;
+  if vSaldoParcela <> 0 then
+  begin
+    qryParcelasvalorvencto.Value     := ValorPagamento;
+    //estava fora deste begin, ficando todas as parcelas em vermelho.
+    qryParcelasdesmembrada.AsBoolean := true;
+  end;
+
+  qryParcelasValorPagto.AsCurrency := ValorPagamento;
+  qryParcelasfilialpagto.AsInteger := strtoint(Filiais);
+  qryParcelaspagamentoextracaixa.AsBoolean := true;
+  // D->Dinheiro  C->Cartão  Crédito  B->Cartão Débito  H-> Cheque N->Banco
+  qryParcelasFormaPagamento.AsString:= 'X';
+  qryParcelasMOTIVO.AsString       :=  Comentario;
+  qryParcelastransacao.asinteger := spcTransacaoProximotransacao.AsInteger;
+  qryParcelasjaverificada.AsBoolean := True;
+  qryParcelasevento.AsString := parsistema.EventoQuitacaoArqRetornoBoletos;
+  qryParcelascontaboleto.AsString := qryContasConta.AsString;
+
+  qryParcelas.Post;
+
+  if vSaldoParcela <> 0 then
+  begin
+    qryInserirParcelaParcial.ParamByName('contrato').Value        := qryParcelascontrato.Value;
+    qryInserirParcelaParcial.ParamByName('numero').Value          := proximoNumeroParcela(qryParcelascontrato.Value);
+    qryInserirParcelaParcial.ParamByName('datavencto').Value      := qryParcelasdatavencto.Value;
+    qryInserirParcelaParcial.ParamByName('valorvencto').Value     := vSaldoParcela;
+    qryInserirParcelaParcial.ParamByName('parcelaorigem').Value   := qryParcelasparcelaorigem.Value;
+    qryInserirParcelaParcial.ParamByName('parcelaoriginal').Value := qryParcelasnumero.Value;
+    qryInserirParcelaParcial.ParamByName('tiporecebimento').Value     := qryParcelastiporecebimento.Value;
+    qryInserirParcelaParcial.ParamByName('formapagamento').Value     := qryParcelasformapagamento.Value;
+    qryInserirParcelaParcial.ParamByName('cliente').Value     := qryParcelascliente.Value;
+    qryInserirParcelaParcial.ParamByName('nome').Value     := qryParcelasnome.Value;
+
+    qryParcelas.next;
+    if qryparcelas.eof then
+      qryparcelas.append
+    else
+      qryparcelas.Insert;
+
+    qryParcelascontrato.Value            := qryInserirParcelaParcial.ParamByName('contrato').Value;
+    qryParcelasnumero.Value              := proximoNumeroParcela(qryParcelascontrato.Value);
+    qryParcelasdatavencto.Value          := qryInserirParcelaParcial.ParamByName('datavencto').Value;
+    qryParcelasvalorvencto.Value         := qryInserirParcelaParcial.ParamByName('valorvencto').Value;
+    qryParcelasparcelaorigem.Value       := qryInserirParcelaParcial.ParamByName('parcelaorigem').Value;
+    qryParcelasparcelaoriginal.Value     := qryInserirParcelaParcial.ParamByName('parcelaoriginal').Value;
+    qryParcelastiporecebimento.Value     := qryInserirParcelaParcial.ParamByName('tiporecebimento').Value;
+    qryParcelasformapagamento.Value      := qryInserirParcelaParcial.ParamByName('formapagamento').Value;
+    qryParcelaspagamentoextracaixa.AsBoolean:=false;
+    qryParcelastiporecebimento.AsInteger:=qryContastiporecebimento.AsInteger;
+    qryParcelasjaverificada.AsBoolean := True;
+    qryParcelasdesmembrada.AsBoolean     := true;
+    qryParcelasMOTIVO.AsString           := 'SALDO DE PARCELA' ;
+    qryParcelascliente.Value := qryInserirParcelaParcial.ParamByName('cliente').Value;
+    qryParcelasnome.Value := qryInserirParcelaParcial.ParamByName('nome').Value;
+
+    qryParcelas.Post;
+
+  end;
+
+  if not qryRecebimentos.Active then
+    qryRecebimentos.Open;
+
+  qryRecebimentos.Append;
+
+  spcRecebimentosProximo.Open;
+  qryRecebimentoscodigo.AsInteger := spcRecebimentosProximocodigo.AsInteger;
+  spcRecebimentosProximo.Close;
+
+  qryRecebimentosfilial.AsInteger       := StrToInt(Filiais);
+  qryRecebimentossituacao.AsString      := 'N';
+  qryRecebimentosdatalancto.AsDateTime  := DataServidor;
+  qryRecebimentosvalorlancto.AsCurrency := ValorPagamento;
+  qryRecebimentosdatavencto.AsDateTime  := Datapagamento;
+  qryRecebimentostiporecebimento.AsInteger := qryContastiporecebimento.asinteger;
+  qryRecebimentoscontrole.AsInteger     := 0;
+  qryRecebimentostransacao.AsInteger    := spcTransacaoProximotransacao.AsInteger;
+  qryRecebimentos.Post;
+
+  spcTransacaoProximo.Close;
+
+  if not ViaSite then
+    perpetrar([qryparcelas, qryRecebimentos]);
+
+  qryparcelas.Locate('nossonumero', vNossoNumero,[]);
+
+  if ViaSite then
+  begin
+    if not Assigned(vPagamentosViaSite) then
+    begin
+      vPagamentosViaSite := TStringList.create;
+      vPagamentosViaSite.Append('<html> <head> <title>Relação de Cobrança Via Site </title> </head> <body> ');
+      vPagamentosViaSite.Append('<h1>Relação de Contratos de Venda do Site Quitados  </h1>');
+      vPagamentosViaSite.Append('<table style="border:1px solid #ddd;"> <tr> <th align="center" width="130" bgcolor="#eee"> CONTRATO </th> <th align="center" width="130" bgcolor="#eee">PARCELA </th> '+
+                                 '<th align="center" width="130" bgcolor="#eee"> DATA </th> <th align="right" width="140" bgcolor="#eee"> VALOR </th> </tr>');
+    end;
+    vTotalRegistroViaSite := vTotalRegistroViaSite + 1;
+    vTotalValorRecebidoViaSite := vTotalValorRecebidoViaSite + qryParcelasValorPagto.AsCurrency;
+
+    vPagamentosViaSite.append('<tr><td align="center"> ' + qryParcelascontrato.asstring + '</td><td align="center"> '+qryParcelasnumero.AsString+
+                          '</td><td align="center"> '+ qryParcelasdatapagto.AsString+ '</td><td align="right"> '+ formatfloat('###,###,##0.00',qryParcelasvalorpagto.Ascurrency)+'</td></tr>');
+  end;
+end;
+
+procedure TdtmLerRetornos.EnviarEmailQuitacaoViaSite;
+begin
+
+  if assigned(vPagamentosViaSite) then
+  begin
+    if vPagamentosViaSite.Count <> 3 then
+    Begin
+      vPagamentosViaSite.Append('<tr bgcolor="#eee"><td>Total de Registros:'+ inttostr(vTotalRegistroViaSite) +'</td><td /><td align="center" colspan="2"> Total Recebido: R$ ' + floattostr(vTotalValorRecebidoViaSite)+'</td></tr></table>');
+      vPagamentosViaSite.Append('<p><small> E-mail gerado automaticamente pelo TecLUX. </small><a href="http://www.tecsoft.com.br" target="_blank"><img href="http://rot.tecsoft.com.br/images/logo_tecsoft.png" width="179" height="53" /></a></p></body></html>');
+      EnviarEmail('COBRANÇA VIA SITE', qryFiliaisnome.AsString, qryParcelasdatapagto.AsDateTime, vPagamentosViaSite);
+      vPagamentosViaSite.SaveToFile('c:\cobranca.html');
+    end;
+    vPagamentosViaSite.Free;
+  end;
+
+end;
+
+end.

@@ -1,0 +1,3241 @@
+inherited dtmCadastroInventario: TdtmCadastroInventario
+  OldCreateOrder = False
+  Left = 596
+  Top = 175
+  Height = 476
+  Width = 906
+  object qryInventario: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryInventarioAfterOpen
+    AfterInsert = qryInventarioAfterInsert
+    AfterScroll = qryInventarioAfterScroll
+    OnCalcFields = qryInventarioCalcFields
+    OnNewRecord = qryInventarioNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select *,'
+      
+        '(select f.nome from filiais f where f.codigo = filial) as nomefi' +
+        'lial'
+      'from inventario'
+      'WHERE  numero = :numero')
+    RequestLive = True
+    Left = 56
+    Top = 16
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'numero'
+        ParamType = ptUnknown
+        Value = 0
+      end>
+    object qryInventarionumero: TIntegerField
+      FieldName = 'numero'
+      DisplayFormat = '0'
+    end
+    object qryInventariofilial: TIntegerField
+      DisplayLabel = 'Filial'
+      FieldName = 'filial'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryInventariosituacao: TStringField
+      DisplayLabel = 'Situa'#231#227'o'
+      FieldName = 'situacao'
+      Size = 1
+    end
+    object qryInventarioDescricaoSituacao: TStringField
+      FieldKind = fkCalculated
+      FieldName = 'DescricaoSituacao'
+      Size = 40
+      Calculated = True
+    end
+    object qryInventarionomefilial: TStringField
+      FieldName = 'nomefilial'
+      Size = 50
+    end
+    object qryInventariogruposfornecedores: TStringField
+      FieldName = 'gruposfornecedores'
+      Size = 5000
+    end
+    object qryInventariolocalizacao: TStringField
+      FieldName = 'localizacao'
+      Size = 2000
+    end
+    object qryInventariofornecedor: TIntegerField
+      FieldName = 'fornecedor'
+      DisplayFormat = '0'
+    end
+    object qryInventariotipofornecedor: TStringField
+      FieldName = 'tipofornecedor'
+      Size = 1
+    end
+    object qryInventariotransferidopara: TIntegerField
+      FieldName = 'transferidopara'
+      DisplayFormat = '0'
+    end
+    object qryInventariodescricaodeprodutos: TStringField
+      FieldName = 'descricaodeprodutos'
+      Size = 500
+    end
+    object qryInventarioinvforalinhal: TBooleanField
+      FieldName = 'invforalinhal'
+    end
+    object qryInventarioinvinativol: TBooleanField
+      FieldName = 'invinativol'
+    end
+    object qryInventarioinvemlinhal: TBooleanField
+      FieldName = 'invemlinhal'
+    end
+    object qryInventarioinvativol: TBooleanField
+      FieldName = 'invativol'
+    end
+    object qryInventariodata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      Required = True
+      EditMask = '99/99/9999;1; '
+    end
+    object qryInventarioprocessamento: TDateField
+      Alignment = taCenter
+      FieldName = 'processamento'
+      Required = True
+      EditMask = '99/99/9999;1; '
+    end
+  end
+  object dsrInventario: TtecDataSource
+    DataSet = qryInventario
+    OnDataChange = dsrInventarioDataChange
+    Left = 144
+    Top = 40
+  end
+  object qryInventarioProduto: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryInventarioProdutoAfterOpen
+    BeforePost = qryInventarioProdutoBeforePost
+    AfterPost = qryInventarioProdutoAfterPost
+    AfterDelete = qryInventarioProdutoAfterDelete
+    AfterScroll = qryInventarioProdutoAfterScroll
+    OnCalcFields = qryInventarioProdutoCalcFields
+    OnFilterRecord = qryInventarioProdutoFilterRecord
+    OnNewRecord = qryInventarioProdutoNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select'
+      '       p.codigovisual as produtovisual,'
+      '       cast(null as varchar(30)) as codigobarras,'
+      '       p.descricao,'
+      '       p.valorgrade1,'
+      '       p.valorgrade2,'
+      
+        '       (select gr.descricao from grades gr where gr.codigo = c.g' +
+        'rade1) as linha,'
+      
+        '       (select gr.descricao from grades gr where gr.codigo = c.g' +
+        'rade2) as coluna,'
+      ''
+      '       case when :MovimentoProcessado then'
+      '         ip.emestoque'
+      '       else'
+      '         coalesce((select m.emestoque'
+      '                 from movimentos m'
+      '                 where m.produto = p.codigo'
+      '                   and m.filial = :filial'
+      '                   and m.data <= :data'
+      '                 order by data desc, lancto desc limit 1),0)'
+      '       end as emestoque,'
+      ''
+      '       case when :MovimentoProcessado then'
+      '         ip.reservado'
+      '       else'
+      '         coalesce((select m.reservado'
+      '                   from movimentos m'
+      '                   where m.produto = p.codigo'
+      '                     and m.filial = :filial'
+      '                     and m.data <= :data'
+      '                   order by data desc, lancto desc limit 1),0)'
+      '       end as reservado,'
+      ''
+      '       case when :MovimentoProcessado then'
+      '         ip.reservaprevia'
+      '       else'
+      '         coalesce((select m.reservaprevia'
+      '                   from movimentos m'
+      '                   where m.produto = p.codigo'
+      '                     and m.filial = :filial'
+      '                     and m.data <= :data'
+      '                   order by data desc, lancto desc limit 1),0)'
+      '       end as reservaprevia,'
+      ''
+      '       case when :MovimentoProcessado then'
+      '         ip.transito'
+      '       else'
+      '         coalesce((select m.transito'
+      '                   from movimentos m'
+      '                   where m.produto = p.codigo'
+      '                     and m.filial = :filial'
+      '                     and m.data <= :data'
+      '                   order by data desc,  lancto desc limit 1),0)'
+      '       end as transito,'
+      ''
+      '       case when :MovimentoProcessado then'
+      
+        '         ip.emestoque + ip.reservado + ip.transito + ip.reservap' +
+        'revia'
+      
+        '       else cast(null as numeric(9,3)) end as SaldoAposProcessam' +
+        'ento,'
+      ''
+      '       case when :MovimentoProcessado then'
+      '         ip.movimentado'
+      '       else'
+      '         coalesce((select'
+      ''
+      '                coalesce((select sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 1 for 1)= '#39'+'#39')'
+      '                  and m.produto = ip.produto'
+      '                  and m.filial = :filial'
+      
+        '                  and m.data > :data and m.data <= :processament' +
+        'o),0) +'
+      ''
+      '                coalesce((select - sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 1 for 1)= '#39'-'#39')'
+      '                  and m.produto = ip.produto'
+      '                  and m.filial = :filial'
+      
+        '                  and m.data > :data and m.data <= :processament' +
+        'o),0) +'
+      ''
+      '                coalesce((select sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 2 for 1)= '#39'+'#39')'
+      '                  and m.produto = ip.produto'
+      '                  and m.filial = :filial'
+      
+        '                  and m.data > :data and m.data <= :processament' +
+        'o),0) +'
+      ''
+      '                coalesce((select - sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 2 for 1)= '#39'-'#39')'
+      '                  and m.produto = ip.produto'
+      '                  and m.filial = :filial'
+      
+        '                  and m.data > :data and m.data <= :processament' +
+        'o),0) +'
+      ''
+      '                /*coalesce((select sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 3 for 1)= '#39'+'#39')'
+      '                  and m.produto = ip.produto'
+      '                  and m.filial = :filial'
+      
+        '                  and m.data > :data and m.data <= :processament' +
+        'o),0) + */'
+      ''
+      '                coalesce((select - sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 3 for 1)= '#39'-'#39')'
+      '                  and m.produto = ip.produto'
+      '                  and m.filial = :filial'
+      
+        '                  and m.data > :data and m.data <= :processament' +
+        'o),0) +'
+      ''
+      '                coalesce((select + sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 9 for 1)= '#39'+'#39')'
+      '                  and m.produto = ip.produto'
+      '                  and m.filial = :filial'
+      
+        '                  and m.data > :data and m.data <= :processament' +
+        'o),0) +'
+      ''
+      '                coalesce((select - sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 9 for 1)= '#39'-'#39')'
+      '                  and m.produto = ip.produto'
+      '                  and m.filial = :filial'
+      
+        '                  and m.data > :data and m.data <= :processament' +
+        'o),0) ),0)'
+      '       end as movimentado,'
+      ''
+      ''
+      '       case when :MovimentoProcessado then'
+      '         ip.demonstracao'
+      '       else'
+      '         coalesce((select m.demonstracao'
+      '                    from movimentos m'
+      '                    where m.produto = p.codigo'
+      '                      and m.filial = :filial'
+      '                      and m.data <= :data'
+      '                    order by data desc, lancto desc limit 1),0)'
+      '       end as demonstracao,'
+      ''
+      '       case when :MovimentoProcessado then'
+      '         ip.conserto'
+      '       else'
+      '         coalesce((select m.conserto'
+      '                    from movimentos m'
+      '                    where m.produto = p.codigo'
+      '                      and m.filial = :filial'
+      '                      and m.data <= :data'
+      '                    order by data desc, lancto desc limit 1),0)'
+      '       end as conserto,'
+      ''
+      '       case when :MovimentoProcessado then'
+      '         ip.danificada'
+      '       else'
+      '         coalesce((select m.danificada'
+      '                    from movimentos m'
+      '                    where m.produto = p.codigo'
+      '                      and m.filial = :filial'
+      '                      and m.data <= :data'
+      '                    order by data desc, lancto desc limit 1),0)'
+      '       end as danificada,'
+      ''
+      ''
+      '       case when :MovimentoProcessado then'
+      '         ip.customedio'
+      '       else'
+      
+        '         coalesce((select case when (m.emestoque+m.reservado+m.r' +
+        'eservaprevia+m.transito+m.demonstracao+m.conserto+m.danificada) ' +
+        '= 0 then 0'
+      
+        '                        else round(m.financeiro / (m.emestoque+m' +
+        '.reservado+m.reservaprevia+m.transito+m.demonstracao+m.conserto+' +
+        'm.danificada), 2) end'
+      '                  from movimentos m'
+      '                  where m.produto = p.codigo'
+      '                    and m.filial = :filial'
+      '                    and m.data <= :data'
+      '                  order by data desc, lancto desc limit 1),0)'
+      '       end as customedio,'
+      ''
+      ''
+      '       case when :MovimentoProcessado then'
+      '         ip.financeiro'
+      '       else'
+      '         coalesce((select m.financeiro'
+      '                    from movimentos m'
+      '                    where m.produto = p.codigo'
+      '                      and m.filial = :filial'
+      '                      and m.data <= :data'
+      '                    order by data desc, lancto desc limit 1),0)'
+      '        end as financeiro,'
+      ''
+      ''
+      '       (case when :MovimentoProcessado then'
+      '         ip.financeiroprocessamento'
+      '       else'
+      '         case when ip.quantidade<>0 then'
+      ''
+      '           coalesce('
+      
+        '                      (select (case when (m.emestoque+m.reservad' +
+        'o+m.reservaprevia+m.transito+m.demonstracao+m.conserto+m.danific' +
+        'ada) <> 0 then'
+      
+        '                               round(m.financeiro / (m.emestoque' +
+        '+m.reservado+m.reservaprevia+m.transito+m.demonstracao+m.consert' +
+        'o+m.danificada), 2) * ip.quantidade'
+      '                              else null '
+      #9#9#9#9#9#9#9'  end)'
+      '                       from movimentos m'
+      '                       where m.produto = p.codigo'
+      '                         and m.filial = :filial'
+      '                         and m.data <= :processamento'
+      '                       order by data desc, lancto desc limit 1),'
+      ''
+      '                      coalesce('
+      
+        '                      (case when QuantidadeTotalDoEstoque(ip.pro' +
+        'duto, cast(:filial as smallint)) = 0 then'
+      
+        '                                                (select e.valoru' +
+        'ltimacompra'
+      '                                                 from estoques e'
+      
+        '                                                 where e.produto' +
+        ' = ip.produto'
+      
+        '                                                   and e.filial ' +
+        '= :filial)'
+      '                       else'
+      ''
+      
+        '                                                (select e.financ' +
+        'eiro'
+      '                                                 from estoques e'
+      
+        '                                                 where e.produto' +
+        ' = ip.produto'
+      
+        '                                                   and e.filial ' +
+        '= :filial) /'
+      
+        '                                                QuantidadeTotalD' +
+        'oEstoque(ip.produto, cast(:filial as smallint))'
+      '                      end) * ip.quantidade, 0)'
+      ''
+      ''
+      '                     )'
+      '         else'
+      ''
+      '           coalesce((select m.financeiro'
+      '                      from movimentos m'
+      '                      where m.produto = p.codigo'
+      '                        and m.filial = :filial'
+      '                        and m.data <= :processamento'
+      
+        '                      order by data desc, lancto desc limit 1),0' +
+        ')'
+      ''
+      '         end'
+      '       end) as financeiroprocessamento,'
+      ''
+      ''
+      '      false as PossuiSaldoNegativoPosteriormente,'
+      ''
+      ''
+      '      case when :MovimentoProcessado then'
+      '        ip.valorcusto'
+      '      else'
+      
+        '        (case when QuantidadeTotalDoEstoque(ip.produto, cast(:fi' +
+        'lial as smallint)) = 0 then'
+      '                                  (select e.valorultimacompra'
+      '                                   from estoques e'
+      '                                   where e.produto = ip.produto'
+      '                                     and e.filial = :filial)'
+      '         else'
+      ''
+      '                                  (select e.financeiro'
+      '                                   from estoques e'
+      '                                   where e.produto = ip.produto'
+      '                                     and e.filial = :filial) /'
+      
+        '                                  QuantidadeTotalDoEstoque(ip.pr' +
+        'oduto, cast(:filial as smallint))'
+      '        end)'
+      '      end as valorcusto,'
+      ''
+      '      ip.quantidade -'
+      '      (('
+      ''
+      '         case when :MovimentoProcessado then'
+      '           coalesce(ip.emestoque,0)'
+      '         else'
+      '           coalesce((select m.emestoque'
+      '                   from movimentos m'
+      '                   where m.produto = p.codigo'
+      '                     and m.filial = :filial'
+      '                     and m.data <= :data'
+      '                   order by data desc, lancto desc limit 1),0)'
+      '         end'
+      ''
+      ''
+      '       +'
+      ''
+      '         case when :MovimentoProcessado then'
+      '           coalesce(ip.reservado,0)'
+      '         else'
+      '           coalesce((select m.reservado'
+      '                     from movimentos m'
+      '                     where m.produto = p.codigo'
+      '                       and m.filial = :filial'
+      '                       and m.data <= :data'
+      '                     order by data desc, lancto desc limit 1),0)'
+      '         end'
+      ''
+      '       +'
+      ''
+      '         case when :MovimentoProcessado then'
+      '           coalesce(ip.reservaprevia,0)'
+      '         else'
+      '           coalesce((select m.reservaprevia'
+      '                     from movimentos m'
+      '                     where m.produto = p.codigo'
+      '                       and m.filial = :filial'
+      '                       and m.data <= :data'
+      '                     order by data desc, lancto desc limit 1),0)'
+      '         end'
+      ''
+      '        ) +'
+      ''
+      '         case when :MovimentoProcessado then'
+      '           coalesce(ip.movimentado,0)'
+      '         else'
+      '           coalesce((select'
+      ''
+      '                  coalesce((select sum(abs(m.quantidade))'
+      '                  from movimentos m'
+      
+        '                  where (substring(m.operacao from 1 for 1)= '#39'+'#39 +
+        ')'
+      '                    and m.produto = ip.produto'
+      '                    and m.filial = :filial'
+      
+        '                    and m.data > :data and m.data <= :processame' +
+        'nto),0) +'
+      ''
+      '                  coalesce((select - sum(abs(m.quantidade))'
+      '                  from movimentos m'
+      
+        '                  where (substring(m.operacao from 1 for 1)= '#39'-'#39 +
+        ')'
+      '                    and m.produto = ip.produto'
+      '                    and m.filial = :filial'
+      
+        '                    and m.data > :data and m.data <= :processame' +
+        'nto),0) +'
+      ''
+      '                  coalesce((select sum(abs(m.quantidade))'
+      '                  from movimentos m'
+      
+        '                  where (substring(m.operacao from 2 for 1)= '#39'+'#39 +
+        ')'
+      '                    and m.produto = ip.produto'
+      '                    and m.filial = :filial'
+      
+        '                    and m.data > :data and m.data <= :processame' +
+        'nto),0) +'
+      ''
+      '                  coalesce((select - sum(abs(m.quantidade))'
+      '                  from movimentos m'
+      
+        '                  where (substring(m.operacao from 2 for 1)= '#39'-'#39 +
+        ')'
+      '                    and m.produto = ip.produto'
+      '                    and m.filial = :filial'
+      
+        '                    and m.data > :data and m.data <= :processame' +
+        'nto),0) +'
+      ''
+      '                  coalesce((select - sum(abs(m.quantidade))'
+      '                  from movimentos m'
+      
+        '                  where (substring(m.operacao from 3 for 1)= '#39'-'#39 +
+        ')'
+      '                    and m.produto = ip.produto'
+      '                    and m.filial = :filial'
+      
+        '                    and m.data > :data and m.data <= :processame' +
+        'nto),0) +'
+      ''
+      '                  coalesce((select + sum(abs(m.quantidade))'
+      '                  from movimentos m'
+      
+        '                  where (substring(m.operacao from 9 for 1)= '#39'+'#39 +
+        ')'
+      '                    and m.produto = ip.produto'
+      '                    and m.filial = :filial'
+      
+        '                    and m.data > :data and m.data <= :processame' +
+        'nto),0) +'
+      ''
+      '                  coalesce((select - sum(abs(m.quantidade))'
+      '                  from movimentos m'
+      
+        '                  where (substring(m.operacao from 9 for 1)= '#39'-'#39 +
+        ')'
+      '                    and m.produto = ip.produto'
+      '                    and m.filial = :filial'
+      
+        '                    and m.data > :data and m.data <= :processame' +
+        'nto),0) ),0)'
+      '         end'
+      ''
+      ''
+      '        ) as diferenca,'
+      ''
+      '      ip.*'
+      ''
+      'from inventarioprodutos ip,'
+      
+        '     (produtos p join caracteristicas c on p.caracteristica = c.' +
+        'codigo)'
+      'where ip.produto = p.codigo'
+      '  and ip.inventario = :inventario'
+      'order by ip.sequencia')
+    RequestLive = True
+    Left = 56
+    Top = 88
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'MovimentoProcessado'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftDateTime
+        Name = 'data'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'processamento'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'inventario'
+        ParamType = ptUnknown
+      end>
+    object qryInventarioProdutoinventario: TIntegerField
+      FieldName = 'inventario'
+      DisplayFormat = '0'
+    end
+    object qryInventarioProdutosequencia: TIntegerField
+      FieldName = 'sequencia'
+      DisplayFormat = '0'
+    end
+    object qryInventarioProdutoproduto: TLargeintField
+      DisplayLabel = 'Produto'
+      FieldName = 'produto'
+      Required = True
+    end
+    object qryInventarioProdutoprodutovisual: TStringField
+      FieldName = 'produtovisual'
+      Size = 30
+    end
+    object qryInventarioProdutoprodutodigitado: TStringField
+      FieldName = 'produtodigitado'
+      Size = 30
+    end
+    object qryInventarioProdutoquantidade: TFloatField
+      DisplayLabel = 'Quantidade'
+      FieldName = 'quantidade'
+      Required = True
+      DisplayFormat = '0.00'
+    end
+    object qryInventarioProdutodescricao: TStringField
+      FieldName = 'descricao'
+      Size = 50
+    end
+    object qryInventarioProdutovalorgrade1: TStringField
+      FieldName = 'valorgrade1'
+      Size = 10
+    end
+    object qryInventarioProdutovalorgrade2: TStringField
+      FieldName = 'valorgrade2'
+      Size = 10
+    end
+    object qryInventarioProdutolinha: TStringField
+      FieldName = 'linha'
+      Size = 50
+    end
+    object qryInventarioProdutocoluna: TStringField
+      FieldName = 'coluna'
+      Size = 50
+    end
+    object qryInventarioProdutoemestoque: TFloatField
+      FieldName = 'emestoque'
+      DisplayFormat = '0.00'
+    end
+    object qryInventarioProdutoreservado: TFloatField
+      FieldName = 'reservado'
+      DisplayFormat = '0.00'
+    end
+    object qryInventarioProdutotransito: TFloatField
+      FieldName = 'transito'
+      DisplayFormat = '0.00'
+    end
+    object qryInventarioProdutomovimentado: TFloatField
+      FieldName = 'movimentado'
+      DisplayFormat = '0.00'
+    end
+    object qryInventarioProdutodemonstracao: TFloatField
+      FieldName = 'demonstracao'
+      DisplayFormat = '0.00'
+    end
+    object qryInventarioProdutoconserto: TFloatField
+      FieldName = 'conserto'
+      DisplayFormat = '0.00'
+    end
+    object qryInventarioProdutodanificada: TFloatField
+      FieldName = 'danificada'
+      DisplayFormat = '0.00'
+    end
+    object qryInventarioProdutoreservaprevia: TFloatField
+      FieldName = 'reservaprevia'
+      DisplayFormat = '0.00'
+    end
+    object qryInventarioProdutoselecionadosistema: TBooleanField
+      FieldName = 'selecionadosistema'
+    end
+    object qryInventarioProdutodescricaolc: TStringField
+      FieldKind = fkCalculated
+      FieldName = 'descricaolc'
+      Size = 100
+      Calculated = True
+    end
+    object qryInventarioProdutosaldoaposprocessamento: TFloatField
+      FieldName = 'saldoaposprocessamento'
+      DisplayFormat = '0.00'
+    end
+    object qryInventarioProdutopossuisaldonegativoposteriormente: TBooleanField
+      FieldName = 'possuisaldonegativoposteriormente'
+    end
+    object qryInventarioProdutocodigobarras: TStringField
+      FieldName = 'codigobarras'
+      Size = 30
+    end
+    object qryInventarioProdutovalorcusto: TFloatField
+      FieldName = 'valorcusto'
+      DisplayFormat = '0.00'
+    end
+    object qryInventarioProdutocustomedio: TFloatField
+      FieldName = 'customedio'
+      DisplayFormat = '0.00'
+    end
+    object qryInventarioProdutofinanceiro: TFloatField
+      FieldName = 'financeiro'
+      DisplayFormat = '0.00'
+    end
+    object qryInventarioProdutodiferenca: TFloatField
+      FieldKind = fkInternalCalc
+      FieldName = 'diferenca'
+      DisplayFormat = '0.00'
+    end
+    object qryInventarioProdutofinanceiroprocessamento: TFloatField
+      FieldName = 'financeiroprocessamento'
+      DisplayFormat = '0.00'
+    end
+  end
+  object dsrInventarioProduto: TtecDataSource
+    DataSet = qryInventarioProduto
+    Left = 176
+    Top = 88
+  end
+  object qryInventarioProximo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select coalesce(max(numero),0)+1 as numero'
+      'from inventario')
+    RequestLive = True
+    Left = 152
+    Top = 256
+    object qryInventarioProximonumero: TIntegerField
+      FieldName = 'numero'
+      DisplayFormat = '0'
+    end
+  end
+  object qryProdutoEstoque: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select m.emestoque,'
+      '       m.reservado,'
+      '       m.transito,'
+      '       m.demonstracao,'
+      '       m.conserto,'
+      '       m.danificada,'
+      '       m.reservaprevia,'
+      ''
+      ''
+      '       coalesce((select'
+      ''
+      '                coalesce((select sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 1 for 1)= '#39'+'#39')'
+      '                  and m.produto = :produto'
+      '                  and m.filial = :filial'
+      '                   and case when :MovimentoProcessado then'
+      
+        '                       (m.tipomovimento not in ('#39'IE+'#39','#39'IE-'#39','#39'IT-' +
+        #39','#39'IR-'#39','#39'IP-'#39'))'
+      '                       else true end'
+      
+        '                  and m.data > :data and m.data <= :processament' +
+        'o),0) +'
+      ''
+      '                coalesce((select - sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 1 for 1)= '#39'-'#39')'
+      '                  and m.produto = :produto'
+      '                  and m.filial = :filial'
+      '                   and case when :MovimentoProcessado then'
+      
+        '                       (m.tipomovimento not in ('#39'IE+'#39','#39'IE-'#39','#39'IT-' +
+        #39','#39'IR-'#39','#39'IP-'#39'))'
+      '                       else true end'
+      
+        '                  and m.data > :data and m.data <= :processament' +
+        'o),0) +'
+      ''
+      '                coalesce((select sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 2 for 1)= '#39'+'#39')'
+      '                  and m.produto = :produto'
+      '                  and m.filial = :filial'
+      '                   and case when :MovimentoProcessado then'
+      
+        '                       (m.tipomovimento not in ('#39'IE+'#39','#39'IE-'#39','#39'IT-' +
+        #39','#39'IR-'#39','#39'IP-'#39'))'
+      '                       else true end'
+      
+        '                  and m.data > :data and m.data <= :processament' +
+        'o),0) +'
+      ''
+      '                coalesce((select - sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 2 for 1)= '#39'-'#39')'
+      '                  and m.produto = :produto'
+      '                  and m.filial = :filial'
+      '                   and case when :MovimentoProcessado then'
+      
+        '                       (m.tipomovimento not in ('#39'IE+'#39','#39'IE-'#39','#39'IT-' +
+        #39','#39'IR-'#39','#39'IP-'#39'))'
+      '                       else true end'
+      
+        '                  and m.data > :data and m.data <= :processament' +
+        'o),0) +'
+      ''
+      '                coalesce((select sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 3 for 1)= '#39'+'#39')'
+      '                  and m.produto = :produto'
+      '                  and m.filial = :filial'
+      '                   and case when :MovimentoProcessado then'
+      
+        '                       (m.tipomovimento not in ('#39'IE+'#39','#39'IE-'#39','#39'IT-' +
+        #39','#39'IR-'#39','#39'IP-'#39'))'
+      '                       else true end'
+      
+        '                  and m.data > :data and m.data <= :processament' +
+        'o),0) +'
+      ''
+      '                coalesce((select - sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 3 for 1)= '#39'-'#39')'
+      '                  and m.produto = :produto'
+      '                  and m.filial = :filial'
+      '                   and case when :MovimentoProcessado then'
+      
+        '                       (m.tipomovimento not in ('#39'IE+'#39','#39'IE-'#39','#39'IT-' +
+        #39','#39'IR-'#39','#39'IP-'#39'))'
+      '                       else true end'
+      
+        '                  and m.data > :data and m.data <= :processament' +
+        'o),0) +'
+      '                  '
+      '                coalesce((select sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 9 for 1)= '#39'+'#39')'
+      '                  and m.produto = :produto'
+      '                  and m.filial = :filial'
+      '                   and case when :MovimentoProcessado then'
+      
+        '                       (m.tipomovimento not in ('#39'IE+'#39','#39'IE-'#39','#39'IT-' +
+        #39','#39'IR-'#39','#39'IP-'#39'))'
+      '                       else true end'
+      
+        '                  and m.data > :data and m.data <= :processament' +
+        'o),0) +'
+      ''
+      '                coalesce((select - sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 9 for 1)= '#39'-'#39')'
+      '                  and m.produto = :produto'
+      '                  and m.filial = :filial'
+      '                   and case when :MovimentoProcessado then'
+      
+        '                       (m.tipomovimento not in ('#39'IE+'#39','#39'IE-'#39','#39'IT-' +
+        #39','#39'IR-'#39','#39'IP-'#39'))'
+      '                       else true end'
+      
+        '                  and m.data > :data and m.data <= :processament' +
+        'o),0) '
+      '                                    '
+      '                  ),0) as movimentado'
+      ''
+      'from movimentos m'
+      'where m.produto = :produto'
+      '  and m.filial = :filial'
+      '  and m.data <= cast(:data as date)'
+      '  and case when :MovimentoProcessado then'
+      '     (m.tipomovimento not in ('#39'IE+'#39','#39'IE-'#39','#39'IT-'#39','#39'IR-'#39','#39'IP-'#39'))'
+      '      else true end'
+      'order by data desc, lancto desc limit 1')
+    RequestLive = True
+    Left = 120
+    Top = 296
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'produto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'MovimentoProcessado'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftDateTime
+        Name = 'data'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'processamento'
+        ParamType = ptUnknown
+      end>
+    object qryProdutoEstoqueemestoque: TFloatField
+      FieldName = 'emestoque'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutoEstoquereservado: TFloatField
+      FieldName = 'reservado'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutoEstoquetransito: TFloatField
+      FieldName = 'transito'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutoEstoquedemonstracao: TFloatField
+      FieldName = 'demonstracao'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutoEstoqueconserto: TFloatField
+      FieldName = 'conserto'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutoEstoquedanificada: TFloatField
+      FieldName = 'danificada'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutoEstoquereservaprevia: TFloatField
+      FieldName = 'reservaprevia'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutoEstoquemovimentado: TFloatField
+      FieldName = 'movimentado'
+      DisplayFormat = '0.00'
+    end
+  end
+  object qryMovimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnNewRecord = qryMovimentosNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select m.numero,'
+      '       m.produto,'
+      '       m.filial,'
+      '          m.data,'
+      '          m.quantidade,'
+      '          m.tipomovimento,'
+      '          m.operacao,'
+      '          m.emestoque,'
+      '          m.reservado,'
+      '          m.transito,'
+      '          m.demonstracao,'
+      '          m.conserto,'
+      '          m.futuro,'
+      '          m.danificada,'
+      '          m.estoquefisico,'
+      '          m.financeiro,'
+      '          m.valor,'
+      '          m.precocomicms,'
+      '          m.precosemicms,'
+      '          m.aliquotaipi,'
+      '          m.referencia,'
+      '          m.trfproduto,'
+      '          m.trffilial,'
+      '          m.trfmovimento,'
+      '          m.codigonota,  m.ComExcecaoSeNegativo, m.inventario'
+      'from movimentos m'
+      'where '
+      '/* Preenchido em runtime */ False'
+      'order by produto,filial,numero'
+      '')
+    RequestLive = True
+    Left = 232
+    Top = 184
+    object qryMovimentosnumero: TIntegerField
+      FieldName = 'numero'
+      DisplayFormat = '0'
+    end
+    object qryMovimentosproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryMovimentosfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryMovimentosdata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryMovimentosquantidade: TFloatField
+      FieldName = 'quantidade'
+      DisplayFormat = '0.00'
+    end
+    object qryMovimentostipomovimento: TStringField
+      FieldName = 'tipomovimento'
+      Size = 3
+    end
+    object qryMovimentosemestoque: TFloatField
+      FieldName = 'emestoque'
+      DisplayFormat = '0.00'
+    end
+    object qryMovimentosoperacao: TStringField
+      FieldName = 'operacao'
+    end
+    object qryMovimentosreservado: TFloatField
+      FieldName = 'reservado'
+      DisplayFormat = '0.00'
+    end
+    object qryMovimentostransito: TFloatField
+      FieldName = 'transito'
+      DisplayFormat = '0.00'
+    end
+    object qryMovimentosdemonstracao: TFloatField
+      FieldName = 'demonstracao'
+      DisplayFormat = '0.00'
+    end
+    object qryMovimentosconserto: TFloatField
+      FieldName = 'conserto'
+      DisplayFormat = '0.00'
+    end
+    object qryMovimentosfuturo: TFloatField
+      FieldName = 'futuro'
+      DisplayFormat = '0.00'
+    end
+    object qryMovimentosdanificada: TFloatField
+      FieldName = 'danificada'
+      DisplayFormat = '0.00'
+    end
+    object qryMovimentosestoquefisico: TFloatField
+      FieldName = 'estoquefisico'
+      DisplayFormat = '0.00'
+    end
+    object qryMovimentosfinanceiro: TFloatField
+      FieldName = 'financeiro'
+      DisplayFormat = '0.00'
+    end
+    object qryMovimentosvalor: TFloatField
+      FieldName = 'valor'
+      DisplayFormat = '0.00'
+    end
+    object qryMovimentosprecocomicms: TFloatField
+      FieldName = 'precocomicms'
+      DisplayFormat = '0.00'
+    end
+    object qryMovimentosprecosemicms: TFloatField
+      FieldName = 'precosemicms'
+      DisplayFormat = '0.00'
+    end
+    object qryMovimentosaliquotaipi: TFloatField
+      FieldName = 'aliquotaipi'
+      DisplayFormat = '0.00'
+    end
+    object qryMovimentosreferencia: TStringField
+      FieldName = 'referencia'
+      Size = 60
+    end
+    object qryMovimentostrfproduto: TLargeintField
+      FieldName = 'trfproduto'
+    end
+    object qryMovimentostrffilial: TIntegerField
+      FieldName = 'trffilial'
+      DisplayFormat = '0'
+    end
+    object qryMovimentostrfmovimento: TIntegerField
+      FieldName = 'trfmovimento'
+      DisplayFormat = '0'
+    end
+    object qryMovimentoscodigonota: TIntegerField
+      FieldName = 'codigonota'
+      DisplayFormat = '0'
+    end
+    object qryMovimentoscomexcecaosenegativo: TBooleanField
+      FieldName = 'comexcecaosenegativo'
+    end
+    object qryMovimentosinventario: TIntegerField
+      FieldName = 'inventario'
+    end
+  end
+  object qryEstoques_Anterior: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'produtosdoinventario'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQLFiltroLocalizacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQLFiltroItemProdutos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQLFiltroProdutos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQLFiltroGrupos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQLFiltroClasses'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQLFiltroMarcas'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQLFiltroGruposFornecedores'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQLFiltroFornecedor'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQLFiltroDescricaoProduto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQLEmLinha_ForadeLinha'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQLAtivo_Inativo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQLCondicaoQuantidade'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'select setval('#39'chave'#39',:sequencia);'
+      
+        'insert into inventarioProdutos (inventario, sequencia, produto, ' +
+        'produtodigitado, quantidade, selecionadosistema)'
+      '('
+      ' SELECT    cast(:inventario as integer) as inventario,'
+      '            cast(nextval('#39'chave'#39') as integer)-1 as sequencia,'
+      '            codigoitem, codigovisual,'
+      '            0.00,'
+      '            true'
+      ' FROM'
+      ' ('
+      '  SELECT ep.codigoitem, ep.codigovisual, ep.codigofilial'
+      ''
+      '  FROM'
+      '  ('
+      
+        '     select e.produto as codigoitem, p.codigovisual, e.filial as' +
+        ' codigofilial'
+      '     FROM'
+      '     ( SELECT e.produto, e.filial'
+      '         FROM estoques e'
+      '         WHERE e.filial = :filial'
+      
+        '         %produtosdoinventario /*not in (lista produtos do inven' +
+        'tario)*/'
+      '         %SQLFiltroLocalizacao'
+      '      ) AS e'
+      ''
+      '            join (produtos p'
+      '                  join (((caracteristicas c'
+      '                          join classes cl'
+      '                          on c.classe=cl.codigo)'
+      '                          join grupos g'
+      '                          on g.codigo=c.grupo)'
+      '                          join marcas m'
+      '                          on c.marca = m.codigo)'
+      '                  on p.caracteristica=c.codigo)'
+      ''
+      '            on e.produto = p.codigo'
+      ''
+      '      where true'
+      ''
+      '      %SQLFiltroItemProdutos'
+      '      %SQLFiltroProdutos'
+      '      %SQLFiltroGrupos'
+      '      %SQLFiltroClasses'
+      '      %SQLFiltroMarcas'
+      '      %SQLFiltroGruposFornecedores'
+      '      %SQLFiltroFornecedor'
+      '      %SQLFiltroDescricaoProduto'
+      '      %SQLEmLinha_ForadeLinha'
+      '      %SQLAtivo_Inativo'
+      ''
+      ''
+      '   ) AS ep, movimentos m1'
+      '      Where m1.numero = (select m2.numero'
+      '                         from movimentos m2'
+      '                         where m2.produto = ep.codigoitem'
+      '                           and m2.filial = ep.codigofilial'
+      '                           and m2.data <= cast(:data as date)'
+      
+        '                         order by m2.data desc, m2.lancto desc l' +
+        'imit 1)'
+      ''
+      
+        '        %SQLCondicaoQuantidade /* and (m1.emestoque+m1.reservado' +
+        '+m1.transito)<>0 */'
+      ''
+      ' ) as ep'
+      ')')
+    RequestLive = False
+    Left = 317
+    Top = 73
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'sequencia'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'inventario'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftString
+        Name = 'data'
+        ParamType = ptUnknown
+        Value = #39'14/12/2005'#39
+      end>
+  end
+  object qryEstoques_Atual: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'produtosdoinventario'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQLFiltroItemProdutos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQLFiltroProdutos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQLFiltroGrupos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQLFiltroClasses'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQLFiltroMarcas'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQLFiltroGruposFornecedores'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQLFiltroFornecedor'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQLFiltroLocalizacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQLFiltroDescricaoProduto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQLEmLinha_ForadeLinha'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQLAtivo_Inativo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SQLCondicaoQuantidade'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'select setval('#39'chave'#39', :sequencia);'
+      
+        'insert into inventarioProdutos (inventario, sequencia, produto, ' +
+        'produtodigitado, quantidade, selecionadosistema)'
+      '('
+      '  SELECT    cast(:inventario as integer) as inventario,'
+      '            cast(nextval('#39'chave'#39') as integer)-1 as sequencia,'
+      '            codigoitem,'
+      '            codigovisual,'
+      '            0.00,'
+      '            true'
+      '  FROM'
+      '  ('
+      '   SELECT e.produto AS codigoitem,'
+      '          p.codigovisual'
+      ''
+      '   FROM estoques e'
+      ''
+      '            join (produtos p'
+      '                  join (((caracteristicas c'
+      '                          join classes cl'
+      '                          on c.classe=cl.codigo)'
+      '                          join grupos g'
+      '                          on g.codigo=c.grupo)'
+      '                          join marcas m'
+      '                          on c.marca = m.codigo)'
+      '                  on p.caracteristica=c.codigo)'
+      ''
+      '            on e.produto = p.codigo'
+      ''
+      ''
+      '   Where e.filial = :filial'
+      
+        '      %produtosdoinventario /*not in (lista produtos do inventar' +
+        'io)*/'
+      ''
+      '      %SQLFiltroItemProdutos'
+      '      %SQLFiltroProdutos'
+      '      %SQLFiltroGrupos'
+      '      %SQLFiltroClasses'
+      '      %SQLFiltroMarcas'
+      '      %SQLFiltroGruposFornecedores'
+      '      %SQLFiltroFornecedor'
+      '      %SQLFiltroLocalizacao'
+      '      %SQLFiltroDescricaoProduto'
+      '      %SQLEmLinha_ForadeLinha'
+      '      %SQLAtivo_Inativo'
+      ''
+      
+        '      %SQLCondicaoQuantidade /* and (e.emestoque+e.reservado+e.t' +
+        'ransito)<>0 */'
+      ''
+      '   order by p.descricao, p.valorgrade1, p.valorgrade2, p.codigo'
+      '  ) as estoque'
+      ')')
+    RequestLive = False
+    Left = 317
+    Top = 130
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'sequencia'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'inventario'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryEstoques: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnProgress = qryEstoquesProgress
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    RequestLive = False
+    Left = 317
+    Top = 193
+  end
+  object fdsInventario: TfrDBDataSet
+    DataSource = dsrInventario
+    OpenDataSource = False
+    RangeBegin = rbCurrent
+    RangeEnd = reCurrent
+    Left = 504
+    Top = 112
+  end
+  object frpInventario: TfrReport
+    Dataset = fdsInventario
+    InitialZoom = pzDefault
+    PreviewButtons = [pbZoom, pbLoad, pbSave, pbPrint, pbFind, pbHelp, pbExit]
+    StoreInDFM = True
+    RebuildPrinter = False
+    OnBeforePrint = frpInventarioBeforePrint
+    Left = 504
+    Top = 57
+    ReportForm = {
+      19000000A841000019FFFF00000A0050444643726561746F7200FFFFFFFFFF00
+      000000340800009A0B00000000000000000000000000002B0000000000040000
+      FFFFFFFF010000000000000000000000030400466F726D00FEFFFFFFDC000000
+      780000007C0100002C0100000403000500626567696E0D190020205374726574
+      6368546F5072696E74203A3D20547275653B0D0300656E64000200FA00000009
+      00636162506167696E610002010000000020000000F502000038000000300002
+      0001000000000000000000FFFFFF1F00000000000000000000000000FFFF0000
+      00000002000000010000000000000001000000C8000000140000000100000000
+      00000200630100000900726470506167696E610002010000000088020000F502
+      00000E0000003000030001000000000000000000FFFFFF1F0000000000000000
+      0000000000FFFF000000000002000000010000000000000001000000C8000000
+      14000000010000000000000200DC0100000C004461646F734D65737472653100
+      020100000000AC000000F50200001D0000003000050001000000000000000000
+      FFFFFF1F000000000D00666473496E76656E746172696F00000000000000FFFF
+      000000000002000000010000000000000001000000C800000014000000010000
+      000000000200840200000F004461646F734465446574616C6865310002010000
+      000068010000F50200000B0000003100080001000000000000000000FFFFFF1F
+      00000000150066647350726F6475746F73496E76656E746172696F0000000003
+      000500626567696E0D140020204C494E4841203A3D205B4C494E45235D20200D
+      0300656E6400FFFF000000000002000000010000000000000001000000C80000
+      0014000000010000000000000200F5020000110043616265E7616C686F446574
+      616C6865310002010000000028010000F50200001E0000007000070001000000
+      000000000000FFFFFF1F00000000000000000000000000FFFF00000000000200
+      0000010000000000000001000000C80000001400000001000000000000020069
+      030000140053756DE172696F446F2052656C6174F372696F3100020100000000
+      EC010000F50200003A0000003000010001000000000000000000FFFFFF1F0000
+      0000000000000000000000FFFF00000000000200000001000000000000000100
+      0000C800000014000000010000000000000000FB0300000A006D6D6F5A656272
+      61646F0002000500000068010000E30200000B0000004300000001000000FFFF
+      FF1F0000FFFFFF1F2C02000000000000000002000500626567696E0D0300656E
+      6400FFFF0000000000020000000100000000090068656C766574696361000A00
+      0000000000000000000000000100020000000000FFFFFF1F0000000200000000
+      00000000008E04000005004D656D6F350002002400000088020000500000000B
+      0000004300000001000000000000000000FFFFFF1F2C02000000000001001100
+      5B54494D4520235468683A6D6D3A73735D00000000FFFF000000000002000000
+      0100000006090068656C76657469636100070000000000000000000000000001
+      00020000000000FFFFFF0000000002000000000000000400DD04000005004C69
+      6E65370002003A04000076000000000000002400000001000400010000000000
+      00000000FFFFFF1F2C020000000000000000000000FFFF000000000002000000
+      01000000000100021D000007006670764C6F676F000200220000002200000090
+      0000002D0000000500000001000000000000000000FFFFFF1F2C020000000000
+      000000000000FFFF00000000000200000001000000000100021D0000424DCE17
+      0000000000003604000028000000830000002600000001000800000000009813
+      0000120B0000120B0000000100000001000000000000E8E5A800AA9E00009999
+      0000ADADAD003A3C4100A3970000BFB73700D8D48600FBFAF000A5A5A5001E1D
+      1C00D8D9DA0054575A00D6D6D500E7E8F20012161B00B6AD1900CBC55B008C8D
+      9200BEC0C500E1E2E40085878A005E606300494C4F00090D12002C2E3300DEDB
+      98007D7F8100EFEDCB00B9BABB00AEA400007C7B7B00C5BE440066666600D1CC
+      6F00CDC9810048484600F7F6E600AFA5080004080D00F9F8ED00B8AF2700DBD6
+      8C00999999001B1A1900C6BF5100131312003B3A3A00FFFFFF00EAE8BE00CCCC
+      CC0023262A00E2DEA400F1EFD600B0B1B300D3CD7500B1A81000CCCC66007272
+      7200535252004342420001060A00ECE9C3008C8C8B00F5F4DF004A4A4A005757
+      5600B6AC1F00282B3000C7C05C0061615F00F7F7F70088888700DDD89300E3E0
+      A600FDFCF70021242900070A1000BDB53100C5BE4A00E3E3E200A69C00009999
+      9900BABAB900DEDEDE00525458002A292800D9D58A005F5E5D00C7C595001B1E
+      2300E8E5B60000000700B5AB1300D5D07B00C6C6C500B2A80B0021202000B9B1
+      2400504F4E00666666006B6D7000B5B5BD0084848400E0DC9E00BCB42C00F7EF
+      D6005B5B5A00EFEFEF0087898B00DEDEE6003E3D3C0014181E00C8C25300CCC5
+      5F00A8A9AC00BDBDBC00E5E1AC0075767900181B2000E6E6E6000E1117000810
+      190033333300929191002D2C2B00B5B5B4000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000003131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131543D42
+      470E313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313131313131313131313131313131523131313131486D313131
+      6D6D4C3131316D6D313131313131313131316D4831313131313131316D6D3131
+      316D040A6C6C313131313131486D6D4C3131313131316D6D4C31313131313131
+      3131313131486D6D6D313131313131486D6D48313131316D483131316D6D3131
+      313131313131313131316D6D6D3131486D6D6D31313131313152313131317F7E
+      6631554225256031603D42647931420C313B7D316D6C3D70403131662C316D59
+      3D7068313133646C702531484255312C70643059313131310C2525420E314774
+      31420E4825793131315442433D474C4C640E3120423C300A3131207E2C317F70
+      254748484251512531603C316D59253C620A312C254330683131313131523131
+      31316C2031315959313131317C7D4C4C31487C0E3159683177424C5134753143
+      4031203D487957543130494C7F3D31487C0C310B37317F70313131313C663131
+      3131642C317C33487E51313131313179602F55317C3331316D793B7031487E14
+      314857043131316D7C55557E311E3031542D4C314340313148790A0B4C313131
+      315231313131477D313125306C64334C5779313131487C0E31224931422C3131
+      4340316C7D313C7D3131594931570C31543D31487C0C31687059302531313131
+      70706C3C0E313C0A313033317C513131310C702570474C4C3033312C7C64300A
+      3148300E31796243432248483051517C31603D316D6464590B2C31547C42301C
+      313131313152313131314749313166420C5548313D2C484831487C0E48302C31
+      1C4248516275316C7D31493D4879627F31256848373031487C0E3131550E2070
+      31313131473C0C554831642C4C7E330C62793131316830796D3131487C333157
+      7D6D6D313148303331487C49555131487C0C0C7E4C2C703131480C0E7C2C313C
+      476D6D31313131313152313131040B7E20316D473C6C33310E3D3C6C79312542
+      64646D31486C42706831316C7D31484742702031310E3D433D6C314843553140
+      43473D0A31313131796C3C6C0E316670597E3C3D20313131310E256C6C773131
+      6C0E312C3D47430431772F3D0A3133424366484825643C7E6C7C74316D225943
+      425531543D59437D3131313131523131316D643B6D3131316D51483131317951
+      4C316D51793131313131796D3131313C40313131796D31313131317979483131
+      7F6D316D15154831313131313131795148314879516D796D3131313131313151
+      517931317F6D31316D51516D3151577F6D313131797931316D51516D51483131
+      31515151313131314851516D3131313131523131313140043131313131313131
+      3131313131313131313131313131313131313168043131313131313131313131
+      31313148660F3131313131313131313131313131313131313131313131313131
+      3131313131313131220E31313131313131316655313131313131313131313131
+      3131313131313131313131313131313131313131315231313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      31313131313131315C46121212463F3131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313152313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131315F06020202061B31313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131523131
+      313131310E40173C18183D6E3131313131310C2C666C3C181818181805683131
+      313131316D3768220D0516313131313108021F1F1F5235313131313172070707
+      070707070707070707070750732B3631313131313131313131362B7321211208
+      1D31313131313131313123505050504B3131313131313131313F08122E505050
+      085231313131312C103E191919195D17313131317966713E4E19191919191919
+      5D0D31313131312C34282819190017313131313108021F1F1F52353131313131
+      1152020202020202020202020202020202022776313131313131313F501F0202
+      0202020202075C313131313131316A060202065F313131313131314C12020202
+      0202020221523131313175287A78787878784E223131310E1A3E107878717171
+      71717171281731313131773E7A717171712822313131313108021F1F1F523531
+      3131313144021F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1D31313131310802
+      021F1F1F1F1F1F1F1F02022331313131313107021F1F0208313131313131313A
+      521F1F1F1F1F1F1F5052313131310D4E7878787A7A71282231316D7C4E787878
+      4E4E7A717171717128173131312C3E7171717119195D22313131313108021F1F
+      1F5269314C4C4C4C631F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F5250313131
+      3138521F1F1F0202020202021F1F1F5212313131313107021F1F020831313131
+      3131361F1F1F1F1F0202020221523131316D457A78787A3D370E0E5131313B3E
+      7878787A2274140E0E0E0E0E0E15313115787A787871190D0A145A2A6A6A6A2A
+      5F36363636365044111111113226262626262626262626262626264A1F1F1F1F
+      612631311B521F1F1F02443A08082363021F1F1F525F3131313107021F1F0208
+      3131313131311B021F1F1F1F6A2B353532523131310E71717171710C31313131
+      3115781078784E683131313131313131313131311C287878787A2C3131310106
+      020202025F313131313150520202020236313131313131313131313131313131
+      44021F1F1F32312639021F1F1F584C31313131311B27021F1F1F363131310702
+      1F1F020831313131313123021F1F1F11093131313152313131337A7171714548
+      31313131312C28787810344C313131313131313131313131057A78784E663131
+      313135021F1F1F025F313131313150021F1F1F1F363131313131313131313131
+      3131314C5E021F1F0276315F521F1F1F4B313131313131313132271F1F527331
+      313107021F1F020831313131313112021F1F0272313131313152313131601978
+      787A7C4C3131313131662878781045166E6E6E6E6E6E6E6E1C0431555B107871
+      7A603131313135021F1F1F025F313131313150021F1F1F1F3631313131313131
+      4C0909090909363A021F1F1F1F3F314F021F0272313131313131313131312302
+      1F1F1109313107021F1F02083131313131312E021F1F02733131313131523131
+      31601978787A054C313131313156197878787128282828282828282800563133
+      7A717171346D313131313552020202025F313131313121060202020236313131
+      31762E635E61616161611F1F1F1F1F1F114C26611F1F02763131313131313131
+      31311D1F1F1F1F1D313107021F1F02083131313131312E021F1F023A31313131
+      3152313131601978787A054C3131313131181978787878787878787878787878
+      4E1731141978787A454831313131764444444444241551515151464F4F4F4F4F
+      413131313A0202021F1F1F1F1F1F1F1F1F1F1F521B311D1F1F1F1F3631313131
+      31313131313126391F1F1F5C313107021F1F02083131313131312E021F1F023A
+      313131313152313131601978787A054C31313131315619787878787878787878
+      787878784E1731337A717171346D313131313109090909097D713434347A3731
+      3131313131313158521F1F1F1F1F0202020202020202275831311D1F1F1F1F1D
+      3131313131313131313126391F1F1F5C313107021F1F02083131313131312E02
+      1F1F023A313131313152313131601978787A054C3131313131224E787878784E
+      28282828282828280056310C787171715B0C31313131313131313131133E1010
+      105D74313131313131312939021F1F1F1F3911636363636A5008363131312661
+      1F1F024B313131313131313131313F021F1F1F36313107021F1F020831313131
+      31312E021F1F023A313131313152313131601978787A054C3131313131162878
+      78101A2C2C2C2C2C2C2C2C2C7D1E316D1A7A7878197F31313131313131313131
+      134E78787828743131313131313176021F1F1F1F232631313131313131313131
+      31313107021F02213131313131313131313173021F1F444C313107021F1F0208
+      3131313131312E021F1F023A313131313152313131601978787A054C31313131
+      317F197171713448313131313131313131313131561978784E66313131313131
+      31313131134E7878782874313131313131312B521F1F1F612931313131313131
+      3131313131313158521F1F024A31313131313131317602021F52233131310702
+      1F1F02083131313131312E021F1F023A313131313152313131331978787A0531
+      31313131316D347A78784E133131313131313131313131317D28787871710431
+      313131313131313113001919190004313131313131312B521F1F1F2741313131
+      31313131313131313131310911021F1F1F232631313131295F1F1F1F1F612931
+      313107021F1F022B3131313131312E021F1F52233131313131520E14602C7A78
+      787A7C141414140C3131203E78787171660A1E6014141414140E3131155B1078
+      78107A567D371E1E1E1E1E1E13566C6C6C182C75757575756D315C021F1F1F1F
+      211B1B1B1B1B1B4A4A4A4A4A3631313176021F1F1F0261502323725E021F1F1F
+      0258762B2B4A44021F1F1F504A4A4A2B1D312E021F1F1F074A4A4A4A5C520D7A
+      7A7A78787878787A7A7A5D1731317945197878784E4E7A7A7A7A7A7A5D6C3131
+      31165D7171717119191919191919195D6E313131313166007A7A7A4E1431295E
+      021F1F1F0202020202020202020202062B313131315802021F1F1F020202021F
+      1F1F1F52384C395252521F1F1F1F1F020202020608312E021F1F1F1F02020202
+      21521771717878787878787171714E22313131335B2871787878787171717171
+      4E1731313131173E7A717878787878787878784E6E313131313166287171717A
+      6031314A521F1F1F1F1F1F1F1F1F1F1F1F1F1F524A31313131316939521F1F1F
+      1F1F1F1F1F020258310911021F1F1F1F1F1F1F1F1F1F1F022B312E021F1F1F1F
+      1F1F1F1F50520D19191978787878781919190017313131310C0D10284E4E1919
+      19191919000D31313131317D1A4E4E4E19191919191919001C31313131316628
+      78787810603131315F0202020202020202020202020202062B31313131313136
+      733902020202020261721D313129615252521F1F1F1F1F020202020608312E02
+      1F1F1F1F0202020221527D17173C107878714D1717170D2C3131313131310E0A
+      1C3B2217171717170D7D31313131313148757D77661717171717170D04313131
+      31316628787878106031313131364A3A7272727272727272727272505C313131
+      3131313131264B5F737338354131313131093A7272725E1F1F1F1F4F1212122E
+      5C312E021F1F1F631212121258523131310E1978787A05313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      31313131313117003E3E3E5D7531313131313131313131313131313131313131
+      313131313131313131313131313131313131313131313131313107021F1F5258
+      3131313131312E021F1F0223313131313152313131601978787A054C31313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313131317F686E6E6E6E15313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131312102
+      1F1F02073131313131312E021F1F023A313131313152313131601978787A054C
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313173021F1F1F1F4F3A233A32312E021F1F023A313131313152313131601978
+      787A054C31313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      31313131313169521F1F1F1F0202020608312E021F1F023A3131313131523131
+      31601978787A054C313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      313131313131313131310963521F1F1F1F1F1F024A312E021F1F023A31313131
+      3152313131601971717A054C3131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131314150611F1F1F1F1F024A3150021F1F023A
+      3131313131523131310C0D17176C774C31313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131313131313131313131313131
+      3131313131313131313131313131313131313131315C3872727272725C31082E
+      2E2E2E1B31313131315200008C1D000005004D656D6F31000200830100002000
+      0000E4000000250000004300000001000000000000000000FFFFFF1F2C020000
+      000000010008005B544954554C4F5D00000000FFFF0000000000020000000100
+      000006090068656C766574696361000B00000002000000000002000000010002
+      0000000000FFFFFF0000000002000000000000000000141E000006004D656D6F
+      32330002006902000020000000240000000F0000004300000001000000000000
+      000000FFFFFF1F2C02000000000001000500446174613A00000000FFFF000000
+      0000020000000100000006090068656C76657469636100080000000200000000
+      00000000000100020000000000FFFFFF00000000020000000000000000009E1E
+      000006004D656D6F32340002006902000032000000340000000F000000430000
+      0001000000000000000000FFFFFF1F2C0200000000000100070050E167696E61
+      3A00000000FFFF0000000000020000000100000000090068656C766574696361
+      0008000000020000000000000000000100020000000000FFFFFF000000000200
+      0000000000000000341F000006004D656D6F3235000200860200002000000048
+      0000000F0000004300000001000000000000000000FFFFFF1F2C020000000000
+      010013005B4441544520234464642F6D6D2F797979795D00000000FFFF000000
+      0000020000000100000006090068656C76657469636100080000000000000000
+      00010000000100020000000000FFFFFF0000000002000000000000000000BE1F
+      000006004D656D6F3236000200AE02000032000000200000000F000000430000
+      0001000000000000000000FFFFFF1F2C020000000000010007005B5041474523
+      5D00000000FFFF0000000000020000000100000000090068656C766574696361
+      0008000000000000000000010000000100020000000000FFFFFF000000000200
+      00000000000000006220000006004D656D6F31320002003002000088020000A4
+      0000000B0000004300000001000000000000000000FFFFFF1F2C020000000000
+      01002100746563534F4654202D205465636E6F6C6F67696120656D2053697374
+      656D61732000000000FFFF0000000000020000000100000006090068656C7665
+      746963610007000000000000000000010000000100020000000000FFFFFF0000
+      000002000000000000000000EE20000006004D656D6F32300002008500000028
+      010000CA0000001600000043000A00F4010000000000000000FFFFFF1F2C0200
+      0000000001000900444553435249C7C34F00000000FFFF000000000002000000
+      0100000006090068656C76657469636100060000000000000000000A00000001
+      00020000000000FFFFFF00000000020000000000000000007621000006004D65
+      6D6F32310002000F00000028010000270000001600000043000F00F401000000
+      0000000000FFFFFF1F2C020000000000010005004F5244454D00000000FFFF00
+      00000000020000000100000006090068656C7665746963610006000000000000
+      0000000A0000001700020000000000FFFFFF0000000002000000000000000000
+      0322000006004D656D6F31300002004F01000028010000350000001600000043
+      000F00F4010000000000000000FFFFFF1F2C02010100000001000A00494E5645
+      4E54C152494F00000000FFFF0000000000020000000100000006090068656C76
+      657469636100060000000000000000000A0000001700020000000000FFFFFF00
+      00000002000000000000000000AB22000005004D656D6F330002000900000068
+      0100007C0000000B0000004300000001000000000000000000FFFFFF1F2C0200
+      00000000010026005B717279496E76656E746172696F50726F6475746F2E2270
+      726F6475746F76697375616C225D00000000FFFF000000000002000000010000
+      0000090068656C76657469636100070000000000000000000100000001000200
+      00000000FFFFFF00000000020000000000000000005223000006004D656D6F31
+      310002008500000068010000D80000000B000000030000000100000000000000
+      0000FFFFFF1F2C020000000000010024005B717279496E76656E746172696F50
+      726F6475746F2E2264657363726963616F6C63225D00000000FFFF0000000000
+      020000000100000006090068656C766574696361000700000000000000000000
+      0000000100020000000000FFFFFF0000000002000000000000000000FD230000
+      06004D656D6F32390002001A00000068010000190000000B00000043000000F4
+      010000000000000000FFFFFF1F2C00000006002323302E303000010022005B71
+      7279496E76656E746172696F50726F6475746F2E2273657175656E636961225D
+      00000000FFFF0000000000020000000100000006090068656C76657469636100
+      07000000000000000000010000000100020000000000FFFFFF00000000020000
+      000000000000007E24000006004D656D6F3737000200BCFFFFFF7C0100004000
+      00001300000000000100F4010000000000000000FFFFFF1F2C02000000000000
+      0000000000FFFF0000000000020000000100000006090068656C766574696361
+      0008000000000000000000110000000100020000000000FFFFFF000000000200
+      0000000000000000FF24000006004D656D6F3738000200BCFFFFFF7C01000040
+      0000001300000000000100F4010000000000000000FFFFFF1F2C020000000000
+      000000000000FFFF0000000000020000000100000006090068656C7665746963
+      610008000000000000000000110000000100020000000000FFFFFF0000000002
+      0000000000000000008025000006004D656D6F3933000200BCFFFFFF7C010000
+      400000001300000000000100F4010000000000000000FFFFFF1F2C0200000000
+      00000000000000FFFF0000000000020000000100000006090068656C76657469
+      63610008000000000000000000110000000100020000000000FFFFFF00000000
+      020000000000000000000126000006004D656D6F3934000200BCFFFFFF7C0100
+      00400000001300000000000100F4010000000000000000FFFFFF1F2C02000000
+      0000000000000000FFFF0000000000020000000100000006090068656C766574
+      6963610008000000000000000000110000000100020000000000FFFFFF000000
+      00020000000000000000008226000006004D656D6F3935000200BCFFFFFF7C01
+      0000400000001300000000000100F4010000000000000000FFFFFF1F2C020000
+      000000000000000000FFFF0000000000020000000100000006090068656C7665
+      746963610008000000000000000000110000000100020000000000FFFFFF0000
+      0000020000000000000000000327000006004D656D6F3936000200BCFFFFFF7C
+      010000400000001300000000000100F4010000000000000000FFFFFF1F2C0200
+      00000000000000000000FFFF0000000000020000000100000006090068656C76
+      65746963610008000000000000000000110000000100020000000000FFFFFF00
+      00000002000000000000000000FD27000006004D656D6F373400020045010000
+      680100003F0000000B0000000000000001000000000000000000FFFFFF1F2C02
+      0000000000010077005B6966285B717279496E76656E746172696F50726F6475
+      746F2E227175616E746964616465225D3C3E302C205B466F726D6174466C6F61
+      74285B4D6173636172615175616E7469646164655D2C5B717279496E76656E74
+      6172696F50726F6475746F2E227175616E746964616465225D295D2C2727295D
+      00000000FFFF0000000000020000000100000006090068656C76657469636100
+      07000000000000000000010000000100020000000000FFFFFF00000000020000
+      000000000000008628000006004D656D6F323800020036000000280100004F00
+      00001600000043000F00F4010000000000000000FFFFFF1F2C02000000000001
+      00060043D34449474F00000000FFFF0000000000020000000100000006090068
+      656C76657469636100060000000000000000000A0000000100020000000000FF
+      FFFF00000000020000000000000000002C29000013006D6D6F464F4E4546494C
+      49414C424153455F52000200B300000036000000CA0000000A00000004000000
+      F4010000000000000000FFFFFF1F2C02000000000001001600464F4E453A205B
+      464F4E4546494C49414C424153455D00000000FFFF0000000000020000000100
+      000000090068656C766574696361000600000000000000000010000000010002
+      0000000000FFFFFF0000000002000000000000000000E129000014006D6D6F45
+      4E44455245434F5F42414952524F5F52000200B300000040000000CB0000000A
+      00000000000000F4010000000000000000FFFFFF1F2C02000000000001002400
+      5B52554146494C49414C424153455D202D205B42414952524F46494C49414C42
+      4153455D00000000FFFF0000000000020000000100000000090068656C766574
+      6963610006000000000000000000100000000100020000000000FFFFFF000000
+      0002000000000000000000AE2A000012006D6D6F4345505F4349444144455F55
+      465F52000200B30000004B000000CB0000000A00000000000000F40100000000
+      00000000FFFFFF1F2C02000000000001003E004345503A205B43455046494C49
+      414C424153455D202D205B43494441444546494C49414C424153455D202D205B
+      45535441444F46494C49414C424153455D00000000FFFF000000000002000000
+      0100000000090068656C76657469636100060000000000000000001000000001
+      00020000000000FFFFFF0000000002000000000000000000442B000008006D6D
+      6F52415A414F000200B300000022000000CB0000001400000003000000F40100
+      00000000000000FFFFFF1F2C020000000000010011005B52415A414F46494C49
+      414C424153455D00000000FFFF0000000000020000000100000000090068656C
+      7665746963610006000000000000000000100000000100020000000000FFFFFF
+      0000000002000000000000000000D02B000005004D656D6F3200020084010000
+      280100002C0000001600000003000F00F4010000000000000000FFFFFF1F2C02
+      010100000001000A00454D204553544F51554500000000FFFF00000000000200
+      00000100000006090068656C76657469636100060000000000000000000A0000
+      001700020000000000FFFFFF00000000020000000000000000005B2C00000500
+      4D656D6F34000200B001000028010000340000001600000043000F00F4010000
+      000000000000FFFFFF1F2C0201010000000100090052455345525641444F0000
+      0000FFFF0000000000020000000100000006090068656C766574696361000600
+      00000000000000000A0000001700020000000000FFFFFF000000000200000000
+      0000000000E52C000005004D656D6F36000200E4010000280100002D00000016
+      00000043000F00F4010000000000000000FFFFFF1F2C02010100000001000800
+      5452C34E5349544F00000000FFFF000000000002000000010000000609006865
+      6C76657469636100060000000000000000000A0000001700020000000000FFFF
+      FF0000000002000000000000000000702D000005004D656D6F37000200110200
+      0028010000350000001600000043000F00F4010000000000000000FFFFFF1F2C
+      020101000000010009004449464552454EC74100000000FFFF00000000000200
+      00000100000006090068656C76657469636100060000000000000000000A0000
+      001700020000000000FFFFFF0000000002000000000000000000F12D00000600
+      4D656D6F313300020023000000B5000000380000001400000043000F00F40100
+      00000000000000FFFFFF1F2C020000000000000000000000FFFF000000000002
+      0000000100000000090068656C76657469636100070000000000000000000000
+      00000100020000000000FFFFFF00000000020000000000000000007A2E000006
+      004D656D6F313400020028000000AD0000002C0000000D000000430000000100
+      0000000000000000FFFFFF002C020000000000010006004EDA4D45524F000000
+      00FFFF0000000000020000000100000000090068656C76657469636100070000
+      00000000000000000000000100020000000000FFFFFF00000000020000000000
+      00000000142F000005004D656D6F3800020028000000B9000000300000000E00
+      00004300000001000000000000000000FFFFFF1F2C020000000000010018005B
+      717279496E76656E746172696F2E226E756D65726F225D00000000FFFF000000
+      0000020000000100000000090068656C76657469636100080000000000000000
+      00010000000100020000000000FFFFFF0000000002000000000000000000952F
+      000006004D656D6F31350002005B000000B50000004C0000001400000043000F
+      00F4010000000000000000FFFFFF1F2C020000000000000000000000FFFF0000
+      000000020000000100000000090068656C766574696361000700000000000000
+      0000000000000100020000000000FFFFFF00000000020000000000000000001C
+      30000006004D656D6F31360002005F000000AD000000200000000D0000004300
+      000001000000000000000000FFFFFF002C020000000000010004004441544100
+      000000FFFF0000000000020000000100000000090068656C7665746963610007
+      000000000000000000000000000100020000000000FFFFFF0000000002000000
+      000000000000BE30000005004D656D6F3900020061000000B900000042000000
+      0E0000004300000001000000000000000000FFFFFF1F2C0004020A0064642F6D
+      6D2F7979797900010016005B717279496E76656E746172696F2E226461746122
+      5D00000000FFFF0000000000020000000100000000090068656C766574696361
+      0008000000000000000000000000000100020000000000FFFFFF000000000200
+      00000000000000003F31000006004D656D6F3138000200A7000000B5000000D8
+      0000001400000043000F00F4010000000000000000FFFFFF1F2C020000000000
+      000000000000FFFF0000000000020000000100000000090068656C7665746963
+      610007000000000000000000000000000100020000000000FFFFFF0000000002
+      000000000000000000C831000006004D656D6F3139000200AB000000AD000000
+      240000000D0000004300000001000000000000000000FFFFFF002C0200000000
+      000100060046494C49414C00000000FFFF000000000002000000010000000009
+      0068656C76657469636100070000000000000000000000000001000200000000
+      00FFFFFF00000000020000000000000000008C32000006004D656D6F32320002
+      00A9000000B9000000A60000000E0000004300000001000000000000000000FF
+      FFFF1F2C0000000A0064642F6D6D2F7979797900010037005B717279496E7665
+      6E746172696F2E2266696C69616C225D202D205B717279496E76656E74617269
+      6F2E226E6F6D6566696C69616C225D00000000FFFF0000000000020000000100
+      000000090068656C766574696361000800000000000000000000000000010002
+      0000000000FFFFFF00000000020000000000000000000D33000006004D656D6F
+      32370002007F010000B50000006C0000001400000043000F00F4010000000000
+      000000FFFFFF1F2C020000000000000000000000FFFF00000000000200000001
+      00000000090068656C7665746963610007000000000000000000000000000100
+      020000000000FFFFFF00000000020000000000000000009833000006004D656D
+      6F333000020083010000AD000000340000000D00000043000000010000000000
+      00000000FFFFFF002C020000000000010008005349545541C7C34F00000000FF
+      FF0000000000020000000100000000090068656C766574696361000700000000
+      0000000000000000000100020000000000FFFFFF000000000200000000000000
+      00006134000006004D656D6F333100020085010000B90000005E0000000E0000
+      004300000001000000000000000000FFFFFF1F2C0000000A0064642F6D6D2F79
+      7979790001003C005B4946285B717279496E76656E746172696F2E2273697475
+      6163616F225D3D2741272C202741424552544F272C202750524F434553534144
+      4F27295D00000000FFFF0000000000020000000100000000090068656C766574
+      6963610008000000000000000000020000000100020000000000FFFFFF000000
+      00020000000000000000005935000006004D656D6F3137000200710100006801
+      00003F0000000B0000004000000001000000000000000000FFFFFF1F2C020000
+      000000010075005B6966285B717279496E76656E746172696F50726F6475746F
+      2E22656D6573746F717565225D3C3E302C205B466F726D6174466C6F6174285B
+      4D6173636172615175616E7469646164655D2C5B717279496E76656E74617269
+      6F50726F6475746F2E22656D6573746F717565225D295D2C2727295D00000000
+      FFFF0000000000020000000100000006090068656C7665746963610007000000
+      000000000000010000000100020000000000FFFFFF0000000002000000000000
+      0000005136000006004D656D6F3332000200B1010000680100003F0000000B00
+      00004000000001000000000000000000FFFFFF1F2C020000000000010075005B
+      6966285B717279496E76656E746172696F50726F6475746F2E22726573657276
+      61646F225D3C3E302C205B466F726D6174466C6F6174285B4D61736361726151
+      75616E7469646164655D2C5B717279496E76656E746172696F50726F6475746F
+      2E2272657365727661646F225D295D2C2727295D00000000FFFF000000000002
+      0000000100000006090068656C76657469636100070000000000000000000100
+      00000100020000000000FFFFFF00000000020000000000000000004737000006
+      004D656D6F3333000200D2010000680100003F0000000B000000400000000100
+      0000000000000000FFFFFF1F2C020000000000010073005B6966285B71727949
+      6E76656E746172696F50726F6475746F2E227472616E7369746F225D3C3E302C
+      205B466F726D6174466C6F6174285B4D6173636172615175616E746964616465
+      5D2C5B717279496E76656E746172696F50726F6475746F2E227472616E736974
+      6F225D295D2C2727295D00000000FFFF00000000000200000001000000060900
+      68656C7665746963610007000000000000000000010000000100020000000000
+      FFFFFF00000000020000000000000000003F38000006004D656D6F3334000200
+      07020000680100003F0000000B0000004000000001000000000000000000FFFF
+      FF1F2C020000000000010075005B6966285B717279496E76656E746172696F50
+      726F6475746F2E226469666572656E6361225D3C3E302C205B466F726D617446
+      6C6F6174285B4D6173636172615175616E7469646164655D2C5B717279496E76
+      656E746172696F50726F6475746F2E226469666572656E6361225D295D2C2727
+      295D00000000FFFF0000000000020000000100000006090068656C7665746963
+      610007000000000000000000010000000100020000000000FFFFFF0000000002
+      000000000000000000CF38000006004D656D6F33350002004602000028010000
+      350000001600000043000F00F4010000000000000000FFFFFF1F2C0201010000
+      0002000500435553544F0D05004DC944494F00000000FFFF0000000000020000
+      000100000006090068656C76657469636100060000000000000000000A000000
+      1700020000000000FFFFFF00000000020000000000000000006A39000006004D
+      656D6F33360002007B02000028010000350000001600000043000F00F4010000
+      000000000000FFFFFF1F2C02010100000002000A0046494E2E20414E5445530D
+      0B00494E56454E54C152494F2000000000FFFF00000000000200000001000000
+      06090068656C76657469636100060000000000000000000A0000001700020000
+      000000FFFFFF0000000002000000000000000000053A000006004D656D6F3337
+      000200B002000028010000350000001600000043000F00F40100000000000000
+      00FFFFFF1F2C02010100000002000B0046494E414E2E204150D3530D0A00494E
+      56454E54C152494F00000000FFFF000000000002000000010000000609006865
+      6C76657469636100060000000000000000000A0000001700020000000000FFFF
+      FF0000000002000000000000000000B93A000006004D656D6F33380002003C02
+      0000680100003F0000000B0000000000000001000000000000000000FFFFFF1F
+      2C0204010E002323232C2323232C2323302E303000010023005B717279496E76
+      656E746172696F50726F6475746F2E22637573746F6D6564696F225D00000000
+      FFFF0000000000020000000100000006090068656C7665746963610007000000
+      000000000000010000000100020000000000FFFFFF0000000002000000000000
+      0000006D3B000006004D656D6F333900020071020000680100003F0000000B00
+      00000000000001000000000000000000FFFFFF1F2C0204010E002323232C2323
+      232C2323302E303000010023005B717279496E76656E746172696F50726F6475
+      746F2E2266696E616E636569726F225D00000000FFFF00000000000200000001
+      00000006090068656C7665746963610007000000000000000000010000000100
+      020000000000FFFFFF00000000020000000000000000002F3C000006004D656D
+      6F3430000200A6020000680100003F0000000B00000000000000010000000000
+      00000000FFFFFF1F2C0204010E002323232C2323232C2323302E303000010031
+      005B717279496E76656E746172696F50726F6475746F2E2266696E616E636569
+      726F70726F63657373616D656E746F225D2000000000FFFF0000000000020000
+      000100000006090068656C766574696361000700000000000000000001000000
+      0100020000000000FFFFFF0000000002000000000000000000263D000006004D
+      656D6F34340002009A020000F80100004B0000000F0000004000000001000000
+      000000000000FFFFFF1F2C0204010E002323232C2323232C2323302E30300001
+      0066005B464F524D4154464C4F415428272323232C2323232C2323302E303027
+      2C2053554D285B717279496E76656E746172696F50726F6475746F2E2266696E
+      616E636569726F70726F63657373616D656E746F225D2C4461646F7344654465
+      74616C68653129295D00000000FFFF0000000000020000000100000000090068
+      656C7665746963610008000000020000000000010000000100020000000000FF
+      FFFF0000000002000000000000000000103E000006004D656D6F3435000200F5
+      010000F80100004F0000000F0000004000000001000000000000000000FFFFFF
+      1F2C0204010E002323232C2323232C2323302E303000010059005B464F524D41
+      54464C4F415428272323232C2323232C2323302E3030272C2053554D285B7172
+      79496E76656E746172696F50726F6475746F2E2266696E616E636569726F225D
+      2C4461646F734465446574616C68653129295D00000000FFFF00000000000200
+      00000100000000090068656C7665746963610008000000020000000000010000
+      000100020000000000FFFFFF0000000002000000000000000000A93E00000600
+      4D656D6F343600020098010000F0010000580000001700000043000000010000
+      00000000000000FFFFFF1F2C02000000000002000D0046494E414E432E20414E
+      5445530D0A00494E56454E54C152494F00000000FFFF00000000000200000001
+      000000000500417269616C000700000002000000000002000000010002000000
+      0000FFFFFF00000000020000000000000000003E3F000006004D656D6F343700
+      02004A020000F00100004C000000170000004300000001000000000000000000
+      FFFFFF1F2C0200000000000100160046494E414E2E204150D35320494E56454E
+      54C152494F00000000FFFF00000000000200000001000000000500417269616C
+      0007000000020000000000020000000100020000000000FFFFFF000000000200
+      0000000000000000CB3F000006004D656D6F3431000200C80100001002000058
+      0000000F0000004300000001000000000000000000FFFFFF1F2C020000000000
+      01000E00564C522E204449464552454EC74100000000FFFF0000000000020000
+      0001000000000500417269616C00070000000200000000000200000001000200
+      00000000FFFFFF0000000002000000000000000000E740000006004D656D6F34
+      3200020024020000100200004F0000000F000000400000000100000000000000
+      0000FFFFFF1F2C0204010E002323232C2323232C2323302E30300001008B005B
+      464F524D4154464C4F415428272323232C2323232C2323302E3030272C205355
+      4D285B717279496E76656E746172696F50726F6475746F2E2266696E616E6365
+      69726F225D2D5B717279496E76656E746172696F50726F6475746F2E2266696E
+      616E636569726F70726F63657373616D656E746F225D202C4461646F73446544
+      6574616C68653129295D00000000FFFF00000000000200000001000000000900
+      68656C7665746963610008000000020000000000010000000100020000000000
+      FFFFFF000000000200000000000000FEFEFF09000000080020436F6D70726173
+      0000000006004F7574726173000000000F0052415A414F46494C49414C424153
+      45000000000F00454E44455245434F5F42414952524F000000000D004345505F
+      4349444144455F5546000000000B0020417578696C6961726573000000000500
+      4C696E686100010030000900537562546974756C6F000000000600544954554C
+      4F000000000000000000000000FC000000000000000000000000000000005800
+      77EB0FF70E89E340C9065CDB15E7E440}
+  end
+  object fdsProdutosInventario: TfrDBDataSet
+    DataSource = dsrInventarioProduto
+    OpenDataSource = False
+    Left = 504
+    Top = 160
+  end
+  object qryApagarProdutosNaoInventariados: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'delete from inventarioprodutos '
+      'where inventario = :inventario and selecionadosistema')
+    RequestLive = True
+    Left = 384
+    Top = 8
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'inventario'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryMovimentosNegativoPosteriores: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkFields = 'produto=produto'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrInventarioProduto
+    Constraints = <>
+    AfterOpen = qryMovimentosNegativoPosterioresAfterOpen
+    AfterClose = qryMovimentosNegativoPosterioresAfterClose
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      '/*'
+      
+        'Esta consulta tem como objetivo exibir o estoque negativo acima ' +
+        'da'
+      'data de processamento'
+      '*/'
+      ''
+      'select m.produto,'
+      '       m.data,'
+      '       m.emestoque,'
+      '       m.reservado,'
+      '       m.reservaprevia'
+      'from movimentos m'
+      'where m.filial = :filial '
+      '  and m.data >= :processamento'
+      
+        '  and (coalesce(m.emestoque,0)<0 or coalesce(m.reservado,0)<0 or' +
+        ' coalesce(m.reservaprevia,0)<0 )'
+      ''
+      'order by m.data desc, m.lancto'
+      ''
+      '')
+    RequestLive = False
+    Left = 232
+    Top = 280
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'processamento'
+        ParamType = ptUnknown
+      end>
+    object qryMovimentosNegativoPosterioresproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryMovimentosNegativoPosterioresdata: TDateField
+      FieldName = 'data'
+    end
+    object qryMovimentosNegativoPosterioresemestoque: TFloatField
+      FieldName = 'emestoque'
+    end
+    object qryMovimentosNegativoPosterioresreservado: TFloatField
+      FieldName = 'reservado'
+    end
+    object qryMovimentosNegativoPosterioresreservaprevia: TFloatField
+      FieldName = 'reservaprevia'
+      Required = True
+    end
+  end
+  object dsrMovimentosNegativoPosteriores: TtecDataSource
+    DataSet = qryMovimentosNegativoPosteriores
+    Left = 272
+    Top = 296
+  end
+  object qryNovoInventario: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select *'
+      'from inventario'
+      'where false'
+      '')
+    RequestLive = True
+    Left = 48
+    Top = 336
+    object qryNovoInventarionumero: TIntegerField
+      FieldName = 'numero'
+      Required = True
+    end
+    object qryNovoInventariofilial: TIntegerField
+      FieldName = 'filial'
+      Required = True
+    end
+    object qryNovoInventariodata: TDateField
+      FieldName = 'data'
+      Required = True
+    end
+    object qryNovoInventariosituacao: TStringField
+      FieldName = 'situacao'
+      Required = True
+      Size = 1
+    end
+    object qryNovoInventariogrupos: TStringField
+      FieldName = 'grupos'
+      Size = 512
+    end
+    object qryNovoInventarioclasses: TStringField
+      FieldName = 'classes'
+      Size = 512
+    end
+    object qryNovoInventariomarcas: TStringField
+      FieldName = 'marcas'
+      Size = 512
+    end
+    object qryNovoInventariogruposfornecedores: TStringField
+      FieldName = 'gruposfornecedores'
+      Size = 512
+    end
+    object qryNovoInventariolocalizacao: TStringField
+      FieldName = 'localizacao'
+      Size = 500
+    end
+    object qryNovoInventariofornecedor: TIntegerField
+      FieldName = 'fornecedor'
+    end
+    object qryNovoInventariotipofornecedor: TStringField
+      FieldName = 'tipofornecedor'
+      Size = 1
+    end
+    object qryNovoInventarioprocessamento: TDateField
+      FieldName = 'processamento'
+      Required = True
+    end
+  end
+  object qryNovoInventarioProduto: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select ip.*'
+      'from inventarioprodutos ip'
+      'where false')
+    RequestLive = True
+    Left = 88
+    Top = 360
+    object qryNovoInventarioProdutoinventario: TIntegerField
+      FieldName = 'inventario'
+      Required = True
+    end
+    object qryNovoInventarioProdutosequencia: TIntegerField
+      FieldName = 'sequencia'
+      Required = True
+    end
+    object qryNovoInventarioProdutoproduto: TLargeintField
+      FieldName = 'produto'
+      Required = True
+    end
+    object qryNovoInventarioProdutoquantidade: TFloatField
+      FieldName = 'quantidade'
+      Required = True
+    end
+    object qryNovoInventarioProdutoselecionadosistema: TBooleanField
+      FieldName = 'selecionadosistema'
+    end
+  end
+  object qryInventarioTransferido: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select i.numero,'
+      '          i.filial,'
+      '          i.data'
+      'from inventario i'
+      'where i.transferidopara = :Inventario'
+      'order by i.numero')
+    RequestLive = False
+    Left = 536
+    Top = 280
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Inventario'
+        ParamType = ptUnknown
+      end>
+    object qryInventarioTransferidonumero: TIntegerField
+      FieldName = 'numero'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryInventarioTransferidofilial: TIntegerField
+      FieldName = 'filial'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryInventarioTransferidodata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      Required = True
+      EditMask = '99/99/9999;1; '
+    end
+  end
+  object dsrInventarioTransferido: TtecDataSource
+    DataSet = qryInventarioTransferido
+    Left = 568
+    Top = 296
+  end
+  object qryInventarioAberto: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select i.numero,'
+      '          i.data,'
+      '          i.situacao,'
+      '          i.transferidopara,'
+      '          false as selecionar'
+      'from inventario i'
+      'where i.filial = :filial '
+      '  and i.situacao = '#39'A'#39
+      '  and i.numero <> :inventario'
+      'order by i.numero')
+    RequestLive = True
+    Left = 656
+    Top = 232
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'inventario'
+        ParamType = ptUnknown
+      end>
+    object qryInventarioAbertonumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryInventarioAbertodata: TDateField
+      FieldName = 'data'
+    end
+    object qryInventarioAbertosituacao: TStringField
+      FieldName = 'situacao'
+      Size = 1
+    end
+    object qryInventarioAbertotransferidopara: TIntegerField
+      FieldName = 'transferidopara'
+    end
+    object qryInventarioAbertoselecionar: TBooleanField
+      FieldName = 'selecionar'
+    end
+  end
+  object dsrInventarioAberto: TtecDataSource
+    DataSet = qryInventarioAberto
+    Left = 688
+    Top = 248
+  end
+  object qryInventarioProdutoTransferencia: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select ip.*,'
+      '       p.codigovisual as produtovisual,'
+      '       p.descricao,'
+      '       p.valorgrade1,'
+      '       p.valorgrade2,'
+      
+        '       (select gr.descricao from grades gr where gr.codigo = c.g' +
+        'rade1) as linha,'
+      
+        '       (select gr.descricao from grades gr where gr.codigo = c.g' +
+        'rade2) as coluna'
+      'from inventarioprodutos ip,'
+      
+        '     (produtos p join caracteristicas c on p.caracteristica = c.' +
+        'codigo)'
+      'where ip.produto = p.codigo'
+      '  and ip.inventario = :inventario'
+      '  and not ip.selecionadosistema'
+      'order by ip.produto')
+    RequestLive = True
+    Left = 664
+    Top = 360
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'inventario'
+        ParamType = ptUnknown
+      end>
+    object qryInventarioProdutoTransferenciaproduto: TLargeintField
+      FieldName = 'produto'
+      Required = True
+    end
+    object qryInventarioProdutoTransferenciaquantidade: TFloatField
+      FieldName = 'quantidade'
+      Required = True
+    end
+    object qryInventarioProdutoTransferenciaprodutovisual: TStringField
+      FieldName = 'produtovisual'
+      Size = 30
+    end
+    object qryInventarioProdutoTransferenciaprodutodigitado: TStringField
+      FieldName = 'produtodigitado'
+      Size = 30
+    end
+    object qryInventarioProdutoTransferenciadescricao: TStringField
+      FieldName = 'descricao'
+      Size = 40
+    end
+    object qryInventarioProdutoTransferenciavalorgrade1: TStringField
+      FieldName = 'valorgrade1'
+      Size = 10
+    end
+    object qryInventarioProdutoTransferenciavalorgrade2: TStringField
+      FieldName = 'valorgrade2'
+      Size = 10
+    end
+    object qryInventarioProdutoTransferencialinha: TStringField
+      FieldName = 'linha'
+      Size = 50
+    end
+    object qryInventarioProdutoTransferenciacoluna: TStringField
+      FieldName = 'coluna'
+      Size = 50
+    end
+  end
+  object dsrInventarioProdutoTransferencia: TtecDataSource
+    DataSet = qryInventarioProdutoTransferencia
+    Left = 736
+    Top = 376
+  end
+  object qryArquivoImportacao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cast(null as varchar(50)) as produto,'
+      '       cast(null as numeric(11,3)) as quantidade')
+    RequestLive = True
+    Left = 696
+    Top = 88
+    object qryArquivoImportacaoproduto: TStringField
+      FieldName = 'produto'
+      Size = 50
+    end
+    object qryArquivoImportacaoquantidade: TFloatField
+      FieldName = 'quantidade'
+    end
+  end
+  object qryAtualizaInventarioAposProcessamento: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      
+        'update inventarioprodutos set emestoqueprocessamento     = selec' +
+        'ao.emestoqueprocessamento,'
+      
+        '                              reservadoprocessamento     = selec' +
+        'ao.reservadoprocessamento,'
+      
+        '                              reservapreviaprocessamento = selec' +
+        'ao.reservapreviaprocessamento,'
+      
+        '                              transitoprocessamento      = selec' +
+        'ao.transitoprocessamento,'
+      
+        '                              demonstracaoprocessamento  = selec' +
+        'ao.demonstracaoprocessamento,'
+      
+        '                              consertoprocessamento      = selec' +
+        'ao.consertoprocessamento,'
+      
+        '                              danificadaprocessamento    = selec' +
+        'ao.danificadaprocessamento,'
+      
+        '                              customedioprocessamento    = selec' +
+        'ao.customedioprocessamento,'
+      
+        '                              financeiroprocessamento    = selec' +
+        'ao.financeiroprocessamento'
+      'from'
+      ''
+      '('
+      '   select  ip.inventario, ip.produto,'
+      ''
+      '           coalesce((select m.emestoque'
+      '                      from movimentos m'
+      '                      where m.produto = ip.produto'
+      '                        and m.filial = i.filial'
+      '                        and m.data <= i.processamento'
+      
+        '                      order by data desc, lancto desc limit 1),0' +
+        ') as emestoqueprocessamento,'
+      ''
+      '           coalesce((select m.reservado'
+      '                    from movimentos m'
+      '                    where m.produto = ip.produto'
+      '                      and m.filial = i.filial'
+      '                      and m.data <= i.processamento'
+      
+        '                    order by data desc, lancto desc limit 1),0) ' +
+        'as reservadoprocessamento,'
+      ''
+      '           coalesce((select m.reservaprevia'
+      '                    from movimentos m'
+      '                    where m.produto = ip.produto'
+      '                      and m.filial = i.filial'
+      '                      and m.data <= i.processamento'
+      
+        '                    order by data desc, lancto desc limit 1),0) ' +
+        'as reservapreviaprocessamento,'
+      ''
+      '           coalesce((select m.transito'
+      '                    from movimentos m'
+      '                    where m.produto = ip.produto'
+      '                      and m.filial = i.filial'
+      '                      and m.data <= i.processamento'
+      
+        '                    order by data desc, lancto desc limit 1),0) ' +
+        'as transitoprocessamento,'
+      ''
+      ''
+      '           coalesce((select m.demonstracao'
+      '                    from movimentos m'
+      '                    where m.produto = ip.produto'
+      '                      and m.filial = i.filial'
+      '                      and m.data <= i.processamento'
+      
+        '                    order by data desc, lancto desc limit 1),0) ' +
+        'as demonstracaoprocessamento,'
+      ''
+      '           coalesce((select m.conserto'
+      '                    from movimentos m'
+      '                    where m.produto = ip.produto'
+      '                      and m.filial = i.filial'
+      '                      and m.data <= i.processamento'
+      
+        '                    order by data desc, lancto desc limit 1),0) ' +
+        'as consertoprocessamento,'
+      ''
+      '           coalesce((select m.danificada'
+      '                    from movimentos m'
+      '                    where m.produto = ip.produto'
+      '                      and m.filial = i.filial'
+      '                      and m.data <= i.processamento'
+      
+        '                    order by data desc, lancto desc limit 1),0) ' +
+        'danificadaprocessamento,'
+      ''
+      
+        '           coalesce((select case when (m.emestoque+m.reservado+m' +
+        '.reservaprevia+m.transito+m.demonstracao+m.conserto+m.danificada' +
+        ') = 0 then 0'
+      
+        '                        else round(m.financeiro / (m.emestoque+m' +
+        '.reservado+m.reservaprevia+m.transito+m.demonstracao+m.conserto+' +
+        'm.danificada), 2) end'
+      '                  from movimentos m'
+      '                  where m.produto = ip.produto'
+      '                    and m.filial = i.filial'
+      '                    and m.data <= i.processamento'
+      
+        '                  order by data desc, lancto desc limit 1),0) as' +
+        ' customedioprocessamento,'
+      ''
+      '           coalesce((select m.financeiro'
+      '                  from movimentos m'
+      '                  where m.produto = ip.produto'
+      '                    and m.filial = i.filial'
+      '                    and m.data <= i.processamento'
+      
+        '                  order by data desc, lancto desc limit 1),0) as' +
+        ' financeiroprocessamento'
+      
+        '   from inventarioprodutos ip join inventario i on ip.inventario' +
+        ' = i.numero'
+      '   where ip.inventario = :inventario'
+      ') as selecao'
+      'where inventarioprodutos.inventario = selecao.inventario'
+      '  and inventarioprodutos.produto = selecao.produto'
+      '')
+    RequestLive = True
+    Left = 80
+    Top = 192
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'inventario'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryTemp: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryInventarioProdutoAfterOpen
+    BeforePost = qryInventarioProdutoBeforePost
+    AfterPost = qryInventarioProdutoAfterPost
+    AfterDelete = qryInventarioProdutoAfterDelete
+    AfterScroll = qryInventarioProdutoAfterScroll
+    OnCalcFields = qryInventarioProdutoCalcFields
+    OnFilterRecord = qryInventarioProdutoFilterRecord
+    OnNewRecord = qryInventarioProdutoNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select'
+      '       p.codigovisual as produtovisual,'
+      '       cast(null as varchar(30)) as codigobarras,'
+      '       p.descricao,'
+      '       p.valorgrade1,'
+      '       p.valorgrade2,'
+      
+        '       (select gr.descricao from grades gr where gr.codigo = c.g' +
+        'rade1) as linha,'
+      
+        '       (select gr.descricao from grades gr where gr.codigo = c.g' +
+        'rade2) as coluna,'
+      ''
+      '       case when :MovimentoProcessado then'
+      '         ip.emestoque'
+      '       else'
+      '         coalesce((select m.emestoque'
+      '                 from movimentos m'
+      '                 where m.produto = p.codigo'
+      '                   and m.filial = :filial'
+      '                   and m.data <= :data'
+      '                 order by data desc, lancto desc limit 1),0)'
+      '       end as emestoque,'
+      #9'   '
+      #9'   '
+      
+        '      case when ip.emestoqueprocessamento is null and :Movimento' +
+        'Processado then'#9'   '#9'   '
+      '         coalesce((select m.emestoque'
+      '                    from movimentos m'
+      '                    where m.produto = p.codigo'
+      '                      and m.filial = :filial'
+      '                      and m.data <= :processamento'
+      
+        '                    order by data desc, lancto desc limit 1),0)'#9 +
+        '  '
+      #9'  else'
+      #9'  end as emestoqueprocessamento,'
+      #9'   '
+      ''
+      '       case when :MovimentoProcessado then'
+      '         ip.reservado'
+      '       else'
+      '         coalesce((select m.reservado'
+      '                   from movimentos m'
+      '                   where m.produto = p.codigo'
+      '                     and m.filial = :filial'
+      '                     and m.data <= :data'
+      '                   order by data desc, lancto desc limit 1),0)'
+      '       end as reservado,'
+      #9'   '
+      
+        '      case when ip.reservadoprocessamento is null and :Movimento' +
+        'Processado then'#9'   '#9'   '
+      '         coalesce((select m.reservado'
+      '                    from movimentos m'
+      '                    where m.produto = p.codigo'
+      '                      and m.filial = :filial'
+      '                      and m.data <= :processamento'
+      
+        '                    order by data desc, lancto desc limit 1),0)'#9 +
+        '  '
+      #9'  else'
+      #9'  end as reservadoprocessamento,'
+      #9'   '
+      ''
+      '       case when :MovimentoProcessado then'
+      '         ip.reservaprevia'
+      '       else'
+      '         coalesce((select m.reservaprevia'
+      '                   from movimentos m'
+      '                   where m.produto = p.codigo'
+      '                     and m.filial = :filial'
+      '                     and m.data <= :data'
+      '                   order by data desc, lancto desc limit 1),0)'
+      '       end as reservaprevia,'
+      #9'   '
+      
+        '      case when ip.reservapreviaprocessamento is null and :Movim' +
+        'entoProcessado then'#9'   '#9'   '
+      '         coalesce((select m.reservaprevia'
+      '                    from movimentos m'
+      '                    where m.produto = p.codigo'
+      '                      and m.filial = :filial'
+      '                      and m.data <= :processamento'
+      
+        '                    order by data desc, lancto desc limit 1),0)'#9 +
+        '  '
+      #9'  else'
+      #9'  end as reservapreviaprocessamento,'
+      #9'   '
+      ''
+      '       case when :MovimentoProcessado then'
+      '         ip.transito'
+      '       else'
+      '         coalesce((select m.transito'
+      '                   from movimentos m'
+      '                   where m.produto = p.codigo'
+      '                     and m.filial = :filial'
+      '                     and m.data <= :data'
+      '                   order by data desc,  lancto desc limit 1),0)'
+      '       end as transito,'
+      #9'   '
+      
+        '      case when ip.transitoprocessamento is null and :MovimentoP' +
+        'rocessado then'#9'   '#9'   '
+      '         coalesce((select m.transito'
+      '                    from movimentos m'
+      '                    where m.produto = p.codigo'
+      '                      and m.filial = :filial'
+      '                      and m.data <= :processamento'
+      
+        '                    order by data desc, lancto desc limit 1),0)'#9 +
+        '  '
+      #9'  else'
+      #9'  end as transitoprocessamento,'
+      #9'   '
+      ''
+      '       case when :MovimentoProcessado then'
+      
+        '         ip.emestoque + ip.reservado + ip.transito + ip.reservap' +
+        'revia'
+      
+        '       else cast(null as numeric(9,3)) end as SaldoAposProcessam' +
+        'ento,'
+      ''
+      '       case when :MovimentoProcessado then'
+      '         ip.movimentado'
+      '       else'
+      '         coalesce((select'
+      ''
+      '                coalesce((select sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 1 for 1)= '#39'+'#39')'
+      '                  and m.produto = ip.produto'
+      '                  and m.filial = :filial'
+      
+        '                  and m.data > :data and m.data <= :processament' +
+        'o),0) +'
+      ''
+      '                coalesce((select - sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 1 for 1)= '#39'-'#39')'
+      '                  and m.produto = ip.produto'
+      '                  and m.filial = :filial'
+      
+        '                  and m.data > :data and m.data <= :processament' +
+        'o),0) +'
+      ''
+      '                coalesce((select sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 2 for 1)= '#39'+'#39')'
+      '                  and m.produto = ip.produto'
+      '                  and m.filial = :filial'
+      
+        '                  and m.data > :data and m.data <= :processament' +
+        'o),0) +'
+      ''
+      '                coalesce((select - sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 2 for 1)= '#39'-'#39')'
+      '                  and m.produto = ip.produto'
+      '                  and m.filial = :filial'
+      
+        '                  and m.data > :data and m.data <= :processament' +
+        'o),0) +'
+      ''
+      '                /*coalesce((select sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 3 for 1)= '#39'+'#39')'
+      '                  and m.produto = ip.produto'
+      '                  and m.filial = :filial'
+      
+        '                  and m.data > :data and m.data <= :processament' +
+        'o),0) + */'
+      ''
+      '                coalesce((select - sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 3 for 1)= '#39'-'#39')'
+      '                  and m.produto = ip.produto'
+      '                  and m.filial = :filial'
+      
+        '                  and m.data > :data and m.data <= :processament' +
+        'o),0) +'
+      ''
+      '                coalesce((select + sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 9 for 1)= '#39'+'#39')'
+      '                  and m.produto = ip.produto'
+      '                  and m.filial = :filial'
+      
+        '                  and m.data > :data and m.data <= :processament' +
+        'o),0) +'
+      ''
+      '                coalesce((select - sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 9 for 1)= '#39'-'#39')'
+      '                  and m.produto = ip.produto'
+      '                  and m.filial = :filial'
+      
+        '                  and m.data > :data and m.data <= :processament' +
+        'o),0) ),0)'
+      '       end as movimentado,'
+      ''
+      ''
+      '       case when :MovimentoProcessado then'
+      '         ip.demonstracao'
+      '       else'
+      '         coalesce((select m.demonstracao'
+      '                    from movimentos m'
+      '                    where m.produto = p.codigo'
+      '                      and m.filial = :filial'
+      '                      and m.data <= :data'
+      '                    order by data desc, lancto desc limit 1),0)'
+      '       end as demonstracao,'
+      #9'   '
+      
+        '      case when ip.demonstracaoprocessamento is null and :Movime' +
+        'ntoProcessado then'#9'   '#9'   '
+      '         coalesce((select m.demonstracao'
+      '                    from movimentos m'
+      '                    where m.produto = p.codigo'
+      '                      and m.filial = :filial'
+      '                      and m.data <= :processamento'
+      
+        '                    order by data desc, lancto desc limit 1),0)'#9 +
+        '  '
+      #9'  else'
+      #9'  end as demonstracaoprocessamento,'
+      #9'   '
+      ''
+      '       case when :MovimentoProcessado then'
+      '         ip.conserto'
+      '       else'
+      '         coalesce((select m.conserto'
+      '                    from movimentos m'
+      '                    where m.produto = p.codigo'
+      '                      and m.filial = :filial'
+      '                      and m.data <= :data'
+      '                    order by data desc, lancto desc limit 1),0)'
+      '       end as conserto,'
+      #9'   '
+      
+        '      case when ip.consertoprocessamento is null and :MovimentoP' +
+        'rocessado then'#9'   '#9'   '
+      '         coalesce((select m.conserto'
+      '                    from movimentos m'
+      '                    where m.produto = p.codigo'
+      '                      and m.filial = :filial'
+      '                      and m.data <= :processamento'
+      
+        '                    order by data desc, lancto desc limit 1),0)'#9 +
+        '  '
+      #9'  else'
+      #9'  end as consertoprocessamento,'
+      ''
+      '       case when :MovimentoProcessado then'
+      '         ip.danificada'
+      '       else'
+      '         coalesce((select m.danificada'
+      '                    from movimentos m'
+      '                    where m.produto = p.codigo'
+      '                      and m.filial = :filial'
+      '                      and m.data <= :data'
+      '                    order by data desc, lancto desc limit 1),0)'
+      '       end as danificada,'
+      #9'   '
+      
+        '       case when ip.danificadaprocessamento is null and :Movimen' +
+        'toProcessado then'#9'   '
+      '         coalesce((select m.danificada'
+      '                    from movimentos m'
+      '                    where m.produto = p.codigo'
+      '                      and m.filial = :filial'
+      '                      and m.data <= :processamento'
+      
+        '                    order by data desc, lancto desc limit 1),0)'#9 +
+        '   '
+      #9'   else'
+      #9'     ip.danificadaprocessamento'
+      #9'   end as danificadaprocessamento,'
+      ''
+      '       case when :MovimentoProcessado then'
+      '         ip.customedio'
+      '       else'
+      
+        '         coalesce((select case when (m.emestoque+m.reservado+m.r' +
+        'eservaprevia+m.transito+m.demonstracao+m.conserto+m.danificada) ' +
+        '= 0 then 0'
+      
+        '                        else round(m.financeiro / (m.emestoque+m' +
+        '.reservado+m.reservaprevia+m.transito+m.demonstracao+m.conserto+' +
+        'm.danificada), 2) end'
+      '                  from movimentos m'
+      '                  where m.produto = p.codigo'
+      '                    and m.filial = :filial'
+      '                    and m.data <= :data'
+      '                  order by data desc, lancto desc limit 1),0)'
+      '       end as customedio,'
+      #9'   '
+      
+        '       case when ip.customedioprocessamento is null and :Movimen' +
+        'toProcessado then'
+      #9'   '
+      
+        '         coalesce((select case when (m.emestoque+m.reservado+m.r' +
+        'eservaprevia+m.transito+m.demonstracao+m.conserto+m.danificada) ' +
+        '= 0 then 0'
+      
+        '                        else round(m.financeiro / (m.emestoque+m' +
+        '.reservado+m.reservaprevia+m.transito+m.demonstracao+m.conserto+' +
+        'm.danificada), 2) end'
+      '                  from movimentos m'
+      '                  where m.produto = p.codigo'
+      '                    and m.filial = :filial'
+      '                    and m.data <= :processamento'
+      '                  order by data desc, lancto desc limit 1),0)'
+      '       else'
+      '        ip.customedioprocessamento'
+      '      end as customedioprocessamento,'
+      #9'   '
+      ''
+      '       case when :MovimentoProcessado then'
+      '         ip.financeiro'
+      '       else'
+      '         coalesce((select m.financeiro'
+      '                    from movimentos m'
+      '                    where m.produto = p.codigo'
+      '                      and m.filial = :filial'
+      '                      and m.data <= :data'
+      '                    order by data desc, lancto desc limit 1),0)'
+      '        end as financeiro,'
+      ''
+      ''
+      
+        '       case when ip.financeiroprocessamento is null and :Movimen' +
+        'toProcessado then'
+      '         coalesce((select m.financeiro'
+      '                  from movimentos m'
+      '                  where m.produto = p.codigo'
+      '                    and m.filial = :filial'
+      '                    and m.data <= :processamento'
+      '                  order by data desc, lancto desc limit 1),0)'
+      '      else'
+      '        ip.financeiroprocessamento'
+      '      end as financeiroprocessamento,'
+      ''
+      '      false as PossuiSaldoNegativoPosteriormente,'
+      ''
+      ''
+      '      case when :MovimentoProcessado then'
+      '        ip.valorcusto'
+      '      else'
+      
+        '        (case when QuantidadeTotalDoEstoque(ip.produto, cast(:fi' +
+        'lial as smallint)) = 0 then'
+      '                                  (select e.valorultimacompra'
+      '                                   from estoques e'
+      '                                   where e.produto = ip.produto'
+      '                                     and e.filial = :filial)'
+      '         else'
+      ''
+      '                                  (select e.financeiro'
+      '                                   from estoques e'
+      '                                   where e.produto = ip.produto'
+      '                                     and e.filial = :filial) /'
+      
+        '                                  QuantidadeTotalDoEstoque(ip.pr' +
+        'oduto, cast(:filial as smallint))'
+      '        end)'
+      '      end as valorcusto,'
+      ''
+      '      ip.*,'
+      ''
+      ''
+      ''
+      ''
+      'from inventarioprodutos ip,'
+      
+        '     (produtos p join caracteristicas c on p.caracteristica = c.' +
+        'codigo)'
+      'where ip.produto = p.codigo'
+      '  and ip.inventario = :inventario'
+      'order by ip.sequencia')
+    RequestLive = True
+    Left = 424
+    Top = 344
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'MovimentoProcessado'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftDateTime
+        Name = 'data'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'processamento'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'inventario'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryAtualizaInventarioAntesProcessamento: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryInventarioProdutoAfterOpen
+    BeforePost = qryInventarioProdutoBeforePost
+    AfterPost = qryInventarioProdutoAfterPost
+    AfterDelete = qryInventarioProdutoAfterDelete
+    AfterScroll = qryInventarioProdutoAfterScroll
+    OnCalcFields = qryInventarioProdutoCalcFields
+    OnFilterRecord = qryInventarioProdutoFilterRecord
+    OnNewRecord = qryInventarioProdutoNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update inventarioprodutos set emestoque     = selecao.emestoque,'
+      '                              reservado     = selecao.reservado,'
+      
+        '                              reservaprevia = selecao.reservapre' +
+        'via,'
+      '                              transito      = selecao.transito,'
+      
+        '                              movimentado   = selecao.movimentad' +
+        'o,'
+      
+        '                              demonstracao  = selecao.demonstrac' +
+        'ao,'
+      '                              conserto      = selecao.conserto,'
+      
+        '                              danificada    = selecao.danificada' +
+        ','
+      
+        '                              customedio    = selecao.customedio' +
+        ','
+      '                              financeiro    = selecao.financeiro'
+      'from'
+      ''
+      '('
+      '   select  ip.inventario, ip.produto,'
+      ''
+      ''
+      '         coalesce((select m.emestoque'
+      '                 from movimentos m'
+      '                 where m.produto = ip.produto'
+      '                   and m.filial = i.filial'
+      '                   and m.data <= i.data'
+      
+        '                 order by data desc, lancto desc limit 1),0) as ' +
+        'emestoque,'
+      ''
+      '         coalesce((select m.reservado'
+      '                   from movimentos m'
+      '                   where m.produto = ip.produto'
+      '                     and m.filial = i.filial'
+      '                     and m.data <= i.data'
+      
+        '                   order by data desc, lancto desc limit 1),0) a' +
+        's reservado,'
+      ''
+      '         coalesce((select m.reservaprevia'
+      '                   from movimentos m'
+      '                   where m.produto = ip.produto'
+      '                     and m.filial = i.filial'
+      '                     and m.data <= i.data'
+      
+        '                   order by data desc, lancto desc limit 1),0) a' +
+        's reservaprevia,'
+      ''
+      '         coalesce((select m.transito'
+      '                   from movimentos m'
+      '                   where m.produto = ip.produto'
+      '                     and m.filial = i.filial'
+      '                     and m.data <= i.data'
+      
+        '                   order by data desc,  lancto desc limit 1),0) ' +
+        'as transito,'
+      ''
+      '         coalesce((select'
+      ''
+      '                coalesce((select sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 1 for 1)= '#39'+'#39')'
+      '                  and m.produto = ip.produto'
+      '                  and m.filial = i.filial'
+      
+        '                  and m.data > i.data and m.data <= i.processame' +
+        'nto),0) +'
+      ''
+      '                coalesce((select - sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 1 for 1)= '#39'-'#39')'
+      '                  and m.produto = ip.produto'
+      '                  and m.filial = i.filial'
+      
+        '                  and m.data > i.data and m.data <= i.processame' +
+        'nto),0) +'
+      ''
+      '                coalesce((select sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 2 for 1)= '#39'+'#39')'
+      '                  and m.produto = ip.produto'
+      '                  and m.filial = i.filial'
+      
+        '                  and m.data > i.data and m.data <= i.processame' +
+        'nto),0) +'
+      ''
+      '                coalesce((select - sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 2 for 1)= '#39'-'#39')'
+      '                  and m.produto = ip.produto'
+      '                  and m.filial = i.filial'
+      
+        '                  and m.data > i.data and m.data <= i.processame' +
+        'nto),0) +'
+      ''
+      '                /*coalesce((select sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 3 for 1)= '#39'+'#39')'
+      '                  and m.produto = ip.produto'
+      '                  and m.filial = i.filial'
+      
+        '                  and m.data > i.data and m.data <= i.processame' +
+        'nto),0) + */'
+      ''
+      '                coalesce((select - sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 3 for 1)= '#39'-'#39')'
+      '                  and m.produto = ip.produto'
+      '                  and m.filial = i.filial'
+      
+        '                  and m.data > i.data and m.data <= i.processame' +
+        'nto),0) +'
+      ''
+      '                coalesce((select + sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 9 for 1)= '#39'+'#39')'
+      '                  and m.produto = ip.produto'
+      '                  and m.filial = i.filial'
+      
+        '                  and m.data > i.data and m.data <= i.processame' +
+        'nto),0) +'
+      ''
+      '                coalesce((select - sum(abs(m.quantidade))'
+      '                from movimentos m'
+      '                where (substring(m.operacao from 9 for 1)= '#39'-'#39')'
+      '                  and m.produto = ip.produto'
+      '                  and m.filial = i.filial'
+      
+        '                  and m.data > i.data and m.data <= i.processame' +
+        'nto),0) ),0) as movimentado,'
+      ''
+      '         coalesce((select m.demonstracao'
+      '                    from movimentos m'
+      '                    where m.produto = ip.produto'
+      '                      and m.filial = i.filial'
+      '                      and m.data <= i.data'
+      
+        '                    order by data desc, lancto desc limit 1),0) ' +
+        'as demonstracao,'
+      ''
+      '         coalesce((select m.conserto'
+      '                    from movimentos m'
+      '                    where m.produto = ip.produto'
+      '                      and m.filial = i.filial'
+      '                      and m.data <= i.data'
+      
+        '                    order by data desc, lancto desc limit 1),0) ' +
+        'as conserto,'
+      ''
+      '         coalesce((select m.danificada'
+      '                    from movimentos m'
+      '                    where m.produto = ip.produto'
+      '                      and m.filial = i.filial'
+      '                      and m.data <= i.data'
+      
+        '                    order by data desc, lancto desc limit 1),0) ' +
+        'as danificada,'
+      ''
+      ''
+      
+        '         coalesce((select case when (m.emestoque+m.reservado+m.r' +
+        'eservaprevia+m.transito+m.demonstracao+m.conserto+m.danificada) ' +
+        '= 0 then 0'
+      
+        '                        else round(m.financeiro / (m.emestoque+m' +
+        '.reservado+m.reservaprevia+m.transito+m.demonstracao+m.conserto+' +
+        'm.danificada), 2) end'
+      '                  from movimentos m'
+      '                  where m.produto = ip.produto'
+      '                    and m.filial = i.filial'
+      '                    and m.data <= i.data'
+      
+        '                  order by data desc, lancto desc limit 1),0) as' +
+        ' customedio,'
+      ''
+      '         coalesce((select m.financeiro'
+      '                    from movimentos m'
+      '                    where m.produto = ip.produto'
+      '                      and m.filial = i.filial'
+      '                      and m.data <= i.data'
+      
+        '                    order by data desc, lancto desc limit 1),0) ' +
+        'as financeiro'
+      ''
+      ''
+      
+        '   from inventarioprodutos ip join inventario i on ip.inventario' +
+        ' = i.numero'
+      '   where ip.inventario = :inventario'
+      ') as selecao'
+      'where inventarioprodutos.inventario = selecao.inventario'
+      '  and inventarioprodutos.produto = selecao.produto'
+      '')
+    RequestLive = True
+    Left = 80
+    Top = 144
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'inventario'
+        ParamType = ptUnknown
+      end>
+  end
+end

@@ -1,0 +1,238 @@
+unit fmrelatoriocontasareceberportipoderecebimento;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls,
+  fmrelatoriopadrao, ExtCtrls, Buttons, frconsulta, frconsultacodigo, DateUtils,
+  cpdbradiogroup, cpdata, dmrelatoriocontasareceberportipoderecebimento, Biblio, ComCtrls,
+  cppagecontrol, ctconstantes, frlistafiliais, frlistatiposderecebimentos,
+  frordenacao, ToolWin;
+
+type
+  Tfrmrelatoriocontasareceberportipoderecebimento = class(TfrmRelatorioPadrao)
+    gbxEmissao: TGroupBox;
+    edtDataInicialEmissao: TEditData;
+    edtDataFinalEmissao: TEditData;
+    rgbResumo: TtecDBRadioGroup;
+    rbnComresumo: TtecRadioButton;
+    rbnSemResumo: TtecRadioButton;
+    rbnSoResumo: TtecRadioButton;
+    gbxAgrupamento: TGroupBox;
+    ckbAgruparFilial: TCheckBox;
+    ckbAgruparClientes: TCheckBox;
+    ckbAgruparData: TCheckBox;
+    gbxClientes: TGroupBox;
+    fraConsultaClientes: TfraConsultaCodigo;
+    ckbAgruparTipoRecebimento: TCheckBox;
+    fraListaFiliais1: TfraListaFiliais;
+    fraListaTiposdeRecebimentos1: TfraListaTiposdeRecebimentos;
+    gbxVendedor: TGroupBox;
+    fraConsultaVendedor: TfraConsultaCodigo;
+    fraOrdenacao1: TfraOrdenacao;
+    ckbAgruparVendedor: TCheckBox;
+    lblA: TLabel;
+    gbxVencimentos: TGroupBox;
+    edtDataInicialVencto: TEditData;
+    edtDataFinalVencto: TEditData;
+    Label1: TLabel;
+    gbxFormasRecebimento: TGroupBox;
+    ckbDinheiro: TCheckBox;
+    ckbCheque: TCheckBox;
+    ckbDebito: TCheckBox;
+    ckbCredito: TCheckBox;
+    gbxDuplicatas: TGroupBox;
+    ckbAReceber: TCheckBox;
+    ckbRecebidos: TCheckBox;
+    gbxDataRecebimentos: TGroupBox;
+    Label2: TLabel;
+    edtDataInicialRecebimento: TEditData;
+    edtDataFinalRecebimento: TEditData;
+    cbkVisualizarValoresPISeCOFINS: TCheckBox;
+    cbbaReceber_e_ou_Recebidos: TComboBox;
+    procedure edtDataInicialEmissaoExit(Sender: TObject);
+    procedure ckbAReceberClick(Sender: TObject);
+    procedure ckbRecebidosClick(Sender: TObject);
+  private
+    { Private declarations }
+  protected
+    procedure internoimpressao; override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    function  ValidarCamposSelecao: Boolean;
+
+    { Public declarations }
+  end;
+
+var
+  frmrelatoriocontasareceberportipoderecebimento: Tfrmrelatoriocontasareceberportipoderecebimento;
+
+implementation
+
+{$R *.dfm}
+
+{ Tfrmrelatoriocontasareceberportipoderecebimento }
+
+constructor Tfrmrelatoriocontasareceberportipoderecebimento.Create(AOwner: TComponent);
+begin
+  dtmrelatoriocontasareceberportipoderecebimento:= Tdtmrelatoriocontasareceberportipoderecebimento.Create(Self);
+  inherited;
+  edtDataInicialVencto.Text := DateToStr(DataLocal);
+  edtDataFinalVencto.Text   := DateToStr(DataLocal);
+  fraConsultaClientes.TipoPesquisa    := pesCLIENTES;
+  fraConsultaClientes.TipoCliente  := 'C';
+  fraConsultaVendedor.TipoPesquisa    := pesVENDEDORES;
+
+  fraListaFiliais1.gbxFiliais.Font.Height:= -11;
+  fraListaFiliais1.clbFiliais.Font.Height:= -12;
+
+  fraListaTiposdeRecebimentos1.gbx.Font.Height:= -11;
+  fraListaTiposdeRecebimentos1.clbTiposdeRecebimentos.Font.Height:= -12;
+  fraListaTiposdeRecebimentos1.clbTiposdeRecebimentos.Font.Style:= [];
+
+  fraOrdenacao1.qryLista.Open;
+end;
+
+destructor Tfrmrelatoriocontasareceberportipoderecebimento.Destroy;
+begin
+  dtmrelatoriocontasareceberportipoderecebimento:= nil;
+  inherited;
+  frmrelatoriocontasareceberportipoderecebimento:= nil;
+end;
+
+procedure Tfrmrelatoriocontasareceberportipoderecebimento.internoimpressao;
+var
+  vFormadeRecebimento: String;
+begin
+  inherited;
+  if ValidarCamposSelecao then
+  begin
+    with dtmrelatoriocontasareceberportipoderecebimento do
+    begin
+      ParametroCabecalho:= '';
+      Filial := fraListaFiliais1.ListaSelecionada;
+      TipodeRecebimento := fraListaTiposdeRecebimentos1.ListaSelecionada;
+      ChequesAvulsos := fraListaTiposdeRecebimentos1.ChequesAvulsos;
+      TipoCliente := fraConsultaClientes.qryProcuraClientetipo.AsString;
+      Cliente := fraConsultaClientes.edfCodigo.Text;
+      Vendedor := fraConsultaVendedor.qryProcuraVendedorescodigo.AsString;
+      Recebidos := ckbRecebidos.Checked;
+      aReceber := ckbAReceber.Checked;
+      aReceber_e_ou_Recebido := cbbaReceber_e_ou_Recebidos.itemindex;
+
+      AgruparFilial   := ckbAgruparFilial.Checked;
+      AgruparVendedor := ckbAgruparVendedor.Checked;
+      AgruparCliente  := ckbAgruparClientes.Checked;
+      AgruparTipodeRecebimento := ckbAgruparTipoRecebimento.Checked;
+      AgruparData := ckbAgruparData.Checked;
+
+      PeriodoInicialEmissao:= edtDataInicialEmissao.Text;
+      PeriodoFinalEmissao  := edtDataFinalEmissao.Text;
+
+      PeriodoInicialVencto:= edtDataInicialVencto.Text;
+      PeriodoFinalVencto  := edtDataFinalVencto.Text;
+
+      PeriodoInicialRecebimento:= edtDataInicialRecebimento.Text;
+      PeriodoFinalRecebimento  := edtDataFinalRecebimento.Text;
+
+      MontaIntervaloPeriodoVencimento;
+      MontaIntervaloPeriodoRecebimento;
+
+      vFormadeRecebimento := '';
+      if ckbDinheiro.checked then
+        vFormadeRecebimento := vFormadeRecebimento + 'D';
+
+      if ckbCheque.checked then
+        vFormadeRecebimento := vFormadeRecebimento + 'H';
+
+      if ckbDebito.checked then
+        vFormadeRecebimento := vFormadeRecebimento + 'B';
+
+      if ckbCredito.checked then
+        vFormadeRecebimento := vFormadeRecebimento + 'C';
+
+      if (vFormadeRecebimento = '') or (vFormadeRecebimento = 'DHBC') then
+        FormasdeRecebimento := ''
+      else
+        FormasdeRecebimento := vFormadeRecebimento;
+
+      DefineOrdenacao(fraOrdenacao1.ListaOrdenacao);
+      Resumo := rgbResumo.ItemIndex;
+      if GerarRelatorio then
+      begin
+        MensagemAviso(Format(ctNENHUMREGISTROSELECIONADO,['registro']));
+        edtDataInicialEmissao.SetFocus;
+      end
+      else
+        ImprimirRelatorio(cbkVisualizarValoresPISeCOFINS.checked);
+    end;
+  end;
+end;
+
+procedure Tfrmrelatoriocontasareceberportipoderecebimento.edtDataInicialEmissaoExit(
+  Sender: TObject);
+begin
+  inherited;
+  if (edtDataInicialEmissao.Text<>'') and (edtDataFinalEmissao.Text<>'') then
+    if strtodate(edtDataInicialEmissao.Text)> strtodate(edtDataFinalEmissao.Text) then
+      edtDataFinalEmissao.Text := edtDataInicialEmissao.Text;
+
+end;
+
+function Tfrmrelatoriocontasareceberportipoderecebimento.ValidarCamposSelecao: Boolean;
+begin
+  Result := (edtDataInicialEmissao.DataValida and edtDataFinalVencto.DataValida);
+  if Result then
+  begin
+    if (not dataembranco(edtDataInicialEmissao.text) and not dataembranco(edtDataFinalEmissao.text)) then
+      Result:=StrToDate(edtDataInicialEmissao.Text) <= StrToDate(edtDataFinalEmissao.Text);
+
+    if not result then
+    begin
+      MensagemAviso(ctDTINICIALMAIORDTFINAL);
+      edtDataInicialEmissao.SetFocus;
+    end;
+  end;
+
+  if result then
+  begin
+    Result := (edtDataInicialVencto.DataValida and edtDataFinalVencto.DataValida);
+    if Result then
+    begin
+      if (not dataembranco(edtDataInicialVencto.text) and not dataembranco(edtDataFinalVencto.text)) then
+        Result:=StrToDate(edtDataInicialVencto.Text) <= StrToDate(edtDataFinalVencto.Text);
+
+      if not result then
+      begin
+        MensagemAviso(ctDTINICIALMAIORDTFINAL);
+        edtDataInicialVencto.SetFocus;
+      end;
+    end;
+  end;
+
+end;
+
+procedure Tfrmrelatoriocontasareceberportipoderecebimento.ckbAReceberClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not ckbAReceber.Checked then
+    ckbRecebidos.Checked := true;
+
+//  gbxVencimentos.visible := ckbAReceber.checked;
+
+end;
+
+procedure Tfrmrelatoriocontasareceberportipoderecebimento.ckbRecebidosClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not ckbRecebidos.Checked then
+    ckbAReceber.Checked := true;
+
+  gbxDataRecebimentos.visible := ckbRecebidos.Checked;
+
+end;
+
+end.

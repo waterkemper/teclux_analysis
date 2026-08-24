@@ -759,6 +759,10 @@ begin
   qryConsultaEstoques.macrobyname('estoque').asString := SqlEstoque;
   qryConsultaEstoques.macrobyname('produtos').asString := SQLSituacaoProdutos;
 
+  qryConsultaLinhaColuna.macrobyname('estoque').asString := SqlEstoque;
+  qryConsultaLinhaColuna.macrobyname('produtos').asString := SQLSituacaoProdutos;
+
+
 
   qryConsultaEstoques.Close;
   qryConsultaEstoques.Open;

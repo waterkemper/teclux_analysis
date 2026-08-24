@@ -1,0 +1,643 @@
+unit fmprodutosorcamento;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, Windows,
+  StdCtrls, ExtCtrls, Buttons, DBCtrls, Mask, ComCtrls, {Qete,}
+  //Biblio
+  ctconstantes,
+  //Componentes
+  cpdbtext, cpnumero, cpdbfindcontrols, cpdbradiogroup,
+  //Terceiros
+  ZQuery,
+  //Repositorio
+  fmcadastropadrao, fmconsultabasica,
+  cptexto, ActnList, Grids, DBGrids, cpdbgrid, cpdbdata, ToolWin,
+  fmVisualizarImageURL;
+
+type
+  TfrmProdutosOrcamento = class(TfrmCadastroPadrao)
+    flkCodigoProduto: TtecDBFindLookup;
+    edtQuantidade: TDBEditNumero;
+    dtxUnidade: TtecDBText;
+    dtxDescricaoProduto: TtecDBText;
+    flkFilial: TtecDBFindLookup;
+    dtxNomeFilial: TtecDBText;
+    sbnConsultaProduto: TSpeedButton;
+    sbnConsultaFilial: TSpeedButton;
+    pnlFundoJanela: TPanel;
+    gbxFundoJanela: TGroupBox;
+    dtxPrecoProduto: TtecDBText;
+    dtxEmEstoque: TtecDBText;
+    lblPromocao: TLabel;
+    aclHabilitar: TActionList;
+    actHabilitarControles: TAction;
+    flkVendedor: TtecDBFindLookup;
+    dtxNomeVendedor: TtecDBText;
+    sbnProcurarVendedor: TSpeedButton;
+    gbxSimilares: TGroupBox;
+    dbgSimilares: TtecDBGrid;
+    gbxProduto: TGroupBox;
+    gbxQuantidade: TGroupBox;
+    gbxFilial: TGroupBox;
+    gbxEmEstoque: TGroupBox;
+    GroupBox1: TGroupBox;
+    lblPrecoNormal: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
+    sbnAlterarPreco: TSpeedButton;
+    pnlDesconto: TPanel;
+    Label5: TLabel;
+    edtdesconto: TDBEditNumero;
+    edtPreco: TDBEditNumero;
+    edtDescricaoPrecoVenda: TDBEditTexto;
+    dtxPrecoVenda: TtecDBText;
+    gbxVendedor: TGroupBox;
+    gbxDepositos: TGroupBox;
+    dbgDepositos: TtecDBGrid;
+    rgpMontagem: TtecDBRadioGroup;
+    tecRadioButton1: TtecRadioButton;
+    tecRadioButton2: TtecRadioButton;
+    tecDBRadioGroup2: TtecDBRadioGroup;
+    tecRadioButton3: TtecRadioButton;
+    tecRadioButton4: TtecRadioButton;
+    dbgProdutos: TtecDBGrid;
+    Label6: TLabel;
+    dtxTotalProdutos: TtecDBText;
+    Label1: TLabel;
+    dtxQtdeProdutos: TtecDBText;
+    pnlGradeProdutos: TPanel;
+    sbnVisualizarFoto: TSpeedButton;
+    procedure edtDescricaoPrecoVendaExit(Sender: TObject);
+    procedure edtPrecoExit(Sender: TObject);
+    procedure flkCodigoProdutoExit(Sender: TObject);
+    procedure flkCodigoProdutoMessage(var Msg: String);
+    procedure flkReservaMessage(var Msg: String);
+    procedure sbnAlterarPrecoClick(Sender: TObject);
+    procedure sbnConsultaFilialClick(Sender: TObject);
+    procedure sbnConsultaProdutoClick(Sender: TObject);
+    procedure flkFilialMessage(var Msg: String);
+    procedure actHabilitarControlesUpdate(Sender: TObject);
+    procedure sbnProcurarVendedorClick(Sender: TObject);
+    procedure dbgSimilaresDblClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure flkCodigoProdutoKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edtQuantidadeKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure flkCodigoProdutoFound(Found: Boolean);
+    procedure flkCodigoProdutoEnter(Sender: TObject);
+    procedure flkFilialEnter(Sender: TObject);
+    procedure flkFilialFound(Found: Boolean);
+    procedure sbnVisualizarFotoClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+  private
+    procedure AfterScrollLinhaColunaGradeSimilares(Sender: TObject);
+    procedure AfterScrollLinhaColunaGrade(Sender: TObject);
+
+  protected
+    TipoConsulta: TtecOrcamentosTipoConsulta;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    function  InternoIncluir: Boolean; override;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    function  TabelaDePesquisa: TZDataSet; override;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+  end;
+
+var
+  frmProdutosOrcamento: TfrmProdutosOrcamento;
+
+implementation
+
+uses
+  //Biblio
+  biblio, clusuario, clparametrossistema,
+  //Repositorio
+  fmconsultaporcampo, dmorcamentos;
+
+{$R *.dfm}
+
+{ TfrmProdutosOrcamento }
+
+procedure TfrmProdutosOrcamento.actHabilitarControlesUpdate(Sender: TObject);
+begin
+  inherited;
+  lblPromocao.Visible := dtmOrcamentos.ProdutoEmPromocao;
+end;
+
+constructor TfrmProdutosOrcamento.Create(AOwner: TComponent);
+begin
+  inherited;
+  DataSet := dtmOrcamentos.TabelaProdutosOrcamento;
+  sbnAlterarPreco.Visible := ParSistema.PermiteAlterarPreco;
+  pnlDesconto.Visible     := sbnAlterarPreco.Visible and UsuarioLogin.AlterarPrecoContrato;
+  rgpMontagem.Enabled     := dtmOrcamentos.ProdutoMontavel;
+  flkVendedor.Enabled     := not UsuarioLogin.Vendedor;
+  if UsuarioLogin.Vendedor then begin
+    dtxNomeVendedor.Width := dtxNomeVendedor.Width + dtxNomeVendedor.Left - flkVendedor.Left;
+
+    dtxNomeVendedor.Left  := flkVendedor.Left;
+
+    dtxNomeVendedor.BringToFront;
+
+  end;
+
+  if ParSistema.SoVisualizarEstoqueDeposito then
+
+    gbxDepositos.Caption := ctDEPOSITOS
+
+  else gbxDepositos.Caption := ctFILIAIS;
+
+  gbxDepositos.Visible := not ParSistema.FiliaisIndependentes;
+  dbgDepositos.Visible      := not ParSistema.FiliaisIndependentes;
+
+  gbxFilial.Visible    := not ParSistema.FiliaisIndependentes;
+
+  dbgSimilares.Columns[2].Visible := ParSistema.UsarGradesProdutos;
+
+  dbgSimilares.Columns[3].Visible := ParSistema.UsarGradesProdutos;
+  if not ParSistema.UsarGradesProdutos then
+    dbgsimilares.Columns[1].Width := dbgsimilares.Columns[1].Width+
+                                     dbgsimilares.Columns[2].Width+
+                                     dbgsimilares.Columns[3].Width;
+  dtmOrcamentos.OnScrollLinhaColunaGradeSimilares := AfterScrollLinhaColunaGradeSimilares;
+
+(*
+  if parsistema.PermitirProdutoAlfanumerico then
+  begin
+    flkCodigoProduto.LocateParameters := 'produtovisual,codigobarras';
+    flkCodigoProduto.LookupParameters := 'produtovisual,codigobarras';
+    flkCodigoProduto.Lookupfield   := 'produtovisual';
+    flkCodigoProduto.DataField     := 'produtovisual';
+    if parsistema.PesquisaPadraoProdutoCodigoBarras then
+    begin
+      flkCodigoProduto.LookupQueryParameter := 'codigobarras';
+      flkCodigoProduto.LocateQueryParameter := 'codigobarras';
+    end
+    else
+    begin
+      flkCodigoProduto.LookupQueryParameter := 'produtovisual';
+      flkCodigoProduto.LocateQueryParameter := 'produtovisual';
+    end;
+  end
+  else
+  begin
+    flkCodigoProduto.LocateParameters := 'produto,codigobarras';
+    flkCodigoProduto.LookupParameters := 'produto,codigobarras';
+    flkCodigoProduto.Lookupfield   := 'produto';
+    flkCodigoProduto.DataField     := 'produto';
+    if parsistema.PesquisaPadraoProdutoCodigoBarras then
+    begin
+      flkCodigoProduto.LookupQueryParameter := 'codigobarras';
+      flkCodigoProduto.LocateQueryParameter := 'codigobarras';
+    end
+    else
+    begin
+      flkCodigoProduto.LookupQueryParameter := 'produto';
+      flkCodigoProduto.LocateQueryParameter := 'produto';
+    end;
+  end;
+*)
+
+  gbxProduto.Caption := uppercase(flkCodigoProduto.FParameterLabel);
+
+  if dbgDepositos.Columns[1].Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgDepositos.Columns[1].Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgSimilares.Columns[4].Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgSimilares.Columns[4].Width := ParSistema.TamanhoMascaraQuantidade;
+  if dbgSimilares.Columns[5].Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgSimilares.Columns[5].Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgProdutos.ColumnbyName('quantidade').Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgProdutos.ColumnbyName('quantidade').width := ParSistema.TamanhoMascaraQuantidade;
+
+//  dbgProdutos.ColumnByName('valorgrade1').Visible := ParSistema.UsarGradesProdutos;
+//  dbgProdutos.ColumnByName('valorgrade2').Visible := ParSistema.UsarGradesProdutos;
+  dtmOrcamentos.OnScrollLinhaColunaGrade2 := AfterScrollLinhaColunaGrade;
+
+  dtmOrcamentos.ConsultaExecutada:= False;
+
+end;
+
+
+destructor TfrmProdutosOrcamento.Destroy;
+begin
+  inherited;
+  frmProdutosOrcamento := nil;
+end;
+
+procedure TfrmProdutosOrcamento.edtDescricaoPrecoVendaExit(Sender: TObject);
+begin
+  inherited;
+  edtDescricaoPrecoVenda.Enabled := False;
+end;
+
+procedure TfrmProdutosOrcamento.edtPrecoExit(Sender: TObject);
+begin
+  inherited;
+  edtPreco.SendToBack;
+end;
+
+function TfrmProdutosOrcamento.ExisteInformacao(Parametro: Integer;
+         NomeCampo: String; Value: Variant): Boolean;
+begin
+  case TipoConsulta of
+         vocPRODUTO: Result := dtmOrcamentos.ExisteProduto(NomeCampo, Value);
+          vocFILIAL: Result := dtmOrcamentos.ExisteFilialProduto(NomeCampo, Value);
+ vocVENDEDORPRODUTO: Result := dtmOrcamentos.ExisteVendedor(NomeCampo, Value);
+               else  Result := False
+  end;
+end;
+
+procedure TfrmProdutosOrcamento.flkCodigoProdutoExit(Sender: TObject);
+begin
+  inherited;
+  rgpMontagem.Enabled := dtmOrcamentos.ProdutoMontavel;
+  if pnldesconto.Visible then
+    if not edtdesconto.Focused and not parsistema.GravarProdutoContratoAutomaticamente then
+      edtdesconto.SetFocus;
+end;
+
+procedure TfrmProdutosOrcamento.flkCodigoProdutoMessage(var Msg: String);
+begin
+  inherited;
+  Msg := 'Produto não foi encontrado. Verifique se:'        + #13#10 +
+         '- está cadastrado no estoque desta filial ou'     + #13#10 +
+         '- está com o preço de venda diferente de zero ou' + #13#10 +
+         '- já está incluído no orçamento.'
+end;
+
+procedure TfrmProdutosOrcamento.flkReservaMessage(var Msg: String);
+begin
+  inherited;
+  Msg := 'A reserva não foi encontrada. Verifique se: ' + #13#10 +
+         '- a reserva existe ou' + #13#10 +
+
+         '- já foi finalizada ou' + #13#10 +
+
+         '- item/filial pertencem a reserva ou' + #13#10 +
+
+         '- vendedor que fez a reserva é o mesmo que está vendendo.'
+
+end;
+
+function TfrmProdutosOrcamento.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then
+    Result := dtmOrcamentos.ExcluirProdutoOrcamento;
+end;
+
+function TfrmProdutosOrcamento.InternoGravar: Boolean;
+var
+  Editando: Boolean;
+begin
+  Editando:= dtmOrcamentos.EditandoProdutosOrcamentos;
+  Result := inherited InternoGravar;
+  if Result then
+    Result := dtmOrcamentos.GravarProdutoOrcamento;
+    if Result and not Editando then begin
+      if ParSistema.AbrirConsultaAutomaticamente then begin
+        InternoIncluir;
+        CtrlOn:= True;
+        TipoConsulta:= vocPRODUTO;
+        InternoPesquisar('Produtos');
+      end;
+    end;
+end;
+
+function TfrmProdutosOrcamento.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then begin
+    Result := dtmOrcamentos.IncluirProdutosOrcamento;
+    flkCodigoProduto.SetFocus
+  end
+end;
+
+function TfrmProdutosOrcamento.InternoPesquisar(Titulo: String): Integer;
+{
+var
+  parametroAnterior, locateanterior: String;
+  }
+
+begin
+  Result := mrNONE;
+  if CtrlOn then begin
+    if ActiveControl = flkFilial then begin
+      TipoConsulta := vocFILIAL;
+      Titulo:= ctFILIAIS;
+    end
+    else if ActiveControl = flkCodigoProduto then begin
+      TipoConsulta := vocPRODUTO;
+      Titulo:= ctPRODUTO;
+    end
+    else if ActiveControl = flkVendedor then begin
+      TipoConsulta := vocVENDEDORPRODUTO;
+      Titulo := ctVENDEDORES;
+    end;
+  end
+  else
+    TipoConsulta:= vocNENHUM;
+
+  if TipoConsulta <> vocNENHUM then
+  begin
+    dtmOrcamentos.AbreTabelasOrcamento(TipoConsulta);
+
+    dtmOrcamentos.ConsultaExecutada:= False;
+    Result := inherited InternoPesquisar(Titulo);
+
+    if Result = mrOK then
+    begin
+      if tipoconsulta = vocPRODUTO then
+      begin
+        if ParSistema.GravarProdutoContratoAutomaticamente then
+        begin
+        {
+          parametroAnterior := flkCodigoProduto.LookupQueryParameter;
+          locateanterior := flkCodigoProduto.LocateQueryParameter;
+         }
+          (*
+          if parsistema.PermitirProdutoAlfanumerico then
+          begin
+            flkCodigoProduto.LookupQueryParameter := 'produtovisual';
+            flkCodigoProduto.LocateQueryParameter := 'produtovisual';
+          end
+          else
+          begin
+            flkCodigoProduto.LookupQueryParameter := 'produto';
+            flkCodigoProduto.LocateQueryParameter := 'produto';
+          end;
+          *)
+
+          dtmOrcamentos.SelecionarProdutoContratoConsulta;
+          flkCodigoProduto.Exist;
+          flkcodigoproduto.Modified := true;
+          flkCodigoProduto.DoExit;
+          //flkCodigoProduto.DoExit; {estava trocando a filial}
+
+          {
+          flkCodigoProduto.LookupQueryParameter := parametroAnterior;
+          flkCodigoProduto.LocateQueryParameter := locateanterior;
+          }
+        end;
+
+        if not dtmOrcamentos.ConsultaExecutada then
+        begin
+          dtmOrcamentos.SelecionarProdutoContratoConsulta;
+          flkCodigoProdutoFound(true);
+        end;
+        InternoGravar;
+      end
+      else
+        dtmOrcamentos.SelecionaTabelasOrcamento(TipoConsulta);
+    end;
+    dtmOrcamentos.FechaTabelasConsulta(TipoConsulta);
+  end
+end;
+
+function TfrmProdutosOrcamento.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa := ((TipoConsulta <> vocPRODUTO) or
+                                                      ((TipoConsulta = vocPRODUTO) and
+                                                        ParSistema.UsarConsultaInterativa));
+  TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := False;
+end;
+
+procedure TfrmProdutosOrcamento.sbnAlterarPrecoClick(Sender: TObject);
+var
+  UsuarioAut: TtecUsuarios;
+  AlterarPreco: Boolean;
+begin
+  inherited;
+  if UsuarioLogin.AlterarPrecoContrato then
+    AlterarPreco := True
+  else begin
+    try
+      UsuarioAut := dtmOrcamentos.ObterAutorizacao(taLOGIN, ctALTERARPRECOVENDA, ctAUTORIZADO);
+      try
+        if Assigned(UsuarioAut) then
+          AlterarPreco := UsuarioAut.AlterarPrecoContrato
+        else begin
+          AlterarPreco := False;
+          MensagemAviso(Format(ctUSUARIOSEMCADASTRO, ['']))
+        end
+      finally
+        if Assigned(UsuarioAut) then
+          UsuarioAut.Free;
+      end
+    except
+      AlterarPreco := False
+    end
+  end;
+  if AlterarPreco then begin
+    edtPreco.BringToFront;
+    edtPreco.SetFocus;
+    edtDescricaoPrecoVenda.Enabled := True;
+  end else begin
+    MensagemAviso(Format(ctUSUARIONAOAUTORIZADO, [ctMODIFICAPRECO]));
+    if Assigned(ActiveControl) then
+         ActiveControl.SetFocus
+    else edtQuantidade.SetFocus
+  end
+end;
+
+procedure TfrmProdutosOrcamento.sbnConsultaFilialClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  flkFilial.SetFocus;
+  InternoPesquisar('')
+end;
+
+procedure TfrmProdutosOrcamento.sbnConsultaProdutoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  flkCodigoProduto.SetFocus;
+  InternoPesquisar('')
+end;
+
+function TfrmProdutosOrcamento.TabelaDePesquisa: TZDataSet;
+begin
+  case TipoConsulta of
+         vocPRODUTO: Result := dtmOrcamentos.TabelaConsultaProdutos;
+          vocFILIAL: Result := dtmOrcamentos.TabelaConsultaFilialProduto;
+ vocVENDEDORPRODUTO: Result := dtmOrcamentos.TabelaConsultaVendedores;
+               else  Result := nil;
+  end;
+end;
+
+procedure TfrmProdutosOrcamento.flkFilialMessage(var Msg: String);
+begin
+  inherited;
+  Msg := 'Filial inválida. Verifique se:'        + #13#10 +
+         '- está cadastrada ou'     + #13#10 +
+         '- está inativa ou' + #13#10 +
+         '- se o produto já está incluído no orçamento com a mesma filial.'
+end;
+
+procedure TfrmProdutosOrcamento.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  case key of
+    VK_Return: if Shift = [] then
+               begin
+                 if ((ActiveControl = flkCodigoProduto) and (ParSistema.GravarProdutoContratoAutomaticamente)) then
+                 begin
+                   inherited;
+                   if InternoGravar then
+                   begin
+                     flkCodigoProduto.setfocus;
+                     flkCodigoProduto.selectall;
+                   end;
+                 end
+                 else
+                 if ActiveControl = flkVendedor then
+                 begin
+                   if sbnSalvar.Enabled then
+                     InternoGravar;
+                 end
+                 else
+                   inherited;
+               end;
+    else inherited;
+  end
+
+
+
+end;
+
+
+procedure TfrmProdutosOrcamento.sbnProcurarVendedorClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  flkVendedor.SetFocus;
+  InternoPesquisar('')
+end;
+
+procedure TfrmProdutosOrcamento.AfterScrollLinhaColunaGradeSimilares(
+  Sender: TObject);
+begin
+  dbgSimilares.Columns[2].Title.Caption := dtmOrcamentos.LinhadaGradeSimilares;
+  dbgSimilares.Columns[3].Title.Caption := dtmOrcamentos.ColunadaGradeSimilares;
+end;
+
+procedure TfrmProdutosOrcamento.dbgSimilaresDblClick(Sender: TObject);
+begin
+  inherited;
+  dtmOrcamentos.TrocaProdutoOrcamentoporSimilar;
+end;
+
+procedure TfrmProdutosOrcamento.FormShow(Sender: TObject);
+begin
+  inherited;
+  if (dtmOrcamentos.IncluindoProdutosOrcamentos) and
+      ParSistema.AbrirConsultaAutomaticamente then
+    sbnConsultaProdutoClick(self);
+end;
+
+procedure TfrmProdutosOrcamento.flkCodigoProdutoKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  gbxProduto.Caption := uppercase(flkCodigoProduto.FParameterLabel);
+end;
+
+procedure TfrmProdutosOrcamento.edtQuantidadeKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case key of
+    VK_return :
+    {bloqueado a linha abaixo devido ao fato que ao voltar do produto para a
+     quantidade, mesmo alterando a quantidade o valor fica 1 pois
+     esta editando e n?incluindo}
+//      if dtmCadastroContratos.IncluindoProdutosContratos then
+        flkCodigoProduto.ConfirmarQuantidade := true;
+  end;
+
+end;
+
+procedure TfrmProdutosOrcamento.flkCodigoProdutoFound(Found: Boolean);
+begin
+  inherited;
+  if found and not dtmOrcamentos.ConsultaExecutada then
+  begin
+    if ParSistema.ProdutoVendaFutura then
+    begin
+      if not dtmOrcamentos.ValidarProdutosContratos then
+        edtQuantidade.SetFocus;
+    end
+    else
+      dtmOrcamentos.SelecionarProdutoContratoProcura;
+  end;
+
+  if parsistema.GravarProdutoContratoAutomaticamente then
+  begin
+    flkCodigoProduto.setfocus;
+    flkCodigoProduto.SelectAll;
+  end
+  else
+  if pnldesconto.Visible then
+  begin
+    edtdesconto.SetFocus;
+    edtdesconto.selectall;
+  end;
+
+end;
+
+procedure TfrmProdutosOrcamento.flkCodigoProdutoEnter(Sender: TObject);
+begin
+  inherited;
+  TipoConsulta := vocPRODUTO;
+end;
+
+procedure TfrmProdutosOrcamento.flkFilialEnter(Sender: TObject);
+begin
+  inherited;
+  TipoConsulta := vocFILIAL
+
+end;
+
+procedure TfrmProdutosOrcamento.flkFilialFound(Found: Boolean);
+begin
+  inherited;
+  if found then
+    dtmOrcamentos.SelecionarFilialContratoProcura;
+
+end;
+
+procedure TfrmProdutosOrcamento.sbnVisualizarFotoClick(Sender: TObject);
+begin
+  inherited;
+  AcionarTelaVisualizarImageURL(self, dtmOrcamentos.GetProduto);
+end;
+
+procedure TfrmProdutosOrcamento.AfterScrollLinhaColunaGrade(
+  Sender: TObject);
+begin
+//  dbgProdutos.ColumnByName('valorgrade1').Title.Caption := dtmOrcamentos.LinhadaGrade;
+//  dbgProdutos.ColumnByName('valorgrade2').Title.Caption := dtmOrcamentos.colunadaGrade;
+//  flkCodigoProduto.exist;
+end;
+
+procedure TfrmProdutosOrcamento.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  inherited;
+  dtmOrcamentos.OnScrollLinhaColunaGrade2 := nil;
+
+end;
+
+end.

@@ -1,0 +1,66 @@
+unit cpdblookupcombobox;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  DBCtrls, ctconstantes;
+
+type
+  TTecDBLookupComboBox = class(TDBLookupComboBox)
+  private
+    { Private declarations }
+  protected
+    { Protected declarations }
+   procedure DoEnter; override;
+   procedure DoExit; override;
+  public
+    { Public declarations }
+     constructor Create(AOwner: TComponent); override;
+
+  published
+    { Published declarations }
+  end;
+
+implementation
+
+
+{ TTecDBLookupComboBox }
+
+{ TTecDBLookupComboBox }
+
+constructor TTecDBLookupComboBox.Create(AOwner: TComponent);
+var
+  I: Integer;
+  MyDataLink: TDataLink;
+
+begin
+  inherited;
+
+  for I := 0 to self.ControlCount - 1 do
+    if self.Controls[I] is TPopupDataList then
+    begin
+      MyDataLink := TDataLink(self.Controls[I].Perform(CM_GETDATALINK, 0, 0));
+      if MyDataLink <> nil then
+        MyDataLink.DataSourceFixed := False;
+        MyDataLink.DataSource := nil;
+    end;
+
+
+end;
+
+procedure TTecDBLookupComboBox.DoEnter;
+begin
+  inherited;
+  if Focused then
+    Color:= CorFundoControle;
+end;
+
+procedure TTecDBLookupComboBox.DoExit;
+begin
+  Color:= clWindow;
+  inherited;
+
+end;
+
+end.

@@ -1,0 +1,3583 @@
+unit fmcadastrocaracteristicas;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, DBCtrls, ComCtrls, Grids, DBGrids, Mask, ExtCtrls, Buttons,
+  Windows, DB, ActnList,
+  //Terceiros
+  ZQuery,
+  //Componentes
+  cpdbgrid, cpdbmemo, cptexto, cpdata, cpdbdata, cpnumero, cpdbfindcontrols,
+  cpdbtext, cppagecontrol, cpdbcombobox,
+  //Projeto
+  dmcadastroprodutos,
+  //Biblio
+  ctconstantes, biblio, clparametrossistema,
+  //Repositorio
+  fmcadastropadrao, fmconsultabasica, fmconsultaporcampo, frcomissao,
+  cpdbradiogroup, clusuario, frconsulta, frconsultacodigo, 
+  cpdblookupcombobox, cpquery, frconsultacontabil, frconsultacodigocontabil,
+  ToolWin, DBMaplistCombobox, DBIntCheckBox;
+
+
+type
+  TfrmCadastroCaracteristicas = class(TfrmCadastroPadrao)
+    pgcCaracteristicas: TtecPageControl;
+    tstParametros: TTabSheet;
+    edtVolumes: TDBEditNumero;
+    tstInformacoesFiscais: TTabSheet;
+    tstObservacoes: TTabSheet;
+    tstSimilares: TTabSheet;
+    tstPrecos: TTabSheet;
+    sbnProcurarGrupos: TSpeedButton;
+    sbnProcurarUnidades: TSpeedButton;
+    sbnProcurarIPI: TSpeedButton;
+    sbnProcurarObsLegais: TSpeedButton;
+    sbnProcurarMarcas: TSpeedButton;
+    gbxPrecos: TGroupBox;
+    dbgPrecos: TtecDBGrid;
+    sbnIncluirPreco: TSpeedButton;
+    sbnExcluirPreco: TSpeedButton;
+    ckbMontagem: TDBCheckBox;
+    ckbEmiteEtiqueta: TDBCheckBox;
+    ckbBrinde: TDBCheckBox;
+    ckbEmiteComplemento: TDBCheckBox;
+    flkMarca: TtecDBFindLookup;
+    flkGrupo: TtecDBFindLookup;
+    flkUnidade: TtecDBFindLookup;
+    flkIPI: TtecDBFindLookup;
+    flkObsLegal: TtecDBFindLookup;
+    gbxSimilares: TGroupBox;
+    sbnExcluirSimilar: TSpeedButton;
+    sbnIncluirSimilar: TSpeedButton;
+    dbgSimilares: TtecDBGrid;
+    fraComissaoVendedores: TfraComissao;
+    dtxIPI: TtecDBText;
+    dtxObsLegais: TtecDBText;
+    dtxMarca: TtecDBText;
+    dtxGrupo: TtecDBText;
+    dtxUnidade: TtecDBText;
+    tstFornecedores: TTabSheet;
+    gbxCodigos: TGroupBox;
+    edtDescricao: TDBEditTexto;
+    edfCodigo: TtecDbEditFind;
+    mmoComplemento: TtecDBMemo;
+    pnlFundoJanela: TPanel;
+    gbxColunasPrecos: TGroupBox;
+    sbnIncluirColunaPreco: TSpeedButton;
+    sbnExcluirColunaPreco: TSpeedButton;
+    dbgColunasPrecos: TtecDBGrid;
+    mmoObservacaoProdutosGerais: TtecDBMemo;
+    gbxFornecedor: TGroupBox;
+    dbgFornecedor: TtecDBGrid;
+    sbnIncluirFornecedor: TSpeedButton;
+    sbnExcluirFornecedor: TSpeedButton;
+    rgpVendaNegativa: TtecDBRadioGroup;
+    rbnSim: TtecRadioButton;
+    rbnNao: TtecRadioButton;
+    edtForaLinha: TDBEditData;
+    edtInativo: TDBEditData;
+    edtAliquotaPIS: TDBEditNumero;
+    edtAliquotaCofins: TDBEditNumero;
+    aclHabilitar: TActionList;
+    actHabilitarABAs: TAction;
+    pgcItensProdutoEstoque: TtecPageControl;
+    tstItensProdutos: TTabSheet;
+    tstEstoque: TTabSheet;
+    dbgEstoque: TtecDBGrid;
+    dbgProdutos2: TtecDBGrid;
+    tstProdutosCodigoBarras: TTabSheet;
+    sbnIncluirCodigoBarras: TSpeedButton;
+    sbnExcluirCodigoBarras: TSpeedButton;
+    dbgProdutosCodigoBarras: TtecDBGrid;
+    dbgProdutos3: TtecDBGrid;
+    sbnProcurarOrigem: TSpeedButton;
+    dtxOrigem: TtecDBText;
+    flkOrigem: TtecDBFindLookup;
+    flkFator: TtecDBFindLookup;
+    dtxFator: TtecDBText;
+    sbnFator: TSpeedButton;
+    tstGrades: TTabSheet;
+    flkLinhaGrade: TtecDBFindLookup;
+    sbnProcuraLinhaGrade: TSpeedButton;
+    dtxLinhaGrade: TtecDBText;
+    flkColunaGrade: TtecDBFindLookup;
+    sbnProcuraColunaGrade: TSpeedButton;
+    dtxColunaGrade: TtecDBText;
+    gbxItensProduto: TGroupBox;
+    sbnExcluirProduto: TSpeedButton;
+    sbnIncluirProduto: TSpeedButton;
+    sbnGerarLinhasColunas: TSpeedButton;
+    pnlGradeProduto: TPanel;
+    dbgGrades: TtecDBGrid;
+    Shape2: TShape;
+    lblForaLinhaIntaivo: TLabel;
+    Shape1: TShape;
+    lblAvariado: TLabel;
+    sbnVisualizarGrade: TSpeedButton;
+    flkClasse: TtecDBFindLookup;
+    sbnClasse: TSpeedButton;
+    dtxClasse: TtecDBText;
+    gbxGrade: TGroupBox;
+    dbgProdutos: TtecDBGrid;
+    tstComposicao: TTabSheet;
+    DBGridProdutosComponentes: TtecDBGrid;
+    DBGridProdutosCompostos: TtecDBGrid;
+    pnlControles: TPanel;
+    sbnIncluirProdutoComposto: TSpeedButton;
+    sbnExcluirProdutoComposto: TSpeedButton;
+    tstContabil: TTabSheet;
+    pgcContasContabeis: TPageControl;
+    tstaVista: TTabSheet;
+    tstVendaaPrazo: TTabSheet;
+    tstAbatimentos: TTabSheet;
+    tstDevolucoes: TTabSheet;
+    gbxDebitarVendaaVista: TGroupBox;
+    sbnConsultaDebitarVendaVista: TSpeedButton;
+    dtxDebitarDescricaoVendaVista: TtecDBText;
+    flkDebitarVendaaVista: TtecDBFindLookup;
+    dtxDebitarClassificacaoVendaVista: TtecDBText;
+    gbxCreditarVendaVista: TGroupBox;
+    sbnConsultaCreditarVendaVista: TSpeedButton;
+    dtxCreditarDescricaoVendaVista: TtecDBText;
+    flkCreditarVendaVista: TtecDBFindLookup;
+    dtxCreditarClassificacaoVendaVista: TtecDBText;
+    gbxHistoricoVendaaVista: TGroupBox;
+    sbnConsultaHistoricoVendaaVista: TSpeedButton;
+    dtxHistoricoVendaaVista: TtecDBText;
+    flkHistoricoVendaaVista: TtecDBFindLookup;
+    gbxDebitarVendaaPrazo: TGroupBox;
+    sbnConsultaDebitarVendaPrazo: TSpeedButton;
+    dtxDebitarDescricaoVendaPrazo: TtecDBText;
+    flkDebitarVendaaPrazo: TtecDBFindLookup;
+    dtxDebitarClassificacaoVendaPrazo: TtecDBText;
+    gbxCreditarVendaPrazo: TGroupBox;
+    sbnConsultaCreditarVendaPrazo: TSpeedButton;
+    dtxCreditarDescricaoVendaPrazo: TtecDBText;
+    flkCreditarVendaPrazo: TtecDBFindLookup;
+    dtxCreditarClassificacaoVendaPrazo: TtecDBText;
+    gbxHistoricoVendaaPrazo: TGroupBox;
+    sbnConsultaHistoricoVendaaPrazo: TSpeedButton;
+    dtxHistoricoVendaaPrazo: TtecDBText;
+    flkHistoricoVendaaPrazo: TtecDBFindLookup;
+    gbxDebitarAbatimentos: TGroupBox;
+    sbnConsultaDebitarAbatimentos: TSpeedButton;
+    dtxDebitarDescricaoAbatimentos: TtecDBText;
+    flkDebitarAbatimentos: TtecDBFindLookup;
+    dtxDebitarClassificacaoAbatimentos: TtecDBText;
+    gbxCreditarAbatimentos: TGroupBox;
+    sbnConsultaCreditarAbatimentos: TSpeedButton;
+    dtxCreditarDescricaoAbatimentos: TtecDBText;
+    flkCreditarAbatimentos: TtecDBFindLookup;
+    dtxCreditarClassificacaoAbatimentos: TtecDBText;
+    gbxHistoricoAbatimentos: TGroupBox;
+    sbnConsultaHistoricoAbatimentos: TSpeedButton;
+    dtxHistoricoAbatimentos: TtecDBText;
+    flkHistoricoAbatimentos: TtecDBFindLookup;
+    gbxDebitarDevolucoes: TGroupBox;
+    sbnConsultaDebitarDevolucoes: TSpeedButton;
+    dtxDebitarDescricaoDevolucoes: TtecDBText;
+    flkDebitarDevolucoes: TtecDBFindLookup;
+    dtxDebitarClassificacaoDevolucoes: TtecDBText;
+    gbxCreditarDevolucoes: TGroupBox;
+    sbnConsultaCreditarDevolucoes: TSpeedButton;
+    dtxCreditarDescricaoDevolucoes: TtecDBText;
+    flkCreditarDevolucoes: TtecDBFindLookup;
+    dtxCreditarClassificacaoDevolucoes: TtecDBText;
+    gbxHistoricoDevolucoes: TGroupBox;
+    sbnConsultaHistoricoDevolucoes: TSpeedButton;
+    dtxHistoricoDevolucoes: TtecDBText;
+    flkHistoricoDevolucoes: TtecDBFindLookup;
+    ckbProdutoComposto: TDBCheckBox;
+    edtMarkup: TDBEditNumero;
+    edtMultiploPreco: TDBEditNumero;
+    edtBonus: TDBEditNumero;
+    ckbDiscriminarPreco: TDBCheckBox;
+    rgpDiscriminarComposto: TtecDBRadioGroup;
+    rbnSemComposicao: TtecRadioButton;
+    rbnComComposicao: TtecRadioButton;
+    rbnSomenteComposicao: TtecRadioButton;
+    dtxClassificacaoFiscal: TtecDBText;
+    ckbProducaoPropria: TDBCheckBox;
+    tstClientes: TTabSheet;
+    dbgProdutosClientes: TtecDBGrid;
+    dbgClientesProdutos: TtecDBGrid;
+    sbnIncluirEstoque: TSpeedButton;
+    sbnExcluirEstoque: TSpeedButton;
+    sbnIncluirClienteProduto: TSpeedButton;
+    sbnExcluirClienteProduto: TSpeedButton;
+    ckbSubstituicaoIPI: TDBCheckBox;
+    ckbEspecial: TDBCheckBox;
+    fraConsultaBCICMS: TfraConsultaCodigo;
+    fraConsultaBCICMSST: TfraConsultaCodigo;
+    dtxCodigoCaracteristica: TtecDBText;
+    gbxICMSCST: TGroupBox;
+    gbxIPICST: TGroupBox;
+    gbxPISCST: TGroupBox;
+    sbnProcurarIncidencia: TSpeedButton;
+    dtxIncidencia: TtecDBText;
+    flkIncidencia: TtecDBFindLookup;
+    gbxReducaoBase: TGroupBox;
+    edtReducaoBase: TDBEditNumero;
+    gbxCOFINSCST: TGroupBox;
+    fraConsultaIPICST: TfraConsultaCodigo;
+    fraConsultaPISCST: TfraConsultaCodigo;
+    fraConsultaCOFINSCST: TfraConsultaCodigo;
+    dtxICMS: TtecDBText;
+    sbnProcurarICMS: TSpeedButton;
+    flkICMS: TtecDBFindLookup;
+    gbxAliquotaICMS: TGroupBox;
+    gbxBaseICMS: TGroupBox;
+    edtBaseICMS: TDBEditNumero;
+    gbxICMSBC: TGroupBox;
+    gbxICMSBCST: TGroupBox;
+    gbxAliquotaIPI: TGroupBox;
+    gbxPisAliquota: TGroupBox;
+    gbxCofinsAliquota: TGroupBox;
+    gbxOrigem: TGroupBox;
+    gbxObsLegal: TGroupBox;
+    gbxSubConta: TGroupBox;
+    edtSubConta: TDBEditNumero;
+    gbxCodigo: TGroupBox;
+    gbxNumerico: TGroupBox;
+    gbxDescricao: TGroupBox;
+    gbxComplemento: TGroupBox;
+    gbxTipoProduto: TGroupBox;
+    gbxInativo: TGroupBox;
+    gbxForaLinha: TGroupBox;
+    gbxMarkUp: TGroupBox;
+    gbxMultiplo: TGroupBox;
+    gbxBonus: TGroupBox;
+    gbxComposto: TGroupBox;
+    gbxOpcoes: TGroupBox;
+    lblPercReducao: TLabel;
+    gbxAliqIPI: TGroupBox;
+    gbxAliqICMS: TGroupBox;
+    gbxMarca: TGroupBox;
+    gbxGrupo: TGroupBox;
+    gbxClasse: TGroupBox;
+    gbxUnidade: TGroupBox;
+    gbxMoeda: TGroupBox;
+    gbxVolumes: TGroupBox;
+    gbxLinhaGrade: TGroupBox;
+    gbxColunaGrade: TGroupBox;
+    gbxTotalComposto: TGroupBox;
+    fraConsultaTipoProduto: TfraConsultaCodigo;
+    dtxAliquotaIPI: TtecDBText;
+    dtxAliquotaICMS: TtecDBText;
+    gbxCustoAdicionalProduto: TGroupBox;
+    edtCustoAdicionalProduto: TDBEditNumero;
+    tstFios: TTabSheet;
+    DBGridProdutosFios: TtecDBGrid;
+    Panel2: TPanel;
+    sbnIncluirProdutoFioseFitas: TSpeedButton;
+    sbnExcluirProdutoFioseFitas: TSpeedButton;
+    dbgProdutosFioseFitas: TtecDBGrid;
+    gbxReducaoBaseST: TGroupBox;
+    edtReducaoBaseST: TDBEditNumero;
+    Label1: TLabel;
+    gbxPeso: TGroupBox;
+    edtpesoProduto: TDBEditNumero;
+    tstFitas: TTabSheet;
+    tecDBGrid1: TtecDBGrid;
+    DBGridProdutosFitas: TtecDBGrid;
+    Panel3: TPanel;
+    SpeedButton1: TSpeedButton;
+    SpeedButton2: TSpeedButton;
+    sbnDeslocarParaCima: TSpeedButton;
+    sbnDeslocarRegistroParaBaixo: TSpeedButton;
+    sbnDeslocarFioParaCima: TSpeedButton;
+    sbnDeslocarFioParaBaixo: TSpeedButton;
+    sbnDeslocarFitaParaCima: TSpeedButton;
+    sbnDeslocarFitaParaBaixo: TSpeedButton;
+    gbxCSOSN: TGroupBox;
+    fraConsultaCSOSN: TfraConsultaCodigoContabil;
+    gbxModelos: TGroupBox;
+    mmoObservacaoModelo: TtecDBMemo;
+    dbgModelos: TtecDBGrid;
+    gbxDescricaonanf: TGroupBox;
+    edtDescricaonanf: TDBEditTexto;
+    sbnDescricaonanf: TSpeedButton;
+    gbxefd_t53: TGroupBox;
+    fraConsultaefd_t53: TfraConsultaCodigoContabil;
+    gbxSetorProducao: TGroupBox;
+    fraConsultaSetoresProducao: TfraConsultaCodigo;
+    pgcFiosFitas: TPageControl;
+    tstFiosProdutos: TTabSheet;
+    tstFitasProdutos: TTabSheet;
+    gbxBitola_fio: TGroupBox;
+    edtBitola_fio: TDBEditTexto;
+    gbxLiga_fio: TGroupBox;
+    edtLiga_fio: TDBEditTexto;
+    gbxResistividade_fio: TGroupBox;
+    edtResistividade_fio: TDBEditNumero;
+    gbxTolerancia_fio: TGroupBox;
+    edtTolerancia_fio: TDBEditNumero;
+    gbxEspessura_fita: TGroupBox;
+    edtEspessura_fita: TDBEditTexto;
+    gbxLargura_fita: TGroupBox;
+    edtLargura_fita: TDBEditTexto;
+    gbxLiga_fita: TGroupBox;
+    edtLiga_fita: TDBEditTexto;
+    gbxFiosProdutos: TGroupBox;
+    gbxFitasProdutos: TGroupBox;
+    ckbProdutoComposto2: TDBCheckBox;
+    ckbDesmembrarComponentes: TDBCheckBox;
+    gbxGTIN: TGroupBox;
+    edtGTIN: TDBEditTexto;
+    tstProdutosCargos: TTabSheet;
+    dbgProdutosCargos: TtecDBGrid;
+    pnlProdutosCargos: TPanel;
+    sbnIncluirCargosProdutos: TSpeedButton;
+    sbnEcluirCargosProdutos: TSpeedButton;
+    sbnGerarCargosProdutos: TSpeedButton;
+    tstProdutosFornecedores: TTabSheet;
+    dbgProdutosFornecedores: TtecDBGrid;
+    pnlProdutosFornecedoresBotoes: TPanel;
+    sbnExcluirProdutosFornecedores: TSpeedButton;
+    pgcProdutos_Unidades_Fornecedores: TPageControl;
+    tstProdutosNoFornecedor: TTabSheet;
+    tstProdutosFornecedoresUnidades: TTabSheet;
+    dbgProdutosFornecedoresUnidades: TtecDBGrid;
+    Panel4: TPanel;
+    btnExcluirProdutosFornecedoresUnidades: TSpeedButton;
+    btnIncluirProdutosFornecedoresUnidades: TSpeedButton;
+    sbnCopiar: TSpeedButton;
+    GroupBox1: TGroupBox;
+    dtxCodigoVisual: TtecDBText;
+    gbxDataCadastroCaracteristica: TGroupBox;
+    dtxDataAtualizacaoCaracteristica: TtecDBText;
+    gbxDataCadastro: TGroupBox;
+    dtxDataCadastroCaracteristica: TtecDBText;
+    gbxSituacaoTributaria: TPanel;
+    fraComissaoIndicadores: TfraComissao;
+    DBGridProdutos_Servicos: TtecDBGrid;
+    dtxtotalcomponentes: TDBEditNumero;
+    pgcInformacoesFiscais: TtecPageControl;
+    tstParametrosFiscais: TTabSheet;
+    tstFCP: TTabSheet;
+    dbgEstadosProdutos: TtecDBGrid;
+    gbxCest: TGroupBox;
+    edtCest: TDBEditTexto;
+    tstAgendamento: TTabSheet;
+    dbgProdutoAgendamento: TtecDBGrid;
+    dbgAgendamentoProdutos: TtecDBGrid;
+    pnlProdutosAgendamentosBotoes: TPanel;
+    sbnExcluirProdutosAgendamentos: TSpeedButton;
+    sbnInverterLinhaColuna: TSpeedButton;
+    pnlBottom: TPanel;
+    gbxAnvisa: TGroupBox;
+    edtAnvisa: TDBEditTexto;
+    pnlLeftComposicao: TPanel;
+    gbxObservaocoesProdutosGerais: TGroupBox;
+    gbxObservaocoesProdutosVendas: TGroupBox;
+    mmoObservacaoProdutosVendas: TtecDBMemo;
+    ckbExigirNumeroSerieaoFaturar: TDBCheckBox;
+    dbmAgrupamentoGrade: TDBMaplistCombobox;
+    gbxAgrupamentoGrade: TGroupBox;
+    ckbControlarLote_: TDBIntCheckBox;
+    gbxEstoque: TGroupBox;
+    gbxCodigoBarras: TGroupBox;
+    sbnconferircomposto: TDBCheckBox;
+    procedure sbnProcurarGruposClick(Sender: TObject);
+    procedure sbnProcurarUnidadesClick(Sender: TObject);
+    procedure sbnProcurarICMSClick(Sender: TObject);
+    procedure sbnProcurarIPIClick(Sender: TObject);
+    procedure sbnProcurarObsLegaisClick(Sender: TObject);
+    procedure sbnProcurarMarcasClick(Sender: TObject);
+    procedure sbnProcurarOrigemClick(Sender: TObject);
+    procedure sbnProcurarIncidenciaClick(Sender: TObject);
+    procedure sbnIncluirProdutoClick(Sender: TObject);
+    procedure sbnIncluirPrecoClick(Sender: TObject);
+    procedure sbnIncluirColunaPrecoClick(Sender: TObject);
+    procedure sbnIncluirSimilarClick(Sender: TObject);
+    procedure sbnIncluirFornecedorClick(Sender: TObject);
+    procedure sbnExcluirFornecedorClick(Sender: TObject);
+    procedure sbnExcluirProdutoClick(Sender: TObject);
+    procedure sbnExcluirSimilarClick(Sender: TObject);
+    procedure sbnExcluirPrecoClick(Sender: TObject);
+    procedure sbnExcluirColunaPrecoClick(Sender: TObject);
+    procedure dbgFornecedorDblClick(Sender: TObject);
+    procedure dbgSimilaresDblClick(Sender: TObject);
+    procedure dbgProdutosDblClick(Sender: TObject);
+    procedure dbgPrecosDblClick(Sender: TObject);
+    procedure dbgColunasPrecosDblClick(Sender: TObject);
+    procedure dbgProdutosKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure dbgSimilaresKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure dbgPrecosKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure dbgColunasPrecosKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure dbgFornecedorKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure flkIncidenciaEnter(Sender: TObject);
+    procedure sbnIncluirEstoqueClick(Sender: TObject);
+    procedure sbnExcluirEstoqueClick(Sender: TObject);
+    procedure dbgEstoqueKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure dbgEstoqueDblClick(Sender: TObject);
+    procedure actHabilitarABAsUpdate(Sender: TObject);
+    procedure dbgProdutosTitleClick(Column: TColumn);
+    procedure dbgProdutosDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure sbnIncluirCodigoBarrasClick(Sender: TObject);
+    procedure sbnExcluirCodigoBarrasClick(Sender: TObject);
+    procedure edtInativoExit(Sender: TObject);
+    procedure dbgProdutosCodigoBarrasKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure dbgProdutosCodigoBarrasDblClick(Sender: TObject);
+    procedure edfCodigoFound(Found: Boolean);
+    procedure sbnFatorClick(Sender: TObject);
+    procedure pgcCaracteristicasChange(Sender: TObject);
+    procedure pgcItensProdutoEstoqueChange(Sender: TObject);
+    procedure sbnProcuraLinhaGradeClick(Sender: TObject);
+    procedure sbnProcuraColunaGradeClick(Sender: TObject);
+    procedure flkColunaGradeMessage(var Msg: String);
+    procedure flkLinhaGradeMessage(var Msg: String);
+    procedure sbnGerarLinhasColunasClick(Sender: TObject);
+    procedure sbnVisualizarGradeClick(Sender: TObject);
+    procedure flkLinhaGradeFound(Found: Boolean);
+    procedure flkColunaGradeFound(Found: Boolean);
+    procedure dbgGradesDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure dbgGradesKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnIncluirProdutoGradeClick(Sender: TObject);
+    procedure sbnExcluirProdutoGradeClick(Sender: TObject);
+    procedure dbgGradesDblClick(Sender: TObject);
+    procedure pgcCaracteristicasChanging(Sender: TObject; var AllowChange: Boolean);
+    procedure sbnClasseClick(Sender: TObject);
+    procedure sbnIncluirProdutoCompostoClick(Sender: TObject);
+    procedure sbnExcluirProdutoCompostoClick(Sender: TObject);
+    procedure DBGridProdutosComponentesDblClick(Sender: TObject);
+    procedure ckbProdutoCompostoClick(Sender: TObject);
+    procedure sbnConsultaDebitarVendaVistaClick(Sender: TObject);
+    procedure sbnConsultaCreditarVendaVistaClick(Sender: TObject);
+    procedure sbnConsultaHistoricoVendaaVistaClick(Sender: TObject);
+    procedure sbnConsultaDebitarVendaPrazoClick(Sender: TObject);
+    procedure sbnConsultaCreditarVendaPrazoClick(Sender: TObject);
+    procedure sbnConsultaHistoricoVendaaPrazoClick(Sender: TObject);
+    procedure sbnConsultaDebitarAbatimentosClick(Sender: TObject);
+    procedure sbnConsultaDebitarDevolucoesClick(Sender: TObject);
+    procedure sbnConsultaCreditarAbatimentosClick(Sender: TObject);
+    procedure sbnConsultaCreditarDevolucoesClick(Sender: TObject);
+    procedure sbnConsultaHistoricoAbatimentosClick(Sender: TObject);
+    procedure sbnConsultaHistoricoDevolucoesClick(Sender: TObject);
+    procedure ckbProducaoPropriaClick(Sender: TObject);
+    procedure sbnIncluirClienteProdutoClick(Sender: TObject);
+    procedure sbnExcluirClienteProdutoClick(Sender: TObject);
+    procedure dbgClientesProdutosDblClick(Sender: TObject);
+    procedure dbgClientesProdutosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbgModelosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnDeslocarParaCimaClick(Sender: TObject);
+    procedure sbnDeslocarRegistroParaBaixoClick(Sender: TObject);
+    procedure sbnDeslocarFioParaCimaClick(Sender: TObject);
+    procedure sbnDeslocarFioParaBaixoClick(Sender: TObject);
+    procedure sbnDeslocarFitaParaCimaClick(Sender: TObject);
+    procedure sbnDeslocarFitaParaBaixoClick(Sender: TObject);
+    procedure sbnDescricaonanfClick(Sender: TObject);
+    procedure edtDescricaonanfKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnIncluirProdutoFioseFitasClick(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
+    procedure sbnExcluirProdutoFioseFitasClick(Sender: TObject);
+    procedure SpeedButton2Click(Sender: TObject);
+    procedure DBGridProdutosFiosDblClick(Sender: TObject);
+    procedure DBGridProdutosFitasDblClick(Sender: TObject);
+    procedure ckbProdutoComposto2Click(Sender: TObject);
+    procedure DBGridProdutosFiosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure DBGridProdutosFitasKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnGerarCargosProdutosClick(Sender: TObject);
+    procedure sbnIncluirCargosProdutosClick(Sender: TObject);
+    procedure sbnEcluirCargosProdutosClick(Sender: TObject);
+    procedure dbgProdutosCargosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbgProdutosCargosDblClick(Sender: TObject);
+    procedure sbnExcluirProdutosFornecedoresClick(Sender: TObject);
+    procedure dbgProdutosFornecedoresKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure dbgProdutosFornecedoresDblClick(Sender: TObject);
+    procedure btnExcluirProdutosFornecedoresUnidadesClick(Sender: TObject);
+    procedure btnIncluirProdutosFornecedoresUnidadesClick(Sender: TObject);
+    procedure dbgProdutosFornecedoresUnidadesDblClick(Sender: TObject);
+    procedure dbgProdutosFornecedoresUnidadesKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure pgcProdutos_Unidades_FornecedoresChange(Sender: TObject);
+    procedure sbnCopiarClick(Sender: TObject);
+    procedure edtDescricaoEnter(Sender: TObject);
+    procedure edtDescricaoExit(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure DBGridProdutos_ServicosDblClick(Sender: TObject);
+    procedure DBGridProdutos_ServicosKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure pgcInformacoesFiscaisChange(Sender: TObject);
+    procedure DBGridProdutosComponentesKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure sbnExcluirProdutosAgendamentosClick(Sender: TObject);
+    procedure sbnInverterLinhaColunaClick(Sender: TObject);
+    procedure edfCodigoChange(Sender: TObject);
+  private
+    procedure PosicionarLinhaColunaNaGrade;
+    procedure VisualizarItensProdutos;
+    procedure AcionaPesquisaGrade;
+    procedure AtribuirDadosModelosProdutos;
+    procedure AtribuirDadosCargosProdutos;
+
+  protected
+//    Ind: Byte;
+    JanelaProduto : TfrmConsultaPorCampo;
+    ReabrirFormulario: Boolean;
+    FProdutoJaGravado: Boolean;
+{    dtmCadastroProdutos: TdtmCadastroProdutos;}
+    fraConsultaModelo : TfraConsultaCodigo;
+    fraConsultaCargo: TfraConsultaCodigo;
+    ConsultaProduto : TfraConsultaCodigo;
+    ConsultaFornecedor : TfraConsultaCodigo;
+    ConsultaUnidades : TfraConsultaCodigo;
+    ConsultaServicos : TfraConsultaCodigo;
+
+
+    procedure CondicoesItemProdutosFornecedores;
+    procedure AtribuirDadosServicos;
+    procedure AcionarPesquisaGrade;
+
+    procedure AtribuirDadosProdutosFornecedores;
+    procedure AtribuirDadosFornecedor_ProdutosFornecedoresUnidades;
+    procedure AtribuirDadosUnidades_ProdutosFornecedoresUnidades;
+
+    procedure VerificarProdutosFornecedores;
+    procedure AlternarColunaProduto(Column: TColumn; Incrementa: Boolean);
+    procedure CriticarDataInativa(datainativa: TDBEditData);
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoIncluir: Boolean; override;
+
+    function InternoPesquisar(Titulo:String): Integer; override;
+    function JanelaPesquisa: TfrmConsultaBasica; override;
+    function TabelaDePesquisa: TZDataSet; override;
+    function TabelaDoParametro(Parametro: Integer): TZDataSet; override;
+    function ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    procedure PosicionarTabelaNoParametro(Ind: Integer; var Continuar: Boolean); override;
+
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure AfterScrollLinhaGrade(Sender: TObject);
+    procedure AfterScrollColunaGrade(Sender: TObject);
+    procedure CriarConsultaModelo;
+    procedure CriarConsultaCargo;
+
+    procedure CondicoesConsultaCargos;
+
+    procedure FiltrarDados(Sender: TObject);
+    procedure AlterarEstadoBotoes; override;
+    function VerificarElementosdaGrade: boolean;
+
+  public
+    TipoProcura: TipoProcuraProdutosEstoque;
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+
+    procedure OperacaoPadrao(Value: Array of Variant); override;
+
+    function AcionaCadastroProdutoComposto(Editar: Boolean): Boolean;
+    function AcionaCadastroProdutoCompostoFios(Editar: Boolean): Boolean;
+    function AcionaCadastroProdutoCompostoFitas(Editar: Boolean): Boolean;
+
+
+    function AcionaCadastroCodigoBarras(Editar: Boolean): Boolean;
+    function AcionaCadastroEstoque(Editar: Boolean): Boolean;
+    function AcionaCadastroFornecedores(Editar: Boolean): Boolean;
+    function AcionaCadastroSimilares(Editar: Boolean): Boolean;
+    function AcionaCadastroProdutos(Editar:Boolean):Boolean;
+    function AcionaCadastroPrecos(Editar: Boolean): Boolean;
+    function AcionaCadastroColunasPrecos(Editar: Boolean): Boolean;
+    function AcionaCadastroColunasPrecosAutomatico(Editar: Boolean): Boolean;
+    function PermitirProcura: Boolean;
+    function GetTitulo: String;
+    function PermiteInclusaoProdutos: boolean;
+    procedure ConfiguracaoJanela;
+    function AcionaCadastroClientesProdutos(Editar: Boolean): Boolean;
+    procedure AtribuirParametrosConsultaFornecedor;
+
+
+  end;
+
+var
+  frmCadastroCaracteristicas: TfrmCadastroCaracteristicas;
+
+implementation
+
+uses fmcadastroprecos, fmcadastroprodutos, fmcadastrosimilares, fmcadastrocolunasprecos,
+     fmcadastrofornecedoresprodutos, fmnavcontroles, fmcadastroestoque,
+     fmcadastrocodigobarras, fmcadastrogerarprodutos, fmcadastroProdutoComposto,
+     fmcadastroProdutoCompostoFios, fmcadastroProdutoCompostoFitas, fmcadastroclientesprodutos,fmcodigocopiaproduto,
+  dmbasico;
+
+{$R *.dfm}
+
+procedure TfrmCadastroCaracteristicas.actHabilitarABAsUpdate(Sender: TObject);
+begin
+  inherited;
+  tstFornecedores.TabVisible:= FProdutoJaGravado;
+
+
+  tstSimilares.TabVisible   := FProdutoJaGravado;
+  tstPrecos.TabVisible      := FProdutoJaGravado;
+  if sbnGerarLinhasColunas.Visible then
+    sbnGerarLinhasColunas.Enabled := ((flkLinhaGrade.Text<>'') or
+                                      (flkColunaGrade.Text<>'')) and
+                                      FProdutoJaGravado;
+//  flkICMS.ReadOnly       := not dtmCadastroProdutos.ComTributo;
+//  edtReducaoBase.ReadOnly:= not dtmCadastroProdutos.ComReducao;
+  sbnVisualizarGrade.Visible := dtmCadastroProdutos.UtilizandoGrade and
+                                FProdutoJaGravado;
+  rgpDiscriminarComposto.Enabled := ckbProdutoComposto.Checked;
+  if (not rgpDiscriminarComposto.Enabled) or (not rbnComComposicao.Checked) then
+    ckbDiscriminarPreco.Checked := False;
+  ckbDiscriminarPreco.Enabled := ckbProdutoComposto.Visible and ckbProdutoComposto.Checked
+                                 and rbnComComposicao.Checked;
+
+  pgcFiosFitas.Visible := (copy(uppercase(edtDescricao.Text),1,3)='FIO') or
+                          (copy(uppercase(edtDescricao.Text),1,4)='FITA');
+  if pgcFiosFitas.Visible then
+  begin
+    if (copy(uppercase(edtDescricao.Text),1,3)='FIO') then
+      pgcfiosfitas.activepage := tstFiosProdutos
+    else
+    if (copy(uppercase(edtDescricao.Text),1,4)='FITA') then
+      pgcfiosfitas.activepage := tstFitasProdutos;
+  end;
+
+  tstProdutosCargos.TabVisible := FProdutoJaGravado and parsistema.PrecosporCargo;
+
+  sbnDeslocarParaCima.enabled := (self.ActiveControl <> DBGridProdutos_Servicos);
+  sbnDeslocarRegistroParaBaixo.enabled := sbnDeslocarParaCima.enabled;
+//  sbnconferircomposto.visible := dtmCadastroProdutos.qryCaracteristicascomposto.asBoolean;
+
+end;
+
+procedure TfrmCadastroCaracteristicas.AlternarColunaProduto(Column: TColumn; Incrementa: Boolean);
+begin
+
+  if (Column.fieldname = 'codigorecolha') or
+     (Column.fieldname = 'foralinha') or
+     (Column.fieldname = 'inativo') then
+  begin
+    if (Column.fieldname = 'codigorecolha') then
+    begin
+      if Incrementa then
+      begin
+        Column.Title.Caption := 'FORA LINHA...';
+        Column.fieldname     := 'foralinha';
+        Column.Width         := 115;
+      end
+      else
+      begin
+        Column.Title.Caption := 'INATIVO...';
+        Column.fieldname     := 'inativo';
+        Column.Width         := 115;
+      end;
+    end
+    else
+    if (Column.fieldname = 'foralinha') then
+    begin
+      if Incrementa then
+      begin
+        Column.Title.Caption := 'INATIVO...';
+        Column.fieldname     := 'inativo';
+        Column.Width         := 115;
+      end
+      else
+      begin
+        Column.Title.Caption := 'CÓDIGO RECOLHA...';
+        Column.fieldname     := 'codigorecolha';
+        Column.Width         := 115;
+      end;
+    end
+    else
+    if (Column.fieldname = 'inativo') then
+    begin
+      if Incrementa then
+      begin
+        Column.Title.Caption := 'CÓDIGO RECOLHA...';
+        Column.fieldname     := 'codigorecolha';
+        Column.Width         := 115;
+      end
+      else
+      begin
+        Column.Title.Caption := 'FORA LINHA...';
+        Column.fieldname     := 'foralinha';
+        Column.Width         := 115;
+      end;
+    end;
+  end;  
+end;
+
+constructor TfrmCadastroCaracteristicas.Create(AOwner: TComponent);
+begin
+  dtmCadastroProdutos := TdtmCadastroProdutos.Create(Self);
+  inherited Create(AOwner);
+
+  dtmCadastroProdutos.OnScrollLinhaGrade := AfterScrollLinhaGrade;
+  dtmCadastroProdutos.OnScrollColunaGrade := AfterScrollColunaGrade;
+
+  DataSet := dtmCadastroProdutos.TabelaCaracteristica;
+  
+  dtmCadastroProdutos.ExibirCaracteristicas:= mcaCARACTERISTICAS;
+  dtmCadastroProdutos.SetExibirProduto(mcaPRODUTOS);
+  FProdutoJaGravado:= False;
+  if ParSistema.GerarCodigoProdutoAutomatico then
+       edfCodigo.DenyInsert:= True
+  else edfCodigo.DenyInsert:= False;
+
+  tstGrades.TabVisible := ParSistema.UsarGradesProdutos;
+  sbnGerarLinhasColunas.Visible := ParSistema.GerarCodigoProdutoAutomatico and
+                                   ParSistema.UsarGradesProdutos;
+
+  tstComposicao.TabVisible := ParSistema.UsaProdutoComposto;
+  tstFios.TabVisible := ParSistema.UsaProdutoComposto and ParSistema.ControlesVoltadosparaIndustria;
+  tstFitas.TabVisible := ParSistema.UsaProdutoComposto and ParSistema.ControlesVoltadosparaIndustria;
+
+  gbxModelos.Visible := ParSistema.LiberarVisualizacaodeModelosProdutos;
+
+  ckbProdutoComposto.Visible := ParSistema.UsaProdutoComposto;
+  ckbProdutoComposto2.Visible := ParSistema.UsaProdutoComposto;
+
+  rgpDiscriminarComposto.Visible := ParSistema.UsaProdutoComposto;
+  ckbDiscriminarPreco.Visible := ParSistema.UsaProdutoComposto;
+
+  pgcCaracteristicas.ActivePage := tstParametros;
+  pgcItensProdutoEstoque.ActivePage := tstItensProdutos;
+  tstContabil.TabVisible :=  ParSistema.GerarContabilidade and
+                             UsuarioLogin.AlterarDadosContabeis;
+  if DBGridProdutosComponentes.Columns[2].Width < Parsistema.TamanhoMascaraQuantidade then
+    DBGridProdutosComponentes.Columns[2].Width := ParSistema.TamanhoMascaraQuantidade;
+
+  fraConsultaBCICMS.TipoPesquisa    := pesMODALIDADEBCICMS;
+  fraConsultaBCICMSST.TipoPesquisa  := pesMODALIDADEBCICMSST;
+  fraConsultaIPICST.TipoPesquisa    := pesTRIBUTOSIPI;
+  fraConsultaCOFINSCST.TipoPesquisa := pesTRIBUTOSCOFINS;
+  fraConsultaPISCST.TipoPesquisa    := pesTRIBUTOSPIS;
+
+  fraConsultaEFD_T53.TipoPesquisa   := pesEFD_T53;
+
+  fraConsultaTipoProduto.TipoPesquisa := pesTIPOPRODUTO;
+
+
+  DBGridProdutosComponentes.CampoSequencial := 'ordem';
+  dtmCadastroProdutos.qryProdutoComposto.After_Open := DBGridProdutosComponentes.RefazerOrdenacaoSequencial;
+  DBGridProdutosComponentes.OnDelete := dtmCadastroProdutos.ExcluirProdutoComposto;
+
+  DBGridProdutosFios.CampoSequencial := 'ordem';
+  {procedimento movido para quando for trocado a aba}
+//  dtmCadastroProdutos.qryProdutoCompostoFioseFitas.After_Open := DBGridProdutosFios.RefazerOrdenacaoSequencial;
+  DBGridProdutosFios.OnDelete := dtmCadastroProdutos.ExcluirProdutoCompostoFios;
+
+  DBGridProdutosFitas.CampoSequencial := 'ordem';
+  {procedimento movido para quando for trocado a aba}
+//  dtmCadastroProdutos.qryProdutoCompostoFioseFitas.After_Open := DBGridProdutosFitas.RefazerOrdenacaoSequencial;
+  DBGridProdutosFitas.OnDelete := dtmCadastroProdutos.ExcluirProdutoCompostoFitas;
+
+  gbxICMSCST.Visible := dtmCadastroProdutos.ExisteCRTNormal;
+
+  gbxCSOSN.Visible := dtmCadastroProdutos.ExisteCRTSimples;
+  if not gbxCSOSN.Visible then
+    gbxReducaoBase.Parent := gbxICMSCST;
+
+  fraConsultaCSOSN.TipoPesquisa := pesCSOSN;
+
+  if not parsistema.ControlesVoltadosparaIndustria then
+  begin
+    gbxDescricaonanf.Visible := false;
+//    gbxForaLinha.Top := gbxDescricaonanf.Top;
+//    gbxInativo.Top := gbxDescricaonanf.Top;
+  end;
+
+  DBGridProdutosComponentes.Columns[4].Visible := not parsistema.ControlesVoltadosparaIndustria;
+  DBGridProdutosComponentes.Columns[6].Visible := not parsistema.ControlesVoltadosparaIndustria;
+
+  gbxSetorProducao.Visible := parsistema.ControlesVoltadosparaIndustria;
+
+  fraConsultaSetoresProducao.TipoPesquisa := pesSETORESPRODUCAO;
+
+  fFormaPesquisaProduto := fpCaracteristicas;
+
+  ckbDesmembrarComponentes.Visible := parsistema.ControlesVoltadosparaIndustria;
+
+  flkOrigem.Modified := true;
+
+
+  dbgProdutosCargos.OnDelete := dtmCadastroProdutos.ExcluirProdutosCargos;
+
+  dbgProdutosFornecedores.OnDelete := dtmCadastroProdutos.ExcluirProdutosFornecedores;
+
+      {
+
+  fraConsultaBCICMS.LIMPAR;
+  fraConsultaBCICMSST.limpar;
+  fraConsultaIPICST.limpar;
+  fraConsultaCOFINSCST.limpar;
+  fraConsultaPISCST.limpar;
+  fraConsultaModelo.limpar;
+  fraConsultaTipoProduto.limpar;
+  fraConsultaCSOSN.limpar;
+       }
+
+
+  ConsultaProduto := TfraConsultaCodigo.Create(self);
+  ConsultaProduto.Name := 'fraConsultaProduto';
+  ConsultaProduto.edfCodigo.MaxLength := 30;
+  ConsultaProduto.edfCodigo.DataSource := dtmCadastroProdutos.dsrProdutosFornecedores;
+  ConsultaProduto.edfCodigo.DataField := 'produtovisual';
+  ConsultaProduto.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaProduto.edfCodigo.LookupSource := ConsultaProduto.dsrProcuraItemProdutos;
+  ConsultaProduto.edfCodigo.LookupQueryParameter := 'produtovisual';
+  ConsultaProduto.edfCodigo.LookupField := 'produtovisual';
+//  ConsultaProduto.edfCodigo.LocateParameters := 'produtovisual';
+  ConsultaProduto.AbrirTabelaProcura := false;
+  ConsultaProduto.TipoPesquisa := pesITEMPRODUTOS;
+  ConsultaProduto.CondicoesdaConsulta := CondicoesItemProdutosFornecedores;
+  ConsultaProduto.OnFound := AtribuirDadosProdutosFornecedores;
+
+  ConsultaFornecedor := TfraConsultaCodigo.Create(self);
+  ConsultaFornecedor.Name := 'fraConsultaFornecedor';
+  ConsultaFornecedor.edfCodigo.MaxLength := 30;
+  ConsultaFornecedor.edfCodigo.DataSource := dtmCadastroProdutos.dsrProdutosFornecedoresUndades;
+  ConsultaFornecedor.edfCodigo.DataField := 'fornecedor';
+  ConsultaFornecedor.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaFornecedor.edfCodigo.LookupSource := ConsultaFornecedor.dsrProcuraCliente;
+  ConsultaFornecedor.edfCodigo.LookupQueryParameter := 'codigo';
+  ConsultaFornecedor.edfCodigo.LookupField := 'codigo';
+//  ConsultaProduto.edfCodigo.LocateParameters := 'produtovisual';
+  ConsultaFornecedor.AbrirTabelaProcura := false;
+
+  ConsultaFornecedor.TipoCliente := 'F';
+  ConsultaFornecedor.CondicoesdaConsulta := AtribuirParametrosConsultaFornecedor;
+
+//  ConsultaFornecedor.Tipovfornecedor := 'F';
+
+  ConsultaFornecedor.TipoPesquisa := pesCLIENTES;
+  ConsultaFornecedor.OnFound := AtribuirDadosFornecedor_ProdutosFornecedoresUnidades;
+
+  ConsultaUnidades := TfraConsultaCodigo.Create(self);
+  ConsultaUnidades.Name := 'fraConsultaUnidades';
+  ConsultaUnidades.edfCodigo.MaxLength := 30;
+  ConsultaUnidades.edfCodigo.DataSource := dtmCadastroProdutos.dsrProdutosFornecedoresUndades;
+  ConsultaUnidades.edfCodigo.DataField := 'unidade';
+  ConsultaUnidades.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaUnidades.edfCodigo.LookupSource := ConsultaUnidades.dsrProcuraUnidades;
+  ConsultaUnidades.edfCodigo.LookupQueryParameter := 'codigo';
+  ConsultaUnidades.edfCodigo.LookupField := 'codigo';
+//  ConsultaProduto.edfCodigo.LocateParameters := 'produtovisual';
+  ConsultaUnidades.AbrirTabelaProcura := false;
+  ConsultaUnidades.TipoPesquisa := pesUNIDADES;
+  ConsultaUnidades.OnFound := AtribuirDadosUnidades_ProdutosFornecedoresUnidades;
+
+  sbnCopiar.left := 75;
+
+  ConsultaServicos := TfraConsultaCodigo.Create(self);
+  ConsultaServicos.Name := 'fraConsultaServicos';
+  ConsultaServicos.edfCodigo.DataSource := dtmCadastroProdutos.dsrProdutos_Servicos;
+  ConsultaServicos.edfCodigo.DataField := 'servico';
+  ConsultaServicos.edfCodigo.LookupSource := ConsultaServicos.dsrProcuraServicos;
+  ConsultaServicos.edfCodigo.LookupField := 'codigo';
+  ConsultaServicos.edfCodigo.LookupQueryParameter := 'codigo';
+  ConsultaServicos.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaServicos.AbrirTabelaProcura := false;
+  ConsultaServicos.TipoPesquisa := pesSERVICOS;
+
+  ConsultaServicos.OnFound := AtribuirDadosServicos;
+
+  DBGridProdutos_Servicos.visible := ParSistema.ContratoComServico;
+
+  if not DBGridProdutos_Servicos.visible then
+    DBGridProdutosComponentes.Height := DBGridProdutosComponentes.Height + DBGridProdutos_Servicos.Height;
+
+  dbgAgendamentoProdutos.onDelete := dtmCadastroProdutos.ExcluirProdutosAgendamentos;  
+    
+end;
+
+
+destructor TfrmCadastroCaracteristicas.Destroy;
+begin
+//  dtmCadastroProdutos := nil;
+{  if assigned(Janelaproduto) then
+    freeandnil(JanelaProduto);
+
+
+  if assigned(fraConsultaModelo) then
+    freeandnil(fraConsultaModelo);
+}
+  inherited;
+
+//  frmCadastroCaracteristicas := nil;
+end;
+
+function TfrmCadastroCaracteristicas.AcionaCadastroSimilares(Editar: Boolean): Boolean;
+begin
+  frmCadastroSimilares := TfrmCadastroSimilares.Create(frmCadastroSimilares);
+  with frmCadastroSimilares do begin
+    {SetDataModulo(dtmCadastroProdutos);}
+    DataSet := dtmCadastroProdutos.TabelaSimilar;
+    Result:= dtmCadastroProdutos.IncluirSimilar(Editar);
+    ShowModal;
+    free;
+  end;
+end;
+
+function TfrmCadastroCaracteristicas.AcionaCadastroProdutos(Editar: Boolean):Boolean;
+begin
+  Result:= False;
+  if PermiteInclusaoProdutos then
+  begin
+    frmCadastroProdutos := TfrmCadastroProdutos.Create(frmCadastroProdutos);
+    with frmCadastroProdutos do
+    begin
+      {SetDataModulo(dtmCadastroProdutos);}
+      DataSet := dtmCadastroProdutos.TabelaProduto;
+      pnlGrade.Visible := dtmCadastroProdutos.UtilizandoGrade;
+      pnlLote.visible := dtmCadastroProdutos.qryCaracteristicasgerenciarloteevalidade.asboolean;
+      dbcElementoLinhaGrade.Visible := (flkLinhaGrade.Text<>'');
+      dbcElementoColunaGrade.Visible := (flkColunaGrade.Text<>'');
+      Result:= dtmCadastroProdutos.IncluirProduto(Editar);
+      dbcElementoLinhaGrade.ReadOnly := pnlGradeProduto.Visible;
+      dbcElementoColunaGrade.ReadOnly := pnlGradeProduto.Visible;
+
+      if not editar and pnlGradeProduto.Visible then
+        dtmCadastroProdutos.AtribuiLinhaColunanoProduto(trim(dbggrades.Columns[dbgGrades.SelectedIndex].Title.caption));
+
+      if Result then
+      begin
+        ShowModal;
+        free;
+        if pnlGradeProduto.Visible then
+         dbgGrades.SetFocus
+        else
+        dbgProdutos.SetFocus;
+      end
+      else
+       MensagemAviso(ctCOMBINACOESINEXISTENTES);
+    end;
+  end;
+end;
+
+function TfrmCadastroCaracteristicas.AcionaCadastroFornecedores(Editar: Boolean): Boolean;
+begin
+  frmCadastroFornecedoresProdutos := TfrmCadastroFornecedoresProdutos.Create(frmCadastroFornecedoresProdutos);
+  with frmCadastroFornecedoresProdutos do begin
+    {SetDataModulo(dtmCadastroProdutos);}
+    frmCadastroFornecedoresProdutos.DataSet := dtmCadastroProdutos.TabelaFornecedoresProduto;
+    Result:= dtmCadastroProdutos.IncluirFornecedoresProdutos(Editar);
+    ShowModal;
+    free;
+  end;
+end;
+
+function TfrmCadastroCaracteristicas.AcionaCadastroColunasPrecos(Editar: Boolean):Boolean;
+begin
+  Result := False;
+  if not dtmCadastroProdutos.Composto then
+  begin
+    if dtmCadastroProdutos.ProdutoTemPreco then begin
+      frmCadastroColunasPrecos := TfrmCadastroColunasPrecos.Create(frmCadastroColunasPrecos);
+      with frmCadastroColunasPrecos do begin
+        {SetDataModulo(dtmCadastroProdutos);}
+        DataSet := dtmCadastroProdutos.TabelaColunaPreco;
+        Result:= dtmCadastroProdutos.IncluirColunaPreco(Editar);
+        ShowModal;
+        free;
+      end;
+    end;
+  end
+  else
+    MensagemAviso(format(ctSEMPERMISSAOALTERAR,['no preço de PRODUTOS COMPOSTOS']));
+end;
+
+function TfrmCadastroCaracteristicas.AcionaCadastroPrecos(Editar: Boolean):Boolean;
+begin
+  frmCadastroPrecos := TfrmCadastroPrecos.Create(frmCadastroPrecos);
+  with frmCadastroPrecos do begin
+    {SetDataModulo(dtmCadastroProdutos);}
+    DataSet := dtmCadastroProdutos.TabelaPreco;
+    Result:= dtmCadastroProdutos.IncluirPreco(Editar);
+    ShowModal;
+    free;
+  end;
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnIncluirProdutoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  dbgProdutos.SetFocus;
+  AcionaCadastroProdutos(False);
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnIncluirPrecoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  dbgPrecos.SetFocus;
+  AcionaCadastroPrecos(False);
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnIncluirColunaPrecoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  dbgColunasPrecos.SetFocus;
+  AcionaCadastroColunasPrecos(False);
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnIncluirSimilarClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  dbgsimilares.SetFocus;
+  AcionaCadastroSimilares(False);
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnIncluirFornecedorClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  dbgFornecedor.SetFocus;
+  AcionaCadastroFornecedores(False);
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnExcluirFornecedorClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  dtmCadastroProdutos.ExcluirFornecedoresProduto;
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnExcluirProdutoClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  dtmCadastroProdutos.ExcluirProduto;
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnExcluirSimilarClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  dtmCadastroProdutos.ExcluirSimilar;
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnExcluirPrecoClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  dtmCadastroProdutos.ExcluirPreco;
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnExcluirColunaPrecoClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  dtmCadastroProdutos.ExcluirColunaPreco;
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnProcurarGruposClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  flkGrupo.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnClasseClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  flkClasse.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnProcurarUnidadesClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  flkUnidade.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnProcurarICMSClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  flkICMS.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnProcurarIPIClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  flkIPI.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnProcurarOrigemClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  flkOrigem.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnProcurarIncidenciaClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  flkIncidencia.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnProcurarObsLegaisClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  flkObsLegal.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnProcurarMarcasClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  flkMarca.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnFatorClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  flkFator.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmCadastroCaracteristicas.dbgSimilaresDblClick(Sender: TObject);
+begin
+  AcionaCadastroSimilares(True);
+end;
+
+procedure TfrmCadastroCaracteristicas.dbgPrecosDblClick(Sender: TObject);
+begin
+  AcionaCadastroPrecos(True);
+end;
+
+procedure TfrmCadastroCaracteristicas.dbgProdutosDblClick(Sender: TObject);
+begin
+  AcionaCadastroProdutos(True);
+end;
+
+procedure TfrmCadastroCaracteristicas.dbgColunasPrecosDblClick(Sender: TObject);
+begin
+  AcionaCadastroColunasPrecos(True);
+end;
+
+procedure TfrmCadastroCaracteristicas.dbgFornecedorDblClick(Sender: TObject);
+begin
+  AcionaCadastroFornecedores(True)
+end;
+
+procedure TfrmCadastroCaracteristicas.dbgProdutosKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Shift = [ssCtrl] then
+    case Key of
+      TeclaEditarRegistro : AcionaCadastroProdutos(dbgProdutos.DataSource.DataSet.RecNo > 0);
+      TeclaInserirRegistro: AcionaCadastroProdutos(False);
+    end;
+end;
+
+procedure TfrmCadastroCaracteristicas.dbgFornecedorKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then begin
+    case Key of
+      TeclaEditarRegistro : AcionaCadastroFornecedores(dbgFornecedor.DataSource.DataSet.RecNo > 0);
+      TeclaInserirRegistro: AcionaCadastroFornecedores(False);
+    end;
+  end;
+end;
+
+procedure TfrmCadastroCaracteristicas.dbgSimilaresKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Shift = [ssCtrl] then
+    case Key of
+      TeclaEditarRegistro : AcionaCadastroSimilares(dbgSimilares.DataSource.DataSet.RecNo > 0);
+      TeclaInserirRegistro: AcionaCadastroSimilares(False);
+    end;
+end;
+
+procedure TfrmCadastroCaracteristicas.dbgPrecosKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+    case Key of
+      TeclaEditarRegistro : AcionaCadastroPrecos(True);
+      TeclaInserirRegistro: AcionaCadastroPrecos(False);
+    end;
+end;
+
+procedure TfrmCadastroCaracteristicas.dbgColunasPrecosKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+    case Key of
+      TeclaEditarRegistro : AcionaCadastroColunasPrecos(dbgColunasPrecos.DataSource.DataSet.RecNo > 0);
+      TeclaInserirRegistro: AcionaCadastroColunasPrecos(False);
+    end;
+end;
+
+procedure TfrmCadastroCaracteristicas.dbgProdutosCodigoBarrasKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+    case Key of
+      TeclaEditarRegistro : AcionaCadastroCodigoBarras(dbgProdutosCodigoBarras.DataSource.DataSet.RecNo > 0);
+      TeclaInserirRegistro: AcionaCadastroCodigoBarras(False);
+    end;
+end;
+
+procedure TfrmCadastroCaracteristicas.dbgProdutosCodigoBarrasDblClick(Sender: TObject);
+begin
+  inherited;
+  AcionaCadastroCodigoBarras(True);
+end;
+
+function TfrmCadastroCaracteristicas.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmCadastroProdutos do
+    case TipoProcura of
+           tpGRUPOS : Result := ExisteGrupo(NomeCampo, Value);
+           tpCLASSE : Result := ExisteClasse(NomeCampo, Value);
+        tpOBSLEGAIS : Result := ExisteObsLegal(NomeCampo, Value);
+         tpUNIDADES : Result := ExisteUnidade(NomeCampo, Value);
+              tpIPI : Result := ExisteIPI(NomeCampo, Value);
+             tpICMS : Result := ExisteICMS(NomeCampo, Value);
+    tpdescricaonanf : Result := ExisteDescricaonaNF(NomeCampo, Value);
+           tpMARCAS : Result := ExisteMarca(NomeCampo, Value);
+  tpCARACTERISTICAS : Result := ExisteCaracteristica(NomeCampo, Value);
+          tpORIGENS : Result := ExisteOrigem(NomeCampo, Value);
+      tpINCIDENCIAS : Result := ExisteIncidencia(NomeCampo, Value);
+          tpFATORES : Result := ExisteFatoresPreco(NomeCampo, Value);
+      tpLINHAGRADE,
+      tpCOLUNAGRADE : Result := ExisteGrade(NomeCampo, Value);
+    tpDebitarVendaaVista,
+    tpCreditarVendaaVista,
+    tpDebitarVendaaPrazo,
+    tpCreditarVendaaPrazo,
+    tpDebitarAbatimentos,
+    tpCreditarAbatimentos,
+    tpDebitarDevolucoes,
+    tpCreditarDevolucoes : Result:= ExisteContaContabil(NomeCampo, Value);
+    tpHistoricoVendaaVista,
+    tpHistoricoVendaaPrazo,
+    tpHistoricoAbatimentos,
+    tpHistoricoDevolucoes : Result := ExisteHistorico(NomeCampo, Value)
+      else
+        Result := False;
+    end;
+end;
+
+function TfrmCadastroCaracteristicas.InternoExcluir: Boolean;
+begin
+  Result := True;
+  if not CtrlOn then
+  begin
+    Result := dtmCadastroProdutos.ExcluirCaracteristica;
+    if Result then
+    begin
+      edfCodigo.Enabled:= True;
+      if edfCodigo.CanFocus then
+        edfCodigo.SetFocus;
+    end;
+  end;
+end;
+
+function TfrmCadastroCaracteristicas.InternoGravar: Boolean;
+begin
+//  pgcCaracteristicas.ActivePage := tstparametros;
+  Result := false;
+  if dtmCadastroProdutos.ICMSObrigatorio and (dtmCadastroProdutos.ICMS = 0) then
+  begin
+    MensagemAviso('O campo ICMS é obrigatório e não está preenchido com uma informação válida.');
+    pgcCaracteristicas.ActivePage := tstInformacoesFiscais;
+{   pgcInformacoesFiscais.ActivePage := tstICMS;}
+    flkICMS.SetFocus;
+  end
+  else
+  begin
+    Result := inherited InternoGravar;
+    if Result then  begin
+      if not ParSistema.GerarCodigoProdutoAutomatico then
+       if (edfCodigo.Text = '') then begin
+         MensagemAviso(ctCODIGONECESSARIO +#13#10+ 'O Campo Código não está preenchido com uma informação válida.');
+         Result:= False;
+       end;
+
+       if Result then
+         result := VerificarElementosdaGrade;
+
+       if result then
+         FProdutoJaGravado:= dtmCadastroProdutos.GravarCaracteristica;
+
+       if FProdutoJaGravado then
+       begin
+         if (dbgColunasPrecos.DataSource.DataSet.RecordCount = 0) and
+            not ParSistema.UsarGradesProdutos and
+            not (dtmCadastroProdutos.NumeroItens>0) and
+            AcionaCadastroColunasPrecosAutomatico(False)
+             then
+           result := dtmCadastroProdutos.CadastroItemAutomatico;
+         if edfCodigo.Enabled then
+           edfCodigo.SetFocus
+         else edtDescricao.SetFocus;
+       end;
+    end;
+  end;
+end;
+
+function TfrmCadastroCaracteristicas.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then
+  begin
+    if not CtrlOn then begin
+      FProdutoJaGravado:= False;
+      Result := dtmCadastroProdutos.IncluirCaracteristica;
+        
+      pgcCaracteristicas.ActivePage := tstParametros;
+
+      if ParSistema.GerarCodigoProdutoAutomatico then
+        fraConsultaTipoProduto.edfcodigo.setfocus
+      else edfCodigo.SetFocus;
+      
+    end
+  end;
+end;
+
+function TfrmCadastroCaracteristicas.InternoPesquisar(Titulo:String): Integer;
+var
+  vCodigoaux : String;
+begin
+  Result := mrNone;
+  if PermitirProcura then
+  begin
+    dtmCadastroProdutos.AbreTabelasConsulta(TipoProcura);
+    Result := inherited InternoPesquisar(GetTitulo);
+    if Result = mrOK then
+    begin
+     if TipoProcura = tpCaracteristicas then
+     begin
+      {Atenção: o componente cpdbfindcontrols não esta alterando a propriedade modified quando por esta selecção e assim não refazendo a pesquisa qryprocuraorigens
+       que permite zero, solução: atribuir modified = true quando a seleção for pela pesquisa isto se o codigo for diferente}
+      vCodigoAux := edfcodigo.text;
+      dtmCadastroProdutos.SelecionarCaracteristica;
+      edfcodigo.modified := (vCodigoAux <> dtmCadastroProdutos.qryCaracteristicasCodigo.AsString);
+     end
+     else
+      dtmCadastroProdutos.Selecionar(TipoProcura);
+    end
+    else
+     if ReabrirFormulario then
+       InternoPesquisar('');
+    dtmCadastroProdutos.FechaTabelasConsulta(TipoProcura);
+  end;
+  tstComposicao.TabVisible := (dtmCadastroProdutos.qryCaracteristicascomposto.AsBoolean or
+                               dtmCadastroProdutos.qryCaracteristicascomposto2.AsBoolean);
+
+  tstFios.TabVisible := (dtmCadastroProdutos.qryCaracteristicascomposto.AsBoolean or
+                         dtmCadastroProdutos.qryCaracteristicascomposto2.AsBoolean) and ParSistema.ControlesVoltadosparaIndustria;
+
+  tstFitas.TabVisible := (dtmCadastroProdutos.qryCaracteristicascomposto.AsBoolean or
+                          dtmCadastroProdutos.qryCaracteristicascomposto2.AsBoolean) and ParSistema.ControlesVoltadosparaIndustria;
+
+end;
+
+function TfrmCadastroCaracteristicas.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  if TipoProcura = tpCARACTERISTICAS then
+  begin
+    if not assigned(JanelaProduto) then
+    begin
+      JanelaProduto := TfrmConsultaPorCampo.Create(nil);
+
+
+      JanelaProduto.ConsultaInterativa := False;
+      JanelaProduto.UsarParametrosDaTabela:= false;
+      JanelaProduto.ExibirUltimoParametro:= true;
+
+      JanelaProduto.ckbOpcional1.Caption := ctITEMPRODUTO;
+      JanelaProduto.ckbOpcional1.Visible := true;
+      JanelaProduto.ckbOpcional1.OnClick := nil;
+      JanelaProduto.ckbOpcional1.OnClick := JanelaProduto.ckbOpcional1Click;
+
+
+      JanelaProduto.ckbOpcional2.Caption := 'Cliente/PN';
+      JanelaProduto.ckbOpcional2.Visible := true;
+      JanelaProduto.ckbOpcional2.OnClick := nil;
+      JanelaProduto.ckbOpcional2.OnClick := JanelaProduto.ckbOpcional2Click;
+
+      JanelaProduto.gbxSelecionar.visible := true;
+      JanelaProduto.cbbOpcao.visible := true;
+
+      JanelaProduto.cbbOpcao.items.clear;
+      JanelaProduto.cbbOpcao.items.Add('ATIVOS');
+      JanelaProduto.cbbOpcao.items.Add('INATIVOS');
+      JanelaProduto.cbbOpcao.items.Add('AMBOS');
+      JanelaProduto.cbbOpcao.text := 'ATIVOS';
+      JanelaProduto.cbbOpcao.OnSelect := FiltrarDados;
+
+      JanelaProduto.ManterParametros := true;
+    end;
+
+    JanelaProduto.ckbOpcional1.Checked := fFormaPesquisaProduto = fpItemProdutos;
+    JanelaProduto.ckbOpcional2.Checked := fFormaPesquisaProduto = fpItemProdutosCliente;
+
+    JanelaProduto.OntecClose := ConfiguracaoJanela;
+    result := Janelaproduto;
+  end
+  else
+  begin
+    Result := TfrmConsultaPorCampo.Create(nil);
+    TfrmConsultaPorCampo(Result).ConsultaInterativa := True;
+    TfrmConsultaPorCampo(Result).ckbOpcional1.Visible := false;
+    TfrmConsultaPorCampo(Result).ckbOpcional2.Visible := false;
+    TfrmConsultaPorCampo(Result).UsarParametrosDaTabela:= False;
+  end;
+end;
+
+procedure TfrmCadastroCaracteristicas.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  case Key of
+     VK_F4 : if sbnCopiar.enabled then sbnCopiarClick(nil);
+     VK_Right: if (Shift = [ssCtrl]) then
+                  if dbgProdutos.Focused then
+                    AlternarColunaProduto(dbgProdutos.ColumnByName('codigorecolha'), True);
+
+      VK_Left: if (Shift = [ssCtrl]) then
+                  if dbgProdutos.Focused then
+                    AlternarColunaProduto(dbgProdutos.ColumnByName('codigorecolha'), False);
+
+      VK_Escape :  if pnlGradeProduto.Visible then
+                      VisualizarItensProdutos;
+                      
+   VK_Return : if Shift = [] then begin
+                  if ActiveControl = flkFator then begin
+                    pgcCaracteristicas.ActivePage:= tstInformacoesFiscais;
+                    //flkOrigem.SetFocus;
+                    Key:= 0;
+                  end
+                  else if ActiveControl = edtAliquotaPis then begin
+                    pgcCaracteristicas.ActivePage:= tstObservacoes;
+                    mmoObservacaoProdutosGerais.SetFocus;
+                    Key:= 0;
+                  end
+                  else if ActiveControl = mmoObservacaoProdutosVendas then begin
+                    pgcCaracteristicas.ActivePage:= tstFornecedores;
+                    dbgFornecedor.SetFocus;
+                    Key:= 0;
+                  end
+                  else if ActiveControl = dbgFornecedor then begin
+                    pgcCaracteristicas.ActivePage := tstSimilares;
+                    dbgSimilares.SetFocus;
+                    Key:= 0;
+                  end
+                  else if ActiveControl = dbgSimilares then begin
+                    pgcCaracteristicas.ActivePage := tstPrecos;
+                    dbgPrecos.SetFocus;
+                    Key:= 0;
+                  end
+                  else if ActiveControl = dbgPrecos then begin
+                    dbgColunasPrecos.SetFocus;
+                    Key:= 0;
+                  end
+                  else if ActiveControl = dbgColunasPrecos then begin
+                    pgcCaracteristicas.ActivePage := tstParametros;
+                    ckbMontagem.SetFocus;
+                    Key:= 0;
+                  end;
+                end
+                else if Shift = [ssShift] then begin
+                  if ActiveControl = dbgColunasPrecos then begin
+                    dbgPrecos.SetFocus;
+                    Key:= 0;
+                  end
+                  else if ActiveControl = dbgPrecos then begin
+                    pgcCaracteristicas.ActivePage := tstSimilares;
+                    dbgSimilares.SetFocus;
+                    Key:= 0;
+                  end
+                  else if ActiveControl = dbgSimilares then begin
+                    pgcCaracteristicas.ActivePage := tstFornecedores;
+                    dbgFornecedor.SetFocus;
+                    Key:= 0;
+                  end
+                  else if ActiveControl = dbgFornecedor then begin
+                    pgcCaracteristicas.ActivePage := tstObservacoes;
+                    mmoObservacaoProdutosGerais.SetFocus;
+                    Key:= 0;
+                  end
+                  else if ActiveControl = mmoObservacaoProdutosVendas then begin
+                    pgcCaracteristicas.ActivePage:= tstInformacoesFiscais;
+                    flkOrigem.SetFocus;
+                    Key:= 0;
+                  end
+                  else if ActiveControl = flkOrigem then begin
+                    pgcCaracteristicas.ActivePage:= tstParametros;
+                    ckbMontagem.SetFocus;
+                    Key:= 0;
+                  end;
+                end;
+  else
+    if alton or (Shift = [ssAlt]) then
+      begin
+       case key of
+       vk_1 : begin
+               if tstParametros.TabVisible then
+                 pgcCaracteristicas.ActivePage := tstParametros;
+              end;
+       vk_2 : begin
+               if tstInformacoesFiscais.TabVisible then
+                 pgcCaracteristicas.ActivePage := tstInformacoesFiscais;
+              end;
+       vk_3 : begin
+               if tstGrades.TabVisible then
+                 pgcCaracteristicas.ActivePage := tstGrades;
+              end;
+       vk_4 : begin
+               if tstObservacoes.TabVisible then
+                 pgcCaracteristicas.ActivePage := tstObservacoes;
+              end;
+       vk_5 : begin
+               if tstFornecedores.TabVisible then
+                pgcCaracteristicas.ActivePage := tstFornecedores;
+              end;
+       vk_6 : begin
+               if tstSimilares.TabVisible then
+                 pgcCaracteristicas.ActivePage := tstSimilares;
+              end;
+       vk_7 : begin
+               if tstPrecos.TabVisible then
+                 pgcCaracteristicas.ActivePage := tstPrecos;
+              end;
+       vk_8 : begin
+               if tstContabil.TabVisible then
+                 pgcCaracteristicas.ActivePage := tstContabil;
+              end;
+       vk_9 : begin
+               if tstItensProdutos.TabVisible then
+                 pgcCaracteristicas.ActivePage := tstItensProdutos;
+              end;   
+      end;
+    end;
+  end;
+  inherited;
+end;
+
+procedure TfrmCadastroCaracteristicas.PosicionarTabelaNoParametro(Ind: Integer; var Continuar: Boolean);
+begin
+  inherited;
+  Continuar := dtmCadastroProdutos.PosicionarRegistro(TipoProcura, Ind);
+end;
+
+function TfrmCadastroCaracteristicas.TabelaDePesquisa: TZDataSet;
+begin
+  with dtmCadastroProdutos do
+    case TipoProcura of
+              tpGRUPOS : Result := ConsultarGrupo;
+              tpCLASSE : Result := ConsultarClasse;
+           tpOBSLEGAIS : Result := ConsultarObsLegal;
+            tpUNIDADES : Result := ConsultarUnidade;
+                 tpIPI : Result := ConsultarIPI;
+                tpICMS : Result := ConsultarICMS;
+       tpDescricaonaNF : result := dtmCadastroProdutos.qryDescricaoProdutoNF;
+              tpMARCAS : Result := ConsultarMarca;
+
+     tpCARACTERISTICAS : case fFormaPesquisaProduto of
+                           fpCaracteristicas : Result := ConsultarCaracteristica;
+                           fpItemProdutos    : Result := ConsultarCaracteristicaProduto;
+                           fpItemProdutosCliente : Result := qryConsultaCaracteristicasProdutosClientes;
+                         end;
+
+             tpORIGENS : Result := ConsultarOrigem;
+         tpINCIDENCIAS : Result := ConsultarIncidencia;
+             tpFATORES : Result := ConsultarFatoresPreco;
+         tpLINHAGRADE,
+        tpCOLUNAGRADE  : Result := ConsultarGrades;
+  tpDebitarVendaaVista,
+  tpCreditarVendaaVista,
+  tpDebitarVendaaPrazo,
+  tpCreditarVendaaPrazo,
+  tpDebitarAbatimentos,
+  tpCreditarAbatimentos,
+  tpDebitarDevolucoes,
+  tpCreditarDevolucoes : result:= qryconsultacontacontabil;
+  tpHistoricoVendaaVista,
+  tpHistoricoVendaaPrazo,
+  tpHistoricoAbatimentos,
+  tpHistoricoDevolucoes  : result := qryconsultahistorico;
+      else
+        Result := nil;
+    end;
+end;
+
+function TfrmCadastroCaracteristicas.TabelaDoParametro(Parametro: Integer): TZDataSet;
+begin
+  Result := dtmCadastroProdutos.TabelaCaracteristica;
+end;
+
+function TfrmCadastroCaracteristicas.GetTitulo: String;
+begin
+  case TipoProcura of
+           tpGRUPOS : Result := 'Grupos';
+           tpCLASSE : Result := 'Classes';
+        tpOBSLEGAIS : Result := 'Observações Legais';
+         tpUNIDADES : Result := 'Unidades';
+              tpIPI : Result := 'IPI';
+             tpICMS : Result := 'ICMS';
+    tpDescricaonaNF : Result := 'Descrição na NF';             
+           tpMARCAS : Result := 'Marcas';
+  tpCARACTERISTICAS : Result := 'Produtos';
+          tpORIGENS : Result := 'Origens';
+      tpINCIDENCIAS : Result := 'Incidências';
+          tpFATORES : Result := 'Fatores Preço';
+       tpLINHAGRADE : Result := 'Linha da Grade';
+      tpCOLUNAGRADE : Result := 'Coluna da Grade';
+       else           Result := '';
+  end;
+end;
+
+function TfrmCadastroCaracteristicas.PermitirProcura: Boolean;
+begin
+  Result := False;
+  if CtrlOn then
+  begin
+    if (Assigned(ActiveControl) and (ActiveControl.ClassType = TtecDBFindLookup))  then
+    begin
+      if flkMarca.Focused then
+      begin
+        TipoProcura := tpMARCAS;
+        result := True;
+      end
+      else
+      if flkGrupo.Focused then
+      begin
+        TipoProcura := tpGRUPOS;
+        result := True;
+      end
+      else
+      if flkClasse.Focused then
+      begin
+        TipoProcura := tpCLASSE;
+        result := True;
+      end
+      else
+      if flkUnidade.Focused then
+      begin
+        TipoProcura := tpUNIDADES;
+        result := True;
+      end
+      else
+      if flkIPI.Focused then
+      begin
+        TipoProcura := tpIPI;
+        result := True;
+      end
+      else
+      if flkObsLegal.Focused then
+      begin
+        TipoProcura := tpOBSLEGAIS;
+        result := True;
+      end
+      else
+      if flkFator.Focused then
+      begin
+        TipoProcura:= tpFATORES;
+        result := True;
+      end
+      else
+      if flkLinhaGrade.Focused then
+      begin
+        TipoProcura := tpLINHAGRADE;
+        result := True;
+      end
+      else
+      if flkColunaGrade.Focused then
+      begin
+        TipoProcura := tpCOLUNAGRADE;
+        result := True;
+      end
+      else
+      if flkOrigem.Focused then
+      begin
+        TipoProcura := tpORIGENS;
+        result := True;
+      end
+      else
+      if flkIncidencia.Focused then
+      begin
+        TipoProcura := tpINCIDENCIAS;
+        result := True;
+      end
+      else
+      if flkDebitarVendaaVista.Focused then
+      begin
+        TipoProcura := tpDebitarVendaaVista;
+        result := True;
+      end
+      else
+      if flkCreditarVendaVista.Focused then
+      begin
+        TipoProcura := tpCreditarVendaaVista;
+        result := True;
+      end
+      else
+      if flkHistoricoVendaaVista.Focused then
+      begin
+        TipoProcura := tpHistoricoVendaaVista;
+        result := True;
+      end
+      else
+      if flkDebitarVendaaPrazo.Focused then
+      begin
+        TipoProcura := tpDebitarVendaaPrazo;
+        result := True;
+      end
+      else
+      if flkCreditarVendaPrazo.Focused then
+      begin
+        TipoProcura := tpCreditarVendaaPrazo;
+        result := True;
+      end
+      else
+      if flkHistoricoVendaaPrazo.Focused then
+      begin
+        TipoProcura := tpHistoricoVendaaPrazo;
+        result := True;
+      end
+      else
+      if flkDebitarAbatimentos.Focused then
+      begin
+        TipoProcura := tpDebitarAbatimentos;
+        result := True;
+      end
+      else
+      if flkCreditarAbatimentos.Focused then
+      begin
+        TipoProcura := tpCreditarAbatimentos;
+        result := True;
+      end
+      else
+      if flkHistoricoAbatimentos.Focused then
+      begin
+        TipoProcura := tpHistoricoAbatimentos;
+        result := True;
+      end
+      else
+      if flkDebitarDevolucoes.Focused then
+      begin
+        TipoProcura := tpDebitarDevolucoes;
+        result := True;
+      end
+      else
+      if flkCreditarDevolucoes.Focused then
+      begin
+        TipoProcura := tpCreditarDevolucoes;
+        result := True;
+      end
+      else
+      if flkHistoricoDevolucoes.Focused then
+      begin
+        TipoProcura := tpHistoricoDevolucoes;
+        result := True;
+      end
+      else
+      if flkICMS.Focused then
+      begin
+        TipoProcura := tpICMS;
+        Result := True;
+      end;
+    end
+    else
+    if edtDescricaonanf.focused then
+    begin
+      TipoProcura := tpDescricaonaNF;
+      Result := True;
+    end;
+  end
+  else
+  begin
+    TipoProcura := tpCaracteristicas;
+    Result := True;
+  end;
+end;
+
+procedure TfrmCadastroCaracteristicas.flkIncidenciaEnter(Sender: TObject);
+begin
+{
+  if Trim(flkIncidencia.Text) <> '' then
+    if StrToInt(flkIncidencia.Text) = 0 then
+      flkIncidencia.Clear;
+      }
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnIncluirEstoqueClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  dbgEstoque.SetFocus;
+  AcionaCadastroEstoque(False);
+end;
+
+function TfrmCadastroCaracteristicas.AcionaCadastroEstoque(Editar: Boolean): Boolean;
+begin
+  Result := false;
+  if not dtmCadastroProdutos.TabelaProduto.IsEmpty then begin
+    frmCadastroestoque := TfrmCadastroestoque.Create(frmCadastroestoque);
+    with frmCadastroestoque do begin
+      {SetDataModulo(dtmCadastroProdutos);}
+      DataSet := dtmCadastroProdutos.TabelaEstoque;
+      Result:= dtmCadastroProdutos.IncluirEstoque(Editar);
+      ShowModal;
+      free;
+    end;
+  end
+  else begin
+    MensagemAviso(ctCARACTERISTICASEMPRODUTO);
+    dbgEstoque.SetFocus;
+  end;
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnExcluirEstoqueClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  dtmCadastroProdutos.ExcluirEstoque;
+end;
+
+procedure TfrmCadastroCaracteristicas.dbgEstoqueKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Shift = [ssCtrl] then
+    case Key of
+      TeclaEditarRegistro : AcionaCadastroEstoque(dbgEstoque.DataSource.DataSet.RecNo > 0);
+      TeclaInserirRegistro: AcionaCadastroEstoque(False);
+    end;
+end;
+
+procedure TfrmCadastroCaracteristicas.dbgEstoqueDblClick(Sender: TObject);
+begin
+  inherited;
+  AcionaCadastroEstoque(True);
+end;
+
+procedure TfrmCadastroCaracteristicas.dbgProdutosTitleClick(Column: TColumn);
+begin
+  inherited;
+  
+  if AltOn then
+    if (Column.fieldname = 'codigorecolha') or
+       (Column.fieldname = 'foralinha') or
+       (Column.fieldname = 'inativo') then
+//      AlternarColunaProduto(dbgProdutos.Columns.Items[06], True);
+       AlternarColunaProduto(Column, True);
+end;
+
+procedure TfrmCadastroCaracteristicas.dbgProdutosDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  With dtmCadastroProdutos do begin
+    if (ProdutoForaLinha or ProdutoInativo) then begin
+      TDBGrid(Sender).Canvas.Brush.Color := $7DBEFF;
+      TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+    end;
+    if ProdutoRecolhido then begin
+      TDBGrid(Sender).Canvas.Brush.Color := $00FFD9A4;
+      TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+    end;
+    TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end;
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnIncluirCodigoBarrasClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  dbgProdutosCodigoBarras.SetFocus;
+  AcionaCadastroCodigoBarras(False);
+end;
+
+function TfrmCadastroCaracteristicas.AcionaCadastroCodigoBarras(Editar: Boolean): Boolean;
+begin
+  Result:= False;
+  if not dtmCadastroProdutos.TabelaProduto.IsEmpty then begin
+    frmCadastroCodigoBarras := TfrmCadastroCodigoBarras.Create(frmCadastroCodigoBarras);
+    with frmCadastroCodigoBarras do begin
+      {SetDataModulo(dtmCadastroProdutos);}
+      DataSet := dtmCadastroProdutos.TabelaCodigoBarras;
+      Result:= dtmCadastroProdutos.IncluirCodigoBarras(Editar);
+      ShowModal;
+      free;
+    end;
+  end
+  else begin
+    MensagemAviso(ctCARACTERISTICASEMPRODUTO);
+    dbgProdutosCodigoBarras.SetFocus;
+  end;
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnExcluirCodigoBarrasClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  dtmCadastroProdutos.ExcluirCodigoBarras;
+end;
+
+procedure TfrmCadastroCaracteristicas.edtInativoExit(Sender: TObject);
+begin
+  inherited;
+  CriticarDataInativa(edtInativo);
+end;
+
+procedure TfrmCadastroCaracteristicas.CriticarDataInativa(DataInativa: TDBEditData);
+begin
+  if not DataEmBranco(DataInativa.Text) and DataInativa.Criticar(false) then
+    if StrToDate(DataInativa.Text) > dtmCadastroProdutos.DataServidor then
+      if MensagemConfirmacao(ctDATASUPERIORAATUAL) = smbCancel then
+        DataInativa.SetFocus;
+end;
+
+procedure TfrmCadastroCaracteristicas.edfCodigoFound(Found: Boolean);
+begin
+  inherited;
+  if Found then
+  begin
+    if dtmCadastroProdutos.qryCaracteristicas.RecordCount > 1 then
+    begin
+      CtrlOn := false;
+      dtmCadastroProdutos.vCondicaoDiversasChavesEncontradas := true;
+      edfCodigo.setfocus;
+      InternoPesquisar('Produto');
+      dtmCadastroProdutos.vCondicaoDiversasChavesEncontradas := false;
+    end
+    else
+    begin
+      if ParSistema.GerarCodigoProdutoAutomatico or not dtmCadastroProdutos.Inserindo then
+        FProdutoJaGravado := True;
+//      if dtmCadastroProdutos.Composto then
+//        lblTotalComponentesValor.Caption := FormatarValor(dtmCadastroProdutos.TotalComponentes,2);
+    end;
+  end
+  else
+    FProdutoJaGravado := False;
+
+  ckbProdutoCompostoClick(nil);
+end;
+
+procedure TfrmCadastroCaracteristicas.pgcCaracteristicasChange(Sender: TObject);
+begin
+  inherited;
+  with dtmCadastroProdutos do begin
+    if (pgcCaracteristicas.ActivePage = tstParametros) or
+       (pgcCaracteristicas.ActivePage = tstInformacoesFiscais) or
+       (pgcCaracteristicas.ActivePage = tstObservacoes) then
+      ExibirCaracteristicas := mcaCARACTERISTICAS
+    else if pgcCaracteristicas.ActivePage = tstFornecedores then
+    begin
+      ExibirCaracteristicas := mcaFORNECEDORES;
+      ReFazConsultaFornecedoresProdutos;
+    end
+    else if pgcCaracteristicas.ActivePage = tstSimilares then
+    begin
+      ExibirCaracteristicas := mcaSIMILARES;
+      ReFazConsultaSimilares;
+    end
+    else if pgcCaracteristicas.ActivePage = tstPrecos then
+    begin
+      ExibirCaracteristicas := mcaPRECOS;
+      ReFazConsultaPrecos;
+    end
+    else if pgcCaracteristicas.ActivePage = tstProdutosCargos then
+    begin
+      SetExibirProduto(mcaPRODUTOSCARGOS);
+      RefazConsultaProdutosCargos;
+    end;
+  end;
+end;
+
+procedure TfrmCadastroCaracteristicas.pgcItensProdutoEstoqueChange(Sender: TObject);
+begin
+  inherited;
+  with dtmCadastroProdutos do
+  begin
+    if pgcItensProdutoEstoque.ActivePage = tstItensProdutos then
+    begin
+      SetExibirProduto(mcaPRODUTOS);
+      ReFazConsultaProdutos;
+    end
+    else
+    if pgcItensProdutoEstoque.ActivePage = tstEstoque then
+    begin
+      SetExibirProduto(mcaESTOQUES);
+      ReFazConsultaEstoques;
+    end
+    else
+    if pgcItensProdutoEstoque.ActivePage = tstProdutosCodigoBarras then
+    begin
+      SetExibirProduto(mcaCODIGOSBARRAS);
+      ReFazConsultaCodigoBarras
+    end
+    else
+    if pgcItensProdutoEstoque.ActivePage = tstComposicao then
+    begin
+        ExibirProdutoComposto := True;
+        ReFazConsultaProdutoComposto;
+        ReFazConsultaProduto_Servicos;
+{        if (lblTotalComponentesValor.Caption = '') or
+           (lblTotalComponentesValor.Caption = '0,00') then
+          lblTotalComponentesValor.Caption := FormatarValor(TotalComponentes,2);   }
+    end
+    else
+    if pgcItensProdutoEstoque.ActivePage = tstFios then
+    begin
+       dtmCadastroProdutos.qryProdutoCompostoFios.After_Open := DBGridProdutosFios.RefazerOrdenacaoSequencial;
+       ExibirProdutoComposto := True;
+       ReFazConsultaProdutoCompostoFios;
+    end
+    else
+    if pgcItensProdutoEstoque.ActivePage = tstFitas then
+    begin
+       dtmCadastroProdutos.qryProdutoCompostoFitas.After_Open := DBGridProdutosFitas.RefazerOrdenacaoSequencial;
+       ExibirProdutoComposto := True;
+       ReFazConsultaProdutoCompostoFitas;
+    end
+    else
+    if pgcItensProdutoEstoque.ActivePage = tstClientes then
+    begin
+      SetExibirProduto(mcaCLIENTEs);
+      ReFazConsultaClientesProdutos;
+    end
+    else
+    if pgcItensProdutoEstoque.ActivePage = tstProdutosFornecedores then
+      pgcProdutos_Unidades_FornecedoresChange(pgcItensProdutoEstoque)
+  end;
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnProcuraLinhaGradeClick(
+  Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  flkLinhaGrade.SetFocus;
+  InternoPesquisar('');
+  if flklinhaGrade.Text<>'' then
+    flkLinhaGradeFound(True);
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnProcuraColunaGradeClick(
+  Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  flkColunaGrade.SetFocus;
+  InternoPesquisar('');
+  if flkColunaGrade.Text<>'' then
+    flkColunaGradeFound(True);
+end;
+
+procedure TfrmCadastroCaracteristicas.flkColunaGradeMessage(
+  var Msg: String);
+begin
+  inherited;
+  msg := format(ctREGISTROINCLUIDO, [flkColunaGrade.text, 'na linha da grade']);
+end;
+
+procedure TfrmCadastroCaracteristicas.flkLinhaGradeMessage(
+  var Msg: String);
+begin
+  inherited;
+  msg := format(ctREGISTROINCLUIDO, [flkLinhaGrade.text, 'na coluna da grade']);
+end;
+
+procedure TfrmCadastroCaracteristicas.AfterScrollLinhaGrade(
+  Sender: TObject);
+begin
+ dbgProdutos.Columnbyname('valorgrade1').Title.Caption := dtmCadastroProdutos.LinhadaGrade;
+ dbgProdutos2.Columnbyname('valorgrade1').Title.Caption := dtmCadastroProdutos.LinhadaGrade;
+ dbgProdutos3.Columnbyname('valorgrade1').Title.Caption := dtmCadastroProdutos.LinhadaGrade;
+
+ dbgProdutos.Columnbyname('valorgrade1').visible := (dtmCadastroProdutos.LinhadaGrade<>'');
+ dbgProdutos2.Columnbyname('valorgrade1').visible := (dtmCadastroProdutos.LinhadaGrade<>'');
+ dbgProdutos3.Columnbyname('valorgrade1').visible := (dtmCadastroProdutos.LinhadaGrade<>'');
+
+ if (dtmCadastroProdutos.LinhadaGrade<>'') then
+   if pnlGradeProduto.Visible then
+     VisualizarItensProdutos;
+
+end;
+
+
+function TfrmCadastroCaracteristicas.PermiteInclusaoProdutos: boolean;
+begin
+  Result:= True;
+  if Result then
+  begin
+    Result := not dtmCadastroProdutos.TabelaPreco.IsEmpty;
+    if not result then
+    begin
+      MensagemAviso(ctCARACTERISTICASEMPRECO);
+      if dbgProdutos.CanFocus then
+        dbgProdutos.SetFocus;
+    end;
+
+    if result then
+      result := VerificarElementosdaGrade;
+  end;
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnGerarLinhasColunasClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroProdutos.AtualizandoItens := true;
+  if dtmCadastroProdutos.AbreTabelaElementos then
+  begin
+    frmCadastroGerarProdutos := TfrmCadastroGerarProdutos.Create(frmCadastroGerarProdutos);
+    dtmCadastroProdutos.atribuirparametrosprecos;
+    frmCadastroGerarProdutos.edtDescricao.Text := dtmCadastroProdutos.DescricaoCaracteristica;
+{    frmCadastroGerarProdutos.SetDataModulo(dtmCadastroProdutos);}
+    if frmCadastroGerarProdutos.ShowModal = mrok then
+      dtmCadastroProdutos.GerarLinhasColunas;
+    frmCadastroGerarProdutos.free;  
+  end
+  else
+   MensagemAviso(ctCOMBINACOESINEXISTENTES);
+  dtmCadastroProdutos.AtualizandoItens := False;
+
+end;
+
+procedure TfrmCadastroCaracteristicas.AfterScrollColunaGrade(
+  Sender: TObject);
+begin
+ dbgProdutos.Columnbyname('valorgrade2').Title.Caption := dtmCadastroProdutos.ColunadaGrade;
+ dbgProdutos2.Columnbyname('valorgrade2').Title.Caption := dtmCadastroProdutos.ColunadaGrade;
+ dbgProdutos3.Columnbyname('valorgrade2').Title.Caption := dtmCadastroProdutos.ColunadaGrade;
+
+// dbgProdutos.Columnbyname('valorgrade2').visible := (dtmCadastroProdutos.ColunadaGrade<>'');
+// dbgProdutos2.Columnbyname('valorgrade2').visible := (dtmCadastroProdutos.ColunadaGrade<>'');
+// dbgProdutos3.Columnbyname('valorgrade2').visible := (dtmCadastroProdutos.ColunadaGrade<>'');
+
+ if (dtmCadastroProdutos.ColunadaGrade<>'') then
+   if pnlGradeProduto.Visible then
+     VisualizarItensProdutos;
+
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnVisualizarGradeClick(
+  Sender: TObject);
+begin
+  inherited;
+ with dtmCadastroProdutos do
+ begin
+//   gbxProdutos.Visible := false;
+   pgcCaracteristicas.ActivePage := tstGrades;
+   pnlGradeProduto.Visible := true;
+   if not qryGrade.Active then
+   begin
+     GerarTabelaGrade;
+   end;
+   dbgGrades.FixedCols := 1;
+   PosicionarLinhaColunanaGrade;
+ end;
+end;
+
+procedure TfrmCadastroCaracteristicas.flkLinhaGradeFound(Found: Boolean);
+begin
+  inherited;
+  {
+  if found and (flkLinhaGrade.Text<>dtmCadastroProdutos.qryCaracteristicasgrade1.OldValue) then
+   if not dtmCadastroProdutos.PodeAlterarLinhaGrade then
+   begin
+    MensagemErro(ctLINHAGRADENAOPODESERALTERADA);
+    dtmCadastroProdutos.qryCaracteristicasgrade1.AsVariant :=
+    dtmCadastroProdutos.qryCaracteristicasgrade1.OldValue;
+    flkLinhaGrade.SetFocus;
+    flkLinhaGrade.Exist;
+   end;
+   }
+end;
+
+procedure TfrmCadastroCaracteristicas.flkColunaGradeFound(Found: Boolean);
+begin
+  inherited;
+  {
+  if found and (flkColunaGrade.Text<>dtmCadastroProdutos.qryCaracteristicasgrade2.OldValue) then
+   if not dtmCadastroProdutos.PodeAlterarLinhaGrade then
+   begin
+    MensagemErro(ctLINHAGRADENAOPODESERALTERADA);
+    dtmCadastroProdutos.qryCaracteristicasgrade2.asVariant :=
+    dtmCadastroProdutos.qryCaracteristicasgrade2.OldValue;
+    flkColunaGrade.SetFocus;
+    flkColunaGrade.Exist;
+   end;
+   }
+end;
+
+procedure TfrmCadastroCaracteristicas.dbgGradesDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+var
+ RegistroAtual: TBookMark;
+begin
+  inherited;
+
+  if column.Index <> 0 then
+  begin
+    With dtmCadastroProdutos do begin
+      qryprodutos.DisableControls;
+      if not (qryprodutos.State in [dsedit,dsinsert]) then
+      begin
+        RegistroAtual := qryProdutos.GetBookmark;
+        if PosicionarLinhaColunanoProduto(trim(column.Title.Caption)) then
+        begin
+          if (ProdutoForaLinha or ProdutoInativo) then begin
+            TDBGrid(Sender).Canvas.Brush.Color := $7DBEFF;
+            TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+          end;
+          if ProdutoRecolhido then begin
+            TDBGrid(Sender).Canvas.Brush.Color := $00FFD9A4;
+            TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+          end;
+          TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+        end;
+        qryProdutos.GotoBookmark(RegistroAtual);
+        qryProdutos.FreeBookmark(RegistroAtual);
+      end;
+      qryprodutos.EnableControls;
+    end;
+  end;
+end;
+
+procedure TfrmCadastroCaracteristicas.PosicionarLinhaColunaNaGrade;
+begin
+ dbggrades.SetFocus;
+ with  dtmCadastroProdutos do
+ begin
+  dbggrades.SelectedIndex := Colunas.IndexOf(ProdutoColunaGrade)+1;
+  qrygrade.First;
+  while not qrygrade.Eof do
+  begin
+   if qrygrade.Fields[0].AsString = ProdutoLinhaGrade then
+    break;
+   qrygrade.Next;
+  end;
+ end;
+end;
+
+procedure TfrmCadastroCaracteristicas.dbgGradesKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+    case Key of
+      TeclaEditarRegistro,
+      TeclaInserirRegistro:
+      begin
+        with dtmCadastroProdutos do
+        begin
+          if PosicionarLinhaColunanoProduto(
+             trim(dbggrades.Columns[dbgGrades.SelectedIndex].Title.caption)) then
+            AcionaCadastroProdutos(True)
+          else
+            AcionaCadastroProdutos(false);
+        end;
+      end;
+    end;
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnIncluirProdutoGradeClick(
+  Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  dbgGrades.SetFocus;
+  AcionaCadastroProdutos(False);
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnExcluirProdutoGradeClick(
+  Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  dtmCadastroProdutos.ExcluirProduto;
+end;
+
+procedure TfrmCadastroCaracteristicas.dbgGradesDblClick(Sender: TObject);
+begin
+  inherited;
+  with dtmCadastroProdutos do
+  begin
+    if PosicionarLinhaColunanoProduto(
+       trim(dbggrades.Columns[dbgGrades.SelectedIndex].Title.caption)) then
+      AcionaCadastroProdutos(True)
+    else
+      AcionaCadastroProdutos(false);
+  end;
+end;
+
+procedure TfrmCadastroCaracteristicas.VisualizarItensProdutos;
+begin
+//  gbxProdutos.Visible := true;
+  pnlGradeProduto.Visible := false;
+  dtmCadastroProdutos.PosicionarLinhaColunanoProduto(
+     trim(dbggrades.Columns[dbgGrades.SelectedIndex].Title.caption));
+end;
+
+procedure TfrmCadastroCaracteristicas.pgcCaracteristicasChanging(
+  Sender: TObject; var AllowChange: Boolean);
+begin
+  inherited;
+  if (pgcCaracteristicas.ActivePage = tstGrades) then
+    if pnlGradeProduto.Visible then
+      VisualizarItensProdutos;
+end;
+
+procedure TfrmCadastroCaracteristicas.ConfiguracaoJanela;
+begin
+ if JanelaProduto.ckbOpcional1.Checked then
+   fFormaPesquisaProduto := fpItemProdutos
+ else
+ if JanelaProduto.ckbOpcional2.Checked then
+   fFormaPesquisaProduto := fpItemProdutosCliente
+ else
+   fFormaPesquisaProduto := fpCaracteristicas;
+
+ ReabrirFormulario := Janelaproduto.ReabrirFormulario;
+ Janelaproduto.OntecClose := nil;
+end;
+
+{-----------------------------------------------------------------------------
+Nome       : sbnIncluirProdutoCompostoClick
+Objetivo   : Inicia o processo de inclusão de um novo componente ao produto selecionado.
+Retorno    : Não tem.
+Parametros : - Sender : TObject
+                  Objeto que que está executand.
+Criado em  : 27/07/2006
+Responsável: Ismael Leandro Faustino
+--------------------------------------------------------------------------------
+Histórico de alteração:
+   - [Responsável] em [Data da alteração]
+        [descrição da alteração]
+-------------------------------------------------------------------------------}
+procedure TfrmCadastroCaracteristicas.sbnIncluirProdutoCompostoClick(Sender: TObject);
+begin
+  inherited;
+  if self.activecontrol = DBGridProdutos_Servicos then
+  begin
+    CtrlOn := True;
+    DBGridProdutos_Servicos.SetFocus;
+    DBGridProdutos_Servicos.DataSource.DataSet.append;
+  end
+  else
+  begin
+    CtrlOn := True;
+    DBGridProdutosComponentes.SetFocus;
+    AcionaCadastroProdutoComposto(False);
+  end
+end;
+
+{-----------------------------------------------------------------------------
+Nome       : AcionaCadastroProdutoComposto
+Objetivo   : Este processo inicia a inclução de um novo componete ao produto selecionando.
+Retorno    : Retorna um booleno com true para sucesso e do contrario false.
+Parametros : - Editar : Boolean
+                  Este parâmetro serve de indicação para a função se o registro está sendo incluido ou editado.
+                  Mas não está sendo usado no momento.
+Criado em  : 27/07/2006
+Responsável: Ismael Leandro Faustino Jason Jackson.
+--------------------------------------------------------------------------------
+Histórico de alteração:
+   - [Responsável] em [Data da alteração]
+        [descrição da alteração]
+-------------------------------------------------------------------------------}
+function TfrmCadastroCaracteristicas.AcionaCadastroProdutoComposto(
+  Editar: Boolean): Boolean;
+begin
+  Result:= False;
+  if not dtmCadastroProdutos.TabelaProduto.IsEmpty then
+  begin
+    dtmCadastroProdutos.tipoProcuraProdutosEstoque := tpPRODUTOS;
+    frmCadastroProdutoComposto := TfrmCadastroProdutoComposto.Create(frmCadastroProdutoComposto);
+    with frmCadastroProdutoComposto do
+    begin
+      DataSet := dtmCadastroProdutos.TabelaProdutoComposto;
+      Result:= dtmCadastroProdutos.IncluirProdutoComposto(Editar);
+      if ShowModal =  mrOK then
+        dtmCadastroProdutos.qryProdutoComposto.RefreshCurrRow;
+      free;
+    end;
+//    lblTotalComponentesValor.Caption := FormatarValor(dtmCadastroProdutos.TotalComponentes,2);
+  end
+  else
+  begin
+    MensagemAviso(ctCARACTERISTICASEMPRODUTO);
+    DBGridProdutosComponentes.SetFocus;
+  end;
+end;
+
+{-----------------------------------------------------------------------------
+Nome       : sbnIncluirProdutoComposto
+Objetivo   : Inicia o processo de inclusão de um novo componete no produto selecionado.
+Retorno    : Não tem
+Parametros : - Sender : TObject
+                  Objeto que que está executand.
+Criado em  : 27/07/2006
+Responsável: Ismael Leandro Faustino.
+--------------------------------------------------------------------------------
+Histórico de alteração:
+   - [Responsável] em [Data da alteração]
+        [descrição da alteração]
+-------------------------------------------------------------------------------}
+procedure TfrmCadastroCaracteristicas.sbnExcluirProdutoCompostoClick(Sender: TObject);
+begin
+  inherited;
+  if self.activecontrol = DBGridProdutos_Servicos then
+  begin
+    DBGridProdutos_Servicos.SetFocus;
+    dtmCadastroProdutos.ExcluirProdutos_Servicos
+  end
+  else
+  begin
+    DBGridProdutosComponentes.SetFocus;
+    dtmCadastroProdutos.ExcluirProdutoComposto;
+  end
+
+end;
+
+{-----------------------------------------------------------------------------
+Nome       : DBGridProdutosComponentesDblClick
+Objetivo   : Quando o usuário clicar duas vezes no grie este processo iniciara a edição do registro que estive selecionado.
+Retorno    : Não tem.
+Parametros : - Sender : TObject
+                  Objeto que que está executand.
+Criado em  : 27/07/2006
+Responsável: Ismael Leandro Faustino
+--------------------------------------------------------------------------------
+Histórico de alteração:
+   - [Responsável] em [Data da alteração]
+        [descrição da alteração]
+-------------------------------------------------------------------------------}
+procedure TfrmCadastroCaracteristicas.DBGridProdutosComponentesDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionaCadastroProdutoComposto(True);
+end;
+
+procedure TfrmCadastroCaracteristicas.ckbProdutoCompostoClick(
+  Sender: TObject);
+begin
+  inherited;
+  if ckbProdutoComposto.Checked then
+   if ckbProdutoComposto2.Checked then
+     ckbProdutoComposto2.Checked := false;
+
+  sbnconferircomposto.Visible := ckbProdutoComposto.Checked;
+  
+  tstComposicao.TabVisible := (ckbProdutoComposto.Checked or ckbProdutoComposto2.Checked);
+  tstFios.TabVisible := (ckbProdutoComposto.Checked or ckbProdutoComposto2.Checked) and ParSistema.ControlesVoltadosparaIndustria;
+  tstFitas.TabVisible := (ckbProdutoComposto.Checked or ckbProdutoComposto2.Checked) and ParSistema.ControlesVoltadosparaIndustria;
+
+  {
+  if not (rbnSemComposicao.Checked or rbnComComposicao.Checked or rbnSomenteComposicao.Checked) then
+    rbnSemComposicao.Checked := True;
+  }  
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnConsultaDebitarVendaVistaClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkDebitarVendaaVista, ctCONTADEBITO)
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnConsultaCreditarVendaVistaClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkCreditarVendaVista, ctCONTACREDITO)
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnConsultaHistoricoVendaaVistaClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkHistoricoVendaaVista, ctHISTORICO)
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnConsultaDebitarVendaPrazoClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkDebitarVendaaPrazo, ctCONTADEBITO)
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnConsultaCreditarVendaPrazoClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkCreditarVendaPrazo, ctCONTACREDITO)
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnConsultaHistoricoVendaaPrazoClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkHistoricoVendaaPrazo, ctHISTORICO)
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnConsultaDebitarAbatimentosClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkDebitarAbatimentos, ctCONTADEBITO)
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnConsultaDebitarDevolucoesClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkDebitarDevolucoes, ctCONTADEBITO)
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnConsultaCreditarAbatimentosClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkCreditarAbatimentos, ctCONTACREDITO)
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnConsultaCreditarDevolucoesClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkCreditarDevolucoes, ctCONTACREDITO)
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnConsultaHistoricoAbatimentosClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkHistoricoAbatimentos, ctHISTORICO)
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnConsultaHistoricoDevolucoesClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkHistoricoDevolucoes, ctHISTORICO)
+end;
+
+function TfrmCadastroCaracteristicas.AcionaCadastroColunasPrecosAutomatico(Editar: Boolean): Boolean;
+begin
+  Result := False;
+  if dtmCadastroProdutos.ProdutoTemPreco then begin
+    frmCadastroColunasPrecos := TfrmCadastroColunasPrecos.Create(frmCadastroColunasPrecos);
+    with frmCadastroColunasPrecos do begin
+      //SetDataModulo(dtmCadastroProdutos);
+      DataSet := dtmCadastroProdutos.TabelaColunaPreco;
+      Result:= dtmCadastroProdutos.IncluirColunaPreco(Editar);
+      dtmCadastroProdutos.ColunaColunasPreco := dtmCadastroProdutos.PrecoNormal;
+      ProdutoAutomatico := True;
+      ActiveControl := edtValor;
+      ShowModal;
+      free;
+    end;
+  end;
+end;
+
+procedure TfrmCadastroCaracteristicas.ckbProducaoPropriaClick(
+  Sender: TObject);
+begin
+  inherited;
+  {
+  if ckbProducaoPropria.Checked and (dtmCadastroProdutos.Incidencia = 9) then
+  begin
+    flkIncidencia.Text := IntToStr(2);
+    flkIncidencia.Exist;
+  end
+  else if not ckbProducaoPropria.Checked and (dtmCadastroProdutos.Incidencia = 2) then
+  begin
+    flkIncidencia.Text := IntToStr(9);
+    flkIncidencia.Exist;
+  end
+  }
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnIncluirClienteProdutoClick(
+  Sender: TObject);
+begin
+  CtrlOn := True;
+  dbgClientesProdutos.SetFocus;
+  AcionaCadastroClientesProdutos(False);
+end;
+
+function TfrmCadastroCaracteristicas.AcionaCadastroClientesProdutos(
+  Editar: Boolean): Boolean;
+begin
+  Result := false;
+  if not dtmCadastroProdutos.TabelaProduto.IsEmpty then begin
+    frmCadastroClientesProdutos := TfrmCadastroClientesProdutos.Create(frmCadastroClientesProdutos);
+    with frmCadastroClientesProdutos do
+    begin
+      //SetDataModulo(dtmCadastroProdutos);
+      DataSet := dtmCadastroProdutos.TabelaClientesProdutos;
+      Result:= dtmCadastroProdutos.IncluirClienteProduto(Editar);
+      ShowModal;
+      free;
+    end;
+  end
+  else
+    MensagemAviso(ctCARACTERISTICASEMPRODUTO);
+
+  dbgClientesProdutos.SetFocus;
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnExcluirClienteProdutoClick(
+  Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  dtmCadastroProdutos.ExcluirClienteProduto;
+end;
+
+procedure TfrmCadastroCaracteristicas.dbgClientesProdutosDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionaCadastroClientesProdutos(True);
+end;
+
+procedure TfrmCadastroCaracteristicas.dbgClientesProdutosKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Shift = [ssCtrl] then
+    case Key of
+      TeclaEditarRegistro : AcionaCadastroClientesProdutos(dbgClientesProdutos.DataSource.DataSet.RecNo > 0);
+      TeclaInserirRegistro: AcionaCadastroClientesProdutos(False);
+    end;
+end;
+
+procedure TfrmCadastroCaracteristicas.dbgModelosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if CtrlOn then
+  begin
+    case Key of
+      VK_F9 : begin
+                 dbgModelos.SetFocus;
+                 AcionaPesquisaGrade;
+               end;
+    end;
+  end
+  {
+  else
+  begin
+    case key of
+      VK_RETURN,
+      VK_Return :
+      begin
+        case dbgModelos.SelectedIndex of
+        0 : begin
+              if not fraConsultaModelo.edfCodigo.Exist then
+              begin
+                dbgModelos.DataSource.DataSet.FieldByName('descricaomodelo').Clear;
+                dbgModelos.DataSource.DataSet.FieldByName('especificacao').Clear;
+                dtmCadastroProdutos.qryModelosCaracteristicasobservacao.Clear;
+              end;
+              dbgModelos.SelectedIndex := 0;
+              dbgModelos.SetFocus;
+            end;
+        end;
+
+        if dtmCadastroProdutos.qryModelosCaracteristicas.State in [dsedit, dsinsert] then
+           dtmCadastroProdutos.qryModelosCaracteristicas.Post;
+      end;
+    end;
+  end;
+  }
+end;
+
+procedure TfrmCadastroCaracteristicas.AcionaPesquisaGrade;
+begin
+  if dbgModelos.Focused then
+  begin
+    if not assigned(fraConsultaModelo) then
+      CriarConsultaModelo;
+
+    fraConsultaModelo.CtrlOn := True;
+    fraConsultaModelo.InternoPesquisar('Modelo de Produto');
+    dbgModelos.SetFocus;
+    dbgModelos.SelectedIndex :=  0;
+  end
+  else
+  if dbgProdutosCargos.Focused then
+  begin
+    if not assigned(fraConsultaCargo) then
+      CriarConsultaCargo;
+
+    fraConsultaCargo.CtrlOn := True;
+    fraConsultaCargo.InternoPesquisar('Cargos');
+    dbgProdutosCargos.SetFocus;
+    dbgProdutosCargos.SelectedIndex :=  0;
+  end;
+end;
+
+procedure TfrmCadastroCaracteristicas.AtribuirDadosModelosProdutos;
+begin
+
+  if not assigned(fraConsultaModelo) then
+    CriarConsultaModelo;
+
+  with fraConsultaModelo do
+  begin
+    dtmCadastroProdutos.qryModelosCaracteristicasmodelo.AsString :=
+      qryProcuraModelocodigo.AsString;
+
+    dtmCadastroProdutos.qryModelosCaracteristicasdescricaomodelo.AsString :=
+      qryProcuraModelodescricao.AsString;
+
+    dtmCadastroProdutos.qryModelosCaracteristicasespecificacao.AsString :=
+      qryProcuraModeloespecificacao.AsString;
+
+    dtmCadastroProdutos.qryModelosCaracteristicasobservacao.AsString :=
+      qryProcuraModeloobservacao.AsString;
+  end;
+
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnDeslocarParaCimaClick(
+  Sender: TObject);
+begin
+  inherited;
+  DBGridProdutosComponentes.DeslocarRegistroParaCima;
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnDeslocarRegistroParaBaixoClick(
+  Sender: TObject);
+begin
+  inherited;
+  DBGridProdutosComponentes.DeslocarRegistroParaBaixo;
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnDeslocarFioParaCimaClick(
+  Sender: TObject);
+begin
+  inherited;
+  DBGridProdutosFios.DeslocarRegistroParaCima;
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnDeslocarFioParaBaixoClick(
+  Sender: TObject);
+begin
+  inherited;
+  DBGridProdutosFios.DeslocarRegistroParaBaixo;
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnDeslocarFitaParaCimaClick(
+  Sender: TObject);
+begin
+  inherited;
+  DBGridProdutosFitas.DeslocarRegistroParaCima;
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnDeslocarFitaParaBaixoClick(
+  Sender: TObject);
+begin
+  inherited;
+  DBGridProdutosFitas.DeslocarRegistroParaBaixo;
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnDescricaonanfClick(
+  Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  edtDescricaonanf.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmCadastroCaracteristicas.edtDescricaonanfKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if CtrlOn then
+   if key = VK_F9 then
+     sbnDescricaonanfClick(edtDescricaonanf);
+end;
+
+
+procedure TfrmCadastroCaracteristicas.CriarConsultaModelo;
+begin
+  fraConsultaModelo := TfraConsultaCodigo.Create(self);
+  fraConsultaModelo.Name := 'fraConsultaModelo';
+  fraConsultaModelo.edfCodigo.MaxLength := 15;
+  fraConsultaModelo.edfCodigo.DataSource := dtmCadastroProdutos.dsrModelosCaracteristicas;
+  fraConsultaModelo.edfCodigo.DataField := 'modelo';
+  fraConsultaModelo.edfCodigo.Operacao := opATRIBUICAO;
+  fraConsultaModelo.edfCodigo.LookupSource := fraConsultaModelo.dsrProcuraModelo;
+  fraConsultaModelo.edfCodigo.LookupField := 'codigo';
+  fraConsultaModelo.edfCodigo.LookupQueryParameter := 'codigo';
+  fraConsultaModelo.AbrirTabelaProcura := false;
+  fraConsultaModelo.OnFound := AtribuirDadosModelosProdutos;
+  fraConsultaModelo.TipoPesquisa := pesMODELO;
+end;
+
+function TfrmCadastroCaracteristicas.AcionaCadastroProdutoCompostoFios(
+  Editar: Boolean): Boolean;
+begin
+  Result:= False;
+  if not dtmCadastroProdutos.TabelaProduto.IsEmpty then
+  begin
+    dtmCadastroProdutos.tipoProcuraProdutosEstoque := tpPRODUTOSFIOS;
+    frmCadastroProdutoCompostoFios := TfrmCadastroProdutoCompostoFios.Create(frmCadastroProdutoCompostoFios);
+    with frmCadastroProdutoCompostoFios do
+    begin
+      DataSet := dtmCadastroProdutos.qryProdutoCompostoFios;
+      Result:= dtmCadastroProdutos.IncluirProdutoCompostoFios(Editar);
+      if ShowModal =  mrOK then
+        dtmCadastroProdutos.qryProdutoCompostoFios.RefreshCurrRow;
+      free;
+    end;
+  end
+  else
+  begin
+    MensagemAviso(ctCARACTERISTICASEMPRODUTO);
+    dbgProdutosCodigoBarras.SetFocus;
+  end;
+end;
+
+function TfrmCadastroCaracteristicas.AcionaCadastroProdutoCompostoFitas(
+  Editar: Boolean): Boolean;
+begin
+  Result:= False;
+  if not dtmCadastroProdutos.TabelaProduto.IsEmpty then
+  begin
+    dtmCadastroProdutos.tipoProcuraProdutosEstoque := tpPRODUTOSFITAS;
+    frmCadastroProdutoCompostoFitas := TfrmCadastroProdutoCompostoFitas.Create(frmCadastroProdutoCompostoFitas);
+    with frmCadastroProdutoCompostoFitas do
+    begin
+      DataSet := dtmCadastroProdutos.qryProdutoCompostoFitas;
+      Result:= dtmCadastroProdutos.IncluirProdutoCompostoFitas(Editar);
+      if ShowModal =  mrOK then
+        dtmCadastroProdutos.qryProdutoCompostoFitas.RefreshCurrRow;
+      free;
+    end;
+  end
+  else
+  begin
+    MensagemAviso(ctCARACTERISTICASEMPRODUTO);
+    dbgProdutosCodigoBarras.SetFocus;
+  end;
+
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnIncluirProdutoFioseFitasClick(
+  Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  DBGridProdutosFios.SetFocus;
+  AcionaCadastroProdutoCompostoFios(False);
+end;
+
+procedure TfrmCadastroCaracteristicas.SpeedButton1Click(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  DBGridProdutosFitas.SetFocus;
+  AcionaCadastroProdutoCompostoFitas(False);
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnExcluirProdutoFioseFitasClick(
+  Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  dtmCadastroProdutos.ExcluirProdutoCompostoFios;
+end;
+
+procedure TfrmCadastroCaracteristicas.SpeedButton2Click(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  dtmCadastroProdutos.ExcluirProdutoCompostoFitas;
+end;
+
+procedure TfrmCadastroCaracteristicas.DBGridProdutosFiosDblClick(
+  Sender: TObject);
+begin
+  inherited;
+//  AcionaCadastroProdutoCompostoFios(True);
+end;
+
+procedure TfrmCadastroCaracteristicas.DBGridProdutosFitasDblClick(
+  Sender: TObject);
+begin
+  inherited;
+//  AcionaCadastroProdutoCompostoFitas(True);
+end;
+
+procedure TfrmCadastroCaracteristicas.ckbProdutoComposto2Click(
+  Sender: TObject);
+begin
+  inherited;
+  if ckbProdutoComposto2.Checked then
+    if ckbProdutoComposto.Checked then
+      ckbProdutoComposto.Checked := false;
+
+  tstComposicao.TabVisible := (ckbProdutoComposto.Checked or ckbProdutoComposto2.Checked);
+  tstFios.TabVisible := (ckbProdutoComposto.Checked or ckbProdutoComposto2.Checked) and ParSistema.ControlesVoltadosparaIndustria;
+  tstFitas.TabVisible := (ckbProdutoComposto.Checked or ckbProdutoComposto2.Checked) and ParSistema.ControlesVoltadosparaIndustria;
+
+end;
+
+procedure TfrmCadastroCaracteristicas.DBGridProdutosFiosKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+    if DBGridProdutosFios.SelectedField = dtmCadastroProdutos.qryProdutoCompostoFiostolerancia then
+      if dtmCadastroProdutos.qryProdutoCompostoFios.State  in [dsedit, dsinsert] then
+        dtmCadastroProdutos.GravarProdutoCompostoFios;
+end;
+
+procedure TfrmCadastroCaracteristicas.DBGridProdutosFitasKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+    if DBGridProdutosFitas.SelectedField = dtmCadastroProdutos.qryProdutoCompostoFitasgramasporpeca then
+      if dtmCadastroProdutos.qryProdutoCompostoFitas.State  in [dsedit, dsinsert] then
+        dtmCadastroProdutos.GravarProdutoCompostoFitas;
+
+end;
+
+procedure TfrmCadastroCaracteristicas.FiltrarDados(Sender: TObject);
+
+begin
+
+  dtmCadastroProdutos.OpcaoInativoConsultaCaracteristicas := JanelaProduto.cbbOpcao.text;
+  JanelaProduto.DataSet.First;
+//  dtmCadastroProdutos.qryConsultaCaracteristicas.First;
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnGerarCargosProdutosClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroProdutos.IncluirCargosnosProdutos;
+  dbgProdutosCargos.setfocus;
+  dbgProdutosCargos.selectedfield := dtmCadastroProdutos.qryProdutosCargomarkup;
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnIncluirCargosProdutosClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroProdutos.IncluirProdutosCargos;
+  dbgProdutosCargos.setfocus;
+  dbgProdutosCargos.SelectedField := dtmCadastroProdutos.qryProdutosCargocargo;
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnEcluirCargosProdutosClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroProdutos.ExcluirProdutosCargos;
+end;
+
+procedure TfrmCadastroCaracteristicas.dbgProdutosCargosKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+  begin
+    if dbgProdutosCargos.SelectedField = dtmCadastroProdutos.qryProdutosCargocargo then
+    begin
+      if not assigned(fraConsultaCargo) then
+        CriarConsultaCargo;
+
+      fraConsultaCargo.edfCodigo.doexit;
+      if not fraconsultacargo.qryProcuraCargos.IsEmpty then
+      begin
+        AtribuirDadosCargosProdutos;
+        dtmCadastroProdutos.GravarProdutosCargo;
+      end
+      else
+      begin
+        key := 0;
+        dbgProdutosCargos.SelectedField := dtmCadastroProdutos.qryProdutosCargocargo;
+        dbgProdutosCargos.setfocus;
+      end;
+    end
+    else
+      dtmCadastroProdutos.GravarProdutosCargo
+  end    
+  else
+  if (dbgProdutosCargos.SelectedField = dtmCadastroProdutos.qryProdutosCargocargo) or
+     (dbgProdutosCargos.SelectedField = dtmCadastroProdutos.qryProdutosCargodescricaocargo) then
+  begin
+    if (key = VK_F9) and CtrlOn then
+    begin
+      dbgProdutosCargos.SetFocus;
+      AcionaPesquisaGrade;
+    end
+  end;
+end;
+
+procedure TfrmCadastroCaracteristicas.CriarConsultaCargo;
+begin
+  fraConsultaCargo := TfraConsultaCodigo.Create(self);
+  fraConsultaCargo.Name := 'fraConsultaCargo';
+  fraConsultaCargo.edfCodigo.MaxLength := 15;
+  fraConsultaCargo.edfCodigo.DataSource := dtmCadastroProdutos.dsrprodutosCargo;
+  fraConsultaCargo.edfCodigo.DataField := 'Cargo';
+  fraConsultaCargo.edfCodigo.Operacao := opATRIBUICAO;
+  fraConsultaCargo.edfCodigo.LookupSource := fraConsultaCargo.dsrProcuraCargos;
+  fraConsultaCargo.edfCodigo.LookupField := 'codigo';
+  fraConsultaCargo.edfCodigo.LookupQueryParameter := 'codigo';
+  fraConsultaCargo.AbrirTabelaProcura := false;
+  fraConsultaCargo.OnFound := AtribuirDadosCargosProdutos;
+  fraConsultaCargo.CondicoesdaConsulta := CondicoesConsultaCargos;
+  fraConsultaCargo.TipoPesquisa := pesCargos;
+
+end;
+
+procedure TfrmCadastroCaracteristicas.AtribuirDadosCargosProdutos;
+begin
+  with fraConsultaCargo do
+  begin
+    dtmCadastroProdutos.qryProdutosCargocargo.AsInteger := qryProcuraCargoscodigo.AsInteger;
+    dtmCadastroProdutos.qryProdutosCargodescricaocargo.AsString := qryProcuraCargosdescricao.AsString;
+    dtmCadastroProdutos.qryProdutosCargomarkup.Ascurrency := qryProcuraCargosmarkuppadrao.AsCurrency;
+    dtmCadastroProdutos.qryProdutosCargoinativo.AsDateTime := qryProcuraCargosinativo.AsDateTime;
+  end;
+
+end;
+
+procedure TfrmCadastroCaracteristicas.dbgProdutosCargosDblClick(
+  Sender: TObject);
+var vKey: Word;
+begin
+  inherited;
+  ShiftOn := False;
+  CtrlOn := true;
+  vKey := VK_F9;
+  dbgProdutosCargosKeyDown(dbgProdutosCargos, vKey, [ssctrl]);
+end;
+
+procedure TfrmCadastroCaracteristicas.CondicoesConsultaCargos;
+begin
+   fraConsultaCargo.qryProcuraCargos.macrobyname('SQLCondicao').asstring :=
+     'and (c.codigo not in (select pc.cargo from produtoscargos pc where pc.produto = '+ dtmCadastroProdutos.qryProdutoscodigo.AsString +
+     ') or c.codigo = ' + inttostr(dtmCadastroProdutos.qryProdutosCargocargo.asInteger) + ')';
+  fraConsultaCargo.qryConsultaCargos.macrobyname('SQLCondicao').asstring :=
+    fraConsultaCargo.qryProcuraCargos.macrobyname('SQLCondicao').asstring;
+
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnExcluirProdutosFornecedoresClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroProdutos.ExcluirProdutosFornecedores;
+end;
+
+procedure TfrmCadastroCaracteristicas.AtribuirDadosProdutosFornecedores;
+begin
+  with dtmCadastroProdutos do
+  begin
+    qryProdutosFornecedores.Edit;
+//    qryProdutosFornecedoresproduto.AsString := ConsultaProduto.qryProcuraItemProdutosproduto.AsString;
+    qryProdutosFornecedoresprodutovisual.AsString := ConsultaProduto.qryProcuraItemProdutosprodutovisual.AsString;
+//    qryProdutosFornecedores.post;
+//    perpetrar([dtmCadastroProdutos.qryprodutosfornecedores]);
+//    RefazConsultaProdutosFornecedores;
+  end;
+end;
+
+procedure TfrmCadastroCaracteristicas.dbgProdutosFornecedoresKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      VK_F9     : begin
+                     ConsultaProduto.CtrlOn := Shift = [ssCtrl];
+                     if (Shift = []) or ConsultaProduto.CtrlOn then
+                       AcionarPesquisaGrade
+                   end;
+    end;
+  end
+  else
+  case Key of
+    VK_Return: VerificarProdutosFornecedores;
+  end;
+
+end;
+
+procedure TfrmCadastroCaracteristicas.AcionarPesquisaGrade;
+begin
+
+  if  ActiveControl = dbgProdutosFornecedores then
+  begin
+    ConsultaProduto.CtrlOn := True;
+    dbgProdutosFornecedores.SetFocus;
+    case dbgProdutosFornecedores.SelectedIndex of
+      0: begin
+           case ConsultaProduto.InternoPesquisar(ctPRODUTO) of
+           mrOk   : begin
+                      dbgProdutosFornecedores.SetFocus;
+                      dbgProdutosFornecedores.SelectedIndex :=  0;
+                    end;
+           mrCancel: begin
+                      dbgProdutosFornecedores.SetFocus;
+                      dbgProdutosFornecedores.SelectedIndex :=  0;
+                    end;
+           end
+         end;
+    end;
+  end
+  else
+  if ActiveControl = dbgProdutosFornecedoresUnidades then
+  begin
+    if (dbgProdutosFornecedoresUnidades.SelectedField = dtmCadastroProdutos.qryProdutosFornecedoresUnidadesfornecedor) or
+       (dbgProdutosFornecedoresUnidades.SelectedField = dtmCadastroProdutos.qryProdutosFornecedoresUnidadesTipofornecedor) or
+       (dbgProdutosFornecedoresUnidades.SelectedField = dtmCadastroProdutos.qryProdutosFornecedoresUnidadesnomefornecedor) then
+    begin
+      case ConsultaFornecedor.InternoPesquisar(ctFORNECEDORES) of
+      mrOk   : begin
+                 dbgProdutosFornecedoresUnidades.SetFocus;
+                 dbgProdutosFornecedoresUnidades.SelectedField :=  dtmCadastroProdutos.qryProdutosFornecedoresUnidadesunidade;
+               end;
+      mrCancel: begin
+                 dbgProdutosFornecedoresUnidades.SetFocus;
+                 dbgProdutosFornecedoresUnidades.SelectedField :=  dtmCadastroProdutos.qryProdutosFornecedoresUnidadesfornecedor;
+               end;
+      end
+    end
+    else
+    if (dbgProdutosFornecedoresUnidades.SelectedField = dtmCadastroProdutos.qryProdutosFornecedoresUnidadesunidade) or
+       (dbgProdutosFornecedoresUnidades.SelectedField = dtmCadastroProdutos.qryProdutosFornecedoresUnidadesdescricaounidade) then
+    begin
+      case ConsultaUnidades.InternoPesquisar('UNIDADES') of
+      mrOk   : begin
+                 dbgProdutosFornecedoresUnidades.SetFocus;
+                 dbgProdutosFornecedoresUnidades.SelectedField :=  dtmCadastroProdutos.qryProdutosFornecedoresUnidadesfatorconversao;
+               end;
+      mrCancel: begin
+                 dbgProdutosFornecedoresUnidades.SetFocus;
+                 dbgProdutosFornecedoresUnidades.SelectedField :=  dtmCadastroProdutos.qryProdutosFornecedoresUnidadesunidade;
+               end;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmCadastroCaracteristicas.dbgProdutosFornecedoresDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  dbgProdutosFornecedores.SetFocus;
+  acionarPesquisaGrade;
+end;
+
+procedure TfrmCadastroCaracteristicas.VerificarProdutosFornecedores;
+begin
+  if (dtmCadastroProdutos.qryProdutoscodigovisual.AsString <>
+      dtmcadastroprodutos.qryProdutosFornecedoresprodutovisual.AsString) and
+      not dtmcadastroprodutos.qryProdutosFornecedores.isempty then
+  begin
+    if ConsultaProduto.edfCodigo.Exist then
+    begin
+      if MensagemConfirmacao(format('Confirma a vinculação deste produto do fornecedor com o item de produto %s', [ConsultaProduto.qryProcuraItemProdutosprodutovisual.AsString])) = smbOK then
+      begin
+        dtmCadastroProdutos.qryProdutosFornecedores.edit;
+        dtmCadastroProdutos.qryProdutosFornecedoresproduto.AsString := ConsultaProduto.qryProcuraItemProdutosproduto.AsString;
+        dtmCadastroProdutos.qryProdutosFornecedoresprodutovisual.AsString := ConsultaProduto.qryProcuraItemProdutosprodutovisual.AsString;
+        dtmCadastroProdutos.qryProdutosFornecedores.post;
+        dtmCadastroProdutos.Perpetrar([dtmCadastroProdutos.qryprodutosfornecedores]);
+        dtmCadastroProdutos.RefazConsultaProdutosFornecedores;
+      end
+      else
+      begin
+        dtmCadastroProdutos.qryProdutosFornecedores.edit;
+        dtmCadastroProdutos.qryProdutosFornecedoresproduto.AsString := dtmCadastroProdutos.qryProdutoscodigo.AsString;
+        dtmCadastroProdutos.qryProdutosFornecedoresprodutovisual.AsString := dtmCadastroProdutos.qryProdutoscodigovisual.AsString;
+        dtmCadastroProdutos.qryProdutosFornecedores.post;
+      end;
+    end
+    else
+      dtmCadastroProdutos.qryProdutosFornecedores.cancel;
+  end;
+end;
+
+procedure TfrmCadastroCaracteristicas.CondicoesItemProdutosFornecedores;
+const
+  SQL = 'and (p.codigo not in (%s) or p.codigo = %s)';
+begin
+  ConsultaProduto.qryProcuraItemProdutos.MacroByName('SQLProdutosJaSelecionados').AsString :=
+    format(SQL,[dtmCadastroProdutos.qryProdutoscodigo.asstring,
+                inttostr(0)]);
+
+  ConsultaProduto.qryConsultaItemProdutos.MacroByName('SQLProdutosJaSelecionados').AsString :=
+    format(SQL,[dtmCadastroProdutos.qryProdutoscodigo.asstring,
+                inttostr(0)]);
+end;
+
+
+procedure TfrmCadastroCaracteristicas.btnExcluirProdutosFornecedoresUnidadesClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroProdutos.ExcluirProdutosFornecedoresUnidades;
+end;
+
+procedure TfrmCadastroCaracteristicas.btnIncluirProdutosFornecedoresUnidadesClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroProdutos.IncluirProdutosFornecedoresUnidades;
+  dbgProdutosFornecedoresUnidades.SetFocus;
+  dbgProdutosFornecedoresUnidades.SelectedField := dtmCadastroProdutos.qryProdutosFornecedoresUnidadesfornecedor; 
+end;
+
+procedure TfrmCadastroCaracteristicas.dbgProdutosFornecedoresUnidadesDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  dbgProdutosFornecedoresUnidades.SetFocus;
+  acionarPesquisaGrade;
+end;
+
+procedure TfrmCadastroCaracteristicas.AtribuirDadosFornecedor_ProdutosFornecedoresUnidades;
+begin
+  with dtmCadastroProdutos do
+  begin
+    qryProdutosFornecedoresUnidadesfornecedor.AsInteger    := ConsultaFornecedor.qryProcuraClientecodigo.AsInteger;
+    qryProdutosFornecedoresUnidadestipofornecedor.asString := ConsultaFornecedor.qryProcuraClientetipo.AsString;
+    qryProdutosFornecedoresUnidadesnomefornecedor.AsString := ConsultaFornecedor.qryProcuraClientenome.AsString;
+  end;
+end;
+
+procedure TfrmCadastroCaracteristicas.AtribuirDadosUnidades_ProdutosFornecedoresUnidades;
+begin
+  with dtmCadastroProdutos do
+  begin
+    qryProdutosFornecedoresUnidadesunidade.AsString    := ConsultaUnidades.qryProcuraUnidadescodigo.AsString;
+    qryProdutosFornecedoresUnidadesdescricaounidade.asString := ConsultaUnidades.qryProcuraUnidadesdescricao.AsString;
+  end;
+end;
+
+procedure TfrmCadastroCaracteristicas.dbgProdutosFornecedoresUnidadesKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      VK_F9     : AcionarPesquisaGrade
+    end;
+  end
+  else
+  case Key of
+    VK_Return:
+    begin
+      if (dbgProdutosFornecedoresUnidades.SelectedField = dtmCadastroProdutos.qryProdutosFornecedoresUnidadesproduto) or
+         (dbgProdutosFornecedoresUnidades.SelectedField = dtmCadastroProdutos.qryProdutosFornecedoresUnidadesprodutovisual) then
+        dbgProdutosFornecedoresUnidades.SelectedField :=  dtmCadastroProdutos.qryProdutosFornecedoresUnidadesfornecedor
+      else
+      if (dbgProdutosFornecedoresUnidades.SelectedField = dtmCadastroProdutos.qryProdutosFornecedoresUnidadesfornecedor) or
+         (dbgProdutosFornecedoresUnidades.SelectedField = dtmCadastroProdutos.qryProdutosFornecedoresUnidadestipofornecedor) then
+      begin
+        ConsultaFornecedor.edfCodigo.DoExit;
+        if not ConsultaFornecedor.qryProcuraCliente.IsEmpty then
+        begin
+          AtribuirDadosFornecedor_ProdutosFornecedoresUnidades;
+          dbgProdutosFornecedoresUnidades.SelectedField := dtmCadastroProdutos.qryProdutosFornecedoresUnidadesunidade;
+        end
+        else
+        begin
+          key := 0;
+          dbgProdutosFornecedoresUnidades.SelectedField :=  dtmCadastroProdutos.qryProdutosFornecedoresUnidadesfornecedor;
+        end;
+      end
+      else
+      if (dbgProdutosFornecedoresUnidades.SelectedField = dtmCadastroProdutos.qryProdutosFornecedoresUnidadesnomefornecedor) then
+        dbgProdutosFornecedoresUnidades.SelectedField := dtmCadastroProdutos.qryProdutosFornecedoresUnidadesunidade
+      else
+      if (dbgProdutosFornecedoresUnidades.SelectedField = dtmCadastroProdutos.qryProdutosFornecedoresUnidadesunidade) then
+      begin
+        ConsultaUnidades.edfCodigo.DoExit;
+        if not ConsultaUnidades.qryProcuraUnidades.IsEmpty then
+        begin
+           AtribuirDadosUnidades_ProdutosFornecedoresUnidades;
+           dbgProdutosFornecedoresUnidades.SelectedField :=  dtmCadastroProdutos.qryProdutosFornecedoresUnidadesfatorconversao;
+        end
+        else
+        begin
+          key := 0;
+          dbgProdutosFornecedoresUnidades.SelectedField :=  dtmCadastroProdutos.qryProdutosFornecedoresUnidadesunidade;
+        end;
+      end
+      else
+      if (dbgProdutosFornecedoresUnidades.SelectedField = dtmCadastroProdutos.qryProdutosFornecedoresUnidadesfatorconversao) then
+        dtmCadastroProdutos.GravarProdutosFornecedoresUnidades;
+    end;
+  end;
+
+end;
+
+procedure TfrmCadastroCaracteristicas.pgcProdutos_Unidades_FornecedoresChange(
+  Sender: TObject);
+begin
+  inherited;
+  with dtmCadastroProdutos do
+  begin
+    if pgcProdutos_Unidades_Fornecedores.ActivePage = tstProdutosNoFornecedor then
+    begin
+      SetExibirProduto(mcaPRODUTOSFORNECEDORES);
+      RefazConsultaProdutosFornecedores;
+    end
+    else
+    if pgcProdutos_Unidades_Fornecedores.ActivePage = tstProdutosFornecedoresUnidades then
+    begin
+      SetExibirProduto(mcaPRODUTOSFORNECEDORESUNIDADES);
+      RefazConsultaProdutosFornecedoresUnidades;
+    end;
+  end;  
+end;
+
+procedure TfrmCadastroCaracteristicas.AtribuirParametrosConsultaFornecedor;
+begin
+   ConsultaFornecedor.qryProcuraCliente.ParamByName('tipocliente').AsString := dtmCadastroProdutos.qryProdutosFornecedoresUnidadestipofornecedor.AsString;
+end;
+
+procedure TfrmCadastroCaracteristicas.AlterarEstadoBotoes;
+begin
+  inherited;
+  sbnCopiar.enabled := sbnIncluir.enabled and
+                       (dtmCadastroProdutos.qryCaracteristicascodigo.aslargeint <> 0) and
+                       not (dtmCadastroProdutos.qryCaracteristicas.isempty);
+
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnCopiarClick(Sender: TObject);
+var
+frmCopiaProduto: TfrmCodigoCopiaProduto;
+CodigoCopia: String;
+continuar: boolean;
+begin
+  inherited;
+  if not CtrlOn then
+  begin
+    FProdutoJaGravado:= False;
+    continuar:=true;
+    CodigoCopia:='';
+
+    //abre janela para digitacao do novo codigo de produto
+    if not Parsistema.GerarCodigoProdutoAutomatico then
+    begin
+      frmCopiaProduto := TfrmCodigoCopiaProduto.Create(self);
+      frmCopiaProduto.edCodigoProduto.EditMask:='';
+      frmCopiaProduto.ShowModal;
+      if ((frmCopiaProduto.edCodigoProduto.Text='') or (frmCopiaProduto.ModalResult=mrcancel)) then
+        continuar:=false
+      else
+        CodigoCopia:= frmCopiaProduto.edcodigoproduto.Text;
+      frmCopiaProduto.Free;
+    end;
+
+    if continuar then
+    begin
+      dtmCadastroProdutos.CopiarCaracteristica(CodigoCopia);
+      if dtmCadastroProdutos.vIncluidoapartirdoRegistroAtual then
+      begin
+        InternoGravar;
+        dtmCadastroProdutos.EditarCaracteristica;
+      end;
+    end;
+
+  end;
+end;
+
+procedure TfrmCadastroCaracteristicas.edtDescricaoEnter(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroProdutos.vDescricaoCaracteristica := edtDescricao.text;
+end;
+
+procedure TfrmCadastroCaracteristicas.edtDescricaoExit(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroProdutos.RefletirDescricaoCaracteristicas;
+end;
+
+procedure TfrmCadastroCaracteristicas.FormShow(Sender: TObject);
+begin
+  inherited;
+  edfcodigo.setfocus;
+end;
+
+procedure TfrmCadastroCaracteristicas.DBGridProdutos_ServicosDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  if (DBGridProdutos_Servicos.SelectedField = dtmCadastroProdutos.qryProdutos_Servicosservico) or
+     (DBGridProdutos_Servicos.SelectedField = dtmCadastroProdutos.qryProdutos_Servicosdescricao) then
+    ConsultaServicos.InternoPesquisar('SERVIÇOS')
+  else
+    dtmCadastroProdutos.IncluirProdutos_Servicos(true);
+end;
+
+procedure TfrmCadastroCaracteristicas.AtribuirDadosServicos;
+begin
+  dtmCadastroProdutos.qryProdutos_Servicosdescricao.AsString := ConsultaServicos.qryProcuraServicosdescricao.AsString;
+  dtmCadastroProdutos.qryProdutos_Servicospreco.AsCurrency := ConsultaServicos.qryProcuraServicosvalor.AsCurrency;
+end;
+
+procedure TfrmCadastroCaracteristicas.DBGridProdutos_ServicosKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+
+  if (Shift = [ssCtrl]) and
+     ((key = TeclaEditarRegistro) or
+      (key = TeclaInserirRegistro)) then
+  begin
+    case Key of
+      TeclaEditarRegistro  :
+      begin
+        if DBGridProdutos_Servicos.DataSource.DataSet.RecNo > 0 then
+          DBGridProdutos_Servicos.DataSource.DataSet.edit
+        else
+          DBGridProdutos_Servicos.DataSource.DataSet.append;
+      end;
+      TeclaInserirRegistro : DBGridProdutos_Servicos.DataSource.DataSet.append;
+    end;
+  end
+  else
+  if (DBGridProdutos_Servicos.SelectedField = dtmCadastroProdutos.qryProdutos_Servicosservico) or
+     (DBGridProdutos_Servicos.SelectedField = dtmCadastroProdutos.qryProdutos_Servicosdescricao) then
+  begin
+    if (key = VK_F9) and
+       CtrlOn then
+    begin
+      ConsultaServicos.InternoPesquisar('SERVIÇOS');
+      DBGridProdutos_Servicos.SetFocus;
+    end
+    else
+    if key = VK_return then
+    begin
+      if ConsultaServicos.edfCodigo.Exist then
+        AtribuirDadosServicos
+    end;
+  end;
+
+end;
+
+procedure TfrmCadastroCaracteristicas.pgcInformacoesFiscaisChange(
+  Sender: TObject);
+begin
+  inherited;
+  with dtmCadastroProdutos do
+  begin
+    if pgcinformacoesfiscais.activepage = tstFCP then
+    begin
+      SetExibirProduto(mcaPRODUTOSESTADOS);
+      RefazConsultaProdutosEstados;
+    end;
+  end;
+
+end;
+
+procedure TfrmCadastroCaracteristicas.DBGridProdutosComponentesKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+    case Key of
+      TeclaEditarRegistro  : AcionaCadastroProdutoComposto(DBGridProdutosComponentes.DataSource.DataSet.RecNo > 0);
+      TeclaInserirRegistro : AcionaCadastroProdutoComposto(False);
+    end;
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnExcluirProdutosAgendamentosClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroProdutos.ExcluirProdutosAgendamentos;
+end;
+
+procedure TfrmCadastroCaracteristicas.sbnInverterLinhaColunaClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroProdutos.InverterLinha_x_Coluna;
+  flkLinhaGrade.exist;
+  flkColunaGrade.exist;
+end;
+
+procedure TfrmCadastroCaracteristicas.OperacaoPadrao(
+  Value: array of Variant);
+begin
+  inherited;
+  if Value[0] = 'Abrir' then
+  begin
+    if ((dtmCadastroProdutos.qryCaracteristicas.recordcount = 0) and
+        (Value[1]<>0)) or
+       ((dtmCadastroProdutos.qryCaracteristicas.recordcount > 0) and
+        (Value[1]<>0) and
+        (Value[1]<> dtmCadastroProdutos.qryCaracteristicascodigovisual.asString) and
+        (MensagemConfirmacao('Abrir o produto '+inttostr(Value[1])) = smbOK)) then
+    begin
+      if (dtmCadastroProdutos.qryCaracteristicas.state in [dsedit, dsinsert]) then
+        dtmCadastroProdutos.qryCaracteristicas.cancel;
+
+      edfCodigo.text := inttostr(Value[1]);
+      edfCodigo.exist;
+    end;
+  end;
+end;
+
+procedure TfrmCadastroCaracteristicas.edfCodigoChange(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroProdutos.qryCaracteristicas.MacroByName('CondicaoEspecificaJanelaPesquisa').asString := '';
+end;
+
+function TfrmCadastroCaracteristicas.VerificarElementosdaGrade: boolean;
+begin
+  result := true;
+  if tstGrades.tabVisible then
+  begin
+    result := dtmCadastroProdutos.VerificarElementosdaGrade;
+    if not result then
+    begin
+      pgcCaracteristicas.ActivePage := tstGrades;
+      if flkLinhaGrade.text = '' then
+      begin
+        flkLinhaGrade.setfocus;
+        MensagemAviso('Linha da grade não informada.');
+      end
+      else
+      begin
+        flkColunaGrade.setfocus;
+        MensagemAviso('Coluna da grade não informada.')
+      end;
+    end;
+  end;
+
+end;
+
+end.
+

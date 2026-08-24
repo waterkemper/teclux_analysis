@@ -1,0 +1,742 @@
+inherited frmPlanoContasReferencial: TfrmPlanoContasReferencial
+  Left = 811
+  Top = 174
+  ActiveControl = edfCodigo
+  BorderIcons = [biSystemMenu, biMinimize, biMaximize]
+  Caption = 'Cadastro de Plano de Contas Referencial'
+  ClientHeight = 474
+  ClientWidth = 799
+  FormStyle = fsMDIChild
+  Position = poDesktopCenter
+  Visible = True
+  PixelsPerInch = 96
+  TextHeight = 16
+  inherited pnlBarra: TPanel
+    Left = 0
+    Top = 70
+    Width = 799
+    Height = 404
+    Align = alClient
+    TabStop = True
+    Visible = True
+    inherited bvlBotoesEd: TBevel
+      Left = 339
+      Visible = False
+    end
+    object pgcPlanoContas: TPageControl
+      Left = 1
+      Top = 1
+      Width = 797
+      Height = 402
+      ActivePage = tstCadastroPlanoContas
+      Align = alClient
+      TabOrder = 0
+      TabWidth = 80
+      OnChange = pgcPlanoContasChange
+      object tstCadastroPlanoContas: TTabSheet
+        Caption = 'Cadastro'
+        object gbxOrientacoes: TGroupBox
+          Left = 476
+          Top = 0
+          Width = 313
+          Height = 371
+          Align = alClient
+          Caption = ' ORIENTA'#199#213'ES '
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 1
+          object mmoORIENTACOES: TtecDBMemo
+            Left = 2
+            Top = 14
+            Width = 309
+            Height = 355
+            Align = alClient
+            DataField = 'orientacoes'
+            DataSource = dtmPlanoContasReferencial.dsrPlanoContas
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 0
+          end
+        end
+        object pnlDados: TPanel
+          Left = 0
+          Top = 0
+          Width = 476
+          Height = 371
+          Align = alLeft
+          BevelOuter = bvNone
+          TabOrder = 0
+          object gbxVinculacao: TGroupBox
+            Left = 0
+            Top = 127
+            Width = 476
+            Height = 244
+            Align = alClient
+            Caption = ' VINCULA'#199#195'O '
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -11
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            ParentFont = False
+            TabOrder = 0
+            object dbgPlanoContasVinculados: TtecDBGrid
+              Left = 2
+              Top = 16
+              Width = 472
+              Height = 226
+              TabStop = False
+              Align = alClient
+              DataSource = dtmPlanoContasReferencial.dsrPlanoContasVinculado_Sinteticas
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -12
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              Options = [dgTitles, dgIndicator, dgRowSelect, dgConfirmDelete, dgCancelOnExit]
+              ParentFont = False
+              ReadOnly = True
+              TabOrder = 0
+              TitleFont.Charset = DEFAULT_CHARSET
+              TitleFont.Color = clBlack
+              TitleFont.Height = -9
+              TitleFont.Name = 'helvetica'
+              TitleFont.Pitch = fpVariable
+              TitleFont.Style = []
+              RowWrap = 60
+              Large = False
+              DoubleRowColor = True
+              TitleMinHeight = 100
+              CellHeights = 100
+              StrippedColor = 16054260
+              CanDelete = False
+              CanNotInsertFromGrid = False
+              PostOnEnter = False
+              PostOnSetUpDown = False
+              DenySort = False
+              DefaultRowHeight = 18
+              ExibirNumerodaLinha = False
+              NaoAtribuirDadosaTabelaaoDigitar = False
+              ShowWhenFieldInvisible = False
+              CanClickWhenEditing = False
+              Columns = <
+                item
+                  Expanded = False
+                  FieldName = 'classificacao'
+                  Title.Alignment = taCenter
+                  Title.Caption = 'CLASSIFICA'#199#195'O'
+                  Width = 145
+                  Visible = True
+                end
+                item
+                  Alignment = taCenter
+                  Expanded = False
+                  FieldName = 'tipo'
+                  Title.Alignment = taCenter
+                  Title.Caption = 'TIPO'
+                  Visible = True
+                end
+                item
+                  Expanded = False
+                  FieldName = 'descricao'
+                  Title.Alignment = taCenter
+                  Title.Caption = 'DESCRI'#199#195'O'
+                  Width = 263
+                  Visible = True
+                end>
+            end
+          end
+          object pnlPlanoContas: TPanel
+            Left = 0
+            Top = 0
+            Width = 476
+            Height = 127
+            Align = alTop
+            BevelOuter = bvNone
+            TabOrder = 1
+            object gbxCodigo: TGroupBox
+              Left = 2
+              Top = 6
+              Width = 81
+              Height = 36
+              Caption = ' C'#211'DIGO '
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -9
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              ParentFont = False
+              TabOrder = 0
+              object edfCodigo: TtecDbEditFind
+                Left = 2
+                Top = 10
+                Width = 76
+                Height = 23
+                Alignment = taLeftJustify
+                DataField = 'Codigo'
+                DataSource = dtmPlanoContasReferencial.dsrPlanoContas
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -12
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                Group = 'contacontabil'
+                MaxLength = 6
+                Maximo = 0
+                Minimo = 37353
+                Adicional = 0
+                Opcional = True
+                OnKeyDown = edfCodigoKeyDown
+                ParentFont = False
+                TabOrder = 0
+                PermitirZero = False
+                PermitirNulo = False
+                Operacao = opATRIBUICAO
+                Parameter = 'Codigo'
+                ActiveSetControls = True
+                DenyInsert = True
+                NoSetControls = <>
+                SetControls = <>
+              end
+            end
+            object gbxClassificacao: TGroupBox
+              Left = 2
+              Top = 48
+              Width = 154
+              Height = 36
+              Caption = ' CLASSIFICA'#199#194'O '
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -9
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              ParentFont = False
+              TabOrder = 1
+              object edtClassificacao: TDBEditmascara
+                Left = 2
+                Top = 10
+                Width = 149
+                Height = 23
+                DataField = 'classificacao'
+                DataSource = dtmPlanoContasReferencial.dsrPlanoContas
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -12
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                MaxLength = 16
+                ParentFont = False
+                TabOrder = 0
+                OnChange = edtClassificacaoChange
+                OnExit = edtClassificacaoExit
+                OnKeyDown = edtClassificacaoKeyDown
+                TipodeMascara = tMascaraReferencial
+              end
+            end
+            object gbxDescricao: TGroupBox
+              Left = 2
+              Top = 88
+              Width = 474
+              Height = 36
+              Caption = ' DESCRI'#199#195'O '
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -9
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              ParentFont = False
+              TabOrder = 4
+              object edtDescricao: TDBEditTexto
+                Left = 2
+                Top = 10
+                Width = 467
+                Height = 23
+                Hint = 'Descri'#231#227'o da categoria'
+                DataField = 'Descricao'
+                DataSource = dtmPlanoContasReferencial.dsrPlanoContas
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -12
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                MaxLength = 12
+                ParentFont = False
+                TabOrder = 0
+                OnExit = edtDescricaoExit
+                OnKeyDown = edtDescricaoKeyDown
+                CharCasenoDefault = False
+                Alignment = taLeftJustify
+              end
+            end
+            object rgpTipo: TtecDBRadioGroup
+              Left = 164
+              Top = 30
+              Width = 92
+              Height = 54
+              Caption = ' TIPO '
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -9
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              ParentFont = False
+              TabOrder = 2
+              TabStop = False
+              DataField = 'Tipo'
+              DataSource = dtmPlanoContasReferencial.dsrPlanoContas
+              object rbnAnalitica: TtecRadioButton
+                Left = 8
+                Top = 13
+                Width = 77
+                Height = 17
+                Caption = 'Anal'#237'tica'
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -12
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                ParentFont = False
+                TabOrder = 0
+                OnClick = rbnSinteticaClick
+                Value = 'A'
+              end
+              object rbnSintetica: TtecRadioButton
+                Left = 8
+                Top = 34
+                Width = 77
+                Height = 17
+                Caption = 'Sint'#233'tica'
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -12
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                ParentFont = False
+                TabOrder = 1
+                OnClick = rbnSinteticaClick
+                Value = 'S'
+              end
+            end
+            object gbxDataValidade: TGroupBox
+              Left = 265
+              Top = 30
+              Width = 148
+              Height = 49
+              Caption = ' VALIDADE '
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -9
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              ParentFont = False
+              TabOrder = 3
+              object gbxValidadeInicial: TGroupBox
+                Left = 0
+                Top = 13
+                Width = 75
+                Height = 36
+                Caption = ' DESDE '
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -9
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                ParentFont = False
+                TabOrder = 0
+                object edtDataValidoDesde: TDBEditData
+                  Left = 2
+                  Top = 10
+                  Width = 70
+                  Height = 23
+                  Hint = 'Data em que a categoria deixou de ser usada'
+                  Alignment = taCenter
+                  DataField = 'validodesde'
+                  DataSource = dtmPlanoContasReferencial.dsrPlanoContas
+                  Font.Charset = DEFAULT_CHARSET
+                  Font.Color = clBlack
+                  Font.Height = -12
+                  Font.Name = 'helvetica'
+                  Font.Pitch = fpVariable
+                  Font.Style = []
+                  MaxLength = -1
+                  Maximo = 0
+                  Minimo = 37353
+                  Adicional = 0
+                  ParentFont = False
+                  TabOrder = 0
+                  OnKeyDown = edtDataValidoDesdeKeyDown
+                  Opcional = True
+                end
+              end
+              object gbxValidadeFinal: TGroupBox
+                Left = 73
+                Top = 13
+                Width = 75
+                Height = 36
+                Caption = ' AT'#201' '
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -9
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                ParentFont = False
+                TabOrder = 1
+                object edtDataValidoAte: TDBEditData
+                  Left = 2
+                  Top = 10
+                  Width = 70
+                  Height = 23
+                  Hint = 'Data em que a categoria deixou de ser usada'
+                  Alignment = taCenter
+                  DataField = 'validoate'
+                  DataSource = dtmPlanoContasReferencial.dsrPlanoContas
+                  Font.Charset = DEFAULT_CHARSET
+                  Font.Color = clBlack
+                  Font.Height = -12
+                  Font.Name = 'helvetica'
+                  Font.Pitch = fpVariable
+                  Font.Style = []
+                  MaxLength = -1
+                  Maximo = 0
+                  Minimo = 37353
+                  Adicional = 0
+                  ParentFont = False
+                  TabOrder = 0
+                  OnKeyDown = edtDataValidoAteKeyDown
+                  Opcional = True
+                end
+              end
+            end
+          end
+        end
+      end
+      object tstImpressaoPlanoContas: TTabSheet
+        Caption = 'Impress'#227'o'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ImageIndex = 1
+        ParentFont = False
+        object gbxRelatorio: TGroupBox
+          Left = 6
+          Top = 67
+          Width = 101
+          Height = 59
+          Caption = ' RELAT'#211'RIO '
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 1
+          object ckbAnalitico: TCheckBox
+            Left = 8
+            Top = 14
+            Width = 80
+            Height = 19
+            Caption = 'Anal'#237'tico'
+            Checked = True
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            State = cbChecked
+            TabOrder = 0
+            OnClick = ckbAnaliticoClick
+          end
+          object ckbSintetico: TCheckBox
+            Left = 8
+            Top = 30
+            Width = 80
+            Height = 27
+            Caption = 'Sint'#233'tico'
+            Checked = True
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            State = cbChecked
+            TabOrder = 1
+            OnClick = ckbSinteticoClick
+          end
+        end
+        object gbxFiltro: TGroupBox
+          Left = 6
+          Top = 6
+          Width = 225
+          Height = 53
+          Caption = ' OP'#199#213'ES '
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          object ckbContaSelecionada: TCheckBox
+            Left = 8
+            Top = 10
+            Width = 210
+            Height = 18
+            Caption = 'Imprimir s'#243' as contas vinculadas'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 0
+          end
+          object ckbImprimirOrientacoes: TCheckBox
+            Left = 8
+            Top = 31
+            Width = 210
+            Height = 15
+            Caption = 'Imprimir orienta'#231#245'es'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 1
+          end
+        end
+        object rgpOrdenacao: TtecDBRadioGroup
+          Left = 117
+          Top = 67
+          Width = 114
+          Height = 59
+          Caption = ' ORDENA'#199#195'O '
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 2
+          TabStop = False
+          object rbnClassificacao: TtecRadioButton
+            Left = 6
+            Top = 14
+            Width = 100
+            Height = 17
+            Caption = 'Classifica'#231#227'o'
+            Checked = True
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 0
+            TabStop = True
+          end
+          object rbnDescricao: TtecRadioButton
+            Left = 6
+            Top = 34
+            Width = 100
+            Height = 17
+            Caption = 'Descri'#231#227'o'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 1
+          end
+        end
+        object gbxValidades: TGroupBox
+          Left = 6
+          Top = 132
+          Width = 148
+          Height = 49
+          Caption = ' VALIDADE '
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 3
+          object gbxValidasDesde: TGroupBox
+            Left = 0
+            Top = 13
+            Width = 75
+            Height = 36
+            Caption = ' DESDE '
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -9
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 0
+            object edtValidoDesde: TEditData
+              Left = 2
+              Top = 10
+              Width = 70
+              Height = 23
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -12
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              ParentFont = False
+              TabOrder = 0
+              Minimo = 37353
+              Maximo = 0
+            end
+          end
+          object gbxValidasAte: TGroupBox
+            Left = 73
+            Top = 13
+            Width = 75
+            Height = 36
+            Caption = ' AT'#201' '
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -9
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 1
+            object edtValidoAte: TEditData
+              Left = 2
+              Top = 10
+              Width = 70
+              Height = 23
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -12
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              ParentFont = False
+              TabOrder = 0
+              Minimo = 37353
+              Maximo = 0
+            end
+          end
+        end
+      end
+    end
+  end
+  inherited pnlTopMenu: TPanel
+    Width = 799
+    inherited tblBarra: TToolBar
+      Left = 300
+      Width = 499
+    end
+    inherited tblBarraCadastro: TToolBar
+      Width = 300
+      object sbnImprimir: TSpeedButton
+        Left = 225
+        Top = 2
+        Width = 75
+        Height = 39
+        Hint = 'Visualizar como o relat'#243'rio ser'#225' impresso'
+        Caption = 'Imprimir F7'
+        Flat = True
+        Glyph.Data = {
+          F6030000424DF603000000000000360000002800000013000000100000000100
+          180000000000C0030000120B0000120B00000000000000000000DCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC000000DCDCDCDCDCDCDCDCDC00
+          0000000000000000000000000000000000000000000000000000000000000000
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC000000DCDCDCDCDCDC000000C0C7C0C0C7
+          C0C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0000000C0C7C0000000DC
+          DCDCDCDCDCDCDCDCDCDCDC000000DCDCDC000000000000000000000000000000
+          000000000000000000000000000000000000000000000000C0C7C0000000DCDC
+          DCDCDCDCDCDCDC000000DCDCDC000000C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0C0
+          C7C000FFFF00FFFF00FFFFC0C7C0C0C7C0000000000000000000DCDCDCDCDCDC
+          DCDCDC000000DCDCDC000000C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0C0C7C08087
+          80808780808780C0C7C0C0C7C0000000C0C7C0000000DCDCDCDCDCDCDCDCDC00
+          0000DCDCDC000000000000000000000000000000000000000000000000000000
+          000000000000000000000000C0C7C0C0C7C0000000DCDCDCDCDCDC000000DCDC
+          DC000000C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0C0C7C0C0
+          C7C0000000C0C7C0000000C0C7C0000000DCDCDCDCDCDC000000DCDCDCDCDCDC
+          000000000000000000000000000000000000000000000000000000000000C0C7
+          C0000000C0C7C0000000000000DCDCDCDCDCDC000000DCDCDCDCDCDCDCDCDC00
+          0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000C0C7C0
+          000000C0C7C0000000DCDCDCDCDCDC000000DCDCDCDCDCDCDCDCDCDCDCDC0000
+          00FFFFFF000000000000000000000000000000FFFFFF00000000000000000000
+          0000DCDCDCDCDCDCDCDCDC000000DCDCDCDCDCDCDCDCDCDCDCDC000000FFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000DCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDC000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC000000FFFFFF00
+          0000000000000000000000000000FFFFFF000000DCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC000000FFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000DCDCDCDCDCDCDCDCDCDCDCDC00
+          0000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC000000000000000000000000
+          000000000000000000000000000000DCDCDCDCDCDCDCDCDCDCDCDC000000DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC000000}
+        Layout = blGlyphTop
+        Spacing = 0
+        OnClick = sbnImprimirClick
+      end
+    end
+  end
+  object pnlTipoPlanoReferencial: TPanel
+    Left = 0
+    Top = 45
+    Width = 799
+    Height = 25
+    Align = alTop
+    Caption = '*PESSOAS JUR'#205'DICAS EM GERAL - LUCRO REAL*'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -20
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 2
+  end
+end

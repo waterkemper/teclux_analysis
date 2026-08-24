@@ -1,0 +1,182 @@
+unit fmcopiarprodutospedidos;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmcadastropadrao, ComCtrls, Buttons, ExtCtrls,
+  Grids, DBGrids, Windows, ZQuery, frconsultacodigo,
+  ctconstantes, Mask, cpdbfindcontrols, dmcadastropedidos,
+  fmajudabt, cpdbgrid, DBCtrls, cpdbtext, ActnList, frconsulta, ToolWin;
+
+type
+  TfrmCopiarProdutosPedidos = class(TfrmAjudaBt)
+    sbnGravar: TSpeedButton;
+    pnlcomando: TPanel;
+    pnlfundogrid: TPanel;
+    dtxSituacao: TtecDBText;
+    dtxEmissao: TtecDBText;
+    dtxConcluido: TtecDBText;
+    dtxCNPJ: TtecDBText;
+    dtxFornecedor: TtecDBText;
+    gbxprodutospedidos: TGroupBox;
+    pnlbotaodireita: TPanel;
+    pnlabaixo: TPanel;
+    sbnAlterarPrecoSugestao: TSpeedButton;
+    dbgprodutospedidos: TtecDBGrid;
+    ckbselecionartodos: TCheckBox;
+    gbxpedido: TGroupBox;
+    gbxsituacao: TGroupBox;
+    Gbxemissao: TGroupBox;
+    Gbxconcluido: TGroupBox;
+    Gbxfornecedor: TGroupBox;
+    Gbxcnpj: TGroupBox;
+    edfPesquisaPedido: TtecDbEditFind;
+    procedure dbgprodutospedidosDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure ckbselecionartodosClick(Sender: TObject);
+    procedure dbgprodutospedidosDblClick(Sender: TObject);
+    procedure dbgprodutospedidosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnGravarClick(Sender: TObject);
+    procedure sbnAlterarPrecoSugestaoClick(Sender: TObject);
+    procedure sbnProcurarClick(Sender: TObject);
+    procedure edfPesquisaPedidoFound(Found: Boolean);
+  private
+    FPrecoAtual: Boolean;
+    { Private declarations }
+  protected
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+
+  public
+    ConsultaPedido : TfraConsultaCodigo;
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+    procedure AbrirPedidos;
+
+    { Public declarations }
+  end;
+
+var
+  frmCopiarProdutosPedidos: TfrmCopiarProdutosPedidos;
+
+implementation
+
+uses fmnavcontroles, dmbasico;
+
+{$R *.dfm}
+
+constructor TfrmCopiarProdutosPedidos.Create(AOwner: TComponent);
+begin
+  inherited;
+end;
+
+procedure TfrmCopiarProdutosPedidos.dbgprodutospedidosDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if not (gdFocused in State) then
+  begin
+    if dbgprodutospedidos.DataSource.DataSet.FieldByName('selecionar').AsBoolean then  begin
+      TDBGrid(Sender).Canvas.Brush.Color := clInfoBk;
+      TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+    end;
+  end;
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+destructor TfrmCopiarProdutosPedidos.Destroy;
+begin
+  inherited;
+  fraConsultaCodigo:= nil;
+  frmCopiarProdutosPedidos:= nil;
+end;
+
+procedure TfrmCopiarProdutosPedidos.ckbselecionartodosClick(Sender: TObject);
+begin
+  inherited;
+  dtmcadastropedidos.SelecionarProdutosPedidoCopiar(ckbselecionartodos.Checked,True);
+end;
+
+procedure TfrmCopiarProdutosPedidos.dbgprodutospedidosDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmcadastropedidos.SelecionarProdutosPedidoCopiar(False,False);
+end;
+
+procedure TfrmCopiarProdutosPedidos.dbgprodutospedidosKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (Key = VK_SPACE) and
+     (Shift = [ssctrl]) then
+    dtmCadastroPedidos.SelecionarProdutosPedidoCopiar(False, False);
+end;
+
+procedure TfrmCopiarProdutosPedidos.sbnGravarClick(Sender: TObject);
+begin
+  inherited;
+  if dtmCadastroPedidos.HaProdutoContratoCopiarSelecionado then
+    ModalResult:= mrOk;
+end;
+
+procedure TfrmCopiarProdutosPedidos.AbrirPedidos;
+begin
+  dtmCadastroPedidos.ValorPedidoSelecionado:= ConsultaPedido.ValorSelecionado;
+  edfPesquisaPedido.Text:= ConsultaPedido.ValorSelecionado;
+  dtmCadastroPedidos.AbrirPedido;
+  sbnGravar.Enabled := (edfPesquisaPedido.Text<>'');
+
+end;
+
+procedure TfrmCopiarProdutosPedidos.sbnAlterarPrecoSugestaoClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not dtmCadastroPedidos.qryPedidosCopia.IsEmpty then
+  begin
+    FPrecoAtual:= not FPrecoAtual;
+    dtmCadastroPedidos.AlterarPrecoProdutosPedidoCopiar(FPrecoAtual);
+  end;
+end;
+
+procedure TfrmCopiarProdutosPedidos.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl]  then
+  begin
+    if (key = VK_F9) then
+    begin
+      if sbnProcurar.Enabled then
+      begin
+        ConsultaPedido.InternoPesquisar(ctPEDIDOS);
+        self.SetFocus;
+      end;
+    end;
+  end
+  else
+  if (key = VK_F9) then
+    sbnProcurarClick(Self);
+  if (key = VK_F5) then
+    sbnGravarClick(Self);
+end;
+procedure TfrmCopiarProdutosPedidos.sbnProcurarClick(Sender: TObject);
+var Key : Word;
+    Shift: TShiftState;
+begin
+  inherited;
+  ConsultaPedido.InternoPesquisar(ctPEDIDOS);
+  self.SetFocus;
+end;
+
+procedure TfrmCopiarProdutosPedidos.edfPesquisaPedidoFound(Found: Boolean);
+begin
+  inherited;
+  sbnGravar.Enabled := found
+end;
+
+end.

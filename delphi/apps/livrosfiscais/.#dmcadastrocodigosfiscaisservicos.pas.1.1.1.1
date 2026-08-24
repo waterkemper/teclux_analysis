@@ -1,0 +1,94 @@
+unit dmcadastrocodigosfiscaisservicos;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery, dmtecsoft, cpdatasource,
+  ctconstantes, biblio;
+
+type
+  TdtmCadastroCodigosFiscaisServicos = class(TdtmBasico)
+    qryCodigosFiscaisServicos: TtecQuery;
+    dsrCodigosFiscaisServicos: TtecDataSource;
+    qryConsultaCodigosFiscaisServicos: TtecQuery;
+    qryConsultaCodigosFiscaisServicosdescricao: TStringField;
+    qryConsultaCodigosFiscaisServicoscodigo: TIntegerField;
+    qryCodigosFiscaisServicoscodigo: TIntegerField;
+    qryCodigosFiscaisServicosdescricao: TStringField;
+    qryCodigosFiscaisServicosdetalhes: TStringField;
+  protected
+    function  GetTabelaConsultaCodigosFiscaisServicos: TtecQuery;
+    function GetTabelaCodigosFiscaisServicos: TtecQuery;
+  public
+    constructor Create(AOwner: TComponent); override;
+    function  ExcluirCodigoFiscalServico: Boolean;
+    function  ExisteCodigosFiscaisServicos(campo, codigo: string): boolean;
+    function  GravarCodigoFiscalServico: Boolean;
+    function  IncluirCodigoFiscalServico: Boolean;
+    procedure RefazConsultaCodigoFiscalServico;
+    property  TabelaCodigosFiscaisServicos : TtecQuery read GetTabelaCodigosFiscaisServicos;
+    property  TabelaConsultaCodigosFiscaisServicos : TtecQuery read GetTabelaConsultaCodigosFiscaisServicos;
+  end;
+
+var
+  dtmCadastroCodigosFiscaisServicos: TdtmCadastroCodigosFiscaisServicos;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmCadastroCodigosFiscais }
+
+constructor TdtmCadastroCodigosFiscaisServicos.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryCodigosFiscaisServicos.Tag         := ctTabelas;
+  qryConsultaCodigosFiscaisServicos.Tag := ctConsultaCodigosFiscaisServicos;
+end;
+
+function TdtmCadastroCodigosFiscaisServicos.ExcluirCodigoFiscalServico: Boolean;
+begin
+  qryCodigosFiscaisServicos.Delete;
+  Perpetrar([qryCodigosFiscaisServicos]);
+  Result := True;
+end;
+
+function TdtmCadastroCodigosFiscaisServicos.ExisteCodigosFiscaisServicos(campo, codigo: string): boolean;
+begin
+  Result := ExisteCodigo(qryConsultaCodigosFiscaisServicos, campo, codigo);
+end;
+
+function TdtmCadastroCodigosFiscaisServicos.GetTabelaCodigosFiscaisServicos: TtecQuery;
+begin
+  Result := qryCodigosFiscaisServicos;
+end;
+
+function TdtmCadastroCodigosFiscaisServicos.GetTabelaConsultaCodigosFiscaisServicos: TtecQuery;
+begin
+  Result := qryConsultaCodigosFiscaisServicos
+end;
+
+function TdtmCadastroCodigosFiscaisServicos.GravarCodigoFiscalServico: Boolean;
+begin
+  Result := False;
+  if qryCodigosFiscaisServicos.CheckRequiredFields then begin
+    qryCodigosFiscaisServicos.Post;
+    Perpetrar([qryCodigosFiscaisServicos]);
+    Result := True;
+  end
+end;
+
+function TdtmCadastroCodigosFiscaisServicos.IncluirCodigoFiscalServico: Boolean;
+begin
+  qryCodigosFiscaisServicos.Insert;
+  Result := True;
+end;
+
+procedure TdtmCadastroCodigosFiscaisServicos.RefazConsultaCodigoFiscalServico;
+begin
+  RefazConsulta(qryCodigosFiscaisServicos, [0], [qryConsultaCodigosFiscaisServicoscodigo.AsInteger]);
+end;
+
+end.
+

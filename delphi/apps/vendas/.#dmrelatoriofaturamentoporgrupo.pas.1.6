@@ -1,0 +1,596 @@
+unit dmrelatoriofaturamentoporgrupo;
+
+interface
+
+uses
+  SysUtils, Classes, DB, CheckLst, Graphics,
+  // Repositorio
+  dmbasico, dmtecsoft, fmpreviewpadrao,
+  // Terceiros
+  ZQuery, ZPgSqlQuery, FR_DSet, FR_DBSet, FR_Class,
+  //Biblio
+  ctconstantes, biblio, clparametrossistema,
+  // Componenetes
+  cpquery,cpdatasource, ZTransact, variants;
+
+
+
+type
+  TdtmRelatoriofaturamentoporgrupo = class(TdtmBasico)
+    qryProcuraVendedores: TtecQuery;
+    dsrProcuraVendedores: TtecDataSource;
+    qryConsultaVendedores: TtecQuery;
+    qryConsultaVendedoresnome: TStringField;
+    qryConsultaVendedorescodigo: TIntegerField;
+    qryProcuraClasses: TtecQuery;
+    qryProcuraClassescodigo: TStringField;
+    qryProcuraClassesdescricao: TStringField;
+    dsrProcuraClasses: TtecDataSource;
+    qryProcuraFornecedores: TtecQuery;
+    qryProcuraFornecedorescodigo: TIntegerField;
+    qryProcuraFornecedoresnome: TStringField;
+    dsrProcuraFornecedores: TtecDataSource;
+    qryConsultaFornecedores: TtecQuery;
+    qryConsultaFornecedoresnome: TStringField;
+    qryConsultaFornecedorescodigo: TIntegerField;
+    qryRelatorioFaturamentoporGrupo: TtecQuery;
+    fdsRelatorioFaturamentoporGrupo: TfrDBDataSet;
+    frpRelatorioFaturamentoporGrupo: TfrReport;
+    qryGrupos: TtecQuery;
+    qryGruposdescricao: TStringField;
+    qryGruposcodigo: TStringField;
+    qryClasses: TtecQuery;
+    qryClassesdescricao: TStringField;
+    qryClassescodigo: TStringField;
+    qryRelatorioFaturamentoporGrupofilial: TIntegerField;
+    qryRelatorioFaturamentoporGrupocodigoclasse: TStringField;
+    qryRelatorioFaturamentoporGruponomeclasse: TStringField;
+    qryRelatorioFaturamentoporGrupoquantidade: TFloatField;
+    qryRelatorioFaturamentoporGrupocusto: TFloatField;
+    qryRelatorioFaturamentoporGrupocodigogrupo: TStringField;
+    qryRelatorioFaturamentoporGruponomegrupo: TStringField;
+    qryRelatorioFaturamentoporGrupovalorbrutodoproduto: TFloatField;
+    qryRelatorioFaturamentoporGrupovalordescontodoproduto: TFloatField;
+    qryRelatorioFaturamentoporGrupovalorliquidoproduto: TFloatField;
+    qryRelatorioFaturamentoporGrupovaloracrescproduto: TFloatField;
+    qryRelatorioFaturamentoporGrupovaloravistadoproduto: TFloatField;
+    qryRelatorioFaturamentoporGrupovaloraprazodoproduto: TFloatField;
+    qryRelatorioFaturamentoporGrupopercdescontodoproduto: TFloatField;
+    qryRelatorioFaturamentoporGrupototalliquidoprodutos: TFloatField;
+    qryRelatorioFaturamentoporGrupolucro: TFloatField;
+    qryRelatorioFaturamentoporGrupolucroporproduto: TFloatField;
+    qryRelatorioFaturamentoporGruponomefilial: TStringField;
+    qryRelatorioFaturamentoporGrupopercentual: TFloatField;
+    qryRelatorioFaturamentoporGrupopercentuallucro: TFloatField;
+    qryRelatorioFaturamentoporGrupopercentualmargem: TFloatField;
+    ZMonitor1: TZMonitor;
+    procedure frpRelatorioFaturamentoporGrupoBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+  private
+    FParametroCodigo: String;
+    FParametroGrupo: String;
+    FParametroDataInicial: String;
+    FParametroItem: String;
+    FParametroClasse: String;
+    FParametroDataFinal: String;
+    FParametroFornecedor: String;
+    FParametroCabecalho: String;
+    FFiliais: String;
+    FGrupoFiliais: String;
+    FGrupos: String;
+    FClasses: String;
+    FCabecalhoSaldoEstoque: String;
+    FParametroVendedor: String;
+    FParametroTipoRelatorio: integer;
+    FDevolucoesPeriodoAnterior: Boolean;
+    FDevolucoesPeriodoSelecionado: Boolean;
+    FAgruparFilial: Boolean;
+    FAgruparClasse: Boolean;
+    function GetConsultarFornecedor: TTecQuery;
+    function GetConsultarVendedor: TTecQuery;
+    function GetCodigoFornecedor: Integer;
+    function GetCodigoVendedor: Integer;
+    procedure SetFiliais(const Value: String);
+    procedure SetGrupoFiliais(const Value: String);
+    procedure SetParametroDataFinal(const Value: String);
+    procedure SetParametroDataInicial(const Value: String);
+    function GetListaClasses: TLista;
+    function GetListaGrupos: TLista;
+    procedure SetDevolucoesPeriodoAnterior(const Value: Boolean);
+    procedure SetOrdenacao(const Value: Integer);
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    procedure Selecionar(TipoPesquisa: TTecPesquisa);
+    procedure AbreTabelaPesquisa(TipoPesquisa: TtecPesquisa);
+    procedure FechaTabelaPesquisa(TipoPesquisa: TtecPesquisa);
+    procedure AbreRelatoriofaturamentoporgrupo;
+
+    property ParametroDataInicial: String read FParametroDataInicial write SetParametroDataInicial;
+    property ParametroDataFinal: String read FParametroDataFinal write SetParametroDataFinal;
+    procedure ImprimirRelatorio;
+    property ParametroCabecalho: String read FParametroCabecalho write FParametroCabecalho;
+
+
+
+    property Filiais: String read FFiliais write SetFiliais;
+    property GrupoFiliais: String read FGrupoFiliais write SetGrupoFiliais;
+    property ListaGrupos: TLista read GetListaGrupos;
+    property ListaClasses: TLista read GetListaClasses;
+    procedure MontarFiltroGrupos(Grupo: TCheckListBox);
+    procedure MontarFiltroClasses(Classe: TCheckListBox);
+    property AgruparFilial: Boolean read FAgruparFilial write FAgruparFilial;
+    property AgruparClasse: Boolean read FAgruparClasse write FAgruparClasse;
+
+
+    property ParametroItem: String read FParametroItem write FParametroItem;
+    property ParametroVendedor: String read FParametroVendedor write FParametroVendedor;
+    property ParametroFornecedor: String read FParametroFornecedor write FParametroFornecedor;
+    property ParametroTipoRelatorio: integer read FParametroTipoRelatorio write FParametroTipoRelatorio;
+
+    property ConsultarFornecedor: TTecQuery read GetConsultarFornecedor;
+    property ConsultarVendedor: TTecQuery read GetConsultarVendedor;
+
+    function ExisteFornecedor(Campo, Codigo: String): Boolean;
+    function ExisteVendedor(Campo, Codigo: String): Boolean;
+
+    property CodigoFornecedor: Integer read GetCodigoFornecedor;
+    property CodigoVendedor: Integer read GetCodigoVendedor;
+
+    property CabecalhoSaldoEstoque: String read FCabecalhoSaldoEstoque write FCabecalhoSaldoEstoque;
+    function AbrirConsultasRelatorio: boolean;
+
+    function MontarFiltroProduto: String;
+    function MontarParametroCodigo: String;
+    function MontarParametroGrupo: String;
+    function MontarParametroClasse: String;
+    function MontarParametroFornecedor: String;
+
+    property DevolucoesPeriodoSelecionado: Boolean read FDevolucoesPeriodoSelecionado write FDevolucoesPeriodoSelecionado;
+    property DevolucoesPeriodoAnterior: Boolean read FDevolucoesPeriodoAnterior write SetDevolucoesPeriodoAnterior;
+
+    property Ordenacao: Integer write SetOrdenacao;
+  end;
+
+var
+  dtmRelatoriofaturamentoporgrupo: TdtmRelatoriofaturamentoporgrupo;
+
+const
+  FiltroFilial      = ' AND ( ct.filialvenda IN (%s)) ';
+  FiltroGrupoFilial = ' ( ct.filialvenda IN (SELECT filial '+#13#10+
+                                         'FROM filiaisgruposfiliais fgf '+#13#10+
+                                         'WHERE fgf.grupo IN (%s))) ';
+  FiltroProduto = ' (p.codigo in (Select p.codigo '+
+                  ' from produtos p join caracteristicas c'+
+                  ' on p.caracteristica=c.codigo '+
+                  ' Where (%s)))';
+
+var
+FListaGrupos  : TLista;
+FListaClasses : TLista;
+
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmRelatoriofaturamentoporgrupo }
+
+procedure TdtmRelatoriofaturamentoporgrupo.AbreRelatoriofaturamentoporgrupo;
+begin
+
+end;
+
+procedure TdtmRelatoriofaturamentoporgrupo.AbreTabelaPesquisa(
+  TipoPesquisa: TtecPesquisa);
+begin
+  case TipoPesquisa of
+     pesITEMPRODUTOS      : begin
+                             //qryConsultaItemProdutos.Sql[03]:= 'Where (p.codigo = 0)';
+                             Abre(ctPesquisaItemProdutos);
+                            end;
+     pesPRODUTOS          : begin
+                             //qryConsultaProdutos.Sql[03]:= 'Where (c.codigo = 0)';
+                             Abre(ctPesquisaProdutos);
+                           end;
+     pesGRUPOS            : Abre(ctPesquisaGrupo);
+     pesCLASSES           : Abre(ctPesquisaClasse);
+     pesMARCAS            : Abre(ctPesquisaMarca);
+     pesFORNECEDORES      : Abre(ctPesquisaFornecedor);
+     pesVENDEDORES        : Abre(ctPesquisaVendedor);
+  end;
+end;
+
+constructor TdtmRelatoriofaturamentoporgrupo.Create(
+  AOwner: TComponent);
+begin
+  inherited;
+  qryProcuraFornecedores.Tag    := ctTabelas;
+  qryprocuraVendedores.Tag      := ctTabelas;
+
+  qryConsultaFornecedores.Tag   := ctPesquisaFornecedor;
+  qryConsultaVendedores.Tag     := ctPesquisaVendedor;
+
+end;
+
+function TdtmRelatoriofaturamentoporgrupo.ExisteFornecedor(Campo,
+  Codigo: String): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaFornecedores, campo, codigo);
+end;
+
+
+function TdtmRelatoriofaturamentoporgrupo.ExisteVendedor(Campo,
+  Codigo: String): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaVendedores, campo, codigo);
+end;
+
+procedure TdtmRelatoriofaturamentoporgrupo.FechaTabelaPesquisa(
+  TipoPesquisa: TtecPesquisa);
+begin
+  case TipoPesquisa of
+     pesITEMPRODUTOS      : fecha(ctPesquisaItemProdutos);
+     pesFORNECEDORES      : fecha(ctPesquisaFornecedor);
+     pesVENDEDORES        : fecha(ctPesquisaVendedor);
+  end;
+end;
+
+function TdtmRelatoriofaturamentoporgrupo.GetCodigoFornecedor: Integer;
+begin
+  Result := qryConsultaFornecedorescodigo.AsInteger;
+end;
+
+function TdtmRelatoriofaturamentoporgrupo.GetCodigoVendedor: Integer;
+begin
+ result := qryConsultaVendedorescodigo.Asinteger;
+end;
+
+function TdtmRelatoriofaturamentoporgrupo.GetConsultarFornecedor: TTecQuery;
+begin
+  Result := qryConsultaFornecedores;
+end;
+
+
+function TdtmRelatoriofaturamentoporgrupo.GetConsultarVendedor: TTecQuery;
+begin
+ result := qryConsultaVendedores;
+end;
+
+
+procedure TdtmRelatoriofaturamentoporgrupo.ImprimirRelatorio;
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+  frVariables['AgruparFilial']:=AgruparFilial;
+  frVariables['AgruparClasse']:=AgruparClasse;
+  ImprimirRelatoriofast(null, FParametroCabecalho, MSimples, 0, [frpRelatorioFaturamentoporGrupo]);
+end;
+
+
+procedure TdtmRelatoriofaturamentoporgrupo.Selecionar(
+  TipoPesquisa: TTecPesquisa);
+begin
+  case TipoPesquisa of
+    pesFORNECEDORES : RefazConsulta(qryProcuraFornecedores, [0], [CodigoFornecedor]);
+    pesVENDEDORES   : RefazConsulta(qryProcuraVendedores, [0], [Codigovendedor]);
+  end;
+end;
+
+procedure TdtmRelatoriofaturamentoporgrupo.SetFiliais(
+  const Value: String);
+begin
+  FFiliais := Value;
+end;
+
+procedure TdtmRelatoriofaturamentoporgrupo.SetGrupoFiliais(
+  const Value: String);
+begin
+  FGrupoFiliais := Value;
+end;
+
+function TdtmRelatoriofaturamentoporgrupo.AbrirConsultasRelatorio: boolean;
+var
+Filtro,FiltroAux: String;
+
+begin
+ Filtro:='';
+ qryRelatorioFaturamentoPorGrupo.ParamByName('DataInicial').AsString:=FParametroDataInicial;
+ qryRelatorioFaturamentoPorGrupo.ParamByName('DataFinal').AsString:=FParametroDataFinal;
+ FParametroCabecalho:=FParametroCabecalho+'Entre: '+ FParametroDataInicial+' e '+FParametroDataFinal;
+ qryRelatorioFaturamentoPorGrupo.ParamByName('AgruparFilial').AsBoolean:=FAgruparFilial;
+
+ //FILIAIS
+ if GrupoFiliais<>'' then
+ begin
+   if ParSistema.RelatorioSomenteFiliaisAutorizadas then
+     qryRelatorioFaturamentoporGrupo.MacroByName('WhereFiliais').AsString :=
+                Format(FiltroFilial,[Filiais])+ 'and' +
+                Format(FiltroGrupoFilial,[GrupoFiliais])
+   else
+     qryRelatorioFaturamentoporGrupo.MacroByName('WhereFiliais').AsString :=
+          Format(FiltroGrupoFilial,[GrupoFiliais])
+ end
+ else
+ if Filiais<>'' then
+   qryRelatorioFaturamentoporGrupo.MacroByName('WhereFiliais').AsString :=
+        Format(FiltroFilial,[Filiais])
+ else
+   qryRelatorioFaturamentoporGrupo.MacroByName('WhereFiliais').AsString := '';
+
+ //Produtos
+ Filtro:=MontarFiltroProduto;
+ qryRelatorioFaturamentoporGrupo.MacroByName('WhereProdutos').asstring := Filtro;
+
+ //GRUPOS
+ qryRelatorioFaturamentoporGrupo.MacroByName('WhereGrupos').asstring := FGrupos;
+
+ //CLASSES
+ qryRelatorioFaturamentoporGrupo.MacroByName('WhereClasses').asstring := FClasses;
+
+ //VENDEDORES
+ if(trim(FParametroVendedor)<>'') then
+ begin;
+   Filtro:='AND (pc.vendedor ='''+FParametroVendedor+''')';
+   FiltroAux:='AND (pdf.vendedor ='''+FParametroVendedor+''')';
+ end
+ else
+ begin
+   Filtro :='';
+   FiltroAux:='';
+ end;
+
+ qryRelatorioFaturamentoporGrupo.macrobyname('WhereVendedor').asstring := Filtro;
+ qryRelatorioFaturamentoporGrupo.macrobyname('WhereVendedorDadoFiscal').asstring := FiltroAux;
+
+ //FORNECEDORES
+ if (trim(FParametroFornecedor)<>'') then
+   Filtro:=' AND '''+FParametroFornecedor+''' IN (SELECT fornecedor FROM fornecedoresprodutos fp WHERE fp.caracteristica=c.codigo)'
+ else
+   Filtro:='';
+
+ qryRelatorioFaturamentoporGrupo.MacroByName('WhereFornecedor').asstring:=Filtro;
+
+
+// qryRelatorioFaturamentoporGrupo.Sql.SaveToFile('/home/jr/Desktop/teclux.sql');
+// qryRelatorioFaturamentoporGrupo.Sql.SaveToFile('c:\teclux.sql');
+ qryRelatorioFaturamentoporGrupo.Close;
+ qryRelatorioFaturamentoporGrupo.Open;
+ result := not qryRelatorioFaturamentoporGrupo.IsEmpty;
+end;
+
+procedure TdtmRelatoriofaturamentoporgrupo.SetParametroDataFinal(
+  const Value: String);
+begin
+  if not DataEmBranco(Value) then
+  begin
+    FParametroDataFinal := Value;
+    if DataEmBranco(FParametroDataInicial) then
+      FParametroDataInicial:=FParametroDataFinal;
+  end
+  else
+   FParametroDataFinal := FParametroDataInicial;
+end;
+
+procedure TdtmRelatoriofaturamentoporgrupo.SetParametroDataInicial(
+  const Value: String);
+begin
+  if not DataEmBranco(Value) then
+    FParametroDataInicial := Value;
+end;
+
+function TdtmRelatoriofaturamentoporgrupo.MontarParametroClasse: String;
+var
+ SQL : String;
+begin
+ SQL:=' c.classe = '+quotedstr(FParametroClasse);
+ FParametroCabecalho:=FParametroCabecalho+' Classe : '+FParametroClasse;
+ result := SQL;
+end;
+
+function TdtmRelatoriofaturamentoporgrupo.MontarParametroCodigo: String;
+var
+ SQL : String;
+begin
+ SQL:=' c.codigo = '+quotedstr(FParametroCodigo);
+ FParametroCabecalho:=FParametroCabecalho+' Produto : '+FParametroCodigo;
+ result := SQL;
+end;
+
+function TdtmRelatoriofaturamentoporgrupo.MontarParametroGrupo: String;
+var
+ SQL : String;
+begin
+ SQL:=' c.grupo = '+quotedstr(FParametroGrupo);
+ FParametroCabecalho:=FParametroCabecalho+' Grupo : '+FParametroGrupo;
+ result := SQL;
+end;
+
+function TdtmRelatoriofaturamentoporgrupo.MontarFiltroProduto: String;
+var
+ SQL : String;
+begin
+ if (trim(FParametroItem)<>'') then
+ begin
+        SQL:=' AND p.codigo = '+quotedstr(FParametroItem) ;
+        FParametroCabecalho:=FParametroCabecalho+' Item Produto : '+FParametroItem;
+ end
+ else
+   SQL:='';
+ result := SQL;
+end;
+
+function TdtmRelatoriofaturamentoporgrupo.MontarParametroFornecedor: String;
+var
+ SQL : String;
+begin
+ SQL:=' c.codigo in (select fp.caracteristica '+
+      '              from fornecedoresprodutos fp '+
+      '              where fp.fornecedor = '+quotedstr(FParametroFornecedor)+
+      '              order by fp.caracteristica) ';
+ FParametroCabecalho:=FParametroCabecalho+' Fornecedor : '+FParametroFornecedor;
+ result := SQL;
+end;
+
+function TdtmRelatoriofaturamentoporgrupo.GetListaClasses: TLista;
+Var
+  Ind: Integer;
+begin
+  FillChar(FListaClasses,SizeOf(FListaClasses),0);
+  qryClasses.Open;
+  SetLength(FListaClasses, qryClasses.RecordCount);
+  Ind:= 0;
+  while not qryClasses.Eof do begin
+    FListaClasses[Ind].codigo   := qryClassescodigo.AsString;
+    FListaClasses[Ind].descricao:= qryClassesdescricao.AsString;
+    Inc(Ind);
+    qryClasses.Next;
+  end;
+  qryClasses.Close;
+  Result := FListaClasses;
+end;
+
+function TdtmRelatoriofaturamentoporgrupo.GetListaGrupos: TLista;
+Var
+  Ind: Integer;
+begin
+  FillChar(FListaGrupos,SizeOf(FListaGrupos),0);
+  qryGrupos.Open;
+  SetLength(FListaGrupos, qryGrupos.RecordCount);
+  Ind:= 0;
+  while not qryGrupos.Eof do begin
+    FListaGrupos[Ind].codigo   := qryGruposcodigo.AsString;
+    FListaGrupos[Ind].descricao:= qryGruposdescricao.AsString;
+    Inc(Ind);
+    qryGrupos.Next;
+  end;
+  qryGrupos.Close;
+  Result := FListaGrupos;
+end;
+
+procedure TdtmRelatoriofaturamentoporgrupo.MontarFiltroClasses(
+  Classe: TCheckListBox);
+var
+  STRClasses: String;
+  Ind: Integer;
+begin
+  STRClasses := '';
+  for Ind:= 0 to (Length(FListaClasses) - 1) do
+    if Classe.Checked[Ind] then
+      STRClasses := STRClasses + QuotedStr(FListaClasses[Ind].codigo) + ',';
+  STRClasses := Copy(STRClasses, 0, Length(STRClasses) - 1);
+  if STRClasses <> '' then
+       FClasses:= 'and (c.classe in (' + STRClasses + '))'
+  else
+       FClasses:= '';
+end;
+
+procedure TdtmRelatoriofaturamentoporgrupo.MontarFiltroGrupos(
+  Grupo: TCheckListBox);
+var
+  STRGrupos: String;
+  Ind: Integer;
+begin
+  STRGrupos := '';
+  for Ind:= 0 to (Length(FListaGrupos) - 1) do
+    if Grupo.Checked[Ind] then
+      STRGrupos := STRGrupos + QuotedStr(FListaGrupos[Ind].codigo) + ',';
+  STRGrupos := Copy(STRGrupos, 0, Length(STRGrupos) - 1);
+  if STRGrupos <> '' then
+       FGrupos:= 'and (c.grupo in (' + STRGrupos + '))'
+  else
+       FGrupos:= '';
+end;
+
+
+
+procedure TdtmRelatoriofaturamentoporgrupo.SetDevolucoesPeriodoAnterior(const Value: Boolean);
+const
+ SQLDevolucoesPeriodoAnterior = 'and ct.faturamento < :DataInicial';
+ SQLDevolucoesPeriodoSelecionado = 'and ct.faturamento between (:DataInicial) and (:DataFinal)';
+begin
+  FDevolucoesPeriodoAnterior := Value;
+
+  qryRelatorioFaturamentoporGrupo.Sql[NumerodalinhanoTexto(qryRelatorioFaturamentoporGrupo.Sql,'/*Inicio Devolucoes*/')]:='/*Inicio Devolucoes*/';
+  qryRelatorioFaturamentoporGrupo.Sql[NumerodalinhanoTexto(qryRelatorioFaturamentoporGrupo.Sql,'/*Final Devolucoes*/')]:='/*Final Devolucoes*/';
+  qryRelatorioFaturamentoporGrupo.Sql[NumerodalinhanoTexto(qryRelatorioFaturamentoporGrupo.Sql,'/*Inicio Total Devolucoes*/')]:='/*Inicio Total Devolucoes*/';
+  qryRelatorioFaturamentoporGrupo.Sql[NumerodalinhanoTexto(qryRelatorioFaturamentoporGrupo.Sql,'/*Final Total Devolucoes*/')]:='/*Final Total Devolucoes*/';
+
+  if FDevolucoesPeriodoAnterior and FDevolucoesPeriodoSelecionado then
+    qryRelatorioFaturamentoporGrupo.MacroByName('WhereDevolucoes').AsString := ''
+  else
+   if FDevolucoesPeriodoAnterior then
+     qryRelatorioFaturamentoporGrupo.MacroByName('WhereDevolucoes').AsString := SQLDevolucoesPeriodoAnterior
+   else
+   if FDevolucoesPeriodoSelecionado then
+      qryRelatorioFaturamentoporGrupo.MacroByName('WhereDevolucoes').AsString := SQLDevolucoesPeriodoSelecionado
+   else
+   begin
+     qryRelatorioFaturamentoporGrupo.Sql[NumerodalinhanoTexto(qryRelatorioFaturamentoporGrupo.Sql,'/*Inicio Devolucoes*/')]:='/*Inicio Devolucoes';
+     qryRelatorioFaturamentoporGrupo.Sql[NumerodalinhanoTexto(qryRelatorioFaturamentoporGrupo.Sql,'/*Final Devolucoes*/')]:='Final Devolucoes*/';
+     qryRelatorioFaturamentoporGrupo.Sql[NumerodalinhanoTexto(qryRelatorioFaturamentoporGrupo.Sql,'/*Inicio Total Devolucoes*/')]:='/*Inicio Total Devolucoes';
+     qryRelatorioFaturamentoporGrupo.Sql[NumerodalinhanoTexto(qryRelatorioFaturamentoporGrupo.Sql,'/*Final Total Devolucoes*/')]:='Final Total Devolucoes*/';
+   end;
+end;
+
+
+procedure TdtmRelatoriofaturamentoporgrupo.frpRelatorioFaturamentoporGrupoBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  if View.Name = 'fpvLogo' then
+  begin
+   if FileExists(LogotipoFilialBase) then
+     try TfrPictureView(View).Picture.LoadFromFile(LogotipoFilialBase) except end;
+  end
+  else
+  if TColor(strtoint(parsistema.CorZebradoRelatorio))<>TColor(clnone) then
+   if (View.Name = 'mmoZebrado') then
+    if (frpRelatorioFaturamentoporGrupo.Dictionary.Variables.Variable['LINHA'] MOD 2)=0 then
+      frpRelatorioFaturamentoporGrupo.FindObject('mmoZebrado').FillColor := TColor(strtoint(parsistema.CorZebradoRelatorio))
+    else
+      frpRelatorioFaturamentoporGrupo.FindObject('mmoZebrado').FillColor := clnone;
+
+end;
+
+procedure TdtmRelatoriofaturamentoporgrupo.SetOrdenacao(
+  const Value: Integer);
+var
+ Ordenacao : String;
+begin
+  Ordenacao:='';
+  if AgruparFilial then
+    Ordenacao:=Ordenacao+', filial, nomefilial ';
+  if AgruparClasse then
+    Ordenacao:=Ordenacao+', codigoclasse';
+
+  case Value of
+    0: Ordenacao:= Ordenacao + ', percentualmargem DESC, percentuallucro DESC, codigogrupo';
+    1: Ordenacao:= Ordenacao + ', percentuallucro DESC, percentualmargem DESC, codigogrupo';
+    2: Ordenacao:= Ordenacao + ', percentual DESC, percentuallucro DESC, percentualmargem DESC, codigogrupo';
+    3: Ordenacao:= Ordenacao + ', quantidade DESC, percentuallucro DESC, percentualmargem DESC, codigogrupo';
+    4: Ordenacao:= Ordenacao + ', codigogrupo, percentual DESC, percentuallucro DESC, percentualmargem DESC';
+  end;
+  qryRelatorioFaturamentoporGrupo.MacroByName('Ordenacao').asstring :='Order by '+copy(Ordenacao,2,length(Ordenacao)-1);
+end;
+
+procedure TdtmRelatoriofaturamentoporgrupo.ZMonitor1MonitorEvent(Sql,
+  Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:/temp/fat.sql') then
+    Listar.loadfromfile('c:/temp/fat.sql');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:/temp/fat.sql');
+  listar.free;
+end;
+
+end.

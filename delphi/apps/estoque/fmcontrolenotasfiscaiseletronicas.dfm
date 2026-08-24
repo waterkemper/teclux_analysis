@@ -1,6 +1,6 @@
 inherited frmControleNotasFiscaisEletronicas: TfrmControleNotasFiscaisEletronicas
-  Left = 262
-  Top = 184
+  Left = 403
+  Top = 125
   ActiveControl = dbgNotas
   Caption = 'Controle de Notas Fiscais Eletr'#244'nicas'
   ClientHeight = 616

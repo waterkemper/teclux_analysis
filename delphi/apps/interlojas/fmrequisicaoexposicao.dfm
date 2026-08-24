@@ -1,6 +1,6 @@
 inherited frmRequisicaoExposicao: TfrmRequisicaoExposicao
-  Left = 565
-  Top = 157
+  Left = 755
+  Top = 159
   ActiveControl = edfCodigo
   Caption = 'Requisi'#231#227'o para Exposi'#231#227'o'
   ClientHeight = 417

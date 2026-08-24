@@ -1,0 +1,1836 @@
+unit fmConferenciaProdutos;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmajuda, frselecaoaleatoria, StdCtrls, ComCtrls, db, ctconstantes,
+  frconsultacodigo, cpdbfindcontrols, cpdatasource, ZQuery, ZPgSqlQuery,
+  cpquery, dmtecsoft, Grids, DBGrids, cpdbgrid, cptexto, dmbasico,
+  biblio, ExtCtrls, Buttons, clparametrossistema, frVisualizarImageURL,
+  cpnumero, frxClass, frxDBSet, ZSqlBuffer, MMSystem;
+
+type
+  TfrmConferenciaProdutos = class(TfrmAjuda)
+    qryProdutosConferencia: TtecQuery;
+    dsrProdutosConferencia: TtecDataSource;
+    qryProdutosConferenciaQuantidadeExcedente: TCurrencyField;
+    dbgProdutos: TtecDBGrid;
+    gbxCodigoBarras: TGroupBox;
+    edtCodigoBarras: TEditTexto;
+    qryProcuraProdutosCodigoBarras: TtecQuery;
+    qryProcuraProdutosCodigoBarrascodigo: TLargeintField;
+    qryProcuraProdutosCodigoBarrascodigovisual: TStringField;
+    qryProcuraProdutosCodigoBarrascodigobarras: TStringField;
+    qryProcuraProdutosCodigoBarrasdescricao: TStringField;
+    qryProcuraProdutos: TtecQuery;
+    qryProcuraProdutoscodigo: TLargeintField;
+    qryProcuraProdutoscodigovisual: TStringField;
+    qryProcuraProdutosdescricao: TStringField;
+    shAtendidos: TShape;
+    lblAtendidos: TLabel;
+    sbnReConferir: TBitBtn;
+    pnlTopo: TPanel;
+    pnlRodape: TPanel;
+    qryProdutosConferenciatipo: TStringField;
+    qryProdutosConferenciacodigo: TStringField;
+    qryProdutosConferenciaproduto: TLargeintField;
+    qryProdutosConferenciacodigovisual: TStringField;
+    qryProdutosConferenciadescricao: TStringField;
+    qryProdutosConferencialido: TFloatField;
+    qryProdutosConferenciaquantidade: TFloatField;
+    qryProdutosConferenciaQuantidadeFaltante: TFloatField;
+    sbnSalvar: TBitBtn;
+    qryConferencia: TtecQuery;
+    dsrConferencia: TtecDataSource;
+    qryConferenciatipo: TStringField;
+    qryConferenciacodigo: TStringField;
+    qryConferenciadata: TDateTimeField;
+    qryConferenciausuario: TIntegerField;
+    Shape1: TShape;
+    Label1: TLabel;
+    qryProdutosConferenciadigitado: TBooleanField;
+    qryProcuraProdutosnomefoto: TStringField;
+    qryProcuraProdutosnomethumb: TStringField;
+    fraVisualizarImageURL1: TfraVisualizarImageURL;
+    Splitter1: TSplitter;
+    qryProdutosCompostos: TtecQuery;
+    qryProdutosCompostoscomposto: TLargeintField;
+    qryProdutosCompostoscomponente: TLargeintField;
+    qryProdutosCompostoscomponentevisual: TStringField;
+    qryProdutosCompostosquantidade: TFloatField;
+    qryProdutosCompostoscodigo: TLargeintField;
+    qryProdutosCompostosdescricao: TStringField;
+    qryProdutosCompostospreco: TFloatField;
+    qryProdutosCompostostotal: TFloatField;
+    qryProdutosCompostosunidadecaracteristica: TStringField;
+    qryProdutosCompostosordem: TIntegerField;
+    qryProdutosCompostospossuicustofrete: TBooleanField;
+    qryProdutosCompostosqueima: TBooleanField;
+    qryProdutosCompostosqtceramicacarga: TIntegerField;
+    qryProdutosCompostospercperda: TFloatField;
+    qryProdutosCompostosimprimirosp: TBooleanField;
+    qryProdutosCompostosdesconsiderarcusto: TBooleanField;
+    qryProdutosCompostosunidade: TStringField;
+    qryProdutosCompostosfatorconversao: TFloatField;
+    qryProdutosCompostosexibirfluxogramaplanilhacusto: TBooleanField;
+    qryProdutosCompostosquantidadeehsomatoriodoscomponentes: TBooleanField;
+    qryProdutosConferenciaCompostos: TtecQuery;
+    qryProdutosConferenciaCompostostipo: TStringField;
+    qryProdutosConferenciaCompostoscodigo: TStringField;
+    qryProdutosConferenciaCompostoscomposto: TLargeintField;
+    qryProdutosConferenciaCompostoscomponente: TLargeintField;
+    qryProdutosConferenciaCompostoslido: TFloatField;
+    qryProdutosConferenciaCompostosdigitado: TBooleanField;
+    qryProdutosConferenciaCompostosdatahora_inclusao: TDateTimeField;
+    qryProdutosConferenciaCompostosdatahora_alteracao: TDateTimeField;
+    qryProdutosConferenciaVisao: TtecQuery;
+    dsrProdutosConferenciaVisao: TtecDataSource;
+    qryProdutosConferenciaVisaotipo: TStringField;
+    qryProdutosConferenciaVisaocodigo: TStringField;
+    qryProdutosConferenciaVisaoproduto: TLargeintField;
+    qryProdutosConferenciaVisaocodigovisual: TStringField;
+    qryProdutosConferenciaVisaodescricao: TStringField;
+    qryProdutosConferenciaVisaolido: TFloatField;
+    qryProdutosConferenciaVisaoquantidade: TFloatField;
+    qryProdutosConferenciaVisaodigitado: TBooleanField;
+    qryProdutosConferenciaVisaocomposto: TLargeintField;
+    qryProdutosConferenciaVisaoQuantidadeExcedente: TCurrencyField;
+    qryProdutosConferenciaVisaoQuantidadeFaltante: TFloatField;
+    qryProdutosConferenciaVisaocompostovisual: TStringField;
+    qryProdutosCompostoscompostovisual: TStringField;
+    qryProdutosConferenciaCompostosquantidade: TFloatField;
+    qryProdutosConferenciaCompostosquantidadecomponente: TFloatField;
+    qryProdutosConferenciaVisaovalorgrade1: TStringField;
+    qryProdutosConferenciaVisaolinha: TStringField;
+    qryProdutosConferenciaVisaovalorgrade2: TStringField;
+    qryProdutosConferenciaVisaocoluna: TStringField;
+    qryProcuraProdutosCodigoBarrasvalorgrade1: TStringField;
+    qryProcuraProdutosCodigoBarraslinha: TStringField;
+    qryProcuraProdutosCodigoBarrasvalorgrade2: TStringField;
+    qryProcuraProdutosCodigoBarrascoluna: TStringField;
+    qryProcuraProdutosvalorgrade1: TStringField;
+    qryProcuraProdutoslinha: TStringField;
+    qryProcuraProdutosvalorgrade2: TStringField;
+    qryProcuraProdutoscoluna: TStringField;
+    qryProdutosConferenciavalorgrade1: TStringField;
+    qryProdutosConferencialinha: TStringField;
+    qryProdutosConferenciavalorgrade2: TStringField;
+    qryProdutosConferenciacoluna: TStringField;
+    qryProdutosCompostosvalorgrade1: TStringField;
+    qryProdutosCompostoslinha: TStringField;
+    qryProdutosCompostosvalorgrade2: TStringField;
+    qryProdutosCompostoscoluna: TStringField;
+    qryEstoques: TtecQuery;
+    qryEstoqueslocalizacao: TStringField;
+    qryProdutosConferenciaVisaolocalizacao: TStringField;
+    sbnRecomecarFaltantes: TBitBtn;
+    sbnDetalhes: TBitBtn;
+    pnlDetalhes: TPanel;
+    lblQtdeLida: TStaticText;
+    edtQtdeLida: TDBEditNumero;
+    lblQuantidade: TStaticText;
+    edtQuantidade: TDBEditNumero;
+    frxProdutosConferenciaVisao: TfrxDBDataset;
+    frxImpressaoConferencia: TfrxReport;
+    btnImprimir: TBitBtn;
+    qryIdentificacao: TtecQuery;
+    qryIdentificacaoidentificacao: TStringField;
+    frxIdentificacao: TfrxDBDataset;
+    frxProdutosConferenciaVisao_: TfrxDBDataset;
+    procedure qryProdutosConferenciaCalcFields(DataSet: TDataSet);
+    procedure edtCodigoBarrasKeyDown(Sender: TObject;
+      var Key: Word; Shift: TShiftState);
+    procedure FormShow(Sender: TObject);
+    procedure sbnReConferirClick(Sender: TObject);
+    procedure dbgProdutosDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure sbnSalvarClick(Sender: TObject);
+    procedure sbnRecomecarFaltantesClick(Sender: TObject);
+    procedure dbgProdutosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure qryProdutosConferenciaNewRecord(DataSet: TDataSet);
+    procedure FormCanResize(Sender: TObject; var NewWidth,
+      NewHeight: Integer; var Resize: Boolean);
+    procedure FormResize(Sender: TObject);
+    procedure qryProdutosConferenciaVisaoAfterDelete(DataSet: TDataSet);
+    procedure qryProdutosConferenciaVisaoAfterPost(DataSet: TDataSet);
+    procedure qryProdutosConferenciaVisaoAfterScroll(DataSet: TDataSet);
+    procedure qryProdutosConferenciaVisaoCalcFields(DataSet: TDataSet);
+    procedure qryProdutosConferenciaVisaoNewRecord(DataSet: TDataSet);
+    procedure dsrProdutosConferenciaVisaoDataChange(Sender: TObject;
+      Field: TField);
+    procedure edtQtdeLidaKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure btnImprimirClick(Sender: TObject);
+    procedure frxImpressaoConferenciaGetValue(const VarName: String;
+      var Value: Variant);
+  private
+    { Private declarations }
+    EscParaVoltar : Boolean;
+  protected
+    dmbasico : TdtmBasico;
+    InitialResize : boolean;
+
+
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure LocalizarProduto(TextodePesquisa: String; TipoPesquisaProduto:TtecTipoPesquisaProduto);
+    procedure ConferirProdutos(RefazerProdutos: boolean = false; RecomecarFE: Boolean = false);  overload;
+    function Produto: String;
+    function produtoprocuracodigobarras: String;
+    function produtoprocuraproduto: String;
+    procedure AbrirTabelaEstoque(tipo, produto, codigodocumento: String);
+
+    procedure PlaySound_;
+
+  public
+    { Public declarations }
+    qryTabelaProdutos: TtecQuery;
+    NomeCampoCodigo, NomeCampoCodigoVisual, NomeCampoDescricao, NomeCampoQuantidade, Tipo, CodigoDocumento, valorgrade1, valorgrade2, linha, coluna : String;
+    constructor Create(Aowner:Tcomponent);override;
+    destructor  Destroy; override;
+    procedure MensagemQuantidadeExcedente;
+
+  end;
+
+  procedure ConferirProdutos(qryTabelaProdutos: TtecQuery;
+                             NomeCampoCodigo, NomeCampoCodigoVisual,
+                             NomeCampoDescricao, NomeCampoQuantidade,
+                             Tipo, Codigo, valorgrade1, valorgrade2,
+                             linha, coluna : String; Largura: integer = 0 ; Altura: integer = 0;  Aowner : Tcomponent = nil);  overload;
+
+
+
+var
+  frmConferenciaProdutos: TfrmConferenciaProdutos;
+
+implementation
+
+uses frconsulta;
+
+{$R *.dfm}
+
+
+constructor TfrmConferenciaProdutos.Create(Aowner: Tcomponent);
+begin
+//  dtmConferenciaProdutos := TdtmConferenciaProdutos.Create(Self);
+  inherited;
+  dmbasico := TdtmBasico.Create(self);
+
+  qryProdutosconferenciaquantidade.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosconferencialido.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosconferenciaQuantidadeFaltante.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosconferenciaQuantidadeExcedente.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+
+  if dbgProdutos.ColumnByName('quantidade').Width < ParSistema.TamanhoMascaraQuantidade then  dbgProdutos.ColumnByName('quantidade').Width := ParSistema.TamanhoMascaraQuantidade;
+  if dbgProdutos.ColumnByName('lido').Width < ParSistema.TamanhoMascaraQuantidade then  dbgProdutos.ColumnByName('lido').Width := ParSistema.TamanhoMascaraQuantidade;
+  if dbgProdutos.ColumnByName('QuantidadeFaltante').Width < ParSistema.TamanhoMascaraQuantidade then  dbgProdutos.ColumnByName('QuantidadeFaltante').Width := ParSistema.TamanhoMascaraQuantidade;
+  if dbgProdutos.ColumnByName('QuantidadeExcedente').Width < ParSistema.TamanhoMascaraQuantidade then  dbgProdutos.ColumnByName('QuantidadeExcedente').Width := ParSistema.TamanhoMascaraQuantidade;
+
+  dbgProdutos.ColumnByName('codigovisual').Visible := parsistema.ExibirCodigodoProdutonaConferencia;
+
+  dbgProdutos.ColumnByName('valorgrade1').Visible := parsistema.UsarGradesProdutos;
+  dbgProdutos.ColumnByName('valorgrade2').Visible := parsistema.UsarGradesProdutos;
+
+  InitialResize := false;
+
+  if fraVisualizarImageURL1.visible then
+    fraVisualizarImageURL1.Produto := Produto;
+
+    {
+  self.Width := 240;
+  self.Height := 320;
+  self.Left := 680;
+     }
+
+
+end;
+
+destructor TfrmConferenciaProdutos.Destroy;
+begin
+
+  inherited;
+end;
+
+procedure TfrmConferenciaProdutos.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  if EscParaVoltar and (key = VK_ESCAPE) THEN
+    close
+  ELSE
+    case Key of
+      VK_F5 : if sbnSalvar.enabled then
+               sbnSalvarClick(self);
+
+      VK_F7 : if btnImprimir.enabled then
+               btnImprimirClick(self);
+
+      VK_F11 : begin
+                  if gbxCodigoBarras.caption = 'CÓDIGO DE BARRAS' then
+                     gbxCodigoBarras.caption := 'PRODUTO'
+                   else
+                     gbxCodigoBarras.caption := 'CÓDIGO DE BARRAS';
+               end;
+
+      else
+      inherited;
+    end;
+
+end;
+
+procedure TfrmConferenciaProdutos.qryProdutosConferenciaCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  if qryProdutosconferenciaquantidade.AsCurrency > qryProdutosconferencialido.AsCurrency then
+  begin
+    qryProdutosconferenciaQuantidadeFaltante.AsCurrency := qryProdutosconferenciaquantidade.AsCurrency - qryProdutosconferencialido.AsCurrency;
+    qryProdutosconferenciaQuantidadeExcedente.AsCurrency := 0;
+  end
+  else
+  if qryProdutosconferenciaquantidade.AsCurrency < qryProdutosconferencialido.AsCurrency then
+  begin
+    qryProdutosconferenciaQuantidadeFaltante.AsCurrency := 0;
+    qryProdutosconferenciaQuantidadeExcedente.AsCurrency := qryProdutosconferencialido.AsCurrency - qryProdutosconferenciaquantidade.AsCurrency;
+//    MensagemAviso('A quantidade lida ultrapassou a quantidade do documento.',true)
+  end
+  else
+  begin
+    qryProdutosconferenciaQuantidadeFaltante.AsCurrency := 0;
+    qryProdutosconferenciaQuantidadeExcedente.AsCurrency := 0;
+  end;
+
+end;
+
+procedure TfrmConferenciaProdutos.edtCodigoBarrasKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Key = VK_RETURN then
+  begin
+    try
+
+      if edtCodigoBarras.Text<>''then
+      begin
+        if gbxCodigoBarras.Caption = 'CÓDIGO DE BARRAS' then
+          LocalizarProduto(edtCodigoBarras.Text,
+                                                               pesCodigoBarras)
+        else
+          LocalizarProduto(edtCodigoBarras.Text,
+                                                               pesproduto);
+      end;
+
+    finally
+      edtCodigoBarras.SetFocus;
+      while ActiveControl.Name <> edtCodigoBarras.Name do
+        edtCodigoBarras.SetFocus;
+
+      edtCodigoBarras.SelectAll;
+      SendMessage(edtCodigoBarras.Handle, EM_SETSEL, 0, length(edtCodigoBarras.Text));
+    end
+  end;
+
+end;
+
+procedure TfrmConferenciaProdutos.LocalizarProduto(TextodePesquisa: String;
+  TipoPesquisaProduto: TtecTipoPesquisaProduto);
+var
+ fraVisualizarImageURL1_visible : boolean;
+
+  Procedure IncluirProduto;
+  begin
+    case TipoPesquisaProduto of
+      pesCODIGOBARRAS:
+      begin
+
+        AbrirTabelaEstoque(tipo, qryProcuraProdutosCodigoBarrascodigo.AsString, CodigoDocumento);
+
+        qryprodutosconferenciavisao.append;
+        qryProdutosConferenciavisaotipo.AsString := Tipo;
+        qryProdutosConferenciavisaocodigo.AsString := CodigoDocumento;
+        qryProdutosconferenciavisaoproduto.AsString := qryProcuraProdutosCodigoBarrascodigo.AsString;
+        qryProdutosConferenciaVisaocomposto.clear;
+        qryProdutosConferenciaVisaocompostovisual.asstring := '';
+        qryProdutosconferenciavisaocodigovisual.AsString := qryProcuraProdutosCodigoBarrascodigovisual.AsString;
+        qryProdutosconferenciavisaodescricao.AsString := qryProcuraProdutosCodigoBarrasdescricao.AsString;
+        qryProdutosConferenciaVisaolocalizacao.AsString := qryEstoqueslocalizacao.asString;
+
+        qryProdutosConferenciaVisaovalorgrade1.asString := qryProcuraProdutosCodigoBarrasvalorgrade1.asString;
+        qryProdutosConferenciaVisaovalorgrade2.asString := qryProcuraProdutosCodigoBarrasvalorgrade2.asString;
+        qryProdutosConferenciaVisaolinha.asString := qryProcuraProdutosCodigoBarraslinha.asString;
+        qryProdutosConferenciaVisaocoluna.asString := qryProcuraProdutosCodigoBarrascoluna.asString;
+
+
+        qryProdutosconferenciavisaolido.AsInteger := 1;
+        qryprodutosconferenciavisao.post;
+
+        qryprodutosconferencia.append;
+        qryProdutosConferenciatipo.AsString := Tipo;
+        qryProdutosConferenciacodigo.AsString := CodigoDocumento;
+        qryProdutosconferenciaproduto.AsString := qryProcuraProdutosCodigoBarrascodigo.AsString;
+        qryProdutosconferenciacodigovisual.AsString := qryProcuraProdutosCodigoBarrascodigovisual.AsString;
+        qryProdutosconferenciadescricao.AsString := qryProcuraProdutosCodigoBarrasdescricao.AsString;
+
+        qryProdutosConferenciavalorgrade1.asString := qryProcuraProdutosCodigoBarrasvalorgrade1.asString;
+        qryProdutosConferenciavalorgrade2.asString := qryProcuraProdutosCodigoBarrasvalorgrade2.asString;
+        qryProdutosConferencialinha.asString := qryProcuraProdutosCodigoBarraslinha.asString;
+        qryProdutosConferenciacoluna.asString := qryProcuraProdutosCodigoBarrascoluna.asString;
+
+        qryProdutosconferencialido.AsInteger := 1;
+        qryprodutosconferencia.post;
+
+      end;
+
+      pesPRODUTO:
+      begin
+        AbrirTabelaEstoque(tipo, qryProcuraProdutoscodigo.AsString, CodigoDocumento);
+        qryprodutosconferenciavisao.append;
+        qryProdutosConferenciavisaotipo.AsString := Tipo;
+        qryProdutosConferenciavisaocodigo.AsString := CodigoDocumento;
+        qryProdutosconferenciavisaoproduto.AsString := qryProcuraProdutoscodigo.AsString;
+        qryProdutosConferenciaVisaocomposto.clear;
+        qryProdutosConferenciaVisaocompostovisual.asString := '';
+        qryProdutosconferenciavisaocodigovisual.AsString := qryProcuraProdutoscodigovisual.AsString;
+        qryProdutosconferenciavisaodescricao.AsString := qryProcuraProdutosdescricao.AsString;
+        qryProdutosConferenciaVisaolocalizacao.AsString := qryEstoqueslocalizacao.asString;
+
+        qryProdutosConferenciaVisaovalorgrade1.asString := qryProcuraProdutosvalorgrade1.asString;
+         qryProdutosConferenciaVisaovalorgrade2.asString := qryProcuraProdutosvalorgrade2.asString;
+        qryProdutosConferenciaVisaolinha.asString := qryProcuraProdutoslinha.asString;
+        qryProdutosConferenciaVisaocoluna.asString := qryProcuraProdutoscoluna.asString;
+
+        qryProdutosconferenciavisaolido.AsInteger := 1;
+        qryprodutosconferenciavisao.post;
+
+        qryprodutosconferencia.append;
+        qryProdutosConferenciatipo.AsString := Tipo;
+        qryProdutosConferenciacodigo.AsString := CodigoDocumento;
+        qryProdutosconferenciaproduto.AsString := qryProcuraProdutoscodigo.AsString;
+        qryProdutosconferenciacodigovisual.AsString := qryProcuraProdutoscodigovisual.AsString;
+        qryProdutosconferenciadescricao.AsString := qryProcuraProdutosdescricao.AsString;
+
+        qryProdutosConferenciavalorgrade1.asString := qryProcuraProdutosvalorgrade1.asString;
+        qryProdutosConferenciavalorgrade2.asString := qryProcuraProdutosvalorgrade2.asString;
+        qryProdutosConferencialinha.asString := qryProcuraProdutoslinha.asString;
+        qryProdutosConferenciacoluna.asString := qryProcuraProdutoscoluna.asString;
+
+        qryProdutosconferencialido.AsInteger := 1;
+        qryprodutosconferencia.post;
+      end;
+    end;
+  end;
+
+  Procedure ProcurarOutrasOcorrencias(NomeDoCampo: String);
+  var
+    vRegistroAtual: TBookMark;
+    vRegistroEncontrado : Boolean;
+  begin
+    if (qryProdutosconferenciaVisaoquantidade.AsCurrency < (qryProdutosconferenciaVisaolido.AsCurrency + 1)) then
+    begin
+
+      vRegistroEncontrado := false;
+      vRegistroAtual := qryProdutosconferenciaVisao.GetBookmark;
+
+      qryProdutosconferenciaVisao.first;
+
+      while not qryProdutosconferenciaVisao.Eof do
+      begin
+
+        if qryProdutosconferenciaVisao.GetBookmark <> vRegistroAtual then
+        begin
+
+          case TipoPesquisaProduto of
+            pesCODIGOBARRAS:
+            begin
+              if (qryProdutosconferenciaVisao.fieldbyname(NomedoCampo).asString = qryProcuraProdutosCodigoBarrascodigovisual.AsString) and
+                 (qryProdutosconferenciaVisaoquantidade.AsCurrency >= (qryProdutosconferenciaVisaolido.AsCurrency + 1)) then
+              begin
+                 vRegistroEncontrado := True;
+                 break;
+              end;
+            end;
+
+            pesPRODUTO:
+            begin
+              if (qryProdutosconferenciaVisao.fieldbyname(NomedoCampo).asString = qryProcuraProdutoscodigovisual.AsString) and
+                 (qryProdutosconferenciaVisaoquantidade.AsCurrency >= (qryProdutosconferenciaVisaolido.AsCurrency + 1)) then
+              begin
+                 vRegistroEncontrado := True;
+                 break;
+              end;
+            end;
+          end;
+
+        end;
+
+        qryProdutosconferenciaVisao.next;
+      end;
+
+      if not vRegistroEncontrado then
+        qryProdutosconferenciaVisao.GotoBookmark(vRegistroAtual);
+
+      qryProdutosconferenciaVisao.freeBookmark(vRegistroAtual);
+
+    end;
+  end;
+
+begin
+  try
+
+    fraVisualizarImageURL1_visible := fraVisualizarImageURL1.visible;
+    fraVisualizarImageURL1.visible := false;
+
+    dsrProdutosConferenciavisao.onDataChange := nil;
+    case TipoPesquisaProduto of
+      pesCODIGOBARRAS:
+      begin
+        dmbasico.RefazConsultaPorNome(qryProcuraProdutosCodigoBarras,['codigobarras'], [TextodePesquisa]);
+
+        if qryProcuraProdutosCodigoBarras.IsEmpty then
+          MensagemAviso(format('O produto com o Código de Barras ''%s'' não está cadastrado',[TextodePesquisa]), true)
+        else
+        {aqui vai ter alteração}
+
+        if not qryProdutosconferenciaVisao.Locate('produto', qryProcuraProdutosCodigoBarrascodigo.AsString,[]) then
+        begin
+
+          if fraVisualizarImageURL1_visible then
+          begin
+            fraVisualizarImageURL1.visible := true;
+            fraVisualizarImageURL1.produto := produtoprocuracodigobarras;
+            fraVisualizarImageURL1.AbrirqryFotosProdutos(parsistema.ExibirCodigodoProdutonaConferencia);
+            fraVisualizarImageURL1.produto := produto;
+            fraVisualizarImageURL1.visible := fraVisualizarImageURL1_visible;
+
+          end;
+
+
+          PlaySound_;
+
+
+          {
+          Application.MessageBeep(MB_IconAsterisk);
+
+          PlaySound('Campainha do Windows XP',0,snd_Async);
+          }
+
+          {
+          Tocando Sons WAV
+
+          Para reproduzir sons no formato WAV em um programa em Delphi é simples, o usuário deverá colocar na clásula Uses o MMSystem. E no corpo do programa o comando:
+
+          Código:          ]
+          }
+
+
+          if Tipo = 'LPA' then
+          begin
+            if MensagemSelecionaOpcao(format('O produto com o Código de Barras ''%s'' não está presente na lista'+#13+
+                                             'Deseja inclui-lo na lista abaixo?',[TextodePesquisa])) = smbYES then
+              IncluirProduto;
+          end
+          else
+             MensagemAviso(format('O produto com o Código de Barras ''%s'' não está presente na lista',[TextodePesquisa]), True);
+
+          if fraVisualizarImageURL1_visible then
+            fraVisualizarImageURL1.AbrirqryFotosProdutos(parsistema.ExibirCodigodoProdutonaConferencia);
+
+        end
+        else
+        begin
+
+          ProcurarOutrasOcorrencias('produto');
+
+          qryProdutosConferenciaVisao.Edit;
+          qryProdutosConferenciaVisaolido.AsCurrency := qryProdutosConferenciaVisaolido.AsCurrency + 1;
+          qryProdutosConferenciaVisao.post;
+
+          if fraVisualizarImageURL1_visible then
+            fraVisualizarImageURL1.AbrirqryFotosProdutos(parsistema.ExibirCodigodoProdutonaConferencia);
+
+        end;
+      end;
+
+      pesPRODUTO:
+      begin
+        if ParSistema.PermitirProdutoAlfanumerico then
+        begin
+          if not qryProdutosConferenciaVisao.Locate('codigovisual',TextodePesquisa,[]) then
+          begin
+            dmbasico.RefazConsultaPorNome(qryProcuraProdutos,['codigo','codigovisual'], ['0',TextodePesquisa]);
+            if qryProcuraProdutos.IsEmpty then
+              MensagemAviso(format('O produto com o Código ''%s'' não está cadastrado',[TextodePesquisa]), true)
+            else
+            begin
+
+              if fraVisualizarImageURL1_visible then
+              begin
+
+                fraVisualizarImageURL1.visible := true;
+                fraVisualizarImageURL1.produto := produtoprocuraproduto;
+                fraVisualizarImageURL1.AbrirqryFotosProdutos(parsistema.ExibirCodigodoProdutonaConferencia);
+                fraVisualizarImageURL1.produto := produto;
+                fraVisualizarImageURL1.visible := fraVisualizarImageURL1_visible;
+              end;
+
+              PlaySound_;
+
+              if Tipo = 'LPA' then
+              begin
+                if MensagemSelecionaOpcao(format('O produto com o Código ''%s'' não está presente na lista'+#13+
+                                             'Deseja inclui-lo na lista abaixo?',[TextodePesquisa])) = smbYES then
+                  IncluirProduto;
+              end
+              else
+                MensagemAviso(format('O produto com o Código ''%s'' não está presente na lista',[TextodePesquisa]), true);
+
+              if fraVisualizarImageURL1_visible then
+                fraVisualizarImageURL1.AbrirqryFotosProdutos(parsistema.ExibirCodigodoProdutonaConferencia);
+
+            end;
+          end
+          else
+          begin
+            ProcurarOutrasOcorrencias('codigovisual');
+            qryProdutosConferenciaVisao.Edit;
+            qryProdutosConferenciaVisaolido.AsCurrency := qryProdutosConferenciaVisaolido.AsCurrency + 1;
+            qryProdutosConferenciaVisao.post;
+
+            if fraVisualizarImageURL1_visible then
+              fraVisualizarImageURL1.AbrirqryFotosProdutos(parsistema.ExibirCodigodoProdutonaConferencia);
+
+          end;
+        end
+        else
+        begin
+          if not qryProdutosConferenciaVisao.Locate('produto',TextodePesquisa,[]) then
+          begin
+            dmbasico.RefazConsultaPorNome(qryProcuraProdutos,['codigo','codigovisual'], [TextodePesquisa,'']);
+            if qryProcuraProdutos.IsEmpty then
+              MensagemAviso(format('O produto com o Código ''%s'' não está cadastrado',[TextodePesquisa]), true)
+            else
+            begin
+
+              if fraVisualizarImageURL1_visible then
+              begin
+                fraVisualizarImageURL1.visible := true;
+                fraVisualizarImageURL1.produto := produtoprocuraproduto;
+                fraVisualizarImageURL1.AbrirqryFotosProdutos(parsistema.ExibirCodigodoProdutonaConferencia);
+                fraVisualizarImageURL1.produto := produto;
+                fraVisualizarImageURL1.visible := fraVisualizarImageURL1_visible;
+              end;
+
+              PlaySound_;
+
+              if Tipo = 'LPA' then
+              begin
+                if MensagemSelecionaOpcao(format('O produto com o Código ''%s'' não está presente na lista'+#13+
+                                               'Deseja inclui-lo na lista abaixo?',[TextodePesquisa])) = smbYES then
+                  IncluirProduto
+              end
+              else
+                MensagemAviso(format('O produto com o Código ''%s'' não está presente na lista',[TextodePesquisa]), true);
+
+              if fraVisualizarImageURL1_visible then
+                fraVisualizarImageURL1.AbrirqryFotosProdutos(parsistema.ExibirCodigodoProdutonaConferencia);
+
+            end;
+          end
+          else
+          begin
+            ProcurarOutrasOcorrencias('produto');
+
+            qryProdutosConferenciaVisao.Edit;
+            qryProdutosConferenciaVisaolido.AsCurrency := qryProdutosConferenciaVisaolido.AsCurrency + 1;
+            qryProdutosConferenciaVisao.post;
+
+            if fraVisualizarImageURL1_visible then
+              fraVisualizarImageURL1.AbrirqryFotosProdutos(parsistema.ExibirCodigodoProdutonaConferencia);
+
+          end;
+        end;
+      end;
+    end;
+
+  finally
+    fraVisualizarImageURL1.visible := fraVisualizarImageURL1_visible;
+    dsrProdutosConferenciavisao.onDataChange := dsrProdutosConferenciavisaoDataChange;
+
+    MensagemQuantidadeExcedente;
+
+  end;
+
+end;
+
+procedure TfrmConferenciaProdutos.ConferirProdutos(RefazerProdutos: boolean = false; RecomecarFE: Boolean = false);
+var
+  vRegistroAtual : TBookMark;
+  vRegistroAtualVisao : TBookMark;
+  vCamposCaracteristica: TVariantArray;
+  vContinuar : Boolean;
+begin
+  vContinuar := True;
+  with frmConferenciaProdutos do
+  begin
+    // qryProdutosConferencia.OnCalcFields := nil;
+    //ACRESCENTEI ESTA CONDICAO CASO CONTRARIO NAO FUNCIONA ZERAR SOMENTE EXCEDENTES OU FALTANTES .. SEMPRE ZERA TUDO - 19/07/2017
+
+    vRegistroAtual := qryTabelaProdutos.getbookMark;
+    vRegistroAtualVisao := qryProdutosConferenciaVisao.getbookMark;
+
+//    qryProdutosConferenciaVisao.SortClear;
+
+    if not RefazerProdutos then
+    begin
+      qryProdutosConferenciavisao.DisableControls;
+      qryProdutosConferenciavisao.AfterScroll := nil;
+
+
+      qryConferencia.ParamByname('tipo').AsString := Tipo;
+      qryConferencia.ParamByname('codigo').AsString := CodigoDocumento;
+      qryConferencia.Close;
+      qryConferencia.Open;
+      if qryConferencia.isempty then
+      begin
+        qryConferencia.append;
+        qryConferenciatipo.AsString := Tipo;
+        qryConferenciacodigo.AsString := CodigoDocumento;
+        qryConferenciadata.AsDateTime := now;
+        qryConferenciausuario.AsInteger := dmbasico.CodigoUsuario;
+        qryConferencia.post;
+      end;
+      qryProdutosConferencia.ParamByname('tipo').AsString := Tipo;
+      qryProdutosConferencia.ParamByname('codigo').AsString := CodigoDocumento;
+      qryProdutosConferencia.Close;
+      qryProdutosConferencia.Open;
+
+      qryProdutosConferenciaCompostos.ParamByname('tipo').AsString := Tipo;
+      qryProdutosConferenciaCompostos.ParamByname('codigo').AsString := CodigoDocumento;
+      qryProdutosConferenciaCompostos.Close;
+      qryProdutosConferenciaCompostos.Open;
+
+      qryProdutosConferenciaVisao.ParamByname('tipo').AsString := Tipo;
+      qryProdutosConferenciaVisao.ParamByname('codigo').AsString := CodigoDocumento;
+      qryProdutosConferenciaVisao.Close;
+      qryProdutosConferenciaVisao.Open;
+
+
+      qryTabelaProdutos.First;
+
+      if tipo <> 'TRF' then
+      begin
+        while not qryTabelaProdutos.eof do
+        begin
+
+          if (qryTabelaProdutos.findfield('compostovisual')<>nil) and
+             (qryTabelaProdutos.findfield('produtovisual')<>nil) and
+             (qryTabelaProdutos.fieldbyname('compostovisual').asString <>
+              qryTabelaProdutos.fieldbyname('produtovisual').asString) then
+            vContinuar := false
+          else
+            vContinuar := True;
+
+          if vContinuar then
+          begin
+
+            if not qryProdutosConferencia.Locate('produto',qrytabelaprodutos.fieldbyname(NomeCampoCodigo).asstring, []) then
+            begin
+              qryProdutosConferencia.Append;
+              qryProdutosConferenciatipo.AsString := Tipo;
+              qryProdutosConferenciacodigo.AsString := CodigoDocumento;
+              qryProdutosConferenciaproduto.AsString := qrytabelaprodutos.fieldbyname(NomeCampoCodigo).asstring;
+              qryProdutosConferenciacodigovisual.AsString := qrytabelaprodutos.fieldbyname(NomeCampoCodigoVisual).asstring;
+              qryProdutosConferenciadescricao.AsString := qrytabelaprodutos.fieldbyname(NomeCampoDescricao).asstring;
+              qryProdutosConferenciaquantidade.AsCurrency := qrytabelaprodutos.fieldbyname(NomeCampoQuantidade).AsCurrency;
+              qryProdutosConferencia.post;
+            end
+            else
+            begin
+              qryProdutosConferencia.edit;
+              qryProdutosConferenciaquantidade.AsCurrency := qryProdutosConferenciaquantidade.AsCurrency + qrytabelaprodutos.fieldbyname(NomeCampoQuantidade).AsCurrency;
+              qryProdutosConferencia.post;
+            end;
+
+            vCamposCaracteristica := dmbasico.ValorCampodaTabela('caracteristicas',
+                       ['p.codigo'],
+                       [qrytabelaprodutos.fieldbyname('produto').asstring],
+                       ['composto','conferircomposto'],
+                        ' and codigo = (select p.caracteristica from produtos p where %s = %s ) ');
+
+            if (vCamposCaracteristica[0] = True) and
+               (vCamposCaracteristica[1] = True) then
+            begin
+              qryProdutosCompostos.ParamByName('composto').asString := qrytabelaprodutos.fieldbyname(NomeCampoCodigo).asstring;
+              qryProdutosCompostos.close;
+              qryProdutosCompostos.open;
+              qryProdutosCompostos.first;
+              while not qryProdutosCompostos.eof do
+              begin
+                if not qryProdutosConferenciaCompostos.Locate('composto;componente',
+                                              VarArrayOf([qryProdutosCompostoscomposto.asString,
+                                                          qryProdutosCompostoscomponente.asstring]), [] ) then
+                begin
+                  qryProdutosConferenciaCompostos.Append;
+                  qryProdutosConferenciaCompostostipo.AsString := Tipo;
+                  qryProdutosConferenciaCompostoscodigo.AsString := CodigoDocumento;
+                  qryProdutosConferenciaCompostoscomponente.AsString := qryProdutosCompostoscomponente.asstring;
+                  qryProdutosConferenciaCompostoscomposto.AsString := qryProdutosCompostoscomposto.AsString;
+                  qryProdutosConferenciaCompostosquantidade.AsCurrency := (qrytabelaprodutos.fieldbyname(NomeCampoQuantidade).AsCurrency * qryProdutosCompostosquantidade.AsCurrency);
+                  qryProdutosConferenciaCompostosquantidadecomponente.ascurrency := qryProdutosCompostosquantidade.asCurrency;
+                  qryProdutosConferenciaCompostos.post;
+                end
+                else
+                begin
+                  qryProdutosConferenciaCompostos.edit;
+                  qryProdutosConferenciaCompostosquantidade.AsCurrency := qryProdutosConferenciaCompostosquantidade.AsCurrency + (qrytabelaprodutos.fieldbyname(NomeCampoQuantidade).AsCurrency * qryProdutosCompostosquantidade.AsCurrency);
+                  qryProdutosConferenciaCompostos.post;
+                end;
+
+                if not qryProdutosConferenciaVisao.Locate('produto;composto',
+                                              VarArrayOf([qryProdutosCompostoscomponente.asstring,
+                                                          qryProdutosCompostoscomposto.asString]), []) then
+                begin
+
+                  AbrirTabelaEstoque(tipo, qryProdutosCompostoscomponente.asstring, CodigoDocumento);
+
+                  qryProdutosConferenciaVisao.Append;
+                  qryProdutosConferenciaVisaotipo.AsString := Tipo;
+                  qryProdutosConferenciaVisaocodigo.AsString := CodigoDocumento;
+                  qryProdutosConferenciaVisaoproduto.AsString := qryProdutosCompostoscomponente.asstring;
+                  qryProdutosConferenciaVisaocodigovisual.AsString := qryProdutosCompostoscomponentevisual.asstring;
+                  qryProdutosConferenciaVisaocomposto.asString :=  qryProdutosCompostoscomposto.AsString;
+                  qryProdutosConferenciaVisaocompostovisual.asString := qryProdutosCompostoscompostovisual.AsString;
+                  qryProdutosConferenciaVisaodescricao.AsString := qryProdutosCompostosdescricao.AsString;
+                  qryProdutosConferenciaVisaolocalizacao.AsString := qryEstoqueslocalizacao.asString;
+
+                  qryProdutosConferenciaVisaovalorgrade1.asString := qryProdutosCompostosvalorgrade1.asString;
+                  qryProdutosConferenciaVisaovalorgrade2.asString := qryProdutosCompostosvalorgrade2.asString;
+                  qryProdutosConferenciaVisaolinha.asString := qryProdutosCompostoslinha.asString;
+                  qryProdutosConferenciaVisaocoluna.asString := qryProdutosCompostoscoluna.asString;
+
+                  qryProdutosConferenciaVisaoquantidade.AsCurrency := qrytabelaprodutos.fieldbyname(NomeCampoQuantidade).AsCurrency * qryProdutosCompostosquantidade.AsCurrency;
+                  qryProdutosConferenciaVisao.post;
+                end
+                else
+                begin
+                  qryProdutosConferenciaVisao.edit;
+                  qryProdutosConferenciaVisaoquantidade.AsCurrency := qryProdutosConferenciaVisaoquantidade.AsCurrency +
+                                                                      qrytabelaprodutos.fieldbyname(NomeCampoQuantidade).AsCurrency * qryProdutosCompostosquantidade.AsCurrency;
+                  qryProdutosConferenciaVisao.post;
+                end;
+
+                qryProdutosCompostos.next;
+              end;
+            end
+            else
+            if not qryProdutosConferenciaVisao.Locate('produto;compostovisual',
+                                                      VarArrayOf([qrytabelaprodutos.fieldbyname(NomeCampoCodigo).asString, '']), []) then
+            begin
+              AbrirTabelaEstoque(tipo, qrytabelaprodutos.fieldbyname(NomeCampoCodigo).asstring, CodigoDocumento);
+              qryProdutosConferenciaVisao.Append;
+              qryProdutosConferenciaVisaotipo.AsString := Tipo;
+              qryProdutosConferenciaVisaocodigo.AsString := CodigoDocumento;
+              qryProdutosConferenciaVisaoproduto.AsString := qrytabelaprodutos.fieldbyname(NomeCampoCodigo).asstring;
+              qryProdutosConferenciaVisaocomposto.clear;
+              qryProdutosConferenciaVisaocompostovisual.asString := '';
+              qryProdutosConferenciaVisaocodigovisual.AsString := qrytabelaprodutos.fieldbyname(NomeCampoCodigoVisual).asstring;
+              qryProdutosConferenciaVisaodescricao.AsString := qrytabelaprodutos.fieldbyname(NomeCampoDescricao).asstring;
+              qryProdutosConferenciaVisaolocalizacao.AsString := qryEstoqueslocalizacao.asString;
+
+              qryProdutosConferenciaVisaovalorgrade1.asString := qrytabelaprodutos.fieldbyname(valorgrade1).asString;
+              qryProdutosConferenciaVisaovalorgrade2.asString := qrytabelaprodutos.fieldbyname(valorgrade2).asString;
+              qryProdutosConferenciaVisaolinha.asString := qrytabelaprodutos.fieldbyname(linha).asString;
+              qryProdutosConferenciaVisaocoluna.asString := qrytabelaprodutos.fieldbyname(coluna).asString;
+
+              qryProdutosConferenciaVisaoquantidade.AsCurrency := qrytabelaprodutos.fieldbyname(NomeCampoQuantidade).AsCurrency;
+              qryProdutosConferenciaVisao.post;
+            end
+            else
+            begin
+              qryProdutosConferenciaVisao.edit;
+              qryProdutosConferenciaVisaoquantidade.AsCurrency := qryProdutosConferenciaVisaoquantidade.AsCurrency + qrytabelaprodutos.fieldbyname(NomeCampoQuantidade).AsCurrency;
+              qryProdutosConferenciaVisao.post;
+            end;
+
+          end;
+
+          qryTabelaProdutos.next;
+
+        end;
+      end
+      else
+      if tipo = 'TRF' then
+      begin
+        while not qryTabelaProdutos.eof do
+        begin
+
+          if qryTabelaProdutos.FieldByName('lotetransferencia').asString = CodigoDocumento then
+          begin
+
+            if not qryProdutosConferencia.Locate('produto',qrytabelaprodutos.fieldbyname('produto').asstring, []) then
+            begin
+              qryProdutosConferencia.Append;
+              qryProdutosConferenciatipo.AsString := Tipo;
+              qryProdutosConferenciacodigo.AsString := CodigoDocumento;
+              qryProdutosConferenciaproduto.AsString := qrytabelaprodutos.fieldbyname(NomeCampoCodigo).asstring;
+              qryProdutosConferenciacodigovisual.AsString := qrytabelaprodutos.fieldbyname(NomeCampoCodigoVisual).asstring;
+              qryProdutosConferenciadescricao.AsString := qrytabelaprodutos.fieldbyname(NomeCampoDescricao).asstring;
+              qryProdutosConferenciaquantidade.AsCurrency := qrytabelaprodutos.fieldbyname('qtdepedida').AsCurrency;
+              qryProdutosConferencia.post;
+            end
+            else
+            begin
+              qryProdutosConferencia.edit;
+              qryProdutosConferenciaquantidade.AsCurrency := qryProdutosConferenciaquantidade.AsCurrency + qrytabelaprodutos.fieldbyname('qtdepedida').AsCurrency;
+              qryProdutosConferencia.post;
+            end;
+
+            vCamposCaracteristica := dmbasico.ValorCampodaTabela('caracteristicas',
+                       ['p.codigo'],
+                       [qrytabelaprodutos.fieldbyname('produto').asstring],
+                       ['composto','conferircomposto'],
+                        ' and codigo = (select p.caracteristica from produtos p where %s = %s ) ');
+
+            if (vCamposCaracteristica[0] = True) and
+               (vCamposCaracteristica[1] = True) then
+            begin
+              qryProdutosCompostos.ParamByName('composto').asString := qrytabelaprodutos.fieldbyname('produto').asstring;
+              qryProdutosCompostos.close;
+              qryProdutosCompostos.open;
+              qryProdutosCompostos.first;
+              while not qryProdutosCompostos.eof do
+              begin
+                if not qryProdutosConferenciaCompostos.Locate('composto;componente',
+                                              VarArrayOf([qryProdutosCompostoscomposto.asString,
+                                                          qryProdutosCompostoscomponente.asstring]), [] ) then
+                begin
+                  qryProdutosConferenciaCompostos.Append;
+                  qryProdutosConferenciaCompostostipo.AsString := Tipo;
+                  qryProdutosConferenciaCompostoscodigo.AsString := CodigoDocumento;
+                  qryProdutosConferenciaCompostoscomponente.AsString := qryProdutosCompostoscomponente.asstring;
+                  qryProdutosConferenciaCompostoscomposto.AsString := qryProdutosCompostoscomposto.AsString;
+                  qryProdutosConferenciaCompostosquantidade.AsCurrency := (qrytabelaprodutos.fieldbyname('qtdepedida').AsCurrency * qryProdutosCompostosquantidade.AsCurrency);
+                  qryProdutosConferenciaCompostosquantidadecomponente.ascurrency := qryProdutosCompostosquantidade.asCurrency;
+                  qryProdutosConferenciaCompostos.post;
+                end
+                else
+                begin
+                  qryProdutosConferenciaCompostos.edit;
+                  qryProdutosConferenciaCompostosquantidade.AsCurrency := qryProdutosConferenciaCompostosquantidade.AsCurrency + (qrytabelaprodutos.fieldbyname('qtdepedida').AsCurrency * qryProdutosCompostosquantidade.AsCurrency);
+                  qryProdutosConferenciaCompostos.post;
+                end;
+
+                if not qryProdutosConferenciaVisao.Locate('produto;composto',
+                                              VarArrayOf([qryProdutosCompostoscomponente.asstring,
+                                                          qryProdutosCompostoscomposto.asString]), []) then
+                begin
+
+                  AbrirTabelaEstoque(tipo, qryProdutosCompostoscomponente.asstring, CodigoDocumento);
+
+                  qryProdutosConferenciaVisao.Append;
+                  qryProdutosConferenciaVisaotipo.AsString := Tipo;
+                  qryProdutosConferenciaVisaocodigo.AsString := CodigoDocumento;
+                  qryProdutosConferenciaVisaoproduto.AsString := qryProdutosCompostoscomponente.asstring;
+                  qryProdutosConferenciaVisaocodigovisual.AsString := qryProdutosCompostoscomponentevisual.asstring;
+                  qryProdutosConferenciaVisaocomposto.asString :=  qryProdutosCompostoscomposto.AsString;
+                  qryProdutosConferenciaVisaocompostovisual.asString := qryProdutosCompostoscompostovisual.AsString;
+                  qryProdutosConferenciaVisaodescricao.AsString := qryProdutosCompostosdescricao.AsString;
+                  qryProdutosConferenciaVisaolocalizacao.AsString := qryEstoqueslocalizacao.asString;
+
+                  qryProdutosConferenciaVisaovalorgrade1.asString := qryProdutosCompostosvalorgrade1.asString;
+                  qryProdutosConferenciaVisaovalorgrade2.asString := qryProdutosCompostosvalorgrade2.asString;
+                  qryProdutosConferenciaVisaolinha.asString := qryProdutosCompostoslinha.asString;
+                  qryProdutosConferenciaVisaocoluna.asString := qryProdutosCompostoscoluna.asString;
+
+                  qryProdutosConferenciaVisaoquantidade.AsCurrency := qrytabelaprodutos.fieldbyname('qtdepedida').AsCurrency * qryProdutosCompostosquantidade.AsCurrency;
+                  qryProdutosConferenciaVisao.post;
+                end
+                else
+                begin
+                  qryProdutosConferenciaVisao.edit;
+                  qryProdutosConferenciaVisaoquantidade.AsCurrency := qryProdutosConferenciaVisaoquantidade.AsCurrency +
+                                                                      qrytabelaprodutos.fieldbyname('qtdepedida').AsCurrency * qryProdutosCompostosquantidade.AsCurrency;
+                  qryProdutosConferenciaVisao.post;
+                end;
+
+                qryProdutosCompostos.next;
+              end;
+            end
+            else        {aqui alteração}
+            if not qryProdutosConferenciaVisao.Locate('produto;compostovisual',
+                                                       VarArrayOf([qrytabelaprodutos.fieldbyname('produto').asstring, '']), []) then
+            begin
+
+              AbrirTabelaEstoque(tipo, qrytabelaprodutos.fieldbyname(NomeCampoCodigo).asstring, CodigoDocumento);
+
+              qryProdutosConferenciaVisao.Append;
+              qryProdutosConferenciaVisaotipo.AsString := Tipo;
+              qryProdutosConferenciaVisaocodigo.AsString := CodigoDocumento;
+              qryProdutosConferenciaVisaoproduto.AsString := qrytabelaprodutos.fieldbyname(NomeCampoCodigo).asstring;
+              qryProdutosConferenciaVisaocomposto.clear;
+              qryProdutosConferenciaVisaocompostovisual.asString := '';
+              qryProdutosConferenciaVisaocodigovisual.AsString := qrytabelaprodutos.fieldbyname(NomeCampoCodigoVisual).asstring;
+              qryProdutosConferenciaVisaodescricao.AsString := qrytabelaprodutos.fieldbyname(NomeCampoDescricao).asstring;
+              qryProdutosConferenciaVisaolocalizacao.AsString := qryEstoqueslocalizacao.asString;
+
+              qryProdutosConferenciaVisaovalorgrade1.asString := qrytabelaprodutos.fieldbyname(valorgrade1).asString;
+              qryProdutosConferenciaVisaovalorgrade2.asString := qrytabelaprodutos.fieldbyname(valorgrade2).asString;
+              qryProdutosConferenciaVisaolinha.asString := qrytabelaprodutos.fieldbyname(linha).asString;
+              qryProdutosConferenciaVisaocoluna.asString := qrytabelaprodutos.fieldbyname(coluna).asString;
+
+              qryProdutosConferenciaVisaoquantidade.AsCurrency := qrytabelaprodutos.fieldbyname(NomeCampoQuantidade).AsCurrency;
+              qryProdutosConferenciaVisao.post;
+            end
+            else
+            begin
+              qryProdutosConferenciaVisao.edit;
+              qryProdutosConferenciaVisaoquantidade.AsCurrency := qryProdutosConferenciaVisaoquantidade.AsCurrency + qrytabelaprodutos.fieldbyname(NomeCampoQuantidade).AsCurrency;
+              qryProdutosConferenciaVisao.post;
+            end;
+
+          end;
+
+          qryTabelaProdutos.next;
+        end;
+
+      end;
+    end;
+
+    if RefazerProdutos then
+    begin
+      qryProdutosConferenciavisao.first;
+      while not qryProdutosConferenciaVisao.eof do
+      begin
+        if RecomecarFE then
+        begin
+          if (qryProdutosConferenciaVisaoQuantidadeExcedente.AsFloat<>0) or
+             (qryProdutosConferenciaVisaoQuantidadeFaltante.AsFloat<>0) then
+          begin
+            qryProdutosConferenciaVisao.Edit;
+            qryProdutosConferenciaVisaolido.Clear;
+            qryProdutosConferenciaVisao.post;
+          end;
+        end
+        else
+        begin
+          qryProdutosConferenciaVisao.Edit;
+          qryProdutosConferenciaVisaolido.Clear;
+          qryProdutosConferenciaVisao.post;
+        end;
+        qryProdutosConferenciaVisao.next
+      end;
+    end;
+
+    if qryProdutosConferenciaVisao.BookmarkValid(vRegistroAtualVisao) then
+    begin
+      qryProdutosConferenciaVisao.GotoBookmark(vRegistroAtualVisao);
+      qryProdutosConferenciaVisao.FreeBookmark(vRegistroAtualVisao);
+    end;
+
+    qryProdutosConferenciaVisao.EnableControls;
+    qryTabelaProdutos.GotoBookmark(vRegistroAtual);
+    qryTabelaProdutos.FreeBookmark(vRegistroAtual);
+
+    sbnSalvar.Enabled := false;
+                                  {
+    if TSqlBuffer(qryProdutosConferenciaVisao).SortFieldCount = 0 then
+      qryProdutosConferenciaVisao.SortByField('codigovisual, compostovisual');
+      }
+
+
+   //qryProdutosConferencia.OnCalcFields := qryProdutosConferenciaCalcFields;
+
+    qryProdutosConferenciaVisao.AfterScroll := qryProdutosConferenciaVisaoAfterScroll;
+
+    if fraVisualizarImageURL1.visible then
+      fraVisualizarImageURL1.AbrirqryFotosProdutos(parsistema.ExibirCodigodoProdutonaConferencia);
+
+    if not RefazerProdutos then
+      ShowModal;
+  end;
+end;
+
+
+procedure ConferirProdutos(qryTabelaProdutos: TtecQuery;
+                           NomeCampoCodigo, NomeCampoCodigoVisual,
+                           NomeCampoDescricao, NomeCampoQuantidade,
+                           tipo, Codigo, valorgrade1, valorgrade2,
+                           linha, coluna: String; Largura: integer = 0 ; Altura: integer = 0; Aowner : Tcomponent = nil );
+begin
+
+  if not assigned(frmConferenciaProdutos) then
+  begin
+    if Aowner <> nil then
+    begin
+      frmConferenciaProdutos := TfrmConferenciaProdutos.Create(frmConferenciaProdutos);
+      frmConferenciaProdutos.Position := poOwnerFormCenter;
+//      frmConferenciaProdutos.WindowState := wsNormal;
+//      frmConferenciaProdutos.Position := poScreenCenter;
+      frmConferenciaProdutos.Left := tform(AOwner).left;
+      frmConferenciaProdutos.top := tform(AOwner).top;
+
+    end
+    else
+    begin
+      frmConferenciaProdutos := TfrmConferenciaProdutos.Create(frmConferenciaProdutos);
+      frmConferenciaProdutos.Position := poMainFormCenter;
+    end;
+  end;
+
+  if (Largura <> 0) and (Altura <> 0) then
+  begin
+    with frmConferenciaProdutos do
+    begin
+
+      width := Largura;
+      Height := Altura;
+      BorderIcons := [];
+    
+      EscParaVoltar := true;
+      pnlTopo.Height := sbnSalvar.Height + gbxCodigoBarras.Height;
+      sbnSalvar.caption := '';
+      sbnSalvar.width := 33;
+      sbnSalvar.top := 0;
+      sbnSalvar.Left := 1 ;
+
+      sbnRecomecarFaltantes.Caption := 'Faltantes';
+
+      sbnRecomecarFaltantes.width := 79;
+      sbnRecomecarFaltantes.top := 0;
+      sbnRecomecarFaltantes.Left :=  37;
+
+      sbnReConferir.Caption := 'Todos';
+      sbnReConferir.Width := 65;
+      sbnReConferir.top := 0;
+      sbnReConferir.Left := 117;
+
+//      sbnDetalhes.Visible := true;
+//      sbnDetalhes.top := 0;
+//      sbnDetalhes.Left := 185;
+
+      pnlDetalhes.Visible := true; 
+
+      gbxCodigoBarras.left := 0;
+      gbxCodigoBarras.top := sbnSalvar.Height;
+
+      fraVisualizarImageURL1.visible := false;
+
+      dbgProdutos.Width := Largura;
+      dbgProdutos.Font.size := 6;
+      dbgProdutos.ExibirNumerodaLinha := false;
+      dbgProdutos.ColumnByName('descricao').width := 130;
+      dbgProdutos.ColumnByName('quantidade').Index := 2;
+      dbgProdutos.ColumnByName('lido').Index := 2;
+      dbgProdutos.ColumnByName('digitado').Index := 4;
+      dbgProdutos.ColumnByName('QuantidadeFaltante').Index := 5;
+      dbgProdutos.ColumnByName('QuantidadeExcedente').Index := 6;
+
+//      Left := tform(AOwner).left;
+//      top := tform(AOwner).top;
+
+
+    end;
+  end;
+
+  frmConferenciaProdutos.qryTabelaProdutos      := qryTabelaProdutos;
+  frmConferenciaProdutos.NomeCampoCodigo        := NomeCampoCodigo;
+  frmConferenciaProdutos.NomeCampoCodigoVisual  := NomeCampoCodigoVisual;
+  frmConferenciaProdutos.NomeCampoDescricao     := NomeCampoDescricao;
+  frmConferenciaProdutos.NomeCampoQuantidade    := NomeCampoQuantidade;
+  frmConferenciaProdutos.valorgrade1            := valorgrade1;
+  frmConferenciaProdutos.valorgrade2            := valorgrade2;
+  frmConferenciaProdutos.linha                  := linha;
+  frmConferenciaProdutos.coluna                 := coluna;
+
+  frmConferenciaProdutos.Tipo   := Tipo;
+  frmConferenciaProdutos.CodigoDocumento := Codigo;
+
+  frmConferenciaProdutos.ConferirProdutos;
+
+end;
+
+procedure TfrmConferenciaProdutos.FormShow(Sender: TObject);
+begin
+  inherited;
+  edtCodigoBarras.SetFocus;
+  edtCodigoBarras.SelectAll;
+
+//HC_KEYBOARD_Handle := SetWindowsHookEx(WH_KEYBOARD, @KeyboardProc, 0, GetCurrentThreadId);
+
+// SetWindowsHookEx(WH_KEYBOARD, @LowLevelKeyboardProc, 0, GetCurrentThreadId);
+
+  Left := Screen.WorkAreaWidth - Width;
+  Top := Screen.WorkAreaHeight - Height;
+
+end;
+
+procedure TfrmConferenciaProdutos.sbnReConferirClick(Sender: TObject);
+begin
+  inherited;
+
+  fraVisualizarImageURL1.visible := false;
+  ConferirProdutos(true, false);
+  fraVisualizarImageURL1.visible := true;
+end;
+
+procedure TfrmConferenciaProdutos.dbgProdutosDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+
+var
+  imgVisualFormURL : timage;
+  URLThumb, URLNomeFoto : String;
+  x,y : integer;
+
+begin
+  inherited;
+  (*
+  if column.index = 7 then
+  begin
+
+    dmbasico.RefazConsultaPorNome(qryProcuraProdutos,['codigo','codigovisual'], [qryProdutosConferenciaproduto.asstring,'']);
+
+    if (qryProcuraProdutosnomefoto.asString <> '') or (qryProcuraProdutosnomethumb.asString <> '') then
+    begin
+
+      URLThumb := 'http://' + parsistema.SiteEmpresa+'/fotos/'+qryProcuraProdutosnomethumb.asString;
+      URLNomeFoto := 'http://'+ parsistema.SiteEmpresa+'/fotos/'+qryProcuraProdutosnomefoto.asString;
+
+      try
+        imgVisualFormURL := Timage.create(self);
+        imgVisualFormURL.Proportional := true;
+        imgVisualFormURL.Stretch := true;
+//        DownloadImagem(URLNomeFoto, imgVisualFormURL, true);
+        DownloadImagem(URLThumb, imgVisualFormURL, true);
+
+        with TDBGrid(Sender) do
+        begin
+        {
+          x := (Rect.Right - Rect.Left - imgVisualFormURL.Picture.Bitmap.Width) div 2 + Rect.Left;
+          y := (Rect.Bottom - Rect.Top - imgVisualFormURL.Picture.Bitmap.Height) div 2 + Rect.Top;
+          Canvas.Draw(x div 2 + Rect.Left,
+          y, imgVisualFormURL.Picture.Bitmap);
+         }
+           Canvas.Draw(Rect.Left, Rect.Top, imgVisualFormURL.Picture.Bitmap);
+        end;
+      except
+      end;
+
+    end;
+  end
+  else
+
+  begin
+  *)
+
+    if (qryProdutosConferenciaVisaoQuantidadeFaltante.AsCurrency = 0) and
+       (qryProdutosConferenciaVisaoQuantidadeExcedente.ascurrency = 0) and
+       (qryProdutosConferenciaVisaolido.ascurrency <> 0) then
+    begin
+      TDBGrid(Sender).Canvas.Font.Color := clGreen;
+      TDBGrid(Sender).Canvas.Font.Style := [fsBold];
+    end
+    else
+    if ((qryProdutosConferenciaVisaoQuantidadeFaltante.AsCurrency <> 0) or
+        (qryProdutosConferenciaVisaoQuantidadeExcedente.ascurrency <> 0)) and
+       (qryProdutosConferenciaVisaolido.ascurrency <> 0) then
+    begin
+      TDBGrid(Sender).Canvas.Font.Color := clRed;
+      TDBGrid(Sender).Canvas.Font.Style := [fsBold];
+    end;
+  //   TDBGrid(Sender).Canvas.Font.Style := [];
+
+    TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+//  end;
+
+end;
+
+procedure TfrmConferenciaProdutos.sbnSalvarClick(Sender: TObject);
+var
+{
+  produto: String;
+  lotetransferencia : Integer;
+  }
+
+  vFiltered : Boolean;
+  vQuantidadeLidaComponente, vQuantidadeLidaComponenteaux : Real;
+
+begin
+  inherited;
+  qryProdutosConferenciaVisao.SortClear;
+
+  qryProdutosConferenciaVisao.AfterScroll := nil;
+
+  qryConferencia.Edit;
+  qryConferenciausuario.AsInteger := dmbasico.CodigoUsuario;
+  qryConferenciadata.AsDateTime := now;
+  qryConferencia.post;
+
+  if Tipo = 'TRF' then
+  begin
+    vFiltered := qryTabelaProdutos.filtered;
+    qryTabelaProdutos.filtered := false;
+
+    qryTabelaProdutos.First;
+    while not qrytabelaprodutos.Eof do
+    begin
+
+      if qryProdutosConferencia.Locate('codigo;produto',VarArrayOf([
+         qryTabelaProdutos.fieldbyname('lotetransferencia').AsString, qryTabelaProdutos.fieldbyname('produto').AsString]), []) then
+      begin
+
+        if qryProdutosConferenciaCompostos.RecordCount <> 0 then
+        begin
+          vQuantidadeLidaComponente := 0;
+          qryProdutosConferenciaCompostos.first;
+          while not qryProdutosConferenciaCompostos.eof do
+          begin
+            qryProdutosConferenciaVisao.first;
+            if qryProdutosConferenciaVisao.Locate('codigo;produto;composto',
+                                    VarArrayOf([qryTabelaProdutos.fieldbyname('lotetransferencia').AsString,
+                                                qryProdutosConferenciaCompostoscomponente.asString,
+                                                qryProdutosConferenciaCompostoscomposto.AsString]), []) then
+            begin
+              qryProdutosConferenciaCompostos.edit;
+              qryProdutosConferenciaCompostoslido.value := qryProdutosConferenciaVisaolido.value;
+              qryProdutosConferenciaCompostos.post;
+
+
+              vQuantidadeLidaComponenteaux := 0;
+              if qryProdutosConferenciaCompostosquantidadecomponente.value <> 0 then
+                vQuantidadeLidaComponenteaux :=  (qryProdutosConferenciaCompostoslido.asinteger div qryProdutosConferenciaCompostosquantidadecomponente.asinteger);
+
+              if (vQuantidadeLidaComponente > vQuantidadeLidaComponenteaux) or
+                 (vQuantidadeLidaComponente = 0) then
+                vQuantidadeLidaComponente := vQuantidadeLidaComponenteaux;
+
+            end
+            else
+              mensagemerro('Erro inesperado. Inconsistencia entre  ProdutosConferenciaVisao x ProdutosConferenciaCompostos');
+
+
+            qryProdutosConferenciaCompostos.next;
+          end;
+
+          if qryProdutosConferencialido.value <> vQuantidadeLidaComponente then
+          begin
+            qryProdutosConferencia.edit;
+            qryProdutosConferencialido.value := vQuantidadeLidaComponente;
+            qryProdutosConferencia.post;
+          end;
+
+          if (qrytabelaprodutos.FieldByName('qtderecebida').AsFloat <> vQuantidadeLidaComponente) then
+          begin
+                      {
+            produto := qryTabelaProdutos.fieldbyname('produto').AsString;
+            lotetransferencia := qryTabelaProdutos.fieldbyname('lotetransferencia').Asinteger;
+            }
+
+            qryTabelaProdutos.Edit;
+            if vQuantidadeLidaComponente = 0 then
+            begin
+               qrytabelaprodutos.FieldByName('qtderecebida').clear;
+               {Atenção: a atribuição abaixo retira o produto da lista de tabelaprodutos caso esteja filterd, por isso o filtro é desabilitado acima}
+               {ryTabelaProdutos.fieldbyname('lotetransferencia').clear;}
+            end
+            else
+              qrytabelaprodutos.FieldByName('qtderecebida').AsFloat :=  vQuantidadeLidaComponente;
+
+            qryTabelaProdutos.post;
+
+          end;
+
+        end
+        else
+        begin
+          qryProdutosConferenciaVisao.first;
+
+          if qryProdutosConferenciaVisao.Locate('codigo;produto;compostovisual',
+                                  VarArrayOf([qryTabelaProdutos.fieldbyname('lotetransferencia').AsString,
+                                              qryTabelaProdutos.fieldbyname('produto').AsString, '']), []) then
+          begin
+
+            if (qrytabelaprodutos.FieldByName('qtderecebida').AsFloat <> qryProdutosConferenciaVisaolido.AsFloat) then
+            begin
+
+            {
+              produto := qryTabelaProdutos.fieldbyname('produto').AsString;
+              lotetransferencia := qryTabelaProdutos.fieldbyname('lotetransferencia').Asinteger;
+              }
+
+              qryTabelaProdutos.Edit;
+              if qryProdutosConferenciaVisaolido.AsFloat = 0 then
+              begin
+                 qrytabelaprodutos.FieldByName('qtderecebida').clear;
+                 {Atenção: a atribuição abaixo retira o produto da lista de tabelaprodutos caso esteja filterd, por isso o filtro é desabilitado acima}
+                 {ryTabelaProdutos.fieldbyname('lotetransferencia').clear;}
+              end
+              else
+                qrytabelaprodutos.FieldByName('qtderecebida').AsFloat :=  qryProdutosConferenciaVisaolido.AsFloat;
+
+
+              qryTabelaProdutos.post;
+
+            end;
+
+            qryProdutosConferencia.edit;
+            qryProdutosConferencialido.value := qryProdutosConferenciaVisaolido.value;
+            qryProdutosConferencia.post;
+
+          end
+          else
+            mensagemerro('Erro inesperado. Inconsistencia entre ProdutosConferenciaCompostos x TabelaProdutos');
+        end;
+
+      end;
+      qryTabelaProdutos.next;
+
+    end;
+    dmbasico.Perpetrar([qryTabelaProdutos, qryConferencia, qryProdutosConferencia, qryProdutosConferenciaCompostos]{, SomenteGravacao});
+
+    qryTabelaProdutos.filtered := vFiltered;
+  end
+  else
+  if  Tipo = 'LPA' then
+  begin
+    qryProdutosConferenciaVisao.first;
+    while not qryProdutosConferenciaVisao.eof do
+    begin
+      qrytabelaprodutos.first;
+      if not qrytabelaprodutos.Locate('produto', qryProdutosConferenciaVisaoProduto.asString, []) then
+      begin
+        qryTabelaProdutos.append;
+        qryTabelaProdutos.FieldByName('listapadrao').asString := qryProdutosConferenciaVisao.FieldByName('codigo').asString;
+        qryTabelaProdutos.FieldByName('produto').asString := qryProdutosConferenciaVisao.FieldByName('produto').asString;
+        qryTabelaProdutos.post;
+      end;
+      {
+      else
+        mensagemerro('Erro inesperado. Inconsistencia entre tabelaprodutos x ProdutosConferenciaVisao');
+        }
+
+      qryProdutosConferenciaVisao.next;
+    end;
+    dmbasico.Perpetrar([qryTabelaProdutos, qryConferencia, qryProdutosConferencia, qryProdutosConferenciaCompostos]);
+
+  end
+  else
+  begin
+
+    qryProdutosConferencia.First;
+    while not qryProdutosConferencia.Eof do
+    begin
+
+      if qryProdutosConferenciaCompostos.RecordCount <> 0 then
+      begin
+        vQuantidadeLidaComponente := 0;
+        qryProdutosConferenciaCompostos.first;
+        while not qryProdutosConferenciaCompostos.eof do
+        begin
+          qryProdutosConferenciaVisao.first;
+
+          if qryProdutosConferenciaVisao.Locate('codigo;produto;composto',
+                                  VarArrayOf([qryProdutosConferenciacodigo.asstring,
+                                              qryProdutosConferenciaCompostoscomponente.asString,
+                                              qryProdutosConferenciaCompostoscomposto.AsString]), []) then
+          begin
+            qryProdutosConferenciaCompostos.edit;
+            qryProdutosConferenciaCompostoslido.value := qryProdutosConferenciaVisaolido.value;
+            qryProdutosConferenciaCompostos.post;
+
+
+            vQuantidadeLidaComponenteaux := 0;
+            if qryProdutosConferenciaCompostosquantidadecomponente.value <> 0 then
+              vQuantidadeLidaComponenteaux :=  (qryProdutosConferenciaCompostoslido.asinteger div qryProdutosConferenciaCompostosquantidadecomponente.asinteger);
+
+            if (vQuantidadeLidaComponente > vQuantidadeLidaComponenteaux) or
+               (vQuantidadeLidaComponente = 0) then
+              vQuantidadeLidaComponente := vQuantidadeLidaComponenteaux;
+
+          end
+          else
+            mensagemerro('Erro inesperado. Inconsistencia entre ProdutosConferenciaVisao x ProdutosConferencia');
+
+
+          qryProdutosConferenciaCompostos.next;
+        end;
+
+        if qryProdutosConferencialido.value <> vQuantidadeLidaComponente then
+        begin
+          qryProdutosConferencia.edit;
+          qryProdutosConferencialido.value := vQuantidadeLidaComponente;
+          qryProdutosConferencia.post;
+        end;
+
+      end
+      else
+      begin
+
+        qryProdutosConferenciaVisao.first;
+        {
+        while not qryProdutosConferenciaVisao.eof do
+        begin
+          if (qryProdutosConferenciaVisaoproduto.asstring = qryProdutosConferenciaproduto.AsString) and
+             (qryProdutosConferenciaVisaocomposto.asstring = '') then
+
+            break
+          else
+            qryProdutosConferenciaVisao.next;
+        end;
+        }
+
+        if qryProdutosConferenciaVisao.Locate('codigo;produto;compostovisual',
+                              VarArrayOf([qryProdutosConferenciacodigo.asstring,
+                                          qryProdutosConferenciaproduto.AsString,
+                                          '']), []) then
+        begin
+
+          qryProdutosConferencia.edit;
+          qryProdutosConferencialido.value := qryProdutosConferenciaVisaolido.value;
+          qryProdutosConferencia.post;
+
+        end
+        else
+          mensagemerro('Erro inesperado. Inconsistencia entre ProdutosConferenciaVisao x ProdutosConferencia');
+
+      end;
+
+      qryProdutosConferencia.next;
+
+    end;
+    dmbasico.Perpetrar([qryConferencia, qryProdutosConferencia, qryProdutosConferenciaCompostos]{, SomenteGravacao});
+  end;
+
+  qryProdutosConferenciaVisao.AfterScroll := qryProdutosConferenciaVisaoAfterScroll;
+
+  sbnSalvar.Enabled := false;
+  
+  if EscParaVoltar then
+    close;
+
+end;
+
+procedure TfrmConferenciaProdutos.sbnRecomecarFaltantesClick(Sender: TObject);
+begin
+  inherited;
+  fraVisualizarImageURL1.visible := false;
+  ConferirProdutos(true, true);
+  fraVisualizarImageURL1.visible := true;
+end;
+
+procedure TfrmConferenciaProdutos.dbgProdutosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+    if pnlDetalhes.visible then
+    begin
+      edtQtdeLida.setfocus;
+      edtQtdeLida.selectall;
+    end;
+  {
+  if key = vk_return then
+  begin
+    if dbgprodutos.SelectedField = qryProdutosConferencialido then
+    begin
+      if not (qryProdutosConferencia.state in [dsedit, dsinsert]) then
+        qryProdutosConferencia.edit;
+
+      if qryProdutosConferencialido.AsCurrency <> 0 then
+        qryProdutosConferenciadigitado.AsBoolean := true
+      else
+        qryProdutosConferenciadigitado.AsBoolean := false;
+
+      qryProdutosConferencia.post;
+    end;
+  end;
+  }
+end;
+
+procedure TfrmConferenciaProdutos.qryProdutosConferenciaNewRecord(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryProdutosConferenciadigitado.AsBoolean := false;
+end;
+
+procedure TfrmConferenciaProdutos.MensagemQuantidadeExcedente;
+begin
+  if qryProdutosconferenciaVisaoquantidade.AsCurrency < qryProdutosconferenciaVisaolido.AsCurrency then
+    MensagemAviso('A quantidade lida ultrapassou a quantidade do documento.',true)
+end;
+
+procedure TfrmConferenciaProdutos.FormCanResize(Sender: TObject;
+  var NewWidth, NewHeight: Integer; var Resize: Boolean);
+begin
+  inherited;
+  if not InitialResize then
+    Resize := true
+  else
+    Resize := false;  
+end;
+
+procedure TfrmConferenciaProdutos.FormResize(Sender: TObject);
+begin
+  inherited;
+  InitialResize := true;
+
+end;
+
+function TfrmConferenciaProdutos.Produto: String;
+begin
+  result := qryProdutosConferenciaVisaoproduto.asString;
+end;
+
+function TfrmConferenciaProdutos.produtoprocuracodigobarras: String;
+begin
+  result := qryProcuraProdutosCodigoBarrascodigo.asString;
+end;
+
+function TfrmConferenciaProdutos.produtoprocuraproduto: String;
+begin
+  result := qryProcuraProdutoscodigo.asString;
+end;
+
+procedure TfrmConferenciaProdutos.qryProdutosConferenciaVisaoAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  sbnSalvar.Enabled := true;
+end;
+
+procedure TfrmConferenciaProdutos.qryProdutosConferenciaVisaoAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  sbnSalvar.Enabled := true;
+end;
+
+procedure TfrmConferenciaProdutos.qryProdutosConferenciaVisaoAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  dbgProdutos.ColumnByName('valorgrade1').Title.Caption := qryProdutosConferenciaVisaolinha.AsString;
+  dbgProdutos.ColumnByName('valorgrade2').Title.Caption := qryProdutosConferenciaVisaocoluna.AsString;
+  
+  if fraVisualizarImageURL1.visible then
+    fraVisualizarImageURL1.AbrirqryFotosProdutos(parsistema.ExibirCodigodoProdutonaConferencia);
+end;
+
+procedure TfrmConferenciaProdutos.qryProdutosConferenciaVisaoCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryProdutosconferenciaVisaoquantidade.AsCurrency > qryProdutosconferenciaVisaolido.AsCurrency then
+  begin
+    qryProdutosconferenciaVisaoQuantidadeFaltante.AsCurrency := qryProdutosconferenciaVisaoquantidade.AsCurrency - qryProdutosconferenciaVisaolido.AsCurrency;
+    qryProdutosconferenciaVisaoQuantidadeExcedente.AsCurrency := 0;
+  end
+  else
+  if qryProdutosconferenciaVisaoquantidade.AsCurrency < qryProdutosconferenciaVisaolido.AsCurrency then
+  begin
+    qryProdutosconferenciaVisaoQuantidadeFaltante.AsCurrency := 0;
+    qryProdutosconferenciaVisaoQuantidadeExcedente.AsCurrency := qryProdutosconferenciaVisaolido.AsCurrency - qryProdutosconferenciaVisaoquantidade.AsCurrency;
+//    MensagemAviso('A quantidade lida ultrapassou a quantidade do documento.',true)
+  end
+  else
+  begin
+    qryProdutosconferenciaVisaoQuantidadeFaltante.AsCurrency := 0;
+    qryProdutosconferenciaVisaoQuantidadeExcedente.AsCurrency := 0;
+  end;
+
+end;
+
+procedure TfrmConferenciaProdutos.qryProdutosConferenciaVisaoNewRecord(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryProdutosConferenciaVisaodigitado.AsBoolean := false;
+end;
+
+procedure TfrmConferenciaProdutos.dsrProdutosConferenciaVisaoDataChange(
+  Sender: TObject; Field: TField);
+begin
+  inherited;
+  if field = qryProdutosConferenciaVisaolido then
+  begin
+    if not qryProdutosConferenciaVisaolido.isnull then
+      qryProdutosConferenciaVisaodigitado.AsBoolean := true
+    else
+      qryProdutosConferenciaVisaodigitado.AsBoolean := false;
+
+    MensagemQuantidadeExcedente;
+  end;
+
+end;
+
+procedure TfrmConferenciaProdutos.AbrirTabelaEstoque(tipo, produto, codigodocumento: String);
+begin
+  dmbasico.RefazConsultaPorNome(qryEstoques,['tipo','produto','codigo'], [tipo, produto, codigodocumento]);
+end;
+
+procedure TfrmConferenciaProdutos.edtQtdeLidaKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+  begin
+    if qryProdutosConferenciaVisao.State = dsedit then
+      qryProdutosConferenciaVisao.post;
+    edtCodigoBarras.setfocus;  
+
+  end;
+end;
+
+procedure TfrmConferenciaProdutos.btnImprimirClick(Sender: TObject);
+var
+  PV: TfrxComponent;
+begin
+  inherited;
+  qryIdentificacao.ParamByName('tipo').asString := tipo;
+  qryIdentificacao.ParamByName('codigo').asString := CodigoDocumento;
+  qryIdentificacao.close;
+  qryIdentificacao.open;
+
+  if FileExists(LogotipoFilialBase) then
+  begin
+    PV := frxImpressaoConferencia.FindObject('fpvLogo');
+    if (PV is TfrxPictureView) then
+      TfrxPictureView(PV).picture.LoadFromFile(LogotipoFilialBase);
+  end;
+
+  fraVisualizarImageURL1.visible := false;
+
+//  frxImpressaoConferencia.DesignReport(true,false);
+  frxImpressaoConferencia.ShowReport(true);
+
+  fraVisualizarImageURL1.visible := true;
+
+end;
+
+procedure TfrmConferenciaProdutos.frxImpressaoConferenciaGetValue(
+  const VarName: String; var Value: Variant);
+begin
+  inherited;
+  if VarName = 'MascaraQuantidade' then
+    Value := ParSistema.MascaraQuantidadeGrade
+  else if VarName = 'CordoZebrado' then
+    Value :=  strtoint(parsistema.CorZebradoRelatorio)
+  else if VarName = 'RAZAOFILIALBASE' then
+    Value := fRazaoFilialBase
+  else if VarName = 'ENDERECO_BAIRRO' then
+    Value :=  fRuaFilialBase+ ' - '+fBairroFilialBase
+  else if VarName = 'CEP_CIDADE_UF' then
+    Value :=  FormatarCEP(fCEPFilialBase)+'  '+fCidadeFilialBase+ '  '+ fEstadoFilialBase;
+
+end;
+
+procedure TfrmConferenciaProdutos.PlaySound_;
+  var
+   vTempoInicial : DWORD;
+
+begin
+
+{
+  MessageDlg('1', mtInformation, mbOKCancel, 0);
+  SndPlaySound('C:\Windows\Media\notificar.wav',SND_ASYNC);
+
+
+  MessageDlg('2', mtInformation, mbOKCancel, 0);
+  MessageBeep(0);
+
+
+  MessageDlg('3', mtInformation, mbOKCancel, 0);
+  }
+//  Application.ProcessMessages;
+    MessageBeep(16);
+    sleep(300);
+    MessageBeep(64);
+    sleep(300);
+    MessageBeep(14);
+    sleep(400);
+    MessageBeep(16);
+
+    {
+    sleep(500);
+    MessageBeep(64);
+    sleep(500);
+    MessageBeep(64);
+    sleep(500);
+    MessageBeep(64);
+    }
+
+
+    sndPlaySound('C:\Windows\Media\notificar.wav', SND_NODEFAULT Or SND_ASYNC Or SND_LOOP);
+
+    (*
+    sleep(2000);
+    sndPlaySound('C:\Windows\Media\notificar.wav', SND_NODEFAULT Or SND_ASYNC Or SND_LOOP);
+    sleep(2000);
+    sndPlaySound(nil, 0); // Stops the sound
+    sleep(2000);
+    playsound(PChar('C:\Windows\Media\notificar.wav'), 0, SND_ASYNC);
+    sleep(2000);
+    playsound(nil, 0, SND_PURGE);
+    sleep(2000);
+
+          windows.Beep(1200, 500);
+          windows.Beep(1200, 300);
+          windows.Beep(1200, 900);
+
+
+
+
+(*
+  Application.ProcessMessages;
+    MessageBeep(16);
+    Application.ProcessMessages;
+    MessageBeep(16);
+    Application.ProcessMessages;
+    MessageBeep(16);
+
+//  MessageDlg('4', mtInformation, mbOKCancel, 0);
+
+Application.ProcessMessages;
+    MessageBeep(64);
+    Application.ProcessMessages;
+    MessageBeep(64);
+    Application.ProcessMessages;
+    MessageBeep(64);
+    Application.ProcessMessages;
+    MessageBeep(64);
+    Application.ProcessMessages;
+    MessageBeep(64);
+
+{
+  MessageDlg('5', mtInformation, mbOKCancel, 0);
+}
+Application.ProcessMessages;
+    sndPlaySound('C:\Windows\Media\notificar.wav', SND_NODEFAULT Or SND_ASYNC Or SND_LOOP);
+  sndPlaySound(nil, 0); // Stops the sound
+
+//  MessageDlg('6', mtInformation, mbOKCancel, 0);
+
+
+Application.ProcessMessages;
+  playsound(PChar('C:\Windows\Media\notificar.wav'), 0, SND_ASYNC);
+  playsound(nil, 0, SND_PURGE);
+
+  //sndPlaySound('C:\Windows\Media\sound.wav',
+  // SND_NODEFAULT Or SND_ASYNC Or SND_LOOP);
+
+
+Application.ProcessMessages;
+*)
+{
+          Windows.Beep(1200, 500);
+          Windows.Beep(1200, 300);
+          Windows.Beep(1200, 900);
+          }
+
+
+end;
+
+end.
+
+
+

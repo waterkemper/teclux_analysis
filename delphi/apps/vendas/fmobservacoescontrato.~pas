@@ -1,0 +1,83 @@
+unit fmobservacoescontrato;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, Windows,
+  StdCtrls, DBCtrls, cpdbmemo, Buttons, fmnavcontroles, dmcadastrocontratos;
+
+type
+  TfrmObservacoesContrato = class(TfrmNavControles)
+    gbxObservacoes: TGroupBox;
+    bbnOK: TBitBtn;
+    mmoObservacoes: TtecDBMemo;
+    procedure bbnOKClick(Sender: TObject);
+    procedure bbnOKKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure FormShow(Sender: TObject);
+  private
+    { Private declarations }
+  protected
+    dtmCadastroContratos : tdtmCadastroContratos;
+    
+ private
+   procedure  SetDataModulo (Dtm: TdtmCadastroContratos);   
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent; dtm: TdtmCadastroContratos); reintroduce;
+    destructor  Destroy; override;
+
+  end;
+
+var
+  frmObservacoesContrato: TfrmObservacoesContrato;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmObservacoesContrato.bbnOKClick(Sender: TObject);
+begin
+  dtmCadastroContratos.qryContratosconsideracoes.AsString := mmoObservacoes.Text;
+  ModalResult := mrOk;
+end;
+
+procedure TfrmObservacoesContrato.bbnOKKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  if Shift = [] then
+    if Key = VK_Return then
+      bbnOKClick(self);
+end;
+
+constructor TfrmObservacoesContrato.Create(AOwner: TComponent; dtm: TdtmCadastroContratos);
+begin
+  inherited Create(AOwner);
+  SetDataModulo(dtm);
+  
+  mmoObservacoes.SetFocus;
+  mmoObservacoes.SelStart := length(mmoObservacoes.Text); 
+end;
+
+destructor TfrmObservacoesContrato.Destroy;
+begin
+  inherited;
+  frmObservacoesContrato := nil;
+
+end;
+
+procedure TfrmObservacoesContrato.SetDataModulo(
+  Dtm: TdtmCadastroContratos);
+begin
+  dtmCadastroContratos := Dtm;
+  mmoObservacoes.DataSource := dtmCadastroContratos.dsrContratos; 
+end;
+
+procedure TfrmObservacoesContrato.FormShow(Sender: TObject);
+begin
+  inherited;
+  self.BringToFront;
+end;
+
+end.

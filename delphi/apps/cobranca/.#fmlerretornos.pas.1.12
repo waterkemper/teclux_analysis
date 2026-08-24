@@ -1,0 +1,320 @@
+unit fmlerretornos;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, Grids, DBGrids, cpdbgrid, Mask, cpdbfindcontrols, DBCtrls,
+  cpdbtext,  Buttons, ActnList, 
+  ComCtrls, DB, ZQuery, ZPgSqlQuery,
+  cpquery,
+
+//CLX
+  Variants,
+  //Repositorio
+  fmajudabt, ExtCtrls, QCheckLst,
+  cpdata, cpeditioncontrolvalidation, ctconstantes, biblio,
+  fmconsultabasica, fmconsultaporcampo,  frconsultadadoscliente,
+  frconsultadadosclientecod, dmconsultadadoscliente,
+  Windows,
+  // Constantes
+  clparametrossistema,
+  // Componenetes
+  cpdatasource, cpnumero,  cptexto,
+  fmcadastropadrao,fmrelatoriopadrao, cpcep, ToolWin;
+
+type
+  Tfrmlerretornos = class(TfrmAjudaBt)
+    gbxParcelas: TGroupBox;
+    dbgParcelas: TtecDBGrid;
+    gbxNomeArquivo: TGroupBox;
+    sbnArquivo: TSpeedButton;
+    lblArquivo: TLabel;
+    aclHabilitar: TActionList;
+    actHabilitar: TAction;
+    dlgLerRetornos: TOpenDialog;
+    sbnAtualizarParcelas: TSpeedButton;
+    plnFundoJanela: TPanel;
+    gbxFilial: TGroupBox;
+    gbxConta: TGroupBox;
+    edfConta: TtecDbEditFind;
+    dtxDigito: TtecDBText;
+    Label3: TLabel;
+    gbxSiglaBanco: TGroupBox;
+    dtxSigla: TtecDBText;
+    gbxNomeAgencia: TGroupBox;
+    dtxNomeAgencia: TtecDBText;
+    edfFiliais: TtecDbEditFind;
+    dtxFilial: TtecDBText;
+    sbnProcurarConta:  TSpeedButton;
+    sbnProcurarFilial: TSpeedButton;
+    procedure sbnProcurarFilialClick(Sender: TObject);
+    procedure sbnProcurarContaClick(Sender: TObject);
+    procedure actHabilitarUpdate(Sender: TObject);
+    procedure sbnAtualizarParcelasClick(Sender: TObject);
+    procedure sbnArquivoClick(Sender: TObject);
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure FormShow(Sender: TObject);
+    procedure dbgParcelasDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+
+ protected
+    Function InternoPesquisar(Titulo: string): Integer; override;
+    Function ValidaControles: Boolean;
+    Function ExisteInformacao(Parametro: Integer; NomeCampo: string; Value: Variant): Boolean; Override;
+    Function PermitirPesquisa: Boolean;
+    Function TabelaDePesquisa: TZdataSet; override;
+    Function TituloPesquisa: string;
+    Function JanelaPesquisa: TfrmConsultaBasica; override;
+
+
+  private
+    { Private declarations }
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+  end;
+
+var
+  frmlerretornos: Tfrmlerretornos;
+  TipoPesquisa: TtecGerarRemessas;
+  NomeArquivo: String;
+
+implementation
+
+uses  dmlerretornos;
+
+{$R *.dfm}
+
+procedure Tfrmlerretornos.sbnProcurarFilialClick(Sender: TObject);
+begin
+  CtrlOn:= True;
+  edfFiliais.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure Tfrmlerretornos.sbnProcurarContaClick(Sender: TObject);
+begin
+  CtrlOn:= True;
+  edfConta.SetFocus;
+  InternoPesquisar('');
+end;
+
+Function Tfrmlerretornos.ValidaControles: Boolean;
+begin
+   Result := True;
+   if edfConta.Text = '' then begin
+      MensagemAviso(ctCONTABRANCO);
+      edfConta.SetFocus;
+      Result:= False;         Exit;
+   end
+   else with dtmLerRetornos do
+        if (qryContasBancoreferencia.AsInteger <> 001) and        {-- BANCO DO BRASIL --}
+           (qryContasBancoreferencia.AsInteger <> 353) and
+           (qryContasBancoreferencia.AsInteger <> 237) and
+           (qryContasBancoreferencia.AsInteger <> 341) then begin {-- ITAU --}
+           MensagemAviso(ctLAYOUTNAOCADASTRADO);
+           edfConta.SetFocus;
+           Result:= False;                Exit;
+        end;
+
+   if edfFiliais.Text = '' then begin
+      MensagemAviso(ctCODIGOFILIALBRANCO);
+      edfFiliais.SetFocus;
+      Result:= False;                Exit;
+   end;
+end;
+
+Function Tfrmlerretornos.InternoPesquisar(Titulo: string): Integer;
+begin
+  Result:= mrNone;
+  if PermitirPesquisa then begin
+     dtmlerretornos.AbreTabelaConsulta(TipoPesquisa);
+     Result := inherited InternoPesquisar(TituloPesquisa);
+     if Result = mrOK then
+        dtmlerretornos.Selecionar(TipoPesquisa);
+
+     dtmlerretornos.FechaTabelaConsulta(TipoPesquisa);
+  end;
+end;
+
+Function Tfrmlerretornos.PermitirPesquisa: Boolean;
+begin
+   Result := False;
+   if CtrlOn
+   then if ActiveControl is TtecFindCustom then begin
+                if edfFiliais.Focused then TipoPesquisa:= grsFILIAIS
+           else if edfConta.Focused   then TipoPesquisa:= grsCONTAS;
+
+           Result:= True;
+        end;
+end;
+
+Function Tfrmlerretornos.ExisteInformacao(Parametro: Integer; NomeCampo: string; Value: Variant): Boolean;
+begin
+  with dtmlerretornos do
+    case TipoPesquisa of
+          grsFILIAIS: Result:= dtmlerretornos.ExisteFiliais(NomeCampo, Value);
+          grsCONTAS:  Result:= dtmlerretornos.ExisteConta  (NomeCampo, Value);
+          else        Result:= False
+    end;
+end;
+
+Function Tfrmlerretornos.TabelaDePesquisa: TZdataSet;
+begin
+  case TipoPesquisa of
+    grsFILIAIS: Result := dtmlerretornos.ConsultarFiliais;
+    grsCONTAS:  Result := dtmlerretornos.ConsultarContas;
+    else        Result := nil;
+  end;
+end;
+
+Function Tfrmlerretornos.TituloPesquisa: string;
+begin
+  case TipoPesquisa of
+    grsFILIAIS: Result := 'Filiais';
+    grsCONTAS:  Result := 'Contas';
+  end;
+end;
+
+
+constructor Tfrmlerretornos.Create(AOwner: TComponent);
+begin
+  dtmlerretornos:= Tdtmlerretornos.Create(Self);
+  inherited;
+  dtmlerretornos.Abre(ctConsultaTabelas);
+end;
+
+Function Tfrmlerretornos.JanelaPesquisa: TfrmConsultaBasica;
+var jan: TfrmConsultaPorCampo;
+begin
+  jan:=TfrmConsultaPorCampo.Create(nil);
+  jan.ConsultaInterativa     := not (TipoPesquisa in [grsClientes]) and CtrlOn;
+  jan.UsarParametrosDaTabela := False;
+  Result:=jan;
+end;
+
+
+destructor Tfrmlerretornos.Destroy;
+begin
+  inherited;
+  frmlerretornos := nil;
+end;
+
+procedure Tfrmlerretornos.actHabilitarUpdate(Sender: TObject);
+begin
+  sbnProcurarFilial.Enabled:= True;
+  sbnProcurarConta. Enabled:= True;
+end;
+
+procedure Tfrmlerretornos.sbnAtualizarParcelasClick(Sender: TObject);
+var ArqLido: String;
+    Resultado :  boolean;
+    Txt: TextFile;
+begin
+  inherited;
+  Resultado := false;
+  if not ValidaControles then
+     Exit;
+
+  NomeArquivo := dlgLerRetornos.Filename;
+
+  if NomeArquivo = '' Then Begin
+    MensagemAviso(ctRETORNOVAZIO);
+    Exit
+  end;
+
+  if dtmLerRetornos.qryContasbancoreferencia.AsInteger <> 237 then
+  begin
+    AssignFile(Txt, NomeArquivo);
+    Reset(Txt);
+    Closefile(Txt);
+  end;
+
+  DeleteLineBreaksArquivo(lblArquivo.Caption);
+
+  with dtmlerretornos do
+  begin
+    Filiais := edfFiliais.text;
+    case qryContasbancoreferencia.AsInteger of
+//      237: resultado := AtualizarParcelasBradesco(lblArquivo.Caption);
+      237, 353, 001: resultado := AtualizarParcelasBradescoACBR(lblArquivo.Caption);
+{      001: resultado := AtualizarParcelasBBrasil (lblArquivo.Caption);}
+      341: resultado := AtualizarParcelasItau(lblArquivo.Caption);
+      else begin
+             MensagemAviso('Layout do banco não cadastrado: ' + qryContasSigla.AsString);
+             edfFiliais.SetFocus;
+             Exit;
+           end;
+    end;
+
+    dbgParcelas.SetFocus;
+    edfFiliais.SetFocus;
+  end;
+
+  if Resultado then
+  begin
+    if NomeArquivo <> '' then
+    begin
+        ArqLido := NomeArquivo;
+        Delete(ArqLido, Length(ArqLido)-3,4);
+        ArqLido := ArqLido + '.OLD';
+        RenameFile(NomeArquivo, ArqLido);
+    end;
+  end;
+
+end; {LerTrailerRetorno}
+
+
+procedure Tfrmlerretornos.sbnArquivoClick(Sender: TObject);
+{ var Txt: TextFile; }
+begin
+  inherited;
+  dlgLerRetornos.Title := 'Procurar Arquivo de Retorno';
+  if dlgLerRetornos.Execute then begin
+    try
+       {
+      NomeArquivo := dlgLerRetornos.Filename;
+      AssignFile(Txt, NomeArquivo);
+      Reset(Txt);
+      Closefile(Txt);
+        }
+      lblArquivo.Caption := dlgLerRetornos.Filename;
+    except
+      on EInOutError do
+      MensagemAviso(ctERROABERTURARETORNO);
+    end;
+  end;
+end;
+
+
+procedure Tfrmlerretornos.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Key = VK_F6 then begin
+    if sbnAtualizarParcelas.Enabled  then
+      sbnAtualizarParcelas.Click;
+  end;
+end;
+
+procedure Tfrmlerretornos.FormShow(Sender: TObject);
+begin
+   inherited;
+   edfConta.SetFocus;
+end;
+
+
+
+procedure Tfrmlerretornos.dbgParcelasDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if dbgParcelas.DataSource.DataSet.FieldByName('desmembrada').AsBoolean then
+    TDBGrid(Sender).Canvas.Font.Color := clRed;
+
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+
+end;
+
+end.

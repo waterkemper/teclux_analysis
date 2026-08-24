@@ -1,0 +1,2533 @@
+inherited dtmOperacoesOSP: TdtmOperacoesOSP
+  OldCreateOrder = False
+  Left = 266
+  Top = 82
+  Height = 682
+  Width = 987
+  object qryOperacoesOSP: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryOperacoesOSPAfterPost
+    BeforeDelete = qryOperacoesOSPBeforeDelete
+    AfterScroll = qryOperacoesOSPAfterScroll
+    OnCalcFields = qryOperacoesOSPCalcFields
+    OnFilterRecord = qryOperacoesOSPFilterRecord
+    Filtered = True
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select operacoesosp.osp,'
+      '       operacoesosp.lote,'
+      '       operacoesosp.operacao,'
+      '       operacoesosp.sequencia,'
+      '       operacoes.nome,'
+      '       operacoes.c01,'
+      '       operacoes.c02,'
+      '       operacoes.c03,'
+      '       operacoes.setup,'
+      '       operacoes.planocontrole,'
+      '       false as heaprimeiraoperacao,'
+      ''
+      '      (SELECT otp.TempoPadrao'
+      '          FROM OperacoesTemposPadrao otp'
+      '          WHERE otp.Operacao = Operacoes.Codigo'
+      '          ORDER BY otp.Data DESC LIMIT 1) AS TempoPadrao,'
+      ''
+      '       /*'
+      '       (select fo.tipooperacao'
+      '        from fluxogramasoperacoes fo'
+      '        where fo.fluxograma = (select cp.fluxograma'
+      '                               from clientesprodutos cp'
+      
+        '                               where (cp.cliente, cp.tipocliente' +
+        ', cp.produto) in'
+      
+        '                                     (select osp.cliente, cast('#39 +
+        'C'#39' as char(1)), osp.produto'
+      '                                      from osp'
+      
+        '                                      where osp.numero = :osp li' +
+        'mit 1) limit 1) and'
+      
+        '              fo.operacao = operacoesosp.operacao) as tipooperac' +
+        'ao,'
+      '       */'
+      ''
+      '       operacoesosp.tipooperacao,'
+      ''
+      '       /*'
+      '       (select fo.origemoperacaoalternativa'
+      '        from fluxogramasoperacoes fo'
+      '        where fo.fluxograma = (select cp.fluxograma'
+      '                               from clientesprodutos cp'
+      
+        '                               where (cp.cliente, cp.tipocliente' +
+        ', cp.produto) in'
+      
+        '                                     (select osp.cliente, cast('#39 +
+        'C'#39' as char(1)), osp.produto'
+      '                                      from osp'
+      
+        '                                      where osp.numero = :osp li' +
+        'mit 1) limit 1) and'
+      
+        '              fo.operacao = operacoesosp.operacao) as origemoper' +
+        'acaoalternativa,'
+      '       */'
+      ''
+      '      operacoesosp.origemoperacaoalternativa,'
+      ''
+      '       operacoes.ppm,'
+      ''
+      '       false as OperacaoemAndamento,'
+      '       false as OperacaoemAndamento_Complementar,'
+      '       false as OperacaoLiberada,'
+      '       false as HabilitadoSetup,'
+      '       operacoesosp.selecionada,'
+      ''
+      '       /*'
+      '       (coalesce((select count(*)'
+      '        from fluxogramasoperacoes fo'
+      '        where fo.fluxograma = (select cp.fluxograma'
+      '                               from clientesprodutos cp'
+      
+        '                               where (cp.cliente, cp.tipocliente' +
+        ', cp.produto) in'
+      
+        '                                     (select osp.cliente, cast('#39 +
+        'C'#39' as char(1)), osp.produto'
+      '                                      from osp'
+      
+        '                                      where osp.numero = :osp li' +
+        'mit 1) limit 1) and'
+      
+        '              fo.origemoperacaoalternativa = operacoesosp.operac' +
+        'ao limit 1),0)<>0) as PossuiAlternativa,'
+      '        */'
+      ''
+      '        /*'
+      '       (coalesce((select count(*)'
+      '                  from operacoesosp oo2'
+      '                  where oo2.osp = operacoesosp.osp'
+      
+        '                    and oo2.origemoperacaoalternativa = operacoe' +
+        'sosp.operacao'
+      
+        '                    and oo2.tipooperacao='#39'A'#39'),0)<>0) as PossuiAl' +
+        'ternativa,'
+      ''
+      '       (coalesce((select count(*)'
+      '                  from operacoesosp oo2'
+      '                  where oo2.osp = operacoesosp.osp'
+      
+        '                    and oo2.origemoperacaoalternativa = operacoe' +
+        'sosp.operacao'
+      
+        '                    and oo2.tipooperacao='#39'C'#39'),0)<>0) as PossuiCo' +
+        'mplementar,'
+      '       */             '
+      ''
+      '       (select sum(oou.quantidade - coalesce(oou.retrabalho,0))'
+      '        from operacoesospusuario oou'
+      '        where oou.osp      = operacoesosp.osp'
+      '          and oou.lote     = operacoesosp.lote'
+      
+        '          and oou.operacao = operacoesosp.operacao) as quantidad' +
+        'e,'
+      ''
+      '       (select sum(oouf.quantidadeperda)'
+      
+        '        from operacoesospusuariofalhas oouf join falhas f on oou' +
+        'f.falha = f.codigo'
+      '        where oouf.osp      = operacoesosp.osp'
+      '          and oouf.lote     = operacoesosp.lote'
+      '          and oouf.operacao = operacoesosp.operacao'
+      '          and oouf.perdatotal) as quantidadecomperda,'
+      ''
+      '       (select sum(oouf.quantidadeperda)'
+      
+        '        from operacoesospusuariofalhas oouf join falhas f on oou' +
+        'f.falha = f.codigo'
+      '        where oouf.osp      = operacoesosp.osp'
+      '          and oouf.lote     = operacoesosp.lote'
+      '          and oouf.operacao = operacoesosp.operacao'
+      '          and not oouf.perdatotal) as quantidadesemperda,'
+      ''
+      '       (select sum(ooup.tempoparada)'
+      '        from operacoesospusuarioparadas ooup'
+      '        where ooup.osp      = operacoesosp.osp'
+      '          and ooup.lote     = operacoesosp.lote'
+      
+        '          and ooup.operacao = operacoesosp.operacao) as totaltem' +
+        'poparada,'
+      ''
+      '       cast(0 as integer) as quantidadeanterior,'
+      '       cast(0 as integer) as quantidadelimite,'
+      '       '
+      '       cast(0 as integer) as QuantidadeNasAlternativas,'
+      ''
+      '       operacoes.naobloqueiausuario,'
+      '       operacoesosp.OperacaoemGrupoComAnterior,'
+      '       operacoesosp.InformarTerminodoProcesso,'
+      '       operacoesosp.fechamentoforcado,'
+      '       operacoesosp.c8d'
+      ''
+      
+        'from operacoesosp join operacoes on operacoesosp.operacao = oper' +
+        'acoes.codigo'
+      'where operacoesosp.osp = :osp'
+      '  and operacoesosp.lote = :lote'
+      ''
+      'order by cast(operacoesosp.sequencia as numeric)')
+    RequestLive = True
+    Left = 88
+    Top = 96
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'osp'
+        ParamType = ptUnknown
+        Value = '0'
+      end
+      item
+        DataType = ftUnknown
+        Name = 'lote'
+        ParamType = ptUnknown
+      end>
+    object qryOperacoesOSPosp: TIntegerField
+      FieldName = 'osp'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesOSPlote: TIntegerField
+      FieldName = 'lote'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesOSPoperacao: TIntegerField
+      FieldName = 'operacao'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesOSPnome: TStringField
+      DisplayLabel = 'NOME'
+      FieldName = 'nome'
+      Size = 10
+    end
+    object qryOperacoesOSPc01: TStringField
+      DisplayLabel = 'C1'
+      FieldName = 'c01'
+      Size = 2
+    end
+    object qryOperacoesOSPc02: TStringField
+      DisplayLabel = 'C2'
+      FieldName = 'c02'
+      Size = 2
+    end
+    object qryOperacoesOSPc03: TStringField
+      DisplayLabel = 'C3'
+      FieldName = 'c03'
+      Size = 2
+    end
+    object qryOperacoesOSPtempopadrao: TFloatField
+      DisplayLabel = 'TEMPO PADR'#195'O'
+      FieldName = 'tempopadrao'
+      DisplayFormat = '0.00'
+    end
+    object qryOperacoesOSPppm: TIntegerField
+      FieldName = 'ppm'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesOSPoperacaoliberada: TBooleanField
+      FieldName = 'operacaoliberada'
+    end
+    object qryOperacoesOSPsequencia: TStringField
+      FieldName = 'sequencia'
+      Size = 6
+    end
+    object qryOperacoesOSPoperacaoemandamento: TBooleanField
+      FieldName = 'operacaoemandamento'
+    end
+    object qryOperacoesOSPtipooperacao: TStringField
+      FieldName = 'tipooperacao'
+      Size = 50
+    end
+    object qryOperacoesOSPorigemoperacaoalternativa: TIntegerField
+      FieldName = 'origemoperacaoalternativa'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesOSPselecionada: TBooleanField
+      FieldName = 'selecionada'
+    end
+    object qryOperacoesOSPalternativa: TStringField
+      FieldKind = fkCalculated
+      FieldName = 'alternativa'
+      Size = 2
+      Calculated = True
+    end
+    object qryOperacoesOSPquantidade: TLargeintField
+      FieldName = 'quantidade'
+    end
+    object qryOperacoesOSPSaldoFaltanteGeral: TIntegerField
+      FieldKind = fkCalculated
+      FieldName = 'SaldoFaltanteGeral'
+      DisplayFormat = '0'
+      Calculated = True
+    end
+    object qryOperacoesOSPsetup: TBooleanField
+      FieldName = 'setup'
+    end
+    object qryOperacoesOSPplanocontrole: TBooleanField
+      FieldName = 'planocontrole'
+    end
+    object qryOperacoesOSPquantidadeanterior: TIntegerField
+      FieldName = 'quantidadeanterior'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesOSPSaldoFaltanteProducao: TIntegerField
+      FieldKind = fkCalculated
+      FieldName = 'SaldoFaltanteProducao'
+      DisplayFormat = '0'
+      Calculated = True
+    end
+    object qryOperacoesOSPhabilitadosetup: TBooleanField
+      FieldName = 'habilitadosetup'
+    end
+    object qryOperacoesOSPtotaltempoparada: TLargeintField
+      FieldName = 'totaltempoparada'
+    end
+    object qryOperacoesOSPquantidadecomperda: TLargeintField
+      FieldName = 'quantidadecomperda'
+    end
+    object qryOperacoesOSPquantidadesemperda: TLargeintField
+      FieldName = 'quantidadesemperda'
+    end
+    object qryOperacoesOSPnaobloqueiausuario: TBooleanField
+      FieldName = 'naobloqueiausuario'
+    end
+    object qryOperacoesOSPoperacaoemandamento_complementar: TBooleanField
+      FieldName = 'operacaoemandamento_complementar'
+    end
+    object qryOperacoesOSPquantidadenasalternativas: TIntegerField
+      FieldName = 'quantidadenasalternativas'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesOSPheaprimeiraoperacao: TBooleanField
+      FieldName = 'heaprimeiraoperacao'
+    end
+    object qryOperacoesOSPquantidadelimite: TIntegerField
+      FieldName = 'quantidadelimite'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesOSPOperacaoemGrupoComAnterior: TBooleanField
+      FieldName = 'OperacaoemGrupoComAnterior'
+    end
+    object qryOperacoesOSPInformarTerminodoProcesso: TBooleanField
+      FieldName = 'InformarTerminodoProcesso'
+    end
+    object qryOperacoesOSPfechamentoforcado: TBooleanField
+      FieldName = 'fechamentoforcado'
+    end
+    object qryOperacoesOSPc8d: TStringField
+      FieldName = 'c8d'
+      Size = 15
+    end
+  end
+  object qryOperacoesOSPUsuario: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkFields = 'osp=osp,lote=lote,operacao=operacao'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrOperacoesOSP
+    Constraints = <>
+    AfterOpen = qryOperacoesOSPUsuarioAfterOpen
+    BeforeInsert = qryOperacoesOSPUsuarioBeforeInsert
+    AfterInsert = qryOperacoesOSPUsuarioAfterInsert
+    AfterEdit = qryOperacoesOSPUsuarioAfterEdit
+    BeforePost = qryOperacoesOSPUsuarioBeforePost
+    AfterPost = qryOperacoesOSPUsuarioAfterPost
+    BeforeDelete = qryOperacoesOSPUsuarioBeforeDelete
+    AfterDelete = qryOperacoesOSPUsuarioAfterDelete
+    AfterScroll = qryOperacoesOSPUsuarioAfterScroll
+    OnCalcFields = qryOperacoesOSPUsuarioCalcFields
+    OnNewRecord = qryOperacoesOSPUsuarioNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select'
+      ' oou.osp,'
+      ' oou.lote,'
+      ' oou.operacao,'
+      ' oou.usuario,'
+      ' u.nome,'
+      ' oou.usuariosetup,'
+      ' (select u.nome'
+      '  from usuarios u'
+      '  where u.codigo = oou.usuariosetup) as nomeusuariosetup,'
+      ' oou.data,'
+      ' oou.inicio,'
+      ' oou.maquina,'
+      
+        ' (select m.descricao from maquinas m where m.codigo = oou.maquin' +
+        'a) as descricaomaquina,'
+      ' oou.datatermino,'
+      ' oou.usuariotermino,'
+      ' oou.termino,'
+      ' oou.quantidade,'
+      ' true as UsuarioValidado,'
+      ' true as usuarioSetupvalidado,'
+      ' true as usuarioFechamentovalidado,'
+      ' true as MaquinaValidada,'
+      ''
+      ' oou.usuario as usuariorelacao,'
+      ' oou.data as datarelacao,'
+      ' oou.inicio as iniciorelacao,'
+      ' oou.turno,'
+      ' oou.numeromovimento,'
+      ' oou.retrabalho,'
+      ' case when oou.intervalo is not null then oou.intervalo'
+      ' else'
+      
+        '  NrMinutosIntervaloTurno(oou.Data, oou.Inicio, oou.DataTermino,' +
+        ' oou.Termino, u.turno)'
+      ' end as intervalo,'
+      ''
+      ' oou.intervalo,'
+      ''
+      
+        ' TempoOperacaoUsuario     (oou.OSP, oou.Lote, oou.Operacao, oou.' +
+        'Usuario, oou.Data, oou.Inicio) AS Tempo,'
+      
+        ' EficienciaOperacaoUsuario(oou.OSP, oou.Lote, oou.Operacao, oou.' +
+        'Usuario, oou.Data, oou.Inicio, FALSE) * 100 AS Eficiencia,'
+      
+        ' QualidadeOperacaoUsuario (oou.OSP, oou.Lote, oou.Operacao, oou.' +
+        'Usuario, oou.Data, oou.Inicio, FALSE) * 100 AS Qualidade'
+      ''
+      'from operacoesospusuario oou'
+      '     join usuarios u'
+      '     on oou.usuario = u.codigo'
+      ''
+      'where oou.osp      = :osp'
+      '  and oou.lote      = :lote'
+      'order by  oou.data,'
+      '          oou.inicio,'
+      '          oou.termino'
+      ''
+      '')
+    RequestLive = False
+    Left = 96
+    Top = 152
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'osp'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'lote'
+        ParamType = ptUnknown
+      end>
+    object qryOperacoesOSPUsuarioosp: TIntegerField
+      FieldName = 'osp'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryOperacoesOSPUsuariolote: TIntegerField
+      FieldName = 'lote'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesOSPUsuariooperacao: TIntegerField
+      FieldName = 'operacao'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryOperacoesOSPUsuariousuario: TIntegerField
+      FieldName = 'usuario'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryOperacoesOSPUsuarionome: TStringField
+      DisplayLabel = 'USU'#193'RIO'
+      FieldName = 'nome'
+      ReadOnly = True
+      Required = True
+      Size = 40
+    end
+    object qryOperacoesOSPUsuarionomeusuariosetup: TStringField
+      FieldName = 'nomeusuariosetup'
+      Size = 50
+    end
+    object qryOperacoesOSPUsuarioquantidade: TIntegerField
+      DisplayLabel = 'QUANTIDADE'
+      FieldName = 'quantidade'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesOSPUsuariousuariovalidado: TBooleanField
+      FieldName = 'usuariovalidado'
+    end
+    object qryOperacoesOSPUsuariodata: TDateField
+      Alignment = taCenter
+      DisplayLabel = 'DATA'
+      FieldName = 'data'
+      ReadOnly = True
+      Required = True
+      DisplayFormat = 'DD/MM/YY'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryOperacoesOSPUsuarioinicio: TTimeField
+      Alignment = taCenter
+      DisplayLabel = 'IN'#205'CIO'
+      DisplayWidth = 5
+      FieldName = 'inicio'
+      ReadOnly = True
+      Required = True
+      DisplayFormat = 'HH:MM'
+      EditMask = '99:99;1; '
+    end
+    object qryOperacoesOSPUsuariomaquina: TIntegerField
+      FieldName = 'maquina'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesOSPUsuariodatatermino: TDateField
+      FieldName = 'datatermino'
+      DisplayFormat = 'DD/MM/YY'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryOperacoesOSPUsuariotermino: TTimeField
+      Alignment = taCenter
+      DisplayLabel = 'T'#201'RMINO'
+      DisplayWidth = 5
+      FieldName = 'termino'
+      ReadOnly = True
+      DisplayFormat = 'HH:MM'
+      EditMask = '99:99;1; '
+    end
+    object qryOperacoesOSPUsuariousuariorelacao: TIntegerField
+      FieldName = 'usuariorelacao'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesOSPUsuariodatarelacao: TDateField
+      Alignment = taCenter
+      FieldName = 'datarelacao'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryOperacoesOSPUsuarioiniciorelacao: TTimeField
+      Alignment = taCenter
+      FieldName = 'iniciorelacao'
+      EditMask = '99:99;1; '
+    end
+    object qryOperacoesOSPUsuarioturno: TIntegerField
+      FieldName = 'turno'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesOSPUsuariousuariosetup: TIntegerField
+      FieldName = 'usuariosetup'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesOSPUsuarionumeromovimento: TIntegerField
+      FieldName = 'numeromovimento'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesOSPUsuariousuariotermino: TIntegerField
+      FieldName = 'usuariotermino'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesOSPUsuariousuariosetupvalidado: TBooleanField
+      FieldName = 'usuariosetupvalidado'
+    end
+    object qryOperacoesOSPUsuariousuariofechamentovalidado: TBooleanField
+      FieldName = 'usuariofechamentovalidado'
+    end
+    object qryOperacoesOSPUsuarioretrabalho: TIntegerField
+      FieldName = 'retrabalho'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesOSPUsuariodescricaomaquina: TStringField
+      FieldName = 'descricaomaquina'
+      Size = 50
+    end
+    object qryOperacoesOSPUsuariomaquinavalidada: TBooleanField
+      FieldName = 'maquinavalidada'
+    end
+    object qryOperacoesOSPUsuariointervalo: TIntegerField
+      FieldName = 'intervalo'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesOSPUsuariotempo: TIntegerField
+      FieldName = 'tempo'
+      ReadOnly = True
+      DisplayFormat = '0'
+    end
+    object qryOperacoesOSPUsuarioeficiencia: TFloatField
+      FieldName = 'eficiencia'
+      ReadOnly = True
+      DisplayFormat = '0.00'
+    end
+    object qryOperacoesOSPUsuarioqualidade: TFloatField
+      FieldName = 'qualidade'
+      DisplayFormat = '##,###.00'
+    end
+  end
+  object qryOperacoesOSPUsuarioFalhas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doRefreshAfterPost]
+    LinkFields = 
+      'osp=osp,lote=lote,operacao=operacao,usuariorelacao=usuario,datar' +
+      'elacao=data,iniciorelacao=inicio'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrOperacoesOSPUsuario
+    Constraints = <>
+    AfterOpen = qryOperacoesOSPUsuarioFalhasAfterOpen
+    AfterPost = qryOperacoesOSPUsuarioFalhasAfterPost
+    AfterDelete = qryOperacoesOSPUsuarioFalhasAfterDelete
+    AfterScroll = qryOperacoesOSPUsuarioFalhasAfterScroll
+    OnFilterRecord = qryOperacoesOSPUsuarioFalhasFilterRecord
+    OnNewRecord = qryOperacoesOSPUsuarioFalhasNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select'
+      ' osp,'
+      ' lote,  '
+      ' operacao,'
+      ' usuario,'
+      ' data,'
+      ' inicio,'
+      ' falha,'
+      ' quantidadeperda,'
+      ' perdatotal,'
+      
+        '/* (select f.PerdaTotal from falhas f where f.codigo = falha) as' +
+        ' PerdaTotal,*/'
+      
+        ' (select f.descricao from falhas f where f.codigo = falha) as de' +
+        'scricao,'
+      ' True as FalhaValidada'
+      'from operacoesospusuariofalhas'
+      'where osp = :osp'
+      '  and lote = :lote'
+      'order by falha')
+    RequestLive = False
+    Left = 96
+    Top = 224
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'osp'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'lote'
+        ParamType = ptUnknown
+      end>
+    object qryOperacoesOSPUsuarioFalhasosp: TIntegerField
+      FieldName = 'osp'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryOperacoesOSPUsuarioFalhaslote: TIntegerField
+      FieldName = 'lote'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesOSPUsuarioFalhasoperacao: TIntegerField
+      FieldName = 'operacao'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryOperacoesOSPUsuarioFalhasusuario: TIntegerField
+      FieldName = 'usuario'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryOperacoesOSPUsuarioFalhasfalha: TIntegerField
+      DisplayLabel = 'FALHA'
+      FieldName = 'falha'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryOperacoesOSPUsuarioFalhasquantidadeperda: TIntegerField
+      DisplayLabel = 'PERDA'
+      FieldName = 'quantidadeperda'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryOperacoesOSPUsuarioFalhasdata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      Required = True
+      EditMask = '99/99/9999;1; '
+    end
+    object qryOperacoesOSPUsuarioFalhasinicio: TTimeField
+      Alignment = taCenter
+      FieldName = 'inicio'
+      Required = True
+      EditMask = '99:99;1; '
+    end
+    object qryOperacoesOSPUsuarioFalhasfalhavalidada: TBooleanField
+      FieldName = 'falhavalidada'
+    end
+    object qryOperacoesOSPUsuarioFalhasperdatotal: TBooleanField
+      FieldName = 'perdatotal'
+    end
+    object qryOperacoesOSPUsuarioFalhasdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 50
+    end
+  end
+  object dsrOperacoesOSP: TtecDataSource
+    DataSet = qryOperacoesOSP
+    OnDataChange = dsrOperacoesOSPDataChange
+    Left = 160
+    Top = 112
+  end
+  object dsrOperacoesOSPUsuario: TtecDataSource
+    DataSet = qryOperacoesOSPUsuario
+    OnDataChange = dsrOperacoesOSPUsuarioDataChange
+    Left = 208
+    Top = 168
+  end
+  object dsrOperacoesOSPUsuarioFalhas: TtecDataSource
+    DataSet = qryOperacoesOSPUsuarioFalhas
+    Left = 192
+    Top = 240
+  end
+  object qryOSPLotes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryOSPLotesBeforeOpen
+    AfterOpen = qryOSPLotesAfterOpen
+    AfterScroll = qryOSPLotesAfterScroll
+    OnCalcFields = qryOSPLotesCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'Ordenacao'
+        ParamType = ptUnknown
+        Value = 'ORDER BY osplotes.osp, osplotes.numero DESC LIMIT 1'
+      end>
+    Sql.Strings = (
+      'select osplotes.osp,'
+      '       osplotes.numero,'
+      '       osplotes.quantidade as quantidadelote,'
+      '       osplotes.excedente as excedentelote,'
+      '       osplotes.produzida as produzidalote,'
+      '       osp.entrega,'
+      '       cast(null as date) as entrega_anterior,'
+      '       osp.semana,'
+      '       osp.ano,'
+      '       osp.prioridade,'
+      '       osp.observacoes,'
+      '       osp.produto,'
+      '       osp.data,'
+      '       osp.cliente,'
+      '       osp.tipocliente,'
+      '       osp.pedidocliente,'
+      '       osp.quantidade as quantidadeosp,'
+      '       cast(null as numeric(9,3)) as quantidade_anterior,'
+      '       osp.preco,'
+      '       '
+      '       p.codigovisual as produtovisual,'
+      '       p.caracteristica,'
+      '       c.codigovisual as caracteristicavisual,'
+      '      (select sum(pdf.quantidade)'
+      
+        '       from DadosFiscais df join produtosdadosfiscais pdf on df.' +
+        'numero = pdf.dadofiscal'
+      '       where df.situacao='#39'N'#39
+      '         and pdf.osp = osp.numero) as qtdeentregue,'
+      '       cast(null as varchar(30)) as complementoproduto,'
+      '       c.unidade,'
+      '       cl.apelido,'
+      '       false as alterada'
+      '       '
+      'from osplotes '
+      '     join (osp join (produtos p join caracteristicas c '
+      '                     on p.caracteristica = c.codigo)'
+      '               on osp.produto = p.codigo'
+      '     '
+      '               join clientes cl'
+      '               on osp.cliente = cl.codigo)'
+      '     on osplotes.osp = osp.numero               '
+      ''
+      'WHERE  osplotes.osp is not null'
+      ''
+      '   AND  (:Campo          = 0    AND'
+      '         :Operacao       = 0    AND'
+      #9'      osplotes.osp    = :osp AND'
+      '         osplotes.numero = :numero)'
+      ''
+      '/* codigo */'
+      '   OR ((:Campo =1) AND'
+      '   '
+      '       /* PRIMEIRO */'
+      
+        '        (     ((:Operacao = 1) AND ((osplotes.osp < :osp) or (:o' +
+        'sp = 0) ))'
+      ''
+      '       /* ANTERIOR */'
+      
+        '           OR ((:Operacao = 2) AND (osplotes.osp = (case when :o' +
+        'sp <> 0 then (SELECT MAX(osplotes.osp)'
+      
+        '                                                                ' +
+        '              FROM osplotes '
+      
+        '                                                                ' +
+        '              WHERE osplotes.osp < :osp)'
+      
+        '                                                                ' +
+        '        else (select min(osplotes.osp)'
+      
+        '                                                                ' +
+        '              from osplotes) end)))'
+      '       /* PR'#211'XIMO */'
+      
+        '           OR ((:Operacao = 3) AND (osplotes.osp = (SELECT osplo' +
+        'tes.osp'
+      
+        '                                                    FROM osplote' +
+        's'
+      
+        '                                                    WHERE  osplo' +
+        'tes.osp > :osp'
+      
+        '   '#9#9#9#9'                                     order by osplotes.os' +
+        'p, osplotes.numero limit 1)))'
+      '       /* '#218'LTIMO */'
+      '           OR ((:Operacao = 4) AND (osplotes.osp > :osp))'
+      '         )'
+      '      )'
+      ''
+      '   OR ((:Campo =2) AND'
+      '   '
+      '       /* PRIMEIRO */'
+      
+        '        (     ((:Operacao = 1) AND ((osplotes.osp = :osp and osp' +
+        'lotes.numero < :numero) or (:numero = 0) ))'
+      '              '
+      '       /* ANTERIOR */'
+      
+        '           OR ((:Operacao = 2) AND (osplotes.osp = :osp and ospl' +
+        'otes.numero = (case when :numero <> 0 then (SELECT MAX(osplotes.' +
+        'numero)'
+      
+        '                                                                ' +
+        '                                            FROM osplotes '
+      
+        '                                                                ' +
+        '                                            WHERE osplotes.osp =' +
+        ' :osp'
+      
+        '                                                                ' +
+        '                                              and osplotes.numer' +
+        'o < :numero)'
+      
+        '                                                                ' +
+        '                                      else (select min(osplotes.' +
+        'numero)'
+      
+        '                                                                ' +
+        '                                            from osplotes'
+      
+        '                                                                ' +
+        '                                            where osplotes.osp =' +
+        ' :osp) end)))'
+      '       /* PR'#211'XIMO */'
+      
+        '           OR ((:Operacao = 3) AND (osplotes.osp = :osp and ospl' +
+        'otes.numero = (SELECT osplotes.numero'
+      
+        '                                                                ' +
+        '               FROM osplotes'
+      
+        '                                                                ' +
+        '               WHERE osplotes.osp = :osp'
+      
+        '                                                                ' +
+        '                 and osplotes.numero > :numero'
+      
+        '   '#9#9#9#9'                                                         ' +
+        '       order by osplotes.numero limit 1)))'
+      '       /* '#218'LTIMO */'
+      
+        '           OR ((:Operacao = 4) AND (osplotes.osp = :osp and ospl' +
+        'otes.numero > :numero))'
+      '         )'
+      '      )'
+      ''
+      '%Ordenacao')
+    RequestLive = True
+    Left = 48
+    Top = 40
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'Campo'
+        ParamType = ptUnknown
+        Value = 1
+      end
+      item
+        DataType = ftInteger
+        Name = 'Operacao'
+        ParamType = ptUnknown
+        Value = 0
+      end
+      item
+        DataType = ftInteger
+        Name = 'osp'
+        ParamType = ptUnknown
+        Value = '0'
+      end
+      item
+        DataType = ftInteger
+        Name = 'numero'
+        ParamType = ptUnknown
+        Value = '0'
+      end>
+    object qryOSPLotesosp: TIntegerField
+      FieldName = 'osp'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryOSPLotesnumero: TIntegerField
+      FieldName = 'numero'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryOSPLotesquantidadelote: TFloatField
+      FieldName = 'quantidadelote'
+      DisplayFormat = '0.00'
+    end
+    object qryOSPLotesexcedentelote: TFloatField
+      FieldName = 'excedentelote'
+      DisplayFormat = '0.00'
+    end
+    object qryOSPLotesproduzidalote: TFloatField
+      FieldName = 'produzidalote'
+      DisplayFormat = '0.00'
+    end
+    object qryOSPLotesentrega: TDateField
+      Alignment = taCenter
+      FieldName = 'entrega'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryOSPLotesentrega_anterior: TDateField
+      Alignment = taCenter
+      FieldName = 'entrega_anterior'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryOSPLotessemana: TIntegerField
+      FieldName = 'semana'
+      DisplayFormat = '0'
+    end
+    object qryOSPLotesano: TIntegerField
+      FieldName = 'ano'
+      DisplayFormat = '0'
+    end
+    object qryOSPLotesprioridade: TIntegerField
+      FieldName = 'prioridade'
+      DisplayFormat = '0'
+    end
+    object qryOSPLotesobservacoes: TStringField
+      FieldName = 'observacoes'
+      Size = 300
+    end
+    object qryOSPLotesproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryOSPLotesdata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryOSPLotescliente: TIntegerField
+      FieldName = 'cliente'
+      DisplayFormat = '0'
+    end
+    object qryOSPLotespedidocliente: TStringField
+      FieldName = 'pedidocliente'
+      Size = 15
+    end
+    object qryOSPLotesquantidadeosp: TFloatField
+      FieldName = 'quantidadeosp'
+      DisplayFormat = '0.00'
+    end
+    object qryOSPLotesquantidade_anterior: TFloatField
+      FieldName = 'quantidade_anterior'
+      DisplayFormat = '0.00'
+    end
+    object qryOSPLotespreco: TFloatField
+      FieldName = 'preco'
+      DisplayFormat = '0.00'
+    end
+    object qryOSPLotesprodutovisual: TStringField
+      FieldName = 'produtovisual'
+      Size = 30
+    end
+    object qryOSPLotescaracteristica: TLargeintField
+      FieldName = 'caracteristica'
+    end
+    object qryOSPLotescaracteristicavisual: TStringField
+      FieldName = 'caracteristicavisual'
+      Size = 30
+    end
+    object qryOSPLotesqtdeentregue: TFloatField
+      FieldName = 'qtdeentregue'
+      DisplayFormat = '0.00'
+    end
+    object qryOSPLotescomplementoproduto: TStringField
+      FieldName = 'complementoproduto'
+      Size = 30
+    end
+    object qryOSPLotesunidade: TStringField
+      FieldName = 'unidade'
+      Size = 8
+    end
+    object qryOSPLotesapelido: TStringField
+      FieldName = 'apelido'
+    end
+    object qryOSPLotesalterada: TBooleanField
+      FieldName = 'alterada'
+    end
+    object qryOSPLotesTotal: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'Total'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryOSPLotesSaldo: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'Saldo'
+      DisplayFormat = '0.00'
+      Calculated = True
+    end
+    object qryOSPLotestipocliente: TStringField
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+  end
+  object dsrOSPLotes: TtecDataSource
+    DataSet = qryOSPLotes
+    Left = 104
+    Top = 24
+  end
+  object qryFluxoGramasOperacoes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select fo.*,'
+      '       o.nome,'
+      '       o.c01, o.c02, o.c03,'
+      '       o.descricao,'
+      '      (SELECT otp.TempoPadrao'
+      '          FROM OperacoesTemposPadrao otp'
+      '          WHERE otp.Operacao = o.Codigo'
+      '          ORDER BY otp.Data DESC LIMIT 1) AS TempoPadrao,'
+      '       o.setup,'
+      '       o.planocontrole,'
+      '       o.naobloqueiausuario,'
+      ''
+      '       case when fo.tipooperacao = '#39'A'#39'  then '#39'A'#39
+      '       else case when (select fo2.tipooperacao'
+      '                       from fluxogramasoperacoes fo2'
+      '                       where fo2.fluxograma = fo.fluxograma'
+      
+        '                         and cast(fo2.sequencia as numeric) > ca' +
+        'st(fo.sequencia as numeric)'
+      
+        '                       order by cast(fo2.sequencia as numeric) l' +
+        'imit 1) = '#39'A'#39' then '#39'A'#39' else '#39'N'#39' end end ||'
+      '       case when fo.OperacaoemGrupoComAnterior then '#39'G'#39
+      
+        '       else case when coalesce((select fo2.OperacaoemGrupoComAnt' +
+        'erior'
+      '                                from fluxogramasoperacoes fo2'
+      
+        '                                where fo2.fluxograma = fo.fluxog' +
+        'rama'
+      
+        '                                  and cast(fo2.sequencia as nume' +
+        'ric) > cast(fo.sequencia as numeric)'
+      
+        '                                  order by cast(fo2.sequencia as' +
+        ' numeric) limit 1),false) then '#39'G'#39' else '#39#39' end end as tipo'
+      ''
+      ''
+      
+        'from fluxogramasoperacoes fo join operacoes o on fo.operacao = o' +
+        '.codigo'
+      'where fo.fluxograma = (select cp.fluxograma'
+      '                       from clientesprodutos cp'
+      
+        '                       where (cp.cliente, cp.tipocliente, cp.pro' +
+        'duto) in'
+      
+        '                             (select osp.cliente, osp.TipoClient' +
+        'e, osp.produto'
+      
+        '                              from osp where osp.numero = :numer' +
+        'o))'
+      'order by cast(fo.sequencia as numeric)')
+    RequestLive = True
+    Left = 288
+    Top = 104
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end>
+    object qryFluxoGramasOperacoesfluxograma: TIntegerField
+      FieldName = 'fluxograma'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryFluxoGramasOperacoesoperacao: TIntegerField
+      DisplayLabel = 'opera'#231#227'o'
+      FieldName = 'operacao'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryFluxoGramasOperacoesnome: TStringField
+      FieldName = 'nome'
+      Required = True
+      Size = 10
+    end
+    object qryFluxoGramasOperacoesc01: TStringField
+      DisplayLabel = 'C1'
+      FieldName = 'c01'
+      Size = 2
+    end
+    object qryFluxoGramasOperacoesc02: TStringField
+      DisplayLabel = 'C2'
+      FieldName = 'c02'
+      Size = 2
+    end
+    object qryFluxoGramasOperacoesc03: TStringField
+      DisplayLabel = 'C3'
+      FieldName = 'c03'
+      Size = 2
+    end
+    object qryFluxoGramasOperacoestempopadrao: TFloatField
+      DisplayLabel = 'Tempo Padr'#227'o'
+      FieldName = 'tempopadrao'
+      DisplayFormat = '0.00'
+    end
+    object qryFluxoGramasOperacoesdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 60
+    end
+    object qryFluxoGramasOperacoessequencia: TStringField
+      FieldName = 'sequencia'
+      Size = 6
+    end
+    object qryFluxoGramasOperacoestipooperacao: TStringField
+      FieldName = 'tipooperacao'
+      Size = 1
+    end
+    object qryFluxoGramasOperacoesorigemoperacaoalternativa: TIntegerField
+      FieldName = 'origemoperacaoalternativa'
+    end
+    object qryFluxoGramasOperacoessetup: TBooleanField
+      FieldName = 'setup'
+    end
+    object qryFluxoGramasOperacoesplanocontrole: TBooleanField
+      FieldName = 'planocontrole'
+    end
+    object qryFluxoGramasOperacoesnaobloqueiausuario: TBooleanField
+      FieldName = 'naobloqueiausuario'
+    end
+    object qryFluxoGramasOperacoesOperacaoemGrupoComAnterior: TBooleanField
+      FieldName = 'OperacaoemGrupoComAnterior'
+    end
+    object qryFluxoGramasOperacoestipo: TMemoField
+      FieldName = 'tipo'
+      BlobType = ftMemo
+    end
+    object qryFluxoGramasOperacoesInformarTerminodoProcesso: TBooleanField
+      FieldName = 'InformarTerminodoProcesso'
+    end
+  end
+  object dsrFluxoGramasOperacoes: TtecDataSource
+    DataSet = qryFluxoGramasOperacoes
+    Left = 320
+    Top = 120
+  end
+  object qryOSPProximo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select coalesce(max(numero),0)+1 as numero'
+      'from osp')
+    RequestLive = True
+    Left = 244
+    Top = 40
+    object qryOSPProximonumero: TIntegerField
+      FieldName = 'numero'
+      DisplayFormat = '0'
+    end
+  end
+  object dsrClientesProdutos: TtecDataSource
+    DataSet = qryClientesProdutos
+    Left = 384
+    Top = 48
+  end
+  object qryClientesProdutos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT cp.cliente,'
+      '       cp.tipocliente,'
+      '       cp.produto,'
+      '       cp.produto_cliente,'
+      '       cp.finalidade,'
+      '       cp.pn,'
+      '       cp.origem,'
+      '       cp.TamLoteProducao,'
+      '       cp.excedentePermitido'
+      ''
+      'FROM clientesprodutos cp'
+      'WHERE cp.cliente = :cliente'
+      '       and cp.tipocliente = :tipocliente'
+      '       and cp.produto = :produto')
+    RequestLive = True
+    Left = 344
+    Top = 32
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'cliente'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'tipocliente'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'produto'
+        ParamType = ptUnknown
+      end>
+    object qryClientesProdutoscliente: TIntegerField
+      FieldName = 'cliente'
+      DisplayFormat = '0'
+    end
+    object qryClientesProdutostipocliente: TStringField
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+    object qryClientesProdutosproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryClientesProdutosproduto_cliente: TStringField
+      FieldName = 'produto_cliente'
+      Size = 30
+    end
+    object qryClientesProdutosfinalidade: TStringField
+      FieldName = 'finalidade'
+      Size = 30
+    end
+    object qryClientesProdutospn: TIntegerField
+      FieldName = 'pn'
+      DisplayFormat = '0'
+    end
+    object qryClientesProdutosorigem: TStringField
+      FieldName = 'origem'
+      Size = 1
+    end
+    object qryClientesProdutostamloteproducao: TIntegerField
+      FieldName = 'tamloteproducao'
+    end
+    object qryClientesProdutosexcedentepermitido: TIntegerField
+      FieldName = 'excedentepermitido'
+    end
+  end
+  object qryUsuarioOperacoesProducao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select uit.usuario,'
+      '       coalesce(uit.habilitadosetup,false) as habilitadosetup'
+      ''
+      'from usuariosinstrucoestrabalho uit'
+      '     join instrucoestrabalho it'
+      '          join instrucoestrabalhooperacoes ito'
+      '          on it.codigo = ito.instrucaotrabalho'
+      '     on uit.instrucaotrabalho = it.codigo'
+      ''
+      'where ito.operacao = :operacao'
+      '  and uit.usuario = :usuario')
+    RequestLive = False
+    Left = 112
+    Top = 368
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'operacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'usuario'
+        ParamType = ptUnknown
+      end>
+    object qryUsuarioOperacoesProducaousuario: TIntegerField
+      FieldName = 'usuario'
+      DisplayFormat = '0'
+    end
+    object qryUsuarioOperacoesProducaohabilitadosetup: TBooleanField
+      FieldName = 'habilitadosetup'
+    end
+  end
+  object qryListaOperacaoLiberada: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryListaOperacaoLiberadaAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cast(null as integer) as sequencia,'
+      '       cast(null as integer) as operacao,'
+      '       cast(null as char(10)) as nome,'
+      '       cast(null as char(2)) as C1,'
+      '       cast(null as char(2)) as C2,'
+      '       cast(null as char(2)) as C3,'
+      '       cast(null as char(10)) as TipoOperacao,'
+      '       false as naobloqueiausuario'
+      ''
+      '')
+    RequestLive = True
+    Left = 368
+    Top = 232
+    object qryListaOperacaoLiberadasequencia: TIntegerField
+      FieldName = 'sequencia'
+    end
+    object qryListaOperacaoLiberadaoperacao: TIntegerField
+      FieldName = 'operacao'
+    end
+    object qryListaOperacaoLiberadanome: TStringField
+      DisplayLabel = 'Opera'#231#227'o'
+      FieldName = 'nome'
+      Size = 10
+    end
+    object qryListaOperacaoLiberadac1: TStringField
+      FieldName = 'c1'
+      Size = 2
+    end
+    object qryListaOperacaoLiberadac2: TStringField
+      FieldName = 'c2'
+      Size = 2
+    end
+    object qryListaOperacaoLiberadac3: TStringField
+      FieldName = 'c3'
+      Size = 2
+    end
+    object qryListaOperacaoLiberadatipooperacao: TStringField
+      FieldName = 'tipooperacao'
+      Size = 10
+    end
+    object qryListaOperacaoLiberadanaobloqueiausuario: TBooleanField
+      FieldName = 'naobloqueiausuario'
+    end
+  end
+  object dsrListaOperacaoLiberada: TtecDataSource
+    DataSet = qryListaOperacaoLiberada
+    Left = 400
+    Top = 248
+  end
+  object qryListaFalhas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterInsert = qryListaFalhasAfterInsert
+    AfterPost = qryListaFalhasAfterPost
+    AfterDelete = qryListaFalhasAfterDelete
+    OnNewRecord = qryListaFalhasNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select f.Codigo,'
+      '       f.Descricao,'
+      ''
+      '       CAST(CASE WHEN f.TipoFalha = '#39'P'#39' THEN TRUE'
+      '                                      ELSE FALSE'
+      '            END AS BOOLEAN) AS PerdaTotal,'
+      ''
+      '       CAST(NULL AS INTEGER) AS Quantidade,'
+      '       false as FalhaValidada'
+      ''
+      'FROM falhas f'
+      '     JOIN falhasoperacoes fo ON f.Codigo = fo.Falha'
+      ''
+      'WHERE false  /* temporariamente */'
+      '  and fo.Operacao = :Operacao'
+      ''
+      'ORDER BY f.Codigo')
+    RequestLive = True
+    Left = 312
+    Top = 384
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'operacao'
+        ParamType = ptUnknown
+      end>
+    object qryListaFalhascodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo da Falha'
+      FieldName = 'codigo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryListaFalhasdescricao: TStringField
+      DisplayLabel = 'descri'#231#227'o da falha'
+      FieldName = 'descricao'
+      Required = True
+      Size = 300
+    end
+    object qryListaFalhasperdatotal: TBooleanField
+      FieldName = 'perdatotal'
+      Required = True
+    end
+    object qryListaFalhasquantidade: TIntegerField
+      FieldName = 'quantidade'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryListaFalhasfalhavalidada: TBooleanField
+      FieldName = 'falhavalidada'
+    end
+  end
+  object dsrListaFalhas: TtecDataSource
+    DataSet = qryListaFalhas
+    Left = 344
+    Top = 408
+  end
+  object qryUsuarios: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryUsuariosAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select u.codigo,'
+      '          u.nome,'
+      '          u.gerenteproducao,'
+      '          u.operador,'
+      '          u.turno'
+      'from usuarios u'
+      'where u.codigo = :codigo'
+      '  and (u.inativo is null or u.inativo > current_date) ')
+    RequestLive = False
+    Left = 80
+    Top = 464
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryUsuarioscodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryUsuariosnome: TStringField
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryUsuariosgerenteproducao: TBooleanField
+      FieldName = 'gerenteproducao'
+    end
+    object qryUsuariosoperador: TStringField
+      FieldName = 'operador'
+      Size = 8
+    end
+    object qryUsuariosturno: TIntegerField
+      FieldName = 'turno'
+    end
+  end
+  object dsrUsuarios: TtecDataSource
+    DataSet = qryUsuarios
+    Left = 112
+    Top = 472
+  end
+  object qryUsuarioOSPLote: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select oou.osp,'
+      '       oou.lote'
+      'from operacoesospusuario oou'
+      '     join operacoes o'
+      '     on oou.operacao = o.codigo'
+      'where oou.termino is null'
+      '  and not coalesce(o.naobloqueiausuario,false)'
+      '  and oou.usuario = :usuario;')
+    RequestLive = False
+    Left = 80
+    Top = 544
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'usuario'
+        ParamType = ptUnknown
+      end>
+    object qryUsuarioOSPLoteosp: TIntegerField
+      FieldName = 'osp'
+    end
+    object qryUsuarioOSPLotelote: TIntegerField
+      FieldName = 'lote'
+    end
+  end
+  object dsrUsuarioOSPLote: TtecDataSource
+    DataSet = qryUsuarioOSPLote
+    Left = 112
+    Top = 560
+  end
+  object qryUsuariosHabilitadosSetup: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select uit.usuario,'
+      '       u.nome'
+      ''
+      'from usuariosinstrucoestrabalho uit'
+      '     join usuarios u'
+      '     on uit.usuario = u.codigo'
+      ''
+      '     join instrucoestrabalho it'
+      '          join instrucoestrabalhooperacoes ito'
+      '          on it.codigo = ito.instrucaotrabalho'
+      '     on uit.instrucaotrabalho = it.codigo'
+      ''
+      'where ito.operacao = :operacao'
+      '  and coalesce(uit.habilitadosetup,false)'
+      '  and (u.inativo is null or u.inativo > current_date) '
+      '  '
+      'order by u.nome')
+    RequestLive = False
+    Left = 648
+    Top = 480
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'operacao'
+        ParamType = ptUnknown
+      end>
+    object qryUsuariosHabilitadosSetupusuario: TIntegerField
+      DisplayLabel = 'Usu'#225'rio'
+      FieldName = 'usuario'
+      DisplayFormat = '0'
+    end
+    object qryUsuariosHabilitadosSetupnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Size = 40
+    end
+  end
+  object dsrUsuariosHabilitadosSetup: TtecDataSource
+    DataSet = qryUsuariosHabilitadosSetup
+    Left = 680
+    Top = 496
+  end
+  object qryMovimentos_DESATIVADO_TEMPORARIAMENTE: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkFields = 'numeromovimento = numero'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrOperacoesOSPUsuario
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select m.numero,'
+      '       m.produto,'
+      '       m.filial,'
+      '       m.tipomovimento,'
+      '       m.operacao,'
+      '       /*'
+      '       m.emestoque,'
+      '       m.reservado,'
+      '       m.transito,'
+      '       m.demonstracao,'
+      '       m.conserto,'
+      '       m.futuro,'
+      '       m.danificada,'
+      '       m.estoquefisico,'
+      '       m.reservaprevia,'
+      '       */'
+      '       m.quantidade,'
+      '       m.financeiro,'
+      '       m.valor,'
+      '       m.referencia'
+      ''
+      'from movimentos m'
+      'where m.numero in (select oop.numeromovimento'
+      '                   from operacoesospusuario oop'
+      '                   where oop.osp = :osp'
+      '                    and oop.lote = :lote)')
+    RequestLive = True
+    Left = 528
+    Top = 128
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'osp'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'lote'
+        ParamType = ptUnknown
+      end>
+    object qryMovimentos_DESATIVADO_TEMPORARIAMENTEnumero: TIntegerField
+      FieldName = 'numero'
+      Required = True
+    end
+    object qryMovimentos_DESATIVADO_TEMPORARIAMENTEproduto: TLargeintField
+      FieldName = 'produto'
+      Required = True
+    end
+    object qryMovimentos_DESATIVADO_TEMPORARIAMENTEfilial: TIntegerField
+      FieldName = 'filial'
+      Required = True
+    end
+    object qryMovimentos_DESATIVADO_TEMPORARIAMENTEtipomovimento: TStringField
+      FieldName = 'tipomovimento'
+      Required = True
+      Size = 3
+    end
+    object qryMovimentos_DESATIVADO_TEMPORARIAMENTEoperacao: TStringField
+      FieldName = 'operacao'
+      Required = True
+    end
+    object qryMovimentos_DESATIVADO_TEMPORARIAMENTEquantidade: TFloatField
+      FieldName = 'quantidade'
+      Required = True
+    end
+    object qryMovimentos_DESATIVADO_TEMPORARIAMENTEfinanceiro: TFloatField
+      FieldName = 'financeiro'
+      Required = True
+    end
+    object qryMovimentos_DESATIVADO_TEMPORARIAMENTEvalor: TFloatField
+      FieldName = 'valor'
+      Required = True
+    end
+    object qryMovimentos_DESATIVADO_TEMPORARIAMENTEreferencia: TStringField
+      FieldName = 'referencia'
+      Size = 60
+    end
+  end
+  object dsrMovimentos: TtecDataSource
+    DataSet = qryMovimentos_DESATIVADO_TEMPORARIAMENTE
+    Left = 560
+    Top = 144
+  end
+  object qryMovimentosProximo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select Movimentos_ProximoNumero() as numero')
+    RequestLive = False
+    Left = 632
+    Top = 152
+    object qryMovimentosProximonumero: TIntegerField
+      FieldName = 'numero'
+    end
+  end
+  object qryTiposMovimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select tm.*'
+      'from tiposmovimentos tm'
+      'where tm.codigo = '#39'ESP'#39)
+    RequestLive = False
+    Left = 632
+    Top = 216
+    object qryTiposMovimentosoperacao: TStringField
+      FieldName = 'operacao'
+    end
+  end
+  object qryOperacoesOSPUsuarioParadas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doRefreshAfterPost]
+    LinkFields = 
+      'osp=osp,lote=lote,operacao=operacao,usuariorelacao=usuario,datar' +
+      'elacao=data,iniciorelacao=inicio'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrOperacoesOSPUsuario
+    Constraints = <>
+    AfterOpen = qryOperacoesOSPUsuarioParadasAfterOpen
+    AfterPost = qryOperacoesOSPUsuarioParadasAfterPost
+    AfterDelete = qryOperacoesOSPUsuarioParadasAfterDelete
+    OnFilterRecord = qryOperacoesOSPUsuarioParadasFilterRecord
+    OnNewRecord = qryOperacoesOSPUsuarioParadasNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select oup.*,'
+      
+        '      (select mp.descricao from motivosparadas mp where mp.codig' +
+        'o = oup.codigoparada) as descricao,'
+      '       True as ParadaValidada'
+      'from operacoesospusuarioparadas oup'
+      'where osp = :osp'
+      '  and lote = :lote'
+      'order by codigoparada')
+    RequestLive = False
+    Left = 96
+    Top = 288
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'osp'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'lote'
+        ParamType = ptUnknown
+      end>
+    object qryOperacoesOSPUsuarioParadasosp: TIntegerField
+      FieldName = 'osp'
+      Required = True
+    end
+    object qryOperacoesOSPUsuarioParadaslote: TIntegerField
+      FieldName = 'lote'
+      Required = True
+    end
+    object qryOperacoesOSPUsuarioParadasoperacao: TIntegerField
+      FieldName = 'operacao'
+      Required = True
+    end
+    object qryOperacoesOSPUsuarioParadasusuario: TIntegerField
+      FieldName = 'usuario'
+      Required = True
+    end
+    object qryOperacoesOSPUsuarioParadasdata: TDateField
+      FieldName = 'data'
+      Required = True
+    end
+    object qryOperacoesOSPUsuarioParadasinicio: TTimeField
+      FieldName = 'inicio'
+      Required = True
+    end
+    object qryOperacoesOSPUsuarioParadascodigoparada: TIntegerField
+      DisplayLabel = 'c'#243'digo da parada'
+      FieldName = 'codigoparada'
+      Required = True
+    end
+    object qryOperacoesOSPUsuarioParadastempoparada: TIntegerField
+      DisplayLabel = 'tempo de parada'
+      FieldName = 'tempoparada'
+      Required = True
+    end
+    object qryOperacoesOSPUsuarioParadasdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 50
+    end
+    object qryOperacoesOSPUsuarioParadasparadavalidada: TBooleanField
+      FieldName = 'paradavalidada'
+    end
+    object qryOperacoesOSPUsuarioParadasbloqueiamaquina: TBooleanField
+      FieldName = 'bloqueiamaquina'
+    end
+    object qryOperacoesOSPUsuarioParadasinicioparada: TDateTimeField
+      FieldName = 'inicioparada'
+    end
+    object qryOperacoesOSPUsuarioParadasfimparada: TDateTimeField
+      FieldName = 'fimparada'
+    end
+  end
+  object dsrOperacoesOSPUsuarioParadas: TtecDataSource
+    DataSet = qryOperacoesOSPUsuarioParadas
+    OnDataChange = dsrOperacoesOSPUsuarioParadasDataChange
+    Left = 192
+    Top = 304
+  end
+  object qryListaOperacaoMaquinaLiberada: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkFields = 'operacao = operacao'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrListaOperacaoLiberada
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select '
+      '       cast(null as integer) as operacao,'
+      '       cast(null as integer) as maquina,'
+      '       cast(null as char(30)) as descricaomaquina,'
+      '       false as naobloqueiausuario')
+    RequestLive = True
+    Left = 560
+    Top = 264
+    object qryListaOperacaoMaquinaLiberadaoperacao: TIntegerField
+      FieldName = 'operacao'
+    end
+    object qryListaOperacaoMaquinaLiberadamaquina: TIntegerField
+      FieldName = 'maquina'
+    end
+    object qryListaOperacaoMaquinaLiberadadescricaomaquina: TStringField
+      FieldName = 'descricaomaquina'
+      Size = 30
+    end
+    object qryListaOperacaoMaquinaLiberadanaobloqueiausuario: TBooleanField
+      FieldName = 'naobloqueiausuario'
+    end
+  end
+  object dsrListaOperacaoMaquinaLiberada: TtecDataSource
+    DataSet = qryListaOperacaoMaquinaLiberada
+    Left = 592
+    Top = 280
+  end
+  object qryOperacoesMaquinas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select om.*,'
+      '       m.descricao as descricaomaquina,'
+      '       cast('#39'DISPON'#205'VEL'#39' as varchar(10)) as situacao,'
+      '       cast(null as integer) as usuario,'
+      '       cast(null as varchar(40)) as nomeusuario,'
+      '       cast(null as integer) as codigoparada,'
+      '       cast(null as varchar(50)) as descricaoparada,'
+      '       cast(null as integer) as osp,'
+      '       cast(null as integer) as lote,'
+      ''
+      '       coalesce((select o.naobloqueiausuario'
+      '        from operacoesospusuario oou'
+      '             join operacoes o'
+      '             on oou.operacao = o.codigo'
+      '        where o.naobloqueiausuario'
+      '          and oou.maquina = om.maquina'
+      '          and oou.datatermino  is null'
+      '          limit 1), false) as naobloqueiausuario'
+      ''
+      ''
+      ''
+      'from operacoesmaquinas om'
+      '     join maquinas m'
+      '     on om.maquina = m.codigo'
+      'where om.operacao = :operacao'
+      '  and not exists (select oou.maquina'
+      '                  from ((operacoesospusuario oou'
+      '                         join operacoes o'
+      '                         on oou.operacao = o.codigo)'
+      ''
+      
+        '                         left join operacoesospusuarioparadas oo' +
+        'up'
+      '                         on oou.osp      = ooup.osp      and'
+      '                            oou.lote     = ooup.lote     and'
+      '                            oou.operacao = ooup.operacao and'
+      '                            oou.usuario  = ooup.usuario  and'
+      '                            oou.data     = ooup.data     and'
+      '                            oou.inicio   = ooup.inicio)'
+      ''
+      '                  where oou.maquina  = om.maquina'
+      
+        '                         /* operacao em aberto e bloqueante: est' +
+        'a situacao vai para '#39'EM USO'#39' */'
+      
+        '                    and ((oou.datatermino  is null and not coale' +
+        'sce(o.naobloqueiausuario,false) and not m.usocomum)'
+      
+        '                         /* operacao fechada por por parada que ' +
+        'bloqueia maquina: esta situa'#231#227'o vai para '#39'BLOQUEADAS'#39' */'
+      '                         or (oou.datatermino  is not null and'
+      
+        '                             coalesce(ooup.bloqueiamaquina,false' +
+        ') and'
+      '                             ooup.fimparada is null)))'
+      ''
+      ''
+      'union all'
+      ''
+      'select om.*,'
+      '       m.descricao as descricaomaquina,'
+      '       cast('#39'EM USO'#39' as varchar(10)) as situacao,'
+      '       oou.usuario,'
+      '       u.nome as nomeusuario,'
+      '       cast(null as integer) as codigoparada,'
+      '       cast(null as varchar(50)) as descricaoparada,'
+      '       oou.osp,'
+      '       oou.lote,'
+      '       false as naobloqueiausuario'
+      ''
+      ''
+      'from ((operacoesmaquinas om'
+      '       join maquinas m'
+      '       on om.maquina = m.codigo)'
+      ''
+      '       join ((operacoesospusuario oou'
+      '              join operacoes o'
+      '               on oou.operacao = o.codigo)'
+      ''
+      '              join usuarios u'
+      '               on oou.usuario = u.codigo)'
+      '        on om.maquina = oou.maquina)'
+      ''
+      'where om.maquina = m.codigo'
+      '  and oou.operacao = o.codigo'
+      '  and oou.usuario = u.codigo'
+      '  and om.maquina = oou.maquina'
+      ''
+      '  and om.operacao = :operacao'
+      '  and not coalesce(o.naobloqueiausuario,false)'
+      '  and oou.datatermino is null'
+      ''
+      ''
+      ''
+      '/*'
+      'union all'
+      ''
+      'select om.*,'
+      '       m.descricao as descricaomaquina,'
+      '       cast('#39'BLOQUEADO'#39' as varchar(10)) as situacao,'
+      '       oou.usuario,'
+      '       u.nome as nomeusuario,'
+      '       ooup.codigoparada,'
+      '       mp.descricao as descricaoparada,'
+      '       oou.osp,'
+      '       oou.lote,'
+      '       false as naobloqueiausuario'
+      ''
+      'from ((operacoesmaquinas om'
+      '       join maquinas m'
+      '       on om.maquina = m.codigo)'
+      ''
+      '       join (((operacoesospusuario oou'
+      '               join (operacoesospusuarioparadas ooup'
+      '                     join motivosparadas mp'
+      '                     on ooup.codigoparada = mp.codigo)'
+      '               on oou.osp      = ooup.osp      and'
+      '                  oou.lote     = ooup.lote     and'
+      '                  oou.operacao = ooup.operacao and'
+      '                  oou.usuario  = ooup.usuario  and'
+      '                  oou.data     = ooup.data     and'
+      '                  oou.inicio   = ooup.inicio)'
+      ''
+      '              join operacoes o'
+      '               on oou.operacao = o.codigo)'
+      ''
+      '              join usuarios u'
+      '               on oou.usuario = u.codigo)'
+      '        on om.maquina = oou.maquina)'
+      'where oou.datatermino  is not null and'
+      '      coalesce(ooup.bloqueiamaquina,false) and'
+      '      ooup.fimparada is null'
+      '      and om.operacao = :operacao'
+      '      */'
+      '')
+    RequestLive = False
+    Left = 368
+    Top = 304
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'operacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'esta'
+        ParamType = ptUnknown
+      end>
+    object qryOperacoesMaquinasoperacao: TIntegerField
+      FieldName = 'operacao'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesMaquinasmaquina: TIntegerField
+      FieldName = 'maquina'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesMaquinasdescricaomaquina: TStringField
+      FieldName = 'descricaomaquina'
+      Size = 30
+    end
+    object qryOperacoesMaquinassituacao: TStringField
+      FieldName = 'situacao'
+      Size = 10
+    end
+    object qryOperacoesMaquinasusuario: TIntegerField
+      FieldName = 'usuario'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesMaquinasnomeusuario: TStringField
+      FieldName = 'nomeusuario'
+      Size = 40
+    end
+    object qryOperacoesMaquinascodigoparada: TIntegerField
+      FieldName = 'codigoparada'
+      DisplayFormat = '0'
+    end
+    object qryOperacoesMaquinasdescricaoparada: TStringField
+      FieldName = 'descricaoparada'
+      Size = 50
+    end
+    object qryOperacoesMaquinasosp: TIntegerField
+      FieldName = 'osp'
+    end
+    object qryOperacoesMaquinaslote: TIntegerField
+      FieldName = 'lote'
+    end
+    object qryOperacoesMaquinasnaobloqueiausuario: TBooleanField
+      FieldName = 'naobloqueiausuario'
+    end
+  end
+  object qryListaOperacaoMaquinaUtilizada: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkFields = 'operacao = operacao'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrListaOperacaoLiberada
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cast(null as integer) as operacao,'
+      '       cast(null as integer) as maquina,'
+      '       cast(null as char(30)) as descricaomaquina,'
+      '       cast(null as integer) as osp,'
+      '       cast(null as integer) as lote,'
+      '       cast(null as integer) as usuario,'
+      '       cast(null as varchar(40)) as nomeusuario')
+    RequestLive = True
+    Left = 640
+    Top = 334
+    object qryListaOperacaoMaquinaUtilizadaoperacao: TIntegerField
+      FieldName = 'operacao'
+    end
+    object qryListaOperacaoMaquinaUtilizadamaquina: TIntegerField
+      FieldName = 'maquina'
+    end
+    object qryListaOperacaoMaquinaUtilizadadescricaomaquina: TStringField
+      FieldName = 'descricaomaquina'
+      Size = 30
+    end
+    object qryListaOperacaoMaquinaUtilizadaosp: TIntegerField
+      FieldName = 'osp'
+    end
+    object qryListaOperacaoMaquinaUtilizadalote: TIntegerField
+      FieldName = 'lote'
+    end
+    object qryListaOperacaoMaquinaUtilizadausuario: TIntegerField
+      FieldName = 'usuario'
+    end
+    object qryListaOperacaoMaquinaUtilizadanomeusuario: TStringField
+      FieldName = 'nomeusuario'
+      Size = 40
+    end
+  end
+  object dsrListaOperacaoMaquinaUtilizada: TtecDataSource
+    DataSet = qryListaOperacaoMaquinaUtilizada
+    Left = 672
+    Top = 350
+  end
+  object qryListaOperacaoMaquinaBloqueada: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkFields = 'operacao = operacao'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrListaOperacaoLiberada
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cast(null as integer) as operacao,'
+      '       cast(null as integer) as maquina,'
+      '       cast(null as char(30)) as descricaomaquina,'
+      '       cast(null as integer) as osp,'
+      '       cast(null as integer) as lote,'
+      ''
+      ''
+      '       cast(null as integer) as codigoparada,'
+      '       cast(null as varchar(50)) as descricaoparada,'
+      ''
+      '       cast(null as integer) as usuario,'
+      '       cast(null as varchar(40)) as nomeusuario')
+    RequestLive = True
+    Left = 544
+    Top = 384
+    object qryListaOperacaoMaquinaBloqueadaoperacao: TIntegerField
+      FieldName = 'operacao'
+      DisplayFormat = '0'
+    end
+    object qryListaOperacaoMaquinaBloqueadamaquina: TIntegerField
+      FieldName = 'maquina'
+      DisplayFormat = '0'
+    end
+    object qryListaOperacaoMaquinaBloqueadadescricaomaquina: TStringField
+      FieldName = 'descricaomaquina'
+      Size = 30
+    end
+    object qryListaOperacaoMaquinaBloqueadaosp: TIntegerField
+      FieldName = 'osp'
+      DisplayFormat = '0'
+    end
+    object qryListaOperacaoMaquinaBloqueadalote: TIntegerField
+      FieldName = 'lote'
+    end
+    object qryListaOperacaoMaquinaBloqueadacodigoparada: TIntegerField
+      FieldName = 'codigoparada'
+      DisplayFormat = '0'
+    end
+    object qryListaOperacaoMaquinaBloqueadadescricaoparada: TStringField
+      FieldName = 'descricaoparada'
+      Size = 50
+    end
+    object qryListaOperacaoMaquinaBloqueadausuario: TIntegerField
+      FieldName = 'usuario'
+      DisplayFormat = '0'
+    end
+    object qryListaOperacaoMaquinaBloqueadanomeusuario: TStringField
+      FieldName = 'nomeusuario'
+      Size = 40
+    end
+  end
+  object dsrListaOperacaoMaquinaBloqueada: TtecDataSource
+    DataSet = qryListaOperacaoMaquinaBloqueada
+    Left = 584
+    Top = 400
+  end
+  object qryOperacaoesaFechar: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkFields = 'maquina=maquina'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrMaquinasaFechar
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select oou.osp,'
+      '       oou.lote,'
+      '       oou.maquina,'
+      '       m.descricao as descricaomaquina,'
+      '       oou.operacao,'
+      '       o.nome,'
+      '       o.c01,'
+      '       o.c02,'
+      '       o.c03,'
+      '       o.descricao as descricaooperacao,'
+      '       oou.usuario,'
+      '       u.nome as nomeuusuario,'
+      '       oou.data,'
+      '       oou.inicio,'
+      ''
+      '       '
+      '      (coalesce((select sum(oou2.quantidade)'
+      '        from operacoesospusuario oou2'
+      '        where oou2.osp  = oou.osp'
+      '          and oou2.lote = oou.lote'
+      '          and oou2.datatermino is not null'
+      '          and oou2.operacao = (select oo2.operacao'
+      '                               from operacoesosp oo2'
+      '                               where oo2.osp = oo.osp'
+      '                                 and oo2.lote = oo.lote'
+      
+        '                                 and cast(oo2.sequencia as numer' +
+        'ic) < cast(oo.sequencia as numeric)'
+      
+        '                               order by cast(oo2.sequencia as nu' +
+        'meric) desc limit 1 )'
+      '          ),0) -'
+      ''
+      '       coalesce((select sum(oou2.quantidade)'
+      '        from operacoesospusuario oou2'
+      '        where oou2.osp  = oou.osp'
+      '          and oou2.lote = oou.lote'
+      '          and oou2.operacao = oou.operacao'
+      
+        '          and oou2.datatermino is not null),0) ) as quantidadeaf' +
+        'echar,'
+      '          '
+      '      o.naobloqueiausuario,'
+      '      false as operacaopermitidaaousuario'
+      ''
+      'from operacoesospusuario oou'
+      '     join operacoesosp oo'
+      '     on oou.osp = oo.osp'
+      '     and oou.lote = oo.lote'
+      '     and oou.operacao = oo.operacao'
+      '     '
+      '     join usuarios u'
+      '     on oou.usuario = u.codigo'
+      '     '
+      '     join operacoes o'
+      '     on oou.operacao = o.codigo'
+      '     '
+      '     join maquinas m'
+      '     on oou.maquina = m.codigo'
+      '     '
+      'where oou.maquina is not null'
+      '  and oou.datatermino is null'
+      '  and o.naobloqueiausuario'
+      ''
+      'order by oou.maquina, o.nome, o.c01, o.c02, o.c03'
+      '')
+    RequestLive = True
+    Left = 864
+    Top = 152
+    object qryOperacaoesaFecharosp: TIntegerField
+      DisplayLabel = 'OSP'
+      FieldName = 'osp'
+      DisplayFormat = '0'
+    end
+    object qryOperacaoesaFecharlote: TIntegerField
+      DisplayLabel = 'Lote'
+      FieldName = 'lote'
+      DisplayFormat = '0'
+    end
+    object qryOperacaoesaFecharmaquina: TIntegerField
+      DisplayLabel = 'M'#225'quina'
+      FieldName = 'maquina'
+      DisplayFormat = '0'
+    end
+    object qryOperacaoesaFechardescricaomaquina: TStringField
+      DisplayLabel = 'Descri'#231#227'o da M'#225'quina'
+      FieldName = 'descricaomaquina'
+      Size = 30
+    end
+    object qryOperacaoesaFecharoperacao: TIntegerField
+      FieldName = 'operacao'
+      Visible = False
+      DisplayFormat = '0'
+    end
+    object qryOperacaoesaFecharnome: TStringField
+      DisplayLabel = 'Operacao'
+      FieldName = 'nome'
+      Size = 10
+    end
+    object qryOperacaoesaFecharc01: TStringField
+      FieldName = 'c01'
+      Size = 2
+    end
+    object qryOperacaoesaFecharc02: TStringField
+      FieldName = 'c02'
+      Size = 2
+    end
+    object qryOperacaoesaFecharc03: TStringField
+      FieldName = 'c03'
+      Size = 2
+    end
+    object qryOperacaoesaFechardescricaooperacao: TStringField
+      DisplayLabel = 'Descri'#231#227'o da opera'#231#227'o'
+      FieldName = 'descricaooperacao'
+      Size = 60
+    end
+    object qryOperacaoesaFecharusuario: TIntegerField
+      DisplayLabel = 'Usu'#225'rio'
+      FieldName = 'usuario'
+      DisplayFormat = '0'
+    end
+    object qryOperacaoesaFecharnomeuusuario: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nomeuusuario'
+      Size = 40
+    end
+    object qryOperacaoesaFechardata: TDateField
+      Alignment = taCenter
+      DisplayLabel = 'Data'
+      FieldName = 'data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryOperacaoesaFecharinicio: TTimeField
+      Alignment = taCenter
+      DisplayLabel = 'In'#237'cio'
+      FieldName = 'inicio'
+      EditMask = '99:99;1; '
+    end
+    object qryOperacaoesaFecharquantidadeafechar: TLargeintField
+      DisplayLabel = 'Quantidade'
+      FieldName = 'quantidadeafechar'
+    end
+    object qryOperacaoesaFecharnaobloqueiausuario: TBooleanField
+      FieldName = 'naobloqueiausuario'
+    end
+    object qryOperacaoesaFecharoperacaopermitidaaousuario: TBooleanField
+      FieldName = 'operacaopermitidaaousuario'
+    end
+  end
+  object dsrOperacaoesaFechar: TtecDataSource
+    DataSet = qryOperacaoesaFechar
+    Left = 904
+    Top = 168
+  end
+  object qryUpdateOperacoesaFechar: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update operacoesospusuario'
+      'set'
+      ' datatermino     = current_date,'
+      ' termino         = :termino,'
+      ' quantidade      = :quantidade,'
+      ' usuariotermino  = :usuariotermino'
+      ''
+      'where osp        = :osp'
+      '  and lote       = :lote'
+      '  and operacao   = :operacao'
+      '  and usuario    = :usuario'
+      '  and data       = :data'
+      '  and inicio     = :inicio')
+    RequestLive = False
+    Left = 864
+    Top = 232
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'termino'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'quantidade'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'usuariotermino'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'osp'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'lote'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'operacao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'usuario'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'inicio'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryMaquinasaFechar: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select distinct'
+      '       oou.maquina,'
+      '       m.descricao as descricaomaquina,'
+      '       true as desconsiderar,'
+      '       false as selecionar'
+      ''
+      'from operacoesospusuario oou'
+      '     join operacoesosp oo'
+      '     on oou.osp = oo.osp'
+      '     and oou.lote = oo.lote'
+      '     and oou.operacao = oo.operacao'
+      ''
+      '     join usuarios u'
+      '     on oou.usuario = u.codigo'
+      ''
+      '     join operacoes o'
+      '     on oou.operacao = o.codigo'
+      ''
+      '     join maquinas m'
+      '     on oou.maquina = m.codigo'
+      ''
+      'where oou.maquina is not null'
+      '  and oou.datatermino is null'
+      '  and o.naobloqueiausuario'
+      ''
+      'order by oou.maquina, m.descricao'
+      '')
+    RequestLive = True
+    Left = 856
+    Top = 64
+    object qryMaquinasaFecharmaquina: TIntegerField
+      DisplayLabel = 'M'#193'QUINA'
+      FieldName = 'maquina'
+    end
+    object qryMaquinasaFechardescricaomaquina: TStringField
+      DisplayLabel = 'DESCRI'#199#195'O'
+      FieldName = 'descricaomaquina'
+      Size = 30
+    end
+    object qryMaquinasaFecharselecionar: TBooleanField
+      DisplayLabel = 'SELECIONAR'
+      FieldName = 'selecionar'
+    end
+    object qryMaquinasaFechardesconsiderar: TBooleanField
+      FieldName = 'desconsiderar'
+    end
+  end
+  object dsrMaquinasaFechar: TtecDataSource
+    DataSet = qryMaquinasaFechar
+    Left = 896
+    Top = 80
+  end
+end

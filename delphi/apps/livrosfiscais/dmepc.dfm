@@ -1,7 +1,7 @@
 inherited dtmEPC: TdtmEPC
   OldCreateOrder = False
-  Left = 117
-  Top = 31
+  Left = 166
+  Top = 61
   Height = 800
   Width = 1366
   object qryepc: TtecQuery
@@ -11969,7 +11969,7 @@ inherited dtmEPC: TdtmEPC
         'group by sdf.piscst, sdf.cofinscst, sdf.aliquotapis, sdf.aliquot' +
         'acofins')
     RequestLive = False
-    Left = 232
+    Left = 248
     Top = 246
     ParamData = <
       item

@@ -1,0 +1,38 @@
+program teclux;
+
+uses
+  shellapi,
+  SysUtils,
+  Forms,
+{  Style,}
+  fmsplash,
+  dmbasico,
+  fmhelpviewer,
+  fmdescricaoteclux in '..\..\..\apps\tecsoft\fmdescricaoteclux.pas' {frmDescricaoTecLUX},
+  versao in 'versao.pas',
+  fmtecsoft in 'fmtecsoft.pas' {frmTecsoft};
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  try
+
+    Application.Title := 'tecLUX - Automação Industrial';
+    frmSplash := TfrmSplash.Create(Application);
+    frmSplash.setVersao(GetVersao);
+    frmSplash.Show;
+    if LerConfiguracaoSistema(frmSplash.Notificacao) then
+    begin
+      VersaoBanco := TdtmBasico.VersaoBanco;
+      TdtmBasico.SetVersaoTecLUX(GetVersao);
+      Application.CreateForm(TfrmTecsoft, frmTecsoft);
+      RegisterHelpViewer;
+      if not PendenciaNFe(frmSplash.Notificacao) then
+        exit;
+    end;
+  finally
+    frmSplash.Free;
+    Application.Run;
+  end;
+end.

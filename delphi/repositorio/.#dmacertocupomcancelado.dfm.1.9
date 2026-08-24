@@ -1,0 +1,956 @@
+inherited dtmAcertoCupomCancelado: TdtmAcertoCupomCancelado
+  OldCreateOrder = False
+  Left = 352
+  Top = 119
+  Height = 584
+  Width = 1087
+  object qryProdutos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select pd.dadofiscal,'
+      '       pd.numero,'
+      '       pd.produto,'
+      '       pd.filial,'
+      '       pd.Movimento,'
+      '       pd.quantidade,'
+      '       pd.precovenda,'
+      '       pd.precotabela,'
+      '       pd.descricaoprecovenda,'
+      '       pd.aliquotaicms,'
+      '       pd.icms,'
+      '       pd.incidencia,'
+      '       pd.origem,'
+      '       p.descricao,'
+      '       p.valorgrade1,'
+      '       p.valorgrade2,'
+      '       pd.ipi,'
+      '       pd.aliquotaipi,'
+      '       pd.valoripi,'
+      '       pd.classificacaofiscal,'
+      '       pd.baseicms,'
+      '       pd.reducaobase,'
+      '       c.composto,'
+      '       c.discriminarcomposto,'
+      '       c.discriminarpreco'
+      'from produtosdadosfiscais pd, produtos p, caracteristicas c'
+      'where (pd.dadofiscal = :dadofiscal) and'
+      '      (p.codigo      = pd.produto)  and'
+      '      (c.codigo      = p.caracteristica)')
+    RequestLive = True
+    Left = 44
+    Top = 17
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'dadofiscal'
+        ParamType = ptUnknown
+      end>
+    object qryProdutosdadofiscal: TIntegerField
+      FieldName = 'dadofiscal'
+    end
+    object qryProdutosnumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryProdutosproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryProdutosfilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryProdutosmovimento: TIntegerField
+      FieldName = 'movimento'
+    end
+    object qryProdutosquantidade: TFloatField
+      FieldName = 'quantidade'
+    end
+    object qryProdutosprecovenda: TFloatField
+      FieldName = 'precovenda'
+    end
+    object qryProdutosprecotabela: TFloatField
+      FieldName = 'precotabela'
+    end
+    object qryProdutosdescricaoprecovenda: TStringField
+      FieldName = 'descricaoprecovenda'
+      Size = 40
+    end
+    object qryProdutosaliquotaicms: TFloatField
+      FieldName = 'aliquotaicms'
+    end
+    object qryProdutosicms: TIntegerField
+      FieldName = 'icms'
+    end
+    object qryProdutosincidencia: TStringField
+      FieldName = 'incidencia'
+      Size = 2
+    end
+    object qryProdutosorigem: TIntegerField
+      FieldName = 'origem'
+    end
+    object qryProdutosdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 40
+    end
+    object qryProdutosvalorgrade1: TStringField
+      FieldName = 'valorgrade1'
+      Size = 10
+    end
+    object qryProdutosvalorgrade2: TStringField
+      FieldName = 'valorgrade2'
+      Size = 10
+    end
+    object qryProdutosipi: TIntegerField
+      FieldName = 'ipi'
+    end
+    object qryProdutosaliquotaipi: TFloatField
+      FieldName = 'aliquotaipi'
+    end
+    object qryProdutosvaloripi: TFloatField
+      FieldName = 'valoripi'
+    end
+    object qryProdutosclassificacaofiscal: TStringField
+      FieldName = 'classificacaofiscal'
+      Size = 10
+    end
+    object qryProdutosbaseicms: TFloatField
+      FieldName = 'baseicms'
+    end
+    object qryProdutosreducaobase: TFloatField
+      FieldName = 'reducaobase'
+    end
+    object qryProdutoscomposto: TBooleanField
+      FieldName = 'composto'
+    end
+    object qryProdutosdiscriminarcomposto: TStringField
+      FieldName = 'discriminarcomposto'
+      Size = 1
+    end
+    object qryProdutosdiscriminarpreco: TBooleanField
+      FieldName = 'discriminarpreco'
+    end
+  end
+  object qryMovimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select produto,'
+      '       numero,'
+      '       dadofiscal'
+      'from movimentos'
+      'where (dadofiscal = :dadofiscal)'
+      'order by produto,filial,data desc,lancto desc')
+    RequestLive = True
+    Left = 149
+    Top = 79
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'dadofiscal'
+        ParamType = ptUnknown
+      end>
+    object qryMovimentosnumero: TIntegerField
+      FieldName = 'numero'
+      DisplayFormat = '0'
+    end
+    object qryMovimentosproduto: TLargeintField
+      FieldName = 'produto'
+      DisplayFormat = '0'
+    end
+    object qryMovimentosdadofiscal: TIntegerField
+      FieldName = 'dadofiscal'
+    end
+  end
+  object qryDadosFiscais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select c.filial,'
+      '       c.maquina,'
+      '       c.numero as cupom,'
+      '       d.numero,'
+      '       d.data,'
+      '       d.situacao,'
+      '       d.contrato,'
+      '       d.contratofrentecaixa,'
+      '       d.creditotroca,'
+      '       d.cliente,'
+      '       d.tipocliente,'
+      '       d.orcamento'
+      
+        'from dadosfiscais d left join cupons c on d.numero = c.dadofisca' +
+        'l'
+      'where'
+      '     (('
+      '        c.filial     = :filial  and'
+      '        c.maquina    = :maquina and'
+      '        c.intervensao= :intervencao and'
+      '        c.numero     = :cupom and'
+      '        c.numeroserie = :numeroserie ) or'
+      ''
+      '        d.numero = :dadofiscal)')
+    RequestLive = True
+    Left = 124
+    Top = 13
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'maquina'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'intervencao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'cupom'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numeroserie'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'dadofiscal'
+        ParamType = ptUnknown
+      end>
+    object qryDadosFiscaisfilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryDadosFiscaismaquina: TIntegerField
+      FieldName = 'maquina'
+    end
+    object qryDadosFiscaiscupom: TIntegerField
+      FieldName = 'cupom'
+    end
+    object qryDadosFiscaisnumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryDadosFiscaisdata: TDateField
+      FieldName = 'data'
+    end
+    object qryDadosFiscaissituacao: TStringField
+      FieldName = 'situacao'
+      Size = 1
+    end
+    object qryDadosFiscaiscontrato: TStringField
+      FieldName = 'contrato'
+    end
+    object qryDadosFiscaiscontratofrentecaixa: TStringField
+      FieldName = 'contratofrentecaixa'
+    end
+    object qryDadosFiscaiscreditotroca: TFloatField
+      FieldName = 'creditotroca'
+    end
+    object qryDadosFiscaiscliente: TIntegerField
+      FieldName = 'cliente'
+    end
+    object qryDadosFiscaistipocliente: TStringField
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+    object qryDadosFiscaisorcamento: TIntegerField
+      FieldName = 'orcamento'
+    end
+  end
+  object qryContratoDadosFiscais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select count(df.*) as quant'
+      'from dadosfiscais df join cupons c on c.dadofiscal = df.numero'
+      'where df.situacao = '#39'N'#39
+      '  and df.contrato = (select df1.contrato'
+      
+        '                     from dadosfiscais df1 join cupons c1 on c1.' +
+        'dadofiscal = df1.numero'
+      '                     where c1.filial      = :filial'
+      '                       and c1.maquina     = :ecf'
+      '                       and c1.intervensao = :intervencao'
+      '                       and c1.numero      = :cupom'
+      '                       and c1.numeroserie = :num_fab'
+      '                     )')
+    RequestLive = False
+    Left = 256
+    Top = 11
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ecf'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'intervencao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'cupom'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'num_fab'
+        ParamType = ptUnknown
+      end>
+    object qryContratoDadosFiscaisquant: TLargeintField
+      FieldName = 'quant'
+    end
+  end
+  object qryParcelasPagas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select exists(select contrato'
+      '              from parcelas'
+      '              where contrato = :contrato'
+      '                and datapagto is not null'
+      '                and valorpagto > 0) as existe')
+    RequestLive = False
+    Left = 256
+    Top = 79
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end>
+    object qryParcelasPagasexiste: TBooleanField
+      FieldName = 'existe'
+    end
+  end
+  object qryContratos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select numero, situacao, operacao'
+      'from contratos'
+      'where numero = :contrato')
+    RequestLive = True
+    Left = 44
+    Top = 85
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end>
+    object qryContratossituacao: TStringField
+      FieldName = 'situacao'
+      Size = 1
+    end
+    object qryContratosnumero: TStringField
+      FieldName = 'numero'
+    end
+    object qryContratosoperacao: TStringField
+      FieldName = 'operacao'
+      Size = 1
+    end
+  end
+  object qryAutenticacoes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select a.numero,'
+      '       a.filial,'
+      '       a.num_usu,'
+      '       a.cro,'
+      '       a.coo,'
+      '       a.valor,'
+      '       a.transacao'
+      'from autenticacoes a'
+      'where'
+      '     ('
+      '        a.filial  = :filial  and'
+      '        a.num_usu = :num_usu and'
+      '        a.cro     = :cro and'
+      '        a.coo     = :coo and'
+      '        a.num_fab = :num_fab'
+      '      )'
+      ''
+      '     or'
+      ''
+      '     ('
+      
+        '      a.transacao in  (select distinct vdf.transacao from vencto' +
+        'sdadosfiscais vdf where vdf.dadofiscal = :dadofiscal)'
+      ''
+      '      )')
+    RequestLive = False
+    Left = 372
+    Top = 10
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'num_usu'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'cro'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'coo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'num_fab'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'dadofiscal'
+        ParamType = ptUnknown
+      end>
+    object qryAutenticacoesnumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryAutenticacoesfilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryAutenticacoesnum_usu: TIntegerField
+      FieldName = 'num_usu'
+    end
+    object qryAutenticacoescro: TIntegerField
+      FieldName = 'cro'
+    end
+    object qryAutenticacoescoo: TIntegerField
+      FieldName = 'coo'
+    end
+    object qryAutenticacoesvalor: TFloatField
+      FieldName = 'valor'
+    end
+    object qryAutenticacoestransacao: TIntegerField
+      FieldName = 'transacao'
+    end
+  end
+  object qryAutenticar: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select a.caixa,'
+      '       a.autenticacao,'
+      '       a.filial,'
+      '       a.numero,'
+      '       a.situacao,'
+      '       a.tipo,'
+      '       a.valor'
+      'from autenticacoes a'
+      'where false')
+    RequestLive = True
+    Left = 372
+    Top = 76
+    object qryAutenticarcaixa: TIntegerField
+      FieldName = 'caixa'
+    end
+    object qryAutenticarautenticacao: TIntegerField
+      FieldName = 'autenticacao'
+    end
+    object qryAutenticarfilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryAutenticarnumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryAutenticarsituacao: TBooleanField
+      FieldName = 'situacao'
+    end
+    object qryAutenticartipo: TStringField
+      FieldName = 'tipo'
+      Size = 1
+    end
+    object qryAutenticarvalor: TFloatField
+      FieldName = 'valor'
+    end
+  end
+  object spcAutenticacaoProximo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select autenticacoes_proximonumero() as numero')
+    RequestLive = False
+    Left = 472
+    Top = 48
+    object spcAutenticacaoProximonumero: TIntegerField
+      FieldName = 'numero'
+    end
+  end
+  object qryDetalheCupom: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select dlc.*'
+      'from detalhecupom dlc'
+      'where filial   = :filial'
+      '  and num_usu  = :num_usu'
+      '  and cro      = :cro'
+      '  and num_fab  = :num_fab'
+      '  and coo      = :coo')
+    RequestLive = True
+    Left = 44
+    Top = 148
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'num_usu'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'cro'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'num_fab'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'coo'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryDetalhedemaisdoctos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select dldd.*'
+      'from detalhedemaisdoctos dldd'
+      'where filial   = :filial'
+      '  and num_usu  = :num_usu'
+      '  and cro      = :cro'
+      '  and num_fab  = :num_fab'
+      '  and coo      = :coo'
+      '  and denom = '#39'CC'#39)
+    RequestLive = True
+    Left = 156
+    Top = 148
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'num_usu'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'cro'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'num_fab'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'coo'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryRecebimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select r.*'
+      'from recebimentos r'
+      'where r.transacao = : transacao')
+    RequestLive = True
+    Left = 276
+    Top = 148
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'transacao'
+        ParamType = ptUnknown
+      end>
+    object qryRecebimentoscodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryRecebimentossituacao: TStringField
+      FieldName = 'situacao'
+      Size = 1
+    end
+  end
+  object qryRecebimentosTemp: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select distinct'
+      '       r.nomeredensu,'
+      '       r.tef,'
+      '       r.datalancto,'
+      '       r.hora,'
+      '       r.valortotal'
+      'from recebimentos r'
+      'where r.transacao = : transacao'
+      '  and r.nomeredensu is not null'
+      '  and r.tef is not null')
+    RequestLive = True
+    Left = 396
+    Top = 148
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'transacao'
+        ParamType = ptUnknown
+      end>
+    object qryRecebimentosTempnomeredensu: TStringField
+      FieldName = 'nomeredensu'
+      Size = 8
+    end
+    object qryRecebimentosTemptef: TStringField
+      FieldName = 'tef'
+      Size = 12
+    end
+    object qryRecebimentosTempdatalancto: TDateField
+      Alignment = taCenter
+      FieldName = 'datalancto'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryRecebimentosTemphora: TTimeField
+      Alignment = taCenter
+      FieldName = 'hora'
+      EditMask = '99:99;1; '
+    end
+    object qryRecebimentosTempvalortotal: TFloatField
+      FieldName = 'valortotal'
+      DisplayFormat = '0.00'
+    end
+  end
+  object qryProdutosTrocados: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select pt.numero,'
+      '          pt.tipo,'
+      '          pt.data,'
+      '          pt.cliente,'
+      '          pt.tipocliente,   '
+      '          pt.contrato,'
+      '          pt.filial,'
+      '          pt.usuario,'
+      '          pt.valor'
+      'from produtostrocados pt'
+      'where false')
+    RequestLive = True
+    Left = 520
+    Top = 144
+    object qryProdutosTrocadosnumero: TIntegerField
+      FieldName = 'numero'
+      DisplayFormat = '0'
+    end
+    object qryProdutosTrocadostipo: TStringField
+      FieldName = 'tipo'
+      Size = 1
+    end
+    object qryProdutosTrocadosdata: TDateTimeField
+      FieldName = 'data'
+    end
+    object qryProdutosTrocadoscliente: TIntegerField
+      FieldName = 'cliente'
+      DisplayFormat = '0'
+    end
+    object qryProdutosTrocadostipocliente: TStringField
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+    object qryProdutosTrocadoscontrato: TStringField
+      FieldName = 'contrato'
+    end
+    object qryProdutosTrocadosfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryProdutosTrocadosusuario: TIntegerField
+      FieldName = 'usuario'
+      DisplayFormat = '0'
+    end
+    object qryProdutosTrocadosvalor: TFloatField
+      FieldName = 'valor'
+      DisplayFormat = '0.00'
+    end
+  end
+  object spcProdutosTrocadosProximo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select produtostrocados_proximocodigo() as numero')
+    RequestLive = False
+    Left = 552
+    Top = 160
+    object spcProdutosTrocadosProximonumero: TIntegerField
+      FieldName = 'numero'
+    end
+  end
+  object qryOrcamentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select *'
+      'from orcamentos'
+      'where contrato = :contrato '
+      '      or codigo = :orcamento')
+    RequestLive = True
+    Left = 452
+    Top = 205
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'contrato'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'orcamento'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryDadoFiscalVinculado: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select df.numero,'
+      '       df.situacao,'
+      '       df.modelodocto'
+      'from dadosfiscais df'
+      
+        'where df.numero in (select n.dadofiscal from notas n where n.dad' +
+        'ofiscalvinculado = :dadofiscal)')
+    RequestLive = True
+    Left = 148
+    Top = 213
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'dadofiscal'
+        ParamType = ptUnknown
+      end>
+    object qryDadoFiscalVinculadonumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryDadoFiscalVinculadosituacao: TStringField
+      FieldName = 'situacao'
+      Size = 1
+    end
+    object qryDadoFiscalVinculadomodelodocto: TStringField
+      FieldName = 'modelodocto'
+      Size = 2
+    end
+  end
+  object qryVenctosDadosFiscais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select vdf.*'
+      'from venctosdadosfiscais vdf'
+      'where vdf.dadofiscal = :dadofiscal')
+    RequestLive = True
+    Left = 654
+    Top = 69
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'dadofiscal'
+        ParamType = ptUnknown
+      end>
+    object qryVenctosDadosFiscaisdadofiscal: TIntegerField
+      FieldName = 'dadofiscal'
+    end
+    object qryVenctosDadosFiscaisnumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryVenctosDadosFiscaisdatavencto: TDateField
+      FieldName = 'datavencto'
+    end
+    object qryVenctosDadosFiscaisvalorvencto: TFloatField
+      FieldName = 'valorvencto'
+    end
+    object qryVenctosDadosFiscaistiporecebimento: TIntegerField
+      FieldName = 'tiporecebimento'
+    end
+    object qryVenctosDadosFiscaisformapagamento: TStringField
+      FieldName = 'formapagamento'
+      Size = 1
+    end
+    object qryVenctosDadosFiscaistransacao: TIntegerField
+      FieldName = 'transacao'
+    end
+  end
+end

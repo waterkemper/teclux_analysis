@@ -1,0 +1,399 @@
+unit dmrelatorioestoqueicmsstarecolher;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, dmtecsoft, DB, cpdatasource, ZQuery,
+  ZPgSqlQuery, cpquery, fr_class, fr_dset, fr_dbset, Biblio, fmpreviewpadrao,
+  ZTransact, Forms, ctconstantes, clparametrossistema, frxClass, frx2xto30;
+
+type
+  Tdtmrelatorioestoqueicmsstarecolher = class(TDtmBasico)
+    qryEstoque: TtecQuery;
+    qryProdutosNotasPag: TtecQuery;
+    qryEstoquecodigoitem: TLargeintField;
+    qryEstoqueprodutodescricao: TStringField;
+    qryEstoquecodigoclasseproduto: TStringField;
+    qryEstoqueclasseprodutodescricao: TStringField;
+    qryEstoquecodigogrupoproduto: TStringField;
+    qryEstoquegrupoprodutodescricao: TStringField;
+    qryEstoquemarcaproduto: TIntegerField;
+    qryEstoquemarcaprodutodescricao: TStringField;
+    qryEstoqueQtdestoquetotal: TFloatField;
+    qryEstoquemva: TFloatField;
+    qryEstoquefilial: TIntegerField;
+    qryEstoqueQtdestoquefilial: TFloatField;
+    qryProdutosNotasPagfornecedor: TIntegerField;
+    qryProdutosNotasPagtipofornecedor: TStringField;
+    qryProdutosNotasPagestado: TStringField;
+    qryProdutosNotasPagserie: TStringField;
+    qryProdutosNotasPagnumeronota: TIntegerField;
+    qryProdutosNotasPagquantidade: TFloatField;
+    qryProdutosNotasPagprecounitario: TFloatField;
+    qryProdutosNotasPagaliquotaipi: TFloatField;
+    qryProdutosNotasPagaliquotaicms: TFloatField;
+    qryProdutosSTaRecolher: TtecQuery;
+    qryProdutosSTaRecolherfornecedor: TIntegerField;
+    qryProdutosSTaRecolhertipofornecedor: TStringField;
+    qryProdutosSTaRecolherestado: TStringField;
+    qryProdutosSTaRecolherserie: TStringField;
+    qryProdutosSTaRecolhernumeronota: TIntegerField;
+    qryProdutosSTaRecolherquantidade: TFloatField;
+    qryProdutosSTaRecolherprecounitario: TFloatField;
+    qryProdutosSTaRecolheraliquotaipi: TFloatField;
+    qryProdutosSTaRecolheraliquotaicms: TFloatField;
+    qryProdutosNotasPagproduto: TLargeintField;
+    qryProdutosSTaRecolherValorICMS: TCurrencyField;
+    qryProdutosSTaRecolherValorIPI: TCurrencyField;
+    qryEstoquealiquotaicms: TFloatField;
+    qryEstoquenomefilial: TStringField;
+    qryProdutosSTaRecolherBaseICMSSubstituicao: TCurrencyField;
+    qryProdutosSTaRecolherValorICMSSubstituicao: TCurrencyField;
+    frpEstoqueICMSSTaRecolher: TfrReport;
+    dsrEstoque: TtecDataSource;
+    dsrProdutosSTaRecolher: TtecDataSource;
+    fdsEstoqueICMSSTaRecolher: TfrDBDataSet;
+    fdsProdutosSTaRecolher: TfrDBDataSet;
+    qryProdutosSTaRecolherproduto: TLargeintField;
+    qryProdutosSTaRecolherfilial: TIntegerField;
+    frxReport1: TfrxReport;
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure ZmonitorMonitorEvent(Sql, Result: String);
+    procedure qryProdutosSTaRecolherCalcFields(DataSet: TDataSet);
+    procedure frpEstoqueICMSSTaRecolherBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure qryEstoqueFilterRecord(DataSet: TDataSet;
+      var Accept: Boolean);
+    procedure qryProdutosSTaRecolherFilterRecord(DataSet: TDataSet;
+      var Accept: Boolean);
+    procedure frpEstoqueICMSSTaRecolherGetValue(const ParName: String;
+      var ParValue: Variant);
+  private
+    { Private declarations }
+    FListaNotas: String;
+    FDataInventario: TDateTime;
+    FParametroMaximo: Integer;
+    FParametroPagina: Integer;
+    FParametroLivro: Integer;
+    fFilial: integer;
+  public
+    { Public declarations }
+    procedure ImprimirRelatorio;
+    property DataInventario : TDateTime read FDataInventario write FDataInventario;
+    property ParametroLivro: Integer read FParametroLivro write FParametroLivro;
+    property ParametroPagina: Integer read FParametroPagina write FParametroPagina;
+    property ParametroMaximo: Integer read FParametroMaximo write FParametroMaximo;
+    property Filial: integer read fFilial write FFilial;
+
+  end;
+
+var
+  dtmrelatorioestoqueicmsstarecolher: Tdtmrelatorioestoqueicmsstarecolher;
+
+implementation
+
+{$R *.dfm}
+
+{ Tdtmrelatorioestoqueicmsstarecolher }
+
+
+procedure Tdtmrelatorioestoqueicmsstarecolher.ImprimirRelatorio;
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+  vSaldoQuantidade : Currency;
+  vProduto : String;
+
+  ListaProdutos : TStringList;
+  vStringLista: String;
+  i : integer;
+
+begin
+
+  ListaProdutos := tStringlist.create;
+  vStringLista := '';
+
+  if FileExists(ExtractFilePath(Application.ExeName) + 'listaprodutos.txt') then
+  begin
+    ListaProdutos.loadfromfile(ExtractFilePath(Application.ExeName) + 'listaprodutos.txt');
+    for i:=0 to listaprodutos.Count-1  do
+      vStringLista := vStringLista + ListaProdutos.Strings[i];
+
+    {qryEstoque.MacroByName('ListaProdutos').AsString := 'and m1.produto not in ('+vStringLista+')';}
+    qryEstoque.MacroByName('ListaProdutos').AsString := 'where estoquetotal.codigoitem not in ('+vStringLista+')';
+
+    qryProdutosNotasPag.MacroByName('ListaProdutos').AsString := 'and pnp.produto not in ('+vStringLista+')';
+  end
+  else
+    MensagemErro(format(ctARQUIVONAOENCONTRADO,[ExtractFilePath(Application.ExeName)+'listaprodutos.txt']));
+
+  qryProdutosSTaRecolher.close;
+  qryProdutosSTaRecolher.Open;
+  RefazConsultaPorNome(qryEstoque, ['datainventario'], [datainventario]);
+  RefazConsultaPorNome(qryProdutosNotasPag, ['datainventario'], [datainventario]);
+
+
+  vSaldoQuantidade := 0;
+
+  qryEstoque.First;
+
+  vProduto := '';
+  while not qryEstoque.Eof do
+  begin
+
+    {
+    if vProduto <> qryEstoquecodigoitem.AsString then
+    begin
+
+      RefazConsultaPorNome(qryProdutosNotasPag, ['DataInventario','produto'],
+         [FormatDateTime('YYYY-MM-DD',DataInventario), qryEstoquecodigoitem.AsVariant]);
+      vProduto := qryProdutosNotasPagproduto.AsString;
+    end;
+    }
+
+    vSaldoQuantidade := qryEstoqueQtdestoquefilial.AsCurrency;
+
+    qryProdutosNotasPag.first;
+    while not qryProdutosNotaspag.Eof do
+    begin
+      if qryProdutosNotasPagquantidade.AsCurrency > 0 then
+      begin
+        if vSaldoQuantidade <= qryProdutosNotasPagquantidade.AsCurrency then
+        begin
+          qryProdutosSTaRecolher.Append;
+          qryProdutosSTaRecolherfornecedor.AsInteger    := qryProdutosNotasPagfornecedor.AsInteger;
+          qryProdutosSTaRecolhertipofornecedor.AsString := qryProdutosNotasPagtipofornecedor.AsString;
+          qryProdutosSTaRecolherestado.AsString        := qryProdutosNotasPagestado.AsString;
+          qryProdutosSTaRecolherserie.AsString         := qryProdutosNotasPagserie.AsString;
+          qryProdutosSTaRecolhernumeronota.AsInteger    := qryProdutosNotasPagnumeronota.AsInteger;
+
+          qryProdutosSTaRecolherproduto.AsString    := qryEstoquecodigoitem.AsString;
+          qryProdutosSTaRecolherfilial.AsInteger    := qryEstoquefilial.AsInteger;
+
+          qryProdutosSTaRecolherquantidade.AsCurrency    := vSaldoQuantidade;
+          vSaldoQuantidade := vSaldoQuantidade - qryProdutosSTaRecolherquantidade.AsCurrency;
+
+          qryProdutosSTaRecolherprecounitario.AsCurrency := qryProdutosNotasPagprecounitario.AsCurrency;
+          qryProdutosSTaRecolheraliquotaipi.AsCurrency   := qryProdutosNotasPagaliquotaipi.AsCurrency;
+          qryProdutosSTaRecolheraliquotaicms.AsCurrency  := qryProdutosNotasPagaliquotaicms.AsCurrency;
+
+          qryProdutosSTaRecolher.post;
+
+
+          qryProdutosNotasPag.Edit;
+          qryProdutosNotasPagquantidade.AsCurrency := qryProdutosNotasPagquantidade.AsCurrency -
+                                                      qryProdutosSTaRecolherquantidade.AsCurrency;
+          qryProdutosNotasPag.post;
+
+          break;
+        end
+        else
+        begin
+          qryProdutosSTaRecolher.Append;
+          qryProdutosSTaRecolherfornecedor.AsInteger    := qryProdutosNotasPagfornecedor.AsInteger;
+          qryProdutosSTaRecolhertipofornecedor.AsString := qryProdutosNotasPagtipofornecedor.AsString;
+          qryProdutosSTaRecolherestado.AsString        := qryProdutosNotasPagestado.AsString;
+          qryProdutosSTaRecolherserie.AsString         := qryProdutosNotasPagserie.AsString;
+          qryProdutosSTaRecolhernumeronota.AsInteger    := qryProdutosNotasPagnumeronota.AsInteger;
+
+          qryProdutosSTaRecolherproduto.AsString    := qryEstoquecodigoitem.AsString;
+          qryProdutosSTaRecolherfilial.AsInteger    := qryEstoquefilial.AsInteger;
+          
+          qryProdutosSTaRecolherquantidade.AsCurrency    := qryProdutosNotasPagquantidade.AsCurrency;
+          vSaldoQuantidade := vSaldoQuantidade - qryProdutosSTaRecolherquantidade.AsCurrency;
+
+          qryProdutosSTaRecolherprecounitario.AsCurrency := qryProdutosNotasPagprecounitario.AsCurrency;
+          qryProdutosSTaRecolheraliquotaipi.AsCurrency   := qryProdutosNotasPagaliquotaipi.AsCurrency;
+          qryProdutosSTaRecolheraliquotaicms.AsCurrency  := qryProdutosNotasPagaliquotaicms.AsCurrency;
+
+          qryProdutosSTaRecolher.post;
+
+          qryProdutosNotasPag.Edit;
+          qryProdutosNotasPagquantidade.AsCurrency := 0;
+          qryProdutosNotasPag.post;
+
+          qryProdutosNotaspag.Next;
+        end;
+      end
+      else
+        qryProdutosNotaspag.Next;
+
+    end;
+
+    if (vSaldoQuantidade <> 0) and (vSaldoQuantidade <> qryEstoqueQtdestoquefilial.AsCurrency) then
+    begin
+      qryestoque.Edit;
+      qryEstoqueQtdestoquefilial.AsCurrency := qryEstoqueQtdestoquefilial.AsCurrency - vSaldoQuantidade;
+      qryestoque.Post;
+    end;
+
+    if qryProdutosSTaRecolher.RecordCount = 0 then
+    begin
+    {
+      qryEstoque.next;
+      if not qryestoque.Eof then
+      begin
+        GuardarRegistroAtual(qryestoque,false);
+        qryEstoque.Prior;
+        qryestoque.Delete;
+        VoltarRegistroAtual(qryestoque);
+      end
+      else
+      begin
+        qryEstoque.delete;
+        qryEstoque.next;
+      end;
+     }
+     qryestoque.Delete;
+    end
+    else
+      qryEstoque.next;
+
+  end;
+
+//  qryProdutosSTaRecolher.MasterSource := dsrEstoque;
+//  qryProdutosSTaRecolher.LinkFields := 'codigoitem=produto,filial=filial';
+
+  qryEstoque.Filtered := false;
+  qryEstoque.Filtered := true;
+  qryEstoque.Filter := 'filial = '+inttostr(Filial);
+
+  qryProdutosSTaRecolher.Filtered := false;
+  qryProdutosSTaRecolher.Filtered := true;
+  qryProdutosSTaRecolher.Filter := 'filial = '+inttostr(Filial);
+
+
+  AtribuirParametrosBaseRelatorio(inttostr(Filial));
+
+  frVariables['Titulo']:= 'INVENTÁRIO DOS PRODUTOS';
+  frVariables['subTitulo']:= 'SUJEITOS À ST EM '+datetostr(FDataInventario);
+
+  frVariables['Livro']:=FParametroLivro;
+  frVariables['Pagina']:=FParametroPagina;
+  frVariables['Maximo']:=FParametroMaximo;
+
+
+  frmPreview := TfrmPreviewPadrao.create(self);
+  frmPreview.cmbZoom.ItemIndex := 2;
+  try
+    Relatorio := frmPreview.frCompositeReport;
+     with frmPreview do
+     begin
+       frCompositeReport.Reports.Clear;
+//       frCompositeReport.DoublePass:= True;
+       frpEstoqueICMSSTaRecolher.DesignReport;
+       frxReport1.DesignReport;
+
+       frCompositeReport.Reports.Add(frpEstoqueICMSSTaRecolher);
+     end;
+     Relatorio.Preview := frmPreview.frPreviewPadrao;
+     Relatorio.ShowReport;
+     frmPreview.ShowModal;
+  finally
+    frmPreview.Free;
+    qryEstoque.Filtered := false;
+    qryProdutosSTaRecolher.Filtered := false;
+  end;
+end;
+
+
+
+procedure Tdtmrelatorioestoqueicmsstarecolher.ZMonitor1MonitorEvent(Sql,   Result: String);
+var
+ Listar : TStringList;
+ Arquivo: String;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  Arquivo:= 'c:\Lixo\ICMSSubstituicao.sql';
+  if fileexists(Arquivo) then
+    Listar.loadfromfile(Arquivo);
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile(Arquivo);
+  listar.free;
+end;
+
+
+procedure Tdtmrelatorioestoqueicmsstarecolher.ZmonitorMonitorEvent(Sql,
+  Result: String);
+var
+ Listar : TStringList;
+ Arquivo: String;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  Arquivo:= 'c:\Lixo\ICMSSubstituicao.sql';
+  if fileexists(Arquivo) then
+    Listar.loadfromfile(Arquivo);
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile(Arquivo);
+  listar.free;
+end;
+
+procedure Tdtmrelatorioestoqueicmsstarecolher.qryProdutosSTaRecolherCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryProdutosSTaRecolherValorICMS.AsCurrency := truncar(((qryProdutosSTaRecolherquantidade.AsCurrency *
+                                                         qryProdutosSTaRecolherprecounitario.AsCurrency) *
+                                                         qryProdutosSTaRecolheraliquotaicms.AsCurrency / 100),2);
+
+  qryProdutosSTaRecolherValorIPI.AsCurrency := truncar((qryProdutosSTaRecolherquantidade.AsCurrency *
+                                               qryProdutosSTaRecolherprecounitario.AsCurrency +
+
+                                                truncar(((qryProdutosSTaRecolherquantidade.AsCurrency *
+                                                         qryProdutosSTaRecolherprecounitario.AsCurrency) *
+                                                         qryProdutosSTaRecolheraliquotaipi.AsCurrency / 100),2)),2);
+
+  qryProdutosSTaRecolherBaseICMSSubstituicao.AsCurrency := truncar(((1 + qryEstoquemva.AsCurrency /100) * qryProdutosSTaRecolherValorIPI.AsCurrency),2);
+
+  if qryProdutosSTaRecolherestado.AsString <> 'SC' then
+    qryProdutosSTaRecolherBaseICMSSubstituicao.AsCurrency := truncar((qryProdutosSTaRecolherBaseICMSSubstituicao.AsCurrency * 0.88/ 0.83),2);
+
+  qryProdutosSTaRecolherValorICMSSubstituicao.AsCurrency := truncar((qryProdutosSTaRecolherBaseICMSSubstituicao.AsCurrency * qryEstoquealiquotaicms.AsCurrency / 100),2)
+                                                           { - qryProdutosSTaRecolherValorICMS.AsCurrency};
+
+end;
+
+procedure Tdtmrelatorioestoqueicmsstarecolher.frpEstoqueICMSSTaRecolherBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpEstoqueICMSSTaRecolher, View);
+end;
+
+procedure Tdtmrelatorioestoqueicmsstarecolher.qryEstoqueFilterRecord(
+  DataSet: TDataSet; var Accept: Boolean);
+begin
+  inherited;
+  if qryEstoque.Filtered then
+    accept := (qryEstoquefilial.AsInteger = filial) {AND
+              (qryProdutosSTaRecolher.RecordCount > 0)};
+end;
+
+procedure Tdtmrelatorioestoqueicmsstarecolher.qryProdutosSTaRecolherFilterRecord(
+  DataSet: TDataSet; var Accept: Boolean);
+begin
+  inherited;
+  if qryProdutosSTaRecolher.Filtered then
+     accept := qryProdutosSTaRecolherfilial.AsInteger = filial;
+
+end;
+
+procedure Tdtmrelatorioestoqueicmsstarecolher.frpEstoqueICMSSTaRecolherGetValue(
+  const ParName: String; var ParValue: Variant);
+begin
+  inherited;
+ if Parname = 'FolhaA_ou_Pagina' then
+ case ParSistema.LivrosFiscaisFolhaouPagina of
+    0: ParValue := ctFOLHA;
+    1: ParValue := ctPAGINA;
+   end;
+end;
+
+end.
+

@@ -1,0 +1,1287 @@
+inherited dtmPedidosporAtividades: TdtmPedidosporAtividades
+  OldCreateOrder = False
+  Left = 366
+  Top = 115
+  Height = 516
+  Width = 651
+  object qryPedidosClientesporAtividades: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnCalcFields = qryPedidosClientesporAtividadesCalcFields
+    OnFilterRecord = qryPedidosClientesporAtividadesFilterRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    RequestLive = True
+    Left = 72
+    Top = 8
+    object qryPedidosClientesporAtividadescargocliente: TStringField
+      FieldName = 'cargocliente'
+      Visible = False
+      Size = 59
+    end
+    object qryPedidosClientesporAtividadesexpandir: TStringField
+      DisplayLabel = 'E'
+      FieldName = 'expandir'
+      Size = 1
+    end
+    object qryPedidosClientesporAtividadescliente: TIntegerField
+      FieldName = 'cliente'
+      Visible = False
+    end
+    object qryPedidosClientesporAtividadesnome: TStringField
+      DisplayLabel = 'Cliente'
+      DisplayWidth = 20
+      FieldName = 'nome'
+      Size = 43
+    end
+    object qryPedidosClientesporAtividadesempcargo: TIntegerField
+      FieldName = 'empcargo'
+      Visible = False
+    end
+    object qryPedidosClientesporAtividadesdescricao: TStringField
+      FieldName = 'descricao'
+      Visible = False
+      Size = 15
+    end
+    object qryPedidosClientesporAtividadesTotal: TCurrencyField
+      DisplayWidth = 14
+      FieldKind = fkCalculated
+      FieldName = 'Total'
+      DisplayFormat = '###,###,###,##0.00'
+      Calculated = True
+    end
+  end
+  object dsrPedidosClientesporAtividades: TtecDataSource
+    DataSet = qryPedidosClientesporAtividades
+    Left = 72
+    Top = 64
+  end
+  object qryPedidosporAtividades: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    RequestLive = True
+    Left = 72
+    Top = 120
+    object qryPedidosporAtividadesempcargo: TIntegerField
+      FieldName = 'empcargo'
+    end
+    object qryPedidosporAtividadescargocliente: TStringField
+      FieldName = 'cargocliente'
+      Size = 16
+    end
+    object qryPedidosporAtividadesexpandir: TStringField
+      FieldName = 'expandir'
+      Size = 1
+    end
+    object qryPedidosporAtividadescliente: TIntegerField
+      FieldName = 'cliente'
+    end
+    object qryPedidosporAtividadesnome: TStringField
+      FieldName = 'nome'
+      Size = 50
+    end
+    object qryPedidosporAtividadesdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 15
+    end
+  end
+  object dsrPedidosporAtividades: TtecDataSource
+    DataSet = qryPedidosporAtividades
+    Left = 72
+    Top = 176
+  end
+  object qryPedidosClientesporAtividades_AUX_Entrada: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'meses'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'SELECT * FROM crosstab'
+      '('
+      
+        #39'select cast(descricao||empcargo||nome||cliente as varchar(70)) ' +
+        'as cargocliente,'
+      '        cast('#39#39#39#39' as varchar(1)) as expandir,'
+      
+        '        cliente, cast('#39#39'   '#39#39'||nome as varchar(43)) as nome, emp' +
+        'cargo, descricao,'
+      '        ano_mes, valor_mes'
+      ' from'
+      ' ('
+      
+        '   select ps.cliente, ps.nome, ps.empcargo, ps.descricao, ps.ano' +
+        '_mes,'
+      '          %MoedaSelecionada '
+      '            case when mc.cotacao is not null then'
+      '              ps.valor_mes/mc.cotacao end'
+      '          else'
+      '            ps.valor_mes'
+      '          end as valor_mes'
+      '   from'
+      '  ('
+      '   select osp.cliente,'
+      '          cl.apelido as nome,'
+      '          coalesce(cl.empcargo, cast(0 as integer)) as empcargo,'
+      
+        '          coalesce(c.descricao, cast('#39#39'N'#195'O ESPECIFICADO'#39#39' as var' +
+        'char(30))) as descricao,'
+      '          to_char(osp.data, '#39#39'YYYY/MM'#39#39') as ano_mes,'
+      
+        '          cast(sum(osp.quantidade * osp.preco) as numeric(11,2))' +
+        ' as valor_mes'
+      '          from osp'
+      '               join (clientes cl '
+      '                     left join cargos c'
+      '                     on cl.empcargo = c.codigo)'
+      '               on osp.cliente = cl.codigo'
+      '          %sqlDataPedido_entrada'
+      '          %sqlListaCargos'
+      
+        '          group by  osp.cliente, cl.apelido, cl.empcargo, c.desc' +
+        'ricao, ano_mes'
+      '  ) as ps left join'
+      '               (select ano_mes,'
+      '                       avg(mc.cotacao) as cotacao'
+      '                from ('
+      
+        '                       select to_char(mc.data, '#39#39'YYYY/MM'#39#39') as a' +
+        'no_mes,'
+      '                              mc.cotacao'
+      '                       from moedascotacoes mc'
+      '                       %sqlMoeda'
+      '                       %sqlDataCotacao_entrada'
+      '                      ) as mc'
+      
+        '                group by ano_mes) as mc on ps.ano_mes = mc.ano_m' +
+        'es'
+      ' ) as temp'
+      ' order by 1'#39','
+      ''
+      #39'select distinct to_char(cast('#39#39
+      '        %DataInicial_1'
+      
+        '        '#39#39' as date)  + s.a,'#39#39'YYYY/MM'#39#39') as mes from generate_ser' +
+        'ies(1,cast('#39#39
+      '            %DataFinal'
+      '            '#39#39' as date)-cast('#39#39
+      '              %DataInicial_2'
+      '             '#39#39' as date)) as s(a) order by 1'#39
+      ')'
+      'AS'
+      ' ( cargocliente varchar(70),'
+      '   expandir varchar(1),'
+      '   cliente int,'
+      '   nome varchar(43),'
+      '   empcargo int,'
+      '   descricao varchar(30),'
+      '   %meses'
+      ')'
+      'order by cargocliente'
+      '')
+    RequestLive = False
+    Left = 304
+    Top = 8
+  end
+  object qryPedidosporAtividades_AUX_Entrada: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'meses'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'SELECT * FROM crosstab'
+      '('
+      
+        #39'select cast(descricao||empcargo as varchar(70)) as cargocliente' +
+        ','
+      '        cast('#39#39'-'#39#39' as varchar(1)) as expandir,'
+      
+        '        cast(null as integer) as cliente, cast(null as varchar(4' +
+        '0)) as nome,'
+      '        empcargo, descricao,'
+      '        ano_mes, valor_mes'
+      ' from'
+      ' ('
+      ''
+      '   select ps.empcargo, ps.descricao, ps.ano_mes,'
+      '          %MoedaSelecionada'
+      '            case when mc.cotacao is not null then'
+      '              ps.valor_mes/mc.cotacao end'
+      '          else'
+      '            ps.valor_mes'
+      '          end as valor_mes'
+      '   from'
+      '  ('
+      
+        '   select           coalesce(cl.empcargo, cast(0 as integer)) as' +
+        ' empcargo,'
+      
+        '          coalesce(c.descricao, cast('#39#39'N'#195'O ESPECIFICADO'#39#39' as var' +
+        'char(30))) as descricao,'
+      '          to_char(osp.data, '#39#39'YYYY/MM'#39#39') as ano_mes,'
+      
+        '          cast(sum(osp.quantidade * osp.preco) as numeric(11,2))' +
+        ' as valor_mes'
+      '          from osp'
+      '               join (clientes cl '
+      '                     left join cargos c '
+      '                     on cl.empcargo = c.codigo)'
+      '               on osp.cliente = cl.codigo'
+      '          %sqlDataPedido_entrada'
+      '          %sqlListaCargos'
+      '          group by  cl.empcargo, c.descricao, ano_mes'
+      '  ) as ps left join'
+      '               (select ano_mes,'
+      '                       avg(mc.cotacao) as cotacao'
+      '                from ('
+      
+        '                       select to_char(mc.data, '#39#39'YYYY/MM'#39#39') as a' +
+        'no_mes,'
+      '                              mc.cotacao'
+      '                       from moedascotacoes mc'
+      '                       %sqlMoeda'
+      '                       %sqlDataCotacao_entrada'
+      '                      ) as mc'
+      
+        '                group by ano_mes) as mc on ps.ano_mes = mc.ano_m' +
+        'es'
+      ''
+      ' ) as temp'
+      ' order by 1'#39','
+      ''
+      #39'select distinct to_char(cast('#39#39
+      '        %DataInicial_1'
+      
+        '        '#39#39' as date)  + s.a,'#39#39'YYYY/MM'#39#39') as mes from generate_ser' +
+        'ies(1,cast('#39#39
+      '            %DataFinal'
+      '            '#39#39' as date)-cast('#39#39
+      '              %DataInicial_2'
+      '             '#39#39' as date)) as s(a) order by 1'#39
+      ')'
+      'AS'
+      ' ( cargocliente varchar(70),'
+      '   expandir varchar(1),'
+      '   cliente integer,'
+      '   nome varchar(40),'
+      '   empcargo int,'
+      '   descricao varchar(30),'
+      '   %meses'
+      ')'
+      'order by cargocliente'
+      '')
+    RequestLive = False
+    Left = 304
+    Top = 120
+  end
+  object qrynMeses: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select distinct to_char(cast('#39
+      '        %datainicial_1'
+      
+        '        '#39' as date)  + s.a,'#39'YYYY/MM'#39') as mes from generate_series' +
+        '(1,cast('#39
+      '            %datafinal'
+      '            '#39' as date)-cast('#39
+      '              %datainicial_2'
+      '             '#39' as date)) as s(a) order by 1')
+    RequestLive = False
+    Left = 80
+    Top = 456
+  end
+  object qrynmeses_aux_Entrada: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select distinct to_char(cast('#39
+      '        %datainicial_1'
+      
+        '        '#39' as date)  + s.a,'#39'YYYY/MM'#39') as mes from generate_series' +
+        '(1,cast('#39
+      '            %datafinal'
+      '            '#39' as date)-cast('#39
+      '              %datainicial_2'
+      '             '#39' as date)) as s(a) order by 1')
+    RequestLive = False
+    Left = 304
+    Top = 432
+  end
+  object qryPedidos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryPedidosAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    RequestLive = True
+    Left = 72
+    Top = 336
+  end
+  object dsrPedidos: TtecDataSource
+    DataSet = qryPedidos
+    Left = 72
+    Top = 392
+  end
+  object qryPedidos_AUX_Entrada: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'meses'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'SELECT * FROM crosstab'
+      '('
+      #39'select cast('#39#39'-'#39#39' as varchar(1)) as cargocliente,'
+      '        cast('#39#39'-'#39#39' as varchar(1)) as expandir,'
+      '        cast(null as integer) as cliente,'
+      '        cast('#39#39'TOTAL'#39#39' as varchar(40)) as nome,'
+      '        cast(null as integer) as empcargo,'
+      '        cast(null as varchar(30)) as descricao,'
+      '        cast(null as numeric(12,2)) as Total,'
+      '        ano_mes, valor_mes'
+      ' from'
+      ' ('
+      '   select ps.ano_mes,'
+      '          %MoedaSelecionada'
+      '            case when mc.cotacao is not null then'
+      '              ps.valor_mes/mc.cotacao end'
+      '          else'
+      '            ps.valor_mes'
+      '          end as valor_mes'
+      '   from'
+      '  ('
+      '   select to_char(osp.data, '#39#39'YYYY/MM'#39#39') as ano_mes,'
+      
+        '          cast(sum(osp.quantidade * osp.preco) as numeric(11,2))' +
+        ' as valor_mes'
+      '          from (osp'
+      '                join (clientes cl left '
+      '                      join cargos c '
+      '                      on cl.empcargo = c.codigo)'
+      '                on osp.cliente = cl.codigo)'
+      '          %sqlDataPedido_entrada'
+      '          %sqlListaCargos'
+      '          group by ano_mes'
+      '  ) as ps left join'
+      '               (select ano_mes,'
+      '                       avg(mc.cotacao) as cotacao'
+      '                from ('
+      
+        '                       select to_char(mc.data, '#39#39'YYYY/MM'#39#39') as a' +
+        'no_mes,'
+      '                              mc.cotacao'
+      '                       from moedascotacoes mc'
+      '                       %sqlMoeda'
+      '                       %sqlDataCotacao_entrada'
+      '                      ) as mc'
+      
+        '                group by ano_mes) as mc on ps.ano_mes = mc.ano_m' +
+        'es'
+      ' ) as temp'
+      ' order by 1'#39','
+      ''
+      #39'select distinct to_char(cast('#39#39
+      '        %DataInicial_1'
+      
+        '        '#39#39' as date)  + s.a,'#39#39'YYYY/MM'#39#39') as mes from generate_ser' +
+        'ies(1,cast('#39#39
+      '            %DataFinal'
+      '            '#39#39' as date)-cast('#39#39
+      '              %DataInicial_2'
+      '             '#39#39' as date)) as s(a) order by 1'#39
+      ')'
+      'AS'
+      ' ( cargocliente varchar(1),'
+      '   expandir varchar(1),'
+      '   cliente integer,'
+      '   nome varchar(40) ,'
+      '   empcargo int,'
+      '   descricao varchar(30),'
+      '   Total numeric(12,2),'
+      '   %meses'
+      ')'
+      '')
+    RequestLive = False
+    Left = 304
+    Top = 336
+  end
+  object qryPedidosporAtividadesPerc: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    RequestLive = True
+    Left = 72
+    Top = 224
+  end
+  object dsrPedidosporAtividadesPerc: TtecDataSource
+    DataSet = qryPedidosporAtividadesPerc
+    Left = 72
+    Top = 280
+  end
+  object qryPedidosporAtividadesPerc_AUX_Entrada: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'meses'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'SELECT * FROM crosstab'
+      '('
+      
+        #39'select cast(descricao||empcargo as varchar(70)) as cargocliente' +
+        ','
+      '        cast('#39#39'-'#39#39' as varchar(1)) as expandir,'
+      
+        '        cast(null as integer) as cliente, cast(null as varchar(4' +
+        '0)) as nome,'
+      '        empcargo, descricao,'
+      '        cast(null as numeric(12,2)) as Total,'
+      '        ano_mes, valor_mes'
+      ' from'
+      ' ('
+      '   select ps.empcargo, ps.descricao, ps.ano_mes,'
+      '          %MoedaSelecionada'
+      '            case when mc.cotacao is not null then'
+      '              ps.valor_mes/mc.cotacao end'
+      '          else'
+      '            ps.valor_mes'
+      '          end as valor_mes'
+      '   from'
+      '  ('
+      
+        '   select           coalesce(cl.empcargo, cast(0 as integer)) as' +
+        ' empcargo,'
+      
+        '          coalesce(c.descricao, cast('#39#39'N'#195'O ESPECIFICADO'#39#39' as var' +
+        'char(30))) as descricao,'
+      '          to_char(osp.data, '#39#39'YYYY/MM'#39#39') as ano_mes,'
+      
+        '          cast(sum(osp.quantidade * osp.preco) as numeric(11,2))' +
+        ' as valor_mes'
+      '          from (osp'
+      
+        '                 join (clientes cl left join cargos c on cl.empc' +
+        'argo = c.codigo)'
+      '                               on osp.cliente = cl.codigo)'
+      '          %sqlDataPedido_entrada'
+      '          %sqlListaCargos'
+      '          group by  cl.empcargo, c.descricao, ano_mes'
+      '  ) as ps left join'
+      '               (select ano_mes,'
+      '                       avg(mc.cotacao) as cotacao'
+      '                from ('
+      
+        '                       select to_char(mc.data, '#39#39'YYYY/MM'#39#39') as a' +
+        'no_mes,'
+      '                              mc.cotacao'
+      '                       from moedascotacoes mc'
+      '                       %sqlMoeda'
+      '                       %sqlDataCotacao_entrada'
+      '                      ) as mc'
+      
+        '                group by ano_mes) as mc on ps.ano_mes = mc.ano_m' +
+        'es'
+      ''
+      ' ) as temp'
+      ' order by 1'#39','
+      ''
+      #39'select distinct to_char(cast('#39#39
+      '        %DataInicial_1'
+      
+        '        '#39#39' as date)  + s.a,'#39#39'YYYY/MM'#39#39') as mes from generate_ser' +
+        'ies(1,cast('#39#39
+      '            %DataFinal'
+      '            '#39#39' as date)-cast('#39#39
+      '              %DataInicial_2'
+      '             '#39#39' as date)) as s(a) order by 1'#39
+      ')'
+      'AS'
+      ' ( cargocliente varchar(70),'
+      '   expandir varchar(1),'
+      '   cliente integer,'
+      '   nome varchar(40),'
+      '   empcargo int,'
+      '   descricao varchar(30),'
+      '   Total numeric(12,2),'
+      '   %meses'
+      ')'
+      'order by cargocliente'
+      '')
+    RequestLive = False
+    Left = 304
+    Top = 216
+  end
+  object qryPedidosClientesporAtividades_AUX_Pendente: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'meses'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'SELECT * FROM crosstab'
+      '('
+      
+        #39'select cast(descricao||empcargo||nome||cliente as varchar(70)) ' +
+        'as cargocliente,'
+      '        cast('#39#39#39#39' as varchar(1)) as expandir,'
+      
+        '        cliente, cast('#39#39'   '#39#39'||nome as varchar(43)) as nome, emp' +
+        'cargo, descricao,'
+      '        ano_mes, valor_mes'
+      ' from'
+      ' ('
+      
+        '   select ps.cliente, ps.nome, ps.empcargo, ps.descricao, ps.ano' +
+        '_mes,'
+      '   %MoedaSelecionada'
+      '    case when mc.cotacao is not null then'
+      '        ps.valor_mes/mc.cotacao end'
+      '    else'
+      '      ps.valor_mes'
+      '    end as valor_mes'
+      '   from'
+      '  ('
+      '   select cliente,'
+      '          cl.apelido as nome,'
+      '          coalesce(cl.empcargo, cast(0 as integer)) as empcargo,'
+      
+        '          coalesce(c.descricao, cast('#39#39'N'#195'O ESPECIFICADO'#39#39' as var' +
+        'char(30))) as descricao,'
+      '          ano_mes,'
+      '          valor_mes'
+      '   from'
+      '   ('
+      '    select produtos.cliente,'
+      '          to_char(produtos.data, '#39#39'YYYY/MM'#39#39') as ano_mes,'
+      '          cast(sum((produtos.qtdadepedida -'
+      
+        '                    produtos.qtdadeentregue) * produtos.preco) a' +
+        's numeric(11,2)) as valor_mes'
+      '    from'
+      '    ('
+      '     select produtos.*'
+      '     from'
+      '     ('
+      '      select osp.cliente,'
+      '             osp.data,'
+      '             osp.produto,'
+      '             osp.quantidade as qtdadepedida,'
+      '             osp.preco,'
+      '             coalesce((select sum(pdf.quantidade)'
+      
+        '              from DadosFiscais df join produtosdadosfiscais pdf' +
+        ' on df.numero = pdf.dadofiscal'
+      '              where (df.situacao='#39#39'N'#39#39')'
+      '                and pdf.osp = osp.numero'
+      '                and pdf.produto = osp.produto'
+      '                and'
+      '                %sqlDataFaturamento_Pendencia'
+      '                ),0) as qtdadeentregue'
+      '      from osp'
+      '      where'
+      '          %sqlDataPedido_Pendencia'
+      '     ) as produtos'
+      '     where produtos.qtdadepedida > 0'
+      
+        '       and round((produtos.qtdadeentregue * 100)/produtos.qtdade' +
+        'pedida,2) <='
+      '       %limitepercentual'
+      '    ) as produtos'
+      '     group by cliente, ano_mes'
+      '   ) as produtos'
+      
+        '     join (clientes cl left join cargos c on cl.empcargo = c.cod' +
+        'igo)'
+      '                             on produtos.cliente = cl.codigo'
+      '     %sqlListaCargos'
+      '  ) as ps left join'
+      '               (select ano_mes,'
+      '                       avg(mc.cotacao) as cotacao'
+      '                from ('
+      
+        '                       select to_char(mc.data, '#39#39'YYYY/MM'#39#39') as a' +
+        'no_mes,'
+      '                              mc.cotacao'
+      '                       from moedascotacoes mc'
+      '                       %sqlMoeda'
+      '                       %sqlDataCotacao_Pendencia'
+      '                      ) as mc'
+      
+        '                group by ano_mes) as mc on ps.ano_mes = mc.ano_m' +
+        'es'
+      ' ) as temp'
+      ' order by 1'#39','
+      ' '#39'select distinct to_char(produtos.data, '#39#39'YYYY/MM'#39#39') as ano_mes'
+      '  from'
+      '  ('
+      '   select osp.data,'
+      '          osp.quantidade as qtdadepedida,'
+      '          coalesce((select sum(pdf.quantidade)'
+      
+        '                    from DadosFiscais df join produtosdadosfisca' +
+        'is pdf on df.numero = pdf.dadofiscal'
+      '                    where (df.situacao='#39#39'N'#39#39')'
+      '                      and pdf.osp = osp.numero'
+      '                      and pdf.produto = osp.produto'
+      '                      and'
+      '                    %sqlDataFaturamento_Pendencia'
+      '                    ),0) as qtdadeentregue'
+      '   from (osp'
+      '         join (clientes cl'
+      '               left join cargos c '
+      '               on cl.empcargo = c.codigo)'
+      '         on osp.cliente = cl.codigo)'
+      '   where'
+      '   %sqlDataPedido_Pendencia'
+      '   %sqlListaCargos'
+      '  ) as produtos'
+      '  where produtos.qtdadepedida > 0'
+      
+        '    and round((produtos.qtdadeentregue * 100)/produtos.qtdadeped' +
+        'ida,2) <='
+      '   %limitepercentual'
+      '  order by to_char(produtos.data, '#39#39'YYYY/MM'#39#39')'#39
+      ')'
+      'AS'
+      ' ('
+      '   cargocliente varchar(70),'
+      '   expandir varchar(1),'
+      '   cliente int,'
+      '   nome varchar(43),'
+      '   empcargo int,'
+      '   descricao varchar(30)'
+      '   ,'
+      '   %meses'
+      ' )'
+      ' order by cargocliente')
+    RequestLive = False
+    Left = 336
+    Top = 24
+  end
+  object qryPedidosporAtividades_AUX_Pendente: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'meses'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'SELECT * FROM crosstab'
+      '('
+      
+        #39'select cast(descricao||empcargo as varchar(70)) as cargocliente' +
+        ','
+      '        cast('#39#39'-'#39#39' as varchar(1)) as expandir,'
+      
+        '        cast(null as integer) as cliente, cast(null as varchar(4' +
+        '0)) as nome,'
+      '        empcargo, descricao,'
+      '        ano_mes, valor_mes'
+      ' from'
+      ' ('
+      '   select ps.empcargo, ps.descricao, ps.ano_mes,'
+      '   %MoedaSelecionada'
+      '    case when mc.cotacao is not null then'
+      '        ps.valor_mes/mc.cotacao end'
+      '    else'
+      '      ps.valor_mes'
+      '    end as valor_mes'
+      '   from'
+      '  ('
+      
+        '   select          coalesce(cl.empcargo, cast(0 as integer)) as ' +
+        'empcargo,'
+      
+        '          coalesce(c.descricao, cast('#39#39'N'#195'O ESPECIFICADO'#39#39' as var' +
+        'char(30))) as descricao,'
+      '          ano_mes,'
+      '          sum(valor_mes) as valor_mes'
+      '   from'
+      '   ('
+      '    select produtos.cliente,'
+      '          to_char(produtos.data, '#39#39'YYYY/MM'#39#39') as ano_mes,'
+      '          cast(sum((produtos.qtdadepedida -'
+      
+        '                    produtos.qtdadeentregue) * produtos.preco) a' +
+        's numeric(11,2)) as valor_mes'
+      '    from'
+      '    ('
+      '     select produtos.*'
+      '     from'
+      '     ('
+      '      select osp.cliente,'
+      '             osp.data,'
+      '             osp.produto,'
+      '             osp.quantidade as qtdadepedida,'
+      '             osp.preco,'
+      '             coalesce((select sum(pdf.quantidade)'
+      
+        '              from DadosFiscais df join produtosdadosfiscais pdf' +
+        ' on df.numero = pdf.dadofiscal'
+      '              where (df.situacao='#39#39'N'#39#39')'
+      '                and pdf.osp = osp.numero'
+      '                and pdf.produto = osp.produto'
+      '                and'
+      '                %sqlDataFaturamento_Pendencia'
+      '                ),0) as qtdadeentregue'
+      '      from osp'
+      '      where'
+      '          %sqlDataPedido_Pendencia'
+      '     ) as produtos'
+      '     where produtos.qtdadepedida > 0'
+      
+        '       and round((produtos.qtdadeentregue * 100)/produtos.qtdade' +
+        'pedida,2) <='
+      '       %limitepercentual'
+      '    ) as produtos'
+      '     group by cliente, ano_mes'
+      '   ) as produtos'
+      
+        '     join (clientes cl left join cargos c on cl.empcargo = c.cod' +
+        'igo)'
+      '                             on produtos.cliente = cl.codigo'
+      '     %sqlListaCargos'
+      '     group by cl.empcargo, c.descricao, ano_mes'
+      '  ) as ps left join'
+      '               (select ano_mes,'
+      '                       avg(mc.cotacao) as cotacao'
+      '                from ('
+      
+        '                       select to_char(mc.data, '#39#39'YYYY/MM'#39#39') as a' +
+        'no_mes,'
+      '                              mc.cotacao'
+      '                       from moedascotacoes mc'
+      '                       %sqlMoeda'
+      '                       %sqlDataCotacao_Pendencia'
+      '                      ) as mc'
+      
+        '                group by ano_mes) as mc on ps.ano_mes = mc.ano_m' +
+        'es'
+      ' ) as temp'
+      ' order by 1'#39','
+      ' '#39'select distinct to_char(produtos.data, '#39#39'YYYY/MM'#39#39') as ano_mes'
+      '  from'
+      '  ('
+      '   select osp.data,'
+      '          osp.quantidade as qtdadepedida,'
+      '          coalesce((select sum(pdf.quantidade)'
+      
+        '                    from DadosFiscais df join produtosdadosfisca' +
+        'is pdf on df.numero = pdf.dadofiscal'
+      '                    where (df.situacao='#39#39'N'#39#39')'
+      '                      and pdf.osp = osp.numero'
+      '                      and pdf.produto = osp.produto'
+      '                      and'
+      '                    %sqlDataFaturamento_Pendencia'
+      '                    ),0) as qtdadeentregue'
+      '   from (osp'
+      '         join (clientes cl '
+      '               left join cargos c '
+      '               on cl.empcargo = c.codigo)'
+      '         on osp.cliente = cl.codigo)'
+      '   where'
+      '   %sqlDataPedido_Pendencia'
+      '   %sqlListaCargos'
+      '  ) as produtos'
+      '  where produtos.qtdadepedida > 0'
+      
+        '    and round((produtos.qtdadeentregue * 100)/produtos.qtdadeped' +
+        'ida,2) <='
+      '   %limitepercentual'
+      '  order by to_char(produtos.data, '#39#39'YYYY/MM'#39#39')'#39
+      ')'
+      'AS'
+      ' ('
+      '   cargocliente varchar(70),'
+      '   expandir varchar(1),'
+      '   cliente int,'
+      '   nome varchar(43),'
+      '   empcargo int,'
+      '   descricao varchar(30)'
+      '   ,'
+      '   %meses'
+      ' )'
+      ' order by cargocliente')
+    RequestLive = False
+    Left = 336
+    Top = 136
+  end
+  object qryPedidosporAtividadesPerc_AUX_Pendente: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'meses'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'SELECT * FROM crosstab'
+      '('
+      
+        #39'select cast(descricao||empcargo as varchar(70)) as cargocliente' +
+        ','
+      '        cast('#39#39'-'#39#39' as varchar(1)) as expandir,'
+      
+        '        cast(null as integer) as cliente, cast(null as varchar(4' +
+        '0)) as nome,'
+      '        empcargo, descricao,'
+      '        cast(null as numeric(12,2)) as Total,'
+      '        ano_mes, valor_mes'
+      ' from'
+      ' ('
+      '   select ps.empcargo, ps.descricao, ps.ano_mes,'
+      '   %MoedaSelecionada'
+      '    case when mc.cotacao is not null then'
+      '        ps.valor_mes/mc.cotacao end'
+      '    else'
+      '      ps.valor_mes'
+      '    end as valor_mes'
+      '   from'
+      '  ('
+      
+        '   select           coalesce(cl.empcargo, cast(0 as integer)) as' +
+        ' empcargo,'
+      
+        '          coalesce(c.descricao, cast('#39#39'N'#195'O ESPECIFICADO'#39#39' as var' +
+        'char(30))) as descricao,'
+      '          ano_mes,'
+      '          sum(valor_mes) as valor_mes'
+      '   from'
+      '   ('
+      '    select produtos.cliente,'
+      '          to_char(produtos.data, '#39#39'YYYY/MM'#39#39') as ano_mes,'
+      '          cast(sum((produtos.qtdadepedida -'
+      
+        '                    produtos.qtdadeentregue) * produtos.preco) a' +
+        's numeric(11,2)) as valor_mes'
+      '    from'
+      '    ('
+      '     select produtos.*'
+      '     from'
+      '     ('
+      '      select osp.cliente,'
+      '             osp.data,'
+      '             osp.produto,'
+      '             osp.quantidade as qtdadepedida,'
+      '             osp.preco,'
+      '             coalesce((select sum(pdf.quantidade)'
+      
+        '              from DadosFiscais df join produtosdadosfiscais pdf' +
+        ' on df.numero = pdf.dadofiscal'
+      '              where (df.situacao='#39#39'N'#39#39')'
+      '                and pdf.osp = osp.numero'
+      '                and pdf.produto = osp.produto'
+      '                and'
+      '                %sqlDataFaturamento_Pendencia'
+      '                ),0) as qtdadeentregue'
+      '      from osp'
+      '      where'
+      '          %sqlDataPedido_Pendencia'
+      '     ) as produtos'
+      '     where produtos.qtdadepedida > 0'
+      
+        '       and round((produtos.qtdadeentregue * 100)/produtos.qtdade' +
+        'pedida,2) <='
+      '       %limitepercentual'
+      '    ) as produtos'
+      '     group by cliente, ano_mes'
+      '   ) as produtos'
+      
+        '     join (clientes cl left join cargos c on cl.empcargo = c.cod' +
+        'igo)'
+      '                             on produtos.cliente = cl.codigo'
+      '     %sqlListaCargos'
+      '     group by cl.empcargo, c.descricao, ano_mes'
+      '  ) as ps left join'
+      '               (select ano_mes,'
+      '                       avg(mc.cotacao) as cotacao'
+      '                from ('
+      
+        '                       select to_char(mc.data, '#39#39'YYYY/MM'#39#39') as a' +
+        'no_mes,'
+      '                              mc.cotacao'
+      '                       from moedascotacoes mc'
+      '                       %sqlMoeda'
+      '                       %sqlDataCotacao_Pendencia'
+      '                      ) as mc'
+      
+        '                group by ano_mes) as mc on ps.ano_mes = mc.ano_m' +
+        'es'
+      ' ) as temp'
+      ' order by 1'#39','
+      ' '#39'select distinct to_char(produtos.data, '#39#39'YYYY/MM'#39#39') as ano_mes'
+      '  from'
+      '  ('
+      '   select osp.data,'
+      '          osp.quantidade as qtdadepedida,'
+      '          coalesce((select sum(pdf.quantidade)'
+      
+        '                    from DadosFiscais df join produtosdadosfisca' +
+        'is pdf on df.numero = pdf.dadofiscal'
+      '                    where (df.situacao='#39#39'N'#39#39')'
+      '                      and pdf.osp = osp.numero'
+      '                      and pdf.produto = osp.produto'
+      '                      and'
+      '                    %sqlDataFaturamento_Pendencia'
+      '                    ),0) as qtdadeentregue'
+      '   from (osp'
+      '         join (clientes cl '
+      '               left join cargos c '
+      '               on cl.empcargo = c.codigo)'
+      '         on osp.cliente = cl.codigo)'
+      '   where                               '
+      '   %sqlDataPedido_Pendencia'
+      '   %sqlListaCargos'
+      '  ) as produtos'
+      '  where produtos.qtdadepedida > 0'
+      
+        '    and round((produtos.qtdadeentregue * 100)/produtos.qtdadeped' +
+        'ida,2) <='
+      '   %limitepercentual'
+      '  order by to_char(produtos.data, '#39#39'YYYY/MM'#39#39')'#39
+      ')'
+      'AS'
+      ' ('
+      '   cargocliente varchar(70),'
+      '   expandir varchar(1),'
+      '   cliente int,'
+      '   nome varchar(43),'
+      '   empcargo int,'
+      '   descricao varchar(30),'
+      '   Total numeric(12,2)'
+      '   ,'
+      '   %meses'
+      ' )'
+      ' order by cargocliente')
+    RequestLive = False
+    Left = 336
+    Top = 232
+  end
+  object qryPedidos_AUX_Pendente: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'meses'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'SELECT * FROM crosstab'
+      '('
+      #39'select cast('#39#39'-'#39#39' as varchar(1)) as cargocliente,'
+      '        cast('#39#39'-'#39#39' as varchar(1)) as expandir,'
+      '        cast(null as integer) as cliente,'
+      '        cast('#39#39'TOTAL'#39#39' as varchar(40)) as nome,'
+      '        cast(null as integer) as empcargo,'
+      '        cast(null as varchar(30)) as descricao,'
+      '        cast(null as numeric(12,2)) as Total,'
+      '        ano_mes, valor_mes'
+      ' from'
+      ' ('
+      '   select ps.ano_mes,'
+      '   %MoedaSelecionada'
+      '    case when mc.cotacao is not null then'
+      '        ps.valor_mes/mc.cotacao end'
+      '    else'
+      '      ps.valor_mes'
+      '    end as valor_mes'
+      '   from'
+      '  ('
+      '   select ano_mes,'
+      '          sum(valor_mes) as valor_mes'
+      '   from'
+      '   ('
+      '    select produtos.cliente,'
+      '          to_char(produtos.data, '#39#39'YYYY/MM'#39#39') as ano_mes,'
+      '          cast(sum((produtos.qtdadepedida -'
+      
+        '                    produtos.qtdadeentregue) * produtos.preco) a' +
+        's numeric(11,2)) as valor_mes'
+      '    from'
+      '    ('
+      '     select produtos.*'
+      '     from'
+      '     ('
+      '      select osp.cliente,'
+      '             osp.data,'
+      '             osp.produto,'
+      '             osp.quantidade as qtdadepedida,'
+      '             osp.preco,'
+      '             coalesce((select sum(pdf.quantidade)'
+      
+        '              from DadosFiscais df join produtosdadosfiscais pdf' +
+        ' on df.numero = pdf.dadofiscal'
+      '              where (df.situacao='#39#39'N'#39#39')'
+      '                and pdf.osp = osp.numero'
+      '                and pdf.produto = osp.produto'
+      '                and'
+      '                %sqlDataFaturamento_Pendencia'
+      '                ),0) as qtdadeentregue'
+      '      from osp'
+      '      where'
+      '          %sqlDataPedido_Pendencia'
+      '     ) as produtos'
+      '     where produtos.qtdadepedida > 0'
+      
+        '       and round((produtos.qtdadeentregue * 100)/produtos.qtdade' +
+        'pedida,2) <='
+      '       %limitepercentual'
+      '    ) as produtos'
+      '     group by cliente, ano_mes'
+      '   ) as produtos'
+      '     join (clientes cl join cargos c on cl.empcargo = c.codigo)'
+      '                             on produtos.cliente = cl.codigo'
+      '     %sqlListaCargos'
+      '     group by ano_mes'
+      '  ) as ps left join'
+      '               (select ano_mes,'
+      '                       avg(mc.cotacao) as cotacao'
+      '                from ('
+      
+        '                       select to_char(mc.data, '#39#39'YYYY/MM'#39#39') as a' +
+        'no_mes,'
+      '                              mc.cotacao'
+      '                       from moedascotacoes mc'
+      '                       %sqlMoeda'
+      '                       %sqlDataCotacao_Pendencia'
+      '                      ) as mc'
+      
+        '                group by ano_mes) as mc on ps.ano_mes = mc.ano_m' +
+        'es'
+      ' ) as temp'
+      ' order by 1'#39','
+      ' '#39'select distinct to_char(produtos.data, '#39#39'YYYY/MM'#39#39') as ano_mes'
+      '  from'
+      '  ('
+      '   select osp.data,'
+      '          osp.quantidade as qtdadepedida,'
+      '          coalesce((select sum(pdf.quantidade)'
+      
+        '                    from DadosFiscais df join produtosdadosfisca' +
+        'is pdf on df.numero = pdf.dadofiscal'
+      '                    where (df.situacao='#39#39'N'#39#39')'
+      '                      and pdf.osp = osp.numero'
+      '                      and pdf.produto = osp.produto'
+      '                      and'
+      '                    %sqlDataFaturamento_Pendencia'
+      '                    ),0) as qtdadeentregue'
+      '   from (osp'
+      '        join (clientes cl '
+      '              left join cargos c '
+      '              on cl.empcargo = c.codigo)'
+      '        on osp.cliente = cl.codigo)'
+      '   where'
+      '   %sqlDataPedido_Pendencia'
+      '   %sqlListaCargos'
+      '  ) as produtos'
+      '  where produtos.qtdadepedida > 0'
+      
+        '    and round((produtos.qtdadeentregue * 100)/produtos.qtdadeped' +
+        'ida,2) <='
+      '   %limitepercentual'
+      '  order by to_char(produtos.data, '#39#39'YYYY/MM'#39#39')'#39
+      ')'
+      'AS'
+      ' ('
+      '   cargocliente varchar(70),'
+      '   expandir varchar(1),'
+      '   cliente int,'
+      '   nome varchar(43),'
+      '   empcargo int,'
+      '   descricao varchar(30),'
+      '   Total numeric(12,2)'
+      '   ,'
+      '   %meses'
+      ' )'
+      ' order by cargocliente')
+    RequestLive = False
+    Left = 336
+    Top = 352
+  end
+  object qrynmeses_aux_Pendente: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'b_sqlDataFaturamento_Pendencia'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'b_sqlDataPedido_Pendencia'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'B_sqlListaCargos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'limitepercentual'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';select distinct to_char(produtos.data, '#39'YYYY/MM'#39') as mes'
+      'from'
+      '('
+      ' select osp.data,'
+      '        osp.quantidade as qtdadepedida,'
+      '        coalesce((select sum(pdf.quantidade)'
+      
+        '                  from DadosFiscais df join produtosdadosfiscais' +
+        ' pdf on df.numero = pdf.dadofiscal'
+      '                  where df.situacao='#39'N'#39
+      '                    and pdf.osp = osp.numero'
+      '                    and pdf.produto = osp.produto'
+      '                    and'
+      '                    %b_sqlDataFaturamento_Pendencia'
+      '                    ),0) as qtdadeentregue'
+      ' from (osp'
+      
+        '       join (clientes cl left join cargos c on cl.empcargo = c.c' +
+        'odigo)'
+      '       on osp.cliente = cl.codigo)'
+      ' where'
+      ' %b_sqlDataPedido_Pendencia'
+      ' %b_sqlListaCargos'
+      ') as produtos'
+      'where produtos.qtdadepedida > 0'
+      
+        '  and round((produtos.qtdadeentregue * 100)/produtos.qtdadepedid' +
+        'a,2) <='
+      '   %limitepercentual'
+      'order by to_char(produtos.data, '#39'YYYY/MM'#39')')
+    RequestLive = False
+    Left = 344
+    Top = 448
+  end
+end

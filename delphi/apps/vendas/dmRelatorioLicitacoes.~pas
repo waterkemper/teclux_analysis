@@ -1,0 +1,417 @@
+unit dmRelatorioLicitacoes;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery,
+  cpdatasource, dmtecsoft, frxClass, frxDBSet, frxExportODF, frxExportTXT,
+  frxExportMail, frxExportCSV, frxExportText, frxExportImage, frxExportRTF,
+  frxExportXML, frxExportXLS, frxExportHTML, biblio, ctconstantes,
+  clparametrossistema, forms;
+
+type
+  TdtmRelatorioLicitacoes = class(TdtmBasico)
+    qryLicitacoesporProdutos: TtecQuery;
+    dsrLicitacoesporProdutos: TtecDataSource;
+    qryLicitacoesporNumero: TtecQuery;
+    dsrLicitacoesporNumero: TtecDataSource;
+    frxDBLicitacoesporProdutos: TfrxDBDataset;
+    frxDBLicitacoesporProdutos_: TfrxDBDataset;
+    frxRLicitacoesporProdutos: TfrxReport;
+    frxHTMLExport1: TfrxHTMLExport;
+    frxXLSExport1: TfrxXLSExport;
+    frxXMLExport1: TfrxXMLExport;
+    frxRTFExport1: TfrxRTFExport;
+    frxBMPExport1: TfrxBMPExport;
+    frxJPEGExport1: TfrxJPEGExport;
+    frxTIFFExport1: TfrxTIFFExport;
+    frxGIFExport1: TfrxGIFExport;
+    frxSimpleTextExport1: TfrxSimpleTextExport;
+    frxCSVExport1: TfrxCSVExport;
+    frxMailExport1: TfrxMailExport;
+    frxTXTExport1: TfrxTXTExport;
+    frxODSExport1: TfrxODSExport;
+    frxODTExport1: TfrxODTExport;
+    qryLicitacoesporProdutosnumero: TIntegerField;
+    qryLicitacoesporProdutoscliente: TIntegerField;
+    qryLicitacoesporProdutossituacao_licitacao: TStringField;
+    qryLicitacoesporProdutosnomecliente: TStringField;
+    qryLicitacoesporProdutosdatavenda: TDateField;
+    qryLicitacoesporProdutosvigencia: TDateField;
+    qryLicitacoesporProdutosprodutovisual: TStringField;
+    qryLicitacoesporProdutosdescricaoproduto: TStringField;
+    qryLicitacoesporProdutosquantidade: TFloatField;
+    qryLicitacoesporProdutossaldopendente: TFloatField;
+    qryLicitacoesporProdutosprazo: TIntegerField;
+    qryLicitacoesporProdutostotalproduto: TFloatField;
+    qryLicitacoesporProdutoscustomediototal: TFloatField;
+    qryLicitacoesporProdutosaliquotaicms: TFloatField;
+    frxDBLicitacoesporNumero: TfrxDBDataset;
+    frxDBLicitacoesporNumero_: TfrxDBDataset;
+    frxRLicitacoesporNumero: TfrxReport;
+    qryLicitacoesporNumeronumero: TIntegerField;
+    qryLicitacoesporNumerocliente: TIntegerField;
+    qryLicitacoesporNumeronomecliente: TStringField;
+    qryLicitacoesporNumerodatavenda: TDateField;
+    qryLicitacoesporNumerovigencia: TDateField;
+    qryLicitacoesporNumeroobservacoes: TStringField;
+    qryLicitacoesporNumeroprazo: TIntegerField;
+    qryLicitacoesporNumerototalproduto: TFloatField;
+    qryLicitacoesporNumerocustomediototal: TFloatField;
+    qryLicitacoesporNumerovalorimposto: TFloatField;
+    qryLicitacoesporNumerolucroliquido: TFloatField;
+    qryLicitacoesporNumeroperclucroliquido: TFloatField;
+    qryLicitacoesporNumerosituacao_licitacao: TStringField;
+    qryCopia_LicitacoesporProdutos: TtecQuery;
+    IntegerField1: TIntegerField;
+    IntegerField2: TIntegerField;
+    StringField1: TStringField;
+    StringField2: TStringField;
+    DateField1: TDateField;
+    DateField2: TDateField;
+    StringField3: TStringField;
+    StringField4: TStringField;
+    FloatField1: TFloatField;
+    FloatField2: TFloatField;
+    IntegerField3: TIntegerField;
+    FloatField3: TFloatField;
+    FloatField4: TFloatField;
+    FloatField5: TFloatField;
+    qryCopia_LicitacoesporNumero: TtecQuery;
+    IntegerField4: TIntegerField;
+    IntegerField5: TIntegerField;
+    StringField5: TStringField;
+    DateField3: TDateField;
+    DateField4: TDateField;
+    StringField6: TStringField;
+    IntegerField6: TIntegerField;
+    FloatField6: TFloatField;
+    FloatField7: TFloatField;
+    FloatField8: TFloatField;
+    FloatField9: TFloatField;
+    FloatField10: TFloatField;
+    StringField7: TStringField;
+    qryLicitacoesporProdutosvaloripi: TCurrencyField;
+    qryLicitacoesporNumerovaloripi: TCurrencyField;
+    procedure frxRLicitacoesporProdutosGetValue(const VarName: String;
+      var Value: Variant);
+    procedure frxRLicitacoesporNumeroGetValue(const VarName: String;
+      var Value: Variant);
+  private
+    { Private declarations }
+
+  public
+    { Public declarations }
+    Function GerarRelatorio(DataInicial, DataFinal,
+                 ListaCondicionalClientes,
+                 ListaCondicionalVendedores: String;
+                 LicitacaoAberta,
+                 LicitacaoFinalizada,
+                 LicitacaoCancelada,
+                 LicitacaoExpirada: Boolean;
+
+                 Resumo,
+                 TipodeRelatorio : integer;
+                 CustoMaiorVenda : Boolean): Boolean;
+
+  end;
+
+var
+  dtmRelatorioLicitacoes: TdtmRelatorioLicitacoes;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmRelatorioLicitacoes }
+
+function TdtmRelatorioLicitacoes.GerarRelatorio(DataInicial, DataFinal,
+  ListaCondicionalClientes, ListaCondicionalVendedores: String;
+  LicitacaoAberta, LicitacaoFinalizada, LicitacaoCancelada,
+  LicitacaoExpirada: Boolean; Resumo, TipodeRelatorio: integer;
+  CustoMaiorVenda : Boolean): Boolean;
+var
+  ParametroCabecalho, vSituacaoLicitacao, arquivofast : String;
+  PV: TfrxComponent;
+
+
+    procedure MontarIntervaloPeriodo;
+    begin
+      if not DataEmBranco(DataInicial) then
+      begin
+        if DataEmBranco(DataFinal) then
+        begin
+          qryLicitacoesporProdutos.macrobyname('IntervaloLicitacao').asstring :=
+           ' and l.datavenda >= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(DataInicial)));
+          ParametroCabecalho := 'VENDAS A PARTIR DE : '+DataInicial;
+        end
+        else
+        begin
+          qryLicitacoesporProdutos.macrobyname('IntervaloLicitacao').asstring :=
+           ' and l.datavenda between ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(DataInicial))) +
+           ' and '+quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(DataFinal)));
+
+          ParametroCabecalho:='VENDAS ENTRE: '+DataInicial+' E '+DataFinal;
+        end;
+      end
+      else
+      begin
+        if not DataEmBranco(DataFinal) then
+        begin
+          qryLicitacoesporProdutos.macrobyname('IntervaloLicitacao').asstring :=
+            ' and l.datavenda <= ' + quotedstr(FormatDateTime('yyyy-mm-dd',StrToDateTime(DataFinal)));
+          ParametroCabecalho := 'VENDAS ATÉ: '+DataFinal;
+        end
+        else
+        begin
+          qryLicitacoesporProdutos.MacroByName('IntervaloLicitacao').AsString:= '';
+          ParametroCabecalho := 'TODAS VENDAS';
+        end;
+      end;
+    end;
+
+begin
+  ParametroCabecalho := '';
+  MontarIntervaloPeriodo;
+
+  if ListaCondicionalClientes<>'' then
+  begin
+    qryLicitacoesporProdutos.MacroByName('ListaCondicionaldeClientes').asString := ' and (' +ListaCondicionalClientes +')';
+    ParametroCabecalho := ParametroCabecalho + ' CLIENTES: ' +
+                          ListaCondicionalClientes;
+  end
+  else
+    qryLicitacoesporProdutos.MacroByName('ListaCondicionaldeClientes').asString := '';
+
+  if ListaCondicionalVendedores<>'' then
+  begin
+  {
+    qryLicitacoesporProdutos.MacroByName('ListaCondicionaldeVendedores').asString :=
+    ' and l.numero in ( select ct.licitacao                     '+
+    '                   from contratos ct                        '+
+    '                   join contratosvendedores cv              '+
+    '                        join usuarios u                    '+
+    '                        on cv.vendedor = u.codigo           '+
+    '                   on ct.numero = cv.contrato              '+
+    '                   where ct.licitacao = l.numero           '+
+    ' and ('+  ListaCondicionalVendedores +'))';
+    }
+
+    qryLicitacoesporProdutos.MacroByName('ListaCondicionaldeVendedores').asString :=
+    'and ('+  ListaCondicionalVendedores + ' )';
+
+    ParametroCabecalho := ParametroCabecalho + ' VENDEDORES: ' +
+                          ListaCondicionalVendedores;
+  end
+  else
+    qryLicitacoesporProdutos.MacroByName('ListaCondicionaldeVendedores').asString := '';
+
+
+
+  vSituacaoLicitacao := '';
+  if LicitacaoAberta then
+    vSituacaoLicitacao := quotedstr('ABERTO')+',';
+
+  if LicitacaoFinalizada then
+    vSituacaoLicitacao := vSituacaoLicitacao + quotedstr('FINALIZADO')+',';
+
+  if LicitacaoCancelada then
+    vSituacaoLicitacao := vSituacaoLicitacao + quotedstr('CANCELADO')+',';
+
+  if LicitacaoExpirada then
+    vSituacaoLicitacao := vSituacaoLicitacao + quotedstr('EXPIRADO')+',';
+
+  if vSituacaoLicitacao<>'' then
+  begin
+    delete(vSituacaoLicitacao,length(vSituacaoLicitacao),1);
+    qryLicitacoesporProdutos.MacroByName('SituacaoLicitacao').asString :=
+      'and situacao_licitacao(l.numero) in ('+vSituacaoLicitacao+')';
+
+    ParametroCabecalho := ParametroCabecalho + ' SITUAÇÃO: ' +
+                          vSituacaoLicitacao;
+
+  end
+  else
+    qryLicitacoesporProdutos.MacroByName('SituacaoLicitacao').asString := '';
+
+  if CustoMaiorVenda then
+    qryLicitacoesporProdutos.MacroByName('CustoMaiorVenda').asString :=
+         ' and ((lc.quantidade * lc.preco) <  (lc.quantidade * coalesce(lc.customedio,0)))'
+  else
+    qryLicitacoesporProdutos.MacroByName('CustoMaiorVenda').asString := '';
+
+
+  qryLicitacoesporNumero.Macros := qryLicitacoesporProdutos.Macros;
+
+  case TipodeRelatorio of
+  0: begin
+       qryLicitacoesporNumero.close;
+       qryLicitacoesporNumero.open;
+
+       if (qryLicitacoesporNumero.recordcount = 0) then
+          MensagemAviso(Format(ctNENHUMREGISTROSELECIONADO,['registro']))
+       else
+       begin
+
+         arquivofast := ExtractFilePath(Application.ExeName) + 'frxRLicitacoesporNumero.fr3';
+         if FileExists(arquivofast) then
+           frxRLicitacoesporNumero.LoadFromFile(arquivofast);
+
+         frxRLicitacoesporNumero.Variables['TITULO']  := quotedstr('RELATÓRIO DE LICITAÇÕES - SINTÉTICO');
+         frxRLicitacoesporNumero.Variables['SUBTITULO']  := quotedstr(ParametroCabecalho);
+
+          if (resumo=0) then
+          begin
+            PV := frxRLicitacoesporNumero.FindObject('Page1');
+            if (PV is TfrxReportPage) then
+              TfrxReportPage(PV).visible := True;
+
+            PV := frxRLicitacoesporNumero.FindObject('Page2');
+            if (PV is TfrxReportPage) then
+              TfrxReportPage(PV).visible := True;
+          end
+          else
+          if (resumo=1) then
+          begin
+
+            PV := frxRLicitacoesporNumero.FindObject('Page1');
+            if (PV is TfrxReportPage) then
+              TfrxReportPage(PV).visible := True;
+
+            PV := frxRLicitacoesporNumero.FindObject('Page2');
+            if (PV is TfrxReportPage) then
+              TfrxReportPage(PV).visible := False;
+          end
+          else
+          begin
+            PV :=frxRLicitacoesporNumero.FindObject('Page1');
+            if (PV is TfrxReportPage) then
+              TfrxReportPage(PV).visible := false;
+
+            PV := frxRLicitacoesporNumero.FindObject('Page2');
+            if (PV is TfrxReportPage) then
+              TfrxReportPage(PV).visible := True;
+
+          end;
+
+          if FileExists(LogotipoFilialBase) then
+          begin
+            PV := frxRLicitacoesporNumero.FindObject('fpvLogo');
+            if (PV is TfrxPictureView) then
+              TfrxPictureView(PV).picture.LoadFromFile(LogotipoFilialBase);
+            PV := frxRLicitacoesporNumero.FindObject('fpvLogo2');
+            if (PV is TfrxPictureView) then
+              TfrxPictureView(PV).picture.LoadFromFile(LogotipoFilialBase);
+          end;
+
+//          frxRLicitacoesporNumero.DesignReport;
+          frxRLicitacoesporNumero.ShowReport(true);
+
+       end;
+
+     end;
+
+  1: begin
+       qryLicitacoesporProdutos.close;
+       qryLicitacoesporProdutos.open;
+
+       if (qryLicitacoesporProdutos.recordcount = 0) then
+          MensagemAviso(Format(ctNENHUMREGISTROSELECIONADO,['registro']))
+       else
+       begin
+
+
+         arquivofast := ExtractFilePath(Application.ExeName) + 'frxRLicitacoesporProdutos.fr3';
+         if FileExists(arquivofast) then
+           frxRLicitacoesporProdutos.LoadFromFile(arquivofast);
+
+
+         frxRLicitacoesporProdutos.Variables['TITULO']  := quotedstr('RELATÓRIO DE LICITAÇÕES - ANALÍTICO');
+         frxRLicitacoesporProdutos.Variables['SUBTITULO']  := quotedstr(ParametroCabecalho);
+
+          if (resumo=0) then
+          begin
+            PV := frxRLicitacoesporProdutos.FindObject('Page1');
+            if (PV is TfrxReportPage) then
+              TfrxReportPage(PV).visible := True;
+
+            PV := frxRLicitacoesporProdutos.FindObject('Page2');
+            if (PV is TfrxReportPage) then
+              TfrxReportPage(PV).visible := True;
+          end
+          else
+          if (resumo=1) then
+          begin
+
+            PV := frxRLicitacoesporProdutos.FindObject('Page1');
+            if (PV is TfrxReportPage) then
+              TfrxReportPage(PV).visible := True;
+
+            PV := frxRLicitacoesporProdutos.FindObject('Page2');
+            if (PV is TfrxReportPage) then
+              TfrxReportPage(PV).visible := False;
+          end
+          else
+          begin
+            PV :=frxRLicitacoesporProdutos.FindObject('Page1');
+            if (PV is TfrxReportPage) then
+              TfrxReportPage(PV).visible := false;
+
+            PV := frxRLicitacoesporProdutos.FindObject('Page2');
+            if (PV is TfrxReportPage) then
+              TfrxReportPage(PV).visible := True;
+
+          end;
+
+          if FileExists(LogotipoFilialBase) then
+          begin
+            PV := frxRLicitacoesporProdutos.FindObject('fpvLogo');
+            if (PV is TfrxPictureView) then
+              TfrxPictureView(PV).picture.LoadFromFile(LogotipoFilialBase);
+            PV := frxRLicitacoesporProdutos.FindObject('fpvLogo2');
+            if (PV is TfrxPictureView) then
+              TfrxPictureView(PV).picture.LoadFromFile(LogotipoFilialBase);
+          end;
+
+//          frxRLicitacoesporProdutos.DesignReport;
+          frxRLicitacoesporProdutos.ShowReport(true);
+
+
+
+       end;
+
+     end;
+  end;
+end;
+
+procedure TdtmRelatorioLicitacoes.frxRLicitacoesporProdutosGetValue(
+  const VarName: String; var Value: Variant);
+begin
+  inherited;
+  if VarName = 'CordoZebrado' then
+    Value :=  strtoint(parsistema.CorZebradoRelatorio)
+  else if VarName = 'RAZAOFILIALBASE' then
+    Value := RazaoFilialBase
+  else if VarName = 'ENDERECO_BAIRRO' then
+    Value :=  RuaFilialBase+ ' - '+BairroFilialBase
+  else if VarName = 'CEP_CIDADE_UF' then
+    Value :=  FormatarCEP(CEPFilialBase)+'  '+CidadeFilialBase+ '  '+ EstadoFilialBase
+
+end;
+
+procedure TdtmRelatorioLicitacoes.frxRLicitacoesporNumeroGetValue(
+  const VarName: String; var Value: Variant);
+begin
+  inherited;
+  if VarName = 'CordoZebrado' then
+    Value :=  strtoint(parsistema.CorZebradoRelatorio)
+  else if VarName = 'RAZAOFILIALBASE' then
+    Value := RazaoFilialBase
+  else if VarName = 'ENDERECO_BAIRRO' then
+    Value :=  RuaFilialBase+ ' - '+BairroFilialBase
+  else if VarName = 'CEP_CIDADE_UF' then
+    Value :=  FormatarCEP(CEPFilialBase)+'  '+CidadeFilialBase+ '  '+ EstadoFilialBase
+
+end;
+
+end.

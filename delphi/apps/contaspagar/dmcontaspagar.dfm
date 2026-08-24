@@ -1,9 +1,9 @@
 inherited dtmContasPagar: TdtmContasPagar
   OnDestroy = DataModuleDestroy
-  Left = 598
-  Top = 51
-  Height = 680
-  Width = 1022
+  Left = 289
+  Top = 88
+  Height = 767
+  Width = 1175
   object qryDocumentosPag: TtecQuery
     Tag = -1
     Database = dtmTecSoft.dbaTecSoft

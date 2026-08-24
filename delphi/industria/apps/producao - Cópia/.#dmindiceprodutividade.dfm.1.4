@@ -1,0 +1,444 @@
+inherited dtmIndiceProdutividade: TdtmIndiceProdutividade
+  OldCreateOrder = False
+  Left = 308
+  Top = 238
+  Height = 462
+  Width = 647
+  object qryIndiceProdutividade: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'FiltroPeriodo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroSetoresProducao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroFuncionarios'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'select selecao.*'
+      'from'
+      '('
+      'select setorproducao, descricaosetorproducao, usuario, nome,'
+      '       case when sum(tempo)<>0 then'
+      
+        '       cast(100 * sum((percentual * tempo))/sum(tempo) as numeri' +
+        'c(15,2)) else 0 end as percentualsetor'
+      'from'
+      '('
+      
+        'select setorproducao, descricaosetorproducao, usuario, nome, tem' +
+        'popadrao, quantidade, tempo,'
+      
+        '       case when coalesce(tempo,0)<>0 then tempo/quantidade else' +
+        ' 0 end as indice,'
+      
+        '       case when (coalesce(tempopadrao,0)<>0) and (coalesce(temp' +
+        'o,0)<>0) then TempoPadrao / (100 * tempo/quantidade) else 0 end ' +
+        'as percentual'
+      '       '
+      'from'
+      '('
+      
+        'select coalesce(c.setorproducao,cast(null as varchar(4))) as set' +
+        'orproducao,'
+      
+        '       coalesce(sp.descricao, cast('#39'DIVERSOS'#39' as varchar(50))) a' +
+        's descricaosetorproducao,'
+      '       oou.usuario,'
+      '       u.nome,'
+      '       o.tempopadrao,'
+      '       '
+      '       sum((oou.quantidade -'
+      '        coalesce((select sum(oouf.quantidadeperda)'
+      '                  from operacoesospusuariofalhas oouf'
+      '                  where oouf.osp = oou.osp'
+      '                    and oouf.lote = oou.lote'
+      '                    and oouf.operacao = oou.operacao'
+      '                    and oouf.usuario = oou.usuario'
+      '                    and oouf.data = oou.data'
+      
+        '                    and oouf.inicio = oou.inicio),0))) as quanti' +
+        'dade,'
+      '                    '
+      
+        '       cast(sum((extract(epoch from (cast(oou.datatermino||'#39' '#39'||' +
+        'oou.termino as timestamp)) - (cast(oou.data||'#39' '#39'||oou.inicio as ' +
+        'timestamp)))/60)) as integer) as tempo'
+      '                    '
+      '/*'
+      '       cast('
+      #9'   trim('
+      #9'   to_char('
+      #9'   cast('
+      '       cast('
+      '       cast(EXTRACT(DAYS FROM ('
+      
+        '       cast(cast(oou.datatermino as varchar)||'#39' '#39'||cast(oou.term' +
+        'ino as varchar) as timestamp) -'
+      
+        '       cast(cast(oou.data as varchar)||'#39' '#39'||cast(oou.inicio as v' +
+        'archar) as timestamp))'
+      '       ) * 24 as integer) +'
+      ''
+      '       cast(to_char('
+      
+        '       cast(cast(oou.datatermino as varchar)||'#39' '#39'||cast(oou.term' +
+        'ino as varchar) as timestamp) -'
+      
+        '       cast(cast(oou.data as varchar)||'#39' '#39'||cast(oou.inicio as v' +
+        'archar) as timestamp),'
+      '       '#39'HH24'#39')'
+      '        as integer) as char(2)) as integer),'#39'00'#39'))||'#39':'#39'||'
+      ''
+      '       cast(to_char('
+      
+        '       cast(cast(oou.datatermino as varchar)||'#39' '#39'||cast(oou.term' +
+        'ino as varchar) as timestamp) -'
+      
+        '       cast(cast(oou.data as varchar)||'#39' '#39'||cast(oou.inicio as v' +
+        'archar) as timestamp),'
+      '       '#39'MI'#39') as char(2))||'#39':'#39'||'
+      ''
+      '       cast(to_char('
+      
+        '       cast(cast(oou.datatermino as varchar)||'#39' '#39'||cast(oou.term' +
+        'ino as varchar) as timestamp) -'
+      
+        '       cast(cast(oou.data as varchar)||'#39' '#39'||cast(oou.inicio as v' +
+        'archar) as timestamp),'
+      '       '#39'SS'#39') as char(2)) as char(8))  as tempo,'
+      '       '
+      '       oou.data,'
+      '       oou.inicio,'
+      '       oou.datatermino,'
+      '       oou.termino'
+      '*/'
+      ''
+      'from operacoesospusuario oou'
+      '     join operacoes o'
+      '     on oou.operacao = o.codigo'
+      ''
+      '     join usuarios u'
+      '     on oou.usuario = u.codigo'
+      '     '
+      '     join osp'
+      '          join produtos p'
+      '               join caracteristicas c'
+      '                    left join setoresproducao sp'
+      '                    on c.setorproducao = sp.codigo'
+      '                    '
+      '               on p.caracteristica = c.codigo'
+      '          on osp.produto = p.codigo'
+      '          '
+      '     on oou.osp = osp.numero'
+      ''
+      '     join maquinas m'
+      '     on oou.maquina = m.codigo'
+      ''
+      'where not coalesce(o.naobloqueiausuario,false)'
+      '  and coalesce(oou.quantidade,0)<>0'
+      '  and oou.datatermino is not null'
+      '  and oou.termino is not null'
+      '  and oou.maquina is not NULL'
+      '  '
+      '  %FiltroPeriodo'
+      '  %FiltroSetoresProducao'
+      '  %FiltroFuncionarios'
+      ''
+      ''
+      'group by coalesce(c.setorproducao,cast(null as varchar(4))),'
+      
+        '         coalesce(sp.descricao, cast('#39'DIVERSOS'#39' as varchar(50)))' +
+        ','
+      '         oou.usuario,'
+      '         u.nome,'
+      '         o.tempopadrao'
+      ') as selecao'
+      ') as selecao'
+      'group by setorproducao, descricaosetorproducao, usuario, nome'
+      ') as selecao'
+      
+        'order by setorproducao, descricaosetorproducao, percentualsetor ' +
+        'desc, usuario, nome'
+      ''
+      '/*'
+      'PARAMETROS'
+      ':datainicial'
+      ':datafinal'
+      '*/'
+      ''
+      ''
+      '')
+    RequestLive = False
+    Left = 96
+    Top = 56
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end>
+    object qryIndiceProdutividadesetorproducao: TStringField
+      DisplayLabel = 'Setor da Produ'#231#227'o'
+      FieldName = 'setorproducao'
+      Size = 4
+    end
+    object qryIndiceProdutividadedescricaosetorproducao: TStringField
+      DisplayLabel = 'Descri'#231#227'o do Setor'
+      FieldName = 'descricaosetorproducao'
+      Size = 50
+    end
+    object qryIndiceProdutividadeusuario: TIntegerField
+      DisplayLabel = 'Usu'#225'rio'
+      FieldName = 'usuario'
+    end
+    object qryIndiceProdutividadenome: TStringField
+      DisplayLabel = 'Nome do Usu'#225'rio'
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryIndiceProdutividadepercentualsetor: TFloatField
+      DisplayLabel = 'Percentual'
+      FieldName = 'percentualsetor'
+    end
+  end
+  object dsrIndiceProdutividade: TtecDataSource
+    DataSet = qryIndiceProdutividade
+    Left = 152
+    Top = 72
+  end
+  object ExcelExport1: TExcelExport
+    FontTitles.Charset = DEFAULT_CHARSET
+    FontTitles.Color = clWindowText
+    FontTitles.Height = -11
+    FontTitles.Name = 'MS Sans Serif'
+    FontTitles.Style = [fsBold]
+    OrientationTitles = 0
+    FontData.Charset = DEFAULT_CHARSET
+    FontData.Color = clWindowText
+    FontData.Height = -11
+    FontData.Name = 'MS Sans Serif'
+    FontData.Style = []
+    StyleColumnWidth = cwDefault
+    ColumnWidth = 80
+    WorksheetName = 'Indice_Prod_Setor_e_Funcion'#225'rio'
+    Dataset = qryIndiceProdutividade
+    Left = 328
+    Top = 56
+  end
+  object qryIndiceProdutividade_OSP: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'FiltroPeriodo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroSetoresProducao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroFuncionarios'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      
+        '                                                        SELECT C' +
+        'OALESCE(m.SetorProducao, CAST(NULL AS VARCHAR(4))) AS SetorProdu' +
+        'cao,'
+      ' '
+      
+        '        COALESCE(sp.Descricao, CAST('#39'DIVERSOS'#39' AS VARCHAR(50))) ' +
+        'AS DescricaoSetor,'
+      '        '
+      '        oou.Usuario,'
+      '        u.Nome AS NomeUsuario,'
+      '        oou.OSP, oou.Lote,'
+      '        o.Nome AS NomeOperacao,'
+      '        o.C01,'
+      '        o.C02,'
+      '        o.C03,'
+      '        o.TempoPadrao,'
+      ''
+      
+        '        oou.Quantidade,  /*- COALESCE((SELECT SUM(oouf.Quantidad' +
+        'ePerda)'
+      
+        '                                       FROM OperacoesOSPUsuarioF' +
+        'alhas oouf'
+      
+        '                                       WHERE oouf.OSP      = oou' +
+        '.OSP'
+      
+        '                                         AND oouf.Lote     = oou' +
+        '.Lote'
+      
+        '                                         AND oouf.Operacao = oou' +
+        '.Operacao'
+      
+        '                                         AND oouf.Usuario  = oou' +
+        '.Usuario'
+      
+        '                                         AND oouf.Data     = oou' +
+        '.Data'
+      
+        '                                         AND oouf.Inicio   = oou' +
+        '.Inicio), 0)) AS Quantidade, */'
+      ''
+      
+        '        CAST((EXTRACT(EPOCH FROM CAST(oou.DataTermino || '#39' '#39' || ' +
+        'oou.Termino AS TIMESTAMP) -'
+      
+        '                                     CAST(oou.Data        || '#39' '#39 +
+        ' || oou.Inicio  AS TIMESTAMP)) / 60) -'
+      '                                     '
+      
+        '                 NrMinutosIntervaloTurno(oou.Data, oou.Inicio, o' +
+        'ou.DataTermino, oou.Termino,'
+      
+        '                                         (SELECT Turno FROM Usua' +
+        'rios WHERE Codigo = oou.Usuario)) AS INTEGER) AS Tempo,'
+      '                                         '
+      '        cast(null as numeric(12,3)) as indice,'
+      '        cast(null as numeric(7,3)) as eficiencia'
+      '        '
+      ''
+      ''
+      ' FROM OperacoesOSPUsuario oou'
+      '      JOIN Operacoes o  ON oou.Operacao = o.Codigo'
+      '      JOIN Usuarios u   ON oou.Usuario  = u.Codigo'
+      
+        '      JOIN Maquinas m   ON m.Codigo     = COALESCE(oou.Maquina, ' +
+        '(SELECT om.Maquina FROM OperacoesMaquinas om'
+      
+        '                                                                ' +
+        '    WHERE om.Operacao = oou.Operacao LIMIT 1))'
+      '      JOIN SetoresProducao sp ON sp.Codigo = m.SetorProducao'
+      ''
+      ' WHERE NOT COALESCE(o.NaoBloqueiaUsuario,FALSE)'
+      '   AND COALESCE(oou.Quantidade,0) <> 0'
+      '   AND oou.DataTermino IS NOT NULL'
+      '   AND oou.Termino     IS NOT NULL'
+      ''
+      '/*'
+      ' AND oou.Data BETWEEN '#39'2012-05-17'#39' AND '#39'2012-05-17'#39
+      '   AND oou.Usuario = 656'
+      '   */'
+      ''
+      '       %FiltroPeriodo'
+      '       %FiltroSetoresProducao'
+      '       %FiltroFuncionarios'
+      ''
+      
+        'ORDER BY oou.OSP, oou.Lote, SetorProducao, DescricaoSetor, oou.U' +
+        'suario, NomeUsuario, NomeOperacao, o.C01, o.C02, o.C03, o.TempoP' +
+        'adrao')
+    RequestLive = False
+    Left = 96
+    Top = 160
+    object qryIndiceProdutividade_OSPosp: TIntegerField
+      DisplayLabel = 'OSP'
+      FieldName = 'osp'
+    end
+    object qryIndiceProdutividade_OSPlote: TIntegerField
+      DisplayLabel = 'LOTE'
+      FieldName = 'lote'
+    end
+    object qryIndiceProdutividade_OSPsetorproducao: TStringField
+      DisplayLabel = 'SETOR'
+      FieldName = 'setorproducao'
+      Size = 4
+    end
+    object qryIndiceProdutividade_OSPdescricaosetor: TStringField
+      DisplayLabel = 'DESCRI'#199#195'O DO SETOR'
+      FieldName = 'descricaosetor'
+      Size = 50
+    end
+    object qryIndiceProdutividade_OSPusuario: TIntegerField
+      DisplayLabel = 'USU'#193'RIO'
+      FieldName = 'usuario'
+    end
+    object qryIndiceProdutividade_OSPnomeusuario: TStringField
+      DisplayLabel = 'NOME DO USU'#193'RIO'
+      FieldName = 'nomeusuario'
+      Size = 40
+    end
+    object qryIndiceProdutividade_OSPnomeoperacao: TStringField
+      DisplayLabel = 'OPERA'#199#195'O'
+      FieldName = 'nomeoperacao'
+      Size = 10
+    end
+    object qryIndiceProdutividade_OSPc01: TStringField
+      DisplayLabel = 'C1'
+      FieldName = 'c01'
+      Size = 2
+    end
+    object qryIndiceProdutividade_OSPc02: TStringField
+      DisplayLabel = 'C2'
+      FieldName = 'c02'
+      Size = 2
+    end
+    object qryIndiceProdutividade_OSPc03: TStringField
+      DisplayLabel = 'C3'
+      FieldName = 'c03'
+      Size = 2
+    end
+    object qryIndiceProdutividade_OSPtempopadrao: TFloatField
+      DisplayLabel = 'TEMPO PADR'#195'O'
+      FieldName = 'tempopadrao'
+    end
+    object qryIndiceProdutividade_OSPquantidade: TIntegerField
+      DisplayLabel = 'QUANTIDADE'
+      FieldName = 'quantidade'
+    end
+    object qryIndiceProdutividade_OSPtempo: TIntegerField
+      DisplayLabel = 'TEMPO'
+      FieldName = 'tempo'
+    end
+    object qryIndiceProdutividade_OSPindice: TFloatField
+      DisplayLabel = #205'NDICE'
+      FieldName = 'indice'
+    end
+    object qryIndiceProdutividade_OSPeficiencia: TFloatField
+      DisplayLabel = 'EFICI'#202'NCIA'
+      FieldName = 'eficiencia'
+    end
+  end
+  object dsrIndiceProdutividade_OSP: TtecDataSource
+    DataSet = qryIndiceProdutividade_OSP
+    Left = 144
+    Top = 176
+  end
+end

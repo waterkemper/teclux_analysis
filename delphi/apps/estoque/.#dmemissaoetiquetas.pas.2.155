@@ -14,7 +14,8 @@ uses
   dmtecsoft, dmCalculoFinanciamento,
   // Biblio
   ctconstantes, cltextprinter, clparametrossistema, clfinanceira, ZTransact,
-  frxClass, frxDBSet, frxBarcode, StrUtils, frxExportPDF, ACBrDelphiZXingQRCode;
+  frxClass, frxDBSet, frxBarcode, StrUtils, frxExportPDF, ACBrDelphiZXingQRCode,
+  frxBarcod;
 
 type
   TpImpressaoEtiquetas = (tpeOutros, tpeB2W, tpeMagalu, tpeCorreios, tpeMercadoLivre);
@@ -647,6 +648,8 @@ type
     qryNotasSaidasnomecliente: TStringField;
     qryNotasSaidasmarca: TStringField;
     qryNotasSaidasespecietransporte: TStringField;
+    frReport1: TfrReport;
+    frbarcodeObject1: TfrbarcodeObject;
     procedure qryEtiquetasFilterRecord(DataSet: TDataSet; var Accept: Boolean);
     procedure qryEtiquetasAfterInsert(DataSet: TDataSet);
     procedure qryProcuraFiliaisAfterOpen(DataSet: TDataSet);
@@ -768,6 +771,7 @@ type
 //    function GetConsultarTipoMovtoSaida: TtecQuery;
     function GetConsultaModeloEtiqueta: TtecQuery;
   private
+    Barcode1 : TfrxBarcode;
     Lista_Pedidos_Site : String;
     vImage : Timage;
     EtiquetasaImprimirAux : integer;
@@ -1116,6 +1120,10 @@ begin
 
   qryProcuraSeries.Params[3].AsInteger   := FilialBase;
   qryConsultaSeries.Params[2].AsInteger   := FilialBase;
+
+
+  BarCode1 := TfrxBarcode.create(self);
+//  BarCode1.Typ
 
 
 //  except

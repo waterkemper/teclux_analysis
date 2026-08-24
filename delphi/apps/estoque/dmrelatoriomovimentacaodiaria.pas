@@ -6,7 +6,7 @@ uses
   SysUtils, Classes, Forms, dmbasico, DB, cpdatasource, ZQuery, ZPgSqlQuery,
   cpquery, ctconstantes, biblio, dmtecsoft, FR_DSet, FR_DBSet, FR_Class,
   clparametrossistema,fmpreviewpadrao,inifiles,Dialogs,CheckLst,Graphics,
-  ZTransact, variants;
+  ZTransact, variants, frxClass, frx2xto30;
 
 type
   ttecTiposMovimentacoes = (Todas, SomenteAvulsas, SemAvulsas);
@@ -70,6 +70,7 @@ type
     qryMovimentosreferenciaprodutovisual: TStringField;
     qryMovimentoscodigocaracteristicavisual: TStringField;
     qryMovimentosprocessamento: TDateTimeField;
+    frxReport1: TfrxReport;
     procedure frpRelatorioMovimentacaoDiariaBeforePrint(Memo: TStringList;
       View: TfrView);
     procedure DataModuleCreate(Sender: TObject);
@@ -300,8 +301,13 @@ begin
   frVariables['AgruparProduto']:=AgruparProduto;
   frVariables['AgruparGrupoProduto']:=AgruparGrupoProduto;
 
+{
+  frpRelatorioMovimentacaoDiaria.designreport;
+  frxReport1.designreport;
+  frpRelatorioMovimentacaoDiariaResumo.DesignReport;
+  frxReport1.designreport;
+  }  
 
-//  frpRelatorioMovimentacaoDiaria.designreport;
 
   case FResumo of
     0: ImprimirRelatoriofast(null, null, MPadrao, FResumo, [frpRelatorioMovimentacaoDiaria, frpRelatorioMovimentacaoDiariaResumo], false, self);

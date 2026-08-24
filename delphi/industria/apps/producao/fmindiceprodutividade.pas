@@ -1,0 +1,449 @@
+unit fmindiceprodutividade;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmrelatoriopadrao, ExtCtrls, Buttons, ToolWin, ComCtrls,
+  StdCtrls, cpdata, frselecaoaleatoria, dmindiceprodutividade, ctconstantes,
+  frconsulta, frconsultacodigo, cpdbfindcontrols, DB, OleServer, ExcelXP,
+  Grids, DBGrids, cpdbgrid, cpdbradiogroup;
+
+type
+  TfrmIndiceProdutividade = class(TfrmRelatorioPadrao)
+    gbxPeriodo: TGroupBox;
+    lblA: TLabel;
+    edtdatainicial: TEditData;
+    edtdatafinal: TEditData;
+    gbxCobrador: TGroupBox;
+    fraSelecaoAleatoriaSetoresdeProducao: TfraSelecaoAleatoria;
+    gbxFuncionarios: TGroupBox;
+    fraSelecaoAleatoriaFuncionarios: TfraSelecaoAleatoria;
+    pgcIndiceProdutividade: TPageControl;
+    tstSelecao: TTabSheet;
+    tstDados: TTabSheet;
+    dbgIndiceProdutividade: TtecDBGrid;
+    sbnGerar: TSpeedButton;
+    rgbTipoEficiencia: TtecDBRadioGroup;
+    rbn_Eficiencia_por_Operacao_de_OSP: TtecRadioButton;
+    rbn_Premiacao_de_funcionarios_por_setor: TtecRadioButton;
+    rbn_Premiacao_de_Lideres: TtecRadioButton;
+    rbn_Premiacao_de_funcionarios_ponderada: TtecRadioButton;
+    procedure fraSelecaoAleatoriaSetoresdeProducaoqrySelecaoAleatoriaAfterOpen(
+      DataSet: TDataSet);
+    procedure fraSelecaoAleatoriaFuncionariosqrySelecaoAleatoriaAfterOpen(
+      DataSet: TDataSet);
+    procedure fraSelecaoAleatoriaSetoresdeProducaosbnProcuraClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaFuncionariossbnProcuraClick(
+      Sender: TObject);
+    procedure sbnGerarClick(Sender: TObject);
+    procedure fraSelecaoAleatoriaSetoresdeProducaodbgSelecaoAleatoriaDblClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaSetoresdeProducaodbgSelecaoAleatoriaKeyDown(
+      Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure fraSelecaoAleatoriaFuncionariosdbgSelecaoAleatoriaDblClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaFuncionariosdbgSelecaoAleatoriaKeyDown(
+      Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure rbn_Eficiencia_por_Operacao_de_OSPClick(Sender: TObject);
+    procedure rbn_Premiacao_de_funcionarios_por_setorClick(
+      Sender: TObject);
+    procedure rbn_Premiacao_de_funcionarios_ponderadaClick(
+      Sender: TObject);
+    procedure rbn_Premiacao_de_LideresClick(Sender: TObject);
+    procedure fraSelecaoAleatoriaFuncionariossbnIncluirItemClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaSetoresdeProducaosbnIncluirItemClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaSetoresdeProducaosbnExcluirClick(
+      Sender: TObject);
+    procedure fraSelecaoAleatoriaSetoresdeProducaosbnExcluirTodosClick(
+      Sender: TObject);
+  private
+    function GetTipoConsultaProdutividade: TpConsultaProdutividade;
+  protected
+      procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+  private
+    { Private declarations }
+    procedure AtribuirDadosSetoresProducao(Found: Boolean);
+    procedure AcionarPesquisaGradeSetoresProducao;
+
+    procedure AtribuirDadosFuncionarios(Found: Boolean);
+    procedure AcionarPesquisaFuncionarios;
+    procedure InternoImpressao; override;
+    property TipoConsultaProdutividade: TpConsultaProdutividade read GetTipoConsultaProdutividade;
+
+
+  public
+    { Public declarations }
+    constructor Create(Aowner:Tcomponent);override;
+    destructor  Destroy; override;
+
+
+  end;
+
+var
+  frmIndiceProdutividade: TfrmIndiceProdutividade;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmIndiceProdutividade }
+
+procedure TfrmIndiceProdutividade.AcionarPesquisaFuncionarios;
+begin
+  with fraSelecaoAleatoriaFuncionarios do
+  begin
+    dbgSelecaoAleatoria.SetFocus;
+    ConsultaSelecaoAleatoria.CtrlOn := True;
+    ConsultaSelecaoAleatoria.InternoPesquisar(ctUSUARIOS);
+    dbgSelecaoAleatoria.SetFocus;
+    dbgSelecaoAleatoria.SelectedIndex :=  0;
+  end;
+end;
+
+procedure TfrmIndiceProdutividade.AcionarPesquisaGradeSetoresProducao;
+begin
+  with fraSelecaoAleatoriaSetoresdeProducao do
+  begin
+    dbgSelecaoAleatoria.SetFocus;
+    ConsultaSelecaoAleatoria.CtrlOn := True;
+    ConsultaSelecaoAleatoria.InternoPesquisar('Setores de Produção');
+    dbgSelecaoAleatoria.SetFocus;
+    dbgSelecaoAleatoria.SelectedIndex :=  0;
+  end;
+end;
+
+procedure TfrmIndiceProdutividade.AtribuirDadosFuncionarios(Found: Boolean);
+begin
+  with fraSelecaoAleatoriaFuncionarios do
+  begin
+    qrySelecaoAleatoria.Edit;
+    qrySelecaoAleatoria.FieldByName('codigo').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraUsuarioscodigo.AsString;
+
+    qrySelecaoAleatoria.FieldByName('nome').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraUsuariosnome.AsString;
+
+    qrySelecaoAleatoria.Post;
+  end;
+end;
+
+procedure TfrmIndiceProdutividade.AtribuirDadosSetoresProducao(Found: Boolean);
+begin
+  with fraSelecaoAleatoriaSetoresdeProducao do
+  begin
+    qrySelecaoAleatoria.Edit;
+    qrySelecaoAleatoria.FieldByName('codigo').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraSetoresProducaocodigo.AsString;
+
+    qrySelecaoAleatoria.FieldByName('descricao').AsString :=
+        ConsultaSelecaoAleatoria.qryProcuraSetoresProducaodescricao.AsString;
+
+    qrySelecaoAleatoria.Post;
+  end;
+end;
+
+constructor TfrmIndiceProdutividade.Create(Aowner: Tcomponent);
+var
+  Dia, Mes, Ano: Word;
+  NData: TDateTime;
+begin
+  dtmIndiceProdutividade := TdtmIndiceProdutividade.Create(Self);
+  inherited;
+
+  fraSelecaoAleatoriaSetoresdeProducao.CampoParaLista := 'codigo';
+  fraSelecaoAleatoriaSetoresdeProducao.qrySelecaoAleatoria.Open;
+  with fraSelecaoAleatoriaSetoresdeProducao do
+  begin
+    ConsultaSelecaoAleatoria := TfraConsultaCodigo.Create(self);
+    ConsultaSelecaoAleatoria.Name := 'fraConsultaSelecaoAleatoriaSetoresProducao';
+    ConsultaSelecaoAleatoria.edfCodigo.MaxLength := 4;
+    ConsultaSelecaoAleatoria.edfCodigo.DataSource := dsrSelecaoAleatoria;
+    ConsultaSelecaoAleatoria.edfCodigo.DataField := 'codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.Operacao := opATRIBUICAO;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupSource := ConsultaSelecaoAleatoria.dsrProcuraSetoresProducao;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupQueryParameter := 'Codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.LookupField := 'Codigo';
+    ConsultaSelecaoAleatoria.AbrirTabelaProcura := false;
+//    ConsultaSelecaoAleatoria.CondicoesdaConsulta := CondicoesFluxoGramasOperacoes;
+    ConsultaSelecaoAleatoria.TipoPesquisa := pesSETORESPRODUCAO;
+    ConsultaSelecaoAleatoria.OnFound := AtribuirDadosSetoresProducao;
+  end;
+
+  fraSelecaoAleatoriaFuncionarios.CampoParaLista := 'codigo';
+  fraSelecaoAleatoriaFuncionarios.qrySelecaoAleatoria.Open;
+  with fraSelecaoAleatoriaFuncionarios do
+  begin
+    ConsultaSelecaoAleatoria := TfraConsultaCodigo.Create(self);
+    ConsultaSelecaoAleatoria.Name := 'fraConsultaSelecaoAleatoriaFuncionarios';
+    ConsultaSelecaoAleatoria.edfCodigo.MaxLength := 6;
+    ConsultaSelecaoAleatoria.edfCodigo.DataSource := dsrSelecaoAleatoria;
+    ConsultaSelecaoAleatoria.edfCodigo.DataField := 'codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.Operacao := opATRIBUICAO;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupSource := ConsultaSelecaoAleatoria.dsrProcuraUsuarios;
+    ConsultaSelecaoAleatoria.edfCodigo.LookupQueryParameter := 'Codigo';
+    ConsultaSelecaoAleatoria.edfCodigo.LookupField := 'Codigo';
+    ConsultaSelecaoAleatoria.AbrirTabelaProcura := false;
+//    ConsultaSelecaoAleatoria.CondicoesdaConsulta := CondicoesFluxoGramasOperacoes;
+    ConsultaSelecaoAleatoria.TipoPesquisa := pesUSUARIOS;
+    ConsultaSelecaoAleatoria.OnFound := AtribuirDadosFuncionarios;
+  end;
+
+  dtmIndiceProdutividade.TipoConsultaProdutividade := tpEFICIENCIA_POR_OPERACAO_DE_OSP;
+
+
+end;
+
+destructor TfrmIndiceProdutividade.Destroy;
+begin
+  dtmIndiceProdutividade:= nil;
+  inherited;
+  frmIndiceProdutividade:= nil;
+end;
+
+procedure TfrmIndiceProdutividade.fraSelecaoAleatoriaSetoresdeProducaoqrySelecaoAleatoriaAfterOpen(DataSet: TDataSet);
+var nc: integer;
+begin
+  inherited;
+  with fraSelecaoAleatoriaSetoresdeProducao do
+  begin
+    qrySelecaoAleatoria.FieldByName('codigo').DisplayLabel := 'CÓDIGO';
+    qrySelecaoAleatoria.FieldByName('codigo').ReadOnly := False;
+
+    qrySelecaoAleatoria.FieldByName('descricao').DisplayLabel := 'DESCRIÇÃO';
+    qrySelecaoAleatoria.FieldByName('descricao').ReadOnly := true;
+
+
+    qrySelecaoAleatoria.Append;
+    qrySelecaoAleatoria.Post;
+
+    with dbgSelecaoAleatoria do
+         for nc:= 0 to 1 do with Columns[nc].Title do begin
+             Alignment:= taCenter;
+             Font.Name:= 'helvetica';
+             Font.Height:= -9;
+         end;
+  end;
+end;
+
+procedure TfrmIndiceProdutividade.fraSelecaoAleatoriaFuncionariosqrySelecaoAleatoriaAfterOpen(DataSet: TDataSet);
+var nc: integer;
+begin
+  inherited;
+  with fraSelecaoAleatoriaFuncionarios do
+  begin
+    qrySelecaoAleatoria.FieldByName('codigo').DisplayLabel := 'CÓDIGO';
+    qrySelecaoAleatoria.FieldByName('codigo').ReadOnly := False;
+
+    qrySelecaoAleatoria.FieldByName('nome').DisplayLabel := 'NOME DO OPERADOR';
+    qrySelecaoAleatoria.FieldByName('nome').ReadOnly := true;
+
+    qrySelecaoAleatoria.Append;
+    qrySelecaoAleatoria.Post;
+
+    with dbgSelecaoAleatoria do
+         for nc:= 0 to 1 do with Columns[nc].Title do begin
+             Alignment:= taCenter;
+             Font.Name:= 'helvetica';
+             Font.Height:= -9;
+         end;
+  end;
+end;
+
+procedure TfrmIndiceProdutividade.fraSelecaoAleatoriaSetoresdeProducaosbnProcuraClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarPesquisaGradeSetoresProducao;
+
+end;
+
+procedure TfrmIndiceProdutividade.fraSelecaoAleatoriaFuncionariossbnProcuraClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarPesquisaFuncionarios;
+end;
+
+procedure TfrmIndiceProdutividade.sbnGerarClick(Sender: TObject);
+begin
+  inherited;
+  if dtmIndiceProdutividade.AbrirConsulta(edtdatainicial.Text, edtdatafinal.Text,
+                                          fraSelecaoAleatoriaSetoresdeProducao.StringSelecionada,
+                                          fraSelecaoAleatoriaFuncionarios.StringSelecionada) then
+    pgcIndiceProdutividade.ActivePage := tstDados
+
+end;
+
+procedure TfrmIndiceProdutividade.fraSelecaoAleatoriaSetoresdeProducaodbgSelecaoAleatoriaDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarPesquisaGradeSetoresProducao;
+
+end;
+
+procedure TfrmIndiceProdutividade.fraSelecaoAleatoriaSetoresdeProducaodbgSelecaoAleatoriaKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      VK_F9     : begin
+                     fraSelecaoAleatoriaSetoresdeProducao.ConsultaSelecaoAleatoria.CtrlOn := Shift = [ssCtrl];
+                     if (Shift = []) or fraSelecaoAleatoriaSetoresdeProducao.ConsultaSelecaoAleatoria.CtrlOn then
+                       AcionarPesquisaGradeSetoresProducao
+                   end;
+    end;
+  end
+  else
+  case Key of
+    VK_Return: if fraSelecaoAleatoriaSetoresdeProducao.dbgSelecaoAleatoria.SelectedIndex = 0  then
+                begin
+                  fraSelecaoAleatoriaSetoresdeProducao.ConsultaSelecaoAleatoria.edfCodigo.DoExit;
+                  if not fraSelecaoAleatoriaSetoresdeProducao.ConsultaSelecaoAleatoria.qryProcuraSetoresProducao.IsEmpty then
+                    AtribuirDadosSetoresProducao(true)
+                  else
+                  begin
+                    key := 0;
+                    fraSelecaoAleatoriaSetoresdeProducao.dbgSelecaoAleatoria.SelectedIndex := 0;
+                    fraSelecaoAleatoriaSetoresdeProducao.dbgSelecaoAleatoria.SetFocus;
+                  end;
+                end;
+  end;
+  inherited;
+end;
+
+procedure TfrmIndiceProdutividade.fraSelecaoAleatoriaFuncionariosdbgSelecaoAleatoriaDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarPesquisaFuncionarios;
+end;
+
+procedure TfrmIndiceProdutividade.fraSelecaoAleatoriaFuncionariosdbgSelecaoAleatoriaKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      VK_F9     : begin
+                    fraSelecaoAleatoriaFuncionarios.ConsultaSelecaoAleatoria.CtrlOn := Shift = [ssCtrl];
+                    if (Shift = []) or fraSelecaoAleatoriaFuncionarios.ConsultaSelecaoAleatoria.CtrlOn then
+                      AcionarPesquisaFuncionarios
+                  end;
+    end;
+  end
+  else
+  case Key of
+    VK_Return: if fraSelecaoAleatoriaFuncionarios.dbgSelecaoAleatoria.SelectedIndex = 0  then
+               begin
+                 fraSelecaoAleatoriaFuncionarios.ConsultaSelecaoAleatoria.edfCodigo.DoExit;
+                 if not fraSelecaoAleatoriaFuncionarios.ConsultaSelecaoAleatoria.qryProcuraUsuarios.IsEmpty then
+                    AtribuirDadosFuncionarios(true)
+                 else
+                 begin
+                   key := 0;
+                   fraSelecaoAleatoriaFuncionarios.dbgSelecaoAleatoria.SelectedIndex := 0;
+                   fraSelecaoAleatoriaFuncionarios.dbgSelecaoAleatoria.SetFocus;
+                 end;
+               end;
+  end;
+  inherited;
+end;
+
+procedure TfrmIndiceProdutividade.InternoImpressao;
+begin
+  inherited;
+  dtmIndiceProdutividade.exportarExcell;
+
+end;
+
+function TfrmIndiceProdutividade.GetTipoConsultaProdutividade: TpConsultaProdutividade;
+begin
+  if rbn_Eficiencia_por_Operacao_de_OSP.checked then
+    result := tpEFICIENCIA_POR_OPERACAO_DE_OSP
+  else
+  if rbn_Premiacao_de_funcionarios_por_setor.checked then
+    result := tpPREMIACAO_DE_FUNCIONARIOS_POR_SETOR
+  else
+  if rbn_Premiacao_de_funcionarios_ponderada.checked then
+    result := tpPREMIACAO_DE_FUNCIONARIOS_PONDERADA
+  else
+  if rbn_Premiacao_de_Lideres.checked then
+    result := tpPREMIACAO_DE_LIDERES; 
+end;
+
+procedure TfrmIndiceProdutividade.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  case key of
+    vk_F6 : sbnGerarClick(self);
+  end;   
+end;
+
+procedure TfrmIndiceProdutividade.rbn_Eficiencia_por_Operacao_de_OSPClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmIndiceProdutividade.TipoConsultaProdutividade := tpEFICIENCIA_POR_OPERACAO_DE_OSP;
+end;
+
+procedure TfrmIndiceProdutividade.rbn_Premiacao_de_funcionarios_por_setorClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmIndiceProdutividade.TipoConsultaProdutividade := tpPREMIACAO_DE_FUNCIONARIOS_POR_SETOR;
+end;
+
+procedure TfrmIndiceProdutividade.rbn_Premiacao_de_funcionarios_ponderadaClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmIndiceProdutividade.TipoConsultaProdutividade := tpPREMIACAO_DE_FUNCIONARIOS_PONDERADA;
+end;
+
+procedure TfrmIndiceProdutividade.rbn_Premiacao_de_LideresClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmIndiceProdutividade.TipoConsultaProdutividade := tpPREMIACAO_DE_LIDERES;
+end;
+
+procedure TfrmIndiceProdutividade.fraSelecaoAleatoriaFuncionariossbnIncluirItemClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraSelecaoAleatoriaFuncionarios.sbnIncluirItemClick(Sender);
+
+end;
+
+procedure TfrmIndiceProdutividade.fraSelecaoAleatoriaSetoresdeProducaosbnIncluirItemClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraSelecaoAleatoriaSetoresdeProducao.sbnIncluirItemClick(Sender);
+
+end;
+
+procedure TfrmIndiceProdutividade.fraSelecaoAleatoriaSetoresdeProducaosbnExcluirClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraSelecaoAleatoriaSetoresdeProducao.sbnExcluirClick(Sender);
+
+end;
+
+procedure TfrmIndiceProdutividade.fraSelecaoAleatoriaSetoresdeProducaosbnExcluirTodosClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraSelecaoAleatoriaSetoresdeProducao.sbnExcluirTodosClick(Sender);
+
+end;
+
+end.

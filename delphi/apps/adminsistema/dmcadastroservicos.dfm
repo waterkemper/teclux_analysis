@@ -1,6 +1,6 @@
 inherited dtmCadastroServicos: TdtmCadastroServicos
-  Left = 258
-  Top = 175
+  Left = 353
+  Top = 249
   Height = 452
   Width = 748
   object qryServicos: TtecQuery
@@ -21,6 +21,8 @@ inherited dtmCadastroServicos: TdtmCadastroServicos
       '        descricao,'
       '        cnae,'
       '        codigolcp116,'
+      '        nbs,'
+      '        cindop,'
       '        aliquotaissqn,'
       '        valor,'
       '        comissao,'
@@ -170,6 +172,13 @@ inherited dtmCadastroServicos: TdtmCadastroServicos
     object qryServicostipocomissaoindicador: TStringField
       FieldName = 'tipocomissaoindicador'
       Size = 1
+    end
+    object qryServicosnbs: TStringField
+      FieldName = 'nbs'
+    end
+    object qryServicoscindop: TStringField
+      FieldName = 'cindop'
+      Size = 6
     end
   end
   object qryConsultaServicos: TtecQuery

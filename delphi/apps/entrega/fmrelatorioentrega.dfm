@@ -1,6 +1,6 @@
 inherited frmrelatorioentrega: Tfrmrelatorioentrega
-  Left = 323
-  Top = 57
+  Left = 574
+  Top = 195
   ActiveControl = fraIntervaloDatasEntrega
   Caption = 'Relat'#243'rio de entregas'
   ClientHeight = 511

@@ -11,7 +11,7 @@ uses
   frxClass, frxDBSet, frxExportRTF, frxExportHTML, frxExportPDF,
   frxExportXML, frxExportXLS, frxDesgn, frxExportCSV, frxExportText,
   frxExportImage, frxExportODF, frxExportTXT, frxExportMail, ACBrBase,
-  ACBrDFe, ACBrNFSe, variants, DBClient, Provider, forms{, frx2xto30};
+  ACBrDFe, ACBrNFSe, variants, DBClient, Provider, forms, frx2xto30;
 
 type
   TdtmRelatorioEstoque = class(TdtmBasico)
@@ -236,6 +236,7 @@ type
     qryEstoquesquantidade_linha: TLargeintField;
     frxRelatorioEstoqueGradeGrupoResumo: TfrxReport;
     qryEstoquesmax_quantidade_coluna: TLargeintField;
+    frxReport1: TfrxReport;
     procedure qryItemProdutosInicialCalcFields(DataSet: TDataSet);
     procedure qryItemProdutosFinalCalcFields(DataSet: TDataSet);
     procedure qryConsultaItemProdutosAfterOpen(DataSet: TDataSet);
@@ -826,6 +827,7 @@ begin
           frxRelatorioEstoqueGrade.PrepareReport(false);
         end;
 
+//        frxRelatorioEstoqueGrade.designreport;
         frxRelatorioEstoqueGrade.ShowPreparedReport;
       end;
    1: begin
@@ -839,7 +841,7 @@ begin
           AtribuirLogo;
           frxRelatorioEstoqueGrade.PrepareReport(true);
         end;
-
+//        frxRelatorioEstoqueGrade.designreport;
         frxRelatorioEstoqueGrade.ShowPreparedReport;
 
       end;
@@ -900,6 +902,25 @@ begin
     frVariables['ComQuantidades']:= FComQuantidades;
     frVariables['PrecoComICMS']:= FPrecoComICMS;
     frVariables['PrecoSemICMS']:= FPrecoSemICMS;
+
+                         {
+    frpRelatorioEstoque_SemiAcabados.DesignReport;
+    frxReport1.DesignReport;
+    frpRelatorioEstoque_SemiAcabadosResumo.DesignReport;
+    frxReport1.DesignReport;
+    frpRelatorioEstoque_comFinanceiroCB.DesignReport;
+    frxReport1.DesignReport;
+    frpRelatorioEstoque_comFinanceiroResumo.DesignReport;
+    frxReport1.DesignReport;
+    frpRelatorioEstoque_comFinanceiro.DesignReport;
+    frxReport1.DesignReport;
+    frpRelatorioEstoque_comPrecodeVenda.DesignReport;
+    frxReport1.DesignReport;
+    frpRelatorioEstoque_comPrecodeVendaResumo.DesignReport;
+    frxReport1.DesignReport;
+    frpRelatorioEstoque.DesignReport;
+    frxReport1.DesignReport;
+    }
 
     //frpRelatorioEstoque.DesignReport;
 //    frmPreview := TfrmPreviewPadrao.create(self);

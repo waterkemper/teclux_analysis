@@ -1,6 +1,6 @@
 inherited frmAviso: TfrmAviso
-  Left = 354
-  Top = 46
+  Left = 338
+  Top = 224
   ActiveControl = pgcGeracaoCartas
   Caption = 'Avisos de Cobran'#231'a'
   ClientHeight = 587
@@ -12,10 +12,10 @@ inherited frmAviso: TfrmAviso
   inherited pnlBarra: TToolBar
     Width = 860
     object sbnGerar: TSpeedButton
-      Left = 153
+      Left = 79
       Top = 2
       Width = 75
-      Height = 35
+      Height = 39
       Hint = 'Gerar Cartas de Cobran'#231'a'
       Caption = 'Gerar F5'
       Flat = True
@@ -76,10 +76,10 @@ inherited frmAviso: TfrmAviso
       OnClick = sbnGerarClick
     end
     object sbnExcluir: TSpeedButton
-      Left = 228
+      Left = 154
       Top = 2
       Width = 75
-      Height = 35
+      Height = 39
       Hint = 'Exclui a cartas obsoletas'
       Caption = 'Excluir F6'
       Enabled = False
@@ -321,9 +321,15 @@ inherited frmAviso: TfrmAviso
             CellHeights = 100
             StrippedColor = 16054260
             CanDelete = False
+            CanNotInsertFromGrid = False
             PostOnEnter = False
+            PostOnSetUpDown = False
             DenySort = False
             DefaultRowHeight = 19
+            ExibirNumerodaLinha = False
+            NaoAtribuirDadosaTabelaaoDigitar = False
+            ShowWhenFieldInvisible = False
+            CanClickWhenEditing = False
             Columns = <
               item
                 Alignment = taCenter
@@ -1279,9 +1285,15 @@ inherited frmAviso: TfrmAviso
               CellHeights = 100
               StrippedColor = 16054260
               CanDelete = False
+              CanNotInsertFromGrid = False
               PostOnEnter = False
+              PostOnSetUpDown = False
               DenySort = False
               DefaultRowHeight = 18
+              ExibirNumerodaLinha = False
+              NaoAtribuirDadosaTabelaaoDigitar = False
+              ShowWhenFieldInvisible = False
+              CanClickWhenEditing = False
               Columns = <
                 item
                   Alignment = taRightJustify
@@ -1415,9 +1427,15 @@ inherited frmAviso: TfrmAviso
               CellHeights = 100
               StrippedColor = 16054260
               CanDelete = False
+              CanNotInsertFromGrid = False
               PostOnEnter = False
+              PostOnSetUpDown = False
               DenySort = False
               DefaultRowHeight = 18
+              ExibirNumerodaLinha = False
+              NaoAtribuirDadosaTabelaaoDigitar = False
+              ShowWhenFieldInvisible = False
+              CanClickWhenEditing = False
               Columns = <
                 item
                   Expanded = False
@@ -1788,6 +1806,8 @@ inherited frmAviso: TfrmAviso
               Top = 264
               Width = 428
               Height = 148
+              HorzScrollBar.Visible = False
+              VertScrollBar.Visible = False
               Font.Charset = DEFAULT_CHARSET
               Font.Color = clBlack
               Font.Height = -13

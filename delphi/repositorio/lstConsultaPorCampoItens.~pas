@@ -1,0 +1,70 @@
+unit lstConsultaPorCampoItens;
+
+interface
+
+uses
+  fmconsultaporcampo, Contnrs;
+
+
+type
+  TfrmConsultaPorCampoItens = class(TObjectList)
+  private
+    function GetItem(Index: integer): TfrmConsultaPorCampo;
+    procedure SetItem(Index: integer; const Value: TfrmConsultaPorCampo);
+  public
+    function New(NomeForm: String): TfrmConsultaPorCampo;
+    property Items[Index: integer]: TfrmConsultaPorCampo read GetItem write SetItem;
+  end;
+
+  TJanelaPesquisa = class(TObject)
+  private
+    fJan: TfrmConsultaPorCampo;
+    fListaJan: TfrmConsultaPorCampoItens;
+    function Getjan: TfrmConsultaPorCampo;
+
+  public
+    property jan: TfrmConsultaPorCampo read Getjan write fJan;
+    property ListaJan: TfrmConsultaPorCampoItens read fListaJan write fListaJan;
+  end;
+  
+
+var
+  frmConsultaPorCampoItens: TfrmConsultaPorCampoItens;
+
+
+
+implementation
+
+{ TfrmConsultaPorCampoItens }
+
+function TfrmConsultaPorCampoItens.GetItem(
+  Index: integer): TfrmConsultaPorCampo;
+begin
+  Result := (inherited GetItem(index) as TfrmConsultaPorCampo);
+end;
+
+function TfrmConsultaPorCampoItens.New(
+  NomeForm: String): TfrmConsultaPorCampo;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  result.name := NomeForm;
+  result.CarregarConfiguracoesFormulario(True);
+
+  Add(Result);
+
+end;
+
+procedure TfrmConsultaPorCampoItens.SetItem(Index: integer;
+  const Value: TfrmConsultaPorCampo);
+begin
+ inherited SetItem(index, Value);
+end;
+
+{ TJanelaPesquisa }
+
+function TJanelaPesquisa.Getjan: TfrmConsultaPorCampo;
+begin
+  Result := fJan;
+end;
+
+end.

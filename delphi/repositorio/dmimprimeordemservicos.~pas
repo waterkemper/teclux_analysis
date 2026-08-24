@@ -1,0 +1,700 @@
+unit dmimprimeordemservicos;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, FR_Class, FR_DSet, FR_DBSet, DB, ZQuery,
+  ZPgSqlQuery, cpquery,fmpreviewpadrao, ctconstantes, cpdatasource, Graphics,
+  clparametrossistema, biblio, dmtecsoft, ZTransact, clecf, cltextprinter, Controls,
+  ctepson, variants, frxClass, frxDBSet, frxExportODF, frxExportTXT,
+  frxExportMail, frxExportCSV, frxExportText, frxExportImage, frxExportRTF,
+  frxExportXML, frxExportXLS, frxExportHTML, frxExportPDF, forms,
+  frx2xto30;
+
+type
+  TdtmImprimeOrdemServicos = class(TdtmBasico)
+    qryOrdemServicos: TtecQuery;
+    qryProdutosOrdemServicos: TtecQuery;
+    qryProdutosOrdemServicosdata: TDateField;
+    qryProdutosOrdemServicosproduto: TLargeintField;
+    qryProdutosOrdemServicosfilial: TIntegerField;
+    qryProdutosOrdemServicosnomeproduto: TStringField;
+    qryProdutosOrdemServicosquantidade: TFloatField;
+    qryProdutosOrdemServicosprecovenda: TFloatField;
+    qryProdutosOrdemServicosprecocusto: TFloatField;
+    fdsOrdemServicos: TfrDBDataSet;
+    fdsProdutosOrdemServicos: TfrDBDataSet;
+    frpOrdemServicoCompleto_Anterior: TfrReport;
+    dsrOrdemServicos: TtecDataSource;
+    qryProdutosOrdemServicosnumero: TIntegerField;
+    qryServicosOrdemServico: TtecQuery;
+    qryServicosOrdemServicocontrato: TStringField;
+    qryServicosOrdemServicoservico: TIntegerField;
+    qryServicosOrdemServicoquantidade: TIntegerField;
+    qryServicosOrdemServicoaliquotaissqn: TFloatField;
+    qryServicosOrdemServicovalorservico: TFloatField;
+    qryServicosOrdemServicocomplementoservico: TStringField;
+    qryServicosOrdemServicoproduto: TLargeintField;
+    qryServicosOrdemServicofilialproduto: TIntegerField;
+    qryServicosOrdemServicodescricaoservico: TStringField;
+    qryServicosOrdemServicocomissaoservico: TFloatField;
+    qryServicosOrdemServicotipocomissaoservico: TStringField;
+    fdsServicosOrdemServico: TfrDBDataSet;
+    qryServicosOrdemServicoValorComissao: TCurrencyField;
+    frpOrdemServicoSintetico: TfrReport;
+    qryOrdemServicoEntrada: TtecQuery;
+    qryOrdemServicoEntradaentradas: TFloatField;
+    qryParcelas: TtecQuery;
+    qryParcelascontrato: TStringField;
+    qryParcelasnumero: TIntegerField;
+    qryParcelasparcelaorigem: TStringField;
+    qryParcelasdatavencto: TDateField;
+    qryParcelasvalorvencto: TFloatField;
+    qryParcelasdatapagto: TDateField;
+    qryParcelasformapagamento: TStringField;
+    qryParcelastipopagto: TStringField;
+    qryParcelasselecionado: TBooleanField;
+    qryParcelascontratoparcela: TStringField;
+    fdsParcelas: TfrDBDataSet;
+    qryOrdemServicosnumero: TStringField;
+    qryOrdemServicosfilialproduto: TIntegerField;
+    qryOrdemServicosdescricao: TStringField;
+    qryOrdemServicosfilialvenda: TIntegerField;
+    qryOrdemServicosnomefilial: TStringField;
+    qryOrdemServicostipoequipamento: TIntegerField;
+    qryOrdemServicosentrada: TDateField;
+    qryOrdemServicosdescricaomarca: TStringField;
+    qryOrdemServicosmodelo: TStringField;
+    qryOrdemServicosserieequipamento: TStringField;
+    qryOrdemServicosvalorinicial: TFloatField;
+    qryOrdemServicosprevisao: TDateField;
+    qryOrdemServicosdatafechamento: TDateField;
+    qryOrdemServicosautorizacao: TStringField;
+    qryOrdemServicosautfoneddd: TIntegerField;
+    qryOrdemServicosautfonenumero: TIntegerField;
+    qryOrdemServicoscliente: TIntegerField;
+    qryOrdemServicostipocliente: TStringField;
+    qryOrdemServicospessoanumero: TStringField;
+    qryOrdemServicoscivil: TStringField;
+    qryOrdemServicossexo: TStringField;
+    qryOrdemServicosnascto: TDateField;
+    qryOrdemServicosidorgao: TStringField;
+    qryOrdemServicosidentidade: TStringField;
+    qryOrdemServicospai: TStringField;
+    qryOrdemServicosmae: TStringField;
+    qryOrdemServicosnaturalidade: TStringField;
+    qryOrdemServicosnomecliente: TStringField;
+    qryOrdemServicosnomecidade: TStringField;
+    qryOrdemServicosnomebairro: TStringField;
+    qryOrdemServicosrua: TStringField;
+    qryOrdemServicosendnumero: TIntegerField;
+    qryOrdemServicosendcomplemento: TStringField;
+    qryOrdemServicosestado: TStringField;
+    qryOrdemServicoscep: TIntegerField;
+    qryOrdemServicostelefone: TStringField;
+    qryOrdemServicostelefone2: TStringField;
+    qryOrdemServicosempresa: TStringField;
+    qryOrdemServicosempadmissao: TDateField;
+    qryOrdemServicoscargocliente: TStringField;
+    qryOrdemServicosfoneempresa: TStringField;
+    qryOrdemServicosemprendavalor: TFloatField;
+    qryOrdemServicosemprendafaixa: TIntegerField;
+    qryOrdemServicosavalista: TStringField;
+    qryOrdemServicosvalorcomissao: TFloatField;
+    qryOrdemServicostotalprodutos: TFloatField;
+    qryOrdemServicostotalservicos: TFloatField;
+    qryOrdemServicosvendedor: TStringField;
+    qryOrdemServicosvalorprazo: TFloatField;
+    qryOrdemServicosvalorvista: TFloatField;
+    qryOrdemServicoscreditotroca: TFloatField;
+    qryOrdemServicosdesconto: TFloatField;
+    qryOrdemServicosconsideracoes: TStringField;
+    qryOrdemServicosdescricaotipoequipamento: TStringField;
+    frpOrdemServico_Windows: TfrReport;
+    frpParcelas_Windows: TfrReport;
+    qryProdutosOrdemServicosprodutovisual: TStringField;
+    qryOrdemServicosequipamentovisual: TStringField;
+    qryServicosOrdemServicoEquipamento: TStringField;
+    qryOrdemServicosequipamento: TStringField;
+    qryOrdemServicosquantidadeprodutos: TFloatField;
+    qryOrdemServicosos_garantia: TBooleanField;
+    qryOrdemServicosos_cortesia: TBooleanField;
+    qryOrdemServicosos_garantia_status: TStringField;
+    qryOrdemServicossit: TStringField;
+    qryOrdemServicosdata: TDateField;
+    qryQuestionarios: TtecQuery;
+    qryQuestionariosquestionario: TIntegerField;
+    qryQuestionariosdescricaoquestionario: TStringField;
+    qryQuestionariosdescriacaoquestionario_texto: TStringField;
+    qryQuestionariospergunta: TIntegerField;
+    qryQuestionariosdescricaopergunta: TStringField;
+    qryQuestionariostipopergunta: TStringField;
+    qryQuestionariossequenciapergunta: TIntegerField;
+    qryQuestionariosresposta: TIntegerField;
+    qryQuestionariosdescricaoresposta: TStringField;
+    qryQuestionariossequenciaresposta: TIntegerField;
+    qryQuestionariosrespostaboolean_os: TBooleanField;
+    qryQuestionariosrespostatexto_os: TStringField;
+    fdsQuestionarios: TfrDBDataSet;
+    frxDBOrdemServicos: TfrxDBDataset;
+    frxDBDProdutosOrdemServicos: TfrxDBDataset;
+    frxDBServicosOrdemServico: TfrxDBDataset;
+    frxDBQuestionarios: TfrxDBDataset;
+    frxOrdemServicoCompleto: TfrxReport;
+    frxPDFExport1: TfrxPDFExport;
+    frxHTMLExport1: TfrxHTMLExport;
+    frxXLSExport1: TfrxXLSExport;
+    frxXMLExport1: TfrxXMLExport;
+    frxRTFExport1: TfrxRTFExport;
+    frxBMPExport1: TfrxBMPExport;
+    frxJPEGExport1: TfrxJPEGExport;
+    frxTIFFExport1: TfrxTIFFExport;
+    frxGIFExport1: TfrxGIFExport;
+    frxSimpleTextExport1: TfrxSimpleTextExport;
+    frxCSVExport1: TfrxCSVExport;
+    frxMailExport1: TfrxMailExport;
+    frxTXTExport1: TfrxTXTExport;
+    frxTXTExport2: TfrxTXTExport;
+    frxODSExport1: TfrxODSExport;
+    frxODTExport1: TfrxODTExport;
+    qryOrdemServicosdescricaoatendimento: TStringField;
+    qryOrdemServicostotalpagtoparcelas: TFloatField;
+    frxReport1: TfrxReport;
+    procedure qryOrdemServicosAfterScroll(DataSet: TDataSet);
+    procedure qryOrdemServicosCalcFields(DataSet: TDataSet);
+    procedure qryServicosOrdemServicoCalcFields(DataSet: TDataSet);
+    procedure frpOrdemServicoSinteticoBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frpOrdemServicoCompleto_AnteriorBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frpOrdemServico_WindowsBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frpParcelas_WindowsBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure frxOrdemServicoCompletoGetValue(const VarName: String;
+      var Value: Variant);
+  private
+    FAgruparNroOs: Boolean;
+    FAgruparAbertura: Boolean;
+    FAgruparFechamento: Boolean;
+    { Private declarations }
+  public
+    { Public declarations }
+    TipoRelatorio: integer;
+    constructor Create(AOwner: TComponent); override;
+    property AgruparNroOs: Boolean read FAgruparNroOs write FAgruparNroOs;
+    property AgruparAbertura: Boolean read FAgruparAbertura write FAgruparAbertura;
+    property AgruparFechamento: Boolean read FAgruparFechamento write FAgruparFechamento;
+    procedure ImprimirRelatorio(Cabecalho, Agrupamento:String; TipoRelatorio: integer; ComCustoMedio: Boolean);
+
+  end;
+
+var
+  dtmImprimeOrdemServicos: TdtmImprimeOrdemServicos;
+
+implementation
+
+uses fmselecionarimpressoras;
+
+{$R *.dfm}
+
+{ TdtmImprimeOrdemServicos }
+
+
+procedure TdtmImprimeOrdemServicos.ImprimirRelatorio(Cabecalho, Agrupamento:String; TipoRelatorio: integer; ComCustoMedio: Boolean);
+var
+//  Relatorio: TfrReport;
+//  frmPreview: TfrmPreviewPadrao;
+  PV: TfrxComponent;
+
+  LinhaE: T_Extenso;
+  ValorExtenso, ResultExtenso: String;
+
+  Linha, vAuxLinha,
+  Extenso1,
+  Extenso2,
+  Extenso3,
+  Extenso4, vDescricao, vDescricaoAux : String;
+  I, Comp, vPosIni, vPosFim: Integer;
+
+
+  MaxCol, nLinhas, a  : Integer;
+  RelatorioECF : TStringList;
+
+  procedure Alinhar(Tipo: TAlignment; PosAtual: Integer = 0);
+  begin
+    case Tipo of
+      taCenter: Insert(stringOfChar(' ', (MaxCol - Length(linha)) div 2), Linha, 1);
+      taRightJustify: Insert(stringOfChar(' ', MaxCol - Length(linha) - PosAtual), Linha, 1);
+    end
+  end;
+
+  procedure ImprimirLinha(texto: String;posicao: integer); overload;
+  begin
+    if a = 1 then
+    begin
+      if (texto = '') then
+        RelatorioECF.Append(stringOfChar(' ', MaxCol))
+      else
+        RelatorioECF.Append(texto);
+    end;
+
+    if (texto = '') then
+      TextPrinter.writeln
+    else
+      TextPrinter.WriteTextln(texto, posicao);
+  end;
+
+begin
+  self.TipoRelatorio := TipoRelatorio;
+  if parsistema.ImprimirOrdemServicoNaECF and Assigned(ECFPadrao) then
+  begin
+    RelatorioECF := TStringList.Create;
+    try
+      if ParSistema.MaxColAutenticadora <> 0 then
+        MaxCol := ParSistema.MaxColAutenticadora
+      else
+        MaxCol := 60;
+
+      with TextPrinter do
+      begin
+        ImprimirParaArquivo := True;
+        Text.Clear;
+
+        for a := 1 to ParSistema.NumeroCopiasdorecibo do
+        begin
+
+          if ParSistema.Autenticadora in [1,2,4] then
+            BeginDoc('', False)
+          else
+          begin
+            BeginDoc('', True);
+            writeText(EPS_ON_CONDENSED,0);
+          end;
+
+//          ImprimirLinha('', 0);
+
+          Linha := RazaoFilialBase;
+          Alinhar(taCenter);
+          ImprimirLinha(linha, 0);
+
+          Linha := RuaFilialBase + ' - ' + BairroFilialBase;
+          Alinhar(taCenter);
+          ImprimirLinha(linha, 0);
+
+          Linha := 'CEP ' + FormatarCEP(CEPFilialBase) + ' - ' + CidadeFilialBase + ' - ' + EstadoFilialBase;
+          Alinhar(taCenter);
+          ImprimirLinha(linha, 0);
+
+          Linha := 'Fone: ' + FormatarFone(DDDFilialBase,FoneFilialBase);
+          Alinhar(taCenter);
+          ImprimirLinha(Linha, 0);
+
+          Linha := ctCGCMF + ' ' + FormatarCPFouCGC(CNPJFilialBase) + ' ' +
+                   ctIE + ' ' + InscricaoEstadualFilialBase ;
+
+          Alinhar(taCenter);
+          ImprimirLinha(linha, 0);
+
+{
+          Linha := ctIE + ' ' + InscricaoEstadualFilialBase ;
+          Alinhar(taCenter);
+          ImprimirLinha(Linha, 0);
+}
+
+ //         ImprimirLinha('',0);
+ //         ImprimirLinha('',0);
+
+
+          ImprimirLinha('',0);
+//          ImprimirLinha('',0);
+
+          Linha := 'ORDEM DE SERVIÇO N. ' + qryOrdemServicosnumero.asString;
+
+          Alinhar(taCenter);
+          ImprimirLinha(Linha, 0);
+
+          ImprimirLinha('',0);
+
+          Linha := 'Data de Entrada: ' + formatDateTime('dd/mm/yyyy',qryOrdemServicosentrada.asDateTime);
+
+          if not qryOrdemServicosprevisao.isnull then
+            Linha := Linha + ' Prometido para: ' + formatDateTime('dd/mm/yyyy',qryOrdemServicosprevisao.asDateTime);
+
+//          Alinhar(taCenter);
+          ImprimirLinha(Linha, 0);
+
+          Linha := 'Cliente: ' + qryOrdemServicosnomecliente.asString;
+
+//          Alinhar(taCenter);
+          ImprimirLinha(Linha, 0);
+
+          Linha := 'Fone: ' + qryOrdemServicostelefone.asString;
+
+//          Alinhar(taCenter);
+          ImprimirLinha(Linha, 0);
+
+          ImprimirLinha('',0);
+
+          Linha := 'PRODUTO      DESCRIÇÃO  QUANTIDADE  PREÇO UNIT.    TOTAL';
+          ImprimirLinha(Linha,0);
+
+//          Linha := 'QUANTIDADE  PREÇO UNIT.    TOTAL  ';
+//          Alinhar(taRightJustify);
+//          ImprimirLinha(Linha,0);
+          ImprimirLinha(StringOfChar('-', MaxCol),0);
+
+          qryProdutosOrdemServicos.first;
+          while not qryProdutosOrdemServicos.eof do
+          begin
+//            linha := FormatStringOut(qryProdutosOrdemServicosprodutovisual.asString, 'L', ' ',30) + ' '+
+//                     qryProdutosOrdemServicosnomeproduto.asString;
+            linha := qryProdutosOrdemServicosprodutovisual.asString + ' - ' +
+                     qryProdutosOrdemServicosnomeproduto.asString;
+
+            ImprimirLinha(Linha,0);
+            linha := FormatStringOut(FormatarQuantidade(qryProdutosOrdemServicosquantidade.asCurrency), 'R', ' ', 10) + ' '+
+                     FormatStringOut(formatfloat('#####,##0.00', qryProdutosOrdemServicosprecovenda.asCurrency), 'R', ' ', 12) + ' '+
+                     FormatStringOut(formatfloat('#####,##0.00', qryProdutosOrdemServicosquantidade.asCurrency * qryProdutosOrdemServicosprecovenda.asCurrency), 'R', ' ',12);
+
+            Alinhar(taRightJustify);
+            ImprimirLinha(Linha,0);
+            qryProdutosOrdemServicos.next;
+          end;
+
+          ImprimirLinha(StringOfChar('_', MaxCol),0);
+          Linha := 'TOTAL PRODUTOS ' + FormatStringOut(FormatarQuantidade(qryOrdemServicosquantidadeprodutos.asCurrency), 'R', ' ', 10) + ' ítens       '+
+                     FormatStringOut(formatfloat('#####,##0.00', qryOrdemServicostotalprodutos.asCurrency), 'R', ' ', 12);
+
+          Alinhar(taRightJustify);
+          ImprimirLinha(Linha,0);
+
+          Comp := (maxcol - 10) div 2 - length('DESCRIÇÃO SERVIÇOS') div 2;
+          vAuxLInha := StringOfChar(' ', comp) + 'DESCRIÇÃO SERVIÇOS' + StringOfChar(' ', comp-1);
+          if length(vAuxLinha) < (maxcol - 10) then
+            VAuxLInha := vAuxLInha + StringOfChar(' ', ((maxcol - 10) - length(vAuxLinha)) );
+
+          Linha := VAuxLInha + '   VALOR  ';
+          ImprimirLinha(Linha,0);
+
+          ImprimirLinha(StringOfChar('-', MaxCol),0);
+
+          qryServicosOrdemServico.first;
+          while not qryServicosOrdemServico.eof do
+          begin
+            vDescricaoAux := qryServicosOrdemServicodescricaoservico.asString;
+            if not qryServicosOrdemServicocomplementoservico.isnull then
+              vDescricaoAux := vDescricaoAux + ' - ' +qryServicosOrdemServicocomplementoservico.asString;
+
+            vPosIni := 1;
+            vPosFim := maxcol-10;
+
+            if length(vDescricaoAux) > vPosFim then
+            begin
+              while vPosfim < length(vDescricaoAux) do
+              begin
+                vDescricao := copy(vDescricaoAux,vPosIni,vPosFim);
+                Linha := vDescricao;
+                ImprimirLinha(Linha,0);
+                vPosIni := vPosFim + 1;
+                vPosFim := vposfim + 1 + (maxcol - 10);
+              end;
+              vDescricao := copy(vDescricaoAux,vPosIni,vPosFim);
+              vDescricao := vDescricao + stringofchar(' ',(maxcol-10) - length(vDescricao));
+
+              Linha := vDescricao +
+              stringofchar(' ', 10 - length(formatfloat('###,##0.00', qryServicosOrdemServicovalorservico.asCurrency*qryServicosOrdemServicoquantidade.asCurrency))) +
+              formatfloat('###,##0.00', qryServicosOrdemServicovalorservico.asCurrency*qryServicosOrdemServicoquantidade.asCurrency);
+
+              ImprimirLinha(Linha,0);
+            end
+            else
+            begin
+              vDescricao := vDescricaoAux;
+              vDescricao := vDescricao + stringofchar(' ',(maxcol-10) - length(vDescricao));
+              Linha := vDescricao +
+              stringofchar(' ', 10 - length(formatfloat('###,##0.00', qryServicosOrdemServicovalorservico.asCurrency*qryServicosOrdemServicoquantidade.asCurrency))) +
+              formatfloat('###,##0.00', qryServicosOrdemServicovalorservico.asCurrency*qryServicosOrdemServicoquantidade.asCurrency);
+              ImprimirLinha(Linha,0);
+            end;
+
+            qryServicosOrdemServico.next;
+          end;
+
+          ImprimirLinha(StringOfChar('_', MaxCol),0);
+          Linha := 'TOTAL SERVIÇOS  ' + formatfloat('###,##0.00', qryOrdemServicostotalservicos.asCurrency);
+          Alinhar(taRightJustify);
+          ImprimirLinha(Linha,0);
+
+          ImprimirLinha(StringOfChar('_', MaxCol),0);
+          Linha := 'TOTAL GERAL  ' + formatfloat('###,##0.00', qryOrdemServicostotalservicos.asCurrency+qryOrdemServicostotalprodutos.asCurrency);
+          Alinhar(taRightJustify);
+          ImprimirLinha(Linha,0);
+
+
+          
+
+          writeText(EPS_OFF_CONDENSED,0);
+          EndDoc('TecLUX - Imprimindo recibo de Caixa.');
+
+          ECFPadrao.RelatorioGerencial(RelatorioECF);
+
+        end;
+      end;
+    finally
+      RelatorioECF.free;
+      NomeImpressoraEscolhida := '';
+    end;
+
+  end
+  else
+  begin
+
+    frVariables['Rua']   := RuaFilialBase;
+    frVariables['NomeCliente'] := RetiraAcento(qryOrdemServicosnomecliente.asString);
+    frVariables['Bairro']:= BairroFilialBase + ' - CEP: ' + CEPFilialBase;
+    frVariables['Cidade']:= CidadeFilialBase + ' - ' + EstadoFilialBase;
+    frVariables['Fone']  := FoneFilialBase;
+    frVariables['Outras']:= Cabecalho;
+
+    frxOrdemServicoCompleto.Variables['Outras']:= quotedstr(Cabecalho);
+
+    frVariables['ComCusto']:= ComCustoMedio;
+    frxOrdemServicoCompleto.Variables['ComCusto']:= ComCustoMedio;
+    frVariables['TipoRelatorio']:= TipoRelatorio;
+    frxOrdemServicoCompleto.Variables['TipoRelatorio']:= TipoRelatorio;
+
+    frVariables['Juros']        := ParSistema.PercentualAtrasoJuros2;
+    frVariables['RazaoSemAcento']:= RetiraAcento(RazaoFilialBase);
+    if ParSistema.PercentualAtrasoMultas2 > 0 then
+      frVariables['Multa']      := 'e multa contratual de '+floattostr(ParSistema.PercentualAtrasoMultas2)+'% '
+    else
+      frVariables['Multa']      := '';
+    LinhaE.ExtTamLinha[1]:= 150;
+    Extenso(ParSistema.PercentualAtrasoJuros2,$92,'VIRGULA','VIRGULA',' ',' ',' ', LinhaE);
+    ValorExtenso:= Trim(LinhaE.ExtLinha[1]);
+    if Pos(',',floattostr(ParSistema.PercentualAtrasoJuros2)) = 0 then
+      ResultExtenso:= Trocar(ValorExtenso,'VIRGULA','')
+    else
+      ResultExtenso:= Trocar(ValorExtenso,'VIRGULA E ','VIRGULA ');
+
+    frVariables['JurosExtenso'] := ResultExtenso+ ' POR CENTO';
+    frVariables['RazaoSemAcento']:= RetiraAcento(RazaoFilialBase);
+
+    case TipoRelatorio of
+      0 :frVariables['Titulo']:= 'RELATÓRIO DE ORDENS DE SERVIÇOS SINTÉTICO';
+
+      1 :frxOrdemServicoCompleto.Variables['Titulo']:=quotedstr('ORDEM DE SERVIÇOS');
+      2 :
+      begin
+        frxOrdemServicoCompleto.Variables['Titulo']:= quotedstr('ORDEM DE SERVIÇOS');
+        frxOrdemServicoCompleto.Variables['Outras']:= '';
+      end;
+    end;
+
+    if qryParcelas.RecordCount <= 16 then
+      frVariables['IMPRIMINDOQUANTIDADE']  := True
+    else
+      frVariables['IMPRIMINDOQUANTIDADE']  := False;
+
+
+//    frmPreview := TfrmPreviewPadrao.create(self.owner);
+//    frmPreview.cmbZoom.ItemIndex:= 3;//125%
+
+
+
+//    frpOrdemServicoSintetico.DesignReport;
+//  frxOrdemSErvicoCompleto.DesignReport;
+//  frpOrdemServicoCompleto.DesignReport;
+    try
+     //frpOrdemServico_Linux.DesignReport;
+
+//     Relatorio := frmPreview.frCompositeReport;
+//     frmPreview.frCompositeReport.Reports.Clear;
+//     with frmPreview do
+     begin
+       if ParSistema.ImprimirContratoFrenteVerso then
+       begin
+       {
+        frpOrdemServico_Windows.designreport;
+        frxReport1.designreport;
+
+        frpParcelas_Windows.designreport;
+        frxReport1.designreport;
+        }
+
+        ImprimirRelatoriofast(null, null, MPadrao, 0, [frpOrdemServico_Windows, frpParcelas_Windows], false, self);
+
+//        frCompositeReport.Reports.Add(frpOrdemServico_Windows);
+//        frCompositeReport.Reports.Add(frpParcelas_Windows);
+       end
+       else
+       begin
+         if TipoRelatorio = 0 then
+         begin
+           //frCompositeReport.Reports.Add(frpOrdemServicoSintetico)
+           frpOrdemServicoSintetico.DesignReport;
+           frxReport1.DesignReport;
+           ImprimirRelatoriofast(null, null, MSimples, 0, [frpOrdemServicoSintetico], false, self);
+         end
+         else
+         if (TipoRelatorio = 1) or
+            (TipoRelatorio = 2) then
+         begin
+
+
+
+            //frxOrdemServicoCompleto.DesignReport;
+
+            if FileExists(ExtractFilePath(Application.ExeName) + 'frxOrdemServicoCompleto.fr3') then
+              frxOrdemServicoCompleto.LoadFromFile(ExtractFilePath(Application.ExeName) + 'frxOrdemServicoCompleto.fr3');
+
+
+            if FileExists(LogotipoFilialBase) then
+            begin
+              PV := frxOrdemServicoCompleto.FindObject('fpvLogo');
+              if (PV is TfrxPictureView) then
+                TfrxPictureView(PV).picture.LoadFromFile(LogotipoFilialBase);
+            end;
+              
+
+            frxOrdemServicoCompleto.ShowReport(true);
+
+         end;
+(*
+           ImprimirRelatoriofast(null, null, MSimples, 0, [frpOrdemServicoCompleto], false, self)
+         else if TipoRelatorio = 2 then
+//           frCompositeReport.Reports.Add(frpOrdemServicoCompleto);
+           ImprimirRelatoriofast(null, null, MSimples, 0, [frpOrdemServicoCompleto], false, self)
+*)
+       end;
+     end;
+//     Relatorio.Preview := frmPreview.frPreviewPadrao;
+//     Relatorio.ShowReport;
+
+//     frmPreview.ShowModal;
+
+    finally
+
+//     frmPreview.Free
+
+    end;
+  end;
+
+end;
+
+procedure TdtmImprimeOrdemServicos.qryOrdemServicosAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  if TipoRelatorio <> 0 then
+  begin
+    ReFazConsulta(qryProdutosOrdemServicos,[0], [qryOrdemServicosnumero.AsVariant]);
+    ReFazConsulta(qryServicosOrdemServico,[0],[qryOrdemServicosnumero.AsVariant]);
+    RefazConsulta(qryOrdemServicoEntrada,[0],[qryOrdemServicosnumero.AsVariant]);
+    ReFazConsulta(qryParcelas,[0],[qryOrdemServicosnumero.AsVariant]);
+
+    RefazConsultaPorNome(qryQuestionarios, ['ordemservico'], [qryOrdemServicosnumero.AsVariant]);
+  end;
+
+end;
+
+procedure TdtmImprimeOrdemServicos.qryOrdemServicosCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  case qryOrdemServicostipoequipamento.AsInteger of
+   1: qryOrdemServicosdescricaotipoequipamento.AsString := ANSIUpperCase(ctNOVOCLIENTE);
+   2: qryOrdemServicosdescricaotipoequipamento.AsString := ANSIUpperCase(ctUSADOCLIENTE);
+   3: qryOrdemServicosdescricaotipoequipamento.AsString := ANSIUpperCase(ctATIVOFIXO);
+   4: qryOrdemServicosdescricaotipoequipamento.AsString := ANSIUpperCase(ctESTOQUE);
+  end;
+end;
+
+procedure TdtmImprimeOrdemServicos.qryServicosOrdemServicoCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryServicosOrdemServicotipocomissaoservico.AsString = '%' then
+    qryServicosOrdemServicoValorComissao.AsCurrency:= qryServicosOrdemServicovalorservico.AsCurrency * (qryServicosOrdemServicocomissaoservico.AsFloat/100)
+  else
+    qryServicosOrdemServicoValorComissao.AsCurrency:= qryServicosOrdemServicocomissaoservico.AsFloat;
+end;
+
+procedure TdtmImprimeOrdemServicos.frpOrdemServicoSinteticoBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpOrdemServicoSintetico,view);
+  {
+  if TColorRef(strtoint(parsistema.CorZebradoRelatorio))<>TColorRef(clnone) then
+   if (View.Name = 'mmoZebrado') then
+    if (frpOrdemServicoSintetico.Dictionary.Variables.Variable['LINHA'] MOD 2)=0 then
+      frpOrdemServicoSintetico.FindObject('mmoZebrado').FillColor := TColorRef(strtoint(parsistema.CorZebradoRelatorio))
+    else
+      frpOrdemServicoSintetico.FindObject('mmoZebrado').FillColor := clnone;
+}
+end;
+
+procedure TdtmImprimeOrdemServicos.frpOrdemServicoCompleto_AnteriorBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+//    ZebrarLinhaRelatorio(frpOrdemServicoCompleto,view);
+end;
+
+procedure TdtmImprimeOrdemServicos.frpOrdemServico_WindowsBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpOrdemServico_Windows,view);
+end;
+
+procedure TdtmImprimeOrdemServicos.frpParcelas_WindowsBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpParcelas_Windows,view);
+end;
+
+procedure TdtmImprimeOrdemServicos.ZMonitor1MonitorEvent(Sql,
+  Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:/relos.sql') then
+    Listar.loadfromfile('c:/relos.sql');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:/relos.sql');
+  listar.free;
+end;
+
+
+constructor TdtmImprimeOrdemServicos.Create(AOwner: TComponent);
+begin
+  inherited;
+  TipoRelatorio := 1;
+end;
+
+procedure TdtmImprimeOrdemServicos.frxOrdemServicoCompletoGetValue(
+  const VarName: String; var Value: Variant);
+begin
+  inherited;
+  if VarName = 'CordoZebrado' then
+    Value :=  strtoint(parsistema.CorZebradoRelatorio)
+  else if VarName = 'RAZAOFILIALBASE' then
+    Value := RazaoFilialBase
+  else if VarName = 'ENDERECO_BAIRRO' then
+    Value :=  RuaFilialBase+ ' - '+BairroFilialBase
+  else if VarName = 'CEP_CIDADE_UF' then
+    Value :=  FormatarCEP(CEPFilialBase)+'  '+CidadeFilialBase+ '  '+ EstadoFilialBase
+  else if VarName = 'Observacao_na_ordem_de_servico' then
+    Value := parsistema.Observacao_na_ordem_de_servico.text;
+
+end;
+
+end.

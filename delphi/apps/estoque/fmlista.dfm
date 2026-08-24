@@ -1,15 +1,15 @@
 inherited frmListaPrecos: TfrmListaPrecos
-  Left = 226
-  Top = 90
+  Left = 243
+  Top = 180
   Caption = 'Lista de Pre'#231'os'
-  ClientHeight = 566
-  ClientWidth = 953
+  ClientHeight = 525
+  ClientWidth = 1058
   FormStyle = fsMDIChild
   Visible = True
   PixelsPerInch = 96
   TextHeight = 16
   inherited pnlBarra: TToolBar
-    Width = 953
+    Width = 1058
     object sbnExcel: TSpeedButton
       Left = 79
       Top = 2
@@ -65,21 +65,21 @@ inherited frmListaPrecos: TfrmListaPrecos
   end
   inherited pnlFundoJanela: TPanel
     Top = 40
-    Width = 953
-    Height = 526
+    Width = 1058
+    Height = 485
     Align = alClient
     object gbxInformar: TGroupBox
       Left = 3
       Top = 3
-      Width = 947
-      Height = 520
+      Width = 1052
+      Height = 479
       Align = alClient
       TabOrder = 0
       object pnlDireita: TPanel
         Left = 321
         Top = 18
         Width = 624
-        Height = 500
+        Height = 459
         Align = alLeft
         BevelOuter = bvNone
         BorderWidth = 4
@@ -284,6 +284,9 @@ inherited frmListaPrecos: TfrmListaPrecos
                   inherited ckbProdutosComAgendamento: TCheckBox
                     Font.Pitch = fpVariable
                   end
+                  inherited ckbIncluirSimilaresnaLista: TCheckBox
+                    Font.Pitch = fpVariable
+                  end
                 end
               end
             end
@@ -481,26 +484,8 @@ inherited frmListaPrecos: TfrmListaPrecos
             end
             inherited tstSelecaoAleatoriaLotes: TTabSheet
               inherited fraSelecaoAleatorialotes1: TfraSelecaoAleatorialotes
-                Width = 608
-                Height = 321
                 inherited fraSelecaoAleatorialotes: TfraSelecaoAleatoria
-                  Width = 608
-                  Height = 321
-                  inherited Splitter1: TSplitter
-                    Left = 573
-                    Height = 306
-                  end
-                  inherited dbgSelecaoAleatoria: TtecDBGrid
-                    Width = 573
-                    Height = 306
-                  end
-                  inherited pnlLabels: TPanel
-                    Left = 576
-                    Height = 306
-                  end
                   inherited pnlAbaixo: TPanel
-                    Top = 306
-                    Width = 608
                     Font.Pitch = fpVariable
                     inherited lblOrientacao: TLabel
                       Font.Pitch = fpVariable
@@ -545,26 +530,8 @@ inherited frmListaPrecos: TfrmListaPrecos
             end
             inherited tstSelecaoAleatoriaServicos: TTabSheet
               inherited fraSelecaoaleatoriaservicos1: TfraSelecaoaleatoriaservicos
-                Width = 608
-                Height = 321
                 inherited fraSelecaoAleatoriaservicos: TfraSelecaoAleatoria
-                  Width = 608
-                  Height = 321
-                  inherited Splitter1: TSplitter
-                    Left = 573
-                    Height = 306
-                  end
-                  inherited dbgSelecaoAleatoria: TtecDBGrid
-                    Width = 573
-                    Height = 306
-                  end
-                  inherited pnlLabels: TPanel
-                    Left = 576
-                    Height = 306
-                  end
                   inherited pnlAbaixo: TPanel
-                    Top = 306
-                    Width = 608
                     Font.Pitch = fpVariable
                     inherited lblOrientacao: TLabel
                       Font.Pitch = fpVariable
@@ -583,7 +550,7 @@ inherited frmListaPrecos: TfrmListaPrecos
         Left = 2
         Top = 18
         Width = 319
-        Height = 500
+        Height = 459
         Align = alLeft
         BevelOuter = bvNone
         BorderWidth = 4

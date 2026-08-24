@@ -1,0 +1,2208 @@
+unit fmemissaoetiquetas;
+
+interface
+
+uses
+  // CLX
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  ExtCtrls, Buttons, StdCtrls, Mask, ComCtrls, DBCtrls, Windows, Grids,
+  DBGrids, ActnList, DB,
+  cpeditioncontrolvalidation, cpdbradiogroup, cptexto, cpdata, cpnumero,
+  cpdbgrid,inifiles,
+  // Terceiros
+  ZQuery,
+  //Biblio
+  ctconstantes, biblio, cltextprinter, clparametrossistema,
+  //Repositorio
+  fmajudabt, fmconsultabasica, fmconsultaporcampo,
+  //Componentes
+  cpdbtext, cppagecontrol,
+  cpquery,
+  // Projeto
+  dmemissaoetiquetas, ZPgSqlQuery,
+  cpdbfindcontrols, cpdbmemo, ToolWin, frconsulta, frconsultacodigo,
+  frmultiplaselecaoaleatoria, frselecaoaleatorialistaspadronizadas,
+  frselecaoaleatoriavendedores, AdvObj, BaseGrid, AdvGrid, DBAdvGrid,
+  CheckLst, AdvOfficeButtons, AdvPanel, frselecaoaleatorianotassaidas,
+  frendereco, frenderecoeditor;
+
+Type
+  TfrmEmissaoEtiquetas = class(TfrmAjudaBt)
+    pgcEtiquetas: TtecPageControl;
+    tstEtiquetaNota: TTabSheet;
+    tstEtiquetaProduto: TTabSheet;
+    aclEmissao: TActionList;
+    actImprimir: TAction;
+    pnlFundoJanela: TPanel;
+    sbnGerar: TSpeedButton;
+    sbnImprimir: TSpeedButton;
+    ckbSelecionarTodos: TCheckBox;
+    sbnProcuraModeloEtiquetas: TSpeedButton;
+    ckbModificar: TCheckBox;
+    dlgModeloEtiquetas: TOpenDialog;
+    edtArquivo: TEditTexto;
+    tstFornecedor: TTabSheet;
+    tstMarca: TTabSheet;
+    sbnProcuraMarca: TSpeedButton;
+    edfMarca: TtecDbEditFind;
+    dtxMarca: TtecDBText;
+    gbxFilial: TGroupBox;
+    sbnProcuraFilial: TSpeedButton;
+    edfFilial: TtecDbEditFind;
+    dtxFilial: TtecDBText;
+    ckbQtdemEstoque: TCheckBox;
+    edtQuantidade: TEditNumero;
+    edfSerie: TtecDbEditFind;
+    edfNota: TtecDbEditFind;
+    gbxEtiquetaProduto: TGroupBox;
+    gbxEtiquetaNota: TGroupBox;
+    rgpImpressora: TtecDBRadioGroup;
+    rgpTipoEtiqueta: TtecDBRadioGroup;
+    ckbGrande: TtecRadioButton;
+    ckbPequena: TtecRadioButton;
+    sbnModeloEtiqueta: TSpeedButton;
+    dtxModeloEtiqueta: TtecDBText;
+    edfModeloEtiqueta: TtecDbEditFind;
+    tstMovimentacao: TTabSheet;
+    gbxMovimentacao: TGroupBox;
+    gbxIntervalo: TGroupBox;
+    edtIntervaloInicial: TEditData;
+    edtIntervaloFinal: TEditData;
+    sbnIncluirProduto: TSpeedButton;
+    sbnExcluirProduto: TSpeedButton;
+    ckbImprimirPreco: TCheckBox;
+    ckbQtdeZerada: TCheckBox;
+    gbxPlanoPagto: TGroupBox;
+    edfPlano: TtecDbEditFind;
+    dtx_Plano: TtecDBText;
+    sbnProcuraPlano: TSpeedButton;
+    lblTipoImpressora: TLabel;
+    lblImpressoras: TLabel;
+    gbxEtiquetaemBranco: TGroupBox;
+    edtetiquetaBranco: TEditNumero;
+    edtPercentualAVista: TEditNumero;
+    lblPercentual: TLabel;
+    tstNotaFiscalSaidas: TTabSheet;
+    gbxNotasSaidas: TGroupBox;
+    gbxCliente: TGroupBox;
+    dtxClienteSaida: TtecDBText;
+    edfClientesSaida: TtecDbEditFind;
+    gbxPeriodo: TGroupBox;
+    edtIntervaloInicialSaida: TEditData;
+    edtIntervaloFinalSaida: TEditData;
+    gbxTipoMovimento: TGroupBox;
+    edfTipoMovimento: TtecDbEditFind;
+    sbnProcurarTipoMovto: TSpeedButton;
+    tecDBText1: TtecDBText;
+    gbxFilialMovto: TGroupBox;
+    edfFilialMovto: TtecDbEditFind;
+    tecDBText2: TtecDBText;
+    sbnFilialMovto: TSpeedButton;
+    gbxNotas: TGroupBox;
+    EdtNotaInicialSaida: TEditNumero;
+    edtNotaFinalSaida: TEditNumero;
+    gbxObservacao: TGroupBox;
+    dbmObservacao: TtecDBMemo;
+    plnGravarObs: TPanel;
+    btnGravarObservacao: TBitBtn;
+    sbnProcuraCliente: TSpeedButton;
+    shpNotaSemNumero: TShape;
+    lblNotaSemNumero: TLabel;
+    gbxAtt: TGroupBox;
+    DBEditTexto2: TDBEditTexto;
+    plnGravarAtt: TPanel;
+    btnGravarAtt: TBitBtn;
+    lblNotaDuplicada: TLabel;
+    shpNotaDuplicada: TShape;
+    pgcNotasProdutos: TPageControl;
+    TabSheet1: TTabSheet;
+    tstNotaseProdutos: TTabSheet;
+    dbgEmissaoEtiquetas: TtecDBGrid;
+    gbxOrdenacao: TGroupBox;
+    rdbDescricaoProduto: TRadioButton;
+    rdbNumeroNotaProduto: TRadioButton;
+    pgcProduto: TtecPageControl;
+    tstProduto: TTabSheet;
+    tstGrupo: TTabSheet;
+    sbnProcuraGrupo: TSpeedButton;
+    edfGrupo: TtecDbEditFind;
+    dtxGrupo: TtecDBText;
+    tstClasse: TTabSheet;
+    sbnProcuraClasse: TSpeedButton;
+    dtxClasse: TtecDBText;
+    edfClasse: TtecDbEditFind;
+    tstcaracteristicas: TTabSheet;
+    pgcNotasProdutos2: TtecPageControl;
+    tstNotas: TTabSheet;
+    dbgNotasSaidas: TtecDBGrid;
+    tstProdutos: TTabSheet;
+    dbgProdutosNotas: TtecDBGrid;
+    Label1: TLabel;
+    gbxImprimir: TGroupBox;
+    ecvEmissaoEtiquetas: TtecEditionControlValidation;
+    gbxSerie: TGroupBox;
+    gbxNrNota: TGroupBox;
+    gbxModeloEtiqueta: TGroupBox;
+    gbxPreco: TGroupBox;
+    gbxDesconto: TGroupBox;
+    lblOsProdutos: TLabel;
+    lblA: TLabel;
+    Label2: TLabel;
+    gbxQuantidade: TGroupBox;
+    tstPedidos: TTabSheet;
+    gbxPedidos: TGroupBox;
+    GroupBox1: TGroupBox;
+    edtDataInicialPedido: TEditData;
+    edtDataFinalPedido: TEditData;
+    rgbSituacao: TtecDBRadioGroup;
+    ckbAberto: TtecRadioButton;
+    ckbConclido: TtecRadioButton;
+    ckbParcial: TtecRadioButton;
+    ckbCancelado: TtecRadioButton;
+    ckbAmbos: TtecRadioButton;
+    ckbParcialLiquidado: TtecRadioButton;
+    rgbOrdenar: TtecDBRadioGroup;
+    ckbPedido: TtecRadioButton;
+    cknFornecedor: TtecRadioButton;
+    ckbProduto: TtecRadioButton;
+    ckbEmissao: TtecRadioButton;
+    ckbSituacao: TtecRadioButton;
+    gbxProdutoPedido: TGroupBox;
+    gbxPedido: TGroupBox;
+    fraConsultaPedido: TfraConsultaCodigo;
+    lblAEmissao: TLabel;
+    btnAjustar: TButton;
+    fraConsultaItemProduto: TfraConsultaCodigo;
+    fraConsultaProduto: TfraConsultaCodigo;
+    fraConsultaItemProdutoPedido: TfraConsultaCodigo;
+    tstProdutosExposicao: TTabSheet;
+    gbxProdutosExposicao: TGroupBox;
+    gbxFilialProdutosExposicao: TGroupBox;
+    fraConsultaFilialProdutosExposicao: TfraConsultaCodigo;
+    gbxIntervaloAlteracaoProdutosExposicao: TGroupBox;
+    Label3: TLabel;
+    edtIntervaloInicialAlteracaoProdutosExposicao: TEditData;
+    edtIntervaloFinalAlteracaoProdutosExposicao: TEditData;
+    fraMultiplaSelecaoAleatoriaProdutosExposicao: TfraMultiplaSelecaoAleatoria;
+    gbxImprimirProdutosExposicao: TGroupBox;
+    ckbQtdemEstoqueProdutosExposicao: TCheckBox;
+    ckbQtdeZeradaProdutosExposicao: TCheckBox;
+    gbxQuantidadeProdutosExposicao: TGroupBox;
+    edtQuantidadeProdutosExposicao: TEditNumero;
+    gbxProdutos_1: TGroupBox;
+    ckbProdutoEmLinha_1: TCheckBox;
+    ckbProdutoForadeLinha_1: TCheckBox;
+    ckbProdutoInativo_1: TCheckBox;
+    ckbProdutoAtivo_1: TCheckBox;
+    gbxProdutos_2: TGroupBox;
+    ckbProdutoEmLinha_2: TCheckBox;
+    ckbProdutoForadeLinha_2: TCheckBox;
+    ckbProdutoInativo_2: TCheckBox;
+    ckbProdutoAtivo_2: TCheckBox;
+    gbxProdutos_3: TGroupBox;
+    ckbProdutoEmLinha_3: TCheckBox;
+    ckbProdutoForadeLinha_3: TCheckBox;
+    ckbProdutoInativo_3: TCheckBox;
+    ckbProdutoAtivo_3: TCheckBox;
+    gbxProdutos_4: TGroupBox;
+    ckbProdutoEmLinha_4: TCheckBox;
+    ckbProdutoForadeLinha_4: TCheckBox;
+    ckbProdutoInativo_4: TCheckBox;
+    ckbProdutoAtivo_4: TCheckBox;
+    gbxProdutos_5: TGroupBox;
+    ckbProdutoEmLinha_5: TCheckBox;
+    ckbProdutoForadeLinha_5: TCheckBox;
+    ckbProdutoInativo_5: TCheckBox;
+    ckbProdutoAtivo_5: TCheckBox;
+    gbxProdutos_6: TGroupBox;
+    ckbProdutoEmLinha_6: TCheckBox;
+    ckbProdutoForadeLinha_6: TCheckBox;
+    ckbProdutoInativo_6: TCheckBox;
+    ckbProdutoAtivo_6: TCheckBox;
+    ckbEmExposicao: TCheckBox;
+    ckbQusntidadeLote: TCheckBox;
+    gbxNrLote: TGroupBox;
+    edtNrLote: TEditNumero;
+    pgcSelecaoProdutos: TPageControl;
+    tstListasPadronizadas: TTabSheet;
+    tstSelecaoProdutos: TTabSheet;
+    fraSelecaoaleatorialistaspadronizadas1: TfraSelecaoaleatorialistaspadronizadas;
+    pnlTopDetalheProduto: TPanel;
+    pnlBottomProdutoDetalhe: TPanel;
+    pnlBodyDetalheProduto: TPanel;
+    pnlRightDetalheProduto: TPanel;
+    Splitter1: TSplitter;
+    stxNrEtiquetas: TStaticText;
+    ckbImprimirFotoProduto: TCheckBox;
+    gbxDataFabricacao: TGroupBox;
+    gbxDataValidade: TGroupBox;
+    stxDataFabricacao: TStaticText;
+    stxDataValidade: TStaticText;
+    edtDataFabricacao: TEditData;
+    edtDataValidade: TEditData;
+    gbxMargemSuperior: TGroupBox;
+    EDTMargemSuperior: TEditNumero;
+    stxMargemSuperior: TStaticText;
+    gbxFornecedorNota: TGroupBox;
+    fraConsultaFornecedorNota: TfraConsultaCodigo;
+    gbxConsultaFornecedorPedido: TGroupBox;
+    fraConsultaFornecedorPedido: TfraConsultaCodigo;
+    fraConsultaFornecedorProduto: TfraConsultaCodigo;
+    ckbEmPromocao: TCheckBox;
+    gbxMargemEsquerda: TGroupBox;
+    edtMargemEsquerda: TEditNumero;
+    tstb2wItems_: TTabSheet;
+    dbgplpb2w_items: TtecDBGrid;
+    tstb2w_: TTabSheet;
+    gbxIntervalorInclusaob2W: TGroupBox;
+    Label4: TLabel;
+    edtDataInicialInclusaoB2W: TEditData;
+    edtDataFinalInclusaoB2W: TEditData;
+    ckbIncluirB2WJaImpressos: TCheckBox;
+    ckbForaExposicao: TCheckBox;
+    ckbForaPromocao: TCheckBox;
+    dbgplp_b2w: TDBAdvGrid;
+    tstMagalu: TTabSheet;
+    fraSelecaoAleatoriavendedores1: TfraSelecaoAleatoriavendedores;
+    pnlParametrosMagalu: TPanel;
+    pnlParametrosB2W: TPanel;
+    DBAdvGridMagalu: TDBAdvGrid;
+    ckbSelecionarTodasEtiquetas: TAdvOfficeCheckBox;
+    pnlBottomGridMagalu: TAdvPanel;
+    pnlGridMagalu: TAdvPanel;
+    fraselecaoaleatorianotassaidas1: Tfraselecaoaleatorianotassaidas;
+    tstCorreios: TTabSheet;
+    pnlParametrosCorreios: TPanel;
+    fraSelecaoAleatoriavendedores2: TfraSelecaoAleatoriavendedores;
+    lblQtdadeEtiquetasporPedido: TStaticText;
+    edtQtdadeEtiquetasporPedido: TEditNumero;
+    tstMercadoLivre: TTabSheet;
+    pnlParametrosMercadoLivre: TPanel;
+    fraSelecaoAleatoriavendedores3: TfraSelecaoAleatoriavendedores;
+    pgcParametrosMercadoLivre: TPageControl;
+    tstParametrosMercadoLivre: TTabSheet;
+    tstRemetenteMercadoLivre: TTabSheet;
+    gbxIncluirJaImpressos: TGroupBox;
+    gbxEtiquetasPorPedido: TGroupBox;
+    fraEnderecoEditor1: TfraEnderecoEditor;
+    GroupBox2: TGroupBox;
+    fraConsultaFilialRemetenteMercadoLivre: TfraConsultaCodigo;
+    gbxRemetenteMercadoLivre: TGroupBox;
+    edtRemetenteMercadoLivre: TDBEditTexto;
+    fraselecaoaleatorianotassaidas2: Tfraselecaoaleatorianotassaidas;
+    ckbImprimirVolumes: TCheckBox;
+    pnlTopNFSaida: TPanel;
+    procedure sbnGerarClick(Sender: TObject);
+    procedure sbnProcuraSerieClick(Sender: TObject);
+    procedure sbnProcuraNotaClick(Sender: TObject);
+    procedure sbnProcuraGrupoClick(Sender: TObject);
+    procedure sbnProcuraClasseClick(Sender: TObject);
+    procedure sbnProcuraFilialClick(Sender: TObject);
+    procedure sbnProcuraMarcaClick(Sender: TObject);
+    procedure actImprimirExecute(Sender: TObject);
+    procedure actImprimirUpdate(Sender: TObject);
+    procedure pgcProdutoChange(Sender: TObject);
+    procedure ckbSelecionarTodosClick(Sender: TObject);
+    procedure dbgEmissaoEtiquetasDblClick(Sender: TObject);
+    procedure dbgEmissaoEtiquetasKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure ckbQtdemEstoqueClick(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure sbnProcuraModeloEtiquetasClick(Sender: TObject);
+    procedure sbnModeloEtiquetaClick(Sender: TObject);
+    procedure sbnIncluirProdutoClick(Sender: TObject);
+    procedure sbnExcluirProdutoClick(Sender: TObject);
+    procedure ckbQtdeZeradaClick(Sender: TObject);
+    procedure sbnProcuraPlanoClick(Sender: TObject);
+    procedure tstEtiquetaProdutoShow(Sender: TObject);
+    procedure tstEtiquetaNotaShow(Sender: TObject);
+    procedure tstMovimentacaoShow(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+    procedure edtQuantidadeChange(Sender: TObject);
+    procedure tstNotaFiscalSaidasShow(Sender: TObject);
+    procedure tstNotaFiscalSaidasHide(Sender: TObject);
+    procedure sbnFilialMovtoClick(Sender: TObject);
+    procedure sbnProcurarTipoMovtoClick(Sender: TObject);
+    procedure dbgNotasSaidasDblClick(Sender: TObject);
+    procedure dbgNotasSaidasKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edfClientesSaidaClick(Sender: TObject);
+    procedure sbnProcuraClienteClick(Sender: TObject);
+    procedure dbgNotasSaidasDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure btnGravarObservacaoClick(Sender: TObject);
+    procedure btnGravarAttClick(Sender: TObject);
+    procedure pgcEtiquetasChange(Sender: TObject);
+    procedure pgcNotasProdutos2Change(Sender: TObject);
+    procedure btnAjustarClick(Sender: TObject);
+    procedure ckbQtdemEstoqueProdutosExposicaoClick(Sender: TObject);
+    procedure ckbQtdeZeradaProdutosExposicaoClick(Sender: TObject);
+    procedure ckbQusntidadeLoteClick(Sender: TObject);
+    procedure tstProdutosExposicaoResize(Sender: TObject);
+    procedure edtDataFabricacaoChange(Sender: TObject);
+    procedure edtDataValidadeChange(Sender: TObject);
+    procedure EDTMargemSuperiorChange(Sender: TObject);
+    procedure fraConsultaFornecedorNotaedfCodigoFound(Found: Boolean);
+    procedure edtMargemEsquerdaChange(Sender: TObject);
+    procedure dbgplp_b2wGetColumnFilter(Sender: TObject; Column: Integer;
+      Filter: TStrings);
+    procedure dbgplp_b2wFilterProgress(Sender: TObject;
+      progress: Smallint);
+    procedure dbgplp_b2wSelectCell(Sender: TObject; ACol, ARow: Integer;
+      var CanSelect: Boolean);
+    procedure DBAdvGridMagaluSelectCell(Sender: TObject; ACol,
+      ARow: Integer; var CanSelect: Boolean);
+    procedure ckbSelecionarTodasEtiquetasClick(Sender: TObject);
+    procedure edtRemetenteMercadoLivreEnter(Sender: TObject);
+    procedure edtRemetenteMercadoLivreExit(Sender: TObject);
+    procedure fraEnderecoEditor1mmoRuaEnter(Sender: TObject);
+    procedure fraEnderecoEditor1edtNumeroEnter(Sender: TObject);
+    procedure fraEnderecoEditor1edtComplementoEnter(Sender: TObject);
+    procedure fraEnderecoEditor1mmoRuaExit(Sender: TObject);
+    procedure ckbImprimirVolumesClick(Sender: TObject);
+//  procedure CalcularFinanciamento;
+//  procedure DefinirValoresCalculo(mercadoria: Currency;  Plano: Integer);
+
+  private
+    
+    procedure AfterScrollLinhaColunaGrade(Sender: TObject);
+    procedure ExcluirEtiquetas;
+    procedure LerPercentualDesconto;
+    procedure SalvarPercentualDesconto;
+    procedure AtribuirDadosEnderecoFilialRemetenteMercadoLivre;
+
+  protected
+    FRelatorioAberto: Boolean;
+    dtmEmissaoEtiquetas: TdtmEmissaoEtiquetas;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    function  InternoPesquisar(Titulo: String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function  TabelaDePesquisa: TZDataSet; override;
+    procedure AcionaInclusaoProduto(Editando: Boolean);
+    procedure RemoverControles;
+    procedure AtribuirDadosPedidos;
+    procedure CondicaoConsultaPedido;
+    procedure CondicoesdaConsultaItemProdutoPedido;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    function VerificaCamposConsulta: Boolean;
+    function PesquisaHabilitada: Boolean;
+    function TituloPesquisa: String;
+    procedure OperacaoPadrao(Value: Array of Variant); override;
+  end;
+
+var
+  frmEmissaoEtiquetas: TfrmEmissaoEtiquetas;
+  TipoPesquisa: TtecPesquisa;
+  ControleValido : TWinControl;
+  ContornaChuncho: Boolean;
+
+implementation
+
+uses dmbasico, fmselecionarimpressoras, fmcadastroprodutosemitiretiquetas,
+  frselecaoaleatoria;
+
+{$R *.dfm}
+
+constructor TfrmEmissaoEtiquetas.Create(AOwner: TComponent);
+begin
+  dtmEmissaoEtiquetas := TdtmEmissaoEtiquetas.Create(Self);
+
+  inherited;
+//  try
+//  dtmEmissaoEtiquetas.Abre(ctTabelas);
+
+  dbgEmissaoEtiquetas.ColumnBYNAME('valorgrade1').Visible := ParSistema.UsarGradesProdutos;
+  dbgEmissaoEtiquetas.Columnbyname('valorgrade2').Visible := ParSistema.UsarGradesProdutos;
+
+  dtmEmissaoEtiquetas.OnScrollLinhaColunaGrade := AfterScrollLinhaColunaGrade;
+  gbxEtiquetaemBranco.Visible:= (ParSistema.TipoImpressoraEtiqueta = ctJATO);
+  stxNrEtiquetas     .Visible:= (ParSistema.TipoImpressoraEtiqueta = ctJATO);
+  edtetiquetaBranco.Text := '0';
+  pgcEtiquetas.ActivePageindex := 0;
+  pgcProduto.ActivePageIndex:=0;
+  gbxQuantidade.Visible:= false;
+  pgcNotasProdutos.ActivePageIndex:=0;
+  LerPercentualDesconto;
+
+  fraConsultaPedido.TipoPesquisa := pesPEDIDOS;
+  fraConsultaPedido.CondicoesdaConsulta := CondicaoConsultaPedido;
+  fraConsultaPedido.OnFound := AtribuirDadosPedidos;
+
+  fraConsultaItemProduto.TipoPesquisa := pesITEMPRODUTOS;
+  fraConsultaProduto.TipoPesquisa     := pesPRODUTOS;
+  fraConsultaItemProdutoPedido.TipoPesquisa := pesITEMPRODUTOS;
+  fraConsultaItemProdutoPedido.CondicoesdaConsulta := CondicoesdaConsultaItemProdutoPedido;
+
+  fraConsultaFilialProdutosExposicao.TipoPesquisa := pesFILIAIS;
+
+  SalvarPropriedadesFormulario := true;
+  CarregarConfiguracoesFormulario;
+
+  stxNrEtiquetas.   Height:= 10;
+  stxDataFabricacao.Height:= 10;
+  stxDataValidade.  Height:= 10;
+  stxMargemSuperior.Height:= 10;
+
+  edtDataFabricacao.Text:= DateToStr(dtmEmissaoEtiquetas.DataServidor);
+  edtDataValidade.  Text:= DateToStr(dtmEmissaoEtiquetas.DataServidor + 90);
+
+//  fraConsultaFornecedorNota.qryProcuraCliente.ParamByName('NaoConsiderarTipoCliente').asBoolean := false;
+//  fraConsultaFornecedorNota.qryProcuraCliente.ParamByName('codigo').asString := fraConsultaFornecedorNota.edfcodigo.text;
+//  fraConsultaFornecedorNota.qryProcuraCliente.ParamByName('tipocliente').asString := 'F';
+  fraConsultaFornecedorNota.TipoPesquisa := pesFORNECEDORES;
+  fraConsultaFornecedorNota.TipoCliente := 'F';
+
+//  fraConsultaFornecedorNOta.Tipovfornecedor := 'F';
+  dtmEmissaoEtiquetas.qryProcuraFornecedoresNotas := fraConsultaFornecedorNota.qryProcuraCliente;
+
+  fraConsultaFornecedorNota.qryProcuraCliente.AfterScroll := dtmEmissaoEtiquetas.qryProcuraFornecedoresNotasAfterScroll;
+
+  fraConsultaFornecedorPedido.qryProcuraCliente.ParamByName('NaoConsiderarTipoCliente').asBoolean := false;
+  fraConsultaFornecedorPedido.TipoPesquisa := pesFORNECEDORES;
+  fraConsultaFornecedorPedido.TipoCliente := 'F';
+  fraConsultaFornecedorPedido.Tipovfornecedor := 'F';
+
+  fraConsultaFornecedorProduto.qryProcuraCliente.ParamByName('NaoConsiderarTipoCliente').asBoolean := false;
+  fraConsultaFornecedorProduto.TipoPesquisa := pesFORNECEDORES;
+  fraConsultaFornecedorProduto.TipoCliente := 'F';
+  fraConsultaFornecedorProduto.Tipovfornecedor := 'F';
+  fraConsultaFilialRemetenteMercadoLivre.tipopesquisa := pesFiliais;
+  fraConsultaFilialRemetenteMercadoLivre.onFound := AtribuirDadosEnderecoFilialRemetenteMercadoLivre;
+
+  SetarActivePage(self);
+
+
+//  except
+//     on E: Exception do ShowMessage(E.Message);
+//  end;
+end;
+
+destructor TfrmEmissaoEtiquetas.Destroy;
+begin
+  if assigned(frmCadastroProdutosEmitirEtiquetas) then
+    frmCadastroProdutosEmitirEtiquetas.free;
+    
+  dtmEmissaoEtiquetas:=nil;
+  inherited;
+  frmEmissaoEtiquetas := nil;
+end;
+
+procedure TfrmEmissaoEtiquetas.sbnProcuraSerieClick(Sender: TObject);
+begin
+  InternoPesquisar(edfSerie);
+end;
+
+procedure TfrmEmissaoEtiquetas.sbnProcuraNotaClick(Sender: TObject);
+begin
+  InternoPesquisar(edfNota);
+end;
+
+procedure TfrmEmissaoEtiquetas.sbnProcuraGrupoClick(Sender: TObject);
+begin
+  InternoPesquisar(edfGrupo);
+end;
+
+procedure TfrmEmissaoEtiquetas.sbnProcuraClasseClick(Sender: TObject);
+begin
+  InternoPesquisar(edfClasse);
+end;
+
+procedure TfrmEmissaoEtiquetas.sbnProcuraFilialClick(Sender: TObject);
+begin
+  InternoPesquisar(edfFilial);
+end;
+
+procedure TfrmEmissaoEtiquetas.sbnProcuraMarcaClick(Sender: TObject);
+begin
+  InternoPesquisar(edfMarca);
+end;
+
+procedure TfrmEmissaoEtiquetas.sbnGerarClick(Sender: TObject);
+begin
+  if pgcEtiquetas.ActivePageIndex = 3 then
+  begin
+    if (edtIntervaloInicialSaida.Text = '') or (edtIntervaloFinalSaida.Text = '') then
+      if fraselecaoaleatorianotassaidas2.fraselecaoaleatorianotassaidas.qrySelecaoAleatoria.RecordCount = 0 then
+      begin
+        MensagemAviso('Falta digitar a(s) data(s)');
+        Exit;
+      end
+  end;
+
+  if edfModeloEtiqueta.Text = '' then begin
+       MensagemAviso('Selecione um modelo de etiqueta!');
+       edfModeloEtiqueta.SetFocus;
+       Exit;
+  end;
+
+  if pgcEtiquetas.ActivePageIndex = 5 then
+  begin
+    if ckbQusntidadeLote.checked and (edtNrLote.text='') then
+    begin
+      MensagemAviso('Indique o número do lote de transferência!');
+      edtNrLote.setfocus;
+      edtNrLote.selectall;
+      exit;
+    end;
+  end;
+
+  if (pgcEtiquetas.ActivePageIndex in [6,7,8,9]) then
+  begin
+    if (edtDataInicialInclusaoB2W.Text = '') or (edtDataFinalInclusaoB2W.Text = '') then
+    begin
+       MensagemAviso('Falta digitar a(s) data(s)');
+       edtDataInicialInclusaoB2W.SetFocus;
+       Exit;
+    end;
+  end;
+
+  if (pgcEtiquetas.ActivePageIndex in [9]) then
+  begin
+    if dtmEmissaoEtiquetas.qryRepresentante.recordcount = 0 then
+    begin
+      MensagemAviso('Informe o endereço do emitente!');
+      pgcParametrosMercadoLivre.activepage := tstRemetenteMercadoLivre;
+    end;
+  end;
+
+  if VerificaCamposConsulta then begin
+    with dtmEmissaoEtiquetas do begin
+      case pgcEtiquetas.ActivePageIndex of
+        0: begin
+             pgcProdutoChange(nil);
+             ParametroFornecedorProdutos := fraConsultaFornecedorProduto.edfCodigo.Text;
+             ParametroProduto := fraConsultaItemProduto.edfCodigo.ValoraDataFieldInterno;
+             ParametroGrupo   := edfGrupo.Text;
+             ParametroClasse  := edfClasse.Text;
+             ParametroCaracteristicas := fraConsultaProduto.edfcodigo.ValoraDataFieldInterno;
+             ParametroFilial  := edfFilial.Text;
+             ParametroMarca   := edfMarca.Text;
+             ProdutoEmLinha     := ckbProdutoEmLinha_1.checked;
+             ProdutoForadeLinha := ckbProdutoForadeLinha_1.checked;
+             ProdutoAtivo       := ckbProdutoAtivo_1.checked;
+             ProdutoInativo     := ckbProdutoInativo_1.checked;
+
+             GerarEtiquetasProduto;
+           end;
+        1: begin
+             ParametroFornecedorNotas := fraConsultaFornecedorNota.edfcodigo.Text;
+             ParametroSerie := edfSerie.Text;
+             ParametroNota := edfNota.Text;
+
+             ProdutoEmLinha     := ckbProdutoEmLinha_2.checked;
+             ProdutoForadeLinha := ckbProdutoForadeLinha_2.checked;
+             ProdutoAtivo       := ckbProdutoAtivo_2.checked;
+             ProdutoInativo     := ckbProdutoInativo_2.checked;
+
+             qryetiquetas.Sql.clear;
+             qryEtiquetas.Sql.Text := qryEtiquetasNotas.Sql.Text;
+             if rdbDescricaoProduto.Checked then
+                qryEtiquetas.Sql.Text := qryEtiquetas.Sql.Text +
+                                         'Order BY UPPER(TO_ASCII(p.Descricao,''LATIN1'')),pn.numero,p.codigo,p.valorgrade1,p.valorgrade1,UPPER(TO_ASCII(m.Descricao,''LATIN1'')),c.volumes,pn.quantidade,pn.filial'
+             else
+                qryEtiquetas.Sql.Text := qryEtiquetas.Sql.Text +
+                                         'Order BY pn.numero,p.codigo,UPPER(TO_ASCII(p.Descricao,''LATIN1'')),p.valorgrade1,p.valorgrade1,UPPER(TO_ASCII(m.Descricao,''LATIN1'')),c.volumes,pn.quantidade,pn.filial';
+             GerarEtiquetasNota;
+           end;
+        2: begin
+             ParametroFilialMovto := edfFilialMovto.Text;
+             ParametroTipoMovto   := edfTipoMovimento.Text;
+             ParametroDataInicial := edtIntervaloInicial.Text;
+             ParametroDataFinal   := edtIntervaloFinal.Text;
+
+             ProdutoEmLinha     := ckbProdutoEmLinha_3.checked;
+             ProdutoForadeLinha := ckbProdutoForadeLinha_3.checked;
+             ProdutoAtivo       := ckbProdutoAtivo_3.checked;
+             ProdutoInativo     := ckbProdutoInativo_3.checked;
+
+             GerarEtiquetasMovimento;
+           end;
+        3: begin
+             ParametroCliente         := edfClientesSaida.Text;
+             ParametroDataInicialSaida:= edtIntervaloInicialSaida.Text;
+             ParametroDataFinalSaida  := edtIntervaloFinalSaida.Text;
+             ParametroNotaInicialSaida:= edtNotaInicialSaida.Text;
+             ParametroNotaFinalSaida  := edtNotaFinalSaida.Text;
+//           ParametroTipoMovto       := edfTipoMovimentoSaida.Text;
+
+             ProdutoEmLinha     := ckbProdutoEmLinha_4.checked;
+             ProdutoForadeLinha := ckbProdutoForadeLinha_4.checked;
+             ProdutoAtivo       := ckbProdutoAtivo_4.checked;
+             ProdutoInativo     := ckbProdutoInativo_4.checked;
+             ParametroListaDadosFiscais := fraselecaoaleatorianotassaidas2.ListaCondicional;
+
+             GerarEtiquetasNotasSaida;
+
+             pgcNotasProdutos2.ActivePageIndex := 0;
+             if qryNotasSaidas.IsEmpty then
+                MensagemAviso(ctSEMETIQUETASPARAIMPRIMIR)
+             else
+             begin
+                pgcNotasProdutos.ActivePage := tstNotaseProdutos;
+                dbgNotasSaidas.SetFocus;
+             end;
+
+             Exit;
+           end;
+        4: begin
+            pgcNotasProdutos.ActivePageIndex := 0;
+            ParametroPedido := fraConsultaPedido.edfcodigo.text;
+            ParametroFornecedorPedido := fraConsultaFornecedorPedido.edfcodigo.text;
+            ParametroProdutoPedido := fraConsultaItemProdutoPedido.edfcodigo.ValoraDataFieldInterno;
+            ParametroDataInicialPedido := edtDataInicialPedido.text;
+            ParametroDataFinalPedido := edtDataFinalPedido.text;
+            ParametroSituacaoPedido := rgbSituacao.ItemIndex;
+            ParametroOrdenacaoPedido := rgbOrdenar.ItemIndex;
+
+            ProdutoEmLinha     := ckbProdutoEmLinha_5.checked;
+            ProdutoForadeLinha := ckbProdutoForadeLinha_5.checked;
+            ProdutoAtivo       := ckbProdutoAtivo_5.checked;
+            ProdutoInativo     := ckbProdutoInativo_5.checked;
+
+            GerarEtiquetasPedidos;
+
+           end;
+
+        5: begin
+             ParametroFilial  := fraConsultaFilialProdutosExposicao.qryProcuraFiliais.FieldByName('codigo').AsString;
+             ParametroProduto :=  fraMultiplaSelecaoAleatoriaProdutosExposicao.fraSelecaoAleatoriaItemdeProdutos.ListaCondicional;
+             ParametroCaracteristicas := fraMultiplaSelecaoAleatoriaProdutosExposicao.fraSelecaoAleatoriaprodutos.ListaCondicional;
+             ParametroGrupo   := fraMultiplaSelecaoAleatoriaProdutosExposicao.fraSelecaoaleatoriagruposprodutos.ListaCondicional;
+             ParametroClasse  := fraMultiplaSelecaoAleatoriaProdutosExposicao.fraSelecaoaleatoriaclassesprodutos.ListaCondicional;
+             ParametroMarca   := fraMultiplaSelecaoAleatoriaProdutosExposicao.fraSelecaoAleatoriamarcasProdutos.ListaCondicional;
+             ListaCondicionalPromocoes := fraMultiplaSelecaoAleatoriaProdutosExposicao.fraSelecaoaleatoriapromocoes.ListaCondicional;
+
+             ParametroListasPadrao :=  fraSelecaoaleatorialistaspadronizadas1.ListaCondicional;
+
+             ParametroDataInicial := edtIntervaloInicialAlteracaoProdutosExposicao.Text;
+             ParametroDataFinal   := edtIntervaloFinalAlteracaoProdutosExposicao.Text;
+
+             QuantidadeLote := ckbQusntidadeLote.checked;
+             lotetransferencia := edtNrLote.ValorSemFormatacao;
+             QtdemEstoqueProdutosExposicao := ckbQtdemEstoqueProdutosExposicao.checked;
+             QtdeZerada := ckbQtdeZeradaProdutosExposicao.checked;
+
+             ProdutoEmLinha     := ckbProdutoEmLinha_6.checked;
+             ProdutoForadeLinha := ckbProdutoForadeLinha_6.checked;
+             ProdutoAtivo       := ckbProdutoAtivo_6.checked;
+             ProdutoInativo     := ckbProdutoInativo_6.checked;
+
+             produtoEmExposicao := ckbEmExposicao.checked;
+             produtoForaExposicao := ckbForaExposicao.checked;
+
+             ProdutosEmPromocao := ckbEmPromocao.Checked;
+             ProdutosForaPromocao := ckbForaPromocao.Checked;
+
+             GerarEtiquetasProdutosExposicao;
+           end;
+
+        6: begin
+             dbgplp_b2w.filter.Clear;
+             dbgplp_b2w.FilterActive := False;
+             dbgplp_b2w.DataSource.DataSet.close;
+
+//             dbgplp_b2w.DataSource.DataSet.first;
+             ParametroDataInicialInclusaoB2W := edtDataInicialInclusaoB2W.Text;
+             ParametroDataFinalInclusaoB2W   := edtDataFinalInclusaoB2W.Text;
+             ParametroIncluirB2wJaImpressos :=  ckbIncluirB2WJaImpressos.checked;
+//             ParametroSomenteUmaPorPedido := ckbSomenteUmaPorPedido.checked;
+             GerarEtiquetasProdutosB2W;
+
+//             dbgplp_b2w.reload;
+
+             dbgplp_b2w.DataSource.DataSet.Next;
+             dbgplp_b2w.DataSource.DataSet.Prior;
+             dbgplp_b2w.FilterActive := True;
+
+           end;
+
+        7: begin
+
+             EtiquetasMarcadas := 0;
+
+             DBAdvGridMagalu.filter.Clear;
+             DBAdvGridMagalu.FilterActive := False;
+             DBAdvGridMagalu.DataSource.DataSet.close;
+
+//             dbgplp_b2w.DataSource.DataSet.first;
+             ParametroDataInicialInclusaoB2W := edtDataInicialInclusaoB2W.Text;
+             ParametroDataFinalInclusaoB2W   := edtDataFinalInclusaoB2W.Text;
+             ParametroIncluirB2wJaImpressos :=  ckbIncluirB2WJaImpressos.checked;
+//             ParametroSomenteUmaPorPedido := ckbSomenteUmaPorPedido.checked;
+             ParametroListaVendedores := fraSelecaoAleatoriavendedores1.ListaCondicional;
+             ParametroListaDadosFiscais := fraselecaoaleatorianotassaidas1.ListaCondicional;
+             GerarEtiquetasProdutosMagalu;
+
+//             dbgplp_b2w.reload;
+
+             DBAdvGridMagalu.DataSource.DataSet.Next;
+             DBAdvGridMagalu.DataSource.DataSet.Prior;
+             DBAdvGridMagalu.FilterActive := True;
+
+             DBAdvGridMagalu.AutoNumberCol(0);
+             DBAdvGridMagalu.AutoNumberCol(0);
+             DBAdvGridMagalu.refresh;
+             
+
+           end;
+
+        8: begin
+
+             EtiquetasMarcadas := 0;
+
+             DBAdvGridMagalu.filter.Clear;
+             DBAdvGridMagalu.FilterActive := False;
+             DBAdvGridMagalu.DataSource.DataSet.close;
+
+//             dbgplp_b2w.DataSource.DataSet.first;
+             ParametroDataInicialInclusaoB2W := edtDataInicialInclusaoB2W.Text;
+             ParametroDataFinalInclusaoB2W   := edtDataFinalInclusaoB2W.Text;
+             ParametroIncluirB2wJaImpressos :=  ckbIncluirB2WJaImpressos.checked;
+
+             ParametroListaVendedores := fraSelecaoAleatoriavendedores2.ListaCondicional;
+             ParametroListaDadosFiscais := fraselecaoaleatorianotassaidas1.ListaCondicional;
+             GerarEtiquetasProdutosCorreios;
+
+//             dbgplp_b2w.reload;
+
+             DBAdvGridMagalu.DataSource.DataSet.Next;
+             DBAdvGridMagalu.DataSource.DataSet.Prior;
+             DBAdvGridMagalu.FilterActive := True;
+
+             DBAdvGridMagalu.AutoNumberCol(0);
+             DBAdvGridMagalu.AutoNumberCol(0);
+             DBAdvGridMagalu.refresh;
+
+
+           end;
+
+        9: begin
+
+             EtiquetasMarcadas := 0;
+
+             DBAdvGridMagalu.filter.Clear;
+             DBAdvGridMagalu.FilterActive := False;
+             DBAdvGridMagalu.DataSource.DataSet.close;
+
+//             dbgplp_b2w.DataSource.DataSet.first;
+             ParametroDataInicialInclusaoB2W := edtDataInicialInclusaoB2W.Text;
+             ParametroDataFinalInclusaoB2W   := edtDataFinalInclusaoB2W.Text;
+             ParametroIncluirB2wJaImpressos :=  ckbIncluirB2WJaImpressos.checked;
+
+             ParametroListaVendedores := fraSelecaoAleatoriavendedores3.ListaCondicional;
+             ParametroListaDadosFiscais := fraselecaoaleatorianotassaidas1.ListaCondicional;
+             GerarEtiquetasProdutosMercadoLivre;
+
+//             dbgplp_b2w.reload;
+
+             DBAdvGridMagalu.DataSource.DataSet.Next;
+             DBAdvGridMagalu.DataSource.DataSet.Prior;
+             DBAdvGridMagalu.FilterActive := True;
+
+             DBAdvGridMagalu.AutoNumberCol(0);
+             DBAdvGridMagalu.AutoNumberCol(0);
+             DBAdvGridMagalu.refresh;
+
+
+           end;
+
+
+
+      end;
+
+      if not (pgcEtiquetas.ActivePageIndex in [6,7,8,9]) then
+      begin
+        if qryetiquetas.IsEmpty then
+           MensagemAviso(ctSEMETIQUETASPARAIMPRIMIR)
+        else
+           if pgcEtiquetas.ActivePageIndex = 0 then begin
+              if not ckbQtdemEstoque.Checked then
+                 if edtQuantidade.Text <> '' then
+                    AtualizarQuantidadeEtiquetas(StrToInt(edtQuantidade.Text))
+                 else
+                    MensagemAviso(ctETIQUETASEMQUANTIDADE);
+           end
+           else
+           if pgcEtiquetas.ActivePageIndex = 5 then
+           begin
+              if not ckbQtdemEstoqueProdutosExposicao.Checked and
+                 not ckbQusntidadeLote.checked then
+              begin
+                if edtQuantidadeProdutosExposicao.Text <> '' then
+                  AtualizarQuantidadeEtiquetas(StrToInt(edtQuantidadeProdutosExposicao.Text))
+                else
+                  MensagemAviso(ctETIQUETASEMQUANTIDADE);
+              end;
+           end;
+
+           if (pgcNotasProdutos.ActivePageIndex=0) then
+             dbgEmissaoEtiquetas.SetFocus
+           else
+             dbgNotasSaidas.SetFocus;
+        end;
+      end;
+  end else
+    if pgcEtiquetas.ActivePageindex = 3 then
+       edtIntervaloInicialSaida.SetFocus;
+end;
+
+procedure TfrmEmissaoEtiquetas.pgcProdutoChange(Sender: TObject);
+begin
+  with dtmEmissaoEtiquetas do
+  begin
+    if pgcProduto.ActivePage = tstProduto then
+    begin
+      fraConsultaItemProduto.edfcodigo.SetFocus;
+      fraConsultaProduto.edfcodigo.Clear;
+      edfGrupo.Clear;
+      edfClasse.Clear;
+      fraConsultaFornecedorProduto.edfCodigo.clear;
+      edfMarca.clear;
+    end
+    else
+      if pgcProduto.ActivePage = tstcaracteristicas then
+      begin
+        fraConsultaItemProduto.edfcodigo.clear;
+        fraConsultaProduto.edfcodigo.SetFocus;
+        edfGrupo.Clear;
+        edfClasse.Clear;
+        fraConsultaFornecedorProduto.edfCodigo.clear;
+        edfMarca.clear;
+      end
+      else
+        if pgcProduto.ActivePage = tstGrupo then
+        begin
+          fraConsultaItemProduto.edfcodigo.clear;
+          fraConsultaProduto.edfcodigo.clear;
+          edfGrupo.SetFocus;
+          edfClasse.Clear;
+          fraConsultaFornecedorProduto.edfCodigo.clear;
+          edfMarca.clear;
+        end
+        else
+          if pgcProduto.ActivePage = tstClasse then
+          begin
+            fraConsultaItemProduto.edfcodigo.clear;
+            fraConsultaProduto.edfcodigo.clear;
+            edfGrupo.clear;
+            edfClasse.setfocus;
+            fraConsultaFornecedorProduto.edfCodigo.clear;
+            edfMarca.clear;
+          end
+          else
+            if pgcProduto.ActivePage = tstFornecedor then
+            begin
+              fraConsultaItemProduto.edfcodigo.clear;
+              fraConsultaProduto.edfcodigo.clear;
+              edfGrupo.clear;
+              edfClasse.clear;
+              fraConsultaFornecedorProduto.edfCodigo.setfocus;
+              edfMarca.clear;
+            end
+            else
+              if pgcProduto.ActivePage = tstMarca then
+              begin
+                fraConsultaItemProduto.edfcodigo.clear;
+                fraConsultaProduto.edfcodigo.clear;
+                edfGrupo.clear;
+                edfClasse.clear;
+                fraConsultaFornecedorProduto.edfCodigo.clear;
+                edfMarca.setfocus;
+              end;
+  end;
+end;
+
+
+procedure TfrmEmissaoEtiquetas.actImprimirExecute(Sender: TObject);
+var
+ Imp: String;
+ Res: Boolean;
+ vplp : String;
+ i :integer;
+begin
+//  dtmemissaoetiquetas.ParametroSomenteUmaPorPedido := ckbSomenteUmaPorPedido.checked;
+
+  dtmemissaoetiquetas.TipoImpressaoEtiquetas := tpeOutros;
+  dtmemissaoetiquetas.fMargemSuperior := EDTMargemSuperior.valorsemformatacao;
+  dtmemissaoetiquetas.fMargemEsquerda := EDTMargemEsquerda.valorsemformatacao;
+
+  dtmEmissaoEtiquetas.ImprimirFoto := false;
+
+  RemoverControles;
+  if (ParSistema.TipoImpressoraEtiqueta <> ctZEBRA) and
+     (ParSistema.TipoImpressoraEtiqueta <> ctRABBIT) and
+     (ParSistema.TipoImpressoraEtiqueta <> ctARGOX) then
+     TtecEditionControlItem(ecvEmissaoEtiquetas.EditionControl.Add).Control:= edfModeloEtiqueta;
+  Res:= True; // ecvEmissaoEtiquetas.Verify(gbxEtiquetaProduto, ControleValido);
+
+ if Res then
+     Res := OperadorTernario(Trim(edfModeloEtiqueta.Text)  <> '', edfModeloEtiqueta.Exist, True);
+
+  If Res then
+  begin
+     FRelatorioAberto:=True;
+     sbnImprimir.Enabled:=false;
+     sbnGerar.Enabled:=false;
+
+    with dtmEmissaoEtiquetas do
+    begin
+      ImprimirPreco    := ckbImprimirPreco.Checked;
+      PercentualAvista := edtPercentualAVista.ValorSemFormatacao;
+      case pgcEtiquetas.ActivePageIndex of
+        0: begin
+            ImprimirQtadeemEstoqueouNota := ckbQtdemEstoque.Checked;
+            QtadeaImprimir := edtQuantidade.ValorSemFormatacao;
+           end;
+    1,2,3: ImprimirQtadeemEstoqueouNota := True;
+
+        5: begin
+
+            ImprimirFoto := ckbImprimirFotoProduto.checked;
+            ImprimirQtadeemEstoqueouNota := ckbQtdemEstoque.Checked;
+            QtadeaImprimir := edtQuantidade.ValorSemFormatacao;
+            dtmEmissaoEtiquetas.ProdutosEmPromocao := false;
+
+            SalvarConfiguracoesFormulario('PRODUTOS EM EXPOSIÇÃO');
+
+           end;
+
+      end;
+
+      if ParSistema.TipoImpressoraEtiqueta = ctRABBIT then
+           ImpressaoRABBIT(rgpTipoEtiqueta.ItemIndex)
+      else
+      if ParSistema.TipoImpressoraEtiqueta = ctZEBRA then
+           ImpressaoZebraTLP2844(rgpTipoEtiqueta.ItemIndex,pgcEtiquetas.ActivePageIndex)
+      else
+      if ParSistema.TipoImpressoraEtiqueta = ctARGOX then
+           ImpressaoARGOX(rgpTipoEtiqueta.ItemIndex)
+      else
+      if ParSistema.TipoImpressoraEtiqueta = ctMATRICIAL then begin
+         Imp := ParSistema.NomeImpressoraEtiqueta;
+         ImprimirEtiquetas(ckbModificar.Checked, edtArquivo.Text, Imp);
+      end else
+      if ParSistema.TipoImpressoraEtiqueta = ctJATO then
+      begin
+         Imp := ParSistema.NomeImpressoraEtiqueta;
+
+         if pgcEtiquetas.ActivePageIndex = 6 then
+         begin
+          if dbgplp_b2w.RowCount > 0 then
+          begin
+            dtmemissaoetiquetas.TipoImpressaoEtiquetas := tpeB2W;
+            dtmemissaoetiquetas.Tipo_ := 'Fast4';
+            vplp := dbgplp_b2w.Cells[2, dbgplp_b2w.row];
+            if vplp <> '' then
+              dtmEmissaoEtiquetas.qryplpb2w.locate('plp', strtoint(vplp), []);
+
+             ImprimirEtiquetasProdutosB2W;
+
+            dtmEmissaoEtiquetas.qryplpb2w.AfterScroll := nil;
+            dbgplp_b2w.Reload;
+            dtmEmissaoEtiquetas.qryplpb2w.AfterScroll := qryplpb2wAfterScroll;
+          end;
+
+         end
+         else
+         if pgcEtiquetas.ActivePageIndex = 7 then
+         begin
+
+          {
+          if dbgplp_b2w.rowcount > 0 then
+          begin
+            vplp := dbgplp_b2w.Cells[2, dbgplp_b2w.row];
+            if vplp <> '' then
+              dtmEmissaoEtiquetas.qryEtiquetasMagalu.locate('codigo_pedido_marketplace', strtoint(vplp), []);
+          }
+            QtadeaImprimir := edtQtdadeEtiquetasporPedido.ValorSemFormatacao;
+            dtmemissaoetiquetas.TipoImpressaoEtiquetas := tpeMagalu;
+            dtmemissaoetiquetas.Tipo_ := 'Fast4';
+
+            ImprimirEtiquetasProdutosMagalu;
+
+            dtmEmissaoEtiquetas.qryEtiquetasMagalu.AfterScroll := nil;
+            DBAdvGridMagalu.Reload;
+            dtmEmissaoEtiquetas.qryEtiquetasMagalu.AfterScroll := qryEtiquetasMagaluAfterScroll;
+//          end;
+
+         end
+         else
+         if pgcEtiquetas.ActivePageIndex = 8 then
+         begin
+            QtadeaImprimir := edtQtdadeEtiquetasporPedido.ValorSemFormatacao;
+            dtmemissaoetiquetas.TipoImpressaoEtiquetas := tpeCorreios;
+            dtmemissaoetiquetas.Tipo_ := 'Fast4';
+            ImprimirEtiquetasProdutosCorreios;
+            dtmEmissaoEtiquetas.qryEtiquetasCorreios.afterScroll := nil;
+            DBAdvGridMagalu.Reload;
+            dtmEmissaoEtiquetas.qryEtiquetasCorreios.AfterScroll := qryEtiquetasCorreiosAfterScroll;
+         end
+         else
+         if pgcEtiquetas.ActivePageIndex = 9 then
+         begin
+            QtadeaImprimir := edtQtdadeEtiquetasporPedido.ValorSemFormatacao;
+            dtmemissaoetiquetas.TipoImpressaoEtiquetas := tpeMercadoLivre;
+            dtmemissaoetiquetas.Tipo_ := 'Fast4';
+            ImprimirEtiquetasProdutosMercadoLivre;
+            dtmEmissaoEtiquetas.qryEtiquetasMercadoLivre.afterScroll := nil;
+            DBAdvGridMagalu.Reload;
+            dtmEmissaoEtiquetas.qryEtiquetasMercadoLivre.AfterScroll := qryEtiquetasMercadoLivreAfterScroll;
+         end
+         else
+         if (pgcEtiquetas.ActivePage = tstNotaFiscalSaidas) and
+            ((dtmEmissaoEtiquetas.qryProcuraModelosEtiquetasarquivo.AsString = 'frpEtiquetasNfSaidaVolumes.fr3') or
+             (ForcarImprimirEtiquetasNfSaidaVolumes )) then
+           ImprimirEtiquetasNfSaidaVolumes
+         else
+           ImprimirEtiquetasJato(ckbModificar.Checked, strtoint(edtetiquetaBranco.ValorSemFormatacao), edtArquivo.Text, Imp);
+      end
+      else
+      begin
+        frmSelecionarImpressoras := TfrmSelecionarImpressoras.Create(frmSelecionarImpressoras, ' ');
+        try
+          if frmSelecionarImpressoras.ShowModal = mrok then begin
+            Imp := frmSelecionarImpressoras.NomeImpressora;
+            ImprimirEtiquetas(ckbModificar.Checked, edtArquivo.Text, Imp);
+          end else
+            MensagemAviso(ctSELECIONARIMPRESSORA)
+        finally
+          frmSelecionarImpressoras.Free;
+        end
+      end
+    end;
+    sbnGerar.Enabled:=True;
+    sbnImprimir.Enabled:=True;
+    FRelatorioAberto:=False;
+    SalvarPercentualDesconto;
+  end;
+end;
+
+procedure TfrmEmissaoEtiquetas.actImprimirUpdate(Sender: TObject);
+begin
+  with dtmEmissaoEtiquetas do
+
+   if not FRelatorioAberto then
+
+      if pgcEtiquetas.ActivePage = tstNotaFiscalSaidas then
+         sbnImprimir.Enabled := not qryNotasSaidas.IsEmpty
+      else
+      if pgcEtiquetas.ActivePage = tstb2w_ then
+        sbnImprimir.Enabled := not qryplpb2w_items.IsEmpty
+      else
+      if pgcEtiquetas.ActivePage = tstMagalu then
+        sbnImprimir.Enabled := (EtiquetasMarcadas <> 0)
+      else
+      if pgcEtiquetas.ActivePage = tstCorreios then
+        sbnImprimir.Enabled := (EtiquetasMarcadas <> 0)
+      else
+        sbnImprimir.Enabled := not qryEtiquetas.IsEmpty;
+end;
+
+function TfrmEmissaoEtiquetas.JanelaPesquisa;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  if (TipoPesquisa in [pesCLIENTES]) then
+     TfrmConsultaPorCampo(Result).ConsultaInterativa:= False
+  else
+     TfrmConsultaPorCampo(Result).ConsultaInterativa:= True;
+
+  TfrmConsultaPorCampo(Result).UsarParametrosDaTabela:=False;
+end;
+
+function TfrmEmissaoEtiquetas.InternoPesquisar(Titulo: String): Integer;
+begin
+  Result := mrNone;
+  with dtmEmissaoEtiquetas do
+    if PesquisaHabilitada then begin
+      AbreTabelaPesquisa(TipoPesquisa);
+      Result := inherited InternoPesquisar(TituloPesquisa);
+      if Result = mrOK then
+        Selecionar(TipoPesquisa,False);
+      FechaTabelaPesquisa(TipoPesquisa);
+    end;
+end;
+
+function TfrmEmissaoEtiquetas.ExisteInformacao(Parametro: Integer;NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmEmissaoEtiquetas do
+    case TipoPesquisa of
+            pesSERIES           : Result:= ExisteSerie(NomeCampo, Value);
+            pesNOTAS            : Result:= ExisteNota(NomeCampo, Value);
+            pesGRUPOS           : Result:= ExisteGrupo(NomeCampo, Value);
+            pesCLASSES          : Result:= ExisteClasse(NomeCampo, Value);
+            pesFILIAIS          : Result:= ExisteFilial(NomeCampo, Value);
+            pesMARCAS           : Result:= ExisteMarca(NomeCampo, Value);
+     pesTIPOSMOVIMENTOS         : Result:= ExisteTipoMovto(NomeCampo, Value);
+     pesMODELOETIQUETA          : Result:= ExisteModelosEtiquetas(NomeCampo, Value);
+              pesPLANO          : Result:= ExistePlano(NomeCampo, Value);
+           pesCLIENTES          : Result:= ExisteCliente(NomeCampo, Value);
+
+    else
+      Result := False;
+    end;
+end;
+
+function TfrmEmissaoEtiquetas.TabelaDePesquisa: TZDataSet;
+begin
+  with dtmEmissaoEtiquetas do
+    case TipoPesquisa of
+              pesSERIES          : Result:= ConsultarSerie;
+              pesNOTAS           : Result:= ConsultarNota;
+              pesGRUPOS          : Result:= ConsultarGrupo;
+              pesCLASSES         : Result:= ConsultarClasse;
+              pesFILIAIS         : Result:= ConsultarFilial;
+              pesMARCAS          : Result:= ConsultarMarca;
+       pesTIPOSMOVIMENTOS        : Result:= ConsultarTipoMovto;
+       pesMODELOETIQUETA         : Result:= ConsultaModeloEtiqueta;
+                pesPlano         : Result:= ConsultarPlano;
+              pesClientes        : Result:= ConsultarClientes;
+    else
+      Result := nil;
+    end;
+end;
+
+procedure TfrmEmissaoEtiquetas.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case Key of
+    VK_Escape : begin
+                   dtmEmissaoEtiquetas.FecharTabelaEtiqueta;
+                   case pgcEtiquetas.ActivePageIndex of
+                     0: edfFilial.SetFocus;
+                     1: fraConsultaFornecedorNota.edfcodigo.SetFocus;
+                     2: edfFilialMovto.SetFocus;
+                     3: edfClientesSaida.SetFocus;
+                   end;
+                 end;
+        VK_F6 : if sbnGerar.enabled then sbnGerar.Click;
+        VK_F7 : if sbnimprimir.Enabled then sbnimprimir.Click;
+  end;
+end;
+
+function TfrmEmissaoEtiquetas.PesquisaHabilitada: Boolean;
+begin
+  Result:= False;
+  if CtrlOn then begin
+    if ActiveControl is TtecDBEditFind then begin
+      if edfSerie.Focused then
+        TipoPesquisa := pesSERIES
+      else
+      if edfNota.Focused then
+        TipoPesquisa := pesNOTAS
+      else
+      if edfGrupo.Focused then
+        TipoPesquisa := pesGRUPOS
+      else
+      if edfClasse.Focused then
+        TipoPesquisa := pesCLASSES
+      else
+      if (edfFilial.Focused or edfFilialMovto.Focused) then
+        TipoPesquisa := pesFILIAIS
+      else if edfModeloEtiqueta.Focused then
+        TipoPesquisa := pesMODELOETIQUETA
+      else if edfTipoMovimento.Focused then
+        TipoPesquisa := pesTIPOSMOVIMENTOS
+      else if edfPlano.Focused then
+        TipoPesquisa := pesPlano
+      else
+      if edfClientesSaida.Focused then
+        TipoPesquisa := pesClientes
+      else
+        TipoPesquisa := pesMARCAS;
+
+      Result := True;
+    end
+  end;
+end;
+
+function TfrmEmissaoEtiquetas.TituloPesquisa: String;
+begin
+  case TipoPesquisa of
+              pesSERIES                 : Result := 'Séries';
+              pesNOTAS                  : Result := 'Notas';
+              pesGRUPOS                 : Result := 'Grupos';
+              pesCLASSES                : Result := 'Classes';
+              pesFILIAIS                : Result := 'Filiais';
+              pesMARCAS                 : Result := 'Marcas';
+       pesTIPOSMOVIMENTOS               : Result := 'Tipos Movimentos';
+        pesMODELOETIQUETA               : Result := 'Modelos Etiquetas';
+                 pesPlano               : Result := 'Tipo Plano';
+              pesCLIENTES               : Result := 'Clientes';
+  end;
+end;
+
+procedure TfrmEmissaoEtiquetas.RemoverControles;
+Var
+  A: Integer;
+begin
+  for A:= ecvEmissaoEtiquetas.EditionControl.Count-1 DownTo 0 do
+      ecvEmissaoEtiquetas.EditionControl.Delete(A);
+end;
+
+function TfrmEmissaoEtiquetas.VerificaCamposConsulta: Boolean;
+begin
+  Result := False;
+  RemoverControles;
+  case pgcEtiquetas.ActivePageIndex of
+    0: //tstEtiquetaProduto
+    begin
+      TtecEditionControlItem(ecvEmissaoEtiquetas.EditionControl.Add).Control:= edfFilial;
+      if not ckbQtdemEstoque.Checked then
+        TtecEditionControlItem(ecvEmissaoEtiquetas.EditionControl.Add).Control:= edtQuantidade;
+      Result:= ecvEmissaoEtiquetas.Verify(pnlFundoJanela, ControleValido);
+    end;
+
+    1: //tstEtiquetaNota
+    begin
+      TtecEditionControlItem(ecvEmissaoEtiquetas.EditionControl.Add).Control:= fraConsultaFornecedorNota.edfcodigo;
+      TtecEditionControlItem(ecvEmissaoEtiquetas.EditionControl.Add).Control:= edfSerie;
+      TtecEditionControlItem(ecvEmissaoEtiquetas.EditionControl.Add).Control:= edfNota;
+      Result:= ecvEmissaoEtiquetas.Verify(pnlFundoJanela, ControleValido);
+    end;
+
+    2: //tstMovimentacao
+    begin
+      TtecEditionControlItem(ecvEmissaoEtiquetas.EditionControl.Add).Control:= edfTipoMovimento;
+      TtecEditionControlItem(ecvEmissaoEtiquetas.EditionControl.Add).Control:= edtIntervaloInicial;
+      TtecEditionControlItem(ecvEmissaoEtiquetas.EditionControl.Add).Control:= edtIntervaloFinal;
+  //    if not ParSistema.ImpressaoRabbitEtiqueta then
+  //      TtecEditionControlItem(ecvEmissaoEtiquetas.EditionControl.Add).Control:= edfModeloEtiqueta;
+      Result:= ecvEmissaoEtiquetas.Verify(pnlFundoJanela, ControleValido);
+    end;
+
+
+    3: //tstNotaFiscalSaidas
+    begin
+      Result := True;
+    end;
+
+    4: //tstPedidos
+    begin
+      Result := True;
+      if not ((fraConsultaPedido.edfCodigo.Text <> '') or
+              ((fraConsultaFornecedorPedido.edfcodigo.text <> '') and
+               (edtDataInicialPedido.Text <> '') and
+               (edtDataFinalPedido.Text <> ''))) then
+      begin
+        if not (fraConsultaFornecedorPedido.edfcodigo.text <> '') then
+          TtecEditionControlItem(ecvEmissaoEtiquetas.EditionControl.Add).Control:= fraConsultaPedido.edfcodigo;
+
+        TtecEditionControlItem(ecvEmissaoEtiquetas.EditionControl.Add).Control:= fraConsultaFornecedorPedido.edfcodigo;
+        TtecEditionControlItem(ecvEmissaoEtiquetas.EditionControl.Add).Control:= edtDataInicialPedido;
+        TtecEditionControlItem(ecvEmissaoEtiquetas.EditionControl.Add).Control:= edtDataFinalPedido;
+        Result:= ecvEmissaoEtiquetas.Verify(pnlFundoJanela, ControleValido);
+      end;
+    end;
+
+    5: //produtos em exposicao
+    begin
+      TtecEditionControlItem(ecvEmissaoEtiquetas.EditionControl.Add).Control:= fraConsultaFilialProdutosExposicao.edfCodigo;
+      if not ckbQtdemEstoqueProdutosExposicao.Checked then
+        TtecEditionControlItem(ecvEmissaoEtiquetas.EditionControl.Add).Control:= edtQuantidadeProdutosExposicao;
+      Result:= ecvEmissaoEtiquetas.Verify(pnlFundoJanela, ControleValido);
+    end;
+
+    6,7,8,9: //b2w
+    begin
+      Result := True;
+    end;
+
+  end;
+
+//OperadorTernario(Trim(edfModeloEtiqueta.Text)  <> '', edfModeloEtiqueta.Exist, True) and
+
+  if Result then
+    case pgcEtiquetas.ActivePageIndex of
+      0: Result := OperadorTernario(Trim(edfFilial.Text)  <> '', edfFilial.Exist, False) and
+                   OperadorTernario(Trim(fraConsultaItemProduto.edfcodigo.Text) <> '', fraConsultaItemProduto.edfcodigo.Exist,True)  and
+                   OperadorTernario(Trim(edfGrupo.Text)   <> '', edfGrupo.Exist,  True)  and
+                   OperadorTernario(Trim(edfClasse.Text)  <> '', edfClasse.Exist, True)  and
+                   OperadorTernario(Trim(fraConsultaFornecedorProduto.edfCodigo.Text) <> '', fraConsultaFornecedorProduto.edfCodigo.Exist, True) and
+                   OperadorTernario(Trim(edfMarca.Text)   <> '', edfMarca.Exist,  True);
+
+      1: Result := fraConsultaFornecedorNota.edfcodigo.Exist and edfSerie.Exist and edfNota.Exist;
+
+      2: Result := OperadorTernario(Trim(edfFilialMovto.Text)  <> '', edfFilial.Exist,True)  and
+                   OperadorTernario(Trim(edfTipoMovimento.Text)<> '', edfTipoMovimento.Exist, False);
+
+ //   3: Result := edfClientesSaida.Exist; and OperadorTernario(Trim(edfTipoMovimentoSaida.Text)  <> '', edfTipoMovimentoSaida.Exist, False);
+
+      5: Result := OperadorTernario(Trim(fraConsultaFilialProdutosExposicao.edfCodigo.Text)  <> '', fraConsultaFilialProdutosExposicao.edfCodigo.Exist, False); 
+
+    end;
+
+end;
+
+procedure TfrmEmissaoEtiquetas.ckbSelecionarTodosClick(Sender: TObject);
+begin
+  inherited;
+  if (pgcEtiquetas.ActivePageindex <> 3) or
+     ((pgcEtiquetas.ActivePageindex = 3) and (pgcNotasProdutos2.ActivePage=tstProdutos)) then
+     dtmEmissaoEtiquetas.MarcarSelecionados(ckbSelecionarTodos.Checked,True, 0)
+  else
+     dtmEmissaoEtiquetas.MarcarSelecionados(ckbSelecionarTodos.Checked,True, 3);
+end;
+
+procedure TfrmEmissaoEtiquetas.dbgEmissaoEtiquetasDblClick(Sender: TObject);
+begin
+  inherited;
+  dtmEmissaoEtiquetas.MarcarSelecionados(ckbSelecionarTodos.Checked, False, 0);
+  ckbSelecionarTodos.Checked := false;
+end;
+
+procedure TfrmEmissaoEtiquetas.dbgEmissaoEtiquetasKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case Key of
+             VK_SPACE: if Shift = [ssCtrl] then
+                          dtmEmissaoEtiquetas.MarcarSelecionados(ckbSelecionarTodos.Checked, False,0);
+
+   TeclaInserirRegistro: if Shift = [ssCtrl] then
+                          AcionaInclusaoProduto(False);
+   TeclaEditarRegistro: if Shift = [ssCtrl] then
+                          AcionaInclusaoProduto(True);
+  end;
+end;
+
+procedure TfrmEmissaoEtiquetas.ckbQtdemEstoqueClick(Sender: TObject);
+begin
+  inherited;
+  if ckbQtdemEstoque.Checked then begin
+    gbxQuantidade.Visible := False;
+    ckbQtdeZerada.Checked := False;
+  end
+  else
+  begin
+    gbxQuantidade.Visible := True;
+    ckbQtdeZerada.Checked := true;
+  end;
+end;
+
+procedure TfrmEmissaoEtiquetas.FormCloseQuery(Sender: TObject;
+  var CanClose: Boolean);
+begin
+  inherited;
+  CanClose:=not FRelatorioAberto;
+end;
+
+procedure TfrmEmissaoEtiquetas.sbnProcuraModeloEtiquetasClick(
+  Sender: TObject);
+begin
+  inherited;
+  if dlgModeloEtiquetas.Execute then
+   edtArquivo.Text := ExtractFilePath(dlgModeloEtiquetas.FileName)+
+                      ExtractFileName(dlgModeloEtiquetas.FileName);
+end;
+
+procedure TfrmEmissaoEtiquetas.sbnModeloEtiquetaClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfModeloEtiqueta);
+end;
+
+procedure TfrmEmissaoEtiquetas.AcionaInclusaoProduto(Editando: Boolean);
+begin
+  if not assigned(frmCadastroProdutosEmitirEtiquetas) then
+    frmCadastroProdutosEmitirEtiquetas:= TfrmCadastroProdutosEmitirEtiquetas.Create(self);
+
+  with frmCadastroProdutosEmitirEtiquetas do begin
+    SetDataModulo(dtmEmissaoEtiquetas);
+    DataSet := dtmEmissaoEtiquetas.TabelaEtiqueta;
+    dtmEmissaoEtiquetas.IncluirProdutoEtiqueta(Editando);
+    ShowModal;
+//  Free;
+  end;
+  dbgEmissaoEtiquetas.SetFocus;
+end;
+
+procedure TfrmEmissaoEtiquetas.sbnIncluirProdutoClick(Sender: TObject);
+begin
+  inherited;
+  if pgcEtiquetas.ActivePageindex <> 3 then
+    AcionaInclusaoProduto(False)
+  else
+    dtmEmissaoEtiquetas.AcionaInclusaoNotasSaidas;
+end;
+
+procedure TfrmEmissaoEtiquetas.sbnExcluirProdutoClick(Sender: TObject);
+begin
+  inherited;
+  if pgcEtiquetas.ActivePageindex <> 3 then
+     dtmEmissaoEtiquetas.ExcluirProdutoEtiqueta
+  else
+    dtmEmissaoEtiquetas.ExcluirNotasSaidas;
+end;
+
+procedure TfrmEmissaoEtiquetas.AfterScrollLinhaColunaGrade(
+  Sender: TObject);
+begin
+  dbgEmissaoEtiquetas.Columnbyname('valorgrade1').Title.Caption := dtmEmissaoEtiquetas.LinhadaGrade;
+  dbgEmissaoEtiquetas.Columnbyname('valorgrade2').Title.Caption := dtmEmissaoEtiquetas.colunadaGrade;
+
+//  if dtmEmissaoEtiquetas.qryEtiquetas.IsEmpty then begin
+//       MensagemAviso(ctETIQUETASEMPRODUTO);
+//       edfGrupo.SetFocus;
+//       Exit;
+//  end;
+end;
+
+procedure TfrmEmissaoEtiquetas.ckbQtdeZeradaClick(Sender: TObject);
+begin
+  inherited;
+  dtmEmissaoEtiquetas.QtdeZerada := ckbQtdeZerada.Checked;
+  if ckbQtdeZerada.Checked then
+  begin
+    ckbQtdemEstoque.Checked:= false;
+    gbxQuantidade.Visible  := true;
+  end
+  else
+  begin
+    ckbQtdemEstoque.Checked:= true;
+    gbxQuantidade.Visible:= not ckbQtdemEstoque.Checked;
+  end;
+end;
+
+procedure TfrmEmissaoEtiquetas.sbnProcuraPlanoClick(Sender: TObject);
+begin
+  if dtmEmissaoEtiquetas.qryEtiquetas.isEmpty then
+     MensagemAviso(ctETIQUETASEMPRODUTO)
+  else
+     InternoPesquisar(edfPlano);
+end;
+
+procedure TfrmEmissaoEtiquetas.tstEtiquetaProdutoShow(Sender: TObject);
+begin
+  inherited;
+  ExcluirEtiquetas;
+end;
+
+procedure TfrmEmissaoEtiquetas.tstEtiquetaNotaShow(Sender: TObject);
+begin
+  inherited;
+  ExcluirEtiquetas;
+end;
+
+procedure TfrmEmissaoEtiquetas.tstMovimentacaoShow(Sender: TObject);
+begin
+  inherited;
+  ExcluirEtiquetas;
+end;
+
+procedure TfrmEmissaoEtiquetas.ExcluirEtiquetas;
+begin
+ with dtmemissaoEtiquetas do begin
+      if not qryEtiquetas.IsEmpty then
+         qryEtiquetas.Close;
+
+//    qryEtiquetas.First;
+//    while not qryEtiquetas.Eof do begin
+//      qryEtiquetas.Delete;
+//      qryEtiquetas.Next;
+//    end;
+  end;
+end;
+
+procedure TfrmEmissaoEtiquetas.FormActivate(Sender: TObject);
+begin
+  inherited;
+       if ParSistema.TipoImpressoraEtiqueta = ctRABBIT    then lblTipoImpressora.Caption := 'R A B B I T'
+  else if ParSistema.TipoImpressoraEtiqueta = ctZEBRA     then lblTipoImpressora.Caption := 'Z E B R A'
+  else if ParSistema.TipoImpressoraEtiqueta = ctARGOX     then lblTipoImpressora.Caption := 'A R G O X'
+  else if ParSistema.TipoImpressoraEtiqueta = ctMATRICIAL then lblTipoImpressora.Caption := 'M A T R I C I A L'
+  else if ParSistema.TipoImpressoraEtiqueta = ctJATO      then lblTipoImpressora.Caption := 'J A T O   T I N T A';
+
+  btnAjustar.Visible:= ParSistema.TipoImpressoraEtiqueta = ctZEBRA;
+end;
+
+procedure TfrmEmissaoEtiquetas.edtQuantidadeChange(Sender: TObject);
+begin
+  inherited;
+  if pgcEtiquetas.ActivePageIndex = 0 then
+  begin
+     if not dtmEmissaoEtiquetas.qryEtiquetas.IsEmpty then
+     begin
+        if edtQuantidade.Text <> '' then
+           dtmEmissaoEtiquetas.AtualizarQuantidadeEtiquetas(StrToInt(edtQuantidade.Text))
+        else
+           MensagemAviso(ctETIQUETASEMQUANTIDADE);
+     end;
+  end
+  else
+  if pgcEtiquetas.ActivePageIndex = 5 then
+  begin
+     if not dtmEmissaoEtiquetas.qryEtiquetas.IsEmpty then
+     begin
+        if edtQuantidadeProdutosExposicao.Text <> '' then
+           dtmEmissaoEtiquetas.AtualizarQuantidadeEtiquetas(StrToInt(edtQuantidadeProdutosExposicao.Text))
+        else
+           MensagemAviso(ctETIQUETASEMQUANTIDADE);
+     end;
+  end;
+
+end;
+
+
+procedure TfrmEmissaoEtiquetas.tstNotaFiscalSaidasShow(Sender: TObject);
+begin
+  sbnIncluirProduto.hint := 'Duplicar a nota selecionada, sem o numero';
+  sbnExcluirProduto.hint := 'Excluir nota';
+//  gbxEtiquetaEmBranco.Visible := False;
+  lblPercentual.Visible       := False;
+  edtPercentualAVista.Visible := False;
+  ckbImprimirPreco.Visible    := False;
+  rgpTipoEtiqueta.Visible     := False;
+  gbxPlanoPagto.Visible            := False;
+//dtxDescricaoTipoMovimentoSaida.Text := '';
+  sbnProcuraCliente.Enabled := True;
+  shpNotaDuplicada.Visible  := True;
+  lblNotaDuplicada.Visible  := True;
+  shpNotaSemNumero.Visible  := True;
+  lblNotaSemNumero.Visible  := True;
+  dtmEmissaoEtiquetas.qryNotasSaidas.Close;
+end;
+
+procedure TfrmEmissaoEtiquetas.tstNotaFiscalSaidasHide(Sender: TObject);
+begin
+  inherited;
+  sbnIncluirProduto.hint := 'Incluir item produto';
+  sbnExcluirProduto.hint := 'Excluir item produto';
+//  gbxEtiquetaEmBranco.Visible := True;
+  lblPercentual.Visible       := True;
+  edtPercentualAVista.Visible := True;
+  ckbImprimirPreco.Visible    := True;
+  rgpTipoEtiqueta.Visible     := True;
+  gbxPlanoPagto.Visible            := True;
+  shpNotaDuplicada.Visible    := False;
+  lblNotaDuplicada.Visible    := False;
+  shpNotaSemNumero.Visible    := False;
+  lblNotaSemNumero.Visible    := False;
+end;
+
+procedure TfrmEmissaoEtiquetas.sbnFilialMovtoClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfFilialMovto);
+end;
+
+procedure TfrmEmissaoEtiquetas.sbnProcurarTipoMovtoClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfTipoMovimento);
+end;
+
+procedure TfrmEmissaoEtiquetas.dbgNotasSaidasDblClick(Sender: TObject);
+begin
+  inherited;
+  dtmEmissaoEtiquetas.MarcarSelecionados(ckbSelecionarTodos.Checked, False, 3);
+  ckbSelecionarTodos.Checked := false;
+end;
+
+procedure TfrmEmissaoEtiquetas.dbgNotasSaidasKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case Key of
+             VK_SPACE: if Shift = [ssCtrl] then
+                        dtmEmissaoEtiquetas.MarcarSelecionados(ckbSelecionarTodos.Checked, False,3);
+//  TeclaInserirRegistro: if Shift = [ssCtrl] then
+//                          AcionaInclusaoNotas(False);
+//   TeclaEditarRegistro: if Shift = [ssCtrl] then
+//                          AcionaInclusaoNotas(True);
+  end;
+end;
+
+procedure TfrmEmissaoEtiquetas.edfClientesSaidaClick(Sender: TObject);
+begin
+  inherited;
+  sbnProcuraCliente.Enabled := True;
+end;
+
+procedure TfrmEmissaoEtiquetas.sbnProcuraClienteClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfClientesSaida);
+end;
+
+procedure TfrmEmissaoEtiquetas.dbgNotasSaidasDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+ inherited;
+ with dtmEmissaoEtiquetas do
+  begin
+      if(TDBGrid(Sender).DataSource.DataSet.FieldByName('numero').AsInteger=0) and (qryNotasSaidasCopia.AsBoolean = True) then
+        TDBGrid(Sender).Canvas.Font.Color := clRed
+      else
+        if(TDBGrid(Sender).DataSource.DataSet.FieldByName('numero').AsInteger<>0) and (qryNotasSaidasCopia.AsBoolean = True) then
+           TDBGrid(Sender).Canvas.Font.Color := clGreen
+      else
+          TDBGrid(Sender).Canvas.Font.Color := clBlack;
+
+    TDBGrid(Sender).Canvas.Brush.Color := clWhite;
+    TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end;
+end;
+
+procedure TfrmEmissaoEtiquetas.btnGravarObservacaoClick(Sender: TObject);
+begin
+  inherited;
+  dtmEmissaoEtiquetas.GravarNotasSaidas;
+end;
+
+procedure TfrmEmissaoEtiquetas.btnGravarAttClick(Sender: TObject);
+begin
+  inherited;
+  dtmEmissaoEtiquetas.GravarNotasSaidas;
+end;
+
+procedure TfrmEmissaoEtiquetas.pgcEtiquetasChange(Sender: TObject);
+begin
+  inherited;
+
+  pgcEtiquetas.height := 296;
+
+  gbxEtiquetaemBranco.visible := True;
+  stxNrEtiquetas.visible := True;
+
+  if pgcEtiquetas.ActivePageIndex = 3 then
+     pgcNotasProdutos.ActivePageIndex := 1
+  else
+  if pgcEtiquetas.ActivePage = tstb2w_ then
+  begin
+
+
+    gbxIncluirJaImpressos.Parent := pnlParametrosB2W;
+    gbxIncluirJaImpressos.taborder := 1;
+
+    gbxIntervalorInclusaob2W.Parent := pnlParametrosB2W;
+    gbxIntervalorInclusaob2W.taborder := 0;
+
+    pgcNotasProdutos.ActivePageIndex := 2;
+    gbxEtiquetaemBranco.visible := false;
+    stxNrEtiquetas.visible := false;
+
+    edtDataInicialInclusaoB2W.text := FormatDateTime('dd/MM/yyyy', dtmEmissaoEtiquetas.DataServidor);
+    edtDataFinalInclusaoB2W.text := FormatDateTime('dd/MM/yyyy', dtmEmissaoEtiquetas.DataServidor);
+
+    sbnGerarClick(nil);
+
+  end
+  else
+  if pgcEtiquetas.ActivePage = tstMagalu then
+  begin
+
+    DBAdvGridMagalu.dataSource := dtmEmissaoEtiquetas.dsrEtiquetasMagalu;
+
+    pgcEtiquetas.height := 425;
+
+    ckbSelecionarTodasEtiquetas.checked := False;
+    dtmEmissaoEtiquetas.EtiquetasMarcadas := 0;
+
+    fraselecaoaleatorianotassaidas1.parent := tstMagalu;
+    pnlGridMagalu.parent := tstMagalu;
+
+
+    gbxEtiquetasPorPedido.parent := pnlParametrosMagalu;
+    gbxEtiquetasPorPedido.taborder := 2;
+
+    gbxIncluirJaImpressos.Parent := pnlParametrosMagalu;
+    gbxIncluirJaImpressos.taborder := 1;
+
+    gbxIntervalorInclusaob2W.Parent := pnlParametrosMagalu;
+    gbxIntervalorInclusaob2W.taborder := 0;
+
+    pgcNotasProdutos.ActivePageIndex := 0;
+    gbxEtiquetaemBranco.visible := false;
+    stxNrEtiquetas.visible := false;
+
+    edtDataInicialInclusaoB2W.text := FormatDateTime('dd/MM/yyyy', dtmEmissaoEtiquetas.DataServidor);
+    edtDataFinalInclusaoB2W.text := FormatDateTime('dd/MM/yyyy', dtmEmissaoEtiquetas.DataServidor);
+
+    sbnGerarClick(nil);
+
+  end
+  else
+  if pgcEtiquetas.ActivePage = tstCorreios then
+  begin
+    DBAdvGridMagalu.dataSource := dtmEmissaoEtiquetas.dsrEtiquetasCorreios;
+    pgcEtiquetas.height := 425;
+
+    ckbSelecionarTodasEtiquetas.checked := False;
+    dtmEmissaoEtiquetas.EtiquetasMarcadas := 0;
+
+    fraselecaoaleatorianotassaidas1.parent := tstCorreios;
+    pnlGridMagalu.parent := tstCorreios;
+
+    gbxEtiquetasPorPedido.parent := pnlParametrosCorreios;
+    gbxEtiquetasPorPedido.taborder := 2;
+
+    gbxIncluirJaImpressos.Parent := pnlParametrosCorreios;
+    gbxIncluirJaImpressos.taborder := 1;
+
+    gbxIntervalorInclusaob2W.Parent := pnlParametrosCorreios;
+    gbxIntervalorInclusaob2W.taborder := 0;
+
+    pgcNotasProdutos.ActivePageIndex := 0;
+    gbxEtiquetaemBranco.visible := false;
+    stxNrEtiquetas.visible := false;
+
+    edtDataInicialInclusaoB2W.text := FormatDateTime('dd/MM/yyyy', dtmEmissaoEtiquetas.DataServidor);
+    edtDataFinalInclusaoB2W.text := FormatDateTime('dd/MM/yyyy', dtmEmissaoEtiquetas.DataServidor);
+
+    sbnGerarClick(nil)
+
+  end
+  else
+  if pgcEtiquetas.ActivePage = tstMercadoLivre then
+  begin
+    DBAdvGridMagalu.dataSource := dtmEmissaoEtiquetas.dsrEtiquetasMercadoLivre;
+    pgcEtiquetas.height := 425;
+
+    ckbSelecionarTodasEtiquetas.checked := False;
+    dtmEmissaoEtiquetas.EtiquetasMarcadas := 0;
+
+    fraselecaoaleatorianotassaidas1.parent := tstMercadoLivre;
+    pnlGridMagalu.parent := tstMercadoLivre;
+
+
+    gbxEtiquetasPorPedido.parent := tstParametrosMercadoLivre;
+    gbxEtiquetasPorPedido.taborder := 2;
+
+    gbxIncluirJaImpressos.Parent := tstParametrosMercadoLivre;
+    gbxIncluirJaImpressos.taborder := 1;
+
+    gbxIntervalorInclusaob2W.Parent := tstParametrosMercadoLivre;
+    gbxIntervalorInclusaob2W.taborder := 0;
+
+    pgcNotasProdutos.ActivePageIndex := 0;
+    gbxEtiquetaemBranco.visible := false;
+    stxNrEtiquetas.visible := false;
+
+    edtDataInicialInclusaoB2W.text := FormatDateTime('dd/MM/yyyy', dtmEmissaoEtiquetas.DataServidor);
+    edtDataFinalInclusaoB2W.text := FormatDateTime('dd/MM/yyyy', dtmEmissaoEtiquetas.DataServidor);
+
+    sbnGerarClick(nil)
+
+  end
+  else
+     pgcNotasProdutos.ActivePageIndex := 0;
+
+
+
+
+
+end;
+
+procedure TfrmEmissaoEtiquetas.LerPercentualDesconto;
+var
+  ArquivoCFG: TIniFile;
+begin
+  if FileExists(NomeArquivoCFG) then
+  begin
+     ArquivoCFG := TIniFile.Create(NomeArquivoCFG);
+    try
+      if ArquivoCFG.SectionExists('Outros') then begin
+        edtPercentualAVista.Text := ArquivoCFG.ReadString('Outros', 'percentualdescontoetiqueta', '');
+      end;
+    finally
+      ArquivoCFG.Free;
+    end;
+  end;
+end;
+procedure TfrmEmissaoEtiquetas.SalvarPercentualDesconto;
+var
+  ArquivoCFG: TIniFile;
+begin
+  if FileExists(NomeArquivoCFG) then
+  begin
+    ArquivoCFG := TIniFile.Create(NomeArquivoCFG);
+    try
+        ArquivoCFG.WriteString('Outros', 'percentualdescontoetiqueta',edtPercentualAVista.Text);
+    finally
+      ArquivoCFG.UpdateFile;
+      ArquivoCFG.Free;
+    end;
+  end;
+end;
+
+procedure TfrmEmissaoEtiquetas.pgcNotasProdutos2Change(Sender: TObject);
+begin
+  inherited;
+  if pgcNotasProdutos2.ActivePage = tstProdutos then
+  begin
+    if dtmEmissaoEtiquetas.GerarEtiquetasProdutosNotas then
+      dbgProdutosNotas.SetFocus;
+  end;
+end;
+
+procedure TfrmEmissaoEtiquetas.AtribuirDadosPedidos;
+begin
+  if fraConsultaPedido.qryProcuraPedido.FieldByName('fornecedor').asstring <> '' then
+  begin
+    fraConsultaFornecedorPedido.edfcodigo.text := fraConsultaPedido.qryProcuraPedido.FieldByName('fornecedor').asstring;
+    fraConsultaFornecedorPedido.edfcodigo.exist;
+    dtmemissaoetiquetas.parametropedido := fraConsultaPedido.qryProcuraPedido.FieldByName('numero').text;
+  end;  
+end;
+
+procedure TfrmEmissaoEtiquetas.CondicaoConsultaPedido;
+var
+ vSQLConsultaPedido: String;
+begin
+
+  vSQLConsultaPedido := '';
+  if fraConsultaFornecedorPedido.edfcodigo.text <> '' then
+    vSQLConsultaPedido := ' and f.codigo = ' + fraConsultaFornecedorPedido.edfcodigo.text;
+
+  if fraConsultaItemProdutoPedido.edfcodigo.text <> '' then
+    vSQLConsultaPedido := vSQLConsultaPedido + ' and exists (select pp.pedido from produtospedidos pp where pp.pedido = p.numero and pp.produto = ' +
+                        fraConsultaItemProdutoPedido.edfcodigo.ValoraDataFieldInterno + ' limit 1)';
+
+  if edtDataInicialPedido.text <> '' then
+    vSQLConsultaPedido := vSQLConsultaPedido + ' and p.emissao >= '+ formatdatetime('yyyy-mm-dd', strtodate(edtDataInicialPedido.text));
+
+  if edtDataFinalPedido.text <> '' then
+    vSQLConsultaPedido := vSQLConsultaPedido + ' and p.emissao <= '+ formatdatetime('yyyy-mm-dd', strtodate(edtDataFinalPedido.text));
+
+  case rgbSituacao.itemindex of
+    0: vSQLConsultaPedido := vSQLConsultaPedido + ' and (p.situacao = ' + QuotedStr('A') + ')';  //Aberto
+    1: vSQLConsultaPedido := vSQLConsultaPedido + ' and (p.situacao = ' + QuotedStr('P') + ')';  //Parcial
+    2: vSQLConsultaPedido := vSQLConsultaPedido + ' and (p.situacao = ' + QuotedStr('Q') + ')';  //Parcial Liquidado
+    3: vSQLConsultaPedido := vSQLConsultaPedido + ' and (p.situacao = ' + QuotedStr('L') + ')';  //Concluido
+    4: vSQLConsultaPedido := vSQLConsultaPedido + ' and (p.situacao = ' + QuotedStr('C') + ')';  //Cancelado
+    5: ; //Todos
+  end;
+{
+  case rgbOrdenar.itemindex of
+    0: vOrdenacaoPedido := 'Order By pd.numero';
+    1: vOrdenacaoPedido := 'Order By UPPER(TO_ASCII(p.Descricao,''LATIN1'')), pd.emissao';
+    2: vOrdenacaoPedido := 'Order By UPPER(TO_ASCII(f.nome,''LATIN1'')), pd.emissao';
+    3: vOrdenacaoPedido := 'Order By pd.emissao';
+    4: vOrdenacaoPedido := 'Order By UPPER(TO_ASCII(pd.situacao,''LATIN1''))';
+  end;
+}
+
+  fraConsultaPedido.qryProcuraPedido.macrobyname('SQLConsultaPedido').asstring := vSQLConsultaPedido;
+  fraConsultaPedido.qryConsultaPedido.macrobyname('SQLConsultaPedido').asstring := vSQLConsultaPedido;
+
+end;
+
+procedure TfrmEmissaoEtiquetas.btnAjustarClick(Sender: TObject);
+begin
+   with TextPrinter do begin
+      BeginDoc('', False);
+      WriteTextLn('^default',0);
+      EndDoc('TecLUX - Imprimindo Etiqueta ZEBRA TLP 2844');
+   end;
+end;
+
+procedure TfrmEmissaoEtiquetas.CondicoesdaConsultaItemProdutoPedido;
+begin
+  if fraConsultaPedido.edfcodigo.text <> '' then
+    fraConsultaItemProdutoPedido.qryProcuraItemProdutos.macroByName('SQLFiltroPedidos').asString :=
+      ' and p.codigo in (select pp.produto from produtospedidos pp where pp.pedido = ' +
+                                            fraConsultaPedido.edfcodigo.text + ')'
+  else
+    fraConsultaItemProdutoPedido.qryProcuraItemProdutos.macroByName('SQLFiltroPedidos').asString := '';
+
+  fraConsultaItemProdutoPedido.qryConsultaItemProdutos.macroByName('SQLFiltroPedidos').asString :=
+    fraConsultaItemProdutoPedido.qryProcuraItemProdutos.macroByName('SQLFiltroPedidos').asString
+
+end;
+
+procedure TfrmEmissaoEtiquetas.ckbQtdemEstoqueProdutosExposicaoClick(
+  Sender: TObject);
+begin
+  inherited;
+
+  ckbQusntidadeLote.onClick := nil;
+
+  if ckbQtdemEstoqueProdutosExposicao.Checked then
+  begin
+    gbxQuantidadeProdutosExposicao.Visible := False;
+    ckbQtdeZeradaProdutosExposicao.Checked := False;
+
+    ckbQusntidadeLote.Checked := False;
+  end
+  else
+  begin
+    gbxQuantidadeProdutosExposicao.Visible := True;
+    ckbQtdeZeradaProdutosExposicao.Checked := true;
+    ckbQusntidadeLote.Checked := False;
+  end;
+
+  ckbQusntidadeLote.onClick := ckbQusntidadeLoteClick;
+end;
+
+procedure TfrmEmissaoEtiquetas.ckbQtdeZeradaProdutosExposicaoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmEmissaoEtiquetas.QtdeZerada := ckbQtdeZeradaProdutosExposicao.Checked;
+  if ckbQtdeZeradaProdutosExposicao.Checked then
+  begin
+    ckbQtdemEstoqueProdutosExposicao.Checked:= false;
+    gbxQuantidadeProdutosExposicao.Visible  := true;
+  end
+  else
+  begin
+    ckbQtdemEstoqueProdutosExposicao.Checked:= true;
+    gbxQuantidadeProdutosExposicao.Visible := not ckbQtdemEstoqueProdutosExposicao.Checked;
+  end;
+end;
+
+procedure TfrmEmissaoEtiquetas.ckbQusntidadeLoteClick(Sender: TObject);
+begin
+  inherited;
+  ckbQtdemEstoqueProdutosExposicao.onClick := nil;
+
+  if ckbQusntidadeLote.Checked then
+  begin
+    gbxQuantidadeProdutosExposicao.Visible := False;
+    ckbQtdeZeradaProdutosExposicao.Checked := False;
+
+    ckbQtdemEstoqueProdutosExposicao.Checked := False;
+
+//    gbxNrLote.visible := true;
+  end
+  else
+  begin
+    gbxQuantidadeProdutosExposicao.Visible := True;
+    ckbQtdeZeradaProdutosExposicao.Checked := true;
+    ckbQtdemEstoqueProdutosExposicao.Checked := False;
+
+//    gbxNrLote.visible := false;
+  end;
+
+  ckbQtdemEstoqueProdutosExposicao.onClick := ckbQtdemEstoqueProdutosExposicaoClick;
+end;
+
+procedure TfrmEmissaoEtiquetas.tstProdutosExposicaoResize(Sender: TObject);
+begin
+  inherited;
+  pgcSelecaoProdutos.height := tstProdutosExposicao.height - 46;
+end;
+
+procedure TfrmEmissaoEtiquetas.edtDataFabricacaoChange(Sender: TObject);
+begin
+  inherited;
+  dtmemissaoetiquetas.fDataFabricacao := edtDataFabricacao.text;
+end;
+
+procedure TfrmEmissaoEtiquetas.edtDataValidadeChange(Sender: TObject);
+begin
+  inherited;
+  dtmemissaoetiquetas.fDataValidade := edtDataValidade.text;
+end;
+
+procedure TfrmEmissaoEtiquetas.EDTMargemSuperiorChange(Sender: TObject);
+begin
+  inherited;
+
+  dtmemissaoetiquetas.fMargemSuperior := EDTMargemSuperior.valorsemformatacao;
+end;
+
+procedure TfrmEmissaoEtiquetas.fraConsultaFornecedorNotaedfCodigoFound(
+  Found: Boolean);
+begin
+  inherited;
+  if found then
+    dtmEmissaoEtiquetas.qryProcuraFornecedoresNotasAfterScroll(nil);
+
+end;
+
+procedure TfrmEmissaoEtiquetas.edtMargemEsquerdaChange(Sender: TObject);
+begin
+  inherited;
+  dtmemissaoetiquetas.fMargemEsquerda := EDTMargemEsquerda.valorsemformatacao;
+end;
+
+
+procedure TfrmEmissaoEtiquetas.dbgplp_b2wGetColumnFilter(Sender: TObject;
+  Column: Integer; Filter: TStrings);
+begin
+  inherited;
+  if not (Column in [7,8]) then
+    Filter.Clear;
+end;
+
+
+procedure TfrmEmissaoEtiquetas.dbgplp_b2wFilterProgress(Sender: TObject;
+  progress: Smallint);
+var
+  vplp : String;
+begin
+  inherited;
+  if dbgplp_b2w.RowCount > 0 then
+  begin
+    vplp := dbgplp_b2w.Cells[2, dbgplp_b2w.row];
+    if vplp <> dtmEmissaoEtiquetas.qryplpb2wplp.asString then
+      if vplp <> '' then
+        dtmEmissaoEtiquetas.qryplpb2w.locate('plp', strtoint(vplp), []);
+  end;
+
+end;
+
+procedure TfrmEmissaoEtiquetas.dbgplp_b2wSelectCell(Sender: TObject; ACol,
+  ARow: Integer; var CanSelect: Boolean);
+var
+  vplp : String;
+begin
+  inherited;
+  if dbgplp_b2w.rowcount > 0 then
+  begin
+    vplp := dbgplp_b2w.Cells[2, ARow];
+    if vplp <> dtmEmissaoEtiquetas.qryplpb2wplp.asString then
+      if vplp <> '' then
+        dtmEmissaoEtiquetas.qryplpb2w.locate('plp', strtoint(vplp), []);
+  end;
+end;
+
+procedure TfrmEmissaoEtiquetas.DBAdvGridMagaluSelectCell(Sender: TObject;
+  ACol, ARow: Integer; var CanSelect: Boolean);
+var
+//  vCodigo: String;
+  vCodigo : integer;
+
+begin
+  inherited;
+  if DBAdvGridMagalu.rowcount > 0 then
+  begin
+//    vCodigo := DBAdvGridMagalu.Cells[0, ARow];
+    vCodigo :=  DBAdvGridMagalu.datasource.dataset.fieldbyname('dadofiscal').asinteger;
+
+    if pgcEtiquetas.ActivePage = tstMagalu then
+    begin
+      if vCodigo <> dtmEmissaoEtiquetas.qryEtiquetasMagaludadofiscal.asinteger then
+        if vcodigo<>0 then
+          dtmEmissaoEtiquetas.qryEtiquetasMagalu.locate('dadofiscal', vcodigo, []);
+    end
+    else
+    if pgcEtiquetas.ActivePage = tstCorreios then
+    begin
+      if vCodigo <> dtmEmissaoEtiquetas.qryEtiquetasCorreiosdadofiscal.asinteger then
+        if vcodigo<>0 then
+          dtmEmissaoEtiquetas.qryEtiquetasCorreios.locate('dadofiscal', vcodigo, []);
+    end
+    else
+    if pgcEtiquetas.ActivePage = tstMercadoLivre then
+    begin
+      if vCodigo <> dtmEmissaoEtiquetas.qryEtiquetasMercadoLivredadofiscal.asinteger then
+        if vcodigo<>0 then
+          dtmEmissaoEtiquetas.qryEtiquetasMercadoLivre.locate('dadofiscal', vcodigo, []);
+    end;
+  end;
+
+end;
+
+procedure TfrmEmissaoEtiquetas.ckbSelecionarTodasEtiquetasClick(
+  Sender: TObject);
+begin
+  inherited;
+  if pgcEtiquetas.ActivePage = tstMagalu then
+    dtmEmissaoEtiquetas.MarcarDesmarcarEtiquetasMagalu(ckbSelecionarTodasEtiquetas.checked)
+  else
+  if pgcEtiquetas.ActivePage = tstCorreios then
+    dtmEmissaoEtiquetas.MarcarDesmarcarEtiquetasCorreios(ckbSelecionarTodasEtiquetas.checked)
+  else
+  if pgcEtiquetas.ActivePage = tstMercadoLivre then
+    dtmEmissaoEtiquetas.MarcarDesmarcarEtiquetasMercadoLivre(ckbSelecionarTodasEtiquetas.checked)
+
+end;
+
+procedure TfrmEmissaoEtiquetas.AtribuirDadosEnderecoFilialRemetenteMercadoLivre;
+begin
+  with dtmEmissaoEtiquetas do
+  begin
+    qryRepresentante.edit;
+    qryRepresentantenome.asString := fraConsultaFilialRemetenteMercadoLivre.qryProcuraFiliais.fieldbyname('razao').aSString;
+    qryRepresentanterua.asString := fraConsultaFilialRemetenteMercadoLivre.qryProcuraFiliais.fieldbyname('rua').aSString;
+    qryRepresentantenumero.asInteger := fraConsultaFilialRemetenteMercadoLivre.qryProcuraFiliais.fieldbyname('numero').aSInteger;
+    qryRepresentantecomplemento.asString := fraConsultaFilialRemetenteMercadoLivre.qryProcuraFiliais.fieldbyname('complemento').aSString;
+    qryRepresentantebairro.asinteger := fraConsultaFilialRemetenteMercadoLivre.qryProcuraFiliais.fieldbyname('bairro').asInteger;
+    qryRepresentantecidade.asinteger := fraConsultaFilialRemetenteMercadoLivre.qryProcuraFiliais.fieldbyname('cidade').asInteger;
+    qryRepresentanteestado.asString := fraConsultaFilialRemetenteMercadoLivre.qryProcuraFiliais.fieldbyname('estado').asString;
+    qryRepresentantecep.asInteger := fraConsultaFilialRemetenteMercadoLivre.qryProcuraFiliais.fieldbyname('cep').asinteger;
+    qryRepresentantenomecidade.asString := fraConsultaFilialRemetenteMercadoLivre.qryProcuraFiliais.fieldbyname('nomecidade').asString;
+    qryRepresentantenomebairro.asString := fraConsultaFilialRemetenteMercadoLivre.qryProcuraFiliais.fieldbyname('nomebairro').asString;
+    qryRepresentante.post;
+  end;
+end;
+
+procedure TfrmEmissaoEtiquetas.edtRemetenteMercadoLivreEnter(
+  Sender: TObject);
+begin
+  inherited;
+  dtmEmissaoEtiquetas.qryRepresentante.edit;
+end;
+
+procedure TfrmEmissaoEtiquetas.edtRemetenteMercadoLivreExit(
+  Sender: TObject);
+begin
+  inherited;
+  if (dtmEmissaoEtiquetas.qryRepresentante.state in [dsedit,dsinsert]) then
+    dtmEmissaoEtiquetas.qryRepresentante.post;
+end;
+
+procedure TfrmEmissaoEtiquetas.fraEnderecoEditor1mmoRuaEnter(
+  Sender: TObject);
+begin
+  inherited;
+  dtmEmissaoEtiquetas.qryRepresentante.edit;
+end;
+
+procedure TfrmEmissaoEtiquetas.fraEnderecoEditor1edtNumeroEnter(
+  Sender: TObject);
+begin
+  inherited;
+  dtmEmissaoEtiquetas.qryRepresentante.edit;
+end;
+
+procedure TfrmEmissaoEtiquetas.fraEnderecoEditor1edtComplementoEnter(
+  Sender: TObject);
+begin
+  inherited;
+  dtmEmissaoEtiquetas.qryRepresentante.edit;
+end;
+
+procedure TfrmEmissaoEtiquetas.fraEnderecoEditor1mmoRuaExit(
+  Sender: TObject);
+begin
+  inherited;
+  if (dtmEmissaoEtiquetas.qryRepresentante.state in [dsedit,dsinsert]) then
+    dtmEmissaoEtiquetas.qryRepresentante.post;
+end;
+
+procedure TfrmEmissaoEtiquetas.OperacaoPadrao(Value: array of Variant);
+begin
+  inherited;
+  if Length(Value) > 1 then
+  begin
+    if Value[1] = 'Imprimir Volumes NF Saída' then
+    begin
+      ckbImprimirVolumes.checked := true;
+      ForcarImprimirEtiquetasNfSaidaVolumes := true;
+      fraselecaoaleatorianotassaidas2.AdicionarListaporDadoFiscal(Value[0]);
+      pgcEtiquetas.ActivePage := tstNotaFiscalSaidas;
+      edtIntervaloInicialSaida.text := '';
+      edtIntervaloFinalSaida.text := '';
+      sbnGerarClick(nil);
+      actImprimirExecute(nil);
+      ForcarImprimirEtiquetasNfSaidaVolumes := false;
+      self.bringtofront;
+
+
+    end;
+  end;
+end;
+
+procedure TfrmEmissaoEtiquetas.ckbImprimirVolumesClick(Sender: TObject);
+begin
+  inherited;
+  ForcarImprimirEtiquetasNfSaidaVolumes := ckbImprimirVolumes.checked;
+end;
+
+end.

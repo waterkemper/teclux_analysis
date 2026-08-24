@@ -1,0 +1,806 @@
+unit dmcomissaovendedores;
+
+interface  
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  DB, CheckLst,
+  // Terceiros
+  ZQuery, ZPgSqlQuery,
+  // Constantes
+  ctconstantes, biblio,
+  // Componentes
+  cpquery, cpdatasource,
+  // Repositorio
+  dmbasico, dmtecsoft, FR_DSet, FR_DBSet, FR_Class,
+  clparametrossistema,
+  fmpreviewpadrao, ZTransact;
+
+type
+
+  TdtmComissaoVendedores = class(TdtmBasico)
+    qryProcuraVendedores: TtecQuery;
+    qryConsultaVendedores: TtecQuery;
+    dsrPesquisarVendedores: TtecDataSource;
+    qryConsultaVendedorescodigo: TIntegerField;
+    qryConsultaVendedoresnome: TStringField;
+    qryAgentes: TtecQuery;
+    qryConceitos: TtecQuery;
+    qryAgentesdescricao: TStringField;
+    qryConceitosdescricao: TStringField;
+    frpComissoes: TfrReport;
+    fdsComissoes: TfrDBDataSet;
+    qryAgentescodigo: TIntegerField;
+    qryConceitoscodigo: TIntegerField;
+    frpResumoFolha: TfrReport;
+    fdsResumoFolha: TfrDBDataSet;
+    qryResumoFolha: TtecQuery;
+    qryResumoFolhavendedor: TIntegerField;
+    qryResumoFolhanome: TStringField;
+    qryResumoFolhafilialvenda: TIntegerField;
+    qryResumoFolhanomefilialvenda: TStringField;
+    qryResumoFolhagrupofilialvenda: TIntegerField;
+    qryResumoFolhanomegrupofilialvenda: TStringField;
+    qryResumoFolhaevento: TMemoField;
+    qryResumoFolhavalorcomissao: TFloatField;
+    qryCabecalhoResumoFolha: TtecQuery;
+    qryResumoFolhavalor: TFloatField;
+    qryResumoFolhabase: TFloatField;
+    qryResumoFolhaqtcontrato: TIntegerField;
+    qryComissoes: TtecQuery;
+    qryComissoesvendedor: TIntegerField;
+    qryComissoesnome: TStringField;
+    qryComissoescontrato: TStringField;
+    qryComissoesfilialvenda: TIntegerField;
+    qryComissoesnomefilialvenda: TStringField;
+    qryComissoesgrupofilialvenda: TIntegerField;
+    qryComissoesnomegrupofilialvenda: TStringField;
+    qryComissoesfaturamento: TDateField;
+    qryComissoesevento: TMemoField;
+    qryComissoesvalor: TFloatField;
+    qryComissoesbase: TFloatField;
+    qryComissoestipobase: TStringField;
+    qryComissoestipocomissao: TStringField;
+    qryComissoesnivelcomissao: TIntegerField;
+    qryComissoespercentual_ou_valor: TFloatField;
+    qryComissoesvalorcomissao: TFloatField;
+    qryComissoes_Copia: TtecQuery;
+    IntegerField1: TIntegerField;
+    StringField1: TStringField;
+    StringField2: TStringField;
+    IntegerField2: TIntegerField;
+    StringField3: TStringField;
+    IntegerField3: TIntegerField;
+    StringField4: TStringField;
+    DateField1: TDateField;
+    MemoField1: TMemoField;
+    FloatField1: TFloatField;
+    FloatField2: TFloatField;
+    StringField5: TStringField;
+    StringField6: TStringField;
+    IntegerField4: TIntegerField;
+    FloatField3: TFloatField;
+    FloatField4: TFloatField;
+    qryCabecalhoComissoesUsuariosFiliais: TtecQuery;
+    qryComissoesUsuariosFiliais: TtecQuery;
+    qryResumoFolhapercentual: TCurrencyField;
+    qryRodapeComissoesUsuariosFiliais: TtecQuery;
+    qryResumoFolhaTipoComissao: TStringField;
+    qryComissoes_Copia_Copia: TtecQuery;
+    IntegerField5: TIntegerField;
+    StringField7: TStringField;
+    StringField8: TStringField;
+    IntegerField6: TIntegerField;
+    StringField9: TStringField;
+    IntegerField7: TIntegerField;
+    StringField10: TStringField;
+    DateField2: TDateField;
+    MemoField2: TMemoField;
+    FloatField5: TFloatField;
+    FloatField6: TFloatField;
+    StringField11: TStringField;
+    StringField12: TStringField;
+    IntegerField8: TIntegerField;
+    FloatField7: TFloatField;
+    FloatField8: TFloatField;
+    qryComissoesproduto: TLargeintField;
+    qryComissoesnomeproduto: TStringField;
+    procedure frpComissoesBeforePrint(Memo: TStringList; View: TfrView);
+    procedure frpComissoesGetValue(const ParName: String;
+      var ParValue: Variant);
+    procedure frpResumoFolhaBeforePrint(Memo: TStringList; View: TfrView);
+  private
+    SQLComissoes: TtecQuery;
+    FListaAgentes: TStringList;
+    FListaConceitos: TStringList;
+    FFolha: TStringList;
+    FParametroInicioComissao: String;
+    FParametroFimComissao: String;
+    FParametroVendedor: String;
+    FParametroComissao: String;
+    FParametroFilial: String;
+    FParametroGrupoFilial: String;
+    FFiltros: String;
+    FFiltrosPC: String;
+    FFiltrosPC_Grupos: String;
+    FFiltrosPDF: String;
+    FTipoRelatorio: Integer;
+    FParametrosCabecalho: String;
+    FResumo: integer;
+    FOrdenacao: integer;
+    FAgruparFilial: Boolean;
+    FAgruparGrupoFilial: Boolean;
+    FExibirProdutos: boolean;
+    function GetConsultarVendedor: TZDataSet;
+    function GetCodigoVendedor: Integer;
+    function GetListaAgentes: TStrings;
+    function GetListaConceitos: TStrings;
+    procedure SetParametroComissao(const Value: String);
+    procedure SetParametroFimComissao(const Value: String);
+    procedure SetParametroInicioComissao(const Value: String);
+    procedure SetParametroVendedor(const Value: String);
+    procedure SetOrdenacao(const Value: integer);
+    function GetParametroAlterado: Boolean;
+  public
+   constructor Create(AOwner: TComponent); override;
+   destructor Destroy; override;
+   function ExisteVendedor(campo, codigo: string): Boolean;
+   function MontarFiltroAgentes(Usar: TCheckListBox): String;
+   function MontarFiltroConceitos(Usar: TCheckListBox): String;
+   function MontarFiltroFiliais: String;
+   function MontarFiltroVendedor: String;
+   function MontarFiltroVendedor_Grupos: String;
+   procedure MontarFiltros(UsarAgentes, UsarConceitos: TCheckListBox);
+   procedure MontarEventos(Usar: TCheckListBox);
+   procedure Selecionar(Pesquisa: TtecPesquisa);
+   procedure AbreTabelaPesquisa(TipoPesquisa: TtecPesquisa);
+   procedure FechaTabelaPesquisa(TipoPesquisa: TtecPesquisa);
+   function GerarComissaoVendedores: boolean;
+   property ConsultarVendedor: TZDataSet read GetConsultarVendedor;
+   property CodigoVendedor: Integer read GetCodigoVendedor;
+   property ListaAgentes: TStrings read GetListaAgentes;
+   property ListaConceitos: TStrings read GetListaConceitos;
+   property ParametroFilial: String read FParametroFilial write FParametroFilial;
+   property ParametroGrupoFilial: String read FParametroGrupoFilial write FParametroGrupoFilial;
+   property ParametroVendedor: String read FParametroVendedor write SetParametroVendedor;
+   property ParametroInicioComissao: String read FParametroInicioComissao write SetParametroInicioComissao;
+   property ParametroFimComissao: String read FParametroFimComissao write SetParametroFimComissao;
+   property ParametroComissao: String read FParametroComissao write SetParametroComissao;
+   property ParametroAlterado: Boolean read GetParametroAlterado;
+   property Folha: TStringList read FFolha write FFolha;
+   property TipoRelatorio: Integer read FTipoRelatorio write FTipoRelatorio;
+   property ParametrosCabecalho: String read FParametrosCabecalho write FParametrosCabecalho;
+   procedure ImprimirRelatorio;
+   property Resumo: integer read FResumo write Fresumo;
+   property Ordenacao: integer read FOrdenacao write SetOrdenacao;
+   property AgruparFilial: Boolean read FAgruparFilial write FAgruparFilial;
+   property AgruparGrupoFilial: Boolean read FAgruparGrupoFilial write FAgruparGrupoFilial;
+   property ExibirProdutos: boolean read FExibirProdutos write FExibirProdutos;
+  end;
+
+var
+  dtmComissaoVendedores: TdtmComissaoVendedores;
+
+const
+
+ // Filtros
+  FiltroConceito    = ' AND ( cliente IN (SELECT codigo FROM clientes WHERE (conceito IN(%s) ))) ' +#13#10;
+  FiltroAgente      = ' AND ( agente IN (%s)) ' +#13#10;
+  FiltroFilial      = ' AND filialvenda = %s ' +#13#10;
+  FiltroGrupoFilial = ' AND filialvenda IN (SELECT filial FROM filiaisgruposfiliais WHERE grupo = %s) ' +#13#10;
+  FiltroVendedor_contrato   = ' and coalesce(pc.vendedor,faturados.vendedor) = %s ' +#13#10;
+  FiltroVendedor_contrato_grupos   = ' and coalesce(pc.vendedor,ct.vendedor) = %s ' +#13#10;
+
+  FiltroVendedor_dadofiscal   = ' and coalesce(pdf.vendedor,faturados.vendedor) = %s ' +#13#10;
+
+
+ // Indice dos eventos
+  ID_VENDA          = 0;
+  ID_ESTORNOVENDA   = 1;
+  ID_ADICIONALPRODUTO = 2;
+  ID_ESTORNOADICIONALPRODUTO = 3;
+  ID_ABATIMENTO_CREDITO_TROCA = 4;
+  {
+  ID_META           = 4;
+  ID_PROPORCAO      = 5;
+  }
+
+implementation
+
+uses
+  //CLX
+  Math;
+
+{$R *.dfm}
+
+constructor TdtmComissaoVendedores.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryConsultaVendedores.Tag := ctPesquisaVendedor;
+  qryProcuraVendedores.Tag := ctTabelas;
+//  qryComissoes.Tag := ctRelatorioEstatisticoAnalitico;
+  FFolha := TStringList.Create;
+  FFolha.Duplicates := dupIgnore;
+  SQLComissoes := TtecQuery.create(nil);
+end;
+
+destructor TdtmComissaoVendedores.Destroy;
+begin
+  FListaAgentes.Free;
+  FListaConceitos.Free;
+  FFolha.Free;
+  SQLComissoes.Free;
+//  ParamsComissoes.Free;
+//  MacrosComissoes.Free;
+  inherited;
+end;
+
+
+function TdtmComissaoVendedores.ExisteVendedor(campo, codigo: string): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaVendedores, campo, codigo);
+end;
+
+
+function TdtmComissaoVendedores.GetConsultarVendedor: TZDataSet;
+begin
+   Result := qryConsultaVendedores;
+end;
+
+
+procedure TdtmComissaoVendedores.AbreTabelaPesquisa(TipoPesquisa: TtecPesquisa);
+begin
+  case TipoPesquisa of
+      pesVENDEDORES: Abre(ctPesquisaVendedor);
+  end;
+end;
+
+procedure TdtmComissaoVendedores.FechaTabelaPesquisa(TipoPesquisa: TtecPesquisa);
+begin
+  case TipoPesquisa of
+      pesVENDEDORES: Fecha(ctPesquisaVendedor);
+  end;
+end;
+
+procedure TdtmComissaoVendedores.Selecionar(Pesquisa: TtecPesquisa);
+begin
+  case Pesquisa of
+      pesVENDEDORES: RefazConsulta(qryProcuraVendedores,[0],[CodigoVendedor]);
+  end;
+end;
+
+
+function TdtmComissaoVendedores.GetCodigoVendedor: Integer;
+begin
+  Result := qryConsultaVendedorescodigo.AsInteger;
+end;
+
+function TdtmComissaoVendedores.GetListaAgentes: TStrings;
+begin
+  FListaAgentes:= TStringList.Create;
+  qryAgentes.Open;
+  while not qryAgentes.Eof do
+  begin
+    FListaAgentes.AddObject(qryAgentesdescricao.AsString, Pointer(qryAgentescodigo.AsInteger));
+    qryAgentes.Next;
+  end;
+  qryAgentes.Close;
+  Result := FListaAgentes;
+end;
+
+function TdtmComissaoVendedores.GetListaConceitos: TStrings;
+begin
+  FListaConceitos:= TStringList.Create;
+  qryConceitos.Open;
+  while not qryConceitos.Eof do
+  begin
+    FListaConceitos.AddObject(qryConceitosdescricao.AsString, Pointer(qryConceitoscodigo.AsInteger));
+    qryConceitos.Next;
+  end;
+  qryConceitos.Close;
+  Result := FListaConceitos;
+end;
+
+procedure TdtmComissaoVendedores.MontarFiltros(UsarAgentes, UsarConceitos: TCheckListBox);
+begin
+  FFiltros := MontarFiltroAgentes(UsarAgentes)
+            + MontarFiltroConceitos(UsarConceitos)
+            + MontarFiltroFiliais;
+
+  FFiltrosPC := MontarFiltroVendedor;
+
+  FFiltrosPC_Grupos := MontarFiltroVendedor_Grupos;
+
+
+  if Trim(FParametroVendedor) <> '' then
+    FFiltrosPDF := Format(FiltroVendedor_dadofiscal, [FParametroVendedor]);
+
+end;
+
+procedure TdtmComissaoVendedores.MontarEventos(Usar: TCheckListBox);
+
+var
+  Eventos:  String;
+  I : integer;
+begin
+  Eventos :='';
+
+  qryComissoes.macrobyname('ListaCodigosFiscaisVenda').asstring := ctCFOVENDAS;
+
+  qrycomissoes.MacroByName('FiltroContratos').AsString := FFiltros;
+  qryComissoes.MacroByName('FiltroProdutosContratos').AsString := FFiltrosPC;
+
+  qryComissoes.MacroByName('FiltroProdutosContratos_grupos').AsString := FFiltrosPC_Grupos;
+
+  qryComissoes.MacroByName('FiltroProdutosDadosFiscais').AsString := FFiltrosPDF;
+
+  qryComissoes.MacroByName('INICIO_VENDAS_CALCULO_NIVEL_DA_TABELA').AsString := '';
+  qryComissoes.MacroByName('FINAL_VENDAS_CALCULO_NIVEL_DA_TABELA').AsString := '';
+  qryComissoes.MacroByName('INICIO_ABATIMENTO_CREDITOTROCA_VENDAS_CALCULO_NIVEL_DA_TABELA').AsString := '';
+  qryComissoes.MacroByName('FINAL_ABATIMENTO_CREDITOTROCA_VENDAS_CALCULO_NIVEL_DA_TABELA').AsString := '';
+  qryComissoes.MacroByName('INICIO_DEVOLUCOES_DO_MES_CALCULO_NIVEL_DA_TABELA').AsString := '';
+  qryComissoes.MacroByName('FINAL_DEVOLUCOES_DO_MES_CALCULO_NIVEL_DA_TABELA').AsString := '';
+
+  if not Usar.Checked[ID_VENDA] and
+     not Usar.Checked[ID_ESTORNOVENDA] and
+     not Usar.Checked[ID_ABATIMENTO_CREDITO_TROCA] then
+  begin
+   qryComissoes.MacroByName('INICIO_NIVEL_DE_COMISSAO_DA_TABELA_COMISSOESUSUARIOS').AsString :=
+     '/*INICIO_NIVEL_DE_COMISSAO_DA_TABELA_COMISSOESUSUARIOS';
+   qryComissoes.MacroByName('FINAL_NIVEL_DE_COMISSAO_DA_TABELA_COMISSOESUSUARIOS').AsString :=
+     'INICIO_NIVEL_DE_COMISSAO_DA_TABELA_COMISSOESUSUARIOS*/';
+
+   qryComissoes.MacroByName('INICIO_VENDAS_A_SER_APLICADO_O_PERCENTUAL').AsString := '';
+   qryComissoes.MacroByName('FINAL_VENDAS_A_SER_APLICADO_O_PERCENTUAL').AsString := '';
+   qryComissoes.MacroByName('INICIO_ABATIMENTO_CREDITO_TROCA_VENDAS_A_SER_APLICADO_O_PERCENTUAL').AsString := '';
+   qryComissoes.MacroByName('FINAL_ABATIMENTO_CREDITO_TROCA_VENDAS_A_SER_APLICADO_O_PERCENTUAL').AsString := '';
+   qryComissoes.MacroByName('INICIO_ESTORNOS_DO_MES_E_FORA_DO_MES_A_SER_APLICADO_O_PERCENTUAL').AsString := '';
+   qryComissoes.MacroByName('FINAL_ESTORNOS_DO_MES_E_FORA_DO_MES_A_SER_APLICADO_O_PERCENTUAL').AsString := '';
+  end
+  else
+  begin
+   qryComissoes.MacroByName('INICIO_NIVEL_DE_COMISSAO_DA_TABELA_COMISSOESUSUARIOS').AsString :=
+     '/*INICIO_NIVEL_DE_COMISSAO_DA_TABELA_COMISSOESUSUARIOS*/';
+   qryComissoes.MacroByName('FINAL_NIVEL_DE_COMISSAO_DA_TABELA_COMISSOESUSUARIOS').AsString :=
+     '/*FINAL_NIVEL_DE_COMISSAO_DA_TABELA_COMISSOESUSUARIOS*/';
+  end;
+
+  if Usar.Checked[ID_VENDA] then
+  begin
+   qryComissoes.MacroByName('INICIO_VENDAS_A_SER_APLICADO_O_PERCENTUAL').AsString :=
+     '/*INICIO_VENDAS_A_SER_APLICADO_O_PERCENTUAL*/';
+   qryComissoes.MacroByName('FINAL_VENDAS_A_SER_APLICADO_O_PERCENTUAL').AsString :=
+     '/*FINAL_VENDAS_A_SER_APLICADO_O_PERCENTUAL*/';
+   Eventos:=Eventos+quotedstr(inttostr(ID_VENDA))+',';
+  end
+  else
+  begin
+   qryComissoes.MacroByName('INICIO_VENDAS_A_SER_APLICADO_O_PERCENTUAL').AsString :=
+     '/*INICIO_VENDAS_A_SER_APLICADO_O_PERCENTUAL';
+   qryComissoes.MacroByName('FINAL_VENDAS_A_SER_APLICADO_O_PERCENTUAL').AsString :=
+     'FINAL_VENDAS_A_SER_APLICADO_O_PERCENTUAL*/';
+  end;
+
+
+  if Usar.Checked[ID_ABATIMENTO_CREDITO_TROCA] then
+  begin
+   if Usar.Checked[ID_VENDA] then
+     qryComissoes.MacroByName('UNION_ALL_FINAL_VENDAS_A_SER_APLICADO_O_PERCENTUAL').AsString := 'UNION ALL';
+   qryComissoes.MacroByName('INICIO_ABATIMENTO_CREDITO_TROCA_VENDAS_A_SER_APLICADO_O_PERCENTUAL').AsString :=
+     '/*INICIO_ABATIMENTO_CREDITO_TROCA_VENDAS_A_SER_APLICADO_O_PERCENTUAL*/';
+   qryComissoes.MacroByName('FINAL_ABATIMENTO_CREDITO_TROCA_VENDAS_A_SER_APLICADO_O_PERCENTUAL').AsString :=
+     '/*FINAL_ABATIMENTO_CREDITO_TROCA_VENDAS_A_SER_APLICADO_O_PERCENTUAL*/';
+   Eventos:=Eventos+quotedstr(inttostr(ID_ABATIMENTO_CREDITO_TROCA))+',';
+  end
+  else
+  begin
+   qryComissoes.MacroByName('UNION_ALL_FINAL_VENDAS_A_SER_APLICADO_O_PERCENTUAL').AsString := '';
+   qryComissoes.MacroByName('INICIO_ABATIMENTO_CREDITO_TROCA_VENDAS_A_SER_APLICADO_O_PERCENTUAL').AsString :=
+     '/*INICIO_ABATIMENTO_CREDITO_TROCA_VENDAS_A_SER_APLICADO_O_PERCENTUAL';
+   qryComissoes.MacroByName('FINAL_ABATIMENTO_CREDITO_TROCA_VENDAS_A_SER_APLICADO_O_PERCENTUAL').AsString :=
+     'FINAL_ABATIMENTO_CREDITO_TROCA_VENDAS_A_SER_APLICADO_O_PERCENTUAL*/';
+  end;
+
+  if Usar.Checked[ID_ESTORNOVENDA] then
+  begin
+   if Usar.Checked[ID_ABATIMENTO_CREDITO_TROCA] then
+     qryComissoes.MacroByName('UNION_ALL_FINAL_ABATIMENTO_CREDITO_TROCA_VENDAS_A_SER_APLICADO_O_PERCENTUAL').AsString := 'UNION ALL';
+   qryComissoes.MacroByName('INICIO_ESTORNOS_DO_MES_E_FORA_DO_MES_A_SER_APLICADO_O_PERCENTUAL').AsString :=
+     '/*INICIO_ESTORNOS_DO_MES_E_FORA_DO_MES_A_SER_APLICADO_O_PERCENTUAL*/';
+   qryComissoes.MacroByName('FINAL_ESTORNOS_DO_MES_E_FORA_DO_MES_A_SER_APLICADO_O_PERCENTUAL').AsString :=
+     '/*FINAL_ESTORNOS_DO_MES_E_FORA_DO_MES_A_SER_APLICADO_O_PERCENTUAL*/';
+   Eventos:=Eventos+quotedstr(inttostr(ID_ESTORNOVENDA))+',';
+  end
+  else
+  begin
+   qryComissoes.MacroByName('UNION_ALL_FINAL_ABATIMENTO_CREDITO_TROCA_VENDAS_A_SER_APLICADO_O_PERCENTUAL').AsString := '';
+   qryComissoes.MacroByName('INICIO_ESTORNOS_DO_MES_E_FORA_DO_MES_A_SER_APLICADO_O_PERCENTUAL').AsString :=
+     '/*INICIO_ESTORNOS_DO_MES_E_FORA_DO_MES_A_SER_APLICADO_O_PERCENTUAL';
+   qryComissoes.MacroByName('FINAL_ESTORNOS_DO_MES_E_FORA_DO_MES_A_SER_APLICADO_O_PERCENTUAL').AsString :=
+     'FINAL_ESTORNOS_DO_MES_E_FORA_DO_MES_A_SER_APLICADO_O_PERCENTUAL*/';
+  end;
+
+  if Usar.Checked[ID_ADICIONALPRODUTO] then
+  begin
+   if Usar.Checked[ID_VENDA] or
+      Usar.Checked[ID_ESTORNOVENDA] or
+      Usar.Checked[ID_ABATIMENTO_CREDITO_TROCA] then
+     qryComissoes.MacroByName('UNION_ALL_FINAL_NIVEL_DE_COMISSAO_DA_TABELA_COMISSOESUSUARIOS').AsString := 'UNION ALL'
+   else
+     qryComissoes.MacroByName('UNION_ALL_FINAL_NIVEL_DE_COMISSAO_DA_TABELA_COMISSOESUSUARIOS').AsString := '';
+
+   qryComissoes.MacroByName('INICIO_ADICIONAL_PRODUTOS_VENDAS').AsString :=
+     '/*INICIO_ADICIONAL_PRODUTOS_VENDAS*/';
+   qryComissoes.MacroByName('FINAL_ADICIONAL_PRODUTOS_VENDAS').AsString :=
+     '/*FINAL_ADICIONAL_PRODUTOS_VENDAS*/';
+   Eventos:=Eventos+quotedstr(inttostr(ID_ADICIONALPRODUTO))+',';
+  end
+  else
+  begin
+
+   qryComissoes.MacroByName('UNION_ALL_FINAL_NIVEL_DE_COMISSAO_DA_TABELA_COMISSOESUSUARIOS').AsString := '';
+   qryComissoes.MacroByName('INICIO_ADICIONAL_PRODUTOS_VENDAS').AsString :=
+     '/*INICIO_ADICIONAL_PRODUTOS_VENDAS';
+   qryComissoes.MacroByName('FINAL_ADICIONAL_PRODUTOS_VENDAS').AsString :=
+     'FINAL_ADICIONAL_PRODUTOS_VENDAS*/';
+  end;
+
+  if Usar.Checked[ID_ABATIMENTO_CREDITO_TROCA] then
+  begin
+   if Usar.Checked[ID_ADICIONALPRODUTO] then
+     qryComissoes.MacroByName('UNION_ALL_FINAL_ADICIONAL_PRODUTOS_VENDAS').AsString := 'UNION ALL';
+   qryComissoes.MacroByName('INICIO_ABATIMENTO_CREDITO_TROCA_ADICIONAL_PRODUTOS_VENDAS').AsString :=
+     '/*INICIO_ABATIMENTO_CREDITO_TROCA_ADICIONAL_PRODUTOS_VENDAS*/';
+   qryComissoes.MacroByName('FINAL_ABATIMENTO_CREDITO_TROCA_ADICIONAL_PRODUTOS_VENDAS').AsString :=
+     '/*FINAL_ABATIMENTO_CREDITO_TROCA_ADICIONAL_PRODUTOS_VENDAS*/';
+   Eventos:=Eventos+quotedstr(inttostr(ID_ESTORNOADICIONALPRODUTO))+',';
+  end
+  else
+  begin
+    qryComissoes.MacroByName('UNION_ALL_FINAL_ADICIONAL_PRODUTOS_VENDAS').AsString := '';
+
+   qryComissoes.MacroByName('INICIO_ABATIMENTO_CREDITO_TROCA_ADICIONAL_PRODUTOS_VENDAS').AsString :=
+     '/*INICIO_ABATIMENTO_CREDITO_TROCA_ADICIONAL_PRODUTOS_VENDAS';
+   qryComissoes.MacroByName('FINAL_ABATIMENTO_CREDITO_TROCA_ADICIONAL_PRODUTOS_VENDAS').AsString :=
+     'FINAL_ABATIMENTO_CREDITO_TROCA_ADICIONAL_PRODUTOS_VENDAS*/';
+  end;
+
+
+  if Usar.Checked[ID_ESTORNOADICIONALPRODUTO] then
+  begin
+   if Usar.Checked[ID_ABATIMENTO_CREDITO_TROCA] then
+     qryComissoes.MacroByName('UNION_ALL_FINAL_ABATIMENTO_CREDITO_TROCA_ADICIONAL_PRODUTOS_VENDAS').AsString := 'UNION ALL';
+   qryComissoes.MacroByName('INICIO_ADICIONAL_PRODUTOS_ESTORNOS').AsString :=
+     '/*INICIO_ADICIONAL_PRODUTOS_ESTORNOS*/';
+   qryComissoes.MacroByName('FINAL_ADICIONAL_PRODUTOS_ESTORNOS').AsString :=
+     '/*FINAL_ADICIONAL_PRODUTOS_ESTORNOS*/';
+   Eventos:=Eventos+quotedstr(inttostr(ID_ESTORNOADICIONALPRODUTO))+',';
+  end
+  else
+  begin
+    qryComissoes.MacroByName('UNION_ALL_FINAL_ABATIMENTO_CREDITO_TROCA_ADICIONAL_PRODUTOS_VENDAS').AsString := '';
+   qryComissoes.MacroByName('INICIO_ADICIONAL_PRODUTOS_ESTORNOS').AsString :=
+     '/*INICIO_ADICIONAL_PRODUTOS_ESTORNOS';
+   qryComissoes.MacroByName('FINAL_ADICIONAL_PRODUTOS_ESTORNOS').AsString :=
+     'FINAL_ADICIONAL_PRODUTOS_ESTORNOS*/';
+  end;
+
+  Delete(Eventos, Length(Eventos) -1, 1);
+
+  if Usar.Checked[ID_VENDA] and
+     Usar.Checked[ID_ESTORNOVENDA] and
+     Usar.Checked[ID_ADICIONALPRODUTO] and
+     Usar.Checked[ID_ESTORNOADICIONALPRODUTO] and
+     Usar.Checked[ID_ABATIMENTO_CREDITO_TROCA]  then
+    ParametrosCabecalho := ParametrosCabecalho + ' Eventos: Todos'
+  else
+    ParametrosCabecalho := ParametrosCabecalho + ' Eventos: '+Eventos;
+
+  qryComissoes.ParamByName('datainicial').AsString := FParametroInicioComissao;
+  qryComissoes.ParamByName('datafinal').AsString := FParametroFimComissao;
+  qryComissoes.ParamByName('AgruparFilial').AsBoolean := FAgruparFilial;
+  qryComissoes.ParamByName('AgruparGrupoFilial').AsBoolean := FAgruparGrupoFilial;
+  qryComissoes.ParamByName('ExibirProduto').AsBoolean := FExibirProdutos;
+
+  case FResumo of
+  0,2: begin
+         if qryresumofolha.sql.count=0 then
+         begin
+
+           qryresumofolha.Sql.Clear;
+
+           qryResumoFolha.Sql.Text := 'select * from ( '+ qryCabecalhoResumoFolha.Sql.Text;
+           qryResumoFolha.Sql.Text  := qryResumoFolha.Sql.Text +
+                                        qryComissoes.Sql.Text;
+
+           qryResumoFolha.Sql.Append(') as resumo ');
+           qryResumoFolha.Sql.Append('group by filialvenda, nomefilialvenda, grupofilialvenda, nomegrupofilialvenda, tipocomissao, nome, vendedor, evento ');
+
+
+           qryResumoFolha.sql.text := qryResumoFolha.sql.text + ' union all ' +
+                                      qryCabecalhoComissoesUsuariosFiliais.sql.text +
+                                      qryComissoes.Sql.Text +
+                                      ' ) as comissoes '+
+                                      'group by filialvenda, nomefilialvenda, grupofilialvenda, nomegrupofilialvenda ' +
+                                      qryRodapeComissoesUsuariosFiliais.sql.Text;
+
+           qryResumoFolha.Sql.Append(') as temp order by filialvenda, UPPER(TO_ASCII(nomefilialvenda,''LATIN1'')), grupofilialvenda, UPPER(TO_ASCII(nomegrupofilialvenda,''LATIN1'')), tipocomissao desc, UPPER(TO_ASCII(nome,''LATIN1'')), vendedor, evento ');
+
+         end;
+
+         qryResumoFolha.ParamByName('datainicial').AsString := FParametroInicioComissao;
+         qryResumoFolha.ParamByName('datafinal').AsString := FParametroFimComissao;
+         qryResumoFolha.ParamByName('AgruparFilial').AsBoolean := {FAgruparFilial} true;
+         qryResumoFolha.ParamByName('AgruparGrupoFilial').AsBoolean := FAgruparGrupoFilial;
+         for i:=0 to qryComissoes.MacroCount -1 do
+            qryResumoFolha.Macros[i].AsString := qryComissoes.Macros[i].AsString;
+       end;
+
+  end;
+
+
+end;
+
+function TdtmComissaoVendedores.MontarFiltroAgentes(Usar: TCheckListBox): String;
+var
+  Agentes: String;
+  TodosAgentes: Boolean;
+  cnt: Integer;
+begin
+  TodosAgentes:=true;
+  Result := '';
+  Agentes := '';
+  for cnt := 0 to FListaAgentes.Count - 1 do
+    if Usar.Checked[cnt] then
+      Agentes := Agentes + '''' + IntToStr(Integer(FListaAgentes.Objects[cnt])) + ''','
+    else
+      TodosAgentes:=false;
+
+  Agentes := Copy(Agentes, 0, Length(Agentes) - 1);
+  if Trim(Agentes) <> '' then
+  begin
+    if TodosAgentes then
+      FParametrosCabecalho:=FParametrosCabecalho+' Agentes: Todos'
+    else
+      FParametrosCabecalho:=FParametrosCabecalho+' Agentes: '+Agentes;
+    Result := Result + Format(FiltroAgente,[Agentes]);
+  end
+  else
+   FParametrosCabecalho:=FParametrosCabecalho+' Agentes: Nenhum';
+end;
+
+function TdtmComissaoVendedores.MontarFiltroConceitos(Usar: TCheckListBox): String;
+var
+  Conceitos: String;
+  TodosConceitos : Boolean;
+  cnt: Integer;
+begin
+  TodosConceitos := True;
+  Result := '';
+  Conceitos := '';
+  for cnt := 0 to FListaConceitos.Count - 1 do
+    if Usar.Checked[cnt] then
+      Conceitos := Conceitos + '''' + IntToStr(Integer(FListaConceitos.Objects[cnt])) + ''','
+    else
+      TodosConceitos:=false;
+  Conceitos := Copy(Conceitos, 0, Length(Conceitos) - 1);
+  if Trim(Conceitos) <> '' then
+  begin
+   if TodosConceitos then
+    FParametrosCabecalho:=FParametrosCabecalho+' Conceitos: Todos'
+   else
+     FParametrosCabecalho:=FParametrosCabecalho+' Conceitos: '+Conceitos;
+   Result := Result + Format(FiltroConceito,[Conceitos]);
+  end
+  else
+   FParametrosCabecalho:=FParametrosCabecalho+' Conceitos: Nenhum';
+
+end;
+
+function TdtmComissaoVendedores.MontarFiltroFiliais: String;
+begin
+  if Trim(FParametroGrupoFilial) <> '' then
+    if ParSistema.RelatorioSomenteFiliaisAutorizadas then
+      Result := Result +
+                Format(FiltroFilial, [FParametroFilial]) +
+                Format(FiltroGrupoFilial, [FParametroGrupoFilial])
+    else
+      Result := Result +
+                Format(FiltroGrupoFilial, [FParametroGrupoFilial])
+  else
+  if Trim(FParametroFilial) <> '' then
+    Result := Result + Format(FiltroFilial, [FParametroFilial]);
+end;
+
+function TdtmComissaoVendedores.MontarFiltroVendedor: String;
+begin
+  if Trim(FParametroVendedor) <> '' then
+    Result := Format(FiltroVendedor_contrato, [FParametroVendedor]);
+end;
+
+function TdtmComissaoVendedores.GerarComissaoVendedores: boolean;
+begin
+  case FResumo of
+  0:begin
+     if parametroalterado or
+        not qryComissoes.Active or
+        not qryResumoFolha.Active then
+     begin
+       ReFazConsulta(qryComissoes,[],[]);
+       Refazconsulta(qryResumoFolha,[],[]);
+     end;
+    end;
+  1: begin
+       if parametroalterado or not qrycomissoes.Active then
+       ReFazConsulta(qryComissoes,[],[]);
+     end;
+  2: begin
+       if parametroalterado or not qryResumoFolha.Active then
+       Refazconsulta(qryResumoFolha,[],[]);
+     end;
+  end;
+  result := not qrycomissoes.IsEmpty or
+            not qryResumoFolha.IsEmpty;
+end;
+
+procedure TdtmComissaoVendedores.SetParametroComissao(const Value: String);
+begin
+  if Value <> FParametroComissao then
+    FParametroComissao := Value;
+end;
+
+
+procedure TdtmComissaoVendedores.SetParametroFimComissao(const Value: String);
+begin
+  if Value <> FParametroFimComissao then
+    FParametroFimComissao := Value;
+  if value<>'' then
+    FParametrosCabecalho:=FParametrosCabecalho+' e '+Value;
+end;
+
+procedure TdtmComissaoVendedores.SetParametroInicioComissao(const Value: String);
+begin
+  if Value <> FParametroInicioComissao then
+    FParametroInicioComissao := Value;
+  if value <> '' then
+   FParametrosCabecalho:=FParametrosCabecalho+' Comissao entre: '+Value;
+end;
+
+procedure TdtmComissaoVendedores.SetParametroVendedor(const Value: String);
+begin
+  if Value <> FParametroVendedor then
+    FParametroVendedor := Value;
+  if value<>'' then
+    FParametrosCabecalho:=FParametrosCabecalho+' Vendedor: '+Value;
+end;
+
+procedure TdtmComissaoVendedores.ImprimirRelatorio;
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+
+
+ frVariables['Rua']   := RuaFilialBase;
+ frVariables['Bairro']:= BairroFilialBase + ' - CEP: ' + CEPFilialBase;
+ frVariables['Cidade']:= CidadeFilialBase + ' - ' + EstadoFilialBase;
+ frVariables['Fone']  := FoneFilialBase;
+ frVariables['Outras']:= FParametrosCabecalho;
+ frVariables['AgruparFilial']:= FAgruparFilial;
+ frVariables['AgruparGrupoFilial']:= FAgruparGrupoFilial;
+
+// frVariables['ExibirProdutos']:= FExibirProdutos;
+
+ frVariables['TotalizarBase']:= ParSistema.TotalizarBaseComissoes;
+
+// frpComissoes.DesignReport;
+ frmPreview := TfrmPreviewPadrao.create(self);
+ try
+   Relatorio := frmPreview.frCompositeReport;
+   frmPreview.frCompositeReport.Reports.Clear;
+   with frmPreview do
+   begin
+    case FResumo of
+     0: begin
+        frCompositeReport.Reports.Add(frpComissoes);
+        frCompositeReport.Reports.Add(frpResumoFolha);
+        end;
+     1: frCompositeReport.Reports.Add(frpComissoes);
+     2: frCompositeReport.Reports.Add(frpResumoFolha);
+    end;
+   end;
+   Relatorio.Preview := frmPreview.frPreviewPadrao;
+   Relatorio.ShowReport;
+   frmPreview.ShowModal;
+ finally
+
+   frmPreview.Free
+ end;
+end;
+
+procedure TdtmComissaoVendedores.SetOrdenacao(const Value: integer);
+begin
+  FOrdenacao := Value;
+  qryResumoFolha.ParamByName('ordenacao').AsInteger:=value;
+end;
+
+procedure TdtmComissaoVendedores.frpComissoesBeforePrint(Memo: TStringList;
+  View: TfrView);
+begin
+  inherited;  
+  ZebrarLinhaRelatorio(frpComissoes,view);
+end;
+
+function TdtmComissaoVendedores.GetParametroAlterado: Boolean;
+ procedure CopiarComissoes;
+ var
+  i:integer;
+ begin
+   for i:=0 to qryComissoes.MacroCount -1 do
+     SQLComissoes.Macros[i].AsString := qryComissoes.Macros[i].AsString;
+   for i:=0 to qryComissoes.ParamCount -1 do
+     SQLComissoes.Params[i].AsString := qryComissoes.Params[i].AsString;
+ end;
+
+ function DiferencasComissoes:boolean;
+ var
+  i:integer;
+ begin
+   Result := False;
+   for i:=0 to qryComissoes.MacroCount -1 do
+     if qryComissoes.macros[i].AsString<>SQLComissoes.macros[i].AsString then
+     begin
+       result := true;
+       break
+     end;
+   for i:=0 to qryComissoes.ParamCount -1 do
+     if qryComissoes.params[i].asstring<>SQLComissoes.params[i].AsString then
+     begin
+       result := true;
+       break
+     end;
+ end;
+
+begin
+  if SQLComissoes.Sql.Count = 0 then
+  begin
+    SQLComissoes.Sql := qryComissoes.Sql;
+    CopiarComissoes;
+    Result := true;
+  end
+  else
+  begin
+   if diferencascomissoes then
+   begin
+     CopiarComissoes;
+     result := true;
+   end
+   else result := false;
+  end;
+end;
+
+
+procedure TdtmComissaoVendedores.frpComissoesGetValue(
+  const ParName: String; var ParValue: Variant);
+begin
+  inherited;
+  if ParName = 'ExibirProdutos' then
+    ParValue := ExibirProdutos;
+end;
+
+procedure TdtmComissaoVendedores.frpResumoFolhaBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpResumoFolha,view);
+end;
+
+function TdtmComissaoVendedores.MontarFiltroVendedor_Grupos: String;
+begin
+  if Trim(FParametroVendedor) <> '' then
+    Result := Format(FiltroVendedor_contrato_Grupos, [FParametroVendedor]);
+end;
+
+end.
+
+

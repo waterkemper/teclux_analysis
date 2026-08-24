@@ -1,0 +1,1514 @@
+unit dmconsultacontratos;
+
+interface
+
+uses
+  SysUtils, Classes, DB, cpdatasource, ZQuery, ZPgSqlQuery, cpquery, Variants,
+  ctconstantes, dmbasico, dmtecsoft, biblio, ZTransact, clparametrossistema, clusuario,
+  FR_DSet, FR_DBSet, FR_Class, fmpreviewpadrao, Graphics, dmImprimeContratos;
+
+type
+  TdtmConsultaContratos = class(TdtmBasico)
+    qryFiliais: TtecQuery;
+    dsrFiliais: TtecDataSource;
+    qryFiliaiscodigo: TIntegerField;
+    qryFiliaisnome: TStringField;
+    qryVendedores: TtecQuery;
+    dsrVendedores: TtecDataSource;
+    qryVendedorescodigo: TIntegerField;
+    qryVendedoresnome: TStringField;
+    qryClientes: TtecQuery;
+    qryClientescodigo: TIntegerField;
+    qryClientesnome: TStringField;
+    qryClientestipo: TStringField;
+    dsrClientes: TtecDataSource;
+    qryConsultaFiliais: TtecQuery;
+    qryConsultaFiliaiscodigo: TIntegerField;
+    qryConsultaFiliaisnome: TStringField;
+    qryConsultaVendedores: TtecQuery;
+    qryConsultaClientes: TtecQuery;
+    qryConsultaClientesnome: TStringField;
+    qryConsultaClientescodigo: TIntegerField;
+    qryConsultaClientespessoanumero: TStringField;
+    qryConsultaClientestipo: TStringField;
+    qryConsultaClientestipopessoa: TStringField;
+    qryConsultaClientesestado: TStringField;
+    qryConsultaClientesnomecidade: TStringField;
+    qryConsultaVendedorescodigo: TIntegerField;
+    qryConsultaVendedoresnome: TStringField;
+    qryContratos: TtecQuery;
+    qryFornecedores: TtecQuery;
+    dsrFornecedores: TtecDataSource;
+    qryConsultaFornecedores: TtecQuery;
+    qryFornecedorescodigo: TIntegerField;
+    qryFornecedoresnome: TStringField;
+    qryConsultaFornecedoresnome: TStringField;
+    qryConsultaFornecedorescodigo: TIntegerField;
+    qryConsultaFornecedorespessoanumero: TStringField;
+    qryConsultaFornecedoresestado: TStringField;
+    qryConsultaFornecedoresnomecidade: TStringField;
+    dsrContratos: TtecDataSource;
+    qryProdutosContratos: TtecQuery;
+    dsrProdutosContratos: TtecDataSource;
+    qryProdutosContratosproduto: TLargeintField;
+    qryProdutosContratosdescricao: TStringField;
+    qryProdutosContratosquantidade: TFloatField;
+    qryProdutosContratosprecovenda: TFloatField;
+    qryProdutosContratostotal: TFloatField;
+    qryProdutosContratosaliquotaicms: TFloatField;
+    qryProdutosContratosaliquotaipi: TFloatField;
+    qryContratosnumero: TStringField;
+    qryContratosdata: TDateField;
+    qryContratosfaturamento: TDateField;
+    qryContratoscliente: TIntegerField;
+    qryContratosestado: TStringField;
+    qryContratossituacao: TStringField;
+    qryContratossituacaocontrato: TStringField;
+    qryContratosaberto: TBooleanField;
+    qryContratosrenegociado: TStringField;
+    qryContratospessoanumero: TStringField;
+    qryContratosplano: TStringField;
+    qryContratosnomesituacao: TStringField;
+    qryContratosclientenome: TStringField;
+    qryContratosvendedornome: TStringField;
+    qryContratosvendedor: TIntegerField;
+    qryProdutosSimilares: TtecQuery;
+    dsrProdutosSimilares: TtecDataSource;
+    qryProdutosSimilaresdescricao: TStringField;
+    qryProdutosSimilaresvalorgrade1: TStringField;
+    qryProdutosSimilaresvalorgrade2: TStringField;
+    qryProdutosSimilarescodigo: TLargeintField;
+    qryProdutosSimilaresfilial: TIntegerField;
+    qryProdutosSimilarescaracteristica: TLargeintField;
+    qryProdutosSimilaresemestoque: TFloatField;
+    qryProdutosSimilaresreservado: TFloatField;
+    qryProdutosSimilaresunidade: TStringField;
+    qryProdutosSimilaresbrinde: TBooleanField;
+    qryProdutosSimilaresvalorproduto: TFloatField;
+    qryProdutosSimilareslinha: TStringField;
+    qryProdutosSimilarescoluna: TStringField;
+    qryProdutosSimilaressimilares: TLargeintField;
+    qryProdutosContratoslinha: TStringField;
+    qryProdutosContratoscoluna: TStringField;
+    qryProdutosContratosvalorgrade1: TStringField;
+    qryProdutosContratosvalorgrade2: TStringField;
+    qryProdutosContratosfilial: TIntegerField;
+    qryProdutosContratospedido: TFloatField;
+    qryProdutosSimilarespedido: TFloatField;
+    qryContratospedidocliente: TStringField;
+    qryContratosselecionar: TBooleanField;
+    frpImprimirContratos: TfrReport;
+    fdbImprimirContratos: TfrDBDataSet;
+    qryServicosContratos: TtecQuery;
+    qryServicosContratoscontrato: TStringField;
+    qryServicosContratosservico: TIntegerField;
+    qryServicosContratosquantidade: TIntegerField;
+    qryServicosContratosvalorservico: TFloatField;
+    qryServicosContratosdescricao: TStringField;
+    qryParcelas: TtecQuery;
+    qryParcelasnumero: TIntegerField;
+    qryParcelascontrato: TStringField;
+    qryParcelasdatavencto: TDateField;
+    qryParcelasvalorvencto: TFloatField;
+    qryParcelasdatapagto: TDateField;
+    qryParcelasvalorpagto: TFloatField;
+    qryContratosnome: TStringField;
+    qryImprimirContratos: TtecQuery;
+    qryImprimirContratosnumero: TStringField;
+    qryImprimirContratoscliente: TIntegerField;
+    qryImprimirContratosnome: TStringField;
+    qryImprimirContratospessoanumero: TStringField;
+    qryImprimirContratosfaturamento: TDateField;
+    fdbProdutosContratos: TfrDBDataSet;
+    fdbServicosContratos: TfrDBDataSet;
+    fdbParcelas: TfrDBDataSet;
+    qryImprimirContratospessoatipo: TStringField;
+    qryTotais: TtecQuery;
+    qryTotaistotalprodutos: TFloatField;
+    qryTotaistotalservicos: TFloatField;
+    qryTotaistotalaberto: TFloatField;
+    qryTotaistotalpago: TFloatField;
+    qryImprimirContratosvalorprazo: TFloatField;
+    qryImprimirContratoscreditotroca: TFloatField;
+    dsrImprimirContratos: TtecDataSource;
+    qryTotaisnumero: TStringField;
+    qryProdutosContratoscontrato: TStringField;
+    qryParcelasbanco: TIntegerField;
+    qryImprimirContratosnotas: TStringField;
+    qryContratosdatareservado: TDateField;
+    frpImprimirContratos_Lista: TfrReport;
+    qryImprimirContratos_Lista: TtecQuery;
+    dsrImprimirContratos_Lista: TtecDataSource;
+    fdbImprimirContratos_Lista: TfrDBDataSet;
+    qryImprimirContratos_Listasituacao: TStringField;
+    qryImprimirContratos_Listanumero: TStringField;
+    qryImprimirContratos_Listacliente: TMemoField;
+    qryImprimirContratos_Listadata: TDateField;
+    qryImprimirContratos_Listadatareservado: TDateField;
+    qryImprimirContratos_Listafaturamento: TDateField;
+    qryImprimirContratos_Listacan_data: TDateField;
+    qryImprimirContratos_Listausuariologado: TMemoField;
+    qryImprimirContratos_Listausuarioautorizacao: TMemoField;
+    qryImprimirContratos_Listafilialvenda: TIntegerField;
+    qryNotasContrato: TtecQuery;
+    dsrNotasContratos: TDataSource;
+    qryNotasContratoserie: TStringField;
+    qryNotasContratonumero: TIntegerField;
+    qryNotasContratofilial: TIntegerField;
+    qryContratosvalorvista: TFloatField;
+    qryContratosdesconto: TFloatField;
+    qryContratostotalprodutos: TFloatField;
+    qryContratosvalorprazo: TFloatField;
+    qryContratostotalitens: TFloatField;
+    qryContratosacrescimo: TCurrencyField;
+    qryContratossubtotal: TCurrencyField;
+    qryContratosfrete: TFloatField;
+    qryContratosseguro: TFloatField;
+    qryContratosvaloricmssubstituicao: TFloatField;
+    qryContratoscreditotroca: TFloatField;
+    qryProdutosContratosentrega: TStringField;
+    qryProdutosContratosdias: TIntegerField;
+    qryContratosquitado: TBooleanField;
+    qryContratosemitirnotadepoisde: TDateField;
+    qryProdutosContratosemestoque: TFloatField;
+    qryProdutosContratosreservado: TFloatField;
+    qryProdutosContratosxped: TStringField;
+    qryProdutosContratosvendedor: TIntegerField;
+    qryProdutosContratosusuariologadoalteracao: TIntegerField;
+    qryProdutosContratosusuarioalteracao: TIntegerField;
+    qryProdutosContratosdatahoraalteracaousuario: TDateTimeField;
+    qryProdutosContratosvendedoralterado: TBooleanField;
+    qryProdutosContratosnomevendedor: TStringField;
+    qryContratosAlteracao: TtecQuery;
+    dsrContratosAlteracao: TtecDataSource;
+    qryContratosAlteracaonumero: TStringField;
+    qryContratosAlteracaovendedor: TIntegerField;
+    qryContratosAlteracaousuariologadoalteracao: TIntegerField;
+    qryContratosAlteracaousuarioalteracao: TIntegerField;
+    qryContratosAlteracaodatahoraalteracaousuario: TDateTimeField;
+    qryContratosAlteracaofilialvenda: TIntegerField;
+    qryDadosFiscaisAlteracao: TtecQuery;
+    dsrDadosFiscaisAlteracao: TtecDataSource;
+    qryDadosFiscaisAlteracaonumero: TIntegerField;
+    qryDadosFiscaisAlteracaovendedor: TIntegerField;
+    qryDadosFiscaisAlteracaousuariologadoalteracao: TIntegerField;
+    qryDadosFiscaisAlteracaousuarioalteracao: TIntegerField;
+    qryDadosFiscaisAlteracaodatahoraalteracaousuario: TDateTimeField;
+    qryDadosFiscaisAlteracaofilialvenda: TIntegerField;
+    qryProdutosDadosFiscaisAlteracao: TtecQuery;
+    dsrProdutosDadosFiscaisAlteracao: TtecDataSource;
+    qryProdutosDadosFiscaisAlteracaodadofiscal: TIntegerField;
+    qryProdutosDadosFiscaisAlteracaonumero: TIntegerField;
+    qryProdutosDadosFiscaisAlteracaovendedor: TIntegerField;
+    qryProdutosDadosFiscaisAlteracaousuariologadoalteracao: TIntegerField;
+    qryProdutosDadosFiscaisAlteracaousuarioalteracao: TIntegerField;
+    qryProdutosDadosFiscaisAlteracaodatahoraalteracaousuario: TDateTimeField;
+    qryProdutosDadosFiscaisAlteracaoproduto: TLargeintField;
+    qryProdutosDadosFiscaisAlteracaofilial: TIntegerField;
+    qryProdutosContratosnitemped: TIntegerField;
+    qryProdutosContratosproduto_cliente: TStringField;
+    qryContratostipocliente: TStringField;
+    qryProdutosContratosprodutovisual: TStringField;
+    qryProdutosSimilarescodigovisual: TStringField;
+    qryNotasContratodatasaida: TDateField;
+    qryContratoscontrato_atual: TStringField;
+    qryContratosAlteracaofrete_pago: TFloatField;
+    qryContratosAlteracaoconsideracoes: TStringField;
+    qryContratosconsideracoes: TStringField;
+    qryContratosAlteracaomontagemobs: TStringField;
+    dsrServicosContratos: TtecDataSource;
+    qryServicosContratosaliquotaissqn: TFloatField;
+    qryServicosContratosequipamento: TStringField;
+    qryServicosContratosdescricaoequipamento: TStringField;
+    qryServicosContratosreferencia: TStringField;
+    qryServicosContratoscomplementoservico: TStringField;
+    qryServicosContratosvendedor: TIntegerField;
+    qryServicosContratosnomevendedor: TStringField;
+    qryServicosContratosvendedoralterado: TBooleanField;
+    qryContratosos: TBooleanField;
+    frpImprimirContratos_Lista_Produtos: TfrReport;
+    qryImprimirContratos_Listaconsideracoes: TStringField;
+    qryImprimirContratos_Listafoneddd: TIntegerField;
+    qryImprimirContratos_Listafone2ddd: TIntegerField;
+    qryImprimirContratos_Listafone2numero: TIntegerField;
+    qryImprimirContratos_Listafonenumero: TIntegerField;
+    procedure qryContratosAfterScroll(DataSet: TDataSet);
+    procedure qryProdutosContratosAfterScroll(DataSet: TDataSet);
+    procedure qryProdutosSimilaresAfterScroll(DataSet: TDataSet);
+    procedure frpImprimirContratosBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frpImprimirContratos_ListaBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure qryContratosCalcFields(DataSet: TDataSet);
+    procedure qryContratosfreteGetText(Sender: TField; var Text: String;
+      DisplayText: Boolean);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure qryProdutosContratosAfterPost(DataSet: TDataSet);
+    procedure dsrContratosAlteracaoDataChange(Sender: TObject;
+      Field: TField);
+    procedure qryProdutosContratosAfterInsert(DataSet: TDataSet);
+    procedure qryProdutosContratosBeforeInsert(DataSet: TDataSet);
+    procedure qryContratosAlteracaovendedorChange(Sender: TField);
+    procedure frpImprimirContratos_Lista_ProdutosBeforePrint(
+      Memo: TStringList; View: TfrView);
+  private
+    FOnScrollLinhaColunaGradeSimilares: TNotifyEvent;
+    FOnScrollLinhaColunaGrade: TNotifyEvent;
+    FRelatorioAtivo: Boolean;
+    FPedidoCliente: String;
+    FReservadoInicial: String;
+    FReservadoFinal: String;
+    FContrato: String;
+    fAfterPostProdutosContratos: TNotifyEvent;
+    fXped: String;
+    fTipoOrdemServico: boolean;
+    fTipoContrato: boolean;
+    fExcetoPlano: Boolean;
+    fOrdemServicoemGarantia: boolean;
+    fGarantiaAprovada: boolean;
+    fGarantiaReprovada: boolean;
+    fOrdemServicoemCortesia: boolean;
+    fGarantiaNaoDefinida: boolean;
+    fLogicaGarantia: String;
+    fListaClasses: String;
+    fListaMarcas: String;
+    fListaGrupos: String;
+    FListaItemProdutos: String;
+    FListaProdutos: String;
+    fComAtendimento: Boolean;
+    fSemAtendimento: Boolean;
+    fEquipamento: String;
+    fListaCondicionalPromocoes: String;
+    function GetColunadaGradeSimilares: String;
+    function GetLinhadaGradeSimilares: String;
+    function GetColunadaGrade: String;
+    function GetLinhadaGrade: String;
+
+    procedure ImprimirRelatorio(Contratos: String);overload;
+    procedure SetPedidoCliente(const Value: String);
+    procedure SetReservadoFinal(const Value: String);
+    procedure SetReservadoInicial(const Value: String);
+    procedure SetEmAberto(const Value: Boolean);
+    procedure SetQuitado(const Value: Boolean);
+    procedure SetEmAtraso(const Value: Boolean);
+    procedure SetRenegociado(const Value: Boolean);
+    procedure SetContrato(const Value: String);
+    procedure SetXped(const Value: String);
+    procedure SetTipoContrato(const Value: boolean);
+    procedure SetTipoEqptoOrdemServico(const Value: String);
+    procedure SetListaClasses(const Value: String);
+    procedure SetListaGrupos(const Value: String);
+    procedure SetListaItemProdutos(const Value: String);
+    procedure SetListaMarcas(const Value: String);
+    procedure SetListaProdutos(const Value: String);
+    procedure SetSemAtendimento(const Value: Boolean);
+    procedure SetEquipamento(const Value: String);
+    procedure SetListaCondicionalPromocoes(const Value: String);
+    procedure SetGruposUsuarios(const Value: String);
+    { Private declarations }
+  protected
+    ImpressaoContrato: TdtmImprimeContratos;
+    FAberturaInicial: String;
+    FAberturaFinal: String;
+    FFechamentoInicial: String;
+    FFechamentoFinal: String;
+    FQuebraPorCliente: Boolean;
+
+    function GetConsultarCliente: TtecQuery;
+    function GetConsultarFilial: TtecQuery;
+    function GetConsultarVendedor: TtecQuery;
+    function GetConsultarFornecedor: TtecQuery;
+    function GetContratoEmAberto: Boolean;
+    function GetContratoQuitado: Boolean;
+    function GetContratoEstornado: Boolean;
+    function GetContratoRenegociado: Boolean;
+    function GetContratoEmAtraso: Boolean;
+    function GetSituacaoContrato: String;
+
+    procedure SetFilial(const Value: String);
+    procedure SetVendedor(const Value: String);
+    procedure SetPlano(const Value: String);
+    procedure SetCliente(const Value: String);
+    procedure SetFornecedor(const Value: String);
+    procedure SetSituacao(const Value: String);
+    procedure SetAberturaInicial(const Value: String);
+    procedure SetAberturaFinal(const Value: String);
+    procedure SetFechamentoFinal(const Value: String);
+    procedure SetFechamentoInicial(const Value: String);
+    procedure SetOrdenacao(const Value: Integer);
+  public
+    { Public declarations }
+    qryProcuraVendedorContrato: TtecQuery;
+    constructor Create(AOwner: TComponent); override;
+    procedure AbreTabelaConsulta(TipoConsulta: TtecConsultaContratos);
+    procedure Selecionar(TipoConsulta: TtecConsultaContratos);
+    procedure FechaTabelaConsulta(TipoConsulta: TtecConsultaContratos);
+    procedure RefazConsultaTabelas;
+    procedure LimpaFiltros;
+    procedure MarcarSelecionados(Marcando, Todos: Boolean);
+    procedure ImprimirRelatorio;overload;
+    function  ExisteFornecedor(campo, codigo: String): Boolean;
+    function  ExisteCliente(campo, codigo: String): Boolean;
+    function  ExisteFilial(campo, codigo: String): Boolean;
+    function  ExisteVendedor(campo, codigo: String): Boolean;
+    function  AbrirConsultaContratos: Boolean;
+
+    property  QuebraPorCliente: Boolean read FQuebraPorCliente write FQuebraPorCliente;
+    property  ConsultarFilial: TtecQuery read GetConsultarFilial;
+    property  ConsultarVendedor: TtecQuery read GetConsultarVendedor;
+    property  ConsultarCliente: TtecQuery read GetConsultarCliente;
+    property  ConsultarFornecedor: TtecQuery read GetConsultarFornecedor;
+
+    property  Filial: String write SetFilial;
+    property  Vendedor: String write SetVendedor;
+    property  GruposUsuarios: String write SetGruposUsuarios;
+
+    property  ExcetoPlano: Boolean read fExcetoPlano write fExcetoPlano;
+    property  Plano: String write SetPlano;
+    property  Cliente: String write SetCliente;
+    property  Fornecedor: String write SetFornecedor;
+    property  FSituacao: String write SetSituacao;
+    property  TipoEqptoOrdemServico: String write SetTipoEqptoOrdemServico;
+    property  FEmAberto: Boolean write SetEmAberto;
+    property  FQuitado : Boolean write SetQuitado;
+    property  FRenegociado: Boolean write SetRenegociado;
+    property  FEmAtraso : Boolean write SetEmAtraso;
+    property  AberturaInicial: String read FAberturaInicial write SetAberturaInicial;
+    property  AberturaFinal: String read FAberturaFinal write SetAberturaFinal;
+    property  FechamentoInicial: String read FFechamentoInicial write SetFechamentoInicial;
+    property  FechamentoFinal: String read FFechamentoFinal write SetFechamentoFinal;
+    property  ReservadoInicial: String read FReservadoInicial write SetReservadoInicial;
+    property  ReservadoFinal: String read FReservadoFinal write SetReservadoFinal;
+    property  Pedidocliente: String read FPedidoCliente write SetPedidoCliente;
+    property  Xped: String read fXped write SetXped;
+    property  Contrato: String read FContrato write SetContrato;
+    property  Ordenacao:       Integer write SetOrdenacao;
+    property  ContratoEmAberto: Boolean read GetContratoEmAberto;
+    property  ContratoQuitado : Boolean read GetContratoQuitado;
+    property  ContratoEstornado: Boolean read GetContratoEstornado;
+    property  ContratoEmAtraso: Boolean read GetContratoEmAtraso;
+    property  ContratoRenegociado: Boolean read GetContratoRenegociado;
+    property  SituacaoContrato: String read GetSituacaoContrato;
+    property  OnScrollLinhaColunaGrade    : TNotifyEvent read FOnScrollLinhaColunaGrade write FOnScrollLinhaColunaGrade;
+    property  AfterPostProdutosContratos  : TNotifyEvent read fAfterPostProdutosContratos write fAfterPostProdutosContratos;
+    property  LinhadaGrade: String read GetLinhadaGrade;
+    property  ColunadaGrade: String read GetColunadaGrade;
+    property  OnScrollLinhaColunaGradeSimilares: TNotifyEvent read FOnScrollLinhaColunaGradeSimilares write FOnScrollLinhaColunaGradeSimilares;
+    property  LinhadaGradeSimilares: String read GetLinhadaGradeSimilares;
+    property  ColunadaGradeSimilares: String read GetColunadaGradeSimilares;
+    property  RelatorioAtivo: Boolean read FRelatorioAtivo write FRelatorioAtivo;
+    procedure EditarProdutosContratos;
+    procedure EditarServicosContratos;
+
+    function GravarDados: Boolean;
+    property tipoContrato: boolean read fTipoContrato write SetTipoContrato;
+    property tipoOrdemServico: boolean read fTipoOrdemServico write fTipoOrdemServico;
+    property OrdemServicoemGarantia: boolean read fOrdemServicoemGarantia write fOrdemServicoemGarantia;
+    property OrdemServicoemCortesia: boolean read fOrdemServicoemCortesia write fOrdemServicoemCortesia;
+    property GarantiaAprovada: boolean read fGarantiaAprovada write fGarantiaAprovada;
+    property GarantiaReprovada: boolean read fGarantiaReprovada write fGarantiaReprovada;
+    property GarantiaNaoDefinida: boolean read fGarantiaNaoDefinida write fGarantiaNaoDefinida;
+    property LogicaGarantia: String read fLogicaGarantia write fLogicaGarantia;
+
+    property ListaItemProdutos: String read FListaItemProdutos write SetListaItemProdutos;
+    property ListaProdutos: String read FListaProdutos write SetListaProdutos;
+    property ListaGrupos: String read fListaGrupos write SetListaGrupos;
+    property ListaClasses: String read fListaClasses write SetListaClasses;
+    property ListaMarcas: String read fListaMarcas write SetListaMarcas;
+
+    property ListaCondicionalPromocoes: String read fListaCondicionalPromocoes write SetListaCondicionalPromocoes;
+
+    property Equipamento: String read fEquipamento write SetEquipamento;
+
+    property ComAtendimento: Boolean read fComAtendimento write fComAtendimento;
+    property SemAtendimento: Boolean read fSemAtendimento write SetSemAtendimento;
+
+    function GetContrato: String;
+    function GetTipoDocumento: String;
+
+    procedure ImprimirListaProdutosporLocalizacao;
+
+
+
+   end;
+
+const
+  WhereBase = 21;
+  WhereSituacao         = WhereBase + 1;
+  WhereFilial           = WhereBase + 2;
+  WhereVendedor         = WhereBase + 3;
+  WhereCliente          = WhereBase + 4;
+  WherePlano            = WhereBase + 5;
+  WhereProduto          = WhereBase + 6;
+  WhereCaracteristica   = WhereBase + 7;
+  WhereGrupo            = WhereBase + 8;
+  WhereClasse           = WhereBase + 9;
+  WhereFornecedor       = WhereBase + 10;
+  WhereAbertura         = WhereBase + 11;
+  WhereFechamento       = WhereBase + 12;
+  WhereOrdenacao        = WhereBase + 13;
+
+var
+  dtmConsultaContratos: TdtmConsultaContratos;
+
+implementation
+
+{$R *.dfm}
+
+constructor TdtmConsultaContratos.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryFiliais.Tag                := ctTabelas;
+  qryVendedores.Tag             := ctTabelas;
+  qryClientes.Tag               := ctTabelas;
+  qryFornecedores.Tag           := ctTabelas;
+
+  qryConsultaFiliais.Tag        := ctTabelasConsultaFiliais;
+  qryConsultaVendedores.Tag     := ctTabelasConsultaVendedores;
+  qryConsultaClientes.Tag       := ctTabelasConsultaClientes;
+  qryConsultaFornecedores.Tag   := ctTabelasConsultaFornecedores;
+  qryClientes.Params[0].AsString:= 'C';
+  qryProdutosContratosquantidade.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosContratosemestoque.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosContratosreservado.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosContratospedido.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosSimilaresemestoque.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosSimilaresreservado.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryProdutosSimilarespedido.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+
+end;
+
+procedure TdtmConsultaContratos.AbreTabelaConsulta(TipoConsulta: TtecConsultaContratos);
+begin
+  case TipoConsulta of
+    cocFILIAIS          : Abre(ctTabelasConsultaFiliais);
+    cocVENDEDORES       : Abre(ctTabelasConsultaVendedores);
+    cocPLANOS           : Abre(ctTabelasConsultaPlanos);
+    cocCLIENTES         : begin
+                            qryConsultaClientes.Sql[11]:= 'Where (v.codigo = 0)';
+                            Abre(ctTabelasConsultaClientes);
+                          end;
+    cocFORNECEDORES     : begin
+                            qryConsultaFornecedores.Sql[06]:= 'Where (f.codigo = 0)';
+                            Abre(ctTabelasConsultaFornecedores);
+                          end;
+  end;
+end;
+
+
+function TdtmConsultaContratos.ExisteFilial(campo, codigo: String): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaFiliais, campo, codigo);
+end;
+
+
+function TdtmConsultaContratos.ExisteVendedor(campo, codigo: String): Boolean;
+begin
+  Result := ExisteCodigo(qryConsultaVendedores, campo, codigo);
+end;
+
+
+function TdtmConsultaContratos.ExisteFornecedor(campo, codigo: String): Boolean;
+const
+  SQL = 'where (upper(to_ascii(%s,''latin1'')) ilike upper(to_ascii(''%s%s'',''latin1'')))';
+begin
+  if Campo = 'nomecidade' then
+    Campo:= 'ct.nome';
+  if Campo = 'nome' then
+    Campo:= 'f.nome';
+  qryConsultaFornecedores.Sql[06] := Format(SQL, [Campo, Codigo, '%']);
+  qryConsultaFornecedores.Open;
+  Result := qryConsultaFornecedores.RecordCount > 0
+end;
+
+function TdtmConsultaContratos.ExisteCliente(Campo, Codigo: String): Boolean;
+const
+  SQL = 'where (upper(to_ascii(%s,''latin1'')) ilike upper(to_ascii(''%s%s'',''latin1'')))';
+begin
+  if Campo = 'nomecidade' then
+    Campo:= 'ct.nome'
+  else if Campo = 'tipopessoa' then
+    Campo:= 'v.tipo'
+  else Campo:= 'v.' + Campo;
+  qryConsultaClientes.Sql[11] := Format(SQL, [Campo, Codigo, '%']);
+  qryConsultaClientes.Open;
+  Result := qryConsultaClientes.RecordCount > 0
+end;
+
+procedure TdtmConsultaContratos.Selecionar(TipoConsulta: TtecConsultaContratos);
+begin
+  case TipoConsulta of
+    cocFILIAIS          : ReFazConsulta(qryFiliais,[0],[qryConsultaFiliaiscodigo.AsInteger]);
+    cocVENDEDORES       : ReFazConsulta(qryVendedores,[0],[qryConsultaVendedorescodigo.AsInteger]);
+    cocCLIENTES         : begin
+                            ReFazConsulta(qryClientes,[0,1],[qryConsultaClientestipo.AsString,
+                                                             qryConsultaClientescodigo.AsInteger]);
+                          end;
+    cocFORNECEDORES     : ReFazConsulta(qryFornecedores,[0], [qryConsultaFornecedorescodigo.AsString]);
+  end;
+end;
+
+procedure TdtmConsultaContratos.FechaTabelaConsulta(TipoConsulta: TtecConsultaContratos);
+begin
+  case TipoConsulta of
+    cocFILIAIS          : Fecha(ctTabelasConsultaFiliais);
+    cocVENDEDORES       : Fecha(ctTabelasConsultaVendedores);
+    cocPLANOS           : Fecha(ctTabelasConsultaPlanos);
+    cocCLIENTES         : Fecha(ctTabelasConsultaClientes);
+    cocPRODUTOS         : Fecha(ctTabelasConsultaProdutos);
+    cocCARACTERISTICAS  : Fecha(ctTabelasConsultaCaracteristicas);
+    cocGRUPOS           : Fecha(ctTabelasConsultaGrupos);
+    cocCLASSES          : Fecha(ctTabelasConsultaClasses);
+    cocFORNECEDORES     : Fecha(ctTabelasConsultaFornecedores);
+  end;
+end;
+
+procedure TdtmConsultaContratos.RefazConsultaTabelas;
+begin
+  if not qryFornecedores.IsEmpty then
+    ReFazConsulta(qryFornecedores,[0],[0]);
+end;
+
+procedure TdtmConsultaContratos.LimpaFiltros;
+begin
+  qryContratos.Close;
+  qryProdutosContratos.Close;
+  ReFazConsulta(qryFiliais,[0],[0]);
+  ReFazConsulta(qryVendedores,[0],[0]);
+  ReFazConsulta(qryClientes,[0,1],['C',0]);
+  RefazConsultaTabelas;
+  QtdeMarcados := 0;
+end;
+
+function TdtmConsultaContratos.AbrirConsultaContratos: Boolean;
+begin
+  if qryContratos.Active then
+    qryContratos.Close;
+  QtdeMarcados := 0;
+  qryContratos.Open;
+  Result := qryContratos.IsEmpty;
+end;
+
+function TdtmConsultaContratos.GetConsultarFilial: TtecQuery;
+begin
+  Result := qryConsultaFiliais;
+end;
+
+
+function TdtmConsultaContratos.GetConsultarCliente: TtecQuery;
+begin
+  Result := qryConsultaClientes;
+end;
+
+
+function TdtmConsultaContratos.GetConsultarVendedor: TtecQuery;
+begin
+  Result := qryConsultaVendedores;
+end;
+
+
+function TdtmConsultaContratos.GetConsultarFornecedor: TtecQuery;
+begin
+  Result := qryConsultaFornecedores;
+end;
+
+function TdtmConsultaContratos.GetContratoEmAberto: Boolean;
+begin
+  Result:= qryContratosaberto.AsBoolean;
+end;
+
+function TdtmConsultaContratos.GetContratoEstornado: Boolean;
+begin
+  Result := qryContratossituacaocontrato.AsString='ESTORNADO';
+end;
+
+function TdtmConsultaContratos.GetContratoEmAtraso: Boolean;
+begin
+  Result:=Pos('/',qryContratossituacaocontrato.AsString)>0;
+end;
+
+function TdtmConsultaContratos.GetContratoRenegociado: Boolean;
+begin
+  Result:= qryContratosrenegociado.AsString <> '';
+end;
+
+function TdtmConsultaContratos.GetSituacaoContrato: String;
+begin
+  Result:= qryContratossituacao.AsString;
+end;
+
+
+procedure TdtmConsultaContratos.SetCliente(const Value: String);
+begin
+  if Value <> '' then qryContratos.MacroByName('Cliente').Value := 'and (ct.cliente = ' + Value + ')'
+  else                qryContratos.MacroByName('Cliente').Value := ''
+end;
+
+procedure TdtmConsultaContratos.SetAberturaInicial(const Value: String);
+begin
+  FAberturaInicial:= Value;
+//  qryContratos.MacroByName('Abertura').Value := MontarIntervaloData('c.data',FAberturaInicial,FAberturaFinal);
+end;
+
+procedure TdtmConsultaContratos.SetAberturaFinal(const Value: String);
+begin
+  FAberturaFinal:= Value;
+  qryContratos.MacroByName('Abertura').Value := MontarIntervaloData('ct.data',FAberturaInicial,FAberturaFinal);
+end;
+
+procedure TdtmConsultaContratos.SetFilial(const Value: String);
+begin
+  if Value <> '' then qryContratos.MacroByName('Filial').Value := 'and (ct.filialvenda = ' + Value + ')'
+  else                qryContratos.MacroByName('Filial').Value := ''
+end;
+
+procedure TdtmConsultaContratos.SetFornecedor(const Value: String);
+const
+  SQL = 'and (Select count(*) '+
+              'From produtoscontratos pc '+
+              'Where ct.numero = pc.contrato and '+
+                  '(Select count(*) '+
+                    'From produtos pr '+
+                    'Where pr.codigo = pc.produto and '+
+                     '(Select count(*) '+
+                       'From caracteristicas ca '+
+                       'Where ca.codigo = pr.caracteristica and '+
+                           '(Select count(*) '+
+                             'From fornecedoresprodutos fp '+
+                             'Where ca.codigo = fp.caracteristica and '+
+                             'fp.fornecedor = %s) > 0) > 0) > 0) > 0';
+begin
+  if Value <> '' then qryContratos.MacroByName('Fornecedor').Value := format(SQL, [Value])
+  else                qryContratos.MacroByName('Fornecedor').Value := ''
+end;
+
+
+procedure TdtmConsultaContratos.SetOrdenacao(const Value: Integer);
+begin
+  case Value of
+    0: qryContratos.MacroByName('Ordenacao').Value := 'Order By upper(to_ascii(ct.nome,''latin1'')), ct.data';
+    1: qryContratos.MacroByName('Ordenacao').Value := 'Order By ct.data, upper(to_ascii(ct.nome,''latin1''))';
+    2: qryContratos.MacroByName('Ordenacao').Value := 'Order By ct.datareservado, upper(to_ascii(ct.nome,''latin1''))';
+    3: qryContratos.MacroByName('Ordenacao').Value := 'Order By ct.faturamento, upper(to_ascii(ct.nome,''latin1''))';
+    4: qryContratos.MacroByName('Ordenacao').Value := 'Order By cast(ct.numero as bigint), ct.data';
+    5: qryContratos.MacroByName('Ordenacao').Value := 'Order By pl.descricao, ct.Plano, upper(to_ascii(ct.nome,''latin1''))';
+  end;
+end;
+
+procedure TdtmConsultaContratos.SetPlano(const Value: String);
+begin
+
+  if Value <> '' then
+  begin
+    if ExcetoPlano then
+      qryContratos.MacroByName('Plano').Value := 'and (ct.plano not in (' + Value + '))'
+    else
+      qryContratos.MacroByName('Plano').Value := 'and (ct.plano in (' + Value + '))';
+  end
+  else                qryContratos.MacroByName('Plano').Value := ''
+end;
+
+
+procedure TdtmConsultaContratos.SetSituacao(const Value: String);
+var
+  SQLSituacao: String;
+begin
+  SQLSituacao := 'Where situacao in (' + Value;
+  if Copy(SQLSituacao,length(SQLSituacao),1) = ',' then
+    SQLSituacao := Copy(SQLSituacao,1,length(SQLSituacao)-1) + ') ';
+  qryContratos.MacroByName('Situacao').Value := SQLSituacao;
+end;
+
+procedure TdtmConsultaContratos.SetFechamentoInicial(const Value: String);
+begin
+  FFechamentoInicial:= Value;
+//  qryContratos.MacroByName('Fechamento').Value := MontarIntervaloData('c.faturamento',FFechamentoInicial,FFechamentoFinal);
+end;
+
+procedure TdtmConsultaContratos.SetFechamentoFinal(const Value: String);
+begin
+  FFechamentoFinal:= Value;
+  qryContratos.MacroByName('Fechamento').Value := MontarIntervaloData('ct.faturamento',FFechamentoInicial,FFechamentoFinal);
+end;
+
+procedure TdtmConsultaContratos.SetVendedor(const Value: String);
+begin
+  if Value <> '' then qryContratos.MacroByName('Vendedor').Value := 'and (' + Value + ')'
+  else                qryContratos.MacroByName('Vendedor').Value := '';
+end;
+
+procedure TdtmConsultaContratos.qryContratosAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  if not FRelatorioAtivo then
+  begin
+    qryProdutosContratos.Close;
+    qryProdutosContratos.MacroByName('contrato').AsString := ' AND pc.contrato = ''' + qryContratosnumero.AsString+'''';
+    qryProdutosContratos.MacroByName('cliente').AsString := ' AND c.cliente = ''' + qryContratoscliente.AsString+''' AND c.tipocliente='''+qryContratostipocliente.AsString+'''';
+    qryProdutosContratos.Open;
+
+    qryServicosContratos.Close;
+    qryServicosContratos.MacroByName('contrato').AsString := ' AND sc.contrato = ''' + qryContratosnumero.AsString+'''';
+    qryServicosContratos.Open;
+
+    RefazConsultaPorNome(qryContratosAlteracao,['numero'],[qryContratosnumero.AsVariant]);
+
+    if assigned(AfterPostProdutosContratos) then
+      AfterPostProdutosContratos(qryProdutosContratos);
+
+    qryNOtasContrato.Close;
+    qryNotasContrato.ParamByName('contrato').AsString:= qryContratosnumero.AsString;
+    qryNotasContrato.Open;
+  end;
+end;
+function TdtmConsultaContratos.GetColunadaGradeSimilares: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryProdutosSimilarescoluna.AsString)
+end;
+
+function TdtmConsultaContratos.GetLinhadaGradeSimilares: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryProdutosSimilareslinha.AsString)
+end;
+
+function TdtmConsultaContratos.GetColunadaGrade: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryProdutosContratoscoluna.AsString)
+end;
+
+function TdtmConsultaContratos.GetLinhadaGrade: String;
+begin
+  result := PrimeiraLetraEmMaiuscula(qryProdutosContratoslinha.AsString)
+end;
+
+procedure TdtmConsultaContratos.qryProdutosContratosAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if not FRelatorioAtivo then
+  begin
+    if Assigned(OnScrollLinhaColunaGrade) then
+      OnScrollLinhaColunaGrade(qryProdutosContratos);
+
+    if ParSistema.MostrarSimilaresContrato then
+      ReFazConsulta(qryProdutosSimilares,[0,1],[qryProdutosContratosproduto.AsVariant,qryProdutosContratosfilial.AsVariant]);
+
+  end;
+end;
+
+procedure TdtmConsultaContratos.qryProdutosSimilaresAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if Assigned(OnScrollLinhaColunaGradeSimilares) then
+    OnScrollLinhaColunaGradeSimilares(qryProdutosSimilares);
+end;
+
+procedure TdtmConsultaContratos.MarcarSelecionados(Marcando,
+  Todos: Boolean);
+begin
+  FRelatorioAtivo := True;
+  MarcarRegistros(qryContratos,
+                  qrycontratosselecionar,
+                  qryContratosvalorprazo,
+                  Marcando,
+                  Todos);
+  FRelatorioAtivo := False;
+end;
+
+procedure TdtmConsultaContratos.ImprimirRelatorio;
+var
+  Pos: TBookmark;
+  Contratos: String;
+  Cont: Integer;
+begin
+  FRelatorioAtivo := True;
+  Pos := qryContratos.GetBookmark;
+  qryContratos.First;
+  Cont := 0;
+  while Cont < QtdeMarcados do begin
+    if qryContratosselecionar.AsBoolean then
+    begin
+      Contratos:= Contratos + quotedstr(qryContratosnumero.AsString) + ',';
+      Inc(Cont);
+    end;
+    qryContratos.Next;
+  end;
+  Delete(Contratos,Length(Contratos),1);
+
+  qryContratos.GotoBookmark(Pos);
+  qryContratos.FreeBookmark(Pos);
+
+  if Contratos <> '' then
+    ImprimirRelatorio(Contratos);
+end;
+
+procedure TdtmConsultaContratos.ImprimirRelatorio(Contratos: String);
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+  If (FQuebraPorCliente) then
+  begin
+        qryImprimirContratos.Close;
+        qryProdutosContratos.Close;
+        qryServicosContratos.Close;
+        qryParcelas.Close;
+        qryTotais.Close;
+        qryImprimirContratos.MacroByName('where').AsString := 'where numero in ('+ Contratos + ')';
+        qryProdutosContratos.MacroByName('contrato').AsString := 'pc.contrato in ('+ Contratos + ')';
+        qryServicosContratos.MacroByName('contrato').AsString := 'sc.contrato in ('+ Contratos + ')';
+        qryParcelas.MacroByName('where').AsString := 'where contrato in (' + Contratos + ')';
+        qryTotais.MacroByName('where').AsString := 'where c.numero in ('+ Contratos + ')';
+        qryProdutosContratos.MasterSource := dsrImprimirContratos;
+        qryImprimirContratos.Open;
+        qryProdutosContratos.DisableControls;
+  end
+  else
+  begin
+{
+    qryImprimirContratos_Lista.Close;
+    qryImprimirContratos_Lista.MacroByName('where').AsString := 'where cast(numero as bigint) in ('+Contratos+')';
+    qryImprimirContratos_Lista.MacroByName('order').AsString := qryContratos.MacrobyName('Ordenacao').AsString;
+    qryImprimirContratos_Lista.Open;
+}
+
+
+    qryImprimirContratos_Lista.Close;
+    qryProdutosContratos.Close;
+//    qryServicosContratos.Close;
+//    qryParcelas.Close;
+//    qryTotais.Close;
+    qryImprimirContratos_Lista.MacroByName('where').AsString := 'where numero in ('+ Contratos + ')';
+    qryImprimirContratos_Lista.MacroByName('order').AsString := qryContratos.MacrobyName('Ordenacao').AsString;
+
+    qryProdutosContratos.MacroByName('contrato').AsString := 'and pc.contrato in ('+ Contratos + ')';
+//    qryServicosContratos.MacroByName('contrato').AsString := 'sc.contrato in ('+ Contratos + ')';
+//    qryParcelas.MacroByName('where').AsString := 'where contrato in (' + Contratos + ')';
+//    qryTotais.MacroByName('where').AsString := 'where c.numero in ('+ Contratos + ')';
+    qryProdutosContratos.MasterSource := dsrImprimirContratos_Lista;
+    qryImprimirContratos_Lista.Open;
+  ///  qryProdutosContratos.DisableControls;
+
+
+
+  end;
+  frVariables['Titulo']:= 'RELAÇÃO DE CONTRATOS';
+//frpImprimirContratos_Lista.DesignReport;
+  frmPreview := TfrmPreviewPadrao.create(self);
+  try
+
+//    frpImprimirContratos_Lista_Produtos.DesignReport;
+
+    Relatorio := frmPreview.frCompositeReport;
+    frmPreview.frCompositeReport.Reports.Clear;
+    if (FQuebraPorCliente) then
+        frmPreview.frCompositeReport.Reports.Add(frpImprimirContratos)
+    else
+        frmPreview.frCompositeReport.Reports.Add(frpImprimirContratos_Lista_Produtos);
+    Relatorio.Preview := frmPreview.frPreviewPadrao;
+    Relatorio.ShowReport;
+    frmPreview.ShowModal;
+  finally
+//    frmPreview.Free;
+    if(FQuebraPorCliente) then
+    begin
+        qryProdutosContratos.MasterSource := nil;
+//        qryProdutosContratos.EnableControls;
+    end;
+    FRelatorioAtivo := False;
+  end;
+end;
+
+procedure TdtmConsultaContratos.frpImprimirContratosBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  Zebrado_Detalhe := (qryProdutosContratos.RecNo mod 2) <> 0;
+  Zebrado_SubDetalhe_1 := (qryservicoscontratos.RecNo mod 2) <> 0;
+  Zebrado_SubDetalhe_2 := (qryparcelas.RecNo mod 2) <>0;
+  ZebrarLinhaRelatorio(frpImprimirContratos,View);
+end;
+
+procedure TdtmConsultaContratos.SetPedidoCliente(const Value: String);
+const
+  Sql = 'and (upper(to_ascii(ct.pedidocliente,''latin1'')) ilike upper(to_ascii(''%s%s%s'',''latin1'')))';
+begin
+  FPedidoCliente := Value;
+  if FPedidoCliente<>'' then
+    qryContratos.MacroByName('PedidoCliente').AsString := Format(SQL, ['%', ansiuppercase(FpedidoCliente), '%'])
+  else
+    qryContratos.MacroByName('PedidoCliente').AsString := '';
+end;
+
+procedure TdtmConsultaContratos.SetReservadoFinal(const Value: String);
+begin
+  FReservadoFinal := Value;
+  qryContratos.MacroByName('Reservado').Value := MontarIntervaloData('ct.datareservado',FReservadoInicial,FReservadoFinal);
+end;
+
+procedure TdtmConsultaContratos.SetReservadoInicial(const Value: String);
+begin
+  FReservadoInicial := Value;
+//  qryContratos.MacroByName('Reservado').Value := MontarIntervaloData('c.datareservado',FReservadoInicial,FReservadoFinal
+end;
+
+procedure TdtmConsultaContratos.frpImprimirContratos_ListaBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpImprimirContratos_Lista,View);
+end;
+
+procedure TdtmConsultaContratos.qryContratosCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+        qryContratosacrescimo.Value:= qryContratosvalorprazo.Value - qryContratosvalorvista.Value;
+        qryContratossubtotal.Value:= qryContratostotalitens.Value + qryContratosfrete.Value + qryContratosseguro.Value;
+  end;
+
+procedure TdtmConsultaContratos.qryContratosfreteGetText(Sender: TField;
+  var Text: String; DisplayText: Boolean);
+begin
+  inherited;
+   if qryContratosfrete.IsNull then
+      qryContratosfrete.Value:= 0;
+end;
+
+function TdtmConsultaContratos.GetContratoQuitado: Boolean;
+begin
+    Result:= qryContratosaberto.AsBoolean = False;
+end;
+
+procedure TdtmConsultaContratos.SetEmAberto(const Value: Boolean);
+var SQLEmAberto: String;
+begin
+  if Value = True then
+  begin
+{
+    SQLEmAberto:= 'and (((contratos_emaberto(c.numero)) = True) and ((c.situacao not in (''C'',''O'',''R'')))'+
+                  ' and ((Position(''/'' in (vficha_situacaocontrato(c.numero)))<=0)))';
+}
+
+    SQLEmAberto:= 'and ((contratos_emaberto(ct.numero)) = True) and ((ct.situacao not in (''C'',''O'',''R'')))';
+
+
+    qryContratos.MacroByName('Emaberto').AsString:= SQLEmAberto;
+  end
+  else
+    qryContratos.MacroByName('Emaberto').AsString:= '';
+end;
+
+procedure TdtmConsultaContratos.SetQuitado(const Value: Boolean);
+var SQLQuitado: String;
+begin
+  if Value = True then
+  begin
+    SQLQuitado:= 'and (((contratos_quitado(ct.numero)) = True ) and not (ct.situacao in (''C'',''O'',''R'')) and (vficha_situacaocontrato(ct.numero) <> ''ESTORNADO''))';
+    qryContratos.MacroByName('Quitado').AsString:= SQLQuitado;
+  end
+  else
+    qryContratos.MacroByName('Quitado').AsString:= '';
+end;
+
+procedure TdtmConsultaContratos.SetEmAtraso(const Value: Boolean);
+var SQLEmAtraso: String;
+begin
+  if Value = True then
+  begin
+    SQLEmAtraso:= 'and ((Position(''/'' in (vficha_situacaocontrato(ct.numero)))>0) and ((ct.situacao not in (''C'',''O'',''R''))))';
+    qryContratos.MacroByName('EmAtraso').AsString:= SQLEmAtraso;
+  end
+  else
+    qryContratos.MacroByName('EmAtraso').AsString:= '';
+end;
+
+procedure TdtmConsultaContratos.SetRenegociado(const Value: Boolean);
+var SQLRenegociado: String;
+begin
+  if Value = True then
+  begin
+    SQLRenegociado:= 'and ((ct.renegociacao is not null) and (vficha_situacaocontrato(ct.numero) <> ''ESTORNADO''))';
+    qryContratos.MacroByName('Renegociado').AsString:= SQLRenegociado;
+  end
+  else
+    qryContratos.MacroByName('Renegociado').AsString:= '';
+end;
+
+procedure TdtmConsultaContratos.ZMonitor1MonitorEvent(Sql, Result: String);
+var
+ Listar : TStringList;
+ arquivo: String;
+begin
+  inherited;
+  Listar := tStringlist.Create;
+  arquivo := 'c:\ConsultaContratos.sql';
+  if fileexists(arquivo) then
+    Listar.loadfromfile(arquivo);
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile(arquivo);
+  listar.free;
+end;
+
+procedure TdtmConsultaContratos.SetContrato(const Value: String);
+begin
+  FContrato := Value;
+  if FContrato = '' then
+    qryContratos.MacroByName('Contrato').AsString := ''
+  else
+    qryContratos.MacroByName('Contrato').AsString := ' and ct.numero = '+quotedstr(Fcontrato);
+end;
+
+procedure TdtmConsultaContratos.EditarProdutosContratos;
+begin
+  if not (qryProdutosContratos.State in [dsedit, dsinsert]) then
+    qryProdutoscontratos.Edit;
+end;
+
+procedure TdtmConsultaContratos.qryProdutosContratosAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryContratosAlteracao.edit;
+  if assigned(AfterPostProdutosContratos) then
+    AfterPostProdutosContratos(qryProdutosContratos);
+end;
+
+function TdtmConsultaContratos.GravarDados: Boolean;
+var
+ vDataHoraAlteracao : TDateTime;
+ UsuarioAut: TtecUsuarios;
+ vListaProdutoseFiliais: String;
+
+begin
+  vListaProdutoseFiliais := '';
+
+  result := qryContratosAlteracao.CheckRequiredFields;
+
+  if result then
+  begin
+
+   UsuarioAut := ObterAutorizacao(taLOGIN, 'Para alteração da filial ou vendedor', ctANALISTACREDITO, '');
+
+   if not Assigned(UsuarioAut) then
+   begin
+     Result:=false;
+     MensagemAviso('Não ocorreu a validação do usuário para gravar a ALTERAÇÃO DO CONTRATO');
+   end
+   else
+   if not UsuarioAut.AnalistaCredito then
+   begin
+     Result:=false;
+     MensagemAviso(format(ctUSUARIONAOAUTORIZADO,['gravar a ALTERAÇÃO DO CONTRATO.']));
+   end;
+
+   if result then
+   begin
+
+     vDataHoraAlteracao := now;
+     GuardarRegistroAtual(qryProdutosContratos, true);
+     qryprodutoscontratos.First;
+     while not qryprodutoscontratos.Eof do
+     begin
+       if qryProdutosContratosvendedoralterado.AsBoolean then
+       begin
+         result := qryprodutoscontratos.CheckRequiredFields;
+         if result then
+         begin
+           qryprodutoscontratos.Edit;
+           qryProdutosContratosusuariologadoalteracao.AsInteger := CodigoUsuario;
+           qryProdutosContratosusuarioalteracao.AsInteger := UsuarioAut.CodigoUsuario;
+           qryProdutosContratosdatahoraalteracaousuario.AsDateTime := vDataHoraAlteracao;
+           qryprodutoscontratos.Post;
+
+           vListaProdutoseFiliais := vListaProdutoseFiliais + '(' + qryProdutosContratosproduto.AsString + ','+
+                                                                    qryProdutosContratosfilial.AsString  + '),'
+
+         end
+         else
+           break;
+       end;
+       qryprodutoscontratos.Next;
+     end;
+     VoltarRegistroAtual(qryProdutoscontratos);
+
+     if result then
+     begin
+
+       if qryContratosAlteracaovendedor.AsInteger <>
+          qryContratosvendedor.AsInteger then
+       begin
+
+         qryContratosAlteracao.Edit;
+         qryContratosAlteracaousuariologadoalteracao.AsInteger := CodigoUsuario;
+         qryContratosAlteracaousuarioalteracao.AsInteger := UsuarioAut.CodigoUsuario;
+         qryContratosAlteracaodatahoraalteracaousuario.AsDateTime := vDataHoraAlteracao;
+         qrycontratosAlteracao.Post;
+
+         if (qryContratossituacao.AsString = 'P') or
+            (qryContratossituacao.AsString = 'N') then
+         begin
+           RefazConsultaPorNome(qryDadosFiscaisAlteracao,['contrato'],[qryContratosAlteracaonumero.AsVariant]);
+
+           qryDadosFiscaisAlteracao.first;
+           while not qryDadosFiscaisAlteracao.Eof do
+           begin
+             qryDadosFiscaisAlteracao.edit;
+             qryDadosFiscaisAlteracaovendedor.AsInteger := qryContratosAlteracaovendedor.AsInteger;
+             qryDadosFiscaisAlteracaousuariologadoalteracao.AsInteger := CodigoUsuario;
+             qryDadosFiscaisAlteracaousuarioalteracao.AsInteger := UsuarioAut.CodigoUsuario;
+             qryDadosFiscaisAlteracaodatahoraalteracaousuario.AsDateTime := vDataHoraAlteracao;
+             qryDadosFiscaisAlteracao.Post;
+
+             qryDadosFiscaisAlteracao.next;
+           end;
+         end;
+
+       end;
+
+       if (vListaProdutoseFiliais<>'') and
+          ((qryContratossituacao.AsString = 'P') or
+           (qryContratossituacao.AsString = 'N')) then
+       begin
+         Delete(vListaProdutoseFiliais,length(vListaProdutoseFiliais),1);
+         qryProdutosDadosFiscaisAlteracao.MacroByName('ListaProdutos').AsString := vListaProdutoseFiliais;
+
+         RefazConsultaPorNome(qryProdutosDadosFiscaisAlteracao,['contrato'],[qryContratosAlteracaonumero.AsVariant]);
+         GuardarRegistroAtual(qryProdutosContratos, true);
+
+         qryProdutosDadosFiscaisAlteracao.First;
+         while not qryProdutosDadosFiscaisAlteracao.Eof do
+         begin
+           if qryProdutosContratos.Locate('produto;filial',
+                  VarArrayOf([qryProdutosDadosFiscaisAlteracaoproduto.AsString,
+                              qryProdutosDadosFiscaisAlteracaofilial.AsInteger]),[]) then
+           begin
+             qryProdutosDadosFiscaisAlteracao.Edit;
+             qryProdutosDadosFiscaisAlteracaovendedor.AsInteger := qryProdutosContratosvendedor.AsInteger;
+             qryProdutosDadosFiscaisAlteracaousuariologadoalteracao.AsInteger := CodigoUsuario;
+             qryProdutosDadosFiscaisAlteracaousuarioalteracao.AsInteger := UsuarioAut.CodigoUsuario;
+             qryProdutosDadosFiscaisAlteracaodatahoraalteracaousuario.AsDateTime := vDataHoraAlteracao;
+           end;
+           qryProdutosDadosFiscaisAlteracao.next;
+         end;
+         VoltarRegistroAtual(qryProdutosContratos);
+       end;
+
+
+       if qryContratosAlteracao.state = dsedit then
+         qryContratosAlteracao.post;
+
+       perpetrar([qryContratosAlteracao,qryProdutosContratos,qryServicosContratos,qryDadosFiscaisAlteracao,qryProdutosDadosFiscaisAlteracao]);
+
+       AfterPostProdutosContratos(nil);
+     end;
+   end;
+
+  end;
+end;
+
+procedure TdtmConsultaContratos.dsrContratosAlteracaoDataChange(
+  Sender: TObject; Field: TField);
+begin
+  inherited;
+  if (Field = qryContratosAlteracaovendedor) or
+     (Field = qryContratosAlteracaofilialvenda) or
+     (Field = qryContratosAlteracaofrete_pago) or
+     (Field = qryContratosAlteracaoconsideracoes) or
+     (Field = qryContratosAlteracaomontagemobs) then
+  begin
+    if assigned(AfterPostProdutosContratos) then
+      AfterPostProdutosContratos(qrycontratosAlteracao);
+  end;
+end;
+
+procedure TdtmConsultaContratos.SetXped(const Value: String);
+const
+  SQL= 'and (Select count(*) From produtoscontratos pc '+
+            'Where ct.numero = pc.contrato and '+
+            'pc.xped = %s) > 0';
+
+begin
+  fXped := Value;
+  if Value <> '' then qryContratos.MacroByName('XPed').Value := Format(SQL, [quotedstr(Value)])
+  else                qryContratos.MacroByName('XPed').Value := ''
+end;
+
+procedure TdtmConsultaContratos.qryProdutosContratosAfterInsert(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryProdutosContratos.Cancel;
+end;
+
+procedure TdtmConsultaContratos.qryProdutosContratosBeforeInsert(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryProdutosContratos.Cancel;
+end;
+
+procedure TdtmConsultaContratos.SetTipoContrato(const Value: boolean);
+ var
+   vSituacaoGarantia : String;
+   vStatusGarantia: String;
+begin
+  fTipoContrato := Value;
+
+  qryContratos.MacroByName('TipoContrato').AsString := '';
+
+  if TipoContrato and not TipoOrdemservico then
+     qryContratos.MacroByName('TipoContrato').AsString := 'and not coalesce(ct.os,false)'
+  else
+  if not TipoContrato and TipoOrdemservico then
+     qryContratos.MacroByName('TipoContrato').AsString := 'and coalesce(ct.os,false)';
+
+
+  vSituacaoGarantia := '';
+  vStatusGarantia := '';
+
+  if TipoOrdemservico  then
+  begin
+    if TipoContrato then
+      vSituacaoGarantia := 'and ( not coalesce(ct.os,false) or (coalesce(ct.os,false)  ';
+
+      if not ((GarantiaAprovada and GarantiaReprovada and GarantiaNaoDefinida) or
+              (not GarantiaAprovada and not GarantiaReprovada and not GarantiaNaoDefinida)) then
+      begin
+        if (GarantiaAprovada and not GarantiaReprovada and not GarantiaNaoDefinida) then       //VFF
+           vStatusGarantia :=  ' and coalesce(ct.os_garantia_status,'''')=''A'''
+        else
+        if (GarantiaAprovada and  GarantiaReprovada and not GarantiaNaoDefinida) then          //VVF
+           vStatusGarantia :=  ' and coalesce(ct.os_garantia_status,'''') in (''A'',''R'')'
+        else
+        if (GarantiaAprovada and  not GarantiaReprovada and GarantiaNaoDefinida) then          //VFV
+           vStatusGarantia :=  ' and (coalesce(ct.os_garantia_status,'''')=''A'' or ct.os_garantia_status is null) '
+        else
+        if (not GarantiaAprovada and  GarantiaReprovada and not GarantiaNaoDefinida) then      //FVF
+           vStatusGarantia :=  ' and coalesce(ct.os_garantia_status,'''')=''R'''
+        else
+        if (not GarantiaAprovada and  GarantiaReprovada and GarantiaNaoDefinida) then          //FVV
+           vStatusGarantia :=  ' and (coalesce(ct.os_garantia_status,'''')=''R'' or ct.os_garantia_status is null) '
+        else
+        if (not GarantiaAprovada and  not GarantiaReprovada and GarantiaNaoDefinida) then      //FFV
+           vStatusGarantia :=  ' and ct.os_garantia_status is null ';
+      end;
+
+
+      if (OrdemServicoemGarantia and OrdemServicoemCortesia) then
+      begin
+        if logicaGarantia = 'E' then
+           vSituacaoGarantia := vSituacaoGarantia + ' and ( (coalesce(ct.os_garantia,false) '+ vStatusGarantia + ') and coalesce(ct.os_cortesia,false))'
+        else
+           vSituacaoGarantia := vSituacaoGarantia + ' and ( (coalesce(ct.os_garantia,false) '+ vStatusGarantia + ') or coalesce(ct.os_cortesia,false))';
+      end
+      else
+      if (OrdemServicoemGarantia and not OrdemServicoemCortesia) then
+      begin
+        if logicaGarantia = 'E' then
+           vSituacaoGarantia := vSituacaoGarantia + ' and ( (coalesce(ct.os_garantia,false) '+ vStatusGarantia + ') and not coalesce(ct.os_cortesia,false))'
+        else
+           vSituacaoGarantia := vSituacaoGarantia + ' and ( (coalesce(ct.os_garantia,false) '+ vStatusGarantia + ') or not coalesce(ct.os_cortesia,false))';
+      end
+      else
+      if (not OrdemServicoemGarantia and OrdemServicoemCortesia) then
+      begin
+        if logicaGarantia = 'E' then
+           vSituacaoGarantia := vSituacaoGarantia + ' and ( (not coalesce(ct.os_garantia,false) '+ vStatusGarantia + ') and coalesce(ct.os_cortesia,false))'
+        else
+           vSituacaoGarantia := vSituacaoGarantia + ' and ( (not coalesce(ct.os_garantia,false) '+ vStatusGarantia + ') or coalesce(ct.os_cortesia,false))';
+      end
+      else
+      if (not OrdemServicoemGarantia and not OrdemServicoemCortesia) then
+      begin
+        if logicaGarantia = 'E' then
+           vSituacaoGarantia := vSituacaoGarantia + ' and ( (not coalesce(ct.os_garantia,false) '+ vStatusGarantia + ') and not coalesce(ct.os_cortesia,false))'
+        else
+           vSituacaoGarantia := vSituacaoGarantia + ' and ( (not coalesce(ct.os_garantia,false) '+ vStatusGarantia + ') or not coalesce(ct.os_cortesia,false))';
+      end;
+
+    if TipoContrato then
+      vSituacaoGarantia := vSituacaoGarantia + ' )) ';
+
+    qryContratos.MacroByName('TipoContrato').AsString := qryContratos.MacroByName('TipoContrato').AsString + vSituacaoGarantia;
+
+  end;
+end;
+
+
+procedure TdtmConsultaContratos.qryContratosAlteracaovendedorChange(
+  Sender: TField);
+begin
+  inherited;
+
+  if parsistema.NaoPermitirAlteraroVendedornosProdutosdoContrato then
+  begin
+
+    AtribuirDados(qryProdutosContratos,
+                  [qryProdutosContratosvendedor, qryProdutosContratosnomevendedor, qryProdutosContratosvendedoralterado],
+                  [qryContratosAlteracaovendedor.AsInteger,
+                   qryProcuraVendedorContrato.fieldbyname('nome').asString,
+                   True]);
+
+    AtribuirDados(qryServicosContratos,
+                  [qryServicosContratosvendedor, qryServicosContratosnomevendedor, qryServicosContratosvendedoralterado],
+                  [qryContratosAlteracaovendedor.AsInteger,
+                   qryProcuraVendedorContrato.fieldbyname('nome').asString,
+                   True]);
+
+
+  end;
+
+end;
+
+
+
+procedure TdtmConsultaContratos.SetTipoEqptoOrdemServico(const Value: String);
+var
+ vValue : String;
+begin
+  if value <> '' then
+  begin
+    vValue := Value;
+    delete(vValue, length(vvalue),1);
+    if TipoContrato then
+      qryContratos.macrobyname('TipoEqptoOrdemServico').asString := ' and (ct.tipoequipamento is null or ct.tipoequipamento in ('+vValue+'))'
+    else
+      qryContratos.macrobyname('TipoEqptoOrdemServico').asString := ' and (  ct.tipoequipamento in ('+vValue+'))';
+  end
+  else
+    qryContratos.macrobyname('TipoEqptoOrdemServico').asString := '';
+end;
+
+procedure TdtmConsultaContratos.SetListaClasses(const Value: String);
+begin
+  fListaClasses := Value;
+  if Value <> '' then
+    qryContratos.macrobyname('ListaClasses').asString := ' and (' + FListaClasses +')'
+  else
+    qryContratos.macrobyname('ListaClasses').asString := '';
+end;
+
+procedure TdtmConsultaContratos.SetListaGrupos(const Value: String);
+begin
+  fListaGrupos := Value;
+  if Value <> '' then
+    qryContratos.macrobyname('ListaGrupos').asString := ' and (' + FListaGrupos +')'
+  else
+    qryContratos.macrobyname('ListaGrupos').asString := '';
+end;
+
+procedure TdtmConsultaContratos.SetListaItemProdutos(const Value: String);
+begin
+  FListaItemProdutos := Value;
+  if Value <> '' then
+    qryContratos.macrobyname('ListaItemProdutos').asString := ' and (' + FListaItemProdutos +')'
+  else
+    qryContratos.macrobyname('ListaItemProdutos').asString := '';
+end;
+
+procedure TdtmConsultaContratos.SetListaMarcas(const Value: String);
+begin
+  fListaMarcas := Value;
+  if Value <> '' then
+    qryContratos.macrobyname('ListaMarcas').asString := ' and (' + FListaMarcas +')'
+  else
+    qryContratos.macrobyname('ListaMarcas').asString := '';
+end;
+
+procedure TdtmConsultaContratos.SetListaProdutos(const Value: String);
+begin
+  FListaProdutos := Value;
+  if Value <> '' then
+    qryContratos.macrobyname('ListaProdutos').asString := ' and (' + FListaProdutos +')'
+  else
+    qryContratos.macrobyname('ListaProdutos').asString := '';
+end;
+
+procedure TdtmConsultaContratos.SetSemAtendimento(const Value: Boolean);
+begin
+  fSemAtendimento := Value;
+  if ComAtendimento and not SemAtendimento then
+    qryContratos.macrobyname('Atendimentos').asString := 'and coalesce((select true from atendimentos a where a.contrato = ct.numero limit 1),false)'
+  else
+  if not ComAtendimento and SemAtendimento then
+    qryContratos.macrobyname('Atendimentos').asString := 'and coalesce((select false from atendimentos a where a.contrato = ct.numero limit 1),true)'
+  else
+    qryContratos.macrobyname('Atendimentos').asString := '';
+end;
+
+function TdtmConsultaContratos.GetTipoDocumento: String;
+begin
+  result := '1';
+end;
+
+function TdtmConsultaContratos.GetContrato: String;
+begin
+ result := qryContratosnumero.asString;
+end;
+
+procedure TdtmConsultaContratos.SetEquipamento(const Value: String);
+begin
+  fEquipamento := Value;
+  if Value <> '' then
+    qryContratos.macrobyname('Equipamento').asString := ' and ct.equipamento = ' + quotedstr(Value)
+  else
+    qryContratos.macrobyname('Equipamento').asString := '';
+end;
+
+procedure TdtmConsultaContratos.SetListaCondicionalPromocoes(
+  const Value: String);
+begin
+  fListaCondicionalPromocoes := Value;
+
+  if Value <> '' then
+    qryContratos.macrobyname('ListaCondicionalPromocoes').asString := ' and (' + FListaCondicionalPromocoes +')'
+  else
+    qryContratos.macrobyname('ListaCondicionalPromocoes').asString := '';
+
+end;
+
+procedure TdtmConsultaContratos.EditarServicosContratos;
+begin
+  if not (qryServicosContratos.State in [dsedit, dsinsert]) then
+    qryServicoscontratos.Edit;
+end;
+
+procedure TdtmConsultaContratos.frpImprimirContratos_Lista_ProdutosBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frpImprimirContratos_Lista_Produtos,View);
+end;
+
+procedure TdtmConsultaContratos.SetGruposUsuarios(const Value: String);
+begin
+  if Value <> '' then qryContratos.MacroByName('GruposUsuarios').Value := 'and (' + Value + ')'
+  else                qryContratos.MacroByName('GruposUsuarios').Value := '';
+
+end;
+
+procedure TdtmConsultaContratos.ImprimirListaProdutosporLocalizacao;
+var
+  vLista: String;
+begin
+  if not Assigned(ImpressaoContrato) then
+    ImpressaoContrato := TdtmImprimeContratos.Create(Self);
+  try
+    qryContratos.AfterScroll := nil;
+
+    vLista := RetornarLista(qryContratos, qryContratosNumero, qryContratosselecionar, false);
+
+    ImpressaoContrato.ImprimirListaProdutosporLocalizacao(vLista, 0, nil);
+
+  finally
+    ImpressaoContrato.Free;
+    ImpressaoContrato := nil;
+
+    qryContratos.AfterScroll := qryContratosAfterScroll;
+  end;
+end;
+
+end.

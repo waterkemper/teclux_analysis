@@ -1,0 +1,1826 @@
+unit fmorcamentos;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs, StdCtrls,
+  ExtCtrls, ComCtrls, Buttons, Mask, DBCtrls, Grids, DBGrids, {Qete,}  Windows,
+  //Terceiros
+  ZQuery,
+  //Biblio
+  ctconstantes, biblio,
+  //Repositorio
+  fmcadastropadrao, frendereco, frenderecoeditor, frcgcoucpf, frcgccpf, fmconsultabasica,
+  fmconsultaporcampo, fmcalculofinanciamento,
+  //Componentes
+  cpnumero, cptexto, cpdbtext, cpdbmemo, cpdbgrid, cppagecontrol, cpdbfindcontrols,
+  cpdbradiogroup, frtelefone, frfoneramal, cpdbdata, ActnList, DB,
+  ZPgSqlQuery, cpquery, ToolWin, fmvisualizarsaldotroca, frconsulta,
+  frconsultacodigo, fmconsultavendas, frDadosLoginSite,
+  frdocumentoscontatos, fratendimentosdocumentos, dmbasico, fmVisualizarImageURL,
+  cpfone, fmconsultaorcamentos, fmVisualizarCustoVenda, fmLerProdutosArquivo,
+  fmclientescontrato, StrUtils;
+
+type
+  TfrmOrcamentos = class(TfrmCadastroPadrao)
+    pnlFundoJanela: TPanel;
+    gbxFundoJanela: TGroupBox;
+    lblNumeroContrato: TLabel;
+    edfNumeroOrcamento: TtecDbEditFind;
+    lblEmissao: TLabel;
+    dtxEmissao: TtecDBText;
+    lblValidade: TLabel;
+    sbnVendedor: TSpeedButton;
+    sbnCliente: TSpeedButton;
+    dtxNomeCliente: TtecDBText;
+    lblVendedor: TLabel;
+    flkVendedor: TtecDBFindLookup;
+    dtxNomeVendedor: TtecDBText;
+    lblCliente: TLabel;
+    flkCliente: TtecDBFindLookup;
+    edtNomeCliente: TDBEditTexto;
+    lblSituacao: TLabel;
+    dtxSituacao: TtecDBText;
+    pgcOrcamento: TtecPageControl;
+    tstProdutos: TTabSheet;
+    edtEmail: TDBEditTexto;
+    lblEmail: TLabel;
+    tstEndereco: TTabSheet;
+    gbxOutros: TGroupBox;
+    fraCGCCPF: Tfracgcoucpf;
+    fraEndereco: TfraEnderecoEditor;
+    sbnCopia: TSpeedButton;
+    dtxCancelamento: TtecDBText;
+    dtxMotivo: TtecDBText;
+    lblMotivo: TLabel;
+    gbxGeral: TGroupBox;
+    sbnIncluirPlano: TSpeedButton;
+    sbnExcluirPlano: TSpeedButton;
+    dbgPlanos: TtecDBGrid;
+    lblParcelasPlanos: TLabel;
+    dbgPlanosParcelas: TtecDBGrid;
+    sbnIncluirProduto: TSpeedButton;
+    sbnExcluirProduto: TSpeedButton;
+    dbgProdutos: TtecDBGrid;
+    sbnProcurarFilialMontagem: TSpeedButton;
+    flkFilialMontagem: TtecDBFindLookup;
+    dtxFilialMontagem: TtecDBText;
+    lblPlanos: TLabel;
+    sbnImprimir: TSpeedButton;
+    edtDesconto: TDBEditNumero;
+    sbnContrato: TSpeedButton;
+    dtxContrato: TtecDBText;
+    lblContrato: TLabel;
+    tstServicos: TTabSheet;
+    dbgServicos: TtecDBGrid;
+    sbnIncluirServico: TSpeedButton;
+    sbnExcluirServico: TSpeedButton;
+    mmoComplementoEquipamento: TDBMemo;
+    Label4: TLabel;
+    gbxServicos: TGroupBox;
+    sbnEnviarOrcamento: TSpeedButton;
+    dtxQtdeProdutos: TtecDBText;
+    edtValidade: TDBEditData;
+    ckbDisponivelFrenteCaixa: TDBCheckBox;
+    pnlTop: TPanel;
+    pnlProdutosBottom: TPanel;
+    pnlProdutosRigth: TPanel;
+    gbxValores: TGroupBox;
+    pnlFundoValores: TPanel;
+    pnlSaldoTroca: TPanel;
+    sbnVisualizarSaldoTroca: TSpeedButton;
+    edtSaldoTroca: TDBEditNumero;
+    pnlItens: TPanel;
+    lblTotalProdutos: TStaticText;
+    dtxTotalProdutos: TtecDBText;
+    pnlServicos: TPanel;
+    lblServicos: TStaticText;
+    dtxServicos: TtecDBText;
+    pnlDesconto: TPanel;
+    lblDescontoContrato: TStaticText;
+    pnlValores: TPanel;
+    lblValorAVista: TStaticText;
+    lblValorAPrazo: TStaticText;
+    dtxValorAVista: TtecDBText;
+    dtxValorAPrazo: TtecDBText;
+    pnlFrete: TPanel;
+    lblValorFrete: TStaticText;
+    edtValorFrete: TDBEditNumero;
+    pnlCupomDesconto: TPanel;
+    pnlSevicosRigth: TPanel;
+    fraConsultaCargo: TfraConsultaCodigo;
+    lblCargo: TLabel;
+    sbnConsultaVendas: TSpeedButton;
+    tstDadosAcessoSite: TTabSheet;
+    fraDadosLoginSite1: TfraDadosLoginSite;
+    sbnAtendimento: TSpeedButton;
+    tstContatos: TTabSheet;
+    fraAtendimentosDocumentos1: TfraAtendimentosDocumentos;
+    sbnVisualizarFoto: TSpeedButton;
+    pnlTopDados: TPanel;
+    fraFoneRamalResidencia1: TfraFoneRamal;
+    fraFoneRamal1: TfraFoneRamal;
+    gbxSituacaoProdutos: TGroupBox;
+    lblAtendidos: TLabel;
+    lblParcialmenteAtendidos: TLabel;
+    lblNaoAtendidos: TLabel;
+    Label3: TLabel;
+    Label5: TLabel;
+    Label1: TLabel;
+    sbnParcelas: TSpeedButton;
+    gbxEstatisticaOrcamentos: TGroupBox;
+    sttOrcamentosAbertos: TStaticText;
+    edtOrcamentosAbertos: TDBEditNumero;
+    sttCancelados: TStaticText;
+    DBEditNumero1: TDBEditNumero;
+    StaticText1: TStaticText;
+    DBEditNumero2: TDBEditNumero;
+    sbnConsultaOrcamentos_: TBitBtn;
+    gbxQualidadeVenda: TGroupBox;
+    lblQualidadeVenda: TLabel;
+    dtxCorQualificacaoVenda: TtecDBText;
+    dtxDescricaoQualificacaoVenda: TtecDBText;
+    sbnAcionarTelaFormacaoPrecoVenda2: TSpeedButton;
+    tstObservacoes: TTabSheet;
+    mmoObservacao: TtecDBMemo;
+    Timer1: TTimer;
+    sbnTextoMotivoCancelamento: TSpeedButton;
+    mmoTextoMotivoCancelamento: TtecDBMemo;
+    sbnImportarExcel: TSpeedButton;
+    sbnImportarArquivo: TSpeedButton;
+    fracgcoucpf1: Tfracgcoucpf;
+    StaticText2: TStaticText;
+    gbxObservacoesMontagem: TGroupBox;
+    mmoObservacoesMontagem: TtecDBMemo;
+    gbxConsideracoes: TGroupBox;
+    gbxFilialdeMontagem: TGroupBox;
+    gbxQtdeProdutos: TGroupBox;
+    lblCupomDesconto: TStaticText;
+    edtValorCupomDesconto: TDBEditNumero;
+    flkCupom_Desconto: TtecDBFindLookup;
+    procedure sbnVendedorClick(Sender: TObject);
+    procedure sbnClienteClick(Sender: TObject);
+    procedure flkClienteExit(Sender: TObject);
+    procedure fraCGCCPFrgbTipoPessoaChange(Sender: TObject);
+    procedure sbnIncluirProdutoClick(Sender: TObject);
+    procedure sbnExcluirProdutoClick(Sender: TObject);
+    procedure dbgProdutosDblClick(Sender: TObject);
+    procedure sbnProcurarFilialMontagemClick(Sender: TObject);
+    procedure dbgProdutosKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure edfNumeroContratoFound(Found: Boolean);
+    procedure sbnIncluirPlanoClick(Sender: TObject);
+    procedure sbnExcluirPlanoClick(Sender: TObject);
+    procedure dbgPlanosKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure sbnCopiaClick(Sender: TObject);
+    procedure sbnImprimirClick(Sender: TObject);
+    procedure sbnContratoClick(Sender: TObject);
+    procedure dbgPlanosDblClick(Sender: TObject);
+    procedure edfNumeroOrcamentoExit(Sender: TObject);
+    procedure sbnIncluirClick(Sender: TObject);
+    procedure sbnSalvarClick(Sender: TObject);
+    procedure sbnExcluirClick(Sender: TObject);
+    procedure sbnProcurarClick(Sender: TObject);
+    procedure sbnIncluirServicoClick(Sender: TObject);
+    procedure sbnExcluirServicoClick(Sender: TObject);
+    procedure dbgServicosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbgServicosDblClick(Sender: TObject);
+    procedure sbnEnviarOrcamentoClick(Sender: TObject);
+    procedure edtNomeClienteExit(Sender: TObject);
+    procedure sbnVisualizarSaldoTrocaClick(Sender: TObject);
+    procedure edtSaldoTrocaEnter(Sender: TObject);
+    procedure edtSaldoTrocaExit(Sender: TObject);
+    procedure fraConsultaCargoedfCodigoExit(Sender: TObject);
+    procedure edtEmailExit(Sender: TObject);
+    procedure sbnConsultaVendasClick(Sender: TObject);
+    procedure sbnAtendimentoClick(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+    procedure sbnVisualizarFotoClick(Sender: TObject);
+    procedure flkClienteEnter(Sender: TObject);
+    procedure edfNumeroOrcamentoKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbgProdutosDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure sbnParcelasClick(Sender: TObject);
+    procedure sbnConsultaOrcamentos_Click(Sender: TObject);
+    procedure flkClienteKeyPress(Sender: TObject; var Key: Char);
+    procedure sbnAcionarTelaFormacaoPrecoVenda2Click(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
+    procedure sbnTextoMotivoCancelamentoClick(Sender: TObject);
+    procedure sbnImportarExcelClick(Sender: TObject);
+    procedure sbnImportarArquivoClick(Sender: TObject);
+    procedure fracgcoucpf1edtCPFCNPJEnter(Sender: TObject);
+    procedure flkClienteKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edtNomeClienteKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure fracgcoucpf1edtCPFCNPJKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure fracgcoucpf1edtCPFCNPJExit(Sender: TObject);
+    procedure sbnConsultaOrcamentos_Enter(Sender: TObject);
+    procedure sbnConsultaOrcamentos_MouseDown(Sender: TObject;
+      Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+  private
+    function  GerarParcelasPlanoPadrao: Boolean;
+    procedure IncluirCliente;
+
+  protected
+    ContornaChuncho: Boolean;
+    TipoConsulta: TtecOrcamentosTipoConsulta;
+    Jan: TfrmConsultaPorCampo;
+    PrecisaReCalcularParcelas: Boolean;
+    vReabirAtendimentosPendente: Boolean;
+    procedure CalcularFinanciamento;
+    procedure OnCloseCalculoFinanciamento;
+    procedure LerValoresCalculoFinanciamento;
+    procedure Activate; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    function  InternoIncluir: Boolean; override;
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    function  TabelaDePesquisa: TZDataSet; override;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function  IncluirEditarProdutosOrcamento(Editar: Boolean): Boolean;
+    function  IncluirEditarServicosOrcamento(Editar: Boolean): Boolean;
+    function  PodeIncluirProduto:boolean;
+    procedure HabilitarControlesCliente(Valor: Boolean);
+    function VerificarCreditoTroca(zerar,Atribuir: Boolean): Boolean;
+    procedure OnScrollClientes(Sender: TObject);
+    procedure AfterScrollLinhaColunaGrade(Sender: TObject);
+
+
+
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure OperacaoPadrao(Value: Array of Variant); override;
+
+    procedure SelecionarOrcamento(Orcamento: String);
+    procedure RefazConsultaOrcamentos;
+
+
+  end;
+
+var
+  frmOrcamentos: TfrmOrcamentos;
+
+implementation
+
+uses
+  //Biblio
+  clusuario, clparametrossistema,
+  //Projeto
+  fmprincipalbasico, fmmotivos, dmorcamentos, fmprodutosorcamento,
+  fmcadastroservicosorcamento, fmenviaremail;
+
+{$R *.dfm}
+
+{ TfrmVendasAVista }
+
+constructor TfrmOrcamentos.Create(AOwner: TComponent);
+var
+  CollItem: TtecControlItem;
+
+begin
+try
+  dtmOrcamentos := TdtmOrcamentos.Create(Self);
+  inherited;
+  DataSet         := dtmOrcamentos.TabelaOrcamento;
+  flkVendedor.Enabled := Not UsuarioLogin.Vendedor;
+  flkVendedor.TabStop := flkVendedor.Enabled;
+  if UsuarioLogin.Vendedor then begin
+    CollItem := TtecControlItem(edfNumeroOrcamento.NoSetControls.Add);
+    CollItem.Control := flkVendedor;
+    dtmOrcamentos.VendedorDefault := UsuarioLogin.CodigoUsuario;
+    dtxNomeVendedor.Width:= dtxNomeVendedor.Width + dtxNomeVendedor.Left - flkVendedor.Left;
+    dtxNomeVendedor.Left := flkVendedor.Left;
+    dtxNomeVendedor.BringToFront;
+  end;
+  pgcOrcamento.Pages[1].Tabvisible := ParSistema.ContratoComServico;
+  TipoConsulta:= vocORCAMENTO;
+  dbgProdutos.ColumnByName('filial').Visible := Not ParSistema.FiliaisIndependentes;
+  pgcOrcamento.Pages[0].TabVisible := True;
+
+//  pgcOrcamento.ActivePage:= tstServicos;
+
+  dbgProdutos.ColumnByName('situacao_produto').Visible := ParSistema.VisualizarSituacaoProdutos;
+  gbxSituacaoProdutos.Visible := ParSistema.VisualizarSituacaoProdutos;
+  dbgProdutos.ColumnByName('valorgrade1').Visible := ParSistema.UsarGradesProdutos;
+  dbgProdutos.ColumnByName('valorgrade2').Visible := ParSistema.UsarGradesProdutos;
+
+  if dbgProdutos.ColumnbyName('quantidade').Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgProdutos.ColumnbyName('quantidade').width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgProdutos.ColumnbyName('previsao').Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgProdutos.ColumnbyName('previsao').Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgProdutos.ColumnbyName('entrega').Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgProdutos.ColumnbyName('entrega').Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgProdutos.ColumnbyName('emestoque').Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgProdutos.ColumnbyName('emestoque').Width := ParSistema.TamanhoMascaraQuantidade;
+
+  pnlSaldoTroca.Enabled := ParSistema.utilizarcreditotrocacontrato;
+  pnlServicos.Visible   := ParSistema.ContratoComServico;
+  tstServicos.TabVisible  := ParSistema.ContratoComServico;
+
+  pgcOrcamento.ActivePage:= tstProdutos;
+
+  fraConsultaCargo.visible := parsistema.precosporcargo;
+  lblCargo.visible := parsistema.precosporcargo;
+
+  fraConsultaCargo.TipoPesquisa    := pesCARGOS;
+
+  {Procedimentos para o cadastro de login no site}
+  fraDadosLoginSite1.ClienteSite := dtmOrcamentos.GetCodigoCliente;
+  fraDadosLoginSite1.TipoClienteSite := dtmOrcamentos.GetTipoCliente;
+  fraDadosLoginSite1.NomeClienteSite        := dtmOrcamentos.GetNomeCliente;
+  fraDadosLoginSite1.EmailClienteSite       := dtmOrcamentos.GetEmailCliente;
+  fraDadosLoginSite1.TipoPessoaClienteSite  := dtmOrcamentos.GetTipoPessoa;
+  fraDadosLoginSite1.PessoaNumeroClienteSite:= dtmOrcamentos.GetPessoaNumero;
+  fraDadosLoginSite1.EditarFormulario := dtmOrcamentos.editarOrcamentos;
+  dtmOrcamentos.qryUsuarios_Site := fraDadosLoginSite1.qryUsuarios_Site;
+  dtmOrcamentos.OnScrollClientes := OnScrollClientes;
+
+  {Procedimentos para o cadastro de contatos}
+  fraAtendimentosDocumentos1.Documento := dtmOrcamentos.GetOrcamento;
+  fraAtendimentosDocumentos1.TipoDocumento := dtmOrcamentos.GetTipoDocumento;
+  dtmOrcamentos.OnScrollClientes := OnScrollClientes;
+
+  dtmOrcamentos.OnScrollLinhaColunaGrade := AfterScrollLinhaColunaGrade;
+
+  if pgcOrcamento.ActivePageIndex <> 0 then
+    pgcOrcamento.ActivePageIndex:= 0;
+
+  self.ActiveControl := edfNumeroOrcamento;
+
+
+
+except
+     on E: Exception do ShowMessage(E.Message);
+end;
+
+end;
+
+destructor TfrmOrcamentos.Destroy;
+begin
+  dtmOrcamentos:=nil;
+  inherited;
+  frmOrcamentos:= nil;
+end;
+
+function TfrmOrcamentos.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  case TipoConsulta of
+   vocORCAMENTO:       Result := dtmOrcamentos.ExisteOrcamento(NomeCampo, Value);
+    vocCLIENTES:       Result := dtmOrcamentos.ExisteCliente(NomeCampo, Value);
+    vocVENDEDOR:       Result := dtmOrcamentos.ExisteVendedor(NomeCampo, Value);
+    vocFILIALMONTAGEM: Result := dtmOrcamentos.ExisteFilialMontagem(NomeCampo, Value);
+  else                 Result := False;
+  end
+end;
+
+procedure TfrmOrcamentos.flkClienteExit(Sender: TObject);
+begin
+  inherited;
+  dtmOrcamentos.InputFormCustomer := Nenhum;
+  if not vPressionadoGravar then
+  begin
+    if (dtmOrcamentos.qryorcamentos.state = dsinsert) or
+       (dtmOrcamentos.qryOrcamentos.recordcount <> 0) then
+    begin
+      HabilitarControlesCliente(Trim(flkCliente.Text) = '');
+      if flkCliente.Text = '' then
+        dtmOrcamentos.qryProcuraClienteAfterOpen(dtmOrcamentos.qryProcuraCliente);
+    end;
+
+    if ((CodClienteAnt <> dtmOrcamentos.CodigoCliente) or
+        (TipoClienteAnt <> dtmOrcamentos.TipoCliente)) or
+
+        ((CodClienteAnt=0) and (TipoclienteAnt='') and
+         (dtmOrcamentos.CodigoCliente<>0) and
+         (dtmOrcamentos.TipoCliente<>'')) then
+    begin
+      if not dtmOrcamentos.ExibirFicha(ClassName) then
+      begin
+        if (dtmOrcamentos.qryOrcamentoscliente.asinteger <> 0) and sbnIncluirProduto.enabled then
+        begin
+          if dtmOrcamentos.qryProcuraClienteqtorcamentoemaberto.AsInteger>0 then
+          begin
+            MensagemAviso('ATENÇÃO: Cliente possui orçamentos em aberto!');
+            sbnConsultaOrcamentos_.setfocus;
+          end
+          else
+            sbnIncluirProdutoClick(nil);
+        end;
+      end;
+    end
+    else
+    if (dtmOrcamentos.qryOrcamentoscliente.asinteger <> 0) and sbnIncluirProduto.enabled then
+      sbnIncluirProdutoClick(nil);
+  end;
+end;
+
+procedure TfrmOrcamentos.edfNumeroOrcamentoExit(Sender: TObject);
+begin
+  inherited;
+  HabilitarControlesCliente(Trim(flkCliente.Text) = '');
+end;
+
+procedure TfrmOrcamentos.HabilitarControlesCliente(Valor: Boolean);
+begin
+   if Valor then
+  begin
+    edtNomeCliente.BringToFront;
+    edtNomeCliente.tabstop := true;
+    edtNomeCliente.enabled := true;
+  end
+  else
+  begin
+    edtNomeCliente.SendToBack;
+    edtNomeCliente.tabstop := false;
+    edtNomeCliente.enabled := false;
+//    fracgcoucpf1.rgbTipoPessoa.SetFocus;
+
+  end;
+//fraCGCCPF.edtCPFCNPJ.Tipo      := dtmOrcamentos.TipoPessoa;
+
+           {
+  if ((Valor) and (dtmOrcamentos.qryOrcamentoscodigo.IsNull)) then
+  begin
+    edtDDD1  .Text := '';
+    edtFone1 .Text := '';
+    edtRamal1.Text := '';
+    edtDDD2  .Text := '';
+    edtFone2 .Text := '';
+    edtRamal2.Text := '';
+  end;
+  edtDDD1.ReadOnly   := Not Valor;
+  edtFone1.ReadOnly  := Not Valor;
+  edtRamal1.ReadOnly := Not Valor;
+
+  edtDDD2.ReadOnly   := Not Valor;
+  edtFone2.ReadOnly  := Not Valor;
+  edtRamal2.ReadOnly := Not Valor;
+}
+
+
+//  fraCGCCPF.rbnFisica.Enabled    := Valor;
+//  fraCGCCPF.rbnJuridica.Enabled  := Valor;
+//  fraCGCCPF.edtCPFCNPJ.ReadOnly  := Not Valor;
+
+end;
+
+function TfrmOrcamentos.InternoExcluir: Boolean;
+var
+  Cancelar: Boolean;
+  Msg: String;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then
+  begin
+    if ParSistema.ExclusaoOrcamento = exoCANCELAR then
+      Cancelar:= True
+    else
+    begin
+      if ParSistema.ExclusaoOrcamento = exoPERGUNTAR then begin
+        Cancelar:= MensagemConfirmacao(ctCANCELARORCAMENTO) = smbCANCEL;
+        if not Cancelar then begin
+          Msg    := Format(ctCONFIRMEEXCLUIR, ['o(s) orçamento(s)']);
+          Result := MensagemConfirmacao(Msg) = smbOk;
+        end
+      end else
+      begin
+        Cancelar:= False;
+        Msg    := Format(ctCONFIRMEEXCLUIR, ['o(s) orçamento(s)']);
+        Result := MensagemConfirmacao(Msg) = smbOk;
+      end
+    end;
+
+    if Result then
+    begin
+      if Cancelar then
+      begin
+        dtmOrcamentos.TextoCancelamento := '';
+        dtmOrcamentos.Abre(ctTabelasConsultaMotivos);
+        frmMotivos := TfrmMotivos.Create(frmMotivos, 'Cancelamentos do orçamento', dtmOrcamentos.TabelaConsultaMotivos, true, parsistema.ObrigarDigitacaoaoExcluir);
+        Result:= frmMotivos.ShowModal = mrOK;
+        dtmOrcamentos.TextoCancelamento := frmMotivos.mmoTexto.text;
+        frmMotivos.free;
+      end;
+      if Result then
+        Result := dtmOrcamentos.ExcluirOrcamento(Cancelar);
+    end;
+  end;
+
+  if pgcOrcamento.ActivePageIndex <> 0 then
+    pgcOrcamento.ActivePageIndex:= 0;
+
+  if result then
+    fraAtendimentosDocumentos1.AbrirTabelaAtendimentosDocumentos(true);
+
+end;
+
+function TfrmOrcamentos.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+
+  if Result then
+  begin
+    if flkCliente.Text <> '' then
+      Result:= flkCliente.Exist;
+
+    if result then
+    begin
+
+      if Result then
+        Result:= dtmOrcamentos.GravarOrcamento;
+
+      {
+      if dtmOrcamentos.qryPlanosOrcamentos.IsEmpty then
+         result := GerarParcelasPlanoPadrao;
+      }
+
+      {
+      if PrecisaReCalcularParcelas then
+      begin
+        if dtmOrcamentos.PlanoPadraoClienteSemParcelas then
+        begin
+          ContornaChuncho := false;
+          Result := GerarParcelasPlanoPadrao;
+          PrecisaReCalcularParcelas := False;
+          ContornaChuncho:=true;
+        end;
+
+      end;
+
+      if PrecisaReCalcularParcelas then
+      begin
+        MensagemAviso(ctRECALCULARPARCELAS);
+        Result := False;
+      end
+      }
+    end;
+
+
+    if pgcOrcamento.ActivePageIndex <> 0 then
+      pgcOrcamento.ActivePageIndex:= 0;
+
+    if Result then
+      edtDesconto.Enabled:= True;
+
+    if flkVendedor.canfocus then
+      flkVendedor.setfocus;
+//    flkCliente.SetFocus;
+  end;
+end;
+
+function TfrmOrcamentos.InternoIncluir: Boolean;
+begin
+  Result := inherited InternoIncluir;
+  if CtrlOn then
+  begin
+    if dbgProdutos.Focused then
+    begin
+      if dtmOrcamentos.PodeAlterarCampos then
+           Result:= IncluirEditarProdutosOrcamento(False)
+      else Result:= False;
+    end
+    else if pgcOrcamento.ActivePageIndex=1 then //dbgServicos.Focused then
+    begin
+      if dtmOrcamentos.PodeAlterarCampos then
+        Result:= IncluirEditarServicosOrcamento(False)
+      else
+        Result:= False;
+    end
+  end
+  else
+  begin
+    if pgcOrcamento.ActivePageIndex <> 0 then
+      pgcOrcamento.ActivePageIndex:= 0;
+    Result:= dtmOrcamentos.IncluirOrcamento;
+    if Result then
+    begin
+      if UsuarioLogin.Vendedor then
+           flkCliente.SetFocus
+      else flkVendedor.SetFocus;
+    end
+    else edfNumeroOrcamento.SetFocus;
+  end;
+  edtDesconto.Enabled:= False;
+end;
+
+function TfrmOrcamentos.InternoPesquisar(Titulo: String): Integer;
+begin
+  Result:= mrNone;
+  with dtmOrcamentos do begin
+    if CtrlOn then begin
+      if (ActiveControl = flkCliente) and dtmOrcamentos.PodeAlterarCampos then begin
+        Titulo      := ctCLIENTES;
+        TipoConsulta:= vocCLIENTES
+      end else if (ActiveControl = flkVendedor) and dtmOrcamentos.PodeAlterarCampos and not flkVendedor.readonly then
+      begin
+        Titulo      := ctVENDEDORES;
+        TipoConsulta:= vocVENDEDOR
+      end
+      else if (ActiveControl = flkFilialMontagem) and dtmOrcamentos.PodeAlterarCampos then begin
+        Titulo:= ctFILIAIS;
+        TipoConsulta:= vocFILIALMONTAGEM;
+      end
+      else TipoConsulta:= vocNENHUM;
+    end else begin
+      Titulo      := ctOrcamentos;
+      TipoConsulta:= vocORCAMENTO;
+    end;
+
+    if TipoConsulta <> vocNENHUM then begin
+      AbreTabelasOrcamento(TipoConsulta);
+      Result := inherited InternoPesquisar(Titulo);
+      if Result = mrOK then
+        SelecionaTabelasOrcamento(TipoConsulta);
+      FechaTabelasConsulta(TipoConsulta);
+
+      if TipoConsulta = vocORCAMENTO then
+        edfNumeroOrcamentoExit(nil);
+
+    end;
+  end;
+end;
+
+function TfrmOrcamentos.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Jan := TfrmConsultaPorCampo.Create(nil);
+  Jan.ConsultaInterativa := not (TipoConsulta in [vocORCAMENTO, vocCLIENTES]);
+  Result := Jan;
+end;
+
+procedure TfrmOrcamentos.sbnClienteClick(Sender: TObject);
+begin
+{
+  edtDDD1.Text := '';
+  edtFone1.Text := '';
+  edtRamal1.Text := '';
+  edtDDD2.Text := '';
+  edtFone2.Text := '';
+  edtRamal2.Text := '';
+}
+  inherited;
+  TipoConsulta := vocCLIENTES;
+  inherited InternoPesquisar(flkCliente, ctCLIENTES);
+  {
+  EdtDDD1.Text := dtmOrcamentos.qryOrcamentosfoneddd.AsString;
+  EdtFone1.Text := dtmOrcamentos.qryOrcamentosfonenumero.AsString;
+  EdtRamal1.Text := dtmOrcamentos.qryOrcamentosfoneramal.AsString;
+  EdtDDD2.Text := dtmOrcamentos.qryOrcamentosfone2ddd.AsString;
+  EdtFone2.Text := dtmOrcamentos.qryOrcamentosfone2numero.AsString;
+  EdtRamal2.Text := dtmOrcamentos.qryOrcamentosfone2ramal.AsString;
+
+  edtDDD1.ReadOnly := False;
+  edtFone1.ReadOnly := False;
+  edtRamal1.ReadOnly := False;
+  edtDDD2.ReadOnly := False;
+  edtFone2.ReadOnly := False;
+  edtRamal2.ReadOnly := False;
+  }
+end;
+
+procedure TfrmOrcamentos.sbnVendedorClick(Sender: TObject);
+begin
+  inherited;
+  TipoConsulta := vocVENDEDOR;
+  InternoPesquisar(flkVendedor, ctVENDEDORES)
+end;
+
+function TfrmOrcamentos.TabelaDePesquisa: TZDataSet;
+begin
+  case TipoConsulta of
+    vocORCAMENTO:      Result:= dtmOrcamentos.TabelaConsultaOrcamentos;
+    vocCLIENTES:       Result:= dtmOrcamentos.TabelaConsultaClientes;
+    vocVENDEDOR:       Result:= dtmOrcamentos.TabelaConsultaVendedores;
+    vocFILIALMONTAGEM: Result:= dtmOrcamentos.TabelaConsultaFilialMontagem;
+    else               Result:= nil;
+  end
+end;
+
+procedure TfrmOrcamentos.fraCGCCPFrgbTipoPessoaChange(Sender: TObject);
+begin
+  inherited;
+  if Assigned(fraCGCCPF) and Assigned(dtmOrcamentos) then
+    fraCGCCPF.edtCPFCNPJ.Tipo:= dtmOrcamentos.TipoPessoa;
+end;
+
+procedure TfrmOrcamentos.sbnIncluirProdutoClick(Sender: TObject);
+begin
+  inherited;
+  with dtmOrcamentos do
+  begin
+    if PodeAlterarCampos then
+    begin
+      if PodeIncluirProduto then
+      begin
+        sbnIncluirProduto.enabled := false;
+        CtrlOn := True;
+        dbgProdutos.SetFocus;
+        InternoIncluir;
+        GravarLinhas;
+        sbnIncluirProduto.enabled := true;
+      end;
+    end;
+  end;
+end;
+
+
+function TfrmOrcamentos.IncluirEditarProdutosOrcamento(Editar: Boolean): Boolean;
+begin
+
+  try
+    dtmOrcamentos.OnScrollLinhaColunaGrade := nil;
+
+    if PodeIncluirProduto then
+    begin
+
+      frmProdutosOrcamento := TfrmProdutosOrcamento.Create(frmProdutosOrcamento);
+
+      if Editar then Result := dtmOrcamentos.EditarProdutosOrcamento
+      else           Result := dtmOrcamentos.IncluirProdutosOrcamento;
+
+      dtmOrcamentos.IncluindoouEditandoProduto := true;
+      dtmOrcamentos.qryProdutosOrcamentosAfterScroll(nil);
+
+      if Result then
+        Result := frmProdutosOrcamento.ShowModal = mrOK;
+
+      frmProdutosOrcamento.Free;
+      dtmOrcamentos.IncluindoouEditandoProduto := false;
+      dtmOrcamentos.CalcularValorTotalProdutos;
+      dtmOrcamentos.VisualizandoFornecedoresProdutos := false;
+
+
+      if dtmOrcamentos.AlterarPlanos then
+        result := dtmOrcamentos.ReCalcularPlanosPagamento;
+
+      flkFilialMontagem.ReadOnly := Not dtmOrcamentos.ExisteMontagem;
+//      if dtmOrcamentos.qryorcamentos.state in [dsedit, dsinsert] then
+      if result then
+        result := InternoGravar;
+      dbgProdutos.setfocus;
+    end;
+  finally
+    dtmOrcamentos.OnScrollLinhaColunaGrade := AfterScrollLinhaColunaGrade;
+    AfterScrollLinhaColunaGrade(nil);
+  end;
+
+end;
+
+procedure TfrmOrcamentos.sbnExcluirProdutoClick(Sender: TObject);
+begin
+  inherited;
+  if dtmOrcamentos.PodeAlterarCampos then begin
+    dtmOrcamentos.ExcluirProdutoOrcamento;
+    dtmOrcamentos.GravarLinhas;
+    dtmOrcamentos.GravarOrcamento;
+  end;
+end;
+
+procedure TfrmOrcamentos.dbgProdutosDblClick(Sender: TObject);
+begin
+  inherited;
+  if dtmOrcamentos.PodeAlterarCampos then
+    IncluirEditarProdutosOrcamento(True)
+end;
+
+procedure TfrmOrcamentos.sbnProcurarFilialMontagemClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  flkFilialMontagem.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmOrcamentos.dbgProdutosKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case Key of
+    TeclaEditarRegistro : if dtmOrcamentos.PodeAlterarCampos then
+                            IncluirEditarProdutosOrcamento(True);
+  end;
+end;
+
+procedure TfrmOrcamentos.edfNumeroContratoFound(Found: Boolean);
+begin
+  inherited;
+  if Found then begin
+    edtNomeCliente.SendToBack;
+    flkCliente.SetFocus;
+  end;
+end;
+
+procedure TfrmOrcamentos.sbnIncluirPlanoClick(Sender: TObject);
+begin
+  inherited;
+  if dtmOrcamentos.PodeAlterarCampos then
+  begin
+    if (dtmOrcamentos.TotalProdutos + dtmOrcamentos.TotalServicos = 0) then
+      MensagemAviso(ctORCAMENTO_PRODUTOSERVICO)
+    else
+    if (dtmOrcamentos.qryOrcamentossituacao.AsString = 'A') and (Not dtmOrcamentos.qryorcamentos.ReadOnly) then
+    begin
+//      if VerificarCreditoTroca(false,true) then
+      begin
+        ContornaChuncho := True;
+        try
+          CalcularFinanciamento;
+        finally
+          ContornaChuncho := False;
+        end
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmOrcamentos.CalcularFinanciamento;
+var
+  Parcelas: TResumosParcelas;
+  TotalCalcular: Currency;
+  ValorPrazo,
+  TaxaJuros,
+  Desconto: Real;
+  plano : integer;
+  mensagem: String;
+
+begin
+  inherited;
+  mensagem := '';
+  Parcelas := nil;
+  if (dtmOrcamentos.qryorcamentossituacao.AsString = 'A') and (not dtmOrcamentos.qryOrcamentos.ReadOnly) then
+  begin
+
+    frmCalculoFinanciamento := TfrmCalculoFinanciamento(TfrmCalculoFinanciamento.Referencia);
+    if Assigned(frmCalculoFinanciamento) then
+      frmCalculoFinanciamento.SetFocus
+    else
+    begin
+      TotalCalcular:= dtmOrcamentos.TotalProdutos + dtmOrcamentos.TotalServicos;
+
+      if ((dtmOrcamentos.TotalOrcamento - dtmOrcamentos.CreditoTroca)<>0) then
+      begin
+        dtmOrcamentos.ResumoParcelas(Parcelas);
+        frmCalculoFinanciamento := TfrmCalculoFinanciamento.Create(Owner, True);
+        frmCalculoFinanciamento.OntecClose    := OnCloseCalculoFinanciamento;
+        frmCalculoFinanciamento.DefinirValoresCalculo(PrecisaReCalcularParcelas,
+                                                    TotalCalcular,
+                                                    dtmOrcamentos.Frete,
+                                                    dtmOrcamentos.Seguro,
+                                                    dtmOrcamentos.Desconto,
+                                                    dtmorcamentos.CreditoTroca,
+                                                    0,
+                                                    dtmOrcamentos.PlanoUtilizado,
+                                                    dtmOrcamentos.DataEmissao,
+                                                    dtmOrcamentos.EstadoFilialBase,
+                                                    Parcelas,
+                                                    nil, //Grupos,
+                                                    nil, //Classes,
+                                                    dtmOrcamentos.PermiteDesconto,
+                                                    0);
+        Parcelas := nil;
+      end
+      else
+      begin
+        if (ParSistema.PlanoVendaVista = 0) then
+          MensagemAviso(ctNENHUMPLANOVENDAAVISTA)
+        else
+        begin
+          PrecisaReCalcularParcelas := false;
+          valorprazo := 0;
+          taxajuros := 0;
+          desconto := 0;
+          plano := ParSistema.PlanoVendaVista;
+          dtmOrcamentos.DefinirParcelas(Parcelas, valorprazo, taxajuros, desconto, plano, true);
+
+          {
+          if ParSistema.PermitirAlterarBrindenoContrato then
+            if dtmOrcamentos.FSomenteBrindes and (dtmCadastroContratos.ValorICMSSubstTributaria = 0) then
+              mensagem := ctPRODUTOCONTRATOBRINDE;
+          }
+
+          if mensagem='' then
+            Mensagem := ctSALDOCOBERTOPORCREDITO;
+
+          MensagemAviso(mensagem)
+
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmOrcamentos.OnCloseCalculoFinanciamento;
+begin
+  LerValoresCalculoFinanciamento;
+end;
+
+procedure TfrmOrcamentos.LerValoresCalculoFinanciamento;
+{
+var
+  Parcelas, ParcContr: TResumosParcelas;
+  ValorPrazo,
+  TaxaJuros,
+  Desconto: Real;
+  Plano: Integer;
+begin
+  inherited;
+  Plano:= 0;
+  if not ContornaChuncho then begin
+    frmCalculoFinanciamento := TfrmCalculoFinanciamento(TfrmCalculoFinanciamento.Referencia);
+    if Assigned(frmCalculoFinanciamento) and
+       frmCalculoFinanciamento.ResumosParcelas(Parcelas, ValorPrazo, TaxaJuros, Desconto, Plano)
+    then begin
+      dtmOrcamentos.ResumoParcelas(ParcContr);
+      if Not ParcelasIdenticas(Parcelas, ParcContr) then begin
+        dtmOrcamentos.DefinirParcelas(Parcelas, ValorPrazo, TaxaJuros, Desconto, Plano);
+        PrecisaReCalcularParcelas := Plano = 0;
+      end;
+      Parcelas  := nil;
+      ParcContr := nil;
+    end
+  end
+end;
+
+}
+
+var
+  Parcelas, ParcContr: TResumosParcelas;
+  ValorPrazo,
+  TaxaJuros,
+  Desconto: Real;
+  Plano: Integer;
+begin
+  inherited;
+  if Not ContornaChuncho then
+  begin
+    frmCalculoFinanciamento := TfrmCalculoFinanciamento(TfrmCalculoFinanciamento.Referencia);
+    Parcelas := nil;  ParcContr := nil;
+    if dtmOrcamentos.PlanoPadraoClienteSemParcelas then
+      plano := dtmOrcamentos.ClientePlanoPadrao
+    else
+      plano := 0;
+
+    if Assigned(frmCalculoFinanciamento) and
+       frmCalculoFinanciamento.ResumosParcelas(Parcelas, ValorPrazo, TaxaJuros, Desconto, Plano)
+    then begin
+      dtmOrcamentos.ResumoParcelas(ParcContr);
+      if Not ParcelasIdenticas(Parcelas, ParcContr) or
+        (dtmOrcamentos.CreditoTroca > 0) or
+        PrecisaReCalcularParcelas  then
+      begin
+//      and (MensagemConfirmacao('Deseja alterar as parcelas do contrato?') = smbOK)
+//      then begin
+        dtmOrcamentos.DefinirParcelas(Parcelas, ValorPrazo, TaxaJuros, Desconto, Plano, true);
+        PrecisaReCalcularParcelas := Plano = 0;
+      end
+      else
+        PrecisaReCalcularParcelas := false;
+      Parcelas  := nil;
+      ParcContr := nil;
+    end
+  end
+end;
+
+
+procedure TfrmOrcamentos.Activate;
+begin
+  inherited;
+//  LerValoresCalculoFinanciamento;
+end;
+
+procedure TfrmOrcamentos.sbnExcluirPlanoClick(Sender: TObject);
+begin
+  inherited;
+  if dtmOrcamentos.PodeAlterarCampos then
+    dtmOrcamentos.ExcluirPlanoOrcamento;
+end;
+
+procedure TfrmOrcamentos.dbgPlanosKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case Key of
+    VK_P : if dtmOrcamentos.PodeAlterarCampos and sbnIncluirPlano.Enabled then
+                 sbnIncluirPlano.Click;
+  end;
+end;
+
+procedure TfrmOrcamentos.sbnCopiaClick(Sender: TObject);
+begin
+  inherited;
+  dtmOrcamentos.GerarCopiaOrcamento;
+  if pgcOrcamento.ActivePageIndex <> 0 then
+    pgcOrcamento.ActivePageIndex:= 0;
+  dbgPlanos.SetFocus;  
+end;
+
+procedure TfrmOrcamentos.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [] then
+  begin
+    case key of
+      VK_SPACE: if (Shift = [ssCtrl]) and dbgPlanos.Focused and
+                  not dtmOrcamentos.TabelaOrcamentoBloqueada then
+                  dtmOrcamentos.SelecionarPlano;
+      VK_F7: if not CtrlOn and sbnContrato.Enabled then
+                 sbnContrato.Click;
+      VK_F8: if not CtrlOn and sbnCopia.Enabled then
+                 sbnCopia.Click;
+      VK_F10: if not CtrlOn and sbnAtendimento.Enabled then
+              begin
+                 key := 0;
+                 sbnAtendimento.click;
+              end;
+      VK_F11: if not CtrlOn and sbnImprimir.Enabled then
+                 sbnImprimir.Click;
+      VK_F12: if sbnEnviarOrcamento.Enabled then
+                      sbnEnviarOrcamentoClick(nil);
+    end
+  end
+  else
+  if Shift = [ssCtrl] then
+  begin
+    if Key = VK_P then
+      sbnIncluirPlanoClick(nil)
+//      sbnParcelasClick(nil)
+    else if Key = VK_T then
+      sbnVisualizarSaldoTrocaClick(nil)
+    else if Key = VK_O then
+    begin
+      pgcOrcamento.ActivePage:=tstProdutos;
+      if(dbgProdutos.Enabled) then
+      begin
+        dbgProdutos.SetFocus;
+        IncluirEditarProdutosOrcamento(False);
+      end;
+    end;
+  end;
+
+end;
+
+procedure TfrmOrcamentos.sbnImprimirClick(Sender: TObject);
+begin
+  inherited;
+  dtmOrcamentos.ImprimirOrcamento;
+end;
+
+procedure TfrmOrcamentos.sbnContratoClick(Sender: TObject);
+begin
+  inherited;
+  with dtmOrcamentos do
+  begin
+    if ExisteEntrega and Not EnderecoCompleto then
+    begin
+      MensagemAviso(ctENDERECOIMCOMPLETO);
+      pgcOrcamento.activepage := tstendereco;
+    end
+    else
+    if GerarContrato then
+    begin
+      TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado([dtmOrcamentos.NumeroContrato], 'TfrmCadastroContratos', True);
+      HabilitarControlesCliente(false);
+    end;
+  end;
+end;
+
+procedure TfrmOrcamentos.dbgPlanosDblClick(Sender: TObject);
+begin
+  inherited;
+  if not dtmOrcamentos.TabelaOrcamentoBloqueada then
+    dtmOrcamentos.SelecionarPlano;
+end;
+
+
+procedure TfrmOrcamentos.sbnIncluirClick(Sender: TObject);
+begin
+  inherited;
+  {
+  edtDDD1.Text := '';
+  edtFone1.Text := '';
+  edtRamal1.Text := '';
+  edtDDD2.Text := '';
+  edtFone2.Text := '';
+  edtRamal2.Text := '';
+  }
+end;
+
+procedure TfrmOrcamentos.sbnSalvarClick(Sender: TObject);
+begin
+  inherited;
+  {
+  edtDDD1.ReadOnly := True;
+  edtFone1.ReadOnly := True;
+  edtRamal1.ReadOnly := True;
+  edtDDD2.ReadOnly := True;
+  edtFone2.ReadOnly := True;
+  edtRamal2.ReadOnly := True;
+  }
+end;
+
+procedure TfrmOrcamentos.sbnExcluirClick(Sender: TObject);
+begin
+  inherited;
+  {
+  edtDDD1.Text := '';
+  edtFone1.Text := '';
+  edtRamal1.Text := '';
+  edtDDD1.ReadOnly := True;
+  edtFone1.ReadOnly := True;
+  edtRamal1.ReadOnly := True;
+  edtDDD2.Text := '';
+  edtFone2.Text := '';
+  edtRamal2.Text := '';
+  edtDDD2.ReadOnly := True;
+  edtFone2.ReadOnly := True;
+  edtRamal2.ReadOnly := True;
+  }
+end;
+
+procedure TfrmOrcamentos.sbnProcurarClick(Sender: TObject);
+begin
+  inherited;
+  {
+  EdtDDD1.Text := dtmOrcamentos.qryOrcamentosfoneddd.AsString;
+  EdtFone1.Text := dtmOrcamentos.qryOrcamentosFoneNumero.AsString;
+  EdtRamal1.Text := dtmOrcamentos.qryOrcamentosfoneramal.AsString;
+  EdtDDD2.Text := dtmOrcamentos.qryOrcamentosfone2ddd.AsString;
+  EdtFone2.Text := dtmOrcamentos.qryOrcamentosfone2numero.AsString;
+  EdtRamal2.Text := dtmOrcamentos.qryOrcamentosfone2ramal.AsString;
+  edtDDD1.ReadOnly := False;
+  edtFone1.ReadOnly := False;
+  edtRamal1.ReadOnly := False;
+  edtDDD2.ReadOnly := False;
+  edtFone2.ReadOnly := False;
+  edtRamal2.ReadOnly := False;
+  }
+end;
+
+procedure TfrmOrcamentos.sbnIncluirServicoClick(Sender: TObject);
+begin
+  inherited;
+  if dtmOrcamentos.PodeAlterarCampos then
+  begin
+    CtrlOn := True;
+    dbgServicos.SetFocus;
+    InternoIncluir;
+  end;
+end;
+
+procedure TfrmOrcamentos.sbnExcluirServicoClick(Sender: TObject);
+begin
+  inherited;
+  if dtmOrcamentos.PodeAlterarCampos then
+    dtmOrcamentos.ExcluirServicoOrcamento;
+end;
+
+function TfrmOrcamentos.IncluirEditarServicosOrcamento(
+  Editar: Boolean): Boolean;
+begin
+  frmCadastroServicosOrcamento := TfrmCadastroServicosOrcamento.Create(frmCadastroServicosorcamento);
+  if Editar then
+    Result := dtmOrcamentos.EditarServicosOrcamento
+  else
+    Result := dtmOrcamentos.IncluirServicosOrcamento(False);
+  if Result then
+    Result := frmCadastroServicosOrcamento.ShowModal = mrOK;
+  frmCadastroServicosOrcamento.Free;
+
+  dtmOrcamentos.CalcularValorTotalServicos;
+
+//  VerificarCreditoTroca(true, true);
+
+  if dtmOrcamentos.AlterarPlanos then
+    dtmOrcamentos.ReCalcularPlanosPagamento;
+
+  SetFocus;
+end;
+
+procedure TfrmOrcamentos.dbgServicosKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  case Key of
+    TeclaEditarRegistro : if dtmOrcamentos.PodeAlterarCampos then
+                            IncluirEditarServicosOrcamento(True);
+  end;
+end;
+
+procedure TfrmOrcamentos.dbgServicosDblClick(Sender: TObject);
+begin
+  inherited;
+  if dtmOrcamentos.PodeAlterarCampos then
+    IncluirEditarServicosOrcamento(True)
+end;
+
+procedure TfrmOrcamentos.sbnEnviarOrcamentoClick(Sender: TObject);
+var
+EmailContato:string;
+begin
+  inherited;
+  if dtmOrcamentos.AutorizacaoAnalistaCredito then
+  begin
+
+  if (ParSistema.UsaitecLUX) then
+    EmailContato:= dtmOrcamentos.qryOrcamentosemail.AsString
+  else
+     EmailContato:= UsuarioLogin.Email;
+
+  frmEnviarEmail:= TfrmEnviarEmail.Create(frmEnviarEmail, usuariologin.HostSmtp, EmailContato,'','Orçamento');
+
+    try
+      with frmEnviarEmail do
+      begin
+        Data   := dtmOrcamentos.DataServidor;
+        Empresa:= PrimeiraLetraEmMaiuscula(dtmOrcamentos.NomeFilialBase);
+        Msg    := dtmOrcamentos.MontarOrcamento;
+        ObterAutorizacao := dtmOrcamentos.obterautorizacao_;
+        vGerarAtendimento := true;
+        OrigemEmail := Orcamento;
+        ShowModal;
+
+        if enviou then
+        begin
+          if parsistema.usaiteclux then
+            dtmOrcamentos.GravarEmailOrcamento(mmoIntroducao.text, mmoConclusao.text, edtEmail.lines.Text);
+
+          with dtmOrcamentos do
+          begin
+            IncluirAtendimento_(
+
+              qryOrcamentoscodigo.AsInteger,
+              qryOrcamentoscliente.AsInteger,
+              qryOrcamentostipocliente.AsString,
+              EmailEnviado,
+              'Orçamento '+ qryOrcamentoscodigo.AsString + ifthen(parsistema.usaiteclux,' envio de email agendado ', ' enviado para o email '+edtEmail.lines.text) + chr(13) +
+                            mmoIntroducao.text + char(13) +
+                            mmotexto.text + char(13) +
+                            mmoConclusao.text,
+               nil,
+              qryOrcamentosdescricaosituacao.asString
+
+            );
+          end;
+        end;
+      end;
+    finally
+      frmEnviarEmail.Free;
+      fraAtendimentosDocumentos1.AbrirTabelaAtendimentosDocumentos(true);
+    end;
+    edfNumeroOrcamento.SetFocus;
+  end;  
+end;
+
+
+procedure TfrmOrcamentos.edtNomeClienteExit(Sender: TObject);
+begin
+  inherited;
+  dtmOrcamentos.qryProcuraClienteAfterOpen(dtmOrcamentos.qryProcuraCliente);
+
+{
+  if (dtmOrcamentos.qryOrcamentosnome.asstring <> '') and sbnIncluirProduto.Enabled then
+    sbnIncluirProdutoClick(nil);
+ }
+
+end;
+
+procedure TfrmOrcamentos.SelecionarOrcamento(Orcamento: String);
+begin
+  dtmOrcamentos.RefazConsultaOrcamento(Orcamento);
+end;
+
+procedure TfrmOrcamentos.OperacaoPadrao(Value: array of Variant);
+begin
+  inherited;
+  if Length(Value) > 0 then
+  begin
+    if Value[0] = 'Open' then
+    begin
+      dtmOrcamentos.RefazConsultaOrcamento(Value[1]);
+      dtmOrcamentos.RecalcularPlanoOrcamentoPadrao;
+      edfNumeroOrcamento.SetFocus;
+    end
+    else
+    if Value[0] = 'Insert' then
+    begin
+      CtrlOn := false;
+      InternoIncluir;
+      dtmOrcamentos.qryProcuraCliente.parambyname('codigo').asString := VarToStr(Value[2]);
+      dtmOrcamentos.qryProcuraCliente.parambyname('tipo').asString := VarToStr(Value[3]);
+      flkcliente.Text := VarToStr(Value[2]);
+      flkCliente.exist;
+    end;
+
+  end;
+
+end;
+
+procedure TfrmOrcamentos.sbnVisualizarSaldoTrocaClick(Sender: TObject);
+begin
+  inherited;
+  edtSaldoTrocaEnter(self);
+  if ParSistema.utilizarcreditotrocacontrato then
+  begin
+    dtmOrcamentos.AbrirDadosCreditoCliente;
+
+    frmVisualizarSaldoTroca := TfrmVisualizarSaldoTroca.Create(frmVisualizarSaldoTroca,
+                               dtmOrcamentos.TabelaSaldoCredito,
+                               dtmOrcamentos.TabelaSaldoCreditoAtual);
+    frmVisualizarSaldoTroca.ShowModal;
+    if frmVisualizarSaldoTroca.ModalResult = mrOK then
+    begin
+      if (dtmOrcamentos.qryorcamentossituacao.asString = 'A') then
+      begin
+        if dtmOrcamentos.CreditoTroca <> dtmOrcamentos.SaldoCreditoAtual then
+        begin
+          dtmOrcamentos.SugerirCreditoTroca(false,true);
+//          dtmOrcamentos.CalcularValorAVista;
+//          PrecisaReCalcularParcelas := true;
+        end;
+      end;
+    end;
+    frmVisualizarSaldoTroca.Free;
+    Application.BringToFront;
+  end;
+
+end;
+
+procedure TfrmOrcamentos.edtSaldoTrocaEnter(Sender: TObject);
+begin
+  inherited;
+  dtmOrcamentos.CreditoTrocaAnt := dtmOrcamentos.CreditoTroca;
+end;
+
+function TfrmOrcamentos.VerificarCreditoTroca(zerar,
+  Atribuir: Boolean): Boolean;
+begin
+  result := true;
+  if ParSistema.utilizarcreditotrocacontrato then
+  begin
+    dtmOrcamentos.AbrirDadosCreditoCliente;
+    if dtmOrcamentos.ValidarCreditoTroca then
+    begin
+      if ((dtmOrcamentos.SaldoCreditoAtual<>0) and
+          (dtmOrcamentos.CreditoTroca=0)) or
+         ((dtmOrcamentos.SaldoCreditoAtual>0) and
+          (dtmOrcamentos.CreditoTroca<dtmOrcamentos.SaldoCreditoAtual) and
+          (dtmOrcamentos.CreditoTroca<dtmOrcamentos.TotalOrcamento)) then
+      begin
+        if dtmOrcamentos.SugerirCreditoTroca(true,atribuir) then
+        begin
+          edtSaldoTroca.SetFocus;
+          result := atribuir;
+        end
+      end;
+    end
+    else
+    begin
+      if zerar then
+        edtSaldoTroca.text := FormatarValor(0,2);
+      edtSaldoTroca.SetFocus;
+      result := false;
+    end;
+  end;
+end;
+
+function TfrmOrcamentos.GerarParcelasPlanoPadrao: Boolean;
+begin
+  result := false;
+//  if VerificarCreditoTroca(false,true) then
+  begin
+    CalcularFinanciamento;
+    Result := frmCalculoFinanciamento.calcularPlanoPadrao(dtmOrcamentos.ClientePlanoPadrao);
+  end;
+end;
+
+procedure TfrmOrcamentos.edtSaldoTrocaExit(Sender: TObject);
+begin
+  inherited;
+  (*
+  if dtmOrcamentos.CreditoTroca <> dtmOrcamentos.CreditoTrocaAnt then
+  begin
+//    dtmOrcamentos.CalcularValorAVista;
+//    PrecisaReCalcularParcelas := true;
+  end;
+  *)
+end;
+
+procedure TfrmOrcamentos.fraConsultaCargoedfCodigoExit(Sender: TObject);
+begin
+  inherited;
+  fraConsultaCargo.edfCodigoExit(Sender);
+
+  if {(dtmOrcamentos.qryOrcamentosnome.asstring <> '') and} parsistema.precosporcargo and sbnIncluirProduto.Enabled then
+    sbnIncluirProdutoClick(nil);
+
+
+end;
+
+procedure TfrmOrcamentos.edtEmailExit(Sender: TObject);
+begin
+  inherited;
+  if {(dtmOrcamentos.qryOrcamentosnome.asstring <> '') and} not parsistema.precosporcargo and sbnIncluirProduto.Enabled then
+    sbnIncluirProdutoClick(nil);
+
+end;
+
+procedure TfrmOrcamentos.sbnConsultaVendasClick(Sender: TObject);
+begin
+  inherited;
+  AcionarTelaConsultaVendas(dtmOrcamentos.qryOrcamentosCliente.asinteger,
+                            dtmOrcamentos.qryOrcamentosTipoCliente.asString)
+
+end;
+
+procedure TfrmOrcamentos.RefazConsultaOrcamentos;
+begin
+  dtmOrcamentos.refazconsultaorcamentos;
+end;
+
+procedure TfrmOrcamentos.OnScrollClientes(Sender: TObject);
+begin
+  fraDadosLoginSite1.AbrirTabelaCliente_Site(true);
+  fraAtendimentosDocumentos1.AbrirTabelaAtendimentosDocumentos(true);
+end;
+
+procedure TfrmOrcamentos.sbnAtendimentoClick(Sender: TObject);
+begin
+  inherited;
+  if dtmOrcamentos.qryOrcamentoscliente.AsInteger = 0 then
+  begin
+    dtmOrcamentos.CriarNovoCliente(true);
+    dtmOrcamentos.AtribuirClientenoOrcamento(true);
+
+  end;
+
+  TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado(['IncluirFollowupOrcamento',
+                                                                   dtmOrcamentos.qryOrcamentoscliente.asinteger,
+                                                                   dtmOrcamentos.qryOrcamentostipocliente.asString,
+                                                                   'O',
+                                                                   dtmorcamentos.Getorcamento,
+                                                                   '',
+                                                                   dtmorcamentos.qryOrcamentosdescricaosituacao.asString,
+                                                                   dtmorcamentos.qryOrcamentosvalidade.asString
+                                                                   ],
+                                                                   'TfrmCadastroAtendimento', True);
+  vReabirAtendimentosPendente := true;
+
+end;
+
+procedure TfrmOrcamentos.FormActivate(Sender: TObject);
+begin
+  inherited;
+  if vReabirAtendimentosPendente then
+    fraAtendimentosDocumentos1.AbrirTabelaAtendimentosDocumentos(true);
+    
+end;
+
+procedure TfrmOrcamentos.sbnVisualizarFotoClick(Sender: TObject);
+begin
+  inherited;
+  AcionarTelaVisualizarImageURL(self, dtmOrcamentos.GetProduto);
+end;
+
+procedure TfrmOrcamentos.flkClienteEnter(Sender: TObject);
+begin
+  inherited;
+  CodClienteAnt := dtmOrcamentos.CodigoCliente;
+  TipoClienteAnt := dtmOrcamentos.TipoCliente;
+  dtmOrcamentos.InputFormCustomer := Codigo;
+end;
+
+procedure TfrmOrcamentos.AfterScrollLinhaColunaGrade(Sender: TObject);
+begin
+  if dbgProdutos.canfocus then
+  begin
+    dbgProdutos.ColumnByName('valorgrade1').Title.Caption := dtmOrcamentos.LinhadaGrade;
+    dbgProdutos.ColumnByName('valorgrade2').Title.Caption := dtmOrcamentos.colunadaGrade;
+  end;
+
+end;
+
+procedure TfrmOrcamentos.edfNumeroOrcamentoKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = vk_return then
+    if edtValidade.canfocus then
+      edtValidade.setfocus;
+end;
+
+procedure TfrmOrcamentos.dbgProdutosDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if datacol = 1 then
+  begin
+    if dbgProdutos.DataSource.DataSet.FieldByName('situacao_produto').AsString = 'A' then
+      TDBGrid(Sender).Canvas.Font.Color := clGreen
+    else
+    if dbgProdutos.DataSource.DataSet.FieldByName('situacao_produto').AsString = 'P' then
+      TDBGrid(Sender).Canvas.Font.Color := $000080FF
+    else
+    if dbgProdutos.DataSource.DataSet.FieldByName('situacao_produto').AsString = 'N' then
+      TDBGrid(Sender).Canvas.Font.Color := clRed;
+
+    TDBGrid(Sender).Canvas.Font.Style := [fsBold];
+   TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end
+  else
+  if datacol = 2 then
+  begin
+    if dtmOrcamentos.qryProdutosOrcamentoscorqualidade_venda.asstring <> '' then
+    begin
+      TDBGrid(Sender).Canvas.Font.Color := StringtoColor(dtmOrcamentos.qryProdutosOrcamentoscorqualidade_venda.asstring);
+      TDBGrid(Sender).Canvas.Brush.Color := StringtoColor(dtmOrcamentos.qryProdutosOrcamentoscorqualidade_venda.asstring);
+      TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+    end;
+  end;
+end;
+
+procedure TfrmOrcamentos.sbnParcelasClick(Sender: TObject);
+begin
+  inherited;
+  sbnIncluirPlanoClick(nil);
+end;
+
+procedure TfrmOrcamentos.sbnConsultaOrcamentos_Click(Sender: TObject);
+begin
+  inherited;
+
+  if (modalresult = mrok) then
+    sbnIncluirProdutoClick(nil);
+
+  modalresult := mrnone;
+
+end;
+
+procedure TfrmOrcamentos.flkClienteKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+  inherited;
+  if key <> #13 then
+    dtmOrcamentos.EditarOrcamentos;
+end;
+
+procedure TfrmOrcamentos.sbnAcionarTelaFormacaoPrecoVenda2Click(
+  Sender: TObject);
+begin
+  inherited;
+  AcionarTelaVisualizarCustoVenda(self, dtmOrcamentos.GetOrcamento, dtmOrcamentos.GetTipoOrcamento, dtmOrcamentos.qryPlanosOrcamentos);
+end;
+
+procedure TfrmOrcamentos.Timer1Timer(Sender: TObject);
+begin
+  inherited;
+  sbnExcluir.Enabled     := (dtmOrcamentos.Situacao = 'A');
+  sbnIncluirPlano.Enabled:= dtmOrcamentos.HabilitarPlanos;
+  sbnExcluirPlano.Enabled:= dtmOrcamentos.HabilitarPlanos;
+  sbnCopia.Enabled       := not sbnSalvar.Enabled and dtmOrcamentos.HabilitarPlanos;
+  sbnImprimir.Enabled    := not sbnSalvar.Enabled;
+  sbnContrato.Enabled    := not sbnSalvar.Enabled and (dtmOrcamentos.Situacao = 'A');
+  sbnEnviarOrcamento.Enabled  := (dtmOrcamentos.Situacao='A') and not sbnSalvar.Enabled;
+
+  dtxCancelamento.Visible:= dtmOrcamentos.OrcamentoCancelado;
+  dtxContrato.Visible    := not dtmOrcamentos.qryorcamentoscontrato.isnull;
+  lblContrato.Visible    := dtxContrato.Visible;
+  dtxMotivo.Visible      := dtmOrcamentos.OrcamentoCancelado;
+  lblMotivo.Visible      := dtmOrcamentos.OrcamentoCancelado;
+  sbnTextoMotivoCancelamento.Visible      := dtmOrcamentos.OrcamentoCancelado;
+  mmoTextoMotivoCancelamento.Visible      := dtmOrcamentos.OrcamentoCancelado;
+
+  sbnAtendimento.Enabled :=    (dtmOrcamentos.qryOrcamentoscodigo.asinteger <> 0) and
+                               (dtmOrcamentos.qryorcamentossituacao.asString ='A') and
+                               ((dtmOrcamentos.qryorcamentoscliente.asinteger <> 0) or
+                                (trim(dtmOrcamentos.qryOrcamentosnome.asString) <> ''));
+
+  flkVendedor.readonly :=
+   not dtmOrcamentos.qryProcuraClientevendedor.isnull and
+   not parsistema.PermitirAlterarVendedordoCliente;
+
+  if flkVendedor.readonly then
+    sbnVendedor.enabled := false;
+
+  if dtmOrcamentos.qryQualidade_Vendacor.asstring<>'' then
+  begin
+    dtxCorQualificacaoVenda.color := StringtoColor(dtmOrcamentos.qryQualidade_Vendacor.asstring);
+    dtxCorQualificacaoVenda.font.color := StringtoColor(dtmOrcamentos.qryQualidade_Vendacor.asstring);
+  end
+  else
+  begin
+    dtxCorQualificacaoVenda.color := clBtnFace;
+    dtxCorQualificacaoVenda.font.color := clBtnFace;
+  end;
+
+
+  if dtmOrcamentos.qryOrcamentossituacao.asString = 'A' then
+    dtxSituacao.Font.Color := clGreen
+  else
+    dtxSituacao.Font.Color := clBlack;
+
+  sbnAcionarTelaFormacaoPrecoVenda2.enabled := not sbnsalvar.enabled;
+
+  sbnImportarExcel.enabled := ((dtmOrcamentos.qryorcamentoscliente.asinteger <> 0) or
+                                (trim(dtmOrcamentos.qryOrcamentosnome.asString) <> ''));
+
+end;
+
+procedure TfrmOrcamentos.sbnTextoMotivoCancelamentoClick(Sender: TObject);
+begin
+  inherited;
+  if (sbnTextoMotivoCancelamento.caption = '+') then
+  begin
+    sbnTextoMotivoCancelamento.caption := '-';
+    mmoTextoMotivoCancelamento.bringtofront;
+  end
+  else
+  begin
+    sbnTextoMotivoCancelamento.caption := '+';
+    mmoTextoMotivoCancelamento.sendtoback;
+  end;
+
+end;
+
+function TfrmOrcamentos.PodeIncluirProduto: boolean;
+begin
+  with dtmOrcamentos do
+  begin
+    if PodeAlterarCampos then
+    begin
+      result := true;
+      if qryorcamentosvendedor.isnull then
+      begin
+        MensagemAviso('O vendedor não foi informado.');
+        flkvendedor.setfocus;
+        result:=false;
+      end
+      else
+      if qryorcamentosnome.isnull and
+         qryorcamentoscliente.isnull then
+      begin
+        MensagemAviso('O cliente não foi informado.');
+        flkCliente.setfocus;
+        result:=false;
+      end;
+    end;
+   end;
+end;
+
+procedure TfrmOrcamentos.sbnImportarExcelClick(Sender: TObject);
+begin
+  inherited;
+
+  try
+    dtmOrcamentos.OnScrollLinhaColunaGrade := nil;
+
+    if PodeIncluirProduto then
+    begin
+//      dtmOrcamentos.IncluindoouEditandoProduto := true;
+
+      dtmorcamentos.AdiconarProdutosdaLista(AcionarTelaLerArquivo(self,
+                                                                  dtmOrcamentos.qryorcamentosvendedor.asinteger,
+                                                                  dtmOrcamentos.qryorcamentoscliente.asinteger,
+                                                                  dtmOrcamentos.qryOrcamentosTipoCliente.asString,
+                                                                  ProdDescQtde), ProdDescQtde);
+
+
+      if frrmLerProdutosArquivo.modalresult = mrOk then
+      begin
+//        dtmOrcamentos.IncluindoouEditandoProduto := false;
+//        dtmOrcamentos.CalcularValorTotalProdutos;
+
+//        if dtmOrcamentos.AlterarPlanos then
+//          dtmOrcamentos.ReCalcularPlanosPagamento;
+
+        flkFilialMontagem.ReadOnly := Not dtmOrcamentos.ExisteMontagem;
+
+//        if dtmOrcamentos.qryorcamentos.state in [dsedit, dsinsert] then
+//          InternoGravar;
+
+        dbgProdutos.setfocus;
+        AfterScrollLinhaColunaGrade(nil);
+
+      end;
+
+      frrmLerProdutosArquivo.Free;
+
+    end;
+
+  finally
+    dtmOrcamentos.OnScrollLinhaColunaGrade := AfterScrollLinhaColunaGrade;
+  end;
+end;
+
+procedure TfrmOrcamentos.sbnImportarArquivoClick(Sender: TObject);
+begin
+  inherited;
+
+  try
+    dtmOrcamentos.OnScrollLinhaColunaGrade := nil;
+
+//    if not (dtmOrcamentos.qryorcamentos.state in [dsedit, dsinsert]) then
+    begin
+//      dtmOrcamentos.IncluindoouEditandoProduto := true;
+
+      dtmorcamentos.AdiconarProdutosdaLista(AcionarTelaLerArquivo(self,
+                                                                  0,
+                                                                  {dtmOrcamentos.qryorcamentosvendedor.asinteger,}
+                                                                  dtmOrcamentos.qryorcamentoscliente.asinteger,
+                                                                  dtmOrcamentos.qryOrcamentosTipoCliente.asString,
+                                                                  OrcamentosProdDescQtde), OrcamentosProdDescQtde);
+
+//      dtmOrcamentos.IncluindoouEditandoProduto := false;
+      if frrmLerProdutosArquivo.modalresult = mrOk then
+      begin
+//        dtmOrcamentos.CalcularValorTotalProdutos;
+
+//        if dtmOrcamentos.AlterarPlanos then
+//          dtmOrcamentos.ReCalcularPlanosPagamento;
+
+//        flkFilialMontagem.ReadOnly := Not dtmOrcamentos.ExisteMontagem;
+
+//        if dtmOrcamentos.qryorcamentos.state in [dsedit, dsinsert] then
+//          InternoGravar;
+
+//        dbgProdutos.setfocus;
+//        AfterScrollLinhaColunaGrade(nil);
+
+      end;
+      frrmLerProdutosArquivo.Free;
+    end;
+
+  finally
+    dtmOrcamentos.OnScrollLinhaColunaGrade := AfterScrollLinhaColunaGrade;
+  end;
+
+end;
+
+procedure TfrmOrcamentos.fracgcoucpf1edtCPFCNPJEnter(Sender: TObject);
+begin
+  inherited;
+  dtmOrcamentos.InputFormCustomer := cpfcnpj;
+end;
+
+procedure TfrmOrcamentos.flkClienteKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if (Key = VK_F3) and (Shift = [ssCtrl]) then
+    IncluirCliente;
+end;
+
+procedure TfrmOrcamentos.edtNomeClienteKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (Key = VK_F3) and (Shift = [ssCtrl]) then
+    IncluirCliente;
+
+end;
+
+procedure TfrmOrcamentos.fracgcoucpf1edtCPFCNPJKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (Key = VK_F3) and (Shift = [ssCtrl]) then
+    IncluirCliente;
+end;
+
+procedure TfrmOrcamentos.IncluirCliente;
+begin
+  dtmOrcamentos.IncluirCliente;
+  flkCliente.SetFocus;
+end;
+
+procedure TfrmOrcamentos.fracgcoucpf1edtCPFCNPJExit(Sender: TObject);
+begin
+  inherited;
+  dtmOrcamentos.InputFormCustomer := Nenhum;
+  flkClienteExit(nil);
+end;
+
+procedure TfrmOrcamentos.sbnConsultaOrcamentos_Enter(Sender: TObject);
+begin
+  inherited;
+  modalresult := mrnone;
+end;
+
+procedure TfrmOrcamentos.sbnConsultaOrcamentos_MouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  inherited;
+  AcionarTelaConsultaOrcamento(dtmOrcamentos.qryProcuraClientecodigo.asinteger,
+                                 dtmOrcamentos.qryProcuraClienteTipoOrig.asString,'01/01/2001')
+
+end;
+
+end.
+

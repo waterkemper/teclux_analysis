@@ -1,0 +1,158 @@
+unit dmNCM;
+
+interface
+
+uses
+  SysUtils, Classes, Forms, dmbasico, DB, ZQuery, ZPgSqlQuery, Math, cpquery,
+  dmtecsoft, cpdatasource, ctconstantes, biblio, ZTransact;
+
+type
+  TdtmNCM = class(Tdtmbasico)
+    qryConsultaTipoPagamento: TtecQuery;
+    qryConsultaTipoPagamentodescricao: TStringField;
+    qryConsultaTipoPagamentocodigo: TIntegerField;
+    spcTiposPagamentosProximoCodigo: TtecQuery;
+    spcTiposPagamentosProximoCodigocodigo: TIntegerField;
+
+    qrySecoes: TtecQuery;
+    dsrSecoes: TtecDataSource;
+    qrySecoesNumero: TMemoField;
+    qrySecoesDescricao: TStringField;
+
+    qrySecoesNotas: TtecQuery;
+    dsrSecoesNotas: TtecDataSource;
+    qrySecoesNotasNotas: TStringField;
+
+    qrySecoesCapitulos: TtecQuery;
+    dsrSecoesCapitulos: TtecDataSource;
+    qrySecoesCapitulosNumero: TStringField;
+    qrySecoesCapitulosDescricao: TStringField;
+
+    qryCapitulos: TtecQuery;
+    dsrCapitulos: TtecDataSource;
+    qryCapitulosSecao: TMemoField;
+    qryCapitulosDescricaoSecao: TStringField;
+    qryCapitulosCapitulo: TStringField;
+    qryCapitulosDescricaoCapitulo: TStringField;
+
+    qryCapitulosNotas: TtecQuery;
+    dsrCapitulosNotas: TtecDataSource;
+    qryCapitulosNotasNotas: TStringField;
+
+    qryCapitulosNCM: TtecQuery;
+    dsrCapitulosNCM: TtecDataSource;
+    qryCapitulosNCMCodigoTIPI: TStringField;
+    qryCapitulosNCMexTIPI: TStringField;
+    qryCapitulosNCMDescricao: TStringField;
+    qryCapitulosNCMAliquota: TStringField;
+    qryCapitulosNCMAliquotaNacional: TFloatField;
+    qryCapitulosNCMaliquotaimportado: TFloatField;
+
+    procedure qrySecoesNewRecord(DataSet: TDataSet);
+  private
+    { Private declarations }
+  protected
+    function GetTabelaTiposPagamentos: TtecQuery;
+    function GetConsultaTabelaTiposPagamentos: TtecQuery;
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    property TabelaTiposPagamentos: TtecQuery read GetTabelaTiposPagamentos;
+    property ConsultaTabelaTiposPagamentos: TtecQuery read GetConsultaTabelaTiposPagamentos;
+    function IncluirTiposPagamentos: Boolean;
+    function GravarTiposPagamentos: Boolean;
+    function ExcluirTiposPagamentos: Boolean;
+    procedure PosicionarTabelaTiposPagamentos;
+    function ExisteTabelaTipoPagamento(NomeCampo: String; Value: Variant): boolean;
+  end;
+
+var
+  dtmNCM: TdtmNCM;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmNCM }
+
+constructor TdtmNCM.Create(AOwner: TComponent);
+begin
+  inherited;
+{
+  qryTiposPagamentos.Tag       := ctTabelas;
+  qryConsultaTipoPagamento.Tag := ctConsultaTipoPagamento;
+}
+end;
+
+function TdtmNCM.GetTabelaTiposPagamentos: TtecQuery;
+begin
+   result:= qrySecoes;
+//   result := qryTiposPagamentos;
+end;
+
+function TdtmNCM.IncluirTiposPagamentos: Boolean;
+begin
+//  qryTiposPagamentos.append;
+  result := true;
+end;
+
+function TdtmNCM.GravarTiposPagamentos: Boolean;
+begin
+  result := false;
+{
+  if qryTiposPagamentos.CheckRequiredFields then
+  begin
+   if qryTiposPagamentos.State = dsinsert then
+   begin
+    RefazConsulta(spcTiposPagamentosProximoCodigo,[],[]);
+    qryTiposPagamentoscodigo.Value:=spcTiposPagamentosProximoCodigocodigo.Value;
+   end;
+   qryTiposPagamentos.Post;
+   Perpetrar([qryTiposPagamentos])
+  end;
+}
+end;
+
+function TdtmNCM.ExcluirTiposPagamentos: Boolean;
+begin
+  result := false;
+{
+  if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o registro da TABELA DE TIPOS DE PAGAMENTOS'])) = smbOk then
+  begin
+    if not qryTiposPagamentos.IsEmpty then
+      qryTiposPagamentos.delete
+    else
+      qryTiposPagamentos.Cancel;
+    Perpetrar([qryTiposPagamentos]);
+    Result:= True;
+  end;
+}
+end;
+
+procedure TdtmNCM.PosicionarTabelaTiposPagamentos;
+begin
+//  ReFazConsulta(qryTiposPagamentos, [0], [qryConsultaTipoPagamentocodigo.AsVariant]);
+end;
+
+function TdtmNCM.GetConsultaTabelaTiposPagamentos: TtecQuery;
+begin
+  result := qryConsultaTipoPagamento;
+end;
+
+function TdtmNCM.ExisteTabelaTipoPagamento(
+  NomeCampo: String; Value: Variant): boolean;
+begin
+  result:=ExisteCodigo(qryConsultaTipoPagamento, NomeCampo, Value);
+end;
+
+procedure TdtmNCM.qrySecoesNewRecord(
+  DataSet: TDataSet);
+begin
+  inherited;
+//  qryTiposPagamentossaidadocaixa.Value:=false;
+end;
+
+
+
+end.
+

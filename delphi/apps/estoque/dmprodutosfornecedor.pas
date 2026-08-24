@@ -14,7 +14,7 @@ uses
   cpquery, cpdatasource,
   //Repositorio
   fmpreviewpadrao, dmtecsoft, dmbasico, cptable, FR_DSet, FR_DBSet, FR_Class,
-  ZTransact;
+  ZTransact, frx2xto30, frxClass;
 
 type
   TdtmProdutosFornecedor = class(TdtmBasico)
@@ -74,6 +74,7 @@ type
     frpProdutos_Fornecedor: TfrReport;
     fdsProdutos_Fornecedor: TfrDBDataSet;
     qryProdutos_Fornecedorcodigovisual: TStringField;
+    frxReport1: TfrxReport;
     procedure frpProdutos_FornecedorBeforePrint(Memo: TStringList;
       View: TfrView);
   private
@@ -474,6 +475,8 @@ begin
   frVariables['Cidade']:= CidadeFilialBase + ' - ' + EstadoFilialBase;
   frVariables['Fone']  := FoneFilialBase;
 //  frpProdutos_Fornecedor.DesignReport;
+//  frxReport1.DesignReport;
+
   frmPreview := TfrmPreviewPadrao.create(self);
   try
     Relatorio := frmPreview.frCompositeReport;

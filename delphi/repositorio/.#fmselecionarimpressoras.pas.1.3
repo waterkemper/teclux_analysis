@@ -1,0 +1,95 @@
+unit fmselecionarimpressoras;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  fmajudabt, ComCtrls, Buttons, ExtCtrls, fmnavcontroles, StdCtrls,
+  cltextprinter, ctconstantes;
+
+type
+  TfrmSelecionarImpressoras = class(TfrmNavControles)
+    pnlFundoJanela: TPanel;
+    gbxImpressoras: TGroupBox;
+    lblSelecionar: TLabel;
+    cmbImpressoras: TComboBox;
+    bbnOK: TBitBtn;
+    Image1: TImage;
+    procedure bbnOKClick(Sender: TObject);
+  private
+    FNomeImpressora: String;
+    procedure SetNomeImpressora(const Value: String);
+    { Private declarations }
+  public
+    constructor Create(AOwner: TComponent; TipoImpressao: Char); reintroduce;
+    destructor Destroy; override;
+    property NomeImpressora: String read FNomeImpressora write SetNomeImpressora;
+  end;
+
+var
+  frmSelecionarImpressoras: TfrmSelecionarImpressoras;
+
+implementation
+
+uses
+  Printers, clparametrossistema;
+
+{$R *.dfm}
+
+{ TfrmselecionarImpressoras }
+
+constructor TfrmSelecionarImpressoras.Create(AOwner: TComponent; TipoImpressao: Char);
+var
+  a: Integer;
+ {$IFNDEF LINUX}
+  Str: String;
+ {$ENDIF}
+begin
+  inherited Create(AOwner);
+  cmbImpressoras.Items.Clear;
+  cmbImpressoras.Items.Add(ctImpDefault);
+  for a := 0 to Printer.Printers.Count - 1 do begin
+  {$IFDEF LINUX}
+    cmbImpressoras.Items.Add(Printer.Printers[a]);
+  {$ELSE}
+    Str := Copy(Printer.Printers[a], 1, Pos(' on', Printer.Printers[a])-1);
+    if Str = '' then
+      Str := Printer.Printers[a];
+    cmbImpressoras.Items.Add(Str);
+  {$ENDIF}
+  end;
+  cmbImpressoras.ItemIndex := cmbImpressoras.Items.IndexOf(ctImpDefault);
+  if (TipoImpressao = 'N') then begin
+    if parsistema.NomeImpressoraNotaMercadorias <> '' then
+      cmbImpressoras.ItemIndex := cmbImpressoras.Items.IndexOf(parsistema.NomeImpressoraNotaMercadorias);
+  end
+  else   if (TipoImpressao = 'S') then begin
+    if parsistema.NomeImpressoraNotaServicos <> '' then
+      cmbImpressoras.ItemIndex := cmbImpressoras.Items.IndexOf(parsistema.NomeImpressoraNotaServicos);
+  end
+  else if (TipoImpressao = 'C') then begin
+    if parsistema.NomeImpressoraCarne <> '' then
+      cmbImpressoras.ItemIndex := cmbImpressoras.Items.IndexOf(parsistema.NomeImpressoraCarne);
+  end
+end;
+
+destructor TfrmSelecionarImpressoras.Destroy;
+begin
+  inherited;
+  frmSelecionarImpressoras:= Nil;
+end;
+
+procedure TfrmSelecionarImpressoras.bbnOKClick(Sender: TObject);
+begin
+  inherited;
+  NomeImpressora:= cmbImpressoras.Items[cmbImpressoras.ItemIndex];
+  ModalResult := mrOk;
+end;
+
+procedure TfrmSelecionarImpressoras.SetNomeImpressora(const Value: String);
+begin
+  if FNomeImpressora <> Value then
+    FNomeImpressora:= Value;
+end;
+
+end.

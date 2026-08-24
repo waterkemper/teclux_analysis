@@ -1,0 +1,1264 @@
+unit fmimpressaoautenticacao;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  ExtCtrls, Buttons, StdCtrls, Windows, ComCtrls,
+  //Biblio
+  ctconstantes, biblio, cltextprinter,
+  //Projeto
+  dmautenticacoes, fmparcelasrecebimentos,
+  //Repositorio
+  fmajudabt,
+  //Componentes
+  cpnumero, cptexto, ToolWin, cpmemo, dmtecsoft;
+
+type
+  Tfrmimpressaoautenticacao = class(TfrmAjudaBt)
+    sbnAutenticar: TSpeedButton;
+    sbnRecibo: TSpeedButton;
+    lblValorAutenticacao: TLabel;
+    dtxValorAutenticacao: TLabel;
+    pnlFundoJanela: TPanel;
+    gbxFundoJanela: TGroupBox;
+    gbxObservacaoRecibo: TGroupBox;
+    mmoObservacaoRecibo: TtecMemo;
+    gbxAssinatura: TGroupBox;
+    edtAssinatura: TEditTexto;
+    gbxRecebidode: TGroupBox;
+    edtRecebidode: TEditTexto;
+    gbxValores: TGroupBox;
+    lblPagamentoDinheiro: TLabel;
+    lblRecebido: TLabel;
+    lblTroco: TLabel;
+    lblValorTroco: TLabel;
+    edtValorRecebido: TEditNumero;
+    lblValorTotalEmDinheiro: TLabel;
+    sbnAutenticarCheque: TSpeedButton;
+    gbxObservacaoReciboDigitada: TGroupBox;
+    mmoObservacaoReciboDigitada: TtecMemo;
+    sbnGravarAutenticacao: TSpeedButton;
+    procedure edtValorRecebidoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure sbnAutenticarClick(Sender: TObject);
+    procedure sbnReciboClick(Sender: TObject);
+    procedure sbnGravarAutenticacaoClick(Sender: TObject);
+    procedure sbnTEFClick(Sender: TObject);
+    procedure sbnAutenticarChequeClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+  protected
+    dtmautenticacoes: Tdtmautenticacoes;
+    FAutenticado     : boolean;
+    FRetorno         : integer;
+    FTipoAutenticacao: integer;
+    FtipoES          : Boolean;
+    FContrato        : string;
+    FMotivo          : integer;
+    FValor           : real;
+    FCheque          : string;
+    FParcelaCheque   : string;
+    FTitular         : string;
+    FObs             : String;
+    FCliente         : string;
+    FTipoCliente     : String;
+    FDataVencto      : string;
+    FData            : string;
+    FBanco           : integer;
+    FAutenticacao    : integer;
+    FParametros      : string;
+    FEvento          : integer;
+    FHistorico       : integer;
+    FCaixa           : integer;
+    FTransferenciaPendente: integer;
+    procedure AutenticarClienteCheque;
+    procedure CalcularTroco;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure MostrarMensagemErro(constanteErro: integer);
+    function PagamentoComTEF: Boolean;
+    procedure BloquearBotoes(bloquear: boolean);
+
+  public
+    sbnTEFEnabled : Boolean;
+    sbnAutenticarChequeEnabled : Boolean;
+    sbnGravarAutenticacaoEnabled : Boolean;
+    sbnReciboEnabled : Boolean;
+    sbnAutenticarEnabled : Boolean;
+    sbnBloqueados : Boolean;
+
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+
+    procedure parametrosParcela(Contrato: String; Cartao: Boolean; tipoAutenticacao: integer; valor: real; ComCartao: Boolean);
+    procedure parametrosDevolucao(tipoAutenticacao: integer; contrato: string; motivo: integer; valor: real);
+    procedure parametrosDocumento(tipoAutenticacao, evento, historico: integer; tipoES: boolean; parametros, data: string; valor: real);
+    procedure parametrosCheque(TipoAutenticacao: Integer; Cheque, Titular, Cliente,
+                               TipoCliente, Vencto: string; valor: real; Obs: String);
+    procedure parametrosCancelamento(tipoAutenticacao: integer; autenticacao, motivo: integer; valor: real);
+    procedure ParametrosResgateCheque(TipoAutenticacao: Integer; Cheque, ParcelaCheque: String; Valor: Real);
+    procedure parametrosTransferencia(tipoAutenticacao: integer; caixa: integer; valor: real);
+    procedure parametrosConfirmacaoTransferencia(tipoAutenticacao: integer; transferenciaPendente: integer; valor: real);
+    procedure parametrosPerda(tipoAutenticacao: integer; contrato: string; motivo: integer; valor: real);
+    procedure parametrosDuplicata(tipoAutenticacao: integer; valor: real);
+    procedure parametrosDeposito(tipoAutenticacao: integer; banco: integer; valor: real);
+    procedure parametrosDevolucaoSaldo(tipoAutenticacao: integer; valor:real);
+    procedure parametrosParcelasAberto(TipoAutenticacao: Integer; Valor: Real;ComCartao:Boolean);
+    procedure parametrosCancelamentoTransacao(TipoAutenticacao, Motivo: Integer);
+
+    procedure parametrosEntradaVista(tipoAutenticacao: integer; valor: real);
+
+    function autenticacaoParcela(ImprimirAutenticacao, Cartao: Boolean; FormaPagamento: Integer; ValorPagoDinheiro: Currency): Boolean;
+    function autenticacaoDevolucao(ImprimirAutenticacao: Boolean): Boolean;
+    function autenticacaoDocumento(ImprimirAutenticacao: Boolean): Boolean;
+    function autenticacaoCheque(ImprimirAutenticacao: Boolean): Boolean;
+    function autenticacaoCancelamento(ImprimirAutenticacao: Boolean): Boolean;
+    function autenticacaoResgateCheque(ImprimirAutenticacao: Boolean): Boolean;
+    function autenticacaoTransferencia(ImprimirAutenticacao: Boolean): Boolean;
+    function autenticacaoConfirmacaoTransferencia(ImprimirAutenticacao: Boolean): Boolean;
+    function autenticacaoPerda(ImprimirAutenticacao: Boolean): Boolean;
+    function autenticacaoDuplicata(ImprimirAutenticacao: Boolean): Boolean;
+    function autenticacaoDeposito(ImprimirAutenticacao: Boolean): Boolean;
+    function autenticacaoDevolucaoSaldo(ImprimirAutenticacao: Boolean): Boolean;
+    function autenticacaoParcelasAberto(ImprimirAutenticacao,ComCartao: Boolean; FormaPagamento: Integer; ValorPagoDinheiro: Currency): Boolean;
+    function autenticacaoCancelamentoTransacao(ImprimirAutenticacao: Boolean): Boolean;
+
+    procedure reciboParcela;
+    procedure reciboDevolucao;
+    procedure reciboDocumento;
+    procedure reciboCheque;
+    procedure reciboCancelamento;
+    procedure reciboResgateCheque;
+    procedure reciboTransferencia;
+    procedure reciboConfirmacaoTransferencia;
+    procedure reciboPerda;
+    procedure reciboDuplicata;
+    procedure reciboDeposito;
+    procedure reciboDevolucaoSaldo;
+    procedure reciboParcelasAberto;
+
+    procedure setDataModulo(dataModulo: Tdtmautenticacoes);
+    property Retorno : integer read FRetorno;
+  end;
+
+var
+  frmimpressaoautenticacao: Tfrmimpressaoautenticacao;
+
+implementation
+
+Uses
+  //CLX
+  Printers,
+  //biblio
+  clparametrossistema, clecf, fmnavcontroles;
+
+{$R *.dfm}
+
+{ Tfrmimpressaoautenticacao }
+
+
+function Tfrmimpressaoautenticacao.autenticacaoParcela(ImprimirAutenticacao, Cartao: Boolean; FormaPagamento: Integer; ValorPagoDinheiro: Currency): Boolean;
+ { procedure AbrirGaveta;
+  var
+    Arq: TextFile;
+  begin
+    AssignFile(Arq, 'Lpt1');
+    Rewrite(Arq);
+    Writeln(Arq, #$1B+#$76+#$40);
+    CloseFile(Arq);
+  end;
+}
+var
+  i :integer;
+begin
+  result := False;
+  if not FAutenticado  then
+  begin
+    FRetorno := dtmautenticacoes.autenticarPrestacao(Cartao, FormaPagamento, ValorPagoDinheiro);
+    if FRetorno = mrOK then
+    begin
+      FAutenticado := true;
+      lblValorTotalEmDinheiro.Caption := FormatFloat('#0,' + ThousandSeparator + '00', dtmautenticacoes.PagamentoEmDinheiro);
+      sbnGravarAutenticacao.Enabled := False;
+      if ParSistema.ImprimirReciboAcumulado then
+        dtmautenticacoes.acumularPrestacao(mmoObservacaoRecibo.Text+' '+mmoObservacaoReciboDigitada.Text);
+
+      if Assigned(ECFPadrao) then
+      begin
+        for i:= 1 to parsistema.NumeroCopiasdoRecibo do
+          dtmautenticacoes.ImprimirCNF('Suprimento', IfThen(Cartao, 'Cartao', 'Dinheiro'), mmoObservacaoRecibo.Text+' '+mmoObservacaoReciboDigitada.Text, FValor);
+      end
+    end else
+      FAutenticado := False;
+  end;
+
+  if FRetorno <> mrOK then
+    MensagemErro(format(ctERRORPROCEDIMENTOAUTENTICACAO, [FRetorno]))
+  else begin
+    if ImprimirAutenticacao then begin
+      dtmautenticacoes.ImprimirAutenticacao('P', FValor);
+      if Assigned(ActiveControl) and ActiveControl.CanFocus then
+        ActiveControl.SetFocus;
+    end;
+    result := True;
+  end;
+end;
+
+function Tfrmimpressaoautenticacao.autenticacaoDevolucao(ImprimirAutenticacao: Boolean): Boolean;
+begin
+  result := False;
+  if not FAutenticado then begin
+    FRetorno := dtmautenticacoes.autenticarDevolucao(FContrato, FMotivo, FValor);
+    if FRetorno = mrOK then
+    begin
+      sbnGravarAutenticacao.Enabled := False;
+      FAutenticado := true;
+
+      dtmautenticacoes.ImprimirCNF('Sangria','Dinheiro', mmoObservacaoRecibo.Text+' '+mmoObservacaoReciboDigitada.Text, FValor);
+    end;
+  end;
+  if FRetorno <> mrOK then
+    MensagemErro(format(ctERRORPROCEDIMENTOAUTENTICACAO, [FRetorno]))
+  else begin
+    if ImprimirAutenticacao then
+      dtmautenticacoes.ImprimirAutenticacao('N', FValor);
+    result := True;
+  end;
+end;
+
+ function Tfrmimpressaoautenticacao.autenticacaoDocumento(ImprimirAutenticacao: Boolean): Boolean;
+begin
+  result := False;
+  if not FAutenticado then begin
+    FRetorno := dtmautenticacoes.autenticarDocumento(FEvento, FHistorico, FParametros, FData, FValor);
+    if FRetorno = mrOK then begin
+      sbnGravarAutenticacao.Enabled := False;
+      FAutenticado := true;
+
+      dtmautenticacoes.ImprimirCNF(IfThen(((dtmautenticacoes.qryEventosTipoMovimentacao.AsString = 'S') or
+                                           (dtmautenticacoes.qryEventosTipoMovimentacao.AsString = 'T')) ,
+                                            'Sangria',
+                                            'Suprimento'),
+                                            'Dinheiro', mmoObservacaoRecibo.Text+' '+mmoObservacaoReciboDigitada.Text, FValor);
+    end;
+  end;
+  if FRetorno <> mrOK then
+    MensagemErro(format(ctERRORPROCEDIMENTOAUTENTICACAO, [FRetorno]))
+  else begin
+    if ImprimirAutenticacao then
+      dtmautenticacoes.ImprimirAutenticacao('D', FValor);
+    result := True;
+  end;
+end;
+
+function Tfrmimpressaoautenticacao.autenticacaoCheque(ImprimirAutenticacao: Boolean): Boolean;
+begin
+  Result := False;
+  if not FAutenticado then begin
+    if dtmautenticacoes.ChequeAutenticado then
+      MensagemAviso(ctCHEQUEAUTENTICADO)
+    else begin
+      FRetorno := dtmautenticacoes.autenticarCheque(FCheque, FTitular, FCliente, FTipoCliente,FDataVencto, FValor, FObs);
+      if FRetorno = mrOK then begin
+        sbnGravarAutenticacao.Enabled := False;
+        FAutenticado := true;
+      end;
+    end;
+  end;
+  if FRetorno <> mrOK then
+    MensagemErro(format(ctERRORPROCEDIMENTOAUTENTICACAO, [FRetorno]))
+  else begin
+    if ImprimirAutenticacao then
+      dtmautenticacoes.ImprimirAutenticacao('H', FValor);
+    result := True;
+  end;
+end;
+
+function Tfrmimpressaoautenticacao.autenticacaoCancelamento(ImprimirAutenticacao: Boolean): Boolean;
+begin
+  result := False;
+  if not FAutenticado then begin
+    FRetorno := dtmautenticacoes.autenticarCancelamento(FAutenticacao, FMotivo, FValor);
+    if FRetorno = mrOK then begin
+      sbnGravarAutenticacao.Enabled := False;
+      FAutenticado := true;
+      if FTipoAutenticacao = ctCaixaCancelamento then begin
+        dtmautenticacoes.PagamentoEmDinheiro := dtmautenticacoes.PagamentoEmDinheiro - FValor;
+        if ParSistema.ImprimirReciboAcumulado then
+          dtmautenticacoes.RemoveAutenticacaoTabelaTemporaria(FAutenticacao);
+      end;
+    end;
+  end;
+
+  if FRetorno <> mrOK then
+    MensagemErro(format(ctERRORPROCEDIMENTOAUTENTICACAO, [FRetorno]))
+  else begin
+    if ImprimirAutenticacao then
+      dtmautenticacoes.ImprimirAutenticacao('C', FValor);
+    result := True;
+  end;
+  BringToFront;
+  SetFocus;
+end;
+
+procedure Tfrmimpressaoautenticacao.AutenticarClienteCheque;
+begin
+  dtmautenticacoes.ImprimirCodigoClienteCheque
+end;
+
+function Tfrmimpressaoautenticacao.autenticacaoResgateCheque(ImprimirAutenticacao: Boolean): Boolean;
+begin
+  result := False;
+  if not FAutenticado then begin
+    FRetorno := dtmautenticacoes.autenticarResgate;
+    if FRetorno = mrOK then
+    begin
+      sbnGravarAutenticacao.Enabled := False;
+      FAutenticado := true;
+    end;
+  end;
+
+  if FRetorno <> mrOK then
+    MensagemErro(format(ctERRORPROCEDIMENTOAUTENTICACAO, [FRetorno]))
+  else begin
+    if ImprimirAutenticacao then
+      dtmautenticacoes.ImprimirAutenticacao('R', FValor);
+    result := True;
+  end;
+end;
+
+function Tfrmimpressaoautenticacao.autenticacaoTransferencia(ImprimirAutenticacao: Boolean): Boolean;
+begin
+  result := False;
+  if not FAutenticado then begin
+    FRetorno := dtmautenticacoes.autenticarTransferencia(FCaixa, FValor);
+    if FRetorno = mrOK then
+    begin
+      sbnGravarAutenticacao.Enabled := False;
+      FAutenticado := true;
+
+      dtmautenticacoes.ImprimirCNF('Sangria', 'Dinheiro', mmoObservacaoRecibo.Text+' '+mmoObservacaoReciboDigitada.Text, FValor);
+    end;
+  end;
+
+  if FRetorno <> mrOK then
+    MensagemErro(format(ctERRORPROCEDIMENTOAUTENTICACAO, [FRetorno]))
+  else begin
+    if ImprimirAutenticacao then
+      dtmautenticacoes.ImprimirAutenticacao('S', FValor);
+    result := True;
+  end;
+end;
+
+function Tfrmimpressaoautenticacao.autenticacaoConfirmacaoTransferencia(ImprimirAutenticacao: Boolean): Boolean;
+begin
+  result := False;
+  if not FAutenticado then begin
+    case FTipoAutenticacao of
+      ctCaixaConfirmacaoTransferencia   : FRetorno := dtmautenticacoes.autenticarConfirmacaoTransferencia(FTransferenciaPendente, atTransferenciaConfirmada);
+      ctCaixaConfirmRetornoTransferencia: FRetorno := dtmautenticacoes.autenticarConfirmacaoTransferencia(FTransferenciaPendente, atTransferenciaRetornada);
+    else
+      FRetorno := mrCancel;
+    end;
+
+    if (FRetorno = mrOK) and ParSistema.PermitirTransferenciaValorDiferente then
+    begin
+      if (dtmautenticacoes.ValorTransferenciaPendente > dtmautenticacoes.ValorConfirmadoTransferencia) then
+        FRetorno := dtmautenticacoes.TransferenciaAutomaticaRecebidoMenor;
+    end;
+
+
+    if FRetorno = mrOK then
+    begin
+      sbnGravarAutenticacao.Enabled := False;
+      FAutenticado := true;
+
+      dtmautenticacoes.ImprimirCNF('Suprimento', 'Dinheiro', mmoObservacaoRecibo.Text+' '+mmoObservacaoReciboDigitada.Text, FValor);
+    end;
+  end;
+
+  if FRetorno <> mrOK then
+    MensagemErro(format(ctERRORPROCEDIMENTOAUTENTICACAO, [FRetorno]))
+  else begin
+    if ImprimirAutenticacao then
+      dtmautenticacoes.ImprimirAutenticacao('E', FValor);
+    result := True;
+  end;
+end;
+
+function Tfrmimpressaoautenticacao.autenticacaoPerda(ImprimirAutenticacao: Boolean): Boolean;
+begin
+  result := False;
+  if not FAutenticado then begin
+    FRetorno := dtmautenticacoes.autenticarPerda(FContrato, FMotivo, FValor);
+    if FRetorno = mrOK then
+    begin
+      sbnGravarAutenticacao.Enabled := False;
+      FAutenticado := true;
+    end;
+  end;
+  if FRetorno <> mrOK then
+    MensagemErro(format(ctERRORPROCEDIMENTOAUTENTICACAO, [FRetorno]))
+  else begin
+    if ImprimirAutenticacao then
+      dtmautenticacoes.ImprimirAutenticacao('J', FValor);
+    result := True;
+  end;
+end;
+
+function Tfrmimpressaoautenticacao.autenticacaoDuplicata(ImprimirAutenticacao: Boolean): Boolean;
+begin
+  result := False;
+  if not FAutenticado then begin
+    FRetorno := dtmautenticacoes.autenticarDuplicata;
+    if FRetorno = mrOK then begin
+      sbnGravarAutenticacao.Enabled := False;
+      FAutenticado := true;
+
+      dtmautenticacoes.ImprimirCNF('Sangria', 'Dinheiro', mmoObservacaoRecibo.Text+' '+mmoObservacaoReciboDigitada.Text, FValor);
+    end;
+  end;
+  if FRetorno <> mrOK then
+    MensagemErro(format(ctERRORPROCEDIMENTOAUTENTICACAO, [FRetorno]))
+  else begin
+    if ImprimirAutenticacao then
+      dtmautenticacoes.ImprimirAutenticacao('G', FValor);
+    result := True;
+  end;
+end;
+
+function Tfrmimpressaoautenticacao.autenticacaoDeposito(ImprimirAutenticacao: Boolean): Boolean;
+begin
+  result := False;
+  if not FAutenticado then begin
+    FRetorno := dtmautenticacoes.autenticarDeposito(FBanco, FValor);
+    if FRetorno = mrOK then begin
+      sbnGravarAutenticacao.Enabled := False;
+      FAutenticado := true;
+
+      dtmautenticacoes.ImprimirCNF('Sangria', 'Dinheiro', mmoObservacaoRecibo.Text+' '+mmoObservacaoReciboDigitada.Text, FValor);
+    end;
+  end;
+  if FRetorno <> mrOK then
+    MensagemErro(format(ctERRORPROCEDIMENTOAUTENTICACAO, [FRetorno]))
+  else begin
+    if ImprimirAutenticacao then
+      dtmautenticacoes.ImprimirAutenticacao('B', FValor);
+    result := True;
+  end;
+end;
+
+procedure Tfrmimpressaoautenticacao.CalcularTroco;
+var
+  Valor{, TotalAutenticacao}: Currency;
+begin
+  try
+    Valor := StrToFloat(edtValorRecebido.ValorSemFormatacao);
+//    TotalAutenticacao:= StrtoFloat(dtxValorAutenticacao.Caption)
+  except
+    Valor := 0;
+  end;
+  if Valor > dtmautenticacoes.PagamentoEmDinheiro then
+    lblValorTroco.Caption := FormatFloat('#0,' + ThousandSeparator + '00', Valor  - dtmautenticacoes.PagamentoEmDinheiro)
+  else
+    lblValorTroco.Caption := FormatFloat('#0,' + ThousandSeparator + '00', 0)
+end;
+
+constructor Tfrmimpressaoautenticacao.Create(AOwner: TComponent);
+begin
+  inherited;
+  FRetorno := mrCancel;
+  FAutenticado := false;
+  sbnGravarAutenticacao.Enabled := True;
+end;
+
+destructor Tfrmimpressaoautenticacao.Destroy;
+begin
+  if Not FAutenticado then
+    dtmautenticacoes.CancelarCupom;
+  inherited;
+  frmimpressaoautenticacao := nil;
+end;
+
+procedure Tfrmimpressaoautenticacao.edtValorRecebidoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if TeclaEnterOuReturn(Key) then
+    CalcularTroco
+end;
+
+procedure Tfrmimpressaoautenticacao.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+
+  dtmautenticacoes.ObservacoesAutenticacoes := mmoObservacaoRecibo.Text+' '+mmoObservacaoReciboDigitada.Text;
+  case key of
+    VK_ESCAPE: Close;
+
+    VK_F3 : if sbnAutenticarCheque.Enabled then
+            begin
+              BloquearBotoes(true);
+              AutenticarClienteCheque;
+              BloquearBotoes(false);
+            end;
+
+    VK_F5 : if sbnGravarAutenticacao.Enabled then
+            begin
+               BloquearBotoes(true);
+               case FTipoAutenticacao of
+                 ctCaixaParcelas                : autenticacaoParcela(False, False, 0, 0);
+                 ctCaixaDevolucao               : autenticacaoDevolucao(False);
+                 ctCaixaDocumentos              : autenticacaoDocumento(False);
+                 ctCaixaCheques                 : autenticacaoCheque(False);
+                 ctCaixaCancelamento            : begin
+                                                    if dtmautenticacoes.CancelamentoTransacao then
+                                                      autenticacaoCancelamentoTransacao(False)
+                                                    else
+                                                      autenticacaoCancelamento(False);
+                                                  end;
+                 ctCaixaResgateCheques          : autenticacaoResgateCheque(False);
+                 ctCaixaTransferencia           : autenticacaoTransferencia(False);
+                 ctCaixaConfirmRetornoTransferencia,
+                 ctCaixaConfirmacaoTransferencia: autenticacaoConfirmacaoTransferencia(False);
+                 ctCaixaPerda                   : autenticacaoPerda(False);
+                 ctCaixaDuplicatas              : autenticacaoDuplicata(False);
+                 ctCaixaDepositos               : autenticacaoDeposito(False);
+                 ctCaixaDevolucaoSaldo          : autenticacaoDevolucaoSaldo(False);
+                 ctCaixaParcelasAberto          : autenticacaoParcelasAberto(False,False,0,0);
+               end;
+               BloquearBotoes(false);
+            end;
+
+            {
+    VK_F9: if sbnTEF.Enabled and
+               ((FTipoAutenticacao = ctCaixaParcelas) or
+                (FTipoAutenticacao = ctCaixaParcelasAberto)) then
+           begin
+             BloquearBotoes(true);
+             PagamentoComTEF;
+             BloquearBotoes(false);
+           end;
+           }
+
+    VK_F11: if sbnRecibo.Enabled then
+            begin
+//              BloquearBotoes(true);
+              case FTipoAutenticacao of
+                ctCaixaParcelas                : reciboParcela;
+                ctCaixaDevolucao               : reciboDevolucao;
+                ctCaixaDocumentos              : reciboDocumento;
+                ctCaixaCheques                 : reciboCheque;
+                ctCaixaCancelamento            : reciboCancelamento;
+                ctCaixaResgateCheques          : reciboResgateCheque;
+                ctCaixaTransferencia           : reciboTransferencia;
+                ctCaixaConfirmacaoTransferencia: reciboConfirmacaoTransferencia;
+                ctCaixaPerda                   : reciboPerda;
+                ctCaixaDuplicatas              : reciboDuplicata;
+                ctCaixaDepositos               : reciboDeposito;
+                ctCaixaDevolucaoSaldo          : reciboDevolucaoSaldo;
+                ctCaixaParcelasAberto          : reciboParcelasAberto;
+              end;
+//              BloquearBotoes(false);
+            end;
+
+    VK_F12: if sbnAutenticar.Enabled then
+            begin
+              BloquearBotoes(true);
+              case FTipoAutenticacao of
+                ctCaixaParcelas                : autenticacaoParcela(True, False, 0, 0);
+                ctCaixaDevolucao               : autenticacaoDevolucao(True);
+                ctCaixaDocumentos              : autenticacaoDocumento(True);
+                ctCaixaCheques                 : autenticacaoCheque(True);
+                ctCaixaCancelamento            : begin
+                                                   if dtmautenticacoes.CancelamentoTransacao then
+                                                     autenticacaoCancelamentoTransacao(True)
+                                                   else
+                                                     autenticacaoCancelamento(True);
+                                                 end;
+                ctCaixaResgateCheques          : autenticacaoResgateCheque(True);
+                ctCaixaTransferencia           : autenticacaoTransferencia(True);
+                ctCaixaConfirmRetornoTransferencia,
+                ctCaixaConfirmacaoTransferencia: autenticacaoConfirmacaoTransferencia(True);
+                ctCaixaPerda                   : autenticacaoPerda(True);
+                ctCaixaDuplicatas              : autenticacaoDuplicata(true);
+                ctCaixaDepositos               : autenticacaoDeposito(true);
+                ctCaixaDevolucaoSaldo          : autenticacaoDevolucaoSaldo(true);
+                ctCaixaParcelasAberto          : autenticacaoParcelasAberto(True,False,0, 0);
+              end;
+              BloquearBotoes(false);
+            end;
+  end;
+end;
+
+procedure Tfrmimpressaoautenticacao.MostrarMensagemErro(constanteErro: integer);
+begin
+  MensagemErro(Format(ctERRORPROCEDIMENTOAUTENTICACAO,[constanteErro]));
+  ModalResult := constanteErro;
+end;
+
+function Tfrmimpressaoautenticacao.PagamentoComTEF: Boolean;
+var
+  FormaPagamento: Integer;
+  ValorPagoDinheiro: Currency;
+begin
+  if FAutenticado then
+    Result := False
+  else if dtmautenticacoes.PagamentoComTEF(FormaPagamento, ValorPagoDinheiro) then
+  begin
+    if not ParSistema.AutenticacaoParcelasModo2 then
+      Result := autenticacaoParcela(False, True, FormaPagamento, ValorPagoDinheiro)
+    else
+      Result := autenticacaoParcelasAberto(False, True, FormaPagamento, ValorPagoDinheiro);
+  end
+  else
+    Result := False;
+  //BringToFront;
+  edtValorRecebido.SetFocus;
+end;
+
+procedure Tfrmimpressaoautenticacao.parametrosCancelamento(
+  tipoAutenticacao, autenticacao, motivo: integer; valor: real);
+begin
+  FTipoAutenticacao:= tipoAutenticacao;
+  FMotivo          := motivo;
+  FValor           := valor;
+  FAutenticacao    := autenticacao;
+
+  mmoObservacaoRecibo.Clear;
+
+  mmoObservacaoRecibo.Append(ctCANCELAMENTOAUTENTICACAO + ': '+inttostr(FAutenticacao));
+  mmoObservacaoRecibo.Append(ANSIUpperCase(trim(ctMOTIVO)) + ': ' + inttostr(FMotivo) + ' - ' + dtmautenticacoes.DescricaoMotivosCancelamento);
+
+
+  edtRecebidode.Clear;
+  edtAssinatura.Text := dtmautenticacoes.NomeUsuario;
+  dtxValorAutenticacao.Caption := FloatToStrF(valor, ffFixed, 18, 2);
+end;
+
+procedure Tfrmimpressaoautenticacao.ParametrosCheque(TipoAutenticacao: Integer;
+            Cheque, Titular, Cliente, TipoCliente, Vencto: String; Valor: Real; Obs: String);
+var
+  Agencia, Conta, Numero: String;
+begin
+  Agencia:= Copy(Cheque,4,04);
+  Conta  := Copy(Cheque,20,10);
+  Numero := Copy(Cheque,12,06);
+
+  FTipoAutenticacao:= tipoAutenticacao;
+  FValor           := Valor;
+  FCheque          := Cheque;
+  FTitular         := Titular;
+  FCliente         := Cliente;
+  FTipoCliente     := TipoCliente;
+  FDataVencto      := Vencto;
+  FObs             := Obs;
+
+  mmoObservacaoRecibo.Clear;
+  mmoObservacaoRecibo.Append(ctREFERENTECHEQUE);
+  mmoObservacaoRecibo.Append('Agencia: ' + Agencia + ' Conta: ' + Conta + ' Numero: ' + Numero);
+
+  if dtmautenticacoes.TipoCliente[paCLIENTESCHEQUES] = tcCLIENTE then
+  begin
+    edtRecebidode.Text := dtmautenticacoes.NomeCliente;
+    mmoObservacaoRecibo.Append(ANSIUpperCase(trim(ctCliente)) + ': ' + FTipoCliente+FCliente + ' ' + dtmautenticacoes.NomeCliente);
+  end
+  else
+  begin
+    edtRecebidode.Text := dtmautenticacoes.NomeFornecedor;
+    mmoObservacaoRecibo.Append(ANSIUpperCase(trim(ctCliente)) + ': ' + FTipoCliente+FCliente + ' ' + dtmautenticacoes.NomeFornecedor);
+  end;
+  mmoObservacaoRecibo.Append(ANSIUpperCase(trim(ctTitular)) + ': ' + FTitular);
+  mmoObservacaoRecibo.Append(ANSIUpperCase(trim(ctVencto)) + ': ' + FDataVencto);
+  edtAssinatura.Text := dtmautenticacoes.RazaoFilialBase;
+  dtxValorAutenticacao.Caption := floatToStrF(valor, ffFixed, 18, 2);
+end;
+
+procedure Tfrmimpressaoautenticacao.parametrosConfirmacaoTransferencia(
+  tipoAutenticacao: integer; transferenciaPendente: integer; valor: real);
+begin
+  FTipoAutenticacao     := tipoAutenticacao;
+  FTransferenciaPendente:= transferenciaPendente;
+  FValor                := valor;
+
+  mmoObservacaoRecibo.Clear;
+  mmoObservacaoRecibo.Append(ctREFERENTETRANSFERENCIAENTRADA);
+  mmoObservacaoRecibo.Append(format(ctAUTENTICACAO,[': ' + inttostr(FTransferenciaPendente)]));
+  edtRecebidode.clear;
+  edtAssinatura.Text := dtmautenticacoes.nomeusuario;
+  dtxValorAutenticacao.Caption := floatToStrF(valor, ffFixed, 18, 2);
+end;
+
+procedure Tfrmimpressaoautenticacao.parametrosDeposito(tipoAutenticacao,
+  banco: integer; valor: real);
+begin
+  FTipoAutenticacao:= tipoAutenticacao;
+  FValor           := valor;
+  FBanco           := banco;
+
+  mmoObservacaoRecibo.Clear;
+  mmoObservacaoRecibo.Append(ctREFERENTEDEPOSITO);
+  mmoObservacaoRecibo.Append(ANSIUpperCase(trim(ctBANCO)) + ': ' + inttostr(FBanco)+ ' - ' + dtmautenticacoes.NomeBancos);
+  edtRecebidode.clear;
+  edtAssinatura.Text := dtmautenticacoes.NomeUsuario;
+  dtxValorAutenticacao.Caption := floatToStrF(valor, ffFixed, 18, 2);
+end;
+
+procedure Tfrmimpressaoautenticacao.parametrosDevolucao(
+  tipoAutenticacao: integer; contrato: string; motivo: integer; valor: real);
+var
+  Notas: String;
+begin
+
+  FTipoAutenticacao:= tipoAutenticacao;
+  FContrato        := contrato;
+  FMotivo          := motivo;
+  FValor           := valor;
+  Notas            := dtmautenticacoes.NotasFiscaisDevolucoes;
+
+  mmoObservacaoRecibo.Clear;
+  mmoObservacaoRecibo.append(ctREFERENTEADEVOLUCAO + ':');
+  mmoObservacaoRecibo.append(ctMotivo   + ': ' +inttostr(Fmotivo) + ' - ' +
+                             dtmautenticacoes.DescricaoMotivosDevolucao);
+  mmoObservacaoRecibo.Append(ctCLIENTE  + ': ' + inttostr(dtmautenticacoes.CodigoClienteDevolucoes) +
+                             ' - ' +                      dtmautenticacoes.NomeClienteDevolucoes);
+  mmoObservacaoRecibo.append(ctContrato + ': ' +Fcontrato);
+  if Notas <> '' then
+    mmoObservacaoRecibo.Append('NF(s)'  + ': ' +Notas);
+  edtRecebidode.Text := dtmautenticacoes.RazaoFilialBase;
+  if dtmautenticacoes.TipoCliente[paCONTRATOSDEVOLUCOES] = tcCLIENTE then
+    edtAssinatura.Text := dtmautenticacoes.NomeCliente
+  else
+    edtAssinatura.Text := dtmautenticacoes.NomeFornecedor;
+  edtAssinatura.Text := dtmautenticacoes.NomeClienteDevolucoes;
+  dtxValorAutenticacao.Caption := floatToStrF(valor, ffFixed, 18, 2);
+end;
+
+procedure Tfrmimpressaoautenticacao.parametrosDocumento(tipoAutenticacao,
+  evento, historico: integer; tipoES: boolean; parametros, data: string; valor: real);
+begin
+  FTipoAutenticacao:= tipoAutenticacao;
+  FEvento          := evento;
+  FHistorico       := historico;
+  FTipoES          := tipoES;
+  FParametros      := parametros;
+  FData            := data;
+  FValor           := valor;
+
+  mmoObservacaoRecibo.Clear;
+  mmoObservacaoRecibo.Append(ctREFERENTEDOCUMENTO + ': '+dtmautenticacoes.TipoDocumentoEventos);
+  mmoObservacaoRecibo.Append(ANSIUpperCase(trim(ctEvento)) + ': ' +inttostr(FEvento)+ ' - ' + dtmautenticacoes.DescricaoEventos);
+  mmoObservacaoRecibo.Append(ANSIUpperCase(trim(ctHistorico))  + ': ' + inttostr(Fhistorico) + ' - ' + dtmautenticacoes.DescricacaoHistoricosEvento + ' ' + parametros);
+
+  if FtipoES then
+  begin
+   edtRecebidode.Text := dtmautenticacoes.RazaoFilialBase;
+   edtAssinatura.Text := dtmautenticacoes.NomeUsuario;
+  end
+  else
+  begin
+   edtRecebidode.Text := dtmautenticacoes.NomeUsuario;
+   edtAssinatura.Text := dtmautenticacoes.RazaoFilialBase;
+  end;
+  dtxValorAutenticacao.Caption := floatToStrF(valor, ffFixed, 18, 2);
+end;
+
+procedure Tfrmimpressaoautenticacao.parametrosDuplicata(tipoAutenticacao: integer;
+  valor: real);
+begin
+  FTipoAutenticacao:= tipoAutenticacao;
+  FValor           := valor;
+  mmoObservacaoRecibo.Clear;
+  mmoObservacaoRecibo.Append(ctREFERENTEPAGAMENTODUPLICATA);
+  mmoObservacaoRecibo.Append(ANSIUpperCase(ctDOCUMENTO) + ': ' + dtmautenticacoes.NumeroDocumentosPag);
+  mmoObservacaoRecibo.Append(ANSIUpperCase(ctDUPLICATA) + ': ' + dtmautenticacoes.NumeroDuplicatasDoc);
+  mmoObservacaoRecibo.Append(ANSIUpperCase(ctVENCTO) + ': ' + dtmautenticacoes.VenctoDuplicatasDoc);
+  edtRecebidode.Text := dtmautenticacoes.RazaoFilialBase;
+  edtAssinatura.Text  := dtmautenticacoes.NomeFornecedorDuplicata;
+  dtxValorAutenticacao.Caption := floatToStrF(valor, ffFixed, 18, 2);
+end;
+
+procedure Tfrmimpressaoautenticacao.parametrosEntradaVista(
+  tipoAutenticacao: integer; valor: real);
+begin
+  FTipoAutenticacao:= tipoAutenticacao;
+  FValor           := valor;
+
+  dtxValorAutenticacao.Caption := floatToStrF(valor, ffFixed, 18, 2);
+end;
+
+procedure Tfrmimpressaoautenticacao.parametrosParcela(Contrato: String; Cartao: Boolean;
+  tipoAutenticacao: integer; valor: real; ComCartao: Boolean);
+
+begin
+  edtValorRecebido.Enabled := True;
+  ActiveControl := edtValorRecebido;
+//  sbnTEF.Enabled := ((ParSistema.TipoTEF <> tsSEMTEF) and (ComCartao));
+{$IFDEF MSWINDOWS}
+ { if ComCartao then begin
+    sbnAutenticar.Enabled := False;
+    sbnRecibo.Enabled     := False;
+  end;}
+{$ENDIF}
+  FContrato         := Contrato;
+  FTipoAutenticacao := tipoAutenticacao;
+  FValor            := valor;
+  if dtmautenticacoes.TipoCliente[paCONTRATOSPRESTACOES] = tcCLIENTE then
+       edtRecebidode.Text := dtmautenticacoes.NomeCliente
+  else edtRecebidode.Text := dtmautenticacoes.NomeFornecedor;
+  edtAssinatura.Text := dtmautenticacoes.RazaoFilialBase;
+  dtxValorAutenticacao.Caption := floatToStrF(valor, ffFixed, 18, 2);
+  dtmautenticacoes.ContadorAutenticacao := 0;
+end;
+
+procedure Tfrmimpressaoautenticacao.parametrosPerda(
+  tipoAutenticacao: integer; contrato: string; motivo: integer; valor: real);
+begin
+  FTipoAutenticacao:= tipoAutenticacao;
+  FContrato        := contrato;
+  FMotivo          := motivo;
+  FValor           := valor;
+
+  mmoObservacaoRecibo.Clear;
+  mmoObservacaoRecibo.Append(ctREFERENTEPERDA + ' ' + ctCONTRATO+': '+FContrato);
+  mmoObservacaoRecibo.Append(ANSIUpperCase(ctMOTIVO) + ': ' + inttostr(FMotivo) + ' '+ dtmautenticacoes.DescricaoMotivosPerda);
+  edtRecebidode.clear;
+  edtAssinatura.Text := dtmautenticacoes.nomeusuario;
+  dtxValorAutenticacao.Caption := floatToStrF(valor, ffFixed, 18, 2);
+end;
+
+procedure Tfrmimpressaoautenticacao.ParametrosResgateCheque(TipoAutenticacao: Integer;
+                                                            Cheque, ParcelaCheque: String; Valor: Real);
+var
+  Agencia, Conta, Numero: String;
+begin
+  Agencia:= Copy(Cheque,4,04);
+  Conta  := Copy(Cheque,20,10);
+  Numero := Copy(Cheque,12,06);
+
+  FTipoAutenticacao:= tipoAutenticacao;
+  FCheque         := Cheque;
+  FParcelaCheque  := ParcelaCheque;
+  FValor          := valor;
+
+  mmoObservacaoRecibo.Clear;
+  mmoObservacaoRecibo.Append(ctREFERENTERESGATECHEQUE);
+  mmoObservacaoRecibo.Append('Agencia: ' + Agencia + ' Conta: ' + Conta + ' Numero: ' + Numero);
+  mmoObservacaoRecibo.Append(ctPARCELA + ': '+ FParcelaCheque);
+  if dtmautenticacoes.TipoCliente[paCHEQUES] = tcCLIENTE then
+       edtRecebidode.Text := dtmautenticacoes.NomeCliente
+  else edtRecebidode.Text := dtmautenticacoes.NomeFornecedor;
+  edtAssinatura.Text := dtmautenticacoes.RazaoFilialBase;
+  dtxValorAutenticacao.Caption := FloatToStrF(Valor,ffFixed,18,2);
+end;
+
+procedure Tfrmimpressaoautenticacao.parametrosTransferencia(tipoAutenticacao, caixa: integer; valor: real);
+begin
+  FTipoAutenticacao:= tipoAutenticacao;
+  FCaixa           := caixa;
+  FValor           := valor;
+
+  mmoObservacaoRecibo.Clear;
+  mmoObservacaoRecibo.Append(ctREFERENTETRANSFERENCIASAIDA + ':');
+  mmoObservacaoRecibo.Append(inttostr(FCaixa) + ' - ' + dtmautenticacoes.NomeCaixas);
+  edtRecebidode.clear;
+  edtAssinatura.Text := dtmautenticacoes.nomeusuario;
+  dtxValorAutenticacao.Caption := floatToStrF(valor, ffFixed, 18, 2);
+end;
+
+procedure Tfrmimpressaoautenticacao.reciboCancelamento;
+begin
+ if autenticacaoCancelamento(false) then
+   dtmautenticacoes.ImprimirComprovante(FValor, mmoObservacaoRecibo, edtAssinatura.Text, edtRecebidode.Text);
+end;
+
+procedure Tfrmimpressaoautenticacao.reciboCheque;
+begin
+ if AutenticacaoCheque(False) then
+   dtmautenticacoes.ImprimirReciboGeral(FValor, mmoObservacaoRecibo, edtAssinatura.Text, edtRecebidode.Text);
+end;
+
+procedure Tfrmimpressaoautenticacao.reciboConfirmacaoTransferencia;
+begin
+ if autenticacaoConfirmacaoTransferencia(false) then
+   dtmautenticacoes.ImprimirComprovante(FValor, mmoObservacaoRecibo, edtAssinatura.Text, edtRecebidode.Text);
+end;
+
+procedure Tfrmimpressaoautenticacao.reciboDeposito;
+begin
+ if autenticacaoDeposito(false) then
+   dtmautenticacoes.ImprimirComprovante(FValor, mmoObservacaoRecibo, edtAssinatura.Text, edtRecebidode.Text);
+end;
+
+procedure Tfrmimpressaoautenticacao.reciboDevolucao;
+begin
+  if autenticacaoDevolucao(false ) then
+    dtmautenticacoes.ImprimirReciboGeral(FValor, mmoObservacaoRecibo, edtAssinatura.Text, edtRecebidode.Text);
+end;
+
+procedure Tfrmimpressaoautenticacao.reciboDocumento;
+begin
+  if autenticacaoDocumento(false) then
+   dtmautenticacoes.ImprimirReciboGeral(FValor, mmoObservacaoRecibo, edtAssinatura.Text, edtRecebidode.Text)
+end;
+
+procedure Tfrmimpressaoautenticacao.reciboDuplicata;
+begin
+ if autenticacaoDuplicata(false) then
+   dtmautenticacoes.ImprimirReciboGeral(FValor, mmoObservacaoRecibo, edtAssinatura.Text, edtRecebidode.Text);
+end;
+
+procedure Tfrmimpressaoautenticacao.reciboParcela;
+begin
+  if FAutenticado or autenticacaoParcela(false, False, 0, 0) then
+    if ParSistema.ImprimirReciboAcumulado then begin
+      dtmautenticacoes.ImprimirReciboParcelasAcumuladas(edtAssinatura.Text);
+    end else
+      dtmautenticacoes.ImprimirReciboParcela(FValor, mmoObservacaoRecibo, edtAssinatura.Text)
+end;
+
+procedure Tfrmimpressaoautenticacao.reciboPerda;
+begin
+ if autenticacaoPerda(false) then
+   dtmautenticacoes.ImprimirComprovante(FValor, mmoObservacaoRecibo, edtAssinatura.Text, edtRecebidode.Text);
+end;
+
+procedure Tfrmimpressaoautenticacao.reciboResgateCheque;
+begin
+ if autenticacaoResgateCheque(false) then
+   dtmautenticacoes.ImprimirReciboGeral(FValor, mmoObservacaoRecibo, edtAssinatura.Text, edtRecebidode.Text);
+end;
+
+procedure Tfrmimpressaoautenticacao.reciboTransferencia;
+begin
+ if autenticacaoTransferencia(false) then
+   dtmautenticacoes.ImprimirComprovante(FValor, mmoObservacaoRecibo, edtAssinatura.Text, edtRecebidode.Text);
+end;
+
+procedure Tfrmimpressaoautenticacao.sbnAutenticarChequeClick(Sender: TObject);
+var
+  tecla: word;
+begin
+  inherited;
+//  BloquearBotoes(true);
+  tecla := VK_F3;
+  KeyDown(tecla, []);
+//  BloquearBotoes(false);
+end;
+
+procedure Tfrmimpressaoautenticacao.sbnAutenticarClick(Sender: TObject);
+var
+  tecla: word;
+begin
+  inherited;
+//  BloquearBotoes(true);
+  tecla := VK_F12;
+  KeyDown(tecla, []);
+//  BloquearBotoes(false);
+end;
+
+procedure Tfrmimpressaoautenticacao.sbnReciboClick(Sender: TObject);
+var
+  tecla: word;
+begin
+  inherited;
+//  BloquearBotoes(true);
+  tecla := VK_F11;
+  KeyDown(tecla, []);
+//  BloquearBotoes(false);
+
+end;
+
+procedure Tfrmimpressaoautenticacao.setDataModulo(dataModulo: Tdtmautenticacoes);
+begin
+  dtmautenticacoes := dataModulo;
+end;
+
+procedure Tfrmimpressaoautenticacao.sbnGravarAutenticacaoClick(Sender: TObject);
+var
+  tecla: word;
+begin
+  inherited;
+//  BloquearBotoes(true);
+  tecla := VK_F5;
+  KeyDown(tecla, []);
+//  BloquearBotoes(false);
+
+end;
+
+procedure Tfrmimpressaoautenticacao.sbnTEFClick(Sender: TObject);
+var
+  tecla: word;
+begin
+  inherited;
+//  BloquearBotoes(true);
+  tecla := VK_F9;
+  KeyDown(tecla, []);
+//  BloquearBotoes(false);
+
+end;
+
+procedure Tfrmimpressaoautenticacao.parametrosDevolucaoSaldo(
+  tipoAutenticacao: integer; valor: real);
+begin
+  FTipoAutenticacao:= tipoAutenticacao;
+  FValor           := valor;
+
+  mmoObservacaoRecibo.Clear;
+  mmoObservacaoRecibo.append(ctREFERENTEADEVOLUCAO + ':');
+  mmoObservacaoRecibo.append(ctSALDODETROCA);
+  edtRecebidode.Text := dtmautenticacoes.RazaoFilialBase;
+  if dtmautenticacoes.TipoCliente[paCLIENTESDEVOLUCOES] = tcCLIENTE then
+    edtAssinatura.Text := dtmautenticacoes.NomeClienteDevolucoesSaldo
+  else
+    edtAssinatura.Text := dtmautenticacoes.NomeFornecedor;
+  dtxValorAutenticacao.Caption := floatToStrF(valor, ffFixed, 18, 2);
+end;
+
+function Tfrmimpressaoautenticacao.autenticacaoDevolucaoSaldo(
+  ImprimirAutenticacao: Boolean): Boolean;
+begin
+  result := False;
+  if not FAutenticado then begin
+    FRetorno := dtmautenticacoes.autenticarDevolucaoSaldo(FValor);
+    if FRetorno = mrOK then begin
+      sbnGravarAutenticacao.Enabled := False;
+      FAutenticado := true;
+    end;
+  end;
+  if FRetorno <> mrOK then
+    MensagemErro(format(ctERRORPROCEDIMENTOAUTENTICACAO, [FRetorno]))
+  else begin
+    if ImprimirAutenticacao then
+      dtmautenticacoes.ImprimirAutenticacao('A', FValor);
+    result := True;
+  end;
+end;
+
+procedure Tfrmimpressaoautenticacao.reciboDevolucaoSaldo;
+begin
+  if autenticacaoDevolucaoSaldo(false ) then
+    dtmautenticacoes.ImprimirReciboGeral(FValor, mmoObservacaoRecibo, edtAssinatura.Text, edtRecebidode.Text);
+end;
+
+procedure Tfrmimpressaoautenticacao.parametrosParcelasAberto(
+  TipoAutenticacao: Integer; Valor: Real;ComCartao:Boolean);
+begin
+  edtValorRecebido.Enabled := True;
+  ActiveControl := edtValorRecebido;
+  //edtValorRecebido.SetFocus;
+//  sbnTEF.Enabled := ((ParSistema.TipoTEF <> tsSEMTEF) and (ComCartao));
+{$IFDEF MSWINDOWS}
+ { if ComCartao then begin
+    sbnAutenticar.Enabled := False;
+    sbnRecibo.Enabled     := False;
+  end;}
+{$ENDIF}
+ // FContrato         := Contrato;
+  FTipoAutenticacao := TipoAutenticacao;
+  FValor            := Valor;
+  if dtmautenticacoes.TipoCliente[paCLIENTEPARCELAS] = tcCLIENTE then
+       edtRecebidode.Text := dtmautenticacoes.NomeCliente
+  else edtRecebidode.Text := dtmautenticacoes.NomeFornecedor;
+  mmoObservacaoRecibo.Clear;
+  mmoObservacaoRecibo.append(ctREFERENTEPAGAMENTOPARCELAS + ':');
+  dtmautenticacoes.qryParcelasAberto.First;
+  while not dtmautenticacoes.qryParcelasAberto.Eof do
+  begin
+    if dtmautenticacoes.qryParcelasAbertoselecionar.AsBoolean then
+      mmoObservacaoRecibo.append(ctPARCELA + ': ' + dtmautenticacoes.qryParcelasAbertoparcelaorigem.asString +
+                                 ' ' + ctContrato + ': ' + dtmautenticacoes.qryparcelasAbertocontrato.asString);
+    dtmautenticacoes.qryParcelasAberto.Next;
+  end;
+  edtAssinatura.Text := dtmautenticacoes.RazaoFilialBase;
+  dtxValorAutenticacao.Caption := floatToStrF(valor, ffFixed, 18, 2);
+  dtmautenticacoes.ContadorAutenticacao := 0;
+end;
+
+function Tfrmimpressaoautenticacao.autenticacaoParcelasAberto(ImprimirAutenticacao,
+  ComCartao: Boolean; FormaPagamento: Integer; ValorPagoDinheiro: Currency): Boolean;
+var i : integer;
+begin
+
+  try
+    dtmautenticacoes.DefinirTransacao(dtmautenticacoes.tstCaixa);
+
+    Result := False;
+    if not FAutenticado then
+    begin
+
+      FRetorno := dtmautenticacoes.autenticarParcelasAberto(FormaPagamento, ValorPagoDinheiro, ImprimirAutenticacao, ComCartao);
+      if FRetorno = mrOK then
+      begin
+        FAutenticado := True;
+        lblValorTotalEmDinheiro.Caption := FormatFloat('#0,' + ThousandSeparator + '00', dtmautenticacoes.PagamentoEmDinheiro);
+        sbnGravarAutenticacao.Enabled := False;
+        sbnAutenticar.Enabled := False;
+      end
+      else
+        FAutenticado := True;
+    end;
+
+    if FRetorno <> mrOK then
+    begin
+      if FRetorno = 2 then {cancelado}
+       MensagemAviso('A operação foi cancelada')
+      else
+       MensagemErro(format(ctERRORPROCEDIMENTOAUTENTICACAO, [FRetorno]))
+    end
+    else begin
+  {    if ImprimirAutenticacao then begin
+        dtmautenticacoes.ImprimirAutenticacao('P', FValor);
+  }
+      if not ComCartao then
+      begin
+        frmparcelasrecebimentos:= Tfrmparcelasrecebimentos.Create(frmparcelasrecebimentos);
+
+        frmParcelasRecebimentos.setDataModulo(dtmautenticacoes);
+
+        frmParcelasRecebimentos.ShowModal;
+        result := frmParcelasRecebimentos.ModalResult = mrOk;
+        frmParcelasRecebimentos.Free;
+
+        if not result then
+        begin
+          dtmautenticacoes.CancelarPagamentos;
+          Modalresult := mrCancel;
+        end;
+      end;
+
+      {
+      if not Result or ComCartao then
+      begin
+        dtmautenticacoes.MontarRecebimentosParcelasAberto(ComCartao);
+        result := dtmautenticacoes.GravarRecebimentos(false);
+      end;
+      }
+
+      if not ComCartao then
+      begin
+        SetFocus;
+      end;
+
+      (*
+
+      Comprovante já impresso na janela frmparcelasrecebimentos
+
+      if Assigned(ECFPadrao) then
+      begin
+        for i:= 1 to parsistema.NumeroCopiasdoRecibo do
+          dtmautenticacoes.ImprimirCNF('Suprimento', IfThen(ComCartao, 'Cartao', 'Dinheiro'), mmoObservacaoRecibo.Text+' '+mmoObservacaoReciboDigitada.Text, FValor);
+      end;
+      *)
+
+      if Assigned(ActiveControl) and ActiveControl.CanFocus then
+        ActiveControl.SetFocus;
+  {    end;
+      result := True; }
+    end;
+  finally
+    dtmautenticacoes.DefinirTransacao(dtmautenticacoes.dtmTecSoft.tstTecSoft);
+  end;
+
+end;
+
+procedure Tfrmimpressaoautenticacao.reciboParcelasAberto;
+begin
+  if FAutenticado or  autenticacaoParcelasAberto(False,False,0,0) then
+    dtmautenticacoes.ImprimirReciboParcelasAcumuladas(dtmautenticacoes.RazaoFilialBase);
+end;
+
+procedure Tfrmimpressaoautenticacao.parametrosCancelamentoTransacao(TipoAutenticacao,
+                                                                    Motivo: Integer);
+var
+  A : TResumoAutenticacoes;
+  i : Integer;
+  valor : Currency;
+begin
+  FTipoAutenticacao:= tipoAutenticacao;
+  FMotivo          := motivo;
+{  FValor           := valor;
+  FAutenticacao    := autenticacao;
+}
+
+  dtmautenticacoes.AutenticacoesTransacao(A);
+  valor := 0;
+
+  mmoObservacaoRecibo.Clear;
+  for i := 0 to high(A) do
+  begin
+    mmoObservacaoRecibo.Append(ctCANCELAMENTOAUTENTICACAO  + ': '+ inttostr(A[i].Autenticacao));
+    valor := valor + A[i].Valor;
+  end;
+  mmoObservacaoRecibo.Append(ANSIUpperCase(trim(ctMOTIVO)) + ': ' + inttostr(FMotivo) + ' - ' + dtmautenticacoes.DescricaoMotivosCancelamento);
+  edtRecebidode.Clear;
+  edtAssinatura.Text := dtmautenticacoes.NomeUsuario;
+  FValor := Valor;
+  dtxValorAutenticacao.Caption := FloatToStrF(valor, ffFixed, 18, 2);
+end;
+
+function Tfrmimpressaoautenticacao.autenticacaoCancelamentoTransacao(
+  ImprimirAutenticacao: Boolean): Boolean;
+begin
+  result := False;
+  if not FAutenticado then begin
+    FRetorno := dtmautenticacoes.autenticarCancelamentoTransacao(FMotivo, FValor, ImprimirAutenticacao);
+    if FRetorno = mrOK then begin
+      sbnGravarAutenticacao.Enabled := False;
+      FAutenticado := true;
+      if (FTipoAutenticacao = ctCaixaCancelamento) and not ParSistema.AutenticacaoParcelasModo2 then begin
+        dtmautenticacoes.PagamentoEmDinheiro := dtmautenticacoes.PagamentoEmDinheiro - FValor;
+        if ParSistema.ImprimirReciboAcumulado then
+          dtmautenticacoes.RemoveAutenticacaoTabelaTemporaria(FAutenticacao);
+      end;
+    end;
+  end;
+
+  if FRetorno <> mrOK then
+    MensagemErro(format(ctERRORPROCEDIMENTOAUTENTICACAO, [FRetorno]))
+  else begin
+    if ImprimirAutenticacao then
+      dtmautenticacoes.ImprimirAutenticacao('C', FValor);
+    result := True;
+  end;
+  BringToFront;
+  SetFocus;
+//
+end;
+
+procedure Tfrmimpressaoautenticacao.FormShow(Sender: TObject);
+begin
+  inherited;
+  ActiveControl.SetFocus;
+end;
+
+procedure Tfrmimpressaoautenticacao.BloquearBotoes(bloquear: boolean);
+begin
+  if bloquear then
+  begin
+//    sbnTEFEnabled := sbnTEF.Enabled;
+    sbnAutenticarChequeEnabled := sbnAutenticarCheque.Enabled;
+    sbnGravarAutenticacaoEnabled := sbnGravarAutenticacao.enabled;
+//    sbnReciboEnabled := sbnRecibo.enabled;
+    sbnAutenticarEnabled := sbnAutenticar.enabled;
+
+//    sbnTEF.enabled := false;
+    sbnAutenticarCheque.Enabled := false;
+    sbnGravarAutenticacao.Enabled := false;
+//    sbnRecibo.Enabled := false;
+    sbnAutenticar.Enabled := false;
+
+    sbnBloqueados := true;
+  end
+  else
+  begin
+//    sbnTEF.enabled := sbnTEFEnabled;
+    sbnAutenticarCheque.Enabled := sbnAutenticarEnabled;
+    sbnGravarAutenticacao.Enabled := {sbnGravarAutenticacaoenabled;} false;
+//    sbnRecibo.Enabled := sbnReciboenabled;
+    if not parsistema.AutenticacaoParcelasModo2 then
+      sbnAutenticar.Enabled := sbnAutenticarenabled;
+
+    sbnBloqueados := false;
+  end;
+end;
+
+end.

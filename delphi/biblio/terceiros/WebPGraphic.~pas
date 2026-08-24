@@ -1,0 +1,160 @@
+unit WebPGraphic;
+
+interface
+
+uses
+  Windows, Classes, SysUtils, Graphics;
+
+type
+  TWebPGraphic = class(TGraphic)
+  private
+    FBitmap: TBitmap;
+    procedure Clear;
+  protected
+    procedure Draw(ACanvas: TCanvas; const Rect: TRect); override;
+    function GetEmpty: Boolean; override;
+    function GetHeight: Integer; override;
+    function GetWidth: Integer; override;
+    procedure SetHeight(Value: Integer); override;
+    procedure SetWidth(Value: Integer); override;
+    procedure AssignTo(Dest: TPersistent); override;
+  public
+    constructor Create; override;
+    destructor Destroy; override;
+    procedure LoadFromStream(Stream: TStream); override;
+    procedure SaveToStream(Stream: TStream); override;
+    procedure Assign(Source: TPersistent); override;
+
+    property Bitmap: TBitmap read FBitmap;
+  end;
+
+const
+  LIB_WEBP = 'libwebpdecoder.dll';
+
+function WebPGetInfo(const data: Pointer; data_size: Integer;
+  var width, height: Integer): Integer; cdecl; external LIB_WEBP;
+
+function WebPDecodeBGRA(const data: Pointer; data_size: Integer;
+  var width, height: Integer): PByte; cdecl; external LIB_WEBP;
+
+procedure WebPFree(p: Pointer); cdecl; external LIB_WEBP name 'WebPFree';
+
+implementation
+
+{ TWebPGraphic }
+
+constructor TWebPGraphic.Create;
+begin
+  inherited Create;
+  FBitmap := TBitmap.Create;
+  FBitmap.PixelFormat := pf32bit;
+end;
+
+destructor TWebPGraphic.Destroy;
+begin
+  FBitmap.Free;
+  inherited Destroy;
+end;
+
+procedure TWebPGraphic.Clear;
+begin
+  FBitmap.Assign(nil);
+end;
+
+procedure TWebPGraphic.Assign(Source: TPersistent);
+begin
+  if Source is TWebPGraphic then
+    FBitmap.Assign(TWebPGraphic(Source).FBitmap)
+  else if Source is TBitmap then
+    FBitmap.Assign(Source)
+  else
+    inherited Assign(Source);
+end;
+
+procedure TWebPGraphic.AssignTo(Dest: TPersistent);
+begin
+  if Dest is TBitmap then
+    Dest.Assign(FBitmap)
+  else
+    inherited AssignTo(Dest);
+end;
+
+procedure TWebPGraphic.Draw(ACanvas: TCanvas; const Rect: TRect);
+begin
+  if not Empty then
+    ACanvas.StretchDraw(Rect, FBitmap);
+end;
+
+function TWebPGraphic.GetEmpty: Boolean;
+begin
+  Result := (FBitmap.Width = 0) or (FBitmap.Height = 0);
+end;
+
+function TWebPGraphic.GetHeight: Integer;
+begin
+  Result := FBitmap.Height;
+end;
+
+function TWebPGraphic.GetWidth: Integer;
+begin
+  Result := FBitmap.Width;
+end;
+
+procedure TWebPGraphic.SetHeight(Value: Integer);
+begin
+  FBitmap.Height := Value;
+end;
+
+procedure TWebPGraphic.SetWidth(Value: Integer);
+begin
+  FBitmap.Width := Value;
+end;
+
+procedure TWebPGraphic.LoadFromStream(Stream: TStream);
+var
+  Data: array of Byte;
+  W, H: Integer;
+  Raw: PByte;
+  y: Integer;
+  Src, Dest: PByte;
+begin
+  SetLength(Data, Stream.Size);
+  Stream.Position := 0;
+  Stream.ReadBuffer(Data[0], Length(Data));
+
+  if WebPGetInfo(@Data[0], Length(Data), W, H) = 0 then
+    raise Exception.Create('Imagem WebP inválida');
+
+  Raw := WebPDecodeBGRA(@Data[0], Length(Data), W, H);
+  if Raw = nil then
+    raise Exception.Create('Falha ao decodificar WebP');
+
+  FBitmap.Assign(nil);
+  FBitmap.PixelFormat := pf32bit;
+  FBitmap.Width  := W;
+  FBitmap.Height := H;
+
+  // Copia linha a linha (Raw = top-down, Bitmap = bottom-up)
+  for y := 0 to H - 1 do
+  begin
+    Src  := PByte(Integer(Raw) + (y * W * 4));  // ?? correção Delphi 7
+    Dest := FBitmap.ScanLine[H - 1 - y];
+    Move(Src^, Dest^, W * 4);
+  end;
+
+  WebPFree(Raw);
+end;
+
+procedure TWebPGraphic.SaveToStream(Stream: TStream);
+begin
+  raise Exception.Create('Salvar em WebP não implementado (use libwebp.dll completa se precisar).');
+end;
+
+initialization
+  TPicture.RegisterFileFormat('webp', 'WebP image', TWebPGraphic);
+
+finalization
+  TPicture.UnregisterGraphicClass(TWebPGraphic);
+
+end.
+

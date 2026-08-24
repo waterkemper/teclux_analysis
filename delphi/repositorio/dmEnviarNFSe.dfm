@@ -12,8 +12,10 @@ object dtmEnviarNFSe: TdtmEnviarNFSe
     Configuracoes.Geral.FormatoAlerta = 'TAG:%TAGNIVEL% ID:%ID%/%TAG%(%DESCRICAO%) - %MSG%.'
     Configuracoes.Geral.CodigoMunicipio = 0
     Configuracoes.Geral.Provedor = proPadraoNacional
-    Configuracoes.Geral.Versao = ve100
+    Configuracoes.Geral.Versao = ve101
     Configuracoes.Geral.LayoutNFSe = lnfsPadraoNacionalv101
+    Configuracoes.Geral.GerarTodasSecoes = False
+    Configuracoes.Geral.Documentar = False
     Configuracoes.Arquivos.PathSalvar = 'c:\projetos.vcl\xmlnfsex\'
     Configuracoes.Arquivos.PathSchemas = 'C:\Unimake\UniNFSe\Schemas\'
     Configuracoes.Arquivos.OrdenacaoPath = <>

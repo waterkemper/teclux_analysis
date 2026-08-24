@@ -1,6 +1,6 @@
 inherited frmEFD: TfrmEFD
-  Left = 216
-  Top = 25
+  Left = 292
+  Top = 43
   ActiveControl = edtMesInicial
   Caption = 'EFD - Escritura'#231#227'o Fiscal Digital'
   ClientHeight = 729

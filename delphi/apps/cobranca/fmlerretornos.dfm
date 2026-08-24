@@ -1,6 +1,6 @@
 inherited frmlerretornos: Tfrmlerretornos
-  Left = 108
-  Top = 0
+  Left = 290
+  Top = 228
   Action = actHabilitar
   ActiveControl = gbxNomeArquivo
   Caption = 'Ler Arquivo Retorno de Bancos'
@@ -865,7 +865,6 @@ inherited frmlerretornos: Tfrmlerretornos
               Title.Font.Name = 'helvetica'
               Title.Font.Pitch = fpVariable
               Title.Font.Style = []
-              Width = 64
               Visible = True
             end
             item

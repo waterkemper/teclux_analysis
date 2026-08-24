@@ -1,0 +1,167 @@
+inherited dtmGerarContratosPrestacaoServicos: TdtmGerarContratosPrestacaoServicos
+  OldCreateOrder = False
+  Left = 405
+  Top = 124
+  Height = 433
+  Width = 585
+  inherited ZMonitor: TZMonitor
+    Left = 16
+    Top = 8
+  end
+  object qryContratosManutencao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnCalcFields = qryContratosManutencaoCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'SQLListaClientes'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'select cm.*,'
+      '       vf.nome as nomecliente,'
+      ''
+      
+        '       cast(cast(to_char(cast(:datafinal as date), '#39'yyyy-mm-'#39') a' +
+        's varchar(8))||cast(cm.diavencimento as varchar) as date) as Dat' +
+        'aVencimento,'
+      '       p.datavencto,'
+      
+        '       case when ct.situacao = '#39'N'#39' then cast('#39'NOTA FISCAL'#39' as va' +
+        'rchar(20))'
+      
+        '            when ct.situacao = '#39'F'#39' then cast('#39'FATURADO'#39' as varch' +
+        'ar(20))'
+      
+        '       else cast('#39'A FATURAR'#39' as varchar(20)) end as situacaocont' +
+        'rato,'
+      ''
+      '       ct.numero as contrato,'
+      
+        '       case when ct.situacao is null or ct.situacao = '#39'F'#39' then t' +
+        'rue else false end as marcar'
+      ''
+      'from contratosmanutencao cm'
+      '      left join (contratos ct'
+      '                join parcelas p'
+      '                on ct.numero = p.contrato'
+      '                )'
+      '      on cm.numero = ct.contratomanutencao'
+      ''
+      '      join vfornecedores vf'
+      '      on cm.cliente = vf.codigo'
+      '      and cm.tipocliente = vf.tipo'
+      ''
+      'where  cm.diavencimento between :diainicial and :diafinal'
+      '  and cm.vigencia >= current_date'
+      '  and cm.assinatura <= current_date'
+      '  and (ct.situacao is null or ct.situacao in ('#39'N'#39','#39'F'#39'))'
+      
+        '  and (p.datavencto is null or p.datavencto between :DataInicial' +
+        ' and :datafinal)'
+      ''
+      '  %SQLListaClientes'
+      ''
+      'order by cm.diavencimento, cm.cliente, cm.tipocliente'
+      '')
+    RequestLive = True
+    Left = 64
+    Top = 80
+    ParamData = <
+      item
+        DataType = ftDate
+        Name = 'dataFinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'diaInicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'diafinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftDate
+        Name = 'DataInicial'
+        ParamType = ptUnknown
+      end>
+    object qryContratosManutencaonumero: TIntegerField
+      FieldName = 'numero'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryContratosManutencaocliente: TIntegerField
+      FieldName = 'cliente'
+      DisplayFormat = '0'
+    end
+    object qryContratosManutencaotipocliente: TStringField
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+    object qryContratosManutencaodiavencimento: TIntegerField
+      FieldName = 'diavencimento'
+      DisplayFormat = '0'
+    end
+    object qryContratosManutencaoassinatura: TDateField
+      Alignment = taCenter
+      FieldName = 'assinatura'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryContratosManutencaovigencia: TDateField
+      Alignment = taCenter
+      FieldName = 'vigencia'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryContratosManutencaovalor: TFloatField
+      FieldName = 'valor'
+      DisplayFormat = '0.00'
+    end
+    object qryContratosManutencaoobservacoesnf: TStringField
+      FieldName = 'observacoesnf'
+      Size = 200
+    end
+    object qryContratosManutencaonomecliente: TStringField
+      FieldName = 'nomecliente'
+      Size = 50
+    end
+    object qryContratosManutencaodatavencimento: TDateField
+      Alignment = taCenter
+      FieldName = 'datavencimento'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryContratosManutencaosituacaocontrato: TStringField
+      FieldName = 'situacaocontrato'
+    end
+    object qryContratosManutencaocontrato: TStringField
+      FieldName = 'contrato'
+    end
+    object qryContratosManutencaodatavencto: TDateField
+      FieldName = 'datavencto'
+    end
+    object qryContratosManutencaomarcar: TBooleanField
+      FieldName = 'marcar'
+    end
+    object qryContratosManutencaodesconsiderar: TBooleanField
+      FieldKind = fkCalculated
+      FieldName = 'desconsiderar'
+      Calculated = True
+    end
+  end
+  object dsrContratosManutencao: TtecDataSource
+    DataSet = qryContratosManutencao
+    OnDataChange = dsrContratosManutencaoDataChange
+    Left = 104
+    Top = 96
+  end
+end

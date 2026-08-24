@@ -1,6 +1,6 @@
 inherited frmAjudaBt: TfrmAjudaBt
-  Left = 367
-  Top = 494
+  Left = 634
+  Top = 776
   Caption = 'frmAjudaBt'
   ClientHeight = 222
   ClientWidth = 785

@@ -1,0 +1,132 @@
+unit frselecaoaleatoria;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, DB,
+  ZQuery, ZPgSqlQuery, cpquery, cpdatasource, Grids, DBGrids, cpdbgrid,
+  frconsulta, frconsultacodigo, Buttons, ExtCtrls, ctconstantes,
+  frconsultacontabil, frconsultacodigocontabil;
+
+type
+  TfraSelecaoAleatoria = class(TFrame)
+    dbgSelecaoAleatoria: TtecDBGrid;
+    dsrSelecaoAleatoria: TtecDataSource;
+    qrySelecaoAleatoria: TtecQuery;
+    pnlLabels: TPanel;
+    sbnProcura: TSpeedButton;
+    sbnExcluir: TSpeedButton;
+    sbnExcluirTodos: TSpeedButton;
+    sbnIncluirItem: TSpeedButton;
+    procedure sbnIncluirItemClick(Sender: TObject);
+    procedure sbnExcluirClick(Sender: TObject);
+    procedure sbnExcluirTodosClick(Sender: TObject);
+  protected
+  private
+    FCampoParaLista: String;
+    fcondicaodaselecao: TtecFuncaoBoolean;
+    function GetStringSelecionada: String;
+    function GetListaSelecionada: vString;
+    { Private declarations }
+  public
+    { Public declarations }
+    ConsultaSelecaoAleatoria : TfraConsultaCodigo;
+    ConsultaSelecaoAleatoriaContabil : TfraConsultaCodigoContabil;
+    property CampoParaLista: String read FCampoParaLista write FCampoParaLista;
+    property StringSelecionada: String read GetStringSelecionada;
+    property ListaSelecionada: vString read GetListaSelecionada;
+    property condicaodaselecao: TtecFuncaoBoolean read fcondicaodaselecao write fcondicaodaselecao;
+
+  end;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfraSelecaoAleatoria.sbnIncluirItemClick(Sender: TObject);
+begin
+  qrySelecaoAleatoria.Append;
+  dbgSelecaoAleatoria.SelectedIndex := 0;
+end;
+
+procedure TfraSelecaoAleatoria.sbnExcluirClick(Sender: TObject);
+begin
+  qrySelecaoAleatoria.Delete;
+end;
+
+procedure TfraSelecaoAleatoria.sbnExcluirTodosClick(Sender: TObject);
+begin
+  qrySelecaoAleatoria.First;
+  while not qrySelecaoAleatoria.eof do
+    qrySelecaoAleatoria.Delete
+end;
+
+function TfraSelecaoAleatoria.GetStringSelecionada: String;
+begin
+  result := '';
+  if CampoParaLista<>'' then
+  begin
+    qrySelecaoAleatoria.First;
+    while not qrySelecaoAleatoria.Eof do
+    begin
+      if assigned(condicaodaselecao) then
+      begin
+        if condicaodaselecao then
+        begin
+          if not qrySelecaoAleatoria.fieldbyname(CampoParaLista).isnull then
+          begin
+            if qrySelecaoAleatoria.fieldbyname(CampoParaLista).DataType = ftString then
+              result := result + quotedstr(qrySelecaoAleatoria.fieldbyname(CampoParaLista).AsString) + ','
+            else
+              result := result + qrySelecaoAleatoria.fieldbyname(CampoParaLista).AsString + ',';
+          end;    
+        end;
+        qrySelecaoAleatoria.Next;
+      end
+      else
+      begin
+        if not qrySelecaoAleatoria.fieldbyname(CampoParaLista).isnull then
+        begin
+          if qrySelecaoAleatoria.fieldbyname(CampoParaLista).DataType = ftString then
+            result := result + quotedstr(qrySelecaoAleatoria.fieldbyname(CampoParaLista).AsString) + ','
+          else
+            result := result + qrySelecaoAleatoria.fieldbyname(CampoParaLista).AsString + ',';
+        end;
+        qrySelecaoAleatoria.Next;
+      end;
+    end;
+    if result <> '' then
+      delete(result,length(result),1);
+  end;
+end;
+
+function TfraSelecaoAleatoria.GetListaSelecionada: vString;
+var
+  Lista : vString;
+begin
+  Lista := nil;
+  if CampoParaLista<>'' then
+  begin
+    qrySelecaoAleatoria.First;
+    while not qrySelecaoAleatoria.Eof do
+    begin
+      if assigned(condicaodaselecao) then
+      begin
+        if condicaodaselecao then
+        begin
+          SetLength(Lista, length(Lista)+1);
+          Lista[length(Lista)-1] := qrySelecaoAleatoria.fieldbyname(CampoParaLista).AsString;
+        end;
+        qrySelecaoAleatoria.Next;
+      end
+      else
+      begin
+        Lista[length(Lista)-1] := qrySelecaoAleatoria.fieldbyname(CampoParaLista).AsString;
+        qrySelecaoAleatoria.Next;
+      end;
+    end;
+  end;
+  result := Lista;
+end;
+
+end.

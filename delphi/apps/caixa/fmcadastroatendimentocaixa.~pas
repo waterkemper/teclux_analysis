@@ -1,0 +1,161 @@
+unit fmcadastroatendimentocaixa;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmcadastropadrao, Mask, cpdbfindcontrols, ComCtrls, biblio,
+  Buttons, ExtCtrls, DBCtrls, cpdbtext, cpdbdata, dmautenticacoes,
+  cptexto, ctconstantes, fmconsultabasica, fmconsultaporcampo, ZQuery,
+  ToolWin, cpmemo;
+
+type
+  TfrmCadastroAtendimentosCaixa = class(TfrmCadastroPadrao)
+    pnlFundoJanela: TPanel;
+    gbxDados: TGroupBox;
+    lblCodigo: TLabel;
+    lblData: TLabel;
+    lblAtendente: TLabel;
+    lblCliente: TLabel;
+    lblTipoAtendimento: TLabel;
+    sbnConsultaTipoAtendimento: TSpeedButton;
+    dtxTipoAtendimento: TtecDBText;
+    gbxInformes: TGroupBox;
+    lblDataLembrete: TLabel;
+    edtDataLembrete: TDBEditData;
+    dtxData: TtecDBText;
+    dtxAtendenteNome: TtecDBText;
+    dtxClienteNome: TtecDBText;
+    flkTipoAtendimento: TtecDBFindLookup;
+    dtxNumeroAtendimento: TtecDBText;
+    mmoInformes: TtecMemo;
+    procedure sbnConsultaTipoAtendimentoClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+  protected
+    function InternoIncluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoPesquisar(Titulo:String):Integer; Override;
+    function JanelaPesquisa: TfrmConsultaBasica; override;
+    function TabelaDePesquisa: TZDataSet; override;
+    function ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+  end;
+
+var
+  frmCadastroAtendimentosCaixa: TfrmCadastroAtendimentosCaixa;
+  TipoConsulta : TtecTipoConsultaAtendimento;
+
+implementation
+
+uses fmnavcontroles;
+
+{$R *.dfm}
+
+constructor TfrmCadastroAtendimentosCaixa.Create(AOwner: TComponent);
+begin
+  inherited;
+  DataSet := dtmAutenticacoes.TabelaAtendimento;
+  InternoIncluir;
+end;
+
+destructor TfrmCadastroAtendimentosCaixa.Destroy;
+begin
+  inherited;
+  frmCadastroAtendimentosCaixa := nil;
+end;
+
+function TfrmCadastroAtendimentosCaixa.InternoIncluir: Boolean;
+begin
+  Result := inherited InternoIncluir;
+  if Result then
+    Result := dtmAutenticacoes.IncluirAtendimento;
+    if Result then
+      ActiveControl := flkTipoAtendimento
+  else
+    Result:= False;
+end;
+
+function TfrmCadastroAtendimentosCaixa.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if Result then
+  begin
+    if mmoinformes.text = '' then
+    begin
+      result := false;
+      MensagemAviso(ctCODIGONECESSARIO + ' e o campo "' + 'informes' + #13#10 + '" não está preenchido com uma informação válida.');
+    end
+    else
+      Result:= dtmAutenticacoes.GravarAtendimento(mmoInformes.text);
+  end;
+end;
+
+procedure TfrmCadastroAtendimentosCaixa.sbnConsultaTipoAtendimentoClick(
+  Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  flkTipoAtendimento.SetFocus;
+  InternoPesquisar('');
+end;
+
+function TfrmCadastroAtendimentosCaixa.InternoPesquisar(Titulo: String): Integer;
+begin
+  Result:=mrNone;
+  with dtmautenticacoes do begin
+    if CtrlOn then begin
+      if ActiveControl = flkTipoAtendimento then begin
+        TipoConsulta := tcaTIPOATENDIMENTO;
+        Titulo := 'Tipo Atendimento';
+      end;
+    end;
+
+    if (TipoConsulta <> tcaNENHUM) then begin
+      AbreTabelasConsulta(TipoConsulta);
+      Result := inherited InternoPesquisar(Titulo);
+      if Result = mrok then
+        Selecionar(TipoConsulta);
+    end;
+    FechaTabelasConsulta(TipoConsulta);
+  end;
+end;
+
+function TfrmCadastroAtendimentosCaixa.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa := True;
+//  TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := False;
+end;
+
+function TfrmCadastroAtendimentosCaixa.TabelaDePesquisa: TZDataSet;
+begin
+  with dtmautenticacoes do begin
+    case TipoConsulta of
+      tcaTIPOATENDIMENTO: Result:= ConsultaTiposAtendimentos
+      else                Result:= nil;
+    end;
+  end;
+end;
+
+function TfrmCadastroAtendimentosCaixa.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmautenticacoes do begin
+    case TipoConsulta of
+      tcaTIPOATENDIMENTO: Result:= ExisteTiposAtendimentos(NomeCampo, Value)
+      else                Result:= False;
+    end;
+  end;
+end;
+
+procedure TfrmCadastroAtendimentosCaixa.FormShow(Sender: TObject);
+begin
+  inherited;
+  ActiveControl.setfocus;
+end;
+
+end.

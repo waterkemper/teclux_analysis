@@ -1,0 +1,1466 @@
+unit fmcadastroclientes;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Windows,
+  StdCtrls, Mask, ComCtrls, DBCtrls, ExtCtrls, Buttons, DB, {Qete,} Grids, DBGrids,
+  DateUtils, ActnList,
+  //Biblio
+  ctconstantes, biblio, clparametrossistema, clusuario,
+  //Terceiros
+  ZQuery,
+  //Repositorio
+  fmcadastropadrao, frendereco, frtelefone, frfoneramal, frenderecoeditor,
+  fmconsultabasica, fmconsultaporcampo, dmcadastroequipamentos,
+  //Projeto
+  dmcadastroclientes,
+  //Componentes
+  cpdbfindcontrols, cptexto, cpnumero, cpdocumento, frcgcoucpf, cpdbdata,
+  cpdbmemo, cpdbtext, cppagecontrol, cpdbradiogroup, cpdbgrid,fmajuda,
+  cpdata, cpdbmesano, cpdbdiames,
+  frconsultacontabil, frconsultacodigocontabil, ToolWin;
+
+type
+  TfrmCadastroClientes = class(TfrmCadastroPadrao)
+    pgcCadastroClientes: TtecPageControl;
+    tstGeral: TTabSheet;
+    tstResidencia: TTabSheet;
+    gbxNomeCliente: TGroupBox;
+    lblCodigoCliente: TLabel;
+    lbllNome: TLabel;
+    edtClientesNome: TDBEditTexto;
+    lblEnderecoDesatualizado : TLabel;
+    flkConceitoClientes: TtecDBFindLookup;
+    lblClientesConceito: TLabel;
+    sbnProcurarConceito: TSpeedButton;
+    gbxDocumentos: TGroupBox;
+    gbxDadosPessoais: TGroupBox;
+    lblApelido: TLabel;
+    edtClientesApelido: TDBEditTexto;
+    edtClientesNascto: TDBEditData;
+    lblNascimento: TLabel;
+    gbxNaturalidade: TGroupBox;
+    lblCidadeNatural: TLabel;
+    lblEstadoNatural: TLabel;
+    dtxClientesNaturalEstado: TDBEditTexto;
+    gbxFiliacao: TGroupBox;
+    lblMae: TLabel;
+    edtClientesMae: TDBEditTexto;
+    lblPai: TLabel;
+    edtClientesPai: TDBEditTexto;
+    sbnProcurarCidade: TSpeedButton;
+    gbxIdentificacao: TGroupBox;
+    lblDocumento: TLabel;
+    edtClientesIdDocumento: TDBEditDocumento;
+    lblOrgao: TLabel;
+    lblEstado: TLabel;
+    lblEmissao: TLabel;
+    edtClientesIdData: TDBEditData;
+    edtClientesIdOrgao: TDBEditTexto;
+    flkEstadoClientes: TtecDBFindLookup;
+    gbxMoradia: TGroupBox;
+    tstDadosComerciais: TTabSheet;
+    tstConjuge: TTabSheet;
+    tstOutrosDados: TTabSheet;
+    gbxTelefones: TGroupBox;
+    fraFoneRamalResidencia2: TfraFoneRamal;
+    gbxTempo: TGroupBox;
+    lblAnoEstadoCivil: TLabel;
+    lblMesEstadoCivil: TLabel;
+    gbxTempoResidencia: TGroupBox;
+    lblAnoResidencia: TLabel;
+    lblMesResidencia: TLabel;
+    edfCodigoCliente: TtecDbEditFind;
+    lblDataEstadoCivil: TLabel;
+    edtClientesResTempo: TDBEditData;
+    lblDataResidencia: TLabel;
+    tstReferencia: TTabSheet;
+    fraFoneRamalReferencia_1: TfraFoneRamal;
+    fraFoneRamalReferencia_2: TfraFoneRamal;
+    sbnProcurarEstado: TSpeedButton;
+    gbxOutrosDados: TGroupBox;
+    lblDependentes: TLabel;
+    edtClientesDependentes: TDBEditNumero;
+    lblOutrosOnus: TLabel;
+    edtClientesOnus: TDBEditNumero;
+    gbxReferencia: TGroupBox;
+    lblReferencia: TLabel;
+    edtClientesReferencia: TDBEditTexto;
+    gbxComercial: TGroupBox;
+    lblClientesEmpresa: TLabel;
+    edtClientesEmpresa: TDBEditTexto;
+    lblClientesCargo: TLabel;
+    flkCargoClientes: TtecDBFindLookup;
+    sbnProcurarCargoClientes: TSpeedButton;
+    lblClientesAdmissao: TLabel;
+    edtClientesEmpAdmissao: TDBEditData;
+    dtxCargoClieDescricao: TtecDBText;
+    dtxConceitosNome: TtecDBText;
+    gbxRenda: TGroupBox;
+    lblClientesRendaFaixa: TLabel;
+    dtxClientesEmpRendaFaixa: TtecDBText;
+    edtClientesEmpRendaValor: TDBEditNumero;
+    lblClientesRenda: TLabel;
+    lblClientesOutraRendaValor: TLabel;
+    edtClientesEmpOutrasValor: TDBEditNumero;
+    lblClientesOutraRendaFaixa: TLabel;
+    dtxClientesEmpOutrasFaixa: TtecDBText;
+    edtClientesEmpOutrasDescricao: TDBEditTexto;
+    lblClientesOutraRenda: TLabel;
+    ckbClientesEmpComprovado: TDBCheckBox;
+    tstEquipamentos: TTabSheet;
+    gbxEquipamentos: TGroupBox;
+    gbxIndicadores: TGroupBox;
+    ckbClientesCartaoCredito: TDBCheckBox;
+    ckbCartaoLoja: TDBCheckBox;
+    ckbCheque: TDBCheckBox;
+    ckbChequeEspecial: TDBCheckBox;
+    ckbClientesAutomovel: TDBCheckBox;
+    pnlFundoJanela: TPanel;
+    fraFoneRamalComercial: TfraFoneRamal;
+    fraEnderecoComercial: TfraEnderecoEditor;
+    fraEnderecoResidencia: TfraEnderecoEditor;
+    fraEnderecoReferencia: TfraEnderecoEditor;
+    gbxAluguel: TGroupBox;
+    edtClientesResOnus: TDBEditNumero;
+    dtxNaturalCidadeCliente: TtecDBText;
+    edtCivilAno: TEditNumero;
+    edtCivilMes: TEditNumero;
+    edtResAno: TEditNumero;
+    edtResMes: TEditNumero;
+    flkNaturalidade: TtecDBFindLookup;
+    fraFoneRamalResidencia1: TfraFoneRamal;
+    rgpSexo: TtecDBRadioGroup;
+    rbnMasculino: TtecRadioButton;
+    rbnFeminino: TtecRadioButton;
+    rgpTipoTelefone: TtecDBRadioGroup;
+    rbnProprio: TtecRadioButton;
+    rbnRecado: TtecRadioButton;
+    rgpClientesResTipo: TtecDBRadioGroup;
+    rbnResPropria: TtecRadioButton;
+    rbnResAlugada: TtecRadioButton;
+    rbnResFinanciada: TtecRadioButton;
+    rbnResParentes: TtecRadioButton;
+    rbnResTrabalho: TtecRadioButton;
+    rgpReferenciaClientes: TtecDBRadioGroup;
+    rbnRefParente: TtecRadioButton;
+    rbnRefAmigo: TtecRadioButton;
+    rbnRefTrabalho: TtecRadioButton;
+    rgpClientesCivil: TtecDBRadioGroup;
+    rbnCasado: TtecRadioButton;
+    rbnSolteiro: TtecRadioButton;
+    rbnDivorciado: TtecRadioButton;
+    rbnViuvo: TtecRadioButton;
+    rbnOutros: TtecRadioButton;
+    aclHabilitar: TActionList;
+    actEventos: TAction;
+    rbnNenhum: TtecRadioButton;
+    edtClientesCivilData: TDBEditData;
+    gbxDadosConjuge_2: TGroupBox;
+    sbnProcurarCargosConjuge: TSpeedButton;
+    lblNomeConjuge_2: TLabel;
+    edtNomeConjuge: TDBEditTexto;
+    lblNasctoConjuge_2: TLabel;
+    edtNasctoConjuge: TDBEditData;
+    lblEmpresaConjuge_2: TLabel;
+    edtEmpresaConjuge: TDBEditTexto;
+    lblAdmissaoConjuge_2: TLabel;
+    edtAdmissaoConjuge: TDBEditData;
+    lblCargoConjuge_2: TLabel;
+    dtxCargoDescricaoConjuge: TtecDBText;
+    lblRendaConjuge_2: TLabel;
+    edtRendaConjuge: TDBEditNumero;
+    lblFaixaConjuge_2: TLabel;
+    dtxFaixaConjuge: TtecDBText;
+    flkCargoConjuge: TtecDBFindLookup;
+    lblCodigoConjuge: TLabel;
+    flkConjuge: TtecDBFindLookup;
+    sbnProcurarConjuge: TSpeedButton;
+    fraEnderecoConjuge: TfraEnderecoEditor;
+    fraFoneRamalConjuge: TfraFoneRamal;
+    rbnEmpresa: TtecRadioButton;
+    gbxSerie: TGroupBox;
+    dbgSerie: TtecDBGrid;
+    dbgEquipamentos: TtecDBGrid;
+    sbnExcluirEquipamento: TSpeedButton;
+    sbnIncluirEquipamento: TSpeedButton;
+    dtxEnderecoAlterado: TtecDBText;
+    lblEnderecoAlterado: TLabel;
+    fracgcoucpf1: Tfracgcoucpf;
+    tstDependentes: TTabSheet;
+    gbxDependentes: TGroupBox;
+    sbnExcluirDependente: TSpeedButton;
+    sbnIncluirDependente: TSpeedButton;
+    dbgDependentes: TtecDBGrid;
+    lblFilialCadastro: TLabel;
+    dtxFilialCadastro: TDBEditTexto;
+    lblDataCadastro: TLabel;
+    dtxDataCadastro: TtecDBText;
+    lblDataUltimaAlteracao: TLabel;
+    dtxDataUltimaAlteracao: TtecDBText;
+    edtClientesEMail: TDBEditTexto;
+    lblEmail: TLabel;
+    gbxContabilidade: TGroupBox;
+    gbxDebitar: TGroupBox;
+    sbnConsultaDebitar: TSpeedButton;
+    dtxDebitarDescricao: TtecDBText;
+    flkDebitar: TtecDBFindLookup;
+    dtxDebitarClassificacao: TtecDBText;
+    gbxCreditar: TGroupBox;
+    sbnConsultaCreditar: TSpeedButton;
+    dtxCreditarDescricao: TtecDBText;
+    flkCreditar: TtecDBFindLookup;
+    dtxCreditarClassificacao: TtecDBText;
+    gbxObservacao: TGroupBox;
+    mmoClientesObservacoes: TtecDBMemo;
+    tstReceitasOculos: TTabSheet;
+    gbxReceitas: TGroupBox;
+    gbxOlhoEsquerdo: TGroupBox;
+    lblEsferico_oe: TLabel;
+    lblCilindro_oe: TLabel;
+    lblEixo_oe: TLabel;
+    edtEsferico_oe: TDBEditNumero;
+    edtCilindro_oe: TDBEditNumero;
+    edtEixo_oe: TDBEditNumero;
+    gbxOlhoDireito: TGroupBox;
+    lblEsferico_od: TLabel;
+    lblCilindro_od: TLabel;
+    lblEixo_od: TLabel;
+    edtEsferico_od: TDBEditNumero;
+    edtCilindro_od: TDBEditNumero;
+    edtEixo_od: TDBEditNumero;
+    gbxDistanciaNasoPupilarLonge: TGroupBox;
+    edtlonge_dnp_oe: TDBEditNumero;
+    edtlonge_dnp_od: TDBEditNumero;
+    gbxDistanciaNasoPupilarPerto: TGroupBox;
+    edtperto_dnp_oe: TDBEditNumero;
+    edtperto_dnp_od: TDBEditNumero;
+    gbxAdicao: TGroupBox;
+    DBEditNumero1: TDBEditNumero;
+    lblLente: TLabel;
+    lblCor: TLabel;
+    edtLente: TDBEditTexto;
+    edtCor: TDBEditTexto;
+    lblMedida: TLabel;
+    lblAjuste: TLabel;
+    lblEntrega: TLabel;
+    lblMedico: TLabel;
+    edtMedida: TDBEditTexto;
+    edtAjuste: TDBEditTexto;
+    edtEntrega: TDBEditTexto;
+    edtMedico: TDBEditTexto;
+    rbpTipoLente: TDBRadioGroup;
+    dbgContratos: TtecDBGrid;
+    gbxPlanoPadrao: TGroupBox;
+    sbnConsultaPlano: TSpeedButton;
+    flkPlanoPadrao: TtecDBFindLookup;
+    dtxPlanoPadraoDescricao: TtecDBText;
+    ckbNaoExibirFichaFinanceira: TDBCheckBox;
+    pnlOcultarObservacoesClienteVendedor: TPanel;
+    tstContatos: TTabSheet;
+    sbnIncluirContato: TSpeedButton;
+    sbnExcluirContato: TSpeedButton;
+    dbgContatos: TtecDBGrid;
+    gbxObservacoes: TGroupBox;
+    dtxcargo: TtecDBText;
+    ckbContribuinteICMS: TDBCheckBox;
+    gbxMarkup: TGroupBox;
+    edtMarkup: TDBEditNumero;
+    gbxCargo: TGroupBox;
+    lblaniversario: TLabel;
+    edtClientesaniversario: TDBEditDiaMes;
+    lbo: TLabel;
+    Label1: TLabel;
+    Label2: TLabel;
+    lslSite: TLabel;
+    edtSite: TDBEditTexto;
+    GroupBox1: TGroupBox;
+    fraConsultaHistorico: TfraConsultaCodigoContabil;
+    gbxSUFRAMA: TGroupBox;
+    edtSuframa: TDBEditTexto;
+    DBCheckBox1: TDBCheckBox;
+    tecDBMemo1: TtecDBMemo;
+    gbxInscMunicipal: TGroupBox;
+    edtInscricaoMunicipal: TDBEditDocumento;
+    gbxInfLigacoes: TGroupBox;
+    ckbNaoLigar: TDBCheckBox;
+    gbxLigacoesTelefonicas: TGroupBox;
+    StaticText1: TStaticText;
+    mmoRazaoNaoLigar: TtecDBMemo;
+
+    procedure edtClientesResTempoEnter(Sender: TObject);
+    procedure edtClientesCivilDataEnter(Sender: TObject);
+    procedure sbnProcurarConceitoClick(Sender: TObject);
+    procedure sbnProcurarCargosConjugeClick(Sender: TObject);
+    procedure sbnProcurarConjugeClick(Sender: TObject);
+    procedure sbnProcurarEstadoClick(Sender: TObject);
+    procedure sbnProcurarCargoClientesClick(Sender: TObject);
+    procedure edtCivilAnoChange(Sender: TObject);
+    procedure edtResAnoChange(Sender: TObject);
+    procedure sbnProcurarCidadeClick(Sender: TObject);
+    procedure edtRendaConjugeChange(Sender: TObject);
+    procedure edtClientesEmpRendaValorExit(Sender: TObject);
+    procedure edtClientesEmpOutrasValorExit(Sender: TObject);
+    procedure edtClientesCivilDataExit(Sender: TObject);
+    procedure edtClientesEMailExit(Sender: TObject);
+    procedure edtClientesEmpAdmissaoExit(Sender: TObject);
+    procedure edtClientesResTempoExit(Sender: TObject);
+    procedure aclHabilitarUpdate(Action: TBasicAction; var Handled: Boolean);
+    procedure fracgcoucpf1rgbTipoPessoaChange(Sender: TObject);
+    procedure fracgcoucpf1edtCPFCNPJExit(Sender: TObject);
+    procedure sbnExcluirSerieClick(Sender: TObject);
+    procedure dbgSerieKeyPress(Sender: TObject; var Key: Char);
+    procedure dbgEquipamentosKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure dbgEquipamentosDblClick(Sender: TObject);
+    procedure flkConjugeMessage(var Msg: String);
+    procedure edfCodigoClienteFound(Found: Boolean);
+    procedure fraEnderecoResidenciasbnRuaClick(Sender: TObject);
+    procedure sbnIncluirEquipamentoClick(Sender: TObject);
+    procedure sbnExcluirEquipamentoClick(Sender: TObject);
+    procedure tstDependentesShow(Sender: TObject);
+    procedure tstEquipamentosShow(Sender: TObject);
+    procedure dbgDependentesDblClick(Sender: TObject);
+    procedure dbgDependentesKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnIncluirDependenteClick(Sender: TObject);
+    procedure sbnExcluirDependenteClick(Sender: TObject);
+    procedure fraEnderecoResidenciaedtCEPChange(Sender: TObject);
+    procedure fraEnderecoResidenciammoRuaChange(Sender: TObject);
+    procedure fraEnderecoConjugesbnRuaClick(Sender: TObject);
+    procedure fraEnderecoConjugesbnBairroClick(Sender: TObject);
+    procedure sbnConsultaDebitarClick(Sender: TObject);
+    procedure sbnConsultaCreditarClick(Sender: TObject);
+    procedure sbnConsultaPlanoClick(Sender: TObject);
+    procedure sbnIncluirContatoClick(Sender: TObject);
+    procedure sbnExcluirContatoClick(Sender: TObject);
+    procedure dbgContatosDblClick(Sender: TObject);
+    procedure dbgContatosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edtClientesNasctoExit(Sender: TObject);
+    procedure dbgSerieKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure FormShow(Sender: TObject);
+  protected
+    FDbgColumnsIndex: Integer;
+    Testar : boolean;
+    ReCalcularTempoCivil  : Boolean;
+    ReCalcularTempoMoradia: Boolean;
+    dtmCadastroClientes   : TdtmCadastroClientes;
+    dtmCadastroEquipamentos : TdtmCadastroEquipamentos;
+    fraConsultaModeloDocto : TfraConsultaCodigoContabil;
+    procedure ClientesOnScroll(Sender: TObject);
+    procedure ClientesAfterPost(Sender: TObject);
+    procedure ClientesAfterClose(Sender: TObject);
+    procedure AtualizaEquipamentosCliente;
+    procedure LimparEditDeTempo;
+    procedure PosicionarTabelaNoParametro(Ind: Integer; var Continuar: Boolean); override;
+    procedure ProximoControle(Ind: Integer); override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure AlteraTituloGrid;
+    procedure AcionaCadastroDependentesClientes(Editar:Boolean);
+    procedure AcionaCadastroEquipamentosClientes(Editar: Boolean);
+    procedure AcionaCadastroContatos(Editando: Boolean);
+    function PermitirProcura: Boolean;
+    function GetTitulo: String;
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoIncluir: Boolean; override;
+    function InternoPesquisar(Titulo:String): Integer; override;
+    function JanelaPesquisa: TfrmConsultaBasica; override;
+    function TabelaDePesquisa: TZDataSet; override;
+    function TabelaDoParametro(Parametro: Integer): TZDataSet; override;
+    function ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    procedure OrdenePor(NomeCampo: String);
+    procedure AcionaPesquisaGrade;
+
+
+  public
+    TipoProcura : TtecProcuraClientesCrediario;
+    procedure OperacaoPadrao(Value: Array of Variant); override;
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+  end;
+
+var
+  frmCadastroClientes: TfrmCadastroClientes;
+  JaTestouEmail: Boolean;
+  FormOrigem : String;
+
+
+implementation
+
+uses fmcadastrodependentesclientes, fmcadastroequipamentos, fmcadastrocontatos,
+     fmnavcontroles;
+
+{$R *.dfm}
+
+{ TfrmCadastroClientes }
+
+constructor TfrmCadastroClientes.Create(AOwner: TComponent);
+begin
+
+
+  FormOrigem := '';
+  FDbgColumnsIndex := 0;
+  dtmCadastroClientes := TdtmCadastroClientes.Create(Self);
+  if(ParSistema.ContratoComServico) then
+    dtmCadastroEquipamentos:= TdtmCadastroEquipamentos.Create(Self);
+  inherited  Create(AOwner);
+
+//  dtmCadastroClientes.Abre(ctCrediarioClienteCadastro);
+  DataSet := dtmCadastroClientes.TabelaClientes;
+  dtmCadastroClientes.OnScrollClientes:= ClientesOnScroll;
+  dtmCadastroClientes.AfterPostClientes:= ClientesAfterPost;
+  dtmCadastroClientes.AfterCloseClientes:=ClientesAfterClose;
+  ReCalcularTempoCivil  := False;
+  ReCalcularTempoMoradia:= False;
+  JaTestouEmail:= False;
+  if ParSistema.ClientePessoaJuridica then
+  begin
+     tstResidencia.Caption     := ' &2. Endereço';
+     tstDadosComerciais.Caption:= ' &3. Praça Pagto.';
+     tstReferencia.Caption     := ' &5. Entrega';
+  end
+  else
+  begin
+     tstResidencia.Caption     := ' &2. Residência';
+     tstDadosComerciais.Caption:= ' &3. Comercial';
+     tstReferencia.Caption     := ' &5. Referência';
+  end;
+  tstDependentes.TabVisible := ParSistema.ClienteComDependentes;
+
+  if(tstDependentes.TabVisible and not ParSistema.ContratoComServico) then
+    tstDependentes.PageIndex:=7
+  else
+    tstDependentes.PageIndex:=6;
+
+  tstEquipamentos.TabVisible := ParSistema.ContratoComServico;
+  pgcCadastroClientes.ActivePageIndex:= 0;
+  if ParSistema.GerarContabilidade then
+  begin
+    gbxContabilidade.Visible := true;
+    gbxObservacao.Height := 88;
+    mmoClientesObservacoes.Height := 57;
+    pnlOcultarObservacoesClienteVendedor.Height := 57;
+  end
+  else
+  begin
+    gbxContabilidade.Visible := false;
+    gbxObservacao.Height := 88 + gbxContabilidade.Height;
+    mmoClientesObservacoes.Height := 57 + gbxContabilidade.Height;
+    pnlOcultarObservacoesClienteVendedor.Height := 57 + gbxContabilidade.Height;
+  end;
+  gbxPlanoPadrao.Visible := ParSistema.ClientesComPlanoPadrao;
+  pnlOcultarObservacoesClienteVendedor.Visible := ParSistema.OcultarObservacoesClienteVendedor and
+                                                  not (UsuarioLogin.AnalistaCredito or UsuarioLogin.Administrador or
+                                                       UsuarioLogin.Suporte or UsuarioLogin.GerenteCaixa);
+  if pnlOcultarObservacoesClienteVendedor.Visible then
+  begin
+    mmoClientesObservacoes.ReadOnly := true;
+    mmoClientesObservacoes.TabStop  := false;
+  end;
+  ckbNaoExibirFichaFinanceira.Visible := UsuarioLogin.AnalistaCredito or UsuarioLogin.Administrador or UsuarioLogin.Suporte;
+
+
+  fraConsultaModeloDocto := TfraConsultaCodigoContabil.Create(self);
+  fraConsultaModeloDocto.Name := 'ConsultaModeloDocto';
+  fraConsultaModeloDocto.edfCodigo.MaxLength := 2;
+  fraConsultaModeloDocto.edfCodigo.DataSource := dtmCadastroClientes.dsrSeriesClientes;
+  fraConsultaModeloDocto.edfCodigo.DataField := 'modelodoctofiscal';
+  fraConsultaModeloDocto.edfCodigo.Operacao := opATRIBUICAO;
+  fraConsultaModeloDocto.edfCodigo.LookupSource := fraConsultaModeloDocto.dsrProcuraModeloDoctosFiscais;
+  fraConsultaModeloDocto.edfCodigo.LookupField := 'codigo';
+  fraConsultaModeloDocto.edfCodigo.LookupQueryParameter := 'codigo';
+  fraConsultaModeloDocto.AbrirTabelaProcura := false;
+  fraConsultaModeloDocto.TipoPesquisa := pesMODELODOCTOSFISCAIS;
+
+  dbgSerie.OnDelete := dtmCadastroClientes.ExcluirSeriesClientes;
+
+  fraConsultaHistorico.TipoPesquisa:= pesHISTORICOCONTABIL;
+end;
+
+destructor TfrmCadastroClientes.Destroy;
+begin
+//  dtmCadastroClientes.Fecha(ctCrediarioClienteCadastro);
+//  dtmCadastroClientes.Free;
+ // dtmCadastroClientes:=nil;
+
+  if ParSistema.ContratoComServico then
+    dtmCadastroEquipamentos:=nil;
+
+  dtmcadastroclientes := nil;
+  inherited;
+  frmCadastroClientes := nil;
+
+
+end;
+
+function TfrmCadastroClientes.InternoPesquisar(Titulo:String): Integer;
+begin
+  Result:= mrCancel;
+  with dtmCadastroClientes do begin
+    if PermitirProcura then begin
+      AbreTabelasConsulta(TipoProcura);
+      Result := inherited InternoPesquisar(GetTitulo);
+      if Result = mrOK then
+        Selecionar(TipoProcura);
+      FechaTabelasConsulta(TipoProcura);
+    end
+  end;
+end;
+
+function TfrmCadastroClientes.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmCadastroClientes do begin
+    case TipoProcura of
+      tpCLIENTES             : Result := ExisteCliente(NomeCampo, Value);
+      tpCONCEITOSCLIENTES    : Result := ExisteConceito(NomeCampo, Value);
+      tpESTADOSCLIENTES      : Result := ExisteEstado(NomeCampo, Value);
+      tpNATURALCIDADECLIENTES: begin
+                                 case Parametro of
+                                   0: Result := ExisteEstadoCidade(NomeCampo, Value);
+                                  -1: Result := ExisteCidade(NomeCampo, Value);
+                                   else  Result := False;
+                                 end;
+                               end;
+      tpCONJUGECLIENTES      : Result := ExisteCliente(NomeCampo, Value);
+      tpCARGOSCLIENTES       : Result := ExisteCargo(NomeCampo, Value);
+      tpCARGOSCONJUGECLIENTES: Result := ExisteCargo(NomeCampo, Value);
+      tpCONTADEBITO,
+      tpCONTACREDITO         : Result := ExisteContaContabil(NomeCampo, Value);
+      tpPLANOPADRAO          : Result := ExistePlano(NomeCampo, Value)
+      else                     Result := False;
+    end;
+  end;
+end;
+
+function TfrmCadastroClientes.GetTitulo: String;
+begin
+  case TipoProcura of
+    tpCLIENTES,
+    tpCONJUGECLIENTES      : Result := 'Clientes';
+    tpCONCEITOSCLIENTES    : Result := 'Conceitos';
+    tpESTADOSCLIENTES      : Result := 'Estados';
+    tpNATURALCIDADECLIENTES: Result := 'Cidades';
+    tpCARGOSCLIENTES,
+    tpCARGOSCONJUGECLIENTES: Result := 'Cargos';
+    tpPLANOPADRAO          : Result := 'Planos de Pagamento'
+    else                     Result := '';
+  end;
+end;
+
+function TfrmCadastroClientes.InternoExcluir: Boolean;
+begin
+  Result:= False;
+  if not CtrlOn then begin
+    Result:= inherited InternoExcluir;
+    if Result then begin
+      dtmCadastroClientes.ExcluirCliente;
+      pgcCadastroClientes.ActivePage := tstGeral;
+      LimparEditDeTempo;
+    end;
+  end;
+end;
+
+function TfrmCadastroClientes.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+
+  if Result then
+    with dtmCadastroClientes do begin
+      if ReCalcularTempoMoradia then
+        CalcularTempoResidencia(edtResAno.Text,edtResMes.Text);
+
+      if ReCalcularTempoCivil then
+        CalcularTempoCivil(edtCivilAno.Text,edtCivilMes.Text);
+
+      if JaTestouEmail or EmailValido(edtClientesEMail.Text) then begin
+        if (rbnCasado.Checked {or rbnOutros.Checked}) and
+            fracgcoucpf1.rbnFisica.Checked and (not ExisteConjuge and ParSistema.InformarConjugeClienteCasado) then begin
+          MensagemAviso(ctCONJUGENAOINFORMADO);
+          if not (pgcCadastroClientes.ActivePage = tstConjuge) then
+            pgcCadastroClientes.ActivePage := tstConjuge;
+          flkConjuge.SetFocus;
+        end
+        else begin
+          if fracgcoucpf1.edtCPFCNPJ.Criticar(ActiveControl <> fracgcoucpf1.edtCPFCNPJ) then begin
+            if GravarCliente then
+            begin;
+              LimparEditDeTempo;
+              ReCalcularTempoCivil   := False;
+              ReCalcularTempoMoradia := False;
+              tstDependentes.TabVisible := ParSistema.ClienteComDependentes;
+            end;
+          end
+          else
+            if fracgcoucpf1.edtCPFCNPJ.CanFocus then
+               fracgcoucpf1.edtCPFCNPJ.SetFocus;
+        end;
+      end
+      else begin
+        if not (pgcCadastroClientes.ActivePage = tstOutrosDados) then
+          pgcCadastroClientes.ActivePage := tstOutrosDados;
+
+        edtClientesEMail.SetFocus;
+        JaTestouEmail:= False;
+      end;
+    end;
+end;
+
+function TfrmCadastroClientes.InternoIncluir: Boolean;
+begin
+  Result:= False;
+  if not CtrlOn then begin
+    Result:= inherited InternoIncluir;
+    if Result then begin
+       if ParSistema.ContratoComServico then
+         dtmCadastroEquipamentos.ReFazConsulta(dtmCadastroEquipamentos.qryEquipamentosCliente,[0],[0]);
+       dtmCadastroClientes.IncluirCliente;
+       pgcCadastroClientes.ActivePage := tstGeral;
+       edtClientesNome.SetFocus;
+       LimparEditDeTempo;
+       tstDependentes.TabVisible := False;
+    end;
+  end;
+end;
+
+function TfrmCadastroClientes.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  case TipoProcura of
+    tpCLIENTES,
+    tpCONJUGECLIENTES,
+    tpCARGOSCLIENTES,
+    tpCARGOSCONJUGECLIENTES :
+    begin
+{     TfrmConsultaPorCampo(Result).ConsultaInterativa := (((TipoProcura = tpCARGOSCLIENTES) or (TipoProcura = tpCARGOSCONJUGECLIENTES))
+                                                          and  ParSistema.UsarConsultaInterativa);
+//}     TfrmConsultaPorCampo(Result).ConsultaInterativa := False;
+     TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := False;
+    end;
+  else
+  begin
+    TfrmConsultaPorCampo(Result).ConsultaInterativa     := True;
+    TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := True;
+  end;
+  end;
+end;
+
+procedure TfrmCadastroClientes.PosicionarTabelaNoParametro(Ind: Integer; var Continuar: Boolean);
+begin
+  with dtmCadastroClientes do begin
+    if (TipoProcura = tpNATURALCIDADECLIENTES) and (Ind = 0) then
+         PosicionarEstado(dtxClientesNaturalEstado.Text)
+    else Continuar := PosicionarRegistro(TipoProcura, Ind);
+  end;
+end;
+
+function TfrmCadastroClientes.TabelaDePesquisa: TZDataSet;
+begin
+  with dtmCadastroClientes do begin
+    case TipoProcura of
+      tpCLIENTES,
+      tpCONJUGECLIENTES       : Result:= ConsultarCliente;
+      tpCONCEITOSCLIENTES     : Result:= ConsultarConceito;
+      tpESTADOSCLIENTES       : Result:= ConsultarEstado;
+      tpNATURALCIDADECLIENTES : Result:= ConsultarCidade;
+      tpCARGOSCLIENTES,
+      tpCARGOSCONJUGECLIENTES : Result:= ConsultarCargo;
+      tpCONTADEBITO,
+      tpCONTACREDITO          : Result := qryConsultaContaContabil;
+      tpPLANOPADRAO           : Result := ConsultarPlanoPadrao
+      else                      Result:= nil;
+    end;
+  end;
+end;
+
+function TfrmCadastroClientes.TabelaDoParametro(Parametro: Integer): TZDataSet;
+begin
+  Result := nil;
+
+  with dtmCadastroClientes do begin
+    case TipoProcura of
+     tpNATURALCIDADECLIENTES:
+     begin
+        case Parametro of
+         0: Result := ConsultarEstadoCidade;
+        -1: Result := ConsultarCidade;
+         else Result := nil;
+        end;
+     end;
+     tpCLIENTES, tpCONJUGECLIENTES: Result := ConsultarCliente;
+     //tpCARGOSCLIENTES, tpCARGOSCONJUGECLIENTES: Result := ConsultarCargo;
+    end;
+  end;
+end;
+
+procedure TfrmCadastroClientes.KeyDown(var Key: Word; Shift: TShiftState);
+var
+  frmAjuda: TfrmAjuda;
+begin
+  case key of
+    VK_ESCAPE: begin
+                  if FormOrigem='' then
+                  begin
+                    pgcCadastroClientes.ActivePage := tstGeral;
+                    LimparEditDeTempo;
+                  end
+                  else
+                  begin
+                    frmAjuda := TfrmAjuda(FormExists(FormOrigem));
+                    if Assigned(frmAjuda) then
+                      frmajuda.BringToFront;
+                  end;
+               end;
+    VK_Return: begin
+                  if Shift = [] then begin
+                    if ActiveControl = edtClientesPai then begin
+                      pgcCadastroClientes.ActivePage:= tstResidencia;
+                      fraEnderecoResidencia.mmoRua.SetFocus;
+                      Key:= MAXWORD;
+                    end
+                    else if ActiveControl = edtClientesResTempo then begin
+                      pgcCadastroClientes.ActivePage:= tstDadosComerciais;
+                      edtClientesEmpresa.SetFocus;
+                      Key:= MAXWORD;
+                    end
+                    else if ActiveControl = fraFoneRamalComercial.edtFoneRamal then begin
+                      if tstConjuge.TabVisible then begin
+                        pgcCadastroClientes.ActivePage:= tstConjuge;
+                        flkConjuge.SetFocus;
+                        Key:= MAXWORD;
+                      end
+                      else begin
+                        pgcCadastroClientes.ActivePage:= tstReferencia;
+                        edtClientesReferencia.SetFocus;
+                        Key:= MAXWORD;
+                      end;
+                    end
+                    else if (ActiveControl = fraFoneRamalConjuge.edtFoneRamal) then begin
+                      pgcCadastroClientes.ActivePage:= tstReferencia;
+                      edtClientesReferencia.SetFocus;
+                      Key:= MAXWORD;
+                    end
+                    else if ActiveControl = fraFoneRamalReferencia_2.edtFoneRamal then begin
+                      pgcCadastroClientes.ActivePage:= tstOutrosDados;
+                      edtClientesDependentes.SetFocus;
+                      Key:= MAXWORD;
+                    end
+
+                    else if ActiveControl = mmoClientesObservacoes then begin
+                      pgcCadastroClientes.ActivePage:= tstDependentes;
+                      dbgDependentes.SetFocus;
+                      Key:= MAXWORD;
+                    end
+                    else if (ActiveControl = dbgDependentes) then begin
+                      pgcCadastroClientes.ActivePage:= tstEquipamentos;
+                      dbgEquipamentos.SetFocus;
+                      Key:= MAXWORD;
+                    end
+                    else if (ActiveControl = dbgEquipamentos) then begin
+                      pgcCadastroClientes.ActivePage:= tstGeral;
+                      fracgcoucpf1.edtCPFCNPJ.SetFocus;
+                      Key:= MAXWORD;
+                    end;
+                  end
+                end;
+  else
+  if alton or (Shift = [ssAlt]) then
+    begin
+      case key of
+      vk_1 : begin
+               if tstGeral.TabVisible then
+               begin
+                 pgcCadastroClientes.ActivePage := tstGeral;
+                 fracgcoucpf1.edtCPFCNPJ.SetFocus;
+               end;
+             end;
+      vk_2 : begin
+               if tstResidencia.TabVisible then
+               begin
+                 pgcCadastroClientes.ActivePage := tstResidencia;
+                 fraEnderecoResidencia.mmoRua.SetFocus;
+               end;
+             end;
+      vk_3 : begin
+               if tstDadosComerciais.TabVisible then
+               begin
+                 pgcCadastroClientes.ActivePage := tstDadosComerciais;
+                 edtClientesEmpresa.SetFocus;
+               end;
+             end;
+      vk_4 : begin
+              if tstConjuge.TabVisible then
+              begin
+                pgcCadastroClientes.ActivePage := tstConjuge;
+                flkConjuge.SetFocus;
+              end;
+             end;
+      vk_5 : begin
+               if tstReferencia.TabVisible then
+               begin
+                pgcCadastroClientes.ActivePage := tstReferencia;
+                edtClientesReferencia.SetFocus;
+               end;
+             end;
+      vk_6 : begin
+               if tstOutrosDados.TabVisible then
+               begin
+                pgcCadastroClientes.ActivePage := tstOutrosDados;
+                edtClientesDependentes.SetFocus;
+               end;
+             end;
+      vk_7 : begin
+              if tstDependentes.TabVisible then
+              begin
+               pgcCadastroClientes.ActivePage := tstDependentes;
+               dbgDependentes.SetFocus;
+              end;
+             end;
+      vk_8 : begin
+              if tstEquipamentos.TabVisible then
+              begin
+               pgcCadastroClientes.ActivePage := tstEquipamentos;
+               dbgEquipamentos.SetFocus;
+              end;
+             end;
+      vk_9 : begin
+              if tstReceitasOculos.TabVisible then
+               pgcCadastroClientes.ActivePage := tstReceitasOculos;
+             end;
+
+      end;
+    end;
+  end;
+
+  if (Key = VK_F11) and (pgcCadastroClientes.ActivePage = tstEquipamentos) and (dbgEquipamentos.Columns.Count > 0) then
+  begin
+    if (Shift = [ssShift]) then Dec(FDbgColumnsIndex)
+    else                        Inc(FDbgColumnsIndex);
+    if (FDbgColumnsIndex > (dbgEquipamentos.Columns.Count - 1)) then
+      FDbgColumnsIndex:= 0
+    else if (FDbgColumnsIndex < 0) then
+      FDbgColumnsIndex:= (dbgEquipamentos.Columns.Count - 1);
+    OrdenePor(dbgEquipamentos.Columns.Items[FDbgColumnsIndex].Field.FieldName);
+    AlteraTituloGrid;
+  end;
+  if not((Key = VK_ESCAPE) and (FormOrigem <> '')) then
+   inherited;
+
+end;
+
+procedure TfrmCadastroClientes.edtClientesResTempoEnter(Sender: TObject);
+begin
+  edtClientesResTempo.ReadOnly:= (edtResMes.Text <> '') or (edtResAno.Text <> '');
+  if RecalcularTempoMoradia then begin
+    dtmCadastroClientes.CalcularTempoResidencia(edtResAno.Text,edtResMes.Text);
+    RecalcularTempoMoradia := False;
+  end;
+end;
+
+procedure TfrmCadastroClientes.edtClientesCivilDataEnter(Sender: TObject);
+begin
+  edtClientesCivilData.ReadOnly:= (edtCivilMes.Text <> '') or (edtCivilAno.Text <> '');
+  if RecalcularTempoCivil then
+  begin
+    dtmCadastroClientes.CalcularTempoCivil(edtCivilAno.Text,edtCivilMes.Text);
+    ReCalcularTempoCivil := False;
+  end;
+end;
+
+procedure TfrmCadastroClientes.edtClientesCivilDataExit(Sender: TObject);
+begin
+  if dtmCadastroClientes.DataCivilInvalida then
+  begin
+    MensagemAviso(Format(ctDATAINCOMPATIVELDATANASCTO,['civil']));
+    edtClientesCivilData.SetFocus;
+  end;
+end;
+
+procedure TfrmCadastroClientes.sbnProcurarConceitoClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  flkConceitoClientes.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmCadastroClientes.sbnProcurarCargosConjugeClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  flkCargoConjuge.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmCadastroClientes.sbnProcurarConjugeClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  flkConjuge.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmCadastroClientes.sbnProcurarEstadoClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  flkEstadoClientes.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmCadastroClientes.sbnProcurarCargoClientesClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  flkCargoClientes.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmCadastroClientes.edtCivilAnoChange(Sender: TObject);
+begin
+  ReCalcularTempoCivil  := True;
+end;
+
+procedure TfrmCadastroClientes.edtResAnoChange(Sender: TObject);
+begin
+  ReCalcularTempoMoradia:= True;
+end;
+
+procedure TfrmCadastroClientes.LimparEditDeTempo;
+begin
+  edtResAno.Text   := '';
+  edtResMes.Text   := '';
+  edtCivilAno.Text := '';
+  edtCivilMes.Text := '';
+end;
+
+procedure TfrmCadastroClientes.sbnProcurarCidadeClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  flkNaturalidade.SetFocus;
+  TipoProcura := tpNATURALCIDADECLIENTES;
+  InternoPesquisar('');
+end;
+
+procedure TfrmCadastroClientes.ProximoControle(Ind: Integer);
+begin
+  with dtmCadastroClientes do
+    if (TipoProcura = tpNATURALCIDADECLIENTES) then
+      ReFazConsulta(ConsultarCidade,[0],[CodigoEstadoCidade]);
+end;
+
+function TfrmCadastroClientes.PermitirProcura: Boolean;
+begin
+  Result := True;
+  if Assigned(ActiveControl) and (ActiveControl.name = 'edtBairro') then
+    Result := False
+  else if CtrlOn then begin
+    if ActiveControl = flkEstadoClientes then
+      TipoProcura := tpESTADOSCLIENTES
+    else if ActiveControl = flkConceitoClientes then
+      TipoProcura := tpCONCEITOSCLIENTES
+    else if ActiveControl = flkCargoClientes then
+      TipoProcura := tpCARGOSCLIENTES
+    else if ActiveControl = flkCargoConjuge then
+      TipoProcura := tpCARGOSCONJUGECLIENTES
+    else if ActiveControl = flkEstadoClientes then
+      TipoProcura := tpESTADOSCLIENTES
+    else if ActiveControl = flkConjuge then
+      TipoProcura := tpCONJUGECLIENTES
+    else if ActiveControl = flkNaturalidade then
+      TipoProcura := tpNATURALCIDADECLIENTES
+    else if ActiveControl = flkDebitar then
+      TipoProcura:= tpCONTADEBITO
+    else if ActiveControl = flkCreditar then
+      TipoProcura := tpCONTACREDITO
+    else if ActiveControl = flkPlanoPadrao then
+      TipoProcura := tpPLANOPADRAO
+    else
+      Result := False;
+  end else
+    TipoProcura  := tpCLIENTES
+end;
+
+procedure TfrmCadastroClientes.ClientesOnScroll(Sender: TObject);
+begin
+  ReCalcularTempoCivil  := False;
+  ReCalcularTempoMoradia:= False;
+  if(ParSistema.ContratoComServico) then
+    AtualizaEquipamentosCliente;
+end;
+
+procedure TfrmCadastroClientes.edtRendaConjugeChange(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroClientes.CalcularFaixaRendaConjuge;
+end;
+
+procedure TfrmCadastroClientes.edtClientesEmpRendaValorExit(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroClientes.CalcularFaixaRendaCliente;
+end;
+
+procedure TfrmCadastroClientes.edtClientesEmpOutrasValorExit(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroClientes.CalcularFaixaOutrasRendaCliente;
+end;
+
+procedure TfrmCadastroClientes.edtClientesEMailExit(Sender: TObject);
+begin
+  if not EmailValido(edtClientesEMail.Text) then begin
+       edtClientesEMail.SetFocus;
+       JaTestouEmail:= True;
+  end
+  else inherited;
+end;
+
+procedure TfrmCadastroClientes.edtClientesEmpAdmissaoExit(Sender: TObject);
+begin
+  if dtmCadastroClientes.DataAdmissaoInvalida then begin
+    MensagemAviso(format(ctDATAINCOMPATIVELDATANASCTO,['admissão']));
+    edtClientesEmpAdmissao.SetFocus;
+  end;
+end;
+
+procedure TfrmCadastroClientes.edtClientesResTempoExit(Sender: TObject);
+begin
+  inherited;
+  if dtmCadastroClientes.DataTempoResidenciaInvalida then begin
+    MensagemAviso(format(ctDATAINCOMPATIVELDATANASCTO,['tempo residência']));
+    edtClientesResTempo.SetFocus;
+  end;
+end;
+
+procedure TfrmCadastroClientes.aclHabilitarUpdate(Action: TBasicAction; var Handled: Boolean);
+begin
+  inherited;
+  gbxTempo.Enabled      := rbnCasado.Checked;
+  tstConjuge.TabVisible := (fracgcoucpf1.rbnFisica.Checked and (rbnCasado.Checked or rbnOutros.Checked));
+
+
+  if (rbnResPropria.Checked) then
+  begin
+    if ((edtClientesResOnus.Text<>'') and
+        (edtClientesResOnus.Enabled)) then
+    begin
+      edtClientesResOnus.Clear;
+      edtClientesResOnus.Enabled := False;
+    end;
+  end
+  else
+  begin
+   if not edtClientesResOnus.Enabled then
+     edtClientesResOnus.Enabled := True;
+  end;
+
+  if fracgcoucpf1.rbnFisica.Checked then lblDocumento.Caption:= 'Documento'
+  else                                   lblDocumento.Caption:= 'Insc. Estadual';
+  gbxSerie.Visible:= dtmCadastroClientes.TipoPessoa = 'J';
+  tstReceitasOculos.TabVisible := dtmCadastroClientes.ReceitasOculos;
+end;
+
+procedure TfrmCadastroClientes.fracgcoucpf1rgbTipoPessoaChange(Sender: TObject);
+begin
+  inherited;
+  if Assigned(fracgcoucpf1) then 
+    fracgcoucpf1.edtCPFCNPJ.Tipo:= dtmCadastroClientes.TipoPessoa;
+end;
+
+procedure TfrmCadastroClientes.fracgcoucpf1edtCPFCNPJExit(Sender: TObject);
+begin
+  inherited;
+  if dtmCadastroClientes.ClienteJaCadastrado(fracgcoucpf1.edtCPFCNPJ.Text) then
+    if fracgcoucpf1.edtCPFCNPJ.CanFocus then
+      fracgcoucpf1.edtCPFCNPJ.SetFocus;
+end;
+
+procedure TfrmCadastroClientes.sbnExcluirSerieClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroClientes.ExcluirSeriesClientes;
+end;
+
+procedure TfrmCadastroClientes.dbgSerieKeyPress(Sender: TObject; var Key: Char);
+begin
+  inherited;
+  if Key in ['a'..'z'] then
+    Key:= UpCase(Key);
+end;
+
+//-------- Dependentes ---------------------------------------------------------
+procedure TfrmCadastroClientes.AcionaCadastroDependentesClientes(Editar:Boolean);
+begin
+  if not (dtmCadastroClientes.qryClientes.State = dsinsert) then
+  begin
+    frmCadastroDependentesClientes:=TfrmCadastroDependentesClientes.Create(frmCadastroDependentesClientes);
+    with frmCadastroDependentesClientes do
+    begin
+     DataSet := dtmCadastroClientes.TabelaDependentesClientes;
+     SetDataModulo(dtmCadastroClientes);
+     dtmCadastroClientes.IncluirDependentesClientes(Editar);
+     ShowModal;
+     frmCadastroDependentesClientes.free;
+     Application.BringToFront;
+     Self.SetFocus;
+    end;
+  end
+  else
+  begin
+    MensagemAviso('O cliente deve ser cadastrado antes!');
+    pgcCadastroClientes.ActivePage := tstGeral;
+  end;
+end;
+//-------------- Equipamentos ----------------------------------------------------              
+procedure TfrmCadastroClientes.AcionaCadastroEquipamentosClientes(Editar: Boolean);
+begin
+   if not (dtmCadastroClientes.qryClientes.State = dsinsert) then
+   begin
+    frmCadastroEquipamentos:= TfrmCadastroEquipamentos.Create(frmCadastroEquipamentos);
+    with frmCadastroEquipamentos do
+    begin
+     DataSet:= dtmCadastroEquipamentos.qryEquipamentos;
+     SetDataModulo(dtmCadastroEquipamentos);
+     dtmCadastroEquipamentos.IncluirEquipamento(Editar);
+     ShowModal;
+     frmCadastroEquipamentos.free;
+     Application.BringToFront;
+    end;
+  end
+  else begin
+    MensagemAviso('O cliente deve ser cadastrado antes!');
+    pgcCadastroClientes.ActivePage := tstGeral;
+  end;
+end;
+
+procedure TfrmCadastroClientes.dbgEquipamentosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case Key of
+    TeclaInserirRegistro: if (Shift=[ssCtrl]) then AcionaCadastroEquipamentosClientes(False);
+    TeclaEditarRegistro : if (Shift=[ssCtrl]) then AcionaCadastroEquipamentosClientes(True);
+  end;
+end;
+
+procedure TfrmCadastroClientes.dbgEquipamentosDblClick(Sender: TObject);
+begin
+  inherited;
+  AcionaCadastroEquipamentosClientes(True);
+end;
+
+procedure TfrmCadastroClientes.flkConjugeMessage(var Msg: String);
+begin
+  inherited;
+  Msg:= 'O código ' + flkConjuge.Text + ' não está cadastrado, está inativo, ou' + #10#13 +
+        'ou possui o mesmo sexo.';
+end;
+
+procedure TfrmCadastroClientes.edfCodigoClienteFound(Found: Boolean);
+begin
+  inherited;
+  if not rbnCasado.Checked and not rbnOutros.Checked then
+    if (pgcCadastroClientes.ActivePage = tstConjuge) then begin
+      pgcCadastroClientes.ActivePage := tstGeral;
+      edtClientesNome.SetFocus;
+    end;
+  if FormOrigem <> '' then
+    lblEnderecoDesatualizado.Visible := True
+  else
+  if dtmCadastroClientes.CartaDevolvida(ClassName) then
+    lblEnderecoDesatualizado.Visible := True;
+
+  tstDependentes.TabVisible := ParSistema.ClienteComDependentes;
+
+  pgcCadastroClientes.ActivePage := tstGeral;
+end;
+
+procedure TfrmCadastroClientes.fraEnderecoResidenciasbnRuaClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraEnderecoResidencia.sbnRuaClick(Sender);
+
+end;
+
+procedure TfrmCadastroClientes.OperacaoPadrao(Value: array of Variant);
+begin
+  inherited;
+
+  edfCodigoCliente.SetFocus;
+  edfCodigoCliente.Text := Value[0];
+  dtmCadastroClientes.ReFazConsultaCliente(Value[0]);
+  edfCodigoClienteFound(True);
+
+  if (high(Value)=2) then
+  begin
+    application.ProcessMessages;
+    close;
+  end;  
+end;
+
+procedure TfrmCadastroClientes.sbnIncluirEquipamentoClick(Sender: TObject);
+begin
+  inherited;
+  AcionaCadastroEquipamentosClientes(False)
+end;
+
+procedure TfrmCadastroClientes.sbnExcluirEquipamentoClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroEquipamentos.ExcluirEquipamentosCliente;
+end;
+
+procedure TfrmCadastroClientes.tstDependentesShow(Sender: TObject);
+begin
+  inherited;
+  sbnIncluirDependente.Hint := 'Incluir dependentes';
+  sbnExcluirDependente.Hint := 'Excluir dependentes';
+end;
+
+procedure TfrmCadastroClientes.tstEquipamentosShow(Sender: TObject);
+begin
+  inherited;
+  sbnExcluirEquipamento.Hint := 'Incluir equipamentos';
+  sbnIncluirEquipamento.Hint := 'Excluir equipamentos';
+  FDbgColumnsIndex:= 0;
+end;
+
+procedure TfrmCadastroClientes.dbgDependentesDblClick(Sender: TObject);
+begin
+  inherited;
+  AcionaCadastroDependentesClientes(True);
+end;
+
+procedure TfrmCadastroClientes.dbgDependentesKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case Key of
+    TeclaInserirRegistro: AcionaCadastroDependentesClientes(False);
+    TeclaEditarRegistro : AcionaCadastroDependentesClientes(True);
+  end;
+end;
+
+procedure TfrmCadastroClientes.sbnIncluirDependenteClick(Sender: TObject);
+begin
+  inherited;
+  AcionaCadastroDependentesClientes(false);
+end;
+
+procedure TfrmCadastroClientes.sbnExcluirDependenteClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroClientes.ExcluirDependentesClientes;
+end;
+
+procedure TfrmCadastroClientes.ClientesAfterPost(Sender: TObject);
+begin
+  if(ParSistema.ContratoComServico) then
+    AtualizaEquipamentosCliente;
+end;
+
+procedure TfrmCadastroClientes.AtualizaEquipamentosCliente;
+var
+  cliente: integer;
+begin
+  if ParSistema.ContratoComServico then
+  begin
+    if dtmCadastroClientes.qryClientescodigo.AsInteger > 0 then
+      cliente:=dtmCadastroClientes.qryClientescodigo.AsInteger
+    else
+      cliente:=0;
+    dtmCadastroEquipamentos.RefazConsultaEquipamentosClientes(cliente);
+    dtmCadastroEquipamentos.Cliente:=dtmCadastroClientes.qryClientescodigo.AsInteger;
+    dtmCadastroEquipamentos.TabelaClientes:=dtmCadastroClientes.qryClientes;
+  end;
+end;
+
+procedure TfrmCadastroClientes.ClientesAfterClose(Sender: TObject);
+begin
+  if (ParSistema.ContratoComServico) then
+    dtmCadastroEquipamentos.FechaEquipamentosCliente;
+end;
+
+procedure TfrmCadastroClientes.fraEnderecoResidenciaedtCEPChange(
+  Sender: TObject);
+begin
+  inherited;
+  lblEnderecoDesatualizado.Visible:=false;
+end;
+
+procedure TfrmCadastroClientes.fraEnderecoResidenciammoRuaChange(
+  Sender: TObject);
+begin
+  inherited;
+  lblEnderecoDesatualizado.Visible:=false;
+
+end;
+
+procedure TfrmCadastroClientes.fraEnderecoConjugesbnRuaClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraEnderecoConjuge.sbnRuaClick(Sender);
+
+end;
+
+procedure TfrmCadastroClientes.fraEnderecoConjugesbnBairroClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraEnderecoConjuge.sbnBairroClick(Sender);
+end;
+
+procedure TfrmCadastroClientes.sbnConsultaDebitarClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkDebitar, ctCONTADEBITO);
+end;
+
+procedure TfrmCadastroClientes.sbnConsultaCreditarClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkCreditar, ctCONTACREDITO);
+end;
+
+procedure TfrmCadastroClientes.sbnConsultaPlanoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  flkPlanoPadrao.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmCadastroClientes.AcionaCadastroContatos(Editando: Boolean);
+begin
+  if not assigned(frmcadastrocontatos) then
+  begin
+    frmcadastrocontatos := Tfrmcadastrocontatos.Create(frmcadastrocontatos);
+    frmcadastrocontatos.DataSet := dtmCadastroClientes.qryContatosClientes;
+    frmcadastrocontatos.dsrContatos.DataSet := dtmCadastroClientes.qryContatosClientes;
+  end;
+
+  if not Editando then
+    frmcadastrocontatos.dsrContatos.DataSet.Append;
+
+  frmcadastrocontatos.ShowModal;
+
+  frmcadastrocontatos.free;
+
+end;
+
+procedure TfrmCadastroClientes.sbnIncluirContatoClick(Sender: TObject);
+begin
+  inherited;
+   AcionaCadastroContatos(False);
+end;
+
+procedure TfrmCadastroClientes.sbnExcluirContatoClick(Sender: TObject);
+begin
+  inherited;
+        dtmCadastroClientes.ExcluirContatosClientes;
+end;
+
+procedure TfrmCadastroClientes.dbgContatosDblClick(Sender: TObject);
+begin
+  inherited;
+        AcionaCadastroContatos(True);
+end;
+
+procedure TfrmCadastroClientes.dbgContatosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+    case Key of
+      TeclaInserirRegistro: AcionaCadastroContatos(False);
+      TeclaEditarRegistro : AcionaCadastroContatos(True);
+    end;
+end;
+
+procedure TfrmCadastroClientes.edtClientesNasctoExit(Sender: TObject);
+begin
+  inherited;
+  if edtClientesNascto.Text <> '' then
+  edtClientesaniversario.Text:= Copy(edtClientesNascto.Text,0,5);
+end;
+
+procedure TfrmCadastroClientes.AlteraTituloGrid;
+var a: Integer;
+begin
+  for a:= 0 to dbgEquipamentos.Columns.Count -1 do
+    dbgEquipamentos.Columns[a].Title.Font.Style:= [];
+  if (dbgEquipamentos.Columns.Count > 0) then
+  begin
+    if FDbgColumnsIndex >= dbgEquipamentos.Columns.Count then
+      FDbgColumnsIndex := dbgEquipamentos.Columns.Count - 1;
+    dbgEquipamentos.Columns[FDbgColumnsIndex].Title.Font.Style:= [fsBold];
+    dbgEquipamentos.Columns[FDbgColumnsIndex].Title.Alignment := taCenter;
+    if Assigned(Lbo) then
+      Lbo.Caption:= dbgEquipamentos.Columns[FDbgColumnsIndex].Title.Caption;
+  end;
+end;
+
+procedure TfrmCadastroClientes.OrdenePor(NomeCampo: String);
+begin
+  with dtmCadastroEquipamentos do
+  begin
+    qryEquipamentosCliente.Close;
+    if (NomeCampo = 'equipamento') or (NomeCampo = 'codigo') then
+      qryEquipamentosCliente.MacroByName('OrderBy').AsString  := 'order by (ec.' +(NomeCampo)+')'
+    else if NomeCampo = 'descricaomarca' then
+      qryEquipamentosCliente.MacroByName('OrderBy').AsString  := 'order by (m.descricao)'
+    else if (NomeCampo = 'descricao') or (NomeCampo = 'referencia') or (NomeCampo = 'modelo')
+         or (NomeCampo = 'ano') or (NomeCampo = 'opcionais') then
+        qryEquipamentosCliente.MacroByName('OrderBy').AsString  := 'order by (e.'+(NomeCampo)+')';
+
+    qryEquipamentosCliente.Params[0].AsString:= dtmCadastroClientes.qryClientescodigo.AsString;
+    qryEquipamentosCliente.Open;
+  end;
+end;
+
+procedure TfrmCadastroClientes.dbgSerieKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if CtrlOn then
+  begin
+    case Key of
+      VK_F9 : AcionaPesquisaGrade
+    end;
+  end
+  else
+  begin
+    case key of
+      VK_Return :
+      begin
+        case dbgSerie.SelectedIndex of
+        1 : begin
+              if not fraConsultaModeloDocto.edfCodigo.Exist then
+                dbgSerie.DataSource.DataSet.FieldByName('modelodoctofiscal').Clear;
+              dbgSerie.SelectedIndex := 1;
+              dbgSerie.SetFocus;
+            end;
+        end;
+        if dtmCadastroClientes.qrySeriesClientes.State in [dsedit, dsinsert] then
+           dtmCadastroClientes.qrySeriesClientes.Post;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmCadastroClientes.AcionaPesquisaGrade;
+begin
+  fraConsultaModeloDocto.CtrlOn := True;
+  dbgSerie.SetFocus;
+  fraConsultaModeloDocto.InternoPesquisar('Modelo do Documento Fiscal');
+  dbgSerie.SelectedIndex :=  0;
+end;
+
+procedure TfrmCadastroClientes.FormShow(Sender: TObject);
+begin
+  inherited;
+  edfCodigoCliente.SetFocus;
+end;
+
+end.

@@ -1,0 +1,524 @@
+{$I ACBr.inc}
+unit PixRetornoSantander;
+
+interface
+
+uses
+  Classes, SysUtils, contnrs, ACBrUtil;
+
+type
+
+  THeader = class
+  private
+    fCODIGO_DE_RETORNO: string;
+    fCONTA: string;
+    fBRANCOS: string;
+    FDATA_DE_GERACAO: string;
+    fVERSAO_DO_ARQUIVO: string;
+    fNUMERO_SEQUENCIAL_DO_ARQUIVO: string;
+    fLITERAL_DE_RETORNO: string;
+    fAGENCIA: string;
+    FCHAVE_Pix: string;
+    FEXCLUSIVO_PSP_RECEBEDOR: string;
+    fISPB_PARTICIPANTE: string;
+    fRETORNO_CODIGO_DO_SERVICO: string;
+    fLITERAL_DE_SERVICO: string;
+    fCODIGO_DE_INSCRICAO: string;
+    fTIPO_DE_REGISTRO: string;
+    fCODIGOS_DE_ERRO: string;
+    FTIPO_CONTA: string;
+    fCPF_CNPJ: string;
+    FCODIGO_DO_CONVENIO: string;
+    fIPO_DE_REGISTRO: string;
+  public
+           // NOME DO CAMPO                                                         SIGNIFICADO                        OBRIGATÓRIO    POSIÇÃO PICTURE CONTEÚDO
+    property TIPO_DE_REGISTRO  : string read fIPO_DE_REGISTRO    write fTIPO_DE_REGISTRO;  //IDENTIFICAÇÃO DO REGISTRO HEADER SIM            001 001 9(01)   0
+    property CODIGO_DE_RETORNO : string read fCODIGO_DE_RETORNO  write fCODIGO_DE_RETORNO; //IDENTIFICAÇÃO DO ARQUIVO RETORNO SIM            002 002 9(01)   2
+    property LITERAL_DE_RETORNO: string read fLITERAL_DE_RETORNO write fLITERAL_DE_RETORNO; //IDENTIFICAÇÃO. POR EXTENSO DO TIPO DE MOVIMENTO
+                                                                                    //                                 SIM            003 009 X(07)
+    property RETORNO_CODIGO_DO_SERVICO: string read fRETORNO_CODIGO_DO_SERVICO write fRETORNO_CODIGO_DO_SERVICO;
+                                                                                    //IDENTIFICAÇÃO DO TIPO DE SERVIÇO SIM            010 011 9(02)   02
+    property LITERAL_DE_SERVICO: string READ fLITERAL_DE_SERVICO write fLITERAL_DE_SERVICO; //IDENTIFICAÇÃO POR EXTENSO DO TIPO DE SERVIÇO
+                                                                                    //                                 SIM            012 026 X(15) PIX
+    property ISPB_PARTICIPANTE: string read fISPB_PARTICIPANTE write fISPB_PARTICIPANTE;    //PSP DO USUARIO RECEBEDOR         SIM            027 034 X(08) Deve ser preenchido com ISPB do PSP
+    property CODIGO_DE_INSCRICAO: string read fCODIGO_DE_INSCRICAO write fCODIGO_DE_INSCRICAO; //TIPO DE INSCRIÇÃO SIM 035 036 9(02) NOTA 1
+    property CPF_CNPJ: string read fCPF_CNPJ write fCPF_CNPJ;                              //CPF CNPJ DO USUARIO RECEBEDOR SIM 037 050 9(14) Identificação única do usuário recebedor
+    property AGENCIA: string read fAGENCIA write fAGENCIA;                                 //AGÊNCIA DO USUARIO RECEBEDOR NÃO 051 054 9(04) Agência do usuário recebedor.
+    property CONTA: string Read fCONTA write fCONTA;                                       //CONTA USUÁRIO RECEBEDOR NÃO 055 074 9(20) Número da conta transacional usuário recebedor
+    property TIPO_CONTA:string  read fTIPO_CONTA  write FTIPO_CONTA;                       //TIPO CONTA USUÁRIO RECEBEDOR NÃO 075 078 X(04) NOTA 2
+    property CHAVE_Pix: string read fCHAVE_Pix  write FCHAVE_Pix;                          // CHAVE Pix NÃO 079 155 X(77) NOTA 3
+    property DATA_DE_GERACAO: string read fDATA_DE_GERACAO  write FDATA_DE_GERACAO;        //DATA DE GERAÇÃO DO ARQUIVO SIM 156 163 9(08) AAAAMMDD
+    property CODIGO_DO_CONVENIO: string read fCODIGO_DO_CONVENIO  write FCODIGO_DO_CONVENIO;  // CÓDIGO DO CONVENIO NÃO 164 193 X(30) Branco
+    property EXCLUSIVO_PSP_RECEBEDOR: string read fEXCLUSIVO_PSP_RECEBEDOR  write FEXCLUSIVO_PSP_RECEBEDOR;
+                                                                                   // EXCLUSIVO PSP RECEBEDOR NÃO 194 253 X(60) Campo para uso exclusivo do PSP recebedor – Hora geração
+    property CODIGOS_DE_ERRO: string read fCODIGOS_DE_ERRO write fCODIGOS_DE_ERRO;         //CÓDIGOS DE ERRO NÃO 254 283 X(30)
+    property BRANCOS: string read fBRANCOS write fBRANCOS;                                 //COMPLEMENTO DO REGISTRO NÃO 284 7741 X(458)
+    property VERSAO_DO_ARQUIVO: string read fVERSAO_DO_ARQUIVO write fVERSAO_DO_ARQUIVO;  //VERSAO DO LAYOUT DO ARQUIVO SIM 742 744 9(3) 1 CONTEÚDO PODE SER ALTERADO DE ACORDO COM VERSÃO DO LAYOUT
+    Property NUMERO_SEQUENCIAL_DO_ARQUIVO: string read fNUMERO_SEQUENCIAL_DO_ARQUIVO  write fNUMERO_SEQUENCIAL_DO_ARQUIVO;
+                                                                                   //NÚMERO SEQÜENCIAL DO REGISTRO SIM 745 750 9(06) 000001
+  end;
+
+
+
+  tTransacao = class
+  private
+    fVALOR_OBRIGATORIO: Currency;
+    fVALOR_ORIGINAL: Currency;
+    fVALOR_PAGO: Currency;
+    fVALOR_JUROS: Currency;
+    fVALOR_MULTA: Currency;
+    fVALOR_DESCONTO: Currency;
+    fVALOR_FINAL: Currency;
+    fCHAVE_Pix: String;
+    fDATA_DE_VENCIMENTO: String;
+    fAGENCIA: String;
+    fCPFCNPJ_DEVEDOR: String;
+    fBRANCOS: String;
+    fCPFCNPJ_PAGADOR_FINAL: String;
+    fCONTA: String;
+    fDATA_DO_MOVIMENTO: String;
+    fTIPO_COBRANCA: String;
+    fEXPIRACAO: String;
+    fCOD_DO_MOVIMENTO: String;
+    fTIPO_DE_REGISTRO: String;
+    fISPB_PARTICIPANTE: String;
+    fCPF_CNPJ: String;
+    fNOME_PAGADOR_FINAL: String;
+    fCODIGO_DE_INSCRICAO: String;
+    fTARIFA_DE_COBRANCA: Currency;
+    fMENSAGEM_PAGADOR_FINAL: String;
+    fCODIGO_DE_INSCRICAO_DEVEDOR: String;
+    fCOD_DE_LIQUIDACAO: String;
+    fNUMERO_SEQUENCIAL: String;
+    fCODIGO_DE_INSCRICAO_PAGADOR_FINAL: String;
+    fEND_TO_END_ID: String;
+    fCODIGOS_DE_ERRO: String;
+    fTIPO_CONTA: String;
+    fIDENTIFICADOR: String;
+
+  public
+
+   Property TIPO_DE_REGISTRO: String read fTIPO_DE_REGISTRO write fTIPO_DE_REGISTRO;  //IDENTIFICAÇÃO DO REGISTRO TRANSAÇÃO SIM 001 001 9(01) 1
+   Property ISPB_PARTICIPANTE: String read fISPB_PARTICIPANTE write fISPB_PARTICIPANTE; //PSP DO USUARIO RECEBEDOR SIM 002 009 X(08) Deve ser preenchido com ISPB do PSP
+   Property CODIGO_DE_INSCRICAO: String read fCODIGO_DE_INSCRICAO write fCODIGO_DE_INSCRICAO;//TIPO DE INSCRIÇÃO SIM 010 011  9(02) NOTA 1
+   Property CPF_CNPJ: String read fCPF_CNPJ write fCPF_CNPJ;//CPF CNPJ DO USUARIO RECEBEDOR SIM 012 025 9(14) Identificação única do usuário recebedor
+   Property AGENCIA: String read fAGENCIA write fAGENCIA;//AGÊNCIA DO USUARIO RECEBEDOR SIM 026 029 9(04) Agência do usuário recebedor.
+   Property CONTA: String read fCONTA write fCONTA;//CONTA USUÁRIO RECEBEDOR SIM 030 049 9(20) Número da conta transacional usuário recebedor
+   Property TIPO_CONTA: String read fTIPO_CONTA write fTIPO_CONTA;//TIPO CONTA USUÁRIO RECEBEDOR SIM 050 053 X(04) NOTA 2
+   Property CHAVE_Pix: String read fCHAVE_Pix write fCHAVE_Pix;//CHAVE Pix SIM 054 130 X(77) NOTA 3
+   Property TIPO_COBRANCA: String read fTIPO_COBRANCA write fTIPO_COBRANCA;//TIPO COBRANÇA SIM 131 131 X(01) NOTA 4
+   Property COD_DO_MOVIMENTO: String read fCOD_DO_MOVIMENTO write fCOD_DO_MOVIMENTO;//IDENTIFICAÇÃO DO MOVIMENTO RETORNADO SIM 132 133 9(02) DATA DO MOVIMENTO
+   Property DATA_DO_MOVIMENTO: String read fDATA_DO_MOVIMENTO write fDATA_DO_MOVIMENTO; //RETORNADO SIM 134 141 9(08) AAAAMMDD
+   Property IDENTIFICADOR: String read fIDENTIFICADOR write fIDENTIFICADOR; //TRANSACTION ID (TXID) SIM 142 176 X(35)
+   Property EXPIRACAO: String read fEXPIRACAO write fEXPIRACAO;   //TEMPO DE EXPIRAÇÃO DO QR CODE EM SEGUNDOS NÃO 177 191 9(15) DEFAULT 86400 (24 horas) Tempo de vida da cobrança, especificado em segundos a partir da data de criação
+   Property DATA_DE_VENCIMENTO: String read fDATA_DE_VENCIMENTO write fDATA_DE_VENCIMENTO; //DATA DE VENCIMENTO DO PAGAMENTO NÃO 192 199 9(08) AAAAMMDD
+   Property VALOR_ORIGINAL: Currency read fVALOR_ORIGINAL write fVALOR_ORIGINAL; //VALOR ORIGINAL DO DOCUMENTO NÃO 200 216 9(15)V9(2)
+   Property VALOR_OBRIGATORIO: Currency read fVALOR_OBRIGATORIO write fVALOR_OBRIGATORIO;//APENAS PARA QR CODE DINÃMICO
+   Property VALOR_JUROS: Currency read fVALOR_JUROS write fVALOR_JUROS;//VALOR DE JUROS PAGOS PELO PAGADOR NÃO 217 233 9(15)V9(2)
+   Property VALOR_MULTA: Currency read fVALOR_MULTA write fVALOR_MULTA;//VALOR DA MULTA PAGA PELO PAGADOR NÃO 234 250 9(15)V9(2)
+   Property VALOR_DESCONTO: Currency read fVALOR_DESCONTO write fVALOR_DESCONTO;// ABATIMENTO  //VALOR DO DESCONTO / ABATIMENTO CONCEDIDO NÃO 251 267 9(15)V9(2)
+   Property VALOR_FINAL: Currency read fVALOR_FINAL write fVALOR_FINAL;   //VALOR CALCULADO PARA PAGAMENTO NÃO 268 284 9(15)V9(2) VALOR CALCULADO PARA PAGAMENTO
+   Property VALOR_PAGO: Currency read fVALOR_PAGO write fVALOR_PAGO;//VALOR LANÇADO EM CONTA CORRENTE NÃO 285 301 9(15)V9(2) VALOR PAGO
+   Property TARIFA_DE_COBRANCA: Currency read fTARIFA_DE_COBRANCA write fTARIFA_DE_COBRANCA; //VALOR DA TARIFA NÃO 302 318 9(15)V9(2) TARIFA COBRADA
+   Property CODIGO_DE_INSCRICAO_DEVEDOR: String read fCODIGO_DE_INSCRICAO_DEVEDOR write fCODIGO_DE_INSCRICAO_DEVEDOR;  //CÓDIGO INSCRIÇÃO DO PAGADOR CADASTRADO NÃO 319 320 9(02) NOTA 1
+   Property CPFCNPJ_DEVEDOR: String read fCPFCNPJ_DEVEDOR write fCPFCNPJ_DEVEDOR; //CPF CNPJ DO PAGADOR CADASTRADO NA GERAÇÃO DO QR CODE NÃO 321 334 9(14)
+   Property MENSAGEM_PAGADOR_FINAL: String read fMENSAGEM_PAGADOR_FINAL write fMENSAGEM_PAGADOR_FINAL; //MENSAGEM ENVIADA PELO CLIENTE QUE EFETUOU O PAGAMENTO NÃO 335 474 X(140)
+   Property CODIGO_DE_INSCRICAO_PAGADOR_FINAL: String read fCODIGO_DE_INSCRICAO_PAGADOR_FINAL write fCODIGO_DE_INSCRICAO_PAGADOR_FINAL; //CÓDIGO INSCRIÇÃO DO CLIENTE QUE EFETUOU O PAGAMENTO NÃO 475 476 9(02) NOTA 1
+   Property CPFCNPJ_PAGADOR_FINAL: String read fCPFCNPJ_PAGADOR_FINAL write fCPFCNPJ_PAGADOR_FINAL; //CPF CNPJ DO CLIENTE QUE EFETUOU O PAGAMENTONÃO 477 490 9(14)
+   property NOME_PAGADOR_FINAL: String read fNOME_PAGADOR_FINAL write fNOME_PAGADOR_FINAL; //NOME CLIENTE QUE EFETUOU O PAGAMENTO NÃO 491 630 X(140)
+   Property COD_DE_LIQUIDACAO: String read fCOD_DE_LIQUIDACAO write fCOD_DE_LIQUIDACAO; //MEIO PELO QUAL O PAGTO EFETUADO NÃO 631 632 X(02) NOTA 06
+   Property END_TO_END_ID: String read fEND_TO_END_ID write fEND_TO_END_ID; // ID FIM A FIM DA TRANSAÇÃO NÃO 633 667 X(35) Esse campo transita nas mensagens de recebimento dos QR Codes e transferências.
+                          //Pode ser utilizado e outras consultas ou na devolução.
+   Property CODIGOS_DE_ERRO: String read fCODIGOS_DE_ERRO write fCODIGOS_DE_ERRO; //CÓDIGOS DE ERRO DOS COMANDOS REJEITADOS NÃO 668 697 X(30)
+   Property BRANCOS: String read fBRANCOS write fBRANCOS; //COMPLEMENTO DE REGISTRO NÃO 698 744 X(47)
+   Property NUMERO_SEQUENCIAL: String read fNUMERO_SEQUENCIAL write fNUMERO_SEQUENCIAL; //NÚMERO SEQÜENCIAL DO REGISTRO NO ARQUIVO SIM 745 750 9(06)
+
+  end;
+
+  TTransacaoList = class(TObjectList)
+  private
+    function GetItem(Index: Integer): tTransacao;
+    procedure SetItem(Index: Integer; const Value: tTransacao);
+  public
+    function New: TTransacao;
+    property Items[Index: Integer]: tTransacao read GetItem write SetItem;
+  end;
+
+  tInfAdicionais = class
+  private
+    fVALOR_2: String;
+    fVALOR_1: String;
+    fBRANCOS: String;
+    fNUMERO_SEQUENCIAL_DETALHE: String;
+    fNOME_1: String;
+    fTIPO_DE_REGISTRO: String;
+    fNUMERO_SEQuENCIAL_INFOADICIONAIS: String;
+    fIDENTIFICADOR: String;
+    fNOME_2: String;
+
+  public
+   Property TIPO_DE_REGISTRO: String read fTIPO_DE_REGISTRO write fTIPO_DE_REGISTRO; //IDENTIFICAÇÃO DO REGISTRO TRANSAÇÃO SIM 001 001 9(01) 2
+   Property IDENTIFICADOR: String read fIDENTIFICADOR write fIDENTIFICADOR; //TRANSACTION ID (TXID) SIM 002 036 X(35)
+   Property NOME_1: String read fNOME_1 write fNOME_1; //NOME DO CAMPO SIM 037 086 X(50)
+   Property VALOR_1: String read fVALOR_1 write fVALOR_1; //CONTEÚDO DO CAMPO SIM 087 286 X(200)
+   Property NOME_2: String read fNOME_2 write fNOME_2; //NOME DO CAMPO NÃO 287 336 X(50)
+   Property VALOR_2: String read fVALOR_2 write fVALOR_2; //CONTEÚDO DO CAMPO NÃO 337 536 X(200)
+   Property BRANCOS: String read fBRANCOS write fBRANCOS; //BRANCOS NÃO 537 738 X(202)
+   Property NUMERO_SEQUENCIAL_DETALHE: String read fNUMERO_SEQUENCIAL_DETALHE write fNUMERO_SEQUENCIAL_DETALHE;  //No. SEQUENCIAL DO REGISTRO DETALHE (1) DO ARQUIVO SIM 739 744 9(06)
+   Property NUMERO_SEQuENCIAL_INFOADICIONAIS: String read fNUMERO_SEQuENCIAL_INFOADICIONAIS write fNUMERO_SEQuENCIAL_INFOADICIONAIS; //No. SEQUENCIAL DO REGISTRO INFORMAÇÕES ADICIONAIS (2) DO ARQUIVO SIM 745 750 9(06)
+
+  end;
+
+  TInfAdicionaisList = class(TObjectList)
+  private
+    function GetItem(Index: Integer): TInfAdicionais;
+    procedure SetItem(Index: Integer; const Value: TInfAdicionais);
+  public
+    function New: TInfAdicionais;
+    property Items[Index: Integer]: TInfAdicionais read GetItem write SetItem;
+  end;
+
+
+  tQR_CODE_PIX_LINK = class
+  private
+    fCOD_DO_MOVIMENTO: String;
+    fNUMERO_SEQUENCIAL: String;
+    fCHAVE_Pix: String;
+    fDATA_DO_MOVIMENTO: String;
+    fTIPO_DE_REGISTRO: String;
+    fLOCATION: String;
+    fPIX_LINK: String;
+    fIDENTIFICADOR: String;
+
+  public
+    Property TIPO_DE_REGISTRO: String read fTIPO_DE_REGISTRO write fTIPO_DE_REGISTRO; //IDENTIFICAÇÃO DO REGISTRO TRANSAÇÃO SIM 001 001 9(01) 3
+    Property CHAVE_Pix: String read fCHAVE_Pix write fCHAVE_Pix; // CHAVE Pix SIM 002 078 X(77)
+    Property COD_DO_MOVIMENTO: String read fCOD_DO_MOVIMENTO write fCOD_DO_MOVIMENTO; //IDENTIFICAÇÃO DO MOVIMENTO RETORNADO SIM 079 080 9(02)
+    Property DATA_DO_MOVIMENTO: String read fDATA_DO_MOVIMENTO write fDATA_DO_MOVIMENTO; //DATA DO MOVIMENTO RETORNADO SIM 081 088 9(08) AAAAMMDD
+    Property IDENTIFICADOR: String read fIDENTIFICADOR write fIDENTIFICADOR; //TRANSACTION ID (TXID) SIM 089 123 X(35)
+    Property PIX_LINK: String read fPIX_LINK write fPIX_LINK; //PIX LINK SIM 124 623 X(500)
+    Property LOCATION: String read fLOCATION write fLOCATION; //LINK PARA PAYLOAD JSON (URL) NÃO 624 700 X(77) URL PRESENTE NO EMV DO QR CODE DINAMICO E QUE CONTÉM OS DADOS DA COBRANÇA BRANCOS BRANCOS NÃO 701 744 X(44)
+    Property NUMERO_SEQUENCIAL: String read fNUMERO_SEQUENCIAL write fNUMERO_SEQUENCIAL; //NÚMERO SEQÜENCIAL DO REGISTRO NO ARQUIVO SIM 745 750 9(06)
+
+  end;
+
+  tQR_CODE_PIX_LINKList = class(TObjectList)
+  private
+    function GetItem(Index: Integer): tQR_CODE_PIX_LINK;
+    procedure SetItem(Index: Integer; const Value: tQR_CODE_PIX_LINK);
+  public
+    function New: tQR_CODE_PIX_LINK;
+    property Items[Index: Integer]: tQR_CODE_PIX_LINK read GetItem write SetItem;
+  end;
+
+
+  tQR_CODE_IMAGEM = class
+  private
+    fCOD_DO_MOVIMENTO: String;
+    fNUMERO_SEQUENCIAL: String;
+    fCHAVE_Pix: String;
+    fDATA_DO_MOVIMENTO: String;
+    fTIPO_DE_REGISTRO: String;
+    fLOCATION: String;
+    fEMV_DO_QR_CODE: String;
+    fIDENTIFICADOR: String;
+
+  public
+    Property TIPO_DE_REGISTRO: String read fTIPO_DE_REGISTRO write fTIPO_DE_REGISTRO; //IDENTIFICAÇÃO DO REGISTRO TRANSAÇÃO SIM 001 001 9(01) 3
+    Property CHAVE_Pix: String read fCHAVE_Pix write fCHAVE_Pix; // CHAVE Pix SIM 002 078 X(77)
+    Property COD_DO_MOVIMENTO: String read fCOD_DO_MOVIMENTO write fCOD_DO_MOVIMENTO; //IDENTIFICAÇÃO DO MOVIMENTO RETORNADO SIM 079 080 9(02)
+    Property DATA_DO_MOVIMENTO: String read fDATA_DO_MOVIMENTO write fDATA_DO_MOVIMENTO; //DATA DO MOVIMENTO RETORNADO SIM 081 088 9(08) AAAAMMDD
+    Property IDENTIFICADOR: String read fIDENTIFICADOR write fIDENTIFICADOR; //TRANSACTION ID (TXID) SIM 089 123 X(35)
+    Property EMV_DO_QR_CODE: String read fEMV_DO_QR_CODE write fEMV_DO_QR_CODE; //EMV DO QRCODE SIM 124 623 X(500)
+    Property LOCATION: String read fLOCATION write fLOCATION; //LINK PARA PAYLOAD JSON (URL) NÃO 624 700 X(77) URL PRESENTE NO EMV DO QR CODE DINAMICO E QUE CONTÉM OS DADOS DA COBRANÇA BRANCOS BRANCOS NÃO 701 744 X(44)
+    Property NUMERO_SEQUENCIAL: String read fNUMERO_SEQUENCIAL write fNUMERO_SEQUENCIAL; //NÚMERO SEQÜENCIAL DO REGISTRO NO ARQUIVO SIM 745 750 9(06)
+
+  end;
+
+  tQR_CODE_IMAGEMList = class(TObjectList)
+  private
+    function GetItem(Index: Integer): tQR_CODE_IMAGEM;
+    procedure SetItem(Index: Integer; const Value: tQR_CODE_IMAGEM);
+  public
+    function New: tQR_CODE_IMAGEM;
+    property Items[Index: Integer]:  tQR_CODE_IMAGEM read GetItem write SetItem;
+  end;
+
+
+  tTRAILER = class
+  private
+    fCODIGO_DE_RETORNO: String;
+    fBRANCOS: String;
+    fISPB: String;
+    fCODIGO_DE_SERVICO: String;
+    fQTDE_DE_DETALHES: String;
+    fTIPO_DE_REGISTRO: String;
+    fNUMERO_SEQUENCIAL: String;
+    fCODIGOS_DE_ERRO: String;
+
+  public
+    Property TIPO_DE_REGISTRO: String read fTIPO_DE_REGISTRO write fTIPO_DE_REGISTRO;//IDENTIFICAÇÃO DO REGISTRO TRAILER SIM 001 001 9(01) 9
+    Property CODIGO_DE_RETORNO: String read fCODIGO_DE_RETORNO write fCODIGO_DE_RETORNO; //IDENTIFICAÇÃO DE ARQUIVO RETORNO SIM 002 002 9(01) 2
+    Property CODIGO_DE_SERVICO: String read fCODIGO_DE_SERVICO write fCODIGO_DE_SERVICO; //IDENTIFICAÇÃO DO TIPO DE SERVIÇO SIM 003 004 9(02) 02
+    Property ISPB: String read fISPB write fISPB; //ISPB SIM 005 012 X(08)
+    Property CODIGOS_DE_ERRO: String read fCODIGOS_DE_ERRO write fCODIGOS_DE_ERRO; //CÓDIGOS DE ERRO NÃO 013 042 X(30)
+    Property BRANCOS: String read fBRANCOS write fBRANCOS; //BRANCOS NÃO 043 729 X(687)
+    Property QTDE_DE_DETALHES: String read fQTDE_DE_DETALHES write fQTDE_DE_DETALHES; //QUANTIDADE DE REGISTROS DE TRANSAÇÃO SIM 730 744 9(15)
+    Property NUMERO_SEQUENCIAL: String read fNUMERO_SEQUENCIAL write fNUMERO_SEQUENCIAL; //NÚMERO SEQÜENCIAL DO REGISTRO NO ARQUIVO SIM 745 750 9(06)
+  end;
+
+  TPixRetornoSantander = class
+  private
+    FHeader: THeader;
+    fInfAdicionaisList: tInfAdicionaisList;
+    fQR_CODE_IMAGEMList: tQR_CODE_IMAGEMList;
+    fQR_CODE_PIX_LINKList: tQR_CODE_PIX_LINKList;
+    fTRAILER: tTRAILER;
+    fTransacaoList: tTransacaoList;
+    fNomeArqRetorno: String;
+    fDirArqRetorno: String;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    property Header                : THeader        read FHeader                write FHeader;
+    property TransacaoList         : tTransacaoList read fTransacaoList         write fTransacaoList;
+    property InfAdicionaisList     : tInfAdicionaisList read fInfAdicionaisList write fInfAdicionaisList;
+    property QR_CODE_PIX_LINKList  : tQR_CODE_PIX_LINKList read fQR_CODE_PIX_LINKList write fQR_CODE_PIX_LINKList;
+    property QR_CODE_IMAGEMLIst    : tQR_CODE_IMAGEMList read fQR_CODE_IMAGEMList write fQR_CODE_IMAGEMList;
+    property TRAILER               : tTRAILER       read fTRAILER write fTRAILER;
+
+    property NomeArqRetorno : String             read fNomeArqRetorno         write fNomeArqRetorno;
+    property DirArqRetorno  : String             read fDirArqRetorno          write fDirArqRetorno;
+
+    procedure LerRetorno;
+    Procedure LerRetorno750(ARetorno:TStringList);
+  end;
+
+
+
+   { TTituloRet }
+
+implementation
+
+{ TListaRejeicao }
+
+
+
+
+{ TRegistroTransacaoList }
+
+function TTransacaoList.GetItem(Index: Integer): TTransacao;
+begin
+  Result := TTransacao(Inherited Items[Index]);
+end;
+
+function TTransacaoList.New: TTransacao;
+begin
+  Result := TTransacao.Create;
+  Add(Result);
+end;
+
+procedure TTransacaoList.SetItem(Index: Integer;
+  const Value: TTransacao);
+begin
+  Put(Index, Value);
+end;
+
+{ TInfAdicionaisList }
+
+function TInfAdicionaisList.GetItem(Index: Integer): TInfAdicionais;
+begin
+  Result := TInfAdicionais(Inherited Items[Index]);
+end;
+
+function TInfAdicionaisList.New: TInfAdicionais;
+begin
+  Result :=  TInfAdicionais.Create;
+  Add(Result);
+end;
+
+procedure TInfAdicionaisList.SetItem(Index: Integer;
+  const Value: TInfAdicionais);
+begin
+  Put(Index, Value);
+end;
+
+{ tQR_CODE_PIX_LINKList }
+
+function tQR_CODE_PIX_LINKList.GetItem(Index: Integer): tQR_CODE_PIX_LINK;
+begin
+  Result := tQR_CODE_PIX_LINK(Inherited Items[Index]);
+end;
+
+function tQR_CODE_PIX_LINKList.New: tQR_CODE_PIX_LINK;
+begin
+  Result :=  tQR_CODE_PIX_LINK.Create;
+  Add(Result);
+end;
+
+procedure tQR_CODE_PIX_LINKList.SetItem(Index: Integer;
+  const Value: tQR_CODE_PIX_LINK);
+begin
+  Put(Index, Value);
+end;
+
+{ tQR_CODE_IMAGEMList }
+
+function tQR_CODE_IMAGEMList.GetItem(Index: Integer): tQR_CODE_IMAGEM;
+begin
+  Result := tQR_CODE_IMAGEM(Inherited Items[Index]);
+end;
+
+function tQR_CODE_IMAGEMList.New: tQR_CODE_IMAGEM;
+begin
+  Result :=  tQR_CODE_IMAGEM.Create;
+  Add(Result);
+end;
+
+procedure tQR_CODE_IMAGEMList.SetItem(Index: Integer;
+  const Value: tQR_CODE_IMAGEM);
+begin
+  Put(Index, Value);
+end;
+
+{ TPixRetornoSantander }
+
+constructor TPixRetornoSantander.Create;
+begin
+  Header := tHeader.create;
+  TransacaoList         := tTransacaoList.create;
+  InfAdicionaisList     := tInfAdicionaisList.create;
+  QR_CODE_PIX_LINKList  := tQR_CODE_PIX_LINKList.create;
+  QR_CODE_IMAGEMLIst    := tQR_CODE_IMAGEMList.create;
+  TRAILER               := tTRAILER.create;
+end;
+
+destructor TPixRetornoSantander.Destroy;
+begin
+  Header.free;
+  TransacaoList.free;
+  InfAdicionaisList.free;
+  QR_CODE_PIX_LINKList.free;
+  QR_CODE_IMAGEMLIst.free;
+  TRAILER.free;
+
+  inherited;
+end;
+
+
+procedure TPixRetornoSantander.LerRetorno;
+var
+  SlRetorno: TStringList;
+  NomeArq  , BancoRetorno: String;
+begin
+
+   SlRetorno:= TStringList.Create;
+   try
+
+     self.TransacaoList.Clear;
+     self.QR_CODE_PIX_LINKList.Clear;
+     self.QR_CODE_IMAGEMLIst.clear;
+
+     if NomeArqRetorno = '' then
+       raise Exception.Create(ACBrStr('NomeArqRetorno deve ser informado.'));
+
+     if not FileExists(NomeArqRetorno) then
+       NomeArq := IncludeTrailingPathDelimiter(fDirArqRetorno) + NomeArqRetorno
+     else
+       NomeArq := NomeArqRetorno;
+
+     if not FilesExists( NomeArq ) then
+       raise Exception.Create(ACBrStr('Arquivo não encontrado:'+sLineBreak+NomeArq));
+
+     SlRetorno.LoadFromFile( NomeArq );
+
+     if SlRetorno.Count < 1 then
+        raise exception.Create(ACBrStr('O Arquivo de Retorno:'+sLineBreak+
+                                       NomeArq + sLineBreak+
+                                       'está vazio.'+sLineBreak+
+                                       ' Não há dados para processar'));
+
+     case Length(SlRetorno.Strings[0]) of
+        750 : LerRetorno750(SlRetorno);
+     end;
+
+     {
+     if ( IntToStrZero(Banco.Numero, 3) <> BancoRetorno )
+        and ( IntToStrZero(Banco.NumeroCorrespondente, 3) <> BancoRetorno )  then
+       if LeCedenteRetorno then
+         Banco.TipoCobranca := GetTipoCobranca( StrToIntDef(BancoRetorno, 0))
+       else
+         raise Exception.Create( ACBrStr( 'Arquivo de retorno de banco diferente do Cedente'));
+
+     if LayoutRemessa = c240 then
+        Banco.LerRetorno240(SlRetorno)
+     else
+        Banco.LerRetorno400(SlRetorno);
+      }
+
+   finally
+     SlRetorno.Free;
+   end;
+end;
+
+procedure TPixRetornoSantander.LerRetorno750(ARetorno: TStringList);
+var
+  iLinha : Integer;
+  Linha : String;
+begin
+  self.Header.CONTA := PadLeft(OnlyNumber(Copy(ARetorno[0], 55, 20)), 20, '0');
+  self.Header.Agencia := Copy(ARetorno[0], 51, 4);
+  self.header.CPF_CNPJ := Copy(ARetorno[0], 37, 14);
+  self.header.LITERAL_DE_SERVICO := Copy(ARetorno[0], 12, 15);
+  self.header.DATA_DE_GERACAO := Copy(ARetorno[0], 156, 8);
+
+  for iLinha := 1 to ARetorno.Count - 2 do
+  begin
+    Linha := ARetorno[iLinha];
+
+    if copy(Linha, 1, 1)= '1' then
+    begin
+      with self.TransacaoList.New do
+      begin
+        CPF_CNPJ := copy(linha, 12, 14);
+        agencia := Copy(linha, 26, 4);
+        conta := PadLeft(OnlyNumber(Copy(LInha, 30, 20)), 20, '0');
+        CHAVE_Pix := Copy(linha, 54, 77);
+        DATA_DO_MOVIMENTO := Copy(linha, 134, 8);
+        IDENTIFICADOR := Copy(linha, 142, 35);
+        DATA_DE_VENCIMENTO := Copy(linha, 192, 8);
+        VALOR_ORIGINAL := StrToFloatDef(copy(Linha, 200, 17), 0) / 100;
+        VALOR_JUROS := StrToFloatDef(copy(Linha, 217, 17), 0) / 100;
+        VALOR_MULTA := StrToFloatDef(copy(Linha, 234, 17), 0) / 100;
+        VALOR_DESCONTO := StrToFloatDef(copy(Linha, 251, 17), 0) / 100;
+        VALOR_FINAL := StrToFloatDef(copy(Linha, 268, 17), 0) / 100;
+        VALOR_PAGO := StrToFloatDef(copy(Linha, 285, 17), 0) / 100;
+        TARIFA_DE_COBRANCA := StrToFloatDef(copy(Linha, 302, 17), 0) / 100;
+        CPFCNPJ_DEVEDOR := Copy(linha, 321, 14);
+        CPFCNPJ_DEVEDOR := Copy(linha, 321, 14);
+        MENSAGEM_PAGADOR_FINAL := Copy(linha, 335, 140);
+      end;
+    end;
+
+    if copy(Linha, 1, 1)= '2' then
+    begin
+      with self.InfAdicionaisList.New do
+      begin
+        VALOR_2 := Copy(linha, 337, 200);
+        VALOR_1 := Copy(linha, 87, 200);
+        NOME_1 := Copy(linha, 37, 50);
+        NOME_2 := Copy(linha, 287, 50);
+        IDENTIFICADOR := Copy(linha, 2, 35);
+      end;
+    end;
+
+
+  end;
+
+
+end;
+
+end.
+
+

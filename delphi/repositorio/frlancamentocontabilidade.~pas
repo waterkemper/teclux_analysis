@@ -1,0 +1,3426 @@
+unit frlancamentocontabilidade;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, Windows,
+  StdCtrls, DBCtrls, cpdbmemo, Mask, cpdbfindcontrols, cpdbtext,
+  cpnumero, ExtCtrls, Buttons, Grids, DBGrids, cpdbgrid, DB, ctconstantes,
+  cpdatasource, ZQuery, ZPgSqlQuery, cpquery, frconsulta, frconsultacodigo,
+  frconsultacontabil, frconsultacodigocontabil, dmtecsoft,
+  clparametrossistema, dmbasico, biblio, DateUtils, dmlancamentocontabilidade,
+  {Qete,} Variants, ActnList, clusuario, Math, StrUtils;
+
+type TipoLancamento = (DEBITO, CREDITO);
+  
+type
+  TfraLancamentoContabilidade = class(TFrame)
+    pnlContabilidade: TPanel;
+    dbgContabilidade: TtecDBGrid;
+    pnlOpcoesContabil: TPanel;
+    sbnIncluirLancamento: TSpeedButton;
+    sbnExcluirLancamento: TSpeedButton;
+    sbnGerarLancamento: TSpeedButton;
+    pnlLabel: TPanel;
+    shContaCreditoPagamento: TShape;
+    lblContaCreditoPagamento: TLabel;
+    lblLegenda: TLabel;
+    pnlDetalheContabilidade: TPanel;
+    pnlTotalContabilidade: TPanel;
+    GroupBox1: TGroupBox;
+    gbxTotalDebitos: TGroupBox;
+    edtTotalDebito: TDBEditNumero;
+    gbxTotalCreditos: TGroupBox;
+    edtTotalCredito: TDBEditNumero;
+    pnlHistoricocontabil: TPanel;
+    gbxHistorico: TGroupBox;
+    gbxComplemento: TGroupBox;
+    mmoComplemento: TtecDBMemo;
+    qryLancamentos: TtecQuery;
+    qryLancamentosexercicio: TIntegerField;
+    qryLancamentosnrlancto: TIntegerField;
+    qryLancamentosfilial: TIntegerField;
+    qryLancamentosdata: TDateField;
+    qryLancamentosorigem: TStringField;
+    qryLancamentoscontacontabil: TIntegerField;
+    qryLancamentosvalordebito: TFloatField;
+    qryLancamentosvalorcredito: TFloatField;
+    qryLancamentoshistorico: TIntegerField;
+    qryLancamentoscomplemento: TStringField;
+    qryLancamentosdebitar: TIntegerField;
+    qryLancamentoscreditar: TIntegerField;
+    qryLancamentosvalor: TFloatField;
+    qryLancamentosdescricaocontacontabil: TStringField;
+    qryLancamentosclassificacaocontacontabil: TStringField;
+    qryLancamentosdescricaoorigem: TStringField;
+    qryLancamentoscontaDebitoouCreditonoPagamento: TBooleanField;
+    qryLancamentosnumerocriado: TBooleanField;
+    dsrLancamentos: TtecDataSource;
+    qryTotais: TtecQuery;
+    qryTotaistotaldebito: TFloatField;
+    qryTotaistotalcredito: TFloatField;
+    dsrTotais: TtecDataSource;
+    fraConsultaHistoricoContabil: TfraConsultaCodigoContabil;
+    qryLancamentosNaturezas: TtecQuery;
+    qryLancamentosNaturezasdescricao: TStringField;
+    qryLancamentosNaturezasnatureza: TIntegerField;
+    qryLancamentosNaturezasoperacao: TStringField;
+    qryLancamentosNaturezascontacontabil: TIntegerField;
+    qryLancamentosNaturezashistorico: TIntegerField;
+    qryLancamentosNaturezasdescricaocontacontabil: TStringField;
+    qryLancamentosNaturezasclassificacao: TStringField;
+    qryProcuraContaContabil: TtecQuery;
+    qryProcuraContaContabilcodigo: TIntegerField;
+    qryProcuraContaContabilclassificacao: TStringField;
+    qryProcuraContaContabildescricao: TStringField;
+    qryContasEntradasFiliais: TtecQuery;
+    qryContasEntradasFiliaiscontacontabil: TIntegerField;
+    qryContasEntradasFiliaisdescricao: TStringField;
+    qryContasEntradasFiliaisclassificacao: TStringField;
+    qryContasEntradasFiliaisdescricaocontacontabil: TStringField;
+    qryContasEntradasFiliaisoperacao: TStringField;
+    spcLancamentosProximo: TtecQuery;
+    spcLancamentosProximocodigo: TIntegerField;
+    qryContasSaidasFiliais: TtecQuery;
+    qryContasSaidasFiliaisfilial: TIntegerField;
+    qryContasSaidasFiliaiscontacontabil: TIntegerField;
+    qryContasSaidasFiliaisdescricao: TStringField;
+    qryContasSaidasFiliaisclassificacao: TStringField;
+    qryContasSaidasFiliaisdescricaocontacontabil: TStringField;
+    qryContasSaidasFiliaisoperacao: TStringField;
+    qryContasSaidasFiliaisregime: TStringField;
+    actAtualizar: TActionList;
+    actLiberarBotoes: TAction;
+    sbnLiberarBotoes: TSpeedButton;
+    qryLancamentosnrorigem: TLargeintField;
+    qryLancamentosnrorigemlote: TLargeIntField;
+    qryEventosContasContabeis: TtecQuery;
+    sbnGerarLancamentosContabeisRegimedeCaixa: TSpeedButton;
+    qryContasEntradasFiliaishistoricocontabil: TIntegerField;
+    qryContasEntradasFiliaisdescricaohistorico: TStringField;
+    qryContasSaidasFiliaishistoricocontabil: TIntegerField;
+    qryContasSaidasFiliaisdescricaohistoricocontabil: TStringField;
+    qryLancamentosdebitoverificado: TStringField;
+    qryLancamentoscreditoverificado: TStringField;
+    procedure qryLancamentosAfterPost(DataSet: TDataSet);
+    procedure qryLancamentosAfterDelete(DataSet: TDataSet);
+    procedure qryLancamentosAfterScroll(DataSet: TDataSet);
+    procedure qryLancamentosBeforeScroll(DataSet: TDataSet);
+    procedure dsrLancamentosDataChange(Sender: TObject; Field: TField);
+    procedure qryLancamentosBeforePost(DataSet: TDataSet);
+    procedure qryLancamentosCalcFields(DataSet: TDataSet);
+    procedure qryLancamentosNewRecord(DataSet: TDataSet);
+    procedure sbnGerarLancamentoClick(Sender: TObject);
+    procedure sbnExcluirLancamentoClick(Sender: TObject);
+    procedure dbgContabilidadeDblClick(Sender: TObject);
+    procedure dbgContabilidadeDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure dbgContabilidadeKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnIncluirLancamentoClick(Sender: TObject);
+    procedure qryLancamentosFilterRecord(DataSet: TDataSet;
+      var Accept: Boolean);
+    procedure qryLancamentosAfterOpen(DataSet: TDataSet);
+    procedure actLiberarBotoesUpdate(Sender: TObject);
+    procedure sbnLiberarBotoesClick(Sender: TObject);
+    procedure qryLancamentosBeforeOpen(DataSet: TDataSet);
+    procedure sbnGerarLancamentosContabeisRegimedeCaixaClick(
+      Sender: TObject);
+    procedure qryTotaisBeforeOpen(DataSet: TDataSet);
+    procedure qryLancamentosAfterEdit(DataSet: TDataSet);
+  private
+    FProximoNrLancto: integer;
+    FValorAcrescimo: TTecValorRetorno;
+    FValordaNota: TTecValorRetorno;
+    FValorICMS: TtecValorRetorno;
+    FValorReceitasDespesasFinanceiras: TTecValorRetorno;
+    FValorIPI: TtecValorRetorno;
+    FValordosProdutos: TTecValorRetorno;
+    FValorinssRetido: TTecValorRetorno;
+    FValorcofinsRetido: TTecValorRetorno;
+    FValorSeguro: TTecValorRetorno;
+    FValorirRetido: TTecValorRetorno;
+    FValorDescontos: TTecValorRetorno;
+    FValorpisRetido: TTecValorRetorno;
+    FValorcsllRetido: TTecValorRetorno;
+    FValorFrete: TTecValorRetorno;
+    FValorDespesasAcessorias: TTecValorRetorno;
+    FValorCustodaMercadoria: TTecValorRetorno;
+    FValoriss: TTecValorRetorno;
+    FDataDocumento: TTecDataRetorno;
+    FFilialDocumento: TTecIntegerRetorno;
+    fCreditoFornecedor: TTecIntegerRetorno;
+    fDebitoFornecedor: TTecIntegerRetorno;
+    FCodigoNatureza: TTecIntegerRetorno;
+    fDescricaoHistorico: TTecStringRetorno;
+    FContaDebitarouCreditar: TTecIntegerRetorno;
+    FCodigoDocumento: TTecLargeIntRetorno;
+    FSomenteLeituraContabilidade: TtecFuncaoBoolean;
+    FOrigem: String;
+    FOrigemFormulario: String;
+    fOrigemCreditar: Boolean;
+    FGerarDuplicatas: TtecFuncaoBoolean;
+    FHistoricoDebitarouCreditar: TTecIntegerRetorno;
+    FNumeroNotaFiscal: TTecIntegerRetorno;
+    FValorICMSSubstituicao: TTecValorRetorno;
+    FValorTotalServicos: TTecValorRetorno;
+    FValorServicos: TTecValorRetorno;
+    FValorissRetido: TTecValorRetorno;
+    FCReDBigualValorNota: TtecFuncaoBoolean;
+    Fgravarsemlanctos: TtecFuncaoBoolean;
+    FOntecClose: TtecProcedure;
+    FNomeOrigemFormulario: String;
+    FValorPISCOFINSCSLLRetido: TTecValorRetorno;
+    fFornecedorParaISS: TTecIntegerRetorno;
+    FDocumentoPossuiOrigem: TtecFuncaoBoolean;
+    FContaCreditoChavesImoveis: TTecIntegerRetorno;
+    FContaDebitoChavesImoveis: TTecIntegerRetorno;
+    FContaCreditoVendaImoveis: TTecIntegerRetorno;
+    FContaDebitoVendaImoveis: TTecIntegerRetorno;
+    FContaDebitoCSLLRetido: TTecIntegerRetorno;
+    FContaCreditoCSLLRetido: TTecIntegerRetorno;
+    FContaCreditoCofinsRetido: TTecIntegerRetorno;
+    FContaCreditoPISRetido: TTecIntegerRetorno;
+    FContaDebitoPISRetido: TTecIntegerRetorno;
+    FContaCreditoIRRetido: TTecIntegerRetorno;
+    FContaDebitoIRRetido: TTecIntegerRetorno;
+    FContaDebitoCofinsRetido: TTecIntegerRetorno;
+    FDataChaves: TtecDataRetorno;
+    FContaDebitoCSLLChaves: TTecIntegerRetorno;
+    FContaCreditoCSLLChaves: TTecIntegerRetorno;
+    FContaCreditoCofinsChaves: TTecIntegerRetorno;
+    FContaCreditoPISChaves: TTecIntegerRetorno;
+    FContaDebitoPISChaves: TTecIntegerRetorno;
+    FContaCreditoIRChaves: TTecIntegerRetorno;
+    FContaDebitoIRChaves: TTecIntegerRetorno;
+    FContaDebitoCofinsChaves: TTecIntegerRetorno;
+    FOrdenarLancamentos: String;
+    FValorEstoquedaMercadoria: TTecValorRetorno;
+    FValorCofinsaRecolher: TTecValorRetorno;
+    FValorDespesasCOFINS: TTecValorRetorno;
+    FValorPIS: TTecValorRetorno;
+    FContaDebitoCusto: TTecIntegerRetorno;
+    FContaCreditoCusto: TTecIntegerRetorno;
+    FValorCustoImovel: TtecValorRetorno;
+    FContaJurosCorrecaoAtualizacaoMonetaria: TTecIntegerRetorno;
+    FContaAtualizacaoMonetariaClientes: TTecIntegerRetorno;
+    FValorJurosCorrecaoAtualizacaoMonetaria: TtecValorRetorno;
+    FValorPrincipalAtualizacaoMonetaria: TTecValorRetorno;
+    FValorIntegralAtualizacaoMonetaria: TtecValorRetorno;
+    FImovelEntregue: TTecBooleanRetorno;
+    FContaDebitoRecebimentos: TTecIntegerRetorno;
+    FContaDebitoMultaeJurosReceb: TTecIntegerRetorno;
+    FContaDebitoDescontosReceb: TTecIntegerRetorno;
+    FContaCreditoDescontosReceb: TTecIntegerRetorno;
+    FContaCreditoRecebimentos: TTecIntegerRetorno;
+    FContaCreditoMultaeJurosReceb: TTecIntegerRetorno;
+    FValorPrincipalRecebimentos: TtecValorRetorno;
+    FValorDescontoRecebimentos: TtecValorRetorno;
+    FValorMultaeJurosReceb: TtecValorRetorno;
+    FValorAMRecebimentos: TtecValorRetorno;
+    FValorJurosRecebimentos: TtecValorRetorno;
+    FContaCreditoPISRecebimentos: TTecIntegerRetorno;
+    FContaCreditoCSLLRecebimentos: TTecIntegerRetorno;
+    FContaCreditoIRPJRecebimentos: TTecIntegerRetorno;
+    FContaDebitoCSLLRecebimentos: TTecIntegerRetorno;
+    FContaDebitoPISRecebimentos: TTecIntegerRetorno;
+    FContaDebitoIRPJRecebimentos: TTecIntegerRetorno;
+    FContaCreditoCOFINSRecebimentos: TTecIntegerRetorno;
+    FContaDebitoCOFINSRecebimentos: TTecIntegerRetorno;
+    FValorIRPJRecebimento: TtecValorRetorno;
+    FValorCSLLRecebimento: TtecValorRetorno;
+    FValorCOFINSRecebimento: TtecValorRetorno;
+    FValorPISRecebimento: TtecValorRetorno;
+    FValorTotalRecebimentos: TtecValorRetorno;
+    FContaDebitoDescontosConReceb: TTecIntegerRetorno;
+    FDesMenorJuros: TTecBooleanRetorno;
+    FValorDevidoParcelaRecebida: TtecValorRetorno;
+    FValorTotalParcela: TtecValorRetorno;
+    FValorCSLLEstornoDesconto: TtecValorRetorno;
+    FValorIRPJEstornoDesconto: TtecValorRetorno;
+    FValorPISEstornoDesconto: TtecValorRetorno;
+    FValorCOFINSEstornoDesconto: TtecValorRetorno;
+    FContaCaixa: TTecIntegerRetorno;
+    FContaCliente: TTecIntegerRetorno;
+    FOperacaoRes: TTecStringRetorno;
+    FValorAtualizacaoMonetaria: TTecValorRetorno;
+    FContaDebitoCSLLAtualizacaoMonetaria: TTecIntegerRetorno;
+    FContaDebitoIRPJAtualizacaoMonetaria: TTecIntegerRetorno;
+    FContaCreditoCSLLAtualizacaoMonetaria: TTecIntegerRetorno;
+    FContaCreditoIRPJAtualizacaoMonetaria: TTecIntegerRetorno;
+    FValorCSLLAtualizacaoMonetaria: TTecValorRetorno;
+    FValorIRPJAtualizacaoMonetaria: TTecValorRetorno;
+    FOperacaoTrans: TTecBooleanRetorno;
+    FSaldoTransMenorSaldoHist: TTecBooleanRetorno;
+    FOperacaoReneg: TTecBooleanRetorno;
+    FValorDespesaVenda: TtecValorRetorno;
+    FValorCustodeVenda: TtecValorRetorno;
+    FContaCreditoAMChaves: TTecIntegerRetorno;
+    FContaCreditoDespesasVendaChaves: TTecIntegerRetorno;
+    FContaDebitoAMChaves: TTecIntegerRetorno;
+    FContaDebitoDespesasVendaChaves: TTecIntegerRetorno;
+    FContaCreditoCustoVendaChaves: TTecIntegerRetorno;
+    FContaDebitoCustoVendaChaves: TTecIntegerRetorno;
+    FValorAMVenda: TtecValorRetorno;
+    Fhistoricochavesvalorvenda: TTecIntegerRetorno;
+    Fhistoricovendaimpostos: TTecIntegerRetorno;
+    Fhistoricochavescustoscomissoes: TTecIntegerRetorno;
+    Fhistoricochavesatualizacaomonetaria: TTecIntegerRetorno;
+    Fhistoricoapropriacaomensal: TTecIntegerRetorno;
+    Fhistoricorecebdescontos: TTecIntegerRetorno;
+    Fhistoricochavesimpostos: TTecIntegerRetorno;
+    Fhistoricorecebprincipal: TTecIntegerRetorno;
+    Fhistoricovendalancamento: TTecIntegerRetorno;
+    Fhistoricorecebjuros: TTecIntegerRetorno;
+    Fhistoricorecebcaixabanco: TTecIntegerRetorno;
+    Fhistoricorecebatualizacaomonetaria: TTecIntegerRetorno;
+    FHistoricoPadrao: TTecIntegerRetorno;
+    FEvento: TTecIntegerRetorno;
+    fBloquearImpostosRetidos: TTecProcedure;
+    fDesBloquearImpostosRetidos: TTecProcedure;
+    fLancamentosporRegimedeCaixa: boolean;
+    FnrDocumento: TTecLargeIntRetorno;
+    FContaCreditoPagamento: TTecIntegerRetorno;
+    FValorVencto: TTecValorRetorno;
+    FValorPagto: TTecValorRetorno;
+    FContaDebitar: TTecIntegerRetorno;
+    FCodigoDuplicata: TTecLargeIntRetorno;
+    fehMultiploPagamento: TTecBooleanRetorno;
+    fApropriarImpostosImoveis: TTecBooleanRetorno;
+    function GetProximoNrLancto: integer;
+    procedure SetProximoNrLancto(const Value: integer);
+    procedure CalcularTotalDC;
+    procedure AtualizarListaContaContabil;
+    function GetTipoContaContabil: String;
+    function GetOrigemCreditar: Boolean;
+    procedure SetOrdenarLancamentos(const Value: String);
+    function GetLancamentosporRegimedeCaixa: boolean;
+
+  private
+    FListaContasContabeis: String;
+    FLancamentosOK: Boolean;
+    FEditarDocumento: TTecProcedure;
+    FAtribuirContaDocumento: TtecAdicionarDocumento;
+    function GetListaContasContabeis: String;
+    property ProximoNrLancto: integer read GetProximoNrLancto write SetProximoNrLancto;
+    function  ExcluirLancamentoContabil: Boolean;
+    function IncluirLancamentosContabeis(Editar: Boolean): Boolean;
+    function DescricaoOrigem: String;
+    function TituloOrigem: String;
+    procedure AcionarPesquisaGrade;
+    property TipoContaContabil: String read GetTipoContaContabil;
+    procedure GravarLancamentos;
+    procedure CancelarLancamentos;
+    procedure MarcarContaDebitoouCreditoPagamento;
+    property OrigemCreditar: Boolean read GetOrigemCreditar write fOrigemCreditar;
+    procedure GravarLancamentosSimples;
+    procedure RegravarLancamentos;
+    function Contabilizacaoporregimedecaixa: boolean;
+    procedure AtribuirDadosContaContabil;
+
+    { Private declarations }
+  protected
+    dmbasico : TdtmBasico;
+    consulta : TfraConsultaCodigoContabil;
+    TabelaLancamentos: TtecQuery;
+
+    function ExisteEventosContasContabeis: boolean;
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    procedure GerarLancamentosP_Dupla(gerar:Boolean);
+    procedure AbrirLancamentos(Origem: String; NrOrigem: Int64; incluindo: Boolean);
+    procedure AtualizarDescricaoHistorico;
+    function ExisteLancamentosContabeis: boolean;
+    procedure GerarLancamentosContabeis;
+
+    procedure LancamentoContabil(Valor: Currency; TipoOperacao: String; Conta: Integer; Regimedecaixa: boolean = false; PercentualRegime: Currency = 0);
+    procedure IncluirLancamento;
+    procedure IncluirDocumentosPagLancamentos(percentual: Currency);
+
+    procedure GerarLancamentosEventos(RegimedeCaixa: Boolean = False);
+    procedure GerarLancamentosDocumentospagLancamentos;
+    procedure GerarLancamentosContabeisRegimedeCaixa;
+
+    procedure ApagarLancamentos;
+    Procedure LigarDesligarEventosLancamentos(Ligar: Boolean);
+    property ListaContasContabeis: String read GetListaContasContabeis write FListaContasContabeis;
+
+    {procedimentos específicos a serem executados na classe que utilizar o frame}
+    property EditarDocumento: TTecProcedure read FEditarDocumento write FEditarDocumento;
+    property AtribuirContaDocumento: TtecAdicionarDocumento read FAtribuirContaDocumento write FAtribuirContaDocumento;
+    property  OntecClose: TtecProcedure read FOntecClose write FOntecClose;
+
+    {propriedades para ler os valores a partir da classe que utilizar o frame}
+    property VaLorICMS: TtecValorRetorno read FValorICMS write FValorICMS;
+    property ValorCustodeVenda: TtecValorRetorno read FValorCustodeVenda write FValorCustodeVenda;
+    property ValorDespesaVenda: TtecValorRetorno read FValorDespesaVenda write FValorDespesaVenda;
+    property ValorAMVenda: TtecValorRetorno read FValorAMVenda write FValorAMVenda;
+    property ValorIPI: TtecValorRetorno read FValorIPI write FValorIPI;
+    property ValordaNota: TTecValorRetorno read FValordaNota write FValordaNota;
+
+    property ValorVencto: TTecValorRetorno read FValorVencto write FValorVencto;
+    property ValorPagto: TTecValorRetorno read FValorPagto write FValorPagto;
+
+    property ValordosProdutos: TTecValorRetorno read FValordosProdutos write FValordosProdutos;
+    property ValorAcrescimo: TTecValorRetorno read FValorAcrescimo write FValorAcrescimo;
+    property ValorFrete: TTecValorRetorno read FValorFrete write FValorFrete;
+    property ValorSeguro: TTecValorRetorno read FValorSeguro write FValorSeguro;
+    property ValorServicos: TTecValorRetorno read FValorServicos write FValorServicos;
+    property ValorTotalServicos: TTecValorRetorno read FValorTotalServicos write FValorTotalServicos;
+    property ValorDespesasAcessorias : TTecValorRetorno read FValorDespesasAcessorias write FValorDespesasAcessorias;
+    property ValorCustodaMercadoria : TTecValorRetorno read FValorCustodaMercadoria write FValorCustodaMercadoria;
+    property ValorICMSSubstituicao : TTecValorRetorno read FValorICMSSubstituicao write FValorICMSSubstituicao;
+    property ValorcofinsRetido: TTecValorRetorno read FValorcofinsRetido write FValorcofinsRetido;
+    property ValorcsllRetido: TTecValorRetorno read FValorcsllRetido write FValorcsllRetido;
+    property ValorinssRetido: TTecValorRetorno read FValorinssRetido write FValorinssRetido;
+    property ValorirRetido: TTecValorRetorno read FValorirRetido write FValorirRetido;
+    property Valoriss: TTecValorRetorno read FValoriss write FValoriss;
+    property ValorissRetido: TTecValorRetorno read FValorissRetido write FValorissRetido;
+    property ValorpisRetido: TTecValorRetorno read FValorpisRetido write FValorpisRetido;
+    property ValorPISCOFINSCSLLRetido: TTecValorRetorno read FValorPISCOFINSCSLLRetido write FValorPISCOFINSCSLLRetido;
+
+    property ValorCofinsaRecolher: TTecValorRetorno read FValorCofinsaRecolher write FValorCofinsaRecolher;
+    property ValorDespesasCOFINS : TTecValorRetorno read FValorDespesasCOFINS write FValorDespesasCOFINS;
+    property ValorEstoquedaMercadoria : TTecValorRetorno read FValorEstoquedaMercadoria write FValorEstoquedaMercadoria;
+    property ValorPIS: TTecValorRetorno read FValorPIS write FValorPIS;
+
+
+    property ValorDescontos: TTecValorRetorno read FValorDescontos write FValorDescontos;
+    property ValorReceitasDespesasFinanceiras: TTecValorRetorno read FValorReceitasDespesasFinanceiras write FValorReceitasDespesasFinanceiras;
+
+    property CodigoNatureza: TTecIntegerRetorno read FCodigoNatureza write FCodigoNatureza;
+    property DebitoFornecedor: TTecIntegerRetorno read fDebitoFornecedor write fDebitoFornecedor;
+    property CreditoFornecedor: TTecIntegerRetorno read fCreditoFornecedor write fCreditoFornecedor;
+
+
+    property DescricaoHistorico: TTecStringRetorno read fDescricaoHistorico write fDescricaoHistorico;
+    property FornecedorParaISS: TTecIntegerRetorno read fFornecedorParaISS write fFornecedorParaISS;
+
+    property DataDocumento: TTecDataRetorno read FDataDocumento write FDataDocumento;
+    property FilialDocumento: TTecIntegerRetorno read FFilialDocumento write FFilialDocumento;
+    property CodigoDocumento: TTecLargeIntRetorno read FCodigoDocumento write FCodigoDocumento;
+
+    property CodigoDuplicata: TTecLargeIntRetorno read FCodigoDuplicata write FCodigoDuplicata;
+
+    property nrDocumento: TTecLargeIntRetorno read FnrDocumento write fnrDocumento;
+    property ContaCreditoPagamento: TTecIntegerRetorno read FContaCreditoPagamento write fContaCreditoPagamento;
+
+    property NumeroNotaFiscal: TTecIntegerRetorno read FNumeroNotaFiscal write FNumeroNotaFiscal;
+
+    property ContaDebitarouCreditar: TTecIntegerRetorno read FContaDebitarouCreditar write FContaDebitarouCreditar;
+    property ContaDebitar: TTecIntegerRetorno read FContaDebitar write FContaDebitar;
+
+    property HistoricoDebitarouCreditar: TTecIntegerRetorno read FHistoricoDebitarouCreditar write FHistoricoDebitarouCreditar;
+
+    property HistoricoPadrao : TTecIntegerRetorno read FHistoricoPadrao write FHistoricoPadrao;
+
+    property historicovendalancamento : TTecIntegerRetorno read Fhistoricovendalancamento write Fhistoricovendalancamento ;
+    property historicovendaimpostos : TTecIntegerRetorno read Fhistoricovendaimpostos write Fhistoricovendaimpostos ;
+    property historicochavesvalorvenda : TTecIntegerRetorno read Fhistoricochavesvalorvenda write Fhistoricochavesvalorvenda ;
+    property historicochavesimpostos : TTecIntegerRetorno read Fhistoricochavesimpostos write Fhistoricochavesimpostos ;
+    property historicochavescustoscomissoes : TTecIntegerRetorno read Fhistoricochavescustoscomissoes write Fhistoricochavescustoscomissoes ;
+    property historicochavesatualizacaomonetaria : TTecIntegerRetorno read Fhistoricochavesatualizacaomonetaria write Fhistoricochavesatualizacaomonetaria ;
+    property historicorecebcaixabanco : TTecIntegerRetorno read Fhistoricorecebcaixabanco write Fhistoricorecebcaixabanco ;
+    property historicorecebprincipal : TTecIntegerRetorno read Fhistoricorecebprincipal write Fhistoricorecebprincipal ;
+    property historicorecebatualizacaomonetaria : TTecIntegerRetorno read Fhistoricorecebatualizacaomonetaria write Fhistoricorecebatualizacaomonetaria ;
+    property historicorecebdescontos : TTecIntegerRetorno read Fhistoricorecebdescontos write Fhistoricorecebdescontos ;
+    property historicorecebjuros : TTecIntegerRetorno read Fhistoricorecebjuros write Fhistoricorecebjuros ;
+    property historicoapropriacaomensal : TTecIntegerRetorno read Fhistoricoapropriacaomensal write Fhistoricoapropriacaomensal ;
+
+    property ValorCustoImovel: TtecValorRetorno read FValorCustoImovel write FValorCustoImovel;
+    property ContaDebitoCusto: TTecIntegerRetorno read FContaDebitoCusto write FContaDebitoCusto;
+    property ContaCreditoCusto: TTecIntegerRetorno read FContaCreditoCusto write FContaCreditoCusto;
+
+    property SomenteLeituraContabilidade: TtecFuncaoBoolean read FSomenteLeituraContabilidade write FSomenteLeituraContabilidade;
+    property GerarDuplicatas: TtecFuncaoBoolean read FGerarDuplicatas write FGerarDuplicatas;
+    property CReDBigualValorNota: TtecFuncaoBoolean read FCReDBigualValorNota write FCReDBigualValorNota;
+    property GravarSemLanctos: TtecFuncaoBoolean read FGravarSemLanctos write FGravarSemLanctos;
+    property OrdenarLancamentos : String read FOrdenarLancamentos write SetOrdenarLancamentos;
+
+    {Se E=Entrada D=Documento S=Saida I=Imoveis}
+    property Origem: String read FOrigem write FOrigem;
+    property OrigemFormulario: String read FOrigemFormulario write FOrigemFormulario;
+    property NomeOrigemFormulario: String read FNomeOrigemFormulario write FNomeOrigemFormulario;
+
+    property DocumentoPossuiOrigem: TtecFuncaoBoolean read FDocumentoPossuiOrigem write FDocumentoPossuiOrigem;
+
+    property Evento: TTecIntegerRetorno read FEvento write FEvento;
+
+    function VerificarLancamentosContabeis: Boolean;
+
+    //Referente a Lançamentos para Imóveis
+    property DataChaves : TtecDataRetorno read FDataChaves write FDataChaves;
+    property DesMenorJuros: TTecBooleanRetorno read FDesMenorJuros Write FDesMenorJuros;
+    property SaldoTransMenorSaldoHist : TTecBooleanRetorno read FSaldoTransMenorSaldoHist write FSaldoTransMenorSaldoHist;
+         //Venda
+    property ContaDebitoVendaImoveis   : TTecIntegerRetorno read FContaDebitoVendaImoveis write FContaDebitoVendaImoveis;
+    property ContaCreditoVendaImoveis  : TTecIntegerRetorno read FContaCreditoVendaImoveis write FContaCreditoVendaImoveis;
+         //Chaves
+    property ContaDebitoChavesImoveis  : TTecIntegerRetorno read FContaDebitoChavesImoveis write FContaDebitoChavesImoveis;
+    property ContaCreditoChavesImoveis : TTecIntegerRetorno read FContaCreditoChavesImoveis write FContaCreditoChavesImoveis;
+         //Impostos - Contas
+    property ContaCreditoCofinsRetido  : TTecIntegerRetorno read FContaCreditoCofinsRetido write FContaCreditoCofinsRetido;
+    property ContaCreditoCSLLRetido    : TTecIntegerRetorno read FContaCreditoCSLLRetido write FContaCreditoCSLLRetido;
+    property ContaCreditoIRRetido      : TTecIntegerRetorno read FContaCreditoIRRetido write FContaCreditoIRRetido;
+    property ContaCreditoPISRetido     : TTecIntegerRetorno read FContaCreditoPISRetido write FContaCreditoPISRetido;
+
+    property ContaDebitoCofinsRetido   : TTecIntegerRetorno read FContaDebitoCofinsRetido write FContaDebitoCofinsRetido;
+    property ContaDebitoCSLLRetido     : TTecIntegerRetorno read FContaDebitoCSLLRetido write FContaDebitoCSLLRetido;
+    property ContaDebitoIRRetido       : TTecIntegerRetorno read FContaDebitoIRRetido write FContaDebitoIRRetido;
+    property ContaDebitoPISRetido      : TTecIntegerRetorno read FContaDebitoPISRetido write FContaDebitoPISRetido;
+         //Impostos - Chaves
+    property ContaCreditoCofinsChaves  : TTecIntegerRetorno read FContaCreditoCofinsChaves write FContaCreditoCofinsChaves;
+    property ContaCreditoCSLLChaves    : TTecIntegerRetorno read FContaCreditoCSLLChaves write FContaCreditoCSLLChaves;
+    property ContaCreditoIRChaves      : TTecIntegerRetorno read FContaCreditoIRChaves write FContaCreditoIRChaves;
+    property ContaCreditoPISChaves     : TTecIntegerRetorno read FContaCreditoPISChaves write FContaCreditoPISChaves;
+
+    property ContaDebitoCofinsChaves   : TTecIntegerRetorno read FContaDebitoCofinsChaves write FContaDebitoCofinsChaves;
+    property ContaDebitoCSLLChaves     : TTecIntegerRetorno read FContaDebitoCSLLChaves write FContaDebitoCSLLChaves;
+    property ContaDebitoIRChaves       : TTecIntegerRetorno read FContaDebitoIRChaves write FContaDebitoIRChaves;
+    property ContaDebitoPISChaves      : TTecIntegerRetorno read FContaDebitoPISChaves write FContaDebitoPISChaves;
+
+    property ContaDebitoAMChaves       : TTecIntegerRetorno read FContaDebitoAMChaves write FContaDebitoAMChaves;
+    property ContaCreditoAMChaves      : TTecIntegerRetorno read FContaCreditoAMChaves write FContaCreditoAMChaves;
+
+    property ContaDebitoDespesasVendaChaves : TTecIntegerRetorno read FContaDebitoDespesasVendaChaves write FContaDebitoDespesasVendaChaves;
+    property ContaCreditoDespesasVendaChaves: TTecIntegerRetorno read FContaCreditoDespesasVendaChaves write FContaCreditoDespesasVendaChaves;
+
+    property ContaDebitoCustoVendaChaves    : TTecIntegerRetorno read FContaDebitoCustoVendaChaves write FContaDebitoCustoVendaChaves;
+    property ContaCreditoCustoVendaChaves   : TTecIntegerRetorno read FContaCreditoCustoVendaChaves write FContaCreditoCustoVendaChaves;
+
+    property ApropriarImpostosImoveis : TTecBooleanRetorno read fApropriarImpostosImoveis write fApropriarImpostosImoveis;
+
+    //Atualização Monetária
+    property ContaJurosCorrecaoAtualizacaoMonetaria : TTecIntegerRetorno read FContaJurosCorrecaoAtualizacaoMonetaria write FContaJurosCorrecaoAtualizacaoMonetaria;
+    property ContaAtualizacaoMonetariaClientes      : TTecIntegerRetorno read FContaAtualizacaoMonetariaClientes      write FContaAtualizacaoMonetariaClientes;
+    property ValorIntegralAtualizacaoMonetaria      : TtecValorRetorno   read FValorIntegralAtualizacaoMonetaria      write FValorIntegralAtualizacaoMonetaria;
+    property ValorPrincipalAtualizacaoMonetaria     : TTecValorRetorno   read FValorPrincipalAtualizacaoMonetaria     write FValorPrincipalAtualizacaoMonetaria;
+    property ValorJurosCorrecaoAtualizacaoMonetaria : TTecValorRetorno   read FValorJurosCorrecaoAtualizacaoMonetaria write FValorJurosCorrecaoAtualizacaoMonetaria;
+    property ImovelEntregue : TTecBooleanRetorno read FImovelEntregue write FImovelEntregue;
+    property ValorAtualizacaoMonetaria              : TTecValorRetorno   read FValorAtualizacaoMonetaria              write FValorAtualizacaoMonetaria;
+
+    property ContaDebitoCSLLAtualizacaoMonetaria    : TTecIntegerRetorno read FContaDebitoCSLLAtualizacaoMonetaria    write FContaDebitoCSLLAtualizacaoMonetaria;
+    property ContaCreditoCSLLAtualizacaoMonetaria   : TTecIntegerRetorno read FContaCreditoCSLLAtualizacaoMonetaria    write FContaCreditoCSLLAtualizacaoMonetaria;
+    property ValorCSLLAtualizacaoMonetaria          : TTecValorRetorno read FValorCSLLAtualizacaoMonetaria            write FValorCSLLAtualizacaoMonetaria;
+    property ContaDebitoIRPJAtualizacaoMonetaria    : TTecIntegerRetorno read FContaDebitoIRPJAtualizacaoMonetaria    write FContaDebitoIRPJAtualizacaoMonetaria;
+    property ContaCreditoIRPJAtualizacaoMonetaria    : TTecIntegerRetorno read FContaCreditoIRPJAtualizacaoMonetaria    write FContaCreditoIRPJAtualizacaoMonetaria;
+    property ValorIRPJAtualizacaoMonetaria          : TTecValorRetorno read FValorIRPJAtualizacaoMonetaria            write FValorIRPJAtualizacaoMonetaria;
+    //Recebimentos Parcelas Imoveis
+      //Parcelas
+    property ContaDebitoRecebimentos     : TTecIntegerRetorno read FContaDebitoRecebimentos      write FContaDebitoRecebimentos;
+    property ContaCreditoRecebimentos    : TTecIntegerRetorno read FContaCreditoRecebimentos     write FContaCreditoRecebimentos;
+    property ValorPrincipalRecebimentos  : TtecValorRetorno   read FValorPrincipalRecebimentos   write FValorPrincipalRecebimentos;
+    property ValorDevidoParcelaRecebida  : TtecValorRetorno   read FValorDevidoParcelaRecebida   write FValorDevidoParcelaRecebida;
+    property ValorTotalRecebimentos      : TtecValorRetorno   read FValorTotalRecebimentos       write FValorTotalRecebimentos;
+    property ValorTotalParcela           : TtecValorRetorno   read FValorTotalParcela            write FValorTotalParcela;
+    property ValorJurosRecebimentos      : TtecValorRetorno   read FValorJurosRecebimentos       write FValorJurosRecebimentos;
+    property ValorAMRecebimentos         : TtecValorRetorno   read FValorAMRecebimentos          write FValorAMRecebimentos;
+      //Descontos
+    property ContaDebitoDescontosReceb   : TTecIntegerRetorno read FContaDebitoDescontosReceb    write FContaDebitoDescontosReceb;
+    property ContaDebitoDescontosConReceb: TTecIntegerRetorno read FContaDebitoDescontosConReceb write FContaDebitoDescontosConReceb;
+    property ContaCreditoDescontosReceb  : TTecIntegerRetorno read FContaCreditoDescontosReceb   write FContaCreditoDescontosReceb;
+    property ValorDescontoRecebimentos   : TtecValorRetorno   read FValorDescontoRecebimentos    write FValorDescontoRecebimentos;
+      //Juros de Mora e Multa
+    property ContaDebitoMultaeJurosReceb : TTecIntegerRetorno read FContaDebitoMultaeJurosReceb  write FContaDebitoMultaeJurosReceb;
+    property ContaCreditoMultaeJurosReceb: TTecIntegerRetorno read FContaCreditoMultaeJurosReceb write FContaCreditoMultaeJurosReceb;
+    property ValorMultaeJurosReceb       : TtecValorRetorno   read FValorMultaeJurosReceb        write FValorMultaeJurosReceb;
+      //Impostos sobre recebimentos
+        //CSLL
+    property ContaDebitoCSLLRecebimentos : TTecIntegerRetorno read FContaDebitoCSLLRecebimentos  write FContaDebitoCSLLRecebimentos;
+    property ContaCreditoCSLLRecebimentos: TTecIntegerRetorno read FContaCreditoCSLLRecebimentos write FContaCreditoCSLLRecebimentos;
+    property ValorCSLLRecebimento        : TtecValorRetorno   read FValorCSLLRecebimento         write FValorCSLLRecebimento;
+    property ValorCSLLEstornoDesconto    : TtecValorRetorno   read FValorCSLLEstornoDesconto     write FValorCSLLEstornoDesconto;
+        //IRPJ
+    property ContaDebitoIRPJRecebimentos : TTecIntegerRetorno read FContaDebitoIRPJRecebimentos  write FContaDebitoIRPJRecebimentos;
+    property ContaCreditoIRPJRecebimentos: TTecIntegerRetorno read FContaCreditoIRPJRecebimentos write FContaCreditoIRPJRecebimentos;
+    property ValorIRPJRecebimento        : TtecValorRetorno   read FValorIRPJRecebimento         write FValorIRPJRecebimento;
+    property ValorIRPJEstornoDesconto    : TtecValorRetorno   read FValorIRPJEstornoDesconto     write FValorIRPJEstornoDesconto;
+        //PIS
+    property ContaDebitoPISRecebimentos  : TTecIntegerRetorno read FContaDebitoPISRecebimentos   write FContaDebitoPISRecebimentos;
+    property ContaCreditoPISRecebimentos : TTecIntegerRetorno read FContaCreditoPISRecebimentos  write FContaCreditoPISRecebimentos;
+    property ValorPISRecebimento         : TtecValorRetorno   read FValorPISRecebimento          write FValorPISRecebimento;
+    property ValorPISEstornoDesconto    : TtecValorRetorno   read FValorPISEstornoDesconto     write FValorPISEstornoDesconto;
+        //COFINS
+    property ContaDebitoCOFINSRecebimentos : TTecIntegerRetorno read FContaDebitoCOFINSRecebimentos  write FContaDebitoCOFINSRecebimentos;
+    property ContaCreditoCOFINSRecebimentos: TTecIntegerRetorno read FContaCreditoCOFINSRecebimentos write FContaCreditoCOFINSRecebimentos;
+    property ValorCOFINSRecebimento        : TtecValorRetorno   read FValorCOFINSRecebimento         write FValorCOFINSRecebimento;
+    property ValorCOFINSEstornoDesconto    : TtecValorRetorno   read FValorCOFINSEstornoDesconto     write FValorCOFINSEstornoDesconto;
+
+    //Rescisões de Contrato
+    property ContaCaixa   : TTecIntegerRetorno read FContaCaixa    write FContaCaixa;
+    property ContaCliente : TTecIntegerRetorno read FContaCliente  write FContaCliente;
+    property OperacaoRes  : TTecStringRetorno  read FOperacaoRes   write FOperacaoRes;
+    property OperacaoTrans: TTecBooleanRetorno  read FOperacaoTrans write FOperacaoTrans;
+    property OperacaoReneg: TTecBooleanRetorno  read FOperacaoReneg write FOperacaoReneg;
+
+    property BloquearImpostosRetidos: TTecProcedure read fBloquearImpostosRetidos write fBloquearImpostosRetidos;
+    property DesBloquearImpostosRetidos: TTecProcedure read fDesBloquearImpostosRetidos write fDesBloquearImpostosRetidos;
+    property LancamentosporRegimedeCaixa: boolean read GetLancamentosporRegimedeCaixa write fLancamentosporRegimedeCaixa;
+
+    property ehMultiploPagamento: TTecBooleanRetorno read fehMultiploPagamento write fehMultiploPagamento;
+
+  end;
+
+  const
+  SQLListaContaContabil =   'and (codigo = %s or True /*codigo not in (%s)*/)';
+
+  var
+  ContaContabil, historico   : Integer;
+  ValorLancamento, Valor : Currency;
+  LancamentoIncluido: Boolean;
+  operacao : String;
+  descricaocontacontabil,
+  classificacaocontacontabil: string;
+
+
+
+implementation
+
+uses fmprincipalbasico;
+
+{$R *.dfm}
+
+{ TfraLancamentoContabilidade }
+
+procedure TfraLancamentoContabilidade.AbrirLancamentos(Origem: String;
+  NrOrigem: int64; Incluindo: Boolean);
+var
+  vValorTotal, vValorTotalCalculado : Currency;
+
+begin
+  if (qryLancamentos.ParamByName('origem').AsString <> Origem) or
+     (qryLancamentos.ParamByName('NrOrigem').AsString <> IntToStr(NrOrigem)) or
+     Incluindo or
+     qrylancamentos.isempty then
+  begin
+
+    if ((Origem = 'D') and (OrigemFormulario<>'A')) or  // D : duplicatas A: Adiantamento Fornecedor
+       (Origem = 'E') or  // notas de entrada
+       (Origem = 'P')     // pagamentos de duplicatas
+    then
+    begin
+      if not assigned(dtmlancamentocontabilidade) then
+        dtmLancamentoContabilidade := TdtmLancamentoContabilidade.Create(dtmLancamentoContabilidade);
+
+      with dtmLancamentoContabilidade do
+      begin
+        if origem='P' then
+        begin
+          if not incluindo then
+          begin
+            qryDocumentosPagLancamentos.ParamByName('numerodocumentopag').AsInteger := nrDocumento;
+            qryDocumentosPagLancamentos.close;
+            qryDocumentosPagLancamentos.open;
+          end
+        end
+        else
+        begin
+          qryDocumentosPagLancamentos.ParamByName('numerodocumentopag').AsInteger := NrOrigem;
+          qryDocumentosPagLancamentos.close;
+          qryDocumentosPagLancamentos.open;
+        end;
+      end;
+    end;
+
+    qryLancamentos.ParamByName('origem').AsString := Origem;
+    qryLancamentos.ParamByName('NrOrigem').AsString := IntToStr(NrOrigem);
+
+    LigarDesligarEventosLancamentos(false);
+    qrylancamentos.Close;
+    qrylancamentos.Open;
+    AtualizarListaContaContabil;
+    LigarDesligarEventosLancamentos(true);
+
+    qryTotais.ParamByName('origem').AsString := Origem;
+    qryTotais.ParamByName('NrOrigem').AsString := IntToStr(NrOrigem);
+    qrytotais.Close;
+    qrytotais.Open;
+
+
+    if (Origem <> 'V') and
+       (Origem <> 'H') and
+       (Origem <> 'G') then
+      qryLancamentos.SortDescByField('debitar,creditar,nrlancto');
+
+
+    if Contabilizacaoporregimedecaixa then
+    begin
+      if (OrigemFormulario <> 'D') and      // Documentos a pagar
+         (OrigemFormulario <> 'E') {and      // Notas Fiscais Entradas
+         (OrigemFormulario <> 'P')} then     // Pagamentos de duplicatas
+      begin
+        LigarDesligarEventosLancamentos(false);
+        qryProcuraContaContabil.MacroByName('SQLListaContaContabil').AsString := '';
+        dmbasico.ReFazConsulta(qryProcuraContaContabil, [0], [contadebitaroucreditar]);
+        qrylancamentos.ReadOnly := false;
+        qrylancamentos.Append;
+        qryLancamentoscontacontabil.AsInteger := contadebitaroucreditar;
+        if HistoricoDebitarouCreditar<>0 then
+          qryLancamentoshistorico.AsInteger := HistoricoDebitarouCreditar;
+
+        qryLancamentosdebitar.AsInteger := ContaDebitarouCreditar;
+        qryLancamentosvalordebito.AsCurrency := ValordaNota;
+
+        qryLancamentosvalor.AsCurrency := ValordaNota;
+        qryLancamentosdescricaocontacontabil.AsString := qryProcuraContaContabildescricao.AsString;
+        qryLancamentosclassificacaocontacontabil.AsString := qryProcuraContaContabilclassificacao.AsString;
+        qryLancamentos.Post;
+        CalcularTotalDC;
+        LigarDesligarEventosLancamentos(true);
+        qrylancamentos.ReadOnly := SomenteLeituraContabilidade;
+      end
+      else
+      begin
+        if LancamentosporRegimedeCaixa then
+        begin
+          vValorTotal := dmbasico.TotalizarValores[dtmLancamentoContabilidade.qryDocumentosPagLancamentos,TFloatField(dtmLancamentoContabilidade.qryDocumentosPagLancamentos.fieldbyname('valor')), nil];
+          vValorTotalCalculado := 0;
+
+          LigarDesligarEventosLancamentos(false);
+          qrylancamentos.ReadOnly := false;
+
+          dtmLancamentoContabilidade.qryDocumentosPagLancamentos.First;
+
+          while not dtmLancamentoContabilidade.qryDocumentosPagLancamentos.Eof do
+          begin
+            qrylancamentos.Append;
+
+            qryProcuraContaContabil.MacroByName('SQLListaContaContabil').AsString := '';
+            dmbasico.ReFazConsulta(qryProcuraContaContabil, [0], [dtmLancamentoContabilidade.qryDocumentosPagLancamentos.fieldbyname('contacontabil').AsInteger]);
+            qryLancamentosdescricaocontacontabil.AsString := qryProcuraContaContabildescricao.AsString;
+
+            qryLancamentoscontacontabil.AsInteger := dtmLancamentoContabilidade.qryDocumentosPagLancamentos.fieldbyname('contacontabil').AsInteger;
+            qryLancamentosclassificacaocontacontabil.AsString := qryProcuraContaContabilclassificacao.AsString;
+
+            if dtmLancamentoContabilidade.qryDocumentosPagLancamentos.fieldbyname('historicocontabil').AsInteger<>0 then
+              qryLancamentoshistorico.AsInteger := dtmLancamentoContabilidade.qryDocumentosPagLancamentos.fieldbyname('historicocontabil').AsInteger;
+
+            if dtmLancamentoContabilidade.qryDocumentosPagLancamentos.fieldbyname('tipo').AsString = 'C' then
+            begin
+              qryLancamentoscreditar.AsInteger := dtmLancamentoContabilidade.qryDocumentosPagLancamentos.fieldbyname('contacontabil').AsInteger;
+              if vValorTotal = ValordaNota then
+              begin
+                qryLancamentosvalorcredito.AsCurrency := dtmLancamentoContabilidade.qryDocumentosPagLancamentos.fieldbyname('valor').Ascurrency;
+                vValorTotalCalculado := vValorTotal;
+              end
+              else
+              begin
+                qryLancamentosvalorcredito.AsCurrency := ValordaNota * dtmLancamentoContabilidade.qryDocumentosPagLancamentos.fieldbyname('percentual').Ascurrency / 100;
+                vValorTotalCalculado := vValorTotalCalculado + qryLancamentosvalorcredito.AsCurrency;
+              end;
+            end
+            else
+            begin
+              {ainda não pensamos nesta idéia, por enquanto conta a pagar e nfe de entrada é somente credora}
+            end;
+            qryLancamentos.Post;
+
+            dtmLancamentoContabilidade.qryDocumentosPagLancamentos.Next;
+
+          end;
+
+          if vValorTotalCalculado <> ValordaNota then
+          begin
+            qrylancamentos.edit;
+            qrylancamentosvalor.ascurrency := qrylancamentosvalor.ascurrency + (ValordaNota - vValorTotalCalculado);
+            qrylancamentosvalorcredito.ascurrency := qrylancamentosvalor.ascurrency;
+            qrylancamentos.post;
+          end;
+
+          CalcularTotalDC;
+          LigarDesligarEventosLancamentos(true);
+          qrylancamentos.ReadOnly := true;
+
+        end
+        else
+        begin
+          LigarDesligarEventosLancamentos(false);
+          qryProcuraContaContabil.MacroByName('SQLListaContaContabil').AsString := '';
+          dmbasico.ReFazConsulta(qryProcuraContaContabil, [0], [contadebitaroucreditar]);
+          qrylancamentos.ReadOnly := false;
+          qrylancamentos.Append;
+          qryLancamentoscontacontabil.AsInteger := contadebitaroucreditar;
+          if HistoricoDebitarouCreditar<>0 then
+            qryLancamentoshistorico.AsInteger := HistoricoDebitarouCreditar;
+
+          qryLancamentoscreditar.AsInteger := ContaDebitarouCreditar;
+          qryLancamentosvalorcredito.AsCurrency := ValordaNota;
+
+          qryLancamentosvalor.AsCurrency := ValordaNota;
+          qryLancamentosdescricaocontacontabil.AsString := qryProcuraContaContabildescricao.AsString;
+          qryLancamentosclassificacaocontacontabil.AsString := qryProcuraContaContabilclassificacao.AsString;
+          qryLancamentos.Post;
+          CalcularTotalDC;
+          LigarDesligarEventosLancamentos(true);
+          qrylancamentos.ReadOnly := SomenteLeituraContabilidade;
+
+        end;
+      end;
+
+      if assigned(BloquearImpostosRetidos) then
+        BloquearImpostosRetidos;
+
+    end;
+  end;
+
+end;
+
+procedure TfraLancamentoContabilidade.ApagarLancamentos;
+var
+  vTotalDebito, vTotalCredito : Currency;
+begin
+  qryLancamentos.ReadOnly := false;
+  LigarDesligarEventosLancamentos(False);
+
+  if parsistema.gerarcontabilidade then
+  begin
+
+    qryLancamentos.first;
+    if OrigemFormulario = 'P' then
+    begin
+      vTotalDebito := 0;
+      vTotalCredito := 0;
+
+      while not qryLancamentos.Eof do
+      begin
+        if (Strtoint64(qryLancamentosnrorigem.AsString) = CodigoDuplicata) or
+           (Strtoint64(qryLancamentosnrorigem.AsString) = 0) or
+           (CodigoDuplicata = 0) then
+        begin
+          if not qryLancamentosdebitar.IsNull then
+            vTotalDebito := vTotalDebito + qryLancamentosvalordebito.AsCurrency;
+
+          if not qryLancamentoscreditar.IsNull then
+            vTotalCredito := vTotalCredito + qryLancamentosvalorcredito.AsCurrency;
+
+          qryLancamentos.Delete
+        end
+        else
+          qryLancamentos.next;
+      end;
+
+      qrylancamentos.First;
+      while not qrylancamentos.Eof do
+      begin
+        if (qryLancamentoscreditar.AsInteger = ContaCreditoPagamento) {and
+           (qryLancamentoscreditar.AsInteger <> 0)} then
+        begin
+          qrylancamentos.Edit;
+          qryLancamentosvalor.AsCurrency := qrylancamentosvalor.AsCurrency -
+                                            (vTotalDebito - vTotalCredito);
+          qryLancamentosvalorcredito.AsCurrency := qryLancamentosvalor.AsCurrency;
+
+          qrylancamentos.post;
+          break;
+        end;
+        qryLancamentos.Next;
+      end;
+
+
+    end
+    else
+    begin
+      while not qryLancamentos.Eof do
+        qryLancamentos.Delete;
+    end;
+
+
+
+
+    if OrigemFormulario = 'P' then
+      CalcularTotalDC
+    else
+    begin
+      qryTotais.Edit;
+      qryTotaistotaldebito.clear;
+      qryTotaistotalcredito.clear;
+      qrytotais.Post;
+    end;
+  end
+  else
+  begin
+    qryLancamentos.first;
+    if OrigemFormulario = 'P' then
+    begin
+      while not qryLancamentos.Eof do
+      begin
+        if Strtoint64(qryLancamentosnrorigem.AsString) = CodigoDuplicata then
+          qryLancamentos.Delete
+        else
+          qryLancamentos.next;
+      end;
+    end
+    else
+    begin
+      while not qryLancamentos.Eof do
+        qryLancamentos.Delete;
+    end;
+  end;
+
+  LigarDesligarEventosLancamentos(True);
+  FListaContasContabeis := '';
+
+  //qryLancamentos.ReadOnly := SomenteLeituraContabilidade;
+
+end;
+
+constructor TfraLancamentoContabilidade.Create(AOwner: TComponent);
+begin
+  inherited;
+  dmbasico := TdtmBasico.Create(self);
+  consulta := TfraConsultaCodigoContabil.Create(self);
+  consulta.edfCodigo.DataSource := dsrLancamentos;
+  consulta.edfCodigo.DataField := 'contacontabil';
+  consulta.edfCodigo.Operacao := opATRIBUICAO;
+  consulta.AbrirTabelaProcura := false;
+  fraConsultaHistoricoContabil.TipoPesquisa := pesHISTORICOCONTABIL;
+  FProximoNrLancto := 0;
+  sbnIncluirLancamento.Caption := '';
+
+  FOrdenarLancamentos:= 'order by debitar, creditar, nrlancto';
+end;
+
+function TfraLancamentoContabilidade.ExisteLancamentosContabeis: boolean;
+begin
+  result := (qryLancamentos.recordcount<>0);
+end;
+
+procedure TfraLancamentoContabilidade.GerarLancamentosContabeis;
+var
+  vLancamentosNaturezas: TtecLancamentosNaturezas;
+  vLancamentosEntradasFiliais: TtecLancamentosContasEntradas;
+  vLancamentosSaidasFiliais: TtecLancamentosContasSaidas;
+
+  procedure LancamentosImpostosRecebimentos(Reversao: Boolean);
+  begin
+    if Reversao then
+    begin
+      if not ((ContaDebitoCSLLRecebimentos = 0 ) or (ContaCreditoCSLLRecebimentos = 0)) then
+      begin
+        LancamentoContabil(ValorCSLLEstornoDesconto,'D',ContaCreditoCSLLRetido);
+        LancamentoContabil(ValorCSLLEstornoDesconto,'C',ContaDebitoCSLLRetido);
+      end;
+      if not ((ContaDebitoIRPJRecebimentos = 0 ) or (ContaCreditoIRPJRecebimentos = 0)) then
+      begin
+        LancamentoContabil(ValorIRPJEstornoDesconto,'D',ContaCreditoIRRetido);
+        LancamentoContabil(ValorIRPJEstornoDesconto,'C',ContaDebitoIRRetido);
+      end;
+      if not ((ContaDebitoPISRecebimentos = 0 ) or (ContaCreditoPISRecebimentos = 0)) then
+      begin
+        LancamentoContabil(ValorPISEstornoDesconto,'D',ContaCreditoPISRetido);
+        LancamentoContabil(ValorPISEstornoDesconto,'C',ContaDebitoPISRetido);
+      end;
+      if not ((ContaDebitoCOFINSRecebimentos = 0 ) or (ContaCreditoCOFINSRecebimentos = 0)) then
+      begin
+        LancamentoContabil(ValorCOFINSEstornoDesconto,'D',ContaCreditoCofinsRetido);
+        LancamentoContabil(ValorCOFINSEstornoDesconto,'C',ContaDebitoCofinsRetido);
+      end;
+    end
+    else
+    begin
+      if not ((ContaDebitoCSLLRecebimentos = 0 ) or (ContaCreditoCSLLRecebimentos = 0)) then
+      begin
+        LancamentoContabil(ValorCSLLRecebimento,'D',ContaDebitoCSLLRecebimentos);
+        LancamentoContabil(ValorCSLLRecebimento,'C',ContaCreditoCSLLRecebimentos);
+      end;
+      if not ((ContaDebitoIRPJRecebimentos = 0 ) or (ContaCreditoIRPJRecebimentos = 0)) then
+      begin
+        LancamentoContabil(ValorIRPJRecebimento,'D',ContaDebitoIRPJRecebimentos);
+        LancamentoContabil(ValorIRPJRecebimento,'C',ContaCreditoIRPJRecebimentos);
+      end;
+      if not ((ContaDebitoPISRecebimentos = 0 ) or (ContaCreditoPISRecebimentos = 0)) then
+      begin
+        LancamentoContabil(ValorPISRecebimento,'D',ContaDebitoPISRecebimentos);
+        LancamentoContabil(ValorPISRecebimento,'C',ContaCreditoPISRecebimentos);
+      end;
+      if not ((ContaDebitoCOFINSRecebimentos = 0 ) or (ContaCreditoCOFINSRecebimentos = 0)) then
+      begin
+        LancamentoContabil(ValorCOFINSRecebimento,'D',ContaDebitoCOFINSRecebimentos);
+        LancamentoContabil(ValorCOFINSRecebimento,'C',ContaCreditoCOFINSRecebimentos);
+      end;
+    end;
+  end;
+
+
+begin
+  qrylancamentos.AfterEdit := nil;
+
+  if assigned(DesBloquearImpostosRetidos) then
+    DesBloquearImpostosRetidos;
+
+  if (OrigemFormulario = 'D') or
+     (OrigemFormulario = 'E') then
+  begin
+    if ExisteLancamentosContabeis then
+    begin
+      dtmLancamentoContabilidade.qryDocumentosPagLancamentos.First;
+      while not dtmLancamentoContabilidade.qryDocumentosPagLancamentos.Eof do
+        dtmLancamentoContabilidade.qryDocumentosPagLancamentos.Delete;
+    end;    
+  end;
+
+  qryLancamentos.ReadOnly := false;
+  LancamentoIncluido := false;
+  ApagarLancamentos;
+  LigarDesligarEventosLancamentos(False);
+
+  if (OrigemFormulario  = 'V') then
+  begin
+     //Lançamentos de Vendas Imóveis
+    historico  := historicovendalancamento;
+//  LancamentoContabil(ValordaNota,'D', ContaDebitoVendaImoveis);
+    LancamentoContabil(ValordaNota,'D', ContaCliente);
+    LancamentoContabil(ValordaNota,'C', ContaCreditoVendaImoveis);
+    //Lançamento dos Impostos
+
+    historico  := historicovendaimpostos;
+    if ApropriarImpostosImoveis then
+    begin
+        //PIS
+      LancamentoContabil(ValorPisRetido,'D', ContaDebitoPISRetido);
+      LancamentoContabil(ValorPisRetido,'C', ContaCreditoPISRetido);
+        //COFINS
+      LancamentoContabil(ValorCofinsRetido,'D', ContaDebitoCofinsRetido);
+      LancamentoContabil(ValorCofinsRetido,'C', ContaCreditoCofinsRetido);
+        //CSLL
+      LancamentoContabil(ValorcsllRetido,'D', ContaDebitoCSLLRetido);
+      LancamentoContabil(ValorcsllRetido,'C', ContaCreditoCSLLRetido);
+        //IRPJ
+      LancamentoContabil(ValorirRetido,'D', ContaDebitoIRRetido);
+      LancamentoContabil(ValorirRetido,'C', ContaCreditoIRRetido);
+    end;
+
+    // Lançamentos dos Custos do Imóvel
+    LancamentoContabil(ValorCustoImovel,'D', ContaDebitoCusto);
+    LancamentoContabil(ValorCustoImovel,'C', ContaCreditoCusto);
+  //Se existir data de Entrega das Chaves do Imóvel - Gerar Lançamentos Contábeis
+  end
+  else if (OrigemFormulario  = 'H') then
+  begin
+      //Lançamento Valor de Venda
+    historico := historicochavesvalorvenda;
+    LancamentoContabil(ValordaNota,'D', ContaDebitoChavesImoveis);
+    LancamentoContabil(ValordaNota,'C', ContaCreditoChavesImoveis);
+      //Lançamento dos Custos e Despesas de Venda
+    historico := historicochavescustoscomissoes;
+    LancamentoContabil(ValorDespesaVenda,'D', ContaDebitoDespesasVendaChaves);
+    LancamentoContabil(ValorDespesaVenda,'C', ContaCreditoDespesasVendaChaves);
+
+    LancamentoContabil(ValorCustodeVenda,'D', ContaDebitoCustoVendaChaves);
+    LancamentoContabil(ValorCustodeVenda,'C', ContaCreditoCustoVendaChaves);
+
+      //Lançamento da Atualização Monetária sobre entrega das chaves
+    historico := historicochavesatualizacaomonetaria;
+    LancamentoContabil(ValorAMVenda,'D', ContaDebitoAMChaves);
+    LancamentoContabil(ValorAMVenda,'C', ContaCreditoAMChaves);
+
+    //Lançamento dos Impostos
+      //COFINS
+    historico  := historicochavesimpostos;
+    LancamentoContabil(ValorCofinsRetido,'D', ContaDebitoCofinsChaves);
+    LancamentoContabil(ValorCofinsRetido,'C', ContaCreditoCofinsChaves);
+      //CSLL
+    LancamentoContabil(ValorcsllRetido,'D', ContaDebitoCSLLChaves);
+    LancamentoContabil(ValorcsllRetido,'C', ContaCreditoCSLLChaves);
+      //IRPJ
+    LancamentoContabil(ValorirRetido,'D', ContaDebitoIRChaves);
+    LancamentoContabil(ValorirRetido,'C', ContaCreditoIRChaves);
+      //PIS
+    LancamentoContabil(ValorpisRetido,'D', ContaDebitoPISChaves);
+    LancamentoContabil(ValorpisRetido,'C', ContaCreditoPISChaves);
+  end
+  else if (OrigemFormulario  = 'A') and //Lançamentos de Rotina de Atualização Monetária Mensal
+          (Origem <> 'D') then // conflito entre o 'A' de adiantamentos do contas a pagar, solução: negar o contas a pagar
+  begin
+    historico  := historicoapropriacaomensal;
+    if not ImovelEntregue then                   //Lançamentos para imóveis não Entregues
+    begin
+      //Atualização Monetária
+//      LancamentoContabil(ValorIntegralAtualizacaoMonetaria,'D', ContaDebitoVendaImoveis);
+      LancamentoContabil(ValorIntegralAtualizacaoMonetaria,'D', ContaCliente);
+      LancamentoContabil(ValorPrincipalAtualizacaoMonetaria,'C', ContaCreditoVendaImoveis);
+      LancamentoContabil(ValorJurosCorrecaoAtualizacaoMonetaria,'C', ContaJurosCorrecaoAtualizacaoMonetaria);
+      //Atualização Monetária - Impostos
+        //CSLL
+      LancamentoContabil(ValorcsllRetido,'D', ContaDebitoCSLLRetido);
+      LancamentoContabil(ValorcsllRetido,'C', ContaCreditoCSLLRetido);
+        //IRPJ
+      LancamentoContabil(ValorirRetido,'D', ContaDebitoIRRetido);
+      LancamentoContabil(ValorirRetido,'C', ContaCreditoIRRetido);
+    end
+    else
+    begin   //Lançamentos para imóveis Entregues
+//      LancamentoContabil(ValorIntegralAtualizacaoMonetaria,'D', ContaDebitoVendaImoveis);
+      LancamentoContabil(ValorIntegralAtualizacaoMonetaria,'D', ContaCliente);
+      LancamentoContabil(ValorJurosCorrecaoAtualizacaoMonetaria,'C', ContaAtualizacaoMonetariaClientes);
+    end;
+  end
+  else if (OrigemFormulario = 'T') then  //Lançamentos para Recebimentos
+  begin
+    if ValorDescontoRecebimentos > 0 then //Caso tenha sido dado desconto no pagamento
+    begin
+      if not FImovelEntregue then //Lançamentos de Recebimento com desconto para imóveis não entregues
+      begin
+        if not FDesMenorJuros then  //Caso o valor desconto seja maior que o valor juros
+        begin                            //Na situação de imóvel não entregue
+          historico  := historicorecebcaixabanco;
+          LancamentoContabil(ValorTotalRecebimentos,'D',ContaDebitoRecebimentos);//Valor Total Recebido lançado na conta caixa ou banco
+          historico  := historicorecebprincipal;
+          LancamentoContabil(ValorPrincipalRecebimentos,'C',ContaCreditoRecebimentos);//Lançamento do Valor Contratado + Desconto
+          historico  := historicorecebjuros;
+          LancamentoContabil(ValorMultaeJurosReceb,'C',ContaCreditoMultaeJurosReceb);//Valor Juros e Correção lançado na conta de Receitas Financeiras
+          if ValorTotalRecebimentos < ValorPrincipalRecebimentos then
+          begin
+          //  LancamentoContabil((ValorPrincipalRecebimentos-ValorTotalRecebimentos),'D',ContaDebitoDescontosConReceb);//Valor Desconto dado emcima do Principal
+            historico  := historicorecebprincipal;
+            LancamentoContabil((ValorPrincipalRecebimentos-ValorTotalRecebimentos),'C',ContaDebitoDescontosConReceb);//Valor Desconto dado emcima do Principal
+          end
+          else
+          begin
+          //  LancamentoContabil((ValorTotalRecebimentos-ValorPrincipalRecebimentos),'D',ContaDebitoDescontosConReceb);//Valor Desconto dado emcima do Principal
+            historico  := historicorecebcaixabanco;
+            LancamentoContabil((ValorTotalRecebimentos-ValorPrincipalRecebimentos),'C',ContaDebitoDescontosConReceb);//Valor Desconto dado emcima do Principal
+          end;
+          historico  := historicorecebdescontos;
+          LancamentoContabil((ValorTotalParcela-ValorPrincipalRecebimentos),'C',ContaCreditoRecebimentos);//Desconto dados emcima dos juros e correcao
+          LancamentoContabil((ValorTotalParcela-ValorPrincipalRecebimentos),'D',ContaAtualizacaoMonetariaClientes);//Desconto dados emcima dos juros e correcao
+          historico  := 0;
+          LancamentosImpostosRecebimentos(True);
+          LancamentosImpostosRecebimentos(False); //Lançamento de Impostos par ajustar o saldo de atualização Monetária
+        end
+        else  //Caso o valor pago seja maior ou igual ao valor contratado
+        begin //Na Situação de imóvel não entregue
+          historico  := historicorecebcaixabanco;
+          LancamentoContabil(ValorTotalRecebimentos,'D',ContaDebitoRecebimentos);//Valor Total Recebido lançado na conta caixa ou banco
+          historico  := historicorecebprincipal;
+          LancamentoContabil(ValorPrincipalRecebimentos,'C',ContaCreditoRecebimentos);//Lançamento do Valor Contratado + Desconto
+          historico  := 0;
+          LancamentoContabil(ValorMultaeJurosReceb,'C',ContaCreditoMultaeJurosReceb);//Valor Juros e Correção lançado na conta de Receitas Financeiras
+          historico  := historicorecebatualizacaomonetaria;
+          LancamentoContabil(((ValorJurosRecebimentos+ValorAMRecebimentos)-(ValorTotalParcela- ValorTotalRecebimentos)),'C',ContaCreditoRecebimentos);//Valor Juros e Correção lançado na conta de Receitas Financeiras
+          historico  := historicorecebdescontos;
+          LancamentoContabil((ValorTotalParcela- ValorTotalRecebimentos),'C',ContaCreditoRecebimentos);//Valor Desconto Lançado na conta do Cliente
+          historico  := historicorecebdescontos;
+          LancamentoContabil((ValorTotalParcela- ValorTotalRecebimentos),'D',ContaAtualizacaoMonetariaClientes);//Valor Desconto Lançado na conta de Atualização Monetária
+          historico  := 0;
+          LancamentosImpostosRecebimentos(True);
+          LancamentosImpostosRecebimentos(False); //Lançamento de Impostos par ajustar o saldo de atualização Monetária
+        end
+      end
+      else
+      begin
+        if not FDesMenorJuros then  //Caso o valor Desconto seja maior que o valor Juros
+        begin                            //Na situação de imóvel entregue
+          historico  := historicorecebcaixabanco;
+          LancamentoContabil(ValorTotalRecebimentos,'D',ContaDebitoRecebimentos);//Valor Total Recebido lançado na conta caixa ou banco
+          historico  := historicorecebprincipal;
+          LancamentoContabil(ValorPrincipalRecebimentos,'C',ContaCreditoRecebimentos);//Lançamento do Valor Contratado + Desconto
+          historico  := historicorecebjuros;
+          LancamentoContabil(ValorMultaeJurosReceb,'C',ContaCreditoMultaeJurosReceb);//Valor Juros e Correção lançado na conta de Receitas Financeiras
+
+          historico  := historicorecebatualizacaomonetaria;
+          LancamentoContabil((ValorTotalParcela-ValorPrincipalRecebimentos),'C',ContaCreditoRecebimentos);//Desconto dados emcima dos juros e correcao
+          historico  := historicorecebdescontos;
+          LancamentoContabil((ValorTotalParcela-ValorPrincipalRecebimentos),'D',ContaAtualizacaoMonetariaClientes);//Desconto dados emcima dos juros e correcao
+          historico  := 0;
+          LancamentosImpostosRecebimentos(True);
+          LancamentosImpostosRecebimentos(False); //Lançamento de Impostos par ajustar o saldo de atualização Monetária
+          if ValorTotalRecebimentos < ValorPrincipalRecebimentos then
+          begin
+            historico  := historicorecebdescontos;
+            LancamentoContabil((ValorPrincipalRecebimentos-ValorTotalRecebimentos),'D',ContaDebitoDescontosReceb)//Valor Desconto dado emcima do Principal
+          end
+          else
+          begin
+            historico  := historicorecebdescontos;
+            LancamentoContabil((ValorTotalRecebimentos-ValorPrincipalRecebimentos),'C',ContaCreditoRecebimentos);//Valor Desconto dado emcima do Principal
+          end;
+        end
+        else
+        begin
+          historico  := historicorecebcaixabanco;
+          LancamentoContabil(ValorTotalRecebimentos,'D',ContaDebitoRecebimentos);//Valor Total Recebido lançado na conta caixa ou banco
+          historico  := historicorecebprincipal;
+          LancamentoContabil(ValorPrincipalRecebimentos,'C',ContaCreditoRecebimentos);//Lançamento do Valor Contratado + Desconto
+          historico  := historicorecebjuros;
+          LancamentoContabil(ValorMultaeJurosReceb,'C',ContaCreditoMultaeJurosReceb);//Valor Juros e Correção lançado na conta de Receitas Financeiras
+          historico  := historicorecebatualizacaomonetaria;
+          LancamentoContabil(((ValorJurosRecebimentos+ValorAMRecebimentos)-(ValorTotalParcela - ValorTotalRecebimentos)),'C',ContaCreditoRecebimentos);//Valor Juros e Correção lançado na conta de Receitas Financeiras
+          historico  := historicorecebdescontos;
+          LancamentoContabil((ValorTotalParcela- ValorTotalRecebimentos),'C',ContaCreditoRecebimentos);//Valor Desconto Lançado na conta do Cliente
+          LancamentoContabil((ValorTotalParcela- ValorTotalRecebimentos),'D',ContaAtualizacaoMonetariaClientes);//Valor Desconto Lançado na conta de Atualização Monetária
+          historico  := 0;
+          LancamentosImpostosRecebimentos(True);
+          LancamentosImpostosRecebimentos(False); //Lançamento de Impostos par ajustar o saldo de atualização Monetária
+        end
+      end;
+    end
+    else
+    begin
+      LancamentoContabil((ValorTotalRecebimentos),'D',ContaDebitoRecebimentos);
+      LancamentoContabil(ValorPrincipalRecebimentos,'C',ContaCreditoRecebimentos);
+      LancamentoContabil((ValorJurosRecebimentos+ValorAMRecebimentos),'C',ContaCreditoRecebimentos);
+      LancamentoContabil(ValorMultaeJurosReceb,'C',ContaCreditoMultaeJurosReceb);
+      LancamentosImpostosRecebimentos(False);
+    end;
+  end
+  else if (OrigemFormulario = 'G') then  //Lançamentos para alterações no Contrato(Rescisões...
+  begin
+    if  not ImovelEntregue then
+    begin
+      //Estorno dos Valores da Venda
+      if OperacaoRes = 'EV' then  //EV = Estorno de Valores Venda
+      begin
+        LancamentoContabil(ValordaNota,'D',ContaCreditoVendaImoveis);
+        LancamentoContabil(ValorAtualizacaoMonetaria,'D',ContaAtualizacaoMonetariaClientes);
+        //LancamentoContabil(ValordaNota+ValorAtualizacaoMonetaria,'C',ContaDebitoVendaImoveis);
+      end
+      else if OperacaoRes = 'EP' then //EP = Estrono de Valores Pagos
+      begin
+        //Estorno dos Valores Recebidos
+//        LancamentoContabil(ValordaNota,'D',ContaDebitoVendaImoveis);
+        LancamentoContabil(ValordaNota,'D',ContaCliente);
+        //LancamentoContabil(ValordaNota,'C',ContaCaixa);
+      end
+      else if OperacaoRes = 'EI' then //EI = Estorno dos impostos sobre a venda
+      begin
+        //Estorno dos Impostos da venda
+          //CSLL                                                             //PAREI AQUI 22/01/2010
+        LancamentoContabil(ValorcsllRetido,'D',ContaCreditoCSLLRetido);
+        LancamentoContabil(ValorcsllRetido,'C',ContaDebitoCSLLRetido);
+          //IRPJ
+        LancamentoContabil(ValorirRetido,'D',ContaCreditoIRRetido);
+        LancamentoContabil(ValorirRetido,'C',ContaDebitoIRRetido);
+          //PIS
+        LancamentoContabil(ValorpisRetido,'D',ContaCreditoPISRetido);
+        LancamentoContabil(ValorpisRetido,'C',ContaDebitoPISRetido);
+          //COFINS
+        LancamentoContabil(ValorcofinsRetido,'D',ContaCreditoCofinsRetido);
+        LancamentoContabil(ValorcofinsRetido,'C',ContaDebitoCofinsRetido);
+        //CSLL e IRPJ da Atualização Monetária
+        LancamentoContabil(ValorCSLLAtualizacaoMonetaria,'D',ContaCreditoCSLLAtualizacaoMonetaria);
+        LancamentoContabil(ValorCSLLAtualizacaoMonetaria,'C',ContaDebitoCSLLAtualizacaoMonetaria);
+
+        LancamentoContabil(ValorIRPJAtualizacaoMonetaria,'D',ContaCreditoIRPJAtualizacaoMonetaria);
+        LancamentoContabil(ValorIRPJAtualizacaoMonetaria,'C',ContaDebitoIRPJAtualizacaoMonetaria);
+      end
+      else if ((OperacaoRes = '') and
+              (OperacaoTrans)) then
+        LancamentoContabil(ValordaNota,'D',ContaAtualizacaoMonetariaClientes);
+    end
+    else
+    begin  //Lançamentos de Rescisão para imóveis entregues
+      if OperacaoRes = 'EV' then  //EV = Estorno de Valores Venda
+      begin
+        LancamentoContabil(ValordaNota,'D',ContaCreditoVendaImoveis);
+        LancamentoContabil(ValorAtualizacaoMonetaria,'D',ContaAtualizacaoMonetariaClientes);
+//        LancamentoContabil(ValordaNota+ValorAtualizacaoMonetaria,'C',ContaDebitoVendaImoveis);
+        LancamentoContabil(ValordaNota+ValorAtualizacaoMonetaria,'C',ContaCliente);
+      end
+      else if OperacaoRes = 'EP' then //EP = Estrono de Valores Pagos
+      begin
+        //Estorno dos Valores Recebidos
+//        LancamentoContabil(ValordaNota,'D',ContaDebitoVendaImoveis);
+        LancamentoContabil(ValordaNota,'D',ContaCliente);
+        LancamentoContabil(ValordaNota,'C',ContaCaixa);
+      end
+      else if OperacaoRes = 'EI' then //EI = Estorno dos impostos sobre a venda
+      begin
+        //Estorno dos Impostos da venda
+          //CSLL                                                             //PAREI AQUI 22/01/2010
+        LancamentoContabil(ValorcsllRetido,'D',ContaCreditoCSLLRetido);
+        LancamentoContabil(ValorcsllRetido,'C',ContaDebitoCSLLRetido);
+          //IRPJ
+        LancamentoContabil(ValorirRetido,'D',ContaCreditoIRRetido);
+        LancamentoContabil(ValorirRetido,'C',ContaDebitoIRRetido);
+          //PIS
+        LancamentoContabil(ValorpisRetido,'D',ContaCreditoPISRetido);
+        LancamentoContabil(ValorpisRetido,'C',ContaDebitoPISRetido);
+          //COFINS
+        LancamentoContabil(ValorcofinsRetido,'D',ContaCreditoCofinsRetido);
+        LancamentoContabil(ValorcofinsRetido,'C',ContaDebitoCofinsRetido);
+        //CSLL e IRPJ da Atualização Monetária
+        LancamentoContabil(ValorCSLLAtualizacaoMonetaria,'D',ContaCreditoCSLLAtualizacaoMonetaria);
+        LancamentoContabil(ValorCSLLAtualizacaoMonetaria,'C',ContaDebitoCSLLAtualizacaoMonetaria);
+
+        LancamentoContabil(ValorIRPJAtualizacaoMonetaria,'D',ContaCreditoIRPJAtualizacaoMonetaria);
+        LancamentoContabil(ValorIRPJAtualizacaoMonetaria,'C',ContaDebitoIRPJAtualizacaoMonetaria);
+      end
+      else if ((OperacaoRes = '') and
+               (OperacaoTrans)) then
+         LancamentoContabil(ValorAtualizacaoMonetaria,'D',ContaAtualizacaoMonetariaClientes)
+      else if ((OperacaoRes = '') and
+               (OperacaoReneg)) then
+         LancamentoContabil(ValorAtualizacaoMonetaria,'D',ContaAtualizacaoMonetariaClientes);
+    end;
+  end
+  else
+  begin
+
+    qryLancamentosNaturezas.ParamByName('natureza').AsInteger := CodigoNatureza;
+    qryLancamentosNaturezas.Close;
+    qryLancamentosNaturezas.Open;
+
+    if (OrigemFormulario = 'D') then    // Contas a Pagar
+    begin
+      if (DebitoFornecedor<>0) then
+      begin
+        historico:= HistoricoPadrao;
+        LancamentoContabil(ValordaNota,'D', DebitoFornecedor);
+      end
+      else
+        GerarLancamentosEventos;
+
+      if (CreditoFornecedor<>0) then
+      begin
+        historico:= HistoricoPadrao;
+        LancamentoContabil((ValordaNota - ValorcofinsRetido
+                                        - ValorcsllRetido
+                                        - ValorinssRetido
+                                        - ValorirRetido
+                                        - ValorissRetido
+                                        - ValorpisRetido
+                                        - ValorPISCOFINSCSLLRetido),'C', CreditoFornecedor);
+      end;
+    end;
+
+    if (OrigemFormulario = 'D') then
+      historico:= HistoricoPadrao;
+
+    if (Origem = 'D') and               // Contas a Pagar
+       (OrigemFormulario = 'A') then    // Adiantamento Fornecedores
+    begin
+      if (ContaDebitar<>0) then
+      begin
+        historico:= HistoricoPadrao;
+        LancamentoContabil(ValordaNota,'D', ContaDebitar);
+      end;
+
+      if (ContaDebitarouCreditar<>0) then
+      begin
+        historico := HistoricoPadrao;
+        LancamentoContabil(ValordaNota,'C', ContaDebitarouCreditar)
+      end;
+    end;
+
+    if (OrigemFormulario = 'P') then    // Pagamentos duplicatas
+    begin
+      if LancamentosporRegimedeCaixa then
+        GerarLancamentosDocumentospagLancamentos
+      else
+      if (ContaDebitarouCreditar<>0) then
+      begin
+        historico:= HistoricoPadrao;
+        LancamentoContabil(ValorVencto,'D', ContaDebitarouCreditar);
+      end;
+
+      if (ContaCreditoPagamento<>0) then
+      begin
+        historico := HistoricoPadrao;
+        if ValorVencto = ValorPagto then
+          LancamentoContabil(ValorVencto,'C', ContaCreditoPagamento)
+        else
+          LancamentoContabil(ValorPagto,'C', ContaCreditoPagamento)
+      end;
+    end;
+
+    for vLancamentosNaturezas := lnAcrescimoFinanceiro to lnTotaldaNota do
+    begin
+      qryLancamentosNaturezas.First;
+      while not qryLancamentosNaturezas.Eof do
+      begin
+        if (qryLancamentosNaturezasdescricao.asstring = vstrLancamentosNaturezas[vLancamentosNaturezas]) then
+        begin
+          ValorLancamento            := 0;
+          operacao                   := qryLancamentosNaturezasoperacao.asstring;
+          ContaContabil              := qryLancamentosNaturezascontacontabil.AsInteger;
+          descricaocontacontabil     := qryLancamentosNaturezasdescricaocontacontabil.AsString;
+          classificacaocontacontabil := qryLancamentosNaturezasclassificacao.AsString;
+          historico := qryLancamentosNaturezashistorico.Asinteger;
+
+          case vLancamentosNaturezas of
+             lnAcrescimoFinanceiro : ValorLancamento := ValorAcrescimo;
+             lnCustodaMercadoria   : ValorLancamento := ValorCustodaMercadoria;
+             lnCOFINSaRecolher     : ValorLancamento := ValorCofinsaRecolher;
+             lnDespesasAcessorias  : ValorLancamento := ValorDespesasAcessorias;
+             lnDespesasCOFINS      : ValorLancamento := ValorDespesasCOFINS;
+             lnDespesasICMS        : ValorLancamento := ValorICMS;
+             lnDespesasIPI         : ValorLancamento := ValorIPI;
+             lnDespesasISS         : ValorLancamento := ValorISS;
+             lnDespesasPIS         : ValorLancamento := ValorPIS;
+             lnEstoqueMercadorias  : ValorLancamento := ValorEstoquedaMercadoria;
+             lnFrete               : ValorLancamento := ValorFrete;
+             lnICMSRecolher        : ValorLancamento := ValorICMS;
+             lnICMSSubstituicao    : ValorLancamento := ValorICMSSubstituicao;
+             lnIPIRecolher         : ValorLancamento := ValorIPI;
+             lnISSRecolher         : ValorLancamento := Valoriss - ValorissRetido;
+             lnPISRecolher         : ValorLancamento := ValorPIS;
+             lnReceitaProdutos,
+             lnReceitaServicos     : begin
+                                      case vLancamentosNaturezas of
+                                       lnReceitaProdutos: ValorLancamento := ValordosProdutos;
+                                       lnReceitaServicos: ValorLancamento := ValorServicos;
+                                      end;
+
+                                      if (operacao = 'D') and
+                                         (DebitoFornecedor<>0) then
+                                      begin
+                                        ContaContabil := DebitoFornecedor;
+                                        dmbasico.refazconsulta(qryprocuracontacontabil,[0],[ContaContabil]);
+                                        descricaocontacontabil := qryProcuraContaContabildescricao.AsString;
+                                        classificacaocontacontabil := qryProcuraContaContabilclassificacao.AsString;
+                                      end
+                                      else
+                                      if (operacao = 'C') and
+                                         (CreditoFornecedor<>0) then
+                                      begin
+                                        ContaContabil := CreditoFornecedor;
+                                        dmbasico.refazconsulta(qryprocuracontacontabil,[0],[ContaContabil]);
+                                        descricaocontacontabil := qryProcuraContaContabildescricao.AsString;
+                                        classificacaocontacontabil := qryProcuraContaContabilclassificacao.AsString;
+                                      end;
+                                     end;
+              lnSeguro             : ValorLancamento := ValorSeguro;
+             lnTotaldaNota         : begin
+                                      if (OrigemFormulario = 'E') then    // Notas Fiscais Entradas
+                                      begin
+                                        if ContaContabil = 0 then
+                                          ContaContabil := ContaDebitarouCreditar;
+
+                                        ValorLancamento := ValordaNota
+                                      end
+                                      else
+                                      if (OrigemFormulario = 'S') or  // Saidas NF Avulsas
+                                         (OrigemFormulario = 'C') then  //Contratos
+                                      begin
+                                        dmbasico.ReFazConsulta(qryContasSaidasFiliais,[0],[filialbase]);
+                                        ValorLancamento := ValordaNota - ValorissRetido;
+                                        if qryContasSaidasFiliais.Locate('descricao;regime',
+                                             VarArrayOf([FilialContassaidas[lcsCOFINSacompensar],'COMPETÊNCIA']),[]) then
+                                          ValorLancamento := ValorLancamento - ValorcofinsRetido;
+
+                                        if qryContasSaidasFiliais.Locate('descricao;regime',
+                                             VarArrayOf([FilialContassaidas[lcsCSLLacompensar],'COMPETÊNCIA']),[]) then
+                                          ValorLancamento := ValorLancamento - ValorcsllRetido;
+
+                                        if qryContasSaidasFiliais.Locate('descricao;regime',
+                                             VarArrayOf([FilialContassaidas[lcsINSSacompensar],'COMPETÊNCIA']),[]) then
+                                          ValorLancamento := ValorLancamento - ValorinssRetido;
+
+                                        if qryContasSaidasFiliais.Locate('descricao;regime',
+                                             VarArrayOf([FilialContassaidas[lcsIRRFaCompensar],'COMPETÊNCIA']),[]) then
+                                          ValorLancamento := ValorLancamento - ValorirRetido;
+
+                                        if qryContasSaidasFiliais.Locate('descricao;regime',
+                                             VarArrayOf([FilialContassaidas[lcsPISaCompensar],'COMPETÊNCIA']),[]) then
+                                          ValorLancamento := ValorLancamento - ValorpisRetido;
+                                      end;
+                                      if ContaContabil = 0 then
+                                      begin
+                                        if (operacao = 'D') and
+                                           (DebitoFornecedor<>0) then
+                                        begin
+                                          ContaContabil := DebitoFornecedor;
+                                          dmbasico.refazconsulta(qryprocuracontacontabil,[0],[ContaContabil]);
+                                          descricaocontacontabil := qryProcuraContaContabildescricao.AsString;
+                                          classificacaocontacontabil := qryProcuraContaContabilclassificacao.AsString;
+                                        end
+                                        else
+                                        if (operacao = 'C') and
+                                           (CreditoFornecedor<>0) then
+                                        begin
+                                          ContaContabil := CreditoFornecedor;
+                                          dmbasico.refazconsulta(qryprocuracontacontabil,[0],[ContaContabil]);
+                                          descricaocontacontabil := qryProcuraContaContabildescricao.AsString;
+                                          classificacaocontacontabil := qryProcuraContaContabilclassificacao.AsString;
+                                        end;
+                                      end;
+                                     end;
+          end;
+          IncluirLancamento;
+        end;
+        qryLancamentosNaturezas.Next;
+      end;
+    end;
+
+    if (OrigemFormulario = 'D') or      // Documentos a pagar
+       (OrigemFormulario = 'E') or      // Notas Fiscais Entradas
+       (OrigemFormulario = 'P') then    // pagamentosduplicatas
+    begin
+      dmbasico.ReFazConsulta(qryContasEntradasFiliais,[0,1],
+                             [fornecedorparaiss,filialbase]);
+      for vLancamentosEntradasFiliais := lceCOFINSretida to lcePIS_COFINS_CSLL do
+      begin
+        if qryContasEntradasFiliais.Locate('Descricao', FilialContasEntradas[vLancamentosEntradasFiliais],[]) then
+        begin
+
+          operacao := ifthen(OrigemFormulario = 'P','D','C');
+
+          ValorLancamento            := 0;
+          ContaContabil              := qryContasEntradasFiliaiscontacontabil.AsInteger;
+          descricaocontacontabil     := qryContasEntradasFiliaisdescricaocontacontabil.AsString;
+          classificacaocontacontabil := qryContasEntradasFiliaisclassificacao.AsString;
+
+          if qryContasEntradasFiliaishistoricocontabil.AsInteger<>0 then
+             historico := qryContasEntradasFiliaishistoricocontabil.AsInteger
+          else
+          if (OrigemFormulario = 'D') or (OrigemFormulario = 'P') then
+             historico := HistoricoPadrao
+          else
+            historico := 0;
+
+          case vLancamentosEntradasFiliais of
+            lceCOFINSretida        : ValorLancamento := ValorcofinsRetido;
+            lceCSLLretida          : ValorLancamento := ValorcsllRetido;
+
+            lceDescontosObtidos    : begin
+                                       operacao := 'C';
+                                       ValorLancamento := ValorDescontos;
+                                     end;
+
+            lceDespesasFinanceiras : ValorLancamento := ValorReceitasDespesasFinanceiras;
+
+            lceINSSRetido          : ValorLancamento := ValorinssRetido;
+            lceIRRetido            : ValorLancamento := ValorirRetido;
+            lceISSRetido           : ValorLancamento := ValorissRetido;
+            lcePISRetido           : ValorLancamento := ValorpisRetido;
+            lcePIS_COFINS_CSLL     : ValorLancamento := ValorPISCOFINSCSLLRetido;
+          end;
+          IncluirLancamento;
+        end;
+      end;
+    end
+    else
+
+    if (OrigemFormulario = 'S') or  // Saidas NF Avulsas
+       (OrigemFormulario = 'C') then  //Contratos
+    begin
+      dmbasico.ReFazConsulta(qryContasSaidasFiliais,[0],[filialbase]);
+      for vLancamentosSaidasFiliais := lcsCOFINSacompensar to lcsReceitasFinanceiras do
+      begin
+        if qryContasSaidasFiliais.Locate('Descricao;regime',
+            VarArrayOf([FilialContassaidas[vLancamentosSaidasFiliais],'COMPETÊNCIA']),[]) then
+          if qryContasSaidasFiliaiscontacontabil.AsInteger<>0 then
+          begin
+            operacao := 'D';
+            ValorLancamento            := 0;
+            ContaContabil              := qryContasSaidasFiliaiscontacontabil.AsInteger;
+            descricaocontacontabil     := qryContasSaidasFiliaisdescricaocontacontabil.AsString;
+            classificacaocontacontabil := qryContasSaidasFiliaisclassificacao.AsString;
+            historico := qryContasSaidasFiliaishistoricocontabil.AsInteger;
+
+            case vLancamentosSaidasFiliais of
+              lcsCOFINSacompensar    : ValorLancamento := ValorcofinsRetido;
+              lcsCSLLacompensar      : ValorLancamento := ValorcsllRetido;
+              lcsDescontosConcedidos : ValorLancamento := ValorDescontos;
+              lcsINSSacompensar      : ValorLancamento := ValorinssRetido;
+              lcsIRRFaCompensar      : ValorLancamento := ValorirRetido;
+    {          lcsISSaCompensar       : ValorLancamento := ValorissRetido;}
+              lcsPISaCompensar       : ValorLancamento := ValorpisRetido;
+              lcsReceitasFinanceiras : ValorLancamento := ValorReceitasDespesasFinanceiras;
+            end;
+            IncluirLancamento;
+          end;
+      end;
+    end;
+
+  end;
+
+  LigarDesligarEventosLancamentos(True);
+
+  if LancamentoIncluido then
+    qryLancamentosAfterPost(qrylancamentos);
+
+  qryLancamentos.ReadOnly := SomenteLeituraContabilidade;
+
+  qrylancamentos.AfterEdit := qryLancamentosAfterEdit;  
+end;
+
+function TfraLancamentoContabilidade.GetListaContasContabeis: String;
+begin
+  if FListaContasContabeis <> '' then
+    Result := FListaContasContabeis
+  else Result := '0';
+end;
+
+procedure TfraLancamentoContabilidade.LigarDesligarEventosLancamentos(
+  Ligar: Boolean);
+begin
+  if not Ligar then
+  begin
+    qryLancamentos.AfterPost := nil;
+//    qrylancamentos.BeforePost := nil;
+    qrylancamentos.AfterDelete := nil;
+    qryLancamentos.BeforeScroll := nil;
+//    qryLancamentos.AfterScroll := nil;
+    dsrLancamentos.OnDataChange := nil;
+  end
+  else
+  begin
+    qryLancamentos.AfterPost := qryLancamentosAfterPost;
+//    qryLancamentos.BeforePost := qryLancamentosBeforePost;
+
+    qrylancamentos.AfterDelete := qryLancamentosAfterDelete;
+
+    qrylancamentos.BeforeScroll := qryLancamentosBeforeScroll;
+//    qryLancamentos.AfterScroll := qryLancamentosAfterScroll;
+
+    dsrLancamentos.OnDataChange := dsrLancamentosDataChange;
+  end;
+end;
+
+procedure TfraLancamentoContabilidade.qryLancamentosAfterPost(
+  DataSet: TDataSet);
+begin
+  if assigned(EditarDocumento) then
+     EditarDocumento;
+
+  if (Origem <> 'V') and
+     (Origem <> 'H') and
+     (Origem <> 'G')then
+    qryLancamentos.SortDescByField('debitar,creditar,nrlancto');
+
+  CalcularTotalDC;
+end;
+
+procedure TfraLancamentoContabilidade.qryLancamentosAfterDelete(
+  DataSet: TDataSet);
+begin
+  CalcularTotalDC;
+end;
+
+procedure TfraLancamentoContabilidade.qryLancamentosAfterScroll(
+  DataSet: TDataSet);
+begin
+  {somente ligado pelo beforescroll}
+  qrylancamentos.BeforeScroll := nil;
+  qrylancamentos.AfterScroll := nil;
+  dmbasico.VoltarRegistroAtual(qrylancamentos);
+  qrylancamentos.BeforeScroll := qryLancamentosBeforeScroll;
+  qrylancamentos.Edit;
+end;
+
+procedure TfraLancamentoContabilidade.qryLancamentosBeforeScroll(
+  DataSet: TDataSet);
+begin
+  if not qrylancamentos.IsEmpty then
+  begin
+    dmbasico.GuardarRegistroAtual(qryLancamentos,true);
+    qryLancamentosvalordebito.Required := not qrylancamentosdebitar.IsNull;
+    qryLancamentosvalorcredito.Required := not qrylancamentoscreditar.IsNull;
+    if not qryLancamentos.CheckRequiredFields then
+    begin
+      qryLancamentos.AfterScroll := qryLancamentosAfterScroll;
+      FLancamentosOK := False;
+    end
+    else
+    begin
+      qryLancamentos.EnableControls;
+      FLancamentosOK := True;
+    end;
+  end;
+end;
+
+procedure TfraLancamentoContabilidade.dsrLancamentosDataChange(
+  Sender: TObject; Field: TField);
+begin
+  if qrylancamentos.state in [dsedit, dsinsert] then
+  begin
+    dsrlancamentos.OnDataChange := nil;
+    if Field = qryLancamentosvalordebito then
+    begin
+      if qryLancamentosvalordebito.AsCurrency <> 0 then
+      begin
+        qryLancamentosvalorcredito.Clear;
+        qryLancamentoscreditar.Clear;
+        qryLancamentosdebitar.AsInteger := qryLancamentoscontacontabil.AsInteger;
+        qryLancamentosvalor.AsCurrency := qryLancamentosvalordebito.AsCurrency;
+        qryLancamentosvalordebito.Required := true;
+        qryLancamentosvalorcredito.Required := false;
+      end
+      else
+      begin
+        qryLancamentosvalordebito.Clear;
+        qryLancamentosdebitar.Clear;
+        qryLancamentoscreditar.AsInteger := qryLancamentoscontacontabil.AsInteger;
+        qryLancamentosvalor.AsCurrency := qryLancamentosvalorcredito.AsCurrency;
+        qryLancamentosvalordebito.Required := false;
+        qryLancamentosvalorcredito.Required := true;
+      end;
+    end
+    else
+    if Field = qryLancamentosvalorcredito then
+    begin
+      if qryLancamentosvalorcredito.AsCurrency <> 0 then
+      begin
+        qryLancamentosvalordebito.Clear;
+        qryLancamentosdebitar.Clear;
+        qryLancamentoscreditar.AsInteger := qryLancamentoscontacontabil.AsInteger;
+        qryLancamentosvalor.AsCurrency := qryLancamentosvalorcredito.AsCurrency;
+        qryLancamentosvalordebito.Required := false;
+        qryLancamentosvalorcredito.Required := true;
+      end
+      else
+      begin
+        qryLancamentosvalorcredito.Clear;
+        qryLancamentoscreditar.Clear;
+        qryLancamentosdebitar.AsInteger := qryLancamentoscontacontabil.AsInteger;
+        qryLancamentosvalor.AsCurrency := qryLancamentosvalordebito.AsCurrency;
+        qryLancamentosvalordebito.Required := true;
+        qryLancamentosvalorcredito.Required := false;
+      end;
+    end
+    else
+    if field = qryLancamentoscontacontabil then
+    begin
+      if field.asstring<>'' then
+      begin
+        if qrylancamentos.State = dsinsert then
+          qryProcuraContaContabil.MacroByName('SQLListaContaContabil').AsString :=
+          format(SQLListaContaContabil,['0',ListaContasContabeis])
+        else
+          qryProcuraContaContabil.MacroByName('SQLListaContaContabil').AsString :=
+            format(SQLListaContaContabil,[qrylancamentoscontacontabil.oldvalue, ListaContasContabeis]);
+        dmbasico.ReFazConsulta(qryProcuraContaContabil,[0],[qryLancamentosContaContabil.AsVariant]);
+        if qryProcuraContaContabil.IsEmpty then
+        begin
+          MensagemAviso(format(ctREGISTROINCLUIDO,['codigo: '+qrylancamentoscontacontabil.asstring, 'nos lançamentos']));
+          qrylancamentos.Cancel;
+//          LigarDesligarEventosLancamentos(false);
+          qryLancamentos.AfterScroll := qryLancamentosAfterScroll;
+          qrylancamentos.Prior;
+          qryLancamentoscontacontabil.FocusControl;
+//          LigarDesligarEventosLancamentos(true);
+        end
+        else
+        begin
+          qryLancamentosclassificacaocontacontabil.AsString := qryProcuraContaContabilclassificacao.AsString;
+          qryLancamentosdescricaocontacontabil.AsString := qryProcuraContaContabildescricao.AsString;
+          if qryLancamentosvalordebito.AsCurrency<>0 then
+          begin
+            qryLancamentosdebitar.AsInteger := qryLancamentoscontacontabil.AsInteger;
+            if qryLancamentoscontaDebitoouCreditonoPagamento.AsBoolean and
+               not origemcreditar then
+                AtribuirContaDocumento(qryLancamentosdebitar.AsInteger,
+                                       qryLancamentoshistorico.AsInteger, false);
+            qryLancamentosvalordebito.Required := true;
+            qryLancamentosvalorcredito.Required := false;
+          end
+          else
+          begin
+            qryLancamentoscreditar.AsInteger := qryLancamentoscontacontabil.AsInteger;
+            if qryLancamentoscontadebitooucreditonopagamento.AsBoolean and
+               Origemcreditar then
+                AtribuirContaDocumento(qryLancamentoscreditar.AsInteger,
+                                       qryLancamentoshistorico.AsInteger, false);
+            qryLancamentosvalordebito.Required := false;
+            qryLancamentosvalorcredito.Required := true;
+          end;
+          qryLancamentoscontacontabil.FocusControl;
+        end;
+      end;
+    end
+    else
+    if field = qryLancamentoshistorico then
+      if qryLancamentoscontadebitooucreditonopagamento.AsBoolean then
+      begin
+         if OrigemCreditar then
+           AtribuirContaDocumento(qryLancamentoscreditar.AsInteger,
+                         qryLancamentoshistorico.AsInteger, false)
+         else
+           AtribuirContaDocumento(qryLancamentosdebitar.AsInteger,
+                         qryLancamentoshistorico.AsInteger, false)
+      end;
+    dsrlancamentos.OnDataChange := dsrLancamentosDataChange;
+  end;
+end;
+
+procedure TfraLancamentoContabilidade.CalcularTotalDC;
+var
+  existeContaDebitoouCreditoPagamento: Boolean;
+begin
+  existeContaDebitoouCreditoPagamento := false;
+  LigarDesligarEventosLancamentos(false);
+  //qryLancamentos.BeforeScroll := nil;
+  qryTotais.Edit;
+  qryTotaistotaldebito.Clear;
+  qryTotaistotalcredito.Clear;
+  dmbasico.GuardarRegistroAtual(qryLancamentos,true);
+  qryLancamentos.First;
+  while not qrylancamentos.Eof do
+  begin
+    if (Origem <> 'H') and
+       (Origem <> 'V') and
+       (Origem <> 'T') and
+       (Origem <> 'G') and
+       (Origem <> 'P') then  //pagamentos duplicatas
+    begin
+      if not existeContaDebitoouCreditoPagamento and
+         qryLancamentoscontadebitooucreditonopagamento.AsBoolean then
+         existeContaDebitoouCreditoPagamento := true;
+    end;
+
+    if qryLancamentosvalordebito.AsCurrency<>0 then
+      qryTotaistotaldebito.AsCurrency := qryTotaistotaldebito.AsCurrency +
+                                         qryLancamentosvalordebito.AsCurrency
+    else
+      qryTotaistotalcredito.AsCurrency := qryTotaistotalcredito.AsCurrency +
+                                          qryLancamentosvalorcredito.AsCurrency;
+
+    qryLancamentos.Next;
+  end;
+
+  if origemformulario = 'P' then
+  begin
+    qrylancamentos.First;
+    while not qrylancamentos.Eof do
+    begin
+      if (qryLancamentoscreditar.AsInteger = ContaCreditoPagamento) and
+         (qryLancamentoscreditar.AsInteger <> 0) then
+      begin
+        qrylancamentos.Edit;
+        qryLancamentosvalor.AsCurrency := qryTotaistotaldebito.AsCurrency -
+                                          (qryTotaistotalcredito.AsCurrency -
+                                           qryLancamentosvalor.AsCurrency);
+        qryLancamentosvalorcredito.AsCurrency := qryLancamentosvalor.AsCurrency;
+
+        {
+        if qrylancamentos.recordcount <> 2 then
+        begin
+          qryLancamentosnumerocriado.AsBoolean := true;
+          qryLancamentosnrlancto.Clear;
+        end;
+        }
+
+        qrylancamentos.post;
+        break;
+      end;
+      qryLancamentos.Next;
+    end;
+  end;
+
+  if (Origem <> 'H') and
+     (Origem <> 'V') and
+     (Origem <> 'T') and
+     (Origem <> 'G') and
+     (Origem <> 'P') then  //pagamentos duplicatas
+
+  begin
+    if not existeContaDebitoouCreditoPagamento then
+    begin
+      qryLancamentos.First;
+      while not qrylancamentos.Eof do
+      begin
+        if ((qryLancamentoscreditar.AsInteger<>0) and
+            (qryLancamentoscreditar.AsInteger = CreditoFornecedor)) and
+           OrigemCreditar then
+        begin
+          AtribuirContaDocumento(qryLancamentoscreditar.AsInteger,
+                                 qryLancamentoshistorico.AsInteger, false);
+          existeContaDebitoouCreditoPagamento := true;
+          break;
+        end
+        else
+        if ((qryLancamentosdebitar.AsInteger<>0) and
+            (qryLancamentosdebitar.AsInteger = DebitoFornecedor)) and
+            not OrigemCreditar then
+        begin
+          AtribuirContaDocumento(qryLancamentosdebitar.AsInteger,
+                                 qryLancamentoshistorico.AsInteger, false);
+          existeContaDebitoouCreditoPagamento := true;
+          break;
+        end;
+        qrylancamentos.Next;
+      end;
+    end;
+
+    if not existeContaDebitoouCreditoPagamento then
+    begin
+      qryLancamentos.First;
+      while not qrylancamentos.Eof do
+      begin
+        if (qryLancamentoscreditar.AsInteger<>0) and
+           OrigemCreditar then
+        begin
+          AtribuirContaDocumento(qryLancamentoscreditar.AsInteger,
+                                 qryLancamentoshistorico.AsInteger, false);
+          break;
+        end
+        else
+        if (qryLancamentosdebitar.AsInteger<>0) and
+            not OrigemCreditar then
+        begin
+          AtribuirContaDocumento(qryLancamentosdebitar.AsInteger,
+                                 qryLancamentoshistorico.AsInteger, false);
+          break;
+        end;
+        qrylancamentos.Next;
+      end
+    end;
+  end;
+  qryTotais.Post;
+  dmbasico.VoltarRegistroAtual(qryLancamentos);
+  //qryLancamentos.BeforeScroll := qryLancamentosBeforeScroll;
+  AtualizarListaContaContabil;
+  LigarDesligarEventosLancamentos(true);
+end;
+
+procedure TfraLancamentoContabilidade.AtualizarListaContaContabil;
+begin
+  FListaContasContabeis := '';
+  dmbasico.GuardarRegistroAtual(qrylancamentos,true);
+  qrylancamentos.First;
+  While not qryLancamentos.Eof do
+  begin
+    if pos(quotedstr(qryLancamentoscontacontabil.AsString),ListaContasContabeis)=0 then
+      FListaContasContabeis := FlistaContasContabeis + quotedstr(qryLancamentoscontacontabil.AsString)+',';
+    qryLancamentos.Next;
+  end;
+  dmbasico.VoltarRegistroAtual(qrylancamentos);
+  if copy(FListaContasContabeis,length(FListaContasContabeis),1)=',' then
+    delete(FListaContasContabeis,length(FListaContasContabeis),1);
+end;
+
+procedure TfraLancamentoContabilidade.qryLancamentosBeforePost(
+  DataSet: TDataSet);
+begin
+  if (qryLancamentosnrlancto.AsInteger = 0) then
+  begin
+    qryLancamentosnrlancto.AsInteger := proximonrlancto;
+    qryLancamentosnumerocriado.AsBoolean := True;
+  end;
+end;
+
+function TfraLancamentoContabilidade.GetProximoNrLancto: integer;
+begin
+  if FProximoNrLancto=0 then
+  begin
+    spcLancamentosProximo.ParamByName('Exercicio').AsInteger:= YearOf(DataDocumento);
+    spcLancamentosProximo.ParamByName('Filial').AsInteger:= FilialDocumento;
+    spcLancamentosProximo.Open;
+    FProximoNrLancto := spcLancamentosProximocodigo.AsInteger;
+    spcLancamentosProximo.Close;
+  end
+  else
+   FProximoNrLancto := FProximoNrLancto + 1;
+  Result := FProximoNrLancto;
+
+end;
+
+procedure TfraLancamentoContabilidade.SetProximoNrLancto(
+  const Value: integer);
+begin
+  FProximoNrLancto := value;
+end;
+
+procedure TfraLancamentoContabilidade.qryLancamentosCalcFields(
+  DataSet: TDataSet);
+begin
+  if assigned(GerarDuplicatas) then
+    if GerarDuplicatas then
+      if origemcreditar then
+        qryLancamentoscontadebitooucreditonopagamento.AsBoolean :=
+
+          (((qryLancamentoscreditar.AsInteger = ContadebitarouCreditar) and
+           (qryLancamentoscreditar.AsInteger <> 0)) or
+           LancamentosporRegimedeCaixa) and
+           (origemformulario <> 'P') and  // pagamento duplicatas
+           (origemformulario <> 'A')      // adiantamento fornecedores
+
+
+      else
+        qryLancamentoscontadebitooucreditonopagamento.AsBoolean :=
+          (qryLancamentosdebitar.AsInteger = ContadebitarouCreditar) and
+          (qryLancamentosdebitar.AsInteger <> 0) and
+          (origemformulario <> 'P') and  //pagamento duplicatas
+          (origemformulario <> 'A') // adiantamento fornecedor
+end;
+
+procedure TfraLancamentoContabilidade.qryLancamentosNewRecord(DataSet: TDataSet);
+begin
+  qryLancamentosnumerocriado.AsBoolean := false;
+  qryLancamentosfilial.AsInteger        := FilialDocumento;
+  qryLancamentosdata.AsDateTime         := DataDocumento;
+  qryLancamentosexercicio.AsInteger     := YearOf(qryLancamentosdata.AsDateTime);
+  qryLancamentosorigem.AsString         := origem;
+  if OrigemFormulario='P' then
+    qryLancamentosnrorigem.AsLargeInt     := CodigoDuplicata
+  else
+    qryLancamentosnrorigem.AsLargeInt     := CodigoDocumento;
+
+  qryLancamentoscomplemento.AsString    := DescricaoHistorico;
+end;
+
+procedure TfraLancamentoContabilidade.sbnGerarLancamentoClick(
+  Sender: TObject);
+begin
+  GerarLancamentosContabeis;
+end;
+
+procedure TfraLancamentoContabilidade.sbnExcluirLancamentoClick(
+  Sender: TObject);
+begin
+  if not (SomenteLeituraContabilidade or LancamentosporRegimedeCaixa) then
+      ExcluirLancamentoContabil;
+end;
+
+function TfraLancamentoContabilidade.ExcluirLancamentoContabil: Boolean;
+begin
+  Result := qryLancamentos.RecordCount > 0;
+  if Result then
+    if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o LANÇAMENTO'])) = smbOk then
+    begin
+      if qryLancamentoscontaDebitoouCreditonoPagamento.AsBoolean then
+      begin
+        if origemCreditar then
+          AtribuirContaDocumento(qryLancamentoscreditar.AsInteger,
+                                 qryLancamentoshistorico.AsInteger, true)
+        else
+          AtribuirContaDocumento(qryLancamentosdebitar.AsInteger,
+                                 qryLancamentoshistorico.AsInteger, true);
+      end;
+
+      qryLancamentos.BeforeScroll := nil;
+      qryLancamentos.Delete;
+      qryLancamentos.BeforeScroll := qryLancamentosBeforeScroll;
+      EditarDocumento;
+
+      Result := True;
+    end
+    else
+      Result:= False;
+end;
+
+procedure TfraLancamentoContabilidade.GerarLancamentosP_Dupla(
+  gerar: Boolean);
+
+var
+  vhistorico, vcontacontabil, nrlancto : integer;
+  vProcurarChave, vProcurarConta, vdescricao : String;
+  vpartidadupla : Boolean;
+  RegistroAtual : TBookMark;
+  vTipoLancamento : TipoLancamento;
+
+
+  procedure CopiarLancamentos;
+  var i : integer;
+  begin
+    for i:= 0 to TabelaLancamentos.fieldcount-1 do
+    begin
+      if (TabelaLancamentos.Fields[i].fieldname = 'nrlancto') and
+         vpartidadupla and
+         (TabelaLancamentos.recordcount = 2) then
+         {* não atualiza o nrlancto *}
+      else
+      if (TabelaLancamentos.Fields[i].fieldname = 'debitar') or
+         (TabelaLancamentos.Fields[i].FieldName = 'debitoverificado') or
+         (TabelaLancamentos.Fields[i].fieldname = 'creditar') or
+         (TabelaLancamentos.Fields[i].FieldName = 'creditoverificado') then
+      begin
+        if (vTipoLancamento = Debito) and (TabelaLancamentos.Fields[i].fieldname = 'debitar') then
+        begin
+          TabelaLancamentos.FieldByName('debitar').asString := qryLancamentosdebitar.asString;
+          TabelaLancamentos.FieldByName('debitoverificado').asString := 'S';
+          if TabelaLancamentos.FieldByName('creditoverificado').asString = 'N' then
+             TabelaLancamentos.FieldByName('creditar').Clear;
+        end
+        else
+        if (vTipoLancamento = Credito) and (TabelaLancamentos.Fields[i].fieldname = 'creditar') then
+        begin
+          TabelaLancamentos.FieldByName('creditar').asString := qryLancamentoscreditar.asString;
+          TabelaLancamentos.FieldByName('creditoverificado').asString := 'S';
+          if TabelaLancamentos.FieldByName('debitoverificado').asString = 'N' then
+             TabelaLancamentos.FieldByName('debitar').Clear;
+        end;
+      end
+      else
+      if qrylancamentos.fieldbyname(TabelaLancamentos.Fields[i].FieldName).isnull then
+        TabelaLancamentos.Fields[i].clear
+      else
+      begin
+        case TabelaLancamentos.Fields[i].DataType of
+          ftBoolean : TabelaLancamentos.Fields[i].AsBoolean := qrylancamentos.fieldbyname(TabelaLancamentos.Fields[i].FieldName).AsBoolean;
+
+          ftinteger,
+          ftLargeInt,
+          ftString  : TabelaLancamentos.Fields[i].asString := qrylancamentos.fieldbyname(TabelaLancamentos.Fields[i].FieldName).asString;
+          ftCurrency: TabelaLancamentos.Fields[i].asCurrency := qrylancamentos.fieldbyname(TabelaLancamentos.Fields[i].FieldName).asCurrency;
+        else
+          TabelaLancamentos.Fields[i].asvariant := qrylancamentos.fieldbyname(TabelaLancamentos.Fields[i].FieldName).asvariant;
+        end;
+      end;
+    end;
+    TabelaLancamentos.FieldByName('exercicio').asinteger := YearOf(DataDocumento);
+    TabelaLancamentos.FieldByName('data').AsDateTime := DataDocumento;
+  end;
+
+  (*
+  function LancamentosIguais: Boolean;
+  var
+    vNaoEnConTrou : Boolean;
+  begin
+    result := (dtmLancamentoContabilidade.qrylancamentos.recordcount = TabelaLancamentos.RecordCount);
+    if result then
+    begin
+      TabelaLancamentos.First;
+      while not TabelaLancamentos.Eof do
+      begin
+        vNaoEnConTrou := True;
+
+        dtmLancamentoContabilidade.qryLancamentos.first;
+        while not dtmLancamentoContabilidade.qryLancamentos.eof do
+        begin
+          if  (dtmLancamentoContabilidade.qryLancamentosdebitar.asstring     = TabelaLancamentos.FieldByName('debitar').AsString)     and
+              (dtmLancamentoContabilidade.qryLancamentoscreditar.asstring    = TabelaLancamentos.FieldByName('creditar').AsString)    and
+              (dtmLancamentoContabilidade.qryLancamentosexercicio.AsInteger  = TabelaLancamentos.FieldByName('exercicio').AsInteger)  and
+              (dtmLancamentoContabilidade.qryLancamentosfilial.AsInteger     = TabelaLancamentos.FieldByName('filial').AsInteger)     and
+              (dtmLancamentoContabilidade.qryLancamentosdata.AsDateTime      = TabelaLancamentos.FieldByName('data').AsDateTime)      and
+              (dtmLancamentoContabilidade.qryLancamentosvalor.AsCurrency     = TabelaLancamentos.FieldByName('valor').AsCurrency)     and
+              (dtmLancamentoContabilidade.qryLancamentoshistorico.AsInteger  = TabelaLancamentos.FieldByName('historico').AsInteger)  and
+              (dtmLancamentoContabilidade.qryLancamentoscomplemento.AsString = TabelaLancamentos.FieldByName('complemento').AsString) and
+              (dtmLancamentoContabilidade.qryLancamentosnrorigem.AsString    = TabelaLancamentos.FieldByName('nrorigem').AsString)    and
+              not dtmLancamentoContabilidade.qryLancamentosJaVerificado.asboolean then
+          begin
+            vNaoEnConTrou := False;
+            dtmLancamentoContabilidade.qrylancamentos.edit;
+            dtmLancamentoContabilidade.qrylancamentosJaverificado.asboolean := true;
+            dtmLancamentoContabilidade.qrylancamentos.post;
+            break;
+          end;
+          dtmLancamentoContabilidade.qryLancamentos.next;
+        end;
+
+        if vNaoEnConTrou then
+        begin
+          result := false;
+          break;
+        end
+        else
+          Tabelalancamentos.next;
+      end;
+    end;
+  end;
+  *)
+
+begin
+
+  if not assigned(dtmlancamentocontabilidade) then
+    dtmLancamentoContabilidade := TdtmLancamentoContabilidade.Create(dtmLancamentoContabilidade);
+
+  if OrigemFormulario='E' then  //NF ENTRADA
+  begin
+    dmbasico.ReFazConsultapornome(dtmLancamentoContabilidade.qrylancamentosNotasEntradas,['origem','nrorigem','exercicio'],
+                [Origem,CodigoDocumento, YearOf(DataDocumento)]);
+
+//    dmbasico.ReFazConsulta(dtmLancamentoContabilidade.qryLancamentos,[0,1],
+//                [Origem,CodigoDocumento]);
+
+    TabelaLancamentos := dtmLancamentoContabilidade.qrylancamentosNotasEntradas;
+    if not gerar then
+    begin
+      while not TabelaLancamentos.Eof do
+        TabelaLancamentos.Delete;
+    end;
+  end
+  else
+  if (OrigemFormulario[1] in ['D','V','H','T','A','G']) then  //DOCUMENTO A PAGAR
+  begin
+    dmbasico.ReFazConsultapornome(dtmLancamentoContabilidade.qryLancamentosDocumentos,['origem','nrorigem','exercicio'],
+                [Origem,CodigoDocumento, YearOf(DataDocumento)]);
+
+//    dmbasico.ReFazConsulta(dtmLancamentoContabilidade.qryLancamentos,[0,1],
+//                [Origem,CodigoDocumento]);
+
+    TabelaLancamentos := dtmLancamentoContabilidade.qryLancamentosDocumentos;
+    if not gerar then
+    begin
+      while not TabelaLancamentos.Eof do
+        TabelaLancamentos.Delete;
+    end;
+  end
+  else
+  if origemformulario='S' then  //Nota Avulsa
+  begin
+    dmbasico.ReFazConsultapornome(dtmLancamentoContabilidade.qryLancamentosNotasSaidas,['origem','nrorigem','exercicio'],
+                [Origem, CodigoDocumento, YearOf(DataDocumento)]);
+
+
+//    dmbasico.ReFazConsulta(dtmLancamentoContabilidade.qryLancamentos,[0,1],
+//                [Origem,CodigoDocumento]);
+
+    TabelaLancamentos := dtmLancamentoContabilidade.qryLancamentosNotasSaidas;
+    if not gerar then
+    begin
+      while not TabelaLancamentos.Eof do
+        TabelaLancamentos.Delete;
+    end;
+
+  end
+  else
+  if origemformulario = 'C' then  //Contratos
+  begin
+    if not dtmLancamentoContabilidade.qryLancamentosNotasSaidas.active then
+      dmbasico.ReFazConsultapornome(dtmLancamentoContabilidade.qryLancamentosNotasSaidas,['origem','nrorigem','exercicio'],
+                  [Origem,CodigoDocumento, YearOf(DataDocumento)]);
+
+
+//    dmbasico.ReFazConsulta(dtmLancamentoContabilidade.qryLancamentos,[0,1],
+//                [Origem,CodigoDocumento]);
+
+    TabelaLancamentos := dtmLancamentoContabilidade.qryLancamentosNotasSaidas;
+    {não exclui pois o contrato pode gerar enes dadosfiscais}
+  end
+  else
+  if (origemformulario = 'P') then  //Pagamentos Duplicatas
+  begin
+
+    dmbasico.ReFazConsulta(dtmLancamentoContabilidade.qryLancamentosPagamentosDuplicatas,[0,1,2],
+                [OrigemFormulario,CodigoDocumento,YearOf(DataDocumento)]);
+
+//    dmbasico.ReFazConsulta(dtmLancamentoContabilidade.qryLancamentos,[0,1],
+//                [OrigemFormulario,CodigoDocumento]);
+
+    TabelaLancamentos := dtmLancamentoContabilidade.qryLancamentosPagamentosDuplicatas;
+    if not gerar then
+    begin
+      while not TabelaLancamentos.Eof do
+        TabelaLancamentos.Delete;
+    end;
+  end;
+
+
+  if gerar then
+  begin
+    LigarDesligarEventosLancamentos(false);
+    dmbasico.GuardarRegistroAtual(qryLancamentos, true);
+
+    try
+      vpartidadupla := false;
+      qryLancamentos.First;
+
+      if (qryTotaistotaldebito.AsCurrency = qryTotaistotalcredito.AsCurrency)
+        and (qryLancamentos.RecordCount = 2)
+        and (qryLancamentosorigem.AsString = origem) then
+      begin
+        vhistorico := qryLancamentoshistorico.AsInteger;
+        vdescricao := qryLancamentoscomplemento.AsString;
+
+        qryLancamentos.Next;
+        if (vhistorico = qryLancamentoshistorico.AsInteger) and
+           (vdescricao = qryLancamentoscomplemento.AsString) then
+          vpartidadupla := true;
+      end;
+
+      if (qryLancamentosorigem.AsString = origem) then
+      begin
+        qryLancamentos.First;
+        while not qrylancamentos.Eof do
+        begin
+
+          if qryLancamentosvalordebito.AsCurrency <> 0 then
+          begin
+            vProcurarChave := 'exercicio;nrlancto;filial;debitoverificado';
+            vProcurarConta := 'debitar;debitoverificado';
+            vcontacontabil := qryLancamentosdebitar.AsInteger;
+            vTipoLancamento := debito;
+          end
+          else
+          if qryLancamentosvalorcredito.AsCurrency <> 0 then
+          begin
+            vProcurarChave := 'exercicio;nrlancto;filial;creditoverificado';
+            vProcurarConta := 'creditar;creditoverificado';
+            vcontacontabil := qryLancamentoscreditar.AsInteger;
+            vTipoLancamento := credito;
+          end;
+
+          if TabelaLancamentos.Locate(vProcurarChave, VarArrayof([qryLancamentosexercicio.AsInteger,
+                                                                  qryLancamentosnrlancto.AsInteger,
+                                                                  qryLancamentosfilial.AsInteger,     'N']),[]) then
+          begin
+            if {(origemformulario = 'P') and}
+
+               ((TabelaLancamentos.fieldbyname('debitoverificado').asString='S') and
+                (vTipoLancamento = credito) and
+                (TabelaLancamentos.fieldbyname('valor').AsCurrency <> qryLancamentosvalorcredito.AsCurrency)
+                )
+
+               or
+
+               ((TabelaLancamentos.fieldbyname('creditoverificado').asString='S') and
+                (vTipoLancamento = debito) and
+                (TabelaLancamentos.fieldbyname('valor').AsCurrency <> qryLancamentosvalordebito.AsCurrency)
+                ) then
+            begin
+              TabelaLancamentos.Append;
+              CopiarLancamentos;
+              TabelaLancamentos.FieldByName('numerocriado').AsBoolean := true;
+              TabelaLancamentos.post;
+            end
+            else
+            begin
+              TabelaLancamentos.edit;
+              CopiarLancamentos;
+              if vpartidadupla then
+              begin
+                qryLancamentos.Next;
+                if qryLancamentosvalordebito.AsCurrency <> 0 then
+                  vTipoLancamento := debito
+                else
+                if qryLancamentosvalorcredito.AsCurrency <> 0 then
+                  vTipoLancamento := credito;
+                CopiarLancamentos;
+              end;
+              TabelaLancamentos.post;
+            end;
+          end
+          else
+          if TabelaLancamentos.Locate(vProcurarConta, VarArrayof([vcontacontabil, 'N']),[]) then
+          begin
+            if ((vTipoLancamento = debito)  and (TabelaLancamentos.fieldbyname('creditoverificado').AsString = 'N')) or
+               ((vTipoLancamento = credito) and (TabelaLancamentos.fieldbyname('debitoverificado').AsString  = 'N')) or
+
+               ((((vTipoLancamento = debito)  and (TabelaLancamentos.fieldbyname('creditoverificado').AsString <> 'N')) or
+                 ((vTipoLancamento = credito) and (TabelaLancamentos.fieldbyname('debitoverificado').AsString  <> 'N'))) and
+                 (qryLancamentosvalor.AsCurrency     = TabelaLancamentos.FieldByName('valor').AsCurrency) and
+                 (qryLancamentoshistorico.AsInteger  = TabelaLancamentos.FieldByName('historico').AsInteger) and
+                 (qryLancamentoscomplemento.AsString = TabelaLancamentos.FieldByName('complemento').AsString)) then
+            begin
+              TabelaLancamentos.edit;
+              CopiarLancamentos;
+              if vpartidadupla then
+              begin
+                qryLancamentos.Next;
+                if qryLancamentosvalordebito.AsCurrency <> 0 then
+                  vTipoLancamento := debito
+                else
+                if qryLancamentosvalorcredito.AsCurrency <> 0 then
+                  vTipoLancamento := credito;
+                CopiarLancamentos;
+              end;
+              TabelaLancamentos.post;
+            end
+            else
+            begin
+              TabelaLancamentos.Append;
+              CopiarLancamentos;
+              if vpartidadupla then
+              begin
+                qryLancamentos.Next;
+                if qryLancamentosvalordebito.AsCurrency <> 0 then
+                  vTipoLancamento := debito
+                else
+                if qryLancamentosvalorcredito.AsCurrency <> 0 then
+                  vTipoLancamento := credito;
+                CopiarLancamentos;
+              end;
+              TabelaLancamentos.FieldByName('numerocriado').AsBoolean := true;
+              TabelaLancamentos.post;
+            end;
+          end
+          else
+          begin
+            TabelaLancamentos.Append;
+            CopiarLancamentos;
+            if vpartidadupla then
+            begin
+              qryLancamentos.Next;
+              if qryLancamentosvalordebito.AsCurrency <> 0 then
+                vTipoLancamento := debito
+              else
+              if qryLancamentosvalorcredito.AsCurrency <> 0 then
+                vTipoLancamento := credito;
+              CopiarLancamentos;
+            end;
+            TabelaLancamentos.FieldByName('numerocriado').AsBoolean := true;
+            TabelaLancamentos.post;
+          end;
+          qryLancamentos.next;
+        end;
+      end;
+
+      TabelaLancamentos.First;
+      while not TabelaLancamentos.Eof do
+      begin
+        if (TabelaLancamentos.FieldByName('creditoverificado').AsString='N') and
+           (TabelaLancamentos.FieldByName('debitoverificado').AsString='N') then
+          TabelaLancamentos.delete
+        else
+          TabelaLancamentos.Next;
+      end;
+
+      (*
+
+      partidadupla := false;
+
+      if (qryTotaistotaldebito.AsCurrency = qryTotaistotalcredito.AsCurrency)
+         and (qryLancamentos.RecordCount = 2)
+         and (qryLancamentosorigem.AsString = origem) then
+      begin
+        historico := qryLancamentoshistorico.AsInteger;
+        contacontabil := qryLancamentoscontacontabil.AsInteger;
+        descricao := qryLancamentoscomplemento.AsString;
+        qryLancamentos.Next;
+        if (historico = qryLancamentoshistorico.AsInteger) and
+           (descricao = qryLancamentoscomplemento.AsString) then
+        begin
+          partidadupla := true;
+          TabelaLancamentos.Append;
+          CopiarLancamentos;
+
+          if TabelaLancamentos.FieldByName('debitar').isnull then
+            Tabelalancamentos.FieldByName('debitar').AsInteger := contacontabil
+          else
+            Tabelalancamentos.FieldByName('creditar').AsInteger := contacontabil;
+
+          tabelalancamentos.Post;
+        end;
+      end;
+
+      if not partidadupla
+         and (qryLancamentosorigem.AsString = origem) then
+      begin
+        //GRAVAR OS LANÇAMENTOS
+        qrylancamentos.First;
+        while not qryLancamentos.Eof do
+        begin
+          TabelaLancamentos.Append;
+          CopiarLancamentos;
+          TabelaLancamentos.Post;
+          qryLancamentos.Next;
+        end;
+
+        //VERIFICAR NR LANCTO DUPLICADO
+        TabelaLancamentos.First;
+        while not TabelaLancamentos.Eof do
+        begin
+          if not TabelaLancamentos.FieldByName('numerocriado').AsBoolean then
+          begin
+            nrlancto := TabelaLancamentos.fieldbyname('nrlancto').AsInteger;
+            RegistroAtual := TabelaLancamentos.GetBookmark;
+            TabelaLancamentos.Next;
+
+            if TabelaLancamentos.Eof then
+              break;
+
+            while not TabelaLancamentos.Eof do
+            begin
+              if (TabelaLancamentos.fieldbyname('nrlancto').AsInteger = nrlancto) and
+                  not TabelaLancamentos.FieldByName('numerocriado').AsBoolean then
+              begin
+                TabelaLancamentos.Edit;
+                TabelaLancamentos.FieldByName('numerocriado').AsBoolean := true;
+                TabelaLancamentos.Post;
+              end;
+              TabelaLancamentos.Next;
+            end;
+            TabelaLancamentos.GotoBookmark(registroatual);
+            TabelaLancamentos.FreeBookmark(RegistroAtual);
+          end;
+          TabelaLancamentos.Next;
+        end;
+
+      end;
+
+      if LancamentosIguais then
+      begin
+        TabelaLancamentos.close;
+        TabelaLancamentos.open;
+      end;
+
+      *)
+
+    finally
+      dmbasico.VoltarRegistroAtual(qryLancamentos);
+      LigarDesligarEventosLancamentos(true);
+    end;
+
+  end;
+end;
+
+
+function TfraLancamentoContabilidade.IncluirLancamentosContabeis(Editar: Boolean): Boolean;
+var
+ OperacaoLancamento : TtecTipoOperacaoLancamentosContabeis;
+ historico : Integer;
+begin
+  if sbnIncluirLancamento.Enabled then
+  begin
+    GerarLancamentosP_Dupla(true);
+
+    try
+      historico:= HistoricoPadrao;
+    except
+      historico:= 0;
+    end;
+
+    if editar then
+      OperacaoLancamento := tlcEDITAREXTERNO
+    else
+      OperacaoLancamento := tlcINSERIREXTERNO;
+    dtmLancamentoContabilidade.RegravarLancamentos := RegravarLancamentos;
+
+     TfrmPrincipalBasico(Application.MainForm).
+              MostrarFormRegistrado([OperacaoLancamento,
+                                     origem,
+                                     descricaoOrigem,
+                                     CodigoDocumento,
+                                     datadocumento,
+                                     tituloOrigem,
+                                     FListaContasContabeis,
+                                     qryLancamentos.recno,
+                                     not (somenteleituracontabilidade or LancamentosporRegimedeCaixa),
+                                     DescricaoHistorico,
+                                     origemformulario,
+                                     fproximonrlancto,
+                                     FilialDocumento,
+                                     NomeOrigemFormulario,
+                                     historico
+                                     ],
+               'TfrmLancamentoContas', True, NomeOrigemFormulario);
+  end;
+  Result := False;
+end;
+
+
+function TfraLancamentoContabilidade.DescricaoOrigem: String;
+begin
+  if origem = 'E' then
+    result := 'ENTRADA'
+  else
+    if origem = 'D' then
+      result := 'DOCUMENTO'
+    else
+      if origem = 'S' then
+        result := 'SAIDA'
+      else
+        if origem = 'G' then
+          Result:= 'ALTERAÇÔES DE CONTRATO';
+end;
+
+function TfraLancamentoContabilidade.TituloOrigem: String;
+begin
+  if origem = 'E' then
+    result := 'Lançamentos Contábeis da Nota Fiscal de entrada'
+  else
+   if origem = 'D' then
+    result := 'Lançamentos Contábeis do Documento de entrada'
+  else
+   if origem = 'S' then
+    result := 'Lançamentos Contábeis da Nota Fiscal de saída'
+  else
+   if origem = 'V' then
+    result := 'Lançamentos Contábeis da Venda de Imóveis'
+  else
+   if origem = 'H' then
+    result:=  'Lançamentos Contábeis da Entrega Chaves de Imóveis'
+  ELSE
+   IF ORIGEM = 'G' then
+    result:= 'Lançamentos contábeis de alterações de contrato de imóveis'
+end;
+
+procedure TfraLancamentoContabilidade.AcionarPesquisaGrade;
+begin
+  consulta.CtrlOn := True;
+  dbgContabilidade.SetFocus;
+  case dbgContabilidade.SelectedIndex of
+    0: begin
+         if not (SomenteLeituraContabilidade or LancamentosporRegimedeCaixa) then
+         begin
+           if TipoContaContabil='D' then
+           begin
+             consulta.OnFound := AtribuirDadosContaContabil;
+             consulta.TipoContaContabilDebitoSelecionavel := 'A';
+             consulta.TipoPesquisa := pesCONTADEBITO;
+             consulta.InternoPesquisar(ctCONTADEBITO);
+             dbgContabilidade.SetFocus;
+           end
+           else
+           begin
+             consulta.OnFound := AtribuirDadosContaContabil;
+             consulta.TipoContaContabilCreditoSelecionavel := 'A';
+             consulta.TipoPesquisa := pesCONTACREDITO;
+             consulta.InternoPesquisar(ctCONTACREDITO);
+             dbgContabilidade.SetFocus;
+           end
+         end
+         else
+          if ExisteLancamentosContabeis then
+            IncluirLancamentosContabeis(true)  //visualizar
+       end;
+  else
+    if SomenteLeituraContabilidade  or LancamentosporRegimedeCaixa then
+    begin
+      if ExisteLancamentosContabeis then
+        IncluirLancamentosContabeis(true); //visualizar
+    end
+    else
+        IncluirLancamentosContabeis(ExisteLancamentosContabeis)
+  end;
+end;
+
+function TfraLancamentoContabilidade.GetTipoContaContabil: String;
+begin
+  if qryLancamentosvalordebito.AsCurrency<>0 then
+    result := 'D'
+  else result := 'C';
+end;
+
+procedure TfraLancamentoContabilidade.dbgContabilidadeDblClick(
+  Sender: TObject);
+begin
+  acionarpesquisagrade;
+end;
+
+procedure TfraLancamentoContabilidade.dbgContabilidadeDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  if qryLancamentoscontaDebitoouCreditonoPagamento.AsBoolean then
+    TDBGrid(Sender).Canvas.Font.Color := clRed;
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+procedure TfraLancamentoContabilidade.dbgContabilidadeKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  Case Key of
+    VK_F9     : begin
+                   consulta.CtrlOn := Shift = [ssCtrl];
+                   if (Shift = []) or consulta.CtrlOn then
+                     AcionarPesquisaGrade
+                 end;
+    VK_Return  : GravarLancamentos;
+    VK_ESCAPE : CancelarLancamentos;
+    TeclaInserirRegistro: if (Shift = [ssCtrl]) and sbnIncluirLancamento.Enabled then
+      IncluirLancamentosContabeis(False);
+    TeclaEditarRegistro : if (Shift = [ssCtrl]) and sbnIncluirLancamento.Enabled then
+      IncluirLancamentosContabeis(True);
+    VK_SPACE           : if Shift = [ssCtrl] then
+      MarcarContaDebitoouCreditoPagamento;
+  end;
+end;
+
+procedure TfraLancamentoContabilidade.GravarLancamentos;
+begin
+  if qryLancamentos.State in [dsinsert,dsedit] then
+    if qrylancamentos.CheckRequiredFields then
+      qryLancamentos.Post;
+end;
+
+procedure TfraLancamentoContabilidade.CancelarLancamentos;
+begin
+  LigarDesligarEventosLancamentos(false);
+  if qryLancamentos.State in [dsedit,dsinsert] then
+    qrylancamentos.cancel;
+  LigarDesligarEventosLancamentos(true);
+end;
+
+procedure TfraLancamentoContabilidade.MarcarContaDebitoouCreditoPagamento;
+begin
+  if GerarDuplicatas then
+    if not (SomenteLeituraContabilidade  or LancamentosporRegimedeCaixa) then
+    begin
+      if (qryLancamentoscreditar.AsInteger<>0) and
+         OrigemCreditar then
+      begin
+//        qrylancamentos.sortclear;
+//      dmbasico.GuardarRegistroAtual(qrylancamentos, true);
+        if not (qryLancamentos.State in [dsedit,dsinsert]) then
+          qryLancamentos.Edit;
+        qryLancamentoscontaDebitoouCreditonoPagamento.AsBoolean := true;
+        qrylancamentos.Post;
+        AtribuirContaDocumento(qryLancamentoscreditar.asinteger,
+                               qryLancamentoshistorico.AsInteger,
+                               false);
+        qrylancamentos.Locate('creditar', ContaDebitarouCreditar,[]);
+//      dmbasico.VoltarRegistroAtual(qrylancamentos);
+      end
+      else
+      if (qryLancamentosdebitar.AsInteger<>0) and
+         not OrigemCreditar then
+      begin
+//        qrylancamentos.sortclear;
+//      dmbasico.GuardarRegistroAtual(qrylancamentos, true);
+        if not (qryLancamentos.State in [dsedit,dsinsert]) then
+          qryLancamentos.Edit;
+        qryLancamentoscontaDebitoouCreditonoPagamento.AsBoolean := true;
+        qrylancamentos.Post;
+        AtribuirContaDocumento(qryLancamentosdebitar.asinteger,
+                               qryLancamentoshistorico.AsInteger,
+                               false);
+        qrylancamentos.Locate('debitar', ContaDebitarouCreditar,[]);
+//      dmbasico.VoltarRegistroAtual(qrylancamentos);
+      end;
+    end;
+end;
+
+function TfraLancamentoContabilidade.GetOrigemCreditar: Boolean;
+begin
+  fOrigemCreditar := (origem = 'E') or (origem = 'D');
+  if fOrigemCreditar then
+  begin
+    if (qryLancamentos.RecordCount = 1) and
+       (qryLancamentosdebitar.AsInteger <> 0) and
+       (qryLancamentoscreditar.AsInteger = 0) then
+       fOrigemCreditar := false;
+  end;
+  result := fOrigemCreditar;
+end;
+
+procedure TfraLancamentoContabilidade.sbnIncluirLancamentoClick(
+  Sender: TObject);
+begin
+  IncluirLancamentosContabeis(false);
+end;
+
+procedure TfraLancamentoContabilidade.GravarLancamentosSimples;
+var
+ LancamentoIncluido: Boolean;
+
+ procedure Gravar(Tipo: TipoLancamento);
+ begin
+    if not LancamentoIncluido then
+      LancamentoIncluido:= true;
+    qrylancamentos.Append;
+//  qryLancamentosexercicio.AsInteger    := TabelaLancamentos.fieldbyname('exercicio').AsInteger;
+    qryLancamentosnrlancto.AsInteger     := TabelaLancamentos.fieldbyname('nrlancto').AsInteger;
+    qryLancamentosfilial.AsInteger       := TabelaLancamentos.fieldbyname('filial').AsInteger;
+    qryLancamentosdata.AsDateTime        := TabelaLancamentos.fieldbyname('data').AsDateTime;
+    qryLancamentosexercicio.AsInteger    := YearOf(qryLancamentosdata.AsDateTime);
+    qryLancamentosorigem.AsString        := TabelaLancamentos.fieldbyname('origem').AsString;
+    qryLancamentosnumerocriado.AsBoolean := TabelaLancamentos.fieldbyname('numerocriado').asboolean;
+    qryLancamentosnrorigem.AsLargeInt    := CodigoDocumento;
+    case tipo of
+      DEBITO : begin
+                 qryLancamentoscontacontabil.AsInteger := TabelaLancamentos.fieldbyname('debitar').AsInteger;
+                 qryLancamentosdebitar.AsInteger       := TabelaLancamentos.fieldbyname('debitar').AsInteger;
+                 qryLancamentosvalordebito.AsCurrency  := TabelaLancamentos.fieldbyname('valor').AsCurrency;
+                 qryLancamentosvalor.Ascurrency        := TabelaLancamentos.fieldbyname('valor').AsCurrency;
+                 qryLancamentosdebitoverificado.AsString := TabelaLancamentos.fieldbyname('debitoverificado').AsString;
+                 qryProcuraContaContabil.MacroByName('SQLListaContaContabil').AsString := '';
+                 dmbasico.ReFazConsulta(qryProcuraContaContabil, [0], [TabelaLancamentos.fieldbyname('debitar').AsInteger]);
+                 qryLancamentosdescricaocontacontabil.AsString := qryProcuraContaContabildescricao.AsString;
+                 qryLancamentosclassificacaocontacontabil.AsString := qryProcuraContaContabilclassificacao.asString;
+               end;
+      CREDITO: begin
+                 qryLancamentoscontacontabil.AsInteger := TabelaLancamentos.fieldbyname('creditar').AsInteger;
+                 qryLancamentoscreditar.AsInteger      := TabelaLancamentos.fieldbyname('creditar').AsInteger;
+                 qryLancamentosvalorcredito.AsCurrency := TabelaLancamentos.fieldbyname('Valor').AsCurrency;
+                 qryLancamentosvalor.Ascurrency        := TabelaLancamentos.fieldbyname('valor').AsCurrency;
+                 qryLancamentoscreditoverificado.AsString := TabelaLancamentos.fieldbyname('creditoverificado').AsString;
+                 qryProcuraContaContabil.MacroByName('SQLListaContaContabil').AsString := '';
+                 dmbasico.ReFazConsulta(qryProcuraContaContabil, [0], [TabelaLancamentos.fieldbyname('creditar').AsInteger]);
+                 qryLancamentosdescricaocontacontabil.AsString := qryProcuraContaContabildescricao.AsString;
+                 qryLancamentosclassificacaocontacontabil.AsString := qryProcuraContaContabilclassificacao.asString;
+               end;
+    end;
+    qryLancamentoshistorico.asvariant := TabelaLancamentos.fieldbyname('historico').asvariant;
+    qryLancamentoscomplemento.AsString := TabelaLancamentos.fieldbyname('complemento').AsString;
+    qryLancamentos.Post;
+ end;
+
+begin
+  LancamentoIncluido := false;
+  if assigned(dtmLancamentoContabilidade) then
+    if dtmLancamentoContabilidade.GravarLancamento then
+    begin
+      FProximoNrLancto := dtmLancamentoContabilidade.fproximonrLancto;
+      dtmLancamentoContabilidade.GravarLancamento := false;
+      ApagarLancamentos;
+      LigarDesligarEventosLancamentos(False);
+      qryLancamentos.DisableControls;
+
+      TabelaLancamentos.first;
+      while not TabelaLancamentos.Eof do
+      begin
+        if not Tabelalancamentos.fieldbyname('debitar').IsNull then
+          Gravar(debito);
+        if not Tabelalancamentos.fieldbyname('creditar').IsNull then
+          Gravar(credito);
+        TabelaLancamentos.Next;
+      end;
+      LigarDesligarEventosLancamentos(true);
+
+      qryLancamentos.enableControls;
+      if LancamentoIncluido then
+        qryLancamentosAfterPost(qrylancamentos);
+    end;
+end;
+
+procedure TfraLancamentoContabilidade.RegravarLancamentos;
+begin
+  if assigned(dtmLancamentoContabilidade) then
+    if dtmLancamentoContabilidade.GravarLancamento then
+      GravarLancamentosSimples;
+end;
+
+function TfraLancamentoContabilidade.VerificarLancamentosContabeis: Boolean;
+begin
+  result := true;
+  if ParSistema.GerarContabilidade then
+  begin
+    if assigned(CReDBigualValorNota) then  // campo Natureza credbigualvalornota
+      if ( (ContabilizacaoporregimedeCaixa and
+            not ((qryTotaistotalcredito.AsCurrency = ValordaNota) or
+                 (qryTotaistotaldebito.AsCurrency = ValordaNota))) or
+
+           (not ContabilizacaoporregimedeCaixa and
+            ((qryTotaistotaldebito.AsCurrency <> ValordaNota) or
+             (qryTotaistotalcredito.AsCurrency <> ValordaNota))) ) and
+
+      not CReDBigualValorNota then
+      begin
+        result := false;
+        MensagemErro(ctDIFERENCATOTALCONTABILVALORNOTA)
+      end;
+
+    if result then
+      if ((not qryTotaistotaldebito.IsNull) or  //Existem lancamentos
+          (qryTotaistotaldebito.AsCurrency<>0)) or
+         ((not qryTotaistotalcredito.IsNull) or
+          (qryTotaistotalcredito.AsCurrency<>0)) then
+      begin
+        if qryTotaistotaldebito.AsCurrency <> qryTotaistotalcredito.AsCurrency then
+        begin
+          if ContabilizacaoporregimedeCaixa then
+          begin
+            result := true;
+            if assigned(DocumentoPossuiOrigem) then
+              result := not DocumentoPossuiOrigem;
+
+            if result and
+               UsuarioLogin.AlterarDadosContabeis then
+              result := MensagemConfirmacao(
+                          ctDIFERENCATOTALDEBITOCREDITO+ #10#13 +
+                          ctCONFIRMALANCAMENTOREGIMEDECAIXA) = smbOk
+            else
+              result := true;
+          end
+          else
+          begin
+            result := false;
+            MensagemAviso(ctDIFERENCATOTALDEBITOCREDITO);
+            qryLancamentosvalordebito.FocusControl;
+          end;
+        end
+        else
+        begin
+          qryLancamentos.First;
+          while not qryLancamentos.Eof do
+          begin
+            if not FLancamentosOK then
+            begin
+              result := false;
+              break;
+            end;
+            qrylancamentos.Next;
+          end;
+        end;
+      end;
+
+    if result then
+    begin
+      if (OrigemFormulario = 'D') or      // Documentos a pagar
+         (OrigemFormulario = 'E') then    // Notas Fiscais Entradas
+      begin
+        if not qryContasEntradasFiliais.active then
+          dmbasico.ReFazConsulta(qryContasEntradasFiliais,[0,1],
+                                [fornecedorparaiss,filialbase]);
+        result := dmbasico.ValidarImpostosRetidos(ValorirRetido, ValorinssRetido, ValorissRetido,
+                                            ValorpisRetido, ValorcofinsRetido, ValorcsllRetido,
+                                            ValorPISCOFINSCSLLRetido,
+                                           qrylancamentos,
+                                           qryContasEntradasFiliais);
+      end
+      else
+      if (OrigemFormulario = 'S') or  //NF avulsas
+         (OrigemFormulario = 'C') then //Contratos
+
+      begin
+        if not qryContasSaidasFiliais.active then
+          dmbasico.ReFazConsulta(qryContasSaidasFiliais,[0],[filialbase]);
+
+        if not qryLancamentosNaturezas.active then
+          dmbasico.ReFazConsulta(qryLancamentosNaturezas,[0],[CodigoNatureza]);
+
+        result := dmbasico.ValidarImpostosRetidosSaidas(ValorirRetido, ValorinssRetido, ValorissRetido,
+                                            ValorpisRetido, ValorcofinsRetido, ValorcsllRetido,
+                                           qrylancamentos,
+                                           qryContasSaidasFiliais,
+                                           qryLancamentosNaturezas);
+      end;
+    end;
+
+    if result then
+      if qryLancamentos.IsEmpty then
+        if OrigemFormulario = 'D' then
+        begin
+          if UsuarioLogin.AlterarDadosContabeis then
+          begin
+            if (ParSistema.PermitirDoctossemLanctosContabeis) then
+            begin
+              if parsistema.ExibirMensagemSemLancamentoContabil then
+                result := MensagemConfirmacao(ctNAOPOSSUILANCTOSCONTABEIS+#10#13+
+                                           ctPROSSEGUIRGRAVACAO) = smbOK
+              else
+                result := true;
+            end
+            else
+            begin
+              result := false;
+              MensagemErro(ctNAOPOSSUILANCTOSCONTABEIS);
+            end;
+          end
+          else
+          begin
+            if (DebitoFornecedor<>0) and (CreditoFornecedor<>0) then
+              GerarLancamentosContabeis
+            else
+            if not ParSistema.PermitirDoctossemLanctosContabeis then
+            begin
+              MensagemErro(ctNAOPOSSUILANCTOSCONTABEIS);
+              result := false;
+            end
+            else
+            if ParSistema.Contabilizacaoporregimedecaixa then
+            begin
+              if (CreditoFornecedor<>0) then
+                AbrirLancamentos('D', CodigoDocumento, true);
+            end;
+          end;
+        end
+        else
+        begin
+          if assigned(GravarSemLanctos) then  // campo Naturezas gravarsemlanctos
+            if GravarSemLanctos then
+            begin
+              if parsistema.ExibirMensagemSemLancamentoContabil then
+                result := MensagemConfirmacao(ctNAOPOSSUILANCTOSCONTABEIS+#10#13+
+                       ctPROSSEGUIRGRAVACAO) = smbOK
+              else
+                result := true;
+            end
+            else
+            begin
+              result := false;
+              MensagemErro(ctNAOPOSSUILANCTOSCONTABEIS);
+            end;
+        end;
+
+
+    if result then
+      GerarLancamentosP_Dupla(not ContabilizacaoporregimedeCaixa);
+  end;
+end;
+
+function TfraLancamentoContabilidade.Contabilizacaoporregimedecaixa: boolean;
+
+  function PossuiSomenteLancamentosaCredito: boolean;
+  var
+    vRegistroAtual : TBookMark;
+  begin
+    result := true;
+    vRegistroAtual := qryLancamentos.GetBookmark;
+    qrylancamentos.DisableControls;
+    qrylancamentos.First;
+    while not qrylancamentos.Eof do
+    begin
+      if qryLancamentosdebitar.AsInteger <> 0 then
+      begin
+        result := false;
+        break;
+      end
+      else
+        qrylancamentos.next;
+    end;
+    qrylancamentos.GotoBookmark(vregistroAtual);
+    qrylancamentos.freebookmark(vRegistroAtual);
+    qrylancamentos.EnableControls;
+  end;
+
+  function PossuiSomenteDocumentospagLancamentosaCredito: boolean;
+  begin
+    result := true;
+    dtmLancamentoContabilidade.qryDocumentosPagLancamentos.First;
+    while not dtmLancamentoContabilidade.qryDocumentosPagLancamentos.Eof do
+    begin
+      if dtmLancamentoContabilidade.qryDocumentosPagLancamentostipo.AsString='D' then
+      begin
+        result := false;
+        break;
+      end
+      else
+        dtmLancamentoContabilidade.qryDocumentosPagLancamentos.next;
+    end;
+  end;
+
+begin
+  if (OrigemFormulario = 'E') then
+  begin
+    if assigned(DocumentoPossuiOrigem) then
+      result := ( ((qrylancamentos.RecordCount = 1) and
+                   (qryLancamentoscreditar.asinteger<>0))  or
+                  ((qrylancamentos.RecordCount = 0) and
+                   (contadebitaroucreditar<>0))
+                 ) and
+                ((parsistema.Contabilizacaoporregimedecaixa) or
+                 (DocumentoPossuiOrigem))
+    else
+      result := ( ((qrylancamentos.RecordCount = 1) and
+                   (qryLancamentoscreditar.asinteger<>0))  or
+                  ((qrylancamentos.RecordCount = 0) and
+                   (contadebitaroucreditar<>0))
+                 ) and
+                (parsistema.Contabilizacaoporregimedecaixa);
+  end
+  else
+  if (OrigemFormulario = 'D') then
+  begin
+    if assigned(DocumentoPossuiOrigem) then
+      result := ( ((qrylancamentos.RecordCount = 1) and
+                   (qryLancamentoscreditar.asinteger<>0))  or
+
+                  ((qrylancamentos.RecordCount = 0) and
+                   (contadebitaroucreditar<>0)) or
+
+                   LancamentosporRegimedeCaixa
+
+                 ) and
+                ((parsistema.Contabilizacaoporregimedecaixa) or
+                 (DocumentoPossuiOrigem))
+    else
+      result := ( ((qrylancamentos.RecordCount = 1) and
+                   (qryLancamentoscreditar.asinteger<>0))  or
+
+                  ((qrylancamentos.RecordCount = 0) and
+                   (contadebitaroucreditar<>0)) or
+
+                   LancamentosporRegimedeCaixa
+
+                 ) and
+                (parsistema.Contabilizacaoporregimedecaixa);
+  end
+  {
+  else
+  if (OrigemFormulario = 'P') then
+  begin
+    if assigned(DocumentoPossuiOrigem) then
+      result := ( ((qrylancamentos.RecordCount = 1) and
+                   (qryLancamentoscreditar.asinteger<>0))  or
+
+                  ((qrylancamentos.RecordCount = 0) and
+                   (contadebitaroucreditar<>0)) or
+
+                   LancamentosporRegimedeCaixa
+
+                 ) and
+                ((parsistema.Contabilizacaoporregimedecaixa) or
+                 (DocumentoPossuiOrigem))
+    else
+      result := ( ((qrylancamentos.RecordCount = 1) and
+                   (qryLancamentoscreditar.asinteger<>0))  or
+
+                  ((qrylancamentos.RecordCount = 0) and
+                   (contadebitaroucreditar<>0)) or
+
+                   LancamentosporRegimedeCaixa
+
+                 ) and
+                (parsistema.Contabilizacaoporregimedecaixa);
+  end
+  }
+  else
+  if (OrigemFormulario = 'S') or  //Saidas NF avulsas
+     (OrigemFormulario = 'C') then //Contratos
+  begin
+    if assigned(DocumentoPossuiOrigem) then
+      result := ( ((qrylancamentos.RecordCount = 1) and
+                   (qryLancamentosdebitar.asinteger<>0))   or
+                  ((qrylancamentos.RecordCount = 0) and
+                   (contadebitaroucreditar<>0))
+                 ) and
+                ((parsistema.Contabilizacaoporregimedecaixa) or
+                  (DocumentoPossuiOrigem))
+    else
+      result := ( ((qrylancamentos.RecordCount = 1) and
+                   (qryLancamentosdebitar.asinteger<>0))   or
+                  ((qrylancamentos.RecordCount = 0) and
+                   (contadebitaroucreditar<>0))
+                 ) and
+                (parsistema.Contabilizacaoporregimedecaixa);
+  end
+  else
+    Result := False;
+end;
+
+procedure TfraLancamentoContabilidade.AtualizarDescricaoHistorico;
+begin
+  qrylancamentos.AfterEdit := nil;
+  if not qrylancamentos.ReadOnly then
+  begin
+    qryLancamentos.AfterPost := nil;
+    qrylancamentos.First;
+    while not qrylancamentos.Eof do
+    begin
+      qrylancamentos.Edit;
+  //    if (qryLancamentosnumerocriado.AsBoolean) then
+  //      qrylancamentosNotasSaidasnrlancto.AsInteger := ProximoNrLancto;
+
+      qryLancamentosdata.AsDateTime         := DataDocumento;
+      qryLancamentosexercicio.Asinteger     := YearOf(qryLancamentosdata.AsDateTime);
+      qrylancamentosnrorigem.AsLargeInt     := CodigoDocumento;
+      qryLancamentosfilial.Asinteger        := FilialDocumento;
+
+      if (OrigemFormulario = 'D') or
+         (OrigemFormulario = 'A') then
+        if pos('DOCUMENTO  - ',qryLancamentoscomplemento.AsString)<>0 then
+          qryLancamentoscomplemento.AsString := Trocar(qryLancamentoscomplemento.AsString,'DOCUMENTO  - ','DOCUMENTO '+IntToStr(CodigoDocumento)+' - ')
+      else
+      if (OrigemFormulario = 'P') then
+          qryLancamentoscomplemento.AsString := descricaohistorico
+      else
+        if pos('NF  - ',qryLancamentoscomplemento.AsString)<>0 then
+          qryLancamentoscomplemento.AsString := Trocar(qryLancamentoscomplemento.AsString,'NF  - ','NF '+inttostr(NumeroNotaFiscal)+' - ');
+
+      qrylancamentos.Next;
+    end;
+    qryLancamentos.AfterPost := qryLancamentosAfterPost;
+  end;
+  qrylancamentos.AfterEdit := qrylancamentosAfterEdit;
+end;
+
+procedure TfraLancamentoContabilidade.qryLancamentosFilterRecord(
+  DataSet: TDataSet; var Accept: Boolean);
+begin
+  Accept := (qryLancamentosorigem.AsString = origem) and
+            (qryLancamentosnrorigem.AsLargeInt = CodigoDocumento);
+end;
+
+
+procedure TfraLancamentoContabilidade.AtribuirDadosContaContabil;
+begin
+  qryLancamentosdescricaocontacontabil.AsString := consulta.qryConsultaContadescricao.AsString;
+  qryLancamentosclassificacaocontacontabil.AsString := consulta.qryConsultaContaclassificacao.AsString;
+  EditarDocumento;
+end;
+
+
+procedure TfraLancamentoContabilidade.qryLancamentosAfterOpen(
+  DataSet: TDataSet);
+begin
+  qryLancamentos.ReadOnly := SomenteLeituraContabilidade  or LancamentosporRegimedeCaixa;
+  fraConsultaHistoricoContabil.edfCodigo.ReadOnly := qryLancamentos.ReadOnly;
+end;
+
+procedure TfraLancamentoContabilidade.actLiberarBotoesUpdate(
+  Sender: TObject);
+begin
+  sbnIncluirLancamento.Enabled := not (SomenteLeituraContabilidade  or LancamentosporRegimedeCaixa);
+  sbnExcluirLancamento.Enabled := sbnIncluirLancamento.Enabled;
+  sbnGerarLancamento.Enabled :=  not SomenteLeituraContabilidade;
+
+  fraConsultaHistoricoContabil.sbnProcura.Enabled := sbnIncluirLancamento.Enabled;
+  fraConsultaHistoricoContabil.edfCodigo.Enabled := sbnIncluirLancamento.Enabled;
+  
+  sbnGerarLancamentosContabeisRegimedeCaixa.Visible := ((OrigemFormulario = 'D') or //documento a pagar
+                                                        (OrigemFormulario = 'E')) and   // notas fiscais de entrada
+                                                       (parsistema.Contabilizacaoporregimedecaixa) and
+                                                       (assigned(ContaDebitar) and (ContaDebitar = 0)) and
+                                                       ExisteEventosContasContabeis;
+                                                       
+  if sbnGerarLancamentosContabeisRegimedeCaixa.Visible then
+    sbnGerarLancamentosContabeisRegimedeCaixa.enabled := (ValorirRetido            = 0) and
+                                                         (ValorinssRetido          = 0) and
+                                                         (ValorissRetido           = 0) and
+                                                         (ValorpisRetido           = 0) and
+                                                         (ValorcofinsRetido        = 0) and
+                                                         (ValorcsllRetido          = 0) and
+                                                         (ValorPISCOFINSCSLLRetido = 0) and
+                                                         not SomenteLeituraContabilidade;
+
+  pnlLabel.Visible := (OrigemFormulario <> 'P') and // pagamento duplicata
+                      (OrigemFormulario <> 'A'); // adiantamento fornecedores
+
+
+end;
+
+procedure TfraLancamentoContabilidade.sbnLiberarBotoesClick(
+  Sender: TObject);
+begin
+{Forçar o action}
+;
+end;
+
+procedure TfraLancamentoContabilidade.SetOrdenarLancamentos(const Value: String);
+begin
+  if Value = '' then
+    FOrdenarLancamentos:= 'order by debitar, creditar, nrlancto'
+  else
+    FOrdenarLancamentos:= Value;
+end;
+
+procedure TfraLancamentoContabilidade.qryLancamentosBeforeOpen(DataSet: TDataSet);
+begin
+  qryLancamentos.parambyname('exercicio').AsInteger := YearOf(DataDocumento);
+  qryLancamentos.MacroByName('Ordenar').AsString:= FOrdenarLancamentos;
+end;
+
+
+procedure TfraLancamentoContabilidade.sbnGerarLancamentosContabeisRegimedeCaixaClick(
+  Sender: TObject);
+begin
+  GerarLancamentosContabeisRegimedeCaixa;
+end;
+
+procedure TfraLancamentoContabilidade.GerarLancamentosContabeisRegimedeCaixa;
+begin
+
+  if assigned(BloquearImpostosRetidos) then
+    BloquearImpostosRetidos;
+
+  qryLancamentos.ReadOnly := false;
+  LancamentoIncluido := false;
+  ApagarLancamentos;
+  LigarDesligarEventosLancamentos(False);
+
+  dtmLancamentoContabilidade.qryDocumentosPagLancamentos.First;
+  while not dtmLancamentoContabilidade.qryDocumentosPagLancamentos.Eof do
+    dtmLancamentoContabilidade.qryDocumentosPagLancamentos.Delete;
+
+  if (DebitoFornecedor<>0) then
+  begin
+    historico:= HistoricoPadrao;
+    LancamentoContabil(ValordaNota,'C', DebitoFornecedor);
+  end
+  else
+    GerarLancamentosEventos(true);
+
+  LigarDesligarEventosLancamentos(True);
+
+  if LancamentoIncluido then
+    qryLancamentosAfterPost(qrylancamentos);
+
+  qryLancamentos.ReadOnly := SomenteLeituraContabilidade or LancamentosporRegimedeCaixa;
+
+end;
+
+
+procedure TfraLancamentoContabilidade.GerarLancamentosEventos(RegimedeCaixa: Boolean = False);
+var
+  vValorLancamentoRateado, vTotalValorLancamentoRateado : Currency;
+begin
+  if assigned(evento) then
+  begin
+    vTotalValorLancamentoRateado := 0;
+
+    dmbasico.ReFazConsultapornome(qryEventosContasContabeis,['evento'],[evento]);
+    qryEventosContasContabeis.First;
+    while not qryEventosContasContabeis.eof do
+    begin
+      if qryeventoscontascontabeis.FieldByName('percentual').Value <> 0 then
+      begin
+        vValorLancamentoRateado :=  roundto(ValordaNota * qryeventoscontascontabeis.FieldByName('percentual').ascurrency / 100, -2);
+        historico:= qryeventoscontascontabeis.FieldByName('historicocontabil').asinteger;
+        if historico = 0 then
+          historico := HistoricoPadrao;
+
+        if RegimedeCaixa then
+          LancamentoContabil(vValorLancamentoRateado,'C', qryeventoscontascontabeis.FieldByName('contacontabil').asinteger, RegimedeCaixa, qryeventoscontascontabeis.FieldByName('percentual').ascurrency)
+        else
+          LancamentoContabil(vValorLancamentoRateado,'D', qryeventoscontascontabeis.FieldByName('contacontabil').asinteger, RegimedeCaixa, qryeventoscontascontabeis.FieldByName('percentual').ascurrency);
+
+        vTotalValorLancamentoRateado := vTotalValorLancamentoRateado + vValorLancamentoRateado;
+      end;
+
+      qryEventosContasContabeis.Next;
+    end;
+
+    if (vTotalValorLancamentoRateado<>0) and (vTotalValorLancamentoRateado <> ValordaNota) then
+    begin
+      qrylancamentos.edit;
+      qrylancamentosvalor.ascurrency := qrylancamentosvalor.ascurrency + (ValordaNota - vTotalValorLancamentoRateado);
+      qrylancamentosvalordebito.ascurrency := qrylancamentosvalor.ascurrency;
+      qrylancamentos.post;
+    end;
+  end;
+end;
+
+procedure TfraLancamentoContabilidade.LancamentoContabil(Valor: Currency; TipoOperacao: String; Conta: Integer; RegimedeCaixa: boolean = false; PercentualRegime: Currency = 0);
+begin
+  ValorLancamento := Valor;
+  operacao        := TipoOperacao;
+  ContaContabil   := Conta;
+
+//  qrylancamentos.SortClear;
+
+  if (OrigemFormulario='P') and
+     (Conta = ContaCreditoPagamento) and
+     (Conta <> 0) and
+     assigned(ehMultiploPagamento) and
+     ehMultiploPagamento and
+     qrylancamentos.locate('creditar',conta,[]) then
+  begin
+//    if qryLancamentosnrorigem.AsLargeInt <> CodigoDocumento then
+    begin
+      qrylancamentos.Edit;
+      qryLancamentosvalorcredito.AsCurrency := qryLancamentosvalorcredito.AsCurrency + valor;
+      qryLancamentosvalor.AsCurrency := qryLancamentosvalorcredito.AsCurrency;
+      qryLancamentosnrorigem.AsLargeInt  := CodigoDocumento;
+      qryLancamentoscomplemento.AsString := 'PAGTO DIVERSAS DUPLICATAS';
+      qrylancamentos.post;
+    end;  
+  end
+  else
+  begin
+    dmbasico.refazconsulta(qryprocuracontacontabil,[0],[ContaContabil]);
+    descricaocontacontabil := qryProcuraContaContabildescricao.AsString;
+    classificacaocontacontabil := qryProcuraContaContabilclassificacao.AsString;
+    IncluirLancamento;
+  end;
+
+  if RegimedeCaixa then
+    IncluirDocumentosPagLancamentos(PercentualRegime);
+end;
+
+procedure TfraLancamentoContabilidade.IncluirLancamento;
+begin
+  if ValorLancamento<>0 then
+  begin
+    if not LancamentoIncluido then
+      LancamentoIncluido := true;
+    qrylancamentos.Append;
+    qryLancamentoscontacontabil.AsInteger := contacontabil;
+
+    if operacao = 'D' then
+    begin
+      if ValorLancamento <> 0 then
+        qryLancamentosvalordebito.AsCurrency := ValorLancamento
+      else
+        qryLancamentosvalordebito.clear;
+      qryLancamentosdebitar.AsInteger := contacontabil;
+    end
+    else
+    begin
+      if ValorLancamento <> 0 then
+        qryLancamentosvalorcredito.AsCurrency := ValorLancamento
+      else
+        qryLancamentosvalorcredito.clear;
+      qryLancamentoscreditar.AsInteger      := contacontabil;
+    end;
+
+    if historico<>0 then
+      qryLancamentoshistorico.asinteger := historico
+    else
+      qryLancamentoshistorico.clear;
+
+    qryLancamentoscomplemento.asstring := descricaohistorico;
+
+    if ValorLancamento <> 0 then
+      qryLancamentosvalor.AsCurrency                    := ValorLancamento
+    else
+      qryLancamentosvalor.clear;
+    qryLancamentosdescricaocontacontabil.AsString     := descricaocontacontabil;
+    qryLancamentosclassificacaocontacontabil.AsString := classificacaocontacontabil;
+    qrylancamentos.Post;
+  end;
+end;
+
+procedure TfraLancamentoContabilidade.IncluirDocumentosPagLancamentos(
+  percentual: Currency);
+begin
+  if not assigned(dtmlancamentocontabilidade) then
+    dtmLancamentoContabilidade := TdtmLancamentoContabilidade.Create(dtmLancamentoContabilidade);
+
+  dtmLancamentoContabilidade.qryDocumentosPagLancamentos.Append;
+  dtmLancamentoContabilidade.qryDocumentosPagLancamentoscontacontabil.AsInteger := contacontabil;
+  if operacao = 'D' then
+    dtmLancamentoContabilidade.qryDocumentosPagLancamentostipo.AsString := 'D'
+  else
+    dtmLancamentoContabilidade.qryDocumentosPagLancamentostipo.AsString := 'C';
+  dtmLancamentoContabilidade.qryDocumentosPagLancamentosvalor.AsCurrency := ValorLancamento;
+  if historico<>0 then
+    dtmLancamentoContabilidade.qryDocumentosPagLancamentoshistoricocontabil.asinteger := historico;
+  dtmLancamentoContabilidade.qryDocumentosPagLancamentoscomplemento.asstring := descricaohistorico;
+  dtmLancamentoContabilidade.qryDocumentosPagLancamentospercentual.ascurrency := percentual;
+  dtmLancamentoContabilidade.qryDocumentosPagLancamentos.post;
+
+  AtribuirContaDocumento(0,0,true);
+
+
+end;
+
+function TfraLancamentoContabilidade.GetLancamentosporRegimedeCaixa: boolean;
+begin
+
+  fLancamentosporRegimedeCaixa := false;
+  if assigned(dtmlancamentocontabilidade) then
+    fLancamentosporRegimedeCaixa := dtmlancamentocontabilidade.qrydocumentospagLancamentos.recordcount<>0;
+
+  Result := fLancamentosporRegimedeCaixa;
+end;
+
+procedure TfraLancamentoContabilidade.GerarLancamentosDocumentospagLancamentos;
+var
+  vValorLancamentoRateado, vTotalValorLancamentoRateado : Currency;
+begin
+  vTotalValorLancamentoRateado := 0;
+  if assigned(evento) then
+  begin
+    dtmLancamentoContabilidade.qryDocumentosPagLancamentos.First;
+    while not dtmLancamentoContabilidade.qryDocumentosPagLancamentos.eof do
+    begin
+      if dtmLancamentoContabilidade.qryDocumentosPagLancamentos.FieldByName('percentual').Value <> 0 then
+      begin
+        vValorLancamentoRateado :=  roundto(ValorVencto * dtmLancamentoContabilidade.qryDocumentosPagLancamentos.FieldByName('percentual').ascurrency / 100, -2);
+        historico:= dtmLancamentoContabilidade.qryDocumentosPagLancamentos.FieldByName('historicocontabil').asinteger;
+        if historico = 0 then
+          historico := HistoricoPadrao;
+
+        LancamentoContabil(vValorLancamentoRateado,'D', dtmLancamentoContabilidade.qryDocumentosPagLancamentos.FieldByName('contacontabil').asinteger);
+
+        vTotalValorLancamentoRateado := vTotalValorLancamentoRateado + vValorLancamentoRateado;
+      end;
+
+      dtmLancamentoContabilidade.qryDocumentosPagLancamentos.Next;
+    end;
+
+    if vTotalValorLancamentoRateado <> ValorVencto then
+    begin
+      qrylancamentos.edit;
+      qrylancamentosvalor.ascurrency := qrylancamentosvalor.ascurrency + (ValorVencto - vTotalValorLancamentoRateado);
+      qrylancamentosvalordebito.ascurrency := qrylancamentosvalor.ascurrency;
+      qrylancamentos.post;
+    end;
+  end;
+end;
+
+function TfraLancamentoContabilidade.ExisteEventosContasContabeis: boolean;
+begin
+  result := false;
+  if assigned(evento) then
+  begin
+    if not qryEventosContasContabeis.Active then
+      dmbasico.ReFazConsultapornome(qryEventosContasContabeis,['evento'],[evento]);
+
+    result := not qryEventosContasContabeis.IsEmpty;
+  end;
+end;
+
+procedure TfraLancamentoContabilidade.qryTotaisBeforeOpen(
+  DataSet: TDataSet);
+begin
+  qryTotais.parambyname('exercicio').AsInteger := YearOf(DataDocumento);
+end;
+
+procedure TfraLancamentoContabilidade.qryLancamentosAfterEdit(
+  DataSet: TDataSet);
+begin
+  if assigned(EditarDocumento) then
+     EditarDocumento;
+end;
+
+end.
+

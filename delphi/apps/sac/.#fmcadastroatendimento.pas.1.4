@@ -1,0 +1,468 @@
+unit fmcadastroatendimento;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls,
+  ExtCtrls, Buttons, DBCtrls, Mask, Grids, DBGrids, ComCtrls, Windows,{Qete,}
+  dateutils, ActnList,
+  //Terceiros
+  ZQuery,
+  //Biblio
+  ctconstantes,biblio,
+  //Componentes
+  cpdata, cptexto, cpnumero, cpdbfindcontrols, cpdbdata, cpdbtext, cpdbgrid,
+  cpdbradiogroup, cpdbmemo,
+  //Repositorio
+  fmcadastropadrao, fmconsultabasica, fmconsultaporcampo,
+  //Projeto
+  dmcadastroatendimentos, ToolWin;
+
+type
+  TfrmCadastroAtendimento = class(TfrmCadastroPadrao)
+    gbxdados: TGroupBox;
+    sbnCliente: TSpeedButton;
+    edfCodigoCliente: TtecDBFindLookup;
+    dtxNome: TtecDBText;
+    pnlFundoJanela: TPanel;
+    rgpTipo: TtecDBRadioGroup;
+    ckbTipoReclamacao: TtecRadioButton;
+    ckbTipoVisita: TtecRadioButton;
+    ckbTipoCobranca: TtecRadioButton;
+    edfTipoAtendimento: TtecDBFindLookup;
+    sbnTipoAtendimento: TSpeedButton;
+    dtxTipoAtendimento: TtecDBText;
+    dtxData: TtecDBText;
+    edtLembrete: TDBEditData;
+    edtDataSPC: TDBEditData;
+    edtDataAviso: TDBEditData;
+    gbxListaAtendimentos: TGroupBox;
+    dbgCobranca: TtecDBGrid;
+    edfCodigo: TtecDbEditFind;
+    pgcInformes: TPageControl;
+    tstEditarInformes: TTabSheet;
+    tstHistorico: TTabSheet;
+    mmoEditarInformes: TDBMemo;
+    aclHabilitar: TActionList;
+    actHabilitar: TAction;
+    dtxAtendente: TtecDBText;
+    lbxExibirInformes: TListBox;
+    mmoUltimaReclamacao: TDBMemo;
+    dbgReclamacao: TtecDBGrid;
+    dbgVisita: TtecDBGrid;
+    lblCobrancas: TLabel;
+    lblReclamacoes: TLabel;
+    lblVisita: TLabel;
+    gbxCodigo: TGroupBox;
+    gbxData: TGroupBox;
+    gbxAtendente: TGroupBox;
+    gbxCliente: TGroupBox;
+    gbxTipoAtendimento: TGroupBox;
+    gbxLembrarEm: TGroupBox;
+    gbxSemSPC: TGroupBox;
+    gbxSemAviso: TGroupBox;
+    procedure actHabilitarUpdate(Sender: TObject);
+    procedure edtDataAvisoEnter(Sender: TObject);
+    procedure edtDataSPCEnter(Sender: TObject);
+    procedure edtLembreteEnter(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+    procedure sbnClienteClick(Sender: TObject);
+    procedure sbnTipoAtendimentoClick(Sender: TObject);
+    procedure dbgCobrancaDblClick(Sender: TObject);
+    procedure dbgReclamacaoDblClick(Sender: TObject);
+    procedure dbgVisitaDblClick(Sender: TObject);
+    procedure rgpTipoClickItem(Sender: TObject);
+    procedure edfCodigoClienteFound(Found: Boolean);
+  protected
+    procedure ExibirInformes(Tipo: TtecTipoAtendimento; MostrarAtendimento: Boolean);
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function  InternoExcluir   : Boolean;  Override;
+    function  InternoGravar    : Boolean;  Override;
+    function  InternoIncluir   : Boolean;  Override;
+    function  InternoPesquisar(Titulo:String):Integer; Override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    function  TabelaDePesquisa: TZDataSet; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure AfterOpenProcuraCliente(Sender: TObject);
+  public
+    procedure OperacaoPadrao(Value: Array of Variant); override;
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+  end;
+
+var
+  frmCadastroAtendimento: TfrmCadastroAtendimento;
+  TipoConsulta: TtecTipoConsultaAtendimento;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmCadastroAtendimento.actHabilitarUpdate(Sender: TObject);
+begin
+   inherited;
+   with dtmCadastroAtendimentos do begin
+      rgpTipo.ReadOnly := qryAtendimentostipo.ReadOnly;
+      ckbTipoCobranca.ReadOnly := rgpTipo.ReadOnly;
+      ckbTipoVisita.ReadOnly :=  rgpTipo.ReadOnly;
+      ckbTipoReclamacao.ReadOnly :=  rgpTipo.ReadOnly;
+
+      gbxSemSPC.   Enabled := Atendimento = 'C';
+      edtDataSPC.  Enabled := gbxSemSPC.Enabled;
+      gbxSemAviso. Enabled := gbxSemSPC.Enabled;
+      edtDataAviso.Enabled := gbxSemSPC.Enabled;
+
+      if Atendimento = 'C' then ckbTipoCobranca.Font.Color:= clRed
+      else                      ckbTipoCobranca.Font.Color:= clBlack;
+      if Atendimento = 'R' then ckbTipoReclamacao.Font.Color:= clRed
+      else                      ckbTipoReclamacao.Font.Color:= clBlack;
+    if Atendimento = 'V' then ckbTipoVisita.Font.Color:= clRed
+    else                      ckbTipoVisita.Font.Color:= clBlack;
+    mmoUltimaReclamacao.Visible:= ExisteReclamacao and (Atendimento = 'C');
+  end;
+end;
+
+procedure TfrmCadastroAtendimento.AfterOpenProcuraCliente(Sender: TObject);
+begin
+  if pgcInformes.ActivePageIndex = 1 then
+    pgcInformes.ActivePageIndex:= 0;
+  tstHistorico.Caption:= 'Históric&os - cobrança';
+  ExibirInformes(tpaCOBRANCA,False);
+end;
+
+constructor TfrmCadastroAtendimento.Create(AOwner: TComponent);
+begin
+  dtmcadastroatendimentos:= Tdtmcadastroatendimentos.Create(Self);
+  inherited;
+  with dtmcadastroatendimentos do begin
+    DataSet := qryAtendimentos;
+    Abre(ctCadastroAtendimentos);
+    ProcuraClienteAfterOpen:= AfterOpenProcuraCliente;
+    TipoAtendimento:= tpaCOBRANCA;
+  end;
+end;
+
+destructor TfrmCadastroAtendimento.Destroy;
+begin
+  dtmcadastroatendimentos:=nil;
+  inherited;
+  frmCadastroAtendimento := nil;
+end;
+
+procedure TfrmCadastroAtendimento.edtDataAvisoEnter(Sender: TObject);
+var
+ Data : TDatetime;
+begin
+  inherited;
+  Data := dtmCadastroAtendimentos.DataServidor;
+  if dtmCadastroAtendimentos.IncluindoAtendimentos or
+     dtmCadastroAtendimentos.qryAtendimentossemaviso.ReadOnly then
+       Data := dtmCadastroAtendimentos.DataAtendimento;
+  if edtDataAviso.Text <> '' then
+      edtDataAviso.Minimo:= DaysBetween(dtmCadastroAtendimentos.DataServidor,
+                                       data)
+end;
+
+procedure TfrmCadastroAtendimento.edtDataSPCEnter(Sender: TObject);
+var
+ Data : TDatetime;
+begin
+  inherited;
+  Data := dtmCadastroAtendimentos.DataServidor;
+  if dtmCadastroAtendimentos.IncluindoAtendimentos or
+     dtmCadastroAtendimentos.qryAtendimentossemspc.ReadOnly then
+       Data := dtmCadastroAtendimentos.DataAtendimento;
+  if edtDataSPC.Text <> '' then
+      edtDataSPC.Minimo:= DaysBetween(dtmCadastroAtendimentos.DataServidor,
+                                       data)
+end;
+
+procedure TfrmCadastroAtendimento.edtLembreteEnter(Sender: TObject);
+var
+ Data : TDatetime;
+begin
+  inherited;
+  Data := dtmCadastroAtendimentos.DataServidor;
+  if dtmCadastroAtendimentos.IncluindoAtendimentos or
+     dtmCadastroAtendimentos.qryAtendimentoslembrar.ReadOnly then
+       Data := dtmCadastroAtendimentos.DataAtendimento;
+  if edtLembrete.Text <> '' then
+      edtLembrete.Minimo:= DaysBetween(dtmCadastroAtendimentos.DataServidor,
+                                       data)
+end;
+
+procedure TfrmCadastroAtendimento.ExibirInformes(Tipo: TtecTipoAtendimento; MostrarAtendimento: Boolean);
+Var
+  Informes: TStringList;
+  PosIni, PosFim,
+  NL: Integer;
+begin
+  if lbxExibirInformes.Items.Count > 0 then
+    lbxExibirInformes.Items.Clear;
+  Informes:= TStringList.Create;
+  try
+    dtmCadastroAtendimentos.ListarInformes(Informes, Tipo, MostrarAtendimento);
+    for NL:= 0 to Informes.Count-1 do begin
+      PosIni:= 1;
+      PosFim:= Pos(#$A,Informes.Strings[NL]);
+      if PosFim = 0 then
+        lbxExibirInformes.Items.Add(Informes.Strings[NL])
+      else begin
+        while (PosFim > 0) do begin
+          lbxExibirInformes.Items.Add(Copy(Informes.Strings[NL],PosIni,PosFim-1));
+          PosIni:= PosIni + PosFim;
+          PosFim:= Pos(#$A,Copy(Informes.Strings[NL],PosIni,Length(Informes.Strings[NL])));
+        end;
+        lbxExibirInformes.Items.Add(Copy(Informes.Strings[NL],PosIni,Length(Informes.Strings[NL])));
+      end;
+    end;
+  finally
+    Informes.Free;
+  end;
+end;
+
+function TfrmCadastroAtendimento.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmcadastroatendimentos do begin
+    case TipoConsulta of
+          tcaATENDIMENTO: Result:= ExisteAtendimentos(Parametro, NomeCampo, Value);
+              tcaCLIENTE: Result:= ExisteClientes(Parametro, NomeCampo, Value);
+      tcaTIPOATENDIMENTO: Result:= ExisteTiposAtendimentos(NomeCampo, Value)
+      else                Result:= False;
+    end;
+  end;
+end;
+
+procedure TfrmCadastroAtendimento.FormActivate(Sender: TObject);
+begin
+  inherited;
+//  if edfCodigoCliente.CanFocus then
+//    edfCodigoCliente.SetFocus;
+end;
+
+function TfrmCadastroAtendimento.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then
+    dtmcadastroatendimentos.ExcluirAtendimentos;
+end;
+
+function TfrmCadastroAtendimento.InternoGravar: Boolean;
+begin
+  Result := Inherited InternoGravar;
+  if Result then begin
+    Result:=dtmcadastroatendimentos.GravarAtendimentos;
+    if edfCodigoCliente.CanFocus then
+      edfCodigoCliente.SetFocus
+    else
+      edtLembrete.SetFocus;
+  end;
+end;
+
+function TfrmCadastroAtendimento.InternoIncluir: Boolean;
+begin
+  Result := inherited InternoIncluir;
+  if Result then begin
+    dtmcadastroatendimentos.IncluirAtendimentos;
+//    edfCodigoCliente.SetFocus;
+  end;
+end;
+
+function TfrmCadastroAtendimento.InternoPesquisar(Titulo:String): Integer;
+begin
+  Result:= mrNone;
+  with dtmCadastroAtendimentos do begin
+    if CtrlOn Then begin
+      if (ActiveControl = edfCodigoCliente) then
+      begin
+        if edfCodigoCliente.ReadOnly then
+          TipoConsulta := tcaNENHUM
+        else TipoConsulta := tcaCLIENTE;
+        Titulo:= 'Cliente';
+      end
+      else if (ActiveControl = edfTipoAtendimento) then begin
+        TipoConsulta:= tcaTIPOATENDIMENTO;
+        Titulo:= 'Tipo Atendimento';
+      end
+      else
+        TipoConsulta:= tcaNENHUM;
+    end
+    else begin
+      TipoConsulta:= tcaATENDIMENTO;
+      Titulo:= 'Atendimentos';
+    end;
+
+    if (TipoConsulta <> tcaNENHUM) then begin
+      AbreTabelasConsulta(TipoConsulta);
+      Result := inherited InternoPesquisar(Titulo);
+      if Result = mrok then begin
+        if TipoConsulta = tcaATENDIMENTO then
+        begin
+         edtLembrete.Clear;
+         edtDataSPC.Clear;
+         edtDataAviso.Clear;
+        end;
+        Selecionar(TipoConsulta);
+        if (TipoConsulta <> tcaTIPOATENDIMENTO) and edfCodigoCliente.CanFocus then
+          edfCodigoCliente.SetFocus;
+      end;
+      FechaTabelasConsulta(TipoConsulta);
+    end;
+  end;
+end;
+
+function TfrmCadastroAtendimento.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  if (TipoConsulta in [tcaCLIENTE, tcaATENDIMENTO]) then
+       TfrmConsultaPorCampo(Result).ConsultaInterativa := False
+  else TfrmConsultaPorCampo(Result).ConsultaInterativa := True;
+  TfrmConsultaPorCampo(Result).UsarParametrosDaTabela  := False;
+end;
+
+procedure TfrmCadastroAtendimento.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case key of
+    VK_ESCAPE: begin
+//                  dtmCadastroAtendimentos.FecharTabelasAtendimentos;
+                  if pgcInformes.ActivePageIndex = 1 then
+                    pgcInformes.ActivePageIndex:= 0;
+                  if lbxExibirInformes.Items.Count > 0 then
+                    lbxExibirInformes.Items.Clear;
+                end;
+    VK_SPACE : if Shift = [ssCtrl] then begin
+                  if dbgCobranca.Focused then
+                    dbgCobrancaDblClick(dbgCobranca)
+                  else if dbgReclamacao.Focused then
+                    dbgReclamacaoDblClick(dbgReclamacao)
+                  else if dbgVisita.Focused then
+                    dbgVisitaDblClick(dbgVisita);
+                end;
+  end;
+end;
+
+procedure TfrmCadastroAtendimento.OperacaoPadrao(Value: Array of Variant);
+begin
+  inherited;
+  if ((high(Value))>2) then
+  begin
+   rgpTipo.ReadOnly := true;
+   ckbTipoReclamacao.ReadOnly := true;
+   ckbTipoVisita.ReadOnly := true;
+   edfTipoAtendimento.ReadOnly := true;
+   edfCodigoCliente.ReadOnly := true;
+   sbnCliente.Enabled := false;
+
+  end
+  else
+  begin
+   rgpTipo.ReadOnly := false;
+   ckbTipoReclamacao.ReadOnly := false;
+   ckbTipoVisita.ReadOnly := false;
+   edfTipoAtendimento.ReadOnly := false;
+   edfCodigoCliente.ReadOnly := false;
+   sbnCliente.Enabled := true;
+
+  end;
+
+  dtmCadastroAtendimentos.IncluirAtendimentos(Value);
+
+
+  if ((high(Value))>2) then
+  begin
+   if edtLembrete.CanFocus then
+     edtLembrete.SetFocus
+   else edfCodigo.SetFocus;
+  end
+  else
+   edfTipoAtendimento.SetFocus;
+
+  edtLembrete. Maximo := 90;
+  edtDataSPC.  Maximo := 90;
+  edtDataAviso.Maximo := 90;
+end;
+
+procedure TfrmCadastroAtendimento.sbnClienteClick(Sender: TObject);
+begin
+  if not edfCodigoCliente.ReadOnly then
+  begin
+    CtrlOn:= True;
+    edfCodigoCliente.SetFocus;
+    InternoPesquisar('');
+  end;   
+end;
+
+procedure TfrmCadastroAtendimento.sbnTipoAtendimentoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  edfTipoAtendimento.SetFocus;
+  InternoPesquisar('');
+end;
+
+function TfrmCadastroAtendimento.TabelaDePesquisa: TZDataSet;
+begin
+  with dtmCadastroAtendimentos do begin
+    case TipoConsulta of
+          tcaATENDIMENTO: Result:= TabelaConsultaAtendimentos;
+              tcaCLIENTE: Result:= TabelaConsultaCliente;
+      tcaTIPOATENDIMENTO: Result:= ConsultaTiposAtendimentos
+      else                Result:= nil;
+    end;
+  end;
+end;
+
+
+procedure TfrmCadastroAtendimento.dbgCobrancaDblClick(Sender: TObject);
+begin
+  inherited;
+  if dbgCobranca.DataSource.DataSet.RecNo > 0 then begin
+    if pgcInformes.ActivePageIndex = 0 then begin
+      pgcInformes.ActivePageIndex:= 1;
+      pgcInformes.SetFocus;
+    end;
+    tstHistorico.Caption:= ' Históric&os - Cobrança';
+    ExibirInformes(tpaCOBRANCA,True);
+  end;
+end;
+
+procedure TfrmCadastroAtendimento.dbgReclamacaoDblClick(Sender: TObject);
+begin
+  inherited;
+  if dbgReclamacao.DataSource.DataSet.RecNo > 0 then begin
+    if pgcInformes.ActivePageIndex = 0 then begin
+      pgcInformes.ActivePageIndex:= 1;
+      pgcInformes.SetFocus;
+    end;
+    tstHistorico.Caption:= ' Históric&os - Reclamação';
+    ExibirInformes(tpaRECLAMACAO,True);
+  end;
+end;
+
+procedure TfrmCadastroAtendimento.dbgVisitaDblClick(Sender: TObject);
+begin
+  inherited;
+  if dbgVisita.DataSource.DataSet.RecNo > 0 then begin
+    if pgcInformes.ActivePageIndex = 0 then begin
+      pgcInformes.ActivePageIndex:= 1;
+      pgcInformes.SetFocus;
+    end;
+    tstHistorico.Caption:= ' Históric&os - Visita';
+    ExibirInformes(tpaVISITA,True);
+  end;
+end;
+
+procedure TfrmCadastroAtendimento.rgpTipoClickItem(Sender: TObject);
+begin
+  inherited;
+//  dtmCadastroAtendimentos.ValidarTipoAtendimento;
+end;
+
+procedure TfrmCadastroAtendimento.edfCodigoClienteFound(Found: Boolean);
+begin
+  inherited;
+  dtmCadastroAtendimentos.CartaDevolvida(ClassName);
+end;
+
+end.

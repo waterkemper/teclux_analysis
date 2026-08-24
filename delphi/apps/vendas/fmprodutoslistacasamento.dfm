@@ -5,7 +5,7 @@ inherited frmProdutosListaCasamento: TfrmProdutosListaCasamento
   Caption = 'Presentes Lista Casamento'
   ClientHeight = 130
   ClientWidth = 740
-  Position = poDesktopCenter
+  Position = poScreenCenter
   PixelsPerInch = 96
   TextHeight = 16
   inherited pnlTopMenu: TPanel

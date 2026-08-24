@@ -1,0 +1,276 @@
+inherited frmCadastroAtendimentosCaixa: TfrmCadastroAtendimentosCaixa
+  Left = 598
+  Top = 170
+  ActiveControl = flkTipoAtendimento
+  Caption = 'Cadastro de Atendimentos - Via Caixa'
+  ClientHeight = 413
+  ClientWidth = 693
+  PixelsPerInch = 96
+  TextHeight = 16
+  inherited pnlBarra: TPanel
+    Left = 304
+    Top = 2
+  end
+  inherited pnlTopMenu: TPanel
+    Width = 693
+    inherited tblBarra: TToolBar
+      Width = 468
+      inherited sbnProcurar: TSpeedButton
+        Enabled = False
+        Visible = False
+      end
+    end
+    inherited tblBarraCadastro: TToolBar
+      inherited sbnIncluir: TSpeedButton
+        Enabled = False
+        Visible = False
+      end
+      inherited sbnSalvar: TSpeedButton
+        Enabled = True
+      end
+      inherited sbnExcluir: TSpeedButton
+        Visible = False
+      end
+    end
+  end
+  object pnlFundoJanela: TPanel
+    Left = 0
+    Top = 40
+    Width = 693
+    Height = 373
+    Align = alClient
+    BevelOuter = bvNone
+    TabOrder = 2
+    object gbxDados: TGroupBox
+      Left = 0
+      Top = 0
+      Width = 693
+      Height = 373
+      Align = alClient
+      TabOrder = 0
+      object sbnConsultaTipoAtendimento: TSpeedButton
+        Left = 148
+        Top = 94
+        Width = 23
+        Height = 23
+        Glyph.Data = {
+          36060000424D3606000000000000360000002800000020000000100000000100
+          18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDC800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7FFFFFFFDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DC800000800000800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000
+          00800000800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000008000
+          00800000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC8000008000008000
+          00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFF
+          FFFFDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCFFA858800000800000800000FFA858DCDCDC0000FF800000800000DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F7F7F7F7F7FDC
+          DCDCFFFFFF7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          800000FFA858FFA858FFA858FFA858FFA8588000008000000000FFDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC7F
+          7F7F7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC800000
+          FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFA858FFA858
+          FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDC7F7F7FDCDCDCFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+          FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+          FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC800000FFA858
+          FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDCFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFA858FFA858
+          FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC800000
+          FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000DCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FDCDCDCFFFFFFFFFFFFDCDCDCDCDCDCDC
+          DCDCFFFFFF7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          800000FFA858FFA858FFA858FFA858FFA858800000DCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FDCDCDCFFFFFFFFFFFF7F
+          7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCFFA858800000800000800000FFA858DCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+        NumGlyphs = 2
+        OnClick = sbnConsultaTipoAtendimentoClick
+      end
+      object lblCodigo: TLabel
+        Left = 61
+        Top = 11
+        Width = 45
+        Height = 16
+        Caption = 'N'#250'mero'
+      end
+      object lblData: TLabel
+        Left = 248
+        Top = 11
+        Width = 27
+        Height = 16
+        Caption = 'Data'
+      end
+      object lblAtendente: TLabel
+        Left = 47
+        Top = 40
+        Width = 59
+        Height = 16
+        Caption = 'Atendente'
+      end
+      object lblCliente: TLabel
+        Left = 66
+        Top = 69
+        Width = 40
+        Height = 16
+        Caption = 'Cliente'
+      end
+      object lblTipoAtendimento: TLabel
+        Left = 5
+        Top = 98
+        Width = 100
+        Height = 16
+        Caption = 'Tipo Atendimento'
+      end
+      object lblDataLembrete: TLabel
+        Left = 21
+        Top = 127
+        Width = 85
+        Height = 16
+        Caption = 'Data Lembrete'
+      end
+      object dtxTipoAtendimento: TtecDBText
+        Left = 174
+        Top = 94
+        Width = 239
+        Height = 24
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'descricao'
+        DataSource = dtmautenticacoes.dsrProcuraTiposAtendimentos
+        ReadOnly = True
+        TabOrder = 3
+        Alignment = taLeftJustify
+      end
+      object gbxInformes: TGroupBox
+        Left = 0
+        Top = 144
+        Width = 689
+        Height = 225
+        Caption = 'Informes'
+        TabOrder = 2
+        object mmoInformes: TtecMemo
+          Left = 2
+          Top = 18
+          Width = 685
+          Height = 205
+          Align = alClient
+          TabOrder = 0
+        end
+      end
+      object edtDataLembrete: TDBEditData
+        Left = 112
+        Top = 123
+        Width = 75
+        Height = 24
+        Alignment = taLeftJustify
+        DataField = 'lembrar'
+        DataSource = dtmautenticacoes.dsrAtendimentos
+        Maximo = 37353
+        Minimo = 0
+        Adicional = 0
+        TabOrder = 1
+        Opcional = True
+      end
+      object dtxData: TtecDBText
+        Left = 280
+        Top = 7
+        Width = 75
+        Height = 24
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'data'
+        DataSource = dtmautenticacoes.dsrAtendimentos
+        ReadOnly = True
+        TabOrder = 4
+        Alignment = taLeftJustify
+      end
+      object dtxAtendenteNome: TtecDBText
+        Left = 112
+        Top = 36
+        Width = 299
+        Height = 24
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'nomeusuario'
+        DataSource = dtmautenticacoes.dsrAtendimentos
+        ReadOnly = True
+        TabOrder = 5
+        Alignment = taLeftJustify
+      end
+      object dtxClienteNome: TtecDBText
+        Left = 112
+        Top = 65
+        Width = 300
+        Height = 24
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'nomecliente'
+        DataSource = dtmautenticacoes.dsrAtendimentos
+        ReadOnly = True
+        TabOrder = 6
+        Alignment = taLeftJustify
+      end
+      object flkTipoAtendimento: TtecDBFindLookup
+        Left = 112
+        Top = 94
+        Width = 33
+        Height = 24
+        Alignment = taLeftJustify
+        DataField = 'tipoatendimento'
+        DataSource = dtmautenticacoes.dsrAtendimentos
+        MaxLength = 2
+        Maximo = 0
+        Minimo = 37353
+        Adicional = 0
+        Opcional = True
+        TabOrder = 0
+        PermitirZero = False
+        PermitirNulo = False
+        Operacao = opATRIBUICAO
+        LookupField = 'codigo'
+        LookupSource = dtmautenticacoes.dsrProcuraTiposAtendimentos
+        LookupQueryParameter = 'codigo'
+        Parameter = ' '
+        ActiveSetControls = False
+        DenyInsert = True
+        NoSetControls = <>
+        SetControls = <>
+        LookupParameter = 'codigo'
+      end
+      object dtxNumeroAtendimento: TtecDBText
+        Left = 112
+        Top = 7
+        Width = 75
+        Height = 24
+        TabStop = False
+        Color = clWhite
+        DataField = 'codigo'
+        DataSource = dtmautenticacoes.dsrAtendimentos
+        ReadOnly = True
+        TabOrder = 7
+        Alignment = taLeftJustify
+      end
+    end
+  end
+end

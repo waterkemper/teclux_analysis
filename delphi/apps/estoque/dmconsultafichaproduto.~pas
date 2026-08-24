@@ -1,0 +1,807 @@
+unit dmconsultafichaproduto;
+
+interface
+
+uses
+  DateUtils,SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs, DB,
+  // Terceiros
+  ZQuery, ZSqlTypes, ZPgSqlQuery,
+  // Componentes
+  cpquery, cpdatasource,
+  // Constantes
+  ctconstantes, biblio,
+  // Repositorio
+  dmbasico, dmtecsoft, clparametrossistema, clusuario, ZTransact;
+
+type
+  TdtmConsultaFichaProduto = class(TdtmBasico)
+    qryFichaProduto: TtecQuery;
+    dsrFichaProduto: TtecDataSource;
+    qryConsultaFiliais: TtecQuery;
+    qryConsultaFiliaisnome: TStringField;
+    qryConsultaFiliaiscodigo: TIntegerField;
+    qryProcuraFiliais: TtecQuery;
+    dsrProcuraFiliais: TtecDataSource;
+    qryProcuraTiposMovimentos: TtecQuery;
+    dsrProcuraTiposMovimentos: TtecDataSource;
+    qryConsultaTiposMovimentos: TtecQuery;
+    qryConsultaTiposMovimentoscodigo: TStringField;
+    qryFichaProdutodata: TDateField;
+    qryFichaProdutotipomovimento: TStringField;
+    qryFichaProdutoreferencia: TStringField;
+
+    qryFichaProdutoemestoque: TFloatField;
+    qryFichaProdutoquantidade: TFloatField;
+    qryFichaProdutoreservado: TFloatField;
+    qryFichaProdutotransito: TFloatField;
+    qryFichaProdutodemonstracao: TFloatField;
+    qryFichaProdutoconserto: TFloatField;
+    qryFichaProdutofuturo: TFloatField;
+    qryFichaProdutodanificada: TFloatField;
+    qryFichaProdutoestoquefisico: TFloatField;
+    qryFichaProdutoreservaprevia: TFloatField;
+
+    qryFichaProdutovalor: TFloatField;
+    qryFichaProdutofinanceiro: TFloatField;
+    qryFichaProdutofilial: TIntegerField;
+    qryProcuraFiliaiscodigo: TIntegerField;
+    qryProcuraFiliaisnome: TStringField;
+    qryProcuraTiposMovimentoscodigo: TStringField;
+    qryProcuraTiposMovimentosdescricao: TStringField;
+    qryFichaProdutoest: TStringField;
+    qryFichaProdutores: TStringField;
+    qryFichaProdutotra: TStringField;
+    qryFichaProdutodem: TStringField;
+    qryFichaProdutocon: TStringField;
+    qryFichaProdutofut: TStringField;
+    qryFichaProdutodan: TStringField;
+    qryFichaProdutouent: TStringField;
+    qryFichaProdutoucom: TStringField;
+    qryFichaProdutofin: TStringField;
+    qryFichaProdutotven: TStringField;
+    qryFichaProdutotcom: TStringField;
+    qryFichaProdutonumero: TIntegerField;
+    qryConsultaTiposMovimentosdescricao: TStringField;
+    qryFichaProdutofis: TStringField;
+    qryFichaProdutoclientefornecedor: TStringField;
+    qryFichaProdutoprecocomicms: TFloatField;
+    qryFichaProdutoprecosemicms: TFloatField;
+    qryFichaProdutoaliquotaipi: TFloatField;
+    qryFichaProdutoprev: TStringField;
+    qryFichaProduto_Saldo: TtecQuery;
+    qryFichaProduto_Saldonumero: TIntegerField;
+    qryFichaProduto_Saldodata: TDateTimeField;
+    qryFichaProduto_Saldotipomovimento: TStringField;
+    qryFichaProduto_Saldoreferencia: TStringField;
+    qryFichaProduto_Saldofilial: TIntegerField;
+
+    qryFichaProduto_Saldoquantidade: TFloatField;
+    qryFichaProduto_Saldoemestoque: TFloatField;
+    qryFichaProduto_Saldoreservado: TFloatField;
+    qryFichaProduto_Saldotransito: TFloatField;
+    qryFichaProduto_Saldodemonstracao: TFloatField;
+    qryFichaProduto_Saldoconserto: TFloatField;
+    qryFichaProduto_Saldofuturo: TFloatField;
+    qryFichaProduto_Saldodanificada: TFloatField;
+    qryFichaProduto_Saldoestoquefisico: TFloatField;
+    qryFichaProduto_Saldoreservaprevia: TFloatField;
+    
+    qryFichaProduto_Saldoest: TStringField;
+    qryFichaProduto_Saldores: TStringField;
+    qryFichaProduto_Saldotra: TStringField;
+    qryFichaProduto_Saldodem: TStringField;
+    qryFichaProduto_Saldocon: TStringField;
+    qryFichaProduto_Saldofut: TStringField;
+    qryFichaProduto_Saldodan: TStringField;
+    qryFichaProduto_Saldofis: TStringField;
+    qryFichaProduto_Saldoprev: TStringField;
+    qryFichaProduto_Saldouent: TStringField;
+    qryFichaProduto_Saldoucom: TStringField;
+    qryFichaProduto_Saldofin: TStringField;
+    qryFichaProduto_Saldotven: TStringField;
+    qryFichaProduto_Saldotcom: TStringField;
+    qryFichaProduto_Saldovalor: TFloatField;
+    qryFichaProduto_Saldoprecocomicms: TFloatField;
+    qryFichaProduto_Saldoprecosemicms: TFloatField;
+    qryFichaProduto_Saldoaliquotaipi: TFloatField;
+    qryFichaProduto_Saldofinanceiro: TFloatField;
+    qryFichaProduto_Saldoclientefornecedor: TStringField;
+    qryFichaProdutomoeda: TStringField;
+    qryFichaProdutovalormoeda: TFloatField;
+    qryMoedas: TtecQuery;
+    qryMoedascodigo: TStringField;
+    qryFichaProdutomoedaLookup: TStringField;
+    qryFichaProduto_Saldomoeda: TStringField;
+    qryFichaProduto_Saldovalormoeda: TFloatField;
+    qryFichaProduto_Saldonaoprocessartriggers: TBooleanField;
+    qryFichaProdutonaoprocessartriggers: TBooleanField;
+    qryMoedasdescricao: TStringField;
+    qryFichaProdutocustomedio: TFloatField;
+    qryFichaProdutopedcotacao: TFloatField;
+    qryFichaProdutopedaberto: TFloatField;
+    qryFichaProdutousuariologado: TIntegerField;
+    qryFichaProdutonomeusuariologado: TStringField;
+    qryFichaProdutousuarioautorizacao: TIntegerField;
+    qryFichaProdutonomeusuarioautorizacao: TStringField;
+    qryFichaProdutoprocessamento: TDateTimeField;
+    qryFichaProduto_Saldoprocessamento: TDateTimeField;
+    qryFichaProduto_Contrato: TtecQuery;
+    dsrFichaProduto_Contrato: TtecDataSource;
+    qryFichaProdutocontrato: TStringField;
+    qryFichaProduto_Contratonumero: TIntegerField;
+    qryFichaProduto_Contratolancto: TIntegerField;
+    qryFichaProduto_Contratodata: TDateField;
+    qryFichaProduto_Contratoprocessamento: TDateTimeField;
+    qryFichaProduto_Contratotipomovimento: TStringField;
+    qryFichaProduto_Contratoreferencia: TStringField;
+    qryFichaProduto_Contratoquantidade: TFloatField;
+    qryFichaProduto_Contratofilial: TIntegerField;
+    qryFichaProduto_Contratocontrato: TStringField;
+    qryFichaProduto_Contratoemestoque: TFloatField;
+    qryFichaProduto_Contratoreservado: TFloatField;
+    qryFichaProduto_Contratotransito: TFloatField;
+    qryFichaProduto_Contratodemonstracao: TFloatField;
+    qryFichaProduto_Contratoconserto: TFloatField;
+    qryFichaProduto_Contratofuturo: TFloatField;
+    qryFichaProduto_Contratodanificada: TFloatField;
+    qryFichaProduto_Contratoestoquefisico: TFloatField;
+    qryFichaProduto_Contratoreservaprevia: TFloatField;
+    qryFichaProduto_Contratoest: TStringField;
+    qryFichaProduto_Contratores: TStringField;
+    qryFichaProduto_Contratotra: TStringField;
+    qryFichaProduto_Contratodem: TStringField;
+    qryFichaProduto_Contratocon: TStringField;
+    qryFichaProduto_Contratofut: TStringField;
+    qryFichaProduto_Contratodan: TStringField;
+    qryFichaProduto_Contratofis: TStringField;
+    qryFichaProduto_Contratoprev: TStringField;
+    qryFichaProduto_Contratouent: TStringField;
+    qryFichaProduto_Contratoucom: TStringField;
+    qryFichaProduto_Contratofin: TStringField;
+    qryFichaProduto_Contratotven: TStringField;
+    qryFichaProduto_Contratotcom: TStringField;
+    qryFichaProduto_Contratovalor: TFloatField;
+    qryFichaProduto_Contratoprecocomicms: TFloatField;
+    qryFichaProduto_Contratoprecosemicms: TFloatField;
+    qryFichaProduto_Contratoaliquotaipi: TFloatField;
+    qryFichaProduto_Contratofinanceiro: TFloatField;
+    qryFichaProduto_Contratousuariologado: TIntegerField;
+    qryFichaProduto_Contratonomeusuariologado: TStringField;
+    qryFichaProduto_Contratousuarioautorizacao: TIntegerField;
+    qryFichaProduto_Contratonomeusuarioautorizacao: TStringField;
+    qryFichaProduto_Contratocustomedio: TFloatField;
+    qryFichaProduto_Contratoclientefornecedor: TStringField;
+    qryFichaProduto_Contratonaoprocessartriggers: TBooleanField;
+    qryFichaProduto_Contratomoeda: TStringField;
+    qryFichaProduto_Contratovalormoeda: TFloatField;
+    qryFichaProduto_Contratopedcotacao: TFloatField;
+    qryFichaProduto_Contratopedaberto: TFloatField;
+    qryFichaProduto_Contratosituacao: TStringField;
+    qryFichaProduto_Contratodatacontrato: TDateField;
+    qryFichaProduto_Contratodatareservado: TDateField;
+    qryFichaProduto_Contratofaturamento: TDateField;
+    qryFichaProduto_Contratoquantidadecontrato: TFloatField;
+    qryFichaProduto_Contratodevolvidos: TFloatField;
+    qryFichaProduto_Contratotrocados: TFloatField;
+    qryFichaProduto_Contratoprodutonocontrato: TStringField;
+    qryFichaProdutonrlote: TStringField;
+    qryFichaProdutoLote: TtecQuery;
+    dsrFichaProdutoLote: TtecDataSource;
+    qryFichaProdutoLotenumero: TIntegerField;
+    qryFichaProdutoLotedata: TDateField;
+    qryFichaProdutoLoteprocessamento: TDateTimeField;
+    qryFichaProdutoLotetipomovimento: TStringField;
+    qryFichaProdutoLotereferencia: TStringField;
+    qryFichaProdutoLotequantidade: TFloatField;
+    qryFichaProdutoLotefilial: TIntegerField;
+    qryFichaProdutoLotecontrato: TStringField;
+    qryFichaProdutoLoteemestoque: TFloatField;
+    qryFichaProdutoLotereservado: TFloatField;
+    qryFichaProdutoLotetransito: TFloatField;
+    qryFichaProdutoLotedemonstracao: TFloatField;
+    qryFichaProdutoLoteconserto: TFloatField;
+    qryFichaProdutoLotefuturo: TFloatField;
+    qryFichaProdutoLotedanificada: TFloatField;
+    qryFichaProdutoLoteestoquefisico: TFloatField;
+    qryFichaProdutoLotereservaprevia: TFloatField;
+    qryFichaProdutoLoteest: TStringField;
+    qryFichaProdutoLoteres: TStringField;
+    qryFichaProdutoLotetra: TStringField;
+    qryFichaProdutoLotedem: TStringField;
+    qryFichaProdutoLotecon: TStringField;
+    qryFichaProdutoLotefut: TStringField;
+    qryFichaProdutoLotedan: TStringField;
+    qryFichaProdutoLotefis: TStringField;
+    qryFichaProdutoLoteprev: TStringField;
+    qryFichaProdutoLoteuent: TStringField;
+    qryFichaProdutoLoteucom: TStringField;
+    qryFichaProdutoLotefin: TStringField;
+    qryFichaProdutoLotetven: TStringField;
+    qryFichaProdutoLotetcom: TStringField;
+    qryFichaProdutoLotevalor: TFloatField;
+    qryFichaProdutoLoteprecocomicms: TFloatField;
+    qryFichaProdutoLoteprecosemicms: TFloatField;
+    qryFichaProdutoLotealiquotaipi: TFloatField;
+    qryFichaProdutoLotefinanceiro: TFloatField;
+    qryFichaProdutoLoteusuariologado: TIntegerField;
+    qryFichaProdutoLotenomeusuariologado: TStringField;
+    qryFichaProdutoLoteusuarioautorizacao: TIntegerField;
+    qryFichaProdutoLotenomeusuarioautorizacao: TStringField;
+    qryFichaProdutoLotecustomedio: TFloatField;
+    qryFichaProdutoLoteclientefornecedor: TStringField;
+    qryFichaProdutoLotenaoprocessartriggers: TBooleanField;
+    qryFichaProdutoLotemoeda: TStringField;
+    qryFichaProdutoLotevalormoeda: TFloatField;
+    qryFichaProdutoLotepedcotacao: TFloatField;
+    qryFichaProdutoLotepedaberto: TFloatField;
+    qryFichaProdutoLotenrlote: TStringField;
+    qryFichaProdutoLotemovimento: TIntegerField;
+    qryFichaProdutoLote_Contrato: TtecQuery;
+    dsrFichaProdutoLote_Contrato: TtecDataSource;
+    qryFichaProdutoLote_Saldo: TtecQuery;
+    IntegerField6: TIntegerField;
+    DateTimeField2: TDateTimeField;
+    DateTimeField3: TDateTimeField;
+    StringField24: TStringField;
+    StringField25: TStringField;
+    FloatField23: TFloatField;
+    IntegerField7: TIntegerField;
+    FloatField24: TFloatField;
+    FloatField25: TFloatField;
+    FloatField26: TFloatField;
+    FloatField27: TFloatField;
+    FloatField28: TFloatField;
+    FloatField29: TFloatField;
+    FloatField30: TFloatField;
+    FloatField31: TFloatField;
+    FloatField32: TFloatField;
+    StringField26: TStringField;
+    StringField27: TStringField;
+    StringField28: TStringField;
+    StringField29: TStringField;
+    StringField30: TStringField;
+    StringField31: TStringField;
+    StringField32: TStringField;
+    StringField33: TStringField;
+    StringField34: TStringField;
+    StringField35: TStringField;
+    StringField36: TStringField;
+    StringField37: TStringField;
+    StringField38: TStringField;
+    StringField39: TStringField;
+    FloatField33: TFloatField;
+    FloatField34: TFloatField;
+    FloatField35: TFloatField;
+    FloatField36: TFloatField;
+    FloatField37: TFloatField;
+    StringField40: TStringField;
+    StringField41: TStringField;
+    FloatField38: TFloatField;
+    BooleanField2: TBooleanField;
+    qryFichaProdutoLote_Contratonumero: TIntegerField;
+    qryFichaProdutoLote_Contratolancto: TIntegerField;
+    qryFichaProdutoLote_Contratodata: TDateField;
+    qryFichaProdutoLote_Contratoprocessamento: TDateTimeField;
+    qryFichaProdutoLote_Contratotipomovimento: TStringField;
+    qryFichaProdutoLote_Contratoreferencia: TStringField;
+    qryFichaProdutoLote_Contratoquantidade: TFloatField;
+    qryFichaProdutoLote_Contratofilial: TIntegerField;
+    qryFichaProdutoLote_Contratocontrato: TStringField;
+    qryFichaProdutoLote_Contratoemestoque: TFloatField;
+    qryFichaProdutoLote_Contratoreservado: TFloatField;
+    qryFichaProdutoLote_Contratotransito: TFloatField;
+    qryFichaProdutoLote_Contratodemonstracao: TFloatField;
+    qryFichaProdutoLote_Contratoconserto: TFloatField;
+    qryFichaProdutoLote_Contratofuturo: TFloatField;
+    qryFichaProdutoLote_Contratodanificada: TFloatField;
+    qryFichaProdutoLote_Contratoestoquefisico: TFloatField;
+    qryFichaProdutoLote_Contratoreservaprevia: TFloatField;
+    qryFichaProdutoLote_Contratoest: TStringField;
+    qryFichaProdutoLote_Contratores: TStringField;
+    qryFichaProdutoLote_Contratotra: TStringField;
+    qryFichaProdutoLote_Contratodem: TStringField;
+    qryFichaProdutoLote_Contratocon: TStringField;
+    qryFichaProdutoLote_Contratofut: TStringField;
+    qryFichaProdutoLote_Contratodan: TStringField;
+    qryFichaProdutoLote_Contratofis: TStringField;
+    qryFichaProdutoLote_Contratoprev: TStringField;
+    qryFichaProdutoLote_Contratouent: TStringField;
+    qryFichaProdutoLote_Contratoucom: TStringField;
+    qryFichaProdutoLote_Contratofin: TStringField;
+    qryFichaProdutoLote_Contratotven: TStringField;
+    qryFichaProdutoLote_Contratotcom: TStringField;
+    qryFichaProdutoLote_Contratovalor: TFloatField;
+    qryFichaProdutoLote_Contratoprecocomicms: TFloatField;
+    qryFichaProdutoLote_Contratoprecosemicms: TFloatField;
+    qryFichaProdutoLote_Contratoaliquotaipi: TFloatField;
+    qryFichaProdutoLote_Contratofinanceiro: TFloatField;
+    qryFichaProdutoLote_Contratousuariologado: TIntegerField;
+    qryFichaProdutoLote_Contratonomeusuariologado: TStringField;
+    qryFichaProdutoLote_Contratousuarioautorizacao: TIntegerField;
+    qryFichaProdutoLote_Contratonomeusuarioautorizacao: TStringField;
+    qryFichaProdutoLote_Contratocustomedio: TFloatField;
+    qryFichaProdutoLote_Contratoclientefornecedor: TStringField;
+    qryFichaProdutoLote_Contratonaoprocessartriggers: TBooleanField;
+    qryFichaProdutoLote_Contratomoeda: TStringField;
+    qryFichaProdutoLote_Contratovalormoeda: TFloatField;
+    qryFichaProdutoLote_Contratopedcotacao: TFloatField;
+    qryFichaProdutoLote_Contratopedaberto: TFloatField;
+    qryFichaProdutoLote_Contratosituacao: TStringField;
+    qryFichaProdutoLote_Contratodatacontrato: TDateField;
+    qryFichaProdutoLote_Contratodatareservado: TDateField;
+    qryFichaProdutoLote_Contratofaturamento: TDateField;
+    qryFichaProdutoLote_Contratoprodutonocontrato: TStringField;
+    qryFichaProdutoLote_Contratoquantidadecontrato: TFloatField;
+    qryFichaProdutoLote_Contratodevolvidos: TFloatField;
+    qryFichaProdutoLote_Contratotrocados: TFloatField;
+    qryFichaProdutoLoteloteproduto: TLargeintField;
+    qryFichaProdutoloteproduto: TLargeintField;
+    qryFichaProdutoLote_Saldoloteproduto: TLargeintField;
+    procedure qryFichaProdutoProgress(Sender: TObject; Stage: TZProgressStage; Proc: TZProgressProc;
+              Position, Max: Integer;  var Cancel: Boolean);
+    procedure qryFichaProdutoBeforePost(DataSet: TDataSet);
+    procedure qryFichaProdutoAfterInsert(DataSet: TDataSet);
+    procedure qryFichaProdutoAfterScroll(DataSet: TDataSet);
+    procedure qryMoedasAfterOpen(DataSet: TDataSet);
+    procedure qryFichaProdutoAfterOpen(DataSet: TDataSet);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure qryFichaProduto_ContratoFilterRecord(DataSet: TDataSet;
+      var Accept: Boolean);
+    procedure qryFichaProduto_ContratoBeforeOpen(DataSet: TDataSet);
+    procedure qryFichaProdutoLote_ContratoFilterRecord(DataSet: TDataSet;
+      var Accept: Boolean);
+   private
+    FParametroFilial: String;
+    FParametroTipoMovimento: String;
+    FParametroProduto: String;
+    FParametroDataInicial: String;
+    FParametroDataFinal: String;
+    FReferenciaQuantidade: Integer;
+    FGerenteEstoque: Boolean;
+    FFilial: Integer;
+    fSomenteLancamentosAvulsos: Boolean;
+    fVisualizarProdutosporContrato: Boolean;
+    FParametroLote: String;
+    function GetConsultarFilial: TTecQuery;
+    function GetConsultarTipoMovimento: TTecQuery;
+    function GetCodigoFilial: Integer;
+    function GetCodigoTipoMovimento: String;
+    function GetTabelaFichaProduto: TTecQuery;
+    procedure SetVisualizarProdutosporContrato(const Value: Boolean);
+  public
+    constructor Create(AOwner: TComponent); override;
+    function ExisteFilial(Campo, Codigo: String): Boolean;
+    function ExisteTipoMovimento(Campo, Codigo: String): Boolean;
+    procedure Selecionar(Pesquisa: TtecPesquisa);
+    procedure ConsultaFichaProduto;
+    procedure IncluirLinhaSaldo;
+    procedure IncluirLinhaSaldoLotes;
+
+    procedure AbreTabelaPesquisa(TipoPesquisa: TTecPesquisa);
+    procedure FechaTabelaPesquisa(TipoPesquisa: TTecPesquisa);
+    procedure FechaTabelaFichaProdutos;
+    property TabelaFichaProduto: TTecQuery read GetTabelaFichaProduto;
+    property ConsultarFilial: TTecQuery read GetConsultarFilial;
+    property ConsultarTipoMovimento: TTecQuery read GetConsultarTipoMovimento;
+    property CodigoFilial: Integer read GetCodigoFilial;
+    property CodigoTipoMovimento: String read GetCodigoTipoMovimento;
+    property ParametroFilial: String read FParametroFilial write FParametroFilial;
+    property ParametroTipoMovimento: String read FParametroTipoMovimento write FParametroTipoMovimento;
+    property ParametroProduto: String read FParametroProduto write FParametroProduto;
+
+    property ParametroLote: String read FParametroLote write FParametroLote;
+
+    property ParametroDataInicial: String read FParametroDataInicial write FParametroDataInicial;
+    property ParametroDataFinal: String read FParametroDataFinal write FParametroDataFinal;
+    property ReferenciaQuantidade: Integer read FReferenciaQuantidade write FReferenciaQuantidade;
+    Property GerenteEstoque: Boolean read FGerenteEstoque write FGerenteEstoque;
+    property SomenteLancamentosAvulsos: Boolean read fSomenteLancamentosAvulsos write fSomenteLancamentosAvulsos;
+    property Filial: Integer read FFilial write FFilial;
+    function GravarMovimento : boolean;
+    property VisualizarProdutosporContrato: Boolean read fVisualizarProdutosporContrato write SetVisualizarProdutosporContrato;
+end;
+
+var
+  dtmConsultaFichaProduto: TdtmConsultaFichaProduto;
+
+implementation
+
+{$R *.dfm}
+
+function TdtmConsultaFichaProduto.GetTabelaFichaProduto: TTecQuery;
+begin
+  Result := qryFichaProduto;
+end;
+
+
+function TdtmConsultaFichaProduto.GetConsultarFilial: TtecQuery;
+begin
+  Result := qryConsultaFiliais;
+end;
+
+function TdtmConsultaFichaProduto.GetConsultarTipoMovimento: TtecQuery;
+begin
+  Result := qryConsultaTiposMovimentos;
+end;
+
+
+function TdtmConsultaFichaProduto.GetCodigoFilial: Integer;
+begin
+  Result := qryConsultaFiliaiscodigo.AsInteger;
+end;
+
+function TdtmConsultaFichaProduto.GetCodigoTipoMovimento: String;
+begin
+  Result := qryConsultaTiposMovimentoscodigo.AsString;
+end;
+
+function TdtmConsultaFichaProduto.ExisteFilial(Campo,Codigo: String): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaFiliais, campo, Codigo);
+end;
+
+function TdtmConsultaFichaProduto.ExisteTipoMovimento(Campo,Codigo: String): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaTiposMovimentos, campo, Codigo);
+end;
+
+procedure TdtmConsultaFichaProduto.AbreTabelaPesquisa(TipoPesquisa: TTecPesquisa);
+begin
+  case TipoPesquisa of
+      pesFILIAIS      : Abre(ctPesquisaFilial);
+
+    pesTIPOSMOVIMENTOS: Abre(ctPesquisaTiposMovimentos);
+  end;
+
+end;
+
+procedure TdtmConsultaFichaProduto.FechaTabelaPesquisa(TipoPesquisa: TTecPesquisa);
+begin
+  case TipoPesquisa of
+      pesPRODUTOS     : Fecha(ctPesquisaProdutos);
+      pesFILIAIS      : Fecha(ctPesquisaFilial);
+    pesTIPOSMOVIMENTOS: Fecha(ctPesquisaTiposMovimentos);
+  end;
+end;
+
+constructor TdtmConsultaFichaProduto.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryConsultaFiliais.Tag := ctPesquisaFilial;
+  qryConsultaTiposMovimentos.Tag := ctPesquisaTiposMovimentos;
+  qryFichaProduto.Tag := cttabelas;
+  qryProcuraFiliais.Tag := ctTabelas;
+  qryProcuraTiposMovimentos.Tag := ctTabelas;
+  qryMoedas.tag := ctTabelas;
+
+  qryFichaProdutoemestoque.DisplayFormat           := ParSistema.MascaraQuantidadeGrade;
+  qryFichaProdutoquantidade.displayformat          := ParSistema.MascaraQuantidadeGrade;
+  qryFichaProdutoreservado.displayformat           := trocar(ParSistema.MascaraQuantidadeGrade,'0','#');
+  qryFichaProdutotransito.displayformat            := trocar(ParSistema.MascaraQuantidadeGrade,'0','#');
+  qryFichaProdutodemonstracao.displayformat        := trocar(ParSistema.MascaraQuantidadeGrade,'0','#');
+  qryFichaProdutoconserto.displayformat            := trocar(ParSistema.MascaraQuantidadeGrade,'0','#');
+  qryFichaProdutofuturo.displayformat              := trocar(ParSistema.MascaraQuantidadeGrade,'0','#');
+  qryFichaProdutodanificada.displayformat          := trocar(ParSistema.MascaraQuantidadeGrade,'0','#');
+  qryFichaProdutoestoquefisico.displayformat       := trocar(ParSistema.MascaraQuantidadeGrade,'0','#');
+  qryFichaProdutoreservaprevia.displayformat       := trocar(ParSistema.MascaraQuantidadeGrade,'0','#');
+
+  qryFichaProduto_Saldoquantidade.displayformat    := ParSistema.MascaraQuantidadeGrade;
+  qryFichaProduto_Saldoemestoque.displayformat     := ParSistema.MascaraQuantidadeGrade;
+  qryFichaProduto_Saldoreservado.displayformat     := ParSistema.MascaraQuantidadeGrade;
+  qryFichaProduto_Saldotransito.displayformat      := ParSistema.MascaraQuantidadeGrade;
+  qryFichaProduto_Saldodemonstracao.displayformat  := ParSistema.MascaraQuantidadeGrade;
+  qryFichaProduto_Saldoconserto.displayformat      := ParSistema.MascaraQuantidadeGrade;
+  qryFichaProduto_Saldofuturo.displayformat        := ParSistema.MascaraQuantidadeGrade;
+  qryFichaProduto_Saldodanificada.displayformat    := ParSistema.MascaraQuantidadeGrade;
+  qryFichaProduto_Saldoestoquefisico.displayformat := ParSistema.MascaraQuantidadeGrade;
+  qryFichaProduto_Saldoreservaprevia.displayformat := ParSistema.MascaraQuantidadeGrade;
+  FGerenteEstoque:= UsuarioLogin.GerenteEstoque;
+  FFilial:= FilialBase;
+end;
+
+procedure TdtmConsultaFichaProduto.Selecionar(Pesquisa: TtecPesquisa);
+begin
+  case Pesquisa of
+    pesFILIAIS      : RefazConsulta(qryProcuraFiliais,[0],[CodigoFilial]);
+  pesTIPOSMOVIMENTOS: RefazConsulta(qryProcuraTiposMovimentos,[0],[CodigoTipoMovimento]);
+  end;
+end;
+
+procedure TdtmConsultaFichaProduto.ConsultaFichaProduto;
+var
+  Linha : String;
+  i : integer;
+begin
+  Linha := 'and (m.data >= to_timestamp(''' + FParametroDataInicial +''', ''dd/mm/yyyy''))';
+  Linha := Linha + 'and (m.data <= to_timestamp(''' + FParametroDataFinal + ' 23:59:59'', ''dd/mm/yyyy hh24:mi:ss''))';
+  if Trim(FParametroFilial) <> '' then
+    Linha := Linha + ' and ( m.filial = ' + FParametroFilial + ' )';
+  if Trim(FParametroTipoMovimento) <> '' then
+    Linha := Linha + ' and (m.tipomovimento = ''' + FParametroTipoMovimento + ''')';
+
+
+  qryFichaProdutoLote_Saldo.macrobyname('Linha').asString := Linha;
+
+
+  if SomenteLancamentosAvulsos then
+    Linha := linha + ' and m.usuarioautorizacao is not null ';
+
+  qryFichaProduto.MacroByName('Linha').AsString := Linha;
+  qryFichaProdutolote.MacroByName('Linha').AsString := Linha;
+
+  if ParametroLote<>'' then
+  begin
+    qryFichaProduto.MacroByName('CondicaoLote').AsString := ' and m.loteproduto = '+ParametroLote;
+    qryFichaProduto_Saldo.MacroByName('CondicaoLote').AsString := ' and m.loteproduto = '+ParametroLote;
+    qryFichaProdutoLote.MacroByName('CondicaoLote').AsString := ' and m.loteproduto = '+ParametroLote;
+    qryFichaProdutoLote_Saldo.MacroByName('CondicaoLote').AsString := ' and m.loteproduto = '+ParametroLote;
+  end
+  else
+  begin
+    qryFichaProduto.MacroByName('CondicaoLote').AsString := '';
+    qryFichaProduto_Saldo.MacroByName('CondicaoLote').AsString := '';
+
+    qryFichaProdutoLote.MacroByName('CondicaoLote').AsString := '';
+    qryFichaProdutoLote_Saldo.MacroByName('CondicaoLote').AsString := '';
+
+  end;
+
+  // Setando o WHERE O CÁLCULO DO SALDO ANTERIOR (não do lote)
+  Linha := '';
+  if Trim(FParametroFilial) <> '' then
+    Linha := ' and ( m.filial = ' + FParametroFilial + ' )';
+  if Trim(FParametroTipoMovimento) <> '' then
+    Linha := Linha + ' and (m.tipomovimento = ''' + FParametroTipoMovimento + ''')';
+
+
+  qryFichaProduto_Saldo.macrobyname('Linha').asString := Linha;
+
+
+  RefazConsulta(qryFichaProduto,[0],[FParametroProduto]);
+  RefazConsulta(qryFichaProdutoLote,[0],[FParametroProduto]);
+
+  RefazConsulta(qryFichaProduto_Saldo,[0,1],[FParametroProduto,FParametroDataInicial]);
+  RefazConsultaPornome(qryFichaProdutoLote_Saldo,['produto','datainicial'],[FParametroProduto,FParametroDataInicial]);
+
+//  qryFichaProdutoContrato.params := qryFichaProduto.params;
+//  qryFichaProdutoContrato.macros := qryFichaProduto.macros;
+
+  if VisualizarProdutosporContrato then
+  begin
+    RefazConsulta(qryFichaProduto_Contrato,[0],[FParametroProduto]);
+    RefazConsulta(qryFichaProdutoLote_Contrato,[0],[FParametroProduto]);
+  end;
+
+  IncluirLinhaSaldo;
+end;
+
+procedure TdtmConsultaFichaProduto.qryFichaProdutoProgress(Sender: TObject;
+  Stage: TZProgressStage; Proc: TZProgressProc; Position, Max: Integer; var Cancel: Boolean);
+begin
+//  ShowProgress(Sender, Stage, Proc, Position, Max, Cancel);
+end;
+
+procedure TdtmConsultaFichaProduto.FechaTabelaFichaProdutos;
+begin
+  qryFichaProduto.Close;
+//  if not qryFichaProduto.IsEmpty then
+//    ReFazConsulta(qryFichaProduto,[0],[0]);
+end;
+
+procedure TdtmConsultaFichaProduto.qryFichaProdutoBeforePost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryFichaProdutonaoprocessartriggers.AsBoolean := true;
+end;
+
+procedure TdtmConsultaFichaProduto.qryFichaProdutoAfterInsert(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryFichaProduto.Cancel;
+end;
+
+procedure TdtmConsultaFichaProduto.qryFichaProdutoAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryFichaProdutoprecocomicms.ReadOnly := not (GerenteEstoque and
+                                               (qryFichaProdutofin.AsString = '+'));
+
+  qryFichaProdutoprecosemicms.ReadOnly := qryFichaProdutoprecocomicms.ReadOnly;
+  qryFichaProdutomoeda.ReadOnly := qryFichaProdutoprecocomicms.ReadOnly;
+  qryFichaProdutomoedaLookup.ReadOnly := qryFichaProdutoprecocomicms.ReadOnly;
+  qryFichaProdutovalormoeda.ReadOnly := qryFichaProdutoprecocomicms.ReadOnly;
+
+  qryFichaProdutopedcotacao.ReadOnly := qryFichaProdutoprecocomicms.ReadOnly;
+  qryFichaProdutopedaberto.ReadOnly := qryFichaProdutoprecocomicms.ReadOnly;
+
+  if qryFichaProdutomoeda.ReadOnly and (qryfichaproduto.State<>dsinsert) then
+  begin
+    qryFichaProduto.Edit;
+    qryFichaProdutomoeda.Clear;
+    qryFichaProdutomoedaLookup.clear;
+    qryFichaProduto.post;
+  end;
+
+end;
+
+procedure TdtmConsultaFichaProduto.qryMoedasAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  qrymoedas.Append;
+  qrymoedas.Post;
+end;
+
+function TdtmConsultaFichaProduto.GravarMovimento: boolean;
+begin
+  GuardarRegistroAtual(qryFichaProduto,true);
+  qryFichaProduto.First;
+  qryFichaProduto.Delete;
+  if qryFichaProduto.State = dsedit then
+    qryFichaProduto.Post;
+  result := Perpetrar([qryFichaProduto]);
+  IncluirLinhaSaldo;
+  VoltarRegistroAtual(qryFichaProduto);
+end;
+
+procedure TdtmConsultaFichaProduto.qryFichaProdutoAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryFichaProduto.IsEmpty then
+  begin
+    qryFichaProduto.AfterInsert := nil;
+    qryFichaProduto.Append;
+    qryFichaProduto.Post;
+    qryFichaProduto.AfterInsert := dtmConsultaFichaProduto.qryFichaProdutoAfterInsert;
+  end;  
+end;
+
+procedure TdtmConsultaFichaProduto.ZMonitor1MonitorEvent(Sql,
+  Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:\ficha20090219.sql') then
+    Listar.loadfromfile('c:\ficha20090219.sql');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\ficha20090219.sql');
+  listar.free;
+end;
+
+procedure TdtmConsultaFichaProduto.IncluirLinhaSaldo;
+var
+  i : integer;
+begin
+
+  //Movimentos
+  if qryFichaProduto_Saldo.isempty then
+  begin
+   qryFichaProduto.AfterInsert := nil;
+   qryFichaProduto.First;
+   qryFichaProduto.Insert;
+   qryFichaProdutoreferencia.AsString := 'SALDO ANTERIOR';
+   qryFichaProdutomoeda.Clear;
+   qryFichaProdutomoedaLookup.Clear;
+   qryFichaProduto.Post;
+   qryFichaProduto.AfterInsert := qryFichaProdutoAfterInsert;
+  end
+  else
+  begin
+   qryFichaProduto.AfterInsert := nil;
+   qryFichaProduto.First;
+   qryFichaProduto.Insert;
+   for i:=0 to qryFichaProduto_Saldo.FieldCount -1 do
+   begin
+
+     if qryFichaProduto_Saldo.Fields[i].FieldName <> 'naoprocessartriggers' then
+       qryFichaProduto.Fields[i].AsVariant := qryFichaProduto_Saldo .Fields[i].asvariant;
+   end;
+   qryFichaProduto.Post;
+   qryFichaProduto.AfterInsert := qryFichaProdutoAfterInsert;
+  end;
+  qryFichaProdutoAfterScroll(qryFichaProduto);
+
+end;
+
+procedure TdtmConsultaFichaProduto.SetVisualizarProdutosporContrato(
+  const Value: Boolean);
+begin
+  fVisualizarProdutosporContrato := Value;
+
+  if value then
+  begin
+    if qryFichaProduto.active and
+
+       (not qryFichaProduto_Contrato.active or
+        (qryFichaProduto_Contrato.params <> qryFichaProduto.params)) then
+     RefazConsulta(qryFichaProduto_Contrato,[0],[FParametroProduto])
+  end;
+end;
+
+procedure TdtmConsultaFichaProduto.qryFichaProduto_ContratoFilterRecord(
+  DataSet: TDataSet; var Accept: Boolean);
+begin
+  inherited;
+  Accept := (qryFichaProduto_Contratofilial.asinteger = qryFichaProdutofilial.asinteger) and
+            (qryFichaProduto_Contratocontrato.asString = qryFichaProdutoContrato.asString);
+
+end;
+
+procedure TdtmConsultaFichaProduto.qryFichaProduto_ContratoBeforeOpen(
+  DataSet: TDataSet);
+var
+  ListadeContratos : String;
+begin
+  inherited;
+  try
+    qryFichaProduto.GuardarRegistroAtual(true);
+    qryFichaProduto.afterscroll := nil;
+    ListadeContratos := RetornarLista(qryFichaProduto, qryFichaProdutocontrato, nil, true);
+
+    if ListadeContratos='' then
+      ListadeContratos := '''0''';
+    qryFichaProduto_Contrato.Macrobyname('ListadeContratos').asString := ListadeContratos;
+    qryFichaProdutoLote_Contrato.Macrobyname('ListadeContratos').asString := ListadeContratos;
+
+  finally
+    qryFichaProduto.VoltarRegistro;
+    qryFichaProduto.AfterScroll := qryFichaProdutoAfterScroll;
+  end;
+
+end;
+
+procedure TdtmConsultaFichaProduto.qryFichaProdutoLote_ContratoFilterRecord(
+  DataSet: TDataSet; var Accept: Boolean);
+begin
+  inherited;
+  Accept := (qryFichaProdutoLote_Contratofilial.asinteger = qryFichaProdutofilial.asinteger) and
+            (qryFichaProdutoLote_Contratocontrato.asString = qryFichaProdutoContrato.asString);
+
+end;
+
+procedure TdtmConsultaFichaProduto.IncluirLinhaSaldoLotes;
+var
+  i: integer;
+  vLoteProduto : String;
+begin
+  //Lotes
+  if not qryFichaProdutoLote.locate('referencia', 'SALDO ANTERIOR', []) then
+  begin
+    if qryFichaProdutoLote_Saldo.isempty then
+    begin
+     qryFichaProdutoLote.First;
+     vLoteProduto := qryFichaProdutoLoteloteproduto.AsString;
+     qryFichaProdutoLote.Insert;
+     qryFichaProdutoLotereferencia.AsString := 'SALDO ANTERIOR';
+     qryFichaProdutoLoteloteproduto.AsString := vLoteProduto;
+
+     qryFichaProdutoLotemoeda.Clear;
+  //   qryFichaProdutoLotemoedaLookup.Clear;
+     qryFichaProdutoLote.Post;
+    end
+    else
+    begin
+     qryFichaProdutoLote.First;
+     qryFichaProdutoLote.Insert;
+     for i:=0 to qryFichaProdutoLote_Saldo.FieldCount -1 do
+     begin
+       if qryFichaProdutoLote_Saldo.Fields[i].FieldName <> 'naoprocessartriggers' then
+         qryFichaProdutoLote.Fields[i].AsVariant := qryFichaProdutoLote_Saldo.Fields[i].asvariant;
+     end;
+     qryFichaProdutoLote.Post;
+    end;
+
+  end;
+
+end;
+
+end.
+
+

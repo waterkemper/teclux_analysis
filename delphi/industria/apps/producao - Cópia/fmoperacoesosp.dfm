@@ -1,0 +1,2076 @@
+inherited frmOperacoesOSP: TfrmOperacoesOSP
+  Left = 200
+  Top = 63
+  ActiveControl = dbgOPeracoesOSP
+  BorderIcons = [biSystemMenu, biMinimize, biMaximize]
+  Caption = 'Ger'#234'ncia de Processos'
+  ClientHeight = 698
+  ClientWidth = 1480
+  FormStyle = fsMDIChild
+  Visible = True
+  WindowState = wsMaximized
+  PixelsPerInch = 96
+  TextHeight = 16
+  object Bevel1: TBevel [0]
+    Left = 0
+    Top = 40
+    Width = 1480
+    Height = 109
+    Align = alTop
+    Shape = bsSpacer
+  end
+  inherited pnlBarra: TPanel
+    Left = 0
+    Top = 697
+    Width = 1480
+    Height = 1
+    Align = alBottom
+  end
+  inherited pnlTopMenu: TPanel
+    Width = 1480
+    inherited tblBarra: TToolBar
+      Left = 300
+      Width = 1180
+      inherited sbnAjuda: TSpeedButton
+        Action = actHabilitar
+      end
+    end
+    inherited tblBarraCadastro: TToolBar
+      Width = 300
+      inherited sbnIncluir: TSpeedButton
+        Caption = 'Registrar F3'
+      end
+      object sbnFechar: TSpeedButton
+        Left = 225
+        Top = 2
+        Width = 75
+        Height = 35
+        Hint = 'Fechar opera'#231#245'es por m'#225'quinas'
+        AllowAllUp = True
+        Anchors = [akTop, akRight]
+        Constraints.MaxHeight = 35
+        Constraints.MinHeight = 35
+        Caption = 'Fechar F8'
+        Flat = True
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        Glyph.Data = {
+          36060000424D3606000000000000360000002800000020000000100000000100
+          18000000000000060000120B0000120B00000000000000000000C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC3C3C3C3C3C3000000
+          0000000000000000007F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F0000
+          00000000C3C3C3C3C3C3C3C3C37F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F
+          7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7FC3C3C3FFFFFF000000000000
+          0000000000000000007F7F7FBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBF0000
+          00000000000000C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C37F7F7FFFFFFFC3
+          C3C3FFFFFFFFFFFFC3C3C37F7F7FFFFFFFC3C3C37F7F7FFFFFFF000000000000
+          0000000000000000007F7F7FBFBFBF000000000000BFBFBFBFBFBFBFBFBF0000
+          00000000000000C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C37F7F7FFFFFFF7F
+          7F7F7F7F7FFFFFFFC3C3C37F7F7FFFFFFFC3C3C37F7F7FFFFFFF000000000000
+          0000000000000000007F7F7FBFBFBF000000000000BFBFBFBFBFBFBFBFBF0000
+          00000000000000C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C37F7F7FFFFFFF7F
+          7F7F7F7F7FFFFFFFFFFFFF7F7F7FFFFFFFC3C3C37F7F7FFFFFFF000000000000
+          0000000000000000007F7F7FBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBF0000
+          00000000000000C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C37F7F7F7F7F7F7F
+          7F7F7F7F7F7F7F7F7F7F7F7F7F7FC3C3C3C3C3C37F7F7FFFFFFF000000000000
+          0000000000000000000000000000000000000000000000000000000000000000
+          00000000000000C3C3C37F7F7FFFFFFFC3C3C3FFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7F7F7FFFFFFF000000000000
+          0000000000000000000000000000000000000000000000000000000000000000
+          00000000000000C3C3C37F7F7FFFFFFF7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F
+          7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7FFFFFFF7F7F7FFFFFFF000000000000
+          000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          00000000000000C3C3C37F7F7FFFFFFF7F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFF7F7F7FFFFFFF000000000000
+          000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          00000000000000C3C3C37F7F7FFFFFFF7F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFF7F7F7FFFFFFF000000000000
+          000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          00000000000000C3C3C37F7F7FFFFFFF7F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFF7F7F7FFFFFFF000000000000
+          000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          00000000000000C3C3C37F7F7FFFFFFF7F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFF7F7F7FFFFFFF000000000000
+          000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          00000000000000C3C3C37F7F7FFFFFFF7F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFF7F7F7FFFFFFF000000000000
+          000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          007F7F7F000000C3C3C37F7F7FFFFFFF7F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3
+          C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7F7F7F7F7F7F7FFFFFFF000000000000
+          000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          00000000000000C3C3C37F7F7FC3C3C37F7F7FFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFF7F7F7FFFFFFF7F7F7FC3C3C3C3C3C3000000
+          0000000000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000FF0000
+          00000000C3C3C3C3C3C3C3C3C37F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F
+          7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7FC3C3C3C3C3C3}
+        Layout = blGlyphTop
+        NumGlyphs = 2
+        ParentFont = False
+        Spacing = 0
+        OnClick = sbnFecharClick
+      end
+    end
+  end
+  object gbxNumero: TGroupBox
+    Left = 4
+    Top = 45
+    Width = 159
+    Height = 50
+    Caption = 'N'#186' OSP'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -9
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 2
+    object Label5: TLabel
+      Left = 107
+      Top = 12
+      Width = 5
+      Height = 19
+      Caption = '-'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -16
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object lblLote: TLabel
+      Left = 115
+      Top = 0
+      Width = 30
+      Height = 11
+      Caption = ' LOTE '
+    end
+    object edfOSP: TtecDbEditFind
+      Left = 4
+      Top = 11
+      Width = 101
+      Height = 36
+      Alignment = taLeftJustify
+      DataField = 'osp'
+      DataSource = dtmOperacoesOSP.dsrOSPLotes
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -25
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      Group = 'osplote'
+      MaxLength = 7
+      Maximo = 0
+      Minimo = 37353
+      Adicional = 0
+      Opcional = True
+      OnEnter = edfOSPEnter
+      OnExit = edfOSPExit
+      OnKeyDown = edfOSPKeyDown
+      ParentFont = False
+      TabOrder = 0
+      PermitirZero = False
+      PermitirNulo = False
+      Operacao = opPESQUISA
+      Parameter = 'osp'
+      ActiveSetControls = True
+      DenyInsert = True
+      NoSetControls = <
+        item
+          Control = lblLote
+        end>
+      SetControls = <>
+    end
+    object edfLote: TtecDbEditFind
+      Left = 116
+      Top = 11
+      Width = 40
+      Height = 36
+      Alignment = taLeftJustify
+      Constraints.MaxHeight = 36
+      Constraints.MinHeight = 36
+      DataField = 'numero'
+      DataSource = dtmOperacoesOSP.dsrOSPLotes
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -25
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      Group = 'osplote'
+      MaxLength = 2
+      Maximo = 0
+      Minimo = 37353
+      Adicional = 0
+      Opcional = True
+      OnEnter = edfLoteEnter
+      OnExit = edfLoteExit
+      OnKeyDown = edfLoteKeyDown
+      ParentFont = False
+      TabOrder = 1
+      PermitirZero = False
+      PermitirNulo = False
+      Operacao = opPESQUISA
+      Parameter = 'numero'
+    end
+  end
+  object gbxOperacoesOSP: TGroupBox
+    Left = 0
+    Top = 149
+    Width = 1480
+    Height = 500
+    Align = alClient
+    Caption = ' OPERA'#199#213'ES DA OSP '
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -11
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 3
+    object Bevel2: TBevel
+      Left = 2
+      Top = 16
+      Width = 1476
+      Height = 4
+      Align = alTop
+      Shape = bsSpacer
+    end
+    object pnlOperacoesOSP: TPanel
+      Left = 2
+      Top = 20
+      Width = 578
+      Height = 478
+      Align = alLeft
+      BevelOuter = bvNone
+      Caption = #39
+      TabOrder = 0
+      object dbgOPeracoesOSP: TtecDBGrid
+        Left = 0
+        Top = 0
+        Width = 578
+        Height = 478
+        Align = alClient
+        DataSource = dtmOperacoesOSP.dsrOperacoesOSP
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -11
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = [fsBold]
+        Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgCancelOnExit]
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 0
+        TitleFont.Charset = DEFAULT_CHARSET
+        TitleFont.Color = clBlack
+        TitleFont.Height = -13
+        TitleFont.Name = 'helvetica'
+        TitleFont.Pitch = fpVariable
+        TitleFont.Style = []
+        OnDrawColumnCell = dbgOPeracoesOSPDrawColumnCell
+        OnKeyDown = dbgOPeracoesOSPKeyDown
+        RowWrap = 60
+        Large = False
+        DoubleRowColor = False
+        TitleMinHeight = 100
+        CellHeights = 100
+        StrippedColor = 16054260
+        CanDelete = True
+        PostOnEnter = False
+        DenySort = True
+        DefaultRowHeight = 18
+        Columns = <
+          item
+            Expanded = False
+            FieldName = 'sequencia'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            Title.Alignment = taCenter
+            Title.Caption = 'N'#176
+            Title.Font.Charset = DEFAULT_CHARSET
+            Title.Font.Color = clBlack
+            Title.Font.Height = -9
+            Title.Font.Name = 'helvetica'
+            Title.Font.Pitch = fpVariable
+            Title.Font.Style = []
+            Width = 25
+            Visible = True
+          end
+          item
+            Alignment = taCenter
+            Expanded = False
+            FieldName = 'naobloqueiausuario'
+            Title.Alignment = taCenter
+            Title.Caption = 'NB'
+            Title.Font.Charset = DEFAULT_CHARSET
+            Title.Font.Color = clBlack
+            Title.Font.Height = -9
+            Title.Font.Name = 'helvetica'
+            Title.Font.Pitch = fpVariable
+            Title.Font.Style = []
+            Width = 20
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'nome'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            Title.Alignment = taCenter
+            Title.Caption = 'OPERA'#199#195'O'
+            Title.Font.Charset = DEFAULT_CHARSET
+            Title.Font.Color = clBlack
+            Title.Font.Height = -9
+            Title.Font.Name = 'helvetica'
+            Title.Font.Pitch = fpVariable
+            Title.Font.Style = []
+            Width = 75
+            Visible = True
+          end
+          item
+            Alignment = taCenter
+            Expanded = False
+            FieldName = 'c01'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            Title.Alignment = taCenter
+            Title.Font.Charset = DEFAULT_CHARSET
+            Title.Font.Color = clBlack
+            Title.Font.Height = -9
+            Title.Font.Name = 'helvetica'
+            Title.Font.Pitch = fpVariable
+            Title.Font.Style = []
+            Width = 25
+            Visible = True
+          end
+          item
+            Alignment = taCenter
+            Expanded = False
+            FieldName = 'c02'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            Title.Alignment = taCenter
+            Title.Font.Charset = DEFAULT_CHARSET
+            Title.Font.Color = clBlack
+            Title.Font.Height = -9
+            Title.Font.Name = 'helvetica'
+            Title.Font.Pitch = fpVariable
+            Title.Font.Style = []
+            Width = 25
+            Visible = True
+          end
+          item
+            Alignment = taCenter
+            Expanded = False
+            FieldName = 'c03'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            Title.Alignment = taCenter
+            Title.Font.Charset = DEFAULT_CHARSET
+            Title.Font.Color = clBlack
+            Title.Font.Height = -9
+            Title.Font.Name = 'helvetica'
+            Title.Font.Pitch = fpVariable
+            Title.Font.Style = []
+            Width = 25
+            Visible = True
+          end
+          item
+            Alignment = taCenter
+            Expanded = False
+            FieldName = 'TipoOperacao_c'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            Title.Alignment = taCenter
+            Title.Caption = 'T'
+            Title.Font.Charset = DEFAULT_CHARSET
+            Title.Font.Color = clBlack
+            Title.Font.Height = -9
+            Title.Font.Name = 'helvetica'
+            Title.Font.Pitch = fpVariable
+            Title.Font.Style = []
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'tempopadrao'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            Title.Alignment = taCenter
+            Title.Caption = 'T.PADR'#195'O'
+            Title.Font.Charset = DEFAULT_CHARSET
+            Title.Font.Color = clBlack
+            Title.Font.Height = -9
+            Title.Font.Name = 'helvetica'
+            Title.Font.Pitch = fpVariable
+            Title.Font.Style = []
+            Width = 52
+            Visible = True
+          end
+          item
+            Alignment = taCenter
+            Expanded = False
+            FieldName = 'PCSHR'
+            Title.Alignment = taCenter
+            Title.Caption = 'PE'#199'AS/H'
+            Title.Font.Charset = DEFAULT_CHARSET
+            Title.Font.Color = clBlack
+            Title.Font.Height = -9
+            Title.Font.Name = 'helvetica'
+            Title.Font.Pitch = fpVariable
+            Title.Font.Style = []
+            Width = 45
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ppm'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -12
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = [fsBold]
+            Title.Alignment = taCenter
+            Title.Caption = 'PPM'
+            Title.Font.Charset = DEFAULT_CHARSET
+            Title.Font.Color = clBlack
+            Title.Font.Height = -9
+            Title.Font.Name = 'helvetica'
+            Title.Font.Pitch = fpVariable
+            Title.Font.Style = []
+            Width = 35
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'quantidadesemperda'
+            Title.Alignment = taCenter
+            Title.Caption = 'FSP'
+            Title.Font.Charset = DEFAULT_CHARSET
+            Title.Font.Color = clBlack
+            Title.Font.Height = -9
+            Title.Font.Name = 'helvetica'
+            Title.Font.Pitch = fpVariable
+            Title.Font.Style = []
+            Width = 30
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'quantidadecomperda'
+            Title.Alignment = taCenter
+            Title.Caption = 'FCP'
+            Title.Font.Charset = DEFAULT_CHARSET
+            Title.Font.Color = clBlack
+            Title.Font.Height = -9
+            Title.Font.Name = 'helvetica'
+            Title.Font.Pitch = fpVariable
+            Title.Font.Style = []
+            Width = 30
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'totaltempoparada'
+            Title.Alignment = taCenter
+            Title.Caption = 'TP'
+            Title.Font.Charset = DEFAULT_CHARSET
+            Title.Font.Color = clBlack
+            Title.Font.Height = -9
+            Title.Font.Name = 'helvetica'
+            Title.Font.Pitch = fpVariable
+            Title.Font.Style = []
+            Width = 35
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'fechamentoforcado'
+            Title.Alignment = taCenter
+            Title.Caption = 'FF'
+            Title.Font.Charset = DEFAULT_CHARSET
+            Title.Font.Color = clBlack
+            Title.Font.Height = -9
+            Title.Font.Name = 'helvetica'
+            Title.Font.Pitch = fpVariable
+            Title.Font.Style = []
+            Width = 18
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'c8d'
+            Title.Alignment = taCenter
+            Title.Caption = '8D'
+            Title.Font.Charset = DEFAULT_CHARSET
+            Title.Font.Color = clBlack
+            Title.Font.Height = -9
+            Title.Font.Name = 'helvetica'
+            Title.Font.Pitch = fpVariable
+            Title.Font.Style = []
+            Width = 70
+            Visible = True
+          end>
+      end
+    end
+    object pnlOperacoesOSPUsuarios: TPanel
+      Left = 580
+      Top = 20
+      Width = 898
+      Height = 478
+      Align = alClient
+      BevelOuter = bvNone
+      Caption = 'pnlOperacoesOSPUsuarios'
+      TabOrder = 1
+      object pnlOperacoesOSPUsuariosFalhas: TPanel
+        Left = 0
+        Top = 263
+        Width = 898
+        Height = 215
+        Align = alBottom
+        BevelOuter = bvNone
+        Caption = 'pnlOperacoesOSPUsuariosFalhas'
+        TabOrder = 0
+        object dbgOPeracoesOSPUsuarioFalhas: TtecDBGrid
+          Left = 0
+          Top = 0
+          Width = 405
+          Height = 113
+          DataSource = dtmOperacoesOSP.dsrOperacoesOSPUsuarioFalhas
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          TitleFont.Charset = DEFAULT_CHARSET
+          TitleFont.Color = clBlack
+          TitleFont.Height = -9
+          TitleFont.Name = 'helvetica'
+          TitleFont.Pitch = fpVariable
+          TitleFont.Style = []
+          OnDblClick = dbgOPeracoesOSPUsuarioFalhasDblClick
+          OnKeyDown = dbgOPeracoesOSPUsuarioFalhasKeyDown
+          RowWrap = 60
+          Large = False
+          DoubleRowColor = False
+          TitleMinHeight = 100
+          CellHeights = 100
+          StrippedColor = 16054260
+          CanDelete = True
+          PostOnEnter = False
+          DenySort = True
+          DefaultRowHeight = 19
+          Columns = <
+            item
+              Expanded = False
+              FieldName = 'falha'
+              Title.Alignment = taCenter
+              Width = 40
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'descricao'
+              Title.Alignment = taCenter
+              Title.Caption = 'DESCRI'#199#195'O'
+              Width = 243
+              Visible = True
+            end
+            item
+              Alignment = taCenter
+              Expanded = False
+              FieldName = 'perdatotal'
+              Title.Alignment = taCenter
+              Title.Caption = 'PT'
+              Width = 20
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'quantidadeperda'
+              Title.Alignment = taCenter
+              Title.Caption = 'QTDE'
+              Width = 45
+              Visible = True
+            end
+            item
+              Alignment = taCenter
+              Expanded = False
+              FieldName = 'VerNaoInfluiPremiacao'
+              Title.Alignment = taCenter
+              Title.Caption = 'NI'
+              Visible = True
+            end>
+        end
+        object dbgOPeracoesOSPUsuarioParadas: TtecDBGrid
+          Left = 407
+          Top = 0
+          Width = 399
+          Height = 215
+          DataSource = dtmOperacoesOSP.dsrOperacoesOSPUsuarioParadas
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 1
+          TitleFont.Charset = DEFAULT_CHARSET
+          TitleFont.Color = clBlack
+          TitleFont.Height = -9
+          TitleFont.Name = 'helvetica'
+          TitleFont.Pitch = fpVariable
+          TitleFont.Style = []
+          OnDblClick = dbgOPeracoesOSPUsuarioParadasDblClick
+          OnKeyDown = dbgOPeracoesOSPUsuarioParadasKeyDown
+          RowWrap = 60
+          Large = False
+          DoubleRowColor = False
+          TitleMinHeight = 100
+          CellHeights = 100
+          StrippedColor = 16054260
+          CanDelete = True
+          PostOnEnter = True
+          DenySort = True
+          DefaultRowHeight = 19
+          Columns = <
+            item
+              Expanded = False
+              FieldName = 'codigoparada'
+              Title.Alignment = taCenter
+              Title.Caption = 'PARADA'
+              Width = 45
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'descricao'
+              Title.Alignment = taCenter
+              Title.Caption = 'DESCRI'#199#195'O'
+              Width = 209
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'bloqueiamaquina'
+              Title.Caption = 'BLOQUEIO'
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'tempoparada'
+              Title.Alignment = taCenter
+              Title.Caption = 'TEMPO'
+              Width = 50
+              Visible = True
+            end>
+        end
+        object gbxOutrasOrigensDestinos: TGroupBox
+          Left = 0
+          Top = 112
+          Width = 406
+          Height = 105
+          Caption = 'OUTRAS ORIGENS / DESTINOS'
+          TabOrder = 2
+          object dbgOutrasOrigensDestinos: TtecDBGrid
+            Left = 2
+            Top = 16
+            Width = 402
+            Height = 87
+            Align = alClient
+            DataSource = dtmOperacoesOSP.dsrOperacoesOSPUsuarioFalhasOutrasOrigensDestinos
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -8
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 0
+            TitleFont.Charset = DEFAULT_CHARSET
+            TitleFont.Color = clBlack
+            TitleFont.Height = -9
+            TitleFont.Name = 'helvetica'
+            TitleFont.Pitch = fpVariable
+            TitleFont.Style = []
+            OnDblClick = dbgOPeracoesOSPUsuarioFalhasDblClick
+            OnKeyDown = dbgOPeracoesOSPUsuarioFalhasKeyDown
+            RowWrap = 60
+            Large = False
+            DoubleRowColor = False
+            TitleMinHeight = 100
+            CellHeights = 100
+            StrippedColor = 16054260
+            CanDelete = True
+            PostOnEnter = False
+            DenySort = True
+            DefaultRowHeight = 14
+            Columns = <
+              item
+                Expanded = False
+                FieldName = 'operacao'
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -11
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                Title.Alignment = taCenter
+                Title.Caption = 'OPERA'#199#195'O'
+                Width = 65
+                Visible = True
+              end
+              item
+                Alignment = taCenter
+                Expanded = False
+                FieldName = 'c01'
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -11
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                Title.Alignment = taCenter
+                Title.Caption = 'C1'
+                Width = 20
+                Visible = True
+              end
+              item
+                Alignment = taCenter
+                Expanded = False
+                FieldName = 'c02'
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -11
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                Title.Alignment = taCenter
+                Title.Caption = 'C2'
+                Width = 20
+                Visible = True
+              end
+              item
+                Alignment = taCenter
+                Expanded = False
+                FieldName = 'c03'
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -11
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                Title.Alignment = taCenter
+                Title.Caption = 'C3'
+                Width = 20
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'usuario'
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -11
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                Title.Alignment = taCenter
+                Title.Caption = 'OPERADOR'
+                Width = 55
+                Visible = True
+              end
+              item
+                Alignment = taCenter
+                Expanded = False
+                FieldName = 'data'
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -11
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                Title.Alignment = taCenter
+                Title.Caption = 'DATA'
+                Width = 50
+                Visible = True
+              end
+              item
+                Alignment = taCenter
+                Expanded = False
+                FieldName = 'inicio'
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -11
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                Title.Alignment = taCenter
+                Title.Caption = 'IN'#205'CIO'
+                Width = 35
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'falha'
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -11
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                Title.Alignment = taCenter
+                Title.Caption = 'FALHA'
+                Width = 35
+                Visible = True
+              end
+              item
+                Alignment = taCenter
+                Expanded = False
+                FieldName = 'perdatotal'
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -11
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                Title.Alignment = taCenter
+                Title.Caption = 'PT'
+                Width = 20
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'quantidadeperda'
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -11
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                Title.Alignment = taCenter
+                Title.Caption = 'QTDE'
+                Width = 40
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'descricao'
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -11
+                Font.Name = 'helvetica'
+                Font.Pitch = fpVariable
+                Font.Style = []
+                Title.Alignment = taCenter
+                Title.Caption = 'DESCRI'#199#195'O'
+                Visible = True
+              end>
+          end
+        end
+      end
+      object pnldbgOPeracoesOSPUsuario: TPanel
+        Left = 0
+        Top = 0
+        Width = 898
+        Height = 263
+        Align = alClient
+        Caption = 'pnldbgOPeracoesOSPUsuario'
+        TabOrder = 1
+        object dbgOPeracoesOSPUsuario: TtecDBGrid
+          Left = 1
+          Top = 1
+          Width = 896
+          Height = 227
+          Align = alClient
+          DataSource = dtmOperacoesOSP.dsrOperacoesOSPUsuario
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          Options = [dgEditing, dgTitles, dgIndicator, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit]
+          ParentFont = False
+          TabOrder = 0
+          TitleFont.Charset = DEFAULT_CHARSET
+          TitleFont.Color = clBlack
+          TitleFont.Height = -9
+          TitleFont.Name = 'helvetica'
+          TitleFont.Pitch = fpVariable
+          TitleFont.Style = []
+          OnDblClick = dbgOPeracoesOSPUsuarioDblClick
+          OnKeyDown = dbgOPeracoesOSPUsuarioKeyDown
+          RowWrap = 60
+          Large = False
+          DoubleRowColor = False
+          TitleMinHeight = 100
+          CellHeights = 100
+          StrippedColor = 16054260
+          CanDelete = True
+          PostOnEnter = True
+          DenySort = True
+          DefaultRowHeight = 19
+          Columns = <
+            item
+              Expanded = False
+              FieldName = 'usuario'
+              Title.Alignment = taCenter
+              Title.Caption = 'OPERADOR'
+              Width = 55
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'nome'
+              ReadOnly = False
+              Title.Alignment = taCenter
+              Title.Caption = 'NOME'
+              Width = 90
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'usuariosetup'
+              Title.Alignment = taCenter
+              Title.Caption = 'OP.SETUP'
+              Width = 47
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'data'
+              ReadOnly = False
+              Title.Alignment = taCenter
+              Width = 60
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'inicio'
+              ReadOnly = False
+              Title.Alignment = taCenter
+              Width = 40
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'usuariotermino'
+              Title.Caption = 'OPERADOR'
+              Width = 55
+              Visible = True
+            end
+            item
+              Alignment = taCenter
+              Expanded = False
+              FieldName = 'datatermino'
+              Title.Alignment = taCenter
+              Title.Caption = 'DATA'
+              Width = 60
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'termino'
+              ReadOnly = False
+              Title.Alignment = taCenter
+              Width = 45
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'quantidade'
+              Title.Alignment = taCenter
+              Title.Caption = 'QTDE'
+              Width = 70
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'intervalo'
+              Title.Alignment = taCenter
+              Title.Caption = 'INTERVALO'
+              Width = 57
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'eficiencia'
+              Title.Alignment = taCenter
+              Title.Caption = 'EFICI'#202'NCIA'
+              Width = 60
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'qualidade'
+              Title.Alignment = taCenter
+              Title.Caption = 'QUALIDADE'
+              Width = 60
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'retrabalho'
+              Title.Alignment = taCenter
+              Title.Caption = 'RETRABALHO'
+              Width = 70
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'maquina'
+              Title.Alignment = taCenter
+              Title.Caption = 'M'#193'QUINA'
+              Width = 50
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'tempo'
+              Title.Alignment = taCenter
+              Title.Caption = 'TEMPO'
+              Width = 40
+              Visible = True
+            end>
+        end
+        object gbxDescricaoMaquina: TGroupBox
+          Left = 1
+          Top = 228
+          Width = 896
+          Height = 34
+          Align = alBottom
+          Caption = 'DESCRI'#199#195'O M'#193'QUINA'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 1
+          object dtxDescricaoMaquina: TtecDBText
+            Left = 4
+            Top = 10
+            Width = 885
+            Height = 22
+            TabStop = False
+            Color = clBtnFace
+            DataField = 'descricaomaquina'
+            DataSource = dtmOperacoesOSP.dsrOperacoesOSPUsuario
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clBlack
+            Font.Height = -11
+            Font.Name = 'helvetica'
+            Font.Pitch = fpVariable
+            Font.Style = []
+            ParentFont = False
+            ReadOnly = True
+            TabOrder = 0
+            Alignment = taLeftJustify
+          end
+        end
+      end
+    end
+  end
+  object gbxProdutonoCliente: TGroupBox
+    Left = 5
+    Top = 95
+    Width = 594
+    Height = 51
+    Caption = 'PRODUTO NO CLIENTE'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -11
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 4
+    object gbxProdutoCliente: TGroupBox
+      Left = 4
+      Top = 12
+      Width = 227
+      Height = 36
+      Caption = 'C'#211'DIGO DO PRODUTO'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      object edtProdutoCliente: TDBEditTexto
+        Left = 2
+        Top = 10
+        Width = 222
+        Height = 24
+        TabStop = False
+        DataField = 'produto_cliente'
+        DataSource = dtmOperacoesOSP.dsrClientesProdutos
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        MaxLength = -1
+        ParentColor = True
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 0
+        CharCasenoDefault = False
+        Alignment = taLeftJustify
+      end
+    end
+    object gbxFinalidade: TGroupBox
+      Left = 353
+      Top = 12
+      Width = 237
+      Height = 36
+      Caption = 'FINALIDADE'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 3
+      object edtFinalidade: TDBEditTexto
+        Left = 2
+        Top = 10
+        Width = 231
+        Height = 24
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'finalidade'
+        DataSource = dtmOperacoesOSP.dsrClientesProdutos
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        MaxLength = -1
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 0
+        CharCasenoDefault = False
+        Alignment = taLeftJustify
+      end
+    end
+    object gbxOrigem: TGroupBox
+      Left = 293
+      Top = 12
+      Width = 57
+      Height = 36
+      Caption = 'ORIGEM'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 2
+      object edtOrigem: TDBEditTexto
+        Left = 2
+        Top = 10
+        Width = 52
+        Height = 24
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'origem'
+        DataSource = dtmOperacoesOSP.dsrClientesProdutos
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        MaxLength = -1
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 0
+        CharCasenoDefault = False
+        Alignment = taLeftJustify
+      end
+    end
+    object gbxPN: TGroupBox
+      Left = 234
+      Top = 12
+      Width = 56
+      Height = 36
+      Caption = 'PN'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+      object edtPN: TDBEditTexto
+        Left = 3
+        Top = 10
+        Width = 50
+        Height = 24
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'pn'
+        DataSource = dtmOperacoesOSP.dsrClientesProdutos
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        MaxLength = 6
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 0
+        CharCasenoDefault = False
+        Alignment = taLeftJustify
+      end
+    end
+  end
+  object gbxQuantidadeProduto: TGroupBox
+    Left = 602
+    Top = 43
+    Width = 342
+    Height = 52
+    Caption = 'Q U A N T I D A D E S'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -11
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 5
+    object gbxPedida: TGroupBox
+      Left = 6
+      Top = 12
+      Width = 149
+      Height = 36
+      Caption = 'PEDIDA'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      object edtQuantidade: TDBEditNumero
+        Left = 3
+        Top = 10
+        Width = 80
+        Height = 23
+        TabStop = False
+        Color = clBtnFace
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        MaxLength = -1
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 0
+        Text = 'edtQuantidade'
+        Mascara = False
+        Alignment = taLeftJustify
+        TipoMascara = tmQUANTIDADE
+        NrDecimal = 0
+        Decimais = False
+        Negativo = False
+        Tamanho = 0
+        DataField = 'quantidadeosp'
+        DataSource = dtmOperacoesOSP.dsrOSPLotes
+      end
+      object dtxUnidade: TtecDBText
+        Left = 87
+        Top = 10
+        Width = 59
+        Height = 23
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'unidade'
+        DataSource = dtmOperacoesOSP.dsrOSPLotes
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 1
+        Alignment = taLeftJustify
+      end
+    end
+    object gbxEntregue: TGroupBox
+      Left = 160
+      Top = 12
+      Width = 85
+      Height = 36
+      Caption = 'ENTREGUE'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+      object dtxEntregue: TtecDBText
+        Left = 2
+        Top = 10
+        Width = 80
+        Height = 23
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'qtdeentregue'
+        DataSource = dtmOperacoesOSP.dsrOSPLotes
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 0
+        Alignment = taLeftJustify
+      end
+    end
+    object gbxSaldo: TGroupBox
+      Left = 250
+      Top = 12
+      Width = 85
+      Height = 36
+      Caption = 'SALDO'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 2
+      object dtxSaldo: TtecDBText
+        Left = 2
+        Top = 10
+        Width = 80
+        Height = 23
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'saldo'
+        DataSource = dtmOperacoesOSP.dsrOSPLotes
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -12
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 0
+        Alignment = taLeftJustify
+      end
+    end
+  end
+  object gbxProduto: TGroupBox
+    Left = 165
+    Top = 44
+    Width = 434
+    Height = 54
+    Caption = 'PRODUTO'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -11
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 6
+    object gbxComplemento: TGroupBox
+      Left = 244
+      Top = 12
+      Width = 185
+      Height = 38
+      Caption = 'COMPLEMENTO'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      object dtxComplemento: TtecDBText
+        Left = 2
+        Top = 11
+        Width = 180
+        Height = 24
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'complementoproduto'
+        DataSource = dtmOperacoesOSP.dsrOSPLotes
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 0
+        Alignment = taLeftJustify
+      end
+    end
+    object gbxCodigoProduto: TGroupBox
+      Left = 4
+      Top = 12
+      Width = 237
+      Height = 38
+      Caption = 'C'#211'DIGO'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+      object dtxProduto: TtecDBText
+        Left = 2
+        Top = 11
+        Width = 232
+        Height = 24
+        TabStop = False
+        Color = clBtnFace
+        DataField = 'produtovisual'
+        DataSource = dtmOperacoesOSP.dsrOSPLotes
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 0
+        Alignment = taLeftJustify
+      end
+    end
+  end
+  object GroupBox1: TGroupBox
+    Left = 603
+    Top = 95
+    Width = 273
+    Height = 51
+    Caption = 'LOTE'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -11
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 7
+    object gbxTamLoteProducao: TGroupBox
+      Left = 6
+      Top = 12
+      Width = 129
+      Height = 37
+      Caption = 'TAM. LOTE PRODU'#199#195'O'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      object edtLoteProducao: TDBEditNumero
+        Left = 2
+        Top = 10
+        Width = 124
+        Height = 24
+        TabStop = False
+        Color = clBtnFace
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        MaxLength = -1
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 0
+        Text = 'edtLoteProducao'
+        Mascara = False
+        Alignment = taLeftJustify
+        TipoMascara = tmGERAL
+        NrDecimal = 0
+        Decimais = True
+        Negativo = False
+        Tamanho = 9
+        DataField = 'quantidadelote'
+        DataSource = dtmOperacoesOSP.dsrOSPLotes
+      end
+    end
+    object gbxQtdadeExcedente: TGroupBox
+      Left = 139
+      Top = 12
+      Width = 129
+      Height = 37
+      Caption = 'EXCEDENTE PERMITIDO'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+      object edtExcedentePermitido: TDBEditNumero
+        Left = 2
+        Top = 10
+        Width = 124
+        Height = 24
+        TabStop = False
+        Color = clBtnFace
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        MaxLength = -1
+        ParentFont = False
+        ReadOnly = True
+        TabOrder = 0
+        Text = 'edtExcedentePermitido'
+        Mascara = False
+        Alignment = taLeftJustify
+        TipoMascara = tmGERAL
+        NrDecimal = 0
+        Decimais = True
+        Negativo = False
+        Tamanho = 9
+        DataField = 'excedentelote'
+        DataSource = dtmOperacoesOSP.dsrOSPLotes
+      end
+    end
+  end
+  object pnlRodape: TPanel
+    Left = 0
+    Top = 649
+    Width = 1480
+    Height = 48
+    Align = alBottom
+    TabOrder = 8
+    object Bevel4: TBevel
+      Left = 1
+      Top = 24
+      Width = 1478
+      Height = 23
+      Align = alBottom
+      Shape = bsTopLine
+    end
+    object shNotaImpressa: TShape
+      Left = 8
+      Top = 9
+      Width = 11
+      Height = 10
+      Brush.Color = clRed
+      Pen.Width = 0
+    end
+    object Shape2: TShape
+      Left = 360
+      Top = 9
+      Width = 11
+      Height = 10
+      Brush.Color = clBlue
+      Pen.Width = 0
+    end
+    object Shape1: TShape
+      Left = 160
+      Top = 9
+      Width = 11
+      Height = 10
+      Brush.Color = clGreen
+      Pen.Width = 0
+    end
+    object lblProduzido: TLabel
+      Left = 731
+      Top = 7
+      Width = 56
+      Height = 12
+      Hint = 
+        'clique duplo ou ctrl+backspace para definir as opera'#231#245'es alterna' +
+        'tivas'
+      Caption = 'PRODUZIDA'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+    end
+    object lblOperacaoAtual: TLabel
+      Left = 22
+      Top = 8
+      Width = 134
+      Height = 12
+      Caption = 'OPERA'#199#213'ES EM ANDAMENTO'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+    end
+    object lblDefinirAlternativas: TLabel
+      Left = 542
+      Top = 28
+      Width = 42
+      Height = 14
+      Hint = 
+        'clique duplo ou ctrl+backspace para definir as opera'#231#245'es alterna' +
+        'tivas'
+      Caption = '[Ctrl+A]'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Arial'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+      Visible = False
+    end
+    object Label4: TLabel
+      Left = 374
+      Top = 8
+      Width = 122
+      Height = 12
+      Caption = 'OPERA'#199#213'ES CONCLU'#205'DAS'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+    end
+    object Label3: TLabel
+      Left = 716
+      Top = 32
+      Width = 70
+      Height = 12
+      Hint = 
+        'clique duplo ou ctrl+backspace para definir as opera'#231#245'es alterna' +
+        'tivas'
+      Caption = 'FALTANTE LOTE'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      Visible = False
+    end
+    object Label2: TLabel
+      Left = 590
+      Top = 30
+      Width = 107
+      Height = 12
+      Hint = 
+        'clique duplo ou ctrl+backspace para definir as opera'#231#245'es alterna' +
+        'tivas'
+      Caption = 'DEFINIR ALTERNATIVAS'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      Visible = False
+    end
+    object Label1: TLabel
+      Left = 174
+      Top = 8
+      Width = 178
+      Height = 12
+      Caption = 'OPERA'#199#213'ES PERMITIDAS AO USU'#193'RIO'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+    end
+    object Label6: TLabel
+      Left = 887
+      Top = 5
+      Width = 44
+      Height = 12
+      Hint = 
+        'clique duplo ou ctrl+backspace para definir as opera'#231#245'es alterna' +
+        'tivas'
+      Caption = 'FALTANTE'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+    end
+    object Bevel3: TBevel
+      Left = 545
+      Top = 1
+      Width = 1266
+      Height = 23
+      Shape = bsTopLine
+    end
+    object lblDefiniComplementar: TLabel
+      Left = 54
+      Top = 30
+      Width = 106
+      Height = 12
+      Hint = 'Ctrl+D Desvio de Processo'
+      Caption = 'DESVIO DE PROCESSO'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+    end
+    object lblCtrl_C: TLabel
+      Left = 6
+      Top = 28
+      Width = 41
+      Height = 14
+      Hint = 'Ctrl+D Desvio de Processo'
+      Caption = '[Ctrl+D]'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Arial'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object lblCtrl_F: TLabel
+      Left = 169
+      Top = 28
+      Width = 40
+      Height = 14
+      Hint = 'Ctrl+F para for'#231'ar o fechamento'
+      Caption = '[Ctrl+F]'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Arial'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object lblForcarFechamento: TLabel
+      Left = 217
+      Top = 30
+      Width = 106
+      Height = 12
+      Hint = 'Ctrl+F para for'#231'ar o fechamento'
+      Caption = 'FOR'#199'AR FECHAMENTO'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+    end
+    object Label7: TLabel
+      Left = 334
+      Top = 28
+      Width = 42
+      Height = 14
+      Hint = 'Ctrl+G Fixar a senha'
+      Caption = '[Ctrl+G]'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Arial'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object lblFixaraSenha: TLabel
+      Left = 382
+      Top = 30
+      Width = 135
+      Height = 12
+      Hint = 'Ctrl+G Fixar a senha'
+      Caption = 'FIXAR A SENHA DO GERENTE'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -9
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+    end
+    object DBEditNumero3: TDBEditNumero
+      Left = 796
+      Top = 26
+      Width = 77
+      Height = 22
+      TabStop = False
+      Color = clBtnFace
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      MaxLength = -1
+      ParentFont = False
+      ReadOnly = True
+      TabOrder = 0
+      Text = '3,00'
+      Visible = False
+      Mascara = False
+      TipoMascara = tmGERAL
+      NrDecimal = 0
+      Decimais = False
+      Negativo = False
+      Tamanho = 9
+      DataField = 'SaldoFaltanteGeral'
+      DataSource = dtmOperacoesOSP.dsrOperacoesOSP
+    end
+    object DBEditNumero1: TDBEditNumero
+      Left = 797
+      Top = -1
+      Width = 77
+      Height = 22
+      TabStop = False
+      Color = clBtnFace
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      MaxLength = -1
+      ParentFont = False
+      ReadOnly = True
+      TabOrder = 1
+      Text = '1,00'
+      Mascara = False
+      TipoMascara = tmGERAL
+      NrDecimal = 0
+      Decimais = False
+      Negativo = False
+      Tamanho = 9
+      DataField = 'quantidade'
+      DataSource = dtmOperacoesOSP.dsrOperacoesOSP
+    end
+    object DBEditNumero4: TDBEditNumero
+      Left = 940
+      Top = -1
+      Width = 77
+      Height = 22
+      TabStop = False
+      Color = clBtnFace
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      MaxLength = -1
+      ParentFont = False
+      ReadOnly = True
+      TabOrder = 2
+      Text = '4,00'
+      Mascara = False
+      TipoMascara = tmGERAL
+      NrDecimal = 0
+      Decimais = False
+      Negativo = False
+      Tamanho = 9
+      DataField = 'SaldoFaltanteProducao'
+      DataSource = dtmOperacoesOSP.dsrOperacoesOSP
+    end
+    object DBEditNumero2: TDBEditNumero
+      Left = 1104
+      Top = 26
+      Width = 57
+      Height = 22
+      TabStop = False
+      Color = clBtnFace
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      MaxLength = -1
+      ParentFont = False
+      ReadOnly = True
+      TabOrder = 3
+      Text = '3,00'
+      Visible = False
+      Mascara = False
+      TipoMascara = tmGERAL
+      NrDecimal = 0
+      Decimais = False
+      Negativo = False
+      Tamanho = 9
+      DataField = 'quantidadeanterior'
+      DataSource = dtmOperacoesOSP.dsrOperacoesOSP
+    end
+    object DBEditNumero5: TDBEditNumero
+      Left = 1032
+      Top = 26
+      Width = 57
+      Height = 22
+      TabStop = False
+      Color = clBtnFace
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      MaxLength = -1
+      ParentFont = False
+      ReadOnly = True
+      TabOrder = 4
+      Text = '3,00'
+      Visible = False
+      Mascara = False
+      TipoMascara = tmGERAL
+      NrDecimal = 0
+      Decimais = False
+      Negativo = False
+      Tamanho = 9
+      DataField = 'quantidadelimite'
+      DataSource = dtmOperacoesOSP.dsrOperacoesOSP
+    end
+  end
+  object gbxFluxograma: TGroupBox
+    Left = 953
+    Top = 44
+    Width = 80
+    Height = 51
+    Caption = 'FLUXOGRAMA'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -9
+    Font.Name = 'helvetica'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 9
+    object DBEditNumero6: TDBEditNumero
+      Left = 2
+      Top = 10
+      Width = 75
+      Height = 38
+      TabStop = False
+      Color = clBtnFace
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -25
+      Font.Name = 'helvetica'
+      Font.Pitch = fpVariable
+      Font.Style = [fsBold]
+      MaxLength = -1
+      ParentFont = False
+      ReadOnly = True
+      TabOrder = 0
+      Text = '6,00'
+      Mascara = False
+      Alignment = taCenter
+      TipoMascara = tmGERAL
+      NrDecimal = 0
+      Decimais = True
+      Negativo = False
+      Tamanho = 9
+      DataField = 'fluxograma'
+      DataSource = dtmOperacoesOSP.dsrOSPLotes
+    end
+  end
+  object aclHabilitar: TActionList
+    Left = 496
+    Top = 8
+    object actHabilitar: TAction
+      Caption = 'actHabilitar'
+      OnUpdate = actHabilitarUpdate
+    end
+  end
+  object Timer1: TTimer
+    OnTimer = Timer1Timer
+    Left = 1120
+    Top = 80
+  end
+end

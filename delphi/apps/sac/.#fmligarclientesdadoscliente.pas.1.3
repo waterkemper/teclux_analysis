@@ -1,0 +1,142 @@
+unit fmligarclientesdadoscliente;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  fmajudabt, ComCtrls, Buttons, ExtCtrls, StdCtrls,
+  frconsultadadoscliente, DBCtrls, cpdbtext, Grids, DBGrids, cpdbgrid,
+  dmligarclientes, fmcadastropadrao, Mask, cpfone, Windows, {Qete,} cpdbmemo,
+  frendereco, ctconstantes, ToolWin;
+
+type
+  TfrmLigarClientesDadosCliente = class(TfrmAjudabt)
+    pnlFundoJanela: TPanel;
+    gbxInformacoesCliente: TGroupBox;
+    sbnAtendimento: TSpeedButton;
+    dbgParcelas: TtecDBGrid;
+    fraEndereco1: TfraEndereco;
+    edtCPFCNPJ: TDBEdit;
+    edtDocumento: TDBEdit;
+    sbnFichaFinanceira: TSpeedButton;
+    gbxFones: TGroupBox;
+    edtFoneResidencia1: TDBEdit;
+    edtFoneResidencia2: TDBEdit;
+    edtFoneEmpresa: TDBEdit;
+    edtFoneConjuge: TDBEdit;
+    edtFonereferencia1: TDBEdit;
+    edtFoneReferencia2: TDBEdit;
+    dtxNomeCliente: TtecDBText;
+    dtxNomeClienteouAvalista: TtecDBText;
+    lblClienteouAvalista: TLabel;
+    dtxTipoAvalista: TtecDBText;
+    edtEmpresa: TDBEdit;
+    edtnomeconjuge: TDBEdit;
+    sbnCadastroClientes: TSpeedButton;
+    gbxResidencia: TGroupBox;
+    gbxEmpresa: TGroupBox;
+    gbxConjuge: TGroupBox;
+    gbxReferencia: TGroupBox;
+    gbxParcelas: TGroupBox;
+    gbxCPFouCNPJ: TGroupBox;
+    gbxDocIdentidade: TGroupBox;
+    procedure sbnAtendimentoClick(Sender: TObject);
+    procedure sbnFichaFinanceiraClick(Sender: TObject);
+    procedure sbnCadastroClientesClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+  private
+    FOntecClose: TtecProcedure;
+  protected
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+  public
+    dtmLigar: TdtmLigarClientes;
+    destructor Destroy; override;
+    procedure  SetDataModulo(DataModulo: TdtmLigarClientes);
+    property  OntecClose: TtecProcedure read FOntecClose write FOntecClose;
+  end;
+
+var
+  frmLigarClientesDadosCliente: TfrmLigarClientesDadosCliente;
+
+implementation
+
+uses
+  fmcadastroatendimento, fmprincipalbasico;
+
+{$R *.dfm}
+
+{ TfrmLigarClientesDadosClientes }
+
+destructor TfrmLigarClientesDadosCliente.Destroy;
+begin
+  inherited;
+  frmLigarClientesDadosCliente   := nil;
+end;
+
+procedure TfrmLigarClientesDadosCliente.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case key of
+    VK_ESCAPE: Close;
+    VK_F8    : sbnAtendimento.Click;
+    VK_F10   : sbnCadastroClientes.click;
+    VK_F11   : sbnFichaFinanceira.Click;
+  end;
+end;
+
+procedure TfrmLigarClientesDadosCliente.sbnAtendimentoClick(Sender: TObject);
+begin
+  inherited;
+  case dtmLigar.TipoSelecao of
+    0,1 : TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado(['IncluirAtendimento',
+                                                                   dtmLigar.CodigoCliente,
+                                                                   dtmLigar.TipoCliente,'C'], 'TfrmCadastroAtendimento', True);
+
+    2 : TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado(['IncluirAtendimentoAvisosCartas',
+                                                                   dtmLigar.CodigoCliente,
+                                                                   dtmLigar.TipoCliente,
+                                                                   'C',
+                                                                   dtmligar.carta,
+                                                                   dtmLigar.CartaNumero,
+                                                                   dtmLigar.TipodeCarta,
+                                                                   dtmLigar.EmissaoCarta,
+                                                                   dtmLigar.StreAvalista,
+                                                                   dtmLigar.dataAtraso,
+                                                                   dtmLigar.ValorAtraso,
+                                                                   dtmLigar.tipoAtendimentoCarta,
+                                                                   dtmLigar.eAvalista
+                                                                    ], 'TfrmCadastroAtendimento', True);
+  end;
+end;
+
+procedure TfrmLigarClientesDadosCliente.SetDataModulo(DataModulo: TdtmLigarClientes);
+begin
+  dtmLigar:= DataModulo;
+end;
+
+procedure TfrmLigarClientesDadosCliente.sbnFichaFinanceiraClick(Sender: TObject);
+begin
+  inherited;
+  TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado([dtmLigar.CodigoCliente,
+                                                                   dtmLigar.TipoCliente], 'TfrmFichaFinanceira', True)
+end;
+
+procedure TfrmLigarClientesDadosCliente.sbnCadastroClientesClick(
+  Sender: TObject);
+begin
+  inherited;
+  if dtmLigar.Tipocliente =  'C' then
+    TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado([dtmLigar.CodigoCliente], 'TfrmCadastroClientes', True)
+  else
+    TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado([dtmLigar.CodigoCliente], 'TfrmCadastroFornecedores', True)
+
+end;
+
+procedure TfrmLigarClientesDadosCliente.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  inherited;
+  OntecClose;
+end;
+
+end.

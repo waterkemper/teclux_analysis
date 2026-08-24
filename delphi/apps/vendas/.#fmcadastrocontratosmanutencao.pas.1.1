@@ -1,0 +1,228 @@
+unit fmcadastrocontratosmanutencao;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmcadastropadrao, ComCtrls, Buttons, ToolWin, ExtCtrls,
+  dmcadastrocontratosmanutencao, StdCtrls, Mask, cpdbfindcontrols,
+  frconsulta, frconsultacodigo, cpnumero, ctconstantes, cpdbdata, DBCtrls,
+  cpdbmemo, Grids, DBGrids, cpdbgrid, fmConsultaBasica, biblio, ActnList;
+
+type
+  TfrmCadastroContratosManutencao = class(TFrmCadastroPadrao)
+    edfNumeroContrato: TtecDbEditFind;
+    gbxNumero: TGroupBox;
+    fraConsultaCliente: TfraConsultaCodigo;
+    gbxConsultaCliente: TGroupBox;
+    gbxDiaVencimento: TGroupBox;
+    edtDiasAtraso: TDBEditNumero;
+    gbxDatadaAssinatura: TGroupBox;
+    edtDataAssinatura: TDBEditData;
+    gbxVigencia: TGroupBox;
+    edtVigencia: TDBEditData;
+    gbxObservacoesMontagem: TGroupBox;
+    mmoObservacoesMontagem: TtecDBMemo;
+    gbxServicosContratosManutencao: TGroupBox;
+    dbgServicos: TtecDBGrid;
+    pnlBotoesProdutosContratos: TPanel;
+    sbnIncluirServico: TSpeedButton;
+    sbnExcluirServico: TSpeedButton;
+    edtValorTotal: TDBEditNumero;
+    lblValorTotal: TLabel;
+    actHabilitar: TActionList;
+    aclAbilitar: TAction;
+    procedure sbnProcurarClick(Sender: TObject);
+    procedure dbgServicosDblClick(Sender: TObject);
+    procedure sbnIncluirServicoClick(Sender: TObject);
+    procedure dbgServicosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnExcluirServicoClick(Sender: TObject);
+    procedure aclAbilitarExecute(Sender: TObject);
+  private
+    { Private declarations }
+  protected
+    ConsultaContratoManutencao : TfraConsultaCodigo;
+    ConsultaServicos : TfraConsultaCodigo;
+
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoIncluir: Boolean; override;
+    procedure AtribuirDadosServicos;
+    procedure AbrirContrato;
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+
+  end;
+
+var
+  frmCadastroContratosManutencao: TfrmCadastroContratosManutencao;
+
+implementation
+
+uses DB;
+
+{$R *.dfm}
+
+{ TfrmCadastroContratosManutencao }
+
+constructor TfrmCadastroContratosManutencao.Create(AOwner: TComponent);
+begin
+  dtmCadastroContratosManutencao := TdtmCadastroContratosManutencao.Create(self);
+  inherited;
+
+  dataset := dtmCadastroContratosManutencao.qryContratosManutencao;
+
+  ConsultaContratoManutencao := TfraConsultaCodigo.Create(self);
+  ConsultaContratoManutencao.Name := 'fraConsultaContratoManutencao';
+  ConsultaContratoManutencao.edfCodigo.DataSource := dtmCadastroContratosManutencao.dsrContratosManutencao;
+  ConsultaContratoManutencao.edfCodigo.DataField := 'numero';
+  ConsultaContratoManutencao.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaContratoManutencao.AbrirTabelaProcura := false;
+  ConsultaContratoManutencao.TipoCliente := 'C';
+  ConsultaContratoManutencao.Tipovfornecedor := 'C';
+  ConsultaContratoManutencao.TipoPesquisa := pesCONTRATOSMANUTENCAO;
+  ConsultaContratoManutencao.OnFound := AbrirContrato;
+
+
+  ConsultaServicos := TfraConsultaCodigo.Create(self);
+  ConsultaServicos.Name := 'fraConsultaServicos';
+  ConsultaServicos.edfCodigo.DataSource := dtmCadastroContratosManutencao.dsrServicosContratosManutencao;
+  ConsultaServicos.edfCodigo.DataField := 'servico';
+  ConsultaServicos.edfCodigo.LookupSource := ConsultaServicos.dsrProcuraServicos;
+  ConsultaServicos.edfCodigo.LookupField := 'codigo';
+  ConsultaServicos.edfCodigo.LookupQueryParameter := 'codigo';
+  ConsultaServicos.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaServicos.AbrirTabelaProcura := false;
+  ConsultaServicos.TipoPesquisa := pesSERVICOS;
+
+  ConsultaServicos.OnFound := AtribuirDadosServicos;
+
+  fraConsultaCliente.TipoCliente := 'C';
+  fraConsultaCliente.TipoPesquisa := pesCLIENTES;
+
+
+
+
+end;
+
+destructor TfrmCadastroContratosManutencao.Destroy;
+begin
+  inherited;
+  frmCadastroContratosManutencao := nil;
+end;
+
+function TfrmCadastroContratosManutencao.InternoExcluir: Boolean;
+begin
+  dtmCadastroContratosManutencao.ExcluirContrato;
+end;
+
+function TfrmCadastroContratosManutencao.InternoGravar: Boolean;
+begin
+  Result := inherited InternoGravar;
+  if result then
+    dtmCadastroContratosManutencao.GravarContrato;
+end;
+
+function TfrmCadastroContratosManutencao.InternoIncluir: Boolean;
+begin
+  Result := inherited InternoIncluir;
+  if CtrlOn then
+  begin
+    if dbgServicos.Focused then
+      Result := dtmCadastroContratosManutencao.IncluirEditarServicosContrato(False)
+  end
+  else
+  begin
+    Result := dtmCadastroContratosManutencao.IncluirContrato;
+    if Result then
+      fraConsultaCliente.edfCodigo.SetFocus;
+  end;
+end;
+
+
+procedure TfrmCadastroContratosManutencao.sbnProcurarClick(
+  Sender: TObject);
+begin
+  inherited;
+  if not CtrlOn then
+  begin
+    ConsultaContratoManutencao.InternoPesquisar('Contratos de Manutenção');
+    self.SetFocus;
+  end;
+end;
+
+procedure TfrmCadastroContratosManutencao.dbgServicosDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  if (dbgServicos.SelectedField = dtmCadastroContratosManutencao.qryServicosContratosManutencaoservico) or
+     (dbgServicos.SelectedField = dtmCadastroContratosManutencao.qryServicosContratosManutencaodescricaoservico) then
+    ConsultaServicos.InternoPesquisar('SERVIÇOS')
+  else
+    dtmCadastroContratosManutencao.IncluirEditarServicosContrato(true);
+end;
+
+procedure TfrmCadastroContratosManutencao.sbnIncluirServicoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroContratosManutencao.IncluirEditarServicosContrato(true);
+end;
+
+procedure TfrmCadastroContratosManutencao.dbgServicosKeyDown(
+  Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (dbgServicos.SelectedField = dtmCadastroContratosManutencao.qryServicosContratosManutencaoservico) or
+     (dbgServicos.SelectedField = dtmCadastroContratosManutencao.qryServicosContratosManutencaodescricaoservico) then
+  begin
+    if (key = VK_F9) and
+       CtrlOn then
+    begin
+      ConsultaServicos.InternoPesquisar('SERVIÇOS');
+      dbgServicos.SetFocus;
+    end
+    else
+    if key = VK_return then
+    begin
+      if ConsultaServicos.edfCodigo.Exist then
+        AtribuirDadosServicos
+    end;
+  end;
+end;
+
+procedure TfrmCadastroContratosManutencao.sbnExcluirServicoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroContratosManutencao.ExcluirServicosContrato;
+end;
+
+procedure TfrmCadastroContratosManutencao.aclAbilitarExecute(
+  Sender: TObject);
+begin
+  inherited;
+  sbnIncluirServico.Enabled := not dtmCadastroContratosManutencao.qryContratosManutencao.IsEmpty;
+  sbnExcluirServico.Enabled := not dtmCadastroContratosManutencao.qryServicosContratosManutencao.IsEmpty;
+end;
+
+procedure TfrmCadastroContratosManutencao.AtribuirDadosServicos;
+begin
+  dtmCadastroContratosManutencao.qryServicosContratosManutencaodescricaoservico.AsString :=
+    ConsultaServicos.qryProcuraServicosdescricao.AsString;
+
+  dtmCadastroContratosManutencao.qryServicosContratosManutencaovalor.AsCurrency :=
+    ConsultaServicos.qryProcuraServicosvalor.AsCurrency;
+end;
+
+procedure TfrmCadastroContratosManutencao.AbrirContrato;
+begin
+  edfNumeroContrato.text := ConsultaContratoManutencao.qryProcuraContratoManutencaonumero.AsString;
+  edfNumeroContrato.Exist;
+end;
+
+end.

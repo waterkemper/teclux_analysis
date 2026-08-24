@@ -1,0 +1,220 @@
+unit dmConsultaProgramacaoEntregaNfe;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, cpdatasource, ZQuery, ZPgSqlQuery,
+  cpquery, dmtecsoft, Variants;
+
+type
+  TdtmConsultaProgramacaoEntregaNfe = class(TdtmBasico)
+    qryProgramacaoEntregaNfe: TtecQuery;
+    dsrProgramacaoEntregaNfe: TtecDataSource;
+    qryProgramacaoEntregaNfeentrega: TDateField;
+    qryProgramacaoEntregaNfefilial: TIntegerField;
+    qryProgramacaoEntregaNfenomefilial: TStringField;
+    qryProgramacaoEntregaNfefornecedor: TIntegerField;
+    qryProgramacaoEntregaNfenomefornecedor: TStringField;
+    qryProgramacaoEntregaNfeserie: TStringField;
+    qryProgramacaoEntregaNfenomefornecedortransporte: TStringField;
+    qryProgramacaoEntregaNferaiz_nomefornecedortransporte: TStringField;
+    qryAtualizarPedidoRecebido: TtecQuery;
+    qryCopia_ProgramacaoEntregaNFe: TtecQuery;
+    IntegerField1: TIntegerField;
+    DateField1: TDateField;
+    IntegerField2: TIntegerField;
+    StringField1: TStringField;
+    IntegerField3: TIntegerField;
+    StringField2: TStringField;
+    StringField3: TStringField;
+    IntegerField4: TIntegerField;
+    StringField4: TStringField;
+    DateTimeField1: TDateTimeField;
+    StringField5: TStringField;
+    IntegerField5: TIntegerField;
+    BooleanField1: TBooleanField;
+    MemoField1: TMemoField;
+    StringField6: TStringField;
+    qryProgramacaoEntregaNfelista_pedidos: TMemoField;
+    qryProgramacaoEntregaNfelista_nrnfes: TMemoField;
+    qryProgramacaoEntregaNfeqvol: TLargeintField;
+    qryPedidos: TtecQuery;
+    dsrPedidos: TtecDataSource;
+    qryPedidosnumero: TIntegerField;
+    qryPedidosrecebido: TBooleanField;
+    qryProgramacaoEntregaNferaiz_cnpjfornecedortransporte: TStringField;
+    procedure DataModuleCreate(Sender: TObject);
+    procedure qryProgramacaoEntregaNfeAfterScroll(DataSet: TDataSet);
+  private
+    FDataInicial: String;
+    FDataFinal: String;
+    { Private declarations }
+  public
+    { Public declarations }
+
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+
+    property DataInicial: String read FDataInicial write FDataInicial;
+    property DataFinal: String read FDataFinal write FDataFinal;
+
+    function GerarConsulta: Boolean;
+
+    procedure MarcarRecebido(Recebido: Boolean);
+
+    function PosicionarRegistro(entrega,filial,nomefornecedor,serie,qvol,raiz_nomefornecedortransporte: String):Boolean;
+    function PosicionarRegistroPedidos(Pedido: String): Boolean;
+
+
+  end;
+
+ {
+var
+  dtmConsultaProgramacaoEntregaNfe: TdtmConsultaProgramacaoEntregaNfe;
+}  
+
+implementation
+
+{$R *.dfm}
+
+constructor TdtmConsultaProgramacaoEntregaNfe.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryProgramacaoEntregaNfe.AfterScroll := nil;
+end;
+
+procedure TdtmConsultaProgramacaoEntregaNfe.DataModuleCreate(
+  Sender: TObject);
+begin
+  inherited;
+  RemoveDataModule(Self);
+end;
+
+destructor TdtmConsultaProgramacaoEntregaNfe.Destroy;
+begin
+
+  inherited;
+end;
+
+function TdtmConsultaProgramacaoEntregaNfe.GerarConsulta: Boolean;
+begin
+  qryProgramacaoEntregaNfe.AfterScroll := nil;
+
+  qryProgramacaoEntregaNfe.close;
+  
+  if (DataInicial<>'') and (datafinal<>'') then
+    qryProgramacaoEntregaNfe.MacroByName('IntervaloEntregas').asString :=
+    format(' and pe.entrega between %s and %s',
+      [quotedstr(FormatDateTime('yyyy-MM-dd',strtodate(datainicial))),
+       quotedstr(FormatDateTime('yyyy-MM-dd',strtodate(datafinal)))])
+  else
+  if (DataInicial<>'') and (datafinal='') then
+    qryProgramacaoEntregaNfe.MacroByName('IntervaloEntregas').asString :=
+    format(' and pe.entrega >= %s ',
+      [quotedstr(FormatDateTime('yyyy-MM-dd',strtodate(datainicial)))])
+  else
+  if (DataInicial='') and (datafinal<>'') then
+    qryProgramacaoEntregaNfe.MacroByName('IntervaloEntregas').asString :=
+    format(' and pe.entrega <= %s ',
+      [quotedstr(FormatDateTime('yyyy-MM-dd',strtodate(datafinal)))])
+  else
+  if (DataInicial='') and (datafinal='') then
+    qryProgramacaoEntregaNfe.MacroByName('IntervaloEntregas').asString := '';
+
+
+  qryProgramacaoEntregaNfe.open;
+
+
+  result := qryProgramacaoEntregaNfe.recordcount <> 0;
+
+  if result then
+  begin
+    qryProgramacaoEntregaNfe.first;
+    qryProgramacaoEntregaNfe.AfterScroll := qryProgramacaoEntregaNfeAfterScroll;
+  end;
+
+
+
+end;
+
+procedure TdtmConsultaProgramacaoEntregaNfe.MarcarRecebido(
+  Recebido: Boolean);
+begin
+                            (*
+  qryProgramacaoEntregaNfe.edit;
+  qryProgramacaoEntregaNferecebido.asBoolean := not qryProgramacaoEntregaNferecebido.asBoolean;
+  qryProgramacaoEntregaNfe.post;
+
+  qryAtualizarPedidoRecebido.ParamByName('Recebido').AsBoolean := Recebido;
+
+{  qryAtualizarPedidoRecebido.ParamByName('pedido').AsInteger := qryProgramacaoEntregaNfepedido.asInteger;}
+  qryAtualizarPedidoRecebido.ExecSql;*)
+
+  qryPedidos.edit;
+  qryPedidosrecebido.asBoolean := not qryPedidosrecebido.asBoolean;
+  qryPedidos.post;
+
+  perpetrar([qryPedidos]);
+
+end;
+
+function TdtmConsultaProgramacaoEntregaNfe.PosicionarRegistro(entrega,
+  filial, nomefornecedor, serie, qvol,
+  raiz_nomefornecedortransporte: String): Boolean;
+begin
+  result := False;
+  if (filial<>'') then
+  begin
+    if raiz_nomefornecedortransporte='' then
+    begin
+      if qryProgramacaoEntregaNfe.Locate(
+         'entrega;filial;nomefornecedor;serie;qvol;raiz_nomefornecedortransporte',
+          VarArrayOf([strtodate(entrega),strtoint(filial),nomefornecedor,serie,StrToInt64(qvol),null]), []) then
+       result := true;
+    end
+    else
+    if qryProgramacaoEntregaNfe.Locate(
+       'entrega;filial;nomefornecedor;serie;qvol;raiz_nomefornecedortransporte',
+        VarArrayOf([strtodate(entrega),strtoint(filial),nomefornecedor,serie,StrToInt64(qvol),raiz_nomefornecedortransporte]), []) then
+     result := true;
+  end;
+
+ if not result then
+ begin
+  qryPedidos.close;
+  qryPedidos.MacroByName('Lista_de_Pedidos').asString := '0';
+  qryPedidos.open;
+ end;
+
+end;
+
+function TdtmConsultaProgramacaoEntregaNfe.PosicionarRegistroPedidos(
+  Pedido: String): Boolean;
+begin
+  result := False;
+  if (Pedido<>'') then
+  begin
+    if qryPedidos.Locate('numero', pedido, []) then
+     result := true;
+  end;
+
+end;
+
+procedure TdtmConsultaProgramacaoEntregaNfe.qryProgramacaoEntregaNfeAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryProgramacaoEntregaNfe.recordcount<> 0 then
+  begin
+
+    qryPedidos.close;
+    if qryProgramacaoEntregaNfelista_pedidos.asString<>'' then
+      qryPedidos.MacroByName('Lista_de_Pedidos').asString := qryProgramacaoEntregaNfelista_pedidos.asString
+    else
+      qryPedidos.MacroByName('Lista_de_Pedidos').asString := '0';
+    qryPedidos.open;
+  end;  
+
+end;
+
+end.

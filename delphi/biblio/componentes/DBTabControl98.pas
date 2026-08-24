@@ -1,0 +1,354 @@
+////////////////////////////////////////////////////////////////////////////////
+// DBTABCONTROL98                                                             //
+////////////////////////////////////////////////////////////////////////////////
+// Enhanced Db TabControl for D2 & D3                                         //
+// * Image List, Right & Left Tabs, ...                                       //
+////////////////////////////////////////////////////////////////////////////////
+// Version 1.70 Beta                                                          //
+// Date de création           : 08/07/1997                                    //
+// Date dernière modification : 21/07/1997                                    //
+////////////////////////////////////////////////////////////////////////////////
+// Jean-Luc Mattei                                                            //
+// jlucm@club-internet.fr                                                     //
+////////////////////////////////////////////////////////////////////////////////
+//  REVISIONS :                                                               //
+//                                                                            //
+//  1.60 : * Removed unused properties                                        //
+//         * Some declaration modified for D2 compatibility                   //
+//           (thanks to Gerhard Volk - again - for all the tests :-))         //
+//         * Unified version number                                           //
+//         * Create constructor modified (no parent window bug)               //
+//  1.70 : * See TabControl98 for changes                                     //
+////////////////////////////////////////////////////////////////////////////////
+
+unit DBTabControl98;
+
+interface
+
+{$R *.DCR}
+
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Forms, Controls, Dialogs,
+  CommCtrl, ComCtrls, DB, ExtActns;
+
+type
+
+  TCustomDBTabControl98 = class;
+
+  TTabDataLink = class(TDataLink)
+  private
+    FTab: TCustomDBTabControl98;
+    FModified: Boolean;
+    FInUpdateData: Boolean;
+  protected
+    procedure ActiveChanged; override;
+    procedure DataSetChanged; override;
+    procedure DataSetScrolled(Distance: Integer); override;
+    procedure RecordChanged(Field: TField); override;
+    procedure UpdateData; override;
+  public
+    constructor Create(ATab: TCustomDBTabControl98);
+    destructor Destroy; override;
+    procedure Modified;
+    procedure Reset;
+  end;
+
+  TCustomDBTabControl98 = class(TCustomTabControl)
+  private
+    FDataLink: TTabDataLink;
+    FColorFieldName : String;
+    FFieldName : String;
+    FIconFieldName : String;
+    procedure SetFieldName(const Value: String);
+    procedure SetColorFieldName(const Value: String);
+    procedure SetIconFieldName(const Value: String);
+    procedure SetDataSource(Value: TDataSource);
+    function  GetDataSource: TDataSource;
+  protected
+//    procedure DrawTab(TabNdx: Integer; const Rect: TRect); override;
+    procedure DrawTab(TabIndex: Integer; const Rect: TRect; Active: Boolean); override;
+    procedure Change; override;
+    procedure LinkActive(Active: Boolean);
+  public
+    constructor Create (AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure ReCreateTabs;
+
+    property ColorFieldName: String read FColorFieldName write SetColorFieldName;
+    property FieldName: String read FFieldName write SetFieldName;
+    property IconFieldName: String read FIconFieldName write SetIconFieldName;
+    property DataSource: TDataSource read GetDataSource write SetDataSource;
+  end;
+
+  TDBTabControl98 = class(TCustomDBTabControl98)
+  published
+    property Color;
+    property ColorFieldName;
+    property FieldName;
+    property IconFieldName;
+    property DataSource;
+
+//    property DefaultDrawing;
+//    property DrawStyle;
+    property Images;
+    property MultiSelect;
+    property TabPosition;
+    {$ifndef VER100}
+//    property TabType;
+    {$endif}
+    property HotTrack;
+//    property TabStyle;
+//    property TabJustification;
+    property OnDrawTab;
+//    property OnMeasureTab;
+//    property OnGetTabColor;
+
+    property Align;
+    property DragCursor;
+    property DragMode;
+    property Enabled;
+    property Font;
+    property MultiLine;
+    property ParentFont;
+    property ParentShowHint;
+    property PopupMenu;
+    {$ifdef VER100}
+    property ScrollOpposite;
+    {$endif}
+    property ShowHint;
+    property TabHeight;
+    property TabIndex;
+    property TabOrder;
+    //property TabPosition;
+    property Tabs;
+    property TabStop;
+    property TabWidth;
+    property Visible;
+    property OnChange;
+    property OnChanging;
+    property OnDragDrop;
+    property OnDragOver;
+    property OnEndDrag;
+    property OnEnter;
+    property OnExit;
+    property OnMouseDown;
+    property OnMouseMove;
+    property OnMouseUp;
+    property OnStartDrag;
+  end;
+
+//procedure Register;
+
+implementation
+
+Uses {Utilcolr,} {DsgnIntf,} TypInfo;
+
+{ TDBStringProperty }
+
+type
+  TDBStringProperty = class(TStringProperty)
+  public
+    function GetAttributes: TPropertyAttributes; override;
+    procedure GetValueList(List: TStrings); virtual; abstract;
+    procedure GetValues(Proc: TGetStrProc); override;
+  end;
+
+function TDBStringProperty.GetAttributes: TPropertyAttributes;
+begin
+  Result := [paValueList, paSortList, paMultiSelect];
+end;
+
+procedure TDBStringProperty.GetValues(Proc: TGetStrProc);
+var
+  I: Integer;
+  Values: TStringList;
+begin
+  Values := TStringList.Create;
+  try
+    GetValueList(Values);
+    for I := 0 to Values.Count - 1 do Proc(Values[I]);
+  finally
+    Values.Free;
+  end;
+end;
+
+{ TDataFieldProperty }
+
+
+{
+procedure Register;
+begin
+  RegisterComponents('Exemples', [TDBTabControl98]);
+  RegisterPropertyEditor(TypeInfo(string), TDBTabControl98, 'FieldName', TDataFieldProperty);
+  RegisterPropertyEditor(TypeInfo(string), TDBTabControl98, 'IconFieldName', TDataFieldProperty);
+  RegisterPropertyEditor(TypeInfo(string), TDBTabControl98, 'ColorFieldName', TDataFieldProperty);
+end;
+}
+
+constructor TTabDataLink.Create(ATab: TCustomDBTabControl98);
+begin
+  inherited Create;
+  FTab := ATab;
+end;
+
+destructor TTabDataLink.Destroy;
+begin
+  inherited Destroy;
+end;
+
+procedure TTabDataLink.ActiveChanged;
+begin
+  FTab.LinkActive(Active);
+end;
+
+procedure TTabDataLink.Modified;
+begin
+  FModified := True;
+end;
+
+procedure TTabDataLink.DataSetChanged;
+begin
+  //FTab.DataChanged;
+  FModified := False;
+end;
+
+procedure TTabDataLink.DataSetScrolled(Distance: Integer);
+begin
+  //FTab.ScrollData(Distance);
+end;
+
+procedure TTabDataLink.RecordChanged(Field: TField);
+begin
+  //FTab.RecordChanged(Field);
+  FModified := False;
+end;
+
+procedure TTabDataLink.UpdateData;
+begin
+  FInUpdateData := True;
+  try
+    //if FModified then FTab.UpdateData;
+    FModified := False;
+  finally
+    FInUpdateData := False;
+  end;
+end;
+
+procedure TTabDataLink.Reset;
+begin
+  if FModified then RecordChanged(nil) else Dataset.Cancel;
+end;
+
+
+//procedure TCustomDBTabControl98.DrawTab(TabNdx: Integer; const Rect: TRect);
+procedure TCustomDBTabControl98.DrawTab(TabIndex: Integer; const Rect: TRect; Active: Boolean); override;
+Var LogRec: TLOGFONT;
+    OldFont,
+    NewFont: HFONT;
+    OldPos: Integer;
+begin
+  with Canvas do begin
+    if (FieldName <> '' ) and ( ColorFieldName <> '' ) and ( FDataLink <> nil ) and (FDataLink.DataSet <> nil ) and FDataLink.Active then begin
+      FDataLink.DataSet.DisableControls;
+      FDataLink.DataSet.DisableControls;
+      OldPos:= FDataLink.DataSet.RecNo;
+      FDataLink.DataSet.First;
+      FDataLink.DataSet.MoveBy(TabNdx);
+      Canvas.Font.Color:= GetColor(FDataLink.DataSet.FieldbyName(ColorFieldName).AsInteger);
+      FDataLink.DataSet.First;
+      FDataLink.DataSet.MoveBy(OldPos);
+      FDataLink.DataSet.EnableControls;
+    end;
+    inherited DrawTab(TabNdx, Rect);
+  end;
+end;
+
+constructor TCustomDBTabControl98.Create (AOwner: TComponent);
+begin
+  inherited Create (AOwner);
+  FDataLink:= TTabDataLink.Create(Self);
+end;
+
+destructor TCustomDBTabControl98.Destroy;
+begin
+  FDataLink.Free;
+  inherited Destroy;
+end;
+
+function TCustomDBTabControl98.GetDataSource: TDataSource;
+begin
+  Result := FDataLink.DataSource;
+end;
+
+procedure TCustomDBTabControl98.SetDataSource(Value: TDataSource);
+begin
+  FDataLink.DataSource:= Value;
+end;
+
+procedure TCustomDBTabControl98.SetColorFieldName(const Value: string);
+begin
+  if ( FColorFieldName <> Value ) then begin
+    FColorFieldName := Value;
+    Invalidate;
+  end;
+end;
+
+procedure TCustomDBTabControl98.SetIconFieldName(const Value: string);
+begin
+  if ( FIconFieldName <> Value ) then begin
+    FIconFieldName := Value;
+    RecreateTabs;
+  end;
+end;
+
+procedure TCustomDBTabControl98.SetFieldName(const Value: string);
+begin
+  if ( FFieldName <> Value ) then begin
+    FFieldName := Value;
+    RecreateTabs;
+  end;
+end;
+
+procedure TCustomDBTabControl98.Change;
+begin
+  if ( FDataLink <> nil ) and ( FDataLink.DataSet <> nil ) and ( FDataLink.Active ) and ( FFieldName <> '' ) then begin
+    FDataLink.DataSet.Locate(FFieldName, Tabs[TabIndex], []);
+    if Assigned (OnChange) then OnChange(Self);
+  end;
+end;
+
+procedure TCustomDBTabControl98.ReCreateTabs;
+Var Bk : TBookmark;
+    Chaine : String;
+    OldTabIndex: Integer;
+begin
+  OldTabIndex:= TabIndex;
+  Tabs.Clear;
+  if ( FDataLink <> nil ) and ( FDataLink.DataSet <> nil ) then begin
+    if ( FDataLink.Active ) then begin
+      FDataLink.DataSet.DisableControls;
+      FDataLink.DataSet.First;
+      while Not ( FDataLink.DataSet.EOF ) do begin
+        Chaine:= '';
+        if ( FieldName <> '' ) then
+          Chaine:= FDataLink.DataSet.FieldByName(FieldName).AsString;
+        Tabs.Add ( Chaine );
+        if ( Images <> nil ) and ( FIconFieldName <> '' ) then
+          Image[Tabs.Count-1]:= FDataLink.DataSet.FieldByName(IconFieldName).AsInteger;
+        FDataLink.DataSet.Next;
+      end;
+      FDataLink.DataSet.EnableControls;
+    end;
+  end;
+  if ( Tabs.Count > OldTabIndex ) then
+    TabIndex:= OldTabIndex;
+  DrawStyle:= tdOwnerDrawFixed;
+  Invalidate;
+end;
+
+procedure TCustomDBTabControl98.LinkActive(Active: Boolean);
+begin
+  RecreateTabs;
+end;
+
+end.

@@ -1,0 +1,316 @@
+unit fmrelatoriorequisicoespormontador;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  fmrelatoriopadrao, ExtCtrls, Buttons, StdCtrls, cpdata, Mask,
+  cpdbfindcontrols, DBCtrls, cpdbtext,
+  fmconsultabasica, fmconsultaporcampo,
+  zquery,
+  ctconstantes,
+  Biblio, ComCtrls, cppagecontrol;
+
+type
+  TfrmRelatorioRequisicoesporMontador = class(TfrmRelatorioPadrao)
+    gbxCliente: TGroupBox;
+    sbnProcuraCliente: TSpeedButton;
+    dtxCliente: TtecDBText;
+    edfCliente: TtecDbEditFind;
+    gbxPeriodo: TGroupBox;
+    lblVencimentoInicial: TLabel;
+    edtDataInicial: TEditData;
+    lblVencimentoFinal: TLabel;
+    edtDataFinal: TEditData;
+    gbxMontador: TGroupBox;
+    sbnProcuraMontador: TSpeedButton;
+    dtxMontador: TtecDBText;
+    edfMontador: TtecDbEditFind;
+    rgpResumo: TRadioGroup;
+    rgpSituacaoPagto: TRadioGroup;
+    rgpSituacaodaMontagem: TRadioGroup;
+    pgcFilialGrupoFilial: TtecPageControl;
+    tstFilial: TTabSheet;
+    sbnConsultaFilial: TSpeedButton;
+    edfFilial: TtecDbEditFind;
+    dtxFilial: TtecDBText;
+    tstGrupoFilial: TTabSheet;
+    sbnConsultaGrupoFilial: TSpeedButton;
+    edfGrupoFilial: TtecDbEditFind;
+    dtxGrupoFilial: TtecDBText;
+    gbxAgrupamento: TGroupBox;
+    ckbAgruparGrupoFilial: TCheckBox;
+    ckbAgruparFilial: TCheckBox;
+    ckbAgruparMontador: TCheckBox;
+    gbxItensRequisicoes: TGroupBox;
+    ckbRequisicoesItensMontagemFechada: TCheckBox;
+    ckbRequisicoesItensPagtoFechado: TCheckBox;
+    gbxPeriodoPagamento: TGroupBox;
+    Label1: TLabel;
+    edtDataInicialPagamento: TEditData;
+    Label2: TLabel;
+    edtDataFinalPagamento: TEditData;
+    GroupBox1: TGroupBox;
+    Label3: TLabel;
+    edtDataInicialFechamento: TEditData;
+    Label4: TLabel;
+    edtDataFinalFechamento: TEditData;
+    procedure sbnProcuraClienteClick(Sender: TObject);
+    procedure sbnProcuraMontadorClick(Sender: TObject);
+    procedure pgcFilialGrupoFilialChange(Sender: TObject);
+    procedure sbnConsultaFilialClick(Sender: TObject);
+    procedure sbnConsultaGrupoFilialClick(Sender: TObject);
+  private
+    { Private declarations }
+  protected
+   procedure InternoImpressao; override;
+   function  InternoPesquisar(Titulo: String): Integer; override;
+   function  JanelaPesquisa: TfrmConsultaBasica; override;
+   function  TabelaDePesquisa: TZDataSet; override;
+   function  PermitirProcura: Boolean;
+   function  TituloPesquisa(Tipo: TipoProcuraRequisicoes): String;
+   function  ValidarCamposSelecao: Boolean;
+   procedure MontaPesquisa;
+   procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+   function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+  public
+    { Public declarations }
+   tipoprocura: TipoProcuraRequisicoes;
+   constructor Create(AOwner: TComponent); override;
+   destructor Destroy; override;
+  end;
+
+var
+  frmRelatorioRequisicoesporMontador: TfrmRelatorioRequisicoesporMontador;
+
+implementation
+
+uses dmrelatoriorequisicoespormontador, dmbasico;
+
+{$R *.dfm}
+
+{ TfrmRelatorioRequisicoesporMontador }
+
+constructor TfrmRelatorioRequisicoesporMontador.Create(AOwner: TComponent);
+begin
+  dtmRelatorioRequisicoesporMontador:= TdtmRelatorioRequisicoesporMontador.Create(Self);
+  inherited;
+  edtDataInicial.Text:=datetostr(dtmRelatorioRequisicoesporMontador.DataServidor);
+  edtDataFinal.Text:=datetostr(dtmRelatorioRequisicoesporMontador.DataServidor);
+end;
+
+destructor TfrmRelatorioRequisicoesporMontador.Destroy;
+begin
+  dtmRelatorioRequisicoesporMontador:=nil;
+  inherited;
+  frmRelatorioRequisicoesporMontador:=nil;
+end;
+
+function TfrmRelatorioRequisicoesporMontador.ExisteInformacao(
+  Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  result := false;
+  with dtmRelatorioRequisicoesporMontador do
+  if CtrlOn then
+   case tipoprocura of
+    tpRequisicoesClientes   :result := ExisteCliente(NomeCampo, Value);
+    tpRequisicoesMontadores :result := ExisteMontador(NomeCampo, Value);
+   end;
+end;
+
+function TfrmRelatorioRequisicoesporMontador.InternoPesquisar(
+  Titulo: String): Integer;
+begin
+  if PermitirProcura then
+  begin
+   with dtmRelatorioRequisicoesporMontador do
+   begin
+    AbreTabelaPesquisa(tipoprocura);
+    Titulo := TituloPesquisa(tipoprocura);
+    result:=inherited internopesquisar(Titulo);
+    if Result = mrOK then
+      Selecionar(tipoProcura);
+    FechaTabelaPesquisa(tipoprocura);
+   end;
+  end
+  else
+   Result := mrNone
+end;
+
+function TfrmRelatorioRequisicoesporMontador.JanelaPesquisa: TfrmConsultaBasica;
+var
+  Jan: TfrmConsultaPorCampo;
+begin
+  Jan := TfrmConsultaPorCampo.Create(nil);
+  Jan.ConsultaInterativa := Not (TipoProcura in [tpRequisicoesClientes]) and CtrlOn;
+  Result := Jan
+end;
+
+procedure TfrmRelatorioRequisicoesporMontador.KeyDown(var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+
+end;
+
+function TfrmRelatorioRequisicoesporMontador.PermitirProcura: Boolean;
+begin
+  Result := False;
+  if CtrlOn then
+  begin
+    if edfCliente.Focused then begin
+      Result := True;
+      tipoProcura := tpRequisicoesClientes;
+    end;
+    if edfMontador.Focused then begin
+      Result := True;
+      tipoProcura := tpRequisicoesMontadores;
+    end;
+    if edfFilial.Focused then begin
+     Result := True;
+     tipoProcura := tpRequisicoesFiliaisdeMontagem;
+    end;
+    if edfGrupoFilial.Focused then begin
+      Result := True;
+      tipoprocura := tpRequisicoesGrupoFiliaisdeMontagem;
+    end;
+  end;
+end;
+
+function TfrmRelatorioRequisicoesporMontador.TabelaDePesquisa: TZDataSet;
+begin
+  Result := inherited TabelaDePesquisa;
+  with dtmRelatorioRequisicoesporMontador do
+  Case tipoprocura of
+  tpRequisicoesClientes                :result := ConsultaClientes;
+  tpRequisicoesMontadores              :result := ConsultaMontadores;
+  tpRequisicoesFiliaisdeMontagem       :result := ConsultaFilial;
+  tpRequisicoesGrupoFiliaisdeMontagem  :result := ConsultaGrupoFilial; 
+  end;
+end;
+
+function TfrmRelatorioRequisicoesporMontador.TituloPesquisa(
+  Tipo: TipoProcuraRequisicoes): String;
+begin
+  Case tipo of
+   tpRequisicoesClientes    :result := ctCLIENTES;
+   tpRequisicoesMontadores  :result := ctMONTADORES;
+   tpRequisicoesFiliaisdeMontagem :result := ctFILIAISMONTAGEM;
+   tpRequisicoesGrupoFiliaisdeMontagem :result := ctGRUPOFILIAIS;
+  end;
+end;
+
+procedure TfrmRelatorioRequisicoesporMontador.sbnProcuraClienteClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfcliente, ctCLIENTES)
+end;
+
+procedure TfrmRelatorioRequisicoesporMontador.sbnProcuraMontadorClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfMontador, ctMONTADORES)
+end;
+
+procedure TfrmRelatorioRequisicoesporMontador.InternoImpressao;
+begin
+  inherited;
+  MontaPesquisa;
+end;
+
+procedure TfrmRelatorioRequisicoesporMontador.MontaPesquisa;
+begin
+if ValidarCamposSelecao then
+begin
+ with dtmRelatorioRequisicoesporMontador do
+ begin
+  ParametroCabecalho      :='';
+  DataInicial             := edtDataInicial.Text;
+  DataFinal               := edtDataFinal.Text;
+  DataInicialFechamento   := edtDataInicialFechamento.Text;
+  DataFinalFechamento     := edtDataFinalFechamento.Text;
+  DataInicialPagamento    := edtDataInicialPagamento.Text;
+  DataFinalPagamento      := edtDataFinalPagamento.Text;
+  Filiais                 := edfFilial.Text;
+  GrupoFiliais            := edfGrupoFilial.Text;
+  Cliente                 := edfCliente.Text;
+  Montador                := edfMontador.Text;
+  Resumo                  := rgpResumo.ItemIndex;
+  SituacaodoPagto         := rgpSituacaoPagto.ItemIndex;
+  SituacaodaMontagem      := rgpSituacaodaMontagem.ItemIndex;
+  SituacaoRequisicaoItemPagto:=ckbRequisicoesItensPagtoFechado.Checked;
+  SituacaoRequisicaoItemMontagem:=ckbRequisicoesItensMontagemFechada.Checked;
+  AgruparGrupoFilial  := ckbAgruparGrupoFilial.Checked;
+  AgruparFilial       := ckbAgruparFilial.Checked;
+  AgruparMontador     := ckbAgruparMontador.Checked;
+  MontarOrdenacao;
+  ReFazConsulta(qryRequisicoes,[],[]);
+  if (qryRequisicoes.IsEmpty) then
+  begin
+   MensagemAviso(Format(ctNENHUMREGISTROENCONTRADO,['Registro']));
+   edfCliente.setFocus;
+  end
+  else
+   ImprimirRelatorio('REQUISICOES POR MONTADOR');
+ end;
+end;
+end;
+
+function TfrmRelatorioRequisicoesporMontador.ValidarCamposSelecao: Boolean;
+begin
+  Result := (edtDataInicial.DataValida and edtDataFinal.DataValida);
+  if Result then
+  begin
+   if (not dataembranco(edtDataInicial.text) and not dataembranco(edtDataFinal.text)) then
+     Result:=StrToDate(edtDataInicial.Text) <= StrToDate(edtDataFinal.Text);
+   if result then
+   begin
+     Result:=(not dataembranco(edtDataInicial.text) or not dataembranco(edtDataFinal.text));
+     if Result then
+            Result := OperadorTernario((Trim(edfCliente.Text) <> ''),edfCliente.Exist, True) and
+                      OperadorTernario((Trim(edfMontador.Text) <> ''), edfMontador.Exist, True)
+     else
+     begin
+      MensagemAviso(ctDATAINVALIDA);
+      edtDataInicial.SetFocus;
+     end;
+   end
+   else
+   begin
+      MensagemAviso(ctDTINICIALMAIORDTFINAL);
+      edtDataInicial.SetFocus;
+   end;
+  end;
+end;
+
+procedure TfrmRelatorioRequisicoesporMontador.pgcFilialGrupoFilialChange(
+  Sender: TObject);
+begin
+  inherited;
+  if pgcFilialGrupoFilial.ActivePage = tstFilial then begin
+    edfGrupoFilial.Clear;
+    edfFilial.setFocus;
+  end
+  else begin
+    edfFilial.Clear;
+    edfGrupoFilial.setFocus;
+  end;
+end;
+
+procedure TfrmRelatorioRequisicoesporMontador.sbnConsultaFilialClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfFilial, ctFILIAIS);
+end;
+
+procedure TfrmRelatorioRequisicoesporMontador.sbnConsultaGrupoFilialClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfGrupoFilial, ctGRUPOFILIAIS);
+end;
+
+end.

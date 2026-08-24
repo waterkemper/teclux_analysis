@@ -1,0 +1,231 @@
+
+unit dmrelatoriosituacaoavp;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, ctconstantes, dmtecsoft, FR_DSet,
+  FR_DBSet, FR_Class, biblio, clparametrossistema, fmpreviewpadrao,
+  FR_Desgn, StdCtrls, Variants, Graphics, DB, cpdatasource, ZQuery,
+  ZPgSqlQuery, cpquery, ZTransact, dateutils, frxClass, frxDBSet;
+
+type
+  Tdtmrelatoriosituacaoavp = class(TdtmBasico)
+    qryRelatoriosituacaoavp: TtecQuery;
+    dsrRelatoriosituacaoavp: TtecDataSource;
+    frxRelatoriosituacaoavp: TfrxReport;
+    frxDBRelatoriosituacaoavp_: TfrxDBDataset;
+    frxDBRelatoriosituacaoavp: TfrxDBDataset;
+    qryRelatoriosituacaoavpcontrato: TIntegerField;
+    qryRelatoriosituacaoavpdata: TDateField;
+    qryRelatoriosituacaoavpempreendimento: TIntegerField;
+    qryRelatoriosituacaoavpnomeempreendimento: TStringField;
+    qryRelatoriosituacaoavpcliente: TIntegerField;
+    qryRelatoriosituacaoavpnomecliente: TStringField;
+    qryRelatoriosituacaoavpsaldodevedor: TFloatField;
+    qryRelatoriosituacaoavpsaldoinicialcp: TFloatField;
+    qryRelatoriosituacaoavpsaldoiniciallp: TFloatField;
+    qryRelatoriosituacaoavpmaiscp: TFloatField;
+    qryRelatoriosituacaoavpmaislp: TFloatField;
+    qryRelatoriosituacaoavpmenoscp: TFloatField;
+    qryRelatoriosituacaoavpmenoslp: TFloatField;
+    qryRelatoriosituacaoavpsaldofinalcp: TFloatField;
+    qryRelatoriosituacaoavpsaldofinallp: TFloatField;
+    qryRelatoriosituacaoavpvalorcp: TFloatField;
+    qryRelatoriosituacaoavpvalorlp: TFloatField;
+    qryRelatoriosituacaoavpsiglaempreendimento: TStringField;
+    procedure qryRelatoriosituacaoavpBeforeOpen(DataSet: TDataSet);
+    procedure frxRelatoriosituacaoavpGetValue(const VarName: String;
+      var Value: Variant);
+  private
+    FCliente: Integer;
+    FEmpreendimento: Integer;
+    FDataInicial: TDateTime;
+    FDataFinal: TDateTime;
+    FContaPagto: integer;
+    fVendidos: Boolean;
+    fTransferidos: Boolean;
+    fRescindidos: Boolean;
+    fRenegociados: Boolean;
+    FDataSituacaoEm: TDateTime;
+    fOrdenacao: String;
+    fOrdenacaoI : Integer;
+    procedure setOrdenacao(const Value: Integer);
+    { Private declarations }
+  public
+    { Public declarations }
+    fParametroCabecalho: String;
+    property DataInicial : TDateTime read FDataInicial write FDataInicial;
+    property DataFinal : TDateTime read FDataFinal write FDataFinal;
+
+
+    property DataSituacaoEm : TDateTime read FDataSituacaoEm write FDataSituacaoEm;
+
+    property Empreendimento : Integer read FEmpreendimento write FEmpreendimento;
+    property Cliente : Integer read FCliente write FCliente;
+    property ContaPagto : integer read FContaPagto write FContaPagto;
+
+    property Vendidos     : Boolean read fVendidos     write fVendidos;
+    property Rescindidos  : Boolean read fRescindidos  write fRescindidos;
+    property Transferidos : Boolean read fTransferidos write fTransferidos;
+    property Renegociados : Boolean read fRenegociados write fRenegociados;
+    property Ordenacao    : Integer write setOrdenacao;
+
+    procedure ImprimirRelatorio;
+  end;
+
+var
+  dtmrelatoriosituacaoavp: Tdtmrelatoriosituacaoavp;
+
+implementation
+
+{$R *.dfm}
+
+procedure Tdtmrelatoriosituacaoavp.ImprimirRelatorio;
+var
+  PV: TfrxComponent;
+begin
+
+  qryRelatoriosituacaoavp.Close;
+  qryRelatoriosituacaoavp.Open;
+
+  AtribuirParametrosBaseRelatorio;
+
+  if FileExists(LogotipoFilialBase) then
+  begin
+    PV := frxRelatoriosituacaoavp.FindObject('fpvLogo');
+    if (PV is TfrxPictureView) then
+      TfrxPictureView(PV).picture.LoadFromFile(LogotipoFilialBase);
+  end;
+
+//  frxRelatoriosituacaoavp.DesignReport(true,true);
+
+  frxRelatoriosituacaoavp.ShowReport(true);
+
+
+end;
+
+
+procedure Tdtmrelatoriosituacaoavp.qryRelatoriosituacaoavpBeforeOpen(
+  DataSet: TDataSet);
+var
+ vListaSituacao, vDescricaoListaSituacao: String;
+begin
+  inherited;
+  qryRelatoriosituacaoavp.ParamByName('DataInicial').AsDateTime:= DataInicial;
+  qryRelatoriosituacaoavp.ParamByName('DataFinal').AsDateTime  := DataFinal;
+
+  qryRelatoriosituacaoavp.ParamByName('DataSituacaoEm').AsDateTime  := DataSituacaoEm;
+{  qryRelatoriosituacaoavp.ParamByName('exercicio').AsInteger  := YearOf(FDataSituacaoEm);}
+
+  if FEmpreendimento > 0 then
+    qryRelatoriosituacaoavp.MacroByName('WhereEmpreendimentos').AsString:= 'AND vi.empreendimento = '+IntToStr(FEmpreendimento)
+  else
+    qryRelatoriosituacaoavp.MacroByName('WhereEmpreendimentos').AsString:= '';
+
+  if FCliente > 0 then
+    qryRelatoriosituacaoavp.MacroByName('WhereClientes').AsString:= 'and comp.cliente = ' + inttostr(FCliente)
+  else
+    qryRelatoriosituacaoavp.MacroByName('WhereClientes').AsString:= '';
+
+  vListaSituacao := '';
+
+  if Vendidos then
+    vListaSituacao := vListaSituacao + quotedstr('V')+',';
+
+  if Rescindidos then
+    vListaSituacao := vListaSituacao + quotedstr('S')+',';
+
+  if Transferidos then
+    vListaSituacao := vListaSituacao + quotedstr('F')+',';
+
+  if Renegociados then
+    vListaSituacao := vListaSituacao + quotedstr('D')+',';
+
+  if vListaSituacao <> '' then
+    delete(vListaSituacao, length(vListaSituacao), 1); 
+
+  vDescricaoListaSituacao := '';
+  if vListaSituacao <> '' then
+  begin
+    qryRelatoriosituacaoavp.MacroByName('ListaSituacao').AsString:= 'and vi.situacao in ('+vListaSituacao+')';
+    if Vendidos         then vDescricaoListaSituacao:= vDescricaoListaSituacao + ' VENDIDOS,';
+    if Rescindidos      then vDescricaoListaSituacao:= vDescricaoListaSituacao + ' RESCINDIDOS,';
+    if Transferidos {De}   then vDescricaoListaSituacao:= vDescricaoListaSituacao + ' TRANSFERIDOS,';
+    if Renegociados {De}   then vDescricaoListaSituacao:= vDescricaoListaSituacao + ' RENEGOCIADOS,';
+    Delete(vDescricaoListaSituacao,Length(vDescricaoListaSituacao),1);
+  end
+  else
+  begin
+    qryRelatoriosituacaoavp.MacroByName('ListaSituacao').AsString:= 'and vi.situacao in ('+'''V'',''S'',''F'',''D'''+')';
+    vDescricaoListaSituacao := 'VENDIDOS, RESCINDIDOS, TRANSFERIDOS, RENEGOCIADOS';
+  end;
+
+  fParametroCabecalho := fParametroCabecalho + ' Situações: '+vDescricaoListaSituacao;
+
+  {
+    Ver com LÚCIO a questão do Quitado
+
+  [V]endido
+  Re[S]cindido
+
+  [T]ransferido para
+  trans[F]erido de
+
+  Rene[G]ociado para
+  Renegocia[D]o de
+
+  [R]eservado
+  [C]ancelado
+  [Q]uitado
+  }
+
+  qryRelatoriosituacaoavp.MacroByName('Ordenacao').AsString:= fordenacao;
+
+
+end;
+
+procedure Tdtmrelatoriosituacaoavp.setOrdenacao(
+  const Value: Integer);
+begin
+
+  fOrdenacaoI := value;
+  case value of
+  0: fordenacao := 'order by /*situacao,*/ TO_ASCII(nomeempreendimento, ''LATIN1''), contrato ';
+  1: fordenacao := 'order by /*situacao,*/ contrato';
+  2: fordenacao := 'order by /*situacao,*/ TO_ASCII(nomecliente, ''LATIN1''), cliente, contrato';
+  end;
+end;
+
+procedure Tdtmrelatoriosituacaoavp.frxRelatoriosituacaoavpGetValue(
+  const VarName: String; var Value: Variant);
+begin
+  inherited;
+  if VarName = 'DATASITUACAO' then
+    Value := FormatDateTime('DD/MM/YYYY',DataSituacaoEm)
+  else
+  if VarName = 'TITULO' then
+  begin
+    Value := 'VALORES A RECEBER DE CURTO E LONGO PRAZO EM '+FormatDateTime('DD/MM/YYYY',DataSituacaoEm) +' E SITUAÇÃO DO AVP ENTRE '+FormatDateTime('DD/MM/YYYY',DataInicial)+
+             ' E ' + FormatDateTime('DD/MM/YYYY',DataFinal) ;
+  end
+  else
+  if VarName = 'SUBTITULO' then
+  begin
+    Value := fparametrocabecalho
+  end
+  else
+  if VarName = 'Ordenacao' then
+    Value :=  fOrdenacaoI
+  else if VarName = 'CordoZebrado' then
+    Value :=  strtoint(parsistema.CorZebradoRelatorio)
+  else if VarName = 'RAZAOFILIALBASE' then
+    Value := RazaoFilialBase
+  else if VarName = 'ENDERECO_BAIRRO' then
+    Value :=  RuaFilialBase+ ' - '+BairroFilialBase
+  else if VarName = 'CEP_CIDADE_UF' then
+    Value :=  FormatarCEP(CEPFilialBase)+'  '+CidadeFilialBase+ '  '+ EstadoFilialBase
+
+end;
+
+end.

@@ -1,0 +1,713 @@
+inherited dtmManutencaoAcessos: TdtmManutencaoAcessos
+  OldCreateOrder = False
+  Left = 267
+  Top = 83
+  Height = 507
+  Width = 619
+  object qryGruposUsuarios: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryGruposUsuariosAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo,'
+      '         nome,'
+      '         false as marcar'
+      'from gruposusuarios'
+      'order by UPPER(TO_ASCII(nome,'#39'LATIN1'#39'))')
+    RequestLive = True
+    Left = 225
+    Top = 22
+    object qryGruposUsuarioscodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryGruposUsuariosnome: TStringField
+      FieldName = 'nome'
+      Required = True
+      Size = 30
+    end
+    object qryGruposUsuariosmarcar: TBooleanField
+      FieldName = 'marcar'
+      OnChange = qryGruposUsuariosmarcarChange
+    end
+  end
+  object dsrGruposUsuarios: TtecDataSource
+    DataSet = qryGruposUsuarios
+    Left = 256
+    Top = 34
+  end
+  object qryUsuarios: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryUsuariosAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo,'
+      '         nome,'
+      '         grupo,'
+      '         cast(:marcar as boolean) as marcar '
+      'from usuarios'
+      'where not administrador and not suporte'
+      ''
+      'order by UPPER(TO_ASCII(nome,'#39'LATIN1'#39'))')
+    RequestLive = True
+    Left = 356
+    Top = 20
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'marcar'
+        ParamType = ptUnknown
+      end>
+    object qryUsuarioscodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryUsuariosnome: TStringField
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryUsuariosmarcar: TBooleanField
+      FieldName = 'marcar'
+      OnChange = qryUsuariosmarcarChange
+    end
+    object qryUsuariosgrupo: TIntegerField
+      FieldName = 'grupo'
+      DisplayFormat = '0'
+    end
+  end
+  object dsrUsuarios: TtecDataSource
+    DataSet = qryUsuarios
+    Left = 384
+    Top = 32
+  end
+  object qryAcessosModulos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryAcessosModulosBeforeOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select descricao, codigo'
+      'from acessosmodulos'
+      'where codigo <> 0'
+      'and not iteclux'
+      'order by UPPER(TO_ASCII(descricao,'#39'LATIN1'#39'))')
+    RequestLive = True
+    Left = 56
+    Top = 16
+    object qryAcessosModulosdescricao: TStringField
+      FieldName = 'descricao'
+      Required = True
+      Size = 100
+    end
+    object qryAcessosModuloscodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+  end
+  object dsrAcessosModulos: TtecDataSource
+    DataSet = qryAcessosModulos
+    Left = 80
+    Top = 28
+  end
+  object qryUsuariosAcessosModulos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryUsuariosAcessosModulosBeforeOpen
+    AfterOpen = qryUsuariosAcessosModulosAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select * from'
+      '('
+      'select  count(*) as nusuarios, '
+      '         descricao,'
+      '         acesso '
+      'from'
+      '('
+      '('
+      'select   descricao,'
+      '         acesso,'
+      '         usuario'
+      
+        'from (usuariosacessosmodulos join  acessosmodulos on usuariosace' +
+        'ssosmodulos.acesso = acessosmodulos.codigo)'
+      'where usuariosacessosmodulos.usuario = :usuario'
+      '  and not acessosmodulos.iteclux'
+      ')'
+      'union'
+      '('
+      'select descricao,'
+      '         acesso,'
+      '         u.codigo as usuario'
+      
+        'from ((gruposusuariosacessosmodulos join acessosmodulos on grupo' +
+        'susuariosacessosmodulos.acesso = acessosmodulos.codigo)'
+      
+        '                                                     join usuari' +
+        'os u on gruposusuariosacessosmodulos.grupo = u.grupo)'
+      
+        'where gruposusuariosacessosmodulos.grupo = (select grupo from us' +
+        'uarios where codigo = :usuario) and u.codigo = :usuario'
+      '  and not acessosmodulos.iteclux'
+      ')'
+      ') as acessos'
+      'group by descricao, acesso'
+      ') as nacessos'
+      'where nusuarios = :nusuarios'
+      'order by UPPER(TO_ASCII(descricao,'#39'LATIN1'#39'))')
+    RequestLive = True
+    Left = 160
+    Top = 88
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'usuario'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'nusuarios'
+        ParamType = ptUnknown
+      end>
+    object qryUsuariosAcessosModulosdescricao: TStringField
+      DisplayLabel = 'Recursos disponibilizados  para o usu'#225'rio'
+      DisplayWidth = 94
+      FieldName = 'descricao'
+      Size = 100
+    end
+    object qryUsuariosAcessosModulosacesso: TIntegerField
+      FieldName = 'acesso'
+      Visible = False
+      DisplayFormat = '0'
+    end
+  end
+  object dsrUsuariosAcessosModulos: TtecDataSource
+    DataSet = qryUsuariosAcessosModulos
+    Left = 184
+    Top = 100
+  end
+  object qryAtualizaUsuariosAcessosModulos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select usuario,'
+      '         acesso'
+      'from usuariosacessosmodulos'
+      '/*Where usuario in () and acesso in ()*/'
+      
+        'order by acesso, UPPER(TO_ASCII(CAST(usuario AS VARCHAR),'#39'LATIN1' +
+        #39'))')
+    RequestLive = True
+    Left = 120
+    Top = 240
+    object qryAtualizaUsuariosAcessosModulosusuario: TIntegerField
+      FieldName = 'usuario'
+      DisplayFormat = '0'
+    end
+    object qryAtualizaUsuariosAcessosModulosacesso: TIntegerField
+      FieldName = 'acesso'
+      DisplayFormat = '0'
+    end
+  end
+  object dsrAtualizaUsuariosAcessosModulos: TtecDataSource
+    DataSet = qryAtualizaUsuariosAcessosModulos
+    Left = 152
+    Top = 256
+  end
+  object qryExisteUsuarioAcessoModulo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select count(*) as nacesso'
+      'from usuariosacessosmodulos'
+      'where usuario=:usuario and'
+      '         acesso=:acesso')
+    RequestLive = False
+    Left = 120
+    Top = 312
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'usuario'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'acesso'
+        ParamType = ptUnknown
+      end>
+    object qryExisteUsuarioAcessoModulonacesso: TLargeintField
+      FieldName = 'nacesso'
+    end
+  end
+  object qryUsuariosAcessosModulos_Usuarios: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryUsuariosAcessosModulosBeforeOpen
+    AfterOpen = qryUsuariosAcessosModulosAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select * from'
+      '('
+      'select  count(*) as nusuarios, '
+      '         descricao,'
+      '         acesso '
+      'from'
+      '('
+      '('
+      'select   descricao,'
+      '         acesso,'
+      '         usuario'
+      
+        'from (usuariosacessosmodulos join  acessosmodulos on usuariosace' +
+        'ssosmodulos.acesso = acessosmodulos.codigo)'
+      'where usuariosacessosmodulos.usuario = :usuario'
+      '  and not acessosmodulos.iteclux'
+      ')'
+      'union'
+      '('
+      'select descricao,'
+      '         acesso,'
+      '         u.codigo as usuario'
+      
+        'from ((gruposusuariosacessosmodulos join acessosmodulos on grupo' +
+        'susuariosacessosmodulos.acesso = acessosmodulos.codigo) '
+      
+        '                                                     join usuari' +
+        'os u on gruposusuariosacessosmodulos.grupo = u.grupo)'
+      
+        'where gruposusuariosacessosmodulos.grupo = (select grupo from us' +
+        'uarios where codigo = :usuario) and u.codigo = :usuario'
+      '  and not acessosmodulos.iteclux'
+      ')'
+      ') as acessos'
+      'group by descricao, acesso'
+      ') as nacessos'
+      'where nusuarios = :nusuarios'
+      'order by UPPER(TO_ASCII(descricao,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 128
+    Top = 160
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'usuario'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'nusuarios'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryUsuariosAcessosModulos_GruposUsuarios: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryUsuariosAcessosModulosBeforeOpen
+    AfterOpen = qryUsuariosAcessosModulosAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select * from'
+      '('
+      'select  count(*) as nusuarios, '
+      '         descricao,'
+      '         acesso '
+      'from'
+      '('
+      '('
+      'select descricao,'
+      '         acesso,'
+      '         cast(null as integer) as usuario'
+      
+        'from (gruposusuariosacessosmodulos join acessosmodulos on grupos' +
+        'usuariosacessosmodulos.acesso = acessosmodulos.codigo) '
+      'where gruposusuariosacessosmodulos.grupo = :grupo'
+      '  and not acessosmodulos.iteclux'
+      ')'
+      ') as acessos'
+      'group by descricao, acesso'
+      ') as nacessos'
+      'where nusuarios = :nusuarios'
+      'order by UPPER(TO_ASCII(descricao,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 160
+    Top = 176
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'grupo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'nusuarios'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryAtualizaGruposUsuariosAcessosModulos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select grupo,'
+      '         acesso'
+      'from gruposusuariosacessosmodulos'
+      '/*Where grupo in () and acesso in ()*/'
+      'order by acesso, grupo')
+    RequestLive = True
+    Left = 120
+    Top = 368
+    object qryAtualizaGruposUsuariosAcessosModulosgrupo: TIntegerField
+      FieldName = 'grupo'
+    end
+    object qryAtualizaGruposUsuariosAcessosModulosacesso: TIntegerField
+      FieldName = 'acesso'
+    end
+  end
+  object dsrGruposAtualizaUsuariosAcessosModulos: TtecDataSource
+    DataSet = qryAtualizaGruposUsuariosAcessosModulos
+    Left = 152
+    Top = 384
+  end
+  object qryExisteGrupoUsuarioAcessoModulo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select count(*) as nacesso'
+      'from gruposusuariosacessosmodulos'
+      'where grupo=:grupo and'
+      '         acesso=:acesso')
+    RequestLive = False
+    Left = 120
+    Top = 440
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'grupo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'acesso'
+        ParamType = ptUnknown
+      end>
+    object qryExisteGrupoUsuarioAcessoModulonacesso: TLargeintField
+      FieldName = 'nacesso'
+    end
+  end
+  object qryUsuariosAcessosModulosIteclux: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryUsuariosAcessosModulosItecluxBeforeOpen
+    AfterOpen = qryUsuariosAcessosModulosItecluxAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select * from'
+      '('
+      'select  count(*) as nusuarios, '
+      '         descricao,'
+      '         acesso '
+      'from'
+      '('
+      '('
+      'select   descricao,'
+      '         acesso,'
+      '         usuario'
+      
+        'from (usuariosacessosmodulos join  acessosmodulos on usuariosace' +
+        'ssosmodulos.acesso = acessosmodulos.codigo)'
+      'where usuariosacessosmodulos.usuario = :usuario'
+      '  and acessosmodulos.iteclux'
+      ')'
+      'union'
+      '('
+      'select descricao,'
+      '         acesso,'
+      '         u.codigo as usuario'
+      
+        'from ((gruposusuariosacessosmodulos join acessosmodulos on grupo' +
+        'susuariosacessosmodulos.acesso = acessosmodulos.codigo)'
+      
+        '                                                     join usuari' +
+        'os u on gruposusuariosacessosmodulos.grupo = u.grupo)'
+      
+        'where gruposusuariosacessosmodulos.grupo = (select grupo from us' +
+        'uarios where codigo = :usuario) and u.codigo = :usuario'
+      '  and acessosmodulos.iteclux'
+      ')'
+      ') as acessos'
+      'group by descricao, acesso'
+      ') as nacessos'
+      'where nusuarios = :nusuarios'
+      'order by UPPER(TO_ASCII(descricao,'#39'LATIN1'#39'))')
+    RequestLive = True
+    Left = 368
+    Top = 88
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'usuario'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'nusuarios'
+        ParamType = ptUnknown
+      end>
+    object qryUsuariosAcessosModulosItecluxdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 50
+    end
+    object qryUsuariosAcessosModulosItecluxacesso: TIntegerField
+      FieldName = 'acesso'
+      Visible = False
+      DisplayFormat = '0'
+    end
+  end
+  object dsrUsuariosAcessosModulosIteclux: TtecDataSource
+    DataSet = qryUsuariosAcessosModulosIteclux
+    Left = 392
+    Top = 100
+  end
+  object qryAcessosModulosIteclux: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryAcessosModulosItecluxBeforeOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select descricao, codigo'
+      'from acessosmodulos'
+      'where codigo <> 0'
+      'and iteclux'
+      'order by UPPER(TO_ASCII(descricao,'#39'LATIN1'#39'))')
+    RequestLive = True
+    Left = 504
+    Top = 20
+    object qryAcessosModulosItecluxdescricao: TStringField
+      FieldName = 'descricao'
+      Required = True
+      Size = 100
+    end
+    object qryAcessosModulosItecluxcodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+      DisplayFormat = '0'
+    end
+  end
+  object dsrAcessosModulosIteclux: TtecDataSource
+    DataSet = qryAcessosModulosIteclux
+    Left = 528
+    Top = 33
+  end
+  object qryUsuariosAcessosModulosIteclux_Usuarios: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryUsuariosAcessosModulosItecluxBeforeOpen
+    AfterOpen = qryUsuariosAcessosModulosItecluxAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select * from'
+      '('
+      'select  count(*) as nusuarios, '
+      '         descricao,'
+      '         acesso '
+      'from'
+      '('
+      '('
+      'select   descricao,'
+      '         acesso,'
+      '         usuario'
+      
+        'from (usuariosacessosmodulos join  acessosmodulos on usuariosace' +
+        'ssosmodulos.acesso = acessosmodulos.codigo)'
+      'where usuariosacessosmodulos.usuario = :usuario'
+      '  and acessosmodulos.iteclux'
+      ')'
+      'union'
+      '('
+      'select descricao,'
+      '         acesso,'
+      '         u.codigo as usuario'
+      
+        'from ((gruposusuariosacessosmodulos join acessosmodulos on grupo' +
+        'susuariosacessosmodulos.acesso = acessosmodulos.codigo) '
+      
+        '                                                     join usuari' +
+        'os u on gruposusuariosacessosmodulos.grupo = u.grupo)'
+      
+        'where gruposusuariosacessosmodulos.grupo = (select grupo from us' +
+        'uarios where codigo = :usuario) and u.codigo = :usuario'
+      '  and acessosmodulos.iteclux'
+      ')'
+      ') as acessos'
+      'group by descricao, acesso'
+      ') as nacessos'
+      'where nusuarios = :nusuarios'
+      'order by UPPER(TO_ASCII(descricao,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 400
+    Top = 160
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'usuario'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'nusuarios'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryUsuariosAcessosModulosIteclux_GruposUsuarios: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryUsuariosAcessosModulosItecluxBeforeOpen
+    AfterOpen = qryUsuariosAcessosModulosItecluxAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select * from'
+      '('
+      'select  count(*) as nusuarios, '
+      '         descricao,'
+      '         acesso '
+      'from'
+      '('
+      '('
+      'select descricao,'
+      '         acesso,'
+      '         cast(null as integer) as usuario'
+      
+        'from (gruposusuariosacessosmodulos join acessosmodulos on grupos' +
+        'usuariosacessosmodulos.acesso = acessosmodulos.codigo) '
+      'where gruposusuariosacessosmodulos.grupo = :grupo'
+      '  and acessosmodulos.iteclux'
+      ')'
+      ') as acessos'
+      'group by descricao, acesso'
+      ') as nacessos'
+      'where nusuarios = :nusuarios'
+      'order by UPPER(TO_ASCII(descricao,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 432
+    Top = 176
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'grupo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'nusuarios'
+        ParamType = ptUnknown
+      end>
+  end
+  object ZMonitor1: TZMonitor
+    Left = 312
+    Top = 440
+  end
+end

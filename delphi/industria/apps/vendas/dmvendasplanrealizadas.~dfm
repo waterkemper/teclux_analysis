@@ -1,0 +1,980 @@
+inherited dtmVendasPlanRealizadas: TdtmVendasPlanRealizadas
+  OldCreateOrder = False
+  Left = 597
+  Top = 245
+  Height = 524
+  Width = 784
+  object qryPlanRealizadas_AUX: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'FiltroDatafiscal_TotalPeriodo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroDataEntrega_TotalPeriodo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroDataFiscal_TotalAnoAnterior'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroDataEntrega_TotalAnoAtual'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroDataFiscal_TotalAnterioreAtual'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroDataEntrega_TotalAnterioreAtual'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      'select produtos_mes.*,'
+      '       produtos_total.quantidade_total,'
+      '       produtos_total.media'
+      'from'
+      '('
+      'SELECT * FROM crosstab'
+      '('
+      ' '#39
+      
+        'select tipo||cast(produtos_mes.cliente as varchar)||cast(produto' +
+        's_mes.produto as varchar)||ano as produto_ano,'
+      '       tipo,'
+      '       produtos_mes.cliente,'
+      
+        '       SUBSTRING(COALESCE(cl.Apelido, cl.Nome) FROM 1 FOR 40) AS' +
+        ' Nome,'
+      '       produtos_mes.produto,'
+      
+        '       SUBSTRING(DescricaoProduto FROM 1 FOR 40) AS DescricaoPro' +
+        'duto,'
+      '       cp.produto_cliente,'
+      '       cp.finalidade,'
+      '       cp.pn,'
+      '       ano, mes,'
+      '       quantidade_mes'
+      'from'
+      '('
+      ' select tipo,'
+      '        cliente,'
+      '        produto,'
+      
+        '        SUBSTRING(DescricaoProduto FROM 1 FOR 40) AS DescricaoPr' +
+        'oduto,'
+      '        to_char(data, '#39#39'YYYY'#39#39') as ano,'
+      '        to_char(data, '#39#39'MM'#39#39') as mes,'
+      
+        '        cast(sum(quantidade_mes) as numeric(12,3)) as quantidade' +
+        '_mes'
+      'from'
+      '('
+      ' select produtos.* from'
+      ' ('
+      '  ('
+      '   /* Selecionando os realizados do periodo*/'
+      '   select cast('#39#39'R'#39#39' as varchar(1)) as tipo,'
+      '          df.data,'
+      '          df.cliente,'
+      '          pdf.produto,'
+      
+        '          SUBSTRING(p.Descricao FROM 1 FOR 40) AS DescricaoProdu' +
+        'to,'
+      '          case when c.unidade = '#39#39'MIL'#39#39' then 1000*pdf.quantidade'
+      '                        else pdf.quantidade end'
+      '                as quantidade_mes'
+      '          from (dadosfiscais df'
+      '                join (produtosdadosfiscais pdf'
+      
+        '                      join (produtos p join caracteristicas c on' +
+        ' p.caracteristica = c.codigo)'
+      '                      on pdf.produto = p.codigo)'
+      '                on df.numero = pdf.dadofiscal)'
+      '          where df.situacao = '#39#39'N'#39#39
+      
+        '            and (mod(df.codigofiscal,1000) between 101 and 125 o' +
+        'r'
+      
+        '                 MOD(df.codigofiscal,1000) BETWEEN 401 and 405 O' +
+        'R'
+      '                 mod(df.codigofiscal,1000) between 501 and 503)'
+      #9'    and'
+      
+        '            %FiltroDataFiscal_Periodo /*df.data between '#39#39'2003-0' +
+        '1-01'#39#39' and '#39#39'2009-12-31'#39#39'*/'
+      '  )'
+      '  union all'
+      '  ('
+      '   ('
+      '     /*Selecionando os planejados do periodo*/'
+      '     select cast('#39#39'P'#39#39' as varchar(1)) as tipo,'
+      '            osp.entrega as data,'
+      '            osp.cliente,'
+      '            osp.produto,'
+      
+        '            SUBSTRING(p.Descricao FROM 1 FOR 40) AS DescricaoPro' +
+        'duto,'
+      
+        '            case when c.unidade = '#39#39'MIL'#39#39' then 1000*osp.quantida' +
+        'de'
+      '                          else osp.quantidade end'
+      '                  as quantidade_mes'
+      '     from osp '
+      '          join (produtos p '
+      '                 join caracteristicas c '
+      '                 on p.caracteristica = c.codigo)'
+      '          on osp.produto = p.codigo'
+      '     where'
+      
+        '        %FiltroDataEntrega_Periodo /*osp.entrega between '#39#39'2003-' +
+        '01-01'#39#39' and '#39#39'2009-12-31'#39#39'*/'
+      '   )'
+      '   union all'
+      '   ('
+      
+        '     /*Selecionando os realizado do ano anterior como planejado ' +
+        'quando o ano atual'
+      '       n'#227'o tiver realizado*/'
+      '    select cast('#39#39'P'#39#39' as varchar(1)) as tipo,'
+      '           cast(df.data + interval '#39#39'1 year'#39#39' as date) as data,'
+      '           df.cliente,'
+      '           pdf.produto,'
+      
+        '           SUBSTRING(p.Descricao FROM 1 FOR 40) AS DescricaoProd' +
+        'uto,'
+      
+        '           case when c.unidade = '#39#39'MIL'#39#39' then 1000*pdf.quantidad' +
+        'e'
+      '                         else pdf.quantidade end'
+      '                 as quantidade_mes'
+      '           from (dadosfiscais df'
+      '                 join (produtosdadosfiscais pdf'
+      
+        '                       join (produtos p join caracteristicas c o' +
+        'n p.caracteristica = c.codigo)'
+      '                       on pdf.produto = p.codigo)'
+      '                 on df.numero = pdf.dadofiscal)'
+      '           where df.situacao = '#39#39'N'#39#39
+      
+        '            and (mod(df.codigofiscal,1000) between 101 and 125 o' +
+        'r'
+      
+        '                 MOD(df.codigofiscal,1000) BETWEEN 401 and 405 O' +
+        'R'
+      '                 mod(df.codigofiscal,1000) between 501 and 503)'
+      #9'     and'
+      
+        '             %FiltroDataFiscal_AnoAnterior /*df.data between '#39#39'2' +
+        '008-01-01'#39#39' and '#39#39'2008-12-31'#39#39'*/'
+      
+        '             and (to_char(df.data, '#39#39'MM'#39#39'), df.cliente, pdf.prod' +
+        'uto) not in'
+      '             ('
+      '              select distinct'
+      '                     to_char(osp.entrega, '#39#39'MM'#39#39') as mes,'
+      '                     osp.cliente,'
+      '                     osp.produto'
+      '              from osp '
+      '              join (produtos p '
+      '                   join caracteristicas c '
+      '                   on p.caracteristica = c.codigo)'
+      '              on osp.produto = p.codigo'
+      '              where'
+      
+        '              %FiltroDataEntrega_AnoAtual /*osp.entrega between ' +
+        #39#39'2009-01-01'#39#39' and '#39#39'2009-12-31'#39#39'*/'
+      '             )'
+      '   )'
+      '  )'
+      ' ) as produtos'
+      'join ((select distinct pdf.produto, df.cliente'
+      
+        '       from dadosfiscais df join  produtosdadosfiscais pdf on df' +
+        '.numero = pdf.dadofiscal'
+      '       where'
+      
+        '       %FiltroDataFiscal_AnterioreAtual /*df.data between '#39#39'2008' +
+        '-01-01'#39#39' and '#39#39'2009-12-31'#39#39'*/'
+      '         and (mod(df.codigofiscal,1000) between 101 and 125 or'
+      '              MOD(df.codigofiscal,1000) BETWEEN 401 and 405 OR'
+      '              mod(df.codigofiscal,1000) between 501 and 503)'
+      '         and df.situacao = '#39#39'N'#39#39')'
+      '      union'
+      '      ('
+      '       select distinct osp.produto, osp.cliente'
+      '       from osp'
+      '       where'
+      
+        '       %FiltroDataEntrega_AnterioreAtual /*osp.entrega between '#39 +
+        #39'2008-01-01'#39#39' and '#39#39'2009-12-31'#39#39'*/'
+      '       )'
+      
+        '      ) as produtosatuais on produtos.produto = produtosatuais.p' +
+        'roduto and'
+      
+        '                             produtos.cliente = produtosatuais.c' +
+        'liente'
+      ') as produtos_mes'
+      '  group by tipo, cliente, produto, descricaoproduto, ano, mes'
+      
+        ') as produtos_mes join clientes cl on produtos_mes.cliente = cl.' +
+        'codigo'
+      
+        '               left join clientesprodutos cp on produtos_mes.cli' +
+        'ente=cp.cliente and cp.tipocliente='#39#39'C'#39#39' and produtos_mes.produt' +
+        'o=cp.produto'
+      
+        '  order by tipo, cl.nome, produtos_mes.cliente, descricaoproduto' +
+        ', produtos_mes.produto, ano, mes'
+      ' '#39','
+      ''
+      
+        '   '#39'select trim(to_char(generate_series(1,12),'#39#39'00'#39#39')) as mes or' +
+        'der by 1'#39
+      ')'
+      'AS'
+      ' ( produto_ano varchar(100),'
+      '   tipo varchar(1),'
+      '   cliente int,'
+      '   nome varchar(40),'
+      '   produto bigint,'
+      '   descricaoproduto varchar(40),'
+      '   produto_cliente varchar(30),'
+      '   finalidade varchar(30),'
+      '   pn VARCHAR(10),'
+      '   ano int,'
+      '   jan numeric(12,3),'
+      '   fev numeric(12,3),'
+      '   mar numeric(12,3),'
+      '   abr numeric(12,3),'
+      '   mai numeric(12,3),'
+      '   jun numeric(12,3),'
+      '   jul numeric(12,3),'
+      '   ago numeric(12,3),'
+      '   set numeric(12,3),'
+      '   out numeric(12,3),'
+      '   nov numeric(12,3),'
+      '   dez numeric(12,3)'
+      ' )'
+      ') as produtos_mes'
+      '  join'
+      '  ('
+      '   select tipo,'
+      '          cliente,'
+      '          produto,'
+      '          to_char(data, '#39'YYYY'#39') as ano,'
+      
+        '          cast(sum(quantidade_mes) as numeric(12,3)) as quantida' +
+        'de_total,'
+      '          case when (tipo='#39'R'#39') and'
+      '                    ((to_char(data, '#39'YYYY'#39'))=: anoAtual) then'
+      
+        '          cast((sum(quantidade_mes)/:mesAnoAtual) as numeric(12,' +
+        '3))'
+      '          else'
+      '          cast((sum(quantidade_mes)/12) as numeric(12,3))'
+      '          end as media'
+      '   from'
+      '   ('
+      '    select produtos.* from'
+      '    ('
+      '     ('
+      '      select cast('#39'R'#39' as varchar(1)) as tipo,'
+      '             df.data,'
+      '             df.cliente,'
+      '             pdf.produto,'
+      
+        '             case when c.unidade = '#39'MIL'#39' then 1000*pdf.quantidad' +
+        'e'
+      '                           else pdf.quantidade end'
+      '                   as quantidade_mes'
+      '      from (dadosfiscais df'
+      '                join (produtosdadosfiscais pdf'
+      
+        '                      join (produtos p join caracteristicas c on' +
+        ' p.caracteristica = c.codigo)'
+      '                      on pdf.produto = p.codigo)'
+      '                on df.numero = pdf.dadofiscal)'
+      '      where df.situacao = '#39'N'#39
+      '        and (mod(df.codigofiscal,1000) between 101 and 125 or'
+      '             MOD(df.codigofiscal,1000) BETWEEN 401 and 405 OR'
+      '             mod(df.codigofiscal,1000) between 501 and 503)'
+      '        and'
+      
+        '        %FiltroDatafiscal_TotalPeriodo /*df.data between '#39'2003-0' +
+        '1-01'#39' and '#39'2009-12-31'#39'*/'
+      '     )'
+      '     union all'
+      '     ('
+      '      ('
+      '       select cast('#39'P'#39' as varchar(1)) as tipo,'
+      '            osp.entrega as data,'
+      '            osp.cliente,'
+      '            osp.produto,'
+      '            case when c.unidade = '#39'MIL'#39' then 1000*osp.quantidade'
+      '                          else osp.quantidade end'
+      '                  as quantidade_mes'
+      ' '
+      '       from osp '
+      '          join (produtos p '
+      '                 join caracteristicas c '
+      '                 on p.caracteristica = c.codigo)'
+      '          on osp.produto = p.codigo'
+      ''
+      '       where'
+      
+        '       %FiltroDataEntrega_TotalPeriodo /*osp.entrega between '#39'20' +
+        '03-01-01'#39' and '#39'2009-12-31'#39'*/'
+      '      )'
+      '      union all'
+      '      ('
+      '       select cast('#39'P'#39' as varchar(1)) as tipo,'
+      '              cast(df.data + interval '#39'1 year'#39' as date) as data,'
+      '              df.cliente,'
+      '              pdf.produto,'
+      
+        '              case when c.unidade = '#39'MIL'#39' then 1000*pdf.quantida' +
+        'de'
+      '                         else pdf.quantidade end'
+      '                 as quantidade_mes'
+      '       from (dadosfiscais df'
+      '                 join (produtosdadosfiscais pdf'
+      
+        '                       join (produtos p join caracteristicas c o' +
+        'n p.caracteristica = c.codigo)'
+      '                       on pdf.produto = p.codigo)'
+      '                 on df.numero = pdf.dadofiscal)'
+      '       where df.situacao = '#39'N'#39
+      '         and (mod(df.codigofiscal,1000) between 101 and 125 or'
+      '              MOD(df.codigofiscal,1000) BETWEEN 401 and 405 OR'
+      '              mod(df.codigofiscal,1000) between 501 and 503)'
+      '         and'
+      
+        '         %FiltroDataFiscal_TotalAnoAnterior  /*df.data between '#39 +
+        '2008-01-01'#39' and '#39'2008-12-31'#39'*/'
+      
+        '         and (to_char(df.data, '#39'MM'#39'), df.cliente, pdf.produto) n' +
+        'ot in'
+      '             ('
+      '              select distinct'
+      '                     to_char(osp.entrega, '#39'MM'#39') as mes,'
+      '                     osp.cliente,'
+      '                     osp.produto'
+      '              from osp '
+      '              join (produtos p '
+      '                    join caracteristicas c '
+      '                    on p.caracteristica = c.codigo)'
+      '              on osp.produto = p.codigo'
+      '              where'
+      
+        '                %FiltroDataEntrega_TotalAnoAtual /*osp.entrega b' +
+        'etween '#39'2009-01-01'#39' and '#39'2009-12-31'#39'*/'
+      '             )'
+      '      )'
+      '     )'
+      '    ) as produtos'
+      '      join'
+      '      ('
+      '       ('
+      '        select distinct pdf.produto, df.cliente'
+      
+        '        from dadosfiscais df join  produtosdadosfiscais pdf on d' +
+        'f.numero = pdf.dadofiscal'
+      '        where'
+      
+        '          %FiltroDataFiscal_TotalAnterioreAtual /*df.data betwee' +
+        'n '#39'2008-01-01'#39' and '#39'2009-12-31'#39'*/'
+      '          and (mod(df.codigofiscal,1000) between 101 and 125 or'
+      '               MOD(df.codigofiscal,1000) BETWEEN 401 and 405 OR'
+      '               mod(df.codigofiscal,1000) between 501 and 503)'
+      '          and df.situacao = '#39'N'#39
+      '       )'
+      '       union'
+      '       ('
+      '        select distinct osp.produto, osp.cliente'
+      '        from osp'
+      '        where'
+      
+        '        %FiltroDataEntrega_TotalAnterioreAtual /*osp.entrega bet' +
+        'ween '#39'2008-01-01'#39' and '#39'2009-12-31'#39'*/'
+      '       )'
+      
+        '      ) as produtosatuais on produtos.produto = produtosatuais.p' +
+        'roduto and'
+      
+        '                             produtos.cliente = produtosatuais.c' +
+        'liente'
+      '    ) as produtos_mes'
+      '    group by tipo, cliente, produto, ano'
+      '    order by cliente, produto, ano, tipo'
+      
+        '  ) as produtos_total on produtos_mes.produto = produtos_total.p' +
+        'roduto and'
+      
+        '                         produtos_mes.cliente = produtos_total.c' +
+        'liente and'
+      
+        '                         produtos_mes.ano     = produtos_total.a' +
+        'no and'
+      
+        '                         produtos_mes.tipo    = produtos_total.t' +
+        'ipo'
+      ' order by nome, cliente, descricaoproduto, produto, ano, tipo')
+    RequestLive = False
+    Left = 312
+    Top = 8
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'anoAtual'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'mesAnoAtual'
+        ParamType = ptUnknown
+      end>
+  end
+  object dsrPlanRealizadas: TtecDataSource
+    DataSet = qryPlanRealizadas
+    Left = 80
+    Top = 64
+  end
+  object qryPlanRealizadas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryPlanRealizadasAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'FiltroDatafiscal_TotalPeriodo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroDataEntrega_TotalPeriodo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroDataFiscal_TotalAnoAnterior'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroDataEntrega_TotalAnoAtual'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroDataFiscal_TotalAnterioreAtual'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroDataEntrega_TotalAnterioreAtual'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      'select produtos_mes.*,'
+      '       produtos_total.quantidade_total,'
+      '       produtos_total.media'
+      'from'
+      '('
+      'SELECT * FROM crosstab'
+      '('
+      ' '#39
+      
+        'select tipo||produtos_mes.cliente||produtos_mes.produto||ano as ' +
+        'produto_ano,'
+      '       tipo,'
+      '       produtos_mes.cliente,'
+      
+        '       SUBSTRING(coalesce(cl.apelido,cl.nome) FROM 1 FOR 40) as ' +
+        'nome,'
+      '       produtos_mes.produto,'
+      '       DescricaoProduto,'
+      '       cp.produto_cliente,'
+      '       cp.finalidade,'
+      '       cp.pn,'
+      '       ano, mes,'
+      '       quantidade_mes'
+      'from'
+      '('
+      ' select tipo,'
+      '        cliente,'
+      '        produto,'
+      '        DescricaoProduto,'
+      '        to_char(data, '#39#39'YYYY'#39#39') as ano,'
+      '        to_char(data, '#39#39'MM'#39#39') as mes,'
+      
+        '        cast(sum(quantidade_mes) as numeric(11,3)) as quantidade' +
+        '_mes'
+      'from'
+      '('
+      ' select produtos.* from'
+      ' ('
+      '  ('
+      '   /* Selecionando os realizados do periodo*/'
+      '   select cast('#39#39'R'#39#39' as varchar(1)) as tipo,'
+      '          df.data,'
+      '          df.cliente,'
+      '          pdf.produto,'
+      
+        '          SUBSTRING(p.Descricao FROM 1 FOR 40) AS DescricaoProdu' +
+        'to,'
+      '          case when c.unidade = '#39#39'MIL'#39#39' then 1000*pdf.quantidade'
+      '                        else pdf.quantidade end'
+      '                as quantidade_mes'
+      '          from (dadosfiscais df'
+      '                join (produtosdadosfiscais pdf'
+      
+        '                      join (produtos p join caracteristicas c on' +
+        ' p.caracteristica = c.codigo)'
+      '                      on pdf.produto = p.codigo)'
+      '                on df.numero = pdf.dadofiscal)'
+      '          where df.situacao = '#39#39'N'#39#39
+      
+        '            and (mod(df.codigofiscal,1000) between 101 and 125 o' +
+        'r'
+      '                 mod(df.codigofiscal,1000) between 501 and 503)'
+      #9'    and'
+      
+        '            %FiltroDataFiscal_Periodo /*df.data between '#39#39'2003-0' +
+        '1-01'#39#39' and '#39#39'2009-12-31'#39#39'*/'
+      '  )'
+      '  union all'
+      '  ('
+      '   ('
+      '     /*Selecionando os planejados do periodo*/'
+      '     select cast('#39#39'P'#39#39' as varchar(1)) as tipo,'
+      '            osp.entrega as data,'
+      '            osp.cliente,'
+      '            osp.produto,'
+      
+        '            SUBSTRING(p.Descricao FROM 1 FOR 40) AS DescricaoPro' +
+        'duto,'
+      
+        '            case when c.unidade = '#39#39'MIL'#39#39' then 1000*osp.quantida' +
+        'de'
+      '                          else osp.quantidade end'
+      '                  as quantidade_mes'
+      '     from osp '
+      '          join (produtos p '
+      '                 join caracteristicas c '
+      '                 on p.caracteristica = c.codigo)'
+      '          on osp.produto = p.codigo'
+      '     where'
+      
+        '        %FiltroDataEntrega_Periodo /*osp.entrega between '#39#39'2003-' +
+        '01-01'#39#39' and '#39#39'2009-12-31'#39#39'*/'
+      '   )'
+      '   union all'
+      '   ('
+      
+        '     /*Selecionando os realizado do ano anterior como planejado ' +
+        'quando o ano atual'
+      '       n'#227'o tiver realizado*/'
+      '    select cast('#39#39'P'#39#39' as varchar(1)) as tipo,'
+      '           cast(df.data + interval '#39#39'1 year'#39#39' as date) as data,'
+      '           df.cliente,'
+      '           pdf.produto,'
+      
+        '           SUBSTRING(p.Descricao FROM 1 FOR 40) AS DescricaoProd' +
+        'uto,'
+      
+        '           case when c.unidade = '#39#39'MIL'#39#39' then 1000*pdf.quantidad' +
+        'e'
+      '                         else pdf.quantidade end'
+      '                 as quantidade_mes'
+      '           from (dadosfiscais df'
+      '                 join (produtosdadosfiscais pdf'
+      
+        '                       join (produtos p join caracteristicas c o' +
+        'n p.caracteristica = c.codigo)'
+      '                       on pdf.produto = p.codigo)'
+      '                 on df.numero = pdf.dadofiscal)'
+      '           where df.situacao = '#39#39'N'#39#39
+      
+        '            and (mod(df.codigofiscal,1000) between 101 and 125 o' +
+        'r'
+      '                 mod(df.codigofiscal,1000) between 501 and 503)'
+      #9'     and'
+      
+        '             %FiltroDataFiscal_AnoAnterior /*df.data between '#39#39'2' +
+        '008-01-01'#39#39' and '#39#39'2008-12-31'#39#39'*/'
+      
+        '             and (to_char(df.data, '#39#39'MM'#39#39'), df.cliente, pdf.prod' +
+        'uto) not in'
+      '             ('
+      '              select distinct'
+      '                     to_char(osp.entrega, '#39#39'MM'#39#39') as mes,'
+      '                     osp.cliente,'
+      '                     osp.produto'
+      '              from osp '
+      '              join (produtos p '
+      '                   join caracteristicas c '
+      '                   on p.caracteristica = c.codigo)'
+      '              on osp.produto = p.codigo'
+      '              where'
+      
+        '              %FiltroDataEntrega_AnoAtual /*osp.entrega between ' +
+        #39#39'2009-01-01'#39#39' and '#39#39'2009-12-31'#39#39'*/'
+      '             )'
+      '   )'
+      '  )'
+      ' ) as produtos'
+      'join ((select distinct pdf.produto, df.cliente'
+      
+        '       from dadosfiscais df join  produtosdadosfiscais pdf on df' +
+        '.numero = pdf.dadofiscal'
+      '       where'
+      
+        '       %FiltroDataFiscal_AnterioreAtual /*df.data between '#39#39'2008' +
+        '-01-01'#39#39' and '#39#39'2009-12-31'#39#39'*/'
+      '         and (mod(df.codigofiscal,1000) between 101 and 125 or'
+      '              mod(df.codigofiscal,1000) between 501 and 503)'
+      '         and df.situacao = '#39#39'N'#39#39')'
+      '      union'
+      '      ('
+      '       select distinct osp.produto, osp.cliente'
+      '       from osp'
+      '       where'
+      
+        '       %FiltroDataEntrega_AnterioreAtual /*osp.entrega between '#39 +
+        #39'2008-01-01'#39#39' and '#39#39'2009-12-31'#39#39'*/'
+      '       )'
+      
+        '      ) as produtosatuais on produtos.produto = produtosatuais.p' +
+        'roduto and'
+      
+        '                             produtos.cliente = produtosatuais.c' +
+        'liente'
+      ') as produtos_mes'
+      '  group by tipo, cliente, produto, DescricaoProduto, ano, mes'
+      
+        ') as produtos_mes join clientes cl on produtos_mes.cliente = cl.' +
+        'codigo'
+      
+        '               left join clientesprodutos cp on produtos_mes.cli' +
+        'ente=cp.cliente and cp.tipocliente='#39#39'C'#39#39' and produtos_mes.produt' +
+        'o=cp.produto'
+      
+        '  order by tipo, cl.nome, produtos_mes.cliente, descricaoproduto' +
+        ', produtos_mes.produto, ano, mes'
+      ' '#39','
+      ''
+      
+        '   '#39'select trim(to_char(generate_series(1,12),'#39#39'00'#39#39')) as mes or' +
+        'der by 1'#39
+      ')'
+      'AS'
+      ' ( produto_ano varchar(100),'
+      '   tipo varchar(1),'
+      '   cliente int,'
+      '   nome varchar(40),'
+      '   produto bigint,'
+      '   descricaoproduto varchar(40),'
+      '   produto_cliente varchar(30),'
+      '   finalidade varchar(30),'
+      '   pn VARCHAR(5),'
+      '   ano int,'
+      '   jan numeric(12,3),'
+      '   fev numeric(12,3),'
+      '   mar numeric(12,3),'
+      '   abr numeric(12,3),'
+      '   mai numeric(12,3),'
+      '   jun numeric(12,3),'
+      '   jul numeric(12,3),'
+      '   ago numeric(12,3),'
+      '   set numeric(12,3),'
+      '   out numeric(12,3),'
+      '   nov numeric(12,3),'
+      '   dez numeric(12,3)'
+      ' )'
+      ') as produtos_mes'
+      '  join'
+      '  ('
+      '   select tipo,'
+      '          cliente,'
+      '          produto,'
+      '          to_char(data, '#39'YYYY'#39') as ano,'
+      
+        '          cast(sum(quantidade_mes) as numeric(11,3)) as quantida' +
+        'de_total,'
+      '          case when (tipo='#39'R'#39') and'
+      '                    ((to_char(data, '#39'YYYY'#39'))=:anoAtual) then'
+      
+        '          cast((sum(quantidade_mes)/:mesAnoAtual) as numeric(11,' +
+        '3))'
+      '          else'
+      '          cast((sum(quantidade_mes)/12) as numeric(11,3))'
+      '          end as media'
+      '   from'
+      '   ('
+      '    select produtos.* from'
+      '    ('
+      '     ('
+      '      select cast('#39'R'#39' as varchar(1)) as tipo,'
+      '             df.data,'
+      '             df.cliente,'
+      '             pdf.produto,'
+      
+        '             case when c.unidade = '#39'MIL'#39' then 1000*pdf.quantidad' +
+        'e'
+      '                           else pdf.quantidade end'
+      '                   as quantidade_mes'
+      '      from (dadosfiscais df'
+      '                join (produtosdadosfiscais pdf'
+      
+        '                      join (produtos p join caracteristicas c on' +
+        ' p.caracteristica = c.codigo)'
+      '                      on pdf.produto = p.codigo)'
+      '                on df.numero = pdf.dadofiscal)'
+      '      where df.situacao = '#39'N'#39
+      '        and (mod(df.codigofiscal,1000) between 101 and 125 or'
+      '             mod(df.codigofiscal,1000) between 501 and 503)'
+      '        and'
+      
+        '        %FiltroDatafiscal_TotalPeriodo /*df.data between '#39'2003-0' +
+        '1-01'#39' and '#39'2009-12-31'#39'*/'
+      '     )'
+      '     union all'
+      '     ('
+      '      ('
+      '       select cast('#39'P'#39' as varchar(1)) as tipo,'
+      '            osp.entrega as data,'
+      '            osp.cliente,'
+      '            osp.produto,'
+      '            case when c.unidade = '#39'MIL'#39' then 1000*osp.quantidade'
+      '                          else osp.quantidade end'
+      '                  as quantidade_mes'
+      ' '
+      '       from osp '
+      '          join (produtos p '
+      '                 join caracteristicas c '
+      '                 on p.caracteristica = c.codigo)'
+      '          on osp.produto = p.codigo'
+      ''
+      '       where'
+      
+        '       %FiltroDataEntrega_TotalPeriodo /*osp.entrega between '#39'20' +
+        '03-01-01'#39' and '#39'2009-12-31'#39'*/'
+      '      )'
+      '      union all'
+      '      ('
+      '       select cast('#39'P'#39' as varchar(1)) as tipo,'
+      '              cast(df.data + interval '#39'1 year'#39' as date) as data,'
+      '              df.cliente,'
+      '              pdf.produto,'
+      
+        '              case when c.unidade = '#39'MIL'#39' then 1000*pdf.quantida' +
+        'de'
+      '                         else pdf.quantidade end'
+      '                 as quantidade_mes'
+      '       from (dadosfiscais df'
+      '                 join (produtosdadosfiscais pdf'
+      
+        '                       join (produtos p join caracteristicas c o' +
+        'n p.caracteristica = c.codigo)'
+      '                       on pdf.produto = p.codigo)'
+      '                 on df.numero = pdf.dadofiscal)'
+      '       where df.situacao = '#39'N'#39
+      '         and (mod(df.codigofiscal,1000) between 101 and 125 or'
+      '              mod(df.codigofiscal,1000) between 501 and 503)'
+      '         and'
+      
+        '         %FiltroDataFiscal_TotalAnoAnterior  /*df.data between '#39 +
+        '2008-01-01'#39' and '#39'2008-12-31'#39'*/'
+      
+        '         and (to_char(df.data, '#39'MM'#39'), df.cliente, pdf.produto) n' +
+        'ot in'
+      '             ('
+      '              select distinct'
+      '                     to_char(osp.entrega, '#39'MM'#39') as mes,'
+      '                     osp.cliente,'
+      '                     osp.produto'
+      '              from osp '
+      '              join (produtos p '
+      '                    join caracteristicas c '
+      '                    on p.caracteristica = c.codigo)'
+      '              on osp.produto = p.codigo'
+      '              where'
+      
+        '                %FiltroDataEntrega_TotalAnoAtual /*osp.entrega b' +
+        'etween '#39'2009-01-01'#39' and '#39'2009-12-31'#39'*/'
+      '             )'
+      '      )'
+      '     )'
+      '    ) as produtos'
+      '      join'
+      '      ('
+      '       ('
+      '        select distinct pdf.produto, df.cliente'
+      
+        '        from dadosfiscais df join  produtosdadosfiscais pdf on d' +
+        'f.numero = pdf.dadofiscal'
+      '        where'
+      
+        '          %FiltroDataFiscal_TotalAnterioreAtual /*df.data betwee' +
+        'n '#39'2008-01-01'#39' and '#39'2009-12-31'#39'*/'
+      '          and (mod(df.codigofiscal,1000) between 101 and 125 or'
+      '               mod(df.codigofiscal,1000) between 501 and 503)'
+      '          and df.situacao = '#39'N'#39
+      '       )'
+      '       union'
+      '       ('
+      '        select distinct osp.produto, osp.cliente'
+      '        from osp'
+      '        where'
+      
+        '        %FiltroDataEntrega_TotalAnterioreAtual /*osp.entrega bet' +
+        'ween '#39'2008-01-01'#39' and '#39'2009-12-31'#39'*/'
+      '       )'
+      
+        '      ) as produtosatuais on produtos.produto = produtosatuais.p' +
+        'roduto and'
+      
+        '                             produtos.cliente = produtosatuais.c' +
+        'liente'
+      '    ) as produtos_mes'
+      '    group by tipo, cliente, produto, ano'
+      '    order by cliente, produto, ano, tipo'
+      
+        '  ) as produtos_total on produtos_mes.produto = produtos_total.p' +
+        'roduto and'
+      
+        '                         produtos_mes.cliente = produtos_total.c' +
+        'liente and'
+      
+        '                         produtos_mes.ano     = produtos_total.a' +
+        'no and'
+      
+        '                         produtos_mes.tipo    = produtos_total.t' +
+        'ipo'
+      ' order by nome, cliente, descricaoproduto, produto, ano, tipo')
+    RequestLive = True
+    Left = 80
+    Top = 8
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'anoAtual'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'mesAnoAtual'
+        ParamType = ptUnknown
+      end>
+    object qryPlanRealizadasproduto_ano: TStringField
+      FieldName = 'produto_ano'
+      Size = 13
+    end
+    object qryPlanRealizadastipo: TStringField
+      FieldName = 'tipo'
+      Size = 1
+    end
+    object qryPlanRealizadascliente: TIntegerField
+      FieldName = 'cliente'
+    end
+    object qryPlanRealizadasnome: TStringField
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryPlanRealizadasproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryPlanRealizadasdescricaoproduto: TStringField
+      FieldName = 'descricaoproduto'
+      Size = 30
+    end
+    object qryPlanRealizadasproduto_cliente: TStringField
+      FieldName = 'produto_cliente'
+      Size = 30
+    end
+    object qryPlanRealizadasfinalidade: TStringField
+      FieldName = 'finalidade'
+      Size = 50
+    end
+    object qryPlanRealizadaspn: TStringField
+      FieldName = 'pn'
+      Size = 10
+    end
+    object qryPlanRealizadasano: TIntegerField
+      FieldName = 'ano'
+    end
+    object qryPlanRealizadasjan: TFloatField
+      FieldName = 'jan'
+    end
+    object qryPlanRealizadasfev: TFloatField
+      FieldName = 'fev'
+    end
+    object qryPlanRealizadasmar: TFloatField
+      FieldName = 'mar'
+    end
+    object qryPlanRealizadasabr: TFloatField
+      FieldName = 'abr'
+    end
+    object qryPlanRealizadasmai: TFloatField
+      FieldName = 'mai'
+    end
+    object qryPlanRealizadasjun: TFloatField
+      FieldName = 'jun'
+    end
+    object qryPlanRealizadasjul: TFloatField
+      FieldName = 'jul'
+    end
+    object qryPlanRealizadasago: TFloatField
+      FieldName = 'ago'
+    end
+    object qryPlanRealizadasset: TFloatField
+      FieldName = 'set'
+    end
+    object qryPlanRealizadasout: TFloatField
+      FieldName = 'out'
+    end
+    object qryPlanRealizadasnov: TFloatField
+      FieldName = 'nov'
+    end
+    object qryPlanRealizadasdez: TFloatField
+      FieldName = 'dez'
+    end
+    object qryPlanRealizadasquantidade_total: TFloatField
+      FieldName = 'quantidade_total'
+    end
+    object qryPlanRealizadasmedia: TFloatField
+      FieldName = 'media'
+    end
+  end
+  object ZMonitor1: TZMonitor
+    Left = 552
+    Top = 88
+  end
+end

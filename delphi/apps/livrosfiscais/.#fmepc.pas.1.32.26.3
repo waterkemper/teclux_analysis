@@ -1,0 +1,2993 @@
+unit fmepc;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Forms, Dialogs,
+  StdCtrls, fmrelatoriopadrao, ExtCtrls, Buttons, fmajudabt, Mask,
+  cpdata, ComCtrls, biblio, ctconstantes, Controls, ACBrSped,
+  cpdbradiogroup, frconsultacontabil, frconsultacodigocontabil, cpnumero,
+  DBCtrls, cpdbtext, cpdbmemo, cptexto, cpdbdata, cpdbmesano, Windows, DB,
+  fmcadastropadrao, cpdbfindcontrols, dateutils, Grids, DBGrids, cpdbgrid,
+  frconsulta,  frconsultacodigo, ActnList, frcgcoucpf, frdbcgcoucpf,
+  ToolWin, ActnMan, ActnCtrls, ActnMenus, cpcnpj;
+
+type
+  TfrmEPC = class(TfrmCadastroPadrao)
+    sbnGerarArquivo: TSpeedButton;
+    mmoErro: TMemo;
+    pnlTop: TPanel;
+    gbxArquivo: TGroupBox;
+    dtxArquivo: TtecDBText;
+    gbxFilial: TGroupBox;
+    fraConsultaFilial: TfraConsultaCodigoContabil;
+    rgbSituacao: TtecDBRadioGroup;
+    rbnAbertura: TtecRadioButton;
+    rbnCISAO: TtecRadioButton;
+    rbnFUSAO: TtecRadioButton;
+    rbnINCORPORACAO: TtecRadioButton;
+    rbnEXTINSAO: TtecRadioButton;
+    rbnNormal: TtecRadioButton;
+    gbxErro: TGroupBox;
+    rgbTipodeEscrituracao: TtecDBRadioGroup;
+    rbnOriginal: TtecRadioButton;
+    rbnRetificadora: TtecRadioButton;
+    gbxNrRecAnterior: TGroupBox;
+    edtREciboAnterior: TDBEditTexto;
+    pgcEscrituracaoPISCOFINS: TPageControl;
+    tstPISCOFINS: TTabSheet;
+    tstRegistro_110: TTabSheet;
+    drg0110_02: TtecDBRadioGroup;
+    rbn0110_02_01: TtecRadioButton;
+    rbn0110_02_02: TtecRadioButton;
+    rbn0110_02_03: TtecRadioButton;
+    drg0110_03: TtecDBRadioGroup;
+    rbn0110_03_01: TtecRadioButton;
+    rbn0110_03_02: TtecRadioButton;
+    drg0110_04: TtecDBRadioGroup;
+    rbn0110_04_01: TtecRadioButton;
+    rbn0110_04_02: TtecRadioButton;
+    drg0110_05: TtecDBRadioGroup;
+    rbn0110_05_01: TtecRadioButton;
+    rbn0110_05_02: TtecRadioButton;
+    rbn0110_05_09: TtecRadioButton;
+    gbx0111: TGroupBox;
+    ActionList1: TActionList;
+    Action1: TAction;
+    gbxPeriodo: TGroupBox;
+    edtMesInicial: TtecDbEditFind;
+    tstpgc100: TTabSheet;
+    edt_0111_01: TDBEditNumero;
+    edt_0111_02: TDBEditNumero;
+    edt_0111_03: TDBEditNumero;
+    edt_0111_04: TDBEditNumero;
+    edt_0111_05: TDBEditNumero;
+    tstBloco_M: TTabSheet;
+    fraConsultaCodTipoCreditoM100: TfraConsultaCodigoContabil;
+    gbxM100_02_COD_CRED: TGroupBox;
+    gbxM100_03_IND_CRED_ORI: TtecDBRadioGroup;
+    rbn_M100_IND_CRED_ORI_0: TtecRadioButton;
+    rbn_M100_IND_CRED_ORI_1: TtecRadioButton;
+    pgcBloco_M_PIS: TPageControl;
+    tst_m100: TTabSheet;
+    edtM100_04_VL_BC_PIS: TDBEditNumero;
+    Label37: TLabel;
+    edtM100_05_ALIQ_PIS: TDBEditNumero;
+    edtM100_06_QUANT_BC_PIS: TDBEditNumero;
+    edtM100_07_ALIQ_PIS_QUANT: TDBEditNumero;
+    stxM100_08_VL_CRED: TStaticText;
+    edtM100_08_VL_CRED: TDBEditNumero;
+    stxM100_09_VL_AJUS_ACRES: TStaticText;
+    edM100_09_VL_AJUS_ACRES: TDBEditNumero;
+    stxM100_10_VL_AJUS_REDUC: TStaticText;
+    edtM100_11_VL_AJUS_REDUC: TDBEditNumero;
+    stxM100_11_VL_CRED_DIF: TStaticText;
+    edtM100_11_VL_CRED_DIF: TDBEditNumero;
+    stxM100_12_VL_CRED_DISP: TStaticText;
+    edtM100_12_VL_CRED_DISP: TDBEditNumero;
+    stxM100_15_SLD_CRED: TStaticText;
+    edtM100_15_SLD_CRED: TDBEditNumero;
+    drgM100_13_IND_DESC_CRED: TtecDBRadioGroup;
+    rbnM100_13_01: TtecRadioButton;
+    rbnM100_13_02: TtecRadioButton;
+    stxM100_14_VL_CRED_DESC: TStaticText;
+    edtM100_14_VL_CRED_DESC: TDBEditNumero;
+    DBNavigator4: TDBNavigator;
+    sbnExcluirRegistroM100: TSpeedButton;
+    sbnIncluirRegistroM100: TSpeedButton;
+    pgctst_m100: TPageControl;
+    tstpgcm100: TTabSheet;
+    pstpgcm105: TTabSheet;
+    pstpgcm110: TTabSheet;
+    DBNavigator5: TDBNavigator;
+    sbnExcluirRegistroM105: TSpeedButton;
+    sbnIncluirRegistroM105: TSpeedButton;
+    DBNavigator6: TDBNavigator;
+    sbnExcluirRegistroM110: TSpeedButton;
+    sbnIncluirRegistroM110: TSpeedButton;
+    gbxM105_02_NAT_BC_CRED: TGroupBox;
+    fraConsultaNaturezaBaseM100: TfraConsultaCodigo;
+    gbxM105_03_CST_PIS: TGroupBox;
+    fraConsultaPISCST_M100: TfraConsultaCodigoContabil;
+    stxM105_04_VL_BC_PIS_TOT: TStaticText;
+    edtM105_04_VL_BC_PIS_TOT: TDBEditNumero;
+    stxM105_05_VL_BC_PIS_CUM: TStaticText;
+    edtM105_05_VL_BC_PIS_CUM: TDBEditNumero;
+    stxM105_06_VL_BC_PIS_NC: TStaticText;
+    edtM105_06_VL_BC_PIS_NC: TDBEditNumero;
+    stxM105_07_VL_BC_PIS: TStaticText;
+    edtM105_07_VL_BC_PIS: TDBEditNumero;
+    stxM105_08_QUANT_BC_PIS_TOT: TStaticText;
+    edtM105_08_QUANT_BC_PIS_TOT: TDBEditNumero;
+    stxM105_09_QUANT_BC_PIS: TStaticText;
+    edtM105_09_QUANT_BC_PIS: TDBEditNumero;
+    gbxM105_10: TGroupBox;
+    EDT_M105_DESC_CRED: TDBEditTexto;
+    drgM110_02_IND_AJ: TtecDBRadioGroup;
+    rbnM110_02_01: TtecRadioButton;
+    rbnM110_02_02: TtecRadioButton;
+    stxM110_03_VL_AJ: TStaticText;
+    edtM110_03_VL_AJ: TDBEditNumero;
+    tecDBRadioGroup3: TtecDBRadioGroup;
+    tecRadioButton45: TtecRadioButton;
+    tecRadioButton46: TtecRadioButton;
+    tecRadioButton47: TtecRadioButton;
+    tecRadioButton48: TtecRadioButton;
+    tecRadioButton49: TtecRadioButton;
+    tecRadioButton50: TtecRadioButton;
+    stxM110_05_NUM_DOC: TStaticText;
+    edtM110_05_NUM_DOC: TDBEditTexto;
+    gbxM110_06_DESCR_AJ: TGroupBox;
+    edtM110_06_DESCR_AJ: TDBEditTexto;
+    edtM110_07_DT_REF: TDBEditData;
+    stxM110_07_DT_REF: TStaticText;
+    stxR111_05: TStaticText;
+    stx_0111_04: TStaticText;
+    stx_0111_02: TStaticText;
+    stx_0111_03: TStaticText;
+    stx_0111_01: TStaticText;
+    pgctst_m200: TTabSheet;
+    pgctst_m200Consolidacao: TPageControl;
+    tstpgcm200_Consolidacao: TTabSheet;
+    tstpgcm210_Consolidacao: TTabSheet;
+    stxF200_02_VL_TOT_CONT_NC_PER: TStaticText;
+    edtF200_02_VL_TOT_CONT_NC_PER: TDBEditNumero;
+    stxM200_03_VL_TOT_CRED_DESC: TStaticText;
+    edtM200_03_VL_TOT_CRED_DESC: TDBEditNumero;
+    stxM200_04_VL_TOT_CRED_DESC_ANT: TStaticText;
+    edtM200_04_VL_TOT_CRED_DESC_ANT: TDBEditNumero;
+    stxM200_05_VL_TOT_CONT_NC_DEV: TStaticText;
+    edtM200_05_VL_TOT_CONT_NC_DEV: TDBEditNumero;
+    stxM200_06_VL_RET_NC: TStaticText;
+    edtM200_06_VL_RET_NC: TDBEditNumero;
+    stxM200_07_VL_OUT_DED_NC: TStaticText;
+    edtM200_07_VL_OUT_DED_NC: TDBEditNumero;
+    stxM200_08_VL_CONT_NC_REC: TStaticText;
+    edtM200_08_VL_CONT_NC_REC: TDBEditNumero;
+    stxM200_09_VL_TOT_CONT_CUM_PER: TStaticText;
+    edtM200_09_VL_TOT_CONT_CUM_PER: TDBEditNumero;
+    stxM200_10_VL_RET_CUM: TStaticText;
+    edtM200_10_VL_RET_CUM: TDBEditNumero;
+    stxM200_11_VL_DED_CUM: TStaticText;
+    edtM200_11_VL_DED_CUM: TDBEditNumero;
+    stxM200_12_VL_CONT_CUM_REC: TStaticText;
+    edtM200_12_VL_CONT_CUM_REC: TDBEditNumero;
+    stxM200_13_VL_TOT_CONT_REC: TStaticText;
+    edtM200_13_VL_TOT_CONT_REC: TDBEditNumero;
+    gbxM210_02_COD_CONT: TGroupBox;
+    fraConsultaCodConribSocial_M210: TfraConsultaCodigoContabil;
+    stxM210_03_VL_REC_BRT: TStaticText;
+    edtM210_03_VL_REC_BRT: TDBEditNumero;
+    stxM210_04_VL_BC_CONT: TStaticText;
+    edtM210_04_VL_BC_CONT: TDBEditNumero;
+    stxM210_06_QUANT_BC_PIS: TStaticText;
+    stxM210_05_ALIQ_PIS: TStaticText;
+    edtM210_06_QUANT_BC_PIS: TDBEditNumero;
+    edtM210_05_ALIQ_PIS: TDBEditNumero;
+    stxM210_10_VL_AJUS_REDUC: TStaticText;
+    stxM210_09_VL_AJUS_ACRES: TStaticText;
+    edtM210_10_VL_AJUS_REDUC: TDBEditNumero;
+    edtM210_09_VL_AJUS_ACRES: TDBEditNumero;
+    stxM210_08_VL_CONT_APUR: TStaticText;
+    stxM210_07_ALIQ_PIS_QUANT: TStaticText;
+    edtM210_07_ALIQ_PIS_QUANT: TDBEditNumero;
+    edtM210_08_VL_CONT_APUR: TDBEditNumero;
+    stxM210_12_VL_CONT_DIFER_ANT: TStaticText;
+    stxM210_11_VL_CONT_DIFER: TStaticText;
+    edtM210_12_VL_CONT_DIFER_ANT: TDBEditNumero;
+    edtM210_11_VL_CONT_DIFER: TDBEditNumero;
+    stxM210_13_VL_CONT_PER: TStaticText;
+    edtM210_13_VL_CONT_PER: TDBEditNumero;
+    sbnIncluirRegistroM210: TSpeedButton;
+    sbnExcluirRegistroM210: TSpeedButton;
+    DBNavigator7: TDBNavigator;
+    tstpgcm220_Consolidacao: TTabSheet;
+    tstpgcm230_Consolidacao: TTabSheet;
+    sbnExcluirRegistroM200: TSpeedButton;
+    tecDBRadioGroup10: TtecDBRadioGroup;
+    tecRadioButton51: TtecRadioButton;
+    tecRadioButton52: TtecRadioButton;
+    StaticText69: TStaticText;
+    DBEditNumero108: TDBEditNumero;
+    drgM210_04_COD_AJ: TtecDBRadioGroup;
+    rbnM210_04_01: TtecRadioButton;
+    rbnM210_04_02: TtecRadioButton;
+    rbnM210_04_03: TtecRadioButton;
+    rbnM210_04_04: TtecRadioButton;
+    rbnM210_04_05: TtecRadioButton;
+    rbnM210_04_06: TtecRadioButton;
+    stxM210_05_NUM_DOC: TStaticText;
+    edtM210_05_NUM_DOC: TDBEditTexto;
+    gbxM210_06_DESCR_AJ: TGroupBox;
+    edtM210_06_DESCR_AJ: TDBEditTexto;
+    stxM210_07_DT_REF: TStaticText;
+    edtM210_07_DT_REF: TDBEditData;
+    DBNavigator8: TDBNavigator;
+    sbnExcluirRegistroM220: TSpeedButton;
+    sbnIncluirRegistroM220: TSpeedButton;
+    GroupBox24: TGroupBox;
+    DBEditCNPJ1: TDBEditCNPJ;
+    stxM230_03_VL_VEND: TStaticText;
+    edtM230_03_VL_VEND: TDBEditNumero;
+    stxM230_04_VL_NAO_RECEB: TStaticText;
+    edtM230_04_VL_NAO_RECEB: TDBEditNumero;
+    stxM230_05_VL_CONT_DIF: TStaticText;
+    edtM230_05_VL_CONT_DIF: TDBEditNumero;
+    stxM230_06_VL_CRED_DIF: TStaticText;
+    edtM230_06_VL_CRED_DIF: TDBEditNumero;
+    GroupBox25: TGroupBox;
+    fraConsultaCodTipoCreditoM230: TfraConsultaCodigoContabil;
+    DBNavigator9: TDBNavigator;
+    sbnExcluirRegistroM230: TSpeedButton;
+    sbnIncluirRegistroM230: TSpeedButton;
+
+    tst_m300: TTabSheet;
+    gbxM300_02_COD_CONT: TGroupBox;
+    fraConsultaCodConribSocial_M300: TfraConsultaCodigoContabil;
+    stxM300_03_VL_CONT_APUR_DIFER: TStaticText;
+    StaticText82: TStaticText;
+    edtM300_03_VL_CONT_APUR_DIFER: TDBEditNumero;
+    tecDBRadioGroup12: TtecDBRadioGroup;
+    rbnM300_04_01: TtecRadioButton;
+    rbnM300_04_02: TtecRadioButton;
+    rbnM300_04_03: TtecRadioButton;
+    rbnM300_04_04: TtecRadioButton;
+    stxM300_05_VL_CRED_DESC_DIFER: TStaticText;
+    edtxM300_05_VL_CRED_DESC_DIFER: TDBEditNumero;
+    stxM300_06_VL_CONT_DIFER_ANT: TStaticText;
+    edtM300_06_VL_CONT_DIFER_ANT: TDBEditNumero;
+    stxM300_07_PER_APUR: TStaticText;
+    edtM300_07_PER_APUR: TDBEditmesano;
+    stxM300_08_DT_RECEB: TStaticText;
+    edtM300_08_DT_RECEB: TDBEditData;
+    sbnIncluirRegistroM300: TSpeedButton;
+    sbnExcluirRegistroM300: TSpeedButton;
+    DBNavigator10: TDBNavigator;
+    tst_m350: TTabSheet;
+    stxM350_02_VL_TOT_FOL: TStaticText;
+    edtM350_02_VL_TOT_FOL: TDBEditNumero;
+    stxM350_03_VL_EXC_C: TStaticText;
+    edtM350_03_VL_EXC_C: TDBEditNumero;
+    stxM350_04_VL_TOT_BC: TStaticText;
+    edtM350_04_VL_TOT_BC: TDBEditNumero;
+    stxM350_05_ALIQ_PIS_FOL: TStaticText;
+    edtM350_05_ALIQ_PIS_FOL: TDBEditNumero;
+    stxM350_06_VL_TOT_CONT_FOL: TStaticText;
+    edtM350_06_VL_TOT_CONT_FOL: TDBEditNumero;
+    sbnExcluirRegistroM350: TSpeedButton;
+    tst_m400: TTabSheet;
+
+    pgcF100: TPageControl;
+    tstF100: TTabSheet;
+    sbnExcluirRegistroF100: TSpeedButton;
+    sbnIncluirRegistroF100: TSpeedButton;
+    gbxF100_Filial: TGroupBox;
+    fraConsultaFilialDemaisDoctos: TfraConsultaCodigoContabil;
+    dbrTipodaOperacao: TtecDBRadioGroup;
+    rbnF100_02_01: TtecRadioButton;
+    rbnF100_02_02: TtecRadioButton;
+    rbnF100_02_03: TtecRadioButton;
+    gbxNrClientes: TGroupBox;
+    fraConsultaClienteDemaisDoctos: TfraConsultaCodigo;
+    gbxProdutos: TGroupBox;
+    fraConsultaProdutoDemaisDoctos: TfraConsultaCodigo;
+    gbxF100_07a10: TGroupBox;
+    gbxCSTPIS100: TGroupBox;
+    fraConsultaPISCSTDemaisDoctos: TfraConsultaCodigoContabil;
+    gbxF100_08: TGroupBox;
+    edtF100_08: TDBEditNumero;
+    gbxF100_09: TGroupBox;
+    lblPISPercentualF100: TLabel;
+    edtF100_09: TDBEditNumero;
+    gbxF100_10: TGroupBox;
+    edtF100_10: TDBEditNumero;
+    gbxF100_11a14: TGroupBox;
+    gbxF100_11: TGroupBox;
+    fraConsultaCOFINSCSTDemaisDoctos: TfraConsultaCodigoContabil;
+    gbxF100_12: TGroupBox;
+    edtF100_12: TDBEditNumero;
+    gbxF100_13: TGroupBox;
+    lblCofinsPercentualF100: TLabel;
+    edtF100_13: TDBEditNumero;
+    gbxF100_14: TGroupBox;
+    edtF100_14: TDBEditNumero;
+    gbxF100_15: TGroupBox;
+    fraConsultaNaturezaBase: TfraConsultaCodigo;
+    gbxOrigemdoCredito: TtecDBRadioGroup;
+    rbnF100_16_01: TtecRadioButton;
+    rbnF100_16_02: TtecRadioButton;
+    gbxF100_17: TGroupBox;
+    dtxClassificacaoccdobemDemaisDoctos: TtecDBText;
+    fraConsultaContaContabilDemaisDoctos: TfraConsultaCodigoContabil;
+    gbxF100_18: TGroupBox;
+    fraConsultaCentrodeCustoDemaisDoctos: TfraConsultaCodigoContabil;
+    dbnF100: TDBNavigator;
+    gbxF100_19: TGroupBox;
+    mmoF100_19: TtecDBMemo;
+    gbxF100_05_06: TGroupBox;
+    gbxF100_05: TGroupBox;
+    edtF100_05: TDBEditData;
+    gbxF100_06: TGroupBox;
+    edtF100_06: TDBEditNumero;
+    tstf120: TTabSheet;
+    sbnIncluirRegistroF120: TSpeedButton;
+    sbnExcluirRegistroF120: TSpeedButton;
+    gbxF120_Filial: TGroupBox;
+    fraConsultaFilialDeprecImob: TfraConsultaCodigoContabil;
+    gbxF120_02: TGroupBox;
+    fraConsultaNaturezaBaseDeprImob: TfraConsultaCodigo;
+    drgF120_03: TtecDBRadioGroup;
+    rbnF120_03_01: TtecRadioButton;
+    rbnF120_03_02: TtecRadioButton;
+    rbnF120_03_03: TtecRadioButton;
+    rbnF120_03_04: TtecRadioButton;
+    rbnF120_03_05: TtecRadioButton;
+    rbnF120_03_06: TtecRadioButton;
+    rbnF120_03_99: TtecRadioButton;
+    drgF120_04: TtecDBRadioGroup;
+    rbnF120_04_01: TtecRadioButton;
+    rbnF120_04_02: TtecRadioButton;
+    drgF120_05: TtecDBRadioGroup;
+    rbnF120_05_01: TtecRadioButton;
+    rbnF120_05_02: TtecRadioButton;
+    rbnF120_05_03: TtecRadioButton;
+    rbnF120_05_09: TtecRadioButton;
+    edtF120_06_VL_OPER_DEP: TDBEditNumero;
+    edtF120_07_PARC_OPER_NAO_BC_CRED: TDBEditNumero;
+    gbxF120_08a11: TGroupBox;
+    gbxF120_08: TGroupBox;
+    fraConsultaPISCSTDeprImob: TfraConsultaCodigoContabil;
+    gbxF120_09_VL_BC_PIS: TGroupBox;
+    edtF120_09_VL_BC_PIS: TDBEditNumero;
+    gbxF120_10_ALIQ_PIS: TGroupBox;
+    lblPISPercentualF120: TLabel;
+    edtF120_10_ALIQ_PIS: TDBEditNumero;
+    gbxF120_11_VL_PIS: TGroupBox;
+    edtF120_11_VL_PIS: TDBEditNumero;
+    gbxF120_12a15: TGroupBox;
+    gbxF120_12: TGroupBox;
+    fraConsultaCOFINSCSTDeprImob: TfraConsultaCodigoContabil;
+    gbxF120_13_VL_BC_COFINS: TGroupBox;
+    edtF120_13_VL_BC_COFINS: TDBEditNumero;
+    gbxF120_14_ALIQ_COFINS: TGroupBox;
+    lblCofinsPercentualF120: TLabel;
+    edtF120_14_ALIQ_COFINS: TDBEditNumero;
+    gbxF120_15_VL_COFINS: TGroupBox;
+    edtF120_15_VL_COFINS: TDBEditNumero;
+    gbxF120_16_COD_CTA: TGroupBox;
+    dtxClassificacaoccdobemDeprImob: TtecDBText;
+    fraConsultaContaContabilDeprImob: TfraConsultaCodigoContabil;
+    gbxF120_17_COD_CCUS: TGroupBox;
+    fraConsultaCentrodeCustoDeprImob: TfraConsultaCodigoContabil;
+    gbxF120_18: TGroupBox;
+    mmoF120_18: TtecDBMemo;
+    dbnF120: TDBNavigator;
+    tstf130: TTabSheet;
+    sbnExcluirRegistroF130: TSpeedButton;
+    sbnIncluirRegistroF130: TSpeedButton;
+    gbxF130_Filial: TGroupBox;
+    fraConsultaFilialIncorpImob: TfraConsultaCodigoContabil;
+    gbxF130_02_NAT_BC_CRED: TGroupBox;
+    fraConsultaNaturezaBaseIncorpImob: TfraConsultaCodigo;
+    drgF130_03: TtecDBRadioGroup;
+    rbnF130_03_01: TtecRadioButton;
+    rbnF130_03_03: TtecRadioButton;
+    rbnF130_03_04: TtecRadioButton;
+    rbnF130_03_05: TtecRadioButton;
+    rbnF130_03_06: TtecRadioButton;
+    rbnF130_03_99: TtecRadioButton;
+    drgF130_04: TtecDBRadioGroup;
+    rbnF130_04_01: TtecRadioButton;
+    rbnF130_04_02: TtecRadioButton;
+    drgF130_05: TtecDBRadioGroup;
+    rbnF130_05_01: TtecRadioButton;
+    rbnF130_05_02: TtecRadioButton;
+    rbnF130_05_03: TtecRadioButton;
+    rbnF130_05_09: TtecRadioButton;
+    edtF130_07_VL_OPER_AQUIS: TDBEditNumero;
+    edtF130_08_PARC_OPER_NAO_BC_CRED: TDBEditNumero;
+    gbxF130_11a14: TGroupBox;
+    gbxF130_11: TGroupBox;
+    fraConsultaPISCSTIncorpImob: TfraConsultaCodigoContabil;
+    gbxF130_12: TGroupBox;
+    ednF130_12: TDBEditNumero;
+    gbxF130_13: TGroupBox;
+    Label1: TLabel;
+    ednF130_13: TDBEditNumero;
+    gbxF130_14: TGroupBox;
+    ednF130_14: TDBEditNumero;
+    gbxF130_15a18: TGroupBox;
+    gbxF130_15: TGroupBox;
+    fraConsultaCOFINSCSTIncorpImob: TfraConsultaCodigoContabil;
+    gbxF130_16: TGroupBox;
+    ednF130_16: TDBEditNumero;
+    gbxF130_17: TGroupBox;
+    Label2: TLabel;
+    ednF130_17: TDBEditNumero;
+    gbxF130_18: TGroupBox;
+    ednF130_18: TDBEditNumero;
+    gbxF130_19: TGroupBox;
+    dtxClassificacaoccdobemIncorpImob: TtecDBText;
+    fraConsultaContaContabilIncorpImob: TfraConsultaCodigoContabil;
+    gbxF130_20: TGroupBox;
+    fraConsultaCentrodeCustoIncorpImob: TfraConsultaCodigoContabil;
+    dbnF130: TDBNavigator;
+    edtF130_09_VL_BC_CRED: TDBEditNumero;
+    drgF130_10: TtecDBRadioGroup;
+    rbnF130_10_01: TtecRadioButton;
+    rbnF130_10_02: TtecRadioButton;
+    rbnF130_10_03: TtecRadioButton;
+    rbnF130_10_04: TtecRadioButton;
+    rbnF130_10_05: TtecRadioButton;
+    rbnF130_10_09: TtecRadioButton;
+    gbxF130_21: TGroupBox;
+    mmoF130_21: TtecDBMemo;
+    tstf150: TTabSheet;
+    sbnExcluirRegistroF150: TSpeedButton;
+    sbnIncluirRegistroF150: TSpeedButton;
+    gbxF150_Filial: TGroupBox;
+    fraConsultaFilialEstAbert: TfraConsultaCodigoContabil;
+    gbxF150_02_NAT_BC_CRED: TGroupBox;
+    fraConsultaNaturezaBaseEstAbert: TfraConsultaCodigo;
+    gbxF150_07a09: TGroupBox;
+    gbxF150_07_CST_PIS: TGroupBox;
+    fraConsultaPISCSTEstAbert: TfraConsultaCodigoContabil;
+    gbxF150_08_ALIQ_PIS: TGroupBox;
+    Label3: TLabel;
+    DBEditNumero33: TDBEditNumero;
+    gbxF150_09_VL_CRED_PIS: TGroupBox;
+    DBEditNumero34: TDBEditNumero;
+    gbxF150_10a12: TGroupBox;
+    gbxF150_10_CST_COFINS: TGroupBox;
+    fraConsultaCOFINSCSTEstAbert: TfraConsultaCodigoContabil;
+    gbxF150_11_ALIQ_COFINS: TGroupBox;
+    Label4: TLabel;
+    DBEditNumero36: TDBEditNumero;
+    gbxF150_12_VL_COFINS: TGroupBox;
+    DBEditNumero37: TDBEditNumero;
+    gbxF150_14_COD_CTA: TGroupBox;
+    dtxClassificacaoccdobemEstAbert: TtecDBText;
+    fraConsultaContaContabilEstAbert: TfraConsultaCodigoContabil;
+    gbxF150_13_DESC_EST: TGroupBox;
+    mmoF150_13: TtecDBMemo;
+    dbnF150: TDBNavigator;
+    edtF150_03_VL_TOT_EST: TDBEditNumero;
+    edtF150_04_EST_IMP: TDBEditNumero;
+    edtF150_05_VL_BC_EST: TDBEditNumero;
+    edtF150_06_VL_BC_MEN_EST: TDBEditNumero;
+    tstf200OperAtivImob: TTabSheet;
+    pgcf200: TPageControl;
+    tstf200: TTabSheet;
+    sbnIncluirRegistroF200: TSpeedButton;
+    sbnExcluirRegistroF200: TSpeedButton;
+    Label21: TLabel;
+    gbxF200_Filial: TGroupBox;
+    fraConsultaFilialOperAtivImob: TfraConsultaCodigoContabil;
+    gbxF200_04: TGroupBox;
+    edtIDENT_EMP: TDBEditTexto;
+    gbxF200_05: TGroupBox;
+    edtDESC_UNID_IMOB: TDBEditTexto;
+    gbxF200_06: TGroupBox;
+    edtNUM_CONT: TDBEditTexto;
+    gbxF200_08: TGroupBox;
+    edtRegistroF200dt_oper: TDBEditData;
+    gbxF200_11: TGroupBox;
+    edtRegistroF200vl_tot_rec: TDBEditNumero;
+    gbxF200_09: TGroupBox;
+    edtRegistroF200vl_tot_vend: TDBEditNumero;
+    gbxF200_10: TGroupBox;
+    edtRegistroF200vl_rec_acum: TDBEditNumero;
+    gbxF200_16a19: TGroupBox;
+    gbxF200_16: TGroupBox;
+    fraConsultaCOFINSCSTOperAtivImob: TfraConsultaCodigoContabil;
+    gbxF200_18: TGroupBox;
+    Label29: TLabel;
+    DBEditNumero32: TDBEditNumero;
+    gbxF200_19: TGroupBox;
+    DBEditNumero35: TDBEditNumero;
+    gbxF200_17: TGroupBox;
+    DBEditNumero41: TDBEditNumero;
+    gbxF200_12a15: TGroupBox;
+    gbxF200_12: TGroupBox;
+    fraConsultaPISCSTOperAtivImob: TfraConsultaCodigoContabil;
+    gbxF200_13: TGroupBox;
+    DBEditNumero29: TDBEditNumero;
+    gbxF200_14: TGroupBox;
+    Label5: TLabel;
+    DBEditNumero30: TDBEditNumero;
+    gbxF200_15: TGroupBox;
+    DBEditNumero31: TDBEditNumero;
+    gbxF200_22: TGroupBox;
+    mmoF200_22: TtecDBMemo;
+    drgF200_02: TtecDBRadioGroup;
+    rbnF200_02_01: TtecRadioButton;
+    rbnF200_02_02: TtecRadioButton;
+    rbnF200_02_03: TtecRadioButton;
+    rbnF200_02_04: TtecRadioButton;
+    rbnF200_02_05: TtecRadioButton;
+    drgF200_03: TtecDBRadioGroup;
+    rbnF200_03_01: TtecRadioButton;
+    rbnF200_03_02: TtecRadioButton;
+    rbnF200_03_03: TtecRadioButton;
+    rbnF200_03_04: TtecRadioButton;
+    rbnF200_03_05: TtecRadioButton;
+    rbnF200_03_06: TtecRadioButton;
+    drgF200_21: TtecDBRadioGroup;
+    rbnF200_21_01: TtecRadioButton;
+    rbnF200_21_02: TtecRadioButton;
+    rbnF200_21_03: TtecRadioButton;
+    rbnF200_21_04: TtecRadioButton;
+    dbnF200: TDBNavigator;
+    DBEditNumero66: TDBEditNumero;
+    fradbcgcoucpff200_cpf_cnpj_adqu: Tfradbcgcoucpf;
+    tstF205: TTabSheet;
+    sbnExcluirRegistroF205: TSpeedButton;
+    sbnIncluirRegistroF205: TSpeedButton;
+    gbxF205_07a09: TGroupBox;
+    gbxF205_07: TGroupBox;
+    fraConsultacstpisf205: TfraConsultaCodigoContabil;
+    gbxF205_08: TGroupBox;
+    Label30: TLabel;
+    DBEditNumero47: TDBEditNumero;
+    gbxF205_09: TGroupBox;
+    DBEditNumero48: TDBEditNumero;
+    gbxF205_13a15: TGroupBox;
+    gbxF205_13: TGroupBox;
+    fraConsultacstcofinsf205: TfraConsultaCodigoContabil;
+    gbxF205_14: TGroupBox;
+    Label31: TLabel;
+    DBEditNumero49: TDBEditNumero;
+    gbxF205_15: TGroupBox;
+    DBEditNumero50: TDBEditNumero;
+    dbnF205: TDBNavigator;
+    stxF205_02: TStaticText;
+    stxF205_16: TStaticText;
+    stxF205_17: TStaticText;
+    stxF205_18: TStaticText;
+    stxF205_12: TStaticText;
+    stxF205_11: TStaticText;
+    stxF205_10: TStaticText;
+    stxF205_06: TStaticText;
+    stxF205_05: TStaticText;
+    stxF205_04: TStaticText;
+    stxF205_03: TStaticText;
+    ednF205_02: TDBEditNumero;
+    ednF205_03: TDBEditNumero;
+    ednF205_04: TDBEditNumero;
+    ednF205_05: TDBEditNumero;
+    ednF205_06: TDBEditNumero;
+    ednF205_12: TDBEditNumero;
+    ednF205_11: TDBEditNumero;
+    ednF205_10: TDBEditNumero;
+    ednF205_18: TDBEditNumero;
+    ednF205_17: TDBEditNumero;
+    ednF205_16: TDBEditNumero;
+    tstF210: TTabSheet;
+    sbnincluirRegistroF210: TSpeedButton;
+    sbnExcluirRegistroF210: TSpeedButton;
+    gbxF210_09a11: TGroupBox;
+    gbxF210_10: TGroupBox;
+    Label35: TLabel;
+    DBEditNumero62: TDBEditNumero;
+    gbxF210_11: TGroupBox;
+    DBEditNumero63: TDBEditNumero;
+    gbxF210_09: TGroupBox;
+    fraConsultacstcofinsf210: TfraConsultaCodigoContabil;
+    gbxF210_06a08: TGroupBox;
+    gbxF210_07: TGroupBox;
+    Label34: TLabel;
+    DBEditNumero64: TDBEditNumero;
+    gbxF210_08: TGroupBox;
+    DBEditNumero65: TDBEditNumero;
+    gbxF210_06: TGroupBox;
+    fraConsultacstpisf210: TfraConsultaCodigoContabil;
+    DBNavigator1: TDBNavigator;
+    ednF210_02: TDBEditNumero;
+    ednF210_04: TDBEditNumero;
+    ednF210_05: TDBEditNumero;
+    stxF210_02: TStaticText;
+    stxF210_03: TStaticText;
+    stxF210_04: TStaticText;
+    stxF210_05: TStaticText;
+    tstf600: TTabSheet;
+    sbnIncluirRegistroF600: TSpeedButton;
+    sbnExcluirRegistroF600: TSpeedButton;
+    gbxF600_Filial: TGroupBox;
+    fraConsultaFilialContribRetFonte: TfraConsultaCodigoContabil;
+    drggF600_02: TtecDBRadioGroup;
+    rbnF600_02_01: TtecRadioButton;
+    rbnF600_02_02: TtecRadioButton;
+    rbnF600_02_03: TtecRadioButton;
+    rbnF600_02_04: TtecRadioButton;
+    rbnF600_02_05: TtecRadioButton;
+    rbnF600_02_99: TtecRadioButton;
+    gbxF600_03: TGroupBox;
+    edtF600_03: TDBEditData;
+    fradbcgcoucpf1: Tfradbcgcoucpf;
+    rdgF100_11: TtecDBRadioGroup;
+    rdbF600_11_01: TtecRadioButton;
+    rdbF600_11_02: TtecRadioButton;
+    DBNavigator2: TDBNavigator;
+    stxF600_04: TStaticText;
+    stxF600_05: TStaticText;
+    edtF600_04: TDBEditNumero;
+    edtF600_05: TDBEditNumero;
+    gbxF600_06_07: TGroupBox;
+    gbxF600_06: TGroupBox;
+    DBEditTexto1: TDBEditTexto;
+    rdgF600_07: TtecDBRadioGroup;
+    rdbF600_07_01: TtecRadioButton;
+    rdbF600_07_02: TtecRadioButton;
+    stxF600_09: TStaticText;
+    stxF600_10: TStaticText;
+    edtF600_09: TDBEditNumero;
+    edtF600_10: TDBEditNumero;
+    tstf700: TTabSheet;
+    sbnIncluirRegistroF700: TSpeedButton;
+    sbnExcluirRegistroF700: TSpeedButton;
+    gbxF700_Filial: TGroupBox;
+    fraConsultaFilialDeducoesDiversas: TfraConsultaCodigoContabil;
+    drgF700_02: TtecDBRadioGroup;
+    rbnF700_02_01: TtecRadioButton;
+    rbnF700_02_02: TtecRadioButton;
+    rbnF700_02_03: TtecRadioButton;
+    rbnF700_02_04: TtecRadioButton;
+    rbnF700_02_99: TtecRadioButton;
+    drgF700_03: TtecDBRadioGroup;
+    rbnF700_03_01: TtecRadioButton;
+    rbnF700_03_02: TtecRadioButton;
+    fradbcgcoucpf2: Tfradbcgcoucpf;
+    gbxObservacoesF700: TGroupBox;
+    mmoF700_08_INF_COMP: TtecDBMemo;
+    DBNavigator3: TDBNavigator;
+    ednF700_04: TDBEditNumero;
+    ednF700_05: TDBEditNumero;
+    ednF700_06: TDBEditNumero;
+    ednF210_03: TDBEditNumero;
+    stxF700_04: TStaticText;
+    stxF700_05: TStaticText;
+    gbxM400_04_COD_CTA: TGroupBox;
+    tecDBText1: TtecDBText;
+    fraConsultaContaContabil_M400: TfraConsultaCodigoContabil;
+    GroupBox2: TGroupBox;
+    fraConsultaPISCST_M400: TfraConsultaCodigoContabil;
+    stxM400_03_VL_TOT_REC: TStaticText;
+    edtM400_03_VL_TOT_REC: TDBEditNumero;
+    gbxM400_05_DESC_COMPL: TGroupBox;
+    edtM400_05_DESC_COMPL: TDBEditTexto;
+    DBNavigator11: TDBNavigator;
+    sbnExcluirRegistroM400: TSpeedButton;
+    sbnIncluirRegistroM400: TSpeedButton;
+    gbxM410_Detalhamento: TGroupBox;
+    dbg_M410: TtecDBGrid;
+    gxM410_05_DESC_COMPL: TGroupBox;
+    edt410_05_DESC_COMPL: TDBEditTexto;
+    sbnExcluirRegistroM410: TSpeedButton;
+    tst_m500: TTabSheet;
+    pgctst_m500: TPageControl;
+    tstpgcm500: TTabSheet;
+    sbnExcluirRegistroM500: TSpeedButton;
+    sbnIncluirRegistroM500: TSpeedButton;
+    stxM500_08_VL_CRED: TStaticText;
+    stxM500_09_VL_AJUS_ACRES: TStaticText;
+    stxM500_10_VL_AJUS_REDUC: TStaticText;
+    stxM500_11_VL_CRED_DIFER: TStaticText;
+    stxM500_12_VL_CRED_DISP: TStaticText;
+    stxM500_15_SLD_CRE: TStaticText;
+    stxM500_14_VL_CRED_DESC: TStaticText;
+    DBNavigator12: TDBNavigator;
+    GroupBox5: TGroupBox;
+    fraConsultaCodTipoCreditoM500: TfraConsultaCodigoContabil;
+    tecDBRadioGroup4: TtecDBRadioGroup;
+    tecRadioButton1: TtecRadioButton;
+    tecRadioButton2: TtecRadioButton;
+    edtM500_07_ALIQ_COFINS_QUANT: TDBEditNumero;
+    edtM500_06_QUANT_BC_COFINS: TDBEditNumero;
+    edtM500_05_ALIQ_COFINS: TDBEditNumero;
+    edtM500_04_VL_COFINS: TDBEditNumero;
+    edtM500_15_SLD_CRE: TDBEditNumero;
+    edtM500_12_VL_CRED_DISP: TDBEditNumero;
+    edtM500_11_VL_CRED_DIFER: TDBEditNumero;
+    edtM500_10_VL_AJUS_REDUC: TDBEditNumero;
+    edtM500_09_VL_AJUS_ACRES: TDBEditNumero;
+    edtM500_08_VL_CRED: TDBEditNumero;
+    tstpgcm505: TTabSheet;
+    sbnExcluirRegistroM505: TSpeedButton;
+    sbnIncluirRegistroM505: TSpeedButton;
+    DBNavigator13: TDBNavigator;
+    gbxM505_02_NAT_BC_CRED: TGroupBox;
+    fraConsultaNaturezaBaseM505: TfraConsultaCodigo;
+    gbxM505_03_CST_COFINS: TGroupBox;
+    fraConsultaCOFINSCST_M505: TfraConsultaCodigoContabil;
+    edtM505_04_VL_BC_COFINS_TOT: TDBEditNumero;
+    edtM505_05_VL_BC_COFINS_CUM: TDBEditNumero;
+    edtM505_06_VL_BC_COFINS_NC: TDBEditNumero;
+    edtM505_07_VL_BC_COFINS: TDBEditNumero;
+    edtM505_08_QUANT_BC_COFINS: TDBEditNumero;
+    edtM505_09_QUANT_BC_COFINS: TDBEditNumero;
+    pgctst_m600: TTabSheet;
+    pgctst_m600Consolidacao: TPageControl;
+    tstpgcm600_Consolidacao: TTabSheet;
+    sbnExcluirRegistroM600: TSpeedButton;
+    edtM600_02_VL_TOT_CONT_NC_PER: TDBEditNumero;
+    stxM600_03_VL_TOT_CRED_DESC: TStaticText;
+    edtM600_03_VL_TOT_CRED_DESC: TDBEditNumero;
+    stxM600_04_VL_TOT_CRED_DESC_ANT: TStaticText;
+    edtM600_04_VL_TOT_CRED_DESC_ANT: TDBEditNumero;
+    stxM600_05_VL_TOT_CONT_NC_DEV: TStaticText;
+    edtM600_05_VL_TOT_CONT_NC_DEV: TDBEditNumero;
+    stxM600_06_VL_RET_NC: TStaticText;
+    edtxM600_06_VL_RET_NC: TDBEditNumero;
+    stxM600_07_VL_OUT_DED_NC: TStaticText;
+    edtM600_07_VL_OUT_DED_NC: TDBEditNumero;
+    stxM600_08_VL_CONT_NC_REC: TStaticText;
+    edtM600_08_VL_CONT_NC_REC: TDBEditNumero;
+    stxM600_09_VL_TOT_CONT_CUM_PER: TStaticText;
+    edtM600_09_VL_TOT_CONT_CUM_PER: TDBEditNumero;
+    stxM600_10_VL_RET_CUM: TStaticText;
+    edtM600_10_VL_RET_CUM: TDBEditNumero;
+    stx_M600_11_VL_OUT_DED_CUM: TStaticText;
+    edt_M600_11_VL_OUT_DED_CUM: TDBEditNumero;
+    stxM600_12_VL_CONT_CUM_REC: TStaticText;
+    edtM600_12_VL_CONT_CUM_REC: TDBEditNumero;
+    stxM600_13_VL_TOT_CONT_REC: TStaticText;
+    edtM600_13_VL_TOT_CONT_REC: TDBEditNumero;
+    tstpgcM620_Consolidacao: TTabSheet;
+    SpeedButton4: TSpeedButton;
+    sbnIncluirRegistroM620: TSpeedButton;
+    tecDBRadioGroup8: TtecDBRadioGroup;
+    tecRadioButton13: TtecRadioButton;
+    tecRadioButton14: TtecRadioButton;
+    StaticText175: TStaticText;
+    DBEditNumero68: TDBEditNumero;
+    tecDBRadioGroup9: TtecDBRadioGroup;
+    rbnM620_04_01: TtecRadioButton;
+    rbnM620_04_02: TtecRadioButton;
+    rbnM620_04_03: TtecRadioButton;
+    rbnM620_04_04: TtecRadioButton;
+    rbnM620_04_05: TtecRadioButton;
+    rbnM620_04_06: TtecRadioButton;
+    StaticText176: TStaticText;
+    DBEditTexto7: TDBEditTexto;
+    gbxM620_06_DESCR_AJ: TGroupBox;
+    DBEditTexto8: TDBEditTexto;
+    stxM620_07_DT_REF: TStaticText;
+    edtM620_07_DT_REF: TDBEditData;
+    DBNavigator16: TDBNavigator;
+    tstpgcm630_Consolidacao: TTabSheet;
+    SpeedButton6: TSpeedButton;
+    SpeedButton7: TSpeedButton;
+    stxM630_06_VL_CRED_DIF: TStaticText;
+    stxM630_05_VL_CONT_DIF: TStaticText;
+    stxM630_04_VL_NAO_RECEB: TStaticText;
+    stxM630_03_VL_VEND: TStaticText;
+    GroupBox18: TGroupBox;
+    DBEditCNPJ2: TDBEditCNPJ;
+    edtM630_03_VL_VEND: TDBEditNumero;
+    edtM630_04_VL_NAO_RECEB: TDBEditNumero;
+    edtM630_05_VL_CONT_DIF: TDBEditNumero;
+    edtM630_06_VL_CRED_DIF: TDBEditNumero;
+    GroupBox19: TGroupBox;
+    fraConsultaCodTipoCreditoM630: TfraConsultaCodigoContabil;
+    DBNavigator17: TDBNavigator;
+    stxM100_04_VL_BC_PIS: TStaticText;
+    stxM100_05_ALIQ_PIS: TStaticText;
+    stxM100_06_QUANT_BC_PIS: TStaticText;
+    stxM100_07_ALIQ_PIS_QUANT: TStaticText;
+    tst_m700: TTabSheet;
+    stxM700_06_VL_CONT_DIFER_ANT: TStaticText;
+    gbxM700_02_COD_CONT: TGroupBox;
+    fraConsultaCodConribSocial_M700: TfraConsultaCodigoContabil;
+    stxM700_03_VL_CONT_APUR_DIFER: TStaticText;
+    edtM700_03_VL_CONT_APUR_DIFER: TDBEditNumero;
+    edtM700_05_VL_CRED_DESC_DIFER: TDBEditNumero;
+    stxM700_05_VL_CRED_DESC_DIFER: TStaticText;
+    edtM700_06_VL_CONT_DIFER_ANT: TDBEditNumero;
+    stxM700_07_PER_APUR: TStaticText;
+    edtM700_07_PER_APUR: TDBEditmesano;
+    stxM700_08_DT_RECEB: TStaticText;
+    edtM700_08_DT_RECEB: TDBEditData;
+    DBNavigator18: TDBNavigator;
+    sbnExcluirRegistroM700: TSpeedButton;
+    sbnInlcuirRegistroM700: TSpeedButton;
+    tst_m800: TTabSheet;
+    sbnExcluirRegistroM800: TSpeedButton;
+    sbnIncluirRegistroM800: TSpeedButton;
+    stxM800_03_VL_TOT_REC: TStaticText;
+    gbxM800_04_COD_CTA: TGroupBox;
+    tecDBText2: TtecDBText;
+    fraConsultaContaContabil_M800: TfraConsultaCodigoContabil;
+    GroupBox29: TGroupBox;
+    fraConsultaCOFINSCST_M800: TfraConsultaCodigoContabil;
+    edtM800_03_VL_TOT_REC: TDBEditNumero;
+    gbxM800_05_DESC_COMPL: TGroupBox;
+    edtM800_05_DESC_COMPL: TDBEditTexto;
+    DBNavigator19: TDBNavigator;
+    GroupBox31: TGroupBox;
+    sbnExcluirRegistroM810: TSpeedButton;
+    gbxM810_05_DESC_COMPL: TGroupBox;
+    edtM810_05_DESC_COMPL: TDBEditTexto;
+    dbg_M810: TtecDBGrid;
+    stxF120_06_VL_OPER_DEP: TStaticText;
+    stxF120_07_PARC_OPER_NAO_BC_CRED: TStaticText;
+    stxF130_07_VL_OPER_AQUIS: TStaticText;
+    stxF130_08_PARC_OPER_NAO_BC_CRED: TStaticText;
+    stxF130_09_VL_BC_CRED: TStaticText;
+    stxF150_03_VL_TOT_EST: TStaticText;
+    stxF150_04_EST_IMP: TStaticText;
+    stxF150_05_VL_BC_EST: TStaticText;
+    stxF150_06_VL_BC_MEN_EST: TStaticText;
+    tecDBRadioGroup13: TtecDBRadioGroup;
+    tecRadioButton21: TtecRadioButton;
+    tecRadioButton22: TtecRadioButton;
+    tecRadioButton23: TtecRadioButton;
+    tecRadioButton24: TtecRadioButton;
+    stxM600_02_VL_TOT_CONT_NC_PER: TStaticText;
+    tstpgcm610_Consolidacao: TTabSheet;
+    sbnIncluirRegistroM610: TSpeedButton;
+    sbnExcluirRegistroM610: TSpeedButton;
+    edtM610_13_VL_CONT_PER: TDBEditNumero;
+    edtM610_12_VT_CONT_DIFER_ANT: TDBEditNumero;
+    edtM610_11_VL_CONT_DIFER: TDBEditNumero;
+    edtM610_10_VL_AJUS_REDUC: TDBEditNumero;
+    edtM610_09_VL_AJUS_ACRES: TDBEditNumero;
+    edtM610_08_CONT_APUR: TDBEditNumero;
+    edtM610_07_ALIQ_COFINS_QUANT: TDBEditNumero;
+    gbxM610_02_COD_CONT: TGroupBox;
+    fraConsultaCodConribSocial_M610: TfraConsultaCodigoContabil;
+    edtM610_06_QUANT_BC_COFINS: TDBEditNumero;
+    edtM610_05_ALIQ_COFINS: TDBEditNumero;
+    edtM610_04_VL_BC_CONT: TDBEditNumero;
+    edtM610_03_VL_REC_BRT: TDBEditNumero;
+    DBNavigator15: TDBNavigator;
+    stxM610_03_VL_REC_BRT: TStaticText;
+    stxM610_04_VL_BC_CONT: TStaticText;
+    stxM610_05_ALIQ_COFINS: TStaticText;
+    stxM610_06_QUANT_BC_COFINS: TStaticText;
+    stxM610_07_ALIQ_COFINS_QUANT: TStaticText;
+    stxM610_08_CONT_APUR: TStaticText;
+    stxM610_09_VL_AJUS_ACRES: TStaticText;
+    stxM610_10_VL_AJUS_REDUC: TStaticText;
+    stxM610_11_VL_CONT_DIFER: TStaticText;
+    stxM610_12_VT_CONT_DIFER_ANT: TStaticText;
+    stxM610_13_VL_CONT_PER: TStaticText;
+    edtM500_14_VL_CRED_DESC: TDBEditNumero;
+    drgM500_13_IND_DESC_CRED: TtecDBRadioGroup;
+    rbnM500_13_01: TtecRadioButton;
+    rbnM500_13_02: TtecRadioButton;
+    stxM500_04_VL_COFINS: TStaticText;
+    stxM500_05_ALIQ_COFINS: TStaticText;
+    stxM500_06_QUANT_BC_COFINS: TStaticText;
+    stxM500_07_ALIQ_COFINS_QUANT: TStaticText;
+    gbxM505_10_DESC_CRED: TGroupBox;
+    edtM505_10_DESC_CRED: TDBEditTexto;
+    stxM505_04_VL_BC_COFINS_TOT: TStaticText;
+    stxM505_05_VL_BC_COFINS_CUM: TStaticText;
+    stxM505_06_VL_BC_COFINS_NC: TStaticText;
+    stxM505_07_VL_BC_COFINS: TStaticText;
+    stxM505_08_QUANT_BC_COFINS: TStaticText;
+    stxM505_09_QUANT_BC_COFINS: TStaticText;
+    tstpgcm510: TTabSheet;
+    sbnExcluirRegistroM510: TSpeedButton;
+    sbnIncluirRegistroM510: TSpeedButton;
+    DBNavigator14: TDBNavigator;
+    drgM510_02_IND_AJ: TtecDBRadioGroup;
+    rbnM510_02_01: TtecRadioButton;
+    rbnM510_02_02: TtecRadioButton;
+    edtM510_03_VL_AJ: TDBEditNumero;
+    drgM510_04_COD_AJ: TtecDBRadioGroup;
+    edtM510_05_NUM_DOC: TDBEditTexto;
+    edtM510_07_DT_REF: TDBEditData;
+    stxM510_03_VL_AJ: TStaticText;
+    stxM510_05_NUM_DOC: TStaticText;
+    stxM510_07_DT_REF: TStaticText;
+    gbxM510_06_DESCR_AJ: TGroupBox;
+    edtM510_06_DESCR_AJ: TDBEditTexto;
+    rbnM510_04_01: TtecRadioButton;
+    rbnM510_04_02: TtecRadioButton;
+    rbnM510_04_03: TtecRadioButton;
+    rbnM510_04_04: TtecRadioButton;
+    rbnM510_04_05: TtecRadioButton;
+    rbnM510_04_06: TtecRadioButton;
+    sbnGerarBlocoM: TSpeedButton;
+    tstBloco_P: TTabSheet;
+    GroupBox1: TGroupBox;
+    fraConsultaFilialP100: TfraConsultaCodigoContabil;
+    GroupBox3: TGroupBox;
+    DBEditData1: TDBEditData;
+    GroupBox4: TGroupBox;
+    DBEditData2: TDBEditData;
+    StaticText1: TStaticText;
+    DBEditNumero1: TDBEditNumero;
+    StaticText2: TStaticText;
+    StaticText3: TStaticText;
+    DBEditNumero3: TDBEditNumero;
+    StaticText4: TStaticText;
+    DBEditNumero4: TDBEditNumero;
+    StaticText5: TStaticText;
+    DBEditNumero5: TDBEditNumero;
+    StaticText6: TStaticText;
+    DBEditNumero6: TDBEditNumero;
+    StaticText7: TStaticText;
+    DBEditNumero7: TDBEditNumero;
+    GroupBox6: TGroupBox;
+    tecDBText3: TtecDBText;
+    fraConsultaContaContabilP100: TfraConsultaCodigoContabil;
+    GroupBox7: TGroupBox;
+    tecDBMemo1: TtecDBMemo;
+    DBNavigator20: TDBNavigator;
+    sbnExcluirRegistroP100: TSpeedButton;
+    sbnIncluirRegistroP100: TSpeedButton;
+    sbnGerarBlocoP: TSpeedButton;
+    fraConsultaPiscofins_t511: TfraConsultaCodigoContabil;
+    pgcBlocoM_Dados_Pis_Cofins: TPageControl;
+    tstDados_Pis: TTabSheet;
+    tstDados_Cofins: TTabSheet;
+    pgcBloco_M_COFINS: TPageControl;
+    gbxDiaInicial: TGroupBox;
+    gbxDiaFinal: TGroupBox;
+    edtDiaInicial: TDBEditNumero;
+    edtDiaFinal: TDBEditNumero;
+    gbxm205: TGroupBox;
+    dbgm205: TtecDBGrid;
+    pnlm205: TPanel;
+    sbnExcluirRegistrom205: TSpeedButton;
+    GroupBox8: TGroupBox;
+    dbgm605: TtecDBGrid;
+    Panel1: TPanel;
+    sbnExcluirRegistrom605: TSpeedButton;
+
+    procedure sbnGerarArquivoClick(Sender: TObject);
+    procedure sbnProcurarClick(Sender: TObject);
+    procedure Action1Update(Sender: TObject);
+    procedure edtMesInicialMessage(var Msg: String);
+    procedure sbnIncluirRegistroF100Click(Sender: TObject);
+    procedure sbnExcluirRegistroF100Click(Sender: TObject);
+    procedure sbnIncluirRegistroF120Click(Sender: TObject);
+    procedure sbnExcluirRegistroF120Click(Sender: TObject);
+    procedure sbnIncluirRegistroF130Click(Sender: TObject);
+    procedure sbnSalvarRegistroF130Click(Sender: TObject);
+    procedure sbnExcluirRegistroF130Click(Sender: TObject);
+    procedure sbnIncluirRegistroF150Click(Sender: TObject);
+    procedure sbnSalvarRegistroF150Click(Sender: TObject);
+    procedure sbnExcluirRegistroF150Click(Sender: TObject);
+    procedure sbnIncluirRegistroF200Click(Sender: TObject);
+    procedure sbnExcluirRegistroF200Click(Sender: TObject);
+    procedure sbnIncluirRegistroF205Click(Sender: TObject);
+    procedure sbnSalvarRegistroF205Click(Sender: TObject);
+    procedure sbnExcluirRegistroF205Click(Sender: TObject);
+    procedure sbnincluirRegistroF210Click(Sender: TObject);
+    procedure sbnSalvarRegistroF210Click(Sender: TObject);
+    procedure sbnExcluirRegistroF210Click(Sender: TObject);
+    procedure sbnIncluirRegistroF600Click(Sender: TObject);
+    procedure sbnExcluirRegistroF600Click(Sender: TObject);
+    procedure sbnIncluirRegistroF700Click(Sender: TObject);
+    procedure sbnSalvarRegistroF700Click(Sender: TObject);
+    procedure sbnExcluirRegistroF700Click(Sender: TObject);
+    procedure sbnExcluirRegistroM100Click(Sender: TObject);
+    procedure sbnIncluirRegistroM100Click(Sender: TObject);
+    procedure sbnIncluirRegistroM105Click(Sender: TObject);
+    procedure sbnExcluirRegistroM105Click(Sender: TObject);
+    procedure sbnIncluirRegistroM110Click(Sender: TObject);
+    procedure sbnExcluirRegistroM110Click(Sender: TObject);
+    procedure sbnIncluirRegistroM210Click(Sender: TObject);
+    procedure sbnExcluirRegistroM210Click(Sender: TObject);
+    procedure sbnExcluirRegistroM200Click(Sender: TObject);
+    
+
+    procedure sbnIncluirRegistroM220Click(Sender: TObject);
+    procedure sbnExcluirRegistroM220Click(Sender: TObject);
+    procedure sbnIncluirRegistroM230Click(Sender: TObject);
+    procedure sbnExcluirRegistroM230Click(Sender: TObject);
+    procedure sbnIncluirRegistroM300Click(Sender: TObject);
+    procedure sbnExcluirRegistroM300Click(Sender: TObject);
+    procedure sbnExcluirRegistroM350Click(Sender: TObject);
+    procedure sbnIncluirRegistroM400Click(Sender: TObject);
+    procedure sbnExcluirRegistroM400Click(Sender: TObject);
+    procedure sbnExcluirRegistroM410Click(Sender: TObject);
+    procedure dbg_M410KeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbg_M410DblClick(Sender: TObject);
+    procedure sbnIncluirRegistroM500Click(Sender: TObject);
+    procedure sbnExcluirRegistroM500Click(Sender: TObject);
+    procedure sbnIncluirRegistroM505Click(Sender: TObject);
+    procedure sbnExcluirRegistroM505Click(Sender: TObject);
+    procedure sbnIncluirRegistroM510Click(Sender: TObject);
+    procedure sbnExcluirRegistroM510Click(Sender: TObject);
+    procedure sbnExcluirRegistroM600Click(Sender: TObject);
+    procedure sbnIncluirRegistroM610Click(Sender: TObject);
+    procedure sbnExcluirRegistroM610Click(Sender: TObject);
+    procedure sbnIncluirRegistroM620Click(Sender: TObject);
+    procedure SpeedButton4Click(Sender: TObject);
+    procedure sbnExcluirRegistroM700Click(Sender: TObject);
+    procedure sbnInlcuirRegistroM700Click(Sender: TObject);
+    procedure sbnExcluirRegistroM810Click(Sender: TObject);
+    procedure sbnIncluirRegistroM800Click(Sender: TObject);
+    procedure sbnExcluirRegistroM800Click(Sender: TObject);
+    procedure dbg_M810DblClick(Sender: TObject);
+    procedure dbg_M810KeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnGerarBlocoMClick(Sender: TObject);
+    procedure sbnIncluirRegistroP100Click(Sender: TObject);
+    procedure sbnExcluirRegistroP100Click(Sender: TObject);
+    procedure sbnGerarBlocoPClick(Sender: TObject);
+    procedure dbgm205KeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbgm205DblClick(Sender: TObject);
+    procedure sbnExcluirRegistrom205Click(Sender: TObject);
+    procedure dbgm605DblClick(Sender: TObject);
+    procedure dbgm605KeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnExcluirRegistrom605Click(Sender: TObject);
+  protected
+    fraConsultacod_rec_M205: TfraConsultaCodigoContabil;
+    fraConsultacod_rec_M605: TfraConsultaCodigoContabil;
+
+    fraConsultaContaContabil_M410: TfraConsultaCodigoContabil;
+    fraConsultaContaContabil_M810: TfraConsultaCodigoContabil;
+
+    fraConsultaICMSObrigacoes : TfraConsultaCodigoContabil;
+    fraConsultaAjusteICMS : TfraConsultaCodigoContabil;
+    fraConsultaepc : TfraConsultaCodigoContabil;
+    procedure AbrirEPC;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure AlterarEstadoBotoes; override;
+
+  private
+    { Private declarations }
+    function  ValidarCamposSelecao: Boolean;
+    procedure ACBrSPEDPisCofinsonError(Sender: TObject);
+    function  InternoIncluir: Boolean; override;
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    procedure CondicaoFilialConsolidadora;
+
+    procedure CondicaoFilialSelecionavel;
+
+    procedure AtribuirDadosClientesDemaisDoctos;
+    procedure AtribuirDadosCod_Rec_m205;
+    procedure AtribuirDadosCod_Rec_m605;
+
+    procedure AtribuirDadosContaContabil_M410;
+    procedure AtribuirDadosContaContabil_M810;
+
+
+    procedure ExcluirRegistroM205;
+    procedure ExcluirRegistroM605;
+
+    procedure ExcluirRegistroM410;
+    procedure ExcluirRegistroM810;
+
+    procedure ParametroF100ClienteouFornecedor;
+    function ValidarControles: boolean;
+    procedure CondicaoPiscofins_t511;
+    procedure AtribuirDadosPiscofins_t511;
+
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+    procedure AcionaPesquisaGradecod_recM205;
+    procedure AcionaPesquisaGradecod_recM605;
+
+    procedure AcionaPesquisaGradeContaContabil_M410;
+    procedure AcionaPesquisaGradeContaContabil_M810;
+
+
+    { Public declarations}
+  end;
+
+var
+  frmEPC: TfrmEPC;
+
+implementation
+
+uses dmepc, ZPgSqlQuery;
+
+{$R *.dfm}
+
+procedure TfrmEPC.ACBrSPEDPisCofinsonError(Sender: TObject);
+begin
+  mmoErro.Lines.Add(dtmEPC.erro);
+end;
+
+constructor TfrmEPC.Create(AOwner: TComponent);
+begin
+  inherited;
+  dTEventos := TEventos.create;
+  dtmEPC := TdtmEPC.Create(self);
+  dtmEPC.ACBrSPEDPisCofins.EventsBloco_C.OnBeforeWriteRegistroC481 := dTEventos.MyBeforeWriteRegistroC481;
+  dtmEPC.ACBrSPEDPisCofins.EventsBloco_C.OnBeforeWriteRegistroC485 := dtmEPC.MyBeforeWriteRegistroC485;
+
+  dataset := dtmEPC.qryepc;
+
+  pgcEscrituracaoPISCOFINS.ActivePage := tstPISCOFINS;
+  pgcF100.activePage := tstF100;
+  pgcf200.ActivePage := tstf200;
+  pgcBloco_M_PIS.ActivePage := tst_m100;
+  pgctst_m200Consolidacao.ActivePage := tstpgcm200_Consolidacao;
+  pgctst_m500.ActivePage := tstpgcm500;
+  pgctst_m600Consolidacao.ActivePage := tstpgcm600_Consolidacao;
+
+  dtmEPC.ACBrSPEDPisCofinsonError := ACBrSPEDPisCofinsonError;
+  fraConsultaFilial.TipoPesquisa := pesFILIAIS;
+  fraConsultaFilial.CondicoesdaConsulta := CondicaoFilialConsolidadora;
+
+  fraConsultaepc := TfraConsultaCodigoContabil.Create(fraConsultaepc);
+  fraConsultaepc.edfCodigo.Operacao := opPESQUISA;
+  fraConsultaepc.AbrirTabelaProcura := false;
+  fraConsultaepc.TipoPesquisa := pesEPC;
+  fraConsultaepc.OnFound := AbrirEPC;
+
+  fraConsultaFilialDemaisDoctos.TipoPesquisa := pesFILIAIS;
+  fraConsultaFilialDemaisDoctos.CondicoesdaConsulta := CondicaoFilialSelecionavel;
+
+//  fraConsultaClienteDemaisDoctos.TipoCliente := 'C';
+//  fraConsultaClienteDemaisDoctos.Tipovfornecedor := '';
+
+
+  fraConsultaClienteDemaisDoctos.CondicoesdaConsulta := ParametroF100ClienteouFornecedor;
+  fraConsultaClienteDemaisDoctos.OnFound := AtribuirDadosClientesDemaisDoctos;
+  fraConsultaClienteDemaisDoctos.TipoPesquisa := pesCLIENTES;
+
+  fraConsultaProdutoDemaisDoctos.TipoPesquisa := pesITEMPRODUTOS;
+
+  fraConsultaCOFINSCSTDemaisDoctos.TipoPesquisa := pesTRIBUTOSCOFINS;
+  fraConsultaPISCSTDemaisDoctos.TipoPesquisa := pesTRIBUTOSPIS;
+
+  fraConsultaNaturezaBase.TipoPesquisa := pesNATBCCRED;
+
+  fraConsultaContaContabilDemaisDoctos.TipoPesquisa := pesCONTADEBITO;
+  fraConsultaContaContabilDemaisDoctos.TipoContaContabilDebitoSelecionavel := 'A';
+
+  fraConsultaCentrodeCustoDemaisDoctos.TipoPesquisa := pesCENTRODECUSTO;
+
+  fraConsultaCOFINSCSTDeprImob.TipoPesquisa := pesTRIBUTOSCOFINS;
+  fraConsultaPISCSTDeprImob.TipoPesquisa := pesTRIBUTOSPIS;
+
+  fraConsultaFilialDeprecImob.TipoPesquisa := pesFILIAIS;
+  fraConsultaFilialDeprecImob.CondicoesdaConsulta := CondicaoFilialSelecionavel;
+
+  fraConsultaNaturezaBaseDeprImob.TipoPesquisa := pesNATBCCRED;
+
+  fraConsultaContaContabilDeprImob.TipoPesquisa := pesCONTADEBITO;
+  fraConsultaContaContabilDeprImob.TipoContaContabilDebitoSelecionavel := 'A';
+
+  fraConsultaCentrodeCustoDeprImob.TipoPesquisa := pesCENTRODECUSTO;
+
+
+  fraConsultaCOFINSCSTIncorpImob.TipoPesquisa := pesTRIBUTOSCOFINS;
+  fraConsultaPISCSTIncorpImob.TipoPesquisa := pesTRIBUTOSPIS;
+
+  fraConsultaFilialIncorpImob.TipoPesquisa := pesFILIAIS;
+  fraConsultaFilialIncorpImob.CondicoesdaConsulta := CondicaoFilialSelecionavel;
+
+  fraConsultaNaturezaBaseIncorpImob.TipoPesquisa := pesNATBCCRED;
+
+  fraConsultaContaContabilIncorpImob.TipoPesquisa := pesCONTADEBITO;
+  fraConsultaContaContabilIncorpImob.TipoContaContabilDebitoSelecionavel := 'A';
+
+  fraConsultaCentrodeCustoIncorpImob.TipoPesquisa := pesCENTRODECUSTO;
+
+
+  fraConsultaFilialEstAbert.TipoPesquisa := pesFILIAIS;
+  fraConsultaFilialEstAbert.CondicoesdaConsulta := CondicaoFilialSelecionavel;
+
+  fraConsultaNaturezaBaseEstAbert.TipoPesquisa := pesNATBCCRED;
+
+  fraConsultaPISCSTEstAbert.TipoPesquisa := pesTRIBUTOSPIS;
+  fraConsultaCOFINSCSTEstAbert.TipoPesquisa := pesTRIBUTOSCOFINS;
+  fraConsultaContaContabilEstAbert.TipoPesquisa := pesCONTADEBITO;
+  fraConsultaContaContabilEstAbert.TipoContaContabilDebitoSelecionavel := 'A';
+
+  fraConsultaFilialOperAtivImob.TipoPesquisa := pesFILIAIS;
+  fraConsultaFilialOperAtivImob.CondicoesdaConsulta := CondicaoFilialSelecionavel;
+
+  fraConsultaPISCSTOperAtivImob.TipoPesquisa := pesTRIBUTOSPIS;
+  fraConsultaCOFINSCSTOperAtivImob.TipoPesquisa := pesTRIBUTOSCOFINS;
+
+  fraConsultacstpisf205.TipoPesquisa := pesTRIBUTOSPIS;
+  fraConsultacstcofinsf205.TipoPesquisa := pesTRIBUTOSCOFINS;
+
+  fraConsultacstpisf210.TipoPesquisa := pesTRIBUTOSPIS;
+  fraConsultacstcofinsf210.TipoPesquisa := pesTRIBUTOSCOFINS;
+
+  fraConsultaFilialContribRetFonte.TipoPesquisa := pesFILIAIS;
+  fraConsultaFilialContribRetFonte.CondicoesdaConsulta := CondicaoFilialSelecionavel;
+
+  fraConsultaFilialDeducoesDiversas.TipoPesquisa := pesFILIAIS;
+  fraConsultaFilialDeducoesDiversas.CondicoesdaConsulta := CondicaoFilialSelecionavel;
+
+  fraConsultaCodTipoCreditoM100.TipoPesquisa := pesPISCOFINS_T436;
+  fraConsultaNaturezaBaseM100.TipoPesquisa := pesNATBCCRED;
+  fraConsultaPISCST_M100.TipoPesquisa := pesTRIBUTOSPIS;
+
+  fraConsultaCodConribSocial_M210.TipoPesquisa := pesPISCOFINS_T435;
+
+
+  pgcF100.ActivePageIndex := 0;
+  pgcEscrituracaoPISCOFINS.ActivePageIndex := 0;
+
+//  fradbcgcoucpff200_cpf_cnpj_adqu.edtCPFCNPJ.Tipo := 'J';
+
+  pgcf200.ActivePageIndex := 0;
+
+  sbnGerarArquivo.Enabled := false;
+
+
+  fraConsultaContaContabil_M400.TipoPesquisa := pesCONTADEBITO;
+  fraConsultaContaContabil_M400.TipoContaContabilDebitoSelecionavel := 'A';
+
+  dbg_M410.OnDelete :=  ExcluirRegistroM410;
+  dbgm205.OnDelete :=  ExcluirRegistroM205;
+
+  fraConsultaCod_Rec_m205 := TfraConsultaCodigoContabil.Create(fraConsultaCod_Rec_m205);
+  fraConsultaCod_Rec_m205.Name := 'fraConsultaCod_Rec_m205';
+  fraConsultaCod_Rec_m205.edfCodigo.MaxLength := 6;
+  fraConsultaCod_Rec_m205.edfCodigo.DataSource := dtmEPC.dsrRegistroM205;
+  fraConsultaCod_Rec_m205.edfCodigo.DataField := 'cod_rec';
+  fraConsultaCod_Rec_m205.edfCodigo.Operacao := opATRIBUICAO;
+  fraConsultaCod_Rec_m205.edfCodigo.LookupSource := fraConsultaCod_Rec_m205.dsrProcurapis_tdctf;
+  fraConsultaCod_Rec_m205.edfCodigo.LookupField := 'codigo';
+  fraConsultaCod_Rec_m205.edfCodigo.LookupQueryParameter := 'codigo';
+  fraConsultaCod_Rec_m205.AbrirTabelaProcura := false;
+  fraConsultaCod_Rec_m205.TipoPesquisa := pespis_tdctf;
+  fraConsultaCod_Rec_m205.OnFound := AtribuirDadosCod_Rec_m205;
+
+  fraConsultaCod_Rec_m605 := TfraConsultaCodigoContabil.Create(fraConsultaCod_Rec_m605);
+  fraConsultaCod_Rec_m605.Name := 'fraConsultaCod_Rec_m605';
+  fraConsultaCod_Rec_m605.edfCodigo.MaxLength := 6;
+  fraConsultaCod_Rec_m605.edfCodigo.DataSource := dtmEPC.dsrRegistroM605;
+  fraConsultaCod_Rec_m605.edfCodigo.DataField := 'cod_rec';
+  fraConsultaCod_Rec_m605.edfCodigo.Operacao := opATRIBUICAO;
+  fraConsultaCod_Rec_m605.edfCodigo.LookupSource := fraConsultaCod_Rec_m605.dsrProcuracofins_tdctf;
+  fraConsultaCod_Rec_m605.edfCodigo.LookupField := 'codigo';
+  fraConsultaCod_Rec_m605.edfCodigo.LookupQueryParameter := 'codigo';
+  fraConsultaCod_Rec_m605.AbrirTabelaProcura := false;
+  fraConsultaCod_Rec_m605.TipoPesquisa := pescofins_tdctf;
+  fraConsultaCod_Rec_m605.OnFound := AtribuirDadosCod_Rec_m605;
+
+
+  fraConsultaContaContabil_M410 := TfraConsultaCodigoContabil.Create(fraConsultaContaContabil_M410);
+  fraConsultaContaContabil_M410.Name := 'fraConsultaContaContabil_M410';
+  fraConsultaContaContabil_M410.TipoContaContabilCreditoSelecionavel := '';
+  fraConsultaContaContabil_M410.TipoContaContabilConsultaSelecionavel := '';
+  fraConsultaContaContabil_M410.edfCodigo.MaxLength := 6;
+  fraConsultaContaContabil_M410.edfCodigo.DataSource := dtmEPC.dsrRegistroM410;
+  fraConsultaContaContabil_M410.edfCodigo.DataField := 'cod_cta';
+  fraConsultaContaContabil_M410.edfCodigo.Operacao := opATRIBUICAO;
+  fraConsultaContaContabil_M410.edfCodigo.LookupSource := fraConsultaContaContabil_M410.dsrProcuraCreditar;
+  fraConsultaContaContabil_M410.edfCodigo.LookupField := 'codigo';
+  fraConsultaContaContabil_M410.edfCodigo.LookupQueryParameter := 'codigo';
+  fraConsultaContaContabil_M410.AbrirTabelaProcura := false;
+  fraconsultacontaContabil_M410.TipoContaContabilCreditoSelecionavel := 'A';
+  fraconsultacontaContabil_M410.TipoContaContabilConsultaSelecionavel := 'A';
+  fraConsultaContaContabil_M410.TipoPesquisa := pesCONTACREDITO;
+  fraConsultaContaContabil_M410.OnFound := AtribuirDadosContaContabil_M410;
+
+  fraConsultaPISCST_M400.TipoPesquisa := pesTRIBUTOSPIS;
+
+  fraConsultaCodTipoCreditoM500.TipoPesquisa := pesPISCOFINS_T436;
+  fraConsultaNaturezaBaseM505.TipoPesquisa := pesNATBCCRED;
+  fraConsultaCOFINSCST_M505.TipoPesquisa := pesTRIBUTOSCOFINS;
+
+
+  fraConsultaCodConribSocial_M610.TipoPesquisa := pesPISCOFINS_T435;
+
+  fraConsultaCodTipoCreditoM230.TipoPesquisa := pesPISCOFINS_T436;
+  fraConsultaCodTipoCreditoM630.TipoPesquisa := pesPISCOFINS_T436;
+
+
+  dbg_M810.OnDelete :=  ExcluirRegistroM410;
+
+  fraConsultaContaContabil_M800.TipoPesquisa := pesCONTADEBITO;
+  fraConsultaContaContabil_M800.TipoContaContabilDebitoSelecionavel := 'A';
+
+
+  fraConsultaContaContabil_M810 := TfraConsultaCodigoContabil.Create(fraConsultaContaContabil_M810);
+  fraConsultaContaContabil_M810.Name := 'fraConsultaContaContabil_M810';
+  fraConsultaContaContabil_M810.TipoContaContabilCreditoSelecionavel := '';
+  fraConsultaContaContabil_M810.TipoContaContabilConsultaSelecionavel := '';
+  fraConsultaContaContabil_M810.edfCodigo.MaxLength := 6;
+  fraConsultaContaContabil_M810.edfCodigo.DataSource := dtmEPC.dsrRegistroM810;
+  fraConsultaContaContabil_M810.edfCodigo.DataField := 'cod_cta';
+  fraConsultaContaContabil_M810.edfCodigo.Operacao := opATRIBUICAO;
+  fraConsultaContaContabil_M810.edfCodigo.LookupSource := fraConsultaContaContabil_M810.dsrProcuraCreditar;
+  fraConsultaContaContabil_M810.edfCodigo.LookupField := 'codigo';
+  fraConsultaContaContabil_M810.edfCodigo.LookupQueryParameter := 'codigo';
+  fraConsultaContaContabil_M810.AbrirTabelaProcura := false;
+  fraconsultacontaContabil_M810.TipoContaContabilCreditoSelecionavel := 'A';
+  fraconsultacontaContabil_M810.TipoContaContabilConsultaSelecionavel := 'A';
+  fraConsultaContaContabil_M810.TipoPesquisa := pesCONTACREDITO;
+  fraConsultaContaContabil_M810.OnFound := AtribuirDadosContaContabil_M810;
+
+  fraConsultaCOFINSCST_M800.TipoPesquisa := pesTRIBUTOSPIS;
+
+  fraConsultaFilialP100.TipoPesquisa := pesFILIAIS;
+  fraConsultaFilialP100.CondicoesdaConsulta := CondicaoFilialSelecionavel;
+
+  fraConsultaPiscofins_t511.tipopesquisa := pesPISCOFINS_T511;
+  fraConsultaPiscofins_t511.CondicoesdaConsulta := CondicaoPiscofins_t511;
+  fraConsultaPiscofins_t511.OnFound := AtribuirDadosPiscofins_t511;
+
+  fraConsultaContaContabilP100.TipoPesquisa := pesCONTADEBITO;
+  fraConsultaContaContabilP100.TipoContaContabilDebitoSelecionavel := 'A';
+
+
+end;
+
+procedure TfrmEPC.sbnGerarArquivoClick(Sender: TObject);
+begin
+  inherited;
+  if ValidarCamposSelecao then
+  begin
+     with dtmEPC do
+     begin
+       if GerarArquivo(qryepcnomearquivo.AsString) then
+         MensagemAviso(format(ctARQUIVOGERADOSUCESSO,[qryepcnomearquivo.AsString]));
+     end;
+  end
+end;
+
+function TfrmEPC.ValidarCamposSelecao: Boolean;
+begin
+
+  result := not MesAnoEmBranco(edtMesInicial.text);
+  if not result then
+  begin
+    MensagemAviso(ctDATAINVALIDA);
+    edtMesInicial.SetFocus;
+  end
+  else
+  if tstRegistro_110.tabvisible then
+  begin
+    if dtmEPC.qryepcCOD_INC_TRIB.IsNull then
+    begin
+      result := false;
+      MensagemAviso('"CÓDIGO INDICADOR DA INCIDÊNCIA TRIBUTÁRIA NO PERÍODO" não informado');
+      pgcEscrituracaoPISCOFINS.ActivePage := tstRegistro_110;
+      drg0110_02.SetFocus;
+    end
+    else
+    if (dtmEPC.qryepcCOD_INC_TRIB.AsInteger in [1,3]) and dtmEPC.qryepcIND_APRO_CRED.isnull then
+    begin
+      result := false;
+      MensagemAviso('"MÉTODO DE APROPRIAÇÃO DE CRÉDITOS NO REGIME NÃO CUMULATIVO" não informado');
+      pgcEscrituracaoPISCOFINS.ActivePage := tstRegistro_110;
+      drg0110_03.SetFocus;
+    end
+    else
+    if (dtmEPC.qryepcCOD_INC_TRIB.AsInteger in [2]) and dtmEPC.qryepcIND_REG_CUM.isnull then
+    begin
+      result := false;
+      MensagemAviso('"TIPO DE REGIME CUMULATIVO" não informado');
+      pgcEscrituracaoPISCOFINS.ActivePage := tstRegistro_110;
+      drg0110_05.SetFocus;
+    end;
+  end;
+
+end;
+
+
+function TfrmEPC.InternoExcluir: Boolean;
+begin
+  Result := inherited InternoExcluir;
+  if Result then
+    if MensagemConfirmacao(Format(ctCONFIRMEEXCLUIR, ['a escrita contábil digital'])) = smbOK then
+      Result := dtmEPC.Excluirepc
+    else
+      Result := False
+end;
+
+function TfrmEPC.InternoGravar: Boolean;
+begin
+  inherited InternoGravar;
+
+  result := ValidarControles;
+
+  if result then
+   Result := dtmEPC.Gravarepc
+
+end;
+
+function TfrmEPC.InternoIncluir: Boolean;
+begin
+  result := inherited internoincluir;
+  if result then
+    Result := dtmEPC.Incluirepc;
+end;
+
+destructor TfrmEPC.Destroy;
+begin
+  dTEventos.free;
+  dtmEPC := nil;
+  inherited;
+  frmEPC := nil;
+end;
+
+
+procedure TfrmEPC.AbrirEPC;
+begin
+
+  dtmepc.
+        refazconsulta(dtmepc.qryepc,[0,1],
+             [fraConsultaepc.qryProcuraepcperiodo.AsString,
+              fraConsultaepc.qryProcuraepcfilial.AsString]);
+  fraConsultaFilial.edfCodigo.Exist
+
+end;
+
+procedure TfrmEPC.sbnProcurarClick(Sender: TObject);
+begin
+  inherited;
+  fraConsultaepc.InternoPesquisar('EPC - Escrita Contábil Digital');
+  self.SetFocus;
+end;
+
+procedure TfrmEPC.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if not CtrlOn then
+  begin
+    if (key = VK_F9) then
+    begin
+      if sbnProcurar.Enabled then
+      begin
+        fraConsultaepc.InternoPesquisar('efd - Escrita Contábil Digital');
+        self.SetFocus;
+      end
+    end
+    else
+    if (key = VK_F8) then
+    begin
+      if sbnGerarArquivo.Enabled then
+        sbnGerarArquivoClick(nil);
+    end;
+  end;
+end;
+
+procedure TfrmEPC.AlterarEstadoBotoes;
+begin
+  inherited;
+
+  sbnGerarArquivo.Enabled := sbnIncluir.Enabled and
+                             not sbnSalvar.Enabled and
+                             (dtmEPC.qryepc.RecordCount<>0);
+end;
+
+procedure TfrmEPC.Action1Update(Sender: TObject);
+begin
+  inherited;
+
+  tstRegistro_110.tabvisible := dtmepc.qryFiliaissped_pis_cofins.asboolean;
+  tstpgc100.tabvisible := dtmepc.qryFiliaissped_pis_cofins.asboolean;
+
+  tstBloco_m.tabvisible := dtmepc.qryFiliaissped_pis_cofins.asboolean;
+  tstBloco_P.tabvisible := dtmepc.qryFiliaissped_pis_cofins_rb.asboolean or dtmepc.qryFiliaissped_pis_cofins_rem.asboolean;
+  sbnGerarBlocoM.visible := dtmepc.qryFiliaissped_pis_cofins.asboolean;
+  sbnGerarBlocoP.visible := dtmepc.qryFiliaissped_pis_cofins_rb.asboolean or dtmepc.qryFiliaissped_pis_cofins_rem.asboolean;
+
+  drg0110_03.Enabled := rbn0110_02_01.Checked or rbn0110_02_03.Checked;
+  rbn0110_03_01.Enabled := drg0110_03.Enabled;
+  rbn0110_03_02.Enabled := drg0110_03.Enabled;
+
+{  drg0110_05.Enabled := rbn0110_02_02.Checked;
+  rbn0110_05_01.Enabled := drg0110_05.Enabled;
+  rbn0110_05_02.Enabled := drg0110_05.Enabled;
+  rbn0110_05_09.Enabled := drg0110_05.Enabled;
+  }
+
+  gbx0111.Enabled := rbn0110_03_02.Checked;
+
+  sbnIncluirRegistroF100.Enabled := not (dtmEPC.qryRegistroF100.State in [dsedit, dsinsert]);
+  sbnExcluirRegistroF100.Enabled := sbnIncluirRegistroF100.Enabled and (dtmEPC.qryRegistroF100.RecordCount >= 1);
+
+  sbnIncluirRegistroF120.Enabled := not (dtmEPC.qryRegistroF120.State in [dsedit, dsinsert]);
+  sbnExcluirRegistroF120.Enabled := sbnIncluirRegistroF120.Enabled and (dtmEPC.qryRegistroF120.RecordCount >= 1);
+
+  sbnIncluirRegistroF130.Enabled := not (dtmEPC.qryRegistroF130.State in [dsedit, dsinsert]);
+  sbnExcluirRegistroF130.Enabled := sbnIncluirRegistroF130.Enabled and (dtmEPC.qryRegistroF130.RecordCount >= 1);
+
+  sbnIncluirRegistroF150.Enabled := not (dtmEPC.qryRegistroF150.State in [dsedit, dsinsert]);
+  sbnExcluirRegistroF150.Enabled := sbnIncluirRegistroF150.Enabled and (dtmEPC.qryRegistroF150.RecordCount >= 1);
+
+  sbnIncluirRegistroF200.Enabled := not (dtmEPC.qryRegistroF200.State in [dsedit, dsinsert]);
+  sbnExcluirRegistroF200.Enabled := sbnIncluirRegistroF200.Enabled and (dtmEPC.qryRegistroF200.RecordCount >= 1);
+
+  if (dtmEPC.qryRegistroF200.recordcount <> 0) and not (dtmEPC.qryRegistroF200.State = dsinsert) then
+  begin
+
+    tstF205.TabVisible := true;
+    tstF210.TabVisible := true;
+
+    sbnIncluirRegistroF205.Enabled := not (dtmEPC.qryRegistroF205.State in [dsedit, dsinsert]);
+    sbnExcluirRegistroF205.Enabled := sbnIncluirRegistroF205.Enabled and (dtmEPC.qryRegistroF205.RecordCount >= 1);
+
+    sbnIncluirRegistroF210.Enabled := not (dtmEPC.qryRegistroF210.State in [dsedit, dsinsert]);
+    sbnExcluirRegistroF210.Enabled := sbnIncluirRegistroF210.Enabled and (dtmEPC.qryRegistroF210.RecordCount >= 1);
+  end
+  else
+  begin
+    tstF205.TabVisible := false;
+    tstF210.TabVisible := false;
+  end;
+
+  sbnIncluirRegistroF600.Enabled := not (dtmEPC.qryRegistroF600.State in [dsedit, dsinsert]);
+  sbnExcluirRegistroF600.Enabled := sbnIncluirRegistroF600.Enabled and (dtmEPC.qryRegistroF600.RecordCount >= 1);
+
+  sbnIncluirRegistroF700.Enabled := not (dtmEPC.qryRegistroF700.State in [dsedit, dsinsert]);
+  sbnExcluirRegistroF700.Enabled := sbnIncluirRegistroF700.Enabled and (dtmEPC.qryRegistroF700.RecordCount >= 1);
+  gbxNrRecAnterior.visible := rbnRetificadora.checked;
+
+
+  sbnIncluirRegistrom100.Enabled := not (dtmEPC.qryRegistroM100.State in [dsedit, dsinsert]);
+  sbnExcluirRegistrom100.Enabled := sbnIncluirRegistroM100.Enabled and (dtmEPC.qryRegistroM100.RecordCount >= 1);
+
+  if (dtmEPC.qryRegistrom100.recordcount <> 0) and not (dtmEPC.qryRegistroM100.State = dsinsert) then
+  begin
+
+    pstpgcm105.TabVisible := true;
+    pstpgcm110.TabVisible := true;
+
+    sbnIncluirRegistroM105.Enabled := not (dtmEPC.qryRegistroM105.State in [dsedit, dsinsert]);
+    sbnExcluirRegistroM105.Enabled := sbnIncluirRegistroM105.Enabled and (dtmEPC.qryRegistroM105.RecordCount >= 1);
+
+    sbnIncluirRegistroM110.Enabled := not (dtmEPC.qryRegistroM110.State in [dsedit, dsinsert]);
+    sbnExcluirRegistroM110.Enabled := sbnIncluirRegistroM110.Enabled and (dtmEPC.qryRegistroM110.RecordCount >= 1);
+  end
+  else
+  begin
+    pstpgcm105.TabVisible := False;
+    pstpgcm110.TabVisible := False;
+  end;
+
+
+
+
+
+  if dtmepc.qryepcCOD_INC_TRIB.asinteger = 3 then
+  begin
+    edtM105_05_VL_BC_PIS_CUM.readonly := false;
+    edtM105_05_VL_BC_PIS_CUM.color := clWindow;
+    edtM105_05_VL_BC_PIS_CUM.tabstop := true;
+  end
+  else
+  begin
+    edtM105_05_VL_BC_PIS_CUM.readonly := true;
+    edtM105_05_VL_BC_PIS_CUM.color := clBtnFace;
+    edtM105_05_VL_BC_PIS_CUM.tabstop := false;
+  end;
+
+  if dtmepc.qryepcCOD_INC_TRIB.asinteger = 2 then
+  begin
+    tst_m100.TabVisible := false;
+    tst_m500.TabVisible := false;
+  end
+  else
+  begin
+    tst_m100.TabVisible := true;
+    tst_m500.TabVisible := true;
+  end;
+
+  if (dtmEPC.qryRegistroM200.recordcount <> 0) and not (dtmEPC.qryRegistroM200.State = dsinsert) then
+    tstpgcm210_Consolidacao.TabVisible := true
+  else
+    tstpgcm210_Consolidacao.TabVisible := False;
+
+  if (dtmEPC.qryRegistroM210.recordcount <> 0) and not (dtmEPC.qryRegistroM210.State = dsinsert) then
+  begin
+    tstpgcm220_Consolidacao.TabVisible := true;
+    tstpgcm220_Consolidacao.TabVisible := true;
+
+    tstpgcm230_Consolidacao.TabVisible := true;
+    tstpgcm230_Consolidacao.TabVisible := true;
+
+  end
+  else
+  begin
+    tstpgcm220_Consolidacao.TabVisible := false;
+    tstpgcm220_Consolidacao.TabVisible := false;
+
+    tstpgcm230_Consolidacao.TabVisible := false;
+    tstpgcm230_Consolidacao.TabVisible := false;
+
+  end;
+
+  if (dtmEPC.qryRegistroM400.recordcount <> 0) and not (dtmEPC.qryRegistroM400.State = dsinsert) then
+    gbxM410_Detalhamento.enabled := True
+  else
+    gbxM410_Detalhamento.enabled := False;
+
+
+
+  sbnIncluirRegistrom500.Enabled := not (dtmEPC.qryRegistroM500.State in [dsedit, dsinsert]);
+  sbnExcluirRegistrom500.Enabled := sbnIncluirRegistroM500.Enabled and (dtmEPC.qryRegistroM500.RecordCount >= 1);
+
+  if (dtmEPC.qryRegistrom500.recordcount <> 0) and not (dtmEPC.qryRegistroM500.State = dsinsert) then
+  begin
+
+    tstpgcm505.TabVisible := true;
+    tstpgcm510.TabVisible := true;
+
+    sbnIncluirRegistroM505.Enabled := not (dtmEPC.qryRegistroM505.State in [dsedit, dsinsert]);
+    sbnExcluirRegistroM505.Enabled := sbnIncluirRegistroM505.Enabled and (dtmEPC.qryRegistroM505.RecordCount >= 1);
+
+    sbnIncluirRegistroM510.Enabled := not (dtmEPC.qryRegistroM510.State in [dsedit, dsinsert]);
+    sbnExcluirRegistroM510.Enabled := sbnIncluirRegistroM510.Enabled and (dtmEPC.qryRegistroM510.RecordCount >= 1);
+  end
+  else
+  begin
+    tstpgcm505.TabVisible := False;
+    tstpgcm510.TabVisible := False;
+  end;
+
+
+  if (dtmEPC.qryRegistroM600.recordcount <> 0) and not (dtmEPC.qryRegistroM600.State = dsinsert) then
+    tstpgcm610_Consolidacao.TabVisible := true
+  else
+    tstpgcm610_Consolidacao.TabVisible := False;
+
+  if (dtmEPC.qryRegistroM610.recordcount <> 0) and not (dtmEPC.qryRegistroM610.State = dsinsert) then
+  begin
+    tstpgcm620_Consolidacao.TabVisible := true;
+    tstpgcm620_Consolidacao.TabVisible := true;
+
+    tstpgcm630_Consolidacao.TabVisible := true;
+    tstpgcm630_Consolidacao.TabVisible := true;
+
+  end
+  else
+  begin
+    tstpgcm620_Consolidacao.TabVisible := false;
+    tstpgcm620_Consolidacao.TabVisible := false;
+
+    tstpgcm630_Consolidacao.TabVisible := false;
+    tstpgcm630_Consolidacao.TabVisible := false;
+  end;
+
+  sbnIncluirRegistrop100.Enabled := not (dtmEPC.qryRegistrop100.State in [dsedit, dsinsert]);
+  sbnExcluirRegistrop100.Enabled := sbnIncluirRegistroP100.Enabled and (dtmEPC.qryRegistroP100.RecordCount >= 1);
+
+end;
+
+procedure TfrmEPC.CondicaoFilialConsolidadora;
+begin
+  fraconsultafilial.qryprocurafiliais.macrobyname('SQL').asstring := 'and filialconsolidadoradime is null';
+  fraconsultafilial.qryconsultafiliais.macrobyname('SQL').asstring := 'and filialconsolidadoradime is null';
+end;
+
+procedure TfrmEPC.edtMesInicialMessage(var Msg: String);
+begin
+  inherited;
+  msg := 'O período '+edtMesInicial.Text + ' não esta cadastrado.'
+
+end;
+
+procedure TfrmEPC.AtribuirDadosClientesDemaisDoctos;
+begin
+  dtmEPC.qryRegistroF100tipocod_part.AsString := fraConsultaClienteDemaisDoctos.qryProcuraClientetipo.AsString;
+end;
+
+procedure TfrmEPC.sbnIncluirRegistroF100Click(Sender: TObject);
+begin
+  inherited;
+  dtmEPC.qryRegistroF100.Append;
+end;
+
+procedure TfrmEPC.sbnExcluirRegistroF100Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao('Confirma a exclusão do registro') = smbOK then
+    dtmEPC.qryRegistroF100.Delete;
+end;
+
+procedure TfrmEPC.sbnIncluirRegistroF120Click(Sender: TObject);
+begin
+  inherited;
+  dtmEPC.qryRegistroF120.Append;
+
+end;
+
+procedure TfrmEPC.sbnExcluirRegistroF120Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao('Confirma a exclusão do registro') = smbOK then
+    dtmEPC.qryRegistroF120.Delete;
+end;
+
+procedure TfrmEPC.CondicaoFilialSelecionavel;
+var
+ i: integer;
+begin
+  for i:=0 to self.ComponentCount -1 do
+  begin
+    if (self.Components[i].ClassType = TfraConsultaCodigo) and
+       (pos(self.Components[i].Name, 'fraConsultaFilial')<>0) then
+    begin
+      TfraConsultaCodigo(self.Components[i]).qryprocurafiliais.macrobyname('SQL').asstring := format('and (codigo = %s or '+
+                                                                                ' codigo in (select f2.codigo '+
+                                                                                           ' from filiais f2 '+
+                                                                                           ' where f2.filialconsolidadoradime = %s)) '+
+                                                                                'and (sped_pis_cofins or sped_pis_cofins_rb or sped_pis_cofins_rem)',
+                                                        [dtmepc.qryepcfilial.asstring, dtmepc.qryepcfilial.asstring]);
+
+      TfraConsultaCodigo(self.Components[i]).qryconsultafiliais.macrobyname('SQL').asstring := format('and (codigo = %s or '+
+                                                                                ' codigo in (select f2.codigo '+
+                                                                                           ' from filiais f2 '+
+                                                                                           ' where f2.filialconsolidadoradime = %s)) '+
+                                                                                'and (sped_pis_cofins or sped_pis_cofins_rb or sped_pis_cofins_rem)',
+                                                        [dtmepc.qryepcfilial.asstring, dtmepc.qryepcfilial.asstring]);
+     {
+      fraConsultaFilialOperAtivImob.qryprocurafiliais.macrobyname('SQL').asstring := format('and (codigo = %s or '+
+                                                                                ' codigo in (select f2.codigo '+
+                                                                                           ' from filiais f2 '+
+                                                                                           ' where f2.filialconsolidadoradime = %s))',
+                                                        [dtmepc.qryepcfilial.asstring, dtmepc.qryepcfilial.asstring]);
+
+      fraConsultaFilialOperAtivImob.qryconsultafiliais.macrobyname('SQL').asstring := format('and (codigo = %s or '+
+                                                                                ' codigo in (select f2.codigo '+
+                                                                                           ' from filiais f2 '+
+                                                                                           ' where f2.filialconsolidadoradime = %s))',
+                                                        [dtmepc.qryepcfilial.asstring, dtmepc.qryepcfilial.asstring]);
+     }
+    end;
+  end;
+end;
+
+
+procedure TfrmEPC.sbnIncluirRegistroF130Click(Sender: TObject);
+begin
+  inherited;
+  dtmEPC.qryRegistroF130.Append;
+end;
+
+procedure TfrmEPC.sbnSalvarRegistroF130Click(Sender: TObject);
+begin
+  inherited;
+  if dtmEPC.qryRegistroF130.CheckRequiredFields then
+    dtmEPC.qryRegistroF130.Post;
+
+end;
+
+procedure TfrmEPC.sbnExcluirRegistroF130Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao('Confirma a exclusão do registro') = smbOK then
+    dtmEPC.qryRegistroF130.Delete;
+
+end;
+
+procedure TfrmEPC.sbnIncluirRegistroF150Click(Sender: TObject);
+begin
+  inherited;
+  dtmEPC.qryRegistroF150.Append;
+
+end;
+
+procedure TfrmEPC.sbnSalvarRegistroF150Click(Sender: TObject);
+begin
+  inherited;
+  if dtmEPC.qryRegistroF150.CheckRequiredFields then
+    dtmEPC.qryRegistroF150.Post;
+
+end;
+
+procedure TfrmEPC.sbnExcluirRegistroF150Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao('Confirma a exclusão do registro') = smbOK then
+    dtmEPC.qryRegistroF150.Delete;
+
+end;
+
+procedure TfrmEPC.sbnIncluirRegistroF200Click(Sender: TObject);
+begin
+  inherited;
+  dtmEPC.qryRegistroF200.Append;
+
+end;
+
+procedure TfrmEPC.sbnExcluirRegistroF200Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao('Confirma a exclusão do registro F200 e seus registroas associados F205 e F210') = smbOK then
+  begin
+    dtmEPC.qryRegistroF205.first;
+    while not dtmepc.qryregistrof205.Eof do
+      dtmEPC.qryRegistroF205.delete;
+
+    dtmEPC.qryRegistroF210.first;
+    while not dtmepc.qryregistrof210.Eof do
+      dtmEPC.qryRegistroF210.delete;
+
+    dtmEPC.qryRegistroF200.Delete;
+  end;
+end;
+
+procedure TfrmEPC.sbnIncluirRegistroF205Click(Sender: TObject);
+begin
+  inherited;
+  dtmEPC.qryRegistroF205.Append;
+end;
+
+procedure TfrmEPC.sbnSalvarRegistroF205Click(Sender: TObject);
+begin
+  inherited;
+  if dtmEPC.qryRegistroF205.CheckRequiredFields then
+    dtmEPC.qryRegistroF205.Post;
+end;
+
+procedure TfrmEPC.sbnExcluirRegistroF205Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao('Confirma a exclusão do registro') = smbOK then
+    dtmEPC.qryRegistroF205.Delete;
+end;
+
+procedure TfrmEPC.sbnincluirRegistroF210Click(Sender: TObject);
+begin
+  inherited;
+  dtmEPC.qryRegistroF210.Append;
+end;
+
+procedure TfrmEPC.sbnSalvarRegistroF210Click(Sender: TObject);
+begin
+  inherited;
+  if dtmEPC.qryRegistroF210.CheckRequiredFields then
+    dtmEPC.qryRegistroF210.Post;
+
+end;
+
+procedure TfrmEPC.sbnExcluirRegistroF210Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao('Confirma a exclusão do registro') = smbOK then
+    dtmEPC.qryRegistroF210.Delete;
+
+end;
+
+procedure TfrmEPC.sbnIncluirRegistroF600Click(Sender: TObject);
+begin
+  inherited;
+  dtmEPC.qryRegistroF600.Append;
+
+end;
+
+
+procedure TfrmEPC.sbnExcluirRegistroF600Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao('Confirma a exclusão do registro') = smbOK then
+    dtmEPC.qryRegistroF600.Delete;
+end;
+
+procedure TfrmEPC.sbnIncluirRegistroF700Click(Sender: TObject);
+begin
+  inherited;
+  dtmEPC.qryRegistroF700.Append;
+
+end;
+
+procedure TfrmEPC.sbnSalvarRegistroF700Click(Sender: TObject);
+begin
+  inherited;
+  if dtmEPC.qryRegistroF700.CheckRequiredFields then
+      dtmEPC.qryRegistroF700.Post;
+
+end;
+
+procedure TfrmEPC.sbnExcluirRegistroF700Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao('Confirma a exclusão do registro') = smbOK then
+    dtmEPC.qryRegistroF700.Delete;
+
+end;
+
+procedure TfrmEPC.sbnExcluirRegistroM100Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao('Confirma a exclusão do registro M100 e seus associados M105 e M110') = smbOK then
+  begin
+
+    dtmEPC.qryRegistroM105.first;
+    while not dtmepc.qryregistroM105.Eof do
+      dtmEPC.qryRegistroM105.delete;
+
+    dtmEPC.qryRegistroM110.first;
+    while not dtmepc.qryregistroM110.Eof do
+      dtmEPC.qryRegistroM110.delete;
+
+    dtmEPC.qryRegistroM100.Delete;
+  end
+end;
+
+procedure TfrmEPC.sbnIncluirRegistroM100Click(Sender: TObject);
+begin
+  inherited;
+  dtmEPC.qryRegistroM100.Append;
+end;
+
+procedure TfrmEPC.sbnIncluirRegistroM105Click(Sender: TObject);
+begin
+  inherited;
+  dtmEPC.qryRegistroM105.Append;
+end;
+
+procedure TfrmEPC.sbnExcluirRegistroM105Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao('Confirma a exclusão do registro M105') = smbOK then
+    dtmEPC.qryRegistroM105.delete;
+end;
+
+procedure TfrmEPC.sbnIncluirRegistroM110Click(Sender: TObject);
+begin
+  inherited;
+  dtmEPC.qryRegistroM110.Append;
+
+end;
+
+procedure TfrmEPC.sbnExcluirRegistroM110Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao('Confirma a exclusão do registro M110') = smbOK then
+    dtmEPC.qryRegistroM110.delete;
+end;
+
+procedure TfrmEPC.sbnIncluirRegistroM210Click(Sender: TObject);
+begin
+  inherited;
+  dtmEPC.qryRegistroM210.Append;
+end;
+
+procedure TfrmEPC.sbnExcluirRegistroM210Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao('Confirma a exclusão do registro M210 e seus associados M220 e M230') = smbOK then
+  begin
+
+    dtmEPC.qryRegistroM220.first;
+    while not dtmepc.qryregistroM220.Eof do
+      dtmEPC.qryRegistroM220.delete;
+
+    dtmEPC.qryRegistroM230.first;
+    while not dtmepc.qryregistroM230.Eof do
+      dtmEPC.qryRegistroM230.delete;
+
+    dtmEPC.qryRegistroM210.Delete;
+  end
+
+end;
+
+procedure TfrmEPC.sbnExcluirRegistroM200Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao('Confirma a exclusão do registro M200 e seus associados M205, M210, M220 e M230') = smbOK then
+  begin
+
+    dtmEPC.qryRegistroM205.first;
+    while not dtmepc.qryregistroM205.Eof do
+      dtmEPC.qryRegistroM205.delete;
+
+    dtmEPC.qryRegistroM210.first;
+    while not dtmepc.qryregistroM210.Eof do
+    begin
+
+      dtmEPC.qryRegistroM220.first;
+      while not dtmepc.qryregistroM220.Eof do
+        dtmEPC.qryRegistroM220.delete;
+
+      dtmEPC.qryRegistroM230.first;
+      while not dtmepc.qryregistroM230.Eof do
+        dtmEPC.qryRegistroM230.delete;
+
+      dtmEPC.qryRegistroM210.delete;
+    end;
+
+    dtmEPC.qryRegistroM200.Delete;
+  end;
+
+end;
+
+procedure TfrmEPC.sbnIncluirRegistroM220Click(Sender: TObject);
+begin
+  inherited;
+  dtmEPC.qryRegistroM220.Append;
+end;
+
+procedure TfrmEPC.sbnExcluirRegistroM220Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao('Confirma a exclusão do registro M220') = smbOK then
+    dtmEPC.qryRegistroM220.Delete;
+
+end;
+
+procedure TfrmEPC.sbnIncluirRegistroM230Click(Sender: TObject);
+begin
+  inherited;
+  dtmEPC.qryRegistroM230.Append;
+
+end;
+
+procedure TfrmEPC.sbnExcluirRegistroM230Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao('Confirma a exclusão do registro M230') = smbOK then
+    dtmEPC.qryRegistroM230.Delete;
+
+end;
+
+procedure TfrmEPC.sbnIncluirRegistroM300Click(Sender: TObject);
+begin
+  inherited;
+  dtmEPC.qryRegistroM300.Append;
+end;
+
+procedure TfrmEPC.sbnExcluirRegistroM300Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao('Confirma a exclusão do registro M300') = smbOK then
+    dtmEPC.qryRegistroM300.Delete;
+
+end;
+
+procedure TfrmEPC.sbnExcluirRegistroM350Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao('Confirma a exclusão do registro M350') = smbOK then
+    dtmEPC.qryRegistroM350.Delete;
+
+end;
+
+procedure TfrmEPC.sbnIncluirRegistroM400Click(Sender: TObject);
+begin
+  inherited;
+  dtmEPC.qryRegistroM400.Append;
+end;
+
+procedure TfrmEPC.sbnExcluirRegistroM400Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao('Confirma a exclusão do registro M400 e seus registros associados M410') = smbOK then
+  begin
+    dtmEPC.qryRegistroM410.first;
+    while dtmEPC.qryRegistroM410.eof do
+      dtmEPC.qryRegistroM410.delete;
+
+    dtmEPC.qryRegistroM400.Delete;
+  end
+end;
+
+procedure TfrmEPC.sbnExcluirRegistroM410Click(Sender: TObject);
+begin
+  inherited;
+  ExcluirRegistroM410;
+end;
+
+procedure TfrmEPC.dbg_M410KeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if CtrlOn then
+  begin
+    case Key of
+      VK_F9 : AcionaPesquisaGradeContaContabil_M410;
+    end;
+  end
+  else
+  begin
+    case key of
+      VK_Return :
+      begin
+        case dbg_M410.SelectedIndex of
+        2,3 : begin
+                if not fraConsultaContaContabil_M410.edfCodigo.Exist then
+                  dtmEPC.qryRegistroM410descricaocontacontabil.clear
+                else
+                  AtribuirDadosContaContabil_M410;
+
+                dbg_M410.SelectedIndex := 2;
+                dbg_M410.SetFocus;
+              end;
+        end;
+
+        if dtmEPC.qryregistrom410.State in [dsedit, dsinsert] then
+           dtmEPC.qryREgistroM410.Post;
+
+      end;
+    end;
+  end;
+
+end;
+
+procedure TfrmEPC.AcionaPesquisaGradeContaContabil_M410;
+begin
+  if dbg_M410.Focused then
+  begin
+    case dbg_M410.SelectedIndex of
+    2,3 :
+      begin
+        fraConsultaContaContabil_M410.CtrlOn := True;
+        fraConsultaContaContabil_M410.InternoPesquisar('Conta Contábil');
+        dbg_M410.SetFocus;
+        dbg_M410.SelectedIndex :=  2;
+      end;
+    end;
+  end;
+
+end;
+
+procedure TfrmEPC.AtribuirDadosContaContabil_M410;
+begin
+  dtmEPC.qryRegistroM410.Edit;
+  dtmEPC.qryRegistroM410descricaocontacontabil.AsString := fraConsultaContaContabil_M410.qryProcuraCreditardescricao.AsString;
+end;
+
+procedure TfrmEPC.dbg_M410DblClick(Sender: TObject);
+begin
+  inherited;
+  AcionaPesquisaGradeContaContabil_M410;
+end;
+
+procedure TfrmEPC.sbnIncluirRegistroM500Click(Sender: TObject);
+begin
+  inherited;
+  dtmEPC.qryRegistroM500.Append;
+end;
+
+procedure TfrmEPC.sbnExcluirRegistroM500Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao('Confirma a exclusão do registro M500 e seus associados M505 e M510') = smbOK then
+  begin
+
+    dtmEPC.qryRegistroM505.first;
+    while not dtmepc.qryregistroM505.Eof do
+      dtmEPC.qryRegistroM505.delete;
+
+    dtmEPC.qryRegistroM510.first;
+    while not dtmepc.qryregistroM510.Eof do
+      dtmEPC.qryRegistroM510.delete;
+
+    dtmEPC.qryRegistroM500.Delete;
+  end
+
+end;
+
+procedure TfrmEPC.sbnIncluirRegistroM505Click(Sender: TObject);
+begin
+  inherited;
+  dtmEPC.qryRegistroM505.Append;
+end;
+
+procedure TfrmEPC.sbnExcluirRegistroM505Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao('Confirma a exclusão do registro M505') = smbOK then
+    dtmEPC.qryRegistroM505.delete;
+
+end;
+
+procedure TfrmEPC.sbnIncluirRegistroM510Click(Sender: TObject);
+begin
+  inherited;
+  dtmEPC.qryRegistroM510.Append;
+
+end;
+
+procedure TfrmEPC.sbnExcluirRegistroM510Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao('Confirma a exclusão do registro M510') = smbOK then
+    dtmEPC.qryRegistroM510.delete;
+
+end;
+
+procedure TfrmEPC.sbnExcluirRegistroM600Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao('Confirma a exclusão do registro M600 e seus associados M605, M610, M620 e M630') = smbOK then
+  begin
+    dtmEPC.qryRegistroM605.first;
+    while not dtmepc.qryregistroM605.Eof do
+      dtmEPC.qryRegistroM605.delete;
+
+    dtmEPC.qryRegistroM610.first;
+    while not dtmepc.qryregistroM610.Eof do
+    begin
+
+      dtmEPC.qryRegistroM620.first;
+      while not dtmepc.qryregistroM620.Eof do
+        dtmEPC.qryRegistroM620.delete;
+
+      dtmEPC.qryRegistroM630.first;
+      while not dtmepc.qryregistroM630.Eof do
+        dtmEPC.qryRegistroM630.delete;
+
+      dtmEPC.qryRegistroM610.delete;
+    end;
+
+    dtmEPC.qryRegistroM600.Delete;
+  end;
+end;
+
+procedure TfrmEPC.ExcluirRegistroM410;
+begin
+  if MensagemConfirmacao('Confirma a exclusão do registro M410') = smbOK then
+    dtmEPC.qryRegistroM410.delete;
+end;
+
+procedure TfrmEPC.sbnIncluirRegistroM610Click(Sender: TObject);
+begin
+  inherited;
+  dtmEPC.qryRegistroM610.Append;
+
+end;
+
+procedure TfrmEPC.sbnExcluirRegistroM610Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao('Confirma a exclusão do registro M610 e seus associados M620 e M630') = smbOK then
+  begin
+
+    dtmEPC.qryRegistroM620.first;
+    while not dtmepc.qryregistroM620.Eof do
+      dtmEPC.qryRegistroM620.delete;
+
+    dtmEPC.qryRegistroM630.first;
+    while not dtmepc.qryregistroM630.Eof do
+      dtmEPC.qryRegistroM630.delete;
+
+    dtmEPC.qryRegistroM610.Delete;
+  end
+
+end;
+
+procedure TfrmEPC.sbnIncluirRegistroM620Click(Sender: TObject);
+begin
+  inherited;
+  dtmEPC.qryRegistroM620.Append;
+
+end;
+
+procedure TfrmEPC.SpeedButton4Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao('Confirma a exclusão do registro M620') = smbOK then
+    dtmEPC.qryRegistroM620.Delete;
+
+end;
+
+procedure TfrmEPC.sbnExcluirRegistroM700Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao('Confirma a exclusão do registro M700') = smbOK then
+    dtmEPC.qryRegistroM700.Delete;
+
+end;
+
+procedure TfrmEPC.sbnInlcuirRegistroM700Click(Sender: TObject);
+begin
+  inherited;
+  dtmEPC.qryRegistroM700.Append;
+end;
+
+procedure TfrmEPC.sbnExcluirRegistroM810Click(Sender: TObject);
+begin
+  inherited;
+  ExcluirRegistroM810;
+end;
+
+procedure TfrmEPC.ExcluirRegistroM810;
+begin
+  if MensagemConfirmacao('Confirma a exclusão do registro M810') = smbOK then
+    dtmEPC.qryRegistroM810.delete;
+end;
+
+procedure TfrmEPC.AtribuirDadosContaContabil_M810;
+begin
+  dtmEPC.qryRegistroM810.Edit;
+  dtmEPC.qryRegistroM810descricaocontacontabil.AsString := fraConsultaContaContabil_M810.qryProcuraCreditardescricao.AsString;
+end;
+
+procedure TfrmEPC.sbnIncluirRegistroM800Click(Sender: TObject);
+begin
+  inherited;
+  dtmEPC.qryRegistroM800.Append;
+end;
+
+procedure TfrmEPC.sbnExcluirRegistroM800Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao('Confirma a exclusão do registro M800 e seus registros associados M810') = smbOK then
+  begin
+    dtmEPC.qryRegistroM810.first;
+    while dtmEPC.qryRegistroM810.eof do
+      dtmEPC.qryRegistroM810.delete;
+
+    dtmEPC.qryRegistroM800.Delete;
+  end
+
+end;
+
+procedure TfrmEPC.dbg_M810DblClick(Sender: TObject);
+begin
+  inherited;
+  AcionaPesquisaGradeContaContabil_M810;
+
+end;
+
+procedure TfrmEPC.AcionaPesquisaGradeContaContabil_M810;
+begin
+  if dbg_M810.Focused then
+  begin
+    case dbg_M810.SelectedIndex of
+    2,3 :
+      begin
+        fraConsultaContaContabil_M810.CtrlOn := True;
+        fraConsultaContaContabil_M810.InternoPesquisar('Conta Contábil');
+        dbg_M810.SetFocus;
+        dbg_M810.SelectedIndex :=  2;
+      end;
+    end;
+  end;
+
+end;
+
+procedure TfrmEPC.dbg_M810KeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if CtrlOn then
+  begin
+    case Key of
+      VK_F9 : AcionaPesquisaGradeContaContabil_M810;
+    end;
+  end
+  else
+  begin
+    case key of
+      VK_Return :
+      begin
+        case dbg_M810.SelectedIndex of
+        2,3 : begin
+                if not fraConsultaContaContabil_M810.edfCodigo.Exist then
+                  dtmEPC.qryRegistroM810descricaocontacontabil.clear
+                else
+                  AtribuirDadosContaContabil_M810;
+
+                dbg_M810.SelectedIndex := 2;
+                dbg_M810.SetFocus;
+              end;
+        end;
+
+        if dtmEPC.qryregistrom810.State in [dsedit, dsinsert] then
+           dtmEPC.qryREgistroM810.Post;
+
+      end;
+    end;
+  end;
+
+end;
+
+procedure TfrmEPC.ParametroF100ClienteouFornecedor;
+begin
+  if not (dtmEPC.qryRegistroF100.State  in [dsinsert]) then
+      if dtmEPC.qryRegistroF100tipocod_part.AsString<>''      then
+        fraConsultaClienteDemaisDoctos.qryProcuraCliente.ParamByName('tipocliente').AsString:= dtmEPC.qryRegistroF100tipocod_part.AsString;
+end;
+
+function TfrmEPC.ValidarControles: boolean;
+begin
+
+  with dtmEPC do
+  begin
+    pgcEscrituracaoPISCOFINS.ActivePage := tstPISCOFINS;
+
+    result := qryepc.CheckRequiredFields;
+
+    if result then
+      if (dtmEPC.qryRegistroF100.RecordCount > 0) or (dtmEPC.qryRegistroF100.state = dsinsert) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstpgc100;
+        pgcF100.activePage := tstF100;
+
+        result :=  qryRegistroF100.CheckRequiredFields;
+        if result then
+        begin
+          if not ((qryRegistroF100dt_oper.AsDateTime >= DataInicialMes) and
+                  (qryRegistroF100dt_oper.AsDateTime <= DataFinalMes)) then
+          begin
+            MensagemAviso('A data deve estar dentro do período do mês');
+            edtF100_05.SetFocus;
+            result := false;
+          end;
+        end;
+      end;
+
+    if result then
+      if ((qryRegistroF120.recordcount > 0) or (qryRegistroF120.state = dsinsert)) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstpgc100;
+        pgcF100.activePage := tstF120;
+        result := qryRegistroF120.CheckRequiredFields;
+      end;
+
+
+    if result then
+      if ((qryRegistroF130.recordcount > 0) or (qryRegistroF130.state = dsinsert)) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstpgc100;
+        pgcF100.activePage := tstF130;
+
+        result := qryRegistroF130.CheckRequiredFields;
+      end;
+
+    if result then
+      if ((qryRegistroF150.recordcount > 0) or (qryRegistroF150.state = dsinsert)) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstpgc100;
+        pgcF100.activePage := tstF150;
+        result := qryRegistroF150.CheckRequiredFields;
+      end;
+
+    if result then
+      if (qryRegistroF200.RecordCount > 0) or (qryRegistroF200.state = dsinsert) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstpgc100;
+        pgcF100.activePage := tstf200OperAtivImob;
+        pgcf200.ActivePage := tstf200;
+
+        result :=  qryRegistroF200.CheckRequiredFields;
+
+        { PARA OS IMÓVEIS NÃO EXISTE A VALIDAÇÃO ABAIXO }
+        {
+        if result then
+        begin
+          if not ((qryRegistroF200dt_oper.AsDateTime >= DataInicial) and
+                  (qryRegistroF200dt_oper.AsDateTime <= DataFinal)) then
+          begin
+            MensagemAviso('A data deve estar dentro do período do mês');
+            edtRegistroF200dt_oper.SetFocus;
+            result := false;
+          end;
+        end;
+        }
+        
+      end;
+
+    if result then
+      if ((qryRegistroF205.recordcount > 0) or (qryRegistroF205.state = dsinsert)) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstpgc100;
+        pgcF100.activePage := tstf200OperAtivImob;
+        pgcf200.ActivePage := tstf205;
+
+        result := qryRegistroF205.CheckRequiredFields;
+      end;
+
+    if result then
+      if ((qryRegistroF210.recordcount > 0) or (qryRegistroF210.state = dsinsert)) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstpgc100;
+        pgcF100.activePage := tstf200OperAtivImob;
+        pgcf200.ActivePage := tstf210;
+        result := qryRegistroF210.CheckRequiredFields;
+      end;
+
+
+    if result then
+      if (qryRegistroF600.RecordCount > 0) or (qryRegistroF600.state = dsinsert) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstpgc100;
+        pgcF100.activePage := tstf600;
+        result :=  qryRegistroF600.CheckRequiredFields;
+        if result then
+        begin
+          if not ((qryRegistroF600dt_ret.AsDateTime >= DataInicialMes) and
+                  (qryRegistroF600dt_ret.AsDateTime <= DataFinalMes)) then
+          begin
+            MensagemAviso('A data deve estar dentro do período do mês');
+            edtF600_03.SetFocus;
+            result := false;
+          end;
+        end;
+      end;
+
+    if result then
+      if ((qryRegistroF700.recordcount > 0) or (qryRegistroF700.state = dsinsert)) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstpgc100;
+        pgcF100.activePage := tstf700;
+        result := qryRegistroF700.CheckRequiredFields;
+      end;
+
+    if result then
+      if ((qryRegistroM100.recordcount > 0) or (qryRegistroM100.state = dsinsert)) then
+      begin
+
+        pgcEscrituracaoPISCOFINS.ActivePage := tstBloco_M;
+        pgcBlocoM_Dados_Pis_Cofins.ActivePage := tstDados_Pis;
+
+        pgcBloco_M_PIS.ActivePage := tst_m100;
+        pgctst_m100.ActivePage := tstpgcm100;
+
+        result := qryRegistroM100.CheckRequiredFields;
+      end;
+
+    if result then
+      if ((qryRegistroM105.recordcount > 0) or (qryRegistroM105.state = dsinsert)) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstBloco_M;
+        pgcBlocoM_Dados_Pis_Cofins.ActivePage := tstDados_Pis;
+        pgcBloco_M_PIS.ActivePage := tst_m100;
+        pgctst_m100.ActivePage := pstpgcm105;
+        result := qryRegistroM105.CheckRequiredFields;
+      end;
+
+    if result then
+      if ((qryRegistroM110.recordcount > 0) or (qryRegistroM110.state = dsinsert)) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstBloco_M;
+        pgcBlocoM_Dados_Pis_Cofins.ActivePage := tstDados_Pis;
+        pgcBloco_M_PIS.ActivePage := tst_m100;
+        pgctst_m100.ActivePage := pstpgcm110;
+        result := qryRegistroM110.CheckRequiredFields;
+      end;
+
+
+    if result then
+      if ((qryRegistroM200.recordcount > 0) or (qryRegistroM200.state = dsinsert)) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstBloco_M;
+        pgcBlocoM_Dados_Pis_Cofins.ActivePage := tstDados_Pis;
+        pgcBloco_M_PIS.ActivePage := pgctst_m200;
+        pgctst_m200Consolidacao.ActivePage := tstpgcm200_Consolidacao;
+
+        result := qryRegistroM200.CheckRequiredFields;
+      end;
+
+    if result then
+    begin
+      if ((qryRegistroM205.recordcount > 0) or (qryRegistroM205.state = dsinsert)) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstBloco_M;
+        pgcBlocoM_Dados_Pis_Cofins.ActivePage := tstDados_Pis;
+        pgcBloco_M_PIS.ActivePage := pgctst_m200;
+        dbgm205.setfocus;
+        result := qryRegistroM205.CheckRequiredFields;
+      end;
+
+      if result then
+        result := ValidarTotaisBlocM205;
+        if not result then
+          dbgm205.setfocus;
+
+    end;
+
+
+    if result then
+      if ((qryRegistroM210.recordcount > 0) or (qryRegistroM210.state = dsinsert)) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstBloco_M;
+        pgcBlocoM_Dados_Pis_Cofins.ActivePage := tstDados_Pis;
+        pgcBloco_M_PIS.ActivePage := pgctst_m200;
+        pgctst_m200Consolidacao.ActivePage := tstpgcm210_Consolidacao;
+        result := qryRegistroM210.CheckRequiredFields;
+      end;
+
+    if result then
+      if ((qryRegistroM220.recordcount > 0) or (qryRegistroM220.state = dsinsert)) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstBloco_M;
+        pgcBlocoM_Dados_Pis_Cofins.ActivePage := tstDados_Pis;
+        pgcBloco_M_PIS.ActivePage := pgctst_m200;
+        pgctst_m200Consolidacao.ActivePage := tstpgcm220_Consolidacao;
+        result := qryRegistroM220.CheckRequiredFields;
+      end;
+
+    if result then
+      if ((qryRegistroM230.recordcount > 0) or (qryRegistroM230.state = dsinsert)) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstBloco_M;
+        pgcBlocoM_Dados_Pis_Cofins.ActivePage := tstDados_Pis;
+        pgcBloco_M_PIS.ActivePage := pgctst_m200;
+        pgctst_m200Consolidacao.ActivePage := tstpgcm230_Consolidacao;
+        result := qryRegistroM230.CheckRequiredFields;
+      end;
+
+    if result then
+      if ((qryRegistroM300.recordcount > 0) or (qryRegistroM300.state = dsinsert)) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstBloco_M;
+        pgcBlocoM_Dados_Pis_Cofins.ActivePage := tstDados_Pis;
+        pgcBloco_M_PIS.ActivePage := tst_m300;
+        result := qryRegistroM300.CheckRequiredFields;
+      end;
+
+    if result then
+      if ((qryRegistroM350.recordcount > 0) or (qryRegistroM350.state = dsinsert)) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstBloco_M;
+        pgcBlocoM_Dados_Pis_Cofins.ActivePage := tstDados_Pis;
+        pgcBloco_M_PIS.ActivePage := tst_m350;
+        result := qryRegistroM350.CheckRequiredFields;
+      end;
+
+    if result then
+      if ((qryRegistroM400.recordcount > 0) or (qryRegistroM400.state = dsinsert)) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstBloco_M;
+        pgcBlocoM_Dados_Pis_Cofins.ActivePage := tstDados_Pis;
+        pgcBloco_M_PIS.ActivePage := tst_m400;
+        result := qryRegistroM400.CheckRequiredFields;
+      end;
+
+    if result then
+      if ((qryRegistroM410.recordcount > 0) or (qryRegistroM410.state = dsinsert)) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstBloco_M;
+        pgcBlocoM_Dados_Pis_Cofins.ActivePage := tstDados_Pis;
+        pgcBloco_M_PIS.ActivePage := tst_m400;
+        dbg_M410.setfocus;
+
+        result := qryRegistroM410.CheckRequiredFields;
+      end;
+
+    if result then
+      if ((qryRegistroM500.recordcount > 0) or (qryRegistroM500.state = dsinsert)) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstBloco_M;
+        pgcBlocoM_Dados_Pis_Cofins.ActivePage := tstDados_Cofins;
+        pgcBloco_M_COFINS.ActivePage := tst_m500;
+        pgctst_m500.ActivePage := tstpgcm500;
+        result := qryRegistroM500.CheckRequiredFields;
+      end;
+
+    if result then
+      if ((qryRegistroM505.recordcount > 0) or (qryRegistroM505.state = dsinsert)) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstBloco_M;
+        pgcBlocoM_Dados_Pis_Cofins.ActivePage := tstDados_Cofins;
+        pgcBloco_M_COFINS.ActivePage := tst_m500;
+        pgctst_m500.ActivePage := tstpgcm505;
+        result := qryRegistroM505.CheckRequiredFields;
+      end;
+
+    if result then
+      if ((qryRegistroM510.recordcount > 0) or (qryRegistroM510.state = dsinsert)) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstBloco_M;
+        pgcBlocoM_Dados_Pis_Cofins.ActivePage := tstDados_Cofins;
+        pgcBloco_M_COFINS.ActivePage := tst_m500;
+        pgctst_m500.ActivePage := tstpgcm510;
+        result :=  qryRegistroM510.CheckRequiredFields;
+      end;
+
+    if result then
+      if ((qryRegistroM600.recordcount > 0) or (qryRegistroM600.state = dsinsert)) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstBloco_M;
+        pgcBlocoM_Dados_Pis_Cofins.ActivePage := tstDados_Cofins;
+        pgcBloco_M_COFINS.ActivePage := pgctst_m600;
+        pgctst_m600Consolidacao.ActivePage := tstpgcm600_Consolidacao;
+        result := qryRegistroM600.CheckRequiredFields;
+      end;
+
+    if result then
+    begin
+      if ((qryRegistroM605.recordcount > 0) or (qryRegistroM605.state = dsinsert)) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstBloco_M;
+        pgcBlocoM_Dados_Pis_Cofins.ActivePage := tstDados_Cofins;
+        pgcBloco_M_COFINS.ActivePage := pgctst_m600;
+        result := qryRegistroM605.CheckRequiredFields;
+      end;
+      if result then
+        result := ValidarTotaisBlocM605;
+        
+      if not result then
+        dbgm605.setfocus;
+    end;
+
+    if result then
+      if ((qryRegistroM610.recordcount > 0) or (qryRegistroM610.state = dsinsert)) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstBloco_M;
+        pgcBlocoM_Dados_Pis_Cofins.ActivePage := tstDados_Cofins;
+        pgcBloco_M_COFINS.ActivePage := pgctst_m600;
+        pgctst_m600Consolidacao.ActivePage := tstpgcm610_Consolidacao;
+        result := qryRegistroM610.CheckRequiredFields;
+      end;
+
+    if result then
+      if ((qryRegistroM620.recordcount > 0) or (qryRegistroM620.state = dsinsert)) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstBloco_M;
+        pgcBlocoM_Dados_Pis_Cofins.ActivePage := tstDados_Cofins;
+        pgcBloco_M_COFINS.ActivePage := pgctst_m600;
+        pgctst_m600Consolidacao.ActivePage := tstpgcm620_Consolidacao;
+        result := qryRegistroM620.CheckRequiredFields;
+      end;
+
+
+    if result then
+      if ((qryRegistroM630.recordcount > 0) or (qryRegistroM630.state = dsinsert)) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstBloco_M;
+        pgcBlocoM_Dados_Pis_Cofins.ActivePage := tstDados_Cofins;
+        pgcBloco_M_COFINS.ActivePage := pgctst_m600;
+        pgctst_m600Consolidacao.ActivePage := tstpgcm630_Consolidacao;
+        result := qryRegistroM630.CheckRequiredFields;
+      end;
+
+    if result then
+      if ((qryRegistroM700.recordcount > 0) or (qryRegistroM700.state = dsinsert)) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstBloco_M;
+        pgcBlocoM_Dados_Pis_Cofins.ActivePage := tstDados_Cofins;
+        pgcBloco_M_COFINS.ActivePage := tst_m700;
+        result := qryRegistroM700.CheckRequiredFields;
+      end;
+
+    if result then
+      if ((qryRegistroM800.recordcount > 0) or (qryRegistroM800.state = dsinsert)) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstBloco_M;
+        pgcBlocoM_Dados_Pis_Cofins.ActivePage := tstDados_Cofins;
+        pgcBloco_M_COFINS.ActivePage := tst_m800;
+        result := qryRegistroM800.CheckRequiredFields;
+      end;
+
+    if result then
+      if ((qryRegistroM810.recordcount > 0) or (qryRegistroM810.state = dsinsert)) then
+      begin
+        pgcEscrituracaoPISCOFINS.ActivePage := tstBloco_M;
+        pgcBlocoM_Dados_Pis_Cofins.ActivePage := tstDados_Cofins;
+        pgcBloco_M_COFINS.ActivePage := tst_m800;
+        dbg_M810.setfocus;
+        result := qryRegistroM810.CheckRequiredFields;
+      end;
+
+    if result then
+      pgcEscrituracaoPISCOFINS.ActivePage := tstPISCOFINS;
+
+  end;
+end;
+
+procedure TfrmEPC.sbnGerarBlocoMClick(Sender: TObject);
+begin
+  inherited;
+  dtmEPC.CalcularBloco_M;
+end;
+
+
+procedure TfrmEPC.sbnIncluirRegistroP100Click(Sender: TObject);
+begin
+  inherited;
+  dtmEPC.qryRegistroP100.Append;
+end;
+
+procedure TfrmEPC.sbnExcluirRegistroP100Click(Sender: TObject);
+begin
+  inherited;
+  if MensagemConfirmacao('Confirma a exclusão do registro P100') = smbOK then
+  begin
+//    dtmEPC.qryRegistroP200.first;
+//    while not dtmepc.qryregistroP200.Eof do
+//      dtmEPC.qryRegistroP200.delete;
+
+    dtmEPC.qryRegistroP100.delete;
+  end
+
+end;
+
+procedure TfrmEPC.sbnGerarBlocoPClick(Sender: TObject);
+begin
+  inherited;
+  dtmEPC.CalcularBloco_P;
+end;
+
+procedure TfrmEPC.CondicaoPiscofins_t511;
+begin
+  fraConsultaPiscofins_t511.qryProcuraPISCOFINS_T511.parambyname('datainicial').asdatetime := dtmepc.qryRegistroP100dt_ini.asdatetime;
+  fraConsultaPiscofins_t511.qryProcuraPISCOFINS_T511.parambyname('datafinal').asdatetime := dtmepc.qryRegistroP100dt_fin.asdatetime;
+  fraConsultaPiscofins_t511.qryConsultaPISCOFINS_T511.parambyname('datainicial').asdatetime := dtmepc.qryRegistroP100dt_ini.asdatetime;
+  fraConsultaPiscofins_t511.qryConsultaPISCOFINS_T511.parambyname('datafinal').asdatetime := dtmepc.qryRegistroP100dt_fin.asdatetime;
+end;
+
+procedure TfrmEPC.AtribuirDadosPiscofins_t511;
+begin
+  dtmepc.qryRegistroP100aliq_cont.ascurrency := fraConsultaPiscofins_t511.qryProcuraPISCOFINS_T511aliquota.ascurrency;
+end;
+
+procedure TfrmEPC.dbgm205KeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if CtrlOn then
+  begin
+    case Key of
+      VK_F9 : AcionaPesquisaGradecod_recM205;
+    end;
+  end
+  else
+  begin
+    case key of
+      VK_Return :
+      begin
+        case dbgm205.SelectedIndex of
+        0 : dbgm205.SelectedIndex := 1;
+        1,2 : begin
+                if not fraConsultacod_rec_M205.edfCodigo.Exist then
+                begin
+                  dtmEPC.qryRegistroM205denominacao.clear;
+                  dbgm205.SelectedIndex := 1;
+                end
+                else
+                begin
+                  AtribuirDadosCod_Rec_m205;
+                  dbgm205.SelectedIndex := 3;
+                end;
+
+
+                dbgm205.SetFocus;
+              end;
+        end;
+
+        if dtmEPC.qryRegistroM205.State in [dsedit, dsinsert] then
+           dtmEPC.qryRegistroM205.Post;
+
+      end;
+    end;
+  end;
+
+end;
+
+procedure TfrmEPC.dbgm205DblClick(Sender: TObject);
+begin
+  inherited;
+  AcionaPesquisaGradecod_recM205;
+
+end;
+
+procedure TfrmEPC.sbnExcluirRegistrom205Click(Sender: TObject);
+begin
+  inherited;
+  ExcluirRegistroM205;
+end;
+
+procedure TfrmEPC.ExcluirRegistroM205;
+begin
+  if MensagemConfirmacao('Confirma a exclusão do registro M205') = smbOK then
+    dtmEPC.qryRegistroM205.delete;
+end;
+
+procedure TfrmEPC.AcionaPesquisaGradecod_recM205;
+begin
+  if dbgm205.Focused then
+  begin
+    case dbgm205.SelectedIndex of
+    1,2 :
+      begin
+        fraConsultacod_rec_M205.CtrlOn := True;
+        fraConsultacod_rec_M205.InternoPesquisar('Código DCTF');
+        dbgm205.SetFocus;
+        dbgm205.SelectedIndex :=  1;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmEPC.AtribuirDadosCod_Rec_m205;
+begin
+  dtmEPC.qryRegistroM205.Edit;
+  dtmEPC.qryRegistroM205denominacao.AsString := fraConsultaCod_Rec_m205.qryProcurapis_tdctfdenominacao.AsString;
+end;
+
+procedure TfrmEPC.AcionaPesquisaGradecod_recM605;
+begin
+  if dbgm605.Focused then
+  begin
+    case dbgm605.SelectedIndex of
+    1,2 :
+      begin
+        fraConsultacod_rec_M605.CtrlOn := True;
+        fraConsultacod_rec_M605.InternoPesquisar('Código DCTF');
+        dbgm605.SetFocus;
+        dbgm605.SelectedIndex :=  1;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmEPC.AtribuirDadosCod_Rec_m605;
+begin
+  dtmEPC.qryRegistroM605.Edit;
+  dtmEPC.qryRegistroM605denominacao.AsString := fraConsultaCod_Rec_m605.qryProcuracofins_tdctfdenominacao.AsString;
+end;
+
+procedure TfrmEPC.dbgm605DblClick(Sender: TObject);
+begin
+  inherited;
+  AcionaPesquisaGradecod_recM605;
+
+end;
+
+procedure TfrmEPC.dbgm605KeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  inherited;
+  if CtrlOn then
+  begin
+    case Key of
+      VK_F9 : AcionaPesquisaGradecod_recM605;
+    end;
+  end
+  else
+  begin
+    case key of
+      VK_Return :
+      begin
+        case dbgm605.SelectedIndex of
+        0 : dbgm205.SelectedIndex := 1;
+        1,2 : begin
+                if not fraConsultacod_rec_M605.edfCodigo.Exist then
+                begin
+                  dtmEPC.qryRegistroM605denominacao.clear;
+                  dbgm605.SelectedIndex := 1;
+                end
+                else
+                begin
+                  AtribuirDadosCod_Rec_m605;
+                  dbgm205.SelectedIndex := 3;
+                end;
+
+                dbgm605.SetFocus;
+              end;
+        end;
+
+        if dtmEPC.qryRegistroM605.State in [dsedit, dsinsert] then
+           dtmEPC.qryRegistroM605.Post;
+
+      end;
+    end;
+  end;
+
+end;
+
+procedure TfrmEPC.sbnExcluirRegistrom605Click(Sender: TObject);
+begin
+  inherited;
+  ExcluirRegistroM605;
+end;
+
+procedure TfrmEPC.ExcluirRegistroM605;
+begin
+  if MensagemConfirmacao('Confirma a exclusão do registro M605') = smbOK then
+    dtmEPC.qryRegistroM605.delete;
+
+end;
+
+end.

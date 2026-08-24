@@ -1,0 +1,208 @@
+unit fmrequisicaoexposicao;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  ComCtrls, Buttons, ExtCtrls,
+  StdCtrls, ZQuery, ctconstantes, biblio,
+  dmrequisicaoexposicao, fmcadastropadrao, fmconsultabasica,
+  fmconsultaporcampo, cpdbfindcontrols, cpdbdata, Mask, DBCtrls, cpdbtext,
+  cpnumero, cpdbmemo, cpdbradiogroup, ToolWin;
+
+type
+  TfrmRequisicaoExposicao = class(TfrmCadastroPadrao)
+    pnlFundoJanela: TPanel;
+    gbxRequisicaoExposicao: TGroupBox;
+    edfCodigo: TtecDbEditFind;
+    edtData: TDBEditData;
+    flkProduto: TtecDBFindLookup;
+    dtxDescricaoProduto: TtecDBText;
+    sbnProcuraProduto: TSpeedButton;
+    dtxDescricaoFilialOrigem: TtecDBText;
+    dtxRequisitante: TtecDBText;
+    mmoObservacao: TtecDBMemo;
+    dtxQuantidadeRecebida: TtecDBText;
+    dtxNotaFiscal: TtecDBText;
+    dtxSerie: TtecDBText;
+    sbnProcuraFiliais: TSpeedButton;
+    dtxDescricaoFilialDestino: TtecDBText;
+    flkRequisitada: TtecDBFindLookup;
+    dtxSituacao: TtecDBText;
+    dtxEstoqueDestino: TtecDBText;
+    edtQtdePedida: TDBEditNumero;
+    dtxEstoqueOrigem: TtecDBText;
+    gbxNumero: TGroupBox;
+    gbxSituacao: TGroupBox;
+    gbxData: TGroupBox;
+    gbxRequisitante: TGroupBox;
+    gbxRequisitada: TGroupBox;
+    gbxProduto: TGroupBox;
+    gbxPedida: TGroupBox;
+    gbxEstoqueRequisitada: TGroupBox;
+    gbxEstoqueRequisitante: TGroupBox;
+    gbxQuantidades: TGroupBox;
+    gbxRecebimento: TGroupBox;
+    gbxObservacoes: TGroupBox;
+    gbxQtdeRecebida: TGroupBox;
+    gbxNotaFiscal: TGroupBox;
+    procedure sbnProcuraFiliaisClick(Sender: TObject);
+    procedure sbnProcuraProdutoClick(Sender: TObject);
+    procedure flkProdutoMessage(var Msg: String);
+    procedure flkRequisitadaMessage(var Msg: String);
+  protected
+    dtmRequisicaoExposicao: TdtmRequisicaoExposicao;
+    function ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function InternoExcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoIncluir: Boolean; override;
+    function InternoPesquisar(Titulo: String): Integer; override;
+    function JanelaPesquisa: TfrmConsultaBasica; override;
+    function TabelaDePesquisa: TZDataSet; override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+  end;
+
+var
+  frmRequisicaoExposicao: TfrmRequisicaoExposicao;
+  TipoPesquisa: TtecPedidosTransferencia;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmPedidosTransferenciaEstoques }
+
+constructor TfrmRequisicaoExposicao.Create(AOwner: TComponent);
+begin
+  dtmRequisicaoExposicao:= TdtmRequisicaoExposicao.Create(Self);
+  inherited;
+  DataSet:= dtmRequisicaoExposicao.TabelaPedidosTransferencia;
+  TipoPesquisa:= tptNENHUM;
+end;
+
+destructor TfrmRequisicaoExposicao.Destroy;
+begin
+  dtmRequisicaoExposicao:=nil;
+  inherited;
+  frmRequisicaoExposicao:= nil;
+end;
+
+function TfrmRequisicaoExposicao.ExisteInformacao(
+  Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmRequisicaoExposicao do begin
+    case TipoPesquisa of
+       tptPEDIDOS: Result:= ExistePedidosTranferencia(NomeCampo, Value);
+       tptFILIAIS: Result:= ExisteFiliais(NomeCampo , Value);
+      tptPRODUTOS: Result:= ExisteProdutos(NomeCampo, Value);
+      else         Result:= False;
+    end;
+  end;
+end;
+
+function TfrmRequisicaoExposicao.InternoExcluir: Boolean;
+begin
+  Result:= inherited InternoExcluir;
+  if Result then
+    Result:= dtmRequisicaoExposicao.ExcluirPedidosTransferencia;
+end;
+
+function TfrmRequisicaoExposicao.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if Result then
+    Result:= dtmRequisicaoExposicao.GravarPedidosTransferencia;
+end;
+
+function TfrmRequisicaoExposicao.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then begin
+    Result:= dtmRequisicaoExposicao.IncluirPedidosTransferencia;
+    flkRequisitada.SetFocus;
+  end;
+end;
+
+function TfrmRequisicaoExposicao.InternoPesquisar(Titulo: String): Integer;
+begin
+  Result:= mrNone;
+  with dtmRequisicaoExposicao do begin
+    if CtrlOn then begin
+      if (ActiveControl = flkProduto) and not Entregue then begin
+        TipoPesquisa := tptPRODUTOS;
+        Titulo := 'Produtos';
+      end
+      else if (ActiveControl = flkRequisitada) and not Entregue then begin
+        TipoPesquisa := tptFILIAIS;
+        Titulo := 'Filiais';
+      end
+      else
+        TipoPesquisa:= tptNENHUM;
+    end
+    else begin
+      TipoPesquisa := tptPEDIDOS;
+      Titulo:= 'Requisições para Exposição';
+    end;
+    if TipoPesquisa <> tptNENHUM then begin
+      AbrirTabelas(TipoPesquisa);
+      Result:= inherited InternoPesquisar(Titulo);
+      if Result = mrOK then
+        Selecionar(TipoPesquisa);
+      FecharTabelas(TipoPesquisa);
+    end;
+  end;
+end;
+
+function TfrmRequisicaoExposicao.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  if TipoPesquisa = tptPRODUTOS then
+       TfrmConsultaPorCampo(Result).ConsultaInterativa:= False
+  else TfrmConsultaPorCampo(Result).ConsultaInterativa    := True;
+  TfrmConsultaPorCampo(Result).UsarParametrosDaTabela:= False;
+end;
+
+function TfrmRequisicaoExposicao.TabelaDePesquisa: TZDataSet;
+begin
+  with dtmRequisicaoExposicao do begin
+    case TipoPesquisa of
+       tptPEDIDOS: Result:= ConsultaPedidosTransferencia;
+       tptFILIAIS: Result:= ConsultaFiliais;
+      tptPRODUTOS: Result:= ConsultaProdutos;
+      else         Result:= nil;
+    end;
+  end;
+end;
+
+procedure TfrmRequisicaoExposicao.sbnProcuraFiliaisClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  flkRequisitada.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmRequisicaoExposicao.sbnProcuraProdutoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn:= True;
+  flkProduto.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmRequisicaoExposicao.flkProdutoMessage(var Msg: String);
+begin
+  inherited;
+  Msg:= 'O código ' + flkProduto.Text + ' não está cadastrado,' + #10#13 +
+        'ou a Filial Destino não foi especificada.';
+end;
+
+procedure TfrmRequisicaoExposicao.flkRequisitadaMessage(var Msg: String);
+begin
+  inherited;
+  Msg:= Format(ctFILIALIGUALFILIALBASE,[flkRequisitada.Text]);
+end;
+
+end.

@@ -5,7 +5,7 @@ interface
 uses
   SysUtils, Classes, dmbasico, DB, cpdatasource, ZQuery, ZPgSqlQuery,
   cpquery, ctconstantes, FR_Class, FR_DSet, FR_DBSet, ZTransact, fmpreviewpadrao,
-  Biblio, variants;
+  Biblio, variants, frx2xto30, frxClass;
 
 type
   TdtmRelatorioExtratoConta = class(TdtmBasico)
@@ -197,6 +197,7 @@ begin
    frVariables['Titulo']:= 'EXTRATO DE CONTA';
    frVariables['SubTitulo'] := FParametroCabecalho;
 //   frpExtratoConta.DesignReport;
+//   frxReport1.DesignReport;
 
 
    ImprimirRelatoriofast(null, FParametroCabecalho, MSimples, 0, [frpExtratoConta], false, self);

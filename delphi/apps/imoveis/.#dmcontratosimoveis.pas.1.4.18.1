@@ -1,0 +1,5077 @@
+unit dmcontratosimoveis;
+
+interface
+
+uses
+  SysUtils, Classes, Biblio, dmbasico, dmtecsoft, DB, cpdatasource, ZQuery,
+  ZPgSqlQuery, cpquery, ctconstantes, ZTransact, Forms, clparametrossistema,
+  dmimprimecontratosimoveis, clusuario, dmlancamentocontabilidade, DateUtils,
+  ZUpdateSql, Controls, Variants, Math;
+
+Type T_ParcelasPagas = array of record
+       Tipo:   String;
+       Numero: Integer;
+       Origem: String;
+       Resultado: String;
+     end;
+
+type T_SeqParcelas = array of record
+       Tipo: String;
+       NI  : Integer;
+       OrI : String;
+       NF  : Integer;
+       OrF : String;
+       Seq : Boolean;
+     end;
+
+type T_ImoveisVendidos = array of record
+       contrato           : Integer;
+       NomeEmp            : String;
+       bloco              : Integer;
+       nomebloco          : String;
+       numero             : String;
+       unidade            : integer;
+       NomeUnidade        : String;
+       Obs                : String;
+       Emp                : Integer;
+       Preco              : Currency;
+       pavimento          : String;
+       situacao           : String;
+       areaprivativa      : Currency;
+       areacomum          : Currency;
+       areatotal          : Currency;
+       fracaoideal        : Currency;
+       PrecoVenda              : Currency;
+       datahabitese       : TDateTime;
+       codigo             : Integer;
+       nome               : String;
+       contavenda         : Integer;
+       contacofins        : Integer;
+       contacsll          : Integer;
+       contairpj          : Integer;
+       contapis           : Integer;
+       debitocustos       : Integer;
+       creditocustos      : Integer;
+//       debitovendachaves     : Integer;
+       creditovendachaves    : Integer;
+       debitocustochaves  : Integer;
+       creditoatualizacaomonetaria : Integer;
+     end;
+
+type T_CompradoresImoveis = array of record
+        contrato          : Integer;
+        cliente           : Integer;
+        nomecliente       : String;
+        percentual        : Currency;
+        representante     : Integer;
+        nomerepresentante : String;
+        fiador            : Integer;
+        nomefiador        : String;
+        observacoes       : String;
+        tipocliente       : String;
+        tiporepresentante : String;
+        tipofiador        : String;
+        principal         : boolean;
+     end;
+
+type
+  TRecebimentos = class
+  private
+    fDiferencaAteHabiteSe: Real;
+
+
+  protected
+    FContrato : String;
+    FTipo : String;
+    FNumero: Integer;
+    FParcela : String;
+    FVencimento : TDateTime;
+    FNrPagto : Integer;
+    FPagamento : TDateTime;
+    FTaxaJuros: Real;
+    FMultaContrato: Real;
+    FValorJuros: Real;
+    FValorMulta: Real;
+    FValorDesconto: Real;
+    FValorHistorico: Real;
+    FValorCorrigido: Real;
+    FCorrecaoContabil: Real;
+    FValorPago: Real;
+    FNumeroOrigem: Largeint;
+    FValorContratado : Real;
+    FValorRecebido : Real;
+    FValorTotal: Real;
+    FBancoCheque: Integer;
+    FNroCheque: String;
+    FEmitente: String;
+    FConta: Integer;
+    FAgencia: Integer;
+    FContaContabil: integer;
+    FCorrecao: Real;
+    FJurosContratuais: Real;
+    FValorDevido: Real;
+    FSequencia: integer;
+    FRecibo: Integer;
+    FEvento: Integer;
+    FDiferenca: Real;
+    FDiferencaHistorico: Real;
+    FLiberarJuroseMulta: Boolean;
+    FAddSqlParcelas: String;
+    FDescricaoParcelas: String;
+    FAlterandoParcelas: Boolean;
+    FAoAbrirLancamentos: boolean;
+    FDiferencaPagoAmais: Real;
+
+  public
+    qryParcelas : TtecQuery;
+    DescontoJuros: Boolean;
+    //Construtor
+    constructor Create(QuitacaoLote: Boolean);
+    destructor Destroy;
+    //Métodos e Funções
+    procedure MontarQuery;
+    procedure BuscarParcela;
+    function  GravarModificacoes: Boolean;
+    function  PosicionarParcelasContratoaPagar: boolean;
+    procedure Roolback;
+    procedure Perpetrar;
+    procedure PosicionarPrimeiraaPagar;
+    function  VerificarParcelaPosterior : Boolean;
+    function  ValidarValorRecebido: Boolean;
+    procedure AtualizarValorDevido;
+    procedure AlterarValorDevidoParcela;
+    function  CalcularTotal(Campo : String) : Currency;
+    procedure AtribuirDescontoJurosQuitacaoDiversas;
+    function  ValidarDatasPagamentos: boolean;
+    function  CalculoDescontoJurosQuitacaoDiversas: Currency;
+    function  CalculoValorJurosParcelaQuitacaoDiversas(ValorAnterior: Currency) : Currency;
+    function  CalculoValorCorrecaoParcelaQuitacaoDiversas(ValorAnterior: Currency) : Currency;
+    procedure GerarNovaParcela;
+    function  GetJurosMora: Currency;
+    function  GetMulta: Currency;
+    procedure GetDiferenca;
+    procedure LiberarMulta(ComMulta: Boolean);
+    procedure ValorParcelasSelecionadas;
+    procedure MarcarSelecionados(Marcando, Todos: Boolean);
+    procedure ZerarValores;
+    function  VerificarCotacaoMoeda(Moeda, Data: String): Boolean;
+    function  GetAddSqlParcelas: String;
+    function  GetAlterandoParcelas: Boolean;
+    function  GetDescricaoHistorico: String;
+    function  DescricaoParcelasPagas : String;
+    procedure EditarParcela;
+    procedure GravarLancamentosContabeis;
+    function  GetNrOrigem: Int64;
+    function  GetDataLancto: TDateTime;
+    procedure RecalcularValores;
+    procedure ParcelasRecibo(Recibo: Integer);
+    procedure AtribuirTipoPagto(Tipo: Char);
+    procedure ParcelaPagaMenor(ValorAnterior: Real; Editar: Boolean);
+    function GetEventoRecebimento: Integer;
+    function GetImovelEntregue : Boolean;
+
+    // Propriedades
+    property Contrato        : String read FContrato write FContrato;
+    property Tipo            : String read FTipo write FTipo;
+    property Numero          : Integer read FNumero write FNumero;
+    property Parcela         : String read FParcela write FParcela;
+    property Vencimento      : TDateTime read FVencimento write FVencimento;
+    property NrPagto         : Integer read FNrPagto write FNrPagto;
+    property Pagamento       : TDateTime read FPagamento write FPagamento;
+    property TaxaJuros       : Real read FTaxaJuros write FTaxaJuros;
+    property MultaContrato   : Real read FMultaContrato write FMultaContrato;
+    property ValorJuros      : Real read FValorJuros write FValorJuros;
+    property ValorMulta      : Real read FValorMulta write FValorMulta;
+    property Valordesconto   : Real read FValorDesconto write FValorDesconto;
+    property DiferencaPagoAmais  : Real read FDiferencaPagoAmais write FDiferencaPagoAmais;
+    property ValorHistorico  : Real read FValorHistorico write FValorHistorico;
+    property ValorCorrigido  : Real read FValorCorrigido write FValorCorrigido;
+    property ValorContratado : Real read FValorContratado write FValorContratado;
+
+    property ValorRecebido   : Real read FValorRecebido write FValorRecebido;
+    property ValorPago       : Real read FValorPago write FValorPago;
+    property NroCheque       : String read FNroCheque write FNroCheque;
+    property BancoCheque     : Integer read FBancoCheque write FBancoCheque;
+    property Emitente        : String read FEmitente write FEmitente;
+    property Conta           : Integer read FConta write FConta;
+    property Agencia         : Integer read FAgencia write FAgencia;
+    property ContaContabil   : integer read FContaContabil write FContaContabil;
+    property ValorTotal      : Real read FValorTotal write FValorTotal;
+    property JurosContratuais: Real read FJurosContratuais write FJurosContratuais;
+    property Correcao        : Real read FCorrecao write FCorrecao;
+    property CorrecaoContabil: Real read FCorrecaoContabil write FCorrecaoContabil;
+    property ValorDevido     : Real read FValorDevido write FValorDevido;
+    property Sequencia       : Integer read FSequencia write FSequencia;
+    property Recibo          : Integer read FRecibo write FRecibo;
+    property Evento          : Integer read FEvento  write FEvento;
+    property DescricaoParcelas: String read FDescricaoParcelas write FDescricaoParcelas;
+    property Diferenca       : Real read FDiferenca write FDiferenca;
+    property LiberarJuroseMulta : Boolean read FLiberarJuroseMulta write FLiberarJuroseMulta;
+    property AddSqlParcelas  : String read GetAddSqlParcelas write FAddSqlParcelas;
+    property AlterandoParcela: Boolean read GetAlterandoParcelas write FAlterandoParcelas;
+    property NumeroOrigem    : Largeint read FNumeroOrigem write FNumeroOrigem;
+    property DiferencaAteHabiteSe : Real read fDiferencaAteHabiteSe write fDiferencaAteHabiteSe;
+end;
+
+type
+  TdtmContratosImoveis = class(TdtmBasico)
+    qryContratos: TtecQuery;
+    dsrContratos: TtecDataSource;
+    qryContratosdata: TDateField;
+    qryContratossituacao: TStringField;
+    qryContratosvendedor: TIntegerField;
+    qryContratosvalortotal: TFloatField;
+    qryContratosobservacoes: TStringField;
+    qryProcuraVendedor: TtecQuery;
+    qryProcuraVendedorcodigo: TIntegerField;
+    qryProcuraVendedornome: TStringField;
+    dsrProcuraVendedor: TtecDataSource;
+    qryConsultaVendedores: TtecQuery;
+    qryConsultaVendedoresnome: TStringField;
+    qryConsultaVendedorescodigo: TIntegerField;
+    qryCompradores: TtecQuery;
+    dsrCompradores: TtecDataSource;
+    qryImoveisVendidos: TtecQuery;
+    dsrImoveisVendidos: TtecDataSource;
+    qryBloquearContrato: TtecQuery;
+    qryBloquearContratolock: TIntegerField;
+    qryDesbloquearContrato: TtecQuery;
+    qryContratosnomesituacao: TStringField;
+    ZMonitor1: TZMonitor;
+    qryConsultaBlocos: TtecQuery;
+    qryConsultaBlocoscodigo: TIntegerField;
+    qryConsultaBlocosempreendimento: TIntegerField;
+    qryConsultaBlocosdescricao: TStringField;
+    qryConsultaImoveis: TtecQuery;
+    dsrConsultaBlocos: TtecDataSource;
+    dsrConsultaImoveis: TtecDataSource;
+    qryEnderecoempreendimento: TtecQuery;
+    dsrEnderecoempreendimento: TtecDataSource;
+    qryEnderecoempreendimentorua: TStringField;
+    qryEnderecoempreendimentonumero: TIntegerField;
+    qryEnderecoempreendimentocomplemento: TStringField;
+    qryEnderecoempreendimentocep: TIntegerField;
+    qryEnderecoempreendimentoestado: TStringField;
+    qryEnderecoempreendimentonomecidadecliente: TStringField;
+    qryEnderecoempreendimentonomebairrocliente: TStringField;
+    qryConsultarImoveis: TtecQuery;
+    qryConsultarImoveisempreendimento: TStringField;
+    qryConsultarImoveisnomebloco: TStringField;
+    qryConsultarImoveistipo: TStringField;
+    qryConsultarImoveisnumero: TStringField;
+    qryConsultarImoveisbloco: TIntegerField;
+    qryConsultarImoveispavimento: TStringField;
+    qryConsultarImoveisemp: TIntegerField;
+    qryParcelasContrato: TtecQuery;
+    dsrParcelasContrato: TtecDataSource;
+    spcContratos_ProximoNumero: TtecQuery;
+    qryConsultarImoveissigla: TStringField;
+    spcContratos_ProximoNumeronumero: TIntegerField;
+    qryCompradorescontrato: TIntegerField;
+    qryCompradorescliente: TIntegerField;
+    qryCompradoresnomecliente: TStringField;
+    qryCompradorespercentual: TFloatField;
+    qryCompradoresrepresentante: TIntegerField;
+    qryCompradoresnomerepresentante: TStringField;
+    qryCompradoresfiador: TIntegerField;
+    qryCompradoresnomefiador: TStringField;
+    qryCompradoresobservacoes: TStringField;
+    qryConsultaImoveisempreendimento: TStringField;
+    qryConsultaImoveisemp: TIntegerField;
+    qryConsultaImoveisbloco: TIntegerField;
+    qryConsultaImoveisnomebloco: TStringField;
+    qryConsultaImoveisimovel: TStringField;
+    qryConsultaImoveisrua: TStringField;
+    qryConsultaImoveiscasanumero: TIntegerField;
+    qryConsultaImoveiscomplemento: TStringField;
+    qryConsultaImoveisbairro: TIntegerField;
+    qryConsultaImoveiscidade: TIntegerField;
+    qryConsultaImoveisestado: TStringField;
+    qryConsultaImoveiscep: TIntegerField;
+    qryConsultaImoveisunidade: TIntegerField;
+    qryConsultaImoveistipounidade: TStringField;
+    qryConsultaImoveisobservacoes: TStringField;
+    qryConsultaImoveispavimento: TStringField;
+    qryConsultaImoveissituacao: TStringField;
+    qryConsultaImoveisareaprivativa: TFloatField;
+    qryConsultaImoveisareacomum: TFloatField;
+    qryConsultaImoveisfracaoideal: TFloatField;
+    qryConsultaImoveisAreaTotal: TFloatField;
+    qryImoveis: TtecQuery;
+    dsrImoveis: TtecDataSource;
+    qryImoveisbloco: TIntegerField;
+    qryImoveisnumero: TStringField;
+    qryImoveissituacao: TStringField;
+    qryImoveispavimento: TStringField;
+    qryImoveisobservacoes: TStringField;
+    qryCompradorestipocliente: TStringField;
+    qryCompradorestiporepresentante: TStringField;
+    qryCompradorestipofiador: TStringField;
+    qryContratosdatabase: TDateField;
+    qryContratosjuros: TFloatField;
+    qryContratosatrasomulta: TFloatField;
+    qryContratosatrasojuros: TFloatField;
+    qryContratosindexadoratehabitese: TStringField;
+    qryContratosindexadoraposhabitese: TStringField;
+    qryContratosdebitovenda: TIntegerField;
+    qryTotaisParcelas: TtecQuery;
+    qryTotaisParcelastotalvencto: TFloatField;
+    qryTotaisParcelastotalcontratado: TFloatField;
+    qryTotaisParcelastotaldevido: TFloatField;
+    qryTotaisParcelastotalpago: TFloatField;
+    qryTotaisParcelastotaljuros: TFloatField;
+    qryTotaisParcelastotalcorrecao: TFloatField;
+    qryTotaisParcelastotaldiferenca: TFloatField;
+    dsrTotaisParcelas: TtecDataSource;
+    qryContratosjuroscompostos: TBooleanField;
+    qryParcelasContratocontrato: TIntegerField;
+    qryParcelasContratotipo: TStringField;
+    qryParcelasContratoorigem: TStringField;
+    qryParcelasContratonumero: TIntegerField;
+    qryParcelasContratodatavencto: TDateField;
+    qryParcelasContratovalorhistorico: TFloatField;
+    qryParcelasContratovalorcontratado: TFloatField;
+    qryParcelasContratovalordevido: TFloatField;
+    qryParcelasContratovalorcorrigido: TFloatField;
+    qryParcelasContratodatapagto: TDateField;
+    qryParcelasContratovalorpagto: TFloatField;
+    qryParcelasContratojuros: TFloatField;
+    qryParcelasContratomoeda: TStringField;
+    qryParcelasContratodatabase: TDateField;
+    qryParcelasContratotaxajuros: TFloatField;
+    qryParcelasContratojuroscompostos: TBooleanField;
+    qryParcelasContratocorrecao: TFloatField;
+    qryParcelasContratodiferenca: TFloatField;
+    qryParcelasContratopromissoria: TBooleanField;
+    qryParcelasContratodocumento: TStringField;
+    qryParcelasContratonrpagto: TIntegerField;
+    qryParcelasContratoobservacoes: TStringField;
+    qryContratoshabite_se: TDateField;
+    qryParcelasContratojuros2: TCurrencyField;
+    qryParcelasContratocorrecao2: TCurrencyField;
+    qryParcelasContratodescricaomoeda: TStringField;
+    qryDesbloquearContratolock: TIntegerField;
+    qryBloquearContratocontrato: TStringField;
+    qryContratoscontrato: TIntegerField;
+    qryContratosdatachaves: TDateField;
+    qryParametros: TtecQuery;
+    dsrParametros: TtecDataSource;
+    qryParametroscreditarcofinsvenda: TIntegerField;
+    qryParametroscreditarcsllvenda: TIntegerField;
+    qryParametroscreditarirpjvenda: TIntegerField;
+    qryParametroscreditarpisvenda: TIntegerField;
+    qryParametrosdebitarcofinschaves: TIntegerField;
+    qryParametrosdebitarcsllchaves: TIntegerField;
+    qryParametrosdebitarirpjchaves: TIntegerField;
+    qryParametrosdebitarpischaves: TIntegerField;
+    qryParametroscreditarcofinsrecebimento: TIntegerField;
+    qryParametroscreditarcsllrecebimento: TIntegerField;
+    qryParametroscreditarirpjrecebimento: TIntegerField;
+    qryParametroscreditarpisrecebimento: TIntegerField;
+    qryParametrosdebitaratualizacaomonetaria: TIntegerField;
+    qryParcelasContratotipopagto: TStringField;
+    qryContratospishistorico: TFloatField;
+    qryContratoscofinshistorico: TFloatField;
+    qryContratosirpjhistorico: TFloatField;
+    qryContratoscsllhistorico: TFloatField;
+    qryContratossaldovenda: TFloatField;
+    qryContratossaldocorrecao: TFloatField;
+    qryContratosdatabasecorrecao: TDateField;
+    qryContratoscustoimovel: TFloatField;
+    qryContratosdespesavenda: TFloatField;
+    qryCotacoes: TtecQuery;
+    dsrCotacoes: TtecDataSource;
+    qryCotacoesmoeda: TStringField;
+    qryCotacoesdata: TDateField;
+    qryCotacoescotacao: TFloatField;
+    qryContasSaidasFiliais: TtecQuery;
+    dsrContasSaidasFiliais: TtecDataSource;
+    qryContasEntradasFiliais: TtecQuery;
+    dsrContasEntradasFiliais: TtecDataSource;
+    qryContasEntradasFiliaisfilial: TIntegerField;
+    qryContasEntradasFiliaiscontacontabil: TIntegerField;
+    qryContasEntradasFiliaisdescricao: TStringField;
+    qryContasEntradasFiliaisdescricaoconta: TStringField;
+    qryContasEntradasFiliaisclassificacao: TStringField;
+    qryMovtosBancos: TtecQuery;
+    dsrMovtosBancos: TtecDataSource;
+    qryMovtosBancosEventos: TtecQuery;
+    dsrMovtosBancosEventos: TtecDataSource;
+    qrySequencia: TtecQuery;
+    qryMovtosBancosconta: TIntegerField;
+    qryMovtosBancosdata: TDateField;
+    qryMovtosBancossequencia: TIntegerField;
+    qryMovtosBancoscompensacao: TDateField;
+    qryMovtosBancosseqcompensacao: TIntegerField;
+    qryMovtosBancosdataoriginal: TDateField;
+    qryMovtosBancosevento: TIntegerField;
+    qryMovtosBancostipo: TStringField;
+    qryMovtosBancosorigemlancto: TStringField;
+    qryMovtosBancosdocumento: TStringField;
+    qryMovtosBancosobservacoes: TStringField;
+    qryMovtosBancosvalor: TFloatField;
+    qryMovtosBancosEventosconta: TIntegerField;
+    qryMovtosBancosEventosdata: TDateField;
+    qryMovtosBancosEventossequencia: TIntegerField;
+    qryMovtosBancosEventosevento: TIntegerField;
+    qryMovtosBancosEventostipo: TStringField;
+    qryMovtosBancosEventosvalor: TFloatField;
+    qrySequenciasequencia: TIntegerField;
+    qryRecalcularParcelas: TtecQuery;
+    qryRecalcularParcelasvalordevido: TFloatField;
+    qryRecalcularParcelasvalorcorrigido: TFloatField;
+    qryRecalcularParcelasdatapagto: TDateField;
+    qryRecalcularParcelasvalorpagto: TFloatField;
+    qryRecalcularParcelasjuros: TFloatField;
+    qryRecalcularParcelascorrecao: TFloatField;
+    qryRecalcularParcelasdatavencto: TDateField;
+    qryCancelarQuitacao: TtecQuery;
+    qryParametrosevento: TIntegerField;
+    spcRecibos: TtecQuery;
+    spcRecibosrecibo: TIntegerField;
+    qryParcelasContratorecibopagto: TIntegerField;
+    qryContas: TtecQuery;
+    qryContasbanco: TIntegerField;
+    qryContasagencia: TIntegerField;
+    qryContasconta: TIntegerField;
+    qryContasdigito: TStringField;
+    qryContasconvenio: TIntegerField;
+    qryContastitular: TStringField;
+    qryContassequencial: TIntegerField;
+    qryContascontacontabil: TIntegerField;
+    qryContasusodobanco: TStringField;
+    qryContascedente: TStringField;
+    qryContasinstrucoesboleto: TStringField;
+    qryContaslocalpagamento: TStringField;
+    qryContasfluxocaixa: TBooleanField;
+    qryContascarteira: TStringField;
+    qryContasfilial: TIntegerField;
+    qryLancamentos: TtecQuery;
+    dsrLancamentos: TtecDataSource;
+    qryLancamentosvalor: TFloatField;
+    qryContratosdataalteracao: TDateField;
+    qryContratoscontrato_gerado: TIntegerField;
+    qryContratoscontrato_origem: TIntegerField;
+    qryCompradores_Anteriores: TtecQuery;
+    IntegerField1: TIntegerField;
+    IntegerField2: TIntegerField;
+    StringField1: TStringField;
+    FloatField1: TFloatField;
+    IntegerField3: TIntegerField;
+    StringField2: TStringField;
+    IntegerField4: TIntegerField;
+    StringField3: TStringField;
+    StringField4: TStringField;
+    StringField5: TStringField;
+    StringField6: TStringField;
+    StringField7: TStringField;
+    dsrCompradores_Anteriores: TtecDataSource;
+    qryLancamentosRecebimentos: TtecQuery;
+    dsrLancamentosRecebimentos: TtecDataSource;
+    qryContasSaidasFiliaiscontacontabil: TIntegerField;
+    qryContasSaidasFiliaisdescricao: TStringField;
+    qryContasSaidasFiliaisdescricaoconta: TStringField;
+    qryContasSaidasFiliaisclassificacao: TStringField;
+    qryContratossaldocusto: TFloatField;
+    qryProcessarRecebimentos: TtecQuery;
+    qryProcessarRecebimentoslancamentos: TStringField;
+    qryContratosempreendimento: TIntegerField;
+    qryParametroshistoricovendalancamentovenda: TIntegerField;
+    qryParametroshistoricovendaimpostos: TIntegerField;
+    qryParametroshistoricochavesvalorvenda: TIntegerField;
+    qryParametroshistoricochavesimpostos: TIntegerField;
+    qryParametroshistoricochavescustoscomissoes: TIntegerField;
+    qryParametroshistoricochavesatualizacaomonetaria: TIntegerField;
+    qryParametroshistoricorecebcaixabanco: TIntegerField;
+    qryParametroshistoricorecebprincipal: TIntegerField;
+    qryParametroshistoricorecebatualizacaomonetaria: TIntegerField;
+    qryParametroshistoricorecebdescontos: TIntegerField;
+    qryParametroshistoricorecebjuros: TIntegerField;
+    qryParametroshistoricoamapropriacaomensal: TIntegerField;
+    spcLancamentosProximo: TtecQuery;
+    spcLancamentosProximocodigo: TIntegerField;
+    qryTotalAtualizacaoMonetaria_OLD: TtecQuery;
+    qryTotalDescontos: TtecQuery;
+    dsrTotalDescontos: TtecDataSource;
+    qryTotalAtualizacaoMonetaria_OLDcontrato: TIntegerField;
+    qryTotalAtualizacaoMonetaria_OLDcorrecao: TFloatField;
+    qryTotaisParcelasAberto: TtecQuery;
+    dsrTotaisParcelasAberto: TtecDataSource;
+    qryTotaisParcelasAbertototalvencto: TFloatField;
+    qryTotaisParcelasAbertototalcontratado: TFloatField;
+    qryTotaisParcelasAbertototaldevido: TFloatField;
+    qryTotaisParcelasAbertototalpago: TFloatField;
+    qryTotaisParcelasAbertototaljuros: TFloatField;
+    qryTotalDescontosdescontocorrecao: TFloatField;
+    qryTotalDescontosdescontoprincipal: TFloatField;
+    qryParcelasContratonumeroorigem: TLargeintField;
+    spcMaiorContrato: TtecQuery;
+    spcMaiorContratomaiorvalorcontrato: TIntegerField;
+    dsrMaiorContrato: TtecDataSource;
+    qryCompradoresprincipal: TBooleanField;
+    qryContratosfilial: TIntegerField;
+    qryConsultarImoveispreco: TFloatField;
+    qryImoveispreco: TFloatField;
+    qryConsultaImoveispreco: TFloatField;
+    qryImoveisVendidoscontrato: TIntegerField;
+    qryImoveisVendidoscodigoempreendimento: TIntegerField;
+    qryImoveisVendidosempreendimento: TStringField;
+    qryImoveisVendidosdatahabitese: TDateField;
+    qryImoveisVendidosbloco: TIntegerField;
+    qryImoveisVendidosnomebloco: TStringField;
+    qryImoveisVendidosnumero: TStringField;
+    qryImoveisVendidosunidade: TIntegerField;
+    qryImoveisVendidostipounidade: TStringField;
+    qryImoveisVendidospavimento: TStringField;
+    qryImoveisVendidossituacao: TStringField;
+    qryImoveisVendidosareaprivativa: TFloatField;
+    qryImoveisVendidosareacomum: TFloatField;
+    qryImoveisVendidosareatotal: TFloatField;
+    qryImoveisVendidosfracaoideal: TFloatField;
+    qryImoveisVendidospreco: TFloatField;
+    qryImoveisVendidosprecovenda: TFloatField;
+    qryImoveisVendidosobservacoes: TStringField;
+    qryImoveisVendidoscodigo: TIntegerField;
+    qryImoveisVendidosnome: TStringField;
+    qryImoveisVendidossigla: TStringField;
+    qryImoveisVendidosrua: TStringField;
+    qryImoveisVendidosnumero_1: TIntegerField;
+    qryImoveisVendidoscomplemento: TStringField;
+    qryImoveisVendidosestado: TStringField;
+    qryImoveisVendidoscidade: TIntegerField;
+    qryImoveisVendidosbairro: TIntegerField;
+    qryImoveisVendidoscep: TIntegerField;
+    qryImoveisVendidosdatahabitese_1: TDateField;
+    qryImoveisVendidoscontavenda: TIntegerField;
+    qryImoveisVendidoscontacofins: TIntegerField;
+    qryImoveisVendidoscontacsll: TIntegerField;
+    qryImoveisVendidoscontairpj: TIntegerField;
+    qryImoveisVendidoscontapis: TIntegerField;
+    qryImoveisVendidosdebitocustos: TIntegerField;
+    qryImoveisVendidoscreditocustos: TIntegerField;
+    qryImoveisVendidoscreditovendachaves: TIntegerField;
+    qryImoveisVendidosdebitocustochaves: TIntegerField;
+    qryImoveisVendidoscreditoatualizacaomonetaria: TIntegerField;
+    qryImoveisVendidosdebitodescontorecebimento: TIntegerField;
+    qryImoveisVendidosareaterreno: TFloatField;
+    qryImoveisVendidosdebitodescontoconcedidos: TIntegerField;
+    qryConsultaImoveisdatahabitese: TDateField;
+    qryParcelasContratovalorcontratadoatehabitese: TFloatField;
+    qryParcelasContratomoedaatehabitese: TStringField;
+    qryParcelasContratotaxajurosatehabitese: TFloatField;
+    qryParcelasContratodatabaseatehabitese: TDateField;
+    qryParcelasContratotipojurosatehabitese: TBooleanField;
+    qryImoveisVendidoscreditodespesasvenda: TIntegerField;
+    qryParametrosdebitardespesasvenda: TIntegerField;
+    qryCorrecaoMes: TtecQuery;
+    qryCorrecaoMesvalor: TFloatField;
+    qryContratosdatachaves_contrato_origem: TDateField;
+    qryContratosOrigem: TtecQuery;
+    qryContratosGerado: TtecQuery;
+    qryContratosOrigemsituacao: TStringField;
+    qryContratosOrigemsituacao_contrato_origem: TStringField;
+    qryApagarLancamentosContabeis: TtecQuery;
+    qryContratossituacao_contrato_origem: TStringField;
+    qryContratoscontratoatual: TBooleanField;
+    qryImoveisVendidosblocoanterior: TIntegerField;
+    qryImoveisVendidosnumeroanterior: TStringField;
+    qrySituacaoImoveis: TtecQuery;
+    qrySituacaoImoveisbloco: TIntegerField;
+    qrySituacaoImoveisnumero: TStringField;
+    qrySituacaoImoveissituacao: TStringField;
+    qryContratoOrigem: TtecQuery;
+    qryContratoOrigemdataalteracao: TDateField;
+    qrySituacaoImoveisunidade: TIntegerField;
+    qryImoveisVendidosunidadeanterior: TIntegerField;
+    qryConsultaTiposUnidades: TtecQuery;
+    qryConsultaTiposUnidadescodigo: TIntegerField;
+    qryConsultaTiposUnidadesnome: TStringField;
+    dsrConsultaTiposUnidades: TtecDataSource;
+    qryConsultarImoveisunidade: TIntegerField;
+    qrySaldoDevedor: TtecQuery;
+    qrySaldoDevedorvalor: TFloatField;
+    qryImoveisVendidosOrdem: TIntegerField;
+    qryAtualizarContratos: TtecQuery;
+    qryAtualizarDatadoHabitese: TtecQuery;
+    qryGerarLancamentosHabitese: TtecQuery;
+
+    procedure qryContratosNewRecord(DataSet: TDataSet);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure qryContratosBeforeCancel(DataSet: TDataSet);
+    procedure dsrCompradoresDataChange(Sender: TObject; Field: TField);
+    procedure qryConsultaImoveisAfterOpen(DataSet: TDataSet);
+    procedure qryConsultarImoveisBeforeOpen(DataSet: TDataSet);
+    procedure qryContratosAfterScroll(DataSet: TDataSet);
+    procedure qryParcelasContratoCalcFields(DataSet: TDataSet);
+    procedure qryParcelasContratoAfterClose(DataSet: TDataSet);
+    procedure qryParcelasContratoAfterPost(DataSet: TDataSet);
+    procedure dsrContratosDataChange(Sender: TObject; Field: TField);
+    procedure qryConsultaImoveisCalcFields(DataSet: TDataSet);
+    procedure qryImoveisVendidosCalcFields(DataSet: TDataSet);
+    procedure qryImoveisVendidosAfterPost(DataSet: TDataSet);
+    procedure qryImoveisVendidosAfterDelete(DataSet: TDataSet);
+    procedure qryImoveisVendidosBeforeDelete(DataSet: TDataSet);
+    procedure qryConsultaTiposUnidadesBeforeOpen(DataSet: TDataSet);
+    procedure qryConsultaImoveisBeforeOpen(DataSet: TDataSet);
+    procedure qryConsultaBlocosBeforeOpen(DataSet: TDataSet);
+    procedure qryImoveisVendidosAfterInsert(DataSet: TDataSet);
+    procedure qryImoveisVendidosAfterOpen(DataSet: TDataSet);
+  private
+    fSituacaoAnt: TtecSituacaoContratoImoveis;
+    FAtualizaImoveis: TNotifyEvent;
+    FAtualizaBlocos: TNotifyEvent;
+    FDiferenca: Currency;
+    FTotaldeParcelas: Currency;
+    FAtualizarDisplay: TNotifyEvent;
+    FLimparDisplay: TNotifyEvent;
+    FCancelarInclusao: TNotifyEvent;
+{    FEmpreendimento: String;}
+    FDataExtrato: String;
+    FExtratoCompleto: Boolean;
+    FForadoLimitedaDataContabil: Boolean;
+    FSomenteLeituraContabilidade: Boolean;
+    fdescricaohistorico: String;
+    FAfterOpenContratos: TNotifyEvent;
+    FDataChavesAnt: TDateTime;
+    FNrOrigem: String;
+    FAfterScrollChaves: TNotifyEvent;
+    FAfterCancelContratos: TNotifyEvent;
+    FApagarLancamentos: Boolean;
+    FAfterScrollCompradores: TNotifyEvent;
+    FQuitarDiversas: Boolean;
+    FContaRecebimentos: Integer;
+    FCancelarRecebimento: Boolean;
+    FDataAlteracao: TDateTime;
+    FOperacaoRescisao: String;
+    FData_Alteracao: TDateTime;
+    FOperacaoRenegociacao: Boolean;
+    FOperacaoTransferencia: Boolean;
+    FAtualizaDisplayParcelas: TNotifyEvent;
+    FIncluindoContrato: Boolean;
+    FOrigemReciboRecebimentos: Boolean;
+    FSaldoDevedor: Currency;
+    FSaldoHistorico : Currency;
+    FValorAtualizacaoMonetariaEntregaChaves: Currency;
+    FValorDescontoCorrecao: Currency;
+    FValorDescontoPrincipal: Currency;
+    FContrato_Origem: integer;
+    fReadOnly: Boolean;
+    procedure SetReadOnly(const Value: Boolean);
+    function GetSituacaoContrato: TtecSituacaoContratoImoveis;
+    procedure SetSituacaoContrato(const Value: TtecSituacaoContratoImoveis);
+    function GetQtdeImoveis: String;
+    function GetPrecisaReCalcularParcelas: Boolean;
+    function GetDataContabilidade: TDateTime;
+    function GetProximoNrLancto: integer;
+    procedure SetProximoNrLancto(const Value: integer);
+    function GetSaldoDevedor: Currency;
+    procedure setNrOrigem(const Value: String);
+    procedure RecalcularOrdemImoveisVendidos;
+
+    { Private declarations }
+  protected
+    StateAnt: TDataSetState;
+    FContratoBloqueado: String;
+    ImpressaoContratos: TdtmImprimeContratosImoveis;
+    CapTipo: String;
+    CapNumero: Integer;
+    CApNrPagto: Integer;
+    procedure AtualizarValorHistoricoParcelas;
+    procedure AtualizarValorContrato;
+    procedure AtualizarSituacaoImovel(HeExclusao: boolean);
+
+  public
+    { Public declarations }
+    FProximoNrLancto: integer;
+    qryLimpar : TtecQuery;
+    ParametroCompradorC: String;
+    ParametroFiadorC: String;
+    ParametroRepresentanteC: String;
+    ParametroCompradorV: String;
+    ParametroFiadorV: String;
+    ParametroRepresentanteV: String;
+    GravarParcelas: Boolean;
+    Gravado: Boolean;
+    FTotalJuroeAmTransf: Currency;
+    FTotalAmTransf: Currency;
+    FOrdemImoveisVendidos: integer;
+
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure EditarContrato;
+    procedure ReordenarParcelas(Tipo: String);
+    procedure CancelarEdicaoContrato;
+    procedure RefazConsultaContrato; overload;
+    function  IncluirContrato: Boolean;
+    function  GetIncluindoContrato: Boolean;
+    property  ReadOnly: Boolean read fReadOnly write SetReadOnly;
+    property  SituacaoContrato: TtecSituacaoContratoImoveis read GetSituacaoContrato write SetSituacaoContrato;
+    property  SituacaoAnt: TtecSituacaoContratoImoveis read fSituacaoAnt write fSituacaoant;
+    property  AtualizaBlocos : TNotifyEvent read FAtualizaBlocos write FAtualizaBlocos;
+    property  AtualizaImoveis: TNotifyEvent read FAtualizaImoveis write FAtualizaImoveis;
+    property  AtualizarDisplay: TNotifyEvent read FAtualizarDisplay write FAtualizarDisplay;
+    property  CancelarInclusao: TNotifyEvent read FCancelarInclusao write FCancelarInclusao;
+    property  AtualizaDisplayParcelas: TNotifyEvent read FAtualizaDisplayParcelas write FAtualizaDisplayParcelas;
+    property  LimparDisplay: TNotifyEvent read FLimparDisplay write FLimparDisplay;
+    property  QtdeImoveis : String read GetQtdeImoveis;
+    property  PrecisaReCalcularParcelas : Boolean read GetPrecisaReCalcularParcelas;
+{    property  Empreendimento : String read fEmpreendimento write FEmpreendimento;}
+    property  AfterScrollCompradores : TNotifyEvent read FAfterScrollCompradores write FAfterScrollCompradores;
+    Procedure AbreTabelasConsulta(TipoPesquisa: TtecPesquisa);
+    procedure FechaTabelaConsulta(TipoPesquisa: TtecPesquisa);
+    procedure Selecionar(TipoPesquisa: TtecPesquisa);
+    function  EditarCompradoresContrato: Boolean;
+    function  EditarImoveisContrato: Boolean;
+    function  IncluirCompradoresContrato: Boolean;
+    function  IncluirImoveisContrato: Boolean;
+    function  GravarCompradorContrato: Boolean;
+    function  GravarImovelContrato: Boolean;
+    function  ExcluirCompradorContrato: Boolean;
+    function  CalcularValorTotalImoveis: Currency;
+    procedure FecharTabelasConsultas;
+    function  ExcluirImovelContrato: Boolean;
+    procedure GerarParcelas(Tipo, Moeda: String; NroParcelas, Intervalo: Integer;
+                            Vencimento, DataBase, DataJuros: TDateTime;
+                            TaxaJuros, ValorParcela: Currency; JurosCompostos: Boolean);
+    function GravarContrato : Boolean;
+    procedure AtribuirEmpreendimentoContrato;
+    procedure AtribuirCompradorPrincipal(Cliente: Integer); 
+    function DeletarParcelar(Tipo: String): Boolean;
+    function TotalizarParcelas: Currency;
+    property Diferenca : Currency read FDiferenca write FDiferenca;
+    property TotaldeParcelas: Currency read FTotaldeParcelas write FTotaldeParcelas;
+    property DataExtrato: String read FDataExtrato write FDataExtrato;
+    property ExtratoCompleto : Boolean read FExtratoCompleto write FExtratoCompleto;
+    property AfterOpenContratos: TNotifyEvent read FAfterOpenContratos write FAfterOpenContratos;
+    property AfterScrollChaves: TNotifyEvent read FAfterScrollChaves write FAfterScrollChaves;
+    property AfterCancelContratos: TNotifyEvent read FAfterCancelContratos write FAfterCancelContratos;
+    property IncluindoContrato: Boolean Read GetIncluindoContrato write FIncluindoContrato;
+    property DataChavesAnt : TDateTime read FDataChavesAnt write FDataChavesAnt;
+    property NrOrigem : String read FNrOrigem write setNrOrigem;
+    property ApagarLancamentos : Boolean read FApagarLancamentos write FApagarLancamentos;
+    function AtribuirDataAlteracao: Boolean;
+    function ExcluirParcelasContrato(Todos: Boolean): Boolean;
+    function ConfirmaPercentual: Currency;
+    function ExistePrincipal: Boolean;
+    function GravarParcelaContrato: Boolean;
+    procedure VerificarParcela;
+    function IncluirParcela : Boolean;
+    function IncluirInformacoes : Boolean;
+    function EditarParcela  : Boolean;
+    function VerificarDataChaves(DataChaves : String): Boolean;
+    function AlterarEstadoImoveis(Estado: String; Todos: Boolean): Boolean;
+    procedure ParametrosImoveis(Empreendimento, Bloco, Imovel, Unidade: String);
+    procedure ImprimirContrato;
+    procedure ImprimirRecibo;
+    procedure ImprimirExtrato(Completo: Boolean; Data: String);
+    procedure AlterarEstadoContrato;overload;
+    procedure AlterarEstadoContrato(Estado: String);overload;
+    procedure EstornarParcelas;
+    procedure ApagarLancamentosContabeis(Origem: String; NrOrigem: int64; FecharTransacao: Boolean = false);
+
+    function  VerificarCamposHistoricos: Boolean;
+    procedure GravarLancamentosContabeis;
+    function  ExisteParcelasPagas: Boolean;
+    procedure ReadOnlyContrato(Bloquear: Boolean = true);
+    function  VerificarCotacaoMoeda(Moeda, Data: String): Boolean;
+    procedure CapturarParcelaAtual;
+    procedure VoltarParcelaEditada;
+    property  ContaRecebimentos : Integer read FContaRecebimentos write FContaRecebimentos;
+    property  CancelarRecebimento :Boolean read FCancelarRecebimento write FCancelarRecebimento;
+    function  MaiordataPagamento : Variant;
+    function  ImovelEntregue: Boolean;
+    procedure GerarNovoContrato(Contrato: Integer; Alteracao: String);
+    function  NovaChaveContratos : Integer;
+    function  NovaSequenciaContratos : integer;
+    function  AtribuirImoveis_NovoContrato(NovoContrato, ContratoOrigem: Integer) : Boolean;
+    function  AtribuirCompradores_NovoContrato(NovoContrato, ContratoOrigem: Integer) : Boolean;
+    procedure AlteracoesContrato(Excluido, GravarLancamentos: Boolean);
+    procedure SetarSituacaoContratoOrigem;
+    procedure DeletarDadosContrato;
+
+    function  DeletarContratos(Tabela: TtecQuery): Boolean;
+    function PossuiParcelasPagas : Boolean;
+    function PossuiParcelasemAberto: Boolean;
+    property OrigemReciboRecebimentos : Boolean read FOrigemReciboRecebimentos write FOrigemReciboRecebimentos;
+
+
+    //Contrato de Imóveis - Contabilidade
+    function getdescricaohistorico: String;
+    function GetSomenteLeituraContabilidade: Boolean;
+
+    function GetSomenteLeituraContabilidadeVenda: Boolean;
+    function GetSomenteLeituraContabilidadeRescisao: Boolean;
+    property SomenteLeituraContabilidade: Boolean read GetSomenteLeituraContabilidade write FSomenteLeituraContabilidade;
+    property ForadoLimitedaDataContabil: Boolean read FForadoLimitedaDataContabil write FForadoLimitedaDataContabil;
+    property QuitarDiversas  : Boolean read FQuitarDiversas write FQuitarDiversas;
+    property descricaohistorico:String read getdescricaohistorico write fdescricaohistorico;
+    property DataAlteracao : TDateTime read FDataAlteracao write FDataAlteracao;
+    function GetOrdemImoveisVendidos: integer;
+    function GetValordoContrato: Currency;
+    function GetValorContratoChaves: Currency;
+    function GetNumeroDocumento: Integer;
+    function GetDataContrato: TDateTime;
+    function GetDataChaves: TDateTime;
+    function getDataAtual: TDateTime;
+    function getDataAlteracao: TDateTime;
+    function getDataCorrente : TDateTime;
+    function getFilial: Integer;
+    function GetGerarDuplicatas: Boolean;
+    function GetOrdenarLancamentos: String;
+    function GetNrOrigem: Int64;
+    function GetValorTotalPago: Currency;
+    function GetValorSaldoCorrecao : Currency;
+    function GetValorCorrecaoPago : Currency;
+    function GetSaldoHistorico : Currency;
+    function GetTotalContratado : Currency;
+    function GetContaCaixa : Integer;
+    function GetValorAtualizacaoMonetariaEntregaChaves : Currency;
+    function GetVAlorAMEntregaChaves : Currency;
+    function GetValorDescontoPrincipal : Currency;
+    function GetValorDescontoCorrecao  : Currency;
+
+    //Historicos Contabilidade
+      //Venda
+    function GetGethistoricovendalancamentovenda: Integer;
+    function Gethistoricovendaimpostos : Integer;
+      //Chaves
+    function Gethistoricochavesvalorvenda : Integer;
+    function Gethistoricochavesimpostos : Integer;
+    function Gethistoricochavescustoscomissoes : Integer;
+    function Gethistoricochavesatualizacaomonetaria : Integer;
+      // Recebimentos
+    function Gethistoricorecebcaixabanco : Integer;
+    function Gethistoricorecebprincipal : Integer;
+    function Gethistoricorecebatualizacaomonetaria : Integer;
+    function Gethistoricorecebdescontos : Integer;
+    function Gethistoricorecebjuros : Integer;
+    //Contas dos Impostos Retidos sobre Imóveis
+    function GetContaCreditoCofinsRetido: Integer;
+    function GetContaCreditoCSLLRetido: Integer;
+    function GetContaCreditoIRRetido: Integer;
+    function GetContaCreditoPISRetido: Integer;
+    function GetContaDebitoCofinsRetido: Integer;
+    function GetContaDebitoCSLLRetido: Integer;
+    function GetContaDebitoIRRetido: Integer;
+    function GetContaDebitoPISRetido: Integer;
+    //Relativo ao Custo do Imóvel
+    function GetContaCreditoCusto: Integer;
+    function Getcreditodespesasvenda: Integer;
+    function GetDebitodespesasvenda: Integer;
+
+
+    function GetContaDebitoCusto : Integer;
+    function GetCustodoImovel: Currency;
+    //Relativo a Despesa de Venda
+    function GetDespesaVenda: Currency;
+    //Impostos Relativos à Chaves
+    function GetContaCreditoCofinsChaves: Integer;
+    function GetContaCreditoCSLLChaves: Integer;
+    function GetContaCreditoIRChaves: Integer;
+    function GetContaCreditoPISChaves: Integer;
+    function GetContaDebitoCofinsChaves: Integer;
+    function GetContaDebitoCSLLChaves: Integer;
+    function GetContaDebitoIRChaves: Integer;
+    function GetContaDebitoPISChaves: Integer;
+
+    //Valor dos Impostos Retidos sobre Entrega
+    function GetCofinsRetidoChaves: Currency;
+    function GetCSLLRetidoChaves: Currency;
+    function GetIRRetidoChaves: Currency;
+    function GetPISRetidoChaves: Currency;
+
+    //Valor dos Impostos Retidos sobre Imóveis
+    function GetCofinsRetido: Currency;
+    function GetCSLLRetido: Currency;
+    function GetIRRetido: Currency;
+    function GetPISRetido: Currency;
+    //Funções que retornam os totais e impostos do contrato
+    function GetTotalPISRetido: Currency;
+    function GetTotalCOFINSRetido : Currency;
+    function GetTotalIRPJRetido : Currency;
+    function GetTotalCSLLRetido : Currency;
+    //Contas Contábeis
+      //Vendas
+    function GetDebitoVendaImoveis: Integer;
+    function GetCreditoVendaImoveis: Integer;
+      //Chaves
+    function GetDebitoChavesImoveis: Integer;
+    function GetCreditoChavesImoveis: Integer;
+
+    function  GetContaAtualiacaoMonetariaChaves: Integer;
+    function  GetContaCreditoAtualiacaoMonetariaChaves: Integer;
+
+
+    //Eventos relativos a Rescisão de Contrato
+    procedure TotalParcelas;
+    function  GetTotalJurosEAMContrato: Currency;
+    function  GetTotalAMContrato : Currency;
+    function  GetTotalAMChaves : Currency;
+
+    function  GetContaAtualizacaoMonetariaCliente: Integer;
+    function  GetContasImpostosCSLLAtualizacaoMonetaria : String;
+    function  GetContasImpostosIRPJAtualizacaoMonetaria : String;
+    function  GetValorTotalCSLLAtualizacoaoMonetaria: Currency;
+    function  GetValorTotalIRPJAtualizacoaoMonetaria: Currency;
+    //Contas de Atualização Monetária
+    Function  GetContaDebitoCSLLAtualizacaoMonetaria : Integer;
+    Function  GetContaCreditoCSLLAtualizacaoMonetaria : Integer;
+    Function  GetContaDebitoIRPJAtualizacaoMonetaria : Integer;
+    Function  GetContaCreditoIRPJAtualizacaoMonetaria : Integer;
+
+    function  GetOperacaoRescisao : String;
+    function  GetOperacaoTrans: Boolean;
+    function  GetOperacaoReneg: Boolean;
+    function  GetTotalJuroseAMTranf : Currency;
+    function  GetTotalAMTransf : Currency;
+    property  OperacaoRescisao : String read FOperacaoRescisao write FOperacaoRescisao;
+    property  OperacaoTransferencia : Boolean read FOperacaoTransferencia write FOperacaoTransferencia;
+    property  OperacaoRenegociacao : Boolean  read FOperacaoRenegociacao  write FOperacaoRenegociacao;
+    property  DataContabilidade : TDateTime read GetDataContabilidade;
+
+    property ProximoNrLancto: integer read GetProximoNrLancto write SetProximoNrLancto;
+    property SaldoDevedor : Currency read GetSaldoDevedor write FSaldoDevedor;
+    property ValorAtualizacaoMonetariaEntregaChaves : Currency read GetValorAtualizacaoMonetariaEntregaChaves write FValorAtualizacaoMonetariaEntregaChaves;
+    property ValorDescontoCorrecao : Currency read GetValorDescontoCorrecao write FValorDescontoCorrecao;
+    property ValorDescontoPrincipal : Currency read GetValorDescontoPrincipal write FValorDescontoPrincipal;
+    property Contrato_Origem: integer read FContrato_Origem write FContrato_Origem;
+    property OrdemImoveisVendidos: integer read GetOrdemImoveisVendidos write FOrdemImoveisVendidos;
+    procedure ContabilizarChaves;
+    procedure ExtornarContabilizacaodasChaves;
+
+
+end;
+
+const
+  SQLParcelas       = 'SELECT pi.Contrato,'+#10#13+
+                      'pi.Tipo,'+#10#13+
+                      'pi.Origem,'+#10#13+
+                      'pi.Numero,'+#10#13+
+                      'pi.NrPagto,'+#10#13+
+                      'pi.DataVencto,'+#10#13+
+                      'pi.ValorHistorico,'+#10#13+
+                      'pi.ValorContratado,'+#10#13+
+                      'pi.Valorvencto,'+#10#13+
+                      '(SELECT ValorDevido(pi.Contrato, pi.Tipo, pi.Numero, pi.NrPagto,'+#10#13+
+                      '                   (CASE WHEN pi.Datapagto IS NULL'+#10#13+
+                      '                         THEN CURRENT_DATE'+#10#13+
+                      '                         ELSE pi.Datapagto'+#10#13+
+                      '                    END))) AS ValorDevido,'+#10#13+
+                      '(SELECT ValorCorrigido(pi.Contrato, pi.Tipo, pi.Numero, pi.NrPagto,'+#10#13+
+                      '                     (CASE WHEN pi.Datapagto IS NULL'+#10#13+
+                      '                           THEN CURRENT_DATE'+#10#13+
+                      '                           ELSE pi.Datapagto'+#10#13+
+                      '                      END),true)) AS ValorCorrigido,'+#10#13+
+                      'pi.Datapagto,'+#10#13+
+                     ' pi.ValorPagto,'+#10#13+
+                     '(SELECT JurosContratuais(pi.Contrato, pi.Tipo, pi.Numero, pi.NrPagto,'+#10#13+
+                     '                        (CASE WHEN pi.Datapagto IS NULL'+#10#13+
+                     '                            THEN CURRENT_DATE'+#10#13+
+                     '                            ELSE pi.Datapagto'+#10#13+
+                     '                         END))) AS Juros,'+#10#13+
+                     'pi.moeda,'+#10#13+
+                     '(select m.descricao from moedas m where pi.moeda = m.codigo) as DescricaoMoeda,'+#10#13+
+                     'pi.Database,'+#10#13+
+                     'pi.TaxaJuros,'+#10#13+
+                     'pi.Juroscompostos,'+#10#13+
+                     'pi.cheque,'+#10#13+
+                     'pi.contapagto,'+#10#13+
+                     'pi.agencia,'+#10#13+
+                     'pi.bancocheque,'+#10#13+
+                     'pi.emitente,'+#10#13+
+                     'pi.recibopagto,'+#10#13+
+                     'pi.sequencia,'+#10#13+
+                     '((SELECT ValorCorrigido(pi.Contrato, pi.Tipo, pi.Numero, pi.NrPagto,'+#10#13+
+                     '                       (CASE WHEN pi.Datapagto IS NULL'+#10#13+
+                     '                             THEN CURRENT_DATE'+#10#13+
+                     '                             ELSE pi.Datapagto'+#10#13+
+                     '                       END),true)) - pi.ValorHistorico) AS Correcao,'+#10#13+
+                     '(CASE WHEN pi.DataPagto IS NULL'+#10#13+
+                     '      THEN NULL'+#10#13+
+                     '      ELSE CASE WHEN (pi.Valorpagto - (SELECT ValorDevido(pi.Contrato, pi.Tipo,'+#10#13+
+                     '                                                          pi.Numero,pi.NrPagto,'+#10#13+
+                     '                                                         pi.Datapagto))) = 0'+#10#13+
+                     '                THEN NULL'+#10#13+
+                     '                ELSE (pi.Valorpagto - (SELECT ValorDevido(pi.Contrato, pi.Tipo,'+#10#13+
+                     '                                                          pi.Numero,   pi.NrPagto,'+#10#13+
+                     '                                                          pi.Datapagto)))'+#10#13+
+                     '           END'+#10#13+
+                     'END) AS Diferenca,'+#10#13+
+                     'pi.promissoria,'+#10#13+
+                     'pi.documento,'+#10#13+
+                     'pi.observacoes,'+#10#13+
+                     'pi.tipopagto,'+#10#13+
+                     'pi.numeroorigem,'+#10#13+
+                     '(SELECT coalesce(v.razao,v.nome) '+#10#13+
+	             '       FROM vFornecedores v'+#10#13+
+	             '            JOIN Compradores co ON v.codigo  = co.Cliente AND'+#10#13+
+	             '                                   v.tipo    = co.tipoCliente AND'+#10#13+
+	             '                                   pi.Contrato = co.Contrato'+#10#13+
+	             '            WHERE v.codigo  = co.Cliente     AND'+#10#13+
+	             '                  v.tipo    = co.tipoCliente AND'+#10#13+
+	             '                  pi.Contrato = co.Contrato AND co.principal) AS NomeCliente,'+#10#13+
+                     'False as Selecionado,'+#10#13+
+                '    pi.ValorContratadoAteHabiteSe,'+#10#13+
+                '    pi.MoedaAteHabiteSe,'+#10#13+
+                '    pi.TaxaJurosAteHabiteSe,'+#10#13+
+                '    pi.DataBaseAteHabiteSe,'+#10#13+
+                '    pi.TipoJurosAteHabiteSe'+#10#13+
+                     'FROM parcelasimoveis pi'+#10#13+
+                     'WHERE pi.Contrato = :Contrato';
+
+var
+  dtmContratosImoveis: TdtmContratosImoveis;
+  VarRecebimentos: TRecebimentos;
+  Msg: String;
+
+implementation
+
+{$R *.dfm}
+
+{ TRecebimentos }
+
+constructor TRecebimentos.Create(QuitacaoLote: Boolean);
+begin
+  if QuitacaoLote then
+  begin
+    MontarQuery;
+    ZerarValores;
+  end
+  else
+    BuscarParcela;
+end;
+
+procedure TRecebimentos.BuscarParcela;
+begin
+  MontarQuery;
+  Contrato     := qryParcelas.FieldByName('Contrato').AsString;
+  Tipo         := qryParcelas.FieldByName('tipo').AsString;
+  Numero       := qryParcelas.FieldByName('numero').AsInteger;
+  Parcela      := qryParcelas.FieldByName('origem').AsString;
+  Vencimento   := qryParcelas.FieldByName('datavencto').AsDateTime;
+  Sequencia    := qryParcelas.FieldByName('sequencia').AsInteger;
+  Evento       := GetEventoRecebimento;
+  if AlterandoParcela then
+  begin
+    Pagamento     := qryParcelas.FieldByName('datapagto').AsDateTime;
+    ValorRecebido := qryParcelas.FieldByName('valorpagto').AsCurrency;
+  end
+  else
+    Pagamento  := DataAtual;
+  GetDiferenca;
+  NrPagto      := qryParcelas.FieldByName('nrpagto').AsInteger;
+  NroCheque    := qryParcelas.FieldByName('cheque').AsString;
+  Conta        := qryParcelas.FieldByName('contapagto').AsInteger;
+  BancoCheque  := qryParcelas.FieldByName('bancocheque').AsInteger;
+  Emitente     := qryParcelas.FieldByName('emitente').AsString;
+  Agencia      := qryParcelas.FieldByName('agencia').AsInteger;
+  ValorDevido  := qryParcelas.FieldByName('valordevido').AsCurrency;
+  ValorHistorico   := qryParcelas.FieldByName('valorhistorico').AsCurrency;
+  ValorCorrigido   := qryParcelas.FieldByName('valorcorrigido').AsCurrency;
+  ValorContratado  := qryParcelas.FieldByName('valorcontratado').AsCurrency;
+  JurosContratuais := qryParcelas.FieldByName('juros').AsCurrency;
+  if qryParcelas.FieldByName('numeroOrigem').AsString <> '' then
+    NumeroOrigem     := StrToInt64(qryParcelas.FieldByName('numeroOrigem').AsString);
+  Correcao         := ValorDevido - JurosContratuais - ValorContratado;
+  CorrecaoContabil := qryParcelas.FieldByName('correcao').AsCurrency;
+  TaxaJuros    := dtmContratosImoveis.qryContratosatrasojuros.AsFloat;
+  MultaContrato:= dtmContratosImoveis.qryContratosatrasomulta.AsFloat;
+  ValorJuros   := GetJurosMora;
+  ValorMulta   := GetMulta;
+  ValorTotal   := ValorDevido + ValorJuros + ValorMulta;
+  if not AlterandoParcela then
+    ValorRecebido:= ValorTotal;
+end;
+
+procedure TRecebimentos.MontarQuery;
+var result: Boolean;
+begin
+  Result:= False;
+  qryParcelas                       := TtecQuery.Create(nil);
+  qryParcelas.CachedUpdates         := True;
+  qryParcelas.Sql.Text              := SQLParcelas;
+  qryParcelas.DataBase              := dtmTecSoft.dbaTecSoft;
+  qryParcelas.Transaction           := dtmTecSoft.tstTecSoft;
+  qryParcelas.RequestLive           := True;
+  qryParcelas.Sql.Append(AddSqlParcelas);
+
+  qryParcelas.ParamByName('Contrato').AsString:= dtmContratosImoveis.qryContratoscontrato.AsString;
+
+
+  qryParcelas.Open;
+  dtmContratosImoveis.RefazConsultaPorNome(dtmContratosImoveis.qryContasSaidasFiliais,['Filial'],[FilialBase]);
+  dtmContratosImoveis.qryContasEntradasFiliais.Open;
+  if dtmContratosImoveis.QuitarDiversas then
+    qryParcelas.First
+  else
+    if qryParcelas.Locate('tipo;numero;nrpagto',VarArrayOf([dtmContratosImoveis.qryParcelasContratotipo.AsString,
+                                                            dtmContratosImoveis.qryParcelasContratonumero.AsInteger,
+                                                            dtmContratosImoveis.qryParcelasContratonrpagto.AsInteger]),[]) then
+      Result:= True;
+  TFloatField(qryParcelas.FieldByName('valordevido')).DisplayFormat:= '###,###,##0.00';
+end;
+
+function TRecebimentos.GravarModificacoes: Boolean;
+var DeletarProxima: Boolean;
+    ValorCProxima, ValorCAteHProxima, ValorHProxima: Real;
+   function VerificarPosterior : boolean;
+   var NumPagto, Numparcela : Integer;
+       TipoPar: String;
+   begin
+     Result:= True;
+     dtmContratosImoveis.GuardarRegistroAtual(qryParcelas, True);
+     TipoPar      := qryParcelas.FieldByName('tipo').AsString;
+     Numparcela   := qryParcelas.FieldByName('numero').AsInteger;
+     NumPagto     := qryParcelas.FieldByName('nrpagto').AsInteger;
+
+     ValorHProxima:= qryParcelas.FieldByName('valorhistorico').AsCurrency;
+     ValorCProxima:= qryParcelas.FieldByName('valorcontratado').AsCurrency;
+     ValorCAteHProxima:= qryParcelas.FieldByName('valorcontratadoatehabitese').AsCurrency;
+
+     qryParcelas.Next;
+     if ((TipoPar = qryParcelas.FieldByName('tipo').AsString) and
+         (Numparcela = qryParcelas.FieldByName('numero').AsInteger) and
+         ((NumPagto + 1) = qryParcelas.FieldByName('nrpagto').AsInteger)) then
+     begin
+       ValorHProxima:= ValorHProxima + qryParcelas.FieldByName('valorhistorico').AsCurrency;
+       ValorCProxima:= ValorCProxima + qryParcelas.FieldByName('valorcontratado').AsCurrency;
+       ValorCAteHProxima := ValorCAteHProxima + qryParcelas.FieldByName('valorcontratadoatehabitese').AsCurrency;
+       if qryParcelas.FieldByName('datapagto').AsString <> '' then
+         Result:= False;
+     end;
+     dtmContratosImoveis.VoltarRegistroAtual(qryParcelas);
+   end;
+begin
+  DeletarProxima:= False;
+  dtmContratosImoveis.Gravado := True;
+
+  if dtmContratosImoveis.CancelarRecebimento then
+  begin
+    if not dtmContratosImoveis.QuitarDiversas then
+    begin
+      if qryParcelas.FieldByName('tipopagto').AsString = 'P' then
+        DeletarProxima:= True;
+      if VerificarPosterior then
+      begin
+        if not (qryParcelas.State = dsedit) then
+          qryParcelas.Edit;
+        qryParcelas.FieldByName('ValorPagto').Clear;
+        qryParcelas.FieldByName('datapagto').Clear;
+        qryParcelas.FieldByName('valorvencto').Clear;
+        qryParcelas.FieldByName('bancocheque').Clear;
+        qryParcelas.FieldByName('cheque').Clear;
+        qryParcelas.FieldByName('emitente').Clear;
+        qryParcelas.FieldByName('contapagto').Clear;
+        qryParcelas.FieldByName('agencia').Clear;
+        qryParcelas.FieldByName('sequencia').Clear;
+        qryParcelas.FieldByName('recibopagto').Clear;
+        qryParcelas.FieldByName('tipopagto').Clear;
+        qryParcelas.FieldByName('numeroorigem').Clear;
+        qryParcelas.Post;
+        If DeletarProxima then
+        begin
+          dtmContratosImoveis.GuardarRegistroAtual(qryParcelas, True);
+          qryParcelas.Next;
+          qryParcelas.Delete;
+          dtmContratosImoveis.VoltarRegistroAtual(qryParcelas);
+          EditarParcela;
+          qryParcelas.FieldByName('valorcontratado').AsCurrency:= ValorCProxima;
+          qryParcelas.FieldByName('valorhistorico').AsCurrency := ValorHProxima;
+          qryParcelas.FieldByName('valorcontratadoatehabitese').AsCurrency:= ValorCAteHProxima;
+
+          qryParcelas.Post;
+        end;
+        dtmContratosImoveis.Gravado := True;
+      end
+      else
+      begin
+        MensagemAviso('Não foi possível cancelar esta quitação.'+#13#10+
+                      'Esta parcela foi paga parcialmente e seu saldo foi quitado.'+#13#10+
+                      'Cancele a quitação da parcela de saldo.');
+        dtmContratosImoveis.Gravado := False;
+      end;
+    end
+    else
+    begin
+      qryParcelas.First;
+      while not qryParcelas.Eof do
+      begin
+        if qryParcelas.FieldByName('selecionado').AsBoolean then
+        begin
+          if not (qryParcelas.State = dsedit) then
+            qryParcelas.Edit;
+          qryParcelas.FieldByName('ValorPagto').Clear;
+          qryParcelas.FieldByName('datapagto').Clear;
+          qryParcelas.FieldByName('valorvencto').Clear;
+          qryParcelas.FieldByName('bancocheque').Clear;
+          qryParcelas.FieldByName('cheque').Clear;
+          qryParcelas.FieldByName('emitente').Clear;
+          qryParcelas.FieldByName('contapagto').Clear;
+          qryParcelas.FieldByName('agencia').Clear;
+          qryParcelas.FieldByName('sequencia').Clear;
+          qryParcelas.FieldByName('recibopagto').Clear;
+          qryParcelas.FieldByName('tipopagto').Clear;
+          qryParcelas.FieldByName('numeroorigem').Clear;
+          qryParcelas.Post;
+        end;
+        qryParcelas.Next;
+      end;
+    end;
+  end
+  else
+  begin
+    if not dtmContratosImoveis.QuitarDiversas then
+    begin
+      if not AlterandoParcela then
+      begin
+        dtmContratosImoveis.spcRecibos.Open;
+        FRecibo:= dtmContratosImoveis.spcRecibosrecibo.AsInteger;
+        dtmContratosImoveis.spcRecibos.Close;
+      end;
+      if not (qryParcelas.State = dsedit) then
+        qryParcelas.Edit;
+      PosicionarParcelasContratoaPagar;
+      FNumeroOrigem:= GetNrOrigem;
+      if qryParcelas.FieldByName('TipoPagto').IsNull then
+        qryParcelas.FieldByName('TipoPagto').AsString  := 'Q';
+      qryParcelas.FieldByName('ValorPagto').AsFloat    := FValorRecebido;
+      qryParcelas.FieldByName('datapagto').AsDateTime  := FPagamento;
+      qryParcelas.FieldByName('valorvencto').AsFloat   := FValorDevido;
+      if FBancoCheque > 0 then
+        qryParcelas.FieldByName('bancocheque').AsFloat := FBancoCheque;
+      qryParcelas.FieldByName('cheque').AsString       := FNroCheque;
+      qryParcelas.FieldByName('emitente').AsString     := FEmitente;
+      qryParcelas.FieldByName('contapagto').AsInteger  := FConta;
+      qryParcelas.FieldByName('agencia').AsInteger     := FAgencia;
+      qryParcelas.FieldByName('sequencia').AsInteger   := FSequencia;
+      qryParcelas.FieldByName('recibopagto').AsInteger := FRecibo;
+      qryParcelas.FieldByName('numeroorigem').AsString := IntToStr(FNumeroOrigem);
+      qryParcelas.Post;
+    end
+    else
+    begin
+      if not AlterandoParcela then
+      begin
+        dtmContratosImoveis.spcRecibos.Open;
+        FRecibo:= dtmContratosImoveis.spcRecibosrecibo.AsInteger;
+        dtmContratosImoveis.spcRecibos.Close;
+      end;
+
+      qryParcelas.First;
+      FNumeroOrigem := 0;
+      while not qryParcelas.Eof do
+      begin
+        if qryParcelas.FieldByName('selecionado').AsBoolean then
+        begin
+          PosicionarParcelasContratoaPagar;
+          if FNumeroOrigem = 0 then
+            FNumeroOrigem:= GetNrOrigem;
+
+          if not (qryParcelas.State = dsedit) then
+            qryParcelas.Edit;
+          If not DescontoJuros then
+          begin
+            if LiberarJuroseMulta then
+              qryParcelas.FieldByName('ValorPagto').AsFloat  := qryParcelas.FieldByName('ValorDevido').AsFloat
+            else
+            begin
+              qryParcelas.FieldByName('ValorPagto').AsFloat  := qryParcelas.FieldByName('ValorDevido').AsFloat+
+                                                                CalcularJurosParcela(qryParcelas.FieldByName('DataVencto').AsDateTime,
+                                                                                     FPagamento,
+                                                                                     qryParcelas.FieldByName('ValorDevido').AsFloat,
+                                                                                     FTaxaJuros) +
+                                                                CalcularMultaParcela(qryParcelas.FieldByName('ValorDevido').AsFloat,
+                                                                                     FTaxaJuros);
+            end;
+          end;
+          qryParcelas.FieldByName('datapagto').AsDateTime := FPagamento;
+          if FBancoCheque > 0 then
+            qryParcelas.FieldByName('bancocheque').AsFloat:= FBancoCheque;
+          qryParcelas.FieldByName('cheque').AsString      := FNroCheque;
+          qryParcelas.FieldByName('emitente').AsString    := FEmitente;
+          qryParcelas.FieldByName('contapagto').AsInteger := FConta;
+          qryParcelas.FieldByName('agencia').AsInteger    := FAgencia;
+          qryParcelas.FieldByName('sequencia').AsInteger  := FSequencia;
+          qryParcelas.FieldByName('recibopagto').AsInteger:= FRecibo;
+          qryParcelas.FieldByName('TipoPagto').AsString   := 'Q';
+          qryParcelas.FieldByName('numeroorigem').AsString:= inttostr(FNumeroOrigem);
+          qryParcelas.Post;
+        end;
+        qryParcelas.Next;
+      end;
+      PosicionarPrimeiraaPagar;
+    end;
+  end;
+
+  if dtmContratosImoveis.Gravado then
+  begin
+    try
+      dtmContratosImoveis.Perpetrar([qryparcelas],False);
+      dtmContratosImoveis.Perpetrar([dtmLancamentoContabilidade.qrylancamentosDocumentos],False);
+      dtmContratosImoveis.Perpetrar([dtmContratosImoveis.qryMovtosBancos,dtmContratosImoveis.qryMovtosBancosEventos],False);
+      Result:= True;
+    except
+      Result:= False;
+    end;
+  end;
+end;
+
+function TRecebimentos.ValidarValorRecebido: Boolean;
+Var ValorJuros : Currency;
+begin
+  Result:= True;
+  if not dtmContratosImoveis.QuitarDiversas then
+  begin
+    if FValorTotal > FValorRecebido then
+    begin
+      case MensagemSimNaoOpcaoCancelar('O Valor a ser pago é menor que o Valor do vencimento.' + #10#13 +
+                                       'A operação a ser realizada, refere-se a um Pagamento'  + #10#13 +
+                                       'Parcial. Confirma?','',true,
+                                       '&Gerar outra parcela',
+                                       '&Desconto obtido') of
+        mrYes: begin
+                 ParcelaPagaMenor(FValorTotal, True);
+                 GerarNovaParcela;
+               end;
+        mrNo : ValorDesconto := FValorTotal - FValorRecebido;
+        mrCancel: Result:= False ;
+      end;
+    end;
+  end
+  else
+    if FValorTotal <> FValorRecebido then
+    begin
+      if FValorTotal > FValorRecebido then
+        FValorDesconto := FValorTotal - FValorRecebido
+      else
+        FDiferencaPagoAmais := FValorRecebido - FValorTotal;
+      if ((FValorDesconto > 0) or (ValorJuros > 0))  then
+      begin
+        DescontoJuros:= True;
+
+        AtribuirDescontoJurosQuitacaoDiversas;
+      end;
+    end
+    else
+      AlterarValorDevidoParcela;
+end;
+
+procedure TRecebimentos.GerarNovaParcela;
+var
+  Contrato, Numero, NrPagto : Integer;
+  Tipo, Origem, Moeda : String;
+  DataVencto, DataBase : TDateTime;
+  TaxaJuros, Diferenca, Historico : Currency;
+  JurosCompostos: Boolean;
+begin
+  Diferenca       := FDiferenca;
+  Historico       := FDiferencaHistorico;
+  AtribuirTipoPagto('P');
+  Contrato        := qryParcelas.FieldByName('Contrato').AsVariant;
+  Numero          := qryParcelas.FieldByName('Numero').AsVariant;
+  NrPagto         := qryParcelas.FieldByName('NrPagto').AsVariant;
+  Tipo            := qryParcelas.FieldByName('Tipo').AsVariant;
+  Origem          := qryParcelas.FieldByName('Origem').AsVariant;
+  if not(qryParcelas.FieldByName('Moeda').IsNull) then
+    Moeda           := qryParcelas.FieldByName('Moeda').AsVariant;
+  DataVencto      := qryParcelas.FieldByName('DataVencto').AsVariant;
+  if not(qryParcelas.FieldByName('DataBase').IsNull) then
+    DataBase        := qryParcelas.FieldByName('DataBase').AsVariant;
+  if not(qryParcelas.FieldByName('TaxaJuros').IsNull) then
+    TaxaJuros       := qryParcelas.FieldByName('TaxaJuros').AsVariant;
+  if not(qryParcelas.FieldByName('JurosCompostos').IsNull) then
+    JurosCompostos  := qryParcelas.FieldByName('JurosCompostos').AsVariant;
+
+  dtmContratosImoveis.GuardarRegistroAtual(qryParcelas, True);
+
+  qryParcelas.Append;
+  qryParcelas.FieldByName('Contrato').AsVariant        := Contrato;
+  qryParcelas.FieldByName('Numero').AsVariant          := Numero;
+  qryParcelas.FieldByName('NrPagto').AsVariant         := NrPagto+1;
+  qryParcelas.FieldByName('Tipo').AsVariant            := Tipo;
+  qryParcelas.FieldByName('Origem').AsVariant          := Origem;
+  qryParcelas.FieldByName('Moeda').AsVariant           := Moeda;
+  qryParcelas.FieldByName('DataVencto').AsVariant      := DataVencto;
+  qryParcelas.FieldByName('DataBase').AsVariant        := DataBase;
+  qryParcelas.FieldByName('ValorHistorico').AsVariant  := Historico;
+  qryParcelas.FieldByName('ValorContratado').AsVariant := Diferenca;
+  qryParcelas.FieldByName('ValorContratadoAteHabitese').AsVariant := DiferencaAteHabiteSe;
+
+  qryParcelas.FieldByName('MoedaAteHabiteSe').AsVariant := dtmContratosImoveis.qryParcelasContratomoedaatehabitese.AsVariant;
+  qryParcelas.FieldByName('TaxaJurosAteHabiteSe').AsVariant := dtmContratosImoveis.qryParcelasContratotaxajurosatehabitese.AsVariant;
+  qryParcelas.FieldByName('DataBaseAteHabiteSe').AsVariant := dtmContratosImoveis.qryParcelasContratoDataBaseAteHabiteSe.AsVariant;
+  qryParcelas.FieldByName('TipoJurosAteHabiteSe').AsVariant := dtmContratosImoveis.qryParcelasContratoTipoJurosAteHabiteSe.AsVariant;
+
+  if TaxaJuros > 0 then
+    qryParcelas.FieldByName('TaxaJuros').AsVariant       := TaxaJuros;
+  qryParcelas.FieldByName('JurosCompostos').AsVariant  := JurosCompostos;
+  qryParcelas.FieldByName('tipopagto').AsString        := 'S';
+  qryParcelas.Post;
+
+  dtmContratosImoveis.VoltarRegistroAtual(qryParcelas);
+
+  //GravarModificacoes;
+end;
+
+function TRecebimentos.GetJurosMora: Currency;
+begin
+  if not FAlterandoParcelas then
+    if Pagamento > Vencimento then
+      Result:= CalcularJurosParcela(Vencimento,Pagamento,ValorDevido,TaxaJuros)
+    else
+      Result:= 0
+  else
+    Result:= 0;
+end;
+
+function TRecebimentos.GetMulta: Currency;
+begin
+  if not FAlterandoParcelas then
+    if Pagamento > Vencimento then
+      Result:= CalcularMultaParcela(ValorDevido, MultaContrato)
+    else
+      Result:= 0
+  else
+    Result:= 0;
+end;
+
+procedure TRecebimentos.LiberarMulta(ComMulta: Boolean);
+var EstAnterior: Boolean;
+begin
+  if ComMulta then
+  begin
+    EstAnterior:= FAlterandoParcelas;
+    if FAlterandoParcelas then
+      FAlterandoParcelas:= False;
+    FValorJuros:= GetJurosMora;
+    FValorMulta:= GetMulta;
+    FValorTotal:= FValorDevido + FValorJuros + FValorMulta;
+    FAlterandoParcelas:= EstAnterior;
+  end
+  else
+  begin
+    FValorJuros:= 0;
+    FValorMulta:=0;
+    FValorTotal:= FValorDevido;
+  end;
+end;
+
+procedure TRecebimentos.ValorParcelasSelecionadas;
+begin
+  dtmContratosImoveis.GuardarRegistroAtual(qryParcelas, True);
+  ZerarValores;
+  qryParcelas.First;
+  while not qryParcelas.Eof do
+  begin
+    if qryParcelas.FieldByName('Selecionado').AsBoolean then
+    begin
+      ValorContratado  := ValorContratado + qryParcelas.FieldByName('ValorContratado').AsFloat;
+      ValorHistorico   := ValorHistorico  + qryParcelas.FieldByName('ValorHistorico').AsFloat;
+      JurosContratuais := JurosContratuais + qryParcelas.FieldByName('Juros').AsFloat;
+      ValorDevido      := ValorDevido + qryParcelas.FieldByName('ValorDevido').AsFloat;
+      Vencimento       := qryParcelas.FieldByName('datavencto').AsFloat;
+      CorrecaoContabil := CorrecaoContabil + qryParcelas.FieldByName('correcao').AsFloat;
+      If AlterandoParcela then
+        Pagamento:=  qryParcelas.FieldByName('datapagto').AsFloat
+      else
+        Pagamento        := DataAtual;
+      TaxaJuros        := dtmContratosImoveis.qryContratosatrasojuros.AsFloat;
+      MultaContrato    := dtmContratosImoveis.qryContratosatrasomulta.AsFloat;
+      ValorJuros       := ValorJuros + GetJurosMora;
+      valorPago        := ValorPago + qryParcelas.FieldByName('valorpagto').AsFloat;
+      ValorMulta       := ValorMulta + GetMulta;
+      ValorTotal       := (ValorDevido + ValorJuros + ValorMulta);
+      ValorRecebido    := ValorPago;
+    end;
+    qryParcelas.Next;
+  end;
+  Correcao         := (ValorDevido - JurosContratuais - ValorContratado);
+  dtmContratosImoveis.VoltarRegistroAtual(qryParcelas);
+end;
+
+procedure TRecebimentos.ZerarValores;
+begin
+  FValorJuros       := 0;
+  FValorMulta       := 0;
+  FValorContratado  := 0;
+
+  FValorHistorico   := 0;
+  FValorRecebido    := 0;
+  FValorTotal       := 0;
+  FValorDevido      := 0;
+  FValorPago        := 0;
+  FJurosContratuais := 0;
+  FMultaContrato    := 0;
+  FCorrecao         := 0;
+  FCorrecaoContabil := 0;
+end;
+
+procedure TRecebimentos.MarcarSelecionados(Marcando, Todos: Boolean);
+begin
+  dtmContratosImoveis.MarcarRegistros(qryParcelas,
+                                      TbooleanField(qryParcelas.FieldByname('selecionado')),
+                                      Marcando,
+                                      Todos);
+end;
+
+function TRecebimentos.VerificarCotacaoMoeda(Moeda, Data: String): Boolean;
+begin
+  dtmContratosImoveis.RefazConsultaPorNome(dtmContratosImoveis.qryCotacoes,['Moeda','Data'],[Moeda, Data]);
+  Result:= ((dtmContratosImoveis.qryCotacoes.RecordCount > 0) or not (dtmContratosImoveis.qryCotacoescotacao.IsNull));
+end;
+
+function TRecebimentos.GetAddSqlParcelas: String;
+begin
+  if dtmContratosImoveis.QuitarDiversas then
+    FAddSQLParcelas:= 'AND (pi.datapagto is null OR pi.valorpagto is null)'+#10#13+
+                      'ORDER BY pi.Tipo, pi.Numero, pi.NrPagto'
+  else
+    FAddSQLParcelas:= 'ORDER BY pi.datavencto, pi.Tipo, pi.Numero, pi.NrPagto';
+  Result := FAddSQLParcelas;
+end;
+
+function TRecebimentos.GetAlterandoParcelas: Boolean;
+begin
+  FAlterandoParcelas:= not qryParcelas.FieldByName('datapagto').IsNull;
+  Result := FAlterandoParcelas;
+end;
+
+function TRecebimentos.GetEventoRecebimento: Integer;
+begin
+  Result:= dtmContratosImoveis.qryParametrosevento.AsInteger;
+end;
+
+
+function TRecebimentos.GetDescricaoHistorico: String;
+begin
+  Result:= FDescricaoParcelas;
+{
+  if dtmContratosImoveis.QuitarDiversas then
+    Result:= 'PARCELAS DO CONTRATO Nº '+dtmContratosImoveis.qryContratoscontrato.AsString
+  else
+    Result:= 'PARCELA TIPO '+qryParcelas.fieldbyName('tipo').AsString +' Nº '+qryParcelas.fieldbyName('origem').AsString+
+             ' DO CONTRATO Nº '+qryParcelas.fieldbyName('contrato').AsString;
+ }
+end;
+
+procedure TRecebimentos.EditarParcela;
+begin
+  if not (qryParcelas.State in [dsinsert, dsedit]) then
+    qryParcelas.Edit;
+end;
+
+procedure TRecebimentos.GravarLancamentosContabeis;
+begin
+  if parsistema.GerarContabilidade then
+  begin
+    dtmContratosImoveis.FProximoNrLancto:= 0;
+    dtmLancamentoContabilidade.qrylancamentosDocumentos.First;
+    while not dtmLancamentoContabilidade.qrylancamentosDocumentos.Eof do
+    begin
+      dtmLancamentoContabilidade.qrylancamentosDocumentos.Edit;
+      if (dtmLancamentoContabilidade.qryLancamentosDocumentosnumerocriado.AsBoolean) then
+        dtmLancamentoContabilidade.qryLancamentosDocumentosnrlancto.AsInteger := dtmContratosImoveis.ProximoNrLancto;
+      dtmLancamentoContabilidade.qrylancamentosDocumentosdata.AsDateTime     := FPagamento;
+      dtmLancamentoContabilidade.qrylancamentosDocumentosnrorigem.AsString   := IntToStr(GetNrOrigem);
+      dtmLancamentoContabilidade.qryLancamentosDocumentosexercicio.AsInteger := yearof(FPagamento);
+      dtmLancamentoContabilidade.qryLancamentosDocumentosfilial.AsInteger    := FilialBase;
+      dtmLancamentoContabilidade.qrylancamentosDocumentos.post;
+      dtmLancamentoContabilidade.qrylancamentosDocumentos.Next;
+    end;
+  end;
+end;
+
+function TRecebimentos.GetNrOrigem: Int64;
+var Contrato, Parcela, TipoStr, NrPagto : String;
+    Evento, Tipo: Integer;
+begin
+  if dtmContratosImoveis.qryParcelasContratonumeroorigem.AsSTring <> '' then
+    Result:= StrToInt64(dtmContratosImoveis.qryParcelasContratonumeroorigem.AsSTring)
+  else
+  begin
+    case dtmContratosImoveis.FNrOrigem[1] of
+      'V' : Evento:= 1;
+      'H' : Evento:= 2;
+      'A' : Evento:= 3;
+      'T' : Evento:= 4;
+    end;
+    Contrato:= preencheString(qryParcelas.FieldByName('Contrato').AsString,'0',6,false)+inttostr(Evento);
+    if Evento = 4 then
+    begin
+      Tipo   := ConverterTipoParcela(qryParcelas.FieldByName('tipo').AsString[1]);
+      Parcela:= preencheString(qryParcelas.FieldByName('numero').AsString, '0',3,False);
+      NrPagto:= preencheString(qryParcelas.FieldByName('nrpagto').AsString,'0',2,False);
+      TipoStr:= preencheString(inttostr(Tipo),'0',2,False);
+      Result := strtoint64(Contrato + TipoStr + Parcela + NrPagto);
+    end;
+  end;
+end;
+
+function TRecebimentos.GetDataLancto: TDateTime;
+begin
+  Result:= FPagamento;
+end;
+
+function TRecebimentos.DescricaoParcelasPagas: String;
+var Tipo, Parcela, Saida: String;
+    Numero, a, i, g, Total: Integer;
+    ArquivoParcelas: T_ParcelasPagas;
+    SequenciaParcelas: T_SeqParcelas;
+begin
+  if dtmContratosImoveis.QuitarDiversas then
+  begin
+    a:= 0;
+    i:= -1;
+    Numero := 0;
+    tipo:= '';
+    Saida:= '';
+    dtmContratosImoveis.GuardarRegistroAtual(qryParcelas, True);
+    qryParcelas.First;
+    SetLength(ArquivoParcelas, qryParcelas.RecordCount);
+    while not qryParcelas.Eof do
+    begin
+      if qryParcelas.FieldByName('selecionado').AsBoolean then
+      begin
+        ArquivoParcelas[a].Tipo     := qryParcelas.FieldByName('tipo').AsString;
+        ArquivoParcelas[a].Numero   := qryParcelas.FieldByName('numero').AsInteger;
+        ArquivoParcelas[a].Origem   := qryParcelas.FieldByName('origem').AsString;
+        ArquivoParcelas[a].Resultado:= qryParcelas.FieldByName('tipo').AsString + '-'+
+                                       qryParcelas.FieldByName('origem').AsString;
+        inc(a);
+      end;
+
+      qryParcelas.Next;
+    end;
+    dtmContratosImoveis.VoltarRegistroAtual(qryParcelas);
+    Total:= a;
+    SetLength(SequenciaParcelas,Total+1);
+    for a:=0 to Total-1 do
+    begin
+      if Tipo <> ArquivoParcelas[a].Tipo then
+      begin
+        inc(i);
+        Tipo:= ArquivoParcelas[a].Tipo;
+        SequenciaParcelas[i].Tipo:= ArquivoParcelas[a].Tipo;
+        SequenciaParcelas[i].NI  := ArquivoParcelas[a].Numero;
+        SequenciaParcelas[i].OrI := ArquivoParcelas[a].Resultado;
+        SequenciaParcelas[i].NF  := ArquivoParcelas[a].Numero;
+        SequenciaParcelas[i].OrF := ArquivoParcelas[a].Resultado;
+      end
+      else
+      begin
+        if (ArquivoParcelas[a].Numero - SequenciaParcelas[i].NF) = 1 then
+        begin
+          SequenciaParcelas[i].NF  := ArquivoParcelas[a].Numero;
+          SequenciaParcelas[i].OrF := ArquivoParcelas[a].Resultado;
+          SequenciaParcelas[i].Seq := True;
+        end
+        else
+        begin
+          Inc(i);
+          SequenciaParcelas[i].Tipo:= ArquivoParcelas[a].Tipo;
+          SequenciaParcelas[i].NI  := ArquivoParcelas[a].Numero;
+          SequenciaParcelas[i].OrI := ArquivoParcelas[a].Resultado;
+          SequenciaParcelas[i].NF  := ArquivoParcelas[a].Numero;
+          SequenciaParcelas[i].OrF := ArquivoParcelas[a].Resultado;
+        end;
+      end;
+    end;
+    g:= i;
+    for a:=0 to g do
+    begin
+      if SequenciaParcelas[a].Seq = True then
+        if g-1 = a then
+          Saida:= Saida + SequenciaParcelas[a].Tipo+'-'+preencheString(inttostr(SequenciaParcelas[a].NI),'0',3,False)+' A '+SequenciaParcelas[a].OrF+' E '
+        else
+          Saida:= Saida + SequenciaParcelas[a].Tipo+'-'+preencheString(inttostr(SequenciaParcelas[a].NI),'0',3,False)+' A '+SequenciaParcelas[a].OrF+', '
+      else
+        if g-1 = a then
+          Saida:= Saida + SequenciaParcelas[a].OrI+ ' E '
+        else
+          Saida:= Saida + SequenciaParcelas[a].OrI+ ', ';
+      end;
+    Delete(Saida,length(Trim(Saida)),1);
+    FDescricaoParcelas:= 'NP '+Saida+' CT '+qryParcelas.FieldByName('contrato').AsString+ ' * '+qryParcelas.fieldByName('NomeCliente').AsString;
+    Result:= Saida;
+  end
+  else
+  Begin
+    Result:= 'NP '+qryParcelas.FieldByName('tipo').AsString+'-'+qryParcelas.fieldByName('origem').AsString +
+             ' CT '+qryParcelas.FieldByName('contrato').AsString+ ' - '+qryParcelas.fieldByName('NomeCliente').AsString;
+    FDescricaoParcelas:= Result;
+  end;
+end;
+
+procedure TRecebimentos.RecalcularValores;
+begin
+  if dtmContratosImoveis.QuitarDiversas then
+  begin
+    FValorDevido:= 0;
+    FCorrecao:= 0;
+    FCorrecaoContabil:= 0;
+    FJurosContratuais:= 0;
+    FValorJuros:= 0;
+    FValorMulta:= 0;
+    FValorTotal:= 0;
+    FValorRecebido:= 0;
+    with dtmContratosImoveis do
+    begin
+      GuardarRegistroAtual(qryParcelas,True);
+      qryParcelas.First;
+      while not qryParcelas.Eof do
+      begin
+        if qryParcelas.FieldByName('selecionado').AsBoolean then
+        begin
+          RefazConsultaPorNome(qryRecalcularParcelas,['Data','Contrato','Tipo','Numero','NrPagto'],
+                                                     [FPagamento,
+                                                      qryParcelas.FieldByName('contrato').AsVariant,
+                                                      qryParcelas.FieldByName('tipo').AsVariant,
+                                                      qryParcelas.FieldByName('numero').AsVariant,
+                                                      qryParcelas.FieldByName('nrpagto').AsVariant]);
+          FValorDevido := FValorDevido + qryRecalcularParcelasvalordevido.AsCurrency;
+          qryParcelas.Edit;
+          qryParcelas.FieldByName('valordevido').AsCurrency := qryRecalcularParcelasvalordevido.AsCurrency;
+          qryParcelas.Post;
+          FJurosContratuais:= FJurosContratuais + qryRecalcularParcelasjuros.AsCurrency;
+          FCorrecaoContabil:= FCorrecaoContabil + qryRecalcularParcelascorrecao.AsCurrency;
+          FCorrecao    := FCorrecao + (FValorDevido - FJurosContratuais - FValorContratado);
+          FVencimento  := qryRecalcularParcelasdatavencto.AsDateTime;
+          if FPagamento > FVencimento then
+          begin
+           FValorJuros:= FValorJuros + CalcularJurosParcela(FVencimento, FPagamento,FValorDevido, FTaxaJuros);
+           FValorMulta:= FValorMulta + CalcularMultaParcela(FValorDevido, FTaxaJuros);
+          end
+          else
+          begin
+           FValorJuros:= FValorJuros +  0;
+           FValorMulta:= FValorMulta + 0;
+          end;
+          FValorTotal:= FValorDevido + FValorJuros + FValorMulta;
+          FValorRecebido:=  FValorTotal;
+        end;
+        qryParcelas.Next;
+      end;
+      VoltarRegistroAtual(qryParcelas);
+    end;
+  end
+  else
+  begin
+    with dtmContratosImoveis do
+    begin
+      RefazConsultaPorNome(qryRecalcularParcelas,['Data','Contrato','Tipo','Numero','NrPagto'],
+                                                 [FPagamento,FContrato, FTipo, FNumero, FNrpagto]);
+      FValorDevido := qryRecalcularParcelasvalordevido.AsCurrency;
+      FJurosContratuais:= qryRecalcularParcelasjuros.AsCurrency;
+      FCorrecaoContabil:= qryRecalcularParcelascorrecao.AsCurrency;
+      FCorrecao    := FValorDevido - FJurosContratuais - FValorContratado;
+      if FPagamento > FVencimento then
+        if not FLiberarJuroseMulta then
+        begin
+         FValorJuros:= CalcularJurosParcela(FVencimento, FPagamento,FValorDevido, FTaxaJuros);
+         FValorMulta:= CalcularMultaParcela(FValorDevido, FTaxaJuros);
+        end
+        else
+        begin
+         FValorJuros:= 0;
+         FValorMulta:= 0;
+        end
+      else
+      begin
+       FValorJuros:= 0;
+       FValorMulta:= 0;
+      end;
+      FValorTotal:= FValorDevido + FValorJuros + FValorMulta;
+      FValorRecebido:=  FValorTotal;
+    end;
+  end;
+end;
+
+procedure TRecebimentos.ParcelasRecibo(Recibo: Integer);
+var i: Integer;
+begin
+  i:= 0;
+  if FAlterandoParcelas then
+  begin
+    with dtmContratosImoveis do
+    begin
+      GuardarRegistroAtual(qryParcelas, True);
+      qryParcelas.First;
+      while not qryParcelas.Eof do
+      begin
+        if ((qryParcelas.FieldByName('recibopagto').AsInteger = Recibo) and
+             (qryParcelas.FieldByName('recibopagto').AsInteger > 0))then
+        begin
+          if not (qryParcelas.State = dsedit) then
+            qryParcelas.Edit;
+          qryParcelas.FieldByName('selecionado').AsBoolean:= True;
+          qryParcelas.Post;
+          inc(i);
+        end;
+        qryParcelas.Next;
+      end;
+      VoltarRegistroAtual(qryParcelas);
+      if i > 1 then
+      begin
+        FQuitarDiversas:= True;
+        ValorParcelasSelecionadas;
+        DescricaoParcelasPagas;
+      end;
+    end;
+  end;
+end;
+
+procedure TRecebimentos.AtribuirTipoPagto(Tipo: Char);
+begin
+  if not (qryParcelas.State = dsedit) then
+    qryParcelas.Edit;
+  qryParcelas.FieldByName('tipopagto').AsString:= Tipo;
+  qryParcelas.Post;
+end;
+
+procedure TRecebimentos.ParcelaPagaMenor(ValorAnterior: Real; Editar: Boolean);
+Var Multa, JurosMora, Devido, Partida, Historico,
+    CorrContrato, JurosContrato, ValorContratadoAteHabiteSe: Real;
+begin
+  if FLiberarJuroseMulta then
+    Devido := FValorRecebido
+  else
+    Devido       := (FValorRecebido/(1+(CalcularTotalJuros(FVencimento,FPagamento, FTaxaJuros)+FMultaContrato)/100));
+  Partida      := (Devido * FValorContratado)/FValorDevido;
+  Historico    := (Devido * FValorHistorico)/FValorDevido;
+  ValorContratadoAteHabiteSe:= SimpleRoundTo((Devido * dtmContratosImoveis.qryParcelasContratoValorContratadoAteHabiteSe.AsCurrency)
+                                               / FValorDevido);
+  CorrContrato := Devido - Partida;
+  JurosContrato:= (Partida * FJurosContratuais)/FValorContratado;
+  if FPagamento > FVencimento then
+    if FValorMulta > 0 THEN
+      Multa        := CalcularMultaParcela(Devido, FMultaContrato)
+    ELSE
+      Multa:= 0;
+  JurosMora    :=(Devido * FValorJuros)/FValorDevido;
+
+  FJurosContratuais  := SimpleRoundTo(JurosContrato);
+  FCorrecao          := SimpleRoundTo(CorrContrato);
+  FValorJuros        := SimpleRoundTo(JurosMora);
+  FValorMulta        := SimpleRoundTo(Multa);
+  FValorDevido       := SimpleRoundTo(Devido);
+  FValorTotal        := SimpleRoundTo(FValorRecebido);
+  FDiferenca         := SimpleRoundTo((FValorContratado - Partida));
+  FDiferencaHistorico:= SimpleRoundTo((FValorHistorico - Historico));
+  FValorContratado   := SimpleRoundTo(Partida);
+  FValorHistorico    := SimpleRoundTo(Historico);
+  fDiferencaAteHabiteSe := SimpleRoundTo(dtmContratosImoveis.qryParcelasContratoValorContratadoAteHabiteSe.AsCurrency -
+                                 ValorContratadoAteHabiteSe);
+
+  if Editar then
+  begin
+    EditarParcela;
+    qryParcelas.FieldByName('valorcontratado').AsCurrency:= FValorContratado;
+    qryParcelas.FieldByName('valorhistorico').AsCurrency := FValorHistorico;
+    qryParcelas.FieldByName('ValorContratadoAteHabiteSe').AsCurrency := ValorContratadoAteHabiteSe;
+
+    qryParcelas.Post;
+  end;
+end;
+
+function TRecebimentos.GetImovelEntregue: Boolean;
+begin
+  Result:= not dtmContratosImoveis.qryContratosdatachaves.IsNull;
+end;
+
+function TRecebimentos.VerificarParcelaPosterior: Boolean;
+var NumPagto, Numparcela : Integer;
+    TipoPar: String;
+begin
+  Result:= True;
+  dtmContratosImoveis.GuardarRegistroAtual(qryParcelas, True);
+  TipoPar      := qryParcelas.FieldByName('tipo').AsString;
+  Numparcela   := qryParcelas.FieldByName('numero').AsInteger;
+  NumPagto     := qryParcelas.FieldByName('nrpagto').AsInteger;
+  qryParcelas.Next;
+  if ((TipoPar = qryParcelas.FieldByName('tipo').AsString) and
+      (Numparcela = qryParcelas.FieldByName('numero').AsInteger) and
+      ((NumPagto + 1) = qryParcelas.FieldByName('nrpagto').AsInteger)) then
+  begin
+    if qryParcelas.FieldByName('datapagto').AsString <> '' then
+      Result:= False;
+  end;
+  dtmContratosImoveis.VoltarRegistroAtual(qryParcelas);
+end;
+
+
+procedure TRecebimentos.GetDiferenca;
+begin
+  if FAlterandoParcelas then
+    if FDiferenca > 0 then
+      FValorJuros := FDiferenca
+    else if FDiferenca < 0 then
+      FValorDesconto := FDiferenca
+  else
+  begin
+    FValorJuros:= 0;
+    FValorDesconto:= 0;
+    FValorMulta:= 0;
+  end;
+end;
+
+procedure TRecebimentos.AtribuirDescontoJurosQuitacaoDiversas;
+var DescontoJurosParcela, SaldoDiferenca: Currency;
+    TipoParcela : String;
+    NParcela, NrPagtoParcela : Integer;
+begin
+  DescontoJurosParcela:= 0;
+  qryParcelas.First;
+  while not qryParcelas.Eof do
+  begin
+    if qryParcelas.FieldByName('selecionado').AsBoolean then
+    begin
+      if not (qryParcelas.State = dsedit) then
+        qryParcelas.Edit;
+
+      if LiberarJuroseMulta then
+        qryParcelas.FieldByName('ValorPagto').AsCurrency  := CalculoDescontoJurosQuitacaoDiversas
+      else
+      begin
+        qryParcelas.FieldByName('ValorPagto').AsCurrency  := CalculoDescontoJurosQuitacaoDiversas +
+                                                          CalcularJurosParcela(qryParcelas.FieldByName('DataVencto').AsDateTime,
+                                                                               FPagamento,
+                                                                               qryParcelas.FieldByName('ValorDevido').AsFloat,
+                                                                               FTaxaJuros) +
+                                                          CalcularMultaParcela(qryParcelas.FieldByName('ValorDevido').AsFloat,
+                                                                               FTaxaJuros);
+      end;
+      DescontoJurosParcela := DescontoJurosParcela + qryParcelas.FieldByName('ValorPagto').AsCurrency;
+      TipoParcela    := qryParcelas.FieldByName('tipo').AsString;
+      NParcela       := qryParcelas.FieldByName('numero').AsInteger;
+      NrPagtoParcela := qryParcelas.FieldByName('nrpagto').AsInteger;
+      qryParcelas.Post;
+    end;
+    qryParcelas.Next;
+  end;
+  if FValorRecebido <> DescontoJurosParcela then
+  begin
+    qryParcelas.Locate('tipo;numero,nrpagto',VarArrayOf([TipoParcela,NParcela,NrPagtoParcela]),[]);
+    qryParcelas.Edit;
+    if FValorRecebido > DescontoJurosParcela then
+    begin
+      SaldoDiferenca := FValorRecebido - DescontoJurosParcela;
+      qryParcelas.FieldByName('ValorPagto').AsCurrency  := qryParcelas.FieldByName('ValorPagto').AsCurrency + SaldoDiferenca;
+    end
+    else
+    begin
+      SaldoDiferenca := DescontoJurosParcela - FValorRecebido;
+      qryParcelas.FieldByName('ValorPagto').AsCurrency  := qryParcelas.FieldByName('ValorPagto').AsCurrency - SaldoDiferenca;
+    end;
+  end;
+end;
+
+function TRecebimentos.CalculoDescontoJurosQuitacaoDiversas: Currency;
+begin
+    Result:= Truncar((qryParcelas.FieldByName('ValorDevido').AsCurrency * FValorRecebido)/FValorDevido,2);
+end;
+
+procedure TRecebimentos.AtualizarValorDevido;
+Var ValorDevidoAnt: Currency;
+begin
+  qryParcelas.First;
+  while not qryParcelas.Eof do
+  begin
+    if qryParcelas.FieldByName('selecionado').AsBoolean then
+    begin
+      if not (qryParcelas.State = dsedit) then
+        qryParcelas.Edit;
+      ValorDevidoAnt := qryParcelas.FieldByName('ValorDevido').AsCurrency;
+      qryParcelas.FieldByName('ValorDevido').AsCurrency:= CalculoDescontoJurosQuitacaoDiversas;
+      qryParcelas.Post;
+    end;
+    qryParcelas.Next;
+  end;
+  FValorDevido:= CalcularTotal('ValorDevido');
+end;
+
+function TRecebimentos.CalcularTotal(Campo: String): Currency;
+begin
+  Result:= 0;
+  qryParcelas.First;
+  while not qryParcelas.Eof do
+  begin
+    if qryParcelas.FieldByName('selecionado').AsBoolean then
+      Result:= Result + qryParcelas.FieldByName(Campo).AsCurrency;
+    qryParcelas.Next;
+  end;
+end;
+
+function TRecebimentos.CalculoValorCorrecaoParcelaQuitacaoDiversas(ValorAnterior: Currency): Currency;
+begin
+  Result:= Truncar((qryParcelas.FieldByName('correcao').AsCurrency * qryParcelas.FieldByName('ValorDevido').AsCurrency)/ValorAnterior,2);
+end;
+
+function TRecebimentos.CalculoValorJurosParcelaQuitacaoDiversas(ValorAnterior: Currency): Currency;
+begin
+  Result:= Truncar((qryParcelas.FieldByName('juros').AsCurrency * qryParcelas.FieldByName('ValorDevido').AsCurrency)/ValorAnterior,2);
+end;
+
+procedure TRecebimentos.AlterarValorDevidoParcela;
+Var ValorDevidoParcela: Currency;
+begin
+  FValorDevido:= CalcularTotal('ValorDevido');
+  qryParcelas.First;
+  while not qryParcelas.Eof do
+  begin
+    if qryParcelas.FieldByName('selecionado').AsBoolean then
+    begin
+      if not (qryParcelas.State = dsedit) then
+        qryParcelas.Edit;
+      ValorDevidoParcela := (FValorRecebido * qryParcelas.FieldByName('ValorDevido').AsCurrency)/FValorDevido;
+      qryParcelas.FieldByName('ValorDevido').AsCurrency:= ValorDevidoParcela;
+      qryParcelas.Post;
+    end;
+    qryParcelas.Next;
+  end;
+  FValorDevido:= CalcularTotal('ValorDevido');
+end;
+
+function TRecebimentos.ValidarDatasPagamentos: boolean;
+var tipoPArcela : String;
+    numeroParcela, nrpagtoParcela : Integer;
+begin
+  Result:= True;
+  dtmContratosImoveis.GuardarRegistroAtual(qryParcelas, True);
+  qryParcelas.First;
+  while not qryParcelas.Eof do
+  begin
+    if qryParcelas.FieldByName('selecionado').AsBoolean then
+    begin
+      if qryParcelas.FieldByName('nrpagto').asInteger > 1 then
+      begin
+        tipoPArcela:= qryParcelas.FieldByName('tipo').asString;
+        numeroParcela:= qryParcelas.FieldByName('numero').asInteger;
+        nrpagtoParcela:= (qryParcelas.FieldByName('nrpagto').asInteger-1);
+        if  dtmContratosImoveis.qryParcelasContrato.Locate('tipo;numero;nrpagto',VarArrayOf([tipoPArcela,numeroParcela,nrpagtoParcela]),[]) then
+          if dtmContratosImoveis.qryParcelasContratodatapagto.AsDateTime > FPagamento then
+          begin
+            Result:= False;
+            break;
+          end;
+      end
+    end;
+    qryParcelas.Next;
+  end;
+  dtmContratosImoveis.voltarRegistroAtual(qryParcelas);
+end;
+
+destructor TRecebimentos.Destroy;
+begin
+  qryParcelas.Close;
+end;
+
+procedure TRecebimentos.PosicionarPrimeiraaPagar;
+var TipoParc: String;
+    ContratoParc, NumeroParc, NrPagtoParc: Integer;
+begin
+  qryParcelas.First;
+  while not qryParcelas.Eof do
+  begin
+    if qryParcelas.FieldByName('selecionado').AsBoolean then
+    begin
+      ContratoParc:= qryParcelas.FieldByName('contrato').AsInteger;
+      TipoParc    := qryParcelas.FieldByName('tipo').AsString;
+      NumeroParc  := qryParcelas.FieldByName('numero').AsInteger;
+      NrPagtoParc := qryParcelas.FieldByName('nrpagto').AsInteger;
+      dtmContratosImoveis.qryParcelasContrato.Locate('contrato;tipo;numero;nrpagto',varArrayOf([ContratoParc,TipoParc,
+                                                                                                NumeroParc,NrPagtoParc]),[]);
+      qryParcelas.Locate('contrato;tipo;numero;nrpagto',varArrayOf([ContratoParc,TipoParc,
+                                                                    NumeroParc,NrPagtoParc]),[]);
+
+      break;
+    end;
+    qryParcelas.Next;
+  end;
+end;
+
+procedure TRecebimentos.Roolback;
+begin
+  dtmContratosImoveis.Rollback([qryparcelas, dtmLancamentoContabilidade.qrylancamentosDocumentos,
+                                dtmContratosImoveis.qryMovtosBancos,dtmContratosImoveis.qryMovtosBancosEventos]);
+end;
+
+procedure TRecebimentos.Perpetrar;
+begin
+  dtmContratosImoveis.Perpetrar([qryparcelas, dtmLancamentoContabilidade.qrylancamentosDocumentos,
+                                 dtmContratosImoveis.qryMovtosBancos,dtmContratosImoveis.qryMovtosBancosEventos]);
+end;
+
+function TRecebimentos.PosicionarParcelasContratoaPagar: boolean;
+var TipoParc: String;
+    ContratoParc, NumeroParc, NrPagtoParc: Integer;
+begin
+  ContratoParc:= qryParcelas.FieldByName('contrato').AsInteger;
+  TipoParc    := qryParcelas.FieldByName('tipo').AsString;
+  NumeroParc  := qryParcelas.FieldByName('numero').AsInteger;
+  NrPagtoParc := qryParcelas.FieldByName('nrpagto').AsInteger;
+  if not dtmContratosImoveis.qryParcelasContrato.Locate('contrato;tipo;numero;nrpagto',varArrayOf([ContratoParc,TipoParc,
+                                                                                            NumeroParc,NrPagtoParc]),[]) then
+    MensagemErro('Erro na localização da 1ª parcela paga.');
+end;
+
+{ TdtmContratosImoveis }
+procedure TdtmContratosImoveis.CancelarEdicaoContrato;
+begin
+  if qrycontratos.State = dsedit then
+    qrycontratos.Cancel;
+end;
+
+function TdtmContratosImoveis.GetSituacaoContrato: TtecSituacaoContratoImoveis;
+begin
+  if qryContratossituacao.AsString = 'R' then
+    Result:= sciRESERVADO
+  else
+  if qryContratossituacao.AsString = 'C' then
+    Result:= sciCANCELADO
+  else
+  if qryContratossituacao.AsString = 'V' then
+    Result:= sciVENDIDO
+  else
+  if qryContratossituacao.AsString = 'Q' then
+    Result:= sciQUITADO
+  else
+  if qryContratossituacao.AsString = 'S' then
+    Result:= sciRESCINDIDO
+  else
+  if qryContratossituacao.AsString = 'T' then
+    Result:= sciTRANSFERIDO
+  else
+  if qryContratossituacao.AsString = 'F' then
+    Result:= sciTRANSFERENCIA
+  else
+  if qryContratossituacao.AsString = 'G' then
+    Result:= sciRENEGOCIADO
+  else
+  if qryContratossituacao.AsString = 'D' then
+    Result:= sciRENEGOCIACAO
+  else
+    Result:= sciNENHUM;
+
+{
+                            CHECK (Situacao IN ('R',   -- [R]eservado
+                                                'V',   -- [V]endido
+                                                'C',   -- [C]ancelado
+                                                'Q',   -- [Q]uitado
+                                                'T',   -- [T]ransferido para
+                                                'F',   -- trans[F]erido de
+                                                'G',   -- Rene[G]ociado para
+                                                'D',   -- Renegocia[D]o de
+                                                'S')), -- Re[S]cindido
+}
+end;
+
+function TdtmContratosImoveis.IncluirContrato: Boolean;
+begin
+
+  if not qryContratos.Active then
+    qryContratos.Active:= True;
+//  ReadOnly := False;
+  FIncluindoContrato:= True;
+  ReadOnlyContrato(false);
+  qryContratos.Append;
+  RefazConsultaPorNome(qryCompradores,['Contrato'],[qryContratoscontrato.AsVariant]);
+  RefazConsultaPorNome(qryImoveisVendidos,['Contrato'],[qryContratoscontrato.AsVariant]);
+  RefazConsultaPorNome(qryParcelasContrato,['Contrato'],[qryContratoscontrato.AsVariant]);
+  FIncluindoContrato:= False;
+  Result:= True;
+end;
+
+procedure TdtmContratosImoveis.RefazConsultaContrato;
+begin
+  RefazConsultaPorNome(qryContratos,['Contrato'],[qryContratoscontrato.AsVariant]);
+end;
+
+procedure TdtmContratosImoveis.SetReadOnly(const Value: Boolean);
+begin
+  fReadOnly := Value;
+  qryContratos.ReadOnly       := Value;
+  qryImoveisVendidos.ReadOnly := Value;
+  qryCompradores.ReadOnly     := Value;
+  qryParcelasContrato.ReadOnly := Value;
+
+  {situação qdo transferido e ainda não salvo}
+  if qryCompradores.ReadOnly then
+     qryCompradores.ReadOnly := not ((qryContratos.Recno = 2) and (SituacaoContrato = sciTRANSFERENCIA));
+
+  {situação qdo contrato é aberto}
+  if qryParcelasContrato.ReadOnly then
+    qryParcelasContrato.ReadOnly := not (qryContratoscontratoatual.AsBoolean and not (SituacaoContrato in [sciCANCELADO,sciRESCINDIDO]));
+
+  {situação qdo renegociado/transferido e ainda não salvo}
+  if qryParcelasContrato.ReadOnly then
+    qryParcelasContrato.ReadOnly :=  not ((qryContratos.Recno = 2) and (SituacaoContrato in [sciTRANSFERENCIA, sciRENEGOCIACAO]));
+
+
+end;
+
+procedure TdtmContratosImoveis.SetSituacaoContrato(const Value: TtecSituacaoContratoImoveis);
+begin
+  if SituacaoContrato <> Value then
+  begin
+    SituacaoAnt:= SituacaoContrato;
+//    if SituacaoAnt = sciVendido then
+//      ReadOnly := False;
+    if qryContratos.State = dsbrowse then
+      qryContratos.Edit;
+    case Value of
+      sciRESERVADO    : qryContratossituacao.AsString := 'R';
+      sciCANCELADO    : qryContratossituacao.AsString := 'C';
+      sciVENDIDO      : qryContratossituacao.AsString := 'V';
+      sciQUITADO      : qryContratossituacao.AsString := 'Q';
+      sciRESCINDIDO   : qryContratossituacao.AsString := 'S';
+      sciRENEGOCIADO  : qryContratossituacao.AsString := 'G';
+      sciRENEGOCIACAO : qryContratossituacao.AsString := 'D';
+      sciTRANSFERIDO  : qryContratossituacao.AsString := 'T';
+      sciTRANSFERENCIA : qryContratossituacao.AsString := 'F';
+    end;
+  end;
+
+  if (Value in [sciRENEGOCIADO, sciTRANSFERIDO]) then
+    qryContratosnomesituacao.AsString:= vstrSituacaoContratoImoveis[SituacaoContrato]+' PARA Nº '+qryContratoscontrato_gerado.AsString
+  else if (Value in [sciRENEGOCIACAO, sciTRANSFERENCIA]) then
+    qryContratosnomesituacao.AsString:= vstrSituacaoContratoImoveis[SituacaoContrato]+' DE Nº '+qryContratoscontrato_origem.AsString
+  else
+    qryContratosnomesituacao.AsString:= vstrSituacaoContratoImoveis[SituacaoContrato];
+end;
+
+procedure TdtmContratosImoveis.qryContratosNewRecord(DataSet: TDataSet);
+begin
+  inherited;
+  SituacaoContrato:= sciRESERVADO;
+  qryContratosdata.AsDateTime:= DataSistema;
+  qryContratosfilial.AsInteger:= FilialBase;
+  qryContratoscontratoatual.AsBoolean := true;
+end;
+
+procedure TdtmContratosImoveis.ZMonitor1MonitorEvent(Sql, Result: String);
+var
+  Listar : TStringList;
+  Arquivo: String;
+begin
+  inherited;
+  Listar := TStringList.Create;
+  Arquivo := 'C:\ContratosImoveis.sql';
+  if FileExists(Arquivo) then
+    Listar.LoadFromFile(Arquivo);
+  Listar.Add('');
+  Listar.Add(Sql);
+  Listar.Add(Result);
+  listar.SaveToFile(Arquivo);
+  listar.Free;
+end;
+
+procedure TdtmContratosImoveis.AbreTabelasConsulta(TipoPesquisa: TtecPesquisa);
+begin
+  case TipoPesquisa of
+    pesVENDEDORES : qryConsultaVendedores.Open;
+    pesIMOVEIS    : qryConsultarImoveis.Open;
+  end;
+end;
+
+procedure TdtmContratosImoveis.FechaTabelaConsulta(TipoPesquisa: TtecPesquisa);
+begin
+  case TipoPesquisa of
+    pesVENDEDORES : qryConsultaVendedores.Close;
+    pesIMOVEIS    : qryConsultarImoveis.Close;
+  end;
+end;
+
+procedure TdtmContratosImoveis.Selecionar(TipoPesquisa: TtecPesquisa);
+begin
+  case TipoPesquisa of
+    pesVENDEDORES :  begin
+                       if qryContratos.State = dsbrowse then
+                         qryContratos.Edit;
+                       qryContratosvendedor.AsInteger := qryConsultaVendedorescodigo.AsInteger;
+                     end;
+    pesIMOVEIS    :  ParametrosImoveis(qryConsultarImoveisemp.AsString,
+                                       qryConsultarImoveisbloco.AsString,
+                                       qryConsultarImoveisnumero.AsString,
+                                       qryConsultarImoveisunidade.AsString);
+  end;
+end;
+
+function TdtmContratosImoveis.EditarCompradoresContrato: Boolean;
+begin
+  if qryCompradores.IsEmpty then
+  begin
+    IncluirCompradoresContrato;
+    Result:= True;
+  end
+  else
+  begin
+    if qryCompradores.RecordCount = 0 then
+      qryCompradores.Append
+    else
+      qryCompradores.Edit;
+    Result:= True;
+  end;
+end;
+
+function TdtmContratosImoveis.IncluirCompradoresContrato: Boolean;
+begin
+  qryCompradores.Append;
+  Result:= True;
+end;
+
+function TdtmContratosImoveis.ConfirmaPercentual: Currency;
+var Total: Currency;
+begin
+  Total:= 0;
+  qryCompradores.DisableControls;
+  qryCompradores.First;
+  while not qryCompradores.Eof do
+  begin
+    Total:= Total + qryCompradorespercentual.AsCurrency;
+    qryCompradores.Next;
+  end;
+  qryCompradores.EnableControls;
+  Result:= Total;
+end;
+
+function TdtmContratosImoveis.GravarCompradorContrato: Boolean;
+begin
+  if qryCompradores.CheckRequiredFields then
+  begin
+    if (qryCompradorescliente.AsInteger <> qryCompradoresrepresentante.AsInteger) and
+       (qryCompradorescliente.AsInteger <> qryCompradoresfiador.AsInteger) then
+    begin
+      if qryCompradores.State in [dsInsert,dsEdit] then
+      begin
+        qryContratos.Edit;
+        qryCompradores.Post;
+        if not (qryContratos.State in [dsinsert, dsedit]) then
+          qryContratos.Edit;
+        if Assigned(FAfterScrollCompradores) then
+          FAfterScrollCompradores(Self);
+        Result:= True;
+      end;
+    end
+    else
+    begin
+      MensagemAviso('O Representante ou Fiador deve ser diferente do comprador');
+      Result:= False;
+    end;
+  end;
+end;
+
+function TdtmContratosImoveis.ExcluirCompradorContrato: Boolean;
+begin
+  Result:= False;
+  if qryCompradores.RecordCount > 0 then
+  begin
+    if MensagemConfirmacao(Format(ctCONFIRMEEXCLUIR, ['o COMPRADOR'])) = smbOk then
+    begin
+      if qryCompradores.State = dsInsert then
+        qryCompradores.Cancel
+      else
+      begin
+        qryCompradores.Delete;
+        qryCompradores.Edit;
+        qryCompradores.Cancel;
+      end;
+      qryContratos.Edit;
+      Result:= True;
+    end;
+  end;
+end;
+
+function TdtmContratosImoveis.IncluirImoveisContrato: Boolean;
+begin
+  qryImoveisVendidos.Insert;
+  Result:= True;
+end;
+
+function TdtmContratosImoveis.EditarImoveisContrato: Boolean;
+begin
+  if qryImoveisVendidos.IsEmpty then
+  begin
+    IncluirImoveisContrato;
+    Result:= true;
+  end
+  else
+  begin
+    If qryImoveisVendidos.RecordCount = 0 then
+      qryImoveisVendidos.Append
+    else
+    begin
+      qryConsultaImoveis.macrobyname('WhereSituacao').AsString := '';
+      qryImoveisVendidos.Edit;
+      qryImoveisVendidosblocoanterior.AsInteger := qryImoveisVendidosbloco.AsInteger;
+      qryImoveisVendidosnumeroanterior.AsString := qryImoveisVendidosnumero.AsString;
+      qryImoveisVendidosunidadeanterior.AsInteger := qryImoveisVendidosunidade.AsInteger;
+    end;
+    Result:= True;
+  end;
+end;
+
+function TdtmContratosImoveis.GravarImovelContrato: Boolean;
+begin
+  Result:= qryImoveisVendidos.CheckRequiredFields;
+
+  if result then begin
+    if qryImoveisVendidos.State = dsinsert then
+       qryImoveisVendidosOrdem.AsInteger:= OrdemImoveisVendidos;
+    qryImoveisVendidos.Post;
+    EditarContrato;
+    if not (qryImoveisVendidosdatahabitese.IsNull) then
+      qryContratoshabite_se.AsDateTime:= qryImoveisVendidosdatahabitese.AsDateTime;
+    qryContratosempreendimento.AsInteger:= qryImoveisVendidoscodigoempreendimento.AsInteger;
+
+    qryImoveisVendidosempreendimento.ReadOnly := qryImoveisVendidos.RecordCount <> 0;
+
+  end;  
+
+end;
+
+function TdtmContratosImoveis.GetQtdeImoveis: String;
+begin
+  Result:= inttostr(qryImoveisVendidos.RecordCount);
+end;
+
+function TdtmContratosImoveis.CalcularValorTotalImoveis: Currency;
+var TotalImoveis: Currency;
+begin
+  TotalImoveis:= 0;
+  qryImoveisVendidos.DisableControls;
+  qryImoveisVendidos.First;
+  while not qryImoveisVendidos.Eof do
+  begin
+    TotalImoveis:= TotalImoveis + qryImoveisVendidosPrecoVenda.AsCurrency;
+    qryImoveisVendidos.Next;
+  end;
+  qryImoveisVendidos.EnableControls;
+  Result:= TotalImoveis;
+  if not (SituacaoContrato in [sciTRANSFERENCIA, sciRENEGOCIACAO]) then
+    qryContratosvalortotal.AsFloat:= TotalImoveis;
+end;
+
+procedure TdtmContratosImoveis.FecharTabelasConsultas;
+begin
+  qryEnderecoempreendimento.Close;
+end;
+
+procedure TdtmContratosImoveis.RecalcularOrdemImoveisVendidos;
+begin
+   GuardarRegistroAtual(qryImoveisVendidos, true);
+   qryImoveisVendidos.First;
+   while not qryImoveisVendidos.Eof do begin
+      qryImoveisVendidos.Edit;
+      qryImoveisVendidosOrdem.AsInteger := qryImoveisVendidos.RecNo;
+      qryImoveisVendidos.Next;
+   end;
+   qryImoveisVendidosAfterOpen(nil);
+   VoltarRegistroAtual(qryImoveisVendidos);
+end;
+
+function TdtmContratosImoveis.ExcluirImovelContrato: Boolean;
+begin
+  Result:= False;
+  if dtmContratosImoveis.qryImoveisVendidos.RecordCount > 0 then
+  begin
+    if MensagemConfirmacao(Format(ctCONFIRMEEXCLUIR, ['o IMÓVEL'])) = smbOk then
+    begin
+      if not (qryImoveisVendidos.State in [dsinsert,dsedit]) then begin
+        qryImoveisVendidos.Delete;
+        RecalcularOrdemImoveisVendidos;
+      end;
+      FecharTabelasConsultas;
+      Result:= True;
+    end;
+  end;
+end;
+
+
+procedure TdtmContratosImoveis.GerarParcelas(Tipo, Moeda: String;
+  NroParcelas, Intervalo: Integer; Vencimento, DataBase,
+  DataJuros: TDateTime; TaxaJuros, ValorParcela: Currency;
+  JurosCompostos : Boolean);
+var TotalParcelas, ValorContrato, ValorHistorico: Currency;
+    I: Integer;
+    Resultado: Boolean;
+begin
+  if ((NroParcelas > 0) and (ValorParcela > 0))  then
+  begin
+    ValorContrato:= qryContratosvalortotal.AsCurrency;
+    if not qryParcelasContrato.IsEmpty then
+      DeletarParcelar(Tipo);
+    if qryParcelasContrato.State = dsinactive then
+      qryParcelasContrato.Open;
+
+    TotalParcelas:= 0;
+      if (SituacaoContrato in [sciRENEGOCIACAO, sciTRANSFERENCIA]) then
+        Resultado:= True
+      else
+        if ((NroParcelas * ValorParcela)+TotalizarParcelas) <= ValorContrato then
+          Resultado:= True
+        else
+          Resultado:= False;
+      if Resultado then
+      begin
+      try
+        qryParcelasContrato.DisableControls;
+        For I:= 0 to NroParcelas -1 do
+        begin
+          TotalParcelas:= TotalParcelas + ValorParcela;
+          qryParcelasContrato.Append;
+          qryParcelasContratodatavencto.AsDateTime:= SomarDia(Vencimento,(I * Intervalo),'S');
+          qryParcelasContratotipo.AsString:= Tipo;
+          qryParcelasContratonumero.AsInteger:= I+1;
+          qryParcelasContratonrpagto.AsInteger:= 1;
+          qryParcelasContratojuroscompostos.AsBoolean:= JurosCompostos;
+          qryParcelasContratoorigem.AsString:= preencheString(inttostr(I+1),'0',3,False)+'/'+preencheString(IntToStr(NroParcelas),'0',3,False);
+          if (SituacaoContrato in [sciRENEGOCIACAO, sciTRANSFERENCIA]) then
+            qryParcelasContratovalorhistorico.Clear
+          else
+            qryParcelasContratovalorhistorico.AsCurrency:= ValorParcela;
+          qryParcelasContratovalorcontratado.AsCurrency:= ValorParcela;
+          if DataBase > 0 then
+            qryParcelasContratodatabase.AsDateTime:= DataBase;
+          if TaxaJuros > 0 then
+            qryParcelasContratotaxajuros.AsCurrency:= TaxaJuros;
+          if Moeda <> '' then
+            qryParcelasContratomoeda.AsString:= Moeda;
+
+          qryParcelasContrato.Post;
+        end;
+      finally
+        qryParcelasContrato.EnableControls;
+      end;
+        TotaldeParcelas:= TotalizarParcelas;
+        Diferenca:= ValorContrato - TotaldeParcelas;
+        qryParcelasContrato.First;
+        EditarContrato;
+      end
+      else
+      begin
+        DeletarParcelar(Tipo);
+        MensagemAviso('O Valor das parcelas excede o valor do contrato.');
+      end;
+  end
+  else
+    MensagemAviso('O Número de parcelas ou o valor das parcelas deve ser maior do que zero.');
+end;
+
+function TdtmContratosImoveis.DeletarParcelar(Tipo: String): Boolean;
+begin
+  qryParcelasContrato.DisableControls;
+  qryParcelasContrato.First;
+  while not qryParcelasContrato.Eof do
+  begin
+    if (qryParcelasContratotipo.AsString = Tipo) and
+       (qryParcelasContratodatapagto.AsString = '') then
+      qryParcelasContrato.Delete
+    else
+      qryParcelasContrato.Next;
+  end;
+  qryParcelasContrato.EnableControls;
+  Result:= true;
+end;
+
+function TdtmContratosImoveis.TotalizarParcelas: Currency;
+begin
+  Result:= 0;
+  qryParcelasContrato.DisableControls;
+  qryParcelasContrato.First;
+  while not qryParcelasContrato.Eof do
+  begin
+    Result:= Result + qryParcelasContratovalorhistorico.AsCurrency;
+    qryParcelasContrato.Next
+  end;
+  qryParcelasContrato.EnableControls;
+  qryParcelasContrato.First;
+end;
+
+function TdtmContratosImoveis.ExcluirParcelasContrato(Todos: Boolean): Boolean;
+begin
+  if Todos then
+    DeletarParcelar(qryParcelasContratotipo.AsString)
+  else
+  begin
+    qryParcelasContrato.Delete;
+    ReordenarParcelas(qryParcelasContratotipo.AsString);
+  end;
+  TotaldeParcelas:= TotalizarParcelas;
+  Diferenca:= qryContratosvalortotal.AsCurrency - TotaldeParcelas;
+  qryParcelasContrato.First;
+  Result:= True;
+end;
+
+procedure TdtmContratosImoveis.ReordenarParcelas(Tipo: String);
+var i, NrParcelas: Integer;
+    pos: TBookmark;
+begin
+  i:= 0;
+  Pos:= qryParcelasContrato.GetBookmark;
+  qryParcelasContrato.DisableControls;
+  qryParcelasContrato.SortByField('tipo,numero,datavencto');
+  qryParcelasContrato.First;
+  while not qryParcelasContrato.Eof do
+  begin
+    if  qryParcelasContratotipo.AsString = Tipo then
+      Inc(i);
+    qryParcelasContrato.Next;
+  end;
+  NrParcelas:= i;
+  qryParcelasContrato.First;
+  i:=1;
+  while not qryParcelasContrato.Eof do
+  begin
+    if qryParcelasContratotipo.AsString = tipo then
+    begin
+      qryParcelasContrato.Edit;
+      qryParcelasContratonumero.AsInteger:= i;
+      qryParcelasContratoorigem.AsString:= preencheString(inttostr(i),'0',3,False)+'/'+preencheString(inttostr(NrParcelas),'0',3,False);
+      qryParcelasContrato.AfterPost := nil;
+      qryParcelasContrato.Post;
+      qryParcelasContrato.AfterPost:= qryParcelasContratoAfterPost;
+      inc(i)
+    end;
+    qryParcelasContrato.Next;
+  end;
+  qryParcelasContrato.GotoBookmark(Pos);
+  qryParcelasContrato.FreeBookmark(Pos);
+  qryParcelasContrato.EnableControls;
+end;
+
+
+function TdtmContratosImoveis.GetPrecisaReCalcularParcelas: Boolean;
+begin
+  TotaldeParcelas:= TotalizarParcelas;
+  Diferenca:= qryContratosvalortotal.AsCurrency - TotaldeParcelas;
+  Result:= Diferenca <> 0;
+end;
+
+function TdtmContratosImoveis.GravarContrato: Boolean;
+begin
+  Result:= true;
+
+  if GravarParcelas then
+  begin
+    if not (SituacaoContrato in [sciRENEGOCIACAO, sciTRANSFERENCIA]) then
+    Begin
+      if  PrecisaReCalcularParcelas then
+      begin
+        MensagemAviso(Format(ctSOMATORIODIFERENTESTOTAL,['as parcelas',
+                                                         FormatFloat('###,###,###,##0.00',TotaldeParcelas),
+                                                         'o contrato',
+                                                         FormatFloat('###,###,###,##0.00',qryContratosvalortotal.AsCurrency),
+                                                         FormatFloat('###,###,###,##0.00',Diferenca)]));
+        Result:= False
+      end
+    end
+    else
+    begin
+      if GetTotalContratado <> FSaldoDevedor then
+        result :=  MensagemConfirmacao(Format('O somatório das parcelas R$ %s é diferente do saldo devedor do contrato anterior R$ %s',
+                                     [FormatFloat('###,###,###,##0.00',GetTotalContratado),
+                                     FormatFloat('###,###,###,##0.00',FSaldoDevedor)])) = smbOk
+      else
+       result := MensagemConfirmacao('Confirma a gravação do novo contrato?') = smbOK;
+
+      if result then
+      begin
+        AtualizarValorContrato;
+        AtualizarValorHistoricoParcelas;
+      end;
+    end;
+  end
+  else
+    Result:= True;
+
+  if Result then
+    if (qryContratosvendedor.AsInteger > 0) and
+        (qryContratosdata.AsDateTime > 0) and
+        (qryContratosvalortotal.AsFloat > 0) then
+      Result:= true
+    else
+    begin
+      Result:= False;
+      MensagemAviso(ctVALIDARCONTROLES);
+    end;
+
+  if Result then
+  begin
+    if qryContratosdatachaves.AsDateTime > 0 then
+    begin
+      if (qryContratosdatachaves.AsDateTime >= qryContratoshabite_se.AsDateTime) then
+        Result:= true
+      else
+      begin
+        if MensagemConfirmacao('A data de entrega das chaves é anterior a data do habite-se'+#10#13+
+                               'Confirma?') = smbOK THEN
+          result:= true
+        else
+          result:= false;
+      end;
+    end;
+  end;
+
+  if result then
+    if qryCompradores.IsEmpty then
+    begin
+      MensagemAviso('Contrato sem compradores cadastrados.');
+      Result:= False;
+    end
+    else
+    begin
+      if ConfirmaPercentual <> 100 then
+      begin
+        MensagemAviso('A soma dos percentuais dos compradores difere de 100%.');
+        Result:= False;
+      end;
+      if not ExistePrincipal then
+      begin
+        MensagemAviso('Deve ser definido um comprador principal para o contrato'+#10#13+
+                      'ou o contrato possui mais de um comprador como principal.');
+        Result:= False;
+      end;
+    end;
+
+  If Result then
+    If qryImoveisVendidos.IsEmpty then
+    begin
+      MensagemAviso('Contrato sem imóveis cadastrados.');
+      Result:= False;
+    end;
+
+  if result then
+    if qryParcelasContrato.IsEmpty then
+    begin
+      MensagemAviso('Contrato sem parcelas cadastradas.');
+      Result:= False;
+    end;
+
+  if result then
+  begin
+    qrySituacaoImoveis.First;
+    while not qrySituacaoImoveis.Eof do
+    begin
+      RefazConsultaPorNome(qryImoveis,['Bloco','Numero','Unidade'],[qrySituacaoImoveisbloco.asinteger, qrySituacaoImoveisnumero.AsString, qrySituacaoImoveisunidade.AsInteger]);
+      qryImoveis.Edit;
+      qryImoveissituacao.AsString:= qrySituacaoImoveissituacao.AsString;
+      qryImoveis.Post;
+      perpetrar([qryImoveis], False);
+
+      qrySituacaoImoveis.Next;
+    end;
+  end;
+
+  if result then
+  begin
+    RefazConsultaPorNome(qrycontratoorigem,['contrato_origem'],[qryContratoscontrato_origem.AsVariant]);
+    if (qrycontratoorigem.RecordCount<>0) and
+       (qryContratosdata.AsDateTime <> qryContratoOrigemdataalteracao.AsDateTime) then
+    begin
+      qryContratoOrigem.Edit;
+      qryContratoOrigemdataalteracao.AsDateTime := qryContratosdata.AsDateTime;
+      qryContratoOrigem.Post;
+    end;
+  end;
+
+//  ReadOnly := false;
+  ReadOnlyContrato(false);
+
+  if not(dtmContratosImoveis.SituacaoContrato in [sciVENDIDO,sciQUITADO, sciRENEGOCIADO, sciTRANSFERIDO, sciRESCINDIDO]) then
+  begin
+    if result then
+    begin
+      if (qryContratos.State = dsInsert) and
+          not(SituacaoContrato IN [sciTRANSFERENCIA, sciRENEGOCIACAO]) then
+      begin
+        qryContratos.Edit;
+        if SituacaoContrato = sciRESERVADO then
+          qryContratosnomesituacao.AsString:= 'RESERVADO';
+        qryContratoscontrato.AsInteger:= NovaSequenciaContratos;
+        qryContratos.Post;
+        qryContratossituacao.AsString:= 'R';
+      end;
+
+      qryImoveisVendidos.DisableControls;
+      qryImoveisVendidos.First;
+      while not qryImoveisVendidos.Eof do
+      begin
+        if qryImoveisVendidoscontrato.AsInteger <> qryContratoscontrato.AsVariant then
+        begin
+          qryImoveisVendidos.Edit;
+          qryImoveisVendidoscontrato.AsInteger:= qryContratoscontrato.AsVariant;
+          qryImoveisVendidos.Post;
+        end;
+        qryImoveisVendidos.Next;
+      end;
+      qryImoveisVendidos.EnableControls;
+      qryImoveisVendidos.First;
+
+      qryCompradores.DisableControls;
+      qryCompradores.First;
+      while not qryCompradores.Eof do
+      begin
+        if qryCompradorescontrato.AsInteger <> qryContratoscontrato.AsVariant then
+        begin
+          qryCompradores.Edit;
+          qryCompradorescontrato.AsInteger:= qryContratoscontrato.AsVariant;
+          qryCompradores.Post;
+        end;
+        qryCompradores.Next;
+      end;
+      qryCompradores.EnableControls;
+      qryCompradores.First;
+
+      qryParcelasContrato.DisableControls;
+      qryParcelasContrato.AfterPost:= nil;
+      qryParcelasContrato.First;
+      while not qryParcelasContrato.Eof do
+      begin
+        if qryParcelasContratocontrato.AsInteger <> qryContratoscontrato.AsVariant then
+        begin
+          qryParcelasContrato.Edit;
+          qryParcelasContratocontrato.AsInteger:= qryContratoscontrato.AsVariant;
+          qryParcelasContrato.AfterPost := nil;
+          qryParcelasContrato.Post;
+          qryParcelasContrato.AfterPost:= qryParcelasContratoAfterPost;
+        end;
+        qryParcelasContrato.Next;
+      end;
+      qryParcelasContrato.EnableControls;
+      qryParcelasContrato.First;
+      RefazConsultaPorNome(qryTotaisParcelas,['Contrato'],[qryContratoscontrato.AsVariant]);
+      RefazConsultaPorNome(qryTotaisParcelasAberto,['Contrato'],[qryContratoscontrato.AsVariant]);
+      qryParcelasContrato.AfterPost:= qryParcelasContratoAfterPost;
+      Result:= True;
+    end;
+
+    if Result then
+    begin
+    {
+      if SituacaoContrato = sciTRANSFERENCIA then
+        AlterarEstadoImoveis(ctESTADOVENDIDO, True)
+      else
+        AlterarEstadoImoveis(ctESTADORESERVADO, True);
+    }
+
+      if not (SituacaoContrato in [sciNENHUM, sciRESERVADO]) and ParSistema.GerarContabilidade then
+        Perpetrar([qryContratos, qryParcelasContrato, qryCompradores, qryImoveisVendidos, qryImoveis, dtmLancamentoContabilidade.qrylancamentosDocumentos, qryContratoOrigem])
+      else
+        Perpetrar([qryContratos, qryParcelasContrato, qryCompradores, qryImoveisVendidos, qryImoveis, qryContratoOrigem]);
+
+
+        RefazConsultaPorNome(qryContratos,['Contrato'],[qryContratosContrato.AsString]);
+
+
+      GravarParcelas:= False;
+    end;
+  end
+  else
+  begin
+    if Result then
+    begin
+      if GravarParcelas then
+      begin
+//        qryContratos.ReadOnly:= False;
+//        qryParcelasContrato.ReadOnly:= False;
+
+        qryParcelasContrato.DisableControls;
+        qryParcelasContrato.First;
+        while not qryParcelasContrato.Eof do
+        begin
+          if qryParcelasContratocontrato.AsInteger <> qryContratoscontrato.AsVariant then
+          begin
+            qryParcelasContrato.Edit;
+            qryParcelasContratocontrato.AsInteger:= qryContratoscontrato.AsVariant;
+            qryParcelasContrato.Post;
+          end;
+          qryParcelasContrato.Next;
+        end;
+        qryParcelasContrato.EnableControls;
+        qryParcelasContrato.First;
+      end;
+
+      if ParSistema.GerarContabilidade then
+      begin
+//        if ReadOnly then
+//          ReadOnly:= False;
+
+        if not (SituacaoContrato in [sciNENHUM, sciRESERVADO]) then
+          Perpetrar([qryContratos, qryParcelasContrato, qryCOmpradores, qryImoveisVendidos, qryImoveis, dtmLancamentoContabilidade.qrylancamentosDocumentos, qryContratoOrigem])
+        else
+          Perpetrar([qryContratos, qryParcelasContrato, qryCOmpradores, qryImoveisVendidos, qryImoveis, qryContratoOrigem]);
+
+        RefazConsultaPorNome(qryContratos,['Contrato'],[qryContratosContrato.AsString]);
+
+
+//        if not (SituacaoContrato = sciRESERVADO) then
+//          ReadOnly := True;
+      end
+      else
+      begin
+        Perpetrar([qryContratos, qryParcelasContrato, qryCompradores, qryImoveisVendidos, qryImoveis, qryContratoOrigem]);
+        RefazConsultaPorNome(qryContratos,['Contrato'],[qryContratosContrato.AsString]);
+      end
+    end;
+    GravarParcelas:= False;
+  end;
+end;
+
+procedure TdtmContratosImoveis.qryContratosBeforeCancel(DataSet: TDataSet);
+begin
+  inherited;
+  FContratoBloqueado:= qryContratoscontrato.AsString;
+  qryImoveisVendidos.Close;
+  qryParcelasContrato.Close;
+  qryCompradores.Close;
+  if Assigned(FAfterScrollCompradores) then
+    FAfterScrollCompradores(Self);
+  if assigned(FAtualizaDisplayParcelas) then
+    FAtualizaDisplayParcelas(Self);
+end;
+
+procedure TdtmContratosImoveis.EditarContrato;
+var
+  ReadOnlySituacao : Boolean;
+begin
+  ReadOnlySituacao := qrycontratos.ReadOnly;
+
+  if ReadOnlySituacao then
+    qrycontratos.ReadOnly := false;
+
+  if not (qryContratos.State in [dsinsert, dsedit]) then
+    qryContratos.Edit;
+
+  qrycontratos.ReadOnly := ReadOnlySituacao;
+end;
+
+function TdtmContratosImoveis.EditarParcela: Boolean;
+begin
+  qryParcelasContrato.Edit;
+  Result:= True;
+end;
+
+function TdtmContratosImoveis.GravarParcelaContrato: Boolean;
+begin
+  Result := False;
+
+  if qryParcelasContratonrpagto.IsNull then
+    qryParcelasContratonrpagto.AsInteger:= 1;
+  VerificarParcela;
+  qryParcelasContrato.Post;
+  ReordenarParcelas(qryParcelasContratotipo.AsString);
+  ReadOnlyContrato(false);
+  EditarContrato;
+  ReadOnlyContrato();
+{
+  if qryContratos.ReadOnly then
+  begin
+    qryContratos.ReadOnly:= false;
+    if not (qryContratos.State in [dsinsert, dsedit]) then
+      qryContratos.Edit;
+    qryContratos.ReadOnly:= true;
+  end
+  else
+    if not (qryContratos.State in [dsinsert, dsedit]) then
+      qryContratos.Edit;
+}
+  RefazConsultaPorNome(qryTotaisParcelas,['Contrato'],[qryContratoscontrato.AsVariant]);
+  RefazConsultaPorNome(qryTotaisParcelasAberto,['Contrato'],[qryContratoscontrato.AsVariant]);
+  Result:= True;
+end;
+
+function TdtmContratosImoveis.IncluirParcela: Boolean;
+begin
+  if not Assigned(qryParcelasContrato) then
+    qryParcelasContrato.Open;
+  qryParcelasContrato.Append;
+  Result:= True;
+end;
+
+procedure TdtmContratosImoveis.dsrCompradoresDataChange(Sender: TObject;Field: TField);
+begin
+  inherited;
+  if Field = qryCompradorescliente then
+  begin
+    if not qryCompradorescliente.IsNull then
+    Begin
+      ParametroCompradorC := 'and not v.codigo ='+qryCompradorescliente.AsString;
+      ParametroCompradorV := 'and not vf.codigo ='+qryCompradorescliente.AsString;
+    end;
+  end;
+
+  if Field = qryCompradoresfiador then
+  begin
+    if not qryCompradoresfiador.IsNull then
+    begin
+      ParametroFiadorC := 'and not v.codigo ='+qryCompradoresfiador.AsString;
+      ParametroFiadorV := 'and not vf.codigo ='+qryCompradoresfiador.AsString;
+    end;
+  end;
+
+  if Field = qryCompradoresrepresentante then
+  begin
+    if not qryCompradoresrepresentante.IsNull then
+    begin
+      ParametroRepresentanteC:= 'and not v.codigo ='+qryCompradoresrepresentante.AsString;
+      ParametroRepresentanteV:= 'and not vf.codigo ='+qryCompradoresrepresentante.AsString;
+    end;
+  end;
+end;
+
+procedure TdtmContratosImoveis.ParametrosImoveis(Empreendimento, Bloco, Imovel, Unidade: String);
+begin
+  qryConsultaTiposUnidades.close;
+  qryConsultaImoveis.close;
+  qryConsultaBlocos.close;
+
+  if Bloco <> '' then
+  begin
+//    qryConsultaBlocos.MacroByName('WhereBloco').AsString:= 'and b.codigo = '+Bloco;
+
+    if unidade <> '' then
+      qryConsultaImoveis.MacroByName('WhereUnidades').AsString:= 'and i.unidade = '+unidade;
+
+    if Imovel <> '' then
+      qryConsultaImoveis.MacroByName('WhereImoveis').AsString:= 'and i.numero = '+quotedstr(Imovel);
+
+    ReFazConsulta(qryConsultaTiposUnidades,[0],[Bloco]);
+    ReFazConsulta(qryConsultaImoveis,[0],[Bloco]);
+  end;
+  ReFazConsulta(qryConsultaBlocos,[0],[Empreendimento]);
+end;
+
+procedure TdtmContratosImoveis.qryConsultaImoveisAfterOpen(DataSet: TDataSet);
+begin
+  inherited;
+  if qryConsultaImoveis.RecordCount = 0 then
+  begin
+    MensagemAviso(Format(ctNENHUMREGISTROENCONTRADO,['Imóvel']));
+    if assigned(CancelarInclusao) then
+      CancelarInclusao(Self);
+  end;
+end;
+
+procedure TdtmContratosImoveis.qryConsultarImoveisBeforeOpen(DataSet: TDataSet);
+var Imoveis, MacroEmpreendimento, MacroImoveis: String;
+    Pos: TBookmark;
+begin
+  inherited;
+  Imoveis:= '';
+  MacroEmpreendimento:= '';
+  MacroImoveis:= '';
+{  if Empreendimento <> '' then}
+  if qryContratosempreendimento.AsInteger <> 0 then
+    MacroEmpreendimento:= 'and e.codigo = '+{Empreendimento} qryContratosempreendimento.AsString ;
+  if qryImoveisVendidos.RecordCount > 0 then
+  begin
+    qryImoveisVendidos.DisableControls;
+    Pos:= qryImoveisVendidos.GetBookmark;
+    qryImoveisVendidos.First;
+    while not qryImoveisVendidos.Eof do
+    begin
+      Imoveis:= Imoveis + qryImoveisVendidosnumero.AsString+', ';
+      qryImoveisVendidos.Next;
+    end;
+    Delete(Imoveis,length(Imoveis)-1,1);
+    MacroImoveis:= ' and i.Numero not in ('+Imoveis+')';
+    qryImoveisVendidos.GotoBookmark(Pos);
+    qryImoveisVendidos.FreeBookmark(Pos);
+    qryImoveisVendidos.EnableControls;
+  end;
+  if (MacroEmpreendimento <> '') or (MacroImoveis <> '') then
+    qryConsultarImoveis.MacroByName('JaCadastrado').AsString:= MacroEmpreendimento + MacroImoveis;
+end;
+
+
+function TdtmContratosImoveis.AlterarEstadoImoveis(Estado: String; Todos: Boolean): Boolean;
+begin
+
+  if Todos then
+  begin
+    GuardarRegistroAtual(qryImoveisVendidos, True);
+    qryImoveisVendidos.First;
+    while not qryImoveisVendidos.Eof do
+    begin
+      RefazConsultaPorNome(qryImoveis,['Bloco','Numero','Unidade'],[qryImoveisVendidosbloco.AsVariant,
+                                    qryImoveisVendidosnumero.AsVariant, qryImoveisVendidosunidade.AsVariant ]);
+      qryImoveis.Edit;
+      qryImoveissituacao.AsString:= Estado;
+      qryImoveis.Post;
+      perpetrar([qryImoveis], False);
+      qryImoveisVendidos.Next;
+    end;
+    VoltarRegistroAtual(qryImoveisVendidos);
+  end
+  else
+  begin
+    RefazConsultaPorNome(qryImoveis,['Bloco','Numero','Unidade'],[qryImoveisVendidosbloco.AsVariant,
+                           qryImoveisVendidosnumero.AsVariant, qryImoveisVendidosunidade.AsVariant]);
+    qryImoveis.Edit;
+    qryImoveissituacao.AsString:= Estado;
+    qryImoveis.Post;
+    perpetrar([qryImoveis], False);
+  end;
+
+end;
+
+procedure TdtmContratosImoveis.qryContratosAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  FValorAtualizacaoMonetariaEntregaChaves := 0;
+  FValorDescontoCorrecao := 0;
+  fValorDescontoPrincipal := 0;
+
+{  Empreendimento:= '';}
+  if qryContratos.RecordCount > 0 then
+  begin
+    RefazConsultaPorNome(qryCompradores,['Contrato'],[qryContratoscontrato.AsVariant]);
+    RefazConsultaPorNome(qryImoveisVendidos,['Contrato'],[qryContratoscontrato.AsVariant]);
+    RefazConsultaPorNome(qryParcelasContrato,['Contrato'],[qryContratoscontrato.AsVariant]);
+    RefazConsultaPorNome(qryTotaisParcelas,['Contrato'],[qryContratoscontrato.AsVariant]);
+    RefazConsultaPorNome(qryTotaisParcelasAberto,['Contrato'],[qryContratoscontrato.AsVariant]);
+    RefazConsultaPorNome(qryCompradores_Anteriores,['Contrato'],[qryContratoscontrato_origem.AsVariant]);
+    if qryImoveisVendidos.RecordCount > 0 then
+    begin
+      if Assigned(FAtualizarDisplay) then
+        FAtualizarDisplay(Self);
+    end;
+  end;
+
+  ReadOnlyContrato;
+
+  qryParametros.Open;
+  if not (qryContratos.State = dsinsert) then
+    if Assigned(FAfterOpenContratos) then
+      FAfterOpenContratos(Dataset);
+  FDataChavesAnt:= qryContratosdatachaves.AsDateTime;
+
+  qrySituacaoImoveis.close;
+  qrySituacaoImoveis.open;
+  qrySituacaoImoveis.delete;
+
+end;
+
+procedure TdtmContratosImoveis.ImprimirContrato;
+begin
+  if not Assigned(ImpressaoContratos) then
+    ImpressaoContratos := TdtmImprimeContratosImoveis.Create(Self);
+  try
+    ImpressaoContratos.ImprimirContrato(qryContratoscontrato.AsString)
+  finally
+    ImpressaoContratos.Free;
+    ImpressaoContratos := nil;
+  end;
+end;
+
+procedure TdtmContratosImoveis.ImprimirExtrato(Completo: Boolean; Data: String);
+begin
+  if not Assigned(ImpressaoContratos) then
+    ImpressaoContratos := TdtmImprimeContratosImoveis.Create(Self);
+  try
+     ImpressaoContratos.ImprimirExtratos(qryContratoscontrato.AsString, Data, Completo);
+  finally
+    ImpressaoContratos.Free;
+    ImpressaoContratos := nil;
+  end;
+end;
+
+procedure TdtmContratosImoveis.qryParcelasContratoCalcFields(DataSet: TDataSet);
+begin
+  inherited;
+  if qryParcelasContratocorrecao.AsCurrency = 0 then
+    qryParcelasContratocorrecao2.Clear
+  else
+    qryParcelasContratocorrecao2.AsCurrency:= qryParcelasContratocorrecao.AsCurrency;
+
+  if qryParcelasContratojuros.AsFloat = 0 then
+    qryParcelasContratojuros2.Clear
+  else
+    qryParcelasContratojuros2.AsFloat:= qryParcelasContratojuros.AsFloat;
+end;
+
+function TdtmContratosImoveis.IncluirInformacoes: Boolean;
+begin
+  if qryContratoshabite_se.AsDateTime > 0 then
+  begin
+    if qryContratosindexadoraposhabitese.AsString <> '' then
+    begin
+      qryParcelasContratomoeda.AsString:= qryContratosindexadoraposhabitese.AsString;
+      if qryContratosjuros.AsFloat <> 0 then
+        qryParcelasContratotaxajuros.AsFloat:= qryContratosjuros.AsFloat;
+    end;
+  end
+  else
+  begin
+    if qryContratosindexadoratehabitese.AsString <> '' then
+      qryParcelasContratomoeda.AsString:= qryContratosindexadoratehabitese.AsString;
+  end;
+  if qryContratosdatabase.AsDateTime > 0 then
+    qryParcelasContratodatabase.AsDateTime := qryContratosdatabase.AsDateTime;
+  qryParcelasContratojuroscompostos.AsBoolean := qryContratosjuroscompostos.AsBoolean;
+end;
+
+procedure TdtmContratosImoveis.VerificarParcela;
+begin
+  if qryParcelasContrato.State = dsinsert then
+    if (qryParcelasContratovalorhistorico.AsFloat > 0) then
+      qryParcelasContratovalorcontratado.AsFloat:=  qryParcelasContratovalorhistorico.AsFloat;
+end;
+
+procedure TdtmContratosImoveis.qryParcelasContratoAfterClose(DataSet: TDataSet);
+begin
+  inherited;
+  qryTotaisParcelas.Close;
+  qryTotaisParcelasAberto.Close;
+end;
+
+function TdtmContratosImoveis.GetCofinsRetido: Currency;
+begin
+  Result:= truncar(((qryContratosvalortotal.AsFloat * (ParSistema.CofinsBaseImoveis/100))*(ParSistema.CofinsAliquotaImoveis/100)),2);
+end;
+
+function TdtmContratosImoveis.GetCreditoChavesImoveis: Integer;
+begin
+  Result:= qryImoveisVendidoscreditovendachaves.AsInteger;
+end;
+
+function TdtmContratosImoveis.GetCreditoVendaImoveis: Integer;
+begin
+  Result:= qryImoveisVendidoscontavenda.AsInteger;
+end;
+
+function TdtmContratosImoveis.GetCSLLRetido: Currency;
+begin
+  Result:= truncar(((qryContratosvalortotal.AsFloat * (ParSistema.CSLLBaseImoveis/100))*(ParSistema.CSLLAliquotaImoveis/100)),2);
+end;
+
+function TdtmContratosImoveis.GetDebitoChavesImoveis: Integer;
+begin
+  Result:= qryImoveisVendidoscontavenda.AsInteger;
+end;
+
+function TdtmContratosImoveis.GetDebitoVendaImoveis: Integer;
+begin
+  Result:= qryContratosdebitovenda.AsInteger;
+end;
+
+function TdtmContratosImoveis.GetIRRetido: Currency;
+begin
+  Result:= truncar(((qryContratosvalortotal.AsFloat * (ParSistema.IRBaseImoveis/100))*(ParSistema.IRAliquotaImoveis/100)),2);
+end;
+
+function TdtmContratosImoveis.GetPISRetido: Currency;
+begin
+  Result:= truncar(((qryContratosvalortotal.AsFloat * (ParSistema.PISBaseImoveis/100))*(ParSistema.PISAliquotaImoveis/100)),2);
+end;
+
+function TdtmContratosImoveis.GetValordoContrato: Currency;
+begin
+  Result:= qryContratosvalortotal.AsCurrency;
+end;
+
+function TdtmContratosImoveis.GetContaCreditoCofinsRetido: Integer;
+begin
+  Result:= qryParametroscreditarcofinsvenda.AsInteger;
+end;
+
+function TdtmContratosImoveis.GetContaCreditoCSLLRetido: Integer;
+begin
+  Result:= qryParametroscreditarcsllvenda.AsInteger;
+end;
+
+function TdtmContratosImoveis.GetContaCreditoIRRetido: Integer;
+begin
+  Result:= qryParametroscreditarirpjvenda.AsInteger;
+end;
+
+function TdtmContratosImoveis.GetContaCreditoPISRetido: Integer;
+begin
+  Result:= qryParametroscreditarpisvenda.AsInteger;
+end;
+
+function TdtmContratosImoveis.GetContaDebitoCofinsRetido: Integer;
+begin
+  Result:= qryImoveisVendidoscontacofins.AsInteger;
+end;
+
+function TdtmContratosImoveis.GetContaDebitoCSLLRetido: Integer;
+begin
+  Result:= qryImoveisVendidoscontacsll.AsInteger;
+end;
+
+function TdtmContratosImoveis.GetContaDebitoIRRetido: Integer;
+begin
+  Result:= qryImoveisVendidoscontairpj.AsInteger;
+end;
+
+function TdtmContratosImoveis.GetContaDebitoPISRetido: Integer;
+begin
+  Result:= qryImoveisVendidoscontapis.AsInteger;
+end;
+
+function TdtmContratosImoveis.GetDataContrato: TDateTime;
+begin
+  Result:= qryContratosdata.AsDateTime;
+end;
+
+function TdtmContratosImoveis.GetSomenteLeituraContabilidade: Boolean;
+begin
+  FSomenteLeituraContabilidade :=
+                (SituacaoContrato in [sciQUITADO, sciRESCINDIDO, sciCANCELADO]) or
+                not UsuarioLogin.AlterarDadosContabeis or
+                not ParSistema.GerarContabilidade;
+
+  result := FSomenteLeituraContabilidade;
+end;
+
+function TdtmContratosImoveis.GetDataChaves: TDateTime;
+begin
+  Result:= qryContratosdatachaves.AsDateTime;
+end;
+
+function TdtmContratosImoveis.GetContaCreditoCofinsChaves: Integer;
+begin
+  Result:= qryImoveisVendidoscontacofins.AsInteger;
+end;
+
+function TdtmContratosImoveis.GetContaCreditoCSLLChaves: Integer;
+begin
+  Result:= qryImoveisVendidoscontacsll.AsInteger;
+end;
+
+function TdtmContratosImoveis.GetContaCreditoIRChaves: Integer;
+begin
+  Result:= qryImoveisVendidoscontairpj.AsInteger;
+end;
+
+function TdtmContratosImoveis.GetContaCreditoPISChaves: Integer;
+begin
+  Result:= qryImoveisVendidoscontapis.AsInteger;
+end;
+
+function TdtmContratosImoveis.GetContaDebitoCofinsChaves: Integer;
+begin
+  Result:= qryParametrosdebitarcofinschaves.AsInteger;
+end;
+
+function TdtmContratosImoveis.GetContaDebitoCSLLChaves: Integer;
+begin
+    Result:= qryParametrosdebitarcsllchaves.AsInteger;
+end;
+
+function TdtmContratosImoveis.GetContaDebitoIRChaves: Integer;
+begin
+  Result:= qryParametrosdebitarirpjchaves.AsInteger;
+end;
+
+function TdtmContratosImoveis.GetContaDebitoPISChaves: Integer;
+begin
+  Result:= qryParametrosdebitarpischaves.AsInteger;
+end;
+
+procedure TdtmContratosImoveis.AlterarEstadoContrato;
+begin
+  EditarContrato;
+  if SituacaoContrato = sciNENHUM then
+    qryContratossituacao.AsString:= 'R'
+  else if SituacaoContrato = sciRESERVADO then
+    qryContratossituacao.AsString:= 'V'
+  else if SituacaoContrato = sciVENDIDO then
+    qryContratossituacao.AsString:= 'Q';
+  qryContratos.Post;
+end;
+
+function TdtmContratosImoveis.getdescricaohistorico: String;
+begin
+  qryCompradores.First;
+  fdescricaohistorico := 'CT Nº '+qryContratoscontrato.AsString+' * '
+                          + qryCompradoresnomecliente.AsString;
+  Result := fdescricaohistorico;
+end;
+
+function TdtmContratosImoveis.GetIncluindoContrato: Boolean;
+begin
+  Result:= (qryContratos.State = dsinsert) or (qryContratos.IsEmpty) or (QryCOntratos.RecordCount = 0) or (FIncluindoContrato = True);
+end;
+
+function TdtmContratosImoveis.GetNumeroDocumento: Integer;
+var Contrato : String;
+begin
+  Result:= qryContratoscontrato.AsInteger;
+end;
+
+function TdtmContratosImoveis.getDataAtual: TDateTime;
+begin
+  Result:= qryContratosdata.AsDateTime;
+end;
+
+
+function TdtmContratosImoveis.GetGerarDuplicatas: Boolean;
+begin
+  Result:= False;
+end;
+
+procedure TdtmContratosImoveis.qryParcelasContratoAfterPost(DataSet: TDataSet);
+begin
+  inherited;
+  GravarParcelas:= True;
+end;
+
+destructor TdtmContratosImoveis.Destroy;
+begin
+//  if Assigned(VarRecebimentos) then
+    VarRecebimentos := nil;
+  inherited;
+  if assigned(dtmlancamentocontabilidade) then
+    dtmLancamentoContabilidade := nil;
+end;
+
+constructor TdtmContratosImoveis.Create(AOwner: TComponent);
+begin
+  inherited;
+  if parSistema.GerarContabilidade then
+  begin
+    if not assigned(dtmlancamentocontabilidade) then
+      dtmLancamentoContabilidade := TdtmLancamentoContabilidade.Create(self);
+  end;
+  qryConsultaTiposUnidades.Tag := cttabelas;
+end;
+
+function TdtmContratosImoveis.VerificarDataChaves(DataChaves: String): Boolean;
+var Data: TDateTime;
+begin
+  Result:= False;
+  if FDataChavesAnt <= 0 then
+  begin
+    if DataChaves = '' then
+      Data:= 0
+    else
+      Data:= strtoDate(DataChaves);
+
+    If (FDataChavesAnt <> Data) then
+      Result:= True;
+  end
+  else
+  begin
+    if (FDataChavesAnt > 0) and (qryContratosdata.AsDateTime <= ParSistema.DataContabil) then
+    begin
+      if DataChaves = '' then
+        Data:= 0
+      else
+        Data:= strtoDate(DataChaves);
+
+      If (FDataChavesAnt <> Data) then
+        Result:= True;
+    end
+  end;
+end;
+
+function TdtmContratosImoveis.GetOrdenarLancamentos: String;
+begin
+  Result:= 'order by nrlancto, debitar, creditar'
+end;
+
+function TdtmContratosImoveis.GetNrOrigem: Int64;
+var Contrato, Parcela, TipoStr, NrPagto : String;
+    Evento, Tipo, Mes, Ano: Integer;
+begin
+  if (dtmContratosImoveis.qryParcelasContratonumeroorigem.AsSTring <> '') and (NrOrigem[1] = 'T') then
+    Result:= StrToInt64(dtmContratosImoveis.qryParcelasContratonumeroorigem.AsSTring)
+  else
+  begin
+    case FNrOrigem[1] of
+      'V' : Evento:= 1;
+      'H' : Evento:= 2;
+      'O' : Evento:= 3;
+      'T' : Evento:= 4;
+      'G' : Evento:= 5;
+    end;
+    Contrato:= preencheString(qryContratoscontrato.AsString,'0',6,false)+inttostr(Evento);
+    if Evento < 3 then
+      Result:= strtoint64(Contrato + '0000000')
+    else if Evento = 3 then
+    begin
+      Mes:= MonthOf(Date);
+      Ano:= YearOf(Date);
+      Result:= StrToInt64(contrato + '0'+inttostr(Mes)+inttostr(Ano));
+    end
+    else if Evento = 4 then
+    begin
+      Tipo   := ConverterTipoParcela(qryParcelasContratotipo.AsString[1]);
+      Parcela:= preencheString(qryParcelasContratonumero.AsString, '0',3,False);
+      NrPagto:= preencheString(qryParcelasContratonrpagto.AsString,'0',2,False);
+      TipoStr:= preencheString(inttostr(Tipo),'0',2,False);
+      Result := strtoint64(Contrato + TipoStr + Parcela + NrPagto);
+    end
+    else if Evento = 5 then
+    begin
+      if OperacaoRescisao = 'EP' then
+        Result:= StrToInt64(Contrato+'1000000')
+      else if OperacaoRescisao = 'EI' then
+        Result:= StrToInt64(Contrato+'2000000')
+      else if OperacaoRescisao = 'EV' then
+        Result:= StrToInt64(Contrato+'3000000')
+      else if OperacaoTransferencia then
+        Result:= StrToInt64(Contrato+'4000000')
+      else if OperacaoRenegociacao then
+        Result:= StrToInt64(Contrato+'5000000')
+    end;
+  end;
+end;
+
+procedure TdtmContratosImoveis.GravarLancamentosContabeis;
+begin
+  if parsistema.GerarContabilidade then
+  begin
+    FProximoNrLancto := 0;
+    dtmLancamentoContabilidade.qrylancamentosDocumentos.First;
+    while not dtmLancamentoContabilidade.qrylancamentosDocumentos.Eof do
+    begin
+      dtmLancamentoContabilidade.qrylancamentosDocumentos.Edit;
+      if (dtmLancamentoContabilidade.qryLancamentosDocumentosnumerocriado.AsBoolean) then
+        dtmLancamentoContabilidade.qryLancamentosDocumentosnrlancto.AsInteger := ProximoNrLancto;
+
+      if NrOrigem = 'H' then
+        dtmLancamentoContabilidade.qrylancamentosDocumentosdata.AsDateTime     := qryContratosdatachaves.AsDateTime
+      else if NrOrigem = 'G' then
+      begin
+        if dtmContratosImoveis.OperacaoRescisao <> '' then
+          dtmLancamentoContabilidade.qrylancamentosDocumentosdata.AsDateTime     := FDataAlteracao
+        else if (dtmContratosImoveis.OperacaoTransferencia or dtmContratosImoveis.OperacaoRenegociacao) then
+          dtmLancamentoContabilidade.qrylancamentosDocumentosdata.AsDateTime     :=  qryContratosdata.AsDateTime;
+      end
+      else
+        dtmLancamentoContabilidade.qrylancamentosDocumentosdata.AsDateTime     := qryContratosdata.AsDateTime;
+      dtmLancamentoContabilidade.qryLancamentosDocumentosexercicio.AsInteger :=
+                                          yearof(dtmLancamentoContabilidade.qryLancamentosDocumentosdata.AsDateTime);
+      dtmLancamentoContabilidade.qrylancamentosDocumentosnrorigem.AsString   := IntToStr(GetNrOrigem);
+      dtmLancamentoContabilidade.qryLancamentosDocumentosfilial.AsInteger    := FilialBase;
+      dtmLancamentoContabilidade.qrylancamentosDocumentos.post;
+      dtmLancamentoContabilidade.qrylancamentosDocumentos.Next;
+    end;
+  end;
+end;
+
+procedure TdtmContratosImoveis.dsrContratosDataChange(Sender: TObject;
+  Field: TField);
+begin
+  inherited;
+  if Field = qryContratosdatachaves then
+  begin
+    if  qryContratosdatachaves.AsDateTime > 0 then
+    begin
+      if VerificarCamposHistoricos then
+      begin
+        if Assigned(FAfterScrollChaves) then
+          FAfterScrollChaves(qryContratos);
+      end
+      else
+        MensagemAviso('Alguns campos não foram preechidos:'+#10#13+ Msg);
+    end
+    else
+    begin
+      if not IncluindoContrato then
+      begin
+        FApagarLancamentos:= True;
+        if Assigned(FAfterScrollChaves) then
+          FAfterScrollChaves(qryContratos);
+        FApagarLancamentos:= False;
+      end;
+    end;
+  end
+  else if ((field = qryContratospishistorico) or
+           (field = qryContratosirpjhistorico) or
+           (field = qryContratoscsllhistorico) or
+           (field = qryContratoscofinshistorico) or
+           (field = qryContratossaldovenda) or
+           (field = qryContratossaldocorrecao) or
+           (field = qryContratossaldocusto) or
+           (field = qryContratoscustoimovel) or
+           (field = qryContratosdespesavenda)) then
+  begin
+  if  qryContratosdatachaves.AsDateTime > 0 then
+  begin
+    if not IncluindoContrato then
+    begin
+      FApagarLancamentos:= True;
+      if Assigned(FAfterScrollChaves) then
+        FAfterScrollChaves(qryContratos);
+      FApagarLancamentos:= False;
+      FAfterScrollChaves(qryContratos);
+    end;
+  end;
+{  else
+  if field = qryContratossituacao then
+    ReadOnlyContrato;                 }
+end;
+end;
+
+function TdtmContratosImoveis.ExisteParcelasPagas: Boolean;
+begin
+  Result:= False;
+  GuardarRegistroAtual(qryParcelasContrato,True);
+  qryParcelasContrato.First;
+  while not qryParcelasContrato.Eof do
+  begin
+    if qryParcelasContratodatapagto.AsString <> '' then
+    begin
+      Result:= True;
+      Break;
+    end;
+    qryParcelasContrato.Next;
+  end;
+  VoltarRegistroAtual(qryParcelasContrato);
+end;
+
+procedure TdtmContratosImoveis.AlterarEstadoContrato(Estado: String);
+begin
+  EditarContrato;
+  qryContratossituacao.AsString:= Estado;
+  qryContratos.Post;
+end;
+
+procedure TdtmContratosImoveis.EstornarParcelas;
+begin
+  GuardarRegistroAtual(qryParcelasContrato, True);
+  qryParcelasContrato.First;
+  while not qryParcelasContrato.Eof do
+  begin
+    qryParcelasContrato.Edit;
+    qryParcelasContratovalorpagto.AsCurrency := qryParcelasContratovalorhistorico.AsCurrency;
+    qryParcelasContratodatapagto.AsDateTime  := DataSistema;
+    qryParcelasContratoobservacoes.AsString  := Format(ctPARCELAESTORNADA,[datetostr(DataSistema)]);
+    qryParcelasContratotipopagto.AsString := 'E';
+    qryParcelasContrato.Post;
+    qryParcelasContrato.Next;
+  end;
+  VoltarRegistroAtual(qryParcelasContrato);
+end;
+
+procedure TdtmContratosImoveis.ApagarLancamentosContabeis(Origem: String;
+  NrOrigem: int64; FecharTransacao: Boolean = false);
+begin
+  RefazConsultaPorNome(qryApagarLancamentosContabeis,['Origem','NrOrigem'],[Origem,NrOrigem]);
+  perpetrar([qryApagarLancamentosContabeis], FecharTransacao);
+end;
+
+
+function TdtmContratosImoveis.VerificarCamposHistoricos: Boolean;
+begin
+  Result:= True;
+  Msg:= '';
+  if qryContratosdata.AsDateTime < DataContabilidade then
+  begin
+    if (qryContratospishistorico.IsNull) then
+      Msg:= '- Valor Pis Histórico'+#10#13;
+    if (qryContratoscofinshistorico.IsNull) then
+      Msg:= Msg + '- Valor Cofins Histórico'+#10#13;
+    if (qryContratoscsllhistorico.IsNull) then
+      Msg:= Msg + '- Valor CSLL Histórico'+#10#13;
+    if (qryContratosirpjhistorico.IsNull) then
+      Msg:= Msg + '- Valor IRPJ Histórico'+#10#13;
+    if (qryContratossaldovenda.IsNull) then
+      Msg:= Msg + '- Valor Saldo de Venda'+#10#13;
+    if (qryContratossaldocorrecao.IsNull) then
+      Msg:= Msg + '- Valor Saldo Correção Monetária'+#10#13;
+    if (qryContratosdatabasecorrecao.IsNull) then
+      Msg:= Msg + '- Data Base de Correção'+#10#13;
+
+    if Msg <> '' then
+      Result:= False;
+  end;
+end;
+
+function TdtmContratosImoveis.GetContaCreditoCusto: Integer;
+begin
+  Result:= qryImoveisVendidosdebitocustos.AsInteger;
+end;
+
+function TdtmContratosImoveis.GetContaDebitoCusto: Integer;
+begin
+  Result:= qryImoveisVendidosdebitocustochaves.AsInteger
+end;
+
+function TdtmContratosImoveis.GetCustodoImovel: Currency;
+begin
+  Result:= qryContratoscustoimovel.AsCurrency + qryContratossaldocusto.AsCurrency;
+end;
+
+procedure TdtmContratosImoveis.ReadOnlyContrato(Bloquear: Boolean = true);
+var
+ i: integer;
+begin
+  if not Bloquear then
+    ReadOnly:= False
+  else
+  begin
+
+    ReadOnly := not (SituacaoContrato  in [sciRESERVADO, sciNENHUM]);
+
+    if ReadOnly then
+    begin
+      if (qryContratoscontratoatual.AsBoolean and
+         not (SituacaoContrato  in [sciCANCELADO, sciRESCINDIDO])
+                                                                                                                // SITUAÇÃO DAS DATAS
+         and  ((qryContratosdata.AsDateTime > ParSistema.DataContabil) or                                       // CONTRATO
+         (qryContratosdatachaves.IsNull or (qryContratosdatachaves.AsDateTime > ParSistema.DataContabil))))     // CHAVES
+          {qdo rencegocidao/transferido: liberar os campos}
+         or ((qrycontratos.Recno = 2) and (situacaoContrato in [sciTRANSFERENCIA, sciRENEGOCIACAO]))  then
+      begin
+         qrycontratos.ReadOnly := false;
+         for i :=0 to qrycontratos.FieldCount-1 do
+         begin
+           if ((qrycontratos.Recno = 2) and (situacaoContrato in [sciTRANSFERENCIA, sciRENEGOCIACAO])) then
+             qrycontratos.Fields[i].ReadOnly := false
+           else
+             qrycontratos.Fields[i].ReadOnly := not UsuarioLogin.AlterarDadosContabeis;
+         end;
+
+         if (qryContratosdata.AsDateTime > ParSistema.DataContabil) then
+           qryContratosdata.ReadOnly := false
+         else
+           qryContratosdata.ReadOnly := true;
+
+         if (qryContratosdatachaves.IsNull or
+            (qryContratosdatachaves.AsDateTime > ParSistema.DataContabil)) then
+           qryContratosdatachaves.ReadOnly := false
+         else
+           qryContratosdatachaves.ReadOnly := true;
+
+
+      end;
+    end
+    else
+    begin
+      for i :=0 to qrycontratos.FieldCount-1 do
+        qrycontratos.Fields[i].ReadOnly := false;
+    end;
+  end;
+end;
+
+
+function TdtmContratosImoveis.VerificarCotacaoMoeda(Moeda,Data: String): Boolean;
+begin
+  if Moeda <> '' then
+  begin
+    RefazConsultaPorNome(qryCotacoes,['Moeda','Data'],[Moeda, Data]);
+    Result:= ((qryCotacoes.RecordCount > 0) or not (qryCotacoescotacao.IsNull));
+  end
+  else
+    Result:= True;
+end;
+
+
+
+
+procedure TdtmContratosImoveis.ImprimirRecibo;
+begin
+  if not Assigned(ImpressaoContratos) then
+    ImpressaoContratos := TdtmImprimeContratosImoveis.Create(Self);
+  try
+    if FOrigemReciboRecebimentos then
+      ImpressaoContratos.ImprimirRecibo(qryContratoscontrato.AsString, VarRecebimentos.FRecibo)
+    else
+      ImpressaoContratos.ImprimirRecibo(qryContratoscontrato.AsString, qryParcelasContratorecibopagto.AsVariant);
+  finally
+    ImpressaoContratos.Free;
+    ImpressaoContratos := nil;
+  end;
+end;
+
+function TdtmContratosImoveis.MaiordataPagamento: Variant;
+var data: TDateTime;
+begin
+  data:= 0;
+  GuardarRegistroAtual(qryParcelasContrato, True);
+  qryParcelasContrato.First;
+  while not qryParcelasContrato.Eof do
+  begin
+    if data < qryParcelasContratodatapagto.AsDateTime then
+      data:= qryParcelasContratodatapagto.AsVariant;
+    qryParcelasContrato.Next;
+  end;
+  VoltarRegistroAtual(qryParcelasContrato);
+  if Data < dtmContratosImoveis.qryContratosdata.AsDateTime then
+    data:= dtmContratosImoveis.qryContratosdata.AsDateTime
+  else if data < dtmContratosImoveis.qryContratosdatachaves.AsDateTime then
+    data:= dtmContratosImoveis.qryContratosdatachaves.AsDateTime
+  else if data < dtmContratosImoveis.qryContratoshabite_se.AsDateTime then
+    data:= dtmContratosImoveis.qryContratoshabite_se.AsDateTime;
+  Result:= DataAtual - data;
+end;
+
+procedure TdtmContratosImoveis.TotalParcelas;
+begin
+  RefazConsultaPorNome(qryTotaisParcelas,['Contrato'],[qryContratoscontrato.AsVariant]);
+  RefazConsultaPorNome(qryTotaisParcelasAberto,['Contrato'],[qryContratoscontrato.AsVariant]);
+end;
+
+function TdtmContratosImoveis.ImovelEntregue: Boolean;
+begin
+  Result:= not qryContratosdatachaves.IsNull;
+end;
+
+function TdtmContratosImoveis.GetValorTotalPago: Currency;
+begin
+  Result:= qryTotaisParcelastotalpago.AsCurrency;
+end;
+
+function TdtmContratosImoveis.GetSomenteLeituraContabilidadeRescisao: Boolean;
+begin
+  Result:= False;
+end;
+
+function TdtmContratosImoveis.GetContaCaixa: Integer;
+begin
+  qryContas.Close;
+  qryContas.Open;
+  Result:= qryContascontacontabil.AsInteger;
+end;
+
+function TdtmContratosImoveis.getDataAlteracao: TDateTime;
+begin
+  Result:= FDataAlteracao;
+end;
+
+function TdtmContratosImoveis.GetTotalJurosEAMContrato: Currency;
+begin
+  Result:= qryTotaisParcelastotaljuros.AsCurrency + qryTotaisParcelastotalcorrecao.AsCurrency;
+end;
+
+function TdtmContratosImoveis.GetContaAtualizacaoMonetariaCliente: Integer;
+begin
+  if ImovelEntregue then
+    Result:= qryParametrosdebitaratualizacaomonetaria.AsInteger
+  else
+    Result:= qryImoveisVendidoscreditoatualizacaomonetaria.AsInteger;
+end;
+
+function TdtmContratosImoveis.GetContasImpostosCSLLAtualizacaoMonetaria: String;
+begin
+  Result:= qryImoveisVendidoscontacsll.AsString;
+end;
+
+function TdtmContratosImoveis.GetContasImpostosIRPJAtualizacaoMonetaria: String;
+begin
+  Result:= qryImoveisVendidoscontairpj.AsString;
+end;
+
+function TdtmContratosImoveis.GetValorTotalCSLLAtualizacoaoMonetaria: Currency;
+var contrato : String;
+begin
+  if GetContasImpostosCSLLAtualizacaoMonetaria <> '' then
+  begin
+    qryLancamentos.ParamByName('Origem').Clear;
+    qryLancamentos.MacroByName('WhereContas').Clear;
+    qryLancamentos.Close;
+    Contrato:= preencheString(qryContratoscontrato.AsString,'0',6)+inttostr(3)+'%';
+    qryLancamentos.ParamByName('Origem').AsString:='A';
+    qryLancamentos.MacroByName('WhereContas').AsString:= 'AND  nrOrigem ilike '+Contrato+' AND debitar = '+quotedstr(GetContasImpostosCSLLAtualizacaoMonetaria);
+    qryLancamentos.Open;
+    Result:= qryLancamentosvalor.AsCurrency;
+  end
+  else
+    Result:= 0;
+end;
+
+function TdtmContratosImoveis.GetValorTotalIRPJAtualizacoaoMonetaria: Currency;
+var contrato : String;
+begin
+  if GetContasImpostosIRPJAtualizacaoMonetaria <> '' then
+  begin
+    qryLancamentos.ParamByName('Origem').Clear;
+    qryLancamentos.MacroByName('WhereContas').Clear;
+    qryLancamentos.Close;
+    Contrato:= preencheString(qryContratoscontrato.AsString,'0',6)+inttostr(3)+'%';
+    qryLancamentos.ParamByName('Origem').AsString:='A';
+    qryLancamentos.MacroByName('WhereContas').AsString:= 'AND  nrOrigem ilike '+Contrato+' AND debitar = '+quotedstr(GetContasImpostosIRPJAtualizacaoMonetaria);
+    qryLancamentos.Open;
+    Result:= qryLancamentosvalor.AsCurrency;
+  end
+  else
+    Result:= 0;
+end;
+
+function TdtmContratosImoveis.GetContaCreditoCSLLAtualizacaoMonetaria: Integer;
+begin
+  Result:= qryParametroscreditarcsllvenda.AsInteger;
+end;
+
+function TdtmContratosImoveis.GetContaCreditoIRPJAtualizacaoMonetaria: Integer;
+begin
+  Result:= qryParametroscreditarirpjvenda.AsInteger;
+end;
+
+function TdtmContratosImoveis.GetContaDebitoCSLLAtualizacaoMonetaria: Integer;
+begin
+  Result:= qryImoveisVendidoscontacsll.AsInteger;
+end;
+
+function TdtmContratosImoveis.GetContaDebitoIRPJAtualizacaoMonetaria: Integer;
+begin
+  Result:= qryImoveisVendidoscontairpj.AsInteger;
+end;
+
+function TdtmContratosImoveis.GetOperacaoRescisao: String;
+begin
+  Result:= FOperacaoRescisao;
+end;
+
+procedure TdtmContratosImoveis.GerarNovoContrato(Contrato: Integer; Alteracao: String);
+var Numero_Contrato, Novo_Numero, debitovenda, Vendedor, EmpContrato: Integer;
+    situacao, observacoes, indexadoratehabitese, indexadoraposhabitese,
+    tipoalteracao, datachaves : String;
+    juroscompostos: Boolean;
+    valortotal, juros, atrasomulta, atrasojuros, valor,
+    saldovenda, saldocorrecao, custoimovel, despesavenda,
+    pishistorico, cofinshistorico,irpjhistorico, csllhistorico: Currency;
+    data, data_base, habite_se,  databasecorrecao, datachaves_contrato_origem: TDateTime;
+begin
+  ReadOnlyContrato(false);
+  EditarContrato;
+  Numero_Contrato       := qryContratoscontrato.AsInteger;
+  data                  := qryContratosdata.AsDateTime;
+  valortotal            := SaldoDevedor;
+  situacao              := qryContratossituacao.AsString;
+  vendedor              := qryContratosvendedor.AsInteger;
+  observacoes           := qryContratosobservacoes.AsString;
+  indexadoratehabitese  := qryContratosindexadoratehabitese.AsString;
+  indexadoraposhabitese := qryContratosindexadoraposhabitese.AsString;
+  data_base             := FDataAlteracao;
+  juros                 := qryContratosjuros.AsCurrency;
+  Empcontrato           := qryContratosempreendimento.AsInteger;
+  juroscompostos        := qryContratosjuroscompostos.AsBoolean;
+  atrasomulta           := qryContratosatrasomulta.AsCurrency;
+  atrasojuros           := qryContratosatrasojuros.AsCurrency;
+  habite_se             := qryContratoshabite_se.AsDateTime;
+//  valor                 := qryContratosvalor.AsCurrency;
+  datachaves            := qryContratosdatachaves.AsString;
+  debitovenda           := qryContratosdebitovenda.AsInteger;
+
+  pishistorico          := GetPISRetido;
+  cofinshistorico       := GetCofinsRetido;
+  irpjhistorico         := (GetIRRetido + GetValorTotalIRPJAtualizacoaoMonetaria);
+  csllhistorico         := (GetCSLLRetido +  GetValorTotalCSLLAtualizacoaoMonetaria);
+
+  if qryContratossaldovenda.AsCurrency = 0 then
+    saldovenda          := qryContratosvalortotal.AsCurrency
+  else
+    saldovenda          := qryContratossaldovenda.AsCurrency;
+
+  saldocorrecao         := GetValorSaldoCorrecao;
+  databasecorrecao      := qryContratosdatabasecorrecao.AsDateTime;
+  custoimovel           := qryContratoscustoimovel.AsCurrency;
+  despesavenda          := qryContratosdespesavenda.AsCurrency;
+
+  Novo_Numero:= NovaSequenciaContratos;
+  qryContratoscontrato_gerado.AsInteger:= Novo_Numero;
+  qryContratossituacao.AsString        := Alteracao;
+  qryContratosdataalteracao.AsDateTime := FDataAlteracao;
+  qryContratos.Post;
+
+  RefazConsultaPorNome(qryTotaisParcelas,['Contrato'],[Numero_Contrato]);
+  RefazConsultaPorNome(qryTotaisParcelasAberto,['Contrato'],[Numero_Contrato]);
+  FTotalAmTransf      := GetTotalAMContrato;
+  FTotalJuroeAmTransf := GetTotalJurosEAMContrato;
+
+  if IncluirContrato then
+  begin
+    qryContratoscontrato.AsInteger:= Novo_Numero;
+    qryContratosdata.AsDateTime:= FDataAlteracao;
+    qryContratoscontrato_origem.AsInteger:= Numero_Contrato;
+    if Alteracao = 'T' then
+      SituacaoContrato:= sciTRANSFERENCIA
+    else if Alteracao = 'G' then
+      SituacaoContrato:= sciRENEGOCIACAO;
+    qryContratosvendedor.AsInteger:= Vendedor;
+    qryContratosvalortotal.AsCurrency:= valortotal;
+    qryContratosobservacoes.AsString:= observacoes;
+    if data_base > 0 then
+      qryContratosdatabase.AsDateTime:= data_base
+    else
+        qryContratosdatabase.Clear;
+    qryContratosjuros.AsCurrency:= juros;
+    qryContratosatrasomulta.AsCurrency:= atrasomulta;
+    qryContratosatrasojuros.AsCurrency:= atrasojuros;
+    qryContratosindexadoratehabitese.AsString:= indexadoratehabitese;
+    qryContratosindexadoraposhabitese.AsString:= indexadoraposhabitese;
+//    qryContratosdebitovenda.AsInteger:= debitovenda;
+    qryContratosjuroscompostos.AsBoolean:= juroscompostos;
+    qryContratosempreendimento.AsInteger:= EmpContrato;
+    if habite_se > 0 then
+      qryContratoshabite_se.AsDateTime:= habite_se
+    else
+        qryContratoshabite_se.Clear;
+    try
+      dsrContratos.OnDataChange:= nil;
+      if datachaves <> '' then
+        qryContratosdatachaves.AsDateTime:= strtodate(datachaves)
+      else
+        qryContratosdatachaves.Clear;
+    except
+    end;
+    dsrContratos.OnDataChange:= dsrContratosDataChange;
+    if qryContratosdatachaves.AsDateTime = 0 then
+    begin
+      qryContratospishistorico.AsCurrency:= pishistorico;
+      qryContratoscofinshistorico.AsCurrency:= cofinshistorico;
+      qryContratosirpjhistorico.AsCurrency:= irpjhistorico;
+      qryContratoscsllhistorico.AsCurrency:= csllhistorico;
+      qryContratossaldovenda.AsCurrency:= saldovenda;
+      qryContratossaldocorrecao.AsCurrency:= saldocorrecao;
+      qryContratosdatabasecorrecao.AsCurrency:= databasecorrecao;
+      qryContratoscustoimovel.AsCurrency:= custoimovel;
+      qryContratosdespesavenda.AsCurrency:= despesavenda;
+      qryContratosdatachaves_contrato_origem.AsDateTime := datachaves_contrato_origem;
+//      qryContratosvalor.AsCurrency:= valor;
+    end
+    else
+    begin
+      qryContratospishistorico.Clear;
+      qryContratoscofinshistorico.Clear;
+      qryContratosirpjhistorico.Clear;
+      qryContratoscsllhistorico.Clear;
+      qryContratossaldovenda.Clear;
+      qryContratossaldocorrecao.Clear;
+      qryContratosdatabasecorrecao.Clear;
+      qryContratoscustoimovel.Clear;
+      qryContratosdespesavenda.Clear;
+      qryContratosdatachaves_contrato_origem.clear;
+//      qryContratosvalor.Clear;
+    end;
+
+    RefazConsultaPorNome(qryCompradores_Anteriores,['Contrato'],[Numero_Contrato]);
+    if dtmContratosImoveis.SituacaoContrato =  sciRENEGOCIACAO then
+      AtribuirCompradores_NovoContrato(Novo_Numero, Numero_Contrato);
+    AtribuirImoveis_NovoContrato(Novo_Numero, Numero_Contrato);
+  end;
+  ReadOnlyContrato();
+
+end;
+
+function TdtmContratosImoveis.NovaChaveContratos: Integer;
+begin
+  spcContratos_ProximoNumero.Open;
+  Result := spcContratos_ProximoNumeronumero.AsInteger;
+  spcContratos_ProximoNumero.Close;
+end;
+
+function TdtmContratosImoveis.AtribuirDataAlteracao: Boolean;
+begin
+//  ReadOnlyContrato(false);
+  EditarContrato;
+  qryContratosdataalteracao.AsDateTime:= DataAlteracao;
+  qryContratos.Post;
+//  ReadOnlyContrato();
+//  ReadOnlyContrato(False);
+end;
+
+function TdtmContratosImoveis.AtribuirImoveis_NovoContrato(NovoContrato, ContratoOrigem: Integer): Boolean;
+var Imoveis : T_ImoveisVendidos;
+    a, i: Integer;
+begin
+  a:= 0;
+  ReadOnlyContrato(false);
+  RefazConsultaPorNome(qryImoveisVendidos,['Contrato'], [ContratoOrigem]);
+  SetLength(Imoveis, qryImoveisVendidos.RecordCount);
+  qryImoveisVendidos.First;
+  while not qryImoveisVendidos.Eof do
+  begin
+    Imoveis[a].Contrato        := NovoContrato;
+    Imoveis[a].Emp             := qryImoveisVendidoscodigoempreendimento.AsInteger;
+    Imoveis[a].NomeEmp         := qryImoveisVendidosempreendimento.AsString;
+    Imoveis[a].Bloco           := qryImoveisVendidosbloco.AsInteger;
+    Imoveis[a].NomeBloco       := qryImoveisVendidosnomebloco.AsString;
+    Imoveis[a].Numero          := qryImoveisVendidosnumero.AsString;
+    Imoveis[a].unidade         := qryImoveisVendidosunidade.AsInteger;
+    Imoveis[a].NomeUnidade     := qryImoveisVendidostipounidade.AsString;
+    Imoveis[a].Obs             := qryImoveisVendidosobservacoes.AsString;
+    Imoveis[a].Preco           := qryImoveisVendidosPreco.AsCurrency;
+    Imoveis[a].PrecoVenda      := qryImoveisVendidosPrecoVenda.AsCurrency;
+    Imoveis[a].pavimento       := qryImoveisVendidospavimento.AsString;
+    Imoveis[a].situacao        := qryImoveisVendidossituacao.AsString;
+    Imoveis[a].areaprivativa   := qryImoveisVendidosareaprivativa.AsCurrency;
+    Imoveis[a].areacomum       := qryImoveisVendidosareacomum.AsCurrency;
+    Imoveis[a].areatotal       := qryImoveisVendidosareatotal.AsCurrency;
+    Imoveis[a].fracaoideal     := qryImoveisVendidosfracaoideal.AsCurrency;
+    Imoveis[a].datahabitese    := qryImoveisVendidosdatahabitese.AsDateTime;
+    Imoveis[a].codigo          := qryImoveisVendidoscodigo.AsInteger;
+    Imoveis[a].nome            := qryImoveisVendidosnome.AsString;
+    Imoveis[a].contavenda      := qryImoveisVendidoscontavenda.AsInteger;
+    Imoveis[a].contacofins     := qryImoveisVendidoscontacofins.AsInteger;
+    Imoveis[a].contacsll       := qryImoveisVendidoscontacsll.AsInteger;
+    Imoveis[a].contairpj       := qryImoveisVendidoscontairpj.AsInteger;
+    Imoveis[a].contapis        := qryImoveisVendidoscontapis.AsInteger;
+    Imoveis[a].debitocustos    := qryImoveisVendidosdebitocustos.AsInteger;
+    Imoveis[a].creditovendachaves            := qryImoveisVendidoscreditovendachaves.AsInteger;
+    Imoveis[a].debitocustochaves             := qryImoveisVendidosdebitocustochaves.AsInteger;
+    Imoveis[a].creditoatualizacaomonetaria   := qryImoveisVendidoscreditoatualizacaomonetaria.AsInteger;
+    Inc(a);
+    qryImoveisVendidos.Next;
+  end;
+  qryImoveisVendidos.Close;
+  qryImoveisVendidos.ParamByName('Contrato').Clear;
+  qryImoveisVendidos.Open;
+
+  qryImoveisVendidos.AfterInsert := nil;
+
+  for i:=0 to a-1 do
+  begin
+    qryImoveisVendidos.Append;
+    qryImoveisVendidoscodigoempreendimento.AsInteger       := Imoveis[i].Emp;
+    qryImoveisVendidosempreendimento.AsString          	   := Imoveis[i].NomeEmp;
+    qryImoveisVendidosbloco.AsInteger             	   := Imoveis[i].Bloco;
+    qryImoveisVendidosnomebloco.AsString         	   := Imoveis[i].NomeBloco;
+    qryImoveisVendidosnumero.AsString           	   := Imoveis[i].Numero;
+    qryImoveisVendidosunidade.AsInteger         	   := Imoveis[i].unidade;
+    qryImoveisVendidostipounidade.AsString      	   := Imoveis[i].Nomeunidade;
+    qryImoveisVendidosobservacoes.AsString                 := Imoveis[i].Obs;
+    qryImoveisVendidosPrecoVenda.AsCurrency     	   := Imoveis[i].PrecoVenda;
+    qryImoveisVendidosPreco.AsCurrency            	   := Imoveis[i].Preco;
+    qryImoveisVendidospavimento.AsString        	   := Imoveis[i].pavimento;
+    qryImoveisVendidossituacao.AsString         	   := Imoveis[i].situacao;
+    qryImoveisVendidosareaprivativa.AsCurrency     	   := Imoveis[i].areaprivativa;
+    qryImoveisVendidosareacomum.AsCurrency         	   := Imoveis[i].areacomum;
+    qryImoveisVendidosareatotal.AsCurrency         	   := Imoveis[i].areatotal;
+    qryImoveisVendidosfracaoideal.AsCurrency           	   := Imoveis[i].fracaoideal;
+    qryImoveisVendidosdatahabitese.AsDateTime      	   := Imoveis[i].datahabitese;
+    qryImoveisVendidoscodigo.AsInteger            	   := Imoveis[i].codigo;
+    qryImoveisVendidosnome.AsString             	   := Imoveis[i].nome;
+    qryImoveisVendidoscontavenda.AsInteger       	   := Imoveis[i].contavenda;
+    qryImoveisVendidoscontacofins.AsInteger       	   := Imoveis[i].contacofins;
+    qryImoveisVendidoscontacsll.AsInteger          	   := Imoveis[i].contacsll;
+    qryImoveisVendidoscontairpj.AsInteger        	   := Imoveis[i].contairpj;
+    qryImoveisVendidoscontapis.AsInteger                   := Imoveis[i].contapis;
+    qryImoveisVendidosdebitocustos.AsInteger       	   := Imoveis[i].debitocustos;
+    qryImoveisVendidoscreditovendachaves.AsInteger         := Imoveis[i].creditovendachaves;
+    qryImoveisVendidosdebitocustochaves.AsInteger          := Imoveis[i].debitocustochaves;
+    qryImoveisVendidoscreditoatualizacaomonetaria.AsInteger:= Imoveis[i].creditoatualizacaomonetaria;
+    qryImoveisVendidos.Post;
+  end;
+
+  qryImoveisVendidos.AfterInsert := qryImoveisVendidosAfterInsert;
+
+  ReadOnlyContrato();
+end;
+
+procedure TdtmContratosImoveis.AlteracoesContrato(Excluido, GravarLancamentos: Boolean);
+begin
+  if Excluido then
+  begin
+    if ParSistema.GerarContabilidade then
+    begin
+//      if ReadOnly then
+//        ReadOnly:= False;
+      ReadOnlyContrato(false);
+      Perpetrar([qryContratos, qryParcelasContrato, qryImoveis, qryImoveisVendidos]);
+      if GravarLancamentos then
+        Perpetrar([dtmLancamentoContabilidade.qrylancamentosDocumentos]);
+      ReadOnlyContrato
+//      if (SituacaoContrato in [sciVENDIDO,sciQUITADO, sciRENEGOCIADO, sciTRANSFERIDO, sciRESCINDIDO]) then
+//        ReadOnly := True;
+    end
+    else
+      Perpetrar([qryContratos, qryParcelasContrato, qryImoveis, qryImoveisVendidos]);
+
+    RefazConsultaPorNome(qryContratos,['Contrato'],[qryContratosContrato.AsString]);
+  end;
+end;
+
+function TdtmContratosImoveis.GetTotalCOFINSRetido: Currency;
+begin
+  Result:= GetCofinsRetido;
+end;
+
+function TdtmContratosImoveis.GetTotalCSLLRetido: Currency;
+begin
+  Result:= GetCSLLRetido + GetValorTotalCSLLAtualizacoaoMonetaria;
+end;
+
+function TdtmContratosImoveis.GetTotalIRPJRetido: Currency;
+begin
+  Result:= GetIRRetido + GetTotalIRPJRetido
+end;
+
+function TdtmContratosImoveis.GetTotalPISRetido: Currency;
+begin
+  Result:= GetPISRetido;
+end;
+
+function TdtmContratosImoveis.GetValorSaldoCorrecao: Currency;
+begin
+  Result:= qryTotaisParcelastotalcorrecao.AsCurrency -  GetValorCorrecaoPago;
+end;
+
+function TdtmContratosImoveis.GetValorCorrecaoPago: Currency;
+begin
+  Result:= 0;
+  GuardarRegistroAtual(qryParcelasContrato, True);
+  qryParcelasContrato.First;
+  while not qryParcelasContrato.Eof do
+  begin
+    if not qryParcelasContratodatapagto.IsNull then
+      Result:= Result + qryParcelasContratocorrecao.AsCurrency;
+    qryParcelasContrato.Next;
+  end;
+  VoltarRegistroAtual(qryParcelasContrato);
+end;
+
+function TdtmContratosImoveis.GetSaldoHistorico: Currency;
+begin
+  Result:= 0;
+  GuardarRegistroAtual(qryParcelasContrato, True);
+  qryParcelasContrato.First;
+  while not qryParcelasContrato.Eof do
+  begin
+    if not qryParcelasContratodatapagto.IsNull then
+      Result:= Result + qryParcelasContratovalorhistorico.AsCurrency;
+    qryParcelasContrato.Next;
+  end;
+  VoltarRegistroAtual(qryParcelasContrato);
+end;
+
+function TdtmContratosImoveis.GetTotalAMContrato: Currency;
+begin
+  Result:= abs(qryTotaisParcelastotalcorrecao.AsCurrency);
+end;
+
+function TdtmContratosImoveis.GetOperacaoTrans: Boolean;
+begin
+  Result:= FOperacaoTransferencia;
+end;
+
+function TdtmContratosImoveis.NovaSequenciaContratos: integer;
+begin
+  spcMaiorContrato.Open;
+  spcContratos_ProximoNumero.Open;
+  if (spcMaiorContratomaiorvalorcontrato.AsInteger + 1) < spcContratos_ProximoNumeronumero.AsInteger then
+    result:= spcMaiorContratomaiorvalorcontrato.AsInteger + 1
+  else
+    Result:= spcContratos_ProximoNumeronumero.AsInteger;
+  spcContratos_ProximoNumero.Close;
+  spcMaiorContrato.Close;
+end;
+
+function TdtmContratosImoveis.GetTotalAMTransf: Currency;
+begin
+  Result:= FTotalAmTransf;
+end;
+
+function TdtmContratosImoveis.GetTotalJuroseAMTranf: Currency;
+begin
+  Result:= FTotalJuroeAmTransf;
+end;
+
+function TdtmContratosImoveis.AtribuirCompradores_NovoContrato(NovoContrato,
+  ContratoOrigem: Integer): Boolean;
+var Compradores : T_CompradoresImoveis;
+    a, i: Integer;
+begin
+  a:= 0;
+  ReadOnlyContrato(False);
+  RefazConsultaPorNome(qryCompradores,['Contrato'], [ContratoOrigem]);
+  SetLength(Compradores, qryCompradores.RecordCount);
+  qryCompradores.First;
+  while not qryCompradores.Eof do
+  begin
+    Compradores[a].contrato          := qryCompradorescontrato.AsInteger;
+    Compradores[a].cliente           := qryCompradorescliente.AsInteger;
+    Compradores[a].nomecliente       := qryCompradoresnomecliente.AsString;
+    Compradores[a].percentual        := qryCompradorespercentual.AsCurrency;
+    Compradores[a].representante     := qryCompradoresrepresentante.AsInteger;
+    Compradores[a].nomerepresentante := qryCompradoresnomerepresentante.AsString;
+    Compradores[a].fiador            := qryCompradoresfiador.AsInteger;
+    Compradores[a].nomefiador        := qryCompradoresnomefiador.AsString;
+    Compradores[a].observacoes       := qryCompradoresobservacoes.AsString;
+    Compradores[a].tipocliente       := qryCompradorestipocliente.AsString;
+    Compradores[a].tiporepresentante := qryCompradorestiporepresentante.AsString;
+    Compradores[a].tipofiador        := qryCompradorestipofiador.AsString;
+    Compradores[a].principal         := qryCompradoresprincipal.AsBoolean;
+
+    Inc(a);
+    qryCompradores.Next;
+  end;
+  qryCompradores.Close;
+  qryCompradores.ParamByName('Contrato').Clear;
+  qryCompradores.Open;
+  for i:=0 to a-1 do
+  begin
+    qryCompradores.Append;
+    qryCompradorescontrato.AsInteger         := Compradores[i].contrato;
+    qryCompradorescliente.AsInteger          := Compradores[i].cliente;
+    qryCompradoresnomecliente.AsString       := Compradores[i].nomecliente;
+    qryCompradorespercentual.AsCurrency      := Compradores[i].percentual;
+    qryCompradoresrepresentante.AsInteger    := Compradores[i].representante;
+    qryCompradoresnomerepresentante.AsString := Compradores[i].nomerepresentante;
+    qryCompradoresfiador.AsInteger           := Compradores[i].fiador;
+    qryCompradoresnomefiador.AsString        := Compradores[i].nomefiador;
+    qryCompradoresobservacoes.AsString       := Compradores[i].observacoes;
+    qryCompradorestipocliente.AsString       := Compradores[i].tipocliente;
+    qryCompradorestiporepresentante.AsString := Compradores[i].tiporepresentante;
+    qryCompradorestipofiador.AsString        := Compradores[i].tipofiador;
+    qryCompradoresprincipal.AsBoolean        := Compradores[i].principal;
+    qryCompradores.Post;
+  end;
+  ReadOnlyContrato();
+end;
+
+function TdtmContratosImoveis.GetOperacaoReneg: Boolean;
+begin
+  Result:= FOperacaoRenegociacao;
+end;
+
+procedure TdtmContratosImoveis.CapturarParcelaAtual;
+begin
+  CapTipo    := qryParcelasContratotipo.AsString;
+  CapNumero  := qryParcelasContratonumero.AsInteger;
+  CApNrPagto := qryParcelasContratonrpagto.AsInteger;
+end;
+
+procedure TdtmContratosImoveis.VoltarParcelaEditada;
+begin
+  qryParcelasContrato.Locate('tipo;numero;nrpagto',VarArrayOf([CapTipo,CapNumero, CApNrPagto]),[]);
+end;
+
+procedure TdtmContratosImoveis.DeletarDadosContrato;
+begin
+
+  DeletarContratos(qryCompradores);
+  DeletarContratos(qryImoveisVendidos);
+  DeletarContratos(qryParcelasContrato);
+  DeletarContratos(qryContratos);
+
+end;
+
+function TdtmContratosImoveis.PossuiParcelasPagas : Boolean;
+begin
+  qryParcelasContrato.First;
+  Result:= False;
+  while not qryParcelasContrato.Eof do
+  begin
+    if qryParcelasContratodatapagto.AsString <> '' then
+    begin
+      Result:= True;
+      Break;
+    end;
+    qryParcelasContrato.Next;
+  end;
+end;
+
+function TdtmContratosImoveis.DeletarContratos(Tabela: TtecQuery): Boolean;
+begin
+  if not Tabela.IsEmpty then
+  begin
+    Tabela.First;
+    while not Tabela.Eof do
+    begin
+      Tabela.Delete;
+    end;
+//    Perpetrar([Tabela]);
+  end;
+end;
+
+function TdtmContratosImoveis.GetDataContabilidade: TDateTime;
+begin
+  Result:= strtodate('01/01/2009');
+end;
+
+function TdtmContratosImoveis.GetSomenteLeituraContabilidadeVenda: Boolean;
+begin
+   result := (SituacaoContrato in [sciTRANSFERENCIA, sciRENEGOCIACAO, sciRESCINDIDO, sciQUITADO]) or
+              not UsuarioLogin.AlterarDadosContabeis or
+              not ParSistema.GerarContabilidade;
+end;
+
+function TdtmContratosImoveis.GetCofinsRetidoChaves: Currency;
+begin
+  Result:= truncar(((GetValorContratoChaves - ValorDescontoPrincipal) * (ParSistema.CofinsBaseImoveis/100)*(ParSistema.CofinsAliquotaImoveis/100)),2);
+end;
+
+function TdtmContratosImoveis.GetCSLLRetidoChaves: Currency;
+begin
+  if qryContratoscsllhistorico.AsCurrency > 0 then
+    Result:=  qryContratoscsllhistorico.AsCurrency +
+             truncar((((ValorAtualizacaoMonetariaEntregaChaves - ValorDescontoPrincipal - ValorDescontoCorrecao) *
+              (ParSistema.CSLLBaseImoveis/100))*(ParSistema.CSLLAliquotaImoveis/100)),2)
+  else
+    Result:=  truncar((((GetValorContratoChaves + ValorAtualizacaoMonetariaEntregaChaves - ValorDescontoPrincipal - ValorDescontoCorrecao) *
+              (ParSistema.CSLLBaseImoveis/100))*(ParSistema.CSLLAliquotaImoveis/100)),2);
+end;
+
+function TdtmContratosImoveis.GetIRRetidoChaves: Currency;
+begin
+
+  if qrycontratosirpjhistorico.AsCurrency > 0 then
+    Result:= qrycontratosirpjhistorico.AsCurrency +
+             Truncar((((ValorAtualizacaoMonetariaEntregaChaves - ValorDescontoPrincipal - ValorDescontoCorrecao) *
+              (ParSistema.IRBaseImoveis/100))*(ParSistema.IRAliquotaImoveis/100)),2)
+  else
+    Result:=  Truncar((((GetValorContratoChaves + ValorAtualizacaoMonetariaEntregaChaves - ValorDescontoPrincipal - ValorDescontoCorrecao) *
+              (ParSistema.IRBaseImoveis/100))*(ParSistema.IRAliquotaImoveis/100)),2);
+
+
+end;
+
+function TdtmContratosImoveis.GetPISRetidoChaves: Currency;
+begin
+  Result:= truncar(((GetValorContratoChaves - ValorDescontoPrincipal) * (ParSistema.PISBaseImoveis/100)*(ParSistema.PISAliquotaImoveis/100)),2);
+end;
+
+function TdtmContratosImoveis.GetValorContratoChaves: Currency;
+begin
+  if qryContratossaldovenda.AsCurrency > 0 then
+    Result:= qryContratossaldovenda.AsCurrency
+  else
+    Result:= qryContratosvalortotal.AsCurrency;
+end;
+
+function TdtmContratosImoveis.GetTotalAMChaves: Currency;
+begin
+  if qryContratossaldocorrecao.AsCurrency > 0 then
+    Result:=  qryContratossaldocorrecao.AsCurrency
+  else
+    Result:= abs(qryTotaisParcelastotalcorrecao.AsCurrency);
+end;
+
+
+function TdtmContratosImoveis.GetDespesaVenda: Currency;
+begin
+  if qryContratosdespesavenda.AsCurrency > 0 then
+    Result:= qryContratosdespesavenda.AsCurrency
+  else
+    Result:= 0;
+end;
+
+function TdtmContratosImoveis.GetContaAtualiacaoMonetariaChaves: Integer;
+begin
+  Result:= qryImoveisVendidoscreditoatualizacaomonetaria.AsInteger;
+end;
+
+function TdtmContratosImoveis.GetContaCreditoAtualiacaoMonetariaChaves: Integer;
+begin
+  Result:= qryParametrosdebitaratualizacaomonetaria.AsInteger
+end;
+
+procedure TdtmContratosImoveis.AtribuirEmpreendimentoContrato;
+begin
+  if not (qryContratos.State in [dsinsert, dsedit]) then
+    qryContratos.Edit;
+  qryImoveisVendidos.First;
+  qryContratosempreendimento.AsInteger:=  qryImoveisVendidoscodigoempreendimento.AsInteger;
+  qryContratos.Post;
+end;
+
+function TdtmContratosImoveis.GetGethistoricovendalancamentovenda: Integer;
+begin
+  Result:= qryParametroshistoricovendalancamentovenda.AsInteger;
+end;
+
+function TdtmContratosImoveis.Gethistoricovendaimpostos: Integer;
+begin
+  Result:= qryParametroshistoricovendaimpostos.AsInteger;
+end;
+
+function TdtmContratosImoveis.Gethistoricochavesatualizacaomonetaria: Integer;
+begin
+  Result:= qryParametroshistoricochavesatualizacaomonetaria.AsInteger;
+end;
+
+function TdtmContratosImoveis.Gethistoricochavescustoscomissoes: Integer;
+begin
+  Result:= qryParametroshistoricochavescustoscomissoes.AsInteger;
+end;
+
+function TdtmContratosImoveis.Gethistoricochavesimpostos: Integer;
+begin
+  Result:= qryParametroshistoricochavesimpostos.AsInteger;
+end;
+
+function TdtmContratosImoveis.Gethistoricochavesvalorvenda: Integer;
+begin
+  Result:= qryParametroshistoricochavesvalorvenda.AsInteger;
+end;
+
+function TdtmContratosImoveis.GetProximoNrLancto: integer;
+begin
+  if FProximoNrLancto=0 then
+  begin
+    if NrOrigem = 'H' then
+      spcLancamentosProximo.ParamByName('Exercicio').AsInteger:= yearof(qryContratosdatachaves.AsDateTime)
+    else if NrOrigem = 'T' then
+      spcLancamentosProximo.ParamByName('Exercicio').AsInteger:= yearof(VarRecebimentos.Pagamento)
+    else if NrOrigem = 'G' then
+    begin
+      if OperacaoRescisao <> '' then
+        spcLancamentosProximo.ParamByName('Exercicio').AsInteger:= yearof(FDataAlteracao)
+      else IF (OperacaoTransferencia or OperacaoRenegociacao) then
+        spcLancamentosProximo.ParamByName('Exercicio').AsInteger:= yearof(qryContratosdata.AsDateTime);
+    end
+    else
+      spcLancamentosProximo.ParamByName('Exercicio').AsInteger:= yearof(qryContratosdata.AsDateTime);
+
+    spcLancamentosProximo.ParamByName('Filial').AsInteger:= FilialBase;
+    spcLancamentosProximo.Open;
+    FProximoNrLancto := spcLancamentosProximocodigo.AsInteger;
+    spcLancamentosProximo.Close;
+  end
+  else
+   FProximoNrLancto := FProximoNrLancto + 1;
+  Result := FProximoNrLancto;
+end;
+
+procedure TdtmContratosImoveis.SetProximoNrLancto(const Value: integer);
+begin
+  FProximoNrLancto := value;
+end;
+
+function TdtmContratosImoveis.GetValorAtualizacaoMonetariaEntregaChaves: Currency;
+var Contrato, MesInicio, MesFinal, ano , mes, mesinicial, anoinicial  : Integer;
+    Datacorrecao, DataChaves : TDateTime;
+    TotalDescontos: Currency;
+begin
+  if FValorAtualizacaoMonetariaEntregaChaves = 0 then
+  begin
+    Contrato := qryContratoscontrato.AsInteger;
+
+    if qryContratosdatabasecorrecao.asdatetime  = 0 then
+      Datacorrecao := qryContratosdata.AsDateTime
+    else
+      Datacorrecao := qryContratosdatabasecorrecao.AsDateTime;
+
+    mesinicial := monthof(Datacorrecao)+1;
+    anoinicial := yearof(Datacorrecao);
+
+    if mesinicial > 12 then
+    begin
+      mesinicial := 1;
+      inc(anoinicial);
+    end;
+
+    DataChaves   := qryContratosdatachaves.AsDateTime;
+
+    for ano := anoinicial to YearOf(DataChaves) do
+    begin
+      if ano = anoinicial then
+        mesinicio := mesinicial
+      else
+        mesinicio := 1;
+
+      if ano = yearof(DataChaves) then
+        mesfinal := monthof(DataChaves)
+      else
+        mesfinal := 12;
+
+      for mes := MesInicio to MesFinal do
+      begin
+        RefazConsultaPorNome(qryCorrecaoMes,['Contrato', 'Exercicio', 'Mes'],
+                         [contrato, ano, mes]);
+        FValorAtualizacaoMonetariaEntregaChaves := FValorAtualizacaoMonetariaEntregaChaves + qryCorrecaoMesvalor.AsCurrency;
+      end;
+    end;
+  end;
+  
+  result := FValorAtualizacaoMonetariaEntregaChaves;
+
+end;
+
+function TdtmContratosImoveis.GetVAlorAMEntregaChaves: Currency;
+begin
+  Result:= qryContratossaldocorrecao.AsCurrency + ValorAtualizacaoMonetariaEntregaChaves - ValorDescontoCorrecao;
+end;
+
+function TdtmContratosImoveis.GetValorDescontoPrincipal: Currency;
+var
+  DataCorrecao : TDateTime;
+
+begin
+  if fValorDescontoPrincipal = 0 then
+  begin
+    if qryContratosdatabasecorrecao.asdatetime  = 0 then
+      Datacorrecao := qryContratosdata.AsDateTime
+    else
+      Datacorrecao := qryContratosdatabasecorrecao.AsDateTime;
+  
+    RefazConsultaPorNome(qryTotalDescontos,['Contrato','DataCorrecao','DataChaves'],
+                                         [qryContratoscontrato.AsVariant,
+                                          DataCorrecao,
+                                          qryContratosdatachaves.AsVariant]);
+    fValorDescontoPrincipal := qryTotalDescontosdescontoprincipal.AsCurrency;
+  end;
+  result := fValorDescontoPrincipal;
+end;
+
+function TdtmContratosImoveis.GetValorDescontoCorrecao: Currency;
+var
+  DataCorrecao : TDateTime;
+begin
+  if FValorDescontoCorrecao = 0 then
+  begin
+    if qryContratosdatabasecorrecao.asdatetime  = 0 then
+      Datacorrecao := qryContratosdata.AsDateTime
+    else
+      Datacorrecao := qryContratosdatabasecorrecao.AsDateTime;
+
+    RefazConsultaPorNome(qryTotalDescontos,['Contrato','DataCorrecao','DataChaves'],
+                                         [qryContratoscontrato.AsVariant,
+                                          DataCorrecao,
+                                          qryContratosdatachaves.AsVariant]);
+    FValorDescontoCorrecao:= qryTotalDescontosdescontocorrecao.AsCurrency;
+  end;
+
+  result := FValorDescontoCorrecao;
+
+end;
+
+function TdtmContratosImoveis.getDataCorrente: TDateTime;
+begin
+  Result:= DataAtual;
+end;
+
+function TdtmContratosImoveis.GetSaldoDevedor: Currency;
+begin
+  FSaldoDevedor:= 0;
+  FSaldoHistorico := 0;
+  GuardarRegistroAtual(qryParcelasContrato, True);
+  qryParcelasContrato.First;
+  while not qryParcelasContrato.Eof do
+  begin
+    if qryParcelasContratodatapagto.IsNull then
+    begin
+      FSaldoDevedor    := FSaldoDevedor + qryParcelasContratovalordevido.AsCurrency;
+      FSaldoHistorico  := FSaldoHistorico + qryParcelasContratovalorhistorico.AsCurrency;
+    end;
+    qryParcelasContrato.Next;
+  end;
+  VoltarRegistroAtual(qryParcelasContrato);
+
+  if DataAlteracao <> DataAtual then
+  begin
+    RefazConsultaPorNome(qrySaldoDevedor,['contrato','data'],[qryContratoscontrato.asinteger,formatdatetime('yyyy-mm-dd',dataalteracao)]);
+    FSaldoDevedor := qrySaldoDevedorvalor.AsCurrency;
+  end;
+
+  Result := FSaldoDevedor;
+
+end;
+
+procedure TdtmContratosImoveis.AtualizarValorContrato;
+begin
+  EditarContrato;
+  qryContratosvalortotal.AsCurrency := GetTotalContratado;
+  qryContratos.Post;
+end;
+
+procedure TdtmContratosImoveis.AtualizarValorHistoricoParcelas;
+var ValorHistorico, TotalHistorico: Currency;
+begin
+  TotalHistorico:= 0;
+  GuardarRegistroAtual(qryParcelasContrato, True);
+  qryParcelasContrato.First;
+  while not qryParcelasContrato.Eof do
+  begin
+    qryParcelasContrato.Edit;
+    ValorHistorico:= Truncar((FSaldoHistorico * qryParcelasContratovalorcontratado.AsCurrency) / qryContratosvalortotal.AsCurrency,2);
+    TotalHistorico:= TotalHistorico + ValorHistorico;
+    qryParcelasContratovalorhistorico.AsCurrency:= ValorHistorico;
+    qryParcelasContrato.Post;
+    qryParcelasContrato.Next;
+  end;
+  qryParcelasContrato.Last;
+  qryParcelasContrato.Edit;
+  If TotalHistorico < FSaldoHistorico then
+    qryParcelasContratovalorhistorico.AsCurrency:= qryParcelasContratovalorhistorico.AsCurrency + (FSaldoHistorico - TotalHistorico)
+  else if TotalHistorico > FSaldoHistorico then
+    qryParcelasContratovalorhistorico.AsCurrency:= qryParcelasContratovalorhistorico.AsCurrency - (FSaldoHistorico - TotalHistorico);
+  qryParcelasContrato.Post;
+  VoltarRegistroAtual(qryParcelasContrato);
+end;
+
+function TdtmContratosImoveis.GetTotalContratado: Currency;
+begin
+  Result:= 0;
+  GuardarRegistroAtual(qryParcelasContrato, True);
+  qryParcelasContrato.First;
+  while not qryParcelasContrato.Eof do
+  begin
+    Result:= Result + qryParcelasContratovalorcontratado.AsCurrency;
+    qryParcelasContrato.Next;
+  end;
+  VoltarRegistroAtual(qryParcelasContrato);
+end;
+
+function TdtmContratosImoveis.PossuiParcelasemAberto: Boolean;
+begin
+  qryParcelasContrato.First;
+  Result:= False;
+  while not qryParcelasContrato.Eof do
+  begin
+    if qryParcelasContratodatapagto.AsString = '' then
+    begin
+      Result:= True;
+      Break;
+    end;
+    qryParcelasContrato.Next;
+  end;
+end;
+
+function TdtmContratosImoveis.Gethistoricorecebatualizacaomonetaria: Integer;
+begin
+  Result:= qryParametroshistoricorecebatualizacaomonetaria.AsInteger;
+end;
+
+function TdtmContratosImoveis.Gethistoricorecebcaixabanco: Integer;
+begin
+  Result:= qryParametroshistoricorecebcaixabanco.AsInteger;
+end;
+
+function TdtmContratosImoveis.Gethistoricorecebdescontos: Integer;
+begin
+  Result:= qryParametroshistoricorecebdescontos.AsInteger;
+end;
+
+
+function TdtmContratosImoveis.GetOrdemImoveisVendidos: integer;
+begin
+  FOrdemImoveisVendidos := FOrdemImoveisVendidos + 1;
+  Result := FOrdemImoveisVendidos;
+end;
+
+function TdtmContratosImoveis.Gethistoricorecebjuros: Integer;
+begin
+  Result:= qryParametroshistoricorecebjuros.AsInteger;
+end;
+
+function TdtmContratosImoveis.Gethistoricorecebprincipal: Integer;
+begin
+  Result:= qryParametroshistoricorecebprincipal.AsInteger;
+end;
+
+procedure TdtmContratosImoveis.qryConsultaImoveisCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryConsultaImoveisAreaTotal.AsCurrency:= qryConsultaImoveisAreaComum.    AsCurrency +
+                                           qryConsultaImoveisAreaPrivativa.AsCurrency;
+end;
+
+function TdtmContratosImoveis.getFilial: Integer;
+begin
+  Result:= FilialBase;
+end;
+
+function TdtmContratosImoveis.ExistePrincipal: Boolean;
+var i: integer;
+begin
+  Result:= False;
+  i:= 0;
+  GuardarRegistroAtual(qryCompradores, True);
+  qryCompradores.First;
+  while not qryCompradores.Eof do
+  begin
+    if qryCompradoresprincipal.AsBoolean then
+    begin
+      i:= i + 1;
+    end;
+    qryCompradores.Next;
+  end;
+  VoltarRegistroAtual(qryCompradores);
+  if i = 1 then
+    result:= True;
+end;
+
+procedure TdtmContratosImoveis.AtribuirCompradorPrincipal(Cliente: Integer);
+begin
+  ReadOnlyContrato(false);
+  GuardarRegistroAtual(qryCompradores,True);
+  qryCompradores.First;
+  while not qryCompradores.Eof do
+  begin
+    if not (qryCompradorescliente.AsInteger = Cliente) then
+    begin
+      qryCompradores.Edit;
+      qryCompradoresprincipal.AsBoolean:= False;
+      qryCompradores.Post;
+    end
+    else
+    begin
+      qryCompradores.Edit;
+      qryCompradoresprincipal.AsBoolean:= True;
+      qryCompradores.Post;
+    end;
+    qryCompradores.Next;
+  end;
+  VoltarRegistroAtual(qryCompradores);
+//  qryCompradores.ReadOnly:= ReadOnly;
+  ReadOnlyContrato();
+  EditarContrato;
+  if Assigned(FAfterScrollCompradores) then
+    FAfterScrollCompradores(Self);
+end;
+
+function TdtmContratosImoveis.Getcreditodespesasvenda: Integer;
+begin
+  Result:= qryImoveisVendidoscreditodespesasvenda.AsInteger;
+end;
+
+function TdtmContratosImoveis.GetDebitodespesasvenda: Integer;
+begin
+   result := qryParametrosdebitardespesasvenda.AsInteger;
+end;
+
+procedure TdtmContratosImoveis.setNrOrigem(const Value: String);
+begin
+  FNrOrigem := Value;
+  FValorAtualizacaoMonetariaEntregaChaves := 0;
+  FValorDescontoCorrecao := 0;
+  fValorDescontoPrincipal := 0;
+end;
+
+procedure TdtmContratosImoveis.SetarSituacaoContratoOrigem;
+begin
+  Contrato_Origem :=  qryContratoscontrato_origem.AsInteger;
+  RefazConsultaPorNome(qryContratosOrigem, ['contratoorigem'],[Contrato_Origem]);
+{
+  Situações do contrato:
+  'R',   -- [R]eservado
+  'V',   -- [V]endido
+  'C',   -- [C]ancelado
+  'Q',   -- [Q]uitado
+
+  'T',   -- [T]ransferido para
+  'F',   -- trans[F]erido de
+
+  'G',   -- Rene[G]ociado para
+  'D',   -- Renegocia[D]o de
+
+  'S')), -- Re[S]cindido
+ }
+
+
+  {A situacao do contrato dependerá da situação do seu anterior}
+  if qryContratosOrigemsituacao_contrato_origem.AsString = 'T' then {'T',   -- [T]ransferido para}
+  begin
+    qryContratosOrigem.Edit;
+    qryContratosOrigemsituacao.AsString := 'F';                     {'F',   -- trans[F]erido de}
+    qryContratosOrigem.post;
+  end
+  else
+  if qryContratosOrigemsituacao_contrato_origem.AsString = 'G' then {'G',   -- Rene[G]ociado para}
+  begin
+    qryContratosOrigem.Edit;
+    qryContratosOrigemsituacao.AsString := 'D';                     {'D',   -- Renegocia[D]o de}
+    qryContratosOrigem.post;
+  end
+  else
+  begin
+    qryContratosOrigem.Edit;
+    qryContratosOrigemsituacao.AsString := 'V';                     {'V',   -- [V]endido}
+    qryContratosOrigem.post;
+  end;
+
+end;
+
+procedure TdtmContratosImoveis.qryImoveisVendidosCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryImoveisVendidosAreaTotal.AsCurrency := qryImoveisVendidosAreaPrivativa.AsCurrency +
+                                            qryImoveisVendidosareacomum.AsCurrency;
+
+
+
+end;
+
+procedure TdtmContratosImoveis.qryImoveisVendidosAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  EditarContrato;
+  AtualizarSituacaoImovel(false);
+end;
+
+procedure TdtmContratosImoveis.qryImoveisVendidosAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  EditarContrato;
+  if qryImoveisVendidos.RecordCount = 0 then
+  begin
+    qryContratosempreendimento.Clear;
+    qryContratoshabite_se.Clear;
+  end;
+
+  qryImoveisVendidosempreendimento.ReadOnly := qryImoveisVendidos.RecordCount <> 0;
+
+end;
+
+procedure TdtmContratosImoveis.AtualizarSituacaoImovel(HeExclusao: boolean);
+begin
+  if HeExclusao then
+  begin
+    if qrySituacaoImoveis.Locate('bloco;numero;unidade', VarArrayof([qryImoveisVendidosbloco.AsInteger,qryImoveisVendidosnumero.AsString, qryImoveisVendidosunidade.asinteger]),[]) then
+      qrySituacaoImoveis.edit
+    else
+      qrySituacaoImoveis.Append;
+
+    qrySituacaoImoveisbloco.AsInteger := qryImoveisVendidosbloco.AsInteger;
+    qrySituacaoImoveisnumero.AsString := qryImoveisVendidosnumero.AsString;
+    qrySituacaoImoveisunidade.AsInteger := qryImoveisVendidosunidade.AsInteger;
+
+    qrySituacaoImoveissituacao.AsString := 'D';
+    qrySituacaoImoveis.post;
+
+    if not qryImoveisVendidosblocoanterior.IsNull and not qryImoveisVendidosnumeroanterior.IsNull and not qryImoveisVendidosunidadeanterior.IsNull then
+      if (qryImoveisVendidosbloco.AsInteger <> qryImoveisVendidosblocoanterior.AsInteger) and
+         (qryImoveisVendidosnumero.AsString <> qryImoveisVendidosnumeroanterior.AsString) and
+         (qryImoveisVendidosunidade.AsInteger <> qryImoveisVendidosunidadeanterior.AsInteger) then
+      begin
+        if qrySituacaoImoveis.Locate('bloco;numero;unidade', VarArrayof([qryImoveisVendidosblocoanterior.AsInteger,
+                                                                         qryImoveisVendidosnumeroanterior.AsString,
+                                                                         qryImoveisVendidosunidadeanterior.AsInteger]),[]) then
+          qrySituacaoImoveis.edit
+        else
+          qrySituacaoImoveis.Append;
+
+        qrySituacaoImoveisbloco.AsInteger := qryImoveisVendidosblocoanterior.AsInteger;
+        qrySituacaoImoveisnumero.AsString := qryImoveisVendidosnumeroanterior.AsString;
+        qrySituacaoImoveisunidade.Asinteger := qryImoveisVendidosunidadeanterior.Asinteger;
+
+        qrySituacaoImoveissituacao.AsString := 'D';
+        qrySituacaoImoveis.post;
+      end;
+  end
+  else
+  begin
+    if qrySituacaoImoveis.Locate('bloco;numero;unidade', VarArrayof([qryImoveisVendidosbloco.AsInteger,
+                                                                     qryImoveisVendidosnumero.AsString,
+                                                                     qryImoveisVendidosunidade.AsInteger]),[]) then
+      qrySituacaoImoveis.edit
+    else
+      qrySituacaoImoveis.Append;
+
+    qrySituacaoImoveisbloco.AsInteger := qryImoveisVendidosbloco.AsInteger;
+    qrySituacaoImoveisnumero.AsString := qryImoveisVendidosnumero.AsString;
+    qrySituacaoImoveisunidade.AsInteger := qryImoveisVendidosunidade.AsInteger;
+
+    qrySituacaoImoveissituacao.AsString := ifthen(SituacaoContrato=sciRESERVADO, 'R','V');
+    qrySituacaoImoveis.post;
+
+    if not qryImoveisVendidosblocoanterior.IsNull and not qryImoveisVendidosnumeroanterior.IsNull and not qryImoveisVendidosunidadeanterior.IsNull then
+      if (qryImoveisVendidosbloco.AsInteger <> qryImoveisVendidosblocoanterior.AsInteger) and
+         (qryImoveisVendidosnumero.AsString <> qryImoveisVendidosnumeroanterior.AsString) and
+         (qryImoveisVendidosunidade.AsInteger <> qryImoveisVendidosunidadeanterior.AsInteger)  then
+      begin
+        if qrySituacaoImoveis.Locate('bloco;numero;unidade', VarArrayof([qryImoveisVendidosblocoanterior.AsInteger,
+                                                                         qryImoveisVendidosnumeroanterior.AsString,
+                                                                         qryImoveisVendidosunidadeanterior.AsInteger]),[]) then
+          qrySituacaoImoveis.edit
+        else
+          qrySituacaoImoveis.Append;
+
+        qrySituacaoImoveisbloco.AsInteger := qryImoveisVendidosblocoanterior.AsInteger;
+        qrySituacaoImoveisnumero.AsString := qryImoveisVendidosnumeroanterior.AsString;
+        qrySituacaoImoveisunidade.AsInteger := qryImoveisVendidosunidadeanterior.AsInteger;
+
+        qrySituacaoImoveissituacao.AsString := 'D';
+        qrySituacaoImoveis.post;
+      end;
+  end;
+
+end;
+
+procedure TdtmContratosImoveis.qryImoveisVendidosBeforeDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  AtualizarSituacaoImovel(true);
+end;
+
+procedure TdtmContratosImoveis.qryConsultaTiposUnidadesBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryConsultaTiposUnidades.ParamByName('bloco').AsInteger := qryImoveisVendidosbloco.AsInteger;
+  if qryImoveisVendidos.State = dsinsert then
+    qryConsultaTiposUnidades.macrobyname('WhereSituacao').AsString := 'and i.situacao = ''D'''
+  else
+  begin
+    qryConsultaTiposUnidades.macrobyname('WhereSituacao').AsString := '';
+//    qryConsultaTiposUnidades.ParamByName('bloco').Asinteger := qryImoveisVendidosbloco.AsInteger;
+  end;
+
+end;
+
+procedure TdtmContratosImoveis.qryConsultaImoveisBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryImoveisVendidos.State = dsinsert then
+    qryConsultaImoveis.macrobyname('WhereSituacao').AsString := 'and i.situacao = ''D'''
+  else
+    qryConsultaImoveis.macrobyname('WhereSituacao').AsString := '';
+end;
+
+procedure TdtmContratosImoveis.qryConsultaBlocosBeforeOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryImoveisVendidos.State = dsinsert then
+    qryConsultaBlocos.macrobyname('WhereSituacao').AsString := 'and i.situacao = ''D'''
+  else
+    qryConsultaBlocos.macrobyname('WhereSituacao').AsString := '';
+end;
+
+procedure TdtmContratosImoveis.qryImoveisVendidosAfterInsert(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if SituacaoContrato <> sciRESERVADO then
+    qryImoveisVendidos.Cancel;
+end;
+
+procedure TdtmContratosImoveis.qryImoveisVendidosAfterOpen(
+  DataSet: TDataSet);
+begin
+  inherited;
+
+  qryImoveisVendidos.DisableControls;
+  qryImoveisVendidos.Last;
+  FOrdemImoveisVendidos := qryImoveisVendidosOrdem.AsInteger;
+  qryImoveisVendidos.First;
+  qryImoveisVendidos.EnableControls;
+
+end;
+
+procedure TdtmContratosImoveis.ContabilizarChaves;
+begin
+  qryContratos.Edit;
+  qryContratosdatachaves.AsDateTime := qryContratosdata.AsDateTime;
+  qrycontratos.Post;
+
+  {
+  qryAtualizarContratos.ParamByName('contrato').AsInteger := qryContratoscontrato.AsInteger;
+  qryAtualizarContratos.ExecSql;
+
+  qryAtualizarDatadoHabitese.ParamByName('contrato').AsInteger := qryContratoscontrato.AsInteger;
+  qryAtualizarDatadoHabitese.ExecSql;
+
+  qryGerarLancamentosHabitese.ParamByName('filial').AsInteger := qryContratosfilial.Asinteger;
+  qryGerarLancamentosHabitese.ParamByName('contrato').Asinteger := qryContratoscontrato.Asinteger;
+  qryGerarLancamentosHabitese.ExecSql;
+  }
+end;
+
+procedure TdtmContratosImoveis.ExtornarContabilizacaodasChaves;
+begin
+  qryContratos.Edit;
+  qryContratosdatachaves.clear;
+  qrycontratos.Post;
+end;
+
+end.
+
+
+
+
+

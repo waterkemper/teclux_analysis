@@ -1,0 +1,652 @@
+unit fmcadastrodebens;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmcadastropadrao, ComCtrls, Buttons, ExtCtrls, DBCtrls,
+  cptexto, cpdbdata, cpnumero, frconsulta, frconsultacodigo, Mask,
+  cpdbfindcontrols, Grids, DBGrids, cpdbgrid, frconsultacontabil,
+  frconsultacodigocontabil, cpdbtext, dmcadastrodebens, cpdbradiogroup,
+  cpdbmemo, ctconstantes, biblio, Windows,{Qete,} ActnList, DB, math, ToolWin, StrUtils;
+
+type
+  TfrmCadastrodeBens = class(TFrmCadastroPadrao)
+    gbxCodigo: TGroupBox;
+    edfNumero: TtecDbEditFind;
+    gbxFilial: TGroupBox;
+    fraConsultaFiliais: TfraConsultaCodigo;
+    fraConsultaItemProduto: TfraConsultaCodigo;
+    gbxComplemento: TGroupBox;
+    gbxFornecedorEntrada: TGroupBox;
+    fraConsultaFornecedorEntrada: TfraConsultaCodigo;
+    gbxNLRE: TGroupBox;
+    edtNLRE: TDBEditTexto;
+    gbxFolhaLRE: TGroupBox;
+    edtFOLHALRE: TDBEditTexto;
+    gbxICMS: TGroupBox;
+    gbxValorICMSOpProprias: TGroupBox;
+    edtValorICMS: TDBEditNumero;
+    gbxICMSST: TGroupBox;
+    edtICMSST: TDBEditNumero;
+    gbxicmsvalorfrt: TGroupBox;
+    edticmsvalorfrt: TDBEditNumero;
+    gbxicmsvalordif: TGroupBox;
+    edticmsvalordif: TDBEditNumero;
+    gbxTOTALICMS: TGroupBox;
+    edtTotal: TDBEditNumero;
+    pgcDados: TPageControl;
+    tstMovimentos: TTabSheet;
+    tstContabil: TTabSheet;
+    gbxTaxaDepreciacao: TGroupBox;
+    gbxInicioUso: TGroupBox;
+    lblData: TLabel;
+    lblTaxa: TLabel;
+    tstCIAP: TTabSheet;
+    tstCadastro: TTabSheet;
+    gbxLivrEntradas: TGroupBox;
+    gbxapropriacaoCredito: TGroupBox;
+    dbgapropriacaoicmsimobilizado: TtecDBGrid;
+    gbxNotaFiscalEntrada: TGroupBox;
+    gbxSerieEntrada: TGroupBox;
+    fraConsultaSerieEntrada: TfraConsultaCodigo;
+    gbxNItem: TGroupBox;
+    edtnumitemdocfiscal: TTecDBText;
+    gbxDataEntrada: TGroupBox;
+    gbxValorBem: TGroupBox;
+    gbxSaldosImplantacao: TGroupBox;
+    lblPercentual: TLabel;
+    gbxValorDepreciar: TGroupBox;
+    gbxDepreciacaoAcumulada: TGroupBox;
+    gbxObservacoes: TGroupBox;
+    gbxNrSerie: TGroupBox;
+    gbxFimGarantia: TGroupBox;
+    edtdatagarantia: TDBEditData;
+    gbxSituacao: TGroupBox;
+    gbxDepreciar: TtecDBRadioGroup;
+    rbnSim: TtecRadioButton;
+    rbnNao: TtecRadioButton;
+    gbxTipoConta: TtecDBRadioGroup;
+    rbnAtivo: TtecRadioButton;
+    rbnPassivo: TtecRadioButton;
+    gbxContaBem: TGroupBox;
+    dtxClassificacaoccdobem: TtecDBText;
+    fraConsultaccdobem: TfraConsultaCodigoContabil;
+    gbxContaCorrecaoMonetaria: TGroupBox;
+    dtxClassificacaoccCorrecaoMonetaria: TtecDBText;
+    fraConsultaccCorrecaoMonetaria: TfraConsultaCodigoContabil;
+    gbxContaDepAcumulada: TGroupBox;
+    dtxClassificacaoccDepreciacaoAcumulada: TtecDBText;
+    fraConsultaccDepreciacaoAcumulada: TfraConsultaCodigoContabil;
+    gbxContaDepreciacao: TGroupBox;
+    dtxClassificacaoccDepreciacao: TtecDBText;
+    fraConsultaccDepreciacao: TfraConsultaCodigoContabil;
+    gbxNotaFiscalSaida: TGroupBox;
+    gbxNFSaida: TGroupBox;
+    gbxSerieSaida: TGroupBox;
+    fraConsultaSerieSaida: TfraConsultaCodigo;
+    gbxnumitemdocfiscalsaida: TGroupBox;
+    gbxDataBaixa: TGroupBox;
+    edtdata_saida: TDBEditData;
+    gbxCentrodeCusto: TGroupBox;
+    fraConsultaCentrodeCusto: TfraConsultaCodigoContabil;
+    gbxVidaUtil: TGroupBox;
+    lblMeses: TLabel;
+    gbxFuncaodoBemnaEmpresa: TGroupBox;
+    gbxNParcelas: TGroupBox;
+    edtnmeses: TDBEditNumero;
+    lblNParcelas: TLabel;
+    edtiniciouso: TDBEditData;
+    edtvalordepreciar: TDBEditNumero;
+    edttaxadepreciacao: TDBEditNumero;
+    edtdepreciacaoacumulada: TDBEditNumero;
+    mmoobsdepreciacao: TtecDBMemo;
+    edtValorDoBem: TDBEditNumero;
+    edtidentificacao: TDBEditTexto;
+    mmoinfcomplementar: TtecDBMemo;
+    mmofuncaobemnaempresa: TtecDBMemo;
+    edtvidautil: TDBEditNumero;
+    dtxnumitemdocfiscalsaida: TtecDBText;
+    gbxNotaSaida: TGroupBox;
+    fraConsultanotasaida: TfraConsultaCodigo;
+    rgbTipodeMovimento: TtecDBRadioGroup;
+    rbnAT: TtecRadioButton;
+    rbnPE: TtecRadioButton;
+    rbnOT: TtecRadioButton;
+    actLiberar: TActionList;
+    aclLiberar: TAction;
+    edfdata_entrada: TDBEditData;
+    gbxnotaEntrada: TGroupBox;
+    fraConsultaNotaEntrada: TfraConsultaCodigo;
+    lblBaixa: TLabel;
+    gbxCIAP: TGroupBox;
+    tstMovimentacao: TTabSheet;
+    GroupBox1: TGroupBox;
+    Label1: TLabel;
+    DBEditNumero1: TDBEditNumero;
+    gbxValorResidual: TGroupBox;
+    DBEditNumero2: TDBEditNumero;
+    procedure fraConsultaItemProdutoedfCodigoExit(Sender: TObject);
+    procedure edtnmesesExit(Sender: TObject);
+    procedure sbnProcurarClick(Sender: TObject);
+    procedure fraConsultaNotaEntradaedfCodigoExit(Sender: TObject);
+    procedure aclLiberarUpdate(Sender: TObject);
+    procedure fraConsultaSerieEntradaedfCodigoExit(Sender: TObject);
+    procedure fraConsultaNotaEntradaedfCodigoFound(Found: Boolean);
+    procedure fraConsultaNotaEntradaedfCodigoMessage(var Msg: String);
+    procedure fraConsultanotasaidaedfCodigoFound(Found: Boolean);
+  private
+    { Private declarations }
+    procedure AtribuirDadosProdutos;
+    procedure AtribuirDadosFornecedor_Entrada(Found: Boolean);
+    procedure AtribuirDadosNotaEntrada(Found: Boolean);
+
+    procedure AtribuirDadosNotaSaida(Found: Boolean);
+
+
+  protected
+    ConsultaImobilizado : TfraConsultaCodigo;
+    procedure CondicoesSeriesFornecedoresEntrada;
+    procedure CondicoesNotaEntrada(Sender: TObject); overload;
+    procedure CondicoesNotaEntrada; overload;
+    procedure CondicoesNotaSaida(Sender: TObject); overload;
+    procedure CondicoesNotaSaida; overload;
+
+    procedure CondicoesSeriesFornecedoresSaida;
+    procedure CondicoesItemProduto;
+    procedure AbrirImobilizado(Found: Boolean);
+    function  InternoIncluir: Boolean; override;
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); Override;
+    destructor Destroy; override;
+
+  end;
+
+var
+  frmCadastrodeBens: TfrmCadastrodeBens;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmCadastrodeBens }
+
+procedure TfrmCadastrodeBens.AbrirImobilizado(Found: Boolean);
+begin
+//  edfNumero.Text := ConsultaImobilizado.ValorSelecionado;
+  dtmCadastrodeBens.
+        refazconsulta(dtmCadastrodeBens.qryImobilizado,[0],
+             [ConsultaImobilizado.ValorSelecionado]);
+end;
+
+procedure TfrmCadastrodeBens.AtribuirDadosFornecedor_Entrada(Found: Boolean);
+begin
+  with dtmCadastrodeBens do
+  begin
+    fraConsultaFornecedorEntrada.edfCodigo.Text := fraConsultaFornecedorEntrada.qryProcuraClientecodigo.AsString;
+    fraConsultaFornecedorEntrada.edfCodigo.exist;
+  end;
+end;
+
+procedure TfrmCadastrodeBens.AtribuirDadosProdutos;
+begin
+  with dtmCadastrodeBens do
+  begin
+    qryImobilizadocodigobem.AsString := fraConsultaItemProduto.qryProcuraItemProdutos.fieldbyname('produto').AsString;
+    qryImobilizadoprodutovisual.AsString := fraConsultaItemProduto.qryProcuraItemProdutos.fieldbyname('produtovisual').AsString;
+  end;
+end;
+
+procedure TfrmCadastrodeBens.CondicoesItemProduto;
+begin
+  fraConsultaItemProduto.qryProcuraItemProdutos.MacroByName('SQLFiltroTipoProduto').AsString := 'and c.tipoproduto = ''08''';
+  fraConsultaItemProduto.qryConsultaItemProdutos.MacroByName('SQLFiltroTipoProduto').AsString := 'and c.tipoproduto = ''08''';
+end;
+
+procedure TfrmCadastrodeBens.CondicoesSeriesFornecedoresEntrada;
+begin
+  fraConsultaSerieEntrada.qryProcuraSeriesFornecedor.ParamByName('fornecedor').AsInteger :=
+    ifthen(dtmCadastrodeBens.PegarParametrosdaTabela,
+     dtmCadastrodeBens.qryImobilizadofornecedor_entrada.AsInteger,
+     fraConsultaFornecedorEntrada.qryProcuraClientecodigo.AsInteger);
+
+  fraConsultaSerieEntrada.qryProcuraSeriesFornecedor.ParamByName('tipo').AsString :=
+    ifthen(dtmCadastrodeBens.PegarParametrosdaTabela,
+    dtmCadastrodeBens.qryImobilizadotipofornecedor_entrada.AsString,
+    fraConsultaFornecedorEntrada.qryProcuraClientetipo.AsString);
+
+  fraConsultaSerieEntrada.qryProcuraSeriesFornecedor.ParamByName('filialbase').Asinteger := dtmCadastrodeBens.qryImobilizadofilialcontribuinte.AsInteger;
+
+  fraConsultaSerieEntrada.qryConsultaSeriesFornecedor.ParamByName('fornecedor').AsInteger :=
+     ifthen(dtmCadastrodeBens.PegarParametrosdaTabela,
+     dtmCadastrodeBens.qryImobilizadofornecedor_entrada.AsInteger,
+     fraConsultaFornecedorEntrada.qryProcuraClientecodigo.AsInteger);
+
+  fraConsultaSerieEntrada.qryConsultaSeriesFornecedor.ParamByName('tipo').AsString :=
+    ifthen(dtmCadastrodeBens.PegarParametrosdaTabela,
+    dtmCadastrodeBens.qryImobilizadotipofornecedor_entrada.AsString,
+    fraConsultaFornecedorEntrada.qryProcuraClientetipo.AsString);
+    
+  fraConsultaSerieEntrada.qryConsultaSeriesFornecedor.ParamByName('filialbase').Asinteger := dtmCadastrodeBens.qryImobilizadofilialcontribuinte.AsInteger;
+end;
+
+procedure TfrmCadastrodeBens.CondicoesSeriesFornecedoresSaida;
+begin
+  fraConsultaSerieSaida.qryProcuraSeriesFornecedor.ParamByName('fornecedor').AsInteger := dtmCadastrodeBens.qryImobilizadofilialcontribuinte.AsInteger;
+  fraConsultaSerieSaida.qryProcuraSeriesFornecedor.ParamByName('tipo').AsString := 'L';
+  fraConsultaSerieSaida.qryProcuraSeriesFornecedor.ParamByName('filialbase').Asinteger := dtmCadastrodeBens.qryImobilizadofilialcontribuinte.AsInteger;
+
+  fraConsultaSerieSaida.qryConsultaSeriesFornecedor.ParamByName('fornecedor').AsInteger := dtmCadastrodeBens.qryImobilizadofilialcontribuinte.AsInteger;
+  fraConsultaSerieSaida.qryConsultaSeriesFornecedor.ParamByName('tipo').AsString := 'L';
+  fraConsultaSerieSaida.qryConsultaSeriesFornecedor.ParamByName('filialbase').Asinteger := dtmCadastrodeBens.qryImobilizadofilialcontribuinte.AsInteger;
+
+end;
+
+constructor TfrmCadastrodeBens.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmCadastrodeBens := TdtmCadastrodeBens.Create(Self);
+  DataSet := dtmCadastrodeBens.qryImobilizado;
+
+  fraConsultaFiliais.TipoPesquisa := pesFILIAIS;
+
+  fraConsultaItemProduto.CondicoesdaConsulta := CondicoesItemProduto;
+  fraConsultaItemProduto.TipoPesquisa := pesITEMPRODUTOS;
+
+
+//  fraConsultaFornecedorEntrada.TipoCliente := 'F';
+//  fraConsultaFornecedorEntrada.Tipovfornecedor := 'F';
+  fraConsultaFornecedorEntrada.qryProcuraCliente.ParamByName('tipocliente').AsString := 'F';
+  fraConsultaFornecedorEntrada.OnFound := AtribuirDadosFornecedor_Entrada;
+  fraConsultaFornecedorEntrada.TipoPesquisa := pesFORNECEDORES;
+
+  fraConsultaSerieEntrada.CondicoesdaConsulta := CondicoesSeriesFornecedoresEntrada;
+  fraConsultaSerieEntrada.TipoPesquisa := pesSERIESFORNECEDORES;
+
+  dtmCadastrodeBens.NotaEntradaBeforeOpen := CondicoesNotaEntrada;
+  fraConsultaNotaEntrada.CondicoesdaConsulta := CondicoesNotaEntrada;
+  fraConsultaNotaEntrada.OnFound := AtribuirDadosNotaEntrada;
+  fraConsultaNotaEntrada.TipoPesquisa := pesNOTASFORNECEDOR;
+
+  fraConsultaSerieSaida.CondicoesdaConsulta := CondicoesSeriesFornecedoresSaida;
+  fraConsultaSerieSaida.TipoPesquisa := pesSERIESFORNECEDORES;
+
+  dtmCadastrodeBens.NotaSaidaBeforeOpen := CondicoesNotaSaida;
+  fraConsultanotasaida.CondicoesdaConsulta := CondicoesNotaSaida;
+
+  fraconsultanotasaida.OnFound := AtribuirDadosNotaSaida;
+  fraConsultanotasaida.TipoPesquisa := pesNOTASNUMERO;
+
+  fraConsultaccdobem.TipoPesquisa := pesCONTADEBITO;
+  fraConsultaccdobem.TipoContaContabilDebitoSelecionavel := 'A';
+
+  fraConsultaccCorrecaoMonetaria.TipoPesquisa := pesCONTADEBITO;
+  fraConsultaccCorrecaoMonetaria.TipoContaContabilDebitoSelecionavel := 'A';
+
+  fraConsultaccDepreciacaoAcumulada.TipoPesquisa := pesCONTADEBITO;
+  fraConsultaccDepreciacaoAcumulada.TipoContaContabilDebitoSelecionavel := 'A';
+
+  fraConsultaccDepreciacao.TipoPesquisa := pesCONTADEBITO;
+  fraConsultaccDepreciacao.TipoContaContabilDebitoSelecionavel := 'A';
+
+  fraConsultaCentrodeCusto.TipoPesquisa := pesCENTRODECUSTO;
+
+  ConsultaImobilizado := TfraConsultaCodigo.Create(self);
+  ConsultaImobilizado.edfCodigo.DataSource := dtmCadastrodeBens.dsrImobilizado;
+  ConsultaImobilizado.edfCodigo.DataField := 'numero';
+  ConsultaImobilizado.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaImobilizado.AbrirTabelaProcura := false;
+  ConsultaImobilizado.TipoPesquisa := pesIMOBILIZADO;
+  ConsultaImobilizado.OnFound := AbrirImobilizado;
+
+  dbgapropriacaoicmsimobilizado.OnPost := dtmCadastrodeBens.GravarApropriacao;
+end;
+
+destructor TfrmCadastrodeBens.Destroy;
+begin
+
+  inherited;
+end;
+
+procedure TfrmCadastrodeBens.fraConsultaItemProdutoedfCodigoExit(
+  Sender: TObject);
+begin
+  inherited;
+  fraConsultaItemProduto.edfCodigoExit(Sender);
+  if sbnSalvar.Enabled then
+    AtribuirDadosProdutos;
+end;
+
+function TfrmCadastrodeBens.InternoExcluir: Boolean;
+begin
+  Result := inherited InternoExcluir;
+  if Result then
+  begin
+    if MensagemConfirmacao(Format(ctCONFIRMEEXCLUIR, ['o bem imobilizado'])) = smbOK then
+      Result := dtmCadastrodeBens.ExcluirBemImobilizado
+    else
+      Result := False;
+  end;
+end;
+
+function TfrmCadastrodeBens.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if Result then
+  begin
+    if (fraConsultaFornecedorEntrada.edfCodigo.Text<>'') or
+       (fraConsultaSerieEntrada.edfCodigo.Text<>'') or
+       (fraConsultaNotaEntrada.edfCodigo.Text<>'') then
+      result := fraConsultaNotaEntrada.edfCodigo.exist;
+
+    if (fraConsultaSerieSaida.edfCodigo.Text<>'') or
+       (fraConsultanotasaida.edfCodigo.Text<>'') then
+      result := fraConsultanotasaida.edfCodigo.exist;
+
+
+    if result then
+      dtmCadastrodeBens.GravarImobilizado;
+  end;
+end;
+
+function TfrmCadastrodeBens.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then
+    if not CtrlOn then
+    begin
+      dtmCadastrodeBens.IncluirImobilizado;
+      fraConsultaItemProduto.edfCodigo.SetFocus;
+    end;
+end;
+
+procedure TfrmCadastrodeBens.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if not CtrlOn then
+  begin
+    if (key = VK_F9) then
+    begin
+      if sbnProcurar.Enabled then
+      begin
+        ConsultaImobilizado.InternoPesquisar('Imobilizado');
+        self.SetFocus;
+      end
+    end
+  end;
+
+end;
+
+procedure TfrmCadastrodeBens.edtnmesesExit(Sender: TObject);
+begin
+  inherited;
+  dtmCadastrodeBens.CalcularApropriacao;
+end;
+
+procedure TfrmCadastrodeBens.sbnProcurarClick(Sender: TObject);
+begin
+  inherited;
+  ConsultaImobilizado.InternoPesquisar('Imobilizado');
+  self.SetFocus;
+
+end;
+
+procedure TfrmCadastrodeBens.CondicoesNotaEntrada(Sender: TObject);
+const
+  Produto = 'and exists (select pnp.codigonota from produtosnotaspag pnp where pnp.codigonota = np.codigo and pnp.produto = %s and pnp.filial = %s)';
+  SQLSitucao = 'and (np.situacao = ''N'')';
+begin
+
+  dtmCadastrodeBens.qryNotaEntrada.MacroByName('SQL').AsString := SQLSitucao;
+  fraConsultaNotaEntrada.qryConsultaNotaspag.MacroByName('SQL').AsString := SQLSitucao;
+
+  dtmCadastrodeBens.qryNotaEntrada.MacroByName('SQLProdutoImobilizado').AsString :=
+    format(produto, [inttostr(dtmCadastrodeBens.qryImobilizadocodigobem.Aslargeint),
+      inttostr(dtmCadastrodeBens.qryImobilizadofilialcontribuinte.AsInteger)]);
+
+  fraConsultaNotaEntrada.qryConsultaNotaspag.MacroByName('SQLProdutoImobilizado').AsString :=
+    format(produto, [inttostr(dtmCadastrodeBens.qryImobilizadocodigobem.Aslargeint),
+    inttostr(dtmCadastrodeBens.qryImobilizadofilialcontribuinte.AsInteger)]);
+
+
+  dtmCadastrodeBens.qryNotaEntrada.ParamByName('fornecedor').asinteger :=
+     ifthen(dtmCadastrodeBens.PegarParametrosdaTabela,
+     dtmCadastrodeBens.qryImobilizadofornecedor_entrada.AsInteger,
+     fraConsultaFornecedorEntrada.qryProcuraClientecodigo.AsInteger);
+
+  dtmCadastrodeBens.qryNotaEntrada.ParamByName('tipofornecedor').asString :=
+    ifthen(dtmCadastrodeBens.PegarParametrosdaTabela,
+    dtmCadastrodeBens.qryImobilizadotipofornecedor_entrada.AsString,
+    fraConsultaFornecedorEntrada.qryProcuraClientetipo.AsString);
+
+
+  dtmCadastrodeBens.qryNotaEntrada.ParamByName('serie').asString :=
+    ifthen(dtmCadastrodeBens.PegarParametrosdaTabela,
+    dtmCadastrodeBens.qryImobilizadoserie_entrada.AsString,
+    fraConsultaSerieEntrada.qryProcuraSeriesFornecedorserie.AsString);
+
+  dtmCadastrodeBens.qryNotaEntrada.ParamByName('filial').AsInteger := dtmCadastrodeBens.qryImobilizadofilialcontribuinte.AsInteger;
+  dtmCadastrodeBens.qryNotaEntrada.ParamByName('produto').Asstring := inttostr(dtmCadastrodeBens.qryImobilizadocodigobem.Aslargeint);
+
+  fraConsultaNotaEntrada.qryConsultaNotaspag.ParamByName('fornecedor').asinteger :=
+     ifthen(dtmCadastrodeBens.PegarParametrosdaTabela,
+     dtmCadastrodeBens.qryImobilizadofornecedor_entrada.AsInteger,
+     fraConsultaFornecedorEntrada.qryProcuraClientecodigo.AsInteger);
+
+  fraConsultaNotaEntrada.qryConsultaNotaspag.MacroByName('tipofornecedor').asString :=
+    quotedstr(ifthen(dtmCadastrodeBens.PegarParametrosdaTabela,
+    dtmCadastrodeBens.qryImobilizadotipofornecedor_entrada.AsString,
+    fraConsultaFornecedorEntrada.qryProcuraClientetipo.AsString));
+
+  fraConsultaNotaEntrada.qryConsultaNotaspag.ParamByName('serie').asString :=
+    ifthen(dtmCadastrodeBens.PegarParametrosdaTabela,
+    dtmCadastrodeBens.qryImobilizadoserie_entrada.AsString,
+    fraConsultaSerieEntrada.qryProcuraSeriesFornecedorserie.AsString);
+
+end;
+
+procedure TfrmCadastrodeBens.fraConsultaNotaEntradaedfCodigoExit(
+  Sender: TObject);
+begin
+  inherited;
+  fraConsultaNotaEntrada.edfCodigoExit(Sender);
+
+end;
+
+procedure TfrmCadastrodeBens.AtribuirDadosNotaEntrada(Found: Boolean);
+begin
+  with dtmCadastrodeBens do
+  begin
+    if dtmCadastrodeBens.qryNotaEntradacodigo.Asinteger<>0 then
+    begin
+      if (qryImobilizadocodigonota.AsInteger       <> dtmCadastrodeBens.qryNotaEntradacodigo.Asinteger) or
+         (qryImobilizadodata_entrada.AsDateTime    <> dtmCadastrodeBens.qryNotaEntradadata.AsDateTime) then
+      begin
+        qryImobilizado.Edit;
+        qryImobilizadocodigonota.AsInteger       := dtmCadastrodeBens.qryNotaEntradacodigo.Asinteger;
+        qryImobilizadodata_entrada.AsDateTime    := dtmCadastrodeBens.qryNotaEntradadata.AsDateTime;
+
+        if qryImobilizado.State = dsinsert then
+          qryImobilizadoiniciouso.AsDateTime := qryImobilizadodata_entrada.AsDateTime;
+      end;
+    end
+    else
+    begin
+      LimparNotaEntrada;
+      if fraConsultaNotaEntrada.edfCodigo.Text = '' then
+      begin
+        fraConsultaFornecedorEntrada.edfcodigo.Clear;
+        fraConsultaSerieEntrada.edfCodigo.Clear;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmCadastrodeBens.aclLiberarUpdate(Sender: TObject);
+begin
+  inherited;
+
+  tstCIAP.TabVisible := (dtmCadastrodeBens.qryImobilizado.RecordCount > 0) and
+                        (dtmCadastrodeBens.qryImobilizado.state <> dsinsert) and
+                        (dtmCadastrodeBens.qryImobilizadocodigonota.AsInteger<>0);
+
+{  tstContabil.TabVisible := (dtmCadastrodeBens.qryImobilizado.RecordCount > 0) and
+                        (dtmCadastrodeBens.qryImobilizado.state <> dsinsert);}
+
+  if self.Active then
+    if (dtmCadastrodeBens.qryImobilizado.State = dsinsert) or
+       (dtmCadastrodeBens.qryImobilizado.RecordCount > 0) then
+    begin
+      gbxFilial.Enabled := fraConsultaItemProduto.edfCodigo.Text <> '';
+{
+      gbxFornecedorEntrada.Enabled := fraConsultaFiliais.edfCodigo.Text <> '';
+      gbxSerieEntrada.Enabled := fraConsultaFornecedorEntrada.edfCodigo.Text <>'';
+      gbxnotaEntrada.Enabled := (fraConsultaSerieEntrada.edfCodigo.Text <> '') and gbxSerieEntrada.Enabled;
+
+      gbxSerieSaida.Enabled := fraConsultaFiliais.edfCodigo.Text <> '';
+      gbxNotaSaida.Enabled := (fraConsultaSerieSaida.edfCodigo.Text <> '') and gbxSerieSaida.Enabled;
+}
+      gbxDataEntrada.Enabled := not ((fraConsultaFornecedorEntrada.edfCodigo.Text <> '') or
+                                     (fraConsultaSerieEntrada.edfCodigo.text <> '') or
+                                     (fraConsultaNotaEntrada.edfCodigo.Text <>''));
+
+      gbxDataBaixa.Enabled := not ((fraConsultaSerieSaida.edfCodigo.Text <> '') or
+                                   (fraConsultanotasaida.edfCodigo.Text <> ''));
+
+      rbnat.Enabled := not gbxDataBaixa.Enabled;
+
+      rbnPE.Enabled := gbxDataBaixa.Enabled;
+      rbnOT.Enabled := gbxDataBaixa.Enabled;
+
+
+      if rbnAT.Checked <> not gbxDataBaixa.Enabled then
+        rbnAT.Checked := not gbxDataBaixa.Enabled
+      else
+        if edtdata_saida.DataValida and
+           rbnot.Enabled and
+           not rbnpe.Checked and
+           (rbnot.Checked <> (edtdata_saida.Text <> '')) then
+                rbnot.Checked := (edtdata_saida.Text <> '')
+        else
+        if edtdata_saida.datavalida and
+           rbnpe.Enabled and
+           not rbnot.Checked and
+           (rbnpe.Checked <> (edtdata_saida.Text <> '')) then
+          rbnpe.Checked := (edtdata_saida.Text <> '');
+          
+    end;
+
+end;
+
+procedure TfrmCadastrodeBens.CondicoesNotaSaida(Sender: TObject);
+const
+  Produto = 'and exists (select pdf.dadofiscal from produtosdadosfiscais pdf where pdf.dadofiscal = df.numero and pdf.produto = %s and  pdf.filial = %s)';
+  SQLSitucao = 'and (df.situacao = ''N'')';
+
+begin
+
+  dtmCadastrodeBens.qryNotaSaida.MacroByName('SQL').AsString := SQLSitucao;
+  fraConsultaNotaEntrada.qryConsultaNfSaida.MacroByName('SQL').AsString := SQLSitucao;
+
+  dtmCadastrodeBens.qryNotaSaida.MacroByName('SQLProdutoImobilizado').AsString :=
+    format(produto, [inttostr(dtmCadastrodeBens.qryImobilizadocodigobem.Aslargeint),
+    inttostr(dtmCadastrodeBens.qryImobilizadofilialcontribuinte.AsInteger)]);
+
+  fraConsultanotasaida.qryConsultaNfSaida.MacroByName('SQLProdutoImobilizado').AsString :=
+    format(produto, [inttostr(dtmCadastrodeBens.qryImobilizadocodigobem.Aslargeint),
+    inttostr(dtmCadastrodeBens.qryImobilizadofilialcontribuinte.AsInteger)]);
+
+  dtmCadastrodeBens.qryNotaSaida.ParamByName('filial').asinteger :=
+  dtmCadastrodeBens.qryImobilizadofilialcontribuinte.AsInteger;
+
+  dtmCadastrodeBens.qryNotaSaida.ParamByName('serie').asString :=
+  ifthen(dtmCadastrodeBens.PegarParametrosdaTabela,
+  dtmCadastrodeBens.qryImobilizadoserie_saida.AsString,
+  fraConsultaSerieSaida.qryProcuraSeriesFornecedorserie.AsString);
+
+  dtmCadastrodeBens.qryNotaSaida.ParamByName('produto').Asstring :=
+    inttostr(dtmCadastrodeBens.qryImobilizadocodigobem.Aslargeint);
+
+  fraConsultanotasaida.qryConsultaNFSaida.ParamByName('filial').asinteger :=
+    dtmCadastrodeBens.qryImobilizadofilialcontribuinte.AsInteger;;
+
+  fraConsultanotasaida.qryConsultaNFSaida.ParamByName('serie').asString :=
+  ifthen(dtmCadastrodeBens.PegarParametrosdaTabela,
+  dtmCadastrodeBens.qryImobilizadoserie_saida.AsString,
+  fraConsultaSerieSaida.qryProcuraSeriesFornecedorserie.AsString);
+
+
+end;
+
+procedure TfrmCadastrodeBens.AtribuirDadosNotaSaida(Found: Boolean);
+begin
+  with dtmCadastrodeBens do
+  begin
+    if dtmCadastrodeBens.qryNotaSaidadadofiscal.Asinteger<>0 then
+    begin
+      if (qryImobilizadodadofiscal.AsInteger       <> dtmCadastrodeBens.qryNotaSaidadadofiscal.Asinteger) or
+         (qryImobilizadodata_saida.AsDateTime    <> dtmCadastrodeBens.qryNotaSaidadata.AsDateTime) then
+      begin
+        qryImobilizado.Edit;
+        qryImobilizadodadofiscal.AsInteger       := dtmCadastrodeBens.qryNotaSaidadadofiscal.Asinteger;
+        qryImobilizadodata_saida.AsDateTime    := dtmCadastrodeBens.qryNotaSaidadata.AsDateTime;
+      end;
+    end
+    else
+    begin
+      LimparNotaSaida;
+      if fraConsultanotasaida.edfCodigo.Text = '' then
+        fraConsultaSerieSaida.edfCodigo.Clear;
+    end;
+  end;
+
+end;
+
+procedure TfrmCadastrodeBens.fraConsultaSerieEntradaedfCodigoExit(
+  Sender: TObject);
+begin
+  inherited;
+  fraConsultaSerieEntrada.edfCodigoExit(Sender);
+
+end;
+
+procedure TfrmCadastrodeBens.fraConsultaNotaEntradaedfCodigoFound(
+  Found: Boolean);
+begin
+  inherited;
+  if found then
+    AtribuirDadosNotaEntrada(true);
+end;
+
+procedure TfrmCadastrodeBens.fraConsultaNotaEntradaedfCodigoMessage(
+  var Msg: String);
+begin
+  inherited;
+  fraConsultaNotaEntrada.edfCodigoMessage(Msg);
+end;
+
+procedure TfrmCadastrodeBens.CondicoesNotaEntrada;
+begin
+  CondicoesNotaEntrada(nil);
+end;
+
+procedure TfrmCadastrodeBens.CondicoesNotaSaida;
+begin
+  CondicoesNotaSaida(nil);
+end;
+
+procedure TfrmCadastrodeBens.fraConsultanotasaidaedfCodigoFound(
+  Found: Boolean);
+begin
+  inherited;
+  if found then
+    AtribuirDadosNotaSaida(true);
+
+end;
+
+end.

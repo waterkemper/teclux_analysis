@@ -1,0 +1,2953 @@
+inherited dtmECD: TdtmECD
+  OldCreateOrder = False
+  Left = 519
+  Top = 77
+  Height = 789
+  Width = 911
+  object qryecd: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryecdAfterScroll
+    OnNewRecord = qryecdNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select ecd.*'
+      'from ecd'
+      'where ecd.exercicio = :exercicio'
+      '    and ecd.filial = :filial')
+    RequestLive = True
+    Left = 28
+    Top = 24
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'exercicio'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object qryecdexercicio: TStringField
+      FieldName = 'exercicio'
+      Size = 4
+    end
+    object qryecdnomearquivo: TStringField
+      FieldName = 'nomearquivo'
+      Size = 100
+    end
+    object qryecddata: TDateTimeField
+      FieldName = 'data'
+    end
+    object qryecdsituacao: TStringField
+      FieldName = 'situacao'
+      Size = 1
+    end
+    object qryecdfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryecdnum_ord: TIntegerField
+      FieldName = 'num_ord'
+      DisplayFormat = '0'
+    end
+    object qryecdnatureza: TStringField
+      FieldName = 'natureza'
+      Size = 80
+    end
+    object qryecdind_sit_ini_per: TStringField
+      FieldName = 'ind_sit_ini_per'
+      Size = 1
+    end
+    object qryecdind_fin_esc: TStringField
+      FieldName = 'ind_fin_esc'
+      Size = 1
+    end
+    object qryecdnire_subst: TStringField
+      FieldName = 'nire_subst'
+      Size = 11
+    end
+    object qryecdind_emp_grd_prt: TStringField
+      FieldName = 'ind_emp_grd_prt'
+      Size = 1
+    end
+    object qryecdident_mf: TStringField
+      FieldName = 'ident_mf'
+      Size = 1
+    end
+    object qryecdgerarj800: TBooleanField
+      FieldName = 'gerarj800'
+    end
+    object qryecdind_esc: TStringField
+      FieldName = 'ind_esc'
+      Size = 1
+    end
+    object qryecdgerarj801: TBooleanField
+      FieldName = 'gerarj801'
+    end
+  end
+  object qryFiliais: TZPgSqlQuery
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryFiliaisAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select f.codigo,'
+      '       f.suframa,'
+      '       f.ind_perfil,'
+      '       f.ind_ativ,'
+      '       f.razao,'
+      '       f.cnpj,'
+      '       f.inscricaoestadual,'
+      '       f.inscricaomunicipal,'
+      '       f.estado,'
+      '      (select c.codigoibge'
+      '       from cidades c'
+      '       where c.estado = f.estado'
+      '         and c.codigo = f.cidade) as cidadeIBGE,'
+      '       f.filialconsolidadoradime,'
+      '       f.junta,'
+      '       f.juntadata,'
+      '      (select c.nome'
+      '       from cidades c'
+      '       where c.estado = f.estado'
+      '         and c.codigo = f.cidade) as nomecidade,'
+      '       f.ind_esc_cons   '
+      'from filiais f'
+      'where f.codigo = :codigo')
+    RequestLive = False
+    Left = 56
+    Top = 504
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryFiliaissuframa: TStringField
+      FieldName = 'suframa'
+      Size = 9
+    end
+    object qryFiliaisind_perfil: TStringField
+      FieldName = 'ind_perfil'
+      Required = True
+      Size = 1
+    end
+    object qryFiliaisind_ativ: TStringField
+      FieldName = 'ind_ativ'
+      Required = True
+      Size = 1
+    end
+    object qryFiliaisrazao: TStringField
+      FieldName = 'razao'
+      Required = True
+      Size = 60
+    end
+    object qryFiliaiscnpj: TStringField
+      FieldName = 'cnpj'
+      Size = 14
+    end
+    object qryFiliaisinscricaoestadual: TStringField
+      FieldName = 'inscricaoestadual'
+    end
+    object qryFiliaisinscricaomunicipal: TStringField
+      FieldName = 'inscricaomunicipal'
+    end
+    object qryFiliaisestado: TStringField
+      FieldName = 'estado'
+      Required = True
+      Size = 2
+    end
+    object qryFiliaiscidadeibge: TIntegerField
+      FieldName = 'cidadeibge'
+    end
+    object qryFiliaisfilialconsolidadoradime: TIntegerField
+      FieldName = 'filialconsolidadoradime'
+    end
+    object qryFiliaisjunta: TStringField
+      FieldName = 'junta'
+    end
+    object qryFiliaisjuntadata: TDateField
+      FieldName = 'juntadata'
+    end
+    object qryFiliaisnomecidade: TStringField
+      FieldName = 'nomecidade'
+      Size = 50
+    end
+    object qryFiliaiscodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryFiliaisind_esc_cons: TStringField
+      FieldName = 'ind_esc_cons'
+      Size = 1
+    end
+  end
+  object dsrecd: TtecDataSource
+    DataSet = qryecd
+    OnDataChange = dsrecdDataChange
+    Left = 64
+    Top = 16
+  end
+  object ACBrSPEDContabil: TACBrSPEDContabil
+    Path = 'C:\Arquivos de programas\Borland\Delphi6\Bin\'
+    Delimitador = '|'
+    TrimString = True
+    CurMascara = '#0.00'
+    OnError = ACBrSPEDContabilError
+    Left = 152
+    Top = 528
+  end
+  object qryInstRespAdmCadastro: TtecQuery
+    Tag = -1
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    RequestLive = False
+    Left = 192
+    Top = 600
+  end
+  object qryRespAdmCadastro: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select *'
+      'from respadmcadastro'
+      'where filial=:filial')
+    RequestLive = True
+    Left = 176
+    Top = 648
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object qryRespAdmCadastroinstituicao: TStringField
+      FieldName = 'instituicao'
+      Required = True
+      Size = 2
+    end
+    object qryRespAdmCadastrocodigo: TStringField
+      FieldName = 'codigo'
+      Required = True
+      Size = 30
+    end
+  end
+  object dsrRespAdmCadastro: TtecDataSource
+    DataSet = qryRespAdmCadastro
+    Left = 184
+    Top = 696
+  end
+  object qryRegistroI050: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';select distinct selecao.*'
+      'from'
+      '('
+      ''
+      'select cast(:datainicial as date) as data_alt,'
+      '       cast(case when pl.natureza = '#39'A'#39'   then '#39'01'#39
+      '                 when pl.natureza = '#39'P'#39'        then '#39'02'#39
+      '                 when pl.natureza = '#39'L'#39'        then '#39'03'#39
+      '                 when pl.natureza IN ('#39'R'#39','#39'D'#39') then '#39'04'#39
+      '                 when pl.natureza = '#39'C'#39'        then '#39'05'#39
+      '                 when pl.natureza = '#39'O'#39'        then '#39'09'#39
+      '            end as varchar(2)) as cod_nat,'
+      ''
+      '       cast(pl.tipo as char(1)) as ind_cta,'
+      ''
+      
+        '       length(trim(pl.classificacao)) - length(trim(replace(pl.c' +
+        'lassificacao,'#39'.'#39','#39#39')))+1 as nivel,'
+      ''
+      '       case when pl.tipo = '#39'A'#39' then'
+      
+        '         cast(pl.classificacao||trim(to_char(pl.codigo,'#39'000000'#39')' +
+        ') as varchar(28))'
+      '       else'
+      '         cast(pl.classificacao as varchar(28))'
+      '       end as cod_cta,'
+      ''
+      '       pl.descricao as cta,'
+      ''
+      '       (select pr.classificacao'
+      '        from planoreferencial pr'
+      '        where pr.codigo = pl.referencia'
+      '          and (pr.validoate is null or'
+      '               pr.validoate>current_date)) as cod_cta_ref,'
+      ''
+      '       (select pr.tipoplano'
+      '        from planoreferencial pr'
+      '        where pr.codigo = pl.referencia'
+      '          and (pr.validoate is null or'
+      '               pr.validoate>current_date)) as cod_plan_ref,'
+      ''
+      
+        '        ClassificacaoContabilAcima(pl.classificacao) as cod_cta_' +
+        'sup'
+      ''
+      
+        'from planocontas pl join saldoscontabeis sc on pl.codigo = sc.co' +
+        'nta'
+      
+        'where (contacommovto(pl.codigo, sc.filial, cast(:datainicial as ' +
+        'date), cast(:datafinal as date)) or sc.saldoanterior<>0)'
+      '  and sc.filial in ((select cast(:filial as integer))'
+      '                     union'
+      '                    (select f.codigo'
+      '                     from filiais f'
+      '                     where f.filialconsolidadoradime = :filial))'
+      '  and sc.exercicio = :exercicio'
+      
+        '  and (pl.inativo is null or pl.inativo > cast(:datainicial as d' +
+        'ate))'
+      ''
+      'order by pl.classificacao, pl.codigo'
+      ''
+      ') as selecao'
+      ''
+      
+        'order by cod_cta, data_alt, cod_nat, ind_cta, nivel, cod_cta, ct' +
+        'a, cod_cta_ref, cod_plan_ref, cod_cta_sup'
+      '')
+    RequestLive = False
+    Left = 72
+    Top = 64
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'exercicio'
+        ParamType = ptUnknown
+      end>
+    object qryRegistroI050data_alt: TDateField
+      Alignment = taCenter
+      FieldName = 'data_alt'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryRegistroI050cod_nat: TStringField
+      FieldName = 'cod_nat'
+      Size = 2
+    end
+    object qryRegistroI050ind_cta: TStringField
+      FieldName = 'ind_cta'
+      Size = 1
+    end
+    object qryRegistroI050nivel: TIntegerField
+      FieldName = 'nivel'
+      DisplayFormat = '0'
+    end
+    object qryRegistroI050cod_cta: TStringField
+      FieldName = 'cod_cta'
+      Size = 28
+    end
+    object qryRegistroI050cta: TStringField
+      FieldName = 'cta'
+      Required = True
+      Size = 50
+    end
+    object qryRegistroI050cod_cta_ref: TStringField
+      FieldName = 'cod_cta_ref'
+      Size = 50
+    end
+    object qryRegistroI050cod_cta_sup: TStringField
+      FieldName = 'cod_cta_sup'
+      Size = 50
+    end
+    object qryRegistroI050cod_plan_ref: TIntegerField
+      FieldName = 'cod_plan_ref'
+      DisplayFormat = '0'
+    end
+  end
+  object qryRegistroI075: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select distinct'
+      '       h.codigo,'
+      '       h.descricao'
+      'from lancamentos'
+      '      join historicos h'
+      '      on historico = h.codigo'
+      ''
+      'where data between :datainicial and :datafinal'
+      '  and filial in ((select cast(:filial as integer))'
+      '                     union'
+      '                    (select f.codigo'
+      '                     from filiais f'
+      '                     where f.filialconsolidadoradime =:filial))'
+      ''
+      'order by  h.codigo,  h.descricao'
+      ''
+      '')
+    RequestLive = False
+    Left = 72
+    Top = 128
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryRegistroI155: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkFields = 'data=data'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrRegistroI150
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select Data, cod_cta,'
+      '      case when vl_sld_ini >=0 then CAST('#39'D'#39' as char(1))'
+      '                                   else CAST('#39'C'#39' as char(1))'
+      '       end as ind_dc_ini,'
+      '       abs(vl_sld_ini) as vl_sld_ini,'
+      '       vl_deb,'
+      '       vl_cred,'
+      ''
+      '       abs(vl_deb - vl_cred + vl_sld_ini) as vl_sld_fin,'
+      ''
+      '       case when (vl_deb - vl_cred + vl_sld_ini) >=0 then'
+      '            CAST('#39'D'#39' as char(1))'
+      '       else CAST('#39'C'#39' as char(1))  end as ind_dc_fin'
+      ''
+      'FROM'
+      
+        '( select data, cod_cta, sum(vl_sld_ini) as vl_sld_ini, sum(vl_de' +
+        'b) as vl_deb, sum(vl_cred) as vl_cred'
+      ' from'
+      ''
+      '('
+      '  select Data,'
+      '       case when pl.tipo = '#39'A'#39' then'
+      
+        '         CAST(pl.classificacao||trim(to_char(pl.codigo,'#39'000000'#39')' +
+        ') as varchar(28))'
+      '       else'
+      '         CAST(pl.classificacao as varchar(28))'
+      '       end as cod_cta,'
+      ''
+      
+        '       SaldoContabil(pl.Codigo, sc.Filial, CAST('#39'01/'#39' || SUBSTRI' +
+        'NG(Data FROM 1 FOR 2)'
+      
+        '                                               || '#39'/'#39' || SUBSTRI' +
+        'NG(Data FROM 3 FOR 4) AS Date) - 1,'
+      
+        '                                                    CAST(SUBSTRI' +
+        'NG(Data FROM 3 FOR 4) AS INTEGER)) AS vl_sld_ini,'
+      ''
+      
+        '       COALESCE(sc.debitos [CAST(SUBSTRING(Data FROM 1 FOR 2) as' +
+        ' integer)],0) as vl_deb,'
+      
+        '       COALESCE(sc.creditos[CAST(SUBSTRING(Data FROM 1 FOR 2) as' +
+        ' integer)],0) as vl_cred'
+      ''
+      '  FROM'
+      '  ('
+      
+        '   select distinct CAST(to_char(CAST(:Datainicial as date)  + s.' +
+        'a,'#39'MMYYYY'#39') as varchar(6)) as Data'
+      
+        '   FROM generate_series(1,CAST(:Datafinal as date)-CAST(:Dataini' +
+        'cial as date)) as s(a)'
+      '   order by 1'
+      '   ) as meses,'
+      
+        '        planocontas pl join Saldoscontabeis sc on pl.codigo = sc' +
+        '.conta'
+      
+        '        where (contacommovto(pl.codigo, sc.filial, CAST(:Dataini' +
+        'cial as date), CAST(:Datafinal as date)) or sc.Saldoanterior<>0)'
+      '          and sc.filial in ((select cast(:filial as integer))'
+      '                     union'
+      '                    (select f.codigo'
+      '                     from filiais f'
+      '                     where f.filialconsolidadoradime =:filial))'
+      '          and sc.exercicio = :exercicio'
+      '          and pl.tipo='#39'A'#39
+      
+        '          and (pl.inativo is null or pl.inativo > cast(:datainic' +
+        'ial as date))'
+      ''
+      '  order by pl.classificacao, pl.codigo'
+      ') as Saldos'
+      '  group by data, cod_cta'
+      ') as saldos'
+      'where  (vl_sld_ini <> 0) or'
+      '       (vl_deb <> 0) or'
+      '       (vl_cred <> 0)'
+      'order by Data, cod_cta'
+      '')
+    RequestLive = False
+    Left = 136
+    Top = 248
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'exercicio'
+        ParamType = ptUnknown
+      end>
+    object qryRegistroI155data: TStringField
+      FieldName = 'data'
+      Size = 6
+    end
+    object qryRegistroI155cod_cta: TStringField
+      FieldName = 'cod_cta'
+      Size = 28
+    end
+    object qryRegistroI155vl_sld_ini: TFloatField
+      FieldName = 'vl_sld_ini'
+      DisplayFormat = '0.00'
+    end
+    object qryRegistroI155ind_dc_ini: TStringField
+      FieldName = 'ind_dc_ini'
+      Size = 1
+    end
+    object qryRegistroI155vl_deb: TFloatField
+      FieldName = 'vl_deb'
+      DisplayFormat = '0.00'
+    end
+    object qryRegistroI155vl_cred: TFloatField
+      FieldName = 'vl_cred'
+      DisplayFormat = '0.00'
+    end
+    object qryRegistroI155vl_sld_fin: TFloatField
+      FieldName = 'vl_sld_fin'
+      DisplayFormat = '0.00'
+    end
+    object qryRegistroI155ind_dc_fin: TStringField
+      FieldName = 'ind_dc_fin'
+      Size = 1
+    end
+  end
+  object qryRegistroI150: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      
+        'select Data, Datainicial, last_day_of_month(Datainicial) as Data' +
+        'final'
+      'FROM'
+      '('
+      'select Data,'
+      
+        '       cast('#39'01/'#39'||SUBSTRING(Data FROM 1 FOR 2)||'#39'/'#39'||SUBSTRING(' +
+        'Data FROM 3 FOR 4) as date) as Datainicial'
+      'FROM'
+      '('
+      'select distinct Data'
+      'FROM'
+      '('
+      '  select Data,'
+      '       case when pl.tipo = '#39'A'#39' then'
+      
+        '         cast(pl.classificacao||trim(to_char(pl.codigo,'#39'000000'#39')' +
+        ') as varchar(28))'
+      '       else'
+      '         cast(pl.classificacao as varchar(28))'
+      '       end as cod_cta,'
+      ''
+      
+        '       SaldoContabil(pl.Codigo, sc.Filial, CAST('#39'01/'#39' || SUBSTRI' +
+        'NG(Data FROM 1 FOR 2)'
+      
+        '                                               || '#39'/'#39' || SUBSTRI' +
+        'NG(Data FROM 3 FOR 4) AS Date) - 1,'
+      
+        '                                                    CAST(SUBSTRI' +
+        'NG(Data FROM 3 FOR 4) AS INTEGER)) AS vl_sld_ini,'
+      ''
+      
+        '       coalesce(sc.debitos[cast(SUBSTRING(Data FROM 1 FOR 2) as ' +
+        'integer)],0) as vl_deb,'
+      
+        '       coalesce(sc.creditos[cast(SUBSTRING(Data FROM 1 FOR 2) as' +
+        ' integer)],0) as vl_cred'
+      ''
+      '  FROM'
+      '  ('
+      
+        '   select distinct cast(to_char(cast(:Datainicial as date)  + s.' +
+        'a,'#39'MMYYYY'#39') as varchar(6)) as Data'
+      
+        '   FROM generate_series(1,cast(:Datafinal as date)-cast(:Dataini' +
+        'cial as date)) as s(a)'
+      '   order by 1'
+      '   ) as meses,'
+      
+        '        planocontas pl join saldoscontabeis sc on pl.codigo = sc' +
+        '.conta'
+      
+        '        where (contacommovto(pl.codigo, sc.filial, cast(:Dataini' +
+        'cial as date), cast(:Datafinal as date)) or sc.saldoanterior<>0)'
+      '          and sc.filial in ((select cast(:filial as integer))'
+      '                     union'
+      '                    (select f.codigo'
+      '                     from filiais f'
+      '                     where f.filialconsolidadoradime =:filial))'
+      '          and sc.exercicio = :exercicio'
+      
+        '          and (pl.inativo is null or pl.inativo > cast(:datainic' +
+        'ial as date))'
+      '          and pl.tipo='#39'A'#39
+      ''
+      '  order by pl.classificacao, pl.codigo'
+      ') as saldos'
+      'where  (vl_sld_ini <> 0) or'
+      '       (vl_deb <> 0) or'
+      '       (vl_cred <> 0)'
+      'order by Data'
+      ') as meses'
+      ') as meses')
+    RequestLive = False
+    Left = 72
+    Top = 184
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'exercicio'
+        ParamType = ptUnknown
+      end>
+    object qryRegistroI150data: TStringField
+      FieldName = 'data'
+      Size = 6
+    end
+    object qryRegistroI150datainicial: TDateField
+      Alignment = taCenter
+      FieldName = 'datainicial'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryRegistroI150datafinal: TDateField
+      Alignment = taCenter
+      FieldName = 'datafinal'
+      EditMask = '99/99/9999;1; '
+    end
+  end
+  object dsrRegistroI150: TtecDataSource
+    DataSet = qryRegistroI150
+    Left = 128
+    Top = 192
+  end
+  object qryRegistroI200: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      
+        'select num_lcto, data as dt_lcto, sum(valor) as vl_lcto, ind_lct' +
+        'o'
+      'from'
+      '('
+      'select  cast(cast(filial as varchar)||'
+      '        case when origem = '#39'M'#39' then cast(nrlancto as varchar)'
+      
+        '                  /* Quando lote ter'#225' o seguinte formato  ->    ' +
+        ' L 0000 0000'
+      
+        '                                                      sendo L --' +
+        '> indicador de Lote'
+      
+        '                                                                ' +
+        '0000 -> quatro caracteres para o numero do dia no ano, um zero a' +
+        ' mais na frente para garantir a unicidade'
+      
+        '                                                                ' +
+        '0000 -> quatro caracteres para o numero do lote'
+      '                                                */'
+      
+        '            when origem = '#39'L'#39' then cast(origem||trim(to_char(EXT' +
+        'RACT(DOY FROM data),'#39'0000'#39'))||trim(to_char(nrorigem,'#39'0000'#39')) as ' +
+        'varchar)'
+      
+        '            when origem = '#39'P'#39' then cast('#39'P'#39'||trim(to_char(EXTRAC' +
+        'T(DOY FROM data),'#39'0000'#39'))||nrorigem/1000000000 as varchar)'
+      
+        '            else                   cast(origem||nrorigem  as var' +
+        'char) end as varchar) as num_lcto,'
+      '       data,'
+      '       valor,'
+      
+        '       case when origem = '#39'X'#39' then cast('#39'E'#39' as varchar(1)) else ' +
+        'cast('#39'N'#39' as varchar(1)) end as ind_lcto'
+      ''
+      'from lancamentos'
+      'where filial in ((select cast(:filial as integer))'
+      '                     union'
+      '                    (select f.codigo'
+      '                     from filiais f'
+      '                     where f.filialconsolidadoradime =:filial))'
+      '  and data between :datainicial and :datafinal'
+      ' and debitar is not null'
+      ') as soma'
+      'group by data,num_lcto, ind_lcto'
+      'order by data,num_lcto, ind_lcto'
+      '')
+    RequestLive = False
+    Left = 72
+    Top = 296
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end>
+    object qryRegistroI200num_lcto: TStringField
+      FieldName = 'num_lcto'
+      Size = 50
+    end
+    object qryRegistroI200dt_lcto: TDateField
+      Alignment = taCenter
+      FieldName = 'dt_lcto'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryRegistroI200vl_lcto: TFloatField
+      FieldName = 'vl_lcto'
+      DisplayFormat = '0.00'
+    end
+    object qryRegistroI200ind_lcto: TStringField
+      FieldName = 'ind_lcto'
+      Size = 1
+    end
+  end
+  object qryRegistroI250: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkFields = 'num_lcto=num_lcto'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrRegistroI200
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = '1000000'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = '1000'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = '100'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      '('
+      ' select  cast(cast(filial as varchar)||'
+      '         case when origem = '#39'M'#39' then cast(nrlancto as varchar)'
+      
+        '                  /* Quando lote ter'#225' o seguinte formato ->     ' +
+        'L 0000 0000'
+      
+        '                                                      sendo L --' +
+        '> indicador de Lote'
+      
+        '                                                                ' +
+        '0000 -> quatro caracteres para o numero do dia no ano, um zero a' +
+        ' mais na frente para garantir a unicidade'
+      
+        '                                                                ' +
+        '0000 -> quatro caracteres para o numero do lote'
+      '                                                */'
+      
+        '             when origem = '#39'L'#39' then cast(origem||trim(to_char(EX' +
+        'TRACT(DOY FROM data),'#39'0000'#39'))||trim(to_char(nrorigem,'#39'0000'#39')) as' +
+        ' varchar)'
+      
+        '             when origem = '#39'P'#39' then cast('#39'P'#39'||trim(to_char(EXTRA' +
+        'CT(DOY FROM data),'#39'0000'#39'))||nrorigem/1000000000 as varchar)'
+      
+        '             else                   cast(origem||nrorigem  as va' +
+        'rchar) end AS VARCHAR) as num_lcto,'
+      ''
+      '       case when pl.tipo = '#39'A'#39' then'
+      
+        '         cast(pl.classificacao||trim(to_char(pl.codigo,'#39'000000'#39')' +
+        ') as varchar(28))'
+      '       else'
+      '         cast(pl.classificacao as varchar(28))'
+      '       end as cod_cta,'
+      '       valor as vl_dc,'
+      '       cast('#39'D'#39' as char(1)) as ind_dc,'
+      '              /*'
+      
+        '       case when origem = '#39'B'#39' then cast(substring(nrorigem, 3 + ' +
+        'length(extract(doy from data)), length(nrorigem)-2-length(extrac' +
+        't(doy from data))-7 )||'#39' '#39'||'
+      
+        '                                        to_char(data, '#39'DDMMYY'#39') ' +
+        'as char(12))'
+      
+        '            when origem = '#39'E'#39' then cast('#39'NF '#39' || (select np.nume' +
+        'ro from notaspag np where np.codigo = nrorigem)  as char(12))'
+      
+        '            when origem = '#39'D'#39' then cast((select trim(dp.compleme' +
+        'nto) from documentospag dp where dp.numero = nrorigem) as char(1' +
+        '2))'
+      
+        '            when origem = '#39'M'#39' then cast('#39'MAN '#39' || nrlancto as ch' +
+        'ar(12))'
+      
+        '            when origem = '#39'P'#39' then cast('#39'PG '#39'||(select trim(dp.c' +
+        'omplemento) from documentospag dp where dp.numero = (nrorigem/10' +
+        '00)%1000000   )||'#39' '#39'||nrorigem%1000 as char(12))'
+      
+        '            when origem = '#39'R'#39' then cast('#39'PG '#39' || nrorigem/100||'#39 +
+        ' '#39'||nrorigem%100 as varchar(12))'
+      
+        '            when origem = '#39'S'#39' then cast((select n.numero from no' +
+        'tas n where n.dadofiscal = nrorigem) as char(12))'
+      
+        '            when origem = '#39'L'#39' then cast('#39'LOTE '#39' || nrorigem as c' +
+        'har(12))'
+      
+        '            when origem = '#39'X'#39' then cast('#39'LOTE-x '#39' || nrorigem as' +
+        ' char(12))'
+      
+        '            when origem = '#39'I'#39' then cast('#39'IMP '#39' || nrorigem as ch' +
+        'ar(12))'
+      
+        '            when origem IN ('#39'V'#39', '#39'H'#39', '#39'T'#39', '#39'A'#39', '#39'O'#39', '#39'G'#39') then c' +
+        'ast('#39'CT '#39' || (NrOrigem / 100000000) as varchar(12))'
+      '       end */ cast(null as varchar(12)) as num_arq,'
+      ''
+      '       historico as cod_hist_pad,'
+      
+        '       cast(RetiraBrancoePipeeASCII255(coalesce(complemento,'#39'.'#39')' +
+        ') as char(254))  as hist'
+      ''
+      'from lancamentos join planocontas pl on debitar = pl.codigo'
+      'where filial in ((select cast(:filial as integer))'
+      '                     union'
+      '                    (select f.codigo'
+      '                     from filiais f'
+      '                     where f.filialconsolidadoradime =:filial))'
+      '  and data between :datainicial and :datafinal'
+      
+        '  and (pl.inativo is null or pl.inativo > cast(:datainicial as d' +
+        'ate))'
+      '  and debitar is not null'
+      ''
+      ')'
+      ''
+      'union all'
+      ''
+      '('
+      ' select cast(cast(filial as varchar)||'
+      '        case when origem = '#39'M'#39' then cast(nrlancto as varchar)'
+      
+        '                  /* Quando lote ter'#225' o seguinte formato ->    L' +
+        ' 0000 0000'
+      
+        '                                                      sendo L --' +
+        '> indicador de Lote'
+      
+        '                                                                ' +
+        '0000 -> quatro caracteres para o numero do dia no ano, um zero a' +
+        ' mais na frente para garantir a unicidade'
+      
+        '                                                                ' +
+        '0000 -> quatro caracteres para o numero do lote'
+      '                                                */'
+      
+        '                  when origem = '#39'P'#39' then cast('#39'P'#39'||trim(to_char(' +
+        'EXTRACT(DOY FROM data),'#39'0000'#39'))||nrorigem/1000000000 as varchar)'
+      
+        '                  when origem = '#39'L'#39' then cast(origem||trim(to_ch' +
+        'ar(EXTRACT(DOY FROM data),'#39'0000'#39'))||trim(to_char(nrorigem,'#39'0000'#39 +
+        ')) as varchar)'
+      
+        '                 else                    cast(origem||nrorigem  ' +
+        'as varchar) end as varchar) as num_lcto,'
+      '       case when pl.tipo = '#39'A'#39' then'
+      
+        '         cast(pl.classificacao||trim(to_char(pl.codigo,'#39'000000'#39')' +
+        ') as varchar(28))'
+      '       else'
+      '         cast(pl.classificacao as varchar(28))'
+      '       end as cod_cta,'
+      '       valor as vl_dc,'
+      '       cast('#39'C'#39' as char(1)) as ind_dc,'
+      '       /*'
+      
+        '       case when origem = '#39'B'#39' then cast(substring(nrorigem, 3 + ' +
+        'length(extract(doy from data)), length(nrorigem)-2-length(extrac' +
+        't(doy from data))-7 )||'#39' '#39'||'
+      
+        '                                        to_char(data, '#39'DDMMYY'#39') ' +
+        'as char(12))'
+      
+        '            when origem = '#39'E'#39' then cast('#39'NF '#39' || (select np.nume' +
+        'ro from notaspag np where np.codigo = nrorigem)  as char(12))'
+      
+        '            when origem = '#39'D'#39' then cast((select trim(dp.compleme' +
+        'nto) from documentospag dp where dp.numero = nrorigem) as char(1' +
+        '2))'
+      
+        '            when origem = '#39'M'#39' then cast('#39'MAN '#39' || nrlancto as ch' +
+        'ar(12))'
+      
+        '            when origem = '#39'P'#39' then cast('#39'PG '#39'||(select trim(dp.c' +
+        'omplemento) from documentospag dp where dp.numero = nrorigem/100' +
+        '0)||'#39' '#39'||nrorigem%1000 as char(12))'
+      
+        '            when origem = '#39'R'#39' then cast('#39'PG '#39' || nrorigem/100||'#39 +
+        ' '#39'||nrorigem%100 as varchar(12))'
+      
+        '            when origem = '#39'S'#39' then cast((select n.numero from no' +
+        'tas n where n.dadofiscal = nrorigem) as char(12))'
+      
+        '            when origem = '#39'L'#39' then cast('#39'LOTE '#39' || nrorigem as c' +
+        'har(12))'
+      
+        '            when origem = '#39'X'#39' then cast('#39'LOTE-x '#39' || nrorigem as' +
+        ' char(12))'
+      
+        '            when origem = '#39'I'#39' then cast('#39'IMP '#39' || nrorigem as ch' +
+        'ar(12))'
+      
+        '            when origem IN ('#39'V'#39', '#39'H'#39', '#39'T'#39', '#39'A'#39', '#39'O'#39', '#39'G'#39') then c' +
+        'ast('#39'CT '#39' || (NrOrigem / 100000000) as varchar(12))'
+      '       end */ cast(null as varchar(12)) as num_arq,'
+      ''
+      '       historico as cod_hist_pad,'
+      
+        '       cast(RetiraBrancoePipeeASCII255(coalesce(complemento,'#39'.'#39')' +
+        ') as char(254))  as hist'
+      ''
+      'from lancamentos join planocontas pl on creditar = pl.codigo'
+      'where filial in ((select cast(:filial as integer))'
+      '                     union'
+      '                    (select f.codigo'
+      '                     from filiais f'
+      '                     where f.filialconsolidadoradime =:filial))'
+      '  and data between :datainicial and :datafinal'
+      ' and creditar is not null'
+      ''
+      ')')
+    RequestLive = False
+    Left = 144
+    Top = 368
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end>
+    object qryRegistroI250num_lcto: TStringField
+      FieldName = 'num_lcto'
+      Size = 50
+    end
+    object qryRegistroI250cod_cta: TStringField
+      FieldName = 'cod_cta'
+      Size = 28
+    end
+    object qryRegistroI250vl_dc: TFloatField
+      FieldName = 'vl_dc'
+      DisplayFormat = '0.00'
+    end
+    object qryRegistroI250ind_dc: TStringField
+      FieldName = 'ind_dc'
+      Size = 1
+    end
+    object qryRegistroI250num_arq: TStringField
+      FieldName = 'num_arq'
+      Size = 50
+    end
+    object qryRegistroI250cod_hist_pad: TIntegerField
+      FieldName = 'cod_hist_pad'
+      DisplayFormat = '0'
+    end
+    object qryRegistroI250hist: TStringField
+      FieldName = 'hist'
+      Size = 254
+    end
+  end
+  object dsrRegistroI200: TtecDataSource
+    DataSet = qryRegistroI200
+    Left = 120
+    Top = 312
+  end
+  object qryRegistroJ930: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select s.*,'
+      '       q.descricao as descricaoqualificacao'
+      'from signatarios s'
+      '     join qualificacao q'
+      '     on s.qualificacao = q.codigo')
+    RequestLive = False
+    Left = 256
+    Top = 384
+    object qryRegistroJ930cpf: TStringField
+      FieldName = 'cpf'
+      Size = 14
+    end
+    object qryRegistroJ930nome: TStringField
+      FieldName = 'nome'
+      Size = 70
+    end
+    object qryRegistroJ930qualificacao: TStringField
+      FieldName = 'qualificacao'
+      Size = 3
+    end
+    object qryRegistroJ930crc: TStringField
+      FieldName = 'crc'
+      Size = 11
+    end
+    object qryRegistroJ930descricaoqualificacao: TStringField
+      FieldName = 'descricaoqualificacao'
+      Size = 70
+    end
+    object qryRegistroJ930fone: TStringField
+      FieldName = 'fone'
+    end
+    object qryRegistroJ930email: TStringField
+      FieldName = 'email'
+      Size = 128
+    end
+    object qryRegistroJ930uf_crc: TStringField
+      FieldName = 'uf_crc'
+      Size = 2
+    end
+    object qryRegistroJ930data_crc: TDateField
+      Alignment = taCenter
+      FieldName = 'data_crc'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryRegistroJ930num_seq_crc: TStringField
+      FieldName = 'num_seq_crc'
+      Size = 16
+    end
+    object qryRegistroJ930ind_resp_legal: TStringField
+      FieldName = 'ind_resp_legal'
+      Size = 1
+    end
+  end
+  object dsrRegistroJ930: TtecDataSource
+    DataSet = qryRegistroJ930
+    Left = 288
+    Top = 400
+  end
+  object qryRegistroI350: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select distinct data'
+      'from lancamentos'
+      'where filial in ((select cast(:filial as integer))'
+      '                     union'
+      '                    (select f.codigo'
+      '                     from filiais f'
+      '                     where f.filialconsolidadoradime =:filial))'
+      '  and data between :datainicial and :datafinal'
+      ' and origem='#39'X'#39
+      'order by data')
+    RequestLive = False
+    Left = 56
+    Top = 400
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end>
+    object qryRegistroI350data: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      EditMask = '99/99/9999;1; '
+    end
+  end
+  object dsrRegistroI350: TtecDataSource
+    DataSet = qryRegistroI350
+    Left = 120
+    Top = 424
+  end
+  object qryRegistroI355: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkFields = 'data=data'
+    LinkOptions = [loAlwaysResync]
+    MasterSource = dsrRegistroI350
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select Data,'
+      '       case when pl.tipo = '#39'A'#39' then'
+      
+        '         cast(pl.classificacao||trim(to_char(pl.codigo,'#39'000000'#39')' +
+        ') as varchar(28))'
+      '       else'
+      '         cast(pl.classificacao as varchar(28))'
+      '       end as cod_cta,'
+      ''
+      
+        '       case when (SaldoContabil - valorencerramento)  >=0 then c' +
+        'ast('#39'D'#39' as char(1))'
+      '                                   else cast('#39'C'#39' as char(1))'
+      '       end as ind_dc,'
+      '       abs((SaldoContabil - valorencerramento)) as vl_cta'
+      'from'
+      '('
+      'select data, conta, sum(SaldoContabil) as SaldoContabil,'
+      '                    sum(valorencerramento) as valorencerramento'
+      'from'#9#9#9#9#9
+      ''
+      '('
+      'select Data,'
+      '       Conta,'
+      
+        '       SaldoContabil(Conta, Filial, Data, cast(extract(year from' +
+        ' Data) as integer)) AS SaldoContabil,'
+      '       valorencerramento as valorencerramento'
+      'from'
+      '('
+      ' select Data, Conta, filial,'
+      
+        '        sum(valorencerramentodebitos-valorencerramentocreditos) ' +
+        'as valorencerramento'
+      ' from'
+      ' ('
+      ''
+      ''
+      '  select Data, filial,'
+      '         debitar as Conta,'
+      '         sum(valor) as valorencerramentodebitos,'
+      '         0.00 as valorencerramentocreditos'
+      '  from lancamentos'
+      '  where Filial in ((select cast(:filial as integer))'
+      '                     union'
+      '                    (select f.codigo'
+      '                     from filiais f'
+      '                     where f.filialconsolidadoradime =:filial))'
+      '    and Data between :Datainicial and :Datafinal'
+      '    and origem='#39'X'#39
+      '    and debitar is not null'
+      '  group by Data, filial, debitar'
+      ''
+      ''
+      ''
+      '   union all'
+      ''
+      ''
+      '   select Data, filial,'
+      '          creditar as Conta,'
+      '          0.00 as valorencerramentodebitos,'
+      '          sum(valor) as valorencerramentocreditos'
+      '   from lancamentos'
+      '   where Filial in ((select cast(:filial as integer))'
+      '                     union'
+      '                    (select f.codigo'
+      '                     from filiais f'
+      '                     where f.filialconsolidadoradime =:filial))'
+      '     and Data between :Datainicial and :Datafinal'
+      '     and origem='#39'X'#39
+      '     and creditar is not null'
+      '   group by Data, filial, creditar'
+      ' ) as selecao'
+      '  group by Data, filial, Conta'
+      ''
+      ')  as selecao'
+      ') as selecao'
+      'group by data, conta'
+      ''
+      ') as selecao join planoContas pl on selecao.Conta = pl.codigo'
+      'where abs((SaldoContabil - valorencerramento))<>0'
+      '  and pl.natureza in ('#39'R'#39','#39'D'#39')'
+      
+        '  and (pl.inativo is null or pl.inativo > cast(:datainicial as d' +
+        'ate))'
+      'order by Data, pl.classificacao, pl.codigo')
+    RequestLive = False
+    Left = 168
+    Top = 448
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'filial'
+        ParamType = ptUnknown
+        Value = '2'
+      end
+      item
+        DataType = ftString
+        Name = 'datainicial'
+        ParamType = ptUnknown
+        Value = #39'2014-01-01'#39
+      end
+      item
+        DataType = ftString
+        Name = 'datafinal'
+        ParamType = ptUnknown
+        Value = #39'2014-12-31'#39
+      end>
+    object qryRegistroI355data: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryRegistroI355vl_cta: TFloatField
+      FieldName = 'vl_cta'
+      DisplayFormat = '0.00'
+    end
+    object qryRegistroI355cod_cta: TStringField
+      FieldName = 'cod_cta'
+      Size = 28
+    end
+    object qryRegistroI355ind_dc: TStringField
+      FieldName = 'ind_dc'
+      Size = 1
+    end
+  end
+  object qryRegistroJ100: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select Saldos.cod_agl,'
+      '       Saldos.nivel_agl,'
+      '       Saldos.ind_grp_bal,'
+      '       Saldos.descr_cod_agl,'
+      ''
+      '       abs(Saldos.SaldoAnterior) as vl_cta_ini,'
+      ''
+      '       case when Saldos.SaldoAnterior >= 0 then'
+      '         cast('#39'D'#39' as char(1))'
+      '       else'
+      '         cast('#39'C'#39' as char(1)) end as ind_dc_cta_ini,'
+      ''
+      ''
+      '       abs(Saldos.SaldoContabil) as vl_cta_fin,'
+      '         '
+      '       case when Saldos.SaldoContabil >= 0 then'
+      '         cast('#39'D'#39' as char(1))'
+      '       else'
+      '         cast('#39'C'#39' as char(1)) end as ind_dc_cta_fin,'
+      ''
+      ''
+      '       Saldos.IND_COD_AGL,'
+      '       Saldos.COD_AGL_SUP'
+      ''
+      ''
+      ''
+      'from'
+      '  ('
+      
+        '  select cod_agl, nivel_agl, IND_COD_AGL, COD_AGL_SUP, ind_grp_b' +
+        'al, descr_cod_agl, sum(SaldoContabil) as SaldoContabil, sum(sald' +
+        'oanterior) as saldoanterior'
+      '  from'
+      '  ('
+      '  '
+      '      select case when pc.tipo = '#39'A'#39' then'
+      
+        '               cast(pc.classificacao||trim(to_char(pc.Codigo,'#39'00' +
+        '0000'#39')) as varchar(28))'
+      '             else'
+      '               cast(pc.classificacao as varchar(28))'
+      '             end as cod_agl,'
+      '             '
+      
+        '             case when pc.tipo = '#39'A'#39' then cast('#39'D'#39' as char(1)) e' +
+        'lse cast('#39'T'#39' as char(1)) end as IND_COD_AGL,'
+      ''
+      
+        '             ClassificacaoContabilAcima(pc.classificacao) as COD' +
+        '_AGL_SUP,'
+      ''
+      
+        '             length(trim(pc.classificacao)) - length(trim(replac' +
+        'e(pc.classificacao,'#39'.'#39','#39#39')))+1 as nivel_agl,'
+      ''
+      '             case when pc.natureza = '#39'A'#39' then'
+      '                cast('#39'A'#39' as char(1))'
+      '             else'
+      '                cast('#39'P'#39' as char(1)) end as ind_grp_bal,'
+      ''
+      '             pc.descricao as descr_cod_agl,'
+      ''
+      
+        '             SaldoContabil(pc.Codigo, sc.Filial, :DataFinal, cas' +
+        't(extract(year from cast(:DataFinal as date)) as integer)) AS Sa' +
+        'ldoContabil,'
+      '             sc.saldoanterior'
+      ''
+      '      from planoContas pc'
+      '           join SaldosContabeis sc'
+      '                 join filiais f'
+      '                 on sc.Filial = f.Codigo'
+      '           on pc.Codigo = sc.Conta'
+      ''
+      
+        '      where (Contacommovto(pc.Codigo, sc.Filial, cast(:Datainici' +
+        'al as date), cast(:DataFinal as date)) or sc.Saldoanterior<>0)'
+      ''
+      '        and sc.exercicio = :exercicio'
+      '        and sc.Filial in ((select cast(:filial as integer))'
+      '                     union'
+      '                    (select f.codigo'
+      '                     from filiais f'
+      '                     where f.filialconsolidadoradime =:filial))'
+      ''
+      '/*        and pc.Tipo <> '#39'S'#39' */'
+      ''
+      '        and pc.natureza in ('#39'A'#39','#39'P'#39','#39'L'#39')'
+      
+        '        and (pc.inativo is null or pc.inativo > cast(:datainicia' +
+        'l as date))'
+      ''
+      '   ) as Saldos'
+      
+        '   group by cod_agl, IND_COD_AGL, COD_AGL_SUP, nivel_agl, ind_gr' +
+        'p_bal, descr_cod_agl'
+      ''
+      '   '
+      '   ) as Saldos'
+      '   /*'
+      '   where abs(SaldoContabil)<>0 or'
+      '         abs(SaldoAnterior)<>0'
+      '         */'
+      ''
+      '   order by cod_agl')
+    RequestLive = False
+    Left = 256
+    Top = 512
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'exercicio'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryRegistroI052: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnFilterRecord = qryRegistroI052FilterRecord
+    Filtered = True
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';select distinct selecao.*'
+      'from'
+      '('
+      'select case when pl.tipo = '#39'A'#39' then'
+      
+        '         cast(pl.classificacao||trim(to_char(pl.codigo,'#39'000000'#39')' +
+        ') as varchar(28))'
+      '       else'
+      '         cast(pl.classificacao as varchar(28))'
+      '       end as cod_agl'
+      ''
+      
+        'from planocontas pl join saldoscontabeis sc on pl.codigo = sc.co' +
+        'nta'
+      
+        'where (contacommovto(pl.codigo, sc.filial, cast(:datainicial as ' +
+        'date), cast(:datafinal as date)) or sc.saldoanterior<>0)'
+      '  and sc.filial in ((select cast(:filial as integer))'
+      '                     union'
+      '                    (select f.codigo'
+      '                     from filiais f'
+      '                     where f.filialconsolidadoradime = :filial))'
+      '  and sc.exercicio = :exercicio'
+      
+        '  and (pl.inativo is null or pl.inativo > cast(:datainicial as d' +
+        'ate))'
+      '/*  and demosped */'
+      '/*  and pl.tipo = '#39'S'#39' */'
+      ''
+      'order by pl.classificacao, pl.codigo'
+      ') as selecao'
+      ''
+      ''
+      ''
+      'Where selecao.cod_agl not in ('
+      ''
+      'select Saldos.cod_agl'
+      'from'
+      '  ('
+      
+        '  select cod_agl, sum(SaldoContabil) as SaldoContabil, sum(saldo' +
+        'anterior) as saldoanterior'
+      '  from'
+      '  ('
+      ''
+      '      select case when pc.tipo = '#39'A'#39' then'
+      
+        '               cast(pc.classificacao||trim(to_char(pc.Codigo,'#39'00' +
+        '0000'#39')) as varchar(28))'
+      '             else'
+      '               cast(pc.classificacao as varchar(28))'
+      '             end as cod_agl,'
+      '            '
+      ''
+      
+        '             SaldoContabil(pc.Codigo, sc.Filial, :DataFinal, cas' +
+        't(extract(year from cast(:DataFinal as date)) as integer)) AS Sa' +
+        'ldoContabil,'
+      '             sc.saldoanterior'
+      ''
+      '      from planoContas pc'
+      '           join SaldosContabeis sc'
+      '                 join filiais f'
+      '                 on sc.Filial = f.Codigo'
+      '           on pc.Codigo = sc.Conta'
+      ''
+      
+        '      where (Contacommovto(pc.Codigo, sc.Filial, cast(:Datainici' +
+        'al as date), cast(:DataFinal as date)) or sc.Saldoanterior<>0)'
+      ''
+      '        and sc.exercicio = :exercicio'
+      '        and sc.Filial in ((select cast(:filial as integer))'
+      '                     union'
+      '                    (select f.codigo'
+      '                     from filiais f'
+      '                     where f.filialconsolidadoradime =:filial))'
+      ''
+      '        and pc.Tipo = '#39'S'#39
+      ''
+      '        and pc.natureza in ('#39'A'#39','#39'P'#39','#39'L'#39')'
+      
+        '        and (pc.inativo is null or pc.inativo > cast(:datainicia' +
+        'l as date))'
+      ''
+      '   ) as Saldos'
+      '   group by cod_agl'
+      '   '
+      ''
+      '   ) as Saldos'
+      ''
+      '   order by cod_agl'
+      '   )'
+      ''
+      '   and selecao.cod_agl  not in ('
+      ''
+      ''
+      ''
+      ''
+      ''
+      ''
+      'select Saldos.cod_agl'
+      ''
+      'from'
+      '  ('
+      
+        '   select cod_agl, sum(SaldoContabil) as SaldoContabil, sum(valo' +
+        'rdebitosencerramento) as valordebitosencerramento,'
+      
+        '          sum(valorcreditosencerramento) as valorcreditosencerra' +
+        'mento'
+      '   from'
+      #9#9'  '
+      '  ('
+      '      select case when pc.tipo = '#39'A'#39' then'
+      
+        '               cast(pc.classificacao||trim(to_char(pc.codigo,'#39'00' +
+        '0000'#39')) as varchar(28))'
+      '             else'
+      '               cast(pc.classificacao as varchar(28))'
+      '             end as cod_agl,'
+      ''
+      ''
+      
+        '             SaldoContabil(pc.codigo, sc.Filial, :DataFinal,  ca' +
+        'st(extract(year from cast(:DataFinal as date)) as integer)) AS S' +
+        'aldoContabil,'
+      ''
+      '             case when pc.tipo='#39'S'#39' then'
+      '               coalesce((select sum(l.valor)'
+      
+        '                         from lancamentos l join planoContas pl ' +
+        'on l.debitar = pl.codigo'
+      
+        '                         where l.Data between :Datainicial and :' +
+        'DataFinal'
+      '                           and l.origem = '#39'X'#39
+      '                           and l.Filial = sc.Filial'
+      
+        '                           and position(pc.classificacao in pl.c' +
+        'lassificacao)=1),0)'
+      '             else'
+      '               coalesce((select sum(l.valor)'
+      
+        '                         from lancamentos l join planoContas pl ' +
+        'on l.debitar = pl.codigo'
+      
+        '                         where l.Data between :Datainicial and :' +
+        'DataFinal'
+      '                           and l.origem = '#39'X'#39
+      '                           and l.Filial = sc.Filial'
+      '                           and position('
+      
+        '                                cast(pc.classificacao||trim(to_c' +
+        'har(pc.codigo,'#39'000000'#39')) as varchar(28)) in'
+      
+        '                                cast(pl.classificacao||trim(to_c' +
+        'har(pl.codigo,'#39'000000'#39')) as varchar(28)))=1),0)'
+      '             end as valordebitosencerramento,'
+      ''
+      ''
+      '             case when pc.tipo='#39'S'#39' then'
+      '               coalesce((select sum(l.valor)'
+      
+        '                         from lancamentos l join planoContas pl ' +
+        'on l.creditar = pl.codigo'
+      
+        '                         where l.Data between :Datainicial and :' +
+        'DataFinal'
+      '                          and l.origem = '#39'X'#39
+      '                          and l.Filial = sc.Filial'
+      
+        '                          and position(trim(pc.classificacao) in' +
+        ' trim(pl.classificacao))=1),0)'
+      '             else'
+      '               coalesce((select sum(l.valor)'
+      
+        '                         from lancamentos l join planoContas pl ' +
+        'on l.creditar = pl.codigo'
+      
+        '                         where l.Data between :Datainicial and :' +
+        'DataFinal'
+      '                           and l.origem = '#39'X'#39
+      '                           and l.Filial = sc.Filial'
+      '                           and position('
+      
+        '                                cast(pc.classificacao||trim(to_c' +
+        'har(pc.codigo,'#39'000000'#39')) as varchar(28)) in'
+      
+        '                                cast(pl.classificacao||trim(to_c' +
+        'har(pl.codigo,'#39'000000'#39')) as varchar(28)))=1),0)'
+      '             end as valorcreditosencerramento'
+      ''
+      '      from planoContas pc'
+      '           join SaldosContabeis sc'
+      '                 join filiais f'
+      '                 on sc.Filial = f.codigo'
+      '           on pc.codigo = sc.Conta'
+      ''
+      
+        '      where (Contacommovto(pc.codigo, sc.Filial, cast(:Datainici' +
+        'al as date), cast(:DataFinal as date)) or sc.Saldoanterior<>0)'
+      '        and sc.exercicio = :exercicio'
+      '        and sc.Filial in ((select cast(:filial as integer))'
+      '                     union'
+      '                    (select f.codigo'
+      '                     from filiais f'
+      '                     where f.filialconsolidadoradime =:filial))'
+      ''
+      '        and pc.Tipo = '#39'S'#39
+      ''
+      '        and pc.natureza in ('#39'D'#39','#39'R'#39')'
+      
+        '        and (pc.inativo is null or pc.inativo > cast(:datainicia' +
+        'l as date))'
+      ''
+      '    ) as Saldos'
+      #9'group by cod_agl'
+      '   ) as Saldos'
+      
+        '   where abs(SaldoContabil - (valordebitosencerramento - valorcr' +
+        'editosencerramento))<>0'
+      '   order by cod_agl'
+      ''
+      ''
+      ''
+      ''
+      ''
+      '   )'
+      ''
+      'order by cod_agl')
+    RequestLive = False
+    Left = 200
+    Top = 96
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'exercicio'
+        ParamType = ptUnknown
+      end>
+    object qryRegistroI052cod_agl: TStringField
+      FieldName = 'cod_agl'
+      Size = 28
+    end
+  end
+  object qryRegistroJ150: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select Saldos.cod_agl,'
+      '       Saldos.IND_COD_AGL,'
+      '       Saldos.COD_AGL_SUP,'
+      '       Saldos.nivel_agl,'
+      '       Saldos.descr_cod_agl,'
+      
+        '       abs(SaldoContabil - (valordebitosencerramento - valorcred' +
+        'itosencerramento)) as vl_cta,'
+      ''
+      '                /*'
+      
+        '       cast(case when (SaldoContabil - (valordebitosencerramento' +
+        ' - valorcreditosencerramento)) > 0 then  case when Saldos.tipo =' +
+        ' '#39'A'#39' then '#39'D'#39' else '#39'N'#39' end'
+      
+        '                 else case when Saldos.tipo = '#39'A'#39' then '#39'R'#39' else ' +
+        #39'P'#39' end'
+      '       end as char(1)) as ind_vl,'
+      '       */'
+      ''
+      ''
+      
+        '       cast(case when (SaldoContabil - (valordebitosencerramento' +
+        ' - valorcreditosencerramento)) > 0 then  '#39'D'#39
+      '                 else '#39'R'#39
+      '       end as char(1)) as IND_GRP_DRE,'
+      ''
+      ''
+      
+        '       case when (SaldoContabil - (valordebitosencerramento - va' +
+        'lorcreditosencerramento))  >= 0 then'
+      '         cast('#39'D'#39' as char(1))'
+      '       else'
+      '         cast('#39'C'#39' as char(1)) end as ind_dc_cta'
+      ''
+      ''
+      'from'
+      '  ('
+      
+        '   select cod_agl, IND_COD_AGL, COD_AGL_SUP, tipo, nivel_agl, de' +
+        'scr_cod_agl, ind_vl, sum(SaldoContabil) as SaldoContabil, sum(va' +
+        'lordebitosencerramento) as valordebitosencerramento,'
+      
+        '          sum(valorcreditosencerramento) as valorcreditosencerra' +
+        'mento'
+      '   from'
+      #9#9'  '
+      '  ('
+      '      select case when pc.tipo = '#39'A'#39' then'
+      
+        '               cast(pc.classificacao||trim(to_char(pc.codigo,'#39'00' +
+        '0000'#39')) as varchar(28))'
+      '             else'
+      '               cast(pc.classificacao as varchar(28))'
+      '             end as cod_agl,'
+      ''
+      
+        '             case when pc.tipo = '#39'A'#39' then cast('#39'D'#39' as char(1)) e' +
+        'lse cast('#39'T'#39' as char(1)) end as IND_COD_AGL,'
+      ''
+      
+        '             ClassificacaoContabilAcima(pc.classificacao) as COD' +
+        '_AGL_SUP,'
+      ''
+      ''
+      '             pc.tipo,'
+      ''
+      
+        '             length(trim(pc.classificacao)) - length(trim(replac' +
+        'e(pc.classificacao,'#39'.'#39','#39#39')))+1 as nivel_agl,'
+      ''
+      '             pc.descricao as descr_cod_agl,'
+      ''
+      '             pc.natureza as ind_vl,'
+      ''
+      
+        '             SaldoContabil(pc.codigo, sc.Filial, :DataFinal,  ca' +
+        'st(extract(year from cast(:DataFinal as date)) as integer)) AS S' +
+        'aldoContabil,'
+      ''
+      '             case when pc.tipo='#39'S'#39' then'
+      '               coalesce((select sum(l.valor)'
+      
+        '                         from lancamentos l join planoContas pl ' +
+        'on l.debitar = pl.codigo'
+      
+        '                         where l.Data between :Datainicial and :' +
+        'DataFinal'
+      '                           and l.origem = '#39'X'#39
+      '                           and l.Filial = sc.Filial'
+      
+        '                           and position(pc.classificacao in pl.c' +
+        'lassificacao)=1),0)'
+      '             else'
+      '               coalesce((select sum(l.valor)'
+      
+        '                         from lancamentos l join planoContas pl ' +
+        'on l.debitar = pl.codigo'
+      
+        '                         where l.Data between :Datainicial and :' +
+        'DataFinal'
+      '                           and l.origem = '#39'X'#39
+      '                           and l.Filial = sc.Filial'
+      '                           and position('
+      
+        '                                cast(pc.classificacao||trim(to_c' +
+        'har(pc.codigo,'#39'000000'#39')) as varchar(28)) in'
+      
+        '                                cast(pl.classificacao||trim(to_c' +
+        'har(pl.codigo,'#39'000000'#39')) as varchar(28)))=1),0)'
+      '             end as valordebitosencerramento,'
+      ''
+      ''
+      '             case when pc.tipo='#39'S'#39' then'
+      '               coalesce((select sum(l.valor)'
+      
+        '                         from lancamentos l join planoContas pl ' +
+        'on l.creditar = pl.codigo'
+      
+        '                         where l.Data between :Datainicial and :' +
+        'DataFinal'
+      '                          and l.origem = '#39'X'#39
+      '                          and l.Filial = sc.Filial'
+      
+        '                          and position(trim(pc.classificacao) in' +
+        ' trim(pl.classificacao))=1),0)'
+      '             else'
+      '               coalesce((select sum(l.valor)'
+      
+        '                         from lancamentos l join planoContas pl ' +
+        'on l.creditar = pl.codigo'
+      
+        '                         where l.Data between :Datainicial and :' +
+        'DataFinal'
+      '                           and l.origem = '#39'X'#39
+      '                           and l.Filial = sc.Filial'
+      '                           and position('
+      
+        '                                cast(pc.classificacao||trim(to_c' +
+        'har(pc.codigo,'#39'000000'#39')) as varchar(28)) in'
+      
+        '                                cast(pl.classificacao||trim(to_c' +
+        'har(pl.codigo,'#39'000000'#39')) as varchar(28)))=1),0)'
+      '             end as valorcreditosencerramento'
+      ''
+      '      from planoContas pc'
+      '           join SaldosContabeis sc'
+      '                 join filiais f'
+      '                 on sc.Filial = f.codigo'
+      '           on pc.codigo = sc.Conta'
+      ''
+      
+        '      where (Contacommovto(pc.codigo, sc.Filial, cast(:Datainici' +
+        'al as date), cast(:DataFinal as date)) or sc.Saldoanterior<>0)'
+      '        and sc.exercicio = :exercicio'
+      '        and sc.Filial in ((select cast(:filial as integer))'
+      '                     union'
+      '                    (select f.codigo'
+      '                     from filiais f'
+      '                     where f.filialconsolidadoradime =:filial))'
+      '/*        and pc.demosped*/'
+      '        and pc.natureza in ('#39'D'#39','#39'R'#39')'
+      
+        '        and (pc.inativo is null or pc.inativo > cast(:datainicia' +
+        'l as date))'
+      ''
+      '/*        and pc.tipo <> '#39'S'#39'*/'
+      ''
+      '    ) as Saldos'
+      
+        #9'group by cod_agl, IND_COD_AGL, COD_AGL_SUP, tipo, nivel_agl, de' +
+        'scr_cod_agl, ind_vl'
+      '   ) as Saldos'
+      
+        '   where abs(SaldoContabil - (valordebitosencerramento - valorcr' +
+        'editosencerramento))<>0'
+      '   order by cod_agl;'
+      ''
+      ''
+      ''
+      ''
+      ''
+      '')
+    RequestLive = False
+    Left = 272
+    Top = 568
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'exercicio'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryFiliaisConsolidacao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select f.cnpj,'
+      '       f.estado,'
+      '       f.inscricaoestadual,'
+      '      (select c.codigoibge'
+      '       from cidades c'
+      '       where c.estado = f.estado'
+      '         and c.codigo = f.cidade) as cidadeIBGE,'
+      '       f.inscricaomunicipal,'
+      '       f.junta'
+      'from filiais  f'
+      'where (f.filialconsolidadoradime = :filialconsolidadoradime or'
+      '       f.codigo  in (select distinct filialconsolidadoradime'
+      '                     from filiais'
+      '                     where filialconsolidadoradime = :filial))'
+      'order by f.codigo')
+    RequestLive = False
+    Left = 320
+    Top = 640
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filialconsolidadoradime'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object qryFiliaisConsolidacaocnpj: TStringField
+      FieldName = 'cnpj'
+      Size = 14
+    end
+    object qryFiliaisConsolidacaoestado: TStringField
+      FieldName = 'estado'
+      Size = 2
+    end
+    object qryFiliaisConsolidacaoinscricaoestadual: TStringField
+      FieldName = 'inscricaoestadual'
+    end
+    object qryFiliaisConsolidacaocidadeibge: TIntegerField
+      FieldName = 'cidadeibge'
+    end
+    object qryFiliaisConsolidacaoinscricaomunicipal: TStringField
+      FieldName = 'inscricaomunicipal'
+    end
+    object qryFiliaisConsolidacaojunta: TStringField
+      FieldName = 'junta'
+    end
+  end
+  object qryIntervaloDatas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      
+        'select cast('#39'01/'#39'||to_char(min(data),'#39'mm/yyyy'#39') as date) as data' +
+        'inicial,'
+      '       last_day_of_month(max(data)) as datafinal'
+      'from lancamentos'
+      'where filial in ((select cast(:filial as integer))'
+      '                     union'
+      '                    (select f.codigo'
+      '                     from filiais f'
+      '                     where f.filialconsolidadoradime =:filial))'
+      '  and exercicio=:exercicio;')
+    RequestLive = False
+    Left = 296
+    Top = 192
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'exercicio'
+        ParamType = ptUnknown
+      end>
+    object qryIntervaloDatasdatainicial: TDateField
+      Alignment = taCenter
+      FieldName = 'datainicial'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryIntervaloDatasdatafinal: TDateField
+      Alignment = taCenter
+      FieldName = 'datafinal'
+      EditMask = '99/99/9999;1; '
+    end
+  end
+  object qryAcumularSaldosContabeis: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'SELECT AcumularSaldosContabeis (:Exercicio, :Filial, :OrigemX);'
+      '')
+    RequestLive = False
+    Left = 384
+    Top = 304
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'Exercicio'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'OrigemX'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryRegistroI052_copia: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnFilterRecord = qryRegistroI052FilterRecord
+    Filtered = True
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';select distinct selecao.*'
+      'from'
+      '('
+      'select case when pl.tipo = '#39'A'#39' then'
+      
+        '         cast(pl.classificacao||trim(to_char(pl.codigo,'#39'000000'#39')' +
+        ') as varchar(28))'
+      '       else'
+      '         cast(pl.classificacao as varchar(28))'
+      '       end as cod_agl'
+      ''
+      
+        'from planocontas pl join saldoscontabeis sc on pl.codigo = sc.co' +
+        'nta'
+      
+        'where (contacommovto(pl.codigo, sc.filial, cast(:datainicial as ' +
+        'date), cast(:datafinal as date)) or sc.saldoanterior<>0)'
+      '  and sc.filial in ((select cast(:filial as integer))'
+      '                     union'
+      '                    (select f.codigo'
+      '                     from filiais f'
+      '                     where f.filialconsolidadoradime = :filial))'
+      '  and sc.exercicio = :exercicio'
+      
+        '  and (pl.inativo is null or pl.inativo > cast(:datainicial as d' +
+        'ate))'
+      '/*  and demosped */'
+      '  and pl.tipo = '#39'S'#39
+      'order by pl.classificacao, pl.codigo'
+      ') as selecao'
+      ''
+      'Where selecao.cod_agl not in ('
+      ''
+      ''
+      ''
+      ''
+      'select Saldos.cod_agl'
+      'from'
+      '  ('
+      
+        '  select cod_agl, sum(SaldoContabil) as SaldoContabil, sum(saldo' +
+        'anterior) as saldoanterior'
+      '  from'
+      '  ('
+      ''
+      '      select case when pc.tipo = '#39'A'#39' then'
+      
+        '               cast(pc.classificacao||trim(to_char(pc.Codigo,'#39'00' +
+        '0000'#39')) as varchar(28))'
+      '             else'
+      '               cast(pc.classificacao as varchar(28))'
+      '             end as cod_agl,'
+      '            '
+      ''
+      
+        '             SaldoContabil(pc.Codigo, sc.Filial, :DataFinal, cas' +
+        't(extract(year from cast(:DataFinal as date)) as integer)) AS Sa' +
+        'ldoContabil,'
+      '             sc.saldoanterior'
+      ''
+      '      from planoContas pc'
+      '           join SaldosContabeis sc'
+      '                 join filiais f'
+      '                 on sc.Filial = f.Codigo'
+      '           on pc.Codigo = sc.Conta'
+      ''
+      
+        '      where (Contacommovto(pc.Codigo, sc.Filial, cast(:Datainici' +
+        'al as date), cast(:DataFinal as date)) or sc.Saldoanterior<>0)'
+      ''
+      '        and sc.exercicio = :exercicio'
+      '        and sc.Filial in ((select cast(:filial as integer))'
+      '                     union'
+      '                    (select f.codigo'
+      '                     from filiais f'
+      '                     where f.filialconsolidadoradime =:filial))'
+      ''
+      '        and pc.Tipo = '#39'S'#39
+      ''
+      '        and pc.natureza in ('#39'A'#39','#39'P'#39','#39'L'#39')'
+      
+        '        and (pc.inativo is null or pc.inativo > cast(:datainicia' +
+        'l as date))'
+      ''
+      '   ) as Saldos'
+      '   group by cod_agl'
+      '   '
+      ''
+      '   ) as Saldos'
+      '   where abs(SaldoContabil)<>0 or'
+      '         abs(SaldoAnterior)<>0'
+      ''
+      '   order by cod_agl'
+      '   )'
+      ''
+      '   and selecao.cod_agl  not in ('
+      ''
+      ''
+      ''
+      ''
+      ''
+      ''
+      'select Saldos.cod_agl'
+      ''
+      'from'
+      '  ('
+      
+        '   select cod_agl, sum(SaldoContabil) as SaldoContabil, sum(valo' +
+        'rdebitosencerramento) as valordebitosencerramento,'
+      
+        '          sum(valorcreditosencerramento) as valorcreditosencerra' +
+        'mento'
+      '   from'
+      #9#9'  '
+      '  ('
+      '      select case when pc.tipo = '#39'A'#39' then'
+      
+        '               cast(pc.classificacao||trim(to_char(pc.codigo,'#39'00' +
+        '0000'#39')) as varchar(28))'
+      '             else'
+      '               cast(pc.classificacao as varchar(28))'
+      '             end as cod_agl,'
+      ''
+      ''
+      
+        '             SaldoContabil(pc.codigo, sc.Filial, :DataFinal,  ca' +
+        'st(extract(year from cast(:DataFinal as date)) as integer)) AS S' +
+        'aldoContabil,'
+      ''
+      '             case when pc.tipo='#39'S'#39' then'
+      '               coalesce((select sum(l.valor)'
+      
+        '                         from lancamentos l join planoContas pl ' +
+        'on l.debitar = pl.codigo'
+      
+        '                         where l.Data between :Datainicial and :' +
+        'DataFinal'
+      '                           and l.origem = '#39'X'#39
+      '                           and l.Filial = sc.Filial'
+      
+        '                           and position(pc.classificacao in pl.c' +
+        'lassificacao)=1),0)'
+      '             else'
+      '               coalesce((select sum(l.valor)'
+      
+        '                         from lancamentos l join planoContas pl ' +
+        'on l.debitar = pl.codigo'
+      
+        '                         where l.Data between :Datainicial and :' +
+        'DataFinal'
+      '                           and l.origem = '#39'X'#39
+      '                           and l.Filial = sc.Filial'
+      '                           and position('
+      
+        '                                cast(pc.classificacao||trim(to_c' +
+        'har(pc.codigo,'#39'000000'#39')) as varchar(28)) in'
+      
+        '                                cast(pl.classificacao||trim(to_c' +
+        'har(pl.codigo,'#39'000000'#39')) as varchar(28)))=1),0)'
+      '             end as valordebitosencerramento,'
+      ''
+      ''
+      '             case when pc.tipo='#39'S'#39' then'
+      '               coalesce((select sum(l.valor)'
+      
+        '                         from lancamentos l join planoContas pl ' +
+        'on l.creditar = pl.codigo'
+      
+        '                         where l.Data between :Datainicial and :' +
+        'DataFinal'
+      '                          and l.origem = '#39'X'#39
+      '                          and l.Filial = sc.Filial'
+      
+        '                          and position(trim(pc.classificacao) in' +
+        ' trim(pl.classificacao))=1),0)'
+      '             else'
+      '               coalesce((select sum(l.valor)'
+      
+        '                         from lancamentos l join planoContas pl ' +
+        'on l.creditar = pl.codigo'
+      
+        '                         where l.Data between :Datainicial and :' +
+        'DataFinal'
+      '                           and l.origem = '#39'X'#39
+      '                           and l.Filial = sc.Filial'
+      '                           and position('
+      
+        '                                cast(pc.classificacao||trim(to_c' +
+        'har(pc.codigo,'#39'000000'#39')) as varchar(28)) in'
+      
+        '                                cast(pl.classificacao||trim(to_c' +
+        'har(pl.codigo,'#39'000000'#39')) as varchar(28)))=1),0)'
+      '             end as valorcreditosencerramento'
+      ''
+      '      from planoContas pc'
+      '           join SaldosContabeis sc'
+      '                 join filiais f'
+      '                 on sc.Filial = f.codigo'
+      '           on pc.codigo = sc.Conta'
+      ''
+      
+        '      where (Contacommovto(pc.codigo, sc.Filial, cast(:Datainici' +
+        'al as date), cast(:DataFinal as date)) or sc.Saldoanterior<>0)'
+      '        and sc.exercicio = :exercicio'
+      '        and sc.Filial in ((select cast(:filial as integer))'
+      '                     union'
+      '                    (select f.codigo'
+      '                     from filiais f'
+      '                     where f.filialconsolidadoradime =:filial))'
+      '        and pc.demosped'
+      '        and pc.natureza in ('#39'D'#39','#39'R'#39')'
+      
+        '        and (pc.inativo is null or pc.inativo > cast(:datainicia' +
+        'l as date))'
+      ''
+      '    ) as Saldos'
+      #9'group by cod_agl'
+      '   ) as Saldos'
+      
+        '   where abs(SaldoContabil - (valordebitosencerramento - valorcr' +
+        'editosencerramento))<>0'
+      '   order by cod_agl'
+      ''
+      ''
+      ''
+      ''
+      ''
+      '   )'
+      ''
+      'order by cod_agl')
+    RequestLive = False
+    Left = 528
+    Top = 96
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'exercicio'
+        ParamType = ptUnknown
+      end>
+    object StringField1: TStringField
+      FieldName = 'cod_agl'
+      Size = 28
+    end
+  end
+  object qryRegistroI052_espelhoj150quefunciona: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnFilterRecord = qryRegistroI052FilterRecord
+    Filtered = True
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select Saldos.cod_agl'
+      ''
+      'from'
+      '  ('
+      
+        '   select cod_agl, sum(SaldoContabil) as SaldoContabil, sum(valo' +
+        'rdebitosencerramento) as valordebitosencerramento,'
+      
+        '          sum(valorcreditosencerramento) as valorcreditosencerra' +
+        'mento'
+      '   from'
+      #9#9'  '
+      '  ('
+      '      select case when pc.tipo = '#39'A'#39' then'
+      
+        '               cast(pc.classificacao||trim(to_char(pc.codigo,'#39'00' +
+        '0000'#39')) as varchar(28))'
+      '             else'
+      '               cast(pc.classificacao as varchar(28))'
+      '             end as cod_agl,'
+      ''
+      ''
+      
+        '             SaldoContabil(pc.codigo, sc.Filial, :DataFinal,  ca' +
+        'st(extract(year from cast(:DataFinal as date)) as integer)) AS S' +
+        'aldoContabil,'
+      ''
+      '             case when pc.tipo='#39'S'#39' then'
+      '               coalesce((select sum(l.valor)'
+      
+        '                         from lancamentos l join planoContas pl ' +
+        'on l.debitar = pl.codigo'
+      
+        '                         where l.Data between :Datainicial and :' +
+        'DataFinal'
+      '                           and l.origem = '#39'X'#39
+      '                           and l.Filial = sc.Filial'
+      
+        '                           and position(pc.classificacao in pl.c' +
+        'lassificacao)=1),0)'
+      '             else'
+      '               coalesce((select sum(l.valor)'
+      
+        '                         from lancamentos l join planoContas pl ' +
+        'on l.debitar = pl.codigo'
+      
+        '                         where l.Data between :Datainicial and :' +
+        'DataFinal'
+      '                           and l.origem = '#39'X'#39
+      '                           and l.Filial = sc.Filial'
+      '                           and position('
+      
+        '                                cast(pc.classificacao||trim(to_c' +
+        'har(pc.codigo,'#39'000000'#39')) as varchar(28)) in'
+      
+        '                                cast(pl.classificacao||trim(to_c' +
+        'har(pl.codigo,'#39'000000'#39')) as varchar(28)))=1),0)'
+      '             end as valordebitosencerramento,'
+      ''
+      ''
+      '             case when pc.tipo='#39'S'#39' then'
+      '               coalesce((select sum(l.valor)'
+      
+        '                         from lancamentos l join planoContas pl ' +
+        'on l.creditar = pl.codigo'
+      
+        '                         where l.Data between :Datainicial and :' +
+        'DataFinal'
+      '                          and l.origem = '#39'X'#39
+      '                          and l.Filial = sc.Filial'
+      
+        '                          and position(trim(pc.classificacao) in' +
+        ' trim(pl.classificacao))=1),0)'
+      '             else'
+      '               coalesce((select sum(l.valor)'
+      
+        '                         from lancamentos l join planoContas pl ' +
+        'on l.creditar = pl.codigo'
+      
+        '                         where l.Data between :Datainicial and :' +
+        'DataFinal'
+      '                           and l.origem = '#39'X'#39
+      '                           and l.Filial = sc.Filial'
+      '                           and position('
+      
+        '                                cast(pc.classificacao||trim(to_c' +
+        'har(pc.codigo,'#39'000000'#39')) as varchar(28)) in'
+      
+        '                                cast(pl.classificacao||trim(to_c' +
+        'har(pl.codigo,'#39'000000'#39')) as varchar(28)))=1),0)'
+      '             end as valorcreditosencerramento'
+      ''
+      '      from planoContas pc'
+      '           join SaldosContabeis sc'
+      '                 join filiais f'
+      '                 on sc.Filial = f.codigo'
+      '           on pc.codigo = sc.Conta'
+      ''
+      
+        '      where (Contacommovto(pc.codigo, sc.Filial, cast(:Datainici' +
+        'al as date), cast(:DataFinal as date)) or sc.Saldoanterior<>0)'
+      '        and sc.exercicio = :exercicio'
+      '        and sc.Filial in ((select cast(:filial as integer))'
+      '                     union'
+      '                    (select f.codigo'
+      '                     from filiais f'
+      '                     where f.filialconsolidadoradime =:filial))'
+      '        and pc.demosped'
+      '        and pc.natureza in ('#39'D'#39','#39'R'#39')'
+      
+        '        and (pc.inativo is null or pc.inativo > cast(:datainicia' +
+        'l as date))'
+      ''
+      '    ) as Saldos'
+      #9'group by cod_agl'
+      '   ) as Saldos'
+      
+        '   where abs(SaldoContabil - (valordebitosencerramento - valorcr' +
+        'editosencerramento))<>0'
+      '   order by cod_agl'
+      '')
+    RequestLive = False
+    Left = 600
+    Top = 192
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'exercicio'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end>
+    object StringField2: TStringField
+      FieldName = 'cod_agl'
+      Size = 28
+    end
+  end
+  object qryRegistroI052_copia_Original: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnFilterRecord = qryRegistroI052FilterRecord
+    Filtered = True
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';select distinct selecao.*'
+      'from'
+      '('
+      'select case when pl.tipo = '#39'A'#39' then'
+      
+        '         cast(pl.classificacao||trim(to_char(pl.codigo,'#39'000000'#39')' +
+        ') as varchar(28))'
+      '       else'
+      '         cast(pl.classificacao as varchar(28))'
+      '       end as cod_agl'
+      ''
+      
+        'from planocontas pl join saldoscontabeis sc on pl.codigo = sc.co' +
+        'nta'
+      
+        'where (contacommovto(pl.codigo, sc.filial, cast(:datainicial as ' +
+        'date), cast(:datafinal as date)) or sc.saldoanterior<>0)'
+      '  and sc.filial in ((select cast(:filial as integer))'
+      '                     union'
+      '                    (select f.codigo'
+      '                     from filiais f'
+      '                     where f.filialconsolidadoradime = :filial))'
+      '  and sc.exercicio = :exercicio'
+      
+        '  and (pl.inativo is null or pl.inativo > cast(:datainicial as d' +
+        'ate))'
+      ''
+      '/*  and demosped */'
+      '  and pl.tipo = '#39'S'#39' '
+      ''
+      'order by pl.classificacao, pl.codigo'
+      ') as selecao'
+      'order by cod_agl')
+    RequestLive = False
+    Left = 608
+    Top = 264
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'exercicio'
+        ParamType = ptUnknown
+      end>
+    object StringField3: TStringField
+      FieldName = 'cod_agl'
+      Size = 28
+    end
+  end
+  object qryRegistroI052_copia_28_05_2019: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnFilterRecord = qryRegistroI052FilterRecord
+    Filtered = True
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';select distinct selecao.*'
+      'from'
+      '('
+      'select case when pl.tipo = '#39'A'#39' then'
+      
+        '         cast(pl.classificacao||trim(to_char(pl.codigo,'#39'000000'#39')' +
+        ') as varchar(28))'
+      '       else'
+      '         cast(pl.classificacao as varchar(28))'
+      '       end as cod_agl'
+      ''
+      
+        'from planocontas pl join saldoscontabeis sc on pl.codigo = sc.co' +
+        'nta'
+      
+        'where (contacommovto(pl.codigo, sc.filial, cast(:datainicial as ' +
+        'date), cast(:datafinal as date)) or sc.saldoanterior<>0)'
+      '  and sc.filial in ((select cast(:filial as integer))'
+      '                     union'
+      '                    (select f.codigo'
+      '                     from filiais f'
+      '                     where f.filialconsolidadoradime = :filial))'
+      '  and sc.exercicio = :exercicio'
+      
+        '  and (pl.inativo is null or pl.inativo > cast(:datainicial as d' +
+        'ate))'
+      '/*  and demosped */'
+      '  and pl.tipo = '#39'S'#39
+      ''
+      'order by pl.classificacao, pl.codigo'
+      ') as selecao'
+      ''
+      ''
+      ''
+      'Where selecao.cod_agl not in ('
+      ''
+      'select Saldos.cod_agl'
+      'from'
+      '  ('
+      
+        '  select cod_agl, sum(SaldoContabil) as SaldoContabil, sum(saldo' +
+        'anterior) as saldoanterior'
+      '  from'
+      '  ('
+      ''
+      '      select case when pc.tipo = '#39'A'#39' then'
+      
+        '               cast(pc.classificacao||trim(to_char(pc.Codigo,'#39'00' +
+        '0000'#39')) as varchar(28))'
+      '             else'
+      '               cast(pc.classificacao as varchar(28))'
+      '             end as cod_agl,'
+      '            '
+      ''
+      
+        '             SaldoContabil(pc.Codigo, sc.Filial, :DataFinal, cas' +
+        't(extract(year from cast(:DataFinal as date)) as integer)) AS Sa' +
+        'ldoContabil,'
+      '             sc.saldoanterior'
+      ''
+      '      from planoContas pc'
+      '           join SaldosContabeis sc'
+      '                 join filiais f'
+      '                 on sc.Filial = f.Codigo'
+      '           on pc.Codigo = sc.Conta'
+      ''
+      
+        '      where (Contacommovto(pc.Codigo, sc.Filial, cast(:Datainici' +
+        'al as date), cast(:DataFinal as date)) or sc.Saldoanterior<>0)'
+      ''
+      '        and sc.exercicio = :exercicio'
+      '        and sc.Filial in ((select cast(:filial as integer))'
+      '                     union'
+      '                    (select f.codigo'
+      '                     from filiais f'
+      '                     where f.filialconsolidadoradime =:filial))'
+      ''
+      '        and pc.Tipo = '#39'S'#39
+      ''
+      '        and pc.natureza in ('#39'A'#39','#39'P'#39','#39'L'#39')'
+      
+        '        and (pc.inativo is null or pc.inativo > cast(:datainicia' +
+        'l as date))'
+      ''
+      '   ) as Saldos'
+      '   group by cod_agl'
+      '   '
+      ''
+      '   ) as Saldos'
+      ''
+      '   order by cod_agl'
+      '   )'
+      ''
+      '   and selecao.cod_agl  not in ('
+      ''
+      ''
+      ''
+      ''
+      ''
+      ''
+      'select Saldos.cod_agl'
+      ''
+      'from'
+      '  ('
+      
+        '   select cod_agl, sum(SaldoContabil) as SaldoContabil, sum(valo' +
+        'rdebitosencerramento) as valordebitosencerramento,'
+      
+        '          sum(valorcreditosencerramento) as valorcreditosencerra' +
+        'mento'
+      '   from'
+      #9#9'  '
+      '  ('
+      '      select case when pc.tipo = '#39'A'#39' then'
+      
+        '               cast(pc.classificacao||trim(to_char(pc.codigo,'#39'00' +
+        '0000'#39')) as varchar(28))'
+      '             else'
+      '               cast(pc.classificacao as varchar(28))'
+      '             end as cod_agl,'
+      ''
+      ''
+      
+        '             SaldoContabil(pc.codigo, sc.Filial, :DataFinal,  ca' +
+        'st(extract(year from cast(:DataFinal as date)) as integer)) AS S' +
+        'aldoContabil,'
+      ''
+      '             case when pc.tipo='#39'S'#39' then'
+      '               coalesce((select sum(l.valor)'
+      
+        '                         from lancamentos l join planoContas pl ' +
+        'on l.debitar = pl.codigo'
+      
+        '                         where l.Data between :Datainicial and :' +
+        'DataFinal'
+      '                           and l.origem = '#39'X'#39
+      '                           and l.Filial = sc.Filial'
+      
+        '                           and position(pc.classificacao in pl.c' +
+        'lassificacao)=1),0)'
+      '             else'
+      '               coalesce((select sum(l.valor)'
+      
+        '                         from lancamentos l join planoContas pl ' +
+        'on l.debitar = pl.codigo'
+      
+        '                         where l.Data between :Datainicial and :' +
+        'DataFinal'
+      '                           and l.origem = '#39'X'#39
+      '                           and l.Filial = sc.Filial'
+      '                           and position('
+      
+        '                                cast(pc.classificacao||trim(to_c' +
+        'har(pc.codigo,'#39'000000'#39')) as varchar(28)) in'
+      
+        '                                cast(pl.classificacao||trim(to_c' +
+        'har(pl.codigo,'#39'000000'#39')) as varchar(28)))=1),0)'
+      '             end as valordebitosencerramento,'
+      ''
+      ''
+      '             case when pc.tipo='#39'S'#39' then'
+      '               coalesce((select sum(l.valor)'
+      
+        '                         from lancamentos l join planoContas pl ' +
+        'on l.creditar = pl.codigo'
+      
+        '                         where l.Data between :Datainicial and :' +
+        'DataFinal'
+      '                          and l.origem = '#39'X'#39
+      '                          and l.Filial = sc.Filial'
+      
+        '                          and position(trim(pc.classificacao) in' +
+        ' trim(pl.classificacao))=1),0)'
+      '             else'
+      '               coalesce((select sum(l.valor)'
+      
+        '                         from lancamentos l join planoContas pl ' +
+        'on l.creditar = pl.codigo'
+      
+        '                         where l.Data between :Datainicial and :' +
+        'DataFinal'
+      '                           and l.origem = '#39'X'#39
+      '                           and l.Filial = sc.Filial'
+      '                           and position('
+      
+        '                                cast(pc.classificacao||trim(to_c' +
+        'har(pc.codigo,'#39'000000'#39')) as varchar(28)) in'
+      
+        '                                cast(pl.classificacao||trim(to_c' +
+        'har(pl.codigo,'#39'000000'#39')) as varchar(28)))=1),0)'
+      '             end as valorcreditosencerramento'
+      ''
+      '      from planoContas pc'
+      '           join SaldosContabeis sc'
+      '                 join filiais f'
+      '                 on sc.Filial = f.codigo'
+      '           on pc.codigo = sc.Conta'
+      ''
+      
+        '      where (Contacommovto(pc.codigo, sc.Filial, cast(:Datainici' +
+        'al as date), cast(:DataFinal as date)) or sc.Saldoanterior<>0)'
+      '        and sc.exercicio = :exercicio'
+      '        and sc.Filial in ((select cast(:filial as integer))'
+      '                     union'
+      '                    (select f.codigo'
+      '                     from filiais f'
+      '                     where f.filialconsolidadoradime =:filial))'
+      ''
+      '        and pc.Tipo = '#39'S'#39
+      ''
+      '        and pc.natureza in ('#39'D'#39','#39'R'#39')'
+      
+        '        and (pc.inativo is null or pc.inativo > cast(:datainicia' +
+        'l as date))'
+      ''
+      '    ) as Saldos'
+      #9'group by cod_agl'
+      '   ) as Saldos'
+      
+        '   where abs(SaldoContabil - (valordebitosencerramento - valorcr' +
+        'editosencerramento))<>0'
+      '   order by cod_agl'
+      ''
+      ''
+      ''
+      ''
+      ''
+      '   )'
+      ''
+      'order by cod_agl')
+    RequestLive = False
+    Left = 792
+    Top = 40
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'filial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'exercicio'
+        ParamType = ptUnknown
+      end>
+    object StringField4: TStringField
+      FieldName = 'cod_agl'
+      Size = 28
+    end
+  end
+end

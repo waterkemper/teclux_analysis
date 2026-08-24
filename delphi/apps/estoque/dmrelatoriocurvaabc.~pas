@@ -1,0 +1,714 @@
+unit dmrelatoriocurvaabc;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery,
+  cpdatasource, CheckLst, ZTransact, variants, clparametrossistema,
+  FR_DSet, FR_DBSet, FR_Class, fmpreviewpadrao, ComObj, 
+  FR_Desgn, Forms, Graphics, frxClass, frx2xto30;
+
+
+
+type
+  TdtmRelatorioCurvaABC = class(TdtmBasico)
+    qryVendas: TtecQuery;
+    qryVendascodigo: TLargeintField;
+    qryVendasdescricao: TStringField;
+    qryVendasquantidade: TFloatField;
+    qryVendasfaturamento: TFloatField;
+    qryVendascusto: TFloatField;
+    qryVendaslucrobruto: TFloatField;
+    qryVendasordem: TIntegerField;
+    qryVendaspercentual: TFloatField;
+    qryVendasacumulado: TFloatField;
+    qryVendastipo: TStringField;
+    dsrVendas: TtecDataSource;
+    qryVendasfornecedor: TIntegerField;
+    qryVendasnomefornecedor: TStringField;
+    qryVendasgrupo: TStringField;
+    qryVendasdescricaogrupo: TStringField;
+    qryVendasparticipacao: TFloatField;
+    fdsVendas: TfrDBDataSet;
+    frprlVendasLucros: TfrReport;
+    frprlVendasLucrosFornecedores: TfrReport;
+    frprlVendasLucrosGrupos: TfrReport;
+    qryVendasreferencia: TStringField;
+    qryAtualizarProdutos: TtecQuery;
+    qryVendasmarca: TIntegerField;
+    qryVendasdescricaomarca: TStringField;
+    qryVendasqtdeadquirida: TFloatField;
+    qryVendasEstoqueTotal: TFloatField;
+    qryVendasTotalCustoemEstoque: TFloatField;
+    qryVendasTotalVendaemEstoque: TFloatField;
+    qryVendasTotalProdutosemPedido: TFloatField;
+    frprlVendasLucrosMarcas: TfrReport;
+    qryVendasclasse: TStringField;
+    qryVendascodigo_barras: TStringField;
+    frxReport1: TfrxReport;
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+    procedure frprlVendasLucrosBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frprlVendasLucrosFornecedoresBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frprlVendasLucrosGruposBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frprlVendasLucrosMarcasBeforePrint(Memo: TStringList;
+      View: TfrView);
+  private
+    FLocalGravacao: String;
+    { Private declarations }
+  protected
+    fTitulo   : String;
+    fSubtitulo: String;
+    fOutras   : String;
+    fEmLinha, fForadeLinha, fAtivo, fInativo, fComMontagem,
+    fSemMontagem, fBrinde, fNaoBrinde: Boolean;
+    ftipoCurvaABC: integer;
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+
+    function AbrirConsulta(
+      TipoAnalise, TipoCurvaABC,
+      TipoFiltroProdutos, Quantidade: integer;
+      DataInicial, DataFinal: TdateTime;
+      Perc_A, Perc_B, Perc_C: Currency;
+      EmLinha, ForadeLinha, Ativo, Inativo, ComMontagem,
+      SemMontagem, Brinde, NaoBrinde: Boolean;
+      Produto, Grupo, Classe, Marca,
+      Filiais, GrupoFiliais: String): Boolean;
+    procedure ImprimirRelatorio;
+    property LocalGravacao : String read FLocalGravacao write FLocalGravacao;
+    procedure GravarExcel;
+    procedure AtualizarResultadoCurvaABC;
+
+  end;
+
+var
+  dtmRelatorioCurvaABC: TdtmRelatorioCurvaABC;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmRelatorioCurvaABC }
+
+function TdtmRelatorioCurvaABC.AbrirConsulta(
+  TipoAnalise, TipoCurvaABC,
+  TipoFiltroProdutos, Quantidade: integer;
+  DataInicial, DataFinal: TdateTime;
+  Perc_A, Perc_B, Perc_C: Currency;
+  EmLinha, ForadeLinha, Ativo, Inativo, ComMontagem,
+  SemMontagem, Brinde, NaoBrinde: Boolean;
+  Produto, Grupo, Classe, Marca,
+  Filiais, GrupoFiliais: String): Boolean;
+
+const
+  FiltroData        = 'WHERE  DF.data BETWEEN %s AND %s';
+  FiltroFilial      = ' and ( df.filialvenda IN (%s)) ';
+  FiltroGrupoFilial = ' and ( df.filialvenda IN (SELECT filial '+
+                                         'FROM filiaisgruposfiliais fgf '+
+                                         'WHERE fgf.grupo IN (%s))) ';
+
+  FiltroFilialEstoque      = ' and ( e.filial IN (%s)) ';
+
+  FiltroGrupoFilialEstoque = ' and ( e.filial IN (SELECT filial '+
+                                         'FROM filiaisgruposfiliais fgf '+
+                                         'WHERE fgf.grupo IN (%s))) ';
+
+  FiltroFilialMovimento      = ' and ( m.filial IN (%s)) ';
+
+  FiltroGrupoFilialMovimento = ' and ( m.filial IN (SELECT filial '+
+                                         'FROM filiaisgruposfiliais fgf '+
+                                         'WHERE fgf.grupo IN (%s))) ';
+
+
+var
+  SQL_Produtos: String;
+begin
+  fEmLinha     := EmLinha;
+  fForadeLinha := ForadeLinha;
+  fAtivo       := Ativo;
+  fInativo     := Inativo;
+  fComMontagem := ComMontagem;
+  fSemMontagem := SemMontagem;
+  fBrinde      := Brinde;
+  fNaoBrinde   := NaoBrinde;
+  ftipoCurvaABC:= TipoCurvaABC;
+
+  ftitulo := 'CURVA ABC ';
+  fSubtitulo := 'Percentuais -> A: '+floattostr(Perc_A)+
+                             ' B: '+floattostr(Perc_B)+
+                             ' C: '+floattostr(Perc_C)+
+          ' Entre: '+datetostr(DataInicial)+' e '+datetostr(DataFinal);
+  foutras := '';
+
+  case TipoAnalise of
+  //VENDAS
+  0: begin
+       ftitulo := ftitulo + 'POR VENDAS/';
+       qryVendas.Close;
+       qryVendas.ParamByName('perc_A').AsCurrency := Perc_A;
+       qryVendas.ParamByName('perc_B').AsCurrency := Perc_B;
+       qryVendas.ParamByName('perc_C').AsCurrency := Perc_C;
+       qryVendas.ParamByName('TipoFiltroProdutos').AsInteger := TipoFiltroProdutos;
+       qryVendas.ParamByName('TipoAnalise').AsInteger := TipoAnalise;
+       qryVendas.ParamByName('TipoCurvaABC').AsInteger := TipoCurvaABC;
+       qryVendas.ParamByName('quantidade').AsInteger := Quantidade;
+
+       if produto <> '' then
+       begin
+         qryVendas.ParamByName('produto').Asstring     := produto;
+         foutras := foutras + ' Produto: '+produto;
+       end
+       else qryVendas.ParamByName('produto').Asinteger  := 0;
+
+       if grupo<>'' then
+       begin
+         qryVendas.ParamByName('grupo').Asstring       := quotedstr(grupo);
+         foutras := foutras + ' Grupo: '+grupo;
+       end
+       else qryVendas.ParamByName('grupo').value := null;
+
+       if classe <> '' then
+       begin
+         qryVendas.ParamByName('classe').Asstring      := QuotedStr(classe);
+         foutras := foutras + ' Classe: '+classe;
+       end
+       else qryVendas.ParamByName('classe').value  := null;
+
+       if marca <> '' then
+       begin
+         qryVendas.ParamByName('marca').Asstring       := marca;
+         foutras := foutras + ' Marca: '+marca;
+       end
+       else qryVendas.ParamByName('marca').Asinteger   := 0;
+
+       case TipoCurvaABC of
+         //lucro
+         0: begin
+              ftitulo := ftitulo + 'LUCROS';
+              qryVendas.ParamByName('ordenacao').AsString     := 'lucrobruto desc';
+              qryVendas.FieldByName('codigo').Visible         := true;
+              qryVendas.FieldByName('codigo_barras').Visible := true;
+              qryVendas.FieldByName('descricao').Visible      := true;
+              qryVendas.FieldByName('referencia').Visible     := true;
+              qryVendas.FieldByName('quantidade').Visible     := true;
+              qryVendas.FieldByName('fornecedor').Visible     := false;
+              qryVendas.FieldByName('nomefornecedor').Visible := false;
+              qryVendas.FieldByName('grupo').Visible          := false;
+              qryVendas.FieldByName('descricaogrupo').Visible := false;
+              qryVendasclasse.Visible := false;
+              qryVendas.FieldByName('marca').Visible := false;
+              qryVendas.FieldByName('descricaomarca').Visible := false;
+              qryVendasacumulado.DisplayFormat := '###,##0.00';
+            end;
+         //quantidade
+         1: begin
+              ftitulo := ftitulo + 'QUANTIDADE';
+              qryVendas.ParamByName('ordenacao').AsString     := 'quantidade desc';
+              qryVendas.FieldByName('codigo').Visible := true;
+              qryVendas.FieldByName('codigo_barras').Visible := true;
+              qryVendas.FieldByName('descricao').Visible := true;
+              qryVendas.FieldByName('referencia').Visible     := true;
+              qryVendas.FieldByName('quantidade').Visible := true;
+              qryVendas.FieldByName('fornecedor').Visible := false;
+              qryVendas.FieldByName('nomefornecedor').Visible := false;
+              qryVendas.FieldByName('grupo').Visible := false;
+              qryVendas.FieldByName('descricaogrupo').Visible := false;
+              qryVendasclasse.Visible := false;
+              qryVendas.FieldByName('marca').Visible := false;
+              qryVendas.FieldByName('descricaomarca').Visible := false;
+              qryVendasacumulado.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+            end;
+         //faturamento
+         2: begin
+              ftitulo := ftitulo + 'FATURAMENTO';
+              qryVendas.ParamByName('ordenacao').AsString := 'faturamento desc';
+              qryVendas.FieldByName('codigo').Visible := true;
+              qryVendas.FieldByName('codigo_barras').Visible := true;
+              qryVendas.FieldByName('descricao').Visible := true;
+              qryVendas.FieldByName('referencia').Visible     := true;
+              qryVendas.FieldByName('quantidade').Visible := true;
+              qryVendas.FieldByName('fornecedor').Visible := false;
+              qryVendas.FieldByName('nomefornecedor').Visible := false;
+              qryVendas.FieldByName('grupo').Visible := false;
+              qryVendas.FieldByName('descricaogrupo').Visible := false;
+              qryVendasclasse.Visible := false;
+              qryVendas.FieldByName('marca').Visible := false;
+              qryVendas.FieldByName('descricaomarca').Visible := false;
+              qryVendasacumulado.DisplayFormat := '###,##0.00';
+            end;
+         //fornecedor
+         3: begin
+              ftitulo := ftitulo + 'LUCROS POR FORNECEDORES';
+              qryVendas.ParamByName('ordenacao').AsString := 'lucrobruto desc';
+              qryVendas.FieldByName('codigo').Visible := false;
+              qryVendas.FieldByName('codigo_barras').Visible := false;
+              qryVendas.FieldByName('descricao').Visible := false;
+              qryVendas.FieldByName('referencia').Visible     := false;
+              qryVendas.FieldByName('quantidade').Visible := false;
+              qryVendas.FieldByName('fornecedor').Visible := true;
+              qryVendas.FieldByName('nomefornecedor').Visible := true;
+              qryVendas.FieldByName('grupo').Visible := false;
+              qryVendas.FieldByName('descricaogrupo').Visible := false;
+              qryVendasclasse.Visible := false;
+              qryVendas.FieldByName('marca').Visible := false;
+              qryVendas.FieldByName('descricaomarca').Visible := false;
+              qryVendasacumulado.DisplayFormat := '###,##0.00';
+            end;
+
+         //grupo/classe/marca
+         4: begin
+              ftitulo := ftitulo + 'LUCROS POR GRUPO';
+              qryVendas.ParamByName('ordenacao').AsString := 'lucrobruto desc';
+              qryVendas.FieldByName('codigo').Visible := false;
+              qryVendas.FieldByName('codigo_barras').Visible := false;
+              qryVendas.FieldByName('descricao').Visible := false;
+              qryVendas.FieldByName('referencia').Visible     := false;
+              qryVendas.FieldByName('quantidade').Visible := false;
+              qryVendas.FieldByName('fornecedor').Visible := false;
+              qryVendas.FieldByName('nomefornecedor').Visible := false;
+              qryVendas.FieldByName('grupo').Visible := true;
+              qryVendas.FieldByName('descricaogrupo').Visible := true;
+              qryVendasclasse.Visible := true;
+              qryVendas.FieldByName('marca').Visible := true;
+              qryVendas.FieldByName('descricaomarca').Visible := true;
+              qryVendasacumulado.DisplayFormat := '###,##0.00';
+            end;
+
+         //marca
+         5: begin
+              ftitulo := ftitulo + 'LUCROS POR MARCA';
+              qryVendas.ParamByName('ordenacao').AsString := 'lucrobruto desc';
+              qryVendas.FieldByName('codigo').Visible := false;
+              qryVendas.FieldByName('codigo_barras').Visible := false;
+              qryVendas.FieldByName('descricao').Visible := false;
+              qryVendas.FieldByName('referencia').Visible     := false;
+              qryVendas.FieldByName('quantidade').Visible := false;
+              qryVendas.FieldByName('fornecedor').Visible := false;
+              qryVendas.FieldByName('nomefornecedor').Visible := false;
+              qryVendas.FieldByName('grupo').Visible := false;
+              qryVendas.FieldByName('descricaogrupo').Visible := false;
+              qryVendasclasse.Visible := false;
+              qryVendas.FieldByName('marca').Visible := true;
+              qryVendas.FieldByName('descricaomarca').Visible := true;
+              qryVendasacumulado.DisplayFormat := '###,##0.00';
+            end;
+
+       end;
+       qryVendas.ParamByName('datainicial').AsDateTime := DataInicial;
+       qryvendas.ParamByName('datafinal').AsDateTime   := DataFinal;
+
+       qryVendas.ParamByName('filiais').asstring := '';
+       qryVendas.ParamByName('filiaisestoque').asstring := '';
+       qryVendas.ParamByName('filiaismovimento').asstring := '';
+
+       if GrupoFiliais<>'' then
+       begin
+         if ParSistema.RelatorioSomenteFiliaisAutorizadas then
+            qryVendas.ParamByName('filiais').AsString :=
+              format(FiltroFilial, [Filiais])+ ' and '+
+              format(FiltroGrupoFilial, [GrupoFiliais])
+         else
+            qryVendas.ParamByName('filiais').AsString :=
+              format(FiltroGrupoFilial, [GrupoFiliais]);
+
+         qryVendas.ParamByName('filiaisestoque').AsString :=
+           format(FiltroGrupoFilialestoque, [GrupoFiliais]);
+
+         qryVendas.ParamByName('filiaismovimento').AsString :=
+           format(FiltroGrupoFilialMovimento, [GrupoFiliais]);
+
+         foutras := foutras + ' Grupo de Filiais: '+GrupoFiliais;
+       end
+       else
+       if Filiais<>'' then
+       begin
+         qryVendas.ParamByName('filiais').AsString := format(FiltroFilial, [Filiais]);
+         qryVendas.ParamByName('filiaisestoque').AsString := format(FiltroFilialEstoque, [Filiais]);
+         qryVendas.ParamByName('filiaismovimento').AsString := format(FiltroFilialMovimento, [Filiais]);
+
+         foutras := foutras + ' Filiais: '+Filiais;
+       end;
+
+       SQL_Produtos := '';
+       case TipoFiltroProdutos of
+       1: begin  //ESPECIFICADOS
+            if produto<>'' then
+               SQL_Produtos := ' and c.codigo = '+quotedstr(produto);
+            if Grupo<>'' then
+               SQL_Produtos := SQL_Produtos + ' and c.grupo = '+quotedstr(Grupo);
+            if Classe<>'' then
+               SQL_Produtos := SQL_Produtos + ' and c.classe = '+quotedstr(classe);
+            if Marca<>'' then
+               SQL_Produtos := SQL_Produtos + ' and c.marca = '+quotedstr(Marca);
+          end;
+       end;
+       qryvendas.ParamByName('produtos').AsString := SQL_Produtos;
+
+       qryvendas.ParamByName('linha').AsString :='';
+       if EmLinha and not ForadeLinha then
+         qryvendas.ParamByName('linha').AsString :=' and ((p.foralinha is null and c.foralinha is null) or not estoques_produtoforalinha(p.codigo))'
+       else
+       if ForadeLinha and not emlinha then
+         qryvendas.parambyname('linha').AsString :=' and ( (p.foralinha is not null or c.foralinha is not null) and estoques_produtoforalinha(p.codigo))';
+
+       qryvendas.parambyname('ativo').AsString :='';
+       if Ativo and not Inativo then
+         qryvendas.parambyname('ativo').AsString :=' and ((p.inativo is null and c.inativo is null) or not estoques_produtoinativo(p.codigo))'
+       else
+       if Inativo and not Ativo then
+         qryvendas.parambyname('ativo').AsString :=' and (p.inativo is not null or c.inativo is not null) and estoques_produtoinativo(p.codigo))';
+
+       qryvendas.parambyname('montagem').AsString :='';
+       if ComMontagem and not SemMontagem then
+         qryvendas.parambyname('montagem').AsString :=' and (c.montagem)'
+       else
+       if SemMontagem and not ComMontagem then
+         qryvendas.parambyname('montagem').AsString :=' and not (c.montagem)';
+
+       qryvendas.parambyname('brinde').AsString :='';
+       if Brinde and not NaoBrinde then
+         qryvendas.parambyname('brinde').AsString :=' and (pdf.brinde)'
+       else
+       if NaoBrinde and not Brinde then
+         qryvendas.parambyname('brinde').AsString :=' and not (pdf.brinde)';
+
+       qryVendas.Open;
+       result := not qryvendas.IsEmpty;
+     end;
+  //COMPRAS
+  1: begin
+
+     end;
+  end;
+end;
+
+
+constructor TdtmRelatorioCurvaABC.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryVendasquantidade.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+  qryVendasqtdeadquirida.DisplayFormat := ParSistema.MascaraQuantidadeGrade;
+
+end;
+
+procedure TdtmRelatorioCurvaABC.ImprimirRelatorio;
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+  frVariables['titulo']:= fTitulo;
+  frVariables['subtitulo']:= fsubTitulo;
+  frVariables['Outras']:= foutras;
+  frVariables['EmLinha']:=FEmLinha;
+  frVariables['ForadeLinha']:=FForadeLinha;
+  frVariables['ComMontagem']:=FComMontagem;
+  frVariables['SemMontagem']:=FSemMontagem;
+  frVariables['Brinde']:=FBrinde;
+  frVariables['NaoBrinde']:=FNaoBrinde;
+
+  frmPreview := TfrmPreviewPadrao.create(self);
+  try
+   GuardarRegistroAtual(qryVendas,true);
+   Relatorio := frmPreview.frCompositeReport;
+   with frmPreview do
+   begin
+    frCompositeReport.Reports.Clear;
+
+    frprlVendasLucrosMarcas.DesignReport;
+    frxReport1.DesignReport;
+
+    frprlVendasLucros.DesignReport;
+    frxReport1.DesignReport;
+
+    frprlVendasLucrosFornecedores.DesignReport;
+    frxReport1.DesignReport;
+
+    frprlVendasLucrosGrupos.DesignReport;
+    frxReport1.DesignReport;
+
+    case ftipoCurvaABC of
+     0,1,2: begin
+//              frprlVendasLucros.DesignReport;
+              frCompositeReport.Reports.Add(frprlVendasLucros);
+            end;
+     3    : begin
+             // frprlVendasLucrosFornecedores.DesignReport;
+              frCompositeReport.Reports.Add(frprlVendasLucrosFornecedores);
+            end;
+     4    : begin
+             // frprlVendasLucrosGrupos.DesignReport;
+              frCompositeReport.Reports.Add(frprlVendasLucrosGrupos);
+            end;
+     5    : begin
+             // frprlVendasLucrosGrupos.DesignReport;
+              frCompositeReport.Reports.Add(frprlVendasLucrosMarcas);
+            end;
+
+    end;
+   end;
+   Relatorio.Preview := frmPreview.frPreviewPadrao;
+   Relatorio.ShowReport;
+
+   frmPreview.ShowModal;
+
+  finally
+
+   frmPreview.Free;
+   VoltarRegistroAtual(qryvendas);
+  end;
+
+end;
+
+procedure TdtmRelatorioCurvaABC.ZMonitor1MonitorEvent(Sql, Result: String);
+var
+ Listar : TStringList;
+ Arquivo: String;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  Arquivo:= 'c:\Lixo\curva.sql';
+  if fileexists(Arquivo) then
+    Listar.loadfromfile(Arquivo);
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile(Arquivo);
+  listar.free;
+end;
+
+procedure TdtmRelatorioCurvaABC.frprlVendasLucrosBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frprlVendasLucros, View);
+end;
+
+procedure TdtmRelatorioCurvaABC.frprlVendasLucrosFornecedoresBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frprlVendasLucrosFornecedores, View);
+end;
+
+procedure TdtmRelatorioCurvaABC.frprlVendasLucrosGruposBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frprlVendasLucrosGrupos, View);
+end;
+
+procedure TdtmRelatorioCurvaABC.GravarExcel;
+var
+  Excel, oWB, oSheet: Variant;
+  Linha, QtdeLinhas, Planilhas, NumeroLinhas: integer;
+  Pos: TBookmark;
+begin
+  QtdeLinhas:= 64;
+  NumeroLinhas:= 1;
+  Excel:= CreateOleObject('Excel.Application');
+  Excel.Visible:= False;
+
+  oWB := Excel.Workbooks.Add;
+  oSheet := oWB.ActiveSheet;
+
+  {
+  case ftipoCurvaABC of
+    0,1,2: Excel.WorkBooks.Open(ExtractFilePath(Application.ExeName)+'CurvaABC.xls');
+    3:     Excel.WorkBooks.Open(ExtractFilePath(Application.ExeName)+'CurvaABCFornecedores.xls');
+    4:     Excel.WorkBooks.Open(ExtractFilePath(Application.ExeName)+'CurvaABCGrupos.xls');
+  end;
+  }
+
+  Excel.WorkBooks[1].Sheets[1].Cells[1,1]:= fTitulo;
+  Excel.WorkBooks[1].Sheets[1].Cells[3,1]:= fSubtitulo;
+  Excel.WorkBooks[1].Sheets[1].Cells[5,1]:= RazaoFilialBase;
+  Excel.WorkBooks[1].Sheets[1].Cells[6,1]:= RuaFilialBase+' - '+BairroFilialBase;
+  Excel.WorkBooks[1].Sheets[1].Cells[7,1]:= 'CEP: '+CEPFilialBase+ ' - '+CidadeFilialBase+' - '+EstadoFilialBase;
+
+
+  Excel.WorkBooks[1].Sheets[1].Cells[1,12]:= Now;
+  Excel.WorkBooks[1].Sheets[1].Cells[2,12]:= 1;
+  Excel.WorkBooks[1].Sheets[1].Cells[4,6]:= fOutras;
+
+  Excel.WorkBooks[1].Sheets[1].Cells[7,6]:= 'Em Linha';
+  if fEmLinha then
+    Excel.WorkBooks[1].Sheets[1].Cells[7,5]:= 'X'
+  else
+    Excel.WorkBooks[1].Sheets[1].Cells[7,5]:= '';
+
+  Excel.WorkBooks[1].Sheets[1].Cells[7,9]:= 'Com Montagem';
+  if fComMontagem then
+    Excel.WorkBooks[1].Sheets[1].Cells[7,8]:= 'X'
+  else
+    Excel.WorkBooks[1].Sheets[1].Cells[7,8]:= '';
+
+  Excel.WorkBooks[1].Sheets[1].Cells[7,12]:= 'Brinde';
+  if fBrinde then
+    Excel.WorkBooks[1].Sheets[1].Cells[7,11]:= 'X'
+  else
+    Excel.WorkBooks[1].Sheets[1].Cells[7,11]:= '';
+
+  Excel.WorkBooks[1].Sheets[1].Cells[8,6]:= 'Fora de Linha';
+  if fForadeLinha then
+    Excel.WorkBooks[1].Sheets[1].Cells[8,5]:= 'X'
+  else
+    Excel.WorkBooks[1].Sheets[1].Cells[8,5]:= '';
+
+
+  Excel.WorkBooks[1].Sheets[1].Cells[8,9]:= 'Sem Montagem';
+  if fSemMontagem then
+    Excel.WorkBooks[1].Sheets[1].Cells[8,8]:= 'X'
+  else
+    Excel.WorkBooks[1].Sheets[1].Cells[8,8]:= '';
+
+
+  Excel.WorkBooks[1].Sheets[1].Cells[8,12]:= 'Não Brinde';
+  if fNaoBrinde then
+    Excel.WorkBooks[1].Sheets[1].Cells[8,11]:= 'X'
+  else
+    Excel.WorkBooks[1].Sheets[1].Cells[8,11]:= '';
+
+  Linha:= 13;
+
+  Pos:= qryVendas.GetBookmark;
+  qryVendas.DisableControls;
+  qryVendas.First;
+  while not qryVendas.Eof do
+  begin
+    case ftipoCurvaABC of
+      0,1,2: begin
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,1]:= qryVendasordem.AsString;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,2]:= qryVendascodigo.AsString;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,3]:= qryVendasdescricao.AsString;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,4]:= qryVendasreferencia.AsString;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,5]:= qryVendasquantidade.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,6]:= qryVendasqtdeadquirida.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,7]:= qryVendasEstoqueTotal.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,8]:= qryVendasTotalCustoemEstoque.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,9]:= qryVendasTotalVendaemEstoque.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,10]:= qryVendasTotalProdutosemPedido.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,11]:= qryVendasfaturamento.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,12]:= qryVendascusto.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,13]:= qryVendaslucrobruto.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,14]:= qryVendasparticipacao.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,15]:= qryVendaspercentual.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,16]:= qryVendasacumulado.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,17]:= qryVendastipo.AsString;
+               inc(Linha);
+               inc(NumeroLinhas);
+               qryVendas.Next;
+               Excel.WorkBooks[1].Sheets[1].Rows.Rows[linha].Insert;
+//               Excel.WorkBooks[1].Sheets[1].Range['G'+inttostr(Linha),'H'+inttostr(Linha)].MergeCells:= true;
+             end;
+          3: begin
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,1]:= qryVendasordem.AsString;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,2]:= qryVendasfornecedor.AsString;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,3]:= qryVendasnomefornecedor.AsString;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,4]:= qryVendasquantidade.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,5]:= qryVendasfaturamento.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,6]:= qryVendasqtdeadquirida.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,7]:= qryVendasEstoqueTotal.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,8]:= qryVendasTotalCustoemEstoque.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,9]:= qryVendasTotalVendaemEstoque.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,10]:= qryVendasTotalProdutosemPedido.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,11]:= qryVendascusto.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,12]:= qryVendaslucrobruto.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,13]:= qryVendasparticipacao.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,14]:= qryVendaspercentual.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,15]:= qryVendasacumulado.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,16]:= qryVendastipo.AsString;
+               inc(Linha);
+               inc(NumeroLinhas);
+               qryVendas.Next;
+               Excel.WorkBooks[1].Sheets[1].Rows.Rows[linha].Insert;
+//               Excel.WorkBooks[1].Sheets[1].Range['F'+inttostr(Linha),'G'+inttostr(Linha)].MergeCells:= true;
+             end;
+          4: begin
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,1]:= qryVendasordem.AsString;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,2]:= qryVendasgrupo.AsString;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,3]:= qryVendasdescricaogrupo.AsString;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,4]:= qryVendasquantidade.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,5]:= qryVendasqtdeadquirida.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,6]:= qryVendasEstoqueTotal.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,7]:= qryVendasTotalCustoemEstoque.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,8]:= qryVendasTotalVendaemEstoque.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,9]:= qryVendasTotalProdutosemPedido.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,10]:= qryVendasfaturamento.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,11]:= qryVendascusto.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,12]:= qryVendaslucrobruto.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,13]:= qryVendasparticipacao.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,14]:= qryVendaspercentual.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,15]:= qryVendasacumulado.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,16]:= qryVendastipo.AsString;
+               inc(Linha);
+               inc(NumeroLinhas);
+               qryVendas.Next;
+               Excel.WorkBooks[1].Sheets[1].Rows.Rows[linha].Insert;
+//               Excel.WorkBooks[1].Sheets[1].Range['F'+inttostr(Linha),'G'+inttostr(Linha)].MergeCells:= true;
+             end;
+          5: begin
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,1]:= qryVendasordem.AsString;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,2]:= qryVendasmarca.AsString;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,3]:= qryVendasdescricaomarca.AsString;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,4]:= qryVendasquantidade.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,5]:= qryVendasqtdeadquirida.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,6]:= qryVendasEstoqueTotal.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,7]:= qryVendasTotalCustoemEstoque.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,8]:= qryVendasTotalVendaemEstoque.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,9]:= qryVendasTotalProdutosemPedido.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,10]:= qryVendasfaturamento.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,11]:= qryVendascusto.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,12]:= qryVendaslucrobruto.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,13]:= qryVendasparticipacao.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,14]:= qryVendaspercentual.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,15]:= qryVendasacumulado.AsFloat;
+               Excel.WorkBooks[1].Sheets[1].Cells[Linha,16]:= qryVendastipo.AsString;
+               inc(Linha);
+               inc(NumeroLinhas);
+               qryVendas.Next;
+               Excel.WorkBooks[1].Sheets[1].Rows.Rows[linha].Insert;
+//               Excel.WorkBooks[1].Sheets[1].Range['F'+inttostr(Linha),'G'+inttostr(Linha)].MergeCells:= true;
+             end;
+
+    end;
+  end;
+  qryVendas.EnableControls;
+  qryVendas.GotoBookmark(Pos);
+  qryVendas.FreeBookmark(Pos);
+
+  Excel.WorkBooks[1].SaveAs(LocalGravacao);
+  Excel.WorkBooks.Open(LocalGravacao);
+  Excel.Visible:= True;
+end;
+
+procedure TdtmRelatorioCurvaABC.AtualizarResultadoCurvaABC;
+begin
+  qryAtualizarProdutos.Sql.Clear;
+  qryAtualizarProdutos.sql.Append('update produtos set resultadocurvaabc = null, veiodatriggercaracteristicas = true where resultadocurvaabc is not null;');
+
+  GuardarRegistroAtual(qryVendas,true);
+  qryvendas.First;
+  while not qryvendas.Eof do
+  begin
+    qryAtualizarProdutos.sql.Append(format('update produtos set resultadocurvaabc = %s, veiodatriggercaracteristicas = true where codigo = %s;',[quotedstr(qryVendastipo.AsString), qryVendascodigo.AsString]));
+    qryVendas.Next;
+  end;
+  VoltarRegistroAtual(qryVendas);
+
+  qryAtualizarProdutos.ExecSql;
+  perpetrar([]);
+
+end;
+
+procedure TdtmRelatorioCurvaABC.frprlVendasLucrosMarcasBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frprlVendasLucrosMarcas, View);
+end;
+
+end.

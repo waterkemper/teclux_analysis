@@ -19,7 +19,8 @@ Uses
   fmmanutencaoacessos, fmconfiguracaosistema, fmcadastrocomissoesusuariosgrupos,
   fmcadastrocomissoesusuariosclasses, fmparametroscredito, fmmemoriacredito,
   fmcadastrousuariosfiliais,fmlogprodutos, fmexportacaodados, fmncm,
-  fmMonitoraBancoDados, fmquestionarios, fmManutencaoObservacoesVenda;
+  fmMonitoraBancoDados, fmquestionarios, fmManutencaoObservacoesVenda,
+  fmImpostos;
 
 initialization
   RegisterClasses([TfrmCadastroBancos, TfrmCadastroEnderecos,
@@ -39,5 +40,6 @@ initialization
                    TfrmMemoriaCredito, TfrmCadastroUsuariosFiliais,TfrmLogProdutos,
                    TfrmExportacaoDados, Tfrmncm,
                    TfrmMonitoraBancoDados, TfrmQuestionarios,
-                   TfrmManutencaoObservacoesVenda]);
+                   TfrmManutencaoObservacoesVenda,
+                   TfrmImpostos]);
 end.

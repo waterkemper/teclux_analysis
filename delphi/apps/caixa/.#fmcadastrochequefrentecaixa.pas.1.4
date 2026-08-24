@@ -1,0 +1,197 @@
+unit fmcadastrochequefrentecaixa;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, Windows,
+  DBCtrls, Buttons, Mask,
+  //Repositorio
+  frcgcoucpf, frendereco, frenderecoeditor, frtelefone, frcmc7, cpnumero, fmnavcontroles,
+  //Componentes
+  cptexto, cpdbfindcontrols, cpdata, cpeditioncontrolvalidation,
+  //Projeto
+  fmclientefrentecaixa, ComCtrls, cpdbdata, cpdocumento, ToolWin;
+
+type
+  TfrmCadastroChequeFrenteCaixa = class(TfrmClienteFrenteCaixa)
+    fraCMC7: TfraCMC7;
+    ecvImprimirCheque: TtecEditionControlValidation;
+    sbnImprimirCheque: TSpeedButton;
+    ecvSalvar: TtecEditionControlValidation;
+    edtTitularCheque: TEdit;
+    edtDataVencimento: TEditData;
+    edtValorCheque: TEditNumero;
+    gbxDataVencto: TGroupBox;
+    gbxValorCheque: TGroupBox;
+    gbxTitular: TGroupBox;
+    procedure fraCMC7edtCMC7Exit(Sender: TObject);
+    procedure fraCMC7edtManual3Exit(Sender: TObject);
+    procedure sbnImprimirChequeClick(Sender: TObject);
+    procedure sbnCancelarClick(Sender: TObject);
+    procedure bbnOKCLick(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure edfCodigoClienteFound(Found: Boolean);
+    procedure edtClienteExit(Sender: TObject);
+  private
+    FNomeCliente: String;
+  protected
+    procedure ConsultaCliente;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function  getValorCheque: String;
+    procedure setValorCheque(const Value: String);
+    procedure VerificarCheque;
+  public
+    constructor Create(Aowner: TComponent); override;
+    destructor Destroy; override;
+    property ValorCheque: String read getValorCheque write setValorCheque;
+  end;
+
+var
+frmCadastroChequeFrenteCaixa: TfrmCadastroChequeFrenteCaixa;
+
+implementation
+
+{$R *.dfm}
+
+Uses
+  //Biblio
+  ctconstantes, biblio, climpressorachequepadrao,
+  // Repositorio
+  fmconsultaporcampo,
+  //Projeto
+  dmfrentecaixa;
+
+procedure TfrmCadastroChequeFrenteCaixa.bbnOKClick(Sender: TObject);
+var
+  Ctrl: TWinControl;
+begin
+  if ecvSalvar.Verify(Self, Ctrl) then begin
+    dtmFrenteCaixa.IncluirClienteCheque(fraCMC7.NumeroCheque, edtDataVencimento.Text, edtValorCheque.ValorSemFormatacao, edtTitularCheque.Text);
+    ModalResult := mrOK
+  end
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.ConsultaCliente;
+var
+  Procurar: TfrmConsultaPorCampo;
+begin
+  Procurar := TfrmConsultaPorCampo.Create(nil);
+  try
+    procurar.ExisteCodigo    := ExisteInformacao;
+    procurar.DataSet         := dtmFrenteCaixa.TabelaConsultarCliente;
+    dtmFrenteCaixa.AbreConsultaClientes;
+    if procurar.ShowModal(ctCLIENTES) = mrOK then
+      dtmFrenteCaixa.SelecionarCliente;
+  finally
+    procurar.Free;
+  end;
+  SetFocus;
+end;
+
+constructor TfrmCadastroChequeFrenteCaixa.Create(Aowner: TComponent);
+begin
+  inherited;
+//  dtmFrenteCaixa.AbreClientes;
+  edtDataVencimento.Text := DateToStr(DataLocal)
+end;
+
+function TfrmCadastroChequeFrenteCaixa.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  Result := dtmFrenteCaixa.ExisteCliente(NomeCampo, Value)
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.fraCMC7edtCMC7Exit(Sender: TObject);
+begin
+  fraCMC7.edtCMC7Exit(Sender);
+  VerificarCheque
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.fraCMC7edtManual3Exit(Sender: TObject);
+begin
+  fraCMC7.edtManual3Exit(Sender);
+  VerificarCheque
+end;
+
+function TfrmCadastroChequeFrenteCaixa.getValorCheque: String;
+begin
+  Result := edtValorCheque.ValorSemFormatacao
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.sbnCancelarClick(Sender: TObject);
+begin
+  inherited;
+  dtmFrenteCaixa.CancelarClienteCheque;
+  ModalResult := mrCancel
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.sbnImprimirChequeClick(Sender: TObject);
+var
+  Ctrl: TWinControl;
+begin
+  inherited;
+  if ecvImprimirCheque.Verify(Self, Ctrl) then
+    if Assigned(ImpChequePadrao) then begin
+      ImpChequePadrao.CodigoBanco := fraCMC7.edtBanco.Text;
+      ImpChequePadrao.Data        := edtDataVencimento.Text;
+      ImpChequePadrao.Valor       := edtValorCheque.ValorSemFormatacao;
+      ImpChequePadrao.Imprimir;
+    end
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.setValorCheque(const Value: String);
+begin
+  edtValorCheque.Text := Value;
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.VerificarCheque;
+begin
+  if fraCMC7.ChequeValido then
+    if dtmFrenteCaixa.ChequeCadastrado(fraCMC7.NumeroCheque) then begin
+      MensagemAviso(ctNUMEROCHEQUECADASTRADO);
+      fraCMC7.LimparCampos;
+    end else
+      fraCMC7.edtBanco.ReadOnly := True;
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.FormKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+//  inherited;
+  if (not (edfCodigoCliente.Focused) and (Key = VK_F9)) or
+     ((Shift = [ssCtrl]) and (Key = VK_F9)) then
+  begin
+    inherited sbnProcurarClick(Self);
+    edtCliente.SetFocus;
+    edtTitularCheque.SetFocus;
+  end
+  else
+  if ((Shift = []) and (Key = VK_F5)) then
+    bbnOKCLick(nil);
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.edfCodigoClienteFound(
+  Found: Boolean);
+begin
+  inherited;
+  edtTitularCheque.Text:= edtCliente.Text;
+  edtTitularCheque.SetFocus;
+end;
+
+procedure TfrmCadastroChequeFrenteCaixa.edtClienteExit(Sender: TObject);
+begin
+  inherited;
+  edtTitularCheque.Text:= edtCliente.Text;
+end;
+
+destructor TfrmCadastroChequeFrenteCaixa.Destroy;
+begin
+  inherited;
+  frmCadastroChequeFrenteCaixa := nil;
+end;
+
+end.
+
+
+

@@ -1,0 +1,526 @@
+inherited dtmIndiceProdutividadeOEE: TdtmIndiceProdutividadeOEE
+  OldCreateOrder = False
+  Left = 881
+  Top = 249
+  Height = 294
+  Width = 462
+  object qryIndiceProdutividadeOEE: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'TurnoM'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'TurnoV'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'TurnoN1'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'TurnoN2'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'TurnoX'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroPeriodo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FiltroMaquinas'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'SELECT Selecao.*,'
+      
+        '       CAST(100.0* (ITO / 100 * IPA / 100 * IDO / 100) AS NUMERI' +
+        'C(5,2)) AS OEE'
+      'FROM'
+      ''
+      '('
+      ' SELECT ito.Turno, ito.Maquina, ito.DescricaoMaquina,'
+      
+        '        CAST((100.0 * (ito.TC - ito.PNP)) / ito.TC AS NUMERIC( 5' +
+        ',2)) AS ITO,'
+      
+        '        CAST((100.0 * (ito.TP - ito.PD))  / ito.TP AS NUMERIC(15' +
+        ',2)) AS IPA,'
+      '        ido.IDO'
+      ''
+      ' FROM'
+      ''
+      ' ('
+      '  SELECT oou.Maquina, m.Descricao AS DescricaoMaquina,'
+      ''
+      
+        '                                             /* Total do Tempo d' +
+        'isponivel ttd */'
+      
+        '        (EXTRACT(EPOCH FROM ((CAST(CAST(:DataFinal   AS DATE) + ' +
+        '1 AS TIMESTAMP) -'
+      
+        '                                   CAST(:DataInicial AS TIMESTAM' +
+        'P))) / 60) -'
+      ''
+      '         COALESCE(SUM((SELECT SUM(ooup.TempoParada)'
+      '                       FROM OperacoesOSPUsuarioParadas ooup'
+      
+        '                            JOIN MotivosParadas mp ON ooup.Codig' +
+        'oParada = mp.Codigo AND'
+      
+        '                                                      NOT COALES' +
+        'CE(mp.ParadaNaoProgramada,FALSE)'
+      ''
+      
+        '                       WHERE ooup.OSP  = oou.OSP  AND ooup.Opera' +
+        'cao = oou.Operacao AND ooup.Data   = oou.Data AND'
+      
+        '                             ooup.Lote = oou.Lote AND ooup.Usuar' +
+        'io = oou.Usuario   AND ooup.Inicio = oou.Inicio)),0)) AS TC,'
+      
+        '                        /* Paradas programadas  -> resultado tc ' +
+        'Tempo de carga*/'
+      ''
+      '         SUM(oou.Quantidade) AS tp, /* total produzIDO */'
+      ''
+      '         COALESCE(SUM((SELECT SUM(ooup.TempoParada)'
+      '                       FROM OperacoesOSPUsuarioParadas ooup'
+      
+        '                            JOIN MotivosParadas mp ON ooup.Codig' +
+        'oParada = mp.Codigo AND'
+      
+        '                                                      COALESCE(m' +
+        'p.ParadaNaoProgramada,FALSE)'
+      ''
+      
+        '                       WHERE ooup.OSP  = oou.OSP  AND ooup.Opera' +
+        'cao = oou.Operacao AND ooup.Data   = oou.Data AND'
+      
+        '                             ooup.Lote = oou.Lote AND ooup.Usuar' +
+        'io = oou.Usuario   AND ooup.Inicio = oou.Inicio)), 0) AS PNP,'
+      
+        '                                                     /* Parada n' +
+        #227'o programada */'
+      ''
+      
+        '         coalesce(SUM((select sum(QuantidadePerda) from Operacoe' +
+        'sOSPUsuariofalhas_(OOU.OSP, OOU.LOTE, OOU.Operacao, OOU.Usuario,' +
+        ' OOU.Data, OOU.Inicio))),0) as PD,'
+      
+        '                                                      /* produto' +
+        's defeituosos */'
+      '         TipoTurno.Turno'
+      ''
+      '  FROM OperacoesOSPUsuario oou'
+      ''
+      '   JOIN'
+      '      ('
+      
+        '       %TurnoM  /* SELECT cast('#39'M'#39' AS char(1)) AS Turno, cast('#39'0' +
+        '5:00:00'#39' AS time) AS Inicio, cast('#39'13:30:00'#39' AS time) AS fim */'
+      '       UNION ALL'
+      
+        '       %TurnoV /* SELECT cast('#39'V'#39' AS char(1)) AS Turno, cast('#39'13' +
+        ':30:01'#39' AS time) AS Inicio, cast('#39'22:00:00'#39' AS time) AS fim */'
+      '       UNION ALL'
+      
+        '       %TurnoN1 /* SELECT cast('#39'N'#39' AS char(1)) AS Turno, cast('#39'2' +
+        '2:00:01'#39' AS time) AS Inicio, cast('#39'23:59:59'#39' AS time) AS fim */'
+      '       UNION ALL'
+      
+        '       %TurnoN2 /* SELECT cast('#39'N'#39' AS char(1)) AS Turno, cast('#39'0' +
+        '0:00:01'#39' AS time) AS Inicio, cast('#39'04:59:59'#39' AS time) AS fim */'
+      '       UNION ALL'
+      
+        '       %TurnoX /* SELECT cast('#39'X'#39' AS char(1)) AS Turno, cast('#39'00' +
+        ':00:01'#39' AS time) AS Inicio, cast('#39'04:59:59'#39' AS time) AS fim */'
+      '      ) AS TipoTurno'
+      '      ON oou.Inicio BETWEEN TipoTurno.Inicio and TipoTurno.Fim'
+      ''
+      '       JOIN Operacoes o ON oou.Operacao = o.Codigo'
+      '       JOIN Maquinas m  ON oou.Maquina  = m.Codigo'
+      ''
+      '  WHERE COALESCE(oou.Quantidade,0) > 0 AND'
+      '        oou.DataTermino IS NOT NULL    AND'
+      '        oou.Termino     IS NOT NULL'
+      ''
+      '        %FiltroPeriodo'
+      '        %FiltroMaquinas'
+      ''
+      '  GROUP BY oou.Maquina, m.Descricao, TipoTurno.Turno'
+      ' ) AS ito'
+      ''
+      ' JOIN'
+      ''
+      ' ('
+      '  SELECT Turno, Maquina, DescricaoMaquina,'
+      
+        '         CAST(SUM(IDO * Tempo) / SUM(Tempo) AS NUMERIC(5,2)) AS ' +
+        'IDO'
+      '  FROM'
+      ''
+      '  ('
+      '   SELECT Turno, Maquina, DescricaoMaquina,'
+      
+        '          CAST((100.0 * (TP * TCT)) / (TTD - TCL - pp - PNP) AS ' +
+        'NUMERIC(15,2)) AS IDO,'
+      '          Tempo'
+      '   FROM'
+      ''
+      '   ('
+      '    SELECT ido.Maquina, ido.DescricaoMaquina,'
+      ''
+      
+        '        (EXTRACT(EPOCH FROM ((CAST(CAST(:DataFinal AS DATE) + 1 ' +
+        'AS TIMESTAMP) -'
+      
+        '                                   CAST(:DataInicial AS TIMESTAM' +
+        'P))) / 60)) AS TTD,'
+      
+        '                                              /*Total do Tempo d' +
+        'isponivel ttd */'
+      ''
+      '         SUM(ido.pp) AS pp,'
+      '         SUM(ido.tp) AS tp,'
+      '         ido.TCT,'
+      '         ido.TCT AS TempoPadrao,'
+      ''
+      '         SUM(ido.PNP) AS PNP,'
+      '         SUM(ido.Tempo) AS Tempo,'
+      ''
+      '         ido.Turno,'
+      ''
+      '         SUM(ido.TCL - ido.Tempo - ido.PP - ido.PNP) AS TCL'
+      '    FROM'
+      ''
+      '    ('
+      '     SELECT oou.Maquina, m.Descricao AS DescricaoMaquina,'
+      ''
+      '            COALESCE(SUM((SELECT SUM(ooup.TempoParada)'
+      
+        '                             FROM OperacoesOSPUsuarioParadas oou' +
+        'p'
+      '                                  JOIN MotivosParadas mp'
+      
+        '                                  ON ooup.CodigoParada = mp.Codi' +
+        'go AND'
+      
+        '                                     NOT COALESCE(mp.ParadaNaoPr' +
+        'ogramada,FALSE)'
+      
+        '                             WHERE ooup.OSP  = oou.OSP  AND ooup' +
+        '.Operacao = oou.Operacao AND ooup.Data   = oou.Data AND'
+      
+        '                                   ooup.Lote = oou.Lote AND ooup' +
+        '.Usuario  = oou.Usuario  AND ooup.Inicio = oou.Inicio)), 0) AS P' +
+        'P,'
+      
+        '                         /* Paradas programadas -> resultado tc ' +
+        'Tempo de carga*/'
+      ''
+      '            SUM(oou.Quantidade) AS TP, /* total produzIDO */'
+      ''
+      '           (SELECT otp.TempoPadrao / 100'
+      '               FROM OperacoesTempoSPadrao otp'
+      '               WHERE otp.Operacao = o.Codigo'
+      
+        '               ORDER BY otp.Data DESC LIMIT 1) AS TCT, /*Tempo c' +
+        'iclo t'#233'cnico */'
+      ''
+      ''
+      '            COALESCE(SUM((SELECT SUM(ooup.TempoParada)'
+      
+        '                             FROM OperacoesOSPUsuarioParadas oou' +
+        'p'
+      '                                  JOIN MotivosParadas mp'
+      
+        '                                  ON ooup.CodigoParada = mp.Codi' +
+        'go AND'
+      
+        '                                     COALESCE(mp.ParadaNaoProgra' +
+        'mada,FALSE)'
+      
+        '                             WHERE ooup.OSP  = oou.OSP  AND ooup' +
+        '.Operacao = oou.Operacao AND ooup.Data   = oou.Data AND'
+      
+        '                                   ooup.Lote = oou.Lote AND ooup' +
+        '.Usuario = oou.Usuario   AND ooup.Inicio = oou.Inicio)), 0) AS P' +
+        'NP,'
+      
+        '                                                     /* Parada n' +
+        #227'o programada */'
+      ''
+      
+        '            CAST(SUM((EXTRACT(EPOCH FROM (CAST(oou.DataTermino |' +
+        '| '#39' '#39' || oou.Termino AS TIMESTAMP)) -'
+      
+        '                                         (CAST(oou.Data        |' +
+        '| '#39' '#39' || oou.Inicio  AS TIMESTAMP))) / 60)) AS INTEGER) AS Tempo' +
+        ','
+      ''
+      '            TipoTurno.Turno,'
+      '            TipoSemana.TCL'
+      ''
+      ''
+      '     FROM OperacoesOSPUsuario oou'
+      '          JOIN ('
+      
+        '                %TurnoM  /* SELECT cast('#39'M'#39' AS char(1)) AS Turno' +
+        ', cast('#39'05:00:00'#39' AS time) AS Inicio, cast('#39'13:30:00'#39' AS time) A' +
+        'S fim */'
+      '                UNION ALL'
+      
+        '                %TurnoV /* SELECT cast('#39'V'#39' AS char(1)) AS Turno,' +
+        ' cast('#39'13:30:01'#39' AS time) AS Inicio, cast('#39'22:00:00'#39' AS time) AS' +
+        ' fim */'
+      '                UNION ALL'
+      
+        '                %TurnoN1 /* SELECT cast('#39'N'#39' AS char(1)) AS Turno' +
+        ', cast('#39'22:00:01'#39' AS time) AS Inicio, cast('#39'23:59:59'#39' AS time) A' +
+        'S fim */'
+      '                UNION ALL'
+      
+        '                %TurnoN2 /* SELECT cast('#39'N'#39' AS char(1)) AS Turno' +
+        ', cast('#39'00:00:01'#39' AS time) AS Inicio, cast('#39'04:59:59'#39' AS time) A' +
+        'S fim */'
+      '                UNION ALL'
+      
+        '                %TurnoX /* SELECT cast('#39'X'#39' AS char(1)) AS Turno,' +
+        ' cast('#39'00:00:01'#39' AS time) AS Inicio, cast('#39'04:59:59'#39' AS time) AS' +
+        ' fim */'
+      '              ) AS TipoTurno'
+      
+        '          ON oou.Inicio BETWEEN TipoTurno.Inicio and TipoTurno.f' +
+        'im'
+      ''
+      '          JOIN ('
+      
+        '                SELECT 1 AS DiaSemana, :ValorTCLSemana AS TCL UN' +
+        'ION ALL'
+      
+        '                SELECT 2 AS DiaSemana, :ValorTCLSemana AS TCL UN' +
+        'ION ALL'
+      
+        '                SELECT 3 AS DiaSemana, :ValorTCLSemana AS TCL UN' +
+        'ION ALL'
+      
+        '                SELECT 4 AS DiaSemana, :ValorTCLSemana AS TCL UN' +
+        'ION ALL'
+      
+        '                SELECT 5 AS DiaSemana, :ValorTCLSemana AS TCL UN' +
+        'ION ALL'
+      
+        '                SELECT 6 AS DiaSemana, :ValorTCLSabado AS TCL UN' +
+        'ION ALL'
+      '                SELECT 0 AS DiaSemana, :ValorTCLDomingo AS TCL'
+      '               ) AS TipoSemana'
+      '          ON EXTRACT(DOW FROM oou.data) = TipoSemana.DiaSemana'
+      ''
+      '          JOIN Operacoes o ON oou.Operacao = o.Codigo'
+      '          JOIN Maquinas m ON oou.Maquina = m.Codigo'
+      ''
+      '     WHERE COALESCE(oou.Quantidade,0) > 0 AND'
+      '           oou.DataTermino IS NOT NULL    AND'
+      '           oou.Termino IS NOT NULL'
+      ''
+      '           %FiltroPeriodo'
+      '           %FiltroMaquinas'
+      ''
+      
+        '     GROUP BY oou.Maquina, m.Descricao, tct, TipoTurno.Turno, Ti' +
+        'poSemana.TCL, oou.data'
+      '    ) AS ido'
+      ''
+      '    WHERE ido.Tempo <> 0'
+      '    GROUP BY Maquina, DescricaoMaquina, TCT, Turno'
+      ''
+      '   ) AS ido'
+      ''
+      '  ) AS ido'
+      '  GROUP BY Maquina, DescricaoMaquina, Turno'
+      ''
+      ' ) AS ido'
+      ' ON ito.Maquina = Ido.Maquina AND'
+      '    ito.Turno   = ido.Turno'
+      ''
+      ') AS Selecao'
+      'ORDER BY Maquina, CASE WHEN Turno = '#39'M'#39'           THEN 1'
+      '                       WHEN Turno = '#39'V'#39'           THEN 2'
+      '                       WHEN Turno IN ('#39'N1'#39', '#39'N2'#39') THEN 3'
+      '                                                  ELSE 4'
+      '                  END'
+      '')
+    RequestLive = False
+    Left = 64
+    Top = 56
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'datafinal'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'datainicial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ValorTCLSemana'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ValorTCLSabado'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ValorTCLDomingo'
+        ParamType = ptUnknown
+      end>
+    object qryIndiceProdutividadeOEEturno: TStringField
+      DisplayLabel = 'Turno'
+      FieldName = 'turno'
+      Size = 1
+    end
+    object qryIndiceProdutividadeOEEmaquina: TIntegerField
+      DisplayLabel = 'M'#225'quina'
+      FieldName = 'maquina'
+    end
+    object qryIndiceProdutividadeOEEdescricaomaquina: TStringField
+      DisplayLabel = 'Descri'#231#227'o da m'#225'quina'
+      FieldName = 'descricaomaquina'
+      Size = 30
+    end
+    object qryIndiceProdutividadeOEEito: TFloatField
+      DisplayLabel = 'ITO'
+      FieldName = 'ito'
+    end
+    object qryIndiceProdutividadeOEEipa: TFloatField
+      DisplayLabel = 'IPA'
+      FieldName = 'ipa'
+    end
+    object qryIndiceProdutividadeOEEido: TFloatField
+      DisplayLabel = 'IDO'
+      FieldName = 'ido'
+    end
+    object qryIndiceProdutividadeOEEoee: TFloatField
+      DisplayLabel = 'OEE'
+      FieldName = 'oee'
+    end
+  end
+  object dsrIndiceProdutividadeOEE: TtecDataSource
+    DataSet = qryIndiceProdutividadeOEE
+    Left = 176
+    Top = 80
+  end
+  object ExcelExport1: TExcelExport
+    FontTitles.Charset = DEFAULT_CHARSET
+    FontTitles.Color = clWindowText
+    FontTitles.Height = -11
+    FontTitles.Name = 'MS Sans Serif'
+    FontTitles.Style = [fsBold]
+    OrientationTitles = 0
+    FontData.Charset = DEFAULT_CHARSET
+    FontData.Color = clWindowText
+    FontData.Height = -11
+    FontData.Name = 'MS Sans Serif'
+    FontData.Style = []
+    StyleColumnWidth = cwAutoFit
+    ColumnWidth = 80
+    WorksheetName = 'Indice_Prod_por_M'#225'quinas'
+    Dataset = qryIndiceProdutividadeOEE
+    Left = 328
+    Top = 56
+  end
+  object qryTurnos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterInsert = qryTurnosAfterInsert
+    AfterPost = qryTurnosAfterPost
+    AfterScroll = qryTurnosAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      '       select cast('#39'M'#39' as char(1)) as turno,'
+      '              cast('#39'05:00'#39' as time) as inicio,'
+      '              cast('#39'13:30'#39' as time) as fim,'
+      '              true as selecionar'
+      ''
+      '       union all'
+      ''
+      '       select cast('#39'V'#39' as char(1)) as turno,'
+      '              cast('#39'13:30'#39' as time) as inicio,'
+      '              cast('#39'22:00'#39' as time) as fim,'
+      '              true as selecionar'
+      ''
+      '       union all'
+      ''
+      '       select cast('#39'N'#39' as char(1)) as turno,'
+      '              cast('#39'22:00'#39' as time) as inicio,'
+      '              cast('#39'05:00'#39' as time) as fim,'
+      '              true as selecionar'
+      ''
+      ''
+      '       union all'
+      ''
+      '       select cast('#39'X'#39' as char(1)) as turno,'
+      '              cast(null as time) as inicio,'
+      '              cast(null as time) as fim,'
+      '              false as selecionar'
+      ''
+      ''
+      '              ')
+    RequestLive = True
+    Left = 216
+    Top = 152
+    object qryTurnosturno: TStringField
+      FieldName = 'turno'
+      ReadOnly = True
+      Size = 1
+    end
+    object qryTurnosinicio: TTimeField
+      FieldName = 'inicio'
+      DisplayFormat = 'HH:MM'
+    end
+    object qryTurnosfim: TTimeField
+      FieldName = 'fim'
+      DisplayFormat = 'HH:MM'
+    end
+    object qryTurnosselecionar: TBooleanField
+      FieldName = 'selecionar'
+    end
+  end
+  object dsrTurnos: TtecDataSource
+    DataSet = qryTurnos
+    Left = 256
+    Top = 168
+  end
+end

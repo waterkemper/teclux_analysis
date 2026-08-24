@@ -1,6 +1,6 @@
 inherited frmManutencaoObservacoesVenda: TfrmManutencaoObservacoesVenda
-  Left = 240
-  Top = 38
+  Left = 221
+  Top = 71
   Caption = 'Manuten'#231#227'o de Observa'#231#245'es de Venda'
   ClientHeight = 609
   ClientWidth = 1008
@@ -17,7 +17,7 @@ inherited frmManutencaoObservacoesVenda: TfrmManutencaoObservacoesVenda
     Top = 73
     Width = 1008
     Height = 536
-    ActivePage = tstParametros
+    ActivePage = tstDados
     Align = alClient
     TabOrder = 2
     object tstParametros: TTabSheet
@@ -39,28 +39,12 @@ inherited frmManutencaoObservacoesVenda: TfrmManutencaoObservacoesVenda
         inherited pgcMultiplaSelecaoAleatoria: TtecPageControl
           Width = 624
           Height = 451
-          ActivePage = fraMultiplaSelecaoAleatoria1.tstSelecaoAleatoriaServicos
           Font.Pitch = fpVariable
           inherited tstItemdeProduto: TTabSheet
             Font.Pitch = fpVariable
             inherited fraSelecaoAleatoriaItemdeProdutos: TfraSelecaoAleatoriaItemdeProdutos
-              Width = 616
-              Height = 421
               inherited fraSelecaoAleatoriaItemdeProduto: TfraSelecaoAleatoria
-                Width = 616
-                Height = 397
-                inherited Splitter1: TSplitter
-                  Height = 383
-                end
-                inherited dbgSelecaoAleatoria: TtecDBGrid
-                  Height = 383
-                end
-                inherited pnlLabels: TPanel
-                  Height = 383
-                end
                 inherited pnlAbaixo: TPanel
-                  Top = 383
-                  Width = 616
                   Font.Pitch = fpVariable
                   inherited lblOrientacao: TLabel
                     Font.Pitch = fpVariable
@@ -72,8 +56,6 @@ inherited frmManutencaoObservacoesVenda: TfrmManutencaoObservacoesVenda
                 end
               end
               inherited pnlParametros: TPanel
-                Top = 397
-                Width = 616
                 Font.Pitch = fpVariable
                 inherited ckbProdutosComAgendamento: TCheckBox
                   Font.Pitch = fpVariable
@@ -83,8 +65,26 @@ inherited frmManutencaoObservacoesVenda: TfrmManutencaoObservacoesVenda
           end
           inherited tstProduto: TTabSheet
             inherited fraSelecaoAleatoriaprodutos: TfraSelecaoAleatoriaprodutos
+              Width = 616
+              Height = 421
               inherited fraSelecaoAleatoriaProduto: TfraSelecaoAleatoria
+                Width = 616
+                Height = 421
+                inherited Splitter1: TSplitter
+                  Left = 581
+                  Height = 406
+                end
+                inherited dbgSelecaoAleatoria: TtecDBGrid
+                  Width = 581
+                  Height = 406
+                end
+                inherited pnlLabels: TPanel
+                  Left = 584
+                  Height = 406
+                end
                 inherited pnlAbaixo: TPanel
+                  Top = 406
+                  Width = 616
                   Font.Pitch = fpVariable
                   inherited lblOrientacao: TLabel
                     Font.Pitch = fpVariable
@@ -115,23 +115,8 @@ inherited frmManutencaoObservacoesVenda: TfrmManutencaoObservacoesVenda
           end
           inherited tstSelecaoAleatoriaClasseProduto: TTabSheet
             inherited fraSelecaoaleatoriaclassesprodutos: TfraSelecaoaleatoriaclassesprodutos
-              Width = 616
-              Height = 421
               inherited fraSelecaoAleatoriaClasseProduto: TfraSelecaoAleatoria
-                Width = 616
-                Height = 421
-                inherited Splitter1: TSplitter
-                  Height = 406
-                end
-                inherited dbgSelecaoAleatoria: TtecDBGrid
-                  Height = 406
-                end
-                inherited pnlLabels: TPanel
-                  Height = 406
-                end
                 inherited pnlAbaixo: TPanel
-                  Top = 406
-                  Width = 616
                   Font.Pitch = fpVariable
                   inherited lblOrientacao: TLabel
                     Font.Pitch = fpVariable
@@ -284,23 +269,8 @@ inherited frmManutencaoObservacoesVenda: TfrmManutencaoObservacoesVenda
           end
           inherited tstSelecaoAleatoriaMarketPlace: TTabSheet
             inherited fraSelecaoaleatoriamarketplace1: TfraSelecaoaleatoriamarketplace
-              Width = 616
-              Height = 421
               inherited fraSelecaoAleatoriamarketplace: TfraSelecaoAleatoria
-                Width = 616
-                Height = 421
-                inherited Splitter1: TSplitter
-                  Height = 406
-                end
-                inherited dbgSelecaoAleatoria: TtecDBGrid
-                  Height = 406
-                end
-                inherited pnlLabels: TPanel
-                  Height = 406
-                end
                 inherited pnlAbaixo: TPanel
-                  Top = 406
-                  Width = 616
                   Font.Pitch = fpVariable
                   inherited lblOrientacao: TLabel
                     Font.Pitch = fpVariable
@@ -330,23 +300,8 @@ inherited frmManutencaoObservacoesVenda: TfrmManutencaoObservacoesVenda
           end
           inherited tstSelecaoAleatoriaServicos: TTabSheet
             inherited fraSelecaoaleatoriaservicos1: TfraSelecaoaleatoriaservicos
-              Width = 616
-              Height = 421
               inherited fraSelecaoAleatoriaservicos: TfraSelecaoAleatoria
-                Width = 616
-                Height = 421
-                inherited Splitter1: TSplitter
-                  Height = 406
-                end
-                inherited dbgSelecaoAleatoria: TtecDBGrid
-                  Height = 406
-                end
-                inherited pnlLabels: TPanel
-                  Height = 406
-                end
                 inherited pnlAbaixo: TPanel
-                  Top = 406
-                  Width = 616
                   Font.Pitch = fpVariable
                   inherited lblOrientacao: TLabel
                     Font.Pitch = fpVariable

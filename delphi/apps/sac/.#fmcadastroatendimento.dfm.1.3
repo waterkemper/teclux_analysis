@@ -1,0 +1,940 @@
+inherited frmCadastroAtendimento: TfrmCadastroAtendimento
+  Left = 248
+  Top = 162
+  Action = actHabilitar
+  ActiveControl = edfCodigo
+  Caption = 'Cadastro de Atendimentos'
+  ClientHeight = 601
+  FormStyle = fsMDIChild
+  OnActivate = FormActivate
+  PixelsPerInch = 96
+  TextHeight = 16
+  inherited pnlBarra: TPanel
+    Left = 48
+    Top = 2
+    Width = 603
+  end
+  inherited pnlTopMenu: TPanel
+    TabOrder = 2
+  end
+  object pnlFundoJanela: TPanel
+    Left = 0
+    Top = 40
+    Width = 807
+    Height = 561
+    Align = alClient
+    BevelOuter = bvNone
+    BorderWidth = 3
+    TabOrder = 1
+    object gbxdados: TGroupBox
+      Left = 3
+      Top = 3
+      Width = 801
+      Height = 555
+      Align = alClient
+      TabOrder = 0
+      object rgpTipo: TtecDBRadioGroup
+        Left = 98
+        Top = 8
+        Width = 104
+        Height = 72
+        Caption = 'ATENDIMENTO DE'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        font.height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 1
+        TabStop = False
+        OnClickItem = rgpTipoClickItem
+        DataField = 'tipo'
+        DataSource = dtmCadastroAtendimentos.dsrAtendimento
+        object ckbTipoReclamacao: TtecRadioButton
+          Left = 4
+          Top = 32
+          Width = 94
+          Height = 17
+          Caption = 'Reclama'#231#227'o'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          font.height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 1
+          Value = 'R'
+        end
+        object ckbTipoVisita: TtecRadioButton
+          Left = 4
+          Top = 51
+          Width = 55
+          Height = 17
+          Caption = 'Visita'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          font.height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 2
+          Value = 'V'
+        end
+        object ckbTipoCobranca: TtecRadioButton
+          Left = 4
+          Top = 12
+          Width = 78
+          Height = 17
+          Caption = 'Cobran'#231'a'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          font.height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          Value = 'C'
+        end
+      end
+      object gbxListaAtendimentos: TGroupBox
+        Left = 592
+        Top = 7
+        Width = 201
+        Height = 539
+        TabOrder = 10
+        object lblCobrancas: TLabel
+          Left = 7
+          Top = 3
+          Width = 81
+          Height = 16
+          Caption = '&1 - Cobran'#231'as'
+          FocusControl = dbgCobranca
+        end
+        object lblReclamacoes: TLabel
+          Left = 7
+          Top = 196
+          Width = 98
+          Height = 16
+          Caption = '&2 - Reclama'#231#245'es'
+          FocusControl = dbgReclamacao
+        end
+        object lblVisita: TLabel
+          Left = 7
+          Top = 366
+          Width = 59
+          Height = 16
+          Caption = '&3 - Visitas'
+          FocusControl = dbgVisita
+        end
+        object dbgCobranca: TtecDBGrid
+          Left = 6
+          Top = 20
+          Width = 187
+          Height = 173
+          DataSource = dtmCadastroAtendimentos.dsrCobrancas
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clGreen
+          font.height = -13
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          Options = [dgTitles, dgIndicator, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgCancelOnExit]
+          ParentFont = False
+          TabOrder = 0
+          TitleFont.Charset = DEFAULT_CHARSET
+          TitleFont.Color = clWindowText
+          Titlefont.height = -12
+          TitleFont.Name = 'times'
+          TitleFont.Pitch = fpVariable
+          TitleFont.Style = []
+          OnDblClick = dbgCobrancaDblClick
+          RowWrap = 60
+          Large = False
+          DoubleRowColor = True
+          TitleMinHeight = 100
+          CellHeights = 100
+          StrippedColor = 16054260
+          CanDelete = False
+          PostOnEnter = False
+          DenySort = False
+          Columns = <
+            item
+              Expanded = False
+              FieldName = 'data'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              font.height = -12
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              Title.Alignment = taCenter
+              Title.Caption = 'DATA'
+              Title.Font.Charset = DEFAULT_CHARSET
+              Title.Font.Color = clBlack
+              Title.font.height = -9
+              Title.Font.Name = 'HELVETICA'
+              Title.Font.Pitch = fpVariable
+              Title.Font.Style = []
+              Width = 75
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'lembrar'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              font.height = -12
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              Title.Alignment = taCenter
+              Title.Caption = 'LEMBRAR EM'
+              Title.Font.Charset = DEFAULT_CHARSET
+              Title.Font.Color = clBlack
+              Title.font.height = -9
+              Title.Font.Name = 'HELVETICA'
+              Title.Font.Pitch = fpVariable
+              Title.Font.Style = []
+              Width = 75
+              Visible = True
+            end>
+        end
+        object dbgReclamacao: TtecDBGrid
+          Left = 6
+          Top = 213
+          Width = 187
+          Height = 150
+          DataSource = dtmCadastroAtendimentos.dsrReclamacoes
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clGreen
+          font.height = -13
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          Options = [dgTitles, dgIndicator, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgCancelOnExit]
+          ParentFont = False
+          TabOrder = 1
+          TitleFont.Charset = DEFAULT_CHARSET
+          TitleFont.Color = clWindowText
+          Titlefont.height = -12
+          TitleFont.Name = 'times'
+          TitleFont.Pitch = fpVariable
+          TitleFont.Style = []
+          OnDblClick = dbgReclamacaoDblClick
+          RowWrap = 60
+          Large = False
+          DoubleRowColor = True
+          TitleMinHeight = 100
+          CellHeights = 100
+          StrippedColor = 16054260
+          CanDelete = False
+          PostOnEnter = False
+          DenySort = False
+          Columns = <
+            item
+              Expanded = False
+              FieldName = 'data'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              font.height = -12
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              Title.Alignment = taCenter
+              Title.Caption = 'DATA'
+              Title.Font.Charset = DEFAULT_CHARSET
+              Title.Font.Color = clBlack
+              Title.font.height = -9
+              Title.Font.Name = 'helvetica'
+              Title.Font.Pitch = fpVariable
+              Title.Font.Style = []
+              Width = 75
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'lembrar'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              font.height = -12
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              Title.Alignment = taCenter
+              Title.Caption = 'LEMBRAR EM'
+              Title.Font.Charset = DEFAULT_CHARSET
+              Title.Font.Color = clBlack
+              Title.font.height = -9
+              Title.Font.Name = 'helvetica'
+              Title.Font.Pitch = fpVariable
+              Title.Font.Style = []
+              Width = 75
+              Visible = True
+            end>
+        end
+        object dbgVisita: TtecDBGrid
+          Left = 6
+          Top = 383
+          Width = 187
+          Height = 150
+          DataSource = dtmCadastroAtendimentos.dsrVisitas
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clGreen
+          font.height = -13
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          Options = [dgTitles, dgIndicator, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgCancelOnExit]
+          ParentFont = False
+          TabOrder = 2
+          TitleFont.Charset = DEFAULT_CHARSET
+          TitleFont.Color = clWindowText
+          Titlefont.height = -12
+          TitleFont.Name = 'times'
+          TitleFont.Pitch = fpVariable
+          TitleFont.Style = []
+          OnDblClick = dbgVisitaDblClick
+          RowWrap = 60
+          Large = False
+          DoubleRowColor = True
+          TitleMinHeight = 100
+          CellHeights = 100
+          StrippedColor = 16054260
+          CanDelete = False
+          PostOnEnter = False
+          DenySort = False
+          Columns = <
+            item
+              Expanded = False
+              FieldName = 'data'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              font.height = -13
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              Title.Alignment = taCenter
+              Title.Caption = 'DATA'
+              Title.Font.Charset = DEFAULT_CHARSET
+              Title.Font.Color = clBlack
+              Title.font.height = -9
+              Title.Font.Name = 'helvetica'
+              Title.Font.Pitch = fpVariable
+              Title.Font.Style = []
+              Width = 75
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'lembrar'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              font.height = -12
+              Font.Name = 'helvetica'
+              Font.Pitch = fpVariable
+              Font.Style = []
+              Title.Alignment = taCenter
+              Title.Caption = 'LEMBRAR EM'
+              Title.Font.Charset = DEFAULT_CHARSET
+              Title.Font.Color = clBlack
+              Title.font.height = -9
+              Title.Font.Name = 'helvetica'
+              Title.Font.Pitch = fpVariable
+              Title.Font.Style = []
+              Width = 75
+              Visible = True
+            end>
+        end
+      end
+      object pgcInformes: TPageControl
+        Left = 10
+        Top = 128
+        Width = 568
+        Height = 418
+        ActivePage = tstHistorico
+        TabIndex = 1
+        TabOrder = 9
+        TabWidth = 150
+        object tstEditarInformes: TTabSheet
+          BorderWidth = 2
+          Caption = '&Informes'
+          object mmoEditarInformes: TDBMemo
+            Left = 0
+            Top = 0
+            Width = 556
+            Height = 383
+            Align = alClient
+            DataField = 'informes'
+            DataSource = dtmCadastroAtendimentos.dsrAtendimento
+            TabOrder = 0
+            WantTabs = True
+          end
+        end
+        object tstHistorico: TTabSheet
+          BorderWidth = 2
+          Caption = ' Hist'#243'ric&os'
+          ImageIndex = 1
+          object lbxExibirInformes: TListBox
+            Left = 0
+            Top = 0
+            Width = 556
+            Height = 305
+            Align = alClient
+            ItemHeight = 16
+            Items.Strings = (
+              '')
+            TabOrder = 0
+          end
+          object mmoUltimaReclamacao: TDBMemo
+            Left = 0
+            Top = 305
+            Width = 556
+            Height = 78
+            TabStop = False
+            Align = alBottom
+            Color = 16765587
+            DataField = 'informes'
+            DataSource = dtmCadastroAtendimentos.dsrUltimaReclamacao
+            ReadOnly = True
+            TabOrder = 1
+            Visible = False
+          end
+        end
+      end
+      object gbxCodigo: TGroupBox
+        Left = 10
+        Top = 6
+        Width = 80
+        Height = 36
+        Caption = 'N'#218'MERO'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        font.height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+        object edfCodigo: TtecDbEditFind
+          Left = 2
+          Top = 10
+          Width = 75
+          Height = 20
+          DataField = 'codigo'
+          DataSource = dtmCadastroAtendimentos.dsrAtendimento
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          font.height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          Group = 'Atendimento'
+          MaxLength = 8
+          Maximo = 0
+          Minimo = 37353
+          Adicional = 0
+          Opcional = True
+          ParentFont = False
+          TabOrder = 0
+          PermitirZero = False
+          PermitirNulo = False
+          Operacao = opATRIBUICAO
+          Parameter = 'codigo'
+          ActiveSetControls = True
+          DenyInsert = True
+          NoSetControls = <
+            item
+              Control = gbxCodigo
+            end>
+          SetControls = <
+            item
+              Control = gbxData
+            end
+            item
+              Control = rgpTipo
+            end
+            item
+              Control = gbxTipoAtendimento
+            end
+            item
+              Control = gbxCliente
+            end
+            item
+              Control = gbxAtendente
+            end
+            item
+              Control = gbxLembrarEm
+            end
+            item
+              Control = gbxSemSPC
+            end
+            item
+              Control = gbxSemAviso
+            end
+            item
+              Control = pgcInformes
+            end
+            item
+              Control = gbxListaAtendimentos
+            end>
+        end
+      end
+      object gbxData: TGroupBox
+        Left = 10
+        Top = 44
+        Width = 80
+        Height = 36
+        Caption = 'DATA'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        font.height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 3
+        object dtxData: TtecDBText
+          Left = 2
+          Top = 10
+          Width = 75
+          Height = 20
+          TabStop = False
+          Color = clBtnFace
+          DataField = 'data'
+          DataSource = dtmCadastroAtendimentos.dsrAtendimento
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          font.height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          ReadOnly = True
+          TabOrder = 0
+        end
+      end
+      object gbxAtendente: TGroupBox
+        Left = 10
+        Top = 86
+        Width = 303
+        Height = 36
+        Caption = 'ATENDENTE'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        font.height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 5
+        object dtxAtendente: TtecDBText
+          Left = 2
+          Top = 10
+          Width = 298
+          Height = 20
+          TabStop = False
+          Color = clBtnFace
+          DataField = 'nomeusuario'
+          DataSource = dtmCadastroAtendimentos.dsrAtendimento
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          font.height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          ReadOnly = True
+          TabOrder = 0
+        end
+      end
+      object gbxCliente: TGroupBox
+        Left = 210
+        Top = 46
+        Width = 370
+        Height = 36
+        Caption = 'CLIENTE'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        font.height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 4
+        object sbnCliente: TSpeedButton
+          Left = 71
+          Top = 10
+          Width = 23
+          Height = 23
+          Hint = 'Procurar Cliente'
+          Flat = True
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          font.height = -12
+          Font.Name = 'MS Sans Serif'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          Glyph.Data = {
+            36060000424D3606000000000000360000002800000020000000100000000100
+            18000000000000060000120B0000120B00000000000000000000C3C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3C3800000C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3FFFFFF7F7F7FFFFFFFC3C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3800000800000800000C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C3C3FFFFFF7F7F7F7F7F7F7F7F7FC3C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C38000
+            00800000800000C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3FFFFFF7F7F7F7F7F7F7F7F7FC3C3C3C3C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C38000008000
+            00800000C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3C3C3C3C3C3FFFFFF7F7F7F7F7F7F7F7F7FC3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C38000008000008000
+            00C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3FFFFFFFFFFFFFF
+            FFFFC3C3C3FFFFFF7F7F7F7F7F7F7F7F7FC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3FFA858800000800000800000FFA858C3C3C30000FF800000800000C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3FFFFFF7F7F7F7F7F7F7F7F7FC3
+            C3C3FFFFFF7F7F7F7F7F7F7F7F7FC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+            800000FFA858FFA858FFA858FFA858FFA8588000008000000000FFC3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7F7F7F7FC3C3C3C3C3C3C3C3C37F
+            7F7F7F7F7F7F7F7F7F7F7FC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3800000
+            FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000C3C3C3C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3FFA858FFA858
+            FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3C3C37F7F7FC3C3C3FFFFFFC3C3C3C3C3C3C3C3C3C3C3C3800000FFA858
+            FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3800000FFA858
+            FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3800000FFA858
+            FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C37F7F7FC3C3C3FFFFFFC3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3C3C3C3C3C37F7F7FC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3FFA858FFA858
+            FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3800000
+            FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000C3C3C3C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FC3C3C3FFFFFFFFFFFFC3C3C3C3C3C3C3
+            C3C3FFFFFF7F7F7FC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+            800000FFA858FFA858FFA858FFA858FFA858800000C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7F7F7F7FC3C3C3FFFFFFFFFFFF7F
+            7F7F7F7F7FC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3FFA858800000800000800000FFA858C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7F7F7F7F7F7F7FC3
+            C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3}
+          NumGlyphs = 2
+          ParentFont = False
+          OnClick = sbnClienteClick
+        end
+        object edfCodigoCliente: TtecDBFindLookup
+          Left = 2
+          Top = 10
+          Width = 69
+          Height = 20
+          DataField = 'cliente'
+          DataSource = dtmCadastroAtendimentos.dsrAtendimento
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          font.height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          MaxLength = 8
+          Maximo = 0
+          Minimo = 37353
+          Adicional = 0
+          Opcional = True
+          OnFound = edfCodigoClienteFound
+          ParentFont = False
+          TabOrder = 0
+          PermitirZero = False
+          PermitirNulo = False
+          Operacao = opATRIBUICAO
+          LookupField = 'codigo'
+          LookupSource = dtmCadastroAtendimentos.dsrProcuraClientes
+          Parameter = ' '
+          ActiveSetControls = False
+          DenyInsert = True
+          NoSetControls = <>
+          SetControls = <>
+          LookupParameter = 'codigo'
+        end
+        object dtxNome: TtecDBText
+          Left = 94
+          Top = 10
+          Width = 274
+          Height = 20
+          TabStop = False
+          Color = clBtnFace
+          DataField = 'nome'
+          DataSource = dtmCadastroAtendimentos.dsrProcuraClientes
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          font.height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          ReadOnly = True
+          TabOrder = 1
+        end
+      end
+      object gbxTipoAtendimento: TGroupBox
+        Left = 210
+        Top = 7
+        Width = 370
+        Height = 36
+        Caption = 'TIPO DE ATENDIMENTO'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        font.height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 2
+        object sbnTipoAtendimento: TSpeedButton
+          Left = 49
+          Top = 12
+          Width = 23
+          Height = 21
+          Hint = 'Procurar Tipo Atendimento'
+          Flat = True
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          font.height = -12
+          Font.Name = 'MS Sans Serif'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          Glyph.Data = {
+            36060000424D3606000000000000360000002800000020000000100000000100
+            18000000000000060000120B0000120B00000000000000000000C3C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3C3800000C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3FFFFFF7F7F7FFFFFFFC3C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3800000800000800000C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C3C3FFFFFF7F7F7F7F7F7F7F7F7FC3C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C38000
+            00800000800000C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3FFFFFF7F7F7F7F7F7F7F7F7FC3C3C3C3C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C38000008000
+            00800000C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3C3C3C3C3C3FFFFFF7F7F7F7F7F7F7F7F7FC3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C38000008000008000
+            00C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3FFFFFFFFFFFFFF
+            FFFFC3C3C3FFFFFF7F7F7F7F7F7F7F7F7FC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3FFA858800000800000800000FFA858C3C3C30000FF800000800000C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3FFFFFF7F7F7F7F7F7F7F7F7FC3
+            C3C3FFFFFF7F7F7F7F7F7F7F7F7FC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+            800000FFA858FFA858FFA858FFA858FFA8588000008000000000FFC3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7F7F7F7FC3C3C3C3C3C3C3C3C37F
+            7F7F7F7F7F7F7F7F7F7F7FC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3800000
+            FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000C3C3C3C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3FFA858FFA858
+            FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3C3C37F7F7FC3C3C3FFFFFFC3C3C3C3C3C3C3C3C3C3C3C3800000FFA858
+            FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3800000FFA858
+            FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3800000FFA858
+            FFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFA858800000C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C37F7F7FC3C3C3FFFFFFC3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3C3C3C3C3C37F7F7FC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3FFA858FFA858
+            FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858FFA858C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3C3C37F7F7FFFFFFFC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3800000
+            FFA858FFFFFFFFFFC0FFFFFFFFFFC0FFFFFFFFA858800000C3C3C3C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7FC3C3C3FFFFFFFFFFFFC3C3C3C3C3C3C3
+            C3C3FFFFFF7F7F7FC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+            800000FFA858FFA858FFA858FFA858FFA858800000C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7F7F7F7FC3C3C3FFFFFFFFFFFF7F
+            7F7F7F7F7FC3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3FFA858800000800000800000FFA858C3C3C3C3C3C3C3C3C3C3C3C3C3C3
+            C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C37F7F7F7F7F7F7F7F7FC3
+            C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3C3}
+          NumGlyphs = 2
+          ParentFont = False
+          OnClick = sbnTipoAtendimentoClick
+        end
+        object edfTipoAtendimento: TtecDBFindLookup
+          Left = 3
+          Top = 10
+          Width = 45
+          Height = 20
+          DataField = 'tipoatendimento'
+          DataSource = dtmCadastroAtendimentos.dsrAtendimento
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          font.height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          MaxLength = 3
+          Maximo = 0
+          Minimo = 37353
+          Adicional = 0
+          Opcional = True
+          ParentFont = False
+          TabOrder = 0
+          PermitirZero = False
+          PermitirNulo = False
+          Operacao = opATRIBUICAO
+          LookupField = 'codigo'
+          LookupSource = dtmCadastroAtendimentos.dsrProcuraTiposAtendimentos
+          Parameter = ' '
+          ActiveSetControls = False
+          DenyInsert = True
+          NoSetControls = <>
+          SetControls = <>
+          LookupParameter = 'codigo'
+        end
+        object dtxTipoAtendimento: TtecDBText
+          Left = 73
+          Top = 10
+          Width = 294
+          Height = 20
+          TabStop = False
+          Color = clBtnFace
+          DataField = 'descricao'
+          DataSource = dtmCadastroAtendimentos.dsrProcuraTiposAtendimentos
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          font.height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          ParentFont = False
+          ReadOnly = True
+          TabOrder = 1
+        end
+      end
+      object gbxLembrarEm: TGroupBox
+        Left = 321
+        Top = 86
+        Width = 80
+        Height = 36
+        Caption = 'LEMBRAR EM'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        font.height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 6
+        object edtLembrete: TDBEditData
+          Left = 2
+          Top = 10
+          Width = 75
+          Height = 20
+          DataField = 'lembrar'
+          DataSource = dtmCadastroAtendimentos.dsrAtendimento
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          font.height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          Maximo = 37353
+          Minimo = 0
+          Adicional = 0
+          ParentFont = False
+          TabOrder = 0
+          OnEnter = edtLembreteEnter
+          Opcional = True
+        end
+      end
+      object gbxSemSPC: TGroupBox
+        Left = 410
+        Top = 86
+        Width = 80
+        Height = 36
+        Caption = 'SEM SPC AT'#201
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        font.height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 7
+        object edtDataSPC: TDBEditData
+          Left = 2
+          Top = 10
+          Width = 75
+          Height = 20
+          DataField = 'semspc'
+          DataSource = dtmCadastroAtendimentos.dsrAtendimento
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          font.height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          Maximo = 37353
+          Minimo = 0
+          Adicional = 0
+          ParentFont = False
+          TabOrder = 0
+          OnEnter = edtDataSPCEnter
+          Opcional = True
+        end
+      end
+      object gbxSemAviso: TGroupBox
+        Left = 499
+        Top = 86
+        Width = 80
+        Height = 36
+        Caption = 'SEM AVISO AT'#201
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlack
+        font.height = -9
+        Font.Name = 'helvetica'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 8
+        object edtDataAviso: TDBEditData
+          Left = 2
+          Top = 10
+          Width = 75
+          Height = 20
+          DataField = 'semaviso'
+          DataSource = dtmCadastroAtendimentos.dsrAtendimento
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          font.height = -12
+          Font.Name = 'helvetica'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          Maximo = 37353
+          Minimo = 0
+          Adicional = 0
+          ParentFont = False
+          TabOrder = 0
+          OnEnter = edtDataAvisoEnter
+          Opcional = True
+        end
+      end
+    end
+  end
+  object aclHabilitar: TActionList
+    Left = 472
+    Top = 8
+    object actHabilitar: TAction
+      OnUpdate = actHabilitarUpdate
+    end
+  end
+end

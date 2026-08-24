@@ -1,0 +1,238 @@
+inherited dtmCadastroContratosAuxiliar: TdtmCadastroContratosAuxiliar
+  OldCreateOrder = False
+  Left = 641
+  Top = 217
+  Height = 235
+  Width = 334
+  inherited ZMonitor: TZMonitor
+    Left = 48
+    Top = 32
+  end
+  object qryProdutosSimilares: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select produtos.*,'
+      
+        '        (select g.descricao from grades g, caracteristicas c whe' +
+        're c.codigo = produtos.caracteristica and g.codigo = c.grade1) a' +
+        's linha,'
+      
+        '        (select g.descricao from grades g, caracteristicas c whe' +
+        're c.codigo = produtos.caracteristica and g.codigo = c.grade2) a' +
+        's coluna,'
+      ''
+      '        (select count(*)'
+      '         from produtos p'
+      
+        '         where p.caracteristica in (select distinct similares.si' +
+        'milar'
+      '                                    from similares'
+      
+        '                                    where similares.caracteristi' +
+        'ca = (select p1.caracteristica'
+      
+        '                                                                ' +
+        '      from produtos p1'
+      
+        '                                                                ' +
+        '      where p1.codigo = produtos.codigo))'#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9#9' '
+      
+        ' '#9#9'     or (p.caracteristica = produtos.caracteristica and p.cod' +
+        'igo <> produtos.codigo AND coalesce(p.valorgrade1,'#39#39') = coalesce' +
+        '(produtos.valorgrade1,'#39#39'))) as similares'
+      ''
+      'from'
+      '('
+      'select descricao, '
+      '       valorgrade1,'
+      '       valorgrade2,'
+      '       codigo,'
+      #9'   codigovisual,'
+      '       filial,'
+      '       caracteristica,'
+      '       preco,'
+      '       descricaopreco,'
+      '       emestoque,'
+      '       reservado,'
+      '       unidade,'
+      '       brinde,'
+      '       case when coalesce(valorproduto,0)=0 then'
+      '        (SELECT valor'
+      '         FROM colunasprecos'
+      
+        '         WHERE (colunasprecos.caracteristica = temp.caracteristi' +
+        'ca) AND'
+      '               (colunasprecos.preco = temp.preco) AND'
+      '               (colunasprecos.coluna = temp.preconormal))'
+      '       else  coalesce(temp.valorproduto,0)  '
+      '       end as valorproduto'
+      'from'
+      ' ('
+      ' select p.descricao, '
+      '           p.valorgrade1, '
+      '           p.valorgrade2,'
+      '       p.codigo, '
+      #9'   p.codigovisual,'
+      #9'   p.caracteristica,'
+      '       p.preco,'
+      
+        '       (select pc.descricao from precos pc where pc.codigo = p.p' +
+        'reco and pc.caracteristica = p.caracteristica) as descricaopreco' +
+        ','
+      '       e.filial,'
+      '       e.emestoque,'
+      '       e.reservado,'
+      '       c.unidade,'
+      '       c.brinde,'
+      '       f.preconormal,'
+      '       case when f.precopromocao is not null then'
+      '        (SELECT valor'
+      '         FROM colunasprecos'
+      
+        '         WHERE (colunasprecos.caracteristica = p.caracteristica)' +
+        ' AND'
+      '               (colunasprecos.preco = p.preco) AND'
+      '               (colunasprecos.coluna = f.precopromocao) AND'
+      '               (colunasprecos.validade >= now()))'
+      '       end as valorproduto'
+      'from estoques e, produtos p, caracteristicas c, filiais f'
+      'where e.produto = p.codigo'
+      '  and p.caracteristica = c.codigo'
+      '  and e.filial = f.codigo'
+      ''
+      '  and (p.inativo is null or'
+      '       p.inativo>current_date)'
+      ''
+      '  and (p.caracteristica in (select distinct similares."similar"'
+      '                            from similares'
+      
+        '                            where similares.caracteristica = (Se' +
+        'lect p1.caracteristica'
+      
+        '                                                              fr' +
+        'om produtos p1'
+      
+        '                                                              Wh' +
+        'ere p1.codigo =:produto))'
+      '         or'
+      #9#9' '
+      '         (p.caracteristica = (Select p1.caracteristica'
+      '                              from produtos p1'
+      '                              Where p1.codigo =:produto)'
+      '          and e.produto<>:produto '
+      
+        #9#9'  and coalesce(p.valorgrade1,'#39#39') = coalesce((Select p1.valorgr' +
+        'ade1'
+      
+        '                                                     from produt' +
+        'os p1'
+      
+        '                                                     Where p1.co' +
+        'digo =:produto),'#39#39')))'
+      #9#9'  '#9#9'   '
+      '  and e.filial = :FilialBase'
+      '   '
+      ' ) as temp'
+      ') as produtos'
+      'where (valorproduto > 0)'
+      'order by valorproduto')
+    RequestLive = False
+    Left = 128
+    Top = 72
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'produto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FilialBase'
+        ParamType = ptUnknown
+      end>
+    object qryProdutosSimilaresdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 100
+    end
+    object qryProdutosSimilaresvalorgrade1: TStringField
+      DisplayLabel = 'Linha'
+      FieldName = 'valorgrade1'
+      Size = 10
+    end
+    object qryProdutosSimilaresvalorgrade2: TStringField
+      DisplayLabel = 'Coluna'
+      FieldName = 'valorgrade2'
+      Size = 10
+    end
+    object qryProdutosSimilarescodigo: TLargeintField
+      DisplayLabel = 'C'#243'digo'
+      DisplayWidth = 130
+      FieldName = 'codigo'
+    end
+    object qryProdutosSimilaresfilial: TIntegerField
+      DisplayLabel = 'Filial'
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryProdutosSimilaresemestoque: TFloatField
+      DisplayLabel = 'Estoque'
+      FieldName = 'emestoque'
+      DisplayFormat = '0'
+    end
+    object qryProdutosSimilaresreservado: TFloatField
+      DisplayLabel = 'Reservado'
+      FieldName = 'reservado'
+      DisplayFormat = '0'
+    end
+    object qryProdutosSimilaresunidade: TStringField
+      DisplayLabel = 'Unidade'
+      FieldName = 'unidade'
+      Size = 8
+    end
+    object qryProdutosSimilaresbrinde: TBooleanField
+      DisplayLabel = 'Brinde'
+      FieldName = 'brinde'
+    end
+    object qryProdutosSimilaresvalorproduto: TFloatField
+      DisplayLabel = 'Pre'#231'o'
+      FieldName = 'valorproduto'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosSimilaressimilares: TLargeintField
+      DisplayLabel = 'Similar'
+      FieldName = 'similares'
+    end
+    object qryProdutosSimilareslinha: TStringField
+      FieldName = 'linha'
+      Size = 50
+    end
+    object qryProdutosSimilarescoluna: TStringField
+      FieldName = 'coluna'
+      Size = 50
+    end
+    object qryProdutosSimilarescaracteristica: TLargeintField
+      FieldName = 'caracteristica'
+    end
+    object qryProdutosSimilarespreco: TIntegerField
+      FieldName = 'preco'
+    end
+    object qryProdutosSimilaresdescricaopreco: TStringField
+      FieldName = 'descricaopreco'
+      Size = 50
+    end
+    object qryProdutosSimilarescodigovisual: TStringField
+      FieldName = 'codigovisual'
+      Size = 30
+    end
+  end
+end

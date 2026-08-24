@@ -973,9 +973,9 @@ begin
           finally
             qryPedidosFiliais.VoltarRegistro;
             FImprimindoNota:= False;
-            GerarConsultaRequisicao;
             qryPedidosFiliais.Filtered := false;
-            qryPedidosFiliais.Filtered := true;
+            GerarConsultaRequisicao;
+//            qryPedidosFiliais.Filtered := true;
 
             if vListaDadosFiscaisGravados<>'' then
             begin
@@ -1919,6 +1919,8 @@ begin
 
               if result then
               begin
+                result := CalcularImpostos(qryDadosFiscais.fieldbyname('numero').asinteger, 'S');
+
                 vListaDadosFiscaisGravados := vListaDadosFiscaisGravados + qryDadosFiscais.fieldbyname('numero').asstring + ', ';
 
 

@@ -1,0 +1,2492 @@
+inherited dtmCadastroAtendimentos: TdtmCadastroAtendimentos
+  Left = 419
+  Top = 171
+  Height = 558
+  Width = 981
+  object qryAtendimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterClose = qryAtendimentosAfterClose
+    BeforeEdit = qryAtendimentosBeforeEdit
+    BeforePost = qryAtendimentosBeforePost
+    AfterScroll = qryAtendimentosAfterScroll
+    OnCalcFields = qryAtendimentosCalcFields
+    OnNewRecord = qryAtendimentosNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select a.codigo,'
+      '       a.cliente,'
+      '       a.tipocliente,'
+      '       a.data,'
+      '/*       a.informes,*/'
+      '       a.lembrar,'
+      '       a.lembrarhora,'
+      '       a.semaviso,'
+      '       a.semspc,'
+      '       a.concluido,'
+      '       a.tipo,'
+      '       a.tipoatendimento,'
+      '       a.usuario,'
+      
+        '       (select u.nome from usuarios u where u.codigo = a.usuario' +
+        ') as nomeusuario,'
+      '       a.usuariologado,'
+      
+        '       (select u.nome from usuarios u where u.codigo = a.usuario' +
+        'logado) as nomeusuariologado,'
+      '       coalesce((select true'
+      '                 from cartasclientes cc'
+      
+        '                 where cc.atendimento = a.codigo limit 1),false)' +
+        ' as PossuiCartaAtendimento,'
+      '       a.datainclusao,'
+      '       a.naoligar,'
+      '       a.origem,'
+      
+        '       (select count(*) from atendimentos a2 where a2.origem = a' +
+        '.codigo) as Followups,'
+      '       a.assunto,'
+      '       a.status,'
+      '       a.contrato,'
+      '       a.produto,'
+      '       a.filial,'
+      '       a.orcamento,'
+      ''
+      '       cast((select case when o.situacao = '#39'A'#39' then '#39'ABERTO'#39
+      '                         when o.situacao = '#39'C'#39' then '#39'CANCELADO'#39
+      '                         when o.situacao = '#39'P'#39' then '#39'PARCIAL'#39
+      '                         when o.situacao = '#39'T'#39' then '#39'CONTRATO'#39
+      '                end'
+      '        from (select o.situacao'
+      '              from orcamentos o'
+      '              where o.codigo = a.orcamento) as o'
+      '        ) as varchar(20)) as descricaosituacaoorcamento,'
+      ''
+      
+        '       (select m.descricao from motivos m where m.codigo = (sele' +
+        'ct o.motivo from orcamentos o where o.codigo = a.orcamento)) as ' +
+        'descricaomotivo,'
+      ''
+      '       cast((select case when c.situacao = '#39'O'#39' then '#39'OR'#199'ADO'#39
+      '                        when c.situacao = '#39'R'#39' then '#39'RESERVADO'#39
+      '                        when c.situacao = '#39'F'#39' then '#39'FATURADO'#39
+      
+        '                        when c.situacao = '#39'P'#39' then '#39'NOTA PARCIAL' +
+        #39
+      '                        when c.situacao = '#39'N'#39' then '#39'NOTA FISCAL'#39
+      '                        when c.situacao = '#39'C'#39' then '#39'CANCELADO'#39
+      '                end'
+      '        from (select c.situacao'
+      '              from contratos c'
+      '              where c.numero = a.contrato) as c'
+      '        ) as varchar(20)) as descricaosituacaocontrato,'
+      ''
+      '        (select contrato_atual(a.contrato)) as contrato_atual,'
+      ''
+      
+        '       (select a2.data from atendimentos a2 where a2.codigo = co' +
+        'alesce(a.origem,a.codigo)) as dataorigem,'
+      '       a.status as statusaux,'
+      ''
+      '       vf.nome as nomeCliente'
+      ''
+      '       /*,'
+      '       (select a2.lembrar'
+      '        from atendimentos a2'
+      '        where a2.lembrar > current_date'
+      
+        '          and coalesce(a2.origem,a2.codigo) = coalesce(a.origem,' +
+        'a.codigo) order by a2.lembrar limit 1) as ProximoLembrar'
+      '          */'
+      ''
+      
+        'from atendimentos a  join vfornecedores vf on a.cliente = vf.cod' +
+        'igo and a.tipocliente = vf.tipo'
+      'Where a.codigo =:codigo')
+    RequestLive = True
+    Left = 104
+    Top = 15
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryAtendimentoscodigo: TIntegerField
+      AutoGenerateValue = arAutoInc
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryAtendimentoscliente: TIntegerField
+      DisplayLabel = 'Cliente'
+      FieldName = 'cliente'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryAtendimentostipocliente: TStringField
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+    object qryAtendimentosdata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryAtendimentossemaviso: TDateField
+      Alignment = taCenter
+      FieldName = 'semaviso'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryAtendimentossemspc: TDateField
+      Alignment = taCenter
+      FieldName = 'semspc'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryAtendimentosconcluido: TBooleanField
+      FieldName = 'concluido'
+    end
+    object qryAtendimentostipo: TStringField
+      FieldName = 'tipo'
+      Size = 1
+    end
+    object qryAtendimentostipoatendimento: TIntegerField
+      DisplayLabel = 'Tipo Atendimento'
+      FieldName = 'tipoatendimento'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryAtendimentosusuario: TIntegerField
+      FieldName = 'usuario'
+      DisplayFormat = '0'
+    end
+    object qryAtendimentosnomeusuario: TStringField
+      FieldName = 'nomeusuario'
+      Size = 40
+    end
+    object qryAtendimentospossuicartaatendimento: TBooleanField
+      FieldName = 'possuicartaatendimento'
+    end
+    object qryAtendimentosdatainclusao: TDateTimeField
+      FieldName = 'datainclusao'
+      DisplayFormat = 'dd/mm/yy hh:mm'
+    end
+    object qryAtendimentosnaoligar: TBooleanField
+      FieldName = 'naoligar'
+    end
+    object qryAtendimentosusuariologado: TIntegerField
+      FieldName = 'usuariologado'
+      DisplayFormat = '0'
+    end
+    object qryAtendimentosnomeusuariologado: TStringField
+      FieldName = 'nomeusuariologado'
+      Size = 50
+    end
+    object qryAtendimentoslembrar: TDateField
+      Alignment = taCenter
+      FieldName = 'lembrar'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryAtendimentoslembrarhora: TTimeField
+      Alignment = taCenter
+      FieldName = 'lembrarhora'
+      EditMask = '99:99;1; '
+    end
+    object qryAtendimentosorigem: TIntegerField
+      FieldName = 'origem'
+      DisplayFormat = '0'
+    end
+    object qryAtendimentosassunto: TStringField
+      FieldName = 'assunto'
+      Required = True
+      Size = 100
+    end
+    object qryAtendimentosstatus: TStringField
+      FieldName = 'status'
+      Size = 1
+    end
+    object qryAtendimentoscontrato: TStringField
+      FieldName = 'contrato'
+    end
+    object qryAtendimentosorcamento: TIntegerField
+      FieldName = 'orcamento'
+      DisplayFormat = '0'
+    end
+    object qryAtendimentosfollowups: TLargeintField
+      FieldName = 'followups'
+    end
+    object qryAtendimentosdataorigem: TDateField
+      Alignment = taCenter
+      FieldName = 'dataorigem'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryAtendimentosstatusaux: TStringField
+      FieldName = 'statusaux'
+      Size = 1
+    end
+    object qryAtendimentosdescricaosituacaoorcamento: TStringField
+      FieldName = 'descricaosituacaoorcamento'
+    end
+    object qryAtendimentosdescricaosituacaocontrato: TStringField
+      FieldName = 'descricaosituacaocontrato'
+    end
+    object qryAtendimentoscontratodescricao: TStringField
+      FieldKind = fkCalculated
+      FieldName = 'contratodescricao'
+      Size = 50
+      Calculated = True
+    end
+    object qryAtendimentosorcamentodescricao: TStringField
+      FieldKind = fkCalculated
+      FieldName = 'orcamentodescricao'
+      Size = 50
+      Calculated = True
+    end
+    object qryAtendimentosrenegociadoText: TStringField
+      FieldKind = fkCalculated
+      FieldName = 'renegociadoText'
+      Size = 30
+      Calculated = True
+    end
+    object qryAtendimentoscontrato_atual: TStringField
+      FieldName = 'contrato_atual'
+    end
+    object qryAtendimentosdescricaomotivo: TStringField
+      FieldName = 'descricaomotivo'
+      Size = 30
+    end
+    object qryAtendimentosnomecliente: TStringField
+      FieldName = 'nomecliente'
+      Size = 60
+    end
+  end
+  object dsrAtendimento: TtecDataSource
+    DataSet = qryAtendimentos
+    OnDataChange = dsrAtendimentoDataChange
+    Left = 145
+    Top = 31
+  end
+  object qryConsultaTiposAtendimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select descricao, '
+      '           codigo,'
+      '           tipo       '
+      'from    tiposatendimentos'
+      'where (tipo =:Tipo)'
+      '        ')
+    RequestLive = False
+    Left = 480
+    Top = 144
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'Tipo'
+        ParamType = ptUnknown
+      end>
+    object qryConsultaTiposAtendimentosdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Required = True
+      Size = 30
+    end
+    object qryConsultaTiposAtendimentoscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryConsultaTiposAtendimentostipo: TStringField
+      DisplayLabel = 'Tipo'
+      FieldName = 'tipo'
+      Required = True
+      Size = 1
+    end
+  end
+  object qryProcuraTiposAtendimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryProcuraTiposAtendimentosBeforeOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo,'
+      '         descricao'
+      'from tiposatendimentos'
+      'where (codigo = :codigo) and'
+      '           (tipo = :tipo)')
+    RequestLive = True
+    Left = 104
+    Top = 154
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'tipo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraTiposAtendimentoscodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryProcuraTiposAtendimentosdescricao: TStringField
+      FieldName = 'descricao'
+      Required = True
+      Size = 30
+    end
+  end
+  object dsrProcuraTiposAtendimentos: TtecDataSource
+    DataSet = qryProcuraTiposAtendimentos
+    Left = 305
+    Top = 146
+  end
+  object qryConsultaClientes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select v.codigo,'
+      '           coalesce(v.razao,v.nome) as nome,'
+      
+        '           formatar_cpf_cnpj(v.pessoanumero) as pessoanumero,   ' +
+        '       '
+      '           v.tipo,'
+      '           descricao_tipocliente(v.tipo) as tipocliente,'
+      '           v.estado,'
+      '           c.nome as nomecidade'
+      'From    vfornecedores v, cidades c'
+      '/* Preenchido em runtime. N'#227'o apague */'
+      '  and (v.estado = c.estado)'
+      '  and (v.cidade = c.codigo)'
+      'Order By UPPER(TO_ASCII(coalesce(v.razao,v.nome),'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 480
+    Top = 80
+    object qryConsultaClientesnome: TStringField
+      DisplayLabel = 'Nome'
+      DisplayWidth = 40
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryConsultaClientespessoanumero: TStringField
+      DisplayLabel = 'CPF/CNPJ'
+      FieldName = 'pessoanumero'
+      Size = 18
+    end
+    object qryConsultaClientesnomecidade: TStringField
+      DisplayLabel = 'Cidade'
+      FieldName = 'nomecidade'
+      Size = 30
+    end
+    object qryConsultaClientesestado: TStringField
+      DisplayLabel = 'UF'
+      FieldName = 'estado'
+      Size = 2
+    end
+    object qryConsultaClientescodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+    end
+    object qryConsultaClientestipocliente: TStringField
+      DisplayLabel = 'Tipo cliente'
+      FieldName = 'tipocliente'
+      Size = 14
+    end
+    object qryConsultaClientestipo: TStringField
+      FieldName = 'tipo'
+      Visible = False
+      Size = 1
+    end
+  end
+  object qryProcuraClientes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryProcuraClientesBeforeOpen
+    AfterOpen = qryProcuraClientesAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo,'
+      '         tipo,'
+      '         nome'
+      'from vfornecedores'
+      'where codigo =:codigo and'
+      '          tipo     =:tipocliente')
+    RequestLive = False
+    Left = 104
+    Top = 82
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftString
+        Name = 'tipocliente'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraClientescodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryProcuraClientesnome: TStringField
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryProcuraClientestipo: TStringField
+      FieldName = 'tipo'
+      Size = 50
+    end
+  end
+  object dsrProcuraClientes: TtecDataSource
+    DataSet = qryProcuraClientes
+    Left = 305
+    Top = 82
+  end
+  object spcAtendimentosProximoCodigo: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select atendimentos_proximocodigo() as codigo')
+    RequestLive = False
+    Left = 480
+    Top = 210
+    object spcAtendimentosProximoCodigocodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+  end
+  object qryExisteAtendimento: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'CondicaoVerificarLembrar'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'Select codigo, origem'
+      'From atendimentos'
+      'Where (cliente =:cliente)'
+      '  and (tipocliente = :tipocliente)'
+      '  and (tipo =:tipo)'
+      
+        '  AND case when :DataAtual then (data = current_date) else true ' +
+        'end'
+      
+        '  or case when :tipo = '#39'O'#39' then orcamento = :orcamento else fals' +
+        'e end'
+      '  %CondicaoVerificarLembrar'
+      '  '
+      '')
+    RequestLive = False
+    Left = 464
+    Top = 274
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'cliente'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'tipocliente'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'tipo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataAtual'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'orcamento'
+        ParamType = ptUnknown
+      end>
+    object qryExisteAtendimentocodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+    end
+    object qryExisteAtendimentoorigem: TIntegerField
+      FieldName = 'origem'
+    end
+  end
+  object qryUltimaReclamacao: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT a.Informes'
+      ''
+      'FROM   atendimentos a'
+      ''
+      'WHERE (Cliente     = :Cliente)     AND'
+      '      (TipoCliente = :TipoCliente) AND'
+      '      (Tipo        = '#39'R'#39')'
+      ''
+      'ORDER BY Data DESC'
+      'LIMIT 1')
+    RequestLive = False
+    Left = 413
+    Top = 338
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'cliente'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftString
+        Name = 'tipocliente'
+        ParamType = ptUnknown
+      end>
+    object qryUltimaReclamacaoinformes: TMemoField
+      FieldName = 'informes'
+      BlobType = ftMemo
+    end
+  end
+  object dsrUltimaReclamacao: TtecDataSource
+    DataSet = qryUltimaReclamacao
+    Left = 561
+    Top = 338
+  end
+  object qryConsultaAtendimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'CondicaoAtendimentos'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'Select c.nome,'
+      '       a.assunto,'
+      '       a.data,'
+      ''
+      '       case when a.origem is null then'
+      
+        '         (select max(a2.data) from atendimentos a2 where coalesc' +
+        'e(a2.origem, a2.codigo) = coalesce(a.origem,a.codigo))'
+      '       else'
+      '         cast(null as date)'
+      '       end as UltimoAtendimento,'
+      ''
+      
+        '       case when a.status = '#39'A'#39' then cast('#39'A - Aberto'#39' as varcha' +
+        'r(11))'
+      
+        '            when a.status = '#39'F'#39' then cast('#39'F - Fechado'#39' as varch' +
+        'ar(11))'
+      '       else'
+      '        cast(null as varchar(11))'
+      '       end as status,'
+      ''
+      '       a.codigo,'
+      '       a.cliente,'
+      '       a.tipocliente'
+      ''
+      'From   atendimentos a'
+      '       join vfornecedores c on'
+      '       a.cliente = c.codigo  and a.tipocliente = c.tipo'
+      ''
+      'Where a.cliente = c.codigo'
+      '  and a.tipocliente = c.tipo'
+      '  and a.origem is null'
+      ''
+      '%CondicaoAtendimentos'
+      ''
+      'Order By UPPER(TO_ASCII(c.nome,'#39'LATIN1'#39')), a.data desc, a.tipo')
+    RequestLive = False
+    Left = 440
+    Top = 16
+    object qryConsultaAtendimentosnome: TStringField
+      DisplayLabel = 'Nome do Cliente'
+      FieldName = 'nome'
+      Size = 35
+    end
+    object qryConsultaAtendimentosassunto: TStringField
+      DisplayLabel = 'Assunto'
+      FieldName = 'assunto'
+      Size = 40
+    end
+    object qryConsultaAtendimentosdata: TDateField
+      DisplayLabel = 'Data'
+      FieldName = 'data'
+    end
+    object qryConsultaAtendimentosultimoatendimento: TDateField
+      DisplayLabel = #218'ltimo Atendimento'
+      FieldName = 'ultimoatendimento'
+    end
+    object qryConsultaAtendimentosstatus: TStringField
+      DisplayLabel = 'Status'
+      FieldName = 'status'
+      Size = 11
+    end
+    object qryConsultaAtendimentoscodigo: TIntegerField
+      DisplayLabel = 'N'#250'mero'
+      FieldName = 'codigo'
+    end
+    object qryConsultaAtendimentoscliente: TIntegerField
+      DisplayLabel = 'C'#243'd. Cliente'
+      FieldName = 'cliente'
+    end
+    object qryConsultaAtendimentostipocliente: TStringField
+      FieldName = 'tipocliente'
+      Visible = False
+      Size = 1
+    end
+  end
+  object qryAtualizaCartasCartas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update cartasclientes set atendimento = :atendimento,'
+      '                          enviada = now(),'
+      '                          confirmacao = CURRENT_DATE,'
+      
+        '                          bloqueada = btrim(coalesce(bloqueada,'#39 +
+        #39'), '#39'3'#39')'
+      'where carta = :carta and'
+      '          numero = :numero')
+    RequestLive = True
+    Left = 104
+    Top = 384
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'atendimento'
+        ParamType = ptUnknown
+        Value = '21374'
+      end
+      item
+        DataType = ftString
+        Name = 'carta'
+        ParamType = ptUnknown
+        Value = '15255'
+      end
+      item
+        DataType = ftString
+        Name = 'numero'
+        ParamType = ptUnknown
+        Value = '2'
+      end>
+  end
+  object qryCartaNumero: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select CartaAtendimento.*,'
+      '       (select semaviso'
+      '        from atendimentos'
+      
+        '        where codigo = CartaAtendimento.atendimento) as semaviso' +
+        ','
+      ''
+      '       (select semspc'
+      '        from atendimentos'
+      '        where codigo = CartaAtendimento.atendimento) as semspc'
+      ''
+      'from'
+      '('
+      ''
+      'select atendimento,'
+      '       numero as Numerocarta'
+      'from cartasclientes'
+      'where carta = :carta'
+      '  and numero = (select max(cc.numero) as NumeroCarta'
+      '                from cartasclientes cc'
+      '                where cc.carta = :carta'
+      '                  and cc.eavalista <> :eAvalista'
+      '                  and cast(cc.data as date) = :data)'
+      ''
+      ') as CartaAtendimento')
+    RequestLive = False
+    Left = 316
+    Top = 398
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'carta'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftBoolean
+        Name = 'eAvalista'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'data'
+        ParamType = ptUnknown
+      end>
+    object qryCartaNumeronumerocarta: TIntegerField
+      FieldName = 'numerocarta'
+      DisplayFormat = '0'
+    end
+    object qryCartaNumeroatendimento: TIntegerField
+      FieldName = 'atendimento'
+      DisplayFormat = '0'
+    end
+    object qryCartaNumerosemaviso: TDateField
+      Alignment = taCenter
+      FieldName = 'semaviso'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryCartaNumerosemspc: TDateField
+      Alignment = taCenter
+      FieldName = 'semspc'
+      EditMask = '99/99/9999;1; '
+    end
+  end
+  object qryCartasClientes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select cc.confirmacao  ,'
+      '       cc.enviada      ,'
+      '       cc.bloqueada    ,'
+      '       cc.atendimento  '
+      'from cartasclientes cc'
+      'where cc.carta = :carta'
+      '  and cc.numero = :numero'
+      '')
+    RequestLive = False
+    Left = 220
+    Top = 406
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'carta'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end>
+    object qryCartasClientesconfirmacao: TDateField
+      FieldName = 'confirmacao'
+    end
+    object qryCartasClientesenviada: TDateTimeField
+      FieldName = 'enviada'
+    end
+    object qryCartasClientesbloqueada: TStringField
+      FieldName = 'bloqueada'
+      Size = 3
+    end
+    object qryCartasClientesatendimento: TIntegerField
+      FieldName = 'atendimento'
+    end
+  end
+  object qryocorrencias: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnCalcFields = qryocorrenciasCalcFields
+    OnFilterRecord = qryocorrenciasFilterRecord
+    Filtered = True
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'select selecao.*,'
+      ''
+      '       case when origem is null then'
+      '         case when (qtAtendimentos > 1) then'
+      '           cast('#39'+'#39' as char(1)) '
+      '         else'
+      '           cast(null as char(1))'
+      '         end'
+      '       else'
+      '         cast('#39'-'#39' as char(1))'
+      '       end as Expandir'
+      'from'
+      '('
+      '  Select a.origem,'
+      '         a.codigo,'
+      '         a.data,'
+      ''
+      '         case when a.origem is null then'
+      
+        '           (select max(a2.data) from atendimentos a2 where coale' +
+        'sce(a2.origem, a2.codigo) = coalesce(a.origem,a.codigo))'
+      '         else'
+      '           cast(null as date)'
+      '         end as UltimoAtendimento,'
+      ''
+      
+        '         (select max(a2.data) from atendimentos a2 where coalesc' +
+        'e(a2.origem, a2.codigo) = coalesce(a.origem,a.codigo)) as Ultimo' +
+        'AtendimentoAux,'
+      ''
+      '         case when a.origem is null then'
+      
+        '           (select min(a2.lembrar) from atendimentos a2 where co' +
+        'alesce(a2.origem,a2.codigo) = coalesce(a.origem,a.codigo) and a2' +
+        '.lembrar >= current_date) '
+      '         else'
+      '           a.lembrar'
+      '         end as lembrar,'
+      ''
+      '         a.informes,'
+      '         a.tipo,'
+      
+        '        (select ta.descricao from tiposatendimentos ta where ta.' +
+        'codigo = a.tipoatendimento) as descricaotipo,'
+      '         a.assunto,'
+      '         a.usuario,'
+      
+        '         (select u.nome from usuarios u where u.codigo = a.usuar' +
+        'io) as nomeusuario,'
+      '         a.datainclusao,'
+      '         a.lembrarhora,'
+      '         case when a.origem is null then'
+      
+        '           (select count(*) from atendimentos a2 where coalesce(' +
+        'a2.origem, a2.codigo) = coalesce(a.origem,a.codigo))'
+      '         else'
+      '           cast(null as integer)'
+      '         end as qtAtendimentos,'
+      ''
+      
+        '         /*case when a.origem is null then a.status else cast(nu' +
+        'll as char(1)) end as*/ a.status'
+      ''
+      '  From   atendimentos a'
+      '  Where (a.cliente =:cliente) and'
+      '        (a.tipocliente =:tipocliente)'
+      
+        '  order by coalesce(a.origem, a.codigo+1) desc, a.datainclusao d' +
+        'esc'
+      ''
+      ') as selecao'
+      '')
+    RequestLive = False
+    Left = 208
+    Top = 255
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'cliente'
+        ParamType = ptUnknown
+        Value = '0'
+      end
+      item
+        DataType = ftString
+        Name = 'tipocliente'
+        ParamType = ptUnknown
+      end>
+    object qryocorrenciasorigem: TIntegerField
+      FieldName = 'origem'
+      DisplayFormat = '0'
+    end
+    object qryocorrenciascodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryocorrenciasdata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryocorrenciaslembrar: TDateField
+      Alignment = taCenter
+      FieldName = 'lembrar'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryocorrenciastipo: TStringField
+      FieldName = 'tipo'
+      Size = 1
+    end
+    object qryocorrenciasassunto: TStringField
+      FieldName = 'assunto'
+      Size = 100
+    end
+    object qryocorrenciasusuario: TIntegerField
+      FieldName = 'usuario'
+      DisplayFormat = '0'
+    end
+    object qryocorrenciasnomeusuario: TStringField
+      FieldName = 'nomeusuario'
+      Size = 100
+    end
+    object qryocorrenciasdatainclusao: TDateTimeField
+      FieldName = 'datainclusao'
+    end
+    object qryocorrenciasexpandir: TStringField
+      FieldName = 'expandir'
+      Size = 1
+    end
+    object qryocorrenciasdescricaotipo: TStringField
+      FieldName = 'descricaotipo'
+      Size = 30
+    end
+    object qryocorrenciaslembrarhora: TTimeField
+      Alignment = taCenter
+      FieldName = 'lembrarhora'
+      EditMask = '99:99;1; '
+    end
+    object qryocorrenciasqtatendimentos: TLargeintField
+      FieldName = 'qtatendimentos'
+    end
+    object qryocorrenciasstatus: TStringField
+      FieldName = 'status'
+      Size = 1
+    end
+    object qryocorrenciasinformes: TMemoField
+      FieldName = 'informes'
+      BlobType = ftMemo
+    end
+    object qryocorrenciasultimoatendimento: TDateField
+      FieldName = 'ultimoatendimento'
+    end
+    object qryocorrenciasultimoatendimentoaux: TDateField
+      FieldName = 'ultimoatendimentoaux'
+    end
+  end
+  object dsrOcorrencias: TtecDataSource
+    DataSet = qryocorrencias
+    Left = 290
+    Top = 250
+  end
+  object qryAtualzarClientes: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update clientes set naoligar = :naoligar,'
+      '                    razaonaoligar = :razaonaoligar'
+      'where codigo = :codigo')
+    RequestLive = True
+    Left = 104
+    Top = 224
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'naoligar'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'razaonaoligar'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+  end
+  object frxAtendimentos: TfrxReport
+    Version = '4.0.11'
+    DotMatrixReport = False
+    EngineOptions.DoublePass = True
+    IniFile = '\Software\Fast Reports'
+    PreviewOptions.Buttons = [pbPrint, pbLoad, pbSave, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbEdit, pbNavigator, pbExportQuick]
+    PreviewOptions.Zoom = 1.000000000000000000
+    PrintOptions.Printer = 'Default'
+    PrintOptions.PrintOnSheet = 0
+    ReportOptions.CreateDate = 41869.646809768500000000
+    ReportOptions.LastChange = 42432.692195659700000000
+    ScriptLanguage = 'PascalScript'
+    ScriptText.Strings = (
+      'begin'
+      'end.')
+    OnGetValue = frxAtendimentosGetValue
+    Left = 592
+    Top = 416
+    Datasets = <
+      item
+        DataSet = frxDBAtendimentos
+        DataSetName = 'frxDBAtendimentos'
+      end
+      item
+        DataSet = frxDBOcorrencias
+        DataSetName = 'frxDBOcorrencias'
+      end>
+    Variables = <
+      item
+        Name = ' New Category1'
+        Value = Null
+      end
+      item
+        Name = 'ENDERECO_BAIRRO'
+        Value = Null
+      end
+      item
+        Name = 'RAZAOFILIALBASE'
+        Value = Null
+      end
+      item
+        Name = 'CEP_CIDADE_UF'
+        Value = Null
+      end
+      item
+        Name = 'TITULO'
+        Value = Null
+      end
+      item
+        Name = 'OUTRAS'
+        Value = #39' Filiais: '#39#39'1'#39#39#39
+      end
+      item
+        Name = 'DATA'
+        Value = '25/08/2014'
+      end
+      item
+        Name = 'CordoZebrado'
+        Value = '200'
+      end
+      item
+        Name = 'AgruparGrupoFilial'
+        Value = 'False'
+      end
+      item
+        Name = 'AgruparFilial'
+        Value = 'False'
+      end
+      item
+        Name = 'AgruparFornecedor'
+        Value = 'False'
+      end
+      item
+        Name = 'AgruparLocalizacao'
+        Value = 'False'
+      end
+      item
+        Name = 'AgruparClasseProduto'
+        Value = 'False'
+      end
+      item
+        Name = 'AgruparGrupoProduto'
+        Value = 'False'
+      end
+      item
+        Name = 'DATASITUACAO'
+        Value = #39'HOJE'#39
+      end>
+    Style = <
+      item
+        Name = 'Style1'
+        Color = clBtnFace
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = []
+      end>
+    object Data: TfrxDataPage
+      Height = 1000.000000000000000000
+      Width = 1000.000000000000000000
+    end
+    object Page1: TfrxReportPage
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -8
+      Font.Name = 'Arial'
+      Font.Style = []
+      PaperWidth = 210.000000000000000000
+      PaperHeight = 297.000000000000000000
+      PaperSize = 9
+      LeftMargin = 5.000000000000000000
+      RightMargin = 5.000000000000000000
+      TopMargin = 5.000000000000000000
+      BottomMargin = 5.000000000000000000
+      object PageHeader1: TfrxPageHeader
+        Height = 71.811070000000000000
+        Top = 18.897650000000000000
+        Width = 755.906000000000000000
+        object Memo6: TfrxMemoView
+          Left = 699.213050000000000000
+          Top = 18.897650000000000000
+          Width = 52.913420000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = []
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[Page]')
+          ParentFont = False
+          VAlign = vaBottom
+        end
+        object Memo4: TfrxMemoView
+          Left = 650.079160000000000000
+          Top = 18.897650000000000000
+          Width = 45.354360000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            'P'#195#129'G.:')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object Memo3: TfrxMemoView
+          Left = 650.079160000000000000
+          Top = 3.779530000000000000
+          Width = 45.354360000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            'DATA:')
+          ParentFont = False
+        end
+        object Memo26: TfrxMemoView
+          Left = 699.213050000000000000
+          Top = 3.779530000000000000
+          Width = 52.913420000000000000
+          Height = 11.338582680000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haRight
+          Memo.UTF8 = (
+            '[Date]')
+          ParentFont = False
+          VAlign = vaCenter
+        end
+        object mmoTitulo: TfrxMemoView
+          Left = 3.779530000000000000
+          Top = 41.574830000000000000
+          Width = 748.346940000000000000
+          Height = 18.897650000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -15
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          HAlign = haCenter
+          Memo.UTF8 = (
+            '[TITULO]')
+          ParentFont = False
+          WordWrap = False
+        end
+        object fmvRua: TfrxMemoView
+          Left = 128.504020000000000000
+          Top = 3.779530000000000000
+          Width = 94.488250000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[RAZAOFILIALBASE]')
+          ParentFont = False
+        end
+        object fmvBairro: TfrxMemoView
+          Left = 128.504020000000000000
+          Top = 15.118120000000000000
+          Width = 94.488250000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[ENDERECO_BAIRRO]')
+          ParentFont = False
+        end
+        object fmvCidade: TfrxMemoView
+          Left = 128.504020000000000000
+          Top = 26.456710000000000000
+          Width = 94.488250000000000000
+          Height = 11.338590000000000000
+          AutoWidth = True
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[CEP_CIDADE_UF]')
+          ParentFont = False
+        end
+        object fpvLogo: TfrxPictureView
+          Left = 3.779530000000000000
+          Top = 3.779530000000000000
+          Width = 120.944960000000000000
+          Height = 45.354360000000000000
+          Picture.Data = {
+            07544269746D617016110000424D161100000000000036000000280000004800
+            0000140000000100180000000000E0100000C40E0000C40E0000000000000000
+            0000FFFFFFFFFFFFFCFCFCCECDCDFFFFFFE3E3E3CFCFD0FFFFFFF1F1F1CDCDCD
+            FAFAFADDDDDDFFFFFFE4E3E3FFFFFFE4E4E4DBDCDCFFFFFFECECECFBFBFBFCFC
+            FCCECECDF9F9F9FFFFFFB5B5B58D8D8E9E9E9DF8F8F8F4F4F4FAFAFAD0D0D0D3
+            D3D4FEFEFEFFFFFFFFFFFFD7D7D8DBDADAFDFDFDF2F2F2DDDDDDFEFEFEE9E9E9
+            FFFFFFFEFEFECFCFD0CFCFCFFAFAFAF0F0F1FAFAFADADADACECECEEEEEEEFFFF
+            FFE7E7E7ECECECFEFEFED0D0D1E9E9E9F1F1F1FBFBFBE1E1E1FBFBFBF4F4F4FA
+            FAFACFCFCFD4D4D5FFFFFFCECECECECECEFAFAFAFFFFFFFFFFFFFFFFFFFFFFFF
+            A9A8A8D2D2D2DCDCDC999999DFDFDFF7F7F7585859F1F1F1FDFDFD3C3A3AFFFF
+            FF545453ECECEC969696C7C7C7B2B2B2999A9AEBEBEB424140EDEDED414141FA
+            FAF9585757E7E7E7868686D9D9D9C0C0C06F6F6FDDDDDD696969F9F9F9FFFFFF
+            929394D0D0D0E7E7E7EFEFEFB3B3B23E3E3FF9F9F97B7B7AFFFFFFFFFFFFE0E0
+            E0C7C7C68C8C8CAFAEAEDFDFDFECECECD8D7D73F3F3FFEFEFE4C4D4EF9F9F946
+            4646DFDFDFF1F1F1A8A7A7E7E7E7484747DEDEDEBCBCBC545352E1E1E15A5A5A
+            FFFFFFE0E0E0D3D3D37E7D7EFFFFFFFFFFFFFFFFFFFFFFFFABABABE2E2E1DADA
+            DA7A7A79B9B9B9F6F6F668686AFEFEFEFFFFFF3E3D3DFEFEFE565658E8E8E8B0
+            B0AFD8D8D8A5A5A4999A9AEBEBEB403F3EFCFCFB464646F8F8F8616161F2F2F2
+            868686D9D9D9C0C0C0F3F3F3B3B3B3484949FAFAFAFFFFFF8E8F90AAAAA9C9C9
+            C8EFEFEFB7B7B73E4043F1F1F1848485FFFFFFF9F9F94D4D4DC5C5C5F6F6F6B1
+            B0B0DFDFDF4B4B4DC3C3C3E4E4E4FDFDFD555656FEFEFE40403FB9B9B9E1E1E1
+            A8A8A8E6E6E64B4A4ADADADAC0C1C2F2F2F2B3B3B33F3F3FFFFFFF404040C4C4
+            C4F5F5F5FFFFFFFFFFFFFFFFFFFFFFFF7474749C9B9AFFFFFFE2E2E2AFAFB0FE
+            FEFEF0F0F0AEAEADF5F6F6C0BFBEB3B3B2FCFCFCFFFFFFD7D7D8C6C6C6FFFFFF
+            989999EAEBEBFCFCFCAFAFAFF6F6F6FFFFFFEDEDEDB0B0AFE1E1E0F0F0F0E7E7
+            E7D9D9D9AFAEAEDCDDDDFFFFFFFFFFFFFFFFFFC9C9C9C2C2C2FCFCFCB0B0AFB7
+            B7B7B7B6B5FCFCFCFFFFFFFFFFFFD6D7D7AEAEADE7E7E5E0E0E0F2F2F2F2F2F2
+            B0AFAFC2C2C2E6E6E63B3A3ADDDEDEFFFFFFB6B6B6DDDDDDE9E9E9B0AFAFB7B7
+            B7BEBEBEFFFFFFD1D1D1AFAEAEE0E0E0FFFFFFDADADAAFAEAEE1E1E1FFFFFFFF
+            FFFFFFFFFFFFFFFFEAEAEAF8F8F8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE9E9E9FAFAF9FFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5F5F3DDDAB6ECE9C4ECE9C4FD
+            FDF9FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEAEAEAF7F7F7FFFFFFFFFFFFFFFFFFFFFF
+            FFD6D6D6FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFEFEFECDCDCEB2B2B1ADAEB0BABCBDFFFFFFFFFFFFFFFFFFF8F8F9CACB
+            CCB3B4B4ADAEB0ADAEB0ADAEB0C6C7C8FFFFFFFFFFFFFFFFFFFEFEFED1D2D3B7
+            B7B7B6B7B8FFFFFFFFFFFFFCFCF6ACA205ADA400ADA400F6F5E5FFFFFFFFFFFF
+            EAE7BFE3DFA6E3DFA6E3DFA6E3DFA6E3DFA6E3DFA6E3DFA6E5E1AEECE9C5FCFC
+            F8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFEFDECEBC6E4E0ABECE9C3FDFCF9FF
+            FFFFFFFFFFFFFFFFFFFFFFFEFEFCE6E3B1E6E3B1EDEAC7FFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFF7F6E6E8E7BAE6E3B1E6E3B1FFFFFFFFFFFFF3F3F41B1E231619
+            20171A20171A203F4045FFFFFFFDFDFD8183850F1218161920171A20171A2017
+            1A20171A205C5D61FFFFFFFFFFFF9FA0A10F1218161920171A20313337FFFFFF
+            FFFFFFFCFCF6ACA205ADA400ADA400F6F5E5FFFFFFFFFFFFC2BA43ADA400ADA4
+            00ADA400ADA400ADA400ADA400ADA400ADA400ADA400ABA104F9F8EFFFFFFFFF
+            FFFFFFFEFCCDC869ACA104ADA400ADA400ADA400ACA103C8C156FEFEFBFFFFFF
+            FFFFFFFAFAEFABA100ADA400C2BA45FFFFFFFFFFFFFFFFFFFFFFFFC1B944ACA3
+            00ADA400ADA400ADA400FFFFFFFFFFFF838586171A20181B2111151B3C3E4160
+            6265FFFFFF71737616191F181B210F13193034383D3F443D40443D4044797A7B
+            FFFFFFBEBFC113161C181B2114181D1C20244D4F4CEEECCBEEECCBEDEAC7BCB5
+            36BCB635BCB635E5E2B0E8E6BBE8E6BBC8C45ABDB63FBDB63FBDB63FBDB63FBD
+            B63FBDB63FBDB640BBB438ADA400ADA400B9AF26FFFFFFFEFEFDBCB334ADA400
+            ADA400ABA101AEA404ABA101ADA400ADA400B7AE26FEFEFAFFFFFFFAFAEFABA1
+            00ADA400C2BA45FFFFFFFFFFFFFFFFFFF4F1DCACA300ADA400ADA400B0A608B1
+            A811FFFFFFFFFFFF35383C181B2111151AE8E8E8FFFFFFFFFFFFF7F7F70E1217
+            181B211C1F24F8F8F8FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDFDFD1F2227181B
+            2115181EB6B7B9FFFFFFF2EFD4ACA300ADA400AFA409FEFDFAFFFFFFFFFFFFB1
+            A810ADA400ADA400E5E2AFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFB0A611ADA400AEA504FDFDF8D3CD78ACA300ADA400DCD791FFFFFFFFFF
+            FFFFFFFFDFDC9EACA202ADA400CAC35BFFFFFFFAFAEFABA100ADA400C2BA45FF
+            FFFFFFFFFFFFFFFFD4D07BADA400ADA400D3CD77FFFFFFFFFFFFFFFFFFFFFFFF
+            282A2C181B2112151BF0F1F1FFFFFFFFFFFFB6B7B8181B21181B212F32368081
+            857F80857F80857F80857F8085A6A7A8E6E6E613161C181B2124272CFFFFFFFF
+            FFFFF2EFD4ACA300ADA400B0A709FEFDFAFFFFFFFFFFFFB1A810ADA400ADA400
+            E5E2AFFFFFFFFFFFFFFEFEFEFDFDFBFBFAF3FBFAF3F9F9F0E9E6BCADA403ADA4
+            00B0A707FEFDF9ACA202ADA400CDC767FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD4
+            CF7BADA400ABA100FFFFFFFAFAEFABA100ADA400C2BA45FFFFFFFFFFFFFFFFFF
+            CEC763ADA400ADA400E4E1ABFFFFFFFFFFFFFFFFFFFFFFFF292C31181B211216
+            1BF1F1F2FFFFFFFFFFFF9A9C9E181B21181B21181B21181B21181B21181B2118
+            1B21181B215D5E62DBDCDC11141A181B21494B4EFFFFFFFFFFFFF3F2DBB9B02A
+            B9B02BBAB230D7D7D7D7D7D7D7D7D7BDB53EBEB53BBEB53BEBE8BEFFFFFFECE9
+            C5ADA307ACA200ADA400ADA400ADA400ADA400ADA400ADA400CCC661FFFFFFAB
+            A100ADA400EEECC9FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF6F5E5ACA300ADA400
+            FBFAF2FAFAEFABA100ADA400C2BA45FFFFFFFFFFFFFFFFFFCEC762ADA400ADA4
+            00E7E4B5FFFFFFFFFFFFFFFFFFFFFFFF292C31181B2112161BF1F1F2FFFFFFFF
+            FFFFABABAB181B21181B21171A2014171C14171C14171C14171C14171C5C5E62
+            E2E3E313161C181B21373A3EFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7F7F7171A
+            1F13161B13161BE7E8EAFFFFFFFFFFFFFFFFFFFFFFFEA99E02ADA400ADA400B1
+            A610B3A918B3A919B3A91ABBB32EE5E2AFFFFFFFFFFFFFABA100ADA400E5E1AD
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEDEBCAADA400ABA000FFFFFEFAFAEFABA1
+            00ADA400C2BA45FFFFFFFFFFFFFFFFFFCEC762ADA400ADA400E7E4B5FFFFFFFF
+            FFFFFFFFFFFFFFFF292C31181B2112161BF1F1F2FFFFFFFFFFFFDFDFDF14171D
+            181B213C3E42F1F1F2F0F0F1F0F0F1F0F0F1F0F0F1F5F5F5F8F8F8171A1F181B
+            210C0F15FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7F7F7171A1F181B21181B21E7
+            E8E9FFFFFFFFFFFFFFFFFFF3F1D7ADA400ADA400B8B023FEFEFDFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB3AA15ADA400B8B023FEFEFBFFFFFFFFFF
+            FFFFFFFFFFFFFFBCB330ADA400AFA405FFFFFFFAFAEFABA100ADA400C2BA45FF
+            FFFFFFFFFFFFFFFFCEC762ADA400ADA400E7E4B5FFFFFFFFFFFFEEEEEEE8E8E8
+            272A2F181B2113171CDFDFDFE8E8E8ECECECFFFFFF111319181B21171A20ADAE
+            B0E2E2E3E8E8E8E8E8E8E8E8E8EFEFEFFFFFFF4D4F52181B21181B2147494ECF
+            D0D1E3E3E4E4E4E5E4E4E5DEDFDF27292D272B2F272B2FDADADAE6E7E7E6E7E7
+            F5F5F5F5F3E0ADA400ADA400B0A70FF1EFD4F2F0D6F2F0D6F1F0D4F1F0D4F1F0
+            D4F7F5E5FFFFFFF1EFD3ACA202ADA400AEA503DED999EDEAC5E1DEA1B0A70AAD
+            A400ACA300E8E5B7F1EFD4EEEDCCACA200ADA400BFB73BF1EFD4F1EFD4FAF9EE
+            CEC762ADA400ADA400DDD996F1EFD4F1EFD4595B5E15181E181B21181B21181B
+            2115181E15181E3D3E43FFFFFFC7C7C90E1117181B2115191E15181E15181E15
+            181E15181E5B5C5FFFFFFFF0F0F10A0E13181B21181B2115181E15181E15181E
+            15181E16191EFAFAFAFFFFFFFFFFFF25292D15181E15181E9D9EA0FFFFFFABA0
+            00ADA400ADA400ACA300ACA300ACA300ACA300ACA300ACA300CAC55CFFFFFFFF
+            FFFFE4E1ADABA200ADA400ADA400ACA300ADA400ADA400ABA200DEDA99D2CD73
+            ACA300ACA300ADA400ADA400ADA400ACA300ACA300E0DD9ECEC762ADA400ADA4
+            00ADA400ACA300ACA3005A5D6015181D181B21181B21181B2116191E15181D3E
+            4044FFFFFFFFFFFFE0E0E1494C4F212429171A1F15181D15181D15181D5C5F62
+            FFFFFFFFFFFFF0F1F16B6D70282C301B1E2215181D15181D15181D161A1FF9F9
+            F9FFFFFFFFFFFF272B2F181B21181B219E9FA2FFFFFFF9F9EDBEB83DAFA60BAD
+            A403ADA403ADA403ADA403ADA403ADA403CBC55EFFFFFFFFFFFFFFFFFFFAF9EF
+            CDC865B5AB1BAEA406B3AA18CBC562F9F7E9FFFFFFD2CD75AFA605AFA605ADA4
+            00ADA400ADA400AFA605AFA605E0DCA0CEC762ADA400ADA400AEA502AFA605AF
+            A605FDFDFDFCFCFC292C31181B2112161BF0F0F0FCFCFCFDFDFDFFFFFFFFFFFF
+            FFFFFFFFFFFFFEFEFEFCFCFCFCFCFCFCFCFCFCFCFCFDFDFDFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFDFDFDFCFCFCFCFCFCFCFCFCFCFCFCFFFFFFFFFFFFFFFFFF2A
+            2C2F15191E15191EA0A0A0FFFFFFFFFFFFFFFFFFFEFEFDFEFEFCFEFEFCFEFEFC
+            FEFEFCFEFEFCFEFEFCFEFEFDFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFE
+            FDFFFFFEFFFFFFFFFFFFFFFFFFFFFEFEFEFEFDFBFBF3ABA100ADA400BEB639FE
+            FEFDFEFEFDFFFFFECEC762ADA400ADA400E6E3B3FEFEFDFEFEFDFFFFFFFFFFFF
+            292C31181B2112161BF1F1F2FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFDFDF8AAA000ADA400ADA400C4BC4BC7C152ECE9C1
+            CEC762ADA400ADA400E7E4B5FFFFFFFFFFFFFFFFFFFFFFFF292C31181B211216
+            1BF1F1F2FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFBFB740ACA200ADA400ADA400ADA400E2DEA3CEC762ADA400ADA4
+            00E7E4B5FFFFFFFFFFFFFFFFFFFFFFFF67696B5A5C60585A5EF5F5F5FFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFE
+            FCE6E3B1CBC55DC5C34EC5C34EEAE7BEDDD893C5C34EC5C34EEEECCAFFFFFFFF
+            FFFF}
+        end
+      end
+      object PageFooter1: TfrxPageFooter
+        Height = 15.118120000000000000
+        Top = 362.834880000000000000
+        Width = 755.906000000000000000
+        object Memo61: TfrxMemoView
+          Align = baClient
+          Width = 755.906000000000000000
+          Height = 15.118120000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[FormatDateTime('#39'HH:MM:SS'#39',<Time>)]')
+          ParentFont = False
+        end
+        object Memo62: TfrxMemoView
+          Align = baClient
+          Width = 755.906000000000000000
+          Height = 15.118120000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -9
+          Font.Name = 'Arial'
+          Font.Style = []
+          HAlign = haRight
+          Memo.UTF8 = (
+            'TecSoft - Tecnologia em Sistemas')
+          ParentFont = False
+        end
+      end
+      object DetailData1: TfrxDetailData
+        Height = 22.677180000000000000
+        Top = 211.653680000000000000
+        Width = 755.906000000000000000
+        Child = frxAtendimentos.Child1
+        ColumnGap = 188.976377952755900000
+        DataSet = frxDBOcorrencias
+        DataSetName = 'frxDBOcorrencias'
+        RowCount = 0
+        Stretched = True
+        object Memo2: TfrxMemoView
+          Align = baLeft
+          Width = 79.370130000000000000
+          Height = 18.897650000000000000
+          DataSet = dtmRelatorioEstoque.frxDBEstoque
+          DataSetName = 'frxDBEstoque'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -15
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          Memo.UTF8 = (
+            '[frxDBOcorrencias."data"]')
+          ParentFont = False
+        end
+        object Memo9: TfrxMemoView
+          Left = 86.929190000000000000
+          Width = 665.197280000000000000
+          Height = 18.897650000000000000
+          DataSet = dtmRelatorioEstoque.frxDBEstoque
+          DataSetName = 'frxDBEstoque'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -15
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            
+              '['#39' - '#39'] [<frxDBOcorrencias."usuario">] [ '#39' - '#39'] [<frxDBOcorrenci' +
+              'as."nomeusuario">]')
+          ParentFont = False
+        end
+      end
+      object MasterData1: TfrxMasterData
+        Height = 37.795300000000000000
+        Top = 151.181200000000000000
+        Width = 755.906000000000000000
+        DataSet = frxDBAtendimentos
+        DataSetName = 'frxDBAtendimentos'
+        RowCount = 0
+        StartNewPage = True
+        Stretched = True
+        object Memo24: TfrxMemoView
+          Width = 75.590600000000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -15
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          Memo.UTF8 = (
+            'CLIENTE:')
+          ParentFont = False
+        end
+        object Memo8: TfrxMemoView
+          Left = 83.149660000000000000
+          Width = 668.976810000000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -15
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            
+              '[frxDBAtendimentos."cliente"] - [frxDBAtendimentos."nomecliente"' +
+              ']')
+          ParentFont = False
+        end
+        object Memo1: TfrxMemoView
+          Top = 18.897650000000000000
+          Width = 75.590600000000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -15
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          Memo.UTF8 = (
+            'ASSUNTO:')
+          ParentFont = False
+        end
+        object Memo7: TfrxMemoView
+          Left = 83.149660000000000000
+          Top = 18.897650000000000000
+          Width = 668.976810000000000000
+          Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -15
+          Font.Name = 'Arial'
+          Font.Style = []
+          Memo.UTF8 = (
+            '[frxDBAtendimentos."assunto"]')
+          ParentFont = False
+        end
+      end
+      object Child1: TfrxChild
+        Height = 45.354360000000000000
+        Top = 257.008040000000000000
+        Width = 755.906000000000000000
+        Stretched = True
+        object Memo5: TfrxMemoView
+          Align = baClient
+          Width = 755.906000000000000000
+          Height = 45.354360000000000000
+          StretchMode = smActualHeight
+          DataField = 'informes'
+          DataSet = frxDBOcorrencias
+          DataSetName = 'frxDBOcorrencias'
+          DisplayFormat.DecimalSeparator = ','
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'Arial'
+          Font.Style = []
+          Frame.Typ = [ftBottom]
+          GapX = 3.000000000000000000
+          GapY = 3.000000000000000000
+          Memo.UTF8 = (
+            '[frxDBOcorrencias."informes"]')
+          ParentFont = False
+        end
+      end
+    end
+  end
+  object frxDBAtendimentos: TfrxDBDataset
+    UserName = 'frxDBAtendimentos'
+    CloseDataSource = False
+    FieldAliases.Strings = (
+      'codigo=codigo'
+      'cliente=cliente'
+      'tipocliente=tipocliente'
+      'data=data'
+      'semaviso=semaviso'
+      'semspc=semspc'
+      'concluido=concluido'
+      'tipo=tipo'
+      'tipoatendimento=tipoatendimento'
+      'usuario=usuario'
+      'nomeusuario=nomeusuario'
+      'possuicartaatendimento=possuicartaatendimento'
+      'datainclusao=datainclusao'
+      'naoligar=naoligar'
+      'usuariologado=usuariologado'
+      'nomeusuariologado=nomeusuariologado'
+      'lembrar=lembrar'
+      'lembrarhora=lembrarhora'
+      'origem=origem'
+      'assunto=assunto'
+      'status=status'
+      'contrato=contrato'
+      'orcamento=orcamento'
+      'followups=followups'
+      'dataorigem=dataorigem'
+      'statusaux=statusaux'
+      'descricaosituacaoorcamento=descricaosituacaoorcamento'
+      'descricaosituacaocontrato=descricaosituacaocontrato'
+      'contratodescricao=contratodescricao'
+      'orcamentodescricao=orcamentodescricao'
+      'renegociadoText=renegociadoText'
+      'contrato_atual=contrato_atual'
+      'descricaomotivo=descricaomotivo'
+      'nomecliente=nomecliente')
+    OpenDataSource = False
+    DataSet = qryAtendimentos
+    Left = 648
+    Top = 440
+  end
+  object frxDBOcorrencias: TfrxDBDataset
+    UserName = 'frxDBOcorrencias'
+    CloseDataSource = False
+    FieldAliases.Strings = (
+      'origem=origem'
+      'codigo=codigo'
+      'data=data'
+      'lembrar=lembrar'
+      'tipo=tipo'
+      'assunto=assunto'
+      'usuario=usuario'
+      'nomeusuario=nomeusuario'
+      'datainclusao=datainclusao'
+      'expandir=expandir'
+      'descricaotipo=descricaotipo'
+      'lembrarhora=lembrarhora'
+      'qtatendimentos=qtatendimentos'
+      'status=status'
+      'informes=informes'
+      'ultimoatendimento=ultimoatendimento'
+      'ultimoatendimentoaux=ultimoatendimentoaux')
+    OpenDataSource = False
+    DataSet = qryocorrencias
+    Left = 696
+    Top = 456
+  end
+  object frxJPEGExport1: TfrxJPEGExport
+    UseFileCache = True
+    ShowProgress = True
+    Left = 836
+    Top = 376
+  end
+  object frxXMLExport1: TfrxXMLExport
+    UseFileCache = True
+    ShowProgress = True
+    Background = True
+    Creator = 'FastReport'
+    EmptyLines = True
+    SuppressPageHeadersFooters = False
+    Left = 884
+    Top = 360
+  end
+  object frxXLSExport1: TfrxXLSExport
+    UseFileCache = True
+    ShowProgress = True
+    AsText = False
+    Background = True
+    FastExport = True
+    PageBreaks = True
+    EmptyLines = True
+    SuppressPageHeadersFooters = False
+    Left = 884
+    Top = 304
+  end
+  object frxRTFExport1: TfrxRTFExport
+    UseFileCache = True
+    ShowProgress = True
+    Wysiwyg = True
+    Creator = 'FastReport http://www.fast-report.com'
+    SuppressPageHeadersFooters = False
+    HeaderFooterMode = hfText
+    Left = 892
+    Top = 240
+  end
+  object frxMailExport1: TfrxMailExport
+    UseFileCache = True
+    ShowProgress = True
+    ShowExportDialog = True
+    SmtpPort = 25
+    UseIniFile = True
+    Left = 884
+    Top = 192
+  end
+  object frxODTExport1: TfrxODTExport
+    UseFileCache = True
+    ShowProgress = True
+    Background = True
+    Creator = 'FastReport'
+    EmptyLines = True
+    SuppressPageHeadersFooters = False
+    Left = 804
+    Top = 296
+  end
+  object frxPDFExport1: TfrxPDFExport
+    UseFileCache = True
+    ShowProgress = True
+    PrintOptimized = False
+    Outline = False
+    Author = 'FastReport'
+    Subject = 'FastReport PDF export'
+    Background = False
+    Creator = 'FastReport (http://www.fast-report.com)'
+    HTMLTags = True
+    Left = 812
+    Top = 200
+  end
+  object frxTIFFExport1: TfrxTIFFExport
+    UseFileCache = True
+    ShowProgress = True
+    Left = 820
+    Top = 160
+  end
+  object frxODSExport1: TfrxODSExport
+    UseFileCache = True
+    ShowProgress = True
+    Background = True
+    Creator = 'FastReport'
+    EmptyLines = True
+    SuppressPageHeadersFooters = False
+    Left = 884
+    Top = 136
+  end
+  object frxBMPExport1: TfrxBMPExport
+    UseFileCache = True
+    ShowProgress = True
+    Left = 884
+    Top = 88
+  end
+  object frxTXTExport1: TfrxTXTExport
+    UseFileCache = True
+    ShowProgress = True
+    ScaleWidth = 1.000000000000000000
+    ScaleHeight = 1.000000000000000000
+    Borders = False
+    Pseudogrpahic = False
+    PageBreaks = True
+    OEMCodepage = False
+    EmptyLines = False
+    LeadSpaces = False
+    PrintAfter = False
+    PrinterDialog = True
+    UseSavedProps = True
+    Left = 812
+    Top = 104
+  end
+  object frxGIFExport1: TfrxGIFExport
+    UseFileCache = True
+    ShowProgress = True
+    Left = 796
+    Top = 48
+  end
+  object frxCSVExport1: TfrxCSVExport
+    UseFileCache = True
+    ShowProgress = True
+    Separator = ';'
+    OEMCodepage = False
+    Left = 884
+    Top = 40
+  end
+  object frxHTMLExport1: TfrxHTMLExport
+    UseFileCache = True
+    ShowProgress = True
+    FixedWidth = True
+    Background = False
+    Centered = False
+    EmptyLines = True
+    Left = 884
+    Top = 8
+  end
+  object frxSimpleTextExport1: TfrxSimpleTextExport
+    UseFileCache = True
+    ShowProgress = True
+    Frames = False
+    EmptyLines = False
+    OEMCodepage = False
+    Left = 748
+    Top = 8
+  end
+  object qryUltimoAtendimento: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select  codigo'
+      'From    atendimentos'
+      'Where  (cliente =:cliente) and'
+      '            (tipocliente = :tipocliente) '
+      'order by data desc limit 1')
+    RequestLive = False
+    Left = 496
+    Top = 290
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'cliente'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'tipocliente'
+        ParamType = ptUnknown
+      end>
+    object qryUltimoAtendimentocodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+  end
+  object qryAtualizarAtendimentos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update atendimentos set status = :status'
+      
+        'where (origem = :origem  or codigo = :origem) and :origem is not' +
+        ' null')
+    RequestLive = True
+    Left = 104
+    Top = 304
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'status'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'origem'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryAtendimentosText: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select codigo, informes '
+      'from atendimentos '
+      'where codigo = :codigo')
+    RequestLive = True
+    Left = 32
+    Top = 40
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryAtendimentosTextcodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryAtendimentosTextinformes: TMemoField
+      FieldName = 'informes'
+      Required = True
+      BlobType = ftMemo
+    end
+  end
+  object dsrAtendimentoText: TtecDataSource
+    DataSet = qryAtendimentosText
+    Left = 208
+    Top = 88
+  end
+  object qryExisteAtendimento2: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftString
+        Name = 'Condicao'
+        ParamType = ptUnknown
+        Value = 'false'
+      end>
+    Sql.Strings = (
+      'Select *'
+      'From atendimentos'
+      'Where  %Condicao'
+      '  '
+      '')
+    RequestLive = False
+    Left = 592
+    Top = 274
+    object qryExisteAtendimento2codigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+    end
+    object qryExisteAtendimento2cliente: TIntegerField
+      FieldName = 'cliente'
+      Required = True
+    end
+    object qryExisteAtendimento2tipocliente: TStringField
+      FieldName = 'tipocliente'
+      Required = True
+      Size = 1
+    end
+    object qryExisteAtendimento2data: TDateField
+      FieldName = 'data'
+      Required = True
+    end
+    object qryExisteAtendimento2tipo: TStringField
+      FieldName = 'tipo'
+      Required = True
+      Size = 1
+    end
+    object qryExisteAtendimento2informes: TMemoField
+      FieldName = 'informes'
+      BlobType = ftMemo
+    end
+    object qryExisteAtendimento2lembrar: TDateField
+      FieldName = 'lembrar'
+    end
+    object qryExisteAtendimento2semaviso: TDateField
+      FieldName = 'semaviso'
+    end
+    object qryExisteAtendimento2semspc: TDateField
+      FieldName = 'semspc'
+    end
+    object qryExisteAtendimento2concluido: TBooleanField
+      FieldName = 'concluido'
+      Required = True
+    end
+    object qryExisteAtendimento2usuario: TIntegerField
+      FieldName = 'usuario'
+      Required = True
+    end
+    object qryExisteAtendimento2tipoatendimento: TIntegerField
+      FieldName = 'tipoatendimento'
+    end
+    object qryExisteAtendimento2datainclusao: TDateTimeField
+      FieldName = 'datainclusao'
+      Required = True
+    end
+    object qryExisteAtendimento2naoligar: TBooleanField
+      FieldName = 'naoligar'
+      Required = True
+    end
+    object qryExisteAtendimento2usuariologado: TIntegerField
+      FieldName = 'usuariologado'
+    end
+    object qryExisteAtendimento2assunto: TStringField
+      FieldName = 'assunto'
+      Size = 100
+    end
+    object qryExisteAtendimento2status: TStringField
+      FieldName = 'status'
+      Size = 1
+    end
+    object qryExisteAtendimento2origem: TIntegerField
+      FieldName = 'origem'
+    end
+    object qryExisteAtendimento2contrato: TStringField
+      FieldName = 'contrato'
+    end
+    object qryExisteAtendimento2produto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryExisteAtendimento2filial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryExisteAtendimento2orcamento: TIntegerField
+      FieldName = 'orcamento'
+    end
+    object qryExisteAtendimento2lembrarhora: TTimeField
+      FieldName = 'lembrarhora'
+    end
+  end
+  object qryAtendimentosProdutos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select ap.*'
+      'from atendimentosprodutos ap'
+      'where ap.atendimento = :atendimento')
+    RequestLive = True
+    Left = 208
+    Top = 184
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'atendimento'
+        ParamType = ptUnknown
+        Value = '0'
+      end>
+    object qryAtendimentosProdutosatendimento: TIntegerField
+      FieldName = 'atendimento'
+    end
+    object qryAtendimentosProdutosproduto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryAtendimentosProdutosdias: TIntegerField
+      FieldName = 'dias'
+    end
+  end
+  object qryAtendimentos_: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterScroll = qryAtendimentos_AfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'ListadeClientes'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListadeUsuariosCadastrantes'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'IntervaloDataCadastro'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'IntervaloDataLembrar'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'TiposdeAtendimentos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'Status'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'select a.codigo,'
+      '       a.cliente,'
+      '       a.tipocliente,'
+      '       a.data,'
+      '/*       a.informes,*/'
+      '       a.lembrar,'
+      '       a.lembrarhora,'
+      '       a.semaviso,'
+      '       a.semspc,'
+      '       a.concluido,'
+      '       a.tipo,'
+      '       a.tipoatendimento,'
+      '       a.usuario,'
+      
+        '       (select u.nome from usuarios u where u.codigo = a.usuario' +
+        ') as nomeusuario,'
+      '       a.usuariologado,'
+      
+        '       (select u.nome from usuarios u where u.codigo = a.usuario' +
+        'logado) as nomeusuariologado,'
+      '       coalesce((select true'
+      '                 from cartasclientes cc'
+      
+        '                 where cc.atendimento = a.codigo limit 1),false)' +
+        ' as PossuiCartaAtendimento,'
+      '       a.datainclusao,'
+      '       a.naoligar,'
+      '       a.origem,'
+      
+        '       (select count(*) from atendimentos a2 where a2.origem = a' +
+        '.codigo) as Followups,'
+      '       a.assunto,'
+      '       a.status,'
+      '       a.contrato,'
+      '       a.produto,'
+      '       a.filial,'
+      '       a.orcamento,'
+      ''
+      '       cast((select case when o.situacao = '#39'A'#39' then '#39'ABERTO'#39
+      '                         when o.situacao = '#39'C'#39' then '#39'CANCELADO'#39
+      '                         when o.situacao = '#39'P'#39' then '#39'PARCIAL'#39
+      '                         when o.situacao = '#39'T'#39' then '#39'CONTRATO'#39
+      '                end'
+      '        from (select o.situacao'
+      '              from orcamentos o'
+      '              where o.codigo = a.orcamento) as o'
+      '        ) as varchar(20)) as descricaosituacaoorcamento,'
+      ''
+      
+        '       (select m.descricao from motivos m where m.codigo = (sele' +
+        'ct o.motivo from orcamentos o where o.codigo = a.orcamento)) as ' +
+        'descricaomotivo,'
+      ''
+      '       cast((select case when c.situacao = '#39'O'#39' then '#39'OR'#199'ADO'#39
+      '                        when c.situacao = '#39'R'#39' then '#39'RESERVADO'#39
+      '                        when c.situacao = '#39'F'#39' then '#39'FATURADO'#39
+      
+        '                        when c.situacao = '#39'P'#39' then '#39'NOTA PARCIAL' +
+        #39
+      '                        when c.situacao = '#39'N'#39' then '#39'NOTA FISCAL'#39
+      '                        when c.situacao = '#39'C'#39' then '#39'CANCELADO'#39
+      '                end'
+      '        from (select c.situacao'
+      '              from contratos c'
+      '              where c.numero = a.contrato) as c'
+      '        ) as varchar(20)) as descricaosituacaocontrato,'
+      ''
+      '        (select contrato_atual(a.contrato)) as contrato_atual,'
+      ''
+      
+        '       (select a2.data from atendimentos a2 where a2.codigo = co' +
+        'alesce(a.origem,a.codigo)) as dataorigem,'
+      '       a.status as statusaux,'
+      ''
+      '       vf.nome as nomecliente'
+      ''
+      'from atendimentos a'
+      '     join vfornecedores vf'
+      '     on a.cliente = vf.codigo'
+      '     and a.tipocliente = vf.tipo'
+      ''
+      ''
+      'Where a.codigo in'
+      ''
+      '('
+      ' select coalesce(a.origem,a.codigo) as atendimento'
+      ' from atendimentos a'
+      '      join vfornecedores vf'
+      '      on a.cliente = vf.codigo'
+      '      and a.tipocliente = vf.tipo'
+      ' where true'
+      ' %ListadeClientes'
+      ' %ListadeUsuariosCadastrantes'
+      ' %IntervaloDataCadastro'
+      ' %IntervaloDataLembrar'
+      ' %TiposdeAtendimentos'
+      ' %Status'
+      ')'
+      ''
+      ''
+      '/*'
+      ''
+      ':DataInicialCadastro'
+      ':DataFinalCadastro'
+      ':DataInicialLembrar'
+      ':DataFinalLembrar'
+      ''
+      '*/')
+    RequestLive = False
+    Left = 680
+    Top = 136
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'DataInicialCadastro'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataFinalCadastro'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataInicialLembrar'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'DataFinalLembrar'
+        ParamType = ptUnknown
+      end>
+    object qryAtendimentos_codigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryAtendimentos_cliente: TIntegerField
+      FieldName = 'cliente'
+    end
+    object qryAtendimentos_tipocliente: TStringField
+      FieldName = 'tipocliente'
+      Size = 1
+    end
+    object qryAtendimentos_data: TDateField
+      FieldName = 'data'
+    end
+    object qryAtendimentos_lembrar: TDateField
+      FieldName = 'lembrar'
+    end
+    object qryAtendimentos_lembrarhora: TTimeField
+      FieldName = 'lembrarhora'
+    end
+    object qryAtendimentos_semaviso: TDateField
+      FieldName = 'semaviso'
+    end
+    object qryAtendimentos_semspc: TDateField
+      FieldName = 'semspc'
+    end
+    object qryAtendimentos_concluido: TBooleanField
+      FieldName = 'concluido'
+    end
+    object qryAtendimentos_tipo: TStringField
+      FieldName = 'tipo'
+      Size = 1
+    end
+    object qryAtendimentos_tipoatendimento: TIntegerField
+      FieldName = 'tipoatendimento'
+    end
+    object qryAtendimentos_usuario: TIntegerField
+      FieldName = 'usuario'
+    end
+    object qryAtendimentos_nomeusuario: TStringField
+      FieldName = 'nomeusuario'
+      Size = 100
+    end
+    object qryAtendimentos_usuariologado: TIntegerField
+      FieldName = 'usuariologado'
+    end
+    object qryAtendimentos_nomeusuariologado: TStringField
+      FieldName = 'nomeusuariologado'
+      Size = 100
+    end
+    object qryAtendimentos_possuicartaatendimento: TBooleanField
+      FieldName = 'possuicartaatendimento'
+    end
+    object qryAtendimentos_datainclusao: TDateTimeField
+      FieldName = 'datainclusao'
+    end
+    object qryAtendimentos_naoligar: TBooleanField
+      FieldName = 'naoligar'
+    end
+    object qryAtendimentos_origem: TIntegerField
+      FieldName = 'origem'
+    end
+    object qryAtendimentos_followups: TLargeintField
+      FieldName = 'followups'
+    end
+    object qryAtendimentos_assunto: TStringField
+      FieldName = 'assunto'
+      Size = 100
+    end
+    object qryAtendimentos_status: TStringField
+      FieldName = 'status'
+      Size = 1
+    end
+    object qryAtendimentos_contrato: TStringField
+      FieldName = 'contrato'
+    end
+    object qryAtendimentos_produto: TLargeintField
+      FieldName = 'produto'
+    end
+    object qryAtendimentos_filial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryAtendimentos_orcamento: TIntegerField
+      FieldName = 'orcamento'
+    end
+    object qryAtendimentos_descricaosituacaoorcamento: TStringField
+      FieldName = 'descricaosituacaoorcamento'
+    end
+    object qryAtendimentos_descricaomotivo: TStringField
+      FieldName = 'descricaomotivo'
+      Size = 30
+    end
+    object qryAtendimentos_descricaosituacaocontrato: TStringField
+      FieldName = 'descricaosituacaocontrato'
+    end
+    object qryAtendimentos_contrato_atual: TStringField
+      FieldName = 'contrato_atual'
+    end
+    object qryAtendimentos_dataorigem: TDateField
+      FieldName = 'dataorigem'
+    end
+    object qryAtendimentos_statusaux: TStringField
+      FieldName = 'statusaux'
+      Size = 1
+    end
+    object qryAtendimentos_nomecliente: TStringField
+      FieldName = 'nomecliente'
+      Size = 40
+    end
+  end
+  object qryocorrencias_: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    Filtered = True
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      '  Select a.origem,'
+      '         a.codigo,'
+      '         a.data,'
+      ''
+      '         case when a.origem is null then'
+      
+        '           (select max(a2.data) from atendimentos a2 where coale' +
+        'sce(a2.origem, a2.codigo) = coalesce(a.origem,a.codigo))'
+      '         else'
+      '           cast(null as date)'
+      '         end as UltimoAtendimento,'
+      ''
+      
+        '         (select max(a2.data) from atendimentos a2 where coalesc' +
+        'e(a2.origem, a2.codigo) = coalesce(a.origem,a.codigo)) as Ultimo' +
+        'AtendimentoAux,'
+      ''
+      '         case when a.origem is null then'
+      
+        '           (select min(a2.lembrar) from atendimentos a2 where co' +
+        'alesce(a2.origem,a2.codigo) = coalesce(a.origem,a.codigo) and a2' +
+        '.lembrar >= current_date) '
+      '         else'
+      '           a.lembrar'
+      '         end as lembrar,'
+      ''
+      '         a.informes,'
+      '         a.tipo,'
+      
+        '        (select ta.descricao from tiposatendimentos ta where ta.' +
+        'codigo = a.tipoatendimento) as descricaotipo,'
+      '         a.assunto,'
+      '         a.usuario,'
+      
+        '         (select u.nome from usuarios u where u.codigo = a.usuar' +
+        'io) as nomeusuario,'
+      '         a.datainclusao,'
+      '         a.lembrarhora,'
+      '         case when a.origem is null then'
+      
+        '           (select count(*) from atendimentos a2 where coalesce(' +
+        'a2.origem, a2.codigo) = coalesce(a.origem,a.codigo))'
+      '         else'
+      '           cast(null as integer)'
+      '         end as qtAtendimentos,'
+      ''
+      '         a.status'
+      ''
+      '  From atendimentos a'
+      '  Where coalesce(a.origem,a.codigo) = :origem'
+      
+        '  order by coalesce(a.origem, a.codigo+1) desc, a.datainclusao d' +
+        'esc'
+      '')
+    RequestLive = False
+    Left = 680
+    Top = 191
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'origem'
+        ParamType = ptUnknown
+      end>
+  end
+end

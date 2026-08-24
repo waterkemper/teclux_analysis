@@ -1,0 +1,3345 @@
+unit fmcadastrocontratos;
+
+interface
+
+uses
+
+  //CLX
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, ExtCtrls, Buttons, DBCtrls, Mask, ComCtrls, Grids,
+  DBGrids, ActnList, DB,
+  //Biblio
+  ctconstantes, clparametrossistema, clusuario,
+  //Compoentes
+  cpdbmemo, cpnumero, cpdocumento, cpdbdata, cppagecontrol, cpdbradiogroup,
+  cpdbtext, cpdbfindcontrols, cptexto, cpdbgrid, cpdbcombobox,
+  //Terceiros
+  ZQuery,
+  //Repositorio
+  fmcadastropadrao, fmconsultaporcampo, frendereco, frenderecoeditor, frtelefone,
+  frfoneramal, frcgcoucpf, fmconsultabasica, fmajuda,  dmtecsoft, windows,
+  //Projeto
+  fmcalculofinanciamento, fmvisualizarsaldotroca, fmobservacoescontrato,
+  fmclientescontrato, cpcpfcnpj2, ToolWin,
+  fmConferenciaProdutos;// ZPgSqlQuery, cpquery;
+
+type
+
+  TfrmCadastroContratos = class(TfrmCadastroPadrao)
+    pnlFundoJanela: TPanel;
+    gbxNomeCliente: TGroupBox;
+    pgcCadastroClientes: TtecPageControl;
+    tstClienteGeral: TTabSheet;
+    gbxDadosPessoais: TGroupBox;
+    lblApelido: TLabel;
+    edtClientesApelido: TDBEditTexto;
+    edtClientesNascto: TDBEditData;
+    lblNascimento: TLabel;
+    gbxNaturalidade: TGroupBox;
+    sbnProcurarCidade: TSpeedButton;
+    lblCidadeNatural: TLabel;
+    lblEstadoNatural: TLabel;
+    dtxClientesNaturalEstado: TDBEditTexto;
+    flkNaturalCidadeCliente: TtecDBFindLookup;
+    gbxFiliacao: TGroupBox;
+    lblMae: TLabel;
+    edtClientesMae: TDBEditTexto;
+    lblPai: TLabel;
+    edtClientesPai: TDBEditTexto;
+    gbxTempo: TGroupBox;
+    lblMesEstadoCivil: TLabel;
+    edtClientesCivilData: TDBEditData;
+    lblDataEstadoCivil: TLabel;
+    edtCivilAno: TEditNumero;
+    edtCivilMes: TEditNumero;
+    gbxDocumentos: TGroupBox;
+    gbxIdentificacao: TGroupBox;
+    sbnProcurarEstadoID: TSpeedButton;
+    lblDocumentoID: TLabel;
+    edtDocumentoID: TDBEditDocumento;
+    lblOrgaoID: TLabel;
+    lblEstadoID: TLabel;
+    lblDataEmissaoID: TLabel;
+    edtDataEmissaoID: TDBEditData;
+    edtOrgaoID: TDBEditTexto;
+    flkEstadoID: TtecDBFindLookup;
+    tstResidencia: TTabSheet;
+    gbxTelefones: TGroupBox;
+    fraFoneRamalResidencia1: TfraFoneRamal;
+    fraFoneRamalResidencia2: TfraFoneRamal;
+    gbxMoradia: TGroupBox;
+    gbxTempoResidencia: TGroupBox;
+    lblAnoResidencia: TLabel;
+    lblMesResidencia: TLabel;
+    edtClientesResTempo: TDBEditData;
+    lblDataResidencia: TLabel;
+    edtResAno: TEditNumero;
+    edtResMes: TEditNumero;
+    gbxAluguel: TGroupBox;
+    edtClientesResOnus: TDBEditNumero;
+    fraEnderecoResidencia: TfraEnderecoEditor;
+    tstDadosComerciais: TTabSheet;
+    gbxComercial: TGroupBox;
+    sbnProcurarCargoClientes: TSpeedButton;
+    lblClientesEmpresa: TLabel;
+    edtClientesEmpresa: TDBEditTexto;
+    lblClientesCargo: TLabel;
+    flkCargoClientes: TtecDBFindLookup;
+    lblClientesAdmissao: TLabel;
+    edtClientesEmpAdmissao: TDBEditData;
+    dtxCargoClieDescricao: TtecDBText;
+    ckbClientesEmpComprovado: TDBCheckBox;
+    gbxRenda: TGroupBox;
+    lblClientesRendaFaixa: TLabel;
+    dtxClientesEmpRendaFaixa: TtecDBText;
+    edtClientesEmpRendaValor: TDBEditNumero;
+    lblClientesRenda: TLabel;
+    lblClientesOutraRendaValor: TLabel;
+    edtClientesEmpOutrasValor: TDBEditNumero;
+    lblClientesOutraRendaFaixa: TLabel;
+    dtxClientesEmpOutrasFaixa: TtecDBText;
+    edtClientesEmpOutrasDescricao: TDBEditTexto;
+    lblClientesOutraRenda: TLabel;
+    fraFoneRamalComercial: TfraFoneRamal;
+    fraEnderecoComercial: TfraEnderecoEditor;
+    tstConjuge: TTabSheet;
+    tstReferencia: TTabSheet;
+    fraFoneRamalReferencia_1: TfraFoneRamal;
+    fraFoneRamalReferencia_2: TfraFoneRamal;
+    gbxReferencia: TGroupBox;
+    lblReferencia: TLabel;
+    edtClientesReferencia: TDBEditTexto;
+    fraEnderecoReferencia: TfraEnderecoEditor;
+    tstOutrosDados: TTabSheet;
+    gbxOutrosDados: TGroupBox;
+    lblDependentes: TLabel;
+    edtClientesDependentes: TDBEditNumero;
+    lblOutrosOnus: TLabel;
+    edtClientesOnus: TDBEditNumero;
+    gbxIndicadoresaa: TGroupBox;
+    ckbClientesCartaoCredito: TDBCheckBox;
+    ckbCartaoLoja: TDBCheckBox;
+    ckbCheque: TDBCheckBox;
+    ckbChequeEspecial: TDBCheckBox;
+    ckbClientesAutomovel: TDBCheckBox;
+    pgcContratos: TtecPageControl;
+    tstCliente: TTabSheet;
+    dtxCidadeNaturalidade: TtecDBText;
+    tstGeral: TTabSheet;
+    tstObservacoes: TTabSheet;
+    tstProdutos: TTabSheet;
+    sbnIncluirProduto: TSpeedButton;
+    sbnExcluirProduto: TSpeedButton;
+    sbnEnviarOrcamento: TSpeedButton;
+    sbnImprimirContrato: TSpeedButton;
+    rgpClientesSexo: TtecDBRadioGroup;
+    rbnSexoMasculinoCliente: TtecRadioButton;
+    rbnSexoFemininoCliente: TtecRadioButton;
+    rgpClientesCivil: TtecDBRadioGroup;
+    rbnEstadoCivilCasado: TtecRadioButton;
+    rbnEstadoCivilDivorciado: TtecRadioButton;
+    rbnEstadoCivilOutros: TtecRadioButton;
+    rbnEstadoCivilSolteiro: TtecRadioButton;
+    rbnEstadoCivilViuvo: TtecRadioButton;
+    rgpTipoTelefone: TtecDBRadioGroup;
+    rbnTelefoneProprio: TtecRadioButton;
+    rbnTelefoneRecado: TtecRadioButton;
+    rgpClientesResTipo: TtecDBRadioGroup;
+    rbnTipoResPropria: TtecRadioButton;
+    rbnTipoResFinanciada: TtecRadioButton;
+    rbnTipoResTrabalho: TtecRadioButton;
+    rbnTipoResAlugada: TtecRadioButton;
+    rbnTipoResParentes: TtecRadioButton;
+    rgpReferenciaClientes: TtecDBRadioGroup;
+    rbnTipoReferenciaParente: TtecRadioButton;
+    rbnTipoReferenciaAmigo: TtecRadioButton;
+    rbnTipoReferenciaTrabalho: TtecRadioButton;
+    rbnTelefoneNenhum: TtecRadioButton;
+    aclHabilitar: TActionList;
+    actEventos: TAction;
+    sbnAlterarSituacao: TSpeedButton;
+    flkConceitoClientes: TtecDBFindLookup;
+    sbnProcurarConceito: TSpeedButton;
+    dtxConceitosNome: TtecDBText;
+    lblConceito: TLabel;
+    gbxObservacoesMontagem: TGroupBox;
+    mmoObservacoesMontagem: TtecDBMemo;
+    gbxConsideracoes: TGroupBox;
+    mmoConsideracoes: TtecDBMemo;
+    fraEnderecoEntrega: TfraEnderecoEditor;
+    gbxGerais: TGroupBox;
+    pnlAnalista: TPanel;
+    lblAnalista: TLabel;
+    dtxAnalista: TtecDBText;
+    lblFrete: TLabel;
+    edtFrete: TDBEditNumero;
+    lblSeguro: TLabel;
+    edtSeguro: TDBEditNumero;
+    lblAgente: TLabel;
+    flkAgentes: TtecDBFindLookup;
+    sbnProcurarAgentes: TSpeedButton;
+    dtxAgentes: TtecDBText;
+    pnlAvalista: TPanel;
+    sbnProcurarAvalista: TSpeedButton;
+    lblAvalista: TLabel;
+    flkAvalista: TtecDBFindLookup;
+    dtxNomeAvalista: TtecDBText;
+    gbxFiliais: TGroupBox;
+    sbnProcurarFilialVenda: TSpeedButton;
+    sbnProcurarFilialMontagem: TSpeedButton;
+    flkFilialVenda: TtecDBFindLookup;
+    flkFilialMontagem: TtecDBFindLookup;
+    dtxFilialVenda: TtecDBText;
+    dtxFilialMontagem: TtecDBText;
+    lblFilialVenda: TLabel;
+    lblFilialMontagem: TLabel;
+    lblPLanoPagamento: TLabel;
+    dtxPlanoPagamento: TtecDBText;
+    dtxNomePlanoPagamento: TtecDBText;
+    gbxValores: TGroupBox;
+    gbxDadosConjuge_2: TGroupBox;
+    sbnProcurarCargosConjuge: TSpeedButton;
+    sbnProcurarConjuge: TSpeedButton;
+    lblNomeConjuge_2: TLabel;
+    edtNomeConjuge: TDBEditTexto;
+    lblNasctoConjuge_2: TLabel;
+    edtNasctoConjuge: TDBEditData;
+    lblEmpresaConjuge_2: TLabel;
+    edtEmpresaConjuge: TDBEditTexto;
+    lblAdmissaoConjuge_2: TLabel;
+    edtAdmissaoConjuge: TDBEditData;
+    lblCargoConjuge_2: TLabel;
+    dtxCargoDescricaoConjuge: TtecDBText;
+    lblRendaConjuge_2: TLabel;
+    edtRendaConjuge: TDBEditNumero;
+    lblFaixaConjuge_2: TLabel;
+    dtxFaixaConjuge: TtecDBText;
+    flkCargoConjuge: TtecDBFindLookup;
+    lblCodigoConjuge: TLabel;
+    flkConjuge: TtecDBFindLookup;
+    fraEnderecoConjuge: TfraEnderecoEditor;
+    fraFoneRamalConjuge: TfraFoneRamal;
+    lblEmitirNotaDepoisDe: TLabel;
+    edtEmitirNotaDepoisDe: TDBEditData;
+    shIncluirNaNota: TShape;
+    dbgProdutos: TtecDBGrid;
+    lblLegenda: TLabel;
+    lblImprimirNotaFiscal: TLabel;
+    lblNotaFiscal: TLabel;
+    shNotaImpressa: TShape;
+    lblProdutoCancelado: TLabel;
+    shCancelado: TShape;
+    rbnEmpresa: TtecRadioButton;
+    tstServico: TTabSheet;
+    gbxServicos: TGroupBox;
+    sbnIncluirServico: TSpeedButton;
+    sbnExcluirServico: TSpeedButton;
+    dbgServicos: TtecDBGrid;
+    lblTotalServicos: TLabel;
+    dtxTotalServicos: TtecDBText;
+    sbnCopiarContrato: TSpeedButton;
+    lblCopiar: TLabel;
+    shCopiar: TShape;
+    sbnExibirColunas: TSpeedButton;
+    sbnParcelas: TSpeedButton;
+    lblNumeroContrato: TLabel;
+    lblSituacaoContrato: TLabel;
+    dtxNomeSituacao: TtecDBText;
+    dtxMotivoCancelamento: TtecDBText;
+    lblVendedor: TLabel;
+    flkVendedor: TtecDBFindLookup;
+    sbnProcurarVendedor: TSpeedButton;
+    dtxNomeVendedor: TtecDBText;
+    dtxClientesNome: TtecDBText;
+    sbnProcurarClientes: TSpeedButton;
+    lblCodigoCliente: TLabel;
+    flkCodigoCliente: TtecDBFindLookup;
+    edfNumeroContrato: TtecDbEditFind;
+    lblOrcamento: TLabel;
+    edtPedidoCliente: TDBEditTexto;
+    mmoClientesObservacoesCliente: TtecDBMemo;
+    lblClienteObs: TLabel;
+    dbgParcelas: TtecDBGrid;
+    tstEquipamentos: TTabSheet;
+    dbgEquipamentosClientes: TtecDBGrid;
+    sbnSelecionarTodosProdutosImpressao: TSpeedButton;
+    sbnFormaPagDebito: TSpeedButton;
+    sbnFormaPagDinheiro: TSpeedButton;
+    sbnFormaPagCheque: TSpeedButton;
+    sbnFormaPagCredito: TSpeedButton;
+    ckbMarcarTodos: TCheckBox;
+    sbnProcuraDependente: TSpeedButton;
+    lblCodigoDependente: TLabel;
+    flkCodigoDependente: TtecDBFindLookup;
+    dtxDependentesNome: TtecDBText;
+    dbgImpostosRetidos: TtecDBGrid;
+    lblTotalImpostoRetido: TLabel;
+    dtxTotalRetido: TtecDBText;
+    gbxEquipamento: TGroupBox;
+    dtxEquipamento: TtecDBText;
+    dtxDescricaoEquipamento: TtecDBText;
+    Label2: TLabel;
+    dtxReferencia: TtecDBText;
+    lblMarca: TLabel;
+    dtxMarca: TtecDBText;
+    dtxDescricaoMarca: TtecDBText;
+    lblModelo: TLabel;
+    dtxModelo: TtecDBText;
+    lblOpcionais: TLabel;
+    dtxOpcionais: TtecDBText;
+    dtxAno: TtecDBText;
+    lblAno: TLabel;
+    gbxComplementoEquipamento: TGroupBox;
+    mmoComplementoEquipamento: TDBMemo;
+    lblCFPS: TLabel;
+    flkCFPS: TtecDBFindLookup;
+    sbnCFPS: TSpeedButton;
+    dtxCFPS: TtecDBText;
+    gbxOrganizado: TGroupBox;
+    lblDataAbertura: TLabel;
+    dtxDataAbertura: TtecDBText;
+    lblFaturamento: TLabel;
+    dtxFaturamento: TtecDBText;
+    lblPrimogenito: TLabel;
+    Label1: TLabel;
+    lblReneg: TLabel;
+    dtxRenegociado: TtecDBText;
+    dtxOrigem: TtecDBText;
+    dtxPrimogenito: TtecDBText;
+    dtxNomeClienteBonus: TtecDBText;
+    sbnProcurarClientesBonus: TSpeedButton;
+    flkCodigoClienteBonus: TtecDBFindLookup;
+    lblClienteBonus: TLabel;
+    tstReceitaOculos: TTabSheet;
+    gbxOlhoEsquerdo: TGroupBox;
+    lblEsferico_oe: TLabel;
+    lblCilindro_oe: TLabel;
+    lblEixo_oe: TLabel;
+    edtEsferico_oe: TDBEditNumero;
+    edtCilindro_oe: TDBEditNumero;
+    edtEixo_oe: TDBEditNumero;
+    gbxOlhoDireito: TGroupBox;
+    lblEsferico_od: TLabel;
+    lblCilindro_od: TLabel;
+    lblEixo_od: TLabel;
+    edtEsferico_od: TDBEditNumero;
+    edtCilindro_od: TDBEditNumero;
+    edtEixo_od: TDBEditNumero;
+    gbxDistanciaNasoPupilarLonge: TGroupBox;
+    edtlonge_dnp_oe: TDBEditNumero;
+    edtlonge_dnp_od: TDBEditNumero;
+    gbxDistanciaNasoPupilarPerto: TGroupBox;
+    edtperto_dnp_oe: TDBEditNumero;
+    edtperto_dnp_od: TDBEditNumero;
+    gbxAdicao: TGroupBox;
+    DBEditNumero1: TDBEditNumero;
+    lblLente: TLabel;
+    lblCor: TLabel;
+    edtLente: TDBEditTexto;
+    edtCor: TDBEditTexto;
+    lblMedida: TLabel;
+    lblAjuste: TLabel;
+    lblEntrega: TLabel;
+    lblMedico: TLabel;
+    edtMedida: TDBEditTexto;
+    edtAjuste: TDBEditTexto;
+    edtEntrega: TDBEditTexto;
+    edtMedico: TDBEditTexto;
+    rbpTipoLente: TDBRadioGroup;
+    sbnResgatarBonus: TSpeedButton;
+    lblEmail: TLabel;
+    edtClientesEMail: TDBEditTexto;
+    dtxEnderecoAlterado: TtecDBText;
+    lblEnderecoAlterado: TLabel;
+    lblObsGeral: TLabel;
+    lblUltimaAlteracao: TLabel;
+    dtxUltimaAlteracao: TtecDBText;
+    mmoClienteObservacoesCliente1: TtecDBMemo;
+    pnlFundoValores: TPanel;
+    pnlSaldoTroca: TPanel;
+    sbnVisualizarSaldoTroca: TSpeedButton;
+    edtSaldoTroca: TDBEditNumero;
+    pnlItens: TPanel;
+    lblTotalProdutos: TLabel;
+    dtxTotalProdutos: TtecDBText;
+    pnlServicos: TPanel;
+    dtxServicos: TtecDBText;
+    lblServicos: TLabel;
+    pnlIPI: TPanel;
+    lblRetencoes: TLabel;
+    dtxRetencoes: TtecDBText;
+    lblIPI: TLabel;
+    dtxIPI: TtecDBText;
+    pnlDesconto: TPanel;
+    lblDescontoContrato: TLabel;
+    dtxDescontoContrato: TtecDBText;
+    pnlValores: TPanel;
+    lblValorAVista: TLabel;
+    dtxValorAVista: TtecDBText;
+    lblValorAPrazo: TLabel;
+    dtxValorAPrazo: TtecDBText;
+    dtxDataReservado: TtecDBText;
+    Label4: TLabel;
+    sbnFormaPagCDC: TSpeedButton;
+    pnlOcultarObservacoesClienteVendedor: TPanel;
+    pnlOcultarObservacoesClienteVendedor2: TPanel;
+    sbnMarcarDesmarcarBrinde: TSpeedButton;
+    dtxSubstituicaoTributaria: TtecDBText;
+    lblSubstituicaoTributaria: TLabel;
+    sbnCopiarProdutos: TSpeedButton;
+    sbnGravarReceitaOculos: TSpeedButton;
+    tstContatos: TTabSheet;
+    dbgContatos: TtecDBGrid;
+    GroupBox2: TGroupBox;
+    dtxcargo: TtecDBText;
+    dtxobservacoes: TtecDBText;
+    lblcargo: TLabel;
+    lblobservacoes: TLabel;
+    fracgcoucpf: Tfracgcoucpf;
+    GroupBox1: TGroupBox;
+    dtxQtdeProdutos: TtecDBText;
+    GroupBox3: TGroupBox;
+    dtxDescontoItemTotal: TtecDBText;
+    GroupBox4: TGroupBox;
+    dtxProdutos: TtecDBText;
+    GroupBox5: TGroupBox;
+    dtxSubTotal: TtecDBText;
+    sbnDevolverprodutos: TSpeedButton;
+    sbnDeslocarParaCima: TSpeedButton;
+    sbnDeslocarRegistroParaBaixo: TSpeedButton;
+    pnlBotoesProdutosContratos: TPanel;
+    pnlBottomProdutosContratos: TPanel;
+    pnlLegenda: TPanel;
+    gbxSituacaoProdutos: TGroupBox;
+    lblAtendidos: TLabel;
+    lblParcialmenteAtendidos: TLabel;
+    lblNaoAtendidos: TLabel;
+    Label3: TLabel;
+    Label5: TLabel;
+    Label6: TLabel;
+    sbnImportarPedidoDaico: TSpeedButton;
+    odlImportarArquivo: TOpenDialog;
+    gbxDadosFrete: TGroupBox;
+    Label7: TLabel;
+    Label8: TLabel;
+    edtFreteTrasnportadora: TDBEditTexto;
+    edtFreteServico: TDBEditTexto;
+    lblFreteMensagem: TLabel;
+    edtFreteMensagem: TDBEditTexto;
+    lblFretePrazoEntrega: TLabel;
+    edtPrazoEntrega: TDBEditNumero;
+    lblFreteDiasPrazoEntrega: TLabel;
+    gbxInscMunicipal: TGroupBox;
+    edtInscricaoMunicipal: TDBEditDocumento;
+    sbnConferir: TSpeedButton;
+    GroupBox6: TGroupBox;
+    Label9: TLabel;
+    dtxConferidopor: TtecDBText;
+    dtxDatHoraConferidopor: TtecDBText;
+    sbnTrocarEstoquedaFilialEmitente: TSpeedButton;
+    sbnAtendimento: TSpeedButton;
+    tstNotasFiscais: TTabSheet;
+    gbxNotasFiscais: TGroupBox;
+    tecDBGrid2: TtecDBGrid;
+    gbxCuponsFiscais: TGroupBox;
+    tecDBGrid1: TtecDBGrid;
+    Shape1: TShape;
+    Label10: TLabel;
+    procedure aclHabilitarUpdate(Action: TBasicAction; var Handled: Boolean);
+    procedure dbgParcelasDrawColumnCell(Sender: TObject; const Rect: TRect;
+                                        DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure dbgParcelasKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure dbgProdutosDblClick(Sender: TObject);
+    procedure dbgProdutosDrawColumnCell(Sender: TObject; const Rect: TRect;
+                                        DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure dbgProdutosEnter(Sender: TObject);
+    procedure dbgProdutosKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure dbgServicosDblClick(Sender: TObject);
+    procedure dbgServicosEnter(Sender: TObject);
+    procedure dbgServicosKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure edfNumeroContratoFound(Found: Boolean);
+    procedure edtCivilAnoChange(Sender: TObject);
+    procedure edtClientesCivilDataEnter(Sender: TObject);
+    procedure edtClientesCivilDataExit(Sender: TObject);
+    procedure edtClientesEMailExit(Sender: TObject);
+    procedure edtClientesResTempoEnter(Sender: TObject);
+    procedure edtFreteEnter(Sender: TObject);
+    procedure edtFreteExit(Sender: TObject);
+    procedure edtResAnoChange(Sender: TObject);
+    procedure edtSeguroEnter(Sender: TObject);
+    procedure edtSeguroExit(Sender: TObject);
+    procedure flkCodigoClienteEnter(Sender: TObject);
+    procedure flkCodigoClienteExit(Sender: TObject);
+    procedure flkCodigoClienteFound(Found: Boolean);
+    procedure flkConjugeExit(Sender: TObject);
+    procedure flkConjugeMessage(var Msg: String);
+    procedure flkListaCasamentoEnter(Sender: TObject);
+    procedure fracgcoucpfrgbTipoPessoaChange(Sender: TObject);
+    function  getNumeroContrato: String;
+    procedure sbnAlterarSituacaoClick(Sender: TObject);
+    procedure sbnExcluirProdutoClick(Sender: TObject);
+    procedure sbnEnviarOrcamentoClick(Sender: TObject);
+    procedure sbnIncluirProdutoClick(Sender: TObject);
+    procedure sbnImprimirContratoClick(Sender: TObject);
+    procedure sbnProcurarAgentesClick(Sender: TObject);
+    procedure sbnProcurarAvalistaClick(Sender: TObject);
+    procedure sbnProcurarCargoClientesClick(Sender: TObject);
+    procedure sbnProcurarCargosConjugeClick(Sender: TObject);
+    procedure sbnProcurarCidadeClick(Sender: TObject);
+    procedure sbnProcurarClientesClick(Sender: TObject);
+    procedure sbnProcurarConceitoClick(Sender: TObject);
+    procedure sbnProcurarConjugeClick(Sender: TObject);
+    procedure sbnProcurarEstadoIDClick(Sender: TObject);
+    procedure sbnProcurarFilialMontagemClick(Sender: TObject);
+    procedure sbnProcurarFilialVendaClick(Sender: TObject);
+    procedure sbnProcurarVendedorClick(Sender: TObject);
+    procedure sbnIncluirServicoClick(Sender: TObject);
+    procedure sbnExcluirServicoClick(Sender: TObject);
+    procedure sbnCopiarContratoClick(Sender: TObject);
+    procedure sbnExibirColunasClick(Sender: TObject);
+    procedure sbnParcelasClick(Sender: TObject);
+    procedure sbnSelecionarTodosProdutosImpressaoClick(Sender: TObject);
+    procedure sbnFormaPagCreditoClick(Sender: TObject);
+    procedure sbnFormaPagDebitoClick(Sender: TObject);
+    procedure sbnFormaPagDinheiroClick(Sender: TObject);
+    procedure sbnFormaPagChequeClick(Sender: TObject);
+    procedure sbnIncluirClick(Sender: TObject);
+    procedure ckbMarcarTodosClick(Sender: TObject);
+    procedure sbnProcuraDependenteClick(Sender: TObject);
+    procedure flkCodigoDependenteMessage(var Msg: String);
+    procedure sbnVisualizarSaldoTrocaClick(Sender: TObject);
+    procedure pgcContratosChange(Sender: TObject);
+    procedure edtSaldoTrocaEnter(Sender: TObject);
+    procedure edtSaldoTrocaExit(Sender: TObject);
+    procedure dbgImpostosRetidosDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure dbgImpostosRetidosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbgImpostosRetidosDblClick(Sender: TObject);
+    procedure dbgImpostosRetidosExit(Sender: TObject);
+    procedure dbgImpostosRetidosEnter(Sender: TObject);
+    procedure sbnCFPSClick(Sender: TObject);
+    procedure flkCodigoClienteKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnProcurarClientesBonusClick(Sender: TObject);
+    procedure rbpTipoLenteClick(Sender: TObject);
+    procedure sbnResgatarBonusClick(Sender: TObject);
+    procedure sbnFormaPagCDCClick(Sender: TObject);
+    procedure sbnMarcarDesmarcarBrindeClick(Sender: TObject);
+    procedure sbnCopiarProdutosClick(Sender: TObject);
+    procedure sbnGravarReceitaOculosClick(Sender: TObject);
+    procedure dbgContatosCellClick(Column: TColumn);
+    procedure sbnDevolverprodutosClick(Sender: TObject);
+    procedure sbnDeslocarParaCimaClick(Sender: TObject);
+    procedure sbnDeslocarRegistroParaBaixoClick(Sender: TObject);
+    procedure fraEnderecoEntregasbnBairroClick(Sender: TObject);
+    procedure sbnImportarPedidoDaicoClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure actEventosUpdate(Sender: TObject);
+    procedure sbnConferirClick(Sender: TObject);
+    procedure sbnTrocarEstoquedaFilialEmitenteClick(Sender: TObject);
+    procedure sbnAtendimentoClick(Sender: TObject);
+    procedure dbgServicosDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+  private
+//    frmVisualizarSaldoTroca: TfrmVisualizarSaldoTroca;
+    procedure AfterScrollLinhaColunaGrade(Sender: TObject);
+    procedure OnScrollBloquearContrato(Sender: TObject);
+
+    procedure AtualizaRecalculoParcelas(Sender: TObject);
+    procedure CopiarProdutosContratos;
+    procedure SelecionarProdutosadevolver;
+    function  GerarParcelasPlanoPadrao: Boolean;
+    function  GerarParcelasVendaaVista: Boolean;
+    function  AnalistaLiberou: TTecUsuarios;
+    procedure gravarReceitaOculos;
+  protected
+    ValorAVistaAnt,
+    TotalProdutosAnt: Currency;
+    TotalIPIAnt: Currency;
+    TotalServicosAnt: Currency;
+    TotalRetencaoAnt: Currency;
+    CodClienteAnt: Integer;
+    TipoClienteAnt: String;
+    EmailContato, Contato: String;
+    JaTestouEmail: Boolean;
+    TipoConsulta: TtecContratoTipoConsulta;
+    ReCalcularTempoCivil: Boolean;
+    ReCalcularTempoMoradia: Boolean;
+    Gravando: Boolean;
+    ValidouDados: Boolean;
+    Grupos: vString;
+    Classes: vString;
+    ContornaChuncho: Boolean;
+    Jan: TfrmConsultaPorCampo;
+    procedure AlterarEstadoBotoes; override;
+    procedure Activate; override;
+    procedure CalcularFinanciamento;
+    procedure CancelarAlteracoes;
+    function  ComplementarNota: Boolean;
+    procedure DocumentoFiscaisContrato;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    function  ExcluirProduto: Boolean;
+    function  ExcluirServico: Boolean;
+    procedure FaturarContrato;
+    procedure HabilitarBotoesFormaPagamento(Valor: Boolean);
+    procedure ImprimirContrato;
+    function  IncluirEditarProdutosContrato(Editar: Boolean): Boolean;
+    procedure IncluirEditarServicosContrato(Editar: Boolean);
+    function  InternoCancelar: Boolean; override;
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    function  InternoIncluir: Boolean; override;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure LerValoresCalculoFinanciamento;
+    procedure LimparTempos;
+    procedure OnActivateCalculoFinanciamento(var Calcular: Boolean;
+                                             var Mercadoria, Frete, Seguro, DescontoContrato: Currency;
+                                             var Plano: Integer;
+                                             var Parcelas: TResumosParcelas;
+                                             var Grupos: vstring;
+                                             var Classes: vString);
+    procedure OnCloseCalculoFinanciamento;
+    procedure PosicionarTabelaNoParametro(Ind: Integer; var continuar: Boolean); override;
+    procedure ProximoControle(Ind: Integer); override;
+    procedure ReservarContrato;
+    function  TabelaDePesquisa: TZDataSet; override;
+    function  TabelaDoParametro(Parametro: Integer): TZDataSet; override;
+
+    function  ValidaUsuarioAutorizacao: Boolean;
+    function VerificarCreditoTroca(zerar,Atribuir: Boolean): Boolean;
+    procedure IncluirCliente;
+    procedure Faturar;
+    procedure ExcluirProdutoContrato;
+  public
+    PrecisaReCalcularParcelas: Boolean;
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+    procedure OperacaoPadrao(Value: Array of Variant); override;
+    procedure SelecionarContrato(Contratos: Array of String); overload;
+    procedure SelecionarContrato(Contrato: String);  overload;
+    procedure AbreJanelaObservacoes;
+    property  NumeroContrato: String read getNumeroContrato;
+    procedure   RefazConsulta;
+
+
+    
+  end;
+
+var
+  frmCadastroContratos: TfrmCadastroContratos;
+
+implementation
+
+uses
+  //CLX
+  {QT,}
+  //Biblio
+  biblio, clecf,
+  //Repositorio
+  dmconsultaenderecos, fmprincipalbasico,
+  //Projeto
+  dmcadastrocontratos, fmnavcontroles, fmcadastroprodutoscontrato, fmmotivos,
+  fmcomplementarnotafiscalsaida, fmconfirmarimpressaonocontrato, fmenviaremail,
+  fmcadastroservicoscontrato, fmoperacoescontratos, fmdevolucaomercadorias,
+  fmcancelamentocontratos, fmvendasavista, {fmfichafinanceira, }fmcopiarprodutoscontratos,
+  fmcadastrocontatos, dmbasico, fmprodutosadevolver;
+
+{$R *.dfm}
+
+{ TfrmCadastroContratos }
+
+type
+  TtecTabelasConsulta = array[TtecContratoTipoConsulta] of record
+    TipoConsulta: integer;
+    Titulo: String;
+  end;
+
+const
+  ctTabelasConsulta: TtecTabelasConsulta =
+    ((TipoConsulta: ctVendaTabelaConsultaContratos;      Titulo:'Contratos'),
+     (TipoConsulta: ctVendaTabelaConsultaClientes;       Titulo:'Clientes'),
+     (TipoConsulta: ctVendaTabelaConsultaEstados;        Titulo:'Estados'),
+     (TipoConsulta: ctVendaTabelaConsultaCidades;        Titulo:'Naturalidades'),
+     (TipoConsulta: ctVendaTabelaConsultaCargos;         Titulo:'Cargos'),
+     (TipoConsulta: ctVendaTabelaConsultaConjuge;        Titulo:'Conjuges'),
+     (TipoConsulta: ctVendaTabelaConsultaCargos;         Titulo:'Cargos do conjuge'),
+     (TipoConsulta: ctVendaTabelaConsultaConceitos;      Titulo:'Conceitos'),
+     (TipoConsulta: ctVendaTabelaConsultaClientes;       Titulo:'Avalistas'),
+     (TipoConsulta: ctVendaTabelaConsultaVendedores;     Titulo:'Vendedores'),
+     (TipoConsulta: ctvendatabelaconsultaAgentes;        Titulo:'Agentes'),
+     (TipoConsulta: ctVendaTabelaConsultaFiliais;        Titulo:'Filiais de Venda'),
+     (TipoConsulta: ctVendaTabelaConsultaFiliais;        Titulo:'Filiais de montagens'),
+     (TipoConsulta: ctVendaTabelaConsultaDependentes;    Titulo:'Dependentes'),
+     (TipoConsulta: ctVendaTabelaConsultaCFPS;           Titulo:'C.F.P.S.'),
+     (TipoConsulta: ctVendaTabelaConsultaClientes;       Titulo:'Cliente Bônus'),
+     (TipoConsulta: ctVendaTabelaConsultaClientesTroca;  Titulo:'Cliente Troca'),
+     (TipoConsulta: ctVendaTabelaConsultaListaCasamento; Titulo:'Listas de casamento'));
+var
+  sbnExcluirCaption: String;
+  FindsLookup: array of TtecDBFindLookup;
+
+procedure PreencherFindsLookup(Frm: TfrmCadastroContratos); forward;
+
+procedure TfrmCadastroContratos.aclHabilitarUpdate(Action: TBasicAction; var Handled: Boolean);
+begin
+  sbnImportarPedidoDaico.Visible := TtecImportacaoProdContratosePedidos(ParSistema.ImportacaoProdContratosePedidos) <> ipcpNENHUMA;
+
+  gbxTempo.Enabled      := rbnEstadoCivilCasado.Checked and Not dtmCadastroContratos.ReadOnly;
+  tstConjuge.TabVisible := (fracgcoucpf.rbnFisica.Checked and (rbnEstadoCivilCasado.Checked or
+                                                               rbnEstadoCivilOutros.Checked));
+  if rbnTipoResPropria.Checked then
+  begin
+    if ((edtClientesResOnus.Text<>'') and
+        (edtClientesResOnus.Enabled)) then
+    begin
+      edtClientesResOnus.Clear;
+      edtClientesResOnus.Enabled := False;
+    end;
+  end
+  else
+  begin
+   if not edtClientesResOnus.Enabled then
+     edtClientesResOnus.Enabled := Not dtmCadastroContratos.ReadOnly;
+  end;
+
+  if fracgcoucpf.rbnFisica.Checked then
+    lblDocumentoID.Caption:= 'Documento'
+  else
+    lblDocumentoID.Caption:= 'Insc. Estadual';
+  sbnResgatarBonus.Visible := (dtmCadastroContratos.CodigoClienteBonus <> 0) and
+                              (dtmCadastroContratos.SituacaoContrato < scFATURADO);
+
+
+end;
+
+procedure TfrmCadastroContratos.Activate;
+begin
+  inherited;
+//  LerValoresCalculoFinanciamento
+end;
+
+procedure TfrmCadastroContratos.AlterarEstadoBotoes;
+begin
+  inherited;
+//  dtmCadastroContratos.RefazConsultaProdutosEntregar;
+  sbnAlterarSituacao.Caption  := vstrAlterarSituacaoContrato[dtmCadastroContratos.SituacaoContrato] + ' F11';
+  if dtmCadastroContratos.Bloqueado then
+    sbnAlterarSituacao.Enabled := False
+  else if dtmCadastroContratos.Alterado then
+    sbnAlterarSituacao.Enabled  := false
+  else if (dtmCadastroContratos.SituacaoContrato = scFATURADO) and dtmCadastroContratos.PermitiEmitirNota then
+    sbnAlterarSituacao.Enabled  := True
+  else if dtmCadastroContratos.SituacaoContrato = scNOTAPARCIAL then
+    sbnAlterarSituacao.Enabled  := True
+  else if dtmCadastroContratos.SituacaoContrato < scFATURADO then
+    sbnAlterarSituacao.Enabled  := True
+  else
+    sbnAlterarSituacao.Enabled  := False;
+  sbnDevolverprodutos.Visible:= (dtmCadastroContratos.SituacaoContrato < scFATURADO);
+  sbnAlterarSituacao.Hint     := vstrHintSituacaoContrato[dtmCadastroContratos.SituacaoContrato];
+
+  sbnExcluir.Enabled          := (dtmCadastroContratos.SituacaoContrato <= scFATURADO) and
+                                 Not (dtmCadastroContratos.Bloqueado or dtmCadastroContratos.Alterado);
+  sbnImprimirContrato.Enabled := (dtmCadastroContratos.SituacaoContrato < scCANCELADO) and not sbnSalvar.Enabled;
+  sbnCopiarContrato.Enabled   := (dtmCadastroContratos.SituacaoContrato <= scRESERVADO) and
+                                 not dtmCadastroContratos.ContratoInserindo and
+                                 not dtmCadastroContratos.InseriuProduto and (dtmCadastroContratos.ContratosRecordCount > 0);
+
+  sbnEnviarOrcamento.Enabled  := (dtmCadastroContratos.SituacaoContrato <= scFATURADO) and not sbnSalvar.Enabled and
+                                 (dtmCadastroContratos.ContratosRecordCount > 0);
+
+  sbnExibirColunas.Visible    := (dtmCadastroContratos.SituacaoContrato <= scRESERVADO);
+  sbnSelecionarTodosProdutosImpressao.Visible:= (dtmCadastroContratos.SituacaoContrato = scFATURADO);
+  if (dtmCadastroContratos.SituacaoContrato = scORCADO) or
+     (dtmCadastroContratos.SituacaoContrato = scNENHUM)
+  then
+    sbnExcluir.Caption := sbnExcluirCaption
+  else
+    sbnExcluir.Caption := 'Cancelar F6';
+  if dtmCadastroContratos.SituacaoContrato = scCANCELADO then begin
+    dtxNomeSituacao.Font.Color    := clRed;
+    dtxMotivoCancelamento.Visible := True;
+  end else begin
+    dtxNomeSituacao.Font.Color := Font.Color;
+    dtxMotivoCancelamento.Visible := False;
+  end;
+  if dtmCadastroContratos.Bloqueado then
+    HabilitarBotoesFormaPagamento(False)
+  else if dtmCadastroContratos.SituacaoContrato > scFATURADO then
+    HabilitarBotoesFormaPagamento(False)
+  else
+    HabilitarBotoesFormaPagamento(True);
+  sbnCopiarProdutos.Visible := (dtmCadastroContratos.SituacaoContrato < scFATURADO) or
+                               (dtmCadastroContratos.SituacaoContrato = scNENHUM);
+  sbnGravarReceitaOculos.Enabled := (dtmCadastroContratos.SituacaoContrato >= scFATURADO) and
+                                    (dtmcadastrocontratos.SituacaoContrato <> scNENHUM);
+end;
+
+procedure TfrmCadastroContratos.CalcularFinanciamento;
+var
+  Parcelas: TResumosParcelas;
+  TotalCalcular: Currency;
+  ValorPrazo,
+  TaxaJuros,
+  Desconto: Real;
+  plano : integer;
+  mensagem: String;
+begin
+  inherited;
+  mensagem := '';
+  Parcelas := nil;
+  if (dtmCadastroContratos.SituacaoContrato < scFATURADO) and (not dtmCadastroContratos.ReadOnly) then
+  begin
+    frmCalculoFinanciamento := TfrmCalculoFinanciamento(TfrmCalculoFinanciamento.Referencia);
+    if Assigned(frmCalculoFinanciamento) then
+      frmCalculoFinanciamento.SetFocus
+    else
+    begin
+      dtmCadastroContratos.EditarContrato;
+
+      {if ParSistema.GerarParcelaSubstituicaoTributaria then}
+        TotalCalcular:= dtmCadastroContratos.TotalProdutos +
+                        dtmCadastroContratos.TotalIPI +
+                        (dtmCadastroContratos.TotalServicos -
+                         dtmCadastroContratos.ImpostoRetido)
+     { else
+        TotalCalcular:= dtmCadastroContratos.TotalProdutos +
+                        dtmCadastroContratos.TotalIPI +
+                        dtmCadastroContratos.ValorICMSSubstTributaria +
+                        (dtmCadastroContratos.TotalServicos -
+                         dtmCadastroContratos.ImpostoRetido)};
+
+      if ((dtmCadastroContratos.TotalContrato - dtmcadastrocontratos.CreditoTroca)<>0) then 
+      begin
+        dtmCadastroContratos.ResumoParcelas(Parcelas);
+        frmCalculoFinanciamento := TfrmCalculoFinanciamento.Create(Owner, True);
+        frmCalculoFinanciamento.OntecClose    := OnCloseCalculoFinanciamento;
+
+
+        frmCalculoFinanciamento.DefinirValoresCalculo(PrecisaReCalcularParcelas,
+                                                      TotalCalcular,
+                                                      dtmCadastroContratos.Frete,
+                                                      dtmCadastroContratos.Seguro,
+                                                      dtmCadastroContratos.DescontoContrato,
+                                                      dtmCadastroContratos.CreditoTroca,
+                                                      dtmCadastroContratos.ValorICMSSubstTributaria,
+                                                      dtmCadastroContratos.PlanoUtilizado,
+                                                      dtmCadastroContratos.DataAbertura,
+                                                      dtmCadastroContratos.EstadoCliente,
+                                                      Parcelas,
+                                                      Grupos,
+                                                      Classes,
+                                                      dtmCadastroContratos.PermiteDesconto,
+                                                      dtmCadastroContratos.TotalDesconto);
+
+        Parcelas := nil;
+      end
+      else
+      begin
+        if (ParSistema.PlanoVendaVista = 0) then
+          MensagemAviso(ctNENHUMPLANOVENDAAVISTA)
+        else
+        begin
+          PrecisaReCalcularParcelas := false;
+          valorprazo := 0;
+          taxajuros := 0;
+          desconto := 0;
+          plano := ParSistema.PlanoVendaVista;
+          dtmCadastroContratos.DefinirParcelas(Parcelas, valorprazo, taxajuros, desconto, plano);
+
+          if ParSistema.PermitirAlterarBrindenoContrato then
+            if dtmCadastroContratos.FSomenteBrindes and (dtmCadastroContratos.ValorICMSSubstTributaria = 0) then
+              mensagem := ctPRODUTOCONTRATOBRINDE;
+
+          if mensagem='' then
+            Mensagem := ctSALDOCOBERTOPORCREDITO;
+
+          MensagemAviso(mensagem)
+
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmCadastroContratos.CancelarAlteracoes;
+begin
+  {GEDOVAR 28/04/2014}
+
+  if ValidouDados then
+  begin
+    dtmCadastroContratos.CancelarAlteracoesContrato;
+//    dtmCadastroContratos.RefazConsultaProdutosEntregar;
+    PrecisaReCalcularParcelas := False;
+    flkNaturalCidadeCliente.Exist;
+  end
+  else
+    if dtmCadastroContratos.SituacaoContrato <> dtmCadastroContratos.situacaoant then
+    begin
+      dtmCadastroContratos.SituacaoContrato := dtmCadastroContratos.situacaoant;
+      dtmcadastrocontratos.cancelaredicaocontrato;
+      dtxNomeSituacao.Refresh;
+    end;
+
+  if (dtmCadastroContratos.SituacaoContrato in [scORCADO, scRESERVADO, scNENHUM]) then
+    sbnExcluir.Caption := sbnExcluirCaption
+  else
+    sbnExcluir.Caption := 'Cancelar F6';
+  sbnAlterarSituacao.Caption  := vstrAlterarSituacaoContrato[dtmCadastroContratos.SituacaoContrato] + ' F11';
+  if dtmCadastroContratos.Bloqueado then
+    sbnAlterarSituacao.Enabled := False
+  else if dtmCadastroContratos.Alterado then
+    sbnAlterarSituacao.Enabled  := false
+  else if (dtmCadastroContratos.SituacaoContrato = scFATURADO) and dtmCadastroContratos.PermitiEmitirNota then
+    sbnAlterarSituacao.Enabled  := True
+  else if dtmCadastroContratos.SituacaoContrato = scNOTAPARCIAL then
+    sbnAlterarSituacao.Enabled  := True
+  else if dtmCadastroContratos.SituacaoContrato < scFATURADO then
+    sbnAlterarSituacao.Enabled  := True
+  else
+    sbnAlterarSituacao.Enabled  := False;
+  sbnAlterarSituacao.Hint     := vstrHintSituacaoContrato[dtmCadastroContratos.SituacaoContrato];
+  sbnExcluir.Enabled          := (dtmCadastroContratos.SituacaoContrato <= scFATURADO) and
+                                 Not dtmCadastroContratos.Bloqueado;
+  sbnImprimirContrato.Enabled := dtmCadastroContratos.SituacaoContrato < scCANCELADO;
+  if dtmCadastroContratos.Bloqueado then
+    HabilitarBotoesFormaPagamento(False)
+  else if dtmCadastroContratos.SituacaoContrato > scFATURADO then
+    HabilitarBotoesFormaPagamento(False)
+  else
+    HabilitarBotoesFormaPagamento(True);
+  LimparTempos;
+  dtmCadastroContratos.MontarListaGruposClasses(Grupos, Classes);
+end;
+
+function TfrmCadastroContratos.ComplementarNota: Boolean;
+begin
+  frmComplementarNotaFiscalSaida := TfrmComplementarNotaFiscalSaida.Create(frmComplementarNotaFiscalSaida);
+  try
+    dtmCadastroContratos.AtribuirTotais_Peso_e_Volumes;
+    frmComplementarNotaFiscalSaida.dtmContratos := dtmCadastroContratos;
+    Result := frmComplementarNotaFiscalSaida.ShowModal = mrOk;
+  finally
+    frmComplementarNotaFiscalSaida.Free
+  end
+end;
+
+constructor TfrmCadastroContratos.Create(AOwner: TComponent);
+var
+  CollItem: TtecControlItem;
+begin
+try
+  dtmCadastroContratos := TdtmCadastroContratos.Create(Self, False, False);
+  inherited;
+  sbnExcluirCaption    := sbnExcluir.Caption;
+  dtmCadastroContratos.OnComplementarNota := ComplementarNota;
+//  dtmCadastroContratos.Abre(ctVendaTabelaCadastroContrato);
+  DataSet := dtmCadastroContratos.TabelaContratos;
+  pgcContratos.ActivePage:= tstCliente;
+  pgcCadastroClientes.ActivePage := tstClienteGeral;
+  pnlAvalista.Visible := ParSistema.PermiteAvalista;
+  pnlAnalista.Visible := dtmCadastroContratos.ExigeAnalistaCredito;
+  ReCalcularTempoCivil  := False;
+  ReCalcularTempoMoradia:= False;
+
+  JaTestouEmail := False;
+  
+  PreencherFindsLookup(Self);
+  flkVendedor.Enabled := Not UsuarioLogin.Vendedor;
+  if UsuarioLogin.Vendedor then
+  begin
+    CollItem := TtecControlItem(edfNumeroContrato.NoSetControls.Add);
+    CollItem.Control := flkVendedor;
+    dtmCadastroContratos.VendedorDefault := UsuarioLogin.CodigoUsuario;
+    dtxNomeVendedor.Width := dtxNomeVendedor.Width + dtxNomeVendedor.Left - flkVendedor.Left;
+    dtxNomeVendedor.Left := flkVendedor.Left;
+    dtxNomeVendedor.BringToFront;
+  end;
+  flkFilialVenda.Enabled := UsuarioLogin.AlterarFilialVenda;
+  if Not UsuarioLogin.AlterarFilialVenda then
+  begin
+    dtxFilialVenda.Left  := flkFilialVenda.Left;
+    dtxFilialVenda.Width := dtxFilialVenda.Width + dtxFilialVenda.Left - flkFilialVenda.Left;
+    dtxFilialVenda.BringToFront;
+  end;
+  if ParSistema.ClientePessoaJuridica then
+  begin
+    tstResidencia.Caption     := '  &2. Endereço';
+    tstDadosComerciais.Caption:= '  &3. Praça Pagto.';
+    tstReferencia.Caption     := '  &5. Entrega';
+  end
+  else
+  begin
+    tstResidencia.Caption     := '  &2. Residência';
+    tstDadosComerciais.Caption:= '  &3. Comercial';
+    tstReferencia.Caption     := '  &5. Referência';
+  end;
+
+  tstReceitaOculos.TabVisible  := ParSistema.ANEXOCONTRATORECEITAOCULOS;
+  tstEquipamentos.TabVisible   := ParSistema.ContratoComServico;
+  tstServico.TabVisible        := ParSistema.ContratoComServico;
+
+  pnlServicos.Visible   := ParSistema.ContratoComServico;
+
+  pnlSaldoTroca.Visible := ParSistema.utilizarcreditotrocacontrato;
+
+  lblCodigoDependente.Visible  := ParSistema.ClienteComDependentes;
+  flkCodigoDependente.Visible  := ParSistema.ClienteComDependentes;
+  sbnProcuraDependente.Visible := ParSistema.ClienteComDependentes;
+  dtxDependentesNome.Visible   := ParSistema.ClienteComDependentes;
+
+  {
+  if not lblCodigoDependente.Visible then
+    gbxNomeCliente.Height := 110
+  else gbxNomeCliente.Height := 127;
+  }
+
+
+  lblClienteBonus.Visible          := ParSistema.UtilizarFidelidade;
+  flkCodigoClienteBonus.Visible    := lblClienteBonus.Visible;
+  sbnProcurarClientesBonus.Visible := lblClienteBonus.Visible;
+  dtxNomeClienteBonus.Visible     := lblClienteBonus.Visible;
+
+  if lblCodigoDependente.Visible and not lblClienteBonus.Visible then
+  begin
+    lblCodigoDependente.Top  := lblClienteBonus.Top;
+    flkCodigoDependente.Top  := flkCodigoClienteBonus.Top;
+    sbnProcuraDependente.Top := sbnProcurarClientesBonus.Top;
+    dtxDependentesNome.Top   := dtxNomeClienteBonus.Top;
+  end;
+
+
+//  sbnFormaPagCheque.Visible   := ParSistema.TipoTEF <> tsSEMTEF;
+(*  sbnFormaPagCredito.Visible  := ParSistema.TipoTEF <> tsSEMTEF;
+  sbnFormaPagDebito.Visible   := ParSistema.TipoTEF <> tsSEMTEF;
+  sbnFormaPagDinheiro.Visible := ParSistema.TipoTEF <> tsSEMTEF;
+  sbnFormaPagCDC.Visible      := ParSistema.TipoTEF <> tsSEMTEF;
+*)
+//  sbnFormaPagCheque.Enabled   := ParSistema.TipoTEF <> tsSEMTEF;
+(*  sbnFormaPagCredito.Enabled  := ParSistema.TipoTEF <> tsSEMTEF;
+  sbnFormaPagDebito.Enabled   := ParSistema.TipoTEF <> tsSEMTEF;
+  sbnFormaPagDinheiro.Enabled := ParSistema.TipoTEF <> tsSEMTEF;
+  sbnFormaPagCDC.Enabled      := ParSistema.TipoTEF <> tsSEMTEF;
+*)
+//  dbgProdutos.Columns[1].Visible := Not ParSistema.FiliaisIndependentes;
+  dbgProdutos.ColumnByName('filial').Visible := Not ParSistema.FiliaisIndependentes;
+
+  dbgProdutos.ColumnByName('valorgrade1').Visible := ParSistema.UsarGradesProdutos;
+  dbgProdutos.ColumnByName('valorgrade2').Visible := ParSistema.UsarGradesProdutos;
+
+  dbgProdutos.ColumnByName('situacao_produto').Visible := ParSistema.VisualizarSituacaoProdutos;
+
+  if dbgProdutos.ColumnByName('quantidade').Width < Parsistema.TamanhoMascaraQuantidade then
+     dbgProdutos.ColumnByName('quantidade').Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgProdutos.ColumnByName('cancelado').Width < Parsistema.TamanhoMascaraQuantidade then
+     dbgProdutos.ColumnByName('cancelado').Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgProdutos.ColumnByName('emestoque').Width < Parsistema.TamanhoMascaraQuantidade then
+     dbgProdutos.ColumnByName('emestoque').Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgProdutos.ColumnByName('reservado').Width < Parsistema.TamanhoMascaraQuantidade then
+     dbgProdutos.ColumnByName('reservado').Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgProdutos.ColumnByName('futuro').Width < Parsistema.TamanhoMascaraQuantidade then
+     dbgProdutos.ColumnByName('futuro').Width := ParSistema.TamanhoMascaraQuantidade;
+
+  if dbgProdutos.ColumnByName('qtdecopiar').Width < Parsistema.TamanhoMascaraQuantidade then
+     dbgProdutos.ColumnByName('qtdecopiar').Width := ParSistema.TamanhoMascaraQuantidade;
+
+  dtmCadastroContratos.OnScrollLinhaColunaGrade := AfterScrollLinhaColunaGrade;
+
+  dtmCadastroContratos.OnScrollBloquearContrato := OnScrollBloquearContrato;
+
+
+  dtmCadastroContratos.PrecisaRecalcularParcelas := AtualizaRecalculoParcelas;
+
+  pnlOcultarObservacoesClienteVendedor.Visible := ParSistema.OcultarObservacoesClienteVendedor and
+                                                  not (UsuarioLogin.AnalistaCredito or UsuarioLogin.Administrador or
+                                                       UsuarioLogin.Suporte or UsuarioLogin.GerenteCaixa);
+  pnlOcultarObservacoesClienteVendedor2.Visible := pnlOcultarObservacoesClienteVendedor.Visible;
+  if pnlOcultarObservacoesClienteVendedor.Visible then
+  begin
+    mmoClientesObservacoesCliente.ReadOnly := true;
+    mmoClienteObservacoesCliente1.ReadOnly := true;
+    mmoClientesObservacoesCliente.TabStop  := false;
+    mmoClienteObservacoesCliente1.TabStop  := false;
+  end;
+  //rgpTipoLente.TabStop := true;
+  sbnMarcarDesmarcarBrinde.Visible := ParSistema.PermitirAlterarBrindenoContrato;
+
+  dbgProdutos.CampoSequencial := 'numero';
+  dtmCadastroContratos.qryProdutosContratos.After_Open := dbgProdutos.RefazerOrdenacaoSequencial;
+
+  dbgProdutos.OnDelete := ExcluirProdutoContrato;
+
+
+  gbxSituacaoProdutos.Visible := ParSistema.VisualizarSituacaoProdutos;
+  fraEnderecoEntrega.CampoCidadeIBGE := dtmCadastroContratos.qryContratoscodigoibgecidadeentrega;
+  fraEnderecoResidencia.CampoCidadeIBGE := dtmCadastroContratos.qryContratoscodigoibgecidadedest;
+
+  sbnAjuda.left := 200;
+
+except
+     on E: Exception do ShowMessage(E.Message);
+end;
+
+end;
+
+procedure TfrmCadastroContratos.dbgParcelasDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if dtmCadastroContratos.ParcelaSelecionada then
+  begin
+    TDBGrid(Sender).Canvas.Brush.Color := clYellow;
+    TDBGrid(Sender).Canvas.Font.Color  := clBlack;
+  end;
+  if dtmCadastroContratos.FormaPagamentoParcela = 'C' then
+    TDBGrid(Sender).Canvas.Font.Color := sbnFormaPagCredito.Font.Color
+  else if dtmCadastroContratos.FormaPagamentoParcela = 'B' then
+    TDBGrid(Sender).Canvas.Font.Color := sbnFormaPagDebito.Font.Color
+  else if dtmCadastroContratos.FormaPagamentoParcela = 'H' then
+    TDBGrid(Sender).Canvas.Font.Color := sbnFormaPagCheque.Font.Color
+  else if dtmCadastroContratos.FormaPagamentoParcela = 'X' then
+    TDBGrid(Sender).Canvas.Font.Color := sbnFormaPagCDC.Font.Color;
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+procedure TfrmCadastroContratos.dbgParcelasKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+    case Key of
+      VK_C: if sbnFormaPagCredito.Enabled then
+               sbnFormaPagCreditoClick(nil);
+      VK_D: if sbnFormaPagDinheiro.Enabled then
+               sbnFormaPagDinheiroClick(nil);
+      VK_B: if sbnFormaPagDebito.Enabled then
+               sbnFormaPagDebitoClick(nil);
+      VK_H: if sbnFormaPagCheque.Enabled then
+               sbnFormaPagChequeClick(nil);
+      VK_X: if sbnFormaPagCDC.Enabled then
+               sbnFormaPagCDCClick(nil);
+    end
+  else if Key = VK_SPACE then
+    dtmCadastroContratos.SelecionarParcela
+end;
+
+procedure TfrmCadastroContratos.dbgProdutosDblClick(Sender: TObject);
+begin
+  inherited;
+  IncluirEditarProdutosContrato(True)
+end;
+
+procedure TfrmCadastroContratos.dbgProdutosDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn; State: TGridDrawState);
+begin
+  inherited;
+  if datacol <> 1 then
+  begin
+    if (dtmCadastroContratos.QtdadeProdutos > 0) and (dtmCadastroContratos.SituacaoContrato > scRESERVADO) then begin
+      if dtmCadastroContratos.ProdutoCancelado then
+      begin
+        TDBGrid(Sender).Canvas.Brush.Color := clYellow;
+        TDBGrid(Sender).Canvas.Font.Color := clBlack;
+      end else if dtmCadastroContratos.ProdutoNotaEmitida then
+      begin
+        TDBGrid(Sender).Canvas.Brush.Color := $007FAA55;
+        TDBGrid(Sender).Canvas.Font.Color := clBlack;
+      end else if dtmCadastroContratos.IncluirNaNotaFiscal then
+      begin
+        TDBGrid(Sender).Canvas.Brush.Color := $00FFAA00;
+        TDBGrid(Sender).Canvas.Font.Color := clBlack;
+      end
+    end;
+    if (dtmCadastroContratos.QtdadeProdutos > 0) and (dtmCadastroContratos.SituacaoContrato <= scRESERVADO) then begin
+      if dtmCadastroContratos.MarcarProdutoCopiar then
+      begin
+        TDBGrid(Sender).Canvas.Brush.Color := $000055FF;
+        TDBGrid(Sender).Canvas.Font.Color := clBlack;
+      end;
+    end;
+    TDBGrid(Sender).Canvas.Font.Style := [];
+    TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end
+  else
+  begin
+    if dbgProdutos.DataSource.DataSet.FieldByName('situacao_produto').AsString = 'A' then
+      TDBGrid(Sender).Canvas.Font.Color := clGreen
+    else
+    if dbgProdutos.DataSource.DataSet.FieldByName('situacao_produto').AsString = 'P' then
+      TDBGrid(Sender).Canvas.Font.Color := $000080FF
+    else
+    if dbgProdutos.DataSource.DataSet.FieldByName('situacao_produto').AsString = 'N' then
+      TDBGrid(Sender).Canvas.Font.Color := clRed;
+
+    TDBGrid(Sender).Canvas.Font.Style := [fsBold];
+   TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end;
+
+end;
+
+procedure TfrmCadastroContratos.dbgProdutosEnter(Sender: TObject);
+begin
+  inherited;
+  TotalProdutosAnt     := dtmCadastroContratos.TotalProdutos;
+  TotalIPIAnt          := dtmCadastroContratos.TotalIPI;
+end;
+
+procedure TfrmCadastroContratos.dbgServicosEnter(Sender: TObject);
+begin
+  inherited;
+  TotalServicosAnt:= dtmCadastroContratos.TotalServicos;
+end;
+
+procedure TfrmCadastroContratos.dbgProdutosKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (Shift = [ssCtrl]) and (Key = VK_Space) then begin
+    if dbgProdutos.SelectedIndex = dbgProdutos.ColumnByName('brinde').Index then
+      dtmCadastroContratos.MarcarProdutosBrinde(false,false)
+    else
+    begin
+      if (dtmCadastroContratos.SituacaoContrato > scRESERVADO) and
+        Not (dtmCadastroContratos.ProdutoNotaEmitida
+         or dtmCadastroContratos.ProdutoCancelado)
+      then begin
+        dtmCadastroContratos.IncluirNaNotaFiscal := Not dtmCadastroContratos.IncluirNaNotaFiscal;
+        dbgProdutos.Invalidate
+      end else begin
+        if dtmCadastroContratos.SituacaoContrato = scORCADO then
+          dtmCadastroContratos.MarcarProdutoCopiar:= not dtmCadastroContratos.MarcarProdutoCopiar
+        else if dtmCadastroContratos.SituacaoContrato = scRESERVADO then
+          if not dtmCadastroContratos.Alterado or (dtmCadastroContratos.RegistrosMarcados > 0) then
+            dtmCadastroContratos.MarcarProdutoCopiar:= not dtmCadastroContratos.MarcarProdutoCopiar
+          else
+            MensagemAviso('O Produto não pode ser selecionado para cópia,' + #10#13 + 'estando o Contrato em edição.');
+      end
+    end;
+  end else if (Key = VK_F2) then
+    if (Shift = [ssCtrl]) then
+      IncluirEditarProdutosContrato(True)
+    else if (Shift = [ssCtrl, ssAlt]) then
+      IncluirEditarProdutosContrato(True)
+end;
+
+procedure TfrmCadastroContratos.dbgServicosDblClick(Sender: TObject);
+begin
+  inherited;
+  IncluirEditarServicosContrato(True);
+end;
+
+procedure TfrmCadastroContratos.dbgServicosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (Shift = [ssCtrl]) then
+    if dbgServicos.Focused then
+      case Key of
+        TeclaInserirRegistro: IncluirEditarServicosContrato(False);
+        TeclaEditarRegistro : IncluirEditarServicosContrato(True);
+        VK_Space           : dtmCadastroContratos.MarcarServicoRetencaoISSQN;
+      end;
+
+end;
+
+destructor TfrmCadastroContratos.Destroy;
+begin
+//  try
+  dtmCadastroContratos.DesbloquearContrato;
+//  dtmCadastroContratos.Free;
+  inherited;
+  if Assigned(frmCalculoFinanciamento) then
+    frmCalculoFinanciamento.Destroy;
+
+{  if Assigned(frmFichaFinanceira) then
+    frmFichaFinanceira.Destroy; }
+
+  frmCadastroContratos := nil;
+  dtmCadastroContratos := nil;
+  FindsLookup := nil;
+{  except
+         on E: Exception do ShowMessage(E.Message);
+  end;}
+end;
+
+procedure TfrmCadastroContratos.DocumentoFiscaisContrato;
+var
+//  UsuarioAut: TtecUsuarios;
+//  PodeImprimirNota,
+//  ErroCupom,CupomEmitido,ErroAcrescimo,
+//  NotaFiscalVinculada: Boolean;
+//  FormaPagamento: Integer;
+//  ValorPagoDinheiro: Currency;
+//  DadosFornec: String;
+  Frm: TForm;
+//  SituacaoAtual : TtecSituacaoContrato;
+//  RetornoBotao : TMessageButton;
+begin
+  if dtmCadastroContratos.DocumentoFiscaisContrato then
+  begin
+    Frm := TfrmVendasaVista.Referencia;
+    if Assigned(Frm) then
+      TfrmVendasaVista(Frm).ReFazVendaVista([dtmCadastroContratos.NumeroContrato]);
+    Frm := TfrmDevolucaoMercadorias.Referencia;
+    if Assigned(Frm) then
+      TfrmDevolucaoMercadorias(Frm).ReFazConsultaCliente([dtmCadastroContratos.NumeroContrato]);
+    Frm := TfrmOperacoesContratos.Referencia;
+    if Assigned(Frm)  then
+      TfrmOperacoesContratos(Frm).RefazConsulta;
+
+    AlterarEstadoBotoes;
+
+  end;
+
+
+  {
+  =================   ANTERIOR ===============
+
+  result := true;
+
+  if dtmCadastroContratos.NinguemBloqueouoContrato then
+  begin
+    if not dtmCadastroContratos.ExisteDiferencaIPI then
+    begin
+      PodeImprimirNota:= False;
+      if UsuarioLogin.EmissorNotaFiscal then
+        PodeImprimirNota:= True
+      else begin
+        UsuarioAut := dtmCadastroContratos.ObterAutorizacao(taLOGIN, ctIMPRIMIRNOTAFISCAL, ctEMISSORNOTAFISCAL);
+        try
+          if Assigned(UsuarioAut) then begin
+            if not UsuarioAut.EmissorNotaFiscal then begin
+              PodeImprimirNota := False;
+              MensagemAviso(Format(ctUSUARIONAOAUTORIZADO, ['imprimir nota fiscal.']));
+            end
+            else PodeImprimirNota:= True;
+          end;
+        finally
+          UsuarioAut.Free
+        end
+      end;
+
+      if PodeImprimirNota then
+      begin
+
+        if dtmcadastrocontratos.abrindoOS then
+          dtmCadastroContratos.MarcarProdutos(true)
+        else
+        begin
+          if tstProdutos.TabVisible then
+          begin
+            pgcContratos.ActivePage := tstProdutos;
+            ckbMarcarTodos.Checked := true;
+            ckbMarcarTodosClick(self);
+          end
+          else
+          if tstServico.TabVisible then
+            pgcContratos.ActivePage := tstServico;
+        end;
+
+        RetornoBotao := smbYes;
+
+        if MensagemConfirmacao(ctCONFIRMEIMPRESSAODOCUMENTOSFISCAIS) = smbok then
+        begin
+          if parsistema.Possuivendasemtransitopeloestabelecimento then
+            RetornoBotao := MensagemSelecionaOpcao('Os produtos estão saindo da empresa?');
+
+          if RetornoBotao <> smbCancel then
+          begin
+            dtmCadastroContratos.ProdutosSaindodaEmpresa := RetornoBotao = smbyes;
+
+            if Assigned(ECFPadrao) then
+              NotaFiscalVinculada := (ParSistema.NotaFiscalVinculada = tnfOBRIGATORIA) or
+                                     ((ParSistema.NotaFiscalVinculada = tnfOPCIONAL) and
+                                     (MensagemConfirmacao(ctCONFIRMAEMISSAONOTASCONTRATO) = smbOK))
+            else
+              NotaFiscalVinculada := False;
+            SituacaoAtual := dtmCadastroContratos.SituacaoContrato;
+
+            dtmCadastroContratos.SituacaoContrato := scNOTAFISCAL;
+            try
+              if Not dtmCadastroContratos.GravarContrato(ErroCupom,CupomEmitido,FormaPagamento,DadosFornec,
+                                                         ValorPagoDinheiro, ErroAcrescimo, NotaFiscalVinculada, False)
+              then
+              begin
+                result := false;
+                dtmCadastroContratos.VoltarSituacaoContrato(SituacaoAtual, ErroAcrescimo);
+                dtmCadastroContratos.CancelarAlteracoesContrato;
+              end
+              else
+              begin
+                Frm := TfrmVendasaVista.Referencia;
+                if Assigned(Frm) then
+                  TfrmVendasaVista(Frm).ReFazVendaVista([dtmCadastroContratos.NumeroContrato]);
+                Frm := TfrmDevolucaoMercadorias.Referencia;
+                if Assigned(Frm) then
+                  TfrmDevolucaoMercadorias(Frm).ReFazConsultaCliente([dtmCadastroContratos.NumeroContrato]);
+                Frm := TfrmOperacoesContratos.Referencia;
+                if Assigned(Frm)  then
+                  TfrmOperacoesContratos(Frm).RefazConsulta;
+              end;
+              if not dtmcadastrocontratos.abrindoOS then
+              AlterarEstadoBotoes;
+            except
+              dtmCadastroContratos.RefazConsultaContrato;
+              if not dtmcadastrocontratos.abrindoOS then
+                AlterarEstadoBotoes;
+              raise
+
+            end;
+          end;
+        end
+      end;
+
+    end;
+  end;
+  }
+end;
+
+procedure TfrmCadastroContratos.edfNumeroContratoFound(Found: Boolean);
+begin
+  inherited;
+  if Found then begin
+//    dtmCadastroContratos.RefazConsultaProdutosEntregar;
+      if dtmCadastroContratos.SituacaoContrato = scNOTAPARCIAL then
+        AlterarEstadoBotoes;
+    flkNaturalCidadeCliente.Exist;
+    flkCodigoCliente.Exist;
+    if ParSistema.ClienteComDependentes then
+      if not flkCodigoDependente.Exist then
+        flkCodigoDependente.Text := '';
+    fraEnderecoEntrega.ReadOnly     := Not dtmCadastroContratos.ExisteEntrega;
+    flkFilialMontagem.ReadOnly      := Not dtmCadastroContratos.ExisteMontagem;
+  end;
+  if Assigned(dtmCadastroContratos) then begin
+    dtmCadastroContratos.MontarListaGruposClasses(Grupos, Classes);
+  end
+end;
+
+procedure TfrmCadastroContratos.edtCivilAnoChange(Sender: TObject);
+begin
+  inherited;
+  ReCalcularTempoCivil  := True;
+end;
+
+procedure TfrmCadastroContratos.edtClientesCivilDataEnter(Sender: TObject);
+begin
+  inherited;
+  edtClientesCivilData.ReadOnly:= (edtCivilMes.Text <> '') or (edtCivilAno.Text <> '');
+  if RecalcularTempoCivil then begin
+    dtmCadastroContratos.CalcularTempoCivil(edtCivilAno.Text,edtCivilMes.Text);
+    ReCalcularTempoCivil := False;
+  end;
+end;
+
+procedure TfrmCadastroContratos.edtClientesCivilDataExit(Sender: TObject);
+begin
+  inherited;
+  if dtmCadastroContratos.DataCivilInvalida then begin
+    MensagemAviso(Format(ctDATAINCOMPATIVELDATANASCTO,['civil']));
+    edtClientesCivilData.SetFocus;
+  end;
+end;
+
+procedure TfrmCadastroContratos.edtClientesEMailExit(Sender: TObject);
+begin
+  if not EmailValido(edtClientesEMail.Text) then begin
+    edtClientesEMail.SetFocus;
+    JaTestouEmail:= True;
+  end else
+    inherited;
+end;
+
+procedure TfrmCadastroContratos.edtClientesResTempoEnter(Sender: TObject);
+begin
+  inherited;
+  edtClientesResTempo.ReadOnly:= (edtResMes.Text <> '') or (edtResAno.Text <> '');
+  if RecalcularTempoMoradia then begin
+    dtmCadastroContratos.CalcularTempoResidencia(edtResAno.Text,edtResMes.Text);
+    RecalcularTempoMoradia := False;
+  end;
+end;
+
+procedure TfrmCadastroContratos.edtFreteEnter(Sender: TObject);
+begin
+  inherited;
+  ValorAVistaAnt := dtmCadastroContratos.ValorVista
+end;
+
+procedure TfrmCadastroContratos.edtFreteExit(Sender: TObject);
+begin
+  inherited;
+  PrecisaReCalcularParcelas := (ValorAVistaAnt <> dtmCadastroContratos.ValorVista)      or
+                               PrecisaReCalcularParcelas;
+end;
+
+procedure TfrmCadastroContratos.edtResAnoChange(Sender: TObject);
+begin
+  inherited;
+  ReCalcularTempoMoradia:= True;
+end;
+
+procedure TfrmCadastroContratos.edtSeguroEnter(Sender: TObject);
+begin
+  inherited;
+  ValorAVistaAnt := dtmCadastroContratos.ValorVista
+end;
+
+procedure TfrmCadastroContratos.edtSeguroExit(Sender: TObject);
+begin
+  inherited;
+  PrecisaReCalcularParcelas := (ValorAVistaAnt <> dtmCadastroContratos.ValorVista) or
+                               PrecisaReCalcularParcelas;
+end;
+
+function TfrmCadastroContratos.ExcluirProduto: Boolean;
+begin
+  if (dtmCadastroContratos.SituacaoContrato < scFATURADO ) and (not dtmCadastroContratos.ReadOnly) then begin
+//    Result := MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, [ctOPRODUTO])) = smbOK;
+//    if Result then begin
+      Result := dtmCadastroContratos.ExcluirProduto;
+      if Result then begin
+        dtmCadastroContratos.CalcularValorTotalProdutos;
+        PrecisaReCalcularParcelas := True
+      end
+//    end
+  end else
+    Result := False
+end;
+
+function TfrmCadastroContratos.ExcluirServico: Boolean;
+begin
+  if (dtmCadastroContratos.SituacaoContrato < scFATURADO) and (not dtmCadastroContratos.ReadOnly) then begin
+    Result := MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o SERVIÇO'])) = smbOK;
+    if Result then begin
+      Result := dtmCadastroContratos.ExcluirServicoContrato;
+      if Result then begin
+        dtmCadastroContratos.CalcularValorTotalServicos;
+        dtmCadastroContratos.CalcularValorAVista;
+        PrecisaReCalcularParcelas := True
+      end
+    end
+  end else
+    Result := False
+end;
+
+function TfrmCadastroContratos.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  if CtrlOn then
+    case TipoConsulta of
+      ctcAVALISTA,
+      ctcCLIENTES,
+      ctcCLIENTESBONUS : Result := dtmCadastroContratos.ExisteCliente(NomeCampo, Value);
+      ctcCONJUGE       : Result := dtmCadastroContratos.ExisteConjuge(NomeCampo,Value);
+      ctcESTADOID      : Result := dtmCadastroContratos.ExisteEstado(NomeCampo, Value);
+      ctcCONCEITO      : Result := dtmCadastroContratos.ExisteConceito(NomeCampo, Value);
+      ctcCARGOCONJUGE,
+      ctcCARGO         : Result := dtmCadastroContratos.ExisteCargo(NomeCampo, Value);
+      ctcNATURALIDADE  : begin if Parametro = 0 then
+                              Result := dtmCadastroContratos.ExisteEstado(NomeCampo, Value)
+                         else Result := dtmCadastroContratos.ExisteCidade(NomeCampo, Value)
+      end;
+      ctcVENDEDOR      : Result := dtmCadastroContratos.ExisteVendedores(NomeCampo, Value);
+      ctcAGENTES       : Result := dtmCadastroContratos.ExisteAgente(NomeCampo, Value);
+      ctcFILIAISMONTAGEM,
+      ctcFILIAISVENDA  : Result := dtmCadastroContratos.ExisteFilial(NomeCampo, Value);
+      ctcLISTACASAMENTO: Result := dtmCadastroContratos.ExisteListaCasamento(NomeCampo, Value);
+      ctcDEPENDENTE    : Result := dtmcadastrocontratos.ExisteDependentes(NomeCampo, Value);
+      ctcCFPS          : Result := dtmCadastroContratos.ExisteCFPS(NomeCampo, Value);
+    else
+      Result := False
+    end
+  else if Parametro = 0 then
+    Result := dtmCadastroContratos.ExisteCliente(NomeCampo, Value)
+  else
+    Result:= dtmCadastroContratos.ExisteContrato(NomeCampo, Value);
+end;
+
+procedure TfrmCadastroContratos.FaturarContrato;
+var
+  Msg: String;
+begin
+  if ParSistema.VerificarLimiteCreditoPontuacao then
+  begin
+    if dtmCadastroContratos.VerificarLimitesCredito(Msg) then
+      Faturar
+    else
+    begin
+      if MensagemConfirmacao(msg) = smbOK then
+      begin
+{        dtmCadastroContratos.SenhaCredito := AnalistaLiberou;}
+        TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado([dtmCadastroContratos.CodigoCliente,
+                                                                         dtmCadastroContratos.TipoCliente,
+                                                                         ClassName, True],
+                                                                         'TfrmFichaFinanceira', True)
+      end
+      else
+        AnalistaLiberou;
+    end;
+  end
+  else
+    Faturar;
+end;
+
+procedure TfrmCadastroContratos.flkCodigoClienteEnter(Sender: TObject);
+begin
+  inherited;
+  CodClienteAnt := dtmCadastroContratos.CodigoCliente;
+  TipoClienteAnt := dtmCadastroContratos.TipoCliente;
+end;
+
+procedure TfrmCadastroContratos.flkCodigoClienteExit(Sender: TObject);
+begin
+  inherited;
+  if Not Gravando then
+  begin
+    if not lblCodigoDependente.Visible and not lblClienteBonus.Visible then
+    begin
+      if (pgcCadastroClientes.ActivePage <> tstClienteGeral) then
+        pgcCadastroClientes.ActivePage:=  tstClienteGeral;
+      if fracgcoucpf.edtCPFCNPJ.CanFocus then
+        fracgcoucpf.edtCPFCNPJ.SetFocus;
+    end;
+  end;
+
+  if ((CodClienteAnt <> dtmCadastroContratos.CodigoCliente) or
+      (TipoClienteAnt <> dtmCadastroContratos.TipoCliente)) or
+      ((CodClienteAnt=0) and (TipoclienteAnt='') and
+       (dtmCadastroContratos.CodigoCliente<>0) and
+       (dtmCadastroContratos.TipoCliente<>'')) then
+  begin
+    if dtmCadastroContratos.CartaDevolvida(ClassName) then
+      pgcCadastroClientes.ActivePageIndex:=1;
+    dtmCadastroContratos.ExibirFicha(ClassName);
+  end;
+
+  if (dtmCadastroContratos.TotalContrato<>0) and
+     (dtmCadastroContratos.SituacaoContrato < scFATURADO) then
+   if not VerificarCreditoTroca(true,true) then
+     PrecisaReCalcularParcelas := true;
+
+  flkNaturalCidadeCliente.Exist;
+
+  if lblClienteBonus.Visible and (dtmCadastroContratos.CodigoClienteBonus = 0) then
+  begin
+    dtmCadastroContratos.AtribuirClienteBonus;
+  end;
+end;
+
+procedure TfrmCadastroContratos.flkCodigoClienteFound(Found: Boolean);
+begin
+  inherited;
+  LimparTempos;
+end;
+
+procedure TfrmCadastroContratos.flkConjugeExit(Sender: TObject);
+begin
+  inherited;
+//  dtmCadastroContratos.ReFazConsultaConjuge
+end;
+
+procedure TfrmCadastroContratos.flkConjugeMessage(var Msg: String);
+begin
+  inherited;
+  Msg:= 'O código ' + flkConjuge.Text + ' não está cadastrado, está inativo, ou' + #10#13 +
+        'ou possui o mesmo sexo.';
+end;
+
+procedure TfrmCadastroContratos.flkListaCasamentoEnter(Sender: TObject);
+begin
+  inherited;
+  TipoConsulta:= ctcLISTACASAMENTO;
+end;
+
+procedure TfrmCadastroContratos.fracgcoucpfrgbTipoPessoaChange(Sender: TObject);
+begin
+  inherited;
+  if Assigned(fracgcoucpf) and Assigned(dtmCadastroContratos) then
+    fracgcoucpf.edtCPFCNPJ.Tipo:= dtmCadastroContratos.TipoPessoa;
+end;
+
+function TfrmCadastroContratos.getNumeroContrato: String;
+begin
+  Result := dtmCadastroContratos.NumeroContrato
+end;
+
+procedure TfrmCadastroContratos.HabilitarBotoesFormaPagamento(Valor: Boolean);
+begin
+  sbnFormaPagDebito.Enabled   := Valor;
+  sbnFormaPagDinheiro.Enabled := Valor;
+  sbnFormaPagCheque.Enabled   := Valor;
+  sbnFormaPagCredito.Enabled  := Valor;
+  sbnFormaPagCDC.Enabled      := Valor;
+end;
+
+procedure TfrmCadastroContratos.ImprimirContrato;
+var
+  CarnesAbertas, ImprimirContrato: Boolean;
+begin
+  if ({(dtmCadastroContratos.SituacaoContrato > scRESERVADO) and} (Length(dtmCadastroContratos.IntervaloCarnesAbertas)>0)) then
+    CarnesAbertas:= True
+  else
+    CarnesAbertas:= False;
+
+  if (ParSistema.SoImprimirFaturados) then
+    if (dtmCadastroContratos.SituacaoContrato > scRESERVADO) then
+      ImprimirContrato:= True
+    else
+      ImprimirContrato:= False
+  else
+    ImprimirContrato:= True;
+
+  frmConfirmarImpressaoNoContrato := TfrmConfirmarImpressaoNoContrato.Create(frmConfirmarImpressaoNoContrato, ImprimirContrato, True, (dtmCadastroContratos.SituacaoContrato > scRESERVADO),
+                                                         (CarnesAbertas), True,1);
+
+  frmConfirmarImpressaoNoContrato.IntervaloCarnes:= dtmCadastroContratos.IntervaloCarnes;
+  frmConfirmarImpressaoNoContrato.IntervaloCarnesAbertas:= dtmCadastroContratos.IntervaloCarnesAbertas;
+  frmConfirmarImpressaoNoContrato.ckbImprimirCarneAbertas.Enabled := frmConfirmarImpressaoNoContrato.IntervaloCarnesAbertas<>nil;
+
+  try
+    frmConfirmarImpressaoNoContrato.ShowModal;
+    if frmConfirmarImpressaoNoContrato.ModalResult = mrOK then
+    begin
+      if frmConfirmarImpressaoNoContrato.Contrato then
+        dtmCadastroContratos.ImprimirContrato(dbgProdutos.Ordenacao)
+      else
+      if frmConfirmarImpressaoNoContrato.ContratoMeiaPagina then
+        dtmCadastroContratos.ImprimirContrato(dbgProdutos.Ordenacao, true);
+
+      if frmConfirmarImpressaoNoContrato.Carne then
+        dtmCadastroContratos.ImprimirCarne(frmConfirmarImpressaoNoContrato.Sequencia)
+      else
+      if frmConfirmarImpressaoNoContrato.CarneAbertas then
+        dtmCadastroContratos.ImprimirCarne(frmConfirmarImpressaoNoContrato.Sequencia);
+
+      if frmConfirmarImpressaoNoContrato.Boleto then
+        dtmCadastroContratos.ImprimirBoleto(frmConfirmarImpressaoNoContrato.Sequencia);
+
+      if frmConfirmarImpressaoNoContrato.Saldo then
+        dtmCadastroContratos.ImprimirSaldo;
+
+      if frmConfirmarImpressaoNoContrato.etiquetasListacasamento then
+        dtmCadastroContratos.ImprimirEtiquetasListaCasamento;
+
+    end
+  finally
+    frmConfirmarImpressaoNoContrato.Free;
+  end
+end;
+
+function TfrmCadastroContratos.IncluirEditarProdutosContrato(Editar: Boolean): Boolean;
+begin
+  if (dtmCadastroContratos.SituacaoContrato < scFATURADO) and (not dtmCadastroContratos.ReadOnly) then
+  begin
+    frmCadastroProdutosContrato := TfrmCadastroProdutosContrato.Create(frmCadastroProdutosContrato);
+    if Editar then
+      Result := dtmCadastroContratos.EditarProdutosContrato
+    else
+      Result := dtmCadastroContratos.IncluirProdutosContrato;
+
+    if Result then
+      Result := frmCadastroProdutosContrato.ShowModal = mrOK;
+
+    frmCadastroProdutosContrato.Free;
+    dbgProdutos.RefazerOrdenacaoSequencial(nil);
+
+    dtmCadastroContratos.CalcularValorTotalProdutos;
+    fraEnderecoEntrega.ReadOnly     := Not dtmCadastroContratos.ExisteEntrega;
+    flkFilialMontagem.ReadOnly      := Not dtmCadastroContratos.ExisteMontagem;
+    PrecisaReCalcularParcelas := (TotalProdutosAnt <> dtmCadastroContratos.TotalProdutos) or
+                                 (TotalIPIAnt      <> dtmCadastroContratos.TotalIPI) or
+                                 PrecisaReCalcularParcelas;
+
+    dtmCadastroContratos.MontarListaGruposClasses(Grupos, Classes);
+    SetFocus;
+  end else
+    Result := False
+end;
+
+procedure TfrmCadastroContratos.IncluirEditarServicosContrato(Editar: Boolean);
+begin
+  if Not dtmCadastroContratos.ReadOnly then
+  begin
+    dtmCadastroContratos.IncluirServicosContrato(Editar);
+    frmCadastroServicosContrato := TfrmCadastroServicosContrato.Create(frmCadastroServicosContrato);
+    frmCadastroServicosContrato.flkServico.Exist;
+    frmCadastroServicosContrato.flkEquipamento.Exist;
+    frmCadastroServicosContrato.ShowModal;
+    frmCadastroServicosContrato.Free;
+    PrecisaReCalcularParcelas := (TotalServicosAnt <> dtmCadastroContratos.TotalServicos) or
+                                 (TotalRetencaoAnt <> dtmCadastroContratos.ImpostoRetido) or
+                                 PrecisaReCalcularParcelas;
+  end
+end;
+
+function TfrmCadastroContratos.InternoCancelar: Boolean;
+begin
+  Result := inherited InternoCancelar;
+  if Result then begin
+    ValidouDados := true;
+    CancelarAlteracoes;
+    fraEnderecoEntrega.ReadOnly     := Not dtmCadastroContratos.ExisteEntrega;
+    flkFilialMontagem.ReadOnly      := Not dtmCadastroContratos.ExisteMontagem;
+  end;
+
+  with dtmCadastroContratos do
+  begin
+    if qryContratos.RecordCount <> 0 then
+       VerificarContratoBloqueado(qryContratos.Params[0].AsString, true);
+  end;
+end;
+
+function TfrmCadastroContratos.InternoExcluir: Boolean;
+var
+  Msg: String;
+  CancelarCtrOrcado: Boolean;
+  Usuario           : TtecUsuarios;
+begin
+  if CtrlOn then begin
+    if dbgProdutos.Focused then
+      Result := ExcluirProduto
+    else if dbgServicos.Focused then
+      Result := ExcluirServico
+    else
+      Result := False;
+  end
+  else
+  if ((dtmCadastroContratos.SituacaoContrato < scFATURADO) and
+      (not dtmCadastroContratos.ReadOnly)) or
+     (dtmCadastroContratos.SituacaoContrato = scFATURADO) then
+  begin
+    Result := True;
+    if dtmCadastroContratos.SituacaoContrato = scORCADO then
+    begin
+      if ParSistema.ExclusaoContrato = excCANCELAR then
+        CancelarCtrOrcado := True
+      else
+      begin
+        if ParSistema.ExclusaoContrato = excPERGUNTAR then
+        begin
+          CancelarCtrOrcado := MensagemConfirmacao(ctCANCELARCONTRATOORCADO) = smbCANCEL;
+          if Not CancelarCtrOrcado then
+          begin
+            Msg := Format(ctCONFIRMEEXCLUIR, [ctstrOCONTRATO]);
+            Result := MensagemConfirmacao(Msg) = smbOk;
+          end
+        end
+        else
+        begin
+          CancelarCtrOrcado := False;
+          Msg := Format(ctCONFIRMEEXCLUIR, [ctstrOCONTRATO]);
+          Result := MensagemConfirmacao(Msg) = smbOk;
+        end
+      end;
+    end else
+      CancelarCtrOrcado := False;
+
+    if (dtmCadastroContratos.SituacaoContrato in [scRESERVADO, scFATURADO]) or CancelarCtrOrcado then
+    begin
+      Usuario := nil;
+      dtmCadastroContratos.CancelamentoUsuarioAutorizacao := 0;
+      if ((dtmCadastroContratos.SituacaoContrato <> scORCADO)
+	  and not((dtmCadastroContratos.SituacaoContrato = scRESERVADO) 
+		   and (ParSistema.AutorizacaoCancelarContratoFaturado))) then
+      begin
+        if UsuarioLogin.DevolucaoProduto then
+        begin
+          Usuario:= dtmCadastroContratos.ObterAutorizacao(taSENHA);
+          dtmCadastroContratos.CancelamentoUsuarioAutorizacao := Usuario.CodigoUsuario;
+        end
+        else
+        begin
+          Usuario:= dtmCadastroContratos.ObterAutorizacao(taLOGIN, ctDEVOLUCAOPRODUTO, ctAUTORIZADO);
+          dtmCadastroContratos.CancelamentoUsuarioAutorizacao := Usuario.CodigoUsuario;
+        end;
+      end
+      else if (UsuarioLogin.DevolucaoProduto)
+              and not ((dtmCadastroContratos.SituacaoContrato= scRESERVADO)
+                        and (ParSistema.AutorizacaoCancelarContratoFaturado)) then
+      begin
+        Usuario:=UsuarioLogin;
+        dtmCadastroContratos.CancelamentoUsuarioAutorizacao:=UsuarioLogin.CodigoUsuario;
+      end
+      else if not ((dtmCadastroContratos.SituacaoContrato= scRESERVADO)
+	           and (ParSistema.AutorizacaoCancelarContratoFaturado))  then
+      begin
+	  Usuario:= dtmCadastroContratos.ObterAutorizacao(taLOGIN, ctDEVOLUCAOPRODUTO, ctAUTORIZADO);
+          dtmCadastroContratos.CancelamentoUsuarioAutorizacao := Usuario.CodigoUsuario;
+      end;
+
+
+      if (Assigned(Usuario) and Usuario.DevolucaoProduto) or
+         (dtmCadastroContratos.SituacaoContrato = scORCADO) or
+	 ((dtmCadastroContratos.SituacaoContrato= scRESERVADO) 
+	   and (ParSistema.AutorizacaoCancelarContratoFaturado))then
+      begin
+        dtmCadastroContratos.Abre(ctVendaTabelaConsultaMotivos);
+        frmMotivos := TfrmMotivos.Create(frmMotivos, 'Cancelamentos de Contratos', dtmCadastroContratos.TabelaConsultaMotivos);
+        Result := frmMotivos.ShowModal = mrOK;
+      end
+      else
+      begin
+        Result := false;
+        MensagemAviso(ctUSUARIOSEMPERMISSAO);
+      end;
+    end;
+    try
+      if Result then
+      begin
+        Result := dtmCadastroContratos.ExcluirContrato(CancelarCtrOrcado);
+        if Result then
+        begin
+          Result := inherited InternoExcluir;
+          PrecisaReCalcularParcelas := False
+        end;
+      end
+    finally
+      if (dtmCadastroContratos.SituacaoContrato in [scRESERVADO, scFATURADO]) or CancelarCtrOrcado then
+      begin
+        frmMotivos.Free;
+        SetFocus;
+        dtmCadastroContratos.Fecha(ctVendaTabelaConsultaMotivos)
+      end
+    end
+  end else
+    Result := False;
+
+  CtrlOn:= False;
+end;
+
+function TfrmCadastroContratos.InternoGravar: Boolean;
+var
+  CupomEmitido, ErroAcrescimo,
+  ErroCupom: Boolean;
+  FormaPagamento: Integer;
+  ValorPagoDinheiro: Currency;
+  Frm: TForm;
+  Msg: String;
+begin
+  if inherited InternoGravar then
+  begin
+    if dtmCadastroContratos.VerificarContratoBloqueado(dtmCadastroContratos.qrycontratosnumero.asstring) then
+    begin
+
+      ValidouDados := false;
+      Gravando := True;
+      try
+        if ParSistema.ObservacoesAoGravarContrato then
+          if dtmCadastroContratos.VerificaObservacoesContrato then
+            AbreJanelaObservacoes;
+
+        if ActiveControl = dbgProdutos then
+          PrecisaReCalcularParcelas := (TotalProdutosAnt <> dtmCadastroContratos.TotalProdutos) or
+                                       (TotalIPIAnt      <> dtmCadastroContratos.TotalIPI) or
+                                        PrecisaReCalcularParcelas;
+
+        if ActiveControl = dbgServicos then
+          PrecisaReCalcularParcelas := (TotalServicosAnt <> dtmCadastroContratos.TotalServicos) or
+                                        PrecisaReCalcularParcelas;
+
+        if ActiveControl = dbgImpostosRetidos then
+          PrecisaReCalcularParcelas := (TotalRetencaoAnt <> dtmCadastroContratos.ImpostoRetido) or
+                                        PrecisaReCalcularParcelas;
+
+        if PrecisaReCalcularParcelas then
+        begin
+          if ParSistema.PermitirAlterarBrindenoContrato then
+            if dtmCadastroContratos.SomenteBrindes and (dtmCadastroContratos.ValorICMSSubstTributaria = 0) then
+            begin
+              ContornaChuncho := false;
+              Result := GerarParcelasVendaaVista;
+              PrecisaReCalcularParcelas := False;
+              ContornaChuncho:=true;
+            end;
+
+          if dtmCadastroContratos.PlanoPadraoClienteSemParcelas then
+          begin
+            ContornaChuncho := false;
+            Result := GerarParcelasPlanoPadrao;
+            PrecisaReCalcularParcelas := False;
+            ContornaChuncho:=true;
+          end;
+
+        end;
+
+        if PrecisaReCalcularParcelas then
+        begin
+          MensagemAviso(ctRECALCULARPARCELAS);
+          Result := False;
+        end
+        else
+        begin
+          if ReCalcularTempoMoradia then
+            dtmCadastroContratos.CalcularTempoResidencia(edtResAno.Text,edtResMes.Text);
+          if ReCalcularTempoCivil then
+            dtmCadastroContratos.CalcularTempoCivil(edtCivilAno.Text,edtCivilMes.Text);
+          if JaTestouEmail or EmailValido(edtClientesEMail.Text) then begin
+            if (rbnEstadoCivilCasado.Checked {or rbnEstadoCivilOutros.Checked}) and
+                fracgcoucpf.rbnFisica.Checked and
+                Not rbnEmpresa.Checked and
+                (not dtmCadastroContratos.ExisteConjuge and ParSistema.InformarConjugeClienteCasado)
+            then begin
+                MensagemAviso(ctCONJUGENAOINFORMADO);
+                if not (pgcCadastroClientes.ActivePage = tstConjuge) then
+                  pgcCadastroClientes.ActivePage := tstConjuge;
+                flkConjuge.SetFocus;
+                Result := False
+            end else if (dtmCadastroContratos.ClientedoExterior or
+                         (fracgcoucpf.edtCPFCNPJ.Criticar(not dtmCadastroContratos.ClientedoExterior))
+                         ) and
+                        not dtmCadastroContratos.ExisteDiferencaIPI then
+            begin
+              validoudados := true;
+
+              Result := dtmCadastroContratos.GravarContrato(ErroCupom, CupomEmitido,
+                                                            FormaPagamento, Msg,
+                                                            ValorPagoDinheiro, ErroAcrescimo);
+
+              if Result  then begin
+                Frm := TfrmDevolucaoMercadorias.Referencia;
+                if Assigned(Frm) then
+                  TfrmDevolucaoMercadorias(Frm).ReFazConsultaCliente([dtmCadastroContratos.NumeroContrato]);
+                Frm := TfrmCancelamentoContratos.Referencia;
+                if Assigned(Frm) then
+                  TfrmCancelamentoContratos(Frm).RefazConsulta;
+                Frm := TfrmOperacoesContratos.Referencia;
+                if Assigned(Frm)  then
+                  TfrmOperacoesContratos(Frm).RefazConsulta;
+                LimparTempos;
+                ReCalcularTempoCivil      := False;
+                ReCalcularTempoMoradia    := False;
+                PrecisaReCalcularParcelas := False;
+              end else
+                validoudados := false;
+
+            end else
+              Result := False
+          end else begin
+            if not (pgcCadastroClientes.ActivePage = tstOutrosDados) then
+              pgcCadastroClientes.ActivePage := tstOutrosDados;
+            edtClientesEMail.SetFocus;
+            JaTestouEmail := False;
+            Result := False
+          end;
+        end
+      finally
+        Gravando := False;
+      end
+    end;
+  end else
+    Result := False
+end;
+
+function TfrmCadastroContratos.InternoIncluir: Boolean;
+begin
+  Result := inherited InternoIncluir;
+  if CtrlOn then begin
+    if dbgProdutos.Focused then
+      Result := IncluirEditarProdutosContrato(False)
+  end else begin
+    Result := dtmCadastroContratos.IncluirContrato;
+    if Result then begin
+      if flkVendedor.Enabled then
+        flkVendedor.SetFocus
+      else
+        flkCodigoCliente.SetFocus;
+      if pgcContratos.ActivePageIndex > 0 then
+        pgcContratos.ActivePageIndex:= 0;
+      if pgcCadastroClientes.ActivePageIndex > 0 then
+        pgcCadastroClientes.ActivePageIndex:= 0;
+    end
+  end
+end;
+
+function TfrmCadastroContratos.InternoPesquisar(Titulo: String): Integer;
+var
+  OK: Boolean;
+  Tabela: Integer;
+  TeclaEnter : word;
+
+  procedure ProcuraTipoConsulta;
+  var
+    a: Integer;
+  begin
+   if (ActiveControl is TtecDBFindLookup) and CtrlOn then begin
+     for a := 0 to High(FindsLookup) do
+       if FindsLookup[a] = ActiveControl then
+         break;
+       if a <= High(FindsLookup) then
+         TipoConsulta := TtecContratoTipoConsulta(a+1)
+       else
+         TipoConsulta := ctcCONTRATO;
+   end else
+     TipoConsulta := ctcCONTRATO;
+  end;
+
+begin
+  OK := True;
+  ProcuraTipoConsulta;
+  if CtrlOn then begin
+    Tabela := ctTabelasConsulta[TipoConsulta].TipoConsulta;
+    Titulo := cttabelasConsulta[TipoConsulta].Titulo;
+    if (TipoConsulta = ctcCONTRATO) or (dtmCadastroContratos.SituacaoContrato > scRESERVADO) or dtmCadastroContratos.ReadOnly then
+      ok := False
+    else if TipoConsulta = ctcNATURALIDADE then
+      dtmCadastroContratos.AbreConsultaNaturalidade
+    else if TipoConsulta in [ctcAVALISTA, ctcCLIENTES, ctcCLIENTESBONUS] then begin
+      Tabela := ctVendaTabelaConsultaClientes;
+      dtmCadastroContratos.AbreConsultaClientes;
+    end else if (TipoConsulta = ctcCONJUGE) then begin
+      Tabela:= ctVendaTabelaConsultaConjuge;
+      dtmCadastroContratos.AbreConsultaConjuge;
+    end
+    else if (TipoConsulta = ctcFILIAISMONTAGEM) and flkFilialMontagem.ReadOnly then
+      ok := False
+    else
+      dtmCadastroContratos.Abre(Tabela);
+  end else begin
+    Tabela := ctVendaTabelaConsultaContratos;
+    dtmCadastroContratos.AbreConsultaClientes;
+    Titulo := ctstrCONTRATOS;
+  end;
+  if OK then begin
+    Result := inherited InternoPesquisar(Titulo);
+    if Result = mrOK then
+      case TipoConsulta of
+        ctcCONTRATO: begin
+                       edfNumeroContrato.OnFound := nil;
+                       dtmCadastroContratos.SelecionarContrato;
+                       dtmCadastroContratos.MontarListaGruposClasses(Grupos, Classes);
+                       flkCodigoCliente.Exist;
+                       flkNaturalCidadeCliente.Exist;
+                       fraEnderecoEntrega.ReadOnly     := Not dtmCadastroContratos.ExisteEntrega;
+                       flkFilialMontagem.ReadOnly      := Not dtmCadastroContratos.ExisteMontagem;
+                       edfNumeroContrato.OnFound := edfNumeroContratoFound;
+                       edfNumeroContratoFound(true);
+                       AlterarEstadoBotoes;
+                     end;
+        ctcCLIENTES: begin
+                       dtmCadastroContratos.SelecionarCliente;
+                       flkNaturalCidadeCliente.Exist;
+                       TeclaEnter := VK_Return;
+                       KeyDown(TeclaEnter,[]);
+                       LimparTempos;
+                     end;
+        ctcCONJUGE:  dtmCadastroContratos.SelecionarConjuge;
+        ctcESTADOID: dtmCadastroContratos.SelecionarEstadoIdentificacao;
+        ctcCONCEITO: dtmCadastroContratos.SelecionarConceito;
+        ctcNATURALIDADE: dtmCadastroContratos.SelecionarNaturalidade;
+        ctcCARGO: dtmCadastroContratos.SelecionarCargo;
+        ctcCARGOCONJUGE: dtmCadastroContratos.SelecionarCargoConjuge;
+        ctcAVALISTA: dtmCadastroContratos.SelecionarAvalista;
+        ctcVENDEDOR: dtmCadastroContratos.SelecionarVendedores;
+        ctcAGENTES:  dtmCadastroContratos.SelecionarAgente;
+        ctcFILIAISMONTAGEM: dtmCadastroContratos.SelecionarFilialMontagem;
+        ctcFILIAISVENDA: dtmCadastroContratos.SelecionarFilialVenda;
+        ctcLISTACASAMENTO: dtmCadastroContratos.SelecionarListaCasamento;
+        ctcDEPENDENTE: dtmcadastrocontratos.SelecionarDependente;
+        ctcCFPS:       dtmCadastroContratos.SelecionarCFPS;
+        ctcCLIENTESBONUS :dtmCadastroContratos.SelecionarClienteBonus;
+      end;
+   dtmCadastroContratos.Fecha(Tabela);
+   //  jan.Free;
+   //  jan:= nil;
+  end else
+    Result := mrNone;
+end;
+
+function TfrmCadastroContratos.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Jan := TfrmConsultaPorCampo.Create(nil);
+  Jan.ConsultaInterativa := Not (TipoConsulta in [ctcCONTRATO, ctcCLIENTES,
+                                                  ctcAVALISTA, ctcCLIENTESBONUS,
+                                                  ctcCARGO, ctcCARGOCONJUGE]) and CtrlOn;
+  Jan.UsarParametrosDaTabela := not (TipoConsulta = ctcDEPENDENTE);
+  Result := Jan
+end;
+
+procedure TfrmCadastroContratos.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  if Shift = [] then begin
+    case Key of
+      VK_Escape: AlterarEstadoBotoes;
+      VK_Return: begin
+                   if ActiveControl = edtClientesPai then begin
+                      pgcCadastroClientes.ActivePage:= tstResidencia;
+                      fraEnderecoResidencia.mmoRua.SetFocus;
+                      Key:= 0;
+                    end
+                    else if ActiveControl = edtClientesResTempo then begin
+                      pgcCadastroClientes.ActivePage:= tstDadosComerciais;
+                      edtClientesEmpresa.SetFocus;
+                      Key:= 0;
+                    end
+                    else if ActiveControl = fraFoneRamalComercial.edtFoneRamal then begin
+                      if tstConjuge.TabVisible then begin
+                        pgcCadastroClientes.ActivePage:= tstConjuge;
+                        flkConjuge.SetFocus;
+                        Key:= 0;
+                      end
+                      else begin
+                        pgcCadastroClientes.ActivePage:= tstReferencia;
+                        edtClientesReferencia.SetFocus;
+                        Key:= 0;
+                      end;
+                    end
+                    else if (ActiveControl = fraFoneRamalConjuge.edtFoneRamal) then begin
+                      pgcCadastroClientes.ActivePage:= tstReferencia;
+                      edtClientesReferencia.SetFocus;
+                      Key:= 0;
+                    end
+                    else if ActiveControl = fraFoneRamalReferencia_2.edtFoneRamal then begin
+                      pgcCadastroClientes.ActivePage:= tstOutrosDados;
+                      edtClientesDependentes.SetFocus;
+                      Key:= 0;
+                    end
+                    else if (ActiveControl = mmoClientesObservacoesCliente) then begin
+                      pgcCadastroClientes.ActivePage:= tstClienteGeral;
+                      fracgcoucpf.edtCPFCNPJ.SetFocus;
+                      Key:= 0;
+                    end
+                    else if (ActiveControl = edtSaldoTroca) then begin
+                      with dtmCadastroContratos do
+                      begin
+                        if (edtSaldoTroca.ValorSemFormatacao>CreditoTrocaAnt) or
+                           (edtSaldoTroca.ValorSemFormatacao>TotalContrato) then
+                        begin
+                          CreditoTroca := edtSaldoTroca.ValorSemFormatacao;
+                          if not ValidarCreditoTroca then
+                          begin
+                            Key:= 0;
+                            creditotroca := CreditoTrocaAnt;
+                            edtSaldoTroca.SetFocus;
+                            edtsaldotroca.SelectAll;
+                          end;
+                        end;
+                      end;
+                    end;
+                  end;
+      VK_F7: if sbnImprimirContrato.Enabled then
+                sbnImprimirContratoClick(nil);
+      VK_F8: if sbnCopiarContrato.Enabled then
+                sbnCopiarContratoClick(nil);
+      VK_F11: if sbnAlterarSituacao.Enabled then begin
+                 sbnAlterarSituacaoClick(nil);
+                 if dtmCadastroContratos.SituacaoContrato = scFATURADO then begin
+                   if pgcContratos.ActivePageIndex <> 1 then
+                     pgcContratos.ActivePageIndex:= 1;
+                   if dbgProdutos.CanFocus then
+                     dbgProdutos.SetFocus;
+                 end;
+               end;
+
+      VK_F12: if sbnEnviarOrcamento.Enabled then
+                 sbnEnviarOrcamentoClick(nil);
+
+      VK_F5: if (pgcContratos.ActivePage = tstReceitaOculos) and
+                 (sbnGravarReceitaOculos.Enabled) then
+                gravarReceitaOculos;
+    end;
+  end
+  else
+  if Shift = [ssCtrl] then
+  begin
+    if (Key = VK_E) and sbnExibirColunas.Visible then
+      sbnExibirColunasClick(nil)
+    else if (Key = VK_I) and sbnSelecionarTodosProdutosImpressao.Visible then
+      sbnSelecionarTodosProdutosImpressaoClick(nil)
+    else if (Key = VK_B) and sbnMarcarDesmarcarBrinde.Visible then
+      sbnMarcarDesmarcarBrindeClick(nil)
+    else if Key = VK_P then
+      sbnParcelasClick(nil)
+    else if Key = VK_T then
+      sbnVisualizarSaldoTrocaClick(nil)
+    else if Key = VK_O then
+    begin
+      pgcContratos.ActivePage:=tstProdutos;
+      if(dbgProdutos.Enabled) then
+      begin
+        dbgProdutos.SetFocus;
+        IncluirEditarProdutosContrato(False);
+      end;
+    end
+    else if Key = VK_R then
+      if sbnResgatarBonus.Visible then
+        sbnResgatarBonusClick(nil);
+  end;
+  inherited;
+end;
+
+procedure TfrmCadastroContratos.LerValoresCalculoFinanciamento;
+var
+  Parcelas, ParcContr: TResumosParcelas;
+  ValorPrazo,
+  TaxaJuros,
+  Desconto: Real;
+  Plano: Integer;
+begin
+  inherited;
+  if Not ContornaChuncho then begin
+    frmCalculoFinanciamento := TfrmCalculoFinanciamento(TfrmCalculoFinanciamento.Referencia);
+    Parcelas := nil;  ParcContr := nil;
+    if Gravando and dtmCadastroContratos.PlanoPadraoClienteSemParcelas then
+      plano := dtmCadastroContratos.ClientePlanoPadrao
+    else
+      plano := 0;
+
+    if Assigned(frmCalculoFinanciamento) and
+       frmCalculoFinanciamento.ResumosParcelas(Parcelas, ValorPrazo, TaxaJuros, Desconto, Plano)
+    then begin
+      dtmCadastroContratos.ResumoParcelas(ParcContr);
+      if Not ParcelasIdenticas(Parcelas, ParcContr) or
+        (Desconto <> dtmCadastroContratos.DescontoContrato) or
+        (dtmCadastroContratos.CreditoTroca > 0) or
+        PrecisaReCalcularParcelas  then
+      begin
+//      and (MensagemConfirmacao('Deseja alterar as parcelas do contrato?') = smbOK)
+//      then begin
+        dtmCadastroContratos.DefinirParcelas(Parcelas, ValorPrazo, TaxaJuros, Desconto, Plano);
+        PrecisaReCalcularParcelas := Plano = 0;
+      end
+      else
+        PrecisaReCalcularParcelas := false;
+      Parcelas  := nil;
+      ParcContr := nil;
+    end
+  end
+end;
+
+procedure TfrmCadastroContratos.LimparTempos;
+begin
+  ReCalcularTempoCivil   := False;
+  ReCalcularTempoMoradia := False;
+  edtResAno.Text         := '';
+  edtResMes.Text         := '';
+  edtCivilAno.Text       := '';
+  edtCivilMes.Text       := '';
+end;
+
+procedure TfrmCadastroContratos.OnActivateCalculoFinanciamento(var Calcular: Boolean;
+  var Mercadoria, Frete, Seguro, DescontoContrato: Currency; var Plano: Integer;
+  var Parcelas: TResumosParcelas; var Grupos: vstring; var Classes: vString);
+begin
+  Calcular         := PrecisaReCalcularParcelas;
+  Mercadoria       := dtmCadastroContratos.TotalProdutos + dtmCadastroContratos.TotalServicos;
+  Frete            := dtmCadastroContratos.Frete;
+  Seguro           := dtmCadastroContratos.Seguro;
+  DescontoContrato := dtmCadastroContratos.DescontoContrato;
+  Plano            := dtmCadastroContratos.PlanoUtilizado;
+  Grupos           := Self.Grupos;
+  Classes          := Self.Classes;
+  dtmCadastroContratos.ResumoParcelas(Parcelas);
+end;
+
+procedure TfrmCadastroContratos.OnCloseCalculoFinanciamento;
+begin
+  LerValoresCalculoFinanciamento;
+{  SetFocus;}
+end;
+
+procedure TfrmCadastroContratos.OperacaoPadrao(Value: array of Variant);
+begin
+  inherited;
+  if Length(Value) > 0 then
+       dtmCadastroContratos.RefazConsultaContrato(Value[0])
+  else dtmCadastroContratos.RefazConsultaContrato;
+  edfNumeroContrato.SetFocus;
+  
+  if (high(Value)=2) then
+  begin
+    application.ProcessMessages;
+    close;
+  end;
+
+end;
+
+procedure TfrmCadastroContratos.PosicionarTabelaNoParametro(Ind: Integer;
+  var continuar: Boolean);
+begin
+  inherited;
+  if CtrlOn then
+    Continuar:= dtmCadastroContratos.PosicionarEstado
+  else
+    Continuar:= False;
+end;
+
+procedure PreencherFindsLookup(Frm: TfrmCadastroContratos);
+begin
+  SetLength(FindsLookup, 16);
+  FindsLookup[00] := Frm.flkCodigoCliente;
+  FindsLookup[01] := Frm.flkEstadoID;
+  FindsLookup[02] := Frm.flkNaturalCidadeCliente;
+  FindsLookup[03] := Frm.flkCargoClientes;
+  FindsLookup[04] := Frm.flkConjuge;
+  FindsLookup[05] := Frm.flkCargoConjuge;
+  FindsLookup[06] := Frm.flkConceitoClientes;
+  FindsLookup[07] := Frm.flkAvalista;
+  FindsLookup[08] := Frm.flkVendedor;
+  FindsLookup[09] := Frm.flkAgentes;
+  FindsLookup[10] := Frm.flkFilialVenda;
+  FindsLookup[11] := Frm.flkFilialMontagem;
+  FindsLookup[12] := Frm.flkCodigoDependente;
+  FindsLookup[13] := Frm.flkCFPS;
+  FindsLookup[14] := Frm.flkCodigoClienteBonus;
+
+end;
+
+procedure TfrmCadastroContratos.ProximoControle(Ind: Integer);
+begin
+  inherited;
+  if CtrlOn then begin
+    if Ind = 0 then
+      dtmCadastroContratos.PosicionarCidade
+  end
+  else
+  if Ind = 0 then
+  begin
+    Jan.ConsultaInterativa := True;
+    dtmCadastroContratos.AbreConsultaContrato;
+  end;
+{  else
+    Jan.ConsultaInterativa := False;}
+end;
+
+procedure TfrmCadastroContratos.ReservarContrato;
+begin
+  if MensagemConfirmacao(ctCONFIRMERESERVA) = smbOK then begin
+    dtmCadastroContratos.SituacaoContrato := scRESERVADO;
+    if Not InternoGravar then begin
+      CancelarAlteracoes;
+      SetFocus
+    end
+  end
+end;
+
+procedure TfrmCadastroContratos.sbnAlterarSituacaoClick(Sender: TObject);
+begin
+  inherited;
+  case dtmCadastroContratos.SituacaoContrato of
+    scORCADO:    ReservarContrato;
+    scRESERVADO: FaturarContrato;
+    scFATURADO,
+    scNOTAPARCIAL: DocumentoFiscaisContrato;
+  end;
+  dtxNomeSituacao.Refresh;
+  dbgProdutos.Refresh;
+end;
+
+procedure TfrmCadastroContratos.sbnCopiarContratoClick(Sender: TObject);
+begin
+  inherited;
+  if dtmCadastroContratos.qryContratos.Active then
+    if dtmCadastroContratos.CopiarContrato then
+    begin
+      dtmCadastroContratos.CalcularValorTotalProdutos;
+      PrecisaReCalcularParcelas := True
+    end;
+end;
+
+procedure TfrmCadastroContratos.sbnEnviarOrcamentoClick(Sender: TObject);
+begin
+  inherited;
+  EmailContato:= dtmCadastroContratos.qryContatosemail.AsString;
+  Contato:= dtmCadastroContratos.qryContatoscontato.AsString;
+  frmEnviarEmail:= TfrmEnviarEmail.Create(frmEnviarEmail,UsuarioLogin.HostSmtp, EmailContato, Contato,UsuarioLogin.Assunto);
+  try
+    with frmEnviarEmail do
+    begin
+      Data        := dtmCadastroContratos.DataServidor;
+      Empresa     := PrimeiraLetraEmMaiuscula(dtmCadastroContratos.NomeFilialBase);
+      Msg         := MontarOrcamento(dtmCadastroContratos.qrycontratos,
+                                     dtmCadastroContratos.qryprodutoscontratos,
+                                     dtmCadastroContratos.qryservicoscontratos);
+
+      ShowModal;
+    end;
+  finally
+    frmEnviarEmail.Free;
+  end;
+  edfNumeroContrato.SetFocus;
+end;
+
+
+procedure TfrmCadastroContratos.sbnExcluirProdutoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  dbgProdutos.SetFocus;
+  if InternoExcluir then
+  begin
+    dbgProdutos.RefazerOrdenacaoSequencial(nil);
+    dtmCadastroContratos.RefazerNumeroProdutos;
+  end;
+end;
+
+procedure TfrmCadastroContratos.sbnExcluirServicoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  dbgServicos.SetFocus;
+  InternoExcluir;
+end;
+
+procedure TfrmCadastroContratos.sbnExibirColunasClick(Sender: TObject);
+begin
+  inherited;
+  // Montagem
+  dbgProdutos.ColumnByName('montagem').Visible    := not dbgProdutos.ColumnByName('montagem').Visible;
+  // Entrega
+  dbgProdutos.ColumnByName('entrega').Visible    := not dbgProdutos.ColumnByName('entrega').Visible;
+  // Brinde
+  dbgProdutos.ColumnByName('brinde').Visible     := not dbgProdutos.ColumnByName('brinde').Visible;
+
+  // Quantidade em Estoque.
+  dbgProdutos.ColumnByName('emestoque').Visible    := not dbgProdutos.ColumnByName('emestoque').Visible;
+  if ParSistema.TamanhoMascaraQuantidade > 30 then
+    dbgProdutos.ColumnByName('emestoque').Width    := ParSistema.TamanhoMascaraQuantidade
+  else dbgProdutos.ColumnByName('emestoque').Width := 30;
+
+  // Quantidade em Reserva.
+  dbgProdutos.ColumnByName('reservado').Visible    := not dbgProdutos.ColumnByName('reservado').Visible;
+  if ParSistema.TamanhoMascaraQuantidade > 30 then
+    dbgProdutos.ColumnByName('reservado').Width    := ParSistema.TamanhoMascaraQuantidade
+  else dbgProdutos.ColumnByName('reservado').Width := 30;
+
+  // Quantidade em Futuro.
+  dbgProdutos.ColumnByName('futuro').Visible    := not dbgProdutos.ColumnByName('futuro').Visible;
+  if ParSistema.TamanhoMascaraQuantidade > 30 then
+    dbgProdutos.ColumnByName('futuro').Width    := ParSistema.TamanhoMascaraQuantidade
+  else dbgProdutos.ColumnByName('futuro').Width := 30;
+
+  // Quantidade a ser Copiada.
+  dbgProdutos.ColumnByName('qtdecopiar').Visible    := not dbgProdutos.ColumnByName('qtdecopiar').Visible;
+  if ParSistema.TamanhoMascaraQuantidade > 30 then
+    dbgProdutos.ColumnByName('qtdecopiar').Width    := ParSistema.TamanhoMascaraQuantidade
+  else dbgProdutos.ColumnByName('qtdecopiar').Width := 30;
+
+end;
+
+procedure TfrmCadastroContratos.sbnFormaPagChequeClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroContratos.AtribuirFormaPagamento('H');
+end;
+
+procedure TfrmCadastroContratos.sbnFormaPagCreditoClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroContratos.AtribuirFormaPagamento('C');
+end;
+
+procedure TfrmCadastroContratos.sbnFormaPagDebitoClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroContratos.AtribuirFormaPagamento('B');
+end;
+
+procedure TfrmCadastroContratos.sbnFormaPagDinheiroClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroContratos.AtribuirFormaPagamento('D');
+end;
+
+procedure TfrmCadastroContratos.sbnImprimirContratoClick(Sender: TObject);
+begin
+  inherited;
+  if dtmCadastroContratos.qryContratos.Active then
+    ImprimirContrato;
+end;
+
+procedure TfrmCadastroContratos.sbnIncluirProdutoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  dbgProdutos.SetFocus;
+  InternoIncluir;
+end;
+
+procedure TfrmCadastroContratos.sbnIncluirServicoClick(Sender: TObject);
+begin
+  inherited;
+  IncluirEditarServicosContrato(False);
+end;
+
+procedure TfrmCadastroContratos.sbnParcelasClick(Sender: TObject);
+begin
+  inherited;
+  if dtmCadastroContratos.FSomenteBrindes and
+     parsistema.PermitirAlterarBrindenoContrato then
+  begin
+    ContornaChuncho := True;
+    try
+      CalcularFinanciamento;
+    finally
+      ContornaChuncho := False;
+    end
+  end
+  else
+  begin
+    if (dtmCadastroContratos.TotalProdutos = 0) and
+       (dtmCadastroContratos.TotalServicos = 0) then
+      if ParSistema.ContratoComServico then
+        MensagemAviso('Faz-se necessário a inclusão de um produto ou serviço antes de calcular as parcelas.')
+      else
+        MensagemAviso('Faz-se necessário a inclusão de um produto antes de calcular as parcelas.')
+    else
+    if (dtmCadastroContratos.SituacaoContrato < scFATURADO) and (Not dtmCadastroContratos.ReadOnly) then
+    begin
+
+      if VerificarCreditoTroca(false,true) then
+      begin
+        if dbgParcelas.CanFocus then
+          dbgParcelas.SetFocus;
+        ContornaChuncho := True;
+        try
+          CalcularFinanciamento;
+        finally
+          ContornaChuncho := False;
+        end
+      end;
+
+    end
+  end;
+end;
+
+procedure TfrmCadastroContratos.sbnProcurarAgentesClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkAgentes, ctAGENTES)
+end;
+
+procedure TfrmCadastroContratos.sbnProcurarAvalistaClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkAvalista, ctAVALISTAS)
+end;
+
+procedure TfrmCadastroContratos.sbnProcurarCargoClientesClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkCargoClientes, ctCARGOS)
+end;
+
+procedure TfrmCadastroContratos.sbnProcurarCargosConjugeClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkCargoConjuge, ctCARGOS)
+end;
+
+procedure TfrmCadastroContratos.sbnProcurarCidadeClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkNaturalCidadeCliente, ctCIDADES)
+end;
+
+procedure TfrmCadastroContratos.sbnProcurarClientesClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkCodigoCliente, ctCLIENTES)
+end;
+
+procedure TfrmCadastroContratos.sbnProcurarConceitoClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkConceitoClientes, ctCONCEITOS)
+end;
+
+procedure TfrmCadastroContratos.sbnProcurarConjugeClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkConjuge, ctCONJUGES)
+end;
+
+procedure TfrmCadastroContratos.sbnProcurarEstadoIDClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkEstadoID, ctESTADO)
+end;
+
+procedure TfrmCadastroContratos.sbnProcurarFilialMontagemClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkFilialMontagem, ctFILIAISMONTAGEM)
+end;
+
+procedure TfrmCadastroContratos.sbnProcurarFilialVendaClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkFilialVenda, ctFILIAISVENDAS)
+end;
+
+procedure TfrmCadastroContratos.sbnProcurarVendedorClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkVendedor, ctVENDEDORES)
+end;
+
+procedure TfrmCadastroContratos.SelecionarContrato(Contratos: Array of String);
+var
+  a: Integer;
+begin
+  for a := 0 to High(Contratos) do
+    if Contratos[a] = dtmCadastroContratos.NumeroContrato then
+    begin
+      try
+        dtmCadastroContratos.RefazConsultaContrato;
+        break;
+      except
+      end;  
+    end
+end;
+
+procedure TfrmCadastroContratos.SelecionarContrato(
+  Contrato: String);
+begin
+  dtmCadastroContratos.RefazConsultaContrato(Contrato);
+end;
+
+procedure TfrmCadastroContratos.sbnSelecionarTodosProdutosImpressaoClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroContratos.IncluirTodosNaNotaFiscal;
+  dbgProdutos.Invalidate;
+end;
+
+function TfrmCadastroContratos.TabelaDePesquisa: TZDataSet;
+begin
+  case TipoConsulta of
+    ctcCONTRATO: Result := dtmCadastroContratos.TabelaConsultaContratos;
+    ctcAVALISTA,
+    ctcCLIENTES,
+    ctcCLIENTESBONUS: Result := dtmCadastroContratos.TabelaConsultaClientes;
+    ctcCONJUGE : Result := dtmCadastroContratos.TabelaConsultaConjuges;
+    ctcESTADOID: Result := dtmCadastroContratos.TabelaConsultaEstados;
+    ctcCONCEITO: Result := dtmCadastroContratos.TabelaConsultaConceitos;
+    ctcNATURALIDADE: Result := dtmCadastroContratos.TabelaConsultaCidades;
+    ctcCARGOCONJUGE,
+    ctcCARGO:    Result := dtmCadastroContratos.TabelaConsultaCargos;
+    ctcVENDEDOR: Result := dtmCadastroContratos.TabelaConsultaVendedores;
+    ctcAGENTES:  Result := dtmCadastroContratos.TabelaConsultaAgentes;
+    ctcFILIAISVENDA,
+    ctcFILIAISMONTAGEM: Result := dtmCadastroContratos.TabelaConsultaFiliais;
+    ctcLISTACASAMENTO: Result := dtmCadastroContratos.TabelaConsultaListaCasamento;
+    ctcDEPENDENTE: Result := dtmCadastroContratos.TabelaConsultaDependentes;
+    ctcCFPS: Result := dtmCadastroContratos.TabelaConsultaCFPS;
+  else
+    Result := Nil
+  end
+end;
+
+function TfrmCadastroContratos.TabelaDoParametro(Parametro: Integer): TZDataSet;
+begin
+  if CtrlOn then
+    Result := dtmCadastroContratos.TabelaConsultaEstados
+  else
+    Result := dtmCadastroContratos.TabelaConsultaClientes
+end;
+
+function TfrmCadastroContratos.ValidaUsuarioAutorizacao: Boolean;
+var
+  UsuarioAut: TtecUsuarios;
+  AnalistaValido: Boolean;
+  CodigoUsuario: Integer;
+  NomeUsuario: String;
+begin
+  Result := False;
+  if MensagemConfirmacao(ctCONFIRMEFATURAMENTO) = smbOK then begin
+    NomeUsuario   := '';
+    CodigoUsuario := 0;
+    if dtmCadastroContratos.ExigeAnalistaCredito then begin
+      if UsuarioLogin.AnalistaCredito then begin
+        AnalistaValido := True;
+        CodigoUsuario  := UsuarioLogin.CodigoUsuario;
+        NomeUsuario    := UsuarioLogin.NomeUsuario;
+      end else begin
+        UsuarioAut := dtmCadastroContratos.ObterAutorizacao(taLOGIN, ctFATURARCONTRATO, ctANALISTACREDITO);
+        if Assigned(ActiveControl) then
+          ActiveControl.SetFocus;
+        try
+          if Assigned(UsuarioAut) then
+            if UsuarioAut.CodigoUsuario = 0 then begin
+              AnalistaValido := False;
+              MensagemAviso(Format(ctUSUARIOSEMCADASTRO, ['']))
+            end else if Not UsuarioAut.AnalistaCredito then begin
+              AnalistaValido := False;
+              MensagemAviso(Format(ctUSUARIONAOAUTORIZADO, [ctAPROVARCONTRATOS]));
+            end else begin
+              AnalistaValido := True;
+              CodigoUsuario  := UsuarioAut.CodigoUsuario;
+              NomeUsuario    := UsuarioAut.NomeUsuario;
+            end
+          else
+            AnalistaValido := False
+        finally
+          UsuarioAut.Free
+        end
+      end
+    end else
+      AnalistaValido := True;
+    if AnalistaValido then begin
+      if NomeUsuario <> '' then
+        dtmCadastroContratos.SelecionarAnalista(CodigoUsuario, NomeUsuario);
+
+      dtmCadastroContratos.SituacaoContrato := scFATURADO;
+      Result := True;
+      sbnAlterarSituacao.Caption := vstrAlterarSituacaoContrato[dtmCadastroContratos.SituacaoContrato] + ' F11';
+      sbnAlterarSituacao.Hint    := vstrHintSituacaoContrato[dtmCadastroContratos.SituacaoContrato];
+
+      if ParSistema.ImprimirCarneAoFaturar then
+         dtmCadastroContratos.ImprimirCarne(false);
+
+//      if ParSistema.ImprimirBoleto then
+//         dtmCadastroContratos.ImprimirBoleto;
+    end
+  end
+end;
+
+procedure TfrmCadastroContratos.AfterScrollLinhaColunaGrade(
+  Sender: TObject);
+begin
+  dbgProdutos.ColumnByName('valorgrade1').Title.Caption := dtmCadastroContratos.LinhadaGrade;
+  dbgProdutos.ColumnByName('valorgrade2').Title.Caption := dtmCadastroContratos.colunadaGrade;
+end;
+
+procedure TfrmCadastroContratos.sbnIncluirClick(Sender: TObject);
+begin
+  inherited;
+  fracgcoucpf.edtCPFCNPJ.Enabled := False;
+  fracgcoucpf.edtCPFCNPJ.Color := clBtnFace;
+  fracgcoucpf.rgbTipoPessoa.Enabled := False;  
+end;
+
+procedure TfrmCadastroContratos.ckbMarcarTodosClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroContratos.MarcarProdutos(ckbMarcarTodos.Checked);
+end;
+
+procedure TfrmCadastroContratos.sbnProcuraDependenteClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkCodigoDependente, ctDEPENDETES)
+end;
+
+procedure TfrmCadastroContratos.flkCodigoDependenteMessage(
+  var Msg: String);
+begin
+  inherited;
+  Msg:= 'O dependente ' + flkCodigoDependente.Text + ' não está cadastrado, está inativo,' + #10#13 +
+        'ou não esta autorizado a comprar.';
+end;
+
+procedure TfrmCadastroContratos.sbnVisualizarSaldoTrocaClick(
+  Sender: TObject);
+begin
+  inherited;
+  edtSaldoTrocaEnter(self);
+  if ParSistema.utilizarcreditotrocacontrato then
+  begin
+    frmVisualizarSaldoTroca := TfrmVisualizarSaldoTroca.Create(frmVisualizarSaldoTroca,
+                               dtmCadastroContratos.TabelaSaldoCredito,
+                               dtmCadastroContratos.TabelaSaldoCreditoAtual);
+    frmVisualizarSaldoTroca.ShowModal;
+    if frmVisualizarSaldoTroca.ModalResult = mrOK then
+    begin
+      if (dtmCadastroContratos.SituacaoContrato < scFATURADO) then
+      begin
+        if dtmCadastroContratos.CreditoTroca <> dtmCadastroContratos.SaldoCreditoAtual then
+        begin
+          dtmCadastroContratos.SugerirCreditoTroca(false,true);
+          dtmCadastroContratos.CalcularValorAVista;
+          PrecisaReCalcularParcelas := true;
+        end;
+      end;
+    end;
+    frmVisualizarSaldoTroca.Free;
+    Application.BringToFront;
+  end;
+end;
+
+procedure TfrmCadastroContratos.pgcContratosChange(Sender: TObject);
+begin
+  inherited;
+  if pgcContratos.ActivePage = tstGeral then
+   pnlSaldoTroca.Enabled := ParSistema.utilizarcreditotrocacontrato;
+end;
+
+procedure TfrmCadastroContratos.edtSaldoTrocaEnter(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroContratos.CreditoTrocaAnt := dtmCadastroContratos.CreditoTroca;
+end;
+
+procedure TfrmCadastroContratos.edtSaldoTrocaExit(Sender: TObject);
+begin
+  inherited;
+  if dtmCadastroContratos.CreditoTroca <> dtmCadastroContratos.CreditoTrocaAnt then
+  begin
+    dtmCadastroContratos.CalcularValorAVista;
+    PrecisaReCalcularParcelas := true;
+  end;
+end;
+
+
+function TfrmCadastroContratos.VerificarCreditoTroca(Zerar,Atribuir: Boolean): Boolean;
+begin
+  result := true;
+//  pgcContratos.ActivePage := tstGeral;  // CAUSA PERDA DE FOCO EM DIVERSAS SITUAÇÕES
+  if ParSistema.utilizarcreditotrocacontrato then
+  begin
+    dtmCadastroContratos.AbrirDadosCreditoCliente;
+    if dtmCadastroContratos.ValidarCreditoTroca then
+    begin
+      if ((dtmCadastroContratos.SaldoCreditoAtual<>0) and
+          (dtmCadastroContratos.CreditoTroca=0)) or
+         ((dtmCadastroContratos.SaldoCreditoAtual>0) and
+          (dtmCadastroContratos.CreditoTroca<dtmCadastroContratos.SaldoCreditoAtual) and
+          (dtmCadastroContratos.CreditoTroca<dtmCadastroContratos.TotalContrato)) {or
+         ((dtmCadastroContratos.SaldoCreditoAtual<0) and
+          (dtmCadastroContratos.CreditoTroca>dtmCadastroContratos.SaldoCreditoAtual))} then
+      begin
+        if dtmCadastroContratos.SugerirCreditoTroca(true,atribuir) then
+        begin
+          dtmCadastroContratos.CalcularValorAVista;
+          pgcContratos.ActivePage := tstGeral;
+          edtSaldoTroca.SetFocus;
+          result := atribuir;
+        end
+      end;
+    end
+    else
+    begin
+     if zerar then
+       edtSaldoTroca.text := FormatarValor(0,2);
+     pgcContratos.ActivePage := tstGeral;
+     edtSaldoTroca.SetFocus;
+     result := false;
+    end;
+  end;
+end;
+
+procedure TfrmCadastroContratos.AbreJanelaObservacoes;
+begin
+  frmObservacoesContrato:= TfrmObservacoesContrato.Create(frmObservacoesContrato);
+  try
+    frmObservacoesContrato.ShowModal
+  finally
+    frmObservacoesContrato.Free;
+  end;
+ //   Application.BringToFront;
+end;
+
+procedure TfrmCadastroContratos.dbgImpostosRetidosDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if not (gdFocused in State) then begin
+    if dbgImpostosRetidos.DataSource.DataSet.FieldByName('marcar').AsBoolean then
+    begin
+      TDBGrid(Sender).Canvas.Brush.Color := clInfoBk;
+      TDBGrid(Sender).Canvas.Font.Color := clBlack;
+      TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+    end;
+  end;
+end;
+
+procedure TfrmCadastroContratos.dbgImpostosRetidosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case key of
+    VK_Space: begin
+                if Shift = [ssCtrl] then
+                  if dbgImpostosRetidos.SelectedIndex = 2 then
+                    dtmCadastroContratos.MarcarImpostosRetidosSelecionados;
+               end;
+    VK_escape: dtmCadastroContratos.qryImpostosRetidos.Cancel;
+  end;
+end;
+
+procedure TfrmCadastroContratos.dbgImpostosRetidosDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  if dbgImpostosRetidos.SelectedIndex = 2 then
+    dtmCadastroContratos.MarcarImpostosRetidosSelecionados;
+end;
+
+procedure TfrmCadastroContratos.dbgImpostosRetidosExit(Sender: TObject);
+begin
+  inherited;
+  PrecisaReCalcularParcelas := (TotalRetencaoAnt <> dtmCadastroContratos.ImpostoRetido) or
+                               PrecisaReCalcularParcelas;
+end;
+
+procedure TfrmCadastroContratos.dbgImpostosRetidosEnter(Sender: TObject);
+begin
+  inherited;
+  TotalRetencaoAnt:= dtmCadastroContratos.ImpostoRetido;
+end;
+
+procedure TfrmCadastroContratos.AtualizaRecalculoParcelas(Sender: TObject);
+begin
+  PrecisaReCalcularParcelas := true;
+end;
+
+procedure TfrmCadastroContratos.sbnCFPSClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkCFPS, ctCFPS);
+end;
+
+procedure TfrmCadastroContratos.flkCodigoClienteKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (Key = VK_F3) and (Shift = [ssCtrl]) then
+    IncluirCliente;
+end;
+
+procedure TfrmCadastroContratos.IncluirCliente;
+var
+  i, iCliente: Integer;
+begin
+  frmClientesContrato := TfrmClientesContrato.Create(frmClientesContrato);
+  try
+    iCliente := dtmCadastroContratos.CodigoCliente;
+    dtmCadastroContratos.RefazConsultaCliente(0);
+    i := frmClientesContrato.ShowModal;
+  finally
+    frmClientesContrato.Free;
+  end;
+  if i = mrAbort then
+    dtmCadastroContratos.RefazConsultaCliente(iCliente)
+  else if i = mrCancel then
+    dtmCadastroContratos.Fecha(ctVendaTabelaCadastroClientes)
+  else if i = mrOk then
+    dtmCadastroContratos.AtribuirClienteExpress;
+  flkCodigoCliente.SetFocus;
+end;
+
+procedure TfrmCadastroContratos.sbnProcurarClientesBonusClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkCodigoClienteBonus,ctCLIENTES);
+end;
+
+procedure TfrmCadastroContratos.rbpTipoLenteClick(Sender: TObject);
+begin
+  inherited;
+  with dtmCadastroContratos do
+  begin
+    if not ReadOnly then
+    begin
+      if not (qryReceitaOculos.State in [dsedit,dsinsert]) then
+         qryReceitaOculos.Edit;
+      if not (qrycontratos.State in [dsedit, dsinsert]) then
+          qrycontratos.Edit;
+    end;
+  end;
+end;
+
+procedure TfrmCadastroContratos.sbnResgatarBonusClick(Sender: TObject);
+begin
+  inherited;
+  TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado([dtmCadastroContratos.CodigoClienteBonus,
+                                                                  ClassName],'TfrmExtratoBonus', True);
+end;
+
+procedure TfrmCadastroContratos.sbnFormaPagCDCClick(Sender: TObject);
+begin
+  inherited;
+  dtmCadastroContratos.AtribuirFormaPagamento('X');
+end;
+
+function TfrmCadastroContratos.GerarParcelasPlanoPadrao: Boolean;
+begin
+  CalcularFinanciamento;
+  Result := frmCalculoFinanciamento.calcularPlanoPadrao(dtmCadastroContratos.ClientePlanoPadrao);
+end;
+
+function TfrmCadastroContratos.GerarParcelasVendaaVista: Boolean;
+begin
+  CalcularFinanciamento;
+  Result := False;
+end;
+
+procedure TfrmCadastroContratos.sbnMarcarDesmarcarBrindeClick(
+  Sender: TObject);
+begin
+  inherited;
+  if sbnMarcarDesmarcarBrinde.Caption = 'M' then
+  begin
+    dtmCadastroContratos.MarcarProdutosBrinde(true,true);
+    sbnMarcarDesmarcarBrinde.Caption := 'D';
+  end
+  else
+  begin
+    dtmCadastroContratos.MarcarProdutosBrinde(true,false);
+    sbnMarcarDesmarcarBrinde.Caption := 'M';
+  end;
+
+end;
+
+function TfrmCadastroContratos.AnalistaLiberou: TTecUsuarios;
+begin
+  if UsuarioLogin.AnalistaCredito then
+  begin
+    Result := dtmCadastroContratos.ObterAutorizacao(taSENHA);
+  end
+  else
+  begin
+    Result := dtmCadastroContratos.ObterAutorizacao(taLOGIN, ctLIBERACAOCREDITO, ctANALISTACREDITO);
+  end;
+
+  if result <> nil then
+    if not Result.AnalistaCredito then
+    begin
+      MensagemAviso(Format(ctUSUARIONAOAUTORIZADO,['LIBERAÇÃO DE CRÉDITO']));
+      Result := nil;
+    end;
+
+  if result <> nil then
+    Faturar;
+end;
+
+procedure TfrmCadastroContratos.Faturar;
+begin
+  if VerificarCreditoTroca(true,true) then
+   if ValidaUsuarioAutorizacao then
+    if not InternoGravar then
+      CancelarAlteracoes;
+
+end;
+
+procedure TfrmCadastroContratos.sbnCopiarProdutosClick(Sender: TObject);
+begin
+  inherited;
+  CopiarProdutosContratos;
+end;
+
+procedure TfrmCadastroContratos.CopiarProdutosContratos;
+begin
+  frmCopiarProdutosContratos := TfrmCopiarProdutosContratos.Create(frmCopiarProdutosContratos,UsuarioLogin.AlterarPrecoContrato, dtmCadastroContratos);
+  frmCopiarProdutosContratos.edfNumeroContratoCopia.DataSource := dtmCadastroContratos.dsrContratoCopia;
+  frmCopiarProdutosContratos.dtxSituacao.DataSource := dtmCadastroContratos.dsrContratoCopia;
+  frmCopiarProdutosContratos.dtxEmissao.DataSource := dtmCadastroContratos.dsrContratoCopia;
+  frmCopiarProdutosContratos.dtxFaturamento.DataSource := dtmCadastroContratos.dsrContratoCopia;
+  frmCopiarProdutosContratos.dtxCliente.DataSource := dtmCadastroContratos.dsrContratoCopia;
+  frmCopiarProdutosContratos.dtxCPF.DataSource := dtmCadastroContratos.dsrContratoCopia;
+  frmCopiarProdutosContratos.dbgProdutos.DataSource := dtmCadastroContratos.dsrContratoCopia;
+  frmCopiarProdutosContratos.dbgProdutos.DataSource := dtmCadastroContratos.dsrProdutosContratoCopia;
+
+  try
+    if frmCopiarProdutosContratos.ShowModal = mrOK then
+      dtmCadastroContratos.IncluirProdutosContratoCopia;
+  finally
+    frmCopiarProdutosContratos.Free;
+    dtmCadastroContratos.CalcularValorTotalProdutos;
+    fraEnderecoEntrega.ReadOnly := Not dtmCadastroContratos.ExisteEntrega;
+    flkFilialMontagem.ReadOnly  := Not dtmCadastroContratos.ExisteMontagem;
+    PrecisaReCalcularParcelas   := (TotalProdutosAnt <> dtmCadastroContratos.TotalProdutos) or
+                                   (TotalIPIAnt      <> dtmCadastroContratos.TotalIPI) or
+                                   PrecisaReCalcularParcelas;
+
+    dtmCadastroContratos.MontarListaGruposClasses(Grupos, Classes);
+    SetFocus;
+  end;
+end;
+
+procedure TfrmCadastroContratos.sbnGravarReceitaOculosClick(
+  Sender: TObject);
+begin
+  inherited;
+  gravarReceitaOculos;
+end;
+
+procedure TfrmCadastroContratos.gravarReceitaOculos;
+begin
+  dtmCadastroContratos.gravarReceitaOculos;
+end;
+
+procedure TfrmCadastroContratos.dbgContatosCellClick(Column: TColumn);
+begin
+  inherited;
+    EmailContato:= dtmCadastroContratos.qryContatosemail.AsString;
+    Contato:= dtmCadastroContratos.qryContatoscontato.AsString;
+end;
+
+procedure TfrmCadastroContratos.SelecionarProdutosadevolver;
+begin
+  if (dtmCadastroContratos.SituacaoContrato < scFaturado) then
+  begin
+    frmprodutosadevolver := Tfrmprodutosadevolver.Create(frmprodutosadevolver);
+    frmprodutosadevolver.DataSet:= dtmCadastroContratos.qryProdutosContratos;
+    try
+      with dtmCadastroContratos do
+      begin
+        dsrProdutosContratos.OnDataChange:= nil;
+        qryProdutosContratos.First;
+        while not qryProdutosContratos.Eof do
+        begin
+          if not (qryProdutosContratos.State = dsedit) then
+            qryProdutosContratos.Edit;
+          qryProdutosContratosadevolver.AsFloat:= 0;
+          qryProdutosContratosSelecionar.asboolean:= False;
+          qryProdutosContratos.Post;
+          qryProdutosContratos.Next;
+        end;
+        dsrProdutosContratos.OnDataChange:= dsrProdutosContratosDataChange;
+      end;
+      frmprodutosadevolver.ShowModal;
+  finally
+      frmprodutosadevolver.Free;
+      dtmCadastroContratos.CalcularValorTotalProdutos;
+      SetFocus;
+    end;
+  end;
+end;
+
+procedure TfrmCadastroContratos.sbnDevolverprodutosClick(Sender: TObject);
+begin
+  inherited;
+  SelecionarProdutosadevolver;
+end;
+
+procedure TfrmCadastroContratos.sbnDeslocarParaCimaClick(Sender: TObject);
+begin
+  inherited;
+  dbgProdutos.DeslocarRegistroParaCima;
+end;
+
+procedure TfrmCadastroContratos.sbnDeslocarRegistroParaBaixoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dbgProdutos.DeslocarRegistroParaBaixo;
+end;
+
+procedure TfrmCadastroContratos.ExcluirProdutoContrato;
+begin
+  if sbnExcluirProduto.enabled then
+    sbnExcluirProdutoClick(nil);
+end;
+
+procedure TfrmCadastroContratos.fraEnderecoEntregasbnBairroClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraEnderecoEntrega.sbnBairroClick(Sender);
+
+end;
+
+procedure TfrmCadastroContratos.sbnImportarPedidoDaicoClick(
+  Sender: TObject);
+begin
+  inherited;
+  if odlImportarArquivo.Execute then
+    if dtmCadastroContratos.ImportarArquivoTXT(odlImportarArquivo.FileName, daico) then
+      dtmCadastroContratos.ImportarArquivoDaico;
+end;
+
+procedure TfrmCadastroContratos.OnScrollBloquearContrato(Sender: TObject);
+begin
+  AlterarEstadoBotoes
+end;
+
+procedure TfrmCadastroContratos.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  inherited;
+  Action := caFree;
+end;
+
+procedure TfrmCadastroContratos.actEventosUpdate(Sender: TObject);
+begin
+  inherited;
+  (*
+  tstServico.TabVisible  := (ParSistema.ContratoComServico and
+                             (dtmCadastroContratos.qryProdutosContratos.RecordCount = 0)) {r
+                             Parsistema.NotaFiscalConjugada};
+
+  tstProdutos.TabVisible := (dtmCadastroContratos.qryServicosContratos.RecordCount = 0) {r
+                            Parsistema.NotaFiscalConjugada};
+  *)
+
+  sbnTrocarEstoquedaFilialEmitente.Visible :=  not parsistema.FiliaisIndependentes and
+                                               parsistema.PermiteTrocarEstoquedaFilialEmitente and
+                                               (dtmCadastroContratos.SituacaoContrato in [scORCADO, scRESERVADO]);
+
+
+  pnlIPI.Visible        := dtmCadastroContratos.ContribIPI or
+                           (dtmcadastrocontratos.qryContratosvaloricmssubstituicao.AsCurrency<>0) or
+                           (dtmcadastrocontratos.qryContratostotalipi.AsCurrency<>0);
+
+  tstNotasFiscais.tabvisible := not dtmCadastroContratos.qryNotasContrato.IsEmpty or
+                                not dtmCadastroContratos.qryCuponsContrato.IsEmpty;
+
+                                               
+
+end;
+
+procedure TfrmCadastroContratos.sbnConferirClick(Sender: TObject);
+begin
+  inherited;
+  with dtmCadastroContratos do
+    ConferirProdutos(qryProdutosContratos, qryProdutosContratosproduto.fieldname,
+     qryProdutosContratosproduto.FieldName, qryProdutosContratosdescricao.FieldName,
+     qryProdutosContratosquantidade.FieldName, 'CTR', qryContratosnumero.asSTring);
+
+end;
+
+procedure TfrmCadastroContratos.sbnTrocarEstoquedaFilialEmitenteClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmCadastroContratos.SelecionarFilialEmitente;
+  dbgProdutos.Refresh;
+
+end;
+
+procedure TfrmCadastroContratos.RefazConsulta;
+begin
+  dtmcadastrocontratos.selecionarcontrato(edfNumeroContrato.text);
+end;
+
+procedure TfrmCadastroContratos.sbnAtendimentoClick(Sender: TObject);
+begin
+  inherited;
+  TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado(['AbrirUltimoAtendimento',
+                                                                   dtmCadastroContratos.CodigoCliente,
+                                                                   dtmCadastroContratos.TipoCliente], 'TfrmCadastroAtendimento', True);
+
+end;
+
+procedure TfrmCadastroContratos.dbgServicosDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+
+  if (dtmCadastroContratos.QtdadeServicos > 0) and (dtmCadastroContratos.SituacaoContrato > scRESERVADO) then
+  begin
+    if dtmCadastroContratos.ServicoCancelado then
+    begin
+      TDBGrid(Sender).Canvas.Brush.Color := clYellow;
+      TDBGrid(Sender).Canvas.Font.Color := clBlack;
+    end;
+  end;
+
+  TDBGrid(Sender).Canvas.Font.Style := [];
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+
+end;
+
+end.

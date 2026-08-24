@@ -1,0 +1,17 @@
+select cliente, tipocliente, os, situacao, contratos_renegociado(numero) from contratos where numero = '295749'
+
+select quantidade, cancelado, * from produtoscontratos where contrato = '295749'
+
+select produtoscontratos_situacao('295749',571200,7,'N')
+
+
+Select c.numero, c.primogenito, os
+From   contratos c
+Where          (c.cliente =15430)  and (os IS NULL OR os='false')
+              and (c.tipocliente ='C')
+              and (c.situacao in ('F','N','P'))
+              and (not contratos_renegociado(c.numero))
+              and (0 < (Select count(pc.contrato)
+                              From produtoscontratos pc
+                              Where (pc.contrato = c.numero) and (pc.quantidade > coalesce(pc.cancelado,0))))
+Order By cast(trim(c.numero) as bigint) desc

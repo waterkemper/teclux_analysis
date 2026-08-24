@@ -4,7 +4,8 @@ interface
 
 uses
   SysUtils, Classes, dmbasico, ZTransact, DB, ZQuery, ZPgSqlQuery, cpquery, dmtecsoft,
-  fr_dset, fr_dbset, fr_class, biblio, ctconstantes, fmpreviewpadrao, Variants;
+  fr_dset, fr_dbset, fr_class, biblio, ctconstantes, fmpreviewpadrao, Variants,
+  frx2xto30, frxClass;
 
 type
   Tdtmrelatorioentrega = class(TdtmBasico)
@@ -37,6 +38,7 @@ type
     qryRelatorioEntregamontagemobs: TStringField;
     qryRelatorioEntregadataentrega: TDateField;
     qryRelatorioEntreganomediasemana: TStringField;
+    frxReport1: TfrxReport;
     procedure frpRelatorioEntregaBeforePrint(Memo: TStringList;
       View: TfrView);
   private
@@ -166,6 +168,7 @@ begin
   qryRelatorioEntrega.Open;
 
 //  frpRelatorioEntrega.DesignReport;
+//  frxReport1.DesignReport;
 
 
   if qryRelatorioEntrega.IsEmpty then

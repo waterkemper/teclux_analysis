@@ -158,9 +158,9 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
   end
   object pnlFundoJanela: TPanel
     Left = 0
-    Top = 40
+    Top = 45
     Width = 850
-    Height = 551
+    Height = 546
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2
@@ -168,17 +168,16 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
       Left = 0
       Top = 0
       Width = 850
-      Height = 551
+      Height = 546
       Align = alClient
       TabOrder = 0
       object pgcGeracaoRequisicoes: TtecPageControl
         Left = 2
         Top = 18
         Width = 846
-        Height = 531
-        ActivePage = tstSelecionados
+        Height = 526
+        ActivePage = tstParametros
         Align = alClient
-        TabIndex = 1
         TabOrder = 0
         TabWidth = 200
         object tstParametros: TTabSheet
@@ -187,7 +186,7 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
             Left = 0
             Top = 0
             Width = 838
-            Height = 500
+            Height = 495
             Align = alClient
             TabOrder = 0
             object pgcFilialGrupoFilialVenda: TtecPageControl
@@ -196,7 +195,6 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
               Width = 417
               Height = 73
               ActivePage = tstFilialVenda
-              TabIndex = 0
               TabOrder = 1
               TabStop = False
               TabWidth = 100
@@ -275,12 +273,13 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
                   DataSource = dtmGeracaoRequisicoesMontagens.dsrFilialVenda
                   ReadOnly = True
                   TabOrder = 0
+                  Alignment = taLeftJustify
                 end
                 object edfFilialVenda: TtecDbEditFind
                   Left = 4
                   Top = 8
                   Width = 57
-                  Height = 24
+                  Height = 23
                   Alignment = taLeftJustify
                   DataField = 'codigo'
                   DataSource = dtmGeracaoRequisicoesMontagens.dsrFilialVenda
@@ -376,6 +375,7 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
                   DataSource = dtmGeracaoRequisicoesMontagens.dsrGrupoFiliaisVenda
                   ReadOnly = True
                   TabOrder = 0
+                  Alignment = taLeftJustify
                 end
                 object edfGrupoFilialVenda: TtecDbEditFind
                   Left = 4
@@ -430,7 +430,7 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
                 Left = 45
                 Top = 26
                 Width = 75
-                Height = 24
+                Height = 23
                 MaxLength = 10
                 TabOrder = 1
                 Minimo = 37353
@@ -440,7 +440,7 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
                 Left = 169
                 Top = 26
                 Width = 75
-                Height = 24
+                Height = 23
                 MaxLength = 10
                 TabOrder = 0
                 Minimo = 37353
@@ -539,12 +539,13 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
                 DataSource = dtmGeracaoRequisicoesMontagens.dsrCliente
                 ReadOnly = True
                 TabOrder = 0
+                Alignment = taLeftJustify
               end
               object edfCliente: TtecDbEditFind
                 Left = 8
                 Top = 24
                 Width = 73
-                Height = 24
+                Height = 23
                 Alignment = taLeftJustify
                 DataField = 'codigo'
                 DataSource = dtmGeracaoRequisicoesMontagens.dsrCliente
@@ -571,7 +572,6 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
               Width = 417
               Height = 73
               ActivePage = tstFilialMontagem
-              TabIndex = 0
               TabOrder = 0
               TabStop = False
               TabWidth = 100
@@ -644,7 +644,7 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
                   Left = 4
                   Top = 8
                   Width = 57
-                  Height = 24
+                  Height = 23
                   Alignment = taLeftJustify
                   DataField = 'codigo'
                   DataSource = dtmGeracaoRequisicoesMontagens.dsrFilialMontagem
@@ -675,6 +675,7 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
                   DataSource = dtmGeracaoRequisicoesMontagens.dsrFilialMontagem
                   ReadOnly = True
                   TabOrder = 1
+                  Alignment = taLeftJustify
                 end
               end
               object tstGrupoFilialMontagem: TTabSheet
@@ -752,6 +753,7 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
                   DataSource = dtmGeracaoRequisicoesMontagens.dstGrupoFiliaisMontagem
                   ReadOnly = True
                   TabOrder = 0
+                  Alignment = taLeftJustify
                 end
                 object edfGrupoFilialMontagem: TtecDbEditFind
                   Left = 4
@@ -786,16 +788,16 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
           ImageIndex = 1
           object gbxMontagens: TGroupBox
             Left = 0
-            Top = 240
+            Top = 235
             Width = 838
             Height = 47
             Align = alBottom
             Caption = 'Montagens'
             TabOrder = 1
             object lblContratosTotal: TLabel
-              Left = 11
+              Left = 12
               Top = 22
-              Width = 28
+              Width = 27
               Height = 16
               Alignment = taRightJustify
               Caption = 'Total'
@@ -866,8 +868,15 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
             CellHeights = 100
             StrippedColor = 16054260
             CanDelete = False
+            CanNotInsertFromGrid = False
             PostOnEnter = False
+            PostOnSetUpDown = False
             DenySort = False
+            DefaultRowHeight = 18
+            ExibirNumerodaLinha = False
+            NaoAtribuirDadosaTabelaaoDigitar = False
+            ShowWhenFieldInvisible = False
+            CanClickWhenEditing = False
             Columns = <
               item
                 Expanded = False
@@ -944,12 +953,11 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
           end
           object pgcSelecionado: TtecPageControl
             Left = 0
-            Top = 287
+            Top = 282
             Width = 838
             Height = 213
-            ActivePage = tstEnderecoEntrega
+            ActivePage = tstObservacoes
             Align = alBottom
-            TabIndex = 1
             TabOrder = 2
             object tstObservacoes: TTabSheet
               Caption = 'Observa'#231#245'es'
@@ -975,6 +983,8 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
                 Width = 799
                 Height = 182
                 HorzScrollBar.Range = 481
+                HorzScrollBar.Visible = False
+                VertScrollBar.Visible = False
                 Align = alLeft
                 AutoScroll = False
                 Font.Charset = DEFAULT_CHARSET
@@ -1039,9 +1049,6 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
                   end
                   inherited pnllblCidade: TPanel
                     Width = 477
-                    inherited lblUF_: TLabel
-                      Top = -1
-                    end
                   end
                   inherited pnllblBairro: TPanel
                     Width = 477
@@ -1119,8 +1126,15 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
                 CellHeights = 100
                 StrippedColor = 16054260
                 CanDelete = False
+                CanNotInsertFromGrid = False
                 PostOnEnter = False
+                PostOnSetUpDown = False
                 DenySort = False
+                DefaultRowHeight = 16
+                ExibirNumerodaLinha = False
+                NaoAtribuirDadosaTabelaaoDigitar = False
+                ShowWhenFieldInvisible = False
+                CanClickWhenEditing = False
                 Columns = <
                   item
                     Expanded = False
@@ -1238,7 +1252,7 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
                 object lblFilialdeVenda: TLabel
                   Left = 8
                   Top = 8
-                  Width = 86
+                  Width = 85
                   Height = 16
                   Caption = 'Filial de Venda'
                 end
@@ -1253,6 +1267,7 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
                   DataSource = dtmGeracaoRequisicoesMontagens.dsrItensRequisicoes
                   ReadOnly = True
                   TabOrder = 0
+                  Alignment = taLeftJustify
                 end
                 object dtxEmissaoContrato: TtecDBText
                   Left = 272
@@ -1265,6 +1280,7 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
                   DataSource = dtmGeracaoRequisicoesMontagens.dsrItensRequisicoes
                   ReadOnly = True
                   TabOrder = 1
+                  Alignment = taLeftJustify
                 end
                 object dtxFilialVendaContrato: TtecDBText
                   Left = 8
@@ -1277,6 +1293,7 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
                   DataSource = dtmGeracaoRequisicoesMontagens.dsrItensRequisicoes
                   ReadOnly = True
                   TabOrder = 2
+                  Alignment = taLeftJustify
                 end
               end
             end
@@ -1314,8 +1331,15 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
                 CellHeights = 100
                 StrippedColor = 16054260
                 CanDelete = False
+                CanNotInsertFromGrid = False
                 PostOnEnter = False
+                PostOnSetUpDown = False
                 DenySort = False
+                DefaultRowHeight = 16
+                ExibirNumerodaLinha = False
+                NaoAtribuirDadosaTabelaaoDigitar = False
+                ShowWhenFieldInvisible = False
+                CanClickWhenEditing = False
                 Columns = <
                   item
                     Expanded = False
@@ -1423,7 +1447,7 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
                 object Label2: TLabel
                   Left = 496
                   Top = 8
-                  Width = 34
+                  Width = 33
                   Height = 16
                   Caption = 'Interv.'
                 end
@@ -1445,6 +1469,7 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
                   DataSource = dtmGeracaoRequisicoesMontagens.dsrItensRequisicoes
                   ReadOnly = True
                   TabOrder = 0
+                  Alignment = taLeftJustify
                 end
                 object dtxEmissaoNotaFiscal: TtecDBText
                   Left = 176
@@ -1457,6 +1482,7 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
                   DataSource = dtmGeracaoRequisicoesMontagens.dsrItensRequisicoes
                   ReadOnly = True
                   TabOrder = 1
+                  Alignment = taLeftJustify
                 end
                 object dtxCupomFiscal: TtecDBText
                   Left = 382
@@ -1469,6 +1495,7 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
                   DataSource = dtmGeracaoRequisicoesMontagens.dsrItensRequisicoes
                   ReadOnly = True
                   TabOrder = 2
+                  Alignment = taLeftJustify
                 end
                 object dtxMaquina: TtecDBText
                   Left = 455
@@ -1481,6 +1508,7 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
                   DataSource = dtmGeracaoRequisicoesMontagens.dsrItensRequisicoes
                   ReadOnly = True
                   TabOrder = 3
+                  Alignment = taLeftJustify
                 end
                 object dtxFilialEmissaoDadoFiscal: TtecDBText
                   Left = 8
@@ -1493,6 +1521,7 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
                   DataSource = dtmGeracaoRequisicoesMontagens.dsrItensRequisicoes
                   ReadOnly = True
                   TabOrder = 4
+                  Alignment = taLeftJustify
                 end
                 object dtxIntervensao: TtecDBText
                   Left = 496
@@ -1505,6 +1534,7 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
                   DataSource = dtmGeracaoRequisicoesMontagens.dsrItensRequisicoes
                   ReadOnly = True
                   TabOrder = 5
+                  Alignment = taLeftJustify
                 end
                 object dtxSerie: TtecDBText
                   Left = 256
@@ -1517,6 +1547,7 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
                   DataSource = dtmGeracaoRequisicoesMontagens.dsrItensRequisicoes
                   ReadOnly = True
                   TabOrder = 6
+                  Alignment = taLeftJustify
                 end
               end
             end
@@ -1535,6 +1566,8 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
                 Top = 31
                 Width = 431
                 Height = 146
+                HorzScrollBar.Visible = False
+                VertScrollBar.Visible = False
                 Font.Charset = DEFAULT_CHARSET
                 Font.Color = clBlack
                 Font.Height = -13
@@ -1678,6 +1711,7 @@ inherited frmGeracaoRequisicoesMontagens: TfrmGeracaoRequisicoesMontagens
                 DataSource = dtmGeracaoRequisicoesMontagens.dsrClientesRequisicoes
                 ReadOnly = True
                 TabOrder = 3
+                Alignment = taLeftJustify
               end
             end
           end

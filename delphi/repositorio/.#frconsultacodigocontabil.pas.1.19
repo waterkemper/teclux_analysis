@@ -1,0 +1,356 @@
+unit frconsultacodigocontabil;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  frconsulta, StdCtrls, DBCtrls, cpdbtext, Buttons, Mask,
+  cpdbfindcontrols, ctconstantes, dmbasico, fmconsultabasica, fmconsultaporcampo,
+   Windows, zquery, DB, cpdatasource, ZPgSqlQuery,
+  clusuario, cpquery, clparametrossistema, ZTransact, frconsultacontabil;
+
+
+type
+  TfraConsultaCodigoContabil = class(TfraConsultaContabil)
+    sbnProcura: TSpeedButton;
+    dtxDescricao: TtecDBText;
+    edfCodigo: TtecDBFindLookup;
+    procedure edfCodigoKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnProcuraClick(Sender: TObject);
+    procedure edfCodigoFound(Found: Boolean);
+    procedure edfCodigoExit(Sender: TObject);
+  private
+    vTeclaPressionada: Boolean;
+    FQuantidadeNaturezas: Boolean;
+    FAbrirPesquisaQuandoReadOnly: boolean;
+  protected
+    dmbasico : TdtmBasico;
+    function JanelaPesquisa: TfrmConsultaBasica; override;
+    function TituloPesquisa: String;
+
+  private
+    FOnFound: TtecProcedure;
+    FValorSelecionado: Variant;
+
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+
+    property OnFound: TTecProcedure read FOnFound write FOnFound;
+    function InternoPesquisar(Titulo: String): Integer; override;
+    procedure PosicionarTabelaNoParametro(Ind: Integer; var continuar: Boolean); override;
+    function  PosicionarRegistro(TipoPesquisa: TTecPesquisa; Parametro: Integer): Boolean;
+    property ValorSelecionado: Variant read FValorSelecionado write FValorSelecionado;
+    property AbrirPesquisaQuandoReadOnly: boolean read FAbrirPesquisaQuandoReadOnly write FAbrirPesquisaQuandoReadOnly default false;
+
+
+  end;
+
+  var
+    fraConsultaCodigoContabil : tfraConsultaCodigoContabil;
+
+implementation
+
+{$R *.dfm}
+
+constructor TfraConsultaCodigoContabil.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  AbrirPesquisaQuandoReadOnly := False;
+end;
+
+function TfraConsultaCodigoContabil.InternoPesquisar(Titulo: String): Integer;
+var
+  vContinuar : Boolean;
+begin
+  vContinuar := true;
+
+  {nas atribuições qdo for readonly não há razão para pesquisar}
+  if (edfCodigo.Operacao = OPAtribuicao) or ((edfcodigo.Operacao = opPESQUISA) and (edfcodigo.Group<>'') ) then
+    if edfCodigo.DataField <> '' then
+      if edfcodigo.ReadOnly or edfCodigo.DataSource.DataSet.FieldByName(edfCodigo.DataField).ReadOnly then
+        if AbrirTabelaProcura then
+             vContinuar := AbrirPesquisaQuandoReadOnly;
+
+
+  if vContinuar then
+  begin
+
+    AbreTabelaConsulta(TipoPesquisa);
+    Result := inherited InternoPesquisar(Titulo);
+    if Result = mrOK then
+    begin
+      case edfCodigo.Operacao of
+        opATRIBUICAO :
+        begin
+          if edfcodigo.LookupQuery <> nil then
+            if not (edfCodigo.DataSource.State in [dsinsert, dsedit]) then
+              if edfCodigo.Group='' then
+                edfCodigo.DataSource.edit;
+
+          case TipoPesquisa of
+            pesCONTADEBITO         : begin
+                                       if (TipoContaContabilDebitoSelecionavel='') or
+                                          ( (TipoContaContabilDebitoSelecionavel='A') and
+                                            (qryConsultaContatipo.AsString='A') ) or
+                                          ( (TipoContaContabilDebitoSelecionavel='S') and
+                                            (qryConsultaContatipo.AsString='S') ) then
+                                       begin
+                                         edfCodigo.DataSource.DataSet.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaContacodigo.AsVariant;
+                                         Selecionar(TipoPesquisa);
+                                       end;
+                                     end;
+
+            pesCONTACREDITO        : begin
+                                       if (TipoContaContabilCreditoSelecionavel='') or
+                                          ( (TipoContaContabilCreditoSelecionavel='A') and
+                                            (qryConsultaContatipo.AsString='A') ) or
+                                          ( (TipoContaContabilCreditoSelecionavel='S') and
+                                            (qryConsultaContatipo.AsString='S') ) then
+                                       begin
+                                         edfCodigo.DataSource.DataSet.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaContacodigo.AsVariant;
+                                         Selecionar(TipoPesquisa);
+                                       end;
+                                     end;
+
+            pesCONTAREFERENCIAL    : edfCodigo.DataSource.DataSet.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaPlanoReferencialcodigo.AsVariant;
+            pesHISTORICOCONTABIL   : edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaHistoricocodigo.AsVariant;
+            pesCENTRODECUSTO   :    edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaCentrodeCustocodigo.AsVariant;
+
+            pesEVENTO              : edfcodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaEventoscodigo.AsVariant;
+            pesMODELODOCTOSFISCAIS : edfCodigo.datasource.DataSet.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaModeloDoctosFiscaiscodigo.AsVariant;
+            pesICMSOBRIGACOES      : edfCodigo.datasource.DataSet.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaICMSObrigacoescodigo.AsVariant;
+            pesCODIGODERECEITAS    : edfCodigo.datasource.DataSet.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaEFD_CodigosdeReceitacodigo.AsVariant;
+
+            pesTABELAAJUSTEICMS    : edfCodigo.datasource.DataSet.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaAjusteICMScodigo.AsVariant;
+            pesTABELAAJUSTEIPI     : edfCodigo.datasource.DataSet.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaAjusteIPIcodigo.AsVariant;
+            pesINSTRESPADMCADASTRO : edfCodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaInstRespAdmCadastrocodigo.AsVariant;
+            pesQUALIFICACAO        : edfCodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaQualificacaocodigo.AsVariant;
+            pesCSOSN               : edfCodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaCSOSNcodigo.AsVariant; 
+            pesCODIGOFISCAL        : edfCodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaCodigosFiscaiscodigo.AsVariant;
+            pesCLASSIFICACAOIPI    : edfCodigo.datasource.dataset.FieldByName(edfCodigo.DataField).AsVariant := qryConsultaClassificacaoIPIcodigo.AsVariant;
+            pesTRIBUTOSPIS : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultatributospiscodigo.AsVariant;
+            pesTRIBUTOSISSQN : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaTributosISSQNcodigo.AsVariant;
+
+
+            pesPISCOFINS_T435 : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaPISCOFINS_T435codigo.AsVariant;
+            pespis_tdctf : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultapis_tdctfcodigo.AsVariant;
+            pescofins_tdctf : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultacofins_tdctfcodigo.AsVariant;
+
+            pesPISCOFINS_T436 : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaPISCOFINS_T436codigo.AsVariant;
+            pesPISCOFINS_T511 : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaPISCOFINS_T511codigo.AsVariant;
+
+            pesEFD_T53        : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaefd_t53codigo.AsVariant;
+
+            pesTRIBUTOSCOFINS : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultatributoscofinscodigo.AsVariant;
+
+            pesTRIBUTOSIPI : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultatributosipicodigo.AsVariant;
+            pesTRIBUTOSICMS : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaTributosICMScodigo.AsVariant;
+            pesFILIAIS      :Begin
+                               if (edfCodigo.group='') then
+                                 edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaFiliaiscodigo.AsVariant
+                               else
+                                 edfCodigo.Text := qryConsultaFiliaiscodigo.AsVariant;
+                               Selecionar(TipoPesquisa);
+                               FValorSelecionado:= qryConsultaFiliaisnome.AsVariant;
+                             end;
+
+            pesGRUPOSFILIAIS : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaGrupoFiliaiscodigo.AsVariant;
+            pesTiposPlanosreferenciais : edfCodigo.DataSource.DataSet.fieldbyname(edfcodigo.DataField).AsVariant := qryConsultaTiposPlanosreferenciaistipoplano.AsVariant;
+
+
+          end;
+          edfCodigoFound(true);
+        end;
+        opPESQUISA : begin
+                       Selecionar(TipoPesquisa);
+                       if assigned(FOnFound) then
+                         FOnFound;
+                     end;
+      end;
+    end;
+    if abrirtabelaProcura then
+    begin
+      ActiveControl.SetFocus;
+      edfCodigo.SetFocus;
+      edfCodigo.SelectAll;
+    end;
+    FechaTabelaPesquisa(TipoPesquisa);
+  end;  
+end;
+
+function TfraConsultaCodigoContabil.JanelaPesquisa: TfrmConsultaBasica;
+{var
+  Jan: TfrmConsultaPorCampo;}
+begin
+  Jan := TfrmConsultaPorCampo.Create(Jan);
+  Jan.ConsultaInterativa := Not (TipoPesquisa in [pesPRODUTOS, pesITEMPRODUTOS,
+                                                  pesFORNECEDORES, pesCLIENTES,
+                                                  pesCONTRATOS, pesCONTRATOSMANUTENCAO, pesPEDIDOSSAIDA,
+                                                  pesOSP, pesNOTASFILIAIS,
+                                                  pesCONTRATOSIMOVEIS]) {and CtrlOn};
+
+  if (TipoPesquisa in [pesFORNECEDORES, pesCLIENTES]) {and CtrlOn} and ConsultarTodos then
+    Jan.ConsultaInterativa := true;
+
+  Jan.UsarParametrosDaTabela := False;
+  if (TipoPesquisa in [pesESTADOCIDADES, pesCONTRATOS, pesCONTRATOSMANUTENCAO, pesPEDIDOSSAIDA, pesNOTASFILIAIS, pesCONTRATOSIMOVEIS]) then
+    Jan.UsarParametrosDaTabela := true;
+
+{  if (TipoPesquisa in [pesOSP]) then
+    Jan.UsarParametrosDaTabela := qryProcuraCliente.IsEmpty;}
+
+  Result := Jan;
+//  FreeAndNil(jan);
+end;
+
+
+{
+procedure TfraConsultaCodigoContabil.SettipoPesquisaCodigo(
+  const Value: TTipoPesquisaCodigo);
+begin
+  FTipoPesquisaCodigo := Value;
+  case TipoPesquisaCodigo of
+    Cliente : TipoPesquisa := pesCLIENTES;
+    Fornecedor : TipoPesquisa := pesFORNECEDORES;
+    marca   : TipoPesquisa := pesMARCAS;
+  end;
+  AbreTabelaProcura(TipoPesquisa);
+end;
+}
+
+procedure TfraConsultaCodigoContabil.edfCodigoKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  vTeclaPressionada := true;
+  inherited;
+  Case Key of
+    VK_F9     : begin
+                   CtrlOn := Shift = [ssCtrl];
+//                   if (Shift = []) or CtrlOn then
+                   if CtrlOn then
+                     InternoPesquisar(edfCodigo, TituloPesquisa);
+                 end;
+    VK_Return : begin
+                   case edfCodigo.Operacao of
+                     opPESQUISA : if assigned(FOnFound) then
+                                      FOnFound;
+                   end;
+                 end;
+  end;
+  vTeclaPressionada := false;
+end;
+
+function TfraConsultaCodigoContabil.TituloPesquisa: String;
+begin
+  case TipoPesquisa of
+    pesHISTORICOCONTABIL : Result := ctHISTORICO;
+    pesCENTRODECUSTO : Result := 'CENTRO DE CUSTO';
+    pesCONTADEBITO : Result := ctCONTADEBITO;
+    pesCONTACREDITO : Result := ctCONTACREDITO;
+    pesCONTAREFERENCIAL : Result := ctCONTAREFERENCIAL;
+    pesEVENTO : Result := ctEVENTO;
+    pesMODELODOCTOSFISCAIS : result :='Modelo de documentos fiscais';
+    pesICMSOBRIGACOES : result :='ICMS Obrigações';
+    pesCODIGODERECEITAS : result :='Codigo de Receitas';
+    pesTABELAAJUSTEICMS : result :='Tabela ajuste ICMS';
+    pesTABELAAJUSTEIPI : result :='Tabela ajuste IPI';
+    pesINSTRESPADMCADASTRO : result := 'Inst. responsáveis';
+    pesQUALIFICACAO : result := 'Qualificação';
+    pesCSOSN : result := 'Cód. Sit. Op. Simples Nacional';
+    pesCODIGOFISCAL : result := 'Codigos Fiscais';
+    pesECD : Result := 'ECD - Escrita Contábil Digital';
+    pesEFD : Result := 'EFD - Escrita Fiscal Digital';
+    pesEPC : Result := 'EPC - Escrita Fiscal PIS/COFINS';
+    pesDIPJ_IPI : Result := 'DIPJ - IPI';
+    pesCLASSIFICACAOIPI : Result := 'CLASSIFICAÇÃO - IPI';
+    pesTRIBUTOSPIS :  result :='PIS ST';
+    pesTRIBUTOSISSQN :  result :='ISSQN ST';
+
+    pesPISCOFINS_T435 : result := 'PIS/COFINS TABELA 4.3.5';
+    pespis_tdctf : result := 'PIS TABELA DCTF';
+    pescofins_tdctf : result := 'COFINS TABELA DCTF';
+
+    pesPISCOFINS_T436 : result := 'PIS/COFINS TABELA 4.3.6';
+    pesPISCOFINS_T511 : result := 'PIS/COFINS TABELA 5.1.1';
+
+    pesEFD_T53        : result := 'TABELA EFD T53';
+    pesTRIBUTOSCOFINS :  result :='COFINS SCT';
+    pesTRIBUTOSIPI :  result :='IPI SCT';
+    pesTRIBUTOSICMS :  result :='ICMS SCT';
+    pesFILIAIS  : result := ctFILIAIS;
+    pesGRUPOSFILIAIS : result := ctGRUPOFILIAIS;
+    pesTiposPlanosreferenciais : result := 'Tipos de Planos de Conta Referencial';
+  end;
+end;
+
+procedure TfraConsultaCodigoContabil.sbnProcuraClick(Sender: TObject);
+begin
+  if not vTeclaPressionada then
+  begin
+    inherited;
+    CtrlOn := True;
+    edfCodigo.SetFocus;
+    edfCodigo.SelectAll;
+    InternoPesquisar(edfCodigo, TituloPesquisa);
+  end;
+end;
+
+procedure TfraConsultaCodigoContabil.edfCodigoFound(Found: Boolean);
+begin
+  inherited;
+  if assigned(FOnFound) then
+    FOnFound;
+end;
+
+procedure TfraConsultaCodigoContabil.edfCodigoExit(Sender: TObject);
+var
+  ValorAnterior : Boolean;
+begin
+  vTeclaPressionada := true;
+  inherited;
+  case edfCodigo.Operacao of
+    opATRIBUICAO :
+      case TipoPesquisa of
+        pesCLIENTES,
+        pesFORNECEDORES :
+        if edfcodigo.Text='' then
+          if (edfCodigo.DataSource.State in [dsinsert, dsedit]) then
+          begin
+            try
+              edfCodigo.DataSource.DataSet.fieldbyname('tipofornecedor').clear;
+            except
+            end;
+          end
+      end;
+  end;
+  vTeclaPressionada := false;
+end;
+
+procedure TfraConsultaCodigoContabil.PosicionarTabelaNoParametro(Ind: Integer;
+  var continuar: Boolean);
+begin
+  inherited;
+  Continuar := PosicionarRegistro(TipoPesquisa, Ind);
+end;
+
+
+
+destructor TfraConsultaCodigoContabil.Destroy;
+begin
+  if assigned(Jan) then
+    Jan := nil;
+  inherited;
+
+end;
+
+function TfraConsultaCodigoContabil.PosicionarRegistro(
+  TipoPesquisa: TTecPesquisa; Parametro: Integer): Boolean;
+begin
+  Result := False;
+end;
+
+end.

@@ -62,7 +62,8 @@ inherited dtmFCont: TdtmFCont
       Size = 80
     end
   end
-  object qryFiliais: TZPgSqlQuery
+  object qryFiliais: TtecQuery
+    Tag = -1
     Database = dtmTecSoft.dbaTecSoft
     Transaction = dtmTecSoft.tstTecSoft
     CachedUpdates = False
@@ -168,6 +169,7 @@ inherited dtmFCont: TdtmFCont
   object ACBrSPEDContabil: TACBrSPEDContabil
     Path = 'C:\Arquivos de programas\Borland\Delphi6\Bin\'
     Delimitador = '|'
+    ReplaceDelimitador = False
     TrimString = True
     CurMascara = '#0.00'
     Left = 152

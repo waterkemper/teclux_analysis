@@ -1,0 +1,2766 @@
+inherited dtmConsultaEntradas: TdtmConsultaEntradas
+  Left = 491
+  Top = 191
+  Height = 599
+  Width = 807
+  object qryConsultaFornecedores: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select  coalesce(v.razao,v.nome) as nome ,'
+      '            v.codigo,'
+      '            formatar_cpf_cnpj(v.pessoanumero) as pessoanumero,'
+      '            cast(v.tipo as varchar) as tipo,'
+      '            cast(case when v.tipo = '#39'F'#39'  then '#39'F - Fornecedor'#39
+      
+        '                            when v.tipo = '#39'C'#39'  then '#39'C - Cliente' +
+        #39
+      '                            when v.tipo = '#39'L'#39'  then '#39'L - Filial'#39
+      '                    end  as varchar) as tipopessoa,'
+      '            v.estado,'
+      '            c.nome as nomecidade'
+      'From     vfornecedores v, cidades c'
+      'Where   false  /* Alterado em Rum Time   */'
+      '      and (v.estado = c.estado)'
+      '      and (v.cidade = c.codigo)'
+      'Order By UPPER(TO_ASCII(coalesce(v.razao,v.nome),'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 199
+    Top = 9
+    object qryConsultaFornecedoresnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryConsultaFornecedorespessoanumero: TStringField
+      DisplayLabel = 'CPF/CNPJ'
+      FieldName = 'pessoanumero'
+      Size = 18
+    end
+    object qryConsultaFornecedoresnomecidade: TStringField
+      DisplayLabel = 'Cidade'
+      FieldName = 'nomecidade'
+      Size = 30
+    end
+    object qryConsultaFornecedoresestado: TStringField
+      DisplayLabel = 'UF'
+      FieldName = 'estado'
+      Size = 2
+    end
+    object qryConsultaFornecedorescodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryConsultaFornecedorestipopessoa: TStringField
+      DisplayLabel = 'Tipo pessoa'
+      FieldName = 'tipopessoa'
+      Size = 13
+    end
+    object qryConsultaFornecedorestipo: TStringField
+      FieldName = 'tipo'
+      Visible = False
+      Size = 1
+    end
+  end
+  object qryProcurarFornecedores: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryProcurarFornecedoresBeforeOpen
+    AfterOpen = qryProcurarFornecedoresAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    MacroCheck = False
+    Sql.Strings = (
+      'Select  codigo,'
+      '            coalesce(razao,nome) as nome,'
+      '            tipo,'
+      '            estado'
+      'From    vfornecedores'
+      'Where (tipo =:tipo) and'
+      '            (codigo =:codigo)')
+    RequestLive = False
+    Left = 44
+    Top = 177
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'tipo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'codigo'
+        ParamType = ptUnknown
+        Value = '0'
+      end>
+    object qryProcurarFornecedorescodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryProcurarFornecedoresnome: TStringField
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryProcurarFornecedorestipo: TStringField
+      FieldName = 'tipo'
+    end
+    object qryProcurarFornecedoresestado: TStringField
+      FieldName = 'estado'
+      Size = 2
+    end
+  end
+  object dsrProcuraFornecedores: TtecDataSource
+    DataSet = qryProcurarFornecedores
+    Left = 169
+    Top = 177
+  end
+  object qryEntradas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    OnProgress = ShowProgress
+    AfterScroll = qryEntradasAfterScroll
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'WhereFornecedor'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'WhereFilial'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'WhereSerie'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'WhereNumero'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'WhereEmissao'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'WhereLancto'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'WhereCfop'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'WhereSituacaoNotaEntrada'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'TipodeNota'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListaItemProdutos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListaProdutos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListaGrupos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListaClasses'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListaMarcas'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListaCondicionalPromocoes'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ListaCondicionalNotasEntrada'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'Select  distinct'
+      '        np.codigo,'
+      '        np.codigofiscal,'
+      '        np.serie,'
+      '        np.filial,'
+      '        np.numero,'
+      '        np.data,'
+      '        np.fornecedor,'
+      '        np.tipofornecedor,'
+      '        np.estado,'
+      '        np.valornota,'
+      '        np.situacao,'
+      '        false as selecionar'
+      ''
+      ''
+      'From (notaspag np'
+      ''
+      '     join (produtosnotaspag pnp'
+      
+        '          join (produtos p left join promocoes pro on p.promocao' +
+        ' = pro.codigo)'
+      '               join (((caracteristicas c'
+      '                    join grupos g'
+      '                    on g.codigo = c.grupo)'
+      '                    join classes cl'
+      '                    on cl.codigo = c.classe)'
+      '                    join marcas m'
+      '                    on m.codigo = c.marca)'
+      '               on p.caracteristica = c.codigo'
+      '          on pnp.produto = p.codigo)'
+      '     on np.codigo = pnp.codigonota)'
+      ''
+      '     join vfornecedores vf'
+      '     on np.fornecedor = vf.codigo'
+      '     and np.tipofornecedor = vf.tipo'
+      ''
+      'Where true'
+      ''
+      '  %WhereFornecedor'
+      '  %WhereFilial'
+      '  %WhereSerie'
+      '  %WhereNumero'
+      '  %WhereEmissao'
+      '  %WhereLancto'
+      '  %WhereCfop'
+      '  %WhereSituacaoNotaEntrada'
+      '  %TipodeNota'
+      ''
+      '  %ListaItemProdutos'
+      '  %ListaProdutos'
+      '  %ListaGrupos'
+      '  %ListaClasses'
+      '  %ListaMarcas'
+      '  %ListaCondicionalPromocoes'
+      '  %ListaCondicionalNotasEntrada'
+      ''
+      'order by np.data desc, np.codigo desc')
+    RequestLive = True
+    Left = 42
+    Top = 482
+    object qryEntradascodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryEntradasserie: TStringField
+      FieldName = 'serie'
+      Required = True
+      Size = 3
+    end
+    object qryEntradasfilial: TIntegerField
+      FieldName = 'filial'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryEntradasnumero: TIntegerField
+      FieldName = 'numero'
+      Required = True
+      DisplayFormat = '###,##0'
+    end
+    object qryEntradasdata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      Required = True
+      EditMask = '99/99/9999;1; '
+    end
+    object qryEntradasfornecedor: TIntegerField
+      FieldName = 'fornecedor'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryEntradastipofornecedor: TStringField
+      FieldName = 'tipofornecedor'
+      Required = True
+      Size = 1
+    end
+    object qryEntradasestado: TStringField
+      FieldName = 'estado'
+      Size = 2
+    end
+    object qryEntradascodigofiscal: TIntegerField
+      FieldName = 'codigofiscal'
+      DisplayFormat = '#,##0'
+    end
+    object qryEntradasvalornota: TFloatField
+      FieldName = 'valornota'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryEntradassituacao: TStringField
+      FieldName = 'situacao'
+      Size = 1
+    end
+    object qryEntradasselecionar: TBooleanField
+      FieldName = 'selecionar'
+    end
+  end
+  object dsrEntradas: TtecDataSource
+    DataSet = qryEntradas
+    Left = 136
+    Top = 482
+  end
+  object qryProdutos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = []
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryProdutosAfterOpen
+    AfterScroll = qryProdutosAfterScroll
+    ExtraOptions = []
+    Macros = <>
+    Sql.Strings = (
+      'Select  pn.numero,'
+      '        pn.codigonota,'
+      '        pn.produto,'
+      '        p.codigovisual as produtovisual,'
+      '        pn.quantidade,'
+      '        pn.precounitario,'
+      '        (pn.quantidade * pn.precounitario) as total,'
+      '        pn.desconto,'
+      '        pn.valordescontoitem,'
+      '        pn.aliquotaicms,'
+      '        pn.aliquotaipi,'
+      '        pn.pedido,'
+      '        p.descricao,'
+      '        p.referencia,'
+      
+        '        (select gr.descricao from grades gr where gr.codigo = c.' +
+        'grade1) as linha,'
+      
+        '        (select gr.descricao from grades gr where gr.codigo = c.' +
+        'grade2) as coluna,'
+      '        p.valorgrade1,'
+      '        p.valorgrade2,'
+      '        pn.codigofiscal,'
+      '        pn.classificacaofiscal,'
+      '        pn.origem,'
+      '        pn.incidencia,'
+      '        pn.unidade,'
+      '        pn.icmsbasecalculo,'
+      '        pn.icmsvalor,'
+      '        pn.valoripi,'
+      '        n.filial,'
+      '        n.serie,'
+      '        n.numero as numeronota,'
+      '        df.data,'
+      '        df.chv_nfe,'
+      ''
+      '        cast(rtrim((select textcat_all(pnps.numeroserie||'#39', '#39')'
+      '         from produtosnotaspagseries pnps'
+      '         where pnps.codigonota = pn.codigonota'
+      '           and pnps.numero = pn.numero'
+      '           and pnps.produto = pn.produto'
+      
+        '         order by pn.numero),'#39', '#39') as varchar(1000)) as ListaNum' +
+        'eroSeries'
+      ''
+      ''
+      ''
+      'From    notaspag np,'
+      '        (produtosnotaspag pn'
+      '         left join (dadosfiscais df'
+      '                    join notas n'
+      '                    on df.numero = n.dadofiscal)'
+      '        on pn.dadofiscal = df.numero),'
+      '        produtos p, caracteristicas c'
+      ''
+      'Where  pn.produto = p.codigo and'
+      '       p.caracteristica = c.codigo and'
+      '       np.codigo = pn.codigonota and'
+      '       pn.codigonota =:codigoNota'
+      ''
+      
+        'Order By pn.numero, UPPER(TO_ASCII(p.descricao,'#39'LATIN1'#39')), p.val' +
+        'orgrade1, p.valorgrade2')
+    RequestLive = False
+    Left = 44
+    Top = 361
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'CodigoNota'
+        ParamType = ptUnknown
+      end>
+    object qryProdutosnumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryProdutoscodigonota: TIntegerField
+      FieldName = 'codigonota'
+    end
+    object qryProdutosproduto: TLargeintField
+      FieldName = 'produto'
+      DisplayFormat = '0'
+    end
+    object qryProdutosprodutovisual: TStringField
+      FieldName = 'produtovisual'
+      Size = 30
+    end
+    object qryProdutosquantidade: TFloatField
+      FieldName = 'quantidade'
+      DisplayFormat = '0'
+    end
+    object qryProdutosprecounitario: TFloatField
+      FieldName = 'precounitario'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryProdutostotal: TFloatField
+      FieldName = 'total'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryProdutosvalordescontoitem: TFloatField
+      FieldName = 'valordescontoitem'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryProdutosaliquotaicms: TFloatField
+      FieldName = 'aliquotaicms'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutosaliquotaipi: TFloatField
+      FieldName = 'aliquotaipi'
+      DisplayFormat = '0.00'
+    end
+    object qryProdutospedido: TIntegerField
+      FieldName = 'pedido'
+      DisplayFormat = '0'
+    end
+    object qryProdutoslinha: TStringField
+      FieldName = 'linha'
+      Size = 50
+    end
+    object qryProdutoscoluna: TStringField
+      FieldName = 'coluna'
+      Size = 50
+    end
+    object qryProdutosvalorgrade1: TStringField
+      DisplayWidth = 10
+      FieldName = 'valorgrade1'
+      Size = 30
+    end
+    object qryProdutosvalorgrade2: TStringField
+      DisplayWidth = 10
+      FieldName = 'valorgrade2'
+      Size = 30
+    end
+    object qryProdutoscodigofiscal: TIntegerField
+      FieldName = 'codigofiscal'
+      Required = True
+      DisplayFormat = '#,##0'
+    end
+    object qryProdutosclassificacaofiscal: TStringField
+      FieldName = 'classificacaofiscal'
+      Size = 8
+    end
+    object qryProdutosincidencia: TStringField
+      FieldName = 'incidencia'
+      Size = 2
+    end
+    object qryProdutosunidade: TStringField
+      FieldName = 'unidade'
+      Size = 6
+    end
+    object qryProdutosicmsbasecalculo: TFloatField
+      FieldName = 'icmsbasecalculo'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryProdutosicmsvalor: TFloatField
+      FieldName = 'icmsvalor'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryProdutosvaloripi: TFloatField
+      FieldName = 'valoripi'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryProdutosreferencia: TStringField
+      FieldName = 'referencia'
+      Size = 15
+    end
+    object qryProdutosorigem: TIntegerField
+      FieldName = 'origem'
+    end
+    object qryProdutosdescricao: TStringField
+      DisplayWidth = 50
+      FieldName = 'descricao'
+      Size = 100
+    end
+    object qryProdutosdesconto: TFloatField
+      FieldName = 'desconto'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryProdutosfilial: TIntegerField
+      FieldName = 'filial'
+    end
+    object qryProdutosserie: TStringField
+      FieldName = 'serie'
+      Size = 3
+    end
+    object qryProdutosnumeronota: TIntegerField
+      FieldName = 'numeronota'
+    end
+    object qryProdutosdata: TDateField
+      FieldName = 'data'
+    end
+    object qryProdutoschv_nfe: TStringField
+      FieldName = 'chv_nfe'
+      EditMask = '99\-9999\-99999999999999\-99\-999\-999999999\-9\-99999999\-9;0;_'
+      Size = 44
+    end
+    object qryProdutoslistanumeroseries: TStringField
+      FieldName = 'listanumeroseries'
+      Size = 512
+    end
+  end
+  object dsrProdutos: TtecDataSource
+    DataSet = qryProdutos
+    Left = 137
+    Top = 362
+  end
+  object qryProcurarFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT codigo, nome'
+      'FROM filiais'
+      'WHERE codigo = :codigo')
+    RequestLive = True
+    Left = 46
+    Top = 234
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'codigo'
+        ParamType = ptUnknown
+        Value = '0'
+      end>
+    object qryProcurarFiliaiscodigo: TIntegerField
+      FieldName = 'codigo'
+    end
+    object qryProcurarFiliaisnome: TStringField
+      FieldName = 'nome'
+      Size = 40
+    end
+  end
+  object qryDuplicatas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select documentopag,'
+      '           numero,'
+      '           datavencto,'
+      '           valorvencto,'
+      '           datapagto,'
+      '           valorpagto,'
+      '           tipojuros,'
+      '           juros,'
+      '           tipomulta,'
+      '           multa,'
+      '           autorizado'
+      'From   duplicatas'
+      'Where (documentopag = :documentopag)'
+      '')
+    RequestLive = True
+    Left = 44
+    Top = 426
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'documentopag'
+        ParamType = ptUnknown
+      end>
+    object qryDuplicatasnumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryDuplicatasdatavencto: TDateField
+      FieldName = 'datavencto'
+    end
+    object qryDuplicatasvalorvencto: TFloatField
+      FieldName = 'valorvencto'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryDuplicatasdatapagto: TDateField
+      FieldName = 'datapagto'
+    end
+    object qryDuplicatasvalorpagto: TFloatField
+      FieldName = 'valorpagto'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryDuplicatastipojuros: TStringField
+      FieldName = 'tipojuros'
+      Required = True
+      Size = 1
+    end
+    object qryDuplicatasjuros: TFloatField
+      FieldName = 'juros'
+      DisplayFormat = '###,##0.00'
+    end
+    object qryDuplicatastipomulta: TStringField
+      FieldName = 'tipomulta'
+      Required = True
+      Size = 1
+    end
+    object qryDuplicatasmulta: TFloatField
+      FieldName = 'multa'
+      DisplayFormat = '###,##0.00'
+    end
+    object qryDuplicatasautorizado: TBooleanField
+      FieldName = 'autorizado'
+    end
+    object qryDuplicatasdocumentopag: TIntegerField
+      FieldName = 'documentopag'
+    end
+  end
+  object dsrDuplicatas: TtecDataSource
+    DataSet = qryDuplicatas
+    Left = 137
+    Top = 426
+  end
+  object qryConsultaFiliais: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT nome, codigo'
+      'FROM filiais'
+      'ORDER BY UPPER(TO_ASCII(nome,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 223
+    Top = 234
+    object qryConsultaFiliaisnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryConsultaFiliaiscodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+    end
+  end
+  object dsrProcuraFiliais: TtecDataSource
+    DataSet = qryProcurarFiliais
+    Left = 137
+    Top = 234
+  end
+  object qryFornecedores: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterOpen = qryFornecedoresAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select  codigo,'
+      '            coalesce(razao,nome) as nome,'
+      '            tipo,'
+      '            estado,'
+      '            pessoanumero,'
+      '            inscricaoestadual'
+      'From    vfornecedores'
+      'Where (tipo =:tipo) and'
+      '            (codigo =:codigo)')
+    RequestLive = False
+    Left = 36
+    Top = 9
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'tipo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftInteger
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryFornecedorescodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryFornecedoresnome: TStringField
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryFornecedorestipo: TStringField
+      FieldName = 'tipo'
+      Size = 1
+    end
+    object qryFornecedoresestado: TStringField
+      FieldName = 'estado'
+      Size = 2
+    end
+    object qryFornecedorespessoanumero: TStringField
+      FieldName = 'pessoanumero'
+      Size = 50
+    end
+    object qryFornecedoresinscricaoestadual: TStringField
+      FieldName = 'inscricaoestadual'
+      Size = 50
+    end
+  end
+  object dsrFornecedores: TtecDataSource
+    DataSet = qryFornecedores
+    Left = 73
+    Top = 25
+  end
+  object qryProcuraNaturezas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    BeforeOpen = qryProcuraNaturezasBeforeOpen
+    AfterOpen = qryProcuraNaturezasAfterOpen
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'WhereInativo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'WhereRunTime'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      ';'
+      ' select selecionado.* from'
+      '('
+      '('
+      'select case when '#39'F'#39' = :local then codigofiscal + 1000'
+      '                  when '#39'E'#39' = :local then codigofiscal + 2000'
+      '                    else                        codigofiscal'
+      '         end as codigofiscal,'
+      '        descricao,'
+      '        codigo,'
+      
+        '        (select cf.descricao from codigosfiscais cf where cf.cod' +
+        'igo = codigofiscal) as descricaocfop,'
+      '        gerarpagamento'
+      'from naturezas                    '
+      'where  (tipo = '#39'E'#39') '
+      
+        '     and   (((codigofiscal          = :codigofiscal) and ('#39'L'#39' = ' +
+        ':local)) or'
+      
+        '              ((codigofiscal+1000 = :codigofiscal) and ('#39'F'#39' = :l' +
+        'ocal)) or'
+      
+        '              ((codigofiscal+2000 = :codigofiscal) and ('#39'E'#39' = :l' +
+        'ocal)))'
+      ''
+      '%WhereInativo'
+      '%WhereRunTime'
+      ''
+      ')'
+      'union all'
+      '('
+      'select :codigofiscal  as codigofiscal,'
+      '          descricao,'
+      '         codigo,'
+      
+        '        (select cf.descricao from codigosfiscais cf where cf.cod' +
+        'igo = codigofiscal) as descricaocfop,'
+      '        gerarpagamento'
+      'from naturezas                      '
+      'where (tipo = '#39'E'#39')'
+      '   and (:codigofiscal = 1353 or :codigofiscal = 2353) '
+      '   and ((codigofiscal = :codigofiscal) or'
+      '          (codigofiscal+1000 = :codigofiscal))'
+      '%WhereInativo'
+      '%WhereRunTime'
+      ''
+      ')'
+      ') as selecionado')
+    RequestLive = False
+    Left = 52
+    Top = 99
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'local'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'codigofiscal'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraNaturezascodigofiscal: TIntegerField
+      FieldName = 'codigofiscal'
+      DisplayFormat = '0'
+    end
+    object qryProcuraNaturezasdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 70
+    end
+    object qryProcuraNaturezasgerarpagamento: TBooleanField
+      FieldName = 'gerarpagamento'
+    end
+    object qryProcuraNaturezasdescricaocfop: TStringField
+      FieldName = 'descricaocfop'
+      Size = 50
+    end
+    object qryProcuraNaturezascodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+  end
+  object dsrProcuraNaturezas: TtecDataSource
+    DataSet = qryProcuraNaturezas
+    Left = 137
+    Top = 115
+  end
+  object qrySeries: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT sf.fornecedor,'
+      '              sf.serie'
+      'FROM     seriesfornecedores sf'
+      'WHERE (sf.fornecedor = :fornecedor) and'
+      '              (sf.serie = :serie) and'
+      '               ('#39'F'#39' = :tipo)'
+      'UNION'
+      'SELECT sc.cliente,'
+      '              sc.serie'
+      'FROM    seriesclientes sc'
+      'WHERE (sc.cliente =:fornecedor) and'
+      '             (sc.serie =:serie) and'
+      '             ('#39'C'#39' =:tipo)'
+      'union'
+      'select sf.filial,'
+      '         sf.valor as serie'
+      'from seriesfiliais sf'
+      'where (sf.filial = :FilialBase) and'
+      '           (sf.valor = :serie) and'
+      '          ('#39'C'#39' = :tipo) and'
+      '          ((select count(*)'
+      '             from seriesclientes'
+      '             where cliente = :fornecedor) = 0)'
+      'UNION'
+      'SELECT sf.filial,'
+      '             sf.valor as serie'
+      'FROM    seriesfiliais sf'
+      'WHERE (sf.filial = :fornecedor) and'
+      '             (sf.valor = :serie) and'
+      '             ('#39'L'#39' = :tipo)'
+      'ORDER BY serie')
+    RequestLive = False
+    Left = 331
+    Top = 8
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'fornecedor'
+        ParamType = ptUnknown
+        Value = 0
+      end
+      item
+        DataType = ftString
+        Name = 'serie'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftString
+        Name = 'tipo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FilialBase'
+        ParamType = ptUnknown
+      end>
+    object qrySeriesfornecedor: TIntegerField
+      FieldName = 'fornecedor'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qrySeriesserie: TStringField
+      FieldName = 'serie'
+      Required = True
+      Size = 3
+    end
+  end
+  object dsrSeries: TtecDataSource
+    DataSet = qrySeries
+    Left = 384
+    Top = 8
+  end
+  object qryConsultaNaturezas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'CodigoFiscal'
+        ParamType = ptUnknown
+      end>
+    Sql.Strings = (
+      'select case when '#39'F'#39' = :local then codigofiscal + 1000'
+      '            when '#39'E'#39' = :local then codigofiscal + 2000'
+      '            else  codigofiscal'
+      '       end as codigofiscal,'
+      '       descricao,'
+      '       codigo'
+      'from naturezas'
+      'where (inativo is null) '
+      '  and  (tipo = '#39'E'#39')'
+      
+        '  and exists (select codigo from codigosfiscais where codigofisc' +
+        'al = codigo)'
+      '      %CodigoFiscal'
+      'order by UPPER(TO_ASCII(descricao,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 223
+    Top = 99
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'local'
+        ParamType = ptUnknown
+      end>
+    object qryConsultaNaturezasdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      DisplayWidth = 70
+      FieldName = 'descricao'
+      Size = 70
+    end
+    object qryConsultaNaturezascodigofiscal: TIntegerField
+      DisplayLabel = 'C'#243'digo fiscal'
+      FieldName = 'codigofiscal'
+      DisplayFormat = '0'
+    end
+    object qryConsultaNaturezascodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+  end
+  object qryConsultaSeries: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select sf.fornecedor,'
+      '         sf.serie'
+      'from seriesfornecedores sf'
+      'where (sf.fornecedor = :fornecedor) and'
+      '         ('#39'F'#39' = :tipo)'
+      'union'
+      'select  sc.cliente,'
+      '          sc.serie'
+      'from seriesclientes sc'
+      'where  (sc.cliente =:fornecedor) and'
+      '           ('#39'C'#39' =:tipo)'
+      'union'
+      'select sf.filial,'
+      '         sf.valor as serie'
+      'from seriesfiliais sf'
+      'where (sf.filial = :FilialBase) and'
+      '          ('#39'C'#39' = :tipo) and'
+      '          ((select count(*)'
+      '             from seriesclientes'
+      '             where cliente = :fornecedor) = 0)'
+      'union'
+      'select sf.filial,'
+      '         sf.valor as serie'
+      'from seriesfiliais sf'
+      'where (sf.filial = :fornecedor) and'
+      '          ('#39'L'#39' = :tipo)'
+      'ORDER BY serie')
+    RequestLive = False
+    Left = 454
+    Top = 8
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'fornecedor'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'tipo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FilialBase'
+        ParamType = ptUnknown
+      end>
+    object qryConsultaSeriesfornecedor: TIntegerField
+      FieldName = 'fornecedor'
+      Visible = False
+      DisplayFormat = '0'
+    end
+    object qryConsultaSeriesserie: TStringField
+      DisplayLabel = 'S'#233'rie'
+      DisplayWidth = 10
+      FieldName = 'serie'
+      Size = 3
+    end
+  end
+  object qryProcurarSeries: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select sf.fornecedor,'
+      '           sf.serie'
+      'From   seriesfornecedores sf'
+      'Where (sf.fornecedor =:fornecedor) and'
+      '           (sf.serie =:serie) and'
+      '           ('#39'F'#39' =:tipo)'
+      'Union'
+      'Select  sc.cliente,'
+      '            sc.serie'
+      'From    seriesclientes sc'
+      'Where (sc.cliente =:fornecedor) and'
+      '            (sc.serie =:serie) and'
+      '            ('#39'C'#39' =:tipo)'
+      'Union'
+      'Select sf.filial,'
+      '           sf.valor as serie'
+      'From   seriesfiliais sf'
+      'Where (sf.filial =:FilialBase) and'
+      '           (sf.valor =:serie) and'
+      '           ('#39'C'#39' =:tipo) and'
+      '           ((Select count(*)'
+      '              From   seriesclientes'
+      '              Where cliente =:fornecedor) = 0)'
+      'Union'
+      'Select  sf.filial,'
+      '            sf.valor as serie'
+      'From    seriesfiliais sf'
+      'Where (sf.filial =:fornecedor) and'
+      '            (sf.valor =:serie) and'
+      '            ('#39'L'#39' =:tipo)'
+      'Order By serie')
+    RequestLive = False
+    Left = 542
+    Top = 8
+    ParamData = <
+      item
+        DataType = ftInteger
+        Name = 'fornecedor'
+        ParamType = ptUnknown
+        Value = '0'
+      end
+      item
+        DataType = ftString
+        Name = 'serie'
+        ParamType = ptUnknown
+        Value = 'FLK'
+      end
+      item
+        DataType = ftString
+        Name = 'tipo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'FilialBase'
+        ParamType = ptUnknown
+      end>
+    object IntegerField2: TIntegerField
+      FieldName = 'fornecedor'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object StringField3: TStringField
+      FieldName = 'serie'
+      Required = True
+      Size = 3
+    end
+  end
+  object dsrProcuraSeries: TtecDataSource
+    DataSet = qryProcurarSeries
+    Left = 628
+    Top = 9
+  end
+  object qryNotaFiscal: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryNotaFiscalAfterPost
+    AfterScroll = qryNotaFiscalAfterScroll
+    OnCalcFields = qryNotaFiscalCalcFields
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT n.Codigo,'
+      '       n.Serie,'
+      '       n.CodigoFiscal,'
+      '       n.CodigoNatureza,'
+      '       n.Natureza,'
+      '       n.Situacao,'
+      '       n.ValorNota,'
+      '       n.Numero AS Nota,'
+      '       n.TipoFornecedor,'
+      '     '
+      
+        '       CASE WHEN n.TipoFornecedor = '#39'F'#39' THEN (SELECT f.Nome FROM' +
+        ' Fornecedores f WHERE n.Fornecedor = f.Codigo)'
+      
+        '            WHEN n.TipoFornecedor = '#39'L'#39' THEN (SELECT f.Nome FROM' +
+        ' Filiais f      WHERE n.Fornecedor = f.Codigo)'
+      
+        '            WHEN n.TipoFornecedor = '#39'C'#39' THEN (SELECT c.Nome FROM' +
+        ' Clientes c     WHERE n.Fornecedor = c.Codigo)'
+      '       END AS NomeFornecedor,'
+      '       '
+      '       n.Fornecedor,'
+      '       n.Permitirimprimir,'
+      '       n.Filial AS Filial,'
+      '       n.Emissao AS DataEmissao,'
+      '       n.Data AS Datalancamento,'
+      '       n.Estado,'
+      '       n.Frete,'
+      '       n.FreteInterno,'
+      '       n.Seguro,'
+      '       n.Acrescimo,'
+      '       n.Desconto, n.descontoitem,'
+      '       n.DespesasAcessorias,'
+      '       n.BaseICMSSubstituicao,'
+      '       n.ValorICMSSubstituicao,'
+      '       n.DocumentoPag,'
+      '       n.Contrato,'
+      '       n.FornecedorConhecimentoFrete,'
+      '       n.SerieConhecimentoFrete,'
+      '       n.NumeroConhecimentoFrete,'
+      '       EditarCPFouCNPJ(n.cnpj) AS CNPJ,'
+      '       n.InscricaoEstadual,'
+      '       '
+      '      (SELECT np.ValorNota'
+      '          FROM NotasPag np'
+      
+        '          WHERE np.Fornecedor = n.FornecedorConhecimentoFrete AN' +
+        'D'
+      
+        '                np.Serie      = n.SerieConhecimentoFrete      AN' +
+        'D'
+      '                np.Numero     = n.NumeroConhecimentoFrete'
+      '      ) AS FreteExterno,'
+      '       '
+      '       dp.IRRetido,'
+      '       dp.INSSRetido,'
+      '       dp.ISSRetido,'
+      '       dp.PISRetido,'
+      '       dp.COFINSRetido,'
+      '       dp.CSLLRetido,'
+      '       c.Descricao AS DescricaoCodigoFiscal,'
+      '       '
+      '      (SELECT f.Nome'
+      '          FROM Fornecedores f'
+      '          WHERE f.Codigo = n.FornecedorConhecimentoFrete'
+      '      ) AS NomeFornecedorConhecimentoFrete,'
+      '      '
+      '       n.Observacoes,'
+      '       n.BaseICMS,'
+      '       n.ValorICMS,'
+      '            '
+      '      (SELECT SUM(pnp.Quantidade * pnp.PrecoUnitario)'
+      '          FROM ProdutosNotasPag pnp'
+      
+        '          WHERE pnp.CodigoNota = n.Codigo) - COALESCE(n.Desconto' +
+        ',  0)'
+      
+        '                                           + COALESCE(n.Acrescim' +
+        'o, 0) AS TotalProdutos,'
+      ''
+      '                                           /*'
+      '      (SELECT SUM(pnp.Quantidade * pnp.PrecoUnitario)'
+      '          FROM produtosNotaspag pnp'
+      '          WHERE pnp.CodigoNota = n.Codigo) AS Valorprodutos,'
+      '          */'
+      ''
+      '       n.valorprodutos,'
+      '       n.ValorIPI,'
+      '       n.ValorServicos,'
+      '       n.NumLoteNFe,'
+      '       n.NumReciboNFe,'
+      '       n.NumProtocoloNFe,'
+      '       n.NumCancelamentoNFe,'
+      '       n.NumInutilizacaoNFe,'
+      '       n.CodAleatorio,'
+      '       n.DigChaveAcesso,'
+      '       n.LocalEntrega_CEP,'
+      '       n.Chv_NFe,'
+      
+        '       CAST(n.Chv_NFe || CAST(n.DigChaveAcesso AS VARCHAR) AS CH' +
+        'AR(44)) AS Chave_NFe,'
+      '       n.Nome,'
+      '       n.Rua,'
+      '       n.EndNumero,'
+      '       n.EndComplemento,'
+      '       n.Bairro,'
+      '       n.Cidade,'
+      '       n.CEP,'
+      '       n.FoneNumero,'
+      '       n.FoneDDD,'
+      '       n.NomeBairro,'
+      '       n.NomeCidade,'
+      '       n.cidadeIBGE,'
+      '       n.Pais,'
+      '       n.NomePais,'
+      '       n.ModeloDocto,'
+      '       n.FormaEmissao,'
+      ''
+      '      (SELECT cf.CodigoIBGE'
+      '          FROM Cidades cf'
+      '          WHERE cf.Estado = f.Estado AND'
+      '                cf.Codigo = f.Cidade'
+      '      ) AS CodigoCidadeIBGEFilial,'
+      ''
+      '       f.CNPJ AS CNPJFilial,'
+      '       n.StatusNFe,'
+      ''
+      '       n.Evento,'
+      '      (SELECT e.Descricao'
+      '          FROM Eventos e'
+      '          WHERE e.Codigo = n.Evento'
+      '      ) AS EventoDescricao,'
+      ''
+      '      n.vbcstretdesp,'
+      '      n.vicmsstretdesp,'
+      ''
+      
+        '      (select vf.email from vfornecedores vf where vf.codigo = n' +
+        '.fornecedor and vf.tipo = n.tipofornecedor) as email'
+      ''
+      'FROM  (((notaspag n'
+      
+        '            LEFT JOIN documentospag dp ON n.DocumentoPag = dp.Nu' +
+        'mero)'
+      
+        '                 JOIN CodigosFiscais c ON n.CodigoFiscal = c.Cod' +
+        'igo)'
+      '                 JOIN Filiais f        ON n.Filial = f.Codigo)'
+      ''
+      'WHERE n.CodigoFiscal = c.Codigo AND'
+      '      n.Filial       = f.Codigo AND'
+      '      n.Codigo       = :Codigo'
+      '      ')
+    RequestLive = True
+    Left = 44
+    Top = 297
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryNotaFiscalcodigo: TIntegerField
+      FieldName = 'codigo'
+      DisplayFormat = '0'
+    end
+    object qryNotaFiscalserie: TStringField
+      FieldName = 'serie'
+      Size = 3
+    end
+    object qryNotaFiscalcodigofiscal: TIntegerField
+      FieldName = 'codigofiscal'
+      DisplayFormat = '#,##0'
+      EditFormat = '0'
+    end
+    object qryNotaFiscalCodigoNatureza: TIntegerField
+      FieldName = 'CodigoNatureza'
+      DisplayFormat = '0'
+    end
+    object qryNotaFiscalNatureza: TStringField
+      FieldName = 'Natureza'
+      Size = 70
+    end
+    object qryNotaFiscalvalornota: TFloatField
+      FieldName = 'valornota'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryNotaFiscalnota: TIntegerField
+      FieldName = 'nota'
+      DisplayFormat = '###,###,##0'
+      EditFormat = '###,###,##0'
+    end
+    object qryNotaFiscaltipofornecedor: TStringField
+      FieldName = 'tipofornecedor'
+      Size = 1
+    end
+    object qryNotaFiscalnomefornecedor: TStringField
+      FieldName = 'nomefornecedor'
+      Size = 50
+    end
+    object qryNotaFiscalfornecedor: TIntegerField
+      FieldName = 'fornecedor'
+      DisplayFormat = '0'
+    end
+    object qryNotaFiscalpermitirimprimir: TBooleanField
+      FieldName = 'permitirimprimir'
+    end
+    object qryNotaFiscalfilial: TIntegerField
+      FieldName = 'filial'
+      DisplayFormat = '0'
+    end
+    object qryNotaFiscaldataemissao: TDateField
+      Alignment = taCenter
+      FieldName = 'dataemissao'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryNotaFiscaldatalancamento: TDateField
+      Alignment = taCenter
+      FieldName = 'datalancamento'
+      EditMask = '99/99/9999;1; '
+    end
+    object qryNotaFiscalestado: TStringField
+      FieldName = 'estado'
+      Size = 2
+    end
+    object qryNotaFiscalfreteinterno: TFloatField
+      FieldName = 'freteinterno'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryNotaFiscalseguro: TFloatField
+      FieldName = 'seguro'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryNotaFiscalacrescimo: TFloatField
+      FieldName = 'acrescimo'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryNotaFiscaldesconto: TFloatField
+      FieldName = 'desconto'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryNotaFiscaldespesasacessorias: TFloatField
+      FieldName = 'despesasacessorias'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryNotaFiscalbaseicmssubstituicao: TFloatField
+      FieldName = 'baseicmssubstituicao'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryNotaFiscalvaloricmssubstituicao: TFloatField
+      FieldName = 'valoricmssubstituicao'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryNotaFiscaldocumentopag: TIntegerField
+      FieldName = 'documentopag'
+      DisplayFormat = '0'
+    end
+    object qryNotaFiscalcontrato: TStringField
+      FieldName = 'contrato'
+    end
+    object qryNotaFiscalfornecedorconhecimentofrete: TIntegerField
+      FieldName = 'fornecedorconhecimentofrete'
+      DisplayFormat = '0'
+    end
+    object qryNotaFiscalserieconhecimentofrete: TStringField
+      FieldName = 'serieconhecimentofrete'
+      Size = 3
+    end
+    object qryNotaFiscalnumeroconhecimentofrete: TIntegerField
+      FieldName = 'numeroconhecimentofrete'
+      DisplayFormat = '0'
+    end
+    object qryNotaFiscalcnpj: TStringField
+      FieldName = 'cnpj'
+      Size = 50
+    end
+    object qryNotaFiscalinscricaoestadual: TStringField
+      FieldName = 'inscricaoestadual'
+    end
+    object qryNotaFiscalfreteexterno: TFloatField
+      FieldName = 'freteexterno'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryNotaFiscalirretido: TFloatField
+      FieldName = 'irretido'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryNotaFiscalinssretido: TFloatField
+      FieldName = 'inssretido'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryNotaFiscalissretido: TFloatField
+      FieldName = 'issretido'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryNotaFiscalpisretido: TFloatField
+      FieldName = 'pisretido'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryNotaFiscalcofinsretido: TFloatField
+      FieldName = 'cofinsretido'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryNotaFiscalcsllretido: TFloatField
+      FieldName = 'csllretido'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryNotaFiscaldescricaocodigofiscal: TStringField
+      FieldName = 'descricaocodigofiscal'
+      Size = 80
+    end
+    object qryNotaFiscalnomefornecedorconhecimentofrete: TStringField
+      FieldName = 'nomefornecedorconhecimentofrete'
+      Size = 50
+    end
+    object qryNotaFiscalobservacoes: TStringField
+      FieldName = 'observacoes'
+      Size = 350
+    end
+    object qryNotaFiscalsituacao: TStringField
+      FieldName = 'situacao'
+      Size = 1
+    end
+    object qryNotaFiscalbaseicms: TFloatField
+      FieldName = 'baseicms'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryNotaFiscalvaloricms: TFloatField
+      FieldName = 'valoricms'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryNotaFiscaltotalprodutos: TFloatField
+      FieldName = 'totalprodutos'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryNotaFiscalvaloripi: TFloatField
+      FieldName = 'valoripi'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryNotaFiscalvalorservicos: TFloatField
+      FieldName = 'valorservicos'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryNotaFiscalnumlotenfe: TStringField
+      FieldName = 'numlotenfe'
+      Size = 15
+    end
+    object qryNotaFiscalnumrecibonfe: TStringField
+      FieldName = 'numrecibonfe'
+      Size = 15
+    end
+    object qryNotaFiscalnumprotocolonfe: TStringField
+      FieldName = 'numprotocolonfe'
+      Size = 15
+    end
+    object qryNotaFiscalnumcancelamentonfe: TStringField
+      FieldName = 'numcancelamentonfe'
+      Size = 15
+    end
+    object qryNotaFiscalcodaleatorio: TIntegerField
+      FieldName = 'codaleatorio'
+      DisplayFormat = '0'
+    end
+    object qryNotaFiscaldigchaveacesso: TIntegerField
+      FieldName = 'digchaveacesso'
+      DisplayFormat = '0'
+    end
+    object qryNotaFiscallocalentrega_cep: TIntegerField
+      FieldName = 'localentrega_cep'
+      DisplayFormat = '0'
+    end
+    object qryNotaFiscalchave_nfe: TStringField
+      FieldName = 'chave_nfe'
+      Size = 44
+    end
+    object qryNotaFiscalfrete: TStringField
+      FieldName = 'frete'
+      Size = 1
+    end
+    object qryNotaFiscalnome: TStringField
+      FieldName = 'nome'
+      Size = 40
+    end
+    object qryNotaFiscalrua: TStringField
+      FieldName = 'rua'
+      Size = 100
+    end
+    object qryNotaFiscalendnumero: TIntegerField
+      FieldName = 'endnumero'
+      DisplayFormat = '0'
+    end
+    object qryNotaFiscalendcomplemento: TStringField
+      FieldName = 'endcomplemento'
+      Size = 100
+    end
+    object qryNotaFiscalbairro: TIntegerField
+      FieldName = 'bairro'
+      DisplayFormat = '0'
+    end
+    object qryNotaFiscalcidade: TIntegerField
+      FieldName = 'cidade'
+      DisplayFormat = '0'
+    end
+    object qryNotaFiscalcep: TIntegerField
+      FieldName = 'cep'
+      DisplayFormat = '0'
+    end
+    object qryNotaFiscalfonenumero: TIntegerField
+      FieldName = 'fonenumero'
+      DisplayFormat = '0'
+    end
+    object qryNotaFiscalfoneddd: TIntegerField
+      FieldName = 'foneddd'
+      DisplayFormat = '0'
+    end
+    object qryNotaFiscalnomebairro: TStringField
+      FieldName = 'nomebairro'
+      Size = 60
+    end
+    object qryNotaFiscalnomecidade: TStringField
+      FieldName = 'nomecidade'
+      Size = 60
+    end
+    object qryNotaFiscalcidadeibge: TIntegerField
+      FieldName = 'cidadeibge'
+      DisplayFormat = '0'
+    end
+    object qryNotaFiscalpais: TIntegerField
+      FieldName = 'pais'
+      DisplayFormat = '0'
+    end
+    object qryNotaFiscalnomepais: TStringField
+      FieldName = 'nomepais'
+      Size = 60
+    end
+    object qryNotaFiscalnuminutilizacaonfe: TStringField
+      FieldName = 'numinutilizacaonfe'
+      Size = 15
+    end
+    object qryNotaFiscalvalorprodutos: TFloatField
+      FieldName = 'valorprodutos'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryNotaFiscalchv_nfe: TStringField
+      FieldName = 'chv_nfe'
+      EditMask = '99\-9999\-99999999999999\-99\-999\-999999999\-9\-99999999\-9;0;_'
+      Size = 44
+    end
+    object qryNotaFiscaldescricaosituacao: TStringField
+      FieldKind = fkCalculated
+      FieldName = 'descricaosituacao'
+      Size = 15
+      Calculated = True
+    end
+    object qryNotaFiscalmodelodocto: TStringField
+      FieldName = 'modelodocto'
+      Size = 2
+    end
+    object qryNotaFiscalNFE_Calculada: TStringField
+      FieldKind = fkCalculated
+      FieldName = 'NFE_Calculada'
+      EditMask = '99\-9999\-99999999999999\-99\-999\-999999999\-9\-99999999\-9;0;_'
+      Size = 44
+      Calculated = True
+    end
+    object qryNotaFiscalformaemissao: TIntegerField
+      FieldName = 'formaemissao'
+      DisplayFormat = '0'
+    end
+    object qryNotaFiscalcnpjfilial: TStringField
+      FieldName = 'cnpjfilial'
+      Size = 50
+    end
+    object qryNotaFiscalcodigocidadeibgefilial: TIntegerField
+      FieldName = 'codigocidadeibgefilial'
+      DisplayFormat = '0'
+    end
+    object qryNotaFiscalstatusnfe: TIntegerField
+      FieldName = 'statusnfe'
+      DisplayFormat = '0'
+    end
+    object qryNotaFiscalEvento: TIntegerField
+      FieldName = 'Evento'
+    end
+    object qryNotaFiscalEventoDescricao: TStringField
+      FieldName = 'EventoDescricao'
+      Size = 50
+    end
+    object qryNotaFiscalvbcstretdesp: TFloatField
+      FieldName = 'vbcstretdesp'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryNotaFiscalvicmsstretdesp: TFloatField
+      FieldName = 'vicmsstretdesp'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryNotaFiscaldescontototal: TCurrencyField
+      FieldKind = fkCalculated
+      FieldName = 'descontototal'
+      DisplayFormat = '###,###,##0.00'
+      Calculated = True
+    end
+    object qryNotaFiscaldescontoitem: TFloatField
+      FieldName = 'descontoitem'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryNotaFiscalemail: TStringField
+      FieldName = 'email'
+      Size = 50
+    end
+  end
+  object dsrNotaFiscal: TtecDataSource
+    DataSet = qryNotaFiscal
+    OnDataChange = dsrNotaFiscalDataChange
+    Left = 137
+    Top = 298
+  end
+  object qryDocumentoPag: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select numero,'
+      '       fornecedor,'
+      '       tipofornecedor,'
+      '       previsao,'
+      '       emissao,'
+      '       evento,'
+      '       filialemissao,'
+      '       referencia,'
+      '       valor,'
+      '       irretido,'
+      '       inssretido,'
+      '       issretido,'
+      '       pisretido,'
+      '       cofinsretido,'
+      '       csllretido,'
+      '       complemento,'
+      '       pedido'
+      'from documentospag'
+      'where numero = :numero')
+    RequestLive = True
+    Left = 510
+    Top = 147
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'numero'
+        ParamType = ptUnknown
+      end>
+    object qryDocumentoPagnumero: TIntegerField
+      FieldName = 'numero'
+    end
+    object qryDocumentoPagfornecedor: TIntegerField
+      FieldName = 'fornecedor'
+    end
+    object qryDocumentoPagtipofornecedor: TStringField
+      FieldName = 'tipofornecedor'
+      Size = 1
+    end
+    object qryDocumentoPagprevisao: TBooleanField
+      FieldName = 'previsao'
+    end
+    object qryDocumentoPagemissao: TDateField
+      FieldName = 'emissao'
+    end
+    object qryDocumentoPagfilialemissao: TIntegerField
+      FieldName = 'filialemissao'
+    end
+    object qryDocumentoPagreferencia: TStringField
+      FieldName = 'referencia'
+      Size = 100
+    end
+    object qryDocumentoPagvalor: TFloatField
+      FieldName = 'valor'
+    end
+    object qryDocumentoPagirretido: TFloatField
+      FieldName = 'irretido'
+    end
+    object qryDocumentoPaginssretido: TFloatField
+      FieldName = 'inssretido'
+    end
+    object qryDocumentoPagissretido: TFloatField
+      FieldName = 'issretido'
+    end
+    object qryDocumentoPagpisretido: TFloatField
+      FieldName = 'pisretido'
+    end
+    object qryDocumentoPagcofinsretido: TFloatField
+      FieldName = 'cofinsretido'
+    end
+    object qryDocumentoPagcsllretido: TFloatField
+      FieldName = 'csllretido'
+    end
+    object qryDocumentoPagcomplemento: TStringField
+      FieldName = 'complemento'
+      Size = 15
+    end
+    object qryDocumentoPagpedido: TIntegerField
+      FieldName = 'pedido'
+    end
+    object qryDocumentoPagevento: TIntegerField
+      FieldName = 'evento'
+    end
+  end
+  object spcDocumentoPag: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select documentospag_proximonumero() as valor')
+    RequestLive = False
+    Left = 406
+    Top = 151
+    object spcDocumentoPagvalor: TIntegerField
+      FieldName = 'valor'
+      DisplayFormat = '###,##0'
+    end
+  end
+  object qryProcuraCfop: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select  codigo,'
+      '            descricao'
+      '       From   codigosfiscais'
+      'Where  codigo =:codigo'
+      '')
+    RequestLive = False
+    Left = 405
+    Top = 65
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryProcuraCfopcodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Required = True
+    end
+    object qryProcuraCfopdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Required = True
+      Size = 80
+    end
+  end
+  object qryConsultaCfop: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'Select  codigo,'
+      '            descricao'
+      '            From   codigosfiscais'
+      'order by UPPER(TO_ASCII(descricao,'#39'LATIN1'#39'))')
+    RequestLive = False
+    Left = 571
+    Top = 65
+    object qryConsultaCfopdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      DisplayWidth = 50
+      FieldName = 'descricao'
+      Required = True
+      Size = 50
+    end
+    object qryConsultaCfopcodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'codigo'
+      Required = True
+    end
+  end
+  object dsrProcuraCfop: TtecDataSource
+    DataSet = qryProcuraCfop
+    Left = 485
+    Top = 65
+  end
+  object qryAtualizarNotas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs, doUseRowId]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'update notaspag set cnpj = :cnpj, '
+      
+        '                                 inscricaoestadual = :inscricaoe' +
+        'stadual, '
+      '                                 estado = :estado'
+      'from ('
+      '          select np.codigo '
+      '           from notaspag np'
+      '           where np.fornecedor = :fornecedor and'
+      '                      np.tipofornecedor = :tipofornecedor and'
+      '                      np.codigo<>:codigo and'
+      '                      (np.cnpj<>:cnpj or'
+      
+        '                        np.inscricaoestadual<>:inscricaoestadual' +
+        ' or'
+      '                        np.estado<>:estado)'
+      '         ) as np'
+      'where notaspag.codigo = np.codigo'
+      '  '
+      '            ')
+    RequestLive = True
+    Left = 248
+    Top = 296
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'cnpj'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'inscricaoestadual'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'estado'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'fornecedor'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'tipofornecedor'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+  end
+  object qryCalculosProdutos: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      ';'
+      'SELECT * from'
+      '('
+      ' ('
+      ' select tipo, incidencia, codigofiscal,'
+      
+        '        sum(basecalculo) as basecalculo, aliquota, sum(valor) as' +
+        ' valor, sum(valorst) as valorst, sum(isentas) as isentas, sum(ou' +
+        'tras) as outras,'
+      '        sum(basecalculo+isentas+outras) as total'
+      ' from'
+      '  ('
+      '   select cast('#39'ICMS'#39' as varchar(10)) as tipo,'
+      
+        '         cast(cast(pnp.origem as varchar)||pnp.incidencia as var' +
+        'char(4)) as incidencia,'
+      '         pnp.codigofiscal,'
+      ''
+      
+        '         (coalesce((case when pnp.incidencia in ('#39'00'#39','#39'10'#39','#39'20'#39',' +
+        #39'70'#39','#39'90'#39') and not pnp.naogerarcreditoicms then pnp.icmsbasecalc' +
+        'ulo else 0 end),0)) as basecalculo,'
+      
+        '         (case when pnp.naogerarcreditoicms then 0.00 else coale' +
+        'sce(pnp.aliquotaicms,0) end) as aliquota,'
+      
+        '         (coalesce((case when pnp.incidencia in ('#39'00'#39','#39'10'#39','#39'20'#39',' +
+        #39'70'#39','#39'90'#39') and not pnp.naogerarcreditoicms then pnp.icmsvalor el' +
+        'se 0 end),0)) as valor,'
+      ''
+      '         (coalesce(pnp.icmsvalorst,0)) as valorst,'
+      '         (coalesce(pnp.icmsisentas,0)) as isentas,'
+      ''
+      '         (coalesce(pnp.icmsoutras,0) +'
+      ''
+      '                    (case when'
+      
+        '                           pnp.codigofiscal - mod(pnp.codigofisc' +
+        'al,1000)=3000 then 0'
+      
+        '                         else (case when not pnp.icmssobreipi th' +
+        'en coalesce(pnp.valoripi,0)'
+      '                                    else 0'
+      '                               end)'
+      '                    end) +'
+      '                    coalesce(pnp.valorreducaobase,0) +'
+      '                    coalesce(pnp.icmsvalorst,0) +'
+      '/*                    coalesce(pnp.reducaobasest,0) +*/'
+      
+        #9#9#9#9#9'(coalesce((case when pnp.incidencia in ('#39'51'#39','#39'60'#39') and not ' +
+        'pnp.naogerarcreditoicms then pnp.icmsbasecalculo else 0 end),0))' +
+        ' +'
+      
+        '          (coalesce((case when pnp.incidencia in ('#39'41'#39') and coal' +
+        'esce(pnp.icmsoutras,0)=0 then pnp.icmsbasecalculo else 0 end),0)' +
+        ') +'
+      
+        '          (coalesce((case when coalesce(pnp.icmsoutras,0)=0 and ' +
+        'pnp.naogerarcreditoicms then pnp.icmsbasecalculo else 0 end),0))'
+      '          ) as outras'
+      ''
+      ''
+      '   from produtosnotaspag pnp'
+      '   where pnp.codigonota = :Codigonota'
+      '     and not exists (select cnp.codigonota'
+      '                    from calculosnotaspagnfe2 cnp'
+      '                    where cnp.codigonota = :Codigonota limit 1)'
+      '     and not :SimplesNacional'
+      '  ) as totalicms'
+      '  group by tipo, incidencia, codigofiscal, aliquota'
+      '  order by tipo, incidencia, codigofiscal, aliquota'
+      ' )'
+      ' union all'
+      ' ('
+      ' select tipo, incidencia, codigofiscal,'
+      
+        '        sum(basecalculo) as basecalculo, aliquota, sum(valor) as' +
+        ' valor, sum(valorst) as valorst, sum(isentas) as isentas, sum(ou' +
+        'tras) as outras,'
+      '        sum(basecalculo+isentas+outras) as total'
+      '  from'
+      '  ('
+      '   select cast('#39'ICMS'#39' as varchar(10)) as tipo,'
+      
+        '         cast(cast(pnp.origem as varchar)||pnp.csosn as varchar(' +
+        '4)) as incidencia,'
+      '         pnp.codigofiscal,'
+      ''
+      #9'     0.00 as basecalculo,'
+      ''
+      '       0.00 as aliquota,'
+      ''
+      #9'     0.00 as valor,'
+      ''
+      '         (coalesce(pnp.icmsvalorst,0)) as valorst,'
+      '         (coalesce(pnp.icmsisentas,0)) as isentas,'
+      ''
+      ''
+      '                coalesce(pnp.icmsoutras,0) +'
+      
+        '                    (case when pnp.codigofiscal - mod(pnp.codigo' +
+        'fiscal,1000)=3000 then 0'
+      '                          else (case when not pnp.icmssobreipi'
+      
+        '                                     then coalesce(pnp.valoripi,' +
+        '0)'
+      '                                     else 0'
+      '                                 end)'
+      '                          end) +'
+      '                    coalesce(pnp.valorreducaobase,0) +'
+      '                    coalesce(pnp.icmsvalorst,0) +'
+      '/*                    coalesce(pnp.reducaobasest,0) +*/'
+      
+        '                   (coalesce((case when coalesce(pnp.icmsoutras,' +
+        '0)=0 and coalesce(pnp.icmsisentas,0)=0 then pnp.icmsbasecalculo ' +
+        'else 0 end),0))'
+      '/*'
+      #9#9#9#9#9'case when pnp.csosn = '#39'900'#39' and'
+      #9#9#9#9#9'          ((coalesce(pnp.csosn_nf,'#39#39') = '#39'900'#39' and'
+      
+        #9#9#9#9#9#9#9'   case when coalesce(np.permitirimprimir,false) then coa' +
+        'lesce(np.regimetributario,3) = 1'
+      #9#9#9#9#9#9#9'   else coalesce(np.crt,3) = 1 end) or'
+      
+        #9#9#9#9#9#9#9'  (case when coalesce(np.permitirimprimir,false) then coa' +
+        'lesce(np.regimetributario,3) <> 1'
+      #9#9#9#9#9#9#9'   else coalesce(np.crt,3) <> 1 end'
+      #9#9#9#9#9#9#9'   and (coalesce(pnp.cst_nf,'#39#39')='#39'00'#39' or'
+      #9#9#9#9#9#9#9'        coalesce(pnp.cst_nf,'#39#39')='#39'10'#39' or'
+      #9#9#9#9#9#9#9#9#9'coalesce(pnp.cst_nf,'#39#39')='#39'20'#39' or'
+      #9#9#9#9#9#9#9#9#9'coalesce(pnp.cst_nf,'#39#39')='#39'51'#39' or'
+      #9#9#9#9#9#9#9#9#9'coalesce(pnp.cst_nf,'#39#39')='#39'70'#39' or'
+      
+        #9#9#9#9#9#9#9#9#9'coalesce(pnp.cst_nf,'#39#39')='#39'90'#39') )) then coalesce(pnp.icms' +
+        'basecalculo,0)'
+      #9#9#9#9#9'else'
+      #9#9#9#9#9'0'
+      #9#9#9#9#9'end'
+      '*/'
+      ''
+      '          as outras'
+      ''
+      ''
+      
+        '   from produtosnotaspag pnp join notaspag np on pnp.codigonota ' +
+        '= np.codigo'
+      '   where pnp.codigonota = :Codigonota'
+      '     and not exists (select pnp.codigonota'
+      '                    from calculosnotaspagnfe2 cnp'
+      '                    where cnp.codigonota = :Codigonota limit 1)'
+      '     and :SimplesNacional'
+      ''
+      '  ) as totalicms'
+      '  group by tipo, incidencia, codigofiscal, aliquota'
+      '  order by tipo, incidencia, codigofiscal, aliquota'
+      '  )'
+      '  UNION ALL'
+      ' ('
+      ' select tipo, incidencia, codigofiscal,'
+      
+        '        sum(basecalculo) as basecalculo, aliquota, sum(valor) as' +
+        ' valor, sum(valorst) as valorst, sum(isentas) as isentas, sum(ou' +
+        'tras) as outras,'
+      '        sum(basecalculo+isentas+outras) as total'
+      ' from'
+      '  ('
+      '   select cast('#39'TOTAL ICMS'#39' as varchar(10)) as tipo,'
+      '          cast(null as varchar(4)) as incidencia,'
+      '          cast(null as integer) as codigofiscal,'
+      ''
+      
+        '          (coalesce((case when pnp.incidencia in ('#39'00'#39','#39'10'#39','#39'20'#39 +
+        ','#39'70'#39','#39'90'#39') and not pnp.naogerarcreditoicms then pnp.icmsbasecal' +
+        'culo else 0 end),0)) as basecalculo,'
+      '          cast(null as numeric(5,2)) as aliquota,'
+      
+        '          (coalesce((case when pnp.incidencia in ('#39'00'#39','#39'10'#39','#39'20'#39 +
+        ','#39'70'#39','#39'90'#39') and not pnp.naogerarcreditoicms then pnp.icmsvalor e' +
+        'lse 0 end),0)) as valor,'
+      ''
+      '          (coalesce(pnp.icmsvalorst,0)) as valorst,'
+      '          (coalesce(pnp.icmsisentas,0)) as isentas,'
+      ''
+      '         (coalesce(pnp.icmsoutras,0) +'
+      '                    (case when'
+      
+        '                           pnp.codigofiscal - mod(pnp.codigofisc' +
+        'al,1000)=3000 then 0'
+      
+        '                         else (case when not pnp.icmssobreipi th' +
+        'en coalesce(pnp.valoripi,0)'
+      '                                    else 0'
+      '                               end)'
+      '                    end) +'
+      '                    coalesce(pnp.valorreducaobase,0) +'
+      '                    coalesce(pnp.icmsvalorst,0) +'
+      '/*                    coalesce(pnp.reducaobasest,0) +*/'
+      
+        #9#9#9#9#9'(coalesce((case when pnp.incidencia in ('#39'51'#39','#39'60'#39') and not ' +
+        'pnp.naogerarcreditoicms then pnp.icmsbasecalculo else 0 end),0))' +
+        ' +'
+      
+        '          (coalesce((case when pnp.incidencia in ('#39'41'#39') and coal' +
+        'esce(pnp.icmsoutras,0)=0 then pnp.icmsbasecalculo else 0 end),0)' +
+        ') +'
+      
+        '          (coalesce((case when coalesce(pnp.icmsoutras,0)=0 and ' +
+        'pnp.naogerarcreditoicms then pnp.icmsbasecalculo else 0 end),0))'
+      '          ) as outras'
+      ''
+      ''
+      '   from produtosnotaspag pnp'
+      '   where pnp.codigonota = :Codigonota'
+      '     and not exists (select cnp.codigonota'
+      '                     from calculosnotaspagnfe2 cnp'
+      '                     where cnp.codigonota = :Codigonota limit 1)'
+      '     and not :SimplesNacional'
+      '  ) as totalicms'
+      '  group by tipo, incidencia, codigofiscal, aliquota'
+      '  order by tipo, incidencia, codigofiscal, aliquota'
+      ' )'
+      '  union all'
+      ' ('
+      ' select tipo, incidencia, codigofiscal,'
+      
+        '        sum(basecalculo) as basecalculo, aliquota, sum(valor) as' +
+        ' valor, sum(valorst) as valorst, sum(isentas) as isentas, sum(ou' +
+        'tras) as outras,'
+      '        sum(basecalculo+isentas+outras) as total'
+      ' from'
+      '  ('
+      '   select cast('#39'TOTAL ICMS'#39' as varchar(10)) as tipo,'
+      '          cast(null as varchar(4)) as incidencia,'
+      '          cast(null as integer) as codigofiscal,'
+      ''
+      '          0.00 as basecalculo,'
+      ''
+      ''
+      '          0.00 as aliquota,'
+      ''
+      '         0.00 as valor,'
+      ''
+      '          (coalesce(pnp.icmsvalorst,0)) as valorst,'
+      '          (coalesce(pnp.icmsisentas,0)) as isentas,'
+      ''
+      '                coalesce(pnp.icmsoutras,0) +'
+      
+        '                    (case when pnp.codigofiscal - mod(pnp.codigo' +
+        'fiscal,1000)=3000 then 0'
+      '                          else (case when not pnp.icmssobreipi'
+      
+        '                                     then coalesce(pnp.valoripi,' +
+        '0)'
+      '                                     else 0'
+      '                                 end) '
+      '                          end) +'
+      '                    coalesce(pnp.valorreducaobase,0) +'
+      '                    coalesce(pnp.icmsvalorst,0) +'
+      '/*                    coalesce(pnp.reducaobasest,0) +*/'
+      
+        '                    (coalesce((case when coalesce(pnp.icmsoutras' +
+        ',0)=0 and coalesce(pnp.icmsisentas,0)=0 then pnp.icmsbasecalculo' +
+        ' else 0 end),0))'
+      '/*'
+      #9#9#9#9#9'case when pnp.csosn = '#39'900'#39' and'
+      #9#9#9#9#9'          ((coalesce(pnp.csosn_nf,'#39#39') = '#39'900'#39' and'
+      
+        #9#9#9#9#9#9#9'   case when coalesce(np.permitirimprimir,false) then coa' +
+        'lesce(np.regimetributario,3) = 1'
+      #9#9#9#9#9#9#9'   else coalesce(np.crt,3) = 1 end) or'
+      
+        #9#9#9#9#9#9#9'  (case when coalesce(np.permitirimprimir,false) then coa' +
+        'lesce(np.regimetributario,3) <> 1'
+      #9#9#9#9#9#9#9'   else coalesce(np.crt,3) <> 1 end'
+      #9#9#9#9#9#9#9'   and (coalesce(pnp.cst_nf,'#39#39')='#39'00'#39' or'
+      #9#9#9#9#9#9#9'        coalesce(pnp.cst_nf,'#39#39')='#39'10'#39' or'
+      #9#9#9#9#9#9#9#9#9'coalesce(pnp.cst_nf,'#39#39')='#39'20'#39' or'
+      #9#9#9#9#9#9#9#9#9'coalesce(pnp.cst_nf,'#39#39')='#39'51'#39' or'
+      #9#9#9#9#9#9#9#9#9'coalesce(pnp.cst_nf,'#39#39')='#39'70'#39' or'
+      
+        #9#9#9#9#9#9#9#9#9'coalesce(pnp.cst_nf,'#39#39')='#39'90'#39') )) then coalesce(pnp.icms' +
+        'basecalculo,0)'
+      #9#9#9#9#9'else'
+      #9#9#9#9#9'0'
+      #9#9#9#9#9'end'
+      '*/'
+      '          as outras'
+      ''
+      ''
+      
+        '   from produtosnotaspag pnp join notaspag np on pnp.codigonota ' +
+        '= np.codigo'
+      '   where pnp.codigonota = :Codigonota'
+      '     and not exists (select pnp.codigonota'
+      '                     from calculosnotaspagnfe2 cnp'
+      '                     where cnp.codigonota = :Codigonota limit 1)'
+      '     and :SimplesNacional'
+      '  ) as totalicms'
+      ' group by tipo, incidencia, codigofiscal, aliquota'
+      ' order by tipo, incidencia, codigofiscal, aliquota'
+      ' )'
+      ' union all'
+      ' ('
+      ' select tipo, incidencia, codigofiscal,'
+      
+        '        sum(basecalculo) as basecalculo, aliquota, sum(valor) as' +
+        ' valor, sum(valorst) as valorst, sum(isentas) as isentas, sum(ou' +
+        'tras) as outras,'
+      '        sum(basecalculo+valor+isentas+outras) as total'
+      ' from'
+      '  ('
+      '   select cast('#39'IPI'#39' as varchar(10)) as tipo,'
+      
+        '          cast(cast(pnp.origem as varchar)||pnp.ipicst as varcha' +
+        'r(4)) as incidencia,'
+      '          pnp.codigofiscal,'
+      ''
+      
+        '          (coalesce((case when not pnp.naogerarcreditoipi then p' +
+        'np.ipibasecalculo else 0 end),0)) as basecalculo,'
+      
+        '          (case when pnp.naogerarcreditoipi then 0.00 else coale' +
+        'sce(pnp.AliquotaIPI,0) end) as aliquota,'
+      
+        '          (coalesce((case when not pnp.naogerarcreditoipi then p' +
+        'np.valoripi       else 0 end),0)) as valor,'
+      ''
+      '          0.00 as valorst,'
+      ''
+      '          (coalesce(pnp.ipiisentas,0)) as isentas,'
+      ''
+      '          (coalesce(pnp.ipioutras,0) +'
+      
+        '           case when (pnp.codigofiscal - MOD(pnp.codigofiscal, 1' +
+        '000)) <> 3000 then coalesce(pnp.despesasacessorias,0) else 0 end' +
+        '  +'
+      '           coalesce(pnp.icmsvalorst,0)) as outras'
+      ''
+      ''
+      '   from produtosnotaspag pnp'
+      '   where pnp.codigonota = :Codigonota'
+      '     and not exists (select cnp.codigonota'
+      '                     from calculosnotaspagnfe2 cnp'
+      '                     where cnp.codigonota = :Codigonota limit 1)'
+      '     and :ContribIPI'
+      '  ) as totalipi'
+      ' group by tipo, incidencia, codigofiscal, aliquota'
+      ' order by tipo, incidencia, codigofiscal, aliquota'
+      ' )'
+      ' union all'
+      ' ('
+      ' select tipo, incidencia, codigofiscal,'
+      
+        '        sum(basecalculo) as basecalculo, aliquota, sum(valor) as' +
+        ' valor, sum(valorst) as valorst, sum(isentas) as isentas, sum(ou' +
+        'tras) as outras,'
+      '        sum(basecalculo+valor+isentas+outras) as total'
+      ' from'
+      '  ('
+      '   select cast('#39'TOTAL IPI'#39' as varchar(10)) as tipo,'
+      '          cast(null as varchar(4)) as incidencia,'
+      '          cast(null as integer) as codigofiscal,'
+      ''
+      
+        '          (coalesce((case when not pnp.naogerarcreditoipi then p' +
+        'np.ipibasecalculo else 0 end),0)) as basecalculo,'
+      '          cast(null as numeric(5,2)) as aliquota,'
+      
+        '          (coalesce((case when not pnp.naogerarcreditoipi then p' +
+        'np.valoripi       else 0 end),0)) as valor,'
+      ''
+      '          0.00 as valorst,'
+      ''
+      '          (coalesce(pnp.ipiisentas,0)) as isentas,'
+      ''
+      '          (coalesce(pnp.ipioutras,0) +'
+      
+        '          case when (pnp.codigofiscal - MOD(pnp.codigofiscal, 10' +
+        '00)) <> 3000 then coalesce(pnp.despesasacessorias,0) else 0 end ' +
+        ' +'
+      '          coalesce(pnp.icmsvalorst,0)) as outras'
+      ''
+      ''
+      '   from produtosnotaspag pnp'
+      '   where pnp.codigonota = :Codigonota'
+      '     and not exists (select cnp.codigonota'
+      '                     from calculosnotaspagnfe2 cnp'
+      '                     where cnp.codigonota = :Codigonota limit 1)'
+      '     and :ContribIPI'
+      '  ) as totalipi'
+      ' group by tipo, incidencia, codigofiscal, aliquota'
+      ' order by tipo, incidencia, codigofiscal, aliquota'
+      ' )'
+      'union all'
+      ''
+      '('
+      
+        'select cast ((case when tipo = '#39'M'#39' then cast('#39'ICMS'#39' as varchar(1' +
+        '0))'
+      
+        '                   when tipo = '#39'P'#39' then cast('#39'IPI'#39'  as varchar(1' +
+        '0))'
+      
+        '                   when tipo = '#39'S'#39' then cast('#39'ISS'#39'  as varchar(1' +
+        '0))'
+      '              end) as varchar) as tipo,'
+      '       cast(null as varchar(4)) as incidencia,'
+      '       codigofiscal,'
+      '       base as basecalculo,'
+      '       aliquota,'
+      '       valor,'
+      '       0.00 as valorst,'
+      '       isentas,'
+      '       outras,'
+      
+        '       case when tipo in ('#39'M'#39','#39'S'#39') then base+isentas+outras else' +
+        ' base+valor+isentas+outras end as Total'
+      ''
+      'from calculosnotaspagnfe2'
+      'where codigonota = :Codigonota'
+      '  and tipo = '#39'M'#39
+      'order by codigofiscal, aliquota'
+      ')'
+      ''
+      'union all'
+      ''
+      '('
+      'select totalicms.*'
+      'from'
+      '('
+      'select cast('#39'TOTAL ICMS'#39' as varchar(10))  as tipo,'
+      '       cast(null as varchar(4)) as incidencia,'
+      '       cast(null as integer) as codigofiscal,'
+      '       sum(base) as basecalculo,'
+      '       cast(null as numeric(5,2)) as aliquota,'
+      '       sum(valor) as valor,'
+      '       cast(0 as numeric(15,2)) as valorst,'
+      '       sum(isentas) as isentas,'
+      '       sum(outras) as outras,'
+      '       sum(base+isentas+outras) as Total'
+      ''
+      'from calculosnotaspagnfe2'
+      'where codigonota = :Codigonota'
+      '  and tipo = '#39'M'#39
+      ') as totalicms where total is not null'
+      ')'
+      ''
+      'union all'
+      ''
+      '('
+      
+        'select cast ((case when tipo = '#39'M'#39' then cast('#39'ICMS'#39' as varchar(1' +
+        '0))'
+      
+        '                   when tipo = '#39'P'#39' then cast('#39'IPI'#39'  as varchar(1' +
+        '0))'
+      
+        '                   when tipo = '#39'S'#39' then cast('#39'ISS'#39'  as varchar(1' +
+        '0))'
+      '              end) as varchar) as tipo,'
+      '       cast(null as varchar(4)) as incidencia,'
+      '       cast(null as integer) as codigofiscal,'
+      '       base as basecalculo,'
+      '       aliquota,'
+      '       valor,'
+      '       0.00 as valorst,'
+      '       isentas,'
+      '       outras,'
+      
+        '       case when tipo in ('#39'M'#39','#39'S'#39') then base+isentas+outras else' +
+        ' base+valor+isentas+outras end as Total'
+      ''
+      'from calculosnotaspagnfe2'
+      'where codigonota = :Codigonota'
+      '  and tipo = '#39'S'#39
+      'order by codigofiscal, aliquota'
+      ')'
+      ''
+      'union all'
+      ''
+      '('
+      'select totaliss.*'
+      'from'
+      '('
+      'select cast('#39'TOTAL ISS'#39' as varchar(10))  as tipo,'
+      '       cast(null as varchar(4)) as incidencia,'
+      '       cast(null as integer) as codigofiscal,'
+      '       sum(base) as basecalculo,'
+      '       cast(null as numeric(5,2)) as aliquota,'
+      '       sum(valor) as valor,'
+      '       cast(0 as numeric(15,2)) as valorst,'
+      '       sum(isentas) as isentas,'
+      '       sum(outras) as outras,'
+      '       sum(base+isentas+outras) as Total'
+      'from calculosnotaspagnfe2'
+      'where codigonota = :Codigonota'
+      '  and tipo = '#39'S'#39
+      ') as totaliss where total is not null'
+      ')'
+      ''
+      'union all'
+      ''
+      '('
+      
+        'select cast ((case when tipo = '#39'M'#39' then cast('#39'ICMS'#39' as varchar(1' +
+        '0))'
+      
+        '                   when tipo = '#39'P'#39' then cast('#39'IPI'#39'  as varchar(1' +
+        '0))'
+      
+        '                   when tipo = '#39'S'#39' then cast('#39'ISS'#39'  as varchar(1' +
+        '0))'
+      '              end) as varchar) as tipo,'
+      '       cast(null as varchar(4)) as incidencia,'
+      '       codigofiscal,'
+      '       base as basecalculo,'
+      '       aliquota,'
+      '       valor,'
+      '       0.00 as valorst,'
+      '       isentas,'
+      '       outras,'
+      
+        '       case when tipo in ('#39'M'#39','#39'S'#39') then base+isentas+outras else' +
+        ' base+valor+isentas+outras end as Total'
+      ''
+      'from calculosnotaspagnfe2'
+      'where codigonota = :Codigonota'
+      '  and tipo = '#39'P'#39
+      'order by codigofiscal, aliquota'
+      ')'
+      ''
+      'union all'
+      ''
+      '('
+      'select totalipi.*'
+      'from'
+      '('
+      'select cast('#39'TOTAL IPI'#39' as varchar(10))  as tipo,'
+      '       cast(null as varchar(4)) as incidencia,'
+      '       cast(null as integer) as codigofiscal,'
+      '       sum(base) as basecalculo,'
+      '       cast(null as numeric(5,2)) as aliquota,'
+      '       sum(valor) as valor,'
+      '       cast(0 as numeric(15,2)) as valorst,'
+      '       sum(isentas) as isentas,'
+      '       sum(outras) as outras,'
+      '       sum(base+valor+isentas+outras) as Total'
+      'from calculosnotaspagnfe2'
+      'where codigonota = :Codigonota'
+      '  and tipo = '#39'P'#39
+      ') as totalipi where total is not null'
+      ')'
+      ''
+      ') as selecao')
+    RequestLive = True
+    Left = 416
+    Top = 344
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'codigonota'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'SimplesNacional'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'ContribIPI'
+        ParamType = ptUnknown
+      end>
+    object qryCalculosProdutostipo: TStringField
+      FieldName = 'tipo'
+      Size = 10
+    end
+    object qryCalculosProdutosincidencia: TStringField
+      FieldName = 'incidencia'
+      Size = 4
+    end
+    object qryCalculosProdutoscodigofiscal: TIntegerField
+      Alignment = taCenter
+      FieldName = 'codigofiscal'
+      Required = True
+      DisplayFormat = '#,##0'
+    end
+    object qryCalculosProdutosbasecalculo: TFloatField
+      FieldName = 'basecalculo'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryCalculosProdutosaliquota: TFloatField
+      FieldName = 'aliquota'
+      DisplayFormat = '0.00'
+    end
+    object qryCalculosProdutosvalor: TFloatField
+      FieldName = 'valor'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryCalculosProdutosvalorst: TFloatField
+      FieldName = 'valorst'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryCalculosProdutosisentas: TFloatField
+      FieldName = 'isentas'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryCalculosProdutosoutras: TFloatField
+      FieldName = 'outras'
+      DisplayFormat = '###,###,##0.00'
+    end
+    object qryCalculosProdutostotal: TFloatField
+      FieldName = 'total'
+      DisplayFormat = '###,##0.00'
+    end
+  end
+  object dsrCalculosProdutos: TtecDataSource
+    DataSet = qryCalculosProdutos
+    Left = 456
+    Top = 352
+  end
+  object dsrEvento: TtecDataSource
+    DataSet = qryEvento
+    Left = 376
+    Top = 240
+  end
+  object qryEvento: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT e.Codigo,'
+      '       e.Descricao'
+      ''
+      'FROM   eventos e'
+      ''
+      'WHERE e.Codigo = :Codigo'
+      '      AND e.tipo = '#39'A'#39
+      '      AND e.Inativo IS NULL'
+      '      AND e.TipoMovimentacao = '#39'S'#39)
+    RequestLive = False
+    Left = 360
+    Top = 224
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryEventoCodigo: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'Codigo'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryEventoDescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'Descricao'
+      Required = True
+      Size = 50
+    end
+  end
+  object qryFreteEntradaNotas: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select distinct'
+      '       np.fornecedor,'
+      '       np.tipofornecedor,'
+      '       vf.nome as nomefornecedor,'
+      '       np.serie,'
+      '       np.numero,'
+      '       np.data,'
+      '       np.situacao,'
+      '       cast(case when np.situacao = '#39'C'#39' then '#39'CANCELADA'#39
+      '                 when np.situacao = '#39'N'#39' then '#39'NORMAL'#39
+      '                 when np.situacao = '#39'D'#39' then '#39'DENEGADA'#39
+      '       end as varchar(9)) as descricaosituacao,'
+      '       np.valornota'
+      ''
+      'from notaspag np'
+      '     join vfornecedores vf'
+      '     on np.fornecedor = vf.codigo'
+      '     and np.tipofornecedor = vf.tipo'
+      ''
+      
+        'where np.fornecedorconhecimentofrete = :fornecedorconhecimentofr' +
+        'ete'
+      '  and np.serieconhecimentofrete = :serieconhecimentofrete'
+      '  and np.numeroconhecimentofrete = :numeroconhecimentofrete'
+      ''
+      'ORDER by np.data, np.numero'
+      '')
+    RequestLive = False
+    Left = 493
+    Top = 248
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'fornecedorconhecimentofrete'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'serieconhecimentofrete'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'numeroconhecimentofrete'
+        ParamType = ptUnknown
+      end>
+    object qryFreteEntradaNotasfornecedor: TIntegerField
+      FieldName = 'fornecedor'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryFreteEntradaNotastipofornecedor: TStringField
+      FieldName = 'tipofornecedor'
+      Required = True
+      Size = 1
+    end
+    object qryFreteEntradaNotasnomefornecedor: TStringField
+      FieldName = 'nomefornecedor'
+      Size = 50
+    end
+    object qryFreteEntradaNotasserie: TStringField
+      FieldName = 'serie'
+      Required = True
+      Size = 3
+    end
+    object qryFreteEntradaNotasnumero: TIntegerField
+      FieldName = 'numero'
+      Required = True
+      DisplayFormat = '0'
+    end
+    object qryFreteEntradaNotasdata: TDateField
+      Alignment = taCenter
+      FieldName = 'data'
+      Required = True
+      EditMask = '99/99/9999;1; '
+    end
+    object qryFreteEntradaNotassituacao: TStringField
+      FieldName = 'situacao'
+      Required = True
+      Size = 1
+    end
+    object qryFreteEntradaNotasdescricaosituacao: TStringField
+      FieldName = 'descricaosituacao'
+      Size = 9
+    end
+    object qryFreteEntradaNotasvalornota: TFloatField
+      FieldName = 'valornota'
+      Required = True
+      DisplayFormat = '###,###,##0.00'
+    end
+  end
+  object dsrFreteEntradaNotas: TtecDataSource
+    DataSet = qryFreteEntradaNotas
+    Left = 533
+    Top = 264
+  end
+end

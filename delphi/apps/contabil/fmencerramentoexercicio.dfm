@@ -12,9 +12,9 @@ inherited frmEncerramentoExercicio: TfrmEncerramentoExercicio
   TextHeight = 16
   inherited pnlBarra: TPanel
     Left = 0
-    Top = 40
+    Top = 45
     Width = 702
-    Height = 169
+    Height = 164
     Align = alClient
     Visible = True
     inherited bvlBotoesEd: TBevel
@@ -99,6 +99,7 @@ inherited frmEncerramentoExercicio: TfrmEncerramentoExercicio
         ParentFont = False
         ReadOnly = True
         TabOrder = 1
+        Alignment = taLeftJustify
       end
     end
     object gbxContaResultadoAnalitica: TGroupBox
@@ -134,6 +135,7 @@ inherited frmEncerramentoExercicio: TfrmEncerramentoExercicio
         ParentFont = False
         ReadOnly = True
         TabOrder = 0
+        Alignment = taLeftJustify
       end
       inline fraConsultaContaResultadoAnalitica: TfraConsultaCodigoContabil
         Left = 3

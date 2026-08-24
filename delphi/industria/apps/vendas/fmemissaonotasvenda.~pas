@@ -1,0 +1,1012 @@
+unit fmemissaonotasvenda;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, Windows, fmcadastropadrao, DBCtrls, cpdbmemo, cpdbtext, Grids,
+  DBGrids, cpdbgrid, ComCtrls, Buttons, ExtCtrls, cpdbfindcontrols,
+  dmemissaonotasvenda, frconsulta, frconsultacodigo, ctconstantes,
+  fmnavcontroles, Mask, cptexto, cpdbradiogroup, cpnumero, cpdbdata,
+  {fmcomplementarnotasvenda, }clusuario, biblio, cpcpfcnpj, frendereco,
+  frenderecoeditor, fmconsultabasica, fmconsultaporcampo, ZQuery, ActnList,
+  dmcalculofinanciamento, ToolWin;
+type
+  TfrmEmissaoNotasVenda = class(TfrmCadastroPadrao)
+    gbxCliente: TGroupBox;
+    dtxNomeCliente: TtecDBText;
+    dtxCodigoCliente: TtecDBText;
+    gbxObservacoes: TGroupBox;
+    mmoObservacoesCliente: TtecDBMemo;
+    Bevel2: TBevel;
+    gbxOSP: TGroupBox;
+    Bevel3: TBevel;
+    dbgProdutosDadosFiscais: TtecDBGrid;
+    pnlCabecalho: TPanel;
+    pnlCabecalhoDireita: TPanel;
+    gbxQtdesPedidos: TGroupBox;
+    GroupBox1: TGroupBox;
+    pnlProdutos: TPanel;
+    sbnIncluirProduto: TSpeedButton;
+    sbnExcluirProduto: TSpeedButton;
+    GroupBox2: TGroupBox;
+    gbxNotaComplementar: TGroupBox;
+    fraConsultaNotaFiscalComplementar: TfraConsultaCodigo;
+    ckbIPISuspenso: TDBCheckBox;
+    pgcNotasVenda: TPageControl;
+    tstOSPs: TTabSheet;
+    tstComplemento: TTabSheet;
+    gbxInformacoesFiscais: TGroupBox;
+    gbxNumeroNota: TGroupBox;
+    dtxNumeroNota: TtecDBText;
+    gbxDataEmissao: TGroupBox;
+    edtDataEmissao: TDBEditData;
+    gbxDataSaida: TGroupBox;
+    edtDataSaida: TDBEditData;
+    gbxCFOP: TGroupBox;
+    sbnNaturezaOperacao: TSpeedButton;
+    dtxNaturezaOperacao: TtecDBText;
+    flkNaturezaOperacao: TtecDBFindLookup;
+    gbxDespesasAcessorias: TGroupBox;
+    gbxFrete: TGroupBox;
+    edtValorFrete: TDBEditNumero;
+    gbxOutras: TGroupBox;
+    edtValorOutrasDespesas: TDBEditNumero;
+    gbxSeguro: TGroupBox;
+    edtValorSeguro: TDBEditNumero;
+    gbxDescricaoNatureza: TGroupBox;
+    dtxDescricaoNatureza: TtecDBText;
+    gbxVencimentos: TGroupBox;
+    gbxPlano: TGroupBox;
+    fraConsultaCodigoPlano: TfraConsultaCodigo;
+    dbgVenctos: TtecDBGrid;
+    gbxTotalNota: TGroupBox;
+    dtxValorTotal: TtecDBText;
+    pgcDadosAdicionais: TPageControl;
+    tstTransporte: TTabSheet;
+    gbxTranportadora: TGroupBox;
+    fraConsultaCodigoTransportadora: TfraConsultaCodigo;
+    gbxPlaca: TGroupBox;
+    edtPlacaTransporte: TDBEditTexto;
+    rgpPagamentoFrete: TtecDBRadioGroup;
+    rbnEmitente: TtecRadioButton;
+    rbnDestinatario: TtecRadioButton;
+    gbxUFTransportadora: TGroupBox;
+    fraConsultaEstadoTransportadora: TfraConsultaCodigo;
+    pgcVolumes: TPageControl;
+    tstVolume: TTabSheet;
+    gbxQuantidade: TGroupBox;
+    edtVolume: TDBEditNumero;
+    gbxEspecie: TGroupBox;
+    edtEspecieTransporte: TDBEditTexto;
+    gbxMarca: TGroupBox;
+    edtMarca: TDBEditTexto;
+    gbxNumeracao: TGroupBox;
+    edtNumeracao: TDBEditTexto;
+    gbxPesoBruto: TGroupBox;
+    edtPesoBruto: TDBEditNumero;
+    gbxPesoLiquido: TGroupBox;
+    edtPesoLiquido: TDBEditNumero;
+    tstVolumes: TTabSheet;
+    gbxVolumes: TGroupBox;
+    dbgVolumesDadosFiscais: TtecDBGrid;
+    dbgLacresVolumesDadosFiscais: TtecDBGrid;
+    tstLocalRetirada: TTabSheet;
+    fraEnderecoRetirada: TfraEnderecoEditor;
+    gbxLocalRetiradaCNPJ: TGroupBox;
+    edtLocalRetiradaCNPJ: TDBEditCPFCNPJ;
+    tstLocalEntrega: TTabSheet;
+    fraEnderecoEntrega: TfraEnderecoEditor;
+    gbxLocalEntregaCNPJ: TGroupBox;
+    edtLocalEntregaCNPJ: TDBEditCPFCNPJ;
+    tstExportacao: TTabSheet;
+    gbxUFEmbarque: TGroupBox;
+    fraConsultaUFEmbarque: TfraConsultaCodigo;
+    gbxLocalEmbarque: TGroupBox;
+    edtLocalEmbarque: TDBEditTexto;
+    GroupBox3: TGroupBox;
+    mmoObservacoes: TtecDBMemo;
+    gbxObservacoesNotaComplementar: TGroupBox;
+    mmoObservacoesNotaComplementar: TtecDBMemo;
+    ActionList1: TActionList;
+    Action1: TAction;
+    gbxDesconto: TGroupBox;
+    edtDesconto: TDBEditNumero;
+    procedure dbgProdutosDadosFiscaisKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnExcluirProdutoClick(Sender: TObject);
+    procedure sbnIncluirProdutoClick(Sender: TObject);
+    procedure fraConsultaNotaFiscalComplementaredfCodigoExit(
+      Sender: TObject);
+    procedure fraConsultaNotaFiscalComplementaredfCodigoEnter(
+      Sender: TObject);
+    procedure flkNaturezaOperacaoExit(Sender: TObject);
+    procedure sbnNaturezaOperacaoClick(Sender: TObject);
+    procedure flkNaturezaOperacaoChange(Sender: TObject);
+    procedure Action1Update(Sender: TObject);
+    procedure edtPlacaTransporteKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+  private
+    NFComplementar: String;
+    procedure FocarGridOSP(Sender: TObject);
+    procedure OnProdutosDadosFiscaisAfterPost(Sender: TObject);
+    function ComplementarDadosNota: Boolean;
+    function incluirProdutocontrato: Boolean;
+    procedure AtribuirVenctosDadosFiscais;
+    procedure AtribuirDadosTransportadora;
+    { Private declarations }
+  protected
+    ConsultaOSP : TfraConsultaCodigo;
+    procedure AtribuirDadosOSP;
+    procedure AtribuirDadosOSPNFComplementar;
+    procedure Condicoesosp;
+    procedure AcionaPesquisaGrade;
+    procedure AlterarEstadoBotoes; override;
+    function TabelaDePesquisa: TZDataSet; override;
+    function JanelaPesquisa: TfrmConsultaBasica; override;
+    function InternoPesquisar(Titulo: String): Integer; override;
+    function InternoIncluir: Boolean; override;
+    function Internoexcluir: Boolean; override;
+    function InternoGravar: Boolean; override;
+    function InternoCancelar: Boolean; override;
+
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+
+    procedure ParametrosNota;
+  public
+    constructor Create(AOwner: TComponent); override;
+    { Public declarations }
+  end;
+
+var
+  frmEmissaoNotasVenda: TfrmEmissaoNotasVenda;
+
+implementation
+
+uses dmbasico, DB, clparametrossistema;
+
+{$R *.dfm}
+
+{ TfrmEmissaoNotasVenda }
+
+procedure TfrmEmissaoNotasVenda.AcionaPesquisaGrade;
+begin
+  ConsultaOSP.CtrlOn := True;
+  if dtmEmissaoNotasVenda.qryDadosFiscaiscliente.IsNull then
+    ConsultaOSP.qryProcuraCliente.Close;
+
+  dbgProdutosDadosFiscais.SetFocus;
+  case ConsultaOSP.InternoPesquisar(ctOSP) of
+    mrOk   : begin
+               dbgProdutosDadosFiscais.SelectedIndex :=  4;
+               dbgProdutosDadosFiscais.SetFocus;
+             end;
+    mrCancel:begin
+               dbgProdutosDadosFiscais.SelectedIndex :=  1;
+               dbgProdutosDadosFiscais.SetFocus;
+             end;
+  end
+end;
+
+procedure TfrmEmissaoNotasVenda.AtribuirDadosOSP;
+begin
+  with dtmEmissaoNotasVenda do
+  begin
+    if (qryDadosFiscaiscliente.AsInteger  <> ConsultaOSP.qryProcuraOSP.fieldbyname('cliente').AsInteger) and
+       (ConsultaOSP.qryProcuraOSP.fieldbyname('cliente').AsInteger<>0) then
+    begin
+      ReFazConsulta(ConsultaOSP.qryProcuraCliente,[0,1],[ConsultaOSP.qryProcuraOSP.fieldbyname('cliente').AsInteger,'C']);
+
+      qryDadosFiscaiscliente.AsInteger    := ConsultaOSP.qryProcuraClientecodigo.AsInteger;
+      qryDadosFiscaistagadpednfe.AsBoolean := ConsultaOSP.qryProcuraClienteTagAdPedNFE.asboolean;
+      qryDadosFiscaisnome.AsString        := ConsultaOSP.qryProcuraClientenome.AsString;
+      qryDadosFiscaisapelido.AsString     := ConsultaOSP.qryProcuraClienteapelido.AsString;
+      qryDadosFiscaistipocliente.AsString := 'C';
+      qryDadosFiscaispessoatipo.AsString  := ConsultaOSP.qryProcuraClientepessoatipo.AsString;
+      qryDadosFiscaispessoanumero.AsString:= ConsultaOSP.qryProcuraClientepessoanumero.AsString;
+      qryDadosFiscaisfonenumero.AsVariant := ConsultaOSP.qryProcuraClientefonenumero.AsVariant;
+      qryDadosFiscaisfoneddd.AsVariant    := ConsultaOSP.qryProcuraClientefoneddd.AsVariant;
+      qryDadosFiscaisdocumento.AsString   := ConsultaOSP.qryProcuraClienteinscricaoestadual.AsString;
+      qryDadosFiscaisemail.AsString       := ConsultaOSP.qryProcuraClienteemail.AsString;
+      qryDadosFiscaissuframa.AsString     := ConsultaOSP.qryProcuraClientesuframa.AsString;
+      qryDadosFiscaisrecolhericmsst.AsBoolean := ConsultaOSP.qryProcuraClienterecolhericmsst.asboolean;
+
+      qryDadosFiscaisclientecontribicms.asBoolean := ConsultaOSP.qryProcuraClienteContribicms.asBoolean;
+
+      //Este campos é para atribuir a ie da uf da filial no estado de destino da mercadoria
+      //porém a Krah_ice nao possue retencão icms subst. tribut.
+      //qryDadosFiscaisiesubsttributario.AsString := '';
+
+      qryDadosFiscaisestadocfo.AsString   := ConsultaOSP.qryProcuraClienteestado.AsString;
+      qryDadosFiscaisobscliente.AsString  := ConsultaOSP.qryProcuraClienteobsnotafiscal.AsString;
+      qryDadosFiscaisipisuspenso.AsBoolean:= ConsultaOSP.qryProcuraClienteipisuspenso.AsBoolean;
+      qryDadosFiscaisobsclienteipisuspenso.AsString:= ConsultaOSP.qryProcuraClienteobsipisuspenso.AsString;
+      qryDadosFiscaisvendedor.AsInteger := UsuarioLogin.CodigoUsuario;
+
+
+       if qryDadosFiscaisdebitar.isNull then
+         if not ConsultaOSP.qryProcuraClientedebito.IsNull then
+           qryDadosFiscaisdebitar.AsVariant   := ConsultaOSP.qryProcuraClientedebito.AsVariant;
+
+      if ConsultaOSP.qryProcuraClienteestado.AsString='.' then {estrangeiro}
+      begin
+        qryDadosFiscaispais.asstring                     := ConsultaOSP.qryProcuraClientecidadeibge.asstring;
+        qryDadosFiscaisnomepais.AsString                 := ConsultaOSP.qryProcuraClientenomecidade.AsString;
+        qryDadosFiscaisrua.AsString                      := ConsultaOSP.qryProcuraClienterua.AsString;
+        qryDadosFiscaisendnumero.AsString                := consultaosp.qryProcuraClientenumero.AsString;
+        qryDadosFiscaisendcomplemento.AsString           := consultaosp.qryProcuraClientecomplemento.AsString;
+//        qryDadosFiscaisbairro.AsString                   := ConsultaOSP.qryProcuraClientebairro.AsString;
+//        qryDadosFiscaisnomebairro.AsString               := ConsultaOSP.qryProcuraClientenomebairro.AsString;
+        qryDadosFiscaiscidade.AsString                   := ConsultaOSP.qryProcuraClientebairro.AsString;
+        qryDadosFiscaisnomecidade.AsString               := ConsultaOSP.qryProcuraClientenomebairro.AsString;
+        //qryDadosFiscaiscidadeibge.AsString               := ConsultaOSP.qryProcuraClientecidadeibge.AsString;
+        qryDadosFiscaisestado.AsString                   := ConsultaOSP.qryProcuraClienteestado.AsString;
+        //qryDadosFiscaiscep.AsInteger                     := ConsultaOSP.qryProcuraClientecep.AsInteger;
+      end
+      else
+      begin
+        qryDadosFiscaispais.AsInteger                    := 1058;
+        qryDadosFiscaisnomepais.AsString                 := 'Brasil';
+        qryDadosFiscaisrua.AsString                      := ConsultaOSP.qryProcuraClienterua.AsString;
+        qryDadosFiscaisendnumero.AsString                := consultaosp.qryProcuraClientenumero.AsString;
+        qryDadosFiscaisendcomplemento.AsString           := consultaosp.qryProcuraClientecomplemento.AsString;
+        qryDadosFiscaisbairro.AsString                   := ConsultaOSP.qryProcuraClientebairro.AsString;
+        qryDadosFiscaisnomebairro.AsString               := ConsultaOSP.qryProcuraClientenomebairro.AsString;
+        qryDadosFiscaiscidade.AsString                   := ConsultaOSP.qryProcuraClientecidade.AsString;
+        qryDadosFiscaisnomecidade.AsString               := ConsultaOSP.qryProcuraClientenomecidade.AsString;
+        qryDadosFiscaiscidadeibge.AsString               := ConsultaOSP.qryProcuraClientecidadeibge.AsString;
+        qryDadosFiscaisestado.AsString                   := ConsultaOSP.qryProcuraClienteestado.AsString;
+        qryDadosFiscaiscep.Asstring                     := ConsultaOSP.qryProcuraClientecep.AsString;
+      end;
+
+      qryDadosFiscaislocalentrega_rua.AsString         := ConsultaOSP.qryProcuraClienterefrua.AsString;
+      qryDadosFiscaislocalentrega_numero.AsString      := consultaosp.qryProcuraClienterefnumero.AsString;
+      qryDadosFiscaislocalentrega_complemento.AsString := consultaosp.qryProcuraClienterefcomplemento.AsString;
+      qryDadosFiscaislocalentrega_bairro.AsString      := ConsultaOSP.qryProcuraClienterefbairro.AsString;
+      qryDadosFiscaislocalentrega_nomebairro.AsString  := ConsultaOSP.qryProcuraClienterefnomebairro.AsString;
+      qryDadosFiscaislocalentrega_cidade.AsString      := ConsultaOSP.qryProcuraClienterefcidade.AsString;
+      qryDadosFiscaislocalentrega_nomecidade.AsString  := ConsultaOSP.qryProcuraClienterefnomecidade.AsString;
+      qryDadosFiscaislocalentrega_cidadeibge.AsString  := ConsultaOSP.qryProcuraClienterefcidadeibge.AsString;
+      qryDadosFiscaislocalentrega_estado.AsString      := ConsultaOSP.qryProcuraClienterefestado.AsString;
+      qryDadosFiscaislocalentrega_cep.AsString        := ConsultaOSP.qryProcuraClienterefcep.AsString;
+      qryDadosFiscaislocalentrega_cnpj.AsString        := ConsultaOSP.qryProcuraClientepessoanumero.AsString;
+
+    end;
+
+    if (qryProdutosDadosFiscais.RecordCount = 0) or
+        ((qryProdutosDadosFiscais.RecordCount = 1) and
+        (qryProdutosDadosFiscais.State = dsedit)) then
+      SubstituicaoIPIProdutos := ConsultaOSP.qryProcuraOSP.fieldbyname('substituicaoipi').AsBoolean;
+
+    if (ConsultaOSP.qryProcuraOSP.fieldbyname('substituicaoipi').AsBoolean <> SubstituicaoIPIProdutos) then
+      MensagemAviso('Produto com valor substituicao ipi diferente dos demais.')
+    else
+    begin
+      if not (qryProdutosDadosFiscais.State in [dsedit, dsinsert]) then
+        qryProdutosDadosFiscais.edit;
+      qryProdutosDadosFiscaisfilial.AsInteger   := FilialBase;
+      qryProdutosDadosFiscaisvendedor.AsInteger := UsuarioLogin.CodigoUsuario;
+      qryProdutosDadosFiscaisproduto.AsString := ConsultaOSP.qryProcuraOSP.fieldbyname('produto').AsString;
+      qryProdutosDadosFiscaispn.AsString        := ConsultaOSP.qryProcuraOSP.fieldbyname('pn').AsString;
+
+      qryProdutosDadosFiscaisprodutocliente.AsString := ConsultaOSP.qryProcuraOSP.fieldbyname('produto_cliente').AsString;
+      qryProdutosDadosFiscaissubstituicaoIPI.AsBoolean := ConsultaOSP.qryProcuraOSP.fieldbyname('substituicaoipi').AsBoolean;
+
+      if ConsultaOSP.qryProcuraOSP.fieldbyname('descricaonanf').asstring<>'' then
+        qryProdutosDadosFiscaisdescricaoproduto.AsString := ConsultaOSP.qryProcuraOSP.fieldbyname('descricaonanf').asstring;
+
+//      qryProdutosDadosFiscaisvalorparcelaimportada.AsCurrency := ConsultaOSP.qryProcuraOSPvalorimportacao.AsCurrency;
+//      qryProdutosDadosFiscaiscodigo_fci.AsString := ConsultaOSP.qryProcuraOSPcodigo_fci.AsString;
+
+      if qryDadosFiscaistagadpednfe.AsBoolean then
+      begin
+        if trim(ConsultaOSP.qryProcuraOSP.fieldbyname('numero').AsString) <> '' then
+          qryProdutosDadosFiscaisdescricaoproduto.AsString := qryProdutosDadosFiscaisdescricaoproduto.AsString +
+           ' OSP ' + ConsultaOSP.qryProcuraOSP.fieldbyname('numero').AsString;
+
+          qryProdutosDadosFiscaisdescricaoproduto.AsString := qryProdutosDadosFiscaisdescricaoproduto.AsString +
+           ' id item="'   +  trim(ConsultaOSP.qryProcuraOSP.fieldbyname('produto_cliente').AsString) +
+             '" ped="'    +  trim(ConsultaOSP.qryProcuraOSP.fieldbyname('pedidocliente').AsString) +
+             '" div uM="' +  trim(ConsultaOSP.qryProcuraOSP.fieldbyname('unidade').AsString) + '"';
+      end
+      else
+      begin
+        if trim(ConsultaOSP.qryProcuraOSP.fieldbyname('pedidocliente').AsString) <> '' then
+          qryProdutosDadosFiscaisdescricaoproduto.AsString := qryProdutosDadosFiscaisdescricaoproduto.AsString +
+           ' S/PED ' +ConsultaOSP.qryProcuraOSP.fieldbyname('pedidocliente').AsString;
+        if trim(ConsultaOSP.qryProcuraOSP.fieldbyname('produto_cliente').AsString) <> '' then
+          qryProdutosDadosFiscaisdescricaoproduto.AsString := qryProdutosDadosFiscaisdescricaoproduto.AsString +
+           ' ' + ConsultaOSP.qryProcuraOSP.fieldbyname('produto_cliente').AsString
+        else
+          qryProdutosDadosFiscaisdescricaoproduto.AsString := qryProdutosDadosFiscaisdescricaoproduto.AsString +
+           ' ' + ConsultaOSP.qryProcuraOSP.fieldbyname('codigovisual').AsString;
+        if trim(ConsultaOSP.qryProcuraOSP.fieldbyname('numero').AsString) <> '' then
+          qryProdutosDadosFiscaisdescricaoproduto.AsString := qryProdutosDadosFiscaisdescricaoproduto.AsString +
+           ' OSP ' + ConsultaOSP.qryProcuraOSP.fieldbyname('numero').AsString;
+      end;
+
+      qryProdutosDadosFiscaisquantidade.clear;
+      qryProdutosDadosFiscaispedida.AsCurrency := consultaosp.qryProcuraOSP.fieldbyname('quantidade').AsCurrency;
+      qryProdutosDadosFiscaisentregue.AsCurrency := consultaosp.qryProcuraOSP.fieldbyname('qtdeentregue').AsCurrency;
+      qryProdutosDadosFiscaisprecovenda.AsCurrency := ConsultaOSP.qryProcuraOSP.fieldbyname('preco').AsCurrency;
+      qryProdutosDadosFiscaisprecotabela.AsCurrency:= ConsultaOSP.qryProcuraOSP.fieldbyname('preco').AsCurrency;
+      qryProdutosDadosFiscaisosp.AsInteger := ConsultaOSP.qryProcuraOSP.fieldbyname('numero').AsInteger;
+      qryProdutosDadosFiscaispedidocliente.AsString:= ConsultaOSP.qryProcuraOSP.fieldbyname('pedidocliente').AsString;
+      qryProdutosDadosFiscaisunidade.AsString := ConsultaOSP.qryProcuraOSP.fieldbyname('unidade').AsString;
+      qryProdutosDadosFiscaistribunidade.AsString := ConsultaOSP.qryProcuraOSP.fieldbyname('unidade').AsString;
+
+      qryProdutosDadosFiscaiscodigovisual.AsString := ConsultaOSP.qryProcuraOSP.fieldbyname('codigovisual').AsString;
+
+      qryProdutosDadosFiscaisorigem.AsString := ConsultaOSP.qryProcuraOSP.fieldbyname('origem').AsString;
+      if ((qryProdutosDadosFiscaisorigem.AsString = '3') or
+          (qryProdutosDadosFiscaisorigem.AsString = '5') or
+          (qryProdutosDadosFiscaisorigem.AsString = '8')) and
+         (qryDadosFiscaisestadocfo.AsString <> dtmEmissaoNotasVenda.EstadoFilialBase) and
+         (dataservidor >= strtodatetime('01/10/2013')) then
+      begin
+        if (length(trim(ConsultaOSP.qryProcuraOSP.fieldbyname('fci').asString))<>36) then
+          mensagemerro('Tamanho do campo FCI incorreto')
+        else
+          qryProdutosDadosFiscaisfci.AsString       := trim(ConsultaOSP.qryProcuraOSP.fieldbyname('fci').asString);
+      end
+      else
+        qryProdutosDadosFiscaisfci.clear;
+
+      qryProdutosDadosFiscaisorigemproduto.AsString := ConsultaOSP.qryProcuraOSP.fieldbyname('origemproduto').AsString;
+      qryProdutosDadosFiscaisbrinde.AsBoolean := False;
+
+      qryProdutosDadosFiscaisbaseicms.AsCurrency     := ConsultaOSP.qryProcuraOSP.fieldbyname('baseicms').AsCurrency;
+      if ConsultaOSP.qryProcuraOSP.fieldbyname('icms').AsInteger > 0 then
+      begin
+        qryProdutosDadosFiscaisicms.AsInteger          := ConsultaOSP.qryProcuraOSP.fieldbyname('icms').AsInteger;
+        qryProdutosDadosFiscaisaliquotaicms.AsCurrency := ConsultaOSP.qryProcuraOSP.fieldbyname('aliquotaicms').AsCurrency;
+      end;
+
+      {Excessão a regra: quando for para estado do Amazonas temos uma aliquota negativa para dar desconto}
+      if qryProdutosDadosFiscaisaliquotaicms.AsCurrency < 0 then
+        qryProdutosDadosFiscaisincidencia.AsString := '40' //isentas
+      else
+        qryProdutosDadosFiscaisincidencia.AsString := ConsultaOSP.qryProcuraOSP.fieldbyname('incidencia').AsString;
+
+      if qryDadosFiscaisrecolhericmsst.AsBoolean and (qryProdutosDadosFiscaisincidencia.AsString = '00') then
+        qryProdutosDadosFiscaisincidencia.AsString := '10';
+
+      qryProdutosDadosFiscaisgenero.AsString := ConsultaOSP.qryProcuraOSP.fieldbyname('genero').AsString;
+      qryProdutosDadosFiscaisextipi.AsString := ConsultaOSP.qryProcuraOSP.fieldbyname('extipi').AsString;
+
+      if ConsultaOSP.qryProcuraOSP.fieldbyname('ipi').AsInteger > 0 then
+      begin
+        qryProdutosDadosFiscaisipi.AsInteger           := ConsultaOSP.qryProcuraOSP.fieldbyname('ipi').AsInteger;
+        qryProdutosDadosFiscaisclassificacaofiscal.AsString := ConsultaOSP.qryProcuraOSP.fieldbyname('classificacaofiscal').AsString;
+        qryProdutosDadosFiscaisaliqnacional.AsCurrency := ConsultaOSP.qryProcuraOSP.fieldbyname('aliqnacional').AsCurrency;
+        qryProdutosDadosFiscaisaliqimportado.AsCurrency := ConsultaOSP.qryProcuraOSP.fieldbyname('aliqimportado').AsCurrency;
+
+        if not qryDadosFiscaisipisuspenso.AsBoolean then
+          qryProdutosDadosFiscaisaliquotaipi.AsCurrency  := ConsultaOSP.qryProcuraOSP.fieldbyname('aliquotaipi').AsCurrency
+        else
+          qryProdutosDadosFiscaisaliquotaipi.AsCurrency  := 0.00;
+      end;
+
+      qryProdutosDadosFiscaisicmsmodalidade.AsString := ConsultaOSP.qryProcuraOSP.fieldbyname('icmsmodalidade').AsString;
+      qryProdutosDadosFiscaisicmsmodsubst.AsString := ConsultaOSP.qryProcuraOSP.fieldbyname('icmsmodsubst').AsString;
+      qryProdutosDadosFiscaisenquadramento.AsString := '999';
+      qryProdutosDadosFiscaispisaliquota.AsCurrency  := ConsultaOSP.qryProcuraOSP.fieldbyname('aliquotapis').AsCurrency;
+      qryProdutosDadosFiscaiscofinsaliquota.AsCurrency  := ConsultaOSP.qryProcuraOSP.fieldbyname('aliquotacofins').AsCurrency;
+    end;
+  end;
+end;
+
+procedure TfrmEmissaoNotasVenda.Condicoesosp;
+const
+  SQLOSPemAberto =
+       ' and ((select coalesce(sum(pdf.quantidade),0) ' +
+       ' from dadosfiscais df '+
+            ' join produtosdadosfiscais pdf ' +
+            ' on df.numero = pdf.dadofiscal ' +
+       ' where df.situacao = ''N'' ' +
+         ' and pdf.osp = osp.numero ' +
+         ' and pdf.produto = osp.produto) = 0) ';
+  SQLCliente = ' and not osp.semiacabado and osp.cliente = %s ';
+begin
+  with dtmEmissaoNotasVenda do
+  begin
+    ConsultaOSP.qryProcuraOSP.ParamByName('estadofilialbase').AsString := EstadoFilialBase;
+//    ConsultaOSP.qryConsultaOSP.MacroByName('SQLOSP').AsString := SQLOSPemAberto;
+//    ConsultaOSP.qryprocuraOSP.MacroByName('SQLOSP').AsString := SQLOSPemAberto;
+    if qryDadosFiscaiscliente.AsInteger<>0 then
+    begin
+      ConsultaOSP.qryConsultaOSP.MacroByName('SQLOSP').AsString :=
+        format({SQLOSPemAberto+}SQLCliente,[qryDadosFiscaiscliente.AsString]);
+
+      ConsultaOSP.qryprocuraOSP.MacroByName('SQLOSP').AsString :=
+        format({SQLOSPemAberto+}SQLCliente,[qryDadosFiscaiscliente.AsString]);
+
+      ConsultaOSP.qryConsultaOSP.ParamByName('cliente').AsInteger := qryDadosFiscaiscliente.AsInteger;
+    end;
+  end;
+end;
+
+constructor TfrmEmissaoNotasVenda.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmEmissaoNotasVenda := TdtmEmissaoNotasVenda.Create(Self);
+  DataSet := dtmEmissaoNotasVenda.qryDadosFiscais;
+
+  ConsultaOSP := TfraConsultaCodigo.Create(self);
+  ConsultaOSP.Name := 'fraConsultaOSP';
+  ConsultaOSP.edfCodigo.MaxLength := 6;
+  ConsultaOSP.edfCodigo.DataSource := dtmEmissaoNotasVenda.dsrProdutosDadosFiscais;
+  ConsultaOSP.edfCodigo.DataField := 'osp';
+  ConsultaOSP.edfCodigo.Operacao := opATRIBUICAO;
+  ConsultaOSP.edfCodigo.LookupSource := ConsultaOSP.dsrProcuraOSP;
+  ConsultaOSP.edfCodigo.LookupField := 'numero';
+  ConsultaOSP.edfCodigo.LookupQueryParameter := 'numero';
+  ConsultaOSP.AbrirTabelaProcura := false;
+  ConsultaOSP.OnFound := AtribuirDadosOSP;
+  ConsultaOSP.CondicoesdaConsulta := Condicoesosp;
+  ConsultaOSP.Tipovfornecedor := 'C';
+  ConsultaOSP.TipoCliente := 'C';
+  ConsultaOSP.TipoPesquisa := pesOSP;
+  dtmEmissaoNotasVenda.OnDadosFiscaisAfterCancel := FocarGridOSP;
+  dtmEmissaoNotasVenda.OnProdutosDadosFiscaisAfterPost := OnProdutosDadosFiscaisAfterPost;
+
+  fraConsultaNotaFiscalComplementar.TipoCliente := 'C';
+  fraConsultaNotaFiscalComplementar.Tipovfornecedor := 'C';
+  fraConsultaNotaFiscalComplementar.CondicoesdaConsulta := ParametrosNota;
+  fraConsultaNotaFiscalComplementar.OnFound := AtribuirDadosOSPNFComplementar;
+  fraConsultaNotaFiscalComplementar.TipoPesquisa := pesNOTASFILIAIS;
+
+  fraConsultaCodigoPlano.OnFound := AtribuirVenctosDadosFiscais;
+  fraConsultaCodigoPlano.TipoPesquisa := pesPLANO;
+  fraConsultaCodigoTransportadora.OnFound := AtribuirDadosTransportadora;
+  fraConsultaCodigoTransportadora.TipoPesquisa := pesTRANSPORTADORES;
+
+  fraConsultaEstadoTransportadora.TipoPesquisa := pesESTADOS;
+  fraConsultaUFEmbarque.TipoPesquisa := pesESTADOS;
+
+  edtLocalEntregaCNPJ.Tipo := 'J';
+  edtLocalRetiradaCNPJ.Tipo := 'J';
+
+  fraEnderecoRetirada.CampoCidadeIBGE := dtmEmissaoNotasVenda.qryDadosFiscaislocalretirada_cidadeibge;
+  fraEnderecoEntrega.CampoCidadeIBGE := dtmEmissaoNotasVenda.qryDadosFiscaislocalentrega_cidadeibge;
+
+  gbxOSP.Enabled := false;
+
+  dbgProdutosDadosFiscais.OnDelete := sbnExcluirProduto.Click;
+
+  pgcNotasVenda.ActivePage := tstOSPs;
+  pgcNotasVenda.Style := tsTabs;
+
+  InternoIncluir;
+
+end;
+
+function TfrmEmissaoNotasVenda.InternoIncluir: Boolean;
+begin
+  Result:= inherited InternoIncluir;
+  if Result then
+  begin
+    if not CtrlOn then
+    begin
+      if dtmEmissaoNotasVenda.IncluirNota then
+      begin
+        gbxOSP.Enabled := true;
+        dbgProdutosDadosFiscais.Columns[4].ReadOnly := false;
+        dbgProdutosDadosFiscais.Columns[1].ReadOnly := false;
+        OperacaoNota := tonOSP;
+        pgcNotasVenda.ActivePage := tstOSPs;
+        FocarGridOSP(self);
+        ConsultaOSP.qryProcuraCliente.Close;
+      end;
+    end
+    else
+      result := incluirProdutocontrato;
+  end;
+end;
+
+procedure TfrmEmissaoNotasVenda.dbgProdutosDadosFiscaisKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Shift = [ssCtrl] then
+  begin
+    case Key of
+      VK_F9 : begin
+                 if dtmEmissaoNotasVenda.qryDadosFiscaisdadofiscalcomplementar.AsInteger=0 then
+                 begin
+                   ConsultaOSP.CtrlOn := Shift = [ssCtrl];
+                   if (Shift = []) or ConsultaOSP.CtrlOn then
+                     AcionaPesquisaGrade
+                 end;
+               end;
+    end;
+  end
+  else
+  begin
+    case key of
+      VK_Return :
+      begin
+        case dbgProdutosDadosFiscais.SelectedIndex of
+        1 : begin
+             if dtmEmissaoNotasVenda.qryDadosFiscaisdadofiscalcomplementar.AsInteger<>0 then
+               dbgProdutosDadosFiscais.SelectedIndex := 5
+             else
+             begin
+               if ConsultaOSP.edfCodigo.Exist then
+               begin
+                 AtribuirDadosOSP;
+                 dbgProdutosDadosFiscais.SelectedIndex := 4;
+                 dbgProdutosDadosFiscais.SetFocus;
+               end
+               else
+               begin
+                 dtmEmissaoNotasVenda.qryProdutosDadosFiscaisosp.Clear;
+                 dbgProdutosDadosFiscais.SelectedIndex := 1;
+                 dbgProdutosDadosFiscais.SetFocus;
+               end;
+             end;
+            end;
+        4 : dbgProdutosDadosFiscais.SelectedIndex := 5;
+        5 : begin
+              CtrlOn := True;
+              if dtmEmissaoNotasVenda.GravarProdutoDadoFiscal then
+              begin
+                 if dtmEmissaoNotasVenda.qryDadosFiscaisdadofiscalcomplementar.AsInteger<>0 then
+                   dtmEmissaoNotasVenda.qryProdutosDadosFiscais.Next
+                 else
+                 begin
+                   InternoIncluir;
+                   dbgProdutosDadosFiscais.SetFocus;
+                   dbgProdutosDadosFiscais.SelectedIndex := 1;
+                 end;
+              end
+              else
+                  dbgProdutosDadosFiscais.SelectedIndex := 5;
+            end;
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmEmissaoNotasVenda.AlterarEstadoBotoes;
+begin
+  inherited;
+  if dtmEmissaoNotasVenda.DadosFiscalEmEdicaoInsercao then
+  begin
+    pnlCabecalhoDireita.Enabled := True;
+    gbxCliente.Enabled := True;
+    gbxObservacoes.Enabled := True;
+  end
+  else
+  begin
+    pnlCabecalhoDireita.Enabled := False;
+    gbxCliente.Enabled := False;
+    gbxObservacoes.Enabled := False;
+  end;
+  sbnSalvar.Enabled := (dtmEmissaoNotasVenda.qryProdutosDadosFiscais.RecordCount<>0) and
+                       (dtmEmissaoNotasVenda.DadosFiscalEmEdicaoInsercao);
+
+  sbnIncluirProduto.Enabled := dtmEmissaoNotasVenda.DadosFiscalEmEdicaoInsercao;
+  sbnExcluirProduto.Enabled := sbnSalvar.Enabled;
+end;
+
+procedure TfrmEmissaoNotasVenda.FocarGridOSP(Sender: TObject);
+begin
+  if dbgProdutosDadosFiscais.CanFocus then
+  begin
+    dbgProdutosDadosFiscais.SetFocus;
+    dbgProdutosDadosFiscais.SelectedIndex := 1;
+    AlterarEstadoBotoes;
+  end;
+end;
+
+function TfrmEmissaoNotasVenda.InternoGravar: Boolean;
+begin
+  Result := inherited InternoGravar;
+  if Result then
+  begin
+    if OperacaoNota = tonOSP then
+    begin
+      result := dtmEmissaoNotasVenda.VerificarProdutosDadosFiscais;
+      if result then
+        Result := ComplementarDadosNota;
+    end
+    else
+    begin
+      Result := dtxValorTotal.DataSource.DataSet.FieldByName('valortotal').AsCurrency = dtmEmissaoNotasVenda.TotalVenctos;
+      if not Result then
+      begin
+        MensagemAviso('A soma dos vencimentos: R$ ' + formatarValor(dtmEmissaoNotasVenda.TotalVenctos,2) +
+                      ' difere do total da nota: R$ ' + formatarValor(dtxValorTotal.DataSource.DataSet.FieldByName('valortotal').AsCurrency,2));
+        dbgVenctos.SetFocus;
+      end
+      else
+        if dtmEmissaoNotasVenda.GravarDadoFiscal then
+          InternoIncluir;
+    end;
+  end;
+end;
+
+function TfrmEmissaoNotasVenda.ComplementarDadosNota: Boolean;
+begin
+  Result := dtmEmissaoNotasVenda.ComplementarDadosNota;
+  if Result then
+  begin
+    {frmComplementarNotasVenda := TfrmComplementarNotasVenda.Create(Self);
+    try
+      frmComplementarNotasVenda.DataModulo := dtmEmissaoNotasVenda;
+      Result := frmComplementarNotasVenda.ShowModal = mrOK;
+    finally
+      frmComplementarNotasVenda.Free;
+      SetFocus;
+    end;
+    }
+    OperacaoNota := tonCOMPLEMENTAR;
+    pgcNotasVenda.ActivePage := tstComplemento;
+    edtDataEmissao.SetFocus;
+  end;
+end;
+
+
+function TfrmEmissaoNotasVenda.Internoexcluir: Boolean;
+begin
+  inherited Internoexcluir;
+  if MensagemConfirmacao(Format(ctCONFIRMEEXCLUIR, ['a osp desta nota fiscal'])) = smbOk then
+  begin
+    dtmEmissaoNotasVenda.qryProdutosDadosFiscais.Delete;
+    AlterarEstadoBotoes;
+  end;
+  result := true;
+end;
+
+procedure TfrmEmissaoNotasVenda.sbnExcluirProdutoClick(Sender: TObject);
+begin
+  inherited;
+  Internoexcluir;
+end;
+
+procedure TfrmEmissaoNotasVenda.OnProdutosDadosFiscaisAfterPost(
+  Sender: TObject);
+begin
+  AlterarEstadoBotoes;
+end;
+
+procedure TfrmEmissaoNotasVenda.sbnIncluirProdutoClick(Sender: TObject);
+begin
+  inherited;
+  incluirProdutocontrato;
+end;
+
+function TfrmEmissaoNotasVenda.incluirProdutocontrato: Boolean;
+begin
+  result := true;
+  if (dtmEmissaoNotasVenda.qryProdutosDadosFiscais.State in [dsedit, dsinsert]) or
+     (dtmEmissaoNotasVenda.qryProdutosDadosFiscais.RecordCount > 0) then
+   result := dtmEmissaoNotasVenda.GravarProdutoDadoFiscal;
+
+  if result then
+  begin
+    Result := dtmEmissaoNotasVenda.IncluirProdutosDadoFiscal;
+    dbgProdutosDadosFiscais.SetFocus;
+    dbgProdutosDadosFiscais.SelectedIndex := 1;
+  end;
+end;
+
+procedure TfrmEmissaoNotasVenda.ParametrosNota;
+begin
+  fraConsultaNotaFiscalComplementar.qryProcuraNotas.ParamByName('filial').AsInteger :=
+    dtmEmissaoNotasVenda.FilialBase;
+  fraConsultaNotaFiscalComplementar.qryProcuraNotas.ParamByName('serie').AsString :=
+    dtmEmissaoNotasVenda.SerieSugestao;
+  fraConsultaNotaFiscalComplementar.qryProcuraNotas.MacroByName('SQL').AsString :=
+    'and df.tipocliente = ''C''';
+
+  fraConsultaNotaFiscalComplementar.qryconsultaNotas.MacroByName('SQL').AsString :=
+    'and d.tipocliente = ''C'' '+
+    'and n.filial = '+ inttostr(FilialBase) +
+    'and n.serie = '+ dtmEmissaoNotasVenda.SerieSugestao;
+end;
+
+procedure TfrmEmissaoNotasVenda.AtribuirDadosOSPNFComplementar;
+var
+ i: integer;
+begin
+  with dtmEmissaoNotasVenda do
+  begin
+    ReFazConsulta(fraConsultaNotaFiscalComplementar.qryProcuraCliente,[0,1],
+                 [fraConsultaNotaFiscalComplementar.qryProcuraNotascliente.AsInteger,'C']);
+
+    if fraConsultaNotaFiscalComplementar.qryProcuraNotasCliente.AsInteger<>0 then
+      qryDadosFiscaiscliente.value    := fraConsultaNotaFiscalComplementar.qryProcuraNotasCliente.value
+    else
+      qryDadosFiscaiscliente.clear;
+
+    qryDadosFiscaisdadofiscalcomplementar.clear;
+    qryDadosFiscaistagadpednfe.AsBoolean := fraConsultaNotaFiscalComplementar.qryProcuraClienteTagAdPedNFE.asboolean;
+    qryDadosFiscaisnome.AsString       := fraConsultaNotaFiscalComplementar.qryProcuraClientenome.AsString;
+    qryDadosFiscaisapelido.AsString     := fraConsultaNotaFiscalComplementar.qryProcuraClienteapelido.value;
+    qryDadosFiscaistipocliente.AsString := 'C';
+    qryDadosFiscaispessoatipo.value     := fraConsultaNotaFiscalComplementar.qryProcuraClientepessoatipo.value;
+    qryDadosFiscaispessoanumero.value   := fraConsultaNotaFiscalComplementar.qryProcuraClientepessoanumero.value;
+    qryDadosFiscaisfonenumero.value     := fraConsultaNotaFiscalComplementar.qryProcuraClientefonenumero.value;
+    qryDadosFiscaisfoneddd.value        := fraConsultaNotaFiscalComplementar.qryProcuraClientefoneddd.value;
+    qryDadosFiscaisdocumento.value      := fraConsultaNotaFiscalComplementar.qryProcuraClienteinscricaoestadual.value;
+    qryDadosFiscaissuframa.value        := fraConsultaNotaFiscalComplementar.qryProcuraClientesuframa.value;
+    //Este campos é para atribuir a ie da uf da filial no estado de destino da mercadoria
+    //porém a Krah_ice nao possue retencão icms subst. tribut.
+    //qryDadosFiscaisiesubsttributario.AsString := '';
+
+    qryDadosFiscaisestadocfo.value            := fraConsultaNotaFiscalComplementar.qryProcuraClienteestado.value;
+    qryDadosFiscaisobscliente.value           := fraConsultaNotaFiscalComplementar.qryProcuraClienteobsnotafiscal.value;
+    qryDadosFiscaisipisuspenso.AsBoolean      := fraConsultaNotaFiscalComplementar.qryProcuraClienteipisuspenso.AsBoolean;
+    qryDadosFiscaisobsclienteipisuspenso.value:= fraConsultaNotaFiscalComplementar.qryProcuraClienteobsipisuspenso.value;
+    qryDadosFiscaisvendedor.value             := UsuarioLogin.CodigoUsuario;
+
+    qryDadosFiscaisrua.value            := fraConsultaNotaFiscalComplementar.qryProcuraClienterua.value;
+    qryDadosFiscaisendnumero.value      := fraConsultaNotaFiscalComplementar.qryProcuraClientenumero.value;
+    qryDadosFiscaisendcomplemento.value := fraConsultaNotaFiscalComplementar.qryProcuraClientecomplemento.value;
+    qryDadosFiscaisbairro.value         := fraConsultaNotaFiscalComplementar.qryProcuraClientebairro.value;
+    qryDadosFiscaisnomebairro.AsString  := fraConsultaNotaFiscalComplementar.qryProcuraClientenomebairro.value;
+    qryDadosFiscaiscidade.value         := fraConsultaNotaFiscalComplementar.qryProcuraClientecidade.value;
+    qryDadosFiscaisnomecidade.AsString  := fraConsultaNotaFiscalComplementar.qryProcuraClientenomecidade.AsString;
+    qryDadosFiscaiscidadeibge.value     := fraConsultaNotaFiscalComplementar.qryProcuraClientecidadeibge.value;
+    qryDadosFiscaisestado.value         := fraConsultaNotaFiscalComplementar.qryProcuraClienteestado.value;
+    qryDadosFiscaiscep.value            := fraConsultaNotaFiscalComplementar.qryProcuraClientecep.value;
+
+    qryDadosFiscaislocalentrega_rua.AsString         := fraConsultaNotaFiscalComplementar.qryProcuraClienterefrua.AsString;
+    qryDadosFiscaislocalentrega_numero.AsString      := fraConsultaNotaFiscalComplementar.qryProcuraClienterefnumero.AsString;
+    qryDadosFiscaislocalentrega_complemento.AsString := fraConsultaNotaFiscalComplementar.qryProcuraClienterefcomplemento.AsString;
+    qryDadosFiscaislocalentrega_bairro.AsString      := fraConsultaNotaFiscalComplementar.qryProcuraClienterefbairro.AsString;
+    qryDadosFiscaislocalentrega_nomebairro.AsString  := fraConsultaNotaFiscalComplementar.qryProcuraClienterefnomebairro.AsString;
+    qryDadosFiscaislocalentrega_cidade.AsString      := fraConsultaNotaFiscalComplementar.qryProcuraClienterefcidade.AsString;
+    qryDadosFiscaislocalentrega_nomecidade.AsString  := fraConsultaNotaFiscalComplementar.qryProcuraClienterefnomecidade.AsString;
+    qryDadosFiscaislocalentrega_cidadeibge.AsString  := fraConsultaNotaFiscalComplementar.qryProcuraClienterefcidadeibge.AsString;
+    qryDadosFiscaislocalentrega_estado.AsString      := fraConsultaNotaFiscalComplementar.qryProcuraClienterefestado.AsString;
+    qryDadosFiscaislocalentrega_cep.AsString         := fraConsultaNotaFiscalComplementar.qryProcuraClienterefcep.AsString;
+    qryDadosFiscaislocalentrega_cnpj.AsString        := fraConsultaNotaFiscalComplementar.qryProcuraClientepessoanumero.AsString;
+
+    qryDadosFiscaisvalortotal.AsCurrency   := fraConsultaNotaFiscalComplementar.qryProcuraNotasvalortotal.value;
+    qryDadosFiscaisvalorprodutos.AsCurrency:= fraConsultaNotaFiscalComplementar.qryProcuraNotasvalorprodutos.value;
+    qryDadosFiscaisvalorvista.AsCurrency   := fraConsultaNotaFiscalComplementar.qryProcuraNotasvalorvista.value;
+    qryDadosFiscaisdesconto.AsCurrency    := fraConsultaNotaFiscalComplementar.qryProcuraNotasdesconto.value;
+    qryDadosFiscaisvaloripi.AsCurrency := fraConsultaNotaFiscalComplementar.qryProcuraNotasvaloripi.value;
+
+    while not qryProdutosDadosFiscais.Eof do
+      qryProdutosDadosFiscais.Delete;
+
+    ReFazConsulta(qryProdutosDadosFiscaisComplementar,[0],
+      [fraConsultaNotaFiscalComplementar.qryProcuraNotasDadoFiscal.AsVariant]);
+
+    while not qryProdutosDadosFiscaisComplementar.Eof do
+    begin
+      if qryprodutosdadosfiscais.State <> dsinsert then
+        qryProdutosDadosFiscais.Append;
+
+      for i:=0 to qryProdutosDadosFiscaisComplementar.FieldCount-1 do
+      begin
+        case qryProdutosDadosFiscaisComplementar.fields[i].DataType of
+          ftLargeint :
+          qryProdutosDadosFiscais.FieldByName(qryProdutosDadosFiscaisComplementar.fields[i].fieldName).asstring :=
+             qryProdutosDadosFiscaisComplementar.fields[i].asstring
+
+        else
+          qryProdutosDadosFiscais.FieldByName(qryProdutosDadosFiscaisComplementar.fields[i].fieldName).Value :=
+             qryProdutosDadosFiscaisComplementar.fields[i].value;
+        end;
+      end;
+      qryProdutosDadosFiscais.Post;
+
+      qryProdutosDadosFiscaisComplementar.Next;
+    end;
+    if fraConsultaNotaFiscalComplementar.qryProcuraNotasdadofiscal.AsInteger<>0 then
+      qryDadosFiscaisdadofiscalcomplementar.AsInteger := fraConsultaNotaFiscalComplementar.qryProcuraNotasdadofiscal.AsInteger;
+    dbgProdutosDadosFiscais.Columns[4].ReadOnly := not qryDadosFiscaisdadofiscalcomplementar.isnull;
+    dbgProdutosDadosFiscais.Columns[1].ReadOnly := not qryDadosFiscaisdadofiscalcomplementar.isnull;
+  end;
+end;
+
+procedure TfrmEmissaoNotasVenda.fraConsultaNotaFiscalComplementaredfCodigoExit(
+  Sender: TObject);
+begin
+  inherited;
+  fraConsultaNotaFiscalComplementar.edfCodigoExit(Sender);
+  if (fraConsultaNotaFiscalComplementar.edfCodigo.Text='') and
+    (NFComplementar<>'') then
+    AtribuirDadosOSPNFComplementar;
+end;
+
+procedure TfrmEmissaoNotasVenda.fraConsultaNotaFiscalComplementaredfCodigoEnter(
+  Sender: TObject);
+begin
+  inherited;
+  NFComplementar := fraConsultaNotaFiscalComplementar.edfCodigo.Text;
+end;
+
+function TfrmEmissaoNotasVenda.InternoCancelar: Boolean;
+begin
+  result := inherited internocancelar;
+  if not (DataSet.State in [dsEdit, dsInsert]) then
+  begin
+    CtrlOn := False;
+    InternoIncluir;
+  end
+  else
+    Result := True;
+end;
+
+procedure TfrmEmissaoNotasVenda.flkNaturezaOperacaoExit(Sender: TObject);
+begin
+  inherited;
+  if dtmEmissaoNotasVenda.QuantidadeNaturezas then
+    InternoPesquisar(flkNaturezaOperacao,ctCODIGOFISCAL);
+  tstExportacao.TabVisible := (copy(flkNaturezaOperacao.Text,1,1)='7');
+end;
+
+procedure TfrmEmissaoNotasVenda.sbnNaturezaOperacaoClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  flkNaturezaOperacao.SetFocus;
+  InternoPesquisar(ctCODIGOFISCAL);
+end;
+
+procedure TfrmEmissaoNotasVenda.flkNaturezaOperacaoChange(Sender: TObject);
+begin
+  inherited;
+  if length(flkNaturezaOperacao.Text) = 4 then
+    tstExportacao.TabVisible := (copy(flkNaturezaOperacao.Text,1,1)='7');
+end;
+
+function TfrmEmissaoNotasVenda.InternoPesquisar(Titulo: String): Integer;
+begin
+  Result := mrNone;
+  if flkNaturezaOperacao.Focused then
+  begin
+    dtmEmissaoNotasVenda.Abre(ctTabelaNaturezaOperacoes);
+    Result := inherited InternoPesquisar(ctCodigoFiscal);
+    if Result = mrOK then
+      dtmEmissaoNotasVenda.SelecionarNatureza;
+    dtmEmissaoNotasVenda.Fecha(ctTabelaNaturezaOperacoes);
+  end;
+end;
+
+function TfrmEmissaoNotasVenda.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  TfrmConsultaPorCampo(Result).ConsultaInterativa := True;
+  TfrmConsultaPorCampo(Result).UsarParametrosDaTabela := False;
+end;
+
+function TfrmEmissaoNotasVenda.TabelaDePesquisa: TZDataSet;
+begin
+  Result := dtmEmissaoNotasVenda.TabelaConsultaNaturezaOperacao;
+end;
+
+procedure TfrmEmissaoNotasVenda.AtribuirVenctosDadosFiscais;
+var
+  Parcelas: TResumosParcelas;
+  ValorPrazo, TaxaJuros, Desconto: Real;
+  Plano: Integer;
+begin
+  inherited;
+  if dtmEmissaoNotasVenda.qryDadosFiscaisplano.AsInteger > 0 then
+  begin
+    dtmEmissaoNotasVenda.qryDadosFiscaisagente.AsInteger := fraConsultaCodigoPlano.qryProcuraPlanoagente.AsInteger;
+    dtmEmissaoNotasVenda.qryDadosFiscaistaxajuros.AsCurrency := fraConsultaCodigoPlano.qryProcuraPlanotaxamensaljuros.AsCurrency;
+
+    Plano := dtmEmissaoNotasVenda.qryDadosFiscaisplano.AsInteger;
+    dtmCalculoFinanciamento := TdtmCalculoFinanciamento.Create(Owner);
+    try
+      dtmCalculoFinanciamento.ValorMercadoria  := dtmEmissaoNotasVenda.qryDadosFiscaisvalorprodutos.AsCurrency -
+                                                  dtmEmissaoNotasVenda.qryDadosFiscaisdesconto.AsCurrency +
+                                                  dtmEmissaoNotasVenda.qryDadosFiscaisvaloripi.AsCurrency;
+
+      dtmCalculoFinanciamento.ValorFrete       := dtmEmissaoNotasVenda.qryDadosFiscaisvalorfrete.AsCurrency;
+      dtmCalculoFinanciamento.ValorSeguro      := dtmEmissaoNotasVenda.qryDadosFiscaisseguro.AsCurrency +
+                                                  dtmEmissaoNotasVenda.qryDadosFiscaisdespesasacessorias.AsCurrency;
+      dtmCalculoFinanciamento.Desconto         := 0;
+      dtmCalculoFinanciamento.CreditoTroca     := 0;
+      dtmCalculoFinanciamento.DataCalculo      := dtmEmissaoNotasVenda.qryDadosFiscaisdata.AsString;
+      dtmCalculoFinanciamento.PermiteDesconto  := False;
+      dtmCalculoFinanciamento.ValorSubstituicaoTributaria := dtmEmissaoNotasVenda.qryDadosFiscaistotalvaloricmssubstituicao.AsCurrency;
+      dtmCalculoFinanciamento.EstadoCliente    := dtmEmissaoNotasVenda.qryDadosFiscaisestado.AsString;
+      dtmCalculoFinanciamento.DescontoItem     := 0;
+
+      dtmCalculoFinanciamento.PreencherValores(True, Plano, Parcelas, nil, nil);
+
+      if dtmCalculoFinanciamento.localizaPlanoPadrao(Plano) then
+      begin
+        dtmCalculoFinanciamento.ResumosParcelas(Parcelas, ValorPrazo, TaxaJuros, Desconto, Plano);
+        dtmEmissaoNotasVenda.DefinirVentosDadosFiscais(Parcelas,
+          fraConsultaCodigoPlano.edfCodigo.LookupSource.DataSet.FieldByName('mestrintadias').AsBoolean,
+          fraConsultaCodigoPlano.edfCodigo.LookupSource.DataSet.FieldByName('intervaloparcelas').AsInteger);
+
+      end;
+    finally
+      dtmCalculoFinanciamento.Free;
+    end;
+  end;
+end;
+
+procedure TfrmEmissaoNotasVenda.AtribuirDadosTransportadora;
+begin
+  with dtmEmissaoNotasVenda do
+  begin
+    qryDadosFiscaisTransportadora_CNPJ.AsString :=
+    fraConsultaCodigoTransportadora.qryProcuraTransportador.fieldbyname('pessoanumero').AsString;
+
+    qryDadosFiscaistransportadora_ie.AsString :=
+    fraConsultaCodigoTransportadora.qryProcuraTransportador.fieldbyname('inscricaoestadual').AsString;
+
+    qryDadosFiscaisTransportadora_Nome.AsString  :=
+    fraConsultaCodigoTransportadora.qryProcuraTransportador.fieldbyname('razao').AsString;
+
+    qryDadosFiscaisTransportadora_Rua.AsString   :=
+    fraConsultaCodigoTransportadora.qryProcuraTransportador.fieldbyname('rua').AsString;
+
+    qryDadosFiscaisTransportadora_Bairro.AsString:=
+    fraConsultaCodigoTransportadora.qryProcuraTransportador.fieldbyname('bairro').AsString;
+
+    qryDadosFiscaisTransportadora_NomeBairro.AsString :=
+    fraConsultaCodigoTransportadora.qryProcuraTransportador.fieldbyname('nomebairro').AsString;
+
+    qryDadosFiscaisTransportadora_Cidade.AsString     :=
+    fraConsultaCodigoTransportadora.qryProcuraTransportador.fieldbyname('cidade').AsString;
+
+    qryDadosFiscaisTransportadora_NomeCidade.AsString :=
+    fraConsultaCodigoTransportadora.qryProcuraTransportador.fieldbyname('nomecidade').AsString;
+
+    qryDadosFiscaisTransportadora_CidadeIBGE.AsString :=
+    fraConsultaCodigoTransportadora.qryProcuraTransportador.fieldbyname('codigocidadeibge').AsString;
+
+    qryDadosFiscaisTransportadora_estado.AsString     :=
+    fraConsultaCodigoTransportadora.qryProcuraTransportador.fieldbyname('estado').AsString;
+
+    qryDadosFiscaisTransportadora_RNTC.AsString       :=
+    fraConsultaCodigoTransportadora.qryProcuraTransportador.fieldbyname('rntc').AsString;
+  end;
+end;
+
+procedure TfrmEmissaoNotasVenda.Action1Update(Sender: TObject);
+begin
+  inherited;
+  if OperacaoNota = tonOSP then
+    sbnSalvar.Caption := 'Complementar F5'
+  else
+    sbnSalvar.Caption := 'Imprimir F5';
+end;
+
+procedure TfrmEmissaoNotasVenda.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  case key of
+    VK_ESCAPE: begin
+                  if OperacaoNota = tonCOMPLEMENTAR then
+                  begin
+                    dtmEmissaoNotasVenda.LimparTabelasNotas;
+                    OperacaoNota := tonOSP;
+                    pgcNotasVenda.ActivePage := tstOSPs;
+                    FocarGridOSP(self);
+                  end
+                  else
+                    inherited;
+                end;
+    else
+      inherited;
+  end;
+end;
+
+procedure TfrmEmissaoNotasVenda.edtPlacaTransporteKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if key = VK_delete then
+  begin
+    dtmEmissaoNotasVenda.qryDadosFiscaisplaca.Clear;
+    edtPlacaTransporte.Clear;
+    edtPlacaTransporte.SelectAll;
+  end;
+
+end;
+
+end.

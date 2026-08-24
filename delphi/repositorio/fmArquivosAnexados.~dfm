@@ -1,0 +1,649 @@
+object frmArquivosAnexados: TfrmArquivosAnexados
+  Left = 119
+  Top = 14
+  Width = 1226
+  Height = 714
+  Caption = 'Arquivos Anexados'
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Font.Style = []
+  OldCreateOrder = False
+  OnCreate = FormCreate
+  PixelsPerInch = 96
+  TextHeight = 13
+  inline fraVisualizarImageURL1: TfraVisualizarImageURL
+    Left = 0
+    Top = 0
+    Width = 1210
+    Height = 676
+    Align = alClient
+    TabOrder = 0
+    inherited Splitter2: TSplitter
+      Left = 731
+      Width = 7
+      Height = 659
+      Beveled = True
+      Color = 16772055
+      ResizeStyle = rsLine
+    end
+    inherited SplitterBottom: TSplitter
+      Top = 659
+      Width = 1210
+      Height = 5
+      Color = 16772055
+      ParentColor = False
+      ResizeStyle = rsLine
+    end
+    inherited pnlInformacoesProduto: TPanel
+      Top = 659
+      Width = 1210
+      Height = 0
+      inherited lblProduto: TLabel
+        Width = 7
+        Height = 27
+        Align = alNone
+        Visible = False
+      end
+      inherited FileListBox1: TFileListBox
+        Left = 0
+        Width = 1210
+        Height = 0
+        Align = alBottom
+      end
+    end
+    inherited ToolBar1: TToolBar
+      Top = 664
+      Width = 1210
+      Height = 12
+      Visible = False
+    end
+    inherited ScrollBox1: TScrollBox
+      Left = 738
+      Width = 472
+      Height = 659
+      inherited imgVisualFormURL: TImage
+        Width = 468
+        Height = 655
+        Stretch = True
+      end
+    end
+    inherited Panel1: TPanel
+      Width = 731
+      Height = 659
+      OnResize = fraVisualizarImageURL1Panel1Resize
+    end
+  end
+  object pnlArquivosAnexados: TPanel
+    Left = 0
+    Top = 0
+    Width = 731
+    Height = 577
+    Align = alCustom
+    TabOrder = 1
+    object lbMessage: TLabel
+      Left = 1
+      Top = 431
+      Width = 729
+      Height = 17
+      Align = alBottom
+      AutoSize = False
+      WordWrap = True
+    end
+    object pnlBotoes: TPanel
+      Left = 699
+      Top = 1
+      Width = 31
+      Height = 430
+      Align = alRight
+      TabOrder = 0
+      object btnIncluirArquivo: TSpeedButton
+        Left = 4
+        Top = 44
+        Width = 23
+        Height = 22
+        Hint = 'Incluir Arquivo'
+        Flat = True
+        Glyph.Data = {
+          36060000424D3606000000000000360000002800000020000000100000000100
+          18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDC7F7F7F7F7F7F7F7F7F8080808080807F7F7F7F7F7F7F7F7F7F7F
+          7F808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC0000000000000000000000000000000000000000000000000000000000
+          00808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7F7F
+          7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          007F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          007F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          007F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          007F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          00808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
+          00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDC
+          DCDCDCDCDCFFFFFFFFFFFFFFFFFF7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFF0000000000000000000000000000
+          00DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDC
+          DCDC7F7F7F7F7F7F7F7F7F7F7F7F7F7F7FFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFF000000FFFFFFFFFFFF000000DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDC
+          DCDC7F7F7FFFFFFFDCDCDC7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFF000000FFFFFF000000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFDCDCDCDCDCDCDC
+          DCDC7F7F7FFFFFFF7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC000000FFFFFFFFFFFFFFFFFFFFFFFF000000000000DCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7FFFFFFFFFFFFFFFFFFFFF
+          FFFF7F7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC000000000000000000000000000000000000DCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7F7F
+          7F7F7F7F7FDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+        NumGlyphs = 2
+        OnClick = btnIncluirArquivoClick
+      end
+      object btnExcluirArquivo: TSpeedButton
+        Left = 4
+        Top = 66
+        Width = 23
+        Height = 22
+        Hint = 'Excluir Arquivo'
+        Flat = True
+        Glyph.Data = {
+          36060000424D3606000000000000360000002800000020000000100000000100
+          18000000000000060000120B0000120B00000000000000000000DCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          A0A0A00000FF0000FF000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDC0000FFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7FFFFFFFFF
+          FFFFDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFF808080DCDCDCDCDCDCDCDCDC
+          0000FF0000FF0000FF000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DC0000000000FFDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7FFF
+          FFFFDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF808080DCDCDCDCDCDCDCDCDCDCDCDC
+          0000FF0000FF0000FF0000FF000000DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC0000
+          000000FF808080DCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F7F7FFF
+          FFFFFFFFFFDCDCDCDCDCDCFFFFFF808080808080DCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC0000FF0000FF0000FF0000FF000000DCDCDCDCDCDCDCDCDC0000000000
+          FF808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F
+          7F7FFFFFFFDCDCDCFFFFFF808080808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDC0000FF0000FF0000FF000000DCDCDCDCDCDC0000000000FF0000
+          FF808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7F7F
+          7F7FFFFFFFFFFFFF808080808080808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDC0000FF0000FF0000FF0000000000000000FF0000FF8080
+          80DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F
+          7F7F7F7F7F808080808080808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDC0000FF0000FF0000FF0000FF0000FF808080DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F80
+          80807F7F7F808080808080808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDC0000000000FF0000FF0000FF0000FFDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF7F7F7F7F
+          7F7F7F7F7F7F7F7F808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDC0000000000000000FF0000FF0000FF000000DCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFF8080808080807F
+          7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDC0000000000FF0000FF0000FF0000FF0000FF0000FF000000DCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFFFFFFFF80808080808080808080
+          80807F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDCDCDCDC0000FF
+          0000FF0000FF0000FF0000FF0000FF808080DCDCDC7F7F7F0000FF000000DCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCFFFFFF808080808080808080808080808080DC
+          DCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCDCDCDC0000FF
+          0000FF0000FF0000FF0000FF808080DCDCDCDCDCDCDCDCDC8080800000FF0000
+          00DCDCDCDCDCDCDCDCDCDCDCDC808080808080808080808080808080DCDCDCDC
+          DCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FFFFFFFFFFFFFDCDCDCDCDCDCA0A0A0
+          0000FF0000FF808080DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC0000
+          FF0000FF000000DCDCDCDCDCDC808080808080808080808080DCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDC7F7F7F7F7F7F7F7F7FDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC
+          DCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC}
+        NumGlyphs = 2
+        OnClick = btnExcluirArquivoClick
+      end
+      object btnVisualizarArquivo: TSpeedButton
+        Left = 4
+        Top = 112
+        Width = 23
+        Height = 18
+        Hint = 'Viualizar Arquivo'
+        Flat = True
+        Glyph.Data = {
+          AA040000424DAA04000000000000360000002800000013000000130000000100
+          1800000000007404000000000000000000000000000000000000FEFEFEFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFCFCFCFEFEFEFFFFFFFFFFFFFFFFFFEBEBEBD5D5
+          D5F0F0F0FFFFFFFFFFFFFFFFFFF8F8F8FDFDFD000000FFFFFFC6C6C6CECECECF
+          CFCFD2D2D2C6C6C6E8E8E8FFFFFFD9D9D97979790000000D0D0D0F0F0F000000
+          0D0D0D808080E8E8E8FFFFFFFDFDFD000000E7E7E70000000F0F0F0D0D0D0000
+          00111111ABABABC7C7C73A3A3A0000006D6D6DFEFEFEC7C7C7D2D2D25D5D5D09
+          0909545454D7D7D7FFFFFF000000CACACA000000ADADAD9D9D9D919191C9C9C9
+          B3B3B32C2C2CF4F4F4272727FFFFFF131313000000555555AEAEAEBDBDBD8181
+          81303030FFFFFF000000CFCFCF060606FFFFFFFFFFFFFFFFFFFFFFFFC0C0C04B
+          4B4BBEBEBE0F0F0FDCDCDC4A4A4A2323237A7A7A8E8E8E8D8D8D8282823F3F3F
+          FFFFFF000000CECECE050505FFFFFFC6C6C6A2A2A2AEAEAEB0B0B0BFBFBF8E8E
+          8E252525292929A9A9A99797977E7E7E232323383838828282DFDFDFFFFFFF00
+          0000CCCCCC080808FFFFFF5F5F5F0000001212120909094D4D4DDDDDDD999999
+          6666664545455D5D5D505050686868B4B4B4F4F4F4FFFFFFFDFDFD000000CECE
+          CE050505FFFFFFCFCFCFB1B1B1BABABAB7B7B7A9A9A9F3F3F3FFFFFFF6F6F6DA
+          DADAEEEEEEEAEAEAF7F7F7FFFFFFFDFDFDF8F8F8FAFAFA000000CCCCCC030303
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC0C0C02222
+          22B0B0B0FFFFFFF9F9F9FBFBFBFDFDFDF8F8F8000000D1D1D1060606FFFFFFA7
+          A7A7707070848484818181878787848484737373BEBEBEC6C6C60A0A0AACACAC
+          FFFFFFFBFBFBF5F5F5FDFDFDF8F8F8000000CDCDCD070707FFFFFF5C5C5C0000
+          000000000000000000000000000000003C3C3CE2E2E2111111ABABABFFFFFFF9
+          F9F9FBFBFBF9F9F9FBFBFB000000CCCCCC030303FFFFFFFFFFFFFFFFFFFFFFFF
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB6B6B6141414ACACACFFFFFFF9F9F9F8F8
+          F8FAFAFAFBFBFB000000CFCFCF030303FFFFFFECECECDEDEDEE3E3E3DCDCDCF4
+          F4F4FEFEFEFFFFFFFFFFFFC3C3C3151515AEAEAEFFFFFFF9F9F9FBFBFBFBFBFB
+          F9F9F9000000CDCDCD060606FFFFFF9191914747475959593E3E3ECACACAF7F7
+          F7D2D2D2D9D9D9A3A3A3121212A7A7A7FFFFFFFAFAFAFBFBFBFBFBFBFBFBFB00
+          0000CDCDCD050505FFFFFFB6B6B6848484909090808080E7E7E7B9B9B92C2C2C
+          363636202020191919C3C3C3FFFFFFF8F8F8FAFAFAFBFBFBFBFBFB000000CDCD
+          CD050505FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF9F9F9F00000000000000
+          00009D9D9DFBFBFBFDFDFDF9F9F9FAFAFAFBFBFBFAFAFA000000CFCFCF060606
+          FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA8A8A8000000000000AAAAAAFFFF
+          FFFFFFFFF9F9F9FBFBFBFAFAFAFAFAFAFAFAFA000000C8C8C800000004040401
+          0101010101010101000000060606000000000000C5C5C5FFFFFFFCFCFCFAFAFA
+          F9F9F9F9F9F9FAFAFAFAFAFAFAFAFA000000FFFFFFD5D5D5D7D7D7D9D9D9D9D9
+          D9D9D9D9D8D8D8D9D9D9D1D1D1FBFBFBFFFFFFFCFCFCFDFDFDFAFAFAFAFAFAFC
+          FCFCFCFCFCFAFAFAFDFDFD000000}
+        OnClick = btnVisualizarArquivoClick
+      end
+    end
+    object dbgArquivosAnexados: TDBAdvGrid
+      Left = 1
+      Top = 1
+      Width = 698
+      Height = 430
+      Cursor = crDefault
+      Align = alClient
+      ColCount = 4
+      RowCount = 2
+      FixedRows = 1
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goEditing, goTabs]
+      ParentFont = False
+      ScrollBars = ssBoth
+      TabOrder = 1
+      OnDblClick = dbgArquivosAnexadosDblClick
+      ActiveCellFont.Charset = DEFAULT_CHARSET
+      ActiveCellFont.Color = clWindowText
+      ActiveCellFont.Height = -11
+      ActiveCellFont.Name = 'Tahoma'
+      ActiveCellFont.Style = [fsBold]
+      AutoNumAlign = True
+      ControlLook.FixedGradientHoverFrom = clGray
+      ControlLook.FixedGradientHoverTo = clWhite
+      ControlLook.FixedGradientDownFrom = clGray
+      ControlLook.FixedGradientDownTo = clSilver
+      ControlLook.DropDownHeader.Font.Charset = DEFAULT_CHARSET
+      ControlLook.DropDownHeader.Font.Color = clWindowText
+      ControlLook.DropDownHeader.Font.Height = -11
+      ControlLook.DropDownHeader.Font.Name = 'Tahoma'
+      ControlLook.DropDownHeader.Font.Style = []
+      ControlLook.DropDownHeader.Visible = True
+      ControlLook.DropDownHeader.Buttons = <>
+      ControlLook.DropDownFooter.Font.Charset = DEFAULT_CHARSET
+      ControlLook.DropDownFooter.Font.Color = clWindowText
+      ControlLook.DropDownFooter.Font.Height = -11
+      ControlLook.DropDownFooter.Font.Name = 'MS Sans Serif'
+      ControlLook.DropDownFooter.Font.Style = []
+      ControlLook.DropDownFooter.Visible = True
+      ControlLook.DropDownFooter.Buttons = <>
+      EnhRowColMove = False
+      Filter = <>
+      FilterDropDown.Font.Charset = DEFAULT_CHARSET
+      FilterDropDown.Font.Color = clWindowText
+      FilterDropDown.Font.Height = -11
+      FilterDropDown.Font.Name = 'MS Sans Serif'
+      FilterDropDown.Font.Style = []
+      FilterDropDownClear = '(All)'
+      FixedColWidth = 20
+      FixedRowHeight = 22
+      FixedFont.Charset = DEFAULT_CHARSET
+      FixedFont.Color = clWindowText
+      FixedFont.Height = -11
+      FixedFont.Name = 'Tahoma'
+      FixedFont.Style = [fsBold]
+      FloatFormat = '%.2f'
+      Navigation.AdvanceOnEnterLoop = False
+      Navigation.InsertPosition = pInsertAfter
+      PrintSettings.DateFormat = 'dd/mm/yyyy'
+      PrintSettings.Font.Charset = DEFAULT_CHARSET
+      PrintSettings.Font.Color = clWindowText
+      PrintSettings.Font.Height = -11
+      PrintSettings.Font.Name = 'MS Sans Serif'
+      PrintSettings.Font.Style = []
+      PrintSettings.FixedFont.Charset = DEFAULT_CHARSET
+      PrintSettings.FixedFont.Color = clWindowText
+      PrintSettings.FixedFont.Height = -11
+      PrintSettings.FixedFont.Name = 'MS Sans Serif'
+      PrintSettings.FixedFont.Style = []
+      PrintSettings.HeaderFont.Charset = DEFAULT_CHARSET
+      PrintSettings.HeaderFont.Color = clWindowText
+      PrintSettings.HeaderFont.Height = -11
+      PrintSettings.HeaderFont.Name = 'MS Sans Serif'
+      PrintSettings.HeaderFont.Style = []
+      PrintSettings.FooterFont.Charset = DEFAULT_CHARSET
+      PrintSettings.FooterFont.Color = clWindowText
+      PrintSettings.FooterFont.Height = -11
+      PrintSettings.FooterFont.Name = 'MS Sans Serif'
+      PrintSettings.FooterFont.Style = []
+      PrintSettings.PageNumSep = '/'
+      SearchFooter.FindNextCaption = 'Find &next'
+      SearchFooter.FindPrevCaption = 'Find &previous'
+      SearchFooter.Font.Charset = DEFAULT_CHARSET
+      SearchFooter.Font.Color = clWindowText
+      SearchFooter.Font.Height = -11
+      SearchFooter.Font.Name = 'MS Sans Serif'
+      SearchFooter.Font.Style = []
+      SearchFooter.HighLightCaption = 'Highlight'
+      SearchFooter.HintClose = 'Close'
+      SearchFooter.HintFindNext = 'Find next occurrence'
+      SearchFooter.HintFindPrev = 'Find previous occurrence'
+      SearchFooter.HintHighlight = 'Highlight occurrences'
+      SearchFooter.MatchCaseCaption = 'Match case'
+      Version = '2.3.2.2'
+      AutoCreateColumns = False
+      AutoRemoveColumns = False
+      Columns = <
+        item
+          Borders = []
+          BorderPen.Color = clSilver
+          CheckFalse = 'N'
+          CheckTrue = 'Y'
+          Color = clWindow
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          HeaderFont.Charset = DEFAULT_CHARSET
+          HeaderFont.Color = clWindowText
+          HeaderFont.Height = -11
+          HeaderFont.Name = 'MS Sans Serif'
+          HeaderFont.Pitch = fpVariable
+          HeaderFont.Style = []
+          PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+          PrintFont.Charset = DEFAULT_CHARSET
+          PrintFont.Color = clWindowText
+          PrintFont.Height = -11
+          PrintFont.Name = 'MS Sans Serif'
+          PrintFont.Pitch = fpVariable
+          PrintFont.Style = []
+          Width = 20
+        end
+        item
+          Borders = []
+          BorderPen.Color = clSilver
+          CheckFalse = 'N'
+          CheckTrue = 'Y'
+          Color = clWindow
+          FieldName = 'datahora'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'Helvetia'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          Header = 'DATA/HORA'
+          HeaderFont.Charset = DEFAULT_CHARSET
+          HeaderFont.Color = clBlack
+          HeaderFont.Height = -9
+          HeaderFont.Name = 'Helvetia'
+          HeaderFont.Pitch = fpVariable
+          HeaderFont.Style = []
+          HeaderAlignment = taCenter
+          PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+          PrintFont.Charset = DEFAULT_CHARSET
+          PrintFont.Color = clBlack
+          PrintFont.Height = -12
+          PrintFont.Name = 'Tahoma'
+          PrintFont.Pitch = fpVariable
+          PrintFont.Style = []
+          ReadOnly = True
+          Width = 94
+        end
+        item
+          Borders = []
+          BorderPen.Color = clSilver
+          CheckFalse = 'N'
+          CheckTrue = 'Y'
+          Color = clWindow
+          FieldName = 'nomearquivo'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'Helvetia'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          Header = 'NOME DO ARQUIVO'
+          HeaderFont.Charset = DEFAULT_CHARSET
+          HeaderFont.Color = clWindowText
+          HeaderFont.Height = -9
+          HeaderFont.Name = 'Helvetia'
+          HeaderFont.Pitch = fpVariable
+          HeaderFont.Style = []
+          HeaderAlignment = taCenter
+          PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+          PrintFont.Charset = DEFAULT_CHARSET
+          PrintFont.Color = clWindowText
+          PrintFont.Height = -11
+          PrintFont.Name = 'MS Sans Serif'
+          PrintFont.Pitch = fpVariable
+          PrintFont.Style = []
+          ReadOnly = True
+          Width = 226
+        end
+        item
+          Borders = []
+          BorderPen.Color = clSilver
+          CheckFalse = 'N'
+          CheckTrue = 'Y'
+          Color = clWindow
+          FieldName = 'descricao'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -12
+          Font.Name = 'Helvetia'
+          Font.Pitch = fpVariable
+          Font.Style = []
+          Header = 'D E S C R I '#199' '#195' O'
+          HeaderFont.Charset = DEFAULT_CHARSET
+          HeaderFont.Color = clWindowText
+          HeaderFont.Height = -9
+          HeaderFont.Name = 'Helvetia'
+          HeaderFont.Pitch = fpVariable
+          HeaderFont.Style = []
+          HeaderAlignment = taCenter
+          PrintBorders = [cbTop, cbLeft, cbRight, cbBottom]
+          PrintFont.Charset = DEFAULT_CHARSET
+          PrintFont.Color = clWindowText
+          PrintFont.Height = -11
+          PrintFont.Name = 'MS Sans Serif'
+          PrintFont.Pitch = fpVariable
+          PrintFont.Style = []
+          Width = 334
+        end>
+      DataSource = dsrArquivosAnexados
+      EditPostMode = epRow
+      InvalidPicture.Data = {
+        055449636F6E0000010001002020040000000000E80200001600000028000000
+        2000000040000000010004000000000000020000000000000000000000000000
+        0000000000000000000080000080000000808000800000008000800080800000
+        80808000C0C0C0000000FF0000FF000000FFFF00FF000000FF00FF00FFFF0000
+        FFFFFF000000000000777777777777000000000000000000777788FFFF887777
+        000000000000007778F8887117788F877700000000000778F87111111111178F
+        877000000000778871111111111999178877000000077F811111111111199999
+        18F7700000778811111111111119999991887700007881111111111111119199
+        99188700077F711111811111111198719997F7700788111118FF111111118FF7
+        1991887077F71111888FF1111118FFFF19997F77778111118888FF1111888FF8
+        911918777881111118888FF1188888811111188778811111118888FF88888811
+        111117877F7111111118888888888111111117F77F7999111111888888881111
+        111111F77F7999991111788888F71111111111F77F7999999917888888FF7111
+        111117F778879999917FFF88888FF111111117877887999997FFFFF88888FF11
+        11111887778799997FFFFFF798888FF11111187777F87997FFFFFF71178F88FF
+        71117F7707887997FFFFF7999978F88871118870077F87997FFF799999978F87
+        1117F77000788879978799999999787111188700007788879999999999999999
+        1188770000077F88799999999999999778F77000000077888879999999999778
+        8877000000000778F88877799777788F877000000000007778F8888878888F87
+        7700000000000000777788FFFF88777700000000000000000077777777777700
+        00000000FFC003FFFF0000FFFC00003FF800001FF000000FE0000007C0000003
+        C000000380000001800000010000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000080000001
+        80000001C0000003C0000003E0000007F000000FF800001FFC00003FFF0000FF
+        FFC003FF}
+      ShowUnicode = False
+      UseDBFieldWidths = True
+      PostOnEnter = True
+      ColWidths = (
+        20
+        94
+        226
+        334)
+    end
+    object Memo1: TMemo
+      Left = 1
+      Top = 448
+      Width = 729
+      Height = 128
+      Align = alBottom
+      ScrollBars = ssVertical
+      TabOrder = 2
+    end
+  end
+  object dsrArquivosAnexados: TtecDataSource
+    DataSet = qryArquivosAnexados
+    Left = 624
+    Top = 48
+  end
+  object qryArquivosAnexados: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = True
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    AfterPost = qryArquivosAnexadosAfterPost
+    AfterDelete = qryArquivosAnexadosAfterPost
+    AfterScroll = qryArquivosAnexadosAfterScroll
+    OnNewRecord = qryArquivosAnexadosNewRecord
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select aa.*'
+      'from arquivos_anexados aa'
+      'where aa.tipo = :tipo'
+      '  and aa.codigo = :codigo')
+    RequestLive = True
+    Left = 592
+    Top = 40
+    ParamData = <
+      item
+        DataType = ftUnknown
+        Name = 'tipo'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'codigo'
+        ParamType = ptUnknown
+      end>
+    object qryArquivosAnexadostipo: TStringField
+      FieldName = 'tipo'
+      Required = True
+    end
+    object qryArquivosAnexadoscodigo: TStringField
+      FieldName = 'codigo'
+      Required = True
+    end
+    object qryArquivosAnexadosnomearquivo: TStringField
+      FieldName = 'nomearquivo'
+      Size = 100
+    end
+    object qryArquivosAnexadosdescricao: TStringField
+      FieldName = 'descricao'
+      Size = 100
+    end
+    object qryArquivosAnexadosdatahora: TDateTimeField
+      FieldName = 'datahora'
+      DisplayFormat = 'dd/MM/yyyy hh:mm'
+    end
+    object qryArquivosAnexadossequencia: TIntegerField
+      FieldName = 'sequencia'
+    end
+  end
+  object OpenDialog1: TOpenDialog
+    Left = 344
+    Top = 104
+  end
+  object FolderDialog1: TFolderDialog
+    DialogX = 0
+    DialogY = 0
+    Version = '1.1.0.1'
+    Left = 424
+    Top = 93
+  end
+  object OpenDialog2: TOpenDialog
+    Left = 457
+    Top = 92
+  end
+  object Timer1: TTimer
+    OnTimer = Timer1Timer
+    Left = 348
+    Top = 139
+  end
+  object SaveDialog1: TSaveDialog
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofEnableSizing]
+    Left = 488
+    Top = 136
+  end
+  object qryProximoArquivos_Anexados: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'select NEXTVAL('#39'arquivos_anexados_sequencia'#39') as sequencia')
+    RequestLive = False
+    Left = 592
+    Top = 88
+    object qryProximoArquivos_Anexadossequencia: TLargeintField
+      FieldName = 'sequencia'
+    end
+  end
+end

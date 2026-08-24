@@ -6,7 +6,7 @@ inherited frmEmissaoBalancetes: TfrmEmissaoBalancetes
   ClientHeight = 569
   ClientWidth = 603
   FormStyle = fsMDIChild
-  Position = poDesktopCenter
+  Position = poScreenCenter
   Visible = True
   PixelsPerInch = 96
   TextHeight = 16
@@ -328,6 +328,7 @@ inherited frmEmissaoBalancetes: TfrmEmissaoBalancetes
         Height = 174
         Caption = ' FILIAIS '
         Font.Color = clBlack
+        Font.Height = -13
         Font.Name = 'helvetica'
         Font.Pitch = fpVariable
         Font.Style = [fsBold]
@@ -528,20 +529,23 @@ inherited frmEmissaoBalancetes: TfrmEmissaoBalancetes
         Font.Style = []
         ParentFont = False
         TabOrder = 0
+        inherited Splitter1: TSplitter
+          Left = 556
+          Height = 126
+        end
         inherited dbgSelecaoAleatoria: TtecDBGrid
           Width = 556
-          Height = 141
+          Height = 126
           Font.Height = -12
           Font.Name = 'Helvetica'
           Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgCancelOnExit]
           OnDblClick = fraSelecaoAleatoriaContasdbgSelecaoAleatoriaDblClick
           OnKeyDown = fraSelecaoAleatoriaContasdbgSelecaoAleatoriaKeyDown
-          CanDelete = True
           DefaultRowHeight = 19
         end
         inherited pnlLabels: TPanel
-          Left = 556
-          Height = 141
+          Left = 559
+          Height = 126
           inherited sbnProcura: TSpeedButton
             OnClick = fraSelecaoAleatoriaContassbnProcuraClick
           end
@@ -553,6 +557,18 @@ inherited frmEmissaoBalancetes: TfrmEmissaoBalancetes
           end
           inherited sbnIncluirItem: TSpeedButton
             Top = 37
+          end
+        end
+        inherited pnlAbaixo: TPanel
+          Top = 126
+          Width = 587
+          Font.Pitch = fpVariable
+          inherited lblOrientacao: TLabel
+            Font.Pitch = fpVariable
+          end
+          inherited pnlAbaixoDireita: TPanel
+            Left = 556
+            Font.Pitch = fpVariable
           end
         end
         inherited qrySelecaoAleatoria: TtecQuery

@@ -1,8 +1,8 @@
 inherited frmTecsoft: TfrmTecsoft
   Tag = 10
-  Left = -8
-  Top = -8
-  Width = 1616
+  Left = 96
+  Top = 182
+  Width = 1612
   Height = 876
   VertScrollBar.Range = 27
   Caption = 'tecSOFT'
@@ -12,7 +12,7 @@ inherited frmTecsoft: TfrmTecsoft
   FormStyle = fsMDIForm
   KeyPreview = False
   Menu = mmuTecsoft
-  Position = poDesktopCenter
+  Position = poScreenCenter
   OnCloseQuery = FormCloseQuery
   OnKeyDown = FormKeyDown
   OnKeyPress = FormKeyPress
@@ -20,7 +20,7 @@ inherited frmTecsoft: TfrmTecsoft
   TextHeight = 16
   inherited stbPrincipal: TStatusBar
     Top = 789
-    Width = 1596
+    Width = 1592
     Height = 25
     Panels = <
       item
@@ -41,7 +41,7 @@ inherited frmTecsoft: TfrmTecsoft
   object pnlTopoJanela: TPanel
     Left = 0
     Top = 0
-    Width = 1596
+    Width = 1592
     Height = 2
     Align = alTop
     BevelOuter = bvLowered
@@ -115,6 +115,10 @@ inherited frmTecsoft: TfrmTecsoft
         Caption = '&Tabelas'
         object mitCadastroTabelasCrediario: TMenuItem
           Caption = '&Credi'#225'rio'
+          OnClick = ExecutarItemMenu
+        end
+        object mitImpostos: TMenuItem
+          Caption = 'Impostos'
           OnClick = ExecutarItemMenu
         end
         object mitCadastroPlanosPagamentos: TMenuItem

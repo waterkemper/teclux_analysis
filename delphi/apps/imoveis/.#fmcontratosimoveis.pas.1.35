@@ -1,0 +1,2818 @@
+unit fmcontratosimoveis;
+
+interface
+
+uses
+  SysUtils, Windows, Types, Classes, Graphics, Controls, Forms, Dialogs, Biblio,
+  StdCtrls, fmcadastropadrao, ComCtrls, Buttons, ExtCtrls, ctconstantes,
+  dmcontratosimoveis, cpdbdata, Mask, cpdbfindcontrols, DBCtrls, cpdbtext,
+  cpdbmemo, Grids, DBGrids, cpdbgrid, cppagecontrol, fmconsultabasica, {Qete,}
+  fmconsultaporcampo, Zquery, fmcadastrocompradorescontrato, DateUtils, DB,
+  fmcadastroimoveiscontrato, fmcalcularparcelasimoveis, cpnumero, cpquery,
+  cptexto, fmcadastroparcelascontrato, frConsultaCodigo, clparametrossistema,
+  frconsulta, fmimpressaocontratoimoveis, frlancamentocontabilidade,
+  dmlancamentocontabilidade, cpdata, fmrecebimentos, fmquitacaoparcelaslote,
+  fmlancamentoscontabeisrecebimentos, fmalteracoescontrato,
+  frconsultacontabil, frconsultacodigocontabil, clusuario, ToolWin,
+  DBTreeView, ExcelExport;
+
+type
+  TfrmContratosImoveis = class(TfrmCadastroPadrao)
+    sbnAlterarSituacao: TSpeedButton;
+    gbxCabecalho: TGroupBox;
+    gbxDados: TGroupBox;
+    gbxNrContrato: TGroupBox;
+    edfNumeroContrato: TtecDbEditFind;
+    gbxData: TGroupBox;
+    edtdataContrato: TDBEditData;
+    gbxSituacao: TGroupBox;
+    dtxSituacao: TtecDBText;
+    gbxVendedor: TGroupBox;
+    flkVendedor: TtecDBFindLookup;
+    sbnProcurarVendedor: TSpeedButton;
+    dtxNomeVendedor: TtecDBText;
+    pgcContratos: TPageControl;
+    pnlRodape: TPanel;
+    tstCompradores: TTabSheet;
+    tstImoveis: TTabSheet;
+    tstParcelas: TTabSheet;
+    gbxCompradores: TGroupBox;
+    dbgCompradores: TtecDBGrid;
+    sbnIncluirComprador: TSpeedButton;
+    sbnExcluirComprador: TSpeedButton;
+    gbxRepresentante: TGroupBox;
+    dtxRepresentante: TtecDBText;
+    gbxFiador: TGroupBox;
+    dtxFiador: TtecDBText;
+    gbxObservacoes: TGroupBox;
+    pnlTotais: TPanel;
+    dbgImoveisVendidos: TtecDBGrid;
+    gbxQtdeImoveis: TGroupBox;
+    gbxTotalImoveis: TGroupBox;
+    sbnInserirImoveis: TSpeedButton;
+    sbnExcluirImoveis: TSpeedButton;
+    gbxObsContrato: TGroupBox;
+    mmoObsContrato: TtecDBMemo;
+    edtQtdeImoveis: TEditTexto;
+    edtTotalImoveis: TEditNumero;
+    dbgPArcelas: TtecDBGrid;
+    gbxTotalContrato: TGroupBox;
+    edtTotalContrato: TDBEditNumero;
+    gbxObsImovel: TGroupBox;
+    mmoobservacoesimoveis: TtecDBMemo;
+    gbxIndexadorAteHabite_se: TGroupBox;
+    gbxIndexadorAposHabite_se: TGroupBox;
+    gbxTaxaJuros: TGroupBox;
+    lblPercJuros: TLabel;
+    gbxDataBase: TGroupBox;
+    gbxMultaAtraso: TGroupBox;
+    Label1: TLabel;
+    gbxJurosAtraso: TGroupBox;
+    Label2: TLabel;
+    gbxAtraso: TGroupBox;
+    lblMais: TLabel;
+    fraIndexadorAteHabitese: TfraConsultaCodigo;
+    fraIndexadorAposHabitese: TfraConsultaCodigo;
+    edtDatabase: TDBEditData;
+    edtJuros: TDBEditNumero;
+    edtAtrasoMulta: TDBEditNumero;
+    edtAtrasoJuros: TDBEditNumero;
+    gbxPainelInferior: TGroupBox;
+    gbxObsParcela: TGroupBox;
+    gbxTotalDevido: TGroupBox;
+    gbxTotalContratado: TGroupBox;
+    gbxTotalHistorico: TGroupBox;
+    gbxTotais: TGroupBox;
+    lblTOTAIS: TLabel;
+    gbxTotalPago: TGroupBox;
+    gbxTotalJuros: TGroupBox;
+    gbxTotalDiferenca: TGroupBox;
+    gbxTotalCorrecao: TGroupBox;
+    GroupBox2: TGroupBox;
+    sbnIncluirParcelas: TSpeedButton;
+    sbnExcluirParcelas: TSpeedButton;
+    sbnGerarParcelas: TSpeedButton;
+    gbxTipoJuros: TGroupBox;
+    ckbJurosCompostos: TDBCheckBox;
+    gbxDataHabite_se: TGroupBox;
+    edtdatahabitese: TDBEditData;
+    sbnImprimirContrato: TSpeedButton;
+    gbxComprador: TGroupBox;
+    gbxChaves: TGroupBox;
+    gbxContaCliente: TGroupBox;
+    fraCreditoVenda: TfraConsultaCodigoContabil;
+    dtxCreditoVendaClass: TtecDBText;
+    tstContabil: TTabSheet;
+    pgcContabil: TtecPageControl;
+    tstVenda: TTabSheet;
+    tstChaves: TTabSheet;
+    fraLancamentoContabeisVenda: TfraLancamentoContabilidade;
+    fraLancamentoContabeisChaves: TfraLancamentoContabilidade;
+    tstAnterior2009: TTabSheet;
+    gbxCustoImovel: TGroupBox;
+    gbxDespesasVenda: TGroupBox;
+    gbxPIS: TGroupBox;
+    gbxCOFINS: TGroupBox;
+    gbxCSLL: TGroupBox;
+    gbxIRPJ: TGroupBox;
+    gbxSaldoVenda: TGroupBox;
+    gbxSaldoCorrMonetaria: TGroupBox;
+    gbxDataBaseCorrecao: TGroupBox;
+    edtcustoimovel: TDBEditNumero;
+    edtdespesasVenda: TDBEditNumero;
+    edtCofinsHistorico: TDBEditNumero;
+    edtCsllhistorico: TDBEditNumero;
+    edtIRPJhistorico: TDBEditNumero;
+    edtPisHistorico: TDBEditNumero;
+    edtSaldoVenda: TDBEditNumero;
+    edtSaldoCorrMonetaria: TDBEditNumero;
+    edtDataBaseCorrecao: TDBEditData;
+    sbnRecebimentos: TSpeedButton;
+    sbnReceberPArcela: TSpeedButton;
+    sbnLancamentosContabeis: TSpeedButton;
+    sbnAlteracao: TSpeedButton;
+    gbxCompradoresAnteriores: TGroupBox;
+    dbgCompradoresAnteriores: TtecDBGrid;
+    gbxDataAlteracao: TGroupBox;
+    edtDataAlteracao: TtecDBText;
+    gbxSaldoCusto: TGroupBox;
+    edtSaldoCusto: TDBEditNumero;
+    dtxValorHistorico: TEditNumero;
+    dtxValorContratado: TEditNumero;
+    dtxValorDevido: TEditNumero;
+    dtxValorPago: TEditNumero;
+    dtxCorrecao: TEditNumero;
+    dtxJuros: TEditNumero;
+    dtxDiferenca: TEditNumero;
+    edtdataChaves: TDBEditData;
+    tstTransferencias: TTabSheet;
+    LancamentosTransf: TfraLancamentoContabilidade;
+    pgcRescisao: TPageControl;
+    tstEstornoVenda: TTabSheet;
+    tstEstornoImpostosVendas: TTabSheet;
+    tstDevolucaoValoresPagos: TTabSheet;
+    LancamentosEstornoVenda: TfraLancamentoContabilidade;
+    LancamentosEstornoImpostos: TfraLancamentoContabilidade;
+    LAncamentoEstornoValoresPagos: TfraLancamentoContabilidade;
+    tstRescisao: TTabSheet;
+    mmoObservacoesVencto: TtecDBMemo;
+    gbxTotaisEmAberto: TGroupBox;
+    lblEmAberto: TLabel;
+    GroupBox4: TGroupBox;
+    dtxValorHistoricoAberto: TEditNumero;
+    GroupBox5: TGroupBox;
+    dtxValorContratadoAberto: TEditNumero;
+    GroupBox6: TGroupBox;
+    dtxValorDevidoAberto: TEditNumero;
+    GroupBox8: TGroupBox;
+    dtxCorrecaoAberto: TEditNumero;
+    GroupBox9: TGroupBox;
+    dtxJurosAberto: TEditNumero;
+    lblSaldoDevedor: TLabel;
+    imgSeta: TImage;
+    gbxOriginal: TGroupBox;
+    dtxOriginal: TtecDBText;
+    pnlTotalDebitos: TPanel;
+    pnlTotalCreditos: TPanel;
+    pnlTotaisDebCred: TPanel;
+    sbnDeslocarImovelParaCima: TSpeedButton;
+    sbnDeslocarImovelParaBaixo: TSpeedButton;
+    sbnContabilizarChaves: TSpeedButton;
+    dtxNomePrincipal: TtecDBText;
+    gbxAVPTaxaDesconto: TGroupBox;
+    edtAVPTaxaDesconto: TDBEditNumero;
+    stxTaxaDesconto: TStaticText;
+    stxAVPPercentual: TStaticText;
+    gbxContaLongoPrazo: TGroupBox;
+    fraContaLongoPrazo: TfraConsultaCodigoContabil;
+    dtxContaLongoPrazo: TtecDBText;
+    pnlTotaisDCChaves: TPanel;
+    pnlTotaisDebCredTransf: TPanel;
+    Panel1: TPanel;
+    Panel2: TPanel;
+    Panel3: TPanel;
+    cbxNoJuridico: TDBCheckBox;
+    gbxnoJuridico: TGroupBox;
+    dtxNoJudiario: TtecDBText;
+    Panel4: TPanel;
+    gbxnoJuridico_: TGroupBox;
+    procedure sbnIncluirCompradorClick(Sender: TObject);
+    procedure dbgCompradoresDblClick(Sender: TObject);
+    procedure sbnExcluirCompradorClick(Sender: TObject);
+    procedure sbnInserirImoveisClick(Sender: TObject);
+    procedure dbgImoveisVendidosDblClick(Sender: TObject);
+    procedure sbnProcurarVendedorClick(Sender: TObject);
+    procedure sbnExcluirImoveisClick(Sender: TObject);
+    procedure pgcContratosChange(Sender: TObject);
+    procedure sbnGerarParcelasClick(Sender: TObject);
+    procedure sbnExcluirParcelasClick(Sender: TObject);
+    procedure sbnIncluirParcelasClick(Sender: TObject);
+    procedure dbgPArcelasDblClick(Sender: TObject);
+    procedure sbnProcurarClick(Sender: TObject);
+    procedure sbnImprimirContratoClick(Sender: TObject);
+    procedure sbnAlterarSituacaoClick(Sender: TObject);
+    procedure dbgPArcelasDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure sbnRecebimentosClick(Sender: TObject);
+    procedure sbnReceberPArcelaClick(Sender: TObject);
+    procedure sbnLancamentosContabeisClick(Sender: TObject);
+    procedure sbnAlteracaoClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure LancamentosEstornoVendasbnIncluirLancamentoClick(
+      Sender: TObject);
+    procedure fraLancamentoContabeisVendasbnIncluirLancamentoClick(
+      Sender: TObject);
+    procedure fraLancamentoContabeisVendadbgContabilidadeDblClick(
+      Sender: TObject);
+    procedure fraLancamentoContabeisChavessbnIncluirLancamentoClick(
+      Sender: TObject);
+    procedure fraLancamentoContabeisChavessbnGerarLancamentoClick(
+      Sender: TObject);
+    procedure LancamentosTransfsbnIncluirLancamentoClick(Sender: TObject);
+    procedure LancamentosTransfsbnGerarLancamentoClick(Sender: TObject);
+    procedure fraLancamentoContabeisChavesdbgContabilidadeDblClick(
+      Sender: TObject);
+    procedure LancamentosTransfdbgContabilidadeDblClick(Sender: TObject);
+    procedure fraLancamentoContabeisVendasbnExcluirLancamentoClick(
+      Sender: TObject);
+    procedure fraLancamentoContabeisVendasbnGerarLancamentoClick(
+      Sender: TObject);
+    procedure LancamentosEstornoVendadbgContabilidadeDblClick(
+      Sender: TObject);
+    procedure LancamentosEstornoImpostosdbgContabilidadeDblClick(
+      Sender: TObject);
+    procedure LAncamentoEstornoValoresPagosdbgContabilidadeDblClick(
+      Sender: TObject);
+    procedure LancamentosEstornoImpostossbnIncluirLancamentoClick(
+      Sender: TObject);
+    procedure LAncamentoEstornoValoresPagossbnIncluirLancamentoClick(
+      Sender: TObject);
+    procedure LancamentosEstornoVendasbnExcluirLancamentoClick(
+      Sender: TObject);
+    procedure LancamentosEstornoImpostossbnExcluirLancamentoClick(
+      Sender: TObject);
+    procedure LAncamentoEstornoValoresPagossbnExcluirLancamentoClick(
+      Sender: TObject);
+    procedure LancamentosEstornoVendasbnGerarLancamentoClick(
+      Sender: TObject);
+    procedure LancamentosEstornoImpostossbnGerarLancamentoClick(
+      Sender: TObject);
+    procedure LAncamentoEstornoValoresPagossbnGerarLancamentoClick(
+      Sender: TObject);
+    procedure edtdataContratoExit(Sender: TObject);
+    procedure sbnDeslocarImovelParaBaixoClick(Sender: TObject);
+    procedure sbnDeslocarImovelParaCimaClick(Sender: TObject);
+    procedure sbnContabilizarChavesClick(Sender: TObject);
+    procedure pgcContabilChange(Sender: TObject);
+    procedure cbxNoJuridicoClick(Sender: TObject);
+  private
+    FLancamentosRealizados: Boolean;
+    AtribuirPrincipal     : Boolean;
+    { Private declarations }
+    procedure ExibirMensagemPadronizadadataContrato;
+    procedure ExibirMensagemPadronizadaDataChaves;
+
+  protected
+    ConsultaContrato : TfraConsultaCodigo;
+    TipoPesquisa: TtecPesquisa;
+    ValidouDados: Boolean;
+    Jan: TfrmConsultaPorCampo;
+    Recebimentos: TRecebimentos;
+    procedure AbrirContrato;
+    procedure AlterarEstadoBotoes; override;
+    procedure CancelarAlteracoes;
+    function  InternoCancelar: Boolean; override;
+    function  InternoExcluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    function  ValidarLancamentos : Boolean;
+    function  InternoIncluir: Boolean; override;
+    function  InternoPesquisar(Titulo:String): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    function  TabelaDePesquisa: TZDataSet; override;
+    function  IncluirEditarCompradoresContrato(Editar: Boolean): Boolean;
+    function  IncluirEditarImoveisContrato(Editar: Boolean): Boolean;
+    function  IncluirEditarParcelasCOntrato(Editar: Boolean): Boolean;
+    procedure AtualizarDisplay(Sender: TObject);
+    procedure LimparDisplay(Sender: TObject);
+    procedure ExcluirParcelaContrato;
+    procedure AfterOpenContratos(Sender: TObject);
+    procedure AfterScrollChaves(Sender: TObject);
+    function  VerificarContas: Boolean;
+    procedure AtribuirDadosVendaImoveis;
+    procedure AtribuirDadosChavesVendaImoveis;
+    procedure ApagartodosLancamentosContabeis(Frame: TfraLancamentoContabilidade; Origem: String);
+{    procedure DisplayCompradores(Sender: TObject);}
+    Function  AbrirRecebimentos(QuitacaoLote: Boolean): Boolean;
+    procedure VerificarForm;
+    procedure RescindirContrato;
+    procedure QuitarContrato;
+    procedure AtribuirDadosFramesAlteracoes;
+    procedure atribuirDAdosTransferencias;
+    procedure LancamentosEstorno(Frame: TfraLancamentoContabilidade; Operacao:String);
+    procedure ExcluirLancamentos(Frame: TfraLancamentoContabilidade; Operacao:String; Origem: String);
+    procedure TransferirContrato;
+    procedure RenegociarContratos;
+    procedure LancamentosTransferencias;
+    procedure LancamentosRenegociacoes;
+    procedure TotaisdeParcelas(Limpar: Boolean);
+    procedure BeforeCancelContratos(Sender: TObject);
+    procedure DeletarLancamentosGeradosRenegociacao;
+    procedure DeletarLancamentosGeradosTransferencia;
+    property  LancamentosRealizados : Boolean read FLancamentosRealizados write FLancamentosRealizados;
+
+  public
+    { Public declarations }
+    lancamentosValidados : Boolean;
+    DisplayValorHistorico : Currency;
+    DisplayValorContratado: Currency;
+    DisplayValorDevido    : Currency;
+    DisplayValorPago      : Currency;
+    DisplayValorCorrecao  : Currency;
+    DisplayValorJuros     : Currency;
+    DisplayValorDiferenca : Currency;
+    DisplayValorHistoricoAberto : Currency;
+    DisplayValorContratadoAberto: Currency;
+    DisplayValorDevidoAberto    : Currency;
+    DisplayValorCorrecaoAberto  : Currency;
+    DisplayValorJurosAberto     : Currency;
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+    procedure OperacaoPadrao(Value: Array of Variant); override;
+  end;
+
+var
+  frmContratosImoveis: TfrmContratosImoveis;
+  Msg, MsgContas: String;
+
+implementation
+
+uses fmnavcontroles, dmbasico;
+
+{$R *.dfm}
+var
+  sbnExcluirCaption: String;
+{ TfrmContratosImoveis }
+
+procedure TfrmContratosImoveis.CancelarAlteracoes;
+begin
+  if ValidouDados then
+  begin
+    edtQtdeImoveis.Clear;
+    edtTotalImoveis.Clear;
+//    LblCompradores.Caption:= '';
+    edfNumeroCOntrato.Enabled:= True;
+    TotaisdeParcelas(True);
+  end;
+end;
+
+constructor TfrmContratosImoveis.Create(AOwner: TComponent);
+begin
+  try
+    dtmContratosImoveis:= TdtmContratosImoveis.Create(Self);
+    inherited;
+    AtribuirPrincipal:= False;
+    LancamentosValidados:= True;
+    sbnExcluirCaption    := sbnExcluir.Caption;
+    sbnAlterarSituacao.Enabled:= False;
+    sbnAlteracao.Enabled:= False;
+    sbnImprimirContrato.Enabled:= False;
+    sbnRecebimentos.Enabled    := False;
+    DataSet := dtmContratosImoveis.qryContratos;
+    dtmContratosImoveis.AtualizarDisplay:= AtualizarDisplay;
+
+    fraCreditoVenda.TipoContaContabilCreditoSelecionavel := 'A';
+    fraCreditoVenda.TipoPesquisa:= pesCONTACREDITO;
+    fraContaLongoPrazo.TipoContaContabilDebitoSelecionavel := 'A';
+    fraContaLongoPrazo.TipoPesquisa:= pesCONTADEBITO;
+
+    fraIndexadorAteHabitese.TipoPesquisa  := pesMOEDAS;
+    fraIndexadorAposHabitese.TipoPesquisa := pesMOEDAS;
+    ConsultaContrato := TfraConsultaCodigo.Create(self);
+    ConsultaContrato.Name := 'fraConsultaContrato';
+    ConsultaContrato.edfCodigo.DataSource := dtmContratosImoveis.dsrContratos;
+    ConsultaContrato.edfCodigo.DataField := 'Contrato';
+    ConsultaContrato.edfCodigo.Operacao := opATRIBUICAO;
+    ConsultaContrato.AbrirTabelaProcura := false;
+    ConsultaContrato.TipoCliente := 'C';
+    ConsultaContrato.Tipovfornecedor := 'C';
+    ConsultaContrato.TipoPesquisa := pesCONTRATOSIMOVEIS;
+    ConsultaContrato.OnFound := AbrirContrato;
+
+
+    dtmContratosImoveis.AfterOpenContratos:= AfterOpenContratos;
+    dbgImoveisVendidos.CampoSequencial:= 'ordem';
+    dtmContratosImoveis.qryImoveisVendidos.After_Open := dbgImoveisVendidos.RefazerOrdenacaoSequencial;
+//    dbgImoveisVendidos.OnDelete := dtmCadastroProdutos.ExcluirProdutoComposto;
+  dtmContratosImoveis.AfterScrollChaves:= AfterScrollChaves;
+    AtribuirDadosVendaImoveis;
+{   dtmContratosImoveis.AfterScrollCompradores:= DisplayCompradores;}
+    dtmContratosImoveis.AfterCancelContratos  := BeforeCancelContratos;
+    AtribuirDadosChavesVendaImoveis;
+    AtribuirDadosFramesAlteracoes;
+    atribuirDAdosTransferencias;
+
+    edtdataContrato.Minimo := DaysBetween(DataLocal,ParSistema.DataContabil)-1;
+    edtdataChaves.Minimo := DaysBetween(DataLocal,ParSistema.DataContabil)-1;
+
+    edtdataContrato.MensagemPadronizada := ExibirMensagemPadronizadadataContrato;
+    edtdataChaves.MensagemPadronizada := ExibirMensagemPadronizadaDataChaves;
+
+    sbnContabilizarChaves.Enabled := false;
+
+    dtmContratosImoveis.SomenteLeituraContabilidade := true;
+
+    stxAVPPercentual.Width:= 13;
+
+    cbxNoJuridico.Visible := usuariologin.Administrador;
+    gbxnoJuridico_.Visible := cbxNoJuridico.Visible;
+    cbxNoJuridicoClick(nil);
+
+   except
+      on E: Exception do ShowMessage(E.Message);
+   end;
+end;
+
+destructor TfrmContratosImoveis.Destroy;
+begin
+  //VarRecebimentos := nil;
+  dtmContratosImoveis := nil;
+  inherited;
+  frmContratosImoveis := nil;
+end;
+
+function TfrmContratosImoveis.InternoCancelar: Boolean;
+begin
+  Result := inherited InternoCancelar;
+  if Result then
+  begin
+    if dtmContratosImoveis.qryImoveis.UpdatesPending then
+      dtmContratosImoveis.qryImoveis.CancelUpdates;
+    ValidouDados:= True;
+    CancelarAlteracoes;
+    TotaisdeParcelas(True);
+
+    if dtmContratosImoveis.qryContratos.RecordCount<> 0 then
+      with dtmContratosImoveis do
+        ReFazConsulta(qrycontratos,[],[]);
+
+    AlterarEstadoBotoes;
+  end;
+end;
+
+function TfrmContratosImoveis.InternoExcluir: Boolean;
+begin
+  with dtmContratosImoveis do
+  begin
+    case SituacaoContrato of
+      sciVENDIDO :        {passar de vendido para reservado}
+      begin
+        if dtmContratosImoveis.qryContratosData.AsDateTime > ParSistema.DataContabil then
+        begin
+          if not (ExisteParcelasPagas) then
+          begin
+            if MensagemConfirmacao(Format(ctCONFIRMECANCELAR,['o Contrato'])) = smbOK then
+            begin
+              NrOrigem:= 'V';
+              ApagarLancamentosContabeis(NrOrigem, GetNrOrigem);
+              fraLancamentoContabeisVenda.qryLancamentos.Params[0].Clear;
+              fraLancamentoContabeisVenda.qryLancamentos.Params[1].Clear;
+
+              NrOrigem:= 'H';
+              ApagarLancamentosContabeis(NrOrigem, GetNrOrigem);
+              fraLancamentoContabeisChaves.qryLancamentos.Params[0].Clear;
+              fraLancamentoContabeisChaves.qryLancamentos.Params[1].Clear;
+
+              AlterarEstadoImoveis('R', True);  {tornar o imovel reservado}
+
+//              if ReadOnly then
+//                Readonly:= False;
+              ReadOnlyContrato(false);
+
+              AlterarEstadoContrato('R');
+              EditarContrato;
+              qryContratosDatachaves.AsString:= '';
+              qryContratosDataalteracao.clear;
+              qryContratos.Post;
+              Perpetrar([qryImoveis, qryContratos]);
+
+//              ReadOnlyContrato();
+
+              RefazConsultaPorNome(qryContratos,['Contrato'],[qryContratoscontrato.AsVariant]);
+
+            end;
+          end
+          else
+            MensagemAviso(Format(ctPARCELASNAOPODEMSEREXCLUIDAS,[qryContratosContrato.AsString]));
+        end
+        else
+        MensagemAviso('A data de venda "' + DateToStr(dtmContratosImoveis.qryContratosData.AsDateTime) +
+                      '" é anterior à data contábil "' + DateToStr(ParSistema.DataContabil) + '".');
+      end;
+
+      sciRESERVADO :  {passar de reservado para cancelado}
+      begin
+        if MensagemConfirmacao(Format(ctCONFIRMECANCELAR,['o Contrato'])) = smbOk then
+        begin
+          if not (ExisteParcelasPagas) then
+          begin
+            AlterarEstadoImoveis('D',True); {tornar o imóvel disponível}
+            AlterarEstadoContrato('C');
+
+            EditarContrato;
+            qryContratosDataalteracao.AsDateTime := DataServidor;
+            qryContratos.Post;
+
+            EstornarParcelas;
+            Perpetrar([qryImoveis, qryContratos, qryParcelasContrato]);
+
+//            ReadOnlyContrato(False);
+            RefazConsultaPorNome(qryContratos,['Contrato'],[qryContratoscontrato.AsVariant]);
+
+          end
+          else
+            MensagemAviso(Format(ctPARCELASNAOPODEMSEREXCLUIDAS,[qryContratosContrato.AsString]));
+        end;
+      end;
+
+      sciCANCELADO :
+      begin
+        if MensagemConfirmacao(Format(ctCONFIRMEEXCLUIR,['o Contrato'])) = smbOk then
+        begin
+          if not (ExisteParcelasPagas) then
+          begin
+            ReadOnlyContrato(False);
+            DeletarDadosContrato;
+            perpetrar([qryCompradores, qryImoveisVendidos, qryParcelasContrato, qryContratos]);
+            ReadOnlyContrato();
+          end
+          else
+            MensagemAviso(Format(ctPARCELASNAOPODEMSEREXCLUIDAS,[qryContratosContrato.AsString]));
+        end;
+      end;
+
+
+      sciRESCINDIDO :  {passar de rescindido para vendido ou transferido_de ou renegociado_de}
+      begin
+        if MensagemConfirmacao('Este contrato foi rescindido. Deseja reverter esta operação?') = smbok then
+        begin
+          ReadOnlyContrato(false);
+          AlterarEstadoImoveis('V', True);
+//          AlterarEstadoContrato('V');
+          EditarContrato;
+          if qryContratossituacao_contrato_origem.AsString = 'T' then {'T',   -- [T]ransferido para}
+            qryContratossituacao.AsString := 'F'                {'F',   -- trans[F]erido de}
+          else
+          if qryContratossituacao_contrato_origem.AsString = 'G' then {'G',   -- Rene[G]ociado para}
+            qryContratossituacao.AsString := 'D'                {'D',   -- Renegocia[D]o de}
+          else
+            qryContratossituacao.AsString := 'V';               {'V',   -- [V]endido}
+
+          qryContratosDataalteracao.clear;
+          qrycontratos.Post;
+
+          ExcluirLancamentos(LancamentosEstornoVenda,'EV','G');
+          ExcluirLancamentos(LancamentosEstornoImpostos,'EI','G');
+          ExcluirLancamentos(LAncamentoEstornoValoresPagos,'EP','G');
+
+          Perpetrar([qryImoveis, qryContratos]);
+
+//          ReadOnlyContrato();
+          RefazConsultaPorNome(qryContratos,['Contrato'],[qryContratoscontrato.AsVariant]);
+
+        end;
+      end;
+
+{  situacao alterada para permitir a operação somente no último contrato
+   else if SituacaoContrato = sciTRANSFERIDO then }
+      sciTRANSFERENCIA :
+      begin
+        if MensagemConfirmacao('Este contrato é de transferência. Deseja reverter esta operação?') = smbok then
+        begin
+          if PossuiParcelasPagas then
+            MensagemAviso(Format(ctPARCELASNAOPODEMSEREXCLUIDAS,[qryContratosContrato.AsString]))
+          else
+          begin
+            ReadOnlyContrato(False);
+            DeletarLancamentosGeradosTransferencia;
+            SetarSituacaoContratoOrigem;
+            DeletarDadosContrato;
+            perpetrar([dtmLancamentoContabilidade.qryLancamentosDocumentos,
+                      qryCompradores, qryImoveisVendidos, qryParcelasContrato, qryContratos, qryContratosOrigem]);
+            RefazConsultaPorNome(qryContratos,['Contrato'],[contrato_origem]);
+
+            EditarContrato;
+            qryContratosDataalteracao.clear;
+            qrycontratos.Post;
+
+            Perpetrar([qrycontratos]);
+
+          end
+        end;
+      end;
+
+      sciRENEGOCIACAO :
+      begin
+        if MensagemConfirmacao('Este contrato é de renegociação. Deseja reverter esta operação?') = smbok then
+        begin
+          if PossuiParcelasPagas then
+            MensagemAviso(Format(ctPARCELASNAOPODEMSEREXCLUIDAS,[qryContratosContrato.AsString]))
+          else
+          begin
+            ReadOnlyContrato(False);
+            DeletarLancamentosGeradosRenegociacao;
+            SetarSituacaoContratoOrigem;
+            DeletarDadosContrato;
+            perpetrar([dtmLancamentoContabilidade.qryLancamentosDocumentos,
+                      qryCompradores, qryImoveisVendidos, qryParcelasContrato, qryContratos, qryContratosOrigem]);
+            RefazConsultaPorNome(qryContratos,['Contrato'],[contrato_origem]);
+
+            EditarContrato;
+            qryContratosDataalteracao.clear;
+            qrycontratos.Post;
+
+            Perpetrar([qrycontratos]);
+
+          end
+        end;
+      end;
+    end;
+  end;
+end;
+
+function TfrmContratosImoveis.InternoGravar: Boolean;
+begin
+  Result:= inherited InternoGravar;
+  if Result then
+  begin
+    if dtmContratosImoveis.qryParcelasContrato.IsEmpty then
+        MensagemErro('Não há parcelas cadastradas.')
+    else
+    begin
+      if ValidarLancamentos then
+        if dtmContratosImoveis.GravarContrato then
+        begin
+          edfNumeroCOntrato.SetFocus;
+          TotaisdeParcelas(False);
+        end;
+    end;
+  end;
+
+end;
+
+function TfrmContratosImoveis.InternoIncluir: Boolean;
+begin
+  Result := inherited InternoIncluir;
+  if CtrlOn then
+  begin
+    if dbgimoveisVendidos.Focused and sbnInserirImoveis.enabled and sbnInserirImoveis.visible then
+      IncluirEditarImoveisContrato(False)
+    else if dbgCompradores.Focused and sbnIncluirComprador.enabled and sbnIncluirComprador.visible then
+      IncluirEditarCompradoresContrato(False);
+  end
+  else
+  begin
+    dtmContratosImoveis.IncluirContrato;
+    if Result then
+    begin
+      AfterOpenContratos(Self);
+      pgcContratos.ActivePage:= tstCompradores;
+      edtdataContrato.SetFocus;
+      edtDatabase.Text:= edtdataContrato.Text;
+      edfNumeroCOntrato.Enabled:= false;
+{     DisplayCompradores(Self);}
+      TotaisdeParcelas(True);
+    end;
+  end;
+end;
+
+function TfrmContratosImoveis.InternoPesquisar(Titulo: String): Integer;
+begin
+  if CtrlOn then
+  begin
+    if flkVendedor.Focused then
+      if not dtmContratosImoveis.ReadOnly then
+      begin
+        TipoPesquisa:= pesVENDEDORES;
+        dtmContratosImoveis.AbreTabelasConsulta(TipoPesquisa);
+        Titulo:= 'Vendedores';
+        result:= inherited InternoPesquisar(Titulo);
+        if result = mrOK then
+          dtmContratosImoveis.Selecionar(TipoPesquisa);
+
+        CtrlOn := true;
+        AlterarEstadoBotoes;
+      end;
+  end;
+end;
+
+function TfrmContratosImoveis.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Jan := TfrmConsultaPorCampo.Create(nil);
+  Jan.ConsultaInterativa := Not (TipoPesquisa in [pesVENDEDORES]) and CtrlOn;
+  Result := Jan
+end;
+
+procedure TfrmContratosImoveis.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if ((Key = TeclaEditarRegistro) and (Shift = [ssctrl])) then
+  begin
+    if dbgCompradores.Focused and sbnIncluirComprador.enabled and sbnIncluirComprador.visible then
+      IncluirEditarCompradoresContrato(True)
+    else if dbgimoveisVendidos.Focused and sbnInserirImoveis.enabled and sbnInserirImoveis.visible then
+      IncluirEditarImoveisContrato(True)
+    else if dbgPArcelas.Focused and sbnIncluirParcelas.enabled and sbnIncluirParcelas.visible then
+      IncluirEditarParcelasContrato(True)
+  end
+  else if ((Key = VK_Delete) and (Shift = [ssctrl])) then
+  begin
+    if dbgCompradores.Focused and sbnExcluirComprador.enabled and sbnExcluirComprador.visible then
+      sbnExcluirCompradorClick(Self)
+    else if dbgimoveisVendidos.Focused and sbnExcluirImoveis.enabled and sbnExcluirImoveis.visible then
+      sbnExcluirImoveisClick(Self)
+    else if dbgPArcelas.Focused and sbnExcluirParcelas.enabled and sbnExcluirParcelas.visible then
+      sbnExcluirParcelasClick(Self);
+  end;
+
+  if (key = VK_F10) then
+  begin
+    key:= 0;
+    if sbnAlterarSituacao.Enabled and sbnAlterarSituacao.visible then
+      sbnAlterarSituacaoClick(Self);
+  end;
+
+  if (key = VK_F11) then
+  begin
+    if sbnAlteracao.Enabled and sbnAlteracao.visible then
+      sbnAlteracaoClick(Self);
+  end;
+
+  if (key = VK_F12) then
+  begin
+    if sbnContabilizarChaves.Enabled and sbnContabilizarChaves.visible then
+      sbnContabilizarChavesClick(Self);
+  end;
+
+  if ((Key =  VK_G) and (shift = [ssctrl])) then
+  begin
+    if dbgPArcelas.Focused then
+      if sbnGerarParcelas.Enabled and sbnGerarParcelas.visible then
+        sbnGerarParcelasClick(Self);
+  end;
+
+  if not CtrlOn then
+  begin
+    if (key = VK_F9) then
+      if sbnProcurar.Enabled and sbnProcurar.visible then
+      begin
+        ConsultaContrato.InternoPesquisar('Contratos');
+        Self.SetFocus;
+      end;
+  end;
+
+  if (key = VK_F8) then
+  begin
+    if not CtrlOn then
+      if sbnRecebimentos.Enabled and sbnRecebimentos.visible then
+        sbnRecebimentosClick(Self)
+    else
+      if sbnReceberPArcela.Enabled and sbnReceberPArcela.visible then
+        sbnReceberPArcelaClick(Self)
+  end;
+
+  if (key = VK_F7) then
+  begin
+    if not CtrlOn then
+      if sbnImprimirContrato.Enabled and sbnImprimirContrato.visible then
+        sbnImprimirContratoClick(Self)
+  end;
+
+end;
+
+procedure TfrmContratosImoveis.OperacaoPadrao(Value: array of Variant);
+begin
+  inherited;
+  with dtmContratosImoveis do
+  begin
+    if Length(Value) > 0 then
+      RefazConsultaPorNome(qryContratos,['Contrato'],[Value[0]])
+    else
+      dtmContratosImoveis.RefazConsultaContrato;
+    edfNumeroCOntrato.SetFocus;
+
+    if (high(Value)=2) then
+    begin
+      Application.ProcessMessages;
+      Close;
+    end;
+  end;
+end;
+
+function TfrmContratosImoveis.TabelaDePesquisa: TZDataSet;
+begin
+  WITH dtmContratosImoveis DO
+  BEGIN
+    case TipoPesquisa of
+      pesVENDEDORES : Result:= qryConsultaVendedores;
+    end;
+  END;
+end;
+
+procedure TfrmContratosImoveis.sbnIncluirCompradorClick(Sender: TObject);
+begin
+  inherited;
+  IncluirEditarCompradoresContrato(False);
+end;
+
+function TfrmContratosImoveis.IncluirEditarCompradoresContrato(Editar: Boolean): Boolean;
+begin
+//  if not (dtmContratosImoveis.SituacaoContrato in [sciVENDIDO,sciQUITADO, sciRENEGOCIADO, sciTRANSFERIDO, sciRESCINDIDO]) and not (dtmContratosImoveis.ReadOnly) then
+  if not dtmContratosImoveis.qryCompradores.ReadOnly then
+  begin
+    frmcadastroCompradoresContrato:= TfrmcadastroCompradoresContrato.Create(frmcadastroCompradoresContrato);
+    if Editar then
+      Result:= dtmContratosImoveis.EditarCompradoresContrato
+    else
+      Result:= dtmContratosImoveis.IncluirCompradoresContrato;
+
+    if Result then
+    begin
+      try
+        Result:= frmcadastroCompradoresContrato.ShowModal = mrOk;
+      finally
+        frmcadastroCompradoresContrato.Free;
+        SetFocus;
+      end;
+    end;
+  end
+  else
+    Result:= False;
+end;
+
+procedure TfrmContratosImoveis.dbgCompradoresDblClick(Sender: TObject);
+begin
+  inherited;
+  if dbgCompradores.Focused and sbnIncluirComprador.enabled and sbnIncluirComprador.visible then
+  begin
+    if dtmContratosImoveis.SituacaoContrato in [sciNENHUM, sciRESERVADO] then
+      IncluirEditarCompradoresContrato(True)
+    else
+    begin
+      dtmContratosImoveis.AtribuirCompradorPrincipal(dtmContratosImoveis.qryCompradorescliente.AsInteger);
+    end;
+  end;
+end;
+
+procedure TfrmContratosImoveis.sbnExcluirCompradorClick(Sender: TObject);
+begin
+  inherited;
+//  if not (dtmContratosImoveis.SituacaoContrato in [sciVENDIDO,sciQUITADO, sciRENEGOCIADO, sciTRANSFERIDO, sciRESCINDIDO]) and not (dtmContratosImoveis.ReadOnly) then
+  if not dtmContratosImoveis.qryCompradores.ReadOnly then
+  begin
+    with dtmContratosImoveis do
+    begin
+      if not qryCompradores.IsEmpty then
+        ExcluirCompradorContrato
+      else
+        MensagemAviso('Não há compradores cadastrados');
+    end;
+  end
+  else
+    MensagemAviso(Format(ctERROEXCLUSAO,['Comprador']));
+
+end;
+
+function TfrmContratosImoveis.IncluirEditarImoveisContrato(Editar: Boolean): Boolean;
+var
+  Usuario           : TtecUsuarios;
+  vContinuar : boolean;
+begin
+  Result:= False;
+
+  if  (dtmContratosImoveis.SituacaoContrato = sciRESERVADO) or
+      (dtmContratosImoveis.qryContratosContratoAtual.AsBoolean  and
+       (dtmContratosImoveis.SituacaoContrato <> sciCANCELADO)) then
+  begin
+    vContinuar := true;
+    if dtmContratosImoveis.SituacaoContrato <> sciRESERVADO then
+    begin
+      Editar := true;
+
+      if UsuarioLogin.TrocaProduto then
+        Usuario := dtmContratosImoveis.ObterAutorizacao(taSENHA)
+      else
+        Usuario:= dtmContratosImoveis.ObterAutorizacao(taLOGIN, ctTROCAPRODUTO, ctAUTORIZADO);
+
+      try
+        if Assigned(Usuario) and Usuario.TrocaProduto then
+          vContinuar := true
+        else
+        begin
+          vContinuar := false;
+          MensagemAviso(ctUSUARIOSEMPERMISSAO);
+        end
+
+      finally
+        Usuario.Free;
+      end;
+    end;
+
+    if vContinuar then
+    begin
+      dtmContratosImoveis.ReadOnlyContrato(false);
+      frmCadastroImoveisContrato:=  TfrmCadastroImoveisContrato.Create(frmCadastroImoveisContrato);
+      if Editar then
+        Result:= dtmContratosImoveis.EditarImoveisContrato
+      else
+        Result:= true;
+      If Result then
+        try
+          if Editar then
+            frmCadastroImoveisContrato.Editar:= True
+          else
+          begin
+            frmCadastroImoveisContrato.Editar:= False;
+            dtmContratosImoveis.qryConsultaImoveis.macrobyname('WhereSituacao').AsString := 'and i.situacao = ''D''';
+            dtmContratosImoveis.qryImoveisVendidos.Append;
+          end;
+          dtmContratosImoveis.qryImoveisVendidosempreendimento.ReadOnly :=
+             dtmContratosImoveis.qryImoveisVendidos.RecordCount <> 0;
+          Result:= frmCadastroImoveisContrato.ShowModal = mrOk;
+        finally
+
+          dtmContratosImoveis.ReadOnlyContrato;
+          frmCadastroImoveisContrato.Free;
+
+          AtualizarDisplay(Self);
+          dtmContratosImoveis.FecharTabelasConsultas;;
+          SetFocus;
+        end;
+    end;
+  end
+  else
+    Result:= False;
+end;
+
+procedure TfrmContratosImoveis.sbnInserirImoveisClick(Sender: TObject);
+begin
+  inherited;
+  IncluirEditarImoveisContrato(False);
+end;
+
+procedure TfrmContratosImoveis.dbgImoveisVendidosDblClick(Sender: TObject);
+begin
+  inherited;
+  if dbgimoveisVendidos.Focused and sbnInserirImoveis.enabled and sbnInserirImoveis.visible then
+    IncluirEditarImoveisContrato(True);
+end;
+
+procedure TfrmContratosImoveis.sbnProcurarVendedorClick(Sender: TObject);
+begin
+  inherited;
+  TipoPesquisa:= pesVENDEDORES;
+  InternoPesquisar(flkVendedor,'Vendedores');
+end;
+
+procedure TfrmContratosImoveis.sbnExcluirImoveisClick(Sender: TObject);
+begin
+  inherited;
+//if not (dtmContratosImoveis.SituacaoContrato in [sciVENDIDO,sciQUITADO, sciRENEGOCIADO, sciTRANSFERIDO, sciRESCINDIDO]) and not (dtmContratosImoveis.ReadOnly) then
+  if not dtmContratosImoveis.ReadOnly then
+  begin
+    dtmContratosImoveis.ExcluirImovelContrato;
+    AtualizarDisplay(self);
+  end
+  else
+    MensagemAviso(Format(ctERROEXCLUSAO,['Imóvel']));
+end;
+
+procedure TfrmContratosImoveis.AtualizarDisplay(Sender: TObject);
+begin
+  edtQtdeImoveis.Text:= dtmContratosImoveis.QtdeImoveis;
+  edtTotalImoveis.Text:= FormatFloat('###,###,###,##0.00',dtmContratosImoveis.CalcularValorTotalImoveis);
+
+  if (dtmContratosImoveis.SituacaoContrato in [sciVENDIDO,sciQUITADO, sciRENEGOCIADO, sciTRANSFERIDO, sciRESCINDIDO]) then
+  begin
+    fraCreditoVenda.sbnProcura.Enabled:= False;
+    fraContaLongoPrazo.sbnProcura.Enabled:= False;
+
+    fraIndexadorAteHabitese.sbnProcura.Enabled:= False;
+    fraIndexadorAposHabitese.sbnProcura.Enabled:= False;
+  end
+  else
+  begin
+    fraCreditoVenda.sbnProcura.Enabled:= True;
+    fraContaLongoPrazo.sbnProcura.Enabled:= True;
+    fraIndexadorAteHabitese.sbnProcura.Enabled:= True;
+    fraIndexadorAposHabitese.sbnProcura.Enabled:= True;
+  end;
+end;
+
+procedure TfrmContratosImoveis.pgcContratosChange(Sender: TObject);
+begin
+  inherited;
+  if pgcContratos.ActivePage = tstParcelas then
+  begin
+    if dtmContratosImoveis.qryContratosvalortotal.AsFloat <=0 then
+    begin
+      MensagemAviso('O Valor do contrato precisa ser preenchido');
+      pgcContratos.ActivePage := tstImoveis;
+      edtTotalContrato.SetFocus;
+    end
+    else
+      dbgPArcelas.SetFocus;
+  end
+  else if pgcContratos.ActivePage = tstCompradores then
+  begin
+    dbgCompradores.SetFocus;
+  end
+  else if pgcContratos.ActivePage = tstImoveis then
+  begin
+    dbgimoveisVendidos.SetFocus;
+  end
+  else if pgcContratos.ActivePage = tstContabil then
+    if (dtmContratosImoveis.SituacaoContrato in [sciTRANSFERENCIA, sciRENEGOCIACAO]) then
+      pgcContabil.ActivePage := tstTransferencias
+    else if (dtmContratosImoveis.SituacaoContrato in [sciRESCINDIDO]) then
+      pgcContabil.ActivePage := tstRescisao
+    else
+      pgcContabil.ActivePage := tstVenda;
+  end;
+
+procedure TfrmContratosImoveis.sbnGerarParcelasClick(Sender: TObject);
+begin
+  inherited;
+  if not (dtmContratosImoveis.SituacaoContrato in [sciVENDIDO,sciQUITADO, sciRENEGOCIADO, sciTRANSFERIDO, sciRESCINDIDO]) then
+  begin
+    frmCalcularParcelasImoveis := TfrmCalcularParcelasImoveis.Create(Self);
+    frmCalcularParcelasImoveis.edtVencimento.Minimo:= DaysBetween(Date,
+                                            dtmContratosImoveis.qryContratosData.AsDateTime);
+    frmCalcularParcelasImoveis.ShowModal;
+
+    if frmCalcularParcelasImoveis.ModalResult = mrOK then
+      dtmContratosImoveis.GerarParcelas(frmCalcularParcelasImoveis.TipoParcela,
+                                        frmCalcularParcelasImoveis.Moeda,
+                                        frmCalcularParcelasImoveis.NroParcela,
+                                        frmCalcularParcelasImoveis.Intervalo,
+                                        frmCalcularParcelasImoveis.Vencimento,
+                                        frmCalcularParcelasImoveis.DataBase,
+                                        frmCalcularParcelasImoveis.DataJuros,
+                                        frmCalcularParcelasImoveis.TaxaJuros,
+                                        frmCalcularParcelasImoveis.ValorParcela,
+                                        frmCalcularParcelasImoveis.JurosCompostos);
+    frmCalcularParcelasImoveis.Free;
+    pgcContratos.ActivePage:= tstParcelas;
+    dbgPArcelas.SetFocus;
+    TotaisdeParcelas(False);
+  end;
+end;
+
+procedure TfrmContratosImoveis.sbnExcluirParcelasClick(Sender: TObject);
+begin
+  inherited;
+  if not (dtmContratosImoveis.SituacaoContrato in [sciVENDIDO,sciQUITADO, sciRENEGOCIADO, sciTRANSFERIDO, sciRESCINDIDO]) then
+  begin
+    if (dtmContratosImoveis.qryParcelasContratodatapagto.AsString = '') then
+      ExcluirParcelaContrato
+    else
+      MensagemAviso('Não foi possível excluir a parcela.'+CrLf+
+                    '- A parcela já foi quitada.');
+  end;
+  TotaisdeParcelas(False);
+end;
+
+procedure TfrmContratosImoveis.AlterarEstadoBotoes;
+begin
+
+  inherited;
+
+  //??????
+  if (dtmContratosImoveis.SituacaoContrato in [sciRENEGOCIADO, sciTRANSFERIDO]) then
+    sbnAlterarSituacao.Caption:= vstrAlterarSituacaoContratoImoveis[dtmContratosImoveis.SituacaoContrato]+'PARA Nº '+dtmContratosImoveis.qryContratoscontrato_gerado.AsString+' F11'
+  else if (dtmContratosImoveis.SituacaoContrato in [sciRENEGOCIADO, sciTRANSFERIDO]) then
+    sbnAlterarSituacao.Caption:= vstrAlterarSituacaoContratoImoveis[dtmContratosImoveis.SituacaoContrato]+'DE Nº '+dtmContratosImoveis.qryContratoscontrato_origem.AsString+' F11'
+  else
+    sbnAlterarSituacao.Caption:= vstrAlterarSituacaoContratoImoveis[dtmContratosImoveis.SituacaoContrato]+' F11';
+
+  sbnAlterarSituacao.Enabled:= dtmContratosImoveis.SituacaoContrato = sciRESERVADO;
+
+
+  if (dtmContratosImoveis.SituacaoContrato in [sciVENDIDO,sciQUITADO]) or
+     ((dtmContratosImoveis.SituacaoContrato in [sciRENEGOCIACAO, sciTRANSFERENCIA]) and
+       not (dtmContratosImoveis.qryContratos.State = dsinsert)) then
+  begin
+    sbnIncluirComprador.Enabled:= False;
+    sbnExcluirComprador.Enabled:= False;
+    sbnInserirImoveis.Enabled  := False;
+    sbnExcluirImoveis.Enabled  := False;
+    sbnRecebimentos.Enabled    := True;
+    sbnIncluirParcelas.Visible := False;
+    sbnExcluirParcelas.Visible := False;
+    sbnGerarParcelas.Visible   := False;
+  end
+  else if (dtmContratosImoveis.SituacaoContrato in [sciRENEGOCIADO, sciTRANSFERIDO, sciRESCINDIDO]) then
+  begin
+    sbnIncluirComprador.Enabled:= False;
+    sbnExcluirComprador.Enabled:= False;
+    sbnInserirImoveis.Enabled  := False;
+    sbnExcluirImoveis.Enabled  := False;
+    sbnRecebimentos.Enabled    := False;
+    sbnIncluirParcelas.Visible := False;
+    sbnExcluirParcelas.Visible := False;
+    sbnGerarParcelas.Visible   := False;
+  end
+  else
+  begin
+    if ((dtmContratosImoveis.SituacaoContrato in [sciRENEGOCIACAO]) and
+      (dtmContratosImoveis.qryContratos.State = dsinsert)) then
+    begin
+      sbnIncluirComprador.Enabled:= false;
+      sbnExcluirComprador.Enabled:= false;
+    end
+    else
+    begin
+      sbnIncluirComprador.Enabled:= True;
+      sbnExcluirComprador.Enabled:= True;
+    end;  
+
+    sbnInserirImoveis.Enabled  := True;
+    sbnExcluirImoveis.Enabled  := True;
+    sbnRecebimentos.Enabled    := False;
+    sbnIncluirParcelas.Visible := True;
+    sbnExcluirParcelas.Visible := True;
+    sbnGerarParcelas.Visible   := True;
+  end;
+
+  if (dtmContratosImoveis.SituacaoContrato in [SCIreservado, sciNENHUM, sciRENEGOCIADO, sciTRANSFERIDO, sciRESCINDIDO]) then
+  BEGIN
+    sbnReceberPArcela.Visible      := False;
+    sbnLancamentosContabeis.Visible:= False;
+  end
+  else
+  begin
+    sbnReceberPArcela.Visible      := True;
+    sbnLancamentosContabeis.Visible:= True;
+  end;
+
+  if not (dtmContratosImoveis.SituacaoContrato in [sciRESCINDIDO, sciRENEGOCIADO, sciTRANSFERIDO]) then
+    sbnAlteracao.Enabled := dtmContratosImoveis.qryContratos.RecordCount > 0
+  else
+    sbnAlteracao.Enabled := False;
+
+  if sbnSalvar.Enabled then
+    sbnAlteracao.Enabled := false;
+
+
+  sbnImprimirContrato.Enabled:= dtmContratosImoveis.qryContratos.RecordCount > 0;
+
+
+  if (dtmContratosImoveis.SituacaoContrato in [sciCANCELADO]) then
+  begin
+    sbnExcluir.Enabled:= True;
+    sbnExcluir.Caption := sbnExcluirCaption;
+  end
+  else if (dtmContratosImoveis.SituacaoContrato in  [sciVENDIDO, sciRESERVADO, sciRESCINDIDO, sciTRANSFERENCIA, sciRENEGOCIACAO]) then
+  begin
+    sbnExcluir.Caption := 'Cancelar F6';
+    sbnExcluir.Enabled:= True;
+  end
+  else
+  begin
+    sbnExcluir.Enabled:= false;
+    sbnExcluir.Caption := sbnExcluirCaption;
+  end;
+
+  if sbnSalvar.Enabled then
+    sbnExcluir.Enabled := false;
+  
+
+  if dtmContratosImoveis.SituacaoContrato in [sciCANCELADO, sciRESCINDIDO, sciTRANSFERIDO] then
+    dtxSituacao.Font.Color    := clRed
+  else
+    dtxSituacao.Font.Color := Font.Color;
+
+  {V: sciVENDIDO: Vendido,
+   F: sciTRANSFERENCIA: Transferido de e com data menor ou igual ao habite-se,
+   D: sciRENEGOCIACAO: Renegocidado de e com data menor ou igual ao habite-se,
+   T: sciTRANSFERIDO: Transferência para e com data menor ou igual ao habite-se e sendo o último contrato nesta situacao
+   G: sciRENEGOCIADO: Renegociado para e com data menor ou igual ao habite-se e sendo o último contrato nesta situacao
+   }
+
+
+{
+  if qryContratoshabite_se.Asdatetime > qryContratosData.AsDateTime then
+    qryContratosDatachaves.AsDateTime := qryContratoshabite_se.Asdatetime
+  else
+    qryContratosDatachaves.AsDateTime := qryContratosData.Asdatetime;
+}
+
+  if not (dtmContratosImoveis.qryContratos.state in [dsinsert])
+     and dtmContratosImoveis.qryContratosDatachaves.IsNull
+     and not dtmContratosImoveis.qryContratoshabite_se.IsNull
+
+     and (((dtmContratosImoveis.SituacaoContrato in [sciTRANSFERENCIA, sciRENEGOCIACAO, sciQUITADO]) and     {F, D, Q}
+           (dtmContratosImoveis.qryContratosData.asdatetime <= dtmContratosImoveis.qryContratoshabite_se.asdatetime)) or
+
+		   ((dtmContratosImoveis.SituacaoContrato in [sciRESCINDIDO]) and {só se pode re[S]cindir contratos F, D ou V}
+		    (dtmContratosImoveis.qryContratosDataalteracao.asdatetime > dtmContratosImoveis.qryContratoshabite_se.asdatetime) and
+        (dtmContratosImoveis.qryContratosData.asdatetime <= dtmContratosImoveis.qryContratoshabite_se.asdatetime))
+
+          or
+
+          ((dtmContratosImoveis.SituacaoContrato in [sciTRANSFERIDO, sciRENEGOCIADO]) and  {T, G}
+           (dtmContratosImoveis.qryContratosData.asdatetime < dtmContratosImoveis.qryContratoshabite_se.asdatetime) and
+
+			not
+		   ((((dtmContratosImoveis.qryContratosSituacao_contrato_gerado.asstring = 'F') or
+		     (dtmContratosImoveis.qryContratosSituacao_contrato_gerado.asstring = 'D') or
+			 (dtmContratosImoveis.qryContratosSituacao_contrato_gerado.asstring = 'Q')) and
+             (dtmContratosImoveis.qryContratosData_contrato_gerado.asdatetime <= dtmContratosImoveis.qryContratoshabite_se.asdatetime)) or
+
+		    ((dtmContratosImoveis.qryContratosSituacao_contrato_gerado.asstring = 'S') and {só se pode re[S]cindir contratos F, D ou V}
+		     (dtmContratosImoveis.qryContratosDataalteracao_contrato_gerado.asdatetime > dtmContratosImoveis.qryContratoshabite_se.asdatetime))))
+
+          or
+          ((dtmContratosImoveis.SituacaoContrato in [sciVENDIDO])
+            and (fraLancamentoContabeisVenda.qryLancamentos.RecordCount <> 0)))
+
+  then
+  begin
+    sbnContabilizarChaves.Caption := 'Contabilizar F12';
+    sbnContabilizarChaves.hint := 'Gerar a contabilização da entrega da chave';
+    sbnContabilizarChaves.Enabled := True;
+  end
+  else
+  if not (dtmContratosImoveis.qryContratos.state in [dsinsert])
+     and not dtmContratosImoveis.qryContratosDatachaves.IsNull
+     and not dtmContratosImoveis.qryContratoshabite_se.IsNull
+
+     and (((dtmContratosImoveis.SituacaoContrato in [sciTRANSFERENCIA, sciRENEGOCIACAO, sciQUITADO]) and     {F, D, Q}
+           (dtmContratosImoveis.qryContratosData.asdatetime <= dtmContratosImoveis.qryContratoshabite_se.asdatetime)) or
+
+		   ((dtmContratosImoveis.SituacaoContrato in [sciRESCINDIDO]) and {só se pode re[S]cindir contratos F, D ou V}
+		    (dtmContratosImoveis.qryContratosDataalteracao.asdatetime > dtmContratosImoveis.qryContratoshabite_se.asdatetime) and
+        (dtmContratosImoveis.qryContratosData.asdatetime <= dtmContratosImoveis.qryContratoshabite_se.asdatetime))
+    
+          or
+
+          ((dtmContratosImoveis.SituacaoContrato in [sciTRANSFERIDO, sciRENEGOCIADO]) and  {T, G}
+           (dtmContratosImoveis.qryContratosData.asdatetime < dtmContratosImoveis.qryContratoshabite_se.asdatetime) and
+
+			not
+		   ((((dtmContratosImoveis.qryContratosSituacao_contrato_gerado.asstring = 'F') or
+		     (dtmContratosImoveis.qryContratosSituacao_contrato_gerado.asstring = 'D') or
+			 (dtmContratosImoveis.qryContratosSituacao_contrato_gerado.asstring = 'Q')) and			 
+             (dtmContratosImoveis.qryContratosData_contrato_gerado.asdatetime <= dtmContratosImoveis.qryContratoshabite_se.asdatetime)) or
+
+		    ((dtmContratosImoveis.qryContratosSituacao_contrato_gerado.asstring = 'S') and {só se pode re[S]cindir contratos F, D ou V}
+		     (dtmContratosImoveis.qryContratosDataalteracao_contrato_gerado.asdatetime > dtmContratosImoveis.qryContratoshabite_se.asdatetime) and
+         (dtmContratosImoveis.qryContratosData_contrato_gerado.asdatetime <= dtmContratosImoveis.qryContratoshabite_se.asdatetime))))
+
+          or
+          ((dtmContratosImoveis.SituacaoContrato in [sciVENDIDO])
+            and (fraLancamentoContabeisChaves.qryLancamentos.RecordCount <> 0)))
+  then
+  begin
+    sbnContabilizarChaves.Caption := 'Estornar F12';
+    sbnContabilizarChaves.hint := 'Gerar o estorno da contabilização da entrega da chave';
+
+    if (dtmContratosImoveis.SituacaoContrato in [sciTRANSFERIDO, sciRENEGOCIADO]) then   {não se pode alterar nada de um contrato transferido/renegociado }
+      sbnContabilizarChaves.Enabled := False
+    else
+      sbnContabilizarChaves.Enabled := True;
+  end
+  else
+  begin
+    sbnContabilizarChaves.Caption := 'Contabilizar F12';
+    sbnContabilizarChaves.hint := 'Gerar a contabilização da entrega da chave';
+    sbnContabilizarChaves.Enabled := false;
+  end;
+
+end;
+
+procedure TfrmContratosImoveis.LimparDisplay(Sender: TObject);
+begin
+  edtQtdeImoveis.Clear;
+  edtTotalImoveis.Clear;
+end;
+
+procedure TfrmContratosImoveis.sbnIncluirParcelasClick(Sender: TObject);
+begin
+  inherited;
+  IncluirEditarParcelasCOntrato(False);
+end;
+
+function TfrmContratosImoveis.IncluirEditarParcelasCOntrato(Editar: Boolean): Boolean;
+begin
+
+  if not (dtmContratosImoveis.SituacaoContrato in [sciVENDIDO,sciQUITADO, sciRENEGOCIADO, sciTRANSFERIDO, sciRESCINDIDO]) then
+  begin
+    try
+      frmCadastroParcelasContrato:= TfrmCadastroParcelasContrato.Create(frmCadastroParcelasContrato);
+
+      if Editar then
+        Result:= dtmContratosImoveis.EditarParcela
+      else
+      begin
+        Result:= dtmContratosImoveis.IncluirParcela;
+        if Result then
+          dtmContratosImoveis.IncluirInformacoes;
+      end;
+      if Result then
+        Result:= frmCadastroParcelasContrato.ShowModal = mrOk;
+    finally
+       TotaisdeParcelas(False);
+       frmCadastroParcelasContrato.Free;
+    end;
+  end;
+
+end;
+
+procedure TfrmContratosImoveis.dbgParcelasDblClick(Sender: TObject);
+begin
+  inherited;
+  if (dtmContratosImoveis.SituacaoContrato in [sciRESERVADO]) then
+  begin
+    if (dtmContratosImoveis.qryParcelasContratodatapagto.AsString = '') and dbgPArcelas.Focused and sbnIncluirParcelas.enabled and sbnIncluirParcelas.visible then
+      IncluirEditarParcelasContrato(True)
+    else if (not(dtmContratosImoveis.qryParcelasContratodatapagto.IsNull) and
+             (dtmContratosImoveis.qryParcelasContratodatapagto.AsDateTime > ParSistema.DataContabil)) and dbgPArcelas.Focused and sbnIncluirParcelas.enabled and sbnIncluirParcelas.visible then
+      IncluirEditarParcelasContrato(True)
+    else
+      MensagemAviso('Não é possível editar a parcela, pois ela está quitada e a data de'+CrLf+
+                    'pagto é anterior à data contábil ('+datetostr(ParSistema.DataContabil)+').');
+  end
+  else
+    if (dtmContratosImoveis.SituacaoContrato in [sciVENDIDO, sciRENEGOCIACAO, sciTRANSFERENCIA]) then
+      sbnReceberParcelaClick(Self);
+end;
+
+procedure TfrmContratosImoveis.AbrirContrato;
+begin
+  edfNumeroCOntrato.Text:= ConsultaContrato.ValorSelecionado;
+
+  dtmContratosImoveis.RefazConsultaPorNome(dtmContratosImoveis.qryContratos,['Contrato'],
+                                                     [ConsultaContrato.ValorSelecionado]);
+end;
+
+procedure TfrmContratosImoveis.sbnProcurarClick(Sender: TObject);
+begin
+  inherited;
+  if not CtrlOn then
+  begin
+    ConsultaContrato.InternoPesquisar('Contratos de Imóveis');
+    self.SetFocus;
+  end;
+end;
+
+procedure TfrmContratosImoveis.ExcluirParcelaContrato;
+var result : TModalResult;
+begin
+  Result:= MensagemSimNaoOpcaoCancelar('Deseja exclui todas as parcelas'+CrLf+
+                          'do tipo '+dtmContratosImoveis.qryParcelasContratotipo.AsString,'',True);
+
+  if  Result = mryes then
+    dtmContratosImoveis.ExcluirParcelasContrato(True)
+  else if Result = mrno then
+    dtmContratosImoveis.ExcluirParcelasContrato(False);
+  TotaisdeParcelas(False);
+end;
+
+procedure TfrmContratosImoveis.sbnImprimirContratoClick(Sender: TObject);
+begin
+  inherited;
+  frmimpressaocontratoimoveis:= Tfrmimpressaocontratoimoveis.Create(frmimpressaocontratoimoveis);
+  try
+    if dtmContratosImoveis.qryContratosDataalteracao.AsVariant > 0 then
+      frmimpressaocontratoimoveis.DataAlteracao:= dtmContratosImoveis.qryContratosDataalteracao.AsVariant
+    else
+      frmimpressaocontratoimoveis.DataAlteracao:= 0;
+    if dtmContratosImoveis.qryContratosData.AsVariant > 0 then
+      frmimpressaocontratoimoveis.DataContrato := dtmContratosImoveis.qryContratosData.AsVariant
+    else
+      frmimpressaocontratoimoveis.DataContrato := 0;
+    frmimpressaocontratoimoveis.ShowModal;
+
+    if frmimpressaocontratoimoveis.ModalResult = mrok then
+    begin
+      if frmimpressaocontratoimoveis.Imprimir = 'C' then
+        dtmContratosImoveis.ImprimirContrato
+
+      else if frmimpressaocontratoimoveis.Imprimir = 'E' then
+        dtmContratosImoveis.ImprimirExtrato(frmimpressaocontratoimoveis.TipoExtrato, frmimpressaocontratoimoveis.Data)
+      else if frmimpressaocontratoimoveis.Imprimir = 'R' then
+      begin
+        dtmContratosImoveis.OrigemReciboRecebimentos:= False;
+        dtmContratosImoveis.ImprimirRecibo;
+      end;
+    end;
+
+  finally
+    frmimpressaocontratoimoveis.Free;
+  end;
+end;
+
+procedure TfrmContratosImoveis.sbnAlterarSituacaoClick(Sender: TObject);
+var
+  vResult : boolean;
+begin
+  inherited;
+  vResult := true;
+  if dtmContratosImoveis.SituacaoContrato = sciRESERVADO then
+  begin
+    if dtmContratosImoveis.qryContratosData.AsDateTime > ParSistema.DataContabil then
+    begin
+      if VerificarContas then
+      begin
+        dtmContratosImoveis.AlterarEstadoContrato;
+        if ParSistema.GerarContabilidade then
+          vResult := dtmContratosImoveis.ContabilizarVendasImoveis;
+          if vResult then
+          begin
+            dtmContratosImoveis.NrOrigem:= 'V';
+            with fraLancamentoContabeisVenda do
+              AbrirLancamentos('V', CodigoDocumento, dtmContratosImoveis.IncluindoContrato);
+
+              AlterarEstadoBotoes;
+          end;
+
+          {
+          ALTERADO EM 15/07/16 Lucio e Gedovar pela função contabilizarvendasimoveis
+
+          fraLancamentoContabeisVenda.sbnGerarLancamentoClick(Self);
+          dtmContratosImoveis.NrOrigem:= 'V';
+          fraLancamentoContabeisVenda.VerificarLancamentosContabeis;
+          dtmContratosImoveis.GravarLancamentosContabeis;
+
+          if dtmContratosImoveis.qryContratosDatachaves.AsDateTime > 0 then
+          begin
+            fraLancamentoContabeisChaves.sbnGerarLancamentoClick(Self);
+            fraLancamentoContabeisChaves.Origem:= 'H';
+            fraLancamentoContabeisChaves.VerificarLancamentosContabeis;
+            dtmContratosImoveis.GravarLancamentosContabeis;
+          end;
+          }
+
+        if vResult then
+          with dtmContratosImoveis do
+          begin
+            AlterarEstadoImoveis('V', True, True);
+            InternoGravar;
+          end;
+      end
+      else
+        MensagemAviso('As seguintes contas não foram preenchidas:'+sLineBreak+MsgContas);
+    end
+    else
+      MensagemAviso('A data de venda "' + DateToStr(dtmContratosImoveis.qryContratosData.AsDateTime) +
+                    '" é anterior à data contábil "' + DateToStr(ParSistema.DataContabil) + '".');
+  end;
+end;
+
+procedure TfrmContratosImoveis.AfterOpenContratos(Sender: TObject);
+begin
+  if tstContabil.TabVisible then
+  begin
+    with fraLancamentoContabeisVenda do
+    begin
+      dtmContratosImoveis.NrOrigem:= 'V';
+      AbrirLancamentos('V', CodigoDocumento, dtmContratosImoveis.IncluindoContrato);
+      AlterarEstadoBotoes;
+    end;
+    with fraLancamentoContabeisChaves do
+    begin
+      dtmContratosImoveis.NrOrigem:= 'H';
+      AbrirLancamentos('H', CodigoDocumento, dtmContratosImoveis.IncluindoContrato);
+    end;
+  end;
+
+
+{  if dtmContratosImoveis.SituacaoContrato > sciVENDIDO then
+    gbxDataAlteracao.Visible:= true
+  else
+    gbxDataAlteracao.Visible:= False;
+    }
+
+
+
+    {
+    sciRESERVADO     = 'R'
+    sciCANCELADO     = 'C'
+    sciVENDIDO       = 'V'
+    sciQUITADO       = 'Q'
+    sciRESCINDIDO    = 'S'
+
+    sciTRANSFERIDO   = 'T'
+    sciTRANSFERENCIA = 'F'
+
+    sciRENEGOCIADO   = 'G'
+    sciRENEGOCIACAO  = 'D'
+
+
+       cast(case when c.situacao = 'R' then 'RESERVADO'
+                 when c.situacao = 'C' then 'CANCELADO'
+                 when c.situacao = 'V' then 'VENDIDO'
+                 when c.situacao = 'Q' then 'QUITADO'
+                 when c.situacao = 'G' then 'RENEGOCIADO PARA Nº '||cast((select vig.contrato
+                                                                          from vendasimoveis vig
+                                                                          where vig.contrato_origem = c.contrato) as varchar)
+                 when c.situacao = 'D' then 'RENEGOCIADO DE Nº '|| cast(c.contrato_origem as varchar)
+                 when c.situacao = 'S' then 'RESCINDIDO'
+                 when c.situacao = 'T' then 'TRANSFERIDO PARA Nº '||cast((select vig.contrato
+                                                                          from vendasimoveis vig
+                                                                          where vig.contrato_origem = c.contrato) as varchar)
+                 when c.situacao = 'F' then 'TRANSFERIDO DE Nº '|| cast(c.contrato_origem as varchar)
+            end as varchar) as NomeSituacao,
+    }
+
+  if (dtmContratosImoveis.SituacaoContrato = sciTRANSFERENCIA) or
+     ((dtmContratosImoveis.SituacaoContrato <> sciTRANSFERENCIA) and
+       (dtmContratosImoveis.qryContratossituacao_contrato_origem.AsString = 'T')) then  //T = sciTRANSFERIDO
+  begin
+    pgcContabil.Pages[2].TabVisible:= True;
+    pgcContabil.Pages[2].Caption   := 'Transferências';
+    dtmContratosImoveis.DataAlteracao:= dtmContratosImoveis.qryContratosDataalteracao.AsDateTime;
+    with LancamentosTransf do
+    begin
+      SomenteLeituraContabilidade := dtmContratosImoveis.GetSomenteLeituraContabilidadeTransferencia;
+      dtmContratosImoveis.OperacaoTransferencia:= TRue;
+      dtmContratosImoveis.OperacaoRenegociacao:= False;
+      dtmContratosImoveis.OperacaoRescisao:= '';
+      dtmContratosImoveis.NrOrigem:= 'G';
+      if not dtmContratosImoveis.IncluindoContrato then
+        AbrirLancamentos('G', CodigoDocumento, dtmContratosImoveis.IncluindoContrato);
+
+
+    end
+  end
+  else if (dtmContratosImoveis.SituacaoContrato = sciRENEGOCIACAO) or
+          ((dtmContratosImoveis.SituacaoContrato <> sciRENEGOCIADO) and
+           (dtmContratosImoveis.qryContratossituacao_contrato_origem.AsString = 'G')) then  // G = sciRENEGOCIADO
+  begin
+    pgcContabil.Pages[2].TabVisible:= True;
+    pgcContabil.Pages[2].Caption   := 'Renegociação';
+    dtmContratosImoveis.DataAlteracao:= dtmContratosImoveis.qryContratosDataalteracao.AsDateTime;
+    with LancamentosTransf do
+    begin
+      SomenteLeituraContabilidade := dtmContratosImoveis.GetSomenteLeituraContabilidadeRescisao;
+      dtmContratosImoveis.OperacaoTransferencia:= False;
+      dtmContratosImoveis.OperacaoRenegociacao:= True;
+      dtmContratosImoveis.OperacaoRescisao:= '';
+      dtmContratosImoveis.NrOrigem:= 'G';
+      if not dtmContratosImoveis.IncluindoContrato then
+        AbrirLancamentos('G', CodigoDocumento, dtmContratosImoveis.IncluindoContrato);
+
+    end
+  end
+  else
+    pgcContabil.Pages[2].TabVisible:= False;
+
+  if dtmContratosImoveis.SituacaoContrato = sciRESCINDIDO then
+  begin
+    pgcContabil.Pages[3].TabVisible:= True;
+    dtmContratosImoveis.NrOrigem:= 'G';
+    dtmContratosImoveis.DataAlteracao:= dtmContratosImoveis.qryContratosDataalteracao.AsDateTime;
+    with LancamentosEstornoVenda do
+    begin
+      dtmContratosImoveis.OperacaoTransferencia:= False;
+      dtmContratosImoveis.OperacaoRenegociacao:= False;
+      dtmContratosImoveis.OperacaoRescisao:= 'EV';
+      dtmContratosImoveis.NrOrigem:= 'G';
+      AbrirLancamentos('G', CodigoDocumento, dtmContratosImoveis.IncluindoContrato);
+    end;
+    with LancamentosEstornoImpostos do
+    begin
+      dtmContratosImoveis.OperacaoTransferencia:= False;
+      dtmContratosImoveis.OperacaoRenegociacao := False;
+      dtmContratosImoveis.OperacaoRescisao:= 'EI';
+      dtmContratosImoveis.NrOrigem:= 'G';
+      AbrirLancamentos('G', CodigoDocumento, dtmContratosImoveis.IncluindoContrato);
+    end;
+    with LAncamentoEstornoValoresPagos do
+    begin
+      dtmContratosImoveis.OperacaoTransferencia:= False;
+      dtmContratosImoveis.OperacaoRenegociacao := False;
+      dtmContratosImoveis.OperacaoRescisao:= 'EP';
+      dtmContratosImoveis.NrOrigem:= 'G';
+      AbrirLancamentos('G', CodigoDocumento, dtmContratosImoveis.IncluindoContrato);
+    end;
+  end
+  else
+  begin
+    pgcContabil.Pages[3].TabVisible:= False;
+  end;
+  if dtmContratosImoveis.qryCompradores_Anteriores.RecordCount > 0 then
+    gbxCompradoresAnteriores.Visible:= True
+  else
+    gbxCompradoresAnteriores.Visible:= False;
+{ DisplayCompradores(self);}
+
+  if dtmContratosImoveis.qryContratos.RecordCount > 0 then
+    TotaisdeParcelas(False)
+  else
+    TotaisdeParcelas(True);
+
+  if dtmContratosImoveis.qryContratos.RecordCount > 0 then
+  begin
+    case dtmContratosImoveis.SituacaoContrato of
+      sciVENDIDO,sciRESERVADO: begin
+                                 if pgcContratos.Pages[2].Enabled then
+                                   pgcContratos.ActivePage:= tstParcelas;
+                               end;
+      sciRENEGOCIADO         : pgcContabil.ActivePage:= tstrescisao;
+    end;
+  end;
+
+  if not (dtmContratosImoveis.SituacaoContrato in [sciVENDIDO, sciRESERVADO, sciRESCINDIDO, sciTRANSFERIDO]) then
+    pgcContratos.Pages[4].Caption:= ' &5 - Valores Anteriores'
+  else
+    pgcContratos.Pages[4].Caption:= ' &5 - Anterior a 2009';
+
+end;
+
+function TfrmContratosImoveis.VerificarContas: Boolean;
+begin
+  MsgContas:= '';
+
+  with dtmContratosImoveis do
+  begin
+    if qryParametrosapropriarimpostosimoveis.asboolean then
+    begin
+  //    RefazConsultaPorNome(qryImoveisVendidos,['Contrato'],[qryContratosContrato.AsVariant]);
+
+      if GetContaCreditoCofinsRetido <= 0 then
+        MsgContas:= '- Crédito COFINS Venda' + sLineBreak;
+      if GetContaCreditoCSLLRetido <= 0 then
+        MsgContas:= MsgContas + '- Crédito CSLL Venda' + sLineBreak;
+      if GetContaCreditoIRRetido <= 0 then
+        MsgContas:= MsgContas + '- Crédito IRPJ Venda' + sLineBreak;
+      if GetContaCreditoPISRetido <= 0 then
+        MsgContas:= MsgContas + '- Crédito PIS Venda' + sLineBreak;
+      if GetContaDebitoCofinsRetido <= 0 then
+        MsgContas:= MsgContas + '- Débito Cofins Venda' + sLineBreak;
+      if GetContaDebitoCSLLRetido <= 0 then
+        MsgContas:= MsgContas + '- Débito CSLL Venda' + sLineBreak;
+      if GetContaDebitoIRRetido <= 0 then
+        MsgContas:= MsgContas + '- Débito IRPJ Venda' + sLineBreak;
+      if GetContaDebitoPISRetido <= 0 then
+        MsgContas:= MsgContas + '- Débito PIS Venda' + sLineBreak;
+      if GetContaCreditoCofinsChaves <= 0 then
+        MsgContas:= MsgContas + '- Crédito COFINS Chaves' + sLineBreak;
+      if GetContaCreditoCSLLChaves <= 0 then
+        MsgContas:= MsgContas + '- Crédito CSLL Chaves' + sLineBreak;
+      if GetContaCreditoIRChaves <= 0 then
+        MsgContas:= MsgContas + '- Crédito IRPJ Chaves' + sLineBreak;
+      if GetContaCreditoPISChaves <= 0 then
+        MsgContas:= MsgContas + '- Crédito PIS Chaves' + sLineBreak;
+      if GetContaDebitoCofinsChaves <= 0 then
+        MsgContas:= MsgContas + '- Débito COFINS Chaves' + sLineBreak;
+      if GetContaDebitoCSLLChaves <= 0 then
+        MsgContas:= MsgContas + '- Débito CSLL Chaves' + sLineBreak;
+      if GetContaDebitoIRChaves <= 0 then
+        MsgContas:= MsgContas + '- Débito IRPJ Chaves' + sLineBreak;
+      if GetContaDebitoPISChaves <= 0 then
+        MsgContas:= MsgContas + '- Débito PIS Chaves' + sLineBreak;
+      if GetContaCliente <= 0 then
+        MsgContas:= MsgContas + '- Débito Venda do Imóvel' + sLineBreak;
+      if GetCreditoVendaImoveis <= 0 then
+        MsgContas:= MsgContas + '- Crédito Venda do Imóvel' + sLineBreak;
+      if GetDebitoChavesImoveis <= 0 then
+        MsgContas:= MsgContas + '- Débito Chaves do Imóvel' + sLineBreak;
+      if GetCreditoChavesImoveis <= 0 then
+        MsgContas:= MsgContas + '- Crédito Chaves do Imóvel' + sLineBreak;
+      if GetCustodoImovel < 0 then
+        MsgContas:= MsgContas + '- Valor do custo do imóvel' + sLineBreak;
+      if GetContaCreditoCusto <= 0 then
+        MsgContas:= MsgContas + '- Crédito Custo do Imóvel' + sLineBreak;
+      if GetContaDebitoCusto <= 0 then
+        MsgContas:= MsgContas + '- Débito Custo do Imóvel' + sLineBreak;
+    end;    
+  end;
+  Result:= MsgContas = '';
+end;
+
+procedure TfrmContratosImoveis.AtribuirDadosChavesVendaImoveis;
+begin
+  with fraLancamentoContabeisChaves do
+  begin
+    lblLegenda.Visible       := False;
+    lblContaCreditoPagamento.Visible := False;
+    shContaCreditoPagamento.Visible  := False;
+    OrdenarLancamentos       := dtmContratosImoveis.GetOrdenarLancamentos;
+    FilialDocumento          := dtmContratosImoveis.getFilial;
+    ValordaNota              := dtmContratosImoveis.GetValorContratoChaves;
+    DataDocumento            := dtmContratosImoveis.GetDataChaves;
+    DescricaoHistorico       := dtmContratosImoveis.getdescricaohistorico;
+    GerarDuplicatas          := dtmContratosImoveis.GetGerarDuplicatas;
+    //Contas Chaves
+    ContaDebitoChavesImoveis := dtmContratosImoveis.GetDebitoChavesImoveis;
+    ContaCreditoChavesImoveis:= dtmContratosImoveis.GetCreditoChavesImoveis;
+    //Contas e Valores Custos e Despesas Venda
+    ContaDebitoDespesasVendaChaves := dtmContratosImoveis.GetDebitodespesasvenda;
+    ContaCreditoDespesasVendaChaves:= dtmContratosImoveis.Getcreditodespesasvenda;
+    ValorDespesaVenda              := dtmContratosImoveis.GetDespesaVenda;
+
+    ContaCreditoCustoVendaChaves   := dtmContratosImoveis.GetContaCreditoCusto;
+    ContaDebitoCustoVendaChaves    := dtmContratosImoveis.GetContaDebitoCusto;
+    ValorCustodeVenda              := dtmContratosImoveis.GetCustodoImovel;
+
+    //Contas e Valores Atualização Monetária sobre Chaves
+    ContaDebitoAMChaves            := dtmContratosImoveis.GetContaAtualiacaoMonetariaChaves;
+    ContaCreditoAMChaves           := dtmContratosImoveis.GetContaCreditoAtualiacaoMonetariaChaves;
+    ValorAMVenda                   := dtmContratosImoveis.GetVAlorAMEntregaChaves;
+
+    //Valores Impostos - Chaves
+    ValorcofinsRetido        := dtmContratosImoveis.GetCofinsRetidoChaves;
+    ValorcsllRetido          := dtmContratosImoveis.GetCSLLRetidoChaves;
+    ValorirRetido            := dtmContratosImoveis.GetIRRetidoChaves;
+    ValorpisRetido           := dtmContratosImoveis.GetPISRetidoChaves;
+    //Contas Impostos - Chaves
+    ContaDebitoPISChaves     := dtmContratosImoveis.GetContaDebitoPISChaves;
+    ContaCreditoPISChaves    := dtmContratosImoveis.GetContaCreditoPISChaves;
+    ContaDebitoCSLLChaves    := dtmContratosImoveis.GetContaDebitoCSLLChaves;
+    ContaCreditoCSLLChaves   := dtmContratosImoveis.GetContaCreditoCSLLChaves;
+    ContaDebitoIRChaves      := dtmContratosImoveis.GetContaDebitoIRChaves;
+    ContaCreditoIRChaves     := dtmContratosImoveis.GetContaCreditoIRChaves;
+    ContaDebitoCofinsChaves  := dtmContratosImoveis.GetContaDebitoCofinsChaves;
+    ContaCreditoCofinsChaves := dtmContratosImoveis.GetContaCreditoCofinsChaves;
+    //Historicos
+    historicochavesvalorvenda          := dtmContratosImoveis.Gethistoricochavesvalorvenda;
+    historicochavesimpostos            := dtmContratosImoveis.Gethistoricochavesimpostos;
+    historicochavescustoscomissoes     := dtmContratosImoveis.Gethistoricochavescustoscomissoes;
+    historicochavesatualizacaomonetaria:= dtmContratosImoveis.Gethistoricochavesatualizacaomonetaria;
+
+    Origem                   := 'H';
+    OrigemFormulario         := 'H';
+    dtmContratosImoveis.NrOrigem:= Origem;
+    CodigoDocumento          := dtmContratosImoveis.getNrOrigem;
+    SomenteLeituraContabilidade := dtmContratosImoveis.getSomenteLeituraContabilidade;
+    NomeOrigemFormulario     := self.name;
+    EditarDocumento          := dtmContratosImoveis.EditarContrato;
+  end;
+end;
+
+procedure TfrmContratosImoveis.AtribuirDadosVendaImoveis;
+begin
+  with fraLancamentoContabeisVenda do
+  begin
+    lblLegenda.Visible       := False;
+    lblContaCreditoPagamento.Visible := False;
+    shContaCreditoPagamento.Visible  := False;
+    OrdenarLancamentos       := dtmContratosImoveis.GetOrdenarLancamentos;
+    FilialDocumento          := dtmContratosImoveis.getFilial;
+    ValordaNota              := dtmContratosImoveis.GetValordoContrato;
+    ValorcofinsRetido        := dtmContratosImoveis.GetCofinsRetido;
+    ValorcsllRetido          := dtmContratosImoveis.GetCSLLRetido;
+    ValorirRetido            := dtmContratosImoveis.GetIRRetido;
+    ValorpisRetido           := dtmContratosImoveis.GetPISRetido;
+    DataDocumento            := dtmContratosImoveis.getDataLocal;
+    DataChaves               := dtmContratosImoveis.GetDataChaves;
+    DescricaoHistorico       := dtmContratosImoveis.getdescricaohistorico;
+    GerarDuplicatas          := dtmContratosImoveis.GetGerarDuplicatas;
+    //Contas Venda
+    ContaCliente             := dtmContratosImoveis.GetContaCliente;
+    ContaCreditoVendaImoveis := dtmContratosImoveis.GetCreditoVendaImoveis;
+    //Contas Impostos - Vendas
+    ContaDebitoPISRetido     := dtmContratosImoveis.GetContaDebitoPISRetido;
+    ContaCreditoPISRetido    := dtmContratosImoveis.GetContaCreditoPISRetido;
+    ContaDebitoCSLLRetido    := dtmContratosImoveis.GetContaDebitoCSLLRetido;
+    ContaCreditoCSLLRetido   := dtmContratosImoveis.GetContaCreditoCSLLRetido;
+    ContaDebitoIRRetido      := dtmContratosImoveis.GetContaDebitoIRRetido;
+    ContaCreditoIRRetido     := dtmContratosImoveis.GetContaCreditoIRRetido;
+    ContaDebitoCofinsRetido  := dtmContratosImoveis.GetContaDebitoCofinsRetido;
+    ContaCreditoCofinsRetido := dtmContratosImoveis.GetContaCreditoCofinsRetido;
+    //Contas Custos do Imóvel
+    ContaCreditoCusto        := dtmContratosImoveis.GetContaCreditoCusto;
+    ContaDebitoCusto         := dtmContratosImoveis.GetContaDebitoCusto;
+    ValorCustoImovel         := dtmContratosImoveis.GetCustodoImovel;
+    // Historicos
+    historicovendalancamento := dtmContratosImoveis.Gethistoricovendalancamento;
+    historicovendaimpostos        := dtmContratosImoveis.Gethistoricovendaimpostos;
+
+    SomenteLeituraContabilidade := dtmContratosImoveis.getSomenteLeituraContabilidadeVenda;
+    Origem                   := 'V';
+    OrigemFormulario         := 'V';
+    dtmContratosImoveis.NrOrigem:= Origem;
+    CodigoDocumento          := dtmContratosImoveis.getNrOrigem;
+    NomeOrigemFormulario     := self.name;
+    EditarDocumento          := dtmContratosImoveis.EditarContrato;
+    ApropriarImpostosImoveis := dtmContratosImoveis.GetApropriarImpostosImoveis;
+  end;
+end;
+
+procedure TfrmContratosImoveis.AfterScrollChaves(Sender: TObject);
+var Estado: Boolean;
+begin
+  if dtmContratosImoveis.ApagarLancamentos then
+  begin
+    ApagartodosLancamentosContabeis(fraLancamentoContabeisChaves, 'H');
+  end
+  else
+  begin
+    fraLancamentoContabeisChaves.sbnGerarLancamentoClick(Self);
+    dtmContratosImoveis.NrOrigem:= 'H';
+    fraLancamentoContabeisChaves.VerificarLancamentosContabeis;
+    dtmContratosImoveis.GravarLancamentosContabeis;
+  end;
+end;
+
+procedure TfrmContratosImoveis.ApagartodosLancamentosContabeis(
+  Frame: TfraLancamentoContabilidade; Origem: String);
+var Estado: Boolean;
+begin
+  Estado:= Frame.qryLancamentos.ReadOnly;
+  Frame.qryLancamentos.ReadOnly:= False;
+  Frame.ApagarLancamentos;
+  Frame.GerarLancamentosP_Dupla(False);
+  Frame.qryLancamentos.ReadOnly:= Estado;
+end;
+
+procedure TfrmContratosImoveis.dbgPArcelasDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn; State: TGridDrawState);
+var a:Integer;
+begin
+  inherited;
+  case column.Index of
+  0,1,2:
+    begin
+      if dtmContratosImoveis.qryParcelasContratonrpagto.AsInteger > 1 then
+        TDBGrid(Sender).Canvas.Font.Color := clWhite
+      else
+        TDBGrid(Sender).Canvas.Font.Color := clBlack;
+      TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+    end;  
+  end;
+end;
+
+{
+procedure TfrmContratosImoveis.DisplayCompradores(Sender: TObject);
+var Comprador: String;
+begin
+  with dtmContratosImoveis do
+  begin
+    if not (qryCompradores.State = dsinactive) then
+    begin
+      if qryCompradores.RecordCount > 1 then
+      begin
+        qryCompradores.First;
+        while not qryCompradores.Eof do
+        begin
+          if qryCompradoresprincipal.asBoolean then
+          begin
+            Comprador:= UpperCase(qryCompradoresnomecliente.AsString) + ' &  OUTROS ';
+            LblCompradores.Caption:= Comprador;
+          end;
+        qryCompradores.Next
+        end;
+      end
+      else
+      begin
+        qryCompradores.First;
+        Comprador:= UpperCase(qryCompradoresnomecliente.AsString);
+        LblCompradores.Caption:= Comprador;
+      end;
+    end
+    else
+      LblCompradores.Caption:= '';
+  end;
+end;
+}
+
+procedure TfrmContratosImoveis.sbnRecebimentosClick(Sender: TObject);
+begin
+  inherited;
+  AbrirRecebimentos(True);
+end;
+
+function TfrmContratosImoveis.AbrirRecebimentos(QuitacaoLote: Boolean): Boolean;
+begin
+  dtmContratosImoveis.CapturarParcelaAtual;
+  if not QuitacaoLote then
+  begin
+    with dtmContratosImoveis do
+    begin
+      dtmContratosImoveis.QuitarDiversas:= False;
+
+      if not assigned(frmrecebimentos) then
+        frmrecebimentos:= Tfrmrecebimentos.Create(frmrecebimentos)
+      else
+        VerificarForm;
+
+      try
+        Result:= Frmrecebimentos.ShowModal = mrOk;
+      finally
+        with dtmContratosImoveis do
+        begin
+          RefazConsultaPorNome(qryParcelasContrato,['Contrato'], [qryContratoscontrato.AsVariant]);
+        end;
+        frmrecebimentos.Free;
+        dbgPArcelas.SetFocus;
+      end;
+    end;
+  end
+  else
+  begin
+    dtmContratosImoveis.QuitarDiversas:= True;
+    frmQuitacaoParcelasLote:= TfrmQuitacaoParcelasLote.Create(frmQuitacaoParcelasLote);
+    try
+      Result:= frmQuitacaoParcelasLote.ShowModal = mrOk;
+    finally
+      with dtmContratosImoveis do
+      begin
+        RefazConsultaPorNome(qryParcelasContrato,['Contrato'], [qryContratoscontrato.AsVariant]);
+      end;
+      frmQuitacaoParcelasLote.Free;
+      SetFocus;
+    end;
+  end;
+  dtmContratosImoveis.VoltarParcelaEditada;
+end;
+
+procedure TfrmContratosImoveis.sbnReceberPArcelaClick(Sender: TObject);
+begin
+  inherited;
+  if dtmContratosImoveis.qryParcelasContratodatapagto.AsString <> '' then
+    if dtmContratosImoveis.qryParcelasContratodatapagto.AsDateTime > ParSistema.DataContabil then
+      AbrirRecebimentos(False)
+    else
+      MensagemAviso('Não é possível alterar o recebimento'+CrLf+Format(ctDATACONTABILANTERIOR,['Data de recebimento',
+                                                                                                 'a data contábil',
+                                                                                                 parSistema.DataContabilString]))
+  else
+    AbrirRecebimentos(False);
+end;
+
+procedure TfrmContratosImoveis.sbnLancamentosContabeisClick(
+  Sender: TObject);
+begin
+  inherited;
+  if dtmContratosImoveis.qryParcelasContratodatapagto.AsString <> '' then
+  begin
+    dtmContratosImoveis.QuitarDiversas:= False;
+    frmlancamentoscontabeisrecebimentos:= Tfrmlancamentoscontabeisrecebimentos.Create(frmlancamentoscontabeisrecebimentos);
+    try
+      frmlancamentoscontabeisrecebimentos.ShowModal;
+    finally
+      frmlancamentoscontabeisrecebimentos.free;
+      dbgPArcelas.SetFocus;
+    end;
+  end;
+end;
+
+procedure TfrmContratosImoveis.sbnAlteracaoClick(Sender: TObject);
+begin
+  inherited;
+  frmAlteracoes := TfrmAlteracoes.Create(Self);
+  try
+    frmAlteracoes.ShowModal;
+    if frmAlteracoes.ModalResult = mrok then
+    begin
+      dtmContratosImoveis.DataAlteracao:= StrToDate(frmAlteracoes.edtData.Text);
+      if dtmContratosImoveis.DataAlteracao > ParSistema.DataContabil then
+      begin
+        if frmAlteracoes.Alteracao = 'Q' then
+          QuitarContrato
+        else if frmAlteracoes.Alteracao = 'R' then
+        begin
+          if (sbnContabilizarChaves.caption = 'Estornar F12') and
+             (dtmContratosImoveis.DataAlteracao <= dtmContratosImoveis.qryContratosDatachaves.AsDateTime ) then
+             MensagemAviso('A data da rescisão é menor ou igual a entrega das chaves, efetue o estorno das chaves antes de rescindir')
+          else
+            RescindirContrato;
+        end
+        else if frmAlteracoes.Alteracao = 'T' then
+        begin
+          if (sbnContabilizarChaves.caption = 'Estornar F12') and
+             (dtmContratosImoveis.DataAlteracao <= dtmContratosImoveis.qryContratosDatachaves.AsDateTime ) then
+             MensagemAviso('A data da transferência é menor ou igual a entrega das chaves, efetue o estorno das chaves antes de transferir')
+          else
+          begin
+            TransferirContrato;
+            {
+            if (sbnContabilizarChaves.caption = 'Contabilizar F12') and sbnContabilizarChaves.enabled then
+              sbnContabilizarChavesClick(self);}
+          end;
+        end
+        else if frmAlteracoes.Alteracao = 'G' then
+        begin
+          if (sbnContabilizarChaves.caption = 'Estornar F12') and
+             (dtmContratosImoveis.DataAlteracao <= dtmContratosImoveis.qryContratosDatachaves.AsDateTime ) then
+             MensagemAviso('A data de renegociação é menor ou igual a entrega das chaves, efetue o estorno das chaves antes de renegociar')
+          else
+          begin
+            RenegociarContratos;
+            {
+            if (sbnContabilizarChaves.caption = 'Contabilizar F12') and sbnContabilizarChaves.enabled then
+              sbnContabilizarChavesClick(self);
+              }
+          end;
+        end;
+
+
+
+      end
+      else
+        MensagemAviso(Format(ctDATACONTABILMAIORDATALANCTO,['data de alteração',
+                                                            datetostr(dtmContratosImoveis.DataAlteracao),
+                                                            'data contábil',
+                                                            ParSistema.DataContabilString]));
+    end;
+  finally
+    frmAlteracoes.Free;
+  end;
+end;
+
+procedure TfrmContratosImoveis.RescindirContrato;
+begin
+  dtmContratosImoveis.ReadOnlyContrato(False);
+  LancamentosEstorno(LancamentosEstornoVenda,'EV');
+
+  if dtmContratosImoveis.GetApropriarImpostosImoveis then
+  begin
+    LancamentosEstorno(LancamentosEstornoImpostos,'EI');
+    LancamentosEstorno(LAncamentoEstornoValoresPagos,'EP');
+  end;
+    
+  dtmContratosImoveis.SituacaoContrato:= sciRESCINDIDO;
+  dtmContratosImoveis.AtribuirDataAlteracao;
+//dtmContratosImoveis.AlterarEstadoImoveis('D', false);
+//  dtmContratosImoveis.AlteracoesContrato(True, False);
+  AfterOpenContratos(Self);
+  dtmContratosImoveis.ReadOnlyContrato(False);
+  dtmContratosImoveis.GravarLancamentosContabeis;
+  dtmContratosImoveis.EditarContrato;
+  dtmContratosImoveis.ReadOnlyContrato;
+  pgcContabil.ActivePage:= tstrescisao;
+end;
+
+procedure TfrmContratosImoveis.AtribuirDadosFramesAlteracoes;
+begin
+  dtmContratosImoveis.TotalParcelas;
+  with LancamentoEstornoValoresPagos do
+  begin
+    OrdenarLancamentos       := dtmContratosImoveis.GetOrdenarLancamentos;
+    FilialDocumento          := dtmContratosImoveis.getFilial;
+    ValordaNota              := dtmContratosImoveis.GetValorTotalPago;
+    ContaCliente             := dtmContratosImoveis.GetContaCliente;
+    ContaCaixa               := dtmContratosImoveis.GetContaCaixa;
+    DataDocumento            := dtmContratosImoveis.getDataAlteracao;
+    DescricaoHistorico       := dtmContratosImoveis.getdescricaohistorico;
+    GerarDuplicatas          := dtmContratosImoveis.GetGerarDuplicatas;
+    ImovelEntregue           := dtmContratosImoveis.ImovelEntregue;
+    CodigoDocumento          := dtmContratosImoveis.GetNrOrigem;
+    dtmContratosImoveis.OperacaoRescisao:= 'EP';
+    OperacaoRes              := dtmContratosImoveis.GetOperacaoRescisao;
+    SomenteLeituraContabilidade := dtmContratosImoveis.GetSomenteLeituraContabilidadeRescisao;
+    Origem                   := 'G';
+    OrigemFormulario         := 'G';
+    dtmContratosImoveis.NrOrigem:= Origem;
+
+    CodigoDocumento          := dtmContratosImoveis.getNrOrigem;
+    NomeOrigemFormulario     := self.name;
+    EditarDocumento          := dtmContratosImoveis.EditarContrato;
+  end;
+  with LancamentosEstornoVenda do
+  begin
+    OrdenarLancamentos       := dtmContratosImoveis.GetOrdenarLancamentos;
+    FilialDocumento          := dtmContratosImoveis.getFilial;
+    ValordaNota              := dtmContratosImoveis.GetValordoContrato;
+    ContaCreditoVendaImoveis := dtmContratosImoveis.GetCreditoVendaImoveis;
+    ContaCliente             := dtmContratosImoveis.GetContaCliente;
+    ValorAtualizacaoMonetaria:= dtmContratosImoveis.GetTotalJurosEAMContrato;
+    ContaAtualizacaoMonetariaClientes:= dtmContratosImoveis.GetContaAtualizacaoMonetariaCliente;
+//    ContaCliente             := dtmContratosImoveis.GetContaCliente;
+    DataDocumento            := dtmContratosImoveis.getDataAlteracao;
+    DescricaoHistorico       := dtmContratosImoveis.getdescricaohistorico;
+    GerarDuplicatas          := dtmContratosImoveis.GetGerarDuplicatas;
+    ImovelEntregue           := dtmContratosImoveis.ImovelEntregue;
+    CodigoDocumento          := dtmContratosImoveis.GetNrOrigem;
+    dtmContratosImoveis.OperacaoRescisao:= 'EV';
+    OperacaoRes              := dtmContratosImoveis.GetOperacaoRescisao;
+    SomenteLeituraContabilidade := dtmContratosImoveis.GetSomenteLeituraContabilidadeRescisao;
+    Origem                   := 'G';
+    OrigemFormulario         := 'G';
+    dtmContratosImoveis.NrOrigem:= Origem;
+    CodigoDocumento          := dtmContratosImoveis.getNrOrigem;
+    NomeOrigemFormulario     := self.name;
+    EditarDocumento          := dtmContratosImoveis.EditarContrato;
+  end;
+
+  with LancamentosEstornoImpostos do
+  begin
+    OrdenarLancamentos       := dtmContratosImoveis.GetOrdenarLancamentos;
+    FilialDocumento          := dtmContratosImoveis.getFilial;
+    ContaDebitoIRRetido      := dtmContratosImoveis.GetContaDebitoIRRetido;
+    ContaCreditoIRRetido     := dtmContratosImoveis.GetContaCreditoIRRetido;
+    ValorirRetido            := dtmContratosImoveis.GetIRRetido;
+    ContaDebitoCSLLRetido    := dtmContratosImoveis.GetContaDebitoCSLLRetido;
+    ContaCreditoCSLLRetido   := dtmContratosImoveis.GetContaCreditoCSLLRetido;
+    ValorcsllRetido          := dtmContratosImoveis.GetCSLLRetido;
+    ContaDebitoCofinsRetido  := dtmContratosImoveis.GetContaDebitoCofinsRetido;
+    ContaCreditoCofinsRetido := dtmContratosImoveis.GetContaCreditoCofinsRetido;
+    ValorcofinsRetido        := dtmContratosImoveis.GetCofinsRetido;
+    ContaDebitoPISRetido     := dtmContratosImoveis.GetContaDebitoPISRetido;
+    ContaCreditoPISRetido    := dtmContratosImoveis.GetContaCreditoPISRetido;
+    ValorpisRetido           := dtmContratosImoveis.GetPISRetido;
+
+    ContaDebitoCSLLAtualizacaoMonetaria := dtmContratosImoveis.GetContaDebitoCSLLAtualizacaoMonetaria;
+    ContaCreditoCSLLAtualizacaoMonetaria:= dtmContratosImoveis.GetContaCreditoCSLLAtualizacaoMonetaria;
+    ValorCSLLAtualizacaoMonetaria       := dtmContratosImoveis.GetValorTotalCSLLAtualizacoaoMonetaria;
+    ContaDebitoIRPJAtualizacaoMonetaria := dtmContratosImoveis.GetContaDebitoIRPJAtualizacaoMonetaria;
+    ContaCreditoIRPJAtualizacaoMonetaria:= dtmContratosImoveis.GetContaCreditoIRPJAtualizacaoMonetaria;
+    ValorIRPJAtualizacaoMonetaria       := dtmContratosImoveis.GetValorTotalIRPJAtualizacoaoMonetaria;
+
+    DataDocumento            := dtmContratosImoveis.getDataAlteracao;
+    DescricaoHistorico       := dtmContratosImoveis.getdescricaohistorico;
+    GerarDuplicatas          := dtmContratosImoveis.GetGerarDuplicatas;
+    ImovelEntregue           := dtmContratosImoveis.ImovelEntregue;
+    CodigoDocumento          := dtmContratosImoveis.GetNrOrigem;
+    dtmContratosImoveis.OperacaoRescisao:= 'EI';
+    OperacaoRes              := dtmContratosImoveis.GetOperacaoRescisao;
+    SomenteLeituraContabilidade := dtmContratosImoveis.GetSomenteLeituraContabilidadeRescisao;
+    Origem                   := 'G';
+    OrigemFormulario         := 'G';
+    dtmContratosImoveis.NrOrigem:= Origem;
+    CodigoDocumento          := dtmContratosImoveis.getNrOrigem;
+    NomeOrigemFormulario     := self.name;
+    EditarDocumento          := dtmContratosImoveis.EditarContrato;
+  end;
+end;
+
+procedure TfrmContratosImoveis.LancamentosEstorno(Frame: TfraLancamentoContabilidade; Operacao: String);
+begin
+  dtmContratosImoveis.OperacaoTransferencia:= False;
+  dtmContratosImoveis.OperacaoRenegociacao:= False;
+  dtmContratosImoveis.OperacaoRescisao:= Operacao;
+  Frame.AbrirLancamentos('G',dtmContratosImoveis.GetNrOrigem, dtmContratosImoveis.IncluindoContrato);
+  Frame.sbnGerarLancamentoClick(Self);
+  Frame.GerarLancamentosP_Dupla(False);
+ // validarlancamentos;
+  dtmContratosImoveis.NrOrigem:= 'G';
+  dtmContratosImoveis.GravarLancamentosContabeis;
+//  dtmContratosImoveis.Perpetrar([dtmLancamentoContabilidade.qryLancamentosDocumentos]);
+end;
+
+procedure TfrmContratosImoveis.FormShow(Sender: TObject);
+begin
+  inherited;
+  pgcContabil.Pages[3].TabVisible:= False;
+end;
+
+procedure TfrmContratosImoveis.ExcluirLancamentos(Frame: TfraLancamentoContabilidade; Operacao, Origem: String);
+begin
+  if dtmContratosImoveis.SituacaoContrato <> sciTRANSFERIDO then
+    dtmContratosImoveis.OperacaoTransferencia:= False;
+  if dtmContratosImoveis.SituacaoContrato <> sciRENEGOCIADO then
+    dtmContratosImoveis.OperacaoRenegociacao:= FALSE;
+  dtmContratosImoveis.OperacaoRescisao:= Operacao;
+  dtmContratosImoveis.NrOrigem:= Origem;
+  Frame.AbrirLancamentos(Origem, dtmContratosImoveis.GetNrOrigem, False);
+  Frame.GerarLancamentosP_Dupla(FALSE);
+  dtmContratosImoveis.GravarLancamentosContabeis;
+  dtmContratosImoveis.Perpetrar([dtmLancamentoContabilidade.qryLancamentosDocumentos], false);
+end;
+
+procedure TfrmContratosImoveis.TransferirContrato;
+begin
+  dtmContratosImoveis.GerarNovoContrato(dtmContratosImoveis.qrycontratosContrato.Asinteger,'T');
+  LancamentosTransferencias;
+  pgcContratos.ActivePage:= tstCompradores;
+//  lblCompradores.Caption:= '';
+  pgcContratos.Pages[4].Caption:= '5 - Valores Anteriores';
+  if dtmContratosImoveis.qryCompradores_Anteriores.RecordCount > 0 then
+    gbxCompradoresAnteriores.Visible:= True
+  else
+    gbxCompradoresAnteriores.Visible:= False;
+  AfterOpenContratos(Self);
+end;
+
+function TfrmContratosImoveis.ValidarLancamentos: Boolean;
+begin
+  if dtmContratosImoveis.SituacaoContrato = sciRESCINDIDO then
+  begin
+    Result:= False;
+    dtmContratosImoveis.OperacaoRescisao:= 'EV';
+    if LancamentosEstornoVenda.VerificarLancamentosContabeis then
+    begin
+      dtmContratosImoveis.GravarLancamentosContabeis;
+      dtmContratosImoveis.Perpetrar([dtmLancamentoContabilidade.qryLancamentosDocumentos]);
+      dtmContratosImoveis.OperacaoRescisao:= 'EI';
+      if LancamentosEstornoImpostos.VerificarLancamentosContabeis then
+      begin
+        dtmContratosImoveis.GravarLancamentosContabeis;
+        dtmContratosImoveis.Perpetrar([dtmLancamentoContabilidade.qryLancamentosDocumentos]);
+        dtmContratosImoveis.OperacaoRescisao:= 'EP';
+        if LancamentoEstornoValoresPagos.VerificarLancamentosContabeis then
+        begin
+          dtmContratosImoveis.GravarLancamentosContabeis;
+          dtmContratosImoveis.Perpetrar([dtmLancamentoContabilidade.qryLancamentosDocumentos]);
+          Result:= True;
+          LancamentosValidados:= true;
+        end
+        else
+          MensagemAviso('Lançamentos do estorno dos valores pagos não estão corretos');
+      end
+      else
+        MensagemAviso('Lançamentos do estorno dos impostos sobre a rescisão não estão corretos');
+    end
+    else
+      MensagemAviso('Lançamentos do estorno dos Valores de venda não estão corretos');
+    if not Result then
+      LancamentosValidados:= False;
+  end
+  else
+    Result:= True;
+
+  if dtmContratosImoveis.SituacaoContrato > sciRESERVADO then
+  begin
+    dtmContratosImoveis.NrOrigem:= 'V';
+    if not fraLancamentoContabeisVenda.VerificarLancamentosContabeis then
+    begin
+      MensagemAviso('Lançamentos contábeis de venda não estão corretos');
+      Result:= False;
+    end
+    else
+    begin
+      dtmContratosImoveis.GravarLancamentosContabeis;
+      dtmContratosImoveis.Perpetrar([dtmLancamentoContabilidade.qryLancamentosDocumentos]);
+    end;
+
+    dtmContratosImoveis.NrOrigem:= 'H';
+    if not fraLancamentoContabeisChaves.VerificarLancamentosContabeis then
+    begin
+      MensagemAviso('Lançamentos contábeis da entrega de chaves não estão corretos');
+      Result:= False;
+    end
+    else
+    begin
+      dtmContratosImoveis.GravarLancamentosContabeis;
+      dtmContratosImoveis.Perpetrar([dtmLancamentoContabilidade.qryLancamentosDocumentos]);
+    end;
+
+    dtmContratosImoveis.NrOrigem:= 'G';
+    if (dtmContratosImoveis.SituacaoContrato in [sciTRANSFERENCIA, sciRENEGOCIACAO]) then
+    begin
+      if dtmContratosImoveis.qryContratos.State = dsinsert then
+        LancamentosTransf.AbrirLancamentos('G', dtmContratosImoveis.GetNrOrigem, False);
+
+      if not LancamentosTransf.VerificarLancamentosContabeis then
+      begin
+        MensagemAviso('Lançamentos contábeis da transferência/renegociação não estão corretos');
+        Result:= False;
+      end
+      else
+      begin
+        dtmContratosImoveis.GravarLancamentosContabeis;
+        dtmContratosImoveis.Perpetrar([dtmLancamentoContabilidade.qryLancamentosDocumentos]);
+      end;
+    end;
+  end;
+
+end;
+
+procedure TfrmContratosImoveis.LancamentosEstornoVendasbnIncluirLancamentoClick(Sender: TObject);
+begin
+  inherited;
+  dtmContratosImoveis.NrOrigem:= 'G';
+  dtmContratosImoveis.OperacaoRescisao:= 'EV';
+  LancamentosEstornoVenda.sbnIncluirLancamentoClick(Sender);
+end;
+
+procedure TfrmContratosImoveis.LancamentosTransferencias;
+begin
+  dtmContratosImoveis.NrOrigem:= 'G';
+  dtmContratosImoveis.OperacaoTransferencia:= True;
+  dtmContratosImoveis.OperacaoRenegociacao:= False;
+  dtmContratosImoveis.OperacaoRescisao:= '';
+  LancamentosTransf.AbrirLancamentos('G',dtmContratosImoveis.GetNrOrigem, dtmContratosImoveis.IncluindoContrato);
+  LancamentosTransf.sbnGerarLancamentoClick(Self);
+
+  LancamentosTransf.GerarLancamentosP_Dupla(False);  //não esta gerando lançamentos (gerar = false) e esta apagando se já existir algum
+
+  dtmContratosImoveis.GravarLancamentosContabeis;
+  dtmContratosImoveis.Perpetrar([dtmLancamentoContabilidade.qryLancamentosDocumentos]);
+end;
+
+procedure TfrmContratosImoveis.atribuirDAdosTransferencias;
+begin
+  with LancamentosTransf do
+  begin
+    OrdenarLancamentos       := dtmContratosImoveis.GetOrdenarLancamentos;
+    FilialDocumento          := dtmContratosImoveis.getFilial;
+    ValorAtualizacaoMonetaria:= dtmContratosImoveis.GetTotalJuroseAMTranf;
+    ValordaNota              := dtmContratosImoveis.GetTotalAMTransf;
+    ContaAtualizacaoMonetariaClientes  := dtmContratosImoveis.GetContaAtualizacaoMonetariaCliente;
+    ContaCaixa               := dtmContratosImoveis.GetContaCaixa;
+    DataDocumento            := dtmContratosImoveis.getDataLocal;
+    DescricaoHistorico       := dtmContratosImoveis.getdescricaohistorico;
+    GerarDuplicatas          := dtmContratosImoveis.GetGerarDuplicatas;
+    ImovelEntregue           := dtmContratosImoveis.ImovelEntregue;
+    CodigoDocumento          := dtmContratosImoveis.GetNrOrigem;
+    SomenteLeituraContabilidade := dtmContratosImoveis.GetSomenteLeituraContabilidadeRescisao;
+    Origem                   := 'G';
+    OrigemFormulario         := 'G';
+    dtmContratosImoveis.OperacaoRescisao:= '';
+    dtmContratosImoveis.OperacaoTransferencia:= True;
+    OperacaoTrans := dtmContratosImoveis.GetOperacaoTrans;
+    OperacaoRes   := dtmContratosImoveis.GetOperacaoRescisao;
+    OperacaoReneg := dtmContratosImoveis.GetOperacaoReneg;
+    dtmContratosImoveis.NrOrigem:= Origem;
+    CodigoDocumento          := dtmContratosImoveis.getNrOrigem;
+    NomeOrigemFormulario     := self.name;
+    EditarDocumento          := dtmContratosImoveis.EditarContrato;
+  end;
+end;
+
+procedure TfrmContratosImoveis.LancamentosRenegociacoes;
+begin
+  dtmContratosImoveis.NrOrigem:= 'G';
+  dtmContratosImoveis.OperacaoTransferencia:= False;
+  dtmContratosImoveis.OperacaoRescisao:= '';
+  LancamentosTransf.AbrirLancamentos('G',dtmContratosImoveis.GetNrOrigem, dtmContratosImoveis.IncluindoContrato);
+  LancamentosTransf.sbnGerarLancamentoClick(Self);
+  LancamentosTransf.GerarLancamentosP_Dupla(False);
+  dtmContratosImoveis.GravarLancamentosContabeis;
+  dtmContratosImoveis.Perpetrar([dtmLancamentoContabilidade.qryLancamentosDocumentos]);
+end;
+
+procedure TfrmContratosImoveis.RenegociarContratos;
+begin
+  dtmContratosImoveis.GerarNovoContrato(dtmContratosImoveis.qrycontratosContrato.Asinteger,'G');
+ // LancamentosRenegociacoes;
+  pgcContratos.ActivePage:= tstParcelas;
+//  lblCompradores.Caption:= '';
+  pgcContratos.Pages[4].Caption:= '5 - Valores Anteriores';
+  if dtmContratosImoveis.qryCompradores_Anteriores.RecordCount > 0 then
+    gbxCompradoresAnteriores.Visible:= True
+  else
+    gbxCompradoresAnteriores.Visible:= False;
+  AfterOpenContratos(Self);
+end;
+
+procedure TfrmContratosImoveis.TotaisdeParcelas(Limpar: Boolean);
+begin
+  DisplayValorHistorico := 0;
+  DisplayValorContratado:= 0;
+  DisplayValorHistoricoAberto := 0;
+  DisplayValorContratadoAberto:= 0;
+  DisplayValorDevido    := 0;
+  DisplayValorDevidoAberto    := 0;
+  DisplayValorPago      := 0;
+  DisplayValorCorrecao  := 0;
+  DisplayValorJuros     := 0;
+  DisplayValorCorrecaoAberto  := 0;
+  DisplayValorJurosAberto     := 0;
+  DisplayValorDiferenca := 0;
+  dtxValorHistorico.Clear;
+  dtxValorContratado.Clear;
+  dtxValorDevido.Clear;
+  dtxValorPago.Clear;
+  dtxJuros.Clear;
+  dtxCorrecao.Clear;
+  dtxDiferenca.Clear;
+
+  with dtmContratosImoveis do
+  begin
+    if not Limpar then
+    begin
+      GuardarRegistroAtual(qryParcelasContrato, True);
+      qryParcelasContrato.First;
+      while not qryParcelasContrato.Eof do
+      begin
+        DisplayValorHistorico := DisplayValorHistorico  + qryParcelasContratovalorhistorico.AsCurrency;
+        DisplayValorContratado:= DisplayValorContratado + qryParcelasContratovalorcontratado.AsCurrency;
+        DisplayValorDevido    := DisplayValorDevido     + qryParcelasContratovalordevido.AsCurrency;
+        DisplayValorPago      := DisplayValorPago       + qryParcelasContratovalorpagto.AsCurrency;
+        DisplayValorCorrecao  := DisplayValorCorrecao   + qryParcelasContratocorrecao.AsCurrency;
+        DisplayValorJuros     := DisplayValorJuros      + qryParcelasContratojuros.AsCurrency;
+        DisplayValorDiferenca := DisplayValorDiferenca  + qryParcelasContratodiferenca.AsCurrency;
+        
+        if qryParcelasContratodatapagto.IsNull then
+        begin
+          DisplayValorHistoricoAberto := DisplayValorHistoricoAberto  + qryParcelasContratovalorhistorico.AsCurrency;
+          DisplayValorContratadoAberto:= DisplayValorContratadoAberto + qryParcelasContratovalorcontratado.AsCurrency;
+          DisplayValorDevidoAberto    := DisplayValorDevidoAberto     + qryParcelasContratovalordevido.AsCurrency;
+          DisplayValorCorrecaoAberto  := DisplayValorCorrecaoAberto   + qryParcelasContratocorrecao.AsCurrency;
+          DisplayValorJurosAberto     := DisplayValorJurosAberto      + qryParcelasContratojuros.AsCurrency;
+        end;
+        qryParcelasContrato.Next;
+      end;
+      VoltarRegistroAtual(qryParcelasContrato);
+
+      dtxValorHistorico.Text  := currtostr(DisplayValorHistorico);
+      dtxValorContratado.Text := currtostr(DisplayValorContratado);
+      dtxValorDevido.Text     := currtostr(DisplayValorDevido);
+      dtxValorPago.Text       := currtostr(DisplayValorPago);
+      dtxJuros.Text           := currtostr(DisplayValorJuros);
+      dtxCorrecao.Text        := currtostr(DisplayValorCorrecao);
+      dtxDiferenca.Text       := currtostr(DisplayValorDiferenca);
+
+      dtxValorHistoricoAberto.Text  := currtostr(DisplayValorHistoricoAberto);
+      dtxValorContratadoAberto.Text := currtostr(DisplayValorContratadoAberto);
+      dtxValorDevidoAberto.Text     := currtostr(DisplayValorDevidoAberto);
+      dtxJurosAberto.Text           := currtostr(DisplayValorJurosAberto);
+      dtxCorrecaoAberto.Text        := currtostr(DisplayValorCorrecaoAberto);
+    end;
+  end;
+end;
+
+procedure TfrmContratosImoveis.BeforeCancelContratos(Sender: TObject);
+begin
+  TotaisdeParcelas(True);
+end;
+
+procedure TfrmContratosImoveis.fraLancamentoContabeisVendasbnIncluirLancamentoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmContratosImoveis.NrOrigem:= 'V';
+  fraLancamentoContabeisVenda.sbnIncluirLancamentoClick(Sender);
+end;
+
+procedure TfrmContratosImoveis.fraLancamentoContabeisVendadbgContabilidadeDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmContratosImoveis.NrOrigem:= 'V';
+  fraLancamentoContabeisVenda.dbgContabilidadeDblClick(Sender);
+end;
+
+procedure TfrmContratosImoveis.fraLancamentoContabeisChavessbnIncluirLancamentoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmContratosImoveis.NrOrigem:= 'H';
+  fraLancamentoContabeisChaves.sbnIncluirLancamentoClick(Sender);
+
+end;
+
+procedure TfrmContratosImoveis.fraLancamentoContabeisChavessbnGerarLancamentoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmContratosImoveis.NrOrigem:= 'H';
+  fraLancamentoContabeisChaves.sbnGerarLancamentoClick(Sender);
+end;
+
+procedure TfrmContratosImoveis.LancamentosTransfsbnIncluirLancamentoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmContratosImoveis.NrOrigem:= 'G';
+  LancamentosTransf.sbnIncluirLancamentoClick(Sender);
+end;
+
+procedure TfrmContratosImoveis.LancamentosTransfsbnGerarLancamentoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmContratosImoveis.NrOrigem:= 'G';
+  LancamentosTransf.sbnGerarLancamentoClick(Sender);
+
+end;
+
+procedure TfrmContratosImoveis.fraLancamentoContabeisChavesdbgContabilidadeDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmContratosImoveis.NrOrigem:= 'H';
+  fraLancamentoContabeisChaves.dbgContabilidadeDblClick(Sender);
+end;
+
+procedure TfrmContratosImoveis.LancamentosTransfdbgContabilidadeDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmContratosImoveis.NrOrigem:= 'G';
+  LancamentosTransf.dbgContabilidadeDblClick(Sender);
+end;
+
+procedure TfrmContratosImoveis.fraLancamentoContabeisVendasbnExcluirLancamentoClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraLancamentoContabeisVenda.sbnExcluirLancamentoClick(Sender);
+
+end;
+
+procedure TfrmContratosImoveis.fraLancamentoContabeisVendasbnGerarLancamentoClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraLancamentoContabeisVenda.sbnGerarLancamentoClick(Sender);
+
+end;
+
+procedure TfrmContratosImoveis.LancamentosEstornoVendadbgContabilidadeDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmContratosImoveis.NrOrigem:= 'G';
+  dtmContratosImoveis.OperacaoRescisao:= 'EV';
+  LancamentosEstornoVenda.dbgContabilidadeDblClick(Sender);
+end;
+
+procedure TfrmContratosImoveis.LancamentosEstornoImpostosdbgContabilidadeDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmContratosImoveis.NrOrigem:= 'G';
+  dtmContratosImoveis.OperacaoRescisao:= 'EI';
+  LancamentosEstornoImpostos.dbgContabilidadeDblClick(Sender);
+end;
+
+procedure TfrmContratosImoveis.LAncamentoEstornoValoresPagosdbgContabilidadeDblClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmContratosImoveis.NrOrigem:= 'G';
+  dtmContratosImoveis.OperacaoRescisao:= 'EP';
+  LAncamentoEstornoValoresPagos.dbgContabilidadeDblClick(Sender);
+end;
+
+procedure TfrmContratosImoveis.LancamentosEstornoImpostossbnIncluirLancamentoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmContratosImoveis.NrOrigem:= 'G';
+  dtmContratosImoveis.OperacaoRescisao:= 'EI';
+  LancamentosEstornoImpostos.sbnIncluirLancamentoClick(Sender);
+end;
+
+procedure TfrmContratosImoveis.LAncamentoEstornoValoresPagossbnIncluirLancamentoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmContratosImoveis.NrOrigem:= 'G';
+  dtmContratosImoveis.OperacaoRescisao:= 'EP';
+  LAncamentoEstornoValoresPagos.sbnIncluirLancamentoClick(Sender);
+end;
+
+procedure TfrmContratosImoveis.LancamentosEstornoVendasbnExcluirLancamentoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmContratosImoveis.NrOrigem:= 'G';
+  dtmContratosImoveis.OperacaoRescisao:= 'EV';
+  LancamentosEstornoVenda.sbnExcluirLancamentoClick(Sender);
+
+end;
+
+procedure TfrmContratosImoveis.LancamentosEstornoImpostossbnExcluirLancamentoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmContratosImoveis.NrOrigem:= 'G';
+  dtmContratosImoveis.OperacaoRescisao:= 'EI';
+  LancamentosEstornoImpostos.sbnExcluirLancamentoClick(Sender);
+
+end;
+
+procedure TfrmContratosImoveis.LAncamentoEstornoValoresPagossbnExcluirLancamentoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmContratosImoveis.NrOrigem:= 'G';
+  dtmContratosImoveis.OperacaoRescisao:= 'EP';
+  LAncamentoEstornoValoresPagos.sbnExcluirLancamentoClick(Sender);
+
+end;
+
+procedure TfrmContratosImoveis.LancamentosEstornoVendasbnGerarLancamentoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmContratosImoveis.NrOrigem:= 'G';
+  dtmContratosImoveis.OperacaoRescisao:= 'EV';
+  LancamentosEstornoVenda.sbnGerarLancamentoClick(Sender);
+
+end;
+
+procedure TfrmContratosImoveis.LancamentosEstornoImpostossbnGerarLancamentoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmContratosImoveis.NrOrigem:= 'G';
+  dtmContratosImoveis.OperacaoRescisao:= 'EI';
+  LancamentosEstornoImpostos.sbnGerarLancamentoClick(Sender);
+
+end;
+
+procedure TfrmContratosImoveis.LAncamentoEstornoValoresPagossbnGerarLancamentoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dtmContratosImoveis.NrOrigem:= 'G';
+  dtmContratosImoveis.OperacaoRescisao:= 'EP';
+  LAncamentoEstornoValoresPagos.sbnGerarLancamentoClick(Sender);
+
+end;
+
+procedure TfrmContratosImoveis.DeletarLancamentosGeradosRenegociacao;
+//var ContratoAtual: Integer;
+begin
+//  ContratoAtual:= dtmContratosImoveis.qryContratoscontrato.AsInteger;
+
+//  dtmContratosImoveis.EditarContrato;
+//  dtmContratosImoveis.qryContratoscontrato.AsInteger:= dtmcontratosImoveis.qryContratoscontrato_gerado.AsInteger;
+//  dtmContratosImoveis.qryContratos.Post;
+
+  dtmCOntratosImoveis.OperacaoTransferencia:= False;
+  dtmCOntratosImoveis.OperacaoRenegociacao:= True;
+  dtmCOntratosImoveis.NrOrigem:= 'G';
+  {ver c/ lucio sobre nrorigem}
+  LancamentosTransf.AbrirLancamentos('G', dtmContratosImoveis.GetNrOrigem, False);
+  LancamentosTransf.GerarLancamentosP_Dupla(FALSE); {c/ parametro false apagará todos e não gerará novos}
+
+//  dtmContratosImoveis.GravarLancamentosContabeis;
+//  dtmContratosImoveis.Perpetrar([dtmLancamentoContabilidade.qryLancamentosDocumentos]);
+//  dtmContratosImoveis.EditarContrato;
+//  dtmContratosImoveis.qryContratoscontrato.AsInteger:= ContratoAtual;
+//  dtmContratosImoveis.qryContratos.Post;
+end;
+
+procedure TfrmContratosImoveis.DeletarLancamentosGeradosTransferencia;
+begin
+  dtmCOntratosImoveis.OperacaoRenegociacao:= False;
+  dtmCOntratosImoveis.OperacaoTransferencia:= True;
+  dtmCOntratosImoveis.NrOrigem:= 'G';
+  {ver c/ lucio sobre nrorigem}
+  LancamentosTransf.AbrirLancamentos('G', (strtoint64(dtmContratosImoveis.qryContratoscontrato.ASString+'54000000')), False);
+  LancamentosTransf.GerarLancamentosP_Dupla(False); {c/ parametro false apagará todos e não gerará novos}
+//  dtmContratosImoveis.GravarLancamentosContabeis;
+//  dtmContratosImoveis.Perpetrar([dtmLancamentoContabilidade.qryLancamentosDocumentos]);
+end;
+
+procedure TfrmContratosImoveis.QuitarContrato;
+begin
+  if not dtmContratosImoveis.PossuiParcelasemAberto then
+  begin
+    dtmContratosImoveis.ReadOnlyContrato(False);
+    dtmContratosImoveis.EditarContrato;
+    dtmContratosImoveis.SituacaoContrato:= sciQUITADO;
+    dtmContratosImoveis.AtribuirDataAlteracao;
+    AfterOpenContratos(Self);
+    dtmContratosImoveis.ReadOnlyContrato();
+  end
+  else
+    MensagemAviso('O contrato possui parcelas em aberto');
+end;
+
+procedure TfrmContratosImoveis.VerificarForm;
+begin
+  frmrecebimentos.Free;
+end;
+
+procedure TfrmContratosImoveis.edtdataContratoExit(Sender: TObject);
+begin
+  inherited;
+  with dtmContratosImoveis do
+  begin
+    if edtdataContrato.Text <> '' then
+      edtdataChaves.Minimo := NDiasLimiteData(edtdataContrato.Text);
+  end;
+end;
+
+procedure TfrmContratosImoveis.ExibirMensagemPadronizadaDataChaves;
+begin
+  if strtodate(edtdataChaves.Text) <= ParSistema.DataContabil then
+  begin
+    MensagemAviso(format(ctDATACONTABILMAIORDATALANCTO, ['das chaves',
+                     edtDataChaves.Text, 'contábil', ParSistema.DataContabilstring]));
+
+    if edtdataChaves.TabStop then
+      edtdataChaves.SetFocus;
+  end
+  else
+  if strtodate(edtdataChaves.Text) < strtodate(edtdataContrato.Text) then
+  begin
+    MensagemAviso(format(ctDATACONTABILMAIOROUIGUALDATALANCTO, ['das chaves',
+                     edtDataChaves.Text, 'do contrato', edtDataContrato.Text]));
+    if edtdataChaves.TabStop then
+      edtdataChaves.SetFocus;
+  end;
+end;
+
+procedure TfrmContratosImoveis.ExibirMensagemPadronizadadataContrato;
+begin
+  if strtodate(edtdataContrato.Text) <= ParSistema.DataContabil then
+  begin
+    MensagemAviso(format(ctDATACONTABILMAIORDATALANCTO, ['do contrato',
+                     edtDataContrato.Text, 'contábil', ParSistema.DataContabilstring]));
+    edtdataContrato.SetFocus;
+  end;
+
+end;
+
+
+
+procedure TfrmContratosImoveis.sbnDeslocarImovelParaCimaClick(Sender: TObject);
+begin
+  inherited;
+  dbgImoveisVendidos.DeslocarRegistroParaCima;
+end;
+
+procedure TfrmContratosImoveis.sbnDeslocarImovelParaBaixoClick(
+  Sender: TObject);
+begin
+  inherited;
+  dbgImoveisVendidos.DeslocarRegistroParaBaixo;
+end;
+
+procedure TfrmContratosImoveis.sbnContabilizarChavesClick(Sender: TObject);
+var
+  vContratoSomenteLeitura: Boolean;
+begin
+  inherited;
+  vContratoSomenteLeitura := dtmContratosImoveis.qryContratos.ReadOnly;
+
+  if sbnContabilizarChaves.Caption = 'Contabilizar F12' then
+  begin
+    if vContratoSomenteLeitura then
+      dtmContratosImoveis.qryContratos.ReadOnly := false;
+
+    edtdataChaves.readonly := false;
+
+    dtmContratosImoveis.AtribuirDataChaves;
+    if edtdataChaves.DataValida then
+    begin
+      {
+      fraLancamentoContabeisChaves.sbnGerarLancamentoClick(Self);
+      fraLancamentoContabeisChaves.Origem:= 'H';
+      fraLancamentoContabeisChaves.VerificarLancamentosContabeis;
+      dtmContratosImoveis.GravarLancamentosContabeis;
+
+
+      if dtmContratosImoveis.qryContratos.State <> dsinsert then // na transferência/renegociação fica em insert e ele pode desistir
+      }
+      InternoGravar;
+      dtmContratosImoveis.ContabilizarEntregaChaves;
+      dtmContratosImoveis.NrOrigem:= 'H';
+      with fraLancamentoContabeisChaves do
+        AbrirLancamentos('H', CodigoDocumento, dtmContratosImoveis.IncluindoContrato);
+      AlterarEstadoBotoes;
+    end
+    else
+      dtmContratosImoveis.LimparDataChaves;
+
+    edtdataChaves.readonly := true;
+
+    if vContratoSomenteLeitura then
+      dtmContratosImoveis.qryContratos.ReadOnly := true;
+  end
+  else
+  if sbnContabilizarChaves.Caption = 'Estornar F12' then
+  begin
+
+    if vContratoSomenteLeitura then
+      dtmContratosImoveis.qryContratos.ReadOnly := false;
+
+    edtdataChaves.readonly := false;
+
+    if edtdataChaves.DataValida then
+    begin
+      if vContratoSomenteLeitura then
+        dtmContratosImoveis.qryContratos.ReadOnly := false;
+
+      dtmContratosImoveis.LimparDataChaves;
+      dtmContratosImoveis.SomenteLeituraContabilidade := false;
+      fraLancamentoContabeisChaves.ApagarLancamentos;
+      dtmContratosImoveis.ReverterContratos;
+      InternoGravar;
+      dtmContratosImoveis.SomenteLeituraContabilidade := true;
+      AlterarEstadoBotoes;
+
+    end;
+
+    edtdataChaves.readonly := true;
+    if vContratoSomenteLeitura then
+      dtmContratosImoveis.qryContratos.ReadOnly := true;
+
+  end;
+end;
+
+procedure TfrmContratosImoveis.pgcContabilChange(Sender: TObject);
+begin
+  inherited;
+  case pgcContabil.ActivePageIndex of
+  0: begin
+       stxTaxaDesconto.Parent := tstVenda;
+       gbxAVPTaxaDesconto.Parent := tstVenda;
+     end;
+
+  2: begin
+       stxTaxaDesconto.Parent := tstTransferencias;
+       gbxAVPTaxaDesconto.Parent := tstTransferencias;
+     end
+  end;
+end;
+
+procedure TfrmContratosImoveis.cbxNoJuridicoClick(Sender: TObject);
+begin
+  inherited;
+  gbxnoJuridico.Visible := cbxNoJuridico.Checked;
+  dtmContratosImoveis.SetarDescricaoNoJuridico(cbxNoJuridico.Checked);
+end;
+
+end.

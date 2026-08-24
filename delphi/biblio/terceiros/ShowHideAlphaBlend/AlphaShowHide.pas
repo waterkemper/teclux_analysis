@@ -1,0 +1,167 @@
+{-------------------------------------------------------------------------------
+	AlphaBlending ShowHide
+	Copyright (c) 2001 Bâtea Bogdan-Andrei
+	Heming Software
+
+	bbatea@pro-soft.ro
+
+	The code herein is released to public domain.  You are free to use it
+	or modify it as you choose.  You may redistribute this code under the
+	following conditions:
+		1. You must distribute all of its original files.
+		2. Each file must be in its original condition.
+		3. You may not profit from the redistribution of this component as a
+			 component, part of another component, or part of a component package
+			 without the written permission of Bâtea Bogdan-Andrei
+
+	Heming Software or Bâtea Bogdan-Andrei gives no warrenty to the accuracy, fitness
+	for particular use, effects of use, or reliability of the code containted
+	herein.
+
+--------------------------------------------------------------------------------
+	Purpose:
+		This component gives modifies the OnShow and OnHide events to give
+		an AlphaBlending based effect of showing and/or hiding a window.
+
+	System Requirements:
+		Delphi 6.0
+		Windows 2000
+
+	Properties:
+		Active - Activates de component
+
+		DeltaAlpha - Controls de step of AlphaBlendBalue (the bigger the faster
+		the windows is shown
+
+-------------------------------------------------------------------------------}
+unit AlphaShowHide;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Classes, Controls, Forms;
+
+type
+  TAlphaShowHide = class(TComponent)
+  private
+    { Private declarations }
+    FActive: Boolean;
+    FForma: TForm;
+    FFormCreate: TNotifyEvent;
+    FFormActivate: TNotifyEvent;
+    FFormHide: TNotifyEvent;
+    FFormClose: TCloseEvent;
+    FDeltaAlpha: Integer;
+  protected
+    { Protected declarations }
+    function GetForm: TForm;
+    procedure AlphaFormCreate(Sender: TObject);
+    procedure AlphaFormActivate(Sender: TObject);
+    procedure AlphaFormHide(Sender: TObject);
+    procedure AlphaFormClose(Sender: TObject; var Action: TCloseAction);
+    procedure SetActive(Value: Boolean);
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+  published
+    { Published declarations }
+    property Active: Boolean read FActive write SetActive;
+    property DeltaAlpha: Integer read FDeltaAlpha write FDeltaAlpha;
+  end;
+
+//procedure Register;
+
+implementation
+
+constructor TAlphaShowHide.Create(AOwner: TComponent);
+begin
+     inherited Create(AOwner);
+     FActive := False;
+     FDeltaAlpha := 25;
+     FForma := GetForm;
+     FFormCreate := FForma.OnCreate;
+     FFormActivate := FForma.OnActivate;
+     FFormHide := FForma.OnHide;
+     FFormClose := FForma.OnClose;
+end;
+
+destructor TAlphaShowHide.Destroy;
+begin
+     SetActive(False);
+     inherited Destroy;
+end;
+
+procedure TAlphaShowHide.SetActive(Value: Boolean);
+begin
+     if Value <> FActive then begin
+       if Value then
+         begin
+           FForma.OnCreate := AlphaFormCreate;
+           FForma.OnHide := AlphaFormHide;
+           FForma.OnActivate := AlphaFormActivate;
+           FForma.OnClose := AlphaFormClose;
+           FActive := Value;
+         end
+       else
+         begin
+           FForma.OnCreate := FFormCreate;
+           FForma.OnHide := FFormHide;
+           FForma.OnActivate := FFormActivate;
+           FForma.OnClose := FFormClose;
+           FActive := Value;
+         end;
+     end;
+end;
+
+function TAlphaShowHide.GetForm: TForm;
+begin
+  if Owner is TCustomForm then
+    Result := TForm(Owner as TCustomForm)
+  else
+    Result := nil;
+end;
+
+procedure TAlphaShowHide.AlphaFormCreate(Sender: TObject);
+begin
+     FForma.AlphaBlendValue := 0;
+     FForma.AlphaBlend := True;
+     if Assigned(FFormCreate) then FFormCreate(Sender);
+end;
+
+procedure TAlphaShowHide.AlphaFormActivate(Sender: TObject);
+var gbalfa: Integer;
+begin
+     gbalfa := 0; FForma.AlphaBlendValue := gbalfa; FForma.Repaint;
+     while gbalfa < 255 do begin
+       inc(gbalfa, FDeltaAlpha); if gbalfa > 255 then gbalfa := 255;
+       FForma.AlphaBlendValue := gbalfa; FForma.Repaint;
+     end;
+     if Assigned(FFormActivate) then FFormActivate(Sender);
+end;
+
+procedure TAlphaShowHide.AlphaFormHide(Sender: TObject);
+var gbalfa: Integer;
+begin
+     if Assigned(FFormHide) then FFormHide(Sender);
+     gbalfa := 255;
+     while gbalfa > 0 do begin
+       dec(gbalfa, FDeltaAlpha); if gbalfa < 0 then gbalfa := 0;
+       FForma.AlphaBlendValue := gbalfa; FForma.Repaint;
+     end;
+end;
+
+procedure TAlphaShowHide.AlphaFormClose(Sender: TObject; var Action: TCloseAction);
+begin
+     FForma.Hide;
+     if Assigned(FFormClose) then FFormClose(Sender, Action);
+end;
+
+{
+procedure Register;
+begin
+  RegisterComponents('TecSoft', [TAlphaShowHide]);
+end;
+}
+
+end.

@@ -1,0 +1,590 @@
+unit fmplanilhacusto;
+
+interface
+
+uses
+  {$IFDEF MSWINDOWS} FileCtrl, {$ENDIF}
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, fmajudabt, ComCtrls, Buttons, ExtCtrls, biblio,
+  frlistagruposfiliais, frlistafiliais, cppagecontrol, cpdata,
+  frlistagrupoprodutos, frlistaeventos, DB, ZQuery, ZPgSqlQuery, cpquery,
+  dmtecsoft, comobj, dmbasico, ctconstantes, ZTransact, ToolWin;
+
+type
+  TfrmPlanilhaCusto = class(TfrmAjudaBt)
+    sbnGerar: TSpeedButton;
+    pgcFilialGrupoFilial: TtecPageControl;
+    tstFilial: TTabSheet;
+    fraListaFiliais1: TfraListaFiliais;
+    tstGrupoFilial: TTabSheet;
+    fraListaGruposFiliais1: TfraListaGruposFiliais;
+    gbxPeriodo: TGroupBox;
+    edtDataInicial: TEditData;
+    edtDataFinal: TEditData;
+    gbxDevolucoes: TGroupBox;
+    ckbDevolucoesPeriodoSelecionado: TCheckBox;
+    ckbDevolucoesPeriodoAnterior: TCheckBox;
+    fraListaGrupoProdutos1: TfraListaGrupoProdutos;
+    fraListaEventos1: TfraListaEventos;
+    qryVendaGrupoProdutos: TtecQuery;
+    qryValoresEventos: TtecQuery;
+    qryVendaGrupoProdutosnomegrupo: TStringField;
+    qryVendaGrupoProdutosquantidade: TFloatField;
+    qryVendaGrupoProdutostotal: TFloatField;
+    qryValoresEventosdescricao: TStringField;
+    qryValoresEventosvalorpagto: TFloatField;
+    qryVendaGrupoProdutosunitario: TCurrencyField;
+    qryVendaGrupoProdutoscustototal: TFloatField;
+    qryVendaGrupoProdutosLucroBruto: TCurrencyField;
+    qryValoresEventosclassificacao: TStringField;
+    qryEventosSinteticos: TtecQuery;
+    qryEventosSinteticosdescricao: TStringField;
+    qryEventosSinteticosclassificacao: TStringField;
+    qryVendaGrupoProdutosCustoUnitario: TCurrencyField;
+    ZMonitor1: TZMonitor;
+    lblAPeriodo: TLabel;
+    procedure fraListaFiliais1sbnMarcarFiliaisClick(Sender: TObject);
+    procedure fraListaFiliais1sbnDesmarcarFiliaisClick(Sender: TObject);
+    procedure fraListaGruposFiliais1sbnmarcarGrupodeFiliaisClick(
+      Sender: TObject);
+    procedure fraListaGruposFiliais1sbnDesmarcarGrupodeFiliaisClick(
+      Sender: TObject);
+    procedure qryVendaGrupoProdutosCalcFields(DataSet: TDataSet);
+    procedure sbnGerarClick(Sender: TObject);
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+  private
+    { Private declarations }
+    function AbrirConsultas: boolean;
+    procedure GerarPlanilha;
+
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+  end;
+
+const
+  FiltroFilial      = ' AND ( ct.filialvenda IN (%s)) ';
+
+  FiltroGrupoFilial = ' ( ct.filialvenda IN (SELECT filial '+#13#10+
+                                         'FROM filiaisgruposfiliais fgf '+#13#10+
+                                         'WHERE fgf.grupo IN (%s))) ';
+
+  FiltroFilialPagto = ' AND ( c.filial IN (%s)) ';
+
+  FiltroGrupoFilialPagto = ' ( c.filial IN (SELECT filial '+#13#10+
+                                         'FROM filiaisgruposfiliais fgf '+#13#10+
+                                         'WHERE fgf.grupo IN (%s))) ';
+
+  FiltroEvento = ' AND ( mb.evento IN (%s)) ';
+
+  FiltroGrupoProduto = ' and (p.codigo in (Select p.codigo '+
+                       ' from produtos p join caracteristicas c '+
+                       '    on p.caracteristica=c.codigo '+
+                       ' Where c.grupo in (%s)))';
+
+  SQLDevolucoesPeriodoAnterior = 'and ct.faturamento < :DataInicial';
+  SQLDevolucoesPeriodoSelecionado = 'and ct.faturamento between (:DataInicial) and (:DataFinal)';
+
+var
+  frmPlanilhaCusto: TfrmPlanilhaCusto;
+
+
+implementation
+uses clparametrossistema;
+{$R *.dfm}
+
+constructor TfrmPlanilhaCusto.Create(AOwner: TComponent);
+begin
+  inherited;
+  edtDataInicial.Text := datetostr(Date());
+  edtDataFinal.Text := datetostr(Date());
+  edtDataInicial.SetFocus;
+  edtDataInicial.SelectAll;
+  fraListaGrupoProdutos1.PlanilhaCustos := true;
+  fraListaEventos1.PlanilhaCustos := true;
+
+end;
+
+destructor TfrmPlanilhaCusto.Destroy;
+begin
+  inherited;
+  frmPlanilhaCusto := nil;
+end;
+
+procedure TfrmPlanilhaCusto.fraListaFiliais1sbnMarcarFiliaisClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraListaFiliais1.sbnMarcarFiliaisClick(Sender);
+  fraListaGruposFiliais1.sbnDesmarcarGrupodeFiliaisClick(self);
+end;
+
+procedure TfrmPlanilhaCusto.fraListaFiliais1sbnDesmarcarFiliaisClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraListaFiliais1.sbnDesmarcarFiliaisClick(Sender);
+end;
+
+procedure TfrmPlanilhaCusto.fraListaGruposFiliais1sbnmarcarGrupodeFiliaisClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraListaGruposFiliais1.sbnmarcarGrupodeFiliaisClick(Sender);
+  fraListaFiliais1.sbnDesmarcarFiliaisClick(Sender);
+end;
+
+procedure TfrmPlanilhaCusto.fraListaGruposFiliais1sbnDesmarcarGrupodeFiliaisClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraListaGruposFiliais1.sbnDesmarcarGrupodeFiliaisClick(Sender);
+end;
+
+
+function TfrmPlanilhaCusto.AbrirConsultas: Boolean;
+var
+Filiais, GrupoFiliais, GrupoProdutos, Eventos, Filtro: String;
+begin
+  Filtro:='';
+  qryVendaGrupoProdutos.ParamByName('DataInicial').AsString:=edtDataInicial.Text;
+  qryVendaGrupoProdutos.ParamByName('DataFinal').AsString:=edtDataFinal.Text;
+
+  qryValoresEventos.ParamByName('DataInicial').AsString:=edtDataInicial.Text;
+  qryValoresEventos.ParamByName('DataFinal').AsString:=edtDataFinal.Text;
+
+
+  Filiais := fraListaFiliais1.ListaSelecionada;
+  GrupoFiliais := fraListaGruposFiliais1.ListaSelecionada;
+
+  if GrupoFiliais<>'' then
+  begin
+    if ParSistema.RelatorioSomenteFiliaisAutorizadas then
+    begin
+      qryVendaGrupoProdutos.MacroByName('WhereFiliais').AsString :=
+                Format(FiltroFilial,[Filiais])+ 'and' +
+                Format(FiltroGrupoFilial,[GrupoFiliais]);
+      qryValoresEventos.MacroByName('WhereFiliais').AsString :=
+                Format(FiltroFilialPagto,[Filiais])+ 'and' +
+                Format(FiltroGrupoFilialPagto,[GrupoFiliais]);
+    end
+    else
+    begin
+      qryVendaGrupoProdutos.MacroByName('WhereFiliais').AsString :=
+          Format(FiltroGrupoFilial,[GrupoFiliais]);
+      qryValoresEventos.MacroByName('WhereFiliais').AsString :=
+          Format(FiltroGrupoFilialPagto,[GrupoFiliais]);
+    end
+  end
+  else
+  if Filiais<>'' then
+  begin
+    qryVendaGrupoProdutos.MacroByName('WhereFiliais').AsString :=
+        Format(FiltroFilial,[Filiais]);
+    qryValoresEventos.MacroByName('WhereFiliais').AsString :=
+        Format(FiltroFilialPagto,[Filiais])
+  end
+  else
+  begin
+    qryVendaGrupoProdutos.MacroByName('WhereFiliais').AsString := '';
+    qryValoresEventos.MacroByName('WhereFiliais').AsString := '';
+  end;
+
+  GrupoProdutos := fraListaGrupoProdutos1.ListaSelecionada;
+  if GrupoProdutos<>'' then
+  begin
+    qryVendaGrupoProdutos.MacroByName('WhereGrupos').AsString :=
+      format(FiltroGrupoProduto,[GrupoProdutos])
+  end
+  else
+  begin
+    qryVendaGrupoProdutos.MacroByName('WhereGrupos').AsString := '';
+  end;
+
+  qryVendaGrupoProdutos.MacroByName('iniciodevolucoes').AsString := '';
+  qryVendaGrupoProdutos.MacroByName('finaldevolucoes').AsString := '';
+
+  if ckbDevolucoesPeriodoSelecionado.Checked and
+    ckbDevolucoesPeriodoAnterior.Checked then
+    qryVendaGrupoProdutos.MacroByName('WhereDevolucao').AsString := ''
+  else
+   if ckbDevolucoesPeriodoAnterior.Checked then
+     qryVendaGrupoProdutos.MacroByName('WhereDevolucao').AsString := SQLDevolucoesPeriodoAnterior
+   else
+   if ckbDevolucoesPeriodoSelecionado.Checked then
+      qryVendaGrupoProdutos.MacroByName('WhereDevolucao').AsString := SQLDevolucoesPeriodoSelecionado
+   else
+   begin
+     qryVendaGrupoProdutos.MacroByName('iniciodevolucoes').AsString := '/*';
+     qryVendaGrupoProdutos.MacroByName('finaldevolucoes').AsString := '*/';
+   end;
+
+
+  Eventos := fraListaEventos1.ListaSelecionada;
+  if Eventos>'' then
+  begin
+    qryValoresEventos.MacroByName('WhereEventos').AsString :=
+      format(FiltroEvento,[Eventos])
+  end
+  else
+  begin
+    qryValoresEventos.MacroByName('WhereEventos').AsString := '';
+  end;
+
+ qryVendaGrupoProdutos.Close;
+ qryVendaGrupoProdutos.Open;
+
+ qryValoresEventos.Close;
+ qryValoresEventos.Open;
+
+ qryEventosSinteticos.Close;
+ qryEventosSinteticos.Open;
+
+ qryEventosSinteticos.First;
+ while not qryEventosSinteticos.Eof do
+ begin
+   qryValoresEventos.First;
+   while not qryValoresEventos.Eof do
+   begin
+     if pos(qryEventosSinteticosclassificacao.AsString,
+            qryValoresEventosclassificacao.AsString)=1 then
+     begin
+       qryValoresEventos.Insert;
+       qryValoresEventosdescricao.AsString := qryEventosSinteticosdescricao.AsString;
+       qryValoresEventosclassificacao.AsString := qryEventosSinteticosclassificacao.AsString;
+       qryValoresEventosvalorpagto.Clear;
+       qryValoresEventos.Post;
+       break;
+     end
+     else
+       qryValoresEventos.Next
+   end;
+   qryEventosSinteticos.Next;
+ end;
+
+ result := not qryVendaGrupoProdutos.IsEmpty or
+           not qryValoresEventos.IsEmpty;
+end;
+
+procedure TfrmPlanilhaCusto.GerarPlanilha;
+var i,eline: Integer;
+    oXL, oWB, oSheet, oRng, VArray : Variant;
+    NomeArquivo,v: String;
+    ColunaSomatorioEvento, LinhaSomatorioEvento, LinhaSomatorioGrupo: Integer;
+begin
+  inherited;
+  // Start Excel and get Application Object
+  oXL:= CreateOleObject('Excel.Application');
+  oXL.Visible := true;
+
+  // Get a new workbook
+  oWB := oXL.Workbooks.Add;
+  oSheet := oWB.ActiveSheet;
+
+  // Dataset Header
+
+  eline :=1;
+
+  oSheet.name := 'CUSTO';
+  oSheet.Cells[eline,3].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,3].Font.size := 14;
+  oSheet.Cells[eline,3] := 'PERÍODO DE '+edtDataInicial.Text + ' A ' +
+                                         edtDataFinal.Text;
+
+  eline := eline + 2;
+  oSheet.Cells[eline,3].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,3] := 'RECEITAS DE VENDAS';
+  oSheet.Cells[eline,6].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,6] := 'DESPESAS DE VENDAS';
+  oSheet.Cells[eline,9].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,9] := 'LUCRO BRUTO';
+
+  eline:= eline +1; // First Line of Sheet
+  for i:=0 to (qryVendaGrupoProdutos.FieldCount-1) do
+  begin
+    if qryVendaGrupoProdutos.Fields[i].visible then
+    begin
+      if qryVendaGrupoProdutos.Fields[i].name = 'qryVendaGrupoProdutosnomegrupo' then
+      begin
+        oSheet.Cells[eline,(i+1)] := qryVendaGrupoProdutos.Fields[i].DisplayLabel;
+        oSheet.Cells[eline,(i+1)].Font.FontStyle := 'Negrito';
+      end
+      else
+      if qryVendaGrupoProdutos.Fields[i].name = 'qryVendaGrupoProdutosquantidade' then
+      begin
+        oSheet.Cells[eline,(i+1)] := qryVendaGrupoProdutos.Fields[i].DisplayLabel;
+        oSheet.Cells[eline,(i+1)].Font.FontStyle := 'Negrito';
+      end
+      else
+      if qryVendaGrupoProdutos.Fields[i].name = 'qryVendaGrupoProdutosunitario' then
+      begin
+        oSheet.Cells[eline,(i+1)] := qryVendaGrupoProdutos.Fields[i].DisplayLabel;
+        oSheet.Cells[eline,(i+1)].Font.FontStyle := 'Negrito';
+      end
+      else
+      if qryVendaGrupoProdutos.Fields[i].name = 'qryVendaGrupoProdutostotal' then
+      begin
+        oSheet.Cells[eline,(i+1)] := qryVendaGrupoProdutos.Fields[i].DisplayLabel;
+        oSheet.Cells[eline,(i+1)].Font.FontStyle := 'Negrito';
+      end
+      else
+      if qryVendaGrupoProdutos.Fields[i].name = 'qryVendaGrupoProdutosCustoUnitario' then
+      begin
+        oSheet.Cells[eline,(i+2)] := qryVendaGrupoProdutos.Fields[i].DisplayLabel;
+        oSheet.Cells[eline,(i+2)].Font.FontStyle := 'Negrito';
+      end
+      else
+      if qryVendaGrupoProdutos.Fields[i].name = 'qryVendaGrupoProdutoscustototal' then
+      begin
+        oSheet.Cells[eline,(i+2)] := qryVendaGrupoProdutos.Fields[i].DisplayLabel;
+        oSheet.Cells[eline,(i+2)].Font.FontStyle := 'Negrito';
+      end
+      else
+      if qryVendaGrupoProdutos.Fields[i].name = 'qryVendaGrupoProdutosLucroBruto' then
+      begin
+        oSheet.Cells[eline,(i+3)] := qryVendaGrupoProdutos.Fields[i].DisplayLabel;
+        oSheet.Cells[eline,(i+3)].Font.FontStyle := 'Negrito';
+      end;
+    end;
+  end;
+
+  if qryVendaGrupoProdutos.IsEmpty then
+    Inc(eline);
+
+  while not qryVendaGrupoProdutos.Eof do // Detail
+  begin
+    Inc(eline); // Add 1 to the line of Sheet
+    for i:=0 to (qryVendaGrupoProdutos.FieldCount-1) do
+    begin
+      if qryVendaGrupoProdutos.Fields[i].visible then
+      begin
+        if qryVendaGrupoProdutos.Fields[i].name = 'qryVendaGrupoProdutosnomegrupo' then
+        begin
+          oSheet.Cells[eline,(i+1)] := qryVendaGrupoProdutos.Fields[i].value;
+          oSheet.Cells.EntireColumn.AutoFit;
+        end
+        else
+        if qryVendaGrupoProdutos.Fields[i].name = 'qryVendaGrupoProdutosquantidade' then
+        begin
+          oSheet.Cells[eline,(i+1)].ColumnWidth := qryVendaGrupoProdutosquantidade.displaywidth;
+          oSheet.Cells[eline,(i+1)].numberformat := ParSistema.MascaraQuantidade;
+          oSheet.Cells[eline,(i+1)] := qryVendaGrupoProdutos.Fields[i].value;
+        end
+        else
+        if qryVendaGrupoProdutos.Fields[i].name = 'qryVendaGrupoProdutosunitario' then
+        begin
+          oSheet.Cells[eline,(i+1)].ColumnWidth := qryVendaGrupoProdutosunitario.displaywidth;
+          oSheet.Cells[eline,(i+1)].numberformat := '###.###.##0,00';
+          oSheet.Cells[eline,(i+1)] := qryVendaGrupoProdutos.Fields[i].value;
+        end
+        else
+        if qryVendaGrupoProdutos.Fields[i].name = 'qryVendaGrupoProdutostotal' then
+        begin
+          oSheet.Cells[eline,(i+1)].ColumnWidth := qryVendaGrupoProdutostotal.displaywidth;
+          oSheet.Cells[eline,(i+1)].numberformat := '###.###.##0,00';
+          v := '=IF(B'+inttostr(eline)+'=0,1,B'+inttostr(eline)+') * C'+inttostr(eline);
+          oSheet.Cells[eline,(i+1)] := v;
+        end
+        else
+        if qryVendaGrupoProdutos.Fields[i].name = 'qryVendaGrupoProdutosCustoUnitario' then
+        begin
+          oSheet.Cells[eline,(i+2)].ColumnWidth := qryVendaGrupoProdutosCustoUnitario.displaywidth;
+          oSheet.Cells[eline,(i+2)].numberformat := '###.###.##0,00';
+          oSheet.Cells[eline,(i+2)] := qryVendaGrupoProdutos.Fields[i].value;
+        end
+        else
+        if qryVendaGrupoProdutos.Fields[i].name = 'qryVendaGrupoProdutoscustototal' then
+        begin
+          oSheet.Cells[eline,(i+2)].ColumnWidth := qryVendaGrupoProdutosCustoTotal.displaywidth;
+          oSheet.Cells[eline,(i+2)].numberformat := '###.###.##0,00';
+          oSheet.Cells[eline,(i+2)] := '=B'+inttostr(eline)+'*F'+inttostr(eline);
+        end
+        else
+        if qryVendaGrupoProdutos.Fields[i].name = 'qryVendaGrupoProdutosLucroBruto' then
+        begin
+          oSheet.Cells[eline,(i+3)].ColumnWidth := qryVendaGrupoProdutosLucroBruto.displaywidth;
+          oSheet.Cells[eline,(i+3)].numberformat := '###.###.##0,00';
+          oSheet.Cells[eline,(i+3)] := '=D'+inttostr(eline)+'-G'+inttostr(eline);
+        end;
+      end;
+    end;
+    qryVendaGrupoProdutos.Next;
+  end;
+
+
+  inc(eline);
+  LinhaSomatorioGrupo := eline;
+  for i:=0 to (qryVendaGrupoProdutos.FieldCount-1) do
+  begin
+    if qryVendaGrupoProdutos.Fields[i].visible then
+    begin
+      if qryVendaGrupoProdutos.Fields[i].name = 'qryVendaGrupoProdutosquantidade' then
+      begin
+        oSheet.Cells[eline,(i+1)].Font.FontStyle := 'Negrito';
+        oSheet.Cells[eline,(i+1)] := 'TOTAL';
+      end
+      else
+      if qryVendaGrupoProdutos.Fields[i].name = 'qryVendaGrupoProdutostotal' then
+      begin
+        oSheet.Cells[eline,(i+1)].numberformat := '###.###.##0,00';
+        oSheet.Cells[eline,(i+1)].Font.FontStyle := 'Negrito';
+        oSheet.Cells[eline,(i+1)] := '=SUM(D5:D'+inttostr(eline-1)+')';
+      end
+      else
+      if qryVendaGrupoProdutos.Fields[i].name = 'qryVendaGrupoProdutoscustototal' then
+      begin
+        oSheet.Cells[eline,(i+2)].numberformat := '###.###.##0,00';
+        oSheet.Cells[eline,(i+2)].Font.FontStyle := 'Negrito';
+        oSheet.Cells[eline,(i+2)] := '=SUM(G5:G'+inttostr(eline-1)+')';
+      end
+      else
+      if qryVendaGrupoProdutos.Fields[i].name = 'qryVendaGrupoProdutosLucroBruto' then
+      begin
+        oSheet.Cells[eline,(i+3)].numberformat := '###.###.##0,00';
+        oSheet.Cells[eline,(i+3)].Font.FontStyle := 'Negrito';
+        oSheet.Cells[eline,(i+3)] := '=SUM(I5:I'+inttostr(eline-1)+')';
+      end;
+    end;
+  end;
+
+  inc(eline);
+
+  if not qryValoresEventos.IsEmpty then
+    ColunaSomatorioEvento := eline+1
+  else
+    ColunaSomatorioEvento := eline;
+
+  while not qryValoresEventos.Eof do // Detail
+  begin
+    Inc(eline); // Add 1 to the line of Sheet
+    for i:=0 to (qryValoresEventos.FieldCount-1) do
+    begin
+      if qryValoresEventos.Fields[i].visible then
+      begin
+        if qryValoresEventos.Fields[i].name = 'qryValoresEventosdescricao' then
+        begin
+          oSheet.Cells[eline,(i+1)] := qryValoresEventos.Fields[i].value;
+  //        oSheet.Cells.EntireColumn.AutoFit;
+        end
+        else
+        if (qryValoresEventos.Fields[i].name = 'qryValoresEventosvalorpagto')
+           and not qryValoresEventosvalorpagto.IsNull then
+        begin
+          oSheet.Cells[eline,(i+6)].ColumnWidth := qryValoresEventosvalorpagto.displaywidth;
+          oSheet.Cells[eline,(i+6)].numberformat := '###.###.##0,00';
+          oSheet.Cells[eline,(i+6)] := qryValoresEventos.Fields[i].value;
+        end;
+      end;
+    end;
+    qryValoresEventos.Next;
+  end;
+
+  inc(eline);
+  LinhaSomatorioEvento := eline;
+  for i:=0 to (qryValoresEventos.FieldCount-1) do
+  begin
+    if qryValoresEventos.Fields[i].visible then
+    begin
+      if qryValoresEventos.Fields[i].name = 'qryValoresEventosdescricao' then
+      begin
+        oSheet.Cells[eline,(i+2)].Font.FontStyle := 'Negrito';
+        oSheet.Cells[eline,(i+2)] := 'TOTAL';
+      end
+      else
+      if qryValoresEventos.Fields[i].name = 'qryValoresEventosvalorpagto' then
+      begin
+        oSheet.Cells[eline,(i+6)].numberformat := '###.###.##0,00';
+        oSheet.Cells[eline,(i+6)].Font.FontStyle := 'Negrito';
+        oSheet.Cells[eline,(i+6)] := '=SUM(G'+inttostr(ColunaSomatorioEvento)+':G'+inttostr(eline-1)+')';
+      end;
+    end;
+  end;
+
+  inc(eline);
+  inc(eline);
+
+  oSheet.Cells[eline,2].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,2] := 'TOTAIS';
+
+  oSheet.Cells[eline,4].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,4].numberformat := '###.###.##0,00';
+  oSheet.Cells[eline,4] := '=D'+inttostr(LinhaSomatorioGrupo)+'+D'+inttostr(LinhaSomatorioEvento);
+
+  oSheet.Cells[eline,5].ColumnWidth := 5;
+
+  oSheet.Cells[eline,7].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,7].numberformat := '###.###.##0,00';
+  oSheet.Cells[eline,7] := '=G'+inttostr(LinhaSomatorioGrupo)+'+G'+inttostr(LinhaSomatorioEvento);
+
+  oSheet.Cells[eline,5].ColumnWidth := 8;
+
+  oSheet.Cells[eline,9].Font.FontStyle := 'Negrito';
+  oSheet.Cells[eline,9].numberformat := '###.###.##0,00';
+  oSheet.Cells[eline,9] := '=D'+inttostr(eline)+'-G'+inttostr(eline);
+
+  // Save the file
+  NomeArquivo := ExtractFilePath(Application.ExeName) + 'Saidas';
+
+  if not DirectoryExists(NomeArquivo) then
+    if not CreateDir(NomeArquivo) then
+    raise Exception.Create('Impossível criar o diretório '+NomeArquivo);
+
+  NomeArquivo := NomeArquivo+'\Custo_'+FormatDateTime('ddmmyy',strtodate(edtDataInicial.Text))+'_'+
+                                 FormatDateTime('ddmmyy',strtodate(edtDataFinal.Text));
+  oWB.SaveAs(NomeArquivo);
+//  oXL.Visible := true;
+//  oXL.Quit;
+end;
+
+procedure TfrmPlanilhaCusto.sbnGerarClick(Sender: TObject);
+begin
+  inherited;
+{$IFDEF LINUX}
+    mensagemaviso(ctNAOIMPLEMENTADOLINUX);
+{$ELSE }
+  if AbrirConsultas then
+    GerarPlanilha
+  else
+    MensagemAviso(format(ctNENHUMREGISTROENCONTRADO,['registro']));  
+{$ENDIF}
+end;
+
+procedure TfrmPlanilhaCusto.qryVendaGrupoProdutosCalcFields(
+  DataSet: TDataSet);
+begin
+  inherited;
+  if qryVendaGrupoProdutosquantidade.AsFloat <> 0 then
+  begin
+    qryVendaGrupoProdutosunitario.Asfloat := (qryVendaGrupoProdutostotal.AsFloat /
+                                                 qryVendaGrupoProdutosquantidade.AsFloat);
+    qryVendaGrupoProdutosCustoUnitario.AsFloat := (qryVendaGrupoProdutoscustototal.AsFloat/
+                                                   qryVendaGrupoProdutosquantidade.AsFloat);
+  end
+  else
+  begin
+    qryVendaGrupoProdutosunitario.Asfloat := qryVendaGrupoProdutostotal.AsFloat;
+    qryVendaGrupoProdutosCustoUnitario.AsFloat := qryVendaGrupoProdutoscustototal.AsFloat;
+  end;
+
+  qryVendaGrupoProdutosLucroBruto.Asfloat := (qryVendaGrupoProdutostotal.AsFloat -
+                                                 qryVendaGrupoProdutosCustoTotal.AsFloat);
+end;
+
+
+procedure TfrmPlanilhaCusto.ZMonitor1MonitorEvent(Sql, Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:\log040809.sql') then
+    Listar.loadfromfile('c:\log040809.sql');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\log040809.sql');
+  listar.free;
+end;
+
+end.

@@ -1,0 +1,148 @@
+unit fmConsultaListasPadrao;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmajudabt, ComCtrls, Buttons, ToolWin, ExtCtrls, frlistafiliais,
+  StdCtrls, cpdata, Grids, DBGrids, cpdbgrid, dmConsultaListasPadrao, ctconstantes, biblio,
+  fmprincipalbasico, frselecaoaleatoriausuarios, cppagecontrol;
+
+type
+  TfrmConsultaListasPadrao = class(TfrmAjudaBt)
+    fraListaFiliais: TfraListaFiliais;
+    gbxPeriodoAlteracaoCadastro: TGroupBox;
+    lblACadastro: TLabel;
+    edtDataInicialCadastro: TEditData;
+    edtDataFinalCadastro: TEditData;
+    pgcConsultaListaPadrao: TtecPageControl;
+    tstParametros: TTabSheet;
+    tstDados: TTabSheet;
+    gbxListasPadrao: TGroupBox;
+    gbxItensdaLista: TGroupBox;
+    dbgProdutos: TtecDBGrid;
+    dbgListasPadrao: TtecDBGrid;
+    sbnGerar: TSpeedButton;
+    sbnListaPadrao: TSpeedButton;
+    gbxPeriodoAlteracaoConferencia: TGroupBox;
+    Label1: TLabel;
+    edtDataInicialConferencia: TEditData;
+    edtDataFinalConferencia: TEditData;
+    cbbPeriodoAlteracaoCadastro: TComboBox;
+    cbbPeriodoAlteracaoConferencia: TComboBox;
+    fraSelecaoAleatoriausuarios1: TfraSelecaoAleatoriausuarios;
+    gbxListaUsuarios: TGroupBox;
+    procedure sbnGerarClick(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure sbnListaPadraoClick(Sender: TObject);
+    procedure pgcConsultaListaPadraoChange(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+
+  end;
+
+var
+  frmConsultaListasPadrao: TfrmConsultaListasPadrao;
+
+implementation
+
+{$R *.dfm}
+
+constructor TfrmConsultaListasPadrao.Create(AOwner: TComponent);
+begin
+  inherited;
+  dtmConsultaListasPadrao := TdtmConsultaListasPadrao.Create(Self);
+//  dbgProdutos.show;
+//  dbgListasPadrao.show;
+  SetarActivePage(self);
+//  pgcConsultaListaPadrao.TabIndex := 0;
+
+  sbnProcurar.visible := false;
+  sbnListaPadrao.visible := True;
+  sbnGerar.visible := True;
+  
+end;
+
+procedure TfrmConsultaListasPadrao.sbnGerarClick(Sender: TObject);
+begin
+  inherited;
+  if dtmConsultaListasPadrao.AbrirConsultaListasPadrao(
+    fraListaFiliais.ListaSelecionada,
+    fraSelecaoAleatoriausuarios1.ListaCondicional,
+    edtDataInicialCadastro.text,
+    edtDataFinalCadastro.text,
+    (cbbPeriodoAlteracaoCadastro.ItemIndex = 0),
+
+    edtDataInicialConferencia.text,
+    edtDataFinalConferencia.text,
+    (cbbPeriodoAlteracaoConferencia.ItemIndex = 0)
+
+     ) then
+  begin
+    pgcConsultaListaPadrao.activePage := tstDados;
+    pgcConsultaListaPadraoChange(nil);
+  end
+  else
+    MensagemAviso(Format(ctNENHUMREGISTROENCONTRADO, ['lista']));
+end;
+
+procedure TfrmConsultaListasPadrao.FormKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case Key of
+    VK_Escape: begin
+                  pgcConsultaListaPadrao.ActivePageIndex := 0;
+                  edtDataInicialCadastro.SetFocus;
+                end;
+    VK_F6 : sbnGerar.Click;
+    VK_F8 : sbnListaPadrao.Click;
+  end;
+
+end;
+
+procedure TfrmConsultaListasPadrao.sbnListaPadraoClick(Sender: TObject);
+begin
+  inherited;
+  if (dtmConsultaListasPadrao.qryListasPadrao.recordcount <> 0) then
+    TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado([dtmConsultaListasPadrao.qryListasPadraocodigo.asstring], 'TfrmListasPadrao', True)
+
+end;
+
+procedure TfrmConsultaListasPadrao.pgcConsultaListaPadraoChange(
+  Sender: TObject);
+begin
+  inherited;
+  sbnListaPadrao.enabled := (pgcConsultaListaPadrao.activepage = tstDados) and
+                            (dtmConsultaListasPadrao.qryListasPadrao.recordcount <>0);
+
+  sbnGerar.enabled := (pgcConsultaListaPadrao.activepage = tstParametros);
+
+
+
+end;
+
+
+procedure TfrmConsultaListasPadrao.FormCreate(Sender: TObject);
+begin
+  inherited;
+  sbnProcurar.visible := false;
+  sbnListaPadrao.visible := True;
+  sbnGerar.visible := True;
+
+end;
+
+destructor TfrmConsultaListasPadrao.Destroy;
+begin
+  dtmConsultaListasPadrao:=nil;
+  inherited;
+  frmConsultaListasPadrao:= nil;
+end;
+
+end.

@@ -1,0 +1,445 @@
+unit dmconsultaenderecos;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, DB,
+  //Biblio
+  ctconstantes,
+  //Terceiros
+  ZQuery, ZPgSqlQuery,
+  //Componentes
+  cpquery, cpdatasource,
+  //Repositorio
+  dmbasico, dmtecsoft, ZTransact, biblio;
+
+type
+  TdtmConsultaEnderecos = class(TdtmBasico)
+    qryEstados: TtecQuery;
+    dsrEstados: TtecDataSource;
+    qryCidades: TtecQuery;
+    dsrCidades: TtecDataSource;
+    qryCidadesestado: TStringField;
+    qryCidadescodigo: TIntegerField;
+    qryCidadesnome: TStringField;
+    qryRegioes: TtecQuery;
+    qryRegioescodigo: TStringField;
+    qryRegioesnome: TStringField;
+    dsrRegioes: TtecDataSource;
+    qryRuas: TtecQuery;
+    dsrRuas: TtecDataSource;
+    qryCidadescep: TIntegerField;
+    qryBairros: TtecQuery;
+    qryBairrosestado: TStringField;
+    qryBairroscidade: TIntegerField;
+    qryBairroscodigo: TIntegerField;
+    qryBairrosnome: TStringField;
+    qryBairroscep: TIntegerField;
+    dsrBairros: TtecDataSource;
+    qryEstadoscodigo: TStringField;
+    qryEstadosnome: TStringField;
+    qryFiliais: TtecQuery;
+    qryFiliaisestado: TStringField;
+    qryFiliaiscidade: TIntegerField;
+    qryRuasestado: TStringField;
+    qryRuascidade: TIntegerField;
+    qryRuasbairro: TIntegerField;
+    qryRuasnomebairro: TStringField;
+    qryRuascodigo: TIntegerField;
+    qryRuascep: TIntegerField;
+    qryRuastipo: TStringField;
+    qryCEP: TtecQuery;
+    qryCEPestado: TStringField;
+    qryCEPcidade: TIntegerField;
+    qryCEPbairro: TIntegerField;
+    qryCEPcodigo: TIntegerField;
+    qryCEPcep: TIntegerField;
+    dsrCEP: TtecDataSource;
+    qryConsultaTabelaFretes: TtecQuery;
+    qryConsultaTabelaFretesdescricao: TStringField;
+    qryConsultaTabelaFretescodigo: TIntegerField;
+    dsrConsultaTabelaFretes: TtecDataSource;
+    qryRuasnomerua: TStringField;
+    qryCidadescodigoibge: TIntegerField;
+    qryCidadesregiao: TStringField;
+    procedure qryEstadosAfterScroll(DataSet: TDataSet);
+    procedure qryBairrosBeforeOpen(DataSet: TDataSet);
+    procedure qryRuasBeforeOpen(DataSet: TDataSet);
+  private
+
+  protected
+    function GetCEP: String;
+    function GetCodigoBairro: Integer;
+    function GetCodigoBairroRua: Integer;
+    function GetCodigoCidade: Integer;
+    function GetCodigoCidadeIBGE: Integer;
+    function GetCodigoEstado: String;
+    function GetCodigoRegiao: String;
+    function GetCodigoRua: Integer;
+    function GetCodigoFrete: Integer;
+    function GetConsultarBairro: TZDataSet;
+    function GetConsultarCidade: TZDataSet;
+    function GetConsultarEstado: TZDataSet;
+    function GetConsultarRegiao: TZDataSet;
+    function GetConsultarRua: TZDataSet;
+    function GetConsultarFretes: TZDataSet;
+    function GetNomeBairro: String;
+    function GetNomeBairroRua: String;
+    function GetNomeCidade: String;
+    function GetNomeRua: String;
+    function GetTabelaBairros: TZDataSet;
+    function GetTabelaCidades: TZDataSet;
+    function GetTabelaEstados: TZDataSet;
+    function GetTabelaRegioes: TZDataSet;
+    function GetTabelaRuas: TZDataSet;
+  public
+    constructor Create(AOwner: TComponent); override;
+    function ExisteBairro(campo, codigo: string): boolean;
+    function ExisteCidade(campo, codigo: string): boolean; overload;
+    function ExisteCidadeBairro(campo, codigo: string; precisao: boolean): boolean; overload;
+    function ExisteCidadeRua(campo, codigo: string; precisao: boolean): boolean; overload;
+    function ExisteEstado(campo, codigo: string): boolean; overload;
+    function ExisteEstado(campo, codigo: string; precisao: boolean): boolean; overload;
+    function ExisteRua(campo, codigo: string): boolean;
+    function ExisteRegiao(campo, codigo: string): boolean;
+    function ExisteFrete(campo, codigo: string): boolean;
+    function PosicionarCidade(codigo: String): Boolean;
+    function PosicionarEstado(codigo: String): Boolean; overload;
+    function PosicionarBairros(codigo: String): Boolean;
+
+    function ProcurarCEP(CEP: Integer): Boolean;
+    procedure RefazConsultaBairros;
+    procedure RefazConsultaCidades;
+    procedure RefazConsultaRuas;
+    property CEP: String read GetCEP;
+    property CodigoBairro: Integer read GetCodigoBairro;
+    property CodigoBairroRua: Integer read GetCodigoBairroRua;
+    property CodigoCidade: Integer read GetCodigoCidade;
+    property CodigoCidadeIBGE: Integer read GetCodigoCidadeIBGE;
+    property CodigoEstado: String read GetCodigoestado;
+    property CodigoRegiao: String read GetCodigoRegiao;
+    property CodigoRua: Integer read GetCodigoRua;
+    property CodigoFrete: Integer read GetCodigoFrete;
+    property ConsultarBairro: TZDataSet read GetConsultarBairro;
+    property ConsultarCidade: TZDataSet read GetConsultarCidade;
+    property ConsultarEstado: TZDataSet read GetConsultarEstado;
+    property ConsultarRegiao: TZDataSet read GetConsultarRegiao;
+    property ConsultarFretes: TZDataSet read GetConsultarFretes;
+    property ConsultarRua:    TZDataSet read GetConsultarRua;
+    property NomeBairro: String read GetNomeBairro;
+    property NomeBairroRua: String read GetNomeBairroRua;
+    property NomeCidade: String read GetNomeCidade;
+    property NomeRua: String read GetNomeRua;
+    property TabelaEstados: TZDataSet read GetTabelaEstados;
+    property TabelaCidades: TZDataSet read GetTabelaCidades;
+    property TabelaBairros: TZDataSet read GetTabelaBairros;
+    property TabelaRegioes: TzDataSet read GetTabelaRegioes;
+    property TabelaRuas: TZDataSet read GetTabelaRuas;
+  end;
+
+var
+dtmConsultaEnderecos: TdtmConsultaEnderecos;
+  
+implementation
+
+
+{$R *.dfm}
+
+constructor TdtmConsultaEnderecos.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryEstados.Tag := ctTabelasConsultaEnderecos;
+  qryCidades.Tag := ctTabelasConsultaEnderecos;
+  qryBairros.Tag := ctTabelasConsultaEnderecos;
+  qryRegioes.Tag := ctTabelasConsultaEnderecos;
+  qryRuas.Tag    := ctTabelasConsultaEnderecos;
+  qryConsultaTabelaFretes.Tag := ctTabelasConsultaEnderecos;
+end;
+
+
+function TdtmConsultaEnderecos.ExisteBairro(campo, codigo: string): boolean;
+begin
+  Result := ExisteCodigo(qryBairros, campo, codigo)
+end;
+
+function TdtmConsultaEnderecos.ExisteCidade(campo, codigo: string): boolean;
+begin
+
+  if not ( ((campo = 'nome') and (uppercase(qrycidadesnome.asstring) = uppercase(codigo))) or
+           ((campo = 'codigoibge') and (uppercase(qryCidadescodigoibge.asstring) = uppercase(codigo)))
+         ) then
+    Result := ExisteCodigo(qryCidades, campo, codigo)
+  else
+    result := true;
+end;
+
+function TdtmConsultaEnderecos.ExisteCidadeBairro(campo, codigo: string; precisao: boolean): boolean;
+begin
+  Result := ExisteCodigo(qryCidades, campo, codigo, Not Precisao, Not Precisao);
+  if Result then
+    RefazConsultaBairros
+end;
+
+function TdtmConsultaEnderecos.ExisteCidadeRua(campo, codigo: string; precisao: boolean): boolean;
+begin
+  Result := ExisteCodigo(qryCidades, campo, codigo);
+  if Result then
+    RefazConsultaRuas
+end;
+
+function TdtmConsultaEnderecos.ExisteEstado(campo, codigo: String): boolean;
+begin
+  Result := ExisteCodigo(qryEstados, campo, codigo)
+end;
+
+function TdtmConsultaEnderecos.ExisteEstado(campo, codigo: String; precisao: boolean): boolean;
+begin
+  Result := ExisteCodigo(qryEstados, campo, codigo, Not precisao, Not Precisao);
+  if Result then
+    RefazConsultaCidades
+end;
+
+function TdtmConsultaEnderecos.ExisteFrete(campo, codigo: string): boolean;
+begin
+  Result := ExisteCodigo(qryConsultaTabelaFretes, campo, codigo);
+end;
+
+function TdtmConsultaEnderecos.ExisteRegiao(campo, codigo: string): boolean;
+begin
+  Result := ExisteCodigo(qryRegioes, campo, codigo);
+end;
+
+function TdtmConsultaEnderecos.ExisteRua(campo, codigo: string): boolean;
+begin
+//  Result := ExisteCodigo(qryRuas, campo, codigo);
+    if (lowercase(campo) = 'nomerua') then
+      qryRuas.Sql[14] := ' and (Maiusculo(' + campo + ') ilike Maiusculo(''' + trim(codigo) + '%''))'
+    else
+    if lowercase(campo) = 'nomebairro' then
+      qryRuas.Sql[14] := ' and (Maiusculo( b.nome ) ilike Maiusculo(''' + trim(codigo) + '%''))'
+    else
+   if (lowercase(campo) = 'cep') then
+      qryRuas.Sql[14] := ' and (Maiusculo( r.' + campo + ') ilike Maiusculo(''' + trim(codigo) + '%''))';
+
+//    qryRuas.Open;
+    ReFazConsultapornome(qryRuas,['estado','cidade'],[qryCidadesEstado.AsString, qryCidadescodigo.AsInteger]);
+    Result := qryRuas.RecordCount > 0
+end;
+
+function TdtmConsultaEnderecos.GetCEP: String;
+begin
+  if qryRuascep.AsString <> '' then
+    Result := qryRuascep.AsString
+  else if qryBairroscep.AsString <> '' then
+    Result := qryBairroscep.AsString
+  else
+    Result := qryCidadescep.AsString
+end;
+
+function TdtmConsultaEnderecos.GetCodigoBairro: Integer;
+begin
+  Result := qryBairroscodigo.AsInteger
+end;
+
+function TdtmConsultaEnderecos.GetCodigoBairroRua: Integer;
+begin
+  Result := qryRuasbairro.AsInteger
+end;
+
+function TdtmConsultaEnderecos.GetCodigoCidade: Integer;
+begin
+  Result := qryCidadescodigo.AsInteger
+end;
+
+function TdtmConsultaEnderecos.GetCodigoCidadeIBGE: Integer;
+begin
+  Result := qryCidadescodigoibge.AsInteger
+end;
+
+function TdtmConsultaEnderecos.GetCodigoEstado: String;
+begin
+  Result := qryEstadoscodigo.AsString
+end;
+
+function TdtmConsultaEnderecos.GetCodigoFrete: Integer;
+begin
+  Result := qryConsultaTabelaFretescodigo.AsInteger
+end;
+
+function TdtmConsultaEnderecos.GetCodigoRegiao: String;
+begin
+  Result := qryRegioescodigo.AsString
+end;
+
+function TdtmConsultaEnderecos.GetCodigoRua: Integer;
+begin
+  Result := qryRuascodigo.AsInteger
+end;
+
+function TdtmConsultaEnderecos.GetConsultarBairro: TZDataSet;
+begin
+  Result := qryBairros
+end;
+
+function TdtmConsultaEnderecos.GetConsultarCidade: TZDataSet;
+begin
+  Result := qryCidades;
+end;
+
+function TdtmConsultaEnderecos.GetConsultarEstado: TZDataSet;
+begin
+  Result := qryEstados;
+end;
+
+function TdtmConsultaEnderecos.GetConsultarFretes: TZDataSet;
+begin
+  result := qryConsultaTabelaFretes
+end;
+
+function TdtmConsultaEnderecos.GetConsultarRegiao: TZDataSet;
+begin
+  Result := qryRegioes
+end;
+
+function TdtmConsultaEnderecos.GetConsultarRua: TZDataSet;
+begin
+  Result := qryRuas
+end;
+
+function TdtmConsultaEnderecos.GetNomeBairro: String;
+begin
+  Result := qryBairrosnome.AsString
+end;
+
+function TdtmConsultaEnderecos.GetNomeBairroRua: String;
+begin
+  Result := qryRuasnomebairro.AsString
+end;
+
+function TdtmConsultaEnderecos.GetNomeCidade: String;
+begin
+  Result := qryCidadesnome.AsString
+end;
+
+function TdtmConsultaEnderecos.GetNomeRua: String;
+begin
+  Result := qryRuastipo.AsString + ' ' + qryRuasnomerua.AsString;
+end;
+
+function TdtmConsultaEnderecos.GetTabelaBairros: TZDataSet;
+begin
+  Result := qryBairros;
+end;
+
+function TdtmConsultaEnderecos.GetTabelaCidades: TZDataSet;
+begin
+  Result := qryCidades;
+end;
+
+function TdtmConsultaEnderecos.GetTabelaEstados: TZDataSet;
+begin
+  Result := qryEstados;
+end;
+
+function TdtmConsultaEnderecos.GetTabelaRegioes: TZDataSet;
+begin
+  Result := qryRegioes;
+end;
+
+function TdtmConsultaEnderecos.GetTabelaRuas: TZDataSet;
+begin
+  Result := qryRuas;
+end;
+
+function TdtmConsultaEnderecos.PosicionarBairros(codigo: String): Boolean;
+begin
+  ExisteCodigo(qryBairros, 'codigo', codigo);
+end;
+
+function TdtmConsultaEnderecos.PosicionarCidade(codigo: String): Boolean;
+begin
+  Result := ExisteCodigo(qryCidades, 'codigo', codigo, False, False);
+  if Result then
+    RefazConsultaBairros
+  else begin
+    qryBairros.Params[0].AsString := '';
+    qryBairros.Params[1].AsInteger := 0;
+    ReFazConsulta(qryBairros, [], [])
+  end
+end;
+
+function TdtmConsultaEnderecos.PosicionarEstado(codigo: String): Boolean;
+begin
+  if qryEstados.State = dsInactive then
+    qryEstados.Open;
+
+  Result := ExisteCodigo(qryEstados, 'codigo', codigo, False, False);
+  if Result then
+    RefazConsultaCidades
+  else begin
+    qryCidades.Params[0].AsString := '';
+    ReFazConsulta(qryCidades,[],[])
+  end
+end;
+
+function TdtmConsultaEnderecos.ProcurarCEP(CEP: Integer): Boolean;
+begin
+  ReFazConsulta(qryCEP,[0],[CEP]);
+  if qryCEP.RecordCount = 0 then
+    Result := False
+  else begin
+    qryRuas.Sql[14] := 'and (r.cep = ' + IntToStr(CEP) + ')';
+    RefazConsulta(qryRuas,[0,1],[qryCEPestado.AsString, qryCEPCidade.AsInteger]);
+    Result := qryRuas.Locate('cep',CEP,[]);
+    if Result then begin
+      PosicionarEstado(qryRuasestado.AsString);
+      PosicionarCidade(qryRuascidade.AsString)
+//      RefazConsultaCidades;
+//      RefazConsultaBairros;
+    end
+  end
+end;
+
+procedure TdtmConsultaEnderecos.RefazConsultaBairros;
+begin
+  if ((qryBairros.ParamByName('estado').AsString <> qryCidadesEstado.AsString) or
+      (qryBairros.ParamByName('cidade').AsInteger <> qryCidadescodigo.AsInteger)) or
+      qrybairros.IsEmpty then
+//    ReFazConsulta(qryBairros,[0,1],[qryEstadoscodigo.AsString, qryCidadescodigo.AsInteger]);
+    ReFazConsulta(qryBairros,[0,1],[qryCidadesEstado.AsString, qryCidadescodigo.AsInteger]);
+end;
+
+procedure TdtmConsultaEnderecos.RefazConsultaCidades;
+begin
+  if ((qrycidades.ParamByName('estado').AsString) <> (qryEstadoscodigo.AsString)) or
+     qrycidades.IsEmpty then
+    ReFazConsulta(qryCidades,[0],[qryEstadoscodigo.AsString]);
+end;
+
+procedure TdtmConsultaEnderecos.RefazConsultaRuas;
+begin
+  qryRuas.Sql[14] := 'and false';
+//  ReFazConsulta(qryRuas,[0,1],[qryEstadoscodigo.AsString, qryCidadescodigo.AsInteger]);
+  ReFazConsulta(qryRuas,[0,1],[qryCidadesEstado.AsString, qryCidadescodigo.AsInteger]);
+end;
+
+procedure TdtmConsultaEnderecos.qryEstadosAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+//  mensagemaviso(qryEstadoscodigo.asstring);
+end;
+
+procedure TdtmConsultaEnderecos.qryBairrosBeforeOpen(DataSet: TDataSet);
+begin
+  inherited;
+;
+end;
+
+procedure TdtmConsultaEnderecos.qryRuasBeforeOpen(DataSet: TDataSet);
+begin
+  inherited;
+//  RefazConsulta(qryRuas,[0,1],[qryCEPestado.AsString, qryCEPCidade.AsInteger]);
+end;
+
+end.

@@ -1906,18 +1906,21 @@ inherited frmMalaDireta: TfrmMalaDireta
                 Height = 392
                 inherited fraSelecaoAleatoriaItemdeProduto: TfraSelecaoAleatoria
                   Width = 613
-                  Height = 368
+                  Height = 372
                   inherited Splitter1: TSplitter
-                    Height = 354
+                    Left = 578
+                    Height = 358
                   end
                   inherited dbgSelecaoAleatoria: TtecDBGrid
-                    Height = 354
+                    Width = 578
+                    Height = 358
                   end
                   inherited pnlLabels: TPanel
-                    Height = 354
+                    Left = 581
+                    Height = 358
                   end
                   inherited pnlAbaixo: TPanel
-                    Top = 354
+                    Top = 358
                     Width = 613
                     Font.Pitch = fpVariable
                     inherited lblOrientacao: TLabel
@@ -1930,10 +1933,13 @@ inherited frmMalaDireta: TfrmMalaDireta
                   end
                 end
                 inherited pnlParametros: TPanel
-                  Top = 368
+                  Top = 372
                   Width = 613
                   Font.Pitch = fpVariable
                   inherited ckbProdutosComAgendamento: TCheckBox
+                    Font.Pitch = fpVariable
+                  end
+                  inherited ckbIncluirSimilaresnaLista: TCheckBox
                     Font.Pitch = fpVariable
                   end
                 end
@@ -1986,23 +1992,8 @@ inherited frmMalaDireta: TfrmMalaDireta
             end
             inherited tstSelecaoAleatoriaMarcaProduto: TTabSheet
               inherited fraSelecaoAleatoriamarcasProdutos: TfraSelecaoAleatoriamarcasProdutos
-                Width = 613
-                Height = 392
                 inherited fraSelecaoAleatoriamarcasProduto: TfraSelecaoAleatoria
-                  Width = 613
-                  Height = 392
-                  inherited Splitter1: TSplitter
-                    Height = 377
-                  end
-                  inherited dbgSelecaoAleatoria: TtecDBGrid
-                    Height = 377
-                  end
-                  inherited pnlLabels: TPanel
-                    Height = 377
-                  end
                   inherited pnlAbaixo: TPanel
-                    Top = 377
-                    Width = 613
                     Font.Pitch = fpVariable
                     inherited lblOrientacao: TLabel
                       Font.Pitch = fpVariable
@@ -2137,23 +2128,8 @@ inherited frmMalaDireta: TfrmMalaDireta
             end
             inherited tstSelecaoAleatoriaMarketPlace: TTabSheet
               inherited fraSelecaoaleatoriamarketplace1: TfraSelecaoaleatoriamarketplace
-                Width = 613
-                Height = 392
                 inherited fraSelecaoAleatoriamarketplace: TfraSelecaoAleatoria
-                  Width = 613
-                  Height = 392
-                  inherited Splitter1: TSplitter
-                    Height = 377
-                  end
-                  inherited dbgSelecaoAleatoria: TtecDBGrid
-                    Height = 377
-                  end
-                  inherited pnlLabels: TPanel
-                    Height = 377
-                  end
                   inherited pnlAbaixo: TPanel
-                    Top = 377
-                    Width = 613
                     Font.Pitch = fpVariable
                     inherited lblOrientacao: TLabel
                       Font.Pitch = fpVariable

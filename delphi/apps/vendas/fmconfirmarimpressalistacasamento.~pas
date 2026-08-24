@@ -1,0 +1,84 @@
+unit fmconfirmarimpressalistacasamento;
+
+interface
+
+uses
+  //CLX
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls,
+  //REpositorio
+  fmnavcontroles, ExtCtrls, Buttons;
+
+type
+  TfrmConfirmarImpressaoListaCasamento = class(TfrmNavControles)
+    ckbImprimirLista: TCheckBox;
+    ckbImprimirNota: TCheckBox;
+    pnlFundoJanela: TPanel;
+    gbxFundoJanela: TGroupBox;
+    bbnOK: TBitBtn;
+    bbnCancelar: TBitBtn;
+    ckbImprimirPrecoProdutoListaCasamento: TCheckBox;
+    ckbSepararProdutosVendidos: TCheckBox;
+    rgbOrdenacao: TRadioGroup;
+    procedure ckbImprimirListaClick(Sender: TObject);
+  private
+    function GetNotaSimplesRemessa: Boolean;
+    function GetListaCasamento: Boolean;
+    function GetEtiqueta: Boolean;
+  public
+    constructor Create(AOwner: TComponent; Lista, Nota, Etiqueta: Boolean); reintroduce;
+    destructor Destroy; override;
+
+    property ListaCasamento: Boolean read GetListaCasamento;
+    property NotaSimplesRemessa: Boolean read GetNotaSimplesRemessa;
+    property Etiqueta: Boolean read GetEtiqueta;
+  end;
+
+var
+  frmConfirmarImpressaoListaCasamento : tfrmConfirmarImpressaoListaCasamento ;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmConfirmarImpressaoNoContrato }
+
+constructor TfrmConfirmarImpressaoListaCasamento.Create(AOwner: TComponent;
+            Lista, Nota, Etiqueta: Boolean);
+begin
+  inherited Create(AOwner);
+  ckbImprimirLista.Enabled    := Lista;
+  ckbImprimirNota.Enabled     := Nota;
+//  ckbImprimirEtiqueta.Enabled := Etiqueta;
+end;
+
+function TfrmConfirmarImpressaoListaCasamento.GetNotaSimplesRemessa: Boolean;
+begin
+  Result := ckbImprimirNota.Checked
+end;
+
+function TfrmConfirmarImpressaoListaCasamento.GetListaCasamento: Boolean;
+begin
+  Result := ckbImprimirLista.Checked
+end;
+
+function TfrmConfirmarImpressaoListaCasamento.GetEtiqueta: Boolean;
+begin
+// Result := ckbImprimirEtiqueta.Checked;
+end;
+
+destructor TfrmConfirmarImpressaoListaCasamento.Destroy;
+begin
+  inherited;
+  frmConfirmarImpressaoListaCasamento := nil;
+end;
+
+procedure TfrmConfirmarImpressaoListaCasamento.ckbImprimirListaClick(
+  Sender: TObject);
+begin
+  inherited;
+  ckbImprimirPrecoProdutoListaCasamento.enabled := ckbImprimirLista.Checked;
+  ckbSepararProdutosVendidos.enabled := ckbImprimirLista.Checked;
+end;
+
+end.

@@ -1,0 +1,313 @@
+unit fmenviaremailimagem;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs,
+  fmajudabt, ComCtrls, Buttons, ExtCtrls, fmajuda, fmnavcontroles,
+  StdCtrls, cptexto, clparametrossistema,IdSMTP, IdPOP3, IdMessage,
+  IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient,
+  IdMessageClient, biblio, ctconstantes,clusuario, dmbasico, cpmemo,
+  AdvMemo, {AdvListV, AdvPanel, ThumbnailList, PictureList,}
+  frVisualizarImageURL, AdvSmoothImageListBox, FileCtrl, FlCtrlEx, AdvPicture;
+
+type
+  TOrigemEmail = (Outros, Pedidos, Contratos, Orcamento, OrdemServico, EnvioNFe, CapturadeTelas);
+
+
+type
+  TfrmEnviarEmailImagem = class(TForm)
+    pnlFundoJanela: TPanel;
+    gbxEnvioEmail: TGroupBox;
+    sbnEnviar: TBitBtn;
+    gbxhost: TGroupBox;
+    edtHost: TEditTexto;
+    gbxemail: TGroupBox;
+    gbxtexto: TGroupBox;
+    gbxNomeContato: TGroupBox;
+    edtcontato: TEdit;
+    gbxAssunto: TGroupBox;
+    gbxIntroducao: TGroupBox;
+    gbxConclusao: TGroupBox;
+    edtAssunto: TEditTexto;
+    mmoConclusao: TMemo;
+    mmotexto: TMemo;
+    mmoIntroducao: TMemo;
+    edtEmail: TAdvMemo;
+    pnlBtnEnviar: TPanel;
+    ScrollBox1: TScrollBox;
+    CheckFileListBoxEx: TCheckFileListBoxEx;
+    Panel1: TPanel;
+    imgVisualFormURL: TAdvPicture;
+    procedure sbnEnviarClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure CheckFileListBoxExChange(Sender: TObject);
+  private
+    flistadearquivos: TStringList;
+    FReferencia: String;
+    FIntroducao: String;
+    FConclusao: String;
+    FMsgOrcamento: String;
+    fObterAutorizacao: TTecBooleanRetorno;
+    fOrigemEmail: TOrigemEmail;
+  protected
+    FTexto: String;
+    FData: TDateTime;
+    FEmpresa: String;
+    FMsg: TStringList;
+    FNomeContato: String;
+    FEmailContato: String;
+    procedure Marcarlistadearquivos(quantidade: integer);
+  public
+    Enviou: Boolean;
+    vGerarAtendimento: boolean;
+    vListaEmailValidos: String;
+    constructor Create(AOwner: TComponent; Host, Email, Contato, Texto, assunto: String; origem: TOrigemEmail = Outros ); reintroduce;
+    destructor  Destroy; override;
+
+    property Data: TDateTime read FData write FData;
+    property Empresa: String read FEmpresa write FEmpresa;
+    property Msg: TStringList read FMsg write FMsg;
+    property MsgOrcamento: String Read FMsgOrcamento write FMsgOrcamento;
+    property NomeContato:String read FNomeContato write FNomeContato;
+    property EmailContato: String read FEmailContato write FEmailContato;
+    property Referencia: String read FReferencia write FReferencia;
+    property Introducao: String read FIntroducao write FIntroducao;
+    property Conclusao: String read FConclusao write FConclusao;
+    property ObterAutorizacao: TTecBooleanRetorno read fObterAutorizacao write fObterAutorizacao;
+    property OrigemEmail: TOrigemEmail read fOrigemEmail write fOrigemEmail;
+  end;
+
+var
+  JatestouEMail: Boolean;
+  frmEnviarEmailImagem: TfrmEnviarEmailImagem;
+
+
+implementation
+
+uses fmenviaremail;
+
+{$R *.dfm}
+
+{ TfrmEviarEmail }
+
+constructor TfrmEnviarEmailImagem.Create(AOwner: TComponent; Host, Email, Contato, Texto, Assunto: String; origem: TOrigemEmail = Outros);
+var
+  Lista : TStringList;
+  i: integer;
+
+begin
+  inherited Create(AOwner);
+  Caption := Caption + ' - ' + Texto;
+  edtEmail.Lines.Clear;
+
+  try
+    Lista := TStringList.Create;
+    ExtractStrings([';'], [], PChar(Email), Lista);
+    for i:=0 to Lista.count-1 do
+       edtEmail.Lines.Append(trim(lista[i]));
+
+  finally
+    Lista.free;
+  end;
+
+  edtcontato.Text:= Contato;
+  edtHost.Text := Host;
+  edtAssunto.Text:= trim(UsuarioLogin.Assunto + ' '+ Assunto);
+  mmoIntroducao.Text:= UsuarioLogin.Introducao;
+  mmoConclusao.Text:= UsuarioLogin.Conclusao;
+  FTexto:= Texto;
+  Msg := TStringList.Create;
+  OrigemEmail := Origem;
+
+  if OrigemEmail = EnvioNFe then
+  begin
+    gbxhost.visible := false;
+    gbxAssunto.visible := false;
+    gbxIntroducao.visible := false;
+    gbxtexto.visible := false;
+    gbxConclusao.visible := false;
+//    sbnEnviar.top := gbxemail.top + 85;
+    self.height := self.height - gbxhost.height - gbxAssunto.Height - gbxIntroducao.Height - gbxtexto.Height - gbxConclusao.Height;
+  end;
+
+  CheckFileListBoxEx.Directory :=  ExtractFilePath(Application.ExeName) + 'Saidas\Captura_da_Tela\'+formatDateTime('yyyy-mm-dd', now());
+  CheckFileListBoxEx.Mask := '*.jpg';
+  Marcarlistadearquivos(3);
+
+end;
+
+destructor TfrmEnviarEmailImagem.Destroy;
+begin
+  inherited;
+  FreeAndNIl(CheckFileListBoxEx);
+  FreeAndNIl(imgVisualFormURL);
+  frmEnviarEmailImagem := nil;
+end;
+
+procedure TfrmEnviarEmailImagem.sbnEnviarClick(Sender: TObject);
+var
+  SMTP : TIdSMTP;
+  POP3 : TIdPOP3;
+  MsgEmail : TIdMessage;
+  i: integer;
+  msgaux : String;
+  vResult : Boolean;
+  vListadeArquivosMarcados : tStringList;
+
+  function ListadeArquivosMarcados: TStringList;
+  var
+  i: integer;
+  begin
+    result := tStringLIst.create;
+    for i:=0 to CheckFileListBoxEx.Items.Count-1 do
+    begin
+      if CheckFileListBoxEx.Checked[i] then
+        result.append(CheckFileListBoxEx.FileName);
+    end;
+    vListadeArquivosMarcados := result;
+  end;
+
+
+begin
+  inherited;
+
+  vResult := true;
+  Enviou:=True;
+  if (MensagemConfirmacao(ctCONFIRMAENVIOEMAIL) = smbOk) and (ListaEmailValido(edtEmail, vListaEmailValidos)) then
+  begin
+
+    if OrigemEmail <> EnvioNFe then
+    begin
+
+      if edtEmail.lines.Text <> '' then
+      begin
+
+        if parsistema.UsaitecLUX and
+           (OrigemEmail = Orcamento) then
+          close
+        else
+        begin
+
+
+          Caption:= 'Enviando...';
+
+          msg.append(' REFERÊNCIA '+'<BR>');
+          for i:=0 to mmotexto.Lines.Count -1 do
+            msg.Append(mmotexto.Lines[i]+'<BR>');
+
+          msg.append(' INTRODUÇÃO '+'<BR>');
+          for i:=0 to mmoIntroducao.Lines.Count -1 do
+            msg.Append(mmoIntroducao.Lines[i]+'<BR>');
+
+          msg.append(' CONCLUSÃO '+'<BR>');
+          for i:=0 to mmoConclusao.Lines.Count -1 do
+            msG.Append(mmoConclusao.Lines[i]+'<BR>');
+
+          if edtcontato.Text <> '' then
+          begin
+            msg.append(' CONTATO '+'<BR>');
+            msg.Append(edtcontato.Text+'<BR>');
+          end;
+
+          ListadeArquivosMarcados;
+
+          vResult := EnviarEmail_(LowerCase(UsuarioLogin.HostSmtpusuario),
+                       UsuarioLogin.UsuarioEmailUsuario,
+                       UsuarioLogin.SenhaEmailUsuario,
+                       UsuarioLogin.PortaSmtpUsuario,
+                       LowerCase(UsuarioLogin.EmailUsuario),
+                       vListaEmailValidos, edtAssunto.Text, msg.Text, fEmpresa,
+                       usuariologin.smtprequersslUsuario,
+                       vListadeArquivosMarcados);
+
+          if vResult then
+          begin
+            MensagemAviso(ctEMAILENVIADOCOMSUCESSO);
+            self.ModalResult := mrOk;
+          end
+          else
+            Enviou := false;
+        end;
+
+
+      end
+      else
+      begin
+        MensagemAviso('E-mail em branco');
+        edtEmail.SetFocus;
+      end;
+    end
+    else
+    begin
+      self.ModalResult := mrOk;
+    end;
+  end;
+end;
+
+procedure TfrmEnviarEmailImagem.FormShow(Sender: TObject);
+begin
+  if (edtEmail.lines.Text <> '') and (OrigemEmail<>EnvioNFe) then
+    mmotexto.SetFocus
+  else
+    edtEmail.SetFocus;
+  JatestouEMail:= False;
+
+  {
+  if not EmailValido(edtEmail.lines.Text) then
+    edtEmail.SetFocus;
+    }
+ if not ListaEmailValido(edtEmail, vListaEmailValidos) then
+   edtEmail.SetFocus;
+
+
+end;
+
+procedure TfrmEnviarEmailImagem.Marcarlistadearquivos(quantidade: integer);
+var
+  path: String;
+  i,j: Integer;
+
+begin
+
+  flistadearquivos := TStringList.create;
+  flistadearquivos.Sorted := true;
+
+
+    for i := 0 to CheckFileListBoxEx.items.count-1 do
+      flistadearquivos.add( DateTimeToStr(FileDateToDateTime(FileAge(CheckFileListBoxEx.directory+'\'+CheckFileListBoxEx.items[i]))) +
+              CheckFileListBoxEx.items[i] );
+
+    j:=-1;
+    if (flistadearquivos.Count-1) > quantidade then
+      j:= (flistadearquivos.Count-1) - quantidade;
+
+    for i:= 0 to j do
+      flistadearquivos.Delete(0);
+
+    flistadearquivos.Sorted := false;
+    for i:= 0 to flistadearquivos.count-1 do
+      flistadearquivos[i] := Copy(flistadearquivos[i], 20, 50);
+    flistadearquivos.Sorted := true;
+
+    for i:= 0 to flistadearquivos.count-1 do
+    begin
+      j := CheckFileListBoxEx.Items.IndexOf(flistadearquivos[i]);
+      if j<>-1 then
+        CheckFileListBoxEx.Checked[j] := True;
+    end;
+
+    CheckFileListBoxEx.ItemIndex := CheckFileListBoxEx.Items.Count-1;
+    CheckFileListBoxEx.Selected[CheckFileListBoxEx.ItemIndex] := true;
+
+    CheckFileListBoxExChange(CheckFileListBoxEx);
+
+end;
+
+procedure TfrmEnviarEmailImagem.CheckFileListBoxExChange(Sender: TObject);
+begin
+  if CheckFileListBoxEx.FileName <> '' then
+    imgVisualFormURL.Picture.LoadFromFile(CheckFileListBoxEx.FileName);
+end;
+
+end.

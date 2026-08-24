@@ -1,0 +1,1758 @@
+unit ctcontantesdmbasico;
+
+interface
+
+type
+   TipoAtribuicao = (tpSQLDadosProdutosNotasEntradas, tpSQLDadosProdutosNotasSaidas, tpSQLDadosProdutosPedidos, tpSQLDadosProdutos);
+
+const
+  msgErroicms_faltante =  'O produto  ''%s'' na incidência/csosn do icms  ''%s'' não possui informação no campo  ''%s''. ';
+  msgErroincidencia_faltante =  'O produto  ''%s'' não possui informação no campo  ''%s''. '+#10#13+
+                                'Favor Definir o valor no CADASTRO DE PRODUTOS/SERVIÇOS ou no CADASTRO DE NATUREZAS ';
+
+{
+ '       coalesce((select pe.percfcp '+
+ '                 from produtosestados pe '+
+ '                 where pe.produto = p.codigo '+
+ '                   and coalesce(pe.indsuperfluo,false) '+
+ '                   and pe.estado = :Estadocfo),0.00) as percfcp, '+
+}
+
+  SQLDadosProdutos =
+ ' select p.descricao as descricaoproduto, '                                                                                    +
+ '        c.descricaonanf, '                                                                                +
+ '         (select gr.descricao from grades gr where gr.codigo = c.grade1) as linha, '                      +
+ '         (select gr.descricao from grades gr where gr.codigo = c.grade2) as coluna, '                     +
+ '         p.valorgrade1, '                                                                                 +
+ '         p.valorgrade2, '                                                                                 +
+ '         c.anvisa,  '                                                                                     +
+ '         c.grade1, c.grade2,  '                                                                           +
+ '         p.codigo as produto,  '                                                                          +
+ '         p.codigovisual as produtovisual,  '                                                              +
+ '         p.codigovisual as produtodigitado,  '                                                            +
+ '         e.filial, '                                                                                      +
+ '         estoques_preco(p.codigo, f.codigo) as precounitario, '                                           +
+ '         estoques_precopedido(p.codigo) as preco_pedido, '                                                 +
+ '         (select estoques_produtoempromocao(p.codigo, f.codigo)) as promocao, '                           +
+ '         (select coalesce(pro.deny_discount,false) '                                                      +
+ '          from promocoes pro '                                                                            +
+ '          where pro.codigo = p.promocao) as deny_discount, '                                               +
+ '         c.montagem, '                                                                                    +
+ '         c.unidade, '                                                                                     +
+ '         (select u.descricao from unidades u where u.codigo = c.unidade) as descricaounidade,  '          +
+ '         c.brinde, '                                                                                      +
+ '         Selecionar_AliquotaIcms(:EstadoFilialBase, :Estadocfo, :TipoPessoa, p.codigo, '                  +
+ '                                 :pContribuinteOrigem, :pContribuinteDestino, '                           +
+ '                                 :pVendaConsumidorFinal) as AliquotaIcms, '                              +
+ '         c.baseicms, '                                                                                    +
+ '         c.icms, '                                                                                        +
+ '         c.ipi, '                                                                                         +
+ '         coalesce((select i.aliquota from ipi i where i.codigo = c.ipi),0.00) as aliquotaipi, '           +
+ '         (select i.aliquota from ipi i where i.codigo = c.ipi) as AliquotaipiOriginal, '                  +
+ '         coalesce(c.aliquotapis, fe.aliquotapis) as aliquotapis, '                                         +
+ '         coalesce(c.aliquotacofins, fe.aliquotacofins) as aliquotacofins, '                                 +
+ '         (select i.classificacaofiscal  from ipi i    where (i.codigo = c.ipi)) as classificacaofiscal, ' +
+ '         (select ipi.descricao from ipi where (ipi.codigo = c.ipi)) as descricaoipi, '                    +
+ '         (select ipi.genero from ipi where ipi.codigo = c.ipi) as genero, '                               +
+ '         (select ipi.extipi from ipi where ipi.codigo = c.ipi) as extipi, '                               +
+ '         c.ICMSModalidade, '                                                                              +
+ '         c.ICMSModSubst, '                                                                                +
+ '         c.vendanegativa as vendasemestoque, '                                                            +
+ '         c.origem,  '                                                                                     +
+ '         ti.valor as incidencia, '                                                                        +
+ '         c.csosn, '                                                                                       +
+ '         c.percreducaobase, '                                                                             +
+ '         c.pRedBCST, '                                                                                    +
+ '         c.gtin as ceantrib, '                                                                            +
+ '         (select case when (m.financeiro = 0) or (m.financeiro is null) then 0 '                          +
+ '                           else round(m.financeiro/coalesce(nullif(quantidadetotaldoestoque(m.numero),0),1),2) end '+
+ '          from movimentos m  '                                                                            +
+ '          where m.numero = (Select m.numero  '                                                            +
+ '                             From movimentos m  '                                                         +
+ '                             Where (m.produto = e.produto) and  '                                         +
+ '                                   (m.filial  = e.filial)  '                                              +
+ '          order by m.data desc, m.lancto desc limit 1 )) as ultimocustomedio, '                           +
+ '         case when c.composto then  '                                                                     +
+ '            case when quantidadetotaldoestoque(e.produto,e.filial)>0 then  '                              +
+ '            (select sum(e1.financeiro)  '                                                                 +
+ '             from estoques e1  '                                                                          +
+ '             where e1.produto in (select componente from produtoscompostos where composto=e.produto)  '   +
+ '             and e1.filial=e.filial)/quantidadetotaldoestoque(e.produto,e.filial)  '                      +
+ '            else  '                                                                                       +
+ '              0  '                                                                                        +
+ '            end  '                                                                                        +
+ '         else  '                                                                                          +
+ '         case when (e.financeiro = 0) or (e.financeiro is null) then 0 '                                  +
+ '                 else round(e.financeiro/coalesce(nullif(quantidadetotaldoestoque(e.produto,e.filial),0),1),2) '+
+ '         end end as customedio, '                                                                         +
+ '         c.composto, '                                                                                    +
+ '         c.discriminarcomposto, c.discriminarpreco, '                                                     +                                        
+ '        (select valor '                                                                                   +
+ '        from estadosicms '                                                                                +
+ '        where estadosicms.estado = :estadocfo '                                                           +
+ '          and estadosicms.icms   = c.icms) as aliquotaicmsst,'                                            +
+ '         0.00 as quantidade, '                                                                            +
+ '         c.ipicst, '                                                                                      +
+ '         c.piscst, '                                                                                      +
+ '         c.cofinscst, '                                                                                   +
+ '         c.codigo_efd_t53, '                                                                              +
+ '         e.valorultimacompra, '                                                                           +
+ '         e.localizacao, '                                                                                 +
+ '         p.caracteristica, '                                                                              +
+ '         c.grupo, '                                                                                       +
+ '         c.classe, c.cest,  '                                                                             +
+ '       (select ncm.nacionalfederal  '                                                                     +
+ '        from ncmtabela ncm '                                                                              +
+ '        where (ncm.codigotipi, coalesce(ncm.extipi, '''')) in '                             +
+ '                                       (select ipi.classificacaofiscal, coalesce(ipi.extipi, '''') ' +
+ '                                        from ipi '                                                        +
+ '                                        where ipi.codigo = c.ipi)) as nacionalfederal, '                  +
+ '       (select ncm.importadosfederal '                                                                        +
+ '        from ncmtabela ncm '                                                                              +
+ '        where (ncm.codigotipi, coalesce(ncm.extipi, '''')) in '                             +
+ '                                              (select ipi.classificacaofiscal, coalesce(ipi.extipi, '''') ' +
+ '                                               from ipi '                                                 +
+ '                                               where ipi.codigo = c.ipi)) as importadosfederal, '         +
+ '       (select ncm.cargaestadual '                                                                        +
+ '        from ncmtabela ncm '                                                                              +
+ '        where (ncm.codigotipi, coalesce(ncm.extipi, '''')) in '                             +
+ '                                              (select ipi.classificacaofiscal, coalesce(ipi.extipi, '''') ' +
+ '                                               from ipi '                                                 +
+ '                                               where ipi.codigo = c.ipi)) as cargaestadual, '         +
+ '       (select ncm.chaveibpt '                                                                        +
+ '        from ncmtabela ncm '                                                                              +
+ '        where (ncm.codigotipi, coalesce(ncm.extipi, '''')) in '                             +
+ '                                              (select ipi.classificacaofiscal, coalesce(ipi.extipi, '''') ' +
+ '                                               from ipi '                                                 +
+ '                                               where ipi.codigo = c.ipi)) as chaveibpt, '         +
+ '         c.markup as markup_produto, ' +
+ '         g.markup as markup_grupo, ' +
+ '         (select vf.markup from vfornecedores vf where vf.codigo = :fornecedor and vf.tipo = :tipofornecedor) as markup_fornecedor,  ' +
+ '         g.calcularpreco,  '+
+ '         c.codigovisual as caracteristicavisual,  ' +
+ '         c.gerenciarloteevalidade, ' +
+ '         p.referencia,  ' +
+ '         p.preco as codigopreco,  '+
+ '         pr.descricao as descricaoprecoproduto,  '+
+ '       (select m1.valor from estadosicms m1 where m1.icms = c.icms and m1.estado =:EstadoFilialBaseCalculoPreco) as aliquotaicmscalculopreco, ' +
+ '       (case when g.naoreplicar then true else cl.naoreplicar end) as naoreplicar,  '+
+ '         c.descricao as descricaocaracteristica,  '           +
+ '        ti.valor as cst_produto,  '+
+ '        c.csosn as csosn_produto, c.peso, p.peso_entrega, c.volumes, p.comprimento, p.altura, p.largura, p.diametro, p.formato, ' +
+ '       coalesce((select pfu.fatorconversao from produtosfornecedoresunidades pfu  '+
+ '         where pfu.fornecedor=:fornecedor  '+
+ '           and pfu.tipofornecedor=:tipofornecedor  '+
+ '           and pfu.produto = p.codigo  '+
+ '           and pfu.unidade = :unidade), cast(1 as numeric(10,6))) as fatorconversao, '+
+ '       c.comissao as comissao_produto, '+
+ '       g.comissao as comissao_grupo, '+
+ '       c.tipocomissao as tipocomissao_produto, '+
+ '       g.tipocomissao as tipocomissao_grupo    '+
+ ' from (((produtos p join estoques e on p.codigo = e.produto) '                                             +
+ '                        join (((caracteristicas c left join tributosicms ti on c.incidencia = ti.codigo) '  +
+ '                                                join grupos g on c.grupo = g.codigo) '+
+ '                                                join classes cl on c.classe = cl.codigo) '+
+ '                                                        on p.caracteristica = c.codigo) '                  +
+ '                        left join precos pr  '+
+ '                        on p.caracteristica = pr.caracteristica ' +
+ '                        and p.preco = pr.codigo), filiais f, filiais fe ' +
+ ' where p.codigo = e.produto  '                                                                            +
+ '   and p.caracteristica = c.codigo  '                                                                     +
+ '   and p.codigo = :produto  '                                                                              +
+ '   and (e.filial = case when f.tipofilial= ''V'' then coalesce(f.filial_estoque,f.codigo) else f.codigo end)  '+
+ '   and f.codigo = :filialbase '+
+ '   and fe.codigo = :filialbaseemissaonota ';
+{ '   and (p.inativo is null) ';}
+
+
+
+SQLDadosProdutosNotasEntradas =
+ ' select p.descricao as descricaoproduto, '                                                                                    +
+ '        c.descricaonanf, '                                                                                +
+ '         (select gr.descricao from grades gr where gr.codigo = c.grade1) as linha, '                      +
+ '         (select gr.descricao from grades gr where gr.codigo = c.grade2) as coluna, '                     +
+ '         p.valorgrade1, '                                                                                 +
+ '         p.valorgrade2, '                                                                                 +
+ '         c.anvisa, '                                                                                      +
+ '         c.grade1, c.grade2,  '                                                                           +
+ '         p.codigo as produto, '                                                                           +
+ '         p.codigovisual as produtovisual, '                                                               +
+ '         coalesce(pnp.produtodigitado, p.codigovisual) as produtodigitado, '                              +
+ '         e.filial, '                                                                                      +
+{
+ '         (pnp.precounitario -  '                                                                           +
+ '        (coalesce(pnp.desconto,0) / pnp.quantidade) +  '                                                  +
+ '        (coalesce(pnp.acrescimo,0) / pnp.quantidade)) as precounitario,  '           +
+}
+ '         pnp.precounitario,  ' +
+ '         c.montagem, '                                                                                    +
+ '         pnp.unidade, '                                                                                   +
+ '         pnp.unidadenf,  '                                                                                +
+ '         (select u.descricao from unidades u where u.codigo = pnp.unidade) as descricaounidade,  '        +
+ '         c.brinde, '                                                                                      +
+ '         pnp.aliquotaicms, '                                                                              +
+{ '         coalesce(pnp.pfcp,0.00) as percfcp, ' +}
+{
+ '         (pnp.ICMSBaseCalculo / pnp.quantidade) * '                                                       +
+ '         (pnp.quantidade - '                                                                              +
+ '          coalesce((select sum(pdf.quantidade) '                                                          +
+ '                         from produtosdadosfiscais pdf '                                                  +
+ '                         where pdf.produto = pnp.produto '                                                +
+ '                            and pdf.codigonota = pnp.codigonota),0)) as ICMSBaseCalculo_Dev, '            +
+ '         (pnp.IcmsValor / pnp.quantidade) * '                                                             +
+ '         (pnp.quantidade - '                                                                              +
+ '          coalesce((select sum(pdf.quantidade) '                                                          +
+ '                         from produtosdadosfiscais pdf '                                                  +
+ '                         where pdf.produto = pnp.produto '                                                +
+ '                            and pdf.codigonota = pnp.codigonota),0)) as IcmsValor_Dev, '                  +
+}
+ '         pnp.baseicms, '                                                                                  +
+ '         c.icms, '                                                                                        +
+ '         c.ipi, '                                                                                         +
+ '         pnp.aliquotaipi, '                                                                               +
+ '         (select i.aliquota from ipi i where i.codigo = c.ipi) as AliquotaipiOriginal, '                  +
+ '         c.aliquotapis, '                                                                                 +
+ '         c.aliquotacofins, '                                                                              +
+ '         (select i.classificacaofiscal  from ipi i    where (i.codigo = c.ipi)) as classificacaofiscal, ' +
+ '         (select ipi.genero from ipi where ipi.codigo = c.ipi) as genero, '                               +
+ '         (select ipi.extipi from ipi where ipi.codigo = c.ipi) as extipi, '                               +
+ '         c.ICMSModalidade, '                                                                              +
+ '         c.ICMSModSubst, '                                                                                +
+ '         c.vendanegativa as vendasemestoque, '                                                            +
+ '         pnp.origem, '                                                                                    +
+ '         pnp.incidencia, '                                                                                +
+ '         pnp.csosn, '                                                                                     +
+ '         pnp.percentualreducaobase as percreducaobase, '                                                  +
+ '         pnp.pRedBCST, '                                                                                  +
+ '         pnp.precounitario as ultimocustomedio, '                                                         +
+ '         case when c.composto then  '                                                                     +
+ '            case when quantidadetotaldoestoque(e.produto,e.filial)>0 then  '                              +
+ '            (select sum(e1.financeiro)  '                                                                 +
+ '             from estoques e1  '                                                                          +
+ '             where e1.produto in (select componente from produtoscompostos where composto=e.produto)  '   +
+ '             and e1.filial=e.filial)/quantidadetotaldoestoque(e.produto,e.filial)  '                      +
+ '            else  '                                                                                       +
+ '              0  '                                                                                        +
+ '            end  '                                                                                        +
+ '         else  '                                                                                          +
+ '         case when (e.financeiro = 0) or (e.financeiro is null) then 0 '                                 +
+ '                  else round(e.financeiro/coalesce(nullif(quantidadetotaldoestoque(e.produto,e.filial),0),1),2) '+
+ '          end end  as customedio, '                                                                           +
+ '         c.composto, '                                                                                    +
+ '         pnp.aliquotaicmsst, '                                                                            +
+{ '         (pnp.ICMSBaseCalculoST / pnp.quantidade) as ICMSBaseCalculoST,  '                                +
+ '         (pnp.IcmsValorST / pnp.quantidade) as IcmsValorST, '                                             +}
+{
+ '          pnp.qtdeestoque -  '                                                                             +
+ '          coalesce((select sum(pdf.qtdeestoque) '                                                          +
+ '                         from produtosdadosfiscais pdf join dadosfiscais df on pdf.dadofiscal = df.numero ' +
+ '                         where df.numero = pdf.dadofiscal                                                '+
+ '                           and pdf.produto = pnp.produto '                                                +
+ '                           and df.situacao= ''N''                                                      '+
+ '                            and pdf.codigonota = pnp.codigonota and pdf.dadofiscal <> :dadofiscal),0) as quantidade, '   +
+}
+'        (pnp.qtdeestoque - ' +
+'          coalesce((SELECT sum(pdf2.quantidade-coalesce(pnp2.qtdeestoque, 0)) ' +
+'                    FROM ((produtosdadosfiscais pdf2 ' +
+'                           JOIN dadosfiscais df2 ON pdf2.dadofiscal = df2.numero) ' +
+'                          LEFT JOIN produtosnotaspag pnp2 ON pdf2.dadofiscal = pnp2.dadofiscal ' +
+'                          AND pdf2.numero = pnp2.numeroprodutotabela ' +
+'                          AND pdf2.produto = pnp2.produto) ' +
+'                    WHERE df2.numero=pdf2.dadofiscal ' +
+'                     AND df2.situacao=''N'' ' +
+'                      AND pdf2.codigonota=pnp.codigonota ' +
+'                      AND pdf2.produto=pnp.produto ' +
+'                      AND pdf2.numeroprodutotabela = pnp.numero ' +
+'                      AND NOT coalesce(df2.notavinculada, FALSE) ' +
+'                      AND NOT coalesce( ' +
+'                                         (SELECT TRUE ' +
+'                                          FROM notaspag np2 ' +
+'                                          WHERE np2.dadofiscalreferenciado = df2.numero ' +
+'                                            AND coalesce(np2.cancelamentonfforaprazolegal, FALSE)),FALSE) ' +
+'                      and pdf2.dadofiscal <> :dadofiscal ),0)) AS quantidade, ' +
+ '         pnp.quantidade as quantidadenotaorigem, ' +
+ '         c.ipicst, '                                                                                      +
+ '         c.piscst, '                                                                                      +
+ '         c.cofinscst, '                                                                                   +
+ '         c.codigo_efd_t53, '                                                                              +
+ '         e.valorultimacompra, '                                                                           +
+ '         e.localizacao, '                                                                                 +
+ '         p.caracteristica, '                                                                              +
+ '         c.grupo, '                                                                                       +
+ '         c.classe, c.cest,  '                                                                             +
+ '         c.markup as markup_produto, ' +
+ '         g.markup as markup_grupo, ' +
+ '         (select vf.markup from vfornecedores vf where vf.codigo = :fornecedor and vf.tipo = :tipofornecedor) as markup_fornecedor,  ' +
+ '         g.calcularpreco,  '+
+ '         c.codigovisual as caracteristicavisual,  '+
+ '         c.gerenciarloteevalidade, pnp.lote, l.nrlote, l.validade, l.fabricacao,'+
+ '         p.referencia,  ' +
+ '         p.preco as codigopreco,  '+
+ '         pr.descricao as descricaoprecoproduto,  '+
+ '        (case when g.naoreplicar then true else cl.naoreplicar end) as naoreplicar,  '+
+ '       (select m1.valor from estadosicms m1 where m1.icms = c.icms and m1.estado =:EstadoFilialBaseCalculoPreco) as aliquotaicmscalculopreco, ' +
+ '        c.descricao as descricaocaracteristica,  '+
+ '        ti.valor as cst_produto,  '+
+ '        c.csosn as csosn_produto,  '+
+ '        pnp.codigonotaoriginal,  '+
+ '        pnp.numeroprodutooriginal,  '+
+ '        pnp.produtooriginal,  '+
+ '        pnp.codigonota,  '+
+ '        pnp.numero as numeroproduto,  '+
+ '        pnp.produto, c.peso, p.peso_entrega, c.volumes, p.comprimento, p.altura, p.largura, p.diametro, p.formato, '+
+ '      coalesce(NullIf((select pnpnfe.ceantrib '+
+ '      from produtosnotaspagnfeitems pnpnfei '+
+ '           join produtosnotaspagnfe pnpnfe '+
+ '           on pnpnfei.codigonota = pnpnfe.codigonota '+
+ '           and pnpnfei.numerosequencianfe = pnpnfe.numero '+
+ '      where pnpnfei.codigonota = pnp.codigonota '+
+ '        and pnpnfei.numerosequencianfe = pnp.numerosequencianfe '+
+ '        and pnpnfei.numero = pnp.numerosequencianfeitens),''SEM GTIN''),c.gtin) as ceantrib, '+
+ '        pnp.fatorconversao,  '+
+ '       c.comissao as comissao_produto, '+
+ '       g.comissao as comissao_grupo, '+
+ '       c.tipocomissao as tipocomissao_produto, '+
+ '       g.tipocomissao as tipocomissao_grupo,   '+
+ '        pnp.vBCSTRet,  '+
+
+ '          coalesce((select sum(pdf.vBCSTRet) '                                                          +
+ '                         from produtosdadosfiscais pdf join dadosfiscais df on pdf.dadofiscal = df.numero ' +
+ '                         where df.numero = pdf.dadofiscal                                                '+
+ '                           and pdf.produto = pnp.produto '                                                +
+ '                           and pdf.numeroprodutotabela = pnp.numero ' +
+ '                           and df.situacao= ''N''                                                      '+
+ '                           and not coalesce(df.notavinculada,false) ' +
+ '                           and pdf.codigonota = pnp.codigonota  ' +
+ '            			          and not coalesce((select true  ' +
+			                                       ' from notaspag np2  ' +
+  					                                 ' where np2.dadofiscalreferenciado = df.numero),false)  ' +
+ '                           and pdf.dadofiscal <> :dadofiscal),0) as vBCSTRet_devolvido, '   +
+
+ '        pnp.vICMSSTRet,  '+
+
+ '          coalesce((select sum(pdf.vICMSSTRet) '                                                          +
+ '                         from produtosdadosfiscais pdf join dadosfiscais df on pdf.dadofiscal = df.numero ' +
+ '                         where df.numero = pdf.dadofiscal                                                '+
+ '                           and pdf.produto = pnp.produto '                                                +
+ '                           and pdf.numeroprodutotabela = pnp.numero  ' +
+ '                           and df.situacao= ''N''                                                      '+
+ '                           and not coalesce(df.notavinculada,false) ' +
+ '                           and pdf.codigonota = pnp.codigonota  ' +
+ '            			          and not coalesce((select true  ' +
+			                                       ' from notaspag np2  ' +
+  					                                 ' where np2.dadofiscalreferenciado = df.numero),false)  ' +
+ '                           and pdf.dadofiscal <> :dadofiscal),0) as vICMSSTRet_devolvido, '   +
+
+ '        pnp.icmsbasecalculo_dev,  '+
+
+ '          coalesce((select sum(pdf.icmsbasecalculo_dev) '                                                          +
+ '                         from produtosdadosfiscais pdf join dadosfiscais df on pdf.dadofiscal = df.numero ' +
+ '                         where df.numero = pdf.dadofiscal                                                '+
+ '                           and pdf.produto = pnp.produto '                                                +
+ '                           and pdf.numeroprodutotabela = pnp.numero  ' +
+ '                           and df.situacao= ''N''                                                      '+
+ '                           and not coalesce(df.notavinculada,false) ' +
+ '                           and pdf.codigonota = pnp.codigonota  ' +
+ '            			          and not coalesce((select true  ' +
+			                                       ' from notaspag np2  ' +
+  					                                 ' where np2.dadofiscalreferenciado = df.numero),false)  ' +
+ '                           and pdf.dadofiscal <> :dadofiscal),0) as icmsbasecalculo_dev_devolvido, '   +
+
+ '        pnp.icmsvalor_dev,  '+
+
+ '          coalesce((select sum(pdf.icmsvalor_dev) '                                                          +
+ '                         from produtosdadosfiscais pdf join dadosfiscais df on pdf.dadofiscal = df.numero ' +
+ '                         where df.numero = pdf.dadofiscal                                                '+
+ '                           and pdf.produto = pnp.produto '                                                +
+ '                           and pdf.numeroprodutotabela = pnp.numero  ' +
+ '                           and df.situacao= ''N''                                                      '+
+ '                           and not coalesce(df.notavinculada,false) ' +
+ '                           and pdf.codigonota = pnp.codigonota  ' +
+ '            			          and not coalesce((select true  ' +
+			                                       ' from notaspag np2  ' +
+  					                                 ' where np2.dadofiscalreferenciado = df.numero),false)  ' +
+ '                           and pdf.dadofiscal <> :dadofiscal),0) as icmsvalor_dev_devolvido, '   +
+
+
+ '        pnp.icmsbasecalculost,  '+
+
+
+ '          coalesce((select sum(pdf.icmsbasecalculost) '                                                          +
+ '                         from produtosdadosfiscais pdf join dadosfiscais df on pdf.dadofiscal = df.numero ' +
+ '                         where df.numero = pdf.dadofiscal                                                '+
+ '                           and pdf.produto = pnp.produto '                                                +
+ '                           and pdf.numeroprodutotabela = pnp.numero  ' +
+ '                           and df.situacao= ''N''                                                      '+
+ '                           and not coalesce(df.notavinculada,false) ' +
+ '                           and pdf.codigonota = pnp.codigonota  ' +
+ '            			          and not coalesce((select true  ' +
+			                                       ' from notaspag np2  ' +
+  					                                 ' where np2.dadofiscalreferenciado = df.numero),false)  ' +
+ '                           and pdf.dadofiscal <> :dadofiscal),0) as icmsbasecalculost_devolvido, '   +
+
+ '        pnp.icmsvalorst,  '+
+
+ '          coalesce((select sum(pdf.icmsvalorst) '                                                          +
+ '                         from produtosdadosfiscais pdf join dadosfiscais df on pdf.dadofiscal = df.numero ' +
+ '                         where df.numero = pdf.dadofiscal                                                '+
+ '                           and pdf.produto = pnp.produto '                                                +
+ '                           and pdf.numeroprodutotabela = pnp.numero  ' +
+ '                           and df.situacao= ''N''                                                      '+
+ '                           and not coalesce(df.notavinculada,false) ' +
+ '                           and pdf.codigonota = pnp.codigonota  ' +
+ '            			          and not coalesce((select true  ' +
+			                                       ' from notaspag np2  ' +
+  					                                 ' where np2.dadofiscalreferenciado = df.numero),false)  ' +
+ '                           and pdf.dadofiscal <> :dadofiscal),0) as icmsvalorst_devolvido, '   +
+
+ '        pnp.icmsbasecalculo,  '+
+
+ '          coalesce((select sum(pdf.icmsbasecalculo) '                                                          +
+ '                         from produtosdadosfiscais pdf join dadosfiscais df on pdf.dadofiscal = df.numero ' +
+ '                         where df.numero = pdf.dadofiscal                                                '+
+ '                           and pdf.produto = pnp.produto '                                                +
+ '                           and pdf.numeroprodutotabela = pnp.numero  ' +
+ '                           and df.situacao= ''N''                                                      '+
+ '                           and not coalesce(df.notavinculada,false) ' +
+ '                           and pdf.codigonota = pnp.codigonota  ' +
+ '            			          and not coalesce((select true  ' +
+			                                       ' from notaspag np2  ' +
+  					                                 ' where np2.dadofiscalreferenciado = df.numero),false)  ' +
+ '                           and pdf.dadofiscal <> :dadofiscal),0) as icmsbasecalculo_devolvido, '   +
+
+
+ '        pnp.icmsvalor,  '+
+ '          coalesce((select sum(pdf.icmsvalor) '                                                          +
+ '                         from produtosdadosfiscais pdf join dadosfiscais df on pdf.dadofiscal = df.numero ' +
+ '                         where df.numero = pdf.dadofiscal                                                '+
+ '                           and pdf.produto = pnp.produto '                                                +
+ '                           and pdf.numeroprodutotabela = pnp.numero  ' +
+ '                           and df.situacao= ''N''                                                      '+
+ '                           and not coalesce(df.notavinculada,false) ' +
+ '                           and pdf.codigonota = pnp.codigonota  ' +
+ '            			          and not coalesce((select true  ' +
+			                                       ' from notaspag np2  ' +
+  					                                 ' where np2.dadofiscalreferenciado = df.numero),false)  ' +
+ '                           and pdf.dadofiscal <> :dadofiscal),0) as icmsvalor_devolvido, '   +
+
+ '        pnp.ipibasecalculo,  '+
+
+ '          coalesce((select sum(pdf.ipibasecalculo) '                                                          +
+ '                         from produtosdadosfiscais pdf join dadosfiscais df on pdf.dadofiscal = df.numero ' +
+ '                         where df.numero = pdf.dadofiscal                                                '+
+ '                           and pdf.produto = pnp.produto '                                                +
+ '                           and pdf.numeroprodutotabela = pnp.numero  ' +
+ '                           and df.situacao= ''N''                                                      '+
+ '                           and not coalesce(df.notavinculada,false) ' +
+ '                           and pdf.codigonota = pnp.codigonota  ' +
+ '            			          and not coalesce((select true  ' +
+			                                       ' from notaspag np2  ' +
+  					                                 ' where np2.dadofiscalreferenciado = df.numero),false)  ' +
+ '                           and pdf.dadofiscal <> :dadofiscal),0) as ipibasecalculo_devolvido, '   +
+
+ '        pnp.aliquotaipi,  '+
+
+ '        pnp.valoripi,  '+
+
+ '          coalesce((select sum(pdf.valoripi) '                                                          +
+ '                         from produtosdadosfiscais pdf join dadosfiscais df on pdf.dadofiscal = df.numero ' +
+ '                         where df.numero = pdf.dadofiscal                                                '+
+ '                           and pdf.produto = pnp.produto '                                                +
+ '                           and pdf.numeroprodutotabela = pnp.numero  ' +
+ '                           and df.situacao= ''N''                                                      '+
+ '                           and not coalesce(df.notavinculada,false) ' +
+ '                           and pdf.codigonota = pnp.codigonota  ' +
+ '            			          and not coalesce((select true  ' +
+			                                       ' from notaspag np2  ' +
+  					                                 ' where np2.dadofiscalreferenciado = df.numero),false)  ' +
+ '                           and pdf.dadofiscal <> :dadofiscal),0) as valoripi_devolvido, '   +
+
+ '        pnp.pisbasecalculo,  '+
+
+ '          coalesce((select sum(pdf.pisbasecalculo) '                                                          +
+ '                         from produtosdadosfiscais pdf join dadosfiscais df on pdf.dadofiscal = df.numero ' +
+ '                         where df.numero = pdf.dadofiscal                                                '+
+ '                           and pdf.produto = pnp.produto '                                                +
+ '                           and pdf.numeroprodutotabela = pnp.numero  ' +
+ '                           and df.situacao= ''N''                                                      '+
+ '                           and not coalesce(df.notavinculada,false) ' +
+ '                           and pdf.codigonota = pnp.codigonota  ' +
+ '            			          and not coalesce((select true  ' +
+			                                       ' from notaspag np2  ' +
+  					                                 ' where np2.dadofiscalreferenciado = df.numero),false)  ' +
+ '                           and pdf.dadofiscal <> :dadofiscal),0) as pisbasecalculo_devolvido, '   +
+
+
+ '        pnp.pisaliquota,  '+
+ '        pnp.pisvalor,  '+
+
+ '          coalesce((select sum(pdf.pisvalor) '                                                          +
+ '                         from produtosdadosfiscais pdf join dadosfiscais df on pdf.dadofiscal = df.numero ' +
+ '                         where df.numero = pdf.dadofiscal                                                '+
+ '                           and pdf.produto = pnp.produto '                                                +
+ '                           and pdf.numeroprodutotabela = pnp.numero  ' +
+ '                           and df.situacao= ''N''                                                      '+
+ '                           and not coalesce(df.notavinculada,false) ' +
+ '                           and pdf.codigonota = pnp.codigonota  ' +
+ '            			          and not coalesce((select true  ' +
+			                                       ' from notaspag np2  ' +
+  					                                 ' where np2.dadofiscalreferenciado = df.numero),false)  ' +
+ '                           and pdf.dadofiscal <> :dadofiscal),0) as pisvalor_devolvido, '   +
+
+
+ '        pnp.cofinsbasecalculo,  '+
+
+ '          coalesce((select sum(pdf.cofinsbasecalculo) '                                                          +
+ '                         from produtosdadosfiscais pdf join dadosfiscais df on pdf.dadofiscal = df.numero ' +
+ '                         where df.numero = pdf.dadofiscal                                                '+
+ '                           and pdf.produto = pnp.produto '                                                +
+ '                           and pdf.numeroprodutotabela = pnp.numero  ' +
+ '                           and df.situacao= ''N''                                                      '+
+ '                           and not coalesce(df.notavinculada,false) ' +
+ '                           and pdf.codigonota = pnp.codigonota  ' +
+ '            			          and not coalesce((select true  ' +
+			                                       ' from notaspag np2  ' +
+  					                                 ' where np2.dadofiscalreferenciado = df.numero),false)  ' +
+ '                           and pdf.dadofiscal <> :dadofiscal),0) as cofinsbasecalculo_devolvido, '   +
+
+ '        pnp.cofinsaliquota,  '+
+ '        pnp.cofinsvalor,  '+
+
+ '          coalesce((select sum(pdf.cofinsvalor) '                                                          +
+ '                         from produtosdadosfiscais pdf join dadosfiscais df on pdf.dadofiscal = df.numero ' +
+ '                         where df.numero = pdf.dadofiscal                                                '+
+ '                           and pdf.produto = pnp.produto '                                                +
+ '                           and pdf.numeroprodutotabela = pnp.numero  ' +
+ '                           and df.situacao= ''N''                                                      '+
+ '                           and not coalesce(df.notavinculada,false) ' +
+ '                           and pdf.codigonota = pnp.codigonota  ' +
+ '            			          and not coalesce((select true  ' +
+			                                       ' from notaspag np2  ' +
+  					                                 ' where np2.dadofiscalreferenciado = df.numero),false)  ' +
+ '                           and pdf.dadofiscal <> :dadofiscal),0) as cofinsvalor_devolvido, '   +
+
+ '        pnp.desconto,  '+
+
+ '          coalesce((select sum(pdf.desconto) '                                                          +
+ '                         from produtosdadosfiscais pdf join dadosfiscais df on pdf.dadofiscal = df.numero ' +
+ '                         where df.numero = pdf.dadofiscal                                                '+
+ '                           and pdf.produto = pnp.produto '                                                +
+ '                           and pdf.numeroprodutotabela = pnp.numero  ' +
+ '                           and df.situacao= ''N''                                                      '+
+ '                           and not coalesce(df.notavinculada,false) ' +
+ '                           and pdf.codigonota = pnp.codigonota  ' +
+ '            			          and not coalesce((select true  ' +
+			                                       ' from notaspag np2  ' +
+  					                                 ' where np2.dadofiscalreferenciado = df.numero),false)  ' +
+ '                           and pdf.dadofiscal <> :dadofiscal),0) as desconto_devolvido, '   +
+
+
+ '        pnp.valordescontoitem,  '+
+
+ '          coalesce((select sum(pdf.valordescontoitem) '                                                          +
+ '                         from produtosdadosfiscais pdf join dadosfiscais df on pdf.dadofiscal = df.numero ' +
+ '                         where df.numero = pdf.dadofiscal                                                '+
+ '                           and pdf.produto = pnp.produto '                                                +
+ '                           and pdf.numeroprodutotabela = pnp.numero  ' +
+ '                           and df.situacao= ''N''                                                      '+
+ '                           and not coalesce(df.notavinculada,false) ' +
+ '                           and pdf.codigonota = pnp.codigonota  ' +
+ '            			          and not coalesce((select true  ' +
+			                                       ' from notaspag np2  ' +
+  					                                 ' where np2.dadofiscalreferenciado = df.numero),false)  ' +
+ '                           and pdf.dadofiscal <> :dadofiscal),0) as valordescontoitem_devolvido, '   +
+
+ '        pnp.valorreducaobase as reducaobase,  '+
+
+ '          coalesce((select sum(pdf.reducaobase) '                                                          +
+ '                         from produtosdadosfiscais pdf join dadosfiscais df on pdf.dadofiscal = df.numero ' +
+ '                         where df.numero = pdf.dadofiscal                                                '+
+ '                           and pdf.produto = pnp.produto '                                                +
+ '                           and pdf.numeroprodutotabela = pnp.numero  ' +
+ '                           and df.situacao= ''N''                                                      '+
+ '                           and not coalesce(df.notavinculada,false) ' +
+ '                           and pdf.codigonota = pnp.codigonota  ' +
+ '            			          and not coalesce((select true  ' +
+			                                       ' from notaspag np2  ' +
+  					                                 ' where np2.dadofiscalreferenciado = df.numero),false)  ' +
+ '                           and pdf.dadofiscal <> :dadofiscal),0) as reducaobase_devolvido, '   +
+
+ '        pnp.percentualreducaobase,  '+
+ '        pnp.acrescimo,  '+
+
+ '          coalesce((select sum(pdf.acrescimo) '                                                          +
+ '                         from produtosdadosfiscais pdf join dadosfiscais df on pdf.dadofiscal = df.numero ' +
+ '                         where df.numero = pdf.dadofiscal                                                '+
+ '                           and pdf.produto = pnp.produto '                                                +
+ '                           and pdf.numeroprodutotabela = pnp.numero  ' +
+ '                           and df.situacao= ''N''                                                      '+
+ '                           and not coalesce(df.notavinculada,false) ' +
+ '                           and pdf.codigonota = pnp.codigonota  ' +
+ '            			          and not coalesce((select true  ' +
+			                                       ' from notaspag np2  ' +
+  					                                 ' where np2.dadofiscalreferenciado = df.numero),false)  ' +
+ '                           and pdf.dadofiscal <> :dadofiscal),0) as acrescimo_devolvido, '   +
+
+ '        pnp.frete,  '+
+
+ '          coalesce((select sum(pdf.frete) '                                                          +
+ '                         from produtosdadosfiscais pdf join dadosfiscais df on pdf.dadofiscal = df.numero ' +
+ '                         where df.numero = pdf.dadofiscal                                                '+
+ '                           and pdf.produto = pnp.produto '                                                +
+ '                           and pdf.numeroprodutotabela = pnp.numero  ' +
+ '                           and df.situacao= ''N''                                                      '+
+ '                           and not coalesce(df.notavinculada,false) ' +
+ '                           and pdf.codigonota = pnp.codigonota  ' +
+ '            			          and not coalesce((select true  ' +
+			                                       ' from notaspag np2  ' +
+  					                                 ' where np2.dadofiscalreferenciado = df.numero),false)  ' +
+ '                           and pdf.dadofiscal <> :dadofiscal),0) as frete_devolvido, '   +
+
+ '        pnp.seguro,  '+
+
+ '          coalesce((select sum(pdf.seguro) '                                                          +
+ '                         from produtosdadosfiscais pdf join dadosfiscais df on pdf.dadofiscal = df.numero ' +
+ '                         where df.numero = pdf.dadofiscal                                                '+
+ '                           and pdf.produto = pnp.produto '                                                +
+ '                           and pdf.numeroprodutotabela = pnp.numero  ' +
+ '                           and df.situacao= ''N''                                                      '+
+ '                           and not coalesce(df.notavinculada,false) ' +
+ '                           and pdf.codigonota = pnp.codigonota  ' +
+ '            			          and not coalesce((select true  ' +
+			                                       ' from notaspag np2  ' +
+  					                                 ' where np2.dadofiscalreferenciado = df.numero),false)  ' +
+ '                           and pdf.dadofiscal <> :dadofiscal),0) as seguro_devolvido, '   +
+
+ '        pnp.despesasacessorias,  '+
+
+ '          coalesce((select sum(pdf.despesasacessorias) '                                                          +
+ '                         from produtosdadosfiscais pdf join dadosfiscais df on pdf.dadofiscal = df.numero ' +
+ '                         where df.numero = pdf.dadofiscal                                                '+
+ '                           and pdf.produto = pnp.produto '                                                +
+ '                           and pdf.numeroprodutotabela = pnp.numero  ' +
+ '                           and df.situacao= ''N''                                                      '+
+ '                           and not coalesce(df.notavinculada,false) ' +
+ '                           and pdf.codigonota = pnp.codigonota  ' +
+ '            			          and not coalesce((select true  ' +
+			                                       ' from notaspag np2  ' +
+  					                                 ' where np2.dadofiscalreferenciado = df.numero),false)  ' +
+ '                           and pdf.dadofiscal <> :dadofiscal),0) as despesasacessorias_devolvido, '   +
+
+ '        pnp.iivalor,  '+
+
+ '          coalesce((select sum(pdf.iivalor) '                                                          +
+ '                         from produtosdadosfiscais pdf join dadosfiscais df on pdf.dadofiscal = df.numero ' +
+ '                         where df.numero = pdf.dadofiscal                                                '+
+ '                           and pdf.produto = pnp.produto '                                                +
+ '                           and pdf.numeroprodutotabela = pnp.numero  ' +
+ '                           and df.situacao= ''N''                                                      '+
+ '                           and not coalesce(df.notavinculada,false) ' +
+ '                           and pdf.codigonota = pnp.codigonota  ' +
+ '            			          and not coalesce((select true  ' +
+			                                       ' from notaspag np2  ' +
+  					                                 ' where np2.dadofiscalreferenciado = df.numero),false)  ' +
+ '                           and pdf.dadofiscal <> :dadofiscal),0) as iivalor_devolvido, '   +
+
+ '        pnp.pcredsn,  '+
+ '        pnp.vcredicmssn,  '+
+
+ '          coalesce((select sum(pdf.vcredicmssn) '                                                          +
+ '                         from produtosdadosfiscais pdf join dadosfiscais df on pdf.dadofiscal = df.numero ' +
+ '                         where df.numero = pdf.dadofiscal                                                '+
+ '                           and pdf.produto = pnp.produto '                                                +
+ '                           and pdf.numeroprodutotabela = pnp.numero  ' +
+ '                           and df.situacao= ''N''                                                      '+
+ '                           and not coalesce(df.notavinculada,false) ' +
+ '                           and pdf.codigonota = pnp.codigonota  ' +
+ '            			          and not coalesce((select true  ' +
+			                                       ' from notaspag np2  ' +
+  					                                 ' where np2.dadofiscalreferenciado = df.numero),false)  ' +
+ '                           and pdf.dadofiscal <> :dadofiscal),0) as vcredicmssn_devolvido, '   +
+
+ '        pnp.fatorsubstituicao,  '+
+ '        pnp.reducaobasest,  '+
+
+ '          coalesce((select sum(pdf.reducaobasest) '                                                          +
+ '                         from produtosdadosfiscais pdf join dadosfiscais df on pdf.dadofiscal = df.numero ' +
+ '                         where df.numero = pdf.dadofiscal                                                '+
+ '                           and pdf.produto = pnp.produto '                                                +
+ '                           and pdf.numeroprodutotabela = pnp.numero  ' +
+ '                           and df.situacao= ''N''                                                      '+
+ '                           and not coalesce(df.notavinculada,false) ' +
+ '                           and pdf.codigonota = pnp.codigonota  ' +
+ '            			          and not coalesce((select true  ' +
+			                                       ' from notaspag np2  ' +
+  					                                 ' where np2.dadofiscalreferenciado = df.numero),false)  ' +
+ '                           and pdf.dadofiscal <> :dadofiscal),0) as reducaobasest_devolvido, '   +
+
+
+ '        pnp.icmsisentas,  '+
+
+ '          coalesce((select sum(pdf.icmsisentas) '                                                          +
+ '                         from produtosdadosfiscais pdf join dadosfiscais df on pdf.dadofiscal = df.numero ' +
+ '                         where df.numero = pdf.dadofiscal                                                '+
+ '                           and pdf.produto = pnp.produto '                                                +
+ '                           and pdf.numeroprodutotabela = pnp.numero  ' +
+ '                           and df.situacao= ''N''                                                      '+
+ '                           and not coalesce(df.notavinculada,false) ' +
+ '                           and pdf.codigonota = pnp.codigonota  ' +
+ '            			          and not coalesce((select true  ' +
+			                                       ' from notaspag np2  ' +
+  					                                 ' where np2.dadofiscalreferenciado = df.numero),false)  ' +
+ '                           and pdf.dadofiscal <> :dadofiscal),0) as icmsisentas_devolvido, '   +
+
+ '        pnp.icmsoutras,  '+
+
+ '          coalesce((select sum(pdf.icmsoutras) '                                                          +
+ '                         from produtosdadosfiscais pdf join dadosfiscais df on pdf.dadofiscal = df.numero ' +
+ '                         where df.numero = pdf.dadofiscal                                                '+
+ '                           and pdf.produto = pnp.produto '                                                +
+ '                           and pdf.numeroprodutotabela = pnp.numero  ' +
+ '                           and df.situacao= ''N''                                                      '+
+ '                           and not coalesce(df.notavinculada,false) ' +
+ '                           and pdf.codigonota = pnp.codigonota  ' +
+ '            			          and not coalesce((select true  ' +
+			                                       ' from notaspag np2  ' +
+  					                                 ' where np2.dadofiscalreferenciado = df.numero),false)  ' +
+ '                           and pdf.dadofiscal <> :dadofiscal),0) as icmsoutras_devolvido, '   +
+
+ '        pnp.ipioutras,  '+
+
+ '          coalesce((select sum(pdf.ipioutras) '                                                          +
+ '                         from produtosdadosfiscais pdf join dadosfiscais df on pdf.dadofiscal = df.numero ' +
+ '                         where df.numero = pdf.dadofiscal                                                '+
+ '                           and pdf.produto = pnp.produto '                                                +
+ '                           and pdf.numeroprodutotabela = pnp.numero  ' +
+ '                           and df.situacao= ''N''                                                      '+
+ '                           and not coalesce(df.notavinculada,false) ' +
+ '                           and pdf.codigonota = pnp.codigonota  ' +
+ '            			          and not coalesce((select true  ' +
+			                                       ' from notaspag np2  ' +
+  					                                 ' where np2.dadofiscalreferenciado = df.numero),false)  ' +
+ '                           and pdf.dadofiscal <> :dadofiscal),0) as ipioutras_devolvido, '   +
+
+ '        pnp.ipiisentas, '+
+
+ '          coalesce((select sum(pdf.ipiisentas) '                                                          +
+ '                         from produtosdadosfiscais pdf join dadosfiscais df on pdf.dadofiscal = df.numero ' +
+ '                         where df.numero = pdf.dadofiscal                                                '+
+ '                           and pdf.produto = pnp.produto '                                                +
+ '                           and pdf.numeroprodutotabela = pnp.numero  ' +
+ '                           and df.situacao= ''N''                                                      '+
+ '                           and not coalesce(df.notavinculada,false) ' +
+ '                           and pdf.codigonota = pnp.codigonota  ' +
+ '            			          and not coalesce((select true  ' +
+			                                       ' from notaspag np2  ' +
+  					                                 ' where np2.dadofiscalreferenciado = df.numero),false)  ' +
+ '                           and pdf.dadofiscal <> :dadofiscal),0) as ipiisentas_devolvido '   +
+
+ ' from (notaspag np join ((produtosnotaspag pnp join (((produtos p join (((caracteristicas c left join tributosicms ti on c.incidencia = ti.codigo) '+
+ '                                                                                        join grupos g on c.grupo = g.codigo) '+
+ '                                                                                        join classes cl on c.classe = cl.codigo) '+
+ '                                                          on p.caracteristica = c.codigo) '               +
+ '                           join estoques e on p.codigo = e.produto) '                                     +
+ '                        join precos pr  '+
+ '                        on p.caracteristica = pr.caracteristica ' +
+ '                        and p.preco = pr.codigo) ' +
+ '                           on pnp.produto = p.codigo) '                                                   +
+ '                        left join lotes l on pnp.lote = l.lote) '                                         +
+ ' on np.codigo = pnp.codigonota) '                                                                         +
+ ' where np.codigo = pnp.codigonota  '                                                                      +
+ '    and pnp.produto = p.codigo  '                                                                         +
+ '    and p.codigo = e.produto  '                                                                           +
+ '    and p.caracteristica = c.codigo  '                                                                    +
+ '    and p.codigo = :produto  '                                                                            +
+ '    and np.codigo = :codigoNota '                                                                         +
+ '    and pnp.numero = :numeroproduto '                                                                     +
+ '    and e.filial = :FilialBase ';
+
+SQLDadosProdutosPedidos =
+ ' select p.descricao as descricaoproduto, '                                                                +
+ '        c.descricaonanf, '                                                                                +
+ '         (select gr.descricao from grades gr where gr.codigo = c.grade1) as linha, '                      +
+ '         (select gr.descricao from grades gr where gr.codigo = c.grade2) as coluna, '                     +
+ '         p.valorgrade1, '                                                                                 +
+ '         p.valorgrade2, '                                                                                 +
+ '         c.anvisa, '                                                                                      +
+ '         c.grade1, c.grade2,  '                                                                           +
+ '         p.codigo as produto,  '                                                                          +
+ '         p.codigovisual as produtovisual,  '                                                              +
+ '         coalesce(pp.produtodigitado, p.codigovisual) as produtodigitado, '                               +
+ '         e.filial, '                                                                                      +
+ '         pp.preco * (100 - coalesce(pp.desconto,0)) / 100 as precounitario, '                             +
+ '         pp.preco * (100 - coalesce(pp.desconto,0)) / 100 as precounitariopedido, '                       +
+ '         c.montagem, '                                                                                    +
+ '         c.unidade, '                                                                                     +
+ '         (select u.descricao from unidades u where u.codigo = c.unidade) as descricaounidade,  '          +
+ '         c.brinde, '                                                                                      +
+ '         pp.valoricms as AliquotaIcms, '   +
+ '         c.gtin as ceantrib, ' +
+ {
+ '       coalesce((select pe.percfcp '+
+ '                 from produtosestados pe '+
+ '                 where pe.produto = p.codigo '+
+ '                   and coalesce(pe.indsuperfluo,false) '+
+ '                   and pe.estado = :EstadoFilialBaseCalculoPreco),0.00) as percfcp, '+
+ }
+ '         c.baseicms, '                                                                                    +
+ '         c.icms, '                                                                                        +
+ '         c.ipi, '                                                                                         +
+ '         pp.valoripi as Aliquotaipi, '                          +
+ '         (select i.aliquota from ipi i where i.codigo = c.ipi) as AliquotaipiOriginal, '                  +
+ '         coalesce(c.aliquotapis, f.aliquotapis) as aliquotapis, '                                         +
+ '         coalesce(c.aliquotacofins, f.aliquotacofins) as aliquotacofins, '                                 +
+ '         (select i.classificacaofiscal  from ipi i    where (i.codigo = c.ipi)) as classificacaofiscal, ' +
+ '         (select ipi.genero from ipi where ipi.codigo = c.ipi) as genero, '                               +
+ '         (select ipi.extipi from ipi where ipi.codigo = c.ipi) as extipi, '                               +
+ '         c.ICMSModalidade, '                                                                              +
+ '         c.ICMSModSubst, '                                                                                +
+ '         c.vendanegativa as vendasemestoque, '                                                            +
+ '         c.origem,  '                                                                                     +
+ '         ti.valor as incidencia, '                                                                        +
+ '         c.csosn, '                                                                                       +
+ '         c.percreducaobase, '                                                                             +
+ '         c.pRedBCST, '                                                                                    +
+ '         case when c.composto then  '                                                                     +
+ '            case when quantidadetotaldoestoque(e.produto,e.filial)>0 then  '                              +
+ '            (select sum(e1.financeiro)  '                                                                 +
+ '             from estoques e1  '                                                                          +
+ '             where e1.produto in (select componente from produtoscompostos where composto=e.produto)  '   +
+ '             and e1.filial=e.filial)/quantidadetotaldoestoque(e.produto,e.filial)  '                      +
+ '            else  '                                                                                       +
+ '              0  '                                                                                        +
+ '            end  '                                                                                        +
+ '         else  '                                                                                          +
+ '         case when (e.financeiro = 0) or (e.financeiro is null) then 0 '                                 +
+ '                 else round(e.financeiro/coalesce(nullif(quantidadetotaldoestoque(e.produto,e.filial),0),1),2) '+
+ '         end end as customedio, '                                                                            +
+ '         c.composto, '                                                                                    +
+ '         0.00 as aliquotaicmsst, '                                                                        +
+ '         pp.quantidade, '                                                                            +
+ '         c.ipicst, '                                                                                      +
+ '         c.piscst, '                                                                                      +
+ '         c.cofinscst, '                                                                                   +
+ '         c.codigo_efd_t53, '                                                                              +
+ '         e.valorultimacompra, '                                                                           +
+ '         e.localizacao, '                                                                                 +
+ '         p.caracteristica, '                                                                              +
+ '         c.grupo, '                                                                                       +
+ '         c.classe, c.cest, '                                                                              +
+ '       (select ncm.nacionalfederal '                                                                         +
+ '        from ncmtabela ncm '                                                                              +
+ '        where (ncm.codigotipi, coalesce(ncm.extipi, '''')) in '                             +
+ '                                       (select ipi.classificacaofiscal, coalesce(ipi.extipi, '''') ' +
+ '                                        from ipi '                                                        +
+ '                                        where ipi.codigo = c.ipi)) as nacionalfederal, '                     +
+ '       (select ncm.importadosfederal '                                                                        +
+ '        from ncmtabela ncm '                                                                              +
+ '        where (ncm.codigotipi, coalesce(ncm.extipi, '''')) in '                             +
+ '                                              (select ipi.classificacaofiscal, coalesce(ipi.extipi, '''') ' +
+ '                                               from ipi '                                                 +
+ '                                               where ipi.codigo = c.ipi)) as importadosfederal, '              +
+ '       (select ncm.cargaestadual '                                                                        +
+ '        from ncmtabela ncm '                                                                              +
+ '        where (ncm.codigotipi, coalesce(ncm.extipi, '''')) in '                             +
+ '                                              (select ipi.classificacaofiscal, coalesce(ipi.extipi, '''') ' +
+ '                                               from ipi '                                                 +
+ '                                               where ipi.codigo = c.ipi)) as cargaestadual, '              +
+ '       (select ncm.chaveibpt '                                                                        +
+ '        from ncmtabela ncm '                                                                              +
+ '        where (ncm.codigotipi, coalesce(ncm.extipi, '''')) in '                             +
+ '                                              (select ipi.classificacaofiscal, coalesce(ipi.extipi, '''') ' +
+ '                                               from ipi '                                                 +
+ '                                               where ipi.codigo = c.ipi)) as chaveibpt, '              +
+ '         c.markup as markup_produto, ' +
+ '         g.markup as markup_grupo, ' +
+ '         (select vf.markup from vfornecedores vf where vf.codigo = :fornecedor and vf.tipo = :tipofornecedor) as markup_fornecedor,  ' +
+ '         g.calcularpreco,  '+
+ '         c.codigovisual as caracteristicavisual,  ' +
+ '         c.gerenciarloteevalidade, ' +
+ '         p.referencia,  ' +
+ '         p.preco as codigopreco,  '+
+ '         pr.descricao as descricaoprecoproduto,  '+
+ '       (select m1.valor from estadosicms m1 where m1.icms = c.icms and m1.estado =:EstadoFilialBaseCalculoPreco) as aliquotaicmscalculopreco, ' +
+ '       (case when g.naoreplicar then true else cl.naoreplicar end) as naoreplicar,  '+
+ '         c.descricao as descricaocaracteristica,  '           +
+ '        ti.valor as cst_produto,  '+
+ '        c.csosn as csosn_produto, c.peso, p.peso_entrega, c.volumes, p.comprimento, p.altura, p.largura, p.diametro, p.formato, cast(1 as numeric(10,6)) as fatorconversao,  '+
+ '       c.comissao as comissao_produto, '+
+ '       g.comissao as comissao_grupo, '+
+ '       c.tipocomissao as tipocomissao_produto, '+
+ '       g.tipocomissao as tipocomissao_grupo    '+
+ ' from (produtospedidos pp  '+
+ '       join (((produtos p join estoques e on p.codigo = e.produto) '                                             +
+ '                    join (((caracteristicas c left join tributosicms ti on c.incidencia = ti.codigo) '  +
+ '                                                join grupos g on c.grupo = g.codigo) '+
+ '                                                join classes cl on c.classe = cl.codigo) '+
+ '                                                        on p.caracteristica = c.codigo) '                  +
+ '                    join precos pr  '+
+ '                    on p.caracteristica = pr.caracteristica ' +
+ '                    and p.preco = pr.codigo) ' +
+ '       on p.codigo = pp.produto), filiais f  ' +
+ ' where pp.pedido = :pedido  ' +
+ '   and p.codigo = :produto  '                                                                              +
+ '   and e.filial = :FilialBase  ' +
+ '   and f.codigo = :FilialBase ';
+{ '   and p.inativo is null ';}
+
+
+  SQLDadosProdutosNotasSaidas =
+ ' select p.descricao as descricaoproduto, '                                                                +
+          'c.descricaonanf, '                                                                                +
+          '(select gr.descricao from grades gr where gr.codigo = c.grade1) as linha, '                      +
+          '(select gr.descricao from grades gr where gr.codigo = c.grade2) as coluna, '                     +
+          'p.valorgrade1, '                                                                                 +
+          'p.valorgrade2, '                                                                                 +
+          'c.anvisa, '                                                                                      +
+          'c.grade1, c.grade2,  '                                                                           +
+          'p.codigo as produto,  '                                                                           +
+          'p.codigovisual as produtovisual,  '                                                              +
+          'p.codigovisual,  ' +
+          'coalesce(pdf.produtodigitado, p.codigovisual) as produtodigitado, '                              +
+           'e.filial, '                                                                                      +
+           'pdf.precovenda as precounitario,  ' +
+           'c.montagem, '                                                                                    +
+           'pdf.unidade, '                                                                                     +
+           '(select u.descricao from unidades u where u.codigo = c.unidade) as descricaounidade,  '        +
+           'c.brinde, '                                                                                      +
+           'pdf.aliquotaicms,  '+
+{           'coalesce(pdf.pfcp,0.00) as percfcp, '+}
+           'c.baseicms, '                                                                                    +
+           'c.icms, '                +
+           'c.ipi, '        +
+           'pdf.aliquotaipi,  '+
+           '(select i.aliquota from ipi i where i.codigo = c.ipi) as AliquotaipiOriginal, '+
+ '         coalesce(c.aliquotapis, f.aliquotapis) as aliquotapis, '                                         +
+ '         coalesce(c.aliquotacofins, f.aliquotacofins) as aliquotacofins, '                                 +
+           '(select i.classificacaofiscal  from ipi i    where (i.codigo = c.ipi)) as classificacaofiscal, ' +
+           '(select ipi.genero from ipi where ipi.codigo = c.ipi) as genero, '    +
+           '(select ipi.extipi from ipi where ipi.codigo = c.ipi) as extipi, '    +
+           'c.ICMSModalidade, c.ICMSModSubst, c.vendanegativa as vendasemestoque, '        +
+           'pdf.origem, ti.valor as incidencia, c.csosn, '      +
+           'c.percreducaobase, '     +
+           'pdf.pRedBCST, '   +
+           ' (select case when (m.financeiro = 0) or (m.financeiro is null) then 0 '  +
+           '   else round(m.financeiro/coalesce(nullif(quantidadetotaldoestoque(m.numero),0),1),2) end  '+
+           '    from movimentos m  '   +
+           '   where m.numero = (select Max(m1.numero)  '      +
+           'from movimentos m1 '      +
+           'where (m1.produto = e.Produto) and  '      +
+           '   (m1.filial  = e.Filial))) as ultimocustomedio, '       +
+           ' case when c.composto then  '     +
+           ' case when quantidadetotaldoestoque(e.produto,e.filial)>0 then  '      +
+           '    (select sum(e1.financeiro)  ' +
+           '     from estoques e1  '  +
+               ' where e1.produto in (select componente from produtoscompostos where composto=e.produto)  ' +
+               ' and e1.filial=e.filial)/quantidadetotaldoestoque(e.produto,e.filial)  '+
+           '    else  '       +
+           '      0  '+
+           '    end  '+
+           ' else  '  +
+           ' case when (e.financeiro = 0) or (e.financeiro is null) then 0 ' +
+           ' else round(e.financeiro/coalesce(nullif(quantidadetotaldoestoque(e.produto,e.filial),0),1),2)  '+
+           ' end end as customedio, '    +
+           ' c.composto, '    +
+           ' pdf.aliquotaicmsst, '+
+
+           '  pdf.quantidade -  '     +
+           '  coalesce((select sum(pnp.quantidade)  '  +
+           ' from produtosnotaspag pnp join notaspag np on pnp.codigonota = np.codigo  ' +
+           ' where np.codigo = pnp.codigonota        '+
+           '   and pdf.produto = pnp.produto  '+
+           '   and pdf.numero = pnp.numeroprodutotabela  ' +
+           '   and pnp.dadofiscal = pdf.dadofiscal  ' +
+           '   and np.situacao= ''N''      '+
+           '   and pnp.codigonota <> :codigonota),0) as quantidade, '   +
+           ' coalesce(Nullif(pdf.TribCodigoEAN,''SEM GTIN''), c.gtin) as ceantrib, '+
+
+           ' c.ipicst, '      +
+           ' c.piscst, '      +
+           ' c.cofinscst, '   +
+           ' c.codigo_efd_t53, '      +
+           ' e.valorultimacompra, '   +
+           ' e.localizacao, ' +
+           ' p.caracteristica, '      +
+           ' c.grupo, '       +
+           ' c.classe, c.cest,  '     +
+           '       (select ncm.nacionalfederal ' +
+           'from ncmtabela ncm '      +
+           'where (ncm.codigotipi, coalesce(ncm.extipi, '''')) in  '     +
+           '       (select ipi.classificacaofiscal, coalesce(ipi.extipi, '''')  ' +
+           'from ipi  '+
+           'where ipi.codigo = c.ipi)) as nacionalfederal, '     +
+           '       (select ncm.importadosfederal '+
+           'from ncmtabela ncm '      +
+           'where (ncm.codigotipi, coalesce(ncm.extipi, '''')) in '     +
+           '      (select ipi.classificacaofiscal, coalesce(ipi.extipi, '''') ' +
+           '       from ipi ' +
+           '       where ipi.codigo = c.ipi)) as importadosfederal, '      +
+           '       (select ncm.cargaestadual '+
+           'from ncmtabela ncm '      +
+           'where (ncm.codigotipi, coalesce(ncm.extipi, '''')) in '     +
+           '      (select ipi.classificacaofiscal, coalesce(ipi.extipi, '''') ' +
+           '       from ipi ' +
+           '       where ipi.codigo = c.ipi)) as cargaestadual, '      +
+           '       (select ncm.chaveibpt '+
+           'from ncmtabela ncm '      +
+           'where (ncm.codigotipi, coalesce(ncm.extipi, '''')) in '     +
+           '      (select ipi.classificacaofiscal, coalesce(ipi.extipi, '''') ' +
+           '       from ipi ' +
+           '       where ipi.codigo = c.ipi)) as chaveibpt, '      +
+           ' c.markup as markup_produto, ' +
+           ' g.markup as markup_grupo, ' +
+           ' (select vf.markup from vfornecedores vf where vf.codigo = :fornecedor and vf.tipo = :tipofornecedor) as markup_fornecedor,  ' +
+           ' g.calcularpreco,  '+
+           ' c.codigovisual as caracteristicavisual,  ' +
+           ' c.gerenciarloteevalidade, pdf.lote, l.nrlote, l.validade, l.fabricacao,'+
+           ' p.referencia,  ' +
+           ' p.preco as codigopreco,  '+
+           ' pr.descricao as descricaoprecoproduto,  '+
+           '       (select m1.valor from estadosicms m1 where m1.icms = c.icms and m1.estado =:EstadoFilialBaseCalculoPreco) as aliquotaicmscalculopreco, ' +
+           '       (case when g.naoreplicar then true else cl.naoreplicar end) as naoreplicar,  '+
+           ' c.descricao as descricaocaracteristica,  '   +
+           'ti.valor as cst_produto,  '+
+           'c.csosn as csosn_produto,  '+
+           'pdf.incidencia as cst_notasaida,  '+
+           'pdf.csosn as csosn_notasaida,  '+
+
+           'pdf.codigonotaoriginal,  '+
+           'pdf.numeroprodutooriginal,  '+
+           'pdf.produtooriginal, c.peso, p.peso_entrega, c.volumes, p.comprimento, p.altura, p.largura, p.diametro, p.formato, '+
+           'pdf.vBCSTRet,  '+
+
+           '  coalesce((select sum(pnp.vBCSTRet) '  +
+           ' from produtosnotaspag pnp join notaspag np on pnp.codigonota = np.codigo ' +
+           ' where np.codigo = pnp.codigonota        '+
+           '   and pdf.produto = pnp.produto '+
+           '   and pdf.numero = pnp.numeroprodutotabela  ' +
+           '   and pnp.dadofiscal = pdf.dadofiscal  ' +
+           '   and np.situacao= ''N''      '+
+           '   and pnp.codigonota <> :codigonota),0) as vBCSTRet_devolvido, '   +
+
+           'pdf.vICMSSTRet,  '+
+
+           '  coalesce((select sum(pnp.vICMSSTRet) '  +
+           ' from produtosnotaspag pnp join notaspag np on pnp.codigonota = np.codigo ' +
+           ' where np.codigo = pnp.codigonota        '+
+           '   and pdf.produto = pnp.produto '+
+           '   and pdf.numero = pnp.numeroprodutotabela  ' +
+           '   and pnp.dadofiscal = pdf.dadofiscal  ' +
+           '   and np.situacao= ''N''      '+
+           '   and pnp.codigonota <> :codigonota),0) as vICMSSTRet_devolvido, '   +
+
+           'pdf.icmsbasecalculo_dev,  '+
+
+           '  coalesce((select sum(pnp.icmsbasecalculo_dev) '  +
+           ' from produtosnotaspag pnp join notaspag np on pnp.codigonota = np.codigo ' +
+           ' where np.codigo = pnp.codigonota        '+
+           '   and pdf.produto = pnp.produto '+
+           '   and pdf.numero = pnp.numeroprodutotabela  ' +
+           '   and pnp.dadofiscal = pdf.dadofiscal  ' +
+           '   and np.situacao= ''N''      '+
+           '   and pnp.codigonota <> :codigonota),0) as icmsbasecalculo_dev_devolvido, '   +
+
+           'pdf.icmsvalor_dev,  '+
+
+           '  coalesce((select sum(pnp.icmsvalor_dev) '  +
+           ' from produtosnotaspag pnp join notaspag np on pnp.codigonota = np.codigo ' +
+           ' where np.codigo = pnp.codigonota        '+
+           '   and pdf.produto = pnp.produto '+
+           '   and pdf.numero = pnp.numeroprodutotabela  ' +
+           '   and pnp.dadofiscal = pdf.dadofiscal  ' +
+           '   and np.situacao= ''N''      '+
+           '   and pnp.codigonota <> :codigonota),0) as icmsvalor_dev_devolvido, '   +
+
+           'pdf.icmsbasecalculost,  '+
+
+           '  coalesce((select sum(pnp.icmsbasecalculost) '  +
+           ' from produtosnotaspag pnp join notaspag np on pnp.codigonota = np.codigo ' +
+           ' where np.codigo = pnp.codigonota        '+
+           '   and pdf.produto = pnp.produto '+
+           '   and pdf.numero = pnp.numeroprodutotabela  ' +
+           '   and pnp.dadofiscal = pdf.dadofiscal  ' +
+           '   and np.situacao= ''N''      '+
+           '   and pnp.codigonota <> :codigonota),0) as icmsbasecalculost_devolvido, '   +
+
+           'pdf.icmsvalorst,  '+
+
+           '  coalesce((select sum(pnp.icmsvalorst) '  +
+           ' from produtosnotaspag pnp join notaspag np on pnp.codigonota = np.codigo ' +
+           ' where np.codigo = pnp.codigonota        '+
+           '   and pdf.produto = pnp.produto '+
+           '   and pdf.numero = pnp.numeroprodutotabela  ' +
+           '   and pnp.dadofiscal = pdf.dadofiscal  ' +
+           '   and np.situacao= ''N''      '+
+           '   and pnp.codigonota <> :codigonota),0) as icmsvalorst_devolvido, '   +
+
+           'pdf.icmsbasecalculo,  '+
+           '  coalesce((select sum(pnp.icmsbasecalculo) '  +
+           ' from produtosnotaspag pnp join notaspag np on pnp.codigonota = np.codigo ' +
+           ' where np.codigo = pnp.codigonota        '+
+           '   and pdf.produto = pnp.produto '+
+           '   and pdf.numero = pnp.numeroprodutotabela  ' +
+           '   and pnp.dadofiscal = pdf.dadofiscal  ' +
+           '   and np.situacao= ''N''      '+
+           '   and pnp.codigonota <> :codigonota),0) as icmsbasecalculo_devolvido, '   +
+
+           'pdf.icmsvalor,  '+
+           '  coalesce((select sum(pnp.icmsvalor) '  +
+           ' from produtosnotaspag pnp join notaspag np on pnp.codigonota = np.codigo ' +
+           ' where np.codigo = pnp.codigonota        '+
+           '   and pdf.produto = pnp.produto '+
+           '   and pdf.numero = pnp.numeroprodutotabela  ' +
+           '   and pnp.dadofiscal = pdf.dadofiscal  ' +
+           '   and np.situacao= ''N''      '+
+           '   and pnp.codigonota <> :codigonota),0) as icmsvalor_devolvido, '   +
+
+           'pdf.ipibasecalculo,  '+
+           '  coalesce((select sum(pnp.ipibasecalculo) '  +
+           ' from produtosnotaspag pnp join notaspag np on pnp.codigonota = np.codigo ' +
+           ' where np.codigo = pnp.codigonota        '+
+           '   and pdf.produto = pnp.produto '+
+           '   and pdf.numero = pnp.numeroprodutotabela  ' +
+           '   and pnp.dadofiscal = pdf.dadofiscal  ' +
+           '   and np.situacao= ''N''      '+
+           '   and pnp.codigonota <> :codigonota),0) as ipibasecalculo_devolvido, '   +
+
+           'pdf.aliquotaipi,  '+
+
+           'pdf.valoripi,  '+
+
+           '  coalesce((select sum(pnp.valoripi) '  +
+           ' from produtosnotaspag pnp join notaspag np on pnp.codigonota = np.codigo ' +
+           ' where np.codigo = pnp.codigonota        '+
+           '   and pdf.produto = pnp.produto '+
+           '   and pdf.numero = pnp.numeroprodutotabela  ' +
+           '   and pnp.dadofiscal = pdf.dadofiscal  ' +
+           '   and np.situacao= ''N''      '+
+           '   and pnp.codigonota <> :codigonota),0) as valoripi_devolvido, '   +
+
+
+           'pdf.pisbasecalculo,  '+
+
+           '  coalesce((select sum(pnp.pisbasecalculo) '  +
+           ' from produtosnotaspag pnp join notaspag np on pnp.codigonota = np.codigo ' +
+           ' where np.codigo = pnp.codigonota        '+
+           '   and pdf.produto = pnp.produto '+
+           '   and pdf.numero = pnp.numeroprodutotabela  ' +
+           '   and pnp.dadofiscal = pdf.dadofiscal  ' +
+           '   and np.situacao= ''N''      '+
+           '   and pnp.codigonota <> :codigonota),0) as pisbasecalculo_devolvido, '   +
+
+           'pdf.pisaliquota,  '+
+           'pdf.pisvalor,  '+
+
+           '  coalesce((select sum(pnp.pisvalor) '  +
+           ' from produtosnotaspag pnp join notaspag np on pnp.codigonota = np.codigo ' +
+           ' where np.codigo = pnp.codigonota        '+
+           '   and pdf.produto = pnp.produto '+
+           '   and pdf.numero = pnp.numeroprodutotabela  ' +
+           '   and pnp.dadofiscal = pdf.dadofiscal  ' +
+           '   and np.situacao= ''N''      '+
+           '   and pnp.codigonota <> :codigonota),0) as pisvalor_devolvido, '   +
+
+           'pdf.cofinsbasecalculo,  '+
+
+           '  coalesce((select sum(pnp.cofinsbasecalculo) '  +
+           ' from produtosnotaspag pnp join notaspag np on pnp.codigonota = np.codigo ' +
+           ' where np.codigo = pnp.codigonota        '+
+           '   and pdf.produto = pnp.produto '+
+           '   and pdf.numero = pnp.numeroprodutotabela  ' +
+           '   and pnp.dadofiscal = pdf.dadofiscal  ' +
+           '   and np.situacao= ''N''      '+
+           '   and pnp.codigonota <> :codigonota),0) as cofinsbasecalculo_devolvido, '   +
+
+
+           'pdf.cofinsaliquota,  '+
+           'pdf.cofinsvalor,  '+
+
+           '  coalesce((select sum(pnp.cofinsvalor) '  +
+           ' from produtosnotaspag pnp join notaspag np on pnp.codigonota = np.codigo ' +
+           ' where np.codigo = pnp.codigonota        '+
+           '   and pdf.produto = pnp.produto '+
+           '   and pdf.numero = pnp.numeroprodutotabela  ' +
+           '   and pnp.dadofiscal = pdf.dadofiscal  ' +
+           '   and np.situacao= ''N''      '+
+           '   and pnp.codigonota <> :codigonota),0) as cofinsvalor_devolvido, '   +
+
+           'pdf.desconto,  '+
+
+           '  coalesce((select sum(pnp.desconto) '  +
+           ' from produtosnotaspag pnp join notaspag np on pnp.codigonota = np.codigo ' +
+           ' where np.codigo = pnp.codigonota        '+
+           '   and pdf.produto = pnp.produto '+
+           '   and pdf.numero = pnp.numeroprodutotabela  ' +
+           '   and pnp.dadofiscal = pdf.dadofiscal  ' +
+           '   and np.situacao= ''N''      '+
+           '   and pnp.codigonota <> :codigonota),0) as desconto_devolvido, '   +
+
+
+           'pdf.valordescontoitem,  '+
+
+           '  coalesce((select sum(pnp.valordescontoitem) '  +
+           ' from produtosnotaspag pnp join notaspag np on pnp.codigonota = np.codigo ' +
+           ' where np.codigo = pnp.codigonota        '+
+           '   and pdf.produto = pnp.produto '+
+           '   and pdf.numero = pnp.numeroprodutotabela  ' +
+           '   and pnp.dadofiscal = pdf.dadofiscal  ' +
+           '   and np.situacao= ''N''      '+
+           '   and pnp.codigonota <> :codigonota),0) as valordescontoitem_devolvido, '   +
+
+
+           'pdf.reducaobase,  '+
+
+           '  coalesce((select sum(pnp.valorreducaobase) '  +
+           ' from produtosnotaspag pnp join notaspag np on pnp.codigonota = np.codigo ' +
+           ' where np.codigo = pnp.codigonota        '+
+           '   and pdf.produto = pnp.produto '+
+           '   and pdf.numero = pnp.numeroprodutotabela  ' +
+           '   and pnp.dadofiscal = pdf.dadofiscal  ' +
+           '   and np.situacao= ''N''      '+
+           '   and pnp.codigonota <> :codigonota),0) as reducaobase_devolvido, '   +
+
+           'pdf.percentualreducaobase,  '+
+           'pdf.acrescimo,  '+
+
+           '  coalesce((select sum(pnp.acrescimo) '  +
+           ' from produtosnotaspag pnp join notaspag np on pnp.codigonota = np.codigo ' +
+           ' where np.codigo = pnp.codigonota        '+
+           '   and pdf.produto = pnp.produto '+
+           '   and pdf.numero = pnp.numeroprodutotabela  ' +
+           '   and pnp.dadofiscal = pdf.dadofiscal  ' +
+           '   and np.situacao= ''N''      '+
+           '   and pnp.codigonota <> :codigonota),0) as acrescimo_devolvido, '   +
+
+           'pdf.frete,  '+
+
+           '  coalesce((select sum(pnp.frete) '  +
+           ' from produtosnotaspag pnp join notaspag np on pnp.codigonota = np.codigo ' +
+           ' where np.codigo = pnp.codigonota        '+
+           '   and pdf.produto = pnp.produto '+
+           '   and pdf.numero = pnp.numeroprodutotabela  ' +
+           '   and pnp.dadofiscal = pdf.dadofiscal  ' +
+           '   and np.situacao= ''N''      '+
+           '   and pnp.codigonota <> :codigonota),0) as frete_devolvido, '   +
+
+
+           'pdf.seguro,  '+
+
+           '  coalesce((select sum(pnp.seguro) '  +
+           ' from produtosnotaspag pnp join notaspag np on pnp.codigonota = np.codigo ' +
+           ' where np.codigo = pnp.codigonota        '+
+           '   and pdf.produto = pnp.produto '+
+           '   and pdf.numero = pnp.numeroprodutotabela  ' +
+           '   and pnp.dadofiscal = pdf.dadofiscal  ' +
+           '   and np.situacao= ''N''      '+
+           '   and pnp.codigonota <> :codigonota),0) as seguro_devolvido, '   +
+
+
+           'pdf.despesasacessorias,  '+
+
+           '  coalesce((select sum(pnp.despesasacessorias) '  +
+           ' from produtosnotaspag pnp join notaspag np on pnp.codigonota = np.codigo ' +
+           ' where np.codigo = pnp.codigonota        '+
+           '   and pdf.produto = pnp.produto '+
+           '   and pdf.numero = pnp.numeroprodutotabela  ' +
+           '   and pnp.dadofiscal = pdf.dadofiscal  ' +
+           '   and np.situacao= ''N''      '+
+           '   and pnp.codigonota <> :codigonota),0) as despesasacessorias_devolvido, '   +
+
+
+           'pdf.pcredsn,  '+
+           'pdf.vcredicmssn,  '+
+
+           '  coalesce((select sum(pnp.vcredicmssn) '  +
+           ' from produtosnotaspag pnp join notaspag np on pnp.codigonota = np.codigo ' +
+           ' where np.codigo = pnp.codigonota        '+
+           '   and pdf.produto = pnp.produto '+
+           '   and pdf.numero = pnp.numeroprodutotabela  ' +
+           '   and pnp.dadofiscal = pdf.dadofiscal  ' +
+           '   and np.situacao= ''N''      '+
+           '   and pnp.codigonota <> :codigonota),0) as vcredicmssn_devolvido, '   +
+
+           'pdf.fatorsubstituicao,  '+
+           'pdf.reducaobasest,  '+
+
+           '  coalesce((select sum(pnp.reducaobasest) '  +
+           ' from produtosnotaspag pnp join notaspag np on pnp.codigonota = np.codigo ' +
+           ' where np.codigo = pnp.codigonota        '+
+           '   and pdf.produto = pnp.produto '+
+           '   and pdf.numero = pnp.numeroprodutotabela  ' +
+           '   and pnp.dadofiscal = pdf.dadofiscal  ' +
+           '   and np.situacao= ''N''      '+
+           '   and pnp.codigonota <> :codigonota),0) as reducaobasest_devolvido, '   +
+
+           'pdf.icmsisentas,  '+
+
+           '  coalesce((select sum(pnp.icmsisentas) '  +
+           ' from produtosnotaspag pnp join notaspag np on pnp.codigonota = np.codigo ' +
+           ' where np.codigo = pnp.codigonota        '+
+           '   and pdf.produto = pnp.produto '+
+           '   and pdf.numero = pnp.numeroprodutotabela  ' +
+           '   and pnp.dadofiscal = pdf.dadofiscal  ' +
+           '   and np.situacao= ''N''      '+
+           '   and pnp.codigonota <> :codigonota),0) as icmsisentas_devolvido, '   +
+
+           'pdf.icmsoutras,  '+
+
+           '  coalesce((select sum(pnp.icmsoutras) '  +
+           ' from produtosnotaspag pnp join notaspag np on pnp.codigonota = np.codigo ' +
+           ' where np.codigo = pnp.codigonota        '+
+           '   and pdf.produto = pnp.produto '+
+           '   and pdf.numero = pnp.numeroprodutotabela  ' +
+           '   and pnp.dadofiscal = pdf.dadofiscal  ' +
+           '   and np.situacao= ''N''      '+
+           '   and pnp.codigonota <> :codigonota),0) as icmsoutras_devolvido, '   +
+
+           'pdf.ipioutras,  '+
+
+           '  coalesce((select sum(pnp.ipioutras) '  +
+           ' from produtosnotaspag pnp join notaspag np on pnp.codigonota = np.codigo ' +
+           ' where np.codigo = pnp.codigonota        '+
+           '   and pdf.produto = pnp.produto '+
+           '   and pdf.numero = pnp.numeroprodutotabela  ' +
+           '   and pnp.dadofiscal = pdf.dadofiscal  ' +
+           '   and np.situacao= ''N''      '+
+           '   and pnp.codigonota <> :codigonota),0) as ipioutras_devolvido, '   +
+
+           'pdf.ipiisentas,  '+
+
+           '  coalesce((select sum(pnp.ipiisentas) '  +
+           ' from produtosnotaspag pnp join notaspag np on pnp.codigonota = np.codigo ' +
+           ' where np.codigo = pnp.codigonota        '+
+           '   and pdf.produto = pnp.produto '+
+           '   and pdf.numero = pnp.numeroprodutotabela  ' +
+           '   and np.situacao= ''N''      '+
+           '   and pnp.codigonota <> :codigonota),0) as ipiisentas_devolvido, '   +
+
+           ' pdf.fatorconversao,  '+
+           ' c.comissao as comissao_produto, '+
+           ' g.comissao as comissao_grupo,'+
+           ' c.tipocomissao as tipocomissao_produto, '+
+           ' g.tipocomissao as tipocomissao_grupo    '+
+           ' from ((produtosdadosfiscais pdf  '+
+           '       join (((produtos p join estoques e on p.codigo = e.produto) '     +
+           'join (((caracteristicas c left join tributosicms ti on c.incidencia = ti.codigo) '  +
+           'join grupos g on c.grupo = g.codigo) '+
+           'join classes cl on c.classe = cl.codigo) '+
+           'on p.caracteristica = c.codigo) '  +
+           'join precos pr  '+
+           'on p.caracteristica = pr.caracteristica ' +
+           'and p.preco = pr.codigo) ' +
+           '      on pdf.produto = p.codigo) left join lotes l on pdf.lote = l.lote), filiais f ' +
+           ' where pdf.dadofiscal = :dadofiscal  '    +
+           '   and p.codigo = :produto  '      +
+           '   and pdf.numero = :NumeroProduto  ' +
+           '   and e.filial = :FilialBase  '+
+           '   and f.codigo = :FilialBase ';
+
+SQLNaturezasPadrao =
+ 'select np.*, n.*,                                                          '+
+ '          (select t.operacao                                               '+
+ '           from tiposmovimentos t                                          '+
+ '           where t.codigo = n.tipomovimento) as operacao,                  '+
+ '          n.descricao as descricaonatureza,                                '+
+ '          cf.descricao as descricaocodigofiscal                           '+
+ 'from naturezaspadrao np join naturezas n on np.natureza = n.codigo         '+
+ '     join codigosfiscais cf on n.codigofiscal = cf.codigo                  '+
+ 'where np.natureza = n.codigo                                               '+
+ '  and cf.codigo = n.codigofiscal                                           '+
+ '  and n.inativo is null                                                    '+
+ 'order by n.descricao                                                       ';
+
+SQLICMSTAbela =
+ ' select cast(:produto as bigint) as codigo,                                '+
+ ' Selecionar_AliquotaIcms(:EstadoOrigem,                                    '+
+ '                         :EstadoDestino,                                   '+
+ '                         :TipoPessoa,                                      '+
+ '                         cast(:produto as bigint),                         '+
+ '                         :AliquotaInternadoEstadodeDestino,                '+
+ '                         :pContribuinteOrigem,                             '+
+ '                         :pContribuinteDestino,                            '+
+ '                         :pVendaConsumidorFinal) as AliquotaIcms ';
+
+
+SQLFatorSubstituicao =
+{Saida : UF cliente/Forn   Entrada: UF Filial}
+ ' SELECT coalesce((select eipi.fatorsubstituicao                            '+
+ '                  FROM  produtos p                                         '+
+ '                        join caracteristicas c                             '+
+ '                             join ipi                                      '+
+ '                                  join estadosipi eipi                     '+
+ '                                  on ipi.codigo = eipi.ipi                 '+
+ '                                     and eipi.estado = :UF_CliForSaida_ou_FilialEntrada  '+
+ '                             on c.ipi = ipi.codigo                         '+
+ '                         on p.caracteristica = c.codigo                    '+
+ '                  WHERE p.caracteristica = c.codigo                        '+
+ '                    and c.ipi = ipi.codigo                                 '+
+ '                    and eipi.estado = :UF_CliForSaida_ou_FilialEntrada     '+
+ '                    and ipi.codigo = eipi.ipi                              '+
+ '                    and p.codigo = :produto                                '+
+ '                 /*   and  :TipoPessoa =  ''J''            */              '+
+ '                    and eipi.ativo), 0.0000) as fatorsubstituicao          ';
+
+
+SQLFatorSubstituicaoIPI =
+{Saida : UF cliente/Forn   Entrada: UF Filial}
+ ' SELECT coalesce((select eipi.fatorsubstituicao                            '+
+ '                  FROM ipi                                                 '+
+ '                       join estadosipi eipi                                '+
+ '                       on ipi.codigo = eipi.ipi                            '+
+ '                  WHERE eipi.estado = :UF_CliForSaida_ou_FilialEntrada     '+
+ '                    and ipi.codigo = :IPINCM                                  '+
+ '                    and eipi.ativo), 0.0000) as fatorsubstituicao          ';
+
+ SQLSemSt =
+{Saida : UF cliente/Forn   Entrada: UF Filial}
+ ' SELECT coalesce((select eipi.ativo                                        '+
+ '                  FROM  produtos p                                         '+
+ '                        join caracteristicas c                             '+
+ '                             join ipi                                      '+
+ '                                  join estadosipi eipi                     '+
+ '                                  on ipi.codigo = eipi.ipi                 '+
+ '                                     and eipi.estado = :UF_CliForSaida_ou_FilialEntrada  '+
+ '                             on c.ipi = ipi.codigo                         '+
+ '                         on p.caracteristica = c.codigo                    '+
+ '                  WHERE p.caracteristica = c.codigo                        '+
+ '                    and c.ipi = ipi.codigo                                 '+
+ '                    and eipi.estado = :UF_CliForSaida_ou_FilialEntrada     '+
+ '                    and ipi.codigo = eipi.ipi                              '+
+ '                    and p.codigo = :produto), false) as ativo';
+
+
+ SQLSemStIPI =
+{Saida : UF cliente/Forn   Entrada: UF Filial}
+ ' SELECT coalesce((select eipi.ativo                                        '+
+ '                  FROM ipi                                                 '+
+ '                       join estadosipi eipi                                '+
+ '                       on ipi.codigo = eipi.ipi                            '+
+ '                  WHERE eipi.estado = :UF_CliForSaida_ou_FilialEntrada     '+
+ '                    and ipi.codigo = :IPINCM), false) as ativo';
+
+
+
+SQLPercreducaoMVA =
+ ' SELECT coalesce((select eipi.percreducaomva                               '+
+ '                  FROM  produtos p                                         '+
+ '                        join caracteristicas c                             '+
+ '                             join ipi                                      '+
+ '                                  join estadosipi eipi                     '+
+ '                                  on ipi.codigo = eipi.ipi                 '+
+ '                                     and eipi.estado = :UF_CliForSaida_ou_FilialEntrada  '+
+ '                             on c.ipi = ipi.codigo                         '+
+ '                         on p.caracteristica = c.codigo                    '+
+ '                  WHERE p.caracteristica = c.codigo                        '+
+ '                    and c.ipi = ipi.codigo                                 '+
+ '                    and eipi.estado = :UF_CliForSaida_ou_FilialEntrada     '+
+ '                    and ipi.codigo = eipi.ipi                              '+
+ '                    and p.codigo = :produto                                '+
+ '    /*                and :TipoPessoa= ''J''                  */                '+
+ '                    and eipi.ativo), 00.00) as percreducaomva              ';
+
+
+ SQLPercreducaoMVAIPI =
+ ' SELECT coalesce((select eipi.percreducaomva                               '+
+ '                  FROM ipi                                                 '+
+ '                                  join estadosipi eipi                     '+
+ '                                  on ipi.codigo = eipi.ipi                 '+
+ '                  WHERE eipi.estado = :UF_CliForSaida_ou_FilialEntrada     '+
+ '                    and ipi.codigo = :IPINCM                               '+
+ '                    and eipi.ativo), 00.00) as percreducaomva              ';
+
+
+{Saida : UF cliente/Forn   Entrada: UF Filial
+é sempre a aliquota do estado de destino}
+SQLAliquotaIcmsST =
+ ' SELECT Selecionar_AliquotaIcms(:UF_CliForSaida_ou_FilialEntrada,          '+
+ '                                :UF_CliForSaida_ou_FilialEntrada,          '+
+ '                                :TipoPessoa,                               '+
+ '                                cast(:produto as bigint),                  '+
+ '                         :pContribuinteOrigem,                             '+
+ '                         :pContribuinteDestino,                            '+
+ '                         :pVendaConsumidorFinal) as AliquotaIcmsST ';
+
+
+SQLValoresSTRetidosCusto =
+ ' select pnp.icmsbasecalculostcusto/pnp.quantidade as icmsbasecalculostcusto,  '+
+ '        pnp.icmsvalorstcusto/pnp.quantidade as icmsvalorstcusto,              '+
+ '        pnp.icmsbasecalculost/pnp.quantidade as icmsbasecalculost,            '+
+ '        pnp.icmsvalorst/pnp.quantidade as icmsvalorst                         '+
+ ' from ((produtosnotaspag pnp                                                  '+
+ '       join notaspag np                                                       '+
+ '       on pnp.codigonota = np.codigo)                                         '+
+ '     join (naturezas npr                                                      '+
+ '           join tiposmovimentos tmpr                                          '+
+ '           on npr.tipomovimento = tmpr.codigo)                                '+
+ '     on pnp.natureza = npr.codigo)                                            '+
+ '                                                                              '+
+ ' where pnp.codigonota = np.codigo                                             '+
+ '   and npr.tipomovimento = tmpr.codigo                                        '+
+ '   and pnp.natureza = npr.codigo                                              '+
+ '   and pnp.produto = :produto                                                 '+
+ '/*   and pnp.filial = :filial*/                                               '+
+ '   and (coalesce(pnp.icmsbasecalculostcusto,0)<>0)                            '+
+ '   and (coalesce(pnp.icmsvalorstcusto,0)<>0)                                  '+
+ '   and substring(tmpr.operacao,1,1)= ''+''                                     '+
+ '   and substring(tmpr.operacao,12,1)= ''+''                                    '+
+ '   and np.situacao<> ''C''                                                     '+
+ ' order by np.data desc, np.codigo, pnp.produto, pnp.filial limit 1            ';
+
+
+SQLValoresSTRetidosCustoDevolucaoCompra =
+ ' select pnp.icmsbasecalculo/pnp.quantidade as icmsbasecalculo,                '+
+ '        pnp.icmsvalor/pnp.quantidade as icmsvalor,                            '+
+ '        pnp.icmsbasecalculost/pnp.quantidade as icmsbasecalculost,            '+
+ '        pnp.icmsvalorst/pnp.quantidade as icmsvalorst,                        '+
+ '        pnp.ipibasecalculo/pnp.quantidade as ipibasecalculo,                  '+
+ '        pnp.valoripi/pnp.quantidade as valoripi                               '+
+ ' from produtosnotaspag pnp                                                    '+
+ '       join notaspag np                                                       '+
+ '       on pnp.codigonota = np.codigo                                          '+
+ '                                                                              '+
+ ' where pnp.codigonota = np.codigo                                             '+
+ '   and pnp.produto = :produto                                                 '+
+ '   and np.codigo = :codigonota                                                ';
+                                {
+ '         (pnp.precounitario -  '                                                                           +
+ '        (coalesce(pnp.desconto,0) / pnp.quantidade) +  '                                                  +
+ '        (coalesce(pnp.acrescimo,0) / pnp.quantidade)) / pnp.fatorconversao as precounitario,  '           +
+}
+
+
+SQLValoresSTRetidosCustoDevolucaoVenda =
+ ' select pdf.icmsbasecalculo/pdf.quantidade as icmsbasecalculo,                '+
+ '        pdf.icmsvalor/pdf.quantidade as icmsvalor,                            '+
+ '        pdf.icmsbasecalculost/pdf.quantidade as icmsbasecalculost,            '+
+ '        pdf.icmsvalorst/pdf.quantidade as icmsvalorst,                        '+
+ '        pdf.vbcstret/pdf.quantidade as vbcstret,                              '+
+ '        pdf.vicmsstret/pdf.quantidade as vicmsstret,                          '+
+ '        pdf.vbcstretdesp/pdf.quantidade as vbcstretdesp,                              '+
+ '        pdf.vicmsstretdesp/pdf.quantidade as vicmsstretdesp                          '+
+
+ ' from produtosdadosfiscais pdf                                                '+
+ '       join dadosfiscais df                                                   '+
+ '       on pdf.dadofiscal = df.numero                                          '+
+ '                                                                              '+
+ ' where pdf.dadofiscal = df.numero                                             '+
+ '   and pdf.produto = :produto                                                 '+
+ '   and df.numero = :dadofiscal                                                ';
+
+SQLValoresUltimaCompra =
+ ' select pnp.baseicms,                                                         '+
+ '        pnp.quantidade,                                                       '+
+ '        pnp.precounitario,                                                    '+
+ '        pnp.valordescontoitem,                                                '+
+ '        pnp.desconto,                                                         '+
+ '        pnp.acrescimo,                                                        '+
+ '        pnp.frete,                                                            '+
+ '        pnp.seguro,                                                           '+
+ '        pnp.pRedBCST,                                                         '+
+ '        pnp.csosn,                                                            '+
+ '        pnp.incidencia,                                                       '+
+ '        pnp.aliquotaicms,                                                     '+
+ '        pnp.icmsbasecalculo,                                                  '+
+ '        pnp.icmsvalor,                                                        '+
+ '        pnp.valoripi                                                          '+
+ ' from ((produtosnotaspag pnp                                                  '+
+ '       join notaspag np                                                       '+
+ '       on pnp.codigonota = np.codigo)                                         '+
+ '     join (naturezas npr                                                      '+
+ '           join tiposmovimentos tmpr                                          '+
+ '           on npr.tipomovimento = tmpr.codigo)                                '+
+ '     on pnp.natureza = npr.codigo)                                            '+
+ '                                                                              '+
+ ' where pnp.codigonota = np.codigo                                             '+
+ '   and npr.tipomovimento = tmpr.codigo                                        '+
+ '   and pnp.natureza = npr.codigo                                              '+
+ '   and pnp.produto = :produto                                                 '+
+ '/*   and pnp.filial = :filial*/                                               '+
+ '   and substring(tmpr.operacao,1,1)= ''+''                                     '+
+ '   and substring(tmpr.operacao,12,1)= ''+''                                    '+
+ '   and np.situacao<> ''C''                                                     '+
+ ' order by np.data desc, np.codigo, pnp.produto, pnp.filial limit 1            ';
+
+
+
+
+
+
+SQLDadosProdutosOutros =
+ 'select pe.percfcp  '+
+ 'from produtosestados pe join estados e on pe.estado = e.codigo  '+
+ 'where pe.produto = :produto and pe.estado = :estadodestino and coalesce(pe.indsuperfluo,false) ';
+
+SQLEstados =  'select e.* from estados e where e.codigo = :estado ';
+
+
+  verificarFiliaisSQL =  'select f.nome,  '+
+                      '       f.codigo  '+
+                      'from filiais f  '+
+                      'order by f.codigo ';
+
+  verificarFiliaisUsuarioSQL =  'select f.nome,  '+
+                                '       f.codigo  '+
+                                'from filiais f, usuariosfiliais uf  '+
+                                'where f.codigo = uf.filial  '+
+                                '  and uf.usuario = :usuario  '+
+                                'order by f.codigo ';
+
+  verificarGruposFiliaisSQL =  'select codigo,descricao  '+
+                               'from gruposfiliais  '+
+                               'order by codigo ';
+
+  verificarGruposFiliaisUsuariosSQL =
+                               'select distinct gf.codigo,gf.descricao  ' +
+                               'from gruposfiliais gf,  '+
+                               '     filiaisgruposfiliais fgf,  '+
+                               '     usuariosfiliais uf  '+
+                               'where gf.codigo = fgf.grupo  '+
+                               '  and fgf.filial = uf.filial  '+
+                               '  and uf.usuario = :usuario  '+
+                               'order by gf.codigo, gf.descricao ';
+
+  VerificarFilialBaseSQL =  'select f.codigo, case when f.contabil is not null then f.contabil else f.codigo end as filialcontabil,  '+
+                                   'f.nome,  '+
+                                   'f.razao,  ' +
+                                   'f.mnemonico, '+
+                                   'f.rua,  ' +
+                                   'f.numero,  '+
+                                   'f.complemento,  '+
+                                   'f.estado,  '+
+                                   'f.cidade,  '+
+                                   '(Select c.nome From cidades c  ' +
+                                   '               Where (c.estado = f.estado) and  ' +
+                                   '                     (c.codigo = f.cidade)) as NomeCidade,  ' +
+                                   'f.bairro,  '+
+                                   '(Select b.nome From bairros b  ' +
+                                   '               Where (b.estado = f.estado) and  ' +
+                                   '                     (b.cidade = f.cidade) and  ' +
+                                   '                     (b.codigo = f.bairro)) as NomeBairro,  ' +
+                                   'f.cep,  ' +
+                                   'f.fonenumero,  ' +
+                                   'f.cnpj,  ' +
+                                   'f.seriesugestao,  ' +
+                                   'f.seriesugestaoservicos,  ' +
+                                   'f.seriesugestaonfce,  ' +
+                                   '(select sf.modelonota  '+
+                                   ' from seriesfiliais sf  '+
+                                   ' where (f.codigo = sf.filial) and  '+
+                                   '       (f.seriesugestao = sf.valor)  '+
+                                   ') as modelonota, ' +
+                                   '(select sf.modelonota  '+
+                                   ' from seriesfiliais sf  '+
+                                   ' where (f.codigo = sf.filial) and  '+
+                                   '       (f.seriesugestaoservicos = sf.valor)  '+
+                                   ') as modelonotaservicos, ' +
+
+                                   '(select sf.modelodoctofiscal  '+
+                                   ' from seriesfiliais sf  '+
+                                   ' where (f.codigo = sf.filial) and  '+
+                                   '       (f.seriesugestao = sf.valor)  '+
+                                   ') as modelodoctofiscal, ' +
+                                   '(select sf.modelodoctofiscal  '+
+                                   ' from seriesfiliais sf  '+
+                                   ' where (f.codigo = sf.filial) and  '+
+                                   '       (f.seriesugestaonfce = sf.valor)  '+
+                                   ') as modelodoctofiscalNFCe, ' +
+                                   '(select sf.modelodoctofiscal  '+
+                                   ' from seriesfiliais sf  '+
+                                   ' where (f.codigo = sf.filial) and  '+
+                                   '       (f.seriesugestaoservicos = sf.valor)  '+
+                                   ') as modelodoctofiscalservico, ' +
+                                   'f.inscricaoestadual,  ' +
+                                   'f.inscricaomunicipal,  ' +
+                                   'f.junta,  ' +
+                                   'f.juntadata,  ' +
+                                   'f.preconormal,  ' +
+                                   'f.precopromocao,  ' +
+                                   'f.foneDDD,  ' +
+                                   'f.razaoquitacao,  ' +
+                                   'f.simples,  ' +
+                                   'f.exibircomplementonf,  '+
+                                   'f.contribicms,  '+
+                                   'f.ExcluirICMSdePISeCOFINS, '+
+                                   'f.contribipi,  '+
+                                   'f.contribiss, '+
+                                   'f.CNAEFiscal, ' +
+                                   '(select c.codigoibge from cidades c  '+
+                                   'where c.estado = f.estado and c.codigo = f.cidade) as cidadeIBGE,  '+
+                                   '(select c.codigodimob from cidades c  '+
+                                   'where c.estado = f.estado and c.codigo = f.cidade) as codigotom,  '+
+                                   'f.faxddd, ' +
+                                   'f.faxnumero,  ' +
+                                   'f.regimetributario,  '+
+                                   'f.regimesubstituicao,  '+
+                                   'coalesce((select asn.aliquotaicms  '+
+                                   '          from aliquotassimplesnacional asn  '+
+                                   '          where asn.mesano = to_char(current_date, ''MM/YYYY'')  '+
+                                   '            and asn.filial = f.codigo),0) as aliquotaicmssn,  '+
+                                   '(select e.codigoibge from estados e  '+
+                                   'where e.codigo = f.estado) as estadoIBGE,  '+
+                                   '(select c.codigoDIMOB from cidades c  '+
+                                   'where c.estado = f.estado and c.codigo = f.cidade) as cidadeDIMOB,  '+
+                                   'f.sped_fiscal, f.sped_pis_cofins, f.tipofilial,  f.tipoemissaonfeservico, f.aedffatura, f.tip_ecd,  '+
+                                   '(select true from filiais f2 where f2.regimetributario in (1,2) limit 1) as ExisteCRTSimples,  '+
+                                   '(select true from filiais f2 where f2.regimetributario = 3 limit 1) as ExisteCRTNormal,  '+
+                                   'case when f.tipofilial= ''V'' THEN COALESCE(f.filial_estoque,f.codigo) ELSE f.codigo END as filial_estoque,  '+
+                                   'f.client_id_nfse, f.client_secret_nfse, f.urlauth_nfse, f.usuario_nfse, f.senha_nfse,  '+
+                                   'f.site_nfse, f.urlprocessamento_simplificada, f.urlprocessamento_normal, f.naturezajuridica, '+
+                                   'f.senhaemail, '+
+                                   'f.usuarioemail, '+
+                                   'f.emailenvio, '+
+                                   'f.hostsmtp, '+
+                                   'f.portasmtp, '+
+                                   'f.autenticarsmtp, '+
+                                   'f.smtprequerssl, '+
+                                   'f.smtprequertls, '+
+                                   'f.numeroseriecertificadodigital, f.senhacertificadodigital,  '+
+                                   'f.AccessToken, f.RefreshToken, f.ExpiresIn, f.TokenType, f.MacKey, f.MacAlgorithm, f.scope, f.contacaixa, f.ind_ativ, cast(1 as integer) as regimecontabil,'+
+                                   '(select pl.codigo '+
+                                   ' from planocontas pl '+
+                                   ' where pl.codigo = (select ct.contacontabil '+
+                                   '                    from contas ct '+
+                                   '                    where ct.conta = f.contacaixa)) as ContaContabilCreditarPagamento '+
+                            'from filiais f  '+
+                            'where codigo = %s  '+
+                            'order by Maiusculo(f.nome)  ';
+
+  VerificarLogotipoSQL =  'select nome  '+
+                          'from logotipos  '+
+                          'where filial is null or filial = %d  '+
+                          'order by filial  ';
+
+  VerificarLogotipoFrenteCaixaSQL =  'select nome  '+
+                                     'from logotipos  '+
+                                     'where filial is null or filial = %d  '+
+                                     'and tipo = F  '+
+                                     'order by filial  ';
+
+  VerificarEstoquesFiliais =  'select filialestoque  '+
+                                'from estoquesfiliais  '+
+                                'where filialbase = %d  ';
+
+  VerificaContingencias =  'select *  '+
+                                'from contingencias  '+
+                                'where (btrim(datahorafinal)= '''') or datahorafinal is null  ';
+
+
+  VerificarClienteAtrasado =  'select clientes_atrasado(:cliente,:tipocliente) as clienteatrasado, '+
+                              '       clientes_parcelasfuturasemaberto(:cliente,:tipocliente) as clientesparcelasfuturaemaberto, '+
+                              '       chequesclientes_futurosemaberto(:cliente,:tipocliente) as cheques_futuroemaberto, '+
+                              '      (chequesclientes_existesituacao(:cliente,:tipocliente, ''DEVOLVIDO'') or chequesclientes_existesituacao(:cliente,:tipocliente, ''RESGATE PARCIAL'')) as chequedevolvido,  ' +
+                              'case when :tipocliente =  ''C'' then coalesce((select cl.fichaalerta from clientes cl where cl.codigo = :cliente), '''')  ' +
+                              '     when :tipocliente =  ''F'' then coalesce((select f.fichaalerta from fornecedores f where f.codigo = :cliente), '''')  ' +
+                              '     when :tipocliente =  ''L'' then coalesce((select f.fichaalerta from filiais f where f.codigo = :cliente), '''') end as FichaAlerta, ' +
+                              '     AtendimentosClientes(Cast(:cliente as integer), cast(:tipocliente as varchar(1)), cast(''A'' as varchar(1))) as AlertaAtendimentosAbertos, ' +
+                              'coalesce((select coalesce(cl.naoexibirfichafinanceira,false) from clientes cl where cl.codigo = :cliente and  ''C''=:tipocliente),false) as naoexibirfichafinanceira  ';
+
+  VersaoSQL =  'select principal,secundaria,correcaoerro from versao ';
+
+
+  VerificarClienteCartaDevolvida =  'select :cliente, :tipocliente, clientes_cartadevolvida(:Cliente, :TipoCliente) as devolvida ';
+
+  AtualizarSaldosContabeis =  'select AcumularSaldosContabeis() ';
+  AtualizarParametroSaldo =  'update parametrosfiliais set valor =  ''false'' where parametro = 269 ';
+
+implementation
+
+end.

@@ -1,0 +1,204 @@
+unit dmcadastrocontratosmanutencao;
+
+interface
+
+uses
+  SysUtils, Classes, DB, ZQuery, ZPgSqlQuery, cpquery, dmtecsoft, ZTransact,
+  dmbasico, cpdatasource, biblio, ctconstantes;
+
+type
+  TdtmCadastroContratosManutencao = class(TdtmBasico)
+    qryContratosManutencao: TtecQuery;
+    spcContratosManutencao_ProximoNumero: TtecQuery;
+    qryContratosManutencaonumero: TIntegerField;
+    qryContratosManutencaocliente: TIntegerField;
+    qryContratosManutencaotipocliente: TStringField;
+    qryContratosManutencaodiavencimento: TIntegerField;
+    qryContratosManutencaoassinatura: TDateField;
+    qryContratosManutencaovigencia: TDateField;
+    qryContratosManutencaovalor: TFloatField;
+    qryContratosManutencaoobservacoesnf: TStringField;
+    dsrContratosManutencao: TtecDataSource;
+    qryServicosContratosManutencao: TtecQuery;
+    dsrServicosContratosManutencao: TtecDataSource;
+    qryServicosContratosManutencaodescricaoservico: TStringField;
+    qryServicosContratosManutencaocontrato: TIntegerField;
+    qryServicosContratosManutencaoservico: TIntegerField;
+    qryServicosContratosManutencaoquantidade: TIntegerField;
+    qryServicosContratosManutencaovalor: TFloatField;
+    spcContratosManutencao_ProximoNumeronumero: TIntegerField;
+    procedure dsrContratosManutencaoDataChange(Sender: TObject;
+      Field: TField);
+    procedure qryContratosManutencaoAfterScroll(DataSet: TDataSet);
+    procedure qryContratosManutencaoNewRecord(DataSet: TDataSet);
+    procedure qryServicosContratosManutencaoAfterPost(DataSet: TDataSet);
+    procedure qryServicosContratosManutencaoAfterDelete(DataSet: TDataSet);
+    procedure dsrServicosContratosManutencaoDataChange(Sender: TObject;
+      Field: TField);
+    procedure qryServicosContratosManutencaoNewRecord(DataSet: TDataSet);
+  private
+    { Private declarations }
+    procedure CalcularValorTotalContrato;
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent);override;
+    destructor Destroy; override;
+    function IncluirEditarServicosContrato(Editar: Boolean): boolean;
+    function IncluirContrato: boolean;
+    function GravarContrato: boolean;
+    procedure ExcluirServicosContrato;
+    procedure ExcluirContrato;
+
+
+  end;
+
+var
+  dtmCadastroContratosManutencao: TdtmCadastroContratosManutencao;
+
+implementation
+
+{$R *.dfm}
+
+procedure TdtmCadastroContratosManutencao.CalcularValorTotalContrato;
+begin
+  qryContratosManutencaovalor.AsCurrency := TotalizarValores[qryServicosContratosManutencao, qryServicosContratosManutencaovalor, qryServicosContratosManutencaoquantidade];
+end;
+
+procedure TdtmCadastroContratosManutencao.dsrContratosManutencaoDataChange(
+  Sender: TObject; Field: TField);
+begin
+  inherited;
+  if field = qryContratosManutencaodiavencimento then
+  begin
+    if field.AsInteger > 28 then
+      field.asinteger := 0;
+  end;
+end;
+
+function TdtmCadastroContratosManutencao.GravarContrato: boolean;
+begin
+  result := false;
+  if qryContratosManutencao.CheckRequiredFields then
+  begin
+    if qryContratosManutencao.State = dsinsert then
+    begin
+      spcContratosManutencao_ProximoNumero.Close;
+      spcContratosManutencao_ProximoNumero.Open;
+      qryContratosManutencaonumero.AsInteger := spcContratosManutencao_ProximoNumeronumero.AsInteger;
+    end;
+    qryContratosManutencao.Post;
+    AtribuirChave(qryServicosContratosManutencao, [qryServicosContratosManutencaocontrato], [qryContratosManutencaonumero]);
+    result := perpetrar([qryContratosManutencao, qryServicosContratosManutencao]);
+
+
+  end;
+end;
+
+function TdtmCadastroContratosManutencao.IncluirContrato: boolean;
+begin
+  result := true;
+
+  try
+    qryContratosManutencao.append
+  except
+    result := false
+  end;
+
+  qryContratosManutencaocliente.FocusControl;
+end;
+
+function TdtmCadastroContratosManutencao.IncluirEditarServicosContrato(
+  Editar: Boolean): Boolean;
+begin
+  result := true;
+  try
+    if not editar or qryServicosContratosManutencao.IsEmpty then
+    begin
+      qryServicosContratosManutencao.append;
+      qryServicosContratosManutencaoservico.FocusControl;
+    end
+    else
+      qryServicosContratosManutencao.edit;
+  except
+    result := false
+  end;
+end;
+
+procedure TdtmCadastroContratosManutencao.qryContratosManutencaoAfterScroll(
+  DataSet: TDataSet);
+begin
+  inherited;
+  RefazConsultaPorNome(qryServicosContratosManutencao,['contrato'],[qryContratosManutencaonumero.AsInteger]);
+end;
+
+procedure TdtmCadastroContratosManutencao.qryContratosManutencaoNewRecord(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryContratosManutencaotipocliente.AsString := 'C';
+  qryContratosManutencaoassinatura.AsDateTime := DataServidor;
+end;
+
+procedure TdtmCadastroContratosManutencao.qryServicosContratosManutencaoAfterPost(
+  DataSet: TDataSet);
+begin
+  inherited;
+  CalcularValorTotalContrato;
+end;
+
+procedure TdtmCadastroContratosManutencao.qryServicosContratosManutencaoAfterDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  CalcularValorTotalContrato;
+end;
+
+procedure TdtmCadastroContratosManutencao.dsrServicosContratosManutencaoDataChange(
+  Sender: TObject; Field: TField);
+begin
+  inherited;
+  if sender = nil then
+  begin
+    if field = qryServicosContratosManutencaoservico then
+    begin
+        
+    end;
+  end;
+end;
+
+procedure TdtmCadastroContratosManutencao.ExcluirServicosContrato;
+begin
+  if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o SERVIÇO DO CONTRATO'])) = smbOk then
+    qryServicosContratosManutencao.delete;
+end;
+
+procedure TdtmCadastroContratosManutencao.ExcluirContrato;
+begin
+  if MensagemConfirmacao(format(ctCONFIRMEEXCLUIR, ['o CONTRATO'])) = smbOk then
+  begin
+    LimparTabela(qryServicosContratosManutencao);
+    qryContratosManutencao.delete;
+    perpetrar([qryContratosManutencao, qryServicosContratosManutencao]);
+  end;
+end;
+
+constructor TdtmCadastroContratosManutencao.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryContratosManutencao.tag := cttabelas;
+
+end;
+
+destructor TdtmCadastroContratosManutencao.Destroy;
+begin
+  inherited;
+end;
+
+procedure TdtmCadastroContratosManutencao.qryServicosContratosManutencaoNewRecord(
+  DataSet: TDataSet);
+begin
+  inherited;
+  qryServicosContratosManutencaoquantidade.AsCurrency := 1;
+end;
+
+end.

@@ -133,6 +133,7 @@ type
     qryperiodosentregafim: TTimeField;
     dsrperiodosentrega: TtecDataSource;
     qryLimitesEntregaRegioesregiao: TStringField;
+    qryCidadesserienfse: TStringField;
     procedure qryConsultaEstadosBairrosAfterOpen(DataSet: TDataSet);
     procedure qryConsultaCidadesRuasAfterOpen(DataSet: TDataSet);
     procedure qryConsultaEstadosRuasAfterOpen(DataSet: TDataSet);

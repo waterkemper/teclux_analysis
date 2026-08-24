@@ -1,0 +1,207 @@
+inherited frmImprimirPNs: TfrmImprimirPNs
+  Left = 627
+  Top = 182
+  Caption = 'Impress'#227'o de PN'#180's'
+  ClientHeight = 472
+  ClientWidth = 1049
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  FormStyle = fsMDIChild
+  OldCreateOrder = False
+  Visible = True
+  PixelsPerInch = 96
+  TextHeight = 13
+  inherited pnlBarra: TToolBar
+    Width = 1049
+    inherited sbnImprimir: TSpeedButton
+      Caption = 'Excell F7'
+    end
+  end
+  inherited pnlFundoJanela: TPanel
+    Top = 472
+    Width = 1049
+    Height = 0
+  end
+  object tecDBGrid1: TtecDBGrid
+    Left = 0
+    Top = 40
+    Width = 1049
+    Height = 432
+    Align = alClient
+    DataSource = dsrImprimirPNs
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -9
+    Font.Name = 'MS Sans Serif'
+    Font.Pitch = fpVariable
+    Font.Style = []
+    ParentFont = False
+    ReadOnly = True
+    TabOrder = 2
+    TitleFont.Charset = DEFAULT_CHARSET
+    TitleFont.Color = clWindowText
+    TitleFont.Height = -9
+    TitleFont.Name = 'MS Sans Serif'
+    TitleFont.Pitch = fpVariable
+    TitleFont.Style = []
+    RowWrap = 60
+    Large = False
+    DoubleRowColor = False
+    TitleMinHeight = 100
+    CellHeights = 100
+    StrippedColor = 16054260
+    CanDelete = False
+    PostOnEnter = False
+    DenySort = False
+    DefaultRowHeight = 17
+    Columns = <
+      item
+        Expanded = False
+        FieldName = 'pn'
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'origem'
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'revisao'
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'codigovisual'
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'cliente'
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'produto_cliente'
+        Visible = True
+      end
+      item
+        Alignment = taCenter
+        Expanded = False
+        FieldName = 'finalidade'
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'fluxograma'
+        Visible = True
+      end>
+  end
+  object qryImprimirPNs: TtecQuery
+    Tag = -1
+    Database = dtmTecSoft.dbaTecSoft
+    Transaction = dtmTecSoft.tstTecSoft
+    CachedUpdates = False
+    ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
+    Options = [doHourGlass, doAutoFillDefs]
+    LinkOptions = [loAlwaysResync]
+    Constraints = <>
+    ExtraOptions = [poTextAsMemo, poOidAsBlob]
+    Macros = <>
+    Sql.Strings = (
+      'SELECT cp.PN, cp.Origem, cp.Revisao, p.CodigoVisual,'
+      '       CAST(CASE WHEN vf.Tipo = '#39'L'#39
+      '                 THEN '#39'KRAH-ICE-BRASIL'#39
+      '                 ELSE vf.Nome'
+      '            END AS VARCHAR(20)) AS Cliente,'
+      '       cp.Produto_Cliente,'
+      '       cp.Finalidade,'
+      '       cp.Fluxograma'
+      ''
+      'FROM ClientesProdutos cp'
+      
+        '     JOIN vFornecedores vf ON cp.Cliente = vf.Codigo AND cp.Tipo' +
+        'Cliente = vf.Tipo'
+      '     JOIN Produtos p       ON cp.Produto = p.Codigo'
+      ''
+      'WHERE cp.PN IS NOT NULL'
+      ''
+      'ORDER BY cp.PN'
+      '')
+    RequestLive = False
+    Left = 224
+    Top = 16
+    object qryImprimirPNspn: TStringField
+      Alignment = taCenter
+      DisplayLabel = 'PN'
+      DisplayWidth = 6
+      FieldName = 'pn'
+	  Size = 5
+    end
+    object qryImprimirPNsorigem: TStringField
+      Alignment = taCenter
+      DisplayLabel = 'ORIGEM'
+      FieldName = 'origem'
+      Size = 1
+    end
+    object qryImprimirPNsrevisao: TStringField
+      Alignment = taCenter
+      DisplayLabel = 'REVIS'#195'O'
+      DisplayWidth = 5
+      FieldName = 'revisao'
+      Size = 5
+    end
+    object qryImprimirPNscodigovisual: TStringField
+      DisplayLabel = 'C'#211'DIGO PRODUTO'
+      FieldName = 'codigovisual'
+      Size = 30
+    end
+    object qryImprimirPNscliente: TStringField
+      DisplayLabel = 'CLIENTE'
+      DisplayWidth = 25
+      FieldName = 'cliente'
+      Size = 25
+    end
+    object qryImprimirPNsproduto_cliente: TStringField
+      DisplayLabel = 'C'#211'D. PRODUTO CLIENTE'
+      FieldName = 'produto_cliente'
+      Size = 30
+    end
+    object qryImprimirPNsfinalidade: TStringField
+      DisplayLabel = 'FINALIDADE'
+      FieldName = 'finalidade'
+      Size = 30
+    end
+    object qryImprimirPNsfluxograma: TIntegerField
+      Alignment = taCenter
+      DisplayLabel = 'FLUXOGRAMA'
+      DisplayWidth = 4
+      FieldName = 'fluxograma'
+    end
+  end
+  object dsrImprimirPNs: TtecDataSource
+    DataSet = qryImprimirPNs
+    Left = 280
+    Top = 24
+  end
+  object ExcelExport1: TExcelExport
+    FontTitles.Charset = DEFAULT_CHARSET
+    FontTitles.Color = clWindowText
+    FontTitles.Height = -11
+    FontTitles.Name = 'MS Sans Serif'
+    FontTitles.Style = []
+    OrientationTitles = 0
+    FontData.Charset = DEFAULT_CHARSET
+    FontData.Color = clWindowText
+    FontData.Height = -11
+    FontData.Name = 'MS Sans Serif'
+    FontData.Style = []
+    StyleColumnWidth = cwAutoFit
+    ColumnWidth = 0
+    WorksheetName = 'PNS'
+    Dataset = qryImprimirPNs
+    Left = 368
+    Top = 16
+  end
+end

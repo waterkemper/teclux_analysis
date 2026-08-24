@@ -1,0 +1,111 @@
+unit fmmensagemgridnfe;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, cptexto, Grids, DBGrids, cpdbgrid, ExtCtrls, Buttons, DB,
+  cpdatasource, AdvObj, BaseGrid, AdvGrid, DBAdvGrid;
+
+type
+  tpOrigem = (Diversas, EstoqueLoteProduto);
+
+type
+  TfrmMensagemGridNfe = class(TForm)
+    lblTitulo: TLabel;
+    pnlBottom: TPanel;
+    bbnOK: TBitBtn;
+    dsrListaErros: TtecDataSource;
+    dbgMensagem: TDBAdvGrid;
+    procedure dbgMensagemDrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure FormCreate(Sender: TObject);
+    procedure FormResize(Sender: TObject);
+    procedure dbgMensagemCustomCellSize(Sender: TObject; Canvas: TCanvas;
+      ACol, ARow: Integer; var ASize: TPoint; Printing: Boolean);
+    procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
+    procedure Button4Click(Sender: TObject);
+  private
+    fTipoOrigem: tpOrigem;
+    { Private declarations }
+  public
+    { Public declarations }
+    property TipoOrigem: tpOrigem read fTipoOrigem write fTipoOrigem default Diversas;
+  end;
+
+var
+  frmMensagemGridNfe: TfrmMensagemGridNfe;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmMensagemGridNfe.dbgMensagemDrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  case TipoOrigem of
+
+    EstoqueLoteProduto:
+    begin
+      if (pos(column.fieldname, 'reservado transito demonstracao conserto futuro danificada estoquefisico reservaprevia')<>0) then
+      begin
+        TDBGrid(Sender).Canvas.Font.Color := clRed;
+        TDBGrid(Sender).Canvas.Font.Style := [fsBold];
+        TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+      end;
+    end;
+
+  end;
+end;
+
+procedure TfrmMensagemGridNfe.FormCreate(Sender: TObject);
+begin
+
+//  self.width := dbgMensagem.width + 50;
+
+//  dbgMensagem_.AutoSizeRows(false);
+//  dbgMensagem_.autosize := true;
+//  dbgMensagem_.autosize := false;
+  dbgMensagem.AutoSizeRows(false);
+  dbgMensagem.wordwrap := true;
+//  dbgMensagem_.Refresh;
+
+//  dbgMensagem_.wordwrap := false;
+
+
+
+
+end;
+
+procedure TfrmMensagemGridNfe.FormResize(Sender: TObject);
+begin
+  bbnOK.left := pnlBottom.width div 2;
+end;
+
+procedure TfrmMensagemGridNfe.dbgMensagemCustomCellSize(Sender: TObject;
+  Canvas: TCanvas; ACol, ARow: Integer; var ASize: TPoint;
+  Printing: Boolean);
+begin
+//  aSize := Point(100,100)
+end;
+
+procedure TfrmMensagemGridNfe.Button1Click(Sender: TObject);
+begin
+end;
+
+procedure TfrmMensagemGridNfe.Button2Click(Sender: TObject);
+begin
+end;
+
+procedure TfrmMensagemGridNfe.Button3Click(Sender: TObject);
+begin
+end;
+
+procedure TfrmMensagemGridNfe.Button4Click(Sender: TObject);
+begin
+end;
+
+end.

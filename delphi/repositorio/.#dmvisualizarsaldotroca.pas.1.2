@@ -1,0 +1,163 @@
+unit dmvisualizarsaldotroca;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery,
+  cpdatasource, ctconstantes, ZTransact, biblio;
+
+type
+   TecCondicaoVerificacao = (SeValorMaiorSaldo, SeValorMenorSaldo, seValorDiferenteSaldo);
+type
+  TdtmVisualizarSaldoTroca = class(TDtmBasico)
+    dsrSaldoTroca: TtecDataSource;
+    qrySaldoTroca: TtecQuery;
+    qrySaldoTrocatipo: TStringField;
+    qrySaldoTrocadata: TDateTimeField;
+    qrySaldoTrocadescricao: TStringField;
+    qrySaldoTrocavalor: TFloatField;
+    qrySaldoTrocasaldo: TFloatField;
+    qrySaldoAtual: TtecQuery;
+    dsrSaldoAtual: TtecDataSource;
+    qrySaldoAtualvalor: TFloatField;
+  private
+    FSaldoAtual: Currency;
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    function AbrirDadosCliente(Cliente: Integer; TipoCliente: String): boolean; overload;
+    function AbrirDadosCliente(Cliente: Integer; TipoCliente, Contrato: String): boolean; overload;
+    property SaldoAtual: currency read FSaldoAtual write FSaldoAtual;
+    procedure CalcularSaldo;
+
+
+  end;
+
+  function ValidarCreditoTroca(Cliente: integer; TipoCliente: String; ValorSaldoVerificado: TField; TotalDocumento: Currency;
+                               CondicaoVerificacao: TecCondicaoVerificacao; VerificarSeValorSaldoVerificadoZero: Boolean = true;
+                               AtribuirSeSaldoDiscrepante: Boolean = true;
+                               msgAdicional: String = '' ): Boolean;
+
+var
+  dtmVisualizarSaldoTroca: TdtmVisualizarSaldoTroca;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmVisualizarSaldoTroca }
+
+function TdtmVisualizarSaldoTroca.AbrirDadosCliente(Cliente: Integer;
+  TipoCliente: String): boolean;
+begin
+  qrysaldotroca.MacroByName('filtro').asstring := '';
+  ReFazConsulta(qrySaldoTroca,[0,1], [Cliente,TipoCliente]);
+  qrySaldoTroca.Last;
+  ReFazConsulta(qrySaldoAtual,[],[]);
+  qrysaldoatual.Edit;
+  qrySaldoAtualvalor.AsCurrency := qrySaldoTrocasaldo.AsCurrency;
+  qrysaldoatual.Post;
+  SaldoAtual := qrySaldoAtualvalor.AsCurrency;
+  result := qrySaldoAtualvalor.AsCurrency <>0;
+end;
+
+function TdtmVisualizarSaldoTroca.AbrirDadosCliente(Cliente: Integer;
+  TipoCliente, Contrato: String): boolean;
+const
+  SQL = 'and (pt.tipo<>''S'' or (pt.contrato<>''%s'' or pt.contrato is null))';
+begin
+  qrysaldotroca.MacroByName('Filtro').AsString := format(SQL,[contrato]);
+  ReFazConsulta(qrySaldoTroca,[0,1], [Cliente,TipoCliente]);
+  CalcularSaldo;
+  qrySaldoTroca.Last;
+  ReFazConsulta(qrySaldoAtual,[],[]);
+  qrysaldoatual.Edit;
+  qrySaldoAtualvalor.AsCurrency := qrySaldoTrocasaldo.AsCurrency;
+  qrysaldoatual.Post;
+  SaldoAtual := qrySaldoAtualvalor.AsCurrency;
+  result := qrySaldoAtualvalor.AsCurrency <>0;
+end;
+
+procedure TdtmVisualizarSaldoTroca.CalcularSaldo;
+var
+  Saldo : Currency;
+begin
+  Saldo := 0;
+  qrySaldoTroca.First;
+  while not qrySaldoTroca.Eof do
+  begin
+    if qrySaldoTrocatipo.AsString = 'E' then
+      Saldo := Saldo + qrySaldoTrocavalor.AsCurrency
+    else
+      Saldo := Saldo - qrySaldoTrocavalor.AsCurrency;
+
+    if (qrySaldoTrocasaldo.AsCurrency <> saldo) then
+    begin
+      qrysaldotroca.Edit;
+      qrySaldoTrocasaldo.AsCurrency := saldo;
+    end;
+    qrySaldoTroca.Next;
+  end;
+  if qrysaldotroca.state in [dsedit] then
+    qrysaldotroca.post;
+end;
+
+constructor TdtmVisualizarSaldoTroca.Create(AOwner: TComponent);
+begin
+  inherited;
+  qrySaldoTroca.Tag := cttabelas;
+end;
+
+  function ValidarCreditoTroca(Cliente: integer; TipoCliente: String; ValorSaldoVerificado: TField; TotalDocumento: Currency;
+                               CondicaoVerificacao: TecCondicaoVerificacao; VerificarSeValorSaldoVerificadoZero: Boolean = true;
+                               AtribuirSeSaldoDiscrepante: Boolean = true;
+                               msgAdicional: String = '' ): Boolean;
+begin
+  result := true;
+  if VerificarSeValorSaldoVerificadoZero or (ValorSaldoVerificado.ascurrency <> 0) then
+  begin
+    if not assigned(dtmVisualizarSaldoTroca) then
+       dtmVisualizarSaldoTroca := TdtmVisualizarSaldoTroca.Create(dtmVisualizarSaldoTroca);
+
+    dtmVisualizarSaldoTroca.AbrirDadosCliente(Cliente,TipoCliente);
+
+    case CondicaoVerificacao of
+      SeValorMaiorSaldo :
+      begin
+        if ValorSaldoVerificado.AsCurrency > dtmVisualizarSaldoTroca.SaldoAtual then
+        begin
+           MensagemErro(format(ctVALORCREDITOFORAINTERVALO + chr(13) + msgAdicional, [ValorSaldoVerificado.AsCurrency, dtmVisualizarSaldoTroca.SaldoAtual]));
+           if AtribuirSeSaldoDiscrepante then
+           begin
+             ValorSaldoVerificado.DataSet.edit;
+             ValorSaldoVerificado.AsCurrency := dtmVisualizarSaldoTroca.SaldoAtual;
+           end;
+
+           result := false;
+        end
+        else
+        begin
+          if ValorSaldoVerificado.AsCurrency > TotalDocumento then
+          begin
+            MensagemErro(format(ctVALORCREDITOMAIORPRODUTOS + chr(13) + msgAdicional, [ValorSaldoVerificado.AsCurrency, TotalDocumento]));
+
+            if AtribuirSeSaldoDiscrepante then
+            begin
+              ValorSaldoVerificado.dataset.edit;
+              ValorSaldoVerificado.AsCurrency := TotalDocumento;
+            end;
+
+            result := false;
+          end;
+        end;
+
+      end;
+//      SeValorMenorSaldo
+//      seValorDiferenteSaldo
+    end;
+  end;
+end;
+
+end.
+

@@ -1,0 +1,536 @@
+unit dmlivrodiarioauxiliarreceitas;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery,
+  dmtecsoft, CheckLst,
+
+  // Constantes
+  ctConstantes, biblio, clfinanceira, FR_Class, FR_DSet, FR_DBSet,
+  cpdatasource,
+  clparametrossistema, fmpreviewpadrao, dmimprimetermos, FR_Desgn;
+
+
+type
+  Tdtmlivrodiarioauxiliarreceitas = class(TdtmBasico)
+    qryImprimirRecebimentos: TtecQuery;
+    fdsImprimirRecebimentos: TfrDBDataSet;
+    frpLivroDiarioAuxiliarReceitas: TfrReport;
+    qryAgentes: TtecQuery;
+    qryAgentescodigo: TIntegerField;
+    qryAgentesdescricao: TStringField;
+    qryImprimirRecebimentosfilialvenda: TIntegerField;
+    qryImprimirRecebimentoscliente: TIntegerField;
+    qryImprimirRecebimentosnomecliente: TStringField;
+    qryImprimirRecebimentostipocliente: TStringField;
+    qryImprimirRecebimentoscontrato: TStringField;
+    qryImprimirRecebimentosdatavencto: TDateField;
+    qryImprimirRecebimentosvalorvencto: TFloatField;
+    qryImprimirRecebimentosparcelaorigem: TStringField;
+    qryImprimirRecebimentosdatapagto: TDateField;
+    qryImprimirRecebimentosvalorpagto: TFloatField;
+    qryImprimirRecebimentosjuros: TFloatField;
+    qryImprimirRecebimentosdesconto: TFloatField;
+    qryImprimirRecebimentosnomefilialvenda: TStringField;
+    qryImprimirRecebimentosgrupofilialvenda: TIntegerField;
+    qryImprimirRecebimentosnomegrupofilialvenda: TStringField;
+    qryImprimirRecebimentosResumo: TtecQuery;
+    fdsImprimirRecebimentosResumo: TfrDBDataSet;
+    frpLivroDiarioAuxiliarReceitasResumo: TfrReport;
+    qryImprimirRecebimentosResumogrupofilialvenda: TIntegerField;
+    qryImprimirRecebimentosResumonomegrupofilialvenda: TStringField;
+    qryImprimirRecebimentosResumonomefilialvenda: TStringField;
+    qryImprimirRecebimentosResumofilialvenda: TIntegerField;
+    qryImprimirRecebimentosResumodatapagto: TDateField;
+    qryImprimirRecebimentosResumovalorvencto: TFloatField;
+    qryImprimirRecebimentosResumovalorpagto: TFloatField;
+    qryImprimirRecebimentosResumojuros: TFloatField;
+    qryImprimirRecebimentosResumodesconto: TFloatField;
+    qryProcuraFiliais: TtecQuery;
+    qryProcuraFiliaiscodigo: TIntegerField;
+    qryProcuraFiliaisnome: TStringField;
+    qryProcuraFiliaisrazao: TStringField;
+    qryProcuraFiliaiscnpj: TStringField;
+    qryProcuraFiliaisinscricaoestadual: TStringField;
+    qryProcuraFiliaisrua: TStringField;
+    qryProcuraFiliaisestado: TStringField;
+    qryProcuraFiliaisnomecidade: TStringField;
+    qryProcuraFiliaisnomebairro: TStringField;
+    qryProcuraFiliaiscep: TIntegerField;
+    dsrProcuraFiliais: TtecDataSource;
+    qryConsultaFiliais: TtecQuery;
+    qryConsultaFiliaisnome: TStringField;
+    qryConsultaFiliaiscodigo: TIntegerField;
+    qryProcuraGruposFiliais: TtecQuery;
+    qryProcuraGruposFiliaiscodigo: TIntegerField;
+    qryProcuraGruposFiliaisdescricao: TStringField;
+    dsrProcuraGruposFiliais: TtecDataSource;
+    qryConsultaGruposFiliais: TtecQuery;
+    qryConsultaGruposFiliaisdescricao: TStringField;
+    qryConsultaGruposFiliaiscodigo: TIntegerField;
+    qryProcuraFiliaisjunta: TStringField;
+    qryProcuraFiliaisjuntadata: TDateField;
+    procedure frpLivroDiarioAuxiliarReceitasResumoBeforePrint(Memo: TStringList;
+      View: TfrView);
+    procedure frpLivroDiarioAuxiliarReceitasGetValue(const ParName: String;
+      var ParValue: Variant);
+  private
+    FListaAgentes: TStringList;
+    FResumo: Integer;
+    FDataFinal: String;
+    FDataInicial: String;
+    FResumoPorDia: Integer;
+    FOrdenacao: Integer;
+    FParametroCabecalho: String;
+    FAgruparDataPagto: Boolean;
+    FAgruparFilial: Boolean;
+    FAgruparGrupoFilial: Boolean;
+    FParametroPagina: Integer;
+    FParametroMaximo: Integer;
+    FParametroRelatorio: Integer;
+    FParametroLivro: Integer;
+    procedure SetAgentes(const Value: String);
+    procedure SetDataFinal(const Value: String);
+    procedure SetDataInicial(const Value: String);
+    procedure SetParametroFilial(const Value: String);
+    procedure SetParametroGrupoFiliais(const Value: String);
+    procedure SetResumo(const Value: Integer);
+    procedure SetResumoPorDia(const Value: Integer);
+    procedure SetOrdenacao(const Value: Integer);
+    function GetListaAgentes: TStrings;
+    procedure SetAgruparGrupoFilial(const Value: Boolean);
+    procedure SetAgruparFilial(const Value: Boolean);
+    procedure SetAgruparDataPagto(const Value: Boolean);
+    function GetConsultarFilial: TtecQuery;
+    function GetConsultarGrupoFilial: TtecQuery;
+    function GetCodigoFilial: Integer;
+    function GetCodigoGrupoFilial: Integer;
+
+  Protected
+    ImpressaoTermos: TdtmImprimeTermos;
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure AbreTabelaPesquisa(TipoPesquisa: TTecPesquisa);
+    procedure FechaTabelaPesquisa(TipoPesquisa: TTecPesquisa);
+    procedure Selecionar(Pesquisa: TtecPesquisa);
+    property ParametroFilial: String write SetParametroFilial;
+    property ParametroGrupoFiliais: String write SetParametroGrupoFiliais;
+    property DataInicial: String read FDataInicial write SetDataInicial;
+    property DataFinal: String read FDataFinal write SetDataFinal;
+    property Agentes: String write SetAgentes;
+    property Ordenacao: Integer read FOrdenacao write SetOrdenacao;
+    procedure ImprimirRelatorio;
+    property Resumo: Integer read FResumo write SetResumo;
+    property ResumoPorDia: Integer read FResumoPorDia write SetResumoPorDia;
+    procedure lerParametros;
+    property ListaAgentes: TStrings read GetListaAgentes;
+    property ParametroCabecalho: String read FParametroCabecalho write FParametroCabecalho;
+    property AgruparGrupoFilial: Boolean read FAgruparGrupoFilial write SetAgruparGrupoFilial;
+    property AgruparFilial: Boolean read FAgruparFilial write SetAgruparFilial;
+    property AgruparDataPagto: Boolean read FAgruparDataPagto write SetAgruparDataPagto;
+    procedure MontarFiltroAgentes(Usar: TCheckListBox);
+    procedure MontarOrdenacao;
+    function AbrirTabelasRecebimentos: Boolean;
+    property ParametroLivro: Integer read FParametroLivro write FParametroLivro;
+    property ParametroPagina: Integer read FParametroPagina write FParametroPagina;
+    property ParametroMaximo: Integer read FParametroMaximo write FParametroMaximo;
+    property ParametroRelatorio: Integer read FParametroRelatorio write FParametroRelatorio;
+    function ExisteFilial(Campo, Codigo: string): Boolean;
+    function ExisteGrupoFilial(Campo, Codigo: string): Boolean;
+    property ConsultarFilial: TtecQuery read GetConsultarFilial;
+    property ConsultarGrupoFilial: TtecQuery read GetConsultarGrupoFilial;
+    property CodigoFilial: Integer read GetCodigoFilial;
+    property CodigoGrupoFilial: Integer read GetCodigoGrupoFilial;
+
+  end;
+
+var
+  dtmlivrodiarioauxiliarreceitas: Tdtmlivrodiarioauxiliarreceitas;
+
+implementation
+
+const
+
+   WherefiliaisVenda          = 33;
+   WhereAgentes               = 34;
+   WherefiliaisVendaDevn      = 63;
+   WhereAgentesDevn           = 64;
+   WhereOrdenacao             = 68;
+
+   WherefiliaisVendaResumo    = 51;
+   WhereAgentesResumo         = 52;
+   WherefiliaisVendaResumoDevn= 75;
+   WhereAgentesResumoDevn     = 76;
+   WhereOrdenacaoResumo       = 83;
+
+ // Filtros
+
+  FiltroFilial_Pagto      = ' AND ( filialpagto IN (%s)) ';
+  FiltroGrupoFilial_Pagto = ' AND ( filialpagto IN (SELECT filial '+#13#10+
+                                         'FROM filiaisgruposfiliais fgf '+#13#10+
+                                         'WHERE fgf.grupo IN (%s))) ';
+
+  FiltroFilial_Venda      = ' AND ( c.filialvenda IN (%s)) ';
+  FiltroGrupoFilial_Venda = ' AND ( c.filialvenda IN (SELECT filial '+#13#10+
+                                         'FROM filiaisgruposfiliais fgf '+#13#10+
+                                         'WHERE fgf.grupo IN (%s))) ';
+
+  FiltroAgente      = ' AND ( c.agente IN (%s)) ' +#13#10;
+
+
+{$R *.dfm}
+
+{ Tdtmrelatoriorecebimentosdoperiodo }
+
+constructor Tdtmlivrodiarioauxiliarreceitas.Create(AOwner: TComponent);
+begin
+  inherited;
+  qryConsultaFiliais.Tag:= ctPesquisaFilial;
+  qryConsultaGruposFiliais.Tag:= ctPesquisaGrupoFilial;
+  qryProcuraFiliais.Tag:= ctTabelas;
+  qryProcuraGruposFiliais.Tag:= ctTabelas;
+  qryAgentes.Tag                :=ctTabelas;
+  LerParametros;
+end;
+
+procedure Tdtmlivrodiarioauxiliarreceitas.ImprimirRelatorio;
+ var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+begin
+  if FParametroLivro=0 then
+   AtribuirParametrosBaseRelatorio
+  else
+   AtribuirParametrosBaseRelatorio(qryprocurafiliaiscodigo.asstring);
+
+  frVariables['Titulo']:= 'LIVRO DIARIO AUXILIAR DE RECEBIMENTOS';
+  frVariables['SubTitulo']:= '';
+  frVariables['Livro'] := FParametroLivro;
+  frVariables['Pagina']:=FParametroPagina;
+  frVariables['Maximo']:=FParametroMaximo;
+  frVariables['Outras']:=FParametroCabecalho;
+  frVariables['AgruparGrupoFilial']:=FAgruparGrupoFilial;
+  frVariables['AgruparFilial']:=FAgruparFilial;
+  frVariables['AgruparDataPagto']:=FAgruparDataPagto;
+  frmPreview := TfrmPreviewPadrao.create(self);
+  frpLivroDiarioAuxiliarReceitas.Pages[0].PrintToPrevPage := False;
+  frpLivroDiarioAuxiliarReceitasResumo.Pages[0].PrintToPrevPage := False;
+
+//  frpLivroDiarioAuxiliarReceitasResumo.DesignReport;
+  try
+   Relatorio := frmPreview.frCompositeReport;
+   with frmPreview do
+   begin
+    frCompositeReport.Reports.Clear;
+    case FParametroRelatorio of
+    0: case FResumo of
+         0 : begin
+             frCompositeReport.Reports.Add(frpLivroDiarioAuxiliarReceitas);
+             frCompositeReport.Reports.Add(frpLivroDiarioAuxiliarReceitasResumo);
+            end;
+         1 : frCompositeReport.Reports.Add(frpLivroDiarioAuxiliarReceitas);
+         2 : frCompositeReport.Reports.Add(frpLivroDiarioAuxiliarReceitasResumo);
+       end;
+    1: begin
+        if not Assigned(ImpressaoTermos) then
+          ImpressaoTermos := TdtmImprimeTermos.Create(Self);
+        frCompositeReport.Reports.Add(ImpressaoTermos.frpTermos_P);
+       end;
+    end;
+   end;
+   Relatorio.Preview := frmPreview.frPreviewPadrao;
+   relatorio.ShowReport;
+   frmPreview.ShowModal;
+  finally
+   frmPreview.Free;
+   AtribuirParametrosBaseRelatorio;
+  end;
+end;
+
+
+procedure Tdtmlivrodiarioauxiliarreceitas.lerParametros;
+begin
+ with tecFinanceira do
+  begin
+        DiasAtraso1     := ParSistema.DiasAtraso1;
+        DiasAtraso2     := ParSistema.DiasAtraso2;
+        PercentualMultas1 := ParSistema.PercentualAtrasoMultas1;
+        PercentualMultas2 := ParSistema.PercentualAtrasoMultas2;
+        TaxaJuros1        := ParSistema.PercentualAtrasoJuros1;
+        TaxaJuros2        := ParSistema.PercentualAtrasoJuros2;
+        Juros             := ParSistema.TaxaJuros;
+        JurosSimples      := ParSistema.UtilizarJurosSimples;
+  end;
+end;
+
+procedure Tdtmlivrodiarioauxiliarreceitas.SetAgentes(const Value: String);
+begin
+  if (Value <> '') then
+  begin
+    qryImprimirRecebimentos.Sql[WhereAgentes]:= Format(FiltroAgente,[Value]);
+    qryImprimirRecebimentos.Sql[WhereAgentesdevn]:= Format(FiltroAgente,[Value]);
+    qryImprimirRecebimentosResumo.Sql[WhereAgentesResumo]:= Format(FiltroAgente,[Value]);
+    qryImprimirRecebimentosResumo.Sql[WhereAgentesResumodevn]:= Format(FiltroAgente,[Value]);
+  end
+  else
+  begin
+   qryImprimirRecebimentos.Sql[WhereAgentes]:= '';
+   qryImprimirRecebimentos.Sql[WhereAgentesDevn]:= '';
+   qryImprimirRecebimentosResumo.Sql[WhereAgentesResumo]:= '';
+   qryImprimirRecebimentosResumo.Sql[WhereAgentesResumodevn]:= '';
+  end;
+end;
+
+procedure Tdtmlivrodiarioauxiliarreceitas.SetDataFinal(const Value: String);
+begin
+  if not DataEmBranco(Value) then
+  begin
+    FDataFinal := Value;
+    if DataEmBranco(FDataInicial) then
+     FDataInicial:=FDataFinal;
+  end
+  else FDataFinal := FDataInicial;
+
+  FParametroCabecalho:=FParametroCabecalho+' Entre: '+FDataInicial+' e '+FDataFinal;
+  qryImprimirRecebimentos.ParamByName('DataInicial').AsString := FDataInicial;
+  qryImprimirRecebimentos.ParamByName('DataFinal').AsString := FDataFinal;
+  qryImprimirRecebimentosResumo.ParamByName('DataInicial').AsString := FDataInicial;
+  qryImprimirRecebimentosResumo.ParamByName('DataFinal').AsString := FDataFinal;
+end;
+
+procedure Tdtmlivrodiarioauxiliarreceitas.SetDataInicial(const Value: String);
+begin
+  if not DataEmBranco(Value) then
+     FDataInicial := Value;
+end;
+
+procedure Tdtmlivrodiarioauxiliarreceitas.SetParametroFilial(const Value: String);
+begin
+ if (Value <> '') then
+ begin
+    qryImprimirRecebimentos.Sql[WhereFiliaisVenda]:= Format(FiltroFilial_Venda,[Value]);
+    qryImprimirRecebimentos.Sql[WhereFiliaisVendaDevn]:= Format(FiltroFilial_Venda,[Value]);
+    qryImprimirRecebimentosResumo.Sql[WhereFiliaisVendaResumo]:= Format(FiltroFilial_Venda,[Value]);
+    qryImprimirRecebimentosResumo.Sql[WhereFiliaisVendaResumoDevn]:= Format(FiltroFilial_Venda,[Value]);
+    FParametroCabecalho:=FParametroCabecalho+' Filial: '+Value;
+ end
+ else
+ begin
+  qryImprimirRecebimentos.Sql[WhereFiliaisVenda]:= '';
+  qryImprimirRecebimentos.Sql[WhereFiliaisVendaDevn]:= '';
+  qryImprimirRecebimentosResumo.Sql[WhereFiliaisVendaResumo]:= '';
+  qryImprimirRecebimentosResumo.Sql[WhereFiliaisVendaResumoDevn]:= '';
+ end;
+end;
+
+procedure Tdtmlivrodiarioauxiliarreceitas.SetParametroGrupoFiliais(const Value: String);
+begin
+ if (Value <> '') then
+ begin
+   qryImprimirRecebimentos.Sql[WhereFiliaisVenda]:= Format(FiltroGrupoFilial_Venda,[Value]);
+   qryImprimirRecebimentos.Sql[WhereFiliaisVendaDevn]:= Format(FiltroGrupoFilial_Venda,[Value]);
+   qryImprimirRecebimentosResumo.Sql[WhereFiliaisVendaResumo]:= Format(FiltroGrupoFilial_Venda,[Value]);
+   qryImprimirRecebimentosResumo.Sql[WhereFiliaisVendaResumoDevn]:= Format(FiltroGrupoFilial_Venda,[Value]);
+   FParametroCabecalho:=FParametroCabecalho+' Grupo de Filial: '+Value;
+ end;
+end;
+
+procedure Tdtmlivrodiarioauxiliarreceitas.SetOrdenacao(
+  const Value: Integer);
+begin
+  FOrdenacao := Value;
+end;
+
+procedure Tdtmlivrodiarioauxiliarreceitas.SetResumo(const Value: Integer);
+begin
+  FResumo := Value;
+end;
+
+procedure Tdtmlivrodiarioauxiliarreceitas.SetResumoPorDia(const Value: Integer);
+begin
+  FResumoPorDia := Value;
+end;
+
+function Tdtmlivrodiarioauxiliarreceitas.GetListaAgentes: TStrings;
+begin
+  FListaAgentes:= TStringList.Create;
+  qryAgentes.Open;
+  while not qryAgentes.Eof do
+  begin
+    FListaAgentes.AddObject(format('%3s',[qryAgentescodigo.AsString])+'.'+qryAgentesdescricao.AsString, Pointer(qryAgentescodigo.AsInteger));
+    qryAgentes.Next;
+  end;
+  qryAgentes.Close;
+  Result := FListaAgentes;
+end;
+
+procedure Tdtmlivrodiarioauxiliarreceitas.MontarOrdenacao;
+var
+Ordenacao: String;
+begin
+  Ordenacao:='';
+  if FAgruparGrupoFilial then
+    Ordenacao := Ordenacao+', nomegrupofilialvenda, grupofilialvenda ';
+  if FAgruparFilial then
+     Ordenacao := Ordenacao+', nomefilialvenda, filialvenda ';
+  if FAgruparDataPagto then
+   Ordenacao:=Ordenacao+', datapagto ';
+   
+  if length(Ordenacao)<>0 then
+    qryImprimirRecebimentosResumo.sql[WhereOrdenacaoResumo] := 'Order by '+copy(Ordenacao,2,length(Ordenacao)-1)
+  else qryImprimirRecebimentosResumo.sql[WhereOrdenacaoResumo] := '';
+
+  Ordenacao:=Ordenacao+', datapagto, cliente, tipocliente, nomecliente';
+  qryImprimirRecebimentos.sql[WhereOrdenacao]:='Order by '+copy(Ordenacao,2,length(Ordenacao)-1);
+end;
+
+procedure Tdtmlivrodiarioauxiliarreceitas.MontarFiltroAgentes(
+  Usar: TCheckListBox);
+var
+  STRAgentes: String;
+  TodosAgentes: Boolean;
+  cnt: Integer;
+begin
+  TodosAgentes:=true;
+  STRAgentes := '';
+  for cnt := 0 to FListaAgentes.Count - 1 do
+    if Usar.Checked[cnt] then
+      STRAgentes := STRAgentes + '''' + IntToStr(Integer(FListaAgentes.Objects[cnt])) + ''','
+    else
+      TodosAgentes:=false;
+
+  STRAgentes := Copy(STRAgentes, 0, Length(STRAgentes) - 1);
+  Agentes := STRAGentes ;
+  if Trim(STRAgentes) <> '' then
+   if not TodosAgentes then
+     FParametroCabecalho:=FParametroCabecalho+' Agentes: '+STRAgentes
+   else
+    Agentes := '';
+end;
+
+destructor Tdtmlivrodiarioauxiliarreceitas.Destroy;
+begin
+  FListaAgentes.Free;
+  inherited;
+end;
+
+procedure Tdtmlivrodiarioauxiliarreceitas.frpLivroDiarioAuxiliarReceitasResumoBeforePrint(
+  Memo: TStringList; View: TfrView);
+begin
+  inherited;
+  if (View.Name = 'fpvLogo') then
+   if FileExists(LogotipoFilialBase) then
+    try TfrPictureView(View).Picture.LoadFromFile(LogotipoFilialBase) except end;
+end;
+
+procedure Tdtmlivrodiarioauxiliarreceitas.frpLivroDiarioAuxiliarReceitasGetValue(
+  const ParName: String; var ParValue: Variant);
+begin
+  inherited;
+  if Parname = 'FOLHA_OU_PAGINA' then
+       case ParSistema.LivrosFiscaisFolhaouPagina of
+        0: ParValue := ctFOLHA;
+        1: ParValue := ctPAGINA;
+       end;
+end;
+
+function Tdtmlivrodiarioauxiliarreceitas.AbrirTabelasRecebimentos: Boolean;
+begin
+  qryImprimirRecebimentos.close;
+  qryImprimirRecebimentosResumo.close;
+  case Resumo of
+  0:begin
+     qryImprimirRecebimentos.Open;
+     qryImprimirRecebimentosResumo.Open;
+    end;
+  1: qryImprimirRecebimentos.Open;
+  2: qryImprimirRecebimentosResumo.Open;
+  end;
+  result := not qryImprimirRecebimentos.IsEmpty or
+            not qryImprimirRecebimentosResumo.IsEmpty;
+end;
+
+procedure Tdtmlivrodiarioauxiliarreceitas.SetAgruparGrupoFilial(
+  const Value: Boolean);
+begin
+  FAgruparGrupoFilial := Value;
+  qryImprimirRecebimentosResumo.ParamByName('AgruparGrupoFilialVenda').AsBoolean :=Value
+end;
+
+procedure Tdtmlivrodiarioauxiliarreceitas.SetAgruparFilial(
+  const Value: Boolean);
+begin
+  FAgruparFilial := Value;
+  qryImprimirRecebimentosResumo.ParamByName('AgruparFilialVenda').AsBoolean :=Value
+end;
+
+procedure Tdtmlivrodiarioauxiliarreceitas.SetAgruparDataPagto(
+  const Value: Boolean);
+begin
+  FAgruparDataPagto := Value;
+  qryImprimirRecebimentosResumo.ParamByName('AgruparDataPagto').AsBoolean := Value;
+end;
+
+function Tdtmlivrodiarioauxiliarreceitas.ExisteFilial(Campo,
+  Codigo: string): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaFiliais, Campo, Codigo);
+end;
+
+function Tdtmlivrodiarioauxiliarreceitas.ExisteGrupoFilial(Campo,
+  Codigo: string): Boolean;
+begin
+  Result:= ExisteCodigo(qryConsultaGruposFiliais, Campo, Codigo);
+end;
+
+function Tdtmlivrodiarioauxiliarreceitas.GetConsultarFilial: TtecQuery;
+begin
+  Result:= qryConsultaFiliais;
+end;
+
+function Tdtmlivrodiarioauxiliarreceitas.GetConsultarGrupoFilial: TtecQuery;
+begin
+  Result:= qryConsultaGruposFiliais;
+end;
+
+procedure Tdtmlivrodiarioauxiliarreceitas.AbreTabelaPesquisa(
+  TipoPesquisa: TTecPesquisa);
+begin
+  case TipoPesquisa of
+    pesFILIAIS      : Abre(ctPesquisaFilial);
+    pesGRUPOSFILIAIS: Abre(ctPesquisaGrupoFilial);
+  end;
+end;
+
+procedure Tdtmlivrodiarioauxiliarreceitas.FechaTabelaPesquisa(
+  TipoPesquisa: TTecPesquisa);
+begin
+  case TipoPesquisa of
+    pesFILIAIS      : Fecha(ctPesquisaFilial);
+    pesGRUPOSFILIAIS: Fecha(ctPesquisaGrupoFilial);
+  end;
+end;
+
+procedure Tdtmlivrodiarioauxiliarreceitas.Selecionar(
+  Pesquisa: TtecPesquisa);
+begin
+  case Pesquisa of
+    pesFILIAIS      : RefazConsulta(qryProcuraFiliais,[0],[CodigoFilial]);
+    pesGRUPOSFILIAIS: RefazConsulta(qryProcuraGruposFiliais,[0],[CodigoGrupoFilial]);
+  end;
+end;
+
+function Tdtmlivrodiarioauxiliarreceitas.GetCodigoFilial: Integer;
+begin
+  Result := qryConsultaFiliaiscodigo.AsInteger;
+end;
+
+function Tdtmlivrodiarioauxiliarreceitas.GetCodigoGrupoFilial: Integer;
+begin
+  Result := qryConsultaGruposFiliaiscodigo.AsInteger;
+end;
+
+end.

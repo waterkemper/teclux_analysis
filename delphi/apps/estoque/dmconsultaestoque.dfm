@@ -1,6 +1,6 @@
 inherited dtmConsultaEstoque: TdtmConsultaEstoque
-  Left = 209
-  Top = 224
+  Left = 206
+  Top = 70
   Height = 727
   Width = 1132
   object qryConsultaFilial: TtecQuery
@@ -1725,7 +1725,17 @@ inherited dtmConsultaEstoque: TdtmConsultaEstoque
     LinkOptions = [loAlwaysResync]
     Constraints = <>
     ExtraOptions = [poTextAsMemo, poOidAsBlob]
-    Macros = <>
+    Macros = <
+      item
+        DataType = ftUnknown
+        Name = 'produtos'
+        ParamType = ptUnknown
+      end
+      item
+        DataType = ftUnknown
+        Name = 'estoque'
+        ParamType = ptUnknown
+      end>
     Sql.Strings = (
       ' select '
       '         elementos.*,'
@@ -1813,7 +1823,11 @@ inherited dtmConsultaEstoque: TdtmConsultaEstoque
       '           (e.filial = f.codigo) and'
       '           (p.caracteristica = c.codigo) and'
       '     c.codigo = :caracteristica and'
-      '     e.filial = :filial'
+      '     e.filial = : filial'
+      ''
+      '      %produtos'
+      '      %estoque'
+      ''
       '  ) as caracteristicas'
       ' on elementos.valorgrade1 =  caracteristicas.valorgrade1 '
       '    and elementos.valorgrade2 = caracteristicas.valorgrade2'

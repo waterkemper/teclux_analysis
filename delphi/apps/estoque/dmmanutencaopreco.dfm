@@ -2260,7 +2260,7 @@ inherited dtmManutencaoPreco: TdtmManutencaoPreco
     Transaction = dtmTecSoft.tstTecSoft
     CachedUpdates = False
     ShowRecordTypes = [ztModified, ztInserted, ztUnmodified]
-    Options = [doAutoFillDefs]
+    Options = [doHourGlass, doAutoFillDefs]
     LinkOptions = [loAlwaysResync]
     Constraints = <>
     ExtraOptions = [poTextAsMemo, poOidAsBlob]
@@ -2282,9 +2282,13 @@ inherited dtmManutencaoPreco: TdtmManutencaoPreco
     RequestLive = False
     Left = 720
     Top = 240
-    object qryConsultaMarketPlacesublocalizacao: TStringField
-      DisplayLabel = 'Sub Localiza'#231#227'o'
-      FieldName = 'sublocalizacao'
+    object qryConsultaMarketPlacecodigo: TIntegerField
+      FieldName = 'codigo'
+      Required = True
+    end
+    object qryConsultaMarketPlacedescricao: TStringField
+      FieldName = 'descricao'
+      Size = 100
     end
   end
   object qrycomissao_manutencao_preco: TtecQuery

@@ -22,10 +22,10 @@ inherited frmLancamentoContas: TfrmLancamentoContas
         Action = aclAbilitar
       end
       object gbxlotes: TGroupBox
-        Left = 158
+        Left = 84
         Top = 2
         Width = 88
-        Height = 35
+        Height = 39
         Align = alRight
         Caption = 'N'#176' DO LOTE'
         Font.Charset = DEFAULT_CHARSET
@@ -64,7 +64,7 @@ inherited frmLancamentoContas: TfrmLancamentoContas
         Left = 225
         Top = 2
         Width = 75
-        Height = 35
+        Height = 39
         Hint = 'Visualizar como o relat'#243'rio ser'#225' impresso'
         Caption = 'Imprimir F7'
         Flat = True
@@ -109,7 +109,7 @@ inherited frmLancamentoContas: TfrmLancamentoContas
         Left = 300
         Top = 2
         Width = 108
-        Height = 35
+        Height = 39
         Hint = 'Exibir lan'#231'amentos em lotes'
         Caption = 'Exibir Lotes F8'
         Flat = True
@@ -180,10 +180,10 @@ inherited frmLancamentoContas: TfrmLancamentoContas
   end
   object pgcLancamentos: TPageControl
     Left = 0
-    Top = 40
+    Top = 45
     Width = 818
-    Height = 446
-    ActivePage = tstLancamento
+    Height = 441
+    ActivePage = tstParametrosConsulta
     Align = alClient
     TabOrder = 0
     TabStop = False
@@ -194,7 +194,7 @@ inherited frmLancamentoContas: TfrmLancamentoContas
         Left = 0
         Top = 183
         Width = 810
-        Height = 232
+        Height = 227
         Align = alClient
         Caption = 'COMPLEMENTO'
         Font.Charset = DEFAULT_CHARSET
@@ -217,7 +217,7 @@ inherited frmLancamentoContas: TfrmLancamentoContas
           Left = 2
           Top = 20
           Width = 806
-          Height = 210
+          Height = 205
           Align = alClient
           DataField = 'complemento'
           DataSource = dtmLancamentoContas.dsrLancamentos
@@ -1063,7 +1063,7 @@ inherited frmLancamentoContas: TfrmLancamentoContas
         Left = 0
         Top = 0
         Width = 810
-        Height = 298
+        Height = 293
         Align = alClient
         DataSource = dtmLancamentoContas.dsrLancamentosLotes
         Font.Charset = DEFAULT_CHARSET
@@ -1093,10 +1093,13 @@ inherited frmLancamentoContas: TfrmLancamentoContas
         CanDelete = False
         CanNotInsertFromGrid = False
         PostOnEnter = False
+        PostOnSetUpDown = False
         DenySort = False
         DefaultRowHeight = 19
         ExibirNumerodaLinha = False
         NaoAtribuirDadosaTabelaaoDigitar = False
+        ShowWhenFieldInvisible = False
+        CanClickWhenEditing = False
         Columns = <
           item
             Expanded = False
@@ -1184,7 +1187,7 @@ inherited frmLancamentoContas: TfrmLancamentoContas
       end
       object GroupBox3: TGroupBox
         Left = 0
-        Top = 353
+        Top = 348
         Width = 810
         Height = 62
         Align = alBottom
@@ -1227,7 +1230,7 @@ inherited frmLancamentoContas: TfrmLancamentoContas
       end
       object pnlHistoricosTotais: TPanel
         Left = 0
-        Top = 298
+        Top = 293
         Width = 810
         Height = 55
         Align = alBottom
@@ -1400,7 +1403,7 @@ inherited frmLancamentoContas: TfrmLancamentoContas
         Left = 0
         Top = 0
         Width = 810
-        Height = 415
+        Height = 410
         ActivePage = tstParametros
         Align = alClient
         TabOrder = 0
@@ -2312,7 +2315,7 @@ inherited frmLancamentoContas: TfrmLancamentoContas
             Left = 0
             Top = 0
             Width = 802
-            Height = 348
+            Height = 343
             Align = alClient
             DataSource = dtmLancamentoContas.dsrConsultaLancamentos
             Font.Charset = DEFAULT_CHARSET
@@ -2341,10 +2344,13 @@ inherited frmLancamentoContas: TfrmLancamentoContas
             CanDelete = False
             CanNotInsertFromGrid = False
             PostOnEnter = False
+            PostOnSetUpDown = False
             DenySort = False
             DefaultRowHeight = 19
             ExibirNumerodaLinha = False
             NaoAtribuirDadosaTabelaaoDigitar = False
+            ShowWhenFieldInvisible = False
+            CanClickWhenEditing = False
             Columns = <
               item
                 Expanded = False
@@ -2385,6 +2391,7 @@ inherited frmLancamentoContas: TfrmLancamentoContas
                 Title.Font.Name = 'helvetica'
                 Title.Font.Pitch = fpVariable
                 Title.Font.Style = []
+                Width = 64
                 Visible = True
               end
               item
@@ -2446,7 +2453,7 @@ inherited frmLancamentoContas: TfrmLancamentoContas
           end
           object pnlRegistros: TPanel
             Left = 0
-            Top = 348
+            Top = 343
             Width = 802
             Height = 36
             Align = alBottom

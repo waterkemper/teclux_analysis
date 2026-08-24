@@ -1,0 +1,58 @@
+unit fmvisualizarlogparcelasURL;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, fmnavcontroles, DB, ZQuery, ZPgSqlQuery, cpquery, cpdatasource,
+  Grids, DBGrids, cpdbgrid;
+
+type
+  TfrmVisualizarLogParcelas = class(TfrmNavControles)
+    dbgVisualizarLogParcelas: TtecDBGrid;
+    dsrVisualizarLogParcelas: TtecDataSource;
+    qryVisualizarLogParcelas: TtecQuery;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmVisualizarLogParcelas: TfrmVisualizarLogParcelas;
+  AcionarTelaVisualizarLogParcelas: procedure (Owner: TComponent; Contrato: String);
+
+
+implementation
+
+{$R *.dfm}
+
+
+procedure AcionarTelaVisualizarLogParcelas_(Owner: TComponent; Contrato: String);
+begin
+  if not assigned(frmVisualizarLogParcelas) or (frmVisualizarLogParcelas.Owner <> Owner) then
+  begin
+    if assigned(frmVisualizarLogParcelas) then
+      frmVisualizarLogParcelas.free;
+
+    frmVisualizarLogParcelas := TfrmVisualizarLogParcelas.create(Owner);
+
+    frmVisualizarLogParcelas.qryVisualizarLogParcelas.parambyname('contrato').asString := Contrato;
+    frmVisualizarLogParcelas.qryVisualizarLogParcelas.close;
+    frmVisualizarLogParcelas.qryVisualizarLogParcelas.open;
+
+    if frmVisualizarLogParcelas.qryVisualizarLogParcelas.isempty then
+      MensagemAviso('Log não encontrada.')
+    else
+      frmVisualizarLogParcelas.showmodal;
+  end;
+  frmVisualizarLogParcelas.free;
+//  frmVisualizarImageURL.BringToFront;
+end;
+
+
+initialization
+   AcionarTelaVisualizarLogParcelas :=  AcionarTelaVisualizarLogParcelas_;
+
+
+end.

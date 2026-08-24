@@ -1,7 +1,7 @@
 inherited dtmLigarClientes: TdtmLigarClientes
   OldCreateOrder = False
-  Left = 372
-  Top = 201
+  Left = 340
+  Top = 218
   Height = 603
   Width = 871
   object qryFiliais: TtecQuery
@@ -815,8 +815,8 @@ inherited dtmLigarClientes: TdtmLigarClientes
       '  AND ct.tipocliente = vf.tipo'
       '  AND ct.situacao in ('#39'F'#39','#39'N'#39','#39'P'#39')'
       
-        '  and ct.numero not in (select ct.origem from contratos ct where' +
-        ' ct.origem = ct.numero)'
+        '  and ct.numero not in (select ct2.origem from contratos ct2 whe' +
+        're ct2.origem = ct.numero)'
       '  and p.datavencto < current_date'
       '  and p.datapagto is null  '
       ''

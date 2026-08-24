@@ -1,0 +1,154 @@
+unit dmLancamentosDepreciacao;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, ZTransact, DB, ZQuery, ZPgSqlQuery, cpquery, biblio, dmtecsoft, variants,
+  clparametrossistema;
+
+type
+  TdtmLancamentosDepreciacao = class(TdtmBasico)
+    qryApagarLancamentosDepreciacao: TtecQuery;
+    qryValorDepreciacao: TtecQuery;
+    qryImobilizado: TtecQuery;
+    qryValorDepreciacaovalor: TFloatField;
+    qryLancamentos: TtecQuery;
+    qryLancamentosexercicio: TIntegerField;
+    qryLancamentosnrlancto: TIntegerField;
+    qryLancamentosfilial: TIntegerField;
+    qryLancamentosdata: TDateField;
+    qryLancamentosorigem: TStringField;
+    qryLancamentosnrorigem: TLargeintField;
+    qryLancamentosdebitar: TIntegerField;
+    qryLancamentoscreditar: TIntegerField;
+    qryLancamentosvalor: TFloatField;
+    qryLancamentoshistorico: TIntegerField;
+    qryLancamentoscomplemento: TStringField;
+    qryLancamentosalteracao: TDateField;
+    qryImobilizadonumero: TIntegerField;
+    qryImobilizadodata_entrada: TDateField;
+    qryImobilizadofilialcontribuinte: TIntegerField;
+    qryImobilizadocodigobem: TLargeintField;
+    qryImobilizadonumlre: TStringField;
+    qryImobilizadofolhalre: TStringField;
+    qryImobilizadoicmsvalor: TFloatField;
+    qryImobilizadoicmsvalorst: TFloatField;
+    qryImobilizadoicmsvalorfrt: TFloatField;
+    qryImobilizadoicmsvalordif: TFloatField;
+    qryImobilizadodata_saida: TDateField;
+    qryImobilizadonmeses: TIntegerField;
+    qryImobilizadotipomovimentosaida: TStringField;
+    qryImobilizadovalordobem: TFloatField;
+    qryImobilizadoidentificacao: TStringField;
+    qryImobilizadoinfcomplementar: TStringField;
+    qryImobilizadodatagarantia: TDateField;
+    qryImobilizadotipoconta: TStringField;
+    qryImobilizadodepreciar: TStringField;
+    qryImobilizadovalordepreciar: TFloatField;
+    qryImobilizadotaxadepreciacao: TFloatField;
+    qryImobilizadodepreciacaoacumulada: TFloatField;
+    qryImobilizadoobsdepreciacao: TStringField;
+    qryImobilizadofuncaobemnaempresa: TStringField;
+    qryImobilizadovidautil: TIntegerField;
+    qryImobilizadoiniciouso: TDateField;
+    qryImobilizadocodigonota: TIntegerField;
+    qryImobilizadoccdobem: TIntegerField;
+    qryImobilizadoccdepreciacaoacumulada: TIntegerField;
+    qryImobilizadocccorrecaomonetaria: TIntegerField;
+    qryImobilizadoccdepreciacao: TIntegerField;
+    qryImobilizadocentrodecusto: TIntegerField;
+    qryImobilizadodadofiscal: TIntegerField;
+    qryImobilizadovalorresidual: TFloatField;
+    qryImobilizadodescricaocontadobem: TStringField;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    function GerarLancamentos(MesInicial, MesFinal, CodigoHistorico, ListaBens: String): boolean;
+  end;
+
+var
+  dtmLancamentosDepreciacao: TdtmLancamentosDepreciacao;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmLancamentosDepreciacao }
+
+function TdtmLancamentosDepreciacao.GerarLancamentos(MesInicial, MesFinal,
+  CodigoHistorico, ListaBens: String): boolean;
+var
+  vmes_inicial, vmes_final, i : byte;
+  vData: TDateTime;
+  vValorDepreciacao : Currency;
+begin
+  result := false;
+  vmes_inicial := strtoint(Mesinicial);
+  vmes_final := strtoint(Mesfinal);
+
+  // Apagar lançamentos do tipo z -> depreciação
+  qryApagarLancamentosDepreciacao.parambyname('exercicio').asinteger := parsistema.EXERCICIOCONTABILIDADE;
+  qryApagarLancamentosDepreciacao.ExecSql;
+
+  qryImobilizado.close;
+  if ListaBens <> '' then
+    qryImobilizado.MacroByName('ListadeBens').AsString := 'and i.numero in ('+ListaBens+')'
+  else
+    qryImobilizado.MacroByName('ListadeBens').AsString := '';
+  qryImobilizado.open;
+
+  if qryImobilizado.IsEmpty then
+    MensagemAviso('Nenhuma conta de depreciação foi selecionada.')
+  else
+  begin
+    refazconsulta(qryLancamentos,[],[]);
+
+    for i:=vMes_inicial to vMes_final do
+    begin
+      vData := UltimoDiaMes(strtodate('01/'+preencheString(inttostr(i),'0',2,false)+'/'+inttostr(vexercicio)));
+      qryImobilizado.first;
+      while not qryimobilizado.Eof do
+      begin
+        RefazConsultaPorNome(qryValorDepreciacao, ['CodigoBem','Data'], [qryImobilizado.FieldByName('numero').AsInteger, vData]);
+        vValorDepreciacao := qryValorDepreciacaovalor.AsCurrency;
+        if vValorDepreciacao <> 0 then
+        begin
+          if qryLancamentos.Locate('debitar;creditar;data', VarArrayOf([qryImobilizadoccdepreciacaoacumulada.asinteger,
+                                                                        qryImobilizadoccdepreciacao.asinteger, vData]), []) then
+            qryLancamentos.edit
+          else
+            qryLancamentos.append;
+
+          qryLancamentosexercicio.AsInteger := ParSistema.EXERCICIOCONTABILIDADE;
+          qryLancamentosfilial.AsInteger := ParSistema.Filial;
+          qryLancamentosorigem.AsString := 'Z';
+          qryLancamentosdata.asdatetime := vData;
+  //        qryLancamentosnrorigem: TLargeintField;
+          qryLancamentosdebitar.asinteger := qryImobilizadoccdepreciacaoacumulada.asinteger;
+          qryLancamentoscreditar.asinteger := qryImobilizadoccdepreciacao.asinteger;
+          qryLancamentosvalor.ascurrency := qryLancamentosvalor.ascurrency + vValorDepreciacao;
+          if CodigoHistorico<>'' then
+            qryLancamentoshistorico.asString := CodigoHistorico;
+          if pos(qryImobilizado.fieldbyname('descricaocontadobem').AsString, qryLancamentoscomplemento.asstring)=0 then
+          begin
+            if qryLancamentoscomplemento.asstring = '' then
+              qryLancamentoscomplemento.asstring := qryImobilizado.fieldbyname('descricaocontadobem').AsString
+            else
+              qryLancamentoscomplemento.asstring := qryLancamentoscomplemento.asstring + ', '+qryImobilizado.fieldbyname('descricaocontadobem').AsString;
+          end;
+  //        qryLancamentosalteracao: TDateField;
+          qryLancamentos.post;
+        end;
+        qryImobilizado.next;
+      end;
+    end;
+
+    result := perpetrar([qryLancamentos]);
+    if result then
+      MensagemAviso('Lançamentos de depreciação realizado com sucesso.');
+  end;
+
+end;
+
+end.

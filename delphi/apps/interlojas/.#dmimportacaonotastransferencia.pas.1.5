@@ -1,0 +1,817 @@
+unit dmimportacaonotastransferencia;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery, ZTransact;
+
+type
+  TdtmImportacaoNotasTransferencia = class(TdtmBasico)
+    qryDadosFiscais: TtecQuery;
+    qryDadosFiscaisdata: TDateField;
+    qryDadosFiscaissituacao: TStringField;
+    qryDadosFiscaismanual: TBooleanField;
+    qryDadosFiscaisfilialvenda: TIntegerField;
+    qryDadosFiscaiscontrato: TStringField;
+    qryDadosFiscaisvalortotal: TFloatField;
+    qryDadosFiscaisvalorvista: TFloatField;
+    qryDadosFiscaisdesconto: TFloatField;
+    qryDadosFiscaisvalorfrete: TFloatField;
+    qryDadosFiscaisseguro: TFloatField;
+    qryDadosFiscaisvaloripi: TFloatField;
+    qryDadosFiscaisvalorservicos: TFloatField;
+    qryDadosFiscaisvalorprodutos: TFloatField;
+    qryDadosFiscaisdespesasacessorias: TFloatField;
+    qryDadosFiscaiscodigofiscal: TIntegerField;
+    qryDadosFiscaiscodigofiscalservico: TIntegerField;
+    qryDadosFiscaisvendedor: TIntegerField;
+    qryDadosFiscaisagente: TIntegerField;
+    qryDadosFiscaisestadocfo: TStringField;
+    qryDadosFiscaisfilialemissao: TIntegerField;
+    qryDadosFiscaisnatureza: TStringField;
+    qryDadosFiscaiscodigonatureza: TIntegerField;
+    qryDadosFiscaisdescricaosemprodutos: TStringField;
+    qryDadosFiscaisplano: TIntegerField;
+    qryDadosFiscaisviatransporte: TStringField;
+    qryDadosFiscaisdatasaida: TDateField;
+    qryDadosFiscaisfornecedortransporte: TIntegerField;
+    qryDadosFiscaisfrete: TStringField;
+    qryDadosFiscaiscliente: TIntegerField;
+    qryDadosFiscaistipocliente: TStringField;
+    qryDadosFiscaisestadoplaca: TStringField;
+    qryDadosFiscaisplaca: TStringField;
+    qryDadosFiscaisnome: TStringField;
+    qryDadosFiscaisrua: TStringField;
+    qryDadosFiscaisendnumero: TIntegerField;
+    qryDadosFiscaisendcomplemento: TStringField;
+    qryDadosFiscaisbairro: TIntegerField;
+    qryDadosFiscaiscidade: TIntegerField;
+    qryDadosFiscaisestado: TStringField;
+    qryDadosFiscaiscep: TIntegerField;
+    qryDadosFiscaispessoatipo: TStringField;
+    qryDadosFiscaispessoanumero: TStringField;
+    qryDadosFiscaisfonenumero: TIntegerField;
+    qryDadosFiscaisfoneddd: TIntegerField;
+    qryDadosFiscaisdocumento: TStringField;
+    qryDadosFiscaisobservacoes: TStringField;
+    qryDadosFiscaisconceito: TIntegerField;
+    qryDadosFiscaisdebitar: TIntegerField;
+    qryDadosFiscaiscreditar: TIntegerField;
+    qryDadosFiscaishistorico: TIntegerField;
+    qryDadosFiscaistotalbaseicmsproprio: TFloatField;
+    qryDadosFiscaistotalvaloricmsproprio: TFloatField;
+    qryDadosFiscaistotalbaseicmssubstituicao: TFloatField;
+    qryDadosFiscaistotalvaloricmssubstituicao: TFloatField;
+    qryDadosFiscaisaliquotaicmsproprio: TFloatField;
+    qryDadosFiscaisanexotres: TStringField;
+    qryDadosFiscaisacrescimofinanceiro: TFloatField;
+    qryDadosFiscaisacrescimoexcluido: TFloatField;
+    qryDadosFiscaisicmsexcluido: TFloatField;
+    qryDadosFiscaisirretido: TFloatField;
+    qryDadosFiscaisinssretido: TFloatField;
+    qryDadosFiscaisissretido: TFloatField;
+    qryDadosFiscaiscofinsretido: TFloatField;
+    qryDadosFiscaispisretido: TFloatField;
+    qryDadosFiscaiscsllretido: TFloatField;
+    qryDadosFiscaisbaseicms: TFloatField;
+    qryDadosFiscaisvaloricms: TFloatField;
+    qryDadosFiscaisvalorissqn: TFloatField;
+    qryDadosFiscaissubstituicaoipi: TBooleanField;
+    qryDadosFiscaisdadofiscalcomplementar: TIntegerField;
+    qryDadosFiscaisobservacoescomplementar: TStringField;
+    qryDadosFiscaisobscliente: TStringField;
+    qryDadosFiscaisobsclienteipisuspenso: TStringField;
+    qryDadosFiscaisobservacoesicmssubstituido: TStringField;
+    qryDadosFiscaisnumlotenfe: TStringField;
+    qryDadosFiscaisnumrecibonfe: TStringField;
+    qryDadosFiscaisnumprotocolonfe: TStringField;
+    qryDadosFiscaisnumcancelamentonfe: TStringField;
+    qryDadosFiscaisemail: TStringField;
+    qryDadosFiscaisdatacancelamento: TDateField;
+    qryDadosFiscaismodelodocto: TStringField;
+    qryDadosFiscaislocalretirada_numero: TIntegerField;
+    qryDadosFiscaislocalentrega_numero: TIntegerField;
+    qryDadosFiscaissuframa: TStringField;
+    qryDadosFiscaisiesubsttributario: TStringField;
+    qryNotas: TtecQuery;
+    qryNotasfilial: TIntegerField;
+    qryNotasserie: TStringField;
+    qryNotasnumero: TIntegerField;
+    qryNotasdadofiscal: TIntegerField;
+    qryDadosFiscaisnumero: TIntegerField;
+    qryMovimentos: TtecQuery;
+    qryMovimentosnumero: TIntegerField;
+    qryMovimentosproduto: TLargeintField;
+    qryMovimentosfilial: TIntegerField;
+    qryMovimentosdata: TDateField;
+    qryMovimentoslancto: TIntegerField;
+    qryMovimentoshora: TTimeField;
+    qryMovimentostipomovimento: TStringField;
+    qryMovimentosoperacao: TStringField;
+    qryMovimentosemestoque: TFloatField;
+    qryMovimentosreservado: TFloatField;
+    qryMovimentostransito: TFloatField;
+    qryMovimentosdemonstracao: TFloatField;
+    qryMovimentosconserto: TFloatField;
+    qryMovimentosfuturo: TFloatField;
+    qryMovimentosdanificada: TFloatField;
+    qryMovimentosestoquefisico: TFloatField;
+    qryMovimentosreservaprevia: TFloatField;
+    qryMovimentosquantidade: TFloatField;
+    qryMovimentosfinanceiro: TFloatField;
+    qryMovimentosvalor: TFloatField;
+    qryMovimentosprecosemicms: TFloatField;
+    qryMovimentosprecocomicms: TFloatField;
+    qryMovimentosaliquotaipi: TFloatField;
+    qryMovimentosreferencia: TStringField;
+    qryMovimentostrfproduto: TLargeintField;
+    qryMovimentostrffilial: TIntegerField;
+    qryMovimentoscomposto: TLargeintField;
+    qryMovimentoscodigonota: TIntegerField;
+    qryMovimentoscliente: TIntegerField;
+    qryMovimentostipocliente: TStringField;
+    qryMovimentosdadofiscal: TIntegerField;
+    qryMovimentoscontrato: TStringField;
+    qryMovimentoscmpmovimento: TIntegerField;
+    qryMovimentosnegmovimento: TIntegerField;
+    qryMovimentosqtdenegativa: TFloatField;
+    qryMovimentosnumerotroca: TIntegerField;
+    qryMovimentosusuariologado: TIntegerField;
+    qryMovimentosusuarioautorizacao: TIntegerField;
+    qryProdutosDadosFiscais: TtecQuery;
+    qryProdutosDadosFiscaisdadofiscal: TIntegerField;
+    qryProdutosDadosFiscaisnumero: TIntegerField;
+    qryProdutosDadosFiscaisproduto: TLargeintField;
+    qryProdutosDadosFiscaisfilial: TIntegerField;
+    qryProdutosDadosFiscaisvendedor: TIntegerField;
+    qryProdutosDadosFiscaisentregar: TBooleanField;
+    qryProdutosDadosFiscaisquantidade: TFloatField;
+    qryProdutosDadosFiscaisprecovenda: TFloatField;
+    qryProdutosDadosFiscaisprecotabela: TFloatField;
+    qryProdutosDadosFiscaisdescricaoprecovenda: TStringField;
+    qryProdutosDadosFiscaisreserva: TIntegerField;
+    qryProdutosDadosFiscaisaliquotaicms: TFloatField;
+    qryProdutosDadosFiscaisreducaobase: TFloatField;
+    qryProdutosDadosFiscaispercentualreducaobase: TFloatField;
+    qryProdutosDadosFiscaisincidencia: TStringField;
+    qryProdutosDadosFiscaisorigem: TIntegerField;
+    qryProdutosDadosFiscaisicms: TIntegerField;
+    qryProdutosDadosFiscaismovimento: TIntegerField;
+    qryProdutosDadosFiscaisbaseicms: TFloatField;
+    qryProdutosDadosFiscaisaliquotaipi: TFloatField;
+    qryProdutosDadosFiscaisvaloripi: TFloatField;
+    qryProdutosDadosFiscaisclassificacaofiscal: TStringField;
+    qryProdutosDadosFiscaisipi: TIntegerField;
+    qryProdutosDadosFiscaiscomposto: TBooleanField;
+    qryProdutosDadosFiscaisdiscriminarcomposto: TStringField;
+    qryProdutosDadosFiscaisdiscriminarpreco: TBooleanField;
+    qryProdutosDadosFiscaisfatorsubstituicao: TFloatField;
+    qryProdutosDadosFiscaiscodigonota: TIntegerField;
+    qryProdutosDadosFiscaisbrinde: TBooleanField;
+    qryProdutosDadosFiscaisacrescimo: TFloatField;
+    qryProdutosDadosFiscaisdesconto: TFloatField;
+    qryProdutosDadosFiscaisfrete: TFloatField;
+    qryProdutosDadosFiscaisseguro: TFloatField;
+    qryProdutosDadosFiscaisdespesasacessorias: TFloatField;
+    qryProdutosDadosFiscaissubstituicaoipi: TBooleanField;
+    qryProdutosDadosFiscaisvalordescontoitem: TFloatField;
+    qryProdutosDadosFiscaiscodigofiscal: TIntegerField;
+    qryProdutosDadosFiscaisosp: TIntegerField;
+    qryProdutosDadosFiscaispn: TLargeintField;
+    qryProdutosDadosFiscaisaliquotaicmsst: TFloatField;
+    qryProdutosDadosFiscaisicmsbasecalculost: TFloatField;
+    qryProdutosDadosFiscaisicmsvalorst: TFloatField;
+    qryProdutosDadosFiscaisind_mov_fisica: TIntegerField;
+    qryProdutosDadosFiscaislocalizacao: TStringField;
+    qryProdutosDadosFiscaiscodigoean: TStringField;
+    qryProdutosDadosFiscaisdescricaoproduto: TStringField;
+    qryProdutosDadosFiscaisgenero: TIntegerField;
+    qryProdutosDadosFiscaisextipi: TStringField;
+    qryProdutosDadosFiscaisicmsmodalidade: TIntegerField;
+    qryProdutosDadosFiscaisicmsmodsubst: TIntegerField;
+    qryProdutosDadosFiscaistribcodigoean: TStringField;
+    qryProdutosDadosFiscaistribunidade: TStringField;
+    qryProdutosDadosFiscaistribquantidade: TFloatField;
+    qryProdutosDadosFiscaistribunitario: TFloatField;
+    qryProdutosDadosFiscaisenquadramento: TIntegerField;
+    qryProdutosDadosFiscaisipicst: TStringField;
+    qryProdutosDadosFiscaisipibasecalculo: TFloatField;
+    qryProdutosDadosFiscaisiibasecalculo: TFloatField;
+    qryProdutosDadosFiscaisiidespaduaneira: TFloatField;
+    qryProdutosDadosFiscaisiivalor: TFloatField;
+    qryProdutosDadosFiscaisiiiof: TFloatField;
+    qryProdutosDadosFiscaispiscst: TStringField;
+    qryProdutosDadosFiscaispisbasecalculo: TFloatField;
+    qryProdutosDadosFiscaispisaliquota: TFloatField;
+    qryProdutosDadosFiscaispisvalor: TFloatField;
+    qryProdutosDadosFiscaiscofinscst: TStringField;
+    qryProdutosDadosFiscaiscofinsbasecalculo: TFloatField;
+    qryProdutosDadosFiscaiscofinsaliquota: TFloatField;
+    qryProdutosDadosFiscaiscofinsvalor: TFloatField;
+    qryProdutosDadosFiscaisicmsvalor: TFloatField;
+    qryProdutosDadosFiscaisunidade: TStringField;
+    qryProdutosDadosFiscaisicmsbasecalculo: TFloatField;
+    qryPedidosFiliais: TtecQuery;
+    qryPedidosFiliaiscodigo: TIntegerField;
+    qryPedidosFiliaisproduto: TLargeintField;
+    qryPedidosFiliaisdata: TDateTimeField;
+    qryPedidosFiliaishora: TTimeField;
+    qryPedidosFiliaisrequisitante: TIntegerField;
+    qryPedidosFiliaisrequisitada: TIntegerField;
+    qryPedidosFiliaisqtdepedida: TFloatField;
+    qryPedidosFiliaisqtderecebida: TFloatField;
+    qryPedidosFiliaissituacao: TStringField;
+    qryPedidosFiliaisdadofiscal: TIntegerField;
+    qryPedidosFiliaisobservacao: TStringField;
+    spcDadosFiscaisProximo: TtecQuery;
+    spcDadosFiscaisProximonumero: TIntegerField;
+    spcPedidosTransferenciaProximo: TtecQuery;
+    spcPedidosTransferenciaProximocodigo: TIntegerField;
+    spcMovimentosProximo: TtecQuery;
+    spcMovimentosProximonumero: TIntegerField;
+    ZMonitor1: TZMonitor;
+    qryNotasVerificacao: TtecQuery;
+    qryNotasVerificacaofilial: TIntegerField;
+    qryNotasVerificacaoserie: TStringField;
+    qryNotasVerificacaonumero: TIntegerField;
+    qryNotasVerificacaodadofiscal: TIntegerField;
+    qryProdutosDadosFiscaiscsosn: TStringField;
+    qryProdutosDadosFiscaispcredsn: TFloatField;
+    qryProdutosDadosFiscaisvcredicmssn: TFloatField;
+    qryProdutosDadosFiscaispredbcst: TFloatField;
+    qryProdutosDadosFiscaisreducaobasest: TFloatField;
+    qryProdutosDadosFiscaisvbcstret: TFloatField;
+    qryProdutosDadosFiscaisvicmsstret: TFloatField;
+    qryProdutosDadosFiscaisicmsisentas: TFloatField;
+    qryProdutosDadosFiscaisicmsoutras: TFloatField;
+    qryProdutosDadosFiscaisipioutras: TFloatField;
+    qryProdutosDadosFiscaisipiisentas: TFloatField;
+    qryProdutosDadosFiscaisvaloripidigitado: TBooleanField;
+    qryProdutosDadosFiscaisvaloricmsdigitado: TBooleanField;
+    qryProdutosDadosFiscaisvaloricmsstdigitado: TBooleanField;
+    qryDadosFiscaisdatahoraemissao: TDateTimeField;
+    qryDadosFiscaisregimetributario: TIntegerField;
+    qryMovimentosqtdenocomposto: TFloatField;
+    qryMovimentostrfquantidade: TFloatField;
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+  private
+    fDirImportacao: String;
+
+    function ImportarNotasVerificacao(var Msg: String): Boolean;
+
+    function ImportarDadosFiscais(var Msg: String): Boolean;
+    function ImportarNotas(var Msg: String): Boolean;
+    function ImportarMovimentos(var Msg: String): Boolean;
+    function ImportarProdutos(var Msg: String): Boolean;
+    function ImportarPedidos(var Msg: String): Boolean;
+    function CorrigirChaves(var Msg: String): Boolean;
+    function GravarTabelas: Boolean;
+    procedure setDirImportacao(const Value: String);
+    { Private declarations }
+  public
+    property DirImportacao : String read fDirImportacao write setDirImportacao;
+    constructor Create(AOwner: TComponent); override;
+    function ImportarArquivos: Boolean;
+    { Public declarations }
+  end;
+
+const
+  barra = {$ifdef mswindows}'\'{$else}'/'{$endif};
+
+var
+  dtmImportacaoNotasTransferencia: TdtmImportacaoNotasTransferencia;
+
+implementation
+
+uses
+  biblio;
+
+{$R *.dfm}
+
+{ TdtmImportacaoNotasTransferencia }
+
+function TdtmImportacaoNotasTransferencia.CorrigirChaves(var Msg: String): Boolean;
+var
+  DadoFiscal: Integer;
+begin
+  Result := True;
+  try
+    qryDadosFiscais.First;
+    while not qryDadosFiscais.Eof do
+    begin
+      spcDadosFiscaisProximo.Open;
+      DadoFiscal := spcDadosFiscaisProximonumero.AsInteger;
+      spcDadosFiscaisProximo.Close;
+
+      if qryNotas.Active then
+      begin
+        qryNotas.First;
+        while not qryNotas.Eof do
+        begin
+          if qryNotasdadofiscal.AsInteger = qryDadosFiscaisnumero.AsInteger then
+          begin
+            qryNotas.Edit;
+            qryNotasdadofiscal.AsInteger := DadoFiscal;
+            qryNotas.Post;
+          end;
+          qryNotas.Next;
+        end;
+      end;
+
+      if qryMovimentos.Active then
+      begin
+        qryMovimentos.First;
+        while not qryMovimentos.Eof do
+        begin
+
+          qryMovimentos.Edit;
+
+          if qryMovimentosdadofiscal.AsInteger = qryDadosFiscaisnumero.AsInteger then
+            qryMovimentosdadofiscal.AsInteger := DadoFiscal;
+
+          spcMovimentosProximo.Open;
+          qryMovimentosnumero.AsInteger := spcMovimentosProximonumero.AsInteger;
+          spcMovimentosProximo.Close;
+          qryMovimentos.Post;
+
+          qryMovimentos.Next;
+        end;
+      end;
+
+      if qryProdutosDadosFiscais.Active then
+      begin
+        qryProdutosDadosFiscais.First;
+        while not qryProdutosDadosFiscais.Eof do
+        begin
+          if qryProdutosDadosFiscaisdadofiscal.AsInteger = qryDadosFiscaisnumero.AsInteger then
+          begin
+            qryProdutosDadosFiscais.Edit;
+            qryProdutosDadosFiscaisdadofiscal.AsInteger := DadoFiscal;
+            qryProdutosDadosFiscais.Post;
+          end;
+          qryProdutosDadosFiscais.Next;
+        end;
+      end;
+
+      if qryPedidosFiliais.Active then
+      begin
+        qryPedidosFiliais.First;
+        while not qryPedidosFiliais.Eof do
+        begin
+          if qryPedidosFiliaisdadofiscal.AsInteger = qryDadosFiscaisnumero.AsInteger then
+          begin
+            qryPedidosFiliais.Edit;
+            spcPedidosTransferenciaProximo.Open;
+            qryPedidosFiliaiscodigo.AsInteger := spcPedidosTransferenciaProximocodigo.AsInteger;
+            spcPedidosTransferenciaProximo.Close;
+            qryPedidosFiliaisdadofiscal.AsInteger := DadoFiscal;
+            qryPedidosFiliais.Post;
+          end;
+          qryPedidosFiliais.Next;
+        end;
+      end;
+
+      qryDadosFiscais.Edit;
+      qryDadosFiscaisnumero.AsInteger := DadoFiscal;
+      qryDadosFiscais.Post;
+      qryDadosFiscais.Next;
+    end;
+  except
+    on e:exception do
+    begin
+      Msg := e.Message;
+      Result := False;
+    end;
+  end;
+end;
+
+constructor TdtmImportacaoNotasTransferencia.Create(AOwner: TComponent);
+begin
+  inherited;
+  fDirImportacao := '';
+end;
+
+function TdtmImportacaoNotasTransferencia.GravarTabelas: Boolean;
+begin
+  Result := Perpetrar([qryDadosFiscais, qryNotas, qryMovimentos,
+                       qryProdutosDadosFiscais, qryPedidosFiliais]);
+end;
+
+function TdtmImportacaoNotasTransferencia.ImportarArquivos: Boolean;
+var
+  Msg: String;
+begin
+  Msg := '';
+
+  result := ImportarNotasVerificacao(Msg);
+
+  if result then
+  begin
+    Result := ImportarDadosFiscais(Msg);
+    if Result then
+      Result := ImportarNotas(Msg);
+
+    if Result then
+      Result := ImportarMovimentos(Msg);
+
+    if Result then
+      Result := ImportarProdutos(Msg);
+
+    if Result then
+      Result := ImportarPedidos(Msg);
+
+    if Result then
+      Result := CorrigirChaves(Msg)
+    else
+      MensagemAviso(Msg);
+
+    if Result then
+      Result := GravarTabelas;
+  end;
+
+  qryNotasVerificacao.Close;
+  qryDadosFiscais.Close;
+  qryNotas.Close;
+  qryMovimentos.Close;
+  qryProdutosDadosFiscais.Close;
+  qryPedidosFiliais.Close;
+  
+end;
+
+function TdtmImportacaoNotasTransferencia.ImportarDadosFiscais(var Msg: String): Boolean;
+var
+  Lista,
+  Campos: TStringList;
+  i,j: integer;
+  codigos: String;
+begin
+  Result := True;
+  try
+    if FileExists(fDirImportacao+'DadosFiscais.txt') then
+    begin
+      codigos := '';
+      Lista := TStringList.Create;
+      try
+        Lista.LoadFromFile(fDirImportacao+'DadosFiscais.txt');
+        for i:=0 to Lista.Count-1 do
+        begin
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            if not qryDadosFiscais.Active then
+              qryDadosFiscais.Open;
+
+            qryDadosFiscais.Append;
+
+            for j:=0 to qryDadosFiscais.FieldCount -1 do
+            begin
+              if campos[j] <> '' then
+              begin
+                qryDadosFiscais.Fields[j].AsString := campos[j];
+                if qryDadosFiscais.Fields[j].FieldName = 'numero' then
+                 if qryNotasVerificacao.Locate('dadofiscal',qryDadosFiscais.Fields[j].AsInteger,[]) then
+                 begin
+                   qrydadosfiscais.Cancel;
+                   break;
+                 end;
+              end;
+            end;
+
+            if qryDadosFiscais.state = dsinsert then
+              qryDadosFiscais.Post;
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+      finally
+        Lista.Free;
+      end;
+    end;
+  except
+    on e:Exception do
+    begin
+      Msg := e.Message;
+      result := false;
+    end;
+  end;
+end;
+
+function TdtmImportacaoNotasTransferencia.ImportarMovimentos(var Msg: String): Boolean;
+var
+  Lista,
+  Campos: TStringList;
+  i,j: integer;
+  codigos: String;
+begin
+  Result := True;
+  try
+    if FileExists(fDirImportacao+'Movimentos.txt') then
+    begin
+      codigos := '';
+      Lista := TStringList.Create;
+      try
+        Lista.LoadFromFile(fDirImportacao+'Movimentos.txt');
+        for i:=0 to Lista.Count-1 do
+        begin
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            if not qryMovimentos.Active then
+              qryMovimentos.Open;
+            qryMovimentos.Append;
+
+            for j:=0 to qryMovimentos.FieldCount -1 do
+            begin
+              if campos[j] <> '' then
+              begin
+                qryMovimentos.Fields[j].AsString := campos[j];
+
+                if qryMovimentos.Fields[j].FieldName = 'dadofiscal' then
+                begin
+                  if qryNotasVerificacao.Locate('dadofiscal',qryMovimentos.Fields[j].AsInteger,[]) then
+                  begin
+                    qryMovimentos.Cancel;
+                    break;
+                  end;
+                  qryMovimentos.Fields[j].Clear; {não deve ser gravado, imitando ATR}
+                end;
+
+              end;
+            end;
+
+            if qryMovimentos.state = dsinsert then
+              qryMovimentos.Post;
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+      finally
+        Lista.Free;
+      end;
+    end;
+  except
+    on e:Exception do
+    begin
+      Msg := e.Message;
+      result := false;
+    end;
+  end;
+end;
+
+function TdtmImportacaoNotasTransferencia.ImportarNotas(var Msg: String): Boolean;
+var
+  Lista,
+  Campos: TStringList;
+  i,j: integer;
+  codigos: String;
+begin
+  Result := True;
+  try
+    if FileExists(fDirImportacao+'Notas.txt') then
+    begin
+      codigos := '';
+      Lista := TStringList.Create;
+      try
+        Lista.LoadFromFile(fDirImportacao+'Notas.txt');
+        for i:=0 to Lista.Count-1 do
+        begin
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            if not qryNotas.Active then
+              qryNotas.Open;
+            qryNotas.Append;
+
+            for j:=0 to qryNotas.FieldCount -1 do
+            begin
+              if campos[j] <> '' then
+              begin
+                qryNotas.Fields[j].AsString := campos[j];
+
+                if qryNotas.Fields[j].FieldName = 'dadofiscal' then
+                 if qryNotasVerificacao.Locate('dadofiscal',qryNotas.Fields[j].AsInteger,[]) then
+                 begin
+                   qryNotas.Cancel;
+                   break;
+                 end;
+
+              end;
+            end;
+            if qryNotas.state = dsinsert then
+              qryNotas.Post;
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+      finally
+        Lista.Free;
+      end;
+    end;
+  except
+    on e:Exception do
+    begin
+      Msg := e.Message;
+      result := false;
+    end;
+  end;
+end;
+
+function TdtmImportacaoNotasTransferencia.ImportarNotasVerificacao(
+  var Msg: String): Boolean;
+var
+  Lista,
+  Campos: TStringList;
+  i,j: integer;
+  codigos: String;
+begin
+  Result := True;
+  try
+    if FileExists(fDirImportacao+'Notas.txt') then
+    begin
+      codigos := '';
+      Lista := TStringList.Create;
+      try
+        Lista.LoadFromFile(fDirImportacao+'Notas.txt');
+        for i:=0 to Lista.Count-1 do
+        begin
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            if not qryNotasVerificacao.Active then
+              qryNotasVerificacao.Open;
+            qryNotasVerificacao.Append;
+            for j:=0 to qryNotas.FieldCount -1 do
+              if campos[j] <> '' then
+                qryNotasVerificacao.Fields[j].AsString := campos[j];
+            qryNotasVerificacao.Post;
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+      finally
+        Lista.Free;
+      end;
+    end;
+  except
+    on e:Exception do
+    begin
+      Msg := e.Message;
+      result := false;
+    end;
+  end;
+
+  if result then
+  begin
+    qryNotasVerificacao.First;
+    while not qryNotasVerificacao.Eof do
+    begin
+      RefazConsultaPorNome(qrynotas,['filial','serie','numero'],
+        [qryNotasVerificacaofilial.AsVariant,
+         qryNotasVerificacaoserie.AsVariant,
+         qryNotasVerificacaonumero.AsVariant]);
+
+      if qrynotas.RecordCount = 0 then
+        qryNotasVerificacao.Delete
+      else
+        qryNotasVerificacao.Next;
+    end;
+    qrynotas.Close;
+  end;
+
+end;
+
+
+function TdtmImportacaoNotasTransferencia.ImportarPedidos(var Msg: String): Boolean;
+var
+  Lista,
+  Campos: TStringList;
+  i,j: integer;
+  codigos: String;
+begin
+  Result := True;
+  try
+    if FileExists(fDirImportacao+'Pedidos.txt') then
+    begin
+      codigos := '';
+      Lista := TStringList.Create;
+      try
+        Lista.LoadFromFile(fDirImportacao+'Pedidos.txt');
+        for i:=0 to Lista.Count-1 do
+        begin
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            if not qryPedidosFiliais.Active then
+              qryPedidosFiliais.Open;
+            qryPedidosFiliais.Append;
+
+            for j:=0 to qryPedidosFiliais.FieldCount -1 do
+            begin
+              if campos[j] <> '' then
+              begin
+                qryPedidosFiliais.Fields[j].AsString := campos[j];
+                if qryPedidosFiliais.Fields[j].FieldName = 'dadofiscal' then
+                  if qryNotasVerificacao.Locate('dadofiscal',qryPedidosFiliais.Fields[j].AsInteger,[]) then
+                  begin
+                    qryPedidosFiliais.Cancel;
+                    break;
+                  end;
+              end;
+            end;
+            if qryPedidosFiliais.state = dsinsert then
+              qryPedidosFiliais.Post;
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+      finally
+        Lista.Free;
+      end;
+    end;
+  except
+    on e:Exception do
+    begin
+      Msg := e.Message;
+      result := false;
+    end;
+  end;
+end;
+
+function TdtmImportacaoNotasTransferencia.ImportarProdutos(var Msg: String): Boolean;
+var
+  Lista,
+  Campos: TStringList;
+  i,j: integer;
+  codigos: String;
+begin
+  Result := True;
+  try
+    if FileExists(fDirImportacao+'ProdutosDadosFiscais.txt') then
+    begin
+      codigos := '';
+      Lista := TStringList.Create;
+      try
+        Lista.LoadFromFile(fDirImportacao+'ProdutosDadosFiscais.txt');
+        
+        for i:=0 to Lista.Count-1 do
+        begin
+          Campos := Explode(';',Lista.Strings[i]);
+          try
+            if not qryProdutosDadosFiscais.Active then
+              qryProdutosDadosFiscais.Open;
+            qryProdutosDadosFiscais.Append;
+
+            for j:=0 to qryProdutosDadosFiscais.FieldCount -1 do
+            begin
+              if campos[j] <> '' then
+              begin
+                qryProdutosDadosFiscais.Fields[j].AsString := campos[j];
+
+                if qryProdutosDadosFiscais.Fields[j].FieldName = 'dadofiscal' then
+                 if qryNotasVerificacao.Locate('dadofiscal',qryProdutosDadosFiscais.Fields[j].AsInteger,[]) then
+                 begin
+                   qryProdutosDadosFiscais.Cancel;
+                   break;
+                 end;
+
+              end;
+            end;
+            if qryProdutosDadosFiscais.state = dsinsert then
+              qryProdutosDadosFiscais.Post;
+          finally
+            FreeAndNil(Campos);
+          end;
+        end;
+      finally
+        Lista.Free;
+      end;
+    end;
+  except
+    on e:Exception do
+    begin
+      Msg := e.Message;
+      result := false;
+    end;
+  end;
+end;
+
+procedure TdtmImportacaoNotasTransferencia.setDirImportacao(
+  const Value: String);
+begin
+  fDirImportacao := Value+IfThen(Value[length(Value)]<>barra,barra);
+end;
+
+procedure TdtmImportacaoNotasTransferencia.ZMonitor1MonitorEvent(Sql,
+  Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  {log das operacaoes}
+  Listar := tStringlist.create;
+  if fileexists('c:\log.sql') then
+    Listar.loadfromfile('c:\log.sql');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\log.sql');
+  listar.free;
+
+end;
+
+end.

@@ -1,0 +1,881 @@
+unit fmconsultanotasecupons;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Variants, Graphics, Controls, Forms, Dialogs, Windows,
+  StdCtrls, Mask, DBCtrls, Buttons, ComCtrls, Grids, DBGrids, {Qete,} ExtCtrls,
+  DateUtils, ActnList, DB,
+  // Terceiros
+  ZQuery, ZPgSqlQuery,
+  // Constantes
+  ctconstantes, biblio, cltextprinter, clusuario,clecf,
+  // Repositorio
+  fmconsultabasica, fmconsultaporcampo, fmnavcontroles, frendereco, fmajudabt,
+  frtelefone, frcgcoucpf, cpdbradiogroup,
+  // componentes
+  cptexto, cpdocumento, cpnumero, cpcpf, cpdata, cpdbfindcontrols, cpdbgrid,
+  cpdbmemo, cpdbdata, cpdbtext, cppagecontrol, cpquery,
+  // Projeto
+  dmconsultanotasfiscais, fmcadastropadrao, fmselecionarimpressoras,
+  cpcpfcnpj, frconsulta, frconsultacodigo, ToolWin,
+  frCartaCorrecaoEletronica, fmConferenciaProdutos, dmtecsoft;
+
+
+type
+  TfrmConsultaNotaseCupons = class(TfrmCadastroPadrao)
+    pnlFundoJanela: TPanel;
+    sbnGerar: TSpeedButton;
+    pgcConsultaNotasCupons: TtecPageControl;
+    tstParametros: TTabSheet;
+    tstRegistrosSelecionados: TTabSheet;
+    gbxParametros: TGroupBox;
+    pgcSelecionarNotasCupons: TtecPageControl;
+    tstNotas: TTabSheet;
+    tstCuponsFiscais: TTabSheet;
+    gbxNotas: TGroupBox;
+    gbxCuponsFiscais: TGroupBox;
+    edfFilialNota: TtecDbEditFind;
+    sbnFilialNota: TSpeedButton;
+    dtxFilialNota: TtecDBText;
+    edtSerie: TEdit;
+    edtNumero: TEditNumero;
+    edfFilialCupon: TtecDbEditFind;
+    sbnFilialCupon: TSpeedButton;
+    dtxFilialCupon: TtecDBText;
+    edtCupon: TEditNumero;
+    edtECF: TEditNumero;
+    edtIntervencao: TEditNumero;
+    gbxCliente: TGroupBox;
+    sbnCliente: TSpeedButton;
+    dtxCliente: TtecDBText;
+    gbxEmissao: TGroupBox;
+    edfCliente: TtecDbEditFind;
+    actHabilitar: TActionList;
+    aclHabilitar: TAction;
+    sbnImprmirNota: TSpeedButton;
+    pnlDados: TPanel;
+    gbxCFOP: TGroupBox;
+    sbnCfop: TSpeedButton;
+    edfCfopPesquisa: TtecDbEditFind;
+    dtxCfopPesquisa: TtecDBText;
+    edtEmissaoInicial: TEditData;
+    edtEmissaoFinal: TEditData;
+    gbxFilialCupom: TGroupBox;
+    gbxECF: TGroupBox;
+    gbxIntervencao: TGroupBox;
+    gbxNrCupom: TGroupBox;
+    gbxFilialNota: TGroupBox;
+    gbxSerie: TGroupBox;
+    gbxNrNota: TGroupBox;
+    pgcNotasCuponsDestinatario: TtecPageControl;
+    tstDestinatario: TTabSheet;
+    gbxDestinatario: TGroupBox;
+    gbxDesconto: TGroupBox;
+    dtxDesconto: TtecDBText;
+    gbxBaseICMS: TGroupBox;
+    dtxBaseICMS: TtecDBText;
+    gbxValorICMS: TGroupBox;
+    gbxBaseSubstituicao: TGroupBox;
+    gbxServicos: TGroupBox;
+    gbxTotalProdutos: TGroupBox;
+    dtxValorVista: TtecDBText;
+    gbxAcrescimo: TGroupBox;
+    dtxAcrescimo: TtecDBText;
+    gbxFrete: TGroupBox;
+    dtxFreteServico: TtecDBText;
+    gbxSeguro: TGroupBox;
+    gbxDespAcessorias: TGroupBox;
+    gbxValorIPI: TGroupBox;
+    gbxTotalNota: TGroupBox;
+    dtxValorTotal: TtecDBText;
+    gbxCliente1: TGroupBox;
+    sbnProcurarClientes: TSpeedButton;
+    flkCliente: TtecDBFindLookup;
+    dtxNomedestinatario: TtecDBText;
+    gbxSerie1: TGroupBox;
+    dtxSerieNotaFiscal: TtecDBText;
+    gbxNrNota1: TGroupBox;
+    dtxNumeroNotaFiscal: TtecDBText;
+    gbxCPFouCNPJ: TGroupBox;
+    gbxInscEstadual: TGroupBox;
+    dtxDocumentoDestinatario: TtecDBText;
+    gbxEmissao1: TGroupBox;
+    dtxDataEmissao: TtecDBText;
+    gbxSaida: TGroupBox;
+    dtxDataSaida: TtecDBText;
+    gbxUF: TGroupBox;
+    dtxEstadoCodigo: TtecDBText;
+    gbxNatureza: TGroupBox;
+    gbxCFOP1: TGroupBox;
+    sbnProcurarCFOP: TSpeedButton;
+    flkCFOP: TtecDBFindLookup;
+    dtxDescricaoCodigoFiscal: TtecDBText;
+    dtxNaturezaDescricao: TtecDBText;
+    edtCPFCNPJ: TDBEditCPFCNPJ;
+    gbxIntervencao1: TGroupBox;
+    dtxNota_CupomIntervensao: TtecDBText;
+    gbxNrCupom1: TGroupBox;
+    dtxNota_CupomNumero: TtecDBText;
+    gbxECF1: TGroupBox;
+    dtxNota_CupomMaquina: TtecDBText;
+    gbxContrato: TGroupBox;
+    dtxNumeroContrato: TtecDBText;
+    gbxFilialVenda: TGroupBox;
+    dtxFilialVenda: TtecDBText;
+    dtxNomeFilialVenda: TtecDBText;
+    tstEndereco: TTabSheet;
+    gbxEndereco: TGroupBox;
+    fraEndereco2: TfraEndereco;
+    fraTelefone1: TfraTelefone;
+    tstDadosFiscais: TTabSheet;
+    gbxDadosFiscais: TGroupBox;
+    lblFilialEmissao: TLabel;
+    pgcGridNotasCupons: TPageControl;
+    tstGridNotas: TTabSheet;
+    dbgNotas: TtecDBGrid;
+    tstGridCupons: TTabSheet;
+    dbgCupons: TtecDBGrid;
+    pnlNotasCuponsProdutos: TPanel;
+    pgcNotasCuponsProdutos: TPageControl;
+    tstProdutos: TTabSheet;
+    dbgProdutos: TtecDBGrid;
+    tstServicos: TTabSheet;
+    tstImpostos: TTabSheet;
+    tstParcelas: TTabSheet;
+    dbgVencimentos: TtecDBGrid;
+    tstComplemento: TTabSheet;
+    gbxComplemento: TGroupBox;
+    dtxCodigoVendedor: TtecDBText;
+    dtxDescricaoVendedor: TtecDBText;
+    dtxCodigoPlano: TtecDBText;
+    dtxDescricaoPlano: TtecDBText;
+    lblContrato: TLabel;
+    dtxContato: TtecDBText;
+    edtDescricaoSemProduto: TDBEditTexto;
+    tstFornecedorTransporte: TTabSheet;
+    gbxFornecedorTranporte: TGroupBox;
+    sbnProcurarFornecedorTranporte: TSpeedButton;
+    dtxRazaoFornecedorTranporte: TtecDBText;
+    flkFornecedorTranporte: TtecDBFindLookup;
+    tstObservacao: TTabSheet;
+    mmoObservacoes: TtecDBMemo;
+    dtxValorICMS: TtecDBText;
+    dtxDespesasAcessorias: TtecDBText;
+    dtxSeguro: TtecDBText;
+    dtxValorIPI: TtecDBText;
+    dtxServicos: TtecDBText;
+    dtxImpostosRetidos: TtecDBText;
+    tstECFsDadosFiscais: TTabSheet;
+    dbgECFsDadosFiscais: TtecDBGrid;
+    gbxICMSSubstituicao: TGroupBox;
+    dtxICMSSubstituicao: TtecDBText;
+    gbxValoresNota: TGroupBox;
+    gbxIRRF: TGroupBox;
+    gbxINSS: TGroupBox;
+    gbxISSQN: TGroupBox;
+    gbxCSLL: TGroupBox;
+    gbxCOFINS: TGroupBox;
+    gbxPIS: TGroupBox;
+    gbxVendedor: TGroupBox;
+    gbxPlanoPagto: TGroupBox;
+    gbxNrContrato: TGroupBox;
+    gbxSituacao: TGroupBox;
+    gbxNotaSemProdutos: TGroupBox;
+    gbxTransportador: TGroupBox;
+    dtxNomeSituacao: TtecDBText;
+    rgpPagamentoFrete: TtecDBRadioGroup;
+    rbnEmitente: TtecRadioButton;
+    rbnDestinatario: TtecRadioButton;
+    rgpTransporte: TtecDBRadioGroup;
+    rbnRodoviario: TtecRadioButton;
+    rbnAereo: TtecRadioButton;
+    rbnMaritimo: TtecRadioButton;
+    dbgServicos: TtecDBGrid;
+    gbxImpostosRetidos: TGroupBox;
+    gbxValorServicos: TGroupBox;
+    tecDBText1: TtecDBText;
+    tecDBText2: TtecDBText;
+    tecDBText3: TtecDBText;
+    tecDBText4: TtecDBText;
+    tecDBText5: TtecDBText;
+    tecDBText6: TtecDBText;
+    tecDBText7: TtecDBText;
+    pgcVolumes: TPageControl;
+    tstVolumeUnico: TTabSheet;
+    tstVolumesDiversos: TTabSheet;
+    gbxQuantidade: TGroupBox;
+    edtVolume: TDBEditNumero;
+    gbxEspecie: TGroupBox;
+    edtEspecieTransporte: TDBEditTexto;
+    gbxMarca: TGroupBox;
+    edtMarca: TDBEditTexto;
+    gbxNumeracao: TGroupBox;
+    edtNumeracao: TDBEditTexto;
+    gbxPesoBruto: TGroupBox;
+    edtPesoBruto: TDBEditNumero;
+    gbxPesoLiquido: TGroupBox;
+    edtPesoLiquido: TDBEditNumero;
+    tecDBGrid1: TtecDBGrid;
+    tecDBGrid2: TtecDBGrid;
+    gbxPlaca: TGroupBox;
+    edtPlaca: TDBEditTexto;
+    fraConsultaEstado: TfraConsultaCodigo;
+    tstNFe: TTabSheet;
+    gbxNfe: TGroupBox;
+    gbxCancelamentoNFe: TGroupBox;
+    dtxCancelamentoNFe: TtecDBText;
+    gbxProtocoloNFe: TGroupBox;
+    dtxProtocoloNFe: TtecDBText;
+    gbxReciboNFe: TGroupBox;
+    dtxReciboNFe: TtecDBText;
+    gbxLoteNFe: TGroupBox;
+    dtxLoteNFe: TtecDBText;
+    sbnEspelhoNota: TSpeedButton;
+    lblA: TLabel;
+    gbxInutilizacao: TGroupBox;
+    dtxInutilizacao: TtecDBText;
+    dbgImpostosProdutos: TtecDBGrid;
+    dtxCancelada: TtecDBText;
+    gbxChaveNFECalculada: TGroupBox;
+    edtChaveNFe: TDBEditTexto;
+    pnlgbx_chaveNFE: TPanel;
+    pnlgbxChaveNFECalculada: TPanel;
+    gbx_chaveNFE: TGroupBox;
+    edtCHV_NFE: TDBEditTexto;
+    pnlLote: TPanel;
+    fraCartaCorrecaoEletronica1: TfraCartaCorrecaoEletronica;
+    pnlProdutos: TPanel;
+    sbnConferir: TSpeedButton;
+    sbnFichaFinanceira: TSpeedButton;
+    GroupBox4: TGroupBox;
+    DBEditNumero6: TDBEditNumero;
+    GroupBox9: TGroupBox;
+    DBEditNumero10: TDBEditNumero;
+    sbnNotaPromissoria: TSpeedButton;
+    procedure sbnFilialNotaClick(Sender: TObject);
+    procedure sbnGerarClick(Sender: TObject); virtual;
+    procedure sbnFilialCuponClick(Sender: TObject);
+    procedure sbnClienteClick(Sender: TObject);
+    procedure sbnProcurarCFOPClick(Sender: TObject);
+    procedure pgcSelecionarNotasCuponsChange(Sender: TObject);
+    procedure edtEmissaoFinalEnter(Sender: TObject);
+    procedure pgcConsultaNotasCuponsChange(Sender: TObject);
+    procedure dbgProdutosTitleClick(Column: TColumn);
+    procedure aclHabilitarUpdate(Sender: TObject);
+    procedure sbnProcurarFornecedorTranporteClick(Sender: TObject);
+    procedure sbnImprmirNotaClick(Sender: TObject);
+    procedure dbgProdutosKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure dbgProdutosDblClick(Sender: TObject);
+    procedure sbnCfopClick(Sender: TObject);
+    procedure sbnProcurarClientesClick(Sender: TObject);
+    procedure sbnEspelhoNotaClick(Sender: TObject);
+    procedure dbgImpostosProdutosDrawColumnCell(Sender: TObject;
+      const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure FormActivate(Sender: TObject);
+    procedure fraCartaCorrecaoEletronica1sbnSalvarClick(Sender: TObject);
+    procedure fraCartaCorrecaoEletronica1sbnIncluirClick(Sender: TObject);
+    procedure sbnConferirClick(Sender: TObject);
+    procedure sbnFichaFinanceiraClick(Sender: TObject);
+    procedure sbnProcurarClick(Sender: TObject);
+ private
+    procedure AfterScrollLinhaColunaGrade(Sender: TObject);
+    procedure AfterScrollTipoPessoa(Sender: TObject);
+  protected
+    procedure ImprimirNota;
+    procedure ImprimirEspelho;
+    function  InternoIncluir: Boolean; override;
+    function  InternoGravar: Boolean; override;
+    function  InternoPesquisar(Titulo: string): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    function  TabelaDePesquisa: TZDataSet; override;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    function  ValidarCamposSelecao: Boolean;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor  Destroy; override;
+  end;
+
+var
+  frmConsultaNotaseCupons: TfrmConsultaNotaseCupons;
+  TipoPesquisa: TtecConsultaNotasCupons;
+  FIndex: Byte;
+
+implementation
+
+Uses
+  //Biblio
+  clparametrossistema, fmprincipalbasico;
+
+{$R *.dfm}
+
+procedure TfrmConsultaNotaseCupons.aclHabilitarUpdate(Sender: TObject);
+begin
+  inherited;
+  with dtmConsultaNotasFiscais do begin
+    case TipoCliente[1] of
+      'F': gbxCliente.Caption:= 'CLIENTE FORNECEDOR';
+      'C': gbxCliente.Caption:= 'CLIENTE';
+      'L': gbxCliente.Caption:= 'CLIENTE FILIAL';
+    end;
+    sbnImprmirNota.Enabled := (((not dtmConsultaNotasFiscais.CondicaoEmissorNFE) or (qryServicosDadosFiscais.RecordCount<>0)) and
+                               sbnIncluir.Enabled) or
+
+                              {Imprimir as que já foram geradas}
+                              (dtmConsultaNotasFiscais.CondicaoEmissorNFE and
+                               (qryNotasnumprotocolonfe.AsString <> '') and
+                               (qryNotasnumcancelamentonfe.AsString = '') and
+                               (qryNotasnuminutilizacaonfe.AsString = '') ) or
+
+                              {capturar no sefaz o xml da nota e imprimir se não estiver no compartilha}
+                              (dtmConsultaNotasFiscais.CondicaoEmissorNFE and
+                               (qryNotasnumprotocolonfe.AsString = '') and
+                               (qryNotasnumcancelamentonfe.AsString = '') and
+                               (qryNotasnuminutilizacaonfe.AsString = '')) or
+
+                              {gerar nfe vinculadas com cupom}
+                              (dtmConsultaNotasFiscais.CondicaoEmissorNFE and
+                               (qryNotasnumprotocolonfe.AsString = '') and
+                               (qryNotasnumcancelamentonfe.AsString = '') and
+                               (qryNotasnuminutilizacaonfe.AsString = '') and
+                               (qryCuponsnumero.AsInteger <> 0) and
+                               (qryDadosFiscaiscodigofiscal.AsInteger<>5929)) and
+
+                               (qryDadosFiscaissituacao.AsString = 'N');
+  end;
+  sbnEspelhoNota.Enabled := sbnImprmirNota.Enabled;
+  sbnGerar.Enabled       := pgcConsultaNotasCupons.ActivePage = tstParametros;
+  sbnIncluir.Enabled     := (pgcConsultaNotasCupons.ActivePage = tstRegistrosSelecionados) and
+                            {(dtmConsultaNotasFiscais.Consultar = 'N') and}
+                            (not dtmConsultaNotasFiscais.TabelaDadosFiscais.IsEmpty) and
+                            (not sbnSalvar.Enabled);
+//  sbnImprmirNota.Enabled := sbnIncluir.Enabled {and (dtmConsultaNotasFiscais.DataNota = dtmConsultaNotasFiscais.DataServidor)};
+  sbnProcurarCFOP.Enabled                := sbnSalvar.Enabled;
+  sbnProcurarClientes.Enabled            := sbnSalvar.Enabled;
+  sbnProcurarFornecedorTranporte.Enabled := sbnSalvar.Enabled;
+  dbgProdutos.ReadOnly                   := not sbnSalvar.Enabled;
+  sbnFichaFinanceira.Enabled := (pgcConsultaNotasCupons.ActivePage = tstRegistrosSelecionados) and (dtmConsultaNotasFiscais.qryDadosFiscais.RecordCount <> 0);
+  sbnNotaPromissoria.Enabled := (pgcConsultaNotasCupons.ActivePage = tstRegistrosSelecionados) and (dtmConsultaNotasFiscais.qryDadosFiscais.RecordCount <> 0);
+end;
+
+constructor TfrmConsultaNotaseCupons.Create(AOwner: TComponent);
+begin
+try
+  dtmConsultaNotasFiscais:= TdtmConsultaNotasFiscais.Create(self);
+  inherited;
+
+  pgcConsultaNotasCupons.ActivePage := tstParametros;
+
+  with dtmConsultaNotasFiscais do begin
+    DataSet:= TabelaDadosFiscais;
+    dtmConsultaNotasFiscais.Consultar:= 'N';
+    edtEmissaoInicial.Text:= DateToStr(DataServidor);
+    edtEmissaoFinal.Text  := DateToStr(DataServidor);
+  end;
+  pgcConsultaNotasCupons.ActivePageIndex:= 0;
+  pgcSelecionarNotasCupons.ActivePageIndex:= 0;
+  pgcNotasCuponsDestinatario.ActivePageIndex:= 0;
+  pgcGridNotasCupons.ActivePageIndex:= 0;
+  pgcNotasCuponsProdutos.ActivePageIndex:= 0;
+
+  case ParSistema.PrecoUnitarioCasasDecimais of
+    2: dbgProdutos.columnByName('precovenda').Width:=  65;
+    3: dbgProdutos.columnByName('precovenda').Width:=  75;
+    4: dbgProdutos.columnByName('precovenda').Width:=  85;
+    5: dbgProdutos.columnByName('precovenda').Width:=  95;
+    6: dbgProdutos.columnByName('precovenda').Width:= 105;
+    7: dbgProdutos.columnByName('precovenda').Width:= 110;
+    8: dbgProdutos.columnByName('precovenda').Width:= 115;
+  end;
+  dtmConsultaNotasFiscais.AcertarCasasDecimais;
+
+
+  if ParSistema.PermitirProdutoAlfanumerico then
+    dbgProdutos.Columns[1].Width:= 217
+  else
+    dbgProdutos.Columns[1].Width:= 135;
+
+  if ParSistema.ClientePessoaJuridica then
+       gbxInscEstadual.Caption:= 'INSCRIÇÃO ESTADUAL'
+  else gbxInscEstadual.Caption:= 'DOC. IDENTIDADE';
+  FIndex:= 1;
+  dbgprodutos.ColumnbyName('valorgrade1').Visible := ParSistema.UsarGradesProdutos;
+  dbgprodutos.ColumnbyName('valorgrade2').Visible := ParSistema.UsarGradesProdutos;
+  dtmConsultaNotasFiscais.OnScrollLinhaColunaGrade := AfterScrollLinhaColunaGrade;
+  if dbgProdutos.ColumnbyName('quantidade').Width < ParSistema.TamanhoMascaraQuantidade then
+    dbgProdutos.ColumnbyName('quantidade').Width := ParSistema.TamanhoMascaraQuantidade;
+  dtmConsultaNotasFiscais.OnScrollTipoPessoa := AfterScrollTipoPessoa;
+  fraConsultaEstado.TipoPesquisa := pesESTADOS;
+
+  if ParSistema.ControlesVoltadosparaIndustria then
+    pgcVolumes.ActivePage:= tstVolumesDiversos
+  else
+    pgcVolumes.ActivePage:= tstVolumeUnico;
+  tstNFe.TabVisible := dtmConsultaNotasFiscais.CondicaoEmissorNFE;
+
+
+  pgcConsultaNotasCupons.ActivePage := tstParametros;
+
+  edtEmissaoInicial.SetFocus;
+
+  pnlgbxChaveNFECalculada.Visible := UsuarioLogin.Suporte;
+
+
+  with fraCartaCorrecaoEletronica1 do
+  begin
+    chave_nfe  := dtmConsultaNotasFiscais.Getchave_nfe;
+    tiponota   := 'S';
+    codigonota := dtmConsultaNotasFiscais.GetCodigoNota;
+    email      := dtmConsultaNotasFiscais.GetEmail;
+    filial     := dtmConsultaNotasFiscais.GetFilialNota;
+    NumeroNota := dtmConsultaNotasFiscais.GetNumeroNota;
+    DataNota   := dtmConsultaNotasFiscais.getDataNota;
+    EmailNotaVinculada :=  dtmConsultaNotasFiscais.GetEmailNotaVinculada;
+    SerieNota := dtmConsultaNotasFiscais.GetSerieNota;
+    CondicaoCartaDevolucao := dtmConsultaNotasFiscais.GetCondicaoCartaCorrecao;
+  end;
+  
+except
+  on E: Exception do ShowMessage(E.Message);
+end;
+
+end;
+
+procedure TfrmConsultaNotaseCupons.dbgProdutosTitleClick(Column: TColumn);
+begin
+  inherited;
+  if AltOn then
+  begin
+    Inc(FIndex);
+    if FIndex < 1 then FIndex:= 3;
+    if FIndex > 3 then FIndex:= 1;
+    case FIndex of
+      1: begin
+           dbgProdutos.Columns[02].Title.Caption := 'Descrição ...';
+           dbgProdutos.Columns[02].FieldName := 'produtodescricao';
+         end;
+      2: begin
+           dbgProdutos.Columns[02].Title.Caption := 'Marca ...';
+           dbgProdutos.Columns[02].FieldName := 'marcadescricao';
+         end;
+      3: begin
+           dbgProdutos.Columns[02].Title.Caption := 'Referência ...';
+           dbgProdutos.Columns[02].FieldName := 'referencia';
+         end;
+    end;
+  end;
+end;
+
+destructor TfrmConsultaNotaseCupons.Destroy;
+begin
+  dtmConsultaNotasFiscais:=nil;
+  inherited;
+  frmConsultaNotaseCupons := nil;
+end;
+
+procedure TfrmConsultaNotaseCupons.edtEmissaoFinalEnter(Sender: TObject);
+begin
+  inherited;
+  with dtmConsultaNotasFiscais do
+    if edtEmissaoInicial.Criticar(false) and (edtEmissaoInicial.Text<>'') then
+      edtEmissaoFinal.Minimo:= DaysBetween(DataServidor,StrToDate(edtEmissaoInicial.Text));
+end;
+
+function TfrmConsultaNotaseCupons.ExisteInformacao(Parametro: Integer; NomeCampo: String; Value: Variant): Boolean;
+begin
+  with dtmConsultaNotasFiscais do
+    case TipoPesquisa of
+         cncFILIAL: Result:= ExisteFilial(NomeCampo, Value);
+        cncCLIENTE, cncCLIENTEDADOFISCAL: Result:= ExisteCliente(NomeCampo, Value);
+           cncCFOP, cncCFOPSELECAO: Result:= ExisteCFOP(NomeCampo, Value);
+  cncFORNECEDORTRANSPORTE: Result:= ExisteFornecedorTransporte(NomeCampo, Value);
+    else Result := False;
+    end;
+end;
+
+function TfrmConsultaNotaseCupons.InternoGravar: Boolean;
+begin
+  Result:= dtmConsultaNotasFiscais.GravarAlteracoesNota;
+end;
+
+function TfrmConsultaNotaseCupons.InternoIncluir: Boolean;
+begin
+  Result:= dtmConsultaNotasFiscais.AlterarNota;
+  flkCliente.SetFocus;
+{  if Result then begin
+    pgcNotasCuponsDestinatario.ActivePage:= tstDadosFiscais;
+//    pgcNotasCuponsProdutos.ActivePage:= tstImpostos;
+    flkCFOP.SetFocus;
+  end;
+  }
+end;
+
+function TfrmConsultaNotaseCupons.InternoPesquisar(Titulo: string): Integer;
+begin
+  Result := mrNone;
+  if ActiveControl is TtecFindCustom then begin
+    if CtrlOn then begin
+      if (ActiveControl = edfFilialNota) or
+         (ActiveControl = edfFilialCupon) then begin
+        TipoPesquisa := cncFILIAL;
+        Titulo       := 'Filiais';
+      end
+      else if ActiveControl = edfCliente then begin
+        TipoPesquisa := cncCLIENTE;
+        Titulo       := 'Clientes';
+      end
+      else if ActiveControl = flkCliente then
+        TipoPesquisa := cncCLIENTEDADOFISCAL
+      else if (ActiveControl = flkCFOP) and sbnProcurarCFOP.Enabled then begin
+        TipoPesquisa := cncCFOP;
+        Titulo       := 'CFOP';
+      end
+      else if (ActiveControl = flkFornecedorTranporte) and sbnProcurarFornecedorTranporte.Enabled then begin
+        TipoPesquisa := cncFORNECEDORTRANSPORTE;
+        Titulo       := 'Fornecedores (Transporte)';
+      end
+      else if (ActiveControl = edfCfopPesquisa) then
+        TipoPesquisa := cncCFOPSELECAO
+      else
+        TipoPesquisa:= cncNENHUM;
+
+      if TipoPesquisa <> cncNENHUM then
+        with dtmConsultaNotasFiscais do begin
+          AbreTabelaPesquisa(TipoPesquisa);
+          Result:= inherited InternoPesquisar(Titulo);
+          if Result = mrOK then
+            Selecionar(TipoPesquisa);
+
+//          if TipoPesquisa = cncCLIENTEDADOFISCAL then
+//            flkCliente.Exist;
+          FechaTabelaPesquisa(TipoPesquisa);
+        end;
+    end;
+  end;
+end;
+
+function TfrmConsultaNotaseCupons.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result := TfrmConsultaPorCampo.Create(nil);
+  if TipoPesquisa in [cncCLIENTE, cncCLIENTEDADOFISCAL] then begin
+    TfrmConsultaPorCampo(Result).ConsultaInterativa := False;
+    TfrmConsultaPorCampo(Result).UsarParametrosDaTabela:= False;
+  end
+  else TfrmConsultaPorCampo(Result).ConsultaInterativa := True;
+end;
+
+procedure TfrmConsultaNotaseCupons.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  case Key of
+     VK_F3 : if not CtrlOn and sbnIncluir.Enabled then sbnIncluir.Click;
+     VK_F6 : if sbnGerar.Enabled then sbnGerar.Click;
+     VK_F7 : if sbnImprmirNota.Enabled then
+                sbnImprmirNotaClick(nil);
+     VK_F8 : if sbnEspelhoNota.Enabled then
+                sbnEspelhoNotaClick(nil);
+     VK_F11 : if sbnFichaFinanceira.Enabled then
+                sbnFichaFinanceiraClick(nil);
+     else       inherited;
+  end;
+end;
+
+procedure TfrmConsultaNotaseCupons.pgcConsultaNotasCuponsChange(Sender: TObject);
+begin
+  inherited;
+  with dtmConsultaNotasFiscais do begin
+    if pgcConsultaNotasCupons.ActivePage = tstParametros then begin
+      if Consultar = 'N' then edfFilialNota.SetFocus
+                         else edfFilialCupon.SetFocus;
+    end;
+  end
+end;
+
+procedure TfrmConsultaNotaseCupons.pgcSelecionarNotasCuponsChange(Sender: TObject);
+begin
+  inherited;
+  if pgcSelecionarNotasCupons.ActivePage = tstNotas then
+    dtmConsultaNotasFiscais.Consultar:= 'N'
+  else
+    dtmConsultaNotasFiscais.Consultar:= 'C';
+end;
+
+procedure TfrmConsultaNotaseCupons.sbnClienteClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  edfCliente.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmConsultaNotaseCupons.sbnFilialCuponClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  edfFilialCupon.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmConsultaNotaseCupons.sbnFilialNotaClick(Sender: TObject);
+begin
+  CtrlOn := True;
+  edfFilialNota.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmConsultaNotaseCupons.sbnGerarClick(Sender: TObject);
+begin
+  if ValidarCamposSelecao then
+    with dtmConsultaNotasFiscais do begin
+      if Consultar = 'N' then begin
+        Filial         := edfFilialNota.Text;
+        Serie          := edtSerie.Text;
+        Numero         := edtNumero.Text;
+        cfop           := edfCfopPesquisa.Text;
+      end
+      else begin
+        Filial         := edfFilialCupon.Text;
+        ECF            := edtECF.Text;
+        Intervencao    := edtIntervencao.Text;
+        Numero         := edtCupon.Text;
+        cfop           := edfCfopPesquisa.Text;
+      end;
+      EmissaoInicial := edtEmissaoInicial.Text;
+      EmissaoFinal   := edtEmissaoFinal.Text;
+      Cliente        := edfCliente.Text;
+
+      if GerarConsulta then begin
+         MensagemAviso(Format(ctNENHUMREGISTROSELECIONADO,['registro']));
+         if Consultar = 'N' then edfFilialNota.SetFocus
+                            else edfFilialCupon.SetFocus;
+      end
+      else begin
+        pgcConsultaNotasCupons.ActivePage:= tstRegistrosSelecionados;
+        if Consultar = 'N' then begin
+          pgcGridNotasCupons.ActivePage:= tstGridNotas;
+          dbgNotas.SetFocus;
+        end
+        else begin
+          pgcGridNotasCupons.ActivePage:= tstGridCupons;
+          dbgCupons.SetFocus;
+         end;
+      end;
+    end;
+end;
+
+procedure TfrmConsultaNotaseCupons.sbnProcurarCFOPClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  flkCFOP.SetFocus;
+  InternoPesquisar('');
+end;
+
+procedure TfrmConsultaNotaseCupons.sbnProcurarFornecedorTranporteClick(Sender: TObject);
+begin
+  inherited;
+  CtrlOn := True;
+  flkFornecedorTranporte.SetFocus;
+  InternoPesquisar('');
+end;
+
+function TfrmConsultaNotaseCupons.TabelaDePesquisa: TZDataSet;
+begin
+  with dtmConsultaNotasFiscais do
+    case TipoPesquisa of
+            cncFILIAL: Result:= ConsultarFiliais;
+           cncCLIENTE, cncCLIENTEDADOFISCAL: Result:= ConsultarClientes;
+              cncCFOP, cncCFOPSELECAO: Result:= ConsultarCFOP;
+     cncFORNECEDORTRANSPORTE: Result:= ConsultarFornecedorTransporte;
+    else  Result := nil;
+    end;
+end;
+
+function TfrmConsultaNotaseCupons.ValidarCamposSelecao: Boolean;
+begin
+  Result:= ((edtEmissaoInicial.Text <> '') or (edtEmissaoFinal.Text <> ''));
+  if Result then
+    if dtmConsultaNotasFiscais.Consultar = 'N' then
+      Result:= OperadorTernario((Trim(edfFilialNota.Text)  <> '') ,edfFilialNota.Exist , True) and
+               OperadorTernario((Trim(edfCliente.Text)     <> '') ,edfCliente.Exist    , True)
+    else
+      Result:= OperadorTernario((Trim(edfFilialCupon.Text) <> '') ,edfFilialCupon.Exist, True) and
+               OperadorTernario((Trim(edfCliente.Text)     <> '') ,edfCliente.Exist    , True);
+end;
+
+procedure TfrmConsultaNotaseCupons.ImprimirNota;
+var
+  Imp: String;
+begin
+  Imp := 'selecionar';
+  if ((not dtmConsultaNotasFiscais.CondicaoEmissorNFE) or (dtmConsultaNotasFiscais.qryServicosDadosFiscais.RecordCount<>0)) then
+  begin
+    frmSelecionarImpressoras := TfrmSelecionarImpressoras.Create(frmSelecionarImpressoras, ' ');
+    try
+      if frmSelecionarImpressoras.ShowModal = mrok then
+      begin
+        Imp:= frmSelecionarImpressoras.NomeImpressora;
+        dtmConsultaNotasFiscais.ImprimirNota(Imp);
+      end else
+        MensagemAviso(ctSELECIONARIMPRESSORA)
+    finally
+      frmSelecionarImpressoras.Free;
+    end;
+  end
+  else
+  begin
+    {Imprimir as que já foram geradas}
+    if ((dtmConsultaNotasFiscais.qryNotasnumprotocolonfe.AsString <> '') and
+        (dtmConsultaNotasFiscais.qryNotasnumcancelamentonfe.AsString = '') and
+        (dtmConsultaNotasFiscais.qryNotasnuminutilizacaonfe.AsString = '')) then
+       dtmConsultaNotasFiscais.ImprimirNFe(Imp)
+    else
+    {gerar nfe vinculadas com cupom}
+    if ((dtmConsultaNotasFiscais.qryNotasnumprotocolonfe.AsString = '') and
+       (dtmConsultaNotasFiscais.qryNotasnumcancelamentonfe.AsString = '') and
+       (dtmConsultaNotasFiscais.qryNotasnuminutilizacaonfe.AsString = '') and
+       (dtmConsultaNotasFiscais.qryCuponsnumero.AsInteger <> 0) and
+       ((dtmConsultaNotasFiscais.qryDadosFiscaiscodigofiscal.AsInteger mod 1000) <> 929)) then
+      dtmConsultaNotasFiscais.GerarNFe(Imp)
+    else
+      {capturar no sefaz o xml da nota e imprimir se não estiver no compartilha}
+    if ((dtmConsultaNotasFiscais.qryNotasnumprotocolonfe.AsString = '') and
+        (dtmConsultaNotasFiscais.qryNotasnumcancelamentonfe.AsString = '') and
+        (dtmConsultaNotasFiscais.qryNotasnuminutilizacaonfe.AsString = '') and
+        ((dtmConsultaNotasFiscais.qryDadosFiscaismodelodocto.AsString = '55') or
+         (dtmConsultaNotasFiscais.qryDadosFiscaismodelodocto.AsString = '57'))) then
+     dtmConsultaNotasFiscais.ImprimirNFe(Imp)
+
+  end;
+
+end;
+
+procedure TfrmConsultaNotaseCupons.sbnImprmirNotaClick(Sender: TObject);
+begin
+  inherited;
+  ImprimirNota
+end;
+
+procedure TfrmConsultaNotaseCupons.dbgProdutosKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Key = VK_SPACE then
+    if Shift = [ssCtrl] then
+      dtmConsultaNotasFiscais.AlterarSituacaoEntrega;
+end;
+
+procedure TfrmConsultaNotaseCupons.dbgProdutosDblClick(Sender: TObject);
+begin
+  inherited;
+  dtmConsultaNotasFiscais.AlterarSituacaoEntrega;
+end;
+
+procedure TfrmConsultaNotaseCupons.AfterScrollLinhaColunaGrade(
+  Sender: TObject);
+begin
+  dbgProdutos.Columnbyname('valorgrade1').Title.Caption := dtmConsultaNotasFiscais.LinhadaGrade;
+  dbgProdutos.Columnbyname('valorgrade2').Title.Caption := dtmConsultaNotasFiscais.colunadaGrade;
+end;
+
+procedure TfrmConsultaNotaseCupons.sbnCfopClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfCfopPesquisa, ctCFOP);
+end;
+
+procedure TfrmConsultaNotaseCupons.sbnProcurarClientesClick(
+  Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(flkCliente, ctCLIENTES);
+end;
+
+procedure TfrmConsultaNotaseCupons.AfterScrollTipoPessoa(Sender: TObject);
+begin
+  edtCPFCNPJ.Tipo := dtmConsultaNotasFiscais.TipoPessoa;
+end;
+
+procedure TfrmConsultaNotaseCupons.sbnEspelhoNotaClick(Sender: TObject);
+begin
+  inherited;
+  ImprimirEspelho;
+end;
+
+procedure TfrmConsultaNotaseCupons.ImprimirEspelho;
+begin
+  dtmConsultaNotasFiscais.ImprimirEspelhoNota;
+  //dtmConsultaNotasFiscais.ImprimirNotaPromissoriaCupom;
+end;
+
+procedure TfrmConsultaNotaseCupons.dbgImpostosProdutosDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  with dtmConsultaNotasFiscais do begin
+      if (qryCalculosProdutostipo.asstring = 'TOTAL ICMS') or
+         (qryCalculosProdutostipo.asstring = 'TOTAL IPI') or
+         (qryCalculosProdutostipo.asstring = 'TOTAL ISS') then
+      begin
+        TDBGrid(Sender).Canvas.Font.Style := [fsBold];
+        if not (gdSelected in State) then
+          TDBGrid(Sender).Canvas.Brush.Color := TColor(strtoint(parsistema.CorZebradoRelatorio));
+      end
+      else TDBGrid(Sender).Canvas.Font.Style := []
+  end;
+  TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+procedure TfrmConsultaNotaseCupons.FormActivate(Sender: TObject);
+begin
+  inherited;
+  tstServicos.tabVisible := ParSistema.ContratoComServico;
+
+end;
+
+procedure TfrmConsultaNotaseCupons.fraCartaCorrecaoEletronica1sbnSalvarClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraCartaCorrecaoEletronica1.sbnSalvarClick(Sender);
+
+end;
+
+procedure TfrmConsultaNotaseCupons.fraCartaCorrecaoEletronica1sbnIncluirClick(
+  Sender: TObject);
+begin
+  inherited;
+  fraCartaCorrecaoEletronica1.sbnIncluirClick(Sender);
+
+end;
+
+procedure TfrmConsultaNotaseCupons.sbnConferirClick(Sender: TObject);
+begin
+  inherited;
+  with dtmConsultaNotasFiscais do
+    ConferirProdutos(qryProdutosDadosFiscais, qryProdutosDadosFiscaisproduto.fieldname,
+     qryProdutosDadosFiscaiscodigovisual.FieldName, qryProdutosDadosFiscaisprodutodescricao.FieldName,
+     qryProdutosDadosFiscaisquantidade.FieldName, 'NFS', qryProdutosDadosFiscaisdadofiscal.AsString);
+end;
+
+procedure TfrmConsultaNotaseCupons.sbnFichaFinanceiraClick(
+  Sender: TObject);
+begin
+  inherited;
+  TfrmPrincipalBasico(Application.MainForm).MostrarFormRegistrado([dtmConsultaNotasFiscais.qryDadosFiscaiscliente.AsInteger,
+                                                                   dtmConsultaNotasFiscais.qryDadosFiscaistipocliente.asstring], 'TfrmFichaFinanceira', True)
+end;
+
+procedure TfrmConsultaNotaseCupons.sbnProcurarClick(Sender: TObject);
+begin
+  inherited;
+  if Assigned(EcfPadrao) then
+    dtmConsultaNotasFiscais.ImprimirNotaPromissoriaCupom;
+end;
+
+end.
+
+

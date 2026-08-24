@@ -1,0 +1,186 @@
+unit dmConsultaListasPadrao;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, cpdatasource, ZQuery, ZPgSqlQuery,
+  cpquery, dmtecsoft, ctconstantes;
+
+type
+  TdtmConsultaListasPadrao = class(TdtmBasico)
+    qryListasPadrao: TtecQuery;
+    dsrListasPadrao: TtecDataSource;
+    qryListasPadraocodigo: TIntegerField;
+    qryListasPadraodescricao: TStringField;
+    qryListasPadraofilial: TIntegerField;
+    qryListasPadraodatahora: TDateTimeField;
+    qryListasPadraonomefilial: TStringField;
+    qryProdutosListasPadrao: TtecQuery;
+    qryProdutosListasPadraolistapadrao: TIntegerField;
+    qryProdutosListasPadraoproduto: TLargeintField;
+    qryProdutosListasPadraodescricao: TStringField;
+    qryProdutosListasPadraoreferencia: TStringField;
+    qryProdutosListasPadraogrupo: TStringField;
+    qryProdutosListasPadraoprodutovisual: TStringField;
+    qryProdutosListasPadraodescricaogrupo: TStringField;
+    qryProdutosListasPadraovalorgrade1: TStringField;
+    qryProdutosListasPadraovalorgrade2: TStringField;
+    qryProdutosListasPadraolinha: TStringField;
+    qryProdutosListasPadraocoluna: TStringField;
+    qryProdutosListasPadraoclasse: TStringField;
+    qryProdutosListasPadraodescricaoclasse: TStringField;
+    qryProdutosListasPadraoquantidade: TFloatField;
+    qryProdutosListasPadraocodigodebarras: TStringField;
+    qryProdutosListasPadraopreco: TFloatField;
+    dsrProdutosListasPadrao: TtecDataSource;
+    qryListasPadraodatahoraconferencia: TDateTimeField;
+    qryListasPadraodiasalteracaocadastro: TIntegerField;
+    qryListasPadraodiasalteracaoconferencia: TIntegerField;
+    qryListasPadraousuario: TIntegerField;
+    qryListasPadraonomeusuario: TStringField;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); Override;
+    function AbrirConsultaListasPadrao(ListadeFiliais: String;
+                                       ListaCondicionalUsuarios: String;
+                                        DataInicialCadastro: String;
+                                        DataFinalCadastro: String;
+                                        AlteradosCadastro: boolean;
+
+
+                                        DataInicialConferencia: String;
+                                        DataFinalConferencia: String;
+                                        AlteradosConferencia: boolean
+
+                                        ): Boolean;
+  end;
+
+var
+  dtmConsultaListasPadrao: TdtmConsultaListasPadrao;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmConsultaListasPadrao }
+
+function TdtmConsultaListasPadrao.AbrirConsultaListasPadrao(
+   ListadeFiliais,
+   ListaCondicionalUsuarios,
+   DataInicialCadastro, DataFinalCadastro: String; AlteradosCadastro: boolean;
+   DataInicialConferencia, DataFinalConferencia: String; AlteradosConferencia: boolean ): Boolean;
+begin
+  qryListasPadrao.close;
+  qryProdutosListasPadrao.close;
+
+  qryListasPadrao.macrobyname('CondicaoListasFiliais').asString := '';
+  if ListadeFiliais <> '' then
+    qryListasPadrao.macrobyname('CondicaoListasFiliais').asString :=
+       ' and lp.filial in ('+ListadeFiliais+')';
+
+  qryListasPadrao.macrobyname('CondicaoUsuarios').asString := '';
+  if ListaCondicionalUsuarios <> '' then
+    qryListasPadrao.macrobyname('CondicaoUsuarios').asString :=
+       ' and ('+ListaCondicionalUsuarios+')';
+
+
+  qryListasPadrao.macrobyname('CondicaoIntervaloCadastro').asString := '';
+
+  (*
+  if (DataInicialCadastro <> '') and (DataFinalCadastro = '') then
+    qryListasPadrao.macrobyname('CondicaoIntervaloCadastro').asString :=
+      '     (coalesce(cast(lp.datahora as date), ''1899-12-30'') >= '+ quotedstr(formatdatetime('yyyy-mm-dd', strtodate(DataInicialCadastro))) +
+      '      or coalesce(cast(cf.data as date), ''1899-12-30'') >= '+ quotedstr(formatdatetime('yyyy-mm-dd', strtodate(DataInicialCadastro))) +')'
+  else
+  if (DataInicialCadastro = '') and (DataFinalCadastro <> '') then
+    qryListasPadrao.macrobyname('CondicaoIntervalo').asString :=
+      '     (cast(lp.datahora as date) <= '+ quotedstr(formatdatetime('yyyy-mm-dd', strtodate(DataFinalCadastro))) +
+      '      or cast(cf.data as date) <= '+ quotedstr(formatdatetime('yyyy-mm-dd', strtodate(DataFinalCadastro))) +')'
+
+  else
+  if (DataInicialCadastro <> '') and (DataFinalCadastro <> '') then
+    qryListasPadrao.macrobyname('CondicaoIntervalo').asString :=
+      '     ((coalesce(cast(lp.datahora as date), ''1899-12-30'') between '+ quotedstr(formatdatetime('yyyy-mm-dd', strtodate(DataInicialCadastro))) +
+      '       and '+ quotedstr(formatdatetime('yyyy-mm-dd', strtodate(DataFinalCadastro))) + ')' +
+      '      or (coalesce(cast(cf.data as date), ''1899-12-30'') between '+ quotedstr(formatdatetime('yyyy-mm-dd', strtodate(DataInicialCadastro))) +
+      '          and '+ quotedstr(formatdatetime('yyyy-mm-dd', strtodate(DataFinalCadastro))) + '))';
+  *)
+
+
+  if (DataInicialCadastro <> '') and (DataFinalCadastro = '') then
+    qryListasPadrao.macrobyname('CondicaoIntervaloCadastro').asString :=
+      '     (coalesce(cast(lp.datahora as date), ''1899-12-30'') >= '+ quotedstr(formatdatetime('yyyy-mm-dd', strtodate(DataInicialCadastro))) +')'
+  else
+  if (DataInicialCadastro = '') and (DataFinalCadastro <> '') then
+    qryListasPadrao.macrobyname('CondicaoIntervaloCadastro').asString :=
+      '     (cast(lp.datahora as date) <= '+ quotedstr(formatdatetime('yyyy-mm-dd', strtodate(DataFinalCadastro))) +')'
+
+  else
+  if (DataInicialCadastro <> '') and (DataFinalCadastro <> '') then
+    qryListasPadrao.macrobyname('CondicaoIntervaloCadastro').asString :=
+      '     (coalesce(cast(lp.datahora as date), ''1899-12-30'') between '+ quotedstr(formatdatetime('yyyy-mm-dd', strtodate(DataInicialCadastro))) +
+      '       and '+ quotedstr(formatdatetime('yyyy-mm-dd', strtodate(DataFinalCadastro))) + ')';
+
+
+  if not alteradosCadastro then
+  begin
+    if (qryListasPadrao.macrobyname('CondicaoIntervaloCadastro').asString <> '') then
+      qryListasPadrao.macrobyname('CondicaoIntervaloCadastro').asString := ' and not ' + qryListasPadrao.macrobyname('CondicaoIntervaloCadastro').asString;
+  end
+  else
+  if (qryListasPadrao.macrobyname('CondicaoIntervaloCadastro').asString <> '') then
+    qryListasPadrao.macrobyname('CondicaoIntervaloCadastro').asString := ' and ' + qryListasPadrao.macrobyname('CondicaoIntervaloCadastro').asString;
+
+
+
+  qryListasPadrao.macrobyname('CondicaoIntervaloConferencia').asString := '';
+
+  if (DataInicialConferencia <> '') and (DataFinalConferencia = '') then
+    qryListasPadrao.macrobyname('CondicaoIntervaloConferencia').asString :=
+      '     (coalesce(cast(cf.data as date), ''1899-12-30'') >= '+ quotedstr(formatdatetime('yyyy-mm-dd', strtodate(DataInicialConferencia))) +')'
+  else
+  if (DataInicialConferencia = '') and (DataFinalConferencia <> '') then
+    qryListasPadrao.macrobyname('CondicaoIntervaloConferencia').asString :=
+      '     (cast(cf.data as date) <= '+ quotedstr(formatdatetime('yyyy-mm-dd', strtodate(DataFinalConferencia))) +')'
+
+  else
+  if (DataInicialConferencia <> '') and (DataFinalConferencia <> '') then
+    qryListasPadrao.macrobyname('CondicaoIntervaloConferencia').asString :=
+      '         (coalesce(cast(cf.data as date), ''1899-12-30'') between '+ quotedstr(formatdatetime('yyyy-mm-dd', strtodate(DataInicialConferencia))) +
+      '          and '+ quotedstr(formatdatetime('yyyy-mm-dd', strtodate(DataFinalConferencia))) + ')';
+
+
+  if not alteradosConferencia then
+  begin
+    if (qryListasPadrao.macrobyname('CondicaoIntervaloConferencia').asString <> '') then
+      qryListasPadrao.macrobyname('CondicaoIntervaloConferencia').asString := ' and not ' + qryListasPadrao.macrobyname('CondicaoIntervaloConferencia').asString;
+  end
+  else
+  if (qryListasPadrao.macrobyname('CondicaoIntervaloConferencia').asString <> '') then
+    qryListasPadrao.macrobyname('CondicaoIntervaloConferencia').asString := ' and ' + qryListasPadrao.macrobyname('CondicaoIntervaloConferencia').asString;
+
+
+
+  qryProdutosListasPadrao.MACROS := qryListasPadrao.MACROS;
+
+  qryListasPadrao.macrobyname('Condicao').asString := 'true';
+  qryProdutosListasPadrao.macrobyname('Condicao').asString := 'and true';
+
+  qryListasPadrao.open;
+  qryProdutosListasPadrao.open;
+
+  result := (qryListasPadrao.recordcount <> 0);
+end;
+
+constructor TdtmConsultaListasPadrao.Create(AOwner: TComponent);
+begin
+  inherited;
+
+//  qryListasPadrao.tag := ctTabelas;
+//  qryProdutosListasPadrao.tag := ctTabelas;
+
+end;
+
+end.

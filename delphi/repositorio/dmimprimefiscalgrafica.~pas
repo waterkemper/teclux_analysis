@@ -1,0 +1,882 @@
+unit dmimprimefiscalgrafica;
+
+interface
+
+uses
+  SysUtils, Classes,
+  ctconstantes, dmbasico,
+  DB, DBClient, fr_class, fr_dset, fr_dbset, fmpreviewpadrao, ZQuery,
+  ZPgSqlQuery, cpquery, ZTransact, ACBrNFeDANFEFR, ACBrDANFCeFortesFrA4,
+  ACBrNFeDANFEClass, ACBrDANFCeFortesFr, ACBrBase, ACBrDFeReport,
+  ACBrDFeDANFeReport, ACBrNFeDANFeRLClass, frxClass, frxDBSet, forms,
+  cltefdiscado, frx2xto30;
+
+type
+  TNota 	  = class;
+  TCliente  	  = class;
+  TTotais   	  = class;
+  TTransporte 	  = class;
+  TLocalRetirada  = class;
+  TLocalEntrega   = class;
+  TExportacao     = class;
+  TVendedor       = class;
+  TAgente         = class;
+  TProdutos = class;
+  TProduto = class;
+  TServicos = class;
+  TServico = class;
+  TVenctos = class;
+  TVencto = class;
+
+  TNota = class(TPersistent)
+  private
+    fNumero: Integer;
+    fCodigoFiscal: integer;
+    fFilial: Integer;
+    fSerie: String;
+    fNFeChave: String;
+    fTipoFrete: TtecTipoFrete;
+    fInfComplementares: String;
+    fNFeCancelamento: String;
+    fNFeProtocolo: String;
+    fNaturezaDescricao: String;
+    fData: TDateTime;
+    fDataSaida: TDateTime;
+    fCliente: TCliente;
+    fExportacao: TExportacao;
+    fLocalEntrega: TLocalEntrega;
+    fLocalRetirada: TLocalRetirada;
+    fTotais: TTotais;
+    fTransporte: TTransporte;
+    fTipo: TipoNotaFiscal;
+    fProdutos: TProdutos;
+    fServicos: TServicos;
+    fVenctos: TVenctos;
+    fIE: String;
+    fIEST: String;
+    fCNPJ: String;
+    fcodigovendedor: String;
+    fnomevendedor: String;
+    procedure SetProdutos(const Value: TProdutos);
+    procedure SetVenctos(const Value: TVenctos);
+
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    property Tipo                    : TipoNotaFiscal read fTipo              	write fTipo;
+    property Filial                  : Integer   read fFilial              	write fFilial;
+    property Serie                   : String    read fSerie               	write fSerie;
+    property Numero                  : Integer   read fNumero              	write fNumero;
+    property Data                    : TDateTime read fData                	write fData;
+    property DataSaida               : TDateTime read fDataSaida           	write fDataSaida;
+    property CNPJ                    : String    read fCNPJ                     write fCNPJ;
+    property IE                      : String    read fIE                       write fIE;
+    property IEST                    : String    read fIEST                     write fIEST;
+    property CodigoFiscal            : integer   read fCodigoFiscal        	write fCodigoFiscal;
+    property NaturezaDescricao       : String    read fNaturezaDescricao   	write fNaturezaDescricao;
+    property TipoFrete               : TtecTipoFrete read fTipoFrete           	write fTipoFrete;
+    property InfComplementares       : String    read fInfComplementares        write fInfComplementares;
+    property NFeChave                : String    read fNFeChave       		write fNFeChave;
+    property NFeProtocolo            : String    read fNFeProtocolo   	        write fNFeProtocolo;
+    property NFeCancelamento         : String    read fNFeCancelamento		write fNFeCancelamento;
+    property codigovendedor          : String    read fcodigovendedor           write fcodigovendedor;
+    property nomevendedor            : String    read fnomevendedor             write fnomevendedor;
+
+    property Cliente                 : TCliente       read fCliente       write fCliente;
+    property Totais                  : TTotais        read fTotais        write fTotais;
+    property Transporte              : TTransporte    read fTransporte    write fTransporte;
+    property Produtos                : TProdutos    read fProdutos  write SetProdutos;
+    property Venctos                 : TVenctos read fVenctos   write SetVenctos;
+
+  end;
+
+  TCliente = class(TPersistent)
+  private
+    fFoneNumero: Integer;
+    fCEP: Integer;
+    fCodigo: Integer;
+    fNumero: Integer;
+    fCidadeIBGE: Integer;
+    fPais: Integer;
+    fCidade: Integer;
+    fConceito: Integer;
+    fBairro: Integer;
+    fFoneDDD: Integer;
+    fTipo: String;
+    fCNPJ: String;
+    fNome: String;
+    fPessoaTipo: String;
+    fRua: String;
+    fNomeBairro: String;
+    fEstado: String;
+    fEmail: String;
+    fIEST: String;
+    fIE: String;
+    fSUFRAMA: String;
+    fNomePais: String;
+    fNomeCidade: String;
+    fComplemento: String;
+
+  public
+    property Codigo      : Integer  read fCodigo      write fCodigo;
+    property Tipo        : String   read fTipo        write fTipo;
+    property Nome        : String   read fNome        write fNome;
+    property Rua         : String   read fRua         write fRua;
+    property Numero      : Integer  read fNumero      write fNumero;
+    property Complemento : String   read fComplemento write fComplemento;
+    property Bairro      : Integer  read fBairro      write fBairro;
+    property Cidade      : Integer  read fCidade      write fCidade;
+    property Estado      : String   read fEstado      write fEstado;
+    property CEP         : Integer  read fCEP         write fCEP;
+    property NomeBairro  : String   read fNomeBairro  write fNomeBairro;
+    property NomeCidade  : String   read fNomeCidade  write fNomeCidade;
+    property CidadeIBGE  : Integer  read fCidadeIBGE  write fCidadeIBGE;
+    property Pais        : Integer  read fPais        write fPais;
+    property Nomepais    : String   read fNomePais    write fNomePais;
+    property PessoaTipo  : String   read fPessoaTipo  write fPessoaTipo;
+    property CNPJ        : String   read fCNPJ 	      write fCNPJ;
+    property FoneNumero  : Integer  read fFoneNumero  write fFoneNumero;
+    property FoneDDD     : Integer  read fFoneDDD     write fFoneDDD;
+    property IE          : String   read fIE  	      write fIE;
+    property IEST        : String   read fIEST	      write fIEST;
+    property Conceito    : Integer  read fConceito    write fConceito;
+    property SUFRAMA     : String   read fSUFRAMA     write fSUFRAMA;
+    property Email       : String   read fEmail       write fEmail;
+  end;
+
+  TTotais = class(TPersistent)
+  private
+    fICMSSTBase: Double;
+    fCOFINS: Double;
+    fProdutos: Double;
+    fPIS: Double;
+    fISSQN: Double;
+    fICMSProprio: Double;
+    fAcrescimoFinanceiro: Double;
+    fServicos: Double;
+    fCSLLRetido: Double;
+    fICMSBase: Double;
+    fIPI: Double;
+    fImportacao: Double;
+    fFrete: Double;
+    fICMSST: Double;
+    fAVista: Double;
+    fISSRetido: Double;
+    fPISRetido: Double;
+    fICMSExcluido: Double;
+    fAcrescimoExcluido: Double;
+    fDespesasAcessorias: Double;
+    fDesconto: Double;
+    fSeguro: Double;
+    fPrazo: Double;
+    fIRRetido: Double;
+    fINSSRetido: Double;
+    fICMS: Double;
+    fCOFINSRetido: Double;
+    fICMSProprioBase: Double;
+
+  public
+    property Prazo               : Double  read fPrazo 		     write fPrazo;
+    property AVista              : Double  read fAVista 	     write fAVista;
+    property Desconto            : Double  read fDesconto 	     write fDesconto;
+    property Frete               : Double  read fFrete 		     write fFrete;
+    property Produtos            : Double  read fProdutos 	     write fProdutos;
+    property Seguro              : Double  read fSeguro 	     write fSeguro;
+    property IPI                 : Double  read fIPI 		     write fIPI;
+    property DespesasAcessorias  : Double  read fDespesasAcessorias  write fDespesasAcessorias;
+    property Servicos            : Double  read fServicos 	     write fServicos;
+    property Importacao          : Double  read fImportacao 	     write fImportacao;
+    property PIS                 : Double  read fPIS 		     write fPIS;
+    property COFINS              : Double  read fCOFINS 	     write fCOFINS;
+    property ISSQN               : Double  read fISSQN 		     write fISSQN;
+    property ICMSBase            : Double  read fICMSBase 	     write fICMSBase;
+    property ICMS                : Double  read fICMS 		     write fICMS;
+    property ICMSProprioBase     : Double  read fICMSProprioBase     write fICMSProprioBase;
+    property ICMSProprio         : Double  read fICMSProprio 	     write fICMSProprio;
+    property ICMSSTBase          : Double  read fICMSSTBase 	     write fICMSSTBase;
+    property ICMSST              : Double  read fICMSST 	     write fICMSST;
+    property ICMSExcluido        : Double  read fICMSExcluido 	     write fICMSExcluido;
+    property AcrescimoFinanceiro : Double  read fAcrescimoFinanceiro write fAcrescimoFinanceiro;
+    property AcrescimoExcluido   : Double  read fAcrescimoExcluido   write fAcrescimoExcluido;
+    property IRRetido            : Double  read fIRRetido 	     write fIRRetido;
+    property INSSRetido          : Double  read fINSSRetido 	     write fINSSRetido;
+    property ISSRetido           : Double  read fISSRetido 	     write fISSRetido;
+    property COFINSRetido        : Double  read fCOFINSRetido 	     write fCOFINSRetido;
+    property PISRetido           : Double  read fPISRetido 	     write fPISRetido;
+    property CSLLRetido          : Double  read fCSLLRetido 	     write fCSLLRetido;
+  end;
+
+  TTransporte = class(TPersistent)
+  private
+    fCidade: Integer;
+    fFornecedor: Integer;
+    fBairro: Integer;
+    fCidadeIBGE: Integer;
+    fNome: String;
+    fRua: String;
+    fRNTC: String;
+    fEstado: String;
+    fPlaca: String;
+    fVia: String;
+    fCNPJ: String;
+    fNomeBairro: String;
+    fEstadoPlaca: String;
+    fNomeCidade: String;
+    fIE: String;
+    fPesoLiquido: Double;
+    fPesoBruto: Double;
+    fQuantidade: Integer;
+    fMarca: String;
+    fEspecie: String;
+    fNumero: String;
+
+  public
+    property Via         : String   read fVia 	      write fVia;
+    property EstadoPlaca : String   read fEstadoPlaca write fEstadoPlaca;
+    property Placa       : String   read fPlaca       write fPlaca;
+    property Fornecedor  : Integer  read fFornecedor  write fFornecedor;
+    property CNPJ        : String   read fCNPJ        write fCNPJ;
+    property IE          : String   read fIE 	      write fIE;
+    property Nome        : String   read fNome 	      write fNome;
+    property Rua         : String   read fRua 	      write fRua;
+    property Bairro      : Integer  read fBairro      write fBairro;
+    property NomeBairro  : String   read fNomeBairro  write fNomeBairro;
+    property Cidade      : Integer  read fCidade      write fCidade;
+    property NomeCidade  : String   read fNomeCidade  write fNomeCidade;
+    property CidadeIBGE  : Integer  read fCidadeIBGE  write fCidadeIBGE;
+    property Estado      : String   read fEstado      write fEstado;
+    property RNTC        : String   read fRNTC	      write fRNTC;
+    property Quantidade  : Integer  read fQuantidade  write fQuantidade;
+    property Especie     : String   read fEspecie     write fEspecie;
+    property Marca       : String   read fMarca	      write fMarca;
+    property Numero      : String   read fNumero      write fNumero;
+    property PesoBruto   : Double   read fPesoBruto   write fPesoBruto;
+    property PesoLiquido : Double   read fPesoLiquido write fPesoLiquido;
+  end;
+
+  TLocalRetirada = class(TPersistent)
+  private
+    fCEP: Integer;
+    fNumero: Integer;
+    fCidade: Integer;
+    fCidadeIBGE: Integer;
+    fBairro: Integer;
+    fRua: String;
+    fEstado: String;
+    fCNPJ: String;
+    fNomeBairro: String;
+    fNomeCidade: String;
+    fComplemento: String;
+
+  public
+    property CNPJ        : String   read fCNPJ 	      write fCNPJ;
+    property Rua         : String   read fRua 	      write fRua;
+    property Numero      : Integer  read fNumero      write fNumero;
+    property Complemento : String   read fComplemento write fComplemento;
+    property Bairro      : Integer  read fBairro      write fBairro;
+    property NomeBairro  : String   read fNomeBairro  write fNomeBairro;
+    property Cidade      : Integer  read fCidade      write fCidade;
+    property CEP         : Integer  read fCEP 	      write fCEP;
+    property NomeCidade  : String   read fNomeCidade  write fNomeCidade;
+    property CidadeIBGE  : Integer  read fCidadeIBGE  write fCidadeIBGE;
+    property Estado      : String   read fEstado      write fEstado;
+  end;
+
+  TLocalEntrega = class(TPersistent)
+  private
+    fCEP: Integer;
+    fNumero: Integer;
+    fCidade: Integer;
+    fCidadeIBGE: Integer;
+    fBairro: Integer;
+    fRua: String;
+    fEstado: String;
+    fCNPJ: String;
+    fNomeBairro: String;
+    fNomeCidade: String;
+    fComplemento: String;
+
+  public
+    property CNPJ        : String   read fCNPJ 	      write fCNPJ;
+    property Rua         : String   read fRua 	      write fRua;
+    property Numero      : Integer  read fNumero      write fNumero;
+    property Complemento : String   read fComplemento write fComplemento;
+    property Bairro      : Integer  read fBairro      write fBairro;
+    property NomeBairro  : String   read fNomeBairro  write fNomeBairro;
+    property Cidade      : Integer  read fCidade      write fCidade;
+    property CEP         : Integer  read fCEP 	      write fCEP;
+    property NomeCidade  : String   read fNomeCidade  write fNomeCidade;
+    property CidadeIBGE  : Integer  read fCidadeIBGE  write fCidadeIBGE;
+    property Estado      : String   read fEstado      write fEstado;
+  end;
+
+  TExportacao = class(TPersistent)
+  private
+    fUFEmbarque: String;
+    fLocalEmbarque: String;
+  public
+    property UFEmbarque    : String  read fUFEmbarque    write fUFEmbarque;
+    property LocalEmbarque : String  read fLocalEmbarque write fLocalEmbarque;
+  end;
+
+  TVendedor = class(TPersistent)
+  private
+    fCodigo: Integer;
+    fNome: String;
+  public
+    property Codigo : Integer read fCodigo write fCodigo;
+    property Nome   : String  read fNome   write fNome;
+  end;
+
+  TAgente = class(TPersistent)
+  private
+    fCodigo: Integer;
+    fNome: String;
+  public
+    property Codigo : Integer read fCodigo write fCodigo;
+    property Nome   : String  read fNome   write fNome;
+  end;
+
+  TProdutos = class(TCollection)
+  private
+    function GetItem(Index: Integer): TProduto;
+    procedure SetItem(Index: Integer; Value: TProduto);
+  public
+    constructor Create(AOwner: TNota);
+    function Add: TProduto;
+    property Items[Index: Integer]: TProduto read GetItem write SetItem; default;
+  end;
+
+  TProduto = class(TCollectionItem)
+  private
+    fComposto: Boolean;
+    fDiscriminarPreco: Boolean;
+    fDiscriminarComposto: Boolean;
+    fPrecoUnitario: Double;
+    fFrete: Double;
+    fSeguro: Double;
+    fQuantidade: Double;
+    fPrecoTotal: Double;
+    fFatorSubstituicao: Double;
+    fValorDescontoItem: Double;
+    fAliquotaIPI: Double;
+    fDesconto: Double;
+    fAcrescimo: Double;
+    fIPI: Double;
+    fValorIPI: Double;
+    fAliquotaICMS: Double;
+    fPedidoCliente: Integer;
+    fOSP: Integer;
+    fCodigoFiscal: Integer;
+    fNumero: Integer;
+    fFilial: Integer;
+    fSequenciaIPI: Integer;
+    fClassificacaoFiscal: String;
+    fOrigem: String;
+    fReferencia: String;
+    fMarcaDescricao: String;
+    fDescricao: String;
+    fCodigo: String;
+    fIncidencia: String;
+    fProdutoCliente: String;
+    fLocalizacao: String;
+    fUnidade: String;
+    fCodigoVisual: String;
+    fObsLegal: String;
+    fValorICMS: Double;
+    fBaseCalculoICMS: Double;
+  public
+    property Codigo              : String   read fCodigo               write fCodigo;
+    property Filial              : Integer  read fFilial               write fFilial;
+    property Numero              : Integer  read fNumero               write fNumero;
+    property CodigoVisual        : String   read fCodigoVisual         write fCodigoVisual;
+    property Descricao           : String   read fDescricao            write fDescricao;
+    property Referencia          : String   read fReferencia           write fReferencia;
+    property Unidade             : String   read fUnidade              write fUnidade;
+    property Localizacao         : String   read fLocalizacao          write fLocalizacao;
+    property ObsLegal            : String   read fObsLegal             write fObsLegal;
+    property Origem              : String   read fOrigem               write fOrigem;
+    property Incidencia          : String   read fIncidencia           write fIncidencia;
+    property Quantidade          : Double   read fQuantidade           write fQuantidade;
+    property PrecoUnitario       : Double   read fPrecoUnitario        write fPrecoUnitario;
+    property PrecoTotal          : Double   read fPrecoTotal           write fPrecoTotal;
+    property CodigoFiscal        : Integer  read fCodigoFiscal         write fCodigoFiscal;
+    property BaseCalculoICMS     : Double   read fBaseCalculoICMS      write fBaseCalculoICMS;
+    property AliquotaICMS        : Double   read fAliquotaICMS         write fAliquotaICMS;
+    property ValorICMS           : Double   read fValorICMS            write fValorICMS;
+    property AliquotaIPI         : Double   read fAliquotaIPI          write fAliquotaIPI;
+    property IPI                 : Double   read fIPI                  write fIPI;
+    property SequenciaIPI        : Integer  read fSequenciaIPI         write fSequenciaIPI;
+    property ValorIPI            : Double   read fValorIPI             write fValorIPI;
+    property ClassificacaoFiscal : String   read fClassificacaoFiscal  write fClassificacaoFiscal;
+    property Acrescimo           : Double   read fAcrescimo            write fAcrescimo;
+    property Desconto            : Double   read fDesconto             write fDesconto;
+    property Frete               : Double   read fFrete                write fFrete;
+    property Seguro              : Double   read fSeguro               write fSeguro;
+    property ValorDescontoItem   : Double   read fValorDescontoItem    write fValorDescontoItem;
+    property FatorSubstituicao   : Double   read fFatorSubstituicao    write fFatorSubstituicao;
+    property PedidoCliente       : Integer  read fPedidoCliente        write fPedidoCliente;
+    property MarcaDescricao      : String   read fMarcaDescricao       write fMarcaDescricao;
+    property ProdutoCliente      : String   read fProdutoCliente       write fProdutoCliente;
+    property Composto            : Boolean  read fComposto             write fComposto;
+    property DiscriminarComposto : Boolean  read fDiscriminarComposto  write fDiscriminarComposto;
+    property DiscriminarPreco    : Boolean  read fDiscriminarPreco     write fDiscriminarPreco;
+    property OSP                 : Integer  read fOSP                  write fOSP;
+  end;
+
+  TServicos = class(TCollection)
+  private
+    function GetItem(Index: Integer): TServico;
+    procedure SetItem(Index: Integer; Value: TServico);
+  public
+    constructor Create(AOwner: TNota);
+    function Add: TServico;
+    property Items[Index: Integer]: TServico read GetItem write SetItem; default;
+  end;
+
+  TServico = class(TCollectionItem)
+  private
+    fValorUnitario: Double;
+    fISSQN: Double;
+    fValorTotal: Double;
+    fAliquotaISSQN: Double;
+    fQuantidade: Integer;
+    fCodigo: Integer;
+    fAtividade: String;
+    fNomeCidade: String;
+    fDescricao: String;
+
+  public
+    property Codigo         : Integer read fCodigo         write fCodigo;
+    property Descricao      : String  read fDescricao      write fDescricao;
+    property Atividade      : String  read fAtividade      write fAtividade;
+    property Quantidade     : Integer read fQuantidade     write fQuantidade;
+    property ValorUnitario  : Double  read fValorUnitario  write fValorUnitario;
+    property ValorTotal     : Double  read fValorTotal     write fValorTotal;
+    property ISSQN          : Double  read fISSQN          write fISSQN;
+    property AliquotaISSQN  : Double  read fAliquotaISSQN  write fAliquotaISSQN;
+    property NomeCidade     : String  read fNomeCidade     write fNomeCidade;
+  end;
+
+  TVenctos = class(TCollection)
+  private
+    function GetItem(Index: Integer): TVencto;
+    procedure SetItem(Index: Integer; Value: TVencto);
+  public
+    constructor Create(AOwner: TNota);
+    function Add: TVencto;
+    property Items[Index: Integer]: TVencto read GetItem write SetItem; default;
+  end;
+
+  TVencto = class(TCollectionItem)
+  private
+    fData: TDateTime;
+    fValor: Double;
+    fNumero: Integer;
+  public
+    property Numero : Integer    read fNumero  write fNumero;
+    property Data   : TDateTime  read fData    write fData;
+    property Valor  : Double     read fValor   write fValor;
+  end;
+
+  TdtmImprimeFiscalGrafica = class(TdtmBasico)
+    frNota: TfrReport;
+    fdsProdutos: TfrDBDataSet;
+    fdsVenctos: TfrDBDataSet;
+    qryProdutos: TtecQuery;
+    qryVenctos: TtecQuery;
+    qryProdutosnumero: TIntegerField;
+    qryProdutosquantidade: TFloatField;
+    qryProdutosbasecalculoicms: TFloatField;
+    qryProdutosaliquotaicms: TFloatField;
+    qryProdutosvaloricms: TFloatField;
+    qryProdutoscodigo: TStringField;
+    qryProdutosfilial: TIntegerField;
+    qryProdutosprecounitario: TFloatField;
+    qryProdutosprecototal: TFloatField;
+    qryProdutoscomposto: TBooleanField;
+    qryProdutosdiscriminarcomposto: TBooleanField;
+    qryProdutosdiscriminarpreco: TBooleanField;
+    qryProdutosipi: TFloatField;
+    qryProdutosclassificacaofiscal: TStringField;
+    qryProdutossequenciaipi: TIntegerField;
+    qryProdutosaliquotaipi: TFloatField;
+    qryProdutosvaloripi: TFloatField;
+    qryProdutososp: TIntegerField;
+    qryProdutosfrete: TFloatField;
+    qryProdutosseguro: TFloatField;
+    qryProdutosdesconto: TFloatField;
+    qryProdutosfatorsubstituicao: TFloatField;
+    qryProdutosdescontoitem: TFloatField;
+    qryProdutoscodigofiscal: TIntegerField;
+    qryProdutospedidocliente: TIntegerField;
+    qryProdutosdescricao: TStringField;
+    qryProdutosreferencia: TStringField;
+    qryProdutoscodigovisual: TStringField;
+    qryProdutosunidade: TStringField;
+    qryProdutoslocalizacao: TStringField;
+    qryProdutosobslegal: TStringField;
+    qryProdutosorigem: TIntegerField;
+    qryProdutosincidencia: TStringField;
+    qryProdutosmarcadescricao: TStringField;
+    qryProdutosprodutocliente: TStringField;
+    qryProdutosacrescimo: TFloatField;
+    qryVenctosnumero: TIntegerField;
+    qryVenctosdata: TDateField;
+    qryVenctosvalor: TFloatField;
+    ACBrNFeDANFeRL1: TACBrNFeDANFeRL;
+    ACBrNFeDANFCeFortes1: TACBrNFeDANFCeFortes;
+    ACBrNFeDANFCeFortesA41: TACBrNFeDANFCeFortesA4;
+    ACBrNFeDANFEFR1: TACBrNFeDANFEFR;
+    ACBrNFeDANFCEFR1: TACBrNFeDANFCEFR;
+    frxReportDanfe: TfrxReport;
+    frxDBDataset1: TfrxDBDataset;
+    frxDBDataset2: TfrxDBDataset;
+    frxReport1: TfrxReport;
+    cdsRelatorio: TtecQuery;
+    cdsRelatoriotexto: TStringField;
+    frxReport2: TfrxReport;
+    procedure frNotaBeforePrint(Memo: TStringList; View: TfrView);
+  private
+    fNota: TNota;
+    { Private declarations }
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure ImprimirNota;
+
+    property Nota : TNota read fNota write fNota;
+
+    { Public declarations }
+  end;
+
+  procedure ImprimirRecibospeloFastReport_(Relatorio: TStringList; NomeImpressoraEscolhida: String);
+
+var
+  dtmImprimeFiscalGrafica: TdtmImprimeFiscalGrafica;
+
+implementation
+
+uses
+  biblio;
+{$R *.dfm}
+
+{ TNota }
+
+
+{ TProdutos }
+
+function TProdutos.Add: TProduto;
+begin
+  Result := TProduto(inherited Add);
+end;
+
+constructor TProdutos.Create(AOwner: TNota);
+begin
+  inherited Create(TProduto);
+end;
+
+function TProdutos.GetItem(Index: Integer): TProduto;
+begin
+  Result := TProduto(inherited GetItem(Index));
+end;
+
+procedure TProdutos.SetItem(Index: Integer;
+  Value: TProduto);
+begin
+  inherited SetItem(Index, Value);
+end;
+
+{ TNota }
+
+constructor TNota.Create;
+begin
+  fCliente       := TCliente.Create;
+  fTotais        := TTotais.Create;
+  fTransporte    := TTransporte.Create;
+  fLocalRetirada := TLocalRetirada.Create;
+  fLocalEntrega  := TLocalEntrega.Create;
+  fExportacao    := TExportacao.Create;
+  fProdutos      := TProdutos.Create(Self);
+  fServicos      := TServicos.Create(Self);
+  fVenctos       := TVenctos.Create(Self);
+end;
+
+destructor TNota.Destroy;
+begin
+  fCliente.Free;
+  fTotais.Free;
+  fTransporte.Free;
+  fLocalRetirada.Free;
+  fLocalEntrega.Free;
+  fExportacao.Free;
+  fProdutos.Free;
+  fServicos.Free;
+  fVenctos.Free;
+  inherited Destroy;
+end;
+
+procedure TNota.SetProdutos(const Value: TProdutos);
+begin
+  fProdutos.Assign(Value);
+end;
+{
+procedure TNota.SetServicos(const Value: TServicos);
+begin
+  fServicos.Assign(Value);
+end;
+}
+procedure TNota.SetVenctos(const Value: TVenctos);
+begin
+  fVenctos.Assign(Value);
+end;
+
+{ TVenctos }
+
+function TVenctos.Add: TVencto;
+begin
+  Result := TVencto(inherited Add);
+end;
+
+constructor TVenctos.Create(AOwner: TNota);
+begin
+  inherited Create(TVencto);
+end;
+
+function TVenctos.GetItem(
+  Index: Integer): TVencto;
+begin
+  Result := TVencto(inherited GetItem(Index));
+end;
+
+procedure TVenctos.SetItem(Index: Integer;
+  Value: TVencto);
+begin
+  inherited SetItem(Index, Value);
+end;
+
+{ TServicos }
+
+function TServicos.Add: TServico;
+begin
+  Result := TServico(inherited Add);
+end;
+
+constructor TServicos.Create(AOwner: TNota);
+begin
+  inherited Create(TServico);
+end;
+
+function TServicos.GetItem(Index: Integer): TServico;
+begin
+  Result := TServico(inherited GetItem(Index));
+end;
+
+procedure TServicos.SetItem(Index: Integer;
+  Value: TServico);
+begin
+  inherited SetItem(Index, Value);
+end;
+
+{ TdtmImprimeFiscalGrafica }
+
+constructor TdtmImprimeFiscalGrafica.Create(AOwner: TComponent);
+begin
+  inherited;
+  fNota := TNota.Create;
+end;
+
+destructor TdtmImprimeFiscalGrafica.Destroy;
+begin
+  fNota.Free;
+  inherited Destroy;
+end;
+
+procedure TdtmImprimeFiscalGrafica.ImprimirNota;
+var
+  Relatorio: TfrReport;
+  frmPreview: TfrmPreviewPadrao;
+  i: Integer;
+begin
+  frVariables['Titulo'] := 'Espelho Nota Fiscal';
+  with fNota do
+  begin
+// CABEÇALHO
+    if Tipo = nfSAIDA then
+      frVariables['TipoNota'] := '0'
+    else
+      frVariables['TipoNota'] := '1';
+    frVariables['NumeroNota']     := Numero;
+    frVariables['SerieNota']      := Serie;
+    frVariables['Natureza']       := NaturezaDescricao;
+    frVariables['CodigoFiscal']   := CodigoFiscal;
+    frVariables['CNPJ']           := FormatarCPFouCGC(CNPJ);
+    frVariables['InscEstadual']   := IE;
+    frVariables['InscEstadualST'] := IEST;
+    frVariables['DataEmissao']    := Data;
+    frVariables['DataSaida']      := DataSaida;
+    frVariables['HoraSaida']      := '';
+    frVariables['codigovendedor'] := codigovendedor;
+    frVariables['nomevendedor'] := nomevendedor;
+
+  end;
+// DESTINATARIO
+  with fNota.Cliente do
+  begin
+    frVariables['DestCNPJ']      := FormatarCPFouCGC(CNPJ);
+    frVariables['DestIE']        := IE;
+    if tipo <> 'C' then
+      frVariables['DestNome']      := inttostr(codigo)+tipo+' - '+Nome
+    else
+      frVariables['DestNome']      := inttostr(codigo)+' - '+Nome;
+
+    frVariables['DestEndereco']  := Rua + ', ' + IntToStr(Numero) + ' - ' + Complemento;
+    frVariables['DestBairro']    := NomeBairro;
+    frVariables['DestCEP']       := FormatarCEP(IntToStr(CEP));
+    frVariables['DestMunicipio'] := NomeCidade;
+    frVariables['DestUF']        := Estado;
+    frVariables['DestFone']      := FormatarFone(IntToStr(FoneDDD),IntToStr(FoneNumero));
+  end;
+// VENCTOS
+  qryVenctos.Open;
+  qryVenctos.Delete;
+  for i := 0 to fNota.Venctos.Count -1 do
+    with fNota.Venctos[i] do
+      qryVenctos.AppendRecord([Numero,Data,Valor]);
+// TOTAIS
+  with fNota.Totais do
+  begin
+    frVariables['ValorIPI']    := IPI;
+    frVariables['BaseICMS']    := ICMSBase;
+    frVariables['ValorICMS']   := ICMS;
+    frVariables['BaseICMSST']  := ICMSSTBase;
+    frVariables['ValorICMSST'] := ICMSST;
+    frVariables['ValorFrete']  := Frete;
+    frVariables['ValorSeguro'] := Seguro;
+    frVariables['ValorDesconto'] := Desconto;
+    frVariables['ValorDespesas'] := DespesasAcessorias;
+    frVariables['ValorProdutos'] := Produtos;
+    frVariables['ValorNota']     := Prazo;
+  end;
+// TRANSPORTE
+  if fNota.TipoFrete = tfEmitente then
+    frVariables['TipoFrete'] := 1
+  else
+    frVariables['TipoFrete'] := 2;
+  with fNota.Transporte do
+  begin
+    frVariables['TransCNPJ']        := FormatarCPFouCGC(CNPJ);
+    frVariables['TransIE']          := IE;
+    frVariables['TransNome']        := Nome;
+    frVariables['TransEndereco']    := Rua;
+    frVariables['TransMunicipio']   := NomeCidade;
+    frVariables['TransUF']          := Estado;
+    frVariables['TransPlaca']       := Placa;
+    frVariables['TransPlacaUF']     := EstadoPlaca;
+    frVariables['TransQuantidade']  := Quantidade;
+    frVariables['TransEspecie']     := Especie;
+    frVariables['TransMarca']       := Marca;
+    frVariables['TransNumero']      := Numero;
+    frVariables['TransPesoBruto']   := PesoBruto;
+    frVariables['TransPesoLiquido'] := PesoLiquido;
+  end;
+// PRODUTOS
+  qryProdutos.Open;
+  qryProdutos.Delete;
+  for i := 0 to fNota.Produtos.Count -1 do
+    with fNota.Produtos[i] do
+    begin
+      qryProdutos.Append;
+      qryProdutosCodigoVisual.AsString        := CodigoVisual;
+      qryProdutosDescricao.AsString           := Descricao;
+      qryProdutosreferencia.AsString          := Referencia;
+      qryProdutosClassificacaoFiscal.AsString := ClassificacaoFiscal;
+      qryProdutosOrigem.AsString              := Origem;
+      qryProdutosIncidencia.AsString          := Incidencia;
+      qryProdutosCodigoFiscal.AsInteger       := CodigoFiscal;
+      qryProdutosUnidade.AsString             := Unidade;
+      qryProdutosQuantidade.AsFloat           := Quantidade;
+      qryProdutosPrecoUnitario.AsFloat        := PrecoUnitario;
+      qryProdutosPrecoTotal.AsFloat           := PrecoTotal;
+      qryProdutosBaseCalculoICMS.AsFloat      := BaseCalculoICMS;
+      qryProdutosValorICMS.AsFloat            := ValorICMS;
+      qryProdutosValorIPI.AsFloat             := ValorIPI;
+      qryProdutosAliquotaICMS.AsFloat         := AliquotaICMS;
+      qryProdutosAliquotaIPI.AsFloat          := AliquotaIPI;
+      qryProdutos.Post;
+    end;
+// DADOS ADICIONAIS
+  frVariables['InfComplementares'] := fNota.InfComplementares;
+
+
+  frNota.DesignReport;
+  frxReport2.DesignReport;
+
+  frmPreview := TfrmPreviewPadrao.create(self.owner);
+  frmPreview.cmbZoom.ItemIndex := 3;
+
+  try
+    with frmPreview do
+    begin
+      Relatorio := frmPreview.frCompositeReport;
+      frCompositeReport.Reports.Clear;
+      frCompositeReport.DoublePass := true;
+      frCompositeReport.Reports.Add(frNota);
+      Relatorio.Preview := frPreviewPadrao;
+      Relatorio.ShowReport;
+      ShowModal;
+    end;
+  finally
+    frmPreview.Free;
+  end;
+end;
+
+procedure TdtmImprimeFiscalGrafica.frNotaBeforePrint(Memo: TStringList;
+  View: TfrView);
+begin
+  inherited;
+  ZebrarLinhaRelatorio(frNota, View);
+end;
+
+procedure ImprimirRecibospeloFastReport_(
+  Relatorio: TStringList; NomeImpressoraEscolhida: String);
+var
+  x: integer;
+  arquivofast: String;
+begin
+  try
+    dtmImprimeFiscalGrafica := TdtmImprimeFiscalGrafica.create(nil);
+    with dtmImprimeFiscalGrafica do
+    begin
+      cdsRelatorio.close;
+      cdsRelatorio.open;
+
+      for x := 0 to Relatorio.Count-1 do
+      begin
+         cdsRelatorio.Append;
+         cdsRelatorioTexto.AsString := Relatorio.Strings[x];
+         cdsRelatorio.Post;
+      end;
+
+      arquivofast := ExtractFilePath(Application.ExeName) + 'recibo_tef.fr3';
+      if FileExists(arquivofast) then
+        frxReport1.LoadFromFile(arquivofast);
+
+      frxReport1.PrintOptions.ShowDialog:= (NomeImpressoraEscolhida='');
+      if (NomeImpressoraEscolhida<>'') then
+        frxReport1.PrintOptions.Printer :=  NomeImpressoraEscolhida;
+
+      frxReport1.PrepareReport;
+      frxReport1.Print;
+    end;
+  finally
+    freeandnil(dtmImprimeFiscalGrafica);
+  end;
+
+end;
+
+initialization
+  ImprimirRecibospeloFastReport := ImprimirRecibospeloFastReport_;
+
+end.

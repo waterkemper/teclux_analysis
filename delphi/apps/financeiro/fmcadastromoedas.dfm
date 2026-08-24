@@ -12,16 +12,16 @@ inherited frmCadastroMoedas: TfrmCadastroMoedas
   TextHeight = 15
   inherited pnlBarra: TPanel
     Left = 0
-    Top = 40
+    Top = 45
     Width = 923
-    Height = 365
+    Height = 360
     Align = alClient
     Font.Height = -12
     ParentFont = False
     Visible = True
     inherited bvlBotoesEd: TBevel
       Left = 1
-      Top = 87
+      Top = 82
       Width = 921
       Height = 0
       Align = alBottom
@@ -161,7 +161,7 @@ inherited frmCadastroMoedas: TfrmCadastroMoedas
     end
     object gbxMoedasCotacoes: TGroupBox
       Left = 1
-      Top = 87
+      Top = 82
       Width = 921
       Height = 277
       Align = alBottom
@@ -203,10 +203,15 @@ inherited frmCadastroMoedas: TfrmCadastroMoedas
         CellHeights = 100
         StrippedColor = 16054260
         CanDelete = False
+        CanNotInsertFromGrid = False
         PostOnEnter = True
+        PostOnSetUpDown = False
         DenySort = False
         DefaultRowHeight = 19
         ExibirNumerodaLinha = False
+        NaoAtribuirDadosaTabelaaoDigitar = False
+        ShowWhenFieldInvisible = False
+        CanClickWhenEditing = False
         Columns = <
           item
             Alignment = taCenter
@@ -278,6 +283,7 @@ inherited frmCadastroMoedas: TfrmCadastroMoedas
             Title.Font.Name = 'helvetica'
             Title.Font.Pitch = fpVariable
             Title.Font.Style = []
+            Width = 64
             Visible = True
           end
           item
@@ -321,6 +327,7 @@ inherited frmCadastroMoedas: TfrmCadastroMoedas
             Title.Font.Name = 'helvetica'
             Title.Font.Pitch = fpVariable
             Title.Font.Style = []
+            Width = 64
             Visible = True
           end
           item

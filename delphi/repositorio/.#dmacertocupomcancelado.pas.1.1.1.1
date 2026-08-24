@@ -1,0 +1,243 @@
+unit dmacertocupomcancelado;
+
+interface
+
+uses
+  SysUtils, Classes, dmbasico, DB, ZQuery, ZPgSqlQuery, cpquery,
+  cpdatasource, biblio, Variants, ZTransact;
+
+type
+  TdtmAcertoCupomCancelado = class(TdtmBasico)
+    qryProdutos: TtecQuery;
+    qryMovimentos: TtecQuery;
+    qryMovimentosnumero: TIntegerField;
+    qryMovimentosproduto: TLargeintField;
+    qryMovimentosdadofiscal: TIntegerField;
+    qryDadosFiscais: TtecQuery;
+    qryProdutosdadofiscal: TIntegerField;
+    qryProdutosnumero: TIntegerField;
+    qryProdutosproduto: TLargeintField;
+    qryProdutosfilial: TIntegerField;
+    qryProdutosmovimento: TIntegerField;
+    qryProdutosquantidade: TFloatField;
+    qryProdutosprecovenda: TFloatField;
+    qryProdutosprecotabela: TFloatField;
+    qryProdutosdescricaoprecovenda: TStringField;
+    qryProdutosaliquotaicms: TFloatField;
+    qryProdutosicms: TIntegerField;
+    qryProdutosincidencia: TStringField;
+    qryProdutosorigem: TStringField;
+    qryProdutosdescricao: TStringField;
+    qryProdutosvalorgrade1: TStringField;
+    qryProdutosvalorgrade2: TStringField;
+    qryProdutosipi: TIntegerField;
+    qryProdutosaliquotaipi: TFloatField;
+    qryProdutosvaloripi: TFloatField;
+    qryProdutosclassificacaofiscal: TStringField;
+    qryProdutosbaseicms: TFloatField;
+    qryProdutosreducaobase: TFloatField;
+    qryProdutoscomposto: TBooleanField;
+    qryProdutosdiscriminarcomposto: TStringField;
+    qryProdutosdiscriminarpreco: TBooleanField;
+    qryContratoDadosFiscais: TtecQuery;
+    qryContratoDadosFiscaisquant: TLargeintField;
+    qryParcelasPagas: TtecQuery;
+    qryParcelasPagasexiste: TBooleanField;
+    qryContratos: TtecQuery;
+    qryContratossituacao: TStringField;
+    ZMonitor1: TZMonitor;
+    qryContratosnumero: TStringField;
+    qryContratosoperacao: TStringField;
+    qryDadosFiscaisfilial: TIntegerField;
+    qryDadosFiscaismaquina: TIntegerField;
+    qryDadosFiscaiscupom: TIntegerField;
+    qryDadosFiscaisnumero: TIntegerField;
+    qryDadosFiscaisdata: TDateField;
+    qryDadosFiscaissituacao: TStringField;
+    qryDadosFiscaiscontrato: TStringField;
+    qryAutenticacoes: TtecQuery;
+    qryAutenticacoesnumero: TIntegerField;
+    qryAutenticacoesfilial: TIntegerField;
+    qryAutenticacoesnum_usu: TIntegerField;
+    qryAutenticacoescro: TIntegerField;
+    qryAutenticacoescoo: TIntegerField;
+    qryAutenticar: TtecQuery;
+    qryAutenticarcaixa: TIntegerField;
+    qryAutenticarautenticacao: TIntegerField;
+    qryAutenticarfilial: TIntegerField;
+    qryAutenticarnumero: TIntegerField;
+    qryAutenticarsituacao: TBooleanField;
+    qryAutenticartipo: TStringField;
+    qryAutenticarvalor: TFloatField;
+    spcAutenticacaoProximo: TtecQuery;
+    spcAutenticacaoProximonumero: TIntegerField;
+    qryAutenticacoesvalor: TFloatField;
+    procedure ZMonitor1MonitorEvent(Sql, Result: String);
+  private
+    function nullMovimentoProdutosDadosFiscais: Boolean;
+    function ExcluirMovimentos: Boolean;
+    function NumeroDadosFiscaisContrato(ECF,Intervencao,Cupom: Integer): Integer;
+    function TemParcelaPaga: Boolean;
+    function ProximoNumeroAutenticacao: Integer;
+    { Private declarations }
+  public
+    function AcertaMovimentacoes(ECF,Intervencao,Cupom: Integer): Boolean;
+    { Public declarations }
+  end;
+
+var
+  dtmAcertoCupomCancelado: TdtmAcertoCupomCancelado;
+
+implementation
+
+{$R *.dfm}
+
+{ TdtmAcertoCupomCancelado }
+
+function TdtmAcertoCupomCancelado.AcertaMovimentacoes(ECF,Intervencao,Cupom: Integer): Boolean;
+begin
+  Result := False;
+  ReFazConsulta(qryDadosFiscais,[0,1,2,3],[FilialBase, ECF, Intervencao,Cupom]);
+  if qryDadosFiscais.RecordCount > 0 then
+  begin
+    ReFazConsulta(qryProdutos,[0],[qryDadosFiscaisnumero.AsInteger]);
+    RefazConsulta(qryAutenticacoes,[0,1,2,3],[FilialBase,ECF,Intervencao,Cupom]);
+    try
+      qryContratos.ParamByName('contrato').AsString := qryDadosFiscaiscontrato.AsString;
+      if (NumeroDadosFiscaisContrato(ECF,Intervencao,Cupom) > 1) then
+      begin
+        if not qryContratos.Active then
+          qryContratos.Open;
+        qryContratos.Edit;
+        qryContratossituacao.AsString := 'P';
+        qryContratos.Post;
+        Result := True;
+      end
+      else if (NumeroDadosFiscaisContrato(ECF,Intervencao,Cupom) = 1) and TemParcelaPaga then
+      begin
+        if not qryContratos.Active then
+          qryContratos.Open;
+        qryContratos.Edit;
+        qryContratossituacao.AsString := 'F';
+        qryContratos.Post;
+        Result := True;
+      end
+      else if (NumeroDadosFiscaisContrato(ECF,Intervencao,Cupom) = 1) and not TemParcelaPaga then
+      begin
+        if not qryContratos.Active then
+          qryContratos.Open;
+        qryContratos.Edit;
+        qryContratossituacao.AsString := 'R';
+        qryContratosoperacao.AsString := 'C';
+        qryContratos.Post;
+        Result := True;
+      end
+      else if (NumeroDadosFiscaisContrato(ECF,Intervencao,Cupom) = 0) then
+        Result := True;;
+
+      if Result and NullMovimentoProdutosDadosFiscais then
+      begin
+        if ExcluirMovimentos then
+        begin
+          qryDadosFiscais.Edit;
+          qryDadosFiscaissituacao.AsString := 'C';
+          qryDadosFiscais.Post;
+
+          if not qryAutenticacoes.IsEmpty then
+            qryAutenticar.Open;
+          while not qryAutenticacoes.Eof do
+          begin
+            qryAutenticar.Append;
+            qryAutenticarcaixa.AsInteger        := CodigoUsuario;
+            qryAutenticarautenticacao.AsInteger := qryAutenticacoesnumero.AsInteger;
+            qryAutenticarfilial.AsInteger       := FilialBase;
+            qryAutenticarnumero.AsInteger       := ProximoNumeroAutenticacao;
+            qryAutenticarsituacao.AsBoolean     := true;
+            qryAutenticartipo.AsString          := 'C';
+            qryAutenticarvalor.AsCurrency       := qryAutenticacoesvalor.AsCurrency;
+            qryAutenticar.Post;
+
+            qryAutenticacoes.Next;
+          end;
+
+          Result := Perpetrar([qryProdutos, qryMovimentos, qryDadosFiscais,
+                               qryContratos, qryAutenticar]);
+        end;
+      end
+    except
+      //Result := False;
+      on E: Exception do MensagemAviso(E.Message);
+      //MensagemAviso('Problemas durante a operação de acerto dos movimento relativos ao último cupom');
+    end;
+  end
+  else
+    MensagemAviso('Não há registros referentes ao Cupom : ' + IntToStr(Cupom));
+end;
+
+function TdtmAcertoCupomCancelado.ExcluirMovimentos: Boolean;
+begin
+  Result:=True;
+  ReFazConsulta(qryMovimentos,[0],[qryDadosFiscaisnumero.AsInteger]);
+  qryMovimentos.First;
+  try
+    while not qryMovimentos.Eof do
+      qryMovimentos.Delete;
+  except
+    Result:=False;
+  end;
+end;
+
+function TdtmAcertoCupomCancelado.nullMovimentoProdutosDadosFiscais: Boolean;
+begin
+  Result := True;
+  try
+    while not qryProdutos.Eof do
+    begin
+      qryProdutos.Edit;
+      qryProdutosmovimento.AsVariant := Null;
+      qryProdutos.Post;
+      qryProdutos.Next;
+    end;
+  except
+    Result := False;
+  end;
+end;
+
+function TdtmAcertoCupomCancelado.NumeroDadosFiscaisContrato(ECF,Intervencao,Cupom: Integer): Integer;
+begin
+  if not qryContratoDadosFiscais.Active then
+    ReFazConsulta(qryContratoDadosFiscais,[0,1,2,3],[FilialBase, ECF, Intervencao, Cupom]);
+  Result := qryContratoDadosFiscaisquant.AsInteger;
+end;
+
+function TdtmAcertoCupomCancelado.ProximoNumeroAutenticacao: Integer;
+begin
+  spcAutenticacaoProximo.Open;
+  result := spcAutenticacaoProximonumero.AsInteger;
+  spcAutenticacaoProximo.Close;
+end;
+
+function TdtmAcertoCupomCancelado.TemParcelaPaga: Boolean;
+begin
+  if not qryParcelasPagas.Active then
+    RefazConsulta(qryParcelasPagas,[0],[qryDadosFiscaiscontrato.AsString]);
+  Result := qryParcelasPagasexiste.AsBoolean;
+end;
+
+procedure TdtmAcertoCupomCancelado.ZMonitor1MonitorEvent(Sql,
+  Result: String);
+var
+ Listar : TStringList;
+begin
+  inherited;
+  Listar := tStringlist.create;
+  if fileexists('c:\cupons.txt') then
+    Listar.loadfromfile('c:\cupons.txt');
+  Listar.add('');
+  Listar.add(sql);
+  Listar.add(result);
+  listar.savetofile('c:\cupons.txt');
+  listar.free;
+end;
+
+end.

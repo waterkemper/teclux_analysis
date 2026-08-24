@@ -249,6 +249,7 @@ constructor TfrmComplementarNotaFiscalSaida.Create(AOwner: TComponent);
 begin
   inherited;
   Application.MainForm.SendToBack;
+  flkFornecedorTransporte.exist;
 end;
 
 end.

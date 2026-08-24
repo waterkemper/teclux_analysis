@@ -1,0 +1,100 @@
+unit cptransact;
+
+interface
+
+uses
+  SysUtils, Classes, ZTransact, ZPgSqlTr, Dialogs, ZDirSql, biblio, forms, db, ctconstantes;
+
+type
+  TtecTransact = class(TZPgSqlTransact)
+  public
+    procedure Connect; override;
+  end;
+
+var
+ FecharJanelaPercaConexao: Function : boolean;
+
+
+implementation
+
+{ TtecTransact }
+
+procedure TtecTransact.Connect;
+var
+ i: integer;
+ vconexao_em_excessao : Boolean;
+begin
+
+
+
+  if not conexao_em_excessao  then
+  begin
+
+    try
+
+      inherited Connect;
+
+    except
+      on E:EDatabaseError do
+      begin
+        if (Pos('password authentication failed for user', E.Message) = 0) and
+           (Pos('no password supplied', E.Message) = 0) then
+        begin
+
+          self.Database.Disconnect;
+
+          vconexao_em_excessao := true;
+
+          if (MensagemConfirmacao('A conexão com o banco de dados foi perdida.'+chr(13)+
+                        'O sistema fechará todas as janelas e tentará reestabelecer a conexão. Continuar?'+chr(13)+chr(13)+ E.Message) = smbCancel) then
+             Application.terminate
+          else
+          begin
+            self.Database.Connect;
+            if self.Database.Connected then
+            begin
+              FecharJanelaPercaConexao;
+              vconexao_em_excessao := false;
+            end;
+          end;
+
+        end
+        else
+          raise;
+      end
+      else
+        raise
+
+    end;
+
+  end
+  else
+    inherited Connect;
+
+
+  if self.Database.Connected and not vconexao_em_excessao then
+  begin
+    ExecSql('SET DateStyle TO ''ISO, European''',Self);
+    self.PID;
+  end;
+
+
+  {
+  else
+  if  conexao_em_excessao then
+  begin
+    for i := 0 to 2 do
+    begin
+      self.Database.Connect;
+      if self.Database.Connected then
+      begin
+        conexao_em_excessao := false;
+        break;
+      end;
+    end;
+  end;
+  }
+
+end;
+
+end.

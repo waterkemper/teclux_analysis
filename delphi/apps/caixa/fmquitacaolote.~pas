@@ -1,0 +1,556 @@
+unit fmquitacaolote;
+
+interface
+
+uses
+  SysUtils, Types, Classes, Graphics, Controls, Forms, Dialogs, DateUtils,
+  ActnList, Grids, DBGrids, StdCtrls, ExtCtrls, Mask, DBCtrls, ComCtrls,
+  Buttons, Windows, clparametrossistema,
+  // Componentes
+  cpnumero, cpdbfindcontrols, cpdata, cpdbtext, cppagecontrol, cpeditioncontrolvalidation,
+  cpdbgrid,
+  // Constantes
+  biblio, ctconstantes,
+  // Terceiros
+  zquery,
+  // Repositorio
+  fmConsultaBasica, fmconsultaporcampo, fmajudabt, fmrelatoriopadrao,
+  // Projeto
+  dmquitacaolote, DB, ZPgSqlQuery, cpquery, cpdbradiogroup, cptexto,
+  cpdblookupcombobox, cpdbcombobox, cpdbmemo, ToolWin;
+
+type
+  TfrmQuitacaoLote = class(TfrmAjudaBt)
+    pnlFundoJanela: TPanel;
+    pgcQuitacaoDuplicatas: TtecPageControl;
+    tstParametros: TTabSheet;
+    pgcFilialGrupoFilial: TtecPageControl;
+    tstFilial: TTabSheet;
+    sbnProcurarFilial: TSpeedButton;
+    dtxFilial: TtecDBText;
+    edfFilial: TtecDbEditFind;
+    tstGrupoFilial: TTabSheet;
+    sbnProcurarGrupoFilial: TSpeedButton;
+    dtxGrupoFilial: TtecDBText;
+    edfGrupoFilial: TtecDbEditFind;
+    gbxCliente: TGroupBox;
+    dtxCliente: TtecDBText;
+    tstSelecionados: TTabSheet;
+    sbnGerar: TSpeedButton;
+    gbxSelecionados: TGroupBox;
+    ckbSelecionarTodos: TCheckBox;
+    gbxFilialPagto: TGroupBox;
+    sbnProcurarFilialPagto: TSpeedButton;
+    edfFilialPagto: TtecDbEditFind;
+    dtxFilialPagto: TtecDBText;
+    edfCliente: TtecDbEditFind;
+    aclHabilitar: TActionList;
+    actHabilitar: TAction;
+    sbnConfirma: TSpeedButton;
+    ecvQuitacao: TtecEditionControlValidation;
+    sbnProcurarCliente: TSpeedButton;
+    rgbOrdenacao: TRadioGroup;
+    dbgDetalhado: TtecDBGrid;
+    gbxLidos: TGroupBox;
+    gbxNrLidos: TGroupBox;
+    gbxValorLido: TGroupBox;
+    gbxMarcadas: TGroupBox;
+    GroupBox2: TGroupBox;
+    GroupBox3: TGroupBox;
+    edtQtdeDuplicatas: TEditNumero;
+    edtQtdeMarcados: TEditNumero;
+    edtTotalPrevisao: TEditNumero;
+    edtTotalQuitar: TEditNumero;
+    gbxConta: TGroupBox;
+    sbnProcurarConta: TSpeedButton;
+    edfConta: TtecDbEditFind;
+    dtxDigito: TtecDBText;
+    Label1: TLabel;
+    gbxSiglaBanco: TGroupBox;
+    dtxSigla: TtecDBText;
+    gbxNomeAgencia: TGroupBox;
+    dtxNomeAgencia: TtecDBText;
+    gbxContaDebito: TGroupBox;
+    edtContaDebito: TEditNumero;
+    GroupBox1: TGroupBox;
+    edtDataQuitacao: TEditData;
+    gbxPeriodoVenctos: TGroupBox;
+    edtVenctoInicial: TEditData;
+    edtVenctoFinal: TEditData;
+    gbxEvento: TGroupBox;
+    sbnEvento: TSpeedButton;
+    dtxEvento: TtecDBText;
+    edfEvento: TtecDbEditFind;
+    gbxNotasFiscais: TGroupBox;
+    tecDBGrid1: TtecDBGrid;
+    dtxPlano: TtecDBText;
+    gbxObservacaoBoleto: TGroupBox;
+    mmoObservacaoBoleto: TtecDBMemo;
+    lblOrdenacao: TLabel;
+    gbxPlanoPagto: TGroupBox;
+    lblA: TLabel;
+    procedure sbnProcurarFilialClick(Sender: TObject);
+    procedure sbnProcurarGrupoFilialClick(Sender: TObject);
+    procedure sbnProcurarClienteClick(Sender: TObject);
+    procedure actHabilitarUpdate(Sender: TObject);
+    procedure sbnGerarClick(Sender: TObject);
+    procedure pgcFilialGrupoFilialChange(Sender: TObject);
+    procedure dbgDetalhadoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure dbgDetalhadoDblClick(Sender: TObject);
+    procedure dbgDetalhadoDrawColumnCell(Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+              State: TGridDrawState);
+    procedure ckbSelecionarTodosClick(Sender: TObject);
+    procedure sbnProcurarFilialPagtoClick(Sender: TObject);
+    procedure pgcQuitacaoDuplicatasChange(Sender: TObject);
+    procedure edtDataQuitacaoEnter(Sender: TObject);
+    procedure sbnConfirmaClick(Sender: TObject);
+    procedure dbgAgrupadoDblClick(Sender: TObject);
+    procedure dbgAgrupadoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure edtDataQuitacaoChange(Sender: TObject);
+//    procedure edfAgenciaPagtoFound(Found: Boolean);
+    procedure FormShow(Sender: TObject);
+    procedure sbnProcurarContaClick(Sender: TObject);
+    procedure sbnEventoClick(Sender: TObject);
+  protected
+    dtmQuitacaoLote: TdtmQuitacaoLote;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    function  InternoPesquisar(Titulo: string): Integer; override;
+    function  JanelaPesquisa: TfrmConsultaBasica; override;
+    function  ExisteInformacao(Parametro: Integer; NomeCampo: string; Value: Variant): Boolean; Override;
+    function  TabelaDePesquisa: TZdataSet; override;
+    function  TabelaDoParametro(Parametro: Integer): TZDataSet; override;
+    procedure PosicionarTabelaNoParametro(Ind: Integer; var continuar: Boolean); override;
+    function  ValidarCamposSelecao: Boolean;
+    function  ValidarCamposQuitacao: Boolean;
+    procedure AtualizarContadores(SoMarcados: Boolean);
+    procedure ZerarCampos;
+    procedure ParcelasEdit(Sender: TObject);
+    procedure ProximoControle(Ind: Integer); override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+  end;
+
+var
+  frmQuitacaoLote: TfrmQuitacaoLote;
+  TipoPesquisa: TtecQuitacaoEmLote;
+  ControleAtivo: TWinControl;
+
+implementation
+
+uses fmnavcontroles;
+
+{$R *.dfm}
+
+{ TfrmQuitacaoLote }
+
+procedure TfrmQuitacaoLote.actHabilitarUpdate(Sender: TObject);
+begin
+  inherited;
+  with dtmQuitacaoLote do begin
+//    gbxAgenciaPagto.Enabled     := (rgbOperacao.ItemIndex = 1);
+ //   gbxCheque.Enabled           := (rgbOperacao.ItemIndex = 1);
+ //   rgbNominal.Enabled          := (rgbOperacao.ItemIndex = 1);
+ //   rgbAgrupar.Enabled          := (rgbOperacao.ItemIndex = 1);
+ //   gbxDadosCheques.Enabled     := (rgbOperacao.ItemIndex = 1);
+ //   sbnMostarDuplicatas.Visible := (rgbAgrupar.ItemIndex = 1) and (QtdeMarcados > 0);
+ //   if (rgbOperacao.ItemIndex = 0) then
+ //     edtCidade.Clear;
+    gbxCliente.Caption:= ANSIUpperCase(DescricaoLabelCliente(TipoPessoa[1]));
+    sbnGerar.Enabled            := pgcQuitacaoDuplicatas.ActivePage = tstParametros;
+//    sbnConfirma.Enabled         := (QtdeMarcados > 0);
+    ckbSelecionarTodos.Enabled:= (QtdeDuplicatas > 0);
+ {   if not ckbBanco.Checked then begin
+      edfBanco.Clear;
+      dtxBanco.DataSource.DataSet.FieldByName('nome').Clear;
+      edfAgencia.Clear;
+      edtAgencia.DataSource.DataSet.FieldByName('nome').Clear;
+    end;}
+  end;
+end;
+
+procedure TfrmQuitacaoLote.AtualizarContadores(SoMarcados: Boolean);
+begin
+  with dtmQuitacaoLote do begin
+    if not SoMarcados then begin
+      edtQtdeDuplicatas.Text  := IntToStr(QtdeDuplicatas);
+      edtTotalPrevisao.Text := Format('%8.2m', [TotalDuplicatas]);
+    end;
+    edtQtdeMarcados.Text  := IntToStr(QtdeMarcados);
+    edtTotalQuitar.Text := Format('%8.2m', [TotalMarcados]);
+  end;
+end;
+
+procedure TfrmQuitacaoLote.ckbSelecionarTodosClick(Sender: TObject);
+begin
+  inherited;
+  dtmQuitacaoLote.MarcarSelecionados(ckbSelecionarTodos.Checked,True);
+  AtualizarContadores(True);
+  sbnConfirma.Enabled := dtmQuitacaoLote.QtdeMarcados > 0;
+end;
+
+constructor TfrmQuitacaoLote.Create(AOwner: TComponent);
+begin
+   dtmQuitacaoLote:= TdtmQuitacaoLote.Create(Self);
+   inherited;
+   with dtmQuitacaoLote do begin
+      edtVenctoInicial.Text:= DateToStr(DataServidor);
+      edtVenctoFinal.  Text:= DateToStr(DataServidor);
+      edtDataQuitacao. Text:= DateToStr(DataServidor);
+      OnParcelasEdit       := ParcelasEdit;
+   end;
+  with dtmQuitacaoLote do
+  begin
+    if ParSistema.ClienteUsaContrato then
+    begin
+      qryParcelas.Sql.Text := qryParcelas_CLIENTE_USA_CONTRATO.Sql.Text;
+      dbgDetalhado.Columns[0].Visible := true;
+      dbgDetalhado.Columns[1].Visible := false;
+    end
+    else
+    begin
+      qryParcelas.Sql.Text := qryParcelas_CLIENTE_NAO_USA_CONTRATO.Sql.Text;
+      dbgDetalhado.Columns[0].Visible := false;
+      dbgDetalhado.Columns[1].Visible := true;
+    end;
+  end;
+end;
+
+procedure TfrmQuitacaoLote.dbgDetalhadoDblClick(Sender: TObject);
+begin
+  inherited;
+  dtmQuitacaoLote.MarcarSelecionados(ckbSelecionarTodos.Checked, False);
+  AtualizarContadores(True);
+  sbnConfirma.Enabled := dtmQuitacaoLote.QtdeMarcados > 0;
+end;
+
+procedure TfrmQuitacaoLote.dbgDetalhadoDrawColumnCell(
+  Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+  inherited;
+  if dbgDetalhado.DataSource.DataSet.FieldByName('selecionar').AsBoolean then begin
+    TDBGrid(Sender).Canvas.Brush.Color := clInfoBk;
+    TDBGrid(Sender).Canvas.Font.Color := clBlack;
+    TDBGrid(Sender).DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end;
+end;
+
+procedure TfrmQuitacaoLote.dbgDetalhadoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Key = VK_SPACE then
+    if Shift = [ssCtrl] then
+    begin
+      dtmQuitacaoLote.MarcarSelecionados(ckbSelecionarTodos.Checked, False);
+      AtualizarContadores(True);
+      sbnConfirma.Enabled := dtmQuitacaoLote.QtdeMarcados > 0;
+    end;
+end;
+
+destructor TfrmQuitacaoLote.Destroy;
+begin
+  dtmQuitacaoLote:=nil;
+  inherited;
+  frmQuitacaoLote:= nil;
+end;
+
+procedure TfrmQuitacaoLote.edtDataQuitacaoEnter(Sender: TObject);
+begin
+  inherited;
+  with dtmQuitacaoLote do
+    edtDataQuitacao.Minimo:= DaysBetween(DataServidor,DataContabil+1);
+end;
+
+function TfrmQuitacaoLote.ExisteInformacao(Parametro: Integer; NomeCampo: string; Value: Variant): Boolean;
+begin
+   Result:= False;
+   with dtmQuitacaoLote do
+      case TipoPesquisa of
+         qlFILIAIS,
+         qlFILIAISPAGTO: Result:= ExisteFiliais     (NomeCampo, Value);
+         qlGRUPOFILIAIS: Result:= ExisteGrupoFiliais(NomeCampo, Value);
+         qlCLIENTE:      Result:= ExisteClientes    (NomeCampo, Value);
+         qlCONTA:        Result:= ExisteConta       (NomeCampo, Value);
+         qlEVENTO:       result:= ExisteEventos     (NomeCampo, Value);
+         else            Result:= False
+      end;
+end;
+
+function TfrmQuitacaoLote.InternoPesquisar(Titulo: string): Integer;
+begin
+  Result := mrNone;
+  if ActiveControl is TtecFindCustom then begin
+    if CtrlOn then begin
+           if ActiveControl = edfFilial      then TipoPesquisa := qlFILIAIS
+      else if ActiveControl = edfGrupoFilial then TipoPesquisa := qlGRUPOFILIAIS
+      else if ActiveControl = edfCliente     then TipoPesquisa := qlCLIENTE
+      else if ActiveControl = edfFilialPagto then TipoPesquisa := qlFILIAISPAGTO
+      else if ActiveControl = edfConta       then TipoPesquisa := qlCONTA
+      else if ActiveControl = edfEvento     then TipoPesquisa := qlEVENTO;
+
+      with dtmQuitacaoLote do begin
+        AbreTabelaPesquisa(TipoPesquisa);
+        Result:= inherited InternoPesquisar(Titulo);
+        if Result = mrOK then
+          Selecionar(TipoPesquisa);
+        FechaTabelaPesquisa(TipoPesquisa);
+      end;
+    end;
+  end;
+end;
+
+function TfrmQuitacaoLote.JanelaPesquisa: TfrmConsultaBasica;
+begin
+  Result:= TfrmConsultaPorCampo.Create(nil);
+  if TipoPesquisa = qlCLIENTE
+  then TfrmConsultaPorCampo(Result).ConsultaInterativa := False
+  else begin
+     TfrmConsultaPorCampo(Result).ConsultaInterativa := True;
+     TfrmConsultaPorCampo(Result).UsarParametrosDaTabela:= TipoPesquisa = qlCONTA;
+  end;
+end;
+
+procedure TfrmQuitacaoLote.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  case Key of
+    VK_F5 : if sbnConfirma.Enabled and not CtrlOn then sbnConfirma.Click;
+    VK_F6 : if sbnGerar.Enabled and not CtrlOn then sbnGerar.Click;
+//    VK_F11: if sbnMostarDuplicatas.Enabled and sbnMostarDuplicatas.Visible then sbnMostarDuplicatas.Click;
+    VK_ESCAPE: if pgcQuitacaoDuplicatas.ActivePage = tstSelecionados then
+                  pgcQuitacaoDuplicatas.ActivePage:= tstParametros;
+  end;
+end;
+
+procedure TfrmQuitacaoLote.pgcFilialGrupoFilialChange(Sender: TObject);
+begin
+  inherited;
+  if pgcFilialGrupoFilial.ActivePage = tstFilial then begin
+    edfGrupoFilial.Clear;
+    edfFilial.setFocus;
+  end
+  else begin
+    edfFilial.Clear;
+    edfGrupoFilial.setFocus;
+  end;
+end;
+
+procedure TfrmQuitacaoLote.pgcQuitacaoDuplicatasChange(Sender: TObject);
+begin
+  inherited;
+  with dtmQuitacaoLote do begin
+    if pgcQuitacaoDuplicatas.ActivePage = tstParametros then begin
+      ZerarConsultaDuplicatas;
+      ZerarCampos;
+      ckbSelecionarTodos.Checked:= False;
+      QtdeMarcados  := 0;
+      TotalMarcados := 0;
+    end;
+  end;
+  sbnConfirma.Enabled := false;
+end;
+
+procedure TfrmQuitacaoLote.PosicionarTabelaNoParametro(Ind: Integer; var continuar: Boolean);
+begin
+   inherited;
+   case TipoPesquisa of
+     qlCONTA: case Ind of
+                 0:   Continuar := {dtmQuitacaoLote.PosicionarBanco}False;
+                 else Continuar := False;
+             end;
+   end;
+end;
+
+procedure TfrmQuitacaoLote.sbnConfirmaClick(Sender: TObject);
+var
+  Retorno:Boolean;
+begin
+  inherited;
+  Retorno := False;
+  if dtmQuitacaoLote.QtdeMarcados > 0 then
+  begin
+    if ValidarCamposQuitacao then
+      Retorno := dtmQuitacaoLote.EfetuarQuitacao;
+  end
+  else
+    Retorno := dtmQuitacaoLote.EfetuarQuitacao;
+  if Retorno then
+  begin
+    AtualizarContadores(true);
+    AtualizarContadores(false);
+    sbnConfirma.Enabled := dtmQuitacaoLote.QtdeMarcados > 0;
+  end;
+end;
+
+procedure TfrmQuitacaoLote.sbnGerarClick(Sender: TObject);
+begin
+  inherited;
+  if ValidarCamposSelecao then begin
+    with dtmQuitacaoLote do begin
+      Ordenacao     := rgbOrdenacao.ItemIndex;
+      VenctoInicial := edtVenctoInicial.Text;
+      VenctoFinal   := edtVenctoFinal.Text;
+      Filial        := edfFilial.Text;
+      Grupo         := edfGrupoFilial.Text;
+      Cliente       := edfCliente.Text;
+      if not SelecionarDuplicatas then begin
+         pgcQuitacaoDuplicatas.ActivePage:= tstSelecionados;
+         dbgDetalhado.Options:= dbgDetalhado.Options - [dgRowSelect];
+         dbgDetalhado.Options:= dbgDetalhado.Options + [dgEditing];
+       {  dbgDetalhado.Columns[0].ReadOnly := True;
+         dbgDetalhado.Columns[1].ReadOnly := True;
+         dbgDetalhado.Columns[2].ReadOnly := True;
+         dbgDetalhado.Columns[3].ReadOnly := True;}
+         dbgDetalhado.SetFocus;
+      end
+      else begin
+             MensagemAviso('Nenhum registro foi selecionado.');
+             edtVenctoInicial.SetFocus;
+           end;
+      AtualizarContadores(False);
+    end;
+  end;
+end;
+
+
+procedure TfrmQuitacaoLote.sbnProcurarFilialClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfFilial, ctFILIAL);
+end;
+
+procedure TfrmQuitacaoLote.sbnProcurarFilialPagtoClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfFilialPagto, ctFILIAL);
+end;
+
+procedure TfrmQuitacaoLote.sbnProcurarClienteClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfCliente, ctCLIENTE);
+end;
+
+procedure TfrmQuitacaoLote.sbnProcurarGrupoFilialClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfGrupoFilial, ctGRUPOFILIAIS);
+end;
+
+function TfrmQuitacaoLote.TabelaDePesquisa: TZdataSet;
+begin
+  with dtmQuitacaoLote do
+    case TipoPesquisa of
+        qlFILIAIS,
+        qlFILIAISPAGTO: Result:= ConsultaFiliais;
+        qlGRUPOFILIAIS: Result:= ConsultaGrupoFiliais;
+        qlCLIENTE:      Result:= ConsultaClientes;
+        qlCONTA:        Result:= ConsultaContas;
+        qlEVENTO:       Result:= qryConsultaEventos;
+        else            Result:= nil;
+    end;
+end;
+
+function TfrmQuitacaoLote.TabelaDoParametro(Parametro: Integer): TZDataSet;
+begin
+   case Parametro of
+      0:   Result:= dtmQuitacaoLote.ConsultaContas;
+      else Result:= nil;
+  end;
+end;
+
+function TfrmQuitacaoLote.ValidarCamposQuitacao: Boolean;
+begin
+  Result:= False;
+  if ecvQuitacao.Verify(gbxSelecionados,ControleAtivo) then begin
+    Result:= OperadorTernario((Trim(edfFilialPagto.Text) <> ''),edfFilialPagto.Exist, True);
+
+    if Result then
+      Result:= OperadorTernario((Trim(edfConta.Text) <> ''),edfConta.Exist, True);
+  end;
+end;
+
+function TfrmQuitacaoLote.ValidarCamposSelecao: Boolean;
+begin
+   Result:= edtVenctoInicial.DataValida and edtVenctoFinal.DataValida;
+   if Result then
+     Result:= ((edtVenctoInicial.Text <> '') or (edtVenctoFinal.Text <> ''));
+   if Result then
+       Result := OperadorTernario((Trim(edfFilial.Text) <> ''),edfFilial.Exist, True)           and
+                 OperadorTernario((Trim(edfGrupoFilial.Text) <> ''),edfGrupoFilial.Exist, True) and
+                 OperadorTernario((Trim(edfCliente.Text) <> ''),edfCliente.Exist, True);
+end;
+
+procedure TfrmQuitacaoLote.ZerarCampos;
+begin
+  edtQtdeDuplicatas.Clear;
+  edtTotalPrevisao.Clear;
+  edtQtdeMarcados.Clear;
+  edtTotalQuitar.Clear;
+end;
+
+procedure TfrmQuitacaoLote.dbgAgrupadoDblClick(Sender: TObject);
+begin
+  inherited;
+  dtmQuitacaoLote.MarcarSelecionados(ckbSelecionarTodos.Checked, False);
+  AtualizarContadores(True);
+end;
+
+procedure TfrmQuitacaoLote.dbgAgrupadoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Key = VK_SPACE then
+    if Shift = [ssCtrl] then begin
+      dtmQuitacaoLote.MarcarSelecionados(ckbSelecionarTodos.Checked, False);
+      AtualizarContadores(True);
+    end;
+end;
+
+procedure TfrmQuitacaoLote.edtDataQuitacaoChange(Sender: TObject);
+begin
+  inherited;
+  dtmQuitacaoLote.DataQuitacao:= edtDataQuitacao.Text;
+end;
+
+
+procedure TfrmQuitacaoLote.FormShow(Sender: TObject);
+begin
+  inherited;
+  pgcQuitacaoDuplicatas.ActivePageIndex := 0;
+  edtVenctoInicial.SetFocus;
+end;
+
+procedure TfrmQuitacaoLote.ParcelasEdit(Sender: TObject);
+begin
+  sbnConfirma.Enabled := (dtmQuitacaoLote.QtdeMarcados > 0) or
+                          dtmQuitacaoLote.HouveAlteracao;
+  AtualizarContadores(False);
+end;
+
+procedure TfrmQuitacaoLote.ProximoControle(Ind: Integer);
+begin
+{  inherited;
+  case TipoPesquisa of
+    qlCONTA: if Ind = 0 then
+                   begin
+                    JanelaPesquisa.ConsultaInterativa := True;
+                    dtmQuitacaoLote.abreTabelaConsultaAgencia;
+                  end else JanelaPesquisa.ConsultaInterativa := False;
+  end}
+end;
+
+procedure TfrmQuitacaoLote.sbnProcurarContaClick(Sender: TObject);
+begin
+   inherited;
+   InternoPesquisar(edfConta, ctCONTAS);
+end;
+
+
+procedure TfrmQuitacaoLote.sbnEventoClick(Sender: TObject);
+begin
+  inherited;
+  InternoPesquisar(edfEvento, ctEVENTO);
+end;
+
+end.
